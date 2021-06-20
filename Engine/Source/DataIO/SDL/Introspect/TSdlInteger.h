@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/TSdlValue.h"
+#include "DataIO/SDL/Introspect/TSdlOptionalValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/sdl_helpers.h"
@@ -8,19 +9,24 @@
 #include <type_traits>
 #include <string>
 #include <utility>
-#include <exception>
 
 namespace ph
 {
 
-template<typename Owner, typename IntType = integer>
-class TSdlInteger : public TSdlValue<IntType, Owner>
+template<typename Owner, typename IntType = integer, typename SdlValueType = TSdlValue<IntType, Owner>>
+class TSdlInteger : public SdlValueType
 {
+	static_assert(std::is_base_of_v<TAbstractSdlValue<IntType, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TAbstractSdlValue.");
+
 	static_assert(std::is_same_v<IntType, integer>,
 		"Currently supports only ph::integer");
 
 public:
-	TSdlInteger(std::string valueName, IntType Owner::* valuePtr);
+	template<typename ValueType>
+	inline TSdlInteger(std::string valueName, ValueType Owner::* const valuePtr) : 
+		SdlValueType("integer", std::move(valueName), valuePtr)
+	{}
 
 	inline std::string valueAsString(const IntType& value) const override
 	{
@@ -28,43 +34,27 @@ public:
 	}
 
 protected:
-	void loadFromSdl(
+	inline void loadFromSdl(
 		Owner&                 owner,
 		const std::string&     sdlValue,
-		const SdlInputContext& ctx) const override;
+		const SdlInputContext& ctx) const override
+	{
+		setValue(owner, sdl::load_integer(sdlValue));
+	}
 
-	void convertToSdl(
+	inline void convertToSdl(
 		const Owner& owner,
 		std::string* out_sdlValue,
-		std::string& out_converterMessage) const override;
+		std::string& out_converterMessage) const override
+	{
+		PH_ASSERT(out_sdlValue);
+
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
 };
 
-// In-header Implementations:
-
-template<typename Owner, typename IntType>
-inline TSdlInteger<Owner, IntType>::TSdlInteger(std::string valueName, IntType Owner::* const valuePtr) :
-	TSdlValue<IntType, Owner>("integer", std::move(valueName), valuePtr)
-{}
-
-template<typename Owner, typename IntType>
-inline void TSdlInteger<Owner, IntType>::loadFromSdl(
-	Owner&                 owner,
-	const std::string&     sdlValue,
-	const SdlInputContext& ctx) const
-{
-	setValue(owner, sdl::load_integer(sdlValue));
-}
-
-template<typename Owner, typename IntType>
-inline void TSdlInteger<Owner, IntType>::convertToSdl(
-	const Owner& owner,
-	std::string* out_sdlValue,
-	std::string& out_converterMessage) const
-{
-	PH_ASSERT(out_sdlValue);
-
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
-}
+template<typename Owner, typename IntType = integer>
+using TSdlOptionalInteger = TSdlInteger<Owner, IntType, TSdlOptionalValue<IntType, Owner>>;
 
 }// end namespace ph

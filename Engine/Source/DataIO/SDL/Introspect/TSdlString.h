@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/TSdlValue.h"
+#include "DataIO/SDL/Introspect/TSdlOptionalValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 
@@ -9,12 +10,17 @@
 namespace ph
 {
 
-// TODO: test
-template<typename Owner>
-class TSdlString : public TSdlValue<std::string, Owner>
+template<typename Owner, typename SdlValueType = TSdlValue<std::string, Owner>>
+class TSdlString : public SdlValueType
 {
+	static_assert(std::is_base_of_v<TAbstractSdlValue<std::string, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TAbstractSdlValue.");
+
 public:
-	TSdlString(std::string valueName, std::string Owner::* valuePtr);
+	template<typename ValueType>
+	inline TSdlString(std::string valueName, ValueType Owner::* const valuePtr) :
+		SdlValueType("string", std::move(valueName), valuePtr)
+	{}
 
 	inline std::string valueAsString(const std::string& str) const override
 	{
@@ -22,44 +28,28 @@ public:
 	}
 
 protected:
-	void loadFromSdl(
+	inline void loadFromSdl(
 		Owner&                 owner,
 		const std::string&     sdlValue,
-		const SdlInputContext& ctx) const override;
+		const SdlInputContext& ctx) const override
+	{
+		// Save <sdlValue> directly as it is already a string
+		setValue(owner, sdlValue);
+	}
 
-	void convertToSdl(
+	inline void convertToSdl(
 		const Owner& owner,
 		std::string* out_sdlValue,
-		std::string& out_converterMessage) const override;
+		std::string& out_converterMessage) const override
+	{
+		PH_ASSERT(out_sdlValue);
+
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
 };
 
-// In-header Implementations:
-
 template<typename Owner>
-inline TSdlString<Owner>::TSdlString(std::string valueName, std::string Owner::* const valuePtr) :
-	TSdlValue<std::string, Owner>("string", std::move(valueName), valuePtr)
-{}
-
-template<typename Owner>
-inline void TSdlString<Owner>::loadFromSdl(
-	Owner&                 owner,
-	const std::string&     sdlValue,
-	const SdlInputContext& ctx) const
-{
-	// Save <sdlValue> directly as it is already a string
-	setValue(owner, sdlValue);
-}
-
-template<typename Owner>
-inline void TSdlString<Owner>::convertToSdl(
-	const Owner& owner,
-	std::string* out_sdlValue,
-	std::string& out_converterMessage) const
-{
-	PH_ASSERT(out_sdlValue);
-
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
-}
+using TSdlOptionalString = TSdlString<Owner, TSdlOptionalValue<std::string, Owner>>;
 
 }// end namespace ph

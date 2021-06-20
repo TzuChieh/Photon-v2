@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/TSdlValue.h"
+#include "DataIO/SDL/Introspect/TSdlOptionalValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/sdl_helpers.h"
@@ -11,22 +12,26 @@
 
 #include <type_traits>
 #include <string>
-#include <exception>
 #include <vector>
 #include <utility>
 
 namespace ph
 {
 
-// TODO: change to TSdlFloatArray and add TSdlRealArray alias
-template<typename Owner, typename Element = real>
-class TSdlRealArray : public TSdlValue<std::vector<Element>, Owner>
+template<typename Owner, typename Element = real, typename SdlValueType = TSdlValue<std::vector<Element>, Owner>>
+class TSdlRealArray : public SdlValueType
 {
+	static_assert(std::is_base_of_v<TAbstractSdlValue<std::vector<Element>, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TAbstractSdlValue.");
+
 	static_assert(std::is_same_v<Element, real>,
 		"Currently supports only ph::real");
 
 public:
-	TSdlRealArray(std::string valueName, std::vector<Element> Owner::* valuePtr);
+	template<typename ValueType>
+	inline TSdlRealArray(std::string valueName, ValueType Owner::* const valuePtr) :
+		SdlValueType("real-array", std::move(valueName), valuePtr)
+	{}
 
 	inline std::string valueAsString(const std::vector<Element>& realArray) const override
 	{
@@ -34,69 +39,47 @@ public:
 	}
 
 protected:
-	void loadFromSdl(
+	inline void loadFromSdl(
 		Owner&                 owner,
 		const std::string&     sdlValue,
-		const SdlInputContext& ctx) const override;
+		const SdlInputContext& ctx) const override
+	{
+		if(sdl::is_resource_identifier(sdlValue))
+		{
+			const SdlResourceIdentifier sdlResId(sdlValue, ctx.workingDirectory);
+
+			try
+			{
+				std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
+
+				setValue(
+					owner,
+					sdl::load_real_array(std::move(loadedSdlValue)));
+			}
+			catch(const FileIOError& e)
+			{
+				throw SdlLoadError("on loading real array -> " + e.whatStr());
+			}
+		}
+		else
+		{
+			setValue(owner, sdl::load_real_array(sdlValue));
+		}
+	}
 
 	void convertToSdl(
 		const Owner& owner,
 		std::string* out_sdlValue,
-		std::string& out_converterMessage) const override;
+		std::string& out_converterMessage) const override
+	{
+		PH_ASSERT(out_sdlValue);
+
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
 };
 
-// In-header Implementations:
-
-template<typename Owner, typename Element>
-inline TSdlRealArray<Owner, Element>::TSdlRealArray(
-	std::string valueName, 
-	std::vector<Element> Owner::* const valuePtr) :
-
-	TSdlValue<std::vector<Element>, Owner>(
-		"real-array", 
-		std::move(valueName), 
-		valuePtr)
-{}
-
-template<typename Owner, typename Element>
-inline void TSdlRealArray<Owner, Element>::loadFromSdl(
-	Owner&                 owner,
-	const std::string&     sdlValue,
-	const SdlInputContext& ctx) const
-{
-	if(sdl::is_resource_identifier(sdlValue))
-	{
-		const SdlResourceIdentifier sdlResId(sdlValue, ctx.workingDirectory);
-
-		try
-		{
-			std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
-
-			setValue(
-				owner, 
-				sdl::load_real_array(std::move(loadedSdlValue)));
-		}
-		catch(const FileIOError& e)
-		{
-			throw SdlLoadError("on loading real array -> " + e.whatStr());
-		}
-	}
-	else
-	{
-		setValue(owner, sdl::load_real_array(sdlValue));
-	}
-}
-
-template<typename Owner, typename Element>
-void TSdlRealArray<Owner, Element>::convertToSdl(
-	const Owner& owner,
-	std::string* out_sdlValue,
-	std::string& out_converterMessage) const
-{
-	PH_ASSERT(out_sdlValue);
-
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
-}
+template<typename Owner, typename Element = real>
+using TSdlOptionalRealArray = TSdlRealArray<Owner, Element, TSdlOptionalValue<std::vector<Element>, Owner>>;
 
 }// end namespace ph

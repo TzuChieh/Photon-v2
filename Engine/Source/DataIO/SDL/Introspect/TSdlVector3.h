@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/TSdlValue.h"
+#include "DataIO/SDL/Introspect/TSdlOptionalValue.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
@@ -8,19 +9,26 @@
 
 #include <type_traits>
 #include <string>
-#include <exception>
 
 namespace ph
 {
 
-template<typename Owner, typename Element = real>
-class TSdlVector3 : public TSdlValue<math::TVector3<Element>, Owner>
+template<typename Owner, typename Element = real, typename SdlValueType = TSdlValue<math::TVector3<Element>, Owner>>
+class TSdlVector3 : public SdlValueType
 {
+	static_assert(std::is_base_of_v<TAbstractSdlValue<math::TVector3<Element>, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TAbstractSdlValue.");
+
 	static_assert(std::is_same_v<Element, real>,
 		"Currently supports only ph::real");
 
 public:
-	TSdlVector3(std::string valueName, math::TVector3<Element> Owner::* valuePtr);
+	template<typename ValueType>
+	inline TSdlVector3(std::string valueName, ValueType Owner::* const valuePtr) :
+		SdlValueType("vector3", std::move(valueName), valuePtr)
+	{
+		defaultTo(math::TVector3<Element>(0, 0, 0));
+	}
 
 	inline std::string valueAsString(const math::TVector3<Element>& vec3) const override
 	{
@@ -28,45 +36,27 @@ public:
 	}
 
 protected:
-	void loadFromSdl(
+	inline void loadFromSdl(
 		Owner&                 owner,
 		const std::string&     sdlValue,
-		const SdlInputContext& ctx) const override;
+		const SdlInputContext& ctx) const override
+	{
+		setValue(owner, sdl::load_vector3(sdlValue));
+	}
 
-	void convertToSdl(
+	inline void convertToSdl(
 		const Owner& owner,
 		std::string* out_sdlValue,
-		std::string& out_converterMessage) const override;
+		std::string& out_converterMessage) const override
+	{
+		PH_ASSERT(out_sdlValue);
+
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
 };
 
-// In-header Implementations:
-
-template<typename Owner, typename Element>
-inline TSdlVector3<Owner, Element>::TSdlVector3(std::string valueName, math::TVector3<Element> Owner::* const valuePtr) :
-	TSdlValue<math::TVector3<Element>, Owner>("vector3", std::move(valueName), valuePtr)
-{
-	defaultTo(math::TVector3<Element>(0, 0, 0));
-}
-
-template<typename Owner, typename Element>
-inline void TSdlVector3<Owner, Element>::loadFromSdl(
-	Owner&                 owner,
-	const std::string&     sdlValue,
-	const SdlInputContext& ctx) const
-{
-	setValue(owner, sdl::load_vector3(sdlValue));
-}
-
-template<typename Owner, typename Element>
-void TSdlVector3<Owner, Element>::convertToSdl(
-	const Owner& owner,
-	std::string* out_sdlValue,
-	std::string& out_converterMessage) const
-{
-	PH_ASSERT(out_sdlValue);
-
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
-}
+template<typename Owner, typename Element = real>
+using TSdlOptionalVector3 = TSdlOptionalValue<math::TVector3<Element>, Owner>;
 
 }// end namespace ph

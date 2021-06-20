@@ -13,6 +13,8 @@
 namespace ph
 {
 
+/*! @brief A field class that binds a real member variable.
+*/
 template<typename Owner, typename RealType = real, typename SdlValueType = TSdlValue<RealType, Owner>>
 class TSdlReal : public SdlValueType
 {
@@ -23,8 +25,8 @@ class TSdlReal : public SdlValueType
 		"Currently supports only ph::real");
 
 public:
-	template<typename U>
-	inline TSdlReal(std::string valueName, U Owner::* valuePtr) :
+	template<typename ValueType>
+	inline TSdlReal(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("real", std::move(valueName), valuePtr)
 	{}
 
@@ -53,5 +55,10 @@ protected:
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 };
+
+/*! @brief A field class that binds an optional real member variable.
+*/
+template<typename Owner, typename RealType = real>
+using TSdlOptionalReal = TSdlReal<Owner, RealType, TSdlOptionalValue<RealType, Owner>>;
 
 }// end namespace ph
