@@ -3,7 +3,9 @@
 #include "Common/assertion.h"
 
 #include <string>
+#include <string_view>
 #include <vector>
+#include <utility>
 
 namespace ph
 {
@@ -11,33 +13,55 @@ namespace ph
 class ValueClauses final
 {
 public:
-	struct ValueClause
+	struct Clause
 	{
-		std::string type;
-		std::string name;
-		std::string value;
+		std::string      type;
+		std::string      name;
+		std::string      value;
+		std::string_view tag;
+
+		inline Clause() = default;
+		Clause(std::string type, std::string name, std::string value);
+		Clause(std::string type, std::string name, std::string value, std::string_view tag);
 
 		std::string genPrettyName() const;
 	};
 
-	void add(std::string type, std::string name, std::string value);
+	/*! @brief Add a new clause.
+	*/
+	void add(Clause clause);
+
+	/*! @brief Remove a clause by index. Preserves the order of remaining clauses.
+	*/
 	void remove(std::size_t index);
+
+	/*! @brief Remove a clause by index. Does not preserve the order of remaining clauses.
+	*/
 	void removeBySwapPop(std::size_t index);
 
+	/*! @brief Clear all stored data.
+	*/
+	void clear();
+
+	/*! @brief Get number of clauses.
+	*/
 	std::size_t size() const;
+
 	std::string toString() const;
 
-	const ValueClause& operator [] (std::size_t index) const;
+	/*! @brief Get clause by index.
+	*/
+	const Clause& operator [] (std::size_t index) const;
 
 private:
-	std::vector<ValueClause> m_clauses;
+	std::vector<Clause> m_clauses;
 };
 
 // In-header Implementations:
 
-inline void ValueClauses::add(std::string type, std::string name, std::string value)
+inline void ValueClauses::add(Clause clause)
 {
-	m_clauses.push_back({std::move(type), std::move(name), std::move(value)});
+	m_clauses.push_back(std::move(clause));
 }
 
 inline void ValueClauses::remove(const std::size_t index)
@@ -58,9 +82,9 @@ inline void ValueClauses::removeBySwapPop(const std::size_t index)
 	m_clauses.pop_back();
 }
 
-inline std::string ValueClauses::ValueClause::genPrettyName() const
+inline void ValueClauses::clear()
 {
-	return "type: " + type + ", name: " + name;
+	m_clauses.clear();
 }
 
 inline std::size_t ValueClauses::size() const
@@ -73,11 +97,31 @@ inline std::string ValueClauses::toString() const
 	return std::to_string(m_clauses.size()) + " value clauses";
 }
 
-inline const ValueClauses::ValueClause& ValueClauses::operator [] (const std::size_t index) const
+inline const ValueClauses::Clause& ValueClauses::operator [] (const std::size_t index) const
 {
 	PH_ASSERT_LT(index, m_clauses.size());
 
 	return m_clauses[index];
+}
+
+inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string value) :
+	Clause(
+		std::move(type), 
+		std::move(name), 
+		std::move(value), 
+		"")
+{}
+
+inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string value, std::string_view tag) :
+	type (std::move(type)),
+	name (std::move(name)),
+	value(std::move(value)),
+	tag  (std::move(tag))
+{}
+
+inline std::string ValueClauses::Clause::genPrettyName() const
+{
+	return "type: " + type + ", name: " + name + ", tag: " + std::string(tag);
 }
 
 }// end namespace ph

@@ -69,7 +69,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 template<typename Owner, typename FieldSet>
 inline void TOwnerSdlClass<Owner, FieldSet>::call(
 	const std::string_view funcName,
-	ISdlResource*          resource,
+	ISdlResource* const    resource,
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx) const
 {

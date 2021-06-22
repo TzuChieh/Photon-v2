@@ -16,7 +16,8 @@ class Image;
 namespace ph::sdl
 {
 
-math::Vector3R load_constant_values(const std::string& sdlValue);
+//Spectrum load_spectrum(const std::string& sdlValue);
+//std::shared_ptr<Image> load_spectral_color(const Spectrum& values);
 std::shared_ptr<Image> load_constant_color(const math::Vector3R& values);
 std::shared_ptr<Image> load_picture_color(const Path& filePath);
 

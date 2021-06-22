@@ -102,6 +102,13 @@ bool init_render_engine()
 		return false;
 	}
 
+	// Get SDL classes once here to initialize them--this is not required,
+	// just to be safe as SDL class instances are lazy-constructed and may
+	// be done in strange places later (which can cause problems).
+	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
+	logger.log(ELogLevel::NOTE_MED,
+		"initialized " + std::to_string(sdlClasses.size()) + " SDL class instances");
+
 	if(!init_command_parser())
 	{
 		logger.log(ELogLevel::FATAL_ERROR,

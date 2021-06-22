@@ -4,6 +4,7 @@
 #include "Common/assertion.h"
 #include "Actor/SDLExtension/color_loaders.h"
 #include "DataIO/SDL/sdl_exceptions.h"
+#include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/SdlResourceIdentifier.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
@@ -90,7 +91,7 @@ inline void TSdlGenericColor<Owner>::loadFromSdl(
 		}
 		else
 		{
-			const auto values = sdl::load_constant_values(sdlValue);
+			const auto values = sdl::load_vector3(sdlValue);
 			setValueRef(owner, sdl::load_constant_color(values));
 		}
 	}

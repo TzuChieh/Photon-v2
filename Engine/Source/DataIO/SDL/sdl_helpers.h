@@ -53,9 +53,6 @@ std::string gen_pretty_name(const SdlField* field);
 std::string gen_pretty_name(const SdlFunction* func);
 std::string gen_pretty_name(const SdlClass* clazz, const SdlField* field);
 
-std::string category_to_string(ETypeCategory category);
-ETypeCategory string_to_category(const std::string& categoryStr);
-
 /*! @brief Statically gets the category of @p T.
 
 @tparam T Type that category information is going to be extracted from.

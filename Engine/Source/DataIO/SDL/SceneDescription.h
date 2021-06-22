@@ -26,6 +26,10 @@ public:
 		const std::string& resourceName,
 		std::unique_ptr<ISdlResource> resource);
 
+	void addResource(
+		std::shared_ptr<ISdlResource> resource
+		const std::string&            resourceName);
+
 	/*! @brief Given type info @p typeInfo, get a resource named @p resourceName.
 	*/
 	std::shared_ptr<ISdlResource> getResource(
@@ -53,7 +57,7 @@ public:
 private:
 	std::array<
 		std::unordered_map<std::string, std::shared_ptr<ISdlResource>>, 
-		static_cast<std::size_t>(ETypeCategory::MAX) + 1
+		static_cast<std::size_t>(ETypeCategory::NUM)
 	> m_resources;
 	
 private:

@@ -1,6 +1,9 @@
 #include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/SDL/Keyword.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/sdl_exceptions.h"
+#include "DataIO/SDL/ETypeCategory.h"
+#include "ISdlResource.h"
 
 #include <iostream>
 
@@ -10,7 +13,7 @@ namespace ph
 namespace
 {
 
-Logger logger(LogSender("Scene Description"));
+const Logger logger(LogSender("Scene Description"));
 
 }
 
@@ -41,6 +44,35 @@ void SceneDescription::addResource(
 	}
 
 	resourcesNameMap[resourceName] = std::move(resource);
+}
+
+void SceneDescription::addResource(
+	std::shared_ptr<ISdlResource> resource
+	const std::string&            resourceName)
+{
+	if(!resource || resourceName.empty())
+	{
+		const std::string resourceInfo = resource ? sdl::category_to_string(resource->getCategory()) : "no resource";
+		const std::string nameInfo     = resourceName ? resourceName : "no name";
+
+		throw SdlLoadError(
+			"cannot add SDL resource due to empty resource/name ("
+			"resource: " + resourceInfo + ", "
+			"name:" + nameInfo + ")");
+	}
+
+	const std::size_t categoryIndex = toCategoryIndex(resource->getCategory());
+	auto& nameToResourceMap = m_resources[categoryIndex];
+	const auto& iter = nameToResourceMap.find(resourceName);
+	if(iter != nameToResourceMap.end())
+	{
+		logger.log(ELogLevel::WARNING_MED, 
+			"duplicated SDL resource detected, overwriting ("
+			"resource: " + sdl::category_to_string(resource->getCategory()) + ", "
+			"name:" + resourceName + ")");
+	}
+
+	nameToResourceMap[resourceName] = std::move(resource);
 }
 
 std::shared_ptr<ISdlResource> SceneDescription::getResource(
