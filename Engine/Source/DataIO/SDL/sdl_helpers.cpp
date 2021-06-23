@@ -5,6 +5,7 @@
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "DataIO/SDL/Introspect/SdlFunction.h"
+#include "Utility/string_utils.h"
 
 namespace ph::sdl
 {
@@ -118,20 +119,20 @@ std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3Arra
 
 bool is_resource_identifier(const std::string_view sdlValueStr)
 {
-	// Find index to the first non-blank character
-	const auto pos = sdlValueStr.find_first_not_of(" \t\r\n");
+	// Remove leading blank characters
+	const auto trimmedStr = string_utils::trim_head(sdlValueStr);
 
 	// Valid SDL resource identifier starts with "/"
-	return pos != std::string::npos && sdlValueStr[pos] == '/';
+	return !trimmedStr.empty() && trimmedStr[0] == '/';
 }
 
 bool is_reference(const std::string_view sdlValueStr)
 {
-	// Find index to the first non-blank character
-	const auto pos = sdlValueStr.find_first_not_of(" \t\r\n");
+	// Remove leading blank characters
+	const auto trimmedStr = string_utils::trim_head(sdlValueStr);
 
 	// Valid SDL reference starts with "@"
-	return pos != std::string::npos && sdlValueStr[pos] == '@';
+	return !trimmedStr.empty() && trimmedStr[0] == '@';
 }
 
 std::string gen_pretty_name(const SdlClass* const clazz)

@@ -1,9 +1,6 @@
 #include "DataIO/SDL/SdlParser.h"
+#include "DataIO/SDL/Tokenizer.h"
 #include "DataIO/SDL/SceneDescription.h"
-#include "DataIO/SDL/TCommandInterface.h"
-#include "DataIO/SDL/CommandEntry.h"
-#include "DataIO/SDL/SdlTypeInfo.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Common/Logger.h"
 #include "ph_cpp_core.h"
 #include "DataIO/SDL/sdl_helpers.h"
@@ -13,8 +10,6 @@
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 
-#include <iostream>
-#include <sstream>
 #include <cstddef>
 
 namespace ph
@@ -25,55 +20,6 @@ namespace
 
 const Logger logger(LogSender("SDL Parser"));
 
-}
-
-bool SdlParser::addCommandEntry(const CommandEntry& entry)
-{
-	if(!entry.typeInfo().isValid())
-	{
-		std::cerr << "warning: command entry has invalid type info: " 
-		          << entry.typeInfo().toString()
-		          << ", not adding" << std::endl;
-		return false;
-	}
-
-	const std::string& fullTypeName = getFullTypeName(entry.typeInfo());
-	const auto&        iter         = NAMED_INTERFACE_MAP().find(fullTypeName);
-	if(iter != NAMED_INTERFACE_MAP().end())
-	{
-		std::cerr << "warning: command entry of type <" 
-		          << entry.typeInfo().toString() 
-		          << "> is already present, not adding" << std::endl;
-		return false;
-	}
-
-	NAMED_INTERFACE_MAP()[fullTypeName] = entry;
-
-	/*logger.log(ELogLevel::NOTE_MIN,
-		"entry added: " + entry.typeInfo().toString());*/
-
-	return true;
-}
-
-CommandEntry SdlParser::getCommandEntry(const SdlTypeInfo& typeInfo)
-{
-	const std::string& fullTypeName = getFullTypeName(typeInfo);
-	const auto&        iter         = NAMED_INTERFACE_MAP().find(fullTypeName);
-	if(iter == NAMED_INTERFACE_MAP().end())
-	{
-		std::cerr << "warning: command entry <" 
-		          << fullTypeName 
-		          << "> does not exist" << std::endl;
-		return CommandEntry();
-	}
-
-	return NAMED_INTERFACE_MAP()[fullTypeName];
-}
-
-std::unordered_map<std::string, CommandEntry>& SdlParser::NAMED_INTERFACE_MAP()
-{
-	static std::unordered_map<std::string, CommandEntry> namedInterfaceMap;
-	return namedInterfaceMap;
 }
 
 SdlParser::SdlParser() :
@@ -92,10 +38,10 @@ SdlParser::SdlParser() :
 		const auto& iter = m_mangledNameToClass.find(mangledClassName);
 		if(iter != m_mangledNameToClass.end())
 		{
-			logger.log(ELogLevel::FATAL_ERROR,
-				"mangled SDL class name < " + 
-				entry.typeInfo().toString() + 
-				"> is already present, overwriting");
+			logger.log(ELogLevel::WARNING_MED,
+				"SDL class < " + clazz->genPrettyName() + "> already registered, "
+				"overwriting; please check for name collision: mangled name is <" + 
+				mangledClassName + ">");
 		}
 
 		m_mangledNameToClass[mangledClassName] = clazz;
@@ -130,67 +76,43 @@ void SdlParser::parseCommand(const std::string& command, SceneDescription& out_s
 		return;
 	}
 
-	const ESdlCommandType commandType = getCommandType(command);
+	const ESdlCommandType type = getCommandType(command);
 
-	if(commandType == ESdlCommandType::LOAD)
+	try
 	{
-		parseLoadCommand(command, out_scene);
+		parseSingleCommand(type, command, out_scene);
 	}
-	else if(commandType == ESdlCommandType::EXECUTION)
+	catch(const SdlLoadError& e)
 	{
-		parseExecutionCommand(command, out_scene);
-	}
-	else if(commandType == ESdlCommandType::COMMENT)
-	{
-		// do nothing
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"unsupported command type detected");
+		logger.log(ELogLevel::WARNING_MED,
+			"command failed to run -> " + e.whatStr());
 	}
 }
 
-bool SdlParser::parseRegularCommand(
-	const ESdlCommandType type,
-	const std::string& command,
-	SceneDescription&  out_scene)
+void SdlParser::parseSingleCommand(const ESdlCommandType type, const std::string& command, SceneDescription& out_scene)
 {
-	std::vector<std::string> tokens;
-	m_regularCommandTokenizer.tokenize(command, tokens);
-
-	// Skip command-prefix-only or empty command
-	if(tokens.size() <= 1)
+	switch(type)
 	{
-		return true;
-	}
+	case ESdlCommandType::LOAD:
+		parseLoadCommand(command, out_scene);
+		break;
 
-	bool isParsed = false;
-	if(isLoadCommand(tokens))
-	{
-		isParsed = parseLoadCommand(type, tokens, out_scene);
-	}
-	else if(isExecutionCommand(tokens))
-	{
-		isParsed = parseExecutionCommand(type, tokens, out_scene);
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"unknown command detected");
-		
-		isParsed = false;
-	}
+	case ESdlCommandType::EXECUTION:
+		parseExecutionCommand(command, out_scene);
+		break;
 
-	if(!isParsed)
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"command not parsed due to error: <" + command + ">");
+	case ESdlCommandType::COMMENT:
+		// do nothing
+		break;
+
+	case ESdlCommandType::DIRECTIVE:
+		// TODO
+		break;
+
+	default:
+		throw SdlLoadError("unsupported command type");
+		break;
 	}
-
-	// TODO: log "resource ignored due to error -> " 
-
-	return isParsed;
 }
 
 void SdlParser::parseLoadCommand(
@@ -210,7 +132,7 @@ void SdlParser::parseLoadCommand(
 	if(tokens.size() < 4)
 	{
 		throw SdlLoadError(
-			"syntax error: improper load command detected");
+			"syntax error: improper load command");
 	}
 
 	// Get category and type then acquire the matching SDL class
@@ -218,23 +140,15 @@ void SdlParser::parseLoadCommand(
 	const std::string_view categoryName = tokens[1];
 	const std::string_view typeName     = tokens[2];
 
-	std::string mangledClassName;
-	getMangledName(categoryName, typeName, &mangledClassName);
-
-	const SdlClass* const clazz = getSdlClass(mangledClassName);
-	if(!clazz)
-	{
-		throw SdlLoadError(
-			"SDL class <" + std::string(categoryName) + ", " + std::string(typeName) + "> does not exist");
-	}
+	const SdlClass& clazz = getSdlClass(categoryName, typeName);
 
 	// Initialize SDL resource from input value clauses
 
-	std::shared_ptr<ISdlResource> resource = clazz->createResource();
+	std::shared_ptr<ISdlResource> resource = clazz.createResource();
 	if(!resource)
 	{
 		throw SdlLoadError(
-			"SDL class <" + clazz->genPrettyName() + "> generates empty resource");
+			"SDL class <" + clazz.genPrettyName() + "> generates empty resource");
 	}
 
 	const std::string& resourceName = getName(tokens[3]);
@@ -243,8 +157,8 @@ void SdlParser::parseLoadCommand(
 	ValueClauses clauses;
 	getClauses(clauseStrings, &clauses);
 
-	SdlInputContext inputContext(&out_scene, m_workingDirectory, clazz);
-	clazz->initResource(*resource, clauses, inputContext);
+	SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
+	clazz.initResource(*resource, clauses, inputContext);
 
 	// Finally, add the resource to storage
 
@@ -264,124 +178,110 @@ void SdlParser::parseExecutionCommand(
 
 	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::EXECUTION);
 
-	const std::string& categoryName       = tokens[1];
-	const std::string& typeName           = tokens[2];
-	const std::string& executorName       = tokens[3];
+	// Sanity check
+	if(tokens.size() < 5)
+	{
+		throw SdlLoadError(
+			"syntax error: improper execution command");
+	}
+
+	// Get category and type then acquire the matching SDL class
+
+	const std::string_view categoryName = tokens[1];
+	const std::string_view typeName     = tokens[2];
+
+	const SdlClass& clazz = getSdlClass(categoryName, typeName);
+
+	// Get target SDL resource and clauses
+
 	const std::string& targetResourceName = getName(tokens[4]);
-	const auto&        ownerTypeInfo      = SdlTypeInfo(SdlTypeInfo::nameToCategory(categoryName), typeName);
-	const auto&        clauseStrings      = std::vector<std::string>(tokens.begin() + 5, tokens.end());
-	const auto&        inputPacket        = InputPacket(getValueClauses(clauseStrings), &out_scene, m_workingDirectory);
-		
-	const auto& commandEntry   = getCommandEntry(ownerTypeInfo);
-	const auto& executor       = commandEntry.getExecutor(executorName);
-	const auto& targetTypeInfo = executor.getTargetTypeInfo();
+	const std::string& executorName       = tokens[3];
 
-	const DataTreatment targetResourceDT = targetResourceName.empty() ?
-		DataTreatment::OPTIONAL() :
-		DataTreatment::REQUIRED("cannot find specified target resource");
-
-	const auto& targetResource = out_scene.getResource(
-		targetTypeInfo,
-		targetResourceName,
-		targetResourceDT);
-	
-	// TODO: check null res?
-	//ExitStatus status = commandEntry.execute(targetResource, executorName, inputPacket);
-	const ExitStatus& status = executor.execute(targetResource, inputPacket);
-
-	const std::string& funcInfo = "type <" + ownerTypeInfo.toString() + ">'s executor: " +
-		executor.toString();
-
-	switch(status.state)
+	std::shared_ptr<ISdlResource> resource = out_scene.getResource(targetResourceName, clazz.getCategory());
+	if(!resource)
 	{
-	case ExitStatus::State::SUCCESS:
-		if(!status.message.empty())
+		throw SdlLoadError(
+			"execution command failed: cannot find target resource <" + 
+			targetResourceName + "> for the execution of <" + executorName + "> "
+			"(SDL class: " + clazz.genPrettyName() + ")");
+	}
+
+	const auto& clauseStrings = std::vector<std::string>(tokens.begin() + 5, tokens.end());
+	ValueClauses clauses;
+	getClauses(clauseStrings, &clauses);
+
+	// Finally, call the executor
+
+	SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
+	clazz.call(executorName, resource.get(), clauses, inputContext);
+}
+
+std::string SdlParser::genNameForAnonymity()
+{
+	return "@__anonymous-item-" + std::to_string(m_generatedNameCounter++);
+}
+
+std::string SdlParser::getName(const std::string_view resourceNameToken)
+{
+	// Remove any leading and trailing blank characters
+	const auto trimmedToken = string_utils::trim(resourceNameToken);
+
+	// Should at least contain a '@' character
+	if(trimmedToken.empty())
+	{
+		throw SdlLoadError(
+			"syntax error: resource name is empty, <" + std::string(resourceNameToken) + "> was given");
+	}
+
+	switch(trimmedToken.front())
+	{
+	// Token is a name without quotes
+	case '@':
+		// Token has more character(s) following '@'
+		if(trimmedToken.size() > 1)
 		{
-			std::cout << funcInfo << " successfully executed" << std::endl;
-			std::cout << status.message << std::endl;
+			return std::string(trimmedToken);
 		}
-		return true;
-
-	case ExitStatus::State::WARNING:
-		std::cerr << funcInfo << " executed, but with warning" << std::endl;
-		std::cerr << status.message << std::endl;
-		return true;
-
-	case ExitStatus::State::FAILURE:
-		std::cerr << funcInfo << " executed and failed" << std::endl;
-		std::cerr << status.message << std::endl;
-		return false;
-
-	case ExitStatus::State::BAD_INPUT:
-		std::cerr << funcInfo << " ignored because of bad input" << std::endl;
-		std::cerr << status.message << std::endl;
-		return false;
-
-	case ExitStatus::State::UNSUPPORTED:
-		std::cerr << "calling unsupported function: " << funcInfo << std::endl;
-		if(!status.message.empty())
+		// Token is anonymous
+		else
 		{
-			std::cerr << status.message << std::endl;
+			return genNameForAnonymity();
 		}
-		return false;
-	}
 
-	return false;
-}
+	// Token is a name with quotes
+	case '\"':
+		// Should at least contain 3 characters: opening and closing double quotes, the name prefix '@'
+		if(trimmedToken.size() >= 3 && trimmedToken.back() == '\"' && trimmedToken[1] == '@')
+		{
+			// Token has more character(s) following '@'
+			if(trimmedToken.size() > 4)
+			{
+				// Remove the double quotes
+				return std::string(trimmedToken.substr(1, trimmedToken.size() - 2));
+			}
+			// Token is anonymous
+			else
+			{
+				return genNameForAnonymity();
+			}
+		}
+		else
+		{
+			throw SdlLoadError(
+				"syntax error: resource name missing ending double quote and/or the @ prefix, "
+				"<" + std::string(resourceNameToken) + "> was given");
+		}
 
-bool SdlParser::cacheCommandSegment(const std::string_view commandSegment)
-{
-	if(getCommandType(commandSegment) != ECommandType::UNKNOWN)
-	{
-		parseCommand(m_commandCache, out_scene);
-		m_commandCache.clear();
-		m_commandCache.shrink_to_fit();// TODO: reconsider, maybe only reset if too large
-	}
-
-	m_commandCache += commandFragment;
-}
-
-std::string SdlParser::genName()
-{
-	return "@__item-" + std::to_string(m_generatedNameCounter++);
-}
-
-std::string SdlParser::getName(const std::string& nameToken) const
-{
-	static const Tokenizer nameTokenizer(
-		{},
-		{{'\"', '\"'}})// TODO: there may be a need to skip spaces, e.g., fun(    "@ some name")
-
-	std::vector<std::string> tokens;
-	nameTokenizer.tokenize(nameToken, tokens);
-	if(tokens.size() != 1)
-	{
-		return "";
-	}
-	else if(tokens[0].front() != '@' || tokens[0].length() == 1)
-	{
-		// Possibly using genName() if anonymous declaration is supported
-		return "";
-	}
-	else
-	{
-		return tokens[0];
+	default:
+		throw SdlLoadError(
+			"syntax error: resource name should start with @, optionally "
+			"enclosed by double quotes, <" + std::string(resourceNameToken) + "> was given");
 	}
 }
 
 void SdlParser::setWorkingDirectory(const Path& path)
 {
 	m_workingDirectory = path;
-}
-
-std::vector<ValueClause> SdlParser::getValueClauses(const std::vector<std::string>& clauseStrings)
-{
-	std::vector<ValueClause> vClauses;
-	for(const auto& clauseString : clauseStrings)
-	{
-		vClauses.push_back(ValueClause(clauseString));
-	}
-	return vClauses;
 }
 
 ESdlCommandType SdlParser::getCommandType(const std::string_view commandSegment)
@@ -401,6 +301,7 @@ ESdlCommandType SdlParser::getCommandType(const std::string_view commandSegment)
 	// "+>": load
 	// "->": removal
 	// "=>": execution
+	// "##": directive
 
 	PH_ASSERT_GE(trimmedSegment.size(), 2);
 	switch(trimmedSegment[0])
@@ -409,21 +310,10 @@ ESdlCommandType SdlParser::getCommandType(const std::string_view commandSegment)
 	case '+': return trimmedSegment[1] == '>' ? ESdlCommandType::LOAD      : ESdlCommandType::UNKNOWN;
 	case '-': return trimmedSegment[1] == '>' ? ESdlCommandType::REMOVAL   : ESdlCommandType::UNKNOWN;
 	case '=': return trimmedSegment[1] == '/' ? ESdlCommandType::EXECUTION : ESdlCommandType::UNKNOWN;
+	case '#': return trimmedSegment[1] == '#' ? ESdlCommandType::DIRECTIVE : ESdlCommandType::UNKNOWN;
 	}
 
 	return ESdlCommandType::UNKNOWN;
-}
-
-bool SdlParser::isResourceName(const std::string& token) const
-{
-	return !getName(token).empty();
-}
-
-std::string SdlParser::getFullTypeName(const SdlTypeInfo& typeInfo)
-{
-	const std::string& categoryName = typeInfo.getCategoryName();
-	const std::string& typeName     = typeInfo.typeName;
-	return categoryName + '_' + typeName;
 }
 
 std::string SdlParser::getMangledName(const std::string_view categoryName, const std::string_view typeName)
@@ -458,19 +348,22 @@ void SdlParser::getClause(const std::string_view clauseString, ValueClauses::Cla
 {
 	PH_ASSERT(out_clause);
 
-	static const Tokenizer clauseTokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}, {'{', '}'}});
+	static const Tokenizer clauseTokenizer(
+		{' ', '\t', '\n', '\r'}, 
+		{{'\"', '\"'}, {'{', '}'}});
 
 	if(clauseString.empty())
 	{
 		throw SdlLoadError("syntax error: clause string is empty");
 	}
 
+	// TODO: tokenize string_view
 	std::vector<std::string> tokens;
-	clauseTokenizer.tokenize(clauseString, tokens);
+	clauseTokenizer.tokenize(std::string(clauseString), tokens);
 	if(tokens.size() != 3)
 	{
 		throw SdlLoadError(
-			"syntax error: bad number of tokens < " + tokens.size() + ">, expected to be 3");
+			"syntax error: bad number of tokens < " + std::to_string(tokens.size()) + ">, expected to be 3");
 	}
 
 	out_clause->type  = tokens[0];
@@ -493,36 +386,25 @@ void SdlParser::getClause(const std::string_view clauseString, ValueClauses::Cla
 	}
 }
 
-bool SdlParser::isLoadCommand(const std::vector<std::string>& commandTokens) const
-{
-	if(commandTokens.size() >= 4)
-	{
-		if(isResourceName(commandTokens[3]))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool SdlParser::isExecutionCommand(const std::vector<std::string>& commandTokens) const
-{
-	if(commandTokens.size() >= 5)
-	{
-		if(isResourceName(commandTokens[4]))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 const SdlClass* SdlParser::getSdlClass(const std::string& mangledClassName) const
 {
 	const auto& iter = m_mangledNameToClass.find(mangledClassName);
 	return iter != m_mangledNameToClass.end() ? iter->second : nullptr;
+}
+
+const SdlClass& SdlParser::getSdlClass(const std::string_view categoryName, const std::string_view typeName) const
+{
+	std::string mangledClassName;
+	getMangledName(categoryName, typeName, &mangledClassName);
+
+	const SdlClass* const clazz = getSdlClass(mangledClassName);
+	if(!clazz)
+	{
+		throw SdlLoadError(
+			"SDL class <" + std::string(categoryName) + ", " + std::string(typeName) + "> does not exist");
+	}
+
+	return *clazz;
 }
 
 }// end namespace ph

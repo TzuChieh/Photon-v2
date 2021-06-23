@@ -31,6 +31,14 @@ public:
 	*/
 	void add(Clause clause);
 
+	/*! @brief Add a new clause.
+	*/
+	void add(std::string type, std::string name, std::string value);
+
+	/*! @brief Add a new clause.
+	*/
+	void add(std::string type, std::string name, std::string value, std::string_view tag);
+
 	/*! @brief Remove a clause by index. Preserves the order of remaining clauses.
 	*/
 	void remove(std::size_t index);
@@ -62,6 +70,16 @@ private:
 inline void ValueClauses::add(Clause clause)
 {
 	m_clauses.push_back(std::move(clause));
+}
+
+inline void ValueClauses::add(std::string type, std::string name, std::string value)
+{
+	add(Clause(std::move(type), std::move(name), std::move(value)));
+}
+
+inline void ValueClauses::add(std::string type, std::string name, std::string value, std::string_view tag)
+{
+	add(Clause(std::move(type), std::move(name), std::move(value), std::move(tag)));
 }
 
 inline void ValueClauses::remove(const std::size_t index)

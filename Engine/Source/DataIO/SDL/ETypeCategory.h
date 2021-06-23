@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/assertion.h"
+
 #include <string>
 #include <unordered_map>
 

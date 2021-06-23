@@ -121,7 +121,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			//
 			logger.log(ELogLevel::WARNING_MED,
 				"load error from " + sdl::gen_pretty_name(ctx.srcClass, this) + 
-				" -> " + e.what() + "; " +
+				" -> " + e.whatStr() + "; " +
 				"value defaults to " + valueToString(owner));
 		}
 		else
@@ -130,7 +130,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			//
 			throw SdlLoadError(
 				"load error from " + sdl::gen_pretty_name(ctx.srcClass, this) +
-				" -> " + e.what() + "; " +
+				" -> " + e.whatStr() + "; " +
 				"value left uninitialized");
 		}
 	}

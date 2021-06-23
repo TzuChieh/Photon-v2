@@ -5,9 +5,23 @@
 namespace ph::string_utils::table
 {
 
-// Table for mapping standard ASCII character codes to upper case, i.e.,
-// a~z are mapped to A~Z (A~Z are also mapped to A~Z itself, so a case
-// check can be eliminated). Any other codes will be left unchanged.
+/*! @brief Commonly used whitespace characters.
+
+Ordered from high frequency to low frequency (approximated).
+*/
+inline constexpr std::string_view common_whitespaces = " \n\r\t";
+
+/*! @brief Standard whitespace characters.
+
+Should idealy contain characters `ch` that satisfy `std::isspace(ch) == true`.
+*/
+inline constexpr std::string_view standard_whitespaces = " \n\r\t\v\f";
+
+/*!
+Table for mapping standard ASCII character codes to upper case, i.e.,
+a~z are mapped to A~Z (A~Z are also mapped to A~Z itself, so a case
+check can be eliminated). Any other codes will be left unchanged.
+*/
 inline constexpr std::array<unsigned char, 256> ASCII_TO_UPPER = 
 {{
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -44,9 +58,11 @@ inline constexpr std::array<unsigned char, 256> ASCII_TO_UPPER =
 	0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF // 255
 }};
 
-// Table for mapping standard ASCII character codes to lower case, i.e.,
-// A~Z are mapped to a~z (a~z are also mapped to a~z itself, so a case
-// check can be eliminated). Any other codes will be left unchanged.
+/*!
+Table for mapping standard ASCII character codes to lower case, i.e.,
+A~Z are mapped to a~z (a~z are also mapped to a~z itself, so a case
+check can be eliminated). Any other codes will be left unchanged.
+*/
 inline constexpr std::array<unsigned char, 256> ASCII_TO_LOWER =
 {{
 	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

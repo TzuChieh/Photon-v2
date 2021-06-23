@@ -47,13 +47,13 @@ void SceneDescription::addResource(
 }
 
 void SceneDescription::addResource(
-	std::shared_ptr<ISdlResource> resource
+	std::shared_ptr<ISdlResource> resource,
 	const std::string&            resourceName)
 {
 	if(!resource || resourceName.empty())
 	{
 		const std::string resourceInfo = resource ? sdl::category_to_string(resource->getCategory()) : "no resource";
-		const std::string nameInfo     = resourceName ? resourceName : "no name";
+		const std::string nameInfo     = resourceName.empty() ? resourceName : "no name";
 
 		throw SdlLoadError(
 			"cannot add SDL resource due to empty resource/name ("
@@ -61,8 +61,9 @@ void SceneDescription::addResource(
 			"name:" + nameInfo + ")");
 	}
 
-	const std::size_t categoryIndex = toCategoryIndex(resource->getCategory());
-	auto& nameToResourceMap = m_resources[categoryIndex];
+	const std::size_t categoryIndex     = toCategoryIndex(resource->getCategory());
+	auto&             nameToResourceMap = m_resources[categoryIndex];
+
 	const auto& iter = nameToResourceMap.find(resourceName);
 	if(iter != nameToResourceMap.end())
 	{
@@ -73,6 +74,17 @@ void SceneDescription::addResource(
 	}
 
 	nameToResourceMap[resourceName] = std::move(resource);
+}
+
+std::shared_ptr<ISdlResource> SceneDescription::getResource(
+	const std::string&  resourceName,
+	const ETypeCategory category) const
+{
+	const std::size_t categoryIndex     = toCategoryIndex(category);
+	const auto&       nameToResourceMap = m_resources[categoryIndex];
+
+	const auto& iter = nameToResourceMap.find(resourceName);
+	return iter != nameToResourceMap.end() ? iter->second : nullptr;
 }
 
 std::shared_ptr<ISdlResource> SceneDescription::getResource(

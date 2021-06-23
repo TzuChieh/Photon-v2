@@ -5,6 +5,7 @@
 #include "DataIO/SDL/DataTreatment.h"
 #include "DataIO/SDL/SdlTypeInfo.h"
 #include "DataIO/SDL/ISdlResource.h"
+#include "DataIO/SDL/ETypeCategory.h"
 
 #include <unordered_map>
 #include <string>
@@ -21,14 +22,28 @@ class SceneDescription final
 public:
 	SceneDescription();
 
-	void addResource(
-		const SdlTypeInfo& typeInfo,
-		const std::string& resourceName,
-		std::unique_ptr<ISdlResource> resource);
+	/*! @brief Add a resource.
 
+	@param resource The resource to be added.
+	@param resourceName The name given to the resource.
+	*/
 	void addResource(
-		std::shared_ptr<ISdlResource> resource
+		std::shared_ptr<ISdlResource> resource,
 		const std::string&            resourceName);
+
+	/*! @brief Get a resource.
+
+	@param resourceName The name of the resource.
+	@param category Category of the resource.
+	@return The resource requested. `nullptr` if not found.
+	*/
+	std::shared_ptr<ISdlResource> getResource(
+		const std::string& resourceName,
+		ETypeCategory      category) const;
+	
+
+
+
 
 	/*! @brief Given type info @p typeInfo, get a resource named @p resourceName.
 	*/
@@ -53,6 +68,11 @@ public:
 	bool hasResource(const std::string& resourceName) const;
 
 	std::vector<std::shared_ptr<Actor>> getActors() const;
+
+	void addResource(
+		const SdlTypeInfo& typeInfo,
+		const std::string& resourceName,
+		std::unique_ptr<ISdlResource> resource);
 
 private:
 	std::array<

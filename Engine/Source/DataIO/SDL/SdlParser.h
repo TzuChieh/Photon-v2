@@ -1,14 +1,11 @@
 #pragma once
 
-#include "DataIO/SDL/Tokenizer.h"
-#include "DataIO/SDL/ValueClause.h"
 #include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/FileSystem/Path.h"
 
 #include <vector>
 #include <string>
 #include <string_view>
-#include <fstream>
 #include <unordered_map>
 
 namespace ph
@@ -16,12 +13,11 @@ namespace ph
 
 class SceneDescription;
 class SdlClass;
-class CommandEntry;
-class SdlTypeInfo;
 
 enum class ESdlCommandType
 {
 	UNKNOWN,
+	DIRECTIVE,
 	LOAD,
 	REMOVAL,
 	EXECUTION,
@@ -30,10 +26,6 @@ enum class ESdlCommandType
 
 class SdlParser final
 {
-public:
-	static bool addCommandEntry(const CommandEntry& entry);
-	static CommandEntry getCommandEntry(const SdlTypeInfo& typeInfo);
-
 public:
 	SdlParser();
 
@@ -70,39 +62,28 @@ private:
 	std::size_t m_generatedNameCounter;
 
 	void parseCommand(const std::string& command, SceneDescription& out_scene);
-
-	void parseRegularCommand(
-		const std::string& command, 
-		SceneDescription&  out_scene);
+	void parseSingleCommand(ESdlCommandType type, const std::string& command, SceneDescription& out_scene);
 
 	void parseLoadCommand( 
-		const std::string& tokens,
-		SceneDescription&  ut_scene);
-
-	void parseExecutionCommand(
-		const std::string& tokens,
+		const std::string& command,
 		SceneDescription&  out_scene);
 
-	bool cacheCommandSegment(std::string_view commandSegment);
+	void parseExecutionCommand(
+		const std::string& command,
+		SceneDescription&  out_scene);
 
-	std::string genName();
-	std::string getName(const std::string& nameToken) const;
+	std::string getName(std::string_view resourceNameToken);
+	std::string genNameForAnonymity();
 
 private:
 	const SdlClass* getSdlClass(const std::string& mangledClassName) const;
+	const SdlClass& getSdlClass(std::string_view categoryName, std::string_view typeName) const;
 
 	static std::string getMangledName(std::string_view categoryName, std::string_view typeName);
 	static void getMangledName(std::string_view categoryName, std::string_view typeName, std::string* out_mangledName);
 	static void getClauses(const std::vector<std::string>& clauseStrings, ValueClauses* out_clauses);
 	static void getClause(std::string_view clauseString, ValueClauses::Clause* out_clause);
 	static ESdlCommandType getCommandType(std::string_view commandSegment);
-
-	bool isResourceName(const std::string& token) const;
-	bool isLoadCommand(const std::vector<std::string>& commandTokens) const;
-	bool isExecutionCommand(const std::vector<std::string>& commandTokens) const;
-	static std::unordered_map<std::string, CommandEntry>& NAMED_INTERFACE_MAP();
-	static std::string getFullTypeName(const SdlTypeInfo& typeInfo);
-	static std::vector<ValueClause> getValueClauses(const std::vector<std::string>& clauseStrings);
 };
 
 }// end namespace ph
