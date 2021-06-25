@@ -14,7 +14,6 @@ namespace ph
 {
 
 class Ray;
-class InputPacket;
 class RayDifferential;
 
 class Receiver : public ISdlResource

@@ -40,20 +40,15 @@ bool CoreDataGroup::gatherFromRaw(const SceneDescription& scene)
 	if(engineOptions.size() > 1)
 	{
 		logger.log(ELogLevel::WARNING_MED,
-			"multiple engine options present; picking one of them");
+			"multiple engine options present; picking one of them without any rules");
 	}
 	const auto engineOption = engineOptions.front();
 
 	// Get core resources specified by engine option
 
-	m_renderer = scene.getResource<Renderer>(engineOption->getRendererName(),
-		DataTreatment::REQUIRED());
-
-	m_receiver = scene.getResource<Receiver>(engineOption->getReceiverName(),
-		DataTreatment::REQUIRED());
-
-	m_sampleGenerator = scene.getResource<SampleGenerator>(engineOption->getSampleGeneratorName(),
-		DataTreatment::REQUIRED());
+	m_renderer        = scene.getResource<Renderer>(engineOption->getRendererName());
+	m_receiver        = scene.getResource<Receiver>(engineOption->getReceiverName());
+	m_sampleGenerator = scene.getResource<SampleGenerator>(engineOption->getSampleGeneratorName());
 
 	if(!m_renderer || !m_receiver || !m_sampleGenerator)
 	{

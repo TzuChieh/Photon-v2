@@ -161,15 +161,4 @@ math::QuaternionR Receiver::makeRotationFromYawPitch(real yawDegrees, real pitch
 	return yawRot.mul(pitchRot).normalize();
 }
 
-// Command Interface
-
-Receiver::Receiver(const InputPacket& packet) :
-	Receiver(packet, {960, 540})
-{
-	m_resolution.x = packet.getInteger("resolution-x",
-		static_cast<integer>(m_resolution.x), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.x)));
-	m_resolution.y = packet.getInteger("resolution-y",
-		static_cast<integer>(m_resolution.y), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.y)));
-}
-
 }// end namespace ph

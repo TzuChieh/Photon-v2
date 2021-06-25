@@ -18,8 +18,6 @@ enum class EImgWrapMode
 	CLAMP_TO_EDGE
 };
 
-class InputPacket;
-
 class PictureImage : public Image
 {
 public:

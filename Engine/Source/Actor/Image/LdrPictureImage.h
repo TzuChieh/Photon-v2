@@ -7,8 +7,6 @@
 namespace ph
 {
 
-class InputPacket;
-
 class LdrPictureImage final : public PictureImage
 {
 public:

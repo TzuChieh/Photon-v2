@@ -1,6 +1,5 @@
 #include "Core/Receiver/RadiantFluxPanel.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlLoader.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
 #include "Math/Geometry/TAABB2D.h"

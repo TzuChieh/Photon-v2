@@ -7,16 +7,12 @@
 
 #include <iostream>
 
+namespace ph::math { class Transform; }
+
 namespace ph
 {
 
 class Ray;
-class InputPacket;
-
-namespace math
-{
-	class Transform;
-}
 
 class PerspectiveReceiver : public Receiver
 {

@@ -9,7 +9,6 @@
 namespace ph
 {
 
-class InputPacket;
 class DielectricFresnel;
 
 /*! @brief Data describing the effects when light hits an dielectric interface.
@@ -21,7 +20,6 @@ class DielectricInterfaceInfo final
 {
 public:
 	DielectricInterfaceInfo();
-	explicit DielectricInterfaceInfo(const InputPacket& packet);
 
 	std::unique_ptr<DielectricFresnel> genFresnelEffect() const;
 
@@ -32,28 +30,3 @@ private:
 };
 
 }// end namespace ph
-
-/*
-	<SDL_struct>
-
-	<type_name> dielectric-interface-info </type_name>
-
-	<input name="fresnel-model" type="string">
-		<description>
-			Controls the Fresnel model used. 
-			Possible values are "exact" and "schlick".
-		</description>
-	</input>
-	<input name="ior-outer" type="real">
-		<description>
-			The index of refraction outside of this material.
-		</description>
-	</input>
-	<input name="ior-inner" type="real">
-		<description>
-			The index of refraction inside of this material.
-		</description>
-	</input>
-
-	</SDL_struct>
-*/

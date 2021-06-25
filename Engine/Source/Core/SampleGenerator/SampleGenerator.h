@@ -23,7 +23,6 @@ namespace ph
 {
 
 class Scene;
-class InputPacket;
 class SampleContext;
 
 class SampleGenerator : public ISdlResource

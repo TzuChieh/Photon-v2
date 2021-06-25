@@ -72,7 +72,8 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 	catch(const SdlLoadError& e)
 	{
 		throw SdlLoadError(
-			"unable to load resource on parsing reference -> " + valueToString(owner));
+			"unable to load resource on parsing reference " + 
+			valueToString(owner) + " -> " + e.whatStr());
 	}
 }
 

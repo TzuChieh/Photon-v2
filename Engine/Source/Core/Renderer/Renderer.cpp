@@ -10,7 +10,6 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/Logger.h"
-#include "DataIO/SDL/DataTreatment.h"
 #include "Core/CoreDataGroup.h"
 
 #include <iostream>

@@ -24,12 +24,6 @@ public:
 
 private:
 	EAccelerator m_topLevelAccelerator;
-
-// command interface
-public:
-	explicit CookSettings(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
@@ -45,26 +39,3 @@ inline EAccelerator CookSettings::getTopLevelAccelerator() const
 }
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  option        </category>
-	<type_name> cook-settings </type_name>
-
-	<name> Cook Settings </name>
-	<description>
-		Settings related to the actor-cooking process.
-	</description>
-
-	<command type="creator">
-		<input name="top-level-accelerator" type="string">
-			<description>
-				Type of the top-level accelerator. Possible values: 
-				brute-force, bvh, kd-tree, indexed-kd-tree.
-			</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

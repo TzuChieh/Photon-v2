@@ -1,7 +1,6 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/InputPrototype.h"
 
 #include <iostream>
 

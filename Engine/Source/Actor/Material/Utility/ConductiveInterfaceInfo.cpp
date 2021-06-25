@@ -1,6 +1,4 @@
 #include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
-#include "DataIO/SDL/InputPacket.h"
-#include "DataIO/SDL/InputPrototype.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
 #include "Common/Logger.h"
@@ -20,81 +18,6 @@ ConductiveInterfaceInfo::ConductiveInterfaceInfo() :
 	m_useExact(false),
 	m_ior     (SchlickIor{Spectrum(0.04_r)})
 {}
-
-ConductiveInterfaceInfo::ConductiveInterfaceInfo(const InputPacket& packet) :
-	ConductiveInterfaceInfo()
-{
-	const auto fresnelType = packet.getString("fresnel-model", "schlick");
-	if(fresnelType == "exact")
-	{
-		m_useExact = true;
-	}
-	else if(fresnelType == "schlick")
-	{
-		m_useExact = false;
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"unknwon fresnel model: " + fresnelType + "; "
-			"resort to schlick approximation");
-		m_useExact = false;
-	}
-
-	InputPrototype fullInput;
-	fullInput.addReal("ior-outer");
-	fullInput.addRealArray("ior-inner-wavelength-nm");
-	fullInput.addRealArray("ior-inner-n");
-	fullInput.addRealArray("ior-inner-k");
-
-	// FIXME: f0's color space
-	InputPrototype schlickInput;
-	schlickInput.addVector3("f0");
-
-	if(packet.isPrototypeMatched(fullInput))
-	{
-		const auto  iorOuter         = packet.getReal("ior-outer");
-		const auto& iorWavelengthsNm = packet.getRealArray("ior-wavelengths-nm");
-		const auto& iorInnerNs       = packet.getRealArray("ior-inner-n");
-		const auto& iorInnerKs       = packet.getRealArray("ior-inner-k");
-
-		if(iorWavelengthsNm.size() != iorInnerNs.size() ||
-		   iorWavelengthsNm.size() != iorInnerKs.size())
-		{
-			logger.log(ELogLevel::WARNING_MED,
-				"irregular-sized input data detected; " + 
-				std::to_string(iorWavelengthsNm.size()) + " wavelengths given, with " + 
-				std::to_string(iorInnerNs.size()) + " IoR_Ns and " + 
-				std::to_string(iorInnerKs.size()) + " IoR_Ks");
-			return;
-		}
-
-		const auto& sampledInnerNs = SpectralData::calcPiecewiseAveraged(
-			iorWavelengthsNm.data(), iorInnerNs.data(), iorWavelengthsNm.size());
-		const auto& sampledInnerKs = SpectralData::calcPiecewiseAveraged(
-			iorWavelengthsNm.data(), iorInnerKs.data(), iorWavelengthsNm.size());
-
-		Spectrum iorInnerN, iorInnerK;
-		iorInnerN.setSampled(sampledInnerNs);
-		iorInnerK.setSampled(sampledInnerKs);
-
-		m_ior = FullIor{iorOuter, iorInnerN, iorInnerK};
-	}
-	else if(packet.isPrototypeMatched(schlickInput))
-	{
-		const auto f0 = packet.getVector3("f0");
-
-		Spectrum spectralF0;
-		spectralF0.setLinearSrgb(f0);// FIXME: check color space
-
-		m_ior = SchlickIor{spectralF0};
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"no matching parameters found, using defaults");
-	}
-}
 
 std::unique_ptr<ConductorFresnel> ConductiveInterfaceInfo::genFresnelEffect() const
 {

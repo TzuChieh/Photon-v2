@@ -24,6 +24,3 @@ public:
 };
 
 }// end namespace ph
-
-// TODO: remove these
-#include "DataIO/SDL/CommandRegister.h"

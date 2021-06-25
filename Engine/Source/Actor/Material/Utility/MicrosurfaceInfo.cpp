@@ -1,5 +1,4 @@
 #include "Actor/Material/Utility/MicrosurfaceInfo.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Common/Logger.h"
 #include "Common/assertion.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
@@ -20,71 +19,6 @@ MicrosurfaceInfo::MicrosurfaceInfo() :
 	m_alphaU(RoughnessToAlphaMapping::squared(0.5_r)),
 	m_alphaV(RoughnessToAlphaMapping::squared(0.5_r))
 {}
-
-MicrosurfaceInfo::MicrosurfaceInfo(const InputPacket& packet) : 
-	MicrosurfaceInfo()
-{
-	real roughnessU = 0.5_r, roughnessV = 0.5_r;
-	if(packet.hasReal("roughness-u") && packet.hasReal("roughness-v"))
-	{
-		roughnessU = packet.getReal("roughness-u");
-		roughnessV = packet.getReal("roughness-v");
-	}
-	else if(packet.hasReal("roughness"))
-	{
-		roughnessU = packet.getReal("roughness");
-		roughnessV = roughnessU;
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"no roughness specified, using defaults");
-	}
-
-	const auto mappingType = packet.getString("mapping", "squared");
-	if(mappingType == "squared")
-	{
-		m_alphaU = RoughnessToAlphaMapping::squared(roughnessU);
-		m_alphaV = RoughnessToAlphaMapping::squared(roughnessV);
-	}
-	else if(mappingType == "pbrt-v3")
-	{
-		m_alphaU = RoughnessToAlphaMapping::pbrtV3(roughnessU);
-		m_alphaV = RoughnessToAlphaMapping::pbrtV3(roughnessV);
-	}
-	else if(mappingType == "equaled")
-	{
-		m_alphaU = RoughnessToAlphaMapping::equaled(roughnessU);
-		m_alphaV = RoughnessToAlphaMapping::equaled(roughnessV);
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"unknown mapping type <" + mappingType + "> specified; "
-			"resort to squared");
-
-		m_alphaU = RoughnessToAlphaMapping::squared(roughnessU);
-		m_alphaV = RoughnessToAlphaMapping::squared(roughnessV);
-	}
-
-	const auto distributionModel = packet.getString("distribution-model", "trowbridge-reitz");
-	if(distributionModel == "trowbridge-reitz" || distributionModel == "ggx")
-	{
-		m_type = EType::TROWBRIDGE_REITZ;
-	}
-	else if(distributionModel == "beckmann")
-	{
-		m_type = EType::BECKMANN;
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"unknown distribution model <" + distributionModel + "> specified; "
-			"resort to Trowbridge-Reitz (GGX)");
-
-		m_type = EType::TROWBRIDGE_REITZ;
-	}
-}
 
 std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 {

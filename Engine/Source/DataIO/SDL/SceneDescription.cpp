@@ -1,5 +1,6 @@
 #include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/SDL/ETypeCategory.h"
+#include "Common/Logger.h"
 
 namespace ph
 {

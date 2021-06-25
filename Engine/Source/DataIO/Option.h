@@ -12,12 +12,6 @@ public:
 	virtual inline ~Option() = default;
 
 	ETypeCategory getCategory() const override;
-
-// command interface
-public:
-	explicit Option(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:

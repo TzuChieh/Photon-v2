@@ -1,5 +1,4 @@
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/Logger.h"
@@ -17,30 +16,6 @@ DielectricInterfaceInfo::DielectricInterfaceInfo() :
 	m_iorOuter(1.0_r),
 	m_iorInner(1.5_r)
 {}
-
-DielectricInterfaceInfo::DielectricInterfaceInfo(const InputPacket& packet) :
-	DielectricInterfaceInfo()
-{
-	const auto fresnelType = packet.getString("fresnel-model", "schlick");
-	if(fresnelType == "exact")
-	{
-		m_useExact = true;
-	}
-	else if(fresnelType == "schlick")
-	{
-		m_useExact = false;
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"unknwon fresnel model: " + fresnelType + "; "
-			"resort to schlick approximation");
-		m_useExact = false;
-	}
-
-	m_iorOuter = packet.getReal("ior-outer", m_iorOuter);
-	m_iorInner = packet.getReal("ior-inner", m_iorInner);
-}
 
 std::unique_ptr<DielectricFresnel> DielectricInterfaceInfo::genFresnelEffect() const
 {

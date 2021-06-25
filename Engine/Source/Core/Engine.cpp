@@ -82,7 +82,7 @@ void Engine::update()
 	m_visualWorld.setReceiverPosition(m_coreData.getReceiver()->getPosition());
 	m_visualWorld.setCookSettings(*(m_coreData.getCookSettings()));
 
-	const auto& actors = m_scene.getActors();
+	const auto& actors = m_scene.getResources<Actor>();
 	for(const auto& actor : actors)
 	{
 		m_visualWorld.addActor(actor);

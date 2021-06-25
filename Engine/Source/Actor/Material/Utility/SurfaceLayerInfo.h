@@ -11,13 +11,10 @@
 namespace ph
 {
 
-class InputPacket;
-
 class SurfaceLayerInfo final
 {
 public:
 	SurfaceLayerInfo();
-	explicit SurfaceLayerInfo(const InputPacket& packet);
 
 	real getRoughness() const;
 	real getAlpha() const;
@@ -36,9 +33,6 @@ private:
 	real     m_g;
 	Spectrum m_sigmaA;
 	Spectrum m_sigmaS;
-
-	static Spectrum loadIorN(const InputPacket& packet, const Spectrum& defaultIorN);
-	static Spectrum loadIorK(const InputPacket& packet, const Spectrum& defaultIorK);
 
 public:
 	/*PH_DEFINE_SDL_STRUCT(TOwnerSdlStruct<SurfaceLayerInfo>)

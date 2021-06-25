@@ -13,7 +13,6 @@
 #include "Core/LTABuildingBlock/PtVolumetricEstimator.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
 #include "Core/Quantity/Spectrum.h"
 #include "Core/Estimator/Integrand.h"

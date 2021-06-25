@@ -45,41 +45,6 @@ public:
 
 		return clazz;
 	}
-
-	explicit MatteOpaque(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  material          </category>
-	<type_name> matte-opaque      </type_name>
-	<extend>    material.material </extend>
-
-	<name> Matte Opaque </name>
-	<description>
-		A material model for surfaces with matte look, such as chalk and moon.
-	</description>
-
-	<command type="creator">
-		<input name="albedo" type="real">
-			<description>A constant albedo in linear SRGB.</description>
-		</input>
-		<input name="albedo" type="vector3">
-			<description>An albedo value in linear SRGB.</description>
-		</input>
-		<input name="albedo" type="image">
-			<description>An image that will be used for describing albedo.</description>
-		</input>
-
-		<input name="sigma-degrees" type="real">
-			<description>Roughness in standard deviation of surface orientation.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

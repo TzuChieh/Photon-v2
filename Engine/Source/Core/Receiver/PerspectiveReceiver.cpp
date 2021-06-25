@@ -4,6 +4,7 @@
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Math/math.h"
 #include "Common/assertion.h"
+#include "Math/Transform/StaticAffineTransform.h"
 
 #include <iostream>
 

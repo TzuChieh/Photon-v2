@@ -27,7 +27,6 @@ namespace ph
 {
 
 class CoreDataGroup;
-class InputPacket;
 class RenderWorker;
 
 class Renderer: public ISdlResource

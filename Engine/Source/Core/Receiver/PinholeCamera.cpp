@@ -3,6 +3,7 @@
 #include "Math/math.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"
+#include "Math/Transform/Transform.h"
 
 #include <limits>
 

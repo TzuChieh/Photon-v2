@@ -2,7 +2,6 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
-#include "DataIO/SDL/TCommandInterface.h"
 
 namespace ph
 {
