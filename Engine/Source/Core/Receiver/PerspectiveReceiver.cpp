@@ -2,9 +2,7 @@
 #include "Core/Ray.h"
 #include "Core/Sample.h"
 #include "Core/Filmic/TSamplingFilm.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/math.h"
-#include "DataIO/SDL/InputPrototype.h"
 #include "Common/assertion.h"
 
 #include <iostream>
@@ -35,55 +33,5 @@ void PerspectiveReceiver::updateTransforms()
 	m_receiverToWorld  = std::make_shared<math::StaticAffineTransform>(
 		math::StaticAffineTransform::makeForward(m_receiverToWorldDecomposed));
 }
-
-// command interface
-
-PerspectiveReceiver::PerspectiveReceiver(const InputPacket& packet) :
-	Receiver(packet)
-{
-	const std::string FOV_DEGREE_VAR       = "fov-degree";
-	const std::string SENSOR_WIDTH_MM_VAR  = "sensor-width-mm";
-	const std::string SENSOR_OFFSET_MM_VAR = "sensor-offset-mm";
-
-	InputPrototype fovBasedInput;
-	fovBasedInput.addReal(FOV_DEGREE_VAR);
-
-	InputPrototype dimensionalInput;
-	dimensionalInput.addReal(SENSOR_WIDTH_MM_VAR);
-	dimensionalInput.addReal(SENSOR_OFFSET_MM_VAR);
-
-	real sensorWidthMM  = 36.0_r;
-	real sensorOffsetMM = 36.0_r;
-	if(packet.isPrototypeMatched(fovBasedInput))
-	{
-		// Respect sensor dimensions; modify sensor offset to satisfy FoV requirement
-		const auto fovDegree = packet.getReal(FOV_DEGREE_VAR);
-		const auto halfFov   = math::to_radians(fovDegree) * 0.5_r;
-		sensorWidthMM  = packet.getReal(SENSOR_WIDTH_MM_VAR, sensorWidthMM);
-		sensorOffsetMM = (sensorOffsetMM * 0.5_r) / std::tan(halfFov);
-	}
-	else if(packet.isPrototypeMatched(dimensionalInput))
-	{
-		sensorWidthMM  = packet.getReal(SENSOR_WIDTH_MM_VAR);
-		sensorOffsetMM = packet.getReal(SENSOR_OFFSET_MM_VAR);
-	}
-	else
-	{
-		std::cerr << "warning: in PerspectiveReceiver::PerspectiveReceiver(), bad input format" << std::endl;
-	}
-
-	m_sensorWidth  = sensorWidthMM / 1000.0;
-	m_sensorOffset = sensorOffsetMM / 1000.0;
-
-	updateTransforms();
-}
-
-SdlTypeInfo PerspectiveReceiver::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "perspective");
-}
-
-void PerspectiveReceiver::ciRegister(CommandRegister& cmdRegister)
-{}
 
 }// end namespace ph

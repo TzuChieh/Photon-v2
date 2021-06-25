@@ -3,7 +3,6 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Actor/AModel.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Common/assertion.h"
 #include "Math/math.h"

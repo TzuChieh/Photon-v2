@@ -24,25 +24,4 @@ std::shared_ptr<TTexture<Spectrum>> Image::genTextureSpectral(
 	return genDefaultTexture<Spectrum>();
 }
 
-// command interface
-
-Image::Image(const InputPacket& packet) :
-	Image()
-{}
-
-SdlTypeInfo Image::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "image");
-}
-
-void Image::ciRegister(CommandRegister& cmdRegister)
-{
-	registerMathFunctions(cmdRegister);
-}
-
-void Image::registerMathFunctions(CommandRegister& cmdRegister)
-{
-	// TODO
-}
-
 }// end namespace ph

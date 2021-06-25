@@ -16,16 +16,4 @@ std::shared_ptr<Material> LightSource::genMaterial(CookingContext& context) cons
 	return std::make_shared<MatteOpaque>(linearSrgbAlbedo);
 }
 
-// command interface
-
-LightSource::LightSource(const InputPacket& packet)
-{}
-
-SdlTypeInfo LightSource::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_LIGHT_SOURCE, "light-source");
-}
-
-void LightSource::ciRegister(CommandRegister& cmdRegister) {}
-
 }// end namespace ph

@@ -69,25 +69,4 @@ void EnvironmentCamera::evalEmittedImportanceAndPdfW(const math::Vector3R& targe
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
-// command interface
-
-EnvironmentCamera::EnvironmentCamera(const InputPacket& packet) :
-	Receiver(packet),
-	m_receiverToWorld(math::StaticRigidTransform::makeForward(m_receiverToWorldDecomposed))
-{}
-
-SdlTypeInfo EnvironmentCamera::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "environment");
-}
-
-void EnvironmentCamera::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(
-		SdlLoader([](const InputPacket& packet)
-		{
-			return std::make_unique<EnvironmentCamera>(packet);
-		}));
-}
-
 }// end namespace ph

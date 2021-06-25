@@ -4,7 +4,6 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Actor/AModel.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Core/Intersectable/PLatLong01Sphere.h"
@@ -198,27 +197,6 @@ GSphere& GSphere::operator = (const GSphere& rhs)
 	m_radius = rhs.m_radius;
 
 	return *this;
-}
-
-// command interface
-
-SdlTypeInfo GSphere::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "sphere");
-}
-
-void GSphere::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<GSphere>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<GSphere> GSphere::ciLoad(const InputPacket& packet)
-{
-	const real radius = packet.getReal("radius", 1.0_r);
-
-	return std::make_unique<GSphere>(radius);
 }
 
 }// end namespace ph

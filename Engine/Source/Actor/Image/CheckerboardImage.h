@@ -10,7 +10,7 @@
 namespace ph
 {
 
-class CheckerboardImage : public Image, public TCommandInterface<CheckerboardImage>
+class CheckerboardImage : public Image
 {
 public:
 	CheckerboardImage();
@@ -35,12 +35,6 @@ private:
 	std::weak_ptr<Image> m_evenImage;
 
 	auto checkOutImages() const -> std::pair<std::shared_ptr<Image>, std::shared_ptr<Image>>;
-
-// command interface
-public:
-	explicit CheckerboardImage(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

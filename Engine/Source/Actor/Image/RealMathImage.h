@@ -11,7 +11,7 @@
 namespace ph
 {
 
-class RealMathImage : public Image, public TCommandInterface<RealMathImage>
+class RealMathImage : public Image
 {
 public:
 	enum class EMathOp
@@ -78,46 +78,6 @@ private:
 		}
 		return result;
 	}
-
-// command interface
-public:
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  image       </category>
-	<type_name> real-math   </type_name>
-	<extend>    image.image </extend>
-
-	<name> Real Math Image </name>
-	<description>
-		This image applies mathematical modifications on other images.
-	</description>
-
-	<command type="creator">
-		<input name="math-op" type="string">
-			<description>
-				The mathematical operation used. "multiply": multiplying a value to the target; 
-				"add": add a value to the target.
-			</description>
-		</input>
-		<input name="value" type="real">
-			<description>
-				The value that is going to be applied to the target. How it will be applied
-				depends on the math-op specified.
-			</description>
-		</input>
-		<input name="operand" type="image">
-			<description>
-				The target image that is going to be operated on.
-			</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

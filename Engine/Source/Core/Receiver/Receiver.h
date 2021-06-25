@@ -4,7 +4,7 @@
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
-#include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Core/Filmic/filmic_fwd.h"
 #include "Common/assertion.h"
@@ -17,7 +17,7 @@ class Ray;
 class InputPacket;
 class RayDifferential;
 
-class Receiver : public TCommandInterface<Receiver>
+class Receiver : public ISdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_RECEIVER;
@@ -82,19 +82,6 @@ protected:
 	static math::TDecomposedTransform<float64> makeDecomposedReceiverPose(
 		const math::Vector3R&    position, 
 		const math::QuaternionR& rotation);
-
-// Command Interface
-public:
-	/*! @brief Load all data from @p packet.
-	*/
-	explicit Receiver(const InputPacket& packet);
-
-	/*! @brief Load all data from @p packet except for resolution.
-	*/
-	Receiver(const InputPacket& packet, const math::Vector2S& resolution);
-
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
@@ -127,52 +114,3 @@ inline float64 Receiver::getAspectRatio() const
 }
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  receiver </category>
-	<type_name> receiver </type_name>
-
-	<name> Receiver </name>
-	<description>
-		An energy receiver for observing the scene.
-	</description>
-
-	<command type="creator" intent="blueprint">
-
-		<input name="position" type="vector3">
-			<description>Position of the receiver.</description>
-		</input>
-
-		<input name="rotation" type="quaternion">
-			<description>The orientation of the receiver.</description>
-		</input>
-
-		<input name="direction" type="vector3">
-			<description>Direction that this receiver is looking at.</description>
-		</input>
-
-		<input name="up-axis" type="vector3">
-			<description>The direction that this receiver consider as upward.</description>
-		</input>
-
-		<input name="resolution-x" type="integer">
-			<description>Sensor resolution in x-axis.</description>
-		</input>
-
-		<input name="resolution-y" type="integer">
-			<description>Sensor resolution in y-axis.</description>
-		</input>
-
-		<input name="yaw-degrees" type="real">
-			<description>Rotation of the receiver around +y axis in [0, 360].</description>
-		</input>
-		<input name="pitch-degrees" type="real">
-			<description>The receiver's declination from the horizon in [-90, 90].</description>
-		</input>
-
-	</command>
-
-	</SDL_interface>
-*/

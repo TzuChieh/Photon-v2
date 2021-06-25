@@ -1,5 +1,4 @@
 #include "Core/Receiver/Receiver.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Core/RayDifferential.h"
 #include "Core/Ray.h"
 #include "Common/Logger.h"
@@ -172,45 +171,5 @@ Receiver::Receiver(const InputPacket& packet) :
 	m_resolution.y = packet.getInteger("resolution-y",
 		static_cast<integer>(m_resolution.y), DataTreatment::REQUIRED("using default: " + std::to_string(m_resolution.y)));
 }
-
-Receiver::Receiver(const InputPacket& packet, const math::Vector2S& resolution) : 
-	Receiver()
-{
-	m_position = packet.getVector3("position", 
-		m_position, DataTreatment::REQUIRED());
-
-	auto rotation = math::QuaternionR::makeNoRotation();
-	if(packet.hasQuaternion("rotation"))
-	{
-		rotation = packet.getQuaternion("rotation");
-	}
-	else if(packet.hasVector3("direction") && packet.hasVector3("up-axis"))
-	{
-		const auto direction = packet.getVector3("direction");
-		const auto upAxis    = packet.getVector3("up-axis");
-		rotation = makeRotationFromVectors(direction, upAxis);
-	}
-	else if(packet.hasReal("yaw-degrees") && packet.hasReal("pitch-degrees"))
-	{
-		rotation = makeRotationFromYawPitch(packet.getReal("yaw-degrees"), packet.getReal("pitch-degrees"));
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"no rotation info provided");
-	}
-	m_direction = makeDirectionFromRotation(rotation);
-
-	m_receiverToWorldDecomposed = makeDecomposedReceiverPose(m_position, rotation);
-	m_resolution = resolution;
-}
-
-SdlTypeInfo Receiver::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "receiver");
-}
-
-void Receiver::ciRegister(CommandRegister& cmdRegister)
-{}
 
 }// end namespace ph

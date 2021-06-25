@@ -1,6 +1,5 @@
 #include "Core/Renderer/Sampling/AdaptiveSamplingRenderer.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Core/Ray.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/CoreDataGroup.h"
@@ -336,36 +335,6 @@ ObservableRenderData AdaptiveSamplingRenderer::getObservableData() const
 	data.setRealState   (0, "paths/second");
 
 	return data;
-}
-
-// command interface
-
-AdaptiveSamplingRenderer::AdaptiveSamplingRenderer(const InputPacket& packet) :
-
-	SamplingRenderer(packet),
-
-	//m_films(),
-	m_scene(nullptr),
-	m_sampleGenerator(nullptr),
-	m_receiver(nullptr),
-	m_updatedRegions(),
-	m_rendererMutex()
-{
-	m_precisionStandard = packet.getReal("precision-standard", 1.0_r);
-	m_numInitialSamples = packet.getInteger("initial-samples", 128);
-}
-
-SdlTypeInfo AdaptiveSamplingRenderer::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "adaptive-sampling");
-}
-
-void AdaptiveSamplingRenderer::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<AdaptiveSamplingRenderer>(packet);
-	}));
 }
 
 }// end namespace ph

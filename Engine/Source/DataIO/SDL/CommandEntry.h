@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DataIO/SDL/SdlTypeInfo.h"
-#include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/SdlLoader.h"
 #include "DataIO/SDL/SdlExecutor.h"
 #include "Common/Logger.h"

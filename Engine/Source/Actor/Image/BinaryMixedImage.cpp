@@ -1,5 +1,4 @@
 #include "Actor/Image/BinaryMixedImage.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Common/Logger.h"
 
 namespace ph
@@ -7,7 +6,9 @@ namespace ph
 
 namespace
 {
-	Logger logger(LogSender("Binary Mixed Image"));
+
+Logger logger(LogSender("Binary Mixed Image"));
+
 }
 
 BinaryMixedImage::BinaryMixedImage() :
@@ -30,18 +31,6 @@ auto BinaryMixedImage::checkoutImages() const
 	}
 
 	return {std::move(imageA), std::move(imageB)};
-}
-
-BinaryMixedImage::BinaryMixedImage(const InputPacket& packet) :
-	Image(packet)
-{
-	m_imageA = packet.getReference<Image>("a", DataTreatment::REQUIRED());
-	m_imageB = packet.getReference<Image>("b", DataTreatment::REQUIRED());
-}
-
-SdlTypeInfo BinaryMixedImage::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "binary");
 }
 
 }// end namespace ph

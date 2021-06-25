@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/Transform/TDecomposedTransform.h"
-#include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
 #include "Math/Transform/Transform.h"
 
 #include <memory>
@@ -12,7 +12,7 @@ namespace ph
 
 class Time;
 
-class MotionSource : public TCommandInterface<MotionSource>
+class MotionSource : public ISdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_MOTION;
@@ -25,11 +25,6 @@ public:
 		const Time& end) const = 0;
 
 	ETypeCategory getCategory() const override;
-
-// command interface
-public:
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:

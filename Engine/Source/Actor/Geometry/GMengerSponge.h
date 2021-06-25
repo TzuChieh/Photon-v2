@@ -8,7 +8,7 @@ namespace ph
 
 class GCuboid;
 
-class GMengerSponge final : public Geometry, public TCommandInterface<GMengerSponge>
+class GMengerSponge final : public Geometry
 {
 public:
 	GMengerSponge();
@@ -26,11 +26,6 @@ private:
 		const math::Vector3R& maxVertex,
 		uint32                currentIteration,
 		std::vector<GCuboid>& cubes) const;
-
-// command interface
-public:
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

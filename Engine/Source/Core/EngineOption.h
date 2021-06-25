@@ -1,14 +1,13 @@
 #pragma once
 
 #include "DataIO/Option.h"
-#include "DataIO/SDL/TCommandInterface.h"
 
 #include <string>
 
 namespace ph
 {
 
-class EngineOption : public Option, public TCommandInterface<EngineOption>
+class EngineOption : public Option
 {
 public:
 	std::string getRendererName() const;

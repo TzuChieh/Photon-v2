@@ -16,7 +16,7 @@ class CookingContext;
 class ModelBuilder final : private IMoveOnly
 {
 public:
-	ModelBuilder(CookingContext& context);
+	explicit ModelBuilder(CookingContext& context);
 
 	ModelBuilder& addIntersectable(std::unique_ptr<Intersectable> isable);
 

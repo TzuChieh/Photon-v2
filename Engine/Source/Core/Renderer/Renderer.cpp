@@ -10,7 +10,6 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/Logger.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "DataIO/SDL/DataTreatment.h"
 #include "Core/CoreDataGroup.h"
 
@@ -112,36 +111,5 @@ void Renderer::setNumWorkers(const uint32 numWorkers)
 //	const auto states = asyncQueryRenderStates();
 //	*out_samplesPerSecond = static_cast<float32>(states.fltStates[0]) * 1000.0f;
 //}
-
-// command interface
-
-Renderer::Renderer(const InputPacket& packet) : 
-	m_widthPx(0),
-	m_heightPx(0),
-	m_cropWindowPx({0, 0}, {0, 0}),
-	m_isUpdating(false),
-	m_isRendering(false)
-{
-	setNumWorkers(1);
-
-	/*const integer filmWidth  = packet.getInteger("width",  1280, DataTreatment::REQUIRED());
-	const integer filmHeight = packet.getInteger("height", 720,  DataTreatment::REQUIRED());*/
-	const integer rectX      = packet.getInteger("rect-x", static_cast<integer>(m_cropWindowPx.getMinVertex().x));
-	const integer rectY      = packet.getInteger("rect-y", static_cast<integer>(m_cropWindowPx.getMinVertex().y));
-	const integer rectW      = packet.getInteger("rect-w", static_cast<integer>(m_cropWindowPx.getWidth()));
-	const integer rectH      = packet.getInteger("rect-h", static_cast<integer>(m_cropWindowPx.getHeight()));
-
-	/*m_widthPx      = filmWidth;
-	m_heightPx     = filmHeight;*/
-	m_cropWindowPx = TAABB2D<int64>({rectX, rectY}, {rectX + rectW, rectY + rectH});
-}
-
-SdlTypeInfo Renderer::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "renderer");
-}
-
-void Renderer::ciRegister(CommandRegister& cmdRegister)
-{}
 
 }// end namespace ph

@@ -26,10 +26,6 @@ public:
 
 private:
 	ESidedness m_sidedness;
-
-// command interface
-public:
-	explicit VolumeMaterial(const InputPacket& packet);
 };
 
 }// end namespace ph

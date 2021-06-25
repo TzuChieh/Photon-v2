@@ -23,28 +23,4 @@ void AbradedOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavio
 			m_microsurfaceInfo.genMicrofacet()));
 }
 
-// command interface
-
-AbradedOpaque::AbradedOpaque(const InputPacket& packet) : 
-	SurfaceMaterial(packet),
-
-	m_interfaceInfo   (packet),
-	m_microsurfaceInfo(packet)
-{}
-
-SdlTypeInfo AbradedOpaque::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "abraded-opaque");
-}
-
-void AbradedOpaque::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<AbradedOpaque>([](const InputPacket& packet)
-	{
-		return std::make_unique<AbradedOpaque>(packet);
-	});
-	cmdRegister.setLoader(loader);
-}
-
 }// end namespace ph

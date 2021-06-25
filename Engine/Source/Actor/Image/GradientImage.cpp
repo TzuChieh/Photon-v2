@@ -1,5 +1,4 @@
 #include "Actor/Image/GradientImage.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Core/Texture/TLinearGradientTexture.h"
 
 namespace ph
@@ -64,29 +63,6 @@ void GradientImage::setUvwEndpoints(const math::Vector3R& beginUvw, const math::
 {
 	m_beginUvw = beginUvw;
 	m_endUvw   = endUvw;
-}
-
-GradientImage::GradientImage(const InputPacket& packet) :
-	BinaryMixedImage(packet)
-{
-	const auto beginUvw = packet.getVector3("begin-uvw", {0, 0, 0});
-	const auto endUvw   = packet.getVector3("end-uvw", {1, 1, 0});
-
-	setUvwEndpoints(beginUvw, endUvw);
-}
-
-SdlTypeInfo GradientImage::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "gradient");
-}
-
-void GradientImage::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(
-		SdlLoader([](const InputPacket& packet)
-		{
-			return std::make_unique<GradientImage>(packet);
-		}));
 }
 
 }// end namespace ph

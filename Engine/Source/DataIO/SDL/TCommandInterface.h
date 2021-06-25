@@ -1,9 +1,9 @@
 #pragma once
 
 #include "DataIO/SDL/CommandEntry.h"
-#include "DataIO/SDL/SdlParser.h"
+//#include "DataIO/SDL/SdlParser.h"
 #include "DataIO/SDL/SdlTypeInfo.h"
-#include "DataIO/SDL/ISdlResource.h"
+//#include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/ExitStatus.h"
 #include "DataIO/SDL/CommandRegister.h"
 
@@ -23,7 +23,7 @@ template<typename T>
 void register_command_interface();
 
 template<typename DerivedType>
-class TCommandInterface : public virtual ISdlResource
+class TCommandInterface// : public virtual ISdlResource
 {
 	friend void register_command_interface<DerivedType>();
 

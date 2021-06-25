@@ -11,7 +11,9 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Conductive Interface Info"));
+
+const Logger logger(LogSender("Conductive Interface Info"));
+
 }
 
 ConductiveInterfaceInfo::ConductiveInterfaceInfo() :

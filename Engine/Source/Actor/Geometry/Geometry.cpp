@@ -28,14 +28,4 @@ const UvwMapper* Geometry::getUvwMapper() const
 	return m_uvwMapper.get();
 }
 
-// command interface
-
-SdlTypeInfo Geometry::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "geometry");
-}
-
-void Geometry::ciRegister(CommandRegister& cmdRegister)
-{}
-
 }// end namespace ph

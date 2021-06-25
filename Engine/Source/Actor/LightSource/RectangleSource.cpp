@@ -1,7 +1,6 @@
 #include "Actor/LightSource/RectangleSource.h"
 #include "Common/assertion.h"
 #include "Actor/Geometry/GRectangle.h"
-#include "DataIO/SDL/InputPacket.h"
 
 #include <memory>
 
@@ -45,29 +44,6 @@ void RectangleSource::setDimension(const real width, const real height)
 
 	m_width  = width;
 	m_height = height;
-}
-
-// command interface
-
-RectangleSource::RectangleSource(const InputPacket& packet) : 
-	AreaSource(packet)
-{
-	const auto width  = packet.getReal("width");
-	const auto height = packet.getReal("height");
-	setDimension(width, height);
-}
-
-SdlTypeInfo RectangleSource::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_LIGHT_SOURCE, "rectangle");
-}
-
-void RectangleSource::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<RectangleSource>(packet);
-	}));
 }
 
 }// end namespace ph

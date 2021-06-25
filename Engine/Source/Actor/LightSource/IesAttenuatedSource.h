@@ -2,14 +2,13 @@
 
 #include "Actor/LightSource/LightSource.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/Logger.h"
 
 #include <memory>
 
 namespace ph
 {
 	
-class IesAttenuatedSource final : public LightSource, public TCommandInterface<IesAttenuatedSource>
+class IesAttenuatedSource final : public LightSource
 {
 public:
 	IesAttenuatedSource();
@@ -33,14 +32,6 @@ public:
 private:
 	std::shared_ptr<LightSource> m_source;
 	Path                         m_iesFile;
-
-	static const Logger logger;
-
-// command interface
-public:
-	explicit IesAttenuatedSource(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

@@ -24,7 +24,6 @@
 #include "Core/Estimator/SurfaceAttributeEstimator.h"
 #include "Math/Random/sample.h"
 #include "Core/Receiver/Receiver.h"
-#include "DataIO/SDL/InputPacket.h"
 
 #include <cmath>
 #include <iostream>
@@ -153,37 +152,6 @@ RenderProgress AttributeRenderer::asyncQueryRenderProgress()
 ObservableRenderData AttributeRenderer::getObservableData() const
 {
 	return ObservableRenderData();
-}
-
-// command interface
-
-AttributeRenderer::AttributeRenderer(const InputPacket& packet) :
-
-	Renderer(packet),
-
-	m_scene          (nullptr),
-	m_receiver       (nullptr),
-	m_sampleGenerator(nullptr),
-	m_attributeFilm  (),
-
-	m_attributeName(),
-
-	m_rendererMutex()
-{
-	m_attributeName = packet.getString("attribute", m_attributeName, DataTreatment::REQUIRED());
-}
-
-SdlTypeInfo AttributeRenderer::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "attribute");
-}
-
-void AttributeRenderer::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<AttributeRenderer>(packet);
-	}));
 }
 
 }// end namespace ph

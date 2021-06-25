@@ -3,7 +3,6 @@
 #include "Actor/Material/IdealSubstance.h"
 #include "Actor/CookingContext.h"
 #include "World/VisualWorldInfo.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/Transform/StaticRigidTransform.h"
 #include "Core/Intersectable/PLatLongEnvSphere.h"
 #include "Core/Emitter/LatLongEnvEmitter.h"
@@ -12,6 +11,7 @@
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
 #include "Core/Texture/Function/TConstantMultiplyTexture.h"
+#include "Common/Logger.h"
 
 #include <algorithm>
 
@@ -19,7 +19,9 @@ namespace ph
 {
 namespace
 {
-	const Logger logger(LogSender("Actor Dome"));
+
+const Logger logger(LogSender("Actor Dome"));
+
 }
 
 ADome::ADome() : 
@@ -141,27 +143,6 @@ void swap(ADome& first, ADome& second)
 	using std::swap;
 
 	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
-}
-
-// command interface
-
-ADome::ADome(const InputPacket& packet) : 
-
-	PhysicalActor(packet),
-
-	m_energyScale(1.0_r)
-{
-	m_energyScale = packet.getReal("energy-scale", m_energyScale);
-}
-
-SdlTypeInfo ADome::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "dome");
-}
-
-void ADome::ciRegister(CommandRegister& cmdRegister)
-{
-	registerTransformFuncs<ADome>(cmdRegister);
 }
 
 }// end namespace ph

@@ -4,10 +4,8 @@
 #include "Core/Texture/TConstantTexture.h"
 #include "Core/Texture/LdrRgbTexture2D.h"
 #include "Core/Texture/TextureLoader.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/InputPrototype.h"
 #include "DataIO/PictureLoader.h"
 #include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
@@ -18,13 +16,19 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Geometry/Geometry.h"
+#include "Common/Logger.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-const Logger ModelSource::logger(LogSender("Model Source"));
+namespace
+{
+
+const Logger logger(LogSender("Model Source"));
+
+}
 
 ModelSource::ModelSource(const math::Vector3R& emittedRgbRadiance) :
 	LightSource(), 
@@ -126,63 +130,6 @@ void ModelSource::setMaterial(const std::shared_ptr<Material>& material)
 void ModelSource::setBackFaceEmit(bool isBackFaceEmit)
 {
 	m_isBackFaceEmit = isBackFaceEmit;
-}
-
-SdlTypeInfo ModelSource::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_LIGHT_SOURCE, "model");
-}
-
-void ModelSource::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<ModelSource>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<ModelSource> ModelSource::ciLoad(const InputPacket& packet)
-{
-	std::unique_ptr<ModelSource> source;
-	if(packet.hasReference<Image>("emitted-radiance"))
-	{
-		source = std::make_unique<ModelSource>(packet.getReference<Image>("emitted-radiance"));
-	}
-	else if(packet.hasString("emitted-radiance"))
-	{
-		source = std::make_unique<ModelSource>(packet.getStringAsPath("emitted-radiance"));
-	}
-	else
-	{
-		const auto emittedRadiance = packet.getVector3("emitted-radiance", 
-			math::Vector3R(0), DataTreatment::REQUIRED());
-
-		source = std::make_unique<ModelSource>(emittedRadiance);
-	}
-	PH_ASSERT(source);
-
-	auto geometry = packet.getReference<Geometry>("geometry", DataTreatment::REQUIRED());
-	auto material = packet.getReference<Material>("material", DataTreatment::OPTIONAL());
-	if(!material)
-	{
-		logger.log("material not specified, using diffusive material as default");
-
-		material = std::make_shared<MatteOpaque>(math::Vector3R(0.5_r));
-	}
-
-	source->setGeometry(geometry);
-	source->setMaterial(material);
-
-	const auto& emitMode = packet.getString("emit-mode", "front");
-	if(emitMode == "front")
-	{
-		source->setBackFaceEmit(false);
-	}
-	else if(emitMode == "back")
-	{
-		source->setBackFaceEmit(true);
-	}
-
-	return source;
 }
 
 }// end namespace ph

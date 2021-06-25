@@ -1,6 +1,5 @@
 #include "Core/SampleGenerator/SGHalton.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Core/Sample.h"
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Math/math.h"
@@ -113,28 +112,6 @@ std::unique_ptr<SampleGenerator> SGHalton::genNewborn(const std::size_t numSampl
 	// be careful that using the same permutation in different generator instances can lead
 	// to exactly the same generated samples
 	return std::make_unique<SGHalton>(numSamples);
-}
-
-// command interface
-
-SdlTypeInfo SGHalton::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "halton");
-}
-
-void SGHalton::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<SGHalton>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<SGHalton> SGHalton::ciLoad(const InputPacket& packet)
-{
-	const integer numSamples = packet.getInteger("sample-amount", 1, DataTreatment::REQUIRED());
-
-	// HACK: casting
-	return std::make_unique<SGHalton>(static_cast<std::size_t>(numSamples));
 }
 
 }// end namespace ph

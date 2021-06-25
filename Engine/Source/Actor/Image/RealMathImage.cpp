@@ -1,6 +1,5 @@
 #include "Actor/Image/RealMathImage.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/InputPacket.h"
 
 #include <memory>
 #include <utility>
@@ -87,40 +86,6 @@ std::shared_ptr<Image> RealMathImage::checkOperandImage() const
 		          << "parent image is not set" << std::endl;
 	}
 	return operandImage;
-}
-
-// command interface
-
-SdlTypeInfo RealMathImage::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "real-math");
-}
-
-void RealMathImage::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		const auto mathOpType   = packet.getString("math-op", "multiply", DataTreatment::REQUIRED());
-		const auto realValue    = packet.getReal("value", 1.0_r, DataTreatment::REQUIRED());
-		const auto operandImage = packet.getReference<Image>("operand", DataTreatment::REQUIRED());
-		
-		auto image = std::make_unique<RealMathImage>();
-		image->setReal(realValue);
-		image->setOperandImage(operandImage);
-		if(mathOpType == "multiply")
-		{
-			image->setMathOp(EMathOp::MULTIPLY);
-		}
-		else if(mathOpType == "add")
-		{
-			image->setMathOp(EMathOp::ADD);
-		}
-		else
-		{
-			std::cerr << "warning: no valid math-op specified while loading RealMathImage" << std::endl;
-		}
-		return image;
-	}));
 }
 
 }// end namespace ph

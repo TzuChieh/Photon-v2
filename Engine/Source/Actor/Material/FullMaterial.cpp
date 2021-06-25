@@ -1,5 +1,4 @@
 #include "Actor/Material/FullMaterial.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/Material/SurfaceMaterial.h"
@@ -48,30 +47,6 @@ void FullMaterial::genBehaviors(
 		m_exteriorMaterial->setSidedness(VolumeMaterial::ESidedness::EXTERIOR);
 		m_exteriorMaterial->genBehaviors(context, metadata);
 	}
-}
-
-// command interface
-
-FullMaterial::FullMaterial(const InputPacket& packet) : 
-	Material(packet),
-	m_surfaceMaterial(packet.getReference<SurfaceMaterial>("surface")),
-	m_interiorMaterial(packet.getReference<VolumeMaterial>("interior")),
-	m_exteriorMaterial(packet.getReference<VolumeMaterial>("exterior"))
-{}
-
-SdlTypeInfo FullMaterial::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "full");
-}
-
-void FullMaterial::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<FullMaterial>([](const InputPacket& packet)
-	{
-		return std::make_unique<FullMaterial>(packet);
-	});
-	cmdRegister.setLoader(loader);
 }
 
 }// end namespace ph

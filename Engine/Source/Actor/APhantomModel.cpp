@@ -5,7 +5,6 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/CookedUnit.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/MotionSource/MotionSource.h"
@@ -73,42 +72,6 @@ void swap(APhantomModel& first, APhantomModel& second)
 	// by swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<AModel&>(first), static_cast<AModel&>(second));
 	swap(first.m_phantomName,         second.m_phantomName);
-}
-
-// command interface
-
-APhantomModel::APhantomModel(const InputPacket& packet) :
-	AModel(packet)
-{
-	m_phantomName = packet.getString("name", "", DataTreatment::REQUIRED());
-}
-
-SdlTypeInfo APhantomModel::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "phantom-model");
-}
-
-void APhantomModel::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<APhantomModel>(packet);
-	}));
-
-	SdlExecutor translateSE;
-	translateSE.setName("translate");
-	translateSE.setFunc<APhantomModel>(ciTranslate);
-	cmdRegister.addExecutor(translateSE);
-
-	SdlExecutor rotateSE;
-	rotateSE.setName("rotate");
-	rotateSE.setFunc<APhantomModel>(ciRotate);
-	cmdRegister.addExecutor(rotateSE);
-
-	SdlExecutor scaleSE;
-	scaleSE.setName("scale");
-	scaleSE.setFunc<APhantomModel>(ciScale);
-	cmdRegister.addExecutor(scaleSE);
 }
 
 }// end namespace ph

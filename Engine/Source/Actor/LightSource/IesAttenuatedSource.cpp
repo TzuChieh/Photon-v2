@@ -8,12 +8,17 @@
 #include "Core/Texture/Function/TConversionTexture.h"
 #include "Math/constant.h"
 #include "Core/Emitter/OmniModulatedEmitter.h"
-#include "DataIO/SDL/InputPacket.h"
+#include "Common/Logger.h"
 
 namespace ph
 {
 
-const Logger IesAttenuatedSource::logger(LogSender("IES Attenuated Source"));
+namespace
+{
+
+const Logger logger(LogSender("IES Attenuated Source"));
+
+}
 
 IesAttenuatedSource::IesAttenuatedSource() : 
 	IesAttenuatedSource(nullptr, Path())
@@ -88,29 +93,6 @@ std::shared_ptr<Material> IesAttenuatedSource::genMaterial(CookingContext& conte
 	}
 
 	return m_source->genMaterial(context);
-}
-
-// command interface
-
-IesAttenuatedSource::IesAttenuatedSource(const InputPacket& packet) : 
-	LightSource(packet),
-	m_iesFile(), m_source(nullptr)
-{
-	m_iesFile = packet.getStringAsPath("ies-file", Path(), DataTreatment::REQUIRED());
-	m_source  = packet.getReference<LightSource>("source", DataTreatment::REQUIRED());
-}
-
-SdlTypeInfo IesAttenuatedSource::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_LIGHT_SOURCE, "ies-attenuated");
-}
-
-void IesAttenuatedSource::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<IesAttenuatedSource>(packet);
-	}));
 }
 
 }// end namespace ph

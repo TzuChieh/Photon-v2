@@ -1,13 +1,14 @@
 #pragma once
 
 #include "DataIO/SDL/CommandEntry.h"
-#include "DataIO/SDL/SdlExecutor.h"
-#include "DataIO/SDL/SdlLoader.h"
 
 #include <type_traits>
 
 namespace ph
 {
+
+class SdlExecutor;
+class SdlLoader;
 
 class CommandRegister final
 {

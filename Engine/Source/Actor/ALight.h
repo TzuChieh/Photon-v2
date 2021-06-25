@@ -3,8 +3,6 @@
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/PhysicalActor.h"
-#include "DataIO/SDL/TCommandInterface.h"
-#include "Common/Logger.h"
 #include "Math/Transform/StaticRigidTransform.h"
 
 #include <memory>
@@ -23,7 +21,7 @@ namespace math
 	class Transform;
 }
 
-class ALight : public PhysicalActor, public TCommandInterface<ALight>
+class ALight : public PhysicalActor
 {
 public:
 	ALight();
@@ -55,35 +53,6 @@ private:
 		const std::shared_ptr<Geometry>&       geometry,
 		std::unique_ptr<math::RigidTransform>* out_baseLW,
 		std::unique_ptr<math::RigidTransform>* out_baseWL) const;
-
-	static const Logger logger;
-
-// command interface
-public:
-	explicit ALight(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  actor          </category>
-	<type_name> light          </type_name>
-	<extend>    actor.physical </extend>
-
-	<name> Light Actor </name>
-	<description>
-		An actor that represents a light in the scene.
-	</description>
-
-	<command type="creator">
-		<input name="light-source" type="light-source">
-			<description>The source of the energy.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

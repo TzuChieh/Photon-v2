@@ -6,7 +6,7 @@
 namespace ph
 {
 
-class GradientImage : public BinaryMixedImage, public TCommandInterface<GradientImage>
+class GradientImage : public BinaryMixedImage
 {
 public:
 	GradientImage();
@@ -25,12 +25,6 @@ public:
 private:
 	math::Vector3R m_beginUvw;
 	math::Vector3R m_endUvw;
-
-// command interface
-public:
-	explicit GradientImage(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

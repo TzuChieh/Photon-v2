@@ -1,6 +1,5 @@
 #pragma once
 
-#include "DataIO/SDL/TCommandInterface.h"
 #include "DataIO/Option.h"
 
 namespace ph
@@ -14,7 +13,7 @@ enum class EAccelerator
 	INDEXED_KDTREE
 };
 
-class CookSettings final : public Option, public TCommandInterface<CookSettings>
+class CookSettings final : public Option
 {
 public:
 	CookSettings();

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
 
 namespace ph
 {
 
-class Option : public TCommandInterface<Option>
+class Option : public ISdlResource
 {
 public:
 	inline Option() = default;

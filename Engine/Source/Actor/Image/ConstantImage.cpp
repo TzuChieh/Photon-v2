@@ -1,7 +1,6 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "DataIO/SDL/InputPrototype.h"
 
 #include <iostream>
@@ -160,58 +159,6 @@ std::shared_ptr<TTexture<Spectrum>> ConstantImage::genTextureSpectral(
 	}
 
 	return std::make_shared<TConstantTexture<Spectrum>>(values);
-}
-
-// command interface
-
-SdlTypeInfo ConstantImage::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "constant");
-}
-
-void ConstantImage::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		const auto typeString = packet.getString("value-type", "raw");
-		EType type;
-		if(typeString == "raw")
-		{
-			type = EType::RAW;
-		}
-		else if(typeString == "emr-linear-srgb")
-		{
-			type = EType::EMR_LINEAR_SRGB;
-		}
-		else if(typeString == "ecf-linear-srgb")
-		{
-			type = EType::ECF_LINEAR_SRGB;
-		}
-
-		InputPrototype realInput;
-		realInput.addReal("value");
-
-		InputPrototype vec3Input;
-		vec3Input.addVector3("value");
-
-		// TODO: array input
-		// FIXME: in most vexing order
-		if(packet.isPrototypeMatched(realInput))
-		{
-			const auto value = packet.getReal("value");
-			return std::make_unique<ConstantImage>(value, type);
-		}
-		else if(packet.isPrototypeMatched(vec3Input))
-		{
-			const auto value = packet.getVector3("value");
-			return std::make_unique<ConstantImage>(value, type);
-		}
-		else
-		{
-			std::cerr << "warning: ill-formed input detected during ConstantImage loading" << std::endl;
-			return std::make_unique<ConstantImage>();
-		}
-	}));
 }
 
 }// end namespace ph

@@ -12,19 +12,13 @@ class VAbsorptionOnly final : public VolumeMaterial
 {
 public:
 	VAbsorptionOnly();
-	VAbsorptionOnly(const math::Vector3R& absorptionCoeffSrgb);
-	VAbsorptionOnly(const Spectrum& absorptionCoeff);
+	explicit VAbsorptionOnly(const math::Vector3R& absorptionCoeffSrgb);
+	explicit VAbsorptionOnly(const Spectrum& absorptionCoeff);
 
 	void genVolume(CookingContext& context, VolumeBehavior& behavior) const override;
 
 private:
 	Spectrum m_absorptionCoeff;
-
-// command interface
-public:
-	explicit VAbsorptionOnly(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

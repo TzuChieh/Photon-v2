@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class BinaryMixedImage : public Image, public TCommandInterface<BinaryMixedImage>
+class BinaryMixedImage : public Image
 {
 public:
 	BinaryMixedImage();
@@ -31,11 +31,6 @@ protected:
 private:
 	std::weak_ptr<Image> m_imageA;
 	std::weak_ptr<Image> m_imageB;
-
-// command interface
-public:
-	explicit BinaryMixedImage(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
 };
 
 // In-header Implementations:

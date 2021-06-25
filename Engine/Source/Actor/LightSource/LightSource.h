@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
-#include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
 #include "Common/primitive_type.h"
 
 #include <memory>
@@ -13,9 +13,8 @@ class Emitter;
 class CookingContext;
 class Geometry;
 class Material;
-class InputPacket;
 
-class LightSource : public TCommandInterface<LightSource>
+class LightSource : public ISdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_LIGHT_SOURCE;
@@ -41,12 +40,6 @@ public:
 	virtual std::shared_ptr<Material> genMaterial(CookingContext& context) const;
 
 	ETypeCategory getCategory() const override;
-
-// command interface
-public:
-	explicit LightSource(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
@@ -57,17 +50,3 @@ inline ETypeCategory LightSource::getCategory() const
 }
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  light-source </category>
-	<type_name> light-source </type_name>
-
-	<name> Light Source </name>
-	<description>
-		The source of all energy emitting entity in the scene.
-	</description>
-
-	</SDL_interface>
-*/

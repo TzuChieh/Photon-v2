@@ -1,5 +1,4 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"
 #include "Core/SampleGenerator/SampleContext.h"
@@ -259,18 +258,5 @@ void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
 		}
 	}
 }
-
-// command interface
-
-//SampleGenerator::SampleGenerator(const InputPacket& packet)
-//{}
-
-SdlTypeInfo SampleGenerator::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "sample-generator");
-}
-
-void SampleGenerator::ciRegister(CommandRegister& cmdRegister)
-{}
 
 }// end namespace ph

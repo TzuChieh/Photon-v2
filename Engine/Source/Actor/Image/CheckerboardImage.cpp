@@ -1,5 +1,4 @@
 #include "Actor/Image/CheckerboardImage.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Core/Texture/TCheckerboardTexture.h"
 
 #include <algorithm>
@@ -93,30 +92,6 @@ auto CheckerboardImage::checkOutImages() const
 	}
 
 	return {std::move(oddImage), std::move(evenImage)};
-}
-
-CheckerboardImage::CheckerboardImage(const InputPacket& packet) :
-	Image(packet)
-{
-	const real numTilesX = packet.getReal("x-tiles", 2.0_r);
-	const real numTilesY = packet.getReal("y-tiles", 2.0_r);
-	setNumTiles(numTilesX, numTilesY);
-
-	m_oddImage  = packet.getReference<Image>("odd",  DataTreatment::REQUIRED());
-	m_evenImage = packet.getReference<Image>("even", DataTreatment::REQUIRED());
-}
-
-SdlTypeInfo CheckerboardImage::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "checkerboard");
-}
-
-void CheckerboardImage::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<CheckerboardImage>(packet);
-	}));
 }
 
 }// end namespace ph

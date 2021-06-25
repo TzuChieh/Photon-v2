@@ -11,7 +11,7 @@ namespace ph
 
 class Image;
 
-class AreaSource : public LightSource, public TCommandInterface<AreaSource>
+class AreaSource : public LightSource
 {
 public:
 	AreaSource();
@@ -28,37 +28,6 @@ public:
 private:
 	SampledSpectrum m_color;
 	real            m_numWatts;
-
-// command interface
-public:
-	explicit AreaSource(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  light-source              </category>
-	<type_name> area                      </type_name>
-	<extend>    light-source.light-source </extend>
-
-	<name> Area Source </name>
-	<description>
-		This type of light source has a finite area. Energy is allowed to emit
-		as long as the emitting source is within the area.
-	</description>
-
-	<command type="creator" intent="blueprint">
-		<input name="linear-srgb" type="vector3">
-			<description>The color of this light source in linear-SRGB.</description>
-		</input>
-		<input name="watts" type="real">
-			<description>Energy emitted by this light source.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

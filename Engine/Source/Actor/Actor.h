@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
 #include "Actor/CookedUnit.h"
 #include "Actor/CookOrder.h"
 
@@ -8,9 +8,8 @@ namespace ph
 {
 
 class CookingContext;
-class InputPacket;
 
-class Actor : public TCommandInterface<Actor>
+class Actor : public ISdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_ACTOR;
@@ -27,12 +26,6 @@ public:
 	Actor& operator = (const Actor& rhs);
 
 	friend void swap(Actor& first, Actor& second);
-
-// command interface
-public:
-	explicit Actor(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
@@ -48,18 +41,3 @@ inline ETypeCategory Actor::getCategory() const
 }
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  actor </category>
-	<type_name> actor </type_name>
-
-	<name> Actor </name>
-	<description>
-		Represents an entity in the scene. Every entity that participates in a scene
-		is an actor. 
-	</description>
-
-	</SDL_interface>
-*/

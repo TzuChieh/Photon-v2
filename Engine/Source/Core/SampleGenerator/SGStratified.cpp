@@ -1,6 +1,5 @@
 #include "Core/SampleGenerator/SGStratified.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Core/Sample.h"
 #include "Math/Random.h"
 #include "Core/SampleGenerator/SamplesND.h"
@@ -149,28 +148,6 @@ std::vector<std::size_t> SGStratified::reviseDimSizeHints(
 
 	PH_ASSERT_IN_RANGE_INCLUSIVE(math::product(revisedDimSizeHints), 1, numSamples);
 	return revisedDimSizeHints;
-}
-
-// command interface
-
-SdlTypeInfo SGStratified::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "stratified");
-}
-
-void SGStratified::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<SGStratified>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<SGStratified> SGStratified::ciLoad(const InputPacket& packet)
-{
-	const integer numSamples = packet.getInteger("sample-amount", 1, DataTreatment::REQUIRED());
-
-	// HACK: casting
-	return std::make_unique<SGStratified>(static_cast<std::size_t>(numSamples));
 }
 
 }// end namespace ph

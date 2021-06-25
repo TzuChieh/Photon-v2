@@ -1,6 +1,5 @@
 #include "Actor/Material/Volume/VAbsorptionOnly.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 
 namespace ph
@@ -34,23 +33,6 @@ void VolumeMaterial::genBehaviors(
 void VolumeMaterial::setSidedness(const ESidedness sidedness)
 {
 	m_sidedness = sidedness;
-}
-
-// command interface
-
-VolumeMaterial::VolumeMaterial(const InputPacket& packet) : 
-	Material(packet),
-	m_sidedness(ESidedness::INTERIOR)
-{
-	const auto& sidedness = packet.getString("sidedness", "interior");
-	if(sidedness == "interior")
-	{
-		m_sidedness = ESidedness::INTERIOR;
-	}
-	else if(sidedness == "exterior")
-	{
-		m_sidedness = ESidedness::EXTERIOR;
-	}
 }
 
 }// end namespace ph

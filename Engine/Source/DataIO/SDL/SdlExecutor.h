@@ -1,6 +1,5 @@
 #pragma once
 
-#include "DataIO/SDL/CommandEntry.h"
 #include "DataIO/SDL/ExitStatus.h"
 #include "DataIO/SDL/SdlTypeInfo.h"
 

@@ -11,7 +11,7 @@ namespace ph
 class SurfaceOptics;
 class SurfaceBehavior;
 
-class SurfaceMaterial : public Material, public TCommandInterface<SurfaceMaterial>
+class SurfaceMaterial : public Material
 {
 public:
 	SurfaceMaterial();
@@ -27,10 +27,6 @@ public:
 		clazz.setBase(&Material::getSdlClass());
 		return clazz;
 	}
-
-	explicit SurfaceMaterial(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

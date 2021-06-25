@@ -2,7 +2,6 @@
 
 #include "Common/primitive_type.h"
 #include "Actor/Image/PictureImage.h"
-#include "DataIO/SDL/TCommandInterface.h"
 #include "Frame/TFrame.h"
 
 namespace ph
@@ -10,7 +9,7 @@ namespace ph
 
 class InputPacket;
 
-class HdrPictureImage final : public PictureImage, public TCommandInterface<HdrPictureImage>
+class HdrPictureImage final : public PictureImage
 {
 public:
 	HdrPictureImage();
@@ -24,12 +23,6 @@ public:
 
 private:
 	HdrRgbFrame m_picture;
-
-// command interface
-public:
-	explicit HdrPictureImage(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

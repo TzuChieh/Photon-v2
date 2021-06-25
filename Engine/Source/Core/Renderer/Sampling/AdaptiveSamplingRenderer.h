@@ -24,7 +24,7 @@ class Scene;
 class Receiver;
 class FixedSizeThreadPool;
 
-class AdaptiveSamplingRenderer : public SamplingRenderer, public TCommandInterface<AdaptiveSamplingRenderer>
+class AdaptiveSamplingRenderer : public SamplingRenderer
 {
 public:
 	void doUpdate(const CoreDataGroup& data) override;
@@ -82,32 +82,6 @@ private:
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 
 	std::function<void()> createWork(FixedSizeThreadPool& workers, uint32 workerId);
-
-// command interface
-public:
-	explicit AdaptiveSamplingRenderer(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  renderer          </category>
-	<type_name> adaptive-sampling </type_name>
-	<extend>    renderer.sampling </extend>
-
-	<name> Adaptive Sampling Renderer </name>
-	<description>
-		This renderer renders images by path sampling techniques, but the 
-		samples will be concentrated on noisy regions. Normally, this renderer
-		has better utilization of computational power.
-	</description>
-
-	<command type="creator">
-	</command>
-
-	</SDL_interface>
-*/

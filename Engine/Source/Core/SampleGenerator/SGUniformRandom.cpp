@@ -2,7 +2,6 @@
 #include "Core/Filmic/Film.h"
 #include "Core/Sample.h"
 #include "Math/Random.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 
 #include <iostream>
@@ -39,28 +38,6 @@ void SGUniformRandom::genSamples2D(
 std::unique_ptr<SampleGenerator> SGUniformRandom::genNewborn(const std::size_t numSamples) const
 {
 	return std::make_unique<SGUniformRandom>(numSamples);
-}
-
-// command interface
-
-SdlTypeInfo SGUniformRandom::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_SAMPLE_GENERATOR, "uniform-random");
-}
-
-void SGUniformRandom::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<SGUniformRandom>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<SGUniformRandom> SGUniformRandom::ciLoad(const InputPacket& packet)
-{
-	const auto numSamples = packet.getInteger("sample-amount", 1, DataTreatment::REQUIRED());
-
-	// HACK: casting
-	return std::make_unique<SGUniformRandom>(static_cast<std::size_t>(numSamples));
 }
 
 }// end namespace ph

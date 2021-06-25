@@ -12,7 +12,7 @@ namespace ph::math { class RigidTransform; }
 namespace ph
 {
 
-class RadiantFluxPanelArray : public Receiver, public TCommandInterface<RadiantFluxPanelArray>
+class RadiantFluxPanelArray : public Receiver
 {
 public:
 	// TODO: ordinary ctors
@@ -24,12 +24,6 @@ private:
 	std::vector<RadiantFluxPanel>         m_panels;
 	std::vector<std::size_t>              m_rasterCoordToPanelIndex;
 	std::shared_ptr<math::RigidTransform> m_localToWorld;
-
-// Command Interface
-public:
-	explicit RadiantFluxPanelArray(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

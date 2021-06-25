@@ -1,6 +1,4 @@
 #include "Actor/Image/LdrPictureImage.h"
-#include "DataIO/SDL/InputPacket.h"
-#include "DataIO/SDL/InputPrototype.h"
 #include "DataIO/PictureLoader.h"
 #include "Core/Texture/LdrRgbTexture2D.h"
 #include "Core/Texture/TNearestPixelTex2D.h"
@@ -62,32 +60,6 @@ void LdrPictureImage::setPicture(const LdrRgbFrame& picture)
 void LdrPictureImage::setPicture(LdrRgbFrame&& picture)
 {
 	m_picture = std::move(m_picture);
-}
-
-// command interface
-
-LdrPictureImage::LdrPictureImage(const InputPacket& packet) :
-	PictureImage(packet)
-{
-	const Path& picturePath = packet.getStringAsPath(
-		"image", Path(), DataTreatment::REQUIRED());
-
-	m_picture = PictureLoader::loadLdr(picturePath);
-}
-
-SdlTypeInfo LdrPictureImage::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "ldr-picture");
-}
-
-void LdrPictureImage::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(
-		SdlLoader([](const InputPacket& packet)
-		{
-			return std::make_unique<LdrPictureImage>(packet);
-		})
-	);
 }
 
 }// end namespace ph

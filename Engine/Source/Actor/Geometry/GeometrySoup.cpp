@@ -1,5 +1,4 @@
 #include "Actor/Geometry/GeometrySoup.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/Transform/TDecomposedTransform.h"
 
 #include <iostream>
@@ -59,80 +58,6 @@ bool GeometrySoup::addTransformed(
 
 	add(transformed);
 	return true;
-}
-
-// command interface
-
-namespace
-{
-	ExitStatus add_geometry(
-		const std::shared_ptr<GeometrySoup>& soup,
-		const InputPacket& packet)
-	{
-		const auto& geometry = packet.getReference<Geometry>("geometry", DataTreatment::REQUIRED());
-		if(!geometry)
-		{
-			return ExitStatus::BAD_INPUT();
-		}
-
-		soup->add(geometry);
-
-		return ExitStatus::SUCCESS();
-	}
-
-	ExitStatus add_transformed_geometry(
-		const std::shared_ptr<GeometrySoup>& soup,
-		const InputPacket& packet)
-	{
-		const auto& geometry = packet.getReference<Geometry>("geometry", DataTreatment::REQUIRED());
-		if(!geometry)
-		{
-			return ExitStatus::BAD_INPUT();
-		}
-
-		const auto translation     = packet.getVector3("translation",      math::Vector3R(0));
-		const auto rotationAxis    = packet.getVector3("rotation-axis",    math::Vector3R(0, 1, 0));
-		const auto rotationDegrees = packet.getReal   ("rotation-degrees", 0.0_r);
-		const auto scale           = packet.getVector3("scale",            math::Vector3R(1));
-
-		math::TDecomposedTransform<real> transform;
-		transform.translate(translation);
-		transform.rotate(rotationAxis, rotationDegrees);
-		transform.scale(scale);
-
-		if(soup->addTransformed(geometry, math::StaticAffineTransform::makeForward(transform)))
-		{
-			return ExitStatus::SUCCESS();
-		}
-		else
-		{
-			return ExitStatus::FAILURE(
-				"input geometry cannot be transformed natively, not adding");
-		}
-	}
-}
-
-SdlTypeInfo GeometrySoup::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "geometry-soup");
-}
-
-void GeometrySoup::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<GeometrySoup>();
-	}));
-
-	SdlExecutor addGeometry;
-	addGeometry.setName("add");
-	addGeometry.setFunc<GeometrySoup>(add_geometry);
-	cmdRegister.addExecutor(addGeometry);
-
-	SdlExecutor addTransformedGeometry;
-	addTransformedGeometry.setName("add-transformed");
-	addTransformedGeometry.setFunc<GeometrySoup>(add_transformed_geometry);
-	cmdRegister.addExecutor(addTransformedGeometry);
 }
 
 }// end namespace ph

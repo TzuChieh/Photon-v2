@@ -52,6 +52,10 @@ public:
 protected:
 	/*! @brief Load SDL value to actual value and store it in the owner's field.
 
+	Implementations are highly encouraged to throw SdlLoadError if the loading
+	process is not successful. This will allow things such as automatic
+	fallback to work according to field policies.
+
 	@param sdlValue The SDL representation to be loaded into actual value.
 	*/
 	virtual void loadFromSdl(

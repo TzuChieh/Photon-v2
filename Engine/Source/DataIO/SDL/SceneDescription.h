@@ -1,18 +1,18 @@
 #pragma once
 
-#include "Actor/AModel.h"
-#include "Actor/ALight.h"
-#include "DataIO/SDL/DataTreatment.h"
-#include "DataIO/SDL/SdlTypeInfo.h"
 #include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/sdl_helpers.h"
+#include "DataIO/SDL/sdl_exceptions.h"
+#include "Common/assertion.h"
 
 #include <unordered_map>
 #include <string>
 #include <memory>
 #include <vector>
-#include <iostream>
 #include <array>
+#include <type_traits>
+#include <cstddef>
 
 namespace ph
 {
@@ -41,38 +41,27 @@ public:
 		const std::string& resourceName,
 		ETypeCategory      category) const;
 	
-
-
-
-
-	/*! @brief Given type info @p typeInfo, get a resource named @p resourceName.
-	*/
-	std::shared_ptr<ISdlResource> getResource(
-		const SdlTypeInfo& typeInfo,
-		const std::string& resourceName,
-		const DataTreatment& treatment = DataTreatment()) const;
-
 	/*! @brief Get a resource of type @p T with name @p resourceName.
+
+	@return The resource requested. `nullptr` if not found.
+	@exception SdlLoadError If the requested resource is not of type @p T.
 	*/
 	template<typename T>
 	std::shared_ptr<T> getResource(
-		const std::string& resourceName, 
-		const DataTreatment& treatment = DataTreatment()) const;
+		const std::string& resourceName) const;
+
+	// TODO: allow type mismatch?
+
 
 	/*! @brief Get all resources of type @p T.
 	*/
 	template<typename T>
 	std::vector<std::shared_ptr<T>> getResources() const;
 
+	/*! @brief Check the existence of resource of type @p T.
+	*/
 	template<typename T>
 	bool hasResource(const std::string& resourceName) const;
-
-	std::vector<std::shared_ptr<Actor>> getActors() const;
-
-	void addResource(
-		const SdlTypeInfo& typeInfo,
-		const std::string& resourceName,
-		std::unique_ptr<ISdlResource> resource);
 
 private:
 	std::array<
@@ -82,69 +71,92 @@ private:
 	
 private:
 	std::size_t toCategoryIndex(ETypeCategory category) const;
-
-	static void reportResourceNotFound(const std::string& categoryName, const std::string& name, const DataTreatment& treatment);
+	auto getNameToResourceMap(ETypeCategory category) -> std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&;
+	auto getNameToResourceMap(ETypeCategory category) const -> const std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&;
 };
 
 // In-header Implementations:
 
 template<typename T>
 inline std::shared_ptr<T> SceneDescription::getResource(
-	const std::string& resourceName, 
-	const DataTreatment& treatment) const
+	const std::string& resourceName) const
 {
-	// TODO: check T::ciTypeInfo() exists
+	static_assert(std::is_base_of_v<ISdlResource, T>,
+		"T is not a SDL resource.");
 
-	const SdlTypeInfo& typeInfo = T::ciTypeInfo();
-	const std::shared_ptr<ISdlResource>& rawResource = getResource(typeInfo, resourceName, treatment);
-	if(rawResource == nullptr)
+	const ETypeCategory category = sdl::category_of<T>();
+	std::shared_ptr<ISdlResource> rawResource = getResource(resourceName, category);
+	if(!rawResource)
 	{
 		return nullptr;
 	}
 
-	const std::shared_ptr<T> castedResource = std::dynamic_pointer_cast<T>(rawResource);
-	if(castedResource == nullptr)
+	std::shared_ptr<T> castedResource = std::dynamic_pointer_cast<T>(std::move(rawResource));
+	if(!castedResource)
 	{
-		reportResourceNotFound(SdlTypeInfo::categoryToName(typeInfo.typeCategory), resourceName, treatment);
-		std::cerr << "warning: at SceneDescription::getResource(), " 
-		          << "resource not found detail: requested type mismatch" << std::endl;
-		return nullptr;
+		// Though the category cannot be wrong as the information is from the
+		// type itself, the cast can still fail if a wrong type for the resource
+		// is specified (within the same category, but a wrong type).
+
+		throw SdlLoadError(
+			"expected resource type different from the requested type "
+			"(category: " + sdl::category_to_string(category) + ", name: " + resourceName + ")");
 	}
 
-	return castedResource;
+	return std::move(castedResource);
 }
 
 template<typename T>
 inline std::vector<std::shared_ptr<T>> SceneDescription::getResources() const
 {
-	// TODO: check T::ciTypeInfo() exists
+	static_assert(std::is_base_of_v<ISdlResource, T>,
+		"T is not a SDL resource.");
 
-	const SdlTypeInfo& typeInfo         = T::ciTypeInfo();
-	const std::size_t  categoryIndex    = toCategoryIndex(typeInfo.typeCategory);
-	const auto&        resourcesNameMap = m_resources[categoryIndex];
+	const auto& nameToResourceMap = getNameToResourceMap(sdl::category_of<T>());
 
 	std::vector<std::shared_ptr<T>> resources;
-	for(const auto& [name, resource] : resourcesNameMap)
+	for(const auto& [name, resource] : nameToResourceMap)
 	{
-		const std::shared_ptr<T> castedResource = std::dynamic_pointer_cast<T>(resource);
+		std::shared_ptr<T> castedResource = std::dynamic_pointer_cast<T>(resource);
 		if(castedResource)
 		{
 			resources.push_back(std::move(castedResource));
 		}
 	}
 
-	return resources;
+	return std::move(resources);
 }
 
 template<typename T>
 inline bool SceneDescription::hasResource(const std::string& resourceName) const
 {
-	const SdlTypeInfo& typeInfo         = T::ciTypeInfo();
-	const std::size_t  categoryIndex    = toCategoryIndex(typeInfo.typeCategory);
-	const auto&        resourcesNameMap = m_resources[categoryIndex];
-	const auto&        iter             = resourcesNameMap.find(resourceName);
+	static_assert(std::is_base_of_v<ISdlResource, T>,
+		"T is not a SDL resource.");
 
-	return iter != resourcesNameMap.end();
+	const auto& nameToResourceMap = getNameToResourceMap(sdl::category_of<T>());
+
+	const auto& iter = nameToResourceMap.find(resourceName);
+	return iter != nameToResourceMap.end();
+}
+
+inline std::size_t SceneDescription::toCategoryIndex(const ETypeCategory category) const
+{
+	const std::size_t index = static_cast<std::size_t>(category);
+	PH_ASSERT(index < m_resources.size());
+
+	return index;
+}
+
+inline auto SceneDescription::getNameToResourceMap(const ETypeCategory category)
+	-> std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&
+{
+	return m_resources[toCategoryIndex(category)];
+}
+
+inline auto SceneDescription::getNameToResourceMap(const ETypeCategory category) const
+	-> const std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&
+{
+	return m_resources[toCategoryIndex(category)];
 }
 
 }// end namespace ph

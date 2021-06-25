@@ -1,6 +1,5 @@
 #include "Actor/Material/ThinFilm.h"
 #include "Core/Texture/TConstantTexture.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
 #include "DataIO/PictureLoader.h"
@@ -44,31 +43,6 @@ void ThinFilm::genSurface(CookingContext& context, SurfaceBehavior& behavior) co
 		transmittanceTable);
 
 	behavior.setOptics(optics);
-}
-
-// command interface
-
-ThinFilm::ThinFilm(const InputPacket& packet) :
-	SurfaceMaterial(packet)
-{
-	m_wavelengthTable = packet.getRealArray("wavelength");
-	m_reflectanceTable = packet.getRealArray("reflectance");
-	m_transmittanceTable = packet.getRealArray("transmittance");
-}
-
-SdlTypeInfo ThinFilm::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "thin-film");
-}
-
-void ThinFilm::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<ThinFilm>([](const InputPacket& packet)
-	{
-		return std::make_unique<ThinFilm>(packet);
-	});
-	cmdRegister.setLoader(loader);
 }
 
 }// end namespace ph

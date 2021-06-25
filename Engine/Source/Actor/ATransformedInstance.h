@@ -1,14 +1,13 @@
 #pragma once
 
 #include "Actor/PhysicalActor.h"
-#include "DataIO/SDL/TCommandInterface.h"
 
 #include <string>
 
 namespace ph
 {
 
-class ATransformedInstance : public PhysicalActor, public TCommandInterface<ATransformedInstance>
+class ATransformedInstance : public PhysicalActor
 {
 public:
 	ATransformedInstance();
@@ -22,33 +21,6 @@ public:
 
 private:
 	std::string m_phantomName;
-
-// command interface
-public:
-	explicit ATransformedInstance(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  actor                </category>
-	<type_name> transformed-instance </type_name>
-	<extend>    actor.physical       </extend>
-
-	<name> Transformed Instance </name>
-	<description>
-		An actor that applies a transformation effect on a phantom.
-	</description>
-
-	<command type="creator">
-		<input name="name" type="string">
-			<description>Target phantom's name.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

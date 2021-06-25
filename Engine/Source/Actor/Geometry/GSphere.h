@@ -3,7 +3,6 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/TCommandInterface.h"
 
 #include <vector>
 
@@ -12,7 +11,7 @@ namespace ph
 
 class GTriangleMesh;
 
-class GSphere : public Geometry, public TCommandInterface<GSphere>
+class GSphere : public Geometry
 {
 public:
 	GSphere();
@@ -34,33 +33,6 @@ private:
 	std::size_t addVertex(const math::Vector3R& vertex, std::vector<math::Vector3R>* const out_vertices) const;
 	std::size_t addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<math::Vector3R>* const out_vertices) const;
 	std::shared_ptr<GTriangleMesh> genTriangleMesh() const;
-
-// command interface
-public:
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<GSphere> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  geometry          </category>
-	<type_name> sphere            </type_name>
-	<extend>    geometry.geometry </extend>
-
-	<name> Sphere </name>
-	<description>
-		A perfectly round shape centering around origin. 
-	</description>
-
-	<command type="creator">
-		<input name="radius" type="real">
-			<description>Size of the sphere.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

@@ -11,7 +11,6 @@ class GTriangle : public Geometry
 {
 public:
 	GTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC);
-	//GTriangle(const InputPacket& packet);
 
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,

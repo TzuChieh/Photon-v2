@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/Quantity/Spectrum.h"
 #include "Core/Texture/TConstantTexture.h"
@@ -14,9 +14,8 @@ namespace ph
 {
 
 class CookingContext;
-class InputPacket;
 
-class Image : public TCommandInterface<Image>
+class Image : public ISdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_IMAGE;
@@ -44,13 +43,6 @@ private:
 
 		return std::make_shared<TConstantTexture<OutputType>>(OutputType(1));
 	}
-
-// command interface
-public:
-	explicit Image(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
-	static void registerMathFunctions(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
@@ -63,17 +55,3 @@ inline ETypeCategory Image::getCategory() const
 }// end namespace ph
 
 #include "Actor/Image/Image.ipp"
-
-/*
-	<SDL_interface>
-
-	<category>  image </category>
-	<type_name> image </type_name>
-
-	<name> Image </name>
-	<description>
-		A block of data.
-	</description>
-
-	</SDL_interface>
-*/

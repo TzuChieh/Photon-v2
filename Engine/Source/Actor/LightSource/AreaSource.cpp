@@ -10,14 +10,11 @@
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Actor/Image/ConstantImage.h"
-#include "DataIO/SDL/InputPacket.h"
-#include "DataIO/SDL/InputPrototype.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "DataIO/PictureLoader.h"
 #include "Math/constant.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Actor/AModel.h"
 
 #include <iostream>
 #include <memory>
@@ -104,36 +101,5 @@ std::shared_ptr<Geometry> AreaSource::genGeometry(CookingContext& context) const
 	PH_ASSERT(areas != nullptr);
 	return areas;
 }
-
-// command interface
-
-AreaSource::AreaSource(const InputPacket& packet) : 
-	LightSource(packet)
-{
-	InputPrototype rgbInput;
-	rgbInput.addVector3("linear-srgb");
-	rgbInput.addReal("watts");
-
-	if(packet.isPrototypeMatched(rgbInput))
-	{
-		m_color.setLinearSrgb(packet.getVector3("linear-srgb"), EQuantity::EMR);
-		m_numWatts = packet.getReal("watts");
-	}
-	else
-	{
-		std::cerr << "warning: at AreaSource ctor, "
-		          << "invalid input format" << std::endl;
-		m_color.setLinearSrgb(math::Vector3R(1, 1, 1), EQuantity::EMR);
-		m_numWatts = 100.0_r;
-	}
-}
-
-SdlTypeInfo AreaSource::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_LIGHT_SOURCE, "area");
-}
-
-void AreaSource::ciRegister(CommandRegister& cmdRegister)
-{}
 
 }// end namespace ph

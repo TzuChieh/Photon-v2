@@ -21,7 +21,7 @@ class Scene;
 class Receiver;
 class SampleGenerator;
 
-class EqualSamplingRenderer : public SamplingRenderer, public TCommandInterface<EqualSamplingRenderer>
+class EqualSamplingRenderer : public SamplingRenderer
 {
 public:
 	void doUpdate(const CoreDataGroup& data) override;
@@ -78,45 +78,6 @@ private:
 
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 	void initScheduler(std::size_t numSamplesPerPixel);
-
-// command interface
-public:
-	explicit EqualSamplingRenderer(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  renderer          </category>
-	<type_name> equal-sampling    </type_name>
-	<extend>    renderer.sampling </extend>
-
-	<name> Equal Sampling Renderer </name>
-	<description>
-		This renderer renders images by path sampling techniques and 
-		distributes them equally. Typically, this means the rendering 
-		technique used is unbiased, and the the image converges as a
-		whole.
-	</description>
-
-	<command type="creator">
-		<input name="scheduler" type="string">
-			<description>
-				Scheduler for rendering, affect the order of rendered regions.
-				Possible values: bulk, stripe, grid, tile, spiral, spiral-grid.
-			</description>
-		</input>
-		<input name="block-width" type="integer">
-			<description>Desired width for render scheduling.</description>
-		</input>
-		<input name="block-height" type="integer">
-			<description>Desired height for render scheduling.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

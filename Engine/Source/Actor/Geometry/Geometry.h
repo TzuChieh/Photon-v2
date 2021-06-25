@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Intersectable/Primitive.h"
-#include "DataIO/SDL/TCommandInterface.h"
+#include "DataIO/SDL/ISdlResource.h"
 #include "Math/Transform/StaticAffineTransform.h"
 
 #include <vector>
@@ -12,12 +12,11 @@ namespace ph
 
 class Primitive;
 class UvwMapper;
-class InputPacket;
 class PrimitiveBuildingMaterial;
 
 // TODO: use highest precision to perform geometry related operations
 
-class Geometry : public TCommandInterface<Geometry>
+class Geometry : public ISdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_GEOMETRY;
@@ -41,11 +40,6 @@ public:
 
 protected:
 	std::shared_ptr<UvwMapper> m_uvwMapper;
-
-// command interface
-public:
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
@@ -73,17 +67,3 @@ inline ETypeCategory Geometry::getCategory() const
 }
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  geometry </category>
-	<type_name> geometry </type_name>
-
-	<name> Geometry </name>
-	<description>
-		Defining the shape of scene elements.
-	</description>
-
-	</SDL_interface>
-*/

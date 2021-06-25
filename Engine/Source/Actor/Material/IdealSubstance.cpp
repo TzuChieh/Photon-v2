@@ -3,8 +3,6 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
-#include "DataIO/SDL/InputPrototype.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealAbsorber.h"
 #include "Common/assertion.h"
@@ -98,67 +96,6 @@ void IdealSubstance::asDielectric(
 				transmissionScale.genTextureSpectral(context));
 		}
 	};
-}
-
-// command interface
-
-IdealSubstance::IdealSubstance(const InputPacket& packet) : 
-	SurfaceMaterial(packet),
-	m_opticsGenerator()
-{
-	const auto type = packet.getString("type", 
-		"absorber", DataTreatment::REQUIRED());
-	if(type == "dielectric-reflector")
-	{
-		const auto iorInner = packet.getReal("ior-inner", 1.0_r, DataTreatment::REQUIRED());
-		const auto iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
-
-		asDielectricReflector(iorInner, iorOuter);
-	}
-	else if(type == "metallic-reflector")
-	{
-		const auto iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
-
-		// FIXME: check color space
-		const auto f0Rgb = packet.getVector3("f0-rgb", math::Vector3R(1), DataTreatment::REQUIRED());
-
-		asMetallicReflector(f0Rgb, iorOuter);
-	}
-	else if(type == "transmitter")
-	{
-		const auto iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
-		const auto iorInner = packet.getReal("ior-inner", 1.0_r, DataTreatment::REQUIRED());
-
-		asTransmitter(iorInner, iorOuter);
-	}
-	else if(type == "absorber")
-	{
-		asAbsorber();
-	}
-	else if(type == "dielectric")
-	{
-		const auto iorOuter = packet.getReal("ior-outer", 1.0_r, DataTreatment::OPTIONAL());
-		const auto iorInner = packet.getReal("ior-inner", 1.5_r, DataTreatment::REQUIRED());
-		const auto reflectionScale = packet.getVector3("reflection-scale", math::Vector3R(1.0_r), DataTreatment::OPTIONAL());
-		const auto transmissionScale = packet.getVector3("transmission-scale", math::Vector3R(1.0_r), DataTreatment::OPTIONAL());
-
-		asDielectric(iorInner, iorOuter, reflectionScale, transmissionScale);
-	}
-}
-
-SdlTypeInfo IdealSubstance::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "ideal-substance");
-}
-
-void IdealSubstance::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<IdealSubstance>([](const InputPacket& packet)
-	{
-		return std::make_unique<IdealSubstance>(packet);
-	});
-	cmdRegister.setLoader(loader);
 }
 
 }// end namespace ph

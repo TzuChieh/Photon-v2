@@ -1,6 +1,4 @@
 #include "Actor/Image/HdrPictureImage.h"
-#include "DataIO/SDL/InputPacket.h"
-#include "DataIO/SDL/InputPrototype.h"
 #include "DataIO/PictureLoader.h"
 #include "Core/Texture/HdrRgbTexture2D.h"
 #include "Core/Texture/TNearestPixelTex2D.h"
@@ -62,32 +60,6 @@ void HdrPictureImage::setPicture(const HdrRgbFrame& picture)
 void HdrPictureImage::setPicture(HdrRgbFrame&& picture)
 {
 	m_picture = std::move(m_picture);
-}
-
-// command interface
-
-HdrPictureImage::HdrPictureImage(const InputPacket& packet) :
-	PictureImage(packet)
-{
-	const auto picturePath = packet.getStringAsPath(
-		"image", Path(), DataTreatment::REQUIRED());
-
-	m_picture = PictureLoader::loadHdr(picturePath);
-}
-
-SdlTypeInfo HdrPictureImage::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_IMAGE, "hdr-picture");
-}
-
-void HdrPictureImage::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(
-		SdlLoader([](const InputPacket& packet)
-		{
-			return std::make_unique<HdrPictureImage>(packet);
-		})
-	);
 }
 
 }// end namespace ph

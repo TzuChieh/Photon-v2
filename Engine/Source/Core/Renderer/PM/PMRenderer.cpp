@@ -6,7 +6,6 @@
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/VPMRadianceEvaluator.h"
 #include "Core/Renderer/PM/FullPhoton.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/concurrent.h"
 #include "Common/Logger.h"
@@ -471,58 +470,6 @@ void PMRenderer::asyncReplaceFilm(const HdrRgbFilm& srcFilm)
 	}
 
 	m_isFilmUpdated.store(true);
-}
-
-// command interface
-
-PMRenderer::PMRenderer(const InputPacket& packet) : 
-	Renderer(packet),
-	m_film(),
-	m_scene(nullptr),
-	m_receiver(nullptr),
-	m_sg(nullptr),
-	m_filter(SampleFilters::createBlackmanHarrisFilter()),
-
-	m_mode(),
-	m_numPhotons(),
-	m_kernelRadius(),
-	m_numPasses(),
-	m_numSamplesPerPixel(),
-
-	m_filmMutex(),
-	m_statistics()
-{
-	const std::string& mode = packet.getString("mode", "vanilla");
-	if(mode == "vanilla")
-	{
-		m_mode = EPMMode::VANILLA;
-	}
-	else if(mode == "progressive")
-	{
-		m_mode = EPMMode::PROGRESSIVE;
-	}
-	else if(mode == "stochastic-progressive")
-	{
-		m_mode = EPMMode::STOCHASTIC_PROGRESSIVE;
-	}
-
-	m_numPhotons = packet.getInteger("num-photons", 200000);
-	m_kernelRadius = packet.getReal("radius", 0.1_r);
-	m_numPasses = packet.getInteger("num-passes", 1);
-	m_numSamplesPerPixel = packet.getInteger("num-samples-per-pixel", 4);
-}
-
-SdlTypeInfo PMRenderer::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "pm");
-}
-
-void PMRenderer::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<PMRenderer>(packet);
-	}));
 }
 
 }// end namespace ph

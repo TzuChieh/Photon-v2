@@ -5,7 +5,6 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/CookedUnit.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/MotionSource/MotionSource.h"
@@ -24,7 +23,9 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Transformed Instance"));
+
+const Logger logger(LogSender("Transformed Instance"));
+
 }
 
 ATransformedInstance::ATransformedInstance() :
@@ -87,42 +88,6 @@ void swap(ATransformedInstance& first, ATransformedInstance& second)
 	// by swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
 	swap(first.m_phantomName,                second.m_phantomName);
-}
-
-// command interface
-
-ATransformedInstance::ATransformedInstance(const InputPacket& packet) :
-	PhysicalActor(packet)
-{
-	m_phantomName = packet.getString("name", "", DataTreatment::REQUIRED());
-}
-
-SdlTypeInfo ATransformedInstance::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "transformed-instance");
-}
-
-void ATransformedInstance::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<ATransformedInstance>(packet);
-	}));
-
-	SdlExecutor translateSE;
-	translateSE.setName("translate");
-	translateSE.setFunc<ATransformedInstance>(ciTranslate);
-	cmdRegister.addExecutor(translateSE);
-
-	SdlExecutor rotateSE;
-	rotateSE.setName("rotate");
-	rotateSE.setFunc<ATransformedInstance>(ciRotate);
-	cmdRegister.addExecutor(rotateSE);
-
-	SdlExecutor scaleSE;
-	scaleSE.setName("scale");
-	scaleSE.setFunc<ATransformedInstance>(ciScale);
-	cmdRegister.addExecutor(scaleSE);
 }
 
 }// end namespace ph

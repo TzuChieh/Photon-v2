@@ -61,15 +61,18 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 	const SdlInputContext& ctx) const
 {
 	const auto resourceName = string_utils::cut_head(sdlValue, "@");
-	// TODO: get res should throw and accept str view
-	setValueRef(
-		owner,
-		ctx.scene->getResource<T>(std::string(resourceName), DataTreatment()));
-
-	if(!getValueRef(owner))
+	// TODO: get res should accept str view
+	// TODO: allow type mismatch?
+	try
+	{
+		setValueRef(
+			owner,
+			ctx.scene->getResource<T>(std::string(resourceName)));
+	}
+	catch(const SdlLoadError& e)
 	{
 		throw SdlLoadError(
-			"on parsing reference -> unable to load " + valueToString(owner));
+			"unable to load resource on parsing reference -> " + valueToString(owner));
 	}
 }
 

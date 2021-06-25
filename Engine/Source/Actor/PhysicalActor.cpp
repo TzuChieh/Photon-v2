@@ -1,8 +1,6 @@
 #include "Actor/PhysicalActor.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/math.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/InputPrototype.h"
 
 namespace ph
 {
@@ -90,94 +88,6 @@ void swap(PhysicalActor& first, PhysicalActor& second)
 	// By swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<Actor&>(first), static_cast<Actor&>(second));
 	swap(first.m_localToWorld,       second.m_localToWorld);
-}
-
-// command interface
-
-PhysicalActor::PhysicalActor(const InputPacket& packet) : 
-	Actor(packet),
-	m_localToWorld()
-{}
-
-SdlTypeInfo PhysicalActor::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "physical");
-}
-
-void PhysicalActor::ciRegister(CommandRegister& cmdRegister)
-{
-	registerTransformFuncs<PhysicalActor>(cmdRegister);
-}
-
-ExitStatus PhysicalActor::ciTranslate(
-	const std::shared_ptr<PhysicalActor>& targetResource,
-	const InputPacket& packet)
-{
-	InputPrototype translationInput;
-	translationInput.addVector3("factor");
-
-	if(packet.isPrototypeMatched(translationInput))
-	{
-		const auto translation = packet.getVector3("factor");
-		targetResource->translate(translation);
-		return ExitStatus::SUCCESS();
-	}
-	else
-	{
-		return ExitStatus::BAD_INPUT("requiring a vector3 factor");
-	}
-}
-
-ExitStatus PhysicalActor::ciRotate(
-	const std::shared_ptr<PhysicalActor>& targetResource,
-	const InputPacket& packet)
-{
-	InputPrototype quaternionInput;
-	quaternionInput.addQuaternion("factor");
-
-	InputPrototype axisDegreeInput;
-	axisDegreeInput.addVector3("axis");
-	axisDegreeInput.addReal("degree");
-
-	if(packet.isPrototypeMatched(quaternionInput))
-	{
-		const auto rotation = packet.getQuaternion("factor");
-		targetResource->rotate(rotation.normalize());
-		return ExitStatus::SUCCESS();
-	}
-	else if(packet.isPrototypeMatched(axisDegreeInput))
-	{
-		const auto axis    = packet.getVector3("axis");
-		const auto degrees = packet.getReal("degree");
-		targetResource->rotate(axis.normalize(), degrees);
-		return ExitStatus::SUCCESS();
-	}
-	else
-	{
-		return ExitStatus::BAD_INPUT(std::string()
-			+ "possible input formats are: "
-			+ "1. " + quaternionInput.toString() + "; "
-			+ "2. " + axisDegreeInput.toString());
-	}
-}
-
-ExitStatus PhysicalActor::ciScale(
-	const std::shared_ptr<PhysicalActor>& targetResource,
-	const InputPacket& packet)
-{
-	InputPrototype scalationInput;
-	scalationInput.addVector3("factor");
-
-	if(packet.isPrototypeMatched(scalationInput))
-	{
-		const auto scalation = packet.getVector3("factor");
-		targetResource->scale(scalation);
-		return ExitStatus::SUCCESS();
-	}
-	else
-	{
-		return ExitStatus::BAD_INPUT("requiring a vector3 factor");
-	}
 }
 
 }// end namespace ph

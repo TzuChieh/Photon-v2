@@ -1,6 +1,5 @@
 #include "Core/Receiver/RadiantFluxPanel.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "DataIO/SDL/SdlLoader.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
@@ -98,37 +97,6 @@ Spectrum RadiantFluxPanel::receiveRay(const math::Vector2D& rasterCoord, Ray* co
 void RadiantFluxPanel::evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
 {
 	PH_ASSERT_UNREACHABLE_SECTION();
-}
-
-// Command Interface
-
-RadiantFluxPanel::RadiantFluxPanel(const InputPacket& packet) : 
-
-	// A radiant flux panel output single measured value, hence the 1x1 resolution
-	Receiver(packet, {1, 1}),
-
-	m_widthHeight(
-		packet.getReal("width", 1.0_r, DataTreatment::REQUIRED()),
-		packet.getReal("height", 1.0_r, DataTreatment::REQUIRED()))
-{
-	PH_ASSERT_GT(m_widthHeight.product(), 0);
-
-	m_receiverToWorld = std::make_shared<math::StaticRigidTransform>(
-		math::StaticRigidTransform::makeForward(m_receiverToWorldDecomposed));
-}
-
-SdlTypeInfo RadiantFluxPanel::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "radiant-flux-panel");
-}
-
-void RadiantFluxPanel::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(
-		SdlLoader([](const InputPacket& packet)
-		{
-			return std::make_unique<RadiantFluxPanel>(packet);
-		}));
 }
 
 }// end namespace ph

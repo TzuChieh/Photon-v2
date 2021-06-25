@@ -5,7 +5,6 @@
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/math.h"
 #include "Actor/Geometry/GTriangleMesh.h"
 
@@ -220,62 +219,6 @@ auto GCuboid::genNormalizedFaceUVs()
 	std::array<math::AABB2D, 6> faceUVs;
 	faceUVs.fill({{0, 0}, {1, 1}});
 	return faceUVs;
-}
-
-// command interface
-
-SdlTypeInfo GCuboid::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "cuboid");
-}
-
-void GCuboid::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		const auto minVertex = packet.getVector3("min-vertex", math::Vector3R(0), DataTreatment::REQUIRED());
-		const auto maxVertex = packet.getVector3("max-vertex", math::Vector3R(0), DataTreatment::REQUIRED());
-
-		auto cuboid = std::make_unique<GCuboid>(minVertex, maxVertex);
-
-		if(packet.hasQuaternion("px-face-uv"))
-		{
-			const auto uv = packet.getQuaternion("px-face-uv");
-			cuboid->m_faceUVs[math::constant::X_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
-		}
-		
-		if(packet.hasQuaternion("nx-face-uv"))
-		{
-			const auto uv = packet.getQuaternion("nx-face-uv");
-			cuboid->m_faceUVs[math::constant::X_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
-		}
-
-		if(packet.hasQuaternion("py-face-uv"))
-		{
-			const auto uv = packet.getQuaternion("py-face-uv");
-			cuboid->m_faceUVs[math::constant::Y_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
-		}
-
-		if(packet.hasQuaternion("ny-face-uv"))
-		{
-			const auto uv = packet.getQuaternion("ny-face-uv");
-			cuboid->m_faceUVs[math::constant::Y_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
-		}
-
-		if(packet.hasQuaternion("pz-face-uv"))
-		{
-			const auto uv = packet.getQuaternion("pz-face-uv");
-			cuboid->m_faceUVs[math::constant::Z_AXIS] = {{uv.x, uv.y}, {uv.z, uv.w}};
-		}
-
-		if(packet.hasQuaternion("nz-face-uv"))
-		{
-			const auto uv = packet.getQuaternion("nz-face-uv");
-			cuboid->m_faceUVs[math::constant::Z_AXIS + 3] = {{uv.x, uv.y}, {uv.z, uv.w}};
-		}
-
-		return cuboid;
-	}));
 }
 
 }// end namespace ph

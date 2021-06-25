@@ -2,7 +2,6 @@
 
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Math/math_fwd.h"
-#include "DataIO/SDL/TCommandInterface.h"
 #include "Actor/Image/Image.h"
 #include "Actor/SDLExtension/sdl_interface_extended.h"
 
@@ -11,7 +10,7 @@
 namespace ph
 {
 
-class MatteOpaque : public SurfaceMaterial, public TCommandInterface<MatteOpaque>
+class MatteOpaque : public SurfaceMaterial
 {
 public:
 	MatteOpaque();

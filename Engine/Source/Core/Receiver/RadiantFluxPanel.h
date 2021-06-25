@@ -11,7 +11,7 @@ namespace ph::math { class RigidTransform; }
 namespace ph
 {
 
-class RadiantFluxPanel : public Receiver, public TCommandInterface<RadiantFluxPanel>
+class RadiantFluxPanel : public Receiver
 {
 public:
 	RadiantFluxPanel(
@@ -26,12 +26,6 @@ public:
 private:
 	math::Vector2R                        m_widthHeight;
 	std::shared_ptr<math::RigidTransform> m_receiverToWorld;
-
-// Command Interface
-public:
-	explicit RadiantFluxPanel(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph

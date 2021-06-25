@@ -3,8 +3,6 @@
 #include "Core/Receiver/Receiver.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/ISdlResource.h"
-#include "DataIO/SDL/TCommandInterface.h"
 #include "Math/Transform/TDecomposedTransform.h"
 
 #include <iostream>
@@ -20,7 +18,7 @@ namespace math
 	class Transform;
 }
 
-class PerspectiveReceiver : public Receiver, public TCommandInterface<PerspectiveReceiver>
+class PerspectiveReceiver : public Receiver
 {
 public:
 	// TODO: ordinary ctors
@@ -43,39 +41,6 @@ private:
 	float64 m_sensorOffset;
 
 	void updateTransforms();
-
-// command interface
-public:
-	explicit PerspectiveReceiver(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  receiver          </category>
-	<type_name> perspective       </type_name>
-	<extend>    receiver.receiver </extend>
-
-	<name> Perspective Receiver </name>
-	<description>
-		For receivers that creates perspective effect in their resulting image.
-	</description>
-
-	<command type="creator" intent="blueprint">
-		<input name="fov-degree" type="real">
-			<description>Field of view of this receiver in degrees.</description>
-		</input>
-		<input name="sensor-width-mm" type="real">
-			<description>Width of the sensor used by this receiver in millimeters.</description>
-		</input>
-		<input name="sensor-offset-mm" type="real">
-			<description>Distance between sensor and light entry.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

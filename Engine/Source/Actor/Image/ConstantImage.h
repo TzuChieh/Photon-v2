@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class ConstantImage final : public Image, public TCommandInterface<ConstantImage>
+class ConstantImage final : public Image
 {
 public:
 	enum class EType
@@ -40,43 +40,6 @@ public:
 private:
 	std::vector<real> m_values;
 	EType             m_type;
-
-// command interface
-public:
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  image       </category>
-	<type_name> constant    </type_name>
-	<extend>    image.image </extend>
-
-	<name> Constant Image </name>
-	<description>
-		An image that stores constant value. It can be a single real, a vector or a spectrum.
-	</description>
-
-	<command type="creator">
-		<input name="value-type" type="string">
-			<description>
-				Specifying what the stored constant represents. "raw": the value will be used 
-				directly without any conversion; "emr-linear-srgb": the value represents energy 
-				magnitudes in linear-SRGB; "ecf-linear-srgb": the value represents energy 
-				conserving coefficients in linear-SRGB.
-			</description>
-		</input>
-		<input name="value" type="real">
-			<description>A single constant value.</description>
-		</input>
-		<input name="value" type="vector3">
-			<description>Vectorized constant value with three elements.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

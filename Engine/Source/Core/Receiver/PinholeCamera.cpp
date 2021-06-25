@@ -1,6 +1,5 @@
 #include "Core/Receiver/PinholeCamera.h"
 #include "Core/Ray.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/math.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"
@@ -87,26 +86,6 @@ void PinholeCamera::evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos
 	*out_filmArea = halfFilmWidth * halfFilmHeight * 4.0_r;
 	out_importance->set(1.0_r / (*out_filmArea * cosTheta * cosTheta * cosTheta * cosTheta));
 	*out_pdfW = 1.0_r / (*out_filmArea * cosTheta * cosTheta * cosTheta);*/
-}
-
-// command interface
-
-PinholeCamera::PinholeCamera(const InputPacket& packet) :
-	PerspectiveReceiver(packet)
-{}
-
-SdlTypeInfo PinholeCamera::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "pinhole");
-}
-
-void PinholeCamera::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(
-		SdlLoader([](const InputPacket& packet)
-		{
-			return std::make_unique<PinholeCamera>(packet);
-		}));
 }
 
 }// end namespace ph

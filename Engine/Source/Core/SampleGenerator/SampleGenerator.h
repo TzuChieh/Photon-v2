@@ -12,7 +12,6 @@
 #include "Core/SampleGenerator/SamplesNDStream.h"
 #include "Math/TArithmeticArray.h"
 #include "DataIO/SDL/ISdlResource.h"
-#include "DataIO/SDL/TCommandInterface.h"
 
 #include <cstddef>
 #include <utility>
@@ -27,7 +26,7 @@ class Scene;
 class InputPacket;
 class SampleContext;
 
-class SampleGenerator : public TCommandInterface<SampleGenerator>
+class SampleGenerator : public ISdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_SAMPLE_GENERATOR;
@@ -92,12 +91,6 @@ private:
 
 	void allocSampleBuffer();
 	void genSampleBatch(std::size_t cachedBatchIndex);
-
-// command interface
-public:
-	//explicit SampleGenerator(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
@@ -130,17 +123,3 @@ inline bool SampleGenerator::hasMoreBatches() const
 }
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  sample-generator </category>
-	<type_name> sample-generator </type_name>
-
-	<name> Sample Generator </name>
-	<description>
-		Engine component for generating sample values.
-	</description>
-
-	</SDL_interface>
-*/

@@ -21,7 +21,6 @@
 #include "Core/Renderer/Region/TileScheduler.h"
 #include "Common/Logger.h"
 #include "Core/Renderer/Region/WorkUnit.h"
-#include "DataIO/SDL/InputPacket.h"
 
 #include <cmath>
 #include <iostream>
@@ -322,76 +321,6 @@ void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
 			numWorkers(), totalWorks);
 		break;
 	}
-}
-
-// command interface
-
-EqualSamplingRenderer::EqualSamplingRenderer(const InputPacket& packet) :
-
-	SamplingRenderer(packet),
-
-	m_scene          (nullptr),
-	m_receiver       (nullptr),
-	m_sampleGenerator(nullptr),
-	m_mainFilm       (),
-
-	m_scheduler      (nullptr),
-	m_schedulerType  (EScheduler::SPIRAL_GRID),
-	m_blockSize      (128, 128),
-
-	m_renderWorks   (),
-	m_filmEstimators(),
-
-	m_updatedRegions       (),
-	m_rendererMutex        (),
-	m_totalPaths           (),
-	m_suppliedFractionBits (),
-	m_submittedFractionBits()
-{
-	if(packet.hasString("scheduler"))
-	{
-		const std::string schedulerName = packet.getString("scheduler");
-		if(schedulerName == "bulk")
-		{
-			m_schedulerType = EScheduler::BULK;
-		}
-		else if(schedulerName == "stripe")
-		{
-			m_schedulerType = EScheduler::STRIPE;
-		}
-		else if(schedulerName == "grid")
-		{
-			m_schedulerType = EScheduler::GRID;
-		}
-		else if(schedulerName == "tile")
-		{
-			m_schedulerType = EScheduler::TILE;
-		}
-		else if(schedulerName == "spiral")
-		{
-			m_schedulerType = EScheduler::SPIRAL;
-		}
-		else if(schedulerName == "spiral-grid")
-		{
-			m_schedulerType = EScheduler::SPIRAL_GRID;
-		}
-	}
-
-	m_blockSize.x = packet.getInteger("block-width",  static_cast<integer>(m_blockSize.x));
-	m_blockSize.y = packet.getInteger("block-height", static_cast<integer>(m_blockSize.y));
-}
-
-SdlTypeInfo EqualSamplingRenderer::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RENDERER, "equal-sampling");
-}
-
-void EqualSamplingRenderer::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<EqualSamplingRenderer>(packet);
-	}));
 }
 
 }// end namespace ph

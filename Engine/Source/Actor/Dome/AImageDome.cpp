@@ -1,5 +1,4 @@
 #include "Actor/Dome/AImageDome.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "DataIO/PictureLoader.h"
 #include "Actor/Image/HdrPictureImage.h"
 #include "Common/Logger.h"
@@ -9,7 +8,9 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Actor Dome (Image)"));
+
+const Logger logger(LogSender("Actor Dome (Image)"));
+
 }
 
 AImageDome::AImageDome() :
@@ -68,33 +69,6 @@ void swap(AImageDome& first, AImageDome& second)
 	swap(static_cast<ADome&>(first), static_cast<ADome&>(second));
 	swap(first.m_imagePath,          second.m_imagePath);
 	swap(first.m_imageResolution,    second.m_imageResolution);
-}
-
-// command interface
-
-AImageDome::AImageDome(const InputPacket& packet) :
-
-	ADome(packet),
-
-	m_imageResolution(1, 1)
-{
-	m_imagePath = packet.getStringAsPath("image", 
-		Path(), DataTreatment::REQUIRED());
-}
-
-SdlTypeInfo AImageDome::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "image-dome");
-}
-
-void AImageDome::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<AImageDome>(packet);
-	}));
-
-	registerTransformFuncs<AImageDome>(cmdRegister);
 }
 
 }// end namespace ph

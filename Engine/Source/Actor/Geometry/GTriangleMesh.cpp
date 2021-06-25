@@ -3,7 +3,6 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/GeometrySoup.h"
 
 #include <iostream>
@@ -75,29 +74,6 @@ std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
 	}
 
 	return geometrySoup->genTransformed(transform);
-}
-
-// command interface
-
-SdlTypeInfo GTriangleMesh::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "triangle-mesh");
-}
-
-void GTriangleMesh::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<GTriangleMesh>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<GTriangleMesh> GTriangleMesh::ciLoad(const InputPacket& packet)
-{
-	const auto positions = packet.getVector3Array("positions");
-	const auto texCoords = packet.getVector3Array("texture-coordinates");
-	const auto normals   = packet.getVector3Array("normals");
-
-	return std::make_unique<GTriangleMesh>(positions, texCoords, normals);
 }
 
 }// end namespace ph

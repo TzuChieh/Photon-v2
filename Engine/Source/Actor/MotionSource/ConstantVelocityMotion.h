@@ -6,7 +6,7 @@
 namespace ph
 {
 
-class ConstantVelocityMotion : public MotionSource, public TCommandInterface<ConstantVelocityMotion>
+class ConstantVelocityMotion : public MotionSource
 {
 public:
 	explicit ConstantVelocityMotion(const math::Vector3R& velocity);
@@ -17,12 +17,6 @@ public:
 
 private:
 	math::Vector3R m_velocity;
-
-// command interface
-public:
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
-	static std::unique_ptr<ConstantVelocityMotion> ciLoad(const InputPacket& packet);
 };
 
 }// end namespace ph

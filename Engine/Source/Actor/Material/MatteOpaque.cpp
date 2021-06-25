@@ -1,6 +1,5 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Core/Texture/TConstantTexture.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
 #include "DataIO/PictureLoader.h"
@@ -61,63 +60,6 @@ void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 void MatteOpaque::setAlbedo(const std::shared_ptr<Image>& albedo)
 {
 	m_albedo = albedo;
-}
-
-// command interface
-
-MatteOpaque::MatteOpaque(const InputPacket& packet) :
-
-	SurfaceMaterial(packet),
-
-	m_albedo(),
-	m_sigmaDegrees()
-{
-	if(packet.hasReference<Image>("albedo"))
-	{
-		setAlbedo(packet.getReference<Image>("albedo"));
-	}
-	else if(packet.hasString("albedo"))
-	{
-		const Path imagePath = packet.getStringAsPath("albedo", 
-			Path(), DataTreatment::REQUIRED());
-
-		setAlbedo(std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath)));
-	}
-	else if(packet.hasVector3("albedo"))
-	{
-		setAlbedo(packet.getVector3("albedo"));
-	}
-	else if(packet.hasReal("albedo"))
-	{
-		setAlbedo(math::Vector3R(packet.getReal("albedo")));
-	}
-	else
-	{
-		std::cerr << "warning: at MatteOpaque ctor, "
-		          << "ill-formed input detected, all albedo components are set to 0.5" << std::endl;
-		setAlbedo(math::Vector3R(0.5_r));
-	}
-	PH_ASSERT(m_albedo);
-
-	if(packet.hasReal("sigma-degrees"))
-	{
-		m_sigmaDegrees = std::make_shared<ConstantImage>(packet.getReal("sigma-degrees"));
-	}
-}
-
-SdlTypeInfo MatteOpaque::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "matte-opaque");
-}
-
-void MatteOpaque::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<MatteOpaque>([](const InputPacket& packet)
-	{
-		return std::make_unique<MatteOpaque>(packet);
-	});
-	cmdRegister.setLoader(loader);
 }
 
 }// end namespace ph

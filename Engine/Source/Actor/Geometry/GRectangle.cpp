@@ -4,7 +4,6 @@
 #include "Actor/Geometry/GTriangle.h"
 #include "Math/TVector3.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <iostream>
@@ -95,33 +94,6 @@ bool GRectangle::checkData(const PrimitiveBuildingMaterial& data, const real wid
 	}
 
 	return true;
-}
-
-// command interface
-
-SdlTypeInfo GRectangle::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "rectangle");
-}
-
-void GRectangle::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<GRectangle>(ciLoad);
-	cmdRegister.setLoader(loader);
-}
-
-std::unique_ptr<GRectangle> GRectangle::ciLoad(const InputPacket& packet)
-{
-	const DataTreatment requiredData(EDataImportance::REQUIRED, 
-	                                 "GRectangle needs width and height specified");
-
-	const auto width  = packet.getReal("width",  1.0_r, requiredData);
-	const auto height = packet.getReal("height", 1.0_r, requiredData);
-
-	auto rectangle = std::make_unique<GRectangle>(width, height);
-	rectangle->setTexCoordScale(packet.getReal("texcoord-scale", 1.0_r));
-	return rectangle;
 }
 
 }// end namespace ph

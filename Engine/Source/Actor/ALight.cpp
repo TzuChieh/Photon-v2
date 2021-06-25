@@ -6,7 +6,6 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/LightSource/LightSource.h"
 #include "Actor/CookedUnit.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
@@ -14,6 +13,7 @@
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Math/Transform/StaticRigidTransform.h"
 #include "Actor/CookingContext.h"
+#include "Common/Logger.h"
 
 #include <algorithm>
 #include <iostream>
@@ -21,7 +21,12 @@
 namespace ph
 {
 
-const Logger ALight::logger(LogSender("Actor Light"));
+namespace
+{
+
+const Logger logger(LogSender("Actor Light"));
+
+}
 
 ALight::ALight() : 
 	PhysicalActor(), 
@@ -209,45 +214,6 @@ void swap(ALight& first, ALight& second)
 	// by swapping the members of two objects, the two objects are effectively swapped
 	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
 	swap(first.m_lightSource,                second.m_lightSource);
-}
-
-// command interface
-
-ALight::ALight(const InputPacket& packet) : 
-	PhysicalActor(packet),
-	m_lightSource(nullptr)
-{
-	m_lightSource = packet.getReference<LightSource>(
-		"light-source",
-		DataTreatment(EDataImportance::REQUIRED, "ALight requires at least a LightSource"));
-}
-
-SdlTypeInfo ALight::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "light");
-}
-
-void ALight::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<ALight>(packet);
-	}));
-
-	SdlExecutor translateSE;
-	translateSE.setName("translate");
-	translateSE.setFunc<ALight>(ciTranslate);
-	cmdRegister.addExecutor(translateSE);
-
-	SdlExecutor rotateSE;
-	rotateSE.setName("rotate");
-	rotateSE.setFunc<ALight>(ciRotate);
-	cmdRegister.addExecutor(rotateSE);
-
-	SdlExecutor scaleSE;
-	scaleSE.setName("scale");
-	scaleSE.setFunc<ALight>(ciScale);
-	cmdRegister.addExecutor(scaleSE);
 }
 
 }// end namespace ph

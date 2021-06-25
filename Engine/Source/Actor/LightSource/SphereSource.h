@@ -5,7 +5,7 @@
 namespace ph
 {
 
-class SphereSource final : public AreaSource, public TCommandInterface<SphereSource>
+class SphereSource final : public AreaSource
 {
 public:
 	SphereSource();
@@ -18,33 +18,6 @@ public:
 
 private:
 	real m_radius;
-
-// command interface
-public:
-	explicit SphereSource(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  light-source      </category>
-	<type_name> sphere            </type_name>
-	<extend>    light-source.area </extend>
-
-	<name> Sphere Source </name>
-	<description>
-		This type of light emits energy from a spherical shape.
-	</description>
-
-	<command type="creator">
-		<input name="radius" type="real">
-			<description>The radius of the sphere.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

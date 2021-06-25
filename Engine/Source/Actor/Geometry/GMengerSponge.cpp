@@ -1,5 +1,4 @@
 #include "Actor/Geometry/GMengerSponge.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
@@ -88,28 +87,6 @@ void GMengerSponge::genMengerSpongeRecursive(
 			}// end ix
 		}// end iy
 	}// end iz
-}
-
-// command interface
-
-SdlTypeInfo GMengerSponge::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_GEOMETRY, "menger-sponge");
-}
-
-void GMengerSponge::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		integer numIteration = packet.getInteger("iterations", 3);
-		if(numIteration < 0)
-		{
-			std::cerr << "warning: menger sponge with negative number of iteration, "
-			          << "will use 3 instead" << std::endl;
-			numIteration = 3;
-		}
-		return std::make_unique<GMengerSponge>(static_cast<uint32>(numIteration));
-	}));
 }
 
 }// end namespace ph

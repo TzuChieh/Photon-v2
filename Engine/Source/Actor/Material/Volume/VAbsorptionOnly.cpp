@@ -2,7 +2,6 @@
 #include "Core/VolumeBehavior/VolumeBehavior.h"
 #include "Core/VolumeBehavior/VolumeOptics/VoHomoAbsorption.h"
 #include "Core/VolumeBehavior/BlockFunction/BfConstant.h"
-#include "DataIO/SDL/InputPacket.h"
 
 namespace ph
 {
@@ -24,35 +23,6 @@ void VAbsorptionOnly::genVolume(CookingContext& context, VolumeBehavior& behavio
 {
 	auto blockFunc = std::make_shared<BfConstant>(m_absorptionCoeff);
 	behavior.setOptics(std::make_shared<VoHomoAbsorption>(blockFunc));
-}
-
-// command interface
-
-VAbsorptionOnly::VAbsorptionOnly(const InputPacket& packet) : 
-	VolumeMaterial(packet),
-	m_absorptionCoeff(0.5_r)
-{
-	if(packet.hasVector3("coeff"))
-	{
-		m_absorptionCoeff.setLinearSrgb(packet.getVector3("coeff"), EQuantity::RAW);
-	}
-	else
-	{
-		m_absorptionCoeff.setValues(packet.getReal("coeff", 0.5_r, DataTreatment::REQUIRED()));
-	}
-}
-
-SdlTypeInfo VAbsorptionOnly::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "volume-absorption");
-}
-
-void VAbsorptionOnly::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<VAbsorptionOnly>(packet);
-	}));
 }
 
 }// end namespace ph

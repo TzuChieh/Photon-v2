@@ -15,7 +15,7 @@ namespace ph
 
 Using Preetham model to generate absolute energy from sky.
 */
-class APreethamDome : public ADome, public TCommandInterface<APreethamDome>
+class APreethamDome : public ADome
 {
 public:
 	APreethamDome();
@@ -40,12 +40,6 @@ private:
 	real m_turbidity;
 
 	static void checkTurbidity(real turbidity);
-
-// command interface
-public:
-	explicit APreethamDome(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 // In-header Implementations:
@@ -56,51 +50,3 @@ inline math::Vector2S APreethamDome::getResolution() const
 }
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  actor          </category>
-	<type_name> preetham-dome  </type_name>
-	<extend>    actor.dome     </extend>
-
-	<name> Preetham Dome Actor </name>
-	<description>
-		Using Preetham model to generate absolute energy from sky.
-	</description>
-
-	<command type="creator">
-		<input name="turbidity" type="real">
-			<description>
-				Turbidity of the atmosphere.
-			</description>
-		</input>
-		<input name="standard-time-24h" type="real">
-			<description>
-				Standard time in 24H.
-			</description>
-		</input>
-		<input name="standard-meridian-degrees" type="real">
-			<description>
-				Standard meridian in degrees.
-			</description>
-		</input>
-		<input name="site-latitude-decimal" type="real">
-			<description>
-				Site latitude in decimal.
-			</description>
-		</input>
-		<input name="site-longitude-decimal" type="real">
-			<description>
-				Site longitude in decimal.
-			</description>
-		</input>
-		<input name="julian-date" type="integer">
-			<description>
-				The day of the year as an integer in the range [1, 366].
-			</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

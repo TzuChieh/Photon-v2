@@ -22,7 +22,7 @@ class Scene;
 class Receiver;
 class SampleGenerator;
 
-class AttributeRenderer : public Renderer, public TCommandInterface<AttributeRenderer>
+class AttributeRenderer : public Renderer
 {
 public:
 	void doUpdate(const CoreDataGroup& data) override;
@@ -48,35 +48,6 @@ private:
 	HdrRgbFilm       m_attributeFilm;
 	
 	std::mutex       m_rendererMutex;
-
-// command interface
-public:
-	explicit AttributeRenderer(const InputPacket& packet);
-	static SdlTypeInfo ciTypeInfo();
-	static void ciRegister(CommandRegister& cmdRegister);
 };
 
 }// end namespace ph
-
-/*
-	<SDL_interface>
-
-	<category>  renderer          </category>
-	<type_name> attribute         </type_name>
-	<extend>    renderer.renderer </extend>
-
-	<name> Attribute Renderer </name>
-	<description>
-		This renderer produces various type of attributes which can be useful
-		for compositing. The attributes are also known as AOVs (arbitrary 
-		output variables).
-	</description>
-
-	<command type="creator">
-		<input name="attribute" type="string">
-			<description>The attribute to render.</description>
-		</input>
-	</command>
-
-	</SDL_interface>
-*/

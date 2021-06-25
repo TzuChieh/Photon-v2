@@ -1,5 +1,4 @@
 #include "Actor/Material/BinaryMixedSurfaceMaterial.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Common/assertion.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
@@ -88,55 +87,6 @@ void BinaryMixedSurfaceMaterial::setFactor(const std::shared_ptr<Image>& factor)
 	PH_ASSERT(factor);
 
 	m_factor = factor;
-}
-
-// command interface
-
-BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial(const InputPacket& packet) : 
-
-	SurfaceMaterial(packet),
-
-	m_mode     (EMode::LERP),
-	m_material0(nullptr), 
-	m_material1(nullptr),
-	m_factor   (nullptr)
-{
-	const auto mode = packet.getString("mode");
-	if(mode == "lerp")
-	{
-		setMode(EMode::LERP);
-	}
-
-	const auto material0 = packet.getReference<SurfaceMaterial>("material-0", DataTreatment::REQUIRED());
-	const auto material1 = packet.getReference<SurfaceMaterial>("material-1", DataTreatment::REQUIRED());
-	setMaterials(material0, material1);
-
-	// TODO: vector3 factor
-	if(packet.hasReference<Image>("factor"))
-	{
-		const auto factor = packet.getReference<Image>("factor");
-		setFactor(factor);
-	}
-	else
-	{
-		const auto factor = packet.getReal("factor", 0.5_r);
-		setFactor(factor);
-	}
-}
-
-SdlTypeInfo BinaryMixedSurfaceMaterial::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_MATERIAL, "binary-mixed-surface");
-}
-
-void BinaryMixedSurfaceMaterial::ciRegister(CommandRegister& cmdRegister)
-{
-	SdlLoader loader;
-	loader.setFunc<BinaryMixedSurfaceMaterial>([](const InputPacket& packet)
-	{
-		return std::make_unique<BinaryMixedSurfaceMaterial>(packet);
-	});
-	cmdRegister.setLoader(loader);
 }
 
 }// end namespace ph

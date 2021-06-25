@@ -1,7 +1,6 @@
 #include "Core/Receiver/ThinLensCamera.h"
 #include "Core/Ray.h"
 #include "Math/Transform/Transform.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Math/Random.h"
 #include "Common/assertion.h"
 
@@ -59,33 +58,6 @@ void ThinLensCamera::genRandomSampleOnDisk(const real radius, real* const out_x,
 	const real phi = math::constant::two_pi<real> * math::Random::genUniformReal_i0_e1();
 	*out_x = r * std::cos(phi);
 	*out_y = r * std::sin(phi);
-}
-
-// command interface
-
-ThinLensCamera::ThinLensCamera(const InputPacket& packet) : 
-
-	PerspectiveReceiver(packet), 
-
-	// TODO: better default values
-	m_lensRadiusMM(30.0_r), m_focalDistanceMM(150.0_r)
-{
-	m_lensRadiusMM    = packet.getReal("lens-radius-mm",    m_lensRadiusMM,    DataTreatment::REQUIRED());
-	m_focalDistanceMM = packet.getReal("focal-distance-mm", m_focalDistanceMM, DataTreatment::REQUIRED());
-}
-
-SdlTypeInfo ThinLensCamera::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_RECEIVER, "thin-lens");
-}
-
-void ThinLensCamera::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(
-		SdlLoader([](const InputPacket& packet)
-		{
-			return std::make_unique<ThinLensCamera>(packet);
-		}));
 }
 
 }// end namespace ph

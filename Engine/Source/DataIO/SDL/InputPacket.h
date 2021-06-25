@@ -7,7 +7,6 @@
 #include "Math/TQuaternion.h"
 #include "DataIO/SDL/DataTreatment.h"
 #include "DataIO/SDL/SdlTypeInfo.h"
-#include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/SDL/ValueParser.h"
 #include "Utility/IMoveOnly.h"
@@ -23,6 +22,7 @@ namespace ph
 {
 
 class InputPrototype;
+class SceneDescription;
 
 class InputPacket final : public IMoveOnly
 {

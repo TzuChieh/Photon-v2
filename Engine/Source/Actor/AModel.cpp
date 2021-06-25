@@ -5,7 +5,6 @@
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/CookedUnit.h"
-#include "DataIO/SDL/InputPacket.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/MotionSource/MotionSource.h"
@@ -130,50 +129,6 @@ void swap(AModel& first, AModel& second)
 	swap(first.m_geometry,                   second.m_geometry);
 	swap(first.m_material,                   second.m_material);
 	swap(first.m_motionSource,               second.m_motionSource);
-}
-
-// command interface
-
-AModel::AModel(const InputPacket& packet) : 
-	PhysicalActor(packet),
-	m_geometry(nullptr),
-	m_material(nullptr),
-	m_motionSource(nullptr)
-{
-	const DataTreatment requiredDT(EDataImportance::REQUIRED,
-		"AModel needs both a Geometry and a Material");
-
-	m_geometry     = packet.getReference<Geometry>("geometry", requiredDT);
-	m_material     = packet.getReference<Material>("material", requiredDT);
-	m_motionSource = packet.getReference<MotionSource>("motion", DataTreatment::OPTIONAL());
-}
-
-SdlTypeInfo AModel::ciTypeInfo()
-{
-	return SdlTypeInfo(ETypeCategory::REF_ACTOR, "model");
-}
-
-void AModel::ciRegister(CommandRegister& cmdRegister)
-{
-	cmdRegister.setLoader(SdlLoader([](const InputPacket& packet)
-	{
-		return std::make_unique<AModel>(packet);
-	}));
-
-	SdlExecutor translateSE;
-	translateSE.setName("translate");
-	translateSE.setFunc<AModel>(ciTranslate);
-	cmdRegister.addExecutor(translateSE);
-
-	SdlExecutor rotateSE;
-	rotateSE.setName("rotate");
-	rotateSE.setFunc<AModel>(ciRotate);
-	cmdRegister.addExecutor(rotateSE);
-
-	SdlExecutor scaleSE;
-	scaleSE.setName("scale");
-	scaleSE.setFunc<AModel>(ciScale);
-	cmdRegister.addExecutor(scaleSE);
 }
 
 }// end namespace ph
