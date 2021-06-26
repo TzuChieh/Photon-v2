@@ -33,7 +33,7 @@ public:
 protected:
 	void loadFromSdl(
 		OuterType&             outerObj,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override;
 
 	void convertToSdl(
@@ -86,12 +86,12 @@ inline std::string TSdlNestedField<OuterType, InnerType>::valueToString(const Ou
 template<typename OuterType, typename InnerType>
 inline void TSdlNestedField<OuterType, InnerType>::loadFromSdl(
 	OuterType&             outerObj,
-	const std::string&     sdlValue,
+	const SdlPayload&      payload,
 	const SdlInputContext& ctx) const
 {
 	m_innerObjField->loadFromSdl(
 		outerObj.*m_innerObjPtr,
-		sdlValue,
+		payload,
 		ctx);
 }
 

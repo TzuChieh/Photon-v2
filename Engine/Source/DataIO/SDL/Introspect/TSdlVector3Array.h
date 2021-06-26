@@ -39,10 +39,10 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, sdl::load_vector3_array(sdlValue));
+		setValue(owner, sdl::load_vector3_array(std::string(payload.value)));
 	}
 
 	inline void convertToSdl(

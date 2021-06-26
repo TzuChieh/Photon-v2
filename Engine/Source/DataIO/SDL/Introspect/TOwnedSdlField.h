@@ -7,6 +7,7 @@
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/Introspect/EFieldImportance.h"
+#include "DataIO/SDL/SdlPayload.h"
 
 #include <utility>
 #include <string>
@@ -39,7 +40,7 @@ public:
 	*/
 	void fromSdl(
 		Owner&                 owner, 
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const;
 
 	void toSdl(
@@ -60,7 +61,7 @@ protected:
 	*/
 	virtual void loadFromSdl(
 		Owner&                 owner, 
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const = 0;
 
 	virtual void convertToSdl(
@@ -106,12 +107,12 @@ inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string v
 template<typename Owner>
 inline void TOwnedSdlField<Owner>::fromSdl(
 	Owner&                 owner,
-	const std::string&     sdlValue,
+	const SdlPayload&      payload,
 	const SdlInputContext& ctx) const
 {
 	try
 	{
-		loadFromSdl(owner, sdlValue, ctx);
+		loadFromSdl(owner, payload, ctx);
 	}
 	catch(const SdlLoadError& e)
 	{

@@ -38,10 +38,10 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, sdl::load_quaternion(sdlValue));
+		setValue(owner, sdl::load_quaternion(std::string(payload.value)));
 	}
 
 	inline void convertToSdl(

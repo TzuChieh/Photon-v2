@@ -23,14 +23,14 @@ math::Vector3R load_vector3(const std::string& sdlVector3Str)
 		if(tokens.size() == 3)
 		{
 			return math::Vector3R(
-				detail::parse_real(tokens[0]),
-				detail::parse_real(tokens[1]),
-				detail::parse_real(tokens[2]));
+				load_real(tokens[0]),
+				load_real(tokens[1]),
+				load_real(tokens[2]));
 		}
 		// 1 input value results in vec3 filled with the same value
 		else if(tokens.size() == 1)
 		{
-			return math::Vector3R(detail::parse_real(tokens[0]));
+			return math::Vector3R(load_real(tokens[0]));
 		}
 		else
 		{
@@ -60,10 +60,10 @@ math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr)
 		}
 
 		return math::QuaternionR(
-			detail::parse_real(tokens[0]),
-			detail::parse_real(tokens[1]),
-			detail::parse_real(tokens[2]),
-			detail::parse_real(tokens[3]));
+			load_real(tokens[0]),
+			load_real(tokens[1]),
+			load_real(tokens[2]),
+			load_real(tokens[3]));
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -83,7 +83,7 @@ std::vector<real> load_real_array(const std::string& sdlRealArrayStr)
 		std::vector<real> realArray;
 		for(const auto& realToken : realTokens)
 		{
-			realArray.push_back(detail::parse_real(realToken));
+			realArray.push_back(load_real(realToken));
 		}
 
 		return std::move(realArray);

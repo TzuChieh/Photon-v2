@@ -13,6 +13,8 @@
 namespace ph
 {
 
+// TODO: rename to TSdlFloat and support for more float types (and provide aliases)
+
 /*! @brief A field class that binds a real member variable.
 */
 template<typename Owner, typename RealType = real, typename SdlValueType = TSdlValue<RealType, Owner>>
@@ -38,10 +40,10 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, sdl::load_real(sdlValue));
+		setValue(owner, sdl::load_real(payload.value));
 	}
 
 	inline void convertToSdl(

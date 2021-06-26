@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
+#include "DataIO/SDL/SdlPayload.h"
 
 #include <string>
 #include <string_view>
@@ -15,16 +16,16 @@ class ValueClauses final
 public:
 	struct Clause
 	{
-		std::string      type;
-		std::string      name;
-		std::string      value;
-		std::string_view tag;
+		std::string type;
+		std::string name;
+		SdlPayload  payload;
 
 		inline Clause() = default;
-		Clause(std::string type, std::string name, std::string value);
-		Clause(std::string type, std::string name, std::string value, std::string_view tag);
+		Clause(std::string type, std::string name, std::string_view value);
+		Clause(std::string type, std::string name, std::string_view value, std::string_view tag);
 
 		std::string genPrettyName() const;
+		std::string toString() const;
 	};
 
 	/*! @brief Add a new clause.
@@ -33,11 +34,11 @@ public:
 
 	/*! @brief Add a new clause.
 	*/
-	void add(std::string type, std::string name, std::string value);
+	void add(std::string type, std::string name, std::string_view value);
 
 	/*! @brief Add a new clause.
 	*/
-	void add(std::string type, std::string name, std::string value, std::string_view tag);
+	void add(std::string type, std::string name, std::string_view value, std::string_view tag);
 
 	/*! @brief Remove a clause by index. Preserves the order of remaining clauses.
 	*/
@@ -72,12 +73,12 @@ inline void ValueClauses::add(Clause clause)
 	m_clauses.push_back(std::move(clause));
 }
 
-inline void ValueClauses::add(std::string type, std::string name, std::string value)
+inline void ValueClauses::add(std::string type, std::string name, std::string_view value)
 {
 	add(Clause(std::move(type), std::move(name), std::move(value)));
 }
 
-inline void ValueClauses::add(std::string type, std::string name, std::string value, std::string_view tag)
+inline void ValueClauses::add(std::string type, std::string name, std::string_view value, std::string_view tag)
 {
 	add(Clause(std::move(type), std::move(name), std::move(value), std::move(tag)));
 }
@@ -122,24 +123,26 @@ inline const ValueClauses::Clause& ValueClauses::operator [] (const std::size_t 
 	return m_clauses[index];
 }
 
-inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string value) :
-	Clause(
-		std::move(type), 
-		std::move(name), 
-		std::move(value), 
-		"")
+inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string_view value) :
+	type   (std::move(type)),
+	name   (std::move(name)),
+	payload(std::move(value))
 {}
 
-inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string value, std::string_view tag) :
-	type (std::move(type)),
-	name (std::move(name)),
-	value(std::move(value)),
-	tag  (std::move(tag))
+inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string_view value, std::string_view tag) :
+	type   (std::move(type)),
+	name   (std::move(name)),
+	payload(std::move(value), std::move(tag))
 {}
 
 inline std::string ValueClauses::Clause::genPrettyName() const
 {
-	return "type: " + type + ", name: " + name + ", tag: " + std::string(tag);
+	return "type: " + type + ", name: " + name;
+}
+
+inline std::string ValueClauses::Clause::toString() const
+{
+	return "type: " + type + ", name: " + name + ", payload = [" + payload.toString() + "]";
 }
 
 }// end namespace ph

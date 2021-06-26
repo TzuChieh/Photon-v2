@@ -39,7 +39,7 @@ inline void load_fields_from_sdl(
 		if(fieldIdx)
 		{
 			const auto& field = fieldSet[fieldIdx.value()];
-			field.fromSdl(owner, clause.value, ctx);
+			field.fromSdl(owner, clause.payload, ctx);
 
 			isFieldTouched[fieldIdx.value()] = true;
 

@@ -366,8 +366,8 @@ void SdlParser::getClause(const std::string_view clauseString, ValueClauses::Cla
 			"syntax error: bad number of tokens < " + std::to_string(tokens.size()) + ">, expected to be 3");
 	}
 
-	out_clause->type  = tokens[0];
-	out_clause->value = tokens[2];
+	out_clause->type = tokens[0];
+	out_clause->payload.value = tokens[2];
 	
 	// Parse name and an optional tag
 	// tokens[1] contains name and tag, syntax: <name>:<optional-tag>
@@ -377,12 +377,12 @@ void SdlParser::getClause(const std::string_view clauseString, ValueClauses::Cla
 	if(colonPos == std::string_view::npos)
 	{
 		out_clause->name = tokens[1];
-		out_clause->tag  = "";
+		out_clause->payload.tag = "";
 	}
 	else
 	{
 		out_clause->name = std::string(nameAndTag.substr(0, colonPos + 1));
-		out_clause->tag  = nameAndTag.substr(colonPos);
+		out_clause->payload.tag = nameAndTag.substr(colonPos);
 	}
 }
 

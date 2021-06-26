@@ -37,7 +37,7 @@ public:
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override = 0;
 
 	void convertToSdl(

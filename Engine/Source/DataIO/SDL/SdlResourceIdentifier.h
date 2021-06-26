@@ -3,6 +3,7 @@
 #include "DataIO/FileSystem/Path.h"
 
 #include <string>
+#include <string_view>
 
 namespace ph
 {
@@ -10,20 +11,28 @@ namespace ph
 class SdlResourceIdentifier final
 {
 public:
-	inline SdlResourceIdentifier(const std::string& identifier, 
-	                             const Path&        workingDirectory) : 
-		m_identifier(identifier), 
-		m_workingDirectory(workingDirectory)
-	{}
+	SdlResourceIdentifier(
+		std::string_view identifier, 
+		const Path&      workingDirectory);
 
-	inline Path getPathToResource() const
-	{
-		return m_workingDirectory.append(Path(m_identifier));
-	}
+	const Path& getPathToResource() const;
 
 private:
-	std::string m_identifier;
-	Path        m_workingDirectory;
+	Path m_pathToResource;
 };
+
+// In-header Implementations:
+
+inline SdlResourceIdentifier::SdlResourceIdentifier(
+	const std::string_view identifier,
+	const Path&            workingDirectory) :
+	
+	m_pathToResource(workingDirectory.append(Path(std::string(identifier))))
+{}
+
+inline const Path& SdlResourceIdentifier::getPathToResource() const
+{
+	return m_pathToResource;
+}
 
 }// end namespace ph

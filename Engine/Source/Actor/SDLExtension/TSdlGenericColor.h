@@ -51,7 +51,7 @@ public:
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override;
 
 private:
@@ -75,23 +75,23 @@ inline TSdlGenericColor<Owner>::TSdlGenericColor(
 template<typename Owner>
 inline void TSdlGenericColor<Owner>::loadFromSdl(
 	Owner&                 owner,
-	const std::string&     sdlValue,
+	const SdlPayload&      payload,
 	const SdlInputContext& ctx) const
 {
 	try
 	{
-		if(sdl::is_reference(sdlValue))
+		if(payload.isReference())
 		{
-			Base::loadFromSdl(owner, sdlValue, ctx);
+			Base::loadFromSdl(owner, payload, ctx);
 		}
-		else if(sdl::is_resource_identifier(sdlValue))
+		else if(payload.isResourceIdentifier())
 		{
-			const SdlResourceIdentifier resId(sdlValue, ctx.workingDirectory);
+			const SdlResourceIdentifier resId(payload.value, ctx.workingDirectory);
 			setValueRef(owner, sdl::load_picture_color(resId.getPathToResource()));
 		}
 		else
 		{
-			const auto values = sdl::load_vector3(sdlValue);
+			const auto values = sdl::load_vector3(std::string(payload.value));
 			setValueRef(owner, sdl::load_constant_color(values));
 		}
 	}

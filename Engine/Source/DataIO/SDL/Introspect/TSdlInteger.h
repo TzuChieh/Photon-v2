@@ -13,6 +13,8 @@
 namespace ph
 {
 
+// TODO: rename to TSdlInt and support for more int types (and provide aliases)
+
 template<typename Owner, typename IntType = integer, typename SdlValueType = TSdlValue<IntType, Owner>>
 class TSdlInteger : public SdlValueType
 {
@@ -36,10 +38,10 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, sdl::load_integer(sdlValue));
+		setValue(owner, sdl::load_integer(payload.value));
 	}
 
 	inline void convertToSdl(

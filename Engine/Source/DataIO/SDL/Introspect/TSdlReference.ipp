@@ -57,10 +57,10 @@ inline const std::shared_ptr<T>& TSdlReference<T, Owner>::getValueRef(const Owne
 template<typename T, typename Owner>
 inline void TSdlReference<T, Owner>::loadFromSdl(
 	Owner&                 owner,
-	const std::string&     sdlValue,
+	const SdlPayload&      payload,
 	const SdlInputContext& ctx) const
 {
-	const auto resourceName = string_utils::cut_head(sdlValue, "@");
+	const auto resourceName = string_utils::cut_head(payload.value, "@");
 	// TODO: get res should accept str view
 	// TODO: allow type mismatch?
 	try

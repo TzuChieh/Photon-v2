@@ -11,6 +11,8 @@
 #include <string>
 #include <string_view>
 #include <exception>
+#include <charconv>
+#include <array>
 
 namespace ph
 {
@@ -27,8 +29,23 @@ namespace ph::sdl
 
 // TODO: templatize vec3, quat related funcs
 
-real load_real(const std::string& sdlRealStr);
-integer load_integer(const std::string& sdlIntegerStr);
+/*! @brief Returns a floating-point number by processing its SDL representation.
+
+Supports `ph::real`, `float`, `double`, and `long double`.
+*/
+template<typename FloatType>
+FloatType load_float(std::string_view sdlFloatStr);
+
+/*! @brief Returns a integer number by processing its SDL representation.
+
+Supports `ph::integer` and all signed and unsigned standard integer types.
+*/
+template<typename IntType>
+IntType load_int(std::string_view sdlIntStr);
+
+real load_real(std::string_view sdlRealStr);
+integer load_integer(std::string_view sdlIntegerStr);
+
 math::Vector3R load_vector3(const std::string& sdlVector3Str);
 math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr);
 std::vector<real> load_real_array(const std::string& sdlRealArrayStr);
@@ -65,13 +82,19 @@ constexpr ETypeCategory category_of();
 namespace detail
 {
 
-/*! @brief Returns a real by processing its SDL representation.
+/*! @brief Returns a float by processing its SDL representation.
+
+Supports float, double, and long double.
 */
-real parse_real(const std::string& sdlRealStr);
+template<typename T>
+T parse_float(std::string_view sdlFloatStr);
 
 /*! @brief Returns an integer by processing its SDL representation.
+
+Supports all signed and unsigned standard integer types.
 */
-integer parse_integer(const std::string& sdlIntegerStr);
+template<typename T>
+T parse_integer(std::string_view sdlIntegerStr);
 
 /*! @brief Check if category information can be obtained statically.
 
@@ -109,14 +132,40 @@ struct HasStaticCategoryInfo
 //*****************************************************************************
 // In-header Implementations:
 
-inline real load_real(const std::string& sdlRealStr)
+template<typename FloatType>
+inline FloatType load_float(const std::string_view sdlFloatStr)
 {
-	return detail::parse_real(sdlRealStr);
+	try
+	{
+		return detail::parse_float<FloatType>(sdlFloatStr);
+	}
+	catch(const SdlLoadError& e)
+	{
+		throw SdlLoadError("on loading floating-point value -> " + e.whatStr());
+	}
 }
 
-inline integer load_integer(const std::string& sdlIntegerStr)
+template<typename IntType>
+inline IntType load_int(const std::string_view sdlIntStr)
 {
-	return detail::parse_integer(sdlIntegerStr);
+	try
+	{
+		return detail::parse_integer<IntType>(sdlIntStr);
+	}
+	catch(const SdlLoadError& e)
+	{
+		throw SdlLoadError("on loading integer value -> " + e.whatStr());
+	}
+}
+
+inline real load_real(const std::string_view sdlRealStr)
+{
+	return load_float<real>(sdlRealStr);
+}
+
+inline integer load_integer(const std::string_view sdlIntegerStr)
+{
+	return load_int<integer>(sdlIntegerStr);
 }
 
 template<typename T>
@@ -135,38 +184,65 @@ constexpr ETypeCategory category_of()
 namespace detail
 {
 
-inline real parse_real(const std::string& sdlRealStr)
+inline void throw_from_std_errc_if_has_error(const std::errc errorCode)
 {
-	try
+	// According to several sources, 0, or zero-initialized std::errc,
+	// indicates no error.
+	//
+	// [1] see the example for std::from_chars
+	//     https://en.cppreference.com/w/cpp/utility/from_chars
+	// [2] https://stackoverflow.com/a/63567008
+	//
+	constexpr std::errc NO_ERROR_VALUE = std::errc();
+
+	switch(errorCode)
 	{
-		// TODO: check for overflow after cast?
-		return static_cast<real>(std::stold(sdlRealStr));
-	}
-	catch(const std::invalid_argument& e)
-	{
-		throw SdlLoadError("invalid real representation -> " + std::string(e.what()));
-	}
-	catch(const std::out_of_range& e)
-	{
-		throw SdlLoadError("parsed real overflow -> " + std::string(e.what()));
+	case NO_ERROR_VALUE:
+		return;
+
+	case std::errc::invalid_argument:
+		throw SdlLoadError("invalid argument");
+
+	case std::errc::result_out_of_range:
+		throw SdlLoadError("result out of range");
+
+	default:
+		throw SdlLoadError("unknown error");
 	}
 }
 
-inline integer parse_integer(const std::string& sdlIntegerStr)
+template<typename T>
+inline T parse_float(const std::string_view sdlFloatStr)
 {
-	try
-	{
-		// TODO: check for overflow after cast?
-		return static_cast<integer>(std::stoll(sdlIntegerStr));
-	}
-	catch(const std::invalid_argument& e)
-	{
-		throw SdlLoadError("invalid integer representation -> " + std::string(e.what()));
-	}
-	catch(const std::out_of_range& e)
-	{
-		throw SdlLoadError("parsed integer overflow -> " + std::string(e.what()));
-	}
+	static_assert(std::is_floating_point_v<T>,
+		"parse_float() accepts only floating point type.");
+
+	T value;
+	const std::from_chars_result result = std::from_chars(
+		sdlFloatStr.data(),
+		sdlFloatStr.data() + sdlFloatStr.size(),
+		value);
+
+	throw_from_std_errc_if_has_error(result.ec);
+
+	return value;
+}
+
+template<typename T>
+inline T parse_integer(const std::string_view sdlIntegerStr)
+{
+	static_assert(std::is_integral_v<T>,
+		"parse_integer() accepts only integer type.");
+
+	T value;
+	const std::from_chars_result result = std::from_chars(
+		sdlIntegerStr.data(),
+		sdlIntegerStr.data() + sdlIntegerStr.size(),
+		value);
+
+	throw_from_std_errc_if_has_error(result.ec);
+
+	return value;
 }
 
 }// end namespace detail

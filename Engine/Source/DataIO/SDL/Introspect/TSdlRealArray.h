@@ -41,12 +41,12 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		if(sdl::is_resource_identifier(sdlValue))
+		if(payload.isResourceIdentifier())
 		{
-			const SdlResourceIdentifier sdlResId(sdlValue, ctx.workingDirectory);
+			const SdlResourceIdentifier sdlResId(payload.value, ctx.workingDirectory);
 
 			try
 			{
@@ -63,7 +63,7 @@ protected:
 		}
 		else
 		{
-			setValue(owner, sdl::load_real_array(sdlValue));
+			setValue(owner, sdl::load_real_array(std::string(payload.value)));
 		}
 	}
 
