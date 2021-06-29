@@ -7,20 +7,21 @@
 #include "DataIO/io_utils.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "Actor/Image/HdrPictureImage.h"
+#include "DataIO/SDL/SdlPayload.h"
 
 #include <vector>
 
 namespace ph::sdl
 {
 
-Spectrum load_spectrum(const std::string& sdlValue)
+Spectrum load_spectrum(const SdlPayload& payload)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
 	try
 	{
 		std::vector<std::string> tokens;
-		tokenizer.tokenize(sdlValue, tokens);
+		tokenizer.tokenize(std::string(payload.value), tokens);
 
 		// TODO: color space info
 

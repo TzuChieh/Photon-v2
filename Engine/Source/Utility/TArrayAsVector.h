@@ -7,6 +7,7 @@ namespace ph
 {
 
 // TODO: dtor call policy? currently no dtor call on element remove, rely on life-time of vector
+// TODO: iterators
 
 template<typename T, std::size_t N>
 class TArrayAsVector final
@@ -32,6 +33,17 @@ public:
 
 	T& operator [] (std::size_t index);
 	const T& operator [] (std::size_t index) const;
+
+	/*! @name Iterators
+
+	Iterators for stored objects.
+	*/
+	///@{
+	typename std::array<T>::iterator       begin() noexcept;
+	typename std::array<T>::const_iterator begin() const noexcept;
+	typename std::array<T>::iterator       end()   noexcept;
+	typename std::array<T>::const_iterator end()   const noexcept;
+	///@}
 
 private:
 	std::array<T, N> m_data;

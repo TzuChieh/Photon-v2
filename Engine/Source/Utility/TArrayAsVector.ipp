@@ -130,4 +130,32 @@ inline const T& TArrayAsVector<T, N>::back() const
 	return (*this)[m_size - 1];
 }
 
+template<typename T, std::size_t N>
+typename std::array<T>::iterator TArrayAsVector<T, N>::begin() noexcept
+{
+	return m_objects.begin();
+}
+
+template<typename T, std::size_t N>
+typename std::array<T>::const_iterator TArrayAsVector<T, N>::begin() const noexcept
+{
+	return m_objects.begin();
+}
+
+template<typename T, std::size_t N>
+typename std::array<T>::iterator TArrayAsVector<T, N>::end() noexcept
+{
+	// Not using std::advance() as we expect it to be randomly accessible
+	// (no permissive code)
+	return m_objects.begin() + m_size;
+}
+
+template<typename T, std::size_t N>
+typename std::array<T>::const_iterator TArrayAsVector<T, N>::end() const noexcept
+{
+	// Not using std::advance() as we expect it to be randomly accessible
+	// (no permissive code)
+	return m_objects.begin() + m_size;
+}
+
 }// end namespace ph

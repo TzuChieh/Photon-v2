@@ -4,6 +4,7 @@
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/Introspect/SdlStruct.h"
 #include "DataIO/SDL/Introspect/SdlFunction.h"
+#include "DataIO/SDL/Introspect/SdlEnum.h"
 
 // Owner types
 #include "DataIO/SDL/Introspect/TOwnerSdlClass.h"
@@ -21,6 +22,10 @@
 
 // Function types
 #include "DataIO/SDL/Introspect/TSdlMethod.h"
+
+// Enum types
+#include "DataIO/SDL/Introspect/TSdlBasicEnum.h"
+#include "DataIO/SDL/Introspect/TSdlEnum.h"
 
 #include <type_traits>
 
@@ -70,3 +75,39 @@
 	}\
 	\
 	inline static decltype(auto) internal_sdl_function_impl()
+
+#define PH_DEFINE_SDL_ENUM(ENUM_TYPE)\
+	template<>\
+	class TSdlEnum<ENUM_TYPE> final\
+	{\
+	private:\
+	\
+		using EnumType    = ENUM_TYPE;\
+		using SdlEnumType = ::ph::TSdlBasicEnum<EnumType>;\
+	\
+		static_assert(std::is_enum_v<EnumType>,\
+			"EnumType must be an enum. Currently it is not.");\
+	\
+	public:\
+		inline EnumType operator [] (const std::string_view entryName) const\
+		{\
+			const ::ph::SdlEnum::TEntry<EnumType> entry = getSdlEnum().getTypedEntry(entryName);\
+			return entry.value;\
+		}\
+	\
+		inline static const SdlEnumType& getSdlEnum()\
+		{\
+			static_assert(std::is_base_of_v<::ph::SdlEnum, SdlEnumType>,\
+				"PH_DEFINE_SDL_ENUM() must return a enum derived from SdlEnum.");\
+			\
+			static const SdlEnumType sdlEnum = internal_sdl_enum_impl();\
+			return sdlEnum;\
+		}\
+	\
+	private:\
+		static SdlEnumType internal_sdl_enum_impl();\
+	};\
+	\
+	\// In-header Implementations:
+	\
+	inline static SdlEnumType internal_sdl_enum_impl()\

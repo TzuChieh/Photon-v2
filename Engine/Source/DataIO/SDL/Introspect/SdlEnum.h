@@ -1,0 +1,66 @@
+#pragma once
+
+#include <string_view>
+#include <cstddef>
+#include <utility>
+
+namespace ph
+{
+
+class SdlEnum
+{
+public:
+	template<typename ValueType>
+	struct TEntry
+	{
+		std::string_view name;
+		ValueType        value;
+
+		inline TEntry() :
+			name(), value(0)
+		{}
+	};
+
+	using Entry = TEntry<std::uintmax_t>;
+
+	explicit SdlEnum(std::string name);
+
+	virtual Entry getEntry(std::size_t entryIndex) const = 0;
+	virtual std::size_t numEntries() const = 0;
+
+	SdlEnum& setDescription(std::string description);
+
+	const std::string& getName() const;
+	const std::string& getDescription() const;
+
+private:
+	std::string m_name;
+	std::string m_description;
+};
+
+// In-header Implementations:
+
+inline SdlEnum::SdlEnum(std::string name) : 
+	m_name(std::move(name))
+{
+	PH_ASSERT(!name.empty());
+}
+
+inline SdlEnum& SdlEnum::setDescription(std::string description)
+{
+	m_description = std::move(description);
+
+	return *this;
+}
+
+inline const std::string& SdlEnum::getName() const
+{
+	return m_name;
+}
+
+inline const std::string& SdlEnum::getDescription() const
+{
+	return m_description;
+}
+
+}// end namespace ph
