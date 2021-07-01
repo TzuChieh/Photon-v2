@@ -8,6 +8,7 @@
 #include "DataIO/SDL/SdlResourceIdentifier.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
+#include "Core/Quantity/EQuantity.h"
 
 #include <string>
 #include <exception>
@@ -32,7 +33,10 @@ private:
 	using Base = TSdlReference<Image, Owner>;
 
 public:
-	TSdlGenericColor(std::string valueName, std::shared_ptr<Image> Owner::* imagePtr);
+	TSdlGenericColor(
+		std::string valueName, 
+		EQuantity usage, 
+		std::shared_ptr<Image> Owner::* imagePtr);
 
 	void setValueToDefault(Owner& owner) const override;
 
@@ -55,21 +59,25 @@ protected:
 		const SdlInputContext& ctx) const override;
 
 private:
-	std::optional<math::Vector3R> m_defaultValue;
+	EQuantity m_usage;
+	// TODO: support for more tristimulus color spaces or generic default image
+	std::optional<math::Vector3R> m_defaultLinearSrgb;
 };
 
 // In-header Implementations:
 
 template<typename Owner>
 inline TSdlGenericColor<Owner>::TSdlGenericColor(
-	std::string valueName, 
+	std::string valueName,
+	const EQuantity usage,
 	std::shared_ptr<Image> Owner::* const imagePtr) :
 
 	TSdlReference<Image, Owner>(
 		std::move(valueName), 
 		imagePtr),
 
-	m_defaultValue()
+	m_usage(usage),
+	m_defaultLinearSrgb()
 {}
 
 template<typename Owner>
@@ -91,8 +99,9 @@ inline void TSdlGenericColor<Owner>::loadFromSdl(
 		}
 		else
 		{
-			const auto values = sdl::load_vector3(std::string(payload.value));
-			setValueRef(owner, sdl::load_constant_color(values));
+			// TODO: load spectral image
+			const auto tristimulus = sdl::load_vector3(std::string(payload.value));
+			setValueRef(owner, sdl::load_tristimulus_color(tristimulus, ESdlColorSpace::LINEAR_SRGB, m_usage));
 		}
 	}
 	catch(const SdlLoadError& e)
@@ -105,9 +114,10 @@ inline void TSdlGenericColor<Owner>::loadFromSdl(
 template<typename Owner>
 inline void TSdlGenericColor<Owner>::setValueToDefault(Owner& owner) const
 {
-	if(m_defaultValue)
+	if(m_defaultLinearSrgb)
 	{
-		setValueRef(owner, sdl::load_constant_color(m_defaultValue.value()));
+		setValueRef(owner, sdl::load_tristimulus_color(
+			m_defaultLinearSrgb.value(), ESdlColorSpace::LINEAR_SRGB, m_usage));
 	}
 	else
 	{
@@ -119,7 +129,7 @@ template<typename Owner>
 inline auto TSdlGenericColor<Owner>::defaultToEmpty()
 -> TSdlGenericColor&
 {
-	m_defaultValue = std::nullopt;
+	m_defaultLinearSrgb = std::nullopt;
 	return this;
 }
 
@@ -134,7 +144,7 @@ template<typename Owner>
 inline auto TSdlGenericColor<Owner>::defaultToLinearSrgb(const math::Vector3R& linearSrgb)
 -> TSdlGenericColor&
 {
-	m_defaultValue = linearSrgb;
+	m_defaultLinearSrgb = linearSrgb;
 	return *this;
 }
 

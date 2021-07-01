@@ -246,6 +246,29 @@ inline T wrap(T value, const T lowerBound, const T upperBound)
 	return lowerBound + (value - lowerBound) % rangeSize;
 }
 
+/*! @brief Checks if a number is even.
+
+@param value The number to be tested. Should be an integer type.
+*/
+template<typename T>
+inline bool is_even(const T value)
+{
+	static_assert(std::is_integral_v<T>,
+		"T must be an integer type.");
+
+	return value % 2 == 0;
+}
+
+/*! @brief Checks if a number is odd.
+
+@param value The number to be tested. Should be an integer type.
+*/
+template<typename T>
+inline bool is_odd(const T value)
+{
+	return !is_even(value);
+}
+
 // Checks whether the specified vector is within the hemisphere defined by
 // the normal vector N. N points to the hemisphere's peak, i.e., theta = 0.
 //

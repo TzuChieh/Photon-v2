@@ -76,14 +76,14 @@
 	\
 	inline static decltype(auto) internal_sdl_function_impl()
 
-#define PH_DEFINE_SDL_ENUM(ENUM_TYPE)\
+#define PH_DEFINE_SDL_ENUM(SDL_ENUM_TYPE)\
 	template<>\
 	class TSdlEnum<ENUM_TYPE> final\
 	{\
 	private:\
 	\
-		using EnumType    = ENUM_TYPE;\
-		using SdlEnumType = ::ph::TSdlBasicEnum<EnumType>;\
+		using SdlEnumType = SDL_ENUM_TYPE;\
+		using EnumType    = SDL_ENUM_TYPE::EnumType;\
 	\
 		static_assert(std::is_enum_v<EnumType>,\
 			"EnumType must be an enum. Currently it is not.");\

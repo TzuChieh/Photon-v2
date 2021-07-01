@@ -12,14 +12,19 @@
 namespace ph
 {
 
-template<typename EnumType, std::size_t NUM_ENTRIES>
-class TSdlBasicEnum : public SdlEnum
+template<typename EnumType_, auto NUM_ENTRIES_>
+class TBasicSdlEnum : public SdlEnum
 {
+public:
+	using EnumType = EnumType_;
+
+	constexpr std::size_t NUM_ENTRIES = static_cast<std::size_t>(NUM_ENTRIES_);
+
 	static_assert(std::is_enum_v<EnumType>,
-		"EnumType must be an enum. Currently it is not.");
+		"EnumType must be a C++ enum. Currently it is not.");
 
 public:
-	inline explicit TSdlBasicEnum(std::string name) :
+	inline explicit TBasicSdlEnum(std::string name) :
 
 		SdlEnum(std::move(name)),
 
@@ -40,7 +45,7 @@ public:
 		return NUM_ENTRIES;
 	}
 
-	inline TSdlBasicEnum& addEntry(const EnumType enumValue, const std::string_view valueName)
+	inline TBasicSdlEnum& addEntry(const Enum enumValue, const std::string_view valueName)
 	{
 		BasicEnumEntry entry;
 		entry.nameIndex = m_nameBuffer.size();
@@ -78,7 +83,13 @@ public:
 			}
 		}
 
-		return TEntry<EnumType>();
+		return TEntry<Enum>();
+	}
+
+	inline TBasicSdlEnum& description(std::string descriptionStr)
+	{
+		setDescription(std::move(descriptionStr));
+		return *this;
 	}
 
 private:
