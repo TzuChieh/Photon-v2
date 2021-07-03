@@ -86,9 +86,15 @@ inline void TOwnerSdlClass<Owner, FieldSet>::call(
 		}
 	}
 
+	// If found the function in this class, call it
 	if(func)
 	{
 		func->call(resource, clauses, ctx);
+	}
+	// If not found in this class, call on base class instead
+	else if(getBase())
+	{
+		getBase()->call(funcName, resource, clauses, ctx);
 	}
 	else
 	{
@@ -212,6 +218,26 @@ inline void TOwnerSdlClass<Owner, FieldSet>::fromSdl(
 				logger.log(ELogLevel::WARNING_MED, noticeMsg);
 			}
 		});
+}
+
+template<typename Owner, typename FieldSet>
+inline auto TOwnerSdlClass<Owner, FieldSet>::description(std::string descriptionStr)
+	-> TOwnerSdlClass&
+{
+	setDescription(std::move(descriptionStr));
+	return *this;
+}
+
+template<typename Owner, typename FieldSet>
+template<typename T>
+inline auto TOwnerSdlClass<Owner, FieldSet>::baseOn()
+	-> TOwnerSdlClass&
+{
+	static_assert(std::is_same_v<T, Owner>,
+		"A SDL class cannot base on itself.");
+
+	setBase<T>();
+	return *this;
 }
 
 template<typename Owner, typename FieldSet>

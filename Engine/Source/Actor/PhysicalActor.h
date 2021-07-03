@@ -4,6 +4,7 @@
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/math_fwd.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <optional>
 
@@ -138,8 +139,8 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<PhysicalActor>)
 	{
 		ClassType clazz("physical");
-		clazz.setDescription("An actor that is visible and can be transformed.");
-		clazz.setBase<Actor>();
+		clazz.description("An actor that is visible and can be transformed.");
+		clazz.baseOn<Actor>();
 
 		clazz.addFunction<SdlTranslate>();
 		clazz.addFunction<SdlRotate>();

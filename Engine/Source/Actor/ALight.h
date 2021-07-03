@@ -53,6 +53,21 @@ private:
 		const std::shared_ptr<Geometry>&       geometry,
 		std::unique_ptr<math::RigidTransform>* out_baseLW,
 		std::unique_ptr<math::RigidTransform>* out_baseWL) const;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ALight>)
+	{
+		ClassType clazz("light");
+		clazz.description("An actor that represents a light in the scene.");
+		clazz.baseOn<PhysicalActor>();
+
+		TSdlReference<LightSource, OwnerType> source("source", &OwnerType::m_lightSource);
+		source.description("The source of the energy.");
+		source.required();
+		clazz.addField(source);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

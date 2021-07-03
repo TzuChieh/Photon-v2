@@ -26,7 +26,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Material>)
 	{
 		ClassType clazz("material");
-		clazz.setDescription("Defines and models the appearance of scene elements.");
+		clazz.description("Defines and models the appearance of scene elements.");
 		return clazz;
 	}
 };

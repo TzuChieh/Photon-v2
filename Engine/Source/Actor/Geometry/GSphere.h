@@ -3,6 +3,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <vector>
 
@@ -38,8 +39,8 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GSphere>)
 	{
 		ClassType clazz("sphere");
-		clazz.setDescription("A perfectly round shape centering around origin.");
-		clazz.setBase<Geometry>();
+		clazz.description("A perfectly round shape centering around origin.");
+		clazz.baseOn<Geometry>();
 
 		TSdlReal<OwnerType> radius("radius", &OwnerType::m_radius);
 		radius.description("Size of the sphere.");

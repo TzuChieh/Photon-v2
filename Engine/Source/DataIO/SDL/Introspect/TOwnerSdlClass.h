@@ -75,6 +75,15 @@ public:
 	template<typename T>
 	TOwnerSdlClass& addFunction();
 
+	auto description(std::string descriptionStr) -> TOwnerSdlClass&;
+
+	/*! @brief Set another SDL class as the base of this class.
+
+	By default, fields in the base are automatically inherited. Functions
+	*/
+	template<typename T>
+	auto baseOn() -> TOwnerSdlClass&;
+
 private:
 	using FunctionSet = TArrayAsVector<const SdlFunction*, PH_SDL_MAX_FUNCTIONS>;
 

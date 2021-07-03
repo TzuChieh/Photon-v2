@@ -3,6 +3,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "DataIO/SDL/ISdlResource.h"
 #include "Math/Transform/StaticAffineTransform.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <vector>
 #include <memory>
@@ -45,7 +46,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Geometry>)
 	{
 		ClassType clazz("geometry");
-		clazz.setDescription("Defining the shape of scene elements.");
+		clazz.description("Defining the shape of scene elements.");
 		return clazz;
 	}
 };

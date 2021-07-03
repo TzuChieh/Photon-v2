@@ -30,8 +30,8 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<MatteOpaque>)
 	{
 		ClassType clazz("matte-opaque");
-		clazz.setDescription("A material model for surfaces with matte look, such as chalk and moon.");
-		clazz.setBase<SurfaceMaterial>();
+		clazz.description("A material model for surfaces with matte look, such as chalk and moon.");
+		clazz.baseOn<SurfaceMaterial>();
 
 		TSdlGenericColor<OwnerType> albedo("albedo", &OwnerType::m_albedo);
 		albedo.description("An image or constant color that will be used for describing albedo.");

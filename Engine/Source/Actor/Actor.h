@@ -3,6 +3,7 @@
 #include "DataIO/SDL/ISdlResource.h"
 #include "Actor/CookedUnit.h"
 #include "Actor/CookOrder.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
@@ -31,7 +32,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Actor>)
 	{
 		ClassType clazz("actor");
-		clazz.setDescription(
+		clazz.description(
 			"Represents an entity in the scene. "
 			"Every entity that participates in a scene is an actor.");
 		return clazz;

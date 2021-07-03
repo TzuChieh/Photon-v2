@@ -160,6 +160,8 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		// Actors
 		get_sdl_class<Actor>(),
 		get_sdl_class<PhysicalActor>(),
+		get_sdl_class<AModel>(),
+		get_sdl_class<ALight>(),
 	};
 }
 

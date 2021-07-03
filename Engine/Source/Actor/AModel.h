@@ -2,6 +2,7 @@
 
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Actor/PhysicalActor.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
 #include <vector>
@@ -38,6 +39,31 @@ private:
 	std::shared_ptr<Geometry>     m_geometry;
 	std::shared_ptr<Material>     m_material;
 	std::shared_ptr<MotionSource> m_motionSource;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AModel>)
+	{
+		ClassType clazz("model");
+		clazz.description("An actor that has a certain 3-D shape in the scene.");
+		clazz.baseOn<PhysicalActor>();
+
+		TSdlReference<Geometry, OwnerType> geometry("geometry", &OwnerType::m_geometry);
+		geometry.description("A geometry that represent this actor's shape.");
+		geometry.required();
+		clazz.addField(geometry);
+
+		TSdlReference<Material, OwnerType> material("geometry", &OwnerType::m_material);
+		material.description("A material that describes this actor's surface appearance.");
+		material.required();
+		clazz.addField(material);
+
+		TSdlReference<MotionSource, OwnerType> motion("motion", &OwnerType::m_motionSource);
+		motion.description("Movement of this actor.");
+		motion.optional();
+		clazz.addField(motion);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

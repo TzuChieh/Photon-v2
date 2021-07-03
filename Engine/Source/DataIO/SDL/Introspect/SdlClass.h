@@ -56,12 +56,16 @@ public:
 	const SdlClass* getBase() const;
 	bool isDerived() const;
 
+protected:
 	SdlClass& setDescription(std::string description);
 
+	/*! @brief Set another SDL class as the base of this class.
+
+	The effect of the base class depends on the implementation.
+	*/
 	template<typename T>
 	SdlClass& setBase();
 
-protected:
 	static const Logger logger;
 
 private:
