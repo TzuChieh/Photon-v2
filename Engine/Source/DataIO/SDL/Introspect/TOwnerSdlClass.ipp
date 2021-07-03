@@ -179,18 +179,13 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(
 
 template<typename Owner, typename FieldSet>
 template<typename T>
-inline auto TOwnerSdlClass<Owner, FieldSet>::addFunction(const T* const sdlFunction)
+inline auto TOwnerSdlClass<Owner, FieldSet>::addFunction()
 	-> TOwnerSdlClass&
 {
 	static_assert(std::is_base_of_v<SdlFunction, T>,
-		"T is not a SdlFunction thus cannot be added.");
+		"T is not a SdlFunction and thus cannot be added.");
 
-	PH_ASSERT(sdlFunction);
-
-	if(sdlFunction)
-	{
-		m_functions.pushBack(sdlFunction);
-	}
+	m_functions.pushBack(T::getSdlFunction());
 
 	return *this;
 }

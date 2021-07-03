@@ -34,9 +34,9 @@ public:
 	const std::string& getName() const;
 	const std::string& getDescription() const;
 
+protected:
 	SdlFunction& setDescription(std::string description);
 
-protected:
 	static const Logger logger;
 
 private:

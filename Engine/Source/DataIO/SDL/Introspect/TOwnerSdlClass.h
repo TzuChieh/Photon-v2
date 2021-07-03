@@ -73,7 +73,7 @@ public:
 	/*! @brief Adds a function that can later be called.
 	*/
 	template<typename T>
-	TOwnerSdlClass& addFunction(const T* sdlFunction);
+	TOwnerSdlClass& addFunction();
 
 private:
 	using FunctionSet = TArrayAsVector<const SdlFunction*, PH_SDL_MAX_FUNCTIONS>;

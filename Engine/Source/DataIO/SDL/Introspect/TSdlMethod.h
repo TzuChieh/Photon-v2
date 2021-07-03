@@ -14,6 +14,9 @@ template<typename MethodStruct, typename TargetType>
 class TSdlMethod : public SdlFunction
 {
 public:
+	using OwnerType = MethodStruct;
+
+public:
 	explicit TSdlMethod(std::string name);
 
 	void call(
@@ -36,6 +39,8 @@ public:
 
 	template<typename T>
 	TSdlMethod& addParam(T sdlField);
+
+	auto description(std::string descriptionStr) -> TSdlMethod&;
 
 	// TODO: support structs?
 

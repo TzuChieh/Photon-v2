@@ -10,6 +10,7 @@
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
+#include "Core/Quantity/EQuantity.h"
 
 #include <type_traits>
 #include <string>
@@ -19,66 +20,55 @@
 namespace ph
 {
 
-//template<typename Owner, typename SdlValueType = TSdlValue<Spectrum, Owner>>
-//class TSdlSpectrum : public SdlValueType
-//{
-//	static_assert(std::is_base_of_v<TAbstractSdlValue<Spectrum, Owner>, SdlValueType>,
-//		"SdlValueType should be a subclass of TAbstractSdlValue.");
-//
-//public:
-//	template<typename ValueType>
-//	inline TSdlSpectrum(std::string valueName, ValueType Owner::* const valuePtr) :
-//		SdlValueType("spectrum", std::move(valueName), valuePtr)
-//	{}
-//
-//	inline std::string valueAsString(const Spectrum& spectrum) const override
-//	{
-//		// TODO: add type, # values?
-//		return spectrum.toString();
-//	}
-//
-//protected:
-//	inline void loadFromSdl(
-//		Owner&                 owner,
-//		const std::string&     sdlValue,
-//		const SdlInputContext& ctx) const override
-//	{
-//		if(sdl::is_resource_identifier(sdlValue))
-//		{
-//			const SdlResourceIdentifier sdlResId(sdlValue, ctx.workingDirectory);
-//
-//			try
-//			{
-//				std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
-//
-//				setValue(
-//					owner,
-//					sdl::load_real_array(std::move(loadedSdlValue)));
-//			}
-//			catch(const FileIOError& e)
-//			{
-//				throw SdlLoadError("on loading real array -> " + e.whatStr());
-//			}
-//		}
-//		else
-//		{
-//			setValue(owner, sdl::load_real_array(sdlValue));
-//		}
-//	}
-//
-//	void convertToSdl(
-//		const Owner& owner,
-//		std::string* out_sdlValue,
-//		std::string& out_converterMessage) const override
-//	{
-//		PH_ASSERT(out_sdlValue);
-//
-//		// TODO
-//		PH_ASSERT_UNREACHABLE_SECTION();
-//	}
-//};
-//
-//template<typename Owner, typename Element = real>
-//using TSdlOptionalRealArray = TSdlRealArray<Owner, Element, TSdlOptionalValue<std::vector<Element>, Owner>>;
+template<typename Owner, typename SdlValueType = TSdlValue<Spectrum, Owner>>
+class TSdlSpectrum : public SdlValueType
+{
+	static_assert(std::is_base_of_v<TAbstractSdlValue<Spectrum, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TAbstractSdlValue.");
+
+public:
+	template<typename ValueType>
+	inline TSdlSpectrum(
+		std::string valueName, 
+		EQuantity usage,
+		ValueType Owner::* const valuePtr) :
+
+		SdlValueType("spectrum", std::move(valueName), valuePtr),
+
+		m_usage(usage)
+	{}
+
+	inline std::string valueAsString(const Spectrum& spectrum) const override
+	{
+		// TODO: add type, # values?
+		return spectrum.toString();
+	}
+
+protected:
+	inline void loadFromSdl(
+		Owner&                 owner,
+		const std::string&     sdlValue,
+		const SdlInputContext& ctx) const override
+	{
+		setValue(owner, sdl::load_spectrum(payload, m_usage));
+	}
+
+	void convertToSdl(
+		const Owner& owner,
+		std::string* out_sdlValue,
+		std::string& out_converterMessage) const override
+	{
+		PH_ASSERT(out_sdlValue);
+
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
+
+private:
+	EQuantity m_usage;
+};
+
+template<typename Owner>
+using TSdlOptionalSpectrum = TSdlSpectrum<Owner, Element, TSdlOptionalValue<Spectrum, Owner>>;
 
 }// end namespace ph

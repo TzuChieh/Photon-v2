@@ -36,13 +36,13 @@
 	using ClassType = SDL_CLASS_TYPE;\
 	using OwnerType = SDL_CLASS_TYPE::OwnerType;\
 	\
-	inline static const ClassType& getSdlClass()\
+	inline static const ClassType* getSdlClass()\
 	{\
 		static_assert(std::is_base_of_v<::ph::SdlClass, ClassType>,\
 			"PH_DEFINE_SDL_CLASS() must return a class derived from SdlClass.");\
 		\
 		static const ClassType sdlClass = internal_sdl_class_impl();\
-		return sdlClass;\
+		return &sdlClass;\
 	}\
 	\
 	inline static ClassType internal_sdl_class_impl()
@@ -52,29 +52,32 @@
 	using StructType = SDL_STRUCT_TYPE;\
 	using OwnerType  = SDL_STRUCT_TYPE::OwnerType;\
 	\
-	inline static const StructType& getSdlStruct()\
+	inline static const StructType* getSdlStruct()\
 	{\
 		static_assert(std::is_base_of_v<::ph::SdlStruct, StructType>,\
 			"PH_DEFINE_SDL_STRUCT() must return a struct derived from SdlStruct.");\
 		\
 		static const StructType sdlStruct = internal_sdl_struct_impl();\
-		return sdlStruct;\
+		return &sdlStruct;\
 	}\
 	\
 	inline static StructType internal_sdl_struct_impl()
 
-#define PH_DEFINE_SDL_FUNCTION()\
-	inline static decltype(auto) getSdlFunction()\
+#define PH_DEFINE_SDL_FUNCTION(SDL_FUNCTION_TYPE)\
+	\
+	using FunctionType = SDL_FUNCTION_TYPE;\
+	using OwnerType    = SDL_FUNCTION_TYPE::OwnerType;\
+	\
+	inline static const FunctionType* getSdlFunction()\
 	{\
-		using SdlFunctionType = decltype(sdl_function_impl_internal());\
-		static_assert(std::is_base_of_v<::ph::SdlFunction, SdlFunctionType>,\
+		static_assert(std::is_base_of_v<::ph::SdlFunction, FunctionType>,\
 			"PH_DEFINE_SDL_FUNCTION() must return a function derived from SdlFunction.");\
 		\
-		static const auto sdlFunction = internal_sdl_function_impl();\
-		return sdlFunction;\
+		static const FunctionType sdlFunction = internal_sdl_function_impl();\
+		return &sdlFunction;\
 	}\
 	\
-	inline static decltype(auto) internal_sdl_function_impl()
+	inline static FunctionType internal_sdl_function_impl()
 
 #define PH_DEFINE_SDL_ENUM(SDL_ENUM_TYPE)\
 	template<>\
@@ -95,13 +98,13 @@
 			return entry.value;\
 		}\
 	\
-		inline static const SdlEnumType& getSdlEnum()\
+		inline static const SdlEnumType* getSdlEnum()\
 		{\
 			static_assert(std::is_base_of_v<::ph::SdlEnum, SdlEnumType>,\
 				"PH_DEFINE_SDL_ENUM() must return a enum derived from SdlEnum.");\
 			\
 			static const SdlEnumType sdlEnum = internal_sdl_enum_impl();\
-			return sdlEnum;\
+			return &sdlEnum;\
 		}\
 	\
 	private:\

@@ -12,6 +12,7 @@
 #include <string>
 #include <utility>
 #include <string_view>
+#include <type_traits>
 
 namespace ph
 {
@@ -56,7 +57,9 @@ public:
 	bool isDerived() const;
 
 	SdlClass& setDescription(std::string description);
-	SdlClass& setBase(const SdlClass* base);
+
+	template<typename T>
+	SdlClass& setBase();
 
 protected:
 	static const Logger logger;
@@ -115,9 +118,13 @@ inline SdlClass& SdlClass::setDescription(std::string description)
 	return *this;
 }
 
-inline SdlClass& SdlClass::setBase(const SdlClass* const base)
+template<typename T>
+inline SdlClass& SdlClass::setBase()
 {
-	m_base = base;
+	static_assert(std::is_base_of_v<SdlClass, T>,
+		"T must derive from SdlClass.");
+
+	m_base = T::getSdlClass();
 	return *this;
 }
 

@@ -114,4 +114,12 @@ inline auto TSdlMethod<MethodStruct, TargetType>::addParam(T sdlField)
 	return *this;
 }
 
+template<typename MethodStruct, typename TargetType>
+inline auto TSdlMethod<MethodStruct, TargetType>::description(std::string descriptionStr)
+	-> TSdlMethod&
+{
+	setDescription(std::move(descriptionStr));
+	return *this;
+}
+
 }// end namespace ph

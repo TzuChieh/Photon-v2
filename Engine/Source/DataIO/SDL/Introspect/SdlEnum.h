@@ -28,10 +28,11 @@ public:
 	virtual Entry getEntry(std::size_t entryIndex) const = 0;
 	virtual std::size_t numEntries() const = 0;
 
-	SdlEnum& setDescription(std::string description);
-
 	const std::string& getName() const;
 	const std::string& getDescription() const;
+
+protected:
+	SdlEnum& setDescription(std::string description);
 
 private:
 	std::string m_name;

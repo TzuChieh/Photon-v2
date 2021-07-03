@@ -33,6 +33,21 @@ private:
 	std::size_t addVertex(const math::Vector3R& vertex, std::vector<math::Vector3R>* const out_vertices) const;
 	std::size_t addMidpointVertex(const std::size_t iA, const std::size_t iB, std::vector<math::Vector3R>* const out_vertices) const;
 	std::shared_ptr<GTriangleMesh> genTriangleMesh() const;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GSphere>)
+	{
+		ClassType clazz("sphere");
+		clazz.setDescription("A perfectly round shape centering around origin.");
+		clazz.setBase<Geometry>();
+
+		TSdlReal<OwnerType> radius("radius", &OwnerType::m_radius);
+		radius.description("Size of the sphere.");
+		radius.defaultTo(1);
+		clazz.addField(radius);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

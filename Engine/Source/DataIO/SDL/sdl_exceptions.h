@@ -6,6 +6,8 @@
 namespace ph
 {
 
+/*! @brief General exception thrown on error related to SDL.
+*/
 class SdlException : public std::runtime_error
 {
 public:
@@ -15,12 +17,16 @@ public:
 	std::string whatStr() const;
 };
 
+/*! @brief Error on the SDL input process.
+*/
 class SdlLoadError : public SdlException
 {
 public:
 	using SdlException::SdlException;
 };
 
+/*! @brief Error on the SDL output process.
+*/
 class SdlConvertError : public SdlException
 {
 public:

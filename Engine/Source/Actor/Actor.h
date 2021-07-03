@@ -26,6 +26,16 @@ public:
 	Actor& operator = (const Actor& rhs);
 
 	friend void swap(Actor& first, Actor& second);
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Actor>)
+	{
+		ClassType clazz("actor");
+		clazz.setDescription(
+			"Represents an entity in the scene. "
+			"Every entity that participates in a scene is an actor.");
+		return clazz;
+	}
 };
 
 // In-header Implementations:

@@ -105,9 +105,10 @@ bool init_render_engine()
 	// Get SDL classes once here to initialize them--this is not required,
 	// just to be safe as SDL class instances are lazy-constructed and may
 	// be done in strange places later (which can cause problems).
+	//
 	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
 	logger.log(ELogLevel::NOTE_MED,
-		"initialized " + std::to_string(sdlClasses.size()) + " SDL class instances");
+		"initialized " + std::to_string(sdlClasses.size()) + " SDL class definitions");
 
 	if(!init_command_parser())
 	{
@@ -137,7 +138,7 @@ namespace
 template<typename T>
 const SdlClass* get_sdl_class()
 {
-	return &T::getSdlClass();
+	return T::getSdlClass();
 }
 
 }
@@ -146,10 +147,19 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 {
 	return
 	{
+		// Geometries
+		get_sdl_class<Geometry>(),
+		get_sdl_class<GSphere>(),
+		//get_sdl_class<GCuboid>(),
+
 		// Materials
 		get_sdl_class<Material>(),
 		get_sdl_class<SurfaceMaterial>(),
 		get_sdl_class<MatteOpaque>(),
+
+		// Actors
+		get_sdl_class<Actor>(),
+		get_sdl_class<PhysicalActor>(),
 	};
 }
 

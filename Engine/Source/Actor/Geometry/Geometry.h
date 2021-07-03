@@ -40,6 +40,14 @@ public:
 
 protected:
 	std::shared_ptr<UvwMapper> m_uvwMapper;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Geometry>)
+	{
+		ClassType clazz("geometry");
+		clazz.setDescription("Defining the shape of scene elements.");
+		return clazz;
+	}
 };
 
 // In-header Implementations:
