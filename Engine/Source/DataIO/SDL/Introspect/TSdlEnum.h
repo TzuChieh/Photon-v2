@@ -16,6 +16,7 @@ class TSdlEnum final
 
 public:
 	inline EnumType operator [] (const std::string_view entryName) const;
+	inline std::string_view operator [] (EnumType enumValue) const;
 };
 
 // In-header Implementations:
@@ -26,6 +27,14 @@ inline EnumType TSdlEnum::operator [] (const std::string_view entryName) const
 	PH_ASSERT_UNREACHABLE_SECTION();
 
 	return static_cast<EnumType>(0);
+}
+
+template<typename EnumType>
+inline std::string_view TSdlEnum::operator [] (const EnumType enumValue) const
+{
+	PH_ASSERT_UNREACHABLE_SECTION();
+
+	return "";
 }
 
 }// end namespace ph

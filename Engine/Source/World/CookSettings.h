@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataIO/Option.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
@@ -24,6 +25,27 @@ public:
 
 private:
 	EAccelerator m_topLevelAccelerator;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<CookSettings>)
+	{
+		ClassType clazz("cook-settings");
+		clazz.description(
+			"Settings related to the actor-cooking process.");
+		clazz.baseOn<Option>();
+
+		TSdlSpectrum<OwnerType> color("color", EQuantity::EMR, &OwnerType::m_color);
+		color.description("The color of this light source.");
+		color.defaultTo(Spectrum().setLinearSrgb({ 1, 1, 1 }, EQuantity::EMR));
+		clazz.addField(color);
+
+		TSdlReal<OwnerType> numWatts("watts", &OwnerType::m_numWatts);
+		numWatts.description("Energy emitted by this light source, in watts.");
+		numWatts.defaultTo(100);
+		clazz.addField(numWatts);
+
+		return clazz;
+	}
 };
 
 // In-header Implementations:

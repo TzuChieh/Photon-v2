@@ -86,6 +86,21 @@ public:
 		return TEntry<Enum>();
 	}
 
+	inline TEntry<EnumType> getTypedEntry(const std::string_view entryName) const
+	{
+		// Brute-force search for matched enum entry name
+		for(std::size_t entryIdx = 0; entryIdx < m_entries.size(); ++entryIdx)
+		{
+			const TEntry<EnumType> entry = getTypedEntry(entryIdx);
+			if(entry.name == entryName)
+			{
+				return entry;
+			}
+		}
+
+		return TEntry<Enum>();
+	}
+
 	inline TBasicSdlEnum& description(std::string descriptionStr)
 	{
 		setDescription(std::move(descriptionStr));

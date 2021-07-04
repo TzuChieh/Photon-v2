@@ -80,6 +80,7 @@
 #include "Core/Renderer/Attribute/AttributeRenderer.h"
 
 // options
+#include "DataIO/Option.h"
 #include "World/CookSettings.h"
 #include "Core/EngineOption.h"
 
@@ -167,6 +168,9 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<PhysicalActor>(),
 		get_sdl_class<AModel>(),
 		get_sdl_class<ALight>(),
+
+		// Options
+		get_sdl_class<Option>(),
 	};
 }
 
