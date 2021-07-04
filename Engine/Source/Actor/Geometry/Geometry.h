@@ -45,7 +45,7 @@ protected:
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Geometry>)
 	{
-		ClassType clazz("geometry");
+		ClassType clazz(sdl::category_to_string(CATEGORY));
 		clazz.description("Defining the shape of scene elements.");
 		return clazz;
 	}

@@ -350,6 +350,13 @@ inline real TAbstractSpectrum<DerivedType, N>::max() const
 }
 
 template<typename DerivedType, std::size_t N>
+inline auto TAbstractSpectrum<DerivedType, N>::abs() const
+	-> DerivedType
+{
+	return DerivedType(m_values.abs());
+}
+
+template<typename DerivedType, std::size_t N>
 inline real TAbstractSpectrum<DerivedType, N>::operator [] (const std::size_t index) const
 {
 	return m_values[index];

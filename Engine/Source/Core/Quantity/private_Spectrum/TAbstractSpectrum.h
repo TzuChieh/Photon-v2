@@ -86,6 +86,7 @@ public:
 	real sum() const;
 	real avg() const;
 	real max() const;
+	DerivedType abs() const;
 
 	real operator [] (std::size_t index) const;
 	real& operator [] (std::size_t index);

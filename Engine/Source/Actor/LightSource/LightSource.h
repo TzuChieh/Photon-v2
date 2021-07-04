@@ -3,6 +3,7 @@
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "DataIO/SDL/ISdlResource.h"
 #include "Common/primitive_type.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
 
@@ -40,6 +41,15 @@ public:
 	virtual std::shared_ptr<Material> genMaterial(CookingContext& context) const;
 
 	ETypeCategory getCategory() const override;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<LightSource>)
+	{
+		ClassType clazz(sdl::category_to_string(CATEGORY));
+		clazz.description(
+			"The source of all energy emitting entity in the scene.");
+		return clazz;
+	}
 };
 
 // In-header Implementations:

@@ -31,7 +31,7 @@ public:
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Actor>)
 	{
-		ClassType clazz("actor");
+		ClassType clazz(sdl::category_to_string(CATEGORY));
 		clazz.description(
 			"Represents an entity in the scene. "
 			"Every entity that participates in a scene is an actor.");
