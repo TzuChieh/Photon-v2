@@ -10,7 +10,7 @@ class RectangleSource final : public AreaSource
 public:
 	RectangleSource();
 	RectangleSource(real width, real height, const math::Vector3R& linearSrgbColor, real numWatts);
-	RectangleSource(real width, real height, const SampledSpectrum& color, real numWatts);
+	RectangleSource(real width, real height, const Spectrum& color, real numWatts);
 
 	std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
 

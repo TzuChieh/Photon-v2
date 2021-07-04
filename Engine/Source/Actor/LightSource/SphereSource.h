@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor/LightSource/AreaSource.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
@@ -10,7 +11,7 @@ class SphereSource final : public AreaSource
 public:
 	SphereSource();
 	SphereSource(real radius, const math::Vector3R& linearSrgbColor, real numWatts);
-	SphereSource(real radius, const SampledSpectrum& color, real numWatts);
+	SphereSource(real radius, const Spectrum& color, real numWatts);
 
 	std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
 
@@ -18,6 +19,22 @@ public:
 
 private:
 	real m_radius;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SphereSource>)
+	{
+		ClassType clazz("sphere");
+		clazz.description(
+			"This type of light emits energy from a spherical shape.");
+		clazz.baseOn<AreaSource>();
+
+		TSdlReal<OwnerType> radius("radius", &OwnerType::m_radius);
+		radius.description("The radius of the sphere.");
+		radius.defaultTo(1);
+		clazz.addField(radius);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

@@ -160,6 +160,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		// Light sources
 		get_sdl_class<LightSource>(),
 		get_sdl_class<AreaSource>(),
+		get_sdl_class<SphereSource>(),
 
 		// Actors
 		get_sdl_class<Actor>(),

@@ -33,7 +33,7 @@ private:
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AreaSource>)
 	{
-		ClassType clazz("sphere");
+		ClassType clazz("area");
 		clazz.description(
 			"This type of light source has a finite area. Energy is allowed to"
 			"emit as long as the emitting source is within the area.");
