@@ -169,8 +169,13 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<AModel>(),
 		get_sdl_class<ALight>(),
 
+		// Receivers
+		//get_sdl_class<Receiver>(),
+
 		// Options
 		get_sdl_class<Option>(),
+		get_sdl_class<CookSettings>(),
+		get_sdl_class<EngineOption>(),
 	};
 }
 

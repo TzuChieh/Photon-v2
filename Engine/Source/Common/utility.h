@@ -3,6 +3,7 @@
 #include "Common/config.h"
 
 #include <iostream>
+#include <type_traits>
 
 #define PH_CONCAT_2(a, b) a##b
 #define PH_CONCAT_3(a, b, c) a##b##c

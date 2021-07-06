@@ -4,21 +4,22 @@
 #include "Utility/TArrayAsVector.h"
 #include "Common/assertion.h"
 
-#include <type_traits.h>
+#include <type_traits>
 #include <string>
+#include <string_view>
 #include <cstddef>
 #include <utility>
 
 namespace ph
 {
 
-template<typename EnumType_, auto NUM_ENTRIES_>
+/*! @brief SDL enum implementation with common features.
+*/
+template<typename EnumType_, std::size_t MAX_ENTRIES = 64>
 class TBasicSdlEnum : public SdlEnum
 {
 public:
 	using EnumType = EnumType_;
-
-	constexpr std::size_t NUM_ENTRIES = static_cast<std::size_t>(NUM_ENTRIES_);
 
 	static_assert(std::is_enum_v<EnumType>,
 		"EnumType must be a C++ enum. Currently it is not.");
@@ -42,11 +43,14 @@ public:
 
 	inline std::size_t numEntries() const override
 	{
-		return NUM_ENTRIES;
+		return m_entries.size();
 	}
 
-	inline TBasicSdlEnum& addEntry(const Enum enumValue, const std::string_view valueName)
+	inline TBasicSdlEnum& addEntry(const EnumType enumValue, const std::string_view valueName)
 	{
+		PH_ASSERT_MSG(!m_entries.isFull(),
+			"No space for more entries; increase MAX_ENTRIES parameter for this enum.");
+
 		BasicEnumEntry entry;
 		entry.nameIndex = m_nameBuffer.size();
 		entry.nameSize  = valueName.size();
@@ -71,6 +75,12 @@ public:
 		return {entryName, basicEntry.value};
 	}
 
+	/*! @brief Get an enum entry via an enum name.
+
+	Note that the method cannot distinguish between identical enum names,
+	i.e., if two entries have the same enum name, their entries cannot be
+	uniquely identified and returned.
+	*/
 	inline TEntry<EnumType> getTypedEntry(const std::string_view entryName) const
 	{
 		// Brute-force search for matched enum entry name
@@ -86,13 +96,19 @@ public:
 		return TEntry<Enum>();
 	}
 
-	inline TEntry<EnumType> getTypedEntry(const std::string_view entryName) const
+	/*! @brief Get an enum entry via an enum value.
+
+	Note that the method cannot distinguish between identical enum values,
+	i.e., if two entries have the same enum value, their entries cannot be
+	uniquely identified and returned.
+	*/
+	inline TEntry<EnumType> getTypedEntry(const EnumType enumValue) const
 	{
-		// Brute-force search for matched enum entry name
+		// Brute-force search for matched enum entry value
 		for(std::size_t entryIdx = 0; entryIdx < m_entries.size(); ++entryIdx)
 		{
 			const TEntry<EnumType> entry = getTypedEntry(entryIdx);
-			if(entry.name == entryName)
+			if(entry.value == enumValue)
 			{
 				return entry;
 			}
@@ -120,7 +136,7 @@ private:
 	};
 
 	std::string m_nameBuffer;
-	TArrayAsVector<BasicEnumEntry, NUM_ENTRIES> m_entries;
+	TArrayAsVector<BasicEnumEntry, MAX_ENTRIES> m_entries;
 };
 
 }// end namespace ph

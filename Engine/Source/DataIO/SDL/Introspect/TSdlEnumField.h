@@ -24,13 +24,18 @@ class TSdlEnumField : public SdlValueType
 
 public:
 	template<typename ValueType>
+	inline explicit TSdlEnumField(ValueType Owner::* const valuePtr) :
+		TSdlEnumField(TSdlEnum<EnumType>::getSdlEnum()->getName(), std::move(valueName), valuePtr)
+	{}
+
+	template<typename ValueType>
 	inline TSdlEnumField(std::string valueName, ValueType Owner::* const valuePtr) :
-		SdlValueType(TSdlEnum<EnumType>::getSdlEnum()->getName(), std::move(valueName), valuePtr)
+		SdlValueType("enum", std::move(valueName), valuePtr)
 	{}
 
 	inline std::string valueAsString(const EnumType& value) const override
 	{
-		return TSdlEnum<EnumType>()[];
+		return std::string(TSdlEnum<EnumType>()[value]);
 	}
 
 protected:
@@ -39,7 +44,7 @@ protected:
 		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, sdl::load_integer(payload.value));
+		setValue(owner, TSdlEnum<EnumType>()[payload.value]);
 	}
 
 	inline void convertToSdl(
@@ -54,7 +59,7 @@ protected:
 	}
 };
 
-template<typename Owner, typename IntType = integer>
-using TSdlOptionalInteger = TSdlInteger<Owner, IntType, TSdlOptionalValue<IntType, Owner>>;
+template<typename Owner, typename EnumType>
+using TSdlOptionalEnumField = TSdlEnumField<Owner, EnumType, TSdlOptionalValue<EnumType, Owner>>;
 
 }// end namespace ph

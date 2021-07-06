@@ -9,6 +9,7 @@
 #include "Core/Filmic/filmic_fwd.h"
 #include "Common/assertion.h"
 #include "Core/Quantity/Spectrum.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
@@ -81,6 +82,18 @@ protected:
 	static math::TDecomposedTransform<float64> makeDecomposedReceiverPose(
 		const math::Vector3R&    position, 
 		const math::QuaternionR& rotation);
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Receiver>)
+	{
+		ClassType clazz(sdl::category_to_string(CATEGORY));
+		clazz.description(
+			"A device for recording energy information in the scene.");
+
+		// TODO
+
+		return clazz;
+	}
 };
 
 // In-header Implementations:

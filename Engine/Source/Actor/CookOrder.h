@@ -1,13 +1,15 @@
 #pragma once
 
+#include "Common/primitive_type.h"
+
 #include <cstddef>
 #include <limits>
 
 namespace ph
 {
 
-using CookPriority = int;
-using CookLevel    = int;
+using CookPriority = uint8;
+using CookLevel    = uint8;
 
 enum class ECookPriority : CookPriority
 {

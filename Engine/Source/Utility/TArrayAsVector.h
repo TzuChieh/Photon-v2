@@ -39,10 +39,10 @@ public:
 	Iterators for stored objects.
 	*/
 	///@{
-	typename std::array<T>::iterator       begin() noexcept;
-	typename std::array<T>::const_iterator begin() const noexcept;
-	typename std::array<T>::iterator       end()   noexcept;
-	typename std::array<T>::const_iterator end()   const noexcept;
+	typename std::array<T, N>::iterator       begin() noexcept;
+	typename std::array<T, N>::const_iterator begin() const noexcept;
+	typename std::array<T, N>::iterator       end()   noexcept;
+	typename std::array<T, N>::const_iterator end()   const noexcept;
 	///@}
 
 private:

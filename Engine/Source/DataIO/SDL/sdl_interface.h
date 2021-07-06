@@ -6,6 +6,10 @@
 #include "DataIO/SDL/Introspect/SdlFunction.h"
 #include "DataIO/SDL/Introspect/SdlEnum.h"
 
+// Enum types
+#include "DataIO/SDL/Introspect/TBasicSdlEnum.h"
+#include "DataIO/SDL/Introspect/TSdlEnum.h"
+
 // Owner types
 #include "DataIO/SDL/Introspect/TOwnerSdlClass.h"
 #include "DataIO/SDL/Introspect/TOwnerSdlStruct.h"
@@ -19,22 +23,31 @@
 #include "DataIO/SDL/Introspect/TSdlRealArray.h"
 #include "DataIO/SDL/Introspect/TSdlVector3Array.h"
 #include "DataIO/SDL/Introspect/TSdlReference.h"
+#include "DataIO/SDL/Introspect/TSdlEnumField.h"
 
 // Function types
 #include "DataIO/SDL/Introspect/TSdlMethod.h"
-
-// Enum types
-#include "DataIO/SDL/Introspect/TSdlBasicEnum.h"
-#include "DataIO/SDL/Introspect/TSdlEnum.h"
 
 #include <type_traits>
 
 // TODO: need traits helper to verify a sdl class/struct also contains the required macro
 
-#define PH_DEFINE_SDL_CLASS(SDL_CLASS_TYPE)\
+/*! @brief Define a SDL class with function-like syntax.
+
+Use this macro in the class body of a SDL resource to provide an interface
+for introspection. The SDL class instance type to be defined should be the only
+argument to the macro. Followed is a ordinary C++ scope (a pair of curly braces)
+where the definition for the SDL class instance resides. Several utility types 
+can be used within the scope: `ClassType` for the type of the SDL class, and
+`OwnerType` for the type of the SDL resource. Finally, use a return statement 
+to return the SDL class instance. After defining the SDL class instance using
+this macro, the static method `const ClassType* getSdlClass()` will be available
+for the SDL resource to access the SDL class instance.
+*/
+#define PH_DEFINE_SDL_CLASS(...)\
 	\
-	using ClassType = SDL_CLASS_TYPE;\
-	using OwnerType = SDL_CLASS_TYPE::OwnerType;\
+	using ClassType = decltype(__VA_ARGS__);\
+	using OwnerType = ClassType::OwnerType;\
 	\
 	inline static const ClassType* getSdlClass()\
 	{\
@@ -47,10 +60,10 @@
 	\
 	inline static ClassType internal_sdl_class_impl()
 
-#define PH_DEFINE_SDL_STRUCT(SDL_STRUCT_TYPE)\
+#define PH_DEFINE_SDL_STRUCT(...)\
 	\
-	using StructType = SDL_STRUCT_TYPE;\
-	using OwnerType  = SDL_STRUCT_TYPE::OwnerType;\
+	using StructType = decltype(__VA_ARGS__);\
+	using OwnerType  = StructType::OwnerType;\
 	\
 	inline static const StructType* getSdlStruct()\
 	{\
@@ -63,10 +76,10 @@
 	\
 	inline static StructType internal_sdl_struct_impl()
 
-#define PH_DEFINE_SDL_FUNCTION(SDL_FUNCTION_TYPE)\
+#define PH_DEFINE_SDL_FUNCTION(...)\
 	\
-	using FunctionType = SDL_FUNCTION_TYPE;\
-	using OwnerType    = SDL_FUNCTION_TYPE::OwnerType;\
+	using FunctionType = decltype(__VA_ARGS__);\
+	using OwnerType    = FunctionType::OwnerType;\
 	\
 	inline static const FunctionType* getSdlFunction()\
 	{\
@@ -79,14 +92,14 @@
 	\
 	inline static FunctionType internal_sdl_function_impl()
 
-#define PH_DEFINE_SDL_ENUM(SDL_ENUM_TYPE)\
+#define PH_DEFINE_SDL_ENUM(...)\
 	template<>\
-	class TSdlEnum<ENUM_TYPE> final\
+	class TSdlEnum<decltype(__VA_ARGS__)::EnumType> final\
 	{\
 	private:\
 	\
-		using SdlEnumType = SDL_ENUM_TYPE;\
-		using EnumType    = SDL_ENUM_TYPE::EnumType;\
+		using SdlEnumType = decltype(__VA_ARGS__);\
+		using EnumType    = typename SdlEnumType::EnumType;\
 	\
 		static_assert(std::is_enum_v<EnumType>,\
 			"EnumType must be an enum. Currently it is not.");\
@@ -94,8 +107,14 @@
 	public:\
 		inline EnumType operator [] (const std::string_view entryName) const\
 		{\
-			const ::ph::SdlEnum::TEntry<EnumType> entry = getSdlEnum().getTypedEntry(entryName);\
+			const ::ph::SdlEnum::TEntry<EnumType> entry = getSdlEnum()->getTypedEntry(entryName);\
 			return entry.value;\
+		}\
+	\
+		inline std::string_view operator [] (const EnumType entryValue) const\
+		{\
+			const ::ph::SdlEnum::TEntry<EnumType> entry = getSdlEnum()->getTypedEntry(entryValue);\
+			return entry.name;\
 		}\
 	\
 		inline static const SdlEnumType* getSdlEnum()\
@@ -113,4 +132,4 @@
 	\
 	\// In-header Implementations:
 	\
-	inline static SdlEnumType internal_sdl_enum_impl()\
+	inline decltype(__VA_ARGS__) TSdlEnum<typename decltype(__VA_ARGS__)::EnumType>::internal_sdl_enum_impl()

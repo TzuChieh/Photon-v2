@@ -7,6 +7,13 @@
 namespace ph
 {
 
+/*! @brief Describes enum in SDL.
+
+Note that it is highly encouraged to follow several conventions while using
+SDL enum:
+- Define an entry with value = 0 to indicate a default/unspecified state.
+- Define only unique enum entries--no identical enum values or enum names.
+*/
 class SdlEnum
 {
 public:

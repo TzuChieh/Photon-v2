@@ -131,31 +131,31 @@ inline const T& TArrayAsVector<T, N>::back() const
 }
 
 template<typename T, std::size_t N>
-typename std::array<T>::iterator TArrayAsVector<T, N>::begin() noexcept
+typename std::array<T, N>::iterator TArrayAsVector<T, N>::begin() noexcept
 {
-	return m_objects.begin();
+	return m_data.begin();
 }
 
 template<typename T, std::size_t N>
-typename std::array<T>::const_iterator TArrayAsVector<T, N>::begin() const noexcept
+typename std::array<T, N>::const_iterator TArrayAsVector<T, N>::begin() const noexcept
 {
-	return m_objects.begin();
+	return m_data.begin();
 }
 
 template<typename T, std::size_t N>
-typename std::array<T>::iterator TArrayAsVector<T, N>::end() noexcept
+typename std::array<T, N>::iterator TArrayAsVector<T, N>::end() noexcept
 {
 	// Not using std::advance() as we expect it to be randomly accessible
 	// (no permissive code)
-	return m_objects.begin() + m_size;
+	return m_data.begin() + m_size;
 }
 
 template<typename T, std::size_t N>
-typename std::array<T>::const_iterator TArrayAsVector<T, N>::end() const noexcept
+typename std::array<T, N>::const_iterator TArrayAsVector<T, N>::end() const noexcept
 {
 	// Not using std::advance() as we expect it to be randomly accessible
 	// (no permissive code)
-	return m_objects.begin() + m_size;
+	return m_data.begin() + m_size;
 }
 
 }// end namespace ph
