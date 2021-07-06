@@ -55,7 +55,7 @@ public:
 
 		PH_DEFINE_SDL_FUNCTION(TSdlMethod<SdlTranslate, PhysicalActor>)
 		{
-			SdlFunction func("translate");
+			FunctionType func("translate");
 			func.description("Moves the actor away from the original location with a specified amount.");
 
 			TSdlVector3<OwnerType> amount("amount", &OwnerType::amount);
@@ -77,11 +77,11 @@ public:
 		{
 			if(rotation)
 			{
-				actor.rotate(rotation.normalize());
+				actor.rotate((*rotation).normalize());
 			}
 			else if(axis && degrees)
 			{
-				actor.rotate(axis.normalize(), degrees);
+				actor.rotate((*axis).normalize(), *degrees);
 			}
 			else
 			{
@@ -92,9 +92,9 @@ public:
 			}
 		}
 
-		PH_DEFINE_SDL_FUNCTION(TSdlMethod<SdlTranslate, PhysicalActor>)
+		PH_DEFINE_SDL_FUNCTION(TSdlMethod<SdlRotate, PhysicalActor>)
 		{
-			SdlFunction func("rotation");
+			FunctionType func("rotation");
 			func.description("Rotates the actor along an axis with a specified amount.");
 
 			TSdlOptionalVector3<OwnerType> axis("axis", &OwnerType::axis);
@@ -122,9 +122,9 @@ public:
 			actor.scale(amount);
 		}
 
-		PH_DEFINE_SDL_FUNCTION(TSdlMethod<SdlTranslate, PhysicalActor>)
+		PH_DEFINE_SDL_FUNCTION(TSdlMethod<SdlScale, PhysicalActor>)
 		{
-			SdlFunction func("scale");
+			FunctionType func("scale");
 			func.description("Enlarges or shrinks the actor with some specified amount.");
 
 			TSdlVector3<OwnerType> amount("amount", &OwnerType::amount);

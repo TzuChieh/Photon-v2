@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Math/Transform/StaticAffineTransform.h"
 #include "Actor/PhysicalActor.h"
+#include "Actor/Geometry/Geometry.h"
+#include "Actor/Material/Material.h"
+#include "Actor/MotionSource/MotionSource.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
@@ -9,11 +11,6 @@
 
 namespace ph
 {
-
-class Geometry;
-class Material;
-class TextureMapper;
-class MotionSource;
 
 class AModel : public PhysicalActor
 {

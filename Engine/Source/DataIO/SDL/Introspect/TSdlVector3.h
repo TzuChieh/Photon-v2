@@ -57,6 +57,6 @@ protected:
 };
 
 template<typename Owner, typename Element = real>
-using TSdlOptionalVector3 = TSdlOptionalValue<math::TVector3<Element>, Owner>;
+using TSdlOptionalVector3 = TSdlVector3<Owner, Element, TSdlOptionalValue<math::TVector3<Element>, Owner>>;
 
 }// end namespace ph

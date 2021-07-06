@@ -1,25 +1,17 @@
 #pragma once
 
-#include "Math/Transform/StaticAffineTransform.h"
-#include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/PhysicalActor.h"
-#include "Math/Transform/StaticRigidTransform.h"
+#include "Actor/Material/Material.h"
+#include "Actor/Geometry/Geometry.h"
+#include "Actor/LightSource/LightSource.h"
 
 #include <memory>
 #include <vector>
 
+namespace ph::math { class RigidTransform; }
+
 namespace ph
 {
-
-class Geometry;
-class Material;
-class TextureMapper;
-class LightSource;
-
-namespace math
-{
-	class Transform;
-}
 
 class ALight : public PhysicalActor
 {

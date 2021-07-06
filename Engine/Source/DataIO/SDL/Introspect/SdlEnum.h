@@ -24,7 +24,11 @@ public:
 		ValueType        value;
 
 		inline TEntry() :
-			name(), value(0)
+			name(), value(static_cast<ValueType>(0))
+		{}
+
+		inline TEntry(std::string_view name, ValueType value) :
+			name(std::move(name)), value(std::move(value))
 		{}
 	};
 

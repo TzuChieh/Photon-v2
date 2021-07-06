@@ -57,6 +57,6 @@ protected:
 };
 
 template<typename Owner, typename Element = real>
-using TSdlOptionalQuaternion = TSdlOptionalValue<math::TQuaternion<Element>, Owner>;
+using TSdlOptionalQuaternion = TSdlQuaternion<Owner, Element, TSdlOptionalValue<math::TQuaternion<Element>, Owner>>;
 
 }// end namespace ph

@@ -47,7 +47,7 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const std::string&     sdlValue,
+		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
 		setValue(owner, sdl::load_spectrum(payload, m_usage));
@@ -69,6 +69,6 @@ private:
 };
 
 template<typename Owner>
-using TSdlOptionalSpectrum = TSdlSpectrum<Owner, Element, TSdlOptionalValue<Spectrum, Owner>>;
+using TSdlOptionalSpectrum = TSdlSpectrum<Owner, TSdlOptionalValue<Spectrum, Owner>>;
 
 }// end namespace ph

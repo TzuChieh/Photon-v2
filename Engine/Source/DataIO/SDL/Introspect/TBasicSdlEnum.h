@@ -93,7 +93,7 @@ public:
 			}
 		}
 
-		return TEntry<Enum>();
+		return TEntry<EnumType>();
 	}
 
 	/*! @brief Get an enum entry via an enum value.
@@ -114,7 +114,7 @@ public:
 			}
 		}
 
-		return TEntry<Enum>();
+		return TEntry<EnumType>();
 	}
 
 	inline TBasicSdlEnum& description(std::string descriptionStr)
@@ -131,7 +131,7 @@ private:
 		EnumType    value;
 
 		inline BasicEnumEntry() :
-			nameIndex(0), nameSize(0), value(0)
+			nameIndex(0), nameSize(0), value(static_cast<EnumType>(0))
 		{}
 	};
 

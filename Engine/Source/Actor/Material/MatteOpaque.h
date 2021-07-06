@@ -38,10 +38,11 @@ public:
 		albedo.defaultToLinearSrgb(0.5_r);
 		clazz.addField(albedo);
 
-		TSdlGenericColor<OwnerType> sigmaDegrees("sigma-degrees", &OwnerType::m_sigmaDegrees);
+		// TODO
+		/*TSdlGenericColor<OwnerType> sigmaDegrees("sigma-degrees", &OwnerType::m_sigmaDegrees);
 		sigmaDegrees.description("Roughness in standard deviation of surface orientation (unit: degrees).");
 		sigmaDegrees.optional();
-		clazz.addField(sigmaDegrees);
+		clazz.addField(sigmaDegrees);*/
 
 		return clazz;
 	}

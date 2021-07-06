@@ -44,10 +44,10 @@ to return the SDL class instance. After defining the SDL class instance using
 this macro, the static method `const ClassType* getSdlClass()` will be available
 for the SDL resource to access the SDL class instance.
 */
-#define PH_DEFINE_SDL_CLASS(...)\
+#define PH_DEFINE_SDL_CLASS(...)/* variadic args for template types that contain commas */\
 	\
-	using ClassType = decltype(__VA_ARGS__);\
-	using OwnerType = ClassType::OwnerType;\
+	using ClassType = __VA_ARGS__;\
+	using OwnerType = typename ClassType::OwnerType;\
 	\
 	inline static const ClassType* getSdlClass()\
 	{\
@@ -60,10 +60,10 @@ for the SDL resource to access the SDL class instance.
 	\
 	inline static ClassType internal_sdl_class_impl()
 
-#define PH_DEFINE_SDL_STRUCT(...)\
+#define PH_DEFINE_SDL_STRUCT(...)/* variadic args for template types that contain commas */\
 	\
-	using StructType = decltype(__VA_ARGS__);\
-	using OwnerType  = StructType::OwnerType;\
+	using StructType = __VA_ARGS__;\
+	using OwnerType  = typename StructType::OwnerType;\
 	\
 	inline static const StructType* getSdlStruct()\
 	{\
@@ -76,10 +76,10 @@ for the SDL resource to access the SDL class instance.
 	\
 	inline static StructType internal_sdl_struct_impl()
 
-#define PH_DEFINE_SDL_FUNCTION(...)\
+#define PH_DEFINE_SDL_FUNCTION(...)/* variadic args for template types that contain commas */\
 	\
-	using FunctionType = decltype(__VA_ARGS__);\
-	using OwnerType    = FunctionType::OwnerType;\
+	using FunctionType = __VA_ARGS__;\
+	using OwnerType    = typename FunctionType::OwnerType;\
 	\
 	inline static const FunctionType* getSdlFunction()\
 	{\
@@ -92,13 +92,13 @@ for the SDL resource to access the SDL class instance.
 	\
 	inline static FunctionType internal_sdl_function_impl()
 
-#define PH_DEFINE_SDL_ENUM(...)\
+#define PH_DEFINE_SDL_ENUM(...)/* variadic args for template types that contain commas */\
 	template<>\
-	class TSdlEnum<decltype(__VA_ARGS__)::EnumType> final\
+	class TSdlEnum<typename __VA_ARGS__::EnumType> final\
 	{\
 	private:\
 	\
-		using SdlEnumType = decltype(__VA_ARGS__);\
+		using SdlEnumType = __VA_ARGS__;\
 		using EnumType    = typename SdlEnumType::EnumType;\
 	\
 		static_assert(std::is_enum_v<EnumType>,\
@@ -130,6 +130,6 @@ for the SDL resource to access the SDL class instance.
 		static SdlEnumType internal_sdl_enum_impl();\
 	};\
 	\
-	\// In-header Implementations:
+	/* In-header Implementations: */\
 	\
-	inline decltype(__VA_ARGS__) TSdlEnum<typename decltype(__VA_ARGS__)::EnumType>::internal_sdl_enum_impl()
+	inline __VA_ARGS__ TSdlEnum<typename __VA_ARGS__::EnumType>::internal_sdl_enum_impl()
