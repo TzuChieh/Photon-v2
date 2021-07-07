@@ -39,7 +39,7 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 		Vec3ArrOwner owner;
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, "\"1.2   -3.4  10.0 \"  \" 2  3 \t5 \"", ctx));
+		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlPayload("\"1.2   -3.4  10.0 \"  \" 2  3 \t5 \""), ctx));
 		ASSERT_TRUE(owner.arr.size() == 2);
 		PH_EXPECT_REAL_EQ(owner.arr[0].x, 1.2_r);
 		PH_EXPECT_REAL_EQ(owner.arr[0].y, -3.4_r);
@@ -53,16 +53,16 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 		// Fallback to default for optional & nice-to-have fields
 
 		sdlVec3Arr.defaultTo({{-1.0_r, -2.0_r, -3.0_r}});
-		sdlVec3Arr.withImportance(EFieldImportance::OPTIONAL);
-		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, "whatIsThis", ctx));
+		sdlVec3Arr.optional();
+		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlPayload("whatIsThis"), ctx));
 		ASSERT_TRUE(owner.arr.size() == 1);
 		PH_EXPECT_REAL_EQ(owner.arr[0].x, -1.0_r);
 		PH_EXPECT_REAL_EQ(owner.arr[0].y, -2.0_r);
 		PH_EXPECT_REAL_EQ(owner.arr[0].z, -3.0_r);
 
 		sdlVec3Arr.defaultTo({{-1.0_r, -2.0_r, -3.0_r}, {1.0_r, 2.0_r, 3.0_r}});
-		sdlVec3Arr.withImportance(EFieldImportance::NICE_TO_HAVE);
-		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, "testing", ctx));
+		sdlVec3Arr.niceToHave();
+		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlPayload("testing"), ctx));
 		ASSERT_TRUE(owner.arr.size() == 2);
 		PH_EXPECT_REAL_EQ(owner.arr[0].x, -1.0_r);
 		PH_EXPECT_REAL_EQ(owner.arr[0].y, -2.0_r);
@@ -83,7 +83,7 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_THROW(sdlVec3Arr.fromSdl(owner, "vec3ArrYoyo", ctx), SdlLoadError);
+		EXPECT_THROW(sdlVec3Arr.fromSdl(owner, SdlPayload("vec3ArrYoyo"), ctx), SdlLoadError);
 		ASSERT_TRUE(owner.arr.size() == 1);
 		PH_EXPECT_REAL_EQ(owner.arr[0].x, 1.1_r);// owner value should not update
 		PH_EXPECT_REAL_EQ(owner.arr[0].y, 2.2_r);//

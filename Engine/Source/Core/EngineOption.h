@@ -27,7 +27,7 @@ public:
 	{
 		ClassType clazz("engine");
 		clazz.description("Settings for the core engine execution.");
-		clazz.baseOn<Option>;
+		clazz.baseOn<Option>();
 
 		TSdlString<OwnerType> rendererName("renderer", &OwnerType::m_rendererName);
 		rendererName.description("Name of the renderer resource to use.");

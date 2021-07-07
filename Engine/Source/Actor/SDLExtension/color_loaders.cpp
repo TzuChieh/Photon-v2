@@ -18,7 +18,7 @@
 namespace ph::sdl
 {
 
-math::Vector3R tristimulus_to_linear_SRGB(const math::Vector3R& tristimulus, const ESdlColorSpace colorSpace);
+math::Vector3R tristimulus_to_linear_SRGB(const math::Vector3R& tristimulus, const ESdlColorSpace colorSpace)
 {
 	switch(colorSpace)
 	{
@@ -75,7 +75,7 @@ Spectrum load_spectrum(const SdlPayload& payload, const EQuantity usage)
 			std::vector<real> values(tokens.size());
 			for(std::size_t i = 0; i < values.size(); ++i)
 			{
-				values = load_real(tokens[i]);
+				values[i] = load_real(tokens[i]);
 			}
 
 			const SampledSpectrum spectrum = SpectralData::calcPiecewiseAveraged(

@@ -188,8 +188,7 @@ template<typename T>
 inline auto TOwnerSdlClass<Owner, FieldSet>::addFunction()
 	-> TOwnerSdlClass&
 {
-	static_assert(std::is_base_of_v<SdlFunction, T>,
-		"T is not a SdlFunction and thus cannot be added.");
+	// TODO: require T has getSdlFunction()
 
 	m_functions.pushBack(T::getSdlFunction());
 
@@ -233,7 +232,7 @@ template<typename T>
 inline auto TOwnerSdlClass<Owner, FieldSet>::baseOn()
 	-> TOwnerSdlClass&
 {
-	static_assert(std::is_same_v<T, Owner>,
+	static_assert(!std::is_same_v<T, Owner>,
 		"A SDL class cannot base on itself.");
 
 	setBase<T>();

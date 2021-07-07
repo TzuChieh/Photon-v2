@@ -4,13 +4,13 @@
 #include "DataIO/FileSystem/Path.h"
 #include "Actor/SDLExtension/ESdlColorSpace.h"
 #include "Core/Quantity/EQuantity.h"
+#include "Core/Quantity/Spectrum.h"
 
 #include <memory>
 #include <string>
 
 namespace ph { class Image; }
-
-namespace ph::sdl { class SdlPayload; }
+namespace ph { class SdlPayload; }
 
 namespace ph::sdl
 {

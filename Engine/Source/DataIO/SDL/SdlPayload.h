@@ -10,11 +10,13 @@ namespace ph
 
 /*! @brief Carries SDL representation of various data.
 */
-struct SdlPayload
+class SdlPayload
 {
+public:
 	std::string_view value;
 	std::string_view tag;
 
+public:
 	inline SdlPayload() = default;
 	explicit SdlPayload(std::string_view value);
 	SdlPayload(std::string_view value, std::string_view tag);

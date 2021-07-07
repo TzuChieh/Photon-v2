@@ -27,7 +27,10 @@ public:
 	inline TSdlQuaternion(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("quaternion", std::move(valueName), valuePtr)
 	{
-		defaultTo(math::TQuaternion<Element>::makeNoRotation());
+		if constexpr(std::is_same_v<SdlValueType, TSdlValue<math::TQuaternion<Element>, Owner>>)
+		{
+			defaultTo(math::TQuaternion<Element>::makeNoRotation());
+		}
 	}
 	
 	inline std::string valueAsString(const math::TQuaternion<Element>& quat) const override

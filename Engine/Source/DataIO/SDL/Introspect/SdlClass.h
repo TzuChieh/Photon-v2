@@ -63,7 +63,7 @@ protected:
 
 	The effect of the base class depends on the implementation.
 	*/
-	template<typename T>
+	template<typename SdlResourceType>
 	SdlClass& setBase();
 
 	static const Logger logger;
@@ -122,13 +122,13 @@ inline SdlClass& SdlClass::setDescription(std::string description)
 	return *this;
 }
 
-template<typename T>
+template<typename SdlResourceType>
 inline SdlClass& SdlClass::setBase()
 {
-	static_assert(std::is_base_of_v<SdlClass, T>,
-		"T must derive from SdlClass.");
+	static_assert(std::is_base_of_v<ISdlResource, SdlResourceType>,
+		"Input type must be a SDL resource.");
 
-	m_base = T::getSdlClass();
+	m_base = SdlResourceType::getSdlClass();
 	return *this;
 }
 

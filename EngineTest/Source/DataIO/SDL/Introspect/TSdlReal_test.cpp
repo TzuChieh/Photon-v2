@@ -39,11 +39,11 @@ TEST(TSdlReadTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlReal.fromSdl(owner, "123.456", ctx));
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlPayload("123.456"), ctx));
 		PH_EXPECT_REAL_EQ(owner.value, 123.456_r);
 
 		// Value with spaces
-		EXPECT_NO_THROW(sdlReal.fromSdl(owner, " 12.5  ", ctx));
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlPayload(" 12.5  "), ctx));
 		PH_EXPECT_REAL_EQ(owner.value, 12.5_r);
 
 		// TODO: scientific notation
@@ -51,13 +51,13 @@ TEST(TSdlReadTest, ReadFromSdl)
 		// Fallback to default for optional & nice-to-have fields
 
 		sdlReal.defaultTo(777.0f);
-		sdlReal.withImportance(EFieldImportance::OPTIONAL);
-		EXPECT_NO_THROW(sdlReal.fromSdl(owner, "yoyoyo", ctx));
+		sdlReal.optional();
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlPayload("yoyoyo"), ctx));
 		PH_EXPECT_REAL_EQ(owner.value, 777.0_r);
 
 		sdlReal.defaultTo(888.0f);
-		sdlReal.withImportance(EFieldImportance::NICE_TO_HAVE);
-		EXPECT_NO_THROW(sdlReal.fromSdl(owner, "test", ctx));
+		sdlReal.niceToHave();
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlPayload("test"), ctx));
 		PH_EXPECT_REAL_EQ(owner.value, 888.0_r);
 	}
 	
@@ -72,7 +72,7 @@ TEST(TSdlReadTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_THROW(sdlReal.fromSdl(owner, "fltflt", ctx), SdlLoadError);
+		EXPECT_THROW(sdlReal.fromSdl(owner, SdlPayload("fltflt"), ctx), SdlLoadError);
 		PH_EXPECT_REAL_EQ(owner.value, 6.8_r);// owner value should not update
 	}
 }

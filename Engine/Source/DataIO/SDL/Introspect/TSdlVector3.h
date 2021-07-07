@@ -27,7 +27,10 @@ public:
 	inline TSdlVector3(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("vector3", std::move(valueName), valuePtr)
 	{
-		defaultTo(math::TVector3<Element>(0, 0, 0));
+		if constexpr(std::is_same_v<SdlValueType, TSdlValue<math::TVector3<Element>, Owner>>)
+		{
+			defaultTo(math::TVector3<Element>(0, 0, 0));
+		}
 	}
 
 	inline std::string valueAsString(const math::TVector3<Element>& vec3) const override

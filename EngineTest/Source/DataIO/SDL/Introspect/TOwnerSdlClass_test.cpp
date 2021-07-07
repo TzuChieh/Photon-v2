@@ -6,6 +6,7 @@
 #include <DataIO/SDL/Introspect/TSdlReal.h>
 #include <DataIO/SDL/Introspect/TSdlString.h>
 #include <DataIO/SDL/Introspect/TSdlMethod.h>
+#include <DataIO/SDL/sdl_interface.h>
 
 #include <gtest/gtest.h>
 
@@ -36,12 +37,22 @@ struct TestMethodStruct
 {
 	void operator () (TestResource& res)
 	{}
+
+	PH_DEFINE_SDL_FUNCTION(TSdlMethod<TestMethodStruct, TestResource>)
+	{
+		return FunctionType("testMethod");
+	}
 };
 
 struct TestMethodStruct2
 {
 	void operator () (const TestResource& res) const
 	{}
+
+	PH_DEFINE_SDL_FUNCTION(TSdlMethod<TestMethodStruct2, TestResource>)
+	{
+		return FunctionType("testMethod2");
+	}
 };
 
 }// end namespace
@@ -122,8 +133,7 @@ TEST(TOwnerSdlClassTest, AddAndGetFunctions)
 {
 	{
 		TOwnerSdlClass<TestResource> sdlClass("testName");
-		TSdlMethod<TestMethodStruct, TestResource> method("testMethod");
-		sdlClass.addFunction(&method);
+		sdlClass.addFunction<TestMethodStruct>();
 		EXPECT_EQ(sdlClass.numFunctions(), 1);
 
 		const auto func = sdlClass.getFunction(0);
@@ -132,13 +142,12 @@ TEST(TOwnerSdlClassTest, AddAndGetFunctions)
 
 		// Add one more function
 
-		TSdlMethod<TestMethodStruct, TestResource> method1("testMethod1");
-		sdlClass.addFunction(&method1);
+		sdlClass.addFunction<TestMethodStruct2>();
 		EXPECT_EQ(sdlClass.numFunctions(), 2);
 
 		const auto func1 = sdlClass.getFunction(1);
 		ASSERT_TRUE(func1 != nullptr);
-		PH_EXPECT_STRING_EQ(func1->getName(), "testMethod1");
+		PH_EXPECT_STRING_EQ(func1->getName(), "testMethod2");
 
 		// Getting out-of-bound functions is allowed
 		for(std::size_t i = 2; i < 1000; ++i)
