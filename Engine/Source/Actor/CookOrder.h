@@ -21,7 +21,7 @@ enum class ECookPriority : CookPriority
 enum class ECookLevel : CookLevel
 {
 	FIRST = 0,
-	NORMAL = std::numeric_limits<CookPriority>::max() / 2,
+	NORMAL = std::numeric_limits<CookLevel>::max() / 2,
 	LAST
 };
 
