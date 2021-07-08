@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/ISdlResource.h"
+#include "Actor/PhysicalActor.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
@@ -8,13 +8,10 @@ namespace ph
 
 class CookingContext;
 
-class AObserver : public ISdlResource
+class AObserver : public PhysicalActor
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_ACTOR;
-
-public:
-	Actor();
+	AObserver();
 	Actor(const Actor& other);
 
 	virtual CookedUnit cook(CookingContext& context) = 0;

@@ -17,22 +17,22 @@ PhysicalActor::PhysicalActor(const PhysicalActor& other) :
 
 void PhysicalActor::translate(const math::Vector3R& translation)
 {
-	m_localToWorld.translate(math::TVector3<hiReal>(translation));
+	m_localToWorld.translate(translation);
 }
 
 void PhysicalActor::rotate(const math::QuaternionR& rotation)
 {
-	m_localToWorld.rotate(math::TQuaternion<hiReal>(rotation));
+	m_localToWorld.rotate(rotation);
 }
 
 void PhysicalActor::scale(const math::Vector3R& scaleFactor)
 {
-	m_localToWorld.scale(math::TVector3<hiReal>(scaleFactor));
+	m_localToWorld.scale(scaleFactor);
 }
 
 void PhysicalActor::rotate(const math::Vector3R& axis, const real degrees)
 {
-	m_localToWorld.rotate(math::TVector3<hiReal>(axis), static_cast<hiReal>(degrees));
+	m_localToWorld.rotate(axis, degrees);
 }
 
 void PhysicalActor::translate(const real x, const real y, const real z)
@@ -50,7 +50,7 @@ void PhysicalActor::scale(const real scaleFactor)
 	scale(math::Vector3R(scaleFactor));
 }
 
-void PhysicalActor::setBaseTransform(const math::TDecomposedTransform<hiReal>& baseLocalToWorld)
+void PhysicalActor::setBaseTransform(const math::TDecomposedTransform<real>& baseLocalToWorld)
 {
 	m_localToWorld = baseLocalToWorld;
 }

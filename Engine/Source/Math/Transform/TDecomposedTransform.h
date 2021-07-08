@@ -10,11 +10,12 @@
 namespace ph::math
 {
 
-/*
-	Represents affine transformations in decomposed form. Specifically, 
-	decomposing an transformation into translation, rotation, and scale;
-	each of the transformation component can be accessed and modified
-	directly.
+/*! @brief Perform affine transformations in decomposed form.
+
+Represents affine transformations in decomposed form. Specifically,
+decomposing an transformation into translation, rotation, and scale;
+each of the transformation component can be accessed and modified
+directly.
 */
 template<typename T>
 class TDecomposedTransform final

@@ -17,7 +17,7 @@ class ALight : public PhysicalActor
 {
 public:
 	ALight();
-	ALight(const std::shared_ptr<LightSource>& lightSource);
+	explicit ALight(const std::shared_ptr<LightSource>& lightSource);
 	ALight(const ALight& other);
 
 	CookedUnit cook(CookingContext& context) override;
