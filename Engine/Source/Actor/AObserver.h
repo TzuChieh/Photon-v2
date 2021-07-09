@@ -6,44 +6,40 @@
 namespace ph
 {
 
-class CookingContext;
-
 class AObserver : public PhysicalActor
 {
 public:
 	AObserver();
-	Actor(const Actor& other);
+	AObserver(const AObserver& other);
 
-	virtual CookedUnit cook(CookingContext& context) = 0;
-	virtual CookOrder getCookOrder() const;
+	CookedUnit cook(CookingContext& context) override = 0;
 
-	ETypeCategory getCategory() const override;
+	CookOrder getCookOrder() const override;
 
-	Actor& operator = (const Actor& rhs);
+	AObserver& operator = (const AObserver& rhs);
 
-	friend void swap(Actor& first, Actor& second);
+	friend void swap(AObserver& first, AObserver& second);
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Actor>)
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AObserver>)
 	{
-		ClassType clazz(sdl::category_to_string(CATEGORY));
-		clazz.description(
-			"Represents an entity in the scene. "
-			"Every entity that participates in a scene is an actor.");
+		ClassType clazz("observer");
+		clazz.description("An actor that is visible and can be transformed.");
+		clazz.baseOn<PhysicalActor>();
+
+		clazz.addFunction<SdlTranslate>();
+		clazz.addFunction<SdlRotate>();
+		clazz.addFunction<SdlScale>();
+
 		return clazz;
 	}
 };
 
 // In-header Implementations:
 
-inline CookOrder Actor::getCookOrder() const
+inline CookOrder AObserver::getCookOrder() const
 {
-	return CookOrder();
-}
-
-inline ETypeCategory Actor::getCategory() const
-{
-	return CATEGORY;
+	return CookOrder(ECookPriority::HIGH, ECookLevel::FIRST);
 }
 
 }// end namespace ph
