@@ -20,7 +20,7 @@ public:
 	explicit ALight(const std::shared_ptr<LightSource>& lightSource);
 	ALight(const ALight& other);
 
-	CookedUnit cook(CookingContext& context) override;
+	CookedUnit cook(ActorCookingContext& ctx) override;
 
 	const LightSource* getLightSource() const;
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);
@@ -33,7 +33,7 @@ private:
 	std::shared_ptr<LightSource> m_lightSource;
 
 	CookedUnit buildGeometricLight(
-		CookingContext&           context, 
+		ActorCookingContext&      ctx,
 		std::shared_ptr<Geometry> geometry,
 		std::shared_ptr<Material> material) const;
 
@@ -41,7 +41,7 @@ private:
 	// original one if it is already suitable). If the current actor has undesired 
 	// configurations, nullptr is returned.
 	std::shared_ptr<Geometry> getSanifiedGeometry(
-		CookingContext&                        context,
+		ActorCookingContext&                   ctx,
 		const std::shared_ptr<Geometry>&       geometry,
 		std::unique_ptr<math::RigidTransform>* out_baseLW,
 		std::unique_ptr<math::RigidTransform>* out_baseWL) const;

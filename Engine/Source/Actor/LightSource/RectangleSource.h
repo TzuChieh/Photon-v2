@@ -12,7 +12,7 @@ public:
 	RectangleSource(real width, real height, const math::Vector3R& linearSrgbColor, real numWatts);
 	RectangleSource(real width, real height, const Spectrum& color, real numWatts);
 
-	std::shared_ptr<Geometry> genAreas(CookingContext& context) const override;
+	std::shared_ptr<Geometry> genAreas(ActorCookingContext& ctx) const override;
 
 	void setDimension(real width, real height);
 

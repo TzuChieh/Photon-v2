@@ -7,19 +7,19 @@ Image::Image()
 {}
 
 std::shared_ptr<TTexture<real>> Image::genTextureReal(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	return genDefaultTexture<real>();
 }
 
 std::shared_ptr<TTexture<math::Vector3R>> Image::genTextureVector3R(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	return genDefaultTexture<math::Vector3R>();
 }
 
 std::shared_ptr<TTexture<Spectrum>> Image::genTextureSpectral(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	return genDefaultTexture<Spectrum>();
 }

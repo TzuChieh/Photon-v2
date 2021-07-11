@@ -12,7 +12,7 @@ GradientImage::GradientImage() :
 	m_endUvw  (1, 1, 0)
 {}
 
-std::shared_ptr<TTexture<real>> GradientImage::genTextureReal(CookingContext& context) const
+std::shared_ptr<TTexture<real>> GradientImage::genTextureReal(ActorCookingContext& ctx) const
 {
 	const auto& images = checkoutImages();
 	if(!images.first|| !images.second)
@@ -22,13 +22,13 @@ std::shared_ptr<TTexture<real>> GradientImage::genTextureReal(CookingContext& co
 
 	return std::make_shared<TLinearGradientTexture<real>>(
 		m_beginUvw, 
-		images.first->genTextureReal(context), 
+		images.first->genTextureReal(ctx), 
 		m_endUvw,
-		images.second->genTextureReal(context));
+		images.second->genTextureReal(ctx));
 }
 
 std::shared_ptr<TTexture<math::Vector3R>> GradientImage::genTextureVector3R(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	const auto& images = checkoutImages();
 	if(!images.first || !images.second)
@@ -38,13 +38,13 @@ std::shared_ptr<TTexture<math::Vector3R>> GradientImage::genTextureVector3R(
 
 	return std::make_shared<TLinearGradientTexture<math::Vector3R>>(
 		m_beginUvw,
-		images.first->genTextureVector3R(context),
+		images.first->genTextureVector3R(ctx),
 		m_endUvw,
-		images.second->genTextureVector3R(context));
+		images.second->genTextureVector3R(ctx));
 }
 
 std::shared_ptr<TTexture<Spectrum>> GradientImage::genTextureSpectral(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	const auto& images = checkoutImages();
 	if(!images.first || !images.second)
@@ -54,9 +54,9 @@ std::shared_ptr<TTexture<Spectrum>> GradientImage::genTextureSpectral(
 
 	return std::make_shared<TLinearGradientTexture<Spectrum>>(
 		m_beginUvw,
-		images.first->genTextureSpectral(context),
+		images.first->genTextureSpectral(ctx),
 		m_endUvw,
-		images.second->genTextureSpectral(context));
+		images.second->genTextureSpectral(ctx));
 }
 
 void GradientImage::setUvwEndpoints(const math::Vector3R& beginUvw, const math::Vector3R& endUvw)

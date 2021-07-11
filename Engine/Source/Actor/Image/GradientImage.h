@@ -12,13 +12,13 @@ public:
 	GradientImage();
 
 	std::shared_ptr<TTexture<real>> genTextureReal(
-		CookingContext& context) const override;
+		ActorCookingContext& ctx) const override;
 
 	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
-		CookingContext& context) const override;
+		ActorCookingContext& ctx) const override;
 
 	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
-		CookingContext& context) const override;
+		ActorCookingContext& ctx) const override;
 
 	void setUvwEndpoints(const math::Vector3R& beginUvw, const math::Vector3R& endUvw);
 

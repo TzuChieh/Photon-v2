@@ -7,11 +7,12 @@
 
 #include <memory>
 
+namespace ph { class ActorCookingContext; }
+
 namespace ph
 {
 
 class Emitter;
-class CookingContext;
 class Geometry;
 class Material;
 
@@ -26,7 +27,7 @@ public:
 	// Generates the core emission part of the light source.
 	//
 	virtual std::unique_ptr<Emitter> genEmitter(
-		CookingContext& context, EmitterBuildingMaterial&& data) const = 0;
+		ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const = 0;
 
 	// A light source may need to place a corresponding geometry in the scene.
 	// Override this method if there is a need for that. This method will

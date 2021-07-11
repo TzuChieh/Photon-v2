@@ -19,12 +19,12 @@ public:
 	AreaSource(const math::Vector3R& linearSrgbColor, real numWatts);
 	AreaSource(const Spectrum& color, real numWatts);
 
-	virtual std::shared_ptr<Geometry> genAreas(CookingContext& context) const = 0;
+	virtual std::shared_ptr<Geometry> genAreas(ActorCookingContext& ctx) const = 0;
 
 	std::unique_ptr<Emitter> genEmitter(
-		CookingContext& context, EmitterBuildingMaterial&& data) const override;
+		ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const override;
 
-	std::shared_ptr<Geometry> genGeometry(CookingContext& context) const final override;
+	std::shared_ptr<Geometry> genGeometry(ActorCookingContext& ctx) const final override;
 
 private:
 	Spectrum m_color;

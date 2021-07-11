@@ -22,9 +22,9 @@ PointSource::PointSource(const Spectrum& color, real numWatts) :
 	m_sphereSource(POINT_SOURCE_RADIUS, color, numWatts)
 {}
 
-std::shared_ptr<Geometry> PointSource::genAreas(CookingContext& context) const
+std::shared_ptr<Geometry> PointSource::genAreas(ActorCookingContext& ctx) const
 {
-	return m_sphereSource.genAreas(context);
+	return m_sphereSource.genAreas(ctx);
 }
 
 }// end namespace ph

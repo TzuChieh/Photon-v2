@@ -22,12 +22,12 @@ FullMaterial::FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMateri
 {}
 
 void FullMaterial::genBehaviors(
-	CookingContext&    context, 
-	PrimitiveMetadata& metadata) const
+	ActorCookingContext& ctx,
+	PrimitiveMetadata&   metadata) const
 {
 	if(m_surfaceMaterial)
 	{
-		m_surfaceMaterial->genBehaviors(context, metadata);
+		m_surfaceMaterial->genBehaviors(ctx, metadata);
 	}
 	else
 	{
@@ -39,13 +39,13 @@ void FullMaterial::genBehaviors(
 	if(m_interiorMaterial)
 	{
 		m_interiorMaterial->setSidedness(VolumeMaterial::ESidedness::INTERIOR);
-		m_interiorMaterial->genBehaviors(context, metadata);
+		m_interiorMaterial->genBehaviors(ctx, metadata);
 	}
 
 	if(m_exteriorMaterial)
 	{
 		m_exteriorMaterial->setSidedness(VolumeMaterial::ESidedness::EXTERIOR);
-		m_exteriorMaterial->genBehaviors(context, metadata);
+		m_exteriorMaterial->genBehaviors(ctx, metadata);
 	}
 }
 

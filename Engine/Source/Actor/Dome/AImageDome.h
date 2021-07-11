@@ -21,7 +21,7 @@ public:
 	explicit AImageDome(const Path& imagePath);
 	AImageDome(const AImageDome& other);
 
-	std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(CookingContext& context) override;
+	std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
 	math::Vector2S getResolution() const override;
 
 	AImageDome& operator = (AImageDome rhs);

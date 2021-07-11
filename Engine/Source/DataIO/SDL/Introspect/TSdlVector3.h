@@ -44,6 +44,7 @@ protected:
 		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
+		// TODO: view
 		setValue(owner, sdl::load_vector3(std::string(payload.value)));
 	}
 

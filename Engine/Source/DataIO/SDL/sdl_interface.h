@@ -18,6 +18,7 @@
 #include "DataIO/SDL/Introspect/TSdlInteger.h"
 #include "DataIO/SDL/Introspect/TSdlReal.h"
 #include "DataIO/SDL/Introspect/TSdlString.h"
+#include "DataIO/SDL/Introspect/TSdlVector2.h"
 #include "DataIO/SDL/Introspect/TSdlVector3.h"
 #include "DataIO/SDL/Introspect/TSdlQuaternion.h"
 #include "DataIO/SDL/Introspect/TSdlRealArray.h"

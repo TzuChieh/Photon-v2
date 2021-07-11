@@ -23,11 +23,11 @@ IdealSubstance::IdealSubstance() :
 	asAbsorber();
 }
 
-void IdealSubstance::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
+void IdealSubstance::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_opticsGenerator);
 
-	behavior.setOptics(m_opticsGenerator(context));
+	behavior.setOptics(m_opticsGenerator(ctx));
 }
 
 void IdealSubstance::asDielectricReflector(const real iorInner, const real iorOuter)

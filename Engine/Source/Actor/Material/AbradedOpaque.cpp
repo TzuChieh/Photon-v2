@@ -15,7 +15,7 @@ AbradedOpaque::AbradedOpaque() :
 	m_microsurfaceInfo()
 {}
 
-void AbradedOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
+void AbradedOpaque::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	behavior.setOptics(
 		std::make_unique<OpaqueMicrofacet>(

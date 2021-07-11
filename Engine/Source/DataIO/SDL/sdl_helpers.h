@@ -3,11 +3,11 @@
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
+#include "Math/TVector2.h"
 #include "Math/TQuaternion.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/ETypeCategory.h"
 
-#include <vector>
 #include <string>
 #include <string_view>
 #include <exception>
@@ -29,6 +29,9 @@ namespace ph::sdl
 
 // TODO: templatize vec3, quat related funcs
 
+real load_real(std::string_view sdlRealStr);
+integer load_integer(std::string_view sdlIntegerStr);
+
 /*! @brief Returns a floating-point number by processing its SDL representation.
 
 Supports `ph::real`, `float`, `double`, and `long double`.
@@ -43,8 +46,15 @@ Supports `ph::integer` and all signed and unsigned standard integer types.
 template<typename IntType>
 IntType load_int(std::string_view sdlIntStr);
 
-real load_real(std::string_view sdlRealStr);
-integer load_integer(std::string_view sdlIntegerStr);
+/*! @brief Returns a number by processing its SDL representation.
+
+Accepts all types supported by load_float() and load_int().
+*/
+template<typename NumberType>
+NumberType load_number(std::string_view sdlNumberStr);
+
+template<typename Element>
+math::TVector2<Element> load_vector2(const std::string& sdlVector2Str);
 
 math::Vector3R load_vector3(const std::string& sdlVector3Str);
 math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr);
@@ -158,6 +168,21 @@ inline IntType load_int(const std::string_view sdlIntStr)
 	}
 }
 
+template<typename NumberType>
+inline NumberType load_number(const std::string_view sdlNumberStr)
+{
+	if(std::is_floating_point_v<NumberType>)
+	{
+		return load_float<NumberType>(sdlNumberStr);
+	}
+	else
+	{
+		static_assert(std::is_integral_v<NumberType>);
+
+		return load_int<NumberType>(sdlNumberStr);
+	}
+}
+
 inline real load_real(const std::string_view sdlRealStr)
 {
 	return load_float<real>(sdlRealStr);
@@ -248,3 +273,5 @@ inline T parse_integer(const std::string_view sdlIntegerStr)
 }// end namespace detail
 
 }// end namespace ph::sdl
+
+#include "DataIO/SDL/sdl_helpers.ipp"

@@ -16,7 +16,7 @@ class ThinFilm : public SurfaceMaterial
 public:
 	ThinFilm();
 
-	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
+	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
 
 private:
 	std::vector<real> m_wavelengthTable;

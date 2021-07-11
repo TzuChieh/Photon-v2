@@ -4,10 +4,11 @@
 #include "DataIO/SDL/ISdlResource.h"
 #include "Actor/SDLExtension/sdl_interface_extended.h"
 
+namespace ph { class ActorCookingContext; }
+
 namespace ph
 {
 
-class CookingContext;
 class PrimitiveMetadata;
 
 class Material : public ISdlResource
@@ -18,7 +19,7 @@ public:
 public:
 	inline Material() = default;
 
-	virtual void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const = 0;
+	virtual void genBehaviors(ActorCookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
 
 	ETypeCategory getCategory() const override; 
 

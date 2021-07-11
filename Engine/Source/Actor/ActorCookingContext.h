@@ -17,12 +17,12 @@ namespace ph
 
 class VisualWorldInfo;
 
-class CookingContext final : public IMoveOnly
+class ActorCookingContext final : public IMoveOnly
 {
 	friend class VisualWorld;
 
 public:
-	CookingContext();
+	ActorCookingContext();
 
 	// TODO: we can assign child actors special attributes such as
 	// deferred cooking, which opens the possibility of calculating
@@ -50,12 +50,12 @@ private:
 
 // In-header Implementations:
 
-inline const VisualWorldInfo* CookingContext::getVisualWorldInfo() const
+inline const VisualWorldInfo* ActorCookingContext::getVisualWorldInfo() const
 {
 	return m_visualWorldInfo;
 }
 
-inline void CookingContext::setBackgroundPrimitive(std::unique_ptr<Primitive> primitive)
+inline void ActorCookingContext::setBackgroundPrimitive(std::unique_ptr<Primitive> primitive)
 {
 	PH_ASSERT_MSG(!m_backgroundPrimitive, 
 		"Cannot overwrite existing background primitive");
@@ -63,7 +63,7 @@ inline void CookingContext::setBackgroundPrimitive(std::unique_ptr<Primitive> pr
 	m_backgroundPrimitive = std::move(primitive);
 }
 
-inline std::unique_ptr<Primitive> CookingContext::claimBackgroundPrimitive()
+inline std::unique_ptr<Primitive> ActorCookingContext::claimBackgroundPrimitive()
 {
 	return std::move(m_backgroundPrimitive);
 }

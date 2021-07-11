@@ -36,7 +36,7 @@ ConstantImage::ConstantImage(const std::vector<real>& values, const EType type) 
 {}
 
 std::shared_ptr<TTexture<real>> ConstantImage::genTextureReal(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	if(m_values.size() != 1)
 	{
@@ -56,7 +56,7 @@ std::shared_ptr<TTexture<real>> ConstantImage::genTextureReal(
 }
 
 std::shared_ptr<TTexture<math::Vector3R>> ConstantImage::genTextureVector3R(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	math::Vector3R values;
 	if(m_values.size() == 1)
@@ -87,7 +87,7 @@ std::shared_ptr<TTexture<math::Vector3R>> ConstantImage::genTextureVector3R(
 }
 
 std::shared_ptr<TTexture<Spectrum>> ConstantImage::genTextureSpectral(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	Spectrum values;
 	if(m_values.size() == 1)

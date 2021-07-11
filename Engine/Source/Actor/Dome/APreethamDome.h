@@ -27,7 +27,7 @@ public:
 
 	APreethamDome(const APreethamDome& other);
 
-	std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(CookingContext& context) override;
+	std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
 	math::Vector2S getResolution() const override;
 
 	APreethamDome& operator = (APreethamDome rhs);

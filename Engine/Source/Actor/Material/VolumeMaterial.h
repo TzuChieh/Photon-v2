@@ -19,7 +19,7 @@ public:
 
 	VolumeMaterial();
 
-	virtual void genVolume(CookingContext& context, VolumeBehavior& behavior) const = 0;
+	virtual void genVolume(ActorCookingContext& ctx, VolumeBehavior& behavior) const = 0;
 
 	void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const override;
 	void setSidedness(ESidedness sidedness);

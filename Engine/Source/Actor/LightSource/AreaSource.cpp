@@ -43,7 +43,7 @@ AreaSource::AreaSource(const Spectrum& color, const real numWatts) :
 }
 
 std::unique_ptr<Emitter> AreaSource::genEmitter(
-	CookingContext& context, EmitterBuildingMaterial&& data) const
+	ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const
 {
 	if(data.primitives.empty())
 	{
@@ -94,9 +94,9 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	return emitter;
 }
 
-std::shared_ptr<Geometry> AreaSource::genGeometry(CookingContext& context) const
+std::shared_ptr<Geometry> AreaSource::genGeometry(ActorCookingContext& ctx) const
 {
-	std::shared_ptr<Geometry> areas = genAreas(context);
+	std::shared_ptr<Geometry> areas = genAreas(ctx);
 	PH_ASSERT(areas != nullptr);
 	return areas;
 }

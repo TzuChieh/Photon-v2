@@ -10,7 +10,7 @@
 #include "Core/Renderer/EAttribute.h"
 #include "Core/Renderer/Region/Region.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Core/CoreDataGroup.h"
+#include "Actor/CoreCookedUnit.h"
 
 #include <string>
 
@@ -54,7 +54,7 @@ private:
 	SdlParser        m_parser;
 	SceneDescription m_scene;
 	VisualWorld      m_visualWorld;
-	CoreDataGroup    m_coreData;
+	CoreCookedUnit   m_core;
 	uint32           m_numRenderThreads;
 
 	//FrameProcessor m_frameProcessor;

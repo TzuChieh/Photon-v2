@@ -5,10 +5,10 @@
 #include "Actor/CookOrder.h"
 #include "DataIO/SDL/sdl_interface.h"
 
+namespace ph { class ActorCookingContext; }
+
 namespace ph
 {
-
-class CookingContext;
 
 class Actor : public ISdlResource
 {
@@ -19,7 +19,7 @@ public:
 	Actor();
 	Actor(const Actor& other);
 
-	virtual CookedUnit cook(CookingContext& context) = 0;
+	virtual CookedUnit cook(ActorCookingContext& ctx) = 0;
 	virtual CookOrder getCookOrder() const;
 
 	ETypeCategory getCategory() const override;

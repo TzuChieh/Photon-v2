@@ -16,7 +16,7 @@ BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial() :
 	m_factor(nullptr)
 {}
 
-void BinaryMixedSurfaceMaterial::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
+void BinaryMixedSurfaceMaterial::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	if(!m_material0 || !m_material1)
 	{
@@ -27,8 +27,8 @@ void BinaryMixedSurfaceMaterial::genSurface(CookingContext& context, SurfaceBeha
 	}
 
 	SurfaceBehavior behavior0, behavior1;
-	m_material0->genSurface(context, behavior0);
-	m_material1->genSurface(context, behavior1);
+	m_material0->genSurface(ctx, behavior0);
+	m_material1->genSurface(ctx, behavior1);
 	auto optics0 = behavior0.getOpticsResource();
 	auto optics1 = behavior1.getOpticsResource();
 	if(!optics0 || !optics1)
@@ -44,7 +44,7 @@ void BinaryMixedSurfaceMaterial::genSurface(CookingContext& context, SurfaceBeha
 	case EMode::LERP:
 		if(m_factor != nullptr)
 		{
-			auto factor = m_factor->genTextureSpectral(context);
+			auto factor = m_factor->genTextureSpectral(ctx);
 			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1, factor));
 		}
 		else

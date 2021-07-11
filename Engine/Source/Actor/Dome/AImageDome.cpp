@@ -33,7 +33,7 @@ AImageDome::AImageDome(const AImageDome& other) :
 	m_imageResolution(other.m_imageResolution)
 {}
 
-std::shared_ptr<TTexture<Spectrum>> AImageDome::loadRadianceFunction(CookingContext& context)
+std::shared_ptr<TTexture<Spectrum>> AImageDome::loadRadianceFunction(ActorCookingContext& ctx)
 {
 	auto frame = PictureLoader::loadHdr(m_imagePath);
 
@@ -46,7 +46,7 @@ std::shared_ptr<TTexture<Spectrum>> AImageDome::loadRadianceFunction(CookingCont
 	image->setSampleMode(EImgSampleMode::BILINEAR);
 	image->setWrapMode(EImgWrapMode::REPEAT);
 
-	return image->genTextureSpectral(context);
+	return image->genTextureSpectral(ctx);
 }
 
 math::Vector2S AImageDome::getResolution() const

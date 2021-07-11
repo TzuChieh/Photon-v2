@@ -20,7 +20,7 @@ HdrPictureImage::HdrPictureImage(const HdrRgbFrame& picture) :
 {}
 
 std::shared_ptr<TTexture<Spectrum>> HdrPictureImage::genTextureSpectral(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	std::unique_ptr<TAbstractPixelTex2D<HdrComponent, 3>> texture;
 	switch(getSampleMode())

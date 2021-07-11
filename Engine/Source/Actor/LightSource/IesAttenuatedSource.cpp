@@ -35,7 +35,7 @@ IesAttenuatedSource::IesAttenuatedSource(
 }
 
 std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
-	CookingContext& context, EmitterBuildingMaterial&& data) const
+	ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const
 {
 	if(!m_source)
 	{
@@ -66,7 +66,7 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 	}
 
 	auto attenuationTexture = std::make_shared<TBilinearPixelTex2D<real, 1>>(attenuationFactors);
-	auto sourceEmitter      = m_source->genEmitter(context, std::move(data));
+	auto sourceEmitter      = m_source->genEmitter(ctx, std::move(data));
 	auto attenuatedEmitter  = std::make_unique<OmniModulatedEmitter>(std::move(sourceEmitter));
 	auto convertedTexture   = std::make_shared<TConversionTexture<TTexPixel<real, 1>, Spectrum>>(attenuationTexture);
 

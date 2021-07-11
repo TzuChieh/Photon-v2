@@ -1,14 +1,15 @@
 #pragma once
 
+#include <memory>
+
 namespace ph
 {
 
-class Background final
+class CoreCookingContext final
 {
 public:
 
 private:
-
 };
 
 }// end namespace ph

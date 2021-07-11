@@ -7,6 +7,8 @@
 #include "DataIO/SDL/Introspect/SdlFunction.h"
 #include "Utility/string_utils.h"
 
+#include <vector>
+
 namespace ph::sdl
 {
 

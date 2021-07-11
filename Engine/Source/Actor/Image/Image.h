@@ -10,10 +10,10 @@
 #include <iostream>
 #include <memory>
 
+namespace ph { class ActorCookingContext; }
+
 namespace ph
 {
-
-class CookingContext;
 
 class Image : public ISdlResource
 {
@@ -24,13 +24,13 @@ public:
 	Image();
 
 	virtual std::shared_ptr<TTexture<real>> genTextureReal(
-		CookingContext& context) const;
+		ActorCookingContext& ctx) const;
 
 	virtual std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
-		CookingContext& context) const;
+		ActorCookingContext& ctx) const;
 
 	virtual std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
-		CookingContext& context) const;
+		ActorCookingContext& ctx) const;
 
 	ETypeCategory getCategory() const;
 

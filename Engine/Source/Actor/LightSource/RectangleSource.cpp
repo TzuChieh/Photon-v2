@@ -33,7 +33,7 @@ RectangleSource::RectangleSource(
 	setDimension(width, height);
 }
 
-std::shared_ptr<Geometry> RectangleSource::genAreas(CookingContext& context) const
+std::shared_ptr<Geometry> RectangleSource::genAreas(ActorCookingContext& ctx) const
 {
 	return std::make_shared<GRectangle>(m_width, m_height);
 }

@@ -8,7 +8,7 @@
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 
 #include <algorithm>
 #include <iostream>
@@ -45,7 +45,7 @@ AModel& AModel::operator = (AModel rhs)
 	return *this;
 }
 
-CookedUnit AModel::cook(CookingContext& context)
+CookedUnit AModel::cook(ActorCookingContext& ctx)
 {
 	if(!m_geometry || !m_material)
 	{
@@ -54,7 +54,7 @@ CookedUnit AModel::cook(CookingContext& context)
 		return CookedUnit();
 	}
 
-	ModelBuilder builder(context);
+	ModelBuilder builder(ctx);
 	
 	auto metadata = std::make_unique<PrimitiveMetadata>();
 
@@ -67,7 +67,7 @@ CookedUnit AModel::cook(CookingContext& context)
 		builder.addIntersectable(std::move(primitive));
 	}
 
-	m_material->genBehaviors(context, *metadata);
+	m_material->genBehaviors(ctx, *metadata);
 
 	builder.addPrimitiveMetadata(std::move(metadata));
 

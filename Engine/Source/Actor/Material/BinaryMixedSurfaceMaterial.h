@@ -19,7 +19,7 @@ public:
 
 	BinaryMixedSurfaceMaterial();
 
-	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
+	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
 
 	void setMode(EMode mode);
 	void setMaterials(

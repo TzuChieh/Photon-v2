@@ -1,4 +1,4 @@
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 #include "Common/Logger.h"
 
 namespace ph
@@ -6,22 +6,22 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Cooking Context"));
+	const Logger logger(LogSender("Actor Cooking Context"));
 }
 
-CookingContext::CookingContext() : 
+ActorCookingContext::ActorCookingContext() :
 	m_childActors        (), 
 	m_phantoms           (), 
 	m_visualWorldInfo    (nullptr),
 	m_backgroundPrimitive(nullptr)
 {}
 
-void CookingContext::addChildActor(std::unique_ptr<Actor> actor)
+void ActorCookingContext::addChildActor(std::unique_ptr<Actor> actor)
 {
 	m_childActors.push_back(std::move(actor));
 }
 
-void CookingContext::addPhantom(const std::string& name, CookedUnit phantom)
+void ActorCookingContext::addPhantom(const std::string& name, CookedUnit phantom)
 {
 	if(m_phantoms.find(name) != m_phantoms.end())
 	{
@@ -32,18 +32,18 @@ void CookingContext::addPhantom(const std::string& name, CookedUnit phantom)
 	m_phantoms[name] = std::move(phantom);
 }
 
-const CookedUnit* CookingContext::getPhantom(const std::string& name) const
+const CookedUnit* ActorCookingContext::getPhantom(const std::string& name) const
 {
 	const auto result = m_phantoms.find(name);
 	return result != m_phantoms.end() ? &(result->second) : nullptr;
 }
 
-void CookingContext::setVisualWorldInfo(const VisualWorldInfo* const info)
+void ActorCookingContext::setVisualWorldInfo(const VisualWorldInfo* const info)
 {
 	m_visualWorldInfo = info;
 }
 
-std::vector<std::unique_ptr<Actor>> CookingContext::claimChildActors()
+std::vector<std::unique_ptr<Actor>> ActorCookingContext::claimChildActors()
 {
 	auto childActors = std::move(m_childActors);
 	m_childActors.clear();

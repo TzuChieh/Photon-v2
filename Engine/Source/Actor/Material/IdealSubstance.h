@@ -17,7 +17,7 @@ class IdealSubstance : public SurfaceMaterial
 public:
 	IdealSubstance();
 
-	void genSurface(CookingContext& context, SurfaceBehavior& behavior) const override;
+	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
 
 	void asDielectricReflector(real iorInner, real iorOuter);
 

@@ -14,7 +14,7 @@ public:
 	explicit HdrPictureImage(const HdrRgbFrame& picture);
 
 	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
-		CookingContext& context) const override;
+		ActorCookingContext& ctx) const override;
 
 	void setPicture(const HdrRgbFrame& picture);
 	void setPicture(HdrRgbFrame&& picture);

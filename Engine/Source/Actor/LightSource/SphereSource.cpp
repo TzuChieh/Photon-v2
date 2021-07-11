@@ -22,7 +22,7 @@ SphereSource::SphereSource(const real radius, const Spectrum& color, real numWat
 	setRadius(radius);
 }
 
-std::shared_ptr<Geometry> SphereSource::genAreas(CookingContext& context) const
+std::shared_ptr<Geometry> SphereSource::genAreas(ActorCookingContext& ctx) const
 {
 	return std::make_shared<GSphere>(m_radius);
 }

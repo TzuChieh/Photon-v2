@@ -57,7 +57,7 @@ ModelSource::ModelSource(const std::shared_ptr<Image>& emittedRadiance) :
 }
 
 std::unique_ptr<Emitter> ModelSource::genEmitter(
-	CookingContext& context, EmitterBuildingMaterial&& data) const
+	ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const
 {
 	if(data.primitives.empty())
 	{
@@ -66,7 +66,7 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 		return nullptr;
 	}
 
-	auto emittedRadiance = m_emittedRadiance->genTextureSpectral(context);
+	auto emittedRadiance = m_emittedRadiance->genTextureSpectral(ctx);
 
 	std::vector<DiffuseSurfaceEmitter> primitiveEmitters;
 	for(const auto& primitive : data.primitives)

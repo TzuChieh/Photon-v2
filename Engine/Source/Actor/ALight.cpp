@@ -10,7 +10,7 @@
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 #include "Common/Logger.h"
 
 #include <algorithm>
@@ -48,7 +48,7 @@ ALight& ALight::operator = (ALight rhs)
 	return *this;
 }
 
-CookedUnit ALight::cook(CookingContext& context)
+CookedUnit ALight::cook(ActorCookingContext& ctx)
 {
 	if(!m_lightSource)
 	{
@@ -58,17 +58,17 @@ CookedUnit ALight::cook(CookingContext& context)
 	}
 
 	PH_ASSERT(m_lightSource);
-	std::shared_ptr<Geometry> geometry = m_lightSource->genGeometry(context);
+	std::shared_ptr<Geometry> geometry = m_lightSource->genGeometry(ctx);
 
 	CookedUnit cookedActor;
 	if(geometry)
 	{
-		std::shared_ptr<Material> material = m_lightSource->genMaterial(context);
-		cookedActor = buildGeometricLight(context, geometry, material);
+		std::shared_ptr<Material> material = m_lightSource->genMaterial(ctx);
+		cookedActor = buildGeometricLight(ctx, geometry, material);
 	}
 	else
 	{
-		std::unique_ptr<Emitter> emitter = m_lightSource->genEmitter(context, EmitterBuildingMaterial());
+		std::unique_ptr<Emitter> emitter = m_lightSource->genEmitter(ctx, EmitterBuildingMaterial());
 		cookedActor.setEmitter(std::move(emitter));
 	}
 
@@ -86,7 +86,7 @@ void ALight::setLightSource(const std::shared_ptr<LightSource>& lightSource)
 }
 
 CookedUnit ALight::buildGeometricLight(
-	CookingContext&           context,
+	ActorCookingContext&      ctx,
 	std::shared_ptr<Geometry> geometry,
 	std::shared_ptr<Material> material) const
 {
@@ -101,7 +101,7 @@ CookedUnit ALight::buildGeometricLight(
 	}
 
 	std::unique_ptr<math::RigidTransform> baseLW, baseWL;
-	auto sanifiedGeometry = getSanifiedGeometry(context, geometry, &baseLW, &baseWL);
+	auto sanifiedGeometry = getSanifiedGeometry(ctx, geometry, &baseLW, &baseWL);
 	if(!sanifiedGeometry)
 	{
 		logger.log(ELogLevel::WARNING_MED,
@@ -120,7 +120,7 @@ CookedUnit ALight::buildGeometricLight(
 		cookedActor.setPrimitiveMetadata(std::move(primitiveMetadata));
 	}
 
-	material->genBehaviors(context, *metadata);
+	material->genBehaviors(ctx, *metadata);
 
 	std::vector<std::unique_ptr<Primitive>> primitiveData;
 	sanifiedGeometry->genPrimitive(PrimitiveBuildingMaterial(metadata), primitiveData);
@@ -160,7 +160,7 @@ CookedUnit ALight::buildGeometricLight(
 }
 
 std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
-	CookingContext&                        context,
+	ActorCookingContext&                   ctx,
 	const std::shared_ptr<Geometry>&       geometry,
 	std::unique_ptr<math::RigidTransform>* const out_baseLW,
 	std::unique_ptr<math::RigidTransform>* const out_baseWL) const

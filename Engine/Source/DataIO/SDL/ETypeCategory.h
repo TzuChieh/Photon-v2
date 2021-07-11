@@ -19,7 +19,7 @@ enum class ETypeCategory
 	REF_ACTOR, 
 	REF_IMAGE,
 	REF_FRAME_PROCESSOR,
-	REF_RECEIVER,
+	REF_OBSERVER,
 	REF_SAMPLE_GENERATOR,
 	REF_RENDERER,
 	REF_OPTION,
@@ -46,7 +46,7 @@ inline std::string category_to_string(const ETypeCategory category)
 	case ETypeCategory::REF_ACTOR:            categoryName = "actor";            break;
 	case ETypeCategory::REF_FRAME_PROCESSOR:  categoryName = "frame-processor";  break;
 	case ETypeCategory::REF_IMAGE:            categoryName = "image";            break;
-	case ETypeCategory::REF_RECEIVER:         categoryName = "receiver";         break;
+	case ETypeCategory::REF_OBSERVER:         categoryName = "observer";         break;
 	case ETypeCategory::REF_SAMPLE_GENERATOR: categoryName = "sample-generator"; break;
 	case ETypeCategory::REF_RENDERER:         categoryName = "renderer";         break;
 	case ETypeCategory::REF_OPTION:           categoryName = "option";           break;
@@ -69,7 +69,7 @@ inline ETypeCategory string_to_category(const std::string& categoryStr)
 		{category_to_string(ETypeCategory::REF_MOTION),           ETypeCategory::REF_MOTION},
 		{category_to_string(ETypeCategory::REF_LIGHT_SOURCE),     ETypeCategory::REF_LIGHT_SOURCE},
 		{category_to_string(ETypeCategory::REF_ACTOR),            ETypeCategory::REF_ACTOR},
-		{category_to_string(ETypeCategory::REF_RECEIVER),         ETypeCategory::REF_RECEIVER},
+		{category_to_string(ETypeCategory::REF_OBSERVER),         ETypeCategory::REF_OBSERVER},
 		{category_to_string(ETypeCategory::REF_IMAGE),            ETypeCategory::REF_IMAGE},
 		{category_to_string(ETypeCategory::REF_SAMPLE_GENERATOR), ETypeCategory::REF_SAMPLE_GENERATOR},
 		{category_to_string(ETypeCategory::REF_FRAME_PROCESSOR),  ETypeCategory::REF_FRAME_PROCESSOR},

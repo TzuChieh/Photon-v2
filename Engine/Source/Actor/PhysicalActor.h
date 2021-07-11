@@ -17,7 +17,7 @@ public:
 	PhysicalActor();
 	PhysicalActor(const PhysicalActor& other);
 
-	CookedUnit cook(CookingContext& context) override = 0;
+	CookedUnit cook(ActorCookingContext& ctx) override = 0;
 
 	void translate(const math::Vector3R& translation);
 	void translate(const real x, const real y, const real z);

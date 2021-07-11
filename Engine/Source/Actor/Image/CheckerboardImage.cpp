@@ -11,7 +11,8 @@ CheckerboardImage::CheckerboardImage() :
 	m_numTilesX(2), m_numTilesY(2)
 {}
 
-std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(CookingContext& context) const
+std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(
+	ActorCookingContext& ctx) const
 {
 	const auto& images = checkOutImages();
 	if(images.first == nullptr || images.second == nullptr)
@@ -21,12 +22,12 @@ std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(CookingContext
 
 	return std::make_shared<TCheckerboardTexture<real>>(
 		m_numTilesX, m_numTilesY, 
-		images.first->genTextureReal(context), 
-		images.second->genTextureReal(context));
+		images.first->genTextureReal(ctx), 
+		images.second->genTextureReal(ctx));
 }
 
 std::shared_ptr<TTexture<math::Vector3R>> CheckerboardImage::genTextureVector3R(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	const auto& images = checkOutImages();
 	if(images.first == nullptr || images.second == nullptr)
@@ -36,12 +37,12 @@ std::shared_ptr<TTexture<math::Vector3R>> CheckerboardImage::genTextureVector3R(
 
 	return std::make_shared<TCheckerboardTexture<math::Vector3R>>(
 		m_numTilesX, m_numTilesY,
-		images.first->genTextureVector3R(context), 
-		images.second->genTextureVector3R(context));
+		images.first->genTextureVector3R(ctx), 
+		images.second->genTextureVector3R(ctx));
 }
 
 std::shared_ptr<TTexture<Spectrum>> CheckerboardImage::genTextureSpectral(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	const auto& images = checkOutImages();
 	if(images.first == nullptr || images.second == nullptr)
@@ -51,8 +52,8 @@ std::shared_ptr<TTexture<Spectrum>> CheckerboardImage::genTextureSpectral(
 
 	return std::make_shared<TCheckerboardTexture<Spectrum>>(
 		m_numTilesX, m_numTilesY,
-		images.first->genTextureSpectral(context), 
-		images.second->genTextureSpectral(context));
+		images.first->genTextureSpectral(ctx), 
+		images.second->genTextureSpectral(ctx));
 }
 
 void CheckerboardImage::setNumTiles(const real numTilesX, const real numTilesY)

@@ -24,7 +24,7 @@ public:
 	PictureImage();
 
 	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
-		CookingContext& context) const override = 0;
+		ActorCookingContext& ctx) const override = 0;
 
 	EImgSampleMode getSampleMode() const;
 	EImgWrapMode   getWrapMode() const;

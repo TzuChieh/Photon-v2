@@ -27,7 +27,7 @@ MatteOpaque::MatteOpaque(const math::Vector3R& linearSrgbAlbedo) :
 	setAlbedo(linearSrgbAlbedo);
 }
 
-void MatteOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior) const
+void MatteOpaque::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_albedo);
 
@@ -35,13 +35,13 @@ void MatteOpaque::genSurface(CookingContext& context, SurfaceBehavior& behavior)
 	if(m_sigmaDegrees)
 	{
 		optics = std::make_shared<OrenNayar>(
-			m_albedo->genTextureSpectral(context),
-			m_sigmaDegrees->genTextureReal(context));
+			m_albedo->genTextureSpectral(ctx),
+			m_sigmaDegrees->genTextureReal(ctx));
 	}
 	else
 	{
 		optics = std::make_shared<LambertianDiffuse>(
-			m_albedo->genTextureSpectral(context));
+			m_albedo->genTextureSpectral(ctx));
 	}
 
 	behavior.setOptics(optics);

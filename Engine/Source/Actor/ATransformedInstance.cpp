@@ -44,7 +44,7 @@ ATransformedInstance& ATransformedInstance::operator = (ATransformedInstance rhs
 	return *this;
 }
 
-CookedUnit ATransformedInstance::cook(CookingContext& context)
+CookedUnit ATransformedInstance::cook(ActorCookingContext& ctx)
 {
 	CookedUnit cooked;
 

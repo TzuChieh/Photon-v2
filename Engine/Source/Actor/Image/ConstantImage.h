@@ -29,13 +29,13 @@ public:
 	ConstantImage(const std::vector<real>& values, EType type);
 
 	std::shared_ptr<TTexture<real>> genTextureReal(
-		CookingContext& context) const override;
+		ActorCookingContext& ctx) const override;
 
 	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
-		CookingContext& context) const override;
+		ActorCookingContext& ctx) const override;
 
 	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
-		CookingContext& context) const override;
+		ActorCookingContext& ctx) const override;
 
 private:
 	std::vector<real> m_values;

@@ -9,8 +9,8 @@ namespace ph
 SurfaceMaterial::SurfaceMaterial() = default;
 
 void SurfaceMaterial::genBehaviors(
-	CookingContext&    context, 
-	PrimitiveMetadata& metadata) const
+	ActorCookingContext& ctx,
+	PrimitiveMetadata&   metadata) const
 {
 	genSurface(context, metadata.getSurface());
 }

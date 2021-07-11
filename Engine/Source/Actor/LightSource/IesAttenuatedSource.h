@@ -15,7 +15,7 @@ public:
 	IesAttenuatedSource(const std::shared_ptr<LightSource>& source, const Path& iesFile);
 
 	std::unique_ptr<Emitter> genEmitter(
-		CookingContext& context, EmitterBuildingMaterial&& data) const override;
+		ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const override;
 	std::shared_ptr<Geometry> genGeometry(CookingContext& context) const override;
 	std::shared_ptr<Material> genMaterial(CookingContext& context) const override;
 

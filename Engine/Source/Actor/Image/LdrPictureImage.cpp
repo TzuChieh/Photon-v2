@@ -20,7 +20,7 @@ LdrPictureImage::LdrPictureImage(const LdrRgbFrame& picture) :
 {}
 
 std::shared_ptr<TTexture<Spectrum>> LdrPictureImage::genTextureSpectral(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	std::unique_ptr<TAbstractPixelTex2D<LdrComponent, 3>> texture;
 	switch(getSampleMode())
