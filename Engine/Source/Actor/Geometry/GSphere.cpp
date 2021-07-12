@@ -35,11 +35,6 @@ GSphere::GSphere(const real radius) :
 	m_radius(radius)
 {}
 
-GSphere::GSphere(const GSphere& other) :
-	Geometry(), 
-	m_radius(other.m_radius)
-{}
-
 // discretize the sphere into an icosphere
 void GSphere::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
@@ -190,13 +185,6 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 	}
 
 	return triangleMesh;
-}
-
-GSphere& GSphere::operator = (const GSphere& rhs)
-{
-	m_radius = rhs.m_radius;
-
-	return *this;
 }
 
 }// end namespace ph

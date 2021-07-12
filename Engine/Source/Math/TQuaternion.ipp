@@ -145,19 +145,19 @@ inline void TQuaternion<T>::toRotationMatrix(TMatrix4<T>* const out_result) cons
 template<typename T>
 inline TQuaternion<T> TQuaternion<T>::normalize() const
 {
-	const T reciLen = 1 / length();
-	return TQuaternion(x * reciLen, y * reciLen, z * reciLen, w * reciLen);
+	const T rcpLen = 1 / length();
+	return TQuaternion(x * rcpLen, y * rcpLen, z * rcpLen, w * rcpLen);
 }
 
 template<typename T>
 inline TQuaternion<T>& TQuaternion<T>::normalizeLocal()
 {
-	const T reciLen = 1 / length();
+	const T rcpLen = 1 / length();
 
-	x *= reciLen;
-	y *= reciLen;
-	z *= reciLen;
-	w *= reciLen;
+	x *= rcpLen;
+	y *= rcpLen;
+	z *= rcpLen;
+	w *= rcpLen;
 
 	return *this;
 }

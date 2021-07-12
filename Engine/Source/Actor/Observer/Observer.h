@@ -18,15 +18,10 @@ public:
 
 public:
 	Observer();
-	Observer(const Observer& other);
 
 	virtual std::unique_ptr<Receiver> genReceiver(const CoreCookingContext& ctx) = 0;
 
 	ETypeCategory getCategory() const override;
-
-	Observer& operator = (const Observer& rhs);
-
-	friend void swap(Observer& first, Observer& second);
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Observer>)

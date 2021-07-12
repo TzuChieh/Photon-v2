@@ -17,7 +17,6 @@ class GSphere : public Geometry
 public:
 	GSphere();
 	explicit GSphere(real radius);
-	GSphere(const GSphere& other);
 
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,
@@ -25,8 +24,6 @@ public:
 
 	std::shared_ptr<Geometry> genTransformed(
 		const math::StaticAffineTransform& transform) const override;
-
-	GSphere& operator = (const GSphere& rhs);
 
 private:
 	real m_radius;

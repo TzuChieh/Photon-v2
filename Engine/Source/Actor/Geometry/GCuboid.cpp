@@ -45,12 +45,6 @@ GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const math::
 	PH_ASSERT(xLen > 0.0_r && yLen > 0.0_r && zLen > 0.0_r);
 }
 
-GCuboid::GCuboid(const GCuboid& other) :
-	m_size(other.m_size),
-	m_offset(other.m_offset),
-	m_faceUVs(other.m_faceUVs)
-{}
-
 void GCuboid::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
 	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
@@ -184,14 +178,6 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	return triangleMesh;
-}
-
-GCuboid& GCuboid::operator = (const GCuboid& rhs)
-{
-	m_size   = rhs.m_size;
-	m_offset = rhs.m_offset;
-
-	return *this;
 }
 
 bool GCuboid::checkData(

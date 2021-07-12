@@ -12,8 +12,9 @@ namespace ph
 /*! @brief Abstractions for a SDL value type that can be empty.
 
 An optional SDL value defaults to empty (no value) and has optional importance
-(@p EFieldImportance::OPTIONAL) always. If the above properties are undesired,
-consider using @p TSdlValue.
+(@p EFieldImportance::OPTIONAL) always. While no default value can be provided
+for the optional field, it allows the detection of uninitialized value during
+runtime. If the above properties are undesired, consider using @p TSdlValue.
 */
 template<typename T, typename Owner>
 class TSdlOptionalValue : public TAbstractSdlValue<T, Owner>
