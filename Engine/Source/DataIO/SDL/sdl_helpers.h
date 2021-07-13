@@ -89,6 +89,9 @@ information does not exist, or @p T is not an @p ISdlResource.
 template<typename T>
 constexpr ETypeCategory category_of();
 
+template<typename T>
+void init_to_default(T& resource);
+
 namespace detail
 {
 
