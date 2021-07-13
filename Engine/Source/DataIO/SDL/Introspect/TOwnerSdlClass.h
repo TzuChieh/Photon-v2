@@ -19,7 +19,6 @@ class ValueClauses;
 class SdlInputContext;
 class SdlStructFieldStump;
 
-// TODO: allow inheritance of functions?
 template<typename Owner, typename FieldSet = TBasicSdlFieldSet<TOwnedSdlField<Owner>>>
 class TOwnerSdlClass : public SdlClass
 {

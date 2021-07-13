@@ -91,6 +91,8 @@ void SdlParser::parseCommand(const std::string& command, SceneDescription& out_s
 
 void SdlParser::parseSingleCommand(const ESdlCommandType type, const std::string& command, SceneDescription& out_scene)
 {
+	// TODO
+
 	switch(type)
 	{
 	case ESdlCommandType::LOAD:
@@ -300,7 +302,8 @@ ESdlCommandType SdlParser::getCommandType(const std::string_view commandSegment)
 	// "//": comment
 	// "+>": load
 	// "->": removal
-	// "=>": execution
+	// "=>": update
+	// ">>": execution
 	// "##": directive
 
 	PH_ASSERT_GE(trimmedSegment.size(), 2);
@@ -309,7 +312,8 @@ ESdlCommandType SdlParser::getCommandType(const std::string_view commandSegment)
 	case '/': return trimmedSegment[1] == '/' ? ESdlCommandType::COMMENT   : ESdlCommandType::UNKNOWN;
 	case '+': return trimmedSegment[1] == '>' ? ESdlCommandType::LOAD      : ESdlCommandType::UNKNOWN;
 	case '-': return trimmedSegment[1] == '>' ? ESdlCommandType::REMOVAL   : ESdlCommandType::UNKNOWN;
-	case '=': return trimmedSegment[1] == '/' ? ESdlCommandType::EXECUTION : ESdlCommandType::UNKNOWN;
+	case '=': return trimmedSegment[1] == '>' ? ESdlCommandType::UPDATE    : ESdlCommandType::UNKNOWN;
+	case '>': return trimmedSegment[1] == '>' ? ESdlCommandType::EXECUTION : ESdlCommandType::UNKNOWN;
 	case '#': return trimmedSegment[1] == '#' ? ESdlCommandType::DIRECTIVE : ESdlCommandType::UNKNOWN;
 	}
 

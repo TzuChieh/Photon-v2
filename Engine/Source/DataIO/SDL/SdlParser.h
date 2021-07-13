@@ -20,6 +20,7 @@ enum class ESdlCommandType
 	DIRECTIVE,
 	LOAD,
 	REMOVAL,
+	UPDATE,
 	EXECUTION,
 	COMMENT
 };

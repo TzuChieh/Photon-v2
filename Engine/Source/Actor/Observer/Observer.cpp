@@ -3,8 +3,6 @@
 namespace ph
 {
 
-Observer::Observer() = default;
-
 void swap(Observer& first, Observer& second)
 {}
 

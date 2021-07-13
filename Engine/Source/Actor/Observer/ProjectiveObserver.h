@@ -7,6 +7,7 @@
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "Math/Transform/TDecomposedTransform.h"
+#include "Common/assertion.h"
 
 #include <optional>
 
@@ -16,43 +17,26 @@ namespace ph
 class ProjectiveObserver : public Observer
 {
 public:
-	ProjectiveObserver();
+	inline ProjectiveObserver() = default;
 
-	ProjectiveObserver(
-		const math::Vector3R& position, 
-		const math::Vector3R& direction,
-		const math::Vector2S& resolution);
-
-	ProjectiveObserver(
-		const math::Vector3R& position,
-		const math::Vector3R& direction,
-		const math::Vector3R& upAxis,
-		const math::Vector2S& resolution);
-
-	ProjectiveObserver(
-		const math::Vector3R& position,
-		real yawDegrees,
-		real pitchDegrees,
-		real rollDegrees,
-		const math::Vector2S& resolution);
-
-	virtual std::unique_ptr<Receiver> genReceiver(const CoreCookingContext& ctx) = 0;
+	std::unique_ptr<Receiver> genReceiver(const CoreCookingContext& ctx) override = 0;
 
 	math::Vector2S getResolution() const;
+	float64 getAspectRatio() const;
 
 protected:
-	math::TDecomposedTransform<float64> makeDecomposedPose() const;
+	math::TDecomposedTransform<float64> makeObserverPose() const;
 	math::Vector3D makePosition() const;
 	math::QuaternionD makeRotation() const;
 	math::QuaternionD makeDirection() const;
 
 private:
 	math::Vector3R m_position;
-	math::Vector3R m_direction;
-	math::Vector3R m_upAxis;
+	math::Vector3R m_yawPitchRollDegrees;
 	math::Vector2S m_resolution;
 
-	std::optional<math::Vector3R> m_yawPitchRollDegrees;
+	std::optional<math::Vector3R> m_direction;
+	std::optional<math::Vector3R> m_upAxis;
 
 	static math::QuaternionD makeRotationFromVectors(const math::Vector3R& direction, const math::Vector3R& upAxis);
 	static math::QuaternionD makeRotationFromYawPitchRoll(real yawDegrees, real pitchDegrees, real rollDegrees);
@@ -71,28 +55,27 @@ public:
 		position.defaultTo({0, 0, 0});
 		clazz.addField(position);
 
-		TSdlVector3<OwnerType> direction("direction", &OwnerType::m_direction);
-		direction.description("Direction vector that this observer is looking at. No need to be normalized.");
-		direction.defaultTo({0, 0, -1});
-		clazz.addField(direction);
-
-		TSdlVector3<OwnerType> upAxis("up-axis", &OwnerType::m_upAxis);
-		upAxis.description("The direction vector that this observer consider as upward. No need to be normalized.");
-		upAxis.defaultTo({0, 1, 0});
-		clazz.addField(upAxis);
+		TSdlVector3<OwnerType> yawPitchRollDegrees("yaw-pitch-row-degrees", &OwnerType::m_yawPitchRollDegrees);
+		yawPitchRollDegrees.description(
+			"Direction that this observer is looking at in yaw pitch form. "
+			"yaw: Rotation around +y axis in [-180, 180]; "
+			"pitch: Declination from the horizon in [-90, 90]; "
+			"row: Rotation around +z axis in [-180, 180].");
+		yawPitchRollDegrees.defaultTo({0, 0, 0});
+		clazz.addField(yawPitchRollDegrees);
 
 		TSdlVector2S<OwnerType> resolution("resolution", &OwnerType::m_resolution);
 		resolution.description("Observer resolution in x & y dimensions.");
 		resolution.defaultTo({960, 540});
 		clazz.addField(resolution);
 
-		TSdlOptionalVector3<OwnerType> yawPitchRollDegrees("yaw-pitch-row-degrees", &OwnerType::m_yawPitchRollDegrees);
-		yawPitchRollDegrees.description(
-			"Direction that this observer is looking at in yaw pitch form. "
-			"yaw: Rotation around +y axis in [-180, 180]; "
-			"pitch: Declination from the horizon in [-90, 90]; "
-			"row: Rotation around +z axis in [-180, 180].");
-		clazz.addField(yawPitchRollDegrees);
+		TSdlOptionalVector3<OwnerType> direction("direction", &OwnerType::m_direction);
+		direction.description("Direction vector that this observer is looking at. No need to be normalized.");
+		clazz.addField(direction);
+
+		TSdlOptionalVector3<OwnerType> upAxis("up-axis", &OwnerType::m_upAxis);
+		upAxis.description("The direction vector that this observer consider as upward. No need to be normalized.");
+		clazz.addField(upAxis);
 
 		return clazz;
 	}
@@ -103,6 +86,13 @@ public:
 inline math::Vector2S ProjectiveObserver::getResolution() const
 {
 	return m_resolution;
+}
+
+inline float64 ProjectiveObserver::getAspectRatio() const
+{
+	PH_ASSERT_GT(getResolution().y, 0);
+
+	return static_cast<float64>(getResolution().x) / static_cast<float64>(getResolution().y);
 }
 
 }// end namespace ph

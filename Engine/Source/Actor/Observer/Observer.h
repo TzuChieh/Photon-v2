@@ -17,7 +17,7 @@ public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_OBSERVER;
 
 public:
-	Observer();
+	inline Observer() = default;
 
 	virtual std::unique_ptr<Receiver> genReceiver(const CoreCookingContext& ctx) = 0;
 

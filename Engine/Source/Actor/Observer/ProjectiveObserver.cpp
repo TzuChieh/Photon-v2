@@ -13,56 +13,7 @@ const Logger logger(LogSender("Projective Observer"));
 
 }
 
-ProjectiveObserver::ProjectiveObserver() : 
-	ProjectiveObserver(
-		{0, 0, 0},
-		0,
-		0,
-		0
-		{960, 540})
-{}
-
-ProjectiveObserver::ProjectiveObserver(
-	const math::Vector3R& position,
-	const math::Vector3R& direction,
-	const math::Vector2S& resolution) : 
-
-	ProjectiveObserver(
-		position,
-		direction,
-		{0, 1, 0},
-		resolution)
-{}
-
-ProjectiveObserver::ProjectiveObserver(
-	const math::Vector3R& position,
-	const math::Vector3R& direction,
-	const math::Vector3R& upAxis,
-	const math::Vector2S& resolution) : 
-
-	Observer(),
-
-	m_position  (position),
-	m_direction (direction),
-	m_upAxis    (upAxis),
-	m_resolution(resolution)
-{}
-
-ProjectiveObserver::ProjectiveObserver(
-	const math::Vector3R& position,
-	const real yawDegrees,
-	const real pitchDegrees,
-	const real rollDegrees,
-	const math::Vector2S& resolution) :
-
-	Observer(),
-
-	m_position           (position),
-	m_yawPitchRollDegrees({yawDegrees, pitchDegrees, rollDegrees}),
-	m_resolution         (resolution)
-{}
-
-math::TDecomposedTransform<float64> ProjectiveObserver::makeDecomposedPose() const
+math::TDecomposedTransform<float64> ProjectiveObserver::makeObserverPose() const
 {
 	math::TDecomposedTransform<float64> pose;
 	pose.setPosition(makePosition());
@@ -82,17 +33,12 @@ math::QuaternionD ProjectiveObserver::makeRotation() const
 	{
 		rotation = makeRotationFromVectors(*m_direction, *m_upAxis);
 	}
-	else if(m_yawPitchRollDegrees)
-	{
-		rotation = makeRotationFromYawPitchRoll(
-			(*m_direction).x,
-			(*m_direction).y,
-			(*m_direction).z);
-	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"No input provided to determine observer orientation.");
+		rotation = makeRotationFromYawPitchRoll(
+			m_yawPitchRollDegrees.x,
+			m_yawPitchRollDegrees.y,
+			m_yawPitchRollDegrees.z);
 	}
 
 	return rotation;
