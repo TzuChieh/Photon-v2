@@ -14,10 +14,10 @@
 namespace ph
 {
 
-class ProjectiveObserver : public Observer
+class OrientedRasterObserver : public Observer
 {
 public:
-	inline ProjectiveObserver() = default;
+	inline OrientedRasterObserver() = default;
 
 	std::unique_ptr<Receiver> genReceiver(const CoreCookingContext& ctx) override = 0;
 
@@ -42,9 +42,9 @@ private:
 	static math::QuaternionD makeRotationFromYawPitchRoll(real yawDegrees, real pitchDegrees, real rollDegrees);
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ProjectiveObserver>)
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<OrientedRasterObserver>)
 	{
-		ClassType clazz("projective");
+		ClassType clazz("oriented-raster");
 		clazz.description(
 			"Observers that work by projecting incoming energy in certain ways. "
 			"Projective observers face the -z axis (+y up) and reside on (0, 0, 0) by default.");

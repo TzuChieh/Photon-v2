@@ -47,7 +47,7 @@
 
 // Observers
 #include "Actor/Observer/Observer.h"
-#include "Actor/Observer/ProjectiveObserver.h"
+#include "Actor/Observer/OrientedRasterObserver.h"
 
 //#include "Core/Receiver/Receiver.h"
 //#include "Core/Receiver/PerspectiveReceiver.h"
@@ -168,7 +168,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 
 		// Observers
 		get_sdl_class<Observer>(),
-		get_sdl_class<ProjectiveObserver>(),
+		get_sdl_class<OrientedRasterObserver>(),
 
 		// Options
 		get_sdl_class<Option>(),

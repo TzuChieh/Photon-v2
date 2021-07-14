@@ -1,17 +1,22 @@
-#include "Core/Receiver/PerspectiveReceiver.h"
-#include "Core/Ray.h"
-#include "Core/Sample.h"
-#include "Core/Filmic/TSamplingFilm.h"
-#include "Math/math.h"
-#include "Common/assertion.h"
-#include "Math/Transform/StaticAffineTransform.h"
-
-#include <iostream>
+#include "Core/Receiver/RectangularSensorReceiver.h"
 
 namespace ph
 {
 
-void PerspectiveReceiver::updateTransforms()
+RectangularSensorReceiver::RectangularSensorReceiver(
+	const math::Vector2D&             sensorSize,
+	const math::Transform* const      rasterToSensor,
+	const math::RigidTransform* const receiverToWorld) : 
+
+	Receiver(receiverToWorld),
+
+	m_sensorSize    (sensorSize),
+	m_rasterToSensor(rasterToSensor)
+{
+	PH_ASSERT(m_rasterToSensor);
+}
+
+void RectangularSensorReceiver::updateTransforms()
 {
 	const math::Vector2D fResolution(getRasterResolution());
 	const float64 sensorHeight = m_sensorWidth / getAspectRatio();

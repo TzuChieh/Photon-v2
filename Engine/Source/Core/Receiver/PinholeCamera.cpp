@@ -4,11 +4,23 @@
 #include "Math/Random.h"
 #include "Common/assertion.h"
 #include "Math/Transform/Transform.h"
+#include "Math/Transform/RigidTransform.h"
 
 #include <limits>
 
 namespace ph
 {
+
+PinholeCamera::PinholeCamera(
+	const math::Vector2D&             sensorSize,
+	const math::Transform* const      rasterToSensor,
+	const math::RigidTransform* const receiverToWorld) : 
+
+	RectangularSensorReceiver(
+		sensorSize,
+		rasterToSensor,
+		receiverToWorld)
+{}
 
 Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
@@ -38,20 +50,20 @@ math::Vector3R PinholeCamera::genReceiveRayDir(const math::Vector2D& rasterCoord
 	// (edge aliasing-like artifacts can be observed ~100 meters away from origin).
 
 	math::Vector3R sensorPosMM;
-	m_rasterToReceiver->transformP(
+	getRasterToSensor().transformP(
 		math::Vector3R(math::Vector3D(rasterCoord.x, rasterCoord.y, 0)), 
 		&sensorPosMM);
 
 	// Subtracting pinhole position is omitted since it is at (0, 0, 0) mm
 	math::Vector3R sensedRayDir;
-	m_receiverToWorld->transformV(sensorPosMM, &sensedRayDir);
+	getReceiverToWorld().transformV(sensorPosMM, &sensedRayDir);
 
 	return sensedRayDir.normalize();
 }
 
 void PinholeCamera::evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const
 {
-	std::cerr << "PinholeCamera::evalEmittedImportanceAndPdfW() not implemented" << std::endl;
+	PH_ASSERT_UNREACHABLE_SECTION();
 
 	/*const Vector3R targetDir = targetPos.sub(getPosition()).normalizeLocal();
 	const real cosTheta = targetDir.dot(getDirection());

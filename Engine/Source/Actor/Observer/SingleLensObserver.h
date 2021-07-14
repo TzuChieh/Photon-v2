@@ -1,15 +1,18 @@
 #pragma once
 
-#include "Actor/Observer/ProjectiveObserver.h"
+#include "Actor/Observer/OrientedRasterObserver.h"
 #include "DataIO/SDL/sdl_interface.h"
 #include "Common/primitive_type.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/TVector2.h"
 
+namespace ph { class PinholeCamera; }
+namespace ph { class ThinLensCamera; }
+
 namespace ph
 {
 
-class SingleLensObserver : public ProjectiveObserver
+class SingleLensObserver : public OrientedRasterObserver
 {
 public:
 	inline SingleLensObserver() = default;
@@ -20,6 +23,8 @@ protected:
 	math::TDecomposedTransform<float64> makeRasterToObserver() const;
 	math::Vector2D getSensorSize() const;
 	float64 getSensorOffset() const;
+	void genPinholeCamera(const CoreCookingContext& ctx, PinholeCamera* out_pinholeCamera);
+	void genThinLensCamera(const CoreCookingContext& ctx, ThinLensCamera* out_thinLensCamera);
 
 private:
 	real m_lensRadiusMM;
@@ -38,7 +43,7 @@ public:
 			"the lens system will be reduced to a pinhole. Images captured by this "
 			"observer is similar to how a normal human perceives the world but with "
 			"several simplifications.");
-		clazz.baseOn<ProjectiveObserver>();
+		clazz.baseOn<OrientedRasterObserver>();
 
 		TSdlReal<OwnerType> lensRadiusMM("lens-radius-mm", &OwnerType::m_lensRadiusMM);
 		lensRadiusMM.description("Radius of the lens in millimeters.");

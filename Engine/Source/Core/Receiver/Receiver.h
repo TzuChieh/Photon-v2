@@ -3,13 +3,9 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
-#include "Math/TQuaternion.h"
-#include "DataIO/SDL/ISdlResource.h"
-#include "Math/Transform/TDecomposedTransform.h"
-#include "Core/Filmic/filmic_fwd.h"
 #include "Common/assertion.h"
-#include "Core/Quantity/Spectrum.h"
-#include "DataIO/SDL/sdl_interface.h"
+
+namespace ph::math { class RigidTransform; }
 
 namespace ph
 {
@@ -17,26 +13,13 @@ namespace ph
 class Ray;
 class RayDifferential;
 
+// TODO: time
 class Receiver : public ISdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_RECEIVER;
+	explicit Receiver(const math::RigidTransform* receiverToWorld);
 
-public:
-	Receiver();
-
-	Receiver(
-		const math::Vector3R& position,
-		const math::Vector3R& direction,
-		const math::Vector3R& upAxis,
-		const math::Vector2S& resolution);
-
-	Receiver(
-		const math::Vector3R&    position, 
-		const math::QuaternionR& rotation,
-		const math::Vector2S&    resolution);
-
-	virtual ~Receiver() = default;
+	inline virtual ~Receiver() = default;
 
 	/*! @brief Generate a ray received by the receiver.
 
@@ -59,70 +42,19 @@ public:
 
 	virtual void evalEmittedImportanceAndPdfW(const math::Vector3R& targetPos, math::Vector2R* const out_filmCoord, math::Vector3R* const out_importance, real* out_filmArea, real* const out_pdfW) const = 0;
 
-	ETypeCategory getCategory() const override;
+	const math::RigidTransform& getReceiverToWorld() const;
 
-	const math::Vector3R& getPosition() const;
-	const math::Vector3R& getDirection() const;
-	const math::Vector2S& getRasterResolution() const;
-	float64 getAspectRatio() const;
-
-protected:
-	math::Vector3R                      m_position;
-	math::Vector3R                      m_direction;
-	math::Vector2S                      m_resolution;
-	math::TDecomposedTransform<float64> m_receiverToWorldDecomposed;
-
-	static math::Vector3R makeDirectionFromRotation(const math::QuaternionR& rotation);
-	static math::QuaternionR makeRotationFromYawPitch(real yawDegrees, real pitchDegrees);
-
-	static math::QuaternionR makeRotationFromVectors(
-		const math::Vector3R& direction, 
-		const math::Vector3R& upAxis);
-
-	static math::TDecomposedTransform<float64> makeDecomposedReceiverPose(
-		const math::Vector3R&    position, 
-		const math::QuaternionR& rotation);
-
-public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Receiver>)
-	{
-		ClassType clazz(sdl::category_to_string(CATEGORY));
-		clazz.description(
-			"A device for recording energy information in the scene.");
-
-		// TODO
-
-		return clazz;
-	}
+private:
+	math::RigidTransform* m_receiverToWorld;
 };
 
 // In-header Implementations:
 
-inline ETypeCategory Receiver::getCategory() const
+inline const math::RigidTransform& Receiver::getReceiverToWorld() const
 {
-	return ETypeCategory::REF_RECEIVER;
-}
+	PH_ASSERT(m_receiverToWorld);
 
-inline const math::Vector3R& Receiver::getPosition() const
-{
-	return m_position;
-}
-
-inline const math::Vector3R& Receiver::getDirection() const
-{
-	return m_direction;
-}
-
-inline const math::Vector2S& Receiver::getRasterResolution() const
-{
-	return m_resolution;
-}
-
-inline float64 Receiver::getAspectRatio() const
-{
-	PH_ASSERT_GT(m_resolution.y, 0);
-
-	return static_cast<float64>(m_resolution.x) / static_cast<float64>(m_resolution.y);
+	return *m_receiverToWorld;
 }
 
 }// end namespace ph

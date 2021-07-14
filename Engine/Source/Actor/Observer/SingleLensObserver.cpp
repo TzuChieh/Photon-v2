@@ -7,6 +7,7 @@ namespace ph
 
 std::unique_ptr<Receiver> SingleLensObserver::genReceiver(const CoreCookingContext& ctx)
 {
+
 	if(m_lensRadiusMM == 0)
 	{
 
@@ -51,10 +52,7 @@ math::TDecomposedTransform<float64> SingleLensObserver::makeRasterToObserver() c
 		sensorSize.y / 2,
 		getSensorOffset());
 
-	m_rasterToReceiver = std::make_shared<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeForward(m_rasterToReceiverDecomposed));
-	m_receiverToWorld  = std::make_shared<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeForward(m_receiverToWorldDecomposed));
+	return rasterToObserver;
 }
 
 math::Vector2D SingleLensObserver::getSensorSize() const
@@ -66,6 +64,20 @@ math::Vector2D SingleLensObserver::getSensorSize() const
 float64 SingleLensObserver::getSensorOffset() const
 {
 	return m_sensorOffsetMM / 1000.0;
+}
+
+void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, PinholeCamera* const out_pinholeCamera)
+{
+	PH_ASSERT(out_pinholeCamera);
+	PH_ASSERT_EQ(m_lensRadiusMM, 0);
+
+	
+}
+
+void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, , ThinLensCamera* const out_thinLensCamera)
+{
+	PH_ASSERT(out_thinLensCamera);
+
 }
 
 }// end namespace ph

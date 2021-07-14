@@ -1,4 +1,4 @@
-#include "Actor/Observer/ProjectiveObserver.h"
+#include "Actor/Observer/OrientedRasterObserver.h"
 #include "Common/Logger.h"
 #include "Math/math.h"
 #include "Math/TMatrix4.h"
@@ -9,11 +9,11 @@ namespace ph
 namespace
 {
 
-const Logger logger(LogSender("Projective Observer"));
+const Logger logger(LogSender("Oriented Raster Observer"));
 
 }
 
-math::TDecomposedTransform<float64> ProjectiveObserver::makeObserverPose() const
+math::TDecomposedTransform<float64> OrientedRasterObserver::makeObserverPose() const
 {
 	math::TDecomposedTransform<float64> pose;
 	pose.setPosition(makePosition());
@@ -21,12 +21,12 @@ math::TDecomposedTransform<float64> ProjectiveObserver::makeObserverPose() const
 	return pose;
 }
 
-math::Vector3D ProjectiveObserver::makePosition() const
+math::Vector3D OrientedRasterObserver::makePosition() const
 {
 	return math::Vector3D(m_position);
 }
 
-math::QuaternionD ProjectiveObserver::makeRotation() const
+math::QuaternionD OrientedRasterObserver::makeRotation() const
 {
 	auto rotation = math::QuaternionD::makeNoRotation();
 	if(m_direction && m_upAxis)
@@ -44,12 +44,12 @@ math::QuaternionD ProjectiveObserver::makeRotation() const
 	return rotation;
 }
 
-math::Vector3D ProjectiveObserver::makeDirection() const
+math::Vector3D OrientedRasterObserver::makeDirection() const
 {
 	return math::Vector3D(0, 0, -1).rotate(makeRotation()).normalize();
 }
 
-math::QuaternionD ProjectiveObserver::makeRotationFromVectors(
+math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 	const math::Vector3R& direction, 
 	const math::Vector3R& upAxis)
 {
@@ -104,7 +104,7 @@ math::QuaternionD ProjectiveObserver::makeRotationFromVectors(
 	return math::QuaternionD(worldToViewRotMat);
 }
 
-math::QuaternionD ProjectiveObserver::makeRotationFromYawPitchRoll(
+math::QuaternionD OrientedRasterObserver::makeRotationFromYawPitchRoll(
 	const real yawDegrees,
 	const real pitchDegrees,
 	const real rollDegrees)
