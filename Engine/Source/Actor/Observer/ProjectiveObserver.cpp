@@ -23,7 +23,7 @@ math::TDecomposedTransform<float64> ProjectiveObserver::makeObserverPose() const
 
 math::Vector3D ProjectiveObserver::makePosition() const
 {
-	return math::Vector3D(position);
+	return math::Vector3D(m_position);
 }
 
 math::QuaternionD ProjectiveObserver::makeRotation() const
@@ -42,6 +42,11 @@ math::QuaternionD ProjectiveObserver::makeRotation() const
 	}
 
 	return rotation;
+}
+
+math::Vector3D ProjectiveObserver::makeDirection() const
+{
+	return math::Vector3D(0, 0, -1).rotate(makeRotation()).normalize();
 }
 
 math::QuaternionD ProjectiveObserver::makeRotationFromVectors(

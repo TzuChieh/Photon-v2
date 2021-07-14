@@ -4,6 +4,7 @@
 #include "DataIO/SDL/sdl_interface.h"
 #include "Common/primitive_type.h"
 #include "Math/Transform/TDecomposedTransform.h"
+#include "Math/TVector2.h"
 
 namespace ph
 {
@@ -17,6 +18,8 @@ public:
 
 protected:
 	math::TDecomposedTransform<float64> makeRasterToObserver() const;
+	math::Vector2D getSensorSize() const;
+	float64 getSensorOffset() const;
 
 private:
 	real m_lensRadiusMM;

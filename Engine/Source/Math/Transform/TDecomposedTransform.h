@@ -4,6 +4,7 @@
 #include "Math/TQuaternion.h"
 #include "Math/TMatrix4.h"
 #include "Math/math.h"
+#include "Common/assertion.h"
 
 #include <cstdlib>
 
@@ -21,7 +22,8 @@ template<typename T>
 class TDecomposedTransform final
 {
 public:
-	// Creates a transformation that will not have any effect.
+	/*! @brief Creates a transformation that will not have any effect.
+	*/
 	TDecomposedTransform();
 
 	inline TDecomposedTransform& translate(const TVector3<T>& amount)
@@ -109,6 +111,8 @@ public:
 
 	inline void genTransformMatrix(TMatrix4<T>* const out_result) const
 	{
+		PH_ASSERT(out_result);
+
 		TMatrix4<T> translationMatrix;
 		TMatrix4<T> rotationMatrix;
 		TMatrix4<T> scaleMatrix;
@@ -121,6 +125,8 @@ public:
 
 	inline void genInverseTransformMatrix(TMatrix4<T>* const out_result) const
 	{
+		PH_ASSERT(out_result);
+
 		TDecomposedTransform inverted = this->invert();
 
 		TMatrix4<T> inverseTranslationMatrix;

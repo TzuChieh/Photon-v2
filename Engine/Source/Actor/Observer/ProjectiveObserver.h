@@ -28,7 +28,7 @@ protected:
 	math::TDecomposedTransform<float64> makeObserverPose() const;
 	math::Vector3D makePosition() const;
 	math::QuaternionD makeRotation() const;
-	math::QuaternionD makeDirection() const;
+	math::Vector3D makeDirection() const;
 
 private:
 	math::Vector3R m_position;
