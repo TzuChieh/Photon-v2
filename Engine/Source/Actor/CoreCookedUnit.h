@@ -1,11 +1,13 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 namespace ph { class Renderer; };
 namespace ph { class Receiver; };
 namespace ph { class SampleGenerator; };
 namespace ph { class CookSettings; };
+namespace ph::math { class Transform; };
 
 namespace ph
 {
@@ -23,6 +25,8 @@ public:
 	void addSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
 	void addCookSettings(std::unique_ptr<CookSettings> cookSettings);
 
+	void addTransform(std::unique_ptr<math::Transform> transform);
+
 	Renderer* getRenderer() const;
 	Receiver* getReceiver() const;
 	SampleGenerator* getSampleGenerator() const;
@@ -37,6 +41,8 @@ private:
 	std::unique_ptr<Receiver>        m_receiver;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
 	std::unique_ptr<CookSettings>    m_cookSettings;
+
+	std::vector<std::unique_ptr<math::Transform>> m_transforms;
 
 	// Cooked
 	/*std::shared_ptr<Intersector>     m_intersector;
@@ -64,6 +70,13 @@ inline SampleGenerator* CoreCookedUnit::getSampleGenerator() const
 inline CookSettings* CoreCookedUnit::getCookSettings() const
 {
 	return m_cookSettings.get();
+}
+
+inline void CoreCookedUnit::addTransform(std::unique_ptr<math::Transform> transform)
+{
+	PH_ASSERT(transform);
+
+	m_transforms.push_back(std::move(transform));
 }
 
 }// end namespace ph

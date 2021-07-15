@@ -25,8 +25,14 @@ PinholeCamera::PinholeCamera(
 Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
+
+	// TODO: time info
+
+	math::Vector3R pinholePos;
+	getCameraToWorld().transformP({0, 0, 0}, &pinholePos);
+
 	out_ray->setDirection(genReceiveRayDir(rasterCoord));
-	out_ray->setOrigin(getPinholePos());
+	out_ray->setOrigin(pinholePos);
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
 
@@ -56,7 +62,7 @@ math::Vector3R PinholeCamera::genReceiveRayDir(const math::Vector2D& rasterCoord
 
 	// Subtracting pinhole position is omitted since it is at (0, 0, 0) mm
 	math::Vector3R sensedRayDir;
-	getReceiverToWorld().transformV(sensorPosMM, &sensedRayDir);
+	getCameraToWorld().transformV(sensorPosMM, &sensedRayDir);
 
 	return sensedRayDir.normalize();
 }

@@ -4,17 +4,24 @@
 #include "Common/assertion.h"
 #include "Math/TVector2.h"
 
-namespace ph::math { class math::Transform; }
-namespace ph::math { class math::RigidTransform; }
+namespace ph::math { class Transform; }
+namespace ph::math { class RigidTransform; }
 
 namespace ph
 {
 
 class Ray;
 
+/*! @brief A receiver with a rectangular sensor installed.
+*/
 class RectangularSensorReceiver : public Receiver
 {
 public:
+	/*!
+	@param sensorSize Size of the installed sensor.
+	@param rasterToSensor Transform from raster to sensor position (in receiver space).
+	@param receiverToWorld Transform from receiver to world space.
+	*/
 	RectangularSensorReceiver(
 		const math::Vector2D&       sensorSize, 
 		const math::Transform*      rasterToSensor,

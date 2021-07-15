@@ -4,6 +4,7 @@
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
+#include "Core/Quantity/Spectrum.h"
 
 namespace ph::math { class RigidTransform; }
 

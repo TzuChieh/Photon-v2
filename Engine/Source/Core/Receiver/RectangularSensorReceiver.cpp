@@ -6,9 +6,9 @@ namespace ph
 RectangularSensorReceiver::RectangularSensorReceiver(
 	const math::Vector2D&             sensorSize,
 	const math::Transform* const      rasterToSensor,
-	const math::RigidTransform* const receiverToWorld) : 
+	const math::RigidTransform* const cameraToWorld) :
 
-	Receiver(receiverToWorld),
+	Receiver(cameraToWorld),
 
 	m_sensorSize    (sensorSize),
 	m_rasterToSensor(rasterToSensor)

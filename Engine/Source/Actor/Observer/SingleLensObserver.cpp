@@ -74,7 +74,7 @@ void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, Pinhole
 	
 }
 
-void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, , ThinLensCamera* const out_thinLensCamera)
+void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, ThinLensCamera* const out_thinLensCamera)
 {
 	PH_ASSERT(out_thinLensCamera);
 
