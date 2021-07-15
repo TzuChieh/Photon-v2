@@ -1,20 +1,29 @@
 #include "Actor/Observer/SingleLensObserver.h"
 #include "Core/Receiver/PinholeCamera.h"
 #include "Core/Receiver/ThinLensCamera.h"
+#include "Actor/CoreCookingContext.h"
+#include "Actor/CoreCookedUnit.h"
+#include "Math/Transform/StaticAffineTransform.h"
+#include "Math/Transform/StaticRigidTransform.h"
+
+#include <utility>
 
 namespace ph
 {
 
-std::unique_ptr<Receiver> SingleLensObserver::genReceiver(const CoreCookingContext& ctx)
+void SingleLensObserver::genReceiver(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked)
 {
-
 	if(m_lensRadiusMM == 0)
 	{
-
+		genPinholeCamera(ctx, out_cooked);
+	}
+	else
+	{
+		genThinLensCamera(ctx, out_cooked);
 	}
 }
 
-math::TDecomposedTransform<float64> SingleLensObserver::makeRasterToObserver() const
+math::TDecomposedTransform<float64> SingleLensObserver::makeRasterToSensor() const
 {
 	const math::Vector2D rasterResolution(getResolution());
 	const math::Vector2D sensorSize = getSensorSize();
@@ -40,19 +49,19 @@ math::TDecomposedTransform<float64> SingleLensObserver::makeRasterToObserver() c
 	                  raster-max
 	*/
 
-	math::TDecomposedTransform<float64> rasterToObserver;
+	math::TDecomposedTransform<float64> rasterToSensor;
 
-	rasterToObserver.scale(
+	rasterToSensor.scale(
 		-sensorSize.x / rasterResolution.x,
 		-sensorSize.y / rasterResolution.y,
 		1);
 
-	rasterToObserver.translate(
+	rasterToSensor.translate(
 		sensorSize.x / 2,
 		sensorSize.y / 2,
 		getSensorOffset());
 
-	return rasterToObserver;
+	return rasterToSensor;
 }
 
 math::Vector2D SingleLensObserver::getSensorSize() const
@@ -66,17 +75,29 @@ float64 SingleLensObserver::getSensorOffset() const
 	return m_sensorOffsetMM / 1000.0;
 }
 
-void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, PinholeCamera* const out_pinholeCamera)
+void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked)
 {
-	PH_ASSERT(out_pinholeCamera);
 	PH_ASSERT_EQ(m_lensRadiusMM, 0);
 
-	
+	auto rasterToSensor = std::make_unique<math::StaticAffineTransform>(
+		math::StaticAffineTransform::makeForward(makeRasterToSensor()));
+	auto receiverToWorld = std::make_unique<math::StaticRigidTransform>(
+		math::StaticAffineTransform::makeForward(makeObserverPose()));
+
+	auto camera = std::make_unique<PinholeCamera>(
+		getSensorSize(),
+		rasterToSensor.get(),
+		receiverToWorld.get());
+
+	out_cooked.addTransform(std::move(rasterToSensor));
+	out_cooked.addTransform(std::move(receiverToWorld));
+	out_cooked.addReceiver(std::move(camera));
 }
 
-void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, ThinLensCamera* const out_thinLensCamera)
+void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked)
 {
-	PH_ASSERT(out_thinLensCamera);
+	PH_ASSERT_GT(m_lensRadiusMM, 0);
+
 
 }
 

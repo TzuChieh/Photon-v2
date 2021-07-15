@@ -6,6 +6,8 @@
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/TVector2.h"
 
+#include <memory>
+
 namespace ph { class PinholeCamera; }
 namespace ph { class ThinLensCamera; }
 
@@ -17,14 +19,14 @@ class SingleLensObserver : public OrientedRasterObserver
 public:
 	inline SingleLensObserver() = default;
 
-	std::unique_ptr<Receiver> genReceiver(const CoreCookingContext& ctx) override;
+	void genReceiver(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) override;
 
 protected:
-	math::TDecomposedTransform<float64> makeRasterToObserver() const;
+	math::TDecomposedTransform<float64> makeRasterToSensor() const;
 	math::Vector2D getSensorSize() const;
 	float64 getSensorOffset() const;
-	void genPinholeCamera(const CoreCookingContext& ctx, PinholeCamera* out_pinholeCamera);
-	void genThinLensCamera(const CoreCookingContext& ctx, ThinLensCamera* out_thinLensCamera);
+	void genPinholeCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked);
+	void genThinLensCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked);
 
 private:
 	real m_lensRadiusMM;

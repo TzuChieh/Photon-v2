@@ -6,6 +6,7 @@
 #include <memory>
 
 namespace ph { class CoreCookingContext; }
+namespace ph { class CoreCookedUnit; }
 namespace ph { class Receiver; }
 
 namespace ph
@@ -19,7 +20,7 @@ public:
 public:
 	inline Observer() = default;
 
-	virtual std::unique_ptr<Receiver> genReceiver(const CoreCookingContext& ctx) = 0;
+	virtual void genReceiver(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) = 0;
 
 	ETypeCategory getCategory() const override;
 

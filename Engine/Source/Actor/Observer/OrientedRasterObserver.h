@@ -19,7 +19,7 @@ class OrientedRasterObserver : public Observer
 public:
 	inline OrientedRasterObserver() = default;
 
-	std::unique_ptr<Receiver> genReceiver(const CoreCookingContext& ctx) override = 0;
+	void genReceiver(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) override = 0;
 
 	math::Vector2S getResolution() const;
 	float64 getAspectRatio() const;

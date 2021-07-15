@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Utility/IMoveOnly.h"
+
 #include <memory>
 #include <vector>
 
@@ -12,7 +14,7 @@ namespace ph::math { class Transform; };
 namespace ph
 {
 
-class CoreCookedUnit final
+class CoreCookedUnit final : public IMoveOnly
 {
 public:
 	CoreCookedUnit();
