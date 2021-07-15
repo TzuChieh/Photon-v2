@@ -98,7 +98,21 @@ void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, CoreCo
 {
 	PH_ASSERT_GT(m_lensRadiusMM, 0);
 
+	auto rasterToSensor = std::make_unique<math::StaticAffineTransform>(
+		math::StaticAffineTransform::makeForward(makeRasterToSensor()));
+	auto receiverToWorld = std::make_unique<math::StaticRigidTransform>(
+		math::StaticAffineTransform::makeForward(makeObserverPose()));
 
+	auto camera = std::make_unique<ThinLensCamera>(
+		getLensRadius(),
+		getFocalDistance(),
+		getSensorSize(),
+		rasterToSensor.get(),
+		receiverToWorld.get());
+
+	out_cooked.addTransform(std::move(rasterToSensor));
+	out_cooked.addTransform(std::move(receiverToWorld));
+	out_cooked.addReceiver(std::move(camera));
 }
 
 }// end namespace ph

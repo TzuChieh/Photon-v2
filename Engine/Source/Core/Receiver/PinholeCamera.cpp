@@ -55,14 +55,14 @@ math::Vector3R PinholeCamera::genReceiveRayDir(const math::Vector2D& rasterCoord
 	// points can lead to high numerical error when camera is far from origin
 	// (edge aliasing-like artifacts can be observed ~100 meters away from origin).
 
-	math::Vector3R sensorPosMM;
+	math::Vector3R sensorPos;
 	getRasterToSensor().transformP(
 		math::Vector3R(math::Vector3D(rasterCoord.x, rasterCoord.y, 0)), 
-		&sensorPosMM);
+		&sensorPos);
 
-	// Subtracting pinhole position is omitted since it is at (0, 0, 0) mm
+	// Subtracting pinhole position is omitted since it is at (0, 0, 0)
 	math::Vector3R sensedRayDir;
-	getCameraToWorld().transformV(sensorPosMM, &sensedRayDir);
+	getCameraToWorld().transformV(sensorPos, &sensedRayDir);
 
 	return sensedRayDir.normalize();
 }

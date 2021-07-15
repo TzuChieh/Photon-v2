@@ -83,12 +83,12 @@ public:
 
 // In-header Implementations:
 
-inline math::Vector2S ProjectiveObserver::getResolution() const
+inline math::Vector2S OrientedRasterObserver::getResolution() const
 {
 	return m_resolution;
 }
 
-inline float64 ProjectiveObserver::getAspectRatio() const
+inline float64 OrientedRasterObserver::getAspectRatio() const
 {
 	PH_ASSERT_GT(getResolution().y, 0);
 

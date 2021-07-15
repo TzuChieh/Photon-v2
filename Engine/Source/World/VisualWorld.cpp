@@ -3,7 +3,7 @@
 #include "Core/Ray.h"
 #include "Actor/Actor.h"
 #include "Actor/CookedUnit.h"
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 #include "Core/Intersectable/BruteForceIntersector.h"
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESUniformRandom.h"

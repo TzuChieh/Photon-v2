@@ -21,10 +21,13 @@ public:
 
 	void genReceiver(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) override;
 
-protected:
-	math::TDecomposedTransform<float64> makeRasterToSensor() const;
+	float64 getLensRadius() const;
+	float64 getFocalDistance() const;
 	math::Vector2D getSensorSize() const;
 	float64 getSensorOffset() const;
+
+protected:
+	math::TDecomposedTransform<float64> makeRasterToSensor() const;
 	void genPinholeCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked);
 	void genThinLensCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked);
 
@@ -74,5 +77,17 @@ public:
 		return clazz;
 	}
 };
+
+// In-header Implementations:
+
+inline float64 SingleLensObserver::getLensRadius() const
+{
+	return m_lensRadiusMM / 1000.0;
+}
+
+inline float64 SingleLensObserver::getFocalDistance() const
+{
+	return m_focalDistanceMM / 1000.0;
+}
 
 }// end namespace ph

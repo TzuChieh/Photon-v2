@@ -23,6 +23,7 @@ public:
 		const math::RigidTransform* cameraToWorld);
 
 	Spectrum receiveRay(const math::Vector2D& rasterCoord, Ray* out_ray) const override;
+
 	void evalEmittedImportanceAndPdfW(
 		const math::Vector3R& targetPos,
 		math::Vector2R* const out_filmCoord,
@@ -30,11 +31,18 @@ public:
 		real* out_filmArea, 
 		real* const out_pdfW) const override;
 
+	const math::RigidTransform& getCameraToWorld() const;
+
 private:
 	float64 m_lensRadius;
 	float64 m_focalDistance;
-
-	static void genRandomSampleOnDisk(const real radius, real* const out_x, real* const out_y);
 };
+
+// In-header Implementations:
+
+inline const math::RigidTransform& ThinLensCamera::getCameraToWorld() const
+{
+	return getReceiverToWorld();
+}
 
 }// end namespace ph

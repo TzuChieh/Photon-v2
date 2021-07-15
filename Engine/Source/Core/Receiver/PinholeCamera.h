@@ -24,7 +24,7 @@ public:
 
 	// TODO: need Time
 	//const math::Vector3R& getPinholePos() const;
-	const math::Transform& getCameraToWorld() const;
+	const math::RigidTransform& getCameraToWorld() const;
 
 private:
 	//math::Vector3R m_pinholePos;
@@ -39,7 +39,7 @@ private:
 //	return m_pinholePos;
 //}
 
-inline const math::Transform& PinholeCamera::getCameraToWorld() const
+inline const math::RigidTransform& PinholeCamera::getCameraToWorld() const
 {
 	return getReceiverToWorld();
 }
