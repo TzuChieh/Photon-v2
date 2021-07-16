@@ -23,7 +23,7 @@
 #include "Actor/Material/LayeredSurface.h"
 #include "Actor/Material/ThinFilm.h"
 
-// Light sources
+// Light Sources
 #include "Actor/LightSource/LightSource.h"
 #include "Actor/LightSource/ModelSource.h"
 #include "Actor/LightSource/AreaSource.h"
@@ -50,27 +50,15 @@
 #include "Actor/Observer/OrientedRasterObserver.h"
 #include "Actor/Observer/SingleLensObserver.h"
 
-//#include "Core/Receiver/Receiver.h"
-//#include "Core/Receiver/PerspectiveReceiver.h"
-//#include "Core/Receiver/PinholeCamera.h"
-//#include "Core/Receiver/ThinLensCamera.h"
-//#include "Core/Receiver/EnvironmentCamera.h"
-//#include "Core/Receiver/RadiantFluxPanel.h"
-//#include "Core/Receiver/RadiantFluxPanelArray.h"
+// Sample Sources
+#include "Actor/SampleSource/SampleSource.h"
+#include "Actor/SampleSource/RuntimeSampleSource.h"
+#include "Actor/SampleSource/UniformRandomSampleSource.h"
+#include "Actor/SampleSource/StratifiedSampleSource.h"
+#include "Actor/SampleSource/HaltonSampleSource.h"
 
-// Sample generators
-#include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/SampleGenerator/SGUniformRandom.h"
-#include "Core/SampleGenerator/SGStratified.h"
-#include "Core/SampleGenerator/SGHalton.h"
-
-// Renderers
-#include "Core/Renderer/Renderer.h"
-#include "Core/Renderer/Sampling/SamplingRenderer.h"
-#include "Core/Renderer/Sampling/EqualSamplingRenderer.h"
-#include "Core/Renderer/Sampling/AdaptiveSamplingRenderer.h"
-#include "Core/Renderer/PM/PMRenderer.h"
-#include "Core/Renderer/Attribute/AttributeRenderer.h"
+// Visualizers
+#include "Actor/Visualizer/Visualizer.h"
 
 // Options
 #include "DataIO/Option.h"
@@ -109,7 +97,7 @@ bool init_render_engine()
 
 	// Get SDL classes once here to initialize them--this is not required,
 	// just to be safe as SDL class instances are lazy-constructed and may
-	// be done in strange places later (which can cause problems).
+	// be done in strange places/order later (which may cause problems).
 	//
 	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
 	logger.log(ELogLevel::NOTE_MED,
@@ -162,7 +150,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<SurfaceMaterial>(),
 		//get_sdl_class<MatteOpaque>(),
 
-		// Light sources
+		// Light Sources
 		get_sdl_class<LightSource>(),
 		get_sdl_class<AreaSource>(),
 		get_sdl_class<SphereSource>(),
@@ -171,6 +159,16 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<Observer>(),
 		get_sdl_class<OrientedRasterObserver>(),
 		get_sdl_class<SingleLensObserver>(),
+
+		// Sample Sources
+		get_sdl_class<SampleSource>(),
+		get_sdl_class<RuntimeSampleSource>(),
+		get_sdl_class<UniformRandomSampleSource>(),
+		get_sdl_class<StratifiedSampleSource>(),
+		get_sdl_class<HaltonSampleSource>(),
+
+		// Visualizers
+		get_sdl_class<Visualizer>(),
 
 		// Options
 		get_sdl_class<Option>(),

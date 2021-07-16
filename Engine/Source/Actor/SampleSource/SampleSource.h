@@ -3,31 +3,29 @@
 #include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/sdl_interface.h"
 
-#include <memory>
-
 namespace ph { class CoreCookingContext; }
 namespace ph { class CoreCookedUnit; }
 
 namespace ph
 {
 
-class Observer : public ISdlResource
+class SampleSource : public ISdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_OBSERVER;
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_SAMPLE_SOURCE;
 
 public:
-	inline Observer() = default;
+	inline SampleSource() = default;
 
 	virtual void cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) = 0;
 
 	ETypeCategory getCategory() const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Observer>)
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SampleSource>)
 	{
-		ClassType clazz("observer");
-		clazz.description("A tool for observing the incoming energy of the scene.");
+		ClassType clazz("sample-source");
+		clazz.description("Engine component for generating sample values.");
 		return clazz;
 	}
 };

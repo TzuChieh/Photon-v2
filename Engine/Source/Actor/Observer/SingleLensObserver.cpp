@@ -11,7 +11,7 @@
 namespace ph
 {
 
-void SingleLensObserver::genReceiver(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked)
+void SingleLensObserver::cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked)
 {
 	if(m_lensRadiusMM == 0)
 	{

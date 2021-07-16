@@ -19,7 +19,7 @@ class SingleLensObserver : public OrientedRasterObserver
 public:
 	inline SingleLensObserver() = default;
 
-	void genReceiver(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) override;
+	void cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) override;
 
 	float64 getLensRadius() const;
 	float64 getFocalDistance() const;

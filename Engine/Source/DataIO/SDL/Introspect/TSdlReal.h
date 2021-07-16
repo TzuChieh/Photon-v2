@@ -13,18 +13,13 @@
 namespace ph
 {
 
-// TODO: rename to TSdlFloat and support for more float types (and provide aliases)
-
-/*! @brief A field class that binds a real member variable.
+/*! @brief A field class that binds a floating point member variable.
 */
-template<typename Owner, typename RealType = real, typename SdlValueType = TSdlValue<RealType, Owner>>
+template<typename Owner, typename FloatType = real, typename SdlValueType = TSdlValue<FloatType, Owner>>
 class TSdlReal : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<RealType, Owner>, SdlValueType>,
+	static_assert(std::is_base_of_v<TAbstractSdlValue<FloatType, Owner>, SdlValueType>,
 		"SdlValueType should be a subclass of TAbstractSdlValue.");
-
-	static_assert(std::is_same_v<RealType, real>, 
-		"Currently supports only ph::real");
 
 public:
 	template<typename ValueType>
@@ -32,7 +27,7 @@ public:
 		SdlValueType("real", std::move(valueName), valuePtr)
 	{}
 
-	inline std::string valueAsString(const RealType& value) const override
+	inline std::string valueAsString(const FloatType& value) const override
 	{
 		return std::to_string(value);
 	}
@@ -43,7 +38,7 @@ protected:
 		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, sdl::load_real(payload.value));
+		setValue(owner, sdl::load_float<FloatType>(payload.value));
 	}
 
 	inline void convertToSdl(
@@ -58,9 +53,33 @@ protected:
 	}
 };
 
-/*! @brief A field class that binds an optional real member variable.
+/*! @brief A field class that binds an optional floating point member variable.
 */
-template<typename Owner, typename RealType = real>
-using TSdlOptionalReal = TSdlReal<Owner, RealType, TSdlOptionalValue<RealType, Owner>>;
+template<typename Owner, typename FloatType = real>
+using TSdlOptionalReal = TSdlReal<Owner, FloatType, TSdlOptionalValue<FloatType, Owner>>;
+
+template<typename Owner>
+using TSdlFloat = TSdlReal<Owner, float>;
+
+template<typename Owner>
+using TSdlDouble = TSdlReal<Owner, double>;
+
+template<typename Owner>
+using TSdlFloat32 = TSdlReal<Owner, float32>;
+
+template<typename Owner>
+using TSdlFloat64 = TSdlReal<Owner, float64>;
+
+template<typename Owner>
+using TSdlFloat = TSdlOptionalReal<Owner, float>;
+
+template<typename Owner>
+using TSdlDouble = TSdlOptionalReal<Owner, double>;
+
+template<typename Owner>
+using TSdlFloat32 = TSdlOptionalReal<Owner, float32>;
+
+template<typename Owner>
+using TSdlFloat64 = TSdlOptionalReal<Owner, float64>;
 
 }// end namespace ph
