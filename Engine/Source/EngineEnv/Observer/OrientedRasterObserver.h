@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Observer/Observer.h"
+#include "EngineEnv/Observer/Observer.h"
 #include "DataIO/SDL/sdl_interface.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
@@ -19,7 +19,7 @@ class OrientedRasterObserver : public Observer
 public:
 	inline OrientedRasterObserver() = default;
 
-	void cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) override = 0;
+	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	math::Vector2S getResolution() const;
 	float64 getAspectRatio() const;

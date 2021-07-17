@@ -1,8 +1,8 @@
-#include "Actor/Observer/SingleLensObserver.h"
+#include "EngineEnv/Observer/SingleLensObserver.h"
 #include "Core/Receiver/PinholeCamera.h"
 #include "Core/Receiver/ThinLensCamera.h"
-#include "Actor/CoreCookingContext.h"
-#include "Actor/CoreCookedUnit.h"
+#include "EngineEnv/CoreCookingContext.h"
+#include "EngineEnv/CoreCookedUnit.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
 
@@ -11,15 +11,15 @@
 namespace ph
 {
 
-void SingleLensObserver::cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked)
+void SingleLensObserver::cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked)
 {
 	if(m_lensRadiusMM == 0)
 	{
-		genPinholeCamera(ctx, out_cooked);
+		genPinholeCamera(ctx, cooked);
 	}
 	else
 	{
-		genThinLensCamera(ctx, out_cooked);
+		genThinLensCamera(ctx, cooked);
 	}
 }
 
@@ -75,7 +75,7 @@ float64 SingleLensObserver::getSensorOffset() const
 	return m_sensorOffsetMM / 1000.0;
 }
 
-void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked)
+void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, CoreCookedUnit& cooked)
 {
 	PH_ASSERT_EQ(m_lensRadiusMM, 0);
 
@@ -89,12 +89,12 @@ void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, CoreCoo
 		rasterToSensor.get(),
 		receiverToWorld.get());
 
-	out_cooked.addTransform(std::move(rasterToSensor));
-	out_cooked.addTransform(std::move(receiverToWorld));
-	out_cooked.addReceiver(std::move(camera));
+	cooked.addTransform(std::move(rasterToSensor));
+	cooked.addTransform(std::move(receiverToWorld));
+	cooked.addReceiver(std::move(camera));
 }
 
-void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked)
+void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, CoreCookedUnit& cooked)
 {
 	PH_ASSERT_GT(m_lensRadiusMM, 0);
 
@@ -110,9 +110,9 @@ void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, CoreCo
 		rasterToSensor.get(),
 		receiverToWorld.get());
 
-	out_cooked.addTransform(std::move(rasterToSensor));
-	out_cooked.addTransform(std::move(receiverToWorld));
-	out_cooked.addReceiver(std::move(camera));
+	cooked.addTransform(std::move(rasterToSensor));
+	cooked.addTransform(std::move(receiverToWorld));
+	cooked.addReceiver(std::move(camera));
 }
 
 }// end namespace ph

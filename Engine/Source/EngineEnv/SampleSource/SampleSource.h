@@ -1,15 +1,12 @@
 #pragma once
 
-#include "DataIO/SDL/ISdlResource.h"
+#include "EngineEnv/ICoreSdlResource.h"
 #include "DataIO/SDL/sdl_interface.h"
-
-namespace ph { class CoreCookingContext; }
-namespace ph { class CoreCookedUnit; }
 
 namespace ph
 {
 
-class SampleSource : public ISdlResource
+class SampleSource : public ICoreSdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_SAMPLE_SOURCE;
@@ -17,7 +14,7 @@ public:
 public:
 	inline SampleSource() = default;
 
-	virtual void cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) = 0;
+	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	ETypeCategory getCategory() const override;
 
@@ -32,7 +29,7 @@ public:
 
 // In-header Implementations:
 
-inline ETypeCategory Observer::getCategory() const
+inline ETypeCategory SampleSource::getCategory() const
 {
 	return CATEGORY;
 }

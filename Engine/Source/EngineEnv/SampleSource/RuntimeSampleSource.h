@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/SampleSource/SampleSource.h"
+#include "EngineEnv/SampleSource/SampleSource.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/sdl_interface.h"
@@ -17,7 +17,7 @@ class RuntimeSampleSource : public SampleSource
 public:
 	inline RuntimeSampleSource() = default;
 
-	void cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) override = 0;
+	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	std::size_t getNumSamples() const;
 

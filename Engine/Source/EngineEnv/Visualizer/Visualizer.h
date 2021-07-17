@@ -1,15 +1,12 @@
 #pragma once
 
-#include "DataIO/SDL/ISdlResource.h"
+#include "EngineEnv/ICoreSdlResource.h"
 #include "DataIO/SDL/sdl_interface.h"
-
-namespace ph { class CoreCookingContext; }
-namespace ph { class CoreCookedUnit; }
 
 namespace ph
 {
 
-class Visualizer : public ISdlResource
+class Visualizer : public ICoreSdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_VISUALIZER;
@@ -17,7 +14,7 @@ public:
 public:
 	inline Visualizer() = default;
 
-	virtual void cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) = 0;
+	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	ETypeCategory getCategory() const override;
 
@@ -25,14 +22,14 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Visualizer>)
 	{
 		ClassType clazz("visualizer");
-		clazz.description("The main engine component for producing images.");
+		clazz.description("The main engine component for producing visual content.");
 		return clazz;
 	}
 };
 
 // In-header Implementations:
 
-inline ETypeCategory Observer::getCategory() const
+inline ETypeCategory Visualizer::getCategory() const
 {
 	return CATEGORY;
 }

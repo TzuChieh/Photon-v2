@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Observer/OrientedRasterObserver.h"
+#include "EngineEnv/Observer/OrientedRasterObserver.h"
 #include "DataIO/SDL/sdl_interface.h"
 #include "Common/primitive_type.h"
 #include "Math/Transform/TDecomposedTransform.h"
@@ -19,7 +19,7 @@ class SingleLensObserver : public OrientedRasterObserver
 public:
 	inline SingleLensObserver() = default;
 
-	void cook(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked) override;
+	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 	float64 getLensRadius() const;
 	float64 getFocalDistance() const;
@@ -28,8 +28,8 @@ public:
 
 protected:
 	math::TDecomposedTransform<float64> makeRasterToSensor() const;
-	void genPinholeCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked);
-	void genThinLensCamera(const CoreCookingContext& ctx, CoreCookedUnit& out_cooked);
+	void genPinholeCamera(const CoreCookingContext& ctx, CoreCookedUnit& cooked);
+	void genThinLensCamera(const CoreCookingContext& ctx, CoreCookedUnit& cooked);
 
 private:
 	real m_lensRadiusMM;

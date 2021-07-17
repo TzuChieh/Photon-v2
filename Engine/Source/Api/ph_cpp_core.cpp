@@ -46,24 +46,25 @@
 #include "Actor/Image/GradientImage.h"
 
 // Observers
-#include "Actor/Observer/Observer.h"
-#include "Actor/Observer/OrientedRasterObserver.h"
-#include "Actor/Observer/SingleLensObserver.h"
+#include "EngineEnv/Observer/Observer.h"
+#include "EngineEnv/Observer/OrientedRasterObserver.h"
+#include "EngineEnv/Observer/SingleLensObserver.h"
 
 // Sample Sources
-#include "Actor/SampleSource/SampleSource.h"
-#include "Actor/SampleSource/RuntimeSampleSource.h"
-#include "Actor/SampleSource/UniformRandomSampleSource.h"
-#include "Actor/SampleSource/StratifiedSampleSource.h"
-#include "Actor/SampleSource/HaltonSampleSource.h"
+#include "EngineEnv/SampleSource/SampleSource.h"
+#include "EngineEnv/SampleSource/RuntimeSampleSource.h"
+#include "EngineEnv/SampleSource/UniformRandomSampleSource.h"
+#include "EngineEnv/SampleSource/StratifiedSampleSource.h"
+#include "EngineEnv/SampleSource/HaltonSampleSource.h"
 
 // Visualizers
-#include "Actor/Visualizer/Visualizer.h"
+#include "EngineEnv/Visualizer/Visualizer.h"
 
 // Options
 #include "DataIO/Option.h"
 #include "World/CookSettings.h"
-#include "Core/EngineOption.h"
+#include "EngineEnv/Session/RenderSession.h"
+#include "EngineEnv/Session/SingleFrameRenderSession.h"
 
 // Actors
 #include "Actor/Actor.h"
@@ -173,7 +174,8 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		// Options
 		get_sdl_class<Option>(),
 		get_sdl_class<CookSettings>(),
-		get_sdl_class<EngineOption>(),
+		get_sdl_class<RenderSession>(),
+		get_sdl_class<SingleFrameRenderSession>(),
 
 		// Actors
 		get_sdl_class<Actor>(),
