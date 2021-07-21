@@ -1,12 +1,12 @@
 #pragma once
 
-#include "EngineEnv/ICoreSdlResource.h"
+#include "EngineEnv/CoreSdlResource.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
 
-class SampleSource : public ICoreSdlResource
+class SampleSource : public CoreSdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_SAMPLE_SOURCE;

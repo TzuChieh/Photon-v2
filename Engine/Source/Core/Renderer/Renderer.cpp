@@ -10,7 +10,8 @@
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/Logger.h"
-#include "Core/CoreDataGroup.h"
+#include "EngineEnv/CoreCookedUnit.h"
+#include "Core/Receiver/Receiver.h"
 
 #include <iostream>
 #include <vector>
@@ -28,11 +29,11 @@ namespace
 
 Renderer::~Renderer() = default;
 
-void Renderer::update(const CoreDataGroup& data)
+void Renderer::update(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
 	logger.log("# render workers = " + std::to_string(numWorkers()));
 
-	const auto resolution = data.getReceiver()->getRasterResolution();
+	const auto resolution = cooked.getReceiver()->getRasterResolution();
 	// HACK
 	m_widthPx = static_cast<uint32>(resolution.x);
 	m_heightPx = static_cast<uint32>(resolution.y);

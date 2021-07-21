@@ -10,7 +10,7 @@
 #include "Core/Renderer/EAttribute.h"
 #include "Core/Renderer/Region/Region.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Actor/CoreCookedUnit.h"
+#include "EngineEnv/CoreCookedUnit.h"
 
 #include <string>
 
@@ -52,9 +52,9 @@ public:
 
 private:
 	SdlParser        m_parser;
-	SceneDescription m_scene;
+	SceneDescription m_rawScene;
 	VisualWorld      m_visualWorld;
-	CoreCookedUnit   m_core;
+	CoreCookedUnit   m_cooked;
 	uint32           m_numRenderThreads;
 
 	//FrameProcessor m_frameProcessor;
@@ -66,7 +66,7 @@ private:
 
 inline Renderer* Engine::getRenderer() const
 {
-	return m_coreData.getRenderer();
+	return m_cooked.getRenderer();
 }
 
 }// end namespace ph

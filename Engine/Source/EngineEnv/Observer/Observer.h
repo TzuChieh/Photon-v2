@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EngineEnv/ICoreSdlResource.h"
+#include "EngineEnv/CoreSdlResource.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class Observer : public ICoreSdlResource
+class Observer : public CoreSdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_OBSERVER;

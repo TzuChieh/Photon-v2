@@ -24,8 +24,7 @@ Logger logger(LogSender("Core Cooked Unit"));
 CoreCookedUnit::CoreCookedUnit() :
 	m_renderer       (nullptr),
 	m_receiver       (nullptr),
-	m_sampleGenerator(nullptr),
-	m_cookSettings   (nullptr)
+	m_sampleGenerator(nullptr)
 {}
 
 //bool CoreCookedUnit::gatherFromRaw(const SceneDescription& scene)
@@ -107,13 +106,6 @@ void CoreCookedUnit::addSampleGenerator(std::unique_ptr<SampleGenerator> sampleG
 	PH_ASSERT(sampleGenerator);
 
 	m_sampleGenerator = std::move(sampleGenerator);
-}
-
-void CoreCookedUnit::addCookSettings(std::unique_ptr<CookSettings> cookSettings)
-{
-	PH_ASSERT(cookSettings);
-
-	m_cookSettings = std::move(cookSettings);
 }
 
 }// end namespace ph

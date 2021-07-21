@@ -71,15 +71,15 @@ template<typename Owner>
 using TSdlFloat64 = TSdlReal<Owner, float64>;
 
 template<typename Owner>
-using TSdlFloat = TSdlOptionalReal<Owner, float>;
+using TSdlOptionalFloat = TSdlOptionalReal<Owner, float>;
 
 template<typename Owner>
-using TSdlDouble = TSdlOptionalReal<Owner, double>;
+using TSdlOptionalDouble = TSdlOptionalReal<Owner, double>;
 
 template<typename Owner>
-using TSdlFloat32 = TSdlOptionalReal<Owner, float32>;
+using TSdlOptionalFloat32 = TSdlOptionalReal<Owner, float32>;
 
 template<typename Owner>
-using TSdlFloat64 = TSdlOptionalReal<Owner, float64>;
+using TSdlOptionalFloat64 = TSdlOptionalReal<Owner, float64>;
 
 }// end namespace ph

@@ -5,6 +5,7 @@
 #include "EngineEnv/Observer/Observer.h"
 #include "EngineEnv/SampleSource/SampleSource.h"
 #include "EngineEnv/Visualizer/Visualizer.h"
+#include "World/CookSettings.h"
 
 namespace ph
 {
@@ -29,15 +30,17 @@ void SingleFrameRenderSession::applyToContext(CoreCookingContext& ctx) const
 		logger.log(ELogLevel::WARNING_MED,
 			"invalid frame size provided: " + m_frameSizePx.toString());
 	}
+
+	ctx.setTopLevelAccelerator(m_topLevelAccelerator);
 }
 
-std::vector<std::shared_ptr<ICoreSdlResource>> SingleFrameRenderSession::gatherResources(const SceneDescription& scene) const
+std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherResources(const SceneDescription& scene) const
 {
 	// TODO: try harder to get resource if not found by name (e.g., check if there is only a single
 	// observer, if so, get it)
 
-	std::vector<std::shared_ptr<ICoreSdlResource>> resources = RenderSession::gatherResources(scene);
-	resources.reserve(resources.size() + 3);
+	std::vector<std::shared_ptr<CoreSdlResource>> resources = RenderSession::gatherResources(scene);
+	resources.reserve(resources.size() + 4);
 
 	auto observer = scene.getResource<Observer>(getObserverName());
 	if(observer)
@@ -70,6 +73,17 @@ std::vector<std::shared_ptr<ICoreSdlResource>> SingleFrameRenderSession::gatherR
 	{
 		logger.log(ELogLevel::WARNING_MED,
 			"visualizer <" + getVisualizerName() + "> not found");
+	}
+
+	auto cookSettings = scene.getResource<CookSettings>(getCookSettingsName());
+	if(cookSettings)
+	{
+		resources.push_back(std::move(cookSettings));
+	}
+	else
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"cook settings <" + getCookSettingsName() + "> not found");
 	}
 
 	return std::move(resources);

@@ -62,7 +62,6 @@
 
 // Options
 #include "DataIO/Option.h"
-#include "World/CookSettings.h"
 #include "EngineEnv/Session/RenderSession.h"
 #include "EngineEnv/Session/SingleFrameRenderSession.h"
 
@@ -173,7 +172,6 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 
 		// Options
 		get_sdl_class<Option>(),
-		get_sdl_class<CookSettings>(),
 		get_sdl_class<RenderSession>(),
 		get_sdl_class<SingleFrameRenderSession>(),
 

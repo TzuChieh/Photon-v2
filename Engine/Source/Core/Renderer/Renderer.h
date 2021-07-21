@@ -23,10 +23,12 @@
 #include <deque>
 #include <string>
 
+namespace ph { class CoreCookedUnit; }
+namespace ph { class VisualWorld; }
+
 namespace ph
 {
 
-class CoreDataGroup;
 class RenderWorker;
 
 class Renderer: public ISdlResource
@@ -42,7 +44,7 @@ public:
 
 	// Perform necessary updates for rendering. 
 	// No asynchronous operation is allowed during update.
-	virtual void doUpdate(const CoreDataGroup& data) = 0;
+	virtual void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) = 0;
 
 	// Start rendering.
 	virtual void doRender() = 0;
@@ -74,7 +76,7 @@ public:
 
 	ETypeCategory getCategory() const override;
 
-	void update(const CoreDataGroup& data);
+	void update(const CoreCookedUnit& cooked, const VisualWorld& world);
 	void render();
 	void setNumWorkers(uint32 numWorkers);
 

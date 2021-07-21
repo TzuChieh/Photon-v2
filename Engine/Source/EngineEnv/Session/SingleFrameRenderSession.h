@@ -4,6 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "DataIO/SDL/sdl_interface.h"
+#include "EngineEnv/sdl_accelerator_type.h"
 
 #include <string>
 
@@ -16,12 +17,15 @@ public:
 	inline SingleFrameRenderSession() = default;
 
 	void applyToContext(CoreCookingContext& ctx) const override;
-	std::vector<std::shared_ptr<ICoreSdlResource>> gatherResources(const SceneDescription& scene) const override;
+	std::vector<std::shared_ptr<CoreSdlResource>> gatherResources(const SceneDescription& scene) const override;
+
+	void setTopLevelAccelerator(EAccelerator accelerator);
 
 	const std::string& getVisualizerName() const;
 	const std::string& getObserverName() const;
 	const std::string& getSampleSourceName() const;
 	const std::string& getCookSettingsName() const;
+	EAccelerator getTopLevelAccelerator() const;
 
 private:
 	math::TVector2<uint32> m_frameSizePx;
@@ -29,6 +33,7 @@ private:
 	std::string            m_observerName;
 	std::string            m_sampleSourceName;
 	std::string            m_cookSettingsName;
+	EAccelerator           m_topLevelAccelerator;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SingleFrameRenderSession>)
@@ -62,6 +67,12 @@ public:
 		cookSettingsName.optional();
 		clazz.addField(cookSettingsName);
 
+		TSdlEnumField<OwnerType, EAccelerator> topLevelAccelerator("top-level-accelerator", &OwnerType::m_topLevelAccelerator);
+		topLevelAccelerator.description("Acceleration structure used on the top level geometries.");
+		topLevelAccelerator.defaultTo(EAccelerator::BVH);
+		topLevelAccelerator.optional();
+		clazz.addField(topLevelAccelerator);
+
 		return clazz;
 	}
 };
@@ -86,6 +97,16 @@ inline const std::string& SingleFrameRenderSession::getSampleSourceName() const
 inline const std::string& SingleFrameRenderSession::getCookSettingsName() const
 {
 	return m_cookSettingsName;
+}
+
+inline void SingleFrameRenderSession::setTopLevelAccelerator(const EAccelerator accelerator)
+{
+	m_topLevelAccelerator = accelerator;
+}
+
+inline EAccelerator SingleFrameRenderSession::getTopLevelAccelerator() const
+{
+	return m_topLevelAccelerator;
 }
 
 }// end namespace ph

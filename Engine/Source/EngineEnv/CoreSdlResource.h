@@ -8,7 +8,7 @@ namespace ph { class CoreCookedUnit; }
 namespace ph
 {
 
-class ICoreSdlResource : public ISdlResource
+class CoreSdlResource : public ISdlResource
 {
 public:
 	ETypeCategory getCategory() const override = 0;

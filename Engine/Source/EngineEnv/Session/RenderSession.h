@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataIO/Option.h"
-#include "EngineEnv/ICoreSdlResource.h"
+#include "EngineEnv/CoreSdlResource.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 #include <string>
@@ -31,7 +31,8 @@ public:
 	Similar to applyToContext(CoreCookingContext&), calling base
 	gatherResources(const SceneDescription&) in derived classes is recommended.
 	*/
-	virtual std::vector<std::shared_ptr<ICoreSdlResource>> gatherResources(const SceneDescription& scene) const = 0;
+	// TODO: should we take a context obj?
+	virtual std::vector<std::shared_ptr<CoreSdlResource>> gatherResources(const SceneDescription& scene) const = 0;
 
 private:
 	std::string m_sessionName;
@@ -58,9 +59,7 @@ public:
 inline void RenderSession::applyToContext(CoreCookingContext& ctx) const
 {}
 
-inline std::vector<std::shared_ptr<ICoreSdlResource>> RenderSession::gatherResources(const SceneDescription& scene) const
-{
-
-}
+inline std::vector<std::shared_ptr<CoreSdlResource>> RenderSession::gatherResources(const SceneDescription& scene) const
+{}
 
 }// end namespace ph

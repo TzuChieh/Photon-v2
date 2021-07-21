@@ -25,14 +25,12 @@ public:
 	void addRenderer(std::unique_ptr<Renderer> renderer);
 	void addReceiver(std::unique_ptr<Receiver> receiver);
 	void addSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
-	void addCookSettings(std::unique_ptr<CookSettings> cookSettings);
 
 	void addTransform(std::unique_ptr<math::Transform> transform);
 
 	Renderer* getRenderer() const;
 	Receiver* getReceiver() const;
 	SampleGenerator* getSampleGenerator() const;
-	CookSettings* getCookSettings() const;
 
 	/*Intersector* getIntersector() const;
 	EmitterSampler* getEmitterSampler() const;
@@ -42,7 +40,6 @@ private:
 	std::unique_ptr<Renderer>        m_renderer;
 	std::unique_ptr<Receiver>        m_receiver;
 	std::unique_ptr<SampleGenerator> m_sampleGenerator;
-	std::unique_ptr<CookSettings>    m_cookSettings;
 
 	std::vector<std::unique_ptr<math::Transform>> m_transforms;
 
@@ -67,11 +64,6 @@ inline Receiver* CoreCookedUnit::getReceiver() const
 inline SampleGenerator* CoreCookedUnit::getSampleGenerator() const
 {
 	return m_sampleGenerator.get();
-}
-
-inline CookSettings* CoreCookedUnit::getCookSettings() const
-{
-	return m_cookSettings.get();
 }
 
 inline void CoreCookedUnit::addTransform(std::unique_ptr<math::Transform> transform)

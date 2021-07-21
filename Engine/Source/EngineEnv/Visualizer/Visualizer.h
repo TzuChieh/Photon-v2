@@ -1,12 +1,12 @@
 #pragma once
 
-#include "EngineEnv/ICoreSdlResource.h"
+#include "EngineEnv/CoreSdlResource.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
 
-class Visualizer : public ICoreSdlResource
+class Visualizer : public CoreSdlResource
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_VISUALIZER;

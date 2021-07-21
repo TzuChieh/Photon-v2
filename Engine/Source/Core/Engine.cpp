@@ -6,10 +6,12 @@
 #include "Common/Logger.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Utility/Timer.h"
-#include "Core/EngineOption.h"
+#include "EngineEnv/Session/RenderSession.h"
+#include "EngineEnv/CoreCookingContext.h"
 #include "World/CookSettings.h"
 #include "Core/Receiver/Receiver.h"
 #include "Core/Renderer/Renderer.h"
+#include "Math/Transform/RigidTransform.h"
 
 #include <fstream>
 #include <string>
@@ -23,7 +25,7 @@ namespace
 }
 
 Engine::Engine() : 
-	m_coreData(),
+	m_cooked(),
 	m_visualWorld()
 {
 	setNumRenderThreads(1);
@@ -31,7 +33,7 @@ Engine::Engine() :
 
 void Engine::enterCommand(const std::string& commandFragment)
 {
-	m_parser.enter(commandFragment, m_scene);
+	m_parser.enter(commandFragment, m_rawScene);
 }
 
 bool Engine::loadCommands(const Path& filePath)
@@ -60,7 +62,6 @@ bool Engine::loadCommands(const Path& filePath)
 
 			enterCommand(lineCommand);
 		}
-		enterCommand("->");
 
 		timer.finish();
 		logger.log(ELogLevel::NOTE_MAX,
@@ -72,30 +73,57 @@ bool Engine::loadCommands(const Path& filePath)
 
 void Engine::update()
 {
-	if(!m_coreData.gatherFromRaw(m_scene))
+	// Process and wait all unfinished commands
+	m_parser.flush(m_rawScene);
+
+	std::shared_ptr<RenderSession> renderSession;
+	{
+		// TODO: means to specify the requested session
+
+		std::vector<std::shared_ptr<RenderSession>> renderSessions = m_rawScene.getResources<RenderSession>();
+		if(renderSessions.empty())
+		{
+			logger.log(ELogLevel::FATAL_ERROR,
+				"require at least a render session; engine failed to update");
+			return;
+		}
+
+		if(renderSessions.size() > 1)
+		{
+			logger.log(ELogLevel::FATAL_ERROR,
+				"more than 1 render session specified, taking the last one");
+		}
+
+		renderSession = renderSessions.back();
+	}
+
+	PH_ASSERT(renderSession);
+
+	CoreCookingContext coreCtx;
+	renderSession->applyToContext(coreCtx);
+
+	std::vector<std::shared_ptr<CoreSdlResource>> coreResources = renderSession->gatherResources(m_rawScene);
+	for(auto& coreResource : coreResources)
+	{
+		coreResource->cook(coreCtx, m_cooked);
+	}
+
+	// TODO: better way to check/assign cooked renderer
+	if(!m_cooked.getRenderer())
 	{
 		logger.log(ELogLevel::FATAL_ERROR,
-			"core raw data may be missing; engine failed to update");
+			"no renderer present");
 		return;
 	}
 
-	m_visualWorld.setReceiverPosition(m_coreData.getReceiver()->getPosition());
-	m_visualWorld.setCookSettings(*(m_coreData.getCookSettings()));
+	// TODO: not using hacky way to get receiver position
+	PH_ASSERT(m_cooked.getReceiver());
+	math::Vector3R receiverPos;
+	m_cooked.getReceiver()->getReceiverToWorld().transformP({0, 0, 0}, &receiverPos);
+	m_visualWorld.setReceiverPosition(receiverPos);
 
-	const auto& actors = m_scene.getResources<Actor>();
-	for(const auto& actor : actors)
-	{
-		m_visualWorld.addActor(actor);
-	}
+	m_visualWorld.cook(m_rawScene, coreCtx);
 
-	m_visualWorld.cook();
-
-	if(!m_coreData.gatherFromCooked(m_visualWorld))
-	{
-		logger.log(ELogLevel::FATAL_ERROR,
-			"core cooked data may be missing; engine failed to update");
-		return;
-	}
 
 	m_coreData.getRenderer()->setNumWorkers(m_numRenderThreads);
 	m_coreData.getRenderer()->update(m_coreData);
@@ -103,7 +131,7 @@ void Engine::update()
 
 void Engine::render()
 {
-	m_coreData.getRenderer()->render();
+	getRenderer()->render();
 }
 
 void Engine::retrieveFrame(
@@ -111,7 +139,7 @@ void Engine::retrieveFrame(
 	HdrRgbFrame&      out_frame,
 	const bool        applyPostProcessing)
 {
-	Renderer* const renderer = m_coreData.getRenderer();
+	Renderer* const renderer = getRenderer();
 	PH_ASSERT(renderer);
 
 	renderer->retrieveFrame(layerIndex, out_frame);
@@ -126,7 +154,7 @@ void Engine::retrieveFrame(
 
 math::TVector2<int64> Engine::getFilmDimensionPx() const
 {
-	Renderer* const renderer = m_coreData.getRenderer();
+	Renderer* const renderer = getRenderer();
 	PH_ASSERT(renderer);
 
 	return {renderer->getRenderWidthPx(), renderer->getRenderHeightPx()};
@@ -146,7 +174,7 @@ void Engine::setNumRenderThreads(const uint32 numThreads)
 
 ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const
 {
-	return m_coreData.getRenderer()->asyncPollUpdatedRegion(out_region);
+	return getRenderer()->asyncPollUpdatedRegion(out_region);
 }
 
 void Engine::asyncPeekFrame(
@@ -155,7 +183,7 @@ void Engine::asyncPeekFrame(
 	HdrRgbFrame&      out_frame,
 	const bool        applyPostProcessing) const
 {
-	m_coreData.getRenderer()->asyncPeekFrame(layerIndex, region, out_frame);
+	getRenderer()->asyncPeekFrame(layerIndex, region, out_frame);
 
 	if(applyPostProcessing)
 	{
@@ -169,7 +197,7 @@ void Engine::asyncQueryStatistics(
 	float32* const out_percentageProgress,
 	float32* const out_samplesPerSecond) const
 {
-	Renderer* const renderer = m_coreData.getRenderer();
+	Renderer* const renderer = getRenderer();
 	PH_ASSERT(renderer);
 
 	RenderProgress progress = renderer->asyncQueryRenderProgress();

@@ -1,9 +1,11 @@
 #include "World/VisualWorld.h"
 #include "Common/primitive_type.h"
-#include "Core/Ray.h"
-#include "Actor/Actor.h"
+#include "DataIO/SDL/SceneDescription.h"
 #include "Actor/CookedUnit.h"
 #include "Actor/ActorCookingContext.h"
+#include "EngineEnv/CoreCookingContext.h"
+#include "EngineEnv/CoreCookedUnit.h"
+#include "Actor/Actor.h"
 #include "Core/Intersectable/BruteForceIntersector.h"
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESUniformRandom.h"
@@ -21,50 +23,45 @@
 namespace ph
 {
 
-const Logger VisualWorld::logger(LogSender("Visual World"));
+namespace
+{
+
+const Logger logger(LogSender("Visual World"));
+
+}
 
 VisualWorld::VisualWorld() :
 	m_intersector(),
 	//m_emitterSampler(std::make_shared<ESUniformRandom>()),
-	m_emitterSampler(std::make_shared<ESPowerFavoring>()),
+	m_emitterSampler(std::make_unique<ESPowerFavoring>()),
 	m_scene(),
 	m_receiverPos(0),
 	m_backgroundPrimitive(nullptr)
-{
-	setCookSettings(CookSettings());
-}
-
-VisualWorld::VisualWorld(VisualWorld&& other) :
-	m_actors             (std::move(other.m_actors)), 
-	m_cookedActorStorage (std::move(other.m_cookedActorStorage)), 
-	m_intersector        (std::move(other.m_intersector)), 
-	m_emitterSampler     (std::move(other.m_emitterSampler)),
-	m_scene              (std::move(other.m_scene)),
-	m_receiverPos        (std::move(other.m_receiverPos)),
-	m_backgroundPrimitive(std::move(other.m_backgroundPrimitive))
 {}
 
-void VisualWorld::addActor(std::shared_ptr<Actor> actor)
-{
-	// TODO: allow duplicated actors?
+//void VisualWorld::addActor(std::shared_ptr<Actor> actor)
+//{
+//	// TODO: allow duplicated actors?
+//
+//	if(actor != nullptr)
+//	{
+//		m_actors.push_back(actor);
+//	}
+//	else
+//	{
+//		std::cerr << "warning: at VisualWorld::addActor(), input is null" << std::endl;
+//	}
+//}
 
-	if(actor != nullptr)
-	{
-		m_actors.push_back(actor);
-	}
-	else
-	{
-		std::cerr << "warning: at VisualWorld::addActor(), input is null" << std::endl;
-	}
-}
-
-void VisualWorld::cook()
+void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContext& coreCtx)
 {
-	logger.log(ELogLevel::NOTE_MED, "cooking visual world...");
+	logger.log(ELogLevel::NOTE_MED, "cooking visual world");
+
+	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources<Actor>();
 
 	// TODO: clear cooked data
 
-	CookingContext cookingContext;
+	ActorCookingContext cookingContext;
 
 	VisualWorldInfo visualWorldInfo;
 	cookingContext.setVisualWorldInfo(&visualWorldInfo);
@@ -76,12 +73,12 @@ void VisualWorld::cook()
 	// Cook actors level by level (from lowest to highest)
 
 	std::size_t numCookedActors = 0;
-	while(numCookedActors < m_actors.size())
+	while(numCookedActors < actors.size())
 	{
-		auto actorCookBegin = m_actors.begin() + numCookedActors;
+		auto actorCookBegin = actors.begin() + numCookedActors;
 
 		// Sort raw actors based on cook order
-		std::sort(actorCookBegin, m_actors.end(),
+		std::sort(actorCookBegin, actors.end(),
 			[](const std::shared_ptr<Actor>& a, const std::shared_ptr<Actor>& b)
 			{
 				return a->getCookOrder() < b->getCookOrder();
@@ -91,13 +88,13 @@ void VisualWorld::cook()
 		logger.log("cooking actor level: " + std::to_string(currentActorLevel));
 
 		// Find the transition point from current level to next level
-		auto actorCookEnd = std::upper_bound(actorCookBegin, m_actors.end(), currentActorLevel,
+		auto actorCookEnd = std::upper_bound(actorCookBegin, actors.end(), currentActorLevel,
 			[](const CookLevel a, const std::shared_ptr<Actor>& b)
 			{
 				return a < b->getCookOrder().level;
 			});
 
-		cookActors(&m_actors[numCookedActors], actorCookEnd - actorCookBegin, cookingContext);
+		cookActors(&actors[numCookedActors], actorCookEnd - actorCookBegin, cookingContext);
 
 		// Prepare for next cooking iteration
 
@@ -119,7 +116,7 @@ void VisualWorld::cook()
 
 		// Add newly created actors
 		auto childActors = cookingContext.claimChildActors();
-		m_actors.insert(m_actors.end(), std::make_move_iterator(childActors.begin()), std::make_move_iterator(childActors.end()));
+		actors.insert(actors.end(), std::make_move_iterator(childActors.begin()), std::make_move_iterator(childActors.end()));
 
 		numCookedActors += actorCookEnd - actorCookBegin;
 
@@ -144,61 +141,59 @@ void VisualWorld::cook()
 	           std::to_string(m_cookedActorStorage.numEmitters()));
 
 	logger.log(ELogLevel::NOTE_MED, "updating accelerator...");
-	createTopLevelAccelerator();
+	createTopLevelAccelerator(coreCtx.getTopLevelAccelerator());
 	m_intersector->update(m_cookedActorStorage);
 
 	logger.log(ELogLevel::NOTE_MED, "updating light sampler...");
 	m_emitterSampler->update(m_cookedActorStorage);
 
-	m_scene = std::make_shared<Scene>(m_intersector.get(), m_emitterSampler.get());
+	m_scene = std::make_unique<Scene>(m_intersector.get(), m_emitterSampler.get());
 	m_scene->setBackgroundPrimitive(m_backgroundPrimitive.get());
 }
 
 void VisualWorld::cookActors(
 	std::shared_ptr<Actor>* const actors,
 	const std::size_t             numActors,
-	CookingContext&               cookingContext)
+	ActorCookingContext&          ctx)
 {
 	PH_ASSERT(actors);
 
 	for(std::size_t i = 0; i < numActors; ++i)
 	{
-		CookedUnit cookedUnit = actors[i]->cook(cookingContext);
+		CookedUnit cookedUnit = actors[i]->cook(ctx);
 		cookedUnit.claimCookedData(m_cookedActorStorage);
 		cookedUnit.claimCookedBackend(m_cookedBackendStorage);// TODO: make backend phantoms
 	}
 }
 
-void VisualWorld::createTopLevelAccelerator()
+void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 {
-	const EAccelerator type = m_cookSettings.getTopLevelAccelerator();
-
 	std::string name;
-	switch(type)
+	switch(acceleratorType)
 	{
 	case EAccelerator::BRUTE_FORCE:
-		m_intersector = std::make_shared<BruteForceIntersector>();
+		m_intersector = std::make_unique<BruteForceIntersector>();
 		name = "Brute-Force";
 		break;
 
 	case EAccelerator::BVH:
-		m_intersector = std::make_shared<ClassicBvhIntersector>();
+		m_intersector = std::make_unique<ClassicBvhIntersector>();
 		name = "BVH";
 		break;
 
 	case EAccelerator::KDTREE:
-		m_intersector = std::make_shared<KdtreeIntersector>();
+		m_intersector = std::make_unique<KdtreeIntersector>();
 		name = "kD-Tree";
 		break;
 
 	// FIXME: need to ensure sufficient max value
 	case EAccelerator::INDEXED_KDTREE:
-		m_intersector = std::make_shared<TIndexedKdtreeIntersector<int>>();
+		m_intersector = std::make_unique<TIndexedKdtreeIntersector<int>>();
 		name = "Indexed kD-Tree";
 		break;
 
 	default:
-		m_intersector = std::make_shared<ClassicBvhIntersector>();
+		m_intersector = std::make_unique<ClassicBvhIntersector>();
 		name = "BVH";
 		break;
 	}
