@@ -16,9 +16,11 @@ public:
 
 	virtual void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) = 0;
 
+	const math::TVector2<uint32>& getFrameSizePx() const;
+	const math::TAABB2D<int64>& getCropWindowPx() const;
+
 private:
-	math::TVector2<uint32> m_frameSizePx;
-	math::TAABB2D<int64>   m_cropWindowPx;
+	math::TAABB2D<int64> m_cropWindowPx;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<FrameVisualizer>)
@@ -34,5 +36,17 @@ public:
 		return clazz;
 	}
 };
+
+// In-header Implementations:
+
+inline const math::TVector2<uint32>& FrameVisualizer::getFrameSizePx() const
+{
+	return m_frameSizePx;
+}
+
+inline const math::TAABB2D<int64>& FrameVisualizer::getCropWindowPx() const
+{
+	return m_cropWindowPx;
+}
 
 }// end namespace ph

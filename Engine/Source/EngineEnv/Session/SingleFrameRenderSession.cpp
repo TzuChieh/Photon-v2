@@ -5,7 +5,6 @@
 #include "EngineEnv/Observer/Observer.h"
 #include "EngineEnv/SampleSource/SampleSource.h"
 #include "EngineEnv/Visualizer/Visualizer.h"
-#include "World/CookSettings.h"
 
 namespace ph
 {
@@ -40,7 +39,7 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	// observer, if so, get it)
 
 	std::vector<std::shared_ptr<CoreSdlResource>> resources = RenderSession::gatherResources(scene);
-	resources.reserve(resources.size() + 4);
+	resources.reserve(resources.size() + 3);
 
 	auto observer = scene.getResource<Observer>(getObserverName());
 	if(observer)
@@ -73,17 +72,6 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	{
 		logger.log(ELogLevel::WARNING_MED,
 			"visualizer <" + getVisualizerName() + "> not found");
-	}
-
-	auto cookSettings = scene.getResource<CookSettings>(getCookSettingsName());
-	if(cookSettings)
-	{
-		resources.push_back(std::move(cookSettings));
-	}
-	else
-	{
-		logger.log(ELogLevel::WARNING_MED,
-			"cook settings <" + getCookSettingsName() + "> not found");
 	}
 
 	return std::move(resources);

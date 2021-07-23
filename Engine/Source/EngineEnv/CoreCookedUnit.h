@@ -8,7 +8,6 @@
 namespace ph { class Renderer; };
 namespace ph { class Receiver; };
 namespace ph { class SampleGenerator; };
-namespace ph { class CookSettings; };
 namespace ph::math { class Transform; };
 
 namespace ph

@@ -8,7 +8,6 @@
 #include "Utility/Timer.h"
 #include "EngineEnv/Session/RenderSession.h"
 #include "EngineEnv/CoreCookingContext.h"
-#include "World/CookSettings.h"
 #include "Core/Receiver/Receiver.h"
 #include "Core/Renderer/Renderer.h"
 #include "Math/Transform/RigidTransform.h"

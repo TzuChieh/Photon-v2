@@ -83,8 +83,8 @@
 #include "Core/Renderer/Attribute/AttributeRenderer.h"
 
 // options
-#include "World/CookSettings.h"
-#include "Core/EngineOption.h"
+//#include "World/CookSettings.h"
+//#include "Core/EngineOption.h"
 
 #include <iostream>
 

@@ -24,7 +24,6 @@ public:
 	const std::string& getVisualizerName() const;
 	const std::string& getObserverName() const;
 	const std::string& getSampleSourceName() const;
-	const std::string& getCookSettingsName() const;
 	EAccelerator getTopLevelAccelerator() const;
 
 private:
@@ -32,7 +31,6 @@ private:
 	std::string            m_visualizerName;
 	std::string            m_observerName;
 	std::string            m_sampleSourceName;
-	std::string            m_cookSettingsName;
 	EAccelerator           m_topLevelAccelerator;
 
 public:
@@ -43,7 +41,7 @@ public:
 		clazz.baseOn<RenderSession>();
 
 		TSdlVector2<OwnerType, uint32> frameSizePx("frame-size", &OwnerType::m_frameSizePx);
-		frameSizePx.description("Size of the frame in pixels.");
+		frameSizePx.description("Width and height of the frame in pixels.");
 		frameSizePx.defaultTo({960, 540});
 		clazz.addField(frameSizePx);
 
@@ -61,11 +59,6 @@ public:
 		sampleSourceName.description("Name of the sample source resource to use.");
 		sampleSourceName.optional();
 		clazz.addField(sampleSourceName);
-
-		TSdlString<OwnerType> cookSettingsName("cook-settings", &OwnerType::m_cookSettingsName);
-		cookSettingsName.description("Name of the cook settings resource to use.");
-		cookSettingsName.optional();
-		clazz.addField(cookSettingsName);
 
 		TSdlEnumField<OwnerType, EAccelerator> topLevelAccelerator("top-level-accelerator", &OwnerType::m_topLevelAccelerator);
 		topLevelAccelerator.description("Acceleration structure used on the top level geometries.");
@@ -92,11 +85,6 @@ inline const std::string& SingleFrameRenderSession::getObserverName() const
 inline const std::string& SingleFrameRenderSession::getSampleSourceName() const
 {
 	return m_sampleSourceName;
-}
-
-inline const std::string& SingleFrameRenderSession::getCookSettingsName() const
-{
-	return m_cookSettingsName;
 }
 
 inline void SingleFrameRenderSession::setTopLevelAccelerator(const EAccelerator accelerator)
