@@ -20,7 +20,7 @@ class Receiver;
 class PMRenderer : public Renderer
 {
 public:
-	void doUpdate(const CoreDataGroup& data) override;
+	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override;
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 

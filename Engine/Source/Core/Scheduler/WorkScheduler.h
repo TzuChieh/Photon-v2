@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Renderer/Region/IWorkDispatcher.h"
-#include "Core/Renderer/Region/WorkUnit.h"
+#include "Core/Scheduler/IWorkDispatcher.h"
+#include "Core/Scheduler/WorkUnit.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 

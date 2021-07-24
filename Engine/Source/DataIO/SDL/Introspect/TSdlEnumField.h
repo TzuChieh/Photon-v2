@@ -25,7 +25,7 @@ class TSdlEnumField : public SdlValueType
 public:
 	template<typename ValueType>
 	inline explicit TSdlEnumField(ValueType Owner::* const valuePtr) :
-		TSdlEnumField(TSdlEnum<EnumType>::getSdlEnum()->getName(), std::move(valueName), valuePtr)
+		TSdlEnumField(TSdlEnum<EnumType>::getSdlEnum()->getName(), valuePtr)
 	{}
 
 	template<typename ValueType>

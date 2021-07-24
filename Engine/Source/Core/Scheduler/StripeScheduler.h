@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/Region/WorkScheduler.h"
+#include "Core/Scheduler/WorkScheduler.h"
 #include "Math/math.h"
 #include "Math/constant.h"
 #include "Common/assertion.h"

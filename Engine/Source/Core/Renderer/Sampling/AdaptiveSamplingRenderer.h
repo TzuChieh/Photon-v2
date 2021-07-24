@@ -3,8 +3,7 @@
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Renderer/Region/Region.h"
 #include "Common/primitive_type.h"
-#include "Core/Renderer/Region/DammertzDispatcher.h"
-#include "Core/Renderer/Region/GridScheduler.h"
+#include "Core/Scheduler/DammertzDispatcher.h"
 #include "Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Frame/TFrame.h"
 #include "Core/Renderer/Sampling/TStepperReceiverMeasurementEstimator.h"
@@ -27,7 +26,7 @@ class FixedSizeThreadPool;
 class AdaptiveSamplingRenderer : public SamplingRenderer
 {
 public:
-	void doUpdate(const CoreDataGroup& data) override;
+	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override;
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 

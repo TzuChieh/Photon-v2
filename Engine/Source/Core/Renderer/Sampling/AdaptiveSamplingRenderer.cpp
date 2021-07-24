@@ -2,18 +2,14 @@
 #include "Common/assertion.h"
 #include "Core/Ray.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/CoreDataGroup.h"
+#include "EngineEnv/CoreCookedUnit.h"
+#include "World/VisualWorld.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
 #include "Core/Estimator/Integrand.h"
-#include "Core/Renderer/Region/PlateScheduler.h"
-#include "Core/Renderer/Region/StripeScheduler.h"
-#include "Core/Renderer/Region/GridScheduler.h"
-#include "Core/Renderer/Region/SpiralScheduler.h"
-#include "Core/Renderer/Region/SpiralGridScheduler.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
 
@@ -28,7 +24,7 @@
 namespace ph
 {
 
-void AdaptiveSamplingRenderer::doUpdate(const CoreDataGroup& data)
+void AdaptiveSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
 	m_updatedRegions.clear();
 	m_totalPaths            = 0;
@@ -36,9 +32,9 @@ void AdaptiveSamplingRenderer::doUpdate(const CoreDataGroup& data)
 	m_submittedFractionBits = 0;
 	m_numNoisyRegions       = 0;
 
-	m_scene           = data.getScene();
-	m_receiver        = data.getReceiver();
-	m_sampleGenerator = data.getSampleGenerator();
+	m_scene           = world.getScene();
+	m_receiver        = cooked.getReceiver();
+	m_sampleGenerator = cooked.getSampleGenerator();
 
 	const Integrand integrand(m_scene, m_receiver);
 
@@ -260,7 +256,7 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 	}
 	else
 	{
-		out_frame.fill(0, TAABB2D<uint32>(region));
+		out_frame.fill(0, math::TAABB2D<uint32>(region));
 	}
 }
 

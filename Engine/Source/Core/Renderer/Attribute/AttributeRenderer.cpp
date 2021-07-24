@@ -4,7 +4,8 @@
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/CoreDataGroup.h"
+#include "EngineEnv/CoreCookedUnit.h"
+#include "World/VisualWorld.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
@@ -41,13 +42,13 @@ namespace
 	const Logger logger(LogSender("Attribute Renderer"));
 }
 
-void AttributeRenderer::doUpdate(const CoreDataGroup& data)
+void AttributeRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
 	logger.log("target attribute: " + m_attributeName);
 
-	m_scene           = data.getScene();
-	m_receiver        = data.getReceiver();
-	m_sampleGenerator = data.getSampleGenerator();
+	m_scene           = world.getScene();
+	m_receiver        = cooked.getReceiver();
+	m_sampleGenerator = cooked.getSampleGenerator();
 
 	PH_ASSERT(m_scene);
 	PH_ASSERT(m_receiver);
@@ -130,7 +131,7 @@ void AttributeRenderer::asyncPeekFrame(
 	}
 	else
 	{
-		out_frame.fill(0, TAABB2D<uint32>(region));
+		out_frame.fill(0, math::TAABB2D<uint32>(region));
 	}
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/Region/WorkUnit.h"
+#include "Core/Scheduler/WorkUnit.h"
 
 namespace ph
 {

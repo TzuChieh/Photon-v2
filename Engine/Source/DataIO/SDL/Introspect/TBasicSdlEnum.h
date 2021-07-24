@@ -46,7 +46,10 @@ public:
 		return m_entries.size();
 	}
 
-	inline TBasicSdlEnum& addEntry(const EnumType enumValue, const std::string_view valueName)
+	inline TBasicSdlEnum& addEntry(
+		const EnumType         enumValue, 
+		const std::string_view valueName,
+		std::string            description = "")
 	{
 		PH_ASSERT_MSG(!m_entries.isFull(),
 			"No space for more entries; increase MAX_ENTRIES parameter for this enum.");
@@ -59,7 +62,9 @@ public:
 		m_nameBuffer.append(valueName);
 		PH_ASSERT_EQ(entry.nameIndex + entry.nameSize, m_nameBuffer.size());
 
+		const std::size_t entryIndex = m_entries.size();
 		m_entries.pushBack(entry);
+		setEntryDescription(entryIndex, std::move(description));
 
 		return *this;
 	}

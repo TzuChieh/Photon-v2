@@ -4,7 +4,8 @@
 #include "Core/Ray.h"
 #include "Math/constant.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/CoreDataGroup.h"
+#include "EngineEnv/CoreCookedUnit.h"
+#include "World/VisualWorld.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
@@ -12,15 +13,15 @@
 #include "Common/assertion.h"
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/Vector3Film.h"
-#include "Core/Renderer/Region/PlateScheduler.h"
-#include "Core/Renderer/Region/StripeScheduler.h"
-#include "Core/Renderer/Region/GridScheduler.h"
+#include "Core/Scheduler/PlateScheduler.h"
+#include "Core/Scheduler/StripeScheduler.h"
+#include "Core/Scheduler/GridScheduler.h"
+#include "Core/Scheduler/SpiralGridScheduler.h"
+#include "Core/Scheduler/TileScheduler.h"
+#include "Core/Scheduler/WorkUnit.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
-#include "Core/Renderer/Region/SpiralGridScheduler.h"
-#include "Core/Renderer/Region/TileScheduler.h"
 #include "Common/Logger.h"
-#include "Core/Renderer/Region/WorkUnit.h"
 
 #include <cmath>
 #include <iostream>
@@ -35,10 +36,44 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Equal Sampling Renderer"));
+
+const Logger logger(LogSender("Equal Sampling Renderer"));
+
 }
 
-void EqualSamplingRenderer::doUpdate(const CoreDataGroup& data)
+EqualSamplingRenderer::EqualSamplingRenderer(
+	std::unique_ptr<IRayEnergyEstimator> estimator,
+	Viewport                             viewport,
+	SampleFilter                         filter,
+	const uint32                         numWorkers,
+	const EScheduler                     scheduler) : 
+
+	SamplingRenderer(
+		std::move(estimator),
+		std::move(viewport),
+		std::move(filter),
+		numWorkers),
+
+	m_scene(nullptr),
+	m_receiver(nullptr),
+	m_sampleGenerator(nullptr),
+	m_mainFilm(),
+
+	m_scheduler(nullptr),
+	m_schedulerType(scheduler),
+	m_blockSize(128, 128),
+
+	m_renderWorks(),
+	m_filmEstimators(),
+
+	m_updatedRegions(),
+	m_rendererMutex(),
+	m_totalPaths(),
+	m_suppliedFractionBits(),
+	m_submittedFractionBits()
+{}
+
+void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
 	logger.log("rendering core: " + m_estimator->toString());
 
@@ -47,9 +82,9 @@ void EqualSamplingRenderer::doUpdate(const CoreDataGroup& data)
 	m_suppliedFractionBits  = 0;
 	m_submittedFractionBits = 0;
 	
-	m_scene           = data.getScene();
-	m_receiver        = data.getReceiver();
-	m_sampleGenerator = data.getSampleGenerator();
+	m_scene           = world.getScene();
+	m_receiver        = cooked.getReceiver();
+	m_sampleGenerator = cooked.getSampleGenerator();
 
 	const Integrand integrand(m_scene, m_receiver);
 	
@@ -201,7 +236,7 @@ void EqualSamplingRenderer::asyncPeekFrame(
 	}
 	else
 	{
-		out_frame.fill(0, TAABB2D<uint32>(region));
+		out_frame.fill(0, math::TAABB2D<uint32>(region));
 	}
 }
 

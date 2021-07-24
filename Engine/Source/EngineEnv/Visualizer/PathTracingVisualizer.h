@@ -5,6 +5,14 @@
 #include "Math/TVector2.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "DataIO/SDL/sdl_interface.h"
+#include "EngineEnv/Visualizer/sdl_scheduler_type.h"
+#include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
+#include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
+#include "Core/Filmic/SampleFilter.h"
+
+#include <memory>
+
+namespace ph { class IRayEnergyEstimator; }
 
 namespace ph
 {
@@ -16,13 +24,18 @@ public:
 
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
-	math::TAABB2D<int64> getCropWindowPx() const;
+	EScheduler getScheduler() const;
+	ERayEnergyEstimator getEstimator() const;
+	ESampleFilter getSampleFilter() const;
+
+protected:
+	SampleFilter makeSampleFilter() const;
+	std::unique_ptr<IRayEnergyEstimator> makeEstimator() const;
 
 private:
-	int64 m_cropWindowXPx;
-	int64 m_cropWindowYPx;
-	int64 m_cropWindowWPx;
-	int64 m_cropWindowHPx;
+	EScheduler          m_scheduler;
+	ERayEnergyEstimator m_estimator;
+	ESampleFilter       m_sampleFilter;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<PathTracingVisualizer>)
@@ -31,29 +44,23 @@ public:
 		clazz.description("Render frames with common path tracing methods.");
 		clazz.baseOn<FrameVisualizer>();
 		
-		TSdlInt64<OwnerType> cropWindowXPx("rect-x", &OwnerType::m_cropWindowXPx);
-		cropWindowXPx.description("X coordinate of the lower-left corner of the film cropping window.");
-		cropWindowXPx.defaultTo(0);
-		cropWindowXPx.optional();
-		clazz.addField(cropWindowXPx);
+		TSdlEnumField<OwnerType, EScheduler> scheduler("scheduler", &OwnerType::m_scheduler);
+		scheduler.description("Scheduler for rendering, affect the order of rendered regions.");
+		scheduler.defaultTo(EScheduler::SPIRAL_GRID);
+		scheduler.optional();
+		clazz.addField(scheduler);
 
-		TSdlInt64<OwnerType> cropWindowYPx("rect-y", &OwnerType::m_cropWindowYPx);
-		cropWindowYPx.description("Y coordinate of the lower-left corner of the film cropping window.");
-		cropWindowYPx.defaultTo(0);
-		cropWindowYPx.optional();
-		clazz.addField(cropWindowYPx);
+		TSdlEnumField<OwnerType, ERayEnergyEstimator> estimator("estimator", &OwnerType::m_estimator);
+		estimator.description("Scheduler for rendering, affect the order of rendered regions.");
+		estimator.defaultTo(ERayEnergyEstimator::BNEEPT);
+		estimator.optional();
+		clazz.addField(estimator);
 
-		TSdlInt64<OwnerType> cropWindowWPx("rect-w", &OwnerType::m_cropWindowWPx);
-		cropWindowWPx.description("Width of the film cropping window.");
-		cropWindowWPx.defaultTo(0);
-		cropWindowWPx.optional();
-		clazz.addField(cropWindowWPx);
-
-		TSdlInt64<OwnerType> cropWindowHPx("rect-h", &OwnerType::m_cropWindowHPx);
-		cropWindowHPx.description("Height of the film cropping window.");
-		cropWindowHPx.defaultTo(0);
-		cropWindowHPx.optional();
-		clazz.addField(cropWindowHPx);
+		TSdlEnumField<OwnerType, ESampleFilter> sampleFilter("sample-filter", &OwnerType::m_sampleFilter);
+		sampleFilter.description("Sample filter for the film sampling process.");
+		sampleFilter.defaultTo(ESampleFilter::BLACKMAN_HARRIS);
+		sampleFilter.optional();
+		clazz.addField(sampleFilter);
 
 		return clazz;
 	}
@@ -61,11 +68,19 @@ public:
 
 // In-header Implementations:
 
-inline math::TAABB2D<int64> PathTracingVisualizer::getCropWindowPx() const
+inline EScheduler PathTracingVisualizer::getScheduler() const
 {
-	return math::TAABB2D<int64>(
-		{m_cropWindowXPx, m_cropWindowYPx}, 
-		{m_cropWindowXPx + m_cropWindowWPx, m_cropWindowYPx + m_cropWindowHPx});
+	return m_scheduler;
+}
+
+inline ERayEnergyEstimator PathTracingVisualizer::getEstimator() const
+{
+	return m_estimator;
+}
+
+inline ESampleFilter PathTracingVisualizer::getSampleFilter() const
+{
+	return m_sampleFilter;
 }
 
 }// end namespace ph

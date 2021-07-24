@@ -1,6 +1,5 @@
 #pragma once
 
-#include "DataIO/SDL/ISdlResource.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
@@ -16,7 +15,7 @@ class Ray;
 class RayDifferential;
 
 // TODO: time
-class Receiver : public ISdlResource
+class Receiver
 {
 public:
 	explicit Receiver(const math::RigidTransform* receiverToWorld);

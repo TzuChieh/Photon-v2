@@ -4,7 +4,8 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
-#include "Core/Renderer/Region/WorkScheduler.h"
+#include "Core/Scheduler/WorkScheduler.h"
+#include "Core/Scheduler/EScheduler.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Core/Quantity/Spectrum.h"
 #include "Math/TVector2.h"
@@ -24,7 +25,14 @@ class SampleGenerator;
 class EqualSamplingRenderer : public SamplingRenderer
 {
 public:
-	void doUpdate(const CoreDataGroup& data) override;
+	EqualSamplingRenderer(
+		std::unique_ptr<IRayEnergyEstimator> estimator,
+		Viewport                             viewport,
+		SampleFilter                         filter,
+		uint32                               numWorkers,
+		EScheduler                           scheduler);
+
+	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override;
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 
@@ -40,16 +48,6 @@ public:
 
 private:
 	using FilmEstimator = TReceiverMeasurementEstimator<HdrRgbFilm, Spectrum>;
-
-	enum class EScheduler
-	{
-		BULK,
-		STRIPE,
-		GRID,
-		TILE,
-		SPIRAL,
-		SPIRAL_GRID
-	};
 
 	const Scene*                   m_scene;
 	const Receiver*                m_receiver;

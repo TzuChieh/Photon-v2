@@ -1,8 +1,6 @@
-#include "Core/Renderer/Region/DammertzDispatcher.h"
+#include "Core/Scheduler/DammertzDispatcher.h"
 #include "Common/assertion.h"
-#include "Core/Renderer/Region/GridScheduler.h"
-
-
+#include "Core/Scheduler/GridScheduler.h"
 
 namespace ph
 {

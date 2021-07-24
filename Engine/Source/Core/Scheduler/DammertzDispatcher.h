@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/Renderer/Region/IWorkDispatcher.h"
+#include "Core/Scheduler/IWorkDispatcher.h"
 #include "Common/primitive_type.h"
-#include "Core/Renderer/Region/Region.h"
+#include "Core/Scheduler/Region.h"
 #include "Common/assertion.h"
 #include "Frame/TFrame.h"
 #include "Math/math.h"

@@ -11,7 +11,6 @@
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Core/SampleGenerator/SamplesNDStream.h"
 #include "Math/TArithmeticArray.h"
-#include "DataIO/SDL/ISdlResource.h"
 
 #include <cstddef>
 #include <utility>
@@ -25,17 +24,12 @@ namespace ph
 class Scene;
 class SampleContext;
 
-class SampleGenerator : public ISdlResource
+class SampleGenerator
 {
-public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_SAMPLE_GENERATOR;
-
 public:
 	SampleGenerator(std::size_t numSampleBatches, std::size_t maxCachedBatches);
 	explicit SampleGenerator(std::size_t numSampleBatches);
 	virtual ~SampleGenerator() = default;
-
-	ETypeCategory getCategory() const override;
 
 	void genSplitted(std::size_t numSplits,
 	                 std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;
@@ -93,11 +87,6 @@ private:
 };
 
 // In-header Implementations:
-
-inline ETypeCategory SampleGenerator::getCategory() const
-{
-	return CATEGORY;
-}
 
 inline std::size_t SampleGenerator::numSampleBatches() const
 {

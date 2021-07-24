@@ -4,7 +4,7 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
-#include "Core/Renderer/Region/WorkScheduler.h"
+#include "Core/Scheduler/WorkScheduler.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Core/Quantity/Spectrum.h"
 #include "Math/TVector2.h"
@@ -25,7 +25,7 @@ class SampleGenerator;
 class AttributeRenderer : public Renderer
 {
 public:
-	void doUpdate(const CoreDataGroup& data) override;
+	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override;
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 

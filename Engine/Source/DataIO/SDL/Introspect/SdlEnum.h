@@ -1,8 +1,10 @@
 #pragma once
 
+#include <string>
 #include <string_view>
 #include <cstddef>
 #include <utility>
+#include <vector>
 
 namespace ph
 {
@@ -41,13 +43,16 @@ public:
 
 	const std::string& getName() const;
 	const std::string& getDescription() const;
+	std::string getEntryDescription(std::size_t entryIndex) const;
 
 protected:
 	SdlEnum& setDescription(std::string description);
+	SdlEnum& setEntryDescription(std::size_t entryIndex, std::string description);
 
 private:
-	std::string m_name;
-	std::string m_description;
+	std::string              m_name;
+	std::string              m_description;
+	std::vector<std::string> m_entryDescriptions;
 };
 
 // In-header Implementations:
@@ -65,6 +70,20 @@ inline SdlEnum& SdlEnum::setDescription(std::string description)
 	return *this;
 }
 
+inline SdlEnum& SdlEnum::setEntryDescription(const std::size_t entryIndex, std::string description)
+{
+	// Allocate more storage for entry descriptions if required
+	if(entryIndex >= m_entryDescriptions.size())
+	{
+		m_entryDescriptions.resize(entryIndex + 1);
+	}
+
+	PH_ASSERT_LT(entryIndex, m_entryDescriptions.size());
+	m_entryDescriptions[entryIndex] = std::move(description);
+
+	return *this;
+}
+
 inline const std::string& SdlEnum::getName() const
 {
 	return m_name;
@@ -73,6 +92,13 @@ inline const std::string& SdlEnum::getName() const
 inline const std::string& SdlEnum::getDescription() const
 {
 	return m_description;
+}
+
+// Returns a copy of string as the method accepts out-of-bound entry index
+inline std::string SdlEnum::getEntryDescription(const std::size_t entryIndex) const
+{
+	return entryIndex < m_entryDescriptions.size() ? 
+		m_entryDescriptions[entryIndex] : "";
 }
 
 }// end namespace ph

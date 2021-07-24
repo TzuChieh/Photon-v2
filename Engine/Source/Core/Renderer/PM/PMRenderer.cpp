@@ -1,6 +1,7 @@
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Filmic/SampleFilters.h"
-#include "Core/CoreDataGroup.h"
+#include "EngineEnv/CoreCookedUnit.h"
+#include "World/VisualWorld.h"
 #include "Core/Renderer/PM/TViewPathTracingWork.h"
 #include "Core/Renderer/PM/TPhotonMappingWork.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
@@ -26,13 +27,13 @@ namespace
 	const Logger logger(LogSender("PM Renderer"));
 }
 
-void PMRenderer::doUpdate(const CoreDataGroup& data)
+void PMRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
 	m_film = std::make_unique<HdrRgbFilm>(getRenderWidthPx(), getRenderHeightPx(), getCropWindowPx(), m_filter);
 
-	m_scene    = data.getScene();
-	m_receiver = data.getReceiver();
-	m_sg       = data.getSampleGenerator();
+	m_scene    = world.getScene();
+	m_receiver = cooked.getReceiver();
+	m_sg       = cooked.getSampleGenerator();
 
 	m_statistics.zero();
 	m_photonsPerSecond = 0;
@@ -420,7 +421,7 @@ void PMRenderer::asyncPeekFrame(
 	}
 	else
 	{
-		out_frame.fill(0, TAABB2D<uint32>(region));
+		out_frame.fill(0, math::TAABB2D<uint32>(region));
 	}
 }
 

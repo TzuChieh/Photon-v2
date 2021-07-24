@@ -2,7 +2,7 @@
 
 #include "Math/Geometry/TAABB2D.h"
 #include "Common/assertion.h"
-#include "Core/Renderer/Region/Region.h"
+#include "Core/Scheduler/Region.h"
 
 #include <iostream>
 

@@ -9,12 +9,12 @@
 #include "Core/Renderer/Statistics.h"
 #include "Frame/frame_fwd.h"
 #include "Core/Renderer/AttributeTags.h"
-#include "DataIO/SDL/ISdlResource.h"
 #include "Core/Renderer/RenderState.h"
-#include "Core/Renderer/Region/Region.h"
+#include "Core/Scheduler/Region.h"
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/ObservableRenderData.h"
+#include "Frame/Viewport.h"
 
 #include <vector>
 #include <mutex>
@@ -31,14 +31,10 @@ namespace ph
 
 class RenderWorker;
 
-class Renderer: public ISdlResource
+class Renderer
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_RENDERER;
-
-public:
-	template<typename T>
-	using TAABB2D = math::TAABB2D<T>;
+	Renderer(Viewport viewport, uint32 numWorkers);
 
 	virtual ~Renderer();
 
@@ -74,25 +70,29 @@ public:
 	// async<X>() methods.
 	virtual ObservableRenderData getObservableData() const = 0;
 
-	ETypeCategory getCategory() const override;
-
 	void update(const CoreCookedUnit& cooked, const VisualWorld& world);
 	void render();
 	void setNumWorkers(uint32 numWorkers);
 
-	uint32         numWorkers()        const;
-	uint32         getRenderWidthPx()  const;
-	uint32         getRenderHeightPx() const;
-	TAABB2D<int64> getCropWindowPx()   const;
+	uint32 numWorkers() const;
+	uint32 getRenderWidthPx() const;
+	uint32 getRenderHeightPx() const;
+	math::TAABB2D<int64> getCropWindowPx() const;
+
+	/*! @brief The frame region that is going to be rendered.
+	*/
+	math::TAABB2D<int64> getRenderRegionPx() const;
+
+	/*! @brief Descriptions regarding dimensions for the rendered frame.
+	*/
+	const Viewport& getViewport() const;
 
 	bool asyncIsUpdating() const;
 	bool asyncIsRendering() const;
 
 private:
-	uint32         m_numWorkers;
-	uint32         m_widthPx;
-	uint32         m_heightPx;
-	TAABB2D<int64> m_cropWindowPx;
+	Viewport m_viewport;
+	uint32   m_numWorkers;
 
 	std::vector<RenderWorker> m_workers;
 
@@ -102,11 +102,6 @@ private:
 
 // In-header Implementations:
 
-inline ETypeCategory Renderer::getCategory() const
-{
-	return CATEGORY;
-}
-
 inline uint32 Renderer::numWorkers() const
 {
 	return m_numWorkers;
@@ -114,18 +109,27 @@ inline uint32 Renderer::numWorkers() const
 
 inline uint32 Renderer::getRenderWidthPx() const
 {
-	return m_widthPx;
+	return m_viewport.getBaseSizePx().x;
 }
 
 inline uint32 Renderer::getRenderHeightPx() const
 {
-	return m_heightPx;
+	return m_viewport.getBaseSizePx().y;
 }
 
-inline auto Renderer::getCropWindowPx() const
-	-> TAABB2D<int64>
+inline math::TAABB2D<int64> Renderer::getCropWindowPx() const
 {
-	return m_cropWindowPx;
+	return m_viewport.getWindowPx();
+}
+
+inline math::TAABB2D<int64> Renderer::getRenderRegionPx() const
+{
+	return m_viewport.getCroppedRegionPx();
+}
+
+inline const Viewport& Renderer::getViewport() const
+{
+	return m_viewport;
 }
 
 inline bool Renderer::asyncIsUpdating() const

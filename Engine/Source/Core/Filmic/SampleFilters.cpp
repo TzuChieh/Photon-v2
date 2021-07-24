@@ -10,32 +10,6 @@
 namespace ph
 {
 
-SampleFilter SampleFilters::create(const std::string& name)
-{
-	if(name == BOX_NAME || name == BOX_ABBREV)
-	{
-		return createBoxFilter();
-	}
-	else if(name == GAUSSIAN_NAME || name == GAUSSIAN_ABBREV)
-	{
-		return createGaussianFilter();
-	}
-	else if(name == MITCHELL_NETRAVALI_NAME || name == MITCHELL_NETRAVALI_ABBREV)
-	{
-		return createMitchellNetravaliFilter();
-	}
-	else if(name == BLACKMAN_HARRIS_NAME || name == BLACKMAN_HARRIS_ABBREV)
-	{
-		return createBlackmanHarrisFilter();
-	}
-	else
-	{
-		std::cerr << "warning: at SampleFilterFactory::create(), "
-		          << "<" << name << "> is not supported, using " << GAUSSIAN_NAME << std::endl;
-		return createGaussianFilter();
-	}
-}
-
 SampleFilter SampleFilters::createBoxFilter()
 {
 	const float64 constantValue = 1.0;
