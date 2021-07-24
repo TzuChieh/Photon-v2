@@ -75,17 +75,6 @@ void Renderer::render()
 	logger.log("render time: " + std::to_string(renderTimer.getDeltaMs()) + " ms");
 }
 
-void Renderer::setNumWorkers(const uint32 numWorkers)
-{
-	m_numWorkers = numWorkers;
-
-	/*m_workers.resize(numThreads);
-	for(uint32 ti = 0; ti < numThreads; ti++)
-	{
-		m_workers[ti] = RenderWorker(RendererProxy(this), ti);
-	}*/
-}
-
 // FIXME: without synchronizing, other threads may never observe m_workers being changed
 //void Renderer::asyncQueryStatistics(float32* const out_percentageProgress, 
 //                                    float32* const out_samplesPerSecond)

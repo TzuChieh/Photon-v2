@@ -33,13 +33,13 @@ public:
 	// Override this method if there is a need for that. This method will
 	// return nullptr if no geometry is needed.
 	//
-	virtual std::shared_ptr<Geometry> genGeometry(CookingContext& context) const;
+	virtual std::shared_ptr<Geometry> genGeometry(ActorCookingContext& ctx) const;
 
 	// Generate a suitable material for the light source if physical entity will
 	// be present in the scene. The default implementation generates a pure diffuse
 	// material with moderate albedo.
 	//
-	virtual std::shared_ptr<Material> genMaterial(CookingContext& context) const;
+	virtual std::shared_ptr<Material> genMaterial(ActorCookingContext& ctx) const;
 
 	ETypeCategory getCategory() const override;
 

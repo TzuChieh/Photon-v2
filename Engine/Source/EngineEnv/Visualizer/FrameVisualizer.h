@@ -14,14 +14,11 @@ class FrameVisualizer : public Visualizer
 public:
 	inline FrameVisualizer() = default;
 
-	virtual void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) = 0;
+	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
-	const math::TVector2<uint32>& getFrameSizePx() const;
 	math::TAABB2D<int64> getCropWindowPx() const;
 
 private:
-	math::TVector2<uint32> m_frameSizePx;
-
 	int64 m_cropWindowXPx;
 	int64 m_cropWindowYPx;
 	int64 m_cropWindowWPx;
@@ -33,10 +30,6 @@ public:
 		ClassType clazz("frame");
 		clazz.description("A visualizer that produces frames, a typical example is an image.");
 		clazz.baseOn<Visualizer>();
-		
-		TSdlVector2<OwnerType, uint32> frameSizePx("frame-size", &OwnerType::m_frameSizePx);
-		frameSizePx.description("Width and height of the frame in pixels.");
-		frameSizePx.defaultTo();
 
 		TSdlInt64<OwnerType> cropWindowXPx("rect-x", &OwnerType::m_cropWindowXPx);
 		cropWindowXPx.description("X coordinate of the lower-left corner of the film cropping window.");
@@ -67,11 +60,6 @@ public:
 };
 
 // In-header Implementations:
-
-inline const math::TVector2<uint32>& FrameVisualizer::getFrameSizePx() const
-{
-	return m_frameSizePx;
-}
 
 inline math::TAABB2D<int64> FrameVisualizer::getCropWindowPx() const
 {

@@ -11,12 +11,12 @@
 namespace ph
 {
 
-class CookingContext;
+class ActorCookingContext;
 
 class ModelBuilder final : private IMoveOnly
 {
 public:
-	explicit ModelBuilder(CookingContext& context);
+	explicit ModelBuilder(ActorCookingContext& ctx);
 
 	ModelBuilder& addIntersectable(std::unique_ptr<Intersectable> isable);
 
@@ -27,8 +27,8 @@ public:
 	CookedUnit claimBuildResult();
 
 private:
-	CookingContext& m_context;
-	CookedUnit      m_cookedResults;
+	ActorCookingContext& m_ctx;
+	CookedUnit           m_cookedResults;
 };
 
 }// end namespace ph

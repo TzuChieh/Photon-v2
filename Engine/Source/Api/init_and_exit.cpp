@@ -61,7 +61,7 @@
 
 // receivers
 #include "Core/Receiver/Receiver.h"
-#include "Core/Receiver/PerspectiveReceiver.h"
+#include "Core/Receiver/RectangularSensorReceiver.h"
 #include "Core/Receiver/PinholeCamera.h"
 #include "Core/Receiver/ThinLensCamera.h"
 #include "Core/Receiver/EnvironmentCamera.h"

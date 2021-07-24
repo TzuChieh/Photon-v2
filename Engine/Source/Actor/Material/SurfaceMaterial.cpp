@@ -12,7 +12,7 @@ void SurfaceMaterial::genBehaviors(
 	ActorCookingContext& ctx,
 	PrimitiveMetadata&   metadata) const
 {
-	genSurface(context, metadata.getSurface());
+	genSurface(ctx, metadata.getSurface());
 }
 
 }// end namespace ph

@@ -148,7 +148,7 @@ CookedUnit ALight::buildGeometricLight(
 	EmitterBuildingMaterial emitterBuildingMaterial;
 	emitterBuildingMaterial.primitives = primitives;
 	emitterBuildingMaterial.metadata   = metadata;
-	auto emitter = m_lightSource->genEmitter(context, std::move(emitterBuildingMaterial));
+	auto emitter = m_lightSource->genEmitter(ctx, std::move(emitterBuildingMaterial));
 
 	metadata->getSurface().setEmitter(emitter.get());
 	cookedActor.setEmitter(std::move(emitter));

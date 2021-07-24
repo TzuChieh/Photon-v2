@@ -46,7 +46,7 @@ public:
 	const math::RigidTransform& getReceiverToWorld() const;
 
 private:
-	math::RigidTransform* m_receiverToWorld;
+	const math::RigidTransform* m_receiverToWorld;
 };
 
 // In-header Implementations:

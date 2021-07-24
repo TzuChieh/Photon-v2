@@ -82,7 +82,7 @@ void SingleLensObserver::genPinholeCamera(const CoreCookingContext& ctx, CoreCoo
 	auto rasterToSensor = std::make_unique<math::StaticAffineTransform>(
 		math::StaticAffineTransform::makeForward(makeRasterToSensor()));
 	auto receiverToWorld = std::make_unique<math::StaticRigidTransform>(
-		math::StaticAffineTransform::makeForward(makeObserverPose()));
+		math::StaticRigidTransform::makeForward(makeObserverPose()));
 
 	auto camera = std::make_unique<PinholeCamera>(
 		getSensorSize(),
@@ -101,7 +101,7 @@ void SingleLensObserver::genThinLensCamera(const CoreCookingContext& ctx, CoreCo
 	auto rasterToSensor = std::make_unique<math::StaticAffineTransform>(
 		math::StaticAffineTransform::makeForward(makeRasterToSensor()));
 	auto receiverToWorld = std::make_unique<math::StaticRigidTransform>(
-		math::StaticAffineTransform::makeForward(makeObserverPose()));
+		math::StaticRigidTransform::makeForward(makeObserverPose()));
 
 	auto camera = std::make_unique<ThinLensCamera>(
 		getLensRadius(),

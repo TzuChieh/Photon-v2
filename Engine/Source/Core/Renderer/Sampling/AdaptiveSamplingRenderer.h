@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
-#include "Core/Renderer/Region/Region.h"
+#include "Core/Scheduler/Region.h"
 #include "Common/primitive_type.h"
 #include "Core/Scheduler/DammertzDispatcher.h"
 #include "Core/Renderer/Sampling/ReceiverSamplingWork.h"

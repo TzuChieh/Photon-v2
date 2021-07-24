@@ -1,7 +1,7 @@
 #include "Actor/ADome.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Material/IdealSubstance.h"
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 #include "World/VisualWorldInfo.h"
 #include "Math/Transform/StaticRigidTransform.h"
 #include "Core/Intersectable/PLatLongEnvSphere.h"
@@ -35,10 +35,10 @@ ADome::ADome(const ADome& other) :
 	PhysicalActor(other)
 {}
 
-CookedUnit ADome::cook(CookingContext& context)
+CookedUnit ADome::cook(ActorCookingContext& ctx)
 {
 	// Ensure reasonable transformation for the dome
-	math::TDecomposedTransform<hiReal> sanifiedLocalToWorld = m_localToWorld;
+	math::TDecomposedTransform<real> sanifiedLocalToWorld = m_localToWorld;
 	if(sanifiedLocalToWorld.hasScaleEffect())
 	{
 		logger.log(
@@ -54,9 +54,9 @@ CookedUnit ADome::cook(CookingContext& context)
 
 	// Get the sphere radius that can encompass all actors
 	real domeRadius = 1000.0_r;
-	if(context.getVisualWorldInfo())
+	if(ctx.getVisualWorldInfo())
 	{
-		const auto worldBound = context.getVisualWorldInfo()->getLeafActorsBound();
+		const auto worldBound = ctx.getVisualWorldInfo()->getLeafActorsBound();
 		for(auto vertex : worldBound.getBoundVertices())
 		{
 			constexpr real ENLARGEMENT = 1.01_r;
@@ -79,7 +79,7 @@ CookedUnit ADome::cook(CookingContext& context)
 	// A dome should not have any visible inter-reflections, ideally
 	auto material = std::make_shared<IdealSubstance>();
 	material->asAbsorber();
-	material->genBehaviors(context, *metadata);
+	material->genBehaviors(ctx, *metadata);
 
 	auto domePrimitive = std::make_unique<PLatLongEnvSphere>(
 		metadata.get(),
@@ -87,7 +87,7 @@ CookedUnit ADome::cook(CookingContext& context)
 		localToWorld.get(),
 		worldToLocal.get());
 	
-	auto radianceFunction = loadRadianceFunction(context);
+	auto radianceFunction = loadRadianceFunction(ctx);
 	if(m_energyScale != 1.0_r)
 	{
 		auto scaledRadianceFunction = std::make_shared<TConstantMultiplyTexture<Spectrum, real, Spectrum>>(
@@ -125,7 +125,7 @@ CookedUnit ADome::cook(CookingContext& context)
 	cookedActor.addTransform(std::move(worldToLocal));
 	cookedActor.setEmitter(std::move(domeEmitter));
 
-	context.setBackgroundPrimitive(std::move(domePrimitive));
+	ctx.setBackgroundPrimitive(std::move(domePrimitive));
 
 	return cookedActor;
 }

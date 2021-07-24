@@ -123,9 +123,7 @@ void Engine::update()
 
 	m_visualWorld.cook(m_rawScene, coreCtx);
 
-
-	m_coreData.getRenderer()->setNumWorkers(m_numRenderThreads);
-	m_coreData.getRenderer()->update(m_coreData);
+	getRenderer()->update(m_cooked, m_visualWorld);
 }
 
 void Engine::render()

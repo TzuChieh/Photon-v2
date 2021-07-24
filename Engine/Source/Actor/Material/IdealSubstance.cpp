@@ -32,7 +32,7 @@ void IdealSubstance::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behav
 
 void IdealSubstance::asDielectricReflector(const real iorInner, const real iorOuter)
 {
-	m_opticsGenerator = [=](CookingContext& context)
+	m_opticsGenerator = [=](ActorCookingContext& ctx)
 	{
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
 		auto optics  = std::make_unique<IdealReflector>(fresnel);
@@ -45,7 +45,7 @@ void IdealSubstance::asMetallicReflector(const math::Vector3R& linearSrgbF0, con
 	Spectrum f0Spectral;
 	f0Spectral.setLinearSrgb(linearSrgbF0);// FIXME: check color space
 
-	m_opticsGenerator = [=](CookingContext& context)
+	m_opticsGenerator = [=](ActorCookingContext& ctx)
 	{
 		auto fresnel = std::make_shared<SchlickApproxConductorFresnel>(f0Spectral);
 		auto optics  = std::make_unique<IdealReflector>(fresnel);
@@ -55,7 +55,7 @@ void IdealSubstance::asMetallicReflector(const math::Vector3R& linearSrgbF0, con
 
 void IdealSubstance::asTransmitter(const real iorInner, const real iorOuter)
 {
-	m_opticsGenerator = [=](CookingContext& context)
+	m_opticsGenerator = [=](ActorCookingContext& ctx)
 	{
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
 		auto optics  = std::make_unique<IdealTransmitter>(fresnel);
@@ -65,7 +65,7 @@ void IdealSubstance::asTransmitter(const real iorInner, const real iorOuter)
 
 void IdealSubstance::asAbsorber()
 {
-	m_opticsGenerator = [=](CookingContext& context)
+	m_opticsGenerator = [=](ActorCookingContext& ctx)
 	{
 		return std::make_unique<IdealAbsorber>();
 	};
@@ -77,7 +77,7 @@ void IdealSubstance::asDielectric(
 	const math::Vector3R& linearSrgbReflectionScale,
 	const math::Vector3R& linearSrgbTransmissionScale)
 {
-	m_opticsGenerator = [=](CookingContext& context)
+	m_opticsGenerator = [=](ActorCookingContext& ctx)
 	{
 		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
 
@@ -92,8 +92,8 @@ void IdealSubstance::asDielectric(
 
 			return std::make_unique<IdealDielectric>(
 				fresnel, 
-				reflectionScale.genTextureSpectral(context), 
-				transmissionScale.genTextureSpectral(context));
+				reflectionScale.genTextureSpectral(ctx), 
+				transmissionScale.genTextureSpectral(ctx));
 		}
 	};
 }

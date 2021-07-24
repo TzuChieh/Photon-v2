@@ -103,12 +103,12 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 	return emitter;
 }
 
-std::shared_ptr<Geometry> ModelSource::genGeometry(CookingContext& context) const
+std::shared_ptr<Geometry> ModelSource::genGeometry(ActorCookingContext& ctx) const
 {
 	return m_geometry;
 }
 
-std::shared_ptr<Material> ModelSource::genMaterial(CookingContext& context) const
+std::shared_ptr<Material> ModelSource::genMaterial(ActorCookingContext& ctx) const
 {
 	return m_material;
 }

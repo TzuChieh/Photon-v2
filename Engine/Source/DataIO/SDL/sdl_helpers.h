@@ -89,8 +89,8 @@ information does not exist, or @p T is not an @p ISdlResource.
 template<typename T>
 constexpr ETypeCategory category_of();
 
-template<typename T>
-void init_to_default(T& resource);
+//template<typename T>
+//void init_to_default(T& resource);
 
 namespace detail
 {
@@ -107,7 +107,7 @@ T parse_float(std::string_view sdlFloatStr);
 Supports all signed and unsigned standard integer types.
 */
 template<typename T>
-T parse_integer(std::string_view sdlIntegerStr);
+T parse_int(std::string_view sdlIntegerStr);
 
 /*! @brief Check if category information can be obtained statically.
 
@@ -163,7 +163,7 @@ inline IntType load_int(const std::string_view sdlIntStr)
 {
 	try
 	{
-		return detail::parse_integer<IntType>(sdlIntStr);
+		return detail::parse_int<IntType>(sdlIntStr);
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -174,7 +174,7 @@ inline IntType load_int(const std::string_view sdlIntStr)
 template<typename NumberType>
 inline NumberType load_number(const std::string_view sdlNumberStr)
 {
-	if(std::is_floating_point_v<NumberType>)
+	if constexpr(std::is_floating_point_v<NumberType>)
 	{
 		return load_float<NumberType>(sdlNumberStr);
 	}
@@ -257,10 +257,10 @@ inline T parse_float(const std::string_view sdlFloatStr)
 }
 
 template<typename T>
-inline T parse_integer(const std::string_view sdlIntegerStr)
+inline T parse_int(const std::string_view sdlIntegerStr)
 {
 	static_assert(std::is_integral_v<T>,
-		"parse_integer() accepts only integer type.");
+		"parse_int() accepts only integer type.");
 
 	T value;
 	const std::from_chars_result result = std::from_chars(

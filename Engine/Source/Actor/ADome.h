@@ -22,10 +22,10 @@ public:
 	ADome();
 	ADome(const ADome& other);
 
-	virtual std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(CookingContext& context) = 0;
+	virtual std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(ActorCookingContext& context) = 0;
 	virtual math::Vector2S getResolution() const = 0;
 
-	CookedUnit cook(CookingContext& context) override;
+	CookedUnit cook(ActorCookingContext& ctx) override;
 	CookOrder getCookOrder() const override;
 
 	bool isAnalytical() const;

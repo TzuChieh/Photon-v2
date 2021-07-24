@@ -22,9 +22,9 @@ public:
 	std::unique_ptr<Emitter> genEmitter(
 		ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const override;
 
-	std::shared_ptr<Geometry> genGeometry(CookingContext& context) const override;
+	std::shared_ptr<Geometry> genGeometry(ActorCookingContext& ctx) const override;
 
-	std::shared_ptr<Material> genMaterial(CookingContext& context) const override;
+	std::shared_ptr<Material> genMaterial(ActorCookingContext& ctx) const override;
 
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);

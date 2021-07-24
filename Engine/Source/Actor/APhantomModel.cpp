@@ -10,7 +10,7 @@
 #include "Actor/MotionSource/MotionSource.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 
 #include <algorithm>
@@ -45,7 +45,7 @@ APhantomModel& APhantomModel::operator = (APhantomModel rhs)
 
 CookedUnit APhantomModel::cook(ActorCookingContext& ctx)
 {
-	CookedUnit cooked = AModel::cook(context);
+	CookedUnit cooked = AModel::cook(ctx);
 
 	std::vector<const Intersectable*> intersectables;
 	for(auto& intersectable : cooked.intersectables())
@@ -59,7 +59,7 @@ CookedUnit APhantomModel::cook(ActorCookingContext& ctx)
 	bvh->rebuildWithIntersectables(std::move(intersectables));
 	cooked.addIntersectable(std::move(bvh));
 
-	context.addPhantom(m_phantomName, std::move(cooked));
+	ctx.addPhantom(m_phantomName, std::move(cooked));
 
 	return CookedUnit();
 }

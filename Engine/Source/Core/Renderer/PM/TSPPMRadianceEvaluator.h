@@ -16,7 +16,7 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Math/math.h"
-#include "Core/Renderer/Region/Region.h"
+#include "Core/Scheduler/Region.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 
 #include <vector>

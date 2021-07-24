@@ -1,5 +1,5 @@
 #include "Actor/LightSource/AreaSource.h"
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Math/Transform/RigidTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"

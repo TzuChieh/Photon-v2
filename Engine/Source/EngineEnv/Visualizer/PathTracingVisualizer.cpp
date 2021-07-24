@@ -23,7 +23,7 @@ void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& 
 {
 	auto renderer = std::make_unique<EqualSamplingRenderer>(
 		makeEstimator(),
-		Viewport(getFrameSizePx(), getCropWindowPx()),
+		Viewport(ctx.getFrameSizePx(), getCropWindowPx()),
 		makeSampleFilter(),
 		ctx.numWorkers(),
 		getScheduler());

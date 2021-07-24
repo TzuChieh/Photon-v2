@@ -95,7 +95,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 		}
 		else
 		{
-			xAxis = math::Vector3R(0, 1, 0).cross(zAxis).normalizeLocal();
+			xAxis = math::Vector3D(0, 1, 0).cross(zAxis).normalizeLocal();
 			yAxis = zAxis.cross(xAxis).normalizeLocal();
 		}
 	}
@@ -105,9 +105,9 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 }
 
 math::QuaternionD OrientedRasterObserver::makeRotationFromYawPitchRoll(
-	const real yawDegrees,
-	const real pitchDegrees,
-	const real rollDegrees)
+	real yawDegrees,
+	real pitchDegrees,
+	real rollDegrees)
 {
 	if(yawDegrees < -180.0_r || yawDegrees > 180.0_r)
 	{

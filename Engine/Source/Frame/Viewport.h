@@ -82,7 +82,7 @@ inline bool Viewport::hasView() const
 
 inline std::string Viewport::toString() const
 {
-	return "viewport base: " + m_baseSizePx.toString(), ", window: " + m_windowPx.toString();
+	return "viewport base: " + m_baseSizePx.toString() + ", window: " + m_windowPx.toString();
 }
 
 }// end namespace ph

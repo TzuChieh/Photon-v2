@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Utility/IMoveOnly.h"
+#include "Common/assertion.h"
+#include "Math/Transform/Transform.h"
 
 #include <memory>
 #include <vector>
@@ -8,7 +10,6 @@
 namespace ph { class Renderer; };
 namespace ph { class Receiver; };
 namespace ph { class SampleGenerator; };
-namespace ph::math { class Transform; };
 
 namespace ph
 {

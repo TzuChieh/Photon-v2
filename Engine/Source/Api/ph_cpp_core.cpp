@@ -59,6 +59,8 @@
 
 // Visualizers
 #include "EngineEnv/Visualizer/Visualizer.h"
+#include "EngineEnv/Visualizer/FrameVisualizer.h"
+#include "EngineEnv/Visualizer/PathTracingVisualizer.h"
 
 // Options
 #include "DataIO/Option.h"
@@ -169,6 +171,8 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 
 		// Visualizers
 		get_sdl_class<Visualizer>(),
+		get_sdl_class<FrameVisualizer>(),
+		get_sdl_class<PathTracingVisualizer>(),
 
 		// Options
 		get_sdl_class<Option>(),

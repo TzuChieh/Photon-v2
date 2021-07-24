@@ -1,13 +1,13 @@
 #include "Actor/ModelBuilder.h"
 #include "Actor/CookedUnit.h"
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 
 namespace ph
 {
 
-ModelBuilder::ModelBuilder(CookingContext& context) :
-	m_context(context), m_cookedResults()
+ModelBuilder::ModelBuilder(ActorCookingContext& ctx) :
+	m_ctx(ctx), m_cookedResults()
 {}
 
 ModelBuilder& ModelBuilder::addIntersectable(std::unique_ptr<Intersectable> isable)

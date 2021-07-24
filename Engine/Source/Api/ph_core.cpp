@@ -12,7 +12,7 @@
 #include "DataIO/PictureLoader.h"
 #include "DataIO/PictureSaver.h"
 #include "Api/ApiHelper.h"
-#include "Core/Renderer/Region/Region.h"
+#include "Core/Scheduler/Region.h"
 #include "Common/config.h"
 #include "Common/Logger.h"
 #include "Frame/frame_utils.h"

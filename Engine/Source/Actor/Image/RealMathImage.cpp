@@ -17,7 +17,7 @@ RealMathImage::RealMathImage(const EMathOp mathOp, const real value) :
 {}
 
 std::shared_ptr<TTexture<real>> RealMathImage::genTextureReal(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	auto operandImage = checkOperandImage();
 	if(!operandImage)
@@ -25,12 +25,12 @@ std::shared_ptr<TTexture<real>> RealMathImage::genTextureReal(
 		return nullptr;
 	}
 
-	auto operandTexture = operandImage->genTextureReal(context);
+	auto operandTexture = operandImage->genTextureReal(ctx);
 	return genTexture<real, real>(std::move(operandTexture));
 }
 
 std::shared_ptr<TTexture<math::Vector3R>> RealMathImage::genTextureVector3R(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	auto operandImage = checkOperandImage();
 	if(!operandImage)
@@ -38,12 +38,12 @@ std::shared_ptr<TTexture<math::Vector3R>> RealMathImage::genTextureVector3R(
 		return nullptr;
 	}
 
-	auto operandTexture = operandImage->genTextureVector3R(context);
+	auto operandTexture = operandImage->genTextureVector3R(ctx);
 	return genTexture<math::Vector3R, math::Vector3R>(std::move(operandTexture));
 }
 
 std::shared_ptr<TTexture<Spectrum>> RealMathImage::genTextureSpectral(
-	CookingContext& context) const
+	ActorCookingContext& ctx) const
 {
 	auto operandImage = checkOperandImage();
 	if(!operandImage)
@@ -51,7 +51,7 @@ std::shared_ptr<TTexture<Spectrum>> RealMathImage::genTextureSpectral(
 		return nullptr;
 	}
 
-	auto operandTexture = operandImage->genTextureSpectral(context);
+	auto operandTexture = operandImage->genTextureSpectral(ctx);
 	return genTexture<Spectrum, Spectrum>(std::move(operandTexture));
 }
 

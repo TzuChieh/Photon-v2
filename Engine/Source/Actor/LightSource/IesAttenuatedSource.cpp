@@ -75,24 +75,24 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 	return attenuatedEmitter;
 }
 
-std::shared_ptr<Geometry> IesAttenuatedSource::genGeometry(CookingContext& context) const
+std::shared_ptr<Geometry> IesAttenuatedSource::genGeometry(ActorCookingContext& ctx) const
 {
 	if(!m_source)
 	{
 		return nullptr;
 	}
 
-	return m_source->genGeometry(context);
+	return m_source->genGeometry(ctx);
 }
 
-std::shared_ptr<Material> IesAttenuatedSource::genMaterial(CookingContext& context) const
+std::shared_ptr<Material> IesAttenuatedSource::genMaterial(ActorCookingContext& ctx) const
 {
 	if(!m_source)
 	{
 		return nullptr;
 	}
 
-	return m_source->genMaterial(context);
+	return m_source->genMaterial(ctx);
 }
 
 }// end namespace ph

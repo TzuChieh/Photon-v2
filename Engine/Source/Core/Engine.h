@@ -8,7 +8,7 @@
 #include "Frame/frame_fwd.h"
 #include "Frame/FrameProcessor.h"
 #include "Core/Renderer/EAttribute.h"
-#include "Core/Renderer/Region/Region.h"
+#include "Core/Scheduler/Region.h"
 #include "DataIO/FileSystem/Path.h"
 #include "EngineEnv/CoreCookedUnit.h"
 
@@ -55,6 +55,8 @@ private:
 	SceneDescription m_rawScene;
 	VisualWorld      m_visualWorld;
 	CoreCookedUnit   m_cooked;
+
+	// TODO: remove this
 	uint32           m_numRenderThreads;
 
 	//FrameProcessor m_frameProcessor;

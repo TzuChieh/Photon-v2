@@ -10,7 +10,7 @@
 #include "Actor/MotionSource/MotionSource.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
-#include "Actor/CookingContext.h"
+#include "Actor/ActorCookingContext.h"
 #include "Common/Logger.h"
 #include "Common/assertion.h"
 
@@ -48,7 +48,7 @@ CookedUnit ATransformedInstance::cook(ActorCookingContext& ctx)
 {
 	CookedUnit cooked;
 
-	const CookedUnit* phantom = context.getPhantom(m_phantomName);
+	const CookedUnit* phantom = ctx.getPhantom(m_phantomName);
 	if(!phantom)
 	{
 		logger.log(ELogLevel::WARNING_MED,

@@ -18,7 +18,7 @@ public:
 
 	virtual void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const = 0;
 
-	void genBehaviors(CookingContext& context, PrimitiveMetadata& metadata) const override;
+	void genBehaviors(ActorCookingContext& ctx, PrimitiveMetadata& metadata) const override;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SurfaceMaterial>)

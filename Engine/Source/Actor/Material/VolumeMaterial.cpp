@@ -17,11 +17,11 @@ void VolumeMaterial::genBehaviors(
 	switch(m_sidedness)
 	{
 	case ESidedness::INTERIOR:
-		genVolume(context, metadata.getInterior());
+		genVolume(ctx, metadata.getInterior());
 		break;
 
 	case ESidedness::EXTERIOR:
-		genVolume(context, metadata.getExterior());
+		genVolume(ctx, metadata.getExterior());
 		break;
 
 	default:

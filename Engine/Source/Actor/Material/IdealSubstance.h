@@ -34,7 +34,7 @@ public:
 		const math::Vector3R& linearSrgbTransmissionScale);
 
 private:
-	std::function<std::unique_ptr<SurfaceOptics>(CookingContext& context)> m_opticsGenerator;
+	std::function<std::unique_ptr<SurfaceOptics>(ActorCookingContext& ctx)> m_opticsGenerator;
 };
 
 }// end namespace ph
