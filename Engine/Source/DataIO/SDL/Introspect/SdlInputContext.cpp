@@ -6,7 +6,7 @@ namespace ph
 
 std::string SdlInputContext::genPrettySrcClassName() const
 {
-	return srcClass ? srcClass->genPrettyName() : "unavailable";
+	return getSrcClass() ? getSrcClass()->genPrettyName() : "unavailable";
 }
 
 }// end namespace ph

@@ -80,7 +80,7 @@ inline void load_fields_from_sdl(
 				if(importance != EFieldImportance::OPTIONAL)
 				{
 					std::forward<NoticeReceiver>(noticeReceiver)(
-						"no clause for " + sdl::gen_pretty_name(ctx.srcClass, &field) +
+						"no clause for " + sdl::gen_pretty_name(ctx.getSrcClass(), &field) +
 						", defaults to <" + field.valueToString(owner) + ">",
 						importance);
 				}

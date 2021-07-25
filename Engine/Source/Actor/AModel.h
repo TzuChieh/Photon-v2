@@ -49,7 +49,7 @@ public:
 		geometry.required();
 		clazz.addField(geometry);
 
-		TSdlReference<Material, OwnerType> material("geometry", &OwnerType::m_material);
+		TSdlReference<Material, OwnerType> material("material", &OwnerType::m_material);
 		material.description("A material that describes this actor's surface appearance.");
 		material.required();
 		clazz.addField(material);

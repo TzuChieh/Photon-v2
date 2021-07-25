@@ -125,7 +125,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			// a successful parse was expected)
 			//
 			logger.log(ELogLevel::WARNING_MED,
-				"load error from " + sdl::gen_pretty_name(ctx.srcClass, this) + 
+				"load error from " + sdl::gen_pretty_name(ctx.getSrcClass(), this) +
 				" -> " + e.whatStr() + "; " +
 				"value defaults to " + valueToString(owner));
 		}
@@ -134,7 +134,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			// Let caller handle the error if fallback is disabled
 			//
 			throw SdlLoadError(
-				"load error from " + sdl::gen_pretty_name(ctx.srcClass, this) +
+				"load error from " + sdl::gen_pretty_name(ctx.getSrcClass(), this) +
 				" -> " + e.whatStr() + "; " +
 				"value left uninitialized");
 		}

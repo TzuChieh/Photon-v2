@@ -29,31 +29,49 @@ public:
 		const SdlClass*         srcClass);
 
 	std::string genPrettySrcClassName() const;
+	const Path& getWorkingDirectory() const;
+	const SdlClass* getSrcClass() const;
+	const SceneDescription* getRawScene() const;
 
-public:
-	Path                    workingDirectory;
-	const SdlClass*         srcClass;
-	const SceneDescription* scene;
+private:
+	Path                    m_workingDirectory;
+	const SdlClass*         m_srcClass;
+	const SceneDescription* m_rawScene;
 };
 
 // In-header Implementation:
 
 inline SdlInputContext::SdlInputContext() :
-	scene           (nullptr),
-	workingDirectory(),
-	srcClass        (nullptr)
+	m_workingDirectory(),
+	m_srcClass        (nullptr),
+	m_rawScene        (nullptr)
 {}
 
 inline SdlInputContext::SdlInputContext(
-	const SceneDescription* scene,
-	Path                    workingDirectory,
-	const SdlClass* const   srcClass) :
+	const SceneDescription* const scene,
+	Path                          workingDirectory,
+	const SdlClass* const         srcClass) :
 
-	scene           (nullptr),
-	workingDirectory(std::move(workingDirectory)),
-	srcClass        (srcClass)
+	m_workingDirectory(std::move(workingDirectory)),
+	m_srcClass        (srcClass),
+	m_rawScene        (scene)
 {
-	PH_ASSERT(scene);
+	PH_ASSERT(m_rawScene);
+}
+
+inline const Path& SdlInputContext::getWorkingDirectory() const
+{
+	return m_workingDirectory;
+}
+
+inline const SdlClass* SdlInputContext::getSrcClass() const
+{
+	return m_srcClass;
+}
+
+inline const SceneDescription* SdlInputContext::getRawScene() const
+{
+	return m_rawScene;
 }
 
 }// end namespace ph

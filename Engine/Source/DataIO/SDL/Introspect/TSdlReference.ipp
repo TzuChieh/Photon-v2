@@ -65,9 +65,11 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 	// TODO: allow type mismatch?
 	try
 	{
+		PH_ASSERT(ctx.getRawScene());
+
 		setValueRef(
 			owner,
-			ctx.scene->getResource<T>(std::string(resourceName)));
+			ctx.getRawScene()->getResource<T>(std::string(resourceName)));
 	}
 	catch(const SdlLoadError& e)
 	{

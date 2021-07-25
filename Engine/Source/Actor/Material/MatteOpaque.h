@@ -38,11 +38,12 @@ public:
 		albedo.defaultToLinearSrgb(0.5_r);
 		clazz.addField(albedo);
 
-		// TODO
-		/*TSdlGenericColor<OwnerType> sigmaDegrees("sigma-degrees", &OwnerType::m_sigmaDegrees);
+		// TODO: how to force real texture
+		TSdlGenericColor<OwnerType> sigmaDegrees("sigma-degrees", EQuantity::RAW, &OwnerType::m_sigmaDegrees);
 		sigmaDegrees.description("Roughness in standard deviation of surface orientation (unit: degrees).");
+		sigmaDegrees.defaultToEmpty();
 		sigmaDegrees.optional();
-		clazz.addField(sigmaDegrees);*/
+		clazz.addField(sigmaDegrees);
 
 		return clazz;
 	}

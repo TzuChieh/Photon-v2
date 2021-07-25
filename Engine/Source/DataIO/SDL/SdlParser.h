@@ -76,10 +76,10 @@ private:
 	std::string getName(std::string_view resourceNameToken);
 	std::string genNameForAnonymity();
 
-private:
 	const SdlClass* getSdlClass(const std::string& mangledClassName) const;
 	const SdlClass& getSdlClass(std::string_view categoryName, std::string_view typeName) const;
 
+private:
 	static std::string getMangledName(std::string_view categoryName, std::string_view typeName);
 	static void getMangledName(std::string_view categoryName, std::string_view typeName, std::string* out_mangledName);
 	static void getClauses(const std::vector<std::string>& clauseStrings, ValueClauses* out_clauses);

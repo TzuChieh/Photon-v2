@@ -146,25 +146,36 @@ void SdlParser::parseLoadCommand(
 
 	// Initialize SDL resource from input value clauses
 
-	std::shared_ptr<ISdlResource> resource = clazz.createResource();
-	if(!resource)
-	{
-		throw SdlLoadError(
-			"SDL class <" + clazz.genPrettyName() + "> generates empty resource");
-	}
-
 	const std::string& resourceName = getName(tokens[3]);
 
-	const auto& clauseStrings = std::vector<std::string>(tokens.begin() + 4, tokens.end());
-	ValueClauses clauses;
-	getClauses(clauseStrings, &clauses);
+	// Now we have name-related information, which is useful for debugging. 
+	// Catch load errors here to provide name information and re-throw.
+	try
+	{
+		std::shared_ptr<ISdlResource> resource = clazz.createResource();
+		if(!resource)
+		{
+			throw SdlLoadError("empty resource generated");
+		}
 
-	SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
-	clazz.initResource(*resource, clauses, inputContext);
+		const auto& clauseStrings = std::vector<std::string>(tokens.begin() + 4, tokens.end());
+		ValueClauses clauses;
+		getClauses(clauseStrings, &clauses);
 
-	// Finally, add the resource to storage
+		SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
+		clazz.initResource(*resource, clauses, inputContext);
 
-	out_scene.addResource(std::move(resource), resourceName);
+		// Finally, add the resource to storage
+
+		out_scene.addResource(std::move(resource), resourceName);
+	}
+	catch(const SdlLoadError& e)
+	{
+		throw SdlLoadError(
+			"failed to load resource <" + resourceName + "> "
+			"(from SDL class: " + clazz.genPrettyName() + ") "
+			"-> " + e.whatStr());
+	}
 }
 
 void SdlParser::parseExecutionCommand(
@@ -199,23 +210,32 @@ void SdlParser::parseExecutionCommand(
 	const std::string& targetResourceName = getName(tokens[4]);
 	const std::string& executorName       = tokens[3];
 
-	std::shared_ptr<ISdlResource> resource = out_scene.getResource(targetResourceName, clazz.getCategory());
-	if(!resource)
+	// Now we have name-related information, which is useful for debugging. 
+	// Catch load errors here to provide name information and re-throw.
+	try
+	{
+		std::shared_ptr<ISdlResource> resource = out_scene.getResource(targetResourceName, clazz.getCategory());
+		if(!resource)
+		{
+			throw SdlLoadError("cannot find target resource from scene");
+		}
+
+		const auto& clauseStrings = std::vector<std::string>(tokens.begin() + 5, tokens.end());
+		ValueClauses clauses;
+		getClauses(clauseStrings, &clauses);
+
+		// Finally, call the executor
+
+		SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
+		clazz.call(executorName, resource.get(), clauses, inputContext);
+	}
+	catch(const SdlLoadError& e)
 	{
 		throw SdlLoadError(
-			"execution command failed: cannot find target resource <" + 
-			targetResourceName + "> for the execution of <" + executorName + "> "
-			"(SDL class: " + clazz.genPrettyName() + ")");
+			"failed to run <" + executorName + "> on resource <" + targetResourceName + "> "
+			"(from SDL class: " + clazz.genPrettyName() + ") "
+			"-> " + e.whatStr());
 	}
-
-	const auto& clauseStrings = std::vector<std::string>(tokens.begin() + 5, tokens.end());
-	ValueClauses clauses;
-	getClauses(clauseStrings, &clauses);
-
-	// Finally, call the executor
-
-	SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
-	clazz.call(executorName, resource.get(), clauses, inputContext);
 }
 
 std::string SdlParser::genNameForAnonymity()

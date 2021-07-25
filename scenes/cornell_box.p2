@@ -6,7 +6,7 @@
 
 // top light
 +> light-source(rectangle) @topLightSource1 [vector3 linear-srgb "1 1 1"][real watts 500][real width 3][real height 3]
-+> actor(light) @topLight1 [light-source light-source @topLightSource1]
++> actor(light) @topLight1 [light-source source @topLightSource1]
 >> actor(light) translate(@topLight1) [string type translate] [actor-light target @topLight1] [vector3 factor "0 4.75 0"]
 >> actor(light) rotate(@topLight1) [vector3 axis "1 0 0"] [real degree 90]
 

@@ -94,7 +94,7 @@ inline void TSdlGenericColor<Owner>::loadFromSdl(
 		}
 		else if(payload.isResourceIdentifier())
 		{
-			const SdlResourceIdentifier resId(payload.value, ctx.workingDirectory);
+			const SdlResourceIdentifier resId(payload.value, ctx.getWorkingDirectory());
 			setValueRef(owner, sdl::load_picture_color(resId.getPathToResource()));
 		}
 		else
@@ -130,7 +130,7 @@ inline auto TSdlGenericColor<Owner>::defaultToEmpty()
 -> TSdlGenericColor&
 {
 	m_defaultLinearSrgb = std::nullopt;
-	return this;
+	return *this;
 }
 
 template<typename Owner>

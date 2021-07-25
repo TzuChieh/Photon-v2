@@ -13,13 +13,17 @@ namespace ph
 class SdlPayload
 {
 public:
-	std::string_view value;
-	std::string_view tag;
+	/*std::string_view value;
+	std::string_view tag;*/
+	std::string value;
+	std::string tag;
 
 public:
 	inline SdlPayload() = default;
-	explicit SdlPayload(std::string_view value);
-	SdlPayload(std::string_view value, std::string_view tag);
+	/*explicit SdlPayload(std::string_view value);
+	SdlPayload(std::string_view value, std::string_view tag);*/
+	explicit SdlPayload(std::string value);
+	SdlPayload(std::string value, std::string tag);
 
 	/*! @brief Helper to check if the carried value is a SDL reference.
 	*/
@@ -34,11 +38,19 @@ public:
 
 // In-header Implementations:
 
-inline SdlPayload::SdlPayload(std::string_view value) :
+//inline SdlPayload::SdlPayload(std::string_view value) :
+//	SdlPayload(std::move(value), "")
+//{}
+//
+//inline SdlPayload::SdlPayload(std::string_view value, std::string_view tag) :
+//	value(std::move(value)), tag(std::move(tag))
+//{}
+
+inline SdlPayload::SdlPayload(std::string value) :
 	SdlPayload(std::move(value), "")
 {}
 
-inline SdlPayload::SdlPayload(std::string_view value, std::string_view tag) :
+inline SdlPayload::SdlPayload(std::string value, std::string tag) :
 	value(std::move(value)), tag(std::move(tag))
 {}
 

@@ -21,8 +21,8 @@ public:
 		SdlPayload  payload;
 
 		inline Clause() = default;
-		Clause(std::string type, std::string name, std::string_view value);
-		Clause(std::string type, std::string name, std::string_view value, std::string_view tag);
+		Clause(std::string type, std::string name, std::string value);
+		Clause(std::string type, std::string name, std::string value, std::string tag);
 
 		std::string genPrettyName() const;
 		std::string toString() const;
@@ -34,11 +34,11 @@ public:
 
 	/*! @brief Add a new clause.
 	*/
-	void add(std::string type, std::string name, std::string_view value);
+	void add(std::string type, std::string name, std::string value);
 
 	/*! @brief Add a new clause.
 	*/
-	void add(std::string type, std::string name, std::string_view value, std::string_view tag);
+	void add(std::string type, std::string name, std::string value, std::string tag);
 
 	/*! @brief Remove a clause by index. Preserves the order of remaining clauses.
 	*/
@@ -73,12 +73,12 @@ inline void ValueClauses::add(Clause clause)
 	m_clauses.push_back(std::move(clause));
 }
 
-inline void ValueClauses::add(std::string type, std::string name, std::string_view value)
+inline void ValueClauses::add(std::string type, std::string name, std::string value)
 {
 	add(Clause(std::move(type), std::move(name), std::move(value)));
 }
 
-inline void ValueClauses::add(std::string type, std::string name, std::string_view value, std::string_view tag)
+inline void ValueClauses::add(std::string type, std::string name, std::string value, std::string tag)
 {
 	add(Clause(std::move(type), std::move(name), std::move(value), std::move(tag)));
 }
@@ -123,13 +123,13 @@ inline const ValueClauses::Clause& ValueClauses::operator [] (const std::size_t 
 	return m_clauses[index];
 }
 
-inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string_view value) :
+inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string value) :
 	type   (std::move(type)),
 	name   (std::move(name)),
 	payload(std::move(value))
 {}
 
-inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string_view value, std::string_view tag) :
+inline ValueClauses::Clause::Clause(std::string type, std::string name, std::string value, std::string tag) :
 	type   (std::move(type)),
 	name   (std::move(name)),
 	payload(std::move(value), std::move(tag))

@@ -142,7 +142,7 @@ inline bool SceneDescription::hasResource(const std::string& resourceName) const
 inline std::size_t SceneDescription::toCategoryIndex(const ETypeCategory category) const
 {
 	const std::size_t index = static_cast<std::size_t>(category);
-	PH_ASSERT(index < m_resources.size());
+	PH_ASSERT_LT(index, m_resources.size());
 
 	return index;
 }

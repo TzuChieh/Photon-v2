@@ -46,7 +46,7 @@ protected:
 	{
 		if(payload.isResourceIdentifier())
 		{
-			const SdlResourceIdentifier sdlResId(payload.value, ctx.workingDirectory);
+			const SdlResourceIdentifier sdlResId(payload.value, ctx.getWorkingDirectory());
 
 			try
 			{
