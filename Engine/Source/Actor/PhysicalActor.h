@@ -93,7 +93,7 @@ public:
 
 		PH_DEFINE_SDL_FUNCTION(TSdlMethod<SdlRotate, PhysicalActor>)
 		{
-			FunctionType func("rotation");
+			FunctionType func("rotate");
 			func.description("Rotates the actor along an axis with a specified amount.");
 
 			TSdlOptionalVector3<OwnerType> axis("axis", &OwnerType::axis);

@@ -78,7 +78,7 @@ public:
 
 	/*! @brief Set another SDL class as the base of this class.
 
-	By default, fields in the base are automatically inherited. Functions
+	By default, fields and functions in the base are automatically inherited.
 	*/
 	template<typename T>
 	auto baseOn() -> TOwnerSdlClass&;
