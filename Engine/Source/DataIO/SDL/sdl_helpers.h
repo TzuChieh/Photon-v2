@@ -7,6 +7,7 @@
 #include "Math/TQuaternion.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/ETypeCategory.h"
+#include "Utility/string_utils.h"
 
 #include <string>
 #include <string_view>
@@ -245,11 +246,22 @@ inline T parse_float(const std::string_view sdlFloatStr)
 	static_assert(std::is_floating_point_v<T>,
 		"parse_float() accepts only floating point type.");
 
+	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
+	// leading whitespaces while it should be able to auto skip them, we
+	// do it manually for now:
+	const std::string_view sdlFloatStrNoLeadingWS = string_utils::trim_head(sdlFloatStr);
+
 	T value;
+	const std::from_chars_result result = std::from_chars(
+		sdlFloatStrNoLeadingWS.data(),
+		sdlFloatStrNoLeadingWS.data() + sdlFloatStrNoLeadingWS.size(),
+		value);
+
+	/*T value;
 	const std::from_chars_result result = std::from_chars(
 		sdlFloatStr.data(),
 		sdlFloatStr.data() + sdlFloatStr.size(),
-		value);
+		value);*/
 
 	throw_from_std_errc_if_has_error(result.ec);
 
@@ -262,11 +274,22 @@ inline T parse_int(const std::string_view sdlIntegerStr)
 	static_assert(std::is_integral_v<T>,
 		"parse_int() accepts only integer type.");
 
+	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
+	// leading whitespaces while it should be able to auto skip them, we
+	// do it manually for now:
+	const std::string_view sdlIntegerStrNoLeadingWS = string_utils::trim_head(sdlIntegerStr);
+
 	T value;
+	const std::from_chars_result result = std::from_chars(
+		sdlIntegerStrNoLeadingWS.data(),
+		sdlIntegerStrNoLeadingWS.data() + sdlIntegerStrNoLeadingWS.size(),
+		value);
+
+	/*T value;
 	const std::from_chars_result result = std::from_chars(
 		sdlIntegerStr.data(),
 		sdlIntegerStr.data() + sdlIntegerStr.size(),
-		value);
+		value);*/
 
 	throw_from_std_errc_if_has_error(result.ec);
 

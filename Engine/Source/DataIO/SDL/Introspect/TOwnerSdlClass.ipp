@@ -99,7 +99,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::call(
 	else
 	{
 		throw SdlLoadError(
-			"cannot find SDL function named <" + std::string(funcName) + "> in"
+			"cannot find SDL function named <" + std::string(funcName) + "> in "
 			"SDL class <" + genPrettyName() + ">");
 	}
 }

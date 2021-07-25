@@ -41,7 +41,7 @@ TEST(TSdlIntegerTest, ReadFromSdl)
 		EXPECT_EQ(owner.value, 123);
 
 		// Value with spaces
-		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlPayload("-7"), ctx));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlPayload("  -7 "), ctx));
 		EXPECT_EQ(owner.value, -7);
 
 		// TODO: scientific notation
