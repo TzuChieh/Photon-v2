@@ -2,6 +2,7 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
@@ -11,7 +12,7 @@ class GTriangleMesh;
 class GRectangle : public Geometry
 {
 public:
-	GRectangle();
+	inline GRectangle() = default;
 	GRectangle(real width, real height);
 
 	void genPrimitive(
@@ -31,6 +32,32 @@ private:
 	std::shared_ptr<GTriangleMesh> genTriangleMesh() const;
 
 	static bool checkData(const PrimitiveBuildingMaterial& data, const real width, const real height);
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GRectangle>)
+	{
+		ClassType clazz("rectangle");
+		clazz.description("A rectangular shape on xy-plane. It is centered around origin.");
+		clazz.baseOn<Geometry>();
+
+		TSdlReal<OwnerType> width("width", &OwnerType::m_width);
+		width.description("Width of the rectangle.");
+		width.defaultTo(1);
+		clazz.addField(width);
+
+		TSdlReal<OwnerType> height("height", &OwnerType::m_height);
+		height.description("Height of the rectangle.");
+		height.defaultTo(1);
+		clazz.addField(height);
+
+		TSdlReal<OwnerType> texCoordScale("texcoord-scale", &OwnerType::m_texCoordScale);
+		texCoordScale.description("A scaling factor that scales the default-generated texture coordinates.");
+		texCoordScale.defaultTo(1);
+		texCoordScale.optional();
+		clazz.addField(texCoordScale);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

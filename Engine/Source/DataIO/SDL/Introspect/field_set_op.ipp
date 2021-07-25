@@ -53,8 +53,8 @@ inline void load_fields_from_sdl(
 			{
 				// Treat a redundant clause input as an optional field
 				std::forward<NoticeReceiver>(noticeReceiver)(
-					"type <" + ctx.genPrettySrcClassName() + "> has no matching field for "
-					"clause <" + clause.genPrettyName() + ">, ignoring",
+					"SDL class <" + ctx.genPrettySrcClassName() + "> has no matching field for "
+					"input clause <" + clause.genPrettyName() + ">, ignoring",
 					EFieldImportance::OPTIONAL);
 			}
 

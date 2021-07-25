@@ -145,6 +145,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		// Geometries
 		get_sdl_class<Geometry>(),
 		get_sdl_class<GSphere>(),
+		get_sdl_class<GRectangle>(),
 		//get_sdl_class<GCuboid>(),
 
 		// Materials

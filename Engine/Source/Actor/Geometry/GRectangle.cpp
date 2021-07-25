@@ -11,10 +11,6 @@
 namespace ph
 {
 
-GRectangle::GRectangle() : 
-	GRectangle(1, 1)
-{}
-
 GRectangle::GRectangle(const real width, const real height) :
 	m_width(width), m_height(height),
 	m_texCoordScale(1)

@@ -160,7 +160,7 @@ std::string gen_pretty_name(const SdlField* const field)
 
 std::string gen_pretty_name(const SdlClass* const clazz, const SdlField* const field)
 {
-	return "type <" + gen_pretty_name(clazz) + ">, value <" + gen_pretty_name(field) + ">";
+	return "SDL class <" + gen_pretty_name(clazz) + ">, value <" + gen_pretty_name(field) + ">";
 }
 
 }// end namespace ph::sdl
