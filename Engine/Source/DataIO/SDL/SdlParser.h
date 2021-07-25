@@ -55,12 +55,17 @@ public:
 
 	void setWorkingDirectory(const Path& path);
 
+	std::size_t numParsedCommands() const;
+	std::size_t numParseErrors() const;
+
 private:
 	std::unordered_map<std::string, const SdlClass*> m_mangledNameToClass;
 
 	Path        m_workingDirectory;
 	std::string m_commandCache;
 	std::size_t m_generatedNameCounter;
+	std::size_t m_numParsedCommands;
+	std::size_t m_numParseErrors;
 
 	void parseCommand(const std::string& command, SceneDescription& out_scene);
 	void parseSingleCommand(ESdlCommandType type, const std::string& command, SceneDescription& out_scene);
@@ -86,5 +91,17 @@ private:
 	static void getClause(std::string_view clauseString, ValueClauses::Clause* out_clause);
 	static ESdlCommandType getCommandType(std::string_view commandSegment);
 };
+
+// In-header Implementations:
+
+inline std::size_t SdlParser::numParsedCommands() const
+{
+	return m_numParsedCommands;
+}
+
+inline std::size_t SdlParser::numParseErrors() const
+{
+	return m_numParseErrors;
+}
 
 }// end namespace ph

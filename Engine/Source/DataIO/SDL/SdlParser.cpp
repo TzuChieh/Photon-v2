@@ -26,7 +26,9 @@ SdlParser::SdlParser() :
 	m_mangledNameToClass(),
 	m_workingDirectory(),
 	m_commandCache(),
-	m_generatedNameCounter(0)
+	m_generatedNameCounter(0),
+	m_numParsedCommands(0),
+	m_numParseErrors(0)
 {
 	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
 	for(const SdlClass* const clazz : sdlClasses)
@@ -86,13 +88,13 @@ void SdlParser::parseCommand(const std::string& command, SceneDescription& out_s
 	{
 		logger.log(ELogLevel::WARNING_MED,
 			"command failed to run -> " + e.whatStr());
+
+		++m_numParseErrors;
 	}
 }
 
 void SdlParser::parseSingleCommand(const ESdlCommandType type, const std::string& command, SceneDescription& out_scene)
 {
-	// TODO
-
 	switch(type)
 	{
 	case ESdlCommandType::LOAD:
@@ -115,6 +117,8 @@ void SdlParser::parseSingleCommand(const ESdlCommandType type, const std::string
 		throw SdlLoadError("unsupported command type");
 		break;
 	}
+
+	++m_numParsedCommands;
 }
 
 void SdlParser::parseLoadCommand(

@@ -62,9 +62,15 @@ bool Engine::loadCommands(const Path& filePath)
 			enterCommand(lineCommand);
 		}
 
+		m_parser.flush(m_rawScene);
+
 		timer.finish();
-		logger.log(ELogLevel::NOTE_MAX,
+
+		logger.log(
 			"command file loaded, time elapsed = " + std::to_string(timer.getDeltaMs()) + " ms");
+		logger.log(
+			"parsed " + std::to_string(m_parser.numParsedCommands()) + " commands, " +
+			std::to_string(m_parser.numParseErrors()) + " errors generated");
 
 		return true;
 	}
@@ -72,7 +78,7 @@ bool Engine::loadCommands(const Path& filePath)
 
 void Engine::update()
 {
-	// Process and wait all unfinished commands
+	// Wait all potentially unfinished commands
 	m_parser.flush(m_rawScene);
 
 	std::shared_ptr<RenderSession> renderSession;
