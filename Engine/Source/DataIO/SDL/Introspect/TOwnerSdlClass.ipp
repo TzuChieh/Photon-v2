@@ -48,9 +48,10 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 	static_assert(std::is_base_of_v<ISdlResource, Owner>,
 		"Owner class must derive from ISdlResource.");
 
-	// Init base first just like C++ does
+	// Init base first just like how C++ does
 	if(isDerived())
 	{
+		PH_ASSERT(getBase());
 		getBase()->initResource(resource, clauses, ctx);
 	}
 
@@ -201,22 +202,40 @@ inline void TOwnerSdlClass<Owner, FieldSet>::fromSdl(
 	ValueClauses&           clauses,
 	const SdlInputContext&  ctx) const
 {
-	field_set_op::load_fields_from_sdl(
-		owner,
-		m_fields,
-		clauses,
-		ctx,
-		[](std::string noticeMsg, EFieldImportance importance)
+	auto noticeReceiver = [](std::string noticeMsg, EFieldImportance importance)
+	{
+		if(importance == EFieldImportance::OPTIONAL || importance == EFieldImportance::NICE_TO_HAVE)
 		{
-			if(importance == EFieldImportance::OPTIONAL || importance == EFieldImportance::NICE_TO_HAVE)
-			{
-				logger.log(ELogLevel::NOTE_MED, noticeMsg);
-			}
-			else
-			{
-				logger.log(ELogLevel::WARNING_MED, noticeMsg);
-			}
-		});
+			logger.log(ELogLevel::NOTE_MED, noticeMsg);
+		}
+		else
+		{
+			logger.log(ELogLevel::WARNING_MED, noticeMsg);
+		}
+	};
+
+	// If this class is the source class, it should be the most derived class of the current
+	// input process and consume all remaining clauses. Otherwise, redundant clauses are 
+	// allowed as subsequent (derived) classes would consume them.
+	//
+	if(ctx.getSrcClass() == this)
+	{
+		field_set_op::load_fields_from_sdl(
+			owner,
+			m_fields,
+			clauses,
+			ctx,
+			std::move(noticeReceiver));
+	}
+	else
+	{
+		field_set_op::load_fields_from_sdl_with_redundant_clauses(
+			owner,
+			m_fields,
+			clauses,
+			ctx,
+			std::move(noticeReceiver));
+	}
 }
 
 template<typename Owner, typename FieldSet>

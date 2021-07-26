@@ -42,11 +42,11 @@ public:
 
 	/*! @brief Remove a clause by index. Preserves the order of remaining clauses.
 	*/
-	void remove(std::size_t index);
+	void consume(std::size_t index);
 
 	/*! @brief Remove a clause by index. Does not preserve the order of remaining clauses.
 	*/
-	void removeBySwapPop(std::size_t index);
+	void consumeBySwapPop(std::size_t index);
 
 	/*! @brief Clear all stored data.
 	*/
@@ -83,14 +83,14 @@ inline void ValueClauses::add(std::string type, std::string name, std::string va
 	add(Clause(std::move(type), std::move(name), std::move(value), std::move(tag)));
 }
 
-inline void ValueClauses::remove(const std::size_t index)
+inline void ValueClauses::consume(const std::size_t index)
 {
 	PH_ASSERT_LT(index, m_clauses.size());
 
 	m_clauses.erase(m_clauses.begin() + index);
 }
 
-inline void ValueClauses::removeBySwapPop(const std::size_t index)
+inline void ValueClauses::consumeBySwapPop(const std::size_t index)
 {
 	PH_ASSERT(!m_clauses.empty());
 	PH_ASSERT_LT(index, m_clauses.size());

@@ -16,7 +16,7 @@ class SceneDescription;
 
 All data in the input context may be accessed concurrently.
 
-@note Modifications to this class must be ready for concurrent access.
+@note Modifications to this class must be ready for concurrent use cases.
 */
 class SdlInputContext final
 {
@@ -30,7 +30,12 @@ public:
 
 	std::string genPrettySrcClassName() const;
 	const Path& getWorkingDirectory() const;
+
+	/*! @brief The SDL class that was originally involved in an input process.
+	@return The source SDL class. May be empty if such information cannot be obtained.
+	*/
 	const SdlClass* getSrcClass() const;
+
 	const SceneDescription* getRawScene() const;
 
 private:

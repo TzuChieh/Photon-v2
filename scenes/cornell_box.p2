@@ -18,28 +18,28 @@
 >> actor(model) scale(@leftWall)     [vector3 amount "10 10 10"]
 
 // right wall
-+> material(matte-opaque) @rightWallMaterial [vector3 albedo "0.3 0.3 0.85"]
++> material(matte-opaque) @rightWallMaterial [image albedo "0.3 0.3 0.85"]
 +> actor(model) @rightWall [geometry geometry @boxWall] [material material @rightWallMaterial]
 >> actor(model) translate(@rightWall) [vector3 amount "5 0 0"]
 >> actor(model) rotate(@rightWall)    [vector3 axis "0 1 0"] [real degrees -90]
 >> actor(model) scale(@rightWall)     [vector3 amount "10 10 10"]
 
 // top wall
-+> material(matte-opaque) @topWallMaterial [vector3 albedo "0.7 0.7 0.7"]
++> material(matte-opaque) @topWallMaterial [image albedo "0.7 0.7 0.7"]
 +> actor(model) @topWall [geometry geometry @boxWall] [material material @topWallMaterial]
 >> actor(model) translate(@topWall) [vector3 amount "0 5 0"]
 >> actor(model) rotate(@topWall)    [vector3 axis "1 0 0"] [real degrees 90]
 >> actor(model) scale(@topWall)     [vector3 amount "10 10 10"]
 
 // bottom wall
-+> material(matte-opaque) @bottomWallMaterial [vector3 albedo "0.7 0.7 0.7"]
++> material(matte-opaque) @bottomWallMaterial [image albedo "0.7 0.7 0.7"]
 +> actor(model) @bottomWall [geometry geometry @boxWall] [material material @bottomWallMaterial]
 >> actor(model) translate(@bottomWall) [vector3 amount "0 -5 0"]
 >> actor(model) rotate(@bottomWall)    [vector3 axis "1 0 0"] [real degrees -90]
 >> actor(model) scale(@bottomWall)     [vector3 amount "10 10 10"]
 
 // back wall
-+> material(matte-opaque) @backWallMaterial [vector3 albedo "0.7 0.7 0.7"]
++> material(matte-opaque) @backWallMaterial [image albedo "0.7 0.7 0.7"]
 +> actor(model) @backWall [geometry geometry @boxWall] [material material @backWallMaterial]
 >> actor(model) translate(@backWall) [vector3 amount "0 0 -5"]
 >> actor(model) scale(@backWall)     [vector3 amount "10 10 10"]

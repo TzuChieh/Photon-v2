@@ -34,6 +34,8 @@ inline void load_fields_from_sdl(
 	// For each clause, load them into matching field
 	for(std::size_t clauseIdx = 0; clauseIdx < clauses.size();)
 	{
+		// TODO: check isFieldTouched and warn on duplicating clauses?
+
 		const auto& clause   = clauses[clauseIdx];
 		const auto& fieldIdx = fieldSet.findFieldIndex(clause.type, clause.name);
 		if(fieldIdx)
@@ -43,9 +45,9 @@ inline void load_fields_from_sdl(
 
 			isFieldTouched[fieldIdx.value()] = true;
 
-			// Remove the clause once a match is found; no need to increment
+			// Consume the clause once a match is found; no need to increment
 			// <clauseIdx> since a new one will fill the empty slot
-			clauses.removeBySwapPop(clauseIdx);
+			clauses.consumeBySwapPop(clauseIdx);
 		}
 		else
 		{
