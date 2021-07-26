@@ -5,7 +5,7 @@
 +> geometry(rectangle) @boxWall [real width 1] [real height 1]
 
 // top light
-+> light-source(rectangle) @topLightSource1 [vector3 linear-srgb "1 1 1"][real watts 500][real width 3][real height 3]
++> light-source(rectangle) @topLightSource1 [spectrum color "1 1 1"][real watts 500][real width 3][real height 3]
 +> actor(light) @topLight1 [light-source source @topLightSource1]
 >> actor(light) translate(@topLight1) [vector3 amount "0 4.75 0"]
 >> actor(light) rotate(@topLight1) [vector3 axis "1 0 0"] [real degrees 90]

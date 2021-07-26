@@ -60,7 +60,7 @@ private:
 inline SdlEnum::SdlEnum(std::string name) : 
 	m_name(std::move(name))
 {
-	PH_ASSERT(!name.empty());
+	PH_ASSERT(!m_name.empty());
 }
 
 inline SdlEnum& SdlEnum::setDescription(std::string description)

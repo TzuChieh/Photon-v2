@@ -157,6 +157,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<LightSource>(),
 		get_sdl_class<AreaSource>(),
 		get_sdl_class<SphereSource>(),
+		get_sdl_class<RectangleSource>(),
 
 		// Observers
 		get_sdl_class<Observer>(),

@@ -50,6 +50,7 @@ protected:
 		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
+		// TODO: allow for more color spaces via tag
 		setValue(owner, sdl::load_spectrum(payload, m_usage));
 	}
 
