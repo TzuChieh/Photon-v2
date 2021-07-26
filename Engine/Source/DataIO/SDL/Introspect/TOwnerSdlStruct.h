@@ -5,6 +5,7 @@
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
 
 #include <cstddef>
+#include <string>
 
 namespace ph
 {
@@ -35,6 +36,8 @@ public:
 		const SdlStructFieldStump&  structFieldStump);
 
 	auto getFields() const -> const TBasicSdlFieldSet<TOwnedSdlField<StructType>>&;
+
+	TOwnerSdlStruct& description(std::string descriptionStr);
 
 private:
 	TBasicSdlFieldSet<TOwnedSdlField<StructType>> m_fields;

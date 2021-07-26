@@ -8,18 +8,14 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Dielectric Interface Info"));
-}
 
-DielectricInterfaceInfo::DielectricInterfaceInfo() :
-	m_useExact(true),
-	m_iorOuter(1.0_r),
-	m_iorInner(1.5_r)
-{}
+const Logger logger(LogSender("Dielectric Interface Info"));
+
+}
 
 std::unique_ptr<DielectricFresnel> DielectricInterfaceInfo::genFresnelEffect() const
 {
-	if(m_useExact)
+	if(m_fresnel == EInterfaceFresnel::EXACT)
 	{
 		return std::make_unique<ExactDielectricFresnel>(
 			m_iorOuter,
@@ -27,6 +23,8 @@ std::unique_ptr<DielectricFresnel> DielectricInterfaceInfo::genFresnelEffect() c
 	}
 	else
 	{
+		PH_ASSERT(m_fresnel == EInterfaceFresnel::SCHLICK);
+
 		return std::make_unique<SchlickApproxDielectricFresnel>(
 			m_iorOuter,
 			m_iorInner);

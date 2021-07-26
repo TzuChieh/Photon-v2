@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Actor/Material/Utility/EInterfaceFresnel.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
 #include <variant>
@@ -19,14 +20,41 @@ dielectric-dielectric interface.
 class DielectricInterfaceInfo final
 {
 public:
-	DielectricInterfaceInfo();
+	inline DielectricInterfaceInfo() = default;
 
 	std::unique_ptr<DielectricFresnel> genFresnelEffect() const;
 
 private:
-	bool m_useExact;
-	real m_iorOuter;
-	real m_iorInner;
+	EInterfaceFresnel m_fresnel;
+	real              m_iorOuter;
+	real              m_iorInner;
+
+public:
+	PH_DEFINE_SDL_STRUCT(TOwnerSdlStruct<DielectricInterfaceInfo>)
+	{
+		StructType ztruct("dielectric-interface");
+		ztruct.description("Data describing the effects when light hits an dielectric interface.");
+
+		TSdlEnumField<OwnerType, EInterfaceFresnel> fresnel("fresnel", &OwnerType::m_fresnel);
+		fresnel.description("Type of the Fresnel for the dielectric interface.");
+		fresnel.optional();
+		fresnel.defaultTo(EInterfaceFresnel::EXACT);
+		ztruct.addField(fresnel);
+
+		TSdlReal<OwnerType> iorOuter("ior-outer", &OwnerType::m_iorOuter);
+		iorOuter.description("The index of refraction outside of this interface.");
+		iorOuter.optional();
+		iorOuter.defaultTo(1);
+		ztruct.addField(iorOuter);
+
+		TSdlReal<OwnerType> iorInner("ior-inner", &OwnerType::m_iorInner);
+		iorInner.description("The index of refraction inside of this interface.");
+		iorInner.niceToHave();
+		iorInner.defaultTo(1.5_r);
+		ztruct.addField(iorInner);
+
+		return ztruct;
+	}
 };
 
 }// end namespace ph

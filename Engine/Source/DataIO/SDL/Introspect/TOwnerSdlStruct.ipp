@@ -88,4 +88,12 @@ inline auto TOwnerSdlStruct<StructType>::getFields() const
 	return m_fields;
 }
 
+template<typename StructType>
+inline auto TOwnerSdlStruct<StructType>::description(std::string descriptionStr)
+	-> TOwnerSdlStruct&
+{
+	setDescription(std::move(descriptionStr));
+	return *this;
+}
+
 }// end namespace ph

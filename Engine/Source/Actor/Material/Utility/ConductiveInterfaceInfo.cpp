@@ -2,7 +2,6 @@
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
 #include "Common/Logger.h"
-#include "Core/Quantity/SpectralData.h"
 
 namespace ph
 {
@@ -14,43 +13,45 @@ const Logger logger(LogSender("Conductive Interface Info"));
 
 }
 
-ConductiveInterfaceInfo::ConductiveInterfaceInfo() :
-	m_useExact(false),
-	m_ior     (SchlickIor{Spectrum(0.04_r)})
-{}
-
 std::unique_ptr<ConductorFresnel> ConductiveInterfaceInfo::genFresnelEffect() const
 {
-	if(m_useExact && std::holds_alternative<FullIor>(m_ior))
+	// If we have enough information for an exact Fresnel description
+	if(m_iorOuter && m_iorInnerN && m_iorInnerK)
 	{
-		const auto ior = std::get<FullIor>(m_ior);
+		if(m_fresnel == EInterfaceFresnel::EXACT)
+		{
+			return std::make_unique<ExactConductorFresnel>(
+				*m_iorOuter,
+				*m_iorInnerN,
+				*m_iorInnerK);
+		}
+		else
+		{
+			// If Schlick approximation is explicitly requested, use exact
+			// Fresnel description to derive required input.
 
-		return std::make_unique<ExactConductorFresnel>(
-			ior.outer,
-			ior.innerN,
-			ior.innerK);
-	}
-	else if(!m_useExact && std::holds_alternative<FullIor>(m_ior))
-	{
-		const auto ior = std::get<FullIor>(m_ior);
-
-		return std::make_unique<SchlickApproxConductorFresnel>(
-			ior.outer,
-			ior.innerN,
-			ior.innerK);
-	}
-	else if(!m_useExact && std::holds_alternative<SchlickIor>(m_ior))
-	{
-		const auto ior = std::get<SchlickIor>(m_ior);
-
-		return std::make_unique<SchlickApproxConductorFresnel>(ior.f0);
+			PH_ASSERT(m_fresnel == EInterfaceFresnel::SCHLICK);
+		
+			return std::make_unique<SchlickApproxConductorFresnel>(
+				*m_iorOuter,
+				*m_iorInnerN,
+				*m_iorInnerK);
+		}
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"cannot generate fresnel effect; please check the input");
+		if(m_fresnel == EInterfaceFresnel::EXACT)
+		{
+			// If exact Fresnel is explicitly requested, since we do not have
+			// complete information for that, fallback to Schlick approximation
+			// and issue a warning.
 
-		return nullptr;
+			logger.log(ELogLevel::WARNING_MED,
+				"exact Fresnel formula is requested without complete information "
+				"specified; will fallback to Schlick approximation");
+		}
+
+		return std::make_unique<SchlickApproxConductorFresnel>(m_f0);
 	}
 }
 

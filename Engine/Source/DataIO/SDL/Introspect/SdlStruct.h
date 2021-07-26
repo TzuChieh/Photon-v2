@@ -26,10 +26,10 @@ public:
 	const std::string& getTypeName() const;
 	const std::string& getDescription() const;
 
-	SdlStruct& setDescription(std::string description);
-
 protected:
 	static const Logger logger;
+
+	SdlStruct& setDescription(std::string description);
 
 private:
 	std::string m_typeName;
