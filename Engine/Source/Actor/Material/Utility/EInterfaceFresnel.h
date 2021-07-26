@@ -15,7 +15,7 @@ enum class EInterfaceFresnel
 
 PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EInterfaceFresnel>)
 {
-	SdlEnumType sdlEnum("fresnel");
+	SdlEnumType sdlEnum("interface-fresnel");
 	sdlEnum.description("Controls the Fresnel model used.");
 
 	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");

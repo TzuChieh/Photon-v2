@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Actor/Material/Utility/EInterfaceMicrosurface.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
+#include <optional>
 
 namespace ph
 {
@@ -12,29 +15,23 @@ class Microfacet;
 class MicrosurfaceInfo final
 {
 public:
-	MicrosurfaceInfo();
+	inline MicrosurfaceInfo() = default;
 
 	std::unique_ptr<Microfacet> genMicrofacet() const;
 
 	bool isIsotropic() const;
 
 private:
-	enum class EType
-	{
-		TROWBRIDGE_REITZ,// a.k.a. GGX
-		BECKMANN
-	};
-
-	EType m_type;
-	real  m_alphaU;
-	real  m_alphaV;
+	EInterfaceMicrosurface m_microsurface;
+	real                   m_roughnessU;
+	std::optional<real>    m_roughnessV;
 };
 
 // In-header Implementations:
 
 inline bool MicrosurfaceInfo::isIsotropic() const
 {
-	return m_alphaU == m_alphaV;
+	return !m_roughnessV.has_value();
 }
 
 }// end namespace ph

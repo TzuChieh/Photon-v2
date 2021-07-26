@@ -11,7 +11,9 @@ namespace ph
 
 namespace
 {
-	const Logger logger(LogSender("Microsurface Info"));
+	
+const Logger logger(LogSender("Microsurface Info"));
+
 }
 
 MicrosurfaceInfo::MicrosurfaceInfo() : 
