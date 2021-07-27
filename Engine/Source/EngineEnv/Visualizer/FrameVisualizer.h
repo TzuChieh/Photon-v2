@@ -6,6 +6,8 @@
 #include "Math/Geometry/TAABB2D.h"
 #include "DataIO/SDL/sdl_interface.h"
 
+#include <optional>
+
 namespace ph
 {
 
@@ -16,7 +18,7 @@ public:
 
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
-	math::TAABB2D<int64> getCropWindowPx() const;
+	std::optional<math::TAABB2D<int64>> getCropWindowPx() const;
 
 private:
 	int64 m_cropWindowXPx;
@@ -61,11 +63,19 @@ public:
 
 // In-header Implementations:
 
-inline math::TAABB2D<int64> FrameVisualizer::getCropWindowPx() const
+inline std::optional<math::TAABB2D<int64>> FrameVisualizer::getCropWindowPx() const
 {
-	return math::TAABB2D<int64>(
-		{m_cropWindowXPx, m_cropWindowYPx}, 
-		{m_cropWindowXPx + m_cropWindowWPx, m_cropWindowYPx + m_cropWindowHPx});
+	if(m_cropWindowXPx == 0 && m_cropWindowYPx == 0 && 
+	   m_cropWindowWPx == 0 && m_cropWindowHPx == 0)
+	{
+		return std::nullopt;
+	}
+	else
+	{
+		return math::TAABB2D<int64>(
+			{m_cropWindowXPx, m_cropWindowYPx}, 
+			{m_cropWindowXPx + m_cropWindowWPx, m_cropWindowYPx + m_cropWindowHPx});
+	}
 }
 
 }// end namespace ph

@@ -21,9 +21,17 @@ const Logger logger(LogSender("Path Tracing Visualizer"));
 
 void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked)
 {
+	Viewport viewport(ctx.getFrameSizePx());
+
+	const auto cropWindowPx = getCropWindowPx();
+	if(cropWindowPx.has_value())
+	{
+		viewport = Viewport(ctx.getFrameSizePx(), *cropWindowPx);
+	}
+
 	auto renderer = std::make_unique<EqualSamplingRenderer>(
 		makeEstimator(),
-		Viewport(ctx.getFrameSizePx(), getCropWindowPx()),
+		viewport,
 		makeSampleFilter(),
 		ctx.numWorkers(),
 		getScheduler());

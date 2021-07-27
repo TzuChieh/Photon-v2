@@ -21,9 +21,6 @@ public:
 
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
-	math::Vector2S getResolution() const;
-	float64 getAspectRatio() const;
-
 protected:
 	math::TDecomposedTransform<float64> makeObserverPose() const;
 	math::Vector3D makePosition() const;
@@ -33,7 +30,6 @@ protected:
 private:
 	math::Vector3R m_position;
 	math::Vector3R m_yawPitchRollDegrees;
-	math::Vector2S m_resolution;
 
 	std::optional<math::Vector3R> m_direction;
 	std::optional<math::Vector3R> m_upAxis;
@@ -62,12 +58,8 @@ public:
 			"pitch: Declination from the horizon in [-90, 90]; "
 			"row: Rotation around +z axis in [-180, 180].");
 		yawPitchRollDegrees.defaultTo({0, 0, 0});
+		yawPitchRollDegrees.optional();
 		clazz.addField(yawPitchRollDegrees);
-
-		TSdlVector2S<OwnerType> resolution("resolution", &OwnerType::m_resolution);
-		resolution.description("Observer resolution in x & y dimensions.");
-		resolution.defaultTo({960, 540});
-		clazz.addField(resolution);
 
 		TSdlOptionalVector3<OwnerType> direction("direction", &OwnerType::m_direction);
 		direction.description("Direction vector that this observer is looking at. No need to be normalized.");
@@ -80,19 +72,5 @@ public:
 		return clazz;
 	}
 };
-
-// In-header Implementations:
-
-inline math::Vector2S OrientedRasterObserver::getResolution() const
-{
-	return m_resolution;
-}
-
-inline float64 OrientedRasterObserver::getAspectRatio() const
-{
-	PH_ASSERT_GT(getResolution().y, 0);
-
-	return static_cast<float64>(getResolution().x) / static_cast<float64>(getResolution().y);
-}
 
 }// end namespace ph
