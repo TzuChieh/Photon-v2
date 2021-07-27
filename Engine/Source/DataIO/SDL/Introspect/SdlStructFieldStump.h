@@ -8,7 +8,7 @@ namespace ph
 
 // Information required for adding the struct members to another struct
 
-class SdlStructFieldStump
+class SdlStructFieldStump final
 {
 public:
 	template<typename StructType, typename Owner>

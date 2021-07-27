@@ -58,15 +58,15 @@ public:
 
 	const TOwnedSdlField<Owner>* getOwnedField(std::size_t index) const;
 
-	template<typename T>
-	TOwnerSdlClass& addField(T sdlField);
+	template<typename SdlFieldType>
+	TOwnerSdlClass& addField(SdlFieldType sdlField);
 
-	template<typename T>
-	TOwnerSdlClass& addStruct(T Owner::* structObjPtr);
+	template<typename StructType>
+	TOwnerSdlClass& addStruct(StructType Owner::* structObjPtr);
 
-	template<typename T>
+	template<typename StructType>
 	TOwnerSdlClass& addStruct(
-		T Owner::*                 structObjPtr,
+		StructType Owner::*        structObjPtr,
 		const SdlStructFieldStump& structFieldStump);
 
 	/*! @brief Adds a function that can later be called.

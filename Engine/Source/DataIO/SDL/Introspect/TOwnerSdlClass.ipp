@@ -136,13 +136,13 @@ inline const TOwnedSdlField<Owner>* TOwnerSdlClass<Owner, FieldSet>::getOwnedFie
 }
 
 template<typename Owner, typename FieldSet>
-template<typename T>
-inline auto TOwnerSdlClass<Owner, FieldSet>::addField(T sdlField)
+template<typename SdlFieldType>
+inline auto TOwnerSdlClass<Owner, FieldSet>::addField(SdlFieldType sdlField)
 	-> TOwnerSdlClass&
 {
-	// More restrictions on the type of T may be imposed by FieldSet
-	static_assert(std::is_base_of_v<SdlField, T>,
-		"T is not a SdlField thus cannot be added.");
+	// More restrictions on the type of SdlFieldType may be imposed by FieldSet
+	static_assert(std::is_base_of_v<SdlField, SdlFieldType>,
+		"Provided SdlFieldType is not a SdlField thus cannot be added.");
 
 	m_fields.addField(std::move(sdlField));
 
@@ -150,32 +150,22 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::addField(T sdlField)
 }
 
 template<typename Owner, typename FieldSet>
-template<typename T>
-inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(T Owner::* const structObjPtr)
+template<typename StructType>
+inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(StructType Owner::* const structObjPtr)
 	-> TOwnerSdlClass&
 {
-	// More restrictions on the type of T may be imposed by FieldSet
-	static_assert(std::is_base_of_v<SdlStruct, T>,
-		"T is not a SdlStruct thus cannot be added.");
-
-	PH_ASSERT(structObjPtr);
-
-	m_fields.addFields(SdlStructFieldStump().genFieldSet(structObjPtr));
-
-	return *this;
+	return addStruct(structObjPtr, SdlStructFieldStump());
 }
 
 template<typename Owner, typename FieldSet>
-template<typename T>
+template<typename StructType>
 inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(
-	T Owner::* const           structObjPtr,
+	StructType Owner::* const  structObjPtr,
 	const SdlStructFieldStump& structFieldStump)
 
 	-> TOwnerSdlClass&
 {
-	// More restrictions on the type of T may be imposed by FieldSet
-	static_assert(std::is_base_of_v<SdlStruct, T>,
-		"T is not a SdlStruct thus cannot be added.");
+	// TODO: require StructType has getSdlFunction()
 
 	PH_ASSERT(structObjPtr);
 

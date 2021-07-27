@@ -16,13 +16,12 @@ template<typename StructType, typename Owner>
 inline auto SdlStructFieldStump::genFieldSet(StructType Owner::* const structObjPtr) const
 	-> TBasicSdlFieldSet<TOwnedSdlField<Owner>>
 {
-	static_assert(std::is_base_of_v<SdlStruct, StructType>,
-		"StructType must derive from SdlStruct.");
+	// TODO: require StructType has getSdlFunction()
 
 	PH_ASSERT(structObjPtr);
 
-	const auto& sdlStruct    = StructType::getSdlStruct();
-	const auto& structFields = sdlStruct.getFields();
+	auto const  sdlStruct    = StructType::getSdlStruct();
+	const auto& structFields = sdlStruct->getFields();
 
 	TBasicSdlFieldSet<TOwnedSdlField<Owner>> fieldSet;
 	for(std::size_t i = 0; i < structFields.numFields(); ++i)

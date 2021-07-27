@@ -1,6 +1,5 @@
 #include "Actor/Material/Utility/MicrosurfaceInfo.h"
 #include "Common/Logger.h"
-#include "Common/assertion.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h"
 #include "Core/SurfaceBehavior/Property/IsoBeckmann.h"
@@ -16,41 +15,41 @@ const Logger logger(LogSender("Microsurface Info"));
 
 }
 
-MicrosurfaceInfo::MicrosurfaceInfo() : 
-	m_type  (EType::TROWBRIDGE_REITZ),
-	m_alphaU(RoughnessToAlphaMapping::squared(0.5_r)),
-	m_alphaV(RoughnessToAlphaMapping::squared(0.5_r))
-{}
-
 std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 {
 	if(isIsotropic())
 	{
-		PH_ASSERT_EQ(m_alphaU, m_alphaV);
+		const real alpha = RoughnessToAlphaMapping::map(getIsotropicRoughness(), m_roughnessToAlpha);
 
-		switch(m_type)
+		switch(m_microsurface)
 		{
-		case EType::TROWBRIDGE_REITZ:
-			return std::make_unique<IsoTrowbridgeReitzConstant>(m_alphaU);
+		case EInterfaceMicrosurface::TROWBRIDGE_REITZ:
+			return std::make_unique<IsoTrowbridgeReitzConstant>(alpha);
 
-		case EType::BECKMANN:
-			return std::make_unique<IsoBeckmann>(m_alphaU);
+		case EInterfaceMicrosurface::BECKMANN:
+			return std::make_unique<IsoBeckmann>(alpha);
 
 		default:
-			PH_ASSERT_UNREACHABLE_SECTION();
-			return nullptr;
+			logger.log(ELogLevel::WARNING_MED,
+				"no input provided for the type of microsurface; resort to Trowbridge-Reitz (GGX)");
+			return std::make_unique<IsoTrowbridgeReitzConstant>(alpha);
 		}
 	}
 	else
 	{
-		if(m_type == EType::BECKMANN)
+		PH_ASSERT(!isIsotropic());
+
+		if(m_microsurface == EInterfaceMicrosurface::BECKMANN)
 		{
 			logger.log(ELogLevel::WARNING_MED,
-				"anisotropic Beckmann is not supported; "
-				"resort to Trowbridge-Reitz (GGX)");
+				"anisotropic Beckmann is not supported; resort to Trowbridge-Reitz (GGX)");
 		}
 
-		return std::make_unique<AnisoTrowbridgeReitz>(m_alphaU, m_alphaV);
+		const auto [roughnessU, roughnessV] = getAnisotropicUVRoughnesses();
+
+		return std::make_unique<AnisoTrowbridgeReitz>(
+			RoughnessToAlphaMapping::map(roughnessU, m_roughnessToAlpha), 
+			RoughnessToAlphaMapping::map(roughnessV, m_roughnessToAlpha));
 	}
 }
 

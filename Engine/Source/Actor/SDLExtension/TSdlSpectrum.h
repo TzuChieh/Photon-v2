@@ -11,6 +11,7 @@
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
 #include "Core/Quantity/EQuantity.h"
+#include "Actor/SDLExtension/color_loaders.h"
 
 #include <type_traits>
 #include <string>
