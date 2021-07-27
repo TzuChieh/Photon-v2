@@ -60,16 +60,27 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 	const SdlPayload&      payload,
 	const SdlInputContext& ctx) const
 {
-	const auto resourceName = string_utils::cut_head(payload.value, "@");
+	const auto referenceName = payload.value;
 	// TODO: get res should accept str view
 	// TODO: allow type mismatch?
 	try
 	{
 		PH_ASSERT(ctx.getRawScene());
 
-		setValueRef(
-			owner,
-			ctx.getRawScene()->getResource<T>(std::string(resourceName)));
+		if(referenceName.empty() || referenceName.front() != '@')
+		{
+			throw SdlLoadError(
+				"invalid reference name <" + payload.value + ">, should be prefixed with \'@\'");
+		}
+
+		auto resource = ctx.getRawScene()->getResource<T>(referenceName);
+		if(!resource)
+		{
+			throw SdlLoadError(
+				"cannot find resource referenced by <" + referenceName + ">");
+		}
+
+		setValueRef(owner, std::move(resource));
 	}
 	catch(const SdlLoadError& e)
 	{
