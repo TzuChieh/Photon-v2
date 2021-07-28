@@ -37,9 +37,6 @@ void Engine::enterCommand(const std::string& commandFragment)
 
 bool Engine::loadCommands(const Path& filePath)
 {
-	Timer timer;
-	timer.start();
-
 	std::ifstream commandFile;
 	commandFile.open(filePath.toAbsoluteString(), std::ios::in);
 	if(!commandFile.is_open())
@@ -53,6 +50,9 @@ bool Engine::loadCommands(const Path& filePath)
 		logger.log(ELogLevel::NOTE_MAX,
 			"loading command file <" + filePath.toAbsoluteString() + ">");
 
+		Timer timer;
+		timer.start();
+
 		std::string lineCommand;
 		while(commandFile.good())
 		{
@@ -62,15 +62,10 @@ bool Engine::loadCommands(const Path& filePath)
 			enterCommand(lineCommand);
 		}
 
-		m_parser.flush(m_rawScene);
-
 		timer.finish();
 
 		logger.log(
 			"command file loaded, time elapsed = " + std::to_string(timer.getDeltaMs()) + " ms");
-		logger.log(
-			"parsed " + std::to_string(m_parser.numParsedCommands()) + " commands, " +
-			std::to_string(m_parser.numParseErrors()) + " errors generated");
 
 		return true;
 	}
@@ -80,6 +75,10 @@ void Engine::update()
 {
 	// Wait all potentially unfinished commands
 	m_parser.flush(m_rawScene);
+
+	logger.log(
+		"parsed " + std::to_string(m_parser.numParsedCommands()) + " commands, " +
+		std::to_string(m_parser.numParseErrors()) + " errors generated");
 
 	std::shared_ptr<RenderSession> renderSession;
 	{
