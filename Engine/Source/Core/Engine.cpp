@@ -112,11 +112,10 @@ void Engine::update()
 		coreResource->cook(coreCtx, m_cooked);
 	}
 
-	// TODO: better way to check/assign cooked renderer
-	if(!m_cooked.getRenderer())
+	Renderer* const renderer = m_cooked.getRenderer();
+	if(!renderer)
 	{
-		logger.log(ELogLevel::FATAL_ERROR,
-			"no renderer present");
+		logger.log(ELogLevel::FATAL_ERROR, "no renderer present");
 		return;
 	}
 
@@ -127,6 +126,18 @@ void Engine::update()
 	m_visualWorld.setReceiverPosition(receiverPos);
 
 	m_visualWorld.cook(m_rawScene, coreCtx);
+
+	// Update renderer
+
+	PH_ASSERT(renderer);
+
+	if(m_numRenderThreads != renderer->numWorkers())
+	{
+		logger.log(
+			"overriding # render workers to " + std::to_string(m_numRenderThreads) + 
+			" (it was " + std::to_string(renderer->numWorkers()) + ")");
+		renderer->setNumWorkers(m_numRenderThreads);
+	}
 
 	getRenderer()->update(m_cooked, m_visualWorld);
 }
@@ -164,11 +175,6 @@ math::TVector2<int64> Engine::getFilmDimensionPx() const
 
 void Engine::setNumRenderThreads(const uint32 numThreads)
 {
-	if(m_numRenderThreads == numThreads)
-	{
-		return;
-	}
-
 	m_numRenderThreads = numThreads;
 
 	logger.log("number of render threads set to " + std::to_string(numThreads));

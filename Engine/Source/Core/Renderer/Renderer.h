@@ -73,6 +73,10 @@ public:
 	void update(const CoreCookedUnit& cooked, const VisualWorld& world);
 	void render();
 
+	/*! @brief Set number of workers for the renderer.
+	*/
+	void setNumWorkers(uint32 numWorkers);
+
 	uint32 numWorkers() const;
 	uint32 getRenderWidthPx() const;
 	uint32 getRenderHeightPx() const;

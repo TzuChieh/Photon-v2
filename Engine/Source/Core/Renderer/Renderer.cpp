@@ -13,11 +13,8 @@
 #include "EngineEnv/CoreCookedUnit.h"
 #include "Core/Receiver/Receiver.h"
 
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <functional>
 #include <utility>
+#include <algorithm>
 
 namespace ph
 {
@@ -73,6 +70,18 @@ void Renderer::render()
 	renderTimer.finish();
 
 	logger.log("render time: " + std::to_string(renderTimer.getDeltaMs()) + " ms");
+}
+
+void Renderer::setNumWorkers(uint32 numWorkers)
+{
+	if(numWorkers == 0)
+	{
+		logger.log(ELogLevel::WARNING_MED,
+			"# workers cannot be 0, set to 1");
+		numWorkers = 1;
+	}
+
+	m_numWorkers = numWorkers;
 }
 
 // FIXME: without synchronizing, other threads may never observe m_workers being changed
