@@ -33,6 +33,8 @@ public:
 		bool         applyPostProcessing = true);
 
 	math::TVector2<int64> getFilmDimensionPx() const;
+
+	// TODO: rename to setNumThreads(), it will control # threads used for all engine process
 	void setNumRenderThreads(uint32 numThreads);
 
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) const;

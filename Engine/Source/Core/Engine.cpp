@@ -144,7 +144,16 @@ void Engine::update()
 
 void Engine::render()
 {
-	getRenderer()->render();
+	Renderer* const renderer = getRenderer();
+	if(!renderer)
+	{
+		logger.log(ELogLevel::FATAL_ERROR, "no renderer present");
+		return;
+	}
+
+	PH_ASSERT(renderer);
+
+	renderer->render();
 }
 
 void Engine::retrieveFrame(
