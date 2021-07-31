@@ -1,7 +1,8 @@
 #pragma once
 
-#include "DataIO/Stream/IBinaryDataInputStream.h"
+#include "DataIO/Stream/IInputStream.h"
 #include "DataIO/FileSystem/Path.h"
+#include "Common/assertion.h"
 
 #include <utility>
 #include <memory>
@@ -10,10 +11,10 @@
 namespace ph
 {
 
-class BinaryFileInputStream : public IBinaryDataInputStream
+class BinaryFileInputStream : public IInputStream
 {
 public:
-	BinaryFileInputStream() = default;
+	inline BinaryFileInputStream() = default;
 	explicit BinaryFileInputStream(const Path& filePath);
 	BinaryFileInputStream(BinaryFileInputStream&& other);
 
@@ -21,6 +22,9 @@ public:
 	void seekGet(std::size_t pos) override;
 	std::size_t tellGet() override;
 	operator bool () const override;
+
+	template<typename T>
+	bool readData(T* out_data);
 
 	BinaryFileInputStream& operator = (BinaryFileInputStream&& rhs);
 
@@ -43,6 +47,15 @@ inline BinaryFileInputStream& BinaryFileInputStream::operator = (BinaryFileInput
 inline BinaryFileInputStream::operator bool () const
 {
 	return m_istream != nullptr && m_istream->good();
+}
+
+template<typename T>
+inline bool BinaryFileInputStream::readData(T* const out_data)
+{
+	static_assert(std::is_trivially_copyable_v<T>);
+	PH_ASSERT(out_data);
+
+	return read(sizeof(T), reinterpret_cast<std::byte*>(out_data));
 }
 
 }// end namespace ph

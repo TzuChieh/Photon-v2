@@ -1,4 +1,4 @@
-#include "DataIO/Stream/BinaryFileOutputStream.h"
+#include "DataIO/Stream/FormattedTextFileOutputStream.h"
 #include "Common/Logger.h"
 #include "Common/assertion.h"
 
@@ -11,15 +11,15 @@ namespace ph
 namespace
 {
 
-Logger logger(LogSender("Binary O-Stream"));
+Logger logger(LogSender("Text O-Stream"));
 
 }
 
-BinaryFileOutputStream::BinaryFileOutputStream(const Path& filePath) :
+FormattedTextFileOutputStream::FormattedTextFileOutputStream(const Path& filePath) :
 	StdOutputStream(
 		std::make_unique<std::ofstream>(
 			filePath.toAbsoluteString().c_str(),
-			std::ios_base::out | std::ios_base::binary))
+			std::ios_base::out))
 {
 	if(getStream() && !getStream()->good())
 	{
@@ -28,6 +28,16 @@ BinaryFileOutputStream::BinaryFileOutputStream(const Path& filePath) :
 			filePath.toAbsoluteString() +
 			">, output operations may be unavailable");
 	}
+}
+
+bool FormattedTextFileOutputStream::writeStr(const std::string_view str)
+{
+	PH_ASSERT(getStream());
+
+	*(getStream()) << str;
+
+	// TODO: properly handle this
+	return true;
 }
 
 }// end namespace ph

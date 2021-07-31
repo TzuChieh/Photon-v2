@@ -130,14 +130,18 @@ public:
 		return Path(pathStr);
 	}
 
-	// Returns filename extension if present. The extension string will 
-	// start with a period character ".". If the path contains no extension,
-	// then an empty string is returned.
-	//
+	/*! @brief Returns filename extension if present.
+
+	The extension string will start with a period character ".". If the path
+	contains no extension, then an empty string is returned.
+	*/
 	inline std::string getExtension() const
 	{
 		return m_path.extension().string();
 	}
+
+	bool isDirectory() const;
+	bool isFile() const;
 
 	inline bool operator == (const Path& other) const
 	{
@@ -160,6 +164,18 @@ private:
 		return static_cast<wchar_t>(wch);
 	}
 };
+
+// In-header Implementations:
+
+inline bool Path::isDirectory() const
+{
+	return std::filesystem::is_directory(m_path);
+}
+
+inline bool Path::isFile() const
+{
+	return std::filesystem::is_regular_file(m_path);
+}
 
 }// end namespace ph
 

@@ -78,6 +78,13 @@
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
 
+// Enums
+#include "EngineEnv/sdl_accelerator_type.h"
+#include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
+#include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
+#include "EngineEnv/Visualizer/sdl_scheduler_type.h"
+#include "Actor/SDLExtension/ESdlColorSpace.h"
+
 namespace ph
 {
 
@@ -97,9 +104,17 @@ bool init_render_engine()
 		return false;
 	}
 
-	// Get SDL classes once here to initialize them--this is not required,
-	// just to be safe as SDL class instances are lazy-constructed and may
+	// Get SDL enums once here to initialize them--this is not required,
+	// just to be safe as SDL enum instances are lazy-constructed and may
 	// be done in strange places/order later (which may cause problems).
+	// Enums are initialized first as they have less dependencies.
+	//
+	const std::vector<const SdlEnum*> sdlEnums = get_registered_sdl_enums();
+	logger.log(ELogLevel::NOTE_MED,
+		"initialized " + std::to_string(sdlEnums.size()) + " SDL enum definitions");
+
+	// Get SDL classes once here to initialize them--this is not required,
+	// same reason as SDL enums.
 	//
 	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
 	logger.log(ELogLevel::NOTE_MED,
@@ -130,10 +145,16 @@ bool exit_render_engine()
 namespace
 {
 
-template<typename T>
+template<typename SdlClassType>
 const SdlClass* get_sdl_class()
 {
-	return T::getSdlClass();
+	return SdlClassType::getSdlClass();
+}
+
+template<typename EnumType>
+const SdlEnum* get_sdl_enum()
+{
+	return TSdlEnum<EnumType>::getSdlEnum();
 }
 
 }
@@ -187,6 +208,17 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<PhysicalActor>(),
 		get_sdl_class<AModel>(),
 		get_sdl_class<ALight>(),
+	};
+}
+
+std::vector<const SdlEnum*> get_registered_sdl_enums()
+{
+	return
+	{
+		get_sdl_enum<EAccelerator>(),
+		get_sdl_enum<ERayEnergyEstimator>(),
+		get_sdl_enum<ESampleFilter>(),
+		get_sdl_enum<ESdlColorSpace>(),
 	};
 }
 

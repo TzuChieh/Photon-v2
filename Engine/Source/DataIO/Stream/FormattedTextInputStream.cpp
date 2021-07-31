@@ -48,6 +48,7 @@ FormattedTextInputStream::FormattedTextInputStream(const std::string& textString
 bool FormattedTextInputStream::read(const std::size_t numBytes, std::byte* const out_bytes)
 {
 	static_assert(sizeof(char) == sizeof(std::byte));
+	PH_ASSERT(out_bytes);
 
 	m_istream->read(reinterpret_cast<char*>(out_bytes), numBytes);
 

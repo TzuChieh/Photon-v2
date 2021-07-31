@@ -13,7 +13,7 @@ namespace ph
 class FormattedTextInputStream : public IInputStream
 {
 public:
-	FormattedTextInputStream() = default;
+	inline FormattedTextInputStream() = default;
 
 	/*! @brief Take a file as stream.
 	*/

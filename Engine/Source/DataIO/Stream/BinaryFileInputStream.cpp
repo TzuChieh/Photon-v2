@@ -8,7 +8,9 @@ namespace ph
 
 namespace
 {
-	Logger logger(LogSender("Binary I-Stream"));
+	
+Logger logger(LogSender("Binary I-Stream"));
+
 }
 
 BinaryFileInputStream::BinaryFileInputStream(const Path& filePath) :

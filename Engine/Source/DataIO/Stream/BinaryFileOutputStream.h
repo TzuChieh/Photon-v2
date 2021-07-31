@@ -1,48 +1,33 @@
 #pragma once
 
-#include "DataIO/Stream/IBinaryDataOutputStream.h"
+#include "DataIO/Stream/StdOutputStream.h"
 #include "DataIO/FileSystem/Path.h"
-
-#include <utility>
-#include <memory>
-#include <ostream>
 
 namespace ph
 {
 
-class BinaryFileOutputStream : public IBinaryDataOutputStream
+class BinaryFileOutputStream : public StdOutputStream
 {
 public:
-	BinaryFileOutputStream() = default;
+	inline BinaryFileOutputStream() = default;
 	explicit BinaryFileOutputStream(const Path& filePath);
-	BinaryFileOutputStream(BinaryFileOutputStream&& other);
+	inline BinaryFileOutputStream(BinaryFileOutputStream&& other) = default;
 
-	bool write(std::size_t numBytes, const std::byte* bytes) override;
-	void seekPut(std::size_t pos) override;
-	std::size_t tellPut() override;
-	operator bool () const override;
+	template<typename T>
+	bool writeData(const T* data);
 
-	BinaryFileOutputStream& operator = (BinaryFileOutputStream&& rhs);
-
-private:
-	std::unique_ptr<std::ostream> m_ostream;
+	inline BinaryFileOutputStream& operator = (BinaryFileOutputStream&& rhs) = default;
 };
 
 // In-header Implementations:
 
-inline BinaryFileOutputStream::BinaryFileOutputStream(BinaryFileOutputStream&& other)
+template<typename T>
+inline bool BinaryFileOutputStream::writeData(const T* const data)
 {
-	*this = std::move(other);
-}
+	static_assert(std::is_trivially_copyable_v<T>);
+	PH_ASSERT(data);
 
-inline BinaryFileOutputStream& BinaryFileOutputStream::operator = (BinaryFileOutputStream&& rhs)
-{
-	m_ostream = std::move(rhs.m_ostream);
-}
-
-inline BinaryFileOutputStream::operator bool () const
-{
-	return m_ostream != nullptr && m_ostream->good();
+	return write(sizeof(T), reinterpret_cast<const std::byte*>(data));
 }
 
 }// end namespace ph
