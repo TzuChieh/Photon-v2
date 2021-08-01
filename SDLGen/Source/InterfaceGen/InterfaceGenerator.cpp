@@ -14,4 +14,9 @@ InterfaceGenerator::InterfaceGenerator(std::string generatorName, Path outputDir
 	PH_ASSERT(m_outputDirectory.isDirectory());
 }
 
+Path InterfaceGenerator::makeOutputFilePath(const std::string& fileSubPath) const
+{
+	return m_outputDirectory.append(Path(fileSubPath));
+}
+
 }// end namespace ph::sdlgen

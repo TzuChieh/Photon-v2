@@ -20,10 +20,11 @@ public:
 
 	virtual void generate(
 		const std::vector<const SdlClass*>& sdlClasses,
-		const std::vector<const SdlEnum*>&  sdlEnums) const = 0;
+		const std::vector<const SdlEnum*>&  sdlEnums) = 0;
 
 	const std::string& getName() const;
 	const Path& getOutputDirectory() const;
+	Path makeOutputFilePath(const std::string& fileSubPath) const;
 
 private:
 	std::string m_generatorName;

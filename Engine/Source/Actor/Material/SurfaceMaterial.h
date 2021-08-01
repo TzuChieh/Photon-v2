@@ -24,6 +24,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SurfaceMaterial>)
 	{
 		ClassType clazz("surface-material");
+		clazz.docName("Surface Material");
 		clazz.baseOn<Material>();
 		return clazz;
 	}

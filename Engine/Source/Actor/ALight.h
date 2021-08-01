@@ -50,6 +50,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ALight>)
 	{
 		ClassType clazz("light");
+		clazz.docName("Light Actor");
 		clazz.description("An actor that represents a light in the scene.");
 		clazz.baseOn<PhysicalActor>();
 

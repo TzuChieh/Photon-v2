@@ -24,6 +24,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SphereSource>)
 	{
 		ClassType clazz("sphere");
+		clazz.docName("Spherical Light Source");
 		clazz.description(
 			"This type of light emits energy from a spherical shape.");
 		clazz.baseOn<AreaSource>();

@@ -45,6 +45,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<RenderSession>)
 	{
 		ClassType clazz("render-session");
+		clazz.docName("Render Session");
 		clazz.description("Settings for how to perform a render operation.");
 		clazz.baseOn<Option>();
 

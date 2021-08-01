@@ -22,6 +22,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Visualizer>)
 	{
 		ClassType clazz("visualizer");
+		clazz.docName("Visualizer");
 		clazz.description("The main engine component for producing visual content.");
 		return clazz;
 	}

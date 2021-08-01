@@ -25,6 +25,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<RectangleSource>)
 	{
 		ClassType clazz("rectangle");
+		clazz.docName("Rectangular Light Source");
 		clazz.description(
 			"This type of light emits energy from a rectangular shape.Note that energy"
 			"is only allowed to emit from one side of the rectangle, not both sides.");

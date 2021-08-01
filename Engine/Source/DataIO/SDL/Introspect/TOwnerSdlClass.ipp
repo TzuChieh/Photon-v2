@@ -26,7 +26,7 @@ inline TOwnerSdlClass<Owner, FieldSet>::TOwnerSdlClass(std::string displayName) 
 template<typename Owner, typename FieldSet>
 inline std::shared_ptr<ISdlResource> TOwnerSdlClass<Owner, FieldSet>::createResource() const
 {
-	if constexpr(!std::is_abstract_v<Owner>)
+	if constexpr(!isAbstract())
 	{
 		static_assert(std::is_default_constructible_v<Owner>,
 			"A non-abstract owner class must have a default constructor.");
@@ -136,6 +136,12 @@ inline const TOwnedSdlField<Owner>* TOwnerSdlClass<Owner, FieldSet>::getOwnedFie
 }
 
 template<typename Owner, typename FieldSet>
+inline bool TOwnerSdlClass<Owner, FieldSet>::isAbstract() const
+{
+	return std::is_abstract_v<Owner>;
+}
+
+template<typename Owner, typename FieldSet>
 template<typename SdlFieldType>
 inline auto TOwnerSdlClass<Owner, FieldSet>::addField(SdlFieldType sdlField)
 	-> TOwnerSdlClass&
@@ -233,6 +239,14 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::description(std::string description
 	-> TOwnerSdlClass&
 {
 	setDescription(std::move(descriptionStr));
+	return *this;
+}
+
+template<typename Owner, typename FieldSet>
+inline auto TOwnerSdlClass<Owner, FieldSet>::docName(std::string docName)
+	-> TOwnerSdlClass&
+{
+	setDocName(std::move(docName));
 	return *this;
 }
 

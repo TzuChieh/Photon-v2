@@ -41,6 +41,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<OrientedRasterObserver>)
 	{
 		ClassType clazz("oriented-raster");
+		clazz.docName("Oriented Raster Observer");
 		clazz.description(
 			"Observers that work by projecting incoming energy in certain ways. "
 			"Projective observers face the -z axis (+y up) and reside on (0, 0, 0) by default.");

@@ -37,6 +37,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SingleFrameRenderSession>)
 	{
 		ClassType clazz("single-frame-render-session");
+		clazz.docName("Single Frame Render Session");
 		clazz.description("Information regarding the rendering process of a single frame.");
 		clazz.baseOn<RenderSession>();
 

@@ -22,6 +22,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SampleSource>)
 	{
 		ClassType clazz("sample-source");
+		clazz.docName("Sample Source");
 		clazz.description("Engine component for generating sample values.");
 		return clazz;
 	}

@@ -30,6 +30,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<FrameVisualizer>)
 	{
 		ClassType clazz("frame");
+		clazz.docName("Frame Visualizer");
 		clazz.description("A visualizer that produces frames, a typical example is an image.");
 		clazz.baseOn<Visualizer>();
 

@@ -27,6 +27,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Material>)
 	{
 		ClassType clazz(sdl::category_to_string(CATEGORY));
+		clazz.docName("Material");
 		clazz.description("Defines and models the appearance of scene elements.");
 		return clazz;
 	}

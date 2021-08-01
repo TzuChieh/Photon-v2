@@ -37,6 +37,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GRectangle>)
 	{
 		ClassType clazz("rectangle");
+		clazz.docName("Rectangular Geometry");
 		clazz.description("A rectangular shape on xy-plane. It is centered around origin.");
 		clazz.baseOn<Geometry>();
 

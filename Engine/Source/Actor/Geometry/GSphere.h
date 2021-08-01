@@ -36,6 +36,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GSphere>)
 	{
 		ClassType clazz("sphere");
+		clazz.docName("Spherical Geometry");
 		clazz.description("A perfectly round shape centering around origin.");
 		clazz.baseOn<Geometry>();
 

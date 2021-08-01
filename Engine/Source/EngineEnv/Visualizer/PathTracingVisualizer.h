@@ -41,6 +41,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<PathTracingVisualizer>)
 	{
 		ClassType clazz("path-tracing");
+		clazz.docName("Path Tracing Visualizer");
 		clazz.description("Render frames with common path tracing methods.");
 		clazz.baseOn<FrameVisualizer>();
 		

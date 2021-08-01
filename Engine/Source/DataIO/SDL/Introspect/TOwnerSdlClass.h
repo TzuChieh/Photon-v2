@@ -46,6 +46,8 @@ public:
 	std::size_t numFunctions() const override;
 	const SdlFunction* getFunction(std::size_t index) const override;
 
+	bool isAbstract() const override;
+
 	void fromSdl(
 		Owner&                 owner,
 		ValueClauses&          clauses,
@@ -75,6 +77,8 @@ public:
 	TOwnerSdlClass& addFunction();
 
 	auto description(std::string descriptionStr) -> TOwnerSdlClass&;
+
+	auto docName(std::string docName) -> TOwnerSdlClass&;
 
 	/*! @brief Set another SDL class as the base of this class.
 

@@ -24,6 +24,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Observer>)
 	{
 		ClassType clazz("observer");
+		clazz.docName("Observer");
 		clazz.description("A tool for observing the incoming energy of the scene.");
 		return clazz;
 	}

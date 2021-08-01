@@ -138,6 +138,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<PhysicalActor>)
 	{
 		ClassType clazz("physical");
+		clazz.docName("Physical Actor");
 		clazz.description("An actor that is visible and can be transformed.");
 		clazz.baseOn<Actor>();
 

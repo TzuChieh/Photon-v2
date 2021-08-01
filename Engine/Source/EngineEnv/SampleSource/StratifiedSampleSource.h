@@ -17,6 +17,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<StratifiedSampleSource>)
 	{
 		ClassType clazz("stratified");
+		clazz.docName("Stratified Sample Source");
 		clazz.description("Generating samples based on engine provided dimensional hints.");
 		clazz.baseOn<RuntimeSampleSource>();
 		return clazz;

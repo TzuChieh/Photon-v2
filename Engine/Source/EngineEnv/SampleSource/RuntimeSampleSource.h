@@ -28,6 +28,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<RuntimeSampleSource>)
 	{
 		ClassType clazz("runtime");
+		clazz.docName("Runtime Sample Source");
 		clazz.description(
 			"Sample sources that generate samples during render engine execution time.");
 		clazz.baseOn<SampleSource>();

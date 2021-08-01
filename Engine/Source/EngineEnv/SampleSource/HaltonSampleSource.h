@@ -17,6 +17,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<HaltonSampleSource>)
 	{
 		ClassType clazz("halton");
+		clazz.docName("Halton Sample Source");
 		clazz.description(
 			"Generating samples based on the Halton sequence. The samples "
 			"generated are somewhat deterministic and can lead to visible "

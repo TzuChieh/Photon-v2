@@ -23,6 +23,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AbradedOpaque>)
 	{
 		ClassType clazz("abraded-opaque");
+		clazz.docName("Abraded Opaque Material");
 		clazz.description("Able to model surfaces ranging from nearly specular to extremely rough appearances.");
 		clazz.baseOn<SurfaceMaterial>();
 

@@ -130,7 +130,28 @@ inline std::string_view trim(const std::string_view srcStr)
 
 /*! @brief Convert lower-case characters to upper-case.
 
-Characters that are not English alphabets will be preserved.
+Characters that are not English alphabets, or being upper-case already,
+will be preserved.
+*/
+inline char az_to_AZ(const char ch)
+{
+	return static_cast<char>(table::ASCII_TO_UPPER[ch]);
+}
+
+/*! @brief Convert upper-case characters to lower-case.
+
+Characters that are not English alphabets, or being lower-case already,
+will be preserved.
+*/
+inline char AZ_to_az(const char ch)
+{
+	return static_cast<char>(table::ASCII_TO_LOWER[ch]);
+}
+
+/*! @brief Convert lower-case characters to upper-case.
+
+Characters that are not English alphabets, or being upper-case already, 
+will be preserved.
 
 @param str String that is going to be converted in-place.
 */
@@ -140,13 +161,14 @@ inline void az_to_AZ(std::string* const str)
 
 	for(char& ch : *str)
 	{
-		ch = static_cast<char>(table::ASCII_TO_UPPER[ch]);
+		ch = az_to_AZ(ch);
 	}
 }
 
 /*! @brief Convert upper-case characters to lower-case.
 
-Characters that are not English alphabets will be preserved.
+Characters that are not English alphabets, or being lower-case already, 
+will be preserved.
 
 @param str String that is going to be converted in-place.
 */
@@ -156,7 +178,7 @@ inline void AZ_to_az(std::string* const str)
 
 	for(char& ch : *str)
 	{
-		ch = static_cast<char>(table::ASCII_TO_LOWER[ch]);
+		ch = AZ_to_az(ch);
 	}
 }
 

@@ -30,6 +30,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<MatteOpaque>)
 	{
 		ClassType clazz("matte-opaque");
+		clazz.docName("Matte Opaque Material");
 		clazz.description("A material model for surfaces with matte look, such as chalk and moon.");
 		clazz.baseOn<SurfaceMaterial>();
 

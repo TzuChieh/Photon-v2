@@ -47,6 +47,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<LightSource>)
 	{
 		ClassType clazz(sdl::category_to_string(CATEGORY));
+		clazz.docName("Light Source");
 		clazz.description(
 			"The source of all energy emitting entity in the scene.");
 		return clazz;

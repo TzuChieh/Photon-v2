@@ -41,6 +41,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AModel>)
 	{
 		ClassType clazz("model");
+		clazz.docName("Model Actor");
 		clazz.description("An actor that has a certain 3-D shape in the scene.");
 		clazz.baseOn<PhysicalActor>();
 

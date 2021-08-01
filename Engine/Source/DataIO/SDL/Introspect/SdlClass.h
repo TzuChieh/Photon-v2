@@ -25,7 +25,7 @@ class ISdlResource;
 class SdlClass
 {
 public:
-	SdlClass(ETypeCategory category, std::string typeName);
+	SdlClass(ETypeCategory category, const std::string& typeName);
 	virtual ~SdlClass() = default;
 
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
@@ -48,16 +48,21 @@ public:
 	virtual std::size_t numFunctions() const = 0;
 	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
 
+	virtual bool isAbstract() const = 0;
+
 	std::string genPrettyName() const;
 	std::string genCategoryName() const;
 	ETypeCategory getCategory() const;
 	const std::string& getTypeName() const;
+	const std::string& getDocName() const;
 	const std::string& getDescription() const;
 	const SdlClass* getBase() const;
 	bool isDerived() const;
 
 protected:
 	SdlClass& setDescription(std::string description);
+
+	SdlClass& setDocName(std::string docName);
 
 	/*! @brief Set another SDL class as the base of this class.
 
@@ -71,6 +76,7 @@ protected:
 private:
 	ETypeCategory m_category;
 	std::string   m_typeName;
+	std::string   m_docName;
 	std::string   m_description;
 
 	const SdlClass* m_base;
@@ -78,9 +84,10 @@ private:
 
 // In-header Implementation:
 
-inline SdlClass::SdlClass(const ETypeCategory category, std::string typeName) :
+inline SdlClass::SdlClass(const ETypeCategory category, const std::string& typeName) :
 	m_category   (category), 
-	m_typeName   (std::move(typeName)),
+	m_typeName   (typeName),
+	m_docName    (typeName),
 	m_description(),
 	m_base       (nullptr)
 {
@@ -101,6 +108,11 @@ inline const std::string& SdlClass::getTypeName() const
 	return m_typeName;
 }
 
+inline const std::string& SdlClass::getDocName() const
+{
+	return m_docName;
+}
+
 inline const std::string& SdlClass::getDescription() const
 {
 	return m_description;
@@ -119,6 +131,12 @@ inline bool SdlClass::isDerived() const
 inline SdlClass& SdlClass::setDescription(std::string description)
 {
 	m_description = std::move(description);
+	return *this;
+}
+
+inline SdlClass& SdlClass::setDocName(std::string docName)
+{
+	m_docName = std::move(docName);
 	return *this;
 }
 

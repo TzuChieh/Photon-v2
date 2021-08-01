@@ -43,6 +43,7 @@ public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SingleLensObserver>)
 	{
 		ClassType clazz("single-lens");
+		clazz.docName("Single-Lens Observer");
 		clazz.description(
 			"As its name suggests, the lens system in this observer is assumed to have "
 			"just a single lens. The biggest advantage of it is that depth of field "
