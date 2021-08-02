@@ -1,10 +1,14 @@
 #pragma once
 
+#include "InterfaceGen/EInterfaceGenerator.h"
+
 #include <DataIO/FileSystem/Path.h>
 #include <Common/assertion.h>
 
 #include <vector>
 #include <string>
+#include <string_view>
+#include <memory>
 
 namespace ph { class SdlClass; }
 namespace ph { class SdlEnum; }
@@ -15,6 +19,10 @@ namespace ph::sdlgen
 class InterfaceGenerator
 {
 public:
+	static std::unique_ptr<InterfaceGenerator> makeGenerator(
+		EInterfaceGenerator type,
+		Path                outputDirectory);
+
 	InterfaceGenerator(std::string generatorName, Path outputDirectory);
 	virtual ~InterfaceGenerator() = default;
 

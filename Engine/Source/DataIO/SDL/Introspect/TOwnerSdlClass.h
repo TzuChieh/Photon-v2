@@ -46,7 +46,7 @@ public:
 	std::size_t numFunctions() const override;
 	const SdlFunction* getFunction(std::size_t index) const override;
 
-	bool isAbstract() const override;
+	bool isBlueprint() const override;
 
 	void fromSdl(
 		Owner&                 owner,

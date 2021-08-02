@@ -40,6 +40,7 @@ inline StdOutputStream::StdOutputStream(StdOutputStream&& other)
 inline StdOutputStream& StdOutputStream::operator = (StdOutputStream&& rhs)
 {
 	m_ostream = std::move(rhs.m_ostream);
+	return *this;
 }
 
 inline StdOutputStream::operator bool () const

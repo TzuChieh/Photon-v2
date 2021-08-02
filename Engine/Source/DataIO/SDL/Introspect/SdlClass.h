@@ -48,7 +48,7 @@ public:
 	virtual std::size_t numFunctions() const = 0;
 	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
 
-	virtual bool isAbstract() const = 0;
+	virtual bool isBlueprint() const = 0;
 
 	std::string genPrettyName() const;
 	std::string genCategoryName() const;

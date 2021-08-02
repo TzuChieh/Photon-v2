@@ -1,4 +1,5 @@
 #include "InterfaceGen/InterfaceGenerator.h"
+#include "InterfaceGen/MarkdownDoc/MarkdownDocGenerator.h"
 
 #include <Common/assertion.h>
 
@@ -6,6 +7,20 @@
 
 namespace ph::sdlgen
 {
+
+std::unique_ptr<InterfaceGenerator> InterfaceGenerator::makeGenerator(
+	const EInterfaceGenerator type,
+	Path                      outputDirectory)
+{
+	switch(type)
+	{
+	case EInterfaceGenerator::MARKDOWN_DOC:
+		return std::make_unique<MarkdownDocGenerator>(std::move(outputDirectory));
+
+	default:
+		return nullptr;
+	}
+}
 
 InterfaceGenerator::InterfaceGenerator(std::string generatorName, Path outputDirectory) :
 	m_generatorName  (std::move(generatorName)),
