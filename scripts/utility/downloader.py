@@ -39,13 +39,13 @@ def download_zipfile_and_extract(src_zipfile_url, dst_directory):
 
 	print("Extracting file...")
 
-	# extract zipped resource folder
+	# Extract zipped resource folder
 	zip_file = zipfile.ZipFile(temp_dst_file_path, "r")
 	zip_file.extractall(dst_directory)
 	zip_file.close()
 
 	print("Deleting temporary file %s." % temp_dst_file_path)
 
-	# delete zipped resource file
+	# Delete zipped resource file
 	os.remove(temp_dst_file_path)
 

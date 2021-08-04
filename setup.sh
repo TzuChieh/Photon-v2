@@ -13,4 +13,4 @@ mkdir -p "$photon_build_directory"
 python3 "./scripts/download_thirdparty_library.py" "$photon_build_directory"
 python3 "./scripts/download_resource.py" "$photon_build_directory"
 
-echo "Setup Completed"
+echo "--- Setup Completed ---"

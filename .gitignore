@@ -10,7 +10,7 @@
 *.pyc
 
 ###############################################################################
-# Common Build Output Paths                                                   #
+# Common Build Output Paths (for Visual Studio mostly)                        #
 ###############################################################################
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -18,11 +18,14 @@
 [Rr]eleases/
 x64/
 x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
 bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-[Ll]ib/
+[Ll]ogs/
 
 ###############################################################################
 # Visual Studio                                                               #
@@ -54,6 +57,7 @@ ipch/
 !*.[Cc]ache/
 
 # Visual Studio User Specific Files
+*.rsuser
 *.suo
 *.user
 *.userosscache

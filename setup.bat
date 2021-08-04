@@ -12,4 +12,4 @@ md "%photon_build_directory%"
 python "./scripts/download_thirdparty_library.py" "%photon_build_directory%"
 python "./scripts/download_resource.py" "%photon_build_directory%"
 
-ECHO Setup Completed
+ECHO --- Setup Completed ---
