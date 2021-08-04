@@ -3,6 +3,7 @@
 #include <utility>
 #include <type_traits>
 #include <cstring>
+#include <string>
 
 namespace ph
 {
@@ -60,6 +61,16 @@ inline bool is_big_endian()
 
 	const int i = 0x07;
 	return reinterpret_cast<const char*>(&i)[0] != '\x07';
+}
+
+template<typename EnumType>
+inline std::string enum_to_string(EnumType value)
+{
+	static_assert(std::is_enum_v<EnumType>, 
+		"EnumType accepts only enum (both scoped and unscoped).");
+
+	using ValueType = std::underlying_type_t<EnumType>;
+	return std::to_string(static_cast<ValueType>(value));
 }
 
 }// end namespace ph

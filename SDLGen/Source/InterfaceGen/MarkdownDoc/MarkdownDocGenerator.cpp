@@ -4,6 +4,7 @@
 #include <DataIO/SDL/Introspect/SdlClass.h>
 #include <DataIO/SDL/Introspect/SdlFunction.h>
 #include <DataIO/SDL/Introspect/SdlField.h>
+#include <DataIO/SDL/Introspect/SdlEnum.h>
 #include <DataIO/SDL/sdl_helpers.h>
 #include <Common/assertion.h>
 
@@ -44,7 +45,16 @@ void MarkdownDocGenerator::generate(
 		writeNewLine();
 	}
 
-	// TODO
+	writeNewLine();
+
+	for(const SdlEnum* const sdlEnum : sdlEnums)
+	{
+		writeEnumDoc(sdlEnum);
+
+		writeNewLine();
+	}
+
+	writeNewLine();
 }
 
 void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
@@ -65,7 +75,7 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 	{
 		writeString("* Notes: ");
 
-		if(sdlClass->isAbstract())
+		if(sdlClass->isBlueprint())
 		{
 			writeString("**blueprint only**");
 		}
@@ -101,7 +111,7 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 	writeNewLine();
 
 	// Only non-blueprint classes can be created
-	if(!(sdlClass->isAbstract()))
+	if(!(sdlClass->isBlueprint()))
 	{
 		writeClassCreationDoc(sdlClass);
 	}
@@ -147,6 +157,41 @@ void MarkdownDocGenerator::writeFunctionDoc(const SdlFunction* const sdlFunc)
 	writeNewLine();
 
 	writeInputTable(gatherInputs(sdlFunc));
+}
+
+void MarkdownDocGenerator::writeEnumDoc(const SdlEnum* const sdlEnum)
+{
+	if(!sdlEnum)
+	{
+		return;
+	}
+
+	writeLine("## " + sdl_name_to_capitalized(sdlEnum->getName()));
+
+	writeNewLine();
+
+	writeLine(sdlEnum->getDescription());
+
+	writeNewLine();
+
+	if(sdlEnum->numEntries() == 0)
+	{
+		writeLine("(no entry)");
+	}
+	else
+	{
+		writeLine("| Entries | Descriptions |");
+		writeLine("| --- | --- |");
+
+		for(std::size_t entryIdx = 0; entryIdx < sdlEnum->numEntries(); ++entryIdx)
+		{
+			const SdlEnum::Entry entry = sdlEnum->getEntry(entryIdx);
+
+			// TODO: link for type doc
+
+			writeLine("| `" + std::string(entry.name) + "` | " + sdlEnum->getEntryDescription(entryIdx) + " |");
+		}
+	}
 }
 
 void MarkdownDocGenerator::writeInputTable(const std::vector<const SdlField*>& inputs)

@@ -10,10 +10,12 @@
 
 namespace ph { class SdlField; }
 namespace ph { class SdlFunction; }
+namespace ph { class SdlEnum; }
 
 namespace ph::sdlgen
 {
 
+// TODO: string generation, generate() should base on string output
 class MarkdownDocGenerator : public InterfaceGenerator
 {
 public:
@@ -27,6 +29,7 @@ public:
 	void writeClassDoc(const SdlClass* sdlClass);
 	void writeClassCreationDoc(const SdlClass* sdlClass);
 	void writeFunctionDoc(const SdlFunction* sdlFunc);
+	void writeEnumDoc(const SdlEnum* sdlEnum);
 	void writeInputTable(const std::vector<const SdlField*>& inputs);
 	void writeLine(std::string line);
 	void writeString(std::string str);
