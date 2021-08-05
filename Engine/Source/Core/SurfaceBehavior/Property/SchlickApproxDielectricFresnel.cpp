@@ -11,9 +11,9 @@ SchlickApproxDielectricFresnel::SchlickApproxDielectricFresnel(
 	const real iorInner) : 
 	DielectricFresnel(iorOuter, iorInner)
 {
-	const real numi = std::pow(iorOuter - iorInner, 2);
-	const real deno = std::pow(iorOuter + iorInner, 2);
-	m_f0 = numi / deno;
+	const double numi = std::pow(iorOuter - iorInner, 2);
+	const double deno = std::pow(iorOuter + iorInner, 2);
+	m_f0 = static_cast<real>(numi / deno);
 
 	m_tirIorRatio2 = std::max(iorOuter, iorInner) / std::min(iorOuter, iorInner);
 }
@@ -46,7 +46,8 @@ void SchlickApproxDielectricFresnel::calcReflectance(
 		cosTheta = std::sqrt(1.0_r - sinT2);
 	}
 
-	out_reflectance->setValues(m_f0 + (1.0_r - m_f0) * std::pow(1.0_r - cosTheta, 5));
+	out_reflectance->setValues(
+		m_f0 + (1.0_r - m_f0) * static_cast<real>(std::pow(1.0_r - cosTheta, 5)));
 }
 
 }// end namespace ph

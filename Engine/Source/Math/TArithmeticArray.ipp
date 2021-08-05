@@ -182,7 +182,7 @@ inline TArithmeticArray<T, N> TArithmeticArray<T, N>::pow(const integer exponent
 	TArithmeticArray result;
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		result.m[i] = std::pow(m[i], exponent);
+		result.m[i] = static_cast<T>(std::pow(m[i], exponent));
 	}
 
 	return result;

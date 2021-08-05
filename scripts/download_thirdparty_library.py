@@ -17,8 +17,9 @@ git_branch_result = console.run_command("git", "branch")
 #
 # we need to parse it
 #
-asterisk_index = git_branch_result.index('*')
-git_branch_name = git_branch_result[asterisk_index + 1:].strip()
+git_branch_tokens = git_branch_result.split()
+asterisk_index = git_branch_tokens.index("*")
+git_branch_name = git_branch_tokens[asterisk_index + 1]
 print("Currently on %s branch" % git_branch_name)
 
 # Use develop branch on third-party lib repo if we are not on master branch

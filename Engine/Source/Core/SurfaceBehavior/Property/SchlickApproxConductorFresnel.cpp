@@ -40,7 +40,8 @@ void SchlickApproxConductorFresnel::calcReflectance(
 	// sign of cosI does not matter here.
 	const real cosI = std::abs(cosThetaIncident);
 
-	out_reflectance->setValues(m_f0Complement.mul(std::pow(1.0_r - cosI, 5)).addLocal(m_f0));
+	out_reflectance->setValues(
+		m_f0Complement.mul(static_cast<real>(std::pow(1.0_r - cosI, 5))).addLocal(m_f0));
 }
 
 }// end namespace ph

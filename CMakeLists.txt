@@ -139,7 +139,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
     # use C++17 (VS usually do not pick up previous requests)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")
+    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++latest")
 
     # use PDB files for debugging, which also provides potential optimizations
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zi")
