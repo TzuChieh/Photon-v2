@@ -66,9 +66,9 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 	PH_ASSERT_MSG(static_cast<const SdlField*>(m_innerObjField) != this, 
 		"setting self as inner field is forbidden (will result in infinite recursive calls)");
 
-	setDescription(m_innerObjField->getDescription());
-	setEnableFallback(m_innerObjField->isFallbackEnabled());
-	setImportance(m_innerObjField->getImportance());
+	this->setDescription(m_innerObjField->getDescription());
+	this->setEnableFallback(m_innerObjField->isFallbackEnabled());
+	this->setImportance(m_innerObjField->getImportance());
 }
 
 template<typename OuterType, typename InnerType>

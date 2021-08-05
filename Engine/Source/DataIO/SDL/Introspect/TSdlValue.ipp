@@ -57,7 +57,7 @@ template<typename T, typename Owner>
 inline auto TSdlValue<T, Owner>::withImportance(const EFieldImportance importance)
 -> TSdlValue&
 {
-	setImportance(importance);
+	this->setImportance(importance);
 	return *this;
 }
 
@@ -65,7 +65,7 @@ template<typename T, typename Owner>
 inline auto TSdlValue<T, Owner>::description(std::string descriptionStr)
 -> TSdlValue&
 {
-	setDescription(std::move(descriptionStr));
+	this->setDescription(std::move(descriptionStr));
 	return *this;
 }
 
@@ -94,7 +94,7 @@ template<typename T, typename Owner>
 inline auto TSdlValue<T, Owner>::enableFallback(const bool isFallbackEnabled)
 -> TSdlValue&
 {
-	setEnableFallback(isFallbackEnabled);
+	this->setEnableFallback(isFallbackEnabled);
 	return *this;
 }
 

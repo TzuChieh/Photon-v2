@@ -52,7 +52,7 @@ protected:
 			{
 				std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
 
-				setValue(
+				this->setValue(
 					owner,
 					sdl::load_real_array(std::move(loadedSdlValue)));
 			}
@@ -63,7 +63,7 @@ protected:
 		}
 		else
 		{
-			setValue(owner, sdl::load_real_array(std::string(payload.value)));
+			this->setValue(owner, sdl::load_real_array(std::string(payload.value)));
 		}
 	}
 

@@ -27,7 +27,7 @@ public:
 	{
 		if constexpr(std::is_same_v<SdlValueType, TSdlValue<math::TVector2<Element>, Owner>>)
 		{
-			defaultTo(math::TVector2<Element>(0, 0));
+			this->defaultTo(math::TVector2<Element>(0, 0));
 		}
 	}
 
@@ -43,7 +43,7 @@ protected:
 		const SdlInputContext& ctx) const override
 	{
 		// TODO: view
-		setValue(owner, sdl::load_vector2<Element>(std::string(payload.value)));
+		this->setValue(owner, sdl::load_vector2<Element>(std::string(payload.value)));
 	}
 
 	inline void convertToSdl(

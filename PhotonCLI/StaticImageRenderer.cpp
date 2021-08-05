@@ -226,7 +226,7 @@ void StaticImageRenderer::setSceneFilePath(const std::string& path)
 
 // REFACTOR: use a getReference directory-from-file-path function
 #ifndef __APPLE__
-	namespace fs = std::experimental::filesystem;
+	namespace fs = std::filesystem;
 	const std::string sceneDirectory = fs::path(path).parent_path().string();
 	phSetWorkingDirectory(m_engineId, sceneDirectory.c_str());
 #else

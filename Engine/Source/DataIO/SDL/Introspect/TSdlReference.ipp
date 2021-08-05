@@ -106,7 +106,7 @@ template<typename T, typename Owner>
 inline auto TSdlReference<T, Owner>::withImportance(const EFieldImportance importance)
 -> TSdlReference&
 {
-	setImportance(importance);
+	this->setImportance(importance);
 	return *this;
 }
 
@@ -114,7 +114,7 @@ template<typename T, typename Owner>
 inline auto TSdlReference<T, Owner>::description(std::string descriptionStr)
 -> TSdlReference&
 {
-	setDescription(std::move(descriptionStr));
+	this->setDescription(std::move(descriptionStr));
 	return *this;
 }
 

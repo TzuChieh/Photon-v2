@@ -32,7 +32,7 @@ public:
 		const math::Vector3R&                        endUVW,
 		const std::shared_ptr<TTexture<OutputType>>& endTexture);
 
-	void sample(const SampleLocation& sampleLocation, Output* out_value) const override;
+	void sample(const SampleLocation& sampleLocation, OutputType* out_value) const override;
 
 private:
 	math::Vector3R                        m_beginUVW;

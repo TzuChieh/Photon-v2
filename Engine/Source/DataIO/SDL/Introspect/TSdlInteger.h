@@ -38,7 +38,7 @@ protected:
 		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, sdl::load_int<IntType>(payload.value));
+		this->setValue(owner, sdl::load_int<IntType>(payload.value));
 	}
 
 	inline void convertToSdl(

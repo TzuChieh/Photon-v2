@@ -44,7 +44,7 @@ protected:
 		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, TSdlEnum<EnumType>()[payload.value]);
+		this->setValue(owner, TSdlEnum<EnumType>()[payload.value]);
 	}
 
 	inline void convertToSdl(

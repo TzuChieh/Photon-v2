@@ -55,7 +55,7 @@ inline TLinearGradientTexture<OutputType>::TLinearGradientTexture(
 }
 
 template<typename OutputType>
-inline void TLinearGradientTexture<OutputType>::sample(const SampleLocation& sampleLocation, Output* const out_value) const
+inline void TLinearGradientTexture<OutputType>::sample(const SampleLocation& sampleLocation, OutputType* const out_value) const
 {
 	PH_ASSERT(out_value);
 	PH_ASSERT(m_beginTexture);

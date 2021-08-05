@@ -29,7 +29,7 @@ public:
 	{
 		if constexpr(std::is_same_v<SdlValueType, TSdlValue<math::TQuaternion<Element>, Owner>>)
 		{
-			defaultTo(math::TQuaternion<Element>::makeNoRotation());
+			this->defaultTo(math::TQuaternion<Element>::makeNoRotation());
 		}
 	}
 	
@@ -44,7 +44,7 @@ protected:
 		const SdlPayload&      payload,
 		const SdlInputContext& ctx) const override
 	{
-		setValue(owner, sdl::load_quaternion(std::string(payload.value)));
+		this->setValue(owner, sdl::load_quaternion(std::string(payload.value)));
 	}
 
 	inline void convertToSdl(

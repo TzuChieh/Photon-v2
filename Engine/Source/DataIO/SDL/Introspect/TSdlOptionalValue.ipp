@@ -19,14 +19,14 @@ inline TSdlOptionalValue<T, Owner>::TSdlOptionalValue(
 {
 	PH_ASSERT(m_valuePtr);
 
-	setImportance(EFieldImportance::OPTIONAL);
+	this->setImportance(EFieldImportance::OPTIONAL);
 }
 
 template<typename T, typename Owner>
 inline auto TSdlOptionalValue<T, Owner>::description(std::string descriptionStr)
 -> TSdlOptionalValue&
 {
-	setDescription(std::move(descriptionStr));
+	this->setDescription(std::move(descriptionStr));
 	return *this;
 }
 

@@ -52,7 +52,7 @@ protected:
 		const SdlInputContext& ctx) const override
 	{
 		// TODO: allow for more color spaces via tag
-		setValue(owner, sdl::load_spectrum(payload, m_usage));
+		this->setValue(owner, sdl::load_spectrum(payload, m_usage));
 	}
 
 	void convertToSdl(

@@ -6,9 +6,22 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-project(Photon-v2)
-
 cmake_policy(SET CMP0054 NEW)
+
+if(WIN32)
+    set(WINDOWS_SDK_VERSION "10.0" CACHE STRING 
+        "The windows SDK version to use. (10.0 = latest)")
+    
+    set(CMAKE_SYSTEM_VERSION ${WINDOWS_SDK_VERSION} CACHE INTERNAL
+        "The version of the operating system for which CMake is to build." FORCE)
+    message(STATUS
+        "Will build with Windows SDK version ${CMAKE_SYSTEM_VERSION} (10.0 = latest)")
+endif()
+
+#------------------------------------------------------------------------------
+# Main project call is here
+#
+project(Photon-v2)
 
 message(STATUS
     "Operating System: ${CMAKE_SYSTEM_NAME}")
@@ -25,7 +38,7 @@ else()
 endif()
 
 set(BUILD_OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/")
-set(THIRDPARTY_DIR   "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty-master/")
+set(THIRDPARTY_DIR   "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BUILD_OUTPUT_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BUILD_OUTPUT_DIR}")
@@ -117,7 +130,7 @@ message(STATUS
 ###############################################################################
 
 # Compile with C++17 standard enabled
-set(CMAKE_CXX_STANDARD          17)
+set(CMAKE_CXX_STANDARD          20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set compiler-dependent settings
@@ -126,7 +139,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
     # use C++17 (VS usually do not pick up previous requests)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++latest")
 
     # use PDB files for debugging, which also provides potential optimizations
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zi")

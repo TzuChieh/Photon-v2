@@ -52,7 +52,7 @@ inline void TSdlMethod<MethodStruct, TargetType>::callMethod(
 	static_assert(!std::is_abstract_v<MethodStruct> && std::is_default_constructible_v<MethodStruct>,
 		"MethodStruct must be non-abstract and default-constructible.");
 
-	static_assert(std::is_invocable_v<MethodStruct, TargetType>,
+	static_assert(std::is_invocable_v<MethodStruct, TargetType&>,
 		"MethodStruct must contain an operator() that can take a TargetType instance.");
 
 	MethodStruct methodStructObj;

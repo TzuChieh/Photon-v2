@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 
 void renderImageSeries(const ProcessedArguments& args)
 {
-	namespace fs = std::experimental::filesystem;
+	namespace fs = std::filesystem;
 
 	const fs::path    sceneDirectory    = fs::path(args.getSceneFilePath()).parent_path();
 	const std::string sceneFilenameStar = fs::path(args.getSceneFilePath()).filename().string();

@@ -95,13 +95,13 @@ inline void TSdlGenericColor<Owner>::loadFromSdl(
 		else if(payload.isResourceIdentifier())
 		{
 			const SdlResourceIdentifier resId(payload.value, ctx.getWorkingDirectory());
-			setValueRef(owner, sdl::load_picture_color(resId.getPathToResource()));
+			this->setValueRef(owner, sdl::load_picture_color(resId.getPathToResource()));
 		}
 		else
 		{
 			// TODO: load spectral image
 			const auto tristimulus = sdl::load_vector3(std::string(payload.value));
-			setValueRef(owner, sdl::load_tristimulus_color(tristimulus, ESdlColorSpace::LINEAR_SRGB, m_usage));
+			this->setValueRef(owner, sdl::load_tristimulus_color(tristimulus, ESdlColorSpace::LINEAR_SRGB, m_usage));
 		}
 	}
 	catch(const SdlLoadError& e)
@@ -116,12 +116,12 @@ inline void TSdlGenericColor<Owner>::setValueToDefault(Owner& owner) const
 {
 	if(m_defaultLinearSrgb)
 	{
-		setValueRef(owner, sdl::load_tristimulus_color(
+		this->setValueRef(owner, sdl::load_tristimulus_color(
 			m_defaultLinearSrgb.value(), ESdlColorSpace::LINEAR_SRGB, m_usage));
 	}
 	else
 	{
-		setValueRef(owner, nullptr);
+		this->setValueRef(owner, nullptr);
 	}
 }
 

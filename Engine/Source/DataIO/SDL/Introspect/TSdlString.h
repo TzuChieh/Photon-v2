@@ -34,7 +34,7 @@ protected:
 		const SdlInputContext& ctx) const override
 	{
 		// Save <sdlValue> directly as it is already a string
-		setValue(owner, std::string(payload.value));
+		this->setValue(owner, std::string(payload.value));
 	}
 
 	inline void convertToSdl(

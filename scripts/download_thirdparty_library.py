@@ -4,10 +4,12 @@ from utility import downloader
 from utility import console
 
 import sys
+import os
+import shutil
 
 git_branch_result = console.run_command("git", "branch")
 
-# git branch returns branch names and indicate current branch like this
+# "git branch" returns branch names and indicate current branch like this
 #
 #   some-branch
 #   some-branch2
@@ -30,3 +32,22 @@ dst_directory = sys.argv[1]
 
 print("Downloading third-party libraries from <%s>..." % src_file_url)
 downloader.download_zipfile_and_extract(src_file_url, dst_directory)
+
+# The extracted zip file will be a folder named "Photon-v2-ThirdParty-<branch-name>",
+# rename it to be just "Photon-v2-ThirdParty"
+
+extracted_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty-" + git_branch_name)
+final_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty")
+
+# Delete old library folder first if it exists
+if os.path.isdir(final_folder_path):
+    shutil.rmtree(final_folder_path)
+    print("Old library folder deleted")
+
+os.rename(extracted_folder_path, final_folder_path)
+
+# Check resources
+if os.path.isdir(final_folder_path):
+    print("Third-party libraries saved to <%s>" % final_folder_path)
+else:
+    print("Failed to locate third-party libraries, expected to be <%s>" % final_folder_path, file=sys.stderr)
