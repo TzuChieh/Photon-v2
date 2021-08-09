@@ -49,3 +49,6 @@ include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 
 link_thirdparty_lib(${PHOTON_EDITOR_NAME} ${GLFW_LIB_NAME})
 link_thirdparty_lib(${PHOTON_EDITOR_NAME} ${GLAD_LIB_NAME})
+
+source_group(TREE ${PHOTON_EDITOR_DIR} FILES ${PHOTON_EDITOR_HEADER_FILES})
+source_group(TREE ${PHOTON_EDITOR_DIR} FILES ${PHOTON_EDITOR_SOURCE_FILES})

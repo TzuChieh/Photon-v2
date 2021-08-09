@@ -29,6 +29,9 @@ target_include_directories(${SDL_GEN_NAME}
 
 target_link_libraries(${SDL_GEN_NAME} PRIVATE Engine)
 
+source_group(TREE ${SDL_GEN_DIR} FILES ${SDL_GEN_HEADER_FILES})
+source_group(TREE ${SDL_GEN_DIR} FILES ${SDL_GEN_SOURCE_FILES})
+
 set(SDL_GEN_NAME        "${SDL_GEN_NAME}"        PARENT_SCOPE)
 set(SDL_GEN_INCLUDE_DIR "${SDL_GEN_INCLUDE_DIR}" PARENT_SCOPE)
 

@@ -1,5 +1,7 @@
 # Photon-v2 Command Line Application
 
+get_filename_component(PHOTON_CLI_DIR "./" ABSOLUTE)
+
 file(GLOB_RECURSE PHOTON_CLI_HEADER_FILES 
 	"./*.h"
 	"./*.ipp"
@@ -23,3 +25,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     	APPEND PROPERTY 
     	LINK_FLAGS /DEBUG:FULL)
 endif()
+
+source_group(TREE ${PHOTON_CLI_DIR} FILES ${PHOTON_CLI_HEADER_FILES})
+source_group(TREE ${PHOTON_CLI_DIR} FILES ${PHOTON_CLI_SOURCE_FILES})

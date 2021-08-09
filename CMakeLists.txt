@@ -18,6 +18,9 @@ if(WIN32)
         "Will build with Windows SDK version ${CMAKE_SYSTEM_VERSION} (10.0 = latest)")
 endif()
 
+# Required so that source group calls produce filters in Visual Studio
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 #------------------------------------------------------------------------------
 # Main project call is here
 #

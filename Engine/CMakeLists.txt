@@ -70,18 +70,10 @@ add_library(EngineStatic STATIC $<TARGET_OBJECTS:EngineObjLib>)
 
 ]]
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_source_groups.cmake")
-make_source_groups_from_file_paths(
-	GROUP_ROOT ${ENGINE_DIR}
-	FILE_PATHS "${ENGINE_HEADER_FILES}" "${ENGINE_SOURCE_FILES}")
-
 source_group(TREE ${ENGINE_DIR} FILES ${ENGINE_HEADER_FILES})
 source_group(TREE ${ENGINE_DIR} FILES ${ENGINE_SOURCE_FILES})
-source_group(TREE "${ENGINE_DIR}"
-         PREFIX "ABC"
-         FILES ${ENGINE_SOURCE_FILES})
+
+# TODO: other files such as .dox
 
 # Make these directories accessible for other sub-projects
 set(ENGINE_INCLUDE_DIR         "${ENGINE_INCLUDE_DIR}"         PARENT_SCOPE)

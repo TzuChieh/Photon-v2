@@ -2,8 +2,15 @@
 
 set(ENGINE_TEST_NAME "EngineTest")
 
-file(GLOB_RECURSE SOURCE_FILES "./Source/*.cpp")
-add_executable(${ENGINE_TEST_NAME} ${SOURCE_FILES})
+get_filename_component(ENGINE_TEST_DIR "./" ABSOLUTE)
+
+file(GLOB_RECURSE ENGINE_TEST_HEADER_FILES "./Source/*.h")
+file(GLOB_RECURSE ENGINE_TEST_SOURCE_FILES "./Source/*.cpp")
+
+# Explicitly mark them as engine test headers
+set_source_files_properties(${ENGINE_TEST_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
+
+add_executable(${ENGINE_TEST_NAME} ${ENGINE_TEST_HEADER_FILES} ${ENGINE_TEST_SOURCE_FILES})
 add_dependencies(${ENGINE_TEST_NAME} Engine)
 
 target_include_directories(${ENGINE_TEST_NAME}
@@ -39,3 +46,6 @@ endif()
 #		"${PROJECT_SOURCE_DIR}/Resource/Test/" 
 #		"${PROJECT_BINARY_DIR}/bin/Resource/Test/"
 #)
+
+source_group(TREE ${ENGINE_TEST_DIR} FILES ${ENGINE_TEST_HEADER_FILES})
+source_group(TREE ${ENGINE_TEST_DIR} FILES ${ENGINE_TEST_SOURCE_FILES})
