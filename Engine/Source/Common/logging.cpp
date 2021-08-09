@@ -1,9 +1,14 @@
 #include "Common/logging.h"
 #include "Common/assertion.h"
 #include "Common/Logger.h"
+#include "Utility/Timestamp.h"
 
 #include <utility>
 #include <mutex>
+#include <fstream>
+#include <iostream>
+#include <algorithm>
+#include <filesystem>
 
 namespace ph::detail::core_logging
 {
@@ -44,7 +49,48 @@ Logger make_core_logger()
 			}
 		});
 
-	// TODO: add file handler
+	auto coreLogFilename = Timestamp().toString() + "_core_logs.txt";
+	auto coreLogFilePath = std::string(PH_LOG_FILE_DIRECTRY) + coreLogFilename;
+
+	// Replace any ':' in the path with '-' as the OS may not allow it
+	std::replace(coreLogFilePath.begin(), coreLogFilePath.end(), ':', '-');
+
+	// Possibly create non-existing directory first otherwise std::ofstream
+	// will result in an error
+	std::filesystem::create_directories(PH_LOG_FILE_DIRECTRY);
+
+	// A static stream as there should be only one core log file ever created
+	// per engine run
+	static std::ofstream stream(coreLogFilePath, std::ios_base::out);
+
+	if(stream.good())
+	{
+		std::cout << "log file <" << coreLogFilePath << "> created" << std::endl;
+	}
+	else
+	{
+		std::cerr << "warning: log file <" << coreLogFilePath << "> creation failed" << std::endl;
+	}
+
+	logger.addLogHandler(
+		[](const ELogLevel logLevel, const std::string_view logString)
+		{
+			std::lock_guard<std::mutex> lock(CORE_LOGGER_MUTEX());
+
+			// TODO: attempt to re-create the log file
+			if(!stream.good())
+			{
+				return;
+			}
+
+			PH_ASSERT(stream.good());
+
+			stream << logString << std::endl;
+
+			// Flush the stream immediately as we should assume the system would
+			// crash at any time; so that valuable information could be kept
+			stream.flush();
+		});
 	
 	return logger;
 }
