@@ -16,7 +16,7 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(PPMRadianceEvaluator, PhotonMap);
+PH_DEFINE_INTERNAL_LOG_GROUP(PPMRadianceEvaluationWork, PhotonMap);
 
 PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
 
@@ -111,8 +111,7 @@ void PPMRadianceEvaluationWork::sanitizeVariables()
 	real sanitizedAlpha = m_alpha;
 	if(m_alpha < 0.0_r || m_alpha > 1.0_r)
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"alpha must be in [0, 1], " + std::to_string(m_alpha) + " provided, clamping");
+		PH_LOG_WARNING(PPMRadianceEvaluationWork, "alpha must be in [0, 1], {} provided, clamping", m_alpha);
 
 		sanitizedAlpha = math::clamp(m_alpha, 0.0_r, 1.0_r);
 	}

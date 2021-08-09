@@ -1,5 +1,6 @@
 #include "DataIO/TextFileLoader.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 
 #include <fstream>
 #include <iostream>
@@ -8,21 +9,20 @@
 namespace ph
 {
 
-const Logger TextFileLoader::logger(LogSender("Text File Loader"));
+PH_DEFINE_INTERNAL_LOG_GROUP(TextFileLoader, DataIO);
 
 bool TextFileLoader::load(const Path& filePath, std::string* const out_text)
 {
 	PH_ASSERT(out_text);
 
-	logger.log(ELogLevel::NOTE_MED, 
-	           "loading text file <" + filePath.toString() + ">");
+	PH_LOG(TextFileLoader, "loading text file <{}>", filePath.toString());
 
 	std::ifstream textFile;
 	textFile.open(filePath.toAbsoluteString());
 	if(!textFile.is_open())
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-		           "cannot open text file <"+ filePath.toAbsoluteString() + ">");
+		PH_LOG_WARNING(TextFileLoader, "cannot open text file <{}>", filePath.toAbsoluteString());
+
 		return false;
 	}
 

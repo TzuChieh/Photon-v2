@@ -3,11 +3,13 @@
 #include "Math/Transform/RigidTransform.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/TDecomposedTransform.h"
-#include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 
 namespace ph::math
 {
+
+PH_DEFINE_EXTERNAL_LOG_GROUP(StaticRigidTransform, Math);
 
 /*
 	A static transform that enforces object rigidity during the 
@@ -65,8 +67,6 @@ private:
 private:
 	StaticAffineTransform m_staticTransform;
 
-	static const Logger logger;
-
 	explicit StaticRigidTransform(const StaticAffineTransform& transform);
 
 	template<typename U>
@@ -116,10 +116,8 @@ inline auto StaticRigidTransform::getScaleFreeTransforms(const std::vector<TDeco
 		}
 		else
 		{
-			logger.log(ELogLevel::WARNING_MED, 
-			           "scale effect detected, which is " + 
-			           transform.getScale().toString() + 
-			           ", ignoring");
+			PH_LOG_WARNING(StaticRigidTransform,
+				"scale effect detected, which is {}, ignoring", transform.getScale().toString());
 
 			scaleFreeTransforms.push_back(TDecomposedTransform<U>(transform).setScale(1));
 		}

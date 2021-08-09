@@ -3,8 +3,6 @@
 namespace ph::math
 {
 
-const Logger StaticRigidTransform::logger(LogSender("StaticRigidTransform"));
-
 const StaticRigidTransform& StaticRigidTransform::IDENTITY()
 {
 	static const StaticRigidTransform identityTransform(StaticAffineTransform::IDENTITY());

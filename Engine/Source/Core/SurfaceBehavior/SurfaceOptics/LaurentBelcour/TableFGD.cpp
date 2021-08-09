@@ -10,18 +10,18 @@ namespace ph
 
 namespace
 {
-	enum class EInterpolationMode
-	{
-		NEAREST,
 
-		// NOTE: causing artifacts at grazing angles (especially low roughnesses)
-		STOCHASTIC_QUADLINEAR
-	};
+enum class EInterpolationMode
+{
+	NEAREST,
 
-	constexpr EInterpolationMode MODE = EInterpolationMode::NEAREST;
+	// NOTE: causing artifacts at grazing angles (especially low roughnesses)
+	STOCHASTIC_QUADLINEAR
+};
+
+constexpr EInterpolationMode MODE = EInterpolationMode::NEAREST;
+
 }
-
-const Logger TableFGD::logger(LogSender("FGD Table"));
 
 real TableFGD::sample(const real cosWi, const real alpha, const real iorN, const real iorK) const
 {

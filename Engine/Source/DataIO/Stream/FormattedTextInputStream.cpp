@@ -1,6 +1,6 @@
 #include "DataIO/Stream/FormattedTextInputStream.h"
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Common/os.h"
 
 #include <utility>
@@ -13,10 +13,7 @@
 namespace ph
 {
 
-namespace
-{
-	Logger logger(LogSender("Text I-Stream"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(FormattedTextInputStream, DataIO);
 
 FormattedTextInputStream::FormattedTextInputStream(const Path& textFilePath) : 
 	m_istream(std::make_unique<std::ifstream>(
@@ -25,10 +22,9 @@ FormattedTextInputStream::FormattedTextInputStream(const Path& textFilePath) :
 {
 	if(!m_istream->good())
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"error encountered while opening file <" +
-			textFilePath.toAbsoluteString() +
-			">, input operations may be unavailable");
+		PH_LOG_WARNING(FormattedTextInputStream, 
+			"error encountered while opening file <{}>, input operations may be unavailable", 
+			textFilePath.toAbsoluteString());
 	}
 }
 
@@ -39,7 +35,7 @@ FormattedTextInputStream::FormattedTextInputStream(const std::string& textString
 {
 	if(!m_istream->good())
 	{
-		logger.log(ELogLevel::WARNING_MED,
+		PH_LOG_WARNING(FormattedTextInputStream,
 			"error encountered while constructing stream from string, "
 			"input operations may be unavailable");
 	}

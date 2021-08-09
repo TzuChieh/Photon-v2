@@ -1,7 +1,7 @@
 #include "DataIO/PictureSaver.h"
 #include "Frame/TFrame.h"
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Frame/frame_utils.h"
 #include "DataIO/ExrFileWriter.h"
 #include "DataIO/PfmFileWriter.h"
@@ -17,10 +17,7 @@
 namespace ph
 {
 
-namespace
-{
-	const Logger logger(LogSender("Picture Saver"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(PictureSaver, DataIO);
 
 bool PictureSaver::init()
 {
@@ -61,8 +58,7 @@ bool PictureSaver::save(const LdrRgbFrame& frame, const Path& filePath)
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"file <" + filePath.toString() + "> is an unsupported format");
+		PH_LOG_WARNING(PictureSaver, "file <{}> is an unsupported format", filePath.toString());
 
 		return false;
 	}
@@ -96,8 +92,7 @@ bool PictureSaver::save(const HdrRgbFrame& frame, const Path& filePath)
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"file <" + filePath.toString() + "> is an unsupported format");
+		PH_LOG_WARNING(PictureSaver, "file <{}> is an unsupported format", filePath.toString());
 
 		return false;
 	}
@@ -107,8 +102,7 @@ bool PictureSaver::savePng(const LdrRgbFrame& frame, const Path& filePath)
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
-	logger.log(ELogLevel::NOTE_MIN, 
-		"saving image <" + filePath.toAbsoluteString() + ">");
+	PH_LOG(PictureSaver, "saving image <{}>", filePath.toAbsoluteString());
 
 	return stbi_write_png(
 		filePath.toString().c_str(), 
@@ -123,8 +117,7 @@ bool PictureSaver::saveJpg(const LdrRgbFrame& frame, const Path& filePath)
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
-	logger.log(ELogLevel::NOTE_MIN,
-		"saving image <" + filePath.toAbsoluteString() + ">");
+	PH_LOG(PictureSaver, "saving image <{}>", filePath.toAbsoluteString());
 
 	return stbi_write_jpg(
 		filePath.toString().c_str(),
@@ -139,8 +132,7 @@ bool PictureSaver::saveBmp(const LdrRgbFrame& frame, const Path& filePath)
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
-	logger.log(ELogLevel::NOTE_MIN,
-		"saving image <" + filePath.toAbsoluteString() + ">");
+	PH_LOG(PictureSaver, "saving image <{}>", filePath.toAbsoluteString());
 
 	return stbi_write_bmp(
 		filePath.toString().c_str(),
@@ -154,8 +146,7 @@ bool PictureSaver::saveTga(const LdrRgbFrame& frame, const Path& filePath)
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
-	logger.log(ELogLevel::NOTE_MIN,
-		"saving image <" + filePath.toAbsoluteString() + ">");
+	PH_LOG(PictureSaver, "saving image <{}>", filePath.toAbsoluteString());
 
 	return stbi_write_tga(
 		filePath.toString().c_str(),
@@ -169,8 +160,7 @@ bool PictureSaver::saveHdr(const HdrRgbFrame& frame, const Path& filePath)
 {
 	static_assert(std::is_same_v<HdrComponent, float>);
 
-	logger.log(ELogLevel::NOTE_MIN,
-		"saving image <" + filePath.toAbsoluteString() + ">");
+	PH_LOG(PictureSaver, "saving image <{}>", filePath.toAbsoluteString());
 
 	return stbi_write_hdr(
 		filePath.toString().c_str(),

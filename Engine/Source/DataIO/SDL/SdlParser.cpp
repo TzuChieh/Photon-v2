@@ -1,7 +1,7 @@
 #include "DataIO/SDL/SdlParser.h"
 #include "DataIO/SDL/Tokenizer.h"
 #include "DataIO/SDL/SceneDescription.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "ph_cpp_core.h"
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/ETypeCategory.h"
@@ -15,12 +15,7 @@
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("SDL Parser"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(SdlParser, SDL);
 
 SdlParser::SdlParser() :
 	m_mangledNameToClass(),
@@ -40,10 +35,10 @@ SdlParser::SdlParser() :
 		const auto& iter = m_mangledNameToClass.find(mangledClassName);
 		if(iter != m_mangledNameToClass.end())
 		{
-			logger.log(ELogLevel::WARNING_MED,
-				"SDL class < " + clazz->genPrettyName() + "> already registered, "
-				"overwriting; please check for name collision: mangled name is <" + 
-				mangledClassName + ">");
+			PH_LOG_WARNING(SdlParser, 
+				"SDL class <{}> already registered, overwriting; please check for name "
+				"collision: mangled name is <{}>", 
+				clazz->genPrettyName(), mangledClassName);
 		}
 
 		m_mangledNameToClass[mangledClassName] = clazz;
@@ -86,8 +81,7 @@ void SdlParser::parseCommand(const std::string& command, SceneDescription& out_s
 	}
 	catch(const SdlLoadError& e)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"command failed to run -> " + e.whatStr());
+		PH_LOG_WARNING(SdlParser, "command failed to run -> {}", e.whatStr());
 
 		++m_numParseErrors;
 	}

@@ -2,7 +2,7 @@
 #include "InterfaceGen/MarkdownDoc/MarkdownDocGenerator.h"
 
 #include <Utility/string_utils.h>
-#include <Common/Logger.h>
+#include <Common/logging.h>
 #include <Utility/utility.h>
 #include <ph_cpp_core.h>
 
@@ -12,12 +12,7 @@
 namespace ph::sdlgen
 {
 
-namespace
-{
-
-const Logger logger(LogSender("SDLGen"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(SdlGenApi, SDLGen);
 
 std::string sdl_name_to_capitalized(const std::string_view sdlName)
 {
@@ -56,20 +51,21 @@ void generate_sdl_interface(const EInterfaceGenerator type, Path outputDirectory
 	auto generator = InterfaceGenerator::makeGenerator(type, std::move(outputDirectory));
 	if(!generator)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"invalid generator type <" + enum_to_string(type) + "> provided, nothing is generated");
+		PH_LOG_WARNING(SdlGenApi, "invalid generator type <{}> provided, nothing is generated",
+			enum_to_string(type));
 		return;
 	}
 
 	PH_ASSERT(generator);
 
-	logger.log("generating SDL interface via generator " + generator->getName());
+	PH_LOG(SdlGenApi, "generating SDL interface via generator {}", generator->getName());
 
 	generator->generate(
 		get_registered_sdl_classes(),
 		get_registered_sdl_enums());
 
-	logger.log("done generating SDL interface, output to <" + generator->getOutputDirectory().toAbsoluteString() + ">");
+	PH_LOG_WARNING(SdlGenApi, "done generating SDL interface, output to <{}>",
+		generator->getOutputDirectory().toAbsoluteString());
 }
 
 }// end namespace ph::sdlgen

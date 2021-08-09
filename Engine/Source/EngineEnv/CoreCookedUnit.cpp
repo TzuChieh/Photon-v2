@@ -1,7 +1,7 @@
 #include "EngineEnv/CoreCookedUnit.h"
 #include "DataIO/SDL/SceneDescription.h"
-#include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 #include "World/VisualWorld.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Receiver/Receiver.h"
@@ -12,12 +12,7 @@
 namespace ph
 {
 
-namespace
-{
-
-Logger logger(LogSender("Core Cooked Unit"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(CoreCookedUnit, Core);
 
 CoreCookedUnit::CoreCookedUnit() :
 	m_renderer       (nullptr),

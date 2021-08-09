@@ -8,7 +8,6 @@
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"
 #include "Core/Emitter/Sampler/EmitterSampler.h"
-#include "Common/Logger.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"

@@ -1,6 +1,6 @@
 #include "EngineEnv/Session/SingleFrameRenderSession.h"
 #include "EngineEnv/CoreCookingContext.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "DataIO/SDL/SceneDescription.h"
 #include "EngineEnv/Observer/Observer.h"
 #include "EngineEnv/SampleSource/SampleSource.h"
@@ -9,12 +9,7 @@
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Single-Frame Render Session"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(SingleFrameRenderSession, RenderSession);
 
 void SingleFrameRenderSession::applyToContext(CoreCookingContext& ctx) const
 {
@@ -26,8 +21,8 @@ void SingleFrameRenderSession::applyToContext(CoreCookingContext& ctx) const
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"invalid frame size provided: " + m_frameSizePx.toString());
+		PH_LOG_WARNING(SingleFrameRenderSession, 
+			"invalid frame size provided: {}", m_frameSizePx.toString());
 	}
 
 	ctx.setTopLevelAccelerator(m_topLevelAccelerator);
@@ -48,8 +43,8 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"observer <" + getObserverName() + "> not found");
+		PH_LOG_WARNING(SingleFrameRenderSession,
+			"observer <{}> not found", getObserverName());
 	}
 
 	auto sampleSource = scene.getResource<SampleSource>(getSampleSourceName());
@@ -59,8 +54,8 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"sample source <" + getSampleSourceName() + "> not found");
+		PH_LOG_WARNING(SingleFrameRenderSession,
+			"sample source <{}> not found", getSampleSourceName());
 	}
 
 	auto visualizer = scene.getResource<Visualizer>(getVisualizerName());
@@ -70,8 +65,8 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"visualizer <" + getVisualizerName() + "> not found");
+		PH_LOG_WARNING(SingleFrameRenderSession,
+			"visualizer <{}> not found", getVisualizerName());
 	}
 
 	return std::move(resources);

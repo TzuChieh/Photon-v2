@@ -1,17 +1,12 @@
 #include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Conductive Interface Info"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(ConductiveInterfaceInfo, BSDF);
 
 std::unique_ptr<ConductorFresnel> ConductiveInterfaceInfo::genFresnelEffect() const
 {
@@ -46,7 +41,7 @@ std::unique_ptr<ConductorFresnel> ConductiveInterfaceInfo::genFresnelEffect() co
 			// complete information for that, fallback to Schlick approximation
 			// and issue a warning.
 
-			logger.log(ELogLevel::WARNING_MED,
+			PH_LOG_WARNING(ConductiveInterfaceInfo,
 				"exact Fresnel formula is requested without complete information "
 				"specified; will fallback to Schlick approximation");
 		}

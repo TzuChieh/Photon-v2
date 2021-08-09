@@ -1,18 +1,13 @@
 #include "DataIO/Stream/StdOutputStream.h"
-#include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 
 #include <utility>
 
 namespace ph
 {
 
-namespace
-{
-	
-Logger logger(LogSender("std O-Stream"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(StdOutputStream, DataIO);
 
 StdOutputStream::StdOutputStream(std::unique_ptr<std::ostream> stream) :
 	m_ostream(std::move(stream))

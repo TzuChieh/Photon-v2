@@ -68,8 +68,6 @@ Logger& CORE_LOGGER()
 
 void log_to_logger(Logger& logger, const std::string_view groupName, const ELogLevel logLevel, const std::string_view logMessage)
 {
-	std::lock_guard<std::mutex> lock(CORE_LOGGER_MUTEX());
-
 	logger.log(groupName, logLevel, logMessage);
 }
 

@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "Common/logging.h"
 
 #include <cstddef>
 #include <string>
-#include <utility>
 
 namespace ph
 {
@@ -38,13 +36,6 @@ private:
 
 // In-header Implementations:
 
-inline SdlStruct::SdlStruct(std::string typeName) :
-	m_typeName   (std::move(typeName)),
-	m_description()
-{
-	PH_ASSERT(!m_typeName.empty());
-}
-
 inline const std::string& SdlStruct::getTypeName() const
 {
 	return m_typeName;
@@ -53,13 +44,6 @@ inline const std::string& SdlStruct::getTypeName() const
 inline const std::string& SdlStruct::getDescription() const
 {
 	return m_description;
-}
-
-inline SdlStruct& SdlStruct::setDescription(std::string description)
-{
-	m_description = std::move(description);
-
-	return *this;
 }
 
 }// end namespace ph

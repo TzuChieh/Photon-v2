@@ -1,17 +1,12 @@
 #include "DataIO/Stream/BinaryFileInputStream.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <fstream>
 
 namespace ph
 {
 
-namespace
-{
-	
-Logger logger(LogSender("Binary I-Stream"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(BinaryFileInputStream, DataIO);
 
 BinaryFileInputStream::BinaryFileInputStream(const Path& filePath) :
 	m_istream(std::make_unique<std::ifstream>(
@@ -20,10 +15,9 @@ BinaryFileInputStream::BinaryFileInputStream(const Path& filePath) :
 {
 	if(!m_istream->good())
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"error encountered while opening file <" + 
-			filePath.toAbsoluteString() +
-			">, input operations may be unavailable");
+		PH_LOG_WARNING(BinaryFileInputStream,
+			"error encountered while opening file <{}>, input operations may be unavailable",
+			filePath.toAbsoluteString());
 	}
 }
 

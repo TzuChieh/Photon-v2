@@ -1,14 +1,11 @@
 #include "Frame/frame_utils.h"
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 namespace ph
 {
 
-namespace
-{
-	const Logger logger(LogSender("Frame Utils"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(FrameUtilities, Frame);
 
 namespace frame_utils
 {
@@ -49,10 +46,9 @@ void abs_diff(const HdrRgbFrame& frameA, const HdrRgbFrame& frameB, HdrRgbFrame*
 
 	if(!frameA.getSizePx().equals(frameB.getSizePx()))
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"Dimension mismatch in abs_diff(3); "
-			"sizes are: " + frameA.getSizePx().toString() + ", " +
-			                frameB.getSizePx().toString());
+		PH_LOG_WARNING(FrameUtilities, "Dimension mismatch in abs_diff(3); sizes are: {}, {}", 
+			frameA.getSizePx().toString(), frameB.getSizePx().toString());
+
 		return;
 	}
 
@@ -75,10 +71,9 @@ real calc_MSE(const HdrRgbFrame& expected, const HdrRgbFrame& estimated)
 
 	if(!expected.getSizePx().equals(estimated.getSizePx()))
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"Dimension mismatch in calc_MSE(2); "
-			"sizes are: " + expected.getSizePx().toString() + ", " +
-			                estimated.getSizePx().toString());
+		PH_LOG_WARNING(FrameUtilities, "Dimension mismatch in calc_MSE(2); sizes are: {}, {}", 
+			expected.getSizePx().toString(), estimated.getSizePx().toString());
+
 		return 0.0_r;
 	}
 

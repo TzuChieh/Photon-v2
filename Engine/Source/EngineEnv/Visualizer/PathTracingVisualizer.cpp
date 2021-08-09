@@ -5,19 +5,14 @@
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/BVPTDLEstimator.h"
 #include "Core/Filmic/SampleFilters.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Core/Renderer/Sampling/EqualSamplingRenderer.h"
 #include "Frame/Viewport.h"
 
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Path Tracing Visualizer"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(PathTracingVisualizer, Visualizer);
 
 void PathTracingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked)
 {
@@ -56,7 +51,7 @@ SampleFilter PathTracingVisualizer::makeSampleFilter() const
 		return SampleFilters::createBlackmanHarrisFilter();
 	}
 
-	logger.log("sample filter unspecified, using Blackman-Harris filter");
+	PH_LOG(PathTracingVisualizer, "sample filter unspecified, using Blackman-Harris filter");
 	return SampleFilters::createBlackmanHarrisFilter();
 }
 
@@ -74,7 +69,7 @@ std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() cons
 		return std::make_unique<BVPTDLEstimator>();
 	}
 
-	logger.log("no ray energy estimator unspecified, using BNEEPT");
+	PH_LOG(PathTracingVisualizer, "no ray energy estimator unspecified, using BNEEPT");
 	return std::make_unique<BNEEPTEstimator>();
 }
 

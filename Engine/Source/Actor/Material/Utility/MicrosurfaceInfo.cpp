@@ -1,5 +1,5 @@
 #include "Actor/Material/Utility/MicrosurfaceInfo.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h"
 #include "Core/SurfaceBehavior/Property/IsoBeckmann.h"
@@ -8,12 +8,7 @@
 namespace ph
 {
 
-namespace
-{
-	
-const Logger logger(LogSender("Microsurface Info"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(MicrosurfaceInfo, BSDF);
 
 std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 {
@@ -30,7 +25,7 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 			return std::make_unique<IsoBeckmann>(alpha);
 
 		default:
-			logger.log(ELogLevel::WARNING_MED,
+			PH_LOG_WARNING(MicrosurfaceInfo, 
 				"no input provided for the type of microsurface; resort to Trowbridge-Reitz (GGX)");
 			return std::make_unique<IsoTrowbridgeReitzConstant>(alpha);
 		}
@@ -41,7 +36,7 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 
 		if(m_microsurface == EInterfaceMicrosurface::BECKMANN)
 		{
-			logger.log(ELogLevel::WARNING_MED,
+			PH_LOG_WARNING(MicrosurfaceInfo,
 				"anisotropic Beckmann is not supported; resort to Trowbridge-Reitz (GGX)");
 		}
 

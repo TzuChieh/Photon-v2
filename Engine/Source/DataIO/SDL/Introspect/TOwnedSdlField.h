@@ -3,7 +3,6 @@
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
-#include "Common/Logger.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/Introspect/EFieldImportance.h"

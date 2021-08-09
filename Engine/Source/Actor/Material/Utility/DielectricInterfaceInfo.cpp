@@ -1,17 +1,12 @@
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Dielectric Interface Info"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(DielectricInterfaceInfo, BSDF);
 
 std::unique_ptr<DielectricFresnel> DielectricInterfaceInfo::genFresnelEffect() const
 {

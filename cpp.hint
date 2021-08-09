@@ -1,0 +1,7 @@
+// Hints for Visual Studio's browsing database parser to recognize and skip
+// some macros, which may otherwise cause intellisense warnings/errors.
+
+#define PH_DECLARE_LOG_GROUP(groupName)
+#define PH_DEFINE_LOG_GROUP(groupName, category)
+#define PH_DEFINE_INTERNAL_LOG_GROUP(groupName, category)
+#define PH_DEFINE_EXTERNAL_LOG_GROUP(groupName, category)

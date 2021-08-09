@@ -14,6 +14,7 @@
 #include "Core/Intersectable/Intersector/TIndexedKdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Actor/APhantomModel.h"
+#include "Common/logging.h"
 
 #include <limits>
 #include <iostream>
@@ -23,12 +24,7 @@
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Visual World"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(VisualWorld, World);
 
 VisualWorld::VisualWorld() :
 	m_intersector(),
@@ -55,7 +51,7 @@ VisualWorld::VisualWorld() :
 
 void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContext& coreCtx)
 {
-	logger.log(ELogLevel::NOTE_MED, "cooking visual world");
+	PH_LOG(VisualWorld, "cooking visual world");
 
 	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources<Actor>();
 
@@ -85,7 +81,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 			});
 
 		const CookLevel currentActorLevel = (*actorCookBegin)->getCookOrder().level;
-		logger.log("cooking actor level: " + std::to_string(currentActorLevel));
+		PH_LOG(VisualWorld, "cooking actor level: {}", currentActorLevel);
 
 		// Find the transition point from current level to next level
 		auto actorCookEnd = std::upper_bound(actorCookBegin, actors.end(), currentActorLevel,
@@ -103,11 +99,11 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		// TODO: should union with receiver's bound instead
 		bound.unionWith(m_receiverPos);
 
-		logger.log("current iteration actor bound: " + bound.toString());
+		PH_LOG(VisualWorld, "current iteration actor bound: {}", bound.toString());
 
 		if(currentActorLevel == static_cast<CookLevel>(ECookLevel::FIRST))
 		{
-			logger.log("root actors bound calculated to be: " + bound.toString());
+			PH_LOG(VisualWorld, "root actors bound calculated to be: {}", bound.toString());
 
 			visualWorldInfo.setRootActorsBound(bound);
 		}
@@ -120,7 +116,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 		numCookedActors += actorCookEnd - actorCookBegin;
 
-		logger.log("# cooked actors: " + std::to_string(numCookedActors));
+		PH_LOG(VisualWorld, "# cooked actors: {}", numCookedActors);
 	}// end while more raw actors
 
 	for(auto& phantom : cookingContext.m_phantoms)
@@ -131,20 +127,16 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 	m_backgroundPrimitive = cookingContext.claimBackgroundPrimitive();
 
-	logger.log(ELogLevel::NOTE_MED, 
-	           "visual world discretized into " + 
-	           std::to_string(m_cookedActorStorage.numIntersectables()) + 
-	           " intersectables");
+	PH_LOG(VisualWorld, "visual world discretized into {} intersectables", 
+		m_cookedActorStorage.numIntersectables());
+	PH_LOG(VisualWorld, "number of emitters: {}", 
+		m_cookedActorStorage.numEmitters());
 
-	logger.log(ELogLevel::NOTE_MED, 
-	           "number of emitters: " + 
-	           std::to_string(m_cookedActorStorage.numEmitters()));
-
-	logger.log(ELogLevel::NOTE_MED, "updating accelerator...");
+	PH_LOG(VisualWorld, "updating accelerator...");
 	createTopLevelAccelerator(coreCtx.getTopLevelAccelerator());
 	m_intersector->update(m_cookedActorStorage);
 
-	logger.log(ELogLevel::NOTE_MED, "updating light sampler...");
+	PH_LOG(VisualWorld, "updating light sampler...");
 	m_emitterSampler->update(m_cookedActorStorage);
 
 	m_scene = std::make_unique<Scene>(m_intersector.get(), m_emitterSampler.get());
@@ -198,7 +190,7 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 		break;
 	}
 
-	logger.log("top level accelerator type: " + name);
+	PH_LOG(VisualWorld, "top level accelerator type: {}", name);
 }
 
 math::AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storage)

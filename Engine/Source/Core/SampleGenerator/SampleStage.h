@@ -148,7 +148,7 @@ inline SampleStage SampleStage::popFirstND(const std::size_t N)
 		secondDimSizeHints);
 	this->setStrideLayout(strideSize, secondOffsetInStride);
 
-	return std::move(poppedStage);
+	return poppedStage;
 }
 
 inline std::size_t SampleStage::getBufferIndex() const

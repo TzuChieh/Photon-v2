@@ -6,7 +6,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 
 #include <iostream>
@@ -14,10 +14,7 @@
 namespace ph
 {
 
-namespace
-{
-	const Logger logger(LogSender("Emitter Sampler: Power Favoring"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(PowerFavoringEmitterSampler, EmitterSampler);
 
 void ESPowerFavoring::update(const CookedDataStorage& cookedActors)
 {
@@ -30,11 +27,11 @@ void ESPowerFavoring::update(const CookedDataStorage& cookedActors)
 	{
 		m_emitters.push_back(emitter.get());
 	}
-	logger.log("added " + std::to_string(m_emitters.size()) + " emitters");
+	PH_LOG(PowerFavoringEmitterSampler, "added {} emitters", m_emitters.size());
 
 	if(m_emitters.empty())
 	{
-		logger.log(ELogLevel::WARNING_MED, "no Emitter detected");
+		PH_LOG_WARNING(PowerFavoringEmitterSampler, "no Emitter detected");
 		return;
 	}
 

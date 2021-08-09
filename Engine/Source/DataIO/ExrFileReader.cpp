@@ -1,6 +1,7 @@
 #include "DataIO/ExrFileReader.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
+#include "Utility/utility.h"
 
 #include "Common/ThirdParty/lib_openexr.h"
 
@@ -8,6 +9,7 @@
 #include <iostream>
 #include <type_traits>
 #include <exception>
+#include <string>
 
 namespace ph
 {
@@ -71,9 +73,9 @@ bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
 	   !(pixelType == Imf::PixelType::HALF || pixelType == Imf::PixelType::FLOAT))
 	{
 		PH_LOG_WARNING(ExrFileReader,
-			"expecting RGB channels have the same floating point type; IDs: "
+			"expecting RGB channels to have the same floating point type; IDs: "
 			"R={}, G={}, B={}", 
-			rgbChannels[0]->type, rgbChannels[1]->type, rgbChannels[2]->type);
+			enum_to_string(rgbChannels[0]->type), enum_to_string(rgbChannels[1]->type), enum_to_string(rgbChannels[2]->type));
 
 		return false;
 	}
@@ -199,7 +201,7 @@ bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 	if(!(lineOrder == Imf::LineOrder::INCREASING_Y || lineOrder == Imf::LineOrder::DECREASING_Y))
 	{
 		PH_LOG_WARNING(ExrFileReader, "file <{}> has unsupported line order: {}", 
-			file.fileName(), lineOrder);
+			file.fileName(), enum_to_string(lineOrder));
 
 		return false;
 	}

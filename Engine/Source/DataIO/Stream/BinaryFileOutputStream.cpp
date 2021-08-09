@@ -1,6 +1,6 @@
 #include "DataIO/Stream/BinaryFileOutputStream.h"
-#include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 
 #include <fstream>
 #include <utility>
@@ -8,12 +8,7 @@
 namespace ph
 {
 
-namespace
-{
-
-Logger logger(LogSender("Binary O-Stream"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(BinaryFileOutputStream, DataIO);
 
 BinaryFileOutputStream::BinaryFileOutputStream(const Path& filePath) :
 	StdOutputStream(
@@ -23,10 +18,9 @@ BinaryFileOutputStream::BinaryFileOutputStream(const Path& filePath) :
 {
 	if(getStream() && !getStream()->good())
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"error encountered while opening file <" + 
-			filePath.toAbsoluteString() +
-			">, output operations may be unavailable");
+		PH_LOG_WARNING(BinaryFileOutputStream, 
+			"error encountered while opening file <{}>, output operations may be unavailable",
+			filePath.toAbsoluteString());
 	}
 }
 
