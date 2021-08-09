@@ -124,10 +124,10 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 			// (as the user provided a SDL value string for the field, 
 			// a successful parse was expected)
 			//
-			logger.log(ELogLevel::WARNING_MED,
-				"load error from " + sdl::gen_pretty_name(ctx.getSrcClass(), this) +
-				" -> " + e.whatStr() + "; " +
-				"value defaults to " + valueToString(owner));
+			PH_LOG_WARNING(SdlField, "load error from {} -> {}; value defaults to {}", 
+				sdl::gen_pretty_name(ctx.getSrcClass(), this),
+				e.whatStr(),
+				valueToString(owner));
 		}
 		else
 		{

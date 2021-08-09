@@ -1,5 +1,6 @@
 #include "ph_cpp_core.h"
 #include "Api/init_and_exit.h"
+#include "Common/logging.h"
 
 // Geometries
 #include "Actor/Geometry/Geometry.h"
@@ -88,19 +89,13 @@
 namespace ph
 {
 
-namespace
-{
-	
-const Logger logger(LogSender("C++ API"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(CppAPI, Engine);
 
 bool init_render_engine()
 {
 	if(!init_core_infrastructure())
 	{
-		logger.log(ELogLevel::FATAL_ERROR,
-			"core infrastructure initialization failed");
+		PH_LOG_ERROR(CppAPI, "core infrastructure initialization failed");
 		return false;
 	}
 
@@ -110,20 +105,17 @@ bool init_render_engine()
 	// Enums are initialized first as they have less dependencies.
 	//
 	const std::vector<const SdlEnum*> sdlEnums = get_registered_sdl_enums();
-	logger.log(ELogLevel::NOTE_MED,
-		"initialized " + std::to_string(sdlEnums.size()) + " SDL enum definitions");
+	PH_LOG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
 
 	// Get SDL classes once here to initialize them--this is not required,
 	// same reason as SDL enums.
 	//
 	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
-	logger.log(ELogLevel::NOTE_MED,
-		"initialized " + std::to_string(sdlClasses.size()) + " SDL class definitions");
+	PH_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
 
 	if(!init_command_parser())
 	{
-		logger.log(ELogLevel::FATAL_ERROR,
-			"command parser initialization failed");
+		PH_LOG_ERROR(CppAPI, "command parser initialization failed");
 		return false;
 	}
 
@@ -134,8 +126,7 @@ bool exit_render_engine()
 {
 	if(!exit_api_database())
 	{
-		logger.log(ELogLevel::FATAL_ERROR,
-			"C API database exiting failed");
+		PH_LOG_ERROR(CppAPI, "C API database exiting failed");
 		return false;
 	}
 

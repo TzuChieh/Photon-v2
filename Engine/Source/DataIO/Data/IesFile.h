@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "Common/Logger.h"
 #include "Common/primitive_type.h"
 
 #include <vector>
@@ -147,8 +146,6 @@ private:
 	std::size_t parseCandelaValues(const std::vector<std::string>& lines, std::size_t currentLine);
 
 private:
-	static const Logger logger;
-
 	static std::vector<std::string> retrieveLines(const std::vector<char>& data);
 };
 

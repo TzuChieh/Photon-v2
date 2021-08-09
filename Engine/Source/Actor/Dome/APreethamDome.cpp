@@ -1,5 +1,5 @@
 #include "Actor/Dome/APreethamDome.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Core/Texture/Sky/PreethamTexture.h"
 #include "Math/math.h"
 #include "Math/time.h"
@@ -8,12 +8,7 @@
 namespace ph
 {
 
-namespace
-{
-
-Logger logger(LogSender("Actor Dome (Preetham)"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(PreethamDomeActor, Actor);
 
 APreethamDome::APreethamDome() :
 	APreethamDome(
@@ -52,7 +47,7 @@ void APreethamDome::checkTurbidity(const real turbidity)
 {
 	if(turbidity < 2 || turbidity > 10)
 	{
-		logger.log(
+		PH_LOG(PreethamDomeActor,
 			"turbidity values not in [2, 10] may cause rendering artifacts as "
 			"the fitting might break (this is the range being tested in the paper)");
 	}

@@ -14,7 +14,7 @@
 #include "Api/ApiHelper.h"
 #include "Core/Scheduler/Region.h"
 #include "Common/config.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Frame/frame_utils.h"
 #include "Utility/ByteBuffer.h"
 
@@ -25,10 +25,7 @@
 
 using namespace ph;
 
-namespace
-{
-	const Logger logger(LogSender("Core API"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(CoreAPI, Engine);
 
 void phConfigCoreResourceDirectory(const PHchar* const directory)
 {
@@ -41,15 +38,13 @@ int phInit()
 {
 	if(!init_core_infrastructure())
 	{
-		logger.log(ELogLevel::FATAL_ERROR,
-			"core infrastructure initialization failed");
+		PH_LOG_ERROR(CoreAPI, "core infrastructure initialization failed");
 		return PH_FALSE;
 	}
 
 	if(!init_command_parser())
 	{
-		logger.log(ELogLevel::FATAL_ERROR, 
-			"command parser initialization failed");
+		PH_LOG_ERROR(CoreAPI, "command parser initialization failed");
 		return PH_FALSE;
 	}
 
@@ -60,8 +55,7 @@ int phExit()
 {
 	if(!exit_api_database())
 	{
-		logger.log(ELogLevel::FATAL_ERROR,
-			"API database exiting failed");
+		PH_LOG_ERROR(CoreAPI, "API database exiting failed");
 		return PH_FALSE;
 	}
 
@@ -76,7 +70,7 @@ void phCreateEngine(PHuint64* const out_engineId, const PHuint32 numRenderThread
 	engine->setNumRenderThreads(static_cast<std::size_t>(numRenderThreads));
 	*out_engineId = static_cast<PHuint64>(ApiDatabase::addResource(std::move(engine)));
 
-	logger.log("engine<" + std::to_string(*out_engineId) + "> created");
+	PH_LOG(CoreAPI, "engine<{}> created", *out_engineId);
 }
 
 void phSetNumRenderThreads(const PHuint64 engineId, const PHuint32 numRenderThreads)
@@ -92,12 +86,11 @@ void phDeleteEngine(const PHuint64 engineId)
 {
 	if(ApiDatabase::removeResource<Engine>(engineId))
 	{
-		logger.log("engine<" + std::to_string(engineId) + "> deleted");
+		PH_LOG(CoreAPI, "engine<{}> deleted", engineId);
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"error while deleting engine<" + std::to_string(engineId) + ">");
+		PH_LOG_WARNING(CoreAPI, "error while deleting engine<{}>", engineId);
 	}
 }
 
@@ -245,7 +238,7 @@ void phCreateFrame(PHuint64* const out_frameId,
 	auto frame = std::make_unique<HdrRgbFrame>(widthPx, heightPx);
 	*out_frameId = ApiDatabase::addResource(std::move(frame));
 
-	logger.log("frame<" + std::to_string(*out_frameId) + "> created");
+	PH_LOG(CoreAPI, "frame<{}> created", *out_frameId);
 }
 
 void phGetFrameDimension(const PHuint64 frameId, 
@@ -274,12 +267,11 @@ void phDeleteFrame(const PHuint64 frameId)
 {
 	if(ApiDatabase::removeResource<HdrRgbFrame>(frameId))
 	{
-		logger.log("frame<" + std::to_string(frameId) + "> deleted");
+		PH_LOG(CoreAPI, "frame<{}> deleted", frameId);
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"error while deleting frame<" + std::to_string(frameId) + ">");
+		PH_LOG_WARNING(CoreAPI, "error while deleting frame<{}>", frameId);
 	}
 }
 
@@ -312,9 +304,7 @@ int phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
 		}
 		else
 		{
-			logger.log(ELogLevel::WARNING_MED,
-				"frame<" + std::to_string(frameId) + "> saving failed");
-
+			PH_LOG_WARNING(CoreAPI, "frame<{}> saving failed", frameId);
 			return PH_FALSE;
 		}
 	}
@@ -335,8 +325,7 @@ int phSaveFrameToBuffer(const PHuint64 frameId, const PHuint64 bufferId)
 	std::string buf;
 	if(!PictureSaver::saveExr(*frame, buf))
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"frame<" + std::to_string(frameId) + "> saving failed");
+		PH_LOG_WARNING(CoreAPI, "frame<{}> saving failed", frameId);
 		return PH_FALSE;
 	}
 
@@ -369,8 +358,7 @@ float phFrameOpMSE(const PHuint64 expectedFrameId, const PHuint64 estimatedFrame
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"phFrameOpMSE(2) returned 0 due to invalid frame");
+		PH_LOG_WARNING(CoreAPI, "phFrameOpMSE(2) returned 0 due to invalid frame");
 	}
 
 	return MSE;
@@ -498,7 +486,7 @@ void phCreateBuffer(PHuint64* const out_bufferId)
 
 	*out_bufferId = static_cast<PHuint64>(ApiDatabase::addResource(std::make_unique<ByteBuffer>()));
 
-	logger.log("buffer<" + std::to_string(*out_bufferId) + "> created");
+	PH_LOG(CoreAPI, "buffer<{}> created", *out_bufferId);
 }
 
 void phGetBufferBytes(const PHuint64 bufferId, const unsigned char** const out_bytesPtr, size_t* const out_numBytes)
@@ -519,11 +507,10 @@ void phDeleteBuffer(const PHuint64 bufferId)
 {
 	if(ApiDatabase::removeResource<ByteBuffer>(bufferId))
 	{
-		logger.log("buffer<" + std::to_string(bufferId) + "> deleted");
+		PH_LOG(CoreAPI, "buffer<{}> deleted", bufferId);
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"error while deleting buffer<" + std::to_string(bufferId) + ">");
+		PH_LOG_WARNING(CoreAPI, "error while deleting buffer<{}>", bufferId);
 	}
 }

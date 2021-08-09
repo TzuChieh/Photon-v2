@@ -1,9 +1,12 @@
 #pragma once
 
-#include "Common/LogSender.h"
 #include "Common/ELogLevel.h"
 
 #include <string>
+#include <string_view>
+#include <vector>
+#include <functional>
+#include <memory>
 
 namespace ph
 {
@@ -11,19 +14,34 @@ namespace ph
 class Logger final
 {
 public:
-	static const Logger& DEFAULT();
+	using LogHandler = std::function<void(ELogLevel logLevel, std::string_view logString)>;
 
-public:
-	explicit Logger(const LogSender& logSender);
+	Logger();
 
-	void log(const std::string& message) const;
-	void log(const ELogLevel& logLevel, const std::string& message) const;
-	void setLogSender(const LogSender& logSender);
+	void log(std::string_view message) const;
+
+	void log(const ELogLevel logLevel, std::string_view message) const;
+
+	void log(
+		std::string_view name,
+		ELogLevel        logLevel, 
+		std::string_view message) const;
+
+	/*! @brief Add a log handler that can deal with log messages.
+	
+	Log handler must be copyable.
+	*/
+	void addLogHandler(LogHandler logHandler);
+
+	void addStdHandler();
 
 private:
-	LogSender m_logSender;
+	std::vector<LogHandler> m_logHandlers;
 
-	static void log(const LogSender& logSender, const ELogLevel& logLevel, const std::string& message);
+	static std::string makeLogString(
+		std::string_view name,
+		ELogLevel        logLevel,
+		std::string_view message);
 };
 
 }// end namespace ph

@@ -16,19 +16,14 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Geometry/Geometry.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Model Source"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(ModelSource, Light);
 
 ModelSource::ModelSource(const math::Vector3R& emittedRgbRadiance) :
 	LightSource(), 
@@ -61,8 +56,8 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 {
 	if(data.primitives.empty())
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-		           "no primitive provided; requires at least a primitive to build emitter");
+		PH_LOG_WARNING(ModelSource,
+			"no primitive provided; requires at least a primitive to build emitter");
 		return nullptr;
 	}
 

@@ -1,13 +1,15 @@
 #pragma once
 
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <string>
 #include <utility>
 
 namespace ph
 {
+
+PH_DEFINE_EXTERNAL_LOG_GROUP(SdlField, SDL);
 
 class SdlField
 {
@@ -22,8 +24,6 @@ public:
 	bool isFallbackEnabled() const;
 
 protected:
-	static const Logger logger;
-
 	SdlField& setEnableFallback(bool isFallbackEnabled);
 	SdlField& setDescription(std::string descriptionStr);
 

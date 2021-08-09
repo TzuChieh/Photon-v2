@@ -1,13 +1,15 @@
 #pragma once
 
-#include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 
 #include <string>
 #include <utility>
 
 namespace ph
 {
+
+PH_DEFINE_EXTERNAL_LOG_GROUP(SdlFunction, SDL);
 
 class SdlField;
 class SdlInputContext;
@@ -36,8 +38,6 @@ public:
 
 protected:
 	SdlFunction& setDescription(std::string description);
-
-	static const Logger logger;
 
 private:
 	std::string m_name;

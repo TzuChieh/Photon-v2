@@ -21,7 +21,7 @@
 #include "Core/Scheduler/WorkUnit.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <cmath>
 #include <iostream>
@@ -34,12 +34,7 @@
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Equal Sampling Renderer"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(EqualSamplingRenderer, Renderer);
 
 EqualSamplingRenderer::EqualSamplingRenderer(
 	std::unique_ptr<IRayEnergyEstimator> estimator,
@@ -75,7 +70,7 @@ EqualSamplingRenderer::EqualSamplingRenderer(
 
 void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
-	logger.log("rendering core: " + m_estimator->toString());
+	PH_LOG(EqualSamplingRenderer, "rendering core: {}", m_estimator->toString());
 
 	m_updatedRegions.clear();
 	m_totalPaths            = 0;
@@ -347,8 +342,8 @@ void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
 		break;
 
 	default:
-		logger.log(ELogLevel::WARNING_MED, 
-			"unsupported scheduler ID: " + std::to_string(static_cast<int>(m_schedulerType)));
+		PH_LOG_WARNING(EqualSamplingRenderer, "unsupported scheduler ID: {}", 
+			static_cast<int>(m_schedulerType));
 
 		// If this happends, we then assume other inputs might also be bad.
 		// Uses a good default with munimum dependency on user inputs.

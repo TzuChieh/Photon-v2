@@ -2,7 +2,6 @@
 
 #include "Common/primitive_type.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/Logger.h"
 #include "Frame/TFrame.h"
 
 #include <memory>
@@ -20,8 +19,6 @@ public:
 private:
 	static LdrRgbFrame loadLdrViaStb(const std::string& fullFilename);
 	static HdrRgbFrame loadHdrViaStb(const std::string& fullFilename);
-
-	static const Logger logger;
 };
 
 }// end namespace ph

@@ -209,11 +209,11 @@ inline void TOwnerSdlClass<Owner, FieldSet>::fromSdl(
 	{
 		if(importance == EFieldImportance::OPTIONAL || importance == EFieldImportance::NICE_TO_HAVE)
 		{
-			logger.log(ELogLevel::NOTE_MED, noticeMsg);
+			PH_LOG(SdlClass, noticeMsg);
 		}
 		else
 		{
-			logger.log(ELogLevel::WARNING_MED, noticeMsg);
+			PH_LOG_WARNING(SdlClass, noticeMsg);
 		}
 	};
 

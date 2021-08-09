@@ -1,15 +1,10 @@
 #include "Actor/Image/BinaryMixedImage.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 namespace ph
 {
 
-namespace
-{
-
-Logger logger(LogSender("Binary Mixed Image"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(BinaryMixedImage, Image);
 
 BinaryMixedImage::BinaryMixedImage() :
 
@@ -26,7 +21,7 @@ auto BinaryMixedImage::checkoutImages() const
 	auto imageB = m_imageB.lock();
 	if(!imageA || !imageB)
 	{
-		logger.log(ELogLevel::WARNING_MED,
+		PH_LOG_WARNING(BinaryMixedImage,
 			"image pair is incomplete");
 	}
 

@@ -150,6 +150,13 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
     # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
+    # VS2019 requires the flag for standard conformant preprocessor; otherwise
+    # things may not work correctly (e.g., __VA_ARGS__ will remove preceding 
+    # comma on empty argument list)
+    # TODO: check on new version, currently required on VS 16.10.4
+    # https://devblogs.microsoft.com/cppblog/announcing-full-support-for-a-c-c-conformant-preprocessor-in-msvc/
+    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zc:preprocessor")
+
 # Using GCC
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 

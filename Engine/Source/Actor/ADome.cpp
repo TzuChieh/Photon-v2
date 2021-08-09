@@ -11,18 +11,14 @@
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
 #include "Core/Texture/Function/TConstantMultiplyTexture.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <algorithm>
 
 namespace ph
 {
-namespace
-{
 
-const Logger logger(LogSender("Actor Dome"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(DomeActor, Actor);
 
 ADome::ADome() : 
 
@@ -41,7 +37,7 @@ CookedUnit ADome::cook(ActorCookingContext& ctx)
 	math::TDecomposedTransform<real> sanifiedLocalToWorld = m_localToWorld;
 	if(sanifiedLocalToWorld.hasScaleEffect())
 	{
-		logger.log(
+		PH_LOG(DomeActor,
 			"Scale detected and is ignored; scaling on dome light should "
 			"be avoided as it does not have any effect. If resizing the dome is "
 			"desired, it should be done by changing its radius.");
@@ -69,9 +65,10 @@ CookedUnit ADome::cook(ActorCookingContext& ctx)
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
+		PH_LOG_WARNING(DomeActor,
 			"No visual world information available, cannot access actor bounds."
-			"Using " + std::to_string(domeRadius) + " as dome radius.");
+			"Using {} as dome radius.", 
+			domeRadius);
 	}
 
 	auto metadata = std::make_unique<PrimitiveMetadata>();

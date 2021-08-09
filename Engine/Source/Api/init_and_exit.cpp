@@ -1,7 +1,7 @@
 #include "Api/init_and_exit.h"
 #include "Api/ApiDatabase.h"
 #include "Core/Quantity/ColorSpace.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "DataIO/PictureSaver.h"
 
 // geometries
@@ -91,19 +91,17 @@
 namespace ph
 {
 
-namespace
-{
-	Logger logger(LogSender("Init & Exit"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(InitAndExit, Engine);
 
 bool init_core_infrastructure()
 {
-	logger.log("initializing color transform functions...");
+	PH_LOG(InitAndExit,
+		"initializing color transform functions...");
 	ColorSpace::init();
 
 	if(!PictureSaver::init())
 	{
-		logger.log(ELogLevel::WARNING_MED,
+		PH_LOG_WARNING(InitAndExit,
 			"picture saver init failed");
 		return false;
 	}

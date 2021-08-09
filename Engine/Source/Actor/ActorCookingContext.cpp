@@ -1,13 +1,10 @@
 #include "Actor/ActorCookingContext.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 namespace ph
 {
 
-namespace
-{
-	const Logger logger(LogSender("Actor Cooking Context"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(ActorCookingContext, Actor);
 
 ActorCookingContext::ActorCookingContext() :
 	m_childActors        (), 
@@ -25,8 +22,8 @@ void ActorCookingContext::addPhantom(const std::string& name, CookedUnit phantom
 {
 	if(m_phantoms.find(name) != m_phantoms.end())
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"phantom name <" + name + "> already exists, overwriting");
+		PH_LOG_WARNING(ActorCookingContext, 
+			"phantom name <{}> already exists, overwriting", name);
 	}
 
 	m_phantoms[name] = std::move(phantom);

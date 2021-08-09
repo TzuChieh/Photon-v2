@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Utility/TStableIndexDenseArray.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Core/Engine.h"
 #include "Frame/TFrame.h"
 #include "Utility/ByteBuffer.h"
@@ -15,17 +15,19 @@
 namespace ph
 {
 
+PH_DEFINE_EXTERNAL_LOG_GROUP(ApiDatabase, Core);
+
 class ApiDatabase final
 {
 public:
 	template<typename Resource>
-	static std::size_t addResource(std::unique_ptr<Resource> resource, Logger* logger = nullptr);
+	static std::size_t addResource(std::unique_ptr<Resource> resource);
 
 	template<typename Resource>
-	static Resource* getResource(std::size_t id, Logger* logger = nullptr);
+	static Resource* getResource(std::size_t id);
 
 	template<typename Resource>
-	static bool removeResource(std::size_t id, Logger* logger = nullptr);
+	static bool removeResource(std::size_t id);
 
 	template<typename Resource>
 	static std::weak_ptr<Resource> useResource(std::size_t id);
@@ -42,56 +44,46 @@ private:
 // In-header Implementations:
 
 template<typename Resource>
-inline std::size_t ApiDatabase::addResource(std::unique_ptr<Resource> resource, Logger* const logger)
+inline std::size_t ApiDatabase::addResource(std::unique_ptr<Resource> resource)
 {
 	std::lock_guard<std::mutex> lock(MUTEX());
 
 	const std::size_t id = RESOURCES<Resource>().add(std::move(resource));
 
-	if(logger)
-	{
-		logger->log(ELogLevel::NOTE_MED, 
-			"added resource<" + std::to_string(id));
-	}
+	PH_LOG(ApiDatabase, "added resource<{}>", id);
 
 	return id;
 }
 
 template<typename Resource>
-inline Resource* ApiDatabase::getResource(const std::size_t id, Logger* const logger)
+inline Resource* ApiDatabase::getResource(const std::size_t id)
 {
 	std::lock_guard<std::mutex> lock(MUTEX());
 
 	auto* const resource = RESOURCES<Resource>().get(id);
 
-	if(logger && !resource)
+	if(!resource)
 	{
-		logger->log(ELogLevel::WARNING_MED,
-			"resource<" + std::to_string(id) + "> does not exist");
+		PH_LOG_WARNING(ApiDatabase, "resource<{}> does not exist", id);
 	}
 
 	return resource ? resource->get() : nullptr;
 }
 
 template<typename Resource>
-inline bool ApiDatabase::removeResource(const std::size_t id, Logger* const logger)
+inline bool ApiDatabase::removeResource(const std::size_t id)
 {
 	std::lock_guard<std::mutex> lock(MUTEX());
 
 	const bool isRemoved = RESOURCES<Resource>().remove(id);
 
-	if(logger)
+	if(isRemoved)
 	{
-		if(isRemoved)
-		{
-			logger->log(ELogLevel::NOTE_MED, 
-				"removed resource<" + std::to_string(id));
-		}
-		else
-		{
-			logger->log(ELogLevel::WARNING_MED, 
-				"failed removing resource<" + std::to_string(id) + ">");
-		}
+		PH_LOG(ApiDatabase, "removed resource<{}>", id);
+	}
+	else
+	{
+		PH_LOG_WARNING(ApiDatabase, "failed removing resource<{}>", id);
 	}
 
 	return isRemoved;

@@ -1,7 +1,7 @@
 #include "DataIO/PfmFileWriter.h"
 #include "DataIO/Stream/BinaryFileOutputStream.h"
 #include "Utility/utility.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <string>
 #include <limits>
@@ -10,10 +10,7 @@
 namespace ph
 {
 
-namespace
-{
-	Logger logger(LogSender("PFM File Writer"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(PfmFileWriter, DataIO);
 
 PfmFileWriter::PfmFileWriter(const Path& filePath) :
 	m_filePath(filePath)
@@ -38,8 +35,7 @@ bool PfmFileWriter::save(const HdrRgbFrame& frame)
 
 		if(!file.write(header.length(), reinterpret_cast<const std::byte*>(header.data())))
 		{
-			logger.log(ELogLevel::WARNING_MED,
-				"error writing file header");
+			PH_LOG_WARNING(PfmFileWriter, "error writing file header");
 
 			return false;
 		}
@@ -67,8 +63,7 @@ bool PfmFileWriter::save(const HdrRgbFrame& frame)
 
 	if(!file.write(rasterData.size() * sizeof(float), reinterpret_cast<const std::byte*>(rasterData.data())))
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"error writing file raster data");
+		PH_LOG_WARNING(PfmFileWriter, "error writing file raster data");
 
 		return false;
 	}

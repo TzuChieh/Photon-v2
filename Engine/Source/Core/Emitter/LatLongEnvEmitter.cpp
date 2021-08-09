@@ -2,7 +2,7 @@
 #include "Common/assertion.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Intersectable/PLatLongEnvSphere.h"
@@ -19,10 +19,7 @@
 namespace ph
 {
 
-namespace
-{
-	const Logger logger(LogSender("Background Emitter"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(LatLongEnvEmitter, Emitter);
 
 LatLongEnvEmitter::LatLongEnvEmitter(
 	const PLatLongEnvSphere* const surface,
@@ -38,8 +35,8 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 	PH_ASSERT(radiance);
 	PH_ASSERT_GT(resolution.x * resolution.y, 0);
 
-	logger.log(ELogLevel::NOTE_MED, 
-		"constructing sample distribution with resolution " + resolution.toString());
+	PH_LOG(LatLongEnvEmitter, "constructing sample distribution with resolution {}", 
+		resolution.toString());
 
 	constexpr EQuantity QUANTITY = EQuantity::EMR;
 	const real rcpResolutionY = 1.0_r / static_cast<real>(resolution.y);

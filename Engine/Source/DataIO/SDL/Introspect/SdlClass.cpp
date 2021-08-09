@@ -4,8 +4,6 @@
 namespace ph
 {
 
-const Logger SdlClass::logger(LogSender("SDL Class"));
-
 std::string SdlClass::genPrettyName() const
 {
 	return sdl::gen_pretty_name(this);

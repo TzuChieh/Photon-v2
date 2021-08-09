@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <cstddef>
 #include <string>
@@ -9,6 +9,8 @@
 
 namespace ph
 {
+
+PH_DEFINE_EXTERNAL_LOG_GROUP(SdlStruct, SDL);
 
 class SdlField;
 class ValueClause;
@@ -27,8 +29,6 @@ public:
 	const std::string& getDescription() const;
 
 protected:
-	static const Logger logger;
-
 	SdlStruct& setDescription(std::string description);
 
 private:

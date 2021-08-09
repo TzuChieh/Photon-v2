@@ -2,14 +2,16 @@
 
 #include "DataIO/BinaryFileReader.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 #include "Common/primitive_type.h"
 
 #include <vector>
 
 namespace ph
 {
+
+PH_DEFINE_EXTERNAL_LOG_GROUP(TableTIR, BSDF);
 
 class TableTIR final
 {
@@ -29,8 +31,6 @@ private:
 	float m_minAlpha,  m_maxAlpha;
 	float m_minRelIor, m_maxRelIor;
 
-	static const Logger logger;
-
 	int calcIndex(int iCosWi, int iAlpha, int iRelIor) const;
 };
 
@@ -47,7 +47,7 @@ inline TableTIR::TableTIR(const Path& tableFilePath) :
 	m_minAlpha (0.0f), m_maxAlpha (0.0f),
 	m_minRelIor(0.0f), m_maxRelIor(0.0f)
 {
-	logger.log(ELogLevel::NOTE_MED, "loading <" + tableFilePath.toString() + ">");
+	PH_LOG(TableTIR, "loading <{}>", tableFilePath.toString());
 
 	BinaryFileReader reader(tableFilePath);
 	if(!reader.open())
@@ -62,14 +62,13 @@ inline TableTIR::TableTIR(const Path& tableFilePath) :
 	reader.read(&m_minAlpha);  reader.read(&m_maxAlpha);
 	reader.read(&m_minRelIor); reader.read(&m_maxRelIor);
 
-	logger.log(ELogLevel::DEBUG_MED, "dimension: "
-		"(cos-w_i = " +      std::to_string(m_numCosWi) + ", "
-		 "alpha = " +        std::to_string(m_numAlpha) + ", "
-		 "relative-IOR = " + std::to_string(m_numRelIor) + ")");
-	logger.log(ELogLevel::DEBUG_MED, "range: "
-		"(cos-w_i = [" +      std::to_string(m_minCosWi) +  ", " + std::to_string(m_maxCosWi) +  "], "
-		 "alpha = [" +        std::to_string(m_minAlpha) +  ", " + std::to_string(m_maxAlpha) +  "], "
-		 "relative-IOR = [" + std::to_string(m_minRelIor) + ", " + std::to_string(m_maxRelIor) + "])");
+	PH_LOG_DEBUG(TableTIR, "dimension: (cos-w_i = {}, alpha = {}, relative-IOR = {})", 
+		m_numCosWi, m_numAlpha, m_numRelIor);
+
+	PH_LOG_DEBUG(TableTIR, "range: (cos-w_i = [{}, {}], alpha = [{}, {}], relative-IOR = [{}, {}])",
+		m_minCosWi, m_maxCosWi,
+		m_minAlpha, m_maxAlpha,
+		m_minRelIor, m_maxRelIor);
 
 	PH_ASSERT(m_numCosWi > 0 && m_numAlpha > 0 && m_numRelIor > 0);
 

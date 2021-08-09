@@ -1,5 +1,5 @@
 #include "DataIO/ExrFileWriter.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include "Common/ThirdParty/lib_openexr.h"
 
@@ -8,12 +8,14 @@
 namespace ph
 {
 
+PH_DEFINE_INTERNAL_LOG_GROUP(ExrFileWriter, DataIO);
+
 namespace
 {
-	const Logger logger(LogSender("EXR File Writer"));
 
-	template<typename DatumType>
-	bool saveStandaloneRgbData(const Path& filePath, const HdrRgbFrame& frame);
+template<typename DatumType>
+bool saveStandaloneRgbData(const Path& filePath, const HdrRgbFrame& frame);
+
 }
 
 ExrFileWriter::ExrFileWriter(const Path& filePath) : 
@@ -28,8 +30,8 @@ bool ExrFileWriter::save(const HdrRgbFrame& frame)
 	}
 	catch(const std::exception& e)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"failed saving <" + m_filePath.toString() + ">, reason: " + e.what());
+		PH_LOG_WARNING(ExrFileWriter, "failed saving <{}>, reason: {}", 
+			m_filePath.toString(), e.what());
 		return false;
 	}
 }
@@ -42,8 +44,8 @@ bool ExrFileWriter::saveHighPrecision(const HdrRgbFrame& frame)
 	}
 	catch(const std::exception& e)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"failed saving <" + m_filePath.toString() + ">, reason: " + e.what());
+		PH_LOG_WARNING(ExrFileWriter, "failed saving <{}>, reason: {}", 
+			m_filePath.toString(), e.what());
 		return false;
 	}
 }
@@ -59,9 +61,8 @@ bool saveStandaloneRgbData(const Path& filePath, const HdrRgbFrame& frame)
 	constexpr Imf::PixelType PIXEL_TYPE = std::is_same_v<DatumType, half> ?
 		Imf::PixelType::HALF : Imf::PixelType::FLOAT;
 
-	logger.log(ELogLevel::NOTE_MIN,
-		"saving standalone RGB: " + filePath.toAbsoluteString() + " "
-		"(" + (std::is_same_v<DatumType, half> ? "half" : "full") + " precision)");
+	PH_LOG(ExrFileWriter, "saving standalone RGB: {} ({} precision)", 
+		filePath.toAbsoluteString(), (std::is_same_v<DatumType, half> ? "half" : "full"));
 
 	const int dataWidth  = static_cast<int>(frame.widthPx());
 	const int dataHeight = static_cast<int>(frame.heightPx());
@@ -131,9 +132,8 @@ bool ExrFileWriter::save(const HdrRgbFrame& frame, std::string& byteBuffer)
 	constexpr Imf::PixelType PIXEL_TYPE = std::is_same_v<DatumType, half> ?
 		Imf::PixelType::HALF : Imf::PixelType::FLOAT;
 
-	logger.log(ELogLevel::NOTE_MIN,
-		std::string("saving standalone RGB to memory ") + 
-		"(" + (std::is_same_v<DatumType, half> ? "half" : "full") + " precision)");
+	PH_LOG(ExrFileWriter, "saving standalone RGB to memory ({} precision)",
+		(std::is_same_v<DatumType, half> ? "half" : "full"));
 
 	try
 	{
@@ -199,8 +199,8 @@ bool ExrFileWriter::save(const HdrRgbFrame& frame, std::string& byteBuffer)
 	}
 	catch(const std::exception& e)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			std::string("failed saving exr file to memroy, reason: ") + e.what());
+		PH_LOG_WARNING(ExrFileWriter, "failed saving exr file to memroy, reason: {}", 
+			e.what());
 		return false;
 	}
 }

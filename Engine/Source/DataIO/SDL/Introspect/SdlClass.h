@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/SDL/ETypeCategory.h"
 #include "Utility/IMoveOnly.h"
@@ -16,6 +16,8 @@
 
 namespace ph
 {
+
+PH_DEFINE_EXTERNAL_LOG_GROUP(SdlClass, SDL);
 
 class SdlField;
 class SdlFunction;
@@ -70,8 +72,6 @@ protected:
 	*/
 	template<typename SdlResourceType>
 	SdlClass& setBase();
-
-	static const Logger logger;
 
 private:
 	ETypeCategory m_category;

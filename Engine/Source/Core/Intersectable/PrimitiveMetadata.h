@@ -5,7 +5,6 @@
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
 #include "Core/VolumeBehavior/VolumeBehavior.h"
-#include "Common/Logger.h"
 
 #include <memory>
 #include <vector>
@@ -64,8 +63,6 @@ private:
 	VolumeBehavior                m_interior;
 	VolumeBehavior                m_exterior;
 	std::vector<PrimitiveChannel> m_channels;
-
-	static const Logger logger;
 };
 
 }// end namespace ph

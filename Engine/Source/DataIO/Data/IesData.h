@@ -3,7 +3,6 @@
 #include "Common/primitive_type.h"
 #include "DataIO/Data/IesFile.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/Logger.h"
 
 #include <vector>
 
@@ -47,8 +46,6 @@ private:
 	void reflectCandelaValues(EReflectFrom reflectFrom, real reflectionMultiplier = 1.0_r);
 
 	static real calcBicubicWeight(real x);
-
-	static const Logger logger;
 };
 
 }// end namespace ph

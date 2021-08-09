@@ -11,7 +11,7 @@
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
 #include "Actor/ActorCookingContext.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <algorithm>
 #include <iostream>
@@ -19,12 +19,7 @@
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Actor Light"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(LightActor, Actor);
 
 ALight::ALight() : 
 	PhysicalActor(), 
@@ -52,8 +47,7 @@ CookedUnit ALight::cook(ActorCookingContext& ctx)
 {
 	if(!m_lightSource)
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"incomplete data detected, this light is ignored");
+		PH_LOG_WARNING(LightActor, "incomplete data detected, this light is ignored");
 		return CookedUnit();
 	}
 
@@ -94,8 +88,7 @@ CookedUnit ALight::buildGeometricLight(
 
 	if(!material)
 	{
-		logger.log(ELogLevel::NOTE_MED, 
-			"material is not specified, using default diffusive material");
+		PH_LOG(LightActor, "material is not specified, using default diffusive material");
 
 		material = std::make_shared<MatteOpaque>();
 	}
@@ -104,7 +97,7 @@ CookedUnit ALight::buildGeometricLight(
 	auto sanifiedGeometry = getSanifiedGeometry(ctx, geometry, &baseLW, &baseWL);
 	if(!sanifiedGeometry)
 	{
-		logger.log(ELogLevel::WARNING_MED,
+		PH_LOG_WARNING(LightActor,
 			"sanified geometry cannot be made during the process of "
 			"geometric light building; proceed at your own risk");
 
@@ -177,7 +170,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 		sanifiedGeometry = geometry->genTransformed(baseLW);
 		if(!sanifiedGeometry)
 		{
-			logger.log(ELogLevel::WARNING_MED,
+			PH_LOG_WARNING(LightActor,
 				"scale detected and has failed to apply it to the geometry; "
 				"scaling on light with attached geometry may have unexpected "
 				"behaviors such as miscalculated primitive surface area, which "

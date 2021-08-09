@@ -1,16 +1,11 @@
 #include "DataIO/SDL/SceneDescription.h"
 #include "DataIO/SDL/ETypeCategory.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Scene Description"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(SceneDescription, SDL);
 
 SceneDescription::SceneDescription() :
 	m_resources()
@@ -36,10 +31,9 @@ void SceneDescription::addResource(
 	const auto& iter = nameToResourceMap.find(resourceName);
 	if(iter != nameToResourceMap.end())
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"duplicated SDL resource detected, overwriting ("
-			"resource: " + sdl::category_to_string(resource->getCategory()) + ", "
-			"name:" + resourceName + ")");
+		PH_LOG_WARNING(SceneDescription,
+			"duplicated SDL resource detected, overwriting (resource: {}, name: {})", 
+			sdl::category_to_string(resource->getCategory()), resourceName);
 	}
 
 	nameToResourceMap[resourceName] = std::move(resource);

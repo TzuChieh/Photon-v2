@@ -20,7 +20,7 @@
 #include "Utility/utility.h"
 #include "Core/Scheduler/SpiralGridScheduler.h"
 #include "Core/Scheduler/TileScheduler.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Core/Scheduler/WorkUnit.h"
 #include "Core/Estimator/SurfaceAttributeEstimator.h"
 #include "Math/Random/sample.h"
@@ -37,14 +37,11 @@
 namespace ph
 {
 
-namespace
-{
-	const Logger logger(LogSender("Attribute Renderer"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(AttributeRenderer, Renderer);
 
 void AttributeRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
-	logger.log("target attribute: " + m_attributeName);
+	PH_LOG(AttributeRenderer, "target attribute: {}", m_attributeName);
 
 	m_scene           = world.getScene();
 	m_receiver        = cooked.getReceiver();

@@ -1,7 +1,7 @@
 #include "Core/Receiver/Receiver.h"
 #include "Core/RayDifferential.h"
 #include "Core/Ray.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <iostream>
 #include <string>
@@ -9,12 +9,7 @@
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Receiver"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(Receiver, Receiver);
 
 Receiver::Receiver(const math::RigidTransform* const receiverToWorld) : 
 	m_receiverToWorld(receiverToWorld)

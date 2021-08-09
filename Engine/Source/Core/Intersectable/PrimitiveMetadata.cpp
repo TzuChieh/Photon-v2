@@ -1,6 +1,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 
 #include <iostream>
 #include <limits>
@@ -8,7 +9,7 @@
 namespace ph
 {
 
-const Logger PrimitiveMetadata::logger(LogSender("Primitive Metadata"));
+PH_DEFINE_INTERNAL_LOG_GROUP(PrimitiveMetadata, Primitive);
 
 PrimitiveMetadata::PrimitiveMetadata() :
 	m_surface(),
@@ -41,8 +42,7 @@ void PrimitiveMetadata::setChannel(const uint32 channelId, const PrimitiveChanne
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"channel ID (" + std::to_string(channelId) + ") is invalid");
+		PH_LOG_WARNING(PrimitiveMetadata, "channel ID ({}) is invalid", channelId);
 	}
 }
 

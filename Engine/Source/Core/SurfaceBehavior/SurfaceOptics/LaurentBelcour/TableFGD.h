@@ -2,8 +2,8 @@
 
 #include "DataIO/BinaryFileReader.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 #include "Common/primitive_type.h"
 #include "Core/Quantity/Spectrum.h"
 
@@ -11,6 +11,8 @@
 
 namespace ph
 {
+
+PH_DEFINE_EXTERNAL_LOG_GROUP(TableFGD, BSDF);
 
 class TableFGD final
 {
@@ -42,8 +44,6 @@ private:
 	float m_minIorN,  m_maxIorN;
 	float m_minIorK,  m_maxIorK;
 
-	static const Logger logger;
-
 	int calcIndex(int iCosWi, int iAlpha, int iIorN, int iIorK) const;
 	void downSampleHalf();
 };
@@ -63,7 +63,7 @@ inline TableFGD::TableFGD(const Path& tableFilePath) :
 	m_minIorN (0.0f), m_maxIorN (0.0f),
 	m_minIorK (0.0f), m_maxIorK (0.0f)
 {
-	logger.log(ELogLevel::NOTE_MED, "loading <" + tableFilePath.toString() + ">");
+	PH_LOG(TableFGD, "loading <{}>", tableFilePath.toString());
 
 	BinaryFileReader reader(tableFilePath);
 	if(!reader.open())
@@ -80,16 +80,16 @@ inline TableFGD::TableFGD(const Path& tableFilePath) :
 	reader.read(&m_minIorN);  reader.read(&m_maxIorN);
 	reader.read(&m_minIorK);  reader.read(&m_maxIorK);
 
-	logger.log(ELogLevel::DEBUG_MED, "dimension: "
-		"(cos-w_i = " + std::to_string(m_numCosWi) + ", "
-		 "alpha = " +   std::to_string(m_numAlpha) + ", "
-		 "IOR-n = " +   std::to_string(m_numIorN) +  ", "
-		 "IOR-k = " +   std::to_string(m_numIorK) + ")");
-	logger.log(ELogLevel::DEBUG_MED, "range: "
-		"(cos-w_i = [" + std::to_string(m_minCosWi) + ", " + std::to_string(m_maxCosWi) + "], "
-		 "alpha = [" +   std::to_string(m_minAlpha) + ", " + std::to_string(m_maxAlpha) + "], "
-		 "IOR-n = [" +   std::to_string(m_minIorN) + ", " +  std::to_string(m_maxIorN) +  "], "
-		 "IOR-k = [" +   std::to_string(m_minIorK) + ", " +  std::to_string(m_maxIorK) +  "])");
+	PH_LOG_DEBUG(TableFGD, 
+		"dimension: (cos-w_i = {}, alpha = {}, IOR-n = {}, IOR-k = {})", 
+		m_numCosWi, m_numAlpha, m_numIorN, m_numIorK);
+
+	PH_LOG_DEBUG(TableFGD, 
+		"range: (cos-w_i = [{}, {}], alpha = [{}, {}], IOR-n = [{}, {}], IOR-k = [{}, {}])", 
+		m_minCosWi, m_maxCosWi, 
+		m_minAlpha, m_maxAlpha, 
+		m_minIorN, m_maxIorN, 
+		m_minIorK, m_maxIorK);
 
 	PH_ASSERT(m_numCosWi > 0 && m_numAlpha > 0 && m_numIorN > 0 && m_numIorK > 0);
 

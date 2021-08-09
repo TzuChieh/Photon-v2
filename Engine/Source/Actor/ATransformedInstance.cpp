@@ -11,8 +11,8 @@
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
 #include "Actor/ActorCookingContext.h"
-#include "Common/Logger.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 
 #include <algorithm>
 #include <iostream>
@@ -21,12 +21,8 @@
 namespace ph
 {
 
-namespace
-{
+PH_DEFINE_INTERNAL_LOG_GROUP(TransformedInstanceActor, Actor);
 
-const Logger logger(LogSender("Transformed Instance"));
-
-}
 
 ATransformedInstance::ATransformedInstance() :
 	PhysicalActor()
@@ -51,16 +47,16 @@ CookedUnit ATransformedInstance::cook(ActorCookingContext& ctx)
 	const CookedUnit* phantom = ctx.getPhantom(m_phantomName);
 	if(!phantom)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"phantom <" + m_phantomName + "> not found");
+		PH_LOG_WARNING(TransformedInstanceActor, 
+			"phantom <{}> not found", m_phantomName);
 
 		return cooked;
 	}
 
 	if(phantom->intersectables().size() != 1)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"phantom <" + m_phantomName + "> contains unsupported data");
+		PH_LOG_WARNING(TransformedInstanceActor, 
+			"phantom <{}> contains unsupported data", m_phantomName);
 
 		return cooked;
 	}

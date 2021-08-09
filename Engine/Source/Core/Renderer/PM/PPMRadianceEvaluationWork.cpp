@@ -9,17 +9,14 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 
 namespace ph
 {
 
-namespace
-{
-	const Logger logger(LogSender("PPM Radiance Evaluator"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(PPMRadianceEvaluator, PhotonMap);
 
 PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
 

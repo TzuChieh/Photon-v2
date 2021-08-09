@@ -3,7 +3,7 @@
 #include "Frame/FrameProcessor.h"
 #include "Frame/Operator/JRToneMapping.h"
 #include "Core/Filmic/TSamplingFilm.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Utility/Timer.h"
 #include "EngineEnv/Session/RenderSession.h"
@@ -18,10 +18,7 @@
 namespace ph
 {
 
-namespace
-{
-	Logger logger(LogSender("Engine"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(Engine, Core);
 
 Engine::Engine() : 
 	m_cooked(),
@@ -41,14 +38,14 @@ bool Engine::loadCommands(const Path& filePath)
 	commandFile.open(filePath.toAbsoluteString(), std::ios::in);
 	if(!commandFile.is_open())
 	{
-		logger.log(ELogLevel::WARNING_MAX,
-			"command file <" + filePath.toAbsoluteString() + "> opening failed");
+		PH_LOG_WARNING(Engine, "command file <{}> opening failed", 
+			filePath.toAbsoluteString());
+
 		return false;
 	}
 	else
 	{
-		logger.log(ELogLevel::NOTE_MAX,
-			"loading command file <" + filePath.toAbsoluteString() + ">");
+		PH_LOG(Engine, "loading command file <{}>", filePath.toAbsoluteString());
 
 		Timer timer;
 		timer.start();
@@ -64,8 +61,7 @@ bool Engine::loadCommands(const Path& filePath)
 
 		timer.finish();
 
-		logger.log(
-			"command file loaded, time elapsed = " + std::to_string(timer.getDeltaMs()) + " ms");
+		PH_LOG(Engine, "command file loaded, time elapsed = {} ms", timer.getDeltaMs());
 
 		return true;
 	}
@@ -76,9 +72,8 @@ void Engine::update()
 	// Wait all potentially unfinished commands
 	m_parser.flush(m_rawScene);
 
-	logger.log(
-		"parsed " + std::to_string(m_parser.numParsedCommands()) + " commands, " +
-		std::to_string(m_parser.numParseErrors()) + " errors generated");
+	PH_LOG(Engine, "parsed {} commands, {} errors generated", 
+		m_parser.numParsedCommands(), m_parser.numParseErrors());
 
 	std::shared_ptr<RenderSession> renderSession;
 	{
@@ -87,15 +82,14 @@ void Engine::update()
 		std::vector<std::shared_ptr<RenderSession>> renderSessions = m_rawScene.getResources<RenderSession>();
 		if(renderSessions.empty())
 		{
-			logger.log(ELogLevel::FATAL_ERROR,
-				"require at least a render session; engine failed to update");
+			PH_LOG_ERROR(Engine, "require at least a render session; engine failed to update");
+
 			return;
 		}
 
 		if(renderSessions.size() > 1)
 		{
-			logger.log(ELogLevel::FATAL_ERROR,
-				"more than 1 render session specified, taking the last one");
+			PH_LOG_WARNING(Engine, "more than 1 render session specified, taking the last one");
 		}
 
 		renderSession = renderSessions.back();
@@ -115,7 +109,8 @@ void Engine::update()
 	Renderer* const renderer = m_cooked.getRenderer();
 	if(!renderer)
 	{
-		logger.log(ELogLevel::FATAL_ERROR, "no renderer present");
+		PH_LOG_ERROR(Engine, "no renderer present");
+
 		return;
 	}
 
@@ -133,9 +128,9 @@ void Engine::update()
 
 	if(m_numRenderThreads != renderer->numWorkers())
 	{
-		logger.log(
-			"overriding # render workers to " + std::to_string(m_numRenderThreads) + 
-			" (it was " + std::to_string(renderer->numWorkers()) + ")");
+		PH_LOG(Engine, "overriding # render workers to {} (it was {})", 
+			m_numRenderThreads, renderer->numWorkers());
+
 		renderer->setNumWorkers(m_numRenderThreads);
 	}
 
@@ -147,7 +142,8 @@ void Engine::render()
 	Renderer* const renderer = getRenderer();
 	if(!renderer)
 	{
-		logger.log(ELogLevel::FATAL_ERROR, "no renderer present");
+		PH_LOG_ERROR(Engine, "no renderer present");
+
 		return;
 	}
 
@@ -186,7 +182,7 @@ void Engine::setNumRenderThreads(const uint32 numThreads)
 {
 	m_numRenderThreads = numThreads;
 
-	logger.log("number of render threads set to " + std::to_string(numThreads));
+	PH_LOG(Engine, "number of render threads set to {}", numThreads);
 }
 
 ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const

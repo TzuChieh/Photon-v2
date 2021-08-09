@@ -1,6 +1,7 @@
 #include "DataIO/PictureLoader.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 #include "Math/math.h"
 #include "DataIO/ExrFileReader.h"
 #include "Frame/frame_utils.h"
@@ -12,7 +13,7 @@
 namespace ph
 {
 
-const Logger PictureLoader::logger(LogSender("Picture Loader"));
+PH_DEFINE_INTERNAL_LOG_GROUP(PictureLoader, DataIO);
 
 HdrRgbFrame PictureLoader::load(const Path& picturePath)
 {
@@ -40,8 +41,7 @@ HdrRgbFrame PictureLoader::load(const Path& picturePath)
 
 LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 {
-	logger.log(ELogLevel::NOTE_MED, 
-	           "loading picture <" + picturePath.toString() + ">");
+	PH_LOG(PictureLoader, "loading picture <{}>", picturePath.toString());
 
 	LdrRgbFrame picture;
 
@@ -59,25 +59,23 @@ LdrRgbFrame PictureLoader::loadLdr(const Path& picturePath)
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-		           "cannot load <" + 
-		           picturePath.toString() + 
-		           "> since the format is unsupported");
+		PH_LOG_WARNING(PictureLoader, "cannot load <{}> since the format is unsupported",
+			picturePath.toString());
+
 		picture = LdrRgbFrame();
 	}
 
 	if(picture.isEmpty())
 	{
-		logger.log(ELogLevel::WARNING_MED,
-		           "picture <" + picturePath.toString() + "> is empty");
+		PH_LOG_WARNING(PictureLoader, "picture <{}> is empty", picturePath.toString());
 	}
+
 	return picture;
 }
 
 HdrRgbFrame PictureLoader::loadHdr(const Path& picturePath)
 {
-	logger.log(ELogLevel::NOTE_MED, 
-		"loading picture <" + picturePath.toString() + ">");
+	PH_LOG(PictureLoader, "loading picture <{}>", picturePath.toString());
 
 	HdrRgbFrame picture;
 
@@ -87,8 +85,7 @@ HdrRgbFrame PictureLoader::loadHdr(const Path& picturePath)
 		ExrFileReader exrFileReader(picturePath);
 		if(!exrFileReader.load(&picture))
 		{
-			logger.log(ELogLevel::WARNING_MED,
-				".exr file loading failed");
+			PH_LOG_WARNING(PictureLoader, ".exr file loading failed");
 		}
 	}
 	else if(ext == ".hdr" || ext == ".HDR")
@@ -97,18 +94,17 @@ HdrRgbFrame PictureLoader::loadHdr(const Path& picturePath)
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"cannot load <" + 
-			picturePath.toString() + 
-			"> since the format is unsupported");
+		PH_LOG_WARNING(PictureLoader, "cannot load <{}> since the format is unsupported",
+			picturePath.toString());
+
 		picture = HdrRgbFrame();
 	}
 
 	if(picture.isEmpty())
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"picture <" + picturePath.toString() + "> is empty");
+		PH_LOG_WARNING(PictureLoader, "picture <{}> is empty", picturePath.toString());
 	}
+
 	return picture;
 }
 
@@ -129,8 +125,8 @@ LdrRgbFrame PictureLoader::loadLdrViaStb(const std::string& fullFilename)
 
 	if(stbImageData == NULL)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-		           "picture <" + fullFilename + "> loading failed");
+		PH_LOG_WARNING(PictureLoader, "picture <{}> loading failed", fullFilename);
+
 		return LdrRgbFrame();
 	}
 
@@ -192,16 +188,16 @@ HdrRgbFrame PictureLoader::loadHdrViaStb(const std::string& fullFilename)
 
 	if(stbImageData == NULL)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-		           "picture <" + fullFilename + "> loading failed");
+		PH_LOG_WARNING(PictureLoader, "picture <{}> loading failed", fullFilename);
+
 		return HdrRgbFrame();
 	}
 
 	if(numComponents != 3)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"picture <" + fullFilename + ">'s number of components != 3 (has " +
-			std::to_string(numComponents) + " components), may produce error");
+		PH_LOG_WARNING(PictureLoader, 
+			"picture <{}>'s number of components != 3 (has {} components), may produce error", 
+			fullFilename, numComponents);
 	}
 
 	HdrRgbFrame picture(widthPx, heightPx);

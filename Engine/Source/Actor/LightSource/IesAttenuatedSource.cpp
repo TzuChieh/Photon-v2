@@ -8,17 +8,12 @@
 #include "Core/Texture/Function/TConversionTexture.h"
 #include "Math/constant.h"
 #include "Core/Emitter/OmniModulatedEmitter.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("IES Attenuated Source"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(IESAttenuatedSource, Light);
 
 IesAttenuatedSource::IesAttenuatedSource() : 
 	IesAttenuatedSource(nullptr, Path())
@@ -39,7 +34,7 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 {
 	if(!m_source)
 	{
-		logger.log(ELogLevel::WARNING_MED, 
+		PH_LOG_WARNING(IESAttenuatedSource,
 			"no light source specified, ignoring");
 		return nullptr;
 	}

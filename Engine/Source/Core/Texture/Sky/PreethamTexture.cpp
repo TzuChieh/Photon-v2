@@ -4,17 +4,15 @@
 #include "Math/Geometry/TSphere.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Core/Quantity/ColorSpace.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include <algorithm>
 
 namespace ph
 {
 
-namespace
-{
-	Logger logger(LogSender("Preetham Texture"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(PreethamTexture, Texture);
+
 
 PreethamTexture::PreethamTexture(
 	const real phiSun,
@@ -83,11 +81,10 @@ PreethamTexture::PreethamTexture(
 
 	if(m_Yabs_xyY.z <= 0)
 	{
-		logger.log(ELogLevel::WARNING_MAX,
-			"turbidity = " + std::to_string(turbidity) + " causes absolute "
-			"zenith luminance to be negative/zero (currently = " + 
-			std::to_string(m_Yabs_xyY.z) + " K*cd/m^2); consider using values "
-			"in [2, 10]");
+		PH_LOG_WARNING(PreethamTexture,
+			"turbidity = {} causes absolute zenith luminance to be negative/zero "
+			"(currently = {} K*cd/m^2); consider using values in [2, 10]", 
+			turbidity, m_Yabs_xyY.z);
 	}
 }
 

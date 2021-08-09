@@ -1,6 +1,7 @@
 #include "DataIO/Data/IesData.h"
 #include "Math/math.h"
 #include "Math/constant.h"
+#include "Common/logging.h"
 
 #include <cmath>
 #include <algorithm>
@@ -9,7 +10,7 @@
 namespace ph
 {
 
-const Logger IesData::logger(LogSender("IES Data"));
+PH_DEFINE_INTERNAL_LOG_GROUP(IesData, DataIO);
 
 IesData::IesData(const Path& iesFilePath) : 
 	m_file(iesFilePath),
@@ -18,8 +19,8 @@ IesData::IesData(const Path& iesFilePath) :
 {
 	if(!m_file.load())
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"failed on loading file <" + m_file.getFilename() + ">");
+		PH_LOG_WARNING(IesData, "failed on loading file <{}>", m_file.getFilename());
+
 		return;
 	}
 
@@ -75,8 +76,9 @@ void IesData::processCandelaValues()
 {
 	if(m_file.getPhotometricWebType() != IesFile::EPhotometricWebType::C)
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"web type is not C, not supported (file: " + m_file.getFilename() + ")");
+		PH_LOG_WARNING(IesData, "web type is not C, not supported (file: {})",
+			m_file.getFilename());
+
 		return;
 	}
 
@@ -84,9 +86,10 @@ void IesData::processCandelaValues()
 	const auto hDegrees = m_file.getHorizontalAngles();
 	if(!hDegrees.empty() && hDegrees[0] != 0)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"horizontal degrees does not start with 0, "
-			"which is not supported (file: " + m_file.getFilename() + ")");
+		PH_LOG_WARNING(IesData, 
+			"horizontal degrees does not start with 0, which is not supported (file: {})",
+			m_file.getFilename());
+
 		return;
 	}
 
@@ -142,8 +145,9 @@ void IesData::processCandelaValues()
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"unsupported angle difference (file: " + m_file.getFilename() + ")");
+		PH_LOG_WARNING(IesData, "unsupported angle difference (file: {})",
+			m_file.getFilename());
+
 		return;
 	}
 
@@ -167,8 +171,9 @@ void IesData::processCandelaValues()
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"unsupported vertical angle difference (file: " + m_file.getFilename() + ")");
+		PH_LOG_WARNING(IesData, "unsupported vertical angle difference (file: {})",
+			m_file.getFilename());
+
 		return;
 	}
 }
@@ -196,8 +201,8 @@ void IesData::processAttenuationFactors()
 
 	if(minCandela < 0.0_r || maxCandela <= 0.0_r)
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"bad candela value detected in file <" + m_file.getFilename() + ">");
+		PH_LOG_WARNING(IesData, "bad candela value detected in file <{}>",
+			m_file.getFilename());
 	}
 
 	m_sphericalAttenuationFactors = m_sphericalCandelas;
@@ -289,7 +294,7 @@ real IesData::calcBicubicWeight(const real x)
 {
 	// corresponds to cubic Hermite spline
 	//
-	const real a = -0.5_r;
+	constexpr real a = -0.5_r;
 
 	const real absX = std::abs(x);
 	if(absX <= 1)

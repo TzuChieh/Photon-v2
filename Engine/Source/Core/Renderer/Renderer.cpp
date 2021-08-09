@@ -9,7 +9,7 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "EngineEnv/CoreCookedUnit.h"
 #include "Core/Receiver/Receiver.h"
 
@@ -19,12 +19,7 @@
 namespace ph
 {
 
-namespace
-{
-
-const Logger logger(LogSender("Renderer"));
-
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(Renderer, Renderer);
 
 Renderer::Renderer(Viewport viewport, const uint32 numWorkers) : 
 	m_viewport  (std::move(viewport)),
@@ -38,11 +33,11 @@ Renderer::~Renderer() = default;
 
 void Renderer::update(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
-	logger.log("# render workers = " + std::to_string(numWorkers()));
-	logger.log("render dimensions = " + getViewport().toString());
-	logger.log("actual render resolution = " + getRenderRegionPx().getExtents().toString());
+	PH_LOG(Renderer, "# render workers = {}", numWorkers());
+	PH_LOG(Renderer, "render dimensions = {}", getViewport().toString());
+	PH_LOG(Renderer, "actual render resolution = {}", getRenderRegionPx().getExtents().toString());
 
-	logger.log("updating...");
+	PH_LOG(Renderer, "updating...");
 
 	Timer updateTimer;
 	updateTimer.start();
@@ -53,12 +48,12 @@ void Renderer::update(const CoreCookedUnit& cooked, const VisualWorld& world)
 	m_isUpdating = false;
 	updateTimer.finish();
 
-	logger.log("update time: " + std::to_string(updateTimer.getDeltaMs()) + " ms");
+	PH_LOG(Renderer, "update time: {} ms", updateTimer.getDeltaMs());
 }
 
 void Renderer::render()
 {
-	logger.log("rendering...");
+	PH_LOG(Renderer, "rendering...");
 
 	Timer renderTimer;
 	renderTimer.start();
@@ -69,15 +64,14 @@ void Renderer::render()
 	m_isRendering = false;
 	renderTimer.finish();
 
-	logger.log("render time: " + std::to_string(renderTimer.getDeltaMs()) + " ms");
+	PH_LOG(Renderer, "render time: {} ms", renderTimer.getDeltaMs());
 }
 
 void Renderer::setNumWorkers(uint32 numWorkers)
 {
 	if(numWorkers == 0)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"# workers cannot be 0, set to 1");
+		PH_LOG_WARNING(Renderer, "# workers cannot be 0, set to 1");
 		numWorkers = 1;
 	}
 

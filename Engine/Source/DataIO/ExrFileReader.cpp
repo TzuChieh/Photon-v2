@@ -1,6 +1,6 @@
 #include "DataIO/ExrFileReader.h"
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 
 #include "Common/ThirdParty/lib_openexr.h"
 
@@ -12,12 +12,14 @@
 namespace ph
 {
 
+PH_DEFINE_INTERNAL_LOG_GROUP(ExrFileReader, DataIO);
+
 namespace
 {
-	const Logger logger(LogSender("EXR File Reader"));
 
-	template<typename DatumType>
-	bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame);
+template<typename DatumType>
+bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame);
+
 }
 
 ExrFileReader::ExrFileReader(const Path& filePath) :
@@ -32,8 +34,9 @@ bool ExrFileReader::load(HdrRgbFrame* const out_frame)
 	}
 	catch(const std::exception& e)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"failed loading <" + m_filePath.toString() + ">, reason: " + e.what());
+		PH_LOG_WARNING(ExrFileReader, "failed loading <{}>, reason: {}", 
+			m_filePath.toString(), e.what());
+
 		return false;
 	}
 }
@@ -42,8 +45,7 @@ bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
 {
 	const std::string filePath = m_filePath.toAbsoluteString();
 	
-	logger.log(ELogLevel::NOTE_MIN,
-		"loading standalone RGB: " + filePath);
+	PH_LOG(ExrFileReader, "loading standalone RGB: {}", filePath);
 	
 	Imf::InputFile file(filePath.c_str());
 
@@ -56,9 +58,11 @@ bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
 
 	if(!rgbChannels[0] || !rgbChannels[1] || !rgbChannels[2])
 	{
-		logger.log(ELogLevel::WARNING_MED,
+		PH_LOG_WARNING(ExrFileReader, 
 			"expecting standalone RGB channels, cannot find some/all of them;\n"
-			"all layers and channels: " + listAllLayersAndChannels());
+			"all layers and channels: {}", 
+			listAllLayersAndChannels());
+			
 		return false;
 	}
 
@@ -66,11 +70,11 @@ bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
 	if(!(rgbChannels[0]->type == rgbChannels[1]->type && rgbChannels[1]->type == rgbChannels[2]->type) ||
 	   !(pixelType == Imf::PixelType::HALF || pixelType == Imf::PixelType::FLOAT))
 	{
-		logger.log(ELogLevel::WARNING_MED,
+		PH_LOG_WARNING(ExrFileReader,
 			"expecting RGB channels have the same floating point type; IDs: "
-			"R=" + std::to_string(rgbChannels[0]->type) + ", "
-			"G=" + std::to_string(rgbChannels[1]->type) + ", "
-			"B=" + std::to_string(rgbChannels[2]->type));
+			"R={}, G={}, B={}", 
+			rgbChannels[0]->type, rgbChannels[1]->type, rgbChannels[2]->type);
+
 		return false;
 	}
 
@@ -194,8 +198,9 @@ bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 	const Imf::LineOrder lineOrder = header.lineOrder();
 	if(!(lineOrder == Imf::LineOrder::INCREASING_Y || lineOrder == Imf::LineOrder::DECREASING_Y))
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"file < " + std::string(file.fileName()) + "> has unsupported line order: " + std::to_string(lineOrder));
+		PH_LOG_WARNING(ExrFileReader, "file <{}> has unsupported line order: {}", 
+			file.fileName(), lineOrder);
+
 		return false;
 	}
 

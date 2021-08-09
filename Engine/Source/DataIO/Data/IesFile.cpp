@@ -1,5 +1,6 @@
 #include "DataIO/Data/IesFile.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 #include "DataIO/SDL/Tokenizer.h"
 
 #include <fstream>
@@ -9,7 +10,7 @@
 namespace ph
 {
 
-const Logger IesFile::logger(LogSender("IES File"));
+PH_DEFINE_INTERNAL_LOG_GROUP(IesFile, DataIO);
 
 IesFile::IesFile(const Path& iesFilePath) :
 	m_path(iesFilePath),
@@ -30,8 +31,7 @@ bool IesFile::load()
 		return false;
 	}
 
-	logger.log(ELogLevel::NOTE_MED, 
-		"loading file <" + filePathStr + ">");
+	PH_LOG(IesFile, "loading file <{}>", filePathStr);
 
 	// TODO: consider using std::byte instead of char
 	std::vector<char> buffer{std::istreambuf_iterator<char>(file), 
@@ -39,9 +39,8 @@ bool IesFile::load()
 
 	if(!parse(buffer))
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"file <" + filePathStr + "> parsing failed; "
-			"file content read has " + std::to_string(buffer.size()) + " bytes");
+		PH_LOG_WARNING(IesFile, "file <{}> parsing failed; file content read has {} bytes", 
+			filePathStr, buffer.size());
 		return false;
 	}
 
@@ -59,8 +58,7 @@ bool IesFile::parse(const std::vector<char>& data)
 
 	if(lines.empty())
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"no line detected in file <" + m_path.toAbsoluteString() + ">");
+		PH_LOG_WARNING(IesFile, "no line detected in file <{}>", m_path.toAbsoluteString());
 		return false;
 	}
 
@@ -188,8 +186,8 @@ std::size_t IesFile::parseLabelsAndKeywords(const std::vector<std::string>& line
 	}
 	if(tiltLineIndex == lines.size())
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"no tilt line detected in file <" + m_path.toAbsoluteString() + ">");
+		PH_LOG_WARNING(IesFile, "no tilt line detected in file <{}>", 
+			m_path.toAbsoluteString());
 		return lines.size();
 	}
 
@@ -261,9 +259,8 @@ std::size_t IesFile::parseTiltLine(const std::vector<std::string>& lines, const 
 		m_tilt = line.substr(5);
 		if(m_tilt != "NONE")
 		{
-			logger.log(ELogLevel::WARNING_MED,
-				"for file <" + m_path.toAbsoluteString() + ">, " + 
-				"does not support tilt <" + m_tilt + ">");
+			PH_LOG_WARNING(IesFile, "for file <{}>, does not support tilt <{}>", 
+				m_path.toAbsoluteString(), m_tilt);
 			return lines.size();
 		}
 
@@ -271,8 +268,8 @@ std::size_t IesFile::parseTiltLine(const std::vector<std::string>& lines, const 
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"invalid tilt line detected in file <" + m_path.toAbsoluteString() + ">");
+		PH_LOG_WARNING(IesFile, "invalid tilt line detected in file <{}>", 
+			m_path.toAbsoluteString());
 		return lines.size();
 	}
 }
@@ -322,10 +319,9 @@ std::size_t IesFile::parseMetadata1(const std::vector<std::string>& lines, const
 	tokenizer.tokenize(lines[currentLine], tokens);
 	if(tokens.size() != 10)
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"the line for metadata 1 has " + std::to_string(tokens.size()) + 
-			" tokens only (10 expected), will still try to parse (file " + 
-			m_path.toAbsoluteString() + ")");
+		PH_LOG_WARNING(IesFile, 
+			"the line for metadata 1 has {} tokens only (10 expected), will still try to parse (file {})", 
+			tokens.size(), m_path.toAbsoluteString());
 	}
 
 	m_numLamps            = 0 < tokens.size() ? static_cast<uint32>(std::stoi(tokens[0])) : 1;
@@ -419,10 +415,9 @@ std::size_t IesFile::parseMetadata2(const std::vector<std::string>& lines, const
 	tokenizer.tokenize(lines[currentLine], tokens);
 	if(tokens.size() != 3)
 	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"the line for metadata 2 has " + std::to_string(tokens.size()) + 
-			" tokens only (3 expected), will still try to parse (file " + 
-			m_path.toAbsoluteString() + ")");
+		PH_LOG_WARNING(IesFile,
+			"the line for metadata 2 has {} tokens only (3 expected), will still try to parse (file {})", 
+			tokens.size(), m_path.toAbsoluteString());
 	}
 
 	m_ballastFactor                = 0 < tokens.size() ? static_cast<real>(std::stod(tokens[0])) : 1.0_r;
@@ -454,8 +449,8 @@ std::size_t IesFile::parseAngles(const std::vector<std::string>& lines, const st
 
 		if(m_verticalAngles.size() > m_numVerticalAngles)
 		{
-			logger.log(ELogLevel::WARNING_MED,
-				"too many vertical angles in file " + m_path.toAbsoluteString());
+			PH_LOG_WARNING(IesFile, "too many vertical angles in file {}", 
+				m_path.toAbsoluteString());
 			break;
 		}
 	}
@@ -474,8 +469,8 @@ std::size_t IesFile::parseAngles(const std::vector<std::string>& lines, const st
 
 		if(m_horizontalAngles.size() > m_numHorizontalAngles)
 		{
-			logger.log(ELogLevel::WARNING_MED,
-				"too many horizontal angles in file " + m_path.toAbsoluteString());
+			PH_LOG_WARNING(IesFile, "too many horizontal angles in file {}",
+				m_path.toAbsoluteString());
 			break;
 		}
 	}
@@ -483,8 +478,8 @@ std::size_t IesFile::parseAngles(const std::vector<std::string>& lines, const st
 	if(m_verticalAngles.size() != m_numVerticalAngles ||
 	   m_horizontalAngles.size() != m_numHorizontalAngles)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"mismatched number of angles in file " + m_path.toAbsoluteString());
+		PH_LOG_WARNING(IesFile, "mismatched number of angles in file {}",
+			m_path.toAbsoluteString());
 	}
 
 	return parsingLine;
@@ -509,10 +504,9 @@ std::size_t IesFile::parseCandelaValues(const std::vector<std::string>& lines, c
 	const std::size_t expectedNumCandelaValues = m_numVerticalAngles * m_numHorizontalAngles;
 	if(tokens.size() != expectedNumCandelaValues)
 	{
-		logger.log(ELogLevel::WARNING_MED,
-			"mismatched number of candela values (" + std::to_string(tokens.size()) +
-			", expected to be " + std::to_string(expectedNumCandelaValues) + 
-			") in file " + m_path.toAbsoluteString());
+		PH_LOG_WARNING(IesFile,
+			"mismatched number of candela values ({}, expected to be {}) in file {}", 
+			tokens.size(), expectedNumCandelaValues, m_path.toAbsoluteString());
 	}
 
 	m_candelaValues.clear();

@@ -9,7 +9,7 @@
 #include "Core/Renderer/PM/FullPhoton.h"
 #include "Utility/FixedSizeThreadPool.h"
 #include "Utility/concurrent.h"
-#include "Common/Logger.h"
+#include "Common/logging.h"
 #include "Core/Renderer/PM/PPMRadianceEvaluationWork.h"
 #include "Core/Renderer/PM/FullPhoton.h"
 #include "Core/Renderer/PM/FullViewpoint.h"
@@ -22,10 +22,7 @@
 namespace ph
 {
 
-namespace
-{
-	const Logger logger(LogSender("PM Renderer"));
-}
+PH_DEFINE_INTERNAL_LOG_GROUP(PhotonMapRenderer, Renderer);
 
 void PMRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
@@ -44,25 +41,25 @@ void PMRenderer::doRender()
 {
 	if(m_mode == EPMMode::VANILLA)
 	{
-		logger.log("rendering mode: vanilla photon mapping");
+		PH_LOG(PhotonMapRenderer, "rendering mode: vanilla photon mapping");
 
 		renderWithVanillaPM();
 	}
 	else if(m_mode == EPMMode::PROGRESSIVE)
 	{
-		logger.log("rendering mode: progressive photon mapping");
+		PH_LOG(PhotonMapRenderer, "rendering mode: progressive photon mapping");
 
 		renderWithProgressivePM();
 	}
 	else if(m_mode == EPMMode::STOCHASTIC_PROGRESSIVE)
 	{
-		logger.log("rendering mode: stochastic progressive photon mapping");
+		PH_LOG(PhotonMapRenderer, "rendering mode: stochastic progressive photon mapping");
 
 		renderWithStochasticProgressivePM();
 	}
 	else
 	{
-		logger.log(ELogLevel::WARNING_MED, "unsupported PM mode, renders nothing");
+		PH_LOG_WARNING(PhotonMapRenderer, "unsupported PM mode, renders nothing");
 	}
 }
 
@@ -70,11 +67,11 @@ void PMRenderer::renderWithVanillaPM()
 {
 	using Photon = FullPhoton;
 
-	logger.log("photon size: " + std::to_string(sizeof(Photon)) + " bytes");
+	PH_LOG(PhotonMapRenderer, "photon size: {} bytes", sizeof(Photon));
 
-	logger.log("target number of photons: " + std::to_string(m_numPhotons));
-	logger.log("size of photon buffer: " + std::to_string(sizeof(Photon) * m_numPhotons / 1024 / 1024) + " MB");
-	logger.log("start shooting photons...");
+	PH_LOG(PhotonMapRenderer, "target number of photons: {}", m_numPhotons);
+	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MB", sizeof(Photon) * m_numPhotons / 1024 / 1024);
+	PH_LOG(PhotonMapRenderer, "start shooting photons...");
 
 	std::vector<Photon>  photonBuffer(m_numPhotons);
 	std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
@@ -99,12 +96,12 @@ void PMRenderer::renderWithVanillaPM()
 		});
 	const std::size_t totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), std::size_t(0));
 
-	logger.log("building photon map...");
+	PH_LOG(PhotonMapRenderer, "building photon map...");
 
 	TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
 	photonMap.build(std::move(photonBuffer));
 
-	logger.log("estimating radiance...");
+	PH_LOG(PhotonMapRenderer, "estimating radiance...");
 
 	parallel_work(m_numSamplesPerPixel, numWorkers(),
 		[this, &photonMap, totalPhotonPaths](
@@ -141,10 +138,10 @@ void PMRenderer::renderWithProgressivePM()
 	using Photon    = FullPhoton;
 	using Viewpoint = FullViewpoint;
 
-	logger.log("photon size: " + std::to_string(sizeof(Photon)) + " bytes");
-	logger.log("viewpoint size: " + std::to_string(sizeof(Viewpoint)) + " bytes");
+	PH_LOG(PhotonMapRenderer, "photon size: {} bytes", sizeof(Photon));
+	PH_LOG(PhotonMapRenderer, "viewpoint size: {} bytes", sizeof(Viewpoint));
 
-	logger.log("start gathering viewpoints...");
+	PH_LOG(PhotonMapRenderer, "start gathering viewpoints...");
 
 	std::vector<Viewpoint> viewpoints;
 	{
@@ -165,15 +162,16 @@ void PMRenderer::renderWithProgressivePM()
 		viewpoints = viewpointCollector.claimViewpoints();
 	}
 	
-	logger.log("size of viewpoint buffer: " + 
-		std::to_string(math::byte_to_MB<real>(sizeof(Viewpoint) * viewpoints.size())) + " MB");
+	PH_LOG(PhotonMapRenderer, "size of viewpoint buffer: {} MB", 
+		math::byte_to_MB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
 	const std::size_t numPhotonsPerPass = m_numPhotons;
 
-	logger.log("number of photons per pass: " + std::to_string(numPhotonsPerPass));
-	logger.log("size of photon buffer: " 
-		+ std::to_string(math::byte_to_MB<real>(sizeof(Photon) * numPhotonsPerPass)) + " MB");
-	logger.log("start accumulating passes...");
+	PH_LOG(PhotonMapRenderer, "number of photons per pass: {}", numPhotonsPerPass);
+	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MB",
+		math::byte_to_MB<real>(sizeof(Photon) * numPhotonsPerPass));
+
+	PH_LOG(PhotonMapRenderer, "start accumulating passes...");
 
 	std::mutex resultFilmMutex;
 	auto resultFilm = std::make_unique<HdrRgbFilm>(
@@ -258,10 +256,10 @@ void PMRenderer::renderWithStochasticProgressivePM()
 	using Photon    = FullPhoton;
 	using Viewpoint = FullViewpoint;
 
-	logger.log("photon size: " + std::to_string(sizeof(Photon)) + " bytes");
-	logger.log("viewpoint size: " + std::to_string(sizeof(Viewpoint)) + " bytes");
+	PH_LOG(PhotonMapRenderer, "photon size: {} bytes", sizeof(Photon));
+	PH_LOG(PhotonMapRenderer, "viewpoint size: {} bytes", sizeof(Viewpoint));
 
-	logger.log("start generating viewpoints...");
+	PH_LOG(PhotonMapRenderer, "start generating viewpoints...");
 
 	std::vector<Viewpoint> viewpoints(getCropWindowPx().getArea());
 	for(std::size_t y = 0; y < static_cast<std::size_t>(getCropWindowPx().getHeight()); ++y)
@@ -285,15 +283,16 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		}
 	}
 
-	logger.log("size of viewpoint buffer: " +
-		std::to_string(math::byte_to_MB<real>(sizeof(Viewpoint) * viewpoints.size())) + " MB");
+	PH_LOG(PhotonMapRenderer, "size of viewpoint buffer: {} MB",
+		math::byte_to_MB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
 	const std::size_t numPhotonsPerPass = m_numPhotons;
 
-	logger.log("number of photons per pass: " + std::to_string(numPhotonsPerPass));
-	logger.log("size of photon buffer: " 
-		+ std::to_string(math::byte_to_MB<real>(sizeof(Photon) * numPhotonsPerPass)) + " MB");
-	logger.log("start accumulating passes...");
+	PH_LOG(PhotonMapRenderer, "number of photons per pass: {}", numPhotonsPerPass);
+	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MB",
+		math::byte_to_MB<real>(sizeof(Photon) * numPhotonsPerPass));
+
+	PH_LOG(PhotonMapRenderer, "start accumulating passes...");
 
 	std::mutex resultFilmMutex;
 	auto resultFilm = std::make_unique<HdrRgbFilm>(

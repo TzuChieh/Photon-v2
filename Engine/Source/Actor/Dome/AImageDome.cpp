@@ -1,17 +1,9 @@
 #include "Actor/Dome/AImageDome.h"
 #include "DataIO/PictureLoader.h"
 #include "Actor/Image/HdrPictureImage.h"
-#include "Common/Logger.h"
 
 namespace ph
 {
-
-namespace
-{
-
-const Logger logger(LogSender("Actor Dome (Image)"));
-
-}
 
 AImageDome::AImageDome() :
 	AImageDome(Path())

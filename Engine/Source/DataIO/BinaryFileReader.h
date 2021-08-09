@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "Common/Logger.h"
 #include "Common/assertion.h"
 
 #include <fstream>
@@ -26,8 +25,6 @@ public:
 private:
 	Path          m_filePath;
 	std::ifstream m_inputStream;
-
-	static Logger logger;
 };
 
 // In-header Implementations:
@@ -39,19 +36,6 @@ inline BinaryFileReader::BinaryFileReader(const Path& filePath) :
 inline BinaryFileReader::~BinaryFileReader()
 {
 	close();
-}
-
-inline bool BinaryFileReader::open()
-{
-	m_inputStream.open(m_filePath.toString(), std::ios_base::in | std::ios_base::binary);
-	if(!m_inputStream.good())
-	{
-		logger.log(ELogLevel::WARNING_MED, 
-			"<" + m_filePath.toString() + "> open failed");
-		return false;
-	}
-
-	return true;
 }
 
 inline void BinaryFileReader::close()
