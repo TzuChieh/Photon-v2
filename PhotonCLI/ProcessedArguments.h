@@ -7,7 +7,8 @@
 #include <vector>
 #include <iostream>
 
-PH_CLI_NAMESPACE_BEGIN
+namespace ph::cli
+{
 
 enum class EIntervalUnit
 {
@@ -221,4 +222,4 @@ Render image series until a specific wildcarded string is matched. (inclusive)
 	)" << std::endl;
 }
 
-PH_CLI_NAMESPACE_END
+}// end namespace ph::cli

@@ -18,7 +18,8 @@
 	#include <experimental/filesystem>
 #endif
 
-PH_CLI_NAMESPACE_BEGIN
+namespace ph::cli
+{
 
 StaticImageRenderer::StaticImageRenderer(const ProcessedArguments& args) :
 	m_engineId(0),
@@ -255,4 +256,4 @@ bool StaticImageRenderer::loadCommandsFromSceneFile() const
 	return phLoadCommands(m_engineId, sceneFilePath.c_str()) == PH_TRUE ? true : false;
 }
 
-PH_CLI_NAMESPACE_END
+}// end namespace ph::cli

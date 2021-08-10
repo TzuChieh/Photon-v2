@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-PH_CLI_NAMESPACE_BEGIN
+namespace ph::cli
+{
 
 void save_frame_with_fail_safe(const PHuint64 frameId, const std::string& filePath)
 {
@@ -20,4 +21,4 @@ void save_frame_with_fail_safe(const PHuint64 frameId, const std::string& filePa
 	}
 }
 
-PH_CLI_NAMESPACE_END
+}// end namespace ph::cli

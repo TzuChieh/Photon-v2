@@ -20,9 +20,14 @@
 	#include <experimental/filesystem>
 #endif
 
-using namespace PH_CLI_NAMESPACE;
+using namespace ph::cli;
+
+namespace ph::cli
+{
 
 void renderImageSeries(const ProcessedArguments& args);
+
+}
 
 int main(int argc, char* argv[])
 {
@@ -94,6 +99,9 @@ int main(int argc, char* argv[])
 
 	return EXIT_SUCCESS;
 }
+
+namespace ph::cli
+{
 
 #ifndef __APPLE__
 
@@ -175,3 +183,5 @@ void renderImageSeries(const ProcessedArguments& args)
 }
 
 #endif
+
+}// end namespace ph::cli

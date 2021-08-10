@@ -12,9 +12,14 @@ file(GLOB_RECURSE PHOTON_CLI_SOURCE_FILES "./*.cpp")
 set_source_files_properties(${PHOTON_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
 
 add_executable(PhotonCLI ${PHOTON_CLI_HEADER_FILES} ${PHOTON_CLI_SOURCE_FILES})
-add_dependencies(PhotonCLI Engine)
 
-target_link_libraries(PhotonCLI PRIVATE Engine)
+add_dependencies(PhotonCLI
+	Engine
+	SDLGen)
+
+target_link_libraries(PhotonCLI
+	PRIVATE Engine
+	PRIVATE SDLGen)
 
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 

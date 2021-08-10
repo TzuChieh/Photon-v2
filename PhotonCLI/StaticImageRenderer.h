@@ -7,7 +7,8 @@
 
 #include <string>
 
-PH_CLI_NAMESPACE_BEGIN
+namespace ph::cli
+{
 
 class StaticImageRenderer final
 {
@@ -27,4 +28,4 @@ private:
 	bool loadCommandsFromSceneFile() const;
 };
 
-PH_CLI_NAMESPACE_END
+}// end namespace ph::cli

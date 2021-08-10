@@ -7,7 +7,8 @@
 #include <vector>
 #include <cstddef>
 
-PH_CLI_NAMESPACE_BEGIN
+namespace ph::cli
+{
 
 class CommandLineArguments
 {
@@ -38,4 +39,4 @@ inline bool CommandLineArguments::isEmpty() const
 	return m_arguments.empty();
 }
 
-PH_CLI_NAMESPACE_END
+}// end namespace ph::cli

@@ -1,9 +1,9 @@
 #include "CommandLineArguments.h"
 
-#include <utility>
 #include <iostream>
 
-PH_CLI_NAMESPACE_BEGIN
+namespace ph::cli
+{
 
 CommandLineArguments::CommandLineArguments(int argc, char* argv[]) : 
 	m_programName(),
@@ -31,7 +31,7 @@ std::string CommandLineArguments::retrieveOne(const std::string& defaultValue)
 
 	std::string argument = m_arguments.front();
 	m_arguments.pop();
-	return std::move(argument);
+	return argument;
 }
 
 std::vector<std::string> CommandLineArguments::retrieveMultiple(const std::size_t numValues)
@@ -41,7 +41,7 @@ std::vector<std::string> CommandLineArguments::retrieveMultiple(const std::size_
 	{
 		arguments.push_back(retrieveOne());
 	}
-	return std::move(arguments);
+	return arguments;
 }
 
 int CommandLineArguments::retrieveOneInt(const int defaultValue)
@@ -56,4 +56,4 @@ float CommandLineArguments::retrieveOneFloat(const float defaultValue)
 	return !argument.empty() ? std::stof(argument) : defaultValue;
 }
 
-PH_CLI_NAMESPACE_END
+}// end namespace ph::cli

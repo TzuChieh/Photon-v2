@@ -5,7 +5,8 @@
 #include <string_view>
 #include <limits>
 
-PH_CLI_NAMESPACE_BEGIN
+namespace ph::cli
+{
 
 ProcessedArguments::ProcessedArguments(int argc, char* argv[]) : 
 	ProcessedArguments(CommandLineArguments(argc, argv))
@@ -138,4 +139,4 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 	// TODO: argument sanity check
 }
 
-PH_CLI_NAMESPACE_END
+}// end namespace ph::cli
