@@ -1,8 +1,6 @@
-#include "CommandLineArguments.h"
+#include "Utility/CommandLineArguments.h"
 
-#include <iostream>
-
-namespace ph::cli
+namespace ph
 {
 
 CommandLineArguments::CommandLineArguments(int argc, char* argv[]) : 
@@ -24,8 +22,6 @@ std::string CommandLineArguments::retrieveOne(const std::string& defaultValue)
 {
 	if(isEmpty())
 	{
-		std::cerr << "warning: retrieving a nonexistent argument, " 
-		          << "defaulted to " << defaultValue << std::endl;
 		return defaultValue;
 	}
 
@@ -56,4 +52,4 @@ float CommandLineArguments::retrieveOneFloat(const float defaultValue)
 	return !argument.empty() ? std::stof(argument) : defaultValue;
 }
 
-}// end namespace ph::cli
+}// end namespace ph

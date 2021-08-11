@@ -13,6 +13,7 @@ ProcessedArguments::ProcessedArguments(int argc, char* argv[]) :
 {}
 
 ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
+	m_executionMode             (EExecutionMode::UNSPECIFIED),
 	m_sceneFilePath             ("./scene.p2"),
 	m_imageOutputPath           ("./rendered_scene"),
 	m_imageFileFormat           ("png"),

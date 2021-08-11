@@ -1,5 +1,4 @@
 #include "StaticImageRenderer.h"
-#include "CommandLineArguments.h"
 
 #include <asio.hpp>
 

@@ -1,16 +1,14 @@
 #pragma once
 
-#include "util.h"
-
 #include <string>
 #include <queue>
 #include <vector>
 #include <cstddef>
 
-namespace ph::cli
+namespace ph
 {
 
-class CommandLineArguments
+class CommandLineArguments final
 {
 public:
 	CommandLineArguments(int argc, char* argv[]);
@@ -39,4 +37,4 @@ inline bool CommandLineArguments::isEmpty() const
 	return m_arguments.empty();
 }
 
-}// end namespace ph::cli
+}// end namespace ph

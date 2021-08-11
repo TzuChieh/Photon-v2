@@ -1,7 +1,8 @@
 #pragma once
 
 #include "util.h"
-#include "CommandLineArguments.h"
+
+#include <Utility/CommandLineArguments.h>
 
 #include <string>
 #include <vector>
@@ -16,6 +17,14 @@ enum class EIntervalUnit
 	SECOND
 };
 
+enum class EExecutionMode
+{
+	UNSPECIFIED,
+	RENDER_SINGLE_IMAGE,
+	RENDER_IMAGE_SERIES,
+	SDL_GENERATION
+};
+
 // TODO: a parameter telling whether intermediate outout is requested
 class ProcessedArguments
 {
@@ -26,19 +35,20 @@ public:
 	ProcessedArguments(int argc, char* argv[]);
 	explicit ProcessedArguments(CommandLineArguments arguments);
 
-	std::string   getSceneFilePath() const;
-	std::string   getImageOutputPath() const;
-	std::string   getImageFilePath() const;
-	std::string   getImageFileFormat() const;
-	int           getNumRenderThreads() const;
-	bool          isPostProcessRequested() const;
-	bool          isHelpMessageRequested() const;
-	bool          isImageSeriesRequested() const;
-	std::string   wildcardStart() const;
-	std::string   wildcardFinish() const;
-	float         getIntermediateOutputInterval() const;
-	EIntervalUnit getIntervalUnit() const;
-	bool          isOverwriteRequested() const;
+	EExecutionMode getExecutionMode() const;
+	std::string    getSceneFilePath() const;
+	std::string    getImageOutputPath() const;
+	std::string    getImageFilePath() const;
+	std::string    getImageFileFormat() const;
+	int            numRenderThreads() const;
+	bool           isPostProcessRequested() const;
+	bool           isHelpMessageRequested() const;
+	bool           isImageSeriesRequested() const;
+	std::string    wildcardStart() const;
+	std::string    wildcardFinish() const;
+	float          getIntermediateOutputInterval() const;
+	EIntervalUnit  getIntervalUnit() const;
+	bool           isOverwriteRequested() const;
 
 	void setSceneFilePath(const std::string& sceneFilePath);
 	void setImageOutputPath(const std::string& imageOutputPath);
@@ -64,18 +74,19 @@ public:
 	}
 
 private:
-	std::string   m_sceneFilePath;
-	std::string   m_imageOutputPath;
-	std::string   m_imageFileFormat;
-	int           m_numRenderThreads;// FIXME: use unsigned integer
-	bool          m_isPostProcessRequested;
-	bool          m_isHelpMessageRequested;
-	bool          m_isImageSeriesRequested;
-	std::string   m_wildcardStart;
-	std::string   m_wildcardFinish;
-	float         m_intermediateOutputInverval;
-	EIntervalUnit m_intervalUnit;
-	bool          m_isOverwriteRequested;
+	EExecutionMode m_executionMode;
+	std::string    m_sceneFilePath;
+	std::string    m_imageOutputPath;
+	std::string    m_imageFileFormat;
+	int            m_numRenderThreads;// FIXME: use unsigned integer
+	bool           m_isPostProcessRequested;
+	bool           m_isHelpMessageRequested;
+	bool           m_isImageSeriesRequested;
+	std::string    m_wildcardStart;
+	std::string    m_wildcardFinish;
+	float          m_intermediateOutputInverval;
+	EIntervalUnit  m_intervalUnit;
+	bool           m_isOverwriteRequested;
 
 	// HACK
 	bool m_isFrameDiagRequested;
@@ -106,7 +117,7 @@ inline std::string ProcessedArguments::getImageFileFormat() const
 	return m_imageFileFormat;
 }
 
-inline int ProcessedArguments::getNumRenderThreads() const
+inline int ProcessedArguments::numRenderThreads() const
 {
 	return m_numRenderThreads;
 }

@@ -17,6 +17,9 @@ add_dependencies(PhotonCLI
 	Engine
 	SDLGen)
 
+target_include_directories(PhotonCLI
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
+
 target_link_libraries(PhotonCLI
 	PRIVATE Engine
 	PRIVATE SDLGen)

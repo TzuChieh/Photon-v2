@@ -1,4 +1,3 @@
-#include "CommandLineArguments.h"
 #include "ProcessedArguments.h"
 #include "util.h"
 #include "StaticImageRenderer.h"
