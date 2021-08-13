@@ -3,10 +3,12 @@
 get_filename_component(PHOTON_CLI_DIR "./" ABSOLUTE)
 
 file(GLOB_RECURSE PHOTON_CLI_HEADER_FILES 
-	"./*.h"
-	"./*.ipp"
-	"./*.tpp")
-file(GLOB_RECURSE PHOTON_CLI_SOURCE_FILES "./*.cpp")
+	"${PHOTON_CLI_DIR}/*.h"
+	"${PHOTON_CLI_DIR}/*.ipp"
+	"${PHOTON_CLI_DIR}/*.tpp")
+
+file(GLOB_RECURSE PHOTON_CLI_SOURCE_FILES 
+	"${PHOTON_CLI_DIR}/*.cpp")
 
 # Explicitly mark them as headers
 set_source_files_properties(${PHOTON_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
@@ -18,7 +20,7 @@ add_dependencies(PhotonCLI
 	SDLGen)
 
 target_include_directories(PhotonCLI
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
+	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS})
 
 target_link_libraries(PhotonCLI
 	PRIVATE Engine

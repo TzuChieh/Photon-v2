@@ -11,9 +11,8 @@
 
 #include <string>
 #include <string_view>
-#include <exception>
-#include <charconv>
 #include <array>
+#include <exception>
 
 namespace ph
 {
@@ -96,20 +95,6 @@ constexpr ETypeCategory category_of();
 namespace detail
 {
 
-/*! @brief Returns a float by processing its SDL representation.
-
-Supports float, double, and long double.
-*/
-template<typename T>
-T parse_float(std::string_view sdlFloatStr);
-
-/*! @brief Returns an integer by processing its SDL representation.
-
-Supports all signed and unsigned standard integer types.
-*/
-template<typename T>
-T parse_int(std::string_view sdlIntegerStr);
-
 /*! @brief Check if category information can be obtained statically.
 
 The result is true if the static member variable T::CATEGORY exists,
@@ -151,11 +136,11 @@ inline FloatType load_float(const std::string_view sdlFloatStr)
 {
 	try
 	{
-		return detail::parse_float<FloatType>(sdlFloatStr);
+		return string_utils::parse_float<FloatType>(sdlFloatStr);
 	}
-	catch(const SdlLoadError& e)
+	catch(const std::exception& e)
 	{
-		throw SdlLoadError("on loading floating-point value -> " + e.whatStr());
+		throw SdlLoadError("on loading floating-point value -> " + std::string(e.what()));
 	}
 }
 
@@ -166,9 +151,9 @@ inline IntType load_int(const std::string_view sdlIntStr)
 	{
 		return detail::parse_int<IntType>(sdlIntStr);
 	}
-	catch(const SdlLoadError& e)
+	catch(const std::exception& e)
 	{
-		throw SdlLoadError("on loading integer value -> " + e.whatStr());
+		throw SdlLoadError("on loading integer value -> " + std::string(e.what()));
 	}
 }
 
@@ -209,94 +194,6 @@ constexpr ETypeCategory category_of()
 		return ETypeCategory::UNSPECIFIED;
 	}
 }
-
-namespace detail
-{
-
-inline void throw_from_std_errc_if_has_error(const std::errc errorCode)
-{
-	// According to several sources, 0, or zero-initialized std::errc,
-	// indicates no error.
-	//
-	// [1] see the example for std::from_chars
-	//     https://en.cppreference.com/w/cpp/utility/from_chars
-	// [2] https://stackoverflow.com/a/63567008
-	//
-	constexpr std::errc NO_ERROR_VALUE = std::errc();
-
-	switch(errorCode)
-	{
-	case NO_ERROR_VALUE:
-		return;
-
-	case std::errc::invalid_argument:
-		throw SdlLoadError("invalid argument");
-
-	case std::errc::result_out_of_range:
-		throw SdlLoadError("result out of range");
-
-	default:
-		throw SdlLoadError("unknown error");
-	}
-}
-
-template<typename T>
-inline T parse_float(const std::string_view sdlFloatStr)
-{
-	static_assert(std::is_floating_point_v<T>,
-		"parse_float() accepts only floating point type.");
-
-	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
-	// leading whitespaces while it should be able to auto skip them, we
-	// do it manually for now:
-	const std::string_view sdlFloatStrNoLeadingWS = string_utils::trim_head(sdlFloatStr);
-
-	T value;
-	const std::from_chars_result result = std::from_chars(
-		sdlFloatStrNoLeadingWS.data(),
-		sdlFloatStrNoLeadingWS.data() + sdlFloatStrNoLeadingWS.size(),
-		value);
-
-	/*T value;
-	const std::from_chars_result result = std::from_chars(
-		sdlFloatStr.data(),
-		sdlFloatStr.data() + sdlFloatStr.size(),
-		value);*/
-
-	throw_from_std_errc_if_has_error(result.ec);
-
-	return value;
-}
-
-template<typename T>
-inline T parse_int(const std::string_view sdlIntegerStr)
-{
-	static_assert(std::is_integral_v<T>,
-		"parse_int() accepts only integer type.");
-
-	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
-	// leading whitespaces while it should be able to auto skip them, we
-	// do it manually for now:
-	const std::string_view sdlIntegerStrNoLeadingWS = string_utils::trim_head(sdlIntegerStr);
-
-	T value;
-	const std::from_chars_result result = std::from_chars(
-		sdlIntegerStrNoLeadingWS.data(),
-		sdlIntegerStrNoLeadingWS.data() + sdlIntegerStrNoLeadingWS.size(),
-		value);
-
-	/*T value;
-	const std::from_chars_result result = std::from_chars(
-		sdlIntegerStr.data(),
-		sdlIntegerStr.data() + sdlIntegerStr.size(),
-		value);*/
-
-	throw_from_std_errc_if_has_error(result.ec);
-
-	return value;
-}
-
-}// end namespace detail
 
 }// end namespace ph::sdl
 

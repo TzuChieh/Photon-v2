@@ -3,6 +3,7 @@
 #include "util.h"
 
 #include <Utility/CommandLineArguments.h>
+#include <Common/primitive_type.h>
 
 #include <string>
 #include <vector>
@@ -40,7 +41,7 @@ public:
 	std::string    getImageOutputPath() const;
 	std::string    getImageFilePath() const;
 	std::string    getImageFileFormat() const;
-	int            numRenderThreads() const;
+	uint32         numThreads() const;
 	bool           isPostProcessRequested() const;
 	bool           isHelpMessageRequested() const;
 	bool           isImageSeriesRequested() const;
@@ -78,7 +79,7 @@ private:
 	std::string    m_sceneFilePath;
 	std::string    m_imageOutputPath;
 	std::string    m_imageFileFormat;
-	int            m_numRenderThreads;// FIXME: use unsigned integer
+	uint32         m_numThreads;
 	bool           m_isPostProcessRequested;
 	bool           m_isHelpMessageRequested;
 	bool           m_isImageSeriesRequested;
@@ -117,9 +118,9 @@ inline std::string ProcessedArguments::getImageFileFormat() const
 	return m_imageFileFormat;
 }
 
-inline int ProcessedArguments::numRenderThreads() const
+inline int ProcessedArguments::numThreads() const
 {
-	return m_numRenderThreads;
+	return m_numThreads;
 }
 
 inline bool ProcessedArguments::isPostProcessRequested() const

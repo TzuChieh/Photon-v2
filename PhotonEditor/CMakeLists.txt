@@ -6,12 +6,13 @@ set(PHOTON_EDITOR_INCLUDE_DIR         "${PHOTON_EDITOR_DIR}/Include/")
 set(PHOTON_EDITOR_PRIVATE_INCLUDE_DIR "${PHOTON_EDITOR_DIR}/Source/")
 
 file(GLOB_RECURSE PHOTON_EDITOR_HEADER_FILES 
-	"./Include/*.h"
-	"./Source/*.h"
-	"./Source/*.ipp"
-	"./Source/*.tpp"
-)
-file(GLOB_RECURSE PHOTON_EDITOR_SOURCE_FILES "./Source/*.cpp")
+	"${PHOTON_EDITOR_DIR}/Include/*.h"
+	"${PHOTON_EDITOR_DIR}/Source/*.h"
+	"${PHOTON_EDITOR_DIR}/Source/*.ipp"
+	"${PHOTON_EDITOR_DIR}/Source/*.tpp")
+
+file(GLOB_RECURSE PHOTON_EDITOR_SOURCE_FILES 
+	"${PHOTON_EDITOR_DIR}/Source/*.cpp")
 
 # Explicitly mark them as editor headers
 set_source_files_properties(${PHOTON_EDITOR_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
@@ -36,7 +37,7 @@ endif()
 target_include_directories(PhotonEditor
 	PUBLIC  ${PHOTON_EDITOR_INCLUDE_DIR}
 	PRIVATE ${PHOTON_EDITOR_PRIVATE_INCLUDE_DIR}
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
+	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS}
 	PRIVATE ${IMGUI_LIB_INCLUDE_DIRS})
 
 target_link_libraries(PhotonEditor

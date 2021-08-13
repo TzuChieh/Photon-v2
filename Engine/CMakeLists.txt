@@ -2,16 +2,25 @@
 
 get_filename_component(ENGINE_DIR "./" ABSOLUTE)
 
-set(ENGINE_INCLUDE_DIR         "${ENGINE_DIR}/Include/")
-set(ENGINE_PRIVATE_INCLUDE_DIR "${ENGINE_DIR}/Source/")
+set(ENGINE_C_INCLUDE_DIR        "${ENGINE_DIR}/Include/CEngine/")
+set(ENGINE_CPP_INCLUDE_DIR      "${ENGINE_DIR}/Include/CppEngine/")
+set(ENGINE_CPP_IMPL_INCLUDE_DIR "${ENGINE_DIR}/Source/")
+
+set(ENGINE_C_API_INCLUDE_DIRS
+	"${ENGINE_C_INCLUDE_DIR}")
+
+set(ENGINE_CPP_API_INCLUDE_DIRS
+	"${ENGINE_CPP_INCLUDE_DIR}"
+	"${ENGINE_CPP_IMPL_INCLUDE_DIR}")
 
 file(GLOB_RECURSE ENGINE_HEADER_FILES 
-	"./Include/*.h" 
-	"./Source/*.h" 
-	"./Source/*.ipp" 
-	"./Source/*.tpp"
+	"${ENGINE_DIR}/Include/*.h" 
+	"${ENGINE_DIR}/Source/*.h" 
+	"${ENGINE_DIR}/Source/*.ipp" 
+	"${ENGINE_DIR}/Source/*.tpp"
 )
-file(GLOB_RECURSE ENGINE_SOURCE_FILES "./Source/*.cpp")
+file(GLOB_RECURSE ENGINE_SOURCE_FILES 
+	"${ENGINE_DIR}/Source/*.cpp")
 
 # Explicitly mark them as engine headers
 set_source_files_properties(${ENGINE_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
@@ -32,8 +41,8 @@ set_property(TARGET EngineObjLib PROPERTY POSITION_INDEPENDENT_CODE 1)
 ]]
 
 target_include_directories(Engine 
-	PUBLIC  ${ENGINE_INCLUDE_DIR}
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
+	PUBLIC  ${ENGINE_C_API_INCLUDE_DIRS}
+	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS})
 
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 
@@ -76,5 +85,4 @@ source_group(TREE ${ENGINE_DIR} FILES ${ENGINE_SOURCE_FILES})
 # TODO: other files such as .dox
 
 # Make these directories accessible for other sub-projects
-set(ENGINE_INCLUDE_DIR         "${ENGINE_INCLUDE_DIR}"         PARENT_SCOPE)
-set(ENGINE_PRIVATE_INCLUDE_DIR "${ENGINE_PRIVATE_INCLUDE_DIR}" PARENT_SCOPE)
+set(ENGINE_CPP_API_INCLUDE_DIRS "${ENGINE_CPP_API_INCLUDE_DIRS}" PARENT_SCOPE)

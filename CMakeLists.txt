@@ -370,7 +370,8 @@ set(IMGUI_LIB_OPENGL3_IMPL_FILES "${IMGUI_LIB_INSTALL_DIR}/backends/imgui_impl_o
 add_subdirectory("./Engine/")
 
 if(BUILD_SDL_GEN)
-    add_subdirectory("./SDLGen/")
+    add_subdirectory("./SDLGenerator/SDLGen/")
+    add_subdirectory("./SDLGenerator/SDLGenCLI/")
 endif()
 
 if(BUILD_PHOTON_EDITOR)

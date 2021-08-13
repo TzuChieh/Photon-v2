@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <string_view>
+#include <stdexcept>
 
 namespace ph::string_utils
 {
@@ -179,6 +180,123 @@ inline void AZ_to_az(std::string* const str)
 	for(char& ch : *str)
 	{
 		ch = AZ_to_az(ch);
+	}
+}
+
+namespace detail
+{
+
+inline void throw_from_std_errc_if_has_error(const std::errc errorCode)
+{
+	// According to several sources, 0, or zero-initialized std::errc,
+	// indicates no error.
+	//
+	// [1] see the example for std::from_chars
+	//     https://en.cppreference.com/w/cpp/utility/from_chars
+	// [2] https://stackoverflow.com/a/63567008
+	//
+	constexpr std::errc NO_ERROR_VALUE = std::errc();
+
+	switch(errorCode)
+	{
+	case NO_ERROR_VALUE:
+		return;
+
+	case std::errc::invalid_argument:
+		throw std::invalid_argument("invalid argument");
+
+	case std::errc::result_out_of_range:
+		throw std::out_of_range("result out of range");
+
+	default:
+		throw std::runtime_error(
+			"unknown error: std::errc = " + std::to_string(
+			static_cast<std::underlying_type_t<std::errc>>(errorCode)));
+	}
+}
+
+}// end namespace detail
+
+/*! @brief Returns a float by processing its string representation.
+
+Supports float, double, and long double.
+*/
+template<typename T>
+inline T parse_float(const std::string_view floatStr)
+{
+	static_assert(std::is_floating_point_v<T>,
+		"parse_float() accepts only floating point type.");
+
+	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
+	// leading whitespaces while it should be able to auto skip them, we
+	// do it manually for now:
+	const std::string_view floatStrNoLeadingWS = trim_head(floatStr);
+
+	T value;
+	const std::from_chars_result result = std::from_chars(
+		floatStrNoLeadingWS.data(),
+		floatStrNoLeadingWS.data() + floatStrNoLeadingWS.size(),
+		value);
+
+	/*T value;
+	const std::from_chars_result result = std::from_chars(
+		sdlFloatStr.data(),
+		sdlFloatStr.data() + sdlFloatStr.size(),
+		value);*/
+
+	detail::throw_from_std_errc_if_has_error(result.ec);
+
+	return value;
+}
+
+/*! @brief Returns an integer by processing its string representation.
+
+Supports all signed and unsigned standard integer types.
+*/
+template<typename T>
+inline T parse_int(const std::string_view intStr)
+{
+	static_assert(std::is_integral_v<T>,
+		"parse_int() accepts only integer type.");
+
+	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
+	// leading whitespaces while it should be able to auto skip them, we
+	// do it manually for now:
+	const std::string_view intStrNoLeadingWS = trim_head(intStr);
+
+	T value;
+	const std::from_chars_result result = std::from_chars(
+		intStrNoLeadingWS.data(),
+		intStrNoLeadingWS.data() + intStrNoLeadingWS.size(),
+		value);
+
+	/*T value;
+	const std::from_chars_result result = std::from_chars(
+		sdlIntegerStr.data(),
+		sdlIntegerStr.data() + sdlIntegerStr.size(),
+		value);*/
+
+	detail::throw_from_std_errc_if_has_error(result.ec);
+
+	return value;
+}
+
+/*! @brief Returns a number by processing its string representation.
+
+Accepts all types supported by parse_float(std::string_view) and parse_int(std::string_view).
+*/
+template<typename NumberType>
+inline NumberType parse_number(const std::string_view numberStr)
+{
+	if constexpr(std::is_floating_point_v<NumberType>)
+	{
+		return parse_float<NumberType>(numberStr);
+	}
+	else
+	{
+		static_assert(std::is_integral_v<NumberType>);
+
+		return parse_int<NumberType>(numberStr);
 	}
 }
 

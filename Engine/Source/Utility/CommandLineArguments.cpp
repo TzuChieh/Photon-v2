@@ -18,38 +18,40 @@ CommandLineArguments::CommandLineArguments(int argc, char* argv[]) :
 	}
 }
 
-std::string CommandLineArguments::retrieveOne(const std::string& defaultValue)
+std::string CommandLineArguments::retrieveString(const std::string& defaultString)
 {
-	if(isEmpty())
-	{
-		return defaultValue;
-	}
-
-	std::string argument = m_arguments.front();
-	m_arguments.pop();
-	return argument;
+	auto optString = retrieve<std::string>();
+	return optString ? *optString : defaultString;
 }
 
-std::vector<std::string> CommandLineArguments::retrieveMultiple(const std::size_t numValues)
+std::vector<std::string> CommandLineArguments::retrieveStrings(const std::size_t numValues)
 {
 	std::vector<std::string> arguments;
 	for(std::size_t i = 0; i < numValues; ++i)
 	{
-		arguments.push_back(retrieveOne());
+		arguments.push_back(retrieveString());
 	}
 	return arguments;
 }
 
-int CommandLineArguments::retrieveOneInt(const int defaultValue)
+std::vector<std::string> CommandLineArguments::retrieveStrings(
+	const std::string& startingPrefix,
+	const std::string& endingPrefix,
+	const bool shouldIncludeStart,
+	const bool shouldIncludeEnd)
 {
-	const auto argument = retrieveOne();
-	return !argument.empty() ? std::stoi(argument) : defaultValue;
-}
+	std::vector<std::string> arguments;
+	while(!isEmpty())
+	{
+		auto argument = retrieveString();
+		
+	}
 
-float CommandLineArguments::retrieveOneFloat(const float defaultValue)
-{
-	const auto argument = retrieveOne();
-	return !argument.empty() ? std::stof(argument) : defaultValue;
+	for(std::size_t i = 0; i < numValues; ++i)
+	{
+		arguments.push_back(retrieveString());
+	}
+	return arguments;
 }
 
 }// end namespace ph

@@ -6,12 +6,12 @@ set(SDL_GEN_INCLUDE_DIR         "${SDL_GEN_DIR}/Include/")
 set(SDL_GEN_PRIVATE_INCLUDE_DIR "${SDL_GEN_DIR}/Source/")
 
 file(GLOB_RECURSE SDL_GEN_HEADER_FILES 
-	"./Include/*.h"
-	"./Source/*.h"
-	"./Source/*.ipp"
-	"./Source/*.tpp"
+	"${SDL_GEN_DIR}/Include/*.h"
+	"${SDL_GEN_DIR}/Source/*.h"
+	"${SDL_GEN_DIR}/Source/*.ipp"
+	"${SDL_GEN_DIR}/Source/*.tpp"
 )
-file(GLOB_RECURSE SDL_GEN_SOURCE_FILES "./Source/*.cpp")
+file(GLOB_RECURSE SDL_GEN_SOURCE_FILES "${SDL_GEN_DIR}/Source/*.cpp")
 
 # Explicitly mark them as headers
 set_source_files_properties(${SDL_GEN_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
@@ -22,7 +22,7 @@ add_dependencies(SDLGen Engine)
 target_include_directories(SDLGen
 	PUBLIC  ${SDL_GEN_INCLUDE_DIR}
 	PRIVATE ${SDL_GEN_PRIVATE_INCLUDE_DIR}
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
+	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS})
 
 target_link_libraries(SDLGen PRIVATE Engine)
 

@@ -2,8 +2,8 @@
 
 get_filename_component(ENGINE_TEST_DIR "./" ABSOLUTE)
 
-file(GLOB_RECURSE ENGINE_TEST_HEADER_FILES "./Source/*.h")
-file(GLOB_RECURSE ENGINE_TEST_SOURCE_FILES "./Source/*.cpp")
+file(GLOB_RECURSE ENGINE_TEST_HEADER_FILES "${ENGINE_TEST_DIR}/Source/*.h")
+file(GLOB_RECURSE ENGINE_TEST_SOURCE_FILES "${ENGINE_TEST_DIR}/Source/*.cpp")
 
 # Explicitly mark them as engine test headers
 set_source_files_properties(${ENGINE_TEST_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
@@ -13,8 +13,8 @@ add_dependencies(EngineTest Engine)
 
 target_include_directories(EngineTest
 	PRIVATE ${GOOGLETEST_INCLUDE_DIR}
-	PRIVATE "./Source/"
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR}
+	PRIVATE "${ENGINE_TEST_DIR}/Source/"
+	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS}
 	PRIVATE ${LIBSIMDPP_INCLUDE_DIR})
 
 target_link_libraries(EngineTest PRIVATE Engine)

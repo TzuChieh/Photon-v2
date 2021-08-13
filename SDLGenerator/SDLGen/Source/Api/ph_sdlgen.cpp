@@ -4,10 +4,12 @@
 #include <Utility/string_utils.h>
 #include <Common/logging.h>
 #include <Utility/utility.h>
+#include <DataIO/FileSystem/Path.h>
 #include <ph_cpp_core.h>
 
 #include <cstddef>
 #include <utility>
+#include <string>
 
 namespace ph::sdlgen
 {
@@ -46,9 +48,9 @@ std::string sdl_name_to_capitalized(const std::string_view sdlName)
 	return result;
 }
 
-void generate_sdl_interface(const EInterfaceGenerator type, Path outputDirectory)
+void generate_sdl_interface(const EInterfaceGenerator type, const std::string_view outputDirectory)
 {
-	auto generator = InterfaceGenerator::makeGenerator(type, std::move(outputDirectory));
+	auto generator = InterfaceGenerator::makeGenerator(type, Path(std::string(outputDirectory)));
 	if(!generator)
 	{
 		PH_LOG_WARNING(SdlGenApi, "invalid generator type <{}> provided, nothing is generated",
