@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string_view>
 #include <stdexcept>
+#include <charconv>
 
 namespace ph::string_utils
 {

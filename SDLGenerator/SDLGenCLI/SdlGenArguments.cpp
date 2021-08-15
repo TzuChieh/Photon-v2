@@ -1,143 +1,60 @@
-#include "ProcessedArguments.h"
-#include "util.h"
+#include "SdlGenArguments.h"
 
-#include <iostream>
+#include <Common/logging.h>
+
 #include <string_view>
-#include <limits>
 
-namespace ph::cli
+namespace ph::sdlgen
 {
 
-ProcessedArguments::ProcessedArguments(int argc, char* argv[]) : 
-	ProcessedArguments(CommandLineArguments(argc, argv))
+PH_DEFINE_INTERNAL_LOG_GROUP(SdlGenCliArgs, SDLGenCLI);
+
+SdlGenArguments::SdlGenArguments(int argc, char* argv[]) :
+	SdlGenArguments(CommandLineArguments(argc, argv))
 {}
 
-ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
-	m_executionMode             (EExecutionMode::UNSPECIFIED),
-	m_sceneFilePath             ("./scene.p2"),
-	m_imageOutputPath           ("./rendered_scene"),
-	m_imageFileFormat           ("png"),
-	m_numThreads                (1),
-	m_isPostProcessRequested    (true),
-	m_isHelpMessageRequested    (false),
-	m_isImageSeriesRequested    (false),
-	m_wildcardStart             (""),
-	m_wildcardFinish            (""),
-	m_intermediateOutputInverval(std::numeric_limits<float>::max()),
-	m_intervalUnit              (EIntervalUnit::PERCENTAGE),
-	m_isOverwriteRequested      (false),
-
-	// HACK
-	m_isFrameDiagRequested(false),
-	m_port(0)
+SdlGenArguments::SdlGenArguments(CommandLineArguments arguments) :
+	m_executionMode         (ESdlGenMode::UNSPECIFIED),
+	m_interfaceGeneratorType(EInterfaceGenerator::UNSPECIFIED),
+	m_outputPath            ("./SDLGenCLI_output/")
 {
 	while(!arguments.isEmpty())
 	{
-		const std::string argument = arguments.retrieveOne();
+		const std::string argument = arguments.retrieveString();
 
-		if(argument == "-s")
+		if(argument == "--interface")
 		{
-			m_sceneFilePath = arguments.retrieveOne();
-		}
-		else if(argument == "-o")
-		{
-			m_imageOutputPath = arguments.retrieveOne();
-		}
-		else if(argument == "-of")
-		{
-			m_imageFileFormat = arguments.retrieveOne();
-		}
-		else if(argument == "-t")
-		{
-			const int numRenderThreads = arguments.retrieveOneInt(m_numRenderThreads);
-			if(numRenderThreads > 0)
+			m_executionMode = ESdlGenMode::INTERFACE_GENERATION;
+
+			const std::string interfaceType = arguments.retrieveString();
+			if(interfaceType == "markdown-doc")
 			{
-				m_numRenderThreads = numRenderThreads;
+				m_interfaceGeneratorType = EInterfaceGenerator::MARKDOWN_DOC;
 			}
 			else
 			{
-				std::cerr << "warning: bad number of threads <" << numRenderThreads << "> detected, "
-				          << "using " << m_numRenderThreads << " instead" << std::endl;
-			}
-		}
-		else if(argument == "-p")
-		{
-			const auto values = arguments.retrieveMultiple(2);
+				PH_LOG_WARNING(SdlGenCliArgs, "unknown interface generation type specified: {}",
+					interfaceType);
 
-			m_isOverwriteRequested = (values[1] == "true" || values[1] == "TRUE");
-
-			if(values[0].length() >= 2)
-			{
-				const std::string inverval = values[0].substr(0, values[0].length() - 1);
-				m_intermediateOutputInverval = std::stof(inverval);
-
-				const char unit = values[0].back();
-				if(unit == '%')
-				{
-					m_intervalUnit = EIntervalUnit::PERCENTAGE;
-				}
-				else if(unit == 's')
-				{
-					m_intervalUnit = EIntervalUnit::SECOND;
-				}
-				else
-				{
-					std::cerr << "warning: unknown intermediate output interval unit <"
-					          << values[0] << "> specified" << std::endl;
-				}
-			}
-			else
-			{
-				std::cerr << "warning: unrecognizable intermediate output interval <"
-				          << values[0] << "> specified" << std::endl;
+				m_interfaceGeneratorType = EInterfaceGenerator::UNSPECIFIED;
 			}
 		}
-		else if(argument == "--raw")
+		else if(argument == "--output" || argument == "-o")
 		{
-			m_isPostProcessRequested = false;
+			m_outputPath = Path(arguments.retrieveString());
 		}
-		else if(argument == "--help")
+		else if(argument == "--help" || argument == "-h")
 		{
-			m_isHelpMessageRequested = true;
-		}
-		else if(argument == "--series")
-		{
-			m_isImageSeriesRequested = true;
-		}
-		else if(argument == "--start")
-		{
-			m_wildcardStart = arguments.retrieveOne();
-			if(m_wildcardStart.empty())
-			{
-				std::cerr << "warning: no wildcard string specified for --start" << std::endl;
-			}
-		}
-		else if(argument == "--finish")
-		{
-			m_wildcardFinish = arguments.retrieveOne();
-			if(m_wildcardFinish.empty())
-			{
-				std::cerr << "warning: no wildcard string specified for --finish" << std::endl;
-			}
-		}
-		else if(argument == "-fd")
-		{
-			const auto values = arguments.retrieveMultiple(2);
-			m_framePathA = values[0];
-			m_framePathB = values[1];
-			m_isFrameDiagRequested = true;
-		}
-		else if(argument == "--port")
-		{
-			m_port = static_cast<unsigned short>(arguments.retrieveOneInt());
+			m_executionMode = ESdlGenMode::PRINT_HELP_MESSAGE;
 		}
 		else
 		{
-			std::cerr << "warning: unknown command <" << argument << "> specified, ignoring" << std::endl;
+			PH_LOG_WARNING(SdlGenCliArgs, "unknown command <{}> specified, ignoring",
+				argument);
 		}
 	}// end while more arguments exist
 
 	// TODO: argument sanity check
 }
 
-}// end namespace ph::cli
+}// end namespace ph::sdlgen

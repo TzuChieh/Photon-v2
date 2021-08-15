@@ -6,8 +6,6 @@
 #include <ph_sdlgen.h>
 
 #include <string>
-#include <vector>
-#include <iostream>
 
 namespace ph::sdlgen
 {
@@ -15,13 +13,14 @@ namespace ph::sdlgen
 enum class ESdlGenMode
 {
 	UNSPECIFIED,
+	PRINT_HELP_MESSAGE,
 	INTERFACE_GENERATION
 };
 
 class SdlGenArguments final
 {
 public:
-	static void printHelpMessage();
+	static std::string genHelpMessage();
 
 public:
 	SdlGenArguments(int argc, char* argv[]);
@@ -29,11 +28,12 @@ public:
 
 	ESdlGenMode getExecutionMode() const;
 	EInterfaceGenerator getInterfaceGeneratorType() const;
+	const Path& getOutputPath() const;
 
 private:
 	ESdlGenMode         m_executionMode;
 	EInterfaceGenerator m_interfaceGeneratorType;
-	Path                m_outputDirectory;
+	Path                m_outputPath;
 };
 
 // In-header Implementations:
@@ -43,9 +43,19 @@ inline ESdlGenMode SdlGenArguments::getExecutionMode() const
 	return m_executionMode;
 }
 
-inline void SdlGenArguments::printHelpMessage()
+inline EInterfaceGenerator SdlGenArguments::getInterfaceGeneratorType() const
 {
-	std::cout << R"(
+	return m_interfaceGeneratorType;
+}
+
+inline const Path& SdlGenArguments::getOutputPath() const
+{
+	return m_outputPath;
+}
+
+inline std::string SdlGenArguments::genHelpMessage()
+{
+	return R"(
 ===============================================================================
 --interface <type>
  
@@ -62,7 +72,7 @@ filename or a directory depending on the task.
 
 Print this help message then exit.
 ===============================================================================
-	)" << std::endl;
+	)";
 }
 
-}// end namespace ph::cli
+}// end namespace ph::sdlgen

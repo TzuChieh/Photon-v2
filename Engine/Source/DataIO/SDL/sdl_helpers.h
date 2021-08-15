@@ -149,7 +149,7 @@ inline IntType load_int(const std::string_view sdlIntStr)
 {
 	try
 	{
-		return detail::parse_int<IntType>(sdlIntStr);
+		return string_utils::parse_int<IntType>(sdlIntStr);
 	}
 	catch(const std::exception& e)
 	{

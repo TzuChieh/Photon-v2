@@ -3,7 +3,7 @@
 #include "Utility/string_utils.h"
 
 #include <string>
-#include <queue>
+#include <vector>
 #include <optional>
 #include <type_traits>
 
@@ -36,11 +36,29 @@ public:
 	*/
 	std::vector<std::string> retrieveStrings(std::size_t numValues);
 
+	/*! @brief Get the arguments for an option.
+	This method assumes that the options specified are of the form 
+	"{- | --}<optionName> <arg0> <arg1> ...", i.e., options have a single or
+	double dash prefix followed by its name, then the actual arguments. Careful
+	that some input forms may still require manual treatment (using retrieve())
+	such as a filename starting with a dash or a negative number, since they can
+	be misinterpreted as the next option and cause the argument list for the
+	current option being ended prematurely.
+	@param optionPrefix The option's prefix.
+	*/
+	std::vector<std::string> retrieveOptionArguments(const std::string& optionPrefix);
+
+	/*! @brief Get the arguments between a specified range.
+	@param startingPrefix The first argument's prefix.
+	@param endingPrefix The last argument's prefix.
+	@param shouldIncludeStart Whether to include the first matching argument.
+	@param shouldIncludeEnd Whether to include the last matching argument.
+	*/
 	std::vector<std::string> retrieveStrings(
 		const std::string& startingPrefix, 
 		const std::string& endingPrefix, 
-		bool shouldIncludeStart = false,
-		bool shouldIncludeEnd = false);
+		bool shouldIncludeStart = true,
+		bool shouldIncludeEnd = true);
 
 	/*! @brief Get an integer from the arguments.
 	Similar to retrieveString(const std::string&), while the result is converted to an integer.
@@ -58,8 +76,8 @@ public:
 	std::optional<T> retrieve();
 
 private:
-	std::string             m_programName;
-	std::queue<std::string> m_arguments;
+	std::string              m_programName;
+	std::vector<std::string> m_arguments;
 };
 
 // In-header Implementations:
@@ -80,7 +98,7 @@ inline T CommandLineArguments::retrieveInt(T defaultInt)
 	static_assert(std::is_integral_v<T>,
 		"expect argument type to be integer");
 
-	auto optInt = retrieveOne<T>();
+	auto optInt = retrieve<T>();
 	return optInt ? *optInt : defaultInt;
 }
 
@@ -90,7 +108,7 @@ inline T CommandLineArguments::retrieveFloat(T defaultFloat)
 	static_assert(std::is_floating_point_v<T>,
 		"expect argument type to be floating-point");
 
-	auto optFloat = retrieveOne<T>();
+	auto optFloat = retrieve<T>();
 	return optFloat ? *optFloat : defaultFloat;
 }
 
@@ -103,7 +121,7 @@ inline std::optional<T> CommandLineArguments::retrieve()
 	}
 
 	std::string argument = m_arguments.front();
-	m_arguments.pop();
+	m_arguments.erase(m_arguments.begin());
 
 	if constexpr(std::is_same_v<T, std::string>)
 	{

@@ -35,7 +35,6 @@ void MarkdownDocGenerator::generate(
 	const std::vector<const SdlClass*>& sdlClasses,
 	const std::vector<const SdlEnum*>&  sdlEnums)
 {
-	m_file = FormattedTextFileOutputStream(makeOutputFilePath(getFilename()));
 	clearDoc();
 
 	for(const SdlClass* const sdlClass : sdlClasses)
@@ -55,6 +54,10 @@ void MarkdownDocGenerator::generate(
 	}
 
 	writeNewLine();
+
+	// Finally, write the doc to file
+	m_file = FormattedTextFileOutputStream(makeOutputFilePath(getFilename()));
+	m_file.writeStr(getDoc());
 }
 
 void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
@@ -119,7 +122,7 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 	writeNewLine();
 
 	// Write documentation for every function in the class
-	for(std::size_t funcIdx = 0; sdlClass->numFunctions(); ++funcIdx)
+	for(std::size_t funcIdx = 0; funcIdx < sdlClass->numFunctions(); ++funcIdx)
 	{
 		writeFunctionDoc(sdlClass->getFunction(funcIdx));
 

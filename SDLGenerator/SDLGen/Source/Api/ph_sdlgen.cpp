@@ -48,9 +48,18 @@ std::string sdl_name_to_capitalized(const std::string_view sdlName)
 	return result;
 }
 
-void generate_sdl_interface(const EInterfaceGenerator type, const std::string_view outputDirectory)
+void generate_sdl_interface(const EInterfaceGenerator type, const std::string_view outputDirectoryStr)
 {
-	auto generator = InterfaceGenerator::makeGenerator(type, Path(std::string(outputDirectory)));
+	auto outputDirectory = Path(std::string(outputDirectoryStr));
+	outputDirectory.createDirectory();
+
+	if(!outputDirectory.hasDirectory())
+	{
+		PH_LOG_WARNING(SdlGenApi, "cannot create output directory <{}>",
+			outputDirectory.toAbsoluteString());
+	}
+
+	auto generator = InterfaceGenerator::makeGenerator(type, outputDirectory);
 	if(!generator)
 	{
 		PH_LOG_WARNING(SdlGenApi, "invalid generator type <{}> provided, nothing is generated",
@@ -66,7 +75,7 @@ void generate_sdl_interface(const EInterfaceGenerator type, const std::string_vi
 		get_registered_sdl_classes(),
 		get_registered_sdl_enums());
 
-	PH_LOG_WARNING(SdlGenApi, "done generating SDL interface, output to <{}>",
+	PH_LOG(SdlGenApi, "done generating SDL interface, output to <{}>",
 		generator->getOutputDirectory().toAbsoluteString());
 }
 

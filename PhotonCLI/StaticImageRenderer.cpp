@@ -24,7 +24,7 @@ StaticImageRenderer::StaticImageRenderer(const ProcessedArguments& args) :
 	m_engineId(0),
 	m_args(args)
 {
-	phCreateEngine(&m_engineId, static_cast<PHuint32>(args.getNumRenderThreads()));
+	phCreateEngine(&m_engineId, static_cast<PHuint32>(args.numThreads()));
 }
 
 StaticImageRenderer::~StaticImageRenderer()

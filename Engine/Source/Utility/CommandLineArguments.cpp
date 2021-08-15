@@ -1,4 +1,7 @@
 #include "Utility/CommandLineArguments.h"
+#include "Common/assertion.h"
+
+#include <algorithm>
 
 namespace ph
 {
@@ -14,7 +17,7 @@ CommandLineArguments::CommandLineArguments(int argc, char* argv[]) :
 
 	for(int i = 1; i < argc; ++i)
 	{
-		m_arguments.push(argv[i]);
+		m_arguments.push_back(argv[i]);
 	}
 }
 
@@ -34,23 +37,51 @@ std::vector<std::string> CommandLineArguments::retrieveStrings(const std::size_t
 	return arguments;
 }
 
+std::vector<std::string> CommandLineArguments::retrieveOptionArguments(const std::string& optionPrefix)
+{
+	return retrieveStrings(optionPrefix, "-", false, false);
+}
+
 std::vector<std::string> CommandLineArguments::retrieveStrings(
 	const std::string& startingPrefix,
 	const std::string& endingPrefix,
 	const bool shouldIncludeStart,
 	const bool shouldIncludeEnd)
 {
-	std::vector<std::string> arguments;
-	while(!isEmpty())
+	auto startIter = std::find_if(
+		m_arguments.begin(), m_arguments.end(), 
+		[&startingPrefix](const std::string& argument)
+		{
+			// Using rfind() with pos=0 to limit the search to prefix only
+			return argument.rfind(startingPrefix, 0) != std::string::npos;
+		});
+
+	auto endIter = std::find_if(
+		startIter, m_arguments.end(),
+		[&endingPrefix](const std::string& argument)
+		{
+			// Using rfind() with pos=0 to limit the search to prefix only
+			return argument.rfind(endingPrefix, 0) != std::string::npos;
+		});
+
+	PH_ASSERT(startIter <= endIter);
+
+	// By default includes start
+	if(!shouldIncludeStart && startIter < endIter)
 	{
-		auto argument = retrieveString();
-		
+		startIter += 1;
 	}
 
-	for(std::size_t i = 0; i < numValues; ++i)
+	// By default excludes end
+	if(shouldIncludeEnd && endIter != m_arguments.end())
 	{
-		arguments.push_back(retrieveString());
+		endIter += 1;
 	}
+
+	PH_ASSERT(startIter <= endIter);
+
+	std::vector<std::string> arguments(startIter, endIter);
+	m_arguments.erase(startIter, endIter);
 	return arguments;
 }
 

@@ -1,5 +1,6 @@
 #include "ProcessedArguments.h"
 #include "util.h"
+#include "Common/logging.h"
 
 #include <iostream>
 #include <string_view>
@@ -8,12 +9,13 @@
 namespace ph::cli
 {
 
+PH_DEFINE_INTERNAL_LOG_GROUP(PhotonCliArgs, PhotonCLI);
+
 ProcessedArguments::ProcessedArguments(int argc, char* argv[]) : 
 	ProcessedArguments(CommandLineArguments(argc, argv))
 {}
 
 ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
-	m_executionMode             (EExecutionMode::UNSPECIFIED),
 	m_sceneFilePath             ("./scene.p2"),
 	m_imageOutputPath           ("./rendered_scene"),
 	m_imageFileFormat           ("png"),
@@ -33,36 +35,36 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 {
 	while(!arguments.isEmpty())
 	{
-		const std::string argument = arguments.retrieveOne();
+		const std::string argument = arguments.retrieveString();
 
 		if(argument == "-s")
 		{
-			m_sceneFilePath = arguments.retrieveOne();
+			m_sceneFilePath = arguments.retrieveString();
 		}
 		else if(argument == "-o")
 		{
-			m_imageOutputPath = arguments.retrieveOne();
+			m_imageOutputPath = arguments.retrieveString();
 		}
 		else if(argument == "-of")
 		{
-			m_imageFileFormat = arguments.retrieveOne();
+			m_imageFileFormat = arguments.retrieveString();
 		}
 		else if(argument == "-t")
 		{
-			const int numRenderThreads = arguments.retrieveOneInt(m_numRenderThreads);
-			if(numRenderThreads > 0)
+			const int numThreads = arguments.retrieveInt(m_numThreads);
+			if(numThreads > 0)
 			{
-				m_numRenderThreads = numRenderThreads;
+				m_numThreads = numThreads;
 			}
 			else
 			{
-				std::cerr << "warning: bad number of threads <" << numRenderThreads << "> detected, "
-				          << "using " << m_numRenderThreads << " instead" << std::endl;
+				PH_LOG_WARNING(PhotonCliArgs, "bad number of threads {} detected, using {} instead",
+					numThreads, m_numThreads);
 			}
 		}
 		else if(argument == "-p")
 		{
-			const auto values = arguments.retrieveMultiple(2);
+			const auto values = arguments.retrieveStrings(2);
 
 			m_isOverwriteRequested = (values[1] == "true" || values[1] == "TRUE");
 
@@ -82,14 +84,14 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 				}
 				else
 				{
-					std::cerr << "warning: unknown intermediate output interval unit <"
-					          << values[0] << "> specified" << std::endl;
+					PH_LOG_WARNING(PhotonCliArgs, "unknown intermediate output interval unit <{}> specified",
+						values[0]);
 				}
 			}
 			else
 			{
-				std::cerr << "warning: unrecognizable intermediate output interval <"
-				          << values[0] << "> specified" << std::endl;
+				PH_LOG_WARNING(PhotonCliArgs, "unrecognizable intermediate output interval <{}> specified",
+					values[0]);
 			}
 		}
 		else if(argument == "--raw")
@@ -106,34 +108,35 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 		}
 		else if(argument == "--start")
 		{
-			m_wildcardStart = arguments.retrieveOne();
+			m_wildcardStart = arguments.retrieveString();
 			if(m_wildcardStart.empty())
 			{
-				std::cerr << "warning: no wildcard string specified for --start" << std::endl;
+				PH_LOG_WARNING(PhotonCliArgs, "no wildcard string specified for --start");
 			}
 		}
 		else if(argument == "--finish")
 		{
-			m_wildcardFinish = arguments.retrieveOne();
+			m_wildcardFinish = arguments.retrieveString();
 			if(m_wildcardFinish.empty())
 			{
-				std::cerr << "warning: no wildcard string specified for --finish" << std::endl;
+				PH_LOG_WARNING(PhotonCliArgs, "no wildcard string specified for --finish");
 			}
 		}
 		else if(argument == "-fd")
 		{
-			const auto values = arguments.retrieveMultiple(2);
+			const auto values = arguments.retrieveStrings(2);
 			m_framePathA = values[0];
 			m_framePathB = values[1];
 			m_isFrameDiagRequested = true;
 		}
 		else if(argument == "--port")
 		{
-			m_port = static_cast<unsigned short>(arguments.retrieveOneInt());
+			m_port = arguments.retrieveInt<unsigned short>();
 		}
 		else
 		{
-			std::cerr << "warning: unknown command <" << argument << "> specified, ignoring" << std::endl;
+			PH_LOG_WARNING(PhotonCliArgs, "unknown command <{}> specified, ignoring",
+				argument);
 		}
 	}// end while more arguments exist
 

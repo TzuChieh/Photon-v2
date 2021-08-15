@@ -36,6 +36,7 @@ public:
 	void writeChar(char ch);
 	void writeNewLine();
 	void clearDoc();
+	const std::string& getDoc() const;
 
 	const std::string& getFilename() const;
 
@@ -58,6 +59,11 @@ inline const std::string& MarkdownDocGenerator::getFilename() const
 inline void MarkdownDocGenerator::clearDoc()
 {
 	m_docString.clear();
+}
+
+inline const std::string& MarkdownDocGenerator::getDoc() const
+{
+	return m_docString;
 }
 
 inline void MarkdownDocGenerator::writeLine(std::string line)

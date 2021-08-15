@@ -1,6 +1,6 @@
 #pragma once
 
-#include "InterfaceGen/EInterfaceGenerator.h"
+#include "EInterfaceGenerator.h"
 
 #include <DataIO/FileSystem/Path.h>
 #include <Common/assertion.h>

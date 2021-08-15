@@ -26,7 +26,7 @@ InterfaceGenerator::InterfaceGenerator(std::string generatorName, Path outputDir
 	m_generatorName  (std::move(generatorName)),
 	m_outputDirectory(std::move(outputDirectory))
 {
-	PH_ASSERT(m_outputDirectory.isDirectory());
+	PH_ASSERT(m_outputDirectory.hasDirectory());
 }
 
 Path InterfaceGenerator::makeOutputFilePath(const std::string& fileSubPath) const

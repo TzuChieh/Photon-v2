@@ -18,13 +18,13 @@ enum class EIntervalUnit
 	SECOND
 };
 
-enum class EExecutionMode
-{
-	UNSPECIFIED,
-	RENDER_SINGLE_IMAGE,
-	RENDER_IMAGE_SERIES,
-	SDL_GENERATION
-};
+//enum class EExecutionMode
+//{
+//	UNSPECIFIED,
+//	RENDER_SINGLE_IMAGE,
+//	RENDER_IMAGE_SERIES,
+//	SDL_GENERATION
+//};
 
 // TODO: a parameter telling whether intermediate outout is requested
 class ProcessedArguments
@@ -36,7 +36,6 @@ public:
 	ProcessedArguments(int argc, char* argv[]);
 	explicit ProcessedArguments(CommandLineArguments arguments);
 
-	EExecutionMode getExecutionMode() const;
 	std::string    getSceneFilePath() const;
 	std::string    getImageOutputPath() const;
 	std::string    getImageFilePath() const;
@@ -75,7 +74,7 @@ public:
 	}
 
 private:
-	EExecutionMode m_executionMode;
+	//EExecutionMode m_executionMode;
 	std::string    m_sceneFilePath;
 	std::string    m_imageOutputPath;
 	std::string    m_imageFileFormat;
@@ -118,7 +117,7 @@ inline std::string ProcessedArguments::getImageFileFormat() const
 	return m_imageFileFormat;
 }
 
-inline int ProcessedArguments::numThreads() const
+inline uint32 ProcessedArguments::numThreads() const
 {
 	return m_numThreads;
 }

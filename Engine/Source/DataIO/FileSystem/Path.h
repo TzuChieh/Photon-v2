@@ -140,8 +140,22 @@ public:
 		return m_path.extension().string();
 	}
 
-	bool isDirectory() const;
-	bool isFile() const;
+	/*! @brief Check if the path points to an existing directory.
+	*/
+	bool hasDirectory() const;
+
+	/*! @brief Check if the path points to an existing file.
+	*/
+	bool hasFile() const;
+
+	// TODO: isDirectory() and isFile(), they should only analyze the path string, 
+	// not checking if actual resource exist
+
+	/*! @brief Create a directory as specified by the path.
+	Treat the path as a directory representation and create all missing folders
+	if any of them does not already exist.
+	*/
+	void createDirectory() const;
 
 	inline bool operator == (const Path& other) const
 	{
@@ -167,14 +181,19 @@ private:
 
 // In-header Implementations:
 
-inline bool Path::isDirectory() const
+inline bool Path::hasDirectory() const
 {
 	return std::filesystem::is_directory(m_path);
 }
 
-inline bool Path::isFile() const
+inline bool Path::hasFile() const
 {
 	return std::filesystem::is_regular_file(m_path);
+}
+
+inline void Path::createDirectory() const
+{
+	std::filesystem::create_directories(m_path);
 }
 
 }// end namespace ph
