@@ -8,6 +8,8 @@
 #include <DataIO/SDL/sdl_helpers.h>
 #include <Common/assertion.h>
 
+#include <format>
+
 namespace ph::sdlgen
 {
 
@@ -71,12 +73,12 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 
 	writeNewLine();
 	
-	writeLine("* Category: `" + sdl_name_to_capitalized(sdlClass->getTypeName()) + "`");
-	writeLine("* Type: `" + sdl_name_to_capitalized(sdl::category_to_string(sdlClass->getCategory())) + "`");
+	writeLine("* Category: `" + sdl_name_to_capitalized(sdl::category_to_string(sdlClass->getCategory())) + "`");
+	writeLine("* Type: `" + sdl_name_to_capitalized(sdlClass->getTypeName()) + "`");
 
 	// Write notes for the SDL class
 	{
-		writeString("* Notes: ");
+		writeString("* Note: ");
 
 		if(sdlClass->isBlueprint())
 		{
@@ -108,7 +110,7 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 	}
 	else
 	{
-		writeLine("(no description)");
+		writeLine("*(no description)*");
 	}
 
 	writeNewLine();
@@ -137,7 +139,10 @@ void MarkdownDocGenerator::writeClassCreationDoc(const SdlClass* const sdlClass)
 		return;
 	}
 
-	writeLine("> Creation:");
+	const auto creationalFullType = std::format("{}({})", 
+		sdl::category_to_string(sdlClass->getCategory()), sdlClass->getTypeName());
+
+	writeLine("> Creation: `" + creationalFullType + "`");
 
 	writeNewLine();
 
@@ -151,7 +156,7 @@ void MarkdownDocGenerator::writeFunctionDoc(const SdlFunction* const sdlFunc)
 		return;
 	}
 
-	writeLine("> Operation `" + sdlFunc->getName() + "`:");
+	writeLine("> Operation: `" + sdlFunc->getName() + "`");
 
 	writeNewLine();
 
@@ -192,7 +197,23 @@ void MarkdownDocGenerator::writeEnumDoc(const SdlEnum* const sdlEnum)
 
 			// TODO: link for type doc
 
-			writeLine("| `" + std::string(entry.name) + "` | " + sdlEnum->getEntryDescription(entryIdx) + " |");
+			std::string entryName(entry.name);
+			if(!entryName.empty())
+			{
+				entryName = "`" + entryName + "`";
+			}
+			else
+			{
+				entryName = "*(empty)*";
+			}
+
+			std::string entryDescription(sdlEnum->getEntryDescription(entryIdx));
+			if(entryDescription.empty())
+			{
+				entryDescription = "*(no description)*";
+			}
+
+			writeLine("| " + entryName + " | " + entryDescription + " |");
 		}
 	}
 }
