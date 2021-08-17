@@ -4,6 +4,7 @@
 #include "Frame/Operator/JRToneMapping.h"
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Common/logging.h"
+#include "Common/config.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Utility/Timer.h"
 #include "EngineEnv/Session/RenderSession.h"
@@ -25,6 +26,9 @@ Engine::Engine() :
 	m_visualWorld()
 {
 	setNumRenderThreads(1);
+
+	PH_LOG(Engine, "Photon version: {}, PSDL version: {}",
+		PH_ENGINE_VERSION, PH_PSDL_VERSION);
 }
 
 void Engine::enterCommand(const std::string& commandFragment)
@@ -61,6 +65,7 @@ bool Engine::loadCommands(const Path& filePath)
 
 		timer.finish();
 
+		PH_LOG(Engine, "command file PSDL version: {}", m_parser.getCommandVersion().toString());
 		PH_LOG(Engine, "command file loaded, time elapsed = {} ms", timer.getDeltaMs());
 
 		return true;

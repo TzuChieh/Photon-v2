@@ -28,7 +28,7 @@ public:
 
 	void writeClassDoc(const SdlClass* sdlClass);
 	void writeClassCreationDoc(const SdlClass* sdlClass);
-	void writeFunctionDoc(const SdlFunction* sdlFunc);
+	void writeFunctionDoc(const SdlFunction* sdlFunc, const SdlClass* parentSdlClass = nullptr);
 	void writeEnumDoc(const SdlEnum* sdlEnum);
 	void writeInputTable(const std::vector<const SdlField*>& inputs);
 	void writeLine(std::string line);

@@ -14,16 +14,16 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ESampleFilter>)
 	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
 
 	sdlEnum.addEntry(EnumType::BOX, "box",
-		"Fairly sharp, fast to evaluate, but can have obvious aliasing around edges.");
+		"The box filter. Fairly sharp, fast to evaluate, but can have obvious aliasing around edges.");
 
 	sdlEnum.addEntry(EnumType::GAUSSIAN, "gaussian",
-		"Gives smooth results, slower to evaluate and can sometimes result in blurry images.");
+		"The Gaussian filter. Gives smooth results, slower to evaluate and can sometimes result in blurry images.");
 
 	sdlEnum.addEntry(EnumType::MITCHELL_NETRAVALI, "mn",
-		"Smooth but remains sharp around edges.");
+		"The Mitchell-Netravali filter. Smooth but remains sharp around edges.");
 
 	sdlEnum.addEntry(EnumType::BLACKMAN_HARRIS, "bh",
-		"A good compromise between smoothness and sharpness.");
+		"The Blackman-Harris filter. A good compromise between smoothness and sharpness.");
 
 	return sdlEnum;
 }

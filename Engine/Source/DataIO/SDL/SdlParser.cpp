@@ -18,12 +18,13 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlParser, SDL);
 
 SdlParser::SdlParser() :
-	m_mangledNameToClass(),
-	m_workingDirectory(),
-	m_commandCache(),
+	m_commandVersion      (),
+	m_mangledNameToClass  (),
+	m_workingDirectory    (),
+	m_commandCache        (),
 	m_generatedNameCounter(0),
-	m_numParsedCommands(0),
-	m_numParseErrors(0)
+	m_numParsedCommands   (0),
+	m_numParseErrors      (0)
 {
 	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
 	for(const SdlClass* const clazz : sdlClasses)
@@ -126,14 +127,15 @@ void SdlParser::parseLoadCommand(
 	std::vector<std::string> tokens;
 	loadCommandTokenizer.tokenize(command, tokens);
 
-	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::LOAD);
-
 	// Sanity check
 	if(tokens.size() < 4)
 	{
 		throw SdlLoadError(
 			"syntax error: improper load command");
 	}
+
+	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::LOAD);
+	PH_ASSERT_GE(tokens.size(), 4);
 
 	// Get category and type then acquire the matching SDL class
 
@@ -187,14 +189,15 @@ void SdlParser::parseExecutionCommand(
 	std::vector<std::string> tokens;
 	executionCommandTokenizer.tokenize(command, tokens);
 
-	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::EXECUTION);
-
 	// Sanity check
 	if(tokens.size() < 5)
 	{
 		throw SdlLoadError(
 			"syntax error: improper execution command");
 	}
+
+	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::EXECUTION);
+	PH_ASSERT_GE(tokens.size(), 5);
 
 	// Get category and type then acquire the matching SDL class
 
@@ -233,6 +236,47 @@ void SdlParser::parseExecutionCommand(
 			"failed to run <" + executorName + "> on resource <" + targetResourceName + "> "
 			"(from SDL class: " + clazz.genPrettyName() + ") "
 			"-> " + e.whatStr());
+	}
+}
+
+void SdlParser::parseDirectiveCommand(
+	const std::string& command,
+	SceneDescription&  out_scene)
+{
+	static const Tokenizer directiveCommandTokenizer(
+		{' ', '\t', '\n', '\r'}, 
+		{});
+
+	std::vector<std::string> tokens;
+	directiveCommandTokenizer.tokenize(command, tokens);
+
+	// Sanity check: should include additional information other than command type
+	if(tokens.size() < 2)
+	{
+		throw SdlLoadError(
+			"empty directive command");
+	}
+
+	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::EXECUTION);
+	PH_ASSERT_GE(tokens.size(), 2);
+
+	if(tokens[1] == "version")
+	{
+		if(tokens.size() < 3)
+		{
+			throw SdlLoadError(
+				"no version supplied when specifying PSDL version");
+		}
+
+		const std::string_view versionStr = tokens[2];
+
+		if(!m_commandVersion.isInitial())
+		{
+			PH_LOG_WARNING(SdlParser, "overwriting existing PSDL version: old={}, new={}", 
+				m_commandVersion.toString(), versionStr);
+		}
+
+		m_commandVersion = SemanticVersion(versionStr);
 	}
 }
 

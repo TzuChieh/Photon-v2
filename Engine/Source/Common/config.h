@@ -4,16 +4,29 @@
 // Core Settings                                                             //
 ///////////////////////////////////////////////////////////////////////////////
 
-// Define this for debug mode build. Assertions will be on in this mode.
+/*! @brief Version of Photon.
+*/
+#define PH_ENGINE_VERSION "2.0.0"
+
+/*! @brief Version of Photon Scene Description Language.
+*/
+#define PH_PSDL_VERSION "1.0.0"
+
+/*! @brief Enable debug functionalities.
+Assertions will be enabled on debug mode.
+*/
 #define PH_DEBUG
 
-// Define this if such behavior is desired.
+/*! @brief Abort the engine on assertion fail.
+*/
 #define PH_ABORT_ON_ASSERTION_FAILED
 
-// Perform and print a stack trace when assertion failed.
+/*! @brief Perform and print a stack trace when assertion failed.
+*/
 #define PH_PRINT_STACK_TRACE_ON_ASSERTION_FAILED
 
-// Assuring floating point types has specified sizes.
+/*! @brief Assuring floating point types has specified sizes.
+*/
 #define PH_STRICT_FLOATING_POINT_SIZES
 
 // Log as soon as possible (primarily for debugging).
@@ -22,8 +35,12 @@
 // If defined, double precision real number will be used.
 //#define PH_USE_DOUBLE_REAL
 
+/*! @brief Enable debug log level.
+*/
 #define PH_ENABLE_DEBUG_LOG
 
+/*! @brief Directory that stores engine log file.
+*/
 #define PH_LOG_FILE_DIRECTRY "./Logs/"
 
 ///////////////////////////////////////////////////////////////////////////////

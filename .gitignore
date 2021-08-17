@@ -66,6 +66,13 @@ ipch/
 # User-specific Files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Visual Studio CMake Integration
+# (the CMake integration sometimes generates an "out" folder, even if it's 
+# disabled; reason is unknown currently; still, generated content should be
+# ignored)
+# related: https://stackoverflow.com/questions/62577976/
+/out/
+
 ###############################################################################
 # Eclipse Data                                                                #
 ###############################################################################

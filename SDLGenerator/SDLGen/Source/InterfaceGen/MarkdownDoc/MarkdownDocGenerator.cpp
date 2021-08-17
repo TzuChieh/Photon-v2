@@ -115,18 +115,14 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 
 	writeNewLine();
 
-	// Only non-blueprint classes can be created
-	if(!(sdlClass->isBlueprint()))
-	{
-		writeClassCreationDoc(sdlClass);
-	}
+	writeClassCreationDoc(sdlClass);
 
 	writeNewLine();
 
 	// Write documentation for every function in the class
 	for(std::size_t funcIdx = 0; funcIdx < sdlClass->numFunctions(); ++funcIdx)
 	{
-		writeFunctionDoc(sdlClass->getFunction(funcIdx));
+		writeFunctionDoc(sdlClass->getFunction(funcIdx), sdlClass);
 
 		writeNewLine();
 	}
@@ -139,24 +135,40 @@ void MarkdownDocGenerator::writeClassCreationDoc(const SdlClass* const sdlClass)
 		return;
 	}
 
-	const auto creationalFullType = std::format("{}({})", 
-		sdl::category_to_string(sdlClass->getCategory()), sdlClass->getTypeName());
+	// Only non-blueprint classes can be created
+	if(!(sdlClass->isBlueprint()))
+	{
+		const auto creationalTypeName = std::format("`{}({})`",
+			sdl::category_to_string(sdlClass->getCategory()), sdlClass->getTypeName());
 
-	writeLine("> Creation: `" + creationalFullType + "`");
+		writeLine("> Creation: " + creationalTypeName);
 
-	writeNewLine();
+		writeNewLine();
+	}
 
 	writeInputTable(gatherInputs(sdlClass));
 }
 
-void MarkdownDocGenerator::writeFunctionDoc(const SdlFunction* const sdlFunc)
+void MarkdownDocGenerator::writeFunctionDoc(const SdlFunction* const sdlFunc, const SdlClass* const parentSdlClass)
 {
 	if(!sdlFunc)
 	{
 		return;
 	}
 
-	writeLine("> Operation: `" + sdlFunc->getName() + "`");
+	std::string callableTypeName;
+	if(parentSdlClass)
+	{
+		callableTypeName = std::format("callable on `{}({})` and its derivations",
+			sdl::category_to_string(parentSdlClass->getCategory()), parentSdlClass->getTypeName());
+	}
+	else
+	{
+		callableTypeName = "*(callable type not required)*";
+	}
+	
+
+	writeLine("> Operation: `" + sdlFunc->getName() + "`, " + callableTypeName);
 
 	writeNewLine();
 
@@ -222,7 +234,7 @@ void MarkdownDocGenerator::writeInputTable(const std::vector<const SdlField*>& i
 {
 	if(inputs.empty())
 	{
-		writeLine("(no input)");
+		writeLine("*(no input)*");
 	}
 	else
 	{

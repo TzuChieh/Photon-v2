@@ -8,6 +8,7 @@
 #include <string_view>
 #include <stdexcept>
 #include <charconv>
+#include <limits>
 
 namespace ph::string_utils
 {
@@ -137,7 +138,10 @@ will be preserved.
 */
 inline char az_to_AZ(const char ch)
 {
-	return static_cast<char>(table::ASCII_TO_UPPER[ch]);
+	static_assert(std::numeric_limits<unsigned char>::max() == table::ASCII_TO_UPPER.size() - 1);
+
+	const auto mappedCharIdx = static_cast<unsigned char>(ch);
+	return static_cast<char>(table::ASCII_TO_UPPER[mappedCharIdx]);
 }
 
 /*! @brief Convert upper-case characters to lower-case.
@@ -147,7 +151,10 @@ will be preserved.
 */
 inline char AZ_to_az(const char ch)
 {
-	return static_cast<char>(table::ASCII_TO_LOWER[ch]);
+	static_assert(std::numeric_limits<unsigned char>::max() == table::ASCII_TO_LOWER.size() - 1);
+
+	const auto mappedCharIdx = static_cast<unsigned char>(ch);
+	return static_cast<char>(table::ASCII_TO_LOWER[mappedCharIdx]);
 }
 
 /*! @brief Convert lower-case characters to upper-case.

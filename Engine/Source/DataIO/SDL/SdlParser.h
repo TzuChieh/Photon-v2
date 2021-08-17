@@ -2,6 +2,7 @@
 
 #include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/FileSystem/Path.h"
+#include "Utility/SemanticVersion.h"
 
 #include <vector>
 #include <string>
@@ -55,10 +56,13 @@ public:
 
 	void setWorkingDirectory(const Path& path);
 
+	const SemanticVersion& getCommandVersion() const;
 	std::size_t numParsedCommands() const;
 	std::size_t numParseErrors() const;
 
 private:
+	SemanticVersion m_commandVersion;
+
 	std::unordered_map<std::string, const SdlClass*> m_mangledNameToClass;
 
 	Path        m_workingDirectory;
@@ -78,6 +82,10 @@ private:
 		const std::string& command,
 		SceneDescription&  out_scene);
 
+	void parseDirectiveCommand(
+		const std::string& command,
+		SceneDescription&  out_scene);
+
 	std::string getName(std::string_view resourceNameToken);
 	std::string genNameForAnonymity();
 
@@ -93,6 +101,11 @@ private:
 };
 
 // In-header Implementations:
+
+inline const SemanticVersion& SdlParser::getCommandVersion() const
+{
+	return m_commandVersion;
+}
 
 inline std::size_t SdlParser::numParsedCommands() const
 {
