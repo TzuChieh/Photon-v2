@@ -39,6 +39,10 @@ void MarkdownDocGenerator::generate(
 {
 	clearDoc();
 
+	writeLine("# Photon Scene Description Language");
+
+	writeNewLine();
+
 	for(const SdlClass* const sdlClass : sdlClasses)
 	{
 		writeClassDoc(sdlClass);

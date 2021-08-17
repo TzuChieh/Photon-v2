@@ -52,7 +52,7 @@ public:
 		clazz.addField(scheduler);
 
 		TSdlEnumField<OwnerType, ERayEnergyEstimator> estimator("estimator", &OwnerType::m_estimator);
-		estimator.description("Scheduler for rendering, affect the order of rendered regions.");
+		estimator.description("The energy estimating component used by the renderer.");
 		estimator.defaultTo(ERayEnergyEstimator::BNEEPT);
 		estimator.optional();
 		clazz.addField(estimator);
