@@ -41,11 +41,11 @@ Logger make_core_logger()
 
 			if(logLevel == ELogLevel::NOTE)
 			{
-				std::cout << logString << std::endl;
+				std::cout << logString << '\n';
 			}
 			else
 			{
-				std::cerr << logString << std::endl;
+				std::cerr << logString << '\n';
 			}
 		});
 
@@ -65,11 +65,11 @@ Logger make_core_logger()
 
 	if(stream.good())
 	{
-		std::cout << "log file <" << coreLogFilePath << "> created" << std::endl;
+		std::cout << "log file <" << coreLogFilePath << "> created" << '\n';
 	}
 	else
 	{
-		std::cerr << "warning: log file <" << coreLogFilePath << "> creation failed" << std::endl;
+		std::cerr << "warning: log file <" << coreLogFilePath << "> creation failed" << '\n';
 	}
 
 	logger.addLogHandler(
@@ -85,11 +85,10 @@ Logger make_core_logger()
 
 			PH_ASSERT(stream.good());
 
+			// Write & flush the stream immediately as we should assume the system would
+			// crash at any time, so that valuable information could be kept. Note that
+			// std::endl will perform both adding a newline and flushing the stream.
 			stream << logString << std::endl;
-
-			// Flush the stream immediately as we should assume the system would
-			// crash at any time; so that valuable information could be kept
-			stream.flush();
 		});
 	
 	return logger;

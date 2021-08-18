@@ -15,9 +15,14 @@ public:
 	explicit FormattedTextFileOutputStream(const Path& filePath);
 	inline FormattedTextFileOutputStream(FormattedTextFileOutputStream&& other) = default;
 
+	std::string acquireName() override;
+
 	bool writeStr(std::string_view str);
 
 	inline FormattedTextFileOutputStream& operator = (FormattedTextFileOutputStream&& rhs) = default;
+
+private:
+	Path m_filePath;
 };
 
 }// end namespace ph

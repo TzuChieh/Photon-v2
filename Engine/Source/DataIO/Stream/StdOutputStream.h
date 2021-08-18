@@ -17,9 +17,9 @@ public:
 	explicit StdOutputStream(std::unique_ptr<std::ostream> stream);
 	StdOutputStream(StdOutputStream&& other);
 
-	bool write(std::size_t numBytes, const std::byte* bytes) override;
+	void write(std::size_t numBytes, const std::byte* bytes) override;
 	void seekPut(std::size_t pos) override;
-	std::size_t tellPut() override;
+	std::optional<std::size_t> tellPut() override;
 	operator bool () const override;
 
 	std::ostream* getStream() const;
@@ -28,6 +28,12 @@ public:
 
 private:
 	std::unique_ptr<std::ostream> m_ostream;
+
+	/*! @brief Enable the use of exceptions when std::ostream has error.
+	This call will immediately throw std::ostream::failure if the member 
+	std::ostream is already in an error state.
+	*/
+	void useExceptionForOStreamError();
 };
 
 // In-header Implementations:
