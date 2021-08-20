@@ -2,6 +2,7 @@
 #include "DataIO/Stream/BinaryFileOutputStream.h"
 #include "Utility/utility.h"
 #include "Common/logging.h"
+#include "DataIO/io_exceptions.h"
 
 #include <string>
 #include <limits>
@@ -21,6 +22,7 @@ bool PfmFileWriter::save(const HdrRgbFrame& frame)
 	BinaryFileOutputStream file(m_filePath);
 
 	// Write header (3 lines of text)
+	try
 	{
 		std::string header;
 
@@ -33,12 +35,12 @@ bool PfmFileWriter::save(const HdrRgbFrame& frame)
 		// Endianness
 		header += std::to_string(is_big_endian() ? 1 : -1) + "\n";
 
-		if(!file.write(header.length(), reinterpret_cast<const std::byte*>(header.data())))
-		{
-			PH_LOG_WARNING(PfmFileWriter, "error writing file header");
-
-			return false;
-		}
+		file.write(header.length(), reinterpret_cast<const std::byte*>(header.data()));
+	}
+	catch(const FileIOError& e)
+	{
+		PH_LOG_WARNING(PfmFileWriter, "error writing file header: {}", e.whatStr());
+		return false;
 	}
 
 	// Write raster data (a series of three 4-byte IEEE-754 single precision
@@ -61,10 +63,13 @@ bool PfmFileWriter::save(const HdrRgbFrame& frame)
 		}
 	}
 
-	if(!file.write(rasterData.size() * sizeof(float), reinterpret_cast<const std::byte*>(rasterData.data())))
+	try
 	{
-		PH_LOG_WARNING(PfmFileWriter, "error writing file raster data");
-
+		file.write(rasterData.size() * sizeof(float), reinterpret_cast<const std::byte*>(rasterData.data()));
+	}
+	catch(const FileIOError& e)
+	{
+		PH_LOG_WARNING(PfmFileWriter, "error writing file raster data: {}", e.whatStr());
 		return false;
 	}
 

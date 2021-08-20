@@ -31,6 +31,12 @@ public:
 
 	operator bool () const override = 0;
 
+	/*! @brief Write some data in the form of raw bytes.
+	The method may return before finish writing all bytes. In such case, the method
+	returns how many bytes were actually written.
+	@return How many bytes were actually written.
+	@exception IOException If write operation failed.
+	*/
 	virtual std::size_t writeSome(std::size_t numBytes, const std::byte* bytes);
 };
 
@@ -38,7 +44,8 @@ public:
 
 inline std::size_t IOutputStream::writeSome(const std::size_t numBytes, const std::byte* out_bytes)
 {
-	return write(numBytes, out_bytes) ? numBytes : 0;
+	write(numBytes, out_bytes);
+	return numBytes;
 }
 
 }// end namespace ph

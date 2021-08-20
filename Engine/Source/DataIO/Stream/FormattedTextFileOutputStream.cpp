@@ -20,19 +20,55 @@ FormattedTextFileOutputStream::FormattedTextFileOutputStream(const Path& filePat
 {
 	if(getStream() && !getStream()->good())
 	{
-		throw FileIOError(std::format("error encountered while opening file", 
+		throw FileIOError(
+			std::format("error encountered while opening text file", 
 			filePath.toAbsoluteString()));
 	}
 }
 
-bool FormattedTextFileOutputStream::writeStr(const std::string_view str)
+void FormattedTextFileOutputStream::writeLine(const std::string_view line)
+{
+	writeString(line);
+	writeNewLine();
+}
+
+void FormattedTextFileOutputStream::writeNewLine()
+{
+	writeChar('\n');
+}
+
+void FormattedTextFileOutputStream::writeString(const std::string_view str)
 {
 	PH_ASSERT(getStream());
 
-	*(getStream()) << str;
+	try
+	{
+		*(getStream()) << str;
+	}
+	catch(const std::ostream::failure& e)
+	{
+		throw FileIOError(
+			std::format("error writing string to std::ostream (string length: {}); {}, reason: {}, ",
+				str.size(), e.what(), e.code().message()),
+			m_filePath.toAbsoluteString());
+	}
+}
 
-	// TODO: properly handle this
-	return true;
+void FormattedTextFileOutputStream::writeChar(const char ch)
+{
+	PH_ASSERT(getStream());
+
+	try
+	{
+		*(getStream()) << ch;
+	}
+	catch(const std::ostream::failure& e)
+	{
+		throw FileIOError(
+			std::format("error writing char \'{}\' to std::ostream; {}, reason: {}, ", 
+				ch, e.what(), e.code().message()),
+			m_filePath.toAbsoluteString());
+	}
 }
 
 std::string FormattedTextFileOutputStream::acquireName()

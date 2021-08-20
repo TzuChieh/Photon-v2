@@ -63,7 +63,7 @@ void MarkdownDocGenerator::generate(
 
 	// Finally, write the doc to file
 	m_file = FormattedTextFileOutputStream(makeOutputFilePath(getFilename()));
-	m_file.writeStr(getDoc());
+	m_file.writeString(getDoc());
 }
 
 void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)

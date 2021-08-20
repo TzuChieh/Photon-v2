@@ -17,7 +17,10 @@ public:
 
 	std::string acquireName() override;
 
-	bool writeStr(std::string_view str);
+	void writeLine(std::string_view line);
+	void writeString(std::string_view str);
+	void writeChar(char ch);
+	void writeNewLine();
 
 	inline FormattedTextFileOutputStream& operator = (FormattedTextFileOutputStream&& rhs) = default;
 

@@ -8,14 +8,13 @@
 #include <utility>
 #include <vector>
 
-namespace ph { class SdlField; }
 namespace ph { class SdlFunction; }
-namespace ph { class SdlEnum; }
 
 namespace ph::sdlgen
 {
 
-// TODO: string generation, generate() should base on string output
+/*! @brief Generate SDL documentation in markdown format.
+*/
 class MarkdownDocGenerator : public InterfaceGenerator
 {
 public:

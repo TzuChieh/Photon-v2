@@ -2,6 +2,7 @@
 
 #include "DataIO/Stream/StdOutputStream.h"
 #include "DataIO/FileSystem/Path.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -14,7 +15,7 @@ public:
 	inline BinaryFileOutputStream(BinaryFileOutputStream&& other) = default;
 
 	template<typename T>
-	bool writeData(const T* data);
+	void writeData(const T* data);
 
 	inline BinaryFileOutputStream& operator = (BinaryFileOutputStream&& rhs) = default;
 };
@@ -22,7 +23,7 @@ public:
 // In-header Implementations:
 
 template<typename T>
-inline bool BinaryFileOutputStream::writeData(const T* const data)
+inline void BinaryFileOutputStream::writeData(const T* const data)
 {
 	static_assert(std::is_trivially_copyable_v<T>);
 	PH_ASSERT(data);

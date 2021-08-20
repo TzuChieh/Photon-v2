@@ -63,7 +63,12 @@ std::optional<std::size_t> StdOutputStream::tellPut()
 
 	// tellp() will not throw; instead, it returns pos_type(-1) if a failure occurs
 	const std::ostream::pos_type pos = m_ostream->tellp();
-	return pos != std::ostream::pos_type(-1) ? static_cast<std::size_t>(pos) : std::nullopt;
+	if(pos == std::ostream::pos_type(-1))
+	{
+		return std::nullopt;
+	}
+
+	return static_cast<std::size_t>(pos);
 }
 
 void StdOutputStream::useExceptionForOStreamError()

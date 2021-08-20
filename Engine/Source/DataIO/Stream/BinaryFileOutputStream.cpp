@@ -1,14 +1,12 @@
 #include "DataIO/Stream/BinaryFileOutputStream.h"
-#include "Common/assertion.h"
-#include "Common/logging.h"
+#include "DataIO/io_exceptions.h"
 
 #include <fstream>
-#include <utility>
+#include <memory>
+#include <format>
 
 namespace ph
 {
-
-PH_DEFINE_INTERNAL_LOG_GROUP(BinaryFileOutputStream, DataIO);
 
 BinaryFileOutputStream::BinaryFileOutputStream(const Path& filePath) :
 	StdOutputStream(
@@ -18,9 +16,9 @@ BinaryFileOutputStream::BinaryFileOutputStream(const Path& filePath) :
 {
 	if(getStream() && !getStream()->good())
 	{
-		PH_LOG_WARNING(BinaryFileOutputStream, 
-			"error encountered while opening file <{}>, output operations may be unavailable",
-			filePath.toAbsoluteString());
+		throw FileIOError(
+			std::format("error encountered while opening binary file",
+			filePath.toAbsoluteString()));
 	}
 }
 
