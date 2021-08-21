@@ -36,7 +36,7 @@ public:
 
 	/*! @brief Read a line without leading and trailing whitespaces.
 	*/
-	bool readTrimmedLine(std::string* out_lineText);
+	void readTrimmedLine(std::string* out_lineText);
 
 	// TODO: readLineTightly()?
 

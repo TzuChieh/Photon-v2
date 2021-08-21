@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <charconv>
 #include <limits>
+#include <type_traits>
 
 namespace ph::string_utils
 {
@@ -20,7 +21,7 @@ enum class EWhitespace
 };
 
 template<EWhitespace TYPE = EWhitespace::COMMON>
-inline std::string_view get_whitespace()
+inline std::string_view get_whitespaces()
 {
 	if constexpr(TYPE == EWhitespace::COMMON)
 	{
@@ -32,9 +33,17 @@ inline std::string_view get_whitespace()
 	}
 	else
 	{
-		PH_ASSERT_UNREACHABLE_SECTION();
+		static_assert(TYPE == EWhitespace::COMMON || TYPE == EWhitespace::STANDARD,
+			"Must include a case for each enum entry; did you forget to add one?");
+		
 		return "";
 	}
+}
+
+template<EWhitespace TYPE = EWhitespace::COMMON>
+inline constexpr bool is_whitespace(const char ch)
+{
+	return get_whitespaces<TYPE>().find(ch) != std::string_view::npos;
 }
 
 /*! @brief Remove characters from the beginning.
@@ -106,7 +115,7 @@ inline std::string_view cut_ends(const std::string_view srcStr, const std::strin
 template<EWhitespace TYPE = EWhitespace::COMMON>
 inline std::string_view trim_head(const std::string_view srcStr)
 {
-	return cut_head(srcStr, get_whitespace<TYPE>());
+	return cut_head(srcStr, get_whitespaces<TYPE>());
 }
 
 /*! @brief Remove white spaces from the end.
@@ -117,7 +126,7 @@ inline std::string_view trim_head(const std::string_view srcStr)
 template<EWhitespace TYPE = EWhitespace::COMMON>
 inline std::string_view trim_tail(const std::string_view srcStr)
 {
-	return cut_tail(srcStr, get_whitespace<TYPE>());
+	return cut_tail(srcStr, get_whitespaces<TYPE>());
 }
 
 /*! @brief Remove white spaces from both ends.

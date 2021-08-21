@@ -15,6 +15,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 		std::string content;
 		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "123456");
+		EXPECT_FALSE(stream);
 	}
 
 	{
@@ -36,6 +37,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 		std::string content;
 		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "0,2,4,6,8,10");
+		EXPECT_FALSE(stream);
 	}
 }
 
@@ -48,16 +50,21 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 			"...");
 
 		std::string line;
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), ".");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "..");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "...");
 
-		ASSERT_FALSE(stream.readTrimmedLine(&line));
+		if(stream)
+		{
+			stream.readTrimmedLine(&line);
+			EXPECT_TRUE(line.empty());
+		}
 	}
 
 	{
@@ -67,16 +74,21 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 			" X \t XX\t\n");
 
 		std::string line;
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "XXX");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "X X  X");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "X \t XX");
 
-		ASSERT_FALSE(stream.readTrimmedLine(&line));
+		if(stream)
+		{
+			stream.readTrimmedLine(&line);
+			EXPECT_TRUE(line.empty());
+		}
 	}
 
 	{
@@ -89,16 +101,24 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 			"");
 
 		std::string line;
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "x");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "y");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "z");
 
-		ASSERT_FALSE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
+		EXPECT_STREQ(line.c_str(), "");
+
+		if(stream)
+		{
+			stream.readTrimmedLine(&line);
+			EXPECT_TRUE(line.empty());
+		}
 	}
 
 	{
@@ -108,13 +128,17 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 			"\r\r");
 
 		std::string line;
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), ".");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "..");
 
-		ASSERT_FALSE(stream.readTrimmedLine(&line));
+		if(stream)
+		{
+			stream.readTrimmedLine(&line);
+			EXPECT_TRUE(line.empty());
+		}
 	}
 }
 
@@ -127,6 +151,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 		std::string content;
 		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "123456");
+		EXPECT_FALSE(stream);
 	}
 
 	{
@@ -136,6 +161,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 		std::string content;
 		stream.readAllTightly(&content);
 		EXPECT_STREQ(content.c_str(), "vvvvvv");
+		EXPECT_FALSE(stream);
 	}
 }
 
@@ -146,8 +172,15 @@ TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 			PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
 
 		std::string line;
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "123456");
+
+		if(stream)
+		{
+			stream.readTrimmedLine(&line);
+			EXPECT_TRUE(line.empty());
+		}
 	}
 
 	{
@@ -155,16 +188,21 @@ TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
 
 		std::string line;
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "v");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "vv");
 
-		ASSERT_TRUE(stream.readTrimmedLine(&line));
+		stream.readTrimmedLine(&line);
 		EXPECT_STREQ(line.c_str(), "vvv");
 
-		ASSERT_FALSE(stream.readTrimmedLine(&line));
+		if(stream)
+		{
+			stream.readTrimmedLine(&line);
+			EXPECT_TRUE(line.empty());
+		}
 	}
 }
 

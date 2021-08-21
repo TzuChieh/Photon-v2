@@ -8,6 +8,7 @@
 #include <utility>
 #include <vector>
 
+namespace ph { class SdlField; }
 namespace ph { class SdlFunction; }
 
 namespace ph::sdlgen

@@ -16,10 +16,12 @@ namespace ph
 class IniFile final
 {
 public:
-	IniFile();
-	explicit IniFile(const Path& initFilePath);
+	static IniFile read(const Path& iniFilePath);
 
-	void readAndAppend(const Path& iniFilePath);
+public:
+	IniFile();
+	explicit IniFile(const Path& iniFilePath);
+
 	void save(const Path& iniFilePath);
 	void clear();
 
@@ -37,6 +39,11 @@ public:
 	void setProperty(std::size_t propertyIdx, std::string_view propertyValue);
 	void setProperty(std::string_view propertyName, std::string_view propertyValue, bool createIfNotExist = true);
 
+	/*! @brief Add another INI file to this one.
+	All properties from the other file will be added to this one. New sections
+	will be created if they were not in this file. Properties will be overwritten
+	if they were already defined in this file.
+	*/
 	void append(const IniFile& other);
 
 private:

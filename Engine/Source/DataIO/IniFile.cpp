@@ -1,10 +1,16 @@
 #include "DataIO/IniFile.h"
 #include "DataIO/io_exceptions.h"
+#include "DataIO/Stream/FormattedTextInputStream.h"
+#include "DataIO/Stream/FormattedTextFileOutputStream.h"
+#include "Utility/string_utils.h"
+#include "Common/logging.h"
 
 #include <format>
 
 namespace ph
 {
+
+PH_DEFINE_INTERNAL_LOG_GROUP(IniFile, DataIO);
 
 IniFile::IniFile() :
 	m_sections(),
@@ -13,6 +19,36 @@ IniFile::IniFile() :
 	// By default, add an empty section and make it current
 	m_sections.push_back(IniSection());
 	m_currentSectionIdx = 0;
+}
+
+IniFile::IniFile(const Path& iniFilePath) :
+	IniFile()
+{
+	append(read(iniFilePath));
+}
+
+void IniFile::save(const Path& iniFilePath)
+{
+	FormattedTextFileOutputStream output(iniFilePath);
+
+	for(const IniSection& section : m_sections)
+	{
+		// Special case for global (unnamed) section
+		if(section.name.empty())
+		{
+			// Write nothing
+		}
+		// Normal section
+		else
+		{
+			output.writeLine("[" + section.name + "]");
+		}
+
+		for(const auto& prop : section.keyValPairs)
+		{
+			output.writeLine(prop.first + "=" + prop.second);
+		}
+	}
 }
 
 void IniFile::setCurrentSection(const std::string_view sectionName, const bool createIfNotExist)
@@ -66,6 +102,12 @@ std::optional<std::size_t> IniFile::findPropertyIndex(const std::string_view pro
 
 void IniFile::setProperty(const std::string_view propertyName, const std::string_view propertyValue, const bool createIfNotExist)
 {
+	if(propertyName.empty())
+	{
+		PH_LOG_WARNING(IniFile, "use of empty property name is discouraged (associated value: <{}>)",
+			propertyValue);
+	}
+
 	const auto optPropertyIdx = findPropertyIndex(propertyName);
 	if(optPropertyIdx)
 	{
@@ -99,9 +141,62 @@ void IniFile::append(const IniFile& other)
 	}
 }
 
-void IniFile::replace(const IniFile& other)
+IniFile IniFile::read(const Path& iniFilePath)
 {
+	FormattedTextInputStream inputFile(iniFilePath);
 
+	IniFile     result;
+	std::string line;
+	std::size_t lineNumber = 0;
+	while(inputFile)
+	{
+		inputFile.readTrimmedLine(&line);
+		++lineNumber;
+
+		// Skip blank line and comment
+		if(line.empty() || line.front() == ';')
+		{
+			continue;
+		}
+
+		// Parse section if '[' is found
+		if(line.front() == '[')
+		{
+			if(line.back() != ']')
+			{
+				throw IOException(std::format("on line {}, section without ending bracket", lineNumber));
+			}
+
+			std::string_view sectionName = line;
+
+			PH_ASSERT_GT(sectionName.size(), 2);
+			sectionName = sectionName.substr(1, sectionName.size() - 2);
+			if(sectionName.empty())
+			{
+				throw IOException(std::format("on line {}, section name is empty", lineNumber));
+			}
+
+			result.setCurrentSection(sectionName);
+
+			continue;
+		}
+
+		// Parse property if '=' is found
+		if(const auto equalCharPos = line.find('='); equalCharPos != std::string::npos)
+		{
+			const std::string_view propLine = line;
+			PH_ASSERT_EQ(propLine[equalCharPos], '=');
+
+			const auto propName  = string_utils::trim(propLine.substr(0, equalCharPos));
+			const auto propValue = string_utils::trim(propLine.substr(equalCharPos + 1));
+
+			result.setProperty(propName, propValue);
+
+			continue;
+		}
+	}
+
+	return result;
 }
 
 }// end namespace ph

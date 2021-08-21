@@ -72,18 +72,18 @@ void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 		std::istream_iterator<char>());
 }
 
-bool FormattedTextInputStream::readTrimmedLine(std::string* const out_lineText)
+void FormattedTextInputStream::readTrimmedLine(std::string* const out_lineText)
 {
 	PH_ASSERT(out_lineText);
 
 	out_lineText->clear();
 
-	// skip any leading whitespaces
+	// Skip any leading whitespaces
 	*m_istream >> std::ws;
 
 	std::getline(*m_istream, *out_lineText);
 
-	// remove trailing whitespaces
+	// Remove trailing whitespaces
 	const auto trailingWhiteSpaceBegin = std::find_if(
 		out_lineText->rbegin(),
 		out_lineText->rend(),
@@ -92,8 +92,6 @@ bool FormattedTextInputStream::readTrimmedLine(std::string* const out_lineText)
 			return !std::isspace(ch);
 		}).base();
 	out_lineText->erase(trailingWhiteSpaceBegin, out_lineText->end());
-	
-	return !out_lineText->empty();
 }
 
 }// end namespace ph
