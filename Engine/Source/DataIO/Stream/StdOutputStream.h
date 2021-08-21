@@ -30,8 +30,8 @@ private:
 	std::unique_ptr<std::ostream> m_ostream;
 
 	/*! @brief Enable the use of exceptions when std::ostream has error.
-	This call will immediately throw std::ostream::failure if the member 
-	std::ostream is already in an error state.
+	This call will immediately throw @p IOException if the member std::ostream
+	is already in an error state.
 	*/
 	void useExceptionForOStreamError();
 };

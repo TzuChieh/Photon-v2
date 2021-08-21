@@ -17,9 +17,9 @@ class IniFile final
 {
 public:
 	IniFile();
+	explicit IniFile(const Path& initFilePath);
 
 	void readAndAppend(const Path& iniFilePath);
-	void readAndReplace(const Path& iniFilePath);
 	void save(const Path& iniFilePath);
 	void clear();
 
@@ -28,16 +28,16 @@ public:
 	std::string_view getCurrentSectionName() const;
 	std::optional<std::size_t> findSectionIndex(std::string_view sectionName) const;
 	void setCurrentSection(std::size_t sectionIdx);
-	void setCurrentSection(std::string_view sectionName);
-	bool trySetCurrentSection(std::string_view sectionName);
-	void addSection(std::string sectionName, bool makeCurrent = true);
+	void setCurrentSection(std::string_view sectionName, bool createIfNotExist = true);
 	
 	std::size_t numProperties() const;
 	std::string_view getPropertyName(std::size_t propertyIdx) const;
 	std::string_view getPropertyValue(std::size_t propertyIdx) const;
 	std::optional<std::size_t> findPropertyIndex(std::string_view propertyName) const;
-	std::optional<std::string_view> findProperty(std::string_view propertyName) const;
-	void addProperty(std::string propertyName, std::string propertyValue);
+	void setProperty(std::size_t propertyIdx, std::string_view propertyValue);
+	void setProperty(std::string_view propertyName, std::string_view propertyValue, bool createIfNotExist = true);
+
+	void append(const IniFile& other);
 
 private:
 	struct IniSection final
@@ -96,6 +96,14 @@ inline std::string_view IniFile::getPropertyValue(const std::size_t propertyIdx)
 
 	PH_ASSERT_LT(propertyIdx, section.keyValPairs.size());
 	return section.keyValPairs[propertyIdx].second;
+}
+
+inline void IniFile::setProperty(const std::size_t propertyIdx, const std::string_view propertyValue)
+{
+	IniSection& section = getIniSection(m_currentSectionIdx);
+
+	PH_ASSERT_LT(propertyIdx, section.keyValPairs.size());
+	section.keyValPairs[propertyIdx].second = propertyValue;
 }
 
 inline IniFile::IniSection& IniFile::getIniSection(const std::size_t sectionIdx)

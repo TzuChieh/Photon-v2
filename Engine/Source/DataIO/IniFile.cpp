@@ -15,41 +15,25 @@ IniFile::IniFile() :
 	m_currentSectionIdx = 0;
 }
 
-void IniFile::setCurrentSection(const std::string_view sectionName)
-{
-	if(!trySetCurrentSection(sectionName))
-	{
-		throw IOException(std::format("INI section <{}> does not exist", sectionName));
-	}
-}
-
-bool IniFile::trySetCurrentSection(const std::string_view sectionName)
+void IniFile::setCurrentSection(const std::string_view sectionName, const bool createIfNotExist)
 {
 	const auto optSectionIdx = findSectionIndex(sectionName);
 	if(optSectionIdx)
 	{
-		m_currentSectionIdx = *optSectionIdx;
-		return true;
+		setCurrentSection(*optSectionIdx);
 	}
 	else
 	{
-		return false;
-	}
-}
-
-void IniFile::addSection(std::string sectionName, const bool makeCurrent)
-{
-	if(findSectionIndex(sectionName))
-	{
-		throw IOException(std::format("INI section <{}> already exist", sectionName));
-	}
-
-	m_sections.push_back(IniSection());
-	m_sections.back().name = std::move(sectionName);
-	
-	if(makeCurrent)
-	{
-		setCurrentSection(m_sections.size() - 1);
+		if(createIfNotExist)
+		{
+			m_sections.push_back(IniSection());
+			m_sections.back().name = sectionName;
+			setCurrentSection(m_sections.size() - 1);
+		}
+		else
+		{
+			throw IOException(std::format("INI section <{}> does not exist", sectionName));
+		}
 	}
 }
 
@@ -80,29 +64,44 @@ std::optional<std::size_t> IniFile::findPropertyIndex(const std::string_view pro
 	return std::nullopt;
 }
 
-std::optional<std::string_view> IniFile::findProperty(const std::string_view propertyName) const
+void IniFile::setProperty(const std::string_view propertyName, const std::string_view propertyValue, const bool createIfNotExist)
 {
 	const auto optPropertyIdx = findPropertyIndex(propertyName);
 	if(optPropertyIdx)
 	{
-		return getPropertyValue(*optPropertyIdx);
+		setProperty(*optPropertyIdx, propertyValue);
 	}
 	else
 	{
-		return std::nullopt;
+		IniSection& section = getIniSection(m_currentSectionIdx);
+		if(createIfNotExist)
+		{
+			section.keyValPairs.push_back({std::string(propertyName), std::string(propertyValue)});
+		}
+		else
+		{
+			throw IOException(std::format("INI section <{}> already contains property <{}>",
+				section.name, propertyName));
+		}
 	}
 }
 
-void IniFile::addProperty(std::string propertyName, std::string propertyValue)
+void IniFile::append(const IniFile& other)
 {
-	IniSection& section = getIniSection(m_currentSectionIdx);
-	if(findPropertyIndex(propertyName))
+	for(const IniSection& otherSection : other.m_sections)
 	{
-		throw IOException(std::format("INI section <{}> already contains property <{}>", 
-			section.name, propertyName));
-	}
+		setCurrentSection(otherSection.name);
 
-	section.keyValPairs.push_back({std::move(propertyName), std::move(propertyValue)});
+		for(const auto& otherProperty : otherSection.keyValPairs)
+		{
+			setProperty(otherProperty.first, otherProperty.second);
+		}
+	}
+}
+
+void IniFile::replace(const IniFile& other)
+{
+
 }
 
 }// end namespace ph
