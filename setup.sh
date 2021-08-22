@@ -10,7 +10,6 @@ echo "build directory set to \"$photon_build_directory\""
 
 mkdir -p "$photon_build_directory"
 
-python3 "./scripts/download_thirdparty_library.py" "$photon_build_directory"
-python3 "./scripts/download_resource.py" "$photon_build_directory"
+python3 "./scripts/setup.py" "$photon_build_directory"
 
 echo "--- Setup Completed ---"

@@ -9,7 +9,6 @@ ECHO build directory set to "%photon_build_directory%"
 
 md "%photon_build_directory%"
 
-python "./scripts/download_thirdparty_library.py" "%photon_build_directory%"
-python "./scripts/download_resource.py" "%photon_build_directory%"
+python "./scripts/setup.py" "%photon_build_directory%"
 
 ECHO --- Setup Completed ---
