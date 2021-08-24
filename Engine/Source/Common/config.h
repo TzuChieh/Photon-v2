@@ -43,6 +43,12 @@ Assertions will be enabled on debug mode.
 */
 #define PH_LOG_FILE_DIRECTRY "./Logs/"
 
+#define PH_CONFIG_DIRECTORY "./Config/"
+
+#define PH_INTERNAL_RESOURCE_DIRECTORY "./InternalResource/"
+
+#define PH_RESOURCE_DIRECTORY "./Photon-v2-Resource-main/Resource/"
+
 ///////////////////////////////////////////////////////////////////////////////
 // Render Modes                                                              //
 ///////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,8 @@
 #include "DataIO/FileSystem/Path.h"
 
 #include <string_view>
+#include <format>
+#include <utility>
 
 namespace ph
 {
@@ -22,10 +24,22 @@ public:
 	void writeChar(char ch);
 	void writeNewLine();
 
+	template<typename... Args>
+	void write(Args&&... args);
+
 	inline FormattedTextFileOutputStream& operator = (FormattedTextFileOutputStream&& rhs) = default;
 
 private:
 	Path m_filePath;
 };
+
+// In-header Implementations:
+
+template<typename... Args>
+inline void FormattedTextFileOutputStream::write(Args&&... args)
+{
+	writeString(
+		std::format(std::format<Args>(args)...));
+}
 
 }// end namespace ph

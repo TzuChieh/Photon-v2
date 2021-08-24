@@ -200,6 +200,23 @@ inline void AZ_to_az(std::string* const str)
 	}
 }
 
+/*! @brief Repeat the input string for N times.
+*/
+inline std::string repeat(const std::string_view str, const std::size_t n)
+{
+	const std::size_t totalSize = str.size() * n;
+
+	// Valid for the case where <totalSize> is 0
+	std::string result;
+	result.reserve(totalSize);
+	for(std::size_t i = 0; i < n; ++i)
+	{
+		result += str;
+	}
+
+	return result;
+}
+
 namespace detail
 {
 

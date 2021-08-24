@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <cwchar>
+#include <utility>
 
 // TODO: other platforms and versions that do not need the "experimental" folder
 // NOTE: g++ 8.0 supports filesystem finally
@@ -46,8 +47,16 @@ public:
 	// fragment. The constructed path substitutes all separators to a system 
 	// specific (preferred) one.
 	//
-	inline explicit Path(const std::string& path) : 
+	inline explicit Path(std::string path) : 
+		m_path(std_filesystem::path(std::move(path)).make_preferred())
+	{}
+
+	inline explicit Path(const std::string_view path) :
 		m_path(std_filesystem::path(path).make_preferred())
+	{}
+
+	inline explicit Path(const char* const path) :
+		Path(std::string_view(path))
 	{}
 
 	inline bool isRelative() const

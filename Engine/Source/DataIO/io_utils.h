@@ -14,7 +14,7 @@
 namespace ph::io_utils
 {
 
-/*! @brief Read the whole file as string, unformatted.
+/*! @brief Read the whole file as a formatted string.
 */
 std::string load_text(const Path& filePath);
 

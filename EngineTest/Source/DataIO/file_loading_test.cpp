@@ -13,7 +13,7 @@ using namespace ph;
 TEST(FileLoadingTest, LoadSimpleTextFile)
 {
 	std::string text1;
-	bool isLoaded = ph::TextFileLoader::load(ph::Path(PH_TEST_RESOURCE_PATH("Text/simple_text.txt")), &text1);
+	bool isLoaded = ph::TextFileLoader::load(Path(PH_TEST_RESOURCE_PATH("Text/simple_text.txt")), &text1);
 	ASSERT_TRUE(isLoaded);
 	EXPECT_STREQ(text1.c_str(), "123456");
 }
