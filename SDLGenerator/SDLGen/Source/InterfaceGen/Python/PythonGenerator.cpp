@@ -6,6 +6,12 @@
 #include <ph_cpp_core.h>
 #include <Utility/Timestamp.h>
 #include <DataIO/io_utils.h>
+#include <DataIO/SDL/Introspect/SdlClass.h>
+#include <DataIO/SDL/Introspect/SdlFunction.h>
+#include <DataIO/SDL/Introspect/SdlField.h>
+#include <DataIO/SDL/Introspect/SdlEnum.h>
+#include <DataIO/SDL/ETypeCategory.h>
+#include <DataIO/SDL/sdl_helpers.h>
 
 #include <utility>
 
@@ -16,7 +22,8 @@ namespace
 {
 
 PythonClass gen_sdl_reference_class(const std::string_view categoryName);
-PythonClass gen_sdl_interface_class(const SdlClass* sdlClass);
+PythonClass gen_sdl_creator_class(const SdlClass* sdlClass);
+PythonClass gen_sdl_executor_class(const SdlFunction* sdlFunction, const SdlClass* parentClass);
 
 }
 
@@ -45,12 +52,33 @@ void PythonGenerator::generate(
 
 	m_file.write("\n\n");
 
-	file.write(PythonGenerator.gen_reference_data_classes())
+	// Generate reference classes (helper for constructing SDL references)
+	const std::vector<std::string_view> sdlCategories = sdl::acquire_categories();
+	for(const auto sdlCategory : sdlCategories)
+	{
+		PythonClass pyClass = gen_sdl_reference_class(sdlCategory);
+		m_file.writeString(pyClass.genCode());
+	}
 
 	m_file.write("\n\n");
 
-	for interface in self.interfaces:
-		file.write(PythonGenerator.gen_interface_classes(interface))
+	for(auto const sdlClass : sdlClasses)
+	{
+		// Generate creator class (only non-blueprint class can be created)
+		if(!sdlClass->isBlueprint())
+		{
+			const PythonClass pyClass = gen_sdl_creator_class(sdlClass);
+			m_file.writeString(pyClass.genCode());
+		}
+
+		// Generate function execution classes
+		for(std::size_t funcIdx = 0; funcIdx < sdlClass->numFunctions(); ++funcIdx)
+		{
+			auto const sdlFunc = sdlClass->getFunction(funcIdx);
+			const PythonClass pyClass = gen_sdl_executor_class(sdlFunc, sdlClass);
+			m_file.writeString(pyClass.genCode());
+		}
+	}
 }
 
 Path PythonGenerator::makeResourcePath(const std::string& fileSubPath) const
@@ -76,76 +104,75 @@ PythonClass gen_sdl_reference_class(const std::string_view categoryName)
 	return clazz;
 }
 
-PythonClass gen_sdl_interface_class(const SdlClass* const sdlClass)
+PythonClass gen_sdl_creator_class(const SdlClass* const sdlClass)
 {
 	PH_ASSERT(sdlClass);
+	PH_ASSERT(!sdlClass->isBlueprint());
 
-	class_base_name = cls.gen_class_name(sdl_interface)
+	PythonClass clazz(sdl_name_to_camel_case(sdlClass->getTypeName(), true) + "Creator");
+	clazz.setInheritedClass("SDLCreatorCommand");
+	clazz.addDefaultInit();
 
-	code = ""
+	// Override get_full_type()
+	PythonMethod fullTypeMethod("get_full_type");
+	fullTypeMethod.addCodeLine("return \"{}({})\"", 
+		sdl::category_to_string(sdlClass->getCategory()), sdlClass->getTypeName());
+	clazz.addMethod(fullTypeMethod);
 
-	# Generate creator code
+	// Add input methods
+	for(std::size_t i = 0; i < sdlClass->numFields(); ++i)
+	{
+		const SdlField* const field = sdlClass->getField(i);
+		PH_ASSERT(field);
 
-	if sdl_interface.has_creator() and not sdl_interface.creator.is_blueprint:
-		clazz = PythonClass(class_base_name + "Creator")
-		clazz.set_inherited_class_name("SDLCreatorCommand")
-		clazz.add_default_init()
+		const auto fieldName = sdl_name_to_snake_case(field->getFieldName());
 
-		# Override get_full_type()
-		full_type_method = PythonMethod("get_full_type")
-		full_type_method.add_content_line("return \"%s\"" % sdl_interface.get_full_type_name())
-		clazz.add_method(full_type_method)
+		PythonMethod inputMethod("set_" + fieldName);
+		inputMethod.addInput(fieldName, "", "SDLData");
+		inputMethod.addCodeLine("self.set_input(\"{}\", {})", field->getFieldName(), fieldName);
+		clazz.addMethod(inputMethod);
+	}
 
-		for sdl_input in sdl_interface.creator.inputs:
-			method_name = "set_"
-			method_name += sdl_input.name.replace("-", "_")
-			input_name = sdl_input.name.replace("-", "_")
+	return clazz;
+}
 
-			if clazz.has_method(method_name):
-				continue
+PythonClass gen_sdl_executor_class(const SdlFunction* const sdlFunction, const SdlClass* const parentClass)
+{
+	PH_ASSERT(sdlFunction);
+	PH_ASSERT(parentClass);
 
-			method = PythonMethod(method_name)
-			method.add_input(input_name, expected_type="SDLData")
-			method.add_content_line("self.set_input(\"%s\", %s)" % (sdl_input.name, input_name))
+	PythonClass clazz(
+		sdl_name_to_camel_case(parentClass->getTypeName(), true) +
+		sdl_name_to_camel_case(sdlFunction->getName(), true));
+	clazz.setInheritedClass("SDLExecutorCommand");
+	clazz.addDefaultInit();
 
-			clazz.add_method(method)
+	// Override get_full_type()
+	PythonMethod fullTypeMethod("get_full_type");
+	fullTypeMethod.addCodeLine("return \"{}({})\"",
+		sdl::category_to_string(parentClass->getCategory()), parentClass->getTypeName());
+	clazz.addMethod(fullTypeMethod);
 
-		code += clazz.gen_code()
+	// Override get_name()
+	PythonMethod getNameMethod("get_name");
+	getNameMethod.addCodeLine("return \"{}\"", sdlFunction->getName());
+	clazz.addMethod(getNameMethod);
 
-	# Generate executor code
+	// Add input methods
+	for(std::size_t i = 0; i < sdlFunction->numParams(); ++i)
+	{
+		const SdlField* const param = sdlFunction->getParam(i);
+		PH_ASSERT(param);
 
-	for sdl_executor in sdl_interface.executors:
-		name_norm = capwords(sdl_executor.name, "-").replace("-", "")
-		clazz = PythonClass(class_base_name + name_norm)
-		clazz.set_inherited_class_name("SDLExecutorCommand")
+		const auto paramName = sdl_name_to_snake_case(param->getFieldName());
 
-		# Override get_full_type()
-		full_type_method = PythonMethod("get_full_type")
-		full_type_method.add_content_line("return \"%s\"" % sdl_interface.get_full_type_name())
-		clazz.add_method(full_type_method)
+		PythonMethod inputMethod("set_" + paramName);
+		inputMethod.addInput(paramName, "", "SDLData");
+		inputMethod.addCodeLine("self.set_input(\"{}\", {})", param->getFieldName(), paramName);
+		clazz.addMethod(inputMethod);
+	}
 
-		# Override get_name()
-		get_name_method = PythonMethod("get_name")
-		get_name_method.add_content_line("return \"%s\"" % sdl_executor.name)
-		clazz.add_method(get_name_method)
-
-		for sdl_input in sdl_executor.inputs:
-			method_name = "set_"
-			method_name += sdl_input.name.replace("-", "_")
-			input_name = sdl_input.name.replace("-", "_")
-
-			if clazz.has_method(method_name):
-				continue
-
-			method = PythonMethod(method_name)
-			method.add_input(input_name, expected_type="SDLData")
-			method.add_content_line("self.set_input(\"%s\", %s)" % (sdl_input.name, input_name))
-
-			clazz.add_method(method)
-
-		code += clazz.gen_code()
-
-	return code
+	return clazz;
 }
 
 }

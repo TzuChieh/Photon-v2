@@ -39,7 +39,7 @@ template<typename... Args>
 inline void FormattedTextFileOutputStream::write(Args&&... args)
 {
 	writeString(
-		std::format(std::format<Args>(args)...));
+		std::format(std::forward<Args>(args)...));
 }
 
 }// end namespace ph

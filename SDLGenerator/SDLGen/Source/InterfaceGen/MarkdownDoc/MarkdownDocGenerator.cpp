@@ -77,8 +77,8 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 
 	writeNewLine();
 	
-	writeLine("* Category: `" + sdl_name_to_capitalized(sdl::category_to_string(sdlClass->getCategory())) + "`");
-	writeLine("* Type: `" + sdl_name_to_capitalized(sdlClass->getTypeName()) + "`");
+	writeLine("* Category: `" + sdl_name_to_title_case(sdl::category_to_string(sdlClass->getCategory())) + "`");
+	writeLine("* Type: `" + sdl_name_to_title_case(sdlClass->getTypeName()) + "`");
 
 	// Write notes for the SDL class
 	{
@@ -190,7 +190,7 @@ void MarkdownDocGenerator::writeEnumDoc(const SdlEnum* const sdlEnum)
 		return;
 	}
 
-	writeLine("## " + sdl_name_to_capitalized(sdlEnum->getName()));
+	writeLine("## " + sdl_name_to_title_case(sdlEnum->getName()));
 
 	writeNewLine();
 

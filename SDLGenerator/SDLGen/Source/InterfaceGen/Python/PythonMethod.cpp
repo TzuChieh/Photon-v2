@@ -17,6 +17,8 @@ PythonMethod::PythonMethod(std::string methodName) :
 	m_inputs    ()
 {
 	PH_ASSERT(!m_methodName.empty());
+
+	addInput("self");
 }
 
 void PythonMethod::addInput(

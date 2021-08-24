@@ -16,7 +16,7 @@ namespace ph::sdlgen
 
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlGenApi, SDLGen);
 
-std::string sdl_name_to_capitalized(const std::string_view sdlName)
+std::string sdl_name_to_title_case(const std::string_view sdlName)
 {
 	// The implementation is aware of empty inputs
 
@@ -52,7 +52,7 @@ std::string sdl_name_to_camel_case(const std::string_view sdlName, const bool ca
 {
 	// The implementation is aware of empty inputs
 
-	std::string camelCase = sdl_name_to_capitalized(sdlName);
+	std::string camelCase = sdl_name_to_title_case(sdlName);
 	string_utils::erase_all(camelCase, ' ');
 
 	if(!capitalizedFront && !camelCase.empty())
@@ -61,6 +61,27 @@ std::string sdl_name_to_camel_case(const std::string_view sdlName, const bool ca
 	}
 
 	return camelCase;
+}
+
+std::string sdl_name_to_snake_case(const std::string_view sdlName)
+{
+	// The implementation is aware of empty inputs
+
+	std::string snakeCase = sdl_name_to_title_case(sdlName);
+
+	for(std::size_t i = 0; i < snakeCase.size(); ++i)
+	{
+		// Replace each space in title with dash
+		if(snakeCase[i] == ' ')
+		{
+			snakeCase[i] = '_';
+		}
+
+		// Make A~Z characters lower-case
+		snakeCase[i] = string_utils::AZ_to_az(snakeCase[i]);
+	}
+
+	return snakeCase;
 }
 
 void generate_sdl_interface(const EInterfaceGenerator type, const std::string_view outputDirectoryStr)
