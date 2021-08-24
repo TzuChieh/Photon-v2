@@ -2,8 +2,11 @@
 
 #include "Common/assertion.h"
 
-#include <string>
+#include <string_view>
 #include <unordered_map>
+#include <array>
+#include <cstddef>
+#include <vector>
 
 namespace ph
 {
@@ -30,39 +33,41 @@ enum class ETypeCategory
 	NUM = MAX - MIN + 1
 };
 
+namespace sdl::detail
+{
+
+// Must match the entries in ETypeCategory
+inline constexpr std::array<std::string_view, static_cast<std::size_t>(ETypeCategory::NUM)> CATEGORY_TO_STRING = 
+{{
+	"unspecified",
+	"geometry",
+	"motion",
+	"material",
+	"light-source",
+	"actor",
+	"frame-processor",
+	"image",
+	"observer",
+	"sample-source",
+	"visualizer",
+	"option"
+}};
+
+}// end namespace sdl::detail
+
 namespace sdl
 {
 
-inline std::string category_to_string(const ETypeCategory category)
+inline std::string_view category_to_string(const ETypeCategory category)
 {
-	std::string categoryName;
-	switch(category)
-	{
-	case ETypeCategory::UNSPECIFIED:         categoryName = "unspecified";     break;
-	case ETypeCategory::REF_GEOMETRY:        categoryName = "geometry";        break;
-	case ETypeCategory::REF_MOTION:          categoryName = "motion";          break;
-	case ETypeCategory::REF_MATERIAL:        categoryName = "material";        break;
-	case ETypeCategory::REF_LIGHT_SOURCE:    categoryName = "light-source";    break;
-	case ETypeCategory::REF_ACTOR:           categoryName = "actor";           break;
-	case ETypeCategory::REF_FRAME_PROCESSOR: categoryName = "frame-processor"; break;
-	case ETypeCategory::REF_IMAGE:           categoryName = "image";           break;
-	case ETypeCategory::REF_OBSERVER:        categoryName = "observer";        break;
-	case ETypeCategory::REF_SAMPLE_SOURCE:   categoryName = "sample-source";   break;
-	case ETypeCategory::REF_VISUALIZER:      categoryName = "visualizer";      break;
-	case ETypeCategory::REF_OPTION:          categoryName = "option";          break;
-
-	default:
-		// All categories must already have a string equivalent entry
-		PH_ASSERT_UNREACHABLE_SECTION();
-		break;
-	}
-
-	return categoryName;
+	const auto categoryIndex = static_cast<std::size_t>(category);
+	PH_ASSERT_LT(categoryIndex, detail::CATEGORY_TO_STRING.size());
+	return detail::CATEGORY_TO_STRING[categoryIndex];
 }
 
-inline ETypeCategory string_to_category(const std::string& categoryStr)
+inline ETypeCategory string_to_category(const std::string_view categoryStr)
 {
-	const static std::unordered_map<std::string, ETypeCategory> map = 
+	const static std::unordered_map<std::string_view, ETypeCategory> map = 
 	{ 
 		{category_to_string(ETypeCategory::REF_GEOMETRY),        ETypeCategory::REF_GEOMETRY},
 		{category_to_string(ETypeCategory::REF_MATERIAL),        ETypeCategory::REF_MATERIAL},
@@ -88,6 +93,16 @@ inline ETypeCategory string_to_category(const std::string& categoryStr)
 	}
 
 	return iter->second;
+}
+
+/*! @brief Returns a list of available categories.
+This function is not intended to be used in performance critical code paths.
+*/
+inline std::vector<std::string_view> acquire_categories()
+{
+	return std::vector<std::string_view>(
+		detail::CATEGORY_TO_STRING.begin(), 
+		detail::CATEGORY_TO_STRING.end());
 }
 
 }// end namespace sdl

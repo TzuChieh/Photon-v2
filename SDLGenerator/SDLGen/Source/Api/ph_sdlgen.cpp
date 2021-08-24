@@ -48,6 +48,21 @@ std::string sdl_name_to_capitalized(const std::string_view sdlName)
 	return result;
 }
 
+std::string sdl_name_to_camel_case(const std::string_view sdlName, const bool capitalizedFront)
+{
+	// The implementation is aware of empty inputs
+
+	std::string camelCase = sdl_name_to_capitalized(sdlName);
+	string_utils::erase_all(camelCase, ' ');
+
+	if(!capitalizedFront && !camelCase.empty())
+	{
+		camelCase.front() = string_utils::AZ_to_az(camelCase.front());
+	}
+
+	return camelCase;
+}
+
 void generate_sdl_interface(const EInterfaceGenerator type, const std::string_view outputDirectoryStr)
 {
 	auto outputDirectory = Path(std::string(outputDirectoryStr));

@@ -4,6 +4,9 @@
 
 #include <DataIO/Stream/FormattedTextFileOutputStream.h>
 
+#include <string>
+#include <string_view>
+
 namespace ph { class SdlField; }
 namespace ph { class SdlFunction; }
 
@@ -28,8 +31,5 @@ public:
 private:
 	FormattedTextFileOutputStream m_file;
 };
-
-// In-header Implementations:
-
 
 }// end namespace ph::sdlgen

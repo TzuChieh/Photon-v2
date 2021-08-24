@@ -217,6 +217,13 @@ inline std::string repeat(const std::string_view str, const std::size_t n)
 	return result;
 }
 
+/*! @brief Remove all occurrence of a character in the string.
+*/
+inline void erase_all(std::string& str, const char ch)
+{
+	str.erase(std::remove(str.begin(), str.end(), ch), str.end());
+}
+
 namespace detail
 {
 

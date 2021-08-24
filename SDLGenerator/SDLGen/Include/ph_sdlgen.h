@@ -14,6 +14,8 @@ will make the SDL name capitalized and separated by spaces.
 */
 std::string sdl_name_to_capitalized(std::string_view sdlName);
 
+std::string sdl_name_to_camel_case(std::string_view sdlName, bool capitalizedFront = false);
+
 void generate_sdl_interface(EInterfaceGenerator type, std::string_view outputDirectory);
 
 }// end namespace ph::sdlgen
