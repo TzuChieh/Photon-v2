@@ -19,6 +19,8 @@ class ValueClauses;
 class SdlInputContext;
 class SdlStructFieldStump;
 
+/*! @brief SDL binding type for a canonical SDL resource class.
+*/
 template<typename Owner, typename FieldSet = TBasicSdlFieldSet<TOwnedSdlField<Owner>>>
 class TOwnerSdlClass : public SdlClass
 {

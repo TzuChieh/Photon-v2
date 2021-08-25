@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/SdlResourceId.h"
 
 namespace ph
 {
@@ -17,10 +18,14 @@ done since the base classes for each category already did it.
 */
 class ISdlResource
 {
+protected:
+	inline ISdlResource() = default;
+
 public:
-	virtual ~ISdlResource() = default;
+	inline virtual ~ISdlResource() = default;
 
 	virtual ETypeCategory getCategory() const = 0;
+	virtual SdlResourceId getId() const = 0;
 };
 
 }// end namespace ph

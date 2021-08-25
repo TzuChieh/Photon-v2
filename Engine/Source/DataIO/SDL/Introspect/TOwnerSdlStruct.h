@@ -12,6 +12,8 @@ namespace ph
 
 class SdlStructFieldStump;
 
+/*! @brief SDL binding type for a typical C++ struct.
+*/
 template<typename StructType>
 class TOwnerSdlStruct : public SdlStruct
 {

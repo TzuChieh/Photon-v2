@@ -10,6 +10,16 @@
 namespace ph
 {
 
+/*! @brief SDL binding type for a canonical SDL method.
+
+For a method to be callable in SDL, it must be defined as a C++ functor that takes 
+an instance of @p TargetType as its only input. Other arguments to the method should
+be accessed via the functor's member variables. Each member variables then can be 
+binded much like the members of a canonical SDL resource.
+
+@tparam MethodStruct Type of the functor.
+@tparam TargetType Type of the SDL resource class that defines the method.
+*/
 template<typename MethodStruct, typename TargetType>
 class TSdlMethod : public SdlFunction
 {

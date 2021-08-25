@@ -23,6 +23,10 @@ class TSdlVector3 : public SdlValueType
 		"Currently supports only ph::real");
 
 public:
+	/*! @brief Bind a Vector3 field to SDL.
+	@tparam ValueType Type of the field member of the @p Owner class. The actual type
+	requried depends on the @p SdlValueType used.
+	*/
 	template<typename ValueType>
 	inline TSdlVector3(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("vector3", std::move(valueName), valuePtr)
@@ -60,6 +64,8 @@ protected:
 	}
 };
 
+/*! @brief SDL binding type of an optional Vector3.
+*/
 template<typename Owner, typename Element = real>
 using TSdlOptionalVector3 = TSdlVector3<Owner, Element, TSdlOptionalValue<math::TVector3<Element>, Owner>>;
 

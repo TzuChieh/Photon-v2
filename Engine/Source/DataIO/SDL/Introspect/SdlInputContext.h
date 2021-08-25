@@ -1,16 +1,16 @@
 #pragma once
 
+#include "DataIO/SDL/Introspect/SDLIOContext.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Common/assertion.h"
 
 #include <utility>
 #include <string>
 
+namespace ph { class SceneDescription; }
+
 namespace ph
 {
-
-class SdlClass;
-class SceneDescription;
 
 /*! @brief Data that SDL input process can rely on.
 
@@ -18,7 +18,7 @@ All data in the input context may be accessed concurrently.
 
 @note Modifications to this class must be ready for concurrent use cases.
 */
-class SdlInputContext final
+class SdlInputContext final : public SDLIOContext
 {
 public:
 	SdlInputContext();
@@ -28,28 +28,17 @@ public:
 		Path                    workingDirectory,
 		const SdlClass*         srcClass);
 
-	std::string genPrettySrcClassName() const;
-	const Path& getWorkingDirectory() const;
-
-	/*! @brief The SDL class that was originally involved in an input process.
-	@return The source SDL class. May be empty if such information cannot be obtained.
-	*/
-	const SdlClass* getSrcClass() const;
-
 	const SceneDescription* getRawScene() const;
 
 private:
-	Path                    m_workingDirectory;
-	const SdlClass*         m_srcClass;
 	const SceneDescription* m_rawScene;
 };
 
 // In-header Implementation:
 
 inline SdlInputContext::SdlInputContext() :
-	m_workingDirectory(),
-	m_srcClass        (nullptr),
-	m_rawScene        (nullptr)
+	SDLIOContext(),
+	m_rawScene(nullptr)
 {}
 
 inline SdlInputContext::SdlInputContext(
@@ -57,21 +46,11 @@ inline SdlInputContext::SdlInputContext(
 	Path                          workingDirectory,
 	const SdlClass* const         srcClass) :
 
-	m_workingDirectory(std::move(workingDirectory)),
-	m_srcClass        (srcClass),
-	m_rawScene        (scene)
+	SDLIOContext(std::move(workingDirectory), srcClass),
+
+	m_rawScene(scene)
 {
 	PH_ASSERT(m_rawScene);
-}
-
-inline const Path& SdlInputContext::getWorkingDirectory() const
-{
-	return m_workingDirectory;
-}
-
-inline const SdlClass* SdlInputContext::getSrcClass() const
-{
-	return m_srcClass;
 }
 
 inline const SceneDescription* SdlInputContext::getRawScene() const
