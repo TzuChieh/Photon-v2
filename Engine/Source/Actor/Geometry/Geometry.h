@@ -1,7 +1,7 @@
 #pragma once
 
+#include "DataIO/SDL/SdlResourceBase.h"
 #include "Core/Intersectable/Primitive.h"
-#include "DataIO/SDL/ISdlResource.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "DataIO/SDL/sdl_interface.h"
 
@@ -17,7 +17,7 @@ class PrimitiveBuildingMaterial;
 
 // TODO: use highest precision to perform geometry related operations
 
-class Geometry : public ISdlResource
+class Geometry : public SdlResourceBase
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_GEOMETRY;

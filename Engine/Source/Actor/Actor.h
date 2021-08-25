@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/ISdlResource.h"
+#include "DataIO/SDL/SdlResourceBase.h"
 #include "Actor/CookedUnit.h"
 #include "Actor/CookOrder.h"
 #include "DataIO/SDL/sdl_interface.h"
@@ -10,7 +10,7 @@ namespace ph { class ActorCookingContext; }
 namespace ph
 {
 
-class Actor : public ISdlResource
+class Actor : public SdlResourceBase
 {
 public:
 	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_ACTOR;
