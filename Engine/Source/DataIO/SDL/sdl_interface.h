@@ -29,6 +29,8 @@
 // Function types
 #include "DataIO/SDL/Introspect/TSdlMethod.h"
 
+#include "DataIO/SDL/ISdlResource.h"
+
 #include <type_traits>
 
 // TODO: need traits helper to verify a sdl class/struct also contains the required macro
@@ -41,9 +43,16 @@ argument to the macro. Followed is a ordinary C++ scope (a pair of curly braces)
 where the definition for the SDL class instance resides. Several utility types 
 can be used within the scope: `ClassType` for the type of the SDL class, and
 `OwnerType` for the type of the SDL resource. Finally, use a return statement 
-to return the SDL class instance. After defining the SDL class instance using
-this macro, the static method `const ClassType* getSdlClass()` will be available
-for the SDL resource to access the SDL class instance.
+to return the SDL class instance.
+
+Available functionalities after defining the macro:
+
+* `const ClassType* getSdlClass()`
+  - A static method for accessing the static SDL class.
+
+* A method `const SdlClass* getDynamicSdlClass()`
+  - A virtual method for accessing SDL class in runtime, through base pointer to resource.
+
 */
 #define PH_DEFINE_SDL_CLASS(...)/* variadic args for template types that contain commas */\
 	\
@@ -52,11 +61,18 @@ for the SDL resource to access the SDL class instance.
 	\
 	inline static const ClassType* getSdlClass()\
 	{\
+		static_assert(std::is_base_of_v<::ph::ISdlResource, OwnerType>,\
+			"PH_DEFINE_SDL_CLASS() can only be defined for SDL resource.");\
 		static_assert(std::is_base_of_v<::ph::SdlClass, ClassType>,\
 			"PH_DEFINE_SDL_CLASS() must return a class derived from SdlClass.");\
 		\
 		static const ClassType sdlClass = internal_sdl_class_impl();\
 		return &sdlClass;\
+	}\
+	\
+	inline const ::ph::SdlClass* getDynamicSdlClass() const override\
+	{\
+		return getSdlClass();\
 	}\
 	\
 	inline static ClassType internal_sdl_class_impl()

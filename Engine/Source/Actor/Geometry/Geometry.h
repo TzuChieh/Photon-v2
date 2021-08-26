@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/SdlResourceBase.h"
+#include "DataIO/SDL/TSdlResourceBase.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "DataIO/SDL/sdl_interface.h"
@@ -17,11 +17,8 @@ class PrimitiveBuildingMaterial;
 
 // TODO: use highest precision to perform geometry related operations
 
-class Geometry : public SdlResourceBase
+class Geometry : public TSdlResourceBase<ETypeCategory::REF_GEOMETRY>
 {
-public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_GEOMETRY;
-
 public:
 	Geometry();
 
@@ -33,8 +30,6 @@ public:
 		const math::StaticAffineTransform& transform) const;
 
 	virtual std::shared_ptr<Geometry> genTriangulated() const;
-
-	ETypeCategory getCategory() const override;
 
 	const UvwMapper* getUvwMapper() const;
 	void setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper);
@@ -69,11 +64,6 @@ inline std::shared_ptr<Geometry> Geometry::genTransformed(
 inline std::shared_ptr<Geometry> Geometry::genTriangulated() const
 {
 	return nullptr;
-}
-
-inline ETypeCategory Geometry::getCategory() const
-{
-	return CATEGORY;
 }
 
 }// end namespace ph

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "DataIO/SDL/TSdlResourceBase.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
-#include "DataIO/SDL/ISdlResource.h"
 #include "Common/primitive_type.h"
 #include "DataIO/SDL/sdl_interface.h"
 
@@ -16,11 +16,8 @@ class Emitter;
 class Geometry;
 class Material;
 
-class LightSource : public ISdlResource
+class LightSource : public TSdlResourceBase<ETypeCategory::REF_LIGHT_SOURCE>
 {
-public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_LIGHT_SOURCE;
-
 public:
 	LightSource() = default;
 
@@ -41,8 +38,6 @@ public:
 	//
 	virtual std::shared_ptr<Material> genMaterial(ActorCookingContext& ctx) const;
 
-	ETypeCategory getCategory() const override;
-
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<LightSource>)
 	{
@@ -53,12 +48,5 @@ public:
 		return clazz;
 	}
 };
-
-// In-header Implementations:
-
-inline ETypeCategory LightSource::getCategory() const
-{
-	return CATEGORY;
-}
 
 }// end namespace ph

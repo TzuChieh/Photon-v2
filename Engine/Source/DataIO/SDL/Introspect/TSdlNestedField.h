@@ -29,6 +29,7 @@ public:
 
 	void setValueToDefault(OuterType& outerObj) const override;
 	std::string valueToString(const OuterType& outerObj) const override;
+	SdlResourceId retrieveResourceId(const ISdlResource* ownerResource) const override;
 
 protected:
 	void loadFromSdl(
@@ -81,6 +82,21 @@ template<typename OuterType, typename InnerType>
 inline std::string TSdlNestedField<OuterType, InnerType>::valueToString(const OuterType& outerObj) const
 {
 	return m_innerObjField->valueToString(outerObj.*m_innerObjPtr);
+}
+
+template<typename OuterType, typename InnerType>
+inline SdlResourceId TSdlNestedField<OuterType, InnerType>::retrieveResourceId(const ISdlResource* const ownerResource) const
+{
+	// The field must be owned by the specified resource
+	// (note that OuterType (the Owner) might not derive from ISdlResource)
+	auto const castedOuterResource = dynamic_cast<const OuterType*>(ownerResource);
+	if(!castedOuterResource)
+	{
+		return EMPTY_SDL_RESOURCE_ID;
+	}
+
+	const std::shared_ptr<T>& targetResource = getValueRef(*castedOwnerResource);
+	return targetResource ? getValueRef(*castedOwnerResource)->getId() : EMPTY_SDL_RESOURCE_ID;
 }
 
 template<typename OuterType, typename InnerType>

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "DataIO/SDL/TSdlResourceBase.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "DataIO/SDL/ISdlResource.h"
 #include "Actor/SDLExtension/sdl_interface_extended.h"
 
 namespace ph { class ActorCookingContext; }
@@ -11,17 +11,12 @@ namespace ph
 
 class PrimitiveMetadata;
 
-class Material : public ISdlResource
+class Material : public TSdlResourceBase<ETypeCategory::REF_MATERIAL>
 {
-public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_MATERIAL;
-
 public:
 	inline Material() = default;
 
 	virtual void genBehaviors(ActorCookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
-
-	ETypeCategory getCategory() const override; 
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Material>)
@@ -32,12 +27,5 @@ public:
 		return clazz;
 	}
 };
-
-// In-header Implementations:
-
-inline ETypeCategory Material::getCategory() const
-{
-	return CATEGORY;
-}
 
 }// end namespace ph

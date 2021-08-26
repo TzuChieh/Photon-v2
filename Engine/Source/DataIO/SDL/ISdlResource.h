@@ -3,6 +3,8 @@
 #include "DataIO/SDL/ETypeCategory.h"
 #include "DataIO/SDL/SdlResourceId.h"
 
+namespace ph { class SdlClass; }
+
 namespace ph
 {
 
@@ -26,6 +28,19 @@ public:
 
 	virtual ETypeCategory getCategory() const = 0;
 	virtual SdlResourceId getId() const = 0;
+
+	/*! @brief Get runtime SDL class of the resource.
+	@return Pointer to the runtime SDL class. nullptr if PH_DEFINE_SDL_CLASS() is
+	not implemented by the resource class.
+	*/
+	virtual const SdlClass* getDynamicSdlClass() const;
 };
+
+// In-header Implementation:
+
+inline const SdlClass* ISdlResource::getDynamicSdlClass() const
+{
+	return nullptr;
+}
 
 }// end namespace ph

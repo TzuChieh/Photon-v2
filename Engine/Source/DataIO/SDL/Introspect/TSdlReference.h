@@ -29,6 +29,8 @@ public:
 
 	std::string valueToString(const Owner& owner) const override;
 
+	SdlResourceId retrieveResourceId(const ISdlResource* ownerResource) const override;
+
 	void setValueRef(Owner& owner, std::shared_ptr<T> value) const;
 	const std::shared_ptr<T>& getValueRef(const Owner& owner) const;
 

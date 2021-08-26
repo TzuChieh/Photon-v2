@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/ISdlResource.h"
+#include "DataIO/SDL/SdlResourceBase.h"
 
 namespace ph { class CoreCookingContext; }
 namespace ph { class CoreCookedUnit; }
@@ -8,7 +8,11 @@ namespace ph { class CoreCookedUnit; }
 namespace ph
 {
 
-class CoreSdlResource : public ISdlResource
+/*! @brief Core SDL resource abstraction.
+This class does not provide static/dynamic category information. The work is left
+for derived classes. See SdlResourceBase for more implementation requirements.
+*/
+class CoreSdlResource : public SdlResourceBase
 {
 public:
 	ETypeCategory getCategory() const override = 0;

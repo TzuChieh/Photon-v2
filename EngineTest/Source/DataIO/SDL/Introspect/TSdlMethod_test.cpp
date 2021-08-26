@@ -1,7 +1,7 @@
 #include "util.h"
 
 #include <DataIO/SDL/Introspect/TSdlMethod.h>
-#include <DataIO/SDL/ISdlResource.h>
+#include <DataIO/SDL/TSdlResourceBase.h>
 #include <DataIO/SDL/Introspect/TSdlString.h>
 #include <DataIO/SDL/ValueClauses.h>
 
@@ -15,15 +15,10 @@ using namespace ph;
 namespace
 {
 
-class TestResource : public ISdlResource
+class TestResource : public TSdlResourceBase<ETypeCategory::REF_OPTION>
 {
 public:
 	std::string str;
-
-	ETypeCategory getCategory() const override
-	{
-		return ETypeCategory::REF_OPTION;
-	}
 };
 
 struct TestMethodStruct

@@ -43,6 +43,21 @@ inline std::string TSdlReference<T, Owner>::valueToString(const Owner& owner) co
 }
 
 template<typename T, typename Owner>
+inline SdlResourceId TSdlReference<T, Owner>::retrieveResourceId(const ISdlResource* const ownerResource) const
+{
+	// SDL reference must be owned by the specified resource
+	// (note that Owner might not derive from ISdlResource)
+	auto const castedOwnerResource = dynamic_cast<const Owner*>(ownerResource);
+	if(!castedOwnerResource)
+	{
+		return EMPTY_SDL_RESOURCE_ID;
+	}
+
+	const std::shared_ptr<T>& targetResource = getValueRef(*castedOwnerResource);
+	return targetResource ? getValueRef(*castedOwnerResource)->getId() : EMPTY_SDL_RESOURCE_ID;
+}
+
+template<typename T, typename Owner>
 inline void TSdlReference<T, Owner>::setValueRef(Owner& owner, std::shared_ptr<T> value) const
 {
 	owner.*m_valuePtr = std::move(value);

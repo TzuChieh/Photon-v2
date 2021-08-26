@@ -2,9 +2,12 @@
 
 #include "Common/assertion.h"
 #include "Common/logging.h"
+#include "DataIO/SDL/SdlResourceId.h"
 
 #include <string>
 #include <utility>
+
+namespace ph { class ISdlResource; }
 
 namespace ph
 {
@@ -16,6 +19,14 @@ class SdlField
 public:
 	SdlField(std::string typeName, std::string fieldName);
 	virtual ~SdlField() = default;
+
+	/*! @brief Get the SDL resource ID of the resource bound to this field.
+	@param ownerResource Owner instance of the field. May be nullptr if the field
+	is unowned.
+	@return A SDL resource ID. May be EMPTY_SDL_RESOURCE_ID if the field is not
+	owned by @p ownerResource, or the field is a SDL value type.
+	*/
+	virtual SdlResourceId retrieveResourceId(const ISdlResource* ownerResource) const = 0;
 
 	std::string genPrettyName() const;
 	const std::string& getTypeName() const;

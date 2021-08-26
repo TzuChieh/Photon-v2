@@ -1,20 +1,15 @@
 #pragma once
 
-#include "DataIO/SDL/ISdlResource.h"
+#include "DataIO/SDL/TSdlResourceBase.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
 
-class Option : public ISdlResource
+class Option : public TSdlResourceBase<ETypeCategory::REF_OPTION>
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_OPTION;
-
 	inline Option() = default;
-	virtual inline ~Option() = default;
-
-	ETypeCategory getCategory() const override;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Option>)
@@ -26,12 +21,5 @@ public:
 		return clazz;
 	}
 };
-
-// In-header Implementations:
-
-inline ETypeCategory Option::getCategory() const
-{
-	return CATEGORY;
-}
 
 }// end namespace ph

@@ -32,6 +32,8 @@ public:
 	*/
 	virtual std::string valueToString(const Owner& owner) const = 0;
 
+	SdlResourceId retrieveResourceId(const ISdlResource* ownerResource) const override = 0;
+
 	/*! @brief Acquire value and store in the owner's field.
 
 	The loading process will follow a series of preset policy. In addition,

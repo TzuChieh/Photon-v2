@@ -1,8 +1,8 @@
 #pragma once
 
+#include "DataIO/SDL/TSdlResourceBase.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/ISdlResource.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/Quantity/Spectrum.h"
 #include "Core/Texture/TConstantTexture.h"
@@ -15,11 +15,8 @@ namespace ph { class ActorCookingContext; }
 namespace ph
 {
 
-class Image : public ISdlResource
+class Image : public TSdlResourceBase<ETypeCategory::REF_IMAGE>
 {
-public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_IMAGE;
-
 public:
 	Image();
 
@@ -32,8 +29,6 @@ public:
 	virtual std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
 		ActorCookingContext& ctx) const;
 
-	ETypeCategory getCategory() const;
-
 private:
 	template<typename OutputType>
 	inline std::shared_ptr<TTexture<OutputType>> genDefaultTexture() const
@@ -44,13 +39,6 @@ private:
 		return std::make_shared<TConstantTexture<OutputType>>(OutputType(1));
 	}
 };
-
-// In-header Implementations:
-
-inline ETypeCategory Image::getCategory() const
-{
-	return CATEGORY;
-}
 
 }// end namespace ph
 

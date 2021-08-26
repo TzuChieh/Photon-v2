@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/SdlResourceBase.h"
+#include "DataIO/SDL/TSdlResourceBase.h"
 #include "Actor/CookedUnit.h"
 #include "Actor/CookOrder.h"
 #include "DataIO/SDL/sdl_interface.h"
@@ -10,19 +10,14 @@ namespace ph { class ActorCookingContext; }
 namespace ph
 {
 
-class Actor : public SdlResourceBase
+class Actor : public TSdlResourceBase<ETypeCategory::REF_ACTOR>
 {
-public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_ACTOR;
-
 public:
 	Actor();
 	Actor(const Actor& other);
 
 	virtual CookedUnit cook(ActorCookingContext& ctx) = 0;
 	virtual CookOrder getCookOrder() const;
-
-	ETypeCategory getCategory() const override;
 
 	Actor& operator = (const Actor& rhs);
 
@@ -45,11 +40,6 @@ public:
 inline CookOrder Actor::getCookOrder() const
 {
 	return CookOrder();
-}
-
-inline ETypeCategory Actor::getCategory() const
-{
-	return CATEGORY;
 }
 
 }// end namespace ph
