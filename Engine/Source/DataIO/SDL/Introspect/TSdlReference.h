@@ -13,6 +13,8 @@ namespace ph
 class ISdlResource;
 
 /*! @brief A value that points to a SDL resource.
+@tparam T Type of the referenced SDL resource.
+@tparam Owner Owner type of @p T. Note that Owner can be any type (not necessarily a SDL resource).
 */
 template<typename T, typename Owner>
 class TSdlReference : public TOwnedSdlField<Owner>
@@ -29,7 +31,7 @@ public:
 
 	std::string valueToString(const Owner& owner) const override;
 
-	SdlResourceId retrieveResourceId(const ISdlResource* ownerResource) const override;
+	const ISdlResource* associatedResource(const Owner& owner) const override;
 
 	void setValueRef(Owner& owner, std::shared_ptr<T> value) const;
 	const std::shared_ptr<T>& getValueRef(const Owner& owner) const;

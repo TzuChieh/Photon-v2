@@ -14,6 +14,8 @@
 #include <string_view>
 #include <type_traits>
 
+namespace ph { class ISdlResource; }
+
 namespace ph
 {
 
@@ -42,6 +44,14 @@ public:
 		ISdlResource*          resource,
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
+
+	/*! @brief Get all SDL resources bound to the @p targetResource.
+	@param targetResource Resource instance in question.
+	@param out_resources SDL resources associated to @p targetResource.
+	*/
+	virtual void associatedResources(
+		const ISdlResource&               targetResource,
+		std::vector<const ISdlResource*>& out_resources) const = 0;
 
 	// TODO: saveToSdl()
 

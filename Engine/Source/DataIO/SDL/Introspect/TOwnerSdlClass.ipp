@@ -113,6 +113,40 @@ inline void TOwnerSdlClass<Owner, FieldSet>::call(
 }
 
 template<typename Owner, typename FieldSet>
+inline void TOwnerSdlClass<Owner, FieldSet>::associatedResources(
+	const ISdlResource&               targetResource,
+	std::vector<const ISdlResource*>& out_resources) const
+{
+	static_assert(std::is_base_of_v<ISdlResource, Owner>,
+		"Owner class must derive from ISdlResource.");
+
+	auto const ownerResource = dynamic_cast<const Owner*>(&targetResource);
+	if(!ownerResource)
+	{
+		throw SdlLoadError(
+			"type cast error: target resource is not owned by "
+			"SDL class <" + genPrettyName() + ">");
+	}
+
+	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
+	{
+		const TOwnedSdlField<Owner>& field = m_fields[fieldIdx];
+		auto const associatedResource = field.associatedResource(ownerResource);
+		if(associatedResource)
+		{
+			out_resources.push_back(associatedResource);
+		}
+	}
+
+	// Find more associations in base class
+	if(isDerived())
+	{
+		PH_ASSERT(getBase());
+		getBase()->associatedResources(targetResource, out_resources);
+	}
+}
+
+template<typename Owner, typename FieldSet>
 inline std::size_t TOwnerSdlClass<Owner, FieldSet>::numFields() const
 {
 	return m_fields.numFields();

@@ -43,6 +43,10 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const override;
 
+	void associatedResources(
+		const ISdlResource& targetResource,
+		std::vector<const ISdlResource*>& out_resources) const override;
+
 	std::size_t numFields() const override;
 	const SdlField* getField(std::size_t index) const override;
 	std::size_t numFunctions() const override;

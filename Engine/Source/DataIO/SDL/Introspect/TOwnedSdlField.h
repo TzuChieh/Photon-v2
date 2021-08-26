@@ -7,9 +7,12 @@
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/Introspect/EFieldImportance.h"
 #include "DataIO/SDL/SdlPayload.h"
+#include "DataIO/SDL/SdlResourceId.h"
 
 #include <utility>
 #include <string>
+
+namespace ph { class ISdlResource; }
 
 namespace ph
 {
@@ -32,7 +35,12 @@ public:
 	*/
 	virtual std::string valueToString(const Owner& owner) const = 0;
 
-	SdlResourceId retrieveResourceId(const ISdlResource* ownerResource) const override = 0;
+	/*! @brief Get the SDL resource bound to this field.
+	@param ownerResource Owner instance of the field.
+	@return A SDL resource. May be nullptr if the resource cannot be identified
+	(e.g., field is a SDL value type, or refers to empty resource).
+	*/
+	virtual const ISdlResource* associatedResource(const Owner& owner) const = 0;
 
 	/*! @brief Acquire value and store in the owner's field.
 

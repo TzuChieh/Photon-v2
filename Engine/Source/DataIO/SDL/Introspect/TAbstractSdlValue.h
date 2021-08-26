@@ -35,7 +35,7 @@ public:
 
 	std::string valueToString(const Owner& owner) const override;
 
-	SdlResourceId retrieveResourceId(const ISdlResource* ownerResource) const override;
+	const ISdlResource* associatedResource(const Owner& owner) const override;
 
 protected:
 	void loadFromSdl(
