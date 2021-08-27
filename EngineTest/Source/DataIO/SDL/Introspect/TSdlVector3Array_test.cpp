@@ -39,7 +39,7 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 		Vec3ArrOwner owner;
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlPayload("\"1.2   -3.4  10.0 \"  \" 2  3 \t5 \""), ctx));
+		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlInputPayload("\"1.2   -3.4  10.0 \"  \" 2  3 \t5 \""), ctx));
 		ASSERT_TRUE(owner.arr.size() == 2);
 		PH_EXPECT_REAL_EQ(owner.arr[0].x, 1.2_r);
 		PH_EXPECT_REAL_EQ(owner.arr[0].y, -3.4_r);
@@ -54,7 +54,7 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 
 		sdlVec3Arr.defaultTo({{-1.0_r, -2.0_r, -3.0_r}});
 		sdlVec3Arr.optional();
-		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlPayload("whatIsThis"), ctx));
+		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlInputPayload("whatIsThis"), ctx));
 		ASSERT_TRUE(owner.arr.size() == 1);
 		PH_EXPECT_REAL_EQ(owner.arr[0].x, -1.0_r);
 		PH_EXPECT_REAL_EQ(owner.arr[0].y, -2.0_r);
@@ -62,7 +62,7 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 
 		sdlVec3Arr.defaultTo({{-1.0_r, -2.0_r, -3.0_r}, {1.0_r, 2.0_r, 3.0_r}});
 		sdlVec3Arr.niceToHave();
-		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlPayload("testing"), ctx));
+		EXPECT_NO_THROW(sdlVec3Arr.fromSdl(owner, SdlInputPayload("testing"), ctx));
 		ASSERT_TRUE(owner.arr.size() == 2);
 		PH_EXPECT_REAL_EQ(owner.arr[0].x, -1.0_r);
 		PH_EXPECT_REAL_EQ(owner.arr[0].y, -2.0_r);
@@ -83,7 +83,7 @@ TEST(TSdlVector3ArrayTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_THROW(sdlVec3Arr.fromSdl(owner, SdlPayload("vec3ArrYoyo"), ctx), SdlLoadError);
+		EXPECT_THROW(sdlVec3Arr.fromSdl(owner, SdlInputPayload("vec3ArrYoyo"), ctx), SdlLoadError);
 		ASSERT_TRUE(owner.arr.size() == 1);
 		PH_EXPECT_REAL_EQ(owner.arr[0].x, 1.1_r);// owner value should not update
 		PH_EXPECT_REAL_EQ(owner.arr[0].y, 2.2_r);//

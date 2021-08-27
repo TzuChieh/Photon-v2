@@ -3,6 +3,7 @@
 #include "Common/assertion.h"
 #include "Utility/string_utils_table.h"
 
+#include <cstddef>
 #include <string>
 #include <algorithm>
 #include <string_view>
@@ -340,5 +341,47 @@ inline NumberType parse_number(const std::string_view numberStr)
 		return parse_int<NumberType>(numberStr);
 	}
 }
+
+/*! @brief Converts a float to string.
+
+Supports float, double, and long double. The function expects a large enough 
+@p bufferSize determined by the caller.
+
+@param out_buffer The buffer for storing the string.
+@param bufferSize Size of @p out_buffer.
+@return Size of the string written to @p out_buffer.
+*/
+//template<typename T>
+//inline std::size_t stringify_float(const T value, char* const out_buffer, const std::size_t bufferSize)
+//{
+//	static_assert(std::is_floating_point_v<T>,
+//		"stringify_float() accepts only floating point type.");
+//
+//	PH_ASSERT(out_buffer);
+//	PH_ASSERT_GE(bufferSize, 1);
+//
+//	// TODO
+//
+//	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
+//	// leading whitespaces while it should be able to auto skip them, we
+//	// do it manually for now:
+//	const std::string_view floatStrNoLeadingWS = trim_head(floatStr);
+//
+//	T value;
+//	const std::from_chars_result result = std::from_chars(
+//		floatStrNoLeadingWS.data(),
+//		floatStrNoLeadingWS.data() + floatStrNoLeadingWS.size(),
+//		value);
+//
+//	/*T value;
+//	const std::from_chars_result result = std::from_chars(
+//		sdlFloatStr.data(),
+//		sdlFloatStr.data() + sdlFloatStr.size(),
+//		value);*/
+//
+//	detail::throw_from_std_errc_if_has_error(result.ec);
+//
+//	return value;
+//}
 
 }// end namespace ph::string_utils

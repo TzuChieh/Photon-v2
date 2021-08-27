@@ -1,10 +1,10 @@
-#include "DataIO/SDL/Introspect/SDLIOContext.h"
+#include "DataIO/SDL/Introspect/SdlIOContext.h"
 #include "DataIO/SDL/Introspect/SdlClass.h"
 
 namespace ph
 {
 
-std::string SDLIOContext::genPrettySrcClassName() const
+std::string SdlIOContext::genPrettySrcClassName() const
 {
 	return getSrcClass() ? getSrcClass()->genPrettyName() : "unavailable";
 }

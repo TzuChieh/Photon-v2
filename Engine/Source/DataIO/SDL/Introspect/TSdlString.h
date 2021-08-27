@@ -30,20 +30,18 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlPayload&      payload,
+		const SdlInputPayload& payload,
 		const SdlInputContext& ctx) const override
 	{
 		// Save <sdlValue> directly as it is already a string
 		this->setValue(owner, std::string(payload.value));
 	}
 
-	inline void convertToSdl(
-		const Owner& owner,
-		std::string* out_sdlValue,
-		std::string& out_converterMessage) const override
+	inline void saveToSdl(
+		const Owner&            owner,
+		SdlOutputPayload&       out_payload,
+		const SdlOutputContext& ctx) const override
 	{
-		PH_ASSERT(out_sdlValue);
-
 		// TODO
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}

@@ -131,7 +131,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::associatedResources(
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
 		const TOwnedSdlField<Owner>& field = m_fields[fieldIdx];
-		auto const associatedResource = field.associatedResource(ownerResource);
+		auto const associatedResource = field.associatedResource(*ownerResource);
 		if(associatedResource)
 		{
 			out_resources.push_back(associatedResource);

@@ -27,7 +27,7 @@ public:
 
 /*! @brief Error on the SDL output process.
 */
-class SdlConvertError : public SdlException
+class SdlSaveError : public SdlException
 {
 public:
 	using SdlException::SdlException;

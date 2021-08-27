@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/SDLIOContext.h"
+#include "DataIO/SDL/Introspect/SdlIOContext.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Common/assertion.h"
 
@@ -18,7 +18,7 @@ All data in the input context may be accessed concurrently.
 
 @note Modifications to this class must be ready for concurrent use cases.
 */
-class SdlInputContext final : public SDLIOContext
+class SdlInputContext final : public SdlIOContext
 {
 public:
 	SdlInputContext();
@@ -37,7 +37,7 @@ private:
 // In-header Implementation:
 
 inline SdlInputContext::SdlInputContext() :
-	SDLIOContext(),
+	SdlIOContext(),
 	m_rawScene(nullptr)
 {}
 
@@ -46,7 +46,7 @@ inline SdlInputContext::SdlInputContext(
 	Path                          workingDirectory,
 	const SdlClass* const         srcClass) :
 
-	SDLIOContext(std::move(workingDirectory), srcClass),
+	SdlIOContext(std::move(workingDirectory), srcClass),
 
 	m_rawScene(scene)
 {

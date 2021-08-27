@@ -36,13 +36,13 @@ public:
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
-		const SdlPayload&      payload,
+		const SdlInputPayload& payload,
 		const SdlInputContext& ctx) const override = 0;
 
-	void convertToSdl(
-		const Owner& owner,
-		std::string* out_sdlValue,
-		std::string& out_converterMessage) const override = 0;
+	void saveToSdl(
+		const Owner&            owner,
+		SdlOutputPayload&       out_payload,
+		const SdlOutputContext& ctx) const override = 0;
 
 private:
 	std::optional<T> Owner::* m_valuePtr;

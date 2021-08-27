@@ -3,10 +3,12 @@
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
+#include "DataIO/SDL/Introspect/SdlOutputContext.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/Introspect/EFieldImportance.h"
-#include "DataIO/SDL/SdlPayload.h"
+#include "DataIO/SDL/SdlInputPayload.h"
+#include "DataIO/SDL/SdlOutputPayload.h"
 #include "DataIO/SDL/SdlResourceId.h"
 
 #include <utility>
@@ -49,13 +51,13 @@ public:
 	*/
 	void fromSdl(
 		Owner&                 owner, 
-		const SdlPayload&      payload,
+		const SdlInputPayload& payload,
 		const SdlInputContext& ctx) const;
 
 	void toSdl(
-		const Owner& owner,
-		std::string* out_sdlValue,
-		std::string& out_message) const;
+		const Owner&            owner,
+		SdlOutputPayload&       out_payload,
+		const SdlOutputContext& ctx) const;
 
 	EFieldImportance getImportance() const;
 
@@ -66,17 +68,25 @@ protected:
 	process is not successful. This will allow things such as automatic
 	fallback to work according to field policies.
 
-	@param sdlValue The SDL representation to be loaded into actual value.
+	@param payload The SDL representation to be loaded into actual value.
 	*/
 	virtual void loadFromSdl(
 		Owner&                 owner, 
-		const SdlPayload&      payload,
+		const SdlInputPayload& payload,
 		const SdlInputContext& ctx) const = 0;
 
-	virtual void convertToSdl(
-		const Owner& owner,
-		std::string* out_sdlValue,
-		std::string& out_converterMessage) const = 0;
+	/*! @brief Convert actual value back to SDL value.
+
+	Saving a loaded value as SDL value should rarely fail--as loaded value has been
+	properly handled by the loading process already. In case of failure, throw SdlSaveError 
+	and provide detailed reason describing the event.
+
+	@param payload The SDL representation for the actual value.
+	*/
+	virtual void saveToSdl(
+		const Owner&            owner,
+		SdlOutputPayload&       out_payload,
+		const SdlOutputContext& ctx) const = 0;
 
 	/*! @brief Sets the importance of the field.
 
@@ -116,7 +126,7 @@ inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string v
 template<typename Owner>
 inline void TOwnedSdlField<Owner>::fromSdl(
 	Owner&                 owner,
-	const SdlPayload&      payload,
+	const SdlInputPayload& payload,
 	const SdlInputContext& ctx) const
 {
 	try
@@ -152,12 +162,22 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 
 template<typename Owner>
 inline void TOwnedSdlField<Owner>::toSdl(
-	const Owner&       owner,
-	std::string* const out_sdlValue,
-	std::string&       out_message) const
+	const Owner&            owner,
+	SdlOutputPayload&       out_payload,
+	const SdlOutputContext& ctx) const
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
+	try
+	{
+		saveToSdl(owner, out_payload, ctx);
+	}
+	catch(const SdlSaveError& e)
+	{
+		// Provide more information and let caller handle the error
+		//
+		throw SdlSaveError(
+			"save error from " + sdl::gen_pretty_name(ctx.getSrcClass(), this) +
+			" -> " + e.whatStr());
+	}
 }
 
 template<typename Owner>

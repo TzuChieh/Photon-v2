@@ -8,9 +8,9 @@
 namespace ph
 {
 
-/*! @brief Carries SDL representation of various data.
+/*! @brief Carries SDL representation of various data during the input process.
 */
-class SdlPayload
+class SdlInputPayload final
 {
 public:
 	/*std::string_view value;
@@ -19,11 +19,11 @@ public:
 	std::string tag;
 
 public:
-	inline SdlPayload() = default;
+	inline SdlInputPayload() = default;
 	/*explicit SdlPayload(std::string_view value);
 	SdlPayload(std::string_view value, std::string_view tag);*/
-	explicit SdlPayload(std::string value);
-	SdlPayload(std::string value, std::string tag);
+	explicit SdlInputPayload(std::string value);
+	SdlInputPayload(std::string value, std::string tag);
 
 	/*! @brief Helper to check if the carried value is a SDL reference.
 	*/
@@ -46,25 +46,25 @@ public:
 //	value(std::move(value)), tag(std::move(tag))
 //{}
 
-inline SdlPayload::SdlPayload(std::string value) :
-	SdlPayload(std::move(value), "")
+inline SdlInputPayload::SdlInputPayload(std::string value) :
+	SdlInputPayload(std::move(value), "")
 {}
 
-inline SdlPayload::SdlPayload(std::string value, std::string tag) :
+inline SdlInputPayload::SdlInputPayload(std::string value, std::string tag) :
 	value(std::move(value)), tag(std::move(tag))
 {}
 
-inline std::string SdlPayload::toString() const
+inline std::string SdlInputPayload::toString() const
 {
 	return "value: " + std::string(value) + (tag.empty() ? "" : ", tag: " + std::string(tag));
 }
 
-inline bool SdlPayload::isReference() const
+inline bool SdlInputPayload::isReference() const
 {
 	return sdl::is_reference(value);
 }
 
-inline bool SdlPayload::isResourceIdentifier() const
+inline bool SdlInputPayload::isResourceIdentifier() const
 {
 	return sdl::is_resource_identifier(value);
 }

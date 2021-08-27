@@ -63,7 +63,7 @@ inline const std::shared_ptr<T>& TSdlReference<T, Owner>::getValueRef(const Owne
 template<typename T, typename Owner>
 inline void TSdlReference<T, Owner>::loadFromSdl(
 	Owner&                 owner,
-	const SdlPayload&      payload,
+	const SdlInputPayload& payload,
 	const SdlInputContext& ctx) const
 {
 	const auto referenceName = payload.value;
@@ -97,13 +97,11 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 }
 
 template<typename T, typename Owner>
-inline void TSdlReference<T, Owner>::convertToSdl(
-	const Owner& owner,
-	std::string* out_sdlValue,
-	std::string& out_converterMessage) const
+inline void TSdlReference<T, Owner>::saveToSdl(
+	const Owner&            owner,
+	SdlOutputPayload&       out_payload,
+	const SdlOutputContext& ctx) const
 {
-	PH_ASSERT(out_sdlValue);
-
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();
 }

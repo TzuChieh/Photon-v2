@@ -48,20 +48,18 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlPayload&      payload,
+		const SdlInputPayload& payload,
 		const SdlInputContext& ctx) const override
 	{
 		// TODO: allow for more color spaces via tag
 		this->setValue(owner, sdl::load_spectrum(payload, m_usage));
 	}
 
-	void convertToSdl(
-		const Owner& owner,
-		std::string* out_sdlValue,
-		std::string& out_converterMessage) const override
+	void saveToSdl(
+		const Owner&            owner,
+		SdlOutputPayload&       out_payload,
+		const SdlOutputContext& ctx) const override
 	{
-		PH_ASSERT(out_sdlValue);
-
 		// TODO
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}

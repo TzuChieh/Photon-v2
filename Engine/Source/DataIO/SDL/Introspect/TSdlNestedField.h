@@ -34,13 +34,13 @@ public:
 protected:
 	void loadFromSdl(
 		OuterType&             outerObj,
-		const SdlPayload&      payload,
+		const SdlInputPayload& payload,
 		const SdlInputContext& ctx) const override;
 
-	void convertToSdl(
-		const OuterType& outerObj,
-		std::string*     out_sdlValue,
-		std::string&     out_converterMessage) const override;
+	void saveToSdl(
+		const OuterType&        outerObj,
+		SdlOutputPayload&       out_payload,
+		const SdlOutputContext& ctx) const override;
 
 private:
 	InnerType OuterType::*           m_innerObjPtr;
@@ -93,7 +93,7 @@ inline const ISdlResource* TSdlNestedField<OuterType, InnerType>::associatedReso
 template<typename OuterType, typename InnerType>
 inline void TSdlNestedField<OuterType, InnerType>::loadFromSdl(
 	OuterType&             outerObj,
-	const SdlPayload&      payload,
+	const SdlInputPayload& payload,
 	const SdlInputContext& ctx) const
 {
 	m_innerObjField->loadFromSdl(
@@ -103,13 +103,15 @@ inline void TSdlNestedField<OuterType, InnerType>::loadFromSdl(
 }
 
 template<typename OuterType, typename InnerType>
-void TSdlNestedField<OuterType, InnerType>::convertToSdl(
-	const OuterType&   outerObj,
-	std::string* const out_sdlValue,
-	std::string&       out_converterMessage) const
+void TSdlNestedField<OuterType, InnerType>::saveToSdl(
+	const OuterType&        outerObj,
+	SdlOutputPayload&       out_payload,
+	const SdlOutputContext& ctx) const
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
+	m_innerObjField->saveToSdl(
+		outerObj.*m_innerObjPtr,
+		out_payload,
+		ctx);
 }
 
 }// end namespace ph

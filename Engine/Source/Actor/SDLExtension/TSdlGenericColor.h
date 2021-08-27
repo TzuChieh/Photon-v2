@@ -55,8 +55,10 @@ public:
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
-		const SdlPayload&      payload,
+		const SdlInputPayload& payload,
 		const SdlInputContext& ctx) const override;
+
+	// TODO: save
 
 private:
 	EQuantity m_usage;
@@ -83,7 +85,7 @@ inline TSdlGenericColor<Owner>::TSdlGenericColor(
 template<typename Owner>
 inline void TSdlGenericColor<Owner>::loadFromSdl(
 	Owner&                 owner,
-	const SdlPayload&      payload,
+	const SdlInputPayload& payload,
 	const SdlInputContext& ctx) const
 {
 	try

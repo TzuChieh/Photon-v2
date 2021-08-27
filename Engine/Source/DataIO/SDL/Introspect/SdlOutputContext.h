@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/SDLIOContext.h"
+#include "DataIO/SDL/Introspect/SdlIOContext.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Common/assertion.h"
 
@@ -16,7 +16,7 @@ All data in the output context may be accessed concurrently.
 
 @note Modifications to this class must be ready for concurrent use cases.
 */
-class SdlOutputContext final : public SDLIOContext
+class SdlOutputContext final : public SdlIOContext
 {
 public:
 	SdlOutputContext();
@@ -31,14 +31,14 @@ private:
 // In-header Implementation:
 
 inline SdlOutputContext::SdlOutputContext() :
-	SDLIOContext()
+	SdlIOContext()
 {}
 
 inline SdlOutputContext::SdlOutputContext(
 	Path                  workingDirectory,
 	const SdlClass* const srcClass) :
 
-	SDLIOContext(std::move(workingDirectory), srcClass)
+	SdlIOContext(std::move(workingDirectory), srcClass)
 {}
 
 }// end namespace ph

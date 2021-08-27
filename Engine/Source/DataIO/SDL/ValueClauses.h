@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
-#include "DataIO/SDL/SdlPayload.h"
+#include "DataIO/SDL/SdlInputPayload.h"
 
 #include <string>
 #include <string_view>
@@ -16,9 +16,9 @@ class ValueClauses final
 public:
 	struct Clause
 	{
-		std::string type;
-		std::string name;
-		SdlPayload  payload;
+		std::string     type;
+		std::string     name;
+		SdlInputPayload payload;
 
 		inline Clause() = default;
 		Clause(std::string type, std::string name, std::string value);

@@ -60,6 +60,9 @@ public:
 	virtual std::size_t numFunctions() const = 0;
 	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
 
+	/*! @brief Whether the class is for building other classes only.
+	Note that a blueprint class cannot be instantiated as a SDL resource.
+	*/
 	virtual bool isBlueprint() const = 0;
 
 	std::string genPrettyName() const;

@@ -7,7 +7,7 @@
 #include "DataIO/io_utils.h"
 #include "Actor/Image/LdrPictureImage.h"
 #include "Actor/Image/HdrPictureImage.h"
-#include "DataIO/SDL/SdlPayload.h"
+#include "DataIO/SDL/SdlInputPayload.h"
 #include "DataIO/SDL/Introspect/TSdlEnum.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Math/math.h"
@@ -34,7 +34,7 @@ math::Vector3R tristimulus_to_linear_SRGB(const math::Vector3R& tristimulus, con
 	}
 }
 
-Spectrum load_spectrum(const SdlPayload& payload, const EQuantity usage)
+Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
