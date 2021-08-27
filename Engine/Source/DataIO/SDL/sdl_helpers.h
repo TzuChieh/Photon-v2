@@ -61,6 +61,30 @@ math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr);
 std::vector<real> load_real_array(const std::string& sdlRealArrayStr);
 std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3ArrayStr);
 
+void save_real(real value, std::string* out_str);
+void save_integer(integer value, std::string* out_str);
+
+/*! @brief Converts a floating-point number to its SDL representation.
+
+Supports `ph::real`, `float`, `double`, and `long double`.
+*/
+template<typename FloatType>
+void save_float(FloatType value, std::string* out_str);
+
+/*! @brief Converts a integer number to its SDL representation.
+
+Supports `ph::real`, `float`, `double`, and `long double`.
+*/
+template<typename IntType>
+void save_int(IntType value, std::string* out_str);
+
+/*! @brief Converts a number to its SDL representation.
+
+Accepts all types supported by save_float() and save_int().
+*/
+template<typename NumberType>
+void save_number(NumberType value, std::string* out_str);
+
 /*! @brief Check whether the string represents a SDL resource identifier.
 
 Checks the format of the string only. Does not test whether the identifier
@@ -180,6 +204,75 @@ inline real load_real(const std::string_view sdlRealStr)
 inline integer load_integer(const std::string_view sdlIntegerStr)
 {
 	return load_int<integer>(sdlIntegerStr);
+}
+
+inline void save_real(const real value, std::string* const out_str)
+{
+	save_float<real>(value, out_str);
+}
+
+inline void save_integer(const integer value, std::string* const out_str)
+{
+	save_int<integer>(value, out_str);
+}
+
+template<typename FloatType>
+inline void save_float(const FloatType value, std::string* const out_str)
+{
+	constexpr std::size_t BUFFER_SIZE = 32;
+
+	PH_ASSERT(out_str);
+
+	try
+	{
+		out_str->resize(BUFFER_SIZE);
+
+		const std::size_t actualStrSize = string_utils::stringify_float<FloatType>(
+			value, out_str->data(), BUFFER_SIZE);
+
+		out_str->resize(actualStrSize);
+	}
+	catch(const std::exception& e)
+	{
+		throw SdlLoadError("on saving floating-point value -> " + std::string(e.what()));
+	}
+}
+
+template<typename IntType>
+inline void save_int(const IntType value, std::string* const out_str)
+{
+	constexpr std::size_t BUFFER_SIZE = 32;
+
+	PH_ASSERT(out_str);
+
+	try
+	{
+		out_str->resize(BUFFER_SIZE);
+
+		const std::size_t actualStrSize = string_utils::stringify_int<IntType>(
+			value, out_str->data(), BUFFER_SIZE);
+
+		out_str->resize(actualStrSize);
+	}
+	catch(const std::exception& e)
+	{
+		throw SdlLoadError("on saving integer value -> " + std::string(e.what()));
+	}
+}
+
+template<typename NumberType>
+inline void save_number(const NumberType value, std::string* const out_str)
+{
+	if constexpr(std::is_floating_point_v<NumberType>)
+	{
+		save_float<NumberType>(value, out_str);
+	}
+	else
+	{
+		static_assert(std::is_integral_v<NumberType>);
+
+		save_int<NumberType>(value, out_str);
+	}
 }
 
 template<typename T>

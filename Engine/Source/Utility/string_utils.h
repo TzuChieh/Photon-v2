@@ -225,7 +225,7 @@ inline void erase_all(std::string& str, const char ch)
 	str.erase(std::remove(str.begin(), str.end(), ch), str.end());
 }
 
-namespace detail
+namespace detail_from_to_char
 {
 
 inline void throw_from_std_errc_if_has_error(const std::errc errorCode)
@@ -245,10 +245,13 @@ inline void throw_from_std_errc_if_has_error(const std::errc errorCode)
 		return;
 
 	case std::errc::invalid_argument:
-		throw std::invalid_argument("invalid argument");
+		throw std::invalid_argument("input cannot be interpreted as a numeric value");
 
 	case std::errc::result_out_of_range:
-		throw std::out_of_range("result out of range");
+		throw std::overflow_error("result will overflow the arithmetic type");
+
+	case std::errc::value_too_large:
+		throw std::out_of_range("result cannot fit in the output buffer");
 
 	default:
 		throw std::runtime_error(
@@ -286,7 +289,7 @@ inline T parse_float(const std::string_view floatStr)
 		sdlFloatStr.data() + sdlFloatStr.size(),
 		value);*/
 
-	detail::throw_from_std_errc_if_has_error(result.ec);
+	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
 
 	return value;
 }
@@ -318,7 +321,7 @@ inline T parse_int(const std::string_view intStr)
 		sdlIntegerStr.data() + sdlIntegerStr.size(),
 		value);*/
 
-	detail::throw_from_std_errc_if_has_error(result.ec);
+	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
 
 	return value;
 }
@@ -351,37 +354,74 @@ Supports float, double, and long double. The function expects a large enough
 @param bufferSize Size of @p out_buffer.
 @return Size of the string written to @p out_buffer.
 */
-//template<typename T>
-//inline std::size_t stringify_float(const T value, char* const out_buffer, const std::size_t bufferSize)
-//{
-//	static_assert(std::is_floating_point_v<T>,
-//		"stringify_float() accepts only floating point type.");
-//
-//	PH_ASSERT(out_buffer);
-//	PH_ASSERT_GE(bufferSize, 1);
-//
-//	// TODO
-//
-//	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
-//	// leading whitespaces while it should be able to auto skip them, we
-//	// do it manually for now:
-//	const std::string_view floatStrNoLeadingWS = trim_head(floatStr);
-//
-//	T value;
-//	const std::from_chars_result result = std::from_chars(
-//		floatStrNoLeadingWS.data(),
-//		floatStrNoLeadingWS.data() + floatStrNoLeadingWS.size(),
-//		value);
-//
-//	/*T value;
-//	const std::from_chars_result result = std::from_chars(
-//		sdlFloatStr.data(),
-//		sdlFloatStr.data() + sdlFloatStr.size(),
-//		value);*/
-//
-//	detail::throw_from_std_errc_if_has_error(result.ec);
-//
-//	return value;
-//}
+template<typename T>
+inline std::size_t stringify_float(const T value, char* const out_buffer, const std::size_t bufferSize)
+{
+	static_assert(std::is_floating_point_v<T>,
+		"stringify_float() accepts only floating point type.");
+
+	PH_ASSERT(out_buffer);
+	PH_ASSERT_GE(bufferSize, 1);
+
+	const std::to_chars_result result = std::to_chars(
+		out_buffer,
+		out_buffer + bufferSize,
+		value);
+
+	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
+
+	// Must written at least a char, and must not exceed bufferSize
+	PH_ASSERT(out_buffer < result.ptr && result.ptr <= out_buffer + bufferSize);
+	return static_cast<std::size_t>(result.ptr - out_buffer);
+}
+
+/*! @brief Converts an integer to string.
+
+Supports all signed and unsigned standard integer types. The function expects a large enough
+@p bufferSize determined by the caller.
+
+@param out_buffer The buffer for storing the string.
+@param bufferSize Size of @p out_buffer.
+@return Size of the string written to @p out_buffer.
+*/
+template<typename T>
+inline std::size_t stringify_int(const T value, char* const out_buffer, const std::size_t bufferSize)
+{
+	static_assert(std::is_integral_v<T>,
+		"stringify_int() accepts only integer type.");
+
+	PH_ASSERT(out_buffer);
+	PH_ASSERT_GE(bufferSize, 1);
+
+	const std::to_chars_result result = std::to_chars(
+		out_buffer,
+		out_buffer + bufferSize,
+		value);
+
+	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
+
+	// Must written at least a char, and must not exceed bufferSize
+	PH_ASSERT(out_buffer < result.ptr && result.ptr <= out_buffer + bufferSize);
+	return static_cast<std::size_t>(result.ptr - out_buffer);
+}
+
+/*! @brief Converts a number to string.
+
+Accepts all types supported by stringify_float(T, char*, std::size_t) and stringify_int(T, char*, std::size_t).
+*/
+template<typename NumberType>
+inline std::size_t stringify_number(const NumberType value, char* const out_buffer, const std::size_t bufferSize)
+{
+	if constexpr(std::is_floating_point_v<NumberType>)
+	{
+		return stringify_float<NumberType>(value, out_buffer, bufferSize);
+	}
+	else
+	{
+		static_assert(std::is_integral_v<NumberType>);
+
+		return stringify_int<NumberType>(value, out_buffer, bufferSize);
+	}
+}
 
 }// end namespace ph::string_utils
