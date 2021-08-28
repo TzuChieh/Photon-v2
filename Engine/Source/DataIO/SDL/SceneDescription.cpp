@@ -49,4 +49,25 @@ std::shared_ptr<ISdlResource> SceneDescription::getResource(
 	return iter != nameToResourceMap.end() ? iter->second : nullptr;
 }
 
+void SceneDescription::listAllResources(
+	std::vector<const ISdlResource*>* const out_resources,
+	std::vector<std::string_view>* const    out_resourceNames) const
+{
+	PH_ASSERT(out_resources);
+
+	out_resources->clear();
+	for(const auto& nameToResource : m_resources)
+	{
+		for(const auto& keyValPair : nameToResource)
+		{
+			out_resources->push_back(keyValPair.second.get());
+
+			if(out_resourceNames)
+			{
+				out_resourceNames->push_back(keyValPair.first);
+			}
+		}
+	}
+}
+
 }// end namespace ph
