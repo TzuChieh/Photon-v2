@@ -51,8 +51,10 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
+		if(const math::TVector2<Element>* const vec2 = this->getValue(owner); vec2)
+		{
+			sdl::save_vector2<Element>(*vec2, &out_payload.value);
+		}
 	}
 };
 

@@ -33,7 +33,7 @@ protected:
 		const SdlInputPayload& payload,
 		const SdlInputContext& ctx) const override
 	{
-		// Save <sdlValue> directly as it is already a string
+		// Load <sdlValue> directly as it is already a string
 		this->setValue(owner, std::string(payload.value));
 	}
 
@@ -42,8 +42,11 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
+		if(const std::string* const str = this->getValue(owner); str)
+		{
+			// Save <sdlValue> directly as it is already a string
+			out_payload.value = *str;
+		}
 	}
 };
 

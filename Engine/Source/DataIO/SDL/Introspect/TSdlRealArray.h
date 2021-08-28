@@ -72,8 +72,12 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
+		// TODO: optionally as file
+
+		if(const std::vector<Element>* const realArr = this->getValue(owner); realArr)
+		{
+			sdl::save_real_array(*realArr, &out_payload.value);
+		}
 	}
 };
 

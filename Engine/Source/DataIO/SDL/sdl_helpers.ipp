@@ -2,6 +2,7 @@
 
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/Tokenizer.h"
+#include "Common/assertion.h"
 
 namespace ph::sdl
 {
@@ -39,6 +40,38 @@ inline math::TVector2<Element> load_vector2(const std::string& sdlVector2Str)
 	catch(const SdlLoadError& e)
 	{
 		throw SdlLoadError("on parsing Vector2 -> " + e.whatStr());
+	}
+}
+
+template<typename Element>
+inline void save_vector2(const math::TVector2<Element>& value, std::string* const out_str)
+{
+	PH_ASSERT(out_str);
+
+	try
+	{
+		if(value.x == value.y)
+		{
+			save_number<Element>(value.x, out_str);
+		}
+		else
+		{
+			out_str->clear();
+
+			std::string savedElement;
+
+			(*out_str) += '\"';
+			save_number<Element>(value.x, &savedElement);
+			(*out_str) += savedElement;
+			(*out_str) += ' ';
+			save_number<Element>(value.y, &savedElement);
+			(*out_str) += savedElement;
+			(*out_str) += '\"';
+		}
+	}
+	catch(const SdlSaveError& e)
+	{
+		throw SdlSaveError("on saving Vector2 -> " + e.whatStr());
 	}
 }
 

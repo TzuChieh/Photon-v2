@@ -52,8 +52,10 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
+		if(const math::TQuaternion<Element>* const quat = this->getValue(owner); quat)
+		{
+			sdl::save_quaternion(*quat, &out_payload.value);
+		}
 	}
 };
 

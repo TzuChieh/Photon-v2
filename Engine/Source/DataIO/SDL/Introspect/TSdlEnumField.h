@@ -52,8 +52,10 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
+		if(const EnumType* const enumValue = this->getValue(owner); enumValue)
+		{
+			out_payload.value = TSdlEnum<EnumType>()[enumValue];
+		}
 	}
 };
 

@@ -85,6 +85,9 @@ Accepts all types supported by save_float() and save_int().
 template<typename NumberType>
 void save_number(NumberType value, std::string* out_str);
 
+template<typename Element>
+void save_vector2(const math::TVector2<Element>& value, std::string* out_str);
+
 void save_vector3(const math::Vector3R& value, std::string* out_str);
 void save_quaternion(const math::QuaternionR& value, std::string* out_str);
 void save_real_array(const std::vector<real>& values, std::string* out_str);

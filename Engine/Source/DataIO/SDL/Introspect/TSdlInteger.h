@@ -46,8 +46,10 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
+		if(const IntType* const value = this->getValue(owner); value)
+		{
+			sdl::save_int<IntType>(*value, &out_payload.value);
+		}
 	}
 };
 
