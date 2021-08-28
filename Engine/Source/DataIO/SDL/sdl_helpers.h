@@ -85,6 +85,11 @@ Accepts all types supported by save_float() and save_int().
 template<typename NumberType>
 void save_number(NumberType value, std::string* out_str);
 
+void save_vector3(const math::Vector3R& value, std::string* out_str);
+void save_quaternion(const math::QuaternionR& value, std::string* out_str);
+void save_real_array(const std::vector<real>& values, std::string* out_str);
+void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* out_str);
+
 /*! @brief Check whether the string represents a SDL resource identifier.
 
 Checks the format of the string only. Does not test whether the identifier
@@ -234,7 +239,7 @@ inline void save_float(const FloatType value, std::string* const out_str)
 	}
 	catch(const std::exception& e)
 	{
-		throw SdlLoadError("on saving floating-point value -> " + std::string(e.what()));
+		throw SdlSaveError("on saving floating-point value -> " + std::string(e.what()));
 	}
 }
 
@@ -256,7 +261,7 @@ inline void save_int(const IntType value, std::string* const out_str)
 	}
 	catch(const std::exception& e)
 	{
-		throw SdlLoadError("on saving integer value -> " + std::string(e.what()));
+		throw SdlSaveError("on saving integer value -> " + std::string(e.what()));
 	}
 }
 

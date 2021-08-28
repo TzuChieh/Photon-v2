@@ -53,6 +53,8 @@ math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr)
 
 	try
 	{
+		// TODO: handle all equal values
+
 		std::vector<std::string> tokens;
 		tokenizer.tokenize(sdlQuaternionStr, tokens);
 
@@ -88,7 +90,7 @@ std::vector<real> load_real_array(const std::string& sdlRealArrayStr)
 			realArray.push_back(load_real(realToken));
 		}
 
-		return std::move(realArray);
+		return realArray;
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -111,11 +113,127 @@ std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3Arra
 			vec3Array.push_back(load_vector3(vec3Token));
 		}
 
-		return std::move(vec3Array);
+		return vec3Array;
 	}
 	catch(const SdlLoadError& e)
 	{
 		throw SdlLoadError("on parsing Vector3R array -> " + e.whatStr());
+	}
+}
+
+void save_vector3(const math::Vector3R& value, std::string* const out_str)
+{
+	PH_ASSERT(out_str);
+
+	try
+	{
+		if(value.x == value.y && value.y == value.z)
+		{
+			save_real(value.x, out_str);
+		}
+		else
+		{
+			out_str->clear();
+
+			std::string savedReal;
+
+			(*out_str) += '\"';
+			save_real(value.x, &savedReal);
+			(*out_str) += savedReal;
+			(*out_str) += ' ';
+			save_real(value.y, &savedReal);
+			(*out_str) += savedReal;
+			(*out_str) += ' ';
+			save_real(value.z, &savedReal);
+			(*out_str) += savedReal;
+			(*out_str) += '\"';
+		}
+	}
+	catch(const SdlSaveError& e)
+	{
+		throw SdlSaveError("on saving Vector3R -> " + e.whatStr());
+	}
+}
+
+void save_quaternion(const math::QuaternionR& value, std::string* const out_str)
+{
+	PH_ASSERT(out_str);
+
+	try
+	{
+		// TODO: handle all equal values
+
+		out_str->clear();
+
+		std::string savedReal;
+
+		(*out_str) += '\"';
+		save_real(value.x, &savedReal);
+		(*out_str) += savedReal;
+		(*out_str) += ' ';
+		save_real(value.y, &savedReal);
+		(*out_str) += savedReal;
+		(*out_str) += ' ';
+		save_real(value.z, &savedReal);
+		(*out_str) += savedReal;
+		(*out_str) += ' ';
+		save_real(value.w, &savedReal);
+		(*out_str) += savedReal;
+		(*out_str) += '\"';
+	}
+	catch(const SdlSaveError& e)
+	{
+		throw SdlSaveError("on saving QuaternionR -> " + e.whatStr());
+	}
+}
+
+void save_real_array(const std::vector<real>& values, std::string* const out_str)
+{
+	PH_ASSERT(out_str);
+		
+	out_str->clear();
+
+	try
+	{
+		(*out_str) += '\"';
+
+		std::string savedReal;
+		for(const auto& value : values)
+		{
+			save_real(value, &savedReal);
+			(*out_str) += savedReal;
+			(*out_str) += ' ';
+		}
+
+		(*out_str) += '\"';
+	}
+	catch(const SdlSaveError& e)
+	{
+		throw SdlSaveError("on saving real array -> " + e.whatStr());
+	}
+}
+
+void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* const out_str)
+{
+	PH_ASSERT(out_str);
+
+	try
+	{
+		(*out_str) += '{';
+
+		std::string savedVec3;
+		for(const auto& vec3 : values)
+		{
+			save_vector3(vec3, &savedVec3);
+			(*out_str) += savedVec3;
+			(*out_str) += ' ';
+		}
+
+		(*out_str) += '}';
+	}
+	catch(const SdlSaveError& e)
+	{
+		throw SdlSaveError("on saving Vector3R array -> " + e.whatStr());
 	}
 }
 
