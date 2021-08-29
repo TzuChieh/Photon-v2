@@ -54,7 +54,7 @@ protected:
 	{
 		if(const EnumType* const enumValue = this->getValue(owner); enumValue)
 		{
-			out_payload.value = TSdlEnum<EnumType>()[enumValue];
+			out_payload.value = TSdlEnum<EnumType>()[*enumValue];
 		}
 	}
 };

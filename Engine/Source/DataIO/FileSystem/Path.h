@@ -98,6 +98,11 @@ public:
 		return Path((thisPath.m_path /= otherPath.m_path).string());
 	}
 
+	inline Path append(std::string_view pathStr) const
+	{
+		return append(Path(pathStr));
+	}
+
 	inline std::string toString() const
 	{
 		return m_path.string();

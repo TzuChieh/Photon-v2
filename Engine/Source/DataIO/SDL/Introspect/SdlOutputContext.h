@@ -2,6 +2,7 @@
 
 #include "DataIO/SDL/Introspect/SdlIOContext.h"
 #include "DataIO/FileSystem/Path.h"
+#include "DataIO/SDL/SdlReferenceResolver.h"
 #include "Common/assertion.h"
 
 #include <utility>
@@ -22,23 +23,39 @@ public:
 	SdlOutputContext();
 
 	SdlOutputContext(
-		Path            workingDirectory,
-		const SdlClass* srcClass);
+		const SdlReferenceResolver* refResolver,
+		Path                        workingDirectory,
+		const SdlClass*             srcClass);
+
+	const SdlReferenceResolver& getReferenceResolver() const;
 
 private:
+	const SdlReferenceResolver* m_refResolver;
 };
 
 // In-header Implementation:
 
 inline SdlOutputContext::SdlOutputContext() :
-	SdlIOContext()
+	SdlIOContext(),
+	m_refResolver(nullptr)
 {}
 
 inline SdlOutputContext::SdlOutputContext(
-	Path                  workingDirectory,
-	const SdlClass* const srcClass) :
+	const SdlReferenceResolver* const refResolver,
+	Path                              workingDirectory,
+	const SdlClass* const             srcClass) :
 
-	SdlIOContext(std::move(workingDirectory), srcClass)
+	SdlIOContext(
+		std::move(workingDirectory), 
+		srcClass),
+
+	m_refResolver(refResolver)
 {}
+
+inline const SdlReferenceResolver& SdlOutputContext::getReferenceResolver() const
+{
+	PH_ASSERT(m_refResolver);
+	return *m_refResolver;
+}
 
 }// end namespace ph

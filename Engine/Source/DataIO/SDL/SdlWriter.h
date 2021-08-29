@@ -1,6 +1,9 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
+#include "DataIO/SDL/SdlReferenceResolver.h"
+
+#include <string>
 
 namespace ph { class SceneDescription; }
 
@@ -11,12 +14,14 @@ class SdlWriter final
 {
 public:
 	SdlWriter();
-	explicit SdlWriter(Path workingDirectory);
+	SdlWriter(std::string sceneName, Path workingDirectory);
 
 	void write(const SceneDescription& scene);
 
 private:
-	Path m_workingDirectory;
+	std::string          m_sceneName;
+	Path                 m_workingDirectory;
+	SdlReferenceResolver m_refResolver;
 };
 
 }// end namespace ph

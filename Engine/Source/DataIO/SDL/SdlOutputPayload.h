@@ -12,11 +12,15 @@ namespace ph
 class SdlOutputPayload final
 {
 public:
+	std::string type;
+	std::string name;
 	std::string value;
 	std::string tag;
 
 public:
 	SdlOutputPayload();
+
+	void clear();
 
 	std::string toString() const;
 };
@@ -24,12 +28,20 @@ public:
 // In-header Implementations:
 
 inline SdlOutputPayload::SdlOutputPayload() :
-	value(""), tag("")
+	type(""), name(""), value(""), tag("")
 {}
+
+inline void SdlOutputPayload::clear()
+{
+	type.clear();
+	name.clear();
+	value.clear();
+	tag.clear();
+}
 
 inline std::string SdlOutputPayload::toString() const
 {
-	return "value: " + std::string(value) + (tag.empty() ? "" : ", tag: " + std::string(tag));
+	return "type: " + type + ", name: " + name + ", value: " + value + (tag.empty() ? "" : ", tag: " + tag);
 }
 
 }// end namespace ph

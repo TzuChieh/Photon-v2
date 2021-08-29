@@ -90,6 +90,8 @@ inline void TSdlGenericColor<Owner>::loadFromSdl(
 {
 	try
 	{
+		// TODO: should register newly generated images to scene, so they can be saved later
+
 		if(payload.isReference())
 		{
 			Base::loadFromSdl(owner, payload, ctx);

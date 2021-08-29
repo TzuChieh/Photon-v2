@@ -71,7 +71,36 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 	}
 
 	PH_ASSERT(owner);
-	fromSdl(*owner, clauses, ctx);
+	loadFieldsFromSdl(*owner, clauses, ctx);
+}
+
+template<typename Owner, typename FieldSet>
+inline void TOwnerSdlClass<Owner, FieldSet>::saveResource(
+	const ISdlResource&     resource,
+	OutputPayloads&         payloads,
+	const SdlOutputContext& ctx) const
+{
+	static_assert(std::is_base_of_v<ISdlResource, Owner>,
+		"Owner class must derive from ISdlResource.");
+
+	// No specific ordering is required here. We save base class first just like how
+	// the loading process is.
+	if(isDerived())
+	{
+		PH_ASSERT(getBase());
+		getBase()->saveResource(resource, payloads, ctx);
+	}
+
+	auto const owner = dynamic_cast<const Owner*>(&resource);
+	if(!owner)
+	{
+		throw SdlSaveError(
+			"type cast error: target resource is not owned by "
+			"SDL class <" + genPrettyName() + ">");
+	}
+
+	PH_ASSERT(owner);
+	saveFieldsToSdl(*owner, payloads, ctx);
 }
 
 template<typename Owner, typename FieldSet>
@@ -234,7 +263,7 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::addFunction()
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::fromSdl(
+inline void TOwnerSdlClass<Owner, FieldSet>::loadFieldsFromSdl(
 	Owner&                  owner, 
 	ValueClauses&           clauses,
 	const SdlInputContext&  ctx) const
@@ -276,6 +305,19 @@ inline void TOwnerSdlClass<Owner, FieldSet>::fromSdl(
 }
 
 template<typename Owner, typename FieldSet>
+inline void TOwnerSdlClass<Owner, FieldSet>::saveFieldsToSdl(
+	const Owner&            owner,
+	OutputPayloads&         payloads,
+	const SdlOutputContext& ctx) const
+{
+	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
+	{
+		const TOwnedSdlField<Owner>& field = m_fields[fieldIdx];
+		field.toSdl(owner, payloads.createPayload(), ctx);
+	}
+}
+
+template<typename Owner, typename FieldSet>
 inline auto TOwnerSdlClass<Owner, FieldSet>::description(std::string descriptionStr)
 	-> TOwnerSdlClass&
 {
@@ -301,16 +343,6 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::baseOn()
 
 	setBase<T>();
 	return *this;
-}
-
-template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::toSdl(
-	const Owner&       owner,
-	std::string* const out_sdl,
-	std::string&       out_message) const
-{
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
 }// end namespace ph

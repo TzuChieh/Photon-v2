@@ -27,6 +27,8 @@ public:
 	*/
 	const SdlClass* getSrcClass() const;
 
+	void setSrcClass(const SdlClass* srcClass);
+
 // Protected, to prevent certain polymorphic usage
 protected:
 	SdlIOContext();
@@ -76,6 +78,11 @@ inline const Path& SdlIOContext::getWorkingDirectory() const
 inline const SdlClass* SdlIOContext::getSrcClass() const
 {
 	return m_srcClass;
+}
+
+inline void SdlIOContext::setSrcClass(const SdlClass* const srcClass)
+{
+	m_srcClass = srcClass;
 }
 
 }// end namespace ph

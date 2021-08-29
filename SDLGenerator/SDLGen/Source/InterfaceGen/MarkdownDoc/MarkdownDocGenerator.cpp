@@ -77,7 +77,7 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 
 	writeNewLine();
 	
-	writeLine("* Category: `" + sdl_name_to_title_case(sdl::category_to_string(sdlClass->getCategory())) + "`");
+	writeLine("* Category: `" + sdl_name_to_title_case(sdlClass->genCategoryName()) + "`");
 	writeLine("* Type: `" + sdl_name_to_title_case(sdlClass->getTypeName()) + "`");
 
 	// Write notes for the SDL class
@@ -143,7 +143,7 @@ void MarkdownDocGenerator::writeClassCreationDoc(const SdlClass* const sdlClass)
 	if(!(sdlClass->isBlueprint()))
 	{
 		const auto creationalTypeName = std::format("`{}({})`",
-			sdl::category_to_string(sdlClass->getCategory()), sdlClass->getTypeName());
+			sdlClass->genCategoryName(), sdlClass->getTypeName());
 
 		writeLine("> Creation: " + creationalTypeName);
 
@@ -164,7 +164,7 @@ void MarkdownDocGenerator::writeFunctionDoc(const SdlFunction* const sdlFunc, co
 	if(parentSdlClass)
 	{
 		callableTypeName = std::format("callable on `{}({})` and its derivations",
-			sdl::category_to_string(parentSdlClass->getCategory()), parentSdlClass->getTypeName());
+			parentSdlClass->genCategoryName(), parentSdlClass->getTypeName());
 	}
 	else
 	{

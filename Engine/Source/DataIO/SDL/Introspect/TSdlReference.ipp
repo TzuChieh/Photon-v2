@@ -102,8 +102,29 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 	SdlOutputPayload&       out_payload,
 	const SdlOutputContext& ctx) const
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
+	const auto& resource = getValueRef(owner);
+	if(!resource)
+	{
+		return;
+	}
+
+	try
+	{
+		const std::string_view resourceName = ctx.getReferenceResolver().getResourceName(resource.get());
+		if(resourceName.empty())
+		{
+			throw SdlSaveError(
+				"resource name is not tracked by the reference resolver");
+		}
+
+		out_payload.value = resourceName;
+	}
+	catch(const SdlSaveError& e)
+	{
+		throw SdlSaveError(
+			"unable to save resource reference " +
+			valueToString(owner) + " -> " + e.whatStr());
+	}
 }
 
 template<typename T, typename Owner>

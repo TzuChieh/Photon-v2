@@ -5,6 +5,7 @@
 #include "DataIO/SDL/ValueClauses.h"
 #include "DataIO/SDL/ETypeCategory.h"
 #include "Utility/IMoveOnly.h"
+#include "DataIO/SDL/OutputPayloads.h"
 
 #include <vector>
 #include <memory>
@@ -14,17 +15,16 @@
 #include <string_view>
 #include <type_traits>
 
+namespace ph { class SdlField; }
+namespace ph { class SdlFunction; }
+namespace ph { class SdlInputContext; }
+namespace ph { class SdlOutputContext; }
 namespace ph { class ISdlResource; }
 
 namespace ph
 {
 
 PH_DEFINE_EXTERNAL_LOG_GROUP(SdlClass, SDL);
-
-class SdlField;
-class SdlFunction;
-class SdlInputContext;
-class ISdlResource;
 
 class SdlClass
 {
@@ -38,6 +38,11 @@ public:
 		ISdlResource&          resource,
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
+
+	virtual void saveResource(
+		const ISdlResource&     resource,
+		OutputPayloads&         payloads,
+		const SdlOutputContext& ctx) const = 0;
 
 	virtual void call(
 		std::string_view       funcName,

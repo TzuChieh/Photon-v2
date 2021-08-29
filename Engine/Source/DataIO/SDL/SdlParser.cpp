@@ -105,7 +105,7 @@ void SdlParser::parseSingleCommand(const ESdlCommandType type, const std::string
 		break;
 
 	case ESdlCommandType::DIRECTIVE:
-		// TODO
+		parseDirectiveCommand(command, out_scene);
 		break;
 
 	default:
@@ -257,7 +257,7 @@ void SdlParser::parseDirectiveCommand(
 			"empty directive command");
 	}
 
-	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::EXECUTION);
+	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::DIRECTIVE);
 	PH_ASSERT_GE(tokens.size(), 2);
 
 	if(tokens[1] == "version")
@@ -277,6 +277,11 @@ void SdlParser::parseDirectiveCommand(
 		}
 
 		m_commandVersion = SemanticVersion(versionStr);
+	}
+	else
+	{
+		throw SdlLoadError(
+			"unknown SDL directive: " + tokens[1] + ", ignoring");
 	}
 }
 

@@ -37,6 +37,11 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const override;
 
+	void saveResource(
+		const ISdlResource&     resource,
+		OutputPayloads&         payloads,
+		const SdlOutputContext& ctx) const override;
+
 	void call(
 		std::string_view       funcName,
 		ISdlResource*          resource,
@@ -54,15 +59,23 @@ public:
 
 	bool isBlueprint() const override;
 
-	void fromSdl(
+	/*!
+	Loads only fields in this class. Does *not* take other indirect fields into account 
+	(such as fields in base class).
+	*/
+	void loadFieldsFromSdl(
 		Owner&                 owner,
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const;
 
-	void toSdl(
-		const Owner& owner,
-		std::string* out_sdl,
-		std::string& out_message) const;
+	/*!
+	Saves only fields in this class. Does *not* take other indirect fields into account
+	(such as fields in base class).
+	*/
+	void saveFieldsToSdl(
+		const Owner&            owner,
+		OutputPayloads&         payloads,
+		const SdlOutputContext& ctx) const;
 
 	const TOwnedSdlField<Owner>* getOwnedField(std::size_t index) const;
 

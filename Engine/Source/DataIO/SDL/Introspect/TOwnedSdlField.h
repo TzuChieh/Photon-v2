@@ -81,7 +81,7 @@ protected:
 	properly handled by the loading process already. In case of failure, throw SdlSaveError 
 	and provide detailed reason describing the event.
 
-	@param payload The SDL representation for the actual value.
+	@param out_payload The SDL representation for the actual value.
 	*/
 	virtual void saveToSdl(
 		const Owner&            owner,

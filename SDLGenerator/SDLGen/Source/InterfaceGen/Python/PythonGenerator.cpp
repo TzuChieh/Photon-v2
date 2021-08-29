@@ -116,7 +116,7 @@ PythonClass gen_sdl_creator_class(const SdlClass* const sdlClass)
 	// Override get_full_type()
 	PythonMethod fullTypeMethod("get_full_type");
 	fullTypeMethod.addCodeLine("return \"{}({})\"", 
-		sdl::category_to_string(sdlClass->getCategory()), sdlClass->getTypeName());
+		sdlClass->genCategoryName(), sdlClass->getTypeName());
 	clazz.addMethod(fullTypeMethod);
 
 	// Add input methods
@@ -150,7 +150,7 @@ PythonClass gen_sdl_executor_class(const SdlFunction* const sdlFunction, const S
 	// Override get_full_type()
 	PythonMethod fullTypeMethod("get_full_type");
 	fullTypeMethod.addCodeLine("return \"{}({})\"",
-		sdl::category_to_string(parentClass->getCategory()), parentClass->getTypeName());
+		parentClass->genCategoryName(), parentClass->getTypeName());
 	clazz.addMethod(fullTypeMethod);
 
 	// Override get_name()
