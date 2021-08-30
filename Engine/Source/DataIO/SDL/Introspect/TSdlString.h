@@ -44,6 +44,8 @@ protected:
 	{
 		if(const std::string* const str = this->getValue(owner); str)
 		{
+			sdl::save_field_id(this, out_payload);
+
 			// Save <sdlValue> directly as it is already a string
 			out_payload.value = *str;
 		}

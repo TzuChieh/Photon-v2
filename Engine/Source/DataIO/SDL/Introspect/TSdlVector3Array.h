@@ -52,6 +52,7 @@ protected:
 	{
 		if(const std::vector<math::TVector3<Element>>* const vec3Arr = this->getValue(owner); vec3Arr)
 		{
+			sdl::save_field_id(this, out_payload);
 			sdl::save_vector3_array(*vec3Arr, &out_payload.value);
 		}
 	}

@@ -21,6 +21,7 @@ public:
 	SdlOutputPayload();
 
 	void clear();
+	bool hasTag() const;
 
 	std::string toString() const;
 };
@@ -37,6 +38,11 @@ inline void SdlOutputPayload::clear()
 	name.clear();
 	value.clear();
 	tag.clear();
+}
+
+inline bool SdlOutputPayload::hasTag() const
+{
+	return !tag.empty();
 }
 
 inline std::string SdlOutputPayload::toString() const

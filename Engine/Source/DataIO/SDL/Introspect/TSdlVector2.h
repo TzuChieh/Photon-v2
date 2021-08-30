@@ -53,6 +53,7 @@ protected:
 	{
 		if(const math::TVector2<Element>* const vec2 = this->getValue(owner); vec2)
 		{
+			sdl::save_field_id(this, out_payload);
 			sdl::save_vector2<Element>(*vec2, &out_payload.value);
 		}
 	}

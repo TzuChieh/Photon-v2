@@ -54,6 +54,7 @@ protected:
 	{
 		if(const EnumType* const enumValue = this->getValue(owner); enumValue)
 		{
+			sdl::save_field_id(this, out_payload);
 			out_payload.value = TSdlEnum<EnumType>()[*enumValue];
 		}
 	}

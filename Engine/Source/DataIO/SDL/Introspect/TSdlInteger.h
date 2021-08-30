@@ -48,6 +48,7 @@ protected:
 	{
 		if(const IntType* const value = this->getValue(owner); value)
 		{
+			sdl::save_field_id(this, out_payload);
 			sdl::save_int<IntType>(*value, &out_payload.value);
 		}
 	}

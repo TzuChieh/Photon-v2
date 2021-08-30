@@ -6,6 +6,7 @@
 #include "DataIO/SDL/Introspect/SdlField.h"
 #include "DataIO/SDL/Introspect/SdlFunction.h"
 #include "Utility/string_utils.h"
+#include "DataIO/SDL/SdlOutputPayload.h"
 
 #include <vector>
 
@@ -235,6 +236,14 @@ void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* 
 	{
 		throw SdlSaveError("on saving Vector3R array -> " + e.whatStr());
 	}
+}
+
+void save_field_id(const SdlField* const sdlField, SdlOutputPayload& payload)
+{
+	PH_ASSERT(sdlField);
+
+	payload.type = sdlField->getTypeName();
+	payload.name = sdlField->getFieldName();
 }
 
 bool is_resource_identifier(const std::string_view sdlValueStr)

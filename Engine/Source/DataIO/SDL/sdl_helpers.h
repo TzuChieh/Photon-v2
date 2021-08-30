@@ -21,6 +21,7 @@ class SdlClass;
 class SdlField;
 class SdlFunction;
 class ISdlResource;
+class SdlOutputPayload;
 
 }// end namespace ph
 
@@ -92,6 +93,8 @@ void save_vector3(const math::Vector3R& value, std::string* out_str);
 void save_quaternion(const math::QuaternionR& value, std::string* out_str);
 void save_real_array(const std::vector<real>& values, std::string* out_str);
 void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* out_str);
+
+void save_field_id(const SdlField* sdlField, SdlOutputPayload& payload);
 
 /*! @brief Check whether the string represents a SDL resource identifier.
 

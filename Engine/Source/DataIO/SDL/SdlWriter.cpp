@@ -14,6 +14,13 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlWriter, SDL);
 
+namespace
+{
+
+void write_clause_to_stream(const SdlOutputPayload& payload, FormattedTextFileOutputStream& stream);
+
+}
+
 SdlWriter::SdlWriter() :
 	SdlWriter("untitled-scene", Path("./"))
 {}
@@ -72,11 +79,38 @@ void SdlWriter::write(const SceneDescription& scene)
 		for(std::size_t payloadIdx = 0; payloadIdx < payloads.numPayloads(); ++payloadIdx)
 		{
 			const SdlOutputPayload& payload = payloads[payloadIdx];
-			sceneFile.write("[{} {} {}]", );
+			write_clause_to_stream(payload, sceneFile);
 		}
+		sceneFile.writeNewLine();
+	}
+}
+
+namespace
+{
+
+void write_clause_to_stream(const SdlOutputPayload& payload, FormattedTextFileOutputStream& stream)
+{
+	PH_ASSERT(stream);
+
+	stream.writeChar('[');
+
+	stream.writeString(payload.type);
+
+	stream.writeChar(' ');
+
+	stream.writeString(payload.name);
+	if(payload.hasTag())
+	{
+		stream.writeString(": ");
+		stream.writeString(payload.tag);
 	}
 
-	
+	stream.writeChar(' ');
+
+	stream.writeString(payload.value);
+
+	stream.writeChar(']');
+}
 
 }
 

@@ -76,6 +76,7 @@ protected:
 
 		if(const std::vector<Element>* const realArr = this->getValue(owner); realArr)
 		{
+			sdl::save_field_id(this, out_payload);
 			sdl::save_real_array(*realArr, &out_payload.value);
 		}
 	}
