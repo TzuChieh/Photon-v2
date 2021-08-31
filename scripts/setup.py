@@ -1,5 +1,6 @@
 import library_downloader
 import resource_downloader
+import blender_addon
 
 import sys
 import os
@@ -31,7 +32,12 @@ if not os.path.samefile(config_build_directory, build_directory):
 library_downloader.download_thirdparty_library(build_directory)
 resource_downloader.download_external_resource(build_directory)
 
-# Install source data to build directory
+# Setup Blender addon
+photon_blend_src_directory = setup_config["PhotonBlend"]["SourceDirectory"]
+photon_blend_install_directory = os.path.join(config_build_directory, setup_config["PhotonBlend"]["InstallLocation"])
+blender_addon.setup(photon_blend_src_directory, photon_blend_install_directory)
+
+# Install project source data to build directory
 
 project_names = [
     "Engine",
@@ -42,10 +48,11 @@ project_names = [
     "PhotonEditor",
 ]
 
+src_dst_directories = []
+
 dst_config_root = os.path.join(build_directory, "Config")
 dst_internal_res_root = os.path.join(build_directory, "InternalResource")
 
-src_dst_directories = []
 for project_name in project_names:
     if not setup_config.has_section(project_name):
         continue

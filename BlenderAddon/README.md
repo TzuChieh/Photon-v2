@@ -12,6 +12,6 @@ The folder named `PhotonBlend` is a Blender add-on for Photon. **We support only
 * Manipulating materials implemented in Photon with shader nodes
 * Physically meaningful input parameters
 
-## Contributing
+## Development
 
 * It can be useful to have [fake bpy modules](https://github.com/nutti/fake-bpy-module) around so that `import bpy` and its equivalent no longer trigger errors in your IDE (and autocomplete is now possible).
