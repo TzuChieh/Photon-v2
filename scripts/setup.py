@@ -33,9 +33,7 @@ library_downloader.download_thirdparty_library(build_directory)
 resource_downloader.download_external_resource(build_directory)
 
 # Setup Blender addon
-photon_blend_src_directory = setup_config["PhotonBlend"]["SourceDirectory"]
-photon_blend_install_directory = os.path.join(config_build_directory, setup_config["PhotonBlend"]["InstallLocation"])
-blender_addon.setup(photon_blend_src_directory, photon_blend_install_directory)
+blender_addon.setup_photon_blend(setup_config)
 
 # Install project source data to build directory
 
