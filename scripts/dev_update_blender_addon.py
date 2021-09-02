@@ -12,9 +12,6 @@ setup_config_path = os.path.join(setup_script_directory, "SetupConfig.ini")
 setup_config = configparser.ConfigParser()
 setup_config.read_file(open(setup_config_path))
 
-# Setup the addon
-blender_addon.setup_photon_blend(setup_config)
-
 build_directory = os.path.abspath(setup_config["Paths"]["BuildDirectory"])
 
 # Obtain path to the SDLGenCLI executable
@@ -27,7 +24,7 @@ print("SDLGenCLI in use: %s" % sdl_gen_cli_path)
 # Call SDLGenCLI to generate pysdl.py
 
 pysdl_output_directory = os.path.join(
-    blender_addon.get_photon_blend_install_directory(setup_config),
+    blender_addon.get_photon_blend_src_directory(setup_config),
     "psdl")
 print("Output folder of pysdl.py: %s" % pysdl_output_directory)
 
@@ -39,3 +36,5 @@ command_result = console.run_command_from(
 
 print("SDLGenCLI: %s" % command_result)
 
+# Setup the addon
+blender_addon.setup_photon_blend(setup_config)

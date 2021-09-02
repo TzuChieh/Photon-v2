@@ -4,19 +4,24 @@
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/VolumeMaterial.h"
+#include "Common/logging.h"
 
 #include <iostream>
 
 namespace ph
 {
 
+PH_DEFINE_INTERNAL_LOG_GROUP(FullMaterial, Material);
+
 FullMaterial::FullMaterial() : 
 	FullMaterial(nullptr)
 {}
 
 FullMaterial::FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMaterial) : 
+
 	Material(),
-	m_surfaceMaterial(surfaceMaterial),
+
+	m_surfaceMaterial (surfaceMaterial),
 	m_interiorMaterial(nullptr),
 	m_exteriorMaterial(nullptr)
 {}
@@ -25,15 +30,15 @@ void FullMaterial::genBehaviors(
 	ActorCookingContext& ctx,
 	PrimitiveMetadata&   metadata) const
 {
+	if(!m_surfaceMaterial && !m_interiorMaterial && !m_exteriorMaterial)
+	{
+		PH_LOG_WARNING(FullMaterial, "no material specified, skipping behavior generation");
+		return;
+	}
+
 	if(m_surfaceMaterial)
 	{
 		m_surfaceMaterial->genBehaviors(ctx, metadata);
-	}
-	else
-	{
-		// TODO: logger
-		std::cerr << "surface material is null" << std::endl;
-		return;
 	}
 
 	if(m_interiorMaterial)

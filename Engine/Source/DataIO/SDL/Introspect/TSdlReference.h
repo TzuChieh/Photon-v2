@@ -19,9 +19,6 @@ class ISdlResource;
 template<typename T, typename Owner>
 class TSdlReference : public TOwnedSdlField<Owner>
 {
-	static_assert(std::is_base_of_v<ISdlResource, T>,
-		"T must be a SDL resource (derive from ISdlResource).");
-
 public:
 	TSdlReference(std::string valueName, std::shared_ptr<T> Owner::* valuePtr);
 

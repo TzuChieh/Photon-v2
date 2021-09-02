@@ -7,6 +7,7 @@
 #include "Utility/string_utils.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/sdl_helpers.h"
+#include "DataIO/SDL/ISdlResource.h"
 
 #include <utility>
 
@@ -24,6 +25,9 @@ inline TSdlReference<T, Owner>::TSdlReference(
 
 	m_valuePtr(valuePtr)
 {
+	static_assert(std::is_base_of_v<ISdlResource, T>,
+		"T must be a SDL resource (derive from ISdlResource).");
+
 	PH_ASSERT(m_valuePtr);
 }
 

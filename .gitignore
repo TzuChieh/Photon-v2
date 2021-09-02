@@ -130,6 +130,9 @@ __pycache__/
 cloc-1.62.exe
 count.bat
 
+# Generated code in BlenderAddon
+/BlenderAddon/PhotonBlend/psdl/pysdl.py
+
 ###############################################################################
 # macOS                                                                       #
 ###############################################################################
