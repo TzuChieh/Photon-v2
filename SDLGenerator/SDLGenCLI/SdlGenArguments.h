@@ -61,6 +61,7 @@ inline std::string SdlGenArguments::genHelpMessage()
  
 Tell the program to generate SDL interface. Possible types are:
   markdown-doc: documentation for SDL in markdown format
+  python: Python interface for producing SDL
 ===============================================================================
 {--output | -o} <path>
 

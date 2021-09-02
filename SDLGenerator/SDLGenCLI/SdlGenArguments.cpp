@@ -31,6 +31,10 @@ SdlGenArguments::SdlGenArguments(CommandLineArguments arguments) :
 			{
 				m_interfaceGeneratorType = EInterfaceGenerator::MARKDOWN_DOC;
 			}
+			else if(interfaceType == "python")
+			{
+				m_interfaceGeneratorType = EInterfaceGenerator::PYTHON;
+			}
 			else
 			{
 				PH_LOG_WARNING(SdlGenCliArgs, "unknown interface generation type specified: {}",

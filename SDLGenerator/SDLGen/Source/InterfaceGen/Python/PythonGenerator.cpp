@@ -12,11 +12,14 @@
 #include <DataIO/SDL/Introspect/SdlEnum.h>
 #include <DataIO/SDL/ETypeCategory.h>
 #include <DataIO/SDL/sdl_helpers.h>
+#include <Common/logging.h>
 
 #include <utility>
 
 namespace ph::sdlgen
 {
+
+PH_DEFINE_INTERNAL_LOG_GROUP(PythonGenerator, SDLGenCLI);
 
 namespace
 {
@@ -24,6 +27,7 @@ namespace
 PythonClass gen_sdl_reference_class(const std::string_view categoryName);
 PythonClass gen_sdl_creator_class(const SdlClass* sdlClass);
 PythonClass gen_sdl_executor_class(const SdlFunction* sdlFunction, const SdlClass* parentClass);
+std::string gen_class_name_base(const SdlClass* sdlClass);
 
 }
 
@@ -60,8 +64,13 @@ void PythonGenerator::generate(
 		m_file.writeString(pyClass.genCode());
 	}
 
+	PH_LOG(PythonGenerator, "generated {} helper reference classes", 
+		sdlCategories.size());
+
 	m_file.write("\n\n");
 
+	std::size_t numSdlCreatorClasses = 0;
+	std::size_t numSdlExecutionClasses = 0;
 	for(auto const sdlClass : sdlClasses)
 	{
 		// Generate creator class (only non-blueprint class can be created)
@@ -69,6 +78,8 @@ void PythonGenerator::generate(
 		{
 			const PythonClass pyClass = gen_sdl_creator_class(sdlClass);
 			m_file.writeString(pyClass.genCode());
+
+			++numSdlCreatorClasses;
 		}
 
 		// Generate function execution classes
@@ -77,8 +88,13 @@ void PythonGenerator::generate(
 			auto const sdlFunc = sdlClass->getFunction(funcIdx);
 			const PythonClass pyClass = gen_sdl_executor_class(sdlFunc, sdlClass);
 			m_file.writeString(pyClass.genCode());
+
+			++numSdlExecutionClasses;
 		}
 	}
+
+	PH_LOG(PythonGenerator, "generated {} creator classes and {} execution classes", 
+		numSdlCreatorClasses, numSdlExecutionClasses);
 }
 
 Path PythonGenerator::makeResourcePath(const std::string& fileSubPath) const
@@ -109,7 +125,7 @@ PythonClass gen_sdl_creator_class(const SdlClass* const sdlClass)
 	PH_ASSERT(sdlClass);
 	PH_ASSERT(!sdlClass->isBlueprint());
 
-	PythonClass clazz(sdl_name_to_camel_case(sdlClass->getTypeName(), true) + "Creator");
+	PythonClass clazz(gen_class_name_base(sdlClass) + "Creator");
 	clazz.setInheritedClass("SDLCreatorCommand");
 	clazz.addDefaultInit();
 
@@ -142,7 +158,7 @@ PythonClass gen_sdl_executor_class(const SdlFunction* const sdlFunction, const S
 	PH_ASSERT(parentClass);
 
 	PythonClass clazz(
-		sdl_name_to_camel_case(parentClass->getTypeName(), true) +
+		gen_class_name_base(parentClass) +
 		sdl_name_to_camel_case(sdlFunction->getName(), true));
 	clazz.setInheritedClass("SDLExecutorCommand");
 	clazz.addDefaultInit();
@@ -173,6 +189,16 @@ PythonClass gen_sdl_executor_class(const SdlFunction* const sdlFunction, const S
 	}
 
 	return clazz;
+}
+
+std::string gen_class_name_base(const SdlClass* const sdlClass)
+{
+	PH_ASSERT(sdlClass);
+
+	const std::string typePart     = sdl_name_to_camel_case(sdlClass->getTypeName(), true);
+	const std::string categoryPart = sdl_name_to_camel_case(sdlClass->genCategoryName(), true);
+
+	return typePart + categoryPart;
 }
 
 }

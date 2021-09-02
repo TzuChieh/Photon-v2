@@ -1,5 +1,6 @@
 #include "InterfaceGen/InterfaceGenerator.h"
 #include "InterfaceGen/MarkdownDoc/MarkdownDocGenerator.h"
+#include "InterfaceGen/Python/PythonGenerator.h"
 
 #include <Common/assertion.h>
 
@@ -16,6 +17,9 @@ std::unique_ptr<InterfaceGenerator> InterfaceGenerator::makeGenerator(
 	{
 	case EInterfaceGenerator::MARKDOWN_DOC:
 		return std::make_unique<MarkdownDocGenerator>(std::move(outputDirectory));
+
+	case EInterfaceGenerator::PYTHON:
+		return std::make_unique<PythonGenerator>(std::move(outputDirectory));
 
 	default:
 		return nullptr;
