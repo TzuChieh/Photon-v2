@@ -160,6 +160,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<GSphere>(),
 		get_sdl_class<GRectangle>(),
 		//get_sdl_class<GCuboid>(),
+		get_sdl_class<GMengerSponge>(),
 
 		// Materials
 		get_sdl_class<Material>(),
@@ -173,6 +174,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<AreaSource>(),
 		get_sdl_class<SphereSource>(),
 		get_sdl_class<RectangleSource>(),
+		get_sdl_class<PointSource>(),
 
 		// Observers
 		get_sdl_class<Observer>(),

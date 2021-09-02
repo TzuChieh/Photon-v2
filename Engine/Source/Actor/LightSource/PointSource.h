@@ -1,22 +1,30 @@
 #pragma once
 
-#include "Actor/LightSource/AreaSource.h"
 #include "Actor/LightSource/SphereSource.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
 
-class PointSource : public AreaSource
+class PointSource : public SphereSource
 {
 public:
 	PointSource();
 	PointSource(const math::Vector3R& linearSrgbColor, real numWatts);
 	PointSource(const Spectrum& color, real numWatts);
 
-	std::shared_ptr<Geometry> genAreas(ActorCookingContext& ctx) const override;
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<PointSource>)
+	{
+		ClassType clazz("point");
+		clazz.docName("Point Light Source");
+		clazz.description(
+			"Power emitting source from a small but not infinitesimal region. Resembling "
+			"a small light bulb.");
+		clazz.baseOn<SphereSource>();
 
-private:
-	SphereSource m_sphereSource;
+		return clazz;
+	}
 };
 
 }// end namespace ph

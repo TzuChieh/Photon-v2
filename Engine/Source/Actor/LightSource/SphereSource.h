@@ -6,7 +6,7 @@
 namespace ph
 {
 
-class SphereSource final : public AreaSource
+class SphereSource : public AreaSource
 {
 public:
 	SphereSource();
