@@ -18,15 +18,15 @@
 namespace ph::sdl
 {
 
-math::Vector3R tristimulus_to_linear_SRGB(const math::Vector3R& tristimulus, const ESdlColorSpace colorSpace)
+math::Vector3R tristimulus_to_linear_SRGB(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace)
 {
 	switch(colorSpace)
 	{
-	case ESdlColorSpace::UNSPECIFIED:
-	case ESdlColorSpace::LINEAR_SRGB:
+	case math::EColorSpace::UNSPECIFIED:
+	case math::EColorSpace::LINEAR_SRGB:
 		return tristimulus;
 
-	case ESdlColorSpace::SRGB:
+	case math::EColorSpace::SRGB:
 		return ColorSpace::sRGB_to_linear_sRGB(tristimulus);
 
 	default:
@@ -38,7 +38,7 @@ Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
-	const auto colorSpace = TSdlEnum<ESdlColorSpace>()[payload.tag];
+	const auto colorSpace = TSdlEnum<math::EColorSpace>()[payload.tag];
 
 	try
 	{
@@ -59,7 +59,7 @@ Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 		else if(tokens.size() == 1)
 		{
 			const real value = load_real(tokens[0]);
-			if(colorSpace == ESdlColorSpace::SPECTRAL)
+			if(colorSpace == math::EColorSpace::SPECTRAL)
 			{
 				return Spectrum(value);
 			}
@@ -103,7 +103,7 @@ Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 //
 //}
 
-std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus, const ESdlColorSpace colorSpace, const EQuantity usage)
+std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace, const EQuantity usage)
 {
 	return std::make_shared<ConstantImage>(
 		tristimulus_to_linear_SRGB(tristimulus, colorSpace),

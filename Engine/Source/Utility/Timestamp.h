@@ -2,28 +2,35 @@
 
 #include <string>
 #include <chrono>
-#include <mutex>
 
 namespace ph
 {
 
-/*
-	This class represents the time on which an instance of it has been created.
-	It is guaranteed to be thread-safe.
+/*! @brief Represents a point in time.
+* 
+This class represents the local time on which an instance of it has been created.
+It is guaranteed to be thread-safe.
 */
 class Timestamp final
 {
 public:
 	Timestamp();
 
+	std::string toYMD() const;
+	std::string toHMS() const;
+	std::string toYMDHMS() const;
+	std::string toYMDHMSMilliseconds() const;
+	std::string toYMDHMSMicroseconds() const;
 	std::string toString() const;
 
 private:
 	std::chrono::system_clock::time_point m_time;
-
-	typedef std::mutex Mutex;
-
-	static Mutex& MUTEX();
 };
+
+// In-header Implementations:
+
+inline Timestamp::Timestamp() :
+	m_time(std::chrono::system_clock::now())
+{}
 
 }// end namespace ph

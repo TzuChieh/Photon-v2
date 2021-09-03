@@ -1,34 +1,54 @@
 #include "Utility/Timestamp.h"
 #include "Common/assertion.h"
 
-#include <ctime>
-#include <iomanip>
-#include <sstream>
+#include <format>
 
 namespace ph
 {
 
-Timestamp::Mutex& Timestamp::MUTEX()
+std::string Timestamp::toYMD() const
 {
-	static Mutex mutex;
-	return mutex;
+	using namespace std::chrono;
+
+	const zoned_time zonedTime{current_zone(), round<days>(m_time)};
+	return std::format("{%F}", zonedTime);
 }
 
-Timestamp::Timestamp() : 
-	m_time(std::chrono::system_clock::now())
-{}
+std::string Timestamp::toHMS() const
+{
+	using namespace std::chrono;
+
+	const zoned_time zonedTime{current_zone(), round<seconds>(m_time)};
+	return std::format("{%T}", zonedTime);
+}
+
+std::string Timestamp::toYMDHMS() const
+{
+	using namespace std::chrono;
+
+	const zoned_time zonedTime{current_zone(), round<seconds>(m_time)};
+	return std::format("{%F %T}", zonedTime);
+}
+
+std::string Timestamp::toYMDHMSMilliseconds() const
+{
+	using namespace std::chrono;
+
+	const zoned_time zonedTime{current_zone(), round<milliseconds>(m_time)};
+	return std::format("{%F %T}", zonedTime);
+}
+
+std::string Timestamp::toYMDHMSMicroseconds() const
+{
+	using namespace std::chrono;
+
+	const zoned_time zonedTime{current_zone(), round<microseconds>(m_time)};
+	return std::format("{%F %T}", zonedTime);
+}
 
 std::string Timestamp::toString() const
 {
-	const std::time_t time = std::chrono::system_clock::to_time_t(m_time);
-	std::stringstream stringBuilder;
-
-	// Locks the method since std::localtime(1) may cause data races.
-	//
-	std::lock_guard<Mutex> lock(MUTEX());
-
-	stringBuilder << std::put_time(std::localtime(&time), "%X %Y-%m-%d");// FIXME: unsecure! need to disable secure warnings in order to use...
-	return stringBuilder.str();
+	return toYMDHMS();
 }
 
 }// end namespace ph

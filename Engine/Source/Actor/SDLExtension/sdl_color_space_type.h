@@ -1,20 +1,12 @@
 #pragma once
 
+#include "Math/Color/EColorSpace.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
 
-enum class ESdlColorSpace
-{
-	UNSPECIFIED = 0,
-
-	LINEAR_SRGB,
-	SRGB,
-	SPECTRAL
-};
-
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ESdlColorSpace>)
+PH_DEFINE_SDL_ENUM(TBasicSdlEnum<math::EColorSpace>)
 {
 	SdlEnumType sdlEnum("color-space");
 	sdlEnum.description("Marks color space information of input values.");
