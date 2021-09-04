@@ -85,7 +85,8 @@
 #include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
 #include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
 #include "EngineEnv/Visualizer/sdl_scheduler_type.h"
-#include "Actor/SDLExtension/ESdlColorSpace.h"
+#include "Actor/SDLExtension/sdl_color_space_type.h"
+#include "Actor/SDLExtension/sdl_color_usage_type.h"
 
 namespace ph
 {
@@ -213,7 +214,8 @@ std::vector<const SdlEnum*> get_registered_sdl_enums()
 		get_sdl_enum<EAccelerator>(),
 		get_sdl_enum<ERayEnergyEstimator>(),
 		get_sdl_enum<ESampleFilter>(),
-		get_sdl_enum<ESdlColorSpace>(),
+		get_sdl_enum<math::EColorSpace>(),
+		get_sdl_enum<math::EColorUsage>(),
 	};
 }
 
