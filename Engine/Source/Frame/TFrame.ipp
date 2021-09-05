@@ -59,9 +59,9 @@ inline void TFrame<T, N>::fill(const T value, const math::TAABB2D<uint32>& regio
 	PH_ASSERT_MSG(region.isValid(), region.toString());
 
 	const uint32 regionDataWidth = static_cast<uint32>(N) * region.getWidth();
-	for(uint32 y = region.getMinVertex().y; y < region.getMaxVertex().y; ++y)
+	for(uint32 y = region.getMinVertex().y(); y < region.getMaxVertex().y(); ++y)
 	{
-		const std::size_t offset = calcPixelDataBaseIndex(region.getMinVertex().x, y);
+		const std::size_t offset = calcPixelDataBaseIndex(region.getMinVertex().x(), y);
 
 		std::fill(
 			m_pixelData.begin() + offset,
@@ -98,24 +98,24 @@ inline void TFrame<T, N>::sample(
 			filterMin = filterMin.max(math::Vector2D(0, 0));
 			filterMax = filterMax.min(math::Vector2D(widthPx(), heightPx()));
 
-			PH_ASSERT_LE(filterMin.x, filterMax.x);
-			PH_ASSERT_LE(filterMin.y, filterMax.y);
+			PH_ASSERT_LE(filterMin.x(), filterMax.x());
+			PH_ASSERT_LE(filterMin.y(), filterMax.y());
 
 			// compute pixel index bounds
 			math::TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
 			math::TVector2<int64> x1y1(filterMax.sub(0.5).floor());
 
-			PH_ASSERT(x0y0.x >= 0 && x0y0.y >= 0 &&
-			          x1y1.x < widthPx() && x1y1.y < heightPx());
+			PH_ASSERT(x0y0.x() >= 0 && x0y0.y() >= 0 &&
+			          x1y1.x() < widthPx() && x1y1.y() < heightPx());
 
 			TPixel<float64> pixelSum  = getMonochromaticPixel<float64>(0);
 			float64         weightSum = 0.0;
-			for(int64 ky = x0y0.y; ky <= x1y1.y; ++ky)
+			for(int64 ky = x0y0.y(); ky <= x1y1.y(); ++ky)
 			{
-				for(int64 kx = x0y0.x; kx <= x1y1.x; ++kx)
+				for(int64 kx = x0y0.x(); kx <= x1y1.x(); ++kx)
 				{
-					const float64 kernelX = (kx + 0.5) - samplePosPx.x;
-					const float64 kernelY = (ky + 0.5) - samplePosPx.y;
+					const float64 kernelX = (kx + 0.5) - samplePosPx.x();
+					const float64 kernelY = (ky + 0.5) - samplePosPx.y();
 
 					Pixel pixel;
 					getPixel(static_cast<uint32>(kx), static_cast<uint32>(ky), &pixel);
@@ -200,7 +200,7 @@ inline void TFrame<T, N>::setSize(const uint32 wPx, const uint32 hPx)
 template<typename T, std::size_t N>
 inline void TFrame<T, N>::setSize(const math::TVector2<uint32>& sizePx)
 {
-	setSize(sizePx.x, sizePx.y);
+	setSize(sizePx.x(), sizePx.y());
 }
 
 template<typename T, std::size_t N>
@@ -224,9 +224,9 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 	// OPT
 
 	Pixel pixel;
-	for(uint32 y = region.getMinVertex().y; y < region.getMaxVertex().y; ++y)
+	for(uint32 y = region.getMinVertex().y(); y < region.getMaxVertex().y(); ++y)
 	{
-		for(uint32 x = region.getMinVertex().x; x < region.getMaxVertex().x; ++x)
+		for(uint32 x = region.getMinVertex().x(); x < region.getMaxVertex().x(); ++x)
 		{
 			getPixel(x, y, &pixel);
 			
@@ -276,9 +276,9 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 	// OPT
 
 	Pixel pixel;
-	for(uint32 y = region.getMinVertex().y; y < region.getMaxVertex().y; ++y)
+	for(uint32 y = region.getMinVertex().y(); y < region.getMaxVertex().y(); ++y)
 	{
-		for(uint32 x = region.getMinVertex().x; x < region.getMaxVertex().x; ++x)
+		for(uint32 x = region.getMinVertex().x(); x < region.getMaxVertex().x(); ++x)
 		{
 			getPixel(x, y, &pixel);
 
@@ -304,7 +304,7 @@ inline auto TFrame<T, N>::getPixel(const math::TVector2<uint32>& coordPx) const
 	-> Pixel
 {
 	Pixel pixel;
-	getPixel(coordPx.x, coordPx.y, &pixel);
+	getPixel(coordPx.x(), coordPx.y(), &pixel);
 	return pixel;
 }
 
@@ -329,7 +329,7 @@ inline void TFrame<T, N>::getPixel(
 template<typename T, std::size_t N>
 inline void TFrame<T, N>::setPixel(const math::TVector2<uint32>& coordPx, const Pixel& pixel)
 {
-	setPixel(coordPx.x, coordPx.y, pixel);
+	setPixel(coordPx.x(), coordPx.y(), pixel);
 }
 
 template<typename T, std::size_t N>

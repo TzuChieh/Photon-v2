@@ -4,6 +4,7 @@
 #include "Common/assertion.h"
 
 #include <cmath>
+#include <utility>
 
 namespace ph::math
 {
@@ -15,8 +16,8 @@ inline TArithmeticArrayBase<Derived, T, N>::TArithmeticArrayBase(const T value)
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline TArithmeticArrayBase<Derived, T, N>::TArithmeticArrayBase(const std::array<T, N>& values) :
-	m(values)
+inline TArithmeticArrayBase<Derived, T, N>::TArithmeticArrayBase(std::array<T, N> values) :
+	m(std::move(values))
 {}
 
 template<typename Derived, typename T, std::size_t N>
@@ -222,35 +223,6 @@ inline auto TArithmeticArrayBase<Derived, T, N>::clampLocal(const T lowerBound, 
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline T TArithmeticArrayBase<Derived, T, N>::dot(const Derived& rhs) const
-{
-	T result(0);
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		result += m[i] * rhs.m[i];
-	}
-	return result;
-}
-
-template<typename Derived, typename T, std::size_t N>
-inline T TArithmeticArrayBase<Derived, T, N>::dot(const T rhs) const
-{
-	return sum() * rhs;
-}
-
-template<typename Derived, typename T, std::size_t N>
-inline T TArithmeticArrayBase<Derived, T, N>::absDot(const Derived& rhs) const
-{
-	return std::abs(dot(rhs));
-}
-
-template<typename Derived, typename T, std::size_t N>
-inline T TArithmeticArrayBase<Derived, T, N>::absDot(const T rhs) const
-{
-	return std::abs(dot(rhs));
-}
-
-template<typename Derived, typename T, std::size_t N>
 inline T TArithmeticArrayBase<Derived, T, N>::sum() const
 {
 	T result(0);
@@ -278,14 +250,116 @@ inline T TArithmeticArrayBase<Derived, T, N>::avg() const
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline T TArithmeticArrayBase<Derived, T, N>::max() const
+inline T TArithmeticArrayBase<Derived, T, N>::product() const
 {
-	T result = m[0];
-	for(std::size_t i = 1; i < N; ++i)
+	T result(1);
+	for(std::size_t i = 0; i < N; ++i)
 	{
-		result = std::max(result, m[i]);
+		result *= m[i];
 	}
 	return result;
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline T TArithmeticArrayBase<Derived, T, N>::min() const
+{
+	return m[minIndex()];
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::min(const Derived& other) const
+-> Derived
+{
+	Derived result(static_cast<const Derived&>(*this));
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		result.m[i] = std::min(m[i], other.m[i]);
+	}
+	return result;
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline std::size_t TArithmeticArrayBase<Derived, T, N>::minIndex() const
+{
+	std::size_t result = 0;
+	for(std::size_t i = 1; i < N; ++i)
+	{
+		if(m[i] < m[result])
+		{
+			result = i;
+		}
+	}
+	return result;
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline T TArithmeticArrayBase<Derived, T, N>::max() const
+{
+	return m[maxIndex()];
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::max(const Derived& other) const
+-> Derived
+{
+	Derived result(static_cast<const Derived&>(*this));
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		result.m[i] = std::max(m[i], other.m[i]);
+	}
+	return result;
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline std::size_t TArithmeticArrayBase<Derived, T, N>::maxIndex() const
+{
+	std::size_t result = 0;
+	for(std::size_t i = 1; i < N; ++i)
+	{
+		if(m[i] > m[result])
+		{
+			result = i;
+		}
+	}
+	return result;
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::ceil() const
+-> Derived
+{
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		Derived result(static_cast<const Derived&>(*this));
+		for(std::size_t i = 0; i < N; ++i)
+		{
+			result.m[i] = static_cast<T>(std::ceil(m[i]));
+		}
+		return result;
+	}
+	else
+	{
+		return static_cast<const Derived&>(*this);
+	}
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::floor() const
+-> Derived
+{
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		Derived result(static_cast<const Derived&>(*this));
+		for(std::size_t i = 0; i < N; ++i)
+		{
+			result.m[i] = static_cast<T>(std::floor(m[i]));
+		}
+		return result;
+	}
+	else
+	{
+		return static_cast<const Derived&>(*this);
+	}
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -374,14 +448,21 @@ inline bool TArithmeticArrayBase<Derived, T, N>::isZero() const
 template<typename Derived, typename T, std::size_t N>
 inline bool TArithmeticArrayBase<Derived, T, N>::isNonNegative() const
 {
-	for(std::size_t i = 0; i < N; ++i)
+	if constexpr(std::is_unsigned_v<T>)
 	{
-		if(m[i] < 0)
-		{
-			return false;
-		}
+		return true;
 	}
-	return true;
+	else
+	{
+		for(std::size_t i = 0; i < N; ++i)
+		{
+			if(m[i] < 0)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -408,7 +489,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::set(const T value)
 -> Derived&
 {
 	m.fill(value);
-	static_cast<Derived&>(*this);
+	return static_cast<Derived&>(*this);
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -416,7 +497,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::set(const std::array<T, N>& val
 -> Derived&
 {
 	m = values;
-	static_cast<Derived&>(*this);
+	return static_cast<Derived&>(*this);
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -436,15 +517,34 @@ inline const T& TArithmeticArrayBase<Derived, T, N>::operator [] (const std::siz
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline bool TArithmeticArrayBase<Derived, T, N>::operator == (const Derived& other) const
+inline bool TArithmeticArrayBase<Derived, T, N>::isEqual(const Derived& other) const
 {
 	return m == other.m;
 }
 
 template<typename Derived, typename T, std::size_t N>
+inline bool TArithmeticArrayBase<Derived, T, N>::isNear(const Derived& other, const T margin) const
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		if(std::abs(m[i] - other.m[i]) > margin)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline bool TArithmeticArrayBase<Derived, T, N>::operator == (const Derived& other) const
+{
+	return isEqual(other);
+}
+
+template<typename Derived, typename T, std::size_t N>
 inline bool TArithmeticArrayBase<Derived, T, N>::operator != (const Derived& other) const
 {
-	return m != other.m;
+	return !isEqual(other);
 }
 
 template<typename Derived, typename T, std::size_t N>

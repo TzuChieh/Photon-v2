@@ -48,7 +48,7 @@ inline CookOrder ADome::getCookOrder() const
 inline bool ADome::isAnalytical() const
 {
 	const auto resolution = getResolution();
-	return resolution.x == 0 && resolution.y == 0;
+	return resolution.x() == 0 && resolution.y() == 0;
 }
 
 }// end namespace ph

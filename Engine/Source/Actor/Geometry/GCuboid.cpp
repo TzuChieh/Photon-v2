@@ -79,14 +79,14 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	const int pz = math::constant::Z_AXIS;
 	{
 		GTriangle upperTriangle(vPPP, vNPP, vNNP);
-		upperTriangle.setUVWa({m_faceUVs[pz].getMaxVertex().x, m_faceUVs[pz].getMaxVertex().y, 0});
-		upperTriangle.setUVWb({m_faceUVs[pz].getMinVertex().x, m_faceUVs[pz].getMaxVertex().y, 0});
-		upperTriangle.setUVWc({m_faceUVs[pz].getMinVertex().x, m_faceUVs[pz].getMinVertex().y, 0});
+		upperTriangle.setUVWa({m_faceUVs[pz].getMaxVertex().x(), m_faceUVs[pz].getMaxVertex().y(), 0});
+		upperTriangle.setUVWb({m_faceUVs[pz].getMinVertex().x(), m_faceUVs[pz].getMaxVertex().y(), 0});
+		upperTriangle.setUVWc({m_faceUVs[pz].getMinVertex().x(), m_faceUVs[pz].getMinVertex().y(), 0});
 
 		GTriangle lowerTriangle(vPPP, vNNP, vPNP);
-		lowerTriangle.setUVWa({m_faceUVs[pz].getMaxVertex().x, m_faceUVs[pz].getMaxVertex().y, 0});
-		lowerTriangle.setUVWb({m_faceUVs[pz].getMinVertex().x, m_faceUVs[pz].getMinVertex().y, 0});
-		lowerTriangle.setUVWc({m_faceUVs[pz].getMaxVertex().x, m_faceUVs[pz].getMinVertex().y, 0});
+		lowerTriangle.setUVWa({m_faceUVs[pz].getMaxVertex().x(), m_faceUVs[pz].getMaxVertex().y(), 0});
+		lowerTriangle.setUVWb({m_faceUVs[pz].getMinVertex().x(), m_faceUVs[pz].getMinVertex().y(), 0});
+		lowerTriangle.setUVWc({m_faceUVs[pz].getMaxVertex().x(), m_faceUVs[pz].getMinVertex().y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
@@ -96,14 +96,14 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	const int nz = math::constant::Z_AXIS + 3;
 	{
 		GTriangle upperTriangle(vNPN, vPPN, vPNN);
-		upperTriangle.setUVWa({m_faceUVs[nz].getMaxVertex().x, m_faceUVs[nz].getMaxVertex().y, 0});
-		upperTriangle.setUVWb({m_faceUVs[nz].getMinVertex().x, m_faceUVs[nz].getMaxVertex().y, 0});
-		upperTriangle.setUVWc({m_faceUVs[nz].getMinVertex().x, m_faceUVs[nz].getMinVertex().y, 0});
+		upperTriangle.setUVWa({m_faceUVs[nz].getMaxVertex().x(), m_faceUVs[nz].getMaxVertex().y(), 0});
+		upperTriangle.setUVWb({m_faceUVs[nz].getMinVertex().x(), m_faceUVs[nz].getMaxVertex().y(), 0});
+		upperTriangle.setUVWc({m_faceUVs[nz].getMinVertex().x(), m_faceUVs[nz].getMinVertex().y(), 0});
 
 		GTriangle lowerTriangle(vNPN, vPNN, vNNN);
-		lowerTriangle.setUVWa({m_faceUVs[nz].getMaxVertex().x, m_faceUVs[nz].getMaxVertex().y, 0});
-		lowerTriangle.setUVWb({m_faceUVs[nz].getMinVertex().x, m_faceUVs[nz].getMinVertex().y, 0});
-		lowerTriangle.setUVWc({m_faceUVs[nz].getMaxVertex().x, m_faceUVs[nz].getMinVertex().y, 0});
+		lowerTriangle.setUVWa({m_faceUVs[nz].getMaxVertex().x(), m_faceUVs[nz].getMaxVertex().y(), 0});
+		lowerTriangle.setUVWb({m_faceUVs[nz].getMinVertex().x(), m_faceUVs[nz].getMinVertex().y(), 0});
+		lowerTriangle.setUVWc({m_faceUVs[nz].getMaxVertex().x(), m_faceUVs[nz].getMinVertex().y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
@@ -113,14 +113,14 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	const int px = math::constant::X_AXIS;
 	{
 		GTriangle upperTriangle(vPPN, vPPP, vPNP);
-		upperTriangle.setUVWa({m_faceUVs[px].getMaxVertex().x, m_faceUVs[px].getMaxVertex().y, 0});
-		upperTriangle.setUVWb({m_faceUVs[px].getMinVertex().x, m_faceUVs[px].getMaxVertex().y, 0});
-		upperTriangle.setUVWc({m_faceUVs[px].getMinVertex().x, m_faceUVs[px].getMinVertex().y, 0});
+		upperTriangle.setUVWa({m_faceUVs[px].getMaxVertex().x(), m_faceUVs[px].getMaxVertex().y(), 0});
+		upperTriangle.setUVWb({m_faceUVs[px].getMinVertex().x(), m_faceUVs[px].getMaxVertex().y(), 0});
+		upperTriangle.setUVWc({m_faceUVs[px].getMinVertex().x(), m_faceUVs[px].getMinVertex().y(), 0});
 
 		GTriangle lowerTriangle(vPPN, vPNP, vPNN);
-		lowerTriangle.setUVWa({m_faceUVs[px].getMaxVertex().x, m_faceUVs[px].getMaxVertex().y, 0});
-		lowerTriangle.setUVWb({m_faceUVs[px].getMinVertex().x, m_faceUVs[px].getMinVertex().y, 0});
-		lowerTriangle.setUVWc({m_faceUVs[px].getMaxVertex().x, m_faceUVs[px].getMinVertex().y, 0});
+		lowerTriangle.setUVWa({m_faceUVs[px].getMaxVertex().x(), m_faceUVs[px].getMaxVertex().y(), 0});
+		lowerTriangle.setUVWb({m_faceUVs[px].getMinVertex().x(), m_faceUVs[px].getMinVertex().y(), 0});
+		lowerTriangle.setUVWc({m_faceUVs[px].getMaxVertex().x(), m_faceUVs[px].getMinVertex().y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
@@ -130,14 +130,14 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	const int nx = math::constant::X_AXIS + 3;
 	{
 		GTriangle upperTriangle(vNPP, vNPN, vNNN);
-		upperTriangle.setUVWa({m_faceUVs[nx].getMaxVertex().x, m_faceUVs[nx].getMaxVertex().y, 0});
-		upperTriangle.setUVWb({m_faceUVs[nx].getMinVertex().x, m_faceUVs[nx].getMaxVertex().y, 0});
-		upperTriangle.setUVWc({m_faceUVs[nx].getMinVertex().x, m_faceUVs[nx].getMinVertex().y, 0});
+		upperTriangle.setUVWa({m_faceUVs[nx].getMaxVertex().x(), m_faceUVs[nx].getMaxVertex().y(), 0});
+		upperTriangle.setUVWb({m_faceUVs[nx].getMinVertex().x(), m_faceUVs[nx].getMaxVertex().y(), 0});
+		upperTriangle.setUVWc({m_faceUVs[nx].getMinVertex().x(), m_faceUVs[nx].getMinVertex().y(), 0});
 
 		GTriangle lowerTriangle(vNPP, vNNN, vNNP);
-		lowerTriangle.setUVWa({m_faceUVs[nx].getMaxVertex().x, m_faceUVs[nx].getMaxVertex().y, 0});
-		lowerTriangle.setUVWb({m_faceUVs[nx].getMinVertex().x, m_faceUVs[nx].getMinVertex().y, 0});
-		lowerTriangle.setUVWc({m_faceUVs[nx].getMaxVertex().x, m_faceUVs[nx].getMinVertex().y, 0});
+		lowerTriangle.setUVWa({m_faceUVs[nx].getMaxVertex().x(), m_faceUVs[nx].getMaxVertex().y(), 0});
+		lowerTriangle.setUVWb({m_faceUVs[nx].getMinVertex().x(), m_faceUVs[nx].getMinVertex().y(), 0});
+		lowerTriangle.setUVWc({m_faceUVs[nx].getMaxVertex().x(), m_faceUVs[nx].getMinVertex().y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
@@ -147,14 +147,14 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	const int py = math::constant::Y_AXIS;
 	{
 		GTriangle upperTriangle(vPPN, vNPN, vNPP);
-		upperTriangle.setUVWa({m_faceUVs[py].getMaxVertex().x, m_faceUVs[py].getMaxVertex().y, 0});
-		upperTriangle.setUVWb({m_faceUVs[py].getMinVertex().x, m_faceUVs[py].getMaxVertex().y, 0});
-		upperTriangle.setUVWc({m_faceUVs[py].getMinVertex().x, m_faceUVs[py].getMinVertex().y, 0});
+		upperTriangle.setUVWa({m_faceUVs[py].getMaxVertex().x(), m_faceUVs[py].getMaxVertex().y(), 0});
+		upperTriangle.setUVWb({m_faceUVs[py].getMinVertex().x(), m_faceUVs[py].getMaxVertex().y(), 0});
+		upperTriangle.setUVWc({m_faceUVs[py].getMinVertex().x(), m_faceUVs[py].getMinVertex().y(), 0});
 
 		GTriangle lowerTriangle(vPPN, vNPP, vPPP);
-		lowerTriangle.setUVWa({m_faceUVs[py].getMaxVertex().x, m_faceUVs[py].getMaxVertex().y, 0});
-		lowerTriangle.setUVWb({m_faceUVs[py].getMinVertex().x, m_faceUVs[py].getMinVertex().y, 0});
-		lowerTriangle.setUVWc({m_faceUVs[py].getMaxVertex().x, m_faceUVs[py].getMinVertex().y, 0});
+		lowerTriangle.setUVWa({m_faceUVs[py].getMaxVertex().x(), m_faceUVs[py].getMaxVertex().y(), 0});
+		lowerTriangle.setUVWb({m_faceUVs[py].getMinVertex().x(), m_faceUVs[py].getMinVertex().y(), 0});
+		lowerTriangle.setUVWc({m_faceUVs[py].getMaxVertex().x(), m_faceUVs[py].getMinVertex().y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
@@ -164,14 +164,14 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	const int ny = math::constant::Y_AXIS + 3;
 	{
 		GTriangle upperTriangle(vPNP, vNNP, vNNN);
-		upperTriangle.setUVWa({m_faceUVs[ny].getMaxVertex().x, m_faceUVs[ny].getMaxVertex().y, 0});
-		upperTriangle.setUVWb({m_faceUVs[ny].getMinVertex().x, m_faceUVs[ny].getMaxVertex().y, 0});
-		upperTriangle.setUVWc({m_faceUVs[ny].getMinVertex().x, m_faceUVs[ny].getMinVertex().y, 0});
+		upperTriangle.setUVWa({m_faceUVs[ny].getMaxVertex().x(), m_faceUVs[ny].getMaxVertex().y(), 0});
+		upperTriangle.setUVWb({m_faceUVs[ny].getMinVertex().x(), m_faceUVs[ny].getMaxVertex().y(), 0});
+		upperTriangle.setUVWc({m_faceUVs[ny].getMinVertex().x(), m_faceUVs[ny].getMinVertex().y(), 0});
 
 		GTriangle lowerTriangle(vPNP, vNNN, vPNN);
-		lowerTriangle.setUVWa({m_faceUVs[ny].getMaxVertex().x, m_faceUVs[ny].getMaxVertex().y, 0});
-		lowerTriangle.setUVWb({m_faceUVs[ny].getMinVertex().x, m_faceUVs[ny].getMinVertex().y, 0});
-		lowerTriangle.setUVWc({m_faceUVs[ny].getMaxVertex().x, m_faceUVs[ny].getMinVertex().y, 0});
+		lowerTriangle.setUVWa({m_faceUVs[ny].getMaxVertex().x(), m_faceUVs[ny].getMaxVertex().y(), 0});
+		lowerTriangle.setUVWb({m_faceUVs[ny].getMinVertex().x(), m_faceUVs[ny].getMinVertex().y(), 0});
+		lowerTriangle.setUVWc({m_faceUVs[ny].getMaxVertex().x(), m_faceUVs[ny].getMinVertex().y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);

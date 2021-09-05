@@ -1,93 +1,39 @@
 #pragma once
 
+#include "Math/General/TVectorNBase.h"
 #include "Math/math_fwd.h"
 #include "Math/constant.h"
-
-#include <string>
-#include <vector>
-#include <array>
 
 namespace ph::math
 {
 
 template<typename T>
-class TVector2 final
+class TVector2 final : private TVectorNBase<TVector2<T>, T, 2>
 {
-public:
-	T x;
-	T y;
+private:
+	using Base = TVectorNBase<TVector2<T>, T, 2>;
 
+protected:
+	using Base::m;
+
+public:
 	inline TVector2() = default;
-	TVector2(T x, T y);
-	explicit TVector2(T value);
 	inline TVector2(const TVector2& other) = default;
+	inline TVector2(TVector2&& other) = default;
+	inline TVector2& operator = (const TVector2& rhs) = default;
+	inline TVector2& operator = (TVector2&& rhs) = default;
+
+	using Base::Base;
+
+	TVector2(T vx, T vy);
 
 	template<typename U>
 	explicit TVector2(const TVector2<U>& other);
 
-	template<typename U>
-	explicit TVector2(const std::array<U, 2>& xyValues);
-
-	template<typename U>
-	explicit TVector2(const TArithmeticArray<U, 2>& xyValues);
-
-	template<typename U>
-	explicit TVector2(const U* xyValues);
-
-	template<typename U>
-	explicit TVector2(const std::vector<U>& xyValues);
-
-	void add(const TVector2& rhs, TVector2* out_result) const;
-	TVector2 add(const TVector2& rhs) const;
-	TVector2& addLocal(const TVector2& rhs);
-	TVector2 add(T rhs) const;
-	TVector2 add(T rhsX, T rhsY) const;
-
-	void sub(const TVector2& rhs, TVector2* out_result) const;
-	TVector2 sub(const TVector2& rhs) const;
-	TVector2& subLocal(const TVector2& rhs);
-	TVector2 sub(T rhs) const;
-	TVector2& subLocal(T rhs);
-
-	void mul(const TVector2& rhs, TVector2* out_result) const;
-	TVector2 mul(const TVector2& rhs) const;
-	TVector2& mulLocal(const TVector2& rhs);
-	TVector2 mul(T rhs) const;
-	TVector2& mulLocal(T rhs);
-
-	void div(const TVector2& rhs, TVector2* out_result) const;
-	TVector2 div(const TVector2& rhs) const;
-	TVector2& divLocal(const TVector2& rhs);
-	TVector2 div(T rhs) const;
-	TVector2& divLocal(T rhs);
-
-	TVector2 min(const TVector2& other) const;
-	TVector2 max(const TVector2& other) const;
-	constant::AxisIndexType maxDimension() const;
-
-	bool equals(const TVector2& other) const;
-	bool equals(const TVector2& other, T margin) const;
-
-	TVector2 ceil() const;
-	TVector2 floor() const;
-	T product() const;
-
-	TVector2& set(constant::AxisIndexType axis, T value);
-
-	std::string toString() const;
-	std::vector<T> toVector() const;
-
-	T operator [] (constant::AxisIndexType axisId) const;
-	T& operator [] (constant::AxisIndexType axisId);
-
-	TVector2 operator + (const TVector2& rhs) const;
-	TVector2 operator + (T rhs) const;
-	TVector2 operator - (const TVector2& rhs) const;
-	TVector2 operator - (T rhs) const;
-	TVector2 operator * (const TVector2& rhs) const;
-	TVector2 operator * (T rhs) const;
-	TVector2 operator / (const TVector2& rhs) const;
-	TVector2 operator / (T rhs) const;
+	T& x();
+	T& y();
+	const T& x() const;
+	const T& y() const;
 };
 
 }// end namespace ph::math

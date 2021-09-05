@@ -15,15 +15,15 @@ namespace ph::math
 template<typename Derived, typename T, std::size_t N>
 class TArithmeticArrayBase
 {
-	static_assert(std::is_base_of_v<TArithmeticArrayBase, Derived>,
-		"Type \"Derived\" must be deriving from TArithmeticArrayBase.");
-
 public:
 	inline static constexpr auto NUM_ELEMENTS = N;
 
 	constexpr std::size_t size() const noexcept;
 
-// Hide members as this class is not intended to be used polymorphically
+	explicit TArithmeticArrayBase(T value);
+	explicit TArithmeticArrayBase(std::array<T, N> values);
+
+// Hide special members as this class is not intended to be used polymorphically
 protected:
 	inline TArithmeticArrayBase() = default;
 	inline TArithmeticArrayBase(const TArithmeticArrayBase& other) = default;
@@ -32,9 +32,7 @@ protected:
 	inline TArithmeticArrayBase& operator = (TArithmeticArrayBase&& rhs) = default;
 	inline ~TArithmeticArrayBase() = default;
 
-	explicit TArithmeticArrayBase(T value);
-	explicit TArithmeticArrayBase(const std::array<T, N>& values);
-
+protected:
 	Derived add(const Derived& rhs) const;
 	Derived add(T rhs) const;
 	Derived& addLocal(const Derived& rhs);
@@ -71,21 +69,29 @@ protected:
 	Derived clamp(T lowerBound, T upperBound);
 	Derived& clampLocal(T lowerBound, T upperBound);
 
-	T dot(const Derived& rhs) const;
-	T dot(T rhs) const;
-	T absDot(const Derived& rhs) const;
-	T absDot(T rhs) const;
+	Derived abs() const;
+	Derived& absLocal();
+
+	Derived rcp() const;
+	Derived& rcpLocal();
+
+	Derived complement() const;
+	Derived& complementLocal();
 
 	T sum() const;
 	T avg() const;
-	T max() const;
+	T product() const;
 
-	Derived abs() const;
-	Derived& absLocal();
-	Derived rcp() const;
-	Derived& rcpLocal();
-	Derived complement() const;
-	Derived& complementLocal();
+	T min() const;
+	Derived min(const Derived& other) const;
+	std::size_t minIndex() const;
+
+	T max() const;
+	Derived max(const Derived& other) const;
+	std::size_t maxIndex() const;
+
+	Derived ceil() const;
+	Derived floor() const;
 
 	template<typename U>
 	Derived lerp(const Derived& rhs, U factor) const;
@@ -100,6 +106,8 @@ protected:
 	T& operator [] (std::size_t index);
 	const T& operator [] (std::size_t index) const;
 
+	bool isEqual(const Derived& other) const;
+	bool isNear(const Derived& other, T margin) const;
 	bool operator == (const Derived& other) const;
 	bool operator != (const Derived& other) const;
 

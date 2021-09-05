@@ -33,22 +33,22 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 {
 	PH_ASSERT(surface);
 	PH_ASSERT(radiance);
-	PH_ASSERT_GT(resolution.x * resolution.y, 0);
+	PH_ASSERT_GT(resolution.x() * resolution.y(), 0);
 
 	PH_LOG(LatLongEnvEmitter, "constructing sample distribution with resolution {}", 
 		resolution.toString());
 
 	constexpr EQuantity QUANTITY = EQuantity::EMR;
-	const real rcpResolutionY = 1.0_r / static_cast<real>(resolution.y);
+	const real rcpResolutionY = 1.0_r / static_cast<real>(resolution.y());
 	const TSampler<Spectrum> sampler(QUANTITY);
 
-	std::vector<real> sampleWeights(resolution.x * resolution.y);
-	for(std::size_t y = 0; y < resolution.y; ++y)
+	std::vector<real> sampleWeights(resolution.x() * resolution.y());
+	for(std::size_t y = 0; y < resolution.y(); ++y)
 	{
-		const std::size_t baseIndex = y * resolution.x;
+		const std::size_t baseIndex = y * resolution.x();
 		const real        v         = (static_cast<real>(y) + 0.5_r) * rcpResolutionY;
 		const real        sinTheta  = std::sin((1.0_r - v) * math::constant::pi<real>);
-		for(std::size_t x = 0; x < resolution.x; ++x)
+		for(std::size_t x = 0; x < resolution.x(); ++x)
 		{
 			const real     u        = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
 			const Spectrum sampledL = sampler.sample(*radiance, {u, v});
@@ -101,7 +101,7 @@ void LatLongEnvEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSampl
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
 	// FIXME: assuming spherical uv mapping is used
-	const real sinTheta = std::sin((1.0_r - uvSample.y) * math::constant::pi<real>);
+	const real sinTheta = std::sin((1.0_r - uvSample.y()) * math::constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
 		return;
@@ -120,7 +120,7 @@ void LatLongEnvEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* 
 	TSampler<Spectrum> sampler(EQuantity::EMR);
 	*out_Le = sampler.sample(*m_radiance, uvSample);
 
-	const real sinTheta = std::sin((1.0_r - uvSample.y) * math::constant::pi<real>);
+	const real sinTheta = std::sin((1.0_r - uvSample.y()) * math::constant::pi<real>);
 	*out_pdfW = uvSamplePdf / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
 
 	// HACK
@@ -141,8 +141,8 @@ void LatLongEnvEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* 
 
 	const auto basis = math::Basis3R::makeFromUnitY(direction);
 	math::Vector3R position = direction.mul(-1) * m_surface->getRadius() +
-		(basis.getZAxis() * diskPos.x * m_surface->getRadius()) +
-		(basis.getXAxis() * diskPos.y * m_surface->getRadius());// TODO: use TDisk to do this
+		(basis.getZAxis() * diskPos.x() * m_surface->getRadius()) +
+		(basis.getXAxis() * diskPos.y() * m_surface->getRadius());// TODO: use TDisk to do this
 
 	out_ray->setDirection(direction);
 	out_ray->setOrigin(position);

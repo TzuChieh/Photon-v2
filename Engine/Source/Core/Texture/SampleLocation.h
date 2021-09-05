@@ -58,7 +58,7 @@ inline SampleLocation::SampleLocation(const math::Vector3R& uvw, const EQuantity
 {}
 
 inline SampleLocation::SampleLocation(const math::Vector2R& uv, const EQuantity quantity) :
-	SampleLocation(math::Vector3R(uv.x, uv.y, 0), quantity)
+	SampleLocation(math::Vector3R(uv.x(), uv.y(), 0), quantity)
 {}
 
 inline SampleLocation::SampleLocation(const HitDetail& hit) :
@@ -91,7 +91,7 @@ inline void SampleLocation::setUvw(const math::Vector3R& uvw)
 
 inline void SampleLocation::setUv(const math::Vector2R& uv)
 {
-	m_hit.setMisc(m_hit.getPrimitive(), math::Vector3R(uv.x, uv.y, 0.0_r), m_hit.getRayT());
+	m_hit.setMisc(m_hit.getPrimitive(), math::Vector3R(uv.x(), uv.y(), 0.0_r), m_hit.getRayT());
 }
 
 inline SampleLocation SampleLocation::getUvwScaled(const math::Vector3R& scale) const
