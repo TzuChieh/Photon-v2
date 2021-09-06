@@ -108,13 +108,13 @@ inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 	// Cell coordinates are always in the canonical Cartesian space. Mapping
 	// only performed on divided ranges.
 
-	if(m_currentCell.x < m_numCells.x && m_currentCell.y < m_numCells.y)
+	if(m_currentCell.x() < m_numCells.x() && m_currentCell.y() < m_numCells.y())
 	{
 		const std::size_t totalWidth  = m_totalWorkUnit.getRegion().getWidth();
 		const std::size_t totalHeight = m_totalWorkUnit.getRegion().getHeight();
 
 		auto sideRangeX = math::ith_evenly_divided_range(
-			m_currentCell.x, totalWidth, m_numCells.x);
+			m_currentCell.x(), totalWidth, m_numCells.x());
 		if(m_origin == EOrigin::LOWER_RIGHT || m_origin == EOrigin::UPPER_RIGHT)
 		{
 			const auto size = sideRangeX.second - sideRangeX.first;
@@ -123,7 +123,7 @@ inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 		}
 
 		auto sideRangeY = math::ith_evenly_divided_range(
-			m_currentCell.y, totalHeight, m_numCells.y);
+			m_currentCell.y(), totalHeight, m_numCells.y());
 		if(m_origin == EOrigin::UPPER_LEFT || m_origin == EOrigin::UPPER_RIGHT)
 		{
 			const auto size = sideRangeY.second - sideRangeY.first;
@@ -139,20 +139,20 @@ inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 
 		if(m_prioriAxis == math::constant::X_AXIS)
 		{
-			++m_currentCell.x;
-			if(m_currentCell.x == m_numCells.x)
+			++m_currentCell.x();
+			if(m_currentCell.x() == m_numCells.x())
 			{
-				m_currentCell.x = 0;
-				++m_currentCell.y;
+				m_currentCell.x() = 0;
+				++m_currentCell.y();
 			}
 		}
 		else
 		{
-			++m_currentCell.y;
-			if(m_currentCell.y == m_numCells.y)
+			++m_currentCell.y();
+			if(m_currentCell.y() == m_numCells.y())
 			{
-				m_currentCell.y = 0;
-				++m_currentCell.x;
+				m_currentCell.y() = 0;
+				++m_currentCell.x();
 			}
 		}
 	}

@@ -96,7 +96,7 @@ void AttributeRenderer::doRender()
 			{
 				//std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-				m_attributeFilm.addSample(rasterCoord.x, rasterCoord.y, estimation[0].clamp(0, std::numeric_limits<real>::max()));
+				m_attributeFilm.addSample(rasterCoord.x(), rasterCoord.y(), estimation[0].clamp(0, std::numeric_limits<real>::max()));
 			}
 		}
 	}

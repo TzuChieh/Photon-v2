@@ -52,7 +52,7 @@ void PLatLong01Sphere::calcIntersectionDetail(
 		dPdU, dPdV, dNdU, dNdV);
 
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
-	out_detail->setMisc(this, math::Vector3R(hitUv.x, hitUv.y, 0), probe.getHitRayT());
+	out_detail->setMisc(this, math::Vector3R(hitUv.x(), hitUv.y(), 0), probe.getHitRayT());
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

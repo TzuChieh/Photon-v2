@@ -54,8 +54,8 @@ public:
 		for(std::size_t i = 0; i < 4; ++i)
 		{
 			float64 normUi, normVi;
-			this->normalizeUV(xys[i].x * this->getTexelSizeU(), 
-			                  xys[i].y * this->getTexelSizeV(), 
+			this->normalizeUV(xys[i].x() * this->getTexelSizeU(),
+			                  xys[i].y() * this->getTexelSizeV(),
 			                  &normUi, &normVi);
 
 			uint32 xi = static_cast<uint32>(normUi * w);

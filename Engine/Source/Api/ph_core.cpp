@@ -175,8 +175,8 @@ void phGetRenderDimension(const PHuint64 engineId, PHuint32* const out_widthPx, 
 	if(engine)
 	{
 		const math::TVector2<int64> dim = engine->getFilmDimensionPx();
-		*out_widthPx  = static_cast<PHuint32>(dim.x);
-		*out_heightPx = static_cast<PHuint32>(dim.y);
+		*out_widthPx  = static_cast<PHuint32>(dim.x());
+		*out_heightPx = static_cast<PHuint32>(dim.y());
 	}
 }
 
@@ -416,8 +416,8 @@ int phAsyncPollUpdatedFrameRegion(
 		Region region;
 		const ERegionStatus status = engine->asyncPollUpdatedRegion(&region);
 
-		*out_xPx      = static_cast<PHuint32>(region.getMinVertex().x);
-		*out_yPx      = static_cast<PHuint32>(region.getMinVertex().y);
+		*out_xPx      = static_cast<PHuint32>(region.getMinVertex().x());
+		*out_yPx      = static_cast<PHuint32>(region.getMinVertex().y());
 		*out_widthPx  = static_cast<PHuint32>(region.getWidth());
 		*out_heightPx = static_cast<PHuint32>(region.getHeight());
 

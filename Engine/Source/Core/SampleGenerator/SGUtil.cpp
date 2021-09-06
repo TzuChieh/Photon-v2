@@ -16,8 +16,8 @@ void SGUtil::genArray2dStrata(math::Vector2R* const out_coordArray2Ds,
 		{
 			const real jitterX = math::Random::genUniformReal_i0_e1();
 			const real jitterY = math::Random::genUniformReal_i0_e1();
-			out_coordArray2Ds[baseIndex + x].x = (static_cast<real>(x) + jitterX) * dx;
-			out_coordArray2Ds[baseIndex + x].y = (static_cast<real>(y) + jitterY) * dy;
+			out_coordArray2Ds[baseIndex + x].x() = (static_cast<real>(x) + jitterX) * dx;
+			out_coordArray2Ds[baseIndex + x].y() = (static_cast<real>(y) + jitterY) * dy;
 		}
 	}
 }
@@ -31,8 +31,8 @@ void SGUtil::genArray2dLatinHypercube(math::Vector2R* const out_coordArray2Ds,
 	{
 		const real jitterX = math::Random::genUniformReal_i0_e1();
 		const real jitterY = math::Random::genUniformReal_i0_e1();
-		out_coordArray2Ds[ii].x = (static_cast<real>(ii) + jitterX) * reciNum2Ds;
-		out_coordArray2Ds[ii].y = (static_cast<real>(ii) + jitterY) * reciNum2Ds;
+		out_coordArray2Ds[ii].x() = (static_cast<real>(ii) + jitterX) * reciNum2Ds;
+		out_coordArray2Ds[ii].y() = (static_cast<real>(ii) + jitterY) * reciNum2Ds;
 	}
 
 	// TODO: shuffle

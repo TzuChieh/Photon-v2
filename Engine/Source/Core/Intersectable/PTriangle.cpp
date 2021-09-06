@@ -84,19 +84,19 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	math::Vector3R dNdU(0.0_r), dNdV(0.0_r);
 	const math::Vector2R dUVab(m_uvwB.x - m_uvwA.x, m_uvwB.y - m_uvwA.y);
 	const math::Vector2R dUVac(m_uvwC.x - m_uvwA.x, m_uvwC.y - m_uvwA.y);
-	const real uvDet = dUVab.x * dUVac.y - dUVab.y * dUVac.x;
+	const real uvDet = dUVab.x() * dUVac.y() - dUVab.y() * dUVac.x();
 	if(uvDet != 0.0_r)
 	{
 		const auto [eAB, eAC] = m_triangle.getEdgeVectors();
 		const real rcpUvDet   = 1.0_r / uvDet;
 
-		dPdU = eAB.mul(dUVac.y).add(eAC.mul(-dUVab.y)).mulLocal(rcpUvDet);
-		dPdV = eAB.mul(-dUVac.x).add(eAC.mul(dUVab.x)).mulLocal(rcpUvDet);
+		dPdU = eAB.mul(dUVac.y()).add(eAC.mul(-dUVab.y())).mulLocal(rcpUvDet);
+		dPdV = eAB.mul(-dUVac.x()).add(eAC.mul(dUVab.x())).mulLocal(rcpUvDet);
 
 		const math::Vector3R& dNab = m_nB.sub(m_nA);
 		const math::Vector3R& dNac = m_nC.sub(m_nA);
-		dNdU = dNab.mul(dUVac.y).add(dNac.mul(-dUVab.y)).mulLocal(rcpUvDet);
-		dNdV = dNab.mul(-dUVac.x).add(dNac.mul(dUVab.x)).mulLocal(rcpUvDet);
+		dNdU = dNab.mul(dUVac.y()).add(dNac.mul(-dUVab.y())).mulLocal(rcpUvDet);
+		dNdV = dNab.mul(-dUVac.x()).add(dNac.mul(dUVab.x())).mulLocal(rcpUvDet);
 	}
 	
 	out_detail->getHitInfo(ECoordSys::LOCAL).setDerivatives(

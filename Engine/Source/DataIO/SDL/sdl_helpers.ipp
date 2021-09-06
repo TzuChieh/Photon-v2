@@ -50,9 +50,9 @@ inline void save_vector2(const math::TVector2<Element>& value, std::string* cons
 
 	try
 	{
-		if(value.x == value.y)
+		if(value.x() == value.y())
 		{
-			save_number<Element>(value.x, out_str);
+			save_number<Element>(value.x(), out_str);
 		}
 		else
 		{
@@ -61,10 +61,10 @@ inline void save_vector2(const math::TVector2<Element>& value, std::string* cons
 			std::string savedElement;
 
 			(*out_str) += '\"';
-			save_number<Element>(value.x, &savedElement);
+			save_number<Element>(value.x(), &savedElement);
 			(*out_str) += savedElement;
 			(*out_str) += ' ';
-			save_number<Element>(value.y, &savedElement);
+			save_number<Element>(value.y(), &savedElement);
 			(*out_str) += savedElement;
 			(*out_str) += '\"';
 		}

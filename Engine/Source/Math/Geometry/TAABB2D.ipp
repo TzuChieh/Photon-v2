@@ -34,22 +34,22 @@ inline TAABB2D<T>::TAABB2D(const TAABB2D<U>& other) :
 template<typename T>
 inline bool TAABB2D<T>::isIntersectingArea(const TAABB2D& other) const
 {
-	return m_maxVertex.x >= other.m_minVertex.x && m_minVertex.x <= other.m_maxVertex.x &&
-	       m_maxVertex.y >= other.m_minVertex.y && m_minVertex.y <= other.m_maxVertex.y;
+	return m_maxVertex.x() >= other.m_minVertex.x() && m_minVertex.x() <= other.m_maxVertex.x() &&
+	       m_maxVertex.y() >= other.m_minVertex.y() && m_minVertex.y() <= other.m_maxVertex.y();
 }
 
 template<typename T>
 inline bool TAABB2D<T>::isIntersectingArea(const TVector2<T>& point) const
 {
-	return point.x >= m_minVertex.x && point.x <= m_maxVertex.x &&
-	       point.y >= m_minVertex.y && point.y <= m_maxVertex.y;
+	return point.x() >= m_minVertex.x() && point.x() <= m_maxVertex.x() &&
+	       point.y() >= m_minVertex.y() && point.y() <= m_maxVertex.y();
 }
 
 template<typename T>
 inline bool TAABB2D<T>::isIntersectingRange(const TVector2<T>& point) const
 {
-	return point.x >= m_minVertex.x && point.x < m_maxVertex.x &&
-	       point.y >= m_minVertex.y && point.y < m_maxVertex.y;
+	return point.x() >= m_minVertex.x() && point.x() < m_maxVertex.x() &&
+	       point.y() >= m_minVertex.y() && point.y() < m_maxVertex.y();
 }
 
 template<typename T>
@@ -124,13 +124,13 @@ inline std::pair<TVector2<T>, TVector2<T>> TAABB2D<T>::getVertices() const
 template<typename T>
 inline T TAABB2D<T>::getWidth() const
 {
-	return m_maxVertex.x - m_minVertex.x;
+	return m_maxVertex.x() - m_minVertex.x();
 }
 
 template<typename T>
 inline T TAABB2D<T>::getHeight() const
 {
-	return m_maxVertex.y - m_minVertex.y;
+	return m_maxVertex.y() - m_minVertex.y();
 }
 
 template<typename T>
@@ -153,9 +153,9 @@ inline TVector2<T> TAABB2D<T>::getCenter() const
 }
 
 template<typename T>
-inline std::pair<TAABB2D<T>, TAABB2D<T>> TAABB2D<T>::getSplitted(const constant::AxisIndexType axis, const T splitPoint) const
+inline std::pair<TAABB2D<T>, TAABB2D<T>> TAABB2D<T>::getSplitted(const std::size_t axis, const T splitPoint) const
 {
-	PH_ASSERT_MSG(axis == constant::X_AXIS || axis == constant::Y_AXIS, std::to_string(axis));
+	PH_ASSERT_MSG(axis == 0 || axis == 1, std::to_string(axis));
 	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, m_minVertex[axis], m_maxVertex[axis]);
 
 	return {
@@ -179,19 +179,19 @@ inline TAABB2D<T> TAABB2D<T>::getIntersected(const TAABB2D& other) const
 template<typename T>
 inline bool TAABB2D<T>::isValid() const
 {
-	return m_minVertex.x <= m_maxVertex.x && m_minVertex.y <= m_maxVertex.y;
+	return m_minVertex.x() <= m_maxVertex.x() && m_minVertex.y() <= m_maxVertex.y();
 }
 
 template<typename T>
 inline bool TAABB2D<T>::isPoint() const
 {
-	return m_minVertex.equals(m_maxVertex);
+	return m_minVertex.isEqual(m_maxVertex);
 }
 
 template<typename T>
 inline bool TAABB2D<T>::isArea() const
 {
-	return m_maxVertex.x > m_minVertex.x && m_maxVertex.y > m_minVertex.y;
+	return m_maxVertex.x() > m_minVertex.x() && m_maxVertex.y() > m_minVertex.y();
 }
 
 template<typename T>
@@ -212,10 +212,10 @@ inline TVector2<T> TAABB2D<T>::xy01ToSurface(const TVector2<T>& xy01) const
 }
 
 template<typename T>
-inline bool TAABB2D<T>::equals(const TAABB2D& other) const
+inline bool TAABB2D<T>::isEqual(const TAABB2D& other) const
 {
-	return m_minVertex.equals(other.m_minVertex) &&
-	       m_maxVertex.equals(other.m_maxVertex);
+	return m_minVertex.isEqual(other.m_minVertex) &&
+	       m_maxVertex.isEqual(other.m_maxVertex);
 }
 
 template<typename T>

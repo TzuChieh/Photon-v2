@@ -66,7 +66,7 @@ process(
 		const std::size_t estimationIndex = estimationToFilm.first;
 		const std::size_t filmIndex       = estimationToFilm.second;
 
-		m_films[filmIndex].addSample(rasterCoord.x, rasterCoord.y, m_estimations[estimationIndex] * quantityWeight);
+		m_films[filmIndex].addSample(rasterCoord.x(), rasterCoord.y(), m_estimations[estimationIndex] * quantityWeight);
 	}
 }
 

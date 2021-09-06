@@ -245,7 +245,7 @@ void EqualSamplingRenderer::addUpdatedRegion(const Region& region, const bool is
 	for(UpdatedRegion& pendingRegion : m_updatedRegions)
 	{
 		// later added region takes the precedence
-		if(pendingRegion.region.equals(region))
+		if(pendingRegion.region.isEqual(region))
 		{
 			pendingRegion.isFinished = !isUpdating;
 			return;

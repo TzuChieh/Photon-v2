@@ -55,15 +55,15 @@ void SGStratified::genSamples2D(
 	// Tries to generate <numStrata> samples over and over again until there 
 	// is no room in <out_array> to fit another <numStrata> samples.
 
-	const real dx = 1.0_r / static_cast<real>(strataSizes.x);
-	const real dy = 1.0_r / static_cast<real>(strataSizes.y);
+	const real dx = 1.0_r / static_cast<real>(strataSizes.x());
+	const real dy = 1.0_r / static_cast<real>(strataSizes.y());
 
 	std::size_t currentIndex = 0;
 	while(currentIndex + numStrata <= stage.numSamples())
 	{
-		for(std::size_t y = 0; y < strataSizes.y; ++y)
+		for(std::size_t y = 0; y < strataSizes.y(); ++y)
 		{
-			for(std::size_t x = 0; x < strataSizes.x; ++x)
+			for(std::size_t x = 0; x < strataSizes.x(); ++x)
 			{
 				const real jitterX = math::Random::genUniformReal_i0_e1();
 				const real jitterY = math::Random::genUniformReal_i0_e1();

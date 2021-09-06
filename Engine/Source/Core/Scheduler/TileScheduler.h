@@ -82,8 +82,8 @@ inline TileScheduler::TileScheduler(
 	// since grid scheduler slices work region, we need to round up the 
 	// grid size to make each slice with size <tileSize>
 	math::TVector2<int64> gridSize(
-		math::ceil_div_positive(totalWorkUnit.getWidth(),  static_cast<int64>(tileSize.x)),
-		math::ceil_div_positive(totalWorkUnit.getHeight(), static_cast<int64>(tileSize.y)));
+		math::ceil_div_positive(totalWorkUnit.getWidth(),  static_cast<int64>(tileSize.x())),
+		math::ceil_div_positive(totalWorkUnit.getHeight(), static_cast<int64>(tileSize.y())));
 	gridSize.mulLocal(math::TVector2<int64>(tileSize));
 
 	const Region gridWorkRegion(

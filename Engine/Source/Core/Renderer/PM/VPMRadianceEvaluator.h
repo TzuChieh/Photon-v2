@@ -180,7 +180,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 inline void VPMRadianceEvaluator::impl_onReceiverSampleEnd()
 {
-	m_film->addSample(m_rasterCoord.x, m_rasterCoord.y, m_sampledRadiance);
+	m_film->addSample(m_rasterCoord.x(), m_rasterCoord.y(), m_sampledRadiance);
 }
 
 inline void VPMRadianceEvaluator::impl_onSampleBatchFinished()

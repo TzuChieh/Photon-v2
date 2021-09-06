@@ -60,8 +60,8 @@ inline T TPiecewiseLinear1D<T>::evaluate(const T x) const
 
 	// handling out-of-domain situation
 	// (this also handles if there's only 1 unique point)
-	if     (x <= m_points.front().x) return m_points.front().y;
-	else if(x >= m_points.back().x)  return m_points.back().y;
+	if     (x <= m_points.front().x()) return m_points.front().y();
+	else if(x >= m_points.back().x())  return m_points.back().y();
 
 	const auto& result = std::lower_bound(m_points.begin(), m_points.end(), TVector2<T>(x), 
 	                                      &TPiecewiseLinear1D::pointDomainComparator);
@@ -81,8 +81,8 @@ inline T TPiecewiseLinear1D<T>::evaluate(const T x,
 
 	const TVector2<T>& p0 = m_points[p0Index];
 	const TVector2<T>& p1 = m_points[p1Index];
-	return p0.x != p1.x ? (x - p0.x) / (p1.x - p0.x) * (p1.y - p0.y) + p0.y
-	                    : (p0.y + p1.y) / 2;
+	return p0.x() != p1.x() ? (x - p0.x()) / (p1.x() - p0.x()) * (p1.y() - p0.y()) + p0.y()
+	                        : (p0.y() + p1.y()) / 2;
 }
 
 template<typename T>
@@ -111,7 +111,7 @@ inline TPiecewiseLinear1D<T> TPiecewiseLinear1D<T>::getMirrored(const T pivotX) 
 	TPiecewiseLinear1D mirrored;
 	for(const auto& point : m_points)
 	{
-		mirrored.addPoint({static_cast<T>(2) * pivotX - point.x, point.y});
+		mirrored.addPoint({static_cast<T>(2) * pivotX - point.x(), point.y()});
 	}
 	mirrored.update();
 	return mirrored;
@@ -144,7 +144,7 @@ template<typename T>
 inline bool TPiecewiseLinear1D<T>::pointDomainComparator(const TVector2<T>& pA, 
                                                          const TVector2<T>& pB)
 {
-	return pA.x < pB.x;
+	return pA.x() < pB.x();
 }
 
 }// end namespace ph::math

@@ -302,7 +302,7 @@ std::string TAABB3D<T>::toString() const
 }
 
 template<typename T>
-inline bool TAABB3D<T>::equals(const TAABB3D& other) const
+inline bool TAABB3D<T>::isEqual(const TAABB3D& other) const
 {
 	return this->m_minVertex.equals(other.m_minVertex) && 
 	       this->m_maxVertex.equals(other.m_maxVertex);

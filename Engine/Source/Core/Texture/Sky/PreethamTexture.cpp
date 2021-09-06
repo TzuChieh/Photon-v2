@@ -96,7 +96,7 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	const auto viewPhiTheta = math::TSphere<real>::makeUnit().latLong01ToPhiTheta(sampleLocation.uv());
 
 	// Model is defined for top hemisphere only
-	auto theta = viewPhiTheta.y;
+	auto theta = viewPhiTheta.y();
 	if(theta >= 0.5_r *  math::constant::pi<real> || theta < 0.0_r)
 	{
 		out_value->setValues(0);

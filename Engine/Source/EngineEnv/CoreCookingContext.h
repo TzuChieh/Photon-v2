@@ -45,9 +45,9 @@ inline const math::TVector2<uint32>& CoreCookingContext::getFrameSizePx() const
 
 inline float64 CoreCookingContext::getAspectRatio() const
 {
-	PH_ASSERT_GT(getFrameSizePx().y, 0);
+	PH_ASSERT_GT(getFrameSizePx().y(), 0);
 
-	return static_cast<float64>(getFrameSizePx().x) / static_cast<float64>(getFrameSizePx().y);
+	return static_cast<float64>(getFrameSizePx().x()) / static_cast<float64>(getFrameSizePx().y());
 }
 
 inline void CoreCookingContext::setFrameSizePx(const math::TVector2<uint32>& frameSizePx)

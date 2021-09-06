@@ -173,7 +173,7 @@ public:
 	@return True if and only if two bounds are equal.
 	*/
 	// TODO: a variant with margins for floating types
-	bool equals(const TAABB3D& other) const;
+	bool isEqual(const TAABB3D& other) const;
 
 private:
 	TVector3<T> m_minVertex;

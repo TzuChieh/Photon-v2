@@ -127,10 +127,10 @@ inline bool TMatrix2<T>::solve(
 	PH_ASSERT(out_x);
 
 	std::array<T, 2> x;
-	if(solve({b.x, b.y}, &x))
+	if(solve({b.x(), b.y()}, &x))
 	{
-		out_x->x = x[0];
-		out_x->y = x[1];
+		out_x->x() = x[0];
+		out_x->y() = x[1];
 
 		return true;
 	}

@@ -158,8 +158,8 @@ inline TVector2<T> TSphere<T>::surfaceToLatLong01(const TVector3<T>& surface) co
 	const TVector2<T>& phiTheta = surfaceToPhiTheta(surface);
 
 	return {
-		phiTheta.x / two_pi<T>,       // [0, 1]
-		(pi<T> - phiTheta.y) / pi<T>};// [0, 1]
+		phiTheta.x() / two_pi<T>,       // [0, 1]
+		(pi<T> - phiTheta.y()) / pi<T>};// [0, 1]
 }
 
 template<typename T>
@@ -167,8 +167,8 @@ inline TVector2<T> TSphere<T>::latLong01ToPhiTheta(const TVector2<T>& latLong01)
 {
 	using namespace math::constant;
 
-	const T phi   = latLong01.x * two_pi<T>;
-	const T theta = (static_cast<T>(1) - latLong01.y) * pi<T>;
+	const T phi   = latLong01.x() * two_pi<T>;
+	const T theta = (static_cast<T>(1) - latLong01.y()) * pi<T>;
 
 	return {phi, theta};
 }
@@ -200,8 +200,8 @@ inline TVector2<T> TSphere<T>::surfaceToPhiTheta(const TVector3<T>& surface) con
 template<typename T>
 inline TVector3<T> TSphere<T>::phiThetaToSurface(const TVector2<T>& phiTheta) const
 {
-	const T phi   = phiTheta.x;
-	const T theta = phiTheta.y;
+	const T phi   = phiTheta.x();
+	const T theta = phiTheta.y();
 
 	const T zxPlaneRadius = std::sin(theta);
 
@@ -253,8 +253,8 @@ inline std::pair<TVector3<T>, TVector3<T>> TSphere<T>::surfaceDerivativesWrtUv(
 	const math::TVector2<T>& posZuv = surfaceToUv(posZ);
 
 	const math::TMatrix2<T> uvwDiff(
-		posXuv.x - negXuv.x, posXuv.y - negXuv.y,
-		posZuv.x - negZuv.x, posZuv.y - negZuv.y);
+		posXuv.x() - negXuv.x(), posXuv.y() - negXuv.y(),
+		posZuv.x() - negZuv.x(), posZuv.y() - negZuv.y());
 	const auto xDiff = posX - negX;
 	const auto zDiff = posZ - negZ;
 	const std::array<std::array<T, 2>, 3> bs = {

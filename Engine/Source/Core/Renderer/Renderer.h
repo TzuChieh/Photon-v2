@@ -112,12 +112,12 @@ inline uint32 Renderer::numWorkers() const
 
 inline uint32 Renderer::getRenderWidthPx() const
 {
-	return m_viewport.getBaseSizePx().x;
+	return m_viewport.getBaseSizePx().x();
 }
 
 inline uint32 Renderer::getRenderHeightPx() const
 {
-	return m_viewport.getBaseSizePx().y;
+	return m_viewport.getBaseSizePx().y();
 }
 
 inline math::TAABB2D<int64> Renderer::getCropWindowPx() const

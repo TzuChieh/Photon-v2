@@ -8,10 +8,11 @@ namespace ph::math
 {
 
 template<typename T>
-class TVector2 final : private TVectorNBase<TVector2<T>, T, 2>
+class TVector2 final : public TVectorNBase<TVector2<T>, T, 2>
 {
 private:
 	using Base = TVectorNBase<TVector2<T>, T, 2>;
+	friend Base;
 
 protected:
 	using Base::m;

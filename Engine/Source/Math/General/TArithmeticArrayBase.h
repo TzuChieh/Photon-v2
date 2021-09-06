@@ -15,6 +15,9 @@ namespace ph::math
 template<typename Derived, typename T, std::size_t N>
 class TArithmeticArrayBase
 {
+private:
+	using Self = TArithmeticArrayBase;
+
 public:
 	inline static constexpr auto NUM_ELEMENTS = N;
 
@@ -23,7 +26,8 @@ public:
 	explicit TArithmeticArrayBase(T value);
 	explicit TArithmeticArrayBase(std::array<T, N> values);
 
-// Hide special members as this class is not intended to be used polymorphically
+// Hide special members as this class is not intended to be used polymorphically.
+// It is derived class's choice to expose them (by defining them in public) or not.
 protected:
 	inline TArithmeticArrayBase() = default;
 	inline TArithmeticArrayBase(const TArithmeticArrayBase& other) = default;
@@ -101,6 +105,7 @@ protected:
 	bool isFinite() const;
 
 	Derived& set(T value);
+	Derived& set(std::size_t index, T value);
 	Derived& set(const std::array<T, N>& values);
 
 	T& operator [] (std::size_t index);

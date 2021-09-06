@@ -40,7 +40,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::addLocal(const Derived& rhs)
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		m[i] += rhs.m[i];
+		m[i] += rhs.Self::m[i];
 	}
 	return static_cast<Derived&>(*this);
 }
@@ -76,7 +76,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::subLocal(const Derived& rhs)
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		m[i] -= rhs.m[i];
+		m[i] -= rhs.Self::m[i];
 	}
 	return static_cast<Derived&>(*this);
 }
@@ -112,7 +112,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::mulLocal(const Derived& rhs)
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		m[i] *= rhs.m[i];
+		m[i] *= rhs.Self::m[i];
 	}
 	return static_cast<Derived&>(*this);
 }
@@ -148,7 +148,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::divLocal(const Derived& rhs)
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		m[i] /= rhs.m[i];
+		m[i] /= rhs.Self::m[i];
 	}
 	return static_cast<Derived&>(*this);
 }
@@ -273,7 +273,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::min(const Derived& other) const
 	Derived result(static_cast<const Derived&>(*this));
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		result.m[i] = std::min(m[i], other.m[i]);
+		result.Self::m[i] = std::min(m[i], other.Self::m[i]);
 	}
 	return result;
 }
@@ -305,7 +305,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::max(const Derived& other) const
 	Derived result(static_cast<const Derived&>(*this));
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		result.m[i] = std::max(m[i], other.m[i]);
+		result.Self::m[i] = std::max(m[i], other.Self::m[i]);
 	}
 	return result;
 }
@@ -333,7 +333,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::ceil() const
 		Derived result(static_cast<const Derived&>(*this));
 		for(std::size_t i = 0; i < N; ++i)
 		{
-			result.m[i] = static_cast<T>(std::ceil(m[i]));
+			result.Self::m[i] = static_cast<T>(std::ceil(m[i]));
 		}
 		return result;
 	}
@@ -352,7 +352,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::floor() const
 		Derived result(static_cast<const Derived&>(*this));
 		for(std::size_t i = 0; i < N; ++i)
 		{
-			result.m[i] = static_cast<T>(std::floor(m[i]));
+			result.Self::m[i] = static_cast<T>(std::floor(m[i]));
 		}
 		return result;
 	}
@@ -493,6 +493,16 @@ inline auto TArithmeticArrayBase<Derived, T, N>::set(const T value)
 }
 
 template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::set(const std::size_t index, const T value)
+-> Derived&
+{
+	PH_ASSERT_LT(index, N);
+
+	m[index] = value;
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, typename T, std::size_t N>
 inline auto TArithmeticArrayBase<Derived, T, N>::set(const std::array<T, N>& values)
 -> Derived&
 {
@@ -519,7 +529,7 @@ inline const T& TArithmeticArrayBase<Derived, T, N>::operator [] (const std::siz
 template<typename Derived, typename T, std::size_t N>
 inline bool TArithmeticArrayBase<Derived, T, N>::isEqual(const Derived& other) const
 {
-	return m == other.m;
+	return m == other.Self::m;
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -527,7 +537,7 @@ inline bool TArithmeticArrayBase<Derived, T, N>::isNear(const Derived& other, co
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		if(std::abs(m[i] - other.m[i]) > margin)
+		if(std::abs(m[i] - other.Self::m[i]) > margin)
 		{
 			return false;
 		}

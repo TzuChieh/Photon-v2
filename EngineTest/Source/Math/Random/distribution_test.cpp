@@ -121,10 +121,10 @@ TEST(PiecewiseConstantDistribution2DTest, ContinuousSampleInRange)
 		TVector2<float> value;
 		value = distribution.sampleContinuous({sampleX, sampleY}, &pdf);
 		
-		EXPECT_GE(value.x, 0.0f);
-		EXPECT_LE(value.x, 1.0f);
-		EXPECT_GE(value.y, 0.0f);
-		EXPECT_LE(value.y, 1.0f);
+		EXPECT_GE(value.x(), 0.0f);
+		EXPECT_LE(value.x(), 1.0f);
+		EXPECT_GE(value.y(), 0.0f);
+		EXPECT_LE(value.y(), 1.0f);
 		EXPECT_GT(pdf, 0.0f);
 
 		/*const TVector2<float> floatIndex = value.mul(3.0f);

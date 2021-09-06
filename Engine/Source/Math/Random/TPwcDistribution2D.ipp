@@ -13,31 +13,31 @@ inline TPwcDistribution2D<T>::TPwcDistribution2D(
 	const TVector2<std::size_t>& numWeights) : 
 
 	m_marginalYs(),
-	m_conditionalXs(numWeights.y)
+	m_conditionalXs(numWeights.y())
 {
-	PH_ASSERT(weights && numWeights.x > 0 && numWeights.y > 0);
+	PH_ASSERT(weights && numWeights.x() > 0 && numWeights.y() > 0);
 
 	// initialize conditional distributions for each row
-	std::vector<T> rowSums(numWeights.y, 0);
-	for(std::size_t y = 0; y < numWeights.y; ++y)
+	std::vector<T> rowSums(numWeights.y(), 0);
+	for(std::size_t y = 0; y < numWeights.y(); ++y)
 	{
-		const std::size_t baseIndex = y * numWeights.x;
-		for(std::size_t x = 0; x < numWeights.x; ++x)
+		const std::size_t baseIndex = y * numWeights.x();
+		for(std::size_t x = 0; x < numWeights.x(); ++x)
 		{
 			rowSums[y] += weights[baseIndex + x];
 		}
 
 		m_conditionalXs[y] = TPwcDistribution1D<T>(
-			range.getMinVertex().x, 
-			range.getMaxVertex().x, 
+			range.getMinVertex().x(),
+			range.getMaxVertex().x(),
 			&(weights[baseIndex]),
-			numWeights.x);
+			numWeights.x());
 	}
 
 	// initialize marginal distribution for each row
 	m_marginalYs = TPwcDistribution1D<T>(
-		range.getMinVertex().y,
-		range.getMaxVertex().y, 
+		range.getMinVertex().y(),
+		range.getMaxVertex().y(),
 		rowSums);
 }
 

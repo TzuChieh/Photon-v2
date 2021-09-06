@@ -38,7 +38,7 @@ inline Viewport::Viewport() :
 {}
 
 inline Viewport::Viewport(math::TVector2<uint32> baseSizePx) :
-	Viewport(std::move(baseSizePx), math::TAABB2D<int64>({0, 0}, {baseSizePx.x, baseSizePx.y}))
+	Viewport(std::move(baseSizePx), math::TAABB2D<int64>({0, 0}, {baseSizePx.x(), baseSizePx.y() }))
 {}
 
 inline Viewport::Viewport(math::TVector2<uint32> baseSizePx, math::TAABB2D<int64> windowPx) :
@@ -60,14 +60,14 @@ inline const math::TAABB2D<int64>& Viewport::getWindowPx() const
 
 inline math::TAABB2D<int64> Viewport::getCroppedRegionPx() const
 {
-	math::TAABB2D<int64> intersectedWindowPx({0, 0}, {m_baseSizePx.x, m_baseSizePx.y});
+	math::TAABB2D<int64> intersectedWindowPx({0, 0}, {m_baseSizePx.x(), m_baseSizePx.y() });
 	intersectedWindowPx.intersectWith(m_windowPx);
 	return intersectedWindowPx;
 }
 
 inline std::size_t Viewport::numBasePixels() const
 {
-	return static_cast<std::size_t>(m_baseSizePx.x) * m_baseSizePx.y;
+	return static_cast<std::size_t>(m_baseSizePx.x()) * m_baseSizePx.y();
 }
 
 inline std::size_t Viewport::numWindowPixels() const

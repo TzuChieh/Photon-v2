@@ -29,8 +29,8 @@ math::TDecomposedTransform<float64> SingleLensObserver::makeRasterToSensor(const
 	const math::Vector2D rasterResolution(ctx.getFrameSizePx());
 	const math::Vector2D sensorSize = getSensorSize(ctx);
 
-	PH_ASSERT_GT(sensorSize.x, 0);
-	PH_ASSERT_GT(sensorSize.y, 0);
+	PH_ASSERT_GT(sensorSize.x(), 0);
+	PH_ASSERT_GT(sensorSize.y(), 0);
 
 	/* The sensor is centered around the z-axis (+z out of the screen). Note
 	that a single lens observer will capture an horizontally & vertically flipped
@@ -53,13 +53,13 @@ math::TDecomposedTransform<float64> SingleLensObserver::makeRasterToSensor(const
 	math::TDecomposedTransform<float64> rasterToSensor;
 
 	rasterToSensor.scale(
-		-sensorSize.x / rasterResolution.x,
-		-sensorSize.y / rasterResolution.y,
+		-sensorSize.x() / rasterResolution.x(),
+		-sensorSize.y() / rasterResolution.y(),
 		1);
 
 	rasterToSensor.translate(
-		sensorSize.x / 2,
-		sensorSize.y / 2,
+		sensorSize.x() / 2,
+		sensorSize.y() / 2,
 		getSensorOffset(ctx));
 
 	return rasterToSensor;
@@ -76,7 +76,7 @@ float64 SingleLensObserver::getSensorOffset(const CoreCookingContext& ctx) const
 	if(m_fovDegrees.has_value())
 	{
 		const auto halfFov = math::to_radians(*m_fovDegrees) * 0.5;
-		return (getSensorSize(ctx).x * 0.5) / std::tan(halfFov);
+		return (getSensorSize(ctx).x() * 0.5) / std::tan(halfFov);
 	}
 	else
 	{

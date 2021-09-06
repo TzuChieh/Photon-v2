@@ -118,17 +118,17 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleStar
 
 	const math::Vector2S regionPosPx(math::Vector2R(
 		math::clamp(
-			fRasterCoord.x - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().x),
+			fRasterCoord.x() - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().x()),
 			0.0_r,
-			static_cast<real>(m_film->getEffectiveResPx().x - 1)),
+			static_cast<real>(m_film->getEffectiveResPx().x() - 1)),
 		math::clamp(
-			fRasterCoord.y - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().y),
+			fRasterCoord.y() - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().y()),
 			0.0_r, 
-			static_cast<real>(m_film->getEffectiveResPx().y - 1))));
+			static_cast<real>(m_film->getEffectiveResPx().y() - 1))));
 
 	const std::size_t viewpointIdx = 
-		regionPosPx.y * static_cast<std::size_t>(m_film->getEffectiveResPx().x) +
-		regionPosPx.x;
+		regionPosPx.y() * static_cast<std::size_t>(m_film->getEffectiveResPx().x()) +
+		regionPosPx.x();
 
 	PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
 	m_viewpoint = &(m_viewpoints[viewpointIdx]);
@@ -245,13 +245,13 @@ template<typename Viewpoint, typename Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinished()
 {
 	// evaluate radiance using current iteration's data
-	for(int64 y = m_filmRegion.getMinVertex().y; y < m_filmRegion.getMaxVertex().y; ++y)
+	for(int64 y = m_filmRegion.getMinVertex().y(); y < m_filmRegion.getMaxVertex().y(); ++y)
 	{
-		for(int64 x = m_filmRegion.getMinVertex().x; x < m_filmRegion.getMaxVertex().x; ++x)
+		for(int64 x = m_filmRegion.getMinVertex().x(); x < m_filmRegion.getMaxVertex().x(); ++x)
 		{
 			const std::size_t viewpointIdx =
-				(y - m_film->getEffectiveWindowPx().getMinVertex().y) * static_cast<std::size_t>(m_film->getEffectiveResPx().x) +
-				(x - m_film->getEffectiveWindowPx().getMinVertex().x);
+				(y - m_film->getEffectiveWindowPx().getMinVertex().y()) * static_cast<std::size_t>(m_film->getEffectiveResPx().x()) +
+				(x - m_film->getEffectiveWindowPx().getMinVertex().x());
 
 			PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
 			const auto& viewpoint = m_viewpoints[viewpointIdx];

@@ -35,7 +35,7 @@ Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* cons
 
 	math::Vector3R sensorPos;
 	getRasterToSensor().transformP(
-		math::Vector3R(math::Vector3D(rasterCoord.x, rasterCoord.y, 0)), 
+		math::Vector3R(math::Vector3D(rasterCoord.x(), rasterCoord.y(), 0)),
 		&sensorPos);
 
 	// Subtracting lens' center position is omitted since it is at (0, 0, 0)
@@ -49,7 +49,7 @@ Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* cons
 	const auto lensPos2D = lensDisk.sampleToSurface2D({
 		math::Random::genUniformReal_i0_e1(),
 		math::Random::genUniformReal_i0_e1()});
-	const auto lensPos = math::Vector3D(lensPos2D.x, lensPos2D.y, 0);
+	const auto lensPos = math::Vector3D(lensPos2D.x(), lensPos2D.y(), 0);
 
 	// Now we transform camera space data to world space
 

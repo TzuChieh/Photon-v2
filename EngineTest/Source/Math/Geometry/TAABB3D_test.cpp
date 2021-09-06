@@ -85,6 +85,6 @@ TEST(TAABB3DTest, SplittingAABB3D)
 
 	const TAABB3D<int> aabb2({0, 0, 0}, {3, 3, 3});
 	const auto splittedAabb2 = aabb2.getSplitted(constant::X_AXIS, 2);
-	EXPECT_TRUE(splittedAabb2.first.equals(TAABB3D<int>({0, 0, 0}, {2, 3, 3})));
-	EXPECT_TRUE(splittedAabb2.second.equals(TAABB3D<int>({2, 0, 0}, {3, 3, 3})));
+	EXPECT_TRUE(splittedAabb2.first.isEqual(TAABB3D<int>({0, 0, 0}, {2, 3, 3})));
+	EXPECT_TRUE(splittedAabb2.second.isEqual(TAABB3D<int>({2, 0, 0}, {3, 3, 3})));
 }

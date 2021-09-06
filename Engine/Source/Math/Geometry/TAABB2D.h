@@ -43,7 +43,7 @@ public:
 	T getHeight() const;
 	TVector2<T> getExtents() const;
 	TVector2<T> getCenter() const;
-	std::pair<TAABB2D, TAABB2D> getSplitted(constant::AxisIndexType axis, T splitPoint) const;
+	std::pair<TAABB2D, TAABB2D> getSplitted(std::size_t axis, T splitPoint) const;
 	TAABB2D getUnioned(const TAABB2D& other) const;
 	TAABB2D getIntersected(const TAABB2D& other) const;
 	bool isValid() const;
@@ -56,7 +56,7 @@ public:
 	std::string toString() const;
 
 	// TODO: a variant with margins for floating types
-	bool equals(const TAABB2D& other) const;
+	bool isEqual(const TAABB2D& other) const;
 
 private:
 	TVector2<T> m_minVertex;

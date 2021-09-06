@@ -102,7 +102,7 @@ void PPMRadianceEvaluationWork::doWork()
 		radiance.mulLocal(viewpoint.get<EViewpointData::VIEW_THROUGHPUT>());
 
 		const math::Vector2D rasterCoord = viewpoint.get<EViewpointData::RASTER_COORD>();
-		m_film->addSample(rasterCoord.x, rasterCoord.y, radiance);
+		m_film->addSample(rasterCoord.x(), rasterCoord.y(), radiance);
 	}
 }
 

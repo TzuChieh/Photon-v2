@@ -81,17 +81,17 @@ inline void MetaRecordingProcessor::setDimensions(
 	const math::TVector2<int64>& filmResPx,
 	const math::TAABB2D<int64>&  recordWindowPx)
 {
-	PH_ASSERT_MSG(filmResPx.x > 0 && filmResPx.y > 0, 
+	PH_ASSERT_MSG(filmResPx.x() > 0 && filmResPx.y() > 0,
 		filmResPx.toString());
-	PH_ASSERT_MSG(recordWindowPx.getExtents().x > 0 && recordWindowPx.getExtents().y > 0,
+	PH_ASSERT_MSG(recordWindowPx.getExtents().x() > 0 && recordWindowPx.getExtents().y() > 0,
 		recordWindowPx.toString());
 
 	m_filmResPx      = math::Vector2D(filmResPx);
 	m_recordWindowPx = recordWindowPx;
 
 	const auto recordResPx = math::TVector2<uint32>(recordWindowPx.getExtents());
-	m_processCountFrame.setSize(recordResPx.x, recordResPx.y);
-	m_msSpentFrame.setSize(recordResPx.x, recordResPx.y);
+	m_processCountFrame.setSize(recordResPx.x(), recordResPx.y());
+	m_msSpentFrame.setSize(recordResPx.x(), recordResPx.y());
 }
 
 }// end namespace ph

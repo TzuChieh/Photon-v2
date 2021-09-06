@@ -104,7 +104,7 @@ inline void SpiralScheduler::scheduleOne(WorkUnit* const out_workUnit)
 	{
 	// advancing to next cycle is only possible in this direction
 	case EFacing::POSITIVE_X:
-		m_headPos.x += m_headSize.x;
+		m_headPos.x() += m_headSize.x();
 		if(m_currentSteps >= maxSteps)
 		{
 			m_headFacing = EFacing::POSITIVE_Y;
@@ -116,11 +116,11 @@ inline void SpiralScheduler::scheduleOne(WorkUnit* const out_workUnit)
 	case EFacing::POSITIVE_Y:
 		if(m_currentSteps < maxSteps)
 		{
-			m_headPos.y += m_headSize.y;
+			m_headPos.y() += m_headSize.y();
 		}
 		else
 		{
-			m_headPos.x -= m_headSize.x;
+			m_headPos.x() -= m_headSize.x();
 			m_headFacing = EFacing::NEGATIVE_X;
 			m_currentSteps = 0;
 		}
@@ -129,11 +129,11 @@ inline void SpiralScheduler::scheduleOne(WorkUnit* const out_workUnit)
 	case EFacing::NEGATIVE_X:
 		if(m_currentSteps < maxSteps)
 		{
-			m_headPos.x -= m_headSize.x;
+			m_headPos.x() -= m_headSize.x();
 		}
 		else
 		{
-			m_headPos.y -= m_headSize.y;
+			m_headPos.y() -= m_headSize.y();
 			m_headFacing = EFacing::NEGATIVE_Y;
 			m_currentSteps = 0;
 		}
@@ -142,11 +142,11 @@ inline void SpiralScheduler::scheduleOne(WorkUnit* const out_workUnit)
 	case EFacing::NEGATIVE_Y:
 		if(m_currentSteps < maxSteps)
 		{
-			m_headPos.y -= m_headSize.y;
+			m_headPos.y() -= m_headSize.y();
 		}
 		else
 		{
-			m_headPos.x += m_headSize.x;
+			m_headPos.x() += m_headSize.x();
 			m_headFacing = EFacing::POSITIVE_X;
 			m_currentSteps = 0;
 		}

@@ -102,10 +102,10 @@ TEST(TAABB2DTest, UnionAABB2Ds)
 	const AABB2DR aabb1(Vector2R( 0,  0), Vector2R(1, 1));
 	const AABB2DR aabb2(Vector2R(-1, -1), Vector2R(2, 4));
 	const AABB2DR unioned = AABB2DR(aabb1).unionWith(aabb2);
-	EXPECT_NEAR(unioned.getMinVertex().x, -1, TEST_REAL_EPSILON);
-	EXPECT_NEAR(unioned.getMinVertex().y, -1, TEST_REAL_EPSILON);
-	EXPECT_NEAR(unioned.getMaxVertex().x,  2, TEST_REAL_EPSILON);
-	EXPECT_NEAR(unioned.getMaxVertex().y,  4, TEST_REAL_EPSILON);
+	EXPECT_NEAR(unioned.getMinVertex().x(), -1, TEST_REAL_EPSILON);
+	EXPECT_NEAR(unioned.getMinVertex().y(), -1, TEST_REAL_EPSILON);
+	EXPECT_NEAR(unioned.getMaxVertex().x(),  2, TEST_REAL_EPSILON);
+	EXPECT_NEAR(unioned.getMaxVertex().y(),  4, TEST_REAL_EPSILON);
 }
 
 TEST(TAABB2DTest, IntersectAABB2Ds)
@@ -115,10 +115,10 @@ TEST(TAABB2DTest, IntersectAABB2Ds)
 	const AABB2DR aabb1(Vector2R(-1, -1),       Vector2R(1, 1));
 	const AABB2DR aabb2(Vector2R(0.5_r, 0.3_r), Vector2R(0.8_r, 1.3_r));
 	const AABB2DR intersected = AABB2DR(aabb1).intersectWith(aabb2);
-	EXPECT_NEAR(intersected.getMinVertex().x, 0.5_r, TEST_REAL_EPSILON);
-	EXPECT_NEAR(intersected.getMinVertex().y, 0.3_r, TEST_REAL_EPSILON);
-	EXPECT_NEAR(intersected.getMaxVertex().x, 0.8_r, TEST_REAL_EPSILON);
-	EXPECT_NEAR(intersected.getMaxVertex().y, 1.0_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(intersected.getMinVertex().x(), 0.5_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(intersected.getMinVertex().y(), 0.3_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(intersected.getMaxVertex().x(), 0.8_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(intersected.getMaxVertex().y(), 1.0_r, TEST_REAL_EPSILON);
 }
 
 TEST(TAABB2DTest, AABB2DCalculateAreas)
@@ -140,8 +140,8 @@ TEST(TAABB2DTest, AABB2DEquality)
 	const TAABB2D<int32> aabb2(TVector2<int32>(-1, -1), TVector2<int32>(1, 1));
 	const TAABB2D<int32> aabb3(TVector2<int32>( 0, -1), TVector2<int32>(1, 1));
 
-	EXPECT_TRUE (aabb1.equals(aabb2));
-	EXPECT_FALSE(aabb1.equals(aabb3));
+	EXPECT_TRUE (aabb1.isEqual(aabb2));
+	EXPECT_FALSE(aabb1.isEqual(aabb3));
 }
 
 TEST(TAABB2DTest, AABB2DCalculateCenter)
@@ -150,15 +150,15 @@ TEST(TAABB2DTest, AABB2DCalculateCenter)
 
 	const TAABB2D<int32> aabb1(TVector2<int32>(-2, -1), TVector2<int32>(1, 1));
 	const auto& center1 = aabb1.getCenter();
-	EXPECT_EQ(center1.x, (-2 + 1) / 2);
-	EXPECT_EQ(center1.y, (-1 + 1) / 2);
+	EXPECT_EQ(center1.x(), (-2 + 1) / 2);
+	EXPECT_EQ(center1.y(), (-1 + 1) / 2);
 
 	// trial 2
 
 	const TAABB2D<float32> aabb2(TVector2<float32>(-2, -1), TVector2<float32>(1, 1));
 	const auto& center2 = aabb2.getCenter();
-	EXPECT_FLOAT_EQ(center2.x, (-2.0f + 1.0f) / 2.0f);
-	EXPECT_FLOAT_EQ(center2.y, (-1.0f + 1.0f) / 2.0f);
+	EXPECT_FLOAT_EQ(center2.x(), (-2.0f + 1.0f) / 2.0f);
+	EXPECT_FLOAT_EQ(center2.y(), (-1.0f + 1.0f) / 2.0f);
 }
 
 // TODO: more tests
@@ -166,6 +166,6 @@ TEST(TAABB2DTest, SplittingAABB2D)
 {
 	const TAABB2D<int> aabb1({0, 0}, {5, 5});
 	const auto splittedAabb1 = aabb1.getSplitted(constant::Y_AXIS, 3);
-	EXPECT_TRUE(splittedAabb1.first.equals(TAABB2D<int>({0, 0}, {5, 3})));
-	EXPECT_TRUE(splittedAabb1.second.equals(TAABB2D<int>({0, 3}, {5, 5})));
+	EXPECT_TRUE(splittedAabb1.first.isEqual(TAABB2D<int>({0, 0}, {5, 3})));
+	EXPECT_TRUE(splittedAabb1.second.isEqual(TAABB2D<int>({0, 3}, {5, 5})));
 }

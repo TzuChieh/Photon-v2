@@ -50,7 +50,7 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 		const real        sinTheta  = std::sin((1.0_r - v) * math::constant::pi<real>);
 		for(std::size_t x = 0; x < resolution.x(); ++x)
 		{
-			const real     u        = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x);
+			const real     u        = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x());
 			const Spectrum sampledL = sampler.sample(*radiance, {u, v});
 
 			// For non-nearest filtered textures, sample weights can be 0 while

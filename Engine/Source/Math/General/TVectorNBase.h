@@ -14,17 +14,22 @@ class TVectorNBase : private TArithmeticArrayBase<Derived, T, N>
 {
 private:
 	using Base = TArithmeticArrayBase<Derived, T, N>;
+	friend Base;
 
 protected:
 	using Base::m;
 
-public:
+// Hide special members as this class is not intended to be used polymorphically.
+// It is derived class's choice to expose them (by defining them in public) or not.
+protected:
 	inline TVectorNBase() = default;
 	inline TVectorNBase(const TVectorNBase& other) = default;
 	inline TVectorNBase(TVectorNBase&& other) = default;
 	inline TVectorNBase& operator = (const TVectorNBase& rhs) = default;
 	inline TVectorNBase& operator = (TVectorNBase && rhs) = default;
+	inline ~TVectorNBase() = default;
 
+public:
 	using Base::Base;
 
 	template<typename U>

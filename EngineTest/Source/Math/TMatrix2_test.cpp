@@ -74,8 +74,8 @@ TEST(TMatrix2Test, SolveLinearSystem)
 			1.0f);
 		TVector2<float> x;
 		ASSERT_TRUE(A.solve(b, &x));
-		EXPECT_FLOAT_EQ(x.x, 1.0f);
-		EXPECT_FLOAT_EQ(x.y, 1.0f);
+		EXPECT_FLOAT_EQ(x.x(), 1.0f);
+		EXPECT_FLOAT_EQ(x.y(), 1.0f);
 	}
 
 	// a solvable system
@@ -88,8 +88,8 @@ TEST(TMatrix2Test, SolveLinearSystem)
 			0.1f);
 		TVector2<float> x;
 		ASSERT_TRUE(A.solve(b, &x));
-		EXPECT_FLOAT_EQ(x.x, -1);
-		EXPECT_FLOAT_EQ(x.y,  1);
+		EXPECT_FLOAT_EQ(x.x(), -1);
+		EXPECT_FLOAT_EQ(x.y(),  1);
 	}
 
 	// a solvable system
@@ -102,8 +102,8 @@ TEST(TMatrix2Test, SolveLinearSystem)
 			3.0f);
 		TVector2<float> x;
 		ASSERT_TRUE(A.solve(b, &x));
-		EXPECT_FLOAT_EQ(x.x, 1.0f);
-		EXPECT_FLOAT_EQ(x.y, 1.0f);
+		EXPECT_FLOAT_EQ(x.x(), 1.0f);
+		EXPECT_FLOAT_EQ(x.y(), 1.0f);
 	}
 
 	// an unsolvable system (A is singular)

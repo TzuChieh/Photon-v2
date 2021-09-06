@@ -51,7 +51,7 @@ process(
 
 		if(m_currentBatchNumber % m_filmStepSizes[filmIndex] == 0)
 		{
-			Parent::m_films[filmIndex].addSample(rasterCoord.x, rasterCoord.y, Parent::m_estimations[estimationIndex] * quantityWeight);
+			Parent::m_films[filmIndex].addSample(rasterCoord.x(), rasterCoord.y(), Parent::m_estimations[estimationIndex] * quantityWeight);
 		}
 	}
 }

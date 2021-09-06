@@ -57,7 +57,7 @@ math::Vector3R PinholeCamera::genReceiveRayDir(const math::Vector2D& rasterCoord
 
 	math::Vector3R sensorPos;
 	getRasterToSensor().transformP(
-		math::Vector3R(math::Vector3D(rasterCoord.x, rasterCoord.y, 0)), 
+		math::Vector3R(math::Vector3D(rasterCoord.x(), rasterCoord.y(), 0)),
 		&sensorPos);
 
 	// Subtracting pinhole position is omitted since it is at (0, 0, 0)

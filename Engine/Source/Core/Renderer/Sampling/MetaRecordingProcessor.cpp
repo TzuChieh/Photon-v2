@@ -20,8 +20,8 @@ void MetaRecordingProcessor::process(
 
 	// Only record if processed position is in bound
 	const auto globalRasterPos = math::TVector2<int64>(rasterCoord.floor());
-	if(globalRasterPos.x < m_recordWindowPx.getMinVertex().x || globalRasterPos.x >= m_recordWindowPx.getMaxVertex().x ||
-	   globalRasterPos.y < m_recordWindowPx.getMinVertex().y || globalRasterPos.y >= m_recordWindowPx.getMaxVertex().y)
+	if(globalRasterPos.x() < m_recordWindowPx.getMinVertex().x() || globalRasterPos.x() >= m_recordWindowPx.getMaxVertex().x() ||
+	   globalRasterPos.y() < m_recordWindowPx.getMinVertex().y() || globalRasterPos.y() >= m_recordWindowPx.getMaxVertex().y())
 	{
 		return;
 	}
