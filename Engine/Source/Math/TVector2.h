@@ -35,6 +35,11 @@ public:
 	T& y();
 	const T& x() const;
 	const T& y() const;
+
+	T& u();
+	T& v();
+	const T& u() const;
+	const T& v() const;
 };
 
 }// end namespace ph::math

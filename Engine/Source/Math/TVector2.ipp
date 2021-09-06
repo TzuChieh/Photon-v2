@@ -47,4 +47,28 @@ inline const T& TVector2<T>::y() const
 	return m[1];
 }
 
+template<typename T>
+inline T& TVector2<T>::u()
+{
+	return x();
+}
+
+template<typename T>
+inline T& TVector2<T>::v()
+{
+	return y();
+}
+
+template<typename T>
+inline const T& TVector2<T>::u() const
+{
+	return x();
+}
+
+template<typename T>
+inline const T& TVector2<T>::v() const
+{
+	return y();
+}
+
 }// end namespace ph::math
