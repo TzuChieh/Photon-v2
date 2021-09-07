@@ -3,14 +3,13 @@
 namespace ph::math
 {
 
-enum class EColorSpace
+enum class EReferenceWhite
 {
 	UNSPECIFIED = 0,
 
-	CIE_XYZ,
-	Linear_sRGB,
-	sRGB,
-	Spectrum_Smits
+	D65,
+	E,
+	D50
 };
 
 }// end namespace ph::math
