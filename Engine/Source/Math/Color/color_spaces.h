@@ -26,6 +26,13 @@ concept CSupportsCIEXYZConversions = requires (const Vector3R& thisColor, const 
 };
 
 template<typename T>
+concept CSupportsSpectralConversions = requires ()
+{
+	{ T::toSampled() }
+	{ T::fromSampled() }
+};
+
+template<typename T>
 concept CColorSpaceDefinition = CHasColorSpaceProperties<T>;
 
 template<EColorSpace COLOR_SPACE>

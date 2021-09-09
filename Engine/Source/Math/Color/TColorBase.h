@@ -10,7 +10,7 @@ namespace ph::math
 {
 
 template<typename Derived, typename T, std::size_t N>
-class TVectorNBase : private TArithmeticArrayBase<Derived, T, N>
+class TColorBase : private TArithmeticArrayBase<Derived, T, N>
 {
 private:
 	using Base = TArithmeticArrayBase<Derived, T, N>;
@@ -24,49 +24,30 @@ protected:
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline TVectorNBase() = default;
-	inline TVectorNBase(const TVectorNBase& other) = default;
-	inline TVectorNBase(TVectorNBase&& other) = default;
-	inline TVectorNBase& operator = (const TVectorNBase& rhs) = default;
-	inline TVectorNBase& operator = (TVectorNBase && rhs) = default;
-	inline ~TVectorNBase() = default;
+	inline TColorBase() = default;
+	inline TColorBase(const TColorBase& other) = default;
+	inline TColorBase(TColorBase&& other) = default;
+	inline TColorBase& operator = (const TColorBase& rhs) = default;
+	inline TColorBase& operator = (TColorBase&& rhs) = default;
+	inline ~TColorBase() = default;
 
 public:
 	using Base::Base;
 
 	template<typename U>
-	explicit TVectorNBase(const std::array<U, N>& values);
+	explicit TColorBase(const std::array<U, N>& values);
 
 	template<typename U>
-	explicit TVectorNBase(const TArithmeticArray<U, N>& values);
+	explicit TColorBase(const TArithmeticArray<U, N>& values);
 
 	template<typename U>
-	explicit TVectorNBase(const U* values);
+	explicit TColorBase(const U* values);
 
 	template<typename U>
-	explicit TVectorNBase(const std::vector<U>& values);
+	explicit TColorBase(const std::vector<U>& values);
 
-	T dot(const Derived& rhs) const;
-	T dot(T rhs) const;
-	T absDot(const Derived& rhs) const;
-	T absDot(T rhs) const;
-
-	T length() const;
-	T lengthSquared() const;
-
-	// Notice that normalizing a integer typed vector will result in 0-vector 
-	// most of the time.
-	Derived normalize() const;
-	Derived& normalizeLocal();
-
-	template<typename = std::enable_if_t<std::is_signed_v<T>>>
-	Derived negate() const;
-
-	template<typename = std::enable_if_t<std::is_signed_v<T>>>
-	Derived& negateLocal();
-
-	std::size_t minDimension() const;
-	std::size_t maxDimension() const;
+	std::size_t minComponent() const;
+	std::size_t maxComponent() const;
 
 	using Base::add;
 	using Base::addLocal;
@@ -133,4 +114,4 @@ public:
 
 }// end namespace ph::math
 
-#include "Math/General/TVectorNBase.ipp"
+#include "Math/Color/TColorBase.ipp"
