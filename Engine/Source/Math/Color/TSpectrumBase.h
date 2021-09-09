@@ -2,15 +2,27 @@
 
 #include "Math/General/TArithmeticArrayBase.h"
 #include "Math/math_fwd.h"
+#include "Math/Color/EColorSpace.h"
 
 #include <cstddef>
 #include <type_traits>
+#include <concepts>
 
 namespace ph::math
 {
 
+template<typename Derived, typename ColorType, EColorSpace COLOR_SPACE>
+concept CHasSpectrumImplementations = requires (
+	Derived&       nonConstDerived, 
+	const Derived& constDerived, 
+	ColorType      inputColor)
+{
+	{ nonConstDerived.template impl_from<COLOR_SPACE>(inputColor) };
+	{ constDerived.template impl_to<COLOR_SPACE>() } -> std::same_as<ColorType>;
+};
+
 template<typename Derived, typename T, std::size_t N>
-class TColorBase : private TArithmeticArrayBase<Derived, T, N>
+class TSpectrumBase : private TArithmeticArrayBase<Derived, T, N>
 {
 private:
 	using Base = TArithmeticArrayBase<Derived, T, N>;
@@ -24,27 +36,27 @@ protected:
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline TColorBase() = default;
-	inline TColorBase(const TColorBase& other) = default;
-	inline TColorBase(TColorBase&& other) = default;
-	inline TColorBase& operator = (const TColorBase& rhs) = default;
-	inline TColorBase& operator = (TColorBase&& rhs) = default;
-	inline ~TColorBase() = default;
+	inline TSpectrumBase() = default;
+	inline TSpectrumBase(const TSpectrumBase& other) = default;
+	inline TSpectrumBase(TSpectrumBase&& other) = default;
+	inline TSpectrumBase& operator = (const TSpectrumBase& rhs) = default;
+	inline TSpectrumBase& operator = (TSpectrumBase&& rhs) = default;
+	inline ~TSpectrumBase() = default;
 
 public:
 	using Base::Base;
 
 	template<typename U>
-	explicit TColorBase(const std::array<U, N>& values);
+	explicit TSpectrumBase(const std::array<U, N>& values);
 
 	template<typename U>
-	explicit TColorBase(const TArithmeticArray<U, N>& values);
+	explicit TSpectrumBase(const TArithmeticArray<U, N>& values);
 
 	template<typename U>
-	explicit TColorBase(const U* values);
+	explicit TSpectrumBase(const U* values);
 
 	template<typename U>
-	explicit TColorBase(const std::vector<U>& values);
+	explicit TSpectrumBase(const std::vector<U>& values);
 
 	std::size_t minComponent() const;
 	std::size_t maxComponent() const;
@@ -114,4 +126,4 @@ public:
 
 }// end namespace ph::math
 
-#include "Math/Color/TColorBase.ipp"
+#include "Math/Color/TSpectrumBase.ipp"

@@ -4,12 +4,16 @@
 #include "Math/Color/EColorUsage.h"
 #include "Math/Color/EReferenceWhite.h"
 #include "Common/primitive_type.h"
-#include "Math/TVector3.h"
+#include "Common/config.h"
 
 #include <concepts>
+#include <array>
 
 namespace ph::math
 {
+
+using TristimulusValues    = std::array<real, 3>;
+using SpectralSampleValues = std::array<real, PH_SPECTRUM_SAMPLED_NUM_SAMPLES>;
 
 template<typename T>
 concept CHasColorSpaceProperties = requires ()
@@ -19,14 +23,14 @@ concept CHasColorSpaceProperties = requires ()
 };
 
 template<typename T>
-concept CSupportsCIEXYZConversions = requires (const Vector3R& thisColor, const Vector3R& CIEXYZColor)
+concept CSupportsTristimulusConversions = requires (TristimulusValues thisColor, TristimulusValues CIEXYZColor)
 {
-	{ T::toCIEXYZ(thisColor) } noexcept -> std::same_as<Vector3R>;
-	{ T::fromCIEXYZ(CIEXYZColor) } noexcept -> std::same_as<Vector3R>;
+	{ T::toCIEXYZ(thisColor) } noexcept -> std::same_as<TristimulusValues>;
+	{ T::fromCIEXYZ(CIEXYZColor) } noexcept -> std::same_as<TristimulusValues>;
 };
 
 template<typename T>
-concept CSupportsSpectralConversions = requires ()
+concept CSupportsSpectralConversions = requires (SpectralSampleValues sampleValues)
 {
 	{ T::toSampled() }
 	{ T::fromSampled() }
