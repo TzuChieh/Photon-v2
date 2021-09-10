@@ -22,11 +22,11 @@ https://stackoverflow.com/questions/35743586/noncopyable-and-nonmovable-together
 class IMoveOnly
 {
 protected:
-	IMoveOnly() = default;
-	~IMoveOnly() = default;
+	inline IMoveOnly() = default;
+	inline ~IMoveOnly() = default;
 
-	IMoveOnly(IMoveOnly&& other) = default;
-	IMoveOnly& operator = (IMoveOnly&& rhs) = default;
+	inline IMoveOnly(IMoveOnly&& other) = default;
+	inline IMoveOnly& operator = (IMoveOnly&& rhs) = default;
 
 	IMoveOnly(const IMoveOnly& other) = delete;
 	IMoveOnly& operator = (const IMoveOnly& rhs) = delete;

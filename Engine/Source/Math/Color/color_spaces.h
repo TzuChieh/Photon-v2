@@ -5,6 +5,7 @@
 #include "Math/Color/EReferenceWhite.h"
 #include "Common/primitive_type.h"
 #include "Common/config.h"
+#include "Utility/IUninstantiable.h"
 
 #include <concepts>
 #include <array>
@@ -16,10 +17,10 @@ namespace ph::math
 template<typename T>
 concept CColorSpaceDefinition = CHasColorSpaceProperties<T>;
 
-template<EColorSpace COLOR_SPACE, EReferenceWhite REFERENCE_WHITE, bool IS_TRISTIMULUS>
-class TColorSpaceDefinitionBase
+template<EColorSpace COLOR_SPACE, EReferenceWhite REFERENCE_WHITE>
+class TColorSpaceDefinitionHelper : private IUninstantiable
 {
-public:
+protected:
 	inline static constexpr EColorSpace getColorSpace() noexcept
 	{
 		return COLOR_SPACE;
@@ -29,27 +30,43 @@ public:
 	{
 		return REFERENCE_WHITE;
 	}
-
-	inline static constexpr bool isTristimulus() noexcept
-	{
-		return IS_TRISTIMULUS;
-	}
-
-// Hide special members as this class is not intended to be used polymorphically.
-protected:
-	inline TColorSpaceDefinitionBase() = default;
-	inline TColorSpaceDefinitionBase(const TColorSpaceDefinitionBase& other) = default;
-	inline TColorSpaceDefinitionBase(TColorSpaceDefinitionBase&& other) = default;
-	inline TColorSpaceDefinitionBase& operator = (const TColorSpaceDefinitionBase& rhs) = default;
-	inline TColorSpaceDefinitionBase& operator = (TColorSpaceDefinitionBase&& rhs) = default;
-	inline ~TColorSpaceDefinitionBase() = default;
 };
 
 template<EColorSpace COLOR_SPACE, EReferenceWhite REFERENCE_WHITE>
-using TTristimulusColorSpaceDefinition = TColorSpaceDefinitionBase<COLOR_SPACE, REFERENCE_WHITE, true>;
+class TTristimulusColorSpaceDefinitionHelper : public TColorSpaceDefinitionHelper<COLOR_SPACE, REFERENCE_WHITE>
+{
+private:
+	using Base = TColorSpaceDefinitionHelper<COLOR_SPACE, REFERENCE_WHITE>;
 
-template<EColorSpace COLOR_SPACE, EReferenceWhite REFERENCE_WHITE>
-using TSpectralColorSpaceDefinition = TColorSpaceDefinitionBase<COLOR_SPACE, REFERENCE_WHITE, false>;
+public:
+	inline static constexpr bool isTristimulus() noexcept
+	{
+		return true;
+	}
+
+	using Base::getColorSpace;
+	using Base::getReferenceWhite;
+};
+
+template<EColorSpace COLOR_SPACE, EReferenceWhite REFERENCE_WHITE, EColorSpace BOUND_TRISTIMULUS_COLOR_SPACE>
+class TSpectralColorSpaceDefinitionHelper : public TColorSpaceDefinitionHelper<COLOR_SPACE, REFERENCE_WHITE>
+{
+	static_assert(COLOR_SPACE != BOUND_TRISTIMULUS_COLOR_SPACE,
+		"Cannot define a spectral space that binds itself as a tristimulus one. "
+		"A color space can be either spectral or tristimulus but not both.");
+
+private:
+	using Base = TColorSpaceDefinitionHelper<COLOR_SPACE, REFERENCE_WHITE>;
+
+public:
+	inline static constexpr bool isTristimulus() noexcept
+	{
+		return false;
+	}
+
+	using Base::getColorSpace;
+	using Base::getReferenceWhite;
+};
 
 template<EColorSpace COLOR_SPACE>
 class TColorSpaceDefinition final
@@ -72,14 +89,15 @@ concept CHasColorSpaceProperties = requires ()
 template<typename ColorSpaceDefType>
 concept CSupportsTristimulusConversions = requires (TristimulusValues thisColor, TristimulusValues CIEXYZColor)
 {
-	{ ColorSpaceDefType::toCIEXYZ(thisColor) } noexcept -> std::same_as<TristimulusValues>;
-	{ ColorSpaceDefType::fromCIEXYZ(CIEXYZColor) } noexcept -> std::same_as<TristimulusValues>;
+	{ ColorSpaceDefType::toCIEXYZ(thisColor) } -> std::same_as<TristimulusValues>;
+	{ ColorSpaceDefType::fromCIEXYZ(CIEXYZColor) } -> std::same_as<TristimulusValues>;
 };
 
 template<typename ColorSpaceDefType>
-concept CSupportsSpectralConversions = requires (TristimulusValues thisColor, SpectralSampleValues sampleValues)
+concept CSupportsSpectralConversions = requires (TristimulusValues boundColor, SpectralSampleValues sampleValues)
 {
-	{ ColorSpaceDefType::upSample(thisColor) } -> std::same_as<SpectralSampleValues>;
+	{ ColorSpaceDefType::getBoundTristimulusColorSpace() } -> std::same_as<EColorSpace>;
+	{ ColorSpaceDefType::upSample(boundColor) } -> std::same_as<SpectralSampleValues>;
 	{ ColorSpaceDefType::downSample(sampleValues) } -> std::same_as<TristimulusValues>;
 };
 

@@ -16,8 +16,8 @@ so the intent is obvious. See IMoveOnly for more details.
 class INoCopyAndMove
 {
 protected:
-	INoCopyAndMove() = default;
-	~INoCopyAndMove() = default;
+	inline INoCopyAndMove() = default;
+	inline ~INoCopyAndMove() = default;
 
 	INoCopyAndMove(INoCopyAndMove&& other) = delete;
 	INoCopyAndMove& operator = (INoCopyAndMove&& rhs) = delete;
