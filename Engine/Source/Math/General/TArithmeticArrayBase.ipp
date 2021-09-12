@@ -16,7 +16,7 @@ inline TArithmeticArrayBase<Derived, T, N>::TArithmeticArrayBase(const T value)
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline TArithmeticArrayBase<Derived, T, N>::TArithmeticArrayBase(std::array<T, N> values) :
+inline TArithmeticArrayBase<Derived, T, N>::TArithmeticArrayBase(Elements values) :
 	m(std::move(values))
 {}
 
@@ -481,7 +481,7 @@ inline bool TArithmeticArrayBase<Derived, T, N>::isFinite() const
 template<typename Derived, typename T, std::size_t N>
 inline constexpr std::size_t TArithmeticArrayBase<Derived, T, N>::size() const noexcept
 {
-	return N;
+	return NUM_ELEMENTS;
 }
 
 template<typename Derived, typename T, std::size_t N>

@@ -14,6 +14,33 @@
 namespace ph::math
 {
 
+using ColorValue = real;
+using TristimulusValues = std::array<ColorValue, 3>;
+using SpectralSampleValues = std::array<ColorValue, PH_SPECTRUM_SAMPLED_NUM_SAMPLES>;
+
+template<typename ColorSpaceDefType>
+concept CHasColorSpaceProperties = requires ()
+{
+	{ ColorSpaceDefType::getColorSpace() } noexcept -> std::same_as<EColorSpace>;
+	{ ColorSpaceDefType::getReferenceWhite() } noexcept -> std::same_as<EReferenceWhite>;
+	{ ColorSpaceDefType::isTristimulus() } noexcept -> std::same_as<bool>;
+};
+
+template<typename ColorSpaceDefType>
+concept CSupportsTristimulusConversions = requires (TristimulusValues thisColor, TristimulusValues CIEXYZColor)
+{
+	{ ColorSpaceDefType::toCIEXYZ(thisColor) } -> std::same_as<TristimulusValues>;
+	{ ColorSpaceDefType::fromCIEXYZ(CIEXYZColor) } -> std::same_as<TristimulusValues>;
+};
+
+template<typename ColorSpaceDefType>
+concept CSupportsSpectralConversions = requires (TristimulusValues boundColor, SpectralSampleValues sampleValues)
+{
+	{ ColorSpaceDefType::getBoundTristimulusColorSpace() } -> std::same_as<EColorSpace>;
+	{ ColorSpaceDefType::upSample(boundColor) } -> std::same_as<SpectralSampleValues>;
+	{ ColorSpaceDefType::downSample(sampleValues) } -> std::same_as<TristimulusValues>;
+};
+
 template<typename T>
 concept CColorSpaceDefinition = CHasColorSpaceProperties<T>;
 
@@ -64,6 +91,11 @@ public:
 		return false;
 	}
 
+	inline static constexpr EColorSpace getBoundTristimulusColorSpace() noexcept
+	{
+		return BOUND_TRISTIMULUS_COLOR_SPACE;
+	}
+
 	using Base::getColorSpace;
 	using Base::getReferenceWhite;
 };
@@ -75,68 +107,6 @@ class TColorSpaceDefinition final
 		"No definition for the specified COLOR_SPACE.");
 };
 
-using TristimulusValues    = std::array<real, 3>;
-using SpectralSampleValues = std::array<real, PH_SPECTRUM_SAMPLED_NUM_SAMPLES>;
-
-template<typename ColorSpaceDefType>
-concept CHasColorSpaceProperties = requires ()
-{
-	{ ColorSpaceDefType::getColorSpace() } noexcept -> std::same_as<EColorSpace>;
-	{ ColorSpaceDefType::getReferenceWhite() } noexcept -> std::same_as<EReferenceWhite>;
-	{ ColorSpaceDefType::isTristimulus() } noexcept -> std::same_as<bool>;
-};
-
-template<typename ColorSpaceDefType>
-concept CSupportsTristimulusConversions = requires (TristimulusValues thisColor, TristimulusValues CIEXYZColor)
-{
-	{ ColorSpaceDefType::toCIEXYZ(thisColor) } -> std::same_as<TristimulusValues>;
-	{ ColorSpaceDefType::fromCIEXYZ(CIEXYZColor) } -> std::same_as<TristimulusValues>;
-};
-
-template<typename ColorSpaceDefType>
-concept CSupportsSpectralConversions = requires (TristimulusValues boundColor, SpectralSampleValues sampleValues)
-{
-	{ ColorSpaceDefType::getBoundTristimulusColorSpace() } -> std::same_as<EColorSpace>;
-	{ ColorSpaceDefType::upSample(boundColor) } -> std::same_as<SpectralSampleValues>;
-	{ ColorSpaceDefType::downSample(sampleValues) } -> std::same_as<TristimulusValues>;
-};
-
-template<CHasColorSpaceProperties ColorSpaceDefType>
-using TColorValues = std::conditional_t<ColorSpaceDefType::isTristimulus(), TristimulusValues, SpectralSampleValues>;
-
-template<typename ColorSpaceDefType, EColorSpace FROM_COLOR_SPACE>
-concept CSupportsDirectConversionFrom = requires (TColorValues<FromColorSpaceDefType> fromColor)
-{
-	{ ColorSpaceDefType::template directlyFrom<FromColorSpaceDefType::getColorSpace()>(fromColor) } -> std::same_as<TColorValues<ColorSpaceDefType>>;
-};
-
-
-
-template<>
-class TColorSpaceDefinition<EColorSpace::CIE_XYZ> final
-{
-public:
-	inline static bool isTristimulus()
-	{
-		return true;
-	}
-
-	inline static EReferenceWhite getReferenceWhite()
-	{
-		return EReferenceWhite::D65;
-	}
-
-	inline static Vector3R toCIEXYZ(const Vector3R& thisColor)
-	{
-		// Already in CIE-XYZ space, simply return the source color.
-		return thisColor;
-	}
-
-	inline static Vector3R fromCIEXYZ(const Vector3R& CIEXYZColor)
-	{
-		// Already in CIE-XYZ space, simply return the source color.
-		return CIEXYZColor;
-	}
-};
-
 }// end namespace ph::math
+
+#include "Math/Color/color_spaces.ipp"

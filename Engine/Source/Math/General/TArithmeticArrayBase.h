@@ -19,12 +19,10 @@ private:
 	using Self = TArithmeticArrayBase;
 
 public:
-	inline static constexpr auto NUM_ELEMENTS = N;
-
-	constexpr std::size_t size() const noexcept;
+	using Elements = std::array<T, N>;
 
 	explicit TArithmeticArrayBase(T value);
-	explicit TArithmeticArrayBase(std::array<T, N> values);
+	explicit TArithmeticArrayBase(Elements values);
 
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
@@ -37,6 +35,12 @@ protected:
 	inline ~TArithmeticArrayBase() = default;
 
 protected:
+	inline static constexpr auto NUM_ELEMENTS = N;
+
+	/*! @brief Number of elements of the array.
+	*/
+	constexpr std::size_t size() const noexcept;
+
 	Derived add(const Derived& rhs) const;
 	Derived add(T rhs) const;
 	Derived& addLocal(const Derived& rhs);
