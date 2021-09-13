@@ -70,9 +70,6 @@ protected:
 	ColVecM multiplyVector(const RowVecN& rhsColVector) const;
 
 	template<std::size_t K>
-	TMatrixMxK<K> multiplyMatrix(const TMatrixNxK<K>& rhsMatrix) const;
-
-	template<std::size_t K>
 	void multiplyMatrix(const TMatrixNxK<K>& rhsMatrix, TMatrixMxK<K>* out_result) const;
 
 	template<std::size_t K>

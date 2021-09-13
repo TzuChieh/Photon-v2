@@ -59,23 +59,14 @@ inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyVector(const RowVecN& rhsC
 	ColVecM col;
 	for(std::size_t ri = 0; ri < M; ++ri)
 	{
-		col[ri] = static_cast<T>(0);
+		T result = static_cast<T>(0);
 		for(std::size_t ci = 0; ci < N; ++ci)
 		{
-			col[ri] += m[ri][ci] * rhsColVector[ci];
+			result += m[ri][ci] * rhsColVector[ci];
 		}
+		col[ri] = result;
 	}
 	return col;
-}
-
-template<typename Derived, typename T, std::size_t M, std::size_t N>
-template<std::size_t K>
-inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyMatrix(const TMatrixNxK<K>& rhsMatrix) const
--> TMatrixMxK<K>
-{
-	TMatrixMxK<K> result;
-	multiplyMatrix(rhsMatrix, &result);
-	return result;
 }
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
@@ -88,12 +79,12 @@ inline void TMatrixMxNBase<Derived, T, M, N>::multiplyMatrix(const TMatrixNxK<K>
 	{
 		for(std::size_t ki = 0; ki < K; ++ki)
 		{
-			T& result = (*out_result)[mi][ki];
-			result = static_cast<T>(0);
+			T result = static_cast<T>(0);
 			for(std::size_t ni = 0; ni < N; ++ni)
 			{
 				result += m[mi][ni] * rhsMatrix[ni][ki];
 			}
+			(*out_result)[mi][ki] = result;
 		}
 	}
 }
@@ -104,7 +95,18 @@ inline void TMatrixMxNBase<Derived, T, M, N>::multiplyTransposedMatrix(const TMa
 {
 	PH_ASSERT(out_result);
 
-	// TODO
+	for(std::size_t mi = 0; mi < M; ++mi)
+	{
+		for(std::size_t ki = 0; ki < K; ++ki)
+		{
+			T result = static_cast<T>(0);
+			for(std::size_t ni = 0; ni < N; ++ni)
+			{
+				result += m[mi][ni] * rhsMatrix[ki][ni];
+			}
+			(*out_result)[mi][ki] = result;
+		}
+	}
 }
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>

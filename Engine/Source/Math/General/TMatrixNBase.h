@@ -38,7 +38,12 @@ public:
 
 	Derived mul(const Derived& rhsMatrix) const;
 	Derived& mulLocal(const Derived& rhsMatrix);
+	Derived mulTransposed(const Derived& rhsMatrix) const;
+	Derived& mulTransposedLocal(const Derived& rhsMatrix);
 	void mul(const Derived& rhsMatrix, Derived* out_result) const;
+	void mulTransposed(const Derived& rhsMatrix, Derived* out_result) const;
+	Derived transpose() const;
+	Derived& transposeLocal();
 
 	using Base::Base;
 
