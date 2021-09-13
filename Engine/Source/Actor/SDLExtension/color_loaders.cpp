@@ -23,10 +23,10 @@ math::Vector3R tristimulus_to_linear_SRGB(const math::Vector3R& tristimulus, con
 	switch(colorSpace)
 	{
 	case math::EColorSpace::UNSPECIFIED:
-	case math::EColorSpace::LINEAR_SRGB:
+	case math::EColorSpace::Linear_sRGB:
 		return tristimulus;
 
-	case math::EColorSpace::SRGB:
+	case math::EColorSpace::sRGB:
 		return ColorSpace::sRGB_to_linear_sRGB(tristimulus);
 
 	default:
@@ -59,7 +59,7 @@ Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 		else if(tokens.size() == 1)
 		{
 			const real value = load_real(tokens[0]);
-			if(colorSpace == math::EColorSpace::SPECTRAL)
+			if(colorSpace == math::EColorSpace::Spectral)
 			{
 				return Spectrum(value);
 			}

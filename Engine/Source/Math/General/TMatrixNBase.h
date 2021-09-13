@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/General/TMatrixNxMBase.h"
+#include "Math/General/TMatrixMxNBase.h"
 
 namespace ph::math
 {
@@ -12,10 +12,11 @@ namespace ph::math
 @tparam N Number of rows and columns.
 */
 template<typename Derived, typename T, std::size_t N>
-class TMatrixNBase : private TMatrixNxMBase<Derived, T, N, N>
+class TMatrixNBase : public TMatrixMxNBase<Derived, T, N, N>
 {
 private:
-	using Base = TMatrixNxMBase<Derived, T, N, N>;
+	using Base = TMatrixMxNBase<Derived, T, N, N>;
+	using Self = TMatrixNBase;
 
 protected:
 	using Base::m;
@@ -31,12 +32,15 @@ protected:
 	inline ~TMatrixNBase() = default;
 
 public:
-	/*! @brief Returns an identity matrix. This method is defined only for square matrices.
+	/*! @brief Sets the matrix to be an identity matrix.
 	*/
-	template<typename = std::enable_if_t<(M == N)>>
-	static Derived makeIdentity();
+	Derived& setIdentity();
 
-	Derived& initIdentity();
+	Derived mul(const Derived& rhsMatrix) const;
+	Derived& mulLocal(const Derived& rhsMatrix);
+	void mul(const Derived& rhsMatrix, Derived* out_result) const;
+
+	using Base::Base;
 
 	using Base::NUM_ROWS;
 	using Base::NUM_COLS;
@@ -49,6 +53,8 @@ public:
 	using Base::operator [];
 
 	using Base::toString;
+
+	// TODO: inverse, determinant
 };
 
 }// end namespace ph::math

@@ -12,9 +12,9 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<math::EColorSpace>)
 	sdlEnum.description("Marks color space information of input values.");
 
 	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
-	sdlEnum.addEntry(EnumType::LINEAR_SRGB, "LSRGB");
-	sdlEnum.addEntry(EnumType::SRGB,        "SRGB");
-	sdlEnum.addEntry(EnumType::SPECTRAL,    "SPD");
+	sdlEnum.addEntry(EnumType::Linear_sRGB, "LSRGB");
+	sdlEnum.addEntry(EnumType::sRGB,        "SRGB");
+	sdlEnum.addEntry(EnumType::Spectral,    "SPD");
 
 	return sdlEnum;
 }

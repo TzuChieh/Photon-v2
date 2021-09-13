@@ -10,7 +10,8 @@ enum class EColorSpace
 	CIE_XYZ,
 	Linear_sRGB,
 	sRGB,
-	Spectrum_Smits
+	Spectral_Smits,
+	Spectral
 };
 
 }// end namespace ph::math
