@@ -33,18 +33,19 @@ public:
 	{
 		using Matrix = TMatrix3<ColorValue>;
 
+		// TODO: check
 		const Matrix M(Matrix::Elements{{
 			{0.4124564, 0.3575761, 0.1804375},
 			{0.2126729, 0.7151522, 0.0721750},
 			{0.0193339, 0.1191920, 0.9503041}
 		}});
 
-		return thisColor;
+		return M.multiplyVector(thisColor);
 	}
 
 	inline static TristimulusValues fromCIEXYZ(const TristimulusValues& CIEXYZColor)
 	{
-		// Already in CIE-XYZ space, simply return the source color.
+		// TODO
 		return CIEXYZColor;
 	}
 };
