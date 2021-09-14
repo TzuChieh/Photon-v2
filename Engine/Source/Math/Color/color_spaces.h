@@ -10,6 +10,7 @@
 #include <concepts>
 #include <array>
 #include <type_traits>
+#include <cmath>
 
 namespace ph::math
 {

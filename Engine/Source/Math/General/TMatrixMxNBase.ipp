@@ -15,7 +15,7 @@ inline TMatrixMxNBase<Derived, T, M, N>::TMatrixMxNBase(const T elements)
 }
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
-inline TMatrixMxNBase<Derived, T, M, N>::TMatrixMxNBase(MatrixMxN elements) :
+inline TMatrixMxNBase<Derived, T, M, N>::TMatrixMxNBase(Elements elements) :
 	m(std::move(elements))
 {}
 
@@ -53,10 +53,10 @@ inline auto TMatrixMxNBase<Derived, T, M, N>::mulLocal(const T constantValue)
 }
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
-inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyVector(const RowVecN& rhsColVector) const
--> ColVecM
+inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyVector(const RawRowVecN& rhsColVector) const
+-> RawColVecM
 {
-	ColVecM col;
+	RawColVecM col;
 	for(std::size_t ri = 0; ri < M; ++ri)
 	{
 		T result = static_cast<T>(0);
@@ -71,7 +71,7 @@ inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyVector(const RowVecN& rhsC
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
 template<std::size_t K>
-inline void TMatrixMxNBase<Derived, T, M, N>::multiplyMatrix(const TMatrixNxK<K>& rhsMatrix, TMatrixMxK<K>* const out_result) const
+inline void TMatrixMxNBase<Derived, T, M, N>::multiplyMatrix(const TRawMatrixNxK<K>& rhsMatrix, TRawMatrixMxK<K>* const out_result) const
 {
 	PH_ASSERT(out_result);
 
@@ -91,7 +91,7 @@ inline void TMatrixMxNBase<Derived, T, M, N>::multiplyMatrix(const TMatrixNxK<K>
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
 template<std::size_t K>
-inline void TMatrixMxNBase<Derived, T, M, N>::multiplyTransposedMatrix(const TMatrixKxN<K>& rhsMatrix, TMatrixMxK<K>* const out_result) const
+inline void TMatrixMxNBase<Derived, T, M, N>::multiplyTransposedMatrix(const TRawMatrixKxN<K>& rhsMatrix, TRawMatrixMxK<K>* const out_result) const
 {
 	PH_ASSERT(out_result);
 
@@ -111,9 +111,9 @@ inline void TMatrixMxNBase<Derived, T, M, N>::multiplyTransposedMatrix(const TMa
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
 inline auto TMatrixMxNBase<Derived, T, M, N>::transposeMatrix() const
--> MatrixNxM
+-> RawMatrixNxM
 {
-	MatrixNxM result;
+	RawMatrixNxM result;
 	for(std::size_t ri = 0; ri < M; ++ri)
 	{
 		for(std::size_t ci = 0; ci < N; ++ci)
@@ -137,7 +137,7 @@ inline auto TMatrixMxNBase<Derived, T, M, N>::set(const T constantValue)
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
 inline auto TMatrixMxNBase<Derived, T, M, N>::operator [] (const std::size_t rowIndex)
--> RowVecN&
+-> RawRowVecN&
 {
 	PH_ASSERT_LT(rowIndex, M);
 
@@ -146,7 +146,7 @@ inline auto TMatrixMxNBase<Derived, T, M, N>::operator [] (const std::size_t row
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
 inline auto TMatrixMxNBase<Derived, T, M, N>::operator [] (const std::size_t rowIndex) const
--> const RowVecN&
+-> const RawRowVecN&
 {
 	PH_ASSERT_LT(rowIndex, M);
 

@@ -25,11 +25,11 @@ private:
 	using Self = TMatrixMxNBase;
 
 public:
-	using MatrixMxN = std::array<std::array<T, N>, M>;
-	using Elements  = MatrixMxN;
+	using RawMatrixMxN = std::array<std::array<T, N>, M>;
+	using Elements     = RawMatrixMxN;
 
 	explicit TMatrixMxNBase(T elements);
-	explicit TMatrixMxNBase(MatrixMxN elements);
+	explicit TMatrixMxNBase(Elements elements);
 
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
@@ -42,19 +42,19 @@ protected:
 	inline ~TMatrixMxNBase() = default;
 
 protected:
-	using RowVecN = std::array<T, N>;
-	using ColVecM = std::array<T, M>;
+	using RawRowVecN = std::array<T, N>;
+	using RawColVecM = std::array<T, M>;
 
 	template<std::size_t K>
-	using TMatrixNxK = std::array<std::array<T, K>, N>;
+	using TRawMatrixNxK = std::array<std::array<T, K>, N>;
 
 	template<std::size_t K>
-	using TMatrixMxK = std::array<std::array<T, K>, M>;
+	using TRawMatrixMxK = std::array<std::array<T, K>, M>;
 
 	template<std::size_t K>
-	using TMatrixKxN = std::array<std::array<T, N>, K>;
+	using TRawMatrixKxN = std::array<std::array<T, N>, K>;
 
-	using MatrixNxM = std::array<std::array<T, M>, N>;
+	using RawMatrixNxM = std::array<std::array<T, M>, N>;
 
 	inline static constexpr auto NUM_ROWS = M;
 	inline static constexpr auto NUM_COLS = N;
@@ -67,23 +67,23 @@ protected:
 
 	Derived& set(T constantValue);
 
-	ColVecM multiplyVector(const RowVecN& rhsColVector) const;
+	RawColVecM multiplyVector(const RawRowVecN& rhsColVector) const;
 
 	template<std::size_t K>
-	void multiplyMatrix(const TMatrixNxK<K>& rhsMatrix, TMatrixMxK<K>* out_result) const;
+	void multiplyMatrix(const TRawMatrixNxK<K>& rhsMatrix, TRawMatrixMxK<K>* out_result) const;
 
 	template<std::size_t K>
-	void multiplyTransposedMatrix(const TMatrixKxN<K>& rhsMatrix, TMatrixMxK<K>* out_result) const;
+	void multiplyTransposedMatrix(const TRawMatrixKxN<K>& rhsMatrix, TRawMatrixMxK<K>* out_result) const;
 
-	MatrixNxM transposeMatrix() const;
+	RawMatrixNxM transposeMatrix() const;
 
-	RowVecN& operator [] (std::size_t rowIndex);
-	const RowVecN& operator [] (std::size_t rowIndex) const;
+	RawRowVecN& operator [] (std::size_t rowIndex);
+	const RawRowVecN& operator [] (std::size_t rowIndex) const;
 
 	std::string toString() const;
 
 protected:
-	MatrixMxN m;
+	RawMatrixMxN m;
 };
 
 }// end namespace ph::math

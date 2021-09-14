@@ -32,6 +32,13 @@ protected:
 	inline ~TMatrixNBase() = default;
 
 public:
+	using Base::RawRowVecN;
+	using Base::RawColVecM;
+	using Base::TRawMatrixNxK;
+	using Base::TRawMatrixMxK;
+	using Base::TRawMatrixKxN;
+	using Base::RawMatrixNxM;
+
 	/*! @brief Sets the matrix to be an identity matrix.
 	*/
 	Derived& setIdentity();
@@ -54,6 +61,10 @@ public:
 
 	using Base::mul;
 	using Base::mulLocal;
+	using Base::multiplyVector;
+	using Base::multiplyMatrix;
+	using Base::multiplyTransposedMatrix;
+	using Base::transposeMatrix;
 
 	using Base::operator [];
 

@@ -63,25 +63,4 @@ inline void TMatrix3<T>::mul(const TVector3<T>& rhsColVector, TVector3<T>* const
 	out_result->z = m[2][0] * rhsColVector.x + m[2][1] * rhsColVector.y + m[2][2] * rhsColVector.z;
 }
 
-template<typename T>
-inline auto TMatrix3<T>::multiplyVector(const RowVec3& rhsColVector) const
--> ColVec3
-{
-	return Base::multiplyVector(rhsColVector);
-}
-
-template<typename T>
-template<std::size_t K>
-inline void TMatrix3<T>::multiplyMatrix(const TMatrix3xK<K>& rhsMatrix, TMatrix3xK<K>* const out_result) const
-{
-	return Base::template multiplyMatrix<K>(rhsMatrix, out_result);
- }
-
-template<typename T>
-template<std::size_t K>
-inline void TMatrix3<T>::multiplyTransposedMatrix(const TMatrixKx3<K>& rhsMatrix, TMatrix3xK<K>* const out_result) const
-{
-	return Base::template multiplyTransposedMatrix<K>(rhsMatrix, out_result);
-}
-
 }// end namespace ph::math
