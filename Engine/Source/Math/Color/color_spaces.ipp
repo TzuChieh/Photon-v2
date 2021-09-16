@@ -2,7 +2,6 @@
 
 #include "Math/Color/color_spaces.h"
 #include "Math/TMatrix3.h"
-#include "Common/assertion.h"
 
 namespace ph::math
 {
@@ -157,5 +156,9 @@ public:
 		return gammaCompress(linearSRGBColor);
 	}
 };
+
+// Unspecified color space must be neither tristimulus nor spectral.
+static_assert(!CTristimulusColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED>>);
+static_assert(!CSpectralColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED>>);
 
 }// end namespace ph::math

@@ -53,7 +53,7 @@ inline auto TMatrixMxNBase<Derived, T, M, N>::mulLocal(const T constantValue)
 }
 
 template<typename Derived, typename T, std::size_t M, std::size_t N>
-inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyVector(const RawRowVecN& rhsColVector) const
+inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyVector(const RawColVecM& rhsColVector) const
 -> RawColVecM
 {
 	RawColVecM col;
@@ -62,7 +62,7 @@ inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyVector(const RawRowVecN& r
 		T result = static_cast<T>(0);
 		for(std::size_t ci = 0; ci < N; ++ci)
 		{
-			result += m[ri][ci] * rhsColVector[ci];
+			result += m[ri][ci] * rhsColVector[ri];
 		}
 		col[ri] = result;
 	}

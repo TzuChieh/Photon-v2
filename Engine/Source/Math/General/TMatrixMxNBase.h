@@ -67,7 +67,7 @@ protected:
 
 	Derived& set(T constantValue);
 
-	RawColVecM multiplyVector(const RawRowVecN& rhsColVector) const;
+	RawColVecM multiplyVector(const RawColVecM& rhsColVector) const;
 
 	template<std::size_t K>
 	void multiplyMatrix(const TRawMatrixNxK<K>& rhsMatrix, TRawMatrixMxK<K>* out_result) const;

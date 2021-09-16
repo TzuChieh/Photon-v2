@@ -1,24 +1,36 @@
 #pragma once
 
 #include "Math/Color/chromatic_adaptations.h"
-#include "Math/TMatrix3.h"
 
 namespace ph::math
 {
 
-template<>
-class TChromaticAdaptationDefinition<
-	EChromaticAdaptation::Bradford,
-	EReferenceWhite::D65,
-	EReferenceWhite::D50> final :
+template<typename T>
+inline TMatrix3<T> create_adaptation_matrix(
+	const TMatrix3<T>&    CIEXYZToConeResponse,
+	const TMatrix3<T>&    coneResponseToCIEXYZ,
+	const EReferenceWhite srcRefWhite,
+	const EReferenceWhite dstRefWhite)
+{
+	PH_ASSERT(srcRefWhite != EReferenceWhite::UNSPECIFIED);
+	PH_ASSERT(dstRefWhite != EReferenceWhite::UNSPECIFIED);
+	PH_ASSERT(srcRefWhite != dstRefWhite);
 
-	public TChromaticAdaptationDefinitionHelper<
-		EChromaticAdaptation::Bradford,
-		EReferenceWhite::D65,
-		EReferenceWhite::D50>
+	const TTristimulusValues<T> srcConeResponse = CIEXYZToConeResponse.multiplyVector(CIEXYZ_of<T>(srcRefWhite));
+	const TTristimulusValues<T> dstConeResponse = CIEXYZToConeResponse.multiplyVector(CIEXYZ_of<T>(dstRefWhite));
+
+	// TOOD
+}
+
+template<typename T>
+class TChromaticAdaptationDefinition<EChromaticAdaptation::Bradford, T> final
+	: public TChromaticAdaptationDefinitionHelper<EChromaticAdaptation::Bradford>
 {
 public:
-	inline static TristimulusValues fromSrcToDst(const TristimulusValues& CIEXYZColorD65)
+	inline static TTristimulusValues<T> adapt(
+		const TTristimulusValues<T>& CIEXYZColor,
+		const EReferenceWhite        srcRefWhite,
+		const EReferenceWhite        dstRefWhite)
 	{
 		using Matrix = TMatrix3<ColorValue>;
 
@@ -44,5 +56,9 @@ public:
 		return M.multiplyVector(CIEXYZColorD50);
 	}
 };
+
+// Unspecified adaption configuration must not be a valid definition.
+static_assert(!CChromaticAdaptationDefinition<
+	TChromaticAdaptationDefinition<EChromaticAdaptation::UNSPECIFIED, ColorValue>, ColorValue>);
 
 }// end namespace ph::math

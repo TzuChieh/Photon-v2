@@ -2,24 +2,21 @@
 
 #include "Math/Color/color_basics.h"
 #include "Utility/IUninstantiable.h"
+#include "Math/TMatrix3.h"
 
 #include <concepts>
 
 namespace ph::math
 {
 
-template
-<
-	typename        DefType,
-	EReferenceWhite SRC_REF_WHITE,
-	EReferenceWhite DST_REF_WHITE,
-	typename        T = ColorValue
->
-concept CChromaticAdaptationDefinition = requires (TTristimulusValues<T> CIEXYZColor)
+template<typename DefType, typename T>
+concept CChromaticAdaptationDefinition = requires (
+	EReferenceWhite       srcRefWhite,
+	EReferenceWhite       dstRefWhite,
+	TTristimulusValues<T> CIEXYZColor)
 {
 	{ DefType::getAlgorithm() } noexcept -> std::same_as<EChromaticAdaptation>;
-	{ DefType::template canAdapt<SRC_REF_WHITE, DST_REF_WHITE>() } noexcept -> std::same_as<bool>;
-	{ DefType::template adapt<SRC_REF_WHITE, DST_REF_WHITE>(CIEXYZColor) } -> std::same_as<TTristimulusValues<T>>;
+	{ DefType::adapt(CIEXYZColor, srcRefWhite, dstRefWhite) } -> std::same_as<TTristimulusValues<T>>;
 };
 
 template<EChromaticAdaptation ALGORITHM>
@@ -34,17 +31,20 @@ public:
 	}
 };
 
+template<typename T>
+inline TMatrix3<T> create_adaptation_matrix(
+	const TMatrix3<T>& CIEXYZToConeResponse, 
+	const TMatrix3<T>& coneResponseToCIEXYZ,
+	EReferenceWhite    srcRefWhite,
+	EReferenceWhite    dstRefWhite);
+
 /*! @brief Sinkhole for undefined chromatic adaptation routines.
 Specialize the class to provide definitions for the specified adaptation configuration. 
 Must satisfy CChromaticAdaptationDefinition.
 */
-template<EChromaticAdaptation ALGORITHM>
+template<EChromaticAdaptation ALGORITHM, typename T>
 class TChromaticAdaptationDefinition final
 {};
-
-// Unspecified adaption configuration must not be a valid definition.
-static_assert(!CChromaticAdaptationDefinition<TChromaticAdaptationDefinition<
-	EChromaticAdaptation::UNSPECIFIED, EReferenceWhite::UNSPECIFIED, EReferenceWhite::UNSPECIFIED>>);
 
 }// end namespace ph::math
 

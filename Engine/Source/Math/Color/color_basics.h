@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Common/config.h"
+#include "Common/assertion.h"
 
 #include <array>
 
@@ -69,62 +70,26 @@ enum class EColorUsage
 /*
 Reference: http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
 */
-template<EReferenceWhite REFERENCE_WHITE, typename T = ColorValue>
-inline constexpr TTristimulusValues<T> CIEXYZ_of() noexcept
+template<typename T = ColorValue>
+inline TTristimulusValues<T> CIEXYZ_of(const EReferenceWhite refWhite)
 {
-	static_assert(REFERENCE_WHITE != EReferenceWhite::UNSPECIFIED,
-		"Please provide a valid refernece white.");
+	switch(refWhite)
+	{
+	case EReferenceWhite::A:   return {1.09850, 1.00000, 0.35585};
+	case EReferenceWhite::B:   return {0.99072, 1.00000, 0.85223};
+	case EReferenceWhite::C:   return {0.98074, 1.00000, 1.18232};
+	case EReferenceWhite::D50: return {0.96422, 1.00000, 0.82521};
+	case EReferenceWhite::D55: return {0.95682, 1.00000, 0.92149};
+	case EReferenceWhite::D65: return {0.95047, 1.00000, 1.08883};
+	case EReferenceWhite::D75: return {0.94972, 1.00000, 1.22638};
+	case EReferenceWhite::E:   return {1.00000, 1.00000, 1.00000};
+	case EReferenceWhite::F2:  return {0.99186, 1.00000, 0.67393};
+	case EReferenceWhite::F7:  return {0.95041, 1.00000, 1.08747};
+	case EReferenceWhite::F11: return {1.00962, 1.00000, 0.64350};
 
-	if constexpr(REFERENCE_WHITE == EReferenceWhite::A)
-	{
-		return {1.09850, 1.00000, 0.35585};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::B)
-	{
-		return {0.99072, 1.00000, 0.85223};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::C)
-	{
-		return {0.98074, 1.00000, 1.18232};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::D50)
-	{
-		return {0.96422, 1.00000, 0.82521};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::D55)
-	{
-		return {0.95682, 1.00000, 0.92149};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::D65)
-	{
-		return {0.95047, 1.00000, 1.08883};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::D75)
-	{
-		return {0.94972, 1.00000, 1.22638};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::E)
-	{
+	default: 
+		PH_ASSERT_UNREACHABLE_SECTION();
 		return {1.00000, 1.00000, 1.00000};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::F2)
-	{
-		return {0.99186, 1.00000, 0.67393};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::F7)
-	{
-		return {0.95041, 1.00000, 1.08747};
-	}
-	else if constexpr(REFERENCE_WHITE == EReferenceWhite::F11)
-	{
-		return {1.00962, 1.00000, 0.64350};
-	}
-	else
-	{
-		static_assert(REFERENCE_WHITE == EReferenceWhite::UNSPECIFIED,
-			"Not all refernece whites have a return value.");
-
-		return {0.00000, 0.00000, 0.00000};
 	}
 }
 
