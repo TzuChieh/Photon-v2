@@ -11,6 +11,15 @@
 namespace ph::math
 {
 	
+template<typename T, std::size_t N>
+using TRawRowVector = std::array<T, N>;
+
+template<typename T, std::size_t M>
+using TRawColVector = std::array<T, M>;
+
+template<typename T, std::size_t M, std::size_t N>
+using TRawMatrix = std::array<std::array<T, N>, M>;
+
 /*! @brief A base for general M by N row-major matrices.
 
 @tparam Derived Required to be the inheriting type.
@@ -25,8 +34,7 @@ private:
 	using Self = TMatrixMxNBase;
 
 public:
-	using RawMatrixMxN = std::array<std::array<T, N>, M>;
-	using Elements     = RawMatrixMxN;
+	using Elements = TRawMatrix<T, M, N>;
 
 	explicit TMatrixMxNBase(T elements);
 	explicit TMatrixMxNBase(Elements elements);
@@ -42,20 +50,6 @@ protected:
 	inline ~TMatrixMxNBase() = default;
 
 protected:
-	using RawRowVecN = std::array<T, N>;
-	using RawColVecM = std::array<T, M>;
-
-	template<std::size_t K>
-	using TRawMatrixNxK = std::array<std::array<T, K>, N>;
-
-	template<std::size_t K>
-	using TRawMatrixMxK = std::array<std::array<T, K>, M>;
-
-	template<std::size_t K>
-	using TRawMatrixKxN = std::array<std::array<T, N>, K>;
-
-	using RawMatrixNxM = std::array<std::array<T, M>, N>;
-
 	inline static constexpr auto NUM_ROWS = M;
 	inline static constexpr auto NUM_COLS = N;
 
@@ -67,23 +61,23 @@ protected:
 
 	Derived& set(T constantValue);
 
-	RawColVecM multiplyVector(const RawColVecM& rhsColVector) const;
+	TRawColVector<T, M> multiplyVector(const TRawColVector<T, M>& rhsColVector) const;
 
 	template<std::size_t K>
-	void multiplyMatrix(const TRawMatrixNxK<K>& rhsMatrix, TRawMatrixMxK<K>* out_result) const;
+	void multiplyMatrix(const TRawMatrix<T, N, K>& rhsMatrix, TRawMatrix<T, M, K>* out_result) const;
 
 	template<std::size_t K>
-	void multiplyTransposedMatrix(const TRawMatrixKxN<K>& rhsMatrix, TRawMatrixMxK<K>* out_result) const;
+	void multiplyTransposedMatrix(const TRawMatrix<T, K, N>& rhsMatrix, TRawMatrix<T, M, K>* out_result) const;
 
-	RawMatrixNxM transposeMatrix() const;
+	TRawMatrix<T, N, M> transposeMatrix() const;
 
-	RawRowVecN& operator [] (std::size_t rowIndex);
-	const RawRowVecN& operator [] (std::size_t rowIndex) const;
+	TRawRowVector<T, N>& operator [] (std::size_t rowIndex);
+	const TRawRowVector<T, N>& operator [] (std::size_t rowIndex) const;
 
 	std::string toString() const;
 
 protected:
-	RawMatrixMxN m;
+	TRawMatrix<T, M, N> m;
 };
 
 }// end namespace ph::math

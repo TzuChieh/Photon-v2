@@ -21,6 +21,17 @@ inline TMatrix3<T>::TMatrix3(const TMatrix3<U>& other)
 }
 
 template<typename T>
+inline TMatrix3<T>::TMatrix3(
+	const T m00, const T m01, const T m02,
+	const T m10, const T m11, const T m12,
+	const T m20, const T m21, const T m22)
+{
+	m[0][0] = m00; m[0][1] = m01; m[0][2] = m02;
+	m[1][0] = m10; m[1][1] = m11; m[1][2] = m12;
+	m[2][0] = m20; m[2][1] = m21; m[2][2] = m22;
+}
+
+template<typename T>
 inline TMatrix3<T> TMatrix3<T>::inverse() const
 {
 	TMatrix3 result;

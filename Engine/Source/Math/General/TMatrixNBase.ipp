@@ -23,6 +23,20 @@ inline auto TMatrixNBase<Derived, T, N>::setIdentity()
 }
 
 template<typename Derived, typename T, std::size_t N>
+inline auto TMatrixNBase<Derived, T, N>::setScale(const TRawColVector<T, N>& scaleFactor)
+-> Derived&
+{
+	set(static_cast<T>(0));
+
+	for(std::size_t ni = 0; ni < N; ++ni)
+	{
+		m[ni][ni] = scaleFactor[ni];
+	}
+
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, typename T, std::size_t N>
 inline auto TMatrixNBase<Derived, T, N>::mul(const Derived& rhsMatrix) const
 -> Derived
 {

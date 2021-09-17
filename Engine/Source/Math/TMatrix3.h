@@ -30,6 +30,11 @@ public:
 	template<typename U>
 	explicit TMatrix3(const TMatrix3<U>& other);
 
+	TMatrix3(
+		T m00, T m01, T m02,
+		T m10, T m11, T m12,
+		T m20, T m21, T m22);
+
 public:
 	void mul(const TVector3<T>& rhsColVector, TVector3<T>* out_result) const;
 

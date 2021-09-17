@@ -32,16 +32,11 @@ protected:
 	inline ~TMatrixNBase() = default;
 
 public:
-	using Base::RawRowVecN;
-	using Base::RawColVecM;
-	using Base::TRawMatrixNxK;
-	using Base::TRawMatrixMxK;
-	using Base::TRawMatrixKxN;
-	using Base::RawMatrixNxM;
-
 	/*! @brief Sets the matrix to be an identity matrix.
 	*/
 	Derived& setIdentity();
+
+	Derived& setScale(const TRawColVector<T, N>& scaleFactor);
 
 	Derived mul(const Derived& rhsMatrix) const;
 	Derived& mulLocal(const Derived& rhsMatrix);
@@ -65,6 +60,7 @@ public:
 	using Base::multiplyMatrix;
 	using Base::multiplyTransposedMatrix;
 	using Base::transposeMatrix;
+	using Base::set;
 
 	using Base::operator [];
 
