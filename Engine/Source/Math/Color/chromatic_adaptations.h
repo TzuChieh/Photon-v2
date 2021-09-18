@@ -31,22 +31,12 @@ public:
 	}
 };
 
-template<typename DefType, typename T>
-concept CVonKriesBasedLinearCATImpl = requires ()
-{
-	{ DefType::getCIEXYZToConeResponse() } -> std::same_as<TMatrix3<T>>;
-	{ DefType::getConeResponseToCIEXYZ() } -> std::same_as<TMatrix3<T>>;
-};
-
-template<typename Derived, EChromaticAdaptation ALGORITHM, typename T>
-class TVonKriesBasedLinearCATDefinitionHelper : public TChromaticAdaptationDefinitionHelper<ALGORITHM>
-{
-public:
-	static TTristimulusValues<T> adapt(
-		const TTristimulusValues<T>& CIEXYZColor,
-		const EReferenceWhite        srcRefWhite,
-		const EReferenceWhite        dstRefWhite);
-};
+template<typename T>
+TMatrix3<T> create_von_kries_linear_CAT_matrix(
+	const TMatrix3<T>&    CIEXYZToConeResponse,
+	const TMatrix3<T>&    ConeResponseToCIEXYZ,
+	const EReferenceWhite srcRefWhite,
+	const EReferenceWhite dstRefWhite);
 
 /*! @brief Sinkhole for undefined chromatic adaptation routines.
 Specialize the class to provide definitions for the specified adaptation configuration. 

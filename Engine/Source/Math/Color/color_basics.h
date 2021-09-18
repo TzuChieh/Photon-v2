@@ -17,16 +17,32 @@ using TTristimulusValues = std::array<T, 3>;
 template<typename T>
 using TSpectralSampleValues = std::array<T, PH_SPECTRUM_SAMPLED_NUM_SAMPLES>;
 
+template<typename T>
+using TChromaticityValues = std::array<T, 2>;
+
 using TristimulusValues    = TTristimulusValues<ColorValue>;
 using SpectralSampleValues = TSpectralSampleValues<ColorValue>;
+using ChromaticityValues   = TChromaticityValues<ColorValue>;
 
 enum class EColorSpace
 {
 	UNSPECIFIED = 0,
 
+	/*! The CIE 1931 color space that many color spaces based on. */
 	CIE_XYZ,
+
+	/*! The CIE xyY color space. */
+	CIE_xyY,
+
+	/*! Linearized version of sRGB. */
 	Linear_sRGB,
+
+	/*! The good old sRGB color space. */
 	sRGB,
+
+	/*! A color space proposed by the AMPAS and they recommended it for rendering and compositing. */
+	ACEScg,
+
 	Spectral_Smits,
 	Spectral
 };
@@ -57,10 +73,15 @@ enum class EChromaticAdaptation
 	UNSPECIFIED = 0,
 
 	/*! The most simple transform. Generally considered to be an inferior CAT. */
-	XYZ_Scaling,
+	XYZScaling,
 
 	/*! Adobe uses this CAT in all of their products according to many sources. */
-	Bradford
+	Bradford,
+
+	VonKries,
+
+	// TODO: https://en.wikipedia.org/wiki/CIECAM02
+	//CAT02
 
 	// TODO: spectral route
 };
@@ -98,6 +119,25 @@ inline TTristimulusValues<T> CIEXYZ_of(const EReferenceWhite refWhite)
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return {1.00000, 1.00000, 1.00000};
 	}
+}
+
+template<typename T = ColorValue>
+inline TChromaticityValues<T> chromaticity_of(const EReferenceWhite refWhite)
+{
+	const auto CIEXYZColor = CIEXYZ_of<T>(refWhite);
+
+	// Reference whites should not have any component being <= 0
+	PH_ASSERT_GT(CIEXYZColor[0], static_cast<T>(0));
+	PH_ASSERT_GT(CIEXYZColor[1], static_cast<T>(0));
+	PH_ASSERT_GT(CIEXYZColor[2], static_cast<T>(0));
+
+	const T rcpSumXYZ = static_cast<T>(1) / (CIEXYZColor[0] + CIEXYZColor[1] + CIEXYZColor[2]);
+
+	return
+	{
+		CIEXYZColor[0] * rcpSumXYZ,// x
+		CIEXYZColor[1] * rcpSumXYZ // y
+	};
 }
 
 }// end namespace ph::math

@@ -5,7 +5,6 @@
 
 #include <concepts>
 #include <type_traits>
-#include <cmath>
 
 namespace ph::math
 {
@@ -22,35 +21,35 @@ concept CHasColorSpaceProperties = requires ()
 
 /*! @brief Basic requirements a tristimulus color space definition must satisfy in addition to CHasColorSpaceProperties.
 */
-template<typename DefType>
-concept CSupportsTristimulusConversions = requires (TristimulusValues thisColor, TristimulusValues CIEXYZColor)
+template<typename DefType, typename T>
+concept CSupportsTristimulusConversions = requires (TTristimulusValues<T> thisColor, TTristimulusValues<T> CIEXYZColor)
 {
-	{ DefType::toCIEXYZ(thisColor) } -> std::same_as<TristimulusValues>;
-	{ DefType::fromCIEXYZ(CIEXYZColor) } -> std::same_as<TristimulusValues>;
+	{ DefType::toCIEXYZ(thisColor) } -> std::same_as<TTristimulusValues<T>>;
+	{ DefType::fromCIEXYZ(CIEXYZColor) } -> std::same_as<TTristimulusValues<T>>;
 };
 
 /*! @brief Basic requirements a spectral color space definition must satisfy in addition to CHasColorSpaceProperties.
 */
-template<typename DefType>
-concept CSupportsSpectralConversions = requires (TristimulusValues boundColor, SpectralSampleValues sampleValues)
+template<typename DefType, typename T>
+concept CSupportsSpectralConversions = requires (TTristimulusValues<T> boundColor, TSpectralSampleValues<T> sampleValues)
 {
 	{ DefType::getBoundTristimulusColorSpace() } -> std::same_as<EColorSpace>;
-	{ DefType::upSample(boundColor) } -> std::same_as<SpectralSampleValues>;
-	{ DefType::downSample(sampleValues) } -> std::same_as<TristimulusValues>;
+	{ DefType::upSample(boundColor) } -> std::same_as<TSpectralSampleValues<T>>;
+	{ DefType::downSample(sampleValues) } -> std::same_as<TTristimulusValues<T>>;
 };
 
 template<typename DefType>
 concept CColorSpaceDefinition = CHasColorSpaceProperties<DefType>;
 
-template<typename DefType>
+template<typename DefType, typename T>
 concept CTristimulusColorSpaceDefinition = 
 	CColorSpaceDefinition<DefType> &&
-	CSupportsTristimulusConversions<DefType>;
+	CSupportsTristimulusConversions<DefType, T>;
 
-template<typename DefType>
+template<typename DefType, typename T>
 concept CSpectralColorSpaceDefinition = 
 	CColorSpaceDefinition<DefType> &&
-	CSupportsSpectralConversions<DefType>;
+	CSupportsSpectralConversions<DefType, T>;
 
 template<EColorSpace COLOR_SPACE, EReferenceWhite REF_WHITE>
 class TColorSpaceDefinitionHelper : private IUninstantiable
@@ -112,7 +111,7 @@ public:
 Specialize the class to provide definitions for color space. Must satisfy CTristimulusColorSpaceDefinition or
 CSpectralColorSpaceDefinition.
 */
-template<EColorSpace COLOR_SPACE>
+template<EColorSpace COLOR_SPACE, typename T>
 class TColorSpaceDefinition final
 {
 	// Available color spaces must provide definition and thus should not end up here.
