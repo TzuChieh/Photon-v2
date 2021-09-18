@@ -227,6 +227,51 @@ public:
 	}
 };
 
+/*!
+Note that the white point of ACEScg is the same as ACES2065-1 [2] as stated in the documentation [3].
+
+References:
+[1] General Documentation Page
+https://www.oscars.org/science-technology/aces/aces-documentation
+[2] Informative Notes on SMPTE ST 2065-1 ¡V Academy Color Encoding Specification (ACES)
+http://j.mp/TB-2014-004
+[3] ACEScg ¡X A Working Space for CGI Render and Compositing
+http://j.mp/S-2014-004
+[4] AMPAS ACES project repo: readme for matrix transformations
+https://github.com/ampas/aces-dev/blob/dev/transforms/ctl/README-MATRIX.md
+[5] The Colour python library source code
+https://github.com/colour-science/colour/blob/develop/colour/colorimetry/datasets/illuminants/chromaticity_coordinates.py
+[6] Nice overview of ACES color space
+https://chrisbrejon.com/cg-cinematography/chapter-1-5-academy-color-encoding-system-aces/
+*/
+template<typename T>
+class TColorSpaceDefinition<EColorSpace::ACEScg, T> final :
+	public TTristimulusColorSpaceDefinitionHelper<EColorSpace::ACEScg, EReferenceWhite::ACES>
+{
+public:
+	inline static TTristimulusValues<T> toCIEXYZ(const TTristimulusValues<T>& thisColor)
+	{
+		// According to [4], this is the matrix for transformation from ACEScg (AP1) to CIE-XYZ
+		const TMatrix3<T> M(
+			 0.6624541811, 0.1340042065, 0.1561876870,
+			 0.2722287168, 0.6740817658, 0.0536895174,
+			-0.0055746495, 0.0040607335, 1.0103391003);
+
+		return M.multiplyVector(thisColor);
+	}
+
+	inline static TTristimulusValues<T> fromCIEXYZ(const TTristimulusValues<T>& CIEXYZColor)
+	{
+		// According to [4], this is the matrix for transformation from CIE-XYZ to ACEScg (AP1)
+		const TMatrix3<T> M(
+			 1.6410233797, -0.3248032942, -0.2364246952,
+			-0.6636628587,  1.6153315917,  0.0167563477,
+			 0.0117218943, -0.0082844420,  0.9883948585);
+
+		return M.multiplyVector(CIEXYZColor);
+	}
+};
+
 // Unspecified color space must be neither tristimulus nor spectral.
 static_assert(!CTristimulusColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, ColorValue>, ColorValue>);
 static_assert(!CSpectralColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, ColorValue>, ColorValue>);

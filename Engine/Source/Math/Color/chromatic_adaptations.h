@@ -38,6 +38,13 @@ TMatrix3<T> create_von_kries_linear_CAT_matrix(
 	const EReferenceWhite srcRefWhite,
 	const EReferenceWhite dstRefWhite);
 
+template<typename T>
+TMatrix3<T> create_von_kries_linear_CAT_matrix(
+	const TMatrix3<T>&           CIEXYZToConeResponse,
+	const TMatrix3<T>&           ConeResponseToCIEXYZ,
+	const TTristimulusValues<T>& srcRefWhite,
+	const TTristimulusValues<T>& dstRefWhite);
+
 /*! @brief Sinkhole for undefined chromatic adaptation routines.
 Specialize the class to provide definitions for the specified adaptation configuration. 
 Must satisfy CChromaticAdaptationDefinition.

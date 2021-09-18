@@ -22,9 +22,29 @@ inline TMatrix3<T> create_von_kries_linear_CAT_matrix(
 	PH_ASSERT(srcRefWhite != EReferenceWhite::UNSPECIFIED);
 	PH_ASSERT(dstRefWhite != EReferenceWhite::UNSPECIFIED);
 	PH_ASSERT(srcRefWhite != dstRefWhite);
+	
+	return create_von_kries_linear_CAT_matrix<T>(
+		CIEXYZToConeResponse,
+		ConeResponseToCIEXYZ,
+		CIEXYZ_of<T>(srcRefWhite),
+		CIEXYZ_of<T>(dstRefWhite));
+}
 
-	const TTristimulusValues<T> srcConeResponse = CIEXYZToConeResponse.multiplyVector(CIEXYZ_of<T>(srcRefWhite));
-	const TTristimulusValues<T> dstConeResponse = CIEXYZToConeResponse.multiplyVector(CIEXYZ_of<T>(dstRefWhite));
+/*!
+References:
+[1] http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+[2] https://cran.r-project.org/web/packages/spacesXYZ/vignettes/adaptation.html
+[3] https://en.wikipedia.org/wiki/LMS_color_space
+*/
+template<typename T>
+TMatrix3<T> create_von_kries_linear_CAT_matrix(
+	const TMatrix3<T>&           CIEXYZToConeResponse,
+	const TMatrix3<T>&           ConeResponseToCIEXYZ,
+	const TTristimulusValues<T>& srcRefWhite,
+	const TTristimulusValues<T>& dstRefWhite)
+{
+	const TTristimulusValues<T> srcConeResponse = CIEXYZToConeResponse.multiplyVector(srcRefWhite);
+	const TTristimulusValues<T> dstConeResponse = CIEXYZToConeResponse.multiplyVector(dstRefWhite);
 
 	PH_ASSERT_NE(srcConeResponse[0], 0);
 	PH_ASSERT_NE(srcConeResponse[1], 0);
