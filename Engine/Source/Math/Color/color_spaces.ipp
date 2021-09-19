@@ -2,12 +2,70 @@
 
 #include "Math/Color/color_spaces.h"
 #include "Math/TMatrix3.h"
+#include "Math/Color/spectral_data.h"
+#include "Utility/IUninstantiable.h"
+#include "Math/math_exceptions.h"
+#include "Common/assertion.h"
 
 #include <cmath>
 
 namespace ph::math
 {
 	
+template<EColorSpace COLOR_SPACE, EReferenceWhite REF_WHITE>
+class TColorSpaceDefinitionHelper : private IUninstantiable
+{
+protected:
+	inline static constexpr EColorSpace getColorSpace() noexcept
+	{
+		return COLOR_SPACE;
+	}
+};
+
+template<EColorSpace COLOR_SPACE, EReferenceWhite REF_WHITE>
+class TTristimulusColorSpaceDefinitionHelper : private IUninstantiable
+{
+public:
+	inline static constexpr EColorSpace getColorSpace() noexcept
+	{
+		return COLOR_SPACE;
+	}
+
+	inline static constexpr bool isTristimulus() noexcept
+	{
+		return true;
+	}
+
+	inline static constexpr EReferenceWhite getReferenceWhite() noexcept
+	{
+		return REF_WHITE;
+	}
+};
+
+template<EColorSpace COLOR_SPACE, EColorSpace BOUND_TRISTIMULUS_COLOR_SPACE>
+class TSpectralColorSpaceDefinitionHelper : private IUninstantiable
+{
+	static_assert(COLOR_SPACE != BOUND_TRISTIMULUS_COLOR_SPACE,
+		"Cannot define a spectral space that binds itself as a tristimulus one. "
+		"A color space can be either spectral or tristimulus but not both.");
+
+public:
+	inline static constexpr EColorSpace getColorSpace() noexcept
+	{
+		return COLOR_SPACE;
+	}
+
+	inline static constexpr bool isTristimulus() noexcept
+	{
+		return false;
+	}
+
+	inline static constexpr EColorSpace getBoundTristimulusColorSpace() noexcept
+	{
+		return BOUND_TRISTIMULUS_COLOR_SPACE;
+	}
+};
+
 template<typename T>
 class TColorSpaceDefinition<EColorSpace::CIE_XYZ, T> final : 
 	public TTristimulusColorSpaceDefinitionHelper<EColorSpace::CIE_XYZ, EReferenceWhite::D65>
@@ -272,8 +330,132 @@ public:
 	}
 };
 
-// Unspecified color space must be neither tristimulus nor spectral.
-static_assert(!CTristimulusColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, ColorValue>, ColorValue>);
-static_assert(!CSpectralColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, ColorValue>, ColorValue>);
+template<typename T>
+class TColorSpaceDefinition<EColorSpace::Spectral_Smits, T> final :
+	public TTristimulusColorSpaceDefinitionHelper<EColorSpace::Spectral_Smits, EColorSpace::Linear_sRGB>
+{
+public:
+	/*inline static TSpectralSampleValues<T> upSample(const TTristimulusValues<T>& boundColor, const EColorUsage usage)
+	{
+
+	}
+
+	inline static TTristimulusValues<T> downSample(const TTristimulusValues<T>& sampleValues, const EColorUsage usage)
+	{
+
+	}*/
+};
+
+// End Color Space Definitions
+
+// Unspecified color space must not be a valid color space.
+static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, float>, float>);
+static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, double>, double>);
+
+template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+inline decltype(auto) transform_color(const auto& srcColorValues, const EColorUsage usage)
+{
+	using SrcColorSpaceDef = TColorSpaceDefinition<SRC_COLOR_SPACE, T>;
+	using DstColorSpaceDef = TColorSpaceDefinition<DST_COLOR_SPACE, T>;
+
+	// Sanity checks
+
+	static_assert(CColorSpaceDefinition<SrcColorSpaceDef>,
+		"Source color space has no corresponding definition.");
+
+	static_assert(CColorSpaceDefinition<DstColorSpaceDef>,
+		"Destination color space has no corresponding definition.");
+
+	// Type of source color values must match the category of its color space
+	{
+		using SrcColorValues = std::remove_cvref_t<decltype(srcColorValues)>;
+		if constexpr(SrcColorSpaceDef::isTristimulus())
+		{
+			static_assert(std::is_same_v<SrcColorValues, TTristimulusValues<T>>);
+		}
+		else
+		{
+			static_assert(std::is_same_v<SrcColorValues, TSpectralSampleValues<T>>);
+		}
+	}
+
+	// There are 4 possible conversion scenarios, we process them case by case:
+	//                       
+	//               To  +-----------------+-----------------+
+	//  From             | tristimulus (T) | spectral    (S) |
+	// +-----------------+-----------------+-----------------+
+	// | tristimulus (T) |     T --> T     |     T --> S     |
+	// +-----------------+-----------------+-----------------+
+	// | spectral    (S) |     S --> T     |     S --> S     |
+	// +-----------------+-----------------+-----------------+
+	//
+
+	// Case 1: S --> S, down sample input spectral samples to tristimulus, converting it into a T --> S case.
+	if constexpr(!SrcColorSpaceDef::isTristimulus() && !DstColorSpaceDef::isTristimulus())
+	{
+		if(usage == EColorUsage::UNSPECIFIED)
+		{
+			throw ColorError(
+				"A color usage must be specified when converting spectral color samples.");
+		}
+
+		constexpr EColorSpace DOWN_SAMPLE_COLOR_SPACE = SrcColorSpaceDef::getBoundTristimulusColorSpace();
+		const TTristimulusValues<T> downSampledValues = SrcColorSpaceDef::downSample(srcColorValues, usage);
+		
+		return transform_color<DOWN_SAMPLE_COLOR_SPACE, DST_COLOR_SPACE, T, ALGORITHM>(
+			downSampledValues, usage);
+	}
+
+	// Case 2: T --> S, convert input tristimulus values to dst's bound space first (a T --> T case),
+	//         then perform an up sample.
+	if constexpr(SrcColorSpaceDef::isTristimulus() && !DstColorSpaceDef::isTristimulus())
+	{
+		constexpr EColorSpace BOUND_COLOR_SPACE = DstColorSpaceDef::getBoundTristimulusColorSpace();
+		
+		const TTristimulusValues<T> boundColor = transform_color<SRC_COLOR_SPACE, BOUND_COLOR_SPACE, T, ALGORITHM>(
+			srcColorValues, usage);
+	
+		return DstColorSpaceDef::upSample(boundColor, usage);
+	}
+
+	// Case 3: S --> T, down sample input spectral samples to src's bound space first, then convert
+	//         the bound color to dst space (a T --> T case).
+	if constexpr(!SrcColorSpaceDef::isTristimulus() && DstColorSpaceDef::isTristimulus())
+	{
+		const TTristimulusValues<T> boundColor = SrcColorSpaceDef::downSample(srcColorValues, usage);
+
+		constexpr EColorSpace BOUND_COLOR_SPACE = SrcColorSpaceDef::getBoundTristimulusColorSpace();
+		
+		return transform_color<BOUND_COLOR_SPACE, DST_COLOR_SPACE, T, ALGORITHM>(
+			boundColor, usage);
+	}
+
+	// Case 4: T --> T, perform color conversion by using CIE XYZ as an intermediate space
+	if constexpr(SrcColorSpaceDef::isTristimulus() && DstColorSpaceDef::isTristimulus())
+	{
+		// No conversion needed if they are in the same color space
+		if constexpr(SRC_COLOR_SPACE == DST_COLOR_SPACE)
+		{
+			return srcColorValues;
+		}
+
+		// Convert to CIE XYZ first
+		TTristimulusValues<T> srcCIEXYZColor = SrcColorSpaceDef::toCIEXYZ(srcColorValues);
+
+		// Perform chromatic adaptation if needed
+		if constexpr(SrcColorSpaceDef::getReferenceWhite() != DstColorSpaceDef::getReferenceWhite())
+		{
+			srcCIEXYZColor = chromatic_adapt<ALGORITHM, T>(
+				srcCIEXYZColor,
+				SrcColorSpaceDef::getReferenceWhite(),
+				DstColorSpaceDef::getReferenceWhite());
+		}
+
+		// Finally, convert to the destination color space
+		return DstColorSpaceDef::fromCIEXYZ(srcCIEXYZColor);
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+}
 
 }// end namespace ph::math

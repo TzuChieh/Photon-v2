@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/Color/color_basics.h"
-#include "Utility/IUninstantiable.h"
 #include "Math/TMatrix3.h"
 
 #include <concepts>
@@ -19,17 +18,23 @@ concept CChromaticAdaptationDefinition = requires (
 	{ DefType::adapt(CIEXYZColor, srcRefWhite, dstRefWhite) } -> std::same_as<TTristimulusValues<T>>;
 };
 
-template<EChromaticAdaptation ALGORITHM>
-class TChromaticAdaptationDefinitionHelper : private IUninstantiable
+/*! @brief Sinkhole for undefined chromatic adaptation routines.
+Specialize the class to provide definitions for the specified adaptation configuration. 
+Must satisfy CChromaticAdaptationDefinition.
+*/
+template<EChromaticAdaptation ALGORITHM, typename T>
+class TChromaticAdaptationDefinition final
 {
-	static_assert(ALGORITHM != EChromaticAdaptation::UNSPECIFIED);
-
-public:
-	inline static constexpr EChromaticAdaptation getAlgorithm() noexcept
-	{
-		return ALGORITHM;
-	}
+	// Available algorithms must provide definition and thus should not end up here.
+	static_assert(ALGORITHM == EChromaticAdaptation::UNSPECIFIED,
+		"No definition for the specified chromatic adaptation ALGORITHM.");
 };
+
+template<EChromaticAdaptation ALGORITHM, typename T>
+TTristimulusValues<T> chromatic_adapt(
+	const TTristimulusValues<T>& srcCIEXYZColor,
+	EReferenceWhite              srcRefWhite,
+	EReferenceWhite              dstRefWhite);
 
 template<typename T>
 TMatrix3<T> create_von_kries_linear_CAT_matrix(
@@ -44,14 +49,6 @@ TMatrix3<T> create_von_kries_linear_CAT_matrix(
 	const TMatrix3<T>&           ConeResponseToCIEXYZ,
 	const TTristimulusValues<T>& srcRefWhite,
 	const TTristimulusValues<T>& dstRefWhite);
-
-/*! @brief Sinkhole for undefined chromatic adaptation routines.
-Specialize the class to provide definitions for the specified adaptation configuration. 
-Must satisfy CChromaticAdaptationDefinition.
-*/
-template<EChromaticAdaptation ALGORITHM, typename T>
-class TChromaticAdaptationDefinition final
-{};
 
 }// end namespace ph::math
 

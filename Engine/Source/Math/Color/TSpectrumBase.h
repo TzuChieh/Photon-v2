@@ -2,7 +2,7 @@
 
 #include "Math/General/TArithmeticArrayBase.h"
 #include "Math/math_fwd.h"
-#include "Math/Color/EColorSpace.h"
+#include "Math/Color/color_basics.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -22,13 +22,10 @@ concept CHasSpectrumImplementations = requires (
 };
 
 template<typename Derived, typename T, std::size_t N>
-class TSpectrumBase : private TArithmeticArrayBase<Derived, T, N>
+class TSpectrumBase : public TArithmeticArrayBase<Derived, T, N>
 {
 private:
 	using Base = TArithmeticArrayBase<Derived, T, N>;
-
-	// Required as base class need access to protected ctors
-	friend Base;
 
 protected:
 	using Base::m;
@@ -60,6 +57,9 @@ public:
 
 	std::size_t minComponent() const;
 	std::size_t maxComponent() const;
+
+	/*void 
+	const TRawColorValues<T, N>& getColorValues() const;*/
 
 	using Base::add;
 	using Base::addLocal;

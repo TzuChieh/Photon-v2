@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/Color/color_basics.h"
-#include "Utility/IUninstantiable.h"
 
 #include <concepts>
 #include <type_traits>
@@ -15,7 +14,6 @@ template<typename DefType>
 concept CHasColorSpaceProperties = requires ()
 {
 	{ DefType::getColorSpace() } noexcept -> std::same_as<EColorSpace>;
-	{ DefType::getReferenceWhite() } noexcept -> std::same_as<EReferenceWhite>;
 	{ DefType::isTristimulus() } noexcept -> std::same_as<bool>;
 };
 
@@ -24,6 +22,7 @@ concept CHasColorSpaceProperties = requires ()
 template<typename DefType, typename T>
 concept CSupportsTristimulusConversions = requires (TTristimulusValues<T> thisColor, TTristimulusValues<T> CIEXYZColor)
 {
+	{ DefType::getReferenceWhite() } noexcept -> std::same_as<EReferenceWhite>;
 	{ DefType::toCIEXYZ(thisColor) } -> std::same_as<TTristimulusValues<T>>;
 	{ DefType::fromCIEXYZ(CIEXYZColor) } -> std::same_as<TTristimulusValues<T>>;
 };
@@ -31,81 +30,30 @@ concept CSupportsTristimulusConversions = requires (TTristimulusValues<T> thisCo
 /*! @brief Basic requirements a spectral color space definition must satisfy in addition to CHasColorSpaceProperties.
 */
 template<typename DefType, typename T>
-concept CSupportsSpectralConversions = requires (TTristimulusValues<T> boundColor, TSpectralSampleValues<T> sampleValues)
+concept CSupportsSpectralConversions = requires (
+	TTristimulusValues<T>    boundColor, 
+	TSpectralSampleValues<T> sampleValues,
+	EColorUsage              usage)
 {
 	{ DefType::getBoundTristimulusColorSpace() } -> std::same_as<EColorSpace>;
-	{ DefType::upSample(boundColor) } -> std::same_as<TSpectralSampleValues<T>>;
-	{ DefType::downSample(sampleValues) } -> std::same_as<TTristimulusValues<T>>;
+	{ DefType::upSample(boundColor, usage) } -> std::same_as<TSpectralSampleValues<T>>;
+	{ DefType::downSample(sampleValues, usage) } -> std::same_as<TTristimulusValues<T>>;
 };
-
-template<typename DefType>
-concept CColorSpaceDefinition = CHasColorSpaceProperties<DefType>;
 
 template<typename DefType, typename T>
 concept CTristimulusColorSpaceDefinition = 
-	CColorSpaceDefinition<DefType> &&
+	CHasColorSpaceProperties<DefType> &&
 	CSupportsTristimulusConversions<DefType, T>;
 
 template<typename DefType, typename T>
 concept CSpectralColorSpaceDefinition = 
-	CColorSpaceDefinition<DefType> &&
+	CHasColorSpaceProperties<DefType> &&
 	CSupportsSpectralConversions<DefType, T>;
 
-template<EColorSpace COLOR_SPACE, EReferenceWhite REF_WHITE>
-class TColorSpaceDefinitionHelper : private IUninstantiable
-{
-protected:
-	inline static constexpr EColorSpace getColorSpace() noexcept
-	{
-		return COLOR_SPACE;
-	}
-
-	inline static constexpr EReferenceWhite getReferenceWhite() noexcept
-	{
-		return REF_WHITE;
-	}
-};
-
-template<EColorSpace COLOR_SPACE, EReferenceWhite REF_WHITE>
-class TTristimulusColorSpaceDefinitionHelper : public TColorSpaceDefinitionHelper<COLOR_SPACE, REF_WHITE>
-{
-private:
-	using Base = TColorSpaceDefinitionHelper<COLOR_SPACE, REF_WHITE>;
-
-public:
-	inline static constexpr bool isTristimulus() noexcept
-	{
-		return true;
-	}
-
-	using Base::getColorSpace;
-	using Base::getReferenceWhite;
-};
-
-template<EColorSpace COLOR_SPACE, EReferenceWhite REF_WHITE, EColorSpace BOUND_TRISTIMULUS_COLOR_SPACE>
-class TSpectralColorSpaceDefinitionHelper : public TColorSpaceDefinitionHelper<COLOR_SPACE, REF_WHITE>
-{
-	static_assert(COLOR_SPACE != BOUND_TRISTIMULUS_COLOR_SPACE,
-		"Cannot define a spectral space that binds itself as a tristimulus one. "
-		"A color space can be either spectral or tristimulus but not both.");
-
-private:
-	using Base = TColorSpaceDefinitionHelper<COLOR_SPACE, REF_WHITE>;
-
-public:
-	inline static constexpr bool isTristimulus() noexcept
-	{
-		return false;
-	}
-
-	inline static constexpr EColorSpace getBoundTristimulusColorSpace() noexcept
-	{
-		return BOUND_TRISTIMULUS_COLOR_SPACE;
-	}
-
-	using Base::getColorSpace;
-	using Base::getReferenceWhite;
-};
+template<typename DefType, typename T>
+concept CColorSpaceDefinition = 
+	CTristimulusColorSpaceDefinition<DefType, T> ||
+	CSpectralColorSpaceDefinition<DefType, T>;
 
 /*! @brief Sinkhole for color spaces without definition.
 Specialize the class to provide definitions for color space. Must satisfy CTristimulusColorSpaceDefinition or
@@ -115,9 +63,12 @@ template<EColorSpace COLOR_SPACE, typename T>
 class TColorSpaceDefinition final
 {
 	// Available color spaces must provide definition and thus should not end up here.
-	static_assert(COLOR_SPACE == EColorSpace::UNSPECIFIED,
+	static_assert(COLOR_SPACE == EColorSpace::UNSPECIFIED || COLOR_SPACE == EColorSpace::NUM,
 		"No definition for the specified COLOR_SPACE.");
 };
+
+template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+decltype(auto) transform_color(const auto& srcColorValues, EColorUsage usage = EColorUsage::UNSPECIFIED);
 
 }// end namespace ph::math
 

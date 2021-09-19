@@ -2,9 +2,22 @@
 
 #include "Math/Color/chromatic_adaptations.h"
 #include "Common/assertion.h"
+#include "Utility/IUninstantiable.h"
 
 namespace ph::math
 {
+
+template<EChromaticAdaptation ALGORITHM>
+class TChromaticAdaptationDefinitionHelper : private IUninstantiable
+{
+	static_assert(ALGORITHM != EChromaticAdaptation::UNSPECIFIED);
+
+public:
+	inline static constexpr EChromaticAdaptation getAlgorithm() noexcept
+	{
+		return ALGORITHM;
+	}
+};
 
 /*!
 References:
@@ -171,8 +184,24 @@ public:
 	}
 };
 
+// End Chromatic Adaptation Definitions
+
 // Unspecified adaption configuration must not be a valid definition.
 static_assert(!CChromaticAdaptationDefinition<
 	TChromaticAdaptationDefinition<EChromaticAdaptation::UNSPECIFIED, ColorValue>, ColorValue>);
+
+template<EChromaticAdaptation ALGORITHM, typename T>
+inline TTristimulusValues<T> chromatic_adapt(
+	const TTristimulusValues<T>& srcCIEXYZColor,
+	const EReferenceWhite        srcRefWhite,
+	const EReferenceWhite        dstRefWhite)
+{
+	using ChromaticAdapter = TChromaticAdaptationDefinition<ALGORITHM, T>;
+
+	static_assert(CChromaticAdaptationDefinition<ChromaticAdapter>,
+		"No definition for the specified chromatic adaptation ALGORITHM.");
+
+	return ChromaticAdapter::adapt(srcCIEXYZColor, srcRefWhite, dstRefWhite);
+}
 
 }// end namespace ph::math
