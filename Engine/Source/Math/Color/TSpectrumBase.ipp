@@ -65,7 +65,8 @@ inline std::size_t TSpectrumBase<Derived, COLOR_SPACE, T, N>::maxComponent() con
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-inline void TSpectrumBase<Derived, COLOR_SPACE, T, N>::setColorValues(const TRawColorValues<T, N>& colorValues)
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setColorValues(const TRawColorValues<T, N>& colorValues)
+-> Derived&
 {
 	// set() is not exposed; use "this" to access it in current scope
 	return this->set(colorValues);

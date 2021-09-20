@@ -19,6 +19,8 @@ class TSampledSpectrum;
 
 using LinearSRGBSpectrum = TTristimulusSpectrum<EColorSpace::Linear_sRGB, ColorValue>;
 
+using ACESSpectrum = TTristimulusSpectrum<EColorSpace::ACEScg, ColorValue>;
+
 using SampledSpectrum = TSampledSpectrum<
 	EColorSpace::Spectral_Smits, 
 	ColorValue, 

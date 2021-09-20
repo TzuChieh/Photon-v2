@@ -53,7 +53,8 @@ Assertions will be enabled on debug mode.
 // Render Modes                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PH_RENDER_MODE_RGB
+#define PH_RENDER_MODE_LINEAR_SRGB
+//#define PH_RENDER_MODE_ACES
 //#define PH_RENDER_MODE_SPECTRAL
 //#define PH_RENDER_MODE_FULL_SPECTRAL
 

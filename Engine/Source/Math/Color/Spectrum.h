@@ -1,28 +1,33 @@
 #pragma once
 
 #include "Common/config.h"
-#include "Core/Quantity/spectrum_fwd.h"
-#include "Core/Quantity/private_Spectrum/LinearSrgbSpectrum.h"
-#include "Core/Quantity/private_Spectrum/TSampledSpectrum.h"
+#include "Math/Color/spectrum_fwd.h"
+#include "Math/Color/TTristimulusSpectrum.h"
+#include "Math/Color/TSampledSpectrum.h"
 
-namespace ph
+namespace ph::math
 {
 
-#if defined(PH_RENDER_MODE_RGB)
-	using Spectrum = LinearSrgbSpectrum;
+#if defined(PH_RENDER_MODE_LINEAR_SRGB)
+
+	using Spectrum = LinearSRGBSpectrum;
+
+#elif defined(PH_RENDER_MODE_ACES)
+
+	using Spectrum = ACESSpectrum;
 
 #elif defined(PH_RENDER_MODE_SPECTRAL)
+
 	using Spectrum = SampledSpectrum;
 
 #elif defined(PH_RENDER_MODE_FULL_SPECTRAL)
+
 	// TODO
 
 #else
-	using Spectrum = LinearSrgbSpectrum;
+
+	using Spectrum = LinearSRGBSpectrum;
 
 #endif
 
-}// end namespace ph
-
-#include "Core/Quantity/private_Spectrum/TAbstractSpectrum.tpp"
-#include "Core/Quantity/private_Spectrum/TSampledSpectrum.tpp"
+}// end namespace ph::math

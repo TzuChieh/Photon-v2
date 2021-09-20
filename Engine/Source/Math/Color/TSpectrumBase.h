@@ -33,7 +33,7 @@ concept CColorTransformInterface = requires (
 	// Test for the method void setColorValues(const TRawColorValues<T, N>&).
 	// Note: we do not want to pass in the template parameters (for convenience), so we test by calling 
 	// the method with an empty braced-init-list.
-	{ instance.setColorValues({}) } -> std::same_as<void>;
+	instance.setColorValues({});
 
 	// Test for the method getColorValues().
 	// Note: we do not want to pass in the template parameters (for convenience), so we test by calling 
@@ -77,7 +77,7 @@ public:
 	std::size_t minComponent() const;
 	std::size_t maxComponent() const;
 
-	void setColorValues(const TRawColorValues<T, N>& colorValues);
+	Derived& setColorValues(const TRawColorValues<T, N>& colorValues);
 	const TRawColorValues<T, N>& getColorValues() const;
 
 	template<typename OtherSpectrum, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
