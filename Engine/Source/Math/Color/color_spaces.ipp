@@ -16,7 +16,7 @@ template<EColorSpace COLOR_SPACE, EReferenceWhite REF_WHITE>
 class TColorSpaceDefinitionHelper : private IUninstantiable
 {
 protected:
-	inline static constexpr EColorSpace getColorSpace() noexcept
+	inline static consteval EColorSpace getColorSpace() noexcept
 	{
 		return COLOR_SPACE;
 	}
@@ -26,17 +26,17 @@ template<EColorSpace COLOR_SPACE, EReferenceWhite REF_WHITE>
 class TTristimulusColorSpaceDefinitionHelper : private IUninstantiable
 {
 public:
-	inline static constexpr EColorSpace getColorSpace() noexcept
+	inline static consteval EColorSpace getColorSpace() noexcept
 	{
 		return COLOR_SPACE;
 	}
 
-	inline static constexpr bool isTristimulus() noexcept
+	inline static consteval bool isTristimulus() noexcept
 	{
 		return true;
 	}
 
-	inline static constexpr EReferenceWhite getReferenceWhite() noexcept
+	inline static consteval EReferenceWhite getReferenceWhite() noexcept
 	{
 		return REF_WHITE;
 	}
@@ -50,17 +50,17 @@ class TSpectralColorSpaceDefinitionHelper : private IUninstantiable
 		"A color space can be either spectral or tristimulus but not both.");
 
 public:
-	inline static constexpr EColorSpace getColorSpace() noexcept
+	inline static consteval EColorSpace getColorSpace() noexcept
 	{
 		return COLOR_SPACE;
 	}
 
-	inline static constexpr bool isTristimulus() noexcept
+	inline static consteval bool isTristimulus() noexcept
 	{
 		return false;
 	}
 
-	inline static constexpr EColorSpace getBoundTristimulusColorSpace() noexcept
+	inline static consteval EColorSpace getBoundTristimulusColorSpace() noexcept
 	{
 		return BOUND_TRISTIMULUS_COLOR_SPACE;
 	}
@@ -456,6 +456,7 @@ inline decltype(auto) transform_color(const auto& srcColorValues, const EColorUs
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
+	return TTristimulusValues<T>{0, 0, 0};
 }
 
 }// end namespace ph::math

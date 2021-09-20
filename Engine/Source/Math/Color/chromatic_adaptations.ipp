@@ -13,7 +13,7 @@ class TChromaticAdaptationDefinitionHelper : private IUninstantiable
 	static_assert(ALGORITHM != EChromaticAdaptation::UNSPECIFIED);
 
 public:
-	inline static constexpr EChromaticAdaptation getAlgorithm() noexcept
+	inline static consteval EChromaticAdaptation getAlgorithm() noexcept
 	{
 		return ALGORITHM;
 	}

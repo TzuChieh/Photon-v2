@@ -1,27 +1,47 @@
 #pragma once
 
 #include "Math/General/TArithmeticArrayBase.h"
+#include "Math/Color/spectrum_fwd.h"
 #include "Math/math_fwd.h"
 #include "Math/Color/color_basics.h"
 
 #include <cstddef>
 #include <type_traits>
 #include <concepts>
+#include <vector>
 
 namespace ph::math
 {
 
-template<typename Derived, typename ColorType, EColorSpace COLOR_SPACE>
-concept CHasSpectrumImplementations = requires (
-	Derived&       nonConstDerived, 
-	const Derived& constDerived, 
-	ColorType      inputColor)
+namespace detail
 {
-	{ nonConstDerived.template impl_from<COLOR_SPACE>(inputColor) };
-	{ constDerived.template impl_to<COLOR_SPACE>() } -> std::same_as<ColorType>;
+
+template<EColorSpace COLOR_SPACE>
+class TColorSpaceDummy final
+{};
+
+}// end namespace detail
+
+template<typename ImplType>
+concept CColorTransformInterface = requires (
+	ImplType       instance,
+	const ImplType constInstance)
+{
+	// getColorSpace() must be usable as a non-type template argument
+	detail::TColorSpaceDummy<ImplType::getColorSpace()>();
+
+	// Test for the method void setColorValues(const TRawColorValues<T, N>&).
+	// Note: we do not want to pass in the template parameters (for convenience), so we test by calling 
+	// the method with an empty braced-init-list.
+	{ instance.setColorValues({}) } -> std::same_as<void>;
+
+	// Test for the method getColorValues().
+	// Note: we do not want to pass in the template parameters (for convenience), so we test by calling 
+	// the method and see if the return value can be subscripted.
+	constInstance.getColorValues()[0];
 };
 
-template<typename Derived, typename T, std::size_t N>
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
 class TSpectrumBase : public TArithmeticArrayBase<Derived, T, N>
 {
 private:
@@ -44,22 +64,24 @@ public:
 	using Base::Base;
 
 	template<typename U>
-	explicit TSpectrumBase(const std::array<U, N>& values);
+	explicit TSpectrumBase(const TRawColorValues<U, N>& colorValues);
 
 	template<typename U>
-	explicit TSpectrumBase(const TArithmeticArray<U, N>& values);
+	explicit TSpectrumBase(const U* colorValues);
 
 	template<typename U>
-	explicit TSpectrumBase(const U* values);
+	explicit TSpectrumBase(const std::vector<U>& colorValues);
 
-	template<typename U>
-	explicit TSpectrumBase(const std::vector<U>& values);
+	static consteval EColorSpace getColorSpace() noexcept;
 
 	std::size_t minComponent() const;
 	std::size_t maxComponent() const;
 
-	/*void 
-	const TRawColorValues<T, N>& getColorValues() const;*/
+	void setColorValues(const TRawColorValues<T, N>& colorValues);
+	const TRawColorValues<T, N>& getColorValues() const;
+
+	template<typename OtherSpectrum, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+	Derived& setTransformed(const OtherSpectrum& otherSpectrum, EColorUsage usage = EColorUsage::UNSPECIFIED);
 
 	using Base::add;
 	using Base::addLocal;
@@ -102,7 +124,6 @@ public:
 	using Base::isZero;
 	using Base::isNonNegative;
 	using Base::isFinite;
-	using Base::set;
 	using Base::begin;
 	using Base::end;
 	using Base::isEqual;
