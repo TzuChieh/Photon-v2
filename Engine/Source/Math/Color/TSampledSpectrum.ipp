@@ -57,7 +57,7 @@ inline auto TSampledSpectrum<COLOR_SPACE, T, Props>::makePiecewiseAveraged(
 -> TSampledSpectrum
 {
 	return TSampledSpectrum().setColorValues(
-		calc_piecewise_averaged<T, U, Props>(
+		make_piecewise_avg_spectral_samples<T, U, Props>(
 			wavelengthsNM, values, numPoints));
 }
 

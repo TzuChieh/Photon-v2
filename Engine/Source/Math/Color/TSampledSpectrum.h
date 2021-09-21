@@ -9,7 +9,7 @@
 namespace ph::math
 {
 
-template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
+template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props = DefaultSpectralSampleProps>
 class TSampledSpectrum final :
 	public TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, Props>, COLOR_SPACE, T, Props>
 {
@@ -25,6 +25,7 @@ public:
 	inline TSampledSpectrum(TSampledSpectrum&& other) = default;
 	inline TSampledSpectrum& operator = (const TSampledSpectrum& rhs) = default;
 	inline TSampledSpectrum& operator = (TSampledSpectrum&& rhs) = default;
+	inline ~TSampledSpectrum() = default;
 
 	using Base::Base;
 

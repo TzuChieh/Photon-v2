@@ -22,6 +22,7 @@ public:
 	inline TTristimulusSpectrum(TTristimulusSpectrum&& other) = default;
 	inline TTristimulusSpectrum& operator = (const TTristimulusSpectrum& rhs) = default;
 	inline TTristimulusSpectrum& operator = (TTristimulusSpectrum&& rhs) = default;
+	inline ~TTristimulusSpectrum() = default;
 
 	using Base::Base;
 

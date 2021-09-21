@@ -332,7 +332,7 @@ public:
 
 template<typename T>
 class TColorSpaceDefinition<EColorSpace::Spectral_Smits, T> final :
-	public TTristimulusColorSpaceDefinitionHelper<EColorSpace::Spectral_Smits, EColorSpace::Linear_sRGB>
+	public TSpectralColorSpaceDefinitionHelper<EColorSpace::Spectral_Smits, EColorSpace::Linear_sRGB>
 {
 public:
 	/*inline static TSpectralSampleValues<T> upSample(const TTristimulusValues<T>& boundColor, const EColorUsage usage)

@@ -24,6 +24,7 @@ public:
 	inline TMatrix3(TMatrix3&& other) = default;
 	inline TMatrix3& operator = (const TMatrix3& rhs) = default;
 	inline TMatrix3& operator = (TMatrix3&& rhs) = default;
+	inline ~TMatrix3() = default;
 
 	using Base::Base;
 

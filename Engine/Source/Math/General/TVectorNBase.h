@@ -35,9 +35,6 @@ public:
 	explicit TVectorNBase(const std::array<U, N>& values);
 
 	template<typename U>
-	explicit TVectorNBase(const TArithmeticArray<U, N>& values);
-
-	template<typename U>
 	explicit TVectorNBase(const U* values);
 
 	template<typename U>

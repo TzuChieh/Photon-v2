@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/General/TVectorNBase.h"
-#include "Math/TArithmeticArray.h"
 #include "Common/assertion.h"
 #include "Math/math.h"
 
@@ -13,16 +12,6 @@ namespace ph::math
 template<typename Derived, typename T, std::size_t N>
 template<typename U>
 inline TVectorNBase<Derived, T, N>::TVectorNBase(const std::array<U, N>& values)
-{
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = static_cast<T>(values[i]);
-	}
-}
-
-template<typename Derived, typename T, std::size_t N>
-template<typename U>
-inline TVectorNBase<Derived, T, N>::TVectorNBase(const TArithmeticArray<U, N>& values)
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{

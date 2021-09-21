@@ -24,7 +24,7 @@ concept CSpectralSampleProps = requires (std::size_t value)
 	TNonTypeTemplateArgDummy<std::size_t, Property::MAX_WAVELENGTH_NM>();
 };
 
-class SpectralSampleProps final
+class DefaultSpectralSampleProps final
 {
 public:
 	inline static constexpr std::size_t NUM_SAMPLES       = PH_SPECTRUM_SAMPLED_NUM_SAMPLES;
@@ -41,10 +41,10 @@ template<typename T>
 using TTristimulusValues = TRawColorValues<T, 3>;
 
 /*!
-Properties of spectral sample values (such as wavelength range) are specified in @p SpectralSampleProps.
+Properties of spectral sample values (such as wavelength range) are specified in @p DefaultSpectralSampleProps.
 */
-template<typename T>
-using TSpectralSampleValues = TRawColorValues<T, SpectralSampleProps::NUM_SAMPLES>;
+template<typename T, CSpectralSampleProps Props = DefaultSpectralSampleProps>
+using TSpectralSampleValues = TRawColorValues<T, Props::NUM_SAMPLES>;
 
 template<typename T>
 using TChromaticityValues = TRawColorValues<T, 2>;

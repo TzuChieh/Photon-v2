@@ -22,6 +22,7 @@ public:
 	inline TVector2(TVector2&& other) = default;
 	inline TVector2& operator = (const TVector2& rhs) = default;
 	inline TVector2& operator = (TVector2&& rhs) = default;
+	inline ~TVector2() = default;
 
 	using Base::Base;
 

@@ -1,93 +1,99 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Math/math_fwd.h"
+#include "Math/General/TArithmeticArrayBase.h"
 
 #include <cstddef>
 #include <array>
-#include <string>
-#include <vector>
 
 namespace ph::math
 {
 
 template<typename T, std::size_t N>
-class TArithmeticArray final
+class TArithmeticArray final : public TArithmeticArrayBase<TArithmeticArray<T, N>, T, N>
 {
-public:
-	static std::size_t numElements();
+private:
+	using Base = TArithmeticArrayBase<TArithmeticArray<T, N>, T, N>;
+
+protected:
+	using Base::m;
 
 public:
 	inline TArithmeticArray() = default;
-	explicit TArithmeticArray(T value);
-	explicit TArithmeticArray(const std::array<T, N>& values);
 	inline TArithmeticArray(const TArithmeticArray& other) = default;
+	inline TArithmeticArray(TArithmeticArray&& other) = default;
+	inline TArithmeticArray& operator = (const TArithmeticArray& rhs) = default;
+	inline TArithmeticArray& operator = (TArithmeticArray&& rhs) = default;
+	inline ~TArithmeticArray() = default;
+
+	using Base::Base;
 
 	template<typename U>
 	explicit TArithmeticArray(const TArithmeticArray<U, N>& other);
 
-	TArithmeticArray add(const TArithmeticArray& rhs) const;
-	TArithmeticArray add(T rhs) const;
-	TArithmeticArray sub(const TArithmeticArray& rhs) const;
-	TArithmeticArray sub(T rhs) const;
-	TArithmeticArray mul(const TArithmeticArray& rhs) const;
-	TArithmeticArray mul(T rhs) const;
-	TArithmeticArray div(const TArithmeticArray& rhs) const;
-	TArithmeticArray div(T rhs) const;
+	using Base::NUM_ELEMENTS;
+	using Base::size;
 
-	TArithmeticArray& addLocal(const TArithmeticArray& rhs);
-	TArithmeticArray& addLocal(T rhs);
-	TArithmeticArray& subLocal(const TArithmeticArray& rhs);
-	TArithmeticArray& subLocal(T rhs);
-	TArithmeticArray& mulLocal(const TArithmeticArray& rhs);
-	TArithmeticArray& mulLocal(T rhs);
-	TArithmeticArray& divLocal(const TArithmeticArray& rhs);
-	TArithmeticArray& divLocal(T rhs);
+	using Base::add;
+	using Base::addLocal;
 
-	// TODO: should support floating point pow
-	TArithmeticArray pow(integer exponent) const;
-	TArithmeticArray& sqrtLocal();
+	using Base::sub;
+	using Base::subLocal;
 
-	// Inputs must not contain any NaN. 
-	// (NaNs are clamped to lower bound)
-	TArithmeticArray& clampLocal(T lowerBound, T upperBound);
+	using Base::mul;
+	using Base::mulLocal;
 
-	T dot(const TArithmeticArray& rhs) const;
-	T sum() const;
-	T avg() const;
-	T max() const;
-	TArithmeticArray abs() const;
-	TArithmeticArray complement() const;
-	TArithmeticArray& complementLocal();
+	using Base::div;
+	using Base::divLocal;
 
-	template<typename U>
-	TArithmeticArray<U, N> lerp(const TArithmeticArray& rhs, U factor) const;
+	using Base::pow;
+	using Base::powLocal;
 
-	bool isZero() const;
-	bool isNonNegative() const;
-	bool isFinite() const;
-	constexpr std::size_t size() const noexcept;
+	using Base::sqrt;
+	using Base::sqrtLocal;
 
-	TArithmeticArray& set(T value);
-	TArithmeticArray& set(const std::array<T, N>& values);
+	using Base::clamp;
+	using Base::clampLocal;
 
-	T& operator [] (std::size_t index);
-	const T& operator [] (std::size_t index) const;
-	bool operator == (const TArithmeticArray& other) const;
+	using Base::abs;
+	using Base::absLocal;
 
-	TArithmeticArray operator * (T rhs) const;
-	TArithmeticArray operator + (T rhs) const;
+	using Base::rcp;
+	using Base::rcpLocal;
 
-	auto begin() noexcept       -> typename std::array<T, N>::iterator;
-	auto begin() const noexcept -> typename std::array<T, N>::const_iterator;
-	auto end() noexcept         -> typename std::array<T, N>::iterator;
-	auto end() const noexcept   -> typename std::array<T, N>::const_iterator;
+	using Base::complement;
+	using Base::complementLocal;
 
-	std::string toString() const;
-	std::vector<T> toVector() const;
+	using Base::sum;
+	using Base::avg;
+	using Base::min;
+	using Base::max;
+	using Base::ceil;
+	using Base::floor;
+	using Base::product;
+	using Base::lerp;
+	using Base::isZero;
+	using Base::isNonNegative;
+	using Base::isFinite;
+	using Base::set;
+	using Base::begin;
+	using Base::end;
+	using Base::isEqual;
+	using Base::isNear;
+	using Base::toString;
+	using Base::toVector;
 
-protected:
-	std::array<T, N> m;
+	using Base::operator [];
+	using Base::operator ==;
+	using Base::operator !=;
+
+	using Base::operator +;
+	using Base::operator +=;
+	using Base::operator -;
+	using Base::operator -=;
+	using Base::operator *;
+	using Base::operator *=;
+	using Base::operator /;
+	using Base::operator /=;
 };
 
 }// end namespace ph::math

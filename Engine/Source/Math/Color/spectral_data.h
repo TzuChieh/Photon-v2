@@ -1,5 +1,11 @@
 #pragma once
 
+/*! @file
+Various spectral dataset are available here. Note that many dataset are provided as functions rather than
+directly in the form of arrays. It is done in this way so that how the data is stored is opaque to the 
+users. The data, under the hood, may be hard-coded directly in the source or lazily loaded from disk.
+*/
+
 #include <array>
 #include <cstddef>
 

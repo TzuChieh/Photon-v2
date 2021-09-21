@@ -692,7 +692,7 @@ constexpr ArraySmits smits_linear_sRGB_to_spectrum_E_yellow_data =
 	9.76083081791483060000e-01
 }};
 
-constexpr ArraySmits smits_linear_sRGB_to_spectrum_Eed_data =
+constexpr ArraySmits smits_linear_sRGB_to_spectrum_E_red_data =
 {{
 	2.31621733723568830000e-03, 1.14183227052674730000e-02, 1.98164287004314460000e-02, 
 	4.22284158452166240000e-02, 5.58494965544824030000e-02, 5.50294412519241810000e-02, 
@@ -803,9 +803,9 @@ const ArraySmits& smits_linear_sRGB_to_spectrum_E_yellow()
 	return smits_linear_sRGB_to_spectrum_E_yellow_data;
 }
 
-const ArraySmits& smits_linear_sRGB_to_spectrum_Eed()
+const ArraySmits& smits_linear_sRGB_to_spectrum_E_red()
 {
-	return smits_linear_sRGB_to_spectrum_Eed_data;
+	return smits_linear_sRGB_to_spectrum_E_red_data;
 }
 
 const ArraySmits& smits_linear_sRGB_to_spectrum_E_green()
