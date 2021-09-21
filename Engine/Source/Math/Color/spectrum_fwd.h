@@ -14,7 +14,7 @@ class TSpectrumBase;
 template<EColorSpace COLOR_SPACE, typename T>
 class TTristimulusSpectrum;
 
-template<EColorSpace COLOR_SPACE, typename T, std::size_t N>
+template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
 class TSampledSpectrum;
 
 using LinearSRGBSpectrum = TTristimulusSpectrum<EColorSpace::Linear_sRGB, ColorValue>;
@@ -24,6 +24,6 @@ using ACESSpectrum = TTristimulusSpectrum<EColorSpace::ACEScg, ColorValue>;
 using SampledSpectrum = TSampledSpectrum<
 	EColorSpace::Spectral_Smits, 
 	ColorValue, 
-	std::tuple_size_v<SpectralSampleValues>>;
+	DefaultSpectralSampleProps>;
 
 }// end namespace ph::math

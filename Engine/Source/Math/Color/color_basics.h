@@ -7,11 +7,30 @@
 #include "Math/Color/EReferenceWhite.h"
 #include "Math/Color/EColorUsage.h"
 #include "Math/Color/EChromaticAdaptation.h"
+#include "Utility/utility.h"
 
 #include <array>
+#include <cstddef>
+#include <concepts>
 
 namespace ph::math
 {
+
+template<typename Property>
+concept CSpectralSampleProps = requires (std::size_t value)
+{
+	TNonTypeTemplateArgDummy<std::size_t, Property::NUM_SAMPLES>();
+	TNonTypeTemplateArgDummy<std::size_t, Property::MIN_WAVELENGTH_NM>();
+	TNonTypeTemplateArgDummy<std::size_t, Property::MAX_WAVELENGTH_NM>();
+};
+
+class SpectralSampleProps final
+{
+public:
+	inline static constexpr std::size_t NUM_SAMPLES       = PH_SPECTRUM_SAMPLED_NUM_SAMPLES;
+	inline static constexpr std::size_t MIN_WAVELENGTH_NM = PH_SPECTRUM_SAMPLED_MIN_WAVELENGTH_NM;
+	inline static constexpr std::size_t MAX_WAVELENGTH_NM = PH_SPECTRUM_SAMPLED_MAX_WAVELENGTH_NM;
+};
 
 using ColorValue = real;
 
@@ -21,8 +40,11 @@ using TRawColorValues = std::array<T, N>;
 template<typename T>
 using TTristimulusValues = TRawColorValues<T, 3>;
 
+/*!
+Properties of spectral sample values (such as wavelength range) are specified in @p SpectralSampleProps.
+*/
 template<typename T>
-using TSpectralSampleValues = TRawColorValues<T, PH_SPECTRUM_SAMPLED_NUM_SAMPLES>;
+using TSpectralSampleValues = TRawColorValues<T, SpectralSampleProps::NUM_SAMPLES>;
 
 template<typename T>
 using TChromaticityValues = TRawColorValues<T, 2>;

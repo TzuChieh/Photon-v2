@@ -73,4 +73,8 @@ inline std::string enum_to_string(EnumType value)
 	return std::to_string(static_cast<ValueType>(value));
 }
 
+template<typename T, T VALUE>
+struct TNonTypeTemplateArgDummy final
+{};
+
 }// end namespace ph

@@ -2,18 +2,19 @@
 
 #include "Math/Color/TSpectrumBase.h"
 #include "Math/Color/EColorSpace.h"
+#include "Math/Color/color_basics.h"
 
 #include <cstddef>
 
 namespace ph::math
 {
 
-template<EColorSpace COLOR_SPACE, typename T, std::size_t N>
+template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
 class TSampledSpectrum final :
-	public TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, N>, COLOR_SPACE, T, N>
+	public TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, Props>, COLOR_SPACE, T, Props>
 {
 private:
-	using Base = TSpectrumBase<TTristimulusSpectrum<COLOR_SPACE, T, N>, COLOR_SPACE, T, N>;
+	using Base = TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, Props>, COLOR_SPACE, T, Props>;
 
 protected:
 	using Base::m;
@@ -28,7 +29,7 @@ public:
 	using Base::Base;
 
 	template<typename U>
-	TSampledSpectrum(const TSampledSpectrum<COLOR_SPACE, U, N>& other);
+	TSampledSpectrum(const TSampledSpectrum<COLOR_SPACE, U, Props>& other);
 
 	static consteval std::size_t numSamples() noexcept;
 	static consteval std::size_t minWavelengthNM() noexcept;
