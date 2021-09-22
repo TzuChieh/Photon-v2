@@ -3,6 +3,10 @@
 namespace ph::math
 {
 
+/*!
+These can be considered as hints that can be specified while converting data between color spaces. 
+Specifying a hint to a method may result in better-converted data depending on the implementation.
+*/
 enum class EColorUsage
 {
 	UNSPECIFIED = 0,

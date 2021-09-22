@@ -403,6 +403,9 @@ template<typename T>
 class TColorSpaceDefinition<EColorSpace::Spectral_Smits, T> final :
 	public TSpectralColorSpaceDefinitionHelper<EColorSpace::Spectral_Smits, EColorSpace::Linear_sRGB>
 {
+private:
+	using LinearSrgbDef = TColorSpaceDefinition<EColorSpace::Linear_sRGB, T>;
+
 public:
 	inline static TSpectralSampleValues<T> upSample(const TTristimulusValues<T>& boundColor, const EColorUsage usage)
 	{
@@ -463,17 +466,32 @@ public:
 				spd.addLocal(basis.red * (r - g));
 			}
 		}
-	
-		// For things such as illuminants, scale its SPD so that constant SPDs matches D65.
-		if constexpr(usage == EColorUsage::EMR)
+		
+		static_assert(LinearSrgbDef::getReferenceWhite() == EReferenceWhite::D65);
+
+		static const TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES> D65Spd(
+			make_sampled_illuminant_D65<T, DefaultSpectralSampleProps>());
+
+		switch(usage)
 		{
-			spd.mulLocal(SPD_D65);
-		}
+		// For things such as illuminants, scale the SPD so that constant SPDs matches the distribution 
+		// of D65. This way, a "gray" linear-sRGB color will be D65 scaled by some constant.
+		case EColorUsage::EMR:
+			spd.mulLocal(D65Spd);
+			break;
 
 		// For things such as reflectances, make sure energy conservation requirements are met.
-		if constexpr(usage == EColorUsage::ECF)
-		{
+		case EColorUsage::ECF:
 			spd.clampLocal(0, 1);
+			break;
+
+		case EColorUsage::RAW:
+			// Do nothing
+			break;
+
+		default:
+			PH_ASSERT_UNREACHABLE_SECTION();
+			break;
 		}
 
 		return spd.toArray();
@@ -481,7 +499,24 @@ public:
 
 	inline static TTristimulusValues<T> downSample(const TSpectralSampleValues<T>& sampleValues, const EColorUsage usage)
 	{
-		// TODO
+		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(sampleValues);
+
+		using LinearSrgbDef = TColorSpaceDefinition<EColorSpace::Linear_sRGB, T>;
+		auto linearSrgbColor = LinearSrgbDef::fromCIEXYZ(sampleValues);
+
+		// We do not care about EMR color usage here since spectral samples should be independent of
+		// reference white (this may make round-trip conversions less stable, we think such stability
+		// is unimportant, however). We do nothing for RAW usage. 
+		// 
+		// For ECF usage, we make sure the resulting value is well being in [0, 1].
+		if(usage == EColorUsage::ECF)
+		{
+			TArithmeticArray<T, 3> copiedColor(linearSrgbColor);
+			copiedColor.clampLocal(0, 1);
+			linearSrgbColor = copiedColor.toArray();
+		}
+
+		return linearSrgbColor;
 	}
 };
 
