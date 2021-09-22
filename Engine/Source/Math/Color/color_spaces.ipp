@@ -2,10 +2,11 @@
 
 #include "Math/Color/color_spaces.h"
 #include "Math/TMatrix3.h"
-#include "Math/Color/spectral_data.h"
+#include "Math/Color/spectral_samples.h"
 #include "Utility/IUninstantiable.h"
 #include "Math/math_exceptions.h"
 #include "Common/assertion.h"
+#include "Math/TArithmeticArray.h"
 
 #include <cmath>
 
@@ -330,20 +331,158 @@ public:
 	}
 };
 
+namespace detail
+{
+
+template<typename T, CSpectralSampleProps SampleProps>
+struct TSmitsSPDBasis final
+{
+	TArithmeticArray<T, SampleProps::NUM_SAMPLES> white;
+	TArithmeticArray<T, SampleProps::NUM_SAMPLES> cyan;
+	TArithmeticArray<T, SampleProps::NUM_SAMPLES> magenta;
+	TArithmeticArray<T, SampleProps::NUM_SAMPLES> yellow;
+	TArithmeticArray<T, SampleProps::NUM_SAMPLES> red;
+	TArithmeticArray<T, SampleProps::NUM_SAMPLES> green;
+	TArithmeticArray<T, SampleProps::NUM_SAMPLES> blue;
+
+	inline TSmitsSPDBasis()
+	{
+		// Construct sampled SPD bases for Smits' algorithm.
+	
+		using SmitsSPDValueType = spectral_data::ArraySmits::value_type;
+		const std::size_t NUM_SMITS_POINTS = std::tuple_size_v<spectral_data::ArraySmits>;
+
+		const auto sampledValuesWhite = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_white().data(),
+			NUM_SMITS_POINTS);
+
+		const auto sampledValuesCyan = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_cyan().data(),
+			NUM_SMITS_POINTS);
+
+		const auto sampledValuesMagenta = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_magenta().data(),
+			NUM_SMITS_POINTS);
+
+		const auto sampledValuesYellow = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_yellow().data(),
+			NUM_SMITS_POINTS);
+
+		const auto sampledValuesRed = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_red().data(),
+			NUM_SMITS_POINTS);
+
+		const auto sampledValuesGreen = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_green().data(),
+			NUM_SMITS_POINTS);
+
+		const auto sampledValuesBlue = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
+			spectral_data::smits_linear_sRGB_to_spectrum_E_blue().data(),
+			NUM_SMITS_POINTS);
+
+		white.set(sampledValuesWhite);
+		cyan.set(sampledValuesCyan);
+		magenta.set(sampledValuesMagenta);
+		yellow.set(sampledValuesYellow);
+		red.set(sampledValuesRed);
+		green.set(sampledValuesGreen);
+		blue.set(sampledValuesBlue);
+	}
+};
+
+}// end namespace detail
+
 template<typename T>
 class TColorSpaceDefinition<EColorSpace::Spectral_Smits, T> final :
 	public TSpectralColorSpaceDefinitionHelper<EColorSpace::Spectral_Smits, EColorSpace::Linear_sRGB>
 {
 public:
-	/*inline static TSpectralSampleValues<T> upSample(const TTristimulusValues<T>& boundColor, const EColorUsage usage)
+	inline static TSpectralSampleValues<T> upSample(const TTristimulusValues<T>& boundColor, const EColorUsage usage)
 	{
+		static const detail::TSmitsSPDBasis<T, DefaultSpectralSampleProps> basis;
 
+		const T r = boundColor[0];
+		const T g = boundColor[1];
+		const T b = boundColor[2];
+
+		TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES> spd(0);
+
+		// The following steps mix in primary colors only as needed. Also, 
+		// (r, g, b) = (1, 1, 1) will be mapped to a constant SPD with 
+		// magnitudes = 1.
+
+		// When R is minimum
+		if(r <= g && r <= b)
+		{
+			spd.addLocal(basis.white * r);
+			if(g <= b)
+			{
+				spd.addLocal(basis.cyan * (g - r));
+				spd.addLocal(basis.blue * (b - g));
+			}
+			else
+			{
+				spd.addLocal(basis.cyan * (b - r));
+				spd.addLocal(basis.green * (g - b));
+			}
+		}
+		// When G is minimum
+		else if(g <= r && g <= b)
+		{
+			spd.addLocal(basis.white * g);
+			if(r <= b)
+			{
+				spd.addLocal(basis.magenta * (r - g));
+				spd.addLocal(basis.blue * (b - r));
+			}
+			else
+			{
+				spd.addLocal(basis.magenta * (b - g));
+				spd.addLocal(basis.red * (r - b));
+			}
+		}
+		// When B is minimum
+		else
+		{
+			spd.addLocal(basis.white * b);
+			if(r <= g)
+			{
+				spd.addLocal(basis.yellow * (r - b));
+				spd.addLocal(basis.green * (g - r));
+			}
+			else
+			{
+				spd.addLocal(basis.yellow * (g - b));
+				spd.addLocal(basis.red * (r - g));
+			}
+		}
+	
+		// For things such as illuminants, scale its SPD so that constant SPDs matches D65.
+		if constexpr(usage == EColorUsage::EMR)
+		{
+			spd.mulLocal(SPD_D65);
+		}
+
+		// For things such as reflectances, make sure energy conservation requirements are met.
+		if constexpr(usage == EColorUsage::ECF)
+		{
+			spd.clampLocal(0, 1);
+		}
+
+		return spd.toArray();
 	}
 
-	inline static TTristimulusValues<T> downSample(const TTristimulusValues<T>& sampleValues, const EColorUsage usage)
+	inline static TTristimulusValues<T> downSample(const TSpectralSampleValues<T>& sampleValues, const EColorUsage usage)
 	{
-
-	}*/
+		// TODO
+	}
 };
 
 // End Color Space Definitions

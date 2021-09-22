@@ -727,4 +727,11 @@ inline auto TArithmeticArrayBase<Derived, T, N>::toVector() const
 	return vector;
 }
 
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::toArray() const
+-> std::array<T, N>
+{
+	return m;
+}
+
 }// end namespace ph::math

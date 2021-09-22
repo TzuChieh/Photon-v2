@@ -145,6 +145,7 @@ protected:
 
 	std::string toString() const;
 	std::vector<T> toVector() const;
+	std::array<T, N> toArray() const;
 
 protected:
 	std::array<T, N> m;

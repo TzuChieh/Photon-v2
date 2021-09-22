@@ -35,13 +35,13 @@ public:
 	static consteval std::size_t numSamples() noexcept;
 	static consteval std::size_t minWavelengthNM() noexcept;
 	static consteval std::size_t maxWavelengthNM() noexcept;
-	static consteval T sampleInverval() noexcept;
+	static constexpr T sampleInterval() noexcept;
 	static constexpr std::pair<T, T> wavelengthRangeOf(std::size_t sampleIndex) noexcept;
 
 	template<typename U>
 	static TSampledSpectrum makePiecewiseAveraged(
-		const T*    wavelengthsNM,
-		const T*    values,
+		const U*    wavelengthsNM,
+		const U*    values,
 		std::size_t numPoints);
 };
 

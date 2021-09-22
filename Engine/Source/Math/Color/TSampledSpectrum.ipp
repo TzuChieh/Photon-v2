@@ -35,10 +35,10 @@ inline consteval std::size_t TSampledSpectrum<COLOR_SPACE, T, Props>::maxWavelen
 }
 
 template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
-inline consteval auto TSampledSpectrum<COLOR_SPACE, T, Props>::sampleInverval() noexcept
+inline constexpr auto TSampledSpectrum<COLOR_SPACE, T, Props>::sampleInterval() noexcept
 -> T
 {
-	return static_cast<T>(maxWavelengthNM() - minWavelengthNM()) / static_cast<T>(N);
+	return wavelength_interval_of<T, Props>();
 }
 
 template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
@@ -51,8 +51,8 @@ inline constexpr auto TSampledSpectrum<COLOR_SPACE, T, Props>::wavelengthRangeOf
 template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
 template<typename U>
 inline auto TSampledSpectrum<COLOR_SPACE, T, Props>::makePiecewiseAveraged(
-	const T* const    wavelengthsNM,
-	const T* const    values,
+	const U* const    wavelengthsNM,
+	const U* const    values,
 	const std::size_t numPoints)
 -> TSampledSpectrum
 {

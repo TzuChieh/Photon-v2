@@ -81,6 +81,7 @@ public:
 	using Base::isNear;
 	using Base::toString;
 	using Base::toVector;
+	using Base::toArray;
 
 	using Base::operator [];
 	using Base::operator ==;
