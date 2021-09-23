@@ -61,7 +61,7 @@ inline T squared(const T value)
 //
 void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
-// Clamp a real value to specific range. If the real value is NaN, its 
+// Clamp a value to specific range. If a floating-point value is NaN, its 
 // value is clamped to lower bound. Neither lower bound or upper bound 
 // can be NaN, or the method's behavior is undefined.
 

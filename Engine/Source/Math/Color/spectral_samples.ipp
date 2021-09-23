@@ -32,76 +32,93 @@ inline constexpr auto wavelength_range_of(const std::size_t sampleIndex) noexcep
 }
 
 template<typename T, CSpectralSampleProps SampleProps>
-inline TSpectralSampleValues<T, SampleProps> normalize_spectral_energy_samples(const TSpectralSampleValues<T, SampleProps>& srcSamples)
+inline T estimate_samples_energy(const TSpectralSampleValues<T, SampleProps>& srcSamples)
+{
+	const T sum = TArithmeticArray<T, SampleProps::NUM_SAMPLES>(srcSamples).sum();
+	return sum > 0 ? sum : 0;
+}
+
+template<typename T, CSpectralSampleProps SampleProps>
+inline TSpectralSampleValues<T, SampleProps> normalize_samples_energy(const TSpectralSampleValues<T, SampleProps>& srcSamples)
 {
 	TArithmeticArray<T, SampleProps::NUM_SAMPLES> samples(srcSamples);
 
-	const T sum = samples.sum();
-	if(sum > 0)
+	const T energy = estimate_samples_energy(srcSamples);
+	if(energy > 0)
 	{
-		samples.divLocal(sum);
+		samples.divLocal(energy);
 	}
 
 	return samples.toArray();
 }
 
 template<typename T, typename U, CSpectralSampleProps SampleProps>
-inline TSpectralSampleValues<T, SampleProps> make_piecewise_avg_spectral_samples(
-	const U* const    wavelengthsNM,
-	const U* const    values,
-	const std::size_t numPoints)
+inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
+	const U* const          wavelengthsNM,
+	const U* const          values,
+	const std::size_t       numPoints,
+	const ESpectralResample algorithm)
 {
 	PH_ASSERT(wavelengthsNM);
 	PH_ASSERT(values);
+	PH_ASSERT(algorithm != ESpectralResample::UNSPECIFIED);
 
-	// Construct a curve from specified points
+	TSpectralSampleValues<T, SampleProps> sampled(0);
 
-	math::TPiecewiseLinear1D<U> curve;
-	for(std::size_t i = 0; i < numPoints; i++)
+	if(algorithm == ESpectralResample::PIECEWISE_AVERAGED)
 	{
-		const U wavelengthNm = wavelengthsNM[i];
-		const U value        = values[i];
+		// Construct a curve from specified points
 
-		curve.addPoint({wavelengthNm, value});
+		math::TPiecewiseLinear1D<U> curve;
+		for(std::size_t i = 0; i < numPoints; i++)
+		{
+			const U wavelengthNm = wavelengthsNM[i];
+			const U value        = values[i];
+
+			curve.addPoint({wavelengthNm, value});
+		}
+		curve.update();
+
+		// Sample curve values by averaging each wavelength interval
+		// (note that <numPoints> does not necessarily equal to <SampleProps::NUM_SAMPLES>)
+
+		math::TAnalyticalIntegrator1D<U> areaCalculator;
+		for(std::size_t i = 0; i < SampleProps::NUM_SAMPLES; ++i)
+		{
+			const auto& range = wavelength_range_of<U, SampleProps>(i);
+
+			areaCalculator.setIntegrationDomain(range.first, range.second);
+
+			const U area     = areaCalculator.integrate(curve);
+			const U avgValue = area / (range.second - range.first);
+			sampled[i] = static_cast<T>(avgValue);
+		}
 	}
-	curve.update();
-
-	// Sample curve values by averaging each wavelength interval
-	// (note that <numPoints> does not necessarily equal to <SampleProps::NUM_SAMPLES>)
-
-	TSpectralSampleValues<T, SampleProps> sampled;
-	math::TAnalyticalIntegrator1D<U>      areaCalculator;
-	for(std::size_t i = 0; i < SampleProps::NUM_SAMPLES; ++i)
+	else
 	{
-		const auto& range = wavelength_range_of<U, SampleProps>(i);
-
-		areaCalculator.setIntegrationDomain(range.first, range.second);
-
-		const U area     = areaCalculator.integrate(curve);
-		const U avgValue = area / (range.second - range.first);
-		sampled[i] = static_cast<T>(avgValue);
+		PH_ASSERT_UNREACHABLE_SECTION();
 	}
-	
+
 	return sampled;
 }
 
 template<typename T, CSpectralSampleProps SampleProps>
-inline TSpectralSampleValues<T, SampleProps> make_sampled_illuminant_E()
+inline TSpectralSampleValues<T, SampleProps> resample_illuminant_E()
 {
 	TSpectralSampleValues<T, SampleProps> samples;
 	samples.fill(1);
-	return normalize_spectral_energy_samples(samples);
+	return normalize_samples_energy(samples);
 }
 
 template<typename T, CSpectralSampleProps SampleProps>
-inline TSpectralSampleValues<T, SampleProps> make_sampled_illuminant_D65()
+inline TSpectralSampleValues<T, SampleProps> resample_illuminant_D65()
 {
-	auto samples = make_piecewise_avg_spectral_samples<T, spectral_data::ArrayD65::value_type, SampleProps>(
+	auto samples = resample_spectral_samples<T, spectral_data::ArrayD65::value_type, SampleProps>(
 		spectral_data::CIE_D65_wavelengths_nm().data(),
 		spectral_data::CIE_D65_values().data(), 
 		std::tuple_size_v<spectral_data::ArrayD65>);
 
-	return normalize_spectral_energy_samples(samples);
+	return normalize_samples_energy(samples);
 }
 
 namespace detail
@@ -123,17 +140,17 @@ struct TCIEXYZCmfKernel final
 		using XYZCMFValueType = spectral_data::ArrayD65::value_type;
 		constexpr auto NMU_XYZ_CMF_POINTS = std::tuple_size_v<spectral_data::ArrayXYZCMF>;
 
-		const auto sampledCmfValuesX = make_piecewise_avg_spectral_samples<T, XYZCMFValueType, SampleProps>(
+		const auto sampledCmfValuesX = resample_spectral_samples<T, XYZCMFValueType, SampleProps>(
 			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 			spectral_data::XYZ_CMF_CIE_1931_2_degree_X().data(), 
 			NMU_XYZ_CMF_POINTS);
 
-		const auto sampledCmfValuesY = make_piecewise_avg_spectral_samples<T, XYZCMFValueType, SampleProps>(
+		const auto sampledCmfValuesY = resample_spectral_samples<T, XYZCMFValueType, SampleProps>(
 			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 			spectral_data::XYZ_CMF_CIE_1931_2_degree_Y().data(), 
 			NMU_XYZ_CMF_POINTS);
 
-		const auto sampledCmfValuesZ = make_piecewise_avg_spectral_samples<T, XYZCMFValueType, SampleProps>(
+		const auto sampledCmfValuesZ = resample_spectral_samples<T, XYZCMFValueType, SampleProps>(
 			spectral_data::XYZ_CMF_CIE_1931_2_degree_wavelengths_nm().data(),
 			spectral_data::XYZ_CMF_CIE_1931_2_degree_Z().data(), 
 			NMU_XYZ_CMF_POINTS);
@@ -159,7 +176,7 @@ struct TCIEXYZCmfKernel final
 			// (one can also normalize using other illuminants such as D65; we chose E here
 			// since we would like to keep energy conservative fractions well within [0, 1])
 
-			const T illuminantESamples = make_sampled_illuminant_E<T, SampleProps>();
+			const T illuminantESamples = resample_illuminant_E<T, SampleProps>();
 
 			T integrationResult = 0;
 			for(std::size_t si = 0; si < SampleProps::NUM_SAMPLES; ++si)

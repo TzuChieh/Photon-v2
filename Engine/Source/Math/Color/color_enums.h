@@ -115,7 +115,7 @@ enum class EColorUsage
 	UNSPECIFIED = 0,
 
 	/*!
-	Raw data such as position, normal, density information.
+	Raw numeric data such as position, normal, density information.
 	*/
 	RAW,
 

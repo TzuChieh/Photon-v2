@@ -75,10 +75,21 @@ is tristimulus.
 is tristimulus.
 */
 template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-decltype(auto) transform_color(const auto& srcColorValues, EColorUsage usage = EColorUsage::UNSPECIFIED);
+decltype(auto) transform_color(const auto& srcColorValues, EColorUsage usage = EColorUsage::RAW);
 
-template<EColorSpace COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-T relative_luminance(const auto& srcColorValues, EColorUsage usage = EColorUsage::UNSPECIFIED);
+/*!
+@return Relative luminance of @p srcColorValues. Normally for a tristimulus color, its reference white's
+relative luminance will be 1. For spectral samples, it is the result of performing an inner product with the
+luminous efficiency function. For ECF usages, its relative luminance is guaranteed to be within [0, 1].
+*/
+template<EColorSpace SRC_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+T relative_luminance(const auto& srcColorValues, EColorUsage usage = EColorUsage::RAW);
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+T estimate_color_energy(const auto& srcColorValues, EColorUsage usage = EColorUsage::RAW);
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+decltype(auto) normalize_color_energy(const auto& srcColorValues, EColorUsage usage = EColorUsage::RAW);
 
 }// end namespace ph::math
 

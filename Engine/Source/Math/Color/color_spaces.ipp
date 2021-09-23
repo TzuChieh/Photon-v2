@@ -7,6 +7,7 @@
 #include "Math/math_exceptions.h"
 #include "Common/assertion.h"
 #include "Math/TArithmeticArray.h"
+#include "Math/math.h"
 
 #include <cmath>
 
@@ -352,37 +353,37 @@ struct TSmitsSPDBasis final
 		using SmitsSPDValueType = spectral_data::ArraySmits::value_type;
 		const std::size_t NUM_SMITS_POINTS = std::tuple_size_v<spectral_data::ArraySmits>;
 
-		const auto sampledValuesWhite = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+		const auto sampledValuesWhite = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
 			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
 			spectral_data::smits_linear_sRGB_to_spectrum_E_white().data(),
 			NUM_SMITS_POINTS);
 
-		const auto sampledValuesCyan = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+		const auto sampledValuesCyan = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
 			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
 			spectral_data::smits_linear_sRGB_to_spectrum_E_cyan().data(),
 			NUM_SMITS_POINTS);
 
-		const auto sampledValuesMagenta = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+		const auto sampledValuesMagenta = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
 			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
 			spectral_data::smits_linear_sRGB_to_spectrum_E_magenta().data(),
 			NUM_SMITS_POINTS);
 
-		const auto sampledValuesYellow = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+		const auto sampledValuesYellow = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
 			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
 			spectral_data::smits_linear_sRGB_to_spectrum_E_yellow().data(),
 			NUM_SMITS_POINTS);
 
-		const auto sampledValuesRed = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+		const auto sampledValuesRed = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
 			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
 			spectral_data::smits_linear_sRGB_to_spectrum_E_red().data(),
 			NUM_SMITS_POINTS);
 
-		const auto sampledValuesGreen = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+		const auto sampledValuesGreen = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
 			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
 			spectral_data::smits_linear_sRGB_to_spectrum_E_green().data(),
 			NUM_SMITS_POINTS);
 
-		const auto sampledValuesBlue = make_piecewise_avg_spectral_samples<T, SmitsSPDValueType, SampleProps>(
+		const auto sampledValuesBlue = resample_spectral_samples<T, SmitsSPDValueType, SampleProps>(
 			spectral_data::smits_linear_sRGB_to_spectrum_E_wavelengths_nm().data(),
 			spectral_data::smits_linear_sRGB_to_spectrum_E_blue().data(),
 			NUM_SMITS_POINTS);
@@ -472,7 +473,7 @@ public:
 		static_assert(LinearSrgbDef::getReferenceWhite() == EReferenceWhite::D65);
 
 		static const TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES> D65Spd(
-			make_sampled_illuminant_D65<T, DefaultSpectralSampleProps>());
+			resample_illuminant_D65<T, DefaultSpectralSampleProps>());
 
 		switch(usage)
 		{
@@ -632,6 +633,88 @@ inline decltype(auto) transform_color(const auto& srcColorValues, const EColorUs
 
 	PH_ASSERT_UNREACHABLE_SECTION();
 	return TTristimulusValues<T>{0, 0, 0};
+}
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM>
+inline T relative_luminance(const auto& srcColorValues, const EColorUsage usage)
+{
+	using SrcColorSpaceDef    = TColorSpaceDefinition<SRC_COLOR_SPACE, T>;
+	using CIEXYZColorSpaceDef = TColorSpaceDefinition<EColorSpace::CIE_XYZ, T>;
+
+	T relativeLuminance;
+	if constexpr(SrcColorSpaceDef::isTristimulus())
+	{
+		// First transform input color values into CIE-XYZ color space
+		auto CIEXYZColor = transform_color<SRC_COLOR_SPACE, EColorSpace::CIE_XYZ, T, ALGORITHM>(
+			srcColorValues, usage);
+
+		// The Y component should be the relative luminance. However, we would like to know relative luminance
+		// with respect to source color space's reference white. Perform a chromatic adaptation if required
+		if constexpr(SrcColorSpaceDef::getReferenceWhite() != CIEXYZColorSpaceDef::getReferenceWhite())
+		{
+			CIEXYZColor = chromatic_adapt<ALGORITHM, T>(
+				CIEXYZColor,
+				CIEXYZColorSpaceDef::getReferenceWhite(),
+				SrcColorSpaceDef::getReferenceWhite());
+		}
+
+		relativeLuminance = CIEXYZColor[1];
+	}
+	else
+	{
+		// For spectral samples, we do not transform into CIE-XYZ, since in our implementation the conversion
+		// will be associated with a reference white which is unnecessary.
+
+		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(srcColorValues);
+		relativeLuminance = CIEXYZColor[1];
+	}
+
+	// Ensure energy conservation if the usage is ECF
+	if(usage == EColorUsage::ECF)
+	{
+		relativeLuminance = clamp<T>(relativeLuminance, 0, 1);
+	}
+
+	return relativeLuminance;
+}
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
+inline T estimate_color_energy(const auto& srcColorValues, const EColorUsage usage)
+{
+	using SrcColorSpaceDef      = TColorSpaceDefinition<SRC_COLOR_SPACE, T>;
+	using SpectralColorSpaceDef = TColorSpaceDefinition<SPECTRAL_COLOR_SPACE, T>;
+
+	static_assert(!SpectralColorSpaceDef::isTristimulus(),
+		"SPECTRAL_COLOR_SPACE must be a spectral color space.");
+
+	TSpectralSampleValues<T> sampleValues;
+	if constexpr(SrcColorSpaceDef::isTristimulus())
+	{
+		sampleValues = transform_color<SRC_COLOR_SPACE, SPECTRAL_COLOR_SPACE, T, ALGORITHM>(
+			srcColorValues, usage);
+	}
+	else
+	{
+		sampleValues = srcColorValues;
+	}
+
+	return estimate_samples_energy(sampleValues);
+}
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
+inline decltype(auto) normalize_color_energy(const auto& srcColorValues, const EColorUsage usage)
+{
+	const T energy = estimate_color_energy<SRC_COLOR_SPACE, T, SPECTRAL_COLOR_SPACE, ALGORITHM>(
+		srcColorValues, usage);
+
+	using SrcColorValues = std::remove_cvref_t<decltype(srcColorValues)>;
+	TArithmeticArray<T, std::tuple_size_v<SrcColorValues>> copiedSrcColorValues(srcColorValues);
+	if(energy > 0)
+	{
+		copiedSrcColorValues.divLocal(energy);
+	}
+
+	return copiedSrcColorValues.toArray();
 }
 
 }// end namespace ph::math

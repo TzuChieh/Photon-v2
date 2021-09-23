@@ -50,14 +50,14 @@ inline constexpr auto TSampledSpectrum<COLOR_SPACE, T, Props>::wavelengthRangeOf
 
 template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
 template<typename U>
-inline auto TSampledSpectrum<COLOR_SPACE, T, Props>::makePiecewiseAveraged(
+inline auto TSampledSpectrum<COLOR_SPACE, T, Props>::makeResampled(
 	const U* const    wavelengthsNM,
 	const U* const    values,
 	const std::size_t numPoints)
 -> TSampledSpectrum
 {
 	return TSampledSpectrum().setColorValues(
-		make_piecewise_avg_spectral_samples<T, U, Props>(
+		resample_spectral_samples<T, U, Props>(
 			wavelengthsNM, values, numPoints));
 }
 

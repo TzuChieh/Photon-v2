@@ -38,7 +38,7 @@ public:
 	static constexpr std::pair<T, T> wavelengthRangeOf(std::size_t sampleIndex) noexcept;
 
 	template<typename U>
-	static TSampledSpectrum makePiecewiseAveraged(
+	static TSampledSpectrum makeResampled(
 		const U*    wavelengthsNM,
 		const U*    values,
 		std::size_t numPoints);
