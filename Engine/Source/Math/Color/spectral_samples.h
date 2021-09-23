@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Math/Color/color_enums.h"
 #include "Math/Color/color_basics.h"
 #include "Common/assertion.h"
 

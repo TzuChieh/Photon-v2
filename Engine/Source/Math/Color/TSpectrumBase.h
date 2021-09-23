@@ -3,6 +3,7 @@
 #include "Math/General/TArithmeticArrayBase.h"
 #include "Math/Color/spectrum_fwd.h"
 #include "Math/math_fwd.h"
+#include "Math/Color/color_enums.h"
 #include "Math/Color/color_basics.h"
 
 #include <cstddef>

@@ -42,6 +42,7 @@ T TAnalyticalIntegrator1D<T>::integrate(const TPiecewiseLinear1D<T>& func) const
 	if(m_x1 >= pN.x()) sum += (m_x1 - pN.x()) * pN.y();
 
 	// possibly add trapezoidal regions where x > p0.x and x < pN.x
+	// TODO: can be optimized by better finding point index from func (given x, find previous/next index?)
 	for(std::size_t i = 0; i < func.numPoints() - 1; i++)
 	{
 		// intersecting integration domain with region's domain

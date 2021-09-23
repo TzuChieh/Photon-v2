@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Math/Color/color_enums.h"
 #include "Math/Color/color_basics.h"
 
 #include <concepts>
@@ -67,8 +68,17 @@ class TColorSpaceDefinition final
 		"No definition for the specified COLOR_SPACE.");
 };
 
+/*!
+@param srcColorValues A @p TTristimulusValues or a @p TSpectralSampleValues depending on whether @p SRC_COLOR_SPACE
+is tristimulus.
+@return A @p TTristimulusValues or a @p TSpectralSampleValues depending on whether @p DST_COLOR_SPACE
+is tristimulus.
+*/
 template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
 decltype(auto) transform_color(const auto& srcColorValues, EColorUsage usage = EColorUsage::UNSPECIFIED);
+
+template<EColorSpace COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+T relative_luminance(const auto& srcColorValues, EColorUsage usage = EColorUsage::UNSPECIFIED);
 
 }// end namespace ph::math
 

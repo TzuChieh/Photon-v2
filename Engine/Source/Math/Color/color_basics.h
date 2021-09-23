@@ -3,10 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Common/config.h"
 #include "Common/assertion.h"
-#include "Math/Color/EColorSpace.h"
-#include "Math/Color/EReferenceWhite.h"
-#include "Math/Color/EColorUsage.h"
-#include "Math/Color/EChromaticAdaptation.h"
+#include "Math/Color/color_enums.h"
 #include "Utility/utility.h"
 
 #include <array>
@@ -17,7 +14,7 @@ namespace ph::math
 {
 
 template<typename Property>
-concept CSpectralSampleProps = requires (std::size_t value)
+concept CSpectralSampleProps = requires
 {
 	TNonTypeTemplateArgDummy<std::size_t, Property::NUM_SAMPLES>();
 	TNonTypeTemplateArgDummy<std::size_t, Property::MIN_WAVELENGTH_NM>();

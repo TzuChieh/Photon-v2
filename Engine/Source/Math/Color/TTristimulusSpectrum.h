@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/Color/TSpectrumBase.h"
-#include "Math/Color/EColorSpace.h"
 
 namespace ph::math
 {

@@ -394,6 +394,8 @@ struct TSmitsSPDBasis final
 		red.set(sampledValuesRed);
 		green.set(sampledValuesGreen);
 		blue.set(sampledValuesBlue);
+
+		// TODO: should we ensure bases sum to 1 after being smapled?
 	}
 };
 
@@ -501,7 +503,6 @@ public:
 	{
 		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(sampleValues);
 
-		using LinearSrgbDef = TColorSpaceDefinition<EColorSpace::Linear_sRGB, T>;
 		auto linearSrgbColor = LinearSrgbDef::fromCIEXYZ(sampleValues);
 
 		// We do not care about EMR color usage here since spectral samples should be independent of

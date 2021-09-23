@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/Color/TSpectrumBase.h"
-#include "Math/Color/EColorSpace.h"
 #include "Math/Color/color_basics.h"
 
 #include <cstddef>
