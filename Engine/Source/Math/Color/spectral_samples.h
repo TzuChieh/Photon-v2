@@ -10,9 +10,15 @@
 namespace ph::math
 {
 
+/*!
+@return Wavelength sample interval of @p SampleProps.
+*/
 template<typename T, CSpectralSampleProps SampleProps>
 constexpr T wavelength_interval_of() noexcept;
 
+/*!
+@return Wavelength sample range of the sample with @p sampleIndex.
+*/
 template<typename T, CSpectralSampleProps SampleProps>
 constexpr std::pair<T, T> wavelength_range_of(std::size_t sampleIndex) noexcept;
 
@@ -33,18 +39,20 @@ TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 	std::size_t       numPoints,
 	ESpectralResample algorithm = ESpectralResample::PIECEWISE_AVERAGED);
 
-/*! Normalized SPD of standard illuminants E.
+/*! @brief SPD of standard illuminants E, with total energy = 1.
 */
 template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
 TSpectralSampleValues<T, SampleProps> resample_illuminant_E();
 
-/*! Normalized SPD of standard illuminants D65.
+/*! @brief SPD of standard illuminants D65, with total energy = 1.
 */
 template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
 TSpectralSampleValues<T, SampleProps> resample_illuminant_D65();
 
+/*! @brief Converting spectral samples to CIE-XYZ using standard CMFs.
+*/
 template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
-TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleValues<T, SampleProps>& srcSamples);
+TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleValues<T, SampleProps>& srcSamples, EColorUsage usage);
 
 }// end namespace ph::math
 

@@ -472,7 +472,7 @@ public:
 		
 		static_assert(LinearSrgbDef::getReferenceWhite() == EReferenceWhite::D65);
 
-		static const TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES> D65Spd(
+		static const TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES> unitD65Spd(
 			resample_illuminant_D65<T, DefaultSpectralSampleProps>());
 
 		switch(usage)
@@ -480,7 +480,7 @@ public:
 		// For things such as illuminants, scale the SPD so that constant SPDs matches the distribution 
 		// of D65. This way, a "gray" linear-sRGB color will be D65 scaled by some constant.
 		case EColorUsage::EMR:
-			spd.mulLocal(D65Spd);
+			spd.mulLocal(unitD65Spd);
 			break;
 
 		// For things such as reflectances, make sure energy conservation requirements are met.
@@ -502,12 +502,12 @@ public:
 
 	inline static TTristimulusValues<T> downSample(const TSpectralSampleValues<T>& sampleValues, const EColorUsage usage)
 	{
-		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(sampleValues);
+		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(sampleValues, usage);
 
 		auto linearSrgbColor = LinearSrgbDef::fromCIEXYZ(sampleValues);
 
 		// We do not care about EMR color usage here since spectral samples should be independent of
-		// reference white (this may make round-trip conversions less stable, we think such stability
+		// reference whites (this may make round-trip conversions less stable, we think such stability
 		// is unimportant, however). We do nothing for RAW usage. 
 		// 
 		// For ECF usage, we make sure the resulting value is well being in [0, 1].

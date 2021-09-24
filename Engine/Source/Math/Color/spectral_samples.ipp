@@ -68,6 +68,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 	if(algorithm == ESpectralResample::PIECEWISE_AVERAGED)
 	{
 		// Construct a curve from specified points
+		// TODO: add option for clamp to edge or set as zero, etc. for out of bound samples
 
 		math::TPiecewiseLinear1D<U> curve;
 		for(std::size_t i = 0; i < numPoints; i++)
@@ -113,11 +114,10 @@ inline TSpectralSampleValues<T, SampleProps> resample_illuminant_E()
 template<typename T, CSpectralSampleProps SampleProps>
 inline TSpectralSampleValues<T, SampleProps> resample_illuminant_D65()
 {
-	auto samples = resample_spectral_samples<T, spectral_data::ArrayD65::value_type, SampleProps>(
+	const auto samples = resample_spectral_samples<T, spectral_data::ArrayD65::value_type, SampleProps>(
 		spectral_data::CIE_D65_wavelengths_nm().data(),
 		spectral_data::CIE_D65_values().data(), 
 		std::tuple_size_v<spectral_data::ArrayD65>);
-
 	return normalize_samples_energy(samples);
 }
 
@@ -127,7 +127,10 @@ namespace detail
 template<typename T, CSpectralSampleProps SampleProps>
 struct TCIEXYZCmfKernel final
 {
-	TArithmeticArray<T, SampleProps::NUM_SAMPLES> weights[3];
+	using ArrayType = TArithmeticArray<T, SampleProps::NUM_SAMPLES>;
+
+	std::array<ArrayType, 3> weights;
+	std::array<T, 3>         illuminantD65Normalizer;
 
 	inline TCIEXYZCmfKernel()
 	{
@@ -166,27 +169,24 @@ struct TCIEXYZCmfKernel final
 		// Integration of CMF-Y by Riemann Sum
 		const T integratedCmfY = (weights[1] * wavelengthIntervalNM).sum();
 
+		const auto uniformUnitSamples   = ArrayType(1);
+		const auto illuminantD65Samples = ArrayType(resample_illuminant_D65<T, SampleProps>());
+		const auto CIEXYZD65WhitePoint  = CIEXYZ_of<T>(EReferenceWhite::D65);
+
 		for(std::size_t ci = 0; ci < 3; ++ci)
 		{
 			// Multiplier of Riemann Sum and denominator
-			// (after this, the weights are usable, but may need further refinements)
 			weights[ci] = (weights[ci] * wavelengthIntervalNM) / integratedCmfY;
 
-			// Energy normalizing with respect to illuminant E (equal energy spectrum)
-			// (one can also normalize using other illuminants such as D65; we chose E here
-			// since we would like to keep energy conservative fractions well within [0, 1])
+			// Normalize weights[ci] such that <uniformUnitSamples> will be weighted to 1
+			// (sum of weights[ci] should be ~= 1 already, this is equivalent to explicitly make them sum to 1)
+			weights[ci] /= weights[ci].dot(uniformUnitSamples);
 
-			const T illuminantESamples = resample_illuminant_E<T, SampleProps>();
+			// Now, weights[ci] is usable, but may need further refinements
 
-			T integrationResult = 0;
-			for(std::size_t si = 0; si < SampleProps::NUM_SAMPLES; ++si)
-			{
-				integrationResult += weights[ci][si] * illuminantESamples[si];
-			}
-
-			// Normalize the weights
-			PH_ASSERT_GT(integrationResult, 0);
-			weights[ci] /= integrationResult;
+			// Normalization multiplier for D65-based illuminants
+			// (this multiplier will ensure a normalized D65 SPD get the corresponding standard white point)
+			illuminantD65Normalizer[ci] = CIEXYZD65WhitePoint[ci] / weights[ci].dot(illuminantD65Samples);
 		}
 	}
 };
@@ -194,20 +194,40 @@ struct TCIEXYZCmfKernel final
 }// end detail
 
 template<typename T, CSpectralSampleProps SampleProps>
-inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleValues<T, SampleProps>& srcSamples)
+inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleValues<T, SampleProps>& srcSamples, const EColorUsage usage)
 {
 	static const detail::TCIEXYZCmfKernel<T, SampleProps> kernel;
 
-	TTristimulusValues<T> CIEXYZColor;
+	const TArithmeticArray<T, SampleProps::NUM_SAMPLES> copiedSrcSamples(srcSamples);
+
+	TArithmeticArray<T, 3> CIEXYZColor;
 	for(std::size_t ci = 0; ci < 3; ++ci)
 	{
-		CIEXYZColor[ci] = 0;
-		for(std::size_t si = 0; si < SampleProps::NUM_SAMPLES; ++si)
-		{
-			CIEXYZColor[ci] += kernel.weights[ci][si] * srcSamples[si];
-		}
+		CIEXYZColor[ci] = copiedSrcSamples.dot(kernel.weights[ci]);
 	}
-	return CIEXYZColor;
+
+	switch(usage)
+	{
+	case EColorUsage::EMR:
+		CIEXYZColor[0] *= kernel.illuminantD65Normalizer[0];
+		CIEXYZColor[1] *= kernel.illuminantD65Normalizer[1];
+		CIEXYZColor[2] *= kernel.illuminantD65Normalizer[2];
+		break;
+
+	case EColorUsage::ECF:
+		CIEXYZColor.clampLocal(0, 1);
+		break;
+
+	case EColorUsage::RAW:
+		// Do nothing
+		break;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		break;
+	}
+
+	return CIEXYZColor.toArray();
 }
 
 }// end namespace ph::math
