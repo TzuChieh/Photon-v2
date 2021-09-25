@@ -322,8 +322,11 @@ inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
 	PH_ASSERT_GT(numDivisions, 0);
 	PH_ASSERT_LT(rangeIndex, numDivisions);
 
-	return {rangeIndex * totalSize / numDivisions,
-	        (rangeIndex + 1) * totalSize / numDivisions};
+	return
+	{
+		rangeIndex * totalSize / numDivisions,
+		(rangeIndex + 1) * totalSize / numDivisions
+	};
 }
 
 /*! @brief Computes 1/sqrt(x) in a fast but approximative way.
@@ -433,6 +436,51 @@ inline T reverse_bits(const T value)
 		       (T(detail::BITS8_REVERSE_TABLE[(value >> 48) & 0xFF]) << 8)  |
 		       (T(detail::BITS8_REVERSE_TABLE[(value >> 56) & 0xFF]));
 	}
+}
+
+template<typename T, T MIN, T MAX, std::size_t N>
+inline std::array<T, N> evenly_spaced_array()
+{
+	static_assert(MAX > MIN);
+	static_assert(N >= 2);
+
+	constexpr T TOTAL_SIZE = MAX - MIN;
+
+	std::array<T, N> arr;
+	arr[0] = MIN;
+	for(std::size_t i = 1; i < N - 1; ++i)
+	{
+		// Calculate current fraction i/(N-1), and multiply it with the total size
+		// (we multiply total size with i fist, otherwise integral types will always result in 0)
+		arr[i] = MIN + static_cast<T>(i * TOTAL_SIZE / (N - 1));
+
+		PH_ASSERT_IN_RANGE_INCLUSIVE(arr[i], MIN, MAX);
+	}
+	arr[N - 1] = MAX;
+
+	return arr;
+}
+
+template<typename T>
+inline std::vector<T> evenly_spaced_vector(const T min, const T max, const std::size_t n)
+{
+	PH_ASSERT_GT(max, min);
+	PH_ASSERT_GE(n, 2);
+
+	const T totalSize = max - min;
+
+	std::vector<T> vec(n, 0);
+	vec[0] = min;
+	for(std::size_t i = 0; i < n; ++i)
+	{
+		// Calculate current fraction i/(n-1), and multiply it with the total size
+		// (we multiply total size with i fist, otherwise integral types will always result in 0)
+		vec[i] = min + static_cast<T>(i * totalSize / (n - 1));
+
+		PH_ASSERT_IN_RANGE_INCLUSIVE(vec[i], min, max);
+	}
+	vec[n - 1] = max;
+	return vec;
 }
 
 }// end namespace ph::math

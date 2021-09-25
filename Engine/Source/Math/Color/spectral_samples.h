@@ -49,6 +49,9 @@ TSpectralSampleValues<T, SampleProps> resample_illuminant_E();
 template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
 TSpectralSampleValues<T, SampleProps> resample_illuminant_D65();
 
+template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
+TSpectralSampleValues<T, SampleProps> resample_black_body_radiance(T temperatureK);
+
 /*! @brief Converting spectral samples to CIE-XYZ using standard CMFs.
 */
 template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>

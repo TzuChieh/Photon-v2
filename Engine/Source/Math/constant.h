@@ -54,6 +54,19 @@ template<typename T>
 inline constexpr T rcp_sqrt_2 = T(
 	0.7071067811865475244008443621048490392848359376884740365883398689953662392);
 
+/*! @brief Planck's constant (SI units).
+*/
+template<typename T>
+inline constexpr T h_Planck = T(6.62607015e-34);
+
+/*! @brief Light speed in vacuum (SI units).
+*/
+template<typename T>
+inline constexpr T c_light = T(299792458);
+
+template<typename T>
+inline constexpr T k_Boltzmann = T(1.380649e-23);
+
 /*! @brief Index type that stores/represents axes.
 */
 using AxisIndexType = int;

@@ -513,9 +513,7 @@ public:
 		// For ECF usage, we make sure the resulting value is well being in [0, 1].
 		if(usage == EColorUsage::ECF)
 		{
-			TArithmeticArray<T, 3> copiedColor(linearSrgbColor);
-			copiedColor.clampLocal(0, 1);
-			linearSrgbColor = copiedColor.toArray();
+			linearSrgbColor = TArithmeticArray<T, 3>(linearSrgbColor).clampLocal(0, 1).toArray();
 		}
 
 		return linearSrgbColor;
@@ -665,7 +663,7 @@ inline T relative_luminance(const auto& srcColorValues, const EColorUsage usage)
 		// For spectral samples, we do not transform into CIE-XYZ, since in our implementation the conversion
 		// will be associated with a reference white which is unnecessary.
 
-		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(srcColorValues);
+		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(srcColorValues, usage);
 		relativeLuminance = CIEXYZColor[1];
 	}
 

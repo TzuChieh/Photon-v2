@@ -5,8 +5,10 @@
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
 #include "Math/TArithmeticArray.h"
 #include "Math/Color/spectral_data.h"
+#include "Math/Physics/black_body.h"
 
 #include <array>
+#include <vector>
 
 namespace ph::math
 {
@@ -108,6 +110,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_illuminant_E()
 {
 	TSpectralSampleValues<T, SampleProps> samples;
 	samples.fill(1);
+
 	return normalize_samples_energy(samples);
 }
 
@@ -118,6 +121,26 @@ inline TSpectralSampleValues<T, SampleProps> resample_illuminant_D65()
 		spectral_data::CIE_D65_wavelengths_nm().data(),
 		spectral_data::CIE_D65_values().data(), 
 		std::tuple_size_v<spectral_data::ArrayD65>);
+
+	return normalize_samples_energy(samples);
+}
+
+template<typename T, CSpectralSampleProps SampleProps>
+inline TSpectralSampleValues<T, SampleProps> resample_black_body_radiance(const T temperatureK)
+{
+	std::vector<T> radianceLambdas;
+	const std::vector<T> radianceValues = black_body_radiance_curve<double>(
+		temperatureK, 
+		SampleProps::MIN_WAVELENGTH_NM, 
+		SampleProps::MAX_WAVELENGTH_NM, 
+		SampleProps::NUM_SAMPLES,
+		&radianceLambdas);
+
+	const auto samples = resample_spectral_samples<T, double, SampleProps>(
+		radianceLambdas.data(),
+		radianceValues.data(),
+		radianceValues.size());
+
 	return normalize_samples_energy(samples);
 }
 
@@ -182,7 +205,7 @@ struct TCIEXYZCmfKernel final
 			// (sum of weights[ci] should be ~= 1 already, this is equivalent to explicitly make them sum to 1)
 			weights[ci] /= weights[ci].dot(uniformUnitSamples);
 
-			// Now, weights[ci] is usable, but may need further refinements
+			// Now, weights[ci] is usable, but may need further refinements depending on usage
 
 			// Normalization multiplier for D65-based illuminants
 			// (this multiplier will ensure a normalized D65 SPD get the corresponding standard white point)
@@ -215,6 +238,8 @@ inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleVa
 		break;
 
 	case EColorUsage::ECF:
+		// The largest possible <srcSamples> in this case is a constant spectrum of value 1--the resulting
+		// CIE-XYZ color should always be in [0, 1].
 		CIEXYZColor.clampLocal(0, 1);
 		break;
 
