@@ -91,21 +91,33 @@ T estimate_color_energy(const auto& srcColorValues, EColorUsage usage);
 template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
 auto normalize_color_energy(const auto& srcColorValues, EColorUsage usage);
 
+/*! @brief Helper for converting from sRGB to linear-sRGB.
+*/
 template<typename T>
 TTristimulusValues<T> sRGB_nonlinear_to_linear(const TTristimulusValues<T>& nonlinearSRGB);
 
+/*! @brief Helper for converting from linear-sRGB to sRGB.
+*/
 template<typename T>
 TTristimulusValues<T> sRGB_linear_to_nonlinear(const TTristimulusValues<T>& linearSRGB);
 
+/*! @brief Helper for converting from sRGB to any color space.
+*/
 template<EColorSpace DST_COLOR_SPACE, typename T>
 auto transform_from_sRGB(const TTristimulusValues<T>& nonlinearSRGB, EColorUsage usage);
 
+/*! @brief Helper for converting from linear-sRGB to any color space.
+*/
 template<EColorSpace DST_COLOR_SPACE, typename T>
 auto transform_from_linear_sRGB(const TTristimulusValues<T>& linearSRGB, EColorUsage usage);
 
+/*! @brief Helper for converting any color space to sRGB.
+*/
 template<EColorSpace SRC_COLOR_SPACE, typename T>
 TTristimulusValues<T> transform_to_sRGB(const auto& srcColorValues, EColorUsage usage);
 
+/*! @brief Helper for converting any color space to linear-sRGB.
+*/
 template<EColorSpace SRC_COLOR_SPACE, typename T>
 TTristimulusValues<T> transform_to_linear_sRGB(const auto& srcColorValues, EColorUsage usage);
 

@@ -66,7 +66,6 @@ inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setTransformed(const Othe
 
 	const auto transformedColorValues = transform_color<COLOR_SPACE, OtherSpectrum::getColorSpace(), T, ALGORITHM>(
 			otherSpectrum.getColorValues(), usage);
-
 	setColorValues(transformedColorValues);
 
 	return static_cast<Derived&>(*this);
@@ -77,6 +76,29 @@ template<EChromaticAdaptation ALGORITHM>
 inline T TSpectrumBase<Derived, COLOR_SPACE, T, N>::relativeLuminance(const EColorUsage usage) const
 {
 	return relative_luminance<COLOR_SPACE, T, ALGORITHM>(getColorValues(), usage);
+}
+
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::fromLinearSRGB(const TRawColorValues<T, 3>& linearSRGB, const EColorUsage usage)
+-> Derived&
+{
+	static_assert(CColorTransformInterface<Derived>);
+
+	const auto transformedColorValues = transform_from_linear_sRGB<COLOR_SPACE, T>(
+		linearSRGB, usage);
+	setColorValues(transformedColorValues);
+
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::toLinearSRGB(const EColorUsage usage)
+-> TRawColorValues<T, 3>
+{
+	static_assert(CColorTransformInterface<Derived>);
+
+	return transform_to_linear_sRGB<COLOR_SPACE, T>(
+		getColorValues(), usage);
 }
 
 }// end namespace ph::math
