@@ -493,7 +493,8 @@ public:
 			break;
 
 		default:
-			PH_ASSERT_UNREACHABLE_SECTION();
+			throw ColorError(
+				"A color usage must be specified when converting spectral color samples.");
 			break;
 		}
 
@@ -505,6 +506,12 @@ public:
 		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(sampleValues, usage);
 
 		auto linearSrgbColor = LinearSrgbDef::fromCIEXYZ(sampleValues);
+
+		if(usage == EColorUsage::UNSPECIFIED)
+		{
+			throw ColorError(
+				"A color usage must be specified when converting spectral color samples.");
+		}
 
 		// We do not care about EMR color usage here since spectral samples should be independent of
 		// reference whites (this may make round-trip conversions less stable, we think such stability
@@ -527,8 +534,14 @@ static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIF
 static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, double>, double>);
 
 template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-inline decltype(auto) transform_color(const auto& srcColorValues, const EColorUsage usage)
+inline auto transform_color(const auto& srcColorValues, const EColorUsage usage)
 {
+	// No conversion needed if they are in the same color space
+	if constexpr(SRC_COLOR_SPACE == DST_COLOR_SPACE)
+	{
+		return srcColorValues;
+	}
+
 	using SrcColorSpaceDef = TColorSpaceDefinition<SRC_COLOR_SPACE, T>;
 	using DstColorSpaceDef = TColorSpaceDefinition<DST_COLOR_SPACE, T>;
 
@@ -541,16 +554,14 @@ inline decltype(auto) transform_color(const auto& srcColorValues, const EColorUs
 		"Destination color space has no corresponding definition.");
 
 	// Type of source color values must match the category of its color space
+	using SrcColorValues = std::remove_cvref_t<decltype(srcColorValues)>;
+	if constexpr(SrcColorSpaceDef::isTristimulus())
 	{
-		using SrcColorValues = std::remove_cvref_t<decltype(srcColorValues)>;
-		if constexpr(SrcColorSpaceDef::isTristimulus())
-		{
-			static_assert(std::is_same_v<SrcColorValues, TTristimulusValues<T>>);
-		}
-		else
-		{
-			static_assert(std::is_same_v<SrcColorValues, TSpectralSampleValues<T>>);
-		}
+		static_assert(std::is_same_v<SrcColorValues, TTristimulusValues<T>>);
+	}
+	else
+	{
+		static_assert(std::is_same_v<SrcColorValues, TSpectralSampleValues<T>>);
 	}
 
 	// There are 4 possible conversion scenarios, we process them case by case:
@@ -564,7 +575,8 @@ inline decltype(auto) transform_color(const auto& srcColorValues, const EColorUs
 	// +-----------------+-----------------+-----------------+
 	//
 
-	// Case 1: S --> S, down sample input spectral samples to tristimulus, converting it into a T --> S case.
+	// Case 1: S --> S, just copy & return the color samples as spectral samples are already in a 
+	//                  color-space neutral representation. 
 	if constexpr(!SrcColorSpaceDef::isTristimulus() && !DstColorSpaceDef::isTristimulus())
 	{
 		if(usage == EColorUsage::UNSPECIFIED)
@@ -573,11 +585,18 @@ inline decltype(auto) transform_color(const auto& srcColorValues, const EColorUs
 				"A color usage must be specified when converting spectral color samples.");
 		}
 
-		constexpr EColorSpace DOWN_SAMPLE_COLOR_SPACE = SrcColorSpaceDef::getBoundTristimulusColorSpace();
-		const TTristimulusValues<T> downSampledValues = SrcColorSpaceDef::downSample(srcColorValues, usage);
-		
-		return transform_color<DOWN_SAMPLE_COLOR_SPACE, DST_COLOR_SPACE, T, ALGORITHM>(
-			downSampledValues, usage);
+		// For ECF usage, we make sure the resulting value is well being in [0, 1]. 
+		if(usage == EColorUsage::ECF)
+		{
+			TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES> copiedSamples(srcColorValues);
+			copiedSamples.clampLocal(0, 1);
+			return copiedSamples.toArray();
+		}
+		// We do not care for other usages as they have no hard requirements on sample values.
+		else
+		{
+			return srcColorValues;
+		}
 	}
 
 	// Case 2: T --> S, convert input tristimulus values to dst's bound space first (a T --> T case),
@@ -607,12 +626,6 @@ inline decltype(auto) transform_color(const auto& srcColorValues, const EColorUs
 	// Case 4: T --> T, perform color conversion by using CIE XYZ as an intermediate space
 	if constexpr(SrcColorSpaceDef::isTristimulus() && DstColorSpaceDef::isTristimulus())
 	{
-		// No conversion needed if they are in the same color space
-		if constexpr(SRC_COLOR_SPACE == DST_COLOR_SPACE)
-		{
-			return srcColorValues;
-		}
-
 		// Convert to CIE XYZ first
 		TTristimulusValues<T> srcCIEXYZColor = SrcColorSpaceDef::toCIEXYZ(srcColorValues);
 
@@ -700,7 +713,7 @@ inline T estimate_color_energy(const auto& srcColorValues, const EColorUsage usa
 }
 
 template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
-inline decltype(auto) normalize_color_energy(const auto& srcColorValues, const EColorUsage usage)
+inline auto normalize_color_energy(const auto& srcColorValues, const EColorUsage usage)
 {
 	const T energy = estimate_color_energy<SRC_COLOR_SPACE, T, SPECTRAL_COLOR_SPACE, ALGORITHM>(
 		srcColorValues, usage);
@@ -713,6 +726,46 @@ inline decltype(auto) normalize_color_energy(const auto& srcColorValues, const E
 	}
 
 	return copiedSrcColorValues.toArray();
+}
+
+template<typename T>
+inline TTristimulusValues<T> sRGB_nonlinear_to_linear(const TTristimulusValues<T>& nonlinearSRGB)
+{
+	return TColorSpaceDefinition<EColorSpace::sRGB, T>::gammaExpand(nonlinearSRGB);
+}
+
+template<typename T>
+inline TTristimulusValues<T> sRGB_linear_to_nonlinear(const TTristimulusValues<T>& linearSRGB)
+{
+	return TColorSpaceDefinition<EColorSpace::sRGB, T>::gammaCompress(linearSRGB);
+}
+
+template<EColorSpace DST_COLOR_SPACE, typename T>
+inline auto transform_from_sRGB(const TTristimulusValues<T>& nonlinearSRGB, const EColorUsage usage)
+{
+	return transform_color<EColorSpace::sRGB, DST_COLOR_SPACE, T>(
+		nonlinearSRGB, usage);
+}
+
+template<EColorSpace DST_COLOR_SPACE, typename T>
+inline auto transform_from_linear_sRGB(const TTristimulusValues<T>& linearSRGB, const EColorUsage usage)
+{
+	return transform_color<EColorSpace::Linear_sRGB, DST_COLOR_SPACE, T>(
+		linearSRGB, usage);
+}
+
+template<EColorSpace SRC_COLOR_SPACE, typename T>
+inline TTristimulusValues<T> transform_to_sRGB(const auto& srcColorValues, const EColorUsage usage)
+{
+	return transform_color<SRC_COLOR_SPACE, EColorSpace::sRGB, T>(
+		srcColorValues, usage);
+}
+
+template<EColorSpace SRC_COLOR_SPACE, typename T>
+inline TTristimulusValues<T> transform_to_linear_sRGB(const auto& srcColorValues, const EColorUsage usage)
+{
+	return transform_color<SRC_COLOR_SPACE, EColorSpace::Linear_sRGB, T>(
+		srcColorValues, usage);
 }
 
 }// end namespace ph::math

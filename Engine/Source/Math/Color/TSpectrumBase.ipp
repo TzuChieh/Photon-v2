@@ -11,36 +11,13 @@ namespace ph::math
 {
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-template<typename U>
-inline TSpectrumBase<Derived, COLOR_SPACE, T, N>::TSpectrumBase(const TRawColorValues<U, N>& colorValues)
-{
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = static_cast<T>(colorValues[i]);
-	}
-}
-
-template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-template<typename U>
-inline TSpectrumBase<Derived, COLOR_SPACE, T, N>::TSpectrumBase(const U* const colorValues)
+inline TSpectrumBase<Derived, COLOR_SPACE, T, N>::TSpectrumBase(const T* const colorValues)
 {
 	PH_ASSERT(colorValues);
 
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		m[i] = static_cast<T>(colorValues[i]);
-	}
-}
-
-template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-template<typename U>
-inline TSpectrumBase<Derived, COLOR_SPACE, T, N>::TSpectrumBase(const std::vector<U>& colorValues)
-{
-	PH_ASSERT_EQ(colorValues.size(), N);
-
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = static_cast<T>(colorValues[i]);
+		m[i] = colorValues[i];
 	}
 }
 
@@ -93,6 +70,13 @@ inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setTransformed(const Othe
 	setColorValues(transformedColorValues);
 
 	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
+template<EChromaticAdaptation ALGORITHM>
+inline T TSpectrumBase<Derived, COLOR_SPACE, T, N>::relativeLuminance(const EColorUsage usage) const
+{
+	return relative_luminance<COLOR_SPACE, T, ALGORITHM>(getColorValues(), usage);
 }
 
 }// end namespace ph::math

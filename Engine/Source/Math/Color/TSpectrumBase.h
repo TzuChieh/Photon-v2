@@ -42,6 +42,14 @@ concept CColorTransformInterface = requires (
 	constInstance.getColorValues()[0];
 };
 
+/*! @brief Base for spectrum implementations.
+
+An important assumption is that spectrum implementations are all color samples that can be linearly
+combined. @p CColorTransformInterface can be used for directly access the raw sample values.
+
+@note It is not recommended to add your own field in your spectrum implementation. If you must, make sure
+there will not be inconsistent object state (slicing) when @p CColorTransformInterface is being used.
+*/
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
 class TSpectrumBase : public TArithmeticArrayBase<Derived, T, N>
 {
@@ -64,14 +72,7 @@ protected:
 public:
 	using Base::Base;
 
-	template<typename U>
-	explicit TSpectrumBase(const TRawColorValues<U, N>& colorValues);
-
-	template<typename U>
-	explicit TSpectrumBase(const U* colorValues);
-
-	template<typename U>
-	explicit TSpectrumBase(const std::vector<U>& colorValues);
+	explicit TSpectrumBase(const T* colorValues);
 
 	static consteval EColorSpace getColorSpace() noexcept;
 
@@ -82,7 +83,10 @@ public:
 	const TRawColorValues<T, N>& getColorValues() const;
 
 	template<typename OtherSpectrum, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-	Derived& setTransformed(const OtherSpectrum& otherSpectrum, EColorUsage usage = EColorUsage::UNSPECIFIED);
+	Derived& setTransformed(const OtherSpectrum& otherSpectrum, EColorUsage usage);
+
+	template<EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+	T relativeLuminance(EColorUsage usage) const;
 
 	using Base::add;
 	using Base::addLocal;

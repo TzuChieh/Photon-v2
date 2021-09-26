@@ -75,7 +75,7 @@ is tristimulus.
 is tristimulus.
 */
 template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-decltype(auto) transform_color(const auto& srcColorValues, EColorUsage usage);
+auto transform_color(const auto& srcColorValues, EColorUsage usage);
 
 /*!
 @return Relative luminance of @p srcColorValues. Normally for a tristimulus color, its reference white's
@@ -89,7 +89,25 @@ template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPA
 T estimate_color_energy(const auto& srcColorValues, EColorUsage usage);
 
 template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-decltype(auto) normalize_color_energy(const auto& srcColorValues, EColorUsage usage);
+auto normalize_color_energy(const auto& srcColorValues, EColorUsage usage);
+
+template<typename T>
+TTristimulusValues<T> sRGB_nonlinear_to_linear(const TTristimulusValues<T>& nonlinearSRGB);
+
+template<typename T>
+TTristimulusValues<T> sRGB_linear_to_nonlinear(const TTristimulusValues<T>& linearSRGB);
+
+template<EColorSpace DST_COLOR_SPACE, typename T>
+auto transform_from_sRGB(const TTristimulusValues<T>& nonlinearSRGB, EColorUsage usage);
+
+template<EColorSpace DST_COLOR_SPACE, typename T>
+auto transform_from_linear_sRGB(const TTristimulusValues<T>& linearSRGB, EColorUsage usage);
+
+template<EColorSpace SRC_COLOR_SPACE, typename T>
+TTristimulusValues<T> transform_to_sRGB(const auto& srcColorValues, EColorUsage usage);
+
+template<EColorSpace SRC_COLOR_SPACE, typename T>
+TTristimulusValues<T> transform_to_linear_sRGB(const auto& srcColorValues, EColorUsage usage);
 
 }// end namespace ph::math
 

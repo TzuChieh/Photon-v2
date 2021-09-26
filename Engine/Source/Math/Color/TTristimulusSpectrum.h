@@ -25,6 +25,8 @@ public:
 
 	using Base::Base;
 
+	TTristimulusSpectrum(T c0, T c1, T c2);
+
 	template<typename U>
 	TTristimulusSpectrum(const TTristimulusSpectrum<COLOR_SPACE, U>& other);
 };

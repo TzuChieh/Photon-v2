@@ -6,6 +6,7 @@
 #include "Math/TArithmeticArray.h"
 #include "Math/Color/spectral_data.h"
 #include "Math/Physics/black_body.h"
+#include "Math/math_exceptions.h"
 
 #include <array>
 #include <vector>
@@ -207,7 +208,7 @@ struct TCIEXYZCmfKernel final
 
 			// Now, weights[ci] is usable, but may need further refinements depending on usage
 
-			// Normalization multiplier for D65-based illuminants
+			// Normalization multiplier based on a D65 illuminant
 			// (this multiplier will ensure a normalized D65 SPD get the corresponding standard white point)
 			illuminantD65Normalizer[ci] = CIEXYZD65WhitePoint[ci] / weights[ci].dot(illuminantD65Samples);
 		}
@@ -232,6 +233,10 @@ inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleVa
 	switch(usage)
 	{
 	case EColorUsage::EMR:
+		// Note that this multiplier will ensure a normalized D65 SPD get the corresponding standard 
+		// white point defined in CIE-XYZ. The multiplier does not meant only for D65-based illuminants.
+		// Just that most illuminants are defined with respect to D65, so it is reasonable to "calibrate"
+		// the kernel using D65 in this case.
 		CIEXYZColor[0] *= kernel.illuminantD65Normalizer[0];
 		CIEXYZColor[1] *= kernel.illuminantD65Normalizer[1];
 		CIEXYZColor[2] *= kernel.illuminantD65Normalizer[2];
@@ -248,7 +253,8 @@ inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleVa
 		break;
 
 	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
+		throw ColorError(
+			"A color usage must be specified when converting spectral color samples.");
 		break;
 	}
 

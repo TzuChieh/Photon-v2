@@ -10,36 +10,13 @@ namespace ph::math
 {
 
 template<typename Derived, typename T, std::size_t N>
-template<typename U>
-inline TVectorNBase<Derived, T, N>::TVectorNBase(const std::array<U, N>& values)
-{
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = static_cast<T>(values[i]);
-	}
-}
-
-template<typename Derived, typename T, std::size_t N>
-template<typename U>
-inline TVectorNBase<Derived, T, N>::TVectorNBase(const U* const values)
+inline TVectorNBase<Derived, T, N>::TVectorNBase(const T* const values)
 {
 	PH_ASSERT(values);
 
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		m[i] = static_cast<T>(values[i]);
-	}
-}
-
-template<typename Derived, typename T, std::size_t N>
-template<typename U>
-inline TVectorNBase<Derived, T, N>::TVectorNBase(const std::vector<U>& values)
-{
-	PH_ASSERT_EQ(values.size(), N);
-
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = static_cast<T>(values[i]);
+		m[i] = values[i];
 	}
 }
 

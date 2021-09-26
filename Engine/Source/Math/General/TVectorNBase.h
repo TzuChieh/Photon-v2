@@ -31,14 +31,7 @@ protected:
 public:
 	using Base::Base;
 
-	template<typename U>
-	explicit TVectorNBase(const std::array<U, N>& values);
-
-	template<typename U>
-	explicit TVectorNBase(const U* values);
-
-	template<typename U>
-	explicit TVectorNBase(const std::vector<U>& values);
+	explicit TVectorNBase(const T* values);
 
 	T dot(const Derived& rhs) const;
 	T dot(T rhs) const;
