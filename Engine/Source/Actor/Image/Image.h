@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Core/Texture/TConstantTexture.h"
 
 #include <iostream>
@@ -26,7 +26,7 @@ public:
 	virtual std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		ActorCookingContext& ctx) const;
 
-	virtual std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
+	virtual std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
 		ActorCookingContext& ctx) const;
 
 private:

@@ -15,6 +15,7 @@
 #include "Math/constant.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "Math/Color/color_spaces.h"
 
 #include <iostream>
 #include <memory>
@@ -62,9 +63,8 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	PH_ASSERT_GT(lightArea, 0.0_r);
 
 	PH_ASSERT_GT(m_color.abs().sum(), 0.0_r);
-	const auto unitWattColor  = m_color.div(m_color.abs().sum());
-	const auto totalWattColor = unitWattColor.mul(m_numWatts);
-	const auto lightRadiance  = totalWattColor.div(lightArea * math::constant::pi<real>);
+	const auto totalWattColor = math::Spectrum(m_color).putEnergy(m_numWatts);
+	const auto lightRadiance  = totalWattColor / (lightArea * math::constant::pi<real>);
 
 	const auto& emittedRadiance = std::make_shared<TConstantTexture<math::Spectrum>>(lightRadiance);
 

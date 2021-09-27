@@ -68,7 +68,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 
 	TSpectralSampleValues<T, SampleProps> sampled(0);
 
-	if(algorithm == ESpectralResample::PIECEWISE_AVERAGED)
+	if(algorithm == ESpectralResample::PiecewiseAveraged)
 	{
 		// Construct a curve from specified points
 		// TODO: add option for clamp to edge or set as zero, etc. for out of bound samples

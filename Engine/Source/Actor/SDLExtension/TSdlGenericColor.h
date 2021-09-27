@@ -8,7 +8,7 @@
 #include "DataIO/SDL/SdlResourceIdentifier.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
-#include "Core/Quantity/EQuantity.h"
+#include "Actor/SDLExtension/sdl_color_usage_type.h"
 
 #include <string>
 #include <exception>
@@ -35,7 +35,7 @@ private:
 public:
 	TSdlGenericColor(
 		std::string valueName, 
-		EQuantity usage, 
+		math::EColorUsage usage, 
 		std::shared_ptr<Image> Owner::* imagePtr);
 
 	void setValueToDefault(Owner& owner) const override;
@@ -61,7 +61,7 @@ protected:
 	// TODO: save
 
 private:
-	EQuantity m_usage;
+	math::EColorUsage m_usage;
 	// TODO: support for more tristimulus color spaces or generic default image
 	std::optional<math::Vector3R> m_defaultLinearSrgb;
 };
@@ -71,7 +71,7 @@ private:
 template<typename Owner>
 inline TSdlGenericColor<Owner>::TSdlGenericColor(
 	std::string valueName,
-	const EQuantity usage,
+	const math::EColorUsage usage,
 	std::shared_ptr<Image> Owner::* const imagePtr) :
 
 	TSdlReference<Image, Owner>(

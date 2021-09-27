@@ -8,7 +8,7 @@
 namespace ph::math
 {
 
-template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props = DefaultSpectralSampleProps>
+template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
 class TSampledSpectrum final :
 	public TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, Props>, COLOR_SPACE, T, Props>
 {

@@ -57,25 +57,23 @@ inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::getColorValues() const
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-template<typename OtherSpectrum, EChromaticAdaptation ALGORITHM>
-inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setTransformed(const OtherSpectrum& otherSpectrum, const EColorUsage usage)
+template<EColorSpace SRC_COLOR_SPACE>
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setTransformed(const auto& srcColorValues, const EColorUsage usage)
 -> Derived&
 {
 	static_assert(CColorTransformInterface<Derived>);
-	static_assert(CColorTransformInterface<OtherSpectrum>);
 
-	const auto transformedColorValues = transform_color<COLOR_SPACE, OtherSpectrum::getColorSpace(), T, ALGORITHM>(
-			otherSpectrum.getColorValues(), usage);
+	const auto transformedColorValues = transform_color<SRC_COLOR_SPACE, COLOR_SPACE, T>(
+		srcColorValues, usage);
 	setColorValues(transformedColorValues);
 
 	return static_cast<Derived&>(*this);
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-template<EChromaticAdaptation ALGORITHM>
 inline T TSpectrumBase<Derived, COLOR_SPACE, T, N>::relativeLuminance(const EColorUsage usage) const
 {
-	return relative_luminance<COLOR_SPACE, T, ALGORITHM>(getColorValues(), usage);
+	return relative_luminance<COLOR_SPACE, T>(getColorValues(), usage);
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
@@ -99,6 +97,26 @@ inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::toLinearSRGB(const EColor
 
 	return transform_to_linear_sRGB<COLOR_SPACE, T>(
 		getColorValues(), usage);
+}
+
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::putEnergy(const T energyLevel)
+-> Derived&
+{
+	static_assert(CColorTransformInterface<Derived>);
+
+	// For tristimulus color space, use default spectral color space
+	if constexpr(TColorSpaceDefinition<COLOR_SPACE, T>::isTristimulus())
+	{
+		return setColorValues(
+			put_color_energy<COLOR_SPACE, T>(getColorValues(), energyLevel));
+	}
+	// For spectral color space, use itself
+	else
+	{
+		return setColorValues(
+			put_color_energy<COLOR_SPACE, T, COLOR_SPACE>(getColorValues(), energyLevel));
+	}
 }
 
 }// end namespace ph::math

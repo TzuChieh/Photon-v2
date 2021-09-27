@@ -11,7 +11,7 @@ class SphereSource : public AreaSource
 public:
 	SphereSource();
 	SphereSource(real radius, const math::Vector3R& linearSrgbColor, real numWatts);
-	SphereSource(real radius, const Spectrum& color, real numWatts);
+	SphereSource(real radius, const math::Spectrum& color, real numWatts);
 
 	std::shared_ptr<Geometry> genAreas(ActorCookingContext& ctx) const override;
 

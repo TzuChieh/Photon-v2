@@ -82,11 +82,10 @@ public:
 	Derived& setColorValues(const TRawColorValues<T, N>& colorValues);
 	const TRawColorValues<T, N>& getColorValues() const;
 
-	template<typename OtherSpectrum, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-	Derived& setTransformed(const OtherSpectrum& otherSpectrum, EColorUsage usage);
+	template<EColorSpace SRC_COLOR_SPACE>
+	Derived& setTransformed(const auto& srcColorValues, EColorUsage usage);
 
-	template<EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-	T relativeLuminance(EColorUsage usage) const;
+	T relativeLuminance(EColorUsage usage = EColorUsage::EMR) const;
 
 	/*! @brief Helper for setting linear-sRGB color to this spectrum.
 	*/
@@ -95,6 +94,8 @@ public:
 	/*! @brief Helper for converting this spectrum to linear-sRGB color.
 	*/
 	TRawColorValues<T, 3> toLinearSRGB(EColorUsage usage);
+
+	Derived& putEnergy(T energyLevel);
 
 	using Base::add;
 	using Base::addLocal;

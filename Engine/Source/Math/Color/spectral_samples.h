@@ -37,7 +37,7 @@ TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 	const U*          wavelengthsNM,
 	const U*          values,
 	std::size_t       numPoints,
-	ESpectralResample algorithm = ESpectralResample::PIECEWISE_AVERAGED);
+	ESpectralResample algorithm = ESpectralResample::Default);
 
 /*! @brief SPD of standard illuminants E, with total energy = 1.
 */

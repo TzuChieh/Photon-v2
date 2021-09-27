@@ -4,14 +4,14 @@
 #include "DataIO/SDL/Introspect/TSdlOptionalValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/SdlResourceIdentifier.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
-#include "Core/Quantity/EQuantity.h"
 #include "Actor/SDLExtension/color_loaders.h"
+#include "Actor/SDLExtension/sdl_color_usage_type.h"
 
 #include <type_traits>
 #include <string>
@@ -21,17 +21,17 @@
 namespace ph
 {
 
-template<typename Owner, typename SdlValueType = TSdlValue<Spectrum, Owner>>
+template<typename Owner, typename SdlValueType = TSdlValue<math::Spectrum, Owner>>
 class TSdlSpectrum : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<Spectrum, Owner>, SdlValueType>,
+	static_assert(std::is_base_of_v<TAbstractSdlValue<math::Spectrum, Owner>, SdlValueType>,
 		"SdlValueType should be a subclass of TAbstractSdlValue.");
 
 public:
 	template<typename ValueType>
 	inline TSdlSpectrum(
 		std::string valueName, 
-		EQuantity usage,
+		const math::EColorUsage usage,
 		ValueType Owner::* const valuePtr) :
 
 		SdlValueType("spectrum", std::move(valueName), valuePtr),
@@ -39,7 +39,7 @@ public:
 		m_usage(usage)
 	{}
 
-	inline std::string valueAsString(const Spectrum& spectrum) const override
+	inline std::string valueAsString(const math::Spectrum& spectrum) const override
 	{
 		// TODO: add type, # values?
 		return spectrum.toString();
@@ -65,10 +65,10 @@ protected:
 	}
 
 private:
-	EQuantity m_usage;
+	math::EColorUsage m_usage;
 };
 
 template<typename Owner>
-using TSdlOptionalSpectrum = TSdlSpectrum<Owner, TSdlOptionalValue<Spectrum, Owner>>;
+using TSdlOptionalSpectrum = TSdlSpectrum<Owner, TSdlOptionalValue<math::Spectrum, Owner>>;
 
 }// end namespace ph

@@ -24,8 +24,13 @@ enum class EColorSpace
 
 	Spectral_Smits,
 
-	// Special value for the number of entries (should always be the last one)
-	NUM
+	// Special values:
+	
+	// Number of entries (should always be the one next to last entry)
+	NUM,
+
+	// Default spectral representation
+	Spectral = Spectral_Smits
 };
 
 enum class EReferenceWhite
@@ -104,6 +109,10 @@ enum class EChromaticAdaptation
 	//CAT02
 
 	// TODO: spectral route
+
+	// Special values:
+
+	Default = Bradford
 };
 
 /*!
@@ -120,15 +129,13 @@ enum class EColorUsage
 	RAW,
 
 	/*!
-	EMR stands for ElectroMagnetic Radiation; the quantity typical light 
-	sources emitted.
+	EMR stands for ElectroMagnetic Radiation, used by energy emitters such as light sources.
 	*/
 	EMR,
 
 	/*!
-	ECF stands for Energy Conservative Fraction; surface albedo, 
-	reflectance, transmittance... are all ECFs. It is required that an ECF
-	have value within [0, 1].
+	ECF stands for Energy Conservative Fraction; surface albedo, reflectance, transmittance... are 
+	all ECFs. It is required that an ECF have value within [0, 1].
 	*/
 	ECF
 };
@@ -137,9 +144,13 @@ enum class ESpectralResample
 {
 	UNSPECIFIED = 0,
 
-	PIECEWISE_AVERAGED
+	PiecewiseAveraged,
 
 	// TODO: gaussian and other methods
+
+	// Special values:
+
+	Default = PiecewiseAveraged
 };
 
 }// end namespace ph::math

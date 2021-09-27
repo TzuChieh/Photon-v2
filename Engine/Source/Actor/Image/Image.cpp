@@ -18,10 +18,10 @@ std::shared_ptr<TTexture<math::Vector3R>> Image::genTextureVector3R(
 	return genDefaultTexture<math::Vector3R>();
 }
 
-std::shared_ptr<TTexture<Spectrum>> Image::genTextureSpectral(
+std::shared_ptr<TTexture<math::Spectrum>> Image::genTextureSpectral(
 	ActorCookingContext& ctx) const
 {
-	return genDefaultTexture<Spectrum>();
+	return genDefaultTexture<math::Spectrum>();
 }
 
 }// end namespace ph

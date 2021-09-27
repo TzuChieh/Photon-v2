@@ -74,7 +74,7 @@ is tristimulus.
 @return A @p TTristimulusValues or a @p TSpectralSampleValues depending on whether @p DST_COLOR_SPACE
 is tristimulus.
 */
-template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
 auto transform_color(const auto& srcColorValues, EColorUsage usage);
 
 /*!
@@ -82,17 +82,20 @@ auto transform_color(const auto& srcColorValues, EColorUsage usage);
 relative luminance will be 1. For spectral samples, it is the result of performing an inner product with the
 luminous efficiency function. For ECF usages, its relative luminance is guaranteed to be within [0, 1].
 */
-template<EColorSpace SRC_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-T relative_luminance(const auto& srcColorValues, EColorUsage usage);
+template<EColorSpace SRC_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
+T relative_luminance(const auto& srcColorValues, EColorUsage usage = EColorUsage::EMR);
 
-template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-T estimate_color_energy(const auto& srcColorValues, EColorUsage usage);
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
+T estimate_color_energy(const auto& srcColorValues);
 
-template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-auto normalize_color_energy(const auto& srcColorValues, EColorUsage usage);
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
+auto normalize_color_energy(const auto& srcColorValues);
 
-template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
-auto put_color_energy(const auto& srcColorValues, T or T,N? energyLevel, EColorUsage usage);
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
+auto put_color_energy(const auto& srcColorValues, const auto& energyLevels);
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
+auto put_color_energy(const auto& srcColorValues, T energyLevel);
 
 /*! @brief Helper for converting from sRGB to linear-sRGB.
 */

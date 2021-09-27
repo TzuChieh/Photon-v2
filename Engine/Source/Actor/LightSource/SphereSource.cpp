@@ -16,7 +16,7 @@ SphereSource::SphereSource(const real radius, const math::Vector3R& linearSrgbCo
 	setRadius(radius);
 }
 
-SphereSource::SphereSource(const real radius, const Spectrum& color, real numWatts) :
+SphereSource::SphereSource(const real radius, const math::Spectrum& color, real numWatts) :
 	AreaSource(color, numWatts)
 {
 	setRadius(radius);

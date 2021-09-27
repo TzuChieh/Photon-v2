@@ -34,7 +34,7 @@ public:
 	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		ActorCookingContext& ctx) const override;
 
-	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
+	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
 		ActorCookingContext& ctx) const override;
 
 private:

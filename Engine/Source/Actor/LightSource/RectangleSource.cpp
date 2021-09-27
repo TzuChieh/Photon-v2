@@ -25,7 +25,7 @@ RectangleSource::RectangleSource(
 RectangleSource::RectangleSource(
 	const real             width, 
 	const real             height, 
-	const Spectrum&        color,
+	const math::Spectrum&  color,
 	const real             numWatts) : 
 
 	AreaSource(color, numWatts)

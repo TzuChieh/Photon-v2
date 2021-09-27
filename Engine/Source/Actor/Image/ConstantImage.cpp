@@ -86,7 +86,7 @@ std::shared_ptr<TTexture<math::Vector3R>> ConstantImage::genTextureVector3R(
 	return std::make_shared<TConstantTexture<math::Vector3R>>(values);
 }
 
-std::shared_ptr<TTexture<Spectrum>> ConstantImage::genTextureSpectral(
+std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genTextureSpectral(
 	ActorCookingContext& ctx) const
 {
 	Spectrum values;

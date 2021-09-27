@@ -9,9 +9,9 @@
 #include "Actor/Image/HdrPictureImage.h"
 #include "DataIO/SDL/SdlInputPayload.h"
 #include "DataIO/SDL/Introspect/TSdlEnum.h"
-#include "Core/Quantity/ColorSpace.h"
+#include "Math/Color/color_spaces.h"
+#include "Math/Color/spectral_samples.h"
 #include "Math/math.h"
-#include "Core/Quantity/SpectralData.h"
 
 #include <vector>
 
@@ -34,7 +34,26 @@ math::Vector3R tristimulus_to_linear_SRGB(const math::Vector3R& tristimulus, con
 	}
 }
 
-Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
+math::Spectrum tristimulus_to_spectrum(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace, const math::EColorUsage usage)
+{
+	switch(colorSpace)
+	{
+	case math::EColorSpace::UNSPECIFIED:
+	case math::EColorSpace::Linear_sRGB:
+		return math::Spectrum().setLinearSRGB(tristimulus.toArray(), usage);
+
+	case math::EColorSpace::sRGB:
+		return math::Spectrum().setTransformed<math::EColorSpace::sRGB>(tristimulus.toArray(), usage);
+
+	case math::EColorSpace::ACEScg:
+		return math::Spectrum().setTransformed<math::EColorSpace::ACEScg>(tristimulus.toArray(), usage);
+
+	default:
+		throw SdlLoadError("unsupported tristimulus color space");
+	}
+}
+
+math::Spectrum load_spectrum(const SdlInputPayload& payload, const math::EColorUsage usage)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -53,7 +72,7 @@ Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 				load_real(tokens[1]),
 				load_real(tokens[2]));
 
-			return Spectrum().setLinearSrgb(tristimulus_to_linear_SRGB(tristimulus, colorSpace), usage);
+			return tristimulus_to_spectrum(tristimulus, colorSpace, usage);
 		}
 		// 1 input value results in vec3/spectrum filled with the same value
 		else if(tokens.size() == 1)
@@ -61,12 +80,12 @@ Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 			const real value = load_real(tokens[0]);
 			if(colorSpace == math::EColorSpace::Spectral)
 			{
-				return Spectrum(value);
+				return math::Spectrum(value);
 			}
 			else
 			{
 				const math::Vector3R tristimulus(value);
-				return Spectrum().setLinearSrgb(tristimulus_to_linear_SRGB(tristimulus, colorSpace), usage);
+				return tristimulus_to_spectrum(tristimulus, colorSpace, usage);
 			}
 		}
 		// If there are even values, assume to be wavelength-value data points
@@ -77,13 +96,13 @@ Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 			{
 				values[i] = load_real(tokens[i]);
 			}
-
-			const SampledSpectrum spectrum = SpectralData::calcPiecewiseAveraged(
+			
+			const auto spectrum = math::SampledSpectrum(math::resample_spectral_samples<math::ColorValue, real>(
 				values.data(),
 				values.data() + values.size() / 2,
-				values.size() / 2);
+				values.size() / 2));
 
-			return Spectrum().setSampled(spectrum, usage);
+			return math::Spectrum().setTransformed<math::EColorSpace::Spectral>(spectrum, usage);
 		}
 		else
 		{
@@ -103,13 +122,13 @@ Spectrum load_spectrum(const SdlInputPayload& payload, const EQuantity usage)
 //
 //}
 
-std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace, const EQuantity usage)
+std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace, const math::EColorUsage usage)
 {
 	return std::make_shared<ConstantImage>(
 		tristimulus_to_linear_SRGB(tristimulus, colorSpace),
-		usage == EQuantity::EMR
+		usage == math::EColorUsage::EMR
 			? ConstantImage::EType::EMR_LINEAR_SRGB
-			: usage == EQuantity::ECF ? ConstantImage::EType::ECF_LINEAR_SRGB : ConstantImage::EType::RAW);
+			: usage == math::EColorUsage::ECF ? ConstantImage::EType::ECF_LINEAR_SRGB : ConstantImage::EType::RAW);
 }
 
 std::shared_ptr<Image> load_picture_color(const Path& filePath)

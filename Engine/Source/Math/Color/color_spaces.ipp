@@ -478,7 +478,9 @@ public:
 		switch(usage)
 		{
 		// For things such as illuminants, scale the SPD so that constant SPDs matches the distribution 
-		// of D65. This way, a "gray" linear-sRGB color will be D65 scaled by some constant.
+		// of D65. This way, a "gray" linear-sRGB color will be D65 scaled by some constant. Another way
+		// to think of it is we treat each component in the SPD as a scale value, and the resulting SPD
+		// is simply a unit D65 being scaled.
 		case EColorUsage::EMR:
 			spd.mulLocal(unitD65Spd);
 			break;
@@ -533,7 +535,7 @@ public:
 static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, float>, float>);
 static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, double>, double>);
 
-template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM>
 inline auto transform_color(const auto& srcColorValues, const EColorUsage usage)
 {
 	// No conversion needed if they are in the same color space
@@ -690,7 +692,7 @@ inline T relative_luminance(const auto& srcColorValues, const EColorUsage usage)
 }
 
 template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
-inline T estimate_color_energy(const auto& srcColorValues, const EColorUsage usage)
+inline T estimate_color_energy(const auto& srcColorValues)
 {
 	using SrcColorSpaceDef      = TColorSpaceDefinition<SRC_COLOR_SPACE, T>;
 	using SpectralColorSpaceDef = TColorSpaceDefinition<SPECTRAL_COLOR_SPACE, T>;
@@ -702,7 +704,7 @@ inline T estimate_color_energy(const auto& srcColorValues, const EColorUsage usa
 	if constexpr(SrcColorSpaceDef::isTristimulus())
 	{
 		sampleValues = transform_color<SRC_COLOR_SPACE, SPECTRAL_COLOR_SPACE, T, ALGORITHM>(
-			srcColorValues, usage);
+			srcColorValues, EColorUsage::EMR);
 	}
 	else
 	{
@@ -713,19 +715,47 @@ inline T estimate_color_energy(const auto& srcColorValues, const EColorUsage usa
 }
 
 template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
-inline auto normalize_color_energy(const auto& srcColorValues, const EColorUsage usage)
+inline auto normalize_color_energy(const auto& srcColorValues)
 {
 	const T energy = estimate_color_energy<SRC_COLOR_SPACE, T, SPECTRAL_COLOR_SPACE, ALGORITHM>(
-		srcColorValues, usage);
+		srcColorValues);
 
 	using SrcColorValues = std::remove_cvref_t<decltype(srcColorValues)>;
 	TArithmeticArray<T, std::tuple_size_v<SrcColorValues>> copiedSrcColorValues(srcColorValues);
 	if(energy > 0)
 	{
-		copiedSrcColorValues.divLocal(energy);
+		copiedSrcColorValues /= energy;
 	}
 
 	return copiedSrcColorValues.toArray();
+}
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
+inline auto put_color_energy(const auto& srcColorValues, const auto& energyLevels)
+{
+	using SrcColorValues    = std::remove_cvref_t<decltype(srcColorValues)>;
+	using EnergyLevelValues = std::remove_cvref_t<decltype(energyLevels)>;
+	using ArrayType         = TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES>;
+
+	static_assert(std::is_same_v<SrcColorValues, EnergyLevelValues>,
+		"Energy levels must have the same type as source color values.");
+
+	const ArrayType energyNormalizedColor(
+		normalize_color_energy<SRC_COLOR_SPACE, T, SPECTRAL_COLOR_SPACE, ALGORITHM>(srcColorValues));
+
+	return (energyNormalizedColor * ArrayType(energyLevels)).toArray();
+}
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
+inline auto put_color_energy(const auto& srcColorValues, const T energyLevel)
+{
+	using ColorValues = std::remove_cvref_t<decltype(srcColorValues)>;
+
+	ColorValues energyLevels;
+	energyLevels.fill(energyLevel);
+
+	return normalize_color_energy<SRC_COLOR_SPACE, T, SPECTRAL_COLOR_SPACE, ALGORITHM>(
+		srcColorValues, energyLevels);
 }
 
 template<typename T>

@@ -109,6 +109,10 @@ Available functionalities after defining the macro:
 	\
 	inline static FunctionType internal_sdl_function_impl()
 
+/*! @brief Define a SDL enum with function-like syntax.
+One does not need to define all enum entries. It is valid to partially expose some enum entries
+and keep the others hidden from SDL.
+*/
 #define PH_DEFINE_SDL_ENUM(...)/* variadic args for template types that contain commas */\
 	template<>\
 	class TSdlEnum<typename __VA_ARGS__::EnumType> final\
