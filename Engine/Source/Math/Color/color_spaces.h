@@ -12,7 +12,7 @@ namespace ph::math
 /*! @brief Basic requirements for a color space definition.
 */
 template<typename DefType>
-concept CHasColorSpaceProperties = requires ()
+concept CHasColorSpaceProperties = requires
 {
 	{ DefType::getColorSpace() } noexcept -> std::same_as<EColorSpace>;
 	{ DefType::isTristimulus() } noexcept -> std::same_as<bool>;
@@ -90,6 +90,9 @@ T estimate_color_energy(const auto& srcColorValues, EColorUsage usage);
 
 template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
 auto normalize_color_energy(const auto& srcColorValues, EColorUsage usage);
+
+template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral_Smits, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Bradford>
+auto put_color_energy(const auto& srcColorValues, T or T,N? energyLevel, EColorUsage usage);
 
 /*! @brief Helper for converting from sRGB to linear-sRGB.
 */

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/LightSource/LightSource.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/SDLExtension/sdl_interface_extended.h"
 
@@ -17,7 +17,7 @@ class AreaSource : public LightSource
 public:
 	AreaSource();
 	AreaSource(const math::Vector3R& linearSrgbColor, real numWatts);
-	AreaSource(const Spectrum& color, real numWatts);
+	AreaSource(const math::Spectrum& color, real numWatts);
 
 	virtual std::shared_ptr<Geometry> genAreas(ActorCookingContext& ctx) const = 0;
 
@@ -27,8 +27,8 @@ public:
 	std::shared_ptr<Geometry> genGeometry(ActorCookingContext& ctx) const final override;
 
 private:
-	Spectrum m_color;
-	real     m_numWatts;
+	math::Spectrum m_color;
+	real           m_numWatts;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AreaSource>)
@@ -40,9 +40,9 @@ public:
 			"emit as long as the emitting source is within the area.");
 		clazz.baseOn<LightSource>();
 
-		TSdlSpectrum<OwnerType> color("color", EQuantity::EMR, &OwnerType::m_color);
+		TSdlSpectrum<OwnerType> color("color", math::EColorUsage::EMR, &OwnerType::m_color);
 		color.description("The color of this light source.");
-		color.defaultTo(Spectrum().setLinearSrgb({1, 1, 1}, EQuantity::EMR));
+		color.defaultTo(math::Spectrum().setLinearSRGB({1, 1, 1}, math::EColorUsage::EMR));
 		clazz.addField(color);
 
 		TSdlReal<OwnerType> numWatts("watts", &OwnerType::m_numWatts);

@@ -90,7 +90,7 @@ public:
 
 	/*! @brief Helper for setting linear-sRGB color to this spectrum.
 	*/
-	Derived& fromLinearSRGB(const TRawColorValues<T, 3>& linearSRGB, EColorUsage usage);
+	Derived& setLinearSRGB(const TRawColorValues<T, 3>& linearSRGB, EColorUsage usage);
 	
 	/*! @brief Helper for converting this spectrum to linear-sRGB color.
 	*/

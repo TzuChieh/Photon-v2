@@ -134,6 +134,7 @@ public:
 	bool isFinite() const;
 
 	std::string toString() const;
+	std::array<T, 3> toArray() const;
 
 	T& operator [] (constant::AxisIndexType axisIndex);
 	const T& operator [] (constant::AxisIndexType axisIndex) const;

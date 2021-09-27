@@ -79,7 +79,7 @@ inline T TSpectrumBase<Derived, COLOR_SPACE, T, N>::relativeLuminance(const ECol
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::fromLinearSRGB(const TRawColorValues<T, 3>& linearSRGB, const EColorUsage usage)
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setLinearSRGB(const TRawColorValues<T, 3>& linearSRGB, const EColorUsage usage)
 -> Derived&
 {
 	static_assert(CColorTransformInterface<Derived>);

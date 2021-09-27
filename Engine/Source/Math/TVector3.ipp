@@ -578,6 +578,12 @@ inline std::string TVector3<T>::toString() const
 }
 
 template<typename T>
+inline std::array<T, 3> TVector3<T>::toArray() const
+{
+	return {x, y, z};
+}
+
+template<typename T>
 inline TVector3<T>& TVector3<T>::set(const T rhsX, const T rhsY, const T rhsZ)
 {
 	x = rhsX;
