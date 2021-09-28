@@ -89,27 +89,27 @@ std::shared_ptr<TTexture<math::Vector3R>> ConstantImage::genTextureVector3R(
 std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genTextureSpectral(
 	ActorCookingContext& ctx) const
 {
-	Spectrum values;
+	math::Spectrum values;
 	if(m_values.size() == 1)
 	{
 		switch(m_type)
 		{
 		case EType::RAW:
-			values.setValues(m_values[0]);
+			values.setColorValues(m_values[0]);
 			break;
 			
 		case EType::EMR_LINEAR_SRGB:
-			values.setLinearSrgb(math::Vector3R(m_values[0]), EQuantity::EMR);
+			values.setLinearSRGB(math::Vector3R(m_values[0]).toArray(), math::EColorUsage::EMR);
 			break;
 
 		case EType::ECF_LINEAR_SRGB:
-			values.setLinearSrgb(math::Vector3R(m_values[0]), EQuantity::ECF);
+			values.setLinearSRGB(math::Vector3R(m_values[0]).toArray(), math::EColorUsage::ECF);
 			break;
 
 		default:
 			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
 			          << "unsupported value type, using raw" << std::endl;
-			values.setValues(m_values[0]);
+			values.setColorValues(m_values[0]);
 			break;
 		}
 	}
@@ -118,27 +118,27 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genTextureSpectral(
 		switch(m_type)
 		{
 		case EType::EMR_LINEAR_SRGB:
-			values.setLinearSrgb(math::Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::EMR);
+			values.setLinearSRGB(math::Vector3R(m_values[0], m_values[1], m_values[2]).toArray(), math::EColorUsage::EMR);
 			break;
 
 		case EType::ECF_LINEAR_SRGB:
-			values.setLinearSrgb(math::Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::ECF);
+			values.setLinearSRGB(math::Vector3R(m_values[0], m_values[1], m_values[2]).toArray(), math::EColorUsage::ECF);
 			break;
 
 		case EType::RAW_LINEAR_SRGB:
-			values.setLinearSrgb(math::Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::RAW);
+			values.setLinearSRGB(math::Vector3R(m_values[0], m_values[1], m_values[2]).toArray(), math::EColorUsage::RAW);
 			break;
 
 		default:
 			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
 			          << "unsupported value type, assuming ECF linear sRGB" << std::endl;
-			values.setLinearSrgb(math::Vector3R(m_values[0], m_values[1], m_values[2]), EQuantity::ECF);
+			values.setLinearSRGB(math::Vector3R(m_values[0], m_values[1], m_values[2]).toArray(), math::EColorUsage::ECF);
 			break;
 		}
 	}
 	else
 	{
-		if(m_values.size() != Spectrum::NUM_VALUES)
+		if(m_values.size() != math::Spectrum::NUM_VALUES)
 		{
 			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
 			          << "bad number of input values."
@@ -151,13 +151,13 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genTextureSpectral(
 			          << "only raw type is supported." << std::endl;
 		}
 
-		for(std::size_t i = 0; i < Spectrum::NUM_VALUES; i++)
+		for(std::size_t i = 0; i < math::Spectrum::NUM_VALUES; i++)
 		{
 			values[i] = i < m_values.size() ? m_values[i] : 1;
 		}
 	}
 
-	return std::make_shared<TConstantTexture<Spectrum>>(values);
+	return std::make_shared<TConstantTexture<math::Spectrum>>(values);
 }
 
 }// end namespace ph

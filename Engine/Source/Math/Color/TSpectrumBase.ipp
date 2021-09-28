@@ -50,6 +50,14 @@ inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setColorValues(const TRaw
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setColorValues(const T colorValues)
+-> Derived&
+{
+	// set() is not exposed; use "this" to access it in current scope
+	return this->set(colorValues);
+}
+
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
 inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::getColorValues() const
 -> const TRawColorValues<T, N>&
 {

@@ -72,6 +72,8 @@ protected:
 public:
 	using Base::Base;
 
+	inline static constexpr auto NUM_VALUES = Base::NUM_ELEMENTS;
+
 	explicit TSpectrumBase(const T* colorValues);
 
 	static consteval EColorSpace getColorSpace() noexcept;
@@ -80,6 +82,7 @@ public:
 	std::size_t maxComponent() const;
 
 	Derived& setColorValues(const TRawColorValues<T, N>& colorValues);
+	Derived& setColorValues(T colorValue);
 	const TRawColorValues<T, N>& getColorValues() const;
 
 	template<EColorSpace SRC_COLOR_SPACE>
