@@ -4,7 +4,7 @@
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 
 namespace ph
@@ -29,7 +29,7 @@ public:
 class BsdfEvalOutput
 {
 public:
-	Spectrum bsdf;
+	math::Spectrum bsdf;
 
 	bool isGood() const;
 };

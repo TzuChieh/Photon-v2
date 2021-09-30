@@ -5,6 +5,7 @@
 #include "Core/Texture/SampleLocation.h"
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
+#include "Math/Color/color_enums.h"
 
 namespace ph
 {
@@ -14,15 +15,15 @@ class TSampler final
 {
 public:
 	inline TSampler() :
-		TSampler(EQuantity::RAW)
+		TSampler(math::EColorUsage::RAW)
 	{}
 
-	inline TSampler(const EQuantity sampledQuantity) : 
-		TSampler(sampledQuantity, 0)
+	inline TSampler(const math::EColorUsage sampleUsage) :
+		TSampler(sampleUsage, 0)
 	{}
 
-	inline TSampler(const EQuantity sampledQuantity, const uint32 sampledChannel) :
-		m_sampledQuantity(sampledQuantity), m_sampledChannel(sampledChannel)
+	inline TSampler(const math::EColorUsage sampleUsage, const uint32 sampledChannel) :
+		m_sampleUsage(sampleUsage), m_sampledChannel(sampledChannel)
 	{}
 
 	inline OutputType sample(const TTexture<OutputType>& texture, const SurfaceHit& X) const
@@ -34,27 +35,27 @@ public:
 		}
 
 		OutputType value;
-		texture.sample(SampleLocation(channeledDetail, m_sampledQuantity), &value);
+		texture.sample(SampleLocation(channeledDetail, m_sampleUsage), &value);
 		return value;
 	}
 
 	inline OutputType sample(const TTexture<OutputType>& texture, const math::Vector3R& uvw) const
 	{
 		OutputType value;
-		texture.sample(SampleLocation(uvw, m_sampledQuantity), &value);
+		texture.sample(SampleLocation(uvw, m_sampleUsage), &value);
 		return value;
 	}
 
 	inline OutputType sample(const TTexture<OutputType>& texture, const math::Vector2R& uv) const
 	{
 		OutputType value;
-		texture.sample(SampleLocation(uv, m_sampledQuantity), &value);
+		texture.sample(SampleLocation(uv, m_sampleUsage), &value);
 		return value;
 	}
 
 private:
-	EQuantity m_sampledQuantity;
-	uint32    m_sampledChannel;
+	math::EColorUsage m_sampleUsage;
+	uint32            m_sampledChannel;
 };
 
 }// end namespace ph

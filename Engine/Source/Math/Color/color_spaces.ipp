@@ -8,6 +8,7 @@
 #include "Common/assertion.h"
 #include "Math/TArithmeticArray.h"
 #include "Math/math.h"
+#include "Math/Color/chromatic_adaptations.h"
 
 #include <cmath>
 
@@ -549,10 +550,10 @@ inline auto transform_color(const auto& srcColorValues, const EColorUsage usage)
 
 	// Sanity checks
 
-	static_assert(CColorSpaceDefinition<SrcColorSpaceDef>,
+	static_assert(CColorSpaceDefinition<SrcColorSpaceDef, T>,
 		"Source color space has no corresponding definition.");
 
-	static_assert(CColorSpaceDefinition<DstColorSpaceDef>,
+	static_assert(CColorSpaceDefinition<DstColorSpaceDef, T>,
 		"Destination color space has no corresponding definition.");
 
 	// Type of source color values must match the category of its color space
@@ -731,31 +732,15 @@ inline auto normalize_color_energy(const auto& srcColorValues)
 }
 
 template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
-inline auto put_color_energy(const auto& srcColorValues, const auto& energyLevels)
+inline auto put_color_energy(const auto& srcColorValues, const T energyLevel)
 {
-	using SrcColorValues    = std::remove_cvref_t<decltype(srcColorValues)>;
-	using EnergyLevelValues = std::remove_cvref_t<decltype(energyLevels)>;
-	using ArrayType         = TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES>;
-
-	static_assert(std::is_same_v<SrcColorValues, EnergyLevelValues>,
-		"Energy levels must have the same type as source color values.");
+	using SrcColorValues = std::remove_cvref_t<decltype(srcColorValues)>;
+	using ArrayType      = TArithmeticArray<T, std::tuple_size_v<SrcColorValues>>;
 
 	const ArrayType energyNormalizedColor(
 		normalize_color_energy<SRC_COLOR_SPACE, T, SPECTRAL_COLOR_SPACE, ALGORITHM>(srcColorValues));
 
-	return (energyNormalizedColor * ArrayType(energyLevels)).toArray();
-}
-
-template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE, EChromaticAdaptation ALGORITHM>
-inline auto put_color_energy(const auto& srcColorValues, const T energyLevel)
-{
-	using ColorValues = std::remove_cvref_t<decltype(srcColorValues)>;
-
-	ColorValues energyLevels;
-	energyLevels.fill(energyLevel);
-
-	return normalize_color_energy<SRC_COLOR_SPACE, T, SPECTRAL_COLOR_SPACE, ALGORITHM>(
-		srcColorValues, energyLevels);
+	return (energyNormalizedColor * ArrayType(energyLevel)).toArray();
 }
 
 template<typename T>

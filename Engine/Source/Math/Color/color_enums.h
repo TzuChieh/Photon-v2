@@ -53,7 +53,7 @@ enum class EReferenceWhite
 	D65,
 	D75,
 
-	// Eual-energy radiator
+	// Equal-energy radiator
 	E,
 
 	// Illuminant F Series: various types of fluorescent lighting

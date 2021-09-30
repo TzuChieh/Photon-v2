@@ -27,7 +27,7 @@ ThinLensCamera::ThinLensCamera(
 	m_focalDistance(focalDistance)
 {}
 
-Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
+math::Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
 
@@ -67,7 +67,7 @@ Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* cons
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
 
-	return Spectrum(1);
+	return math::Spectrum(1);
 }
 
 void ThinLensCamera::evalEmittedImportanceAndPdfW(

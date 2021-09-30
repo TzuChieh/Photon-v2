@@ -1,7 +1,6 @@
 #include "Core/Emitter/SurfaceEmitter.h"
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
-#include "Core/Quantity/ColorSpace.h"
 #include "Math/math.h"
 #include "Core/SurfaceHit.h"
 #include "Core/HitDetail.h"

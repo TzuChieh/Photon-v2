@@ -25,7 +25,7 @@ void IdealAbsorber::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.bsdf.setValues(0.0_r);
+	out.bsdf.setColorValues(0);
 }
 
 void IdealAbsorber::calcBsdfSample(

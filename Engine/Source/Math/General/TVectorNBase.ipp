@@ -10,17 +10,6 @@ namespace ph::math
 {
 
 template<typename Derived, typename T, std::size_t N>
-inline TVectorNBase<Derived, T, N>::TVectorNBase(const T* const values)
-{
-	PH_ASSERT(values);
-
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = values[i];
-	}
-}
-
-template<typename Derived, typename T, std::size_t N>
 inline T TVectorNBase<Derived, T, N>::dot(const Derived& rhs) const
 {
 	T result(0);

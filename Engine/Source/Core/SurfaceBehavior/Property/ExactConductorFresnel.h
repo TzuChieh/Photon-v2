@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/Property/ConductorFresnel.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 #include <vector>
 
@@ -16,9 +16,9 @@ class ExactConductorFresnel : public ConductorFresnel
 {
 public:
 	ExactConductorFresnel(
-		real            iorOuter,
-		const Spectrum& iorInnerN,
-		const Spectrum& iorInnerK);
+		real                  iorOuter,
+		const math::Spectrum& iorInnerN,
+		const math::Spectrum& iorInnerK);
 
 	ExactConductorFresnel(
 		real                     iorOuter,
@@ -27,17 +27,17 @@ public:
 		const std::vector<real>& iorInnerKs);
 
 	void calcReflectance(
-		real      cosThetaIncident, 
-		Spectrum* out_reflectance) const override;
+		real            cosThetaIncident, 
+		math::Spectrum* out_reflectance) const override;
 
 private:
-	Spectrum m_en2_sub_ek2;
-	Spectrum m_4_mul_en2_mul_ek2;
+	math::Spectrum m_en2_sub_ek2;
+	math::Spectrum m_4_mul_en2_mul_ek2;
 
 	void setIors(
-		real            iorOuter,
-		const Spectrum& iorInnerN,
-		const Spectrum& iorInnerK);
+		real                  iorOuter,
+		const math::Spectrum& iorInnerN,
+		const math::Spectrum& iorInnerK);
 };
 
 }// end namespace ph

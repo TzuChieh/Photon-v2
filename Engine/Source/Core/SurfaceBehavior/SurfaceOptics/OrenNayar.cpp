@@ -17,8 +17,8 @@ namespace ph
 {
 
 OrenNayar::OrenNayar(
-	const std::shared_ptr<TTexture<Spectrum>>& albedo,
-	const real                                 sigmaDegrees) :
+	const std::shared_ptr<TTexture<math::Spectrum>>& albedo,
+	const real                                       sigmaDegrees) :
 
 	OrenNayar(
 		albedo, 
@@ -26,8 +26,8 @@ OrenNayar::OrenNayar(
 {}
 
 OrenNayar::OrenNayar(
-	const std::shared_ptr<TTexture<Spectrum>>& albedo,
-	const std::shared_ptr<TTexture<real>>&     sigmaDegrees) :
+	const std::shared_ptr<TTexture<math::Spectrum>>& albedo,
+	const std::shared_ptr<TTexture<real>>&           sigmaDegrees) :
 
 	SurfaceOptics(),
 
@@ -67,12 +67,12 @@ void OrenNayar::calcBsdf(
 
 	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
-		out.bsdf.setValues(0);
+		out.bsdf.setColorValues(0);
 		return;
 	}
 
-	const Spectrum albedo       = TSampler<Spectrum>(EQuantity::ECF).sample(*m_albedo, in.X);
-	const real     sigmaRadians = math::to_radians(TSampler<real>().sample(*m_sigmaDegrees, in.X));
+	const auto albedo       = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.X);
+	const real sigmaRadians = math::to_radians(TSampler<real>().sample(*m_sigmaDegrees, in.X));
 
 	const auto& shadingBasis = in.X.getDetail().getShadingBasis();
 
@@ -157,7 +157,7 @@ void OrenNayar::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf.setValues(eval.outputs.bsdf.div(pdfW));
+	out.pdfAppliedBsdf = eval.outputs.bsdf.div(pdfW);
 	out.setMeasurability(true);
 }
 

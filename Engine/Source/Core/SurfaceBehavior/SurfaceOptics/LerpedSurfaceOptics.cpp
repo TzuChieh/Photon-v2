@@ -5,7 +5,6 @@
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/Spectrum.h"
 #include "Common/assertion.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Math/math.h"
@@ -36,18 +35,18 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 	LerpedSurfaceOptics(
 		optics0, 
 		optics1, 
-		std::make_shared<TConstantTexture<Spectrum>>(Spectrum(ratio)))
+		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(ratio)))
 {}
 
 LerpedSurfaceOptics::LerpedSurfaceOptics(
 	const std::shared_ptr<SurfaceOptics>& optics0,
 	const std::shared_ptr<SurfaceOptics>& optics1,
-	const std::shared_ptr<TTexture<Spectrum>>& ratio) : 
+	const std::shared_ptr<TTexture<math::Spectrum>>& ratio) :
 
 	m_optics0(optics0),
 	m_optics1(optics1),
 	m_ratio  (ratio),
-	m_sampler(EQuantity::ECF)
+	m_sampler(math::EColorUsage::ECF)
 {
 	PH_ASSERT(optics0 && optics1 && ratio);
 
@@ -78,7 +77,7 @@ void LerpedSurfaceOptics::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	const Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
+	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
 	if(ctx.elemental == ALL_ELEMENTALS)
 	{
@@ -86,7 +85,7 @@ void LerpedSurfaceOptics::calcBsdf(
 		m_optics0->calcBsdf(ctx, in, eval0);
 		m_optics1->calcBsdf(ctx, in, eval1);
 
-		out.bsdf = eval0.bsdf * ratio + eval1.bsdf * (Spectrum(1) - ratio);
+		out.bsdf = eval0.bsdf * ratio + eval1.bsdf * (math::Spectrum(1) - ratio);
 	}
 	else
 	{
@@ -102,7 +101,7 @@ void LerpedSurfaceOptics::calcBsdf(
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
 			m_optics1->calcBsdf(localCtx, in, out);
-			out.bsdf.mulLocal(Spectrum(1) - ratio);
+			out.bsdf.mulLocal(math::Spectrum(1) - ratio);
 		}
 	}
 }
@@ -113,17 +112,17 @@ void LerpedSurfaceOptics::calcBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	const Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
+	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
 	if(ctx.elemental == ALL_ELEMENTALS)
 	{
-		Spectrum       sampledRatio  = ratio;
+		math::Spectrum sampledRatio  = ratio;
 		SurfaceOptics* sampledOptics = m_optics0.get();
 		SurfaceOptics* anotherOptics = m_optics1.get();
 		real           sampledProb   = probabilityOfPickingOptics0(ratio);
 		if(!sampleFlow.unflowedPick(sampledProb))
 		{
-			sampledRatio = Spectrum(1) - sampledRatio;
+			sampledRatio = math::Spectrum(1) - sampledRatio;
 			std::swap(sampledOptics, anotherOptics);
 			sampledProb = 1.0_r - sampledProb;
 		}
@@ -154,9 +153,9 @@ void LerpedSurfaceOptics::calcBsdfSample(
 			return;
 		}
 
-		const Spectrum bsdf = 
+		const math::Spectrum bsdf =
 			sampledRatio * (sampleOutput.pdfAppliedBsdf * query[0].outputs.sampleDirPdfW) +
-			(Spectrum(1) - sampledRatio) * eval.outputs.bsdf;
+			(math::Spectrum(1) - sampledRatio) * eval.outputs.bsdf;
 
 		const real pdfW = 
 			sampledProb * query[0].outputs.sampleDirPdfW +
@@ -182,7 +181,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
 			m_optics1->calcBsdfSample(localCtx, in, sampleFlow, out);
-			out.pdfAppliedBsdf.mulLocal(Spectrum(1) - ratio);
+			out.pdfAppliedBsdf.mulLocal(math::Spectrum(1) - ratio);
 		}
 	}
 }
@@ -192,7 +191,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	const Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
+	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
 	if(ctx.elemental == ALL_ELEMENTALS)
 	{
@@ -221,9 +220,9 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	}
 }
 
-real LerpedSurfaceOptics::probabilityOfPickingOptics0(const Spectrum& ratio)
+real LerpedSurfaceOptics::probabilityOfPickingOptics0(const math::Spectrum& ratio)
 {
-	return math::clamp(ratio.calcLuminance(EQuantity::ECF), 0.0_r, 1.0_r);
+	return math::clamp(ratio.relativeLuminance(math::EColorUsage::ECF), 0.0_r, 1.0_r);
 }
 
 }// end namespace ph

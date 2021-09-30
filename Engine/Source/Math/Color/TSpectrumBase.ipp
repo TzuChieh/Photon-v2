@@ -11,17 +11,6 @@ namespace ph::math
 {
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-inline TSpectrumBase<Derived, COLOR_SPACE, T, N>::TSpectrumBase(const T* const colorValues)
-{
-	PH_ASSERT(colorValues);
-
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		m[i] = colorValues[i];
-	}
-}
-
-template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
 inline consteval EColorSpace TSpectrumBase<Derived, COLOR_SPACE, T, N>::getColorSpace() noexcept
 {
 	return COLOR_SPACE;
@@ -42,19 +31,19 @@ inline std::size_t TSpectrumBase<Derived, COLOR_SPACE, T, N>::maxComponent() con
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setColorValues(const TRawColorValues<T, N>& colorValues)
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setColorValues(const TRawColorValues<T, N>& values)
 -> Derived&
 {
 	// set() is not exposed; use "this" to access it in current scope
-	return this->set(colorValues);
+	return this->set(values);
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setColorValues(const T colorValues)
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setColorValues(const T rawColorValues)
 -> Derived&
 {
 	// set() is not exposed; use "this" to access it in current scope
-	return this->set(colorValues);
+	return this->set(rawColorValues);
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
@@ -79,6 +68,14 @@ inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setTransformed(const auto
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
+template<EColorSpace SPECTRAL_COLOR_SPACE>
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setSpectral(const TSpectralSampleValues<T>& sampleValues, const EColorUsage usage)
+-> Derived&
+{
+	return setTransformed<SPECTRAL_COLOR_SPACE>(sampleValues, usage);
+}
+
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
 inline T TSpectrumBase<Derived, COLOR_SPACE, T, N>::relativeLuminance(const EColorUsage usage) const
 {
 	return relative_luminance<COLOR_SPACE, T>(getColorValues(), usage);
@@ -98,7 +95,7 @@ inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::setLinearSRGB(const TRawC
 }
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
-inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::toLinearSRGB(const EColorUsage usage)
+inline auto TSpectrumBase<Derived, COLOR_SPACE, T, N>::toLinearSRGB(const EColorUsage usage) const
 -> TRawColorValues<T, 3>
 {
 	static_assert(CColorTransformInterface<Derived>);

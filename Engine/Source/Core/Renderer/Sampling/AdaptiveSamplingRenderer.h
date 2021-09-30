@@ -8,7 +8,7 @@
 #include "Frame/TFrame.h"
 #include "Core/Renderer/Sampling/TStepperReceiverMeasurementEstimator.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 #include <memory>
 #include <queue>
@@ -41,7 +41,7 @@ public:
 	ObservableRenderData getObservableData() const override;
 
 private:
-	using FilmEstimator = TStepperReceiverMeasurementEstimator<HdrRgbFilm, Spectrum>;
+	using FilmEstimator = TStepperReceiverMeasurementEstimator<HdrRgbFilm, math::Spectrum>;
 
 	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;
 	//constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIDPOINT;

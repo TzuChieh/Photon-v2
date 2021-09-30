@@ -46,7 +46,7 @@ inline void TRadianceEvaluationWork<Photon>::doWork()
 }
 
 template<typename Photon>
-inline Spectrum TRadianceEvaluationWork<Photon>::evaluateRadiance(
+inline math::Spectrum TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	const SurfaceHit&     location,
 	const math::Vector3R& excitant,
 	const real            kernelRadius)
@@ -63,8 +63,8 @@ inline Spectrum TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(location.getPosition(), kernelRadius, m_photonCache);*/
 
-	BsdfEvalQuery bsdfEval;
-	Spectrum      radiance(0);
+	BsdfEvalQuery  bsdfEval;
+	math::Spectrum radiance(0);
 	//for(const auto& photon : m_photonCache)
 	//{
 	//	const Vector3R V  = excitant;

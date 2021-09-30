@@ -1,6 +1,6 @@
 #include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
 #include "Common/assertion.h"
-#include "Core/Quantity/SpectralData.h"
+#include "Math/Color/spectral_samples.h"
 
 #include <cmath>
 #include <iostream>
@@ -9,9 +9,9 @@ namespace ph
 {
 
 ExactConductorFresnel::ExactConductorFresnel(
-	const real      iorOuter,
-	const Spectrum& iorInnerN,
-	const Spectrum& iorInnerK) :
+	const real            iorOuter,
+	const math::Spectrum& iorInnerN,
+	const math::Spectrum& iorInnerK) :
 
 	ConductorFresnel()
 {
@@ -35,22 +35,22 @@ ExactConductorFresnel::ExactConductorFresnel(
 	}
 
 	// TODO: this conversion part should be performed in data containers
-	const auto& sampledInnerNs = SpectralData::calcPiecewiseAveraged(
+	const auto& sampledInnerNs = math::resample_spectral_samples<math::ColorValue, real>(
 		iorWavelengthsNm.data(), iorInnerNs.data(), iorWavelengthsNm.size());
-	const auto& sampledInnerKs = SpectralData::calcPiecewiseAveraged(
+	const auto& sampledInnerKs = math::resample_spectral_samples<math::ColorValue, real>(
 		iorWavelengthsNm.data(), iorInnerKs.data(), iorWavelengthsNm.size());
 
-	Spectrum iorInnerN, iorInnerK;
-	iorInnerN.setSampled(sampledInnerNs);
-	iorInnerK.setSampled(sampledInnerKs);
+	math::Spectrum iorInnerN, iorInnerK;
+	iorInnerN.setSpectral(sampledInnerNs, math::EColorUsage::RAW);
+	iorInnerK.setSpectral(sampledInnerKs, math::EColorUsage::RAW);
 	setIors(iorOuter, iorInnerN, iorInnerK);
 }
 
 // Implementation follows the excellent blog post written by Sebastien Lagarde.
 // Reference: https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
 void ExactConductorFresnel::calcReflectance(
-	const real      cosThetaIncident,
-	Spectrum* const out_reflectance) const
+	const real            cosThetaIncident,
+	math::Spectrum* const out_reflectance) const
 {
 	PH_ASSERT(out_reflectance);
 
@@ -61,30 +61,30 @@ void ExactConductorFresnel::calcReflectance(
 	const real cosI2 = cosI * cosI;
 	const real sinI2 = 1.0_r - cosI * cosI;
 
-	const Spectrum t0       = m_en2_sub_ek2.sub(sinI2);
-	const Spectrum a2plusb2 = t0.mul(t0).addLocal(m_4_mul_en2_mul_ek2).sqrtLocal();
-	const Spectrum a        = a2plusb2.add(t0).mulLocal(0.5_r).sqrtLocal();
-	const Spectrum t1       = a2plusb2.add(cosI2);
-	const Spectrum t2       = a.mul(2.0_r * cosI);
-	const Spectrum t3       = a2plusb2.mul(cosI2).addLocal(sinI2 * sinI2);
-	const Spectrum t4       = t2.mul(sinI2);
+	const math::Spectrum t0       = m_en2_sub_ek2.sub(sinI2);
+	const math::Spectrum a2plusb2 = t0.mul(t0).addLocal(m_4_mul_en2_mul_ek2).sqrtLocal();
+	const math::Spectrum a        = a2plusb2.add(t0).mulLocal(0.5_r).sqrtLocal();
+	const math::Spectrum t1       = a2plusb2.add(cosI2);
+	const math::Spectrum t2       = a.mul(2.0_r * cosI);
+	const math::Spectrum t3       = a2plusb2.mul(cosI2).addLocal(sinI2 * sinI2);
+	const math::Spectrum t4       = t2.mul(sinI2);
 
-	const Spectrum Rs = t1.sub(t2).divLocal(t1.add(t2));
-	const Spectrum Rp = Rs.mul(t3.sub(t4).divLocal(t3.add(t4)));
+	const math::Spectrum Rs = t1.sub(t2).divLocal(t1.add(t2));
+	const math::Spectrum Rp = Rs.mul(t3.sub(t4).divLocal(t3.add(t4)));
 	*out_reflectance = Rs.add(Rp).mulLocal(0.5_r);
 }
 
 void ExactConductorFresnel::setIors(
-	const real      iorOuter,
-	const Spectrum& iorInnerN,
-	const Spectrum& iorInnerK)
+	const real            iorOuter,
+	const math::Spectrum& iorInnerN,
+	const math::Spectrum& iorInnerK)
 {
 	m_iorOuter  = iorOuter;
 	m_iorInnerN = iorInnerN;
 	m_iorInnerK = iorInnerK;
 
-	const Spectrum en2 = iorInnerN.div(iorOuter).pow(2);
-	const Spectrum ek2 = iorInnerK.div(iorOuter).pow(2);
+	const math::Spectrum en2 = iorInnerN.div(iorOuter).pow(2);
+	const math::Spectrum ek2 = iorInnerK.div(iorOuter).pow(2);
 	m_en2_sub_ek2       = en2.sub(ek2);
 	m_4_mul_en2_mul_ek2 = en2.mul(ek2).mul(4);
 }

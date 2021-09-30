@@ -18,8 +18,8 @@ void PtVolumetricEstimator::sample(
 	const math::Vector3R& L,
 	SurfaceHit* out_Xe,
 	math::Vector3R* out_V,
-	Spectrum* out_weight,
-	Spectrum* out_radiance)
+	math::Spectrum* out_weight,
+	math::Spectrum* out_radiance)
 {
 	out_weight->setValues(1.0_r);
 	out_radiance->setValues(0.0_r);
@@ -57,8 +57,8 @@ void PtVolumetricEstimator::sample(
 		else
 		{
 			*out_Xe = currXe;
-			out_V->set(currL.mulLocal(-1.0_r));
-			out_radiance->setValues(0.0_r);
+			out_V->set(currL.mulLocal(-1));
+			out_radiance->setColorValues(0);
 			break;
 		}
 	}

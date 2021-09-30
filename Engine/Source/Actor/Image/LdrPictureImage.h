@@ -13,7 +13,7 @@ public:
 	LdrPictureImage();
 	explicit LdrPictureImage(const LdrRgbFrame& picture);
 
-	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
+	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
 		ActorCookingContext& ctx) const override;
 
 	void setPicture(const LdrRgbFrame& picture);

@@ -18,7 +18,7 @@
 namespace ph
 {
 
-LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<Spectrum>>& albedo) :
+LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<math::Spectrum>>& albedo) :
 	SurfaceOptics(),
 	m_albedo(albedo)
 {
@@ -41,11 +41,11 @@ void LambertianDiffuse::calcBsdf(
 {
 	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
-		out.bsdf.setValues(0);
+		out.bsdf.setColorValues(0);
 		return;
 	}
 
-	Spectrum albedo = TSampler<Spectrum>(EQuantity::ECF).sample(*m_albedo, in.X);
+	math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.X);
 	out.bsdf = albedo.mulLocal(math::constant::rcp_pi<real>);
 }
 
@@ -60,7 +60,7 @@ void LambertianDiffuse::calcBsdfSample(
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
 	// Thus, BRDF_lambertian/PDF = albedo/cos(theta).
 
-	Spectrum albedo = TSampler<Spectrum>(EQuantity::ECF).sample(*m_albedo, in.X);
+	math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.X);
 
 	// generate and transform L to N's space
 
@@ -85,7 +85,7 @@ void LambertianDiffuse::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf.setValues(albedo.mulLocal(1.0_r / absNoL));
+	out.pdfAppliedBsdf = albedo.mulLocal(1.0_r / absNoL);
 	out.setMeasurability(true);
 }
 

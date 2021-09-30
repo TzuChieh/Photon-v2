@@ -4,7 +4,7 @@
 #include "Math/math_fwd.h"
 #include "Core/Receiver/RadianceSensor.h"
 #include "Core/Filmic/TSamplingFilm.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 #include <vector>
 #include <memory>
@@ -19,7 +19,7 @@ namespace ph
 */
 
 // TODO: move and copy
-class HdrRgbFilm : public TSamplingFilm<Spectrum>
+class HdrRgbFilm : public TSamplingFilm<math::Spectrum>
 {
 public:
 	HdrRgbFilm() = default;
@@ -37,7 +37,7 @@ public:
 
 	HdrRgbFilm(HdrRgbFilm&& other);
 
-	void addSample(float64 xPx, float64 yPx, const Spectrum& spectrum) override;
+	void addSample(float64 xPx, float64 yPx, const math::Spectrum& spectrum) override;
 	void clear() override;
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
@@ -47,7 +47,7 @@ public:
 	HdrRgbFilm& operator = (HdrRgbFilm&& other);
 
 	// HACK
-	void setPixel(float64 xPx, float64 yPx, const Spectrum& spectrum);
+	void setPixel(float64 xPx, float64 yPx, const math::Spectrum& spectrum);
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const override;

@@ -52,7 +52,7 @@ inline auto TReceiverMeasurementEstimator<SamplingFilmType, EstimationType>::
 process(
 	const math::Vector2D& rasterCoord,
 	const Ray&            sensedRay, 
-	const Spectrum&       quantityWeight,
+	const math::Spectrum& quantityWeight,
 	SampleFlow&           sampleFlow)
 	-> void
 {

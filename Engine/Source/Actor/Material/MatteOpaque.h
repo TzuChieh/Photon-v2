@@ -34,13 +34,13 @@ public:
 		clazz.description("A material model for surfaces with matte look, such as chalk and moon.");
 		clazz.baseOn<SurfaceMaterial>();
 
-		TSdlGenericColor<OwnerType> albedo("albedo", EQuantity::ECF, &OwnerType::m_albedo);
+		TSdlGenericColor<OwnerType> albedo("albedo", math::EColorUsage::ECF, &OwnerType::m_albedo);
 		albedo.description("An image or constant color that will be used for describing albedo.");
 		albedo.defaultToLinearSrgb(0.5_r);
 		clazz.addField(albedo);
 
 		// TODO: how to force real texture
-		TSdlGenericColor<OwnerType> sigmaDegrees("sigma-degrees", EQuantity::RAW, &OwnerType::m_sigmaDegrees);
+		TSdlGenericColor<OwnerType> sigmaDegrees("sigma-degrees", math::EColorUsage::RAW, &OwnerType::m_sigmaDegrees);
 		sigmaDegrees.description("Roughness in standard deviation of surface orientation (unit: degrees).");
 		sigmaDegrees.defaultToEmpty();
 		sigmaDegrees.optional();

@@ -33,7 +33,7 @@ APreethamDome::APreethamDome(const APreethamDome& other) :
 	ADome(other)
 {}
 
-std::shared_ptr<TTexture<Spectrum>> APreethamDome::loadRadianceFunction(ActorCookingContext& ctx)
+std::shared_ptr<TTexture<math::Spectrum>> APreethamDome::loadRadianceFunction(ActorCookingContext& ctx)
 {
 	checkTurbidity(m_turbidity);
 

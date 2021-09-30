@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Common/primitive_type.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 
@@ -27,13 +27,13 @@ class LbLayeredSurface : public SurfaceOptics
 {
 public:
 	LbLayeredSurface(
-		const std::vector<Spectrum>& iorNs,
-		const std::vector<Spectrum>& iorKs,
-		const std::vector<real>&     alphas,
-		const std::vector<real>&     depths,
-		const std::vector<real>&     gs,
-		const std::vector<Spectrum>& sigmaAs,
-		const std::vector<Spectrum>& sigmaSs);
+		const std::vector<math::Spectrum>& iorNs,
+		const std::vector<math::Spectrum>& iorKs,
+		const std::vector<real>&            alphas,
+		const std::vector<real>&           depths,
+		const std::vector<real>&           gs,
+		const std::vector<math::Spectrum>& sigmaAs,
+		const std::vector<math::Spectrum>& sigmaSs);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -56,13 +56,13 @@ private:
 		const BsdfPdfInput&     in,
 		BsdfPdfOutput&          out) const override;
 
-	std::vector<Spectrum> m_iorNs;
-	std::vector<Spectrum> m_iorKs;
-	std::vector<real>     m_alphas;
-	std::vector<real>     m_depths;
-	std::vector<real>     m_gs;
-	std::vector<Spectrum> m_sigmaAs;
-	std::vector<Spectrum> m_sigmaSs;
+	std::vector<math::Spectrum> m_iorNs;
+	std::vector<math::Spectrum> m_iorKs;
+	std::vector<real>           m_alphas;
+	std::vector<real>           m_depths;
+	std::vector<real>           m_gs;
+	std::vector<math::Spectrum> m_sigmaAs;
+	std::vector<math::Spectrum> m_sigmaSs;
 
 	static thread_local std::vector<real> sampleWeights;
 	static thread_local std::vector<real> alphas;

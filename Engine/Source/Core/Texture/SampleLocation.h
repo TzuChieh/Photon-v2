@@ -3,7 +3,7 @@
 #include "Core/HitDetail.h"
 #include "Math/TVector3.h"
 #include "Math/TVector2.h"
-#include "Core/Quantity/EQuantity.h"
+#include "Math/Color/color_enums.h"
 
 #include <limits>
 
@@ -22,12 +22,12 @@ class SampleLocation final
 {
 public:
 	// Constructs a sample location at (u, v, (w)).
-	SampleLocation(const math::Vector3R& uvw, EQuantity quantity);
-	SampleLocation(const math::Vector2R& uv, EQuantity quantity);
+	SampleLocation(const math::Vector3R& uvw, math::EColorUsage usage);
+	SampleLocation(const math::Vector2R& uv, math::EColorUsage usage);
 
 	// Constructs a sample location from hit information.
 	explicit SampleLocation(const HitDetail& hit);
-	SampleLocation(const HitDetail& hit, EQuantity quantity);
+	SampleLocation(const HitDetail& hit, math::EColorUsage usage);
 
 	SampleLocation(const SampleLocation& other);
 
@@ -41,36 +41,36 @@ public:
 	// or update derivatives?
 	SampleLocation getUvwScaled(const math::Vector3R& scale) const;
 
-	// Gets the expected type of the quantity being sampled.
-	EQuantity expectedQuantity() const;
+	// Gets expected type of the usage for the sample.
+	math::EColorUsage expectedUsage() const;
 
 private:
 	// TODO: seems we don't need all data in HitDetail for texture sampling;
 	// perhaps just store required data here
 	HitDetail m_hit;
-	const EQuantity m_quantity;
+	const math::EColorUsage m_usage;
 };
 
 // In-header Implementations:
 
-inline SampleLocation::SampleLocation(const math::Vector3R& uvw, const EQuantity quantity) :
-	SampleLocation(HitDetail().setMisc(nullptr, uvw, std::numeric_limits<real>::max()), quantity)
+inline SampleLocation::SampleLocation(const math::Vector3R& uvw, const math::EColorUsage usage) :
+	SampleLocation(HitDetail().setMisc(nullptr, uvw, std::numeric_limits<real>::max()), usage)
 {}
 
-inline SampleLocation::SampleLocation(const math::Vector2R& uv, const EQuantity quantity) :
-	SampleLocation(math::Vector3R(uv.x(), uv.y(), 0), quantity)
+inline SampleLocation::SampleLocation(const math::Vector2R& uv, const math::EColorUsage usage) :
+	SampleLocation(math::Vector3R(uv.x(), uv.y(), 0), usage)
 {}
 
 inline SampleLocation::SampleLocation(const HitDetail& hit) :
-	SampleLocation(hit, EQuantity::RAW)
+	SampleLocation(hit, math::EColorUsage::RAW)
 {}
 
-inline SampleLocation::SampleLocation(const HitDetail& hit, const EQuantity quantity) :
-	m_hit(hit), m_quantity(quantity)
+inline SampleLocation::SampleLocation(const HitDetail& hit, const math::EColorUsage usage) :
+	m_hit(hit), m_usage(usage)
 {}
 
 inline SampleLocation::SampleLocation(const SampleLocation& other) :
-	SampleLocation(other.m_hit, other.m_quantity)
+	SampleLocation(other.m_hit, other.m_usage)
 {}
 
 inline math::Vector3R SampleLocation::uvw() const
@@ -98,12 +98,12 @@ inline SampleLocation SampleLocation::getUvwScaled(const math::Vector3R& scale) 
 {
 	HitDetail newDetail = m_hit;
 	newDetail.setMisc(m_hit.getPrimitive(), m_hit.getUvw().mul(scale), m_hit.getRayT());
-	return SampleLocation(newDetail, m_quantity);
+	return SampleLocation(newDetail, m_usage);
 }
 
-inline EQuantity SampleLocation::expectedQuantity() const
+inline math::EColorUsage SampleLocation::expectedUsage() const
 {
-	return m_quantity;
+	return m_usage;
 }
 
 }// end namespace ph

@@ -19,7 +19,7 @@ public:
 	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
 		ActorCookingContext& ctx) const override = 0;
 
-	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
+	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
 		ActorCookingContext& ctx) const override = 0;
 
 	void setImageA(const std::weak_ptr<Image>& imageA);

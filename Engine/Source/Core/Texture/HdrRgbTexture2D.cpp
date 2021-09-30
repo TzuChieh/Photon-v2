@@ -16,7 +16,7 @@ HdrRgbTexture2D::HdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<HdrComponen
 	PH_ASSERT(m_texture);
 }
 
-void HdrRgbTexture2D::sample(const SampleLocation& sampleLocation, Spectrum* const out_value) const
+void HdrRgbTexture2D::sample(const SampleLocation& sampleLocation, math::Spectrum* const out_value) const
 {
 	PH_ASSERT(m_texture);
 	PH_ASSERT(out_value);
@@ -24,7 +24,7 @@ void HdrRgbTexture2D::sample(const SampleLocation& sampleLocation, Spectrum* con
 	TTexPixel<HdrComponent, 3> rgb;
 	m_texture->sample(sampleLocation, &rgb);
 
-	out_value->setLinearSrgb(math::Vector3R(rgb[0], rgb[1], rgb[2]), sampleLocation.expectedQuantity());
+	out_value->setLinearSRGB(rgb.toArray(), sampleLocation.expectedUsage());
 }
 
 }// end namespace ph

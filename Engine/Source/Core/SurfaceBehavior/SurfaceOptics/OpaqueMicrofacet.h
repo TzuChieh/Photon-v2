@@ -5,7 +5,6 @@
 #include "Core/Texture/TTexture.h"
 #include "Core/SurfaceBehavior/Property/Microfacet.h"
 #include "Core/SurfaceBehavior/Property/ConductorFresnel.h"
-#include "Core/Quantity/Spectrum.h"
 
 #include <memory>
 

@@ -11,6 +11,7 @@
 #include "Core/SurfaceBehavior/BsdfHelper.h"
 #include "Common/assertion.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+#include "Math/Color/Spectrum.h"
 
 #include <cmath>
 #include <iostream>
@@ -52,14 +53,14 @@ void OpaqueMicrofacet::calcBsdf(
 	// check if L, V lies on different side of the surface
 	if(NoL * NoV <= 0.0_r)
 	{
-		out.bsdf.setValues(0);
+		out.bsdf.setColorValues(0);
 		return;
 	}
 
 	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
-		out.bsdf.setValues(0);
+		out.bsdf.setColorValues(0);
 		return;
 	}
 
@@ -67,7 +68,7 @@ void OpaqueMicrofacet::calcBsdf(
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(in.L);
 
-	Spectrum F;
+	math::Spectrum F;
 	m_fresnel->calcReflectance(HoL, &F);
 
 	const real D = m_microfacet->distribution(in.X, N, H);
@@ -113,11 +114,11 @@ void OpaqueMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	Spectrum F;
+	math::Spectrum F;
 	m_fresnel->calcReflectance(HoL, &F);
 
 	const real G = m_microfacet->shadowing(in.X, N, H, L, in.V);
-	out.pdfAppliedBsdf.setValues(F.mul(G).mulLocal(multiplier));
+	out.pdfAppliedBsdf = F.mul(G).mulLocal(multiplier);
 	out.setMeasurability(true);
 }
 

@@ -3,10 +3,12 @@
 #include "Core/SurfaceBehavior/bsdf_query_fwd.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 
 #include <utility>
+
+// TODO: provide default ctors for these classes?
 
 namespace ph
 {
@@ -28,7 +30,7 @@ class BsdfSampleOutput final
 {
 public:
 	math::Vector3R L;
-	Spectrum       pdfAppliedBsdf;
+	math::Spectrum pdfAppliedBsdf;
 
 	// Tells whether this sample has non-zero and sane contribution. All 
 	// sample data should be usable if true is returned; otherwise, zero

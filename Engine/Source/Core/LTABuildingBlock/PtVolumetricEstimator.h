@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/math_fwd.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 namespace ph
 {
@@ -18,8 +18,8 @@ public:
 		const math::Vector3R& L,
 		SurfaceHit* out_Xe,
 		math::Vector3R* out_V,
-		Spectrum* out_weight,
-		Spectrum* out_radiance);
+		math::Spectrum* out_weight,
+		math::Spectrum* out_radiance);
 };
 
 }// end namespace ph

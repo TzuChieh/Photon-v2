@@ -57,7 +57,7 @@ void TranslucentMicrofacet::calcBsdf(
 	const real NoLmulNoV = NoL * NoV;
 	if(NoLmulNoV == 0.0_r)
 	{
-		out.bsdf.setValues(0);
+		out.bsdf.setColorValues(0);
 		return;
 	}
 
@@ -68,7 +68,7 @@ void TranslucentMicrofacet::calcBsdf(
 		math::Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 		{
-			out.bsdf.setValues(0);
+			out.bsdf.setColorValues(0);
 			return;
 		}
 
@@ -76,7 +76,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.L);
 
-		Spectrum F;
+		math::Spectrum F;
 		m_fresnel->calcReflectance(HoL, &F);
 
 		const real D = m_microfacet->distribution(in.X, N, H);
@@ -99,7 +99,7 @@ void TranslucentMicrofacet::calcBsdf(
 		math::Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
 		if(H.isZero())
 		{
-			out.bsdf.setValues(0);
+			out.bsdf.setColorValues(0);
 			return;
 		}
 		H.normalizeLocal();
@@ -112,7 +112,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.L);
 
-		Spectrum F;
+		math::Spectrum F;
 		m_fresnel->calcTransmittance(HoL, &F);
 
 		const real D = m_microfacet->distribution(in.X, N, H);
@@ -124,7 +124,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
 		if(!std::isfinite(iorTerm))
 		{
-			out.bsdf.setValues(0);
+			out.bsdf.setColorValues(0);
 			return;
 		}
 
@@ -134,7 +134,7 @@ void TranslucentMicrofacet::calcBsdf(
 	}
 	else
 	{
-		out.bsdf.setValues(0);
+		out.bsdf.setColorValues(0);
 	}
 }
 
@@ -170,7 +170,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 		sampleFlow.flow2D(),
 		&H);
 
-	Spectrum F;
+	math::Spectrum F;
 	m_fresnel->calcReflectance(H.dot(in.V), &F);
 	const real reflectProb = getReflectionProbability(F);
 
@@ -257,7 +257,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf.setValues(F.mul(G * dotTerms));
+	out.pdfAppliedBsdf = F.mul(G * dotTerms);
 	out.setMeasurability(true);
 }
 
@@ -286,7 +286,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 		const real HoV = H.dot(in.V);
 		const real D   = m_microfacet->distribution(in.X, N, H);
 
-		Spectrum F;
+		math::Spectrum F;
 		m_fresnel->calcReflectance(HoL, &F);
 		const real reflectProb = ctx.elemental == ALL_ELEMENTALS ? getReflectionProbability(F) : 1.0_r;
 
@@ -326,7 +326,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 		const real HoL = H.dot(in.L);
 		const real D   = m_microfacet->distribution(in.X, N, H);
 
-		Spectrum F;
+		math::Spectrum F;
 		m_fresnel->calcReflectance(HoL, &F);
 		const real refractProb = ctx.elemental == ALL_ELEMENTALS ? 1.0_r - getReflectionProbability(F) : 1.0_r;
 
@@ -346,7 +346,7 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 	}
 }
 
-real TranslucentMicrofacet::getReflectionProbability(const Spectrum& F)
+real TranslucentMicrofacet::getReflectionProbability(const math::Spectrum& F)
 {
 	constexpr real MIN_PROBABILITY = 0.0001_r;
 

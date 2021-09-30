@@ -2,7 +2,7 @@
 
 #include "Math/math_fwd.h"
 #include "Common/primitive_type.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 namespace ph
 {
@@ -18,7 +18,7 @@ public:
 	virtual void process(
 		const math::Vector2D& rasterCoord,
 		const Ray&            sensedRay, 
-		const Spectrum&       quantityWeight,
+		const math::Spectrum& quantityWeight,
 		SampleFlow&           sampleFlow) = 0;
 
 	virtual void onBatchStart(uint64 batchNumber);

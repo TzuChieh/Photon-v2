@@ -4,13 +4,13 @@ namespace ph
 {
 
 ConductorFresnel::ConductorFresnel() :
-	ConductorFresnel(1, Spectrum(1.5_r), Spectrum(0))
+	ConductorFresnel(1, math::Spectrum(1.5_r), math::Spectrum(0))
 {}
 
 ConductorFresnel::ConductorFresnel(
-	const real      iorOuter,
-	const Spectrum& iorInnerN,
-	const Spectrum& iorInnerK) :
+	const real            iorOuter,
+	const math::Spectrum& iorInnerN,
+	const math::Spectrum& iorInnerK) :
 
 	FresnelEffect(),
 

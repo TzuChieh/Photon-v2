@@ -23,7 +23,7 @@ LdrRgbTexture2D::LdrRgbTexture2D(std::unique_ptr<TAbstractPixelTex2D<LdrComponen
 }
 
 void LdrRgbTexture2D::sample(
-	const SampleLocation& sampleLocation, Spectrum* const out_value) const
+	const SampleLocation& sampleLocation, math::Spectrum* const out_value) const
 {
 	PH_ASSERT(m_texture);
 	PH_ASSERT(out_value);
@@ -35,7 +35,7 @@ void LdrRgbTexture2D::sample(
 		rgb255[0] / 255.0_r,
 		rgb255[1] / 255.0_r, 
 		rgb255[2] / 255.0_r);
-	out_value->setLinearSrgb(rgb, sampleLocation.expectedQuantity());// FIXME: check color space
+	out_value->setLinearSRGB(rgb.toArray(), sampleLocation.expectedUsage());// FIXME: check color space
 }
 
 }// end namespace ph

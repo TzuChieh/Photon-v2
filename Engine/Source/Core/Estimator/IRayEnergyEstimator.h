@@ -1,15 +1,15 @@
 #pragma once
 
 #include "Core/Estimator/TIRayEstimator.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 namespace ph
 {
 
-class IRayEnergyEstimator : public TIRayEstimator<Spectrum>
+class IRayEnergyEstimator : public TIRayEstimator<math::Spectrum>
 {
 public:
-	using EnergyEstimation = TEstimationArray<Spectrum>;
+	using EnergyEstimation = TEstimationArray<math::Spectrum>;
 
 	void update(const Integrand& integrand) override = 0;
 

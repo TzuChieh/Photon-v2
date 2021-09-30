@@ -15,8 +15,8 @@ public:
 	SchlickApproxDielectricFresnel(real iorOuter, real iorInner);
 
 	void calcReflectance(
-		real      cosThetaIncident, 
-		Spectrum* out_reflectance) const override;
+		real            cosThetaIncident, 
+		math::Spectrum* out_reflectance) const override;
 
 private:
 	real m_f0;

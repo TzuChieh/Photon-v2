@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Core/SurfaceHit.h"
 
 namespace ph
@@ -29,8 +29,8 @@ public:
 	class Output final
 	{
 	public:
-		real     dist;
-		Spectrum pdfAppliedWeight;
+		real dist;
+		math::Spectrum pdfAppliedWeight;
 	};
 
 	inline bool isMaxDistReached() const

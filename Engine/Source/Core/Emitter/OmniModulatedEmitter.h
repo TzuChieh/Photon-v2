@@ -17,21 +17,21 @@ class OmniModulatedEmitter final : public Emitter
 public:
 	OmniModulatedEmitter(std::unique_ptr<Emitter> source);
 
-	void evalEmittedRadiance(const SurfaceHit& X, Spectrum* out_radiance) const override;
+	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override;
 	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const override;
 
 	// FIXME: ray time
-	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
+	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
 
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override;
 	real calcRadiantFluxApprox() const override;
 
-	void setFilter(const std::shared_ptr<TTexture<Spectrum>>& filter);
+	void setFilter(const std::shared_ptr<TTexture<math::Spectrum>>& filter);
 
 private:
-	std::unique_ptr<Emitter>            m_source;
-	std::shared_ptr<TTexture<Spectrum>> m_filter;
-	SphericalMapper                     m_dirToUv;
+	std::unique_ptr<Emitter>                  m_source;
+	std::shared_ptr<TTexture<math::Spectrum>> m_filter;
+	SphericalMapper                           m_dirToUv;
 };
 
 }// end namespace ph

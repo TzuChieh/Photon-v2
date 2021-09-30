@@ -15,12 +15,11 @@
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Common/assertion.h"
 #include "Core/LTABuildingBlock/TMis.h"
 #include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
-#include "Core/Quantity/Spectrum.h"
 #include "Core/Estimator/Integrand.h"
 
 #include <iostream>
@@ -43,8 +42,8 @@ void BNEEPTEstimator::estimate(
 	const auto&     mis      = TMis<EMisStyle::POWER>();
 
 	// common variables
-	Spectrum       accuRadiance(0);
-	Spectrum       accuLiWeight(1);
+	math::Spectrum accuRadiance(0);
+	math::Spectrum accuLiWeight(1);
 	HitProbe       hitProbe;
 	SurfaceHit     surfaceHit;
 	math::Vector3R V;
@@ -76,7 +75,7 @@ void BNEEPTEstimator::estimate(
 		const SurfaceBehavior&   surfaceBehavior = metadata->getSurface();
 		if(surfaceBehavior.getEmitter())
 		{
-			Spectrum radianceLi;
+			math::Spectrum radianceLi;
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 			accuRadiance.addLocal(radianceLi);
 		}
@@ -100,7 +99,7 @@ void BNEEPTEstimator::estimate(
 		{
 			math::Vector3R L;
 			real           directPdfW;
-			Spectrum       emittedRadiance;
+			math::Spectrum emittedRadiance;
 
 			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::STRICT>(&scene).sample(
 				surfaceHit, ray.getTime(), sampleFlow,
@@ -123,7 +122,7 @@ void BNEEPTEstimator::estimate(
 					const real misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
 					const math::Vector3R N = surfaceHit.getShadingNormal();
 
-					Spectrum weight;
+					math::Spectrum weight;
 					weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
 					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directPdfW);
 
@@ -201,7 +200,7 @@ void BNEEPTEstimator::estimate(
 			const Emitter* emitter = metadata->getSurface().getEmitter();
 			if(emitter)
 			{
-				Spectrum radianceLe;
+				math::Spectrum radianceLe;
 				emitter->evalEmittedRadiance(Xe, &radianceLe);
 
 				// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
@@ -225,7 +224,7 @@ void BNEEPTEstimator::estimate(
 					{
 						const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
-						Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+						math::Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 						weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
 						// avoid excessive, negative weight and possible NaNs
@@ -238,19 +237,19 @@ void BNEEPTEstimator::estimate(
 				// not do MIS
 				else
 				{
-					Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+					math::Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 					weight.mulLocal(accuLiWeight);
 
 					accuRadiance.addLocal(radianceLe.mulLocal(weight));
 				}
 			}
 
-			const Spectrum currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			const math::Spectrum currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 			accuLiWeight.mulLocal(currentLiWeight);
 
 			if(numBounces >= 3)
 			{
-				Spectrum weightedAccuLiWeight;
+				math::Spectrum weightedAccuLiWeight;
 				if(RussianRoulette::surviveOnLuminance(
 					accuLiWeight, sampleFlow, &weightedAccuLiWeight))
 				{
@@ -281,7 +280,7 @@ void BNEEPTEstimator::estimate(
 	out_estimation[m_estimationIndex] = accuRadiance;
 }
 
-void BNEEPTEstimator::rationalClamp(Spectrum& value)
+void BNEEPTEstimator::rationalClamp(math::Spectrum& value)
 {
 	// TODO: should negative value be allowed?
 	value.clampLocal(0.0_r, 1000000.0_r);

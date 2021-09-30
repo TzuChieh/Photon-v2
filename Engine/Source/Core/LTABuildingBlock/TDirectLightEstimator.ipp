@@ -34,7 +34,7 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 	SampleFlow&           sampleFlow,
 	math::Vector3R* const out_L,
 	real* const           out_pdfW,
-	Spectrum* const       out_emittedRadiance)
+	math::Spectrum* const out_emittedRadiance)
 {
 	/*const PrimitiveMetadata* metadata = targetPos.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* optics = metadata->getSurface().getOptics();

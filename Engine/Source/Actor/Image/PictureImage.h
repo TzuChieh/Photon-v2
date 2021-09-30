@@ -23,7 +23,7 @@ class PictureImage : public Image
 public:
 	PictureImage();
 
-	std::shared_ptr<TTexture<Spectrum>> genTextureSpectral(
+	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
 		ActorCookingContext& ctx) const override = 0;
 
 	EImgSampleMode getSampleMode() const;

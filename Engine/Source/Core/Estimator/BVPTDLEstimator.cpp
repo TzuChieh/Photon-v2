@@ -8,10 +8,9 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Math/TVector3.h"
-#include "Core/Quantity/Spectrum.h"
 #include "Core/Estimator/Integrand.h"
 
 #include <iostream>
@@ -27,8 +26,8 @@ void BVPTDLEstimator::estimate(
 {
 	const SurfaceTracer surfaceTracer(&(integrand.getScene()));
 
-	Spectrum& accuRadiance = out_estimation[m_estimationIndex].setValues(0);
-	Spectrum  accuPathWeight(1);
+	math::Spectrum& accuRadiance = out_estimation[m_estimationIndex].setColorValues(0);
+	math::Spectrum  accuPathWeight(1);
 	
 	// 0-bounce
 	Ray        firstRay;
@@ -49,7 +48,7 @@ void BVPTDLEstimator::estimate(
 
 		if(surfaceBehavior.getEmitter())
 		{
-			Spectrum emittedRadiance;
+			math::Spectrum emittedRadiance;
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(firstHit, &emittedRadiance);
 
 			// avoid excessive, negative weight and possible NaNs
@@ -79,7 +78,7 @@ void BVPTDLEstimator::estimate(
 		}
 
 		const math::Vector3R L          = bsdfSample.outputs.L;
-		const Spectrum       pathWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		const math::Spectrum pathWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 
 		accuPathWeight.mulLocal(pathWeight);
 
@@ -88,7 +87,7 @@ void BVPTDLEstimator::estimate(
 
 		if(surfaceBehavior.getEmitter())
 		{
-			Spectrum emittedRadiance;
+			math::Spectrum emittedRadiance;
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(secondHit, &emittedRadiance);
 
 			// avoid excessive, negative weight and possible NaNs

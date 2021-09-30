@@ -1,7 +1,6 @@
 #include "Core/Texture/TextureLoader.h"
 #include "Core/Texture/LdrRgbTexture2D.h"
 #include "Math/Random.h"
-#include "Core/Quantity/ColorSpace.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 

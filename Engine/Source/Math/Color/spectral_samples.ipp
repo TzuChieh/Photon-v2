@@ -17,7 +17,7 @@ namespace ph::math
 template<typename T, CSpectralSampleProps SampleProps>
 inline constexpr T wavelength_interval_of() noexcept
 {
-	return static_cast<T>(SampleProps::MAX_WAVELENGTH_NM - SampleProps::MIN_WAVELENGTH_NM)) / 
+	return static_cast<T>(SampleProps::MAX_WAVELENGTH_NM - SampleProps::MIN_WAVELENGTH_NM) / 
 	       static_cast<T>(SampleProps::NUM_SAMPLES);
 }
 

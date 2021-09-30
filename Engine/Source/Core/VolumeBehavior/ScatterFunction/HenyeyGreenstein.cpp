@@ -32,7 +32,7 @@ void HenyeyGreenstein::evalPhaseFunc(
 {
 	PH_ASSERT(out_pf);
 
-	const TSampler<real> sampler(EQuantity::RAW);
+	const TSampler<real> sampler(math::EColorUsage::RAW);
 
 	const real g = sampler.sample(*m_g, X);
 	PH_ASSERT(-1.0_r <= g && g <= 1.0_r);

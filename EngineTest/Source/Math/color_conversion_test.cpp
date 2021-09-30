@@ -1,6 +1,4 @@
-#include <Core/Quantity/ColorSpace.h>
-#include <Core/Quantity/Spectrum.h>
-#include <Math/TVector3.h>
+#include <Math/Color/color_spaces.h>
 
 #include <gtest/gtest.h>
 
@@ -11,27 +9,27 @@ TEST(ColorConversionTest, SrgbCieXyzInterConversion)
 {
 	const real ACCEPTABLE_ERROR = 0.0003_r;
 
-	Vector3R color;
+	math::TTristimulusValues<real> color;
 
-	color = ColorSpace::sRGB_to_linear_sRGB({0, 0, 0});
-	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);
-	EXPECT_NEAR(color.y, 0, ACCEPTABLE_ERROR);
-	EXPECT_NEAR(color.z, 0, ACCEPTABLE_ERROR);
+	color = math::sRGB_nonlinear_to_linear<real>({0, 0, 0});
+	EXPECT_NEAR(color[0], 0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[1], 0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[2], 0, ACCEPTABLE_ERROR);
 
-	color = ColorSpace::linear_sRGB_to_sRGB({0, 0, 0});
-	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);
-	EXPECT_NEAR(color.y, 0, ACCEPTABLE_ERROR);
-	EXPECT_NEAR(color.z, 0, ACCEPTABLE_ERROR);
+	color = math::sRGB_linear_to_nonlinear<real>({0, 0, 0});
+	EXPECT_NEAR(color[0], 0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[1], 0, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[2], 0, ACCEPTABLE_ERROR);
 
-	color = ColorSpace::sRGB_to_linear_sRGB({1, 1, 1});
-	EXPECT_NEAR(color.x, 1, ACCEPTABLE_ERROR);
-	EXPECT_NEAR(color.y, 1, ACCEPTABLE_ERROR);
-	EXPECT_NEAR(color.z, 1, ACCEPTABLE_ERROR);
+	color = math::sRGB_nonlinear_to_linear<real>({1, 1, 1});
+	EXPECT_NEAR(color[0], 1, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[1], 1, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[2], 1, ACCEPTABLE_ERROR);
 
-	color = ColorSpace::linear_sRGB_to_sRGB({1, 1, 1});
-	EXPECT_NEAR(color.x, 1, ACCEPTABLE_ERROR);
-	EXPECT_NEAR(color.y, 1, ACCEPTABLE_ERROR);
-	EXPECT_NEAR(color.z, 1, ACCEPTABLE_ERROR);
+	color = math::sRGB_linear_to_nonlinear<real>({1, 1, 1});
+	EXPECT_NEAR(color[0], 1, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[1], 1, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[2], 1, ACCEPTABLE_ERROR);
 
 	color = ColorSpace::CIE_XYZ_D65_to_linear_sRGB({0, 0, 0});
 	EXPECT_NEAR(color.x, 0, ACCEPTABLE_ERROR);

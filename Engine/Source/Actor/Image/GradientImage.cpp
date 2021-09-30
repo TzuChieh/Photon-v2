@@ -43,7 +43,7 @@ std::shared_ptr<TTexture<math::Vector3R>> GradientImage::genTextureVector3R(
 		images.second->genTextureVector3R(ctx));
 }
 
-std::shared_ptr<TTexture<Spectrum>> GradientImage::genTextureSpectral(
+std::shared_ptr<TTexture<math::Spectrum>> GradientImage::genTextureSpectral(
 	ActorCookingContext& ctx) const
 {
 	const auto& images = checkoutImages();
@@ -52,7 +52,7 @@ std::shared_ptr<TTexture<Spectrum>> GradientImage::genTextureSpectral(
 		return nullptr;
 	}
 
-	return std::make_shared<TLinearGradientTexture<Spectrum>>(
+	return std::make_shared<TLinearGradientTexture<math::Spectrum>>(
 		m_beginUvw,
 		images.first->genTextureSpectral(ctx),
 		m_endUvw,

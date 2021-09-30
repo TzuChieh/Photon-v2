@@ -3,7 +3,7 @@
 #include "Actor/PhysicalActor.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Math/TVector2.h"
 
 #include <memory>
@@ -22,7 +22,7 @@ public:
 	ADome();
 	ADome(const ADome& other);
 
-	virtual std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(ActorCookingContext& context) = 0;
+	virtual std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(ActorCookingContext& context) = 0;
 	virtual math::Vector2S getResolution() const = 0;
 
 	CookedUnit cook(ActorCookingContext& ctx) override;

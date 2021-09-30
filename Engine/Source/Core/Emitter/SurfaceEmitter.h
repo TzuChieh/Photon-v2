@@ -3,7 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Math/Transform/Transform.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/Texture/TTexture.h"
 #include "Common/assertion.h"
@@ -24,11 +24,11 @@ class SurfaceEmitter : public Emitter
 public:
 	SurfaceEmitter();
 
-	void evalEmittedRadiance(const SurfaceHit& X, Spectrum* out_radiance) const override = 0;
+	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override = 0;
 	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const override = 0;
 
 	// FIXME: ray time
-	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override = 0;
+	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override = 0;
 
 	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override = 0;
 	

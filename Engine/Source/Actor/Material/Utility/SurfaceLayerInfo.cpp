@@ -1,5 +1,4 @@
 #include "Actor/Material/Utility/SurfaceLayerInfo.h"
-#include "Core/Quantity/SpectralData.h"
 
 namespace ph
 {

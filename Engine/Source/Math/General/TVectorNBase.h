@@ -31,8 +31,6 @@ protected:
 public:
 	using Base::Base;
 
-	explicit TVectorNBase(const T* values);
-
 	T dot(const Derived& rhs) const;
 	T dot(T rhs) const;
 	T absDot(const Derived& rhs) const;

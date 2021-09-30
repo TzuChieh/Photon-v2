@@ -45,7 +45,7 @@ void SGStratified::genSamples2D(
 	PH_ASSERT_GE(stage.numSamples(), 1);
 	PH_ASSERT_EQ(stage.getDimSizeHints().size(), 2);
 
-	const auto        strataSizes = math::Vector2S(stage.getDimSizeHints());
+	const auto        strataSizes = math::Vector2S({stage.getDimSizeHints()[0], stage.getDimSizeHints()[1]});
 	const std::size_t numStrata   = strataSizes.product();
 	PH_ASSERT_GT(numStrata, 0);
 	

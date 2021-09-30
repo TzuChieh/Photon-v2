@@ -1,6 +1,5 @@
 #include "Api/init_and_exit.h"
 #include "Api/ApiDatabase.h"
-#include "Core/Quantity/ColorSpace.h"
 #include "Common/logging.h"
 #include "DataIO/PictureSaver.h"
 
@@ -95,10 +94,6 @@ PH_DEFINE_INTERNAL_LOG_GROUP(InitAndExit, Engine);
 
 bool init_core_infrastructure()
 {
-	PH_LOG(InitAndExit,
-		"initializing color transform functions...");
-	ColorSpace::init();
-
 	if(!PictureSaver::init())
 	{
 		PH_LOG_WARNING(InitAndExit,

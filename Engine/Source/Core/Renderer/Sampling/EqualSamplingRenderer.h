@@ -7,7 +7,7 @@
 #include "Core/Scheduler/WorkScheduler.h"
 #include "Core/Scheduler/EScheduler.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Math/TVector2.h"
 
 #include <vector>
@@ -47,7 +47,7 @@ public:
 	ObservableRenderData getObservableData() const override;
 
 private:
-	using FilmEstimator = TReceiverMeasurementEstimator<HdrRgbFilm, Spectrum>;
+	using FilmEstimator = TReceiverMeasurementEstimator<HdrRgbFilm, math::Spectrum>;
 
 	const Scene*                   m_scene;
 	const Receiver*                m_receiver;

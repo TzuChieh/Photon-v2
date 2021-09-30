@@ -36,7 +36,7 @@ inline void TStepperReceiverMeasurementEstimator<SamplingFilmType, EstimationTyp
 process(
 	const math::Vector2D& rasterCoord,
 	const Ray&            ray, 
-	const Spectrum&       quantityWeight,
+	const math::Spectrum& quantityWeight,
 	SampleFlow&           sampleFlow)
 {
 	for(const auto* estimator : Parent::m_estimators)

@@ -2,7 +2,7 @@
 
 #include "Core/Texture/TTexture.h"
 #include "Common/primitive_type.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
 
 #include <memory>
@@ -11,7 +11,7 @@
 namespace ph
 {
 
-class PreethamTexture : public TTexture<Spectrum>
+class PreethamTexture : public TTexture<math::Spectrum>
 {
 public:
 	PreethamTexture(
@@ -20,7 +20,7 @@ public:
 		real turbidity,
 		real energyScale = 1.0_r);
 
-	void sample(const SampleLocation& sampleLocation, Spectrum* out_value) const override;
+	void sample(const SampleLocation& sampleLocation, math::Spectrum* out_value) const override;
 
 private:
 	real           m_phiSun;

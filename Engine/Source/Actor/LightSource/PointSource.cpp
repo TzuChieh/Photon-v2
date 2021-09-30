@@ -18,7 +18,7 @@ PointSource::PointSource(const math::Vector3R& linearSrgbColor, const real numWa
 	SphereSource(POINT_SOURCE_RADIUS, linearSrgbColor, numWatts)
 {}
 
-PointSource::PointSource(const Spectrum& color, real numWatts) :
+PointSource::PointSource(const math::Spectrum& color, real numWatts) :
 	SphereSource(POINT_SOURCE_RADIUS, color, numWatts)
 {}
 

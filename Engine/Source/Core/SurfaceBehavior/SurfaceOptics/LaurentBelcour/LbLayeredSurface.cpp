@@ -20,13 +20,13 @@ thread_local std::vector<real> LbLayeredSurface::sampleWeights;
 thread_local std::vector<real> LbLayeredSurface::alphas;
 
 LbLayeredSurface::LbLayeredSurface(
-	const std::vector<Spectrum>& iorNs,
-	const std::vector<Spectrum>& iorKs,
-	const std::vector<real>&     alphas,
-	const std::vector<real>&     depths,
-	const std::vector<real>&     gs,
-	const std::vector<Spectrum>& sigmaAs,
-	const std::vector<Spectrum>& sigmaSs) :
+	const std::vector<math::Spectrum>& iorNs,
+	const std::vector<math::Spectrum>& iorKs,
+	const std::vector<real>&           alphas,
+	const std::vector<real>&           depths,
+	const std::vector<real>&           gs,
+	const std::vector<math::Spectrum>& sigmaAs,
+	const std::vector<math::Spectrum>& sigmaSs) :
 
 	SurfaceOptics(),
 
@@ -60,7 +60,7 @@ void LbLayeredSurface::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.bsdf.setValues(0);
+	out.bsdf.setColorValues(0);
 
 	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
@@ -107,7 +107,7 @@ void LbLayeredSurface::calcBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	out.pdfAppliedBsdf.setValues(0);
+	out.pdfAppliedBsdf.setColorValues(0);
 
 	const math::Vector3R N = in.X.getShadingNormal();
 	const real absNoV = std::min(N.absDot(in.V), 1.0_r);

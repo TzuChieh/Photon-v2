@@ -36,7 +36,7 @@ public:
 	void process(
 		const math::Vector2D& rasterCoord,
 		const Ray&            sensedRay, 
-		const Spectrum&       quantityWeight,
+		const math::Spectrum& quantityWeight,
 		SampleFlow&           sampleFlow) override;
 
 	void addEstimator(const Estimator* estimator);

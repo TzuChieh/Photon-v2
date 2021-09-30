@@ -74,19 +74,20 @@ public:
 
 	inline static constexpr auto NUM_VALUES = Base::NUM_ELEMENTS;
 
-	explicit TSpectrumBase(const T* colorValues);
-
 	static consteval EColorSpace getColorSpace() noexcept;
 
 	std::size_t minComponent() const;
 	std::size_t maxComponent() const;
 
-	Derived& setColorValues(const TRawColorValues<T, N>& colorValues);
-	Derived& setColorValues(T colorValue);
+	Derived& setColorValues(const TRawColorValues<T, N>& values);
+	Derived& setColorValues(T rawColorValue);
 	const TRawColorValues<T, N>& getColorValues() const;
 
 	template<EColorSpace SRC_COLOR_SPACE>
 	Derived& setTransformed(const auto& srcColorValues, EColorUsage usage);
+
+	template<EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral>
+	Derived& setSpectral(const TSpectralSampleValues<T>& sampleValues, EColorUsage usage);
 
 	T relativeLuminance(EColorUsage usage = EColorUsage::EMR) const;
 
@@ -96,7 +97,7 @@ public:
 	
 	/*! @brief Helper for converting this spectrum to linear-sRGB color.
 	*/
-	TRawColorValues<T, 3> toLinearSRGB(EColorUsage usage);
+	TRawColorValues<T, 3> toLinearSRGB(EColorUsage usage) const;
 
 	Derived& putEnergy(T energyLevel);
 

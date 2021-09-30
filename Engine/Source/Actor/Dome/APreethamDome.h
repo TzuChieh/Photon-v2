@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 #include <memory>
 
@@ -27,7 +27,7 @@ public:
 
 	APreethamDome(const APreethamDome& other);
 
-	std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
+	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
 	math::Vector2S getResolution() const override;
 
 	APreethamDome& operator = (APreethamDome rhs);

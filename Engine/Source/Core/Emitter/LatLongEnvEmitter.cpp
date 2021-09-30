@@ -38,9 +38,9 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 	PH_LOG(LatLongEnvEmitter, "constructing sample distribution with resolution {}", 
 		resolution.toString());
 
-	constexpr EQuantity QUANTITY = EQuantity::EMR;
+	constexpr auto USAGE = math::EColorUsage::EMR;
 	const real rcpResolutionY = 1.0_r / static_cast<real>(resolution.y());
-	const TSampler<Spectrum> sampler(QUANTITY);
+	const TSampler<math::Spectrum> sampler(USAGE);
 
 	std::vector<real> sampleWeights(resolution.x() * resolution.y());
 	for(std::size_t y = 0; y < resolution.y(); ++y)
@@ -48,16 +48,17 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 		const std::size_t baseIndex = y * resolution.x();
 		const real        v         = (static_cast<real>(y) + 0.5_r) * rcpResolutionY;
 		const real        sinTheta  = std::sin((1.0_r - v) * math::constant::pi<real>);
+
 		for(std::size_t x = 0; x < resolution.x(); ++x)
 		{
-			const real     u        = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x());
-			const Spectrum sampledL = sampler.sample(*radiance, {u, v});
+			const real           u        = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x());
+			const math::Spectrum sampledL = sampler.sample(*radiance, {u, v});
 
 			// For non-nearest filtered textures, sample weights can be 0 while
 			// there is still energy around that point (because its neighbor 
 			// may have non-zero energy), ensure a lower bound to avoid this
 			constexpr real MIN_LUMINANCE = 1e-6_r;
-			const real luminance = std::max(sampledL.calcLuminance(QUANTITY), MIN_LUMINANCE);
+			const real luminance = std::max(sampledL.relativeLuminance(USAGE), MIN_LUMINANCE);
 
 			// FIXME: using different PDF resolution can under sample the texture
 			// use mipmaps perhaps?
@@ -73,12 +74,12 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 
 void LatLongEnvEmitter::evalEmittedRadiance(
 	const SurfaceHit& X, 
-	Spectrum* const   out_radiance) const
+	math::Spectrum* const out_radiance) const
 {
 	PH_ASSERT(out_radiance);
 	PH_ASSERT(m_radiance);
 
-	TSampler<Spectrum> sampler(EQuantity::EMR);
+	TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
 	*out_radiance = sampler.sample(*m_radiance, X);
 }
 
@@ -97,7 +98,7 @@ void LatLongEnvEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSampl
 		return;
 	}
 
-	TSampler<Spectrum> sampler(EQuantity::EMR);
+	TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
 	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
 	// FIXME: assuming spherical uv mapping is used
@@ -110,14 +111,14 @@ void LatLongEnvEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSampl
 }
 
 // FIXME: ray time
-void LatLongEnvEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void LatLongEnvEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
 {
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
 		sampleFlow.flow2D(),
 		&uvSamplePdf);
 
-	TSampler<Spectrum> sampler(EQuantity::EMR);
+	TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
 	*out_Le = sampler.sample(*m_radiance, uvSample);
 
 	const real sinTheta = std::sin((1.0_r - uvSample.y()) * math::constant::pi<real>);

@@ -9,12 +9,11 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Core/LTABuildingBlock/PtVolumetricEstimator.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Math/TVector3.h"
-#include "Core/Quantity/Spectrum.h"
 #include "Core/Estimator/Integrand.h"
 
 #include <iostream>
@@ -34,8 +33,8 @@ void BVPTEstimator::estimate(
 	const SurfaceTracer    surfaceTracer(&(integrand.getScene()));
 
 	uint32 numBounces = 0;
-	Spectrum accuRadiance(0);
-	Spectrum accuLiWeight(1);
+	math::Spectrum accuRadiance(0);
+	math::Spectrum accuLiWeight(1);
 
 	// backward tracing to light
 	Ray tracingRay = Ray(ray).reverse();
@@ -51,7 +50,7 @@ void BVPTEstimator::estimate(
 
 		if(hitSurfaceBehavior.getEmitter())
 		{
-			Spectrum radianceLi;
+			math::Spectrum radianceLi;
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
@@ -73,12 +72,12 @@ void BVPTEstimator::estimate(
 
 		const math::Vector3R L = bsdfSample.outputs.L;
 
-		const Spectrum liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		const math::Spectrum liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 		accuLiWeight.mulLocal(liWeight);
 
 		if(numBounces >= 3)
 		{
-			Spectrum weightedAccuLiWeight;
+			math::Spectrum weightedAccuLiWeight;
 			if(RussianRoulette::surviveOnLuminance(
 				accuLiWeight, sampleFlow, &weightedAccuLiWeight))
 			{
@@ -102,8 +101,8 @@ void BVPTEstimator::estimate(
 			{
 				SurfaceHit Xe;
 				math::Vector3R endV;
-				Spectrum weight;
-				Spectrum radiance;
+				math::Spectrum weight;
+				math::Spectrum radiance;
 				PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
 				accuLiWeight.mulLocal(weight);

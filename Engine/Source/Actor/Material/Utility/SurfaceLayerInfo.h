@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
@@ -18,21 +18,21 @@ public:
 
 	real getRoughness() const;
 	real getAlpha() const;
-	Spectrum getIorN() const;
-	Spectrum getIorK() const;
+	math::Spectrum getIorN() const;
+	math::Spectrum getIorK() const;
 	real getDepth() const;
 	real getG() const;
-	Spectrum getSigmaA() const;
-	Spectrum getSigmaS() const;
+	math::Spectrum getSigmaA() const;
+	math::Spectrum getSigmaS() const;
 
 private:
-	real     m_roughness;
-	Spectrum m_iorN;
-	Spectrum m_iorK;
-	real     m_depth;
-	real     m_g;
-	Spectrum m_sigmaA;
-	Spectrum m_sigmaS;
+	real           m_roughness;
+	math::Spectrum m_iorN;
+	math::Spectrum m_iorK;
+	real           m_depth;
+	real           m_g;
+	math::Spectrum m_sigmaA;
+	math::Spectrum m_sigmaS;
 
 public:
 	/*PH_DEFINE_SDL_STRUCT(TOwnerSdlStruct<SurfaceLayerInfo>)
@@ -61,12 +61,12 @@ inline real SurfaceLayerInfo::getAlpha() const
 	return RoughnessToAlphaMapping::squared(getRoughness());
 }
 
-inline Spectrum SurfaceLayerInfo::getIorN() const
+inline math::Spectrum SurfaceLayerInfo::getIorN() const
 {
 	return m_iorN;
 }
 
-inline Spectrum SurfaceLayerInfo::getIorK() const
+inline math::Spectrum SurfaceLayerInfo::getIorK() const
 {
 	return m_iorK;
 }
@@ -81,12 +81,12 @@ inline real SurfaceLayerInfo::getG() const
 	return m_g;
 }
 
-inline Spectrum SurfaceLayerInfo::getSigmaA() const
+inline math::Spectrum SurfaceLayerInfo::getSigmaA() const
 {
 	return m_sigmaA;
 }
 
-inline Spectrum SurfaceLayerInfo::getSigmaS() const
+inline math::Spectrum SurfaceLayerInfo::getSigmaS() const
 {
 	return m_sigmaS;
 }

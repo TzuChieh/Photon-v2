@@ -22,7 +22,7 @@ PinholeCamera::PinholeCamera(
 		receiverToWorld)
 {}
 
-Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
+math::Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const out_ray) const
 {
 	PH_ASSERT(out_ray);
 
@@ -45,7 +45,7 @@ Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray* const
 		"origin    = " + out_ray->getOrigin().toString() + "\n"
 		"direction = " + out_ray->getDirection().toString() + "\n");
 
-	return Spectrum(1);
+	return math::Spectrum(1);
 }
 
 math::Vector3R PinholeCamera::genReceiveRayDir(const math::Vector2D& rasterCoord) const

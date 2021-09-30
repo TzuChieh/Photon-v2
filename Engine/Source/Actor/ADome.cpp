@@ -87,7 +87,7 @@ CookedUnit ADome::cook(ActorCookingContext& ctx)
 	auto radianceFunction = loadRadianceFunction(ctx);
 	if(m_energyScale != 1.0_r)
 	{
-		auto scaledRadianceFunction = std::make_shared<TConstantMultiplyTexture<Spectrum, real, Spectrum>>(
+		auto scaledRadianceFunction = std::make_shared<TConstantMultiplyTexture<math::Spectrum, real, math::Spectrum>>(
 			radianceFunction, m_energyScale);
 
 		radianceFunction = scaledRadianceFunction;

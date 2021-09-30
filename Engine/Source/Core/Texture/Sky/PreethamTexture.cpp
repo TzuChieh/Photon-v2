@@ -3,7 +3,7 @@
 #include "Math/constant.h"
 #include "Math/Geometry/TSphere.h"
 #include "Core/Texture/SampleLocation.h"
-#include "Core/Quantity/ColorSpace.h"
+#include "Math/Color/color_spaces.h"
 #include "Common/logging.h"
 
 #include <algorithm>
@@ -12,7 +12,6 @@ namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PreethamTexture, Texture);
-
 
 PreethamTexture::PreethamTexture(
 	const real phiSun,
@@ -88,7 +87,7 @@ PreethamTexture::PreethamTexture(
 	}
 }
 
-void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* const out_value) const
+void PreethamTexture::sample(const SampleLocation& sampleLocation, math::Spectrum* const out_value) const
 {
 	PH_ASSERT(out_value);
 
@@ -99,7 +98,7 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	auto theta = viewPhiTheta.y();
 	if(theta >= 0.5_r *  math::constant::pi<real> || theta < 0.0_r)
 	{
-		out_value->setValues(0);
+		out_value->setColorValues(0);
 		return;
 	}
 
@@ -123,11 +122,11 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, Spectrum* con
 	// Apply non-physical scale factor
 	radiance_xyY.z *= m_energyScale;
 
-	out_value->setLinearSrgb(ColorSpace::CIE_XYZ_D65_to_linear_sRGB(ColorSpace::xyY_to_XYZ(radiance_xyY)));
+	out_value->setTransformed<math::EColorSpace::CIE_xyY>(radiance_xyY.toArray(), math::EColorUsage::EMR);
 
 	if(!out_value->isFinite())
 	{
-		out_value->setValues(0);
+		out_value->setColorValues(0);
 	}
 }
 

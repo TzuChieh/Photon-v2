@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Estimator/FullRayEnergyEstimator.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 namespace ph
 {
@@ -36,7 +36,7 @@ public:
 	std::string toString() const override;
 
 private:
-	static void rationalClamp(Spectrum& value);
+	static void rationalClamp(math::Spectrum& value);
 };
 
 // In-header Implementations:

@@ -3,7 +3,7 @@
 #include "Actor/ADome.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 #include <memory>
 
@@ -21,7 +21,7 @@ public:
 	explicit AImageDome(const Path& imagePath);
 	AImageDome(const AImageDome& other);
 
-	std::shared_ptr<TTexture<Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
+	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
 	math::Vector2S getResolution() const override;
 
 	AImageDome& operator = (AImageDome rhs);

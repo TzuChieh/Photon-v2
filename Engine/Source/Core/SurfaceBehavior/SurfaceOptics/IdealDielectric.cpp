@@ -16,19 +16,19 @@ IdealDielectric::IdealDielectric(const std::shared_ptr<DielectricFresnel>& fresn
 
 	IdealDielectric(
 		fresnel, 
-		std::make_shared<TConstantTexture<Spectrum>>(Spectrum(1.0_r)),
-		std::make_shared<TConstantTexture<Spectrum>>(Spectrum(1.0_r)))
+		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(1)),
+		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(1)))
 {}
 
 IdealDielectric::IdealDielectric(
-	const std::shared_ptr<DielectricFresnel>&  fresnel,
-	const std::shared_ptr<TTexture<Spectrum>>& reflectionScale,
-	const std::shared_ptr<TTexture<Spectrum>>& transmissionScale) :
+	const std::shared_ptr<DielectricFresnel>&        fresnel,
+	const std::shared_ptr<TTexture<math::Spectrum>>& reflectionScale,
+	const std::shared_ptr<TTexture<math::Spectrum>>& transmissionScale) :
 
 	SurfaceOptics(),
 
-	m_fresnel(fresnel),
-	m_reflectionScale(reflectionScale),
+	m_fresnel          (fresnel),
+	m_reflectionScale  (reflectionScale),
 	m_transmissionScale(transmissionScale)
 {
 	PH_ASSERT(fresnel);
@@ -52,7 +52,7 @@ void IdealDielectric::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.bsdf.setValues(0.0_r);
+	out.bsdf.setColorValues(0);
 }
 
 void IdealDielectric::calcBsdfSample(
@@ -72,7 +72,7 @@ void IdealDielectric::calcBsdfSample(
 
 	const math::Vector3R N = in.X.getShadingNormal();
 
-	Spectrum F;
+	math::Spectrum F;
 	m_fresnel->calcReflectance(N.dot(in.V), &F);
 	const real reflectProb = F.avg();
 
@@ -105,8 +105,8 @@ void IdealDielectric::calcBsdfSample(
 		}
 
 		// a scale factor for artistic control
-		const Spectrum& reflectionScale =
-			TSampler<Spectrum>(EQuantity::RAW).sample(*m_reflectionScale, in.X);
+		const math::Spectrum reflectionScale =
+			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.X);
 		F.mulLocal(reflectionScale);
 
 		// account for probability
@@ -138,8 +138,8 @@ void IdealDielectric::calcBsdfSample(
 		}
 
 		// a scale factor for artistic control
-		const Spectrum& transmissionScale =
-			TSampler<Spectrum>(EQuantity::RAW).sample(*m_transmissionScale, in.X);
+		const math::Spectrum transmissionScale =
+			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.X);
 		F.mulLocal(transmissionScale);
 
 		// account for probability
@@ -155,7 +155,7 @@ void IdealDielectric::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf.setValues(F / N.absDot(out.L));
+	out.pdfAppliedBsdf = F / N.absDot(out.L);
 	out.setMeasurability(true);
 }
 

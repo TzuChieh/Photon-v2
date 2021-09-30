@@ -12,7 +12,7 @@ TEST(PixelBasedTextureTest, NearestFilteredTexture)
 
 	auto uv = [](const real u, const real v)
 	{
-		return SampleLocation(Vector3R(u, v, 0), EQuantity::RAW);
+		return SampleLocation(Vector3R(u, v, 0), math::EColorUsage::RAW);
 	};
 
 	// trial 1
@@ -87,7 +87,7 @@ TEST(PixelBasedTextureTest, BilinearFilteredTexture)
 {
 	auto uv = [](const real u, const real v)
 	{
-		return SampleLocation(Vector3R(u, v, 0), EQuantity::RAW);
+		return SampleLocation(Vector3R(u, v, 0), math::EColorUsage::RAW);
 	};
 
 	using Frame = TFrame<float, 1>;

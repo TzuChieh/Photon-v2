@@ -10,10 +10,10 @@ namespace ph::math
 
 template<EColorSpace COLOR_SPACE, typename T, CSpectralSampleProps Props>
 class TSampledSpectrum final :
-	public TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, Props>, COLOR_SPACE, T, Props>
+	public TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, Props>, COLOR_SPACE, T, Props::NUM_SAMPLES>
 {
 private:
-	using Base = TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, Props>, COLOR_SPACE, T, Props>;
+	using Base = TSpectrumBase<TSampledSpectrum<COLOR_SPACE, T, Props>, COLOR_SPACE, T, Props::NUM_SAMPLES>;
 
 protected:
 	using Base::m;

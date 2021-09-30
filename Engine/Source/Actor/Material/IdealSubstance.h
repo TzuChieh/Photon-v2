@@ -3,7 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
 
 #include <memory>

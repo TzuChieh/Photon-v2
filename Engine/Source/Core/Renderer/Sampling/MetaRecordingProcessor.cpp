@@ -9,7 +9,7 @@ namespace ph
 void MetaRecordingProcessor::process(
 	const math::Vector2D& rasterCoord,
 	const Ray&            ray, 
-	const Spectrum&       quantityWeight,
+	const math::Spectrum& quantityWeight,
 	SampleFlow&           sampleFlow)
 {
 	PH_ASSERT(m_processor);

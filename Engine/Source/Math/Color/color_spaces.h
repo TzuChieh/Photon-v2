@@ -92,9 +92,6 @@ template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPA
 auto normalize_color_energy(const auto& srcColorValues);
 
 template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
-auto put_color_energy(const auto& srcColorValues, const auto& energyLevels);
-
-template<EColorSpace SRC_COLOR_SPACE, typename T, EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
 auto put_color_energy(const auto& srcColorValues, T energyLevel);
 
 /*! @brief Helper for converting from sRGB to linear-sRGB.

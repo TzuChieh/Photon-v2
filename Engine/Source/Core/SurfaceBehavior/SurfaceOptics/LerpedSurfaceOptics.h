@@ -2,7 +2,7 @@
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Texture/texture_fwd.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Common/primitive_type.h"
 #include "Core/Texture/TSampler.h"
 
@@ -28,17 +28,17 @@ public:
 	LerpedSurfaceOptics(
 		const std::shared_ptr<SurfaceOptics>& optics0, 
 		const std::shared_ptr<SurfaceOptics>& optics1,
-		const std::shared_ptr<TTexture<Spectrum>>& ratio);
+		const std::shared_ptr<TTexture<math::Spectrum>>& ratio);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
 	std::string toString() const override;
 
 private:
-	std::shared_ptr<SurfaceOptics>      m_optics0;
-	std::shared_ptr<SurfaceOptics>      m_optics1;
-	std::shared_ptr<TTexture<Spectrum>> m_ratio;
-	TSampler<Spectrum>                  m_sampler;
+	std::shared_ptr<SurfaceOptics>            m_optics0;
+	std::shared_ptr<SurfaceOptics>            m_optics1;
+	std::shared_ptr<TTexture<math::Spectrum>> m_ratio;
+	TSampler<math::Spectrum>                  m_sampler;
 
 	void calcBsdf(
 		const BsdfQueryContext& ctx,
@@ -56,7 +56,7 @@ private:
 		const BsdfPdfInput&     in,
 		BsdfPdfOutput&          out) const override;
 
-	static real probabilityOfPickingOptics0(const Spectrum& ratio);
+	static real probabilityOfPickingOptics0(const math::Spectrum& ratio);
 };
 
 // In-header Implementations:

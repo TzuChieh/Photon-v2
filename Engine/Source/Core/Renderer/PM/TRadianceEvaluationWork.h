@@ -5,7 +5,7 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/PM/TPhoton.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Math/math_fwd.h"
 #include "Common/primitive_type.h"
 
@@ -26,7 +26,7 @@ public:
 		const TPhotonMap<Photon>* photonMap,
 		std::size_t               numPhotonPaths);
 
-	Spectrum evaluateRadiance(
+	math::Spectrum evaluateRadiance(
 		const SurfaceHit&     location,
 		const math::Vector3R& excitant,
 		real                  kernelRadius);

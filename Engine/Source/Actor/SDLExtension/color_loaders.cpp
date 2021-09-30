@@ -18,22 +18,6 @@
 namespace ph::sdl
 {
 
-math::Vector3R tristimulus_to_linear_SRGB(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace)
-{
-	switch(colorSpace)
-	{
-	case math::EColorSpace::UNSPECIFIED:
-	case math::EColorSpace::Linear_sRGB:
-		return tristimulus;
-
-	case math::EColorSpace::sRGB:
-		return ColorSpace::sRGB_to_linear_sRGB(tristimulus);
-
-	default:
-		throw SdlLoadError("unsupported tristimulus color space");
-	}
-}
-
 math::Spectrum tristimulus_to_spectrum(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace, const math::EColorUsage usage)
 {
 	switch(colorSpace)
@@ -125,7 +109,7 @@ math::Spectrum load_spectrum(const SdlInputPayload& payload, const math::EColorU
 std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace, const math::EColorUsage usage)
 {
 	return std::make_shared<ConstantImage>(
-		tristimulus_to_linear_SRGB(tristimulus, colorSpace),
+		math::Vector3R(tristimulus_to_spectrum(tristimulus, colorSpace, usage).toLinearSRGB(usage)),
 		usage == math::EColorUsage::EMR
 			? ConstantImage::EType::EMR_LINEAR_SRGB
 			: usage == math::EColorUsage::ECF ? ConstantImage::EType::ECF_LINEAR_SRGB : ConstantImage::EType::RAW);
