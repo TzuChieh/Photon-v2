@@ -123,20 +123,20 @@ public:
 	*/
 	inline static TTristimulusValues<T> toCIEXYZ(const TTristimulusValues<T>& thisColor)
 	{
-		const TMatrix3<T> M(
+		const TMatrix3<T> M(Matrix3D(
 			0.41239079926595934, 0.357584339383878,   0.1804807884018343,
 			0.21263900587151027, 0.715168678767756,   0.07219231536073371,
-			0.01933081871559182, 0.11919477979462598, 0.9505321522496607);
+			0.01933081871559182, 0.11919477979462598, 0.9505321522496607));
 
 		return M.multiplyVector(thisColor);
 	}
 
 	inline static TTristimulusValues<T> fromCIEXYZ(const TTristimulusValues<T>& CIEXYZColor)
 	{
-		const TMatrix3<T> M(
+		const TMatrix3<T> M(Matrix3D(
 			 3.2409699419045226,  -1.537383177570094,  -0.4986107602930034,
 			-0.9692436362808796,   1.8759675015077202,  0.04155505740717559,
-			 0.05563007969699366, -0.20397695888897652, 1.0569715142428786);
+			 0.05563007969699366, -0.20397695888897652, 1.0569715142428786));
 
 		return M.multiplyVector(CIEXYZColor);
 	}
@@ -313,10 +313,10 @@ public:
 	inline static TTristimulusValues<T> toCIEXYZ(const TTristimulusValues<T>& thisColor)
 	{
 		// According to [4], this is the matrix for transformation from ACEScg (AP1) to CIE-XYZ
-		const TMatrix3<T> M(
+		const TMatrix3<T> M(Matrix3D(
 			 0.6624541811, 0.1340042065, 0.1561876870,
 			 0.2722287168, 0.6740817658, 0.0536895174,
-			-0.0055746495, 0.0040607335, 1.0103391003);
+			-0.0055746495, 0.0040607335, 1.0103391003));
 
 		return M.multiplyVector(thisColor);
 	}
@@ -324,10 +324,10 @@ public:
 	inline static TTristimulusValues<T> fromCIEXYZ(const TTristimulusValues<T>& CIEXYZColor)
 	{
 		// According to [4], this is the matrix for transformation from CIE-XYZ to ACEScg (AP1)
-		const TMatrix3<T> M(
+		const TMatrix3<T> M(Matrix3D(
 			 1.6410233797, -0.3248032942, -0.2364246952,
 			-0.6636628587,  1.6153315917,  0.0167563477,
-			 0.0117218943, -0.0082844420,  0.9883948585);
+			 0.0117218943, -0.0082844420,  0.9883948585));
 
 		return M.multiplyVector(CIEXYZColor);
 	}
@@ -474,7 +474,7 @@ public:
 		static_assert(LinearSrgbDef::getReferenceWhite() == EReferenceWhite::D65);
 
 		static const TArithmeticArray<T, DefaultSpectralSampleProps::NUM_SAMPLES> unitD65Spd(
-			resample_illuminant_D65<T, DefaultSpectralSampleProps>());
+			resample_illuminant_D65<T>());
 
 		switch(usage)
 		{
@@ -508,7 +508,7 @@ public:
 	{
 		const auto CIEXYZColor = spectral_samples_to_CIE_XYZ(sampleValues, usage);
 
-		auto linearSrgbColor = LinearSrgbDef::fromCIEXYZ(sampleValues);
+		auto linearSrgbColor = LinearSrgbDef::fromCIEXYZ(CIEXYZColor);
 
 		if(usage == EColorUsage::UNSPECIFIED)
 		{
@@ -646,7 +646,6 @@ inline auto transform_color(const auto& srcColorValues, const EColorUsage usage)
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
-	return TTristimulusValues<T>{0, 0, 0};
 }
 
 template<EColorSpace SRC_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM>

@@ -11,6 +11,16 @@ namespace ph::math
 {
 
 template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
+template<typename U>
+inline TSpectrumBase<Derived, COLOR_SPACE, T, N>::TSpectrumBase(const TRawColorValues<U, N>& values)
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = static_cast<T>(values[i]);
+	}
+}
+
+template<typename Derived, EColorSpace COLOR_SPACE, typename T, std::size_t N>
 inline consteval EColorSpace TSpectrumBase<Derived, COLOR_SPACE, T, N>::getColorSpace() noexcept
 {
 	return COLOR_SPACE;

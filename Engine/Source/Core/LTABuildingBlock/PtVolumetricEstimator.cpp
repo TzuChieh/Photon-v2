@@ -21,8 +21,8 @@ void PtVolumetricEstimator::sample(
 	math::Spectrum* out_weight,
 	math::Spectrum* out_radiance)
 {
-	out_weight->setValues(1.0_r);
-	out_radiance->setValues(0.0_r);
+	out_weight->setColorValues(1);
+	out_radiance->setColorValues(0);
 
 	const PrimitiveMetadata* metadata = Xs.getDetail().getPrimitive()->getMetadata();
 	const VolumeOptics* interior = metadata->getInterior().getOptics();

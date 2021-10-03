@@ -5,7 +5,7 @@
 #include "Common/assertion.h"
 #include "Common/logging.h"
 #include "Common/primitive_type.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 
 #include <vector>
 
@@ -25,11 +25,11 @@ public:
 		real iorN, 
 		real iorK) const;
 
-	Spectrum sample(
+	math::Spectrum sample(
 		real cosWi,
 		real alpha, 
-		const Spectrum& iorN, 
-		const Spectrum& iorK) const;
+		const math::Spectrum& iorN,
+		const math::Spectrum& iorK) const;
 
 private:
 	std::vector<float> m_table;
@@ -107,14 +107,14 @@ inline TableFGD::TableFGD(const Path& tableFilePath) :
 	downSampleHalf();*/
 }
 
-inline Spectrum TableFGD::sample(
-	const real cosWi,
-	const real alpha,
-	const Spectrum& iorN,
-	const Spectrum& iorK) const
+inline math::Spectrum TableFGD::sample(
+	const real            cosWi,
+	const real            alpha,
+	const math::Spectrum& iorN,
+	const math::Spectrum& iorK) const
 {
-	Spectrum result;
-	for(std::size_t i = 0; i < Spectrum::NUM_VALUES; ++i)
+	math::Spectrum result;
+	for(std::size_t i = 0; i < math::Spectrum::NUM_VALUES; ++i)
 	{
 		result[i] = sample(cosWi, alpha, iorN[i], iorK[i]);
 	}

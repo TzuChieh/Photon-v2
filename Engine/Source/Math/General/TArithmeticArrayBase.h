@@ -61,13 +61,23 @@ protected:
 	Derived& divLocal(const Derived& rhs);
 	Derived& divLocal(T rhs);
 
-	// TODO: should support floating point pow
+	template<typename U>
+	Derived pow(U exponent) const;
 
-	template<typename Integer>
-	Derived pow(Integer exponent) const;
+	template<typename U>
+	Derived& powLocal(U exponent);
 
-	template<typename Integer>
-	Derived& powLocal(Integer exponent);
+	Derived pow(const Derived& exponent) const;
+	Derived& powLocal(const Derived& exponent);
+
+	template<typename U>
+	Derived exp(U exponent) const;
+
+	template<typename U>
+	Derived& expLocal(U exponent);
+
+	Derived exp(const Derived& exponent) const;
+	Derived& expLocal(const Derived& exponent);
 
 	Derived sqrt() const;
 	Derived& sqrtLocal();
@@ -129,14 +139,14 @@ protected:
 	Derived operator / (const Derived& rhs) const;
 	Derived operator / (T rhs) const;
 
-	Derived& operator += (const Derived& rhs) const;
-	Derived& operator += (T rhs) const;
-	Derived& operator -= (const Derived& rhs) const;
-	Derived& operator -= (T rhs) const;
-	Derived& operator *= (const Derived& rhs) const;
-	Derived& operator *= (T rhs) const;
-	Derived& operator /= (const Derived& rhs) const;
-	Derived& operator /= (T rhs) const;
+	Derived& operator += (const Derived& rhs);
+	Derived& operator += (T rhs);
+	Derived& operator -= (const Derived& rhs);
+	Derived& operator -= (T rhs);
+	Derived& operator *= (const Derived& rhs);
+	Derived& operator *= (T rhs);
+	Derived& operator /= (const Derived& rhs);
+	Derived& operator /= (T rhs);
 
 	auto begin() noexcept -> typename std::array<T, N>::iterator;
 	auto begin() const noexcept -> typename std::array<T, N>::const_iterator;

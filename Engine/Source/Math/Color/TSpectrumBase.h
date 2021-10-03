@@ -72,6 +72,9 @@ protected:
 public:
 	using Base::Base;
 
+	template<typename U>
+	explicit TSpectrumBase(const TRawColorValues<U, N>& values);
+
 	inline static constexpr auto NUM_VALUES = Base::NUM_ELEMENTS;
 
 	static consteval EColorSpace getColorSpace() noexcept;
@@ -115,6 +118,9 @@ public:
 
 	using Base::pow;
 	using Base::powLocal;
+
+	using Base::exp;
+	using Base::expLocal;
 
 	using Base::sqrt;
 	using Base::sqrtLocal;

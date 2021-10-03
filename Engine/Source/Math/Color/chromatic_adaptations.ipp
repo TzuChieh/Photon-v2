@@ -70,7 +70,7 @@ TMatrix3<T> create_von_kries_linear_CAT_matrix(
 	};
 	
 	const auto coneResponseScaleMat = TMatrix3<T>().setScale(coneResponseScale);
-	return ConeResponseToCIEXYZ.mul(coneResponseScale).mul(CIEXYZToConeResponse);
+	return ConeResponseToCIEXYZ.mul(coneResponseScaleMat).mul(CIEXYZToConeResponse);
 }
 
 /*! @brief Adapts by simply scale by the corresponding white points--identity CAT matrices are used.
@@ -119,18 +119,18 @@ class TChromaticAdaptationDefinition<EChromaticAdaptation::Bradford, T> final
 public:
 	inline static TMatrix3<T> getCIEXYZToConeResponse()
 	{
-		return TMatrix3<T>(
+		return TMatrix3<T>(Matrix3D(
 			 0.8951000,  0.2664000, -0.1614000,
 			-0.7502000,  1.7135000,  0.0367000,
-			 0.0389000, -0.0685000,  1.0296000);
+			 0.0389000, -0.0685000,  1.0296000));
 	}
 
 	inline static TMatrix3<T> getConeResponseToCIEXYZ()
 	{
-		return TMatrix3<T>(
+		return TMatrix3<T>(Matrix3D(
 			 0.9869929054667121899,   -0.14705425642099010066,  0.15996265166373123948,
 			 0.43230526972339451002,   0.51836027153677753834,  0.049291228212855612148,
-			-0.0085286645751773312464, 0.040042821654084864313, 0.96848669578754998478);
+			-0.0085286645751773312464, 0.040042821654084864313, 0.96848669578754998478));
 	}
 
 	inline static TTristimulusValues<T> adapt(
@@ -155,18 +155,18 @@ class TChromaticAdaptationDefinition<EChromaticAdaptation::VonKries, T> final
 public:
 	inline static TMatrix3<T> getCIEXYZToConeResponse()
 	{
-		return TMatrix3<T>(
+		return TMatrix3<T>(Matrix3D(
 			 0.4002400, 0.7076000, -0.0808100,
 			-0.2263000, 1.1653200,  0.0457000,
-			 0.0000000, 0.0000000,  0.9182200);
+			 0.0000000, 0.0000000,  0.9182200));
 	}
 
 	inline static TMatrix3<T> getConeResponseToCIEXYZ()
 	{
-		return TMatrix3<T>(
+		return TMatrix3<T>(Matrix3D(
 			1.8599363874558397422, -1.1293816185800914784,   0.21989740959619327624,
 			0.36119143624176752624, 0.63881246328504213303, -0.0000063705968386570599758,
-			0,                      0,                       1.0890636230968613186);
+			0,                      0,                       1.0890636230968613186));
 	}
 
 	inline static TTristimulusValues<T> adapt(
@@ -198,7 +198,7 @@ inline TTristimulusValues<T> chromatic_adapt(
 {
 	using ChromaticAdapter = TChromaticAdaptationDefinition<ALGORITHM, T>;
 
-	static_assert(CChromaticAdaptationDefinition<ChromaticAdapter>,
+	static_assert(CChromaticAdaptationDefinition<ChromaticAdapter, T>,
 		"No definition for the specified chromatic adaptation ALGORITHM.");
 
 	return ChromaticAdapter::adapt(srcCIEXYZColor, srcRefWhite, dstRefWhite);

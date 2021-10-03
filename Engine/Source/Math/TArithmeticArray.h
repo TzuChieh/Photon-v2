@@ -48,6 +48,9 @@ public:
 	using Base::pow;
 	using Base::powLocal;
 
+	using Base::exp;
+	using Base::expLocal;
+
 	using Base::sqrt;
 	using Base::sqrtLocal;
 

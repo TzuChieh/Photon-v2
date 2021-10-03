@@ -39,12 +39,12 @@ public:
 
 	bool impl_onReceiverSampleStart(
 		const math::Vector2D& rasterCoord,
-		const Spectrum&       pathThroughput);
+		const math::Spectrum& pathThroughput);
 
 	auto impl_onPathHitSurface(
-		std::size_t       pathLength,
-		const SurfaceHit& surfaceHit,
-		const Spectrum&   pathThroughput) -> ViewPathTracingPolicy;
+		std::size_t           pathLength,
+		const SurfaceHit&     surfaceHit,
+		const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy;
 
 	void impl_onReceiverSampleEnd();
 
@@ -65,7 +65,7 @@ private:
 	PMRenderer*                   m_renderer;
 
 	math::Vector2D                m_rasterCoord;
-	Spectrum                      m_sampledRadiance;
+	math::Spectrum                m_sampledRadiance;
 	std::vector<FullPhoton>       m_photonCache;
 };
 
@@ -95,18 +95,18 @@ inline VPMRadianceEvaluator::VPMRadianceEvaluator(
 
 inline bool VPMRadianceEvaluator::impl_onReceiverSampleStart(
 	const math::Vector2D& rasterCoord,
-	const Spectrum&       pathThroughput)
+	const math::Spectrum& pathThroughput)
 {
 	m_rasterCoord = rasterCoord;
-	m_sampledRadiance.setValues(0);
+	m_sampledRadiance.setColorValues(0);
 
 	return true;
 }
 
 inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
-	const std::size_t pathLength,
-	const SurfaceHit& surfaceHit,
-	const Spectrum&   pathThroughput) -> ViewPathTracingPolicy
+	const std::size_t     pathLength,
+	const SurfaceHit&     surfaceHit,
+	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
 {
 	// TODO: remove hardcoded max path length
 	constexpr std::size_t MAX_PATH_LENGTH = 5;
@@ -119,7 +119,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 	if(metadata->getSurface().getEmitter())
 	{
-		Spectrum viewPathRadiance;
+		math::Spectrum viewPathRadiance;
 		metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewPathRadiance);
 		m_sampledRadiance.addLocal(pathThroughput * viewPathRadiance);
 	}
@@ -148,8 +148,8 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	const math::Vector3R Ns = surfaceHit.getShadingNormal();
 	const math::Vector3R Ng = surfaceHit.getGeometryNormal();
 
-	BsdfEvalQuery bsdfEval(bsdfContext);
-	Spectrum      radiance(0);
+	BsdfEvalQuery  bsdfEval(bsdfContext);
+	math::Spectrum radiance(0);
 	for(const auto& photon : m_photonCache)
 	{
 		const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
@@ -160,7 +160,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 			continue;
 		}
 
-		Spectrum throughput(pathThroughput);
+		math::Spectrum throughput(pathThroughput);
 		throughput.mulLocal(bsdfEval.outputs.bsdf);
 		throughput.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 

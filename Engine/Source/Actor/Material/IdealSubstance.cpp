@@ -42,8 +42,8 @@ void IdealSubstance::asDielectricReflector(const real iorInner, const real iorOu
 
 void IdealSubstance::asMetallicReflector(const math::Vector3R& linearSrgbF0, const real iorOuter)
 {
-	Spectrum f0Spectral;
-	f0Spectral.setLinearSrgb(linearSrgbF0);// FIXME: check color space
+	math::Spectrum f0Spectral;
+	f0Spectral.setLinearSRGB(linearSrgbF0.toArray(), math::EColorUsage::ECF);// FIXME: check color space
 
 	m_opticsGenerator = [=](ActorCookingContext& ctx)
 	{

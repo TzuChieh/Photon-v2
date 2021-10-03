@@ -69,7 +69,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 		Ray tracingRay;
-		Spectrum emittedRadiance;
+		math::Spectrum emittedRadiance;
 		math::Vector3R emitN;
 		real pdfA;
 		real pdfW;
@@ -81,7 +81,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 		// here 0-bounce lighting is not accounted for
 
-		Spectrum throughputRadiance(emittedRadiance);
+		math::Spectrum throughputRadiance(emittedRadiance);
 		throughputRadiance.divLocal(pdfA);
 		throughputRadiance.divLocal(pdfW);
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
@@ -98,7 +98,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
-			Spectrum weightedThroughputRadiance;
+			math::Spectrum weightedThroughputRadiance;
 			if(RussianRoulette::surviveOnLuminance(throughputRadiance, sampleFlow, &weightedThroughputRadiance))
 			{
 				throughputRadiance = weightedThroughputRadiance;

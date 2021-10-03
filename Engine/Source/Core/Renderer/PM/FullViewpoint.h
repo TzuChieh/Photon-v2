@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Core/SurfaceHit.h"
 #include "Math/TVector2.h"
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 
@@ -37,10 +37,10 @@ private:
 	math::Vector2R m_rasterCoord;
 	real           m_radius;
 	real           m_numPhotons;
-	Spectrum       m_tau;
-	Spectrum       m_viewThroughput;
+	math::Spectrum m_tau;
+	math::Spectrum m_viewThroughput;
 	math::Vector3R m_viewDir;
-	Spectrum       m_viewRadiance;
+	math::Spectrum m_viewRadiance;
 };
 
 // In-header Implementations:

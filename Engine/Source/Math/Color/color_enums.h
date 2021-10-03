@@ -87,7 +87,12 @@ enum class EReferenceWhite
 	The Academy Color Encoding System (ACES) white point, it is close to D60 
 	(but not D60! many implementations got this wrong). 
 	*/
-	ACES
+	ACES,
+
+	// Special values:
+
+	// Number of entries (should always be the one next to last entry)
+	NUM
 };
 
 /*! @brief Methods to map image appearance between different illumination sources.

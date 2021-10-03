@@ -3,7 +3,7 @@
 #include <Core/Filmic/HdrRgbFilm.h>
 #include <Frame/TFrame.h>
 #include <Core/Filmic/SampleFilters.h>
-#include <Core/Quantity/Spectrum.h>
+#include <Math/Color/Spectrum.h>
 #include <Common/config.h>
 
 #include <gtest/gtest.h>

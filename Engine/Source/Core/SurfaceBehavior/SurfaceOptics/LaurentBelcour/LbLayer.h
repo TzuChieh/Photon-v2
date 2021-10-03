@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Quantity/Spectrum.h"
+#include "Math/Color/Spectrum.h"
 #include "Common/primitive_type.h"
 
 namespace ph
@@ -10,20 +10,20 @@ class LbLayer
 {
 public:
 	LbLayer();
-	explicit LbLayer(const Spectrum& iorN);
-	LbLayer(real alpha, const Spectrum& iorN);
-	LbLayer(real alpha, const Spectrum& iorN, const Spectrum& iorK);
+	explicit LbLayer(const math::Spectrum& iorN);
+	LbLayer(real alpha, const math::Spectrum& iorN);
+	LbLayer(real alpha, const math::Spectrum& iorN, const math::Spectrum& iorK);
 	LbLayer(real g, real depth, const LbLayer& previousLayer);
-	LbLayer(real g, real depth, const Spectrum& sigmaA, const LbLayer& previousLayer);
-	LbLayer(real g, real depth, const Spectrum& sigmaA, const Spectrum& sigmaS, const LbLayer& previousLayer);
+	LbLayer(real g, real depth, const math::Spectrum& sigmaA, const LbLayer& previousLayer);
+	LbLayer(real g, real depth, const math::Spectrum& sigmaA, const math::Spectrum& sigmaS, const LbLayer& previousLayer);
 
 	real getAlpha() const;
-	const Spectrum& getIorN() const;
-	const Spectrum& getIorK() const;
+	const math::Spectrum& getIorN() const;
+	const math::Spectrum& getIorK() const;
 	real getDepth() const;
 	real getG() const;
-	const Spectrum& getSigmaA() const;
-	const Spectrum& getSigmaS() const;
+	const math::Spectrum& getSigmaA() const;
+	const math::Spectrum& getSigmaS() const;
 	bool isConductor() const;
 	bool isSurface() const;
 	bool isVolume() const;
@@ -33,7 +33,7 @@ private:
 	real     m_alpha;
 
 	// Complex index of refraction n + ik.
-	Spectrum m_iorN, m_iorK;
+	math::Spectrum m_iorN, m_iorK;
 
 	// Thickness of the layer.
 	real     m_depth;
@@ -42,24 +42,24 @@ private:
 	real     m_g;
 
 	// Absorption and scattering coefficient in volume rendering.
-	Spectrum m_sigmaA, m_sigmaS;
+	math::Spectrum m_sigmaA, m_sigmaS;
 };
 
 // In-header Implementations:
 
 inline LbLayer::LbLayer() :
-	LbLayer(Spectrum(1.0_r))
+	LbLayer(math::Spectrum(1))
 {}
 
-inline LbLayer::LbLayer(const Spectrum& iorN) :
+inline LbLayer::LbLayer(const math::Spectrum& iorN) :
 	LbLayer(0.0_r, iorN)
 {}
 
-inline LbLayer::LbLayer(const real alpha, const Spectrum& iorN) :
-	LbLayer(alpha, iorN, Spectrum(0.0_r))
+inline LbLayer::LbLayer(const real alpha, const math::Spectrum& iorN) :
+	LbLayer(alpha, iorN, math::Spectrum(0))
 {}
 
-inline LbLayer::LbLayer(const real alpha, const Spectrum& iorN, const Spectrum& iorK) :
+inline LbLayer::LbLayer(const real alpha, const math::Spectrum& iorN, const math::Spectrum& iorK) :
 	m_alpha(alpha), 
 	m_iorN(iorN), m_iorK(iorK),
 	m_depth(0.0_r),
@@ -69,18 +69,18 @@ inline LbLayer::LbLayer(const real alpha, const Spectrum& iorN, const Spectrum& 
 {}
 
 inline LbLayer::LbLayer(const real g, const real depth, const LbLayer& previousLayer) : 
-	LbLayer(g, depth, Spectrum(0.0_r), previousLayer)
+	LbLayer(g, depth, math::Spectrum(0), previousLayer)
 {}
 
-inline LbLayer::LbLayer(const real g, const real depth, const Spectrum& sigmaA, const LbLayer& previousLayer) :
-	LbLayer(g, depth, sigmaA, Spectrum(0.0_r), previousLayer)
+inline LbLayer::LbLayer(const real g, const real depth, const math::Spectrum& sigmaA, const LbLayer& previousLayer) :
+	LbLayer(g, depth, sigmaA, math::Spectrum(0), previousLayer)
 {}
 
 inline LbLayer::LbLayer(
 	const real g, 
 	const real depth, 
-	const Spectrum& sigmaA, 
-	const Spectrum& sigmaS, 
+	const math::Spectrum& sigmaA,
+	const math::Spectrum& sigmaS,
 	const LbLayer& previousLayer) :
 
 	m_alpha(previousLayer.getAlpha()),
@@ -96,12 +96,12 @@ inline real LbLayer::getAlpha() const
 	return m_alpha;
 }
 
-inline const Spectrum& LbLayer::getIorN() const
+inline const math::Spectrum& LbLayer::getIorN() const
 {
 	return m_iorN;
 }
 
-inline const Spectrum& LbLayer::getIorK() const
+inline const math::Spectrum& LbLayer::getIorK() const
 {
 	return m_iorK;
 }
@@ -116,12 +116,12 @@ inline real LbLayer::getG() const
 	return m_g;
 }
 
-inline const Spectrum& LbLayer::getSigmaA() const
+inline const math::Spectrum& LbLayer::getSigmaA() const
 {
 	return m_sigmaA;
 }
 
-inline const Spectrum& LbLayer::getSigmaS() const
+inline const math::Spectrum& LbLayer::getSigmaS() const
 {
 	return m_sigmaS;
 }

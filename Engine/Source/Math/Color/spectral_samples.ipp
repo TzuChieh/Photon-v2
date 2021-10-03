@@ -4,6 +4,7 @@
 #include "Math/Function/TPiecewiseLinear1D.h"
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
 #include "Math/TArithmeticArray.h"
+#include "Math/General/TVectorN.h"
 #include "Math/Color/spectral_data.h"
 #include "Math/Physics/black_body.h"
 #include "Math/math_exceptions.h"
@@ -46,13 +47,21 @@ inline TSpectralSampleValues<T, SampleProps> normalize_samples_energy(const TSpe
 {
 	TArithmeticArray<T, SampleProps::NUM_SAMPLES> samples(srcSamples);
 
-	const T energy = estimate_samples_energy(srcSamples);
+	const T energy = estimate_samples_energy<T, SampleProps>(srcSamples);
 	if(energy > 0)
 	{
 		samples.divLocal(energy);
 	}
 
 	return samples.toArray();
+}
+
+template<typename T, CSpectralSampleProps SampleProps>
+inline constexpr TSpectralSampleValues<T, SampleProps> constant_spectral_samples(const T constant)
+{
+	TSpectralSampleValues<T, SampleProps> samples;
+	samples.fill(constant);
+	return samples;
 }
 
 template<typename T, typename U, CSpectralSampleProps SampleProps>
@@ -66,7 +75,8 @@ inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 	PH_ASSERT(values);
 	PH_ASSERT(algorithm != ESpectralResample::UNSPECIFIED);
 
-	TSpectralSampleValues<T, SampleProps> sampled(0);
+	TSpectralSampleValues<T, SampleProps> sampled;
+	sampled.fill(0);
 
 	if(algorithm == ESpectralResample::PiecewiseAveraged)
 	{
@@ -112,7 +122,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_illuminant_E()
 	TSpectralSampleValues<T, SampleProps> samples;
 	samples.fill(1);
 
-	return normalize_samples_energy(samples);
+	return normalize_samples_energy<T, SampleProps>(samples);
 }
 
 template<typename T, CSpectralSampleProps SampleProps>
@@ -123,7 +133,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_illuminant_D65()
 		spectral_data::CIE_D65_values().data(), 
 		std::tuple_size_v<spectral_data::ArrayD65>);
 
-	return normalize_samples_energy(samples);
+	return normalize_samples_energy<T, SampleProps>(samples);
 }
 
 template<typename T, CSpectralSampleProps SampleProps>
@@ -142,7 +152,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_black_body_radiance(const 
 		radianceValues.data(),
 		radianceValues.size());
 
-	return normalize_samples_energy(samples);
+	return normalize_samples_energy<T, SampleProps>(samples);
 }
 
 namespace detail
@@ -151,7 +161,7 @@ namespace detail
 template<typename T, CSpectralSampleProps SampleProps>
 struct TCIEXYZCmfKernel final
 {
-	using ArrayType = TArithmeticArray<T, SampleProps::NUM_SAMPLES>;
+	using ArrayType = TVectorN<T, SampleProps::NUM_SAMPLES>;
 
 	std::array<ArrayType, 3> weights;
 	std::array<T, 3>         illuminantD65Normalizer;
@@ -222,7 +232,7 @@ inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleVa
 {
 	static const detail::TCIEXYZCmfKernel<T, SampleProps> kernel;
 
-	const TArithmeticArray<T, SampleProps::NUM_SAMPLES> copiedSrcSamples(srcSamples);
+	const TVectorN<T, SampleProps::NUM_SAMPLES> copiedSrcSamples(srcSamples);
 
 	TArithmeticArray<T, 3> CIEXYZColor;
 	for(std::size_t ci = 0; ci < 3; ++ci)

@@ -14,6 +14,7 @@ class TVectorNBase : public TArithmeticArrayBase<Derived, T, N>
 {
 private:
 	using Base = TArithmeticArrayBase<Derived, T, N>;
+	using Self = TVectorNBase;
 
 protected:
 	using Base::m;
@@ -70,6 +71,9 @@ public:
 
 	using Base::pow;
 	using Base::powLocal;
+
+	using Base::exp;
+	using Base::expLocal;
 
 	using Base::sqrt;
 	using Base::sqrtLocal;

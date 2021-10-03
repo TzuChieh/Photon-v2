@@ -12,13 +12,13 @@ LayeredSurface::LayeredSurface() :
 
 void LayeredSurface::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
 {
-	std::vector<real>     alphas;
-	std::vector<Spectrum> iorNs;
-	std::vector<Spectrum> iorKs;
-	std::vector<real>     depths;
-	std::vector<real>     gs;
-	std::vector<Spectrum> sigmaAs;
-	std::vector<Spectrum> sigmaSs;
+	std::vector<real>           alphas;
+	std::vector<math::Spectrum> iorNs;
+	std::vector<math::Spectrum> iorKs;
+	std::vector<real>           depths;
+	std::vector<real>           gs;
+	std::vector<math::Spectrum> sigmaAs;
+	std::vector<math::Spectrum> sigmaSs;
 	for(const auto& layer : m_layers)
 	{
 		alphas.push_back(layer.getAlpha());

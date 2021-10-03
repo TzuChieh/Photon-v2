@@ -165,21 +165,77 @@ inline auto TArithmeticArrayBase<Derived, T, N>::divLocal(const T rhs)
 }
 
 template<typename Derived, typename T, std::size_t N>
-template<typename Integer>
-inline auto TArithmeticArrayBase<Derived, T, N>::pow(const Integer exponent) const
+template<typename U>
+inline auto TArithmeticArrayBase<Derived, T, N>::pow(const U exponent) const
 -> Derived
 {
 	return Derived(static_cast<const Derived&>(*this)).powLocal(exponent);
 }
 
 template<typename Derived, typename T, std::size_t N>
-template<typename Integer>
-inline auto TArithmeticArrayBase<Derived, T, N>::powLocal(const Integer exponent)
+template<typename U>
+inline auto TArithmeticArrayBase<Derived, T, N>::powLocal(const U exponent)
 -> Derived&
 {
 	for(std::size_t i = 0; i < N; ++i)
 	{
 		m[i] = static_cast<T>(std::pow(m[i], exponent));
+	}
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::pow(const Derived& exponent) const
+-> Derived
+{
+	return Derived(static_cast<const Derived&>(*this)).powLocal(exponent);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::powLocal(const Derived& exponent)
+-> Derived&
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = static_cast<T>(std::pow(m[i], exponent.Self::m[i]));
+	}
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, typename T, std::size_t N>
+template<typename U>
+inline auto TArithmeticArrayBase<Derived, T, N>::exp(const U exponent) const
+-> Derived
+{
+	return Derived(static_cast<const Derived&>(*this)).expLocal(exponent);
+}
+
+template<typename Derived, typename T, std::size_t N>
+template<typename U>
+inline auto TArithmeticArrayBase<Derived, T, N>::expLocal(const U exponent)
+-> Derived&
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = static_cast<T>(std::exp(exponent));
+	}
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::exp(const Derived& exponent) const
+-> Derived
+{
+	return Derived(static_cast<const Derived&>(*this)).expLocal(exponent);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::expLocal(const Derived& exponent)
+-> Derived&
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = static_cast<T>(std::exp(exponent.Self::m[i]));
 	}
 	return static_cast<Derived&>(*this);
 }
@@ -614,56 +670,56 @@ inline auto TArithmeticArrayBase<Derived, T, N>::operator / (const T rhs) const
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::operator += (const Derived& rhs) const
+inline auto TArithmeticArrayBase<Derived, T, N>::operator += (const Derived& rhs)
 -> Derived&
 {
 	return addLocal(rhs);
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::operator += (const T rhs) const
+inline auto TArithmeticArrayBase<Derived, T, N>::operator += (const T rhs)
 -> Derived&
 {
 	return addLocal(rhs);
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::operator -= (const Derived& rhs) const
+inline auto TArithmeticArrayBase<Derived, T, N>::operator -= (const Derived& rhs)
 -> Derived&
 {
 	return subLocal(rhs);
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::operator -= (const T rhs) const
+inline auto TArithmeticArrayBase<Derived, T, N>::operator -= (const T rhs)
 -> Derived&
 {
 	return subLocal(rhs);
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::operator *= (const Derived& rhs) const
+inline auto TArithmeticArrayBase<Derived, T, N>::operator *= (const Derived& rhs)
 -> Derived&
 {
 	return mulLocal(rhs);
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::operator *= (const T rhs) const
+inline auto TArithmeticArrayBase<Derived, T, N>::operator *= (const T rhs)
 -> Derived&
 {
 	return mulLocal(rhs);
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::operator /= (const Derived& rhs) const
+inline auto TArithmeticArrayBase<Derived, T, N>::operator /= (const Derived& rhs)
 -> Derived&
 {
 	return divLocal(rhs);
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::operator /= (const T rhs) const
+inline auto TArithmeticArrayBase<Derived, T, N>::operator /= (const T rhs)
 -> Derived&
 {
 	return divLocal(rhs);

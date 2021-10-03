@@ -29,7 +29,7 @@ public:
 	using Base::Base;
 
 	template<typename U>
-	TSampledSpectrum(const TSampledSpectrum<COLOR_SPACE, U, Props>& other);
+	explicit TSampledSpectrum(const TSampledSpectrum<COLOR_SPACE, U, Props>& other);
 
 	static consteval std::size_t numSamples() noexcept;
 	static consteval std::size_t minWavelengthNM() noexcept;

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Core/Texture/TTexture.h"
-#include "Math/TArithmeticArray.h"
 #include "Common/assertion.h"
 #include "Math/math.h"
 #include "Core/Texture/SampleLocation.h"
+#include "Core/Texture/TTexPixel.h"
 
 namespace ph
 {
@@ -14,9 +14,6 @@ enum class ETexWrapMode
 	REPEAT,
 	CLAMP_TO_EDGE
 };
-
-template<typename T, std::size_t N>
-using TTexPixel = math::TArithmeticArray<T, N>;
 
 template<typename T, std::size_t N>
 class TAbstractPixelTex2D : public TTexture<TTexPixel<T, N>>

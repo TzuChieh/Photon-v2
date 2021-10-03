@@ -15,7 +15,7 @@ inline T TVectorNBase<Derived, T, N>::dot(const Derived& rhs) const
 	T result(0);
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		result += m[i] * rhs.m[i];
+		result += m[i] * rhs.Self::m[i];
 	}
 	return result;
 }

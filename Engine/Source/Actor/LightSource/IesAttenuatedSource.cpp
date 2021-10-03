@@ -63,7 +63,12 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 	auto attenuationTexture = std::make_shared<TBilinearPixelTex2D<real, 1>>(attenuationFactors);
 	auto sourceEmitter      = m_source->genEmitter(ctx, std::move(data));
 	auto attenuatedEmitter  = std::make_unique<OmniModulatedEmitter>(std::move(sourceEmitter));
-	auto convertedTexture   = std::make_shared<TConversionTexture<TTexPixel<real, 1>, math::Spectrum>>(attenuationTexture);
+
+	// Convert sampled TexPixel (single component) to Spectrum
+	auto convertedTexture = std::make_shared<TConversionTexture<
+		TTexPixel<real, 1>, 
+		math::Spectrum, 
+		texture_converter::TTexPixelToSpectrum<real, 1>>>(attenuationTexture);
 
 	attenuatedEmitter->setFilter(convertedTexture);
 

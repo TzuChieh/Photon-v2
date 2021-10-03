@@ -26,7 +26,7 @@ void VoHomoAbsorption::sampleDistance(
 	const math::Vector3R& L,
 	const real maxDist,
 	real* const out_dist,
-	Spectrum* const out_pdfAppliedWeight) const
+	math::Spectrum* const out_pdfAppliedWeight) const
 {
 	PH_ASSERT(m_blockFunc && out_dist && out_pdfAppliedWeight);
 

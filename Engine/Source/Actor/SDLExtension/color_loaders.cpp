@@ -86,7 +86,7 @@ math::Spectrum load_spectrum(const SdlInputPayload& payload, const math::EColorU
 				values.data() + values.size() / 2,
 				values.size() / 2));
 
-			return math::Spectrum().setTransformed<math::EColorSpace::Spectral>(spectrum, usage);
+			return math::Spectrum().setSpectral(spectrum.getColorValues(), usage);
 		}
 		else
 		{

@@ -275,10 +275,10 @@ void PMRenderer::renderWithStochasticProgressivePM()
 				viewpoint.template set<EViewpointData::NUM_PHOTONS>(0.0_r);
 			}
 			if constexpr(Viewpoint::template has<EViewpointData::TAU>()) {
-				viewpoint.template set<EViewpointData::TAU>(Spectrum(0));
+				viewpoint.template set<EViewpointData::TAU>(math::Spectrum(0));
 			}
 			if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>()) {
-				viewpoint.template set<EViewpointData::VIEW_RADIANCE>(Spectrum(0));
+				viewpoint.template set<EViewpointData::VIEW_RADIANCE>(math::Spectrum(0));
 			}
 		}
 	}
