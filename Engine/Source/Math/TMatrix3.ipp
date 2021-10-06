@@ -48,7 +48,9 @@ inline TMatrix3<T> TMatrix3<T>::inverse() const
 	result.m[2][1] = -(m[2][1] * m[0][0] - m[2][0] * m[0][1]);
 	result.m[2][2] =  (m[1][1] * m[0][0] - m[1][0] * m[0][1]);
 
-	result.mulLocal(static_cast<T>(1) / determinant());
+	const T det = determinant();
+	PH_ASSERT_NE(det, 0);
+	result.mulLocal(static_cast<T>(1) / det);
 
 	return result;
 }
@@ -62,16 +64,15 @@ inline T TMatrix3<T>::determinant() const
 }
 
 template<typename T>
-inline void TMatrix3<T>::mul(const TVector3<T>& rhsColVector, TVector3<T>* const out_result) const
+inline TVector3<T> TMatrix3<T>::mul(const TVector3<T>& rhsColVector) const
 {
-	PH_ASSERT(out_result);
-	PH_ASSERT(&rhsColVector != out_result);
+	return TVector3<T>(this->multiplyVector(rhsColVector.toArray()));
+}
 
-	// TODO: use base impl
-
-	out_result->x = m[0][0] * rhsColVector.x + m[0][1] * rhsColVector.y + m[0][2] * rhsColVector.z;
-	out_result->y = m[1][0] * rhsColVector.x + m[1][1] * rhsColVector.y + m[1][2] * rhsColVector.z;
-	out_result->z = m[2][0] * rhsColVector.x + m[2][1] * rhsColVector.y + m[2][2] * rhsColVector.z;
+template<typename T>
+inline TVector3<T> TMatrix3<T>::operator * (const TVector3<T>& rhsColVector) const
+{
+	return this->mul(rhsColVector);
 }
 
 }// end namespace ph::math

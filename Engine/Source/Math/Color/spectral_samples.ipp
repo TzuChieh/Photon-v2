@@ -164,7 +164,8 @@ struct TCIEXYZCmfKernel final
 	using ArrayType = TVectorN<T, SampleProps::NUM_SAMPLES>;
 
 	std::array<ArrayType, 3> weights;
-	std::array<T, 3>         illuminantD65Normalizer;
+	TArithmeticArray<T, 3>   illuminantD65Normalizer;
+	TArithmeticArray<T, 3>   illuminantENormalizer;
 
 	inline TCIEXYZCmfKernel()
 	{
@@ -205,7 +206,9 @@ struct TCIEXYZCmfKernel final
 
 		const auto uniformUnitSamples   = ArrayType(1);
 		const auto illuminantD65Samples = ArrayType(resample_illuminant_D65<T, SampleProps>());
+		const auto illuminantESamples   = ArrayType(resample_illuminant_E<T, SampleProps>());
 		const auto CIEXYZD65WhitePoint  = CIEXYZ_of<T>(EReferenceWhite::D65);
+		const auto CIEXYZEWhitePoint    = CIEXYZ_of<T>(EReferenceWhite::E);
 
 		for(std::size_t ci = 0; ci < 3; ++ci)
 		{
@@ -221,13 +224,17 @@ struct TCIEXYZCmfKernel final
 			// Normalization multiplier based on a D65 illuminant
 			// (this multiplier will ensure a normalized D65 SPD get the corresponding standard white point)
 			illuminantD65Normalizer[ci] = CIEXYZD65WhitePoint[ci] / weights[ci].dot(illuminantD65Samples);
+
+			// Normalization multiplier based on a E illuminant
+			// (this multiplier will ensure a normalized E SPD get the corresponding standard white point)
+			illuminantENormalizer[ci] = CIEXYZEWhitePoint[ci] / weights[ci].dot(illuminantESamples);
 		}
 	}
 };
 
 }// end detail
 
-template<typename T, CSpectralSampleProps SampleProps>
+template<typename T, CSpectralSampleProps SampleProps, EReferenceWhite NORMALIZER>
 inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleValues<T, SampleProps>& srcSamples, const EColorUsage usage)
 {
 	static const detail::TCIEXYZCmfKernel<T, SampleProps> kernel;
@@ -243,13 +250,30 @@ inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleVa
 	switch(usage)
 	{
 	case EColorUsage::EMR:
-		// Note that this multiplier will ensure a normalized D65 SPD get the corresponding standard 
-		// white point defined in CIE-XYZ. The multiplier does not meant only for D65-based illuminants.
-		// Just that most illuminants are defined with respect to D65, so it is reasonable to "calibrate"
-		// the kernel using D65 in this case.
-		CIEXYZColor[0] *= kernel.illuminantD65Normalizer[0];
-		CIEXYZColor[1] *= kernel.illuminantD65Normalizer[1];
-		CIEXYZColor[2] *= kernel.illuminantD65Normalizer[2];
+		if constexpr(NORMALIZER == EReferenceWhite::D65)
+		{
+			// Note that this multiplier will ensure a normalized D65 SPD get the corresponding standard 
+			// white point defined in CIE-XYZ. The multiplier does not meant only for D65-based illuminants.
+			// Just that most illuminants are defined with respect to D65, so it is reasonable to "calibrate"
+			// the kernel using D65 in most cases.
+			//
+			// However, after the normalization, illuminant E no longer produce (1, 1, 1) in CIE-XYZ but around
+			// (0.825197, 0.825142, 0.825735), which is close to constant. This can be bad for round-trip
+			// operations. As this does not change the chromaticity of the color, it can be easily fixed by
+			// adjusting the brighness value afterwards.
+			//
+			CIEXYZColor *= kernel.illuminantD65Normalizer;
+		}
+		else
+		{
+			static_assert(NORMALIZER == EReferenceWhite::E,
+				"Currently normalizer supports only D65 and E.");
+
+			// After the normalization, D65 SPD will produce values in the range of 1.1 ~ 1.4. Whether the
+			// color will be distorted is yet to be tested.
+			//
+			CIEXYZColor *= kernel.illuminantENormalizer;
+		}
 		break;
 
 	case EColorUsage::ECF:

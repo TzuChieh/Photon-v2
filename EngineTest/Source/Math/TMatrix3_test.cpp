@@ -1,4 +1,5 @@
 #include <Math/TMatrix3.h>
+#include <Math/TVector3.h>
 
 #include <gtest/gtest.h>
 
@@ -72,29 +73,70 @@ TEST(TMatrix3Test, Construction)
 
 TEST(TMatrix3Test, Multiplying)
 {
-	Matrix mat1(Matrix::Elements{{
-		{1.0f, 2.0f, 3.0f},
-		{4.0f, 5.0f, 6.0f},
-		{7.0f, 8.0f, 9.0f}
-	}});
+	// Naive matrix multiplication
+	{
+		Matrix mat1(Matrix::Elements{{
+			{1.0f, 2.0f, 3.0f},
+			{4.0f, 5.0f, 6.0f},
+			{7.0f, 8.0f, 9.0f}
+		}});
 
-	Matrix mat2( 0.0f);
-	Matrix mat3(-1.0f);
+		Matrix mat2( 0.0f);
+		Matrix mat3(-1.0f);
 
-	Matrix mat4 = mat1.mul(mat2);
-	Matrix mat5 = mat1.mul(mat3);
+		Matrix mat4 = mat1.mul(mat2);
+		Matrix mat5 = mat1.mul(mat3);
 
-	expect_all_zero(mat4);
+		expect_all_zero(mat4);
 
-	EXPECT_EQ(mat5[0][0], -6.0f);
-	EXPECT_EQ(mat5[0][1], -6.0f);
-	EXPECT_EQ(mat5[0][2], -6.0f);
-	EXPECT_EQ(mat5[1][0], -15.0f);
-	EXPECT_EQ(mat5[1][1], -15.0f);
-	EXPECT_EQ(mat5[1][2], -15.0f);
-	EXPECT_EQ(mat5[2][0], -24.0f);
-	EXPECT_EQ(mat5[2][1], -24.0f);
-	EXPECT_EQ(mat5[2][2], -24.0f);
+		EXPECT_EQ(mat5[0][0], -6.0f);
+		EXPECT_EQ(mat5[0][1], -6.0f);
+		EXPECT_EQ(mat5[0][2], -6.0f);
+		EXPECT_EQ(mat5[1][0], -15.0f);
+		EXPECT_EQ(mat5[1][1], -15.0f);
+		EXPECT_EQ(mat5[1][2], -15.0f);
+		EXPECT_EQ(mat5[2][0], -24.0f);
+		EXPECT_EQ(mat5[2][1], -24.0f);
+		EXPECT_EQ(mat5[2][2], -24.0f);
+	}
+
+	// Integer matrix & matrix multiplication
+	{
+		const TMatrix3<int> matA(
+			 1,  2,  3,
+			 4,  5,  6,
+			 7,  8,  9);
+
+		const TMatrix3<int> matB(
+			 3,  1, -5,
+			 4,  1,  0,
+			-2, -1,  8);
+
+		const auto result = matA.mul(matB);
+
+		EXPECT_EQ(result[0][0], 5);  EXPECT_EQ(result[0][1], 0); EXPECT_EQ(result[0][2], 19);
+		EXPECT_EQ(result[1][0], 20); EXPECT_EQ(result[1][1], 3); EXPECT_EQ(result[1][2], 28);
+		EXPECT_EQ(result[2][0], 35); EXPECT_EQ(result[2][1], 6); EXPECT_EQ(result[2][2], 37);
+	}
+
+	// Integer matrix & vector multiplication
+	{
+		const TMatrix3<int> mat(
+			-1,  3,  7,
+			 2, -2,  1,
+			10,  0, -4);
+
+		const TVector3<int> vec(
+			 3,
+			 4,
+			-1);
+
+		const auto result = mat * vec;
+
+		EXPECT_EQ(result[0],  2);
+		EXPECT_EQ(result[1], -3);
+		EXPECT_EQ(result[2], 34);
+	}
 }
 
 TEST(TMatrix3Test, CalcDeterminant)

@@ -8,7 +8,7 @@ using namespace ph::math;
 
 TEST(ColorConversionTest, SrgbCieXyzInterConversion)
 {
-	const real ACCEPTABLE_ERROR = 0.0003_r;
+	constexpr real ACCEPTABLE_ERROR = 0.0003_r;
 
 	TTristimulusValues<real> color;
 
@@ -44,7 +44,7 @@ TEST(ColorConversionTest, SrgbCieXyzInterConversion)
 	EXPECT_NEAR(color[1], 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color[2], 0, ACCEPTABLE_ERROR);
 
-	TTristimulusValues<real> normalizedD65_XYZ{0.95047_r, 1.0_r, 1.08883_r};
+	const TTristimulusValues<real> normalizedD65_XYZ{0.95047_r, 1.0_r, 1.08883_r};
 
 	color = LinearSRGBDef::fromCIEXYZ(normalizedD65_XYZ);
 	EXPECT_NEAR(color[0], 1, ACCEPTABLE_ERROR);
@@ -59,11 +59,12 @@ TEST(ColorConversionTest, SrgbCieXyzInterConversion)
 
 TEST(ColorConversionTest, SpectrumToCieXyzConversion)
 {
-	const real ACCEPTABLE_ERROR = 0.0003_r;
+	constexpr real ACCEPTABLE_ERROR = 0.0003_r;
 
 	TTristimulusValues<real> color;
 
-	color = spectral_samples_to_CIE_XYZ<real>(resample_illuminant_D65<real>(), EColorUsage::EMR);
+	color = spectral_samples_to_CIE_XYZ<real, DefaultSpectralSampleProps, EReferenceWhite::D65>(
+		resample_illuminant_D65<real>(), EColorUsage::EMR);
 	EXPECT_NEAR(color[0], 0.95047_r, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color[1], 1.00000_r, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color[2], 1.08883_r, ACCEPTABLE_ERROR);
@@ -73,7 +74,13 @@ TEST(ColorConversionTest, SpectrumToCieXyzConversion)
 	EXPECT_NEAR(color[1], 0, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color[2], 0, ACCEPTABLE_ERROR);
 
-	color = spectral_samples_to_CIE_XYZ<real>(resample_illuminant_E<real>(), EColorUsage::EMR);
+	color = spectral_samples_to_CIE_XYZ<real, DefaultSpectralSampleProps, EReferenceWhite::E>(
+		resample_illuminant_E<real>(), EColorUsage::EMR);
+	EXPECT_NEAR(color[0], 1.0_r, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[1], 1.0_r, ACCEPTABLE_ERROR);
+	EXPECT_NEAR(color[2], 1.0_r, ACCEPTABLE_ERROR);
+
+	color = spectral_samples_to_CIE_XYZ<real>(constant_spectral_samples<real>(1), EColorUsage::ECF);
 	EXPECT_NEAR(color[0], 1.0_r, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color[1], 1.0_r, ACCEPTABLE_ERROR);
 	EXPECT_NEAR(color[2], 1.0_r, ACCEPTABLE_ERROR);

@@ -56,8 +56,11 @@ template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSamplePro
 TSpectralSampleValues<T, SampleProps> resample_black_body_radiance(T temperatureK);
 
 /*! @brief Converting spectral samples to CIE-XYZ using standard CMFs.
+@tparam NORMALIZER Pick a reference white as a normalization target. This will ensure a normalized
+SPD of the associated standard illuminant get the corresponding standard white point defined in 
+CIE-XYZ. This normalization only take place if the color usage is related to illumination.
 */
-template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps>
+template<typename T, CSpectralSampleProps SampleProps = DefaultSpectralSampleProps, EReferenceWhite NORMALIZER = EReferenceWhite::D65>
 TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleValues<T, SampleProps>& srcSamples, EColorUsage usage);
 
 }// end namespace ph::math

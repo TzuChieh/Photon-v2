@@ -62,7 +62,7 @@ inline auto TMatrixMxNBase<Derived, T, M, N>::multiplyVector(const TRawColVector
 		T result = static_cast<T>(0);
 		for(std::size_t ci = 0; ci < N; ++ci)
 		{
-			result += m[ri][ci] * rhsColVector[ri];
+			result += m[ri][ci] * rhsColVector[ci];
 		}
 		col[ri] = result;
 	}

@@ -37,10 +37,12 @@ public:
 		T m20, T m21, T m22);
 
 public:
-	void mul(const TVector3<T>& rhsColVector, TVector3<T>* out_result) const;
+	TVector3<T> mul(const TVector3<T>& rhsColVector) const;
 
 	TMatrix3 inverse() const;
 	T determinant() const;
+
+	TVector3<T> operator * (const TVector3<T>& rhsColVector) const;
 
 	using Base::mul;
 };
