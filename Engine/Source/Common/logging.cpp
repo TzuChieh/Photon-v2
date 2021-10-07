@@ -42,7 +42,7 @@ Logger make_core_logger()
 	//      https://stackoverflow.com/questions/28660602/synchronizing-output-to-stdcout
 	//
 	logger.addLogHandler(
-		[stdOutLogPrinter = Logger::makeStdOutLogPrinter()]
+		[stdOutLogPrinter = Logger::makeColoredStdOutLogPrinter()]
 		(const ELogLevel logLevel, const std::string_view logString)
 		{
 			std::lock_guard<std::mutex> lock(CORE_LOGGER_MUTEX());

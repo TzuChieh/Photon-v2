@@ -9,8 +9,7 @@
 
 #ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
 	
-#include <Winbase.h>
-#include <ConsoleApi2.h>
+#include <Windows.h>
 
 #endif
 
@@ -23,7 +22,7 @@ Logger::Logger() :
 
 void Logger::log(const std::string_view message) const
 {
-	log(ELogLevel::NOTE, message);
+	log(ELogLevel::Note, message);
 }
 
 void Logger::log(const ELogLevel logLevel, const std::string_view message) const
@@ -70,13 +69,13 @@ std::string Logger::makeLogString(
 		logMessage += "] ";
 	}
 
-	if(logLevel != ELogLevel::NOTE)
+	if(logLevel != ELogLevel::Note)
 	{
 		switch(logLevel)
 		{
-		case ELogLevel::DEBUG:   logMessage += "[DEBUG] ";   break;
-		case ELogLevel::WARNING: logMessage += "[WARNING] "; break;
-		case ELogLevel::ERROR:   logMessage += "[ERROR] ";   break;
+		case ELogLevel::Debug:   logMessage += "[DEBUG] ";   break;
+		case ELogLevel::Warning: logMessage += "[WARNING] "; break;
+		case ELogLevel::Error:   logMessage += "[ERROR] ";   break;
 
 		default: logMessage += "[UNKNOWN] "; break;
 		}
@@ -89,7 +88,7 @@ std::string Logger::makeLogString(
 
 bool Logger::shouldStdOutPrintWithoutBuffering(const ELogLevel logLevel)
 {
-	return logLevel == ELogLevel::ERROR || logLevel == ELogLevel::DEBUG;
+	return logLevel == ELogLevel::Error || logLevel == ELogLevel::Debug;
 }
 
 auto Logger::makeStdOutLogPrinter() -> LogHandler
@@ -146,30 +145,41 @@ auto Logger::makeColoredStdOutLogPrinter() -> LogHandler
 		CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufInfo;
 		GetConsoleScreenBufferInfo(stdOutHandle, &consoleScreenBufInfo);
 
+		// We need to flush first so any buffered content will not get wrong color
+		std::cout << std::flush;
+
 		// Set color & print in console
 		switch(logLevel)
 		{
-		case ELogLevel::WARNING:
+		case ELogLevel::Warning:
 			SetConsoleTextAttribute(stdOutHandle, WARNING_COLOR);
 			break;
 
-		case ELogLevel::ERROR:
+		case ELogLevel::Error:
 			SetConsoleTextAttribute(stdOutHandle, ERROR_COLOR);
 			break;
 
-		case ELogLevel::DEBUG:
+		case ELogLevel::Debug:
 			SetConsoleTextAttribute(stdOutHandle, DEBUG_COLOR);
 			break;
 		}
 
-		// Print by wrapped standard outout stream printer
+		// Print by wrapped standard output stream printer
 		stdOutLogPrinter(logLevel, logString);
+
+		// We need to flush buffered output so they can use current color
+		if(!shouldStdOutPrintWithoutBuffering(logLevel))
+		{
+			std::cout << std::flush;
+		}
 
 		// Restore console settings
 		SetConsoleTextAttribute(stdOutHandle, consoleScreenBufInfo.wAttributes);
 	};
 #else
-	// TODO: ANSI-based
+	// TODO: impl ANSI-based coloring; currently it is un-colored
+	// https://stackoverflow.com/questions/4053837/colorizing-text-in-the-console-with-c
+	return makeStdOutLogPrinter();
 #endif
 }
 

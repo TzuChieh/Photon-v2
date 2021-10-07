@@ -3,7 +3,7 @@
 
 #ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
 
-#include <windows.h>
+#include <Windows.h>
 
 #endif
 

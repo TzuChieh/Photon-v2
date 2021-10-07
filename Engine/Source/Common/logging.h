@@ -93,18 +93,18 @@ void log_to_logger(Logger& logger, std::string_view groupName, ELogLevel logLeve
 		std::format(formatString __VA_OPT__(,) __VA_ARGS__))
 
 #ifdef PH_ENABLE_DEBUG_LOG
-	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::DEBUG, rawString)
-	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::DEBUG, formatString, __VA_ARGS__)
+	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Debug, rawString)
+	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Debug, formatString, __VA_ARGS__)
 #else
 	#define PH_LOG_DEBUG_STRING(groupName, rawString)
 	#define PH_LOG_DEBUG(groupName, formatString, ...)
 #endif
 
-#define PH_LOG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::NOTE, rawString)
-#define PH_LOG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::NOTE, formatString, __VA_ARGS__)
+#define PH_LOG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Note, rawString)
+#define PH_LOG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Note, formatString, __VA_ARGS__)
 
-#define PH_LOG_WARNING_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::WARNING, rawString)
-#define PH_LOG_WARNING(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::WARNING, formatString, __VA_ARGS__)
+#define PH_LOG_WARNING_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Warning, rawString)
+#define PH_LOG_WARNING(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Warning, formatString, __VA_ARGS__)
 
-#define PH_LOG_ERROR_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::ERROR, rawString)
-#define PH_LOG_ERROR(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::ERROR, formatString, __VA_ARGS__)
+#define PH_LOG_ERROR_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Error, rawString)
+#define PH_LOG_ERROR(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Error, formatString, __VA_ARGS__)

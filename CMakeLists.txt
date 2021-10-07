@@ -145,6 +145,10 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # FIXME: currently VS requires "latest" flag for C++20 features
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++latest")
 
+    # FIXME: currently require this for C++20 features
+    set(CMAKE_CXX_STANDARD          23)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
     # Use PDB files for debugging, which also provides potential optimizations
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zi")
 

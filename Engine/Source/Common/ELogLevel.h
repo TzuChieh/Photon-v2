@@ -5,10 +5,10 @@ namespace ph
 
 enum class ELogLevel
 {
-	DEBUG,
-	NOTE,
-	WARNING,
-	ERROR
+	Debug,
+	Note,
+	Warning,
+	Error
 };
 
 }// end namespace ph
