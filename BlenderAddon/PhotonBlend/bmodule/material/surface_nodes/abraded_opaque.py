@@ -3,7 +3,7 @@ from ..node_base import (
     PhSurfaceMaterialSocket,
     PhFloatFactorSocket,
     SURFACE_MATERIAL_CATEGORY)
-from ....psdl.pysdl import (
+from ....generated.pysdl import (
         AbradedOpaqueMaterialCreator,
         SDLString,
         SDLVector3,

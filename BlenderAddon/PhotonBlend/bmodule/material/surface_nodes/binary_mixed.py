@@ -4,7 +4,7 @@ from ..node_base import (
         PhColorSocket,
         PhSurfaceMaterialSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....psdl.pysdl import (
+from ....generated.pysdl import (
         BinaryMixedSurfaceMaterialCreator,
         ConstantImageCreator,
         SDLMaterial,

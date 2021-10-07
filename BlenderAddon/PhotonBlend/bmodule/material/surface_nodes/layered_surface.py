@@ -3,7 +3,7 @@ from ..node_base import (
         PhSurfaceMaterialSocket,
         PhSurfaceLayerSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....psdl.pysdl import (
+from ....generated.pysdl import (
         LayeredSurfaceMaterialCreator,
         LayeredSurfaceMaterialSet,
         LayeredSurfaceMaterialAdd,

@@ -6,6 +6,9 @@ import configparser
 def get_photon_blend_src_directory(setup_config: configparser.ConfigParser):
     return os.path.abspath(setup_config["PhotonBlend"]["SourceDirectory"])
 
+def get_photon_blend_generated_code_directory(setup_config: configparser.ConfigParser):
+    return os.path.abspath(setup_config["PhotonBlend"]["GeneratedCodeDirectory"])
+
 def get_photon_blend_install_directory(setup_config: configparser.ConfigParser):
     build_directory = os.path.abspath(setup_config["Paths"]["BuildDirectory"])
     return os.path.join(build_directory, setup_config["PhotonBlend"]["InstallLocation"])

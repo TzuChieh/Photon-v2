@@ -2,7 +2,7 @@ from ..node_base import (
         PhMaterialNode,
         PhSurfaceMaterialSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....psdl.pysdl import (
+from ....generated.pysdl import (
         IdealSubstanceMaterialCreator,
         SDLString)
 from ... import naming

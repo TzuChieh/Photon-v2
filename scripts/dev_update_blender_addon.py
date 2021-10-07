@@ -23,9 +23,7 @@ print("SDLGenCLI in use: %s" % sdl_gen_cli_path)
 
 # Call SDLGenCLI to generate pysdl.py
 
-pysdl_output_directory = os.path.join(
-    blender_addon.get_photon_blend_src_directory(setup_config),
-    "psdl")
+pysdl_output_directory = blender_addon.get_photon_blend_generated_code_directory(setup_config)
 print("Output folder of pysdl.py: %s" % pysdl_output_directory)
 
 command_result = console.run_command_from(
