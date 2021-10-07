@@ -2,6 +2,7 @@
 
 #include <string>
 #include <chrono>
+#include <ctime>
 
 namespace ph
 {
@@ -18,6 +19,8 @@ public:
 
 	std::string toYMD() const;
 	std::string toHMS() const;
+	std::string toHMSMilliseconds() const;
+	std::string toHMSMicroseconds() const;
 	std::string toYMDHMS() const;
 	std::string toYMDHMSMilliseconds() const;
 	std::string toYMDHMSMicroseconds() const;
@@ -25,6 +28,10 @@ public:
 
 private:
 	std::chrono::system_clock::time_point m_time;
+
+	std::time_t toCTime() const;
+	std::string toYMDWithOldAPI() const;
+	std::string toHMSWithOldAPI() const;
 };
 
 // In-header Implementations:
@@ -32,5 +39,10 @@ private:
 inline Timestamp::Timestamp() :
 	m_time(std::chrono::system_clock::now())
 {}
+
+inline std::time_t Timestamp::toCTime() const
+{
+	return std::chrono::system_clock::to_time_t(m_time);
+}
 
 }// end namespace ph

@@ -20,7 +20,7 @@ public:
 
 	void log(std::string_view message) const;
 
-	void log(const ELogLevel logLevel, std::string_view message) const;
+	void log(ELogLevel logLevel, std::string_view message) const;
 
 	void log(
 		std::string_view name,
@@ -33,7 +33,9 @@ public:
 	*/
 	void addLogHandler(LogHandler logHandler);
 
-	void addStdHandler();
+public:
+	static LogHandler makeStdOutLogPrinter();
+	static LogHandler makeColoredStdOutLogPrinter();
 
 private:
 	std::vector<LogHandler> m_logHandlers;
@@ -42,6 +44,8 @@ private:
 		std::string_view name,
 		ELogLevel        logLevel,
 		std::string_view message);
+
+	static bool shouldStdOutPrintWithoutBuffering(ELogLevel logLevel);
 };
 
 }// end namespace ph

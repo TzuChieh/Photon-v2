@@ -32,24 +32,25 @@ Logger make_core_logger()
 {
 	Logger logger;
 
-	// This is basically the same as Logger::addStdHandler(), except that it uses
-	// a mutex to avoid potential race between threads
+	// Wrap a lock around StdOutLogPrinter to avoid potential race between threads. This only protect against 
+	// the core logger itself--logging from multiple threads will not cause interleaved characters in the output, 
+	// but others using std::cout/cerr concurrently might still interleave their characters into core logger's 
+	// output. Still, it is safe to access standard output stream from multiple threads as long as sync_with_stdio(true)
+	// is set. 
+	// 
+	// See: https://en.cppreference.com/w/cpp/io/cout
+	//      https://stackoverflow.com/questions/28660602/synchronizing-output-to-stdcout
+	//
 	logger.addLogHandler(
-		[](const ELogLevel logLevel, const std::string_view logString)
+		[stdOutLogPrinter = Logger::makeStdOutLogPrinter()]
+		(const ELogLevel logLevel, const std::string_view logString)
 		{
 			std::lock_guard<std::mutex> lock(CORE_LOGGER_MUTEX());
 
-			if(logLevel == ELogLevel::NOTE)
-			{
-				std::cout << logString << '\n';
-			}
-			else
-			{
-				std::cerr << logString << '\n';
-			}
+			stdOutLogPrinter(logLevel, logString);
 		});
 
-	auto coreLogFilename = Timestamp().toString() + "_core_logs.txt";
+	auto coreLogFilename = Timestamp().toYMDHMS() + "_core_logs.txt";
 	auto coreLogFilePath = std::string(PH_LOG_FILE_DIRECTRY) + coreLogFilename;
 
 	// Replace any ':' in the path with '-' as the OS may not allow it

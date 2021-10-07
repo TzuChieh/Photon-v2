@@ -11,7 +11,21 @@
 namespace ph::os
 {
 
-bool is_windows();
-bool is_windows_7_or_greater();
+enum class EWindowsVersion
+{
+	UNKNOWN = 0,
+
+	// Later version must have larger value
+
+	Windows_2000,
+	Windows_XP,
+	Windows_Vista,
+	Windows_7,
+	Windows_8,
+	Windows_8_1,
+	Windows_10
+};
+
+EWindowsVersion get_windows_version();
 
 }// end namespace ph::os
