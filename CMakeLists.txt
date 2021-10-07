@@ -132,22 +132,24 @@ message(STATUS
 # Compiler Settings                                                           #
 ###############################################################################
 
-# Compile with C++17 standard enabled
-set(CMAKE_CXX_STANDARD          20)
+# Compile with C++20 standard enabled
+# FIXME: currently C++20 will be incomplete on these settings
+set(CMAKE_CXX_STANDARD          23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set compiler-dependent settings
 
-# Using Visual Studio C++
+# Using MSVC
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
-    # use C++17 (VS usually do not pick up previous requests)
+    # Use C++20 (VS usually do not pick up previous requests)
+    # FIXME: currently VS requires "latest" flag for C++20 features
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++latest")
 
-    # use PDB files for debugging, which also provides potential optimizations
+    # Use PDB files for debugging, which also provides potential optimizations
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zi")
 
-    # use multithreaded compilation
+    # Use multithreaded compilation
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /MP")
 
     # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
@@ -164,12 +166,12 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
     # as a fallback when CMake version < 3.8.0 or whatever reasons
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 # Using regular Clang or AppleClang
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
-    # TODO: enforce C++17 if previous requests have no use
+    # TODO: enforce C++20 if previous requests have no use
 
 else()
     message(WARNING

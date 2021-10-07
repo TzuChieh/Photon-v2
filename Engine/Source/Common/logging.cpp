@@ -32,7 +32,7 @@ Logger make_core_logger()
 {
 	Logger logger;
 
-	// This is basically the same as Logger::addStdHanlder(), except that it uses
+	// This is basically the same as Logger::addStdHandler(), except that it uses
 	// a mutex to avoid potential race between threads
 	logger.addLogHandler(
 		[](const ELogLevel logLevel, const std::string_view logString)

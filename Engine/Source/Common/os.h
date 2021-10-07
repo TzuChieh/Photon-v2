@@ -7,3 +7,11 @@
 #else
 	#define PH_OPERATING_SYSTEM_IS_OSX
 #endif
+
+namespace ph::os
+{
+
+bool is_windows();
+bool is_windows_7_or_greater();
+
+}// end namespace ph::os

@@ -10,41 +10,76 @@ std::string Timestamp::toYMD() const
 {
 	using namespace std::chrono;
 
-	const zoned_time zonedTime{current_zone(), round<days>(m_time)};
-	return std::format("%F", zonedTime);
+	return std::format("{:%F}", m_time);
 }
 
 std::string Timestamp::toHMS() const
 {
 	using namespace std::chrono;
 
-	const zoned_time zonedTime{current_zone(), round<seconds>(m_time)};
-	return std::format("%T", zonedTime);
+	return std::format("{:%T}", m_time);
 }
 
 std::string Timestamp::toYMDHMS() const
 {
 	using namespace std::chrono;
-
-	const zoned_time zonedTime{current_zone(), round<seconds>(m_time)};
-	return std::format("%F %T", zonedTime);
+	year_month_day a;
+	return std::format("{:%F %T}", m_time);
 }
 
 std::string Timestamp::toYMDHMSMilliseconds() const
 {
 	using namespace std::chrono;
 
-	const zoned_time zonedTime{current_zone(), round<milliseconds>(m_time)};
-	return std::format("%F %T", zonedTime);
+	return std::format("{:%F %T}", m_time);
 }
 
 std::string Timestamp::toYMDHMSMicroseconds() const
 {
 	using namespace std::chrono;
 
-	const zoned_time zonedTime{current_zone(), round<microseconds>(m_time)};
-	return std::format("%F %T", zonedTime);
+	return std::format("{:%F %T}", m_time);
 }
+
+//std::string Timestamp::toYMD() const
+//{
+//	using namespace std::chrono;
+//
+//	const zoned_time zonedTime{current_zone(), round<days>(m_time)};
+//	return std::format("{:%F}", zonedTime);
+//}
+//
+//std::string Timestamp::toHMS() const
+//{
+//	using namespace std::chrono;
+//
+//	const zoned_time zonedTime{current_zone(), round<seconds>(m_time)};
+//	return std::format("{:%T}", zonedTime);
+//}
+//
+//std::string Timestamp::toYMDHMS() const
+//{
+//	using namespace std::chrono;
+//
+//	const zoned_time zonedTime{current_zone(), round<seconds>(m_time)};
+//	return std::format("{:%F %T}", zonedTime);
+//}
+//
+//std::string Timestamp::toYMDHMSMilliseconds() const
+//{
+//	using namespace std::chrono;
+//
+//	const zoned_time zonedTime{current_zone(), round<milliseconds>(m_time)};
+//	return std::format("{:%F %T}", zonedTime);
+//}
+//
+//std::string Timestamp::toYMDHMSMicroseconds() const
+//{
+//	using namespace std::chrono;
+//
+//	const zoned_time zonedTime{current_zone(), round<microseconds>(m_time)};
+//	return std::format("{:%F %T}", zonedTime);
+//}
 
 std::string Timestamp::toString() const
 {

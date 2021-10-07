@@ -54,7 +54,7 @@ public:
 	};
 
 public:
-	IesFile(const Path& iesFilePath);
+	explicit IesFile(const Path& iesFilePath);
 
 	bool load();
 
