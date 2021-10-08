@@ -3,6 +3,7 @@
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
 #include "Actor/Material/Utility/MicrosurfaceInfo.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
@@ -17,6 +18,20 @@ public:
 private:
 	DielectricInterfaceInfo m_interfaceInfo;
 	MicrosurfaceInfo        m_microsurfaceInfo;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AbradedTranslucent>)
+	{
+		ClassType clazz("abraded-translucent");
+		clazz.docName("Abraded Translucent Material");
+		clazz.description("Able to model translucent surfaces with variable roughnesses. Such as frosted glass.");
+		clazz.baseOn<SurfaceMaterial>();
+
+		clazz.addStruct(&OwnerType::m_interfaceInfo);
+		clazz.addStruct(&OwnerType::m_microsurfaceInfo);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

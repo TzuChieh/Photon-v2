@@ -25,7 +25,7 @@ public:
 		real sunThetaDegrees,
 		real turbidity);
 
-	APreethamDome(const APreethamDome& other);
+	APreethamDome(const APreethamDome& other) = default;
 
 	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
 	math::Vector2S getResolution() const override;

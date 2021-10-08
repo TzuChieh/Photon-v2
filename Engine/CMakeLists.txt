@@ -27,8 +27,6 @@ set_source_files_properties(${ENGINE_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY O
 
 add_library(Engine ${ENGINE_HEADER_FILES} ${ENGINE_SOURCE_FILES})
 
-target_compile_features(Engine PUBLIC cxx_std_20)
-
 # obj-lib seems to have pdb files, but libraries generated from it
 # do not. this can cause numerous warnings in googletest
 

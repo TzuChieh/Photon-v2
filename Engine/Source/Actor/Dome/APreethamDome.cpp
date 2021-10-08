@@ -24,13 +24,9 @@ APreethamDome::APreethamDome(
 
 	ADome(),
 
-	m_sunPhi  (math::to_radians(sunPhiDegrees)),
+	m_sunPhi   (math::to_radians(sunPhiDegrees)),
 	m_sunTheta (math::to_radians(sunThetaDegrees)),
 	m_turbidity(turbidity)
-{}
-
-APreethamDome::APreethamDome(const APreethamDome& other) :
-	ADome(other)
 {}
 
 std::shared_ptr<TTexture<math::Spectrum>> APreethamDome::loadRadianceFunction(ActorCookingContext& ctx)

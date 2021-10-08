@@ -20,7 +20,7 @@ class ADome : public PhysicalActor
 {
 public:
 	ADome();
-	ADome(const ADome& other);
+	ADome(const ADome& other) = default;
 
 	virtual std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(ActorCookingContext& context) = 0;
 	virtual math::Vector2S getResolution() const = 0;

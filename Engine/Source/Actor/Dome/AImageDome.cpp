@@ -17,14 +17,6 @@ AImageDome::AImageDome(const Path& imagePath) :
 	m_imageResolution(1, 1)
 {}
 
-AImageDome::AImageDome(const AImageDome& other) :
-
-	ADome(other),
-
-	m_imagePath      (other.m_imagePath),
-	m_imageResolution(other.m_imageResolution)
-{}
-
 std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(ActorCookingContext& ctx)
 {
 	auto frame = PictureLoader::loadHdr(m_imagePath);

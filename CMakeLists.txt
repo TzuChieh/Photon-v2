@@ -141,11 +141,10 @@ message(STATUS
 # Using MSVC
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
-    # Use C++20 (VS usually do not pick up previous requests)
-    # FIXME: currently VS requires "latest" flag for C++20 features
-    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++latest")
+    # Use C++20
+    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++20")
 
-    # FIXME: currently require this for C++20 features
+    # FIXME: currently require this for C++20 features (for the /std:c++latest flag)
     set(CMAKE_CXX_STANDARD          23)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -168,7 +167,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 # Using GCC
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
-    # as a fallback when CMake version < 3.8.0 or whatever reasons
+    # Use C++20
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 # Using regular Clang or AppleClang

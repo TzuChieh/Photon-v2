@@ -1,4 +1,5 @@
 #include "Actor/LightSource/PointSource.h"
+#include "Actor/Geometry/GSphere.h"
 
 namespace ph
 {
@@ -6,7 +7,7 @@ namespace ph
 namespace
 {
 
-static constexpr real POINT_SOURCE_RADIUS = 0.005_r;
+constexpr real POINT_SOURCE_RADIUS = 0.005_r;
 
 }
 
@@ -15,11 +16,16 @@ PointSource::PointSource() :
 {}
 
 PointSource::PointSource(const math::Vector3R& linearSrgbColor, const real numWatts) :
-	SphereSource(POINT_SOURCE_RADIUS, linearSrgbColor, numWatts)
+	AreaSource(linearSrgbColor, numWatts)
 {}
 
 PointSource::PointSource(const math::Spectrum& color, real numWatts) :
-	SphereSource(POINT_SOURCE_RADIUS, color, numWatts)
+	AreaSource(color, numWatts)
 {}
+
+std::shared_ptr<Geometry> PointSource::genAreas(ActorCookingContext& ctx) const
+{
+	return std::make_shared<GSphere>(POINT_SOURCE_RADIUS);
+}
 
 }// end namespace ph

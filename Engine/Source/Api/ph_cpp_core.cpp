@@ -168,6 +168,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<SurfaceMaterial>(),
 		get_sdl_class<MatteOpaque>(),
 		get_sdl_class<AbradedOpaque>(),
+		get_sdl_class<AbradedTranslucent>(),
 		get_sdl_class<FullMaterial>(),
 
 		// Light Sources

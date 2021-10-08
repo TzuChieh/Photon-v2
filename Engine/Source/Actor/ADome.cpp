@@ -27,10 +27,6 @@ ADome::ADome() :
 	m_energyScale(1.0_r)
 {}
 
-ADome::ADome(const ADome& other) : 
-	PhysicalActor(other)
-{}
-
 CookedUnit ADome::cook(ActorCookingContext& ctx)
 {
 	// Ensure reasonable transformation for the dome

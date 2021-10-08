@@ -19,7 +19,7 @@ class AImageDome : public ADome
 public:
 	AImageDome();
 	explicit AImageDome(const Path& imagePath);
-	AImageDome(const AImageDome& other);
+	AImageDome(const AImageDome& other) = default;
 
 	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
 	math::Vector2S getResolution() const override;
