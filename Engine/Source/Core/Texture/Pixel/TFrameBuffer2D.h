@@ -20,8 +20,7 @@ class TFrameBuffer2D : public PixelBuffer2D
 public:
 	explicit TFrameBuffer2D(TFrame<T, N> frame);
 
-	pixel_buffer::TPixel<float32> fetchPixel(math::TVector2<uint32> xy, std::size_t mipLevel) const override;
-	pixel_buffer::TPixel<float64> fetchF64Pixel(math::TVector2<uint32> xy, std::size_t mipLevel) const override;
+	pixel_buffer::TPixel<float64> fetchPixel(math::TVector2<uint32> xy, std::size_t mipLevel) const override;
 
 	/*! @brief Directly get pixel value stored in the frame.
 	@return Pixel value of type `TFrame<T, N>::Pixel`. Note that LDR values (typically stored as 8-bit types) 
@@ -50,14 +49,7 @@ inline TFrameBuffer2D<T, N>::TFrameBuffer2D(TFrame<T, N> frame) :
 {}
 
 template<typename T, std::size_t N>
-inline pixel_buffer::TPixel<float32> TFrameBuffer2D<T, N>::fetchPixel(const math::TVector2<uint32> xy, const std::size_t mipLevel) const
-{
-	// Directly cast all value types to float32
-	return typename TFrame<float32, N>::Pixel(getFramePixel(xy, mipLevel)).toArray();
-}
-
-template<typename T, std::size_t N>
-inline pixel_buffer::TPixel<float64> TFrameBuffer2D<T, N>::fetchF64Pixel(const math::TVector2<uint32> xy, const std::size_t mipLevel) const
+inline pixel_buffer::TPixel<float64> TFrameBuffer2D<T, N>::fetchPixel(const math::TVector2<uint32> xy, const std::size_t mipLevel) const
 {
 	// Directly cast all value types to float64
 	return typename TFrame<float64, N>::Pixel(getFramePixel(xy, mipLevel)).toArray();

@@ -6,10 +6,10 @@
 
 #include <cstddef>
 #include <array>
-#include <utility>
+#include <limits>
 #include <stdexcept>
 #include <format>
-#include <limits>
+#include <algorithm>
 
 namespace ph
 {
@@ -30,20 +30,36 @@ enum class EPixelType
 
 inline constexpr uint8 MAX_PIXEL_ELEMENTS = 4;
 
+/*! @brief Represent a pixel from pixel buffer.
+*/
 template<typename T>
 class TPixel final
 {
 public:
 	TPixel();
 
+	/*! @brief Make a pixel from an array of values.
+	Number of pixel values is inferred by the array dimension.
+	*/
 	template<std::size_t N>
 	TPixel(const std::array<T, N>& values);
+
+	/*! @brief Make a pixel from values in a buffer.
+	@param numUsedValues Number of pixel values to extract from @p valueBuffer.
+	*/
+	template<std::size_t N>
+	TPixel(const std::array<T, N>& valueBuffer, std::size_t numUsedValues);
 
 	template<typename U>
 	explicit TPixel(const TPixel<U>& other);
 
 	template<std::size_t N>
 	std::array<T, N> getValues() const;
+
+	/*!
+	Values other than the stored values (i.e., `index >= numValues`) will be 0.
+	*/
+	std::array<T, MAX_PIXEL_ELEMENTS> getAllValues() const;
 
 	std::size_t numValues() const;
 	T operator [] (std::size_t index) const;
@@ -59,24 +75,35 @@ private:
 
 template<typename T>
 inline TPixel<T>::TPixel() :
-	m_valueBuffer(),
+	m_valueBuffer(),// init all values to 0
 	m_numValues  (0)
 {}
 
 template<typename T>
 template<std::size_t N>
 inline TPixel<T>::TPixel(const std::array<T, N>& values) :
+	TPixel(values, N)
+{}
+
+template<typename T>
+template<std::size_t N>
+inline TPixel<T>::TPixel(const std::array<T, N>& valueBuffer, const std::size_t numUsedValues) :
 	TPixel()
 {
-	static_assert(N <= std::tuple_size_v<ValueArrayType>,
-		"Number of input values overflow the internal buffer.");
+	constexpr auto MIN_BUFFER_SIZE = std::min(N, std::tuple_size_v<ValueArrayType>);
 
-	for(std::size_t i = 0; i < N; ++i)
+	if(numUsedValues > MIN_BUFFER_SIZE)
 	{
-		m_valueBuffer[i] = values[i];
+		throw std::out_of_range(std::format(
+			"Buffer of size {} cannot hold {} input values.", MIN_BUFFER_SIZE, numUsedValues));
 	}
 
-	m_numValues = N;
+	for(std::size_t i = 0; i < numUsedValues; ++i)
+	{
+		m_valueBuffer[i] = valueBuffer[i];
+	}
+
+	m_numValues = numUsedValues;
 }
 
 template<typename T>
@@ -94,13 +121,12 @@ inline TPixel<T>::TPixel(const TPixel<U>& other) :
 
 template<typename T>
 template<std::size_t N>
-inline auto TPixel<T>::getValues() const
--> std::array<T, N>
+inline std::array<T, N> TPixel<T>::getValues() const
 {
 	if(N > m_numValues)
 	{
 		throw std::out_of_range(std::format(
-			"Attepmting to get {} input values from an internal buffer of size {}", N, m_numValues));
+			"Attepmting to get {} input values from an internal buffer of size {}.", N, m_numValues));
 	}
 
 	std::array<T, N> values;
@@ -109,6 +135,12 @@ inline auto TPixel<T>::getValues() const
 		values[i] = m_valueBuffer[i];
 	}
 	return values;
+}
+
+template<typename T>
+inline std::array<T, MAX_PIXEL_ELEMENTS> TPixel<T>::getAllValues() const
+{
+	return m_valueBuffer;
 }
 
 template<typename T>
@@ -141,8 +173,9 @@ public:
 		pixel_buffer::EPixelType pixelType,
 		std::size_t              numMipLevels);
 
-	virtual pixel_buffer::TPixel<float32> fetchPixel(math::TVector2<uint32> xy, std::size_t mipLevel) const = 0;
-	virtual pixel_buffer::TPixel<float64> fetchF64Pixel(math::TVector2<uint32> xy, std::size_t mipLevel) const;
+	inline virtual ~PixelBuffer2D() = default;
+
+	virtual pixel_buffer::TPixel<float64> fetchPixel(math::TVector2<uint32> xy, std::size_t mipLevel) const = 0;
 
 	math::TVector2<uint32> getSize() const;
 	std::size_t numPixelElements() const;
@@ -216,11 +249,6 @@ inline pixel_buffer::EPixelType PixelBuffer2D::getPixelType() const
 inline std::size_t PixelBuffer2D::numMipLevels() const
 {
 	return m_numMipLevels;
-}
-
-inline pixel_buffer::TPixel<float64> PixelBuffer2D::fetchF64Pixel(const math::TVector2<uint32> xy, const std::size_t mipLevel) const
-{
-	return pixel_buffer::TPixel<float64>(fetchPixel(xy, mipLevel));
 }
 
 }// end namespace ph

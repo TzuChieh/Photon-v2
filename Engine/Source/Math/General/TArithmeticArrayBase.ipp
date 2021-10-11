@@ -259,10 +259,10 @@ inline auto TArithmeticArrayBase<Derived, T, N>::sqrtLocal()
 }
 
 template<typename Derived, typename T, std::size_t N>
-inline auto TArithmeticArrayBase<Derived, T, N>::clamp(const T lowerBound, const T upperBound)
+inline auto TArithmeticArrayBase<Derived, T, N>::clamp(const T lowerBound, const T upperBound) const
 -> Derived
 {
-	return Derived(static_cast<const Derived&>(*this)).clamp(lowerBound, upperBound);
+	return Derived(static_cast<const Derived&>(*this)).clampLocal(lowerBound, upperBound);
 }
 
 template<typename Derived, typename T, std::size_t N>

@@ -84,7 +84,7 @@ protected:
 
 	// Inputs must not contain any NaN. 
 	// (NaNs are clamped to lower bound)
-	Derived clamp(T lowerBound, T upperBound);
+	Derived clamp(T lowerBound, T upperBound) const;
 	Derived& clampLocal(T lowerBound, T upperBound);
 
 	Derived abs() const;
