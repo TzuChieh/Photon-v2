@@ -20,12 +20,21 @@ public:
 
 	TNumericPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-		EPixelTextureSampleMode               sampleMode,
-		EPixelTextureWrapMode                 wrapMode);
+		pixel_texture::ESampleMode            sampleMode,
+		pixel_texture::EWrapMode              wrapMode);
+
+	TNumericPixelTexture2D(
+		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
+		pixel_texture::ESampleMode            sampleMode,
+		pixel_texture::EWrapMode              wrapMode,
+		std::size_t                           pixelIndexOffset);
 
 	void sample(
 		const SampleLocation&   sampleLocation, 
 		std::array<float64, N>* out_value) const override;
+
+private:
+	std::size_t m_pixelIndexOffset;
 };
 
 // In-header Implementations:
@@ -38,13 +47,29 @@ inline TNumericPixelTexture2D<N>::TNumericPixelTexture2D(const std::shared_ptr<P
 template<std::size_t N>
 inline TNumericPixelTexture2D<N>::TNumericPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-	const EPixelTextureSampleMode         sampleMode,
-	const EPixelTextureWrapMode           wrapMode) :
+	const pixel_texture::ESampleMode      sampleMode,
+	const pixel_texture::EWrapMode        wrapMode) :
+
+	TNumericPixelTexture2D(
+		pixelBuffer,
+		sampleMode,
+		wrapMode,
+		0)
+{}
+
+template<std::size_t N>
+inline TNumericPixelTexture2D<N>::TNumericPixelTexture2D(
+	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
+	const pixel_texture::ESampleMode      sampleMode,
+	const pixel_texture::EWrapMode        wrapMode,
+	const std::size_t                     pixelIndexOffset) :
 
 	TPixelTexture2D<std::array<float64, N>>(
 		pixelBuffer,
 		sampleMode,
-		wrapMode)
+		wrapMode),
+
+	m_pixelIndexOffset(pixelIndexOffset)
 {}
 
 template<std::size_t N>
@@ -60,7 +85,7 @@ inline void TNumericPixelTexture2D<N>::sample(
 	const auto minBufferSize = std::min(N, sampledPixel.numValues());
 
 	out_value->fill(0);
-	for(std::size_t i = 0; i < minBufferSize; ++i)
+	for(std::size_t i = m_pixelIndexOffset; i < minBufferSize; ++i)
 	{
 		(*out_value)[i] = sampledPixel[i];
 	}

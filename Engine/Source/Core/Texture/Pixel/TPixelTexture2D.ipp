@@ -21,8 +21,8 @@ inline TPixelTexture2D<OutputType>::TPixelTexture2D(const std::shared_ptr<PixelB
 template<typename OutputType>
 inline TPixelTexture2D<OutputType>::TPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-	const EPixelTextureSampleMode         sampleMode,
-	const EPixelTextureWrapMode           wrapMode) :
+	const pixel_texture::ESampleMode      sampleMode,
+	const pixel_texture::EWrapMode        wrapMode) :
 
 	TTexture<OutputType>(),
 
@@ -54,13 +54,13 @@ inline math::Vector2D TPixelTexture2D<OutputType>::getTexelSize() const
 }
 
 template<typename OutputType>
-inline EPixelTextureSampleMode TPixelTexture2D<OutputType>::getSampleMode() const
+inline pixel_texture::ESampleMode TPixelTexture2D<OutputType>::getSampleMode() const
 {
 	return m_sampleMode;
 }
 
 template<typename OutputType>
-inline EPixelTextureWrapMode TPixelTexture2D<OutputType>::getWrapMode() const
+inline pixel_texture::EWrapMode TPixelTexture2D<OutputType>::getWrapMode() const
 {
 	return m_wrapMode;
 }
@@ -73,13 +73,29 @@ inline const PixelBuffer2D* TPixelTexture2D<OutputType>::getPixelBuffer() const
 }
 
 template<typename OutputType>
+inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBuffer(const math::Vector2D& sampleUV) const
+{
+	switch(getSampleMode())
+	{
+	case pixel_texture::ESampleMode::Nearest:
+		return samplePixelBufferNearest(sampleUV);
+
+	case pixel_texture::ESampleMode::Bilinear:
+		return samplePixelBufferBilinear(sampleUV);
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return {};
+}
+
+template<typename OutputType>
 inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBufferNearest(const math::Vector2D& sampleUV) const
 {
 	const math::TVector2<uint32> bufferSize = getSizePx();
 	PH_ASSERT_GT(bufferSize.product(), 0);
 
 	// Normalize uv first to avoid overflowing xy after multiplying buffer width and height
-	const math::Vector2D normUV = normalize_texture_uv(sampleUV, getWrapMode());
+	const math::Vector2D normUV = pixel_texture::normalize_uv(sampleUV, getWrapMode());
 		
 	// Calculate pixel buffer index and handle potential overflow
 	uint32 x = static_cast<uint32>(normUV.u() * bufferSize.x());
@@ -88,22 +104,6 @@ inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBuf
 	y = y < bufferSize.y() ? y : bufferSize.y() - 1;
 
 	return getPixelBuffer()->fetchPixel({x, y}, 0);
-}
-
-template<typename OutputType>
-inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBuffer(const math::Vector2D& sampleUV) const
-{
-	switch(getSampleMode())
-	{
-	case EPixelTextureSampleMode::Nearest:
-		return samplePixelBufferNearest(sampleUV);
-
-	case EPixelTextureSampleMode::Bilinear:
-		return samplePixelBufferBilinear(sampleUV);
-	}
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return {};
 }
 
 template<typename OutputType>
@@ -140,7 +140,7 @@ inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBuf
 	for(std::size_t i = 0; i < 4; ++i)
 	{
 		// Normalized UV for the i-th vertex of the bilinear quad
-		const math::Vector2D normUVi = normalize_texture_uv(xys[i] * getTexelSize(), getWrapMode());
+		const math::Vector2D normUVi = pixel_texture::normalize_uv(xys[i] * getTexelSize(), getWrapMode());
 
 		uint32 xi = static_cast<uint32>(normUVi.u() * bufferSize.x());
 		uint32 yi = static_cast<uint32>(normUVi.v() * bufferSize.y());

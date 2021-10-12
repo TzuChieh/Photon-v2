@@ -1,0 +1,166 @@
+#pragma once
+
+#include "Core/Texture/Pixel/TPixelTexture2D.h"
+#include "Common/assertion.h"
+#include "Common/primitive_type.h"
+#include "Core/Texture/SampleLocation.h"
+#include "Math/Color/color_enums.h"
+#include "Math/Color/color_spaces.h"
+#include "Math/Color/Spectrum.h"
+#include "Core/Texture/Pixel/pixel_texture_basics.h"
+
+#include <array>
+#include <cstddef>
+#include <algorithm>
+#include <stdexcept>
+#include <format>
+
+namespace ph
+{
+
+template<math::EColorSpace COLOR_SPACE>
+class TColorPixelTexture2D : public TPixelTexture2D<math::Spectrum>
+{
+	static_assert(math::TColorSpaceDef<COLOR_SPACE>::isTristimulus(),
+		"TColorPixelTexture2D Supports only tristimulus color space.");
+
+public:
+	TColorPixelTexture2D(
+		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
+		pixel_texture::EPixelLayout           layout,
+		math::EColorUsage                     usage);
+
+	TColorPixelTexture2D(
+		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
+		pixel_texture::EPixelLayout           layout,
+		math::EColorUsage                     usage,
+		pixel_texture::ESampleMode            sampleMode,
+		pixel_texture::EWrapMode              wrapMode);
+
+	void sample(
+		const SampleLocation& sampleLocation, 
+		math::Spectrum*       out_value) const override;
+
+private:
+	pixel_texture::EPixelLayout m_layout;
+	math::EColorUsage           m_usage;
+};
+
+// In-header Implementations:
+
+template<math::EColorSpace COLOR_SPACE>
+inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
+	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
+	const pixel_texture::EPixelLayout     layout,
+	const math::EColorUsage               usage) :
+
+	TPixelTexture2D<std::array<float64, N>>(
+		pixelBuffer,
+		layout,
+		usage,
+		pixel_texture::ESampleMode::Bilinear,
+		pixel_texture::EWrapMode::Repeat)
+{}
+
+template<math::EColorSpace COLOR_SPACE>
+inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
+	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
+	const pixel_texture::EPixelLayout     layout,
+	const math::EColorUsage               usage,
+	const pixel_texture::ESampleMode      sampleMode,
+	const pixel_texture::EWrapMode        wrapMode) :
+
+	TPixelTexture2D<std::array<float64, N>>(
+		pixelBuffer,
+		sampleMode,
+		wrapMode),
+
+	m_layout(layout),
+	m_usage (usage)
+{
+	if(pixel_texture::num_pixel_elements(m_layout) != getPixelBuffer()->numPixelElements())
+	{
+		throw std::invalid_argument(std::format(
+			"Pixel layout with {} pixel elements does not match a pixel buffer with {} pixel elements",
+			pixel_texture::num_pixel_elements(m_layout), getPixelBuffer()->numPixelElements()));
+	}
+}
+
+template<math::EColorSpace COLOR_SPACE>
+inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
+	const SampleLocation& sampleLocation,
+	math::Spectrum* const out_value) const
+{
+	PH_ASSERT(out_value);
+
+	const pixel_buffer::TPixel<float64> sampledPixel = samplePixelBuffer(sampleLocation.uv());
+
+	// Get tristimulus color according to pixel buffer layout. Alpha is ignored for this texture.
+
+	PH_ASSERT_EQ(pixel_texture::num_pixel_elements(m_layout), getPixelBuffer()->numPixelElements());
+
+	math::TTristimulusValues<float64> color{};
+	switch(m_layout)
+	{
+	case pixel_texture::EPixelLayout::PL_R:
+		color[0] = sampledPixel[0];
+		break;
+
+	case pixel_texture::EPixelLayout::PL_G:
+		color[1] = sampledPixel[0];
+		break;
+
+	case pixel_texture::EPixelLayout::PL_B:
+		color[2] = sampledPixel[0];
+		break;
+
+	case pixel_texture::EPixelLayout::PL_Monochromatic:
+		color.fill(sampledPixel[0]);
+		break;
+
+	case pixel_texture::EPixelLayout::PL_RG:
+		color[0] = sampledPixel[0];
+		color[1] = sampledPixel[1];
+		break;
+
+	case pixel_texture::EPixelLayout::PL_RGB:
+	case pixel_texture::EPixelLayout::PL_RGBA:
+		color[0] = sampledPixel[0];
+		color[1] = sampledPixel[1];
+		color[2] = sampledPixel[2];
+		break;
+
+	case pixel_texture::EPixelLayout::PL_BGR:
+	case pixel_texture::EPixelLayout::PL_BGRA:
+		color[0] = sampledPixel[2];
+		color[1] = sampledPixel[1];
+		color[2] = sampledPixel[0];
+		break;
+
+	case pixel_texture::EPixelLayout::PL_ARGB:
+		color[0] = sampledPixel[1];
+		color[1] = sampledPixel[2];
+		color[2] = sampledPixel[3];
+		break;
+
+	case pixel_texture::EPixelLayout::PL_ABGR:
+		color[0] = sampledPixel[3];
+		color[1] = sampledPixel[2];
+		color[2] = sampledPixel[1];
+		break;
+
+	default:
+		// The layout does not contain color
+		PH_ASSERT_UNREACHABLE_SECTION();
+		break;
+	}
+
+	const math::TristimulusValues castedColor = {
+		static_cast<math::ColorValue>(color[0]),
+		static_cast<math::ColorValue>(color[1]),
+		static_cast<math::ColorValue>(color[2])};
+
+	out_value->setTransformed<COLOR_SPACE>(castedColor, m_usage);
+}
+
+}// end namespace ph

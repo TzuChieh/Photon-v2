@@ -68,6 +68,11 @@ class TColorSpaceDefinition final
 		"No definition for the specified COLOR_SPACE.");
 };
 
+/*! @brief Helper alias for @p TColorSpaceDefinition which uses the @p ColorValue type.
+*/
+template<EColorSpace COLOR_SPACE>
+using TColorSpaceDef = TColorSpaceDefinition<COLOR_SPACE, ColorValue>;
+
 /*!
 @param srcColorValues A @p TTristimulusValues or a @p TSpectralSampleValues depending on whether @p SRC_COLOR_SPACE
 is tristimulus.
