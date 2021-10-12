@@ -2,9 +2,12 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
+#include "Utility/utility.h"
 
 #include <array>
 #include <cstddef>
+#include <stdexcept>
+#include <format>
 
 namespace ph
 {
@@ -97,6 +100,25 @@ inline std::size_t num_pixel_elements(const EPixelLayout layout)
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return 0;
+	}
+}
+
+inline std::size_t alpha_channel_index(const EPixelLayout layout)
+{
+	switch(layout)
+	{
+	case EPixelLayout::PL_A:
+	case EPixelLayout::PL_ARGB:
+	case EPixelLayout::PL_ABGR:
+		return 0;
+
+	case EPixelLayout::PL_RGBA:
+	case EPixelLayout::PL_BGRA:
+		return 3;
+
+	default:
+		throw std::invalid_argument(std::format(
+			"Pixel layout does not contain alpha channel: {}", enum_to_string(layout)));
 	}
 }
 

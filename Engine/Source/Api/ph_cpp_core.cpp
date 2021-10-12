@@ -205,6 +205,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<PhysicalActor>(),
 		get_sdl_class<AModel>(),
 		get_sdl_class<ALight>(),
+		get_sdl_class<ADome>(),
 	};
 }
 

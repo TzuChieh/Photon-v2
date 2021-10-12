@@ -27,12 +27,12 @@ class TColorPixelTexture2D : public TPixelTexture2D<math::Spectrum>
 public:
 	TColorPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-		pixel_texture::EPixelLayout           layout,
+		pixel_texture::EPixelLayout           colorLayout,
 		math::EColorUsage                     usage);
 
 	TColorPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-		pixel_texture::EPixelLayout           layout,
+		pixel_texture::EPixelLayout           colorLayout,
 		math::EColorUsage                     usage,
 		pixel_texture::ESampleMode            sampleMode,
 		pixel_texture::EWrapMode              wrapMode);
@@ -42,7 +42,7 @@ public:
 		math::Spectrum*       out_value) const override;
 
 private:
-	pixel_texture::EPixelLayout m_layout;
+	pixel_texture::EPixelLayout m_colorLayout;
 	math::EColorUsage           m_usage;
 };
 
@@ -51,12 +51,12 @@ private:
 template<math::EColorSpace COLOR_SPACE>
 inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-	const pixel_texture::EPixelLayout     layout,
+	const pixel_texture::EPixelLayout     colorLayout,
 	const math::EColorUsage               usage) :
 
 	TPixelTexture2D<std::array<float64, N>>(
 		pixelBuffer,
-		layout,
+		colorLayout,
 		usage,
 		pixel_texture::ESampleMode::Bilinear,
 		pixel_texture::EWrapMode::Repeat)
@@ -65,7 +65,7 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 template<math::EColorSpace COLOR_SPACE>
 inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-	const pixel_texture::EPixelLayout     layout,
+	const pixel_texture::EPixelLayout     colorLayout,
 	const math::EColorUsage               usage,
 	const pixel_texture::ESampleMode      sampleMode,
 	const pixel_texture::EWrapMode        wrapMode) :
@@ -75,14 +75,16 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 		sampleMode,
 		wrapMode),
 
-	m_layout(layout),
-	m_usage (usage)
+	m_colorLayout(colorLayout),
+	m_usage      (usage)
 {
-	if(pixel_texture::num_pixel_elements(m_layout) != getPixelBuffer()->numPixelElements())
+	const auto layoutSize = pixel_texture::num_pixel_elements(m_colorLayout);
+	const auto pixelSize  = getPixelBuffer()->numPixelElements();
+	if(layoutSize > pixelSize)
 	{
 		throw std::invalid_argument(std::format(
 			"Pixel layout with {} pixel elements does not match a pixel buffer with {} pixel elements",
-			pixel_texture::num_pixel_elements(m_layout), getPixelBuffer()->numPixelElements()));
+			layoutSize, pixelSize));
 	}
 }
 
@@ -97,10 +99,10 @@ inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
 
 	// Get tristimulus color according to pixel buffer layout. Alpha is ignored for this texture.
 
-	PH_ASSERT_EQ(pixel_texture::num_pixel_elements(m_layout), getPixelBuffer()->numPixelElements());
+	PH_ASSERT_LE(pixel_texture::num_pixel_elements(m_colorLayout), getPixelBuffer()->numPixelElements());
 
 	math::TTristimulusValues<float64> color{};
-	switch(m_layout)
+	switch(m_colorLayout)
 	{
 	case pixel_texture::EPixelLayout::PL_R:
 		color[0] = sampledPixel[0];
