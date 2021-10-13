@@ -40,9 +40,10 @@
 
 // Images
 #include "Actor/Image/Image.h"
+#include "Actor/Image/RasterImageBase.h"
+#include "Actor/Image/RasterFileImage.h"
+
 #include "Actor/Image/ConstantImage.h"
-#include "Actor/Image/LdrPictureImage.h"
-#include "Actor/Image/HdrPictureImage.h"
 #include "Actor/Image/RealMathImage.h"
 #include "Actor/Image/CheckerboardImage.h"
 #include "Actor/Image/GradientImage.h"
@@ -177,6 +178,10 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<SphereSource>(),
 		get_sdl_class<RectangleSource>(),
 		get_sdl_class<PointSource>(),
+
+		// Images
+		get_sdl_class<Image>(),
+		get_sdl_class<RasterImageBase>(),
 
 		// Observers
 		get_sdl_class<Observer>(),

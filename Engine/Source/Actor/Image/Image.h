@@ -7,6 +7,7 @@
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/TConstantTexture.h"
 #include "Common/config.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <iostream>
 #include <memory>
@@ -27,7 +28,7 @@ public:
 public:
 	Image();
 
-	virtual std::shared_ptr<TTexture<NumericArray>> genNumericTexture(
+	virtual std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
 		ActorCookingContext& ctx) const;
 
 	virtual std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
@@ -50,6 +51,15 @@ private:
 	              << "no implementation provided, generating a constant one" << std::endl;
 
 		return std::make_shared<TConstantTexture<OutputType>>(OutputType(1));
+	}
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Image>)
+	{
+		ClassType clazz("image");
+		clazz.docName("Image");
+		clazz.description("A block of data.");
+		return clazz;
 	}
 };
 
