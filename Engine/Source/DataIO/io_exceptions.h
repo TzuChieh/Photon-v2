@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdexcept>
+#include "Utility/exception.h"
+
 #include <string>
 #include <utility>
 #include <format>
@@ -8,13 +9,11 @@
 namespace ph
 {
 
-class IOException : public std::runtime_error
+class IOException : public RuntimeException
 {
 public:
 	explicit IOException(const std::string& message);
 	explicit IOException(const char* message);
-
-	virtual std::string whatStr() const;
 };
 
 class FileIOError : public IOException
@@ -33,17 +32,12 @@ private:
 // In-header Implementations:
 
 inline IOException::IOException(const std::string& message) :
-	std::runtime_error(message)
+	RuntimeException(message)
 {}
 
 inline IOException::IOException(const char* const message) :
-	std::runtime_error(message)
+	RuntimeException(message)
 {}
-
-inline std::string IOException::whatStr() const
-{
-	return std::string(what());
-}
 
 inline FileIOError::FileIOError(const std::string& message) :
 	IOException(message),

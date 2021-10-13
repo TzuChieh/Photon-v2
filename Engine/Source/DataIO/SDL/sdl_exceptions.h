@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdexcept>
+#include "Utility/exception.h"
+
 #include <string>
 
 namespace ph
@@ -8,13 +9,11 @@ namespace ph
 
 /*! @brief General exception thrown on error related to SDL.
 */
-class SdlException : public std::runtime_error
+class SdlException : public RuntimeException
 {
 public:
 	explicit SdlException(const std::string& message);
 	explicit SdlException(const char* message);
-
-	std::string whatStr() const;
 };
 
 /*! @brief Error on the SDL input process.
@@ -36,16 +35,11 @@ public:
 // In-header Implementations:
 
 inline SdlException::SdlException(const std::string& message) :
-	std::runtime_error(message)
+	RuntimeException(message)
 {}
 
 inline SdlException::SdlException(const char* const message) :
-	std::runtime_error(message)
+	RuntimeException(message)
 {}
-
-inline std::string SdlException::whatStr() const
-{
-	return std::string(what());
-}
 
 }// end namespace ph

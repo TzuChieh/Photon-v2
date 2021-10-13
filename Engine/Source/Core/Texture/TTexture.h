@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Texture/texture_fwd.h"
+
 namespace ph
 {
 

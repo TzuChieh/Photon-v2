@@ -3,6 +3,8 @@
 namespace ph
 {
 
+class SampleLocation;
+
 template<typename OutputType>
 class TTexture;
 

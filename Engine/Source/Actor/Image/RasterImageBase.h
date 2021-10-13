@@ -5,6 +5,11 @@
 namespace ph
 {
 
-	// TODO
+class RasterImageBase : public Image
+{
+public:
+
+private:
+};
 
 }// end namespace ph
