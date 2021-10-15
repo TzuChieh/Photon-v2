@@ -23,7 +23,7 @@ std::string load_text(const Path& filePath);
 /*! @brief Checks whether the provided picture format supports LDR by filename extension.
 
 Note that the check is from the engine's perspective--a format may not
-support LDR here while it actually does from its spec.
+support LDR here while it actually does from its original spec.
 
 @param filenameExt Filename extension (the leading dot should be included).
 */
@@ -32,7 +32,7 @@ bool has_LDR_support(std::string_view filenameExt);
 /*! @brief Checks whether the provided picture format supports HDR by filename extension.
 
 Note that the check is from the engine's perspective--a format may not
-support HDR here while it actually does from its spec.
+support HDR here while it actually does from its original spec.
 
 @param filenameExt Filename extension (the leading dot should be included).
 */
