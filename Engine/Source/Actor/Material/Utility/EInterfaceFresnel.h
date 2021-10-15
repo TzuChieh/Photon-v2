@@ -9,8 +9,8 @@ enum class EInterfaceFresnel
 {
 	UNSPECIFIED = 0,
 
-	SCHLICK,
-	EXACT
+	Schlick,
+	Exact
 };
 
 PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EInterfaceFresnel>)
@@ -19,8 +19,8 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EInterfaceFresnel>)
 	sdlEnum.description("Controls the Fresnel model used.");
 
 	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
-	sdlEnum.addEntry(EnumType::SCHLICK, "schlick", "An approximative model developed by Schlick.");
-	sdlEnum.addEntry(EnumType::EXACT, "exact", "The full-form Fresnel formula.");
+	sdlEnum.addEntry(EnumType::Schlick, "schlick", "An approximative model developed by Schlick.");
+	sdlEnum.addEntry(EnumType::Exact, "exact", "The full-form Fresnel formula.");
 
 	return sdlEnum;
 }

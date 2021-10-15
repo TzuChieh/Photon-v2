@@ -22,6 +22,8 @@ public:
 
 	pixel_buffer::TPixel<float64> fetchPixel(math::TVector2<uint32> xy, std::size_t mipLevel) const override;
 
+	std::size_t estimateMemoryUsageBytes() const override;
+
 	/*! @brief Directly get pixel value stored in the frame.
 	@return Pixel value of type `TFrame<T, N>::Pixel`. Note that LDR values (typically stored as 8-bit types) 
 	will be normalized to [0, 1], and in such case the pixel type will be `TFrame<float32, N>::Pixel`.
@@ -100,6 +102,19 @@ inline constexpr pixel_buffer::EPixelType TFrameBuffer2D<T, N>::deducePixelTypeF
 
 		return EPixelType::PT_uint8;
 	}
+}
+
+template<typename T, std::size_t N>
+inline std::size_t TFrameBuffer2D<T, N>::estimateMemoryUsageBytes() const
+{
+	const auto baseUsage  = PixelBuffer2D::estimateMemoryUsageBytes();
+	const auto frameUsage = sizeof(TFrame<T, N>);
+
+	// Estimate usage of frame internal buffer
+	const auto numPixels   = math::Vector2S(m_frame.getSizePx()).product();
+	const auto bufferUsage = numPixels * (sizeof(T) * N);
+
+	return baseUsage + frameUsage + bufferUsage;
 }
 
 }// end namespace ph

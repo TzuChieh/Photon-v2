@@ -38,7 +38,7 @@ public:
 		TSdlEnumField<OwnerType, EInterfaceFresnel> fresnel("fresnel", &OwnerType::m_fresnel);
 		fresnel.description("Type of the Fresnel for the dielectric interface.");
 		fresnel.optional();
-		fresnel.defaultTo(EInterfaceFresnel::EXACT);
+		fresnel.defaultTo(EInterfaceFresnel::Exact);
 		ztruct.addField(fresnel);
 
 		TSdlReal<OwnerType> iorOuter("ior-outer", &OwnerType::m_iorOuter);

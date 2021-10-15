@@ -18,10 +18,10 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 
 		switch(m_microsurface)
 		{
-		case EInterfaceMicrosurface::TROWBRIDGE_REITZ:
+		case EInterfaceMicrosurface::TrowbridgeReitz:
 			return std::make_unique<IsoTrowbridgeReitzConstant>(alpha);
 
-		case EInterfaceMicrosurface::BECKMANN:
+		case EInterfaceMicrosurface::Beckmann:
 			return std::make_unique<IsoBeckmann>(alpha);
 
 		default:
@@ -34,7 +34,7 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 	{
 		PH_ASSERT(!isIsotropic());
 
-		if(m_microsurface == EInterfaceMicrosurface::BECKMANN)
+		if(m_microsurface == EInterfaceMicrosurface::Beckmann)
 		{
 			PH_LOG_WARNING(MicrosurfaceInfo,
 				"anisotropic Beckmann is not supported; resort to Trowbridge-Reitz (GGX)");

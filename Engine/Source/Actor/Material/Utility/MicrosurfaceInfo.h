@@ -41,13 +41,13 @@ public:
 		TSdlEnumField<OwnerType, EInterfaceMicrosurface> microsurface("microsurface", &OwnerType::m_microsurface);
 		microsurface.description("Type of the microsurface of the material.");
 		microsurface.optional();
-		microsurface.defaultTo(EInterfaceMicrosurface::TROWBRIDGE_REITZ);
+		microsurface.defaultTo(EInterfaceMicrosurface::TrowbridgeReitz);
 		ztruct.addField(microsurface);
 
 		TSdlEnumField<OwnerType, ERoughnessToAlpha> roughnessToAlpha("roughness-to-alpha", &OwnerType::m_roughnessToAlpha);
 		roughnessToAlpha.description("Type of the mapping to transform roughness into alpha value.");
 		roughnessToAlpha.optional();
-		roughnessToAlpha.defaultTo(ERoughnessToAlpha::SQUARED);
+		roughnessToAlpha.defaultTo(ERoughnessToAlpha::Squared);
 		ztruct.addField(roughnessToAlpha);
 
 		TSdlReal<OwnerType> roughness("roughness", &OwnerType::m_roughness);

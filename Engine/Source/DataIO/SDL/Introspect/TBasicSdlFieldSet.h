@@ -27,7 +27,7 @@ This class accepts polymorphic field types.
 This class finds a field using brute-force method.
 */
 template<typename BaseFieldType, std::size_t MAX_FIELDS = PH_SDL_MAX_FIELDS>
-class TBasicSdlFieldSet final : public IMoveOnly
+class TBasicSdlFieldSet final : private IMoveOnly
 {
 	static_assert(std::is_base_of_v<SdlField, BaseFieldType>,
 		"Field type must derive from SdlField.");

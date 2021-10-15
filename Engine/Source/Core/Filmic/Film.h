@@ -10,7 +10,7 @@
 namespace ph
 {
 
-class Film : public IMoveOnly
+class Film : private IMoveOnly
 {
 public:
 	Film() = default;

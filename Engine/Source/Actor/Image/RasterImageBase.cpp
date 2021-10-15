@@ -8,8 +8,8 @@ RasterImageBase::RasterImageBase() :
 	Image(),
 
 	m_resolution(0),
-	m_sampleMode(EImageSampleMode::Bilinear),
-	m_wrapMode  (EImageWrapMode::Repeat)
+	m_sampleMode(EImageSampleMode::UNSPECIFIED),
+	m_wrapMode  (EImageWrapMode::UNSPECIFIED)
 {}
 
 math::TVector2<uint32> RasterImageBase::getResolution() const

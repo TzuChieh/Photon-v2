@@ -14,7 +14,7 @@ namespace ph { class SampleGenerator; };
 namespace ph
 {
 
-class CoreCookedUnit final : public IMoveOnly
+class CoreCookedUnit final : private IMoveOnly
 {
 public:
 	CoreCookedUnit();

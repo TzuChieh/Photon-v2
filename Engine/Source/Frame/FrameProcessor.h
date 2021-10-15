@@ -13,7 +13,7 @@ namespace ph
 Care must be taken when using an instance concurrently as things may break
 if some frame operators used cached data internally (race condition).
 */
-class FrameProcessor final : public IMoveOnly
+class FrameProcessor final : private IMoveOnly
 {
 public:
 	using PipelineId = std::size_t;

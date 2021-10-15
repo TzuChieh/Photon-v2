@@ -12,7 +12,7 @@ namespace ph
 
 /*! @brief Process frames with a series of operations.
 */
-class FrameProcessingPipeline final : public IMoveOnly
+class FrameProcessingPipeline final : private IMoveOnly
 {
 public:
 	inline FrameProcessingPipeline() = default;

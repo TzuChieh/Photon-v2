@@ -17,7 +17,7 @@ namespace ph
 	A thread pool that contains fixed number of threads for work processing.
 	The pool can be used concurrently, namely, it is thread-safe.
 */
-class FixedSizeThreadPool final : public IMoveOnly
+class FixedSizeThreadPool final : private IMoveOnly
 {
 public:
 	using Work = std::function<void()>;

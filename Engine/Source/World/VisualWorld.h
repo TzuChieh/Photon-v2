@@ -24,7 +24,7 @@ namespace ph { class ActorCookingContext; }
 namespace ph
 {
 
-class VisualWorld final : public IMoveOnly
+class VisualWorld final : private IMoveOnly
 {
 public:
 	VisualWorld();

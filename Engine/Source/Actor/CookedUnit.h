@@ -15,7 +15,7 @@ namespace ph
 class CookedDataStorage;
 class Primitive;
 
-class CookedUnit final : public IMoveOnly
+class CookedUnit final : private IMoveOnly
 {
 public:
 	CookedUnit();

@@ -15,7 +15,7 @@
 namespace ph
 {
 
-class mipmapgen final : public IMoveOnly
+class mipmapgen final : private IMoveOnly
 {
 public:
 	mipmapgen(const std::size_t numThreads);

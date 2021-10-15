@@ -17,7 +17,7 @@ namespace ph
 
 class VisualWorldInfo;
 
-class ActorCookingContext final : public IMoveOnly
+class ActorCookingContext final : private IMoveOnly
 {
 	friend class VisualWorld;
 

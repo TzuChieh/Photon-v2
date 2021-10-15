@@ -19,7 +19,7 @@ are performed only when exclusive access is acquired.
 // TODO: convenient getter and setter
 // TODO: perfect forward readers, writers, and operations?
 template<typename Resource>
-class TMRSWResource final : public INoCopyAndMove
+class TMRSWResource final : private INoCopyAndMove
 {
 public:
 	template<typename Res>

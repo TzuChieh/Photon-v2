@@ -34,6 +34,20 @@ public:
 		ClassType clazz("raster-base");
 		clazz.docName("Base of Raster Image");
 		clazz.description("Common information for raster-based images.");
+		clazz.baseOn<Image>();
+
+		TSdlEnumField<OwnerType, EImageSampleMode> sampleMode(&OwnerType::m_sampleMode);
+		sampleMode.description("Sample mode of the raster image.");
+		sampleMode.defaultTo(EImageSampleMode::Bilinear);
+		sampleMode.optional();
+		clazz.addField(sampleMode);
+
+		TSdlEnumField<OwnerType, EImageWrapMode> wrapMode(&OwnerType::m_wrapMode);
+		wrapMode.description("Wrap mode of the raster image.");
+		wrapMode.defaultTo(EImageWrapMode::Repeat);
+		wrapMode.optional();
+		clazz.addField(wrapMode);
+
 		return clazz;
 	}
 };

@@ -23,7 +23,7 @@ namespace ph
 
 class SampleFlow;
 
-class SurfaceTracer final : public IMoveOnly
+class SurfaceTracer final : private IMoveOnly
 {
 public:
 	explicit SurfaceTracer(const Scene* scene);

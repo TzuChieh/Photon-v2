@@ -176,6 +176,8 @@ public:
 	inline virtual ~PixelBuffer2D() = default;
 
 	virtual pixel_buffer::TPixel<float64> fetchPixel(math::TVector2<uint32> xy, std::size_t mipLevel) const = 0;
+	
+	virtual std::size_t estimateMemoryUsageBytes() const;
 
 	math::TVector2<uint32> getSize() const;
 	std::size_t numPixelElements() const;
@@ -249,6 +251,11 @@ inline pixel_buffer::EPixelType PixelBuffer2D::getPixelType() const
 inline std::size_t PixelBuffer2D::numMipLevels() const
 {
 	return m_numMipLevels;
+}
+
+inline std::size_t PixelBuffer2D::estimateMemoryUsageBytes() const
+{
+	return sizeof(PixelBuffer2D);
 }
 
 }// end namespace ph

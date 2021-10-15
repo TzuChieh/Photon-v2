@@ -17,7 +17,7 @@ namespace ph
 
 class Receiver;
 
-class ReceiverSamplingWork : public RenderWork, public IMoveOnly
+class ReceiverSamplingWork : public RenderWork, private IMoveOnly
 {
 public:
 	ReceiverSamplingWork();

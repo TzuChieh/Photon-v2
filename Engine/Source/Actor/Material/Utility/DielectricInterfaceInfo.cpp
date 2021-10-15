@@ -10,7 +10,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(DielectricInterfaceInfo, BSDF);
 
 std::unique_ptr<DielectricFresnel> DielectricInterfaceInfo::genFresnelEffect() const
 {
-	if(m_fresnel == EInterfaceFresnel::EXACT)
+	if(m_fresnel == EInterfaceFresnel::Exact)
 	{
 		return std::make_unique<ExactDielectricFresnel>(
 			m_iorOuter,
@@ -18,7 +18,7 @@ std::unique_ptr<DielectricFresnel> DielectricInterfaceInfo::genFresnelEffect() c
 	}
 	else
 	{
-		PH_ASSERT(m_fresnel == EInterfaceFresnel::SCHLICK);
+		PH_ASSERT(m_fresnel == EInterfaceFresnel::Schlick);
 
 		return std::make_unique<SchlickApproxDielectricFresnel>(
 			m_iorOuter,

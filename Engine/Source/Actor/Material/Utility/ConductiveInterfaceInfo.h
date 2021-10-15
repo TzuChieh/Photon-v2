@@ -41,7 +41,7 @@ public:
 		TSdlEnumField<OwnerType, EInterfaceFresnel> fresnel("fresnel", &OwnerType::m_fresnel);
 		fresnel.description("Type of the Fresnel for the conductive interface.");
 		fresnel.optional();
-		fresnel.defaultTo(EInterfaceFresnel::SCHLICK);
+		fresnel.defaultTo(EInterfaceFresnel::Schlick);
 		ztruct.addField(fresnel);
 
 		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::RAW, &OwnerType::m_f0);

@@ -27,9 +27,9 @@ public:
 		SdlValueType("path", std::move(valueName), valuePtr)
 	{}
 
-	inline std::string valueAsString(const std::string& str) const override
+	inline std::string valueAsString(const Path& path) const override
 	{
-		return str;
+		return path.toString();
 	}
 
 protected:

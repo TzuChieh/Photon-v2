@@ -111,7 +111,8 @@ Available functionalities after defining the macro:
 
 /*! @brief Define a SDL enum with function-like syntax.
 One does not need to define all enum entries. It is valid to partially expose some enum entries
-and keep the others hidden from SDL.
+and keep the others hidden from SDL. Note that it is highly encouraged to provide a valid entry
+with the value 0 as it will be used as the default.
 */
 #define PH_DEFINE_SDL_ENUM(...)/* variadic args for template types that contain commas */\
 	template<>\
@@ -141,7 +142,7 @@ and keep the others hidden from SDL.
 		inline static const SdlEnumType* getSdlEnum()\
 		{\
 			static_assert(std::is_base_of_v<::ph::SdlEnum, SdlEnumType>,\
-				"PH_DEFINE_SDL_ENUM() must return a enum derived from SdlEnum.");\
+				"PH_DEFINE_SDL_ENUM() must return an enum derived from SdlEnum.");\
 			\
 			static const SdlEnumType sdlEnum = internal_sdl_enum_impl();\
 			return &sdlEnum;\

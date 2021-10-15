@@ -13,7 +13,7 @@ std::unique_ptr<ConductorFresnel> ConductiveInterfaceInfo::genFresnelEffect() co
 	// If we have enough information for an exact Fresnel description
 	if(m_iorOuter && m_iorInnerN && m_iorInnerK)
 	{
-		if(m_fresnel == EInterfaceFresnel::EXACT)
+		if(m_fresnel == EInterfaceFresnel::Exact)
 		{
 			return std::make_unique<ExactConductorFresnel>(
 				*m_iorOuter,
@@ -25,7 +25,7 @@ std::unique_ptr<ConductorFresnel> ConductiveInterfaceInfo::genFresnelEffect() co
 			// If Schlick approximation is explicitly requested, use exact
 			// Fresnel description to derive required input.
 
-			PH_ASSERT(m_fresnel == EInterfaceFresnel::SCHLICK);
+			PH_ASSERT(m_fresnel == EInterfaceFresnel::Schlick);
 		
 			return std::make_unique<SchlickApproxConductorFresnel>(
 				*m_iorOuter,
@@ -35,7 +35,7 @@ std::unique_ptr<ConductorFresnel> ConductiveInterfaceInfo::genFresnelEffect() co
 	}
 	else
 	{
-		if(m_fresnel == EInterfaceFresnel::EXACT)
+		if(m_fresnel == EInterfaceFresnel::Exact)
 		{
 			// If exact Fresnel is explicitly requested, since we do not have
 			// complete information for that, fallback to Schlick approximation
