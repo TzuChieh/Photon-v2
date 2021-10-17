@@ -21,7 +21,6 @@ public:
 	explicit TFrameBuffer2D(TFrame<T, N> frame);
 
 	pixel_buffer::TPixel<float64> fetchPixel(math::TVector2<uint32> xy, std::size_t mipLevel) const override;
-
 	std::size_t estimateMemoryUsageBytes() const override;
 
 	/*! @brief Directly get pixel value stored in the frame.
@@ -29,9 +28,6 @@ public:
 	will be normalized to [0, 1], and in such case the pixel type will be `TFrame<float32, N>::Pixel`.
 	*/
 	auto getFramePixel(math::TVector2<uint32> xy, std::size_t mipLevel) const;
-
-private:
-	static constexpr pixel_buffer::EPixelType deducePixelTypeFromTemplateArg() noexcept;
 
 private:
 	TFrame<T, N> m_frame;
@@ -44,8 +40,7 @@ inline TFrameBuffer2D<T, N>::TFrameBuffer2D(TFrame<T, N> frame) :
 
 	PixelBuffer2D(
 		frame.getSizePx(),
-		N,
-		deducePixelTypeFromTemplateArg()),
+		N),
 
 	m_frame(std::move(frame))
 {}
@@ -71,36 +66,6 @@ inline auto TFrameBuffer2D<T, N>::getFramePixel(const math::TVector2<uint32> xy,
 	else
 	{
 		return framePixel;
-	}
-}
-
-template<typename T, std::size_t N>
-inline constexpr pixel_buffer::EPixelType TFrameBuffer2D<T, N>::deducePixelTypeFromTemplateArg() noexcept
-{
-	using namespace pixel_buffer;
-
-	if constexpr(std::is_same_v<T, float32>)
-	{
-		return EPixelType::PT_float32;
-	}
-	else if constexpr(std::is_same_v<T, float64>)
-	{
-		return EPixelType::PT_float64;
-	}
-	else if constexpr(std::is_same_v<T, int32>)
-	{
-		return EPixelType::PT_int32;
-	}
-	else if constexpr(std::is_same_v<T, int64>)
-	{
-		return EPixelType::PT_int64;
-	}
-	else
-	{
-		static_assert(std::is_same_v<T, uint8>,
-			"Use of unsupported pixel type detected.");
-
-		return EPixelType::PT_uint8;
 	}
 }
 

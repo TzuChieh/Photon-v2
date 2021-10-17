@@ -72,13 +72,13 @@ inline real RoughnessToAlphaMapping::map(const real roughness, const ERoughnessT
 {
 	switch(mapType)
 	{
-	case ERoughnessToAlpha::EQUALED:
+	case ERoughnessToAlpha::Equaled:
 		return equaled(roughness);
 
-	case ERoughnessToAlpha::SQUARED:
+	case ERoughnessToAlpha::Squared:
 		return squared(roughness);
 
-	case ERoughnessToAlpha::PBRT_V3:
+	case ERoughnessToAlpha::PbrtV3:
 		return pbrtV3(roughness);
 
 	default:

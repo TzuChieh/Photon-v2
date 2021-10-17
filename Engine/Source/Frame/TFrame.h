@@ -15,7 +15,7 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-class TFrame
+class TFrame final
 {
 public:
 	using Element = T;
@@ -29,8 +29,14 @@ public:
 	static TPixel<U> getMonochromaticPixel(U value);
 
 public:
+	/*! @brief Constructs an empty frame.
+	*/
 	TFrame();
+
+	/*! @brief Constructs a frame with specified dimensions. All pixels are initialized to 0.
+	*/
 	TFrame(uint32 wPx, uint32 hPx);
+
 	TFrame(const TFrame& other);
 	TFrame(TFrame&& other);
 	inline ~TFrame() = default;

@@ -6,7 +6,8 @@
 */
 
 #include "DataIO/FileSystem/Path.h"
-#include "Frame/TFrame.h"
+#include "Common/primitive_type.h"
+#include "Frame/pictures.h"
 
 #include <string>
 #include <string_view>
@@ -38,8 +39,10 @@ support HDR here while it actually does from its original spec.
 */
 bool has_HDR_support(std::string_view filenameExt);
 
-HdrRgbFrame load_picture(const Path& picturePath);
-LdrRgbFrame load_LDR_picture(const Path& picturePath);
-HdrRgbFrame load_HDR_picture(const Path& picturePath);
+/*! @brief Loads a picture as a HDR frame.
+*/
+RegularPicture load_picture(const Path& picturePath);
+RegularPicture load_LDR_picture(const Path& picturePath);
+RegularPicture load_HDR_picture(const Path& picturePath);
 
 }// end namespace ph::io_utils

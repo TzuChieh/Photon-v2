@@ -4,6 +4,9 @@
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/SDL/sdl_interface.h"
 #include "DataIO/SDL/Introspect/TSdlPath.h"
+#include "Core/Texture/Pixel/PixelBuffer2D.h"
+
+#include <memory>
 
 namespace ph
 {
@@ -14,11 +17,14 @@ public:
 	RasterFileImage();
 	explicit RasterFileImage(Path filePath);
 
-	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+	/*std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
 		ActorCookingContext& ctx) const override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) const override;
+		ActorCookingContext& ctx) const override;*/
+
+protected:
+	std::shared_ptr<PixelBuffer2D> loadPixelBuffer(ActorCookingContext& ctx);
 
 private:
 	Path m_filePath;

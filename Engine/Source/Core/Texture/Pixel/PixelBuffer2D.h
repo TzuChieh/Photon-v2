@@ -17,17 +17,6 @@ namespace ph
 namespace pixel_buffer
 {
 
-enum class EPixelType
-{
-	PT_Unspecified = 0,
-
-	PT_float32,
-	PT_float64,
-	PT_int32,
-	PT_int64,
-	PT_uint8
-};
-
 inline constexpr uint8 MAX_PIXEL_ELEMENTS = 4;
 
 /*! @brief Represent a pixel from pixel buffer.
@@ -163,15 +152,13 @@ class PixelBuffer2D
 {
 public:
 	PixelBuffer2D(
-		math::TVector2<uint32>   size,
-		std::size_t              numPixelElements,
-		pixel_buffer::EPixelType pixelType);
+		math::TVector2<uint32> size,
+		std::size_t            numPixelElements);
 
 	PixelBuffer2D(
-		math::TVector2<uint32>   size, 
-		std::size_t              numPixelElements,
-		pixel_buffer::EPixelType pixelType,
-		std::size_t              numMipLevels);
+		math::TVector2<uint32> size, 
+		std::size_t            numPixelElements,
+		std::size_t            numMipLevels);
 
 	inline virtual ~PixelBuffer2D() = default;
 
@@ -181,46 +168,39 @@ public:
 
 	math::TVector2<uint32> getSize() const;
 	std::size_t numPixelElements() const;
-	pixel_buffer::EPixelType getPixelType() const;
 	bool hasMipmap() const;
 	std::size_t numMipLevels() const;
 
 private:
-	math::TVector2<uint32>   m_size;
-	uint8                    m_numPixelElements;
-	pixel_buffer::EPixelType m_pixelType;
-	uint8                    m_numMipLevels;
+	math::TVector2<uint32> m_size;
+	uint8                  m_numPixelElements;
+	uint8                  m_numMipLevels;
 };
 
 // In-header Implementations:
 
 inline PixelBuffer2D::PixelBuffer2D(
-	const math::TVector2<uint32>   size,
-	const std::size_t              numPixelElements,
-	const pixel_buffer::EPixelType pixelType) :
+	const math::TVector2<uint32> size,
+	const std::size_t            numPixelElements) :
 
 	PixelBuffer2D(
 		size,
 		numPixelElements,
-		pixelType,
 		1)
 {}
 
 inline PixelBuffer2D::PixelBuffer2D(
-	const math::TVector2<uint32>   size,
-	const std::size_t              numPixelElements,
-	const pixel_buffer::EPixelType pixelType,
-	const std::size_t              numMipLevels) :
+	const math::TVector2<uint32> size,
+	const std::size_t            numPixelElements,
+	const std::size_t            numMipLevels) :
 
 	m_size            (size),
 	m_numPixelElements(static_cast<uint8>(numPixelElements)),
-	m_pixelType       (pixelType),
 	m_numMipLevels    (static_cast<uint8>(numMipLevels))
 {
 	// No 0-sized buffer and unspecified pixel type
 	PH_ASSERT_GT(size.product(), 0);
 	PH_ASSERT_GT(numPixelElements, 0);
-	PH_ASSERT(pixelType != pixel_buffer::EPixelType::PT_Unspecified);
 	PH_ASSERT_GE(m_numMipLevels, 1);
 
 	// Check for possible value overflow
@@ -241,11 +221,6 @@ inline bool PixelBuffer2D::hasMipmap() const
 inline std::size_t PixelBuffer2D::numPixelElements() const
 {
 	return m_numPixelElements;
-}
-
-inline pixel_buffer::EPixelType PixelBuffer2D::getPixelType() const
-{
-	return m_pixelType;
 }
 
 inline std::size_t PixelBuffer2D::numMipLevels() const

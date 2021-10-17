@@ -6,7 +6,6 @@
 #include "Math/Transform/StaticRigidTransform.h"
 #include "Core/Intersectable/PLatLongEnvSphere.h"
 #include "Core/Emitter/LatLongEnvEmitter.h"
-#include "DataIO/PictureLoader.h"
 #include "Actor/Image/HdrPictureImage.h"
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
