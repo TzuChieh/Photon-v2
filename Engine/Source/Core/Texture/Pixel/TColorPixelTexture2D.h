@@ -27,13 +27,11 @@ class TColorPixelTexture2D : public TPixelTexture2D<math::Spectrum>
 public:
 	TColorPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-		pixel_texture::EPixelLayout           colorLayout,
-		math::EColorUsage                     usage);
+		pixel_texture::EPixelLayout           colorLayout);
 
 	TColorPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 		pixel_texture::EPixelLayout           colorLayout,
-		math::EColorUsage                     usage,
 		pixel_texture::ESampleMode            sampleMode,
 		pixel_texture::EWrapMode              wrapMode);
 
@@ -43,7 +41,6 @@ public:
 
 private:
 	pixel_texture::EPixelLayout m_colorLayout;
-	math::EColorUsage           m_usage;
 };
 
 // In-header Implementations:
@@ -51,13 +48,11 @@ private:
 template<math::EColorSpace COLOR_SPACE>
 inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-	const pixel_texture::EPixelLayout     colorLayout,
-	const math::EColorUsage               usage) :
+	const pixel_texture::EPixelLayout     colorLayout) :
 
 	TPixelTexture2D<std::array<float64, N>>(
 		pixelBuffer,
 		colorLayout,
-		usage,
 		pixel_texture::ESampleMode::Bilinear,
 		pixel_texture::EWrapMode::Repeat)
 {}
@@ -66,7 +61,6 @@ template<math::EColorSpace COLOR_SPACE>
 inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 	const pixel_texture::EPixelLayout     colorLayout,
-	const math::EColorUsage               usage,
 	const pixel_texture::ESampleMode      sampleMode,
 	const pixel_texture::EWrapMode        wrapMode) :
 
@@ -75,8 +69,7 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 		sampleMode,
 		wrapMode),
 
-	m_colorLayout(colorLayout),
-	m_usage      (usage)
+	m_colorLayout(colorLayout)
 {
 	const auto layoutSize = pixel_texture::num_pixel_elements(m_colorLayout);
 	const auto pixelSize  = getPixelBuffer()->numPixelElements();
@@ -162,7 +155,7 @@ inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
 		static_cast<math::ColorValue>(color[1]),
 		static_cast<math::ColorValue>(color[2])};
 
-	out_value->setTransformed<COLOR_SPACE>(castedColor, m_usage);
+	out_value->setTransformed<COLOR_SPACE>(castedColor, sampleLocation.expectedUsage());
 }
 
 }// end namespace ph
