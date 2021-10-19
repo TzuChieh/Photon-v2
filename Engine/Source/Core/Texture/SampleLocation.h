@@ -10,13 +10,13 @@
 namespace ph
 {
 
-/*
-	This class provides a temporal, higher order of abstraction over data
-	regarding ray-hit information. This abstraction layer is tailored
-	towards texture sampling and shall not be used in other circumstances.
-	The philosophy of this abstraction layer is that texture sampling 
-	processes should not care about the context of a hit, but focus on the
-	actual data of the target point. 
+/*!
+This class provides a temporal, higher order of abstraction over data
+regarding ray-hit information. This abstraction layer is tailored
+towards texture sampling and shall not be used in other circumstances.
+The philosophy of this abstraction layer is that texture sampling 
+processes should not care about the context of a hit, but focus on the
+actual data of the target point. 
 */
 class SampleLocation final
 {
