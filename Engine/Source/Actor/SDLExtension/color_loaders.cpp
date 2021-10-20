@@ -4,9 +4,7 @@
 #include "Common/assertion.h"
 #include "Actor/Image/ConstantImage.h"
 #include "DataIO/SDL/sdl_helpers.h"
-#include "DataIO/io_utils.h"
-#include "Actor/Image/LdrPictureImage.h"
-#include "Actor/Image/HdrPictureImage.h"
+#include "Actor/Image/RasterFileImage.h"
 #include "DataIO/SDL/SdlInputPayload.h"
 #include "DataIO/SDL/Introspect/TSdlEnum.h"
 #include "Math/Color/color_spaces.h"
@@ -115,25 +113,9 @@ std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus,
 			: usage == math::EColorUsage::ECF ? ConstantImage::EType::ECF_LINEAR_SRGB : ConstantImage::EType::RAW);
 }
 
-std::shared_ptr<Image> load_picture_color(const Path& filePath)
+std::shared_ptr<Image> load_picture_file_color(const Path& filePath)
 {
-	const std::string extension = filePath.getExtension();
-
-	// TODO: what if a format supports both LDR & HDR?
-
-	if(io_utils::has_LDR_support(extension))
-	{
-		return std::make_shared<LdrPictureImage>(io_utils::load_LDR_picture(filePath));
-	}
-	else if(io_utils::has_HDR_support(extension))
-	{
-		return std::make_shared<HdrPictureImage>(io_utils::load_HDR_picture(filePath));
-	}
-	else
-	{
-		throw SdlLoadError(
-			"on parsing picture color -> unsupported format: " + filePath.toAbsoluteString());
-	}
+	return std::make_shared<RasterFileImage>(filePath);
 }
 
 }// end namespace ph::sdl

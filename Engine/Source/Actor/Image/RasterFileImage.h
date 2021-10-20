@@ -4,6 +4,7 @@
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/SDL/sdl_interface.h"
 #include "DataIO/SDL/Introspect/TSdlPath.h"
+#include "Core/Texture/Pixel/pixel_texture_basics.h"
 #include "Core/Texture/Pixel/PixelBuffer2D.h"
 #include "Math/Color/color_enums.h"
 
@@ -19,10 +20,10 @@ public:
 	explicit RasterFileImage(Path filePath);
 
 	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
-		ActorCookingContext& ctx) const override;
+		ActorCookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) const override;
+		ActorCookingContext& ctx) override;
 
 protected:
 	std::shared_ptr<PixelBuffer2D> loadPixelBuffer(
@@ -30,7 +31,8 @@ protected:
 		math::EColorSpace*   out_colorSpace = nullptr) const;
 
 	pixel_texture::ESampleMode getTextureSampleMode() const;
-	pixel_texture::EWrapMode getTextureWrapMode() const;
+	pixel_texture::EWrapMode getTextureWrapModeS() const;
+	pixel_texture::EWrapMode getTextureWrapModeT() const;
 
 private:
 	Path m_filePath;

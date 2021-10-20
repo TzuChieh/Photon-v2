@@ -22,6 +22,12 @@ public:
 		pixel_texture::ESampleMode            sampleMode,
 		pixel_texture::EWrapMode              wrapMode);
 
+	TPixelTexture2D(
+		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
+		pixel_texture::ESampleMode            sampleMode,
+		pixel_texture::EWrapMode              wrapModeS,
+		pixel_texture::EWrapMode              wrapModeT);
+
 	void sample(
 		const SampleLocation& sampleLocation, 
 		OutputType*           out_value) const override = 0;
@@ -31,16 +37,21 @@ public:
 	math::TVector2<uint32> getSizePx() const;
 	math::Vector2D getTexelSize() const;
 	pixel_texture::ESampleMode getSampleMode() const;
-	pixel_texture::EWrapMode getWrapMode() const;
+	pixel_texture::EWrapMode getWrapModeS() const;
+	pixel_texture::EWrapMode getWrapModeT() const;
 	const PixelBuffer2D* getPixelBuffer() const;
 
 	pixel_buffer::TPixel<float64> samplePixelBufferNearest(const math::Vector2D& sampleUV) const;
 	pixel_buffer::TPixel<float64> samplePixelBufferBilinear(const math::Vector2D& sampleUV) const;
 
+protected:
+	math::Vector2D sampleUVToST(const math::Vector2D& sampleUV);
+
 private:
 	std::shared_ptr<PixelBuffer2D> m_pixelBuffer;
 	pixel_texture::ESampleMode     m_sampleMode;
-	pixel_texture::EWrapMode       m_wrapMode;
+	pixel_texture::EWrapMode       m_wrapModeS;
+	pixel_texture::EWrapMode       m_wrapModeT;
 	math::Vector2D                 m_texelSize;
 };
 

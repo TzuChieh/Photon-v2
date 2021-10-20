@@ -58,6 +58,25 @@ inline std::shared_ptr<TFrameBuffer2D<T, N>> make_frame_buffer_from_picture(cons
 	return std::make_shared<TFrameBuffer2D<T, N>>(make_frame_from_picture<T, N>(picture));
 }
 
+inline pixel_texture::EWrapMode to_texture_wrap_mode(const EImageWrapMode wrapMode)
+{
+	switch(wrapMode)
+	{
+	case EImageWrapMode::ClampToEdge:
+		return pixel_texture::EWrapMode::ClampToEdge;
+
+	case EImageWrapMode::Repeat:
+		return pixel_texture::EWrapMode::Repeat;
+
+	case EImageWrapMode::FlippedClampToEdge:
+		return pixel_texture::EWrapMode::FlippedClampToEdge;
+
+	default:
+		PH_LOG_WARNING(RasterFileImage, "unsupported image wrap mode, using Repeat");
+		return pixel_texture::EWrapMode::Repeat;
+	}
+}
+
 }// end anonymous namespace
 
 RasterFileImage::RasterFileImage() :
@@ -72,32 +91,40 @@ RasterFileImage::RasterFileImage(Path filePath) :
 {}
 
 std::shared_ptr<TTexture<Image::NumericArray>> RasterFileImage::genNumericTexture(
-	ActorCookingContext& ctx) const
+	ActorCookingContext& ctx)
 {
+	auto pixelBuffer = loadPixelBuffer(ctx);
+	setResolution(pixelBuffer->getSize());
+
 	return std::make_shared<TNumericPixelTexture2D<Image::NUMERIC_ARRAY_SIZE>>(
-		loadPixelBuffer(ctx),
+		pixelBuffer,
 		getTextureSampleMode(),
-		getTextureWrapMode());
+		getTextureWrapModeS(),
+		getTextureWrapModeT());
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
-	ActorCookingContext& ctx) const
+	ActorCookingContext& ctx)
 {
 	math::EColorSpace colorSpace;
 	auto pixelBuffer = loadPixelBuffer(ctx, &colorSpace);
 
+	setResolution(pixelBuffer->getSize());
+
 	const auto sampleMode = getTextureSampleMode();
-	const auto wrapMode   = getTextureWrapMode();
+	const auto wrapModeS  = getTextureWrapModeS();
+	const auto wrapModeT  = getTextureWrapModeT();
 	const auto layout     = pixel_texture::EPixelLayout::PL_RGBA;
 
 	auto textureMaker =
-	[&pixelBuffer, layout, sampleMode, wrapMode]<math::EColorSpace COLOR_SPACE>()
+	[&pixelBuffer, layout, sampleMode, wrapModeS, wrapModeT]<math::EColorSpace COLOR_SPACE>()
 	{
 		return std::make_shared<TColorPixelTexture2D<COLOR_SPACE>>(
 			pixelBuffer,
 			layout,
 			sampleMode,
-			wrapMode);
+			wrapModeS,
+			wrapModeT);
 	};
 
 	switch(colorSpace)
@@ -200,20 +227,14 @@ pixel_texture::ESampleMode RasterFileImage::getTextureSampleMode() const
 	}
 }
 
-pixel_texture::EWrapMode RasterFileImage::getTextureWrapMode() const
+pixel_texture::EWrapMode RasterFileImage::getTextureWrapModeS() const
 {
-	switch(getWrapMode())
-	{
-	case EImageWrapMode::ClampToEdge:
-		return pixel_texture::EWrapMode::ClampToEdge;
+	return to_texture_wrap_mode(getHorizontalWrapMode());
+}
 
-	case EImageWrapMode::Repeat:
-		return pixel_texture::EWrapMode::Repeat;
-
-	default:
-		PH_LOG_WARNING(RasterFileImage, "unsupported image wrap mode, using Repeat");
-		return pixel_texture::EWrapMode::Repeat;
-	}
+pixel_texture::EWrapMode RasterFileImage::getTextureWrapModeT() const
+{
+	return to_texture_wrap_mode(getVerticalWrapMode());
 }
 
 }// end namespace ph

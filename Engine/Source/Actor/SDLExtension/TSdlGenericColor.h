@@ -99,7 +99,7 @@ inline void TSdlGenericColor<Owner>::loadFromSdl(
 		else if(payload.isResourceIdentifier())
 		{
 			const SdlResourceIdentifier resId(payload.value, ctx.getWorkingDirectory());
-			this->setValueRef(owner, sdl::load_picture_color(resId.getPathToResource()));
+			this->setValueRef(owner, sdl::load_picture_file_color(resId.getPathToResource()));
 		}
 		else
 		{

@@ -1,6 +1,5 @@
 #include "Actor/Dome/AImageDome.h"
-#include "DataIO/PictureLoader.h"
-#include "Actor/Image/HdrPictureImage.h"
+#include "Actor/Image/RasterFileImage.h"
 
 namespace ph
 {
@@ -19,18 +18,18 @@ AImageDome::AImageDome(const Path& imagePath) :
 
 std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(ActorCookingContext& ctx)
 {
-	auto frame = PictureLoader::loadHdr(m_imagePath);
+	RasterFileImage image(m_imagePath);
+	image.setSampleMode(EImageSampleMode::Bilinear);
 
-	// Since we are viewing it from inside a sphere
-	frame.flipHorizontally();
+	// Since we are viewing it from inside a sphere, we flip the image horizontally
+	image.setWrapMode(EImageWrapMode::FlippedClampToEdge, EImageWrapMode::ClampToEdge);
 
-	m_imageResolution = math::Vector2S(frame.getSizePx());
+	auto radianceFunc = image.genColorTexture(ctx);
 
-	auto image = std::make_shared<HdrPictureImage>(std::move(frame));
-	image->setSampleMode(EImgSampleMode::BILINEAR);
-	image->setWrapMode(EImgWrapMode::REPEAT);
+	// Access image property after cooking for an up-to-date value
+	m_imageResolution = math::Vector2S(image.getResolution());
 
-	return image->genTextureSpectral(ctx);
+	return radianceFunc;
 }
 
 math::Vector2S AImageDome::getResolution() const

@@ -8,14 +8,14 @@ Image::Image()
 {}
 
 std::shared_ptr<TTexture<Image::NumericArray>> Image::genNumericTexture(
-	ActorCookingContext& ctx) const
+	ActorCookingContext& ctx)
 {
 	throw ActorCookException(
 		"The image does not support numeric texture generation.");
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> Image::genColorTexture(
-	ActorCookingContext& ctx) const
+	ActorCookingContext& ctx)
 {
 	throw ActorCookException(
 		"The image does not support color texture generation.");

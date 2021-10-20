@@ -20,6 +20,6 @@ math::Spectrum load_spectrum(const SdlInputPayload& payload, math::EColorUsage u
 
 //std::shared_ptr<Image> load_spectral_color(const Spectrum& spectrum);
 std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus, math::EColorSpace colorSpace, math::EColorUsage usage);
-std::shared_ptr<Image> load_picture_color(const Path& filePath);
+std::shared_ptr<Image> load_picture_file_color(const Path& filePath);
 
 }// end namespace ph::sdl

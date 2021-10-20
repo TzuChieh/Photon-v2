@@ -52,9 +52,7 @@
 // images
 #include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
-#include "Actor/Image/LdrPictureImage.h"
-#include "Actor/Image/HdrPictureImage.h"
-#include "Actor/Image/RealMathImage.h"
+#include "Actor/Image/RasterImageBase.h"
 #include "Actor/Image/CheckerboardImage.h"
 #include "Actor/Image/GradientImage.h"
 

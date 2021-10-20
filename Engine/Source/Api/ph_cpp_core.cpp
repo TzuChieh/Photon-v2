@@ -86,6 +86,7 @@
 #include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
 #include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
 #include "EngineEnv/Visualizer/sdl_scheduler_type.h"
+#include "Actor/Image/sdl_image_enums.h"
 #include "Actor/SDLExtension/sdl_color_space_type.h"
 #include "Actor/SDLExtension/sdl_color_usage_type.h"
 
@@ -182,6 +183,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		// Images
 		get_sdl_class<Image>(),
 		get_sdl_class<RasterImageBase>(),
+		get_sdl_class<RasterFileImage>(),
 
 		// Observers
 		get_sdl_class<Observer>(),
@@ -221,6 +223,8 @@ std::vector<const SdlEnum*> get_registered_sdl_enums()
 		get_sdl_enum<EAccelerator>(),
 		get_sdl_enum<ERayEnergyEstimator>(),
 		get_sdl_enum<ESampleFilter>(),
+		get_sdl_enum<EImageSampleMode>(),
+		get_sdl_enum<EImageWrapMode>(),
 		get_sdl_enum<math::EColorSpace>(),
 		get_sdl_enum<math::EColorUsage>(),
 	};

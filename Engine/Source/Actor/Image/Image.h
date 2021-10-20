@@ -29,10 +29,10 @@ public:
 	Image();
 
 	virtual std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
-		ActorCookingContext& ctx) const;
+		ActorCookingContext& ctx);
 
 	virtual std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) const;
+		ActorCookingContext& ctx);
 
 	virtual std::shared_ptr<TTexture<real>> genTextureReal(
 		ActorCookingContext& ctx) const;

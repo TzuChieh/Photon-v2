@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Utility/utility.h"
+#include "Math/math.h"
 
 #include <array>
 #include <cstddef>
@@ -18,7 +19,8 @@ namespace pixel_texture
 enum class EWrapMode
 {
 	Repeat = 0,
-	ClampToEdge
+	ClampToEdge,
+	FlippedClampToEdge,
 };
 
 enum class ESampleMode
@@ -44,33 +46,53 @@ enum class EPixelLayout
 	PL_BGRA
 };
 
-/*! @brief Transform (u, v) coordinates to [0, 1] according to wrap mode.
+/*! @brief Transform (u, v) coordinates to (s, t) in [0, 1] according to wrap mode.
+This overload operates on single channel only. The transformation will preserve texel density 
+as it originally is (e.g, no scaling effect).
 */
-inline math::Vector2D normalize_uv(const math::Vector2D& inputUV, const EWrapMode wrapMode)
+inline float64 uv_to_st_scalar(const float64 inputUV, const EWrapMode wrapMode)
 {
-	math::Vector2D outputUV{};
+	float64 outputST = 0.0;
 	switch(wrapMode)
 	{
 	case EWrapMode::Repeat:
 	{
-		const float64 fu = math::fractional_part(inputUV.u());
-		const float64 fv = math::fractional_part(inputUV.v());
-		outputUV.u() = fu >= 0.0 ? fu : fu + 1.0;
-		outputUV.v() = fv >= 0.0 ? fv : fv + 1.0;
+		const float64 st = math::fractional_part(inputUV);
+		outputST = st >= 0.0 ? st : st + 1.0;
 		break;
 	}
+
 	case EWrapMode::ClampToEdge:
 	{
-		outputUV = inputUV.clamp(0.0, 1.0);
+		outputST = math::clamp(inputUV, 0.0, 1.0);
 		break;
 	}
+
+	case EWrapMode::FlippedClampToEdge:
+	{
+		const float64 flippedST = inputUV * -1.0 + 1.0;
+		outputST = math::clamp(flippedST, 0.0, 1.0);
+		break;
+	}
+
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 
-	PH_ASSERT_IN_RANGE_INCLUSIVE(outputUV.u(), 0.0, 1.0);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(outputUV.v(), 0.0, 1.0);
-	return outputUV;
+	PH_ASSERT_IN_RANGE_INCLUSIVE(outputST, 0.0, 1.0);
+	return outputST;
+}
+
+/*! @brief Transform (u, v) coordinates to (s, t) in [0, 1] according to wrap mode.
+The transformation will preserve texel density as it originally is (e.g, no scaling effect).
+*/
+inline math::Vector2D uv_to_st(const math::Vector2D& inputUV, const EWrapMode wrapModeS, const EWrapMode wrapModeT)
+{
+	return
+	{
+		uv_to_st_scalar(inputUV.u(), wrapModeS),
+		uv_to_st_scalar(inputUV.v(), wrapModeT)
+	};
 }
 
 inline std::size_t num_pixel_elements(const EPixelLayout layout)

@@ -14,8 +14,8 @@ template<typename OutputType>
 inline TPixelTexture2D<OutputType>::TPixelTexture2D(const std::shared_ptr<PixelBuffer2D>& pixelBuffer) :
 	TPixelTexture2D(
 		pixelBuffer,
-		EPixelTextureSampleMode::Bilinear,
-		EPixelTextureWrapMode::ClampToEdge)
+		pixel_texture::ESampleMode::Bilinear,
+		pixel_texture::EWrapMode::ClampToEdge)
 {}
 
 template<typename OutputType>
@@ -24,11 +24,26 @@ inline TPixelTexture2D<OutputType>::TPixelTexture2D(
 	const pixel_texture::ESampleMode      sampleMode,
 	const pixel_texture::EWrapMode        wrapMode) :
 
+	TPixelTexture2D(
+		pixelBuffer,
+		sampleMode,
+		wrapMode,
+		wrapMode)
+{}
+
+template<typename OutputType>
+inline TPixelTexture2D<OutputType>::TPixelTexture2D(
+	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
+	const pixel_texture::ESampleMode      sampleMode,
+	const pixel_texture::EWrapMode        wrapModeS,
+	const pixel_texture::EWrapMode        wrapModeT) :
+
 	TTexture<OutputType>(),
 
 	m_pixelBuffer(pixelBuffer),
 	m_sampleMode (sampleMode),
-	m_wrapMode   (wrapMode),
+	m_wrapModeS  (wrapModeS),
+	m_wrapModeT  (wrapModeT),
 	m_texelSize  (0)
 {
 	if(!m_pixelBuffer)
@@ -60,9 +75,15 @@ inline pixel_texture::ESampleMode TPixelTexture2D<OutputType>::getSampleMode() c
 }
 
 template<typename OutputType>
-inline pixel_texture::EWrapMode TPixelTexture2D<OutputType>::getWrapMode() const
+inline pixel_texture::EWrapMode TPixelTexture2D<OutputType>::getWrapModeS() const
 {
-	return m_wrapMode;
+	return m_wrapModeS;
+}
+
+template<typename OutputType>
+inline pixel_texture::EWrapMode TPixelTexture2D<OutputType>::getWrapModeT() const
+{
+	return m_wrapModeT;
 }
 
 template<typename OutputType>
@@ -70,6 +91,12 @@ inline const PixelBuffer2D* TPixelTexture2D<OutputType>::getPixelBuffer() const
 {
 	PH_ASSERT(m_pixelBuffer);
 	return m_pixelBuffer.get();
+}
+
+template<typename OutputType>
+inline math::Vector2D TPixelTexture2D<OutputType>::sampleUVToST(const math::Vector2D& sampleUV)
+{
+	return pixel_texture::uv_to_st(sampleUV, getWrapModeS(), getWrapModeT());
 }
 
 template<typename OutputType>
@@ -94,12 +121,11 @@ inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBuf
 	const math::TVector2<uint32> bufferSize = getSizePx();
 	PH_ASSERT_GT(bufferSize.product(), 0);
 
-	// Normalize uv first to avoid overflowing xy after multiplying buffer width and height
-	const math::Vector2D normUV = pixel_texture::normalize_uv(sampleUV, getWrapMode());
+	const math::Vector2D st = sampleUVToST(sampleUV);
 		
 	// Calculate pixel buffer index and handle potential overflow
-	uint32 x = static_cast<uint32>(normUV.u() * bufferSize.x());
-	uint32 y = static_cast<uint32>(normUV.v() * bufferSize.y());
+	uint32 x = static_cast<uint32>(st[0] * bufferSize.x());
+	uint32 y = static_cast<uint32>(st[1] * bufferSize.y());
 	x = x < bufferSize.x() ? x : bufferSize.x() - 1;
 	y = y < bufferSize.y() ? y : bufferSize.y() - 1;
 
@@ -112,10 +138,10 @@ inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBuf
 	const math::TVector2<uint32> bufferSize = getSizePx();
 	PH_ASSERT_GT(bufferSize.product(), 0);
 
-	const math::Vector2D normUV = normalize_texture_uv(sampleUV, getWrapMode());
+	const math::Vector2D st = sampleUVToST(sampleUV);
 
-	const float64 x  = normUV.u() * bufferSize.x();
-	const float64 y  = normUV.v() * bufferSize.y();
+	const float64 x  = st[0] * bufferSize.x();
+	const float64 y  = st[1] * bufferSize.y();
 	const float64 x0 = std::floor(x - 0.5) + 0.5;
 	const float64 y0 = std::floor(y - 0.5) + 0.5;
 	const float64 x1 = x0 + 1.0;
@@ -139,11 +165,11 @@ inline pixel_buffer::TPixel<float64> TPixelTexture2D<OutputType>::samplePixelBuf
 	ComputePixel accuPixel(0);
 	for(std::size_t i = 0; i < 4; ++i)
 	{
-		// Normalized UV for the i-th vertex of the bilinear quad
-		const math::Vector2D normUVi = pixel_texture::normalize_uv(xys[i] * getTexelSize(), getWrapMode());
+		// ST coordinates for the i-th vertex of the bilinear quad
+		const math::Vector2D st_i = sampleUVToST(xys[i] * getTexelSize());
 
-		uint32 xi = static_cast<uint32>(normUVi.u() * bufferSize.x());
-		uint32 yi = static_cast<uint32>(normUVi.v() * bufferSize.y());
+		uint32 xi = static_cast<uint32>(st_i[0] * bufferSize.x());
+		uint32 yi = static_cast<uint32>(st_i[1] * bufferSize.y());
 		xi = xi < bufferSize.x() ? xi : bufferSize.x() - 1;
 		yi = yi < bufferSize.y() ? yi : bufferSize.y() - 1;
 
