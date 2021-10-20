@@ -13,6 +13,10 @@
 namespace ph
 {
 
+/*
+@note The definition for SDL enum, i.e., the definition body of `PH_DEFINE_SDL_ENUM()` must
+present before the use of the enum field.
+*/
 template<typename Owner, typename EnumType, typename SdlValueType = TSdlValue<EnumType, Owner>>
 class TSdlEnumField : public SdlValueType
 {

@@ -2,13 +2,16 @@
 
 #include "Actor/Image/Image.h"
 #include "Math/math_fwd.h"
+#include "Actor/SDLExtension/sdl_color_space_type.h"
+#include "Actor/SDLExtension/sdl_color_usage_type.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <vector>
 
 namespace ph
 {
 
-class ConstantImage final : public Image
+class ConstantImage : public Image
 {
 public:
 	enum class EType
@@ -23,10 +26,16 @@ public:
 	ConstantImage();
 	explicit ConstantImage(real value);
 	explicit ConstantImage(const math::Vector3R& values);
-	explicit ConstantImage(const std::vector<real>& values);
-	ConstantImage(real value, EType type);
-	ConstantImage(const math::Vector3R& values, EType type);
-	ConstantImage(const std::vector<real>& values, EType type);
+	explicit ConstantImage(std::vector<real> values);
+	ConstantImage(real color, math::EColorSpace colorSpace);
+	ConstantImage(const math::Vector3R& values, math::EColorSpace colorSpace);
+	ConstantImage(std::vector<real> values, math::EColorSpace colorSpace);
+
+	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+		ActorCookingContext& ctx) override;
+
+	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
+		ActorCookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<real>> genTextureReal(
 		ActorCookingContext& ctx) const override;
@@ -39,7 +48,7 @@ public:
 
 private:
 	std::vector<real> m_values;
-	EType             m_type;
+	math::EColorSpace m_colorSpace;
 };
 
 }// end namespace ph

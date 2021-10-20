@@ -1,39 +1,55 @@
 #include "Actor/Image/ConstantImage.h"
-#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/constant_textures.h"
 #include "Math/TVector3.h"
+#include "Common/logging.h"
 
 #include <iostream>
+#include <utility>
 
 namespace ph
 {
+
+PH_DEFINE_INTERNAL_LOG_GROUP();
 
 ConstantImage::ConstantImage() :
 	ConstantImage(1.0_r)
 {}
 
 ConstantImage::ConstantImage(const real value) : 
-	ConstantImage(value, EType::RAW)
+	ConstantImage(value, math::EColorSpace::UNSPECIFIED)
 {}
 
 ConstantImage::ConstantImage(const math::Vector3R& values) :
-	ConstantImage(values, EType::RAW)
+	ConstantImage(values, math::EColorSpace::UNSPECIFIED)
 {}
 
-ConstantImage::ConstantImage(const std::vector<real>& values) : 
-	ConstantImage(values, EType::RAW)
+ConstantImage::ConstantImage(std::vector<real> values) : 
+	ConstantImage(values, math::EColorSpace::UNSPECIFIED)
 {}
 
-ConstantImage::ConstantImage(const real value, const EType type) : 
-	ConstantImage(std::vector<real>{value}, type)
+ConstantImage::ConstantImage(const real value, math::EColorSpace colorSpace) :
+	ConstantImage(std::vector<real>{value}, colorSpace)
 {}
 
-ConstantImage::ConstantImage(const math::Vector3R& values, const EType type) :
-	ConstantImage(std::vector<real>{values.x, values.y, values.z}, type)
+ConstantImage::ConstantImage(const math::Vector3R& values, math::EColorSpace colorSpace) :
+	ConstantImage(std::vector<real>{values.x, values.y, values.z}, colorSpace)
 {}
 
-ConstantImage::ConstantImage(const std::vector<real>& values, const EType type) : 
-	m_values(values), m_type(type)
+ConstantImage::ConstantImage(std::vector<real> values, math::EColorSpace colorSpace) :
+	m_values(std::move(values)), m_colorSpace(colorSpace)
 {}
+
+std::shared_ptr<TTexture<Image::NumericArray>> ConstantImage::genNumericTexture(
+	ActorCookingContext& ctx)
+{
+
+}
+
+std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
+	ActorCookingContext& ctx)
+{
+
+}
 
 std::shared_ptr<TTexture<real>> ConstantImage::genTextureReal(
 	ActorCookingContext& ctx) const

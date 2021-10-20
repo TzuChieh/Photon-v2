@@ -50,7 +50,7 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 	const pixel_texture::EPixelLayout     colorLayout) :
 
-	TPixelTexture2D<std::array<float64, N>>(
+	TPixelTexture2D<math::Spectrum>(
 		pixelBuffer,
 		colorLayout,
 		pixel_texture::ESampleMode::Bilinear,
@@ -64,7 +64,7 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 	const pixel_texture::ESampleMode      sampleMode,
 	const pixel_texture::EWrapMode        wrapMode) :
 
-	TPixelTexture2D<std::array<float64, N>>(
+	TPixelTexture2D<math::Spectrum>(
 		pixelBuffer,
 		sampleMode,
 		wrapMode),
