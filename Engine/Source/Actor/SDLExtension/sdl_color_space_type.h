@@ -13,8 +13,8 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<math::EColorSpace>)
 
 	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
 	sdlEnum.addEntry(EnumType::Linear_sRGB, "LSRGB");
-	sdlEnum.addEntry(EnumType::sRGB, "SRGB");
-	sdlEnum.addEntry(EnumType::ACEScg, "ACES");
+	sdlEnum.addEntry(EnumType::sRGB,        "SRGB");
+	sdlEnum.addEntry(EnumType::ACEScg,      "ACES");
 
 	// Default spectral representation is always defined to be "SPD" on the SDL side, so
 	// it is easier to change the mapped color space later in C++.

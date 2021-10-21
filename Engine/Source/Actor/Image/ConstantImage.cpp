@@ -2,6 +2,9 @@
 #include "Core/Texture/constant_textures.h"
 #include "Math/TVector3.h"
 #include "Common/logging.h"
+#include "Common/assertion.h"
+#include "Math/math.h"
+#include "Actor/actor_exceptions.h"
 
 #include <iostream>
 #include <utility>
@@ -9,7 +12,7 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP();
+PH_DEFINE_INTERNAL_LOG_GROUP(ConstantImage, Image);
 
 ConstantImage::ConstantImage() :
 	ConstantImage(1.0_r)
@@ -42,138 +45,93 @@ ConstantImage::ConstantImage(std::vector<real> values, math::EColorSpace colorSp
 std::shared_ptr<TTexture<Image::NumericArray>> ConstantImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {
+	if(m_values.size() > Image::NUMERIC_ARRAY_SIZE)
+	{
+		PH_LOG_WARNING(ConstantImage, 
+			"{} values provided for a numeric array of max size {}, there will be data loss",
+			m_values.size(), Image::NUMERIC_ARRAY_SIZE);
+	}
 
+	Image::NumericArray arr;
+	arr.fill(0);
+	for(std::size_t i = 0; i < Image::NUMERIC_ARRAY_SIZE && i < m_values.size(); ++i)
+	{
+		arr[i] = m_values[i];
+	}
+
+	return std::make_shared<TConstantTexture<Image::NumericArray>>(arr);
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 	ActorCookingContext& ctx)
 {
-
-}
-
-std::shared_ptr<TTexture<real>> ConstantImage::genTextureReal(
-	ActorCookingContext& ctx) const
-{
-	if(m_values.size() != 1)
+	if(m_colorSpace != math::EColorSpace::Spectral)
 	{
-		std::cerr << "warning: at ConstantImage::genTextureReal(), "
-		          << "zero or > 1 values present. "
-		          << "Generating texture with value 1 or first value." << std::endl;
-	}
-
-	if(m_type != EType::RAW)
-	{
-		std::cerr << "warning: at ConstantImage::genTextureReal(), "
-		          << "non-raw type for real texture is unsupported, using raw" << std::endl;
-	}
-
-	const real value = m_values.empty() ? 1 : m_values[0];
-	return std::make_shared<TConstantTexture<real>>(value);
-}
-
-std::shared_ptr<TTexture<math::Vector3R>> ConstantImage::genTextureVector3R(
-	ActorCookingContext& ctx) const
-{
-	math::Vector3R values;
-	if(m_values.size() == 1)
-	{
-		values.set(m_values[0], m_values[0], m_values[0]);
-	}
-	else if(m_values.size() == 3)
-	{
-		values.set(m_values[0], m_values[1], m_values[2]);
-	}
-	else
-	{
-		std::cerr << "warning: at ConstantImage::genTextureVector3R(), "
-		          << "mismatched number of input values."
-		          << "Generated texture may not be what you want." << std::endl;
-		values.x = m_values.size() >= 1 ? m_values[0] : 1;
-		values.y = m_values.size() >= 2 ? m_values[1] : 1;
-		values.z = m_values.size() >= 3 ? m_values[2] : 1;
-	}
-
-	if(m_type != EType::RAW)
-	{
-		std::cerr << "warning: at ConstantImage::genTextureVector3R(), "
-		          << "non-raw type for vec3 texture is unsupported, using raw" << std::endl;
-	}
-
-	return std::make_shared<TConstantTexture<math::Vector3R>>(values);
-}
-
-std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genTextureSpectral(
-	ActorCookingContext& ctx) const
-{
-	math::Spectrum values;
-	if(m_values.size() == 1)
-	{
-		switch(m_type)
+		math::Vector3D values;
+		if(m_values.size() == 1)
 		{
-		case EType::RAW:
-			values.setColorValues(m_values[0]);
-			break;
-			
-		case EType::EMR_LINEAR_SRGB:
-			values.setLinearSRGB(math::Vector3R(m_values[0]).toArray(), math::EColorUsage::EMR);
-			break;
-
-		case EType::ECF_LINEAR_SRGB:
-			values.setLinearSRGB(math::Vector3R(m_values[0]).toArray(), math::EColorUsage::ECF);
-			break;
-
-		default:
-			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
-			          << "unsupported value type, using raw" << std::endl;
-			values.setColorValues(m_values[0]);
-			break;
+			values.set(m_values[0]);
 		}
-	}
-	else if(m_values.size() == 3)
-	{
-		switch(m_type)
+		else if(m_values.size() == 3)
 		{
-		case EType::EMR_LINEAR_SRGB:
-			values.setLinearSRGB(math::Vector3R(m_values[0], m_values[1], m_values[2]).toArray(), math::EColorUsage::EMR);
-			break;
+			values.set(m_values[0], m_values[1], m_values[2]);
+		}
+		else
+		{
+			PH_LOG_WARNING(ConstantImage,
+				"mismatched number of input values: expected 3, {} provided; generated texture may not be what you want.",
+				m_values.size());
 
-		case EType::ECF_LINEAR_SRGB:
-			values.setLinearSRGB(math::Vector3R(m_values[0], m_values[1], m_values[2]).toArray(), math::EColorUsage::ECF);
-			break;
+			values.x = m_values.size() >= 1 ? m_values[0] : 0;
+			values.y = m_values.size() >= 2 ? m_values[1] : 0;
+			values.z = m_values.size() >= 3 ? m_values[2] : 0;
+		}
 
-		case EType::RAW_LINEAR_SRGB:
-			values.setLinearSRGB(math::Vector3R(m_values[0], m_values[1], m_values[2]).toArray(), math::EColorUsage::RAW);
-			break;
+		const math::TristimulusValues color = math::TVector3<math::ColorValue>(values).toArray();
+
+		switch(m_colorSpace)
+		{
+		case math::EColorSpace::Linear_sRGB:
+			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(color);
+
+		case math::EColorSpace::sRGB:
+			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::sRGB>>(color);
+
+		case math::EColorSpace::ACEScg:
+			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::ACEScg>>(color);
 
 		default:
-			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
-			          << "unsupported value type, assuming ECF linear sRGB" << std::endl;
-			values.setLinearSRGB(math::Vector3R(m_values[0], m_values[1], m_values[2]).toArray(), math::EColorUsage::ECF);
-			break;
+			PH_LOG_WARNING(ConstantImage,
+				"unsupported color space for tristimulus color detected; using Linear-sRGB instead",
+				m_values.size());
+			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(color);
 		}
 	}
 	else
 	{
-		if(m_values.size() != math::Spectrum::NUM_VALUES)
+		math::SampledSpectrum sampledSpectrum(0);
+		if(m_values.size() == 1)
 		{
-			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
-			          << "bad number of input values."
-			          << "Generated texture may not be what you want." << std::endl;
+			sampledSpectrum = math::SampledSpectrum(static_cast<math::ColorValue>(m_values[0]));
+		}
+		// If there are even values, assume to be wavelength-value data points
+		else if(!m_values.empty() && math::is_even(m_values.size()))
+		{
+			sampledSpectrum = math::SampledSpectrum(math::resample_spectral_samples<math::ColorValue, float64>(
+				m_values.data(),
+				m_values.data() + m_values.size() / 2,
+				m_values.size() / 2));
+		}
+		else
+		{
+			throw ActorCookException(
+				"invalid constant spectrum representation: "
+				"(number of input values = " + std::to_string(m_values.size()) + ")");
 		}
 
-		if(m_type != EType::RAW)
-		{
-			std::cerr << "warning: at ConstantImage::genTextureSpectral(), "
-			          << "only raw type is supported." << std::endl;
-		}
-
-		for(std::size_t i = 0; i < math::Spectrum::NUM_VALUES; i++)
-		{
-			values[i] = i < m_values.size() ? m_values[i] : 1;
-		}
+		return std::make_shared<TConstantSpectralTexture<math::EColorSpace::Spectral>>(
+			sampledSpectrum);
 	}
-
-	return std::make_shared<TConstantTexture<math::Spectrum>>(values);
 }
 
 }// end namespace ph

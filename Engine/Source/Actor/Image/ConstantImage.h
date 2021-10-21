@@ -37,18 +37,9 @@ public:
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
 		ActorCookingContext& ctx) override;
 
-	std::shared_ptr<TTexture<real>> genTextureReal(
-		ActorCookingContext& ctx) const override;
-
-	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
-		ActorCookingContext& ctx) const override;
-
-	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
-		ActorCookingContext& ctx) const override;
-
 private:
-	std::vector<real> m_values;
-	math::EColorSpace m_colorSpace;
+	std::vector<float64> m_values;
+	math::EColorSpace    m_colorSpace;
 };
 
 }// end namespace ph

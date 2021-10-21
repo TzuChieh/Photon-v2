@@ -6,7 +6,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TTexture.h"
 #include "Common/assertion.h"
-#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/constant_textures.h"
 #include "Math/math.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 

@@ -5,7 +5,7 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
-#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/constant_textures.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 

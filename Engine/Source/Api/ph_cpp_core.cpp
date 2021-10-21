@@ -40,6 +40,7 @@
 
 // Images
 #include "Actor/Image/Image.h"
+#include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/RasterImageBase.h"
 #include "Actor/Image/RasterFileImage.h"
 
@@ -182,6 +183,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 
 		// Images
 		get_sdl_class<Image>(),
+		get_sdl_class<ConstantImage>(),
 		get_sdl_class<RasterImageBase>(),
 		get_sdl_class<RasterFileImage>(),
 

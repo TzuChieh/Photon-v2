@@ -83,7 +83,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 		// Construct a curve from specified points
 		// TODO: add option for clamp to edge or set as zero, etc. for out of bound samples
 
-		math::TPiecewiseLinear1D<U> curve;
+		TPiecewiseLinear1D<U> curve;
 		for(std::size_t i = 0; i < numPoints; i++)
 		{
 			const U wavelengthNm = wavelengthsNM[i];
@@ -96,7 +96,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 		// Sample curve values by averaging each wavelength interval
 		// (note that <numPoints> does not necessarily equal to <SampleProps::NUM_SAMPLES>)
 
-		math::TAnalyticalIntegrator1D<U> areaCalculator;
+		TAnalyticalIntegrator1D<U> areaCalculator;
 		for(std::size_t i = 0; i < SampleProps::NUM_SAMPLES; ++i)
 		{
 			const auto& range = wavelength_range_of<U, SampleProps>(i);

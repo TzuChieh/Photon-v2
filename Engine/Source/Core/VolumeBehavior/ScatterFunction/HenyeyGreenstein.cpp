@@ -1,6 +1,6 @@
 #include "Core/VolumeBehavior/ScatterFunction/HenyeyGreenstein.h"
 #include "Common/assertion.h"
-#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/constant_textures.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Math/TVector3.h"

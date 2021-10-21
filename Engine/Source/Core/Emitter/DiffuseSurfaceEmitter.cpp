@@ -1,7 +1,7 @@
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
 #include "Math/TVector3.h"
 #include "Actor/Geometry/Geometry.h"
-#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/constant_textures.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Sample/PositionSample.h"
 #include "Core/Sample/DirectLightSample.h"

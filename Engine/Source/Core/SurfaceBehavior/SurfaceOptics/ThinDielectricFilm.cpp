@@ -5,7 +5,6 @@
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Common/assertion.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
-#include "Core/Texture/TConstantTexture.h"
 #include "Core/Texture/TSampler.h"
 #include "Math/math.h"
 #include "Core/SampleGenerator/SampleFlow.h"

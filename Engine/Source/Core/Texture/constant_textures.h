@@ -12,6 +12,12 @@
 namespace ph
 {
 
+/*! @brief Texture storing only one single constant.
+This texture provides only a constant value. Input color usages are ignored.
+For color-related constants, consider using @p TConstantTristimulusTexture or 
+@p TConstantSpectralTexture; otherwise, it is recommended to bake color-related
+side effects (e.g., color usages) into the constant.
+*/
 template<typename OutputType>
 class TConstantTexture : public TTexture<OutputType>
 {
@@ -53,7 +59,7 @@ private:
 };
 
 template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Spectral>
-class TConstantSpectralTexture : public TTexture<math::SpectralSampleValues>
+class TConstantSpectralTexture : public TTexture<math::Spectrum>
 {
 public:
 	explicit TConstantSpectralTexture(math::SpectralSampleValues value) :
