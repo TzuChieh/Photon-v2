@@ -1,4 +1,4 @@
-#include <Core/Texture/Function/TConstantMultiplyTexture.h>
+#include <Core/Texture/Function/unary_texture_operators.h>
 #include <Core/Texture/TTexture.h>
 
 #include <gtest/gtest.h>
@@ -17,9 +17,11 @@ TEST(TConstantMultiplyTextureTest, CorrectlyMultiply)
 		}
 	};
 
-	TConstantMultiplyTexture<real, int8, real> texture(
+	using Multiplier = texfunc::TMultiplyConstant<real, int8, real>;
+
+	TUnaryTextureOperator<real, real, Multiplier> texture(
 		std::make_shared<UnitTexture>(),
-		static_cast<int8>(2));
+		Multiplier(static_cast<int8>(2)));
 
 	real sampleValue;
 	texture.sample(SampleLocation(HitDetail()), &sampleValue);

@@ -1,4 +1,4 @@
-#include <Core/Texture/Function/TConstantAddTexture.h>
+#include <Core/Texture/Function/unary_texture_operators.h>
 #include <Core/Texture/TTexture.h>
 
 #include <gtest/gtest.h>
@@ -17,9 +17,11 @@ TEST(TConstantAddTextureTest, CorrectlyAdd)
 		}
 	};
 
-	TConstantAddTexture<real, int8, real> texture(
+	using Adder = texfunc::TAddConstant<real, int8, real>;
+
+	TUnaryTextureOperator<real, real, Adder> texture(
 		std::make_shared<UnitTexture>(),
-		static_cast<int8>(2));
+		Adder(static_cast<int8>(2)));
 
 	real sampleValue;
 	texture.sample(SampleLocation(HitDetail()), &sampleValue);

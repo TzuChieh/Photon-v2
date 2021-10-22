@@ -44,7 +44,7 @@ public:
 		clazz.docName("Raster File Image");
 		clazz.description(
 			"Raster-based image file (most common image file formats belongs to this category).");
-		clazz.baseOn<RasterFileImage>();
+		clazz.baseOn<RasterImageBase>();
 
 		TSdlPath<OwnerType> filePath("file-path", &OwnerType::m_filePath);
 		filePath.description("Path to the image file. May be a SDL resource identifier.");
