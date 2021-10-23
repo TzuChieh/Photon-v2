@@ -5,6 +5,7 @@
 #include "Core/Texture/SampleLocation.h"
 #include "Utility/traits.h"
 #include "Math/Color/Spectrum.h"
+#include "Math/TArithmeticArray.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -48,6 +49,53 @@ public:
 			"Must have multiply operator for <OutputType> = <InputTypeA> * <InputTypeB>");
 
 		return inputValueA * inputValueB;
+	}
+};
+
+template
+<
+	typename                          T, 
+	std::size_t                       N, 
+	CBinaryOperator<
+		math::TArithmeticArray<T, N>,
+		math::TArithmeticArray<T, N>,
+		math::TArithmeticArray<T, N>> OperatorType
+>
+class TBinaryArrayOperator final
+{
+public:
+	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
+	{
+		using ComputeType = math::TArithmeticArray<T, N>;
+		using Adder       = TAdd<ComputeType, ComputeType, ComputeType>;
+
+		return Adder()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
+	}
+};
+
+template<typename T, std::size_t N>
+class TAddArray final
+{
+public:
+	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
+	{
+		using ComputeType = math::TArithmeticArray<T, N>;
+		using Adder       = TAdd<ComputeType, ComputeType, ComputeType>;
+
+		return Adder()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
+	}
+};
+
+template<typename T, std::size_t N>
+class TMultiplyArray final
+{
+public:
+	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
+	{
+		using ComputeType = math::TArithmeticArray<T, N>;
+		using Multiplier  = TMultiply<ComputeType, ComputeType, ComputeType>;
+
+		return Multiplier()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
 	}
 };
 
