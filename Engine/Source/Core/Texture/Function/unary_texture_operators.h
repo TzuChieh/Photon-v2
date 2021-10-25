@@ -100,8 +100,11 @@ private:
 
 }// end namespace texfunc
 
-template<typename InputType, typename OutputType, typename OperatorType>
-requires texfunc::CUnaryOperator<OperatorType, InputType, OutputType>
+template<
+	typename InputType, 
+	typename OutputType, 
+	texfunc::CUnaryOperator<InputType, OutputType> OperatorType
+>
 class TUnaryTextureOperator : public TTexture<OutputType>
 {
 public:

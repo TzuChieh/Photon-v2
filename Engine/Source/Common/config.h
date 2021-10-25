@@ -75,7 +75,7 @@ Note that a byte is not necessarily 8-bit.
 */
 #define PH_HIT_PROBE_CACHE_BYTES 12
 
-#define PH_NUMERIC_TEXTURE_MAX_ELEMENTS 4
+#define PH_NUMERIC_IMAGE_MAX_ELEMENTS 4
 
 #include <string>
 

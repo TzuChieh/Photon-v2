@@ -20,7 +20,7 @@ namespace ph
 class Image : public TSdlResourceBase<ETypeCategory::REF_IMAGE>
 {
 public:
-	using NumericArray = std::array<float64, PH_NUMERIC_TEXTURE_MAX_ELEMENTS>;
+	using NumericArray = std::array<float64, PH_NUMERIC_IMAGE_MAX_ELEMENTS>;
 	
 	inline static constexpr auto NUMERIC_ARRAY_SIZE = std::tuple_size_v<NumericArray>;
 

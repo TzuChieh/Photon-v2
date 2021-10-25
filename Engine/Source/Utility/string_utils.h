@@ -47,6 +47,17 @@ inline constexpr bool is_whitespace(const char ch)
 	return get_whitespaces<TYPE>().find(ch) != std::string_view::npos;
 }
 
+inline bool has_any_of(const std::string_view srcStr, const std::string_view candidates)
+{
+	const auto foundPos = srcStr.find_first_of(candidates);
+	return foundPos != std::string_view::npos;
+}
+
+inline bool has_none_of(const std::string_view srcStr, const std::string_view candidates)
+{
+	return !has_any_of(srcStr, candidates);
+}
+
 /*! @brief Remove characters from the beginning.
 
 Characters in @p srcStr will be removed from the beginning if they match any

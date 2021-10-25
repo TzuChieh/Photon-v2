@@ -54,55 +54,51 @@ public:
 
 template
 <
-	typename                          T, 
-	std::size_t                       N, 
-	CBinaryOperator<
-		math::TArithmeticArray<T, N>,
-		math::TArithmeticArray<T, N>,
-		math::TArithmeticArray<T, N>> OperatorType
+	typename    T, 
+	std::size_t N, 
+
+	template<typename InputTypeA, typename InputTypeB, typename OutputType>
+	class TBinaryOperatorType
 >
 class TBinaryArrayOperator final
 {
+
 public:
+	using ComputeType  = math::TArithmeticArray<T, N>;
+	using OperatorType = TBinaryOperatorType<ComputeType, ComputeType, ComputeType>;
+
+	TBinaryArrayOperator() requires std::default_initializable<OperatorType> :
+		TBinaryArrayOperator(OperatorType())
+	{}
+
+	explicit TBinaryArrayOperator(OperatorType op) :
+		m_operator(std::move(op))
+	{}
+
 	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
 	{
-		using ComputeType = math::TArithmeticArray<T, N>;
-		using Adder       = TAdd<ComputeType, ComputeType, ComputeType>;
-
-		return Adder()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
+		return m_operator(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
 	}
+
+private:
+	OperatorType m_operator;
 };
 
 template<typename T, std::size_t N>
-class TAddArray final
-{
-public:
-	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
-	{
-		using ComputeType = math::TArithmeticArray<T, N>;
-		using Adder       = TAdd<ComputeType, ComputeType, ComputeType>;
-
-		return Adder()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
-	}
-};
+using TAddArray = TBinaryArrayOperator<T, N, TAdd>;
 
 template<typename T, std::size_t N>
-class TMultiplyArray final
-{
-public:
-	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
-	{
-		using ComputeType = math::TArithmeticArray<T, N>;
-		using Multiplier  = TMultiply<ComputeType, ComputeType, ComputeType>;
-
-		return Multiplier()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
-	}
-};
+using TMultiplyArray = TBinaryArrayOperator<T, N, TMultiply>;
 
 }// end namespace texfunc
 
-template<typename InputTypeA, typename InputTypeB, typename OutputType, typename OperatorType>
-requires texfunc::CBinaryOperator<OperatorType, InputTypeA, InputTypeB, OutputType>
+template
+<
+	typename InputTypeA, 
+	typename InputTypeB, 
+	typename OutputType,
+	texfunc::CBinaryOperator<InputTypeA, InputTypeB, OutputType> OperatorType
+>
 class TBinaryTextureOperator : public TTexture<OutputType>
 {
 public:

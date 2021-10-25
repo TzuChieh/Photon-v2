@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <utility>
+#include <cstddef>
 
 namespace ph
 {
@@ -85,5 +86,11 @@ struct IsBuildable
 	>
 > : std::true_type {};
 ///@}
+
+template<typename ObjType>
+concept CSubscriptable = requires (ObjType obj, std::size_t index)
+{
+	obj[index];
+};
 
 }// end namespace ph
