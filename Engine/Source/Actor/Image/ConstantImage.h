@@ -14,15 +14,6 @@ namespace ph
 class ConstantImage : public Image
 {
 public:
-	enum class EType
-	{
-		RAW,
-		EMR_LINEAR_SRGB,
-		ECF_LINEAR_SRGB,
-		RAW_LINEAR_SRGB
-	};
-
-public:
 	ConstantImage();
 	explicit ConstantImage(real value);
 	explicit ConstantImage(const math::Vector3R& values);

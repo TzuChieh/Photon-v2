@@ -287,7 +287,7 @@ inline void save_number(const NumberType value, std::string* const out_str)
 }
 
 template<typename T>
-constexpr ETypeCategory category_of()
+inline constexpr ETypeCategory category_of()
 {
 	if constexpr(std::is_base_of_v<ISdlResource, T> && detail::HasStaticCategoryInfo<T>::value)
 	{

@@ -22,7 +22,7 @@ class TSdlReference : public TOwnedSdlField<Owner>
 public:
 	TSdlReference(std::string valueName, std::shared_ptr<T> Owner::* valuePtr);
 
-	/*! @brief Default value of a SDL reference is empty.
+	/*! @brief By default, default value of a SDL reference is empty.
 	*/
 	void setValueToDefault(Owner& owner) const override;
 
@@ -49,6 +49,11 @@ protected:
 		const Owner&            owner,
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override;
+
+	template<typename ResourceType = T>
+	static std::shared_ptr<ResourceType> loadResource(
+		const SdlInputPayload& payload,
+		const SdlInputContext& ctx);
 
 private:
 	std::shared_ptr<T> Owner::* m_valuePtr;

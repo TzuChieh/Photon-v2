@@ -1,4 +1,4 @@
-#include "Actor/SDLExtension/color_loaders.h"
+#include "Actor/SDLExtension/image_loaders.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/Tokenizer.h"
 #include "Common/assertion.h"
@@ -104,16 +104,12 @@ math::Spectrum load_spectrum(const SdlInputPayload& payload, const math::EColorU
 //
 //}
 
-std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace, const math::EColorUsage usage)
+std::shared_ptr<Image> load_tristimulus_color(const math::Vector3R& tristimulus, const math::EColorSpace colorSpace)
 {
-	return std::make_shared<ConstantImage>(
-		math::Vector3R(tristimulus_to_spectrum(tristimulus, colorSpace, usage).toLinearSRGB(usage)),
-		usage == math::EColorUsage::EMR
-			? ConstantImage::EType::EMR_LINEAR_SRGB
-			: usage == math::EColorUsage::ECF ? ConstantImage::EType::ECF_LINEAR_SRGB : ConstantImage::EType::RAW);
+	return std::make_shared<ConstantImage>(tristimulus, colorSpace);
 }
 
-std::shared_ptr<Image> load_picture_file_color(const Path& filePath)
+std::shared_ptr<Image> load_picture_file(const Path& filePath)
 {
 	return std::make_shared<RasterFileImage>(filePath);
 }

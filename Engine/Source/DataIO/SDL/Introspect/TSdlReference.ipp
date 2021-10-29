@@ -70,27 +70,9 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 	const SdlInputPayload& payload,
 	const SdlInputContext& ctx) const
 {
-	const auto referenceName = payload.value;
-	// TODO: get res should accept str view
-	// TODO: allow type mismatch?
 	try
 	{
-		PH_ASSERT(ctx.getRawScene());
-
-		if(referenceName.empty() || referenceName.front() != '@')
-		{
-			throw SdlLoadError(
-				"invalid reference name <" + payload.value + ">, should be prefixed with \'@\'");
-		}
-
-		auto resource = ctx.getRawScene()->getResource<T>(referenceName);
-		if(!resource)
-		{
-			throw SdlLoadError(
-				"cannot find resource referenced by <" + referenceName + ">");
-		}
-
-		setValueRef(owner, std::move(resource));
+		setValueRef(owner, loadResource(payload, ctx));
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -130,6 +112,35 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 			"unable to save resource reference " +
 			valueToString(owner) + " -> " + e.whatStr());
 	}
+}
+
+template<typename T, typename Owner>
+template<typename ResourceType>
+inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
+	const SdlInputPayload& payload,
+	const SdlInputContext& ctx)
+{
+	const auto referenceName = payload.value;
+
+	// TODO: get res should accept str view
+	// TODO: allow type mismatch?
+
+	PH_ASSERT(ctx.getRawScene());
+
+	if(referenceName.empty() || referenceName.front() != '@')
+	{
+		throw SdlLoadError(
+			"invalid reference name <" + payload.value + ">, should be prefixed with \'@\'");
+	}
+
+	auto resource = ctx.getRawScene()->getResource<ResourceType>(referenceName);
+	if(!resource)
+	{
+		throw SdlLoadError(
+			"cannot find resource referenced by <" + referenceName + ">");
+	}
+
+	return resource;
 }
 
 template<typename T, typename Owner>
