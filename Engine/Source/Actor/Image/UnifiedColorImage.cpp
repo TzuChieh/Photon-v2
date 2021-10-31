@@ -44,6 +44,7 @@ std::shared_ptr<TTexture<math::Spectrum>> UnifiedColorImage::genColorTexture(
 UnifiedColorImage& UnifiedColorImage::setImage(std::shared_ptr<Image> image)
 {
 	m_image = std::move(image);
+	return *this;
 }
 
 UnifiedColorImage& UnifiedColorImage::setConstant(math::Vector3R constant)

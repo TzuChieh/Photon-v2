@@ -60,7 +60,7 @@ protected:
 	// TODO: save
 
 private:
-	UnifiedColorImage* getDefaultImageOrCreate();
+	UnifiedColorImage* getDefaultImage();
 
 	std::shared_ptr<UnifiedColorImage> m_defaultImage;
 };
@@ -140,7 +140,7 @@ template<typename Owner>
 inline auto TSdlUnifiedColorImage<Owner>::defaultLinearSRGB(const math::Vector3R& linearSRGB)
 -> TSdlUnifiedColorImage&
 {
-	getDefaultImageOrCreate()->setConstantColor(linearSRGB, math::EColorSpace::Linear_sRGB);
+	getDefaultImage()->setConstantColor(linearSRGB, math::EColorSpace::Linear_sRGB);
 	return *this;
 }
 
@@ -148,11 +148,12 @@ template<typename Owner>
 inline auto TSdlUnifiedColorImage<Owner>::defaultImage(std::shared_ptr<Image> image)
 -> TSdlUnifiedColorImage&
 {
-	getDefaultImageOrCreate()->setImage(std::move(image));
+	getDefaultImage()->setImage(std::move(image));
+	return *this;
 }
 
 template<typename Owner>
-inline UnifiedColorImage* TSdlUnifiedColorImage<Owner>::getDefaultImageOrCreate()
+inline UnifiedColorImage* TSdlUnifiedColorImage<Owner>::getDefaultImage()
 {
 	if(!m_defaultImage)
 	{

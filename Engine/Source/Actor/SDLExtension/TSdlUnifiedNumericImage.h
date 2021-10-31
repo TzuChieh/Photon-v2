@@ -1,8 +1,9 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/TSdlReference.h"
+#include "Actor/Image/UnifiedNumericImage.h"
 #include "Common/assertion.h"
-#include "Actor/SDLExtension/color_loaders.h"
+#include "Actor/SDLExtension/image_loaders.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/SdlResourceIdentifier.h"
@@ -15,7 +16,8 @@
 #include <vector>
 #include <memory>
 #include <utility>
-#include <optional>
+#include <cstddef>
+#include <array>
 
 namespace ph
 {
@@ -25,30 +27,30 @@ class Image;
 /*! @brief Interprets general color representations as image resources.
 */
 template<typename Owner>
-class TSdlSwizzableImageResource : public TSdlReference<Image, Owner>
+class TSdlUnifiedNumericImage : public TSdlReference<UnifiedNumericImage, Owner>
 {
 private:
-	using Base = TSdlReference<Image, Owner>;
+	using Base = TSdlReference<UnifiedNumericImage, Owner>;
 
 public:
-	TSdlGenericColor(
+	TSdlUnifiedNumericImage(
 		std::string valueName, 
-		math::EColorUsage usage, 
-		std::shared_ptr<Image> Owner::* imagePtr);
+		std::shared_ptr<UnifiedNumericImage> Owner::* imagePtr);
 
 	void setValueToDefault(Owner& owner) const override;
 
-	/*! @brief Default to no image resource.
+	/*! @brief No default data.
 	*/
-	TSdlGenericColor& defaultToEmpty();
+	TSdlUnifiedNumericImage& noDefault();
 
-	/*! @brief Default to a monochromatic linear SRGB value.
+	/*! @brief Default to a constant value.
 	*/
-	TSdlGenericColor& defaultToLinearSrgb(real linearSrgb);
+	template<std::size_t N>
+	TSdlUnifiedNumericImage& defaultToConstant(const std::array<float64, N>& constant);
 
-	/*! @brief Default to a linear SRGB value.
+	/*! @brief Set a specific image resource for default value.
 	*/
-	TSdlGenericColor& defaultToLinearSrgb(const math::Vector3R& linearSrgb);
+	TSdlUnifiedNumericImage& defaultImage(std::shared_ptr<Image> image);
 
 protected:
 	void loadFromSdl(
@@ -59,41 +61,42 @@ protected:
 	// TODO: save
 
 private:
-	math::EColorUsage m_usage;
-	// TODO: support for more tristimulus color spaces or generic default image
-	std::optional<math::Vector3R> m_defaultLinearSrgb;
+	UnifiedNumericImage* getDefaultImage();
+
+	std::shared_ptr<UnifiedNumericImage> m_defaultImage;
 };
 
 // In-header Implementations:
 
 template<typename Owner>
-inline TSdlGenericColor<Owner>::TSdlGenericColor(
+inline TSdlUnifiedNumericImage<Owner>::TSdlUnifiedNumericImage(
 	std::string valueName,
-	const math::EColorUsage usage,
-	std::shared_ptr<Image> Owner::* const imagePtr) :
+	std::shared_ptr<UnifiedNumericImage> Owner::* const imagePtr) :
 
-	TSdlReference<Image, Owner>(
+	TSdlReference<UnifiedNumericImage, Owner>(
 		std::move(valueName), 
 		imagePtr),
 
-	m_usage(usage),
-	m_defaultLinearSrgb()
+	m_defaultImage(nullptr)
 {}
 
 template<typename Owner>
-inline void TSdlGenericColor<Owner>::loadFromSdl(
+inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 	Owner&                 owner,
 	const SdlInputPayload& payload,
 	const SdlInputContext& ctx) const
 {
+	auto numericImage = std::make_shared<UnifiedNumericImage>();
+
 	try
 	{
 		// TODO: should register newly generated images to scene, so they can be saved later
 
 		if(payload.isReference())
 		{
-			Base::loadFromSdl(owner, payload, ctx);
+			numericImage->setImage(Base::loadResource<Image>(payload, ctx));
 		}
+		// TODO: subscripts
 		else if(payload.isResourceIdentifier())
 		{
 			const SdlResourceIdentifier resId(payload.value, ctx.getWorkingDirectory());
@@ -111,43 +114,50 @@ inline void TSdlGenericColor<Owner>::loadFromSdl(
 		throw SdlLoadError(
 			"on parsing generic color -> " + e.whatStr());
 	}
+
+	this->setValueRef(owner, std::move(numericImage));
 }
 
 template<typename Owner>
-inline void TSdlGenericColor<Owner>::setValueToDefault(Owner& owner) const
+inline void TSdlUnifiedNumericImage<Owner>::setValueToDefault(Owner& owner) const
 {
-	if(m_defaultLinearSrgb)
-	{
-		this->setValueRef(owner, sdl::load_tristimulus_color(
-			m_defaultLinearSrgb.value(), math::EColorSpace::Linear_sRGB, m_usage));
-	}
-	else
-	{
-		this->setValueRef(owner, nullptr);
-	}
+	this->setValueRef(owner, m_defaultImage);
 }
 
 template<typename Owner>
-inline auto TSdlGenericColor<Owner>::defaultToEmpty()
--> TSdlGenericColor&
+inline auto TSdlUnifiedNumericImage<Owner>::noDefault()
+-> TSdlUnifiedNumericImage&
 {
-	m_defaultLinearSrgb = std::nullopt;
+	m_defaultImage = nullptr;
 	return *this;
 }
 
 template<typename Owner>
-inline auto TSdlGenericColor<Owner>::defaultToLinearSrgb(const real linearSrgb)
--> TSdlGenericColor&
+inline auto TSdlUnifiedNumericImage<Owner>::defaultImage(std::shared_ptr<Image> image)
+-> TSdlUnifiedNumericImage&
 {
-	return defaultToLinearSrgb(math::Vector3R(linearSrgb));
+	getDefaultImage()->setImage(std::move(image));
+	return *this;
 }
 
 template<typename Owner>
-inline auto TSdlGenericColor<Owner>::defaultToLinearSrgb(const math::Vector3R& linearSrgb)
--> TSdlGenericColor&
+template<std::size_t N>
+inline auto TSdlUnifiedNumericImage<Owner>::defaultToConstant(const std::array<float64, N>& constant)
+-> TSdlUnifiedNumericImage&
 {
-	m_defaultLinearSrgb = linearSrgb;
+	getDefaultImage()->setConstant<N>(constant);
 	return *this;
+}
+
+template<typename Owner>
+inline UnifiedNumericImage* TSdlUnifiedNumericImage<Owner>::getDefaultImage()
+{
+	if(!m_defaultImage)
+	{
+		m_defaultImage = std::make_shared<UnifiedNumericImage>();
+	}
+
+	return m_defaultImage.get();
 }
 
 }// end namespace ph

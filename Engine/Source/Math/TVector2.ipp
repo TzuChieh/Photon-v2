@@ -20,7 +20,7 @@ inline TVector2<T>::TVector2(const T vx, const T vy) :
 template<typename T>
 template<typename U>
 inline TVector2<T>::TVector2(const TVector2<U>& other) : 
-	TVector2(static_cast<T>(other.x()), static_cast<T>(other.y()))
+	TVector2(static_cast<T>(other[0]), static_cast<T>(other[1]))
 {}
 
 template<typename T>
@@ -50,25 +50,25 @@ inline const T& TVector2<T>::y() const
 template<typename T>
 inline T& TVector2<T>::u()
 {
-	return x();
+	return m[0];
 }
 
 template<typename T>
 inline T& TVector2<T>::v()
 {
-	return y();
+	return m[1];
 }
 
 template<typename T>
 inline const T& TVector2<T>::u() const
 {
-	return x();
+	return m[0];
 }
 
 template<typename T>
 inline const T& TVector2<T>::v() const
 {
-	return y();
+	return m[1];
 }
 
 }// end namespace ph::math
