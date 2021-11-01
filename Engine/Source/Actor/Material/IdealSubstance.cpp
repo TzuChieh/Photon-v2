@@ -87,13 +87,13 @@ void IdealSubstance::asDielectric(
 		}
 		else
 		{
-			auto reflectionScale = ConstantImage(linearSrgbReflectionScale, ConstantImage::EType::RAW_LINEAR_SRGB);
-			auto transmissionScale = ConstantImage(linearSrgbTransmissionScale, ConstantImage::EType::RAW_LINEAR_SRGB);
+			auto reflectionScale = ConstantImage(linearSrgbReflectionScale, math::EColorSpace::Linear_sRGB);
+			auto transmissionScale = ConstantImage(linearSrgbTransmissionScale, math::EColorSpace::Linear_sRGB);
 
 			return std::make_unique<IdealDielectric>(
 				fresnel, 
-				reflectionScale.genTextureSpectral(ctx), 
-				transmissionScale.genTextureSpectral(ctx));
+				reflectionScale.genColorTexture(ctx), 
+				transmissionScale.genColorTexture(ctx));
 		}
 	};
 }

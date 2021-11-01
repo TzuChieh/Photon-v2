@@ -38,6 +38,8 @@ private:
 	OutputType m_value;
 };
 
+/*! @brief A constant color texture that can adapt values in tristimulus color space to spectrum.
+*/
 template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Linear_sRGB>
 class TConstantTristimulusTexture : public TTexture<math::Spectrum>
 {
@@ -58,6 +60,8 @@ private:
 	math::TristimulusValues m_value;
 };
 
+/*! @brief A constant color texture that can adapt spectral values to spectrum.
+*/
 template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Spectral>
 class TConstantSpectralTexture : public TTexture<math::Spectrum>
 {

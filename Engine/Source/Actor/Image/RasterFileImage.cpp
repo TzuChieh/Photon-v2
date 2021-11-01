@@ -25,6 +25,7 @@ template<typename T, std::size_t N>
 inline TFrame<T, N> make_frame_from_picture(const RegularPicture& picture)
 {
 	TFrame<T, N> frame(picture.frame.widthPx(), picture.frame.heightPx());
+
 	frame.forEachPixel(
 	[&picture](const uint32 x, const uint32 y, auto /* pixel */)
 	{
@@ -40,7 +41,7 @@ inline TFrame<T, N> make_frame_from_picture(const RegularPicture& picture)
 
 		// Pixel element casting is based on the smaller number of elements of the two--other
 		// elements are either discarded or defaulted to 0.
-		TFrame<T, N>::Pixel dstPixel(0);
+		TFrame<T, N>::typename Pixel dstPixel(0);
 		for(std::size_t ei = 0; ei < NUM_ELEMENTS; ++ei)
 		{
 			dstPixel[ei] = static_cast<T>(srcPixel[ei]);

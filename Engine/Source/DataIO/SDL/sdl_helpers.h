@@ -59,7 +59,10 @@ math::TVector2<Element> load_vector2(const std::string& sdlVector2Str);
 
 math::Vector3R load_vector3(const std::string& sdlVector3Str);
 math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr);
-std::vector<real> load_real_array(const std::string& sdlRealArrayStr);
+
+template<typename NumberType>
+std::vector<NumberType> load_number_array(const std::string& sdlNumberArrayStr);
+
 std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3ArrayStr);
 
 void save_real(real value, std::string* out_str);

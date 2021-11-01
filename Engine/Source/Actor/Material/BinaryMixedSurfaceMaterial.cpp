@@ -44,7 +44,7 @@ void BinaryMixedSurfaceMaterial::genSurface(ActorCookingContext& ctx, SurfaceBeh
 	case EMode::LERP:
 		if(m_factor != nullptr)
 		{
-			auto factor = m_factor->genTextureSpectral(ctx);
+			auto factor = m_factor->genColorTexture(ctx);
 			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1, factor));
 		}
 		else
@@ -79,7 +79,7 @@ void BinaryMixedSurfaceMaterial::setMaterials(
 
 void BinaryMixedSurfaceMaterial::setFactor(const real factor)
 {
-	setFactor(std::make_shared<ConstantImage>(factor, ConstantImage::EType::ECF_LINEAR_SRGB));
+	setFactor(std::make_shared<ConstantImage>(factor, math::EColorSpace::Spectral));
 }
 
 void BinaryMixedSurfaceMaterial::setFactor(const std::shared_ptr<Image>& factor)

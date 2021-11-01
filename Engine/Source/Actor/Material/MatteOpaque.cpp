@@ -1,9 +1,5 @@
 #include "Actor/Material/MatteOpaque.h"
-#include "Core/Texture/TConstantTexture.h"
-#include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
-#include "DataIO/PictureLoader.h"
-#include "Actor/Image/LdrPictureImage.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -35,13 +31,13 @@ void MatteOpaque::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior
 	if(m_sigmaDegrees)
 	{
 		optics = std::make_shared<OrenNayar>(
-			m_albedo->genTextureSpectral(ctx),
-			m_sigmaDegrees->genTextureReal(ctx));
+			m_albedo->genColorTexture(ctx),
+			m_sigmaDegrees->genRealTexture(ctx));
 	}
 	else
 	{
 		optics = std::make_shared<LambertianDiffuse>(
-			m_albedo->genTextureSpectral(ctx));
+			m_albedo->genColorTexture(ctx));
 	}
 
 	behavior.setOptics(optics);
@@ -54,7 +50,7 @@ void MatteOpaque::setAlbedo(const math::Vector3R& albedo)
 
 void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 {
-	m_albedo = std::make_shared<ConstantImage>(std::vector<real>{r, g, b}, ConstantImage::EType::ECF_LINEAR_SRGB);
+	m_albedo = std::make_shared<ConstantImage>(std::vector<real>{r, g, b}, math::EColorSpace::Linear_sRGB);
 }
 
 void MatteOpaque::setAlbedo(const std::shared_ptr<Image>& albedo)

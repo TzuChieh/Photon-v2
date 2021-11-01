@@ -43,6 +43,30 @@ inline math::TVector2<Element> load_vector2(const std::string& sdlVector2Str)
 	}
 }
 
+template<typename NumberType>
+inline std::vector<NumberType> load_number_array(const std::string& sdlNumberArrayStr)
+{
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
+
+	try
+	{
+		std::vector<std::string> arrayTokens;
+		tokenizer.tokenize(sdlNumberArrayStr, arrayTokens);
+
+		std::vector<NumberType> numberArray(arrayTokens.size());
+		for(std::size_t i = 0; i < numberArray.size(); ++i)
+		{
+			numberArray[i] = load_number<NumberType>(arrayTokens[i]);
+		}
+
+		return numberArray;
+	}
+	catch(const SdlLoadError& e)
+	{
+		throw SdlLoadError("on parsing number array -> " + e.whatStr());
+	}
+}
+
 template<typename Element>
 inline void save_vector2(const math::TVector2<Element>& value, std::string* const out_str)
 {

@@ -13,20 +13,17 @@ class BinaryMixedImage : public Image
 public:
 	BinaryMixedImage();
 
-	std::shared_ptr<TTexture<real>> genTextureReal(
-		ActorCookingContext& ctx) const override = 0;
+	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+		ActorCookingContext& ctx) override = 0;
 
-	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
-		ActorCookingContext& ctx) const override = 0;
-
-	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
-		ActorCookingContext& ctx) const override = 0;
+	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
+		ActorCookingContext& ctx) override = 0;
 
 	void setImageA(const std::weak_ptr<Image>& imageA);
 	void setImageB(const std::weak_ptr<Image>& imageB);
 
 protected:
-	auto checkoutImages() const->std::pair<std::shared_ptr<Image>, std::shared_ptr<Image>>;
+	auto checkoutImages() const -> std::pair<std::shared_ptr<Image>, std::shared_ptr<Image>>;
 
 private:
 	std::weak_ptr<Image> m_imageA;

@@ -11,14 +11,11 @@ class GradientImage : public BinaryMixedImage
 public:
 	GradientImage();
 
-	std::shared_ptr<TTexture<real>> genTextureReal(
-		ActorCookingContext& ctx) const override;
+	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+		ActorCookingContext& ctx) override;
 
-	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
-		ActorCookingContext& ctx) const override;
-
-	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
-		ActorCookingContext& ctx) const override;
+	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
+		ActorCookingContext& ctx) override;
 
 	void setUvwEndpoints(const math::Vector3R& beginUvw, const math::Vector3R& endUvw);
 

@@ -50,11 +50,8 @@ protected:
 
 			try
 			{
-				std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
-
-				this->setValue(
-					owner,
-					sdl::load_real_array(std::move(loadedSdlValue)));
+				const std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
+				this->setValue(owner, sdl::load_number_array<real>(loadedSdlValue));
 			}
 			catch(const FileIOError& e)
 			{
@@ -63,7 +60,7 @@ protected:
 		}
 		else
 		{
-			this->setValue(owner, sdl::load_real_array(std::string(payload.value)));
+			this->setValue(owner, sdl::load_number_array<real>(payload.value));
 		}
 	}
 

@@ -76,29 +76,6 @@ math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr)
 	}
 }
 
-std::vector<real> load_real_array(const std::string& sdlRealArrayStr)
-{
-	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
-
-	try
-	{
-		std::vector<std::string> realTokens;
-		tokenizer.tokenize(sdlRealArrayStr, realTokens);
-
-		std::vector<real> realArray;
-		for(const auto& realToken : realTokens)
-		{
-			realArray.push_back(load_real(realToken));
-		}
-
-		return realArray;
-	}
-	catch(const SdlLoadError& e)
-	{
-		throw SdlLoadError("on parsing real array -> " + e.whatStr());
-	}
-}
-
 std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3ArrayStr)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
@@ -108,10 +85,10 @@ std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3Arra
 		std::vector<std::string> vec3Tokens;
 		tokenizer.tokenize(sdlVector3ArrayStr, vec3Tokens);
 
-		std::vector<math::Vector3R> vec3Array;
-		for(const auto& vec3Token : vec3Tokens)
+		std::vector<math::Vector3R> vec3Array(vec3Tokens.size());
+		for(std::size_t i = 0; i < vec3Array.size(); ++i)
 		{
-			vec3Array.push_back(load_vector3(vec3Token));
+			vec3Array[i] = load_vector3(vec3Tokens[i]);
 		}
 
 		return vec3Array;

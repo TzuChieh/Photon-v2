@@ -7,11 +7,11 @@
 namespace ph
 {
 
-RealMathImage::RealMathImage() :
+MathOperationImage::MathOperationImage() :
 	RealMathImage(EMathOp::MULTIPLY, 1.0_r)
 {}
 
-RealMathImage::RealMathImage(const EMathOp mathOp, const real value) :
+MathOperationImage::MathOperationImage(const EMathOp mathOp, const real value) :
 	Image(),
 	m_mathOp(mathOp), m_real(value), m_operandImage()
 {}

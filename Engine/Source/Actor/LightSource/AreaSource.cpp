@@ -10,10 +10,8 @@
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Actor/Image/ConstantImage.h"
-#include "Actor/Image/LdrPictureImage.h"
-#include "DataIO/PictureLoader.h"
 #include "Math/constant.h"
-#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/constant_textures.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Math/Color/color_spaces.h"
 

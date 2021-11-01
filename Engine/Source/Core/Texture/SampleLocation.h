@@ -18,6 +18,7 @@ The philosophy of this abstraction layer is that texture sampling
 processes should not care about the context of a hit, but focus on the
 actual data of the target point. 
 */
+// FIXME: uvw should be in float64 for better highres pixel texture sample precision (test if required)
 class SampleLocation final
 {
 public:

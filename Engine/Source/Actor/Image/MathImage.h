@@ -1,45 +1,48 @@
 #pragma once
 
 #include "Actor/Image/Image.h"
+#include "Common/primitive_type.h"
+#include "Math/TVector3.h"
 #include "Core/Texture/Function/TConstantMultiplyTexture.h"
 #include "Core/Texture/Function/TConstantAddTexture.h"
 
 #include <vector>
 #include <iostream>
 #include <utility>
+#include <optional>
 
 namespace ph
 {
 
-class RealMathImage : public Image
+enum class EMathImageOp
+{
+	Add = 0,
+	Multiply
+};
+
+class MathImage : public Image
 {
 public:
-	enum class EMathOp
-	{
-		MULTIPLY,
-		ADD
-	};
+	MathImage();
 
-	RealMathImage();
-	RealMathImage(EMathOp mathOp, real value);
+	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+		ActorCookingContext& ctx) override;
 
-	std::shared_ptr<TTexture<real>> genTextureReal(
-		ActorCookingContext& ctx) const override;
+	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
+		ActorCookingContext& ctx) override;
 
-	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
-		ActorCookingContext& ctx) const override;
-
-	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
-		ActorCookingContext& ctx) const override;
-
-	RealMathImage& setOperandImage(const std::shared_ptr<Image>& operand);
-	RealMathImage& setMathOp(EMathOp mathOp);
-	RealMathImage& setReal(real value);
+	MathImage& setOperation(EMathImageOp op);
+	MathImage& setOperandImage(std::shared_ptr<Image> operand);
+	MathImage& setConstantInput(float64 value);
+	MathImage& setConstantInput(const math::Vector3D& values);
+	MathImage& setConstantInput(std::vector<float64> values);
 
 private:
-	EMathOp              m_mathOp;
-	real                 m_real;
-	std::weak_ptr<Image> m_operandImage;
+	EMathImageOp           m_mathOp;
+	std::shared_ptr<Image> m_operandImage;
+	std::vector<float64>   m_constantInput;
+	std::shared_ptr<Image> m_imageInput0;
+	std::shared_ptr<Image> m_imageInput1;
 
 	std::shared_ptr<Image> checkOperandImage() const;
 

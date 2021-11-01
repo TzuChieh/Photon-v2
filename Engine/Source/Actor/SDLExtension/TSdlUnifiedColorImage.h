@@ -91,7 +91,7 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 	{
 		if(payload.isReference())
 		{
-			colorImage->setImage(Base::loadResource<Image>(payload, ctx));
+			colorImage->setImage(Base::template loadResource<Image>(payload, ctx));
 		}
 		else if(payload.isResourceIdentifier())
 		{
@@ -109,7 +109,7 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 	catch(const SdlLoadError& e)
 	{
 		throw SdlLoadError(
-			"on parsing unified color -> " + e.whatStr());
+			"on parsing unified color image -> " + e.whatStr());
 	}
 
 	this->setValueRef(owner, std::move(colorImage));

@@ -6,40 +6,13 @@
 #include "Math/math.h"
 #include "Actor/actor_exceptions.h"
 
-#include <iostream>
-#include <utility>
-
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(ConstantImage, Image);
 
 ConstantImage::ConstantImage() :
-	ConstantImage(1.0_r)
-{}
-
-ConstantImage::ConstantImage(const real value) : 
-	ConstantImage(value, math::EColorSpace::UNSPECIFIED)
-{}
-
-ConstantImage::ConstantImage(const math::Vector3R& values) :
-	ConstantImage(values, math::EColorSpace::UNSPECIFIED)
-{}
-
-ConstantImage::ConstantImage(std::vector<real> values) : 
-	ConstantImage(values, math::EColorSpace::UNSPECIFIED)
-{}
-
-ConstantImage::ConstantImage(const real value, math::EColorSpace colorSpace) :
-	ConstantImage(std::vector<real>{value}, colorSpace)
-{}
-
-ConstantImage::ConstantImage(const math::Vector3R& values, math::EColorSpace colorSpace) :
-	ConstantImage(std::vector<real>{values.x, values.y, values.z}, colorSpace)
-{}
-
-ConstantImage::ConstantImage(std::vector<real> values, math::EColorSpace colorSpace) :
-	m_values(std::move(values)), m_colorSpace(colorSpace)
+	ConstantImage(0.0)
 {}
 
 std::shared_ptr<TTexture<Image::NumericArray>> ConstantImage::genNumericTexture(

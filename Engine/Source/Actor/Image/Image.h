@@ -28,10 +28,10 @@ public:
 	Image();
 
 	virtual std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
-		ActorCookingContext& ctx);
+		ActorCookingContext& ctx) = 0;
 
 	virtual std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx);
+		ActorCookingContext& ctx) = 0;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Image>)

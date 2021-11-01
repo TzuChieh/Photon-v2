@@ -15,14 +15,11 @@ class CheckerboardImage : public Image
 public:
 	CheckerboardImage();
 
-	std::shared_ptr<TTexture<real>> genTextureReal(
-		ActorCookingContext& ctx) const override;
+	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+		ActorCookingContext& ctx) override;
 
-	std::shared_ptr<TTexture<math::Vector3R>> genTextureVector3R(
-		ActorCookingContext& ctx) const override;
-
-	std::shared_ptr<TTexture<math::Spectrum>> genTextureSpectral(
-		ActorCookingContext& ctx) const override;
+	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
+		ActorCookingContext& ctx) override;
 
 	void setNumTiles(real numTilesX, real numTilesY);
 	void setOddImage(const std::weak_ptr<Image>& oddImage);

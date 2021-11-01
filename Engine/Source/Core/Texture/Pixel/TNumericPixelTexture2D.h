@@ -79,7 +79,7 @@ inline void TNumericPixelTexture2D<N>::sample(
 {
 	PH_ASSERT(out_value);
 
-	const pixel_buffer::TPixel<float64> sampledPixel = samplePixelBuffer(sampleLocation.uv());
+	const pixel_buffer::TPixel<float64> sampledPixel = this->samplePixelBuffer(math::Vector2D(sampleLocation.uv()));
 
 	// Number of sampled values is limited by either `N` or the dimension of sampled pixel
 	const auto minBufferSize = std::min(N, sampledPixel.numValues());

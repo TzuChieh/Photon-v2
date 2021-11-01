@@ -8,6 +8,9 @@
 namespace ph
 {
 
+/*! @brief A general image representing colors.
+The image may use a constant value if there is no input image or as a fallback.
+*/
 class UnifiedColorImage : public Image
 {
 public:

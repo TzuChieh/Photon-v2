@@ -94,25 +94,24 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 
 		if(payload.isReference())
 		{
-			numericImage->setImage(Base::loadResource<Image>(payload, ctx));
+			numericImage->setImage(Base::template loadResource<Image>(payload, ctx));
 		}
 		// TODO: subscripts
 		else if(payload.isResourceIdentifier())
 		{
 			const SdlResourceIdentifier resId(payload.value, ctx.getWorkingDirectory());
-			this->setValueRef(owner, sdl::load_picture_file_color(resId.getPathToResource()));
+			numericImage->setImage(sdl::load_picture_file(resId.getPathToResource()));
 		}
 		else
 		{
-			// TODO: load spectral image
-			const auto tristimulus = sdl::load_vector3(std::string(payload.value));
-			this->setValueRef(owner, sdl::load_tristimulus_color(tristimulus, math::EColorSpace::Linear_sRGB, m_usage));
+			const auto numberArray = sdl::load_number_array<float64>(payload.value);
+			numericImage->setConstant(numberArray.data(), numberArray.size());
 		}
 	}
 	catch(const SdlLoadError& e)
 	{
 		throw SdlLoadError(
-			"on parsing generic color -> " + e.whatStr());
+			"on parsing unified numeric image -> " + e.whatStr());
 	}
 
 	this->setValueRef(owner, std::move(numericImage));

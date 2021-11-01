@@ -11,8 +11,8 @@ CheckerboardImage::CheckerboardImage() :
 	m_numTilesX(2), m_numTilesY(2)
 {}
 
-std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(
-	ActorCookingContext& ctx) const
+std::shared_ptr<TTexture<Image::NumericArray>> CheckerboardImage::genNumericTexture(
+	ActorCookingContext& ctx)
 {
 	const auto& images = checkOutImages();
 	if(images.first == nullptr || images.second == nullptr)
@@ -20,29 +20,14 @@ std::shared_ptr<TTexture<real>> CheckerboardImage::genTextureReal(
 		return nullptr;
 	}
 
-	return std::make_shared<TCheckerboardTexture<real>>(
-		m_numTilesX, m_numTilesY, 
-		images.first->genTextureReal(ctx), 
-		images.second->genTextureReal(ctx));
-}
-
-std::shared_ptr<TTexture<math::Vector3R>> CheckerboardImage::genTextureVector3R(
-	ActorCookingContext& ctx) const
-{
-	const auto& images = checkOutImages();
-	if(images.first == nullptr || images.second == nullptr)
-	{
-		return nullptr;
-	}
-
-	return std::make_shared<TCheckerboardTexture<math::Vector3R>>(
+	return std::make_shared<TCheckerboardTexture<Image::NumericArray>>(
 		m_numTilesX, m_numTilesY,
-		images.first->genTextureVector3R(ctx), 
-		images.second->genTextureVector3R(ctx));
+		images.first->genNumericTexture(ctx),
+		images.second->genNumericTexture(ctx));
 }
 
-std::shared_ptr<TTexture<math::Spectrum>> CheckerboardImage::genTextureSpectral(
-	ActorCookingContext& ctx) const
+std::shared_ptr<TTexture<math::Spectrum>> CheckerboardImage::genColorTexture(
+	ActorCookingContext& ctx)
 {
 	const auto& images = checkOutImages();
 	if(images.first == nullptr || images.second == nullptr)
@@ -52,8 +37,8 @@ std::shared_ptr<TTexture<math::Spectrum>> CheckerboardImage::genTextureSpectral(
 
 	return std::make_shared<TCheckerboardTexture<math::Spectrum>>(
 		m_numTilesX, m_numTilesY,
-		images.first->genTextureSpectral(ctx), 
-		images.second->genTextureSpectral(ctx));
+		images.first->genColorTexture(ctx),
+		images.second->genColorTexture(ctx));
 }
 
 void CheckerboardImage::setNumTiles(const real numTilesX, const real numTilesY)

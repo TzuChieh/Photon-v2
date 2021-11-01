@@ -313,4 +313,22 @@ UnifiedNumericImage& UnifiedNumericImage::setSwizzleSubscripts(std::string swizz
 	return *this;
 }
 
+UnifiedNumericImage& UnifiedNumericImage::setConstant(const float64* const constantData, const std::size_t dataSize)
+{
+	PH_ASSERT(constantData);
+
+	if(dataSize > m_constant.size())
+	{
+		PH_LOG_WARNING(UnifiedNumericImage,
+			"Data loss detected: setting constant with {} elements while the max allowed number is {}",
+			dataSize, m_constant.size());
+	}
+
+	m_constant.fill(0.0);
+	for(std::size_t i = 0; i < std::min(m_constant.size(), dataSize); ++i)
+	{
+		m_constant[i] = constantData[i];
+	}
+}
+
 }// end namespace ph
