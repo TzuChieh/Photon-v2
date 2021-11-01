@@ -33,18 +33,16 @@ public:
 
 	MathImage& setOperation(EMathImageOp op);
 	MathImage& setOperandImage(std::shared_ptr<Image> operand);
-	MathImage& setConstantInput(float64 value);
-	MathImage& setConstantInput(const math::Vector3D& values);
-	MathImage& setConstantInput(std::vector<float64> values);
+	MathImage& setScalarInput(float64 value);
+	MathImage& setInputImage0(std::shared_ptr<Image> input);
+	MathImage& setInputImage1(std::shared_ptr<Image> input);
 
 private:
 	EMathImageOp           m_mathOp;
 	std::shared_ptr<Image> m_operandImage;
-	std::vector<float64>   m_constantInput;
+	std::optional<float64> m_scalarInput;
 	std::shared_ptr<Image> m_imageInput0;
 	std::shared_ptr<Image> m_imageInput1;
-
-	std::shared_ptr<Image> checkOperandImage() const;
 
 	template<typename InputType, typename OutputType>
 	std::shared_ptr<TTexture<OutputType>> genTexture(
