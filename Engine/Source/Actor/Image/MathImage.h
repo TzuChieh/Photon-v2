@@ -3,11 +3,8 @@
 #include "Actor/Image/Image.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Core/Texture/Function/TConstantMultiplyTexture.h"
-#include "Core/Texture/Function/TConstantAddTexture.h"
 
 #include <vector>
-#include <iostream>
 #include <utility>
 #include <optional>
 
@@ -40,7 +37,7 @@ public:
 private:
 	EMathImageOp           m_mathOp;
 	std::shared_ptr<Image> m_operandImage;
-	std::optional<float64> m_scalarInput;
+	float64                m_scalarInput;
 	std::shared_ptr<Image> m_imageInput0;
 	std::shared_ptr<Image> m_imageInput1;
 

@@ -98,9 +98,12 @@ private:
 	ConstantType m_constant;
 };
 
+// TODO: add/mul array
+
 }// end namespace texfunc
 
-template<
+template
+<
 	typename InputType, 
 	typename OutputType, 
 	texfunc::CUnaryOperator<InputType, OutputType> OperatorType

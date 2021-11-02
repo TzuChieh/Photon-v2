@@ -39,6 +39,8 @@ public:
 	}
 };
 
+using AddSpectrum = TAdd<math::Spectrum, math::Spectrum, math::Spectrum>;
+
 template<typename InputTypeA, typename InputTypeB, typename OutputType>
 class TMultiply final
 {
@@ -52,13 +54,15 @@ public:
 	}
 };
 
+using MultiplySpectrum = TMultiply<math::Spectrum, math::Spectrum, math::Spectrum>;
+
 template
 <
-	typename    T, 
-	std::size_t N, 
-
 	template<typename InputTypeA, typename InputTypeB, typename OutputType>
-	class TBinaryOperatorType
+	class TBinaryOperatorType,
+
+	typename    T, 
+	std::size_t N
 >
 class TBinaryArrayOperator final
 {
@@ -85,10 +89,10 @@ private:
 };
 
 template<typename T, std::size_t N>
-using TAddArray = TBinaryArrayOperator<T, N, TAdd>;
+using TAddArray = TBinaryArrayOperator<TAdd, T, N>;
 
 template<typename T, std::size_t N>
-using TMultiplyArray = TBinaryArrayOperator<T, N, TMultiply>;
+using TMultiplyArray = TBinaryArrayOperator<TMultiply, T, N>;
 
 }// end namespace texfunc
 
