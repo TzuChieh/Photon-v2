@@ -19,7 +19,7 @@ class UnifiedNumericImage : public Image
 public:
 	UnifiedNumericImage();
 
-	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
 		ActorCookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
@@ -34,7 +34,7 @@ public:
 	UnifiedNumericImage& setSwizzleSubscripts(std::string swizzleSubscripts);
 	UnifiedNumericImage& setConstant(const float64* constantData, std::size_t dataSize);
 
-	template<std::size_t N> requires (N <= Image::NUMERIC_ARRAY_SIZE)
+	template<std::size_t N> requires (N <= Image::ARRAY_SIZE)
 	inline UnifiedNumericImage& setConstant(const std::array<float64, N>& constant)
 	{
 		m_constant.fill(0.0);
@@ -48,7 +48,7 @@ public:
 private:
 	std::shared_ptr<Image> m_image;
 	std::string            m_swizzleSubscripts;
-	Image::NumericArray    m_constant;
+	Image::Array           m_constant;
 };
 
 }// end namespace ph

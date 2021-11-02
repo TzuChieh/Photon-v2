@@ -177,14 +177,14 @@ inline std::array<uint8, N> to_exact_texture_swizzle_map(const std::string_view 
 
 }// end anonymous namespace
 
-std::shared_ptr<TTexture<Image::NumericArray>> UnifiedNumericImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {
-	if(m_swizzleSubscripts.size() > Image::NUMERIC_ARRAY_SIZE)
+	if(m_swizzleSubscripts.size() > Image::ARRAY_SIZE)
 	{
 		throw ActorCookException(std::format(
 			"Input swizzle subscripts has more elements ({}) than the max number ({}) swizzler can handle.",
-			m_swizzleSubscripts.size(), Image::NUMERIC_ARRAY_SIZE));
+			m_swizzleSubscripts.size(), Image::ARRAY_SIZE));
 	}
 
 	if(m_image)
@@ -195,15 +195,15 @@ std::shared_ptr<TTexture<Image::NumericArray>> UnifiedNumericImage::genNumericTe
 		}
 		else
 		{
-			const auto swizzleMap = to_texture_swizzle_map<Image::NUMERIC_ARRAY_SIZE>(m_swizzleSubscripts);
+			const auto swizzleMap = to_texture_swizzle_map<Image::ARRAY_SIZE>(m_swizzleSubscripts);
 
-			return std::make_shared<TSwizzledTexture<Image::NumericArray, Image::NumericArray, Image::NUMERIC_ARRAY_SIZE>>(
+			return std::make_shared<TSwizzledTexture<Image::Array, Image::Array, Image::ARRAY_SIZE>>(
 				m_image->genNumericTexture(ctx), swizzleMap);
 		}
 	}
 	else
 	{
-		return std::make_shared<TConstantTexture<Image::NumericArray>>(m_constant);
+		return std::make_shared<TConstantTexture<Image::Array>>(m_constant);
 	}
 }
 
@@ -239,12 +239,12 @@ std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(ActorCooking
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<1>(m_swizzleSubscripts);
 
-		auto numericArrayToReal = [mappedIndex = swizzleMap[0]](const Image::NumericArray& inputValue)
+		auto numericArrayToReal = [mappedIndex = swizzleMap[0]](const Image::Array& inputValue)
 		{
 			return static_cast<real>(inputValue[mappedIndex]);
 		};
 
-		return std::make_shared<TUnaryTextureOperator<Image::NumericArray, real, decltype(numericArrayToReal)>>(
+		return std::make_shared<TUnaryTextureOperator<Image::Array, real, decltype(numericArrayToReal)>>(
 			m_image->genNumericTexture(ctx), std::move(numericArrayToReal));
 	}
 	else
@@ -259,7 +259,7 @@ std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTextur
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<2>(m_swizzleSubscripts);
 
-		return std::make_shared<TSwizzledTexture<Image::NumericArray, math::Vector2R, 2>>(
+		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector2R, 2>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
 	else
@@ -275,7 +275,7 @@ std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTextur
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<3>(m_swizzleSubscripts);
 
-		return std::make_shared<TSwizzledTexture<Image::NumericArray, math::Vector3R, 3>>(
+		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector3R, 3>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
 	else
@@ -291,7 +291,7 @@ std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTextur
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<4>(m_swizzleSubscripts);
 
-		return std::make_shared<TSwizzledTexture<Image::NumericArray, math::Vector4R, 4>>(
+		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector4R, 4>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
 	else

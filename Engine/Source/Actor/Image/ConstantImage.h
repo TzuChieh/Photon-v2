@@ -36,7 +36,7 @@ public:
 	template<typename T>
 	ConstantImage(std::vector<T> values, math::EColorSpace colorSpace);
 
-	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
 		ActorCookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(

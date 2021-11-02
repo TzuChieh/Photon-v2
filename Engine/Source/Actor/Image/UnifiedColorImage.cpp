@@ -15,7 +15,7 @@ UnifiedColorImage::UnifiedColorImage() :
 	m_constantColorSpace(math::EColorSpace::UNSPECIFIED)
 {}
 
-std::shared_ptr<TTexture<Image::NumericArray>> UnifiedColorImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::Array>> UnifiedColorImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {
 	if(m_image)

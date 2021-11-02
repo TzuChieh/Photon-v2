@@ -22,7 +22,7 @@ class MathImage : public Image
 public:
 	MathImage();
 
-	std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
 		ActorCookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
@@ -40,42 +40,6 @@ private:
 	float64                m_scalarInput;
 	std::shared_ptr<Image> m_imageInput0;
 	std::shared_ptr<Image> m_imageInput1;
-
-	template<typename InputType, typename OutputType>
-	std::shared_ptr<TTexture<OutputType>> genTexture(
-		std::shared_ptr<TTexture<InputType>> operandTexture) const
-	{
-		if(!operandTexture)
-		{
-			std::cerr << "warning: at ConstantMathImage::genTexture(), "
-			          << "no operand texture (null texture detected)" << std::endl;
-			return nullptr;
-		}
-
-		std::shared_ptr<TTexture<OutputType>> result;
-		switch(m_mathOp)
-		{
-		case EMathOp::MULTIPLY:
-		{
-			result = std::make_shared<
-				TConstantMultiplyTexture<InputType, real, OutputType>>(std::move(operandTexture), m_real);
-			break;
-		}
-
-		case EMathOp::ADD:
-		{
-			result = std::make_shared<
-				TConstantAddTexture<InputType, real, OutputType>>(std::move(operandTexture), m_real);
-			break;
-		}
-
-		default:
-			std::cerr << "warning: at ConstantMathImage::genTexture(), "
-			          << "unsupported math operation detected" << std::endl;
-			break;
-		}
-		return result;
-	}
 };
 
 }// end namespace ph

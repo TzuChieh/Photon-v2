@@ -11,7 +11,7 @@ CheckerboardImage::CheckerboardImage() :
 	m_numTilesX(2), m_numTilesY(2)
 {}
 
-std::shared_ptr<TTexture<Image::NumericArray>> CheckerboardImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::Array>> CheckerboardImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {
 	const auto& images = checkOutImages();
@@ -20,7 +20,7 @@ std::shared_ptr<TTexture<Image::NumericArray>> CheckerboardImage::genNumericText
 		return nullptr;
 	}
 
-	return std::make_shared<TCheckerboardTexture<Image::NumericArray>>(
+	return std::make_shared<TCheckerboardTexture<Image::Array>>(
 		m_numTilesX, m_numTilesY,
 		images.first->genNumericTexture(ctx),
 		images.second->genNumericTexture(ctx));

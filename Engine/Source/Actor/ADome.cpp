@@ -8,7 +8,7 @@
 #include "Core/Emitter/LatLongEnvEmitter.h"
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
-#include "Core/Texture/Function/TConstantMultiplyTexture.h"
+#include "Core/Texture/Function/unary_texture_operators.h"
 #include "Common/logging.h"
 
 #include <algorithm>
@@ -81,8 +81,8 @@ CookedUnit ADome::cook(ActorCookingContext& ctx)
 	auto radianceFunction = loadRadianceFunction(ctx);
 	if(m_energyScale != 1.0_r)
 	{
-		auto scaledRadianceFunction = std::make_shared<TConstantMultiplyTexture<math::Spectrum, real, math::Spectrum>>(
-			radianceFunction, m_energyScale);
+		auto scaledRadianceFunction = std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, texfunc::SpectrumMultiplyScalar>>(
+			radianceFunction, static_cast<math::ColorValue>(m_energyScale));
 
 		radianceFunction = scaledRadianceFunction;
 	}

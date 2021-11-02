@@ -5,6 +5,7 @@
 #include "Core/Texture/SampleLocation.h"
 #include "Utility/traits.h"
 #include "Math/Color/Spectrum.h"
+#include "Math/TArithmeticArray.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -59,26 +60,6 @@ public:
 };
 
 template<typename InputType, typename ConstantType, typename OutputType>
-class TMultiplyConstant final
-{
-public:
-	explicit TMultiplyConstant(ConstantType constant) :
-		m_constant(std::move(constant))
-	{}
-
-	OutputType operator () (const InputType& inputValue) const
-	{
-		static_assert(CanMultiply<InputType, ConstantType, OutputType>::value,
-			"Must have multiply operator for <OutputType> = <InputType> * <ConstantType>");
-
-		return inputValue * m_constant;
-	}
-
-private:
-	ConstantType m_constant;
-};
-
-template<typename InputType, typename ConstantType, typename OutputType>
 class TAddConstant final
 {
 public:
@@ -88,7 +69,7 @@ public:
 
 	OutputType operator () (const InputType& inputValue) const
 	{
-		static_assert(CanAdd<InputType, ConstantType, OutputType>::value,
+		static_assert(CCanAdd<InputType, ConstantType, OutputType>,
 			"Must have add operator for <OutputType> = <InputType> + <ConstantType>");
 
 		return inputValue + m_constant;
@@ -98,7 +79,68 @@ private:
 	ConstantType m_constant;
 };
 
-// TODO: add/mul array
+template<typename InputType, typename ConstantType, typename OutputType>
+class TMultiplyConstant final
+{
+public:
+	explicit TMultiplyConstant(ConstantType constant) :
+		m_constant(std::move(constant))
+	{}
+
+	OutputType operator () (const InputType& inputValue) const
+	{
+		static_assert(CCanMultiply<InputType, ConstantType, OutputType>,
+			"Must have multiply operator for <OutputType> = <InputType> * <ConstantType>");
+
+		return inputValue * m_constant;
+	}
+
+private:
+	ConstantType m_constant;
+};
+
+template<typename T, std::size_t N>
+class TArrayAddScalar final
+{
+public:
+	explicit TArrayAddScalar(T scalar) :
+		m_scalar(std::move(scalar))
+	{}
+
+	std::array<T, N> operator () (const std::array<T, N>& inputValue) const
+	{
+		using ComputeType = math::TArithmeticArray<T, N>;
+		using AddFunc     = TAddConstant<ComputeType, T, ComputeType>;
+
+		return AddFunc(m_scalar)(ComputeType(inputValue)).toArray();
+	}
+
+private:
+	T m_scalar;
+};
+
+template<typename T, std::size_t N>
+class TArrayMultiplyScalar final
+{
+public:
+	explicit TArrayMultiplyScalar(T scalar) :
+		m_scalar(std::move(scalar))
+	{}
+
+	std::array<T, N> operator () (const std::array<T, N>& inputValue) const
+	{
+		using ComputeType = math::TArithmeticArray<T, N>;
+		using MulFunc     = TMultiplyConstant<ComputeType, T, ComputeType>;
+
+		return MulFunc(m_scalar)(ComputeType(inputValue)).toArray();
+	}
+
+private:
+	T m_scalar;
+};
+
+using SpectrumAddScalar = TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
+using SpectrumMultiplyScalar = TMultiplyConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 
 }// end namespace texfunc
 

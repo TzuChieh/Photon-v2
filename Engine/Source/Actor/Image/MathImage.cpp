@@ -24,7 +24,7 @@ MathImage::MathImage() :
 	m_imageInput1  (nullptr)
 {}
 
-std::shared_ptr<TTexture<Image::NumericArray>> MathImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {
 	if(!m_operandImage)
@@ -40,16 +40,15 @@ std::shared_ptr<TTexture<Image::NumericArray>> MathImage::genNumericTexture(
 	{
 		if(m_imageInput0)
 		{
-			using AddFunc = texfunc::TAddArray<float64, Image::NUMERIC_ARRAY_SIZE>;
-			return std::make_shared<TBinaryTextureOperator<Image::NumericArray, Image::NumericArray, Image::NumericArray, AddFunc>>(
+			using AddFunc = texfunc::TAddArray<float64, Image::ARRAY_SIZE>;
+			return std::make_shared<TBinaryTextureOperator<Image::Array, Image::Array, Image::Array, AddFunc>>(
 				operandTexture, m_imageInput0->genNumericTexture(ctx));
 		}
 		else
 		{
-			// TODO
-			using AddFunc = texfunc::TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
-			return std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, AddFunc>>(
-				operandTexture, AddFunc(static_cast<math::ColorValue>(m_scalarInput)));
+			using AddFunc = texfunc::TArrayAddScalar<float64, Image::ARRAY_SIZE>;
+			return std::make_shared<TUnaryTextureOperator<Image::Array, Image::Array, AddFunc>>(
+				operandTexture, AddFunc(m_scalarInput));
 		}
 	}
 
@@ -57,15 +56,15 @@ std::shared_ptr<TTexture<Image::NumericArray>> MathImage::genNumericTexture(
 	{
 		if(m_imageInput0)
 		{
-			using MulFunc = texfunc::TMultiplyArray<float64, Image::NUMERIC_ARRAY_SIZE>;
-			return std::make_shared<TBinaryTextureOperator<Image::NumericArray, Image::NumericArray, Image::NumericArray, MulFunc>>(
+			using MulFunc = texfunc::TMultiplyArray<float64, Image::ARRAY_SIZE>;
+			return std::make_shared<TBinaryTextureOperator<Image::Array, Image::Array, Image::Array, MulFunc>>(
 				operandTexture, m_imageInput0->genNumericTexture(ctx));
 		}
 		else
 		{
-			using MulFunc = texfunc::TMultiplyConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
-			return std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, MulFunc>>(
-				operandTexture, MulFunc(static_cast<math::ColorValue>(m_scalarInput)));
+			using MulFunc = texfunc::TArrayMultiplyScalar<float64, Image::ARRAY_SIZE>;
+			return std::make_shared<TUnaryTextureOperator<Image::Array, Image::Array, MulFunc>>(
+				operandTexture, MulFunc(m_scalarInput));
 		}
 	}
 
@@ -119,32 +118,6 @@ std::shared_ptr<TTexture<math::Spectrum>> MathImage::genColorTexture(
 	default:
 		throw ActorCookException("Specified math image operation is not supported on color texture.");
 	}
-}
-
-std::shared_ptr<TTexture<real>> RealMathImage::genTextureReal(
-	ActorCookingContext& ctx) const
-{
-	auto operandImage = checkOperandImage();
-	if(!operandImage)
-	{
-		return nullptr;
-	}
-
-	auto operandTexture = operandImage->genTextureReal(ctx);
-	return genTexture<real, real>(std::move(operandTexture));
-}
-
-std::shared_ptr<TTexture<math::Vector3R>> RealMathImage::genTextureVector3R(
-	ActorCookingContext& ctx) const
-{
-	auto operandImage = checkOperandImage();
-	if(!operandImage)
-	{
-		return nullptr;
-	}
-
-	auto operandTexture = operandImage->genTextureVector3R(ctx);
-	return genTexture<math::Vector3R, math::Vector3R>(std::move(operandTexture));
 }
 
 MathImage& MathImage::setOperation(const EMathImageOp op)

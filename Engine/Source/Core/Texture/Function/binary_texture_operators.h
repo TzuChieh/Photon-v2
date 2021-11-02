@@ -32,14 +32,25 @@ class TAdd final
 public:
 	OutputType operator () (const InputTypeA& inputValueA, const InputTypeB& inputValueB) const
 	{
-		static_assert(CanAdd<InputTypeA, InputTypeB, OutputType>::value,
+		static_assert(CCanAdd<InputTypeA, InputTypeB, OutputType>,
 			"Must have add operator for <OutputType> = <InputTypeA> + <InputTypeB>");
 
 		return inputValueA + inputValueB;
 	}
 };
 
-using AddSpectrum = TAdd<math::Spectrum, math::Spectrum, math::Spectrum>;
+template<typename T, std::size_t N>
+class TAddArray final
+{
+public:
+	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
+	{
+		using ComputeType = math::TArithmeticArray<T, N>;
+		using AddFunc     = TAdd<ComputeType, ComputeType, ComputeType>;
+
+		return AddFunc()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
+	}
+};
 
 template<typename InputTypeA, typename InputTypeB, typename OutputType>
 class TMultiply final
@@ -47,52 +58,28 @@ class TMultiply final
 public:
 	OutputType operator () (const InputTypeA& inputValueA, const InputTypeB& inputValueB) const
 	{
-		static_assert(CanMultiply<InputTypeA, InputTypeB, OutputType>::value,
+		static_assert(CCanMultiply<InputTypeA, InputTypeB, OutputType>,
 			"Must have multiply operator for <OutputType> = <InputTypeA> * <InputTypeB>");
 
 		return inputValueA * inputValueB;
 	}
 };
 
-using MultiplySpectrum = TMultiply<math::Spectrum, math::Spectrum, math::Spectrum>;
-
-template
-<
-	template<typename InputTypeA, typename InputTypeB, typename OutputType>
-	class TBinaryOperatorType,
-
-	typename    T, 
-	std::size_t N
->
-class TBinaryArrayOperator final
+template<typename T, std::size_t N>
+class TMultiplyArray final
 {
-
 public:
-	using ComputeType  = math::TArithmeticArray<T, N>;
-	using OperatorType = TBinaryOperatorType<ComputeType, ComputeType, ComputeType>;
-
-	TBinaryArrayOperator() requires std::default_initializable<OperatorType> :
-		TBinaryArrayOperator(OperatorType())
-	{}
-
-	explicit TBinaryArrayOperator(OperatorType op) :
-		m_operator(std::move(op))
-	{}
-
 	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
 	{
-		return m_operator(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
-	}
+		using ComputeType = math::TArithmeticArray<T, N>;
+		using MulFunc     = TMultiply<ComputeType, ComputeType, ComputeType>;
 
-private:
-	OperatorType m_operator;
+		return MulFunc()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
+	}
 };
 
-template<typename T, std::size_t N>
-using TAddArray = TBinaryArrayOperator<TAdd, T, N>;
-
-template<typename T, std::size_t N>
-using TMultiplyArray = TBinaryArrayOperator<TMultiply, T, N>;
+using AddSpectrum = TAdd<math::Spectrum, math::Spectrum, math::Spectrum>;
+using MultiplySpectrum = TMultiply<math::Spectrum, math::Spectrum, math::Spectrum>;
 
 }// end namespace texfunc
 

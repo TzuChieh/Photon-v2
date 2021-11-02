@@ -91,13 +91,13 @@ RasterFileImage::RasterFileImage(Path filePath) :
 	m_filePath(std::move(filePath))
 {}
 
-std::shared_ptr<TTexture<Image::NumericArray>> RasterFileImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::Array>> RasterFileImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {
 	auto pixelBuffer = loadPixelBuffer(ctx);
 	setResolution(pixelBuffer->getSize());
 
-	return std::make_shared<TNumericPixelTexture2D<Image::NUMERIC_ARRAY_SIZE>>(
+	return std::make_shared<TNumericPixelTexture2D<Image::ARRAY_SIZE>>(
 		pixelBuffer,
 		getTextureSampleMode(),
 		getTextureWrapModeS(),

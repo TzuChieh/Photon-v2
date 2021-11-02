@@ -15,24 +15,24 @@ ConstantImage::ConstantImage() :
 	ConstantImage(0.0)
 {}
 
-std::shared_ptr<TTexture<Image::NumericArray>> ConstantImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::Array>> ConstantImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {
-	if(m_values.size() > Image::NUMERIC_ARRAY_SIZE)
+	if(m_values.size() > Image::ARRAY_SIZE)
 	{
 		PH_LOG_WARNING(ConstantImage, 
 			"{} values provided for a numeric array of max size {}, there will be data loss",
-			m_values.size(), Image::NUMERIC_ARRAY_SIZE);
+			m_values.size(), Image::ARRAY_SIZE);
 	}
 
-	Image::NumericArray arr;
+	Image::Array arr;
 	arr.fill(0);
-	for(std::size_t i = 0; i < Image::NUMERIC_ARRAY_SIZE && i < m_values.size(); ++i)
+	for(std::size_t i = 0; i < Image::ARRAY_SIZE && i < m_values.size(); ++i)
 	{
 		arr[i] = m_values[i];
 	}
 
-	return std::make_shared<TConstantTexture<Image::NumericArray>>(arr);
+	return std::make_shared<TConstantTexture<Image::Array>>(arr);
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(

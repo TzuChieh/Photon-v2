@@ -20,14 +20,14 @@ namespace ph
 class Image : public TSdlResourceBase<ETypeCategory::REF_IMAGE>
 {
 public:
-	using NumericArray = std::array<float64, PH_NUMERIC_IMAGE_MAX_ELEMENTS>;
+	using Array = std::array<float64, PH_NUMERIC_IMAGE_MAX_ELEMENTS>;
 	
-	inline static constexpr auto NUMERIC_ARRAY_SIZE = std::tuple_size_v<NumericArray>;
+	inline static constexpr auto ARRAY_SIZE = std::tuple_size_v<Array>;
 
 public:
 	Image();
 
-	virtual std::shared_ptr<TTexture<Image::NumericArray>> genNumericTexture(
+	virtual std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
 		ActorCookingContext& ctx) = 0;
 
 	virtual std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
