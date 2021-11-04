@@ -1,15 +1,14 @@
 #include "Actor/LightSource/ModelSource.h"
 #include "Actor/AModel.h"
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
-#include "Core/Texture/TConstantTexture.h"
+#include "Core/Texture/constant_textures.h"
 #include "Core/Texture/LdrRgbTexture2D.h"
 #include "Core/Texture/TextureLoader.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Math/TVector3.h"
-#include "DataIO/PictureLoader.h"
 #include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
-#include "Actor/Image/LdrPictureImage.h"
+#include "Actor/Image/RasterFileImage.h"
 #include "Common/assertion.h"
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
@@ -30,8 +29,8 @@ ModelSource::ModelSource(const math::Vector3R& emittedRgbRadiance) :
 	m_emittedRadiance(nullptr),
 	m_isBackFaceEmit(false)
 {
-	m_emittedRadiance = std::make_shared<ConstantImage>(emittedRgbRadiance, 
-	                                                    ConstantImage::EType::EMR_LINEAR_SRGB);
+	m_emittedRadiance = std::make_shared<ConstantImage>(
+		emittedRgbRadiance, math::EColorSpace::Linear_sRGB);
 }
 
 ModelSource::ModelSource(const Path& imagePath) :
@@ -39,8 +38,7 @@ ModelSource::ModelSource(const Path& imagePath) :
 	m_emittedRadiance(nullptr),
 	m_isBackFaceEmit(false)
 {
-	auto image = std::make_shared<LdrPictureImage>(PictureLoader::loadLdr(imagePath));
-	m_emittedRadiance = image;
+	m_emittedRadiance = std::make_shared<RasterFileImage>(imagePath);
 }
 
 ModelSource::ModelSource(const std::shared_ptr<Image>& emittedRadiance) :
@@ -61,7 +59,7 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 		return nullptr;
 	}
 
-	auto emittedRadiance = m_emittedRadiance->genTextureSpectral(ctx);
+	auto emittedRadiance = m_emittedRadiance->genColorTexture(ctx);
 
 	std::vector<DiffuseSurfaceEmitter> primitiveEmitters;
 	for(const auto& primitive : data.primitives)

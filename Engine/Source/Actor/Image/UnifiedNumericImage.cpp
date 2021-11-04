@@ -26,10 +26,8 @@ UnifiedNumericImage::UnifiedNumericImage() :
 
 	m_image            (nullptr),
 	m_swizzleSubscripts(),
-	m_constant         ()
-{
-	m_constant.fill(0.0);
-}
+	m_constant         (0.0)
+{}
 
 namespace
 {
@@ -324,7 +322,7 @@ UnifiedNumericImage& UnifiedNumericImage::setConstant(const float64* const const
 			dataSize, m_constant.size());
 	}
 
-	m_constant.fill(0.0);
+	m_constant.set(0.0);
 	for(std::size_t i = 0; i < std::min(m_constant.size(), dataSize); ++i)
 	{
 		m_constant[i] = constantData[i];

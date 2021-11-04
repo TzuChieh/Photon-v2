@@ -1,7 +1,6 @@
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
 #include "Common/assertion.h"
-#include "DataIO/PictureLoader.h"
 #include "Common/logging.h"
 #include "DataIO/ExrFileReader.h"
 #include "Frame/frame_utils.h"
@@ -45,7 +44,7 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 			fullFilename);
 	}
 
-	RegularPicture picture({widthPx, heightPx});
+	RegularPicture picture({static_cast<uint32>(widthPx), static_cast<uint32>(heightPx)});
 
 	// HACK: assuming input LDR image is in sRGB color space, we need to properly detect this
 	picture.colorSpace = math::EColorSpace::sRGB;
@@ -115,7 +114,7 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 			fullFilename);
 	}
 
-	RegularPicture picture({widthPx, heightPx});
+	RegularPicture picture({static_cast<uint32>(widthPx), static_cast<uint32>(heightPx)});
 
 	// HACK: assuming input HDR image is in linear-sRGB color space, we need to properly detect this
 	picture.colorSpace = math::EColorSpace::Linear_sRGB;

@@ -39,6 +39,7 @@ private:
 };
 
 /*! @brief A constant color texture that can adapt values in tristimulus color space to spectrum.
+@tparam COLOR_SPACE The color space this texture is in. Must be tristimulus.
 */
 template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Linear_sRGB>
 class TConstantTristimulusTexture : public TTexture<math::Spectrum>
@@ -61,6 +62,7 @@ private:
 };
 
 /*! @brief A constant color texture that can adapt spectral values to spectrum.
+@tparam COLOR_SPACE The color space this texture is in. Must be spectral.
 */
 template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Spectral>
 class TConstantSpectralTexture : public TTexture<math::Spectrum>

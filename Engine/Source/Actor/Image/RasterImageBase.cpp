@@ -50,13 +50,13 @@ RasterImageBase& RasterImageBase::setWrapMode(const EImageWrapMode horizontalWra
 {
 	m_wrapMode         = horizontalWrapMode;
 	m_verticalWrapMode = verticalWrapMode;
-
 	return *this;
 }
 
 RasterImageBase& RasterImageBase::setResolution(const math::TVector2<uint32> resolution)
 {
 	m_resolution = resolution;
+	return *this;
 }
 
 }// end namespace ph

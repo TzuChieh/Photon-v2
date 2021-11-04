@@ -26,7 +26,7 @@ std::shared_ptr<TTexture<Image::Array>> ConstantImage::genNumericTexture(
 	}
 
 	Image::Array arr;
-	arr.fill(0);
+	arr.set(0);
 	for(std::size_t i = 0; i < Image::ARRAY_SIZE && i < m_values.size(); ++i)
 	{
 		arr[i] = m_values[i];

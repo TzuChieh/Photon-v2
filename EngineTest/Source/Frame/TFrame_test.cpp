@@ -85,7 +85,7 @@ TEST(TFrameTest, FillRegionWithSpecificValue)
 
 TEST(TFrameTest, GenerateMonochromaticPixel)
 {
-	const auto& pixel = ph::TFrame<float, 3>::getMonochromaticPixel(1.2f);
+	const auto& pixel = ph::TFrame<float, 3>::makeMonochromaticPixel(1.2f);
 
 	EXPECT_EQ(pixel[0], 1.2f);
 	EXPECT_EQ(pixel[1], 1.2f);
@@ -117,8 +117,8 @@ TEST(TFrameTest, Sampling)
 		}
 	}
 
-	const auto& one = Frame::getMonochromaticPixel(1.0f);
-	const auto& two = Frame::getMonochromaticPixel(2.0f);
+	const auto& one = Frame::makeMonochromaticPixel(1.0f);
+	const auto& two = Frame::makeMonochromaticPixel(2.0f);
 	for(ph::uint32 y = 0; y < src.heightPx(); ++y)
 	{
 		for(ph::uint32 x = 0; x < src.widthPx(); ++x)

@@ -16,7 +16,7 @@ namespace ph
 
 template<typename T, std::size_t N>
 template<typename U>
-inline typename TFrame<T, N>::template TPixel<U> TFrame<T, N>::getMonochromaticPixel(const U value)
+inline typename TFrame<T, N>::template TPixel<U> TFrame<T, N>::makeMonochromaticPixel(const U value)
 {
 	return TPixel<U>(value);
 }
@@ -108,7 +108,7 @@ inline void TFrame<T, N>::sample(
 			PH_ASSERT(x0y0.x() >= 0 && x0y0.y() >= 0 &&
 			          x1y1.x() < widthPx() && x1y1.y() < heightPx());
 
-			TPixel<float64> pixelSum  = getMonochromaticPixel<float64>(0);
+			TPixel<float64> pixelSum  = makeMonochromaticPixel<float64>(0);
 			float64         weightSum = 0.0;
 			for(int64 ky = x0y0.y(); ky <= x1y1.y(); ++ky)
 			{
@@ -144,7 +144,7 @@ inline void TFrame<T, N>::sample(
 			}
 			else
 			{
-				sampledPixel = getMonochromaticPixel(T(0));
+				sampledPixel = makeMonochromaticPixel(T(0));
 			}
 			sampled.setPixel(x, y, sampledPixel);
 		}// 

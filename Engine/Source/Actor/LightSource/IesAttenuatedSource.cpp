@@ -5,7 +5,7 @@
 #include "Core/Intersectable/PrimitiveChannel.h"
 #include "Frame/TFrame.h"
 #include "Core/Texture/TBilinearPixelTex2D.h"
-#include "Core/Texture/Function/TConversionTexture.h"
+#include "Core/Texture/Function/unary_texture_operators.h"
 #include "Math/constant.h"
 #include "Core/Emitter/OmniModulatedEmitter.h"
 #include "Common/logging.h"

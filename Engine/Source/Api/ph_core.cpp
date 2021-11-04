@@ -9,7 +9,7 @@
 #include "Core/Renderer/Renderer.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Common/assertion.h"
-#include "DataIO/PictureLoader.h"
+#include "DataIO/io_utils.h"
 #include "DataIO/PictureSaver.h"
 #include "Api/ApiHelper.h"
 #include "Core/Scheduler/Region.h"
@@ -279,16 +279,18 @@ int phLoadFrame(PHuint64 frameId, const PHchar* const filePath)
 {
 	PH_ASSERT(filePath);
 
-	HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
+	/*HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(frame)
 	{
-		*frame = PictureLoader::load(Path(filePath));
+		*frame = io_utils::load_picture(Path(filePath)).frame;
 		return PH_TRUE;
 	}
 	else
 	{
 		return PH_FALSE;
-	}
+	}*/
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return PH_FALSE;
 }
 
 int phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)

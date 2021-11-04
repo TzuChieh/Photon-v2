@@ -40,13 +40,13 @@ std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
 	{
 		if(m_imageInput0)
 		{
-			using AddFunc = texfunc::TAddArray<float64, Image::ARRAY_SIZE>;
+			using AddFunc = texfunc::TAdd<Image::Array, Image::Array, Image::Array>;
 			return std::make_shared<TBinaryTextureOperator<Image::Array, Image::Array, Image::Array, AddFunc>>(
 				operandTexture, m_imageInput0->genNumericTexture(ctx));
 		}
 		else
 		{
-			using AddFunc = texfunc::TArrayAddScalar<float64, Image::ARRAY_SIZE>;
+			using AddFunc = texfunc::TAddConstant<Image::Array, float64, Image::Array>;
 			return std::make_shared<TUnaryTextureOperator<Image::Array, Image::Array, AddFunc>>(
 				operandTexture, AddFunc(m_scalarInput));
 		}
@@ -56,13 +56,13 @@ std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
 	{
 		if(m_imageInput0)
 		{
-			using MulFunc = texfunc::TMultiplyArray<float64, Image::ARRAY_SIZE>;
+			using MulFunc = texfunc::TMultiply<Image::Array, Image::Array, Image::Array>;
 			return std::make_shared<TBinaryTextureOperator<Image::Array, Image::Array, Image::Array, MulFunc>>(
 				operandTexture, m_imageInput0->genNumericTexture(ctx));
 		}
 		else
 		{
-			using MulFunc = texfunc::TArrayMultiplyScalar<float64, Image::ARRAY_SIZE>;
+			using MulFunc = texfunc::TMultiplyConstant<Image::Array, float64, Image::Array>;
 			return std::make_shared<TUnaryTextureOperator<Image::Array, Image::Array, MulFunc>>(
 				operandTexture, MulFunc(m_scalarInput));
 		}

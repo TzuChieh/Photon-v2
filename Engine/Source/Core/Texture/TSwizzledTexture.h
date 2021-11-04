@@ -17,6 +17,7 @@ namespace ph
 
 /*! @brief Swizzle an array-like input type to the other array-like output type.
 The output object can have size greater or lesser than the input object (talking about max index). 
+@tparam OUTPUT_N Size of the array-like object.
 */
 template<typename InputT, typename OutputT, std::size_t OUTPUT_N>
 class TSwizzledTexture : public TTexture<OutputT>
@@ -36,7 +37,8 @@ public:
 		"Array element of input type is not convertible to the array element of output type.");
 
 	/*!
-	@param swizzleMap How each output slot maps to the input slot. Stores indices to the input slots.
+	@param swizzleMap How each output slot maps to the input slot. Stores indices to the input slots. Indices
+	must not exceed the size of @p InputT.
 	*/
 	TSwizzledTexture(
 		InputTexRes                 inputTexture,

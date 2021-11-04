@@ -88,7 +88,8 @@ inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
 {
 	PH_ASSERT(out_value);
 
-	const pixel_buffer::TPixel<float64> sampledPixel = samplePixelBuffer(sampleLocation.uv());
+	// FIXME: vec cast
+	const pixel_buffer::TPixel<float64> sampledPixel = samplePixelBuffer(math::Vector2D(sampleLocation.uv()));
 
 	// Get tristimulus color according to pixel buffer layout. Alpha is ignored for this texture.
 

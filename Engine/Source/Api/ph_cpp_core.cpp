@@ -43,9 +43,8 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/RasterImageBase.h"
 #include "Actor/Image/RasterFileImage.h"
-
 #include "Actor/Image/ConstantImage.h"
-#include "Actor/Image/RealMathImage.h"
+#include "Actor/Image/MathImage.h"
 #include "Actor/Image/CheckerboardImage.h"
 #include "Actor/Image/GradientImage.h"
 

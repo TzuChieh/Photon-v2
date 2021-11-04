@@ -7,10 +7,10 @@
 #include "Math/Color/Spectrum.h"
 #include "Common/config.h"
 #include "DataIO/SDL/sdl_interface.h"
+#include "Math/TArithmeticArray.h"
 
 #include <iostream>
 #include <memory>
-#include <array>
 
 namespace ph { class ActorCookingContext; }
 
@@ -20,9 +20,9 @@ namespace ph
 class Image : public TSdlResourceBase<ETypeCategory::REF_IMAGE>
 {
 public:
-	using Array = std::array<float64, PH_NUMERIC_IMAGE_MAX_ELEMENTS>;
+	using Array = math::TArithmeticArray<float64, PH_NUMERIC_IMAGE_MAX_ELEMENTS>;
 	
-	inline static constexpr auto ARRAY_SIZE = std::tuple_size_v<Array>;
+	inline static constexpr auto ARRAY_SIZE = Array::NUM_ELEMENTS;
 
 public:
 	Image();

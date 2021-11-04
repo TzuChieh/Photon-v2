@@ -37,7 +37,7 @@ public:
 	template<std::size_t N> requires (N <= Image::ARRAY_SIZE)
 	inline UnifiedNumericImage& setConstant(const std::array<float64, N>& constant)
 	{
-		m_constant.fill(0.0);
+		m_constant.set(0.0);
 		for(std::size_t i = 0; i < N; ++i)
 		{
 			m_constant[i] = constant[i];

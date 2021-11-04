@@ -41,8 +41,8 @@ inline TFrame<T, N> make_frame_from_picture(const RegularPicture& picture)
 
 		// Pixel element casting is based on the smaller number of elements of the two--other
 		// elements are either discarded or defaulted to 0.
-		TFrame<T, N>::typename Pixel dstPixel(0);
-		for(std::size_t ei = 0; ei < NUM_ELEMENTS; ++ei)
+		auto dstPixel = TFrame<T, N>::makeMonochromaticPixel(0);
+		for(std::size_t ei = 0; ei < dstPixel.size(); ++ei)
 		{
 			dstPixel[ei] = static_cast<T>(srcPixel[ei]);
 		}
@@ -97,7 +97,7 @@ std::shared_ptr<TTexture<Image::Array>> RasterFileImage::genNumericTexture(
 	auto pixelBuffer = loadPixelBuffer(ctx);
 	setResolution(pixelBuffer->getSize());
 
-	return std::make_shared<TNumericPixelTexture2D<Image::ARRAY_SIZE>>(
+	return std::make_shared<TNumericPixelTexture2D<float64, Image::ARRAY_SIZE>>(
 		pixelBuffer,
 		getTextureSampleMode(),
 		getTextureWrapModeS(),
@@ -160,7 +160,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 	{
 		// TODO: better log warning and use a default picture
 		throw ActorCookException(
-			"error on loading picture <" + m_filePath.toAbsoluteString() + ">");
+			"error on loading picture: " + e.whatStr());
 	}
 
 	if(out_colorSpace)

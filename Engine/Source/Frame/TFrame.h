@@ -26,7 +26,7 @@ public:
 	using Pixel = TPixel<T>;
 
 	template<typename U = T>
-	static TPixel<U> getMonochromaticPixel(U value);
+	static TPixel<U> makeMonochromaticPixel(U value);
 
 public:
 	/*! @brief Constructs an empty frame.

@@ -40,7 +40,7 @@ public:
 };
 
 template<typename T, std::size_t N>
-class TNumericToSpectrum final
+class TArrayToSpectrum final
 {
 public:
 	math::Spectrum operator () (const std::array<T, N>& inputValues) const
@@ -179,5 +179,8 @@ private:
 	InputTexRes  m_inputTexture;
 	OperatorType m_operator;
 };
+
+template<typename InputType, typename OutputType>
+using TConversionTexture = TUnaryTextureOperator<InputType, OutputType, texfunc::TDefaultConversion<InputType, OutputType>>;
 
 }// end namespace ph
