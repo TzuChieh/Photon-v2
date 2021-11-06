@@ -24,9 +24,6 @@ class TSdlRealArray : public SdlValueType
 	static_assert(std::is_base_of_v<TAbstractSdlValue<std::vector<Element>, Owner>, SdlValueType>,
 		"SdlValueType should be a subclass of TAbstractSdlValue.");
 
-	static_assert(std::is_same_v<Element, real>,
-		"Currently supports only ph::real");
-
 public:
 	template<typename ValueType>
 	inline TSdlRealArray(std::string valueName, ValueType Owner::* const valuePtr) :
@@ -51,7 +48,7 @@ protected:
 			try
 			{
 				const std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
-				this->setValue(owner, sdl::load_number_array<real>(loadedSdlValue));
+				this->setValue(owner, sdl::load_number_array<Element>(loadedSdlValue));
 			}
 			catch(const FileIOError& e)
 			{
@@ -60,7 +57,7 @@ protected:
 		}
 		else
 		{
-			this->setValue(owner, sdl::load_number_array<real>(payload.value));
+			this->setValue(owner, sdl::load_number_array<Element>(payload.value));
 		}
 	}
 
@@ -71,10 +68,10 @@ protected:
 	{
 		// TODO: optionally as file
 
-		if(const std::vector<Element>* const realArr = this->getValue(owner); realArr)
+		if(const std::vector<Element>* const numberArr = this->getValue(owner); numberArr)
 		{
 			sdl::save_field_id(this, out_payload);
-			sdl::save_real_array(*realArr, &out_payload.value);
+			sdl::save_number_array<Element>(*numberArr, &out_payload.value);
 		}
 	}
 };

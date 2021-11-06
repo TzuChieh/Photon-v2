@@ -2,9 +2,9 @@
 
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Math/math_fwd.h"
-#include "Actor/Image/UnifiedColorImage.h"
-#include "Actor/Image/UnifiedNumericImage.h"
-#include "Actor/SDLExtension/sdl_interface_extended.h"
+#include "DataIO/SDL/sdl_interface.h"
+#include "Actor/SDLExtension/TSdlUnifiedColorImage.h"
+#include "Actor/SDLExtension/TSdlUnifiedNumericImage.h"
 
 #include <memory>
 

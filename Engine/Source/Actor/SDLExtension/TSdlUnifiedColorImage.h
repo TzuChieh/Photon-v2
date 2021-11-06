@@ -101,9 +101,14 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 		else
 		{
 			// TODO: load spectral image
+
+			// For constant color input, default to linear-sRGB if not specified
+			const auto colorSpace = !payload.tag.empty() ? 
+				TSdlEnum<math::EColorSpace>()[payload.tag] : math::EColorSpace::Linear_sRGB;
+
 			colorImage->setConstantColor(
 				sdl::load_vector3(payload.value), 
-				TSdlEnum<math::EColorSpace>()[payload.tag]);
+				colorSpace);
 		}
 	}
 	catch(const SdlLoadError& e)

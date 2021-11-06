@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
-#include "Actor/SDLExtension/sdl_interface_extended.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <vector>
 

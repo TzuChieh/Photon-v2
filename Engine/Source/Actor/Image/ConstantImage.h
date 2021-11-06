@@ -3,7 +3,6 @@
 #include "Actor/Image/Image.h"
 #include "Math/math_fwd.h"
 #include "Actor/SDLExtension/sdl_color_space_type.h"
-#include "Actor/SDLExtension/sdl_color_usage_type.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 #include <vector>
@@ -45,6 +44,29 @@ public:
 private:
 	std::vector<float64> m_values;
 	math::EColorSpace    m_colorSpace;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ConstantImage>)
+	{
+		ClassType clazz("constant");
+		clazz.docName("Constant Image");
+		clazz.description("An image that stores constant value. It can be a single scalar, a vector or a color.");
+		clazz.baseOn<Image>();
+
+		TSdlRealArray<OwnerType, float64> values("value", &OwnerType::m_values);
+		values.description("A series of values to populate the const image.");
+		values.defaultTo({0});
+		values.required();
+		clazz.addField(values);
+
+		TSdlEnumField<OwnerType, math::EColorSpace> colorSpace(&OwnerType::m_colorSpace);
+		colorSpace.description("Associated color space of the constant.");
+		colorSpace.defaultTo(math::EColorSpace::UNSPECIFIED);
+		colorSpace.optional();
+		clazz.addField(colorSpace);
+
+		return clazz;
+	}
 };
 
 // In-ueader Implementations:

@@ -165,32 +165,6 @@ void save_quaternion(const math::QuaternionR& value, std::string* const out_str)
 	}
 }
 
-void save_real_array(const std::vector<real>& values, std::string* const out_str)
-{
-	PH_ASSERT(out_str);
-		
-	out_str->clear();
-
-	try
-	{
-		(*out_str) += '\"';
-
-		std::string savedReal;
-		for(const auto& value : values)
-		{
-			save_real(value, &savedReal);
-			(*out_str) += savedReal;
-			(*out_str) += ' ';
-		}
-
-		(*out_str) += '\"';
-	}
-	catch(const SdlSaveError& e)
-	{
-		throw SdlSaveError("on saving real array -> " + e.whatStr());
-	}
-}
-
 void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* const out_str)
 {
 	PH_ASSERT(out_str);

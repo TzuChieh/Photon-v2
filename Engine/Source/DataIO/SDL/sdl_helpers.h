@@ -94,7 +94,10 @@ void save_vector2(const math::TVector2<Element>& value, std::string* out_str);
 
 void save_vector3(const math::Vector3R& value, std::string* out_str);
 void save_quaternion(const math::QuaternionR& value, std::string* out_str);
-void save_real_array(const std::vector<real>& values, std::string* out_str);
+
+template<typename NumberType>
+void save_number_array(const std::vector<NumberType>& values, std::string* out_str);
+
 void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* out_str);
 
 void save_field_id(const SdlField* sdlField, SdlOutputPayload& payload);

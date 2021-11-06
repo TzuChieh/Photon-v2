@@ -2,7 +2,7 @@
 
 #include "DataIO/SDL/TSdlResourceBase.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Actor/SDLExtension/sdl_interface_extended.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph { class ActorCookingContext; }
 

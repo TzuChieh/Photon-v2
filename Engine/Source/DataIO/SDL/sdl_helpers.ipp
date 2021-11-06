@@ -99,4 +99,31 @@ inline void save_vector2(const math::TVector2<Element>& value, std::string* cons
 	}
 }
 
+template<typename NumberType>
+inline void save_number_array(const std::vector<NumberType>& values, std::string* const out_str)
+{
+	PH_ASSERT(out_str);
+		
+	out_str->clear();
+
+	try
+	{
+		(*out_str) += '\"';
+
+		std::string savedNumber;
+		for(const auto& value : values)
+		{
+			save_number<NumberType>(value, &savedNumber);
+			(*out_str) += savedNumber;
+			(*out_str) += ' ';
+		}
+
+		(*out_str) += '\"';
+	}
+	catch(const SdlSaveError& e)
+	{
+		throw SdlSaveError("on saving number array -> " + e.whatStr());
+	}
+}
+
 }// end namespace ph::sdl
