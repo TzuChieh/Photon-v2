@@ -15,6 +15,24 @@ UnifiedColorImage::UnifiedColorImage() :
 	m_constantColorSpace(math::EColorSpace::UNSPECIFIED)
 {}
 
+UnifiedColorImage::UnifiedColorImage(std::shared_ptr<Image> image) :
+	UnifiedColorImage()
+{
+	setImage(std::move(image));
+}
+
+UnifiedColorImage::UnifiedColorImage(const math::Vector3R constant) :
+	UnifiedColorImage()
+{
+	setConstant(constant);
+}
+
+UnifiedColorImage::UnifiedColorImage(const math::Vector3R colorValue, const math::EColorSpace colorSpace) :
+	UnifiedColorImage()
+{
+	setConstantColor(colorValue, colorSpace);
+}
+
 std::shared_ptr<TTexture<Image::Array>> UnifiedColorImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {

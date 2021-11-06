@@ -15,6 +15,9 @@ class UnifiedColorImage : public Image
 {
 public:
 	UnifiedColorImage();
+	explicit UnifiedColorImage(std::shared_ptr<Image> image);
+	explicit UnifiedColorImage(math::Vector3R constant);
+	UnifiedColorImage(math::Vector3R colorValue, math::EColorSpace colorSpace);
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
 		ActorCookingContext& ctx) override;

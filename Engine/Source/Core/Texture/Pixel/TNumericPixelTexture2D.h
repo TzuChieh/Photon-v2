@@ -21,12 +21,14 @@ public:
 	TNumericPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 		pixel_texture::ESampleMode            sampleMode,
-		pixel_texture::EWrapMode              wrapMode);
+		pixel_texture::EWrapMode              wrapModeS,
+		pixel_texture::EWrapMode              wrapModeT);
 
 	TNumericPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 		pixel_texture::ESampleMode            sampleMode,
-		pixel_texture::EWrapMode              wrapMode,
+		pixel_texture::EWrapMode              wrapModeS,
+		pixel_texture::EWrapMode              wrapModeT,
 		std::size_t                           pixelIndexOffset);
 
 	void sample(
@@ -51,12 +53,14 @@ template<typename T, std::size_t N>
 inline TNumericPixelTexture2D<T, N>::TNumericPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 	const pixel_texture::ESampleMode      sampleMode,
-	const pixel_texture::EWrapMode        wrapMode) :
+	const pixel_texture::EWrapMode        wrapModeS,
+	const pixel_texture::EWrapMode        wrapModeT) :
 
 	TNumericPixelTexture2D(
 		pixelBuffer,
 		sampleMode,
-		wrapMode,
+		wrapModeS,
+		wrapModeT,
 		0)
 {}
 
@@ -64,13 +68,15 @@ template<typename T, std::size_t N>
 inline TNumericPixelTexture2D<T, N>::TNumericPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 	const pixel_texture::ESampleMode      sampleMode,
-	const pixel_texture::EWrapMode        wrapMode,
+	const pixel_texture::EWrapMode        wrapModeS,
+	const pixel_texture::EWrapMode        wrapModeT,
 	const std::size_t                     pixelIndexOffset) :
 
 	TPixelTexture2D<math::TArithmeticArray<T, N>>(
 		pixelBuffer,
 		sampleMode,
-		wrapMode),
+		wrapModeS,
+		wrapModeT),
 
 	m_pixelIndexOffset(pixelIndexOffset)
 {}

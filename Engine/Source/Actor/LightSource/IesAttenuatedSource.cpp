@@ -4,11 +4,14 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
 #include "Frame/TFrame.h"
-#include "Core/Texture/TBilinearPixelTex2D.h"
+#include "Core/Texture/Pixel/TFrameBuffer2D.h"
+#include "Core/Texture/Pixel/TScalarPixelTexture2D.h"
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Math/constant.h"
 #include "Core/Emitter/OmniModulatedEmitter.h"
 #include "Common/logging.h"
+
+#include <memory>
 
 namespace ph
 {
@@ -39,38 +42,45 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 		return nullptr;
 	}
 
-	const IesData iesData(m_iesFile);
-	
-	const uint32 pixelsPerDegree = 2;
-	const uint32 widthPx         = 360 * pixelsPerDegree;
-	const uint32 heightPx        = 180 * pixelsPerDegree;
-
-	TFrame<real, 1> attenuationFactors(widthPx, heightPx);
-	for(uint32 y = 0; y < heightPx; y++)
+	std::shared_ptr<TTexture<math::Spectrum>> attenuationTexture;
 	{
-		for(uint32 x = 0; x < widthPx; x++)
-		{
-			const real u     = (static_cast<real>(x) + 0.5_r) / static_cast<real>(widthPx);
-			const real v     = (static_cast<real>(y) + 0.5_r) / static_cast<real>(heightPx);
-			const real phi   = u * math::constant::two_pi<real>;
-			const real theta = (1.0_r - v) * math::constant::pi<real>;
+		const IesData iesData(m_iesFile);
+	
+		const uint32 pixelsPerDegree = 2;
+		const uint32 widthPx         = 360 * pixelsPerDegree;
+		const uint32 heightPx        = 180 * pixelsPerDegree;
 
-			const real factor = iesData.sampleAttenuationFactor(theta, phi);
-			attenuationFactors.setPixel(x, y, TFrame<real, 1>::Pixel(factor));
+		TFrame<real, 1> attenuationFactors(widthPx, heightPx);
+		for(uint32 y = 0; y < heightPx; y++)
+		{
+			for(uint32 x = 0; x < widthPx; x++)
+			{
+				const real u     = (static_cast<real>(x) + 0.5_r) / static_cast<real>(widthPx);
+				const real v     = (static_cast<real>(y) + 0.5_r) / static_cast<real>(heightPx);
+				const real phi   = u * math::constant::two_pi<real>;
+				const real theta = (1.0_r - v) * math::constant::pi<real>;
+
+				const real factor = iesData.sampleAttenuationFactor(theta, phi);
+				attenuationFactors.setPixel(x, y, TFrame<real, 1>::Pixel(factor));
+			}
 		}
+
+		auto attenuationFactorTexture = std::make_shared<TScalarPixelTexture2D<real>>(
+			std::make_shared<TFrameBuffer2D<real, 1>>(attenuationFactors),
+			0);
+		
+		// Convert sampled scalar to spectrum
+		auto factorToSpectrumTexture = std::make_shared<TUnaryTextureOperator<
+			math::TArithmeticArray<real, 1>, 
+			math::Spectrum, 
+			texfunc::TScalarToSpectrum<real>>>(attenuationFactorTexture);
+
+		attenuationTexture = factorToSpectrumTexture;
 	}
 
-	auto attenuationTexture = std::make_shared<TBilinearPixelTex2D<real, 1>>(attenuationFactors);
-	auto sourceEmitter      = m_source->genEmitter(ctx, std::move(data));
-	auto attenuatedEmitter  = std::make_unique<OmniModulatedEmitter>(std::move(sourceEmitter));
-
-	// Convert sampled TexPixel (single component) to Spectrum
-	auto convertedTexture = std::make_shared<TConversionTexture<
-		TTexPixel<real, 1>, 
-		math::Spectrum, 
-		texture_converter::TTexPixelToSpectrum<real, 1>>>(attenuationTexture);
-
-	attenuatedEmitter->setFilter(convertedTexture);
+	auto sourceEmitter = m_source->genEmitter(ctx, std::move(data));
+	auto attenuatedEmitter = std::make_unique<OmniModulatedEmitter>(std::move(sourceEmitter));
+	attenuatedEmitter->setFilter(attenuationTexture);
 
 	return attenuatedEmitter;
 }

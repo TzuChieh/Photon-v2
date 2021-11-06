@@ -20,11 +20,6 @@ public:
 	TPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 		pixel_texture::ESampleMode            sampleMode,
-		pixel_texture::EWrapMode              wrapMode);
-
-	TPixelTexture2D(
-		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-		pixel_texture::ESampleMode            sampleMode,
 		pixel_texture::EWrapMode              wrapModeS,
 		pixel_texture::EWrapMode              wrapModeT);
 
@@ -45,7 +40,7 @@ public:
 	pixel_buffer::TPixel<float64> samplePixelBufferBilinear(const math::Vector2D& sampleUV) const;
 
 protected:
-	math::Vector2D sampleUVToST(const math::Vector2D& sampleUV);
+	math::Vector2D sampleUVToST(const math::Vector2D& sampleUV) const;
 
 private:
 	std::shared_ptr<PixelBuffer2D> m_pixelBuffer;

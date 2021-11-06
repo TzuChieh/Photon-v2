@@ -24,13 +24,15 @@ public:
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 		pixel_texture::EPixelLayout           alphaLayout,
 		pixel_texture::ESampleMode            sampleMode,
-		pixel_texture::EWrapMode              wrapMode);
+		pixel_texture::EWrapMode              wrapModeS,
+		pixel_texture::EWrapMode              wrapModeT);
 
 	TScalarPixelTexture2D(
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 		std::size_t                           pixelElementIndex,
 		pixel_texture::ESampleMode            sampleMode,
-		pixel_texture::EWrapMode              wrapMode);
+		pixel_texture::EWrapMode              wrapModeS,
+		pixel_texture::EWrapMode              wrapModeT);
 
 	T sampleScalar(const SampleLocation& sampleLocation) const;
 };
@@ -56,6 +58,7 @@ inline TScalarPixelTexture2D<T>::TScalarPixelTexture2D(
 		pixelBuffer,
 		pixelElementIndex,
 		pixel_texture::ESampleMode::Bilinear,
+		pixel_texture::EWrapMode::Repeat,
 		pixel_texture::EWrapMode::Repeat)
 {}
 
@@ -64,13 +67,15 @@ inline TScalarPixelTexture2D<T>::TScalarPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 	const pixel_texture::EPixelLayout     alphaLayout,
 	const pixel_texture::ESampleMode      sampleMode,
-	const pixel_texture::EWrapMode        wrapMode) :
+	const pixel_texture::EWrapMode        wrapModeS,
+	const pixel_texture::EWrapMode        wrapModeT) :
 
 	TScalarPixelTexture2D(
 		pixelBuffer,
 		pixel_texture::alpha_channel_index(alphaLayout),
 		sampleMode,
-		wrapMode)
+		wrapModeS,
+		wrapModeT)
 {}
 
 template<typename T>
@@ -78,12 +83,14 @@ inline TScalarPixelTexture2D<T>::TScalarPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 	const std::size_t                     pixelElementIndex,
 	const pixel_texture::ESampleMode      sampleMode,
-	const pixel_texture::EWrapMode        wrapMode) :
+	const pixel_texture::EWrapMode        wrapModeS,
+	const pixel_texture::EWrapMode        wrapModeT) :
 
 	TNumericPixelTexture2D<T, 1>(
 		pixelBuffer,
 		sampleMode,
-		wrapMode,
+		wrapModeS,
+		wrapModeT,
 		pixelElementIndex)
 {}
 

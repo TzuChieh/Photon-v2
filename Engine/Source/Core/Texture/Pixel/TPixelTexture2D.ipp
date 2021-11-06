@@ -22,19 +22,6 @@ template<typename OutputType>
 inline TPixelTexture2D<OutputType>::TPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 	const pixel_texture::ESampleMode      sampleMode,
-	const pixel_texture::EWrapMode        wrapMode) :
-
-	TPixelTexture2D(
-		pixelBuffer,
-		sampleMode,
-		wrapMode,
-		wrapMode)
-{}
-
-template<typename OutputType>
-inline TPixelTexture2D<OutputType>::TPixelTexture2D(
-	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
-	const pixel_texture::ESampleMode      sampleMode,
 	const pixel_texture::EWrapMode        wrapModeS,
 	const pixel_texture::EWrapMode        wrapModeT) :
 
@@ -94,7 +81,7 @@ inline const PixelBuffer2D* TPixelTexture2D<OutputType>::getPixelBuffer() const
 }
 
 template<typename OutputType>
-inline math::Vector2D TPixelTexture2D<OutputType>::sampleUVToST(const math::Vector2D& sampleUV)
+inline math::Vector2D TPixelTexture2D<OutputType>::sampleUVToST(const math::Vector2D& sampleUV) const
 {
 	return pixel_texture::uv_to_st(sampleUV, getWrapModeS(), getWrapModeT());
 }

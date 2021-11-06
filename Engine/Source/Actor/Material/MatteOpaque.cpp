@@ -6,6 +6,8 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h"
 
+#include <utility>
+
 namespace ph
 {
 
@@ -13,14 +15,14 @@ MatteOpaque::MatteOpaque() :
 	MatteOpaque(math::Vector3R(0.5_r))
 {}
 
-MatteOpaque::MatteOpaque(const math::Vector3R& linearSrgbAlbedo) :
+MatteOpaque::MatteOpaque(const math::Vector3R& albedo) :
 
 	SurfaceMaterial(),
 
 	m_albedo(),
 	m_sigmaDegrees()
 {
-	setAlbedo(linearSrgbAlbedo);
+	setAlbedo(albedo);
 }
 
 void MatteOpaque::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
@@ -45,17 +47,27 @@ void MatteOpaque::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior
 
 void MatteOpaque::setAlbedo(const math::Vector3R& albedo)
 {
-	setAlbedo(albedo.x, albedo.y, albedo.z);
+	getAlbedo()->setConstantColor(albedo, math::EColorSpace::Linear_sRGB);
 }
 
 void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 {
-	m_albedo = std::make_shared<ConstantImage>(std::vector<real>{r, g, b}, math::EColorSpace::Linear_sRGB);
+	setAlbedo({r, g, b});
 }
 
-void MatteOpaque::setAlbedo(const std::shared_ptr<Image>& albedo)
+void MatteOpaque::setAlbedo(std::shared_ptr<Image> albedo)
 {
-	m_albedo = albedo;
+	getAlbedo()->setImage(std::move(albedo));
+}
+
+UnifiedColorImage* MatteOpaque::getAlbedo()
+{
+	if(!m_albedo)
+	{
+		m_albedo = std::make_shared<UnifiedColorImage>();
+	}
+
+	return m_albedo.get();
 }
 
 }// end namespace ph

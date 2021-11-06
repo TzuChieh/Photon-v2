@@ -33,7 +33,8 @@ public:
 		const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 		pixel_texture::EPixelLayout           colorLayout,
 		pixel_texture::ESampleMode            sampleMode,
-		pixel_texture::EWrapMode              wrapMode);
+		pixel_texture::EWrapMode              wrapModeS,
+		pixel_texture::EWrapMode              wrapModeT);
 
 	void sample(
 		const SampleLocation& sampleLocation, 
@@ -54,6 +55,7 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 		pixelBuffer,
 		colorLayout,
 		pixel_texture::ESampleMode::Bilinear,
+		pixel_texture::EWrapMode::Repeat,
 		pixel_texture::EWrapMode::Repeat)
 {}
 
@@ -62,12 +64,14 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 	const std::shared_ptr<PixelBuffer2D>& pixelBuffer,
 	const pixel_texture::EPixelLayout     colorLayout,
 	const pixel_texture::ESampleMode      sampleMode,
-	const pixel_texture::EWrapMode        wrapMode) :
+	const pixel_texture::EWrapMode        wrapModeS,
+	const pixel_texture::EWrapMode        wrapModeT) :
 
 	TPixelTexture2D<math::Spectrum>(
 		pixelBuffer,
 		sampleMode,
-		wrapMode),
+		wrapModeS,
+		wrapModeT),
 
 	m_colorLayout(colorLayout)
 {

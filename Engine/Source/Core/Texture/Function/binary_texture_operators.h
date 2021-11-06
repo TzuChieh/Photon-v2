@@ -39,18 +39,7 @@ public:
 	}
 };
 
-template<typename T, std::size_t N>
-class TAddArray final
-{
-public:
-	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
-	{
-		using ComputeType = math::TArithmeticArray<T, N>;
-		using AddFunc     = TAdd<ComputeType, ComputeType, ComputeType>;
-
-		return AddFunc()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
-	}
-};
+using AddSpectrum = TAdd<math::Spectrum, math::Spectrum, math::Spectrum>;
 
 template<typename InputTypeA, typename InputTypeB, typename OutputType>
 class TMultiply final
@@ -65,20 +54,6 @@ public:
 	}
 };
 
-template<typename T, std::size_t N>
-class TMultiplyArray final
-{
-public:
-	std::array<T, N> operator () (const std::array<T, N>& inputValueA, const std::array<T, N>& inputValueB) const
-	{
-		using ComputeType = math::TArithmeticArray<T, N>;
-		using MulFunc     = TMultiply<ComputeType, ComputeType, ComputeType>;
-
-		return MulFunc()(ComputeType(inputValueA), ComputeType(inputValueB)).toArray();
-	}
-};
-
-using AddSpectrum = TAdd<math::Spectrum, math::Spectrum, math::Spectrum>;
 using MultiplySpectrum = TMultiply<math::Spectrum, math::Spectrum, math::Spectrum>;
 
 }// end namespace texfunc

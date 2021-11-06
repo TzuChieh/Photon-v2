@@ -1,6 +1,9 @@
 #include "Actor/Image/UnifiedNumericImage.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
+#include "Math/TVector2.h"
+#include "Math/TVector3.h"
+#include "Math/TVector4.h"
 #include "Actor/actor_exceptions.h"
 #include "Utility/string_utils.h"
 #include "Core/Texture/TSwizzledTexture.h"
@@ -155,6 +158,15 @@ inline std::array<uint8, N> to_texture_swizzle_map(const std::string_view swizzl
 		PH_ASSERT_NE(swizzleMap[i], std::numeric_limits<uint8>::max());
 	}
 
+	// Check if the swizzle map will overflow the array size of numeric texture
+	for(const auto idxOfInput : swizzleMap)
+	{
+		if(idxOfInput >= Image::ARRAY_SIZE)
+		{
+			throw ActorCookException("Swizzle subscripts overflow input array.");
+		}
+	}
+
 	return swizzleMap;
 }
 
@@ -194,7 +206,6 @@ std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
 		else
 		{
 			const auto swizzleMap = to_texture_swizzle_map<Image::ARRAY_SIZE>(m_swizzleSubscripts);
-
 			return std::make_shared<TSwizzledTexture<Image::Array, Image::Array, Image::ARRAY_SIZE>>(
 				m_image->genNumericTexture(ctx), swizzleMap);
 		}
@@ -256,7 +267,6 @@ std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTextur
 	if(m_image)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<2>(m_swizzleSubscripts);
-
 		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector2R, 2>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
@@ -272,7 +282,6 @@ std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTextur
 	if(m_image)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<3>(m_swizzleSubscripts);
-
 		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector3R, 3>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
@@ -288,7 +297,6 @@ std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTextur
 	if(m_image)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<4>(m_swizzleSubscripts);
-
 		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector4R, 4>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
@@ -327,6 +335,8 @@ UnifiedNumericImage& UnifiedNumericImage::setConstant(const float64* const const
 	{
 		m_constant[i] = constantData[i];
 	}
+
+	return *this;
 }
 
 }// end namespace ph

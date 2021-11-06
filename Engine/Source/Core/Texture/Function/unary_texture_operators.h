@@ -39,23 +39,23 @@ public:
 	}
 };
 
-template<typename T, std::size_t N>
-class TArrayToSpectrum final
+template<typename T>
+class TScalarToSpectrum final
 {
 public:
-	math::Spectrum operator () (const std::array<T, N>& inputValues) const
+	math::Spectrum operator () (const T scalarValue) const
 	{
-		if constexpr(N == 1)
-		{
-			return math::Spectrum(inputValues[0]);
-		}
-		else
-		{
-			static_assert(N == math::Spectrum::NUM_VALUES,
-				"Cannot convert mismatched number of components from std::array to Spectrum");
+		return math::Spectrum(scalarValue);
+	}
 
-			return math::Spectrum(inputValues);
-		}
+	math::Spectrum operator () (const std::array<T, 1>& scalarValue) const
+	{
+		return (*this)(scalarValue[0]);
+	}
+
+	math::Spectrum operator () (const math::TArithmeticArray<T, 1>& scalarValue) const
+	{
+		return (*this)(scalarValue[0]);
 	}
 };
 
@@ -79,6 +79,8 @@ private:
 	ConstantType m_constant;
 };
 
+using SpectrumAddScalar = TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
+
 template<typename InputType, typename ConstantType, typename OutputType>
 class TMultiplyConstant final
 {
@@ -99,47 +101,6 @@ private:
 	ConstantType m_constant;
 };
 
-template<typename T, std::size_t N>
-class TArrayAddScalar final
-{
-public:
-	explicit TArrayAddScalar(T scalar) :
-		m_scalar(std::move(scalar))
-	{}
-
-	std::array<T, N> operator () (const std::array<T, N>& inputValue) const
-	{
-		using ComputeType = math::TArithmeticArray<T, N>;
-		using AddFunc     = TAddConstant<ComputeType, T, ComputeType>;
-
-		return AddFunc(m_scalar)(ComputeType(inputValue)).toArray();
-	}
-
-private:
-	T m_scalar;
-};
-
-template<typename T, std::size_t N>
-class TArrayMultiplyScalar final
-{
-public:
-	explicit TArrayMultiplyScalar(T scalar) :
-		m_scalar(std::move(scalar))
-	{}
-
-	std::array<T, N> operator () (const std::array<T, N>& inputValue) const
-	{
-		using ComputeType = math::TArithmeticArray<T, N>;
-		using MulFunc     = TMultiplyConstant<ComputeType, T, ComputeType>;
-
-		return MulFunc(m_scalar)(ComputeType(inputValue)).toArray();
-	}
-
-private:
-	T m_scalar;
-};
-
-using SpectrumAddScalar = TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 using SpectrumMultiplyScalar = TMultiplyConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 
 }// end namespace texfunc

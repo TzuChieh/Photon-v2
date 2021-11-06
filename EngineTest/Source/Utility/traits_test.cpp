@@ -7,9 +7,9 @@
 
 TEST(TraitsTest, CanMultiply)
 {
-	EXPECT_TRUE((ph::CanMultiply<int, int, int>{}));
-	EXPECT_TRUE((ph::CanMultiply<float, float, float>{}));
-	EXPECT_FALSE((ph::CanMultiply<float, float, std::string>{}));
+	EXPECT_TRUE((ph::CCanMultiply<int, int, int>));
+	EXPECT_TRUE((ph::CCanMultiply<float, float, float>));
+	EXPECT_FALSE((ph::CCanMultiply<float, float, std::string>));
 
 	class A {};
 
@@ -24,33 +24,33 @@ TEST(TraitsTest, CanMultiply)
 
 	class D : public C {};
 
-	EXPECT_FALSE((ph::CanMultiply<A, B, C       >{}));
-	EXPECT_FALSE((ph::CanMultiply<A, B, const C&>{}));
+	EXPECT_FALSE((ph::CCanMultiply<A, B, C       >));
+	EXPECT_FALSE((ph::CCanMultiply<A, B, const C&>));
 
-	EXPECT_FALSE((ph::CanMultiply<A, B, D       >{}));
-	EXPECT_FALSE((ph::CanMultiply<A, B, const D&>{}));
+	EXPECT_FALSE((ph::CCanMultiply<A, B, D       >));
+	EXPECT_FALSE((ph::CCanMultiply<A, B, const D&>));
 
-	EXPECT_TRUE((ph::CanMultiply<C, A, B       >{}));
-	EXPECT_TRUE((ph::CanMultiply<C, A, const B&>{}));
+	EXPECT_TRUE((ph::CCanMultiply<C, A, B       >));
+	EXPECT_TRUE((ph::CCanMultiply<C, A, const B&>));
 
-	EXPECT_TRUE((ph::CanMultiply<C, B, C       >{}));
-	EXPECT_TRUE((ph::CanMultiply<C, B, const C&>{}));
+	EXPECT_TRUE((ph::CCanMultiply<C, B, C       >));
+	EXPECT_TRUE((ph::CCanMultiply<C, B, const C&>));
 
-	EXPECT_TRUE((ph::CanMultiply<D, A, B       >{}));
-	EXPECT_TRUE((ph::CanMultiply<D, A, const B&>{}));
+	EXPECT_TRUE((ph::CCanMultiply<D, A, B       >));
+	EXPECT_TRUE((ph::CCanMultiply<D, A, const B&>));
 
-	EXPECT_TRUE((ph::CanMultiply<D, B, C       >{}));
-	EXPECT_TRUE((ph::CanMultiply<D, B, const C&>{}));
+	EXPECT_TRUE((ph::CCanMultiply<D, B, C       >));
+	EXPECT_TRUE((ph::CCanMultiply<D, B, const C&>));
 
-	EXPECT_FALSE((ph::CanMultiply<D, B, D       >{}));
-	EXPECT_FALSE((ph::CanMultiply<D, B, const D&>{}));
+	EXPECT_FALSE((ph::CCanMultiply<D, B, D       >));
+	EXPECT_FALSE((ph::CCanMultiply<D, B, const D&>));
 }
 
 TEST(TraitsTest, CanAdd)
 {
-	EXPECT_TRUE((ph::CanAdd<int, int, int>{}));
-	EXPECT_TRUE((ph::CanAdd<float, float, float>{}));
-	EXPECT_FALSE((ph::CanAdd<float, float, std::string>{}));
+	EXPECT_TRUE((ph::CCanAdd<int, int, int>));
+	EXPECT_TRUE((ph::CCanAdd<float, float, float>));
+	EXPECT_FALSE((ph::CCanAdd<float, float, std::string>));
 
 	class A {};
 
@@ -65,26 +65,26 @@ TEST(TraitsTest, CanAdd)
 
 	class D : public C {};
 
-	EXPECT_FALSE((ph::CanAdd<A, B, C       >{}));
-	EXPECT_FALSE((ph::CanAdd<A, B, const C&>{}));
+	EXPECT_FALSE((ph::CCanAdd<A, B, C       >));
+	EXPECT_FALSE((ph::CCanAdd<A, B, const C&>));
 
-	EXPECT_FALSE((ph::CanAdd<A, B, D       >{}));
-	EXPECT_FALSE((ph::CanAdd<A, B, const D&>{}));
+	EXPECT_FALSE((ph::CCanAdd<A, B, D       >));
+	EXPECT_FALSE((ph::CCanAdd<A, B, const D&>));
 
-	EXPECT_TRUE((ph::CanAdd<C, A, B       >{}));
-	EXPECT_TRUE((ph::CanAdd<C, A, const B&>{}));
+	EXPECT_TRUE((ph::CCanAdd<C, A, B       >));
+	EXPECT_TRUE((ph::CCanAdd<C, A, const B&>));
 
-	EXPECT_TRUE((ph::CanAdd<C, B, C       >{}));
-	EXPECT_TRUE((ph::CanAdd<C, B, const C&>{}));
+	EXPECT_TRUE((ph::CCanAdd<C, B, C       >));
+	EXPECT_TRUE((ph::CCanAdd<C, B, const C&>));
 
-	EXPECT_TRUE((ph::CanAdd<D, A, B       >{}));
-	EXPECT_TRUE((ph::CanAdd<D, A, const B&>{}));
+	EXPECT_TRUE((ph::CCanAdd<D, A, B       >));
+	EXPECT_TRUE((ph::CCanAdd<D, A, const B&>));
 
-	EXPECT_TRUE((ph::CanAdd<D, B, C       >{}));
-	EXPECT_TRUE((ph::CanAdd<D, B, const C&>{}));
+	EXPECT_TRUE((ph::CCanAdd<D, B, C       >));
+	EXPECT_TRUE((ph::CCanAdd<D, B, const C&>));
 
-	EXPECT_FALSE((ph::CanAdd<D, B, D       >{}));
-	EXPECT_FALSE((ph::CanAdd<D, B, const D&>{}));
+	EXPECT_FALSE((ph::CCanAdd<D, B, D       >));
+	EXPECT_FALSE((ph::CCanAdd<D, B, const D&>));
 }
 
 TEST(TraitsTest, IsBuildable)

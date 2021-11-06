@@ -40,7 +40,7 @@ inline T& TVector4<T>::y()
 }
 
 template<typename T>
-inline T& TVector4<T>::w()
+inline T& TVector4<T>::z()
 {
 	return m[2];
 }

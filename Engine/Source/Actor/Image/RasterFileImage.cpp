@@ -41,7 +41,7 @@ inline TFrame<T, N> make_frame_from_picture(const RegularPicture& picture)
 
 		// Pixel element casting is based on the smaller number of elements of the two--other
 		// elements are either discarded or defaulted to 0.
-		auto dstPixel = TFrame<T, N>::makeMonochromaticPixel(0);
+		typename TFrame<T, N>::Pixel dstPixel(0);
 		for(std::size_t ei = 0; ei < dstPixel.size(); ++ei)
 		{
 			dstPixel[ei] = static_cast<T>(srcPixel[ei]);

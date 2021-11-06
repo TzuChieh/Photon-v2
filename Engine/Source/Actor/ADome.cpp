@@ -82,7 +82,7 @@ CookedUnit ADome::cook(ActorCookingContext& ctx)
 	if(m_energyScale != 1.0_r)
 	{
 		auto scaledRadianceFunction = std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, texfunc::SpectrumMultiplyScalar>>(
-			radianceFunction, static_cast<math::ColorValue>(m_energyScale));
+			radianceFunction, texfunc::SpectrumMultiplyScalar(static_cast<math::ColorValue>(m_energyScale)));
 
 		radianceFunction = scaledRadianceFunction;
 	}

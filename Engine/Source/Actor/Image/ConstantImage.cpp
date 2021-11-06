@@ -103,7 +103,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		}
 
 		return std::make_shared<TConstantSpectralTexture<math::EColorSpace::Spectral>>(
-			sampledSpectrum);
+			sampledSpectrum.getColorValues());
 	}
 }
 

@@ -193,7 +193,7 @@ RegularPicture load_picture(const Path& picturePath)
 		{
 			return load_HDR_picture(picturePath);
 		}
-		catch(const FileIOError& e)
+		catch(const FileIOError& /* e */)
 		{
 			hasTriedHDR = true;
 		}
@@ -206,7 +206,7 @@ RegularPicture load_picture(const Path& picturePath)
 		{
 			return load_LDR_picture(picturePath);
 		}
-		catch(const FileIOError& e)
+		catch(const FileIOError& /* e */)
 		{
 			hasTriedLDR = true;
 		}
@@ -250,7 +250,11 @@ RegularPicture load_HDR_picture(const Path& picturePath)
 	if(ext == ".exr" || ext == ".EXR")
 	{
 		ExrFileReader exrFileReader(picturePath);
-		if(!exrFileReader.load(&picture))
+		if(exrFileReader.load(&picture))
+		{
+			// TODO
+		}
+		else
 		{
 			PH_LOG_WARNING(IOUtils, ".exr file loading failed");
 		}

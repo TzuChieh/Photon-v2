@@ -15,13 +15,23 @@ class MatteOpaque : public SurfaceMaterial
 {
 public:
 	MatteOpaque();
-	explicit MatteOpaque(const math::Vector3R& linearSrgbAlbedo);
+	explicit MatteOpaque(const math::Vector3R& albedo);
 
 	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
 
+	/*!
+	@param albedo Albedo in linear-sRGB.
+	*/
 	void setAlbedo(const math::Vector3R& albedo);
+
+	/*! @brief Same as setAlbedo(const math::Vector3R&).
+	*/
 	void setAlbedo(const real r, const real g, const real b);
-	void setAlbedo(const std::shared_ptr<Image>& albedo);
+
+	void setAlbedo(std::shared_ptr<Image> albedo);
+
+protected:
+	UnifiedColorImage* getAlbedo();
 
 private:
 	std::shared_ptr<UnifiedColorImage>   m_albedo;
