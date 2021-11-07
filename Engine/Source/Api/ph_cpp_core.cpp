@@ -185,6 +185,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<ConstantImage>(),
 		get_sdl_class<RasterImageBase>(),
 		get_sdl_class<RasterFileImage>(),
+		get_sdl_class<MathImage>(),
 
 		// Observers
 		get_sdl_class<Observer>(),
@@ -228,6 +229,7 @@ std::vector<const SdlEnum*> get_registered_sdl_enums()
 		get_sdl_enum<EImageWrapMode>(),
 		get_sdl_enum<math::EColorSpace>(),
 		get_sdl_enum<math::EColorUsage>(),
+		get_sdl_enum<EMathImageOp>(),
 	};
 }
 

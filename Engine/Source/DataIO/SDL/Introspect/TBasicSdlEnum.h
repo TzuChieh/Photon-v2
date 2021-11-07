@@ -3,6 +3,8 @@
 #include "DataIO/SDL/Introspect/SdlEnum.h"
 #include "Utility/TArrayAsVector.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/sdl_exceptions.h"
+#include "Utility/utility.h"
 
 #include <type_traits>
 #include <string>
@@ -98,7 +100,7 @@ public:
 			}
 		}
 
-		return TEntry<EnumType>();
+		throw SdlLoadError("use of invalid enum entry name <" + std::string(entryName) + ">");
 	}
 
 	/*! @brief Get an enum entry via an enum value.
@@ -119,7 +121,7 @@ public:
 			}
 		}
 
-		return TEntry<EnumType>();
+		throw SdlLoadError("use of invalid enum value: " + enum_to_string(enumValue));
 	}
 
 	inline TBasicSdlEnum& description(std::string descriptionStr)
