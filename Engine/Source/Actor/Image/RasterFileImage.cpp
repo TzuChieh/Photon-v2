@@ -94,7 +94,7 @@ RasterFileImage::RasterFileImage(Path filePath) :
 std::shared_ptr<TTexture<Image::Array>> RasterFileImage::genNumericTexture(
 	ActorCookingContext& ctx)
 {
-	auto pixelBuffer = loadPixelBuffer(ctx);
+	auto pixelBuffer = loadPixelBuffer(ctx);// TODO: warn or throw if elements may be discarded (Image::ARRAY_SIZE too small)
 	setResolution(pixelBuffer->getSize());
 
 	return std::make_shared<TNumericPixelTexture2D<float64, Image::ARRAY_SIZE>>(
@@ -115,7 +115,20 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	const auto sampleMode = getTextureSampleMode();
 	const auto wrapModeS  = getTextureWrapModeS();
 	const auto wrapModeT  = getTextureWrapModeT();
-	const auto layout     = pixel_texture::EPixelLayout::PL_RGBA;
+
+	// TODO: properly set layout, possibly store such information in loaded RegularPicture?
+	auto layout = pixel_texture::EPixelLayout::PL_RGBA;
+	switch(pixelBuffer->numPixelElements())
+	{
+	case 1: layout = pixel_texture::EPixelLayout::PL_Monochromatic; break;
+	case 3: layout = pixel_texture::EPixelLayout::PL_RGB; break;
+	case 4: layout = pixel_texture::EPixelLayout::PL_RGBA; break;
+
+	default:
+		PH_LOG_WARNING(RasterFileImage,
+			"Does not support layout of {} pixel elements. Default to RGBA.", pixelBuffer->numPixelElements());
+		break;
+	}
 
 	auto textureMaker =
 	[&pixelBuffer, layout, sampleMode, wrapModeS, wrapModeT]<math::EColorSpace COLOR_SPACE>()
