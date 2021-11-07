@@ -16,6 +16,7 @@
 #include <vector>
 #include <memory>
 #include <utility>
+#include <optional>
 
 namespace ph
 {
@@ -62,7 +63,7 @@ protected:
 private:
 	UnifiedColorImage* getDefaultImage();
 
-	std::shared_ptr<UnifiedColorImage> m_defaultImage;
+	std::optional<UnifiedColorImage> m_defaultImage;
 };
 
 // In-header Implementations:
@@ -76,7 +77,7 @@ inline TSdlUnifiedColorImage<Owner>::TSdlUnifiedColorImage(
 		std::move(valueName), 
 		imagePtr),
 
-	m_defaultImage(nullptr)
+	m_defaultImage()
 {}
 
 template<typename Owner>
@@ -123,14 +124,16 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 template<typename Owner>
 inline void TSdlUnifiedColorImage<Owner>::setValueToDefault(Owner& owner) const
 {
-	this->setValueRef(owner, m_defaultImage);
+	// Default image is copied so that modification done by the owner will not affect
+	// other owners that also use the same default.
+	this->setValueRef(owner, std::make_shared<UnifiedColorImage>(*m_defaultImage));
 }
 
 template<typename Owner>
 inline auto TSdlUnifiedColorImage<Owner>::noDefault()
 -> TSdlUnifiedColorImage&
 {
-	m_defaultImage = nullptr;
+	m_defaultImage = std::nullopt;
 	return *this;
 }
 
@@ -162,10 +165,10 @@ inline UnifiedColorImage* TSdlUnifiedColorImage<Owner>::getDefaultImage()
 {
 	if(!m_defaultImage)
 	{
-		m_defaultImage = std::make_shared<UnifiedColorImage>();
+		m_defaultImage = UnifiedColorImage();
 	}
 
-	return m_defaultImage.get();
+	return &(*m_defaultImage);
 }
 
 }// end namespace ph

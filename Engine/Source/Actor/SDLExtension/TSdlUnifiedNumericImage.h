@@ -18,6 +18,7 @@
 #include <utility>
 #include <cstddef>
 #include <array>
+#include <optional>
 
 namespace ph
 {
@@ -63,7 +64,7 @@ protected:
 private:
 	UnifiedNumericImage* getDefaultImage();
 
-	std::shared_ptr<UnifiedNumericImage> m_defaultImage;
+	std::optional<UnifiedNumericImage> m_defaultImage;
 };
 
 // In-header Implementations:
@@ -77,7 +78,7 @@ inline TSdlUnifiedNumericImage<Owner>::TSdlUnifiedNumericImage(
 		std::move(valueName), 
 		imagePtr),
 
-	m_defaultImage(nullptr)
+	m_defaultImage()
 {}
 
 template<typename Owner>
@@ -120,14 +121,16 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 template<typename Owner>
 inline void TSdlUnifiedNumericImage<Owner>::setValueToDefault(Owner& owner) const
 {
-	this->setValueRef(owner, m_defaultImage);
+	// Default image is copied so that modification done by the owner will not affect
+	// other owners that also use the same default.
+	this->setValueRef(owner, std::make_shared<UnifiedNumericImage>(*m_defaultImage));
 }
 
 template<typename Owner>
 inline auto TSdlUnifiedNumericImage<Owner>::noDefault()
 -> TSdlUnifiedNumericImage&
 {
-	m_defaultImage = nullptr;
+	m_defaultImage = std::nullopt;
 	return *this;
 }
 
@@ -153,10 +156,10 @@ inline UnifiedNumericImage* TSdlUnifiedNumericImage<Owner>::getDefaultImage()
 {
 	if(!m_defaultImage)
 	{
-		m_defaultImage = std::make_shared<UnifiedNumericImage>();
+		m_defaultImage = UnifiedNumericImage();
 	}
 
-	return m_defaultImage.get();
+	return &(*m_defaultImage);
 }
 
 }// end namespace ph

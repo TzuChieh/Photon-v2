@@ -24,29 +24,28 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(ModelSource, Light);
 
-ModelSource::ModelSource(const math::Vector3R& emittedRgbRadiance) :
-	LightSource(), 
-	m_emittedRadiance(nullptr),
+ModelSource::ModelSource() :
+	LightSource(),
+	m_emittedRadiance(std::make_shared<UnifiedColorImage>()),
 	m_isBackFaceEmit(false)
+{}
+
+ModelSource::ModelSource(const math::Vector3R& emittedRgbRadiance) :
+	ModelSource()
 {
-	m_emittedRadiance = std::make_shared<ConstantImage>(
-		emittedRgbRadiance, math::EColorSpace::Linear_sRGB);
+	m_emittedRadiance->setConstantColor(emittedRgbRadiance, math::EColorSpace::Linear_sRGB);
 }
 
 ModelSource::ModelSource(const Path& imagePath) :
-	LightSource(), 
-	m_emittedRadiance(nullptr),
-	m_isBackFaceEmit(false)
+	ModelSource()
 {
-	m_emittedRadiance = std::make_shared<RasterFileImage>(imagePath);
+	m_emittedRadiance->setImage(std::make_shared<RasterFileImage>(imagePath));
 }
 
 ModelSource::ModelSource(const std::shared_ptr<Image>& emittedRadiance) :
-	LightSource(),
-	m_emittedRadiance(emittedRadiance),
-	m_isBackFaceEmit(false)
+	ModelSource()
 {
-	PH_ASSERT(m_emittedRadiance != nullptr);
+	m_emittedRadiance->setImage(emittedRadiance);
 }
 
 std::unique_ptr<Emitter> ModelSource::genEmitter(
@@ -59,6 +58,7 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 		return nullptr;
 	}
 
+	PH_ASSERT(m_emittedRadiance);
 	auto emittedRadiance = m_emittedRadiance->genColorTexture(ctx);
 
 	std::vector<DiffuseSurfaceEmitter> primitiveEmitters;
@@ -83,7 +83,7 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 		emitter = std::move(multiEmitter);
 	}
 
-	PH_ASSERT(emitter != nullptr);
+	PH_ASSERT(emitter);
 	if(m_isBackFaceEmit)
 	{
 		emitter->setBackFaceEmit();
@@ -98,25 +98,31 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 
 std::shared_ptr<Geometry> ModelSource::genGeometry(ActorCookingContext& ctx) const
 {
+	PH_ASSERT(m_geometry);
 	return m_geometry;
 }
 
 std::shared_ptr<Material> ModelSource::genMaterial(ActorCookingContext& ctx) const
 {
-	return m_material;
+	if(m_material)
+	{
+		return m_material;
+	}
+	else
+	{
+		return LightSource::genMaterial(ctx);
+	}
 }
 
 void ModelSource::setGeometry(const std::shared_ptr<Geometry>& geometry)
 {
-	PH_ASSERT(geometry != nullptr);
-
+	PH_ASSERT(geometry);
 	m_geometry = geometry;
 }
 
 void ModelSource::setMaterial(const std::shared_ptr<Material>& material)
 {
-	PH_ASSERT(material != nullptr);
-
+	// Material can be null
 	m_material = material;
 }
 

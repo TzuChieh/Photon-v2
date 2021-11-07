@@ -15,6 +15,7 @@
 #include "DataIO/SDL/Introspect/TOwnerSdlStruct.h"
 
 // Field types
+#include "DataIO/SDL/Introspect/TSdlBool.h"
 #include "DataIO/SDL/Introspect/TSdlInteger.h"
 #include "DataIO/SDL/Introspect/TSdlReal.h"
 #include "DataIO/SDL/Introspect/TSdlString.h"

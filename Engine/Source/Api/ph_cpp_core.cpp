@@ -179,6 +179,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<SphereSource>(),
 		get_sdl_class<RectangleSource>(),
 		get_sdl_class<PointSource>(),
+		get_sdl_class<ModelSource>(),
 
 		// Images
 		get_sdl_class<Image>(),
