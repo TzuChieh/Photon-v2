@@ -107,8 +107,9 @@ std::shared_ptr<TTexture<Image::Array>> RasterFileImage::genNumericTexture(
 std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	ActorCookingContext& ctx)
 {
-	math::EColorSpace colorSpace;
-	auto pixelBuffer = loadPixelBuffer(ctx, &colorSpace);
+	math::EColorSpace           colorSpace;
+	pixel_texture::EPixelLayout pixelLayout;
+	auto pixelBuffer = loadPixelBuffer(ctx, &colorSpace, &pixelLayout);
 
 	setResolution(pixelBuffer->getSize());
 
@@ -116,26 +117,12 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	const auto wrapModeS  = getTextureWrapModeS();
 	const auto wrapModeT  = getTextureWrapModeT();
 
-	// TODO: properly set layout, possibly store such information in loaded RegularPicture?
-	auto layout = pixel_texture::EPixelLayout::PL_RGBA;
-	switch(pixelBuffer->numPixelElements())
-	{
-	case 1: layout = pixel_texture::EPixelLayout::PL_Monochromatic; break;
-	case 3: layout = pixel_texture::EPixelLayout::PL_RGB; break;
-	case 4: layout = pixel_texture::EPixelLayout::PL_RGBA; break;
-
-	default:
-		PH_LOG_WARNING(RasterFileImage,
-			"Does not support layout of {} pixel elements. Default to RGBA.", pixelBuffer->numPixelElements());
-		break;
-	}
-
 	auto textureMaker =
-	[&pixelBuffer, layout, sampleMode, wrapModeS, wrapModeT]<math::EColorSpace COLOR_SPACE>()
+	[&pixelBuffer, pixelLayout, sampleMode, wrapModeS, wrapModeT]<math::EColorSpace COLOR_SPACE>()
 	{
 		return std::make_shared<TColorPixelTexture2D<COLOR_SPACE>>(
 			pixelBuffer,
-			layout,
+			pixelLayout,
 			sampleMode,
 			wrapModeS,
 			wrapModeT);
@@ -161,8 +148,9 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 }
 
 std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
-	ActorCookingContext&     ctx,
-	math::EColorSpace* const out_colorSpace) const
+	ActorCookingContext&               ctx,
+	math::EColorSpace* const           out_colorSpace,
+	pixel_texture::EPixelLayout* const out_pixelLayout) const
 {
 	RegularPicture picture;
 	try
@@ -181,35 +169,61 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 		*out_colorSpace = picture.colorSpace;
 	}
 
+	if(out_pixelLayout)
+	{
+		switch(picture.numComponents())
+		{
+		case 1: 
+			*out_pixelLayout = pixel_texture::EPixelLayout::PL_Monochromatic;
+			break;
+
+		case 3:
+			*out_pixelLayout = !picture.isReversedComponents ?
+				pixel_texture::EPixelLayout::PL_RGB : pixel_texture::EPixelLayout::PL_BGR;
+			break;
+
+		case 4:
+			*out_pixelLayout = !picture.isReversedComponents ?
+				pixel_texture::EPixelLayout::PL_RGBA : pixel_texture::EPixelLayout::PL_ABGR;
+			break;
+
+		default:
+			PH_LOG_WARNING(RasterFileImage,
+				"Does not support layout of {} pixel elements. Default to RGBA.", picture.numComponents());
+			*out_pixelLayout = pixel_texture::EPixelLayout::PL_RGBA;
+			break;
+		}
+	}
+
 	// TODO: make use of half
-	std::shared_ptr<PixelBuffer2D> frameBuffer;
+	std::shared_ptr<PixelBuffer2D> pixelBuffer;
 	switch(picture.nativeFormat)
 	{
 	case EPicturePixelFormat::PPF_Grayscale_8:
-		frameBuffer = make_frame_buffer_from_picture<uint8, 1>(picture);
+		pixelBuffer = make_frame_buffer_from_picture<uint8, 1>(picture);
 		break;
 
 	case EPicturePixelFormat::PPF_Grayscale_16F:
 	case EPicturePixelFormat::PPF_Grayscale_32F:
-		frameBuffer = make_frame_buffer_from_picture<float32, 1>(picture);
+		pixelBuffer = make_frame_buffer_from_picture<float32, 1>(picture);
 		break;
 
 	case EPicturePixelFormat::PPF_RGB_8:
-		frameBuffer = make_frame_buffer_from_picture<uint8, 3>(picture);
+		pixelBuffer = make_frame_buffer_from_picture<uint8, 3>(picture);
 		break;
 
 	case EPicturePixelFormat::PPF_RGB_16F:
 	case EPicturePixelFormat::PPF_RGB_32F:
-		frameBuffer = make_frame_buffer_from_picture<float32, 3>(picture);
+		pixelBuffer = make_frame_buffer_from_picture<float32, 3>(picture);
 		break;
 
 	case EPicturePixelFormat::PPF_RGBA_8:
-		frameBuffer = make_frame_buffer_from_picture<uint8, 4>(picture);
+		pixelBuffer = make_frame_buffer_from_picture<uint8, 4>(picture);
 		break;
 
 	case EPicturePixelFormat::PPF_RGBA_16F:
 	case EPicturePixelFormat::PPF_RGBA_32F:
-		frameBuffer = make_frame_buffer_from_picture<float32, 4>(picture);
+		pixelBuffer = make_frame_buffer_from_picture<float32, 4>(picture);
 		break;
 
 	default:
@@ -219,7 +233,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 		break;
 	}
 
-	return frameBuffer;
+	return pixelBuffer;
 }
 
 pixel_texture::ESampleMode RasterFileImage::getTextureSampleMode() const

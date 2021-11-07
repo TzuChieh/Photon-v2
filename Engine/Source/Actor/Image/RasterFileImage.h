@@ -27,8 +27,9 @@ public:
 
 protected:
 	std::shared_ptr<PixelBuffer2D> loadPixelBuffer(
-		ActorCookingContext& ctx, 
-		math::EColorSpace*   out_colorSpace = nullptr) const;
+		ActorCookingContext&         ctx, 
+		math::EColorSpace*           out_colorSpace = nullptr,
+		pixel_texture::EPixelLayout* out_pixelLayout = nullptr) const;
 
 	pixel_texture::ESampleMode getTextureSampleMode() const;
 	pixel_texture::EWrapMode getTextureWrapModeS() const;

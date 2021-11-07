@@ -42,9 +42,10 @@ RegularPicture::RegularPicture(
 	const EPicturePixelFormat    nativeFormat,
 	const math::EColorSpace      colorSpace) :
 
-	nativeFormat(nativeFormat),
-	colorSpace  (colorSpace),
-	frame       (sizePx.x(), sizePx.y())
+	nativeFormat        (nativeFormat),
+	colorSpace          (colorSpace),
+	frame               (sizePx.x(), sizePx.y()),
+	isReversedComponents(false)
 {}
 
 std::size_t RegularPicture::numComponents() const
