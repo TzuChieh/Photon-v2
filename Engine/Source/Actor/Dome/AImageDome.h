@@ -33,6 +33,4 @@ private:
 	math::Vector2S m_imageResolution;
 };
 
-
-
 }// end namespace ph
