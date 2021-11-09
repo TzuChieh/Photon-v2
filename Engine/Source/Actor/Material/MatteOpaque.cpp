@@ -11,10 +11,6 @@
 namespace ph
 {
 
-MatteOpaque::MatteOpaque() : 
-	MatteOpaque(math::Vector3R(0.5_r))
-{}
-
 MatteOpaque::MatteOpaque(const math::Vector3R& albedo) :
 
 	SurfaceMaterial(),

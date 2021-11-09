@@ -7,9 +7,8 @@
 #include "Math/TVector3.h"
 #include "DataIO/SDL/sdl_interface.h"
 #include "Actor/Material/Utility/EInterfaceFresnel.h"
+#include "Actor/SDLExtension/TSdlSpectrum.h"
 
-#include <memory>
-#include <functional>
 #include <optional>
 
 namespace ph
@@ -60,22 +59,47 @@ public:
 		const math::Vector3R& linearSrgbTransmissionScale);
 
 private:
-	EIdealSubstance   m_type;
-	EInterfaceFresnel m_fresnel;
-	
-	std::function<std::unique_ptr<SurfaceOptics>(ActorCookingContext& ctx)> m_opticsGenerator;
+	EIdealSubstance               m_substance;
+	EInterfaceFresnel             m_fresnel;
+	real                          m_iorOuter;
+	real                          m_iorInner;
+	math::Spectrum                m_f0;
+	math::Spectrum                m_reflectionScale;
+	math::Spectrum                m_transmissionScale;
+	std::optional<math::Spectrum> m_iorInnerN;
+	std::optional<math::Spectrum> m_iorInnerK;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TOwnerSdlClass<IdealSubstance>)
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<IdealSubstance>)
 	{
-		ClassType clazz("conductive-interface");
-		ztruct.description("Data describing the effects when light hits an conductive interface.");
+		ClassType clazz("ideal-substance");
+		clazz.description("Models a perfectly smooth surface with various physical properties.");
+		clazz.docName("Ideal Substance Material");
+		clazz.baseOn<SurfaceMaterial>();
+
+		TSdlEnumField<OwnerType, EIdealSubstance> substance("substance", &OwnerType::m_substance);
+		substance.description("Specifying the physical property/behavior of the surface.");
+		substance.required();
+		substance.defaultTo(EIdealSubstance::Absorber);
+		clazz.addField(substance);
 
 		TSdlEnumField<OwnerType, EInterfaceFresnel> fresnel("fresnel", &OwnerType::m_fresnel);
-		fresnel.description("Type of the Fresnel for the conductive interface.");
+		fresnel.description("Type of the Fresnel for the interface.");
 		fresnel.optional();
 		fresnel.defaultTo(EInterfaceFresnel::Schlick);
-		ztruct.addField(fresnel);
+		clazz.addField(fresnel);
+
+		TSdlReal<OwnerType> iorOuter("ior-outer", &OwnerType::m_iorOuter);
+		iorOuter.description("The index of refraction outside the surface.");
+		iorOuter.optional();
+		iorOuter.defaultTo(1);
+		clazz.addField(iorOuter);
+
+		TSdlReal<OwnerType> iorInner("ior-inner", &OwnerType::m_iorInner);
+		iorInner.description("The index of refraction inside the surface.");
+		iorInner.niceToHave();
+		iorInner.defaultTo(1.5_r);
+		clazz.addField(iorInner);
 
 		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::RAW, &OwnerType::m_f0);
 		f0.description(
@@ -84,22 +108,34 @@ public:
 			"the underlying Fresnel model will be an approximated one (schlick) "
 			"which is pretty popular in real-time graphics.");
 		f0.optional();
-		f0.defaultTo(math::Spectrum(0.5_r));
-		ztruct.addField(f0);
+		f0.defaultTo(math::Spectrum(1));
+		clazz.addField(f0);
 
-		TSdlOptionalReal<OwnerType> iorOuter("ior-outer", &OwnerType::m_iorOuter);
-		iorOuter.description("The index of refraction outside of this interface.");
-		ztruct.addField(iorOuter);
+		TSdlSpectrum<OwnerType> reflectionScale("reflection-scale", math::EColorUsage::RAW, &OwnerType::m_reflectionScale);
+		reflectionScale.description(
+			"A scaling factor for reflected energy. Note that this property is only for "
+			"artistic control and is not physically correct.");
+		reflectionScale.defaultTo(math::Spectrum(1));
+		reflectionScale.optional();
+		clazz.addField(reflectionScale);
+
+		TSdlSpectrum<OwnerType> transmissionScale("transmission-scale", math::EColorUsage::RAW, &OwnerType::m_transmissionScale);
+		transmissionScale.description(
+			"A scaling factor for transmitted energy. Note that this property is only for "
+			"artistic control and is not physically correct.");
+		transmissionScale.defaultTo(math::Spectrum(1));
+		transmissionScale.optional();
+		clazz.addField(transmissionScale);
 
 		TSdlOptionalSpectrum<OwnerType> iorInnerN("ior-inner-n", math::EColorUsage::RAW, &OwnerType::m_iorInnerN);
-		iorInnerN.description("The complex index of refraction (real part) inside of this interface.");
-		ztruct.addField(iorInnerN);
+		iorInnerN.description("The complex index of refraction (real part) inside the metallic interface.");
+		clazz.addField(iorInnerN);
 
 		TSdlOptionalSpectrum<OwnerType> iorInnerK("ior-inner-k", math::EColorUsage::RAW, &OwnerType::m_iorInnerK);
-		iorInnerK.description("The complex index of refraction (imaginary part) inside of this interface.");
-		ztruct.addField(iorInnerK);
+		iorInnerK.description("The complex index of refraction (imaginary part) inside the metallic interface.");
+		clazz.addField(iorInnerK);
 
-		return ztruct;
+		return clazz;
 	}
 };
 

@@ -14,7 +14,7 @@ namespace ph
 class MatteOpaque : public SurfaceMaterial
 {
 public:
-	MatteOpaque();
+	inline MatteOpaque() = default;
 	explicit MatteOpaque(const math::Vector3R& albedo);
 
 	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;

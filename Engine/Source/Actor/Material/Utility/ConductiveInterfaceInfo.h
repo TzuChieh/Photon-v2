@@ -21,14 +21,26 @@ conductor-dielectric interface.
 class ConductiveInterfaceInfo final
 {
 public:
-	inline ConductiveInterfaceInfo() = default;
+	ConductiveInterfaceInfo();
+	explicit ConductiveInterfaceInfo(const math::Spectrum& f0);
+
+	ConductiveInterfaceInfo(
+		real                  iorOuter,
+		const math::Spectrum& iorInnerN,
+		const math::Spectrum& iorInnerK);
 
 	std::unique_ptr<ConductorFresnel> genFresnelEffect() const;
+
+	void setFresnel(EInterfaceFresnel fresnel);
+	void setF0(const math::Spectrum& f0);
+	void setIorOuter(real iorOuter);
+	void setIorInnerN(const math::Spectrum& iorInnerN);
+	void setIorInnerK(const math::Spectrum& iorInnerK);
 
 private:
 	EInterfaceFresnel             m_fresnel;
 	math::Spectrum                m_f0;
-	std::optional<real>           m_iorOuter;
+	real                          m_iorOuter;
 	std::optional<math::Spectrum> m_iorInnerN;
 	std::optional<math::Spectrum> m_iorInnerK;
 
@@ -51,11 +63,13 @@ public:
 			"the underlying Fresnel model will be an approximated one (schlick) "
 			"which is pretty popular in real-time graphics.");
 		f0.optional();
-		f0.defaultTo(math::Spectrum(0.5_r));
+		f0.defaultTo(math::Spectrum(1));
 		ztruct.addField(f0);
 
-		TSdlOptionalReal<OwnerType> iorOuter("ior-outer", &OwnerType::m_iorOuter);
+		TSdlReal<OwnerType> iorOuter("ior-outer", &OwnerType::m_iorOuter);
 		iorOuter.description("The index of refraction outside of this interface.");
+		iorOuter.defaultTo(1.0_r);
+		iorOuter.optional();
 		ztruct.addField(iorOuter);
 
 		TSdlOptionalSpectrum<OwnerType> iorInnerN("ior-inner-n", math::EColorUsage::RAW, &OwnerType::m_iorInnerN);

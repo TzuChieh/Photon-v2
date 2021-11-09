@@ -20,9 +20,18 @@ dielectric-dielectric interface.
 class DielectricInterfaceInfo final
 {
 public:
-	inline DielectricInterfaceInfo() = default;
+	DielectricInterfaceInfo();
+
+	DielectricInterfaceInfo(
+		EInterfaceFresnel fresnel,
+		real              iorOuter,
+		real              iorInner);
 
 	std::unique_ptr<DielectricFresnel> genFresnelEffect() const;
+
+	void setFresnel(EInterfaceFresnel fresnel);
+	void setIorOuter(real iorOuter);
+	void setIorInner(real iorInner);
 
 private:
 	EInterfaceFresnel m_fresnel;
