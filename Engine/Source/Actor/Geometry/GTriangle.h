@@ -3,6 +3,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 namespace ph
 {
@@ -10,7 +11,12 @@ namespace ph
 class GTriangle : public Geometry
 {
 public:
-	GTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC);
+	GTriangle();
+
+	GTriangle(
+		const math::Vector3R& vA, 
+		const math::Vector3R& vB, 
+		const math::Vector3R& vC);
 
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,
@@ -114,6 +120,58 @@ private:
 	math::Vector3R m_uvwA;
 	math::Vector3R m_uvwB;
 	math::Vector3R m_uvwC;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GTriangle>)
+	{
+		ClassType clazz("triangle");
+		clazz.docName("Triangle Geometry");
+		clazz.description("A single triangle-shaped surface.");
+		clazz.baseOn<Geometry>();
+
+		TSdlVector3<OwnerType> vA("vA", &OwnerType::m_vA);
+		vA.description("The first vertex coordinates of the triangle.");
+		vA.required();
+		clazz.addField(vA);
+
+		TSdlVector3<OwnerType> vB("vB", &OwnerType::m_vB);
+		vB.description("The second vertex coordinates of the triangle, in CCW.");
+		vB.required();
+		clazz.addField(vB);
+
+		TSdlVector3<OwnerType> vC("vC", &OwnerType::m_vC);
+		vC.description("The third vertex coordinates of the triangle, in CCW.");
+		vC.required();
+		clazz.addField(vC);
+
+		TSdlVector3<OwnerType> nA("nA", &OwnerType::m_nA);
+		nA.description("Normal vector of the first vertex.");
+		nA.defaultTo({0, 1, 0});
+		nA.optional();
+		clazz.addField(nA);
+
+		TSdlVector3<OwnerType> nB("nB", &OwnerType::m_nB);
+		nB.description("Normal vector of the second vertex.");
+		nB.defaultTo({0, 1, 0});
+		nB.optional();
+		clazz.addField(nB);
+
+		TSdlVector3<OwnerType> nC("nC", &OwnerType::m_nC);
+		nC.description("Normal vector of the third vertex.");
+		nC.defaultTo({0, 1, 0});
+		nC.optional();
+		clazz.addField(nC);
+
+		TSdlVector3<OwnerType> uvwA("uvwA", &OwnerType::m_uvwA);
+		uvwA.description("Texture coordinates of the first vertex.");
+		uvwA.defaultTo({0, 0, 0});
+		uvwA.optional();
+		clazz.addField(uvwA);
+
+		// TODO: maybe we should use optional for attributes
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

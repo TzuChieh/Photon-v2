@@ -12,9 +12,17 @@
 namespace ph
 {
 
+GTriangle::GTriangle() :
+	GTriangle({0, 0, 0}, {0, 0, 0}, {0, 0, 0})
+{}
+
 GTriangle::GTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC) :
+
 	Geometry(), 
-	m_vA(vA), m_vB(vB), m_vC(vC)
+
+	m_vA(vA), 
+	m_vB(vB), 
+	m_vC(vC)
 {
 	PH_ASSERT_MSG(vA.isFinite() && vB.isFinite() && vC.isFinite(), "\n"
 		"vA = " + vA.toString() + "\n"
