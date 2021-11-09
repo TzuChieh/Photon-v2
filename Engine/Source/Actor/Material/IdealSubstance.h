@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Actor/Material/SurfaceMaterial.h"
-#include "Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Common/primitive_type.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
 #include "DataIO/SDL/sdl_interface.h"
@@ -44,19 +43,7 @@ public:
 
 	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
 
-	void asDielectricReflector(real iorInner, real iorOuter);
-
-	// FIXME: specifying ior-outer is redundent, f0 already includes this
-	void asMetallicReflector(const math::Vector3R& linearSrgbF0, real iorOuter);
-
-	void asTransmitter(real iorInner, real iorOuter);
-	void asAbsorber();
-
-	void asDielectric(
-		real iorInner, 
-		real iorOuter, 
-		const math::Vector3R& linearSrgbReflectionScale,
-		const math::Vector3R& linearSrgbTransmissionScale);
+	void setSubstance(EIdealSubstance substance);
 
 private:
 	EIdealSubstance               m_substance;
@@ -85,20 +72,20 @@ public:
 
 		TSdlEnumField<OwnerType, EInterfaceFresnel> fresnel("fresnel", &OwnerType::m_fresnel);
 		fresnel.description("Type of the Fresnel for the interface.");
-		fresnel.optional();
 		fresnel.defaultTo(EInterfaceFresnel::Schlick);
+		fresnel.optional();
 		clazz.addField(fresnel);
 
 		TSdlReal<OwnerType> iorOuter("ior-outer", &OwnerType::m_iorOuter);
 		iorOuter.description("The index of refraction outside the surface.");
-		iorOuter.optional();
 		iorOuter.defaultTo(1);
+		iorOuter.optional();
 		clazz.addField(iorOuter);
 
 		TSdlReal<OwnerType> iorInner("ior-inner", &OwnerType::m_iorInner);
 		iorInner.description("The index of refraction inside the surface.");
-		iorInner.niceToHave();
 		iorInner.defaultTo(1.5_r);
+		iorInner.optional();
 		clazz.addField(iorInner);
 
 		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::RAW, &OwnerType::m_f0);

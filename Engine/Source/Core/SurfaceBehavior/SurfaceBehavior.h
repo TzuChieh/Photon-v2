@@ -15,7 +15,7 @@ class SurfaceBehavior final
 public:
 	SurfaceBehavior();
 
-	void setOptics(const std::shared_ptr<SurfaceOptics>& optics);
+	void setOptics(std::shared_ptr<SurfaceOptics> optics);
 	void setEmitter(const Emitter* emitter);
 	std::shared_ptr<SurfaceOptics> getOpticsResource() const;
 

@@ -13,10 +13,11 @@ namespace ph
 class IdealReflector : public SurfaceOptics
 {
 public:
-	explicit IdealReflector(const std::shared_ptr<FresnelEffect>& fresnel);
+	explicit IdealReflector(std::shared_ptr<FresnelEffect> fresnel);
+
 	IdealReflector(
-		const std::shared_ptr<FresnelEffect>&            fresnel, 
-		const std::shared_ptr<TTexture<math::Spectrum>>& reflectionScale);
+		std::shared_ptr<FresnelEffect>            fresnel, 
+		std::shared_ptr<TTexture<math::Spectrum>> reflectionScale);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 

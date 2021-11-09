@@ -8,7 +8,7 @@
 #include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
-#include "Actor/Image/ConstantImage.h"
+#include "Core/Texture/constant_textures.h"
 #include "Common/logging.h"
 #include "Actor/actor_exceptions.h"
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
@@ -48,11 +48,29 @@ void IdealSubstance::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behav
 
 	case EIdealSubstance::DielectricReflector:
 	{
-		// TODO: transmission scale
 		auto interfaceInfo = DielectricInterfaceInfo(m_fresnel, m_iorOuter, m_iorInner);
 		behavior.setOptics(std::make_shared<IdealReflector>(interfaceInfo.genFresnelEffect()));
-		break;
 	}
+	break;
+
+	case EIdealSubstance::Dielectric:
+	{
+		auto interfaceInfo = DielectricInterfaceInfo(m_fresnel, m_iorOuter, m_iorInner);
+		auto fresnel       = interfaceInfo.genFresnelEffect();
+
+		if(m_reflectionScale == math::Spectrum(1) && m_transmissionScale == math::Spectrum(1))
+		{
+			behavior.setOptics(std::make_shared<IdealDielectric>(std::move(fresnel)));
+		}
+		else
+		{
+			behavior.setOptics(std::make_shared<IdealDielectric>(
+				std::move(fresnel),
+				std::make_shared<TConstantTexture<math::Spectrum>>(m_reflectionScale),
+				std::make_shared<TConstantTexture<math::Spectrum>>(m_transmissionScale)));
+		}
+	}
+	break;
 
 	case EIdealSubstance::MetallicReflector:
 	{
@@ -72,74 +90,26 @@ void IdealSubstance::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behav
 		}
 
 		behavior.setOptics(std::make_shared<IdealReflector>(interfaceInfo.genFresnelEffect()));
-		break;
 	}
+	break;
 
+	case EIdealSubstance::Transmitter:
+	{
+		auto interfaceInfo = DielectricInterfaceInfo(m_fresnel, m_iorOuter, m_iorInner);
+		auto fresnel       = interfaceInfo.genFresnelEffect();
+
+		behavior.setOptics(std::make_shared<IdealTransmitter>(std::move(fresnel)));
+	}
+	break;
 
 	default:
 		throw ActorCookException("Unsupported ideal substance type.");
 	}
-
-	
 }
 
-
-void IdealSubstance::asMetallicReflector(const math::Vector3R& linearSrgbF0, const real iorOuter)
+void IdealSubstance::setSubstance(const EIdealSubstance substance)
 {
-	math::Spectrum f0Spectral;
-	f0Spectral.setLinearSRGB(linearSrgbF0.toArray(), math::EColorUsage::ECF);// FIXME: check color space
-
-	m_opticsGenerator = [=](ActorCookingContext& ctx)
-	{
-		auto fresnel = std::make_shared<SchlickApproxConductorFresnel>(f0Spectral);
-		auto optics  = std::make_unique<IdealReflector>(fresnel);
-		return optics;
-	};
-}
-
-void IdealSubstance::asTransmitter(const real iorInner, const real iorOuter)
-{
-	m_opticsGenerator = [=](ActorCookingContext& ctx)
-	{
-		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
-		auto optics  = std::make_unique<IdealTransmitter>(fresnel);
-		return optics;
-	};
-}
-
-void IdealSubstance::asAbsorber()
-{
-	m_opticsGenerator = [=](ActorCookingContext& ctx)
-	{
-		return std::make_unique<IdealAbsorber>();
-	};
-}
-
-void IdealSubstance::asDielectric(
-	const real iorInner,
-	const real iorOuter,
-	const math::Vector3R& linearSrgbReflectionScale,
-	const math::Vector3R& linearSrgbTransmissionScale)
-{
-	m_opticsGenerator = [=](ActorCookingContext& ctx)
-	{
-		auto fresnel = std::make_shared<ExactDielectricFresnel>(iorOuter, iorInner);
-
-		if(linearSrgbReflectionScale == math::Vector3R(1.0_r) && linearSrgbTransmissionScale == math::Vector3R(1.0_r))
-		{
-			return std::make_unique<IdealDielectric>(fresnel);
-		}
-		else
-		{
-			auto reflectionScale = ConstantImage(linearSrgbReflectionScale, math::EColorSpace::Linear_sRGB);
-			auto transmissionScale = ConstantImage(linearSrgbTransmissionScale, math::EColorSpace::Linear_sRGB);
-
-			return std::make_unique<IdealDielectric>(
-				fresnel, 
-				reflectionScale.genColorTexture(ctx), 
-				transmissionScale.genColorTexture(ctx));
-		}
-	};
+	m_substance = substance;
 }
 
 }// end namespace ph

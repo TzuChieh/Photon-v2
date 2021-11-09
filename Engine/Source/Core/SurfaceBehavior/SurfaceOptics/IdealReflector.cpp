@@ -9,28 +9,29 @@
 
 #include <iostream>
 #include <cmath>
+#include <utility>
 
 namespace ph
 {
 
-IdealReflector::IdealReflector(const std::shared_ptr<FresnelEffect>& fresnel) :
+IdealReflector::IdealReflector(std::shared_ptr<FresnelEffect> fresnel) :
 
 	IdealReflector(
-		fresnel, 
+		std::move(fresnel), 
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(1)))
 {}
 
 IdealReflector::IdealReflector(
-	const std::shared_ptr<FresnelEffect>&            fresnel,
-	const std::shared_ptr<TTexture<math::Spectrum>>& reflectionScale) :
+	std::shared_ptr<FresnelEffect>            fresnel,
+	std::shared_ptr<TTexture<math::Spectrum>> reflectionScale) :
 
 	SurfaceOptics(),
 
-	m_fresnel(fresnel),
-	m_reflectionScale(reflectionScale)
+	m_fresnel        (std::move(fresnel)),
+	m_reflectionScale(std::move(reflectionScale))
 {
-	PH_ASSERT(fresnel);
-	PH_ASSERT(reflectionScale);
+	PH_ASSERT(m_fresnel);
+	PH_ASSERT(m_reflectionScale);
 
 	m_phenomena.set({ESurfacePhenomenon::DELTA_REFLECTION});
 }

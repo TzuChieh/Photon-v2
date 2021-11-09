@@ -7,27 +7,28 @@
 #include "Core/Texture/constant_textures.h"
 #include "Core/Texture/TSampler.h"
 
+#include <utility>
+
 namespace ph
 {
 
-IdealTransmitter::IdealTransmitter(const std::shared_ptr<DielectricFresnel>& fresnel) :
-	
+IdealTransmitter::IdealTransmitter(std::shared_ptr<DielectricFresnel> fresnel) :
 	IdealTransmitter(
-		fresnel, 
+		std::move(fresnel), 
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(1)))
 {}
 
 IdealTransmitter::IdealTransmitter(
-	const std::shared_ptr<DielectricFresnel>&        fresnel,
-	const std::shared_ptr<TTexture<math::Spectrum>>& transmissionScale) :
+	std::shared_ptr<DielectricFresnel>        fresnel,
+	std::shared_ptr<TTexture<math::Spectrum>> transmissionScale) :
 
 	SurfaceOptics(),
 
-	m_fresnel(fresnel),
-	m_transmissionScale(transmissionScale)
+	m_fresnel          (std::move(fresnel)),
+	m_transmissionScale(std::move(transmissionScale))
 {
-	PH_ASSERT(fresnel);
-	PH_ASSERT(transmissionScale);
+	PH_ASSERT(m_fresnel);
+	PH_ASSERT(m_transmissionScale);
 
 	m_phenomena.set({ESurfacePhenomenon::DELTA_TRANSMISSION});
 }

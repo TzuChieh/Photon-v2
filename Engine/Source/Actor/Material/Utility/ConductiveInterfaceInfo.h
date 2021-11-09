@@ -58,10 +58,10 @@ public:
 
 		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::RAW, &OwnerType::m_f0);
 		f0.description(
-			"Surface reflectance on normal incidence. This value is expected "
-			"to be given in linear-sRGB space. When this parameter is used, "
-			"the underlying Fresnel model will be an approximated one (schlick) "
-			"which is pretty popular in real-time graphics.");
+			"Surface reflectance on normal incidence. This value is expected to be given in linear-sRGB "
+			"space. When this parameter is used, the underlying Fresnel model will be an approximated "
+			"one (schlick) which is pretty popular in real-time graphics. Also note that F0 already "
+			"includes the information of ior-outer.");
 		f0.optional();
 		f0.defaultTo(math::Spectrum(1));
 		ztruct.addField(f0);

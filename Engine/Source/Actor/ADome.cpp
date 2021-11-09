@@ -69,7 +69,7 @@ CookedUnit ADome::cook(ActorCookingContext& ctx)
 
 	// A dome should not have any visible inter-reflections, ideally
 	auto material = std::make_shared<IdealSubstance>();
-	material->asAbsorber();
+	material->setSubstance(EIdealSubstance::Absorber);
 	material->genBehaviors(ctx, *metadata);
 
 	auto domePrimitive = std::make_unique<PLatLongEnvSphere>(

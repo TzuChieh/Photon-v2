@@ -9,31 +9,33 @@
 #include "Core/Texture/TSampler.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 
+#include <utility>
+
 namespace ph
 {
 
-IdealDielectric::IdealDielectric(const std::shared_ptr<DielectricFresnel>& fresnel) :
+IdealDielectric::IdealDielectric(std::shared_ptr<DielectricFresnel> fresnel) :
 
 	IdealDielectric(
-		fresnel, 
+		std::move(fresnel), 
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(1)),
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(1)))
 {}
 
 IdealDielectric::IdealDielectric(
-	const std::shared_ptr<DielectricFresnel>&        fresnel,
-	const std::shared_ptr<TTexture<math::Spectrum>>& reflectionScale,
-	const std::shared_ptr<TTexture<math::Spectrum>>& transmissionScale) :
+	std::shared_ptr<DielectricFresnel>        fresnel,
+	std::shared_ptr<TTexture<math::Spectrum>> reflectionScale,
+	std::shared_ptr<TTexture<math::Spectrum>> transmissionScale) :
 
 	SurfaceOptics(),
 
-	m_fresnel          (fresnel),
-	m_reflectionScale  (reflectionScale),
-	m_transmissionScale(transmissionScale)
+	m_fresnel          (std::move(fresnel)),
+	m_reflectionScale  (std::move(reflectionScale)),
+	m_transmissionScale(std::move(transmissionScale))
 {
-	PH_ASSERT(fresnel);
-	PH_ASSERT(reflectionScale);
-	PH_ASSERT(transmissionScale);
+	PH_ASSERT(m_fresnel);
+	PH_ASSERT(m_reflectionScale);
+	PH_ASSERT(m_transmissionScale);
 
 	m_phenomena.set({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION});
 	m_numElementals = 2;
