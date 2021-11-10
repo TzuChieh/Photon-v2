@@ -1,74 +1,119 @@
 #include "Actor/Geometry/GTriangleMesh.h"
-#include "Actor/Geometry/GTriangle.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/Geometry/GeometrySoup.h"
+#include "Actor/actor_exceptions.h"
 
-#include <iostream>
+#include <utility>
 
 namespace ph
 {
 
 GTriangleMesh::GTriangleMesh() : 
-	Geometry(), 
-	m_gTriangles()
+	GTriangleMesh({}, {}, {})
 {}
 
 GTriangleMesh::GTriangleMesh(
-	const std::vector<math::Vector3R>& positions,
-	const std::vector<math::Vector3R>& texCoords,
-	const std::vector<math::Vector3R>& normals) :
-	GTriangleMesh()
-{
-	if(!(positions.size() == texCoords.size() && texCoords.size() == normals.size()) ||
-	    (positions.empty() || texCoords.empty() || normals.empty()) ||
-	    (positions.size() % 3 != 0 || texCoords.size() % 3 != 0 || normals.size() % 3 != 0))
-	{
-		std::cerr << "warning: at GTriangleMesh::GTriangleMesh(), " 
-		          << "bad input detected" << std::endl;
-		return;
-	}
+	std::vector<math::Vector3R> positions,
+	std::vector<math::Vector3R> texCoords,
+	std::vector<math::Vector3R> normals) :
 
-	for(std::size_t i = 0; i < positions.size(); i += 3)
-	{
-		GTriangle triangle(positions[i + 0], positions[i + 1], positions[i + 2]);
-		if(triangle.isDegenerate())
-		{
-			continue;
-		}
+	Geometry(),
 
-		triangle.setUVWa(texCoords[i + 0]);
-		triangle.setUVWb(texCoords[i + 1]);
-		triangle.setUVWc(texCoords[i + 2]);
-		triangle.setNa(normals[i + 0].lengthSquared() > 0 ? normals[i + 0].normalize() : math::Vector3R(0, 1, 0));
-		triangle.setNb(normals[i + 1].lengthSquared() > 0 ? normals[i + 1].normalize() : math::Vector3R(0, 1, 0));
-		triangle.setNc(normals[i + 2].lengthSquared() > 0 ? normals[i + 2].normalize() : math::Vector3R(0, 1, 0));
-		addTriangle(triangle);
-	}
-}
+	m_positions(std::move(positions)),
+	m_texCoords(std::move(texCoords)),
+	m_normals  (std::move(normals))
+{}
 
 void GTriangleMesh::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
 	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
-	for(const auto& gTriangle : m_gTriangles)
+	const auto gTriangles = genTriangles();
+	for(const auto& gTriangle : gTriangles)
 	{
 		gTriangle.genPrimitive(data, out_primitives);
 	}
 }
 
-void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
+std::vector<GTriangle> GTriangleMesh::genTriangles() const
 {
-	m_gTriangles.push_back(gTriangle);
+	if(m_positions.empty() || m_positions.size() % 3 != 0)
+	{
+		throw ActorCookException(
+			"Triangle mesh with bad/zero position buffer size (" + std::to_string(m_positions.size()) + 
+			" positions given). ");
+	}
+
+	// Texture coordinates can only be empty or equal to # positions
+	if(!m_texCoords.empty() && m_texCoords.size() != m_positions.size())
+	{
+		throw ActorCookException(
+			"Triangle mesh with bad texture-coordinates buffer size (" + std::to_string(m_texCoords.size()) +
+			" texture coordinates given). ");
+	}
+
+	// Normal vectors can only be empty or equal to # positions
+	if(!m_normals.empty() && m_normals.size() != m_positions.size())
+	{
+		throw ActorCookException(
+			"Triangle mesh with bad normal vector buffer size (" + std::to_string(m_normals.size()) +
+			" normal vectors given). ");
+	}
+
+	std::vector<GTriangle> gTriangles(m_positions.size() % 3);
+	for(std::size_t i = 0; i < m_positions.size(); i += 3)
+	{
+		PH_ASSERT_LT(i + 2, m_positions.size());
+		GTriangle gTriangle(m_positions[i + 0], m_positions[i + 1], m_positions[i + 2]);
+		if(gTriangle.isDegenerate())
+		{
+			continue;
+		}
+
+		if(!m_texCoords.empty())
+		{
+			PH_ASSERT_LT(i + 2, m_texCoords.size());
+			gTriangle.setUVWa(m_texCoords[i + 0]);
+			gTriangle.setUVWb(m_texCoords[i + 1]);
+			gTriangle.setUVWc(m_texCoords[i + 2]);
+		}
+
+		if(!m_normals.empty())
+		{
+			PH_ASSERT_LT(i + 2, m_normals.size());
+
+			if(m_normals[i + 0].lengthSquared() > 0)
+			{
+				gTriangle.setNa(m_normals[i + 0].normalize());
+			}
+
+			if(m_normals[i + 1].lengthSquared() > 0)
+			{
+				gTriangle.setNb(m_normals[i + 1].normalize());
+			}
+			
+			if(m_normals[i + 2].lengthSquared() > 0)
+			{
+				gTriangle.setNc(m_normals[i + 2].normalize());
+			}
+		}
+		
+		PH_ASSERT_LT(i % 3, gTriangles.size());
+		gTriangles[i % 3] = gTriangle;
+	}
+
+	return gTriangles;
 }
 
 // TODO: can actually gen a transformed GTriangleMesh
 std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {
+	const auto gTriangles = genTriangles();
+
 	auto geometrySoup = std::make_shared<GeometrySoup>();
-	for(const auto& gTriangle : m_gTriangles)
+	for(const auto& gTriangle : gTriangles)
 	{
 		geometrySoup->add(std::make_shared<GTriangle>(gTriangle));
 	}
