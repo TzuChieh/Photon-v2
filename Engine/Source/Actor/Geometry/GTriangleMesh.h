@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor/Geometry/GTriangle.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <vector>
 #include <memory>

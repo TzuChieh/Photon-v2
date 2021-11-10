@@ -7,6 +7,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Geometry/GRectangle.h"
+#include "Actor/Geometry/GTriangle.h"
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Actor/Geometry/GMengerSponge.h"
 #include "Actor/Geometry/GCuboid.h"
@@ -89,6 +90,9 @@
 #include "Actor/Image/sdl_image_enums.h"
 #include "Actor/SDLExtension/sdl_color_space_type.h"
 #include "Actor/SDLExtension/sdl_color_usage_type.h"
+#include "Actor/Material/Utility/EInterfaceFresnel.h"
+#include "Actor/Material/Utility/EInterfaceMicrosurface.h"
+#include "Actor/Material/Utility/ERoughnessToAlpha.h"
 
 namespace ph
 {
@@ -162,6 +166,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<Geometry>(),
 		get_sdl_class<GSphere>(),
 		get_sdl_class<GRectangle>(),
+		get_sdl_class<GTriangle>(),
 		//get_sdl_class<GCuboid>(),
 		get_sdl_class<GMengerSponge>(),
 
@@ -232,6 +237,9 @@ std::vector<const SdlEnum*> get_registered_sdl_enums()
 		get_sdl_enum<math::EColorSpace>(),
 		get_sdl_enum<math::EColorUsage>(),
 		get_sdl_enum<EMathImageOp>(),
+		get_sdl_enum<EInterfaceFresnel>(),
+		get_sdl_enum<ERoughnessToAlpha>(),
+		get_sdl_enum<EIdealSubstance>(),
 	};
 }
 
