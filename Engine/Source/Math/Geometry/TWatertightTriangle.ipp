@@ -21,9 +21,9 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	PH_ASSERT(out_hitBarycentricCoords);
 
 	TVector3<T> segmentDir = segment.getDirection();
-	TVector3<T> vAt        = this->m_vA.sub(segment.getOrigin());
-	TVector3<T> vBt        = this->m_vB.sub(segment.getOrigin());
-	TVector3<T> vCt        = this->m_vC.sub(segment.getOrigin());
+	TVector3<T> vAt        = this->getVa().sub(segment.getOrigin());
+	TVector3<T> vBt        = this->getVb().sub(segment.getOrigin());
+	TVector3<T> vCt        = this->getVc().sub(segment.getOrigin());
 
 	// Find the dominant dimension of ray direction and make it Z; the rest 
 	// dimensions are arbitrarily assigned

@@ -32,8 +32,6 @@ public:
 		TVector3<T>*                      out_dXdV);
 
 public:
-	TBasicTriangle() = default;
-
 	TBasicTriangle(
 		TVector3<T> vA,
 		TVector3<T> vB,
@@ -41,6 +39,17 @@ public:
 
 	explicit TBasicTriangle(std::array<TVector3<T>, 3> vertices);
 
+// Hide special members as this class is not intended to be used polymorphically.
+// It is derived class's choice to expose them (by defining them in public) or not.
+protected:
+	inline TBasicTriangle() = default;
+	inline TBasicTriangle(const TBasicTriangle& other) = default;
+	inline TBasicTriangle(TBasicTriangle&& other) = default;
+	inline TBasicTriangle& operator = (const TBasicTriangle& rhs) = default;
+	inline TBasicTriangle& operator = (TBasicTriangle&& rhs) = default;
+	inline ~TBasicTriangle() = default;
+
+public:
 	T getArea() const;
 	TVector3<T> getFaceNormal() const;
 	TAABB3D<T> getAABB() const;
@@ -73,9 +82,7 @@ public:
 	TVector3<T> getVb() const;
 	TVector3<T> getVc() const;
 
-protected:
-	~TBasicTriangle() = default;
-
+private:
 	TVector3<T> m_vA;
 	TVector3<T> m_vB;
 	TVector3<T> m_vC;

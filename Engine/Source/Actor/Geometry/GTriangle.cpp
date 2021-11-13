@@ -6,6 +6,7 @@
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Common/assertion.h"
 #include "Math/math.h"
+#include "Math/Geometry/TTriangle.h"
 
 #include <iostream>
 
@@ -29,9 +30,9 @@ GTriangle::GTriangle(
 	m_uvwA(0, 0, 0),
 	m_uvwB(1, 0, 0),
 	m_uvwC(0, 1, 0),
-	m_nA  (),
-	m_nB  (),
-	m_nC  ()
+	m_nA  (0),
+	m_nB  (0),
+	m_nC  (0)
 {
 	PH_ASSERT_MSG(vA.isFinite() && vB.isFinite() && vC.isFinite(), "\n"
 		"vA = " + vA.toString() + "\n"
@@ -50,23 +51,10 @@ void GTriangle::genPrimitive(
 	triangle.setUVWb(m_uvwB);
 	triangle.setUVWc(m_uvwC);
 
-	// Calculates face normal. Note that the vertices may form a degenerate triangle, causing 
-	// zero cross product and thus producing NaNs after being normalized. In such case an arbitrary 
-	// vector will be chosen.
-
-	math::Vector3R faceNormal;
-	if(!isDegenerate())
-	{
-		faceNormal = m_vB.sub(m_vA).cross(m_vC.sub(m_vA)).normalizeLocal();
-	}
-	else
-	{
-		faceNormal = math::Vector3R(0, 1, 0);
-	}
-
-	triangle.setNa(m_nA ? *m_nA : faceNormal);
-	triangle.setNb(m_nB ? *m_nB : faceNormal);
-	triangle.setNc(m_nC ? *m_nC : faceNormal);
+	const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).getFaceNormalSafe();
+	triangle.setNa(m_nA.isNotZero() ? m_nA.normalize() : faceNormal);
+	triangle.setNb(m_nB.isNotZero() ? m_nB.normalize() : faceNormal);
+	triangle.setNc(m_nC.isNotZero() ? m_nC.normalize() : faceNormal);
 
 	out_primitives.push_back(std::make_unique<PTriangle>(triangle));
 }
@@ -80,35 +68,22 @@ std::shared_ptr<Geometry> GTriangle::genTransformed(
 	transform.transformP(m_vB, &tTriangle->m_vB);
 	transform.transformP(m_vC, &tTriangle->m_vC);
 
+	const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).getFaceNormalSafe();
+
 	math::Vector3R transformedN;
-
-	if(m_nA)
-	{
-		transform.transformO(*m_nA, &transformedN);
-		transformedN.normalizeLocal();
-		tTriangle->setNa(transformedN);
-	}
-
-	if(m_nB)
-	{
-		transform.transformO(*m_nB, &transformedN);
-		transformedN.normalizeLocal();
-		tTriangle->setNb(transformedN);
-	}
-
-	if(m_nC)
-	{
-		transform.transformO(*m_nC, &transformedN);
-		transformedN.normalizeLocal();
-		tTriangle->setNc(transformedN);
-	}
+	transform.transformO(m_nA, &transformedN);
+	tTriangle->setNa(transformedN.isNotZero() ? transformedN.normalize() : faceNormal);
+	transform.transformO(m_nB, &transformedN);
+	tTriangle->setNb(transformedN.isNotZero() ? transformedN.normalize() : faceNormal);
+	transform.transformO(m_nC, &transformedN);
+	tTriangle->setNc(transformedN.isNotZero() ? transformedN.normalize() : faceNormal);
 
 	return tTriangle;
 }
 
 bool GTriangle::isDegenerate() const
 {
-	return m_vB.sub(m_vA).cross(m_vC.sub(m_vA)).lengthSquared() == 0.0_r;
+	return math::TTriangle<real>(m_vA, m_vB, m_vC).isDegenerate();
 }
 
 }// end namespace ph

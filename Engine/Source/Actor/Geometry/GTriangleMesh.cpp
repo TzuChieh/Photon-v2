@@ -45,20 +45,18 @@ std::vector<GTriangle> GTriangleMesh::genTriangles() const
 			" positions given). ");
 	}
 
-	// Texture coordinates can only be empty or equal to # positions
-	if(!m_texCoords.empty() && m_texCoords.size() != m_positions.size())
+	if(m_texCoords.size() != m_positions.size())
 	{
 		throw ActorCookException(
-			"Triangle mesh with bad texture-coordinates buffer size (" + std::to_string(m_texCoords.size()) +
-			" texture coordinates given). ");
+			"Triangle mesh with mismatched texture-coordinate buffer size (" + 
+			std::to_string(m_texCoords.size()) + " texture coordinates given). ");
 	}
 
-	// Normal vectors can only be empty or equal to # positions
-	if(!m_normals.empty() && m_normals.size() != m_positions.size())
+	if(m_normals.size() != m_positions.size())
 	{
 		throw ActorCookException(
-			"Triangle mesh with bad normal vector buffer size (" + std::to_string(m_normals.size()) +
-			" normal vectors given). ");
+			"Triangle mesh with mismatched normal buffer size (" +
+			std::to_string(m_normals.size()) + " normal vectors given). ");
 	}
 
 	std::vector<GTriangle> gTriangles(m_positions.size() % 3);
@@ -71,33 +69,15 @@ std::vector<GTriangle> GTriangleMesh::genTriangles() const
 			continue;
 		}
 
-		if(!m_texCoords.empty())
-		{
-			PH_ASSERT_LT(i + 2, m_texCoords.size());
-			gTriangle.setUVWa(m_texCoords[i + 0]);
-			gTriangle.setUVWb(m_texCoords[i + 1]);
-			gTriangle.setUVWc(m_texCoords[i + 2]);
-		}
+		PH_ASSERT_LT(i + 2, m_texCoords.size());
+		gTriangle.setUVWa(m_texCoords[i + 0]);
+		gTriangle.setUVWb(m_texCoords[i + 1]);
+		gTriangle.setUVWc(m_texCoords[i + 2]);
 
-		if(!m_normals.empty())
-		{
-			PH_ASSERT_LT(i + 2, m_normals.size());
-
-			if(m_normals[i + 0].lengthSquared() > 0)
-			{
-				gTriangle.setNa(m_normals[i + 0].normalize());
-			}
-
-			if(m_normals[i + 1].lengthSquared() > 0)
-			{
-				gTriangle.setNb(m_normals[i + 1].normalize());
-			}
-			
-			if(m_normals[i + 2].lengthSquared() > 0)
-			{
-				gTriangle.setNc(m_normals[i + 2].normalize());
-			}
-		}
+		PH_ASSERT_LT(i + 2, m_normals.size());
+		gTriangle.setNa(m_normals[i + 0]);
+		gTriangle.setNb(m_normals[i + 1]);
+		gTriangle.setNc(m_normals[i + 2]);
 		
 		PH_ASSERT_LT(i % 3, gTriangles.size());
 		gTriangles[i % 3] = gTriangle;
@@ -123,7 +103,15 @@ std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
 
 void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
 {
-
+	m_positions.push_back(gTriangle.getVa());
+	m_positions.push_back(gTriangle.getVb());
+	m_positions.push_back(gTriangle.getVc());
+	m_texCoords.push_back(gTriangle.getUVWa());
+	m_texCoords.push_back(gTriangle.getUVWb());
+	m_texCoords.push_back(gTriangle.getUVWc());
+	m_normals.push_back(gTriangle.getNa());
+	m_normals.push_back(gTriangle.getNb());
+	m_normals.push_back(gTriangle.getNc());
 }
 
 }// end namespace ph

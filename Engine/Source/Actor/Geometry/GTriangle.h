@@ -5,8 +5,6 @@
 #include "Common/assertion.h"
 #include "DataIO/SDL/sdl_interface.h"
 
-#include <optional>
-
 namespace ph
 {
 
@@ -54,9 +52,9 @@ private:
 	math::Vector3R m_uvwB;
 	math::Vector3R m_uvwC;
 
-	std::optional<math::Vector3R> m_nA;
-	std::optional<math::Vector3R> m_nB;
-	std::optional<math::Vector3R> m_nC;
+	math::Vector3R m_nA;
+	math::Vector3R m_nB;
+	math::Vector3R m_nC;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GTriangle>)
@@ -99,16 +97,22 @@ public:
 		uvwC.optional();
 		clazz.addField(uvwC);
 
-		TSdlOptionalVector3<OwnerType> nA("nA", &OwnerType::m_nA);
+		TSdlVector3<OwnerType> nA("nA", &OwnerType::m_nA);
 		nA.description("Normal vector of the first vertex.");
+		nA.defaultTo({0, 0, 0});
+		nA.optional();
 		clazz.addField(nA);
 
-		TSdlOptionalVector3<OwnerType> nB("nB", &OwnerType::m_nB);
+		TSdlVector3<OwnerType> nB("nB", &OwnerType::m_nB);
 		nB.description("Normal vector of the second vertex.");
+		nB.defaultTo({0, 0, 0});
+		nB.optional();
 		clazz.addField(nB);
 
-		TSdlOptionalVector3<OwnerType> nC("nC", &OwnerType::m_nC);
+		TSdlVector3<OwnerType> nC("nC", &OwnerType::m_nC);
 		nC.description("Normal vector of the third vertex.");
+		nC.defaultTo({0, 0, 0});
+		nC.optional();
 		clazz.addField(nC);
 
 		return clazz;
@@ -134,17 +138,17 @@ inline const math::Vector3R& GTriangle::getVc() const
 
 inline const math::Vector3R& GTriangle::getNa() const
 {
-	return *m_nA;
+	return m_nA;
 }
 
 inline const math::Vector3R& GTriangle::getNb() const
 {
-	return *m_nB;
+	return m_nB;
 }
 
 inline const math::Vector3R& GTriangle::getNc() const
 {
-	return *m_nC;
+	return m_nC;
 }
 
 inline const math::Vector3R& GTriangle::getUVWa() const
@@ -164,22 +168,16 @@ inline const math::Vector3R& GTriangle::getUVWc() const
 
 inline void GTriangle::setNa(const math::Vector3R& nA)
 {
-	PH_ASSERT_MSG(nA.isFinite() && nA.length() > 0.9_r, nA.toString());
-
 	m_nA = nA;
 }
 
 inline void GTriangle::setNb(const math::Vector3R& nB)
 {
-	PH_ASSERT_MSG(nB.isFinite() && nB.length() > 0.9_r, nB.toString());
-
 	m_nB = nB;
 }
 
 inline void GTriangle::setNc(const math::Vector3R& nC)
 {
-	PH_ASSERT_MSG(nC.isFinite() && nC.length() > 0.9_r, nC.toString());
-
 	m_nC = nC;
 }
 
