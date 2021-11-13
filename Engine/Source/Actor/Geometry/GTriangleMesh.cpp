@@ -121,4 +121,9 @@ std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
 	return geometrySoup->genTransformed(transform);
 }
 
+void GTriangleMesh::addTriangle(const GTriangle& gTriangle)
+{
+
+}
+
 }// end namespace ph

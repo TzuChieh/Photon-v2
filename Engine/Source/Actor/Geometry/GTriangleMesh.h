@@ -32,6 +32,7 @@ public:
 		const math::StaticAffineTransform& transform) const override;
 
 	std::vector<GTriangle> genTriangles() const;
+	void addTriangle(const GTriangle& gTriangle);
 
 private:
 	std::vector<math::Vector3R> m_positions;
