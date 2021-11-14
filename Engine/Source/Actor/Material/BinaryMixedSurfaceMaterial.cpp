@@ -1,29 +1,33 @@
 #include "Actor/Material/BinaryMixedSurfaceMaterial.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 #include "Actor/Image/ConstantImage.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
+#include "Actor/actor_exceptions.h"
 
-#include <iostream>
+#include <utility>
 
 namespace ph
 {
 
+PH_DEFINE_INTERNAL_LOG_GROUP(BinaryMixedSurfaceMaterial, Material);
+
 BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial() : 
+
 	SurfaceMaterial(),
-	m_mode(EMode::LERP),
-	m_material0(nullptr), m_material1(nullptr),
-	m_factor(nullptr)
+
+	m_mode     (ESurfaceMaterialMixMode::Lerp),
+	m_material0(nullptr), 
+	m_material1(nullptr),
+	m_factor   (nullptr)
 {}
 
 void BinaryMixedSurfaceMaterial::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	if(!m_material0 || !m_material1)
 	{
-		// TODO: logger
-		std::cerr << "warning: at BinaryMixedSurfaceMaterial(), " 
-		          << "material is empty" << std::endl;
-		return;
+		throw ActorCookException("One or more materials are empty. Cannot perform binary mix operation.");
 	}
 
 	SurfaceBehavior behavior0, behavior1;
@@ -33,48 +37,42 @@ void BinaryMixedSurfaceMaterial::genSurface(ActorCookingContext& ctx, SurfaceBeh
 	auto optics1 = behavior1.getOpticsResource();
 	if(!optics0 || !optics1)
 	{
-		// TODO: logger
-		std::cerr << "warning: at BinaryMixedSurfaceMaterial(), "
-		          << "optics is empty" << std::endl;
-		return;
+		throw ActorCookException("Surface optics generation failed. Cannot perform binary mix operation.");
 	}
 
 	switch(m_mode)
 	{
-	case EMode::LERP:
-		if(m_factor != nullptr)
+	case ESurfaceMaterialMixMode::Lerp:
+		if(m_factor)
 		{
 			auto factor = m_factor->genColorTexture(ctx);
 			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1, factor));
 		}
 		else
 		{
+			PH_LOG_WARNING(BinaryMixedSurfaceMaterial,
+				"No lerp factor specified. The result might not be what you want.");
 			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1));
 		}
 		break;
 
 	default:
-		// TODO: logger
-		std::cerr << "warning: at BinaryMixedSurfaceMaterial(), " 
-		          << "unsupported material mixing mode" << std::endl;
+		throw ActorCookException("Unsupported material mixing mode.");
 		break;
 	}
 }
 
-void BinaryMixedSurfaceMaterial::setMode(const EMode mode)
+void BinaryMixedSurfaceMaterial::setMode(const ESurfaceMaterialMixMode mode)
 {
 	m_mode = mode;
 }
 
 void BinaryMixedSurfaceMaterial::setMaterials(
-	const std::shared_ptr<SurfaceMaterial>& material0,
-	const std::shared_ptr<SurfaceMaterial>& material1)
+	std::shared_ptr<SurfaceMaterial> material0,
+	std::shared_ptr<SurfaceMaterial> material1)
 {
-	PH_ASSERT(material0);
-	PH_ASSERT(material1);
-
-	m_material0 = material0;
-	m_material1 = material1;
+	m_material0 = std::move(material0);
+	m_material1 = std::move(material1);
 }
 
 void BinaryMixedSurfaceMaterial::setFactor(const real factor)
@@ -82,11 +80,19 @@ void BinaryMixedSurfaceMaterial::setFactor(const real factor)
 	setFactor(std::make_shared<ConstantImage>(factor, math::EColorSpace::Spectral));
 }
 
-void BinaryMixedSurfaceMaterial::setFactor(const std::shared_ptr<Image>& factor)
+void BinaryMixedSurfaceMaterial::setFactor(std::shared_ptr<Image> factor)
 {
-	PH_ASSERT(factor);
+	getFactor()->setImage(std::move(factor));
+}
 
-	m_factor = factor;
+UnifiedColorImage* BinaryMixedSurfaceMaterial::getFactor()
+{
+	if(!m_factor)
+	{
+		m_factor = std::make_shared<UnifiedColorImage>();
+	}
+
+	return m_factor.get();
 }
 
 }// end namespace ph

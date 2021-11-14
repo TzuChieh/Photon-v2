@@ -179,6 +179,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<AbradedTranslucent>(),
 		get_sdl_class<FullMaterial>(),
 		get_sdl_class<IdealSubstance>(),
+		get_sdl_class<BinaryMixedSurfaceMaterial>(),
 
 		// Light Sources
 		get_sdl_class<LightSource>(),
@@ -242,6 +243,7 @@ std::vector<const SdlEnum*> get_registered_sdl_enums()
 		get_sdl_enum<EInterfaceFresnel>(),
 		get_sdl_enum<ERoughnessToAlpha>(),
 		get_sdl_enum<EIdealSubstance>(),
+		get_sdl_enum<ESurfaceMaterialMixMode>(),
 	};
 }
 

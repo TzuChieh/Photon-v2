@@ -126,7 +126,14 @@ inline void TSdlUnifiedColorImage<Owner>::setValueToDefault(Owner& owner) const
 {
 	// Default image is copied so that modification done by the owner will not affect
 	// other owners that also use the same default.
-	this->setValueRef(owner, std::make_shared<UnifiedColorImage>(*m_defaultImage));
+	if(m_defaultImage)
+	{
+		this->setValueRef(owner, std::make_shared<UnifiedColorImage>(*m_defaultImage));
+	}
+	else
+	{
+		this->setValueRef(owner, nullptr);
+	}
 }
 
 template<typename Owner>

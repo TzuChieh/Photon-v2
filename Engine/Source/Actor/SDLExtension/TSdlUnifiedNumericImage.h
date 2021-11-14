@@ -123,7 +123,14 @@ inline void TSdlUnifiedNumericImage<Owner>::setValueToDefault(Owner& owner) cons
 {
 	// Default image is copied so that modification done by the owner will not affect
 	// other owners that also use the same default.
-	this->setValueRef(owner, std::make_shared<UnifiedNumericImage>(*m_defaultImage));
+	if(m_defaultImage)
+	{
+		this->setValueRef(owner, std::make_shared<UnifiedNumericImage>(*m_defaultImage));
+	}
+	else
+	{
+		this->setValueRef(owner, nullptr);
+	}
 }
 
 template<typename Owner>

@@ -59,7 +59,7 @@ std::vector<GTriangle> GTriangleMesh::genTriangles() const
 			std::to_string(m_normals.size()) + " normal vectors given). ");
 	}
 
-	std::vector<GTriangle> gTriangles(m_positions.size() % 3);
+	std::vector<GTriangle> gTriangles(m_positions.size() / 3);
 	for(std::size_t i = 0; i < m_positions.size(); i += 3)
 	{
 		PH_ASSERT_LT(i + 2, m_positions.size());
@@ -79,8 +79,8 @@ std::vector<GTriangle> GTriangleMesh::genTriangles() const
 		gTriangle.setNb(m_normals[i + 1]);
 		gTriangle.setNc(m_normals[i + 2]);
 		
-		PH_ASSERT_LT(i % 3, gTriangles.size());
-		gTriangles[i % 3] = gTriangle;
+		PH_ASSERT_LT(i / 3, gTriangles.size());
+		gTriangles[i / 3] = gTriangle;
 	}
 
 	return gTriangles;
