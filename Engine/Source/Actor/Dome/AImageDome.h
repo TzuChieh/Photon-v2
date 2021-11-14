@@ -4,6 +4,7 @@
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
 #include "Math/Color/Spectrum.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
 
@@ -31,6 +32,22 @@ public:
 private:
 	Path           m_imagePath;
 	math::Vector2S m_imageResolution;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AImageDome>)
+	{
+		ClassType clazz("image-dome");
+		clazz.docName("Image Dome Actor");
+		clazz.description("Using a background image to represent the energy emitted from far away.");
+		clazz.baseOn<ADome>();
+
+		TSdlPath<OwnerType> imagePath("image", &OwnerType::m_imagePath);
+		imagePath.description("Resource identifier for an image describing the energy distribution.");
+		imagePath.required();
+		clazz.addField(imagePath);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

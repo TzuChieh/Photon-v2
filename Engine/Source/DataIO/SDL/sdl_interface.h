@@ -26,6 +26,7 @@
 #include "DataIO/SDL/Introspect/TSdlVector3Array.h"
 #include "DataIO/SDL/Introspect/TSdlReference.h"
 #include "DataIO/SDL/Introspect/TSdlEnumField.h"
+#include "DataIO/SDL/Introspect/TSdlPath.h"
 
 // Function types
 #include "DataIO/SDL/Introspect/TSdlMethod.h"

@@ -3,7 +3,6 @@
 #include "Actor/Image/RasterImageBase.h"
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/SDL/sdl_interface.h"
-#include "DataIO/SDL/Introspect/TSdlPath.h"
 #include "Core/Texture/Pixel/pixel_texture_basics.h"
 #include "Core/Texture/Pixel/PixelBuffer2D.h"
 #include "Math/Color/color_enums.h"
