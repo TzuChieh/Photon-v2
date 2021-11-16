@@ -244,19 +244,37 @@ RegularPicture load_HDR_picture(const Path& picturePath)
 {
 	PH_LOG_DEBUG(IOUtils, "loading HDR picture <{}>", picturePath.toString());
 
-	HdrRgbFrame picture;
-
 	const std::string& ext = picturePath.getExtension();
 	if(ext == ".exr" || ext == ".EXR")
 	{
 		ExrFileReader exrFileReader(picturePath);
-		if(exrFileReader.load(&picture))
+
+		HdrRgbFrame frame;
+		if(exrFileReader.load(&frame))
 		{
-			// TODO
+			// TODO: properly handle picture attributes
+
+			RegularPicture picture(frame.getSizePx());
+			picture.nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
+			picture.colorSpace = math::EColorSpace::Linear_sRGB;
+			picture.frame.forEachPixel([&frame](const uint32 x, const uint32 y, auto /* pixel */)
+			{
+				const auto framePixel = frame.getPixel({x, y});
+
+				RegularPicture::Pixel picturePixel(0);
+				picturePixel[0] = framePixel[0];
+				picturePixel[1] = framePixel[1];
+				picturePixel[2] = framePixel[2];
+
+				return picturePixel;
+			});
+
+			return picture;
 		}
 		else
 		{
-			PH_LOG_WARNING(IOUtils, ".exr file loading failed");
+			throw FileIOError(
+				".exr file loading failed", picturePath.toString());
 		}
 	}
 	else if(ext == ".hdr" || ext == ".HDR")
