@@ -1,17 +1,18 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Utility/TArrayAsVector.h"
 #include "Math/TVector3.h"
+#include "Common/assertion.h"
 
 #include <memory>
 #include <cstddef>
 #include <limits>
+#include <array>
 
 namespace ph
 {
 
-enum class EVertexContent
+enum class EVertexAttribute
 {
 	Position_0 = 0,
 	Normal_0,
@@ -26,12 +27,12 @@ enum class EVertexContent
 
 enum class EVertexElement
 {
-	VE_Float16 = 0,
-	VE_Float32,
-	VE_Int16,
+	VE_Float32 = 0,
+	VE_Float16,
 	VE_Int32,
-	VE_OctahedralUnitVec24,
+	VE_Int16,
 	VE_OctahedralUnitVec32,
+	VE_OctahedralUnitVec24,
 
 	// Special values
 	NUM
@@ -42,18 +43,23 @@ class IndexedVertexBuffer final
 public:
 	IndexedVertexBuffer();
 
-	void addEntry(
-		EVertexContent content,
-		EVertexElement element,
-		std::size_t    numElements = 0,
-		bool           isNormalized = false);
+	void setEntry(
+		EVertexAttribute attribute,
+		EVertexElement   element,
+		std::size_t      numElements = 0,
+		bool             isNormalized = false);
 
 	void allocate();
 
+	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
+	std::size_t estimateMemoryUsageBytes() const;
+	bool isAllocated() const;
+
 private:
+	using StrideSize = uint8;
+
 	struct Entry final
 	{
-		EVertexContent content;
 		EVertexElement element;
 
 		/*! @brief Number of elements in this entry. Expected to be within [1, 3]. */
@@ -66,13 +72,38 @@ private:
 		*/
 		uint8 isNormalized : 1;
 
+		StrideSize strideOffset;
+
 		Entry();
+
+		bool isEmpty();
 	};
 
-	TArrayAsVector<Entry, static_cast<std::size_t>(EVertexContent::NUM)> m_entries;
+	std::array<Entry, static_cast<std::size_t>(EVertexAttribute::NUM)> m_entries;
 
 	std::unique_ptr<std::byte[]> m_byteBuffer;
 	std::size_t                  m_byteBufferSize;
+	StrideSize                   m_strideSize;
+
+	static_assert(std::numeric_limits<StrideSize>::max() >= static_cast<std::size_t>(EVertexAttribute::NUM) * (4 * 3),
+		"Type <StrideSize> cannot hold max possible vertex stride size. Consider increase it.");
 };
+
+// In-header Implementations:
+
+inline std::size_t IndexedVertexBuffer::estimateMemoryUsageBytes() const
+{
+	return sizeof(IndexedVertexBuffer) + m_byteBufferSize;
+}
+
+inline bool IndexedVertexBuffer::Entry::isEmpty()
+{
+	return numElements == 0;
+}
+
+inline bool IndexedVertexBuffer::isAllocated() const
+{
+	return m_byteBuffer != nullptr;
+}
 
 }// end namespace ph
