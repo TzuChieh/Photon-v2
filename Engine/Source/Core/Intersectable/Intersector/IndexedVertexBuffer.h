@@ -2,7 +2,6 @@
 
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
 
 #include <memory>
 #include <cstddef>
@@ -49,7 +48,7 @@ public:
 		std::size_t      numElements = 0,
 		bool             isNormalized = false);
 
-	void allocate();
+	void allocate(std::size_t numVertices);
 
 	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
 	std::size_t estimateMemoryUsageBytes() const;
@@ -76,7 +75,7 @@ private:
 
 		Entry();
 
-		bool isEmpty();
+		bool isEmpty() const;
 	};
 
 	std::array<Entry, static_cast<std::size_t>(EVertexAttribute::NUM)> m_entries;
@@ -96,7 +95,7 @@ inline std::size_t IndexedVertexBuffer::estimateMemoryUsageBytes() const
 	return sizeof(IndexedVertexBuffer) + m_byteBufferSize;
 }
 
-inline bool IndexedVertexBuffer::Entry::isEmpty()
+inline bool IndexedVertexBuffer::Entry::isEmpty() const
 {
 	return numElements == 0;
 }
