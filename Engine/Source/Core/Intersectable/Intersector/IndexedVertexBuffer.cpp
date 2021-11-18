@@ -145,8 +145,8 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		return math::Vector3R(0);
 	}
 
-	// TODO
-
+	const auto byteIndex = index * m_strideSize + entry.strideOffset;
+	PH_ASSERT_LT(byteIndex, m_byteBufferSize);
 
 
 }
