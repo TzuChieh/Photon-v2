@@ -47,7 +47,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		}
 		else if(m_values.size() == 3)
 		{
-			values.set(m_values[0], m_values[1], m_values[2]);
+			values.set({m_values[0], m_values[1], m_values[2]});
 		}
 		else
 		{
@@ -55,9 +55,9 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 				"mismatched number of input values: expected 3, {} provided; generated texture may not be what you want.",
 				m_values.size());
 
-			values.x = m_values.size() >= 1 ? m_values[0] : 0;
-			values.y = m_values.size() >= 2 ? m_values[1] : 0;
-			values.z = m_values.size() >= 3 ? m_values[2] : 0;
+			values.x() = m_values.size() >= 1 ? m_values[0] : 0;
+			values.y() = m_values.size() >= 2 ? m_values[1] : 0;
+			values.z() = m_values.size() >= 3 ? m_values[2] : 0;
 		}
 
 		const math::TristimulusValues color = math::TVector3<math::ColorValue>(values).toArray();

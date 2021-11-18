@@ -236,7 +236,7 @@ TEST(TMatrix4Test, RotationMatrixFromBasis)
 
 	Vector3R result;
 	mat2.mul({1, 1, 1}, 0, &result);
-	EXPECT_FLOAT_EQ(result.x, -1);
-	EXPECT_FLOAT_EQ(result.y, -1);
-	EXPECT_FLOAT_EQ(result.z,  1);
+	EXPECT_FLOAT_EQ(result.x(), -1);
+	EXPECT_FLOAT_EQ(result.y(), -1);
+	EXPECT_FLOAT_EQ(result.z(),  1);
 }

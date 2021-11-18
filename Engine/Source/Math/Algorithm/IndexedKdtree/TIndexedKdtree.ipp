@@ -65,7 +65,7 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 	}
 	TLineSegment<real> intersectSegment(segment.getOrigin(), segment.getDirection(), minT, maxT);
 
-	const Vector3R rcpRayDir(segment.getDirection().reciprocal());
+	const Vector3R rcpRayDir(segment.getDirection().rcp());
 
 	std::array<NodeState, MAX_STACK_HEIGHT> nodeStack;
 	int stackHeight = 0;

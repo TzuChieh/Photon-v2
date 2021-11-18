@@ -52,9 +52,9 @@ void GTriangle::genPrimitive(
 	triangle.setUVWc(m_uvwC);
 
 	const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).getFaceNormalSafe();
-	triangle.setNa(m_nA.isNotZero() ? m_nA.normalize() : faceNormal);
-	triangle.setNb(m_nB.isNotZero() ? m_nB.normalize() : faceNormal);
-	triangle.setNc(m_nC.isNotZero() ? m_nC.normalize() : faceNormal);
+	triangle.setNa(!m_nA.isZero() ? m_nA.normalize() : faceNormal);
+	triangle.setNb(!m_nB.isZero() ? m_nB.normalize() : faceNormal);
+	triangle.setNc(!m_nC.isZero() ? m_nC.normalize() : faceNormal);
 
 	out_primitives.push_back(std::make_unique<PTriangle>(triangle));
 }
@@ -72,11 +72,11 @@ std::shared_ptr<Geometry> GTriangle::genTransformed(
 
 	math::Vector3R transformedN;
 	transform.transformO(m_nA, &transformedN);
-	tTriangle->setNa(transformedN.isNotZero() ? transformedN.normalize() : faceNormal);
+	tTriangle->setNa(!transformedN.isZero() ? transformedN.normalize() : faceNormal);
 	transform.transformO(m_nB, &transformedN);
-	tTriangle->setNb(transformedN.isNotZero() ? transformedN.normalize() : faceNormal);
+	tTriangle->setNb(!transformedN.isZero() ? transformedN.normalize() : faceNormal);
 	transform.transformO(m_nC, &transformedN);
-	tTriangle->setNc(transformedN.isNotZero() ? transformedN.normalize() : faceNormal);
+	tTriangle->setNc(!transformedN.isZero() ? transformedN.normalize() : faceNormal);
 
 	return tTriangle;
 }

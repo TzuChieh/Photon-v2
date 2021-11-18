@@ -79,7 +79,7 @@ void AnisoTrowbridgeReitz::genDistributedH(
 	const math::Vector3R zVec(X.getDetail().getShadingBasis().getZAxis().mul(uFactor));
 	const math::Vector3R xVec(X.getDetail().getShadingBasis().getXAxis().mul(vFactor));
 	
-	out_H->set(zVec.add(xVec).mul(std::sqrt(sample[1] / (1.0_r - sample[1]))).add(N));
+	*out_H = zVec.add(xVec).mul(std::sqrt(sample[1] / (1.0_r - sample[1]))).add(N);
 	out_H->normalizeLocal();
 }
 

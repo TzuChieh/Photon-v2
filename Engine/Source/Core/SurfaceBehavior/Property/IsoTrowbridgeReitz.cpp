@@ -88,7 +88,7 @@ void IsoTrowbridgeReitz::genDistributedH(
 	// (may be STL bug since seed should not include 1...)
 	if(std::isnan(theta) || std::isinf(theta))
 	{
-		out_H->set(N);
+		*out_H = N;
 		return;
 	}
 
@@ -97,15 +97,15 @@ void IsoTrowbridgeReitz::genDistributedH(
 
 	math::Vector3R& H = *out_H;
 
-	H.x = sinTheta * std::sin(phi);
-	H.y = cosTheta;
-	H.z = sinTheta * std::cos(phi);
+	H.x() = sinTheta * std::sin(phi);
+	H.y() = cosTheta;
+	H.z() = sinTheta * std::cos(phi);
 
 	H = X.getDetail().getShadingBasis().localToWorld(H);
 	H.normalizeLocal();
 
-	PH_ASSERT_MSG(!std::isnan(H.x) && !std::isnan(H.y) && !std::isnan(H.z) &&
-	              !std::isinf(H.x) && !std::isinf(H.y) && !std::isinf(H.z),
+	PH_ASSERT_MSG(!std::isnan(H.x()) && !std::isnan(H.y()) && !std::isnan(H.z()) &&
+	              !std::isinf(H.x()) && !std::isinf(H.y()) && !std::isinf(H.z()),
 		"sample[0] = " + std::to_string(sample[0]) + ", "
 		"sample[1] = " + std::to_string(sample[1]) + ", "
 		"alpha = "     + std::to_string(alpha));

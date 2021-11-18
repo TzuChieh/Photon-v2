@@ -27,15 +27,15 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 
 	// Find the dominant dimension of ray direction and make it Z; the rest 
 	// dimensions are arbitrarily assigned
-	if(std::abs(segmentDir.x) > std::abs(segmentDir.y))
+	if(std::abs(segmentDir.x()) > std::abs(segmentDir.y()))
 	{
 		// X dominant
-		if(std::abs(segmentDir.x) > std::abs(segmentDir.z))
+		if(std::abs(segmentDir.x()) > std::abs(segmentDir.z()))
 		{
-			segmentDir.set(segmentDir.y, segmentDir.z, segmentDir.x);
-			vAt.set(vAt.y, vAt.z, vAt.x);
-			vBt.set(vBt.y, vBt.z, vBt.x);
-			vCt.set(vCt.y, vCt.z, vCt.x);
+			segmentDir.set({segmentDir.y(), segmentDir.z(), segmentDir.x()});
+			vAt.set({vAt.y(), vAt.z(), vAt.x()});
+			vBt.set({vBt.y(), vBt.z(), vBt.x()});
+			vCt.set({vCt.y(), vCt.z(), vCt.x()});
 		}
 		// Z dominant
 		else
@@ -46,12 +46,12 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	else
 	{
 		// Y dominant
-		if(std::abs(segmentDir.y) > std::abs(segmentDir.z))
+		if(std::abs(segmentDir.y()) > std::abs(segmentDir.z()))
 		{
-			segmentDir.set(segmentDir.z, segmentDir.x, segmentDir.y);
-			vAt.set(vAt.z, vAt.x, vAt.y);
-			vBt.set(vBt.z, vBt.x, vBt.y);
-			vCt.set(vCt.z, vCt.x, vCt.y);
+			segmentDir.set({segmentDir.z(), segmentDir.x(), segmentDir.y()});
+			vAt.set({vAt.z(), vAt.x(), vAt.y()});
+			vBt.set({vBt.z(), vBt.x(), vBt.y()});
+			vCt.set({vCt.z(), vCt.x(), vCt.y()});
 		}
 		// Z dominant
 		else
@@ -60,23 +60,23 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 		}
 	}
 
-	PH_ASSERT_MSG(segmentDir.z != T(0) && std::isfinite(segmentDir.z), std::to_string(segmentDir.z));
+	PH_ASSERT_MSG(segmentDir.z() != T(0) && std::isfinite(segmentDir.z()), std::to_string(segmentDir.z()));
 
-	const T rcpSegmentDirZ = T(1) / segmentDir.z;
-	const T shearX         = -segmentDir.x * rcpSegmentDirZ;
-	const T shearY         = -segmentDir.y * rcpSegmentDirZ;
+	const T rcpSegmentDirZ = T(1) / segmentDir.z();
+	const T shearX         = -segmentDir.x() * rcpSegmentDirZ;
+	const T shearY         = -segmentDir.y() * rcpSegmentDirZ;
 	const T shearZ         = rcpSegmentDirZ;
 
-	vAt.x += shearX * vAt.z;
-	vAt.y += shearY * vAt.z;
-	vBt.x += shearX * vBt.z;
-	vBt.y += shearY * vBt.z;
-	vCt.x += shearX * vCt.z;
-	vCt.y += shearY * vCt.z;
+	vAt.x() += shearX * vAt.z();
+	vAt.y() += shearY * vAt.z();
+	vBt.x() += shearX * vBt.z();
+	vBt.y() += shearY * vBt.z();
+	vCt.x() += shearX * vCt.z();
+	vCt.y() += shearY * vCt.z();
 
-	T funcEa = vBt.x * vCt.y - vBt.y * vCt.x;
-	T funcEb = vCt.x * vAt.y - vCt.y * vAt.x;
-	T funcEc = vAt.x * vBt.y - vAt.y * vBt.x;
+	T funcEa = vBt.x() * vCt.y() - vBt.y() * vCt.x();
+	T funcEb = vCt.x() * vAt.y() - vCt.y() * vAt.x();
+	T funcEc = vAt.x() * vBt.y() - vAt.y() * vBt.x();
 
 	// FIXME: properly check if T is of lower precision than float64
 	// Possibly fallback to higher precision test for triangle edges
@@ -84,12 +84,12 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	{
 		if(funcEa == T(0) || funcEb == T(0) || funcEc == T(0))
 		{
-			const float64 funcEa64 = static_cast<float64>(vBt.x) * static_cast<float64>(vCt.y) -
-			                         static_cast<float64>(vBt.y) * static_cast<float64>(vCt.x);
-			const float64 funcEb64 = static_cast<float64>(vCt.x) * static_cast<float64>(vAt.y) -
-			                         static_cast<float64>(vCt.y) * static_cast<float64>(vAt.x);
-			const float64 funcEc64 = static_cast<float64>(vAt.x) * static_cast<float64>(vBt.y) -
-			                         static_cast<float64>(vAt.y) * static_cast<float64>(vBt.x);
+			const float64 funcEa64 = static_cast<float64>(vBt.x()) * static_cast<float64>(vCt.y()) -
+			                         static_cast<float64>(vBt.y()) * static_cast<float64>(vCt.x());
+			const float64 funcEb64 = static_cast<float64>(vCt.x()) * static_cast<float64>(vAt.y()) -
+			                         static_cast<float64>(vCt.y()) * static_cast<float64>(vAt.x());
+			const float64 funcEc64 = static_cast<float64>(vAt.x()) * static_cast<float64>(vBt.y()) -
+			                         static_cast<float64>(vAt.y()) * static_cast<float64>(vBt.x());
 			
 			funcEa = static_cast<T>(funcEa64);
 			funcEb = static_cast<T>(funcEb64);
@@ -110,11 +110,11 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 		return false;
 	}
 
-	vAt.z *= shearZ;
-	vBt.z *= shearZ;
-	vCt.z *= shearZ;
+	vAt.z() *= shearZ;
+	vBt.z() *= shearZ;
+	vCt.z() *= shearZ;
 
-	const T hitTscaled = funcEa * vAt.z + funcEb * vBt.z + funcEc * vCt.z;
+	const T hitTscaled = funcEa * vAt.z() + funcEb * vBt.z() + funcEc * vCt.z();
 
 	if(determinant > T(0))
 	{

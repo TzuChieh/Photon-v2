@@ -54,23 +54,23 @@ bool PBasicSphere::isIntersectingVolumeConservative(const math::AABB3D& volume) 
 
 	real a, b;
 
-	a = math::squared(volume.getMinVertex().x);
-	b = math::squared(volume.getMaxVertex().x);
+	a = math::squared(volume.getMinVertex().x());
+	b = math::squared(volume.getMaxVertex().x());
 	maxDist2 += std::max(a, b);
-	if     (0.0_r < volume.getMinVertex().x) minDist2 += a;
-	else if(0.0_r > volume.getMaxVertex().x) minDist2 += b;
+	if     (0.0_r < volume.getMinVertex().x()) minDist2 += a;
+	else if(0.0_r > volume.getMaxVertex().x()) minDist2 += b;
 
-	a = math::squared(volume.getMinVertex().y);
-	b = math::squared(volume.getMaxVertex().y);
+	a = math::squared(volume.getMinVertex().y());
+	b = math::squared(volume.getMaxVertex().y());
 	maxDist2 += std::max(a, b);
-	if     (0.0_r < volume.getMinVertex().y) minDist2 += a;
-	else if(0.0_r > volume.getMaxVertex().y) minDist2 += b;
+	if     (0.0_r < volume.getMinVertex().y()) minDist2 += a;
+	else if(0.0_r > volume.getMaxVertex().y()) minDist2 += b;
 
-	a = math::squared(volume.getMinVertex().z);
-	b = math::squared(volume.getMaxVertex().z);
+	a = math::squared(volume.getMinVertex().z());
+	b = math::squared(volume.getMaxVertex().z());
 	maxDist2 += std::max(a, b);
-	if     (0.0_r < volume.getMinVertex().z) minDist2 += a;
-	else if(0.0_r > volume.getMaxVertex().z) minDist2 += b;
+	if     (0.0_r < volume.getMinVertex().z()) minDist2 += a;
+	else if(0.0_r > volume.getMaxVertex().z()) minDist2 += b;
 
 	return minDist2 <= radius2 && radius2 <= maxDist2;
 }

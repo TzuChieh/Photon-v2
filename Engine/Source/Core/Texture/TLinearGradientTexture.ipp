@@ -49,7 +49,7 @@ inline TLinearGradientTexture<OutputType>::TLinearGradientTexture(
 	m_endUVW      (endUVW),
 	m_endTexture  (endTexture)
 {
-	PH_ASSERT(!beginUVW.equals(endUVW));
+	PH_ASSERT(!beginUVW.isEqual(endUVW));
 	PH_ASSERT(beginTexture);
 	PH_ASSERT(endTexture);
 }

@@ -20,8 +20,8 @@ public:
 		const SampleLocation&  sampleLocation, 
 		TTexPixel<T, N>* const out_value) const override
 	{
-		const float64 u = sampleLocation.uvw().x;
-		const float64 v = sampleLocation.uvw().y;
+		const float64 u = sampleLocation.uvw().x();
+		const float64 v = sampleLocation.uvw().y();
 		const uint32  w = this->getWidthPx();
 		const uint32  h = this->getHeightPx();
 

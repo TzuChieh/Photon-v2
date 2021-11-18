@@ -32,14 +32,14 @@ TEST(TOrthonormalBasis3Test, VectorTransformation)
 
 	TVector3<float> worldVec(1, 2, 3);
 	TVector3<float> localVec = basis.worldToLocal(worldVec);
-	EXPECT_FLOAT_EQ(localVec.x, 2);
-	EXPECT_FLOAT_EQ(localVec.y, -1);
-	EXPECT_FLOAT_EQ(localVec.z, 3);
+	EXPECT_FLOAT_EQ(localVec.x(), 2);
+	EXPECT_FLOAT_EQ(localVec.y(), -1);
+	EXPECT_FLOAT_EQ(localVec.z(), 3);
 
 	worldVec = basis.localToWorld(localVec);
-	EXPECT_FLOAT_EQ(worldVec.x, 1);
-	EXPECT_FLOAT_EQ(worldVec.y, 2);
-	EXPECT_FLOAT_EQ(worldVec.z, 3);
+	EXPECT_FLOAT_EQ(worldVec.x(), 1);
+	EXPECT_FLOAT_EQ(worldVec.y(), 2);
+	EXPECT_FLOAT_EQ(worldVec.z(), 3);
 }
 
 TEST(TOrthonormalBasis3Test, Trigonometry)

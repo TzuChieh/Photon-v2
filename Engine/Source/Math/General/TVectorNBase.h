@@ -40,8 +40,7 @@ public:
 	T length() const;
 	T lengthSquared() const;
 
-	// Notice that normalizing a integer typed vector will result in 0-vector 
-	// most of the time.
+	// Notice that normalizing a integer typed vector will result in 0-vector most of the time.
 	Derived normalize() const;
 	Derived& normalizeLocal();
 
@@ -108,6 +107,7 @@ public:
 	using Base::isNear;
 	using Base::toString;
 	using Base::toVector;
+	using Base::toArray;
 
 	using Base::operator [];
 	using Base::operator ==;

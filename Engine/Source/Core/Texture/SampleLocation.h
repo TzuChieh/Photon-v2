@@ -82,7 +82,7 @@ inline math::Vector3R SampleLocation::uvw() const
 inline math::Vector2R SampleLocation::uv() const
 {
 	const auto uvwCoords = uvw();
-	return {uvwCoords.x, uvwCoords.y};
+	return {uvwCoords.x(), uvwCoords.y()};
 }
 
 inline void SampleLocation::setUvw(const math::Vector3R& uvw)

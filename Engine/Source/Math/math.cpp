@@ -13,17 +13,17 @@ namespace ph::math
 void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis)
 {
 	// Handle the singularity occurred when y is close to -1.
-	if(unitYaxis.y < -0.9999999_r)
+	if(unitYaxis.y() < -0.9999999_r)
 	{
-		out_unitXaxis->set(-1.0_r, 0.0_r, 0.0_r);
-		out_unitZaxis->set(0.0_r, 0.0_r, -1.0_r);
+		out_unitXaxis->set({-1.0_r, 0.0_r, 0.0_r});
+		out_unitZaxis->set({0.0_r, 0.0_r, -1.0_r});
 		return;
 	}
 	
-	const real commonReci = 1.0_r / (1.0_r + unitYaxis.y);
-	const real commonTerm = -unitYaxis.x * unitYaxis.z * commonReci;
-	out_unitXaxis->set(1.0_r - unitYaxis.x * unitYaxis.x * commonReci, -unitYaxis.x, commonTerm);
-	out_unitZaxis->set(commonTerm, -unitYaxis.z, 1.0_r - unitYaxis.z * unitYaxis.z * commonReci);
+	const real commonReci = 1.0_r / (1.0_r + unitYaxis.y());
+	const real commonTerm = -unitYaxis.x() * unitYaxis.z() * commonReci;
+	out_unitXaxis->set({1.0_r - unitYaxis.x() * unitYaxis.x() * commonReci, -unitYaxis.x(), commonTerm});
+	out_unitZaxis->set({commonTerm, -unitYaxis.z(), 1.0_r - unitYaxis.z() * unitYaxis.z() * commonReci});
 
 	// TEST
 	/*std::cerr << std::setprecision(20);

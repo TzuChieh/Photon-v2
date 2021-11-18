@@ -269,18 +269,18 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
 		switch(m_splitAxis)
 		{
 		case KDTREE_X_AXIS:
-			splitAxisRayOrigin = ray.getOrigin().x;
-			splitAxisRayDir = ray.getDirection().x;
+			splitAxisRayOrigin = ray.getOrigin().x();
+			splitAxisRayDir = ray.getDirection().x();
 			break;
 
 		case KDTREE_Y_AXIS:
-			splitAxisRayOrigin = ray.getOrigin().y;
-			splitAxisRayDir = ray.getDirection().y;
+			splitAxisRayOrigin = ray.getOrigin().y();
+			splitAxisRayDir = ray.getDirection().y();
 			break;
 
 		case KDTREE_Z_AXIS:
-			splitAxisRayOrigin = ray.getOrigin().z;
-			splitAxisRayDir = ray.getDirection().z;
+			splitAxisRayOrigin = ray.getOrigin().z();
+			splitAxisRayDir = ray.getDirection().z();
 			break;
 
 		default:

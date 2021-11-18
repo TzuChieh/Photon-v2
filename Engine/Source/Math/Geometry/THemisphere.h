@@ -123,8 +123,8 @@ inline TVector3<T> THemisphere<T>::sampleToSurfaceCosThetaWeighted(
 {
 	const auto localPos = sampleToSurfaceCosThetaWeighted(sample);
 
-	PH_ASSERT_GE(localPos.y, static_cast<T>(0));
-	const T cosTheta = localPos.y / m_radius;
+	PH_ASSERT_GE(localPos.y(), static_cast<T>(0));
+	const T cosTheta = localPos.y() / m_radius;
 
 	// PDF_A is cos(theta)/(pi*r^2)
 	PH_ASSERT(out_pdfA);

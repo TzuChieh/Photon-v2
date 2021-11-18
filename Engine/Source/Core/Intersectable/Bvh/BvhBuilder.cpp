@@ -112,7 +112,7 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 		}
 
 		math::Vector3R extents = centroidsAABB.getExtents();
-		if(extents.hasNegativeComponent())
+		if(!extents.isNonNegative())
 		{
 			std::cerr << "warning: at BvhBuilder::buildBinaryBvhNodeRecursive(), " 
 			          << "negative AABB extent detected" << std::endl;

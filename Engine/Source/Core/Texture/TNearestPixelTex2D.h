@@ -25,7 +25,7 @@ public:
 		// normalize uv first to avoid overflowing xy after multiplying
 		// width and height
 		float64 normU, normV;
-		this->normalizeUV(sampleLocation.uvw().x, sampleLocation.uvw().y,
+		this->normalizeUV(sampleLocation.uvw().x(), sampleLocation.uvw().y(),
 		                  &normU, &normV);
 		
 		// calculate pixel index and handle potential overflow

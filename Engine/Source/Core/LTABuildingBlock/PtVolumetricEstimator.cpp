@@ -57,7 +57,7 @@ void PtVolumetricEstimator::sample(
 		else
 		{
 			*out_Xe = currXe;
-			out_V->set(currL.mulLocal(-1));
+			*out_V = currL.mulLocal(-1);
 			out_radiance->setColorValues(0);
 			break;
 		}

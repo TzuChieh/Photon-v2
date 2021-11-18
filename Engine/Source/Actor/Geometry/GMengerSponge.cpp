@@ -71,13 +71,13 @@ void GMengerSponge::genMengerSpongeRecursive(
 				if(!isHollow)
 				{
 					const math::Vector3R nextMinVertex(
-						minVertex.x + nextExtends.x * ix,
-						minVertex.y + nextExtends.y * iy,
-						minVertex.z + nextExtends.z * iz);
+						minVertex.x() + nextExtends.x() * ix,
+						minVertex.y() + nextExtends.y() * iy,
+						minVertex.z() + nextExtends.z() * iz);
 					const math::Vector3R nextMaxVertex(
-						minVertex.x + nextExtends.x * (ix + 1),
-						minVertex.y + nextExtends.y * (iy + 1),
-						minVertex.z + nextExtends.z * (iz + 1));
+						minVertex.x() + nextExtends.x() * (ix + 1),
+						minVertex.y() + nextExtends.y() * (iy + 1),
+						minVertex.z() + nextExtends.z() * (iz + 1));
 					genMengerSpongeRecursive(
 						nextMinVertex,
 						nextMaxVertex,

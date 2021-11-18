@@ -52,16 +52,16 @@ bool KdtreeAABB::trySplitAt(const int32 axis, const real splitPos, KdtreeAABB* c
 
 void KdtreeAABB::getMinVertex(real* const out_vector3f) const
 {
-	out_vector3f[KDTREE_X_AXIS] = m_aabb.getMinVertex().x;
-	out_vector3f[KDTREE_Y_AXIS] = m_aabb.getMinVertex().y;
-	out_vector3f[KDTREE_Z_AXIS] = m_aabb.getMinVertex().z;
+	out_vector3f[KDTREE_X_AXIS] = m_aabb.getMinVertex().x();
+	out_vector3f[KDTREE_Y_AXIS] = m_aabb.getMinVertex().y();
+	out_vector3f[KDTREE_Z_AXIS] = m_aabb.getMinVertex().z();
 }
 
 void KdtreeAABB::getMaxVertex(real* const out_vector3f) const
 {
-	out_vector3f[KDTREE_X_AXIS] = m_aabb.getMaxVertex().x;
-	out_vector3f[KDTREE_Y_AXIS] = m_aabb.getMaxVertex().y;
-	out_vector3f[KDTREE_Z_AXIS] = m_aabb.getMaxVertex().z;
+	out_vector3f[KDTREE_X_AXIS] = m_aabb.getMaxVertex().x();
+	out_vector3f[KDTREE_Y_AXIS] = m_aabb.getMaxVertex().y();
+	out_vector3f[KDTREE_Z_AXIS] = m_aabb.getMaxVertex().z();
 }
 
 real KdtreeAABB::getMinVertex(const int32 axis) const

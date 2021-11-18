@@ -25,9 +25,9 @@ TEST(MathOperationsDynamicLinearTranslation, GeneratesInversed)
 	Vector3R p1t, p1tt;
 	t1.transformP(p1, timeT, &p1t);
 	t1Inversed->transformP(p1t, timeT, &p1tt);
-	EXPECT_NEAR(p1.x, p1tt.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR(p1.y, p1tt.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(p1.z, p1tt.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.x(), p1tt.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.y(), p1tt.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.z(), p1tt.z(), TEST_REAL_EPSILON);
 }
 
 TEST(MathOperationsDynamicLinearTranslation, TimedTransformation)
@@ -40,7 +40,7 @@ TEST(MathOperationsDynamicLinearTranslation, TimedTransformation)
 
 	Vector3R p1t;
 	t1.transformP(p1, timeT, &p1t);
-	EXPECT_NEAR(3.5_r, p1t.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR(4.0_r, p1t.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(0.5_r, p1t.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(3.5_r, p1t.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(4.0_r, p1t.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(0.5_r, p1t.z(), TEST_REAL_EPSILON);
 }

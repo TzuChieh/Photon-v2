@@ -157,13 +157,13 @@ real LatLongEnvEmitter::calcDirectSamplePdfW(
 {
 	// FIXME: assuming spherical uv mapping us used
 	const math::Vector3R uvw = emitPos.getDetail().getUvw();
-	const real sinTheta = std::sin((1.0_r - uvw.y) * math::constant::pi<real>);
+	const real sinTheta = std::sin((1.0_r - uvw.y()) * math::constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{
 		return 0.0_r;
 	}
 
-	return m_sampleDistribution.pdfContinuous({uvw.x, uvw.y}) / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
+	return m_sampleDistribution.pdfContinuous({uvw.x(), uvw.y()}) / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
 }
 
 real LatLongEnvEmitter::calcRadiantFluxApprox() const

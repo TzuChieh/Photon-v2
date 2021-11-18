@@ -78,12 +78,12 @@ TEST(TIndexedPointKdtreeTest, RangeSearchCubeVertices)
 	results.clear();
 	tree.findWithinRange({0, 0, 0}, 0.5_r, results);
 	EXPECT_EQ(results.size(), 1);
-	EXPECT_TRUE(results[0].equals({0, 0, 0}));
+	EXPECT_TRUE(results[0].isEqual({0, 0, 0}));
 
 	results.clear();
 	tree.findWithinRange({1, 1, 1}, 0.5_r, results);
 	EXPECT_EQ(results.size(), 1);
-	EXPECT_TRUE(results[0].equals({1, 1, 1}));
+	EXPECT_TRUE(results[0].isEqual({1, 1, 1}));
 
 	results.clear();
 	tree.findWithinRange({1, 0, 0}, 1.001_r, results);
@@ -104,7 +104,7 @@ TEST(TIndexedPointKdtreeTest, RangeSearchCubeVertices)
 	results.clear();
 	tree.findWithinRange({-1, 0, 0}, 1.001_r, results);
 	EXPECT_EQ(results.size(), 1);
-	EXPECT_TRUE(results[0].equals({0, 0, 0}));
+	EXPECT_TRUE(results[0].isEqual({0, 0, 0}));
 
 	results.clear();
 	tree.findWithinRange({100, -200, 900}, 10000.0_r, results);
@@ -147,12 +147,12 @@ TEST(TIndexedPointKdtreeTest, FindNearestCubeVertices)
 	results.clear();
 	tree.findNearest({1, 1, 1}, 1, results);
 	EXPECT_EQ(results.size(), 1);
-	EXPECT_TRUE(results[0].equals({1, 1, 1}));
+	EXPECT_TRUE(results[0].isEqual({1, 1, 1}));
 
 	results.clear();
 	tree.findNearest({0.01_r, 0.02_r, 0.03_r}, 1, results);
 	EXPECT_EQ(results.size(), 1);
-	EXPECT_TRUE(results[0].equals({0, 0, 0}));
+	EXPECT_TRUE(results[0].isEqual({0, 0, 0}));
 
 	results.clear();
 	tree.findNearest({0, 0, 0}, 4, results);
@@ -212,18 +212,18 @@ TEST(TIndexedPointKdtreeTest, FindInAllOverlappingPoints)
 	results.clear();
 	tree.findNearest({-123, -456, 789}, 1, results);
 	EXPECT_EQ(results.size(), 1);
-	EXPECT_TRUE(results[0].equals({0, 1, 0}));
+	EXPECT_TRUE(results[0].isEqual({0, 1, 0}));
 
 	results.clear();
 	tree.findNearest({-246, 357, 147}, 2, results);
 	EXPECT_EQ(results.size(), 2);
-	EXPECT_TRUE(results[0].equals({0, 1, 0}));
-	EXPECT_TRUE(results[1].equals({0, 1, 0}));
+	EXPECT_TRUE(results[0].isEqual({0, 1, 0}));
+	EXPECT_TRUE(results[1].isEqual({0, 1, 0}));
 
 	results.clear();
 	tree.findNearest({1357, 321, 555}, 3, results);
 	EXPECT_EQ(results.size(), 3);
-	EXPECT_TRUE(results[0].equals({0, 1, 0}));
-	EXPECT_TRUE(results[1].equals({0, 1, 0}));
-	EXPECT_TRUE(results[2].equals({0, 1, 0}));
+	EXPECT_TRUE(results[0].isEqual({0, 1, 0}));
+	EXPECT_TRUE(results[1].isEqual({0, 1, 0}));
+	EXPECT_TRUE(results[2].isEqual({0, 1, 0}));
 }

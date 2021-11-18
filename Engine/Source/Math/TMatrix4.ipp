@@ -71,7 +71,7 @@ inline TMatrix4<T>& TMatrix4<T>::initTranslation(const T x, const T y, const T z
 template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::initTranslation(const TVector3<T>& value)
 {
-	return initTranslation(value.x, value.y, value.z);
+	return initTranslation(value.x(), value.y(), value.z());
 }
 
 template<typename T>
@@ -103,10 +103,10 @@ inline TMatrix4<T>& TMatrix4<T>::initRotation(const TQuaternion<T>& rot)
 template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::initRotation(const TVector3<T>& orthBasisX, const TVector3<T>& orthBasisY, const TVector3<T>& orthBasisZ)
 {
-	m[0][0] = orthBasisX.x; m[0][1] = orthBasisY.x; m[0][2] = orthBasisZ.x; m[0][3] = 0;
-	m[1][0] = orthBasisX.y; m[1][1] = orthBasisY.y; m[1][2] = orthBasisZ.y; m[1][3] = 0;
-	m[2][0] = orthBasisX.z; m[2][1] = orthBasisY.z; m[2][2] = orthBasisZ.z; m[2][3] = 0;
-	m[3][0] = 0;            m[3][1] = 0;            m[3][2] = 0;            m[3][3] = 1;
+	m[0][0] = orthBasisX.x(); m[0][1] = orthBasisY.x(); m[0][2] = orthBasisZ.x(); m[0][3] = 0;
+	m[1][0] = orthBasisX.y(); m[1][1] = orthBasisY.y(); m[1][2] = orthBasisZ.y(); m[1][3] = 0;
+	m[2][0] = orthBasisX.z(); m[2][1] = orthBasisY.z(); m[2][2] = orthBasisZ.z(); m[2][3] = 0;
+	m[3][0] = 0;              m[3][1] = 0;              m[3][2] = 0;              m[3][3] = 1;
 
 	return *this;
 }
@@ -125,7 +125,7 @@ inline TMatrix4<T>& TMatrix4<T>::initScale(const T x, const T y, const T z)
 template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::initScale(const TVector3<T>& scale)
 {
-	return initScale(scale.x, scale.y, scale.z);
+	return initScale(scale.x(), scale.y(), scale.z());
 }
 
 template<typename T>
@@ -186,9 +186,9 @@ inline void TMatrix4<T>::mul(const TVector3<T>& rhsXYZ, const T rhsW, TVector3<T
 {
 	PH_ASSERT(out_result != nullptr && out_result != &rhsXYZ);
 
-	out_result->x = m[0][0] * rhsXYZ.x + m[0][1] * rhsXYZ.y + m[0][2] * rhsXYZ.z + m[0][3] * rhsW;
-	out_result->y = m[1][0] * rhsXYZ.x + m[1][1] * rhsXYZ.y + m[1][2] * rhsXYZ.z + m[1][3] * rhsW;
-	out_result->z = m[2][0] * rhsXYZ.x + m[2][1] * rhsXYZ.y + m[2][2] * rhsXYZ.z + m[2][3] * rhsW;
+	out_result->x() = m[0][0] * rhsXYZ.x() + m[0][1] * rhsXYZ.y() + m[0][2] * rhsXYZ.z() + m[0][3] * rhsW;
+	out_result->y() = m[1][0] * rhsXYZ.x() + m[1][1] * rhsXYZ.y() + m[1][2] * rhsXYZ.z() + m[1][3] * rhsW;
+	out_result->z() = m[2][0] * rhsXYZ.x() + m[2][1] * rhsXYZ.y() + m[2][2] * rhsXYZ.z() + m[2][3] * rhsW;
 }
 
 template<typename T>

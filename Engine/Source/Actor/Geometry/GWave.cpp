@@ -31,15 +31,15 @@ void GWave::genPrimitive(
 
 	for(auto& pos : positions)
 	{
-		pos.y = 0.0_r;
-		pos.y += std::sin(pos.x * pos.x + pos.z * pos.z) * 0.1_r;
-		pos.y -= std::sin((pos.x / 2.0_r + pos.z * 0.1_r) * 7.0_r) * 0.4_r;
-		pos.y += std::cos((pos.z / 1.5_r + pos.x * 0.3_r) * 5.0_r) * 0.46_r;
-		pos.y -= std::cos((pos.z / 1.5_r + pos.x * 0.3_r) * 12.0_r) * 0.07_r;
-		pos.y += std::sin((pos.x + pos.z * 0.5_r) * 4.0_r) * 0.3_r;
-		pos.y -= std::sin((pos.x * 0.2_r + pos.z * 0.8_r) * 10.0_r) * 0.22_r;
-		pos.y += std::cos((pos.x * -0.5_r + pos.z * 0.5_r) * 7.0_r) * 0.32_r;
-		pos.y /= 3.5_r;
+		pos.y() = 0.0_r;
+		pos.y() += std::sin(pos.x() * pos.x() + pos.z() * pos.z()) * 0.1_r;
+		pos.y() -= std::sin((pos.x() / 2.0_r + pos.z() * 0.1_r) * 7.0_r) * 0.4_r;
+		pos.y() += std::cos((pos.z() / 1.5_r + pos.x() * 0.3_r) * 5.0_r) * 0.46_r;
+		pos.y() -= std::cos((pos.z() / 1.5_r + pos.x() * 0.3_r) * 12.0_r) * 0.07_r;
+		pos.y() += std::sin((pos.x() + pos.z() * 0.5_r) * 4.0_r) * 0.3_r;
+		pos.y() -= std::sin((pos.x() * 0.2_r + pos.z() * 0.8_r) * 10.0_r) * 0.22_r;
+		pos.y() += std::cos((pos.x() * -0.5_r + pos.z() * 0.5_r) * 7.0_r) * 0.32_r;
+		pos.y() /= 3.5_r;
 	}
 
 	const int32 numXvertices = numXdivs + 1;
@@ -58,17 +58,17 @@ void GWave::genPrimitive(
 			const math::Vector3R center(positions[iz * numXvertices + ix]);
 
 			if(ix + 1 < numXvertices)
-				edges[0] = math::Vector3R(dx, positions[iz * numXvertices + (ix + 1)].y - center.y, 0);
+				edges[0] = math::Vector3R(dx, positions[iz * numXvertices + (ix + 1)].y() - center.y(), 0);
 			if(ix + 1 < numXvertices && iz + 1 < numZvertices)
-				edges[1] = math::Vector3R(dx, positions[(iz + 1) * numXvertices + (ix + 1)].y - center.y, -dz);
+				edges[1] = math::Vector3R(dx, positions[(iz + 1) * numXvertices + (ix + 1)].y() - center.y(), -dz);
 			if(iz + 1 < numZvertices)
-				edges[2] = math::Vector3R(0, positions[(iz + 1) * numXvertices + ix].y - center.y, -dz);
+				edges[2] = math::Vector3R(0, positions[(iz + 1) * numXvertices + ix].y() - center.y(), -dz);
 			if(ix - 1 >= 0)
-				edges[3] = math::Vector3R(-dx, positions[iz * numXvertices + (ix - 1)].y - center.y, 0);
+				edges[3] = math::Vector3R(-dx, positions[iz * numXvertices + (ix - 1)].y() - center.y(), 0);
 			if(ix - 1 >= 0 && iz - 1 >= 0)
-				edges[4] = math::Vector3R(-dx, positions[(iz - 1) * numXvertices + (ix - 1)].y - center.y, dz);
+				edges[4] = math::Vector3R(-dx, positions[(iz - 1) * numXvertices + (ix - 1)].y() - center.y(), dz);
 			if(iz - 1 >= 0)
-				edges[5] = math::Vector3R(0, positions[(iz - 1) * numXvertices + ix].y - center.y, dz);
+				edges[5] = math::Vector3R(0, positions[(iz - 1) * numXvertices + ix].y() - center.y(), dz);
 
 			for(int32 ei = 0; ei < 5; ei++)
 			{

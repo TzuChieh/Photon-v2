@@ -14,9 +14,9 @@ TEST(SurfaceOpticsTest, CalculatesHalfVector)
 	Vector3F H1;
 	EXPECT_TRUE(ph::BsdfHelper::makeHalfVector(L1, V1, &H1));
 	EXPECT_FLOAT_EQ(H1.length(), 1.0f);
-	EXPECT_FLOAT_EQ(H1.x, 0.0f);
-	EXPECT_FLOAT_EQ(H1.y, 1.0f);
-	EXPECT_FLOAT_EQ(H1.z, 0.0f);
+	EXPECT_FLOAT_EQ(H1.x(), 0.0f);
+	EXPECT_FLOAT_EQ(H1.y(), 1.0f);
+	EXPECT_FLOAT_EQ(H1.z(), 0.0f);
 
 	auto L2 = Vector3F(0.0f, -1.0f, 0.0f).normalize();
 	auto V2 = Vector3F(0.0f, -1.0f, 0.0f).normalize();
@@ -24,9 +24,9 @@ TEST(SurfaceOpticsTest, CalculatesHalfVector)
 	Vector3F H2;
 	EXPECT_TRUE(ph::BsdfHelper::makeHalfVector(L2, V2, &H2));
 	EXPECT_FLOAT_EQ(H2.length(), 1.0f);
-	EXPECT_FLOAT_EQ(H2.x,  0.0f);
-	EXPECT_FLOAT_EQ(H2.y, -1.0f);
-	EXPECT_FLOAT_EQ(H2.z,  0.0f);
+	EXPECT_FLOAT_EQ(H2.x(),  0.0f);
+	EXPECT_FLOAT_EQ(H2.y(), -1.0f);
+	EXPECT_FLOAT_EQ(H2.z(),  0.0f);
 
 	auto L3 = Vector3F( 1.0f, 0.0f, 0.0f).normalize();
 	auto V3 = Vector3F(-1.0f, 0.0f, 0.0f).normalize();

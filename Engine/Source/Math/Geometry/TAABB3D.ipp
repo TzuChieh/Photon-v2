@@ -30,9 +30,9 @@ template<typename T>
 inline TAABB3D<T>::TAABB3D(const TVector3<T>& minVertex, const TVector3<T>& maxVertex) :
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
 {
-	PH_ASSERT_MSG(maxVertex.x >= minVertex.x &&
-	              maxVertex.y >= minVertex.y &&
-	              maxVertex.z >= minVertex.z, 
+	PH_ASSERT_MSG(maxVertex.x() >= minVertex.x() &&
+	              maxVertex.y() >= minVertex.y() &&
+	              maxVertex.z() >= minVertex.z(),
 		"minVertex = " + minVertex.toString() +
 		"maxVertex = " + maxVertex.toString());
 }
@@ -72,9 +72,9 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 
 	// find ray-slab hitting interval in x-axis then intersect with (tMin, tMax)
 
-	T rcpDir = T(1) / segment.getDirection().x;
-	T t1     = (m_minVertex.x - segment.getOrigin().x) * rcpDir;
-	T t2     = (m_maxVertex.x - segment.getOrigin().x) * rcpDir;
+	T rcpDir = T(1) / segment.getDirection().x();
+	T t1     = (m_minVertex.x() - segment.getOrigin().x()) * rcpDir;
+	T t2     = (m_maxVertex.x() - segment.getOrigin().x()) * rcpDir;
 
 	if(t1 < t2)
 	{
@@ -94,9 +94,9 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 
 	// find ray-slab hitting interval in y-axis then intersect with (tMin, tMax)
 
-	rcpDir = T(1) / segment.getDirection().y;
-	t1     = (m_minVertex.y - segment.getOrigin().y) * rcpDir;
-	t2     = (m_maxVertex.y - segment.getOrigin().y) * rcpDir;
+	rcpDir = T(1) / segment.getDirection().y();
+	t1     = (m_minVertex.y() - segment.getOrigin().y()) * rcpDir;
+	t2     = (m_maxVertex.y() - segment.getOrigin().y()) * rcpDir;
 
 	if(t1 < t2)
 	{
@@ -116,9 +116,9 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 
 	// find ray-slab hitting interval in z-axis then intersect with (tMin, tMax)
 
-	rcpDir = T(1) / segment.getDirection().z;
-	t1     = (m_minVertex.z - segment.getOrigin().z) * rcpDir;
-	t2     = (m_maxVertex.z - segment.getOrigin().z) * rcpDir;
+	rcpDir = T(1) / segment.getDirection().z();
+	t1     = (m_minVertex.z() - segment.getOrigin().z()) * rcpDir;
+	t2     = (m_maxVertex.z() - segment.getOrigin().z()) * rcpDir;
 
 	if(t1 < t2)
 	{
@@ -144,16 +144,16 @@ inline bool TAABB3D<T>::isIntersectingVolume(
 template<typename T>
 inline bool TAABB3D<T>::isIntersectingVolume(const TAABB3D& other) const
 {
-	return m_minVertex.x <= other.m_maxVertex.x && m_maxVertex.x >= other.m_minVertex.x &&
-	       m_minVertex.y <= other.m_maxVertex.y && m_maxVertex.y >= other.m_minVertex.y &&
-	       m_minVertex.z <= other.m_maxVertex.z && m_maxVertex.z >= other.m_minVertex.z;
+	return m_minVertex.x() <= other.m_maxVertex.x() && m_maxVertex.x() >= other.m_minVertex.x() &&
+	       m_minVertex.y() <= other.m_maxVertex.y() && m_maxVertex.y() >= other.m_minVertex.y() &&
+	       m_minVertex.z() <= other.m_maxVertex.z() && m_maxVertex.z() >= other.m_minVertex.z();
 }
 
 template<typename T>
 inline TAABB3D<T>& TAABB3D<T>::unionWith(const TAABB3D& other)
 {
-	m_minVertex.minLocal(other.getMinVertex());
-	m_maxVertex.maxLocal(other.getMaxVertex());
+	m_minVertex = m_minVertex.min(other.getMinVertex());
+	m_maxVertex = m_maxVertex.max(other.getMaxVertex());
 
 	return *this;
 }
@@ -161,8 +161,8 @@ inline TAABB3D<T>& TAABB3D<T>::unionWith(const TAABB3D& other)
 template<typename T>
 inline TAABB3D<T>& TAABB3D<T>::unionWith(const TVector3<T>& point)
 {
-	m_minVertex.minLocal(point);
-	m_maxVertex.maxLocal(point);
+	m_minVertex = m_minVertex.min(point);
+	m_maxVertex = m_maxVertex.max(point);
 
 	return *this;
 }
@@ -176,14 +176,14 @@ inline std::pair<TVector3<T>, TVector3<T>> TAABB3D<T>::getVertices() const
 template<typename T>
 inline std::array<TVector3<T>, 8> TAABB3D<T>::getBoundVertices() const
 {
-	return {TVector3<T>(m_minVertex.x, m_minVertex.y, m_minVertex.z),
-	        TVector3<T>(m_maxVertex.x, m_minVertex.y, m_minVertex.z),
-	        TVector3<T>(m_minVertex.x, m_maxVertex.y, m_minVertex.z),
-	        TVector3<T>(m_minVertex.x, m_minVertex.y, m_maxVertex.z),
-	        TVector3<T>(m_maxVertex.x, m_maxVertex.y, m_minVertex.z),
-	        TVector3<T>(m_minVertex.x, m_maxVertex.y, m_maxVertex.z),
-	        TVector3<T>(m_maxVertex.x, m_minVertex.y, m_maxVertex.z),
-	        TVector3<T>(m_maxVertex.x, m_maxVertex.y, m_maxVertex.z)};
+	return {TVector3<T>(m_minVertex.x(), m_minVertex.y(), m_minVertex.z()),
+	        TVector3<T>(m_maxVertex.x(), m_minVertex.y(), m_minVertex.z()),
+	        TVector3<T>(m_minVertex.x(), m_maxVertex.y(), m_minVertex.z()),
+	        TVector3<T>(m_minVertex.x(), m_minVertex.y(), m_maxVertex.z()),
+	        TVector3<T>(m_maxVertex.x(), m_maxVertex.y(), m_minVertex.z()),
+	        TVector3<T>(m_minVertex.x(), m_maxVertex.y(), m_maxVertex.z()),
+	        TVector3<T>(m_maxVertex.x(), m_minVertex.y(), m_maxVertex.z()),
+	        TVector3<T>(m_maxVertex.x(), m_maxVertex.y(), m_maxVertex.z())};
 }
 
 template<typename T>
@@ -221,14 +221,14 @@ template<typename T>
 inline T TAABB3D<T>::getSurfaceArea() const
 {
 	const TVector3<T>& extents = getExtents();
-	return T(2) * (extents.x * extents.y + extents.y * extents.z + extents.z * extents.x);
+	return T(2) * (extents.x() * extents.y() + extents.y() * extents.z() + extents.z() * extents.x());
 }
 
 template<typename T>
 inline T TAABB3D<T>::getVolume() const
 {
 	const TVector3<T>& extents = getExtents();
-	return extents.x * extents.y * extents.z;
+	return extents.x() * extents.y() * extents.z();
 }
 
 template<typename T>
@@ -268,7 +268,7 @@ inline TAABB3D<T>& TAABB3D<T>::expand(const TVector3<T>& amount)
 template<typename T>
 inline bool TAABB3D<T>::isPoint() const
 {
-	return m_minVertex.equals(m_maxVertex);
+	return m_minVertex.isEqual(m_maxVertex);
 }
 
 template<typename T>
@@ -281,9 +281,9 @@ inline bool TAABB3D<T>::isFiniteVolume() const
 template<typename T>
 inline bool TAABB3D<T>::isValid() const
 {
-	return m_minVertex.x <= m_maxVertex.x && 
-	       m_minVertex.y <= m_maxVertex.y &&
-	       m_minVertex.z <= m_maxVertex.z;
+	return m_minVertex.x() <= m_maxVertex.x() &&
+	       m_minVertex.y() <= m_maxVertex.y() &&
+	       m_minVertex.z() <= m_maxVertex.z();
 }
 
 template<typename T>
@@ -304,8 +304,8 @@ std::string TAABB3D<T>::toString() const
 template<typename T>
 inline bool TAABB3D<T>::isEqual(const TAABB3D& other) const
 {
-	return this->m_minVertex.equals(other.m_minVertex) && 
-	       this->m_maxVertex.equals(other.m_maxVertex);
+	return this->m_minVertex.isEqual(other.m_minVertex) && 
+	       this->m_maxVertex.isEqual(other.m_maxVertex);
 }
 
 }// end namespace ph::math

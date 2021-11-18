@@ -28,12 +28,12 @@ public:
 
 	inline TDecomposedTransform& translate(const TVector3<T>& amount)
 	{
-		return translate(amount.x, amount.y, amount.z);
+		return translate(amount.x(), amount.y(), amount.z());
 	}
 
 	inline TDecomposedTransform& translate(const T x, const T y, const T z)
 	{
-		m_position.addLocal(x, y, z);
+		m_position.addLocal({x, y, z});
 
 		return *this;
 	}
@@ -59,12 +59,12 @@ public:
 
 	inline TDecomposedTransform& scale(const TVector3<T>& amount)
 	{
-		return scale(amount.x, amount.y, amount.z);
+		return scale(amount.x(), amount.y(), amount.z());
 	}
 
 	inline TDecomposedTransform& scale(const T x, const T y, const T z)
 	{
-		m_scale.mulLocal(x, y, z);
+		m_scale.mulLocal({x, y, z});
 
 		return *this;
 	}
@@ -165,24 +165,24 @@ inline TDecomposedTransform<T> TDecomposedTransform<T>::invert() const
 	TDecomposedTransform result;
 	result.m_position = m_position.mul(-1);
 	result.m_rotation = m_rotation.conjugate();
-	result.m_scale    = m_scale.reciprocal();
+	result.m_scale    = m_scale.rcp();
 	return result;
 }
 
 template<typename T>
 inline bool TDecomposedTransform<T>::hasScaleEffect(const T margin) const
 {
-	return std::abs(m_scale.x - 1) > margin ||
-	       std::abs(m_scale.y - 1) > margin ||
-	       std::abs(m_scale.z - 1) > margin;
+	return std::abs(m_scale.x() - 1) > margin ||
+	       std::abs(m_scale.y() - 1) > margin ||
+	       std::abs(m_scale.z() - 1) > margin;
 }
 
 template<typename T>
 inline bool TDecomposedTransform<T>::isScaleUniform(const T margin) const
 {
-	const T dSxSy = std::abs(m_scale.x - m_scale.y);
-	const T dSySz = std::abs(m_scale.y - m_scale.z);
-	const T dSzSx = std::abs(m_scale.z - m_scale.x);
+	const T dSxSy = std::abs(m_scale.x() - m_scale.y());
+	const T dSySz = std::abs(m_scale.y() - m_scale.z());
+	const T dSzSx = std::abs(m_scale.z() - m_scale.x());
 
 	return dSxSy < margin && dSySz < margin && dSzSx < margin;
 }

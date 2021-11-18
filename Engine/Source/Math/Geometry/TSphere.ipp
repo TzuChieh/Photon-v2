@@ -188,10 +188,10 @@ inline TVector2<T> TSphere<T>::surfaceToPhiTheta(const TVector3<T>& surface) con
 
 	const math::TVector3<T>& unitDir = surface.div(m_radius);
 
-	const T cosTheta = math::clamp(unitDir.y, static_cast<T>(-1), static_cast<T>(1));
+	const T cosTheta = math::clamp(unitDir.y(), static_cast<T>(-1), static_cast<T>(1));
 
 	const T theta  = std::acos(cosTheta);                                      // [  0,   pi]
-	const T phiRaw = std::atan2(unitDir.x, unitDir.z);                         // [-pi,   pi]
+	const T phiRaw = std::atan2(unitDir.x(), unitDir.z());                     // [-pi,   pi]
 	const T phi    = phiRaw >= static_cast<T>(0) ? phiRaw : two_pi<T> + phiRaw;// [  0, 2*pi]
 
 	return {phi, theta};
@@ -258,18 +258,18 @@ inline std::pair<TVector3<T>, TVector3<T>> TSphere<T>::surfaceDerivativesWrtUv(
 	const auto xDiff = posX - negX;
 	const auto zDiff = posZ - negZ;
 	const std::array<std::array<T, 2>, 3> bs = {
-		xDiff.x, zDiff.x,
-		xDiff.y, zDiff.y,
-		xDiff.z, zDiff.z};
+		xDiff.x(), zDiff.x(),
+		xDiff.y(), zDiff.y(),
+		xDiff.z(), zDiff.z() };
 
 	// Calculate positional partial derivatives
 	math::TVector3<T> dPdU, dPdV;
 	std::array<std::array<T, 2>, 3> xs;
 	if(uvwDiff.solve(bs, &xs))
 	{
-		dPdU.x = xs[0][0]; dPdV.x = xs[0][1];
-		dPdU.y = xs[1][0]; dPdV.y = xs[1][1];
-		dPdU.z = xs[2][0]; dPdV.z = xs[2][1];
+		dPdU.x() = xs[0][0]; dPdV.x() = xs[0][1];
+		dPdU.y() = xs[1][0]; dPdV.y() = xs[1][1];
+		dPdU.z() = xs[2][0]; dPdV.z() = xs[2][1];
 	}
 	else
 	{

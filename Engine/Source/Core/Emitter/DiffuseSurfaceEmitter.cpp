@@ -114,7 +114,7 @@ void DiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* const out_ray, 
 	out_ray->setOrigin(positionSample.position);
 	out_ray->setMinT(0.0001_r);// HACK: hard-code number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
-	out_eN->set(positionSample.normal);
+	*out_eN = positionSample.normal;
 	*out_pdfA = positionSample.pdf;
 	*out_pdfW = pdfW;
 	*out_Le = TSampler<math::Spectrum>(math::EColorUsage::EMR).sample(*m_emittedRadiance, positionSample.uvw);

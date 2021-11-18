@@ -105,9 +105,9 @@ void save_vector3(const math::Vector3R& value, std::string* const out_str)
 
 	try
 	{
-		if(value.x == value.y && value.y == value.z)
+		if(value.x() == value.y() && value.y() == value.z())
 		{
-			save_real(value.x, out_str);
+			save_real(value.x(), out_str);
 		}
 		else
 		{
@@ -116,13 +116,13 @@ void save_vector3(const math::Vector3R& value, std::string* const out_str)
 			std::string savedReal;
 
 			(*out_str) += '\"';
-			save_real(value.x, &savedReal);
+			save_real(value.x(), &savedReal);
 			(*out_str) += savedReal;
 			(*out_str) += ' ';
-			save_real(value.y, &savedReal);
+			save_real(value.y(), &savedReal);
 			(*out_str) += savedReal;
 			(*out_str) += ' ';
-			save_real(value.z, &savedReal);
+			save_real(value.z(), &savedReal);
 			(*out_str) += savedReal;
 			(*out_str) += '\"';
 		}

@@ -50,8 +50,8 @@ inline void TCheckerboardTexture<OutputType>::sample(
 	PH_ASSERT(m_evenTexture && m_evenTexture.get() != this);
 
 	const math::Vector3R uvw = sampleLocation.uvw();
-	const int32 uNumber = static_cast<int32>(std::floor(uvw.x / m_uTileSize));
-	const int32 vNumber = static_cast<int32>(std::floor(uvw.y / m_vTileSize));
+	const int32 uNumber = static_cast<int32>(std::floor(uvw.x() / m_uTileSize));
+	const int32 vNumber = static_cast<int32>(std::floor(uvw.y() / m_vTileSize));
 
 	if(std::abs(uNumber % 2) != std::abs(vNumber % 2))
 	{
@@ -101,13 +101,13 @@ inline void TCheckerboardTexture<OutputType>::setEvenTexture(
 template<typename OutputType>
 inline void TCheckerboardTexture<OutputType>::setOddTextureScale(const math::Vector3R& scale)
 {
-	m_oddUvwScale = scale.reciprocal();
+	m_oddUvwScale = scale.rcp();
 }
 
 template<typename OutputType>
 inline void TCheckerboardTexture<OutputType>::setEvenTextureScale(const math::Vector3R& scale)
 {
-	m_evenUvwScale = scale.reciprocal();
+	m_evenUvwScale = scale.rcp();
 }
 
 }// end namespace ph

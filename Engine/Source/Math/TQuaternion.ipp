@@ -91,19 +91,19 @@ inline TQuaternion<T>::TQuaternion(const TMatrix4<T>& rotationMatrix) :
 template<typename T>
 inline TQuaternion<T> TQuaternion<T>::mul(const TVector3<T>& xyz) const
 {
-	return TQuaternion(w * xyz.x + y * xyz.z - z * xyz.y,
-	                   w * xyz.y - x * xyz.z + z * xyz.x,
-	                   w * xyz.z + x * xyz.y - y * xyz.x,
-	                  -x * xyz.x - y * xyz.y - z * xyz.z);
+	return TQuaternion(w * xyz.x() + y * xyz.z() - z * xyz.y(),
+	                   w * xyz.y() - x * xyz.z() + z * xyz.x(),
+	                   w * xyz.z() + x * xyz.y() - y * xyz.x(),
+	                  -x * xyz.x() - y * xyz.y() - z * xyz.z());
 }
 
 template<typename T>
 inline void TQuaternion<T>::mul(const TVector3<T>& xyz, TQuaternion* const out_result) const
 {
-	out_result->x =  w * xyz.x + y * xyz.z - z * xyz.y;
-	out_result->y =  w * xyz.y - x * xyz.z + z * xyz.x;
-	out_result->z =  w * xyz.z + x * xyz.y - y * xyz.x;
-	out_result->w = -x * xyz.x - y * xyz.y - z * xyz.z;
+	out_result->x =  w * xyz.x() + y * xyz.z() - z * xyz.y();
+	out_result->y =  w * xyz.y() - x * xyz.z() + z * xyz.x();
+	out_result->z =  w * xyz.z() + x * xyz.y() - y * xyz.x();
+	out_result->w = -x * xyz.x() - y * xyz.y() - z * xyz.z();
 }
 
 template<typename T>
@@ -112,9 +112,9 @@ inline void TQuaternion<T>::setRot(const TVector3<T>& normalizedAxis, const T ra
 	const T sinHalfAngle = std::sin(radians / 2);
 	const T cosHalfAngle = std::cos(radians / 2);
 
-	x = normalizedAxis.x * sinHalfAngle;
-	y = normalizedAxis.y * sinHalfAngle;
-	z = normalizedAxis.z * sinHalfAngle;
+	x = normalizedAxis.x() * sinHalfAngle;
+	y = normalizedAxis.y() * sinHalfAngle;
+	z = normalizedAxis.z() * sinHalfAngle;
 	w = cosHalfAngle;
 }
 

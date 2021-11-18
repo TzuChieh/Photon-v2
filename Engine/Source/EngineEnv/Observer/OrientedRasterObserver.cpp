@@ -31,9 +31,9 @@ math::QuaternionD OrientedRasterObserver::makeRotation() const
 	else
 	{
 		rotation = makeRotationFromYawPitchRoll(
-			m_yawPitchRollDegrees.x,
-			m_yawPitchRollDegrees.y,
-			m_yawPitchRollDegrees.z);
+			m_yawPitchRollDegrees.x(),
+			m_yawPitchRollDegrees.y(),
+			m_yawPitchRollDegrees.z());
 	}
 
 	return rotation;
@@ -63,7 +63,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 		PH_LOG_WARNING(OrientedRasterObserver, "Direction vector {} is too short. Defaults to -z axis.",
 			direction.toString());
 
-		zAxis.set(0, 0, 1);
+		zAxis.set({0, 0, 1});
 	}
 
 	auto xAxis = math::Vector3D(upAxis).cross(zAxis);

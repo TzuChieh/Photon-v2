@@ -47,9 +47,9 @@ inline math::Vector3R PreethamTexture::F(const real theta, const real cosGamma) 
 	const auto cos2Gamma = cosGamma * cosGamma;
 
 	return {
-		(1.0_r + m_A_xyY.x * std::exp(m_B_xyY.x * rcpCosTheta)) * (1.0_r + m_C_xyY.x * std::exp(m_D_xyY.x * gamma) + m_E_xyY.x * cos2Gamma),
-		(1.0_r + m_A_xyY.y * std::exp(m_B_xyY.y * rcpCosTheta)) * (1.0_r + m_C_xyY.y * std::exp(m_D_xyY.y * gamma) + m_E_xyY.y * cos2Gamma),
-		(1.0_r + m_A_xyY.z * std::exp(m_B_xyY.z * rcpCosTheta)) * (1.0_r + m_C_xyY.z * std::exp(m_D_xyY.z * gamma) + m_E_xyY.z * cos2Gamma)};
+		(1.0_r + m_A_xyY.x() * std::exp(m_B_xyY.x() * rcpCosTheta)) * (1.0_r + m_C_xyY.x() * std::exp(m_D_xyY.x() * gamma) + m_E_xyY.x() * cos2Gamma),
+		(1.0_r + m_A_xyY.y() * std::exp(m_B_xyY.y() * rcpCosTheta)) * (1.0_r + m_C_xyY.y() * std::exp(m_D_xyY.y() * gamma) + m_E_xyY.y() * cos2Gamma),
+		(1.0_r + m_A_xyY.z() * std::exp(m_B_xyY.z() * rcpCosTheta)) * (1.0_r + m_C_xyY.z() * std::exp(m_D_xyY.z() * gamma) + m_E_xyY.z() * cos2Gamma)};
 }
 
 }// end namespace ph

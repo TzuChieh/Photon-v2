@@ -29,7 +29,7 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectr
 	m_dirToUv.directionToUvw(emitDirection, &uv);
 
 	// HACK
-	uv.y = 1.0_r - uv.y;
+	uv.y() = 1.0_r - uv.y();
 
 	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
 	out_radiance->mulLocal(filterValue);
@@ -49,7 +49,7 @@ void OmniModulatedEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSa
 	m_dirToUv.directionToUvw(emitDirection, &uv);
 
 	// HACK
-	uv.y = 1.0_r - uv.y;
+	uv.y() = 1.0_r - uv.y();
 
 	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
 	sample.radianceLe.mulLocal(filterValue);
@@ -63,7 +63,7 @@ void OmniModulatedEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::S
 	m_dirToUv.directionToUvw(out_ray->getDirection(), &uv);
 
 	// HACK
-	uv.y = 1.0_r - uv.y;
+	uv.y() = 1.0_r - uv.y();
 
 	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
 	out_Le->mulLocal(filterValue);

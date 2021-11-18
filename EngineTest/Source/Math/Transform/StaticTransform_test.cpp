@@ -19,9 +19,9 @@ TEST(StaticAffineTransformTest, TransformsVector3rAsPoint)
 	const Vector3R p1(-0.3_r, 0.0_r, 0.3_r);
 	Vector3R answer1;
 	t1.transformP(p1, &answer1);
-	EXPECT_NEAR(p1.x, answer1.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR(p1.y, answer1.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(p1.z, answer1.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.x(), answer1.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.y(), answer1.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.z(), answer1.z(), TEST_REAL_EPSILON);
 
 	// trial 2
 
@@ -31,9 +31,9 @@ TEST(StaticAffineTransformTest, TransformsVector3rAsPoint)
 	const Vector3R p2(0.0_r, 0.0_r, 0.0_r);
 	Vector3R answer2;
 	t2.transformP(p2, &answer2);
-	EXPECT_NEAR(-1.3_r, answer2.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR( 1.0_r, answer2.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR( 0.0_r, answer2.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(-1.3_r, answer2.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR( 1.0_r, answer2.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR( 0.0_r, answer2.z(), TEST_REAL_EPSILON);
 }
 
 TEST(StaticAffineTransformTest, TransformsVector3rAsVector)
@@ -44,9 +44,9 @@ TEST(StaticAffineTransformTest, TransformsVector3rAsVector)
 	const Vector3R v1(-0.3_r, 0.0_r, 0.3_r);
 	Vector3R answer1;
 	t1.transformO(v1, &answer1);
-	EXPECT_NEAR(v1.x, answer1.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR(v1.y, answer1.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(v1.z, answer1.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(v1.x(), answer1.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(v1.y(), answer1.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(v1.z(), answer1.z(), TEST_REAL_EPSILON);
 
 	// trial 2
 
@@ -56,9 +56,9 @@ TEST(StaticAffineTransformTest, TransformsVector3rAsVector)
 	const Vector3R v2(1.0_r, 2.0_r, -3.0_r);
 	Vector3R answer2;
 	t2.transformO(v2, &answer2);
-	EXPECT_NEAR(v2.x, answer2.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR(v2.y, answer2.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(v2.z, answer2.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(v2.x(), answer2.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(v2.y(), answer2.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(v2.z(), answer2.z(), TEST_REAL_EPSILON);
 
 	// trial 3
 
@@ -68,9 +68,9 @@ TEST(StaticAffineTransformTest, TransformsVector3rAsVector)
 	const Vector3R v3(3.0_r, -2.0_r, 1.0_r);
 	Vector3R answer3;
 	t3.transformO(v3, &answer3);
-	EXPECT_NEAR(-v3.x, answer3.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR( v3.y, answer3.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(-v3.z, answer3.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(-v3.x(), answer3.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR( v3.y(), answer3.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(-v3.z(), answer3.z(), TEST_REAL_EPSILON);
 
 	// trial 4
 
@@ -82,10 +82,10 @@ TEST(StaticAffineTransformTest, TransformsVector3rAsVector)
 
 	Vector3R answer4;
 	t4.transformO(v4, &answer4);
-	answer4.divLocal(answer4.x);// normalizing x component to 1
-	EXPECT_NEAR(answer4.x, 1.0_r, TEST_REAL_EPSILON);
-	EXPECT_NEAR(answer4.y, 2.0_r, TEST_REAL_EPSILON);
-	EXPECT_NEAR(answer4.z, 0.0_r, TEST_REAL_EPSILON);
+	answer4.divLocal(answer4.x());// normalizing x component to 1
+	EXPECT_NEAR(answer4.x(), 1.0_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(answer4.y(), 2.0_r, TEST_REAL_EPSILON);
+	EXPECT_NEAR(answer4.z(), 0.0_r, TEST_REAL_EPSILON);
 }
 
 TEST(StaticAffineTransformTest, GeneratesInversed)
@@ -106,14 +106,14 @@ TEST(StaticAffineTransformTest, GeneratesInversed)
 	Vector3R p1t, p1tt;
 	t1.transformP(p1, &p1t);
 	t1Inversed->transformP(p1t, &p1tt);
-	EXPECT_NEAR(p1.x, p1tt.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR(p1.y, p1tt.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(p1.z, p1tt.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.x(), p1tt.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.y(), p1tt.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(p1.z(), p1tt.z(), TEST_REAL_EPSILON);
 
 	Vector3R v1t, v1tt;
 	t1.transformV(v1, &v1t);
 	t1Inversed->transformV(v1t, &v1tt);
-	EXPECT_NEAR(v1.x, v1tt.x, TEST_REAL_EPSILON);
-	EXPECT_NEAR(v1.y, v1tt.y, TEST_REAL_EPSILON);
-	EXPECT_NEAR(v1.z, v1tt.z, TEST_REAL_EPSILON);
+	EXPECT_NEAR(v1.x(), v1tt.x(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(v1.y(), v1tt.y(), TEST_REAL_EPSILON);
+	EXPECT_NEAR(v1.z(), v1tt.z(), TEST_REAL_EPSILON);
 }

@@ -93,7 +93,7 @@ inline ConstantImage::ConstantImage(const T color, const math::EColorSpace color
 
 template<typename T>
 inline ConstantImage::ConstantImage(const math::TVector3<T>& values, const math::EColorSpace colorSpace) :
-	ConstantImage(std::vector<T>{values.x, values.y, values.z}, colorSpace)
+	ConstantImage(std::vector<T>{values.x(), values.y(), values.z()}, colorSpace)
 {}
 
 template<typename T>

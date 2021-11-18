@@ -78,12 +78,12 @@ PreethamTexture::PreethamTexture(
 	// <Yz> is in luminance in K*cd/m^2
 	m_Yabs_xyY = {xz, yz, Yz};
 
-	if(m_Yabs_xyY.z <= 0)
+	if(m_Yabs_xyY.z() <= 0)
 	{
 		PH_LOG_WARNING(PreethamTexture,
 			"turbidity = {} causes absolute zenith luminance to be negative/zero "
 			"(currently = {} K*cd/m^2); consider using values in [2, 10]", 
-			turbidity, m_Yabs_xyY.z);
+			turbidity, m_Yabs_xyY.z());
 	}
 }
 
@@ -117,10 +117,10 @@ void PreethamTexture::sample(const SampleLocation& sampleLocation, math::Spectru
 	const auto Y_xyY = m_Yabs_xyY.mul(F_view.div(F_zenith));
 
 	// Convert from K*cd/m^2 to radiance
-	math::Vector3R radiance_xyY = {Y_xyY.x, Y_xyY.y, Y_xyY.z * 1000.0_r * 0.0079_r};
+	math::Vector3R radiance_xyY = {Y_xyY.x(), Y_xyY.y(), Y_xyY.z() * 1000.0_r * 0.0079_r};
 
 	// Apply non-physical scale factor
-	radiance_xyY.z *= m_energyScale;
+	radiance_xyY.z() *= m_energyScale;
 
 	out_value->setTransformed<math::EColorSpace::CIE_xyY>(radiance_xyY.toArray(), math::EColorUsage::EMR);
 

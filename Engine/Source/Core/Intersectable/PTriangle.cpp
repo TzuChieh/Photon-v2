@@ -53,15 +53,15 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	math::Vector3R hitBaryABC;
 	probe.getCached(&hitBaryABC);
 
-	PH_ASSERT_MSG(hitBaryABC.isNotZero() && hitBaryABC.isFinite(), 
+	PH_ASSERT_MSG(!hitBaryABC.isZero() && hitBaryABC.isFinite(), 
 		hitBaryABC.toString());
 
 	const math::Vector3R hitPosition = m_triangle.barycentricToSurface(hitBaryABC);
 
 	const auto hitShadingNormal = math::Vector3R::weightedSum(
-		m_nA, hitBaryABC.x,
-		m_nB, hitBaryABC.y,
-		m_nC, hitBaryABC.z).normalizeLocal();
+		m_nA, hitBaryABC.x(),
+		m_nB, hitBaryABC.y(),
+		m_nC, hitBaryABC.z()).normalizeLocal();
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitShadingNormal.isFinite(), "\n"
 		"hit-position       = " + hitPosition.toString() + "\n"
@@ -71,9 +71,9 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	// (if it's default channel, use vertex uvw; otherwise, use mapper)
 
 	const auto hitUVW = math::Vector3R::weightedSum(
-		m_uvwA, hitBaryABC.x,
-		m_uvwB, hitBaryABC.y,
-		m_uvwC, hitBaryABC.z);
+		m_uvwA, hitBaryABC.x(),
+		m_uvwB, hitBaryABC.y(),
+		m_uvwC, hitBaryABC.z());
 
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
 		hitPosition, 
@@ -82,8 +82,8 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 
 	math::Vector3R dPdU(0.0_r), dPdV(0.0_r);
 	math::Vector3R dNdU(0.0_r), dNdV(0.0_r);
-	const math::Vector2R dUVab(m_uvwB.x - m_uvwA.x, m_uvwB.y - m_uvwA.y);
-	const math::Vector2R dUVac(m_uvwC.x - m_uvwA.x, m_uvwC.y - m_uvwA.y);
+	const math::Vector2R dUVab(m_uvwB.x() - m_uvwA.x(), m_uvwB.y() - m_uvwA.y());
+	const math::Vector2R dUVac(m_uvwC.x() - m_uvwA.x(), m_uvwC.y() - m_uvwA.y());
 	const real uvDet = dUVab.x() * dUVac.y() - dUVab.y() * dUVac.x();
 	if(uvDet != 0.0_r)
 	{
@@ -136,28 +136,28 @@ bool PTriangle::isIntersectingVolumeConservative(const math::AABB3D& volume) con
 	math::Vector3R sortedProjection;// (min, mid, max)
 
 	// test AABB face normals (x-, y- and z-axes)
-	projection.set(tvA.x, tvB.x, tvC.x);
+	projection.set({tvA.x(), tvB.x(), tvC.x()});
 	projection.sort(&sortedProjection);
-	if(sortedProjection.z < -aabbHalfExtents.x || sortedProjection.x > aabbHalfExtents.x)
+	if(sortedProjection.z() < -aabbHalfExtents.x() || sortedProjection.x() > aabbHalfExtents.x())
 		return false;
 
-	projection.set(tvA.y, tvB.y, tvC.y);
+	projection.set({tvA.y(), tvB.y(), tvC.y()});
 	projection.sort(&sortedProjection);
-	if(sortedProjection.z < -aabbHalfExtents.y || sortedProjection.x > aabbHalfExtents.y)
+	if(sortedProjection.z() < -aabbHalfExtents.y() || sortedProjection.x() > aabbHalfExtents.y())
 		return false;
 
-	projection.set(tvA.z, tvB.z, tvC.z);
+	projection.set({tvA.z(), tvB.z(), tvC.z()});
 	projection.sort(&sortedProjection);
-	if(sortedProjection.z < -aabbHalfExtents.z || sortedProjection.x > aabbHalfExtents.z)
+	if(sortedProjection.z() < -aabbHalfExtents.z() || sortedProjection.x() > aabbHalfExtents.z())
 		return false;
 
 	// test triangle's face normal
 	real trigOffset = math::Vector3R(tvA).dot(m_faceNormal);
-	sortedProjection.z = std::abs(aabbHalfExtents.x * m_faceNormal.x)
-	                   + std::abs(aabbHalfExtents.y * m_faceNormal.y)
-	                   + std::abs(aabbHalfExtents.z * m_faceNormal.z);
-	sortedProjection.x = -sortedProjection.z;
-	if(sortedProjection.z < trigOffset || sortedProjection.x > trigOffset)
+	sortedProjection.z() = std::abs(aabbHalfExtents.x() * m_faceNormal.x())
+	                     + std::abs(aabbHalfExtents.y() * m_faceNormal.y())
+	                     + std::abs(aabbHalfExtents.z() * m_faceNormal.z());
+	sortedProjection.x() = -sortedProjection.z();
+	if(sortedProjection.z() < trigOffset || sortedProjection.x() > trigOffset)
 		return false;
 
 	// test 9 edge cross-products (saves in projection)
@@ -168,74 +168,74 @@ bool PTriangle::isIntersectingVolumeConservative(const math::AABB3D& volume) con
 	// TODO: precompute triangle edges
 
 	// (1, 0, 0) cross (edge AB)
-	projection.set(0.0_r, tvA.z - tvB.z, tvB.y - tvA.y);
-	aabbR = aabbHalfExtents.y * std::abs(projection.y) + aabbHalfExtents.z * std::abs(projection.z);
-	trigE = projection.y*tvA.y + projection.z*tvA.z;
-	trigV = projection.y*tvC.y + projection.z*tvC.z;
+	projection.set({0.0_r, tvA.z() - tvB.z(), tvB.y() - tvA.y()});
+	aabbR = aabbHalfExtents.y() * std::abs(projection.y()) + aabbHalfExtents.z() * std::abs(projection.z());
+	trigE = projection.y()*tvA.y() + projection.z()*tvA.z();
+	trigV = projection.y()*tvC.y() + projection.z()*tvC.z();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 1, 0) cross (edge AB)
-	projection.set(tvB.z - tvA.z, 0.0_r, tvA.x - tvB.x);
-	aabbR = aabbHalfExtents.x * std::abs(projection.x) + aabbHalfExtents.z * std::abs(projection.z);
-	trigE = projection.x*tvA.x + projection.z*tvA.z;
-	trigV = projection.x*tvC.x + projection.z*tvC.z;
+	projection.set({tvB.z() - tvA.z(), 0.0_r, tvA.x() - tvB.x()});
+	aabbR = aabbHalfExtents.x() * std::abs(projection.x()) + aabbHalfExtents.z() * std::abs(projection.z());
+	trigE = projection.x()*tvA.x() + projection.z()*tvA.z();
+	trigV = projection.x()*tvC.x() + projection.z()*tvC.z();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 0, 1) cross (edge AB)
-	projection.set(tvA.y - tvB.y, tvB.x - tvA.x, 0.0_r);
-	aabbR = aabbHalfExtents.x * std::abs(projection.x) + aabbHalfExtents.y * std::abs(projection.y);
-	trigE = projection.x*tvA.x + projection.y*tvA.y;
-	trigV = projection.x*tvC.x + projection.y*tvC.y;
+	projection.set({tvA.y() - tvB.y(), tvB.x() - tvA.x(), 0.0_r});
+	aabbR = aabbHalfExtents.x() * std::abs(projection.x()) + aabbHalfExtents.y() * std::abs(projection.y());
+	trigE = projection.x()*tvA.x() + projection.y()*tvA.y();
+	trigV = projection.x()*tvC.x() + projection.y()*tvC.y();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (1, 0, 0) cross (edge BC)
-	projection.set(0.0_r, tvB.z - tvC.z, tvC.y - tvB.y);
-	aabbR = aabbHalfExtents.y * std::abs(projection.y) + aabbHalfExtents.z * std::abs(projection.z);
-	trigE = projection.y*tvB.y + projection.z*tvB.z;
-	trigV = projection.y*tvA.y + projection.z*tvA.z;
+	projection.set({0.0_r, tvB.z() - tvC.z(), tvC.y() - tvB.y()});
+	aabbR = aabbHalfExtents.y() * std::abs(projection.y()) + aabbHalfExtents.z() * std::abs(projection.z());
+	trigE = projection.y()*tvB.y() + projection.z()*tvB.z();
+	trigV = projection.y()*tvA.y() + projection.z()*tvA.z();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 1, 0) cross (edge BC)
-	projection.set(tvC.z - tvB.z, 0.0_r, tvB.x - tvC.x);
-	aabbR = aabbHalfExtents.x * std::abs(projection.x) + aabbHalfExtents.z * std::abs(projection.z);
-	trigE = projection.x*tvB.x + projection.z*tvB.z;
-	trigV = projection.x*tvA.x + projection.z*tvA.z;
+	projection.set({tvC.z() - tvB.z(), 0.0_r, tvB.x() - tvC.x()});
+	aabbR = aabbHalfExtents.x() * std::abs(projection.x()) + aabbHalfExtents.z() * std::abs(projection.z());
+	trigE = projection.x()*tvB.x() + projection.z()*tvB.z();
+	trigV = projection.x()*tvA.x() + projection.z()*tvA.z();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 0, 1) cross (edge BC)
-	projection.set(tvB.y - tvC.y, tvC.x - tvB.x, 0.0_r);
-	aabbR = aabbHalfExtents.x * std::abs(projection.x) + aabbHalfExtents.y * std::abs(projection.y);
-	trigE = projection.x*tvB.x + projection.y*tvB.y;
-	trigV = projection.x*tvA.x + projection.y*tvA.y;
+	projection.set({tvB.y() - tvC.y(), tvC.x() - tvB.x(), 0.0_r});
+	aabbR = aabbHalfExtents.x() * std::abs(projection.x()) + aabbHalfExtents.y() * std::abs(projection.y());
+	trigE = projection.x()*tvB.x() + projection.y()*tvB.y();
+	trigV = projection.x()*tvA.x() + projection.y()*tvA.y();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (1, 0, 0) cross (edge CA)
-	projection.set(0.0_r, tvC.z - tvA.z, tvA.y - tvC.y);
-	aabbR = aabbHalfExtents.y * std::abs(projection.y) + aabbHalfExtents.z * std::abs(projection.z);
-	trigE = projection.y*tvC.y + projection.z*tvC.z;
-	trigV = projection.y*tvB.y + projection.z*tvB.z;
+	projection.set({0.0_r, tvC.z() - tvA.z(), tvA.y() - tvC.y()});
+	aabbR = aabbHalfExtents.y() * std::abs(projection.y()) + aabbHalfExtents.z() * std::abs(projection.z());
+	trigE = projection.y()*tvC.y() + projection.z()*tvC.z();
+	trigV = projection.y()*tvB.y() + projection.z()*tvB.z();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 1, 0) cross (edge CA)
-	projection.set(tvA.z - tvC.z, 0.0_r, tvC.x - tvA.x);
-	aabbR = aabbHalfExtents.x * std::abs(projection.x) + aabbHalfExtents.z * std::abs(projection.z);
-	trigE = projection.x*tvC.x + projection.z*tvC.z;
-	trigV = projection.x*tvB.x + projection.z*tvB.z;
+	projection.set({tvA.z() - tvC.z(), 0.0_r, tvC.x() - tvA.x()});
+	aabbR = aabbHalfExtents.x() * std::abs(projection.x()) + aabbHalfExtents.z() * std::abs(projection.z());
+	trigE = projection.x()*tvC.x() + projection.z()*tvC.z();
+	trigV = projection.x()*tvB.x() + projection.z()*tvB.z();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
 	// (0, 0, 1) cross (edge CA)
-	projection.set(tvC.y - tvA.y, tvA.x - tvC.x, 0.0_r);
-	aabbR = aabbHalfExtents.x * std::abs(projection.x) + aabbHalfExtents.y * std::abs(projection.y);
-	trigE = projection.x*tvC.x + projection.y*tvC.y;
-	trigV = projection.x*tvB.x + projection.y*tvB.y;
+	projection.set({tvC.y() - tvA.y(), tvA.x() - tvC.x(), 0.0_r});
+	aabbR = aabbHalfExtents.x() * std::abs(projection.x()) + aabbHalfExtents.y() * std::abs(projection.y());
+	trigE = projection.x()*tvC.x() + projection.y()*tvC.y();
+	trigV = projection.x()*tvB.x() + projection.y()*tvB.y();
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
@@ -255,9 +255,9 @@ void PTriangle::genPositionSample(SampleFlow& sampleFlow, PositionSample* const 
 	out_sample->position = localPos;
 
 	//const Vector3R abc = calcBarycentricCoord(localPos);
-	out_sample->uvw = m_uvwA.mul(1.0_r - abc.y - abc.z).addLocal(m_uvwB.mul(abc.y)).addLocal(m_uvwC.mul(abc.z));
+	out_sample->uvw = m_uvwA.mul(1.0_r - abc.y() - abc.z()).addLocal(m_uvwB.mul(abc.y())).addLocal(m_uvwC.mul(abc.z()));
 
-	const math::Vector3R localNormal(m_nA.mul(1.0_r - abc.y - abc.z).addLocal(m_nB.mul(abc.y)).addLocal(m_nC.mul(abc.z)));
+	const math::Vector3R localNormal(m_nA.mul(1.0_r - abc.y() - abc.z()).addLocal(m_nB.mul(abc.y())).addLocal(m_nC.mul(abc.z())));
 	//Vector3R worldN;
 	//m_metadata->localToWorld.transformVector(m_faceNormal, &worldN);
 

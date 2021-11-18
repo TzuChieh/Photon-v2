@@ -74,14 +74,14 @@ TEST(TAABB3DTest, SplittingAABB3D)
 	const auto splittedAabb1 = aabb1.getSplitted(constant::X_AXIS, 0);
 
 	EXPECT_TRUE(splittedAabb1.first.getMinVertex() == aabb1.getMinVertex());
-	EXPECT_EQ(splittedAabb1.first.getMaxVertex().x, 0);
-	EXPECT_EQ(splittedAabb1.first.getMaxVertex().y, aabb1.getMaxVertex().y);
-	EXPECT_EQ(splittedAabb1.first.getMaxVertex().z, aabb1.getMaxVertex().z);
+	EXPECT_EQ(splittedAabb1.first.getMaxVertex().x(), 0);
+	EXPECT_EQ(splittedAabb1.first.getMaxVertex().y(), aabb1.getMaxVertex().y());
+	EXPECT_EQ(splittedAabb1.first.getMaxVertex().z(), aabb1.getMaxVertex().z());
 
 	EXPECT_TRUE(splittedAabb1.second.getMaxVertex() == aabb1.getMaxVertex());
-	EXPECT_EQ(splittedAabb1.second.getMinVertex().x, 0);
-	EXPECT_EQ(splittedAabb1.second.getMinVertex().y, aabb1.getMinVertex().y);
-	EXPECT_EQ(splittedAabb1.second.getMinVertex().z, aabb1.getMinVertex().z);
+	EXPECT_EQ(splittedAabb1.second.getMinVertex().x(), 0);
+	EXPECT_EQ(splittedAabb1.second.getMinVertex().y(), aabb1.getMinVertex().y());
+	EXPECT_EQ(splittedAabb1.second.getMinVertex().z(), aabb1.getMinVertex().z());
 
 	const TAABB3D<int> aabb2({0, 0, 0}, {3, 3, 3});
 	const auto splittedAabb2 = aabb2.getSplitted(constant::X_AXIS, 2);

@@ -32,9 +32,9 @@ GCuboid::GCuboid(const real xLen, const real yLen, const real zLen) :
 {}
 
 GCuboid::GCuboid(const math::Vector3R& minVertex, const math::Vector3R& maxVertex) :
-	GCuboid(maxVertex.x - minVertex.x,
-	        maxVertex.y - minVertex.y,
-	        maxVertex.z - minVertex.z,
+	GCuboid(maxVertex.x() - minVertex.x(),
+	        maxVertex.y() - minVertex.y(),
+	        maxVertex.z() - minVertex.z(),
 	        (maxVertex + minVertex) * 0.5_r)
 {}
 
@@ -49,7 +49,7 @@ void GCuboid::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
 	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
 {
-	if(!checkData(data, m_size.x, m_size.y, m_size.z))
+	if(!checkData(data, m_size.x(), m_size.y(), m_size.z()))
 	{
 		return;
 	}
@@ -64,14 +64,14 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	const math::Vector3R halfSize = m_size * 0.5_r;
 
 	// 8 vertices of a cuboid
-	const auto vPPP = math::Vector3R( halfSize.x,  halfSize.y,  halfSize.z).add(m_offset);
-	const auto vNPP = math::Vector3R(-halfSize.x,  halfSize.y,  halfSize.z).add(m_offset);
-	const auto vNNP = math::Vector3R(-halfSize.x, -halfSize.y,  halfSize.z).add(m_offset);
-	const auto vPNP = math::Vector3R( halfSize.x, -halfSize.y,  halfSize.z).add(m_offset);
-	const auto vPPN = math::Vector3R( halfSize.x,  halfSize.y, -halfSize.z).add(m_offset);
-	const auto vNPN = math::Vector3R(-halfSize.x,  halfSize.y, -halfSize.z).add(m_offset);
-	const auto vNNN = math::Vector3R(-halfSize.x, -halfSize.y, -halfSize.z).add(m_offset);
-	const auto vPNN = math::Vector3R( halfSize.x, -halfSize.y, -halfSize.z).add(m_offset);
+	const auto vPPP = math::Vector3R( halfSize.x(),  halfSize.y(),  halfSize.z()).add(m_offset);
+	const auto vNPP = math::Vector3R(-halfSize.x(),  halfSize.y(),  halfSize.z()).add(m_offset);
+	const auto vNNP = math::Vector3R(-halfSize.x(), -halfSize.y(),  halfSize.z()).add(m_offset);
+	const auto vPNP = math::Vector3R( halfSize.x(), -halfSize.y(),  halfSize.z()).add(m_offset);
+	const auto vPPN = math::Vector3R( halfSize.x(),  halfSize.y(), -halfSize.z()).add(m_offset);
+	const auto vNPN = math::Vector3R(-halfSize.x(),  halfSize.y(), -halfSize.z()).add(m_offset);
+	const auto vNNN = math::Vector3R(-halfSize.x(), -halfSize.y(), -halfSize.z()).add(m_offset);
+	const auto vPNN = math::Vector3R( halfSize.x(), -halfSize.y(), -halfSize.z()).add(m_offset);
 
 	// 12 triangles (all CCW)
 

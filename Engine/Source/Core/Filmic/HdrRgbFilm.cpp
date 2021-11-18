@@ -103,9 +103,9 @@ void HdrRgbFilm::addSample(
 			
 			const float64 weight = getFilter().evaluate(filterX, filterY);
 
-			m_pixelRadianceSensors[index].accuR      += rgb.x * weight;
-			m_pixelRadianceSensors[index].accuG      += rgb.y * weight;
-			m_pixelRadianceSensors[index].accuB      += rgb.z * weight;
+			m_pixelRadianceSensors[index].accuR      += rgb.r() * weight;
+			m_pixelRadianceSensors[index].accuG      += rgb.g() * weight;
+			m_pixelRadianceSensors[index].accuB      += rgb.b() * weight;
 			m_pixelRadianceSensors[index].accuWeight += weight;
 		}
 	}
@@ -254,9 +254,9 @@ void HdrRgbFilm::setPixel(
 
 	const auto rgb = math::Vector3R(spectrum.toLinearSRGB(math::EColorUsage::EMR));
 
-	m_pixelRadianceSensors[index].accuR      = rgb.x;
-	m_pixelRadianceSensors[index].accuG      = rgb.y;
-	m_pixelRadianceSensors[index].accuB      = rgb.z;
+	m_pixelRadianceSensors[index].accuR      = rgb.r();
+	m_pixelRadianceSensors[index].accuG      = rgb.g();
+	m_pixelRadianceSensors[index].accuB      = rgb.b();
 	m_pixelRadianceSensors[index].accuWeight = 1.0;
 }
 

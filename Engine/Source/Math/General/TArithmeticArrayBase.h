@@ -82,8 +82,11 @@ protected:
 	Derived sqrt() const;
 	Derived& sqrtLocal();
 
-	// Inputs must not contain any NaN. 
-	// (NaNs are clamped to lower bound)
+	// TODO: supply clamp methods for NaN-safe and NaN-propagative versions
+
+	// Clamp current array's components to specific range. If a component is NaN, its value is clamped 
+	// to lower bound. Either lower bound or upper bound shall not be NaN, or the method's behavior is 
+	// undefined.
 	Derived clamp(T lowerBound, T upperBound) const;
 	Derived& clampLocal(T lowerBound, T upperBound);
 

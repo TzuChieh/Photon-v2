@@ -40,9 +40,9 @@ public:
 
 	inline real getSurfaceArea() const
 	{
-		const real xExtent = m_aabb.getMaxVertex().x - m_aabb.getMinVertex().x;
-		const real yExtent = m_aabb.getMaxVertex().y - m_aabb.getMinVertex().y;
-		const real zExtent = m_aabb.getMaxVertex().z - m_aabb.getMinVertex().z;
+		const real xExtent = m_aabb.getMaxVertex().x() - m_aabb.getMinVertex().x();
+		const real yExtent = m_aabb.getMaxVertex().y() - m_aabb.getMinVertex().y();
+		const real zExtent = m_aabb.getMaxVertex().z() - m_aabb.getMinVertex().z();
 		return 2.0_r * (xExtent * yExtent + yExtent * zExtent + zExtent * xExtent);
 	}
 

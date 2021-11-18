@@ -24,7 +24,7 @@ inline void SphericalMapper::positionToUvw(const math::Vector3R& position, math:
 	// HACK: magic number
 	if(position.lengthSquared() < 1e-8)
 	{
-		out_uvw->set(0, 0, 0);
+		out_uvw->set({0, 0, 0});
 		return;
 	}
 

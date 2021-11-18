@@ -19,15 +19,15 @@ inline TOrthonormalBasis3<T> TOrthonormalBasis3<T>::makeFromUnitY(const TVector3
 	// choose an axis deviate enough to specified y-axis to perform cross product in order to avoid some 
 	// numeric errors
 	TVector3<T> unitXAxis;
-	if(std::abs(unitYAxis.y) < constant::rcp_sqrt_2<real>)
+	if(std::abs(unitYAxis.y()) < constant::rcp_sqrt_2<real>)
 	{
-		unitXAxis.set(-unitYAxis.z, T(0), unitYAxis.x);// yAxis cross (0, 1, 0)
-		unitXAxis.mulLocal(T(1) / std::sqrt(unitXAxis.x * unitXAxis.x + unitXAxis.z * unitXAxis.z));
+		unitXAxis.set({-unitYAxis.z(), T(0), unitYAxis.x()});// yAxis cross (0, 1, 0)
+		unitXAxis.mulLocal(T(1) / std::sqrt(unitXAxis.x() * unitXAxis.x() + unitXAxis.z() * unitXAxis.z()));
 	}
 	else
 	{
-		unitXAxis.set(unitYAxis.y, -unitYAxis.x, T(0));// yAxis cross (0, 0, 1)
-		unitXAxis.mulLocal(T(1) / std::sqrt(unitXAxis.x * unitXAxis.x + unitXAxis.y * unitXAxis.y));
+		unitXAxis.set({unitYAxis.y(), -unitYAxis.x(), T(0)});// yAxis cross (0, 0, 1)
+		unitXAxis.mulLocal(T(1) / std::sqrt(unitXAxis.x() * unitXAxis.x() + unitXAxis.y() * unitXAxis.y()));
 	}
 
 	const TVector3<T> unitZAxis = unitXAxis.cross(unitYAxis);
@@ -85,9 +85,9 @@ inline TVector3<T> TOrthonormalBasis3<T>::worldToLocal(const TVector3<T>& worldV
 template<typename T>
 inline TVector3<T> TOrthonormalBasis3<T>::localToWorld(const TVector3<T>& localVec) const
 {
-	return m_xAxis.mul(localVec.x).add(
-	       m_yAxis.mul(localVec.y)).add(
-	       m_zAxis.mul(localVec.z));
+	return m_xAxis.mul(localVec.x()).add(
+	       m_yAxis.mul(localVec.y())).add(
+	       m_zAxis.mul(localVec.z()));
 }
 
 template<typename T>
