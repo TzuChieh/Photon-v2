@@ -2,6 +2,7 @@
 
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
+#include "Common/assertion.h"
 
 namespace ph::math
 {
@@ -33,7 +34,7 @@ inline TVector2<T> octahedron_diamond_mirror(const TVector2<T>& point)
 	*/
 	// Basically mirror and flip along various axes
 	return diagonallyMirroredPoint.abs().complement() * 
-	       TVector2<T>(point.x() >= 0 ? 1 : -1, point.y() >= 0 ? 1 : -1);
+	       TVector2<T>(point.x() >= 0.0f ? 1.0f : -1.0f, point.y() >= 0.0f ? 1.0f : -1.0f);
 
 	/*
 	However, that seems overly complexed. Here I derived a simpler equivalent. It is worth noting that
@@ -59,7 +60,7 @@ inline TVector2<T> octahedron_unit_vector_encode(const TVector3<T>& unitVec)
 	TVector3<T> octahedronProj = unitVec / unitVec.abs().sum();
 	if(octahedronProj.z() < 0)
 	{
-		const TVector2<T> mirroredXYProj = detail::octahedron_diamond_mirror({octahedronProj.x(), octahedronProj.y()});
+		const TVector2<T> mirroredXYProj = detail::octahedron_diamond_mirror(TVector2<T>(octahedronProj.x(), octahedronProj.y()));
 		octahedronProj.x() = mirroredXYProj.x();
 		octahedronProj.y() = mirroredXYProj.y();
 	}
@@ -74,6 +75,9 @@ inline TVector2<T> octahedron_unit_vector_encode(const TVector3<T>& unitVec)
 template<typename T>
 inline TVector3<T> octahedron_unit_vector_decode(const TVector2<T>& encodedVal)
 {
+	PH_ASSERT_IN_RANGE_INCLUSIVE(encodedVal.x(), 0, 1);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(encodedVal.y(), 0, 1);
+
 	// Note that https://knarkowicz.wordpress.com/2014/04/16/octahedron-normal-vector-encoding/
 	// provides an alternative approach that is faster on GPU.
 
@@ -85,7 +89,7 @@ inline TVector3<T> octahedron_unit_vector_decode(const TVector2<T>& encodedVal)
 		static_cast<T>(1) - expandedEncodedVal.abs().sum());
 	if(octahedronProj.z() < 0)
 	{
-		const TVector2<T> mirroredXYProj = detail::octahedron_diamond_mirror({octahedronProj.x(), octahedronProj.y()});
+		const TVector2<T> mirroredXYProj = detail::octahedron_diamond_mirror(TVector2<T>(octahedronProj.x(), octahedronProj.y()));
 		octahedronProj.x() = mirroredXYProj.x();
 		octahedronProj.y() = mirroredXYProj.y();
 	}

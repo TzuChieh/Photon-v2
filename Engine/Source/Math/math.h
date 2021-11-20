@@ -26,6 +26,8 @@ to rendering in mind.
 #include <vector>
 #include <cstdint>
 #include <climits>
+#include <bit>
+#include <concepts>
 
 #if defined(PH_COMPILER_IS_MSVC)
 	#include <intrin.h>
@@ -481,6 +483,70 @@ inline std::vector<T> evenly_spaced_vector(const T min, const T max, const std::
 	}
 	vec[n - 1] = max;
 	return vec;
+}
+
+/*!
+The implementation of half floats does not contain "safety checks", i.e., according to IEEE 754-2008, 
++/-65504 is the max representable value of half floats, input values that exceed the max value will
+not be represented correctly and will cause problems in OpenGL or other APIs.
+If the input (fp32) is too samll, 0 will be returned.
+*/
+///@{
+/*! @brief Convert a 32-bit float to 16-bit representation.
+*/
+inline uint16 fp32_to_fp16_bits(const float32 value)
+{
+	if(std::abs(value) < 0.0000610352f)
+	{
+		return 0x0000;
+	}
+		
+	uint16 fp16Bits;
+	uint32 fp32Bits;
+	    
+	fp32Bits = std::bit_cast<uint32>(value);
+	    
+	// truncate the mantissa and doing (exp - 127 + 15)
+	fp16Bits =  static_cast<uint16>((((fp32Bits & 0x7FFFFFFF) >> 13) - (0x38000000 >> 13)));
+	fp16Bits |= ((fp32Bits & 0x80000000) >> 16);// sign
+
+	return fp16Bits;
+}
+
+/*! @brief Convert a 16-bit representation back to 32-bit float.
+*/
+inline float32 fp16_bits_to_fp32(const uint16 fp16Bits)
+{
+	if(std::abs(fp16Bits) == 0)
+	{
+		return 0x00000000;
+	}
+
+	uint32 fp32Bits = ((fp16Bits & 0x8000) << 16);
+	fp32Bits |= (((fp16Bits & 0x7FFF) << 13) + 0x38000000);
+
+	return std::bit_cast<float32>(fp32Bits);
+}
+///@}
+
+/*! @brief Transform an integer to the range [0, 1] ([-1, 1] for signed integer).
+When transforming an unsigned integer, the minimum value the integer can hold will be mapped to 0, while 
+the maximum value will be mapped to 1; the rest of the integer values will be uniformally mapped to the 
+range [0, 1]. Signed integer types follow the same rule, except the mapped range will be [-1, 1].
+*/
+template<std::floating_point FloatType, std::integral IntType>
+inline FloatType normalize_integer_value(const IntType intVal)
+{
+	if constexpr(std::is_unsigned_v<IntType>)
+	{
+		return static_cast<FloatType>(intVal) / static_cast<FloatType>(std::numeric_limits<IntType>::max());
+	}
+	else
+	{
+		return intVal >= 0 
+			?  static_cast<FloatType>(intVal) / static_cast<FloatType>(std::numeric_limits<IntType>::max())
+			: -static_cast<FloatType>(intVal) / static_cast<FloatType>(std::numeric_limits<IntType>::min());
+	}
 }
 
 }// end namespace ph::math

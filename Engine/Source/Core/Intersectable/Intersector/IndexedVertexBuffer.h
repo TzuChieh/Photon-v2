@@ -46,7 +46,7 @@ public:
 		EVertexAttribute attribute,
 		EVertexElement   element,
 		std::size_t      numElements = 0,
-		bool             isNormalized = false);
+		bool             shouldNormalize = false);
 
 	void allocate(std::size_t numVertices);
 
@@ -69,13 +69,14 @@ private:
 		input value of 255 will be converted to 1.0 on load; otherwise, the value is converted to float
 		as-is (i.e., 255 becomes 255.0).
 		*/
-		uint8 isNormalized : 1;
+		uint8 shouldNormalize : 1;
 
 		StrideSize strideOffset;
 
 		Entry();
 
 		bool isEmpty() const;
+		bool isNormalized() const;
 	};
 
 	std::array<Entry, static_cast<std::size_t>(EVertexAttribute::NUM)> m_entries;
@@ -98,6 +99,11 @@ inline std::size_t IndexedVertexBuffer::estimateMemoryUsageBytes() const
 inline bool IndexedVertexBuffer::Entry::isEmpty() const
 {
 	return numElements == 0;
+}
+
+inline bool IndexedVertexBuffer::Entry::isNormalized() const
+{
+	return shouldNormalize == 1;
 }
 
 inline bool IndexedVertexBuffer::isAllocated() const
