@@ -7,6 +7,7 @@
 
 #include <exception>
 #include <cstring>
+#include <cmath>
 
 namespace ph
 {
@@ -182,7 +183,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 			std::memcpy(&element, &(m_byteBuffer[byteIndex + ei * 4]), 4);
 
 			value[ei] = entry.isNormalized()
-				? math::normalize_integer_value<real>(element)
+				? math::normalize_integer<real>(element)
 				: static_cast<real>(element);
 		}
 		break;
@@ -194,7 +195,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 			std::memcpy(&element, &(m_byteBuffer[byteIndex + ei * 2]), 2);
 
 			value[ei] = entry.isNormalized()
-				? math::normalize_integer_value<real>(element)
+				? math::normalize_integer<real>(element)
 				: static_cast<real>(element);
 		}
 		break;
@@ -206,8 +207,8 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 			std::memcpy(&encodedBits.y(), &(m_byteBuffer[byteIndex + 1 * 2]), 2);
 
 			const math::Vector2R encodedVal(
-				math::normalize_integer_value<real>(encodedBits.x()),
-				math::normalize_integer_value<real>(encodedBits.y()));
+				math::normalize_integer<real>(encodedBits.x()),
+				math::normalize_integer<real>(encodedBits.y()));
 
 			value = math::octahedron_unit_vector_decode(encodedVal);
 		}
@@ -240,6 +241,99 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 	}
 
 	return value;
+}
+
+void IndexedVertexBuffer::setAttribute(
+	const EVertexAttribute attribute,
+	const math::Vector3R&  value, 
+	const std::size_t      index) const
+{
+	PH_ASSERT(isAllocated());
+
+	const auto entryIndex = static_cast<std::size_t>(attribute);
+	PH_ASSERT_LT(entryIndex, m_entries.size());
+
+	const Entry& entry = m_entries[entryIndex];
+	if(entry.isEmpty())
+	{
+		throw std::invalid_argument("Setting value to an empty vertex atrribute.");
+	}
+
+	const auto byteIndex = index * m_strideSize + entry.strideOffset;
+	PH_ASSERT_LT(byteIndex, m_byteBufferSize);
+
+	switch(entry.element)
+	{
+	case EVertexElement::VE_Float32:
+		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
+		{
+			const auto element = static_cast<float32>(value[ei]);
+			std::memcpy(&(m_byteBuffer[byteIndex + ei * 4]), &element, 4);
+		}
+		break;
+
+	case EVertexElement::VE_Float16:
+		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
+		{
+			const uint16 fp16Bits = math::fp32_to_fp16_bits(static_cast<float32>(value[ei]));
+			std::memcpy(&(m_byteBuffer[byteIndex + ei * 2]), &fp16Bits, 2);
+		}
+		break;
+
+	case EVertexElement::VE_Int32:
+		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
+		{
+			const auto element = entry.isNormalized()
+				? math::quantize_normalized_float<int32>(value[ei])
+				: static_cast<int32>(std::round(value[ei]));
+			std::memcpy(&(m_byteBuffer[byteIndex + ei * 4]), &element, 4);
+		}
+		break;
+
+	case EVertexElement::VE_Int16:
+		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
+		{
+			const auto element = entry.isNormalized()
+				? math::quantize_normalized_float<int16>(value[ei])
+				: static_cast<int16>(std::round(value[ei]));
+			std::memcpy(&(m_byteBuffer[byteIndex + ei * 2]), &element, 2);
+		}
+		break;
+
+	case EVertexElement::VE_OctahedralUnitVec32:
+		{
+			const math::Vector2R encodedVal = math::octahedron_unit_vector_encode(value);
+
+			const math::TVector2<uint16> encodedBits(
+				math::quantize_normalized_float<uint16>(encodedVal.x()),
+				math::quantize_normalized_float<uint16>(encodedVal.y()));
+
+			std::memcpy(&(m_byteBuffer[byteIndex + 0 * 2]), &encodedBits.x(), 2);
+			std::memcpy(&(m_byteBuffer[byteIndex + 1 * 2]), &encodedBits.y(), 2);
+		}
+		break;
+
+	case EVertexElement::VE_OctahedralUnitVec24:
+		{
+			const math::Vector2R encodedVal = math::octahedron_unit_vector_encode(value);
+
+			const math::TVector2<uint32> encodedBits(
+				static_cast<uint32>(std::round(encodedVal.x() * 4095.0_r)),
+				static_cast<uint32>(std::round(encodedVal.y() * 4095.0_r)));
+
+			PH_ASSERT_LE(encodedBits.x(), 4096 - 1);
+			PH_ASSERT_LE(encodedBits.y(), 4096 - 1);
+
+			// Write 3 bytes (we use only the first 3 bytes of the uint32)
+			const uint32 packedBits = (encodedBits.x() & 0x00000FFF) | ((encodedBits.y() & 0x00000FFF) << 12);
+			std::memcpy(&(m_byteBuffer[byteIndex]), &packedBits, 3);
+		}
+		break;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		break;
+	}
 }
 
 }// end namespace ph

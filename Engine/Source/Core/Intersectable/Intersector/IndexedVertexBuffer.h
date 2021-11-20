@@ -50,6 +50,7 @@ public:
 
 	void allocate(std::size_t numVertices);
 
+	void setAttribute(EVertexAttribute attribute, const math::Vector3R& value, std::size_t index) const;
 	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
 	std::size_t estimateMemoryUsageBytes() const;
 	bool isAllocated() const;

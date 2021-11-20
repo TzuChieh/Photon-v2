@@ -534,18 +534,41 @@ When transforming an unsigned integer, the minimum value the integer can hold wi
 the maximum value will be mapped to 1; the rest of the integer values will be uniformally mapped to the 
 range [0, 1]. Signed integer types follow the same rule, except the mapped range will be [-1, 1].
 */
+// TODO: numeric analysis
 template<std::floating_point FloatType, std::integral IntType>
-inline FloatType normalize_integer_value(const IntType intVal)
+inline FloatType normalize_integer(const IntType intVal)
 {
 	if constexpr(std::is_unsigned_v<IntType>)
 	{
-		return static_cast<FloatType>(intVal) / static_cast<FloatType>(std::numeric_limits<IntType>::max());
+		return static_cast<FloatType>(
+			static_cast<long double>(intVal) / std::numeric_limits<IntType>::max());
 	}
 	else
 	{
-		return intVal >= 0 
-			?  static_cast<FloatType>(intVal) / static_cast<FloatType>(std::numeric_limits<IntType>::max())
-			: -static_cast<FloatType>(intVal) / static_cast<FloatType>(std::numeric_limits<IntType>::min());
+		return static_cast<FloatType>(intVal >= 0
+			?  static_cast<long double>(intVal) / std::numeric_limits<IntType>::max()
+			: -static_cast<long double>(intVal) / std::numeric_limits<IntType>::min());
+	}
+}
+
+// TODO: numeric analysis
+template<std::integral IntType, std::floating_point FloatType>
+inline IntType quantize_normalized_float(const FloatType floatVal)
+{
+	if constexpr(std::is_unsigned_v<IntType>)
+	{
+		PH_ASSERT_IN_RANGE_INCLUSIVE(floatVal, 0.0f, 1.0f);
+
+		return static_cast<IntType>(
+			std::round(static_cast<long double>(floatVal) * std::numeric_limits<IntType>::max()));
+	}
+	else
+	{
+		PH_ASSERT_IN_RANGE_INCLUSIVE(floatVal, -1.0f, 1.0f);
+
+		return static_cast<IntType>(floatVal >= 0
+			? std::round( static_cast<long double>(floatVal) * std::numeric_limits<IntType>::max())
+			: std::round(-static_cast<long double>(floatVal) * std::numeric_limits<IntType>::min()));
 	}
 }
 
