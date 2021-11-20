@@ -500,7 +500,7 @@ inline uint16 fp32_to_fp16_bits(const float32 value)
 {
 	if(std::abs(value) < 0.0000610352f)
 	{
-		return 0x0000;
+		return std::signbit(value) ? 0x8000 : 0x0000;
 	}
 		
 	uint16 fp16Bits;

@@ -333,9 +333,16 @@ TEST(MathTest, HalfFloatConversions)
 	// https://en.wikipedia.org/wiki/Half-precision_floating-point_format
 
 	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b0'00000'0000000000), 0.0f);
+	EXPECT_FLOAT_EQ(math::fp32_to_fp16_bits(0.0f), 0b0'00000'0000000000);
+
 	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b0'01111'0000000000), 1.0f);
+	EXPECT_FLOAT_EQ(math::fp32_to_fp16_bits(1.0f), 0b0'01111'0000000000);
+
 	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b1'00000'0000000000), -0.0f);
+	EXPECT_FLOAT_EQ(math::fp32_to_fp16_bits(-0.0f), 0b1'00000'0000000000);
+
 	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b1'10000'0000000000), -2.0f);
+	EXPECT_FLOAT_EQ(math::fp32_to_fp16_bits(-2.0f), 0b1'10000'0000000000);
 
 	// Smallest number larger than one 
 	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b0'01111'0000000001), 1.00097656f);
