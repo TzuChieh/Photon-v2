@@ -9,7 +9,6 @@ TEST(TraitsTest, CanMultiply)
 {
 	EXPECT_TRUE((ph::CCanMultiply<int, int, int>));
 	EXPECT_TRUE((ph::CCanMultiply<float, float, float>));
-	EXPECT_FALSE((ph::CCanMultiply<float, float, std::string>));
 
 	class A {};
 
@@ -24,25 +23,31 @@ TEST(TraitsTest, CanMultiply)
 
 	class D : public C {};
 
-	EXPECT_FALSE((ph::CCanMultiply<A, B, C       >));
+	EXPECT_FALSE((ph::CCanMultiply<A, B, C>));
 	EXPECT_FALSE((ph::CCanMultiply<A, B, const C&>));
 
-	EXPECT_FALSE((ph::CCanMultiply<A, B, D       >));
+	EXPECT_FALSE((ph::CCanMultiply<A, B, D>));
 	EXPECT_FALSE((ph::CCanMultiply<A, B, const D&>));
 
-	EXPECT_TRUE((ph::CCanMultiply<C, A, B       >));
-	EXPECT_TRUE((ph::CCanMultiply<C, A, const B&>));
+	EXPECT_TRUE((ph::CCanMultiply<C, A, B>));
+	EXPECT_TRUE((ph::CCanMultiply<C, A, B&>));
+	EXPECT_FALSE((ph::CCanMultiply<C, A, const B&>));// cannot assign to const ref
 
-	EXPECT_TRUE((ph::CCanMultiply<C, B, C       >));
-	EXPECT_TRUE((ph::CCanMultiply<C, B, const C&>));
+	EXPECT_TRUE((ph::CCanMultiply<C, B, C>));
+	EXPECT_TRUE((ph::CCanMultiply<C, B, C&>));
+	EXPECT_FALSE((ph::CCanMultiply<C, B, const C&>));// cannot assign to const ref
 
-	EXPECT_TRUE((ph::CCanMultiply<D, A, B       >));
-	EXPECT_TRUE((ph::CCanMultiply<D, A, const B&>));
+	EXPECT_TRUE((ph::CCanMultiply<D, A, B>));
+	EXPECT_TRUE((ph::CCanMultiply<D, A, B&>));
+	EXPECT_FALSE((ph::CCanMultiply<D, A, const B&>));// cannot assign to const ref
 
-	EXPECT_TRUE((ph::CCanMultiply<D, B, C       >));
-	EXPECT_TRUE((ph::CCanMultiply<D, B, const C&>));
+	EXPECT_TRUE((ph::CCanMultiply<D, B, C>));
+	EXPECT_TRUE((ph::CCanMultiply<D, B, C&>));
+	EXPECT_FALSE((ph::CCanMultiply<D, B, const C&>));// cannot assign to const ref
 
-	EXPECT_FALSE((ph::CCanMultiply<D, B, D       >));
+	// Cannot convert D * B back to D
+	EXPECT_FALSE((ph::CCanMultiply<D, B, D>));
+	EXPECT_FALSE((ph::CCanMultiply<D, B, D&>));
 	EXPECT_FALSE((ph::CCanMultiply<D, B, const D&>));
 }
 
@@ -50,7 +55,6 @@ TEST(TraitsTest, CanAdd)
 {
 	EXPECT_TRUE((ph::CCanAdd<int, int, int>));
 	EXPECT_TRUE((ph::CCanAdd<float, float, float>));
-	EXPECT_FALSE((ph::CCanAdd<float, float, std::string>));
 
 	class A {};
 
@@ -65,25 +69,31 @@ TEST(TraitsTest, CanAdd)
 
 	class D : public C {};
 
-	EXPECT_FALSE((ph::CCanAdd<A, B, C       >));
+	EXPECT_FALSE((ph::CCanAdd<A, B, C>));
 	EXPECT_FALSE((ph::CCanAdd<A, B, const C&>));
 
-	EXPECT_FALSE((ph::CCanAdd<A, B, D       >));
+	EXPECT_FALSE((ph::CCanAdd<A, B, D>));
 	EXPECT_FALSE((ph::CCanAdd<A, B, const D&>));
 
-	EXPECT_TRUE((ph::CCanAdd<C, A, B       >));
-	EXPECT_TRUE((ph::CCanAdd<C, A, const B&>));
+	EXPECT_TRUE((ph::CCanAdd<C, A, B>));
+	EXPECT_TRUE((ph::CCanAdd<C, A, B&>));
+	EXPECT_FALSE((ph::CCanAdd<C, A, const B&>));// cannot assign to const ref
 
-	EXPECT_TRUE((ph::CCanAdd<C, B, C       >));
-	EXPECT_TRUE((ph::CCanAdd<C, B, const C&>));
+	EXPECT_TRUE((ph::CCanAdd<C, B, C>));
+	EXPECT_TRUE((ph::CCanAdd<C, B, C&>));
+	EXPECT_FALSE((ph::CCanAdd<C, B, const C&>));// cannot assign to const ref
 
-	EXPECT_TRUE((ph::CCanAdd<D, A, B       >));
-	EXPECT_TRUE((ph::CCanAdd<D, A, const B&>));
+	EXPECT_TRUE((ph::CCanAdd<D, A, B>));
+	EXPECT_TRUE((ph::CCanAdd<D, A, B&>));
+	EXPECT_FALSE((ph::CCanAdd<D, A, const B&>));// cannot assign to const ref
 
-	EXPECT_TRUE((ph::CCanAdd<D, B, C       >));
-	EXPECT_TRUE((ph::CCanAdd<D, B, const C&>));
+	EXPECT_TRUE((ph::CCanAdd<D, B, C>));
+	EXPECT_TRUE((ph::CCanAdd<D, B, C&>));
+	EXPECT_FALSE((ph::CCanAdd<D, B, const C&>));// cannot assign to const ref
 
-	EXPECT_FALSE((ph::CCanAdd<D, B, D       >));
+	// Cannot convert D + B back to D
+	EXPECT_FALSE((ph::CCanAdd<D, B, D>));
+	EXPECT_FALSE((ph::CCanAdd<D, B, D&>));
 	EXPECT_FALSE((ph::CCanAdd<D, B, const D&>));
 }
 

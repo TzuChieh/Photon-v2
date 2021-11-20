@@ -12,7 +12,7 @@ namespace ph
 /*! @brief Check if instances of types can be added together.
 
 Checks whether the instances of the involved types can be added together
-and is capable of assigning the result into the instance of the third type,
+and is capable of assigning the result into an instance of the third type,
 i.e., able to do C = A + B with corresponding instances.
 */
 template<typename A, typename B, typename C>
@@ -24,7 +24,7 @@ concept CCanAdd = requires (A a, B b, C c)
 /*! @brief Check if instances of types can be multiplied together.
 
 Checks whether the instances of the involved types can be multiplied together
-and is capable of assigning the result into the instance of the third type,
+and is capable of assigning the result into an instance of the third type,
 i.e., able to do C = A * B with corresponding instances.
 */
 template<typename A, typename B, typename C>

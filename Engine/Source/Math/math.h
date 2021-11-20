@@ -491,6 +491,8 @@ The implementation of half floats does not contain "safety checks", i.e., accord
 not be represented correctly and will cause problems in OpenGL or other APIs.
 If the input (fp32) is too samll, 0 will be returned.
 */
+// TODO: handle denormalized value and others (std::frexp seems interesting)
+// https://stackoverflow.com/questions/6162651/half-precision-floating-point-in-java
 ///@{
 /*! @brief Convert a 32-bit float to 16-bit representation.
 */
@@ -517,9 +519,10 @@ inline uint16 fp32_to_fp16_bits(const float32 value)
 */
 inline float32 fp16_bits_to_fp32(const uint16 fp16Bits)
 {
-	if(std::abs(fp16Bits) == 0)
+	// 0 if all bits other than the sign bit are 0
+	if((fp16Bits & 0x7FFF) == 0)
 	{
-		return 0x00000000;
+		return (fp16Bits & 0x8000) == 0 ? 0.0f : -0.0f;
 	}
 
 	uint32 fp32Bits = ((fp16Bits & 0x8000) << 16);
