@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Common/assertion.h"
 #include "Math/TVector3.h"
 
 #include <memory>
@@ -54,6 +55,7 @@ public:
 	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
 	std::size_t estimateMemoryUsageBytes() const;
 	bool isAllocated() const;
+	std::size_t numVertices() const;
 
 private:
 	using StrideSize = uint8;
@@ -110,6 +112,11 @@ inline bool IndexedVertexBuffer::Entry::isNormalized() const
 inline bool IndexedVertexBuffer::isAllocated() const
 {
 	return m_byteBuffer != nullptr;
+}
+
+inline std::size_t IndexedVertexBuffer::numVertices() const
+{
+	return m_strideSize > 0 ? m_byteBufferSize / m_strideSize : 0;
 }
 
 }// end namespace ph

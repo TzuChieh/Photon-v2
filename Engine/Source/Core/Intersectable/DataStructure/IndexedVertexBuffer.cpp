@@ -1,6 +1,5 @@
-#include "Core/Intersectable/Intersector/IndexedVertexBuffer.h"
+#include "Core/Intersectable/DataStructure/IndexedVertexBuffer.h"
 #include "Common/logging.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
 #include "Math/Geometry/geometry.h"
 #include "Math/TVector2.h"
