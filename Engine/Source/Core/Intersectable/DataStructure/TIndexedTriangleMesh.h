@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Core/Intersectable/DataStructure/IndexedVertexBuffer.h"
+#include "Math/TVector3.h"
 
+#include <cstddef>
 #include <utility>
 #include <memory>
-#include <cstddef>
+#include <array>
 
 namespace ph
 {
@@ -14,6 +16,8 @@ class TIndexedTriangleMesh final
 {
 public:
 	TIndexedTriangleMesh();
+
+	std::array<math::Vector3R, 3> getFaceAttribute(EVertexAttribute attribute, std::size_t faceIndex) const;
 
 	// TODO: getFace()
 	// TODO: numFaces()

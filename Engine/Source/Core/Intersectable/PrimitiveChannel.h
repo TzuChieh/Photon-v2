@@ -7,11 +7,11 @@
 namespace ph
 {
 
-/*
-	Represents a channel for some primitives. Each channel contains data 
-	that can be utilized by the corresponding primitives, such as 
-	UVW mappers. Channels can be easily switched via channel index, 
-	resulting in different data being used for any channel-aware methods.
+/*!
+Represents a channel for some primitives. Each channel contains data that can be 
+utilized by the corresponding primitives, such as UVW mappers. Channels can be 
+easily switched via channel index, resulting in different data being used for any 
+channel-aware methods.
 */
 class PrimitiveChannel final
 {
