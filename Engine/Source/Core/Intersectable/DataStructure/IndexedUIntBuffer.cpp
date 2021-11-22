@@ -41,7 +41,7 @@ void IndexedUIntBuffer::allocate(const std::size_t numUInts)
 	m_byteBuffer = nullptr;
 
 	m_numBitsPerUInt = m_numBitsPerUInt > 0 ? m_numBitsPerUInt : 32;
-	m_byteBufferSize = numUInts * m_numBitsPerUInt;
+	m_byteBufferSize = (numUInts * m_numBitsPerUInt + (CHAR_BIT - 1)) / CHAR_BIT;
 	m_byteBuffer = std::make_unique<std::byte[]>(m_byteBufferSize);
 
 	if(m_byteBufferSize == 0)

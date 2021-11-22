@@ -9,6 +9,7 @@
 #include <concepts>
 #include <limits>
 #include <stdexcept>
+#include <format>
 
 namespace ph
 {
@@ -76,9 +77,14 @@ inline void IndexedUIntBuffer::setUInt(const IntegerType value, const std::size_
 	const auto unsignedValue = static_cast<uint64>(value);
 	if(unsignedValue > getMaxAllowedValue())
 	{
-		throw std::invalid_argument(
-			"Integer value is ");
+		throw std::invalid_argument(std::format(
+			"Integer value {} cannot be stored using {} bits.", value, m_numBitsPerUInt));
 	}
+
+	const auto firstByteIndex = index * m_numBitsPerUInt / CHAR_BIT;
+	const auto firstBitOffset = index * m_numBitsPerUInt - firstByteIndex * CHAR_BIT;
+
+	// TODO:
 }
 
 }// end namespace ph
