@@ -54,8 +54,8 @@ inline T squared(const T value)
 	return value * value;
 }
 
-// A fast, without sqrt(), nearly branchless method. Notice that Photon uses y-axis as the up/normal vector. This
-// static method implements the y-is-normal version which is different from the original paper.
+// A fast, without sqrt(), nearly branchless method. Notice that Photon uses y-axis as the up/normal vector. 
+// This static method implements the y-is-normal version which is different from the original paper.
 // (Reference: Frisvad, Jeppe Revall, "Building an Orthonormal Basis from a 3D Unit Vector Without Normalization", 
 // Journal of Graphics Tools, 2012)
 // Note: This method seems to have larger numerical error (at least 10^3 larger than my naive method), 
@@ -438,6 +438,16 @@ inline T reverse_bits(const T value)
 		       (T(detail::BITS8_REVERSE_TABLE[(value >> 48) & 0xFF]) << 8)  |
 		       (T(detail::BITS8_REVERSE_TABLE[(value >> 56) & 0xFF]));
 	}
+}
+
+template<std::unsigned_integral IntType, std::integral RangeType>
+inline IntType clear_bits_in_range(const IntType bits, const RangeType beginBitIdx, const RangeType endBitIdx)
+{
+	PH_ASSERT_IN_RANGE_INCLUSIVE(0, beginBitIdx, endBitIdx);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(beginBitIdx, endBitIdx, std::numeric_limits<IntType>::digits);
+
+	auto bitMask = static_cast<IntType>(IntType(1) << (endBitIdx - beginBitIdx));
+	bitMask  
 }
 
 template<typename T, T MIN, T MAX, std::size_t N>
