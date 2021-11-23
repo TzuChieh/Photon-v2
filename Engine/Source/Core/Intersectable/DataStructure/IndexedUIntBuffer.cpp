@@ -50,9 +50,49 @@ void IndexedUIntBuffer::allocate(const std::size_t numUInts)
 	}
 }
 
-std::size_t IndexedUIntBuffer::getUInt(const std::size_t index) const
+uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
 {
+	PH_ASSERT(isAllocated());
 
+	const std::size_t firstByteIndex     = index * m_numBitsPerUInt / CHAR_BIT;
+	const std::size_t firstByteBitOffset = index * m_numBitsPerUInt - firstByteIndex * CHAR_BIT;
+	const std::size_t numStraddledBytes  = (firstByteBitOffset + m_numBitsPerUInt + (CHAR_BIT - 1)) / CHAR_BIT;
+
+	PH_ASSERT_LT(firstByteBitOffset, CHAR_BIT);
+	PH_ASSERT_LE(numStraddledBytes, 8 + 1);
+	PH_ASSERT_LE(firstByteIndex + numStraddledBytes, m_byteBufferSize);
+
+	// Read current value's bits (first 8 bytes, at most)
+	uint64 rawBits = 0;
+	std::memcpy(&rawBits, &m_byteBuffer[firstByteIndex], std::min<std::size_t>(numStraddledBytes, 8));
+
+	// Potentially remove previous value's bits
+	uint64 value = rawBits >> firstByteBitOffset;
+
+	// Potentially remove next value's bits
+	value = (value << (64 - m_numBitsPerUInt)) >> (64 - m_numBitsPerUInt);
+
+	// Handle situations where the value needs the 9-th byte (straddles next byte)
+	if(numStraddledBytes > 8)
+	{
+		std::byte nextByte;
+		std::memcpy(&nextByte, &m_byteBuffer[firstByteIndex + numStraddledBytes - 1], sizeof(nextByte));
+
+		// Potentially remove next value's bits
+		nextByte = nextByte << (CHAR_BIT - )
+
+		value |= (static_cast<uint64>(nextByte) << )
+
+		const auto remainingBits = static_cast<std::byte>(uint64Value >> (m_numBitsPerUInt - firstBitOffset));
+		std::memcpy(&m_byteBuffer[firstByteIndex + numStraddledBytes - 1], &remainingBits, sizeof(remainingBits));
+	}
+
+
+	// Add current value on the back of previous value
+	rawBits |= (uint64Value << firstBitOffset);
+	std::memcpy(&m_byteBuffer[firstByteIndex], &rawBits, std::min<std::size_t>(numStraddledBytes, 8));
+
+	
 }
 
 }// end namespace ph
