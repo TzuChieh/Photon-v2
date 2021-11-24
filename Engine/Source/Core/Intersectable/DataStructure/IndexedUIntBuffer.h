@@ -27,7 +27,7 @@ public:
 	void allocate(std::size_t numUInts);
 
 	template<std::integral IntegerType>
-	void setUInt(IntegerType value, std::size_t index);
+	void setUInt(std::size_t index, IntegerType value);
 
 	uint64 getUInt(std::size_t index) const;
 	std::size_t numUInts() const;
@@ -73,7 +73,7 @@ inline uint64 IndexedUIntBuffer::maxAllowedValue(const uint8 numBitsPerUInt)
 }
 
 template<std::integral IntegerType>
-inline void IndexedUIntBuffer::setUInt(const IntegerType value, const std::size_t index)
+inline void IndexedUIntBuffer::setUInt(const std::size_t index, const IntegerType value)
 {
 	PH_ASSERT(isAllocated());
 

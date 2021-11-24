@@ -244,8 +244,8 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 
 void IndexedVertexBuffer::setAttribute(
 	const EVertexAttribute attribute,
-	const math::Vector3R&  value, 
-	const std::size_t      index) const
+	const std::size_t      index,
+	const math::Vector3R&  value) const
 {
 	PH_ASSERT(isAllocated());
 
