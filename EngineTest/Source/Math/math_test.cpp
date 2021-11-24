@@ -332,50 +332,70 @@ TEST(MathTest, HalfFloatConversions)
 	// Test values and bit patterns can be found at:
 	// https://en.wikipedia.org/wiki/Half-precision_floating-point_format
 
-	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b0'00000'0000000000), 0.0f);
-	EXPECT_FLOAT_EQ(math::fp32_to_fp16_bits(0.0f), 0b0'00000'0000000000);
+	EXPECT_FLOAT_EQ(fp16_bits_to_fp32(0b0'00000'0000000000), 0.0f);
+	EXPECT_FLOAT_EQ(fp32_to_fp16_bits(0.0f), 0b0'00000'0000000000);
 
-	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b0'01111'0000000000), 1.0f);
-	EXPECT_FLOAT_EQ(math::fp32_to_fp16_bits(1.0f), 0b0'01111'0000000000);
+	EXPECT_FLOAT_EQ(fp16_bits_to_fp32(0b0'01111'0000000000), 1.0f);
+	EXPECT_FLOAT_EQ(fp32_to_fp16_bits(1.0f), 0b0'01111'0000000000);
 
-	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b1'00000'0000000000), -0.0f);
-	EXPECT_FLOAT_EQ(math::fp32_to_fp16_bits(-0.0f), 0b1'00000'0000000000);
+	EXPECT_FLOAT_EQ(fp16_bits_to_fp32(0b1'00000'0000000000), -0.0f);
+	EXPECT_FLOAT_EQ(fp32_to_fp16_bits(-0.0f), 0b1'00000'0000000000);
 
-	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b1'10000'0000000000), -2.0f);
-	EXPECT_FLOAT_EQ(math::fp32_to_fp16_bits(-2.0f), 0b1'10000'0000000000);
+	EXPECT_FLOAT_EQ(fp16_bits_to_fp32(0b1'10000'0000000000), -2.0f);
+	EXPECT_FLOAT_EQ(fp32_to_fp16_bits(-2.0f), 0b1'10000'0000000000);
 
 	// Smallest number larger than one 
-	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b0'01111'0000000001), 1.00097656f);
+	EXPECT_FLOAT_EQ(fp16_bits_to_fp32(0b0'01111'0000000001), 1.00097656f);
 
 	// Largest normal number
-	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b0'11110'1111111111), 65504.0f);
+	EXPECT_FLOAT_EQ(fp16_bits_to_fp32(0b0'11110'1111111111), 65504.0f);
 
 	// Nearest value to 1/3
-	EXPECT_FLOAT_EQ(math::fp16_bits_to_fp32(0b0'01101'0101010101), 0.33325195f);
+	EXPECT_FLOAT_EQ(fp16_bits_to_fp32(0b0'01101'0101010101), 0.33325195f);
 }
 
 TEST(MathTest, NormalizeInteger)
 {
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(0), 0.0f);
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(std::numeric_limits<int>::max()), 1.0f);
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(std::numeric_limits<int>::min()), -1.0f);
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(std::numeric_limits<int>::max() / 2), 0.5f);
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(std::numeric_limits<int>::min() / 2), -0.5f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(0), 0.0f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(std::numeric_limits<int>::max()), 1.0f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(std::numeric_limits<int>::min()), -1.0f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(std::numeric_limits<int>::max() / 2), 0.5f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(std::numeric_limits<int>::min() / 2), -0.5f);
 
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(0U), 0.0f);
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(std::numeric_limits<unsigned int>::max()), 1.0f);
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(std::numeric_limits<unsigned int>::min()), 0.0f);
-	EXPECT_FLOAT_EQ(math::normalize_integer<float>(std::numeric_limits<unsigned int>::max() / 2), 0.5f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(0U), 0.0f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(std::numeric_limits<unsigned int>::max()), 1.0f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(std::numeric_limits<unsigned int>::min()), 0.0f);
+	EXPECT_FLOAT_EQ(normalize_integer<float>(std::numeric_limits<unsigned int>::max() / 2), 0.5f);
 }
 
 TEST(MathTest, QuantizeFloat)
 {
-	EXPECT_EQ(math::quantize_normalized_float<uint8>(0.0f), 0);
-	EXPECT_EQ(math::quantize_normalized_float<uint8>(1.0f), 255);
-	EXPECT_EQ(math::quantize_normalized_float<uint8>(0.5f + 0.001f), 128);
-	EXPECT_EQ(math::quantize_normalized_float<uint8>(0.5f - 0.001f), 127);
+	EXPECT_EQ(quantize_normalized_float<uint8>(0.0f), 0);
+	EXPECT_EQ(quantize_normalized_float<uint8>(1.0f), 255);
+	EXPECT_EQ(quantize_normalized_float<uint8>(0.5f + 0.001f), 128);
+	EXPECT_EQ(quantize_normalized_float<uint8>(0.5f - 0.001f), 127);
 
-	EXPECT_EQ(math::quantize_normalized_float<int>(0.0f), 0);
-	EXPECT_EQ(math::quantize_normalized_float<int>(-1.0f), std::numeric_limits<int>::min());
-	EXPECT_EQ(math::quantize_normalized_float<int>(1.0f), std::numeric_limits<int>::max());
+	EXPECT_EQ(quantize_normalized_float<int>(0.0f), 0);
+	EXPECT_EQ(quantize_normalized_float<int>(-1.0f), std::numeric_limits<int>::min());
+	EXPECT_EQ(quantize_normalized_float<int>(1.0f), std::numeric_limits<int>::max());
+}
+
+TEST(MathTest, ClearBitsInRange)
+{
+	// Normal 32-bit
+	EXPECT_EQ(clear_bits_in_range<uint32>(0b1111'1111, 0, 2), 0b1111'1100);
+	EXPECT_EQ(clear_bits_in_range<uint32>(0b1111'1111, 4, 7), 0b1000'1111);
+	EXPECT_EQ(clear_bits_in_range<uint32>(0b1111'1111, 7, 8), 0b0111'1111);
+	EXPECT_EQ(clear_bits_in_range<uint32>(0b0000'0000, 5, 8), 0b0000'0000);
+
+	// Normal 8-bit
+	EXPECT_EQ(clear_bits_in_range<uint8>(0b0000'1111, 0, 4), 0b0000'0000);
+	EXPECT_EQ(clear_bits_in_range<uint8>(0b1111'0000, 4, 8), 0b0000'0000);
+	EXPECT_EQ(clear_bits_in_range<uint8>(0b1111'1111, 3, 5), 0b1110'0111);
+	EXPECT_EQ(clear_bits_in_range<uint8>(0b0000'0000, 4, 7), 0b0000'0000);
+
+	// Empty range
+	EXPECT_EQ(clear_bits_in_range<uint32>(0b1100'1110'1001'1101, 3, 3), 0b1100'1110'1001'1101);
+	EXPECT_EQ(clear_bits_in_range<uint8>(0b1001'1101, 7, 7), 0b1001'1101);
+	EXPECT_EQ(clear_bits_in_range<uint8>(0b1011'1011, 8, 8), 0b1011'1011);
 }

@@ -440,14 +440,35 @@ inline T reverse_bits(const T value)
 	}
 }
 
-template<std::unsigned_integral IntType, std::integral RangeType>
-inline IntType clear_bits_in_range(const IntType bits, const RangeType beginBitIdx, const RangeType endBitIdx)
+/*! @brief Set bits in the range to 1.
+The bits in [beginBitIdx, endBitIdx) will be set to 1, while the rest remain the same.
+LSB has the bit index 0.
+*/
+template<std::unsigned_integral UIntType, std::integral RangeType>
+inline UIntType set_bits_in_range(const UIntType bits, const RangeType beginBitIdx, const RangeType endBitIdx)
 {
-	PH_ASSERT_IN_RANGE_INCLUSIVE(0, beginBitIdx, endBitIdx);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(beginBitIdx, endBitIdx, std::numeric_limits<IntType>::digits);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(beginBitIdx, 0, endBitIdx);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(endBitIdx, beginBitIdx, std::numeric_limits<UIntType>::digits);
 
-	auto bitMask = static_cast<IntType>(IntType(1) << (endBitIdx - beginBitIdx));
-	bitMask  
+	// Mask for the bits in range. Constructed by producing required number of 1's then shift
+	// by <beginBitIdx>. 
+	// Note that if there is integer promotion to signed types, it should be fine--promoted type
+	// must be wider than the original unsigned type, the bit shifts will never reach sign bit. 
+	//
+	const auto bitMask = static_cast<UIntType>(((UIntType(1) << (endBitIdx - beginBitIdx)) - 1) << beginBitIdx);
+
+	return bits | bitMask;
+}
+
+/*! @brief Set bits in the range to 0.
+The bits in [beginBitIdx, endBitIdx) will be set to 0, while the rest remain the same.
+LSB has the bit index 0.
+*/
+template<std::unsigned_integral UIntType, std::integral RangeType>
+inline UIntType clear_bits_in_range(const UIntType bits, const RangeType beginBitIdx, const RangeType endBitIdx)
+{
+	const auto bitMask = set_bits_in_range<UIntType, RangeType>(UIntType(0), beginBitIdx, endBitIdx);
+	return bits & (~bitMask);
 }
 
 template<typename T, T MIN, T MAX, std::size_t N>

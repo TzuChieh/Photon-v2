@@ -66,33 +66,25 @@ uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
 	uint64 rawBits = 0;
 	std::memcpy(&rawBits, &m_byteBuffer[firstByteIndex], std::min<std::size_t>(numStraddledBytes, 8));
 
-	// Potentially remove previous value's bits
-	uint64 value = rawBits >> firstByteBitOffset;
-
-	// Potentially remove next value's bits
-	value = (value << (64 - m_numBitsPerUInt)) >> (64 - m_numBitsPerUInt);
+	// Clear previous and next values' bits if any, then get the value
+	const auto bitMask = math::set_bits_in_range<uint64>(0, firstByteBitOffset, firstByteBitOffset + m_numBitsPerUInt);
+	uint64 value = (rawBits & bitMask) >> firstByteBitOffset;
 
 	// Handle situations where the value needs the 9-th byte (straddles next byte)
 	if(numStraddledBytes > 8)
 	{
-		std::byte nextByte;
-		std::memcpy(&nextByte, &m_byteBuffer[firstByteIndex + numStraddledBytes - 1], sizeof(nextByte));
+		uint8 remainingRawBits;
+		std::memcpy(&remainingRawBits, &m_byteBuffer[firstByteIndex + 8], 1);
 
-		// Potentially remove next value's bits
-		nextByte = nextByte << (CHAR_BIT - )
+		// Extract the remaining value and clear next value's bits if any
+		const auto remainingBitsBitMask = math::set_bits_in_range<uint8>(0, static_cast<std::size_t>(0), firstByteBitOffset + m_numBitsPerUInt - 64);
+		remainingRawBits &= remainingBitsBitMask;
 
-		value |= (static_cast<uint64>(nextByte) << )
-
-		const auto remainingBits = static_cast<std::byte>(uint64Value >> (m_numBitsPerUInt - firstBitOffset));
-		std::memcpy(&m_byteBuffer[firstByteIndex + numStraddledBytes - 1], &remainingBits, sizeof(remainingBits));
+		// Add the remaining bits to the value
+		value |= (static_cast<uint64>(remainingRawBits) << (64 - firstByteBitOffset));
 	}
 
-
-	// Add current value on the back of previous value
-	rawBits |= (uint64Value << firstBitOffset);
-	std::memcpy(&m_byteBuffer[firstByteIndex], &rawBits, std::min<std::size_t>(numStraddledBytes, 8));
-
-	
+	return value;
 }
 
 }// end namespace ph

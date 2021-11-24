@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
+#include "Math/math.h"
 
 #include <cstddef>
 #include <climits>
@@ -95,20 +96,21 @@ inline void IndexedUIntBuffer::setUInt(const IntegerType value, const std::size_
 	uint64 rawBits = 0;
 	std::memcpy(&rawBits, &m_byteBuffer[firstByteIndex], std::min<std::size_t>(numStraddledBytes, 8));
 
-	// Store current value between the back of previous value and the head of next value
+	// Store value between the back of previous value and the head of next value
+	rawBits = math::clear_bits_in_range(rawBits, firstByteBitOffset, firstByteBitOffset + m_numBitsPerUInt);
 	rawBits |= (uint64Value << firstByteBitOffset);
 	std::memcpy(&m_byteBuffer[firstByteIndex], &rawBits, std::min<std::size_t>(numStraddledBytes, 8));
 
 	// Handle situations where the value needs the 9-th byte (straddles next byte)
 	if(numStraddledBytes > 8)
 	{
-		std::byte remainingBits;
-		std::memcpy(&remainingBits , &m_byteBuffer[firstByteIndex + 8], 1);
+		uint8 remainingRawBits;
+		std::memcpy(&remainingRawBits, &m_byteBuffer[firstByteIndex + 8], 1);
 
-		// Clear target bits without changing 
-		remainingBits 
-		remainingBits = static_cast<std::byte>(uint64Value >> (m_numBitsPerUInt - firstByteBitOffset));
-		std::memcpy(&m_byteBuffer[firstByteIndex + numStraddledBytes - 1], &remainingBits, sizeof(remainingBits));
+		// Store the remaining value before next value
+		remainingRawBits = math::clear_bits_in_range(remainingRawBits, static_cast<std::size_t>(0), firstByteBitOffset + m_numBitsPerUInt - 64);
+		remainingRawBits |= static_cast<uint8>(uint64Value >> (64 - firstByteBitOffset));
+		std::memcpy(&m_byteBuffer[firstByteIndex + 8], &remainingRawBits, 1);
 	}
 }
 
