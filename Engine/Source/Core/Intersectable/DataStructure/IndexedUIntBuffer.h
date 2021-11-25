@@ -29,7 +29,12 @@ public:
 	template<std::integral IntegerType>
 	void setUInt(std::size_t index, IntegerType value);
 
+	template<typename IntegerType>
+	void setUInts(std::size_t beginIndex, std::size_t endIndex, IntegerType* values);
+
+	// TODO: templatize
 	uint64 getUInt(std::size_t index) const;
+
 	std::size_t numUInts() const;
 	std::size_t estimateMemoryUsageBytes() const;
 	bool isAllocated() const;
@@ -112,6 +117,62 @@ inline void IndexedUIntBuffer::setUInt(const std::size_t index, const IntegerTyp
 		remainingRawBits |= static_cast<uint8>(uint64Value >> (64 - firstByteBitOffset));
 		std::memcpy(&m_byteBuffer[firstByteIndex + 8], &remainingRawBits, 1);
 	}
+}
+
+template<typename IntegerType>
+inline void IndexedUIntBuffer::setUInts(
+	const std::size_t  beginIndex, 
+	const std::size_t  endIndex, 
+	IntegerType* const values)
+{
+	if(endIndex <= beginIndex)
+	{
+		return;
+	}
+
+	PH_ASSERT(values);
+	for(std::size_t uintIdx = beginIndex, valueIdx = 0; uintIdx < endIndex; ++uintIdx, ++valueIdx)
+	{
+		PH_ASSERT_LT(valueIdx, endIndex - beginIndex);
+		setUInt<IntegerType>(uintIdx, values[valueIdx]);
+	}
+}
+
+inline uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
+{
+	PH_ASSERT(isAllocated());
+
+	const std::size_t firstByteIndex     = index * m_numBitsPerUInt / CHAR_BIT;
+	const std::size_t firstByteBitOffset = index * m_numBitsPerUInt - firstByteIndex * CHAR_BIT;
+	const std::size_t numStraddledBytes  = (firstByteBitOffset + m_numBitsPerUInt + (CHAR_BIT - 1)) / CHAR_BIT;
+
+	PH_ASSERT_LT(firstByteBitOffset, CHAR_BIT);
+	PH_ASSERT_LE(numStraddledBytes, 8 + 1);
+	PH_ASSERT_LE(firstByteIndex + numStraddledBytes, m_byteBufferSize);
+
+	// Read current value's bits (first 8 bytes, at most)
+	uint64 rawBits = 0;
+	std::memcpy(&rawBits, &m_byteBuffer[firstByteIndex], std::min<std::size_t>(numStraddledBytes, 8));
+
+	// Clear previous and next values' bits if any, then get the value
+	const auto bitMask = math::set_bits_in_range<uint64>(0, firstByteBitOffset, firstByteBitOffset + m_numBitsPerUInt);
+	uint64 value = (rawBits & bitMask) >> firstByteBitOffset;
+
+	// Handle situations where the value needs the 9-th byte (straddles next byte)
+	if(numStraddledBytes > 8)
+	{
+		uint8 remainingRawBits;
+		std::memcpy(&remainingRawBits, &m_byteBuffer[firstByteIndex + 8], 1);
+
+		// Extract the remaining value and clear next value's bits if any
+		const auto remainingBitsBitMask = math::set_bits_in_range<uint8>(0, static_cast<std::size_t>(0), firstByteBitOffset + m_numBitsPerUInt - 64);
+		remainingRawBits &= remainingBitsBitMask;
+
+		// Add the remaining bits to the value
+		value |= (static_cast<uint64>(remainingRawBits) << (64 - firstByteBitOffset));
+	}
+
+	return value;
 }
 
 }// end namespace ph
