@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
+#include "Math/TVector2.h"
 #include "Math/TVector3.h"
 
 #include <memory>
@@ -31,8 +32,8 @@ enum class EVertexElement
 	VE_Float16,
 	VE_Int32,
 	VE_Int16,
-	VE_OctahedralUnitVec32,
-	VE_OctahedralUnitVec24,
+	VE_OctahedralUnitVec3_32,
+	VE_OctahedralUnitVec3_24,
 
 	// Special values
 	NUM
@@ -46,12 +47,14 @@ public:
 	void setEntry(
 		EVertexAttribute attribute,
 		EVertexElement   element,
-		std::size_t      numElements = 0,
+		std::size_t      numElements,
 		bool             shouldNormalize = false);
 
 	void allocate(std::size_t numVertices);
 
 	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector3R& value) const;
+	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector2R& value) const;
+	void setAttribute(EVertexAttribute attribute, std::size_t index, real value) const;
 	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
 	std::size_t estimateMemoryUsageBytes() const;
 	bool isAllocated() const;
@@ -117,6 +120,16 @@ inline bool IndexedVertexBuffer::isAllocated() const
 inline std::size_t IndexedVertexBuffer::numVertices() const
 {
 	return m_strideSize > 0 ? m_byteBufferSize / m_strideSize : 0;
+}
+
+inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, const math::Vector2R& value) const
+{
+	setAttribute(attribute, index, math::Vector3R(value[0], value[1], 0.0_r));
+}
+
+inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, real value) const
+{
+	setAttribute(attribute, index, math::Vector3R(value, 0.0_r, 0.0_r));
 }
 
 }// end namespace ph

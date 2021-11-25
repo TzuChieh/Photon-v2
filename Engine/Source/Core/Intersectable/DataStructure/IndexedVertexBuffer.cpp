@@ -56,16 +56,16 @@ void IndexedVertexBuffer::setEntry(
 
 	if(numElements <= 3)
 	{
-		if(element == EVertexElement::VE_OctahedralUnitVec32 || element == EVertexElement::VE_OctahedralUnitVec24)
+		if(element == EVertexElement::VE_OctahedralUnitVec3_32 || element == EVertexElement::VE_OctahedralUnitVec3_24)
 		{
-			if(numElements != 0 && numElements != 2)
+			if(numElements != 0 && numElements != 3)
 			{
 				PH_LOG(IndexedVertexBuffer, 
-					"Octahedral unit vector is defined to have 2 elements. The specified number ({}) is ignored.",
+					"Octahedral unit vector is defined to have 3 elements. The specified number ({}) is ignored.",
 					numElements);
 			}
 
-			inputEntry.numElements = 2;
+			inputEntry.numElements = 3;
 		}
 		else
 		{
@@ -108,11 +108,11 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 			currentStrideSize += 2 * entry.numElements;
 			break;
 
-		case EVertexElement::VE_OctahedralUnitVec32:
+		case EVertexElement::VE_OctahedralUnitVec3_32:
 			currentStrideSize += 4;
 			break;
 
-		case EVertexElement::VE_OctahedralUnitVec24:
+		case EVertexElement::VE_OctahedralUnitVec3_24:
 			currentStrideSize += 3;
 			break;
 
@@ -199,7 +199,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		}
 		break;
 
-	case EVertexElement::VE_OctahedralUnitVec32:
+	case EVertexElement::VE_OctahedralUnitVec3_32:
 		{
 			math::TVector2<uint16> encodedBits;
 			std::memcpy(&encodedBits.x(), &(m_byteBuffer[byteIndex + 0 * 2]), 2);
@@ -213,7 +213,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		}
 		break;
 
-	case EVertexElement::VE_OctahedralUnitVec24:
+	case EVertexElement::VE_OctahedralUnitVec3_24:
 		{
 			// Read 3 bytes (we use only the first 3 bytes of the uint32)
 			uint32 packedBits;
@@ -282,6 +282,11 @@ void IndexedVertexBuffer::setAttribute(
 	case EVertexElement::VE_Int32:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
+			if(entry.isNormalized() && std::abs(value[ei]) > 1.0_r)
+			{
+				throw std::invalid_argument("Cannot set un-normalized value to a normalized entry.");
+			}
+
 			const auto element = entry.isNormalized()
 				? math::quantize_normalized_float<int32>(value[ei])
 				: static_cast<int32>(std::round(value[ei]));
@@ -292,6 +297,11 @@ void IndexedVertexBuffer::setAttribute(
 	case EVertexElement::VE_Int16:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
+			if(entry.isNormalized() && std::abs(value[ei]) > 1.0_r)
+			{
+				throw std::invalid_argument("Cannot set un-normalized value to a normalized entry.");
+			}
+
 			const auto element = entry.isNormalized()
 				? math::quantize_normalized_float<int16>(value[ei])
 				: static_cast<int16>(std::round(value[ei]));
@@ -299,7 +309,7 @@ void IndexedVertexBuffer::setAttribute(
 		}
 		break;
 
-	case EVertexElement::VE_OctahedralUnitVec32:
+	case EVertexElement::VE_OctahedralUnitVec3_32:
 		{
 			const math::Vector2R encodedVal = math::octahedron_unit_vector_encode(value);
 
@@ -312,7 +322,7 @@ void IndexedVertexBuffer::setAttribute(
 		}
 		break;
 
-	case EVertexElement::VE_OctahedralUnitVec24:
+	case EVertexElement::VE_OctahedralUnitVec3_24:
 		{
 			const math::Vector2R encodedVal = math::octahedron_unit_vector_encode(value);
 
