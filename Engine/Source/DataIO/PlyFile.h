@@ -8,6 +8,14 @@ References:
 [1] PLY format specification: http://paulbourke.net/dataformats/ply/
 */
 
+#include "DataIO/FileSystem/Path.h"
+
+#include <vector>
+#include <cstddef>
+#include <string>
+
+namespace ph { class BinaryFileInputStream; }
+
 namespace ph
 {
 
@@ -18,7 +26,7 @@ enum class EPlyFileFormat
 	BinaryBigEndian
 };
 
-enum class EPlyPropertyType
+enum class EPlyDataType
 {
 	UNSPECIFIED = 0,
 
@@ -47,12 +55,45 @@ enum class EPlyPropertyType
 	PPT_float64
 };
 
+struct PlyIOConfig final
+{
+	bool isCommentsIgnored = true;
+};
+
 class PlyFile final
 {
 public:
+	PlyFile();
+	explicit PlyFile(const Path& plyFilePath);
+	PlyFile(const Path& plyFilePath, const PlyIOConfig& config);
+
+	void setFormat(EPlyFileFormat format);
+	void clear();
 
 private:
+	struct PlyProperty final
+	{
+		std::string  name;
+		EPlyDataType dataType;
+		EPlyDataType listCountType;
 
+		bool isList() const;
+	};
+
+	struct PlyElement final
+	{
+		std::string              name;
+		std::size_t              numElements;
+		std::vector<PlyProperty> properties;
+		std::vector<std::byte>   rawBuffer;
+	};
+
+	void readHeader(BinaryFileInputStream& stream);
+
+private:
+	EPlyFileFormat           m_format = EPlyFileFormat::ASCII;
+	std::vector<std::string> m_comments;
+	std::vector<PlyElement>  m_elements;
 };
 
 }// end namespace ph
