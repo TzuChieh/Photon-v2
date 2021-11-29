@@ -9,10 +9,12 @@ References:
 */
 
 #include "DataIO/FileSystem/Path.h"
+#include "Utility/SemanticVersion.h"
 
 #include <vector>
 #include <cstddef>
 #include <string>
+#include <string_view>
 
 namespace ph { class BinaryFileInputStream; }
 
@@ -57,7 +59,8 @@ enum class EPlyDataType
 
 struct PlyIOConfig final
 {
-	bool isCommentsIgnored = true;
+	bool bIgnoreComments    = true;
+	bool bPreloadIntoMemory = true;
 };
 
 class PlyFile final
@@ -69,6 +72,7 @@ public:
 
 	void setFormat(EPlyFileFormat format);
 	void clear();
+	SemanticVersion getVersion() const;
 
 private:
 	struct PlyProperty final
@@ -92,10 +96,11 @@ private:
 		PlyElement();
 	};
 
-	void readHeader(BinaryFileInputStream& stream);
+	void readHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath);
 
 private:
 	EPlyFileFormat           m_format;
+	SemanticVersion          m_version;
 	std::vector<std::string> m_comments;
 	std::vector<PlyElement>  m_elements;
 };
