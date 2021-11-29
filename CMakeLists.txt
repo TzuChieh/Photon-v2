@@ -147,8 +147,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     #set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++20")
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++latest")
 
-    # HACK VS 2019 v16.11.7: to make all projects have the /std::c++latest flag
-    set(CMAKE_CXX_STANDARD          20)
+    # HACK: for <= VS 2019 v16.11.7, to make all projects have the /std::c++latest flag
+    set(CMAKE_CXX_STANDARD          23)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
     # Use PDB files for debugging, which also provides potential optimizations

@@ -77,6 +77,8 @@ private:
 		EPlyDataType dataType;
 		EPlyDataType listCountType;
 
+		PlyProperty();
+
 		bool isList() const;
 	};
 
@@ -86,12 +88,14 @@ private:
 		std::size_t              numElements;
 		std::vector<PlyProperty> properties;
 		std::vector<std::byte>   rawBuffer;
+
+		PlyElement();
 	};
 
 	void readHeader(BinaryFileInputStream& stream);
 
 private:
-	EPlyFileFormat           m_format = EPlyFileFormat::ASCII;
+	EPlyFileFormat           m_format;
 	std::vector<std::string> m_comments;
 	std::vector<PlyElement>  m_elements;
 };

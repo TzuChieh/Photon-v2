@@ -15,7 +15,26 @@ namespace
 
 }// end anonymous namespace
 
+PlyFile::PlyProperty::PlyProperty() :
+	name         (),
+	dataType     (EPlyDataType::UNSPECIFIED),
+	listCountType(EPlyDataType::UNSPECIFIED)
+{}
+
+bool PlyFile::PlyProperty::isList() const
+{
+	return listCountType != EPlyDataType::UNSPECIFIED;
+}
+
+PlyFile::PlyElement::PlyElement() :
+	name       (),
+	numElements(0),
+	properties (),
+	rawBuffer  ()
+{}
+
 PlyFile::PlyFile() :
+	m_format  (EPlyFileFormat::ASCII),
 	m_comments(),
 	m_elements()
 {}
