@@ -23,9 +23,11 @@ namespace ph
 
 enum class EPlyFileFormat
 {
-	ASCII,
+	ASCII = 0,
 	Binary,
-	BinaryBigEndian
+	BinaryBigEndian,
+
+	NUM
 };
 
 enum class EPlyDataType
@@ -54,7 +56,9 @@ enum class EPlyDataType
 	PPT_float32,
 
 	/*! The `double` type, double-precision float with 8 bytes. */
-	PPT_float64
+	PPT_float64,
+
+	NUM
 };
 
 struct PlyIOConfig final
@@ -96,7 +100,7 @@ private:
 		PlyElement();
 	};
 
-	void readHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath);
+	void parseHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath);
 
 private:
 	EPlyFileFormat           m_format;

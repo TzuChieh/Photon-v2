@@ -4,6 +4,8 @@
 #include "DataIO/io_exceptions.h"
 #include "Utility/string_utils.h"
 
+#include <type_traits>
+
 namespace ph
 {
 
@@ -18,7 +20,9 @@ enum class EPlyHeaderEntry
 	Property,
 	Element,
 	Comment,
-	Format
+	Format,
+
+	NUM
 };
 
 inline std::string_view format_to_ply_keyword(const EPlyFileFormat format)
@@ -36,23 +40,19 @@ inline std::string_view format_to_ply_keyword(const EPlyFileFormat format)
 
 inline EPlyFileFormat ply_keyword_to_format(const std::string_view keyword)
 {
-	if(keyword == format_to_ply_keyword(EPlyFileFormat::Binary))
+	using Value = std::underlying_type_t<EPlyFileFormat>;
+
+	for(Value ei = 0; ei < static_cast<Value>(EPlyFileFormat::NUM); ++ei)
 	{
-		return EPlyFileFormat::Binary;
+		const auto enumValue = static_cast<EPlyFileFormat>(ei);
+		if(keyword == format_to_ply_keyword(enumValue))
+		{
+			return enumValue;
+		}
 	}
-	else if(keyword == format_to_ply_keyword(EPlyFileFormat::ASCII))
-	{
-		return EPlyFileFormat::ASCII;
-	}
-	else if(keyword == format_to_ply_keyword(EPlyFileFormat::BinaryBigEndian))
-	{
-		return EPlyFileFormat::BinaryBigEndian;
-	}
-	else
-	{
-		PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify format; assuming ASCII.", keyword);
-		return EPlyFileFormat::ASCII;
-	}
+
+	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify format; assuming ASCII.", keyword);
+	return EPlyFileFormat::ASCII;
 }
 
 inline std::string_view entry_to_ply_keyword(const EPlyHeaderEntry entry)
@@ -71,27 +71,54 @@ inline std::string_view entry_to_ply_keyword(const EPlyHeaderEntry entry)
 
 inline EPlyHeaderEntry ply_keyword_to_entry(const std::string_view keyword)
 {
-	if(keyword == entry_to_ply_keyword(EPlyHeaderEntry::Property))
+	using Value = std::underlying_type_t<EPlyHeaderEntry>;
+
+	for(Value ei = 0; ei < static_cast<Value>(EPlyHeaderEntry::NUM); ++ei)
 	{
-		return EPlyHeaderEntry::Property;
+		const auto enumValue = static_cast<EPlyHeaderEntry>(ei);
+		if(keyword == entry_to_ply_keyword(enumValue))
+		{
+			return enumValue;
+		}
 	}
-	else if(keyword == entry_to_ply_keyword(EPlyHeaderEntry::Element))
+
+	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify entry.", keyword);
+	return EPlyHeaderEntry::UNSPECIFIED;
+}
+
+inline std::string_view data_type_to_ply_keyword(const EPlyDataType dataType)
+{
+	switch(dataType)
 	{
-		return EPlyHeaderEntry::Element;
+	case EPlyDataType::PPT_int8:    return "char";
+	case EPlyDataType::PPT_uint8:   return "uchar";
+	case EPlyDataType::PPT_int16:   return "short";
+	case EPlyDataType::PPT_uint16:  return "ushort";
+	case EPlyDataType::PPT_int32:   return "int";
+	case EPlyDataType::PPT_uint32:  return "uint";
+	case EPlyDataType::PPT_float32: return "float";
+	case EPlyDataType::PPT_float64: return "double";
+	default: 
+		PH_LOG_WARNING(PlyFile, "Unknown PLY data type, cannot convert to keyword.");
+		return "";
 	}
-	else if(keyword == entry_to_ply_keyword(EPlyHeaderEntry::Comment))
+}
+
+inline EPlyDataType ply_keyword_to_data_type(const std::string_view keyword)
+{
+	using Value = std::underlying_type_t<EPlyDataType>;
+
+	for(Value ei = 0; ei < static_cast<Value>(EPlyDataType::NUM); ++ei)
 	{
-		return EPlyHeaderEntry::Comment;
+		const auto enumValue = static_cast<EPlyDataType>(ei);
+		if(keyword == data_type_to_ply_keyword(enumValue))
+		{
+			return enumValue;
+		}
 	}
-	else if(keyword == entry_to_ply_keyword(EPlyHeaderEntry::Format))
-	{
-		return EPlyHeaderEntry::Format;
-	}
-	else
-	{
-		PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify entry.", keyword);
-		return EPlyHeaderEntry::UNSPECIFIED;
-	}
+
+	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify data type.", keyword);
+	return EPlyDataType::UNSPECIFIED;
 }
 
 }// end anonymous namespace
@@ -147,8 +174,10 @@ SemanticVersion PlyFile::getVersion() const
 	return m_version;
 }
 
-void PlyFile::readHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath)
+void PlyFile::parseHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath)
 {
+	using namespace string_utils;
+
 	// Check for valid header begin/end guards, then remove them
 	
 	constexpr std::string_view MAGIC_NUMBER = "ply\r";
@@ -179,22 +208,17 @@ void PlyFile::readHeader(std::string_view headerStr, const PlyIOConfig& config, 
 			break;
 		}
 
-		auto headerLine = string_utils::trim(headerStr.substr(0, carriageReturnIndex));
+		auto headerLine = trim(headerStr.substr(0, carriageReturnIndex));
 		headerStr = headerStr.substr(carriageReturnIndex + 1);
 		if(headerLine.empty())
 		{
 			continue;
 		}
 
-		// Detect and remove an entry from the line
+		// Detect and remove the entry keyword from the line
 
-		auto entry = EPlyHeaderEntry::UNSPECIFIED;
-		if(auto spacePos = headerLine.find(' '); spacePos != std::string_view::npos)
-		{
-			entry = ply_keyword_to_entry(headerLine.substr(0, spacePos));
-			headerLine = string_utils::trim(headerLine.substr(spacePos + 1));
-		}
-		else
+		const auto entry = ply_keyword_to_entry(next_token(headerLine, &headerLine));
+		if(entry == EPlyHeaderEntry::UNSPECIFIED)
 		{
 			throw FileIOError("PLY header line with unknown entry", plyFilePath.toAbsoluteString());
 		}
@@ -202,68 +226,56 @@ void PlyFile::readHeader(std::string_view headerStr, const PlyIOConfig& config, 
 		switch(entry)
 		{
 		case EPlyHeaderEntry::Property:
-			if(headerLine.starts_with(KEYWORD_PROPERTY))
+			if(m_elements.empty())
 			{
-				// TODO
+				throw FileIOError("PLY header defines a property without element", plyFilePath.toAbsoluteString());
+			}
 
-				hasParsedLine = true;
+			{
+				PlyProperty prop;
+
+				const auto tokenAfterEntry = next_token(headerLine, &headerLine);
+				if(tokenAfterEntry == "list")
+				{
+					prop.listCountType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+					prop.dataType      = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+					prop.name          = headerLine;
+				}
+				else
+				{
+					prop.dataType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+					prop.name     = headerLine;
+				}
+
+				PH_ASSERT(!m_elements.empty());
+				m_elements.back().properties.push_back(prop);
 			}
 			break;
 
 		case EPlyHeaderEntry::Element:
-			if(headerLine.starts_with(KEYWORD_ELEMENT))
-			{
-				// TODO
+			m_elements.push_back(PlyElement());
+			m_elements.back().name = next_token(headerLine, &headerLine);
+			m_elements.back().numElements = parse_int<std::size_t>(headerLine);
+			break;
 
-				hasParsedLine = true;
+		case EPlyHeaderEntry::Comment:
+			if(!config.bIgnoreComments)
+			{
+				// The rest of the line should all be comments
+				m_comments.push_back(std::string(headerLine));
 			}
 			break;
 
-		case KEYWORD_COMMENT.front():
-			if(headerLine.starts_with(KEYWORD_COMMENT))
-			{
-				if(!config.bIgnoreComments)
-				{
-					// TODO
-				}
-
-				hasParsedLine = true;
-			}
+		case EPlyHeaderEntry::Format:
+			m_format  = ply_keyword_to_format(next_token(headerLine, &headerLine));
+			m_version = SemanticVersion(headerLine);
 			break;
 
-		case KEYWORD_FORMAT.front():
-			if(headerLine.starts_with(KEYWORD_FORMAT))
-			{
-				headerLine.remove_prefix(KEYWORD_FORMAT.size());
-				headerLine = string_utils::trim(headerLine);
-
-				if(auto spacePos = headerLine.find(' '); spacePos != std::string_view::npos)
-				{
-					m_format = ply_keyword_to_format(headerLine.substr(0, spacePos));
-					headerLine = headerLine.substr(spacePos + 1);
-				}
-				else
-				{
-
-				}
-
-				if(!headerLine.empty())
-				{
-					m_version = SemanticVersion(string_utils::trim(headerLine));
-				}
-
-				hasParsedLine = true;
-			}
+		default:
+			PH_ASSERT_UNREACHABLE_SECTION();
 			break;
-
-		}
-
-		if(!hasParsedLine)
-		{
-			PH_LOG_WARNING(PlyFile, "Unknown header information: {}, ignoring", headerLine);
 		}
 	}// end while each header line
-	
 }
 
 }// end namespace ph

@@ -152,6 +152,30 @@ inline std::string_view trim(const std::string_view srcStr)
 	return trim_head<TYPE>(trim_tail<TYPE>(srcStr));
 }
 
+inline std::string_view next_token(
+	std::string_view        srcStr, 
+	std::string_view* const remainingStr    = nullptr,
+	const std::string_view  tokenSeparators = get_whitespaces<>())
+{
+	srcStr = cut_head(srcStr, tokenSeparators);
+
+	const auto separatorPos = srcStr.find_first_of(tokenSeparators);
+	if(separatorPos != std::string_view::npos)
+	{
+		const auto nextToken = srcStr.substr(0, separatorPos);
+		if(remainingStr)
+		{
+			*remainingStr = cut_head(srcStr.substr(separatorPos + 1), tokenSeparators);
+		}
+
+		return nextToken;
+	}
+	else
+	{
+		return "";
+	}
+}
+
 /*! @brief Convert lower-case characters to upper-case.
 
 Characters that are not English alphabets, or being upper-case already,
