@@ -43,8 +43,6 @@ TEST(BinaryFileInputStreamTest, FileStreamReadData)
 
 		ASSERT_TRUE(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{0xCC});
-
-		ASSERT_FALSE(stream.read(1, &byte));
 	}
 }
 

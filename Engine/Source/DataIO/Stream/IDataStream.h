@@ -16,6 +16,8 @@ public:
 	*/
 	virtual std::string acquireName();
 
+	/*! @brief Whether the stream is in a non-erroneous state.
+	*/
 	virtual operator bool () const = 0;
 };
 

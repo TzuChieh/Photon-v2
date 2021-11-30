@@ -1,16 +1,14 @@
 #pragma once
 
-#include "DataIO/Stream/IInputStream.h"
+#include "DataIO/Stream/StdInputStream.h"
 #include "DataIO/FileSystem/Path.h"
 
-#include <utility>
 #include <string>
-#include <istream>
 
 namespace ph
 {
 
-class FormattedTextInputStream : public IInputStream
+class FormattedTextInputStream : public StdInputStream
 {
 public:
 	inline FormattedTextInputStream() = default;
@@ -23,12 +21,7 @@ public:
 	*/
 	explicit FormattedTextInputStream(const std::string& textString);
 
-	FormattedTextInputStream(FormattedTextInputStream&& other);
-
-	bool read(std::size_t numBytes, std::byte* out_bytes) override;
-	void seekGet(std::size_t pos) override;
-	std::size_t tellGet() override;
-	operator bool () const override;
+	inline FormattedTextInputStream(FormattedTextInputStream&& other) = default;
 
 	/*! @brief Read all text without any whitespaces.
 	*/
@@ -44,27 +37,7 @@ public:
 
 	// TODO: readLineTightly()?
 
-	FormattedTextInputStream& operator = (FormattedTextInputStream&& rhs);
-
-private:
-	std::unique_ptr<std::istream> m_istream;
+	inline FormattedTextInputStream& operator = (FormattedTextInputStream&& rhs) = default;
 };
-
-// In-header Implementations:
-
-inline FormattedTextInputStream::FormattedTextInputStream(FormattedTextInputStream&& other)
-{
-	*this = std::move(other);
-}
-
-inline FormattedTextInputStream& FormattedTextInputStream::operator = (FormattedTextInputStream&& rhs)
-{
-	m_istream = std::move(rhs.m_istream);
-}
-
-inline FormattedTextInputStream::operator bool () const
-{
-	return m_istream != nullptr && m_istream->good();
-}
 
 }// end namespace ph

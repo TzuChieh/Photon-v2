@@ -1,5 +1,4 @@
 #include "DataIO/Stream/BinaryFileInputStream.h"
-#include "Common/logging.h"
 #include "DataIO/io_exceptions.h"
 
 #include <fstream>
@@ -9,8 +8,6 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(BinaryFileInputStream, DataIO);
-
 BinaryFileInputStream::BinaryFileInputStream(const Path& filePath) :
 	StdInputStream(std::make_unique<std::ifstream>(
 		filePath.toAbsoluteString().c_str(),
@@ -18,8 +15,8 @@ BinaryFileInputStream::BinaryFileInputStream(const Path& filePath) :
 {
 	if(getStream() && !getStream()->good())
 	{
-		throw FileIOError(
-			std::format("error encountered while opening binary file",
+		throw FileIOError(std::format(
+			"error encountered while opening binary file",
 			filePath.toAbsoluteString()));
 	}
 }
