@@ -74,7 +74,8 @@ void StdOutputStream::useExceptionForOStreamError()
 	}
 	catch(const std::ostream::failure& e)
 	{
-		throw IOException(std::format("error on enabling std::ostream exceptions; {}, reason: {}, ",
+		throw IOException(std::format(
+			"existing error detected on enabling std::ostream exceptions; {}, reason: {}, ",
 			e.what(), e.code().message()));
 	}
 }

@@ -34,6 +34,10 @@ public:
 	*/
 	void readAllTightly(std::string* out_allText);
 
+	/*! @brief Read a line.
+	*/
+	void readLine(std::string* out_lineText);
+
 	/*! @brief Read a line without leading and trailing whitespaces.
 	*/
 	void readTrimmedLine(std::string* out_lineText);

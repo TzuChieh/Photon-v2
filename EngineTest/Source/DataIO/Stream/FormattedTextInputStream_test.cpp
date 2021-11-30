@@ -142,6 +142,52 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 	}
 }
 
+TEST(FormattedTextInputStreamTest, StringStreamReadFormattedLine)
+{
+#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+	// CRLF should be formatted to LF only
+	{
+		auto stream = FormattedTextInputStream(
+			".\n"
+			"..\r\n"
+			"\r\r");
+
+		std::string line;
+		stream.readTrimmedLine(&line);
+		EXPECT_STREQ(line.c_str(), ".");
+
+		stream.readTrimmedLine(&line);
+		EXPECT_STREQ(line.c_str(), "..");
+
+		if(stream)
+		{
+			stream.readTrimmedLine(&line);
+			EXPECT_TRUE(line.empty());
+		}
+	}
+#else
+	{
+		auto stream = FormattedTextInputStream(
+			".\n"
+			"..\r\n"
+			"\r\r");
+
+		std::string line;
+		stream.readTrimmedLine(&line);
+		EXPECT_STREQ(line.c_str(), ".");
+
+		stream.readTrimmedLine(&line);
+		EXPECT_STREQ(line.c_str(), "..");
+
+		if(stream)
+		{
+			stream.readTrimmedLine(&line);
+			EXPECT_TRUE(line.empty());
+		}
+}
+#endif
+}
+
 TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 {
 	{

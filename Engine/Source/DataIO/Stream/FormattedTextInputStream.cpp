@@ -72,6 +72,14 @@ void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 		std::istream_iterator<char>());
 }
 
+void FormattedTextInputStream::readLine(std::string* const out_lineText)
+{
+	PH_ASSERT(out_lineText);
+
+	out_lineText->clear();
+	std::getline(*m_istream, *out_lineText);
+}
+
 void FormattedTextInputStream::readTrimmedLine(std::string* const out_lineText)
 {
 	PH_ASSERT(out_lineText);

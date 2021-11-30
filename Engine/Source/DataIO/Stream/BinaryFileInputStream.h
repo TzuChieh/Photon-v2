@@ -1,53 +1,28 @@
 #pragma once
 
-#include "DataIO/Stream/IInputStream.h"
+#include "DataIO/Stream/StdInputStream.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Common/assertion.h"
 
-#include <utility>
-#include <memory>
-#include <istream>
+#include <type_traits>
 
 namespace ph
 {
 
-class BinaryFileInputStream : public IInputStream
+class BinaryFileInputStream : public StdInputStream
 {
 public:
 	inline BinaryFileInputStream() = default;
 	explicit BinaryFileInputStream(const Path& filePath);
-	BinaryFileInputStream(BinaryFileInputStream&& other);
-
-	bool read(std::size_t numBytes, std::byte* out_bytes) override;
-	void seekGet(std::size_t pos) override;
-	std::size_t tellGet() override;
-	operator bool () const override;
+	inline BinaryFileInputStream(BinaryFileInputStream&& other) = default;
 
 	template<typename T>
 	bool readData(T* out_data);
 
-	BinaryFileInputStream& operator = (BinaryFileInputStream&& rhs);
-
-private:
-	std::unique_ptr<std::istream> m_istream;
+	inline BinaryFileInputStream& operator = (BinaryFileInputStream&& rhs) = default;
 };
 
 // In-header Implementations:
-
-inline BinaryFileInputStream::BinaryFileInputStream(BinaryFileInputStream&& other)
-{
-	*this = std::move(other);
-}
-
-inline BinaryFileInputStream& BinaryFileInputStream::operator = (BinaryFileInputStream&& rhs)
-{
-	m_istream = std::move(rhs.m_istream);
-}
-
-inline BinaryFileInputStream::operator bool () const
-{
-	return m_istream != nullptr && m_istream->good();
-}
 
 template<typename T>
 inline bool BinaryFileInputStream::readData(T* const out_data)
