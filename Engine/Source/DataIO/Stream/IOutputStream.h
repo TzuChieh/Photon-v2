@@ -13,7 +13,7 @@ class IOutputStream : public IDataStream
 public:
 	/*! @brief Write data in the form of raw bytes in one go.
 	The method does not return before finishing the writing process.
-	@exception IOException If write operation failed.
+	@exception IOException If the write operation failed.
 	*/
 	virtual void write(std::size_t numBytes, const std::byte* bytes) = 0;
 
@@ -35,7 +35,7 @@ public:
 	The method may return before finish writing all bytes. In such case, the method
 	returns how many bytes were actually written.
 	@return How many bytes were actually written.
-	@exception IOException If write operation failed.
+	@exception IOException If the write operation failed.
 	*/
 	virtual std::size_t writeSome(std::size_t numBytes, const std::byte* bytes);
 };

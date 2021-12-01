@@ -13,17 +13,30 @@ class IInputStream : public IDataStream
 public:
 	/*! @brief Read specific number of raw bytes in one go.
 	The method does not return before finishing the reading process.
-	@return `true` if the read operation succeeded and @p numBytes of data is written to @p out_bytes;
-	`false` otherwise.
-	@exception IOException If read operation failed.
+	@exception IOException If the read operation failed.
 	*/
-	virtual bool read(std::size_t numBytes, std::byte* out_bytes) = 0;
+	virtual void read(std::size_t numBytes, std::byte* out_bytes) = 0;
 
+	/*! @brief Set the input position of the stream.
+	The unit of the position is defined by the implementation.
+	@exception IOException If the seeking process failed.
+	*/
 	virtual void seekGet(std::size_t pos) = 0;
+
+	/*! @brief Get the current input position of the stream.
+	The unit of the position is defined by the implementation.
+	@return Current input position. Empty if the position is unavailable.
+	*/
 	virtual std::optional<std::size_t> tellGet() = 0;
 
 	operator bool () const override = 0;
 
+	/*! @brief Read some data in the form of raw bytes.
+	The method may return before finish reading all bytes. In such case, the method
+	returns how many bytes were actually read.
+	@return How many bytes were actually read.
+	@exception IOException If the read operation failed.
+	*/
 	virtual std::size_t readSome(std::size_t numBytes, std::byte* out_bytes);
 };
 
@@ -31,7 +44,8 @@ public:
 
 inline std::size_t IInputStream::readSome(const std::size_t numBytes, std::byte* const out_bytes)
 {
-	return read(numBytes, out_bytes) ? numBytes : 0;
+	read(numBytes, out_bytes);
+	return numBytes;
 }
 
 }// end namespace ph

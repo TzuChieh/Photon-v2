@@ -38,11 +38,13 @@ namespace ph
 class Path
 {
 public:
+	/*! @brief Creates empty path.
+	*/
 	inline Path() : 
-		Path(std_filesystem::current_path().string())
+		m_path()
 	{}
 
-	// Constructing a path from some string representation of the path. The 
+	// Constructs a path from some string representation of the path. The 
 	// string can be either a relative or absolute path, or even a path 
 	// fragment. The constructed path substitutes all separators to a system 
 	// specific (preferred) one.

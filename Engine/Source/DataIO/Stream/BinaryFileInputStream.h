@@ -5,6 +5,8 @@
 #include "Common/assertion.h"
 
 #include <type_traits>
+#include <cstddef>
+#include <optional>
 
 namespace ph
 {
@@ -19,7 +21,12 @@ public:
 	template<typename T>
 	bool readData(T* out_data);
 
+	std::optional<std::size_t> getFileSizeInBytes() const;
+
 	inline BinaryFileInputStream& operator = (BinaryFileInputStream&& rhs) = default;
+
+private:
+	Path m_filePath;
 };
 
 // In-header Implementations:

@@ -5,6 +5,7 @@
 
 #include <utility>
 #include <istream>
+#include <memory>
 
 namespace ph
 {
@@ -16,14 +17,18 @@ public:
 	explicit StdInputStream(std::unique_ptr<std::istream> stream);
 	StdInputStream(StdInputStream&& other);
 
-	bool read(std::size_t numBytes, std::byte* out_bytes) override;
+	void read(std::size_t numBytes, std::byte* out_bytes) override;
 	void seekGet(std::size_t pos) override;
 	std::optional<std::size_t> tellGet() override;
 	operator bool () const override;
+	std::size_t readSome(std::size_t numBytes, std::byte* out_bytes) override;
 
 	std::istream* getStream() const;
 
 	StdInputStream& operator = (StdInputStream&& rhs);
+
+protected:
+	void ensureStreamIsNotOnEOF() const;
 
 private:
 	std::unique_ptr<std::istream> m_istream;

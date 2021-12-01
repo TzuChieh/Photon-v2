@@ -4,6 +4,8 @@
 #include "DataIO/FileSystem/Path.h"
 
 #include <string>
+#include <istream>
+#include <memory>
 
 namespace ph
 {
@@ -23,6 +25,8 @@ public:
 
 	inline FormattedTextInputStream(FormattedTextInputStream&& other) = default;
 
+	std::string acquireName() override;
+
 	/*! @brief Read all text without any whitespaces.
 	*/
 	void readAllTightly(std::string* out_allText);
@@ -31,13 +35,18 @@ public:
 	*/
 	void readLine(std::string* out_lineText);
 
-	/*! @brief Read a line without leading and trailing whitespaces.
-	*/
-	void readTrimmedLine(std::string* out_lineText);
-
 	// TODO: readLineTightly()?
 
 	inline FormattedTextInputStream& operator = (FormattedTextInputStream&& rhs) = default;
+
+protected:
+	/*!
+	@param stream A standard formatted input stream.
+	*/
+	FormattedTextInputStream(std::unique_ptr<std::istream> stream, std::string streamName);
+
+private:
+	std::string m_streamName;
 };
 
 }// end namespace ph

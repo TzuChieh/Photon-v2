@@ -7,7 +7,7 @@
 namespace ph
 {
 
-FormattedTextFileOutputStream::FormattedTextFileOutputStream(const Path& filePath) :
+FormattedTextFileOutputStream::FormattedTextFileOutputStream(const Path& filePath) try :
 
 	StdOutputStream(
 		std::make_unique<std::ofstream>(
@@ -15,13 +15,12 @@ FormattedTextFileOutputStream::FormattedTextFileOutputStream(const Path& filePat
 			std::ios_base::out)),
 
 	m_filePath(filePath)
+{}
+catch(const IOException& e)
 {
-	if(getStream() && !getStream()->good())
-	{
-		throw FileIOError(
-			std::format("error encountered while opening text file", 
-			filePath.toAbsoluteString()));
-	}
+	throw FileIOError(std::format(
+		"error encountered while opening text file: {}", e.what(), 
+		filePath.toAbsoluteString()));
 }
 
 void FormattedTextFileOutputStream::writeLine(const std::string_view line)

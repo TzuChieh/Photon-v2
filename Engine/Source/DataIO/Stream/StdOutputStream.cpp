@@ -64,7 +64,7 @@ void StdOutputStream::useExceptionForOStreamError()
 {
 	if(!m_ostream)
 	{
-		return;
+		throw IOException("Stream is empty. Cannot enable exceptions.");
 	}
 
 	try

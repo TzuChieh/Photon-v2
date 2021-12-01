@@ -16,7 +16,7 @@ namespace ph
 class IesData
 {
 public:
-	IesData(const Path& iesFilePath);
+	explicit IesData(const Path& iesFilePath);
 
 	real sampleAttenuationFactor(real theta, real phi) const;
 	std::size_t numAttenuationFactorThetaSamples() const;

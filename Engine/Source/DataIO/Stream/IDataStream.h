@@ -12,7 +12,7 @@ public:
 
 	/*! @brief Access to the stream's name.
 	This method is not meant to be used in a high performance context, unless
-	otherwise stated by the overridder.
+	otherwise stated by the overridder. Stream name is not always available.
 	*/
 	virtual std::string acquireName();
 
