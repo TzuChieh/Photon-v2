@@ -19,7 +19,7 @@ public:
 	inline BinaryFileInputStream(BinaryFileInputStream&& other) = default;
 
 	template<typename T>
-	bool readData(T* out_data);
+	void readData(T* out_data);
 
 	std::optional<std::size_t> getFileSizeInBytes() const;
 
@@ -32,12 +32,12 @@ private:
 // In-header Implementations:
 
 template<typename T>
-inline bool BinaryFileInputStream::readData(T* const out_data)
+inline void BinaryFileInputStream::readData(T* const out_data)
 {
 	static_assert(std::is_trivially_copyable_v<T>);
 	PH_ASSERT(out_data);
 
-	return read(sizeof(T), reinterpret_cast<std::byte*>(out_data));
+	read(sizeof(T), reinterpret_cast<std::byte*>(out_data));
 }
 
 }// end namespace ph

@@ -13,7 +13,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 		auto stream = FormattedTextInputStream("123456");
 		
 		std::string content;
-		stream.readAllTightly(&content);
+		ASSERT_NO_THROW(stream.readAllTightly(&content));
 		EXPECT_STREQ(content.c_str(), "123456");
 		EXPECT_FALSE(stream);
 	}
@@ -22,7 +22,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 		auto stream = FormattedTextInputStream("abc de fg hijk");
 
 		std::string content;
-		stream.readAllTightly(&content);
+		ASSERT_NO_THROW(stream.readAllTightly(&content));
 		EXPECT_STREQ(content.c_str(), "abcdefghijk");
 	}
 
@@ -35,7 +35,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 			"");
 
 		std::string content;
-		stream.readAllTightly(&content);
+		ASSERT_NO_THROW(stream.readAllTightly(&content));
 		EXPECT_STREQ(content.c_str(), "0,2,4,6,8,10");
 		EXPECT_FALSE(stream);
 	}
@@ -51,20 +51,16 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 
 		std::string line;
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), ".");
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "..");
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "...");
 
-		if(stream)
-		{
-			stream.readTrimmedLine(&line);
-			EXPECT_TRUE(line.empty());
-		}
+		EXPECT_FALSE(stream);
 	}
 
 	{
@@ -75,20 +71,21 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 
 		std::string line;
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "XXX");
 
-		stream.readTrimmedLine(&line);
-		EXPECT_STREQ(line.c_str(), "X X  X");
+		ASSERT_NO_THROW(stream.readLine(&line));
+#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+		// CRLF should be formatted to LF only, then drop from the line
+		EXPECT_STREQ(line.c_str(), "X X  X ");
+#else
+		EXPECT_STREQ(line.c_str(), "X X  X \r");
+#endif
 
-		stream.readTrimmedLine(&line);
-		EXPECT_STREQ(line.c_str(), "X \t XX");
+		ASSERT_NO_THROW(stream.readLine(&line));
+		EXPECT_STREQ(line.c_str(), "X \t XX\t");
 
-		if(stream)
-		{
-			stream.readTrimmedLine(&line);
-			EXPECT_TRUE(line.empty());
-		}
+		EXPECT_FALSE(stream);
 	}
 
 	{
@@ -102,23 +99,24 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 
 		std::string line;
 
-		stream.readTrimmedLine(&line);
-		EXPECT_STREQ(line.c_str(), "x");
+		ASSERT_NO_THROW(stream.readLine(&line));
+		EXPECT_STREQ(line.c_str(), " x ");
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
+#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+		// CRLF should be formatted to LF only, then drop from the line
 		EXPECT_STREQ(line.c_str(), "y");
+#else
+		EXPECT_STREQ(line.c_str(), "y\r");
+#endif
 
-		stream.readTrimmedLine(&line);
-		EXPECT_STREQ(line.c_str(), "z");
+		ASSERT_NO_THROW(stream.readLine(&line));
+		EXPECT_STREQ(line.c_str(), "\tz\t");
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "");
 
-		if(stream)
-		{
-			stream.readTrimmedLine(&line);
-			EXPECT_TRUE(line.empty());
-		}
+		EXPECT_FALSE(stream);
 	}
 
 	{
@@ -128,64 +126,17 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 			"\r\r");
 
 		std::string line;
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), ".");
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "..");
 
-		if(stream)
-		{
-			stream.readTrimmedLine(&line);
-			EXPECT_TRUE(line.empty());
-		}
+		ASSERT_NO_THROW(stream.readLine(&line));
+		EXPECT_STREQ(line.c_str(), "\r\r");
+
+		EXPECT_FALSE(stream);
 	}
-}
-
-TEST(FormattedTextInputStreamTest, StringStreamReadFormattedLine)
-{
-#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
-	// CRLF should be formatted to LF only
-	{
-		auto stream = FormattedTextInputStream(
-			".\n"
-			"..\r\n"
-			"\r\r");
-
-		std::string line;
-		stream.readTrimmedLine(&line);
-		EXPECT_STREQ(line.c_str(), ".");
-
-		stream.readTrimmedLine(&line);
-		EXPECT_STREQ(line.c_str(), "..");
-
-		if(stream)
-		{
-			stream.readTrimmedLine(&line);
-			EXPECT_TRUE(line.empty());
-		}
-	}
-#else
-	{
-		auto stream = FormattedTextInputStream(
-			".\n"
-			"..\r\n"
-			"\r\r");
-
-		std::string line;
-		stream.readTrimmedLine(&line);
-		EXPECT_STREQ(line.c_str(), ".");
-
-		stream.readTrimmedLine(&line);
-		EXPECT_STREQ(line.c_str(), "..");
-
-		if(stream)
-		{
-			stream.readTrimmedLine(&line);
-			EXPECT_TRUE(line.empty());
-		}
-}
-#endif
 }
 
 TEST(FormattedTextInputStreamTest, FileStreamReadAll)
@@ -195,7 +146,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 			PH_TEST_RESOURCE_PATH("Text/simple_text.txt")));
 
 		std::string content;
-		stream.readAllTightly(&content);
+		ASSERT_NO_THROW(stream.readAllTightly(&content));
 		EXPECT_STREQ(content.c_str(), "123456");
 		EXPECT_FALSE(stream);
 	}
@@ -205,7 +156,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadAll)
 			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
 
 		std::string content;
-		stream.readAllTightly(&content);
+		ASSERT_NO_THROW(stream.readAllTightly(&content));
 		EXPECT_STREQ(content.c_str(), "vvvvvv");
 		EXPECT_FALSE(stream);
 	}
@@ -219,14 +170,10 @@ TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 
 		std::string line;
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "123456");
 
-		if(stream)
-		{
-			stream.readTrimmedLine(&line);
-			EXPECT_TRUE(line.empty());
-		}
+		EXPECT_FALSE(stream);
 	}
 
 	{
@@ -235,20 +182,16 @@ TEST(FormattedTextInputStreamTest, FileStreamReadLine)
 
 		std::string line;
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "v");
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "vv");
 
-		stream.readTrimmedLine(&line);
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "vvv");
 
-		if(stream)
-		{
-			stream.readTrimmedLine(&line);
-			EXPECT_TRUE(line.empty());
-		}
+		EXPECT_FALSE(stream);
 	}
 }
 
@@ -259,24 +202,24 @@ TEST(FormattedTextInputStreamTest, FileStreamReadByte)
 			PH_TEST_RESOURCE_PATH("Text/simple_multi_line.txt")));
 
 		std::byte byte;
-		ASSERT_TRUE(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'v'});
 
 #ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
 		// CRLF should be formatted to LF only
-		ASSERT_TRUE(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'\n'});
 
-		ASSERT_TRUE(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'v'});
 #else
-		ASSERT_TRUE(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'\r'});
 
-		ASSERT_TRUE(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'\n'});
 
-		ASSERT_TRUE(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'v'});
 #endif
 	}
@@ -290,7 +233,7 @@ TEST(FormattedTextInputStreamTest, SeekTellConsistency)
 
 		EXPECT_EQ(stream.tellGet(), 0);
 
-		stream.seekGet(5);
+		ASSERT_NO_THROW(stream.seekGet(5));
 		EXPECT_EQ(stream.tellGet(), 5);
 
 		// try multiple tells
@@ -300,7 +243,7 @@ TEST(FormattedTextInputStreamTest, SeekTellConsistency)
 		}
 
 		// seek to EOF
-		stream.seekGet(9);
+		ASSERT_NO_THROW(stream.seekGet(9));
 		EXPECT_EQ(stream.tellGet(), 9);
 	}
 }

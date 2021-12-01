@@ -146,11 +146,12 @@ IniFile IniFile::read(const Path& iniFilePath)
 	FormattedTextInputStream inputFile(iniFilePath);
 
 	IniFile     result;
-	std::string line;
+	std::string lineBuffer;
 	std::size_t lineNumber = 0;
 	while(inputFile)
 	{
-		inputFile.readTrimmedLine(&line);
+		inputFile.readLine(&lineBuffer);
+		const auto line = string_utils::trim(lineBuffer);
 		++lineNumber;
 
 		// Skip blank line and comment
