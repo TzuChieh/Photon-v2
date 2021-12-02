@@ -75,15 +75,13 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 		EXPECT_STREQ(line.c_str(), "XXX");
 
 		ASSERT_NO_THROW(stream.readLine(&line));
-#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
-		// CRLF should be formatted to LF only, then drop from the line
-		EXPECT_STREQ(line.c_str(), "X X  X ");
-#else
-		EXPECT_STREQ(line.c_str(), "X X  X \r");
-#endif
+		EXPECT_STREQ(line.c_str(), " X X  X \r");// new line is always LF in code, no matter the OS
 
 		ASSERT_NO_THROW(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "X \t XX\t");
+		EXPECT_STREQ(line.c_str(), " X \t XX\t");
+
+		ASSERT_NO_THROW(stream.readLine(&line));
+		EXPECT_STREQ(line.c_str(), "");// there is a LF in the last line, so we can read another line fine
 
 		EXPECT_FALSE(stream);
 	}
@@ -100,15 +98,16 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 		std::string line;
 
 		ASSERT_NO_THROW(stream.readLine(&line));
+		EXPECT_STREQ(line.c_str(), "");
+
+		ASSERT_NO_THROW(stream.readLine(&line));
+		EXPECT_STREQ(line.c_str(), "");
+
+		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), " x ");
 
 		ASSERT_NO_THROW(stream.readLine(&line));
-#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
-		// CRLF should be formatted to LF only, then drop from the line
-		EXPECT_STREQ(line.c_str(), "y");
-#else
-		EXPECT_STREQ(line.c_str(), "y\r");
-#endif
+		EXPECT_STREQ(line.c_str(), "y\r");// new line is always LF in code, no matter the OS
 
 		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "\tz\t");
@@ -130,7 +129,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 		EXPECT_STREQ(line.c_str(), ".");
 
 		ASSERT_NO_THROW(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "..");
+		EXPECT_STREQ(line.c_str(), "..\r");// new line is always LF in code, no matter the OS
 
 		ASSERT_NO_THROW(stream.readLine(&line));
 		EXPECT_STREQ(line.c_str(), "\r\r");

@@ -10,6 +10,20 @@
 #include <cctype>
 #include <algorithm>
 
+/*
+Note on the implementation:
+
+One might want to enable exceptions by setting std::istream::exceptions(). However, many operations 
+depend on the detection of EOF, e.g., std::istream_iterator stops on EOF, if an exception is to 
+thrown there, the iterating process may stop prematurely. Moreover, not setting std::istream::eofbit
+to std::istream::exceptions() may not be enough as std::istream::failbit may be set after 
+std::istream::eofbit is set, triggering an exception nevertheless. 
+
+We resort to default std::istream behavior and check for stream status manually after each operation
+and throw exceptions as appropriate (otherwise we may need to check for error code and catch istream
+exceptions at the same time since we disabled most of the error bits, but not all). 
+*/
+
 namespace ph
 {
 
@@ -107,11 +121,22 @@ std::optional<std::size_t> StdInputStream::tellGet()
 	}
 }
 
-void StdInputStream::ensureStreamIsNotOnEOF() const
+void StdInputStream::ensureStreamIsGoodForRead() const
 {
-	if(!m_istream || m_istream->eof())
+	if(!(m_istream && m_istream->good()))
 	{
-		throw IOException("Stream is on EOF (expected std::istream to not being on EOF already).");
+		if(!m_istream)
+		{
+			throw IOException("Stream is uninitialized.");
+		}
+
+		if(m_istream->eof())
+		{
+			throw IOException("Stream is on EOF (expected std::istream to not being on EOF already).");
+		}
+		
+		// TODO: detect error code and set specific fail reason
+		throw IOException("Error occurred in stream.");
 	}
 }
 
@@ -124,7 +149,11 @@ void StdInputStream::useExceptionForIStreamError()
 
 	try
 	{
-		m_istream->exceptions(std::istream::failbit | std::istream::badbit | std::istream::eofbit);
+		// std::istream::eofbit is not set as some input operation depend on the detection of EOF
+		// (e.g., std::istream_iterator stops on EOF, if an exception is to thrown there, the 
+		// iterating process may stop prematurely)
+
+		m_istream->exceptions(std::istream::failbit | std::istream::badbit);
 	}
 	catch(const std::istream::failure& e)
 	{

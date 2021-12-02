@@ -54,23 +54,19 @@ void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 	try
 	{
 		// Note that when reading characters, std::istream_iterator skips whitespace by default
+		// (the std::istream_interator will iterate until EOF)
 
 		out_allText->clear();
 		out_allText->append(
 			std::istream_iterator<char>(*(getStream())),
 			std::istream_iterator<char>());
 	}
+	// exceptions() is set to NOT throw on EOF
 	catch(const std::istream::failure& e)
 	{
-		// The first time we read all text, the std::istream_interator will iterate until EOF and
-		// trigger this (we set the eofbit for exceptions). This situation is valid and we ignore
-		// it here.
-		if(!getStream()->eof())
-		{
-			throw IOException(std::format(
-				"error reading bytes from std::istream; {}, reason: {}, ",
-				e.what(), e.code().message()));
-		}
+		throw IOException(std::format(
+			"error reading bytes from std::istream; {}, reason: {}, ",
+			e.what(), e.code().message()));
 	}
 }
 
@@ -83,19 +79,17 @@ void FormattedTextInputStream::readLine(std::string* const out_lineText)
 
 	try
 	{
+		// Note that std::getline() will stop on EOF (EOF is considered a delimiter, the final one)
+
 		out_lineText->clear();
 		std::getline(*(getStream()), *out_lineText);
 	}
+	// exceptions() is set to NOT throw on EOF
 	catch(const std::istream::failure& e)
 	{
-		// std::getline() may stop on EOF and trigger this (we set the eofbit for exceptions). 
-		// This situation is valid and we ignore it here (only for the first time).
-		if(!getStream()->eof())
-		{
-			throw IOException(std::format(
-				"error reading bytes from std::istream; {}, reason: {}, ",
-				e.what(), e.code().message()));
-		}
+		throw IOException(std::format(
+			"error reading bytes from std::istream; {}, reason: {}, ",
+			e.what(), e.code().message()));
 	}
 }
 

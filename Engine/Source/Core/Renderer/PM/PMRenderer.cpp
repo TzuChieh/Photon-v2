@@ -162,14 +162,14 @@ void PMRenderer::renderWithProgressivePM()
 		viewpoints = viewpointCollector.claimViewpoints();
 	}
 	
-	PH_LOG(PhotonMapRenderer, "size of viewpoint buffer: {} MB", 
-		math::byte_to_MB<real>(sizeof(Viewpoint) * viewpoints.size()));
+	PH_LOG(PhotonMapRenderer, "size of viewpoint buffer: {} MiB", 
+		math::bytes_to_MiB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
 	const std::size_t numPhotonsPerPass = m_numPhotons;
 
 	PH_LOG(PhotonMapRenderer, "number of photons per pass: {}", numPhotonsPerPass);
-	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MB",
-		math::byte_to_MB<real>(sizeof(Photon) * numPhotonsPerPass));
+	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MiB",
+		math::bytes_to_MiB<real>(sizeof(Photon) * numPhotonsPerPass));
 
 	PH_LOG(PhotonMapRenderer, "start accumulating passes...");
 
@@ -283,14 +283,14 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		}
 	}
 
-	PH_LOG(PhotonMapRenderer, "size of viewpoint buffer: {} MB",
-		math::byte_to_MB<real>(sizeof(Viewpoint) * viewpoints.size()));
+	PH_LOG(PhotonMapRenderer, "size of viewpoint buffer: {} MiB",
+		math::bytes_to_MiB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
 	const std::size_t numPhotonsPerPass = m_numPhotons;
 
 	PH_LOG(PhotonMapRenderer, "number of photons per pass: {}", numPhotonsPerPass);
-	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MB",
-		math::byte_to_MB<real>(sizeof(Photon) * numPhotonsPerPass));
+	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MiB",
+		math::bytes_to_MiB<real>(sizeof(Photon) * numPhotonsPerPass));
 
 	PH_LOG(PhotonMapRenderer, "start accumulating passes...");
 

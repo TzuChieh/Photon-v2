@@ -28,7 +28,7 @@ public:
 	StdInputStream& operator = (StdInputStream&& rhs);
 
 protected:
-	void ensureStreamIsNotOnEOF() const;
+	void ensureStreamIsGoodForRead() const;
 
 private:
 	std::unique_ptr<std::istream> m_istream;

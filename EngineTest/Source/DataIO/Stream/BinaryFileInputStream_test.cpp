@@ -13,20 +13,20 @@ TEST(BinaryFileInputStreamTest, FileStreamReadData)
 			PH_TEST_RESOURCE_PATH("Binary/test_binary_ascii.dat")));
 		
 		unsigned char ch;
-		EXPECT_NO_THROW(stream.readData(&ch));
+		ASSERT_NO_THROW(stream.readData(&ch));
 		EXPECT_EQ(ch, 't');
 
-		EXPECT_NO_THROW(stream.readData(&ch));
+		ASSERT_NO_THROW(stream.readData(&ch));
 		EXPECT_EQ(ch, 'e');
 
 		stream.seekGet(10);
-		EXPECT_NO_THROW(stream.readData(&ch));
+		ASSERT_NO_THROW(stream.readData(&ch));
 		EXPECT_EQ(ch, 'y');
 
-		EXPECT_NO_THROW(stream.readData(&ch));
+		ASSERT_NO_THROW(stream.readData(&ch));
 		EXPECT_EQ(ch, ' ');
 
-		EXPECT_NO_THROW(stream.readData(&ch));
+		ASSERT_NO_THROW(stream.readData(&ch));
 		EXPECT_EQ(ch, 'm');
 	}
 
@@ -35,13 +35,13 @@ TEST(BinaryFileInputStreamTest, FileStreamReadData)
 			PH_TEST_RESOURCE_PATH("Binary/test_binary_hex.dat")));
 
 		std::byte byte;
-		EXPECT_NO_THROW(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{0xAA});
 
-		EXPECT_NO_THROW(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{0xBB});
 
-		EXPECT_NO_THROW(stream.read(1, &byte));
+		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{0xCC});
 	}
 }
@@ -54,7 +54,7 @@ TEST(BinaryFileInputStreamTest, SeekTellConsistency)
 
 		EXPECT_EQ(stream.tellGet(), 0);
 
-		EXPECT_NO_THROW(stream.seekGet(7));
+		ASSERT_NO_THROW(stream.seekGet(7));
 		EXPECT_EQ(stream.tellGet(), 7);
 
 		// try multiple tells
@@ -64,7 +64,7 @@ TEST(BinaryFileInputStreamTest, SeekTellConsistency)
 		}
 
 		// seek to EOF
-		EXPECT_NO_THROW(stream.seekGet(24));
+		ASSERT_NO_THROW(stream.seekGet(24));
 		EXPECT_EQ(stream.tellGet(), 24);
 	}
 }
