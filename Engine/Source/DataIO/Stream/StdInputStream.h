@@ -28,16 +28,13 @@ public:
 	StdInputStream& operator = (StdInputStream&& rhs);
 
 protected:
+	/*! @brief Check if the stream has any error.
+	@exception IOException if there is any error.
+	*/
 	void ensureStreamIsGoodForRead() const;
 
 private:
 	std::unique_ptr<std::istream> m_istream;
-
-	/*! @brief Enable the use of exceptions when std::istream has error.
-	This call will immediately throw @p IOException if the member std::istream
-	is already in an error state.
-	*/
-	void useExceptionForIStreamError();
 };
 
 // In-header Implementations:

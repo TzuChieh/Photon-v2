@@ -29,9 +29,7 @@ namespace ph
 
 StdInputStream::StdInputStream(std::unique_ptr<std::istream> stream) :
 	m_istream(std::move(stream))
-{
-	useExceptionForIStreamError();
-}
+{}
 
 void StdInputStream::read(const std::size_t numBytes, std::byte* const out_bytes)
 {
@@ -39,15 +37,14 @@ void StdInputStream::read(const std::size_t numBytes, std::byte* const out_bytes
 	PH_ASSERT(m_istream);
 	PH_ASSERT(out_bytes);
 
-	try
-	{
-		m_istream->read(reinterpret_cast<char*>(out_bytes), numBytes);
-	}
-	catch(const std::istream::failure& e)
+	ensureStreamIsGoodForRead();
+
+	m_istream->read(reinterpret_cast<char*>(out_bytes), numBytes);
+	if(!m_istream->good())
 	{
 		throw IOException(std::format(
-			"error reading bytes from std::istream; {}, reason: {}, ",
-			e.what(), e.code().message()));
+			"Error on trying to read {} bytes from std::istream.",
+			numBytes));
 	}
 
 	PH_ASSERT_EQ(numBytes, m_istream->gcount());
@@ -59,23 +56,21 @@ std::size_t StdInputStream::readSome(const std::size_t numBytes, std::byte* cons
 	PH_ASSERT(m_istream);
 	PH_ASSERT(out_bytes);
 
-	try
-	{
-		m_istream->read(reinterpret_cast<char*>(out_bytes), numBytes);
-	}
-	catch(const std::istream::failure& e)
+	ensureStreamIsGoodForRead();
+
+	m_istream->read(reinterpret_cast<char*>(out_bytes), numBytes);
+
+	if(!m_istream->good())
 	{
 		if(m_istream->eof())
 		{
 			const auto numBytesRead = static_cast<std::size_t>(m_istream->gcount());
 			return numBytesRead;
 		}
-		else
-		{
-			throw IOException(std::format(
-				"error reading bytes from std::istream; {}, reason: {}, ",
-				e.what(), e.code().message()));
-		}
+
+		throw IOException(std::format(
+			"Error on trying to read {} bytes from std::istream.",
+			numBytes));
 	}
 
 	PH_ASSERT_EQ(numBytes, m_istream->gcount());
@@ -86,15 +81,15 @@ void StdInputStream::seekGet(const std::size_t pos)
 {
 	PH_ASSERT(m_istream);
 
-	try
-	{
-		m_istream->seekg(pos);
-	}
-	catch(const std::istream::failure& e)
+	ensureStreamIsGoodForRead();
+
+	m_istream->seekg(pos);
+	
+	if(!m_istream->good())
 	{
 		throw IOException(std::format(
-			"error seeking get on std::istream; {}, reason: {}, ",
-			e.what(), e.code().message()));
+			"Error seeking to position {} on std::istream.",
+			pos));
 	}
 }
 
@@ -102,23 +97,14 @@ std::optional<std::size_t> StdInputStream::tellGet()
 {
 	PH_ASSERT(m_istream);
 
-	try
-	{
-		const std::istream::pos_type pos = m_istream->tellg();
-		if(pos == std::ostream::pos_type(-1))
-		{
-			return std::nullopt;
-		}
+	const std::istream::pos_type pos = m_istream->tellg();
 
-		return static_cast<std::size_t>(pos);
-	}
 	// According to https://en.cppreference.com/w/cpp/io/basic_istream/tellg
-	// tellg() may fail/throw if the error state flag is not goodbit. In such case, return empty position
+	// tellg() may fail by returning pos_type(-1) on failure. In such case, return empty position
 	// to indicate error.
-	catch(const std::istream::failure& /* e */)
-	{
-		return std::nullopt;
-	}
+	return pos != std::istream::pos_type(-1)
+		? std::make_optional<std::size_t>(pos)
+		: std::nullopt;
 }
 
 void StdInputStream::ensureStreamIsGoodForRead() const
@@ -137,29 +123,6 @@ void StdInputStream::ensureStreamIsGoodForRead() const
 		
 		// TODO: detect error code and set specific fail reason
 		throw IOException("Error occurred in stream.");
-	}
-}
-
-void StdInputStream::useExceptionForIStreamError()
-{
-	if(!m_istream)
-	{
-		throw IOException("Stream is empty. Cannot enable exceptions.");
-	}
-
-	try
-	{
-		// std::istream::eofbit is not set as some input operation depend on the detection of EOF
-		// (e.g., std::istream_iterator stops on EOF, if an exception is to thrown there, the 
-		// iterating process may stop prematurely)
-
-		m_istream->exceptions(std::istream::failbit | std::istream::badbit);
-	}
-	catch(const std::istream::failure& e)
-	{
-		throw IOException(std::format(
-			"existing error detected on enabling std::istream exceptions; {}, reason: {}, ",
-			e.what(), e.code().message()));
 	}
 }
 

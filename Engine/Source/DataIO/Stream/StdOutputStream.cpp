@@ -5,6 +5,15 @@
 #include <utility>
 #include <format>
 
+/*
+Note on the implementation:
+
+We do not rely on setting bits to std::ostream::exceptions() for error detection. Instead, we explicitly
+test whether the stream is in an erroneous state. 
+
+See <DataIO/Stream/StdInputStream.cpp> for more information.
+*/
+
 namespace ph
 {
 
