@@ -1,6 +1,7 @@
 #include "DataIO/PlyFile.h"
 #include "Common/logging.h"
 #include "DataIO/Stream/BinaryFileInputStream.h"
+#include "DataIO/Stream/ByteBufferInputStream.h"
 #include "DataIO/io_exceptions.h"
 #include "Utility/string_utils.h"
 
@@ -155,7 +156,7 @@ PlyFile::PlyFile(const Path& plyFilePath) :
 PlyFile::PlyFile(const Path& plyFilePath, const PlyIOConfig& config) :
 	PlyFile()
 {
-
+	loadFile(plyFilePath, config);
 }
 
 void PlyFile::setFormat(const EPlyFileFormat format)
@@ -172,6 +173,21 @@ void PlyFile::clearBuffer()
 SemanticVersion PlyFile::getVersion() const
 {
 	return m_version;
+}
+
+void PlyFile::loadFile(const Path& plyFilePath, const PlyIOConfig& config)
+{
+
+}
+
+void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
+{
+
+}
+
+void PlyFile::loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
+{
+
 }
 
 void PlyFile::parseHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath)

@@ -17,7 +17,7 @@ References:
 #include <string>
 #include <string_view>
 
-namespace ph { class BinaryFileInputStream; }
+namespace ph { class IInputStream; }
 
 namespace ph
 {
@@ -102,9 +102,9 @@ private:
 		PlyElement();
 	};
 
-	/*void loadFile(const Path& plyFilePath, const PlyIOConfig& config);
-	void loadTextBuffer(const Path& plyFilePath, const PlyIOConfig& config);
-	void loadTextBuffer(const Path& plyFilePath, const PlyIOConfig& config);*/
+	void loadFile(const Path& plyFilePath, const PlyIOConfig& config);
+	void loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
+	void loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
 	void parseHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath);
 
 private:
