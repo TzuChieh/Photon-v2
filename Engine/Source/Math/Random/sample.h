@@ -18,7 +18,7 @@ inline std::array<To, N> sample_cast(const std::array<From, N>& sample)
 	{
 		casted[i] = static_cast<To>(sample[i]);
 	}
-	return std::move(casted);
+	return casted;
 }
 
 template<typename T>

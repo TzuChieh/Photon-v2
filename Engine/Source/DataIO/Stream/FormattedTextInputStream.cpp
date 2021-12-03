@@ -49,24 +49,22 @@ void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 	PH_ASSERT(getStream());
 	PH_ASSERT(out_allText);
 
-	ensureStreamIsNotOnEOF();
+	ensureStreamIsGoodForRead();
 
-	try
-	{
-		// Note that when reading characters, std::istream_iterator skips whitespace by default
-		// (the std::istream_interator will iterate until EOF)
+	// Note that when reading characters, std::istream_iterator skips whitespace by default
+	// (the std::istream_interator will iterate until EOF)
 
-		out_allText->clear();
-		out_allText->append(
-			std::istream_iterator<char>(*(getStream())),
-			std::istream_iterator<char>());
-	}
-	// exceptions() is set to NOT throw on EOF
-	catch(const std::istream::failure& e)
+	out_allText->clear();
+	out_allText->append(
+		std::istream_iterator<char>(*(getStream())),
+		std::istream_iterator<char>());
+
+	// Report non-EOF error
+	if(!getStream()->good() && !getStream()->eof())
 	{
 		throw IOException(std::format(
-			"error reading bytes from std::istream; {}, reason: {}, ",
-			e.what(), e.code().message()));
+			"Error reading all text from std::istream ({}).",
+			getReasonForError()));
 	}
 }
 
@@ -75,21 +73,19 @@ void FormattedTextInputStream::readLine(std::string* const out_lineText)
 	PH_ASSERT(getStream());
 	PH_ASSERT(out_lineText);
 
-	ensureStreamIsNotOnEOF();
+	ensureStreamIsGoodForRead();
 
-	try
-	{
-		// Note that std::getline() will stop on EOF (EOF is considered a delimiter, the final one)
+	// Note that std::getline() will stop on EOF (EOF is considered a delimiter, the final one)
 
-		out_lineText->clear();
-		std::getline(*(getStream()), *out_lineText);
-	}
-	// exceptions() is set to NOT throw on EOF
-	catch(const std::istream::failure& e)
+	out_lineText->clear();
+	std::getline(*(getStream()), *out_lineText);
+
+	// Report non-EOF error
+	if(!getStream()->good() && !getStream()->eof())
 	{
 		throw IOException(std::format(
-			"error reading bytes from std::istream; {}, reason: {}, ",
-			e.what(), e.code().message()));
+			"Error reading a line of text from std::istream ({}).",
+			getReasonForError()));
 	}
 }
 

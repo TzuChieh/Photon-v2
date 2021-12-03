@@ -10,6 +10,7 @@ References:
 
 #include "DataIO/FileSystem/Path.h"
 #include "Utility/SemanticVersion.h"
+#include "Math/constant.h"
 
 #include <vector>
 #include <cstddef>
@@ -63,8 +64,9 @@ enum class EPlyDataType
 
 struct PlyIOConfig final
 {
-	bool bIgnoreComments    = true;
-	bool bPreloadIntoMemory = true;
+	bool        bIgnoreComments        = true;
+	bool        bPreloadIntoMemory     = true;
+	std::size_t preloadMemoryThreshold = 1 * math::constant::GiB;
 };
 
 class PlyFile final
@@ -75,7 +77,7 @@ public:
 	PlyFile(const Path& plyFilePath, const PlyIOConfig& config);
 
 	void setFormat(EPlyFileFormat format);
-	void clear();
+	void clearBuffer();
 	SemanticVersion getVersion() const;
 
 private:
@@ -100,6 +102,9 @@ private:
 		PlyElement();
 	};
 
+	/*void loadFile(const Path& plyFilePath, const PlyIOConfig& config);
+	void loadTextBuffer(const Path& plyFilePath, const PlyIOConfig& config);
+	void loadTextBuffer(const Path& plyFilePath, const PlyIOConfig& config);*/
 	void parseHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath);
 
 private:

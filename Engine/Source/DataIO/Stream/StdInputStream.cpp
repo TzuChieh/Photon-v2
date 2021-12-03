@@ -9,6 +9,8 @@
 #include <iterator>
 #include <cctype>
 #include <algorithm>
+#include <cerrno>
+#include <cstring>
 
 /*
 Note on the implementation:
@@ -43,8 +45,8 @@ void StdInputStream::read(const std::size_t numBytes, std::byte* const out_bytes
 	if(!m_istream->good())
 	{
 		throw IOException(std::format(
-			"Error on trying to read {} bytes from std::istream.",
-			numBytes));
+			"Error on trying to read {} bytes from std::istream ({}).",
+			numBytes, getReasonForError()));
 	}
 
 	PH_ASSERT_EQ(numBytes, m_istream->gcount());
@@ -69,8 +71,8 @@ std::size_t StdInputStream::readSome(const std::size_t numBytes, std::byte* cons
 		}
 
 		throw IOException(std::format(
-			"Error on trying to read {} bytes from std::istream.",
-			numBytes));
+			"Error on trying to read {} bytes from std::istream ({}).",
+			numBytes, getReasonForError()));
 	}
 
 	PH_ASSERT_EQ(numBytes, m_istream->gcount());
@@ -88,8 +90,8 @@ void StdInputStream::seekGet(const std::size_t pos)
 	if(!m_istream->good())
 	{
 		throw IOException(std::format(
-			"Error seeking to position {} on std::istream.",
-			pos));
+			"Error seeking to position {} on std::istream ({}).",
+			pos, getReasonForError()));
 	}
 }
 
@@ -109,21 +111,30 @@ std::optional<std::size_t> StdInputStream::tellGet()
 
 void StdInputStream::ensureStreamIsGoodForRead() const
 {
-	if(!(m_istream && m_istream->good()))
+	if(!isStreamGoodForRead())
 	{
-		if(!m_istream)
-		{
-			throw IOException("Stream is uninitialized.");
-		}
-
-		if(m_istream->eof())
-		{
-			throw IOException("Stream is on EOF (expected std::istream to not being on EOF already).");
-		}
-		
-		// TODO: detect error code and set specific fail reason
-		throw IOException("Error occurred in stream.");
+		throw IOException(getReasonForError());
 	}
+}
+
+std::string StdInputStream::getReasonForError() const
+{
+	if(isStreamGoodForRead())
+	{
+		return "No error.";
+	}
+
+	if(!m_istream)
+	{
+		return "Stream is uninitialized.";
+	}
+
+	if(m_istream->eof())
+	{
+		return "Stream is on EOF (expected std::istream to not being on EOF already).";
+	}
+
+	return std::strerror(errno);
 }
 
 }// end namespace ph

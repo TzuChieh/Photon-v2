@@ -4,6 +4,8 @@
 
 #include <utility>
 #include <format>
+#include <cerrno>
+#include <cstring>
 
 /*
 Note on the implementation:
@@ -19,9 +21,7 @@ namespace ph
 
 StdOutputStream::StdOutputStream(std::unique_ptr<std::ostream> stream) :
 	m_ostream(std::move(stream))
-{
-	useExceptionForOStreamError();
-}
+{}
 
 void StdOutputStream::write(const std::size_t numBytes, const std::byte* const bytes)
 {
@@ -29,14 +29,15 @@ void StdOutputStream::write(const std::size_t numBytes, const std::byte* const b
 	PH_ASSERT(m_ostream);
 	PH_ASSERT(bytes);
 
-	try
+	ensureStreamIsGoodForWrite();
+
+	m_ostream->write(reinterpret_cast<const char*>(bytes), numBytes);
+
+	if(!m_ostream->good())
 	{
-		m_ostream->write(reinterpret_cast<const char*>(bytes), numBytes);
-	}
-	catch(const std::ostream::failure& e)
-	{
-		throw IOException(std::format("error writing bytes to std::ostream; {}, reason: {}, ", 
-			e.what(), e.code().message()));
+		throw IOException(std::format(
+			"Error on trying to write {} bytes to std::ostream ({}).",
+			numBytes, getReasonForError()));
 	}
 }
 
@@ -44,14 +45,15 @@ void StdOutputStream::seekPut(const std::size_t pos)
 {
 	PH_ASSERT(m_ostream);
 
-	try
+	ensureStreamIsGoodForWrite();
+
+	m_ostream->seekp(pos);
+	
+	if(!m_ostream->good())
 	{
-		m_ostream->seekp(pos);
-	}
-	catch(const std::ostream::failure& e)
-	{
-		throw IOException(std::format("error seeking put on std::ostream; {}, reason: {}, ",
-			e.what(), e.code().message()));
+		throw IOException(std::format(
+			"Error seeking to position {} on std::ostream ({}).",
+			pos, getReasonForError()));
 	}
 }
 
@@ -69,24 +71,27 @@ std::optional<std::size_t> StdOutputStream::tellPut()
 	return static_cast<std::size_t>(pos);
 }
 
-void StdOutputStream::useExceptionForOStreamError()
+void StdOutputStream::ensureStreamIsGoodForWrite() const
 {
-	if(!m_ostream)
+	if(!isStreamGoodForWrite())
 	{
-		throw IOException("Stream is empty. Cannot enable exceptions.");
+		throw IOException(getReasonForError());
+	}
+}
+
+std::string StdOutputStream::getReasonForError() const
+{
+	if(isStreamGoodForWrite())
+	{
+		return "No error.";
 	}
 
-	try
+	if(!m_ostream)
 	{
-		// Does not set the "eofbit" mask as it is for input streams
-		m_ostream->exceptions(std::ostream::failbit | std::ostream::badbit);
+		return "Stream is uninitialized.";
 	}
-	catch(const std::ostream::failure& e)
-	{
-		throw IOException(std::format(
-			"existing error detected on enabling std::ostream exceptions; {}, reason: {}, ",
-			e.what(), e.code().message()));
-	}
+
+	return std::strerror(errno);
 }
 
 }// end namespace ph

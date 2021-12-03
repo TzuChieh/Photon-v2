@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 namespace ph::math
 {
 
@@ -66,6 +68,12 @@ inline constexpr T c_light = T(299792458);
 
 template<typename T>
 inline constexpr T k_Boltzmann = T(1.380649e-23);
+
+inline constexpr std::size_t KiB = 1024;
+inline constexpr std::size_t MiB = KiB * 1024;
+inline constexpr std::size_t GiB = MiB * 1024;
+inline constexpr std::size_t TiB = GiB * 1024;
+inline constexpr std::size_t PiB = TiB * 1024;
 
 /*! @brief Index type that stores/represents axes.
 */

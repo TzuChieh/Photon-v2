@@ -290,33 +290,33 @@ inline T product(const std::vector<T>& values)
 }
 
 template<typename NumberType>
-inline NumberType bytes_to_KiB(const std::size_t numBytes)
+inline constexpr NumberType bytes_to_KiB(const std::size_t numBytes)
 {
-	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(std::size_t(1024));
+	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(constant::KiB);
 }
 
 template<typename NumberType>
-inline NumberType bytes_to_MiB(const std::size_t numBytes)
+inline constexpr NumberType bytes_to_MiB(const std::size_t numBytes)
 {
-	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(std::size_t(1024) * 1024);
+	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(constant::MiB);
 }
 
 template<typename NumberType>
-inline NumberType bytes_to_GiB(const std::size_t numBytes)
+inline constexpr NumberType bytes_to_GiB(const std::size_t numBytes)
 {
-	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(std::size_t(1024) * 1024 * 1024);
+	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(constant::GiB);
 }
 
 template<typename NumberType>
-inline NumberType bytes_to_TiB(const std::size_t numBytes)
+inline constexpr NumberType bytes_to_TiB(const std::size_t numBytes)
 {
-	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(std::size_t(1024) * 1024 * 1024 * 1024);
+	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(constant::TiB);
 }
 
 template<typename NumberType>
-inline NumberType bytes_to_PiB(const std::size_t numBytes)
+inline constexpr NumberType bytes_to_PiB(const std::size_t numBytes)
 {
-	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(std::size_t(1024) * 1024 * 1024 * 1024 * 1024);
+	return static_cast<NumberType>(numBytes) / static_cast<NumberType>(constant::PiB);
 }
 
 /*! @brief Gets the i-th evenly divided range.

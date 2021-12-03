@@ -143,7 +143,7 @@ PlyFile::PlyElement::PlyElement() :
 
 PlyFile::PlyFile() :
 	m_format  (EPlyFileFormat::ASCII),
-	m_version (),
+	m_version (1, 0, 0),
 	m_comments(),
 	m_elements()
 {}
@@ -163,7 +163,7 @@ void PlyFile::setFormat(const EPlyFileFormat format)
 	m_format = format;
 }
 
-void PlyFile::clear()
+void PlyFile::clearBuffer()
 {
 	m_comments.clear();
 	m_elements.clear();

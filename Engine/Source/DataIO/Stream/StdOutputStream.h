@@ -6,6 +6,7 @@
 #include <utility>
 #include <memory>
 #include <ostream>
+#include <string>
 
 namespace ph
 {
@@ -26,14 +27,20 @@ public:
 
 	StdOutputStream& operator = (StdOutputStream&& rhs);
 
+protected:
+	bool isStreamGoodForWrite() const;
+
+	/*! @brief Check if the stream has any error.
+	@exception IOException if there is any error.
+	*/
+	void ensureStreamIsGoodForWrite() const;
+
+	/*! @brief A description for why the stream is not in a good state.
+	*/
+	std::string getReasonForError() const;
+
 private:
 	std::unique_ptr<std::ostream> m_ostream;
-
-	/*! @brief Enable the use of exceptions when std::ostream has error.
-	This call will immediately throw @p IOException if the member std::ostream
-	is already in an error state.
-	*/
-	void useExceptionForOStreamError();
 };
 
 // In-header Implementations:
@@ -51,12 +58,17 @@ inline StdOutputStream& StdOutputStream::operator = (StdOutputStream&& rhs)
 
 inline StdOutputStream::operator bool () const
 {
-	return m_ostream != nullptr && m_ostream->good();
+	return isStreamGoodForWrite();
 }
 
 inline std::ostream* StdOutputStream::getStream() const
 {
 	return m_ostream.get();
+}
+
+inline bool StdOutputStream::isStreamGoodForWrite() const
+{
+	return m_ostream != nullptr && m_ostream->good();
 }
 
 }// end namespace ph

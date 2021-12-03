@@ -121,7 +121,7 @@ inline std::shared_ptr<T> SceneDescription::getResource(
 			"(category: " + sdl::category_to_string(category) + ", name: " + resourceName + ")");
 	}
 
-	return std::move(castedResource);
+	return castedResource;
 }
 
 template<typename T>

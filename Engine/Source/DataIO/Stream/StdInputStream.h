@@ -6,6 +6,7 @@
 #include <utility>
 #include <istream>
 #include <memory>
+#include <string>
 
 namespace ph
 {
@@ -28,10 +29,16 @@ public:
 	StdInputStream& operator = (StdInputStream&& rhs);
 
 protected:
+	bool isStreamGoodForRead() const;
+
 	/*! @brief Check if the stream has any error.
 	@exception IOException if there is any error.
 	*/
 	void ensureStreamIsGoodForRead() const;
+
+	/*! @brief A description for why the stream is not in a good state.
+	*/
+	std::string getReasonForError() const;
 
 private:
 	std::unique_ptr<std::istream> m_istream;
@@ -51,12 +58,17 @@ inline StdInputStream& StdInputStream::operator = (StdInputStream&& rhs)
 
 inline StdInputStream::operator bool () const
 {
-	return m_istream != nullptr && m_istream->good();
+	return isStreamGoodForRead();
 }
 
 inline std::istream* StdInputStream::getStream() const
 {
 	return m_istream.get();
+}
+
+inline bool StdInputStream::isStreamGoodForRead() const
+{
+	return m_istream != nullptr && m_istream->good();
 }
 
 }// end namespace ph

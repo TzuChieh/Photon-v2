@@ -113,7 +113,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadLine)
 		EXPECT_STREQ(line.c_str(), "\tz\t");
 
 		ASSERT_NO_THROW(stream.readLine(&line));
-		EXPECT_STREQ(line.c_str(), "");
+		EXPECT_STREQ(line.c_str(), "");// there is a LF in the last line, so we can read another line fine
 
 		EXPECT_FALSE(stream);
 	}
