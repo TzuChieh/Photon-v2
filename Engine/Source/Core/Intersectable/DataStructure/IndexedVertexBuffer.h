@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <limits>
 #include <array>
+#include <climits>
 
 namespace ph
 {
@@ -41,6 +42,9 @@ enum class EVertexElement
 
 class IndexedVertexBuffer final
 {
+	static_assert(sizeof(std::byte) * CHAR_BIT == 8,
+		"The buffer explicitly depends on the fact that std::byte contains 8 bits.");
+
 public:
 	IndexedVertexBuffer();
 

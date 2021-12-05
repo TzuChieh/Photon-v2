@@ -19,6 +19,7 @@ public:
 	StdInputStream(StdInputStream&& other);
 
 	void read(std::size_t numBytes, std::byte* out_bytes) override;
+	void readString(std::string* out_string, char delimiter) override;
 	void seekGet(std::size_t pos) override;
 	std::optional<std::size_t> tellGet() override;
 	operator bool () const override;

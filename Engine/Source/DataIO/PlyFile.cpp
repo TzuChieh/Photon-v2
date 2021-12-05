@@ -6,6 +6,8 @@
 #include "Utility/string_utils.h"
 
 #include <type_traits>
+#include <memory>
+#include <utility>
 
 namespace ph
 {
@@ -170,6 +172,18 @@ void PlyFile::clearBuffer()
 	m_elements.clear();
 }
 
+void PlyFile::compactBuffer()
+{
+	m_comments.shrink_to_fit();
+
+	for(auto& element : m_elements)
+	{
+		element.properties.shrink_to_fit();
+		element.rawBuffer.shrink_to_fit();
+	}
+	m_elements.shrink_to_fit();
+}
+
 SemanticVersion PlyFile::getVersion() const
 {
 	return m_version;
@@ -177,7 +191,44 @@ SemanticVersion PlyFile::getVersion() const
 
 void PlyFile::loadFile(const Path& plyFilePath, const PlyIOConfig& config)
 {
+	std::unique_ptr<IInputStream> stream;
+	bool shouldReduceStorageMemory = false;
+	{
+		auto fileStream = std::make_unique<BinaryFileInputStream>(plyFilePath);
 
+		// Possibly preload file data into memory. Preloading might vastly increase parsing performance for 
+		// smaller files.
+		const std::optional<std::size_t> fileSize = fileStream->getFileSizeInBytes();
+		if(fileSize && *fileSize < config.preloadMemoryThreshold)
+		{
+			auto preloadedStream = std::make_unique<ByteBufferInputStream>(*fileSize);
+			stream->read(*fileSize, preloadedStream->byteBuffer());
+
+			stream = std::move(preloadedStream);
+		}
+		else
+		{
+			stream = std::move(fileStream);
+		}
+
+		shouldReduceStorageMemory = fileSize && *fileSize > config.reduceStorageMemoryThreshold;
+	}
+	
+	parseHeader(*stream, config, plyFilePath);
+
+	if(m_format == EPlyFileFormat::ASCII)
+	{
+		loadTextBuffer(*stream, config, plyFilePath);
+	}
+	else
+	{
+		loadBinaryBuffer(*stream, config, plyFilePath);
+	}
+
+	if(shouldReduceStorageMemory)
+	{
+		compactBuffer();
+	}
 }
 
 void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
@@ -190,45 +241,44 @@ void PlyFile::loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, 
 
 }
 
-void PlyFile::parseHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath)
+void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
 {
 	using namespace string_utils;
 
-	// Check for valid header begin/end guards, then remove them
-	
-	constexpr std::string_view MAGIC_NUMBER = "ply\r";
-	constexpr std::string_view HEADER_END   = "end_header\r";
+	// Header guards, marks the start & end of the header block
+	constexpr std::string_view MAGIC_NUMBER = "ply";
+	constexpr std::string_view HEADER_END   = "end_header";
 
-	if(!headerStr.starts_with(MAGIC_NUMBER))
+	std::string lineBuffer;
+	lineBuffer.reserve(128);
+
+	// Note that a popular PLY spec (http://paulbourke.net/dataformats/ply/) says that each header line is
+	// terminated by a carriage return; however, for the files we can find they are terminated by line feed.
+	// We assume line termination by line feed in the following implementation.
+
+	stream.readLine(&lineBuffer);
+	if(trim(lineBuffer) != MAGIC_NUMBER)
 	{
 		throw FileIOError("Invalid PLY file magic number", plyFilePath.toAbsoluteString());
 	}
-	headerStr.remove_prefix(MAGIC_NUMBER.size());
 
-	if(!headerStr.ends_with(HEADER_END))
-	{
-		throw FileIOError("Invalid PLY file header ending", plyFilePath.toAbsoluteString());
-	}
-	headerStr.remove_suffix(HEADER_END.size());
-
-	// Parse line by line (\r terminated) and populate definition of elements
-	// (as well as attributes other than raw data, e.g., file format and comments)
+	// Parse line by line and populate definition of elements (as well as attributes other than raw data, 
+	// e.g., file format and comments)
 
 	while(true)
 	{
-		// Remove a line from the header
+		stream.readLine(&lineBuffer);
 
-		const auto carriageReturnIndex = headerStr.find('\r');
-		if(carriageReturnIndex == std::string_view::npos)
-		{
-			break;
-		}
-
-		auto headerLine = trim(headerStr.substr(0, carriageReturnIndex));
-		headerStr = headerStr.substr(carriageReturnIndex + 1);
+		// Trimming the line should unify the use of LF and CRLF (eliminating the extra CR after readLine())
+		auto headerLine = trim(lineBuffer);
 		if(headerLine.empty())
 		{
 			continue;
+		}
+
+		if(headerLine == HEADER_END)
+		{
+			break;
 		}
 
 		// Detect and remove the entry keyword from the line

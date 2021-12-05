@@ -19,6 +19,9 @@ namespace ph
 
 class IndexedUIntBuffer final
 {
+	static_assert(sizeof(std::byte)* CHAR_BIT == 8,
+		"The buffer explicitly depends on the fact that std::byte contains 8 bits.");
+
 public:
 	IndexedUIntBuffer();
 

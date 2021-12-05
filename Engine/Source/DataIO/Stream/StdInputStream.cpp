@@ -52,6 +52,27 @@ void StdInputStream::read(const std::size_t numBytes, std::byte* const out_bytes
 	PH_ASSERT_EQ(numBytes, m_istream->gcount());
 }
 
+void StdInputStream::readString(std::string* const out_string, const char delimiter)
+{
+	static_assert(sizeof(char) == sizeof(std::byte));
+	PH_ASSERT(m_istream);
+	PH_ASSERT(out_string);
+
+	ensureStreamIsGoodForRead();
+
+	// Note that std::getline() will stop on EOF (EOF is considered a delimiter, the final one)
+
+	// std::getline() clears the string for us
+	std::getline(*m_istream, *out_string, delimiter);
+
+	if(!m_istream->good() && !m_istream->eof())
+	{
+		throw IOException(std::format(
+			"Error on trying to read a string with delimiter {} from std::istream ({}).",
+			delimiter, getReasonForError()));
+	}
+}
+
 std::size_t StdInputStream::readSome(const std::size_t numBytes, std::byte* const out_bytes)
 {
 	static_assert(sizeof(char) == sizeof(std::byte));

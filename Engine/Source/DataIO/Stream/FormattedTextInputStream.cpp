@@ -68,25 +68,4 @@ void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 	}
 }
 
-void FormattedTextInputStream::readLine(std::string* const out_lineText)
-{
-	PH_ASSERT(getStream());
-	PH_ASSERT(out_lineText);
-
-	ensureStreamIsGoodForRead();
-
-	// Note that std::getline() will stop on EOF (EOF is considered a delimiter, the final one)
-
-	out_lineText->clear();
-	std::getline(*(getStream()), *out_lineText);
-
-	// Report non-EOF error
-	if(!getStream()->good() && !getStream()->eof())
-	{
-		throw IOException(std::format(
-			"Error reading a line of text from std::istream ({}).",
-			getReasonForError()));
-	}
-}
-
 }// end namespace ph

@@ -64,9 +64,17 @@ enum class EPlyDataType
 
 struct PlyIOConfig final
 {
-	bool        bIgnoreComments        = true;
-	bool        bPreloadIntoMemory     = true;
+	/*! Whether to load/save comments in the file. */
+	bool bIgnoreComments = true;
+
+	/*! Preload the file into memory to increase parsing performance. */
+	bool bPreloadIntoMemory = true;
+
+	/*! Only preload files with size smaller than the threshold. */
 	std::size_t preloadMemoryThreshold = 1 * math::constant::GiB;
+
+	/*! Reduce memory used for storage by the PlyFile class for files with size larger than the threshold. */
+	std::size_t reduceStorageMemoryThreshold = 512 * math::constant::MiB;
 };
 
 class PlyFile final
@@ -105,7 +113,8 @@ private:
 	void loadFile(const Path& plyFilePath, const PlyIOConfig& config);
 	void loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
 	void loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
-	void parseHeader(std::string_view headerStr, const PlyIOConfig& config, const Path& plyFilePath);
+	void parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
+	void compactBuffer();
 
 private:
 	EPlyFileFormat           m_format;

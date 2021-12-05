@@ -31,10 +31,6 @@ public:
 	*/
 	void readAllTightly(std::string* out_allText);
 
-	/*! @brief Read a line.
-	*/
-	void readLine(std::string* out_lineText);
-
 	// TODO: readLineTightly()?
 
 	inline FormattedTextInputStream& operator = (FormattedTextInputStream&& rhs) = default;

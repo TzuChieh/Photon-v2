@@ -24,6 +24,7 @@ public:
 	inline ByteBufferInputStream(ByteBufferInputStream&& other) = default;
 
 	void read(std::size_t numBytes, std::byte* out_bytes) override;
+	void readString(std::string* out_string, char delimiter) override;
 	void seekGet(std::size_t pos) override;
 	std::optional<std::size_t> tellGet() override;
 	operator bool() const override;
@@ -38,12 +39,32 @@ public:
 
 	/*! @brief Direct access to the underlying byte buffer.
 	*/
+	///@{
 	std::byte* byteBuffer();
+	const std::byte* byteBuffer() const;
+	///@}
+
+	/*! @name Aliased buffer accessors.
+	Helpers for accessing the underlying buffer using an aliased type (char or unsigned char). Note that
+	the aliasing does not violate strict aliasing rules as it is specifically allowed by the standard to
+	use char and unsigned char to alias any other types (in our case it is std::byte).
+	*/
+	///@{
+	char* charBuffer();
+	const char* charBuffer() const;
+	unsigned char* ucharBuffer();
+	const unsigned char* ucharBuffer() const;
+	///@}
+
+	/*! @brief Whether we can read @p numBytes of bytes from the stream.
+	*/
+	bool canRead(std::size_t numBytes) const;
+
+	/*! @brief Whether we can read any number (non-zero) of bytes from the stream.
+	*/
+	bool canRead() const;
 
 	inline ByteBufferInputStream& operator = (ByteBufferInputStream&& rhs) = default;
-
-protected:
-	bool canRead(std::size_t numBytes) const;
 
 private:
 	std::unique_ptr<std::byte[]> m_byteBuffer;
@@ -74,6 +95,44 @@ inline void ByteBufferInputStream::read(const std::size_t numBytes, std::byte* c
 		throw IOException(std::format(
 			"Attempt to read bytes in [{}, {}) which overflows [{}, {}).",
 			m_readHead, m_readHead + numBytes, m_readHead, numBufferBytes()));
+	}
+}
+
+inline void ByteBufferInputStream::readString(std::string* const out_string, const char delimiter)
+{
+	PH_ASSERT(out_string);
+
+	if(canRead())
+	{
+		PH_ASSERT_LT(m_readHead, numBufferBytes());
+
+		const char* const charBufferView = charBuffer();
+
+		const std::size_t beginIdx = m_readHead;
+		for(; m_readHead < numBufferBytes(); ++m_readHead)
+		{
+			if(charBufferView[m_readHead] == delimiter)
+			{
+				++m_readHead;
+				break;
+			}
+		}
+		// <m_readHead> is on either one past delimiter or buffer size after the loop
+
+		PH_ASSERT_LT(beginIdx, m_readHead);
+
+		out_string->clear();
+
+		// Ternary for not to include the delimiter in the output string
+		out_string->append(
+			charBufferView, 
+			m_readHead < numBufferBytes() ? m_readHead - 1 - beginIdx : m_readHead - beginIdx);
+	}
+	else
+	{
+		throw IOException(std::format(
+			"Attempt to read a string with delimiter {} from buffer range [{}, {}).",
+			delimiter, m_readHead, numBufferBytes()));
 	}
 }
 
@@ -126,7 +185,7 @@ inline bool ByteBufferInputStream::canRead(const std::size_t numBytes) const
 	return m_readHead + numBytes <= numBufferBytes();
 }
 
-inline ByteBufferInputStream::operator bool() const
+inline bool ByteBufferInputStream::canRead() const
 {
 	PH_ASSERT(
 		m_byteBuffer || 
@@ -134,6 +193,11 @@ inline ByteBufferInputStream::operator bool() const
 
 	// For empty buffer, both <m_readHead> and <numBufferBytes()> should be 0 which results in `false`
 	return m_readHead < numBufferBytes();
+}
+
+inline ByteBufferInputStream::operator bool() const
+{
+	return canRead();
 }
 
 template<typename T>
@@ -154,6 +218,32 @@ inline std::byte* ByteBufferInputStream::byteBuffer()
 {
 	PH_ASSERT(m_byteBuffer);
 	return m_byteBuffer.get();
+}
+
+inline const std::byte* ByteBufferInputStream::byteBuffer() const
+{
+	PH_ASSERT(m_byteBuffer);
+	return m_byteBuffer.get();
+}
+
+inline char* ByteBufferInputStream::charBuffer()
+{
+	return reinterpret_cast<char*>(byteBuffer());
+}
+
+inline const char* ByteBufferInputStream::charBuffer() const
+{
+	return reinterpret_cast<const char*>(byteBuffer());
+}
+
+inline unsigned char* ByteBufferInputStream::ucharBuffer()
+{
+	return reinterpret_cast<unsigned char*>(byteBuffer());
+}
+
+inline const unsigned char* ByteBufferInputStream::ucharBuffer() const
+{
+	return reinterpret_cast<const unsigned char*>(byteBuffer());
 }
 
 }// end namespace ph

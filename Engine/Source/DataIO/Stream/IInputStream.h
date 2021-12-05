@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <string>
 
 namespace ph
 {
@@ -16,6 +17,14 @@ public:
 	@exception IOException If the read operation failed.
 	*/
 	virtual void read(std::size_t numBytes, std::byte* out_bytes) = 0;
+
+	/*! @brief Read a string in one go.
+	Note the EOF is also considered a delimiter (the final one).
+	@param out_string The read string. Does not include the @p delimiter.
+	@param delimiter The character that denotes the ending of a line.
+	@exception IOException If the read operation failed.
+	*/
+	virtual void readString(std::string* out_string, char delimiter) = 0;
 
 	/*! @brief Set the input position of the stream.
 	The unit of the position is defined by the implementation.
@@ -38,6 +47,12 @@ public:
 	@exception IOException If the read operation failed.
 	*/
 	virtual std::size_t readSome(std::size_t numBytes, std::byte* out_bytes);
+
+	/*! @brief Read a line. Equivalent to calling read(std::string*, char) with '\n' as the delimiter.
+	@param out_string The read string. Does not include the new-line character.
+	@exception IOException If the read operation failed.
+	*/
+	void readLine(std::string* out_string);
 };
 
 // In-header Implementations:
@@ -46,6 +61,11 @@ inline std::size_t IInputStream::readSome(const std::size_t numBytes, std::byte*
 {
 	read(numBytes, out_bytes);
 	return numBytes;
+}
+
+inline void IInputStream::readLine(std::string* const out_string)
+{
+	readString(out_string, '\n');
 }
 
 }// end namespace ph
