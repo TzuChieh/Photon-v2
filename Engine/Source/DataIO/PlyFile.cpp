@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <memory>
 #include <utility>
+#include <cstring>
 
 namespace ph
 {
@@ -111,38 +112,203 @@ inline EPlyDataType ply_keyword_to_data_type(const std::string_view keyword)
 {
 	using Value = std::underlying_type_t<EPlyDataType>;
 
-	for(Value ei = 0; ei < static_cast<Value>(EPlyDataType::NUM); ++ei)
+	// We could use a loop to find matching type just like ply_keyword_to_format(); however, some PLY files
+	// have non-standard data type keywords. As a result, we manually test them.
+
+	const char firstChar = keyword.empty() ? '\0' : keyword.front();
+	switch(firstChar)
 	{
-		const auto enumValue = static_cast<EPlyDataType>(ei);
-		if(keyword == data_type_to_ply_keyword(enumValue))
+	case 'c':
+		if(keyword == "char")
 		{
-			return enumValue;
+			return EPlyDataType::PPT_int8;
 		}
+		break;
+
+	case 'd':
+		if(keyword == "double")
+		{
+			return EPlyDataType::PPT_float64;
+		}
+		break;
+
+	case 'f':
+		if(keyword == "float" || keyword == "float32")
+		{
+			return EPlyDataType::PPT_float32;
+		}
+		else if(keyword == "float64")
+		{
+			return EPlyDataType::PPT_float64;
+		}
+		break;
+
+	case 'i':
+		if(keyword == "int" || keyword == "int32")
+		{
+			return EPlyDataType::PPT_int32;
+		}
+		else if(keyword == "int8")
+		{
+			return EPlyDataType::PPT_int8;
+		}
+		else if(keyword == "int16")
+		{
+			return EPlyDataType::PPT_int16;
+		}
+		break;
+
+	case 's':
+		if(keyword == "short")
+		{
+			return EPlyDataType::PPT_int16;
+		}
+		break;
+
+	case 'u':
+		if(keyword == "uchar" || keyword == "uint8")
+		{
+			return EPlyDataType::PPT_uint8;
+		}
+		else if(keyword == "ushort" || keyword == "uint16")
+		{
+			return EPlyDataType::PPT_uint16;
+		}
+		else if(keyword == "uint" || keyword == "uint32")
+		{
+			return EPlyDataType::PPT_uint32;
+		}
+		break;
 	}
 
 	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify data type.", keyword);
 	return EPlyDataType::UNSPECIFIED;
 }
 
-}// end anonymous namespace
-
-PlyFile::PlyProperty::PlyProperty() :
-	name         (),
-	dataType     (EPlyDataType::UNSPECIFIED),
-	listCountType(EPlyDataType::UNSPECIFIED)
-{}
-
-bool PlyFile::PlyProperty::isList() const
+inline std::size_t sizeof_ply_data_type(const EPlyDataType dataType)
 {
-	return listCountType != EPlyDataType::UNSPECIFIED;
+	switch(dataType)
+	{
+	case EPlyDataType::PPT_int8:
+	case EPlyDataType::PPT_uint8:
+		return 1;
+
+	case EPlyDataType::PPT_int16:
+	case EPlyDataType::PPT_uint16:
+		return 2;
+
+	case EPlyDataType::PPT_int32:
+	case EPlyDataType::PPT_uint32:
+	case EPlyDataType::PPT_float32:
+		return 4;
+
+	case EPlyDataType::PPT_float64:
+		return 8;
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return 0;
 }
 
-PlyFile::PlyElement::PlyElement() :
+template<typename DataType>
+inline float64 ascii_ply_data_to_binary(const std::string_view asciiPlyData, std::byte* const out_bytes)
+{
+	PH_ASSERT(out_bytes);
+
+	const auto value = string_utils::parse_number<DataType>(asciiPlyData);
+	std::memcpy(out_bytes, &value, sizeof(DataType));
+	return value;
+}
+
+inline float64 ascii_ply_data_to_binary(
+	const std::string_view asciiPlyData, 
+	const EPlyDataType     dataType, 
+	std::byte* const       out_bytes)
+{
+	switch(dataType)
+	{
+	case EPlyDataType::PPT_int8:
+		return ascii_ply_data_to_binary<int8>(asciiPlyData, out_bytes);
+
+	case EPlyDataType::PPT_uint8:
+		return ascii_ply_data_to_binary<uint8>(asciiPlyData, out_bytes);
+
+	case EPlyDataType::PPT_int16:
+		return ascii_ply_data_to_binary<int16>(asciiPlyData, out_bytes);
+
+	case EPlyDataType::PPT_uint16:
+		return ascii_ply_data_to_binary<uint16>(asciiPlyData, out_bytes);
+
+	case EPlyDataType::PPT_int32:
+		return ascii_ply_data_to_binary<int32>(asciiPlyData, out_bytes);
+
+	case EPlyDataType::PPT_uint32:
+		return ascii_ply_data_to_binary<uint32>(asciiPlyData, out_bytes);
+
+	case EPlyDataType::PPT_float32:
+		return ascii_ply_data_to_binary<float32>(asciiPlyData, out_bytes);
+
+	case EPlyDataType::PPT_float64:
+		return ascii_ply_data_to_binary<float64>(asciiPlyData, out_bytes);
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return 0.0;
+}
+
+}// end anonymous namespace
+
+PlyProperty::PlyProperty() :
+	name         (),
+	dataType     (EPlyDataType::UNSPECIFIED),
+	listSizeType (EPlyDataType::UNSPECIFIED),
+	fixedListSize(0)
+{}
+
+bool PlyProperty::isList() const
+{
+	return listSizeType != EPlyDataType::UNSPECIFIED;
+}
+
+bool PlyProperty::isFixedSizeList() const
+{
+	return fixedListSize > 0;
+}
+
+PlyElement::PlyElement() :
 	name       (),
 	numElements(0),
 	properties (),
 	rawBuffer  ()
 {}
+
+bool PlyElement::isLoaded() const
+{
+	return !rawBuffer.empty();
+}
+
+std::size_t PlyElement::estimateStrideSize() const
+{
+	std::size_t estimatedStrideSize = 0;
+	for(const PlyProperty& prop : properties)
+	{
+		if(prop.isList())
+		{
+			const auto listSize = prop.isFixedSizeList() 
+				? prop.fixedListSize
+				: 3;// assumed 3 as in most files lists are for triangle vertices
+
+			estimatedStrideSize += listSize * sizeof_ply_data_type(prop.dataType);
+			estimatedStrideSize += sizeof_ply_data_type(prop.listSizeType);
+		}
+		else
+		{
+			estimatedStrideSize += sizeof_ply_data_type(prop.dataType);
+		}
+	}
+
+	return estimatedStrideSize * numElements;
+}
 
 PlyFile::PlyFile() :
 	m_format  (EPlyFileFormat::ASCII),
@@ -158,6 +324,7 @@ PlyFile::PlyFile(const Path& plyFilePath) :
 PlyFile::PlyFile(const Path& plyFilePath, const PlyIOConfig& config) :
 	PlyFile()
 {
+	clearBuffer();
 	loadFile(plyFilePath, config);
 }
 
@@ -182,6 +349,21 @@ void PlyFile::compactBuffer()
 		element.rawBuffer.shrink_to_fit();
 	}
 	m_elements.shrink_to_fit();
+}
+
+void PlyFile::reserveBuffer()
+{
+	for(PlyElement& element : m_elements)
+	{
+		// Skip already loaded buffer
+		if(!element.isLoaded())
+		{
+			continue;
+		}
+
+		// Reserve memory space for the element buffer
+		element.rawBuffer.reserve(element.estimateStrideSize());
+	}
 }
 
 SemanticVersion PlyFile::getVersion() const
@@ -214,7 +396,13 @@ void PlyFile::loadFile(const Path& plyFilePath, const PlyIOConfig& config)
 		shouldReduceStorageMemory = fileSize && *fileSize > config.reduceStorageMemoryThreshold;
 	}
 	
+	// Load PLY header
+
 	parseHeader(*stream, config, plyFilePath);
+
+	// Load PLY buffer
+
+	reserveBuffer();
 
 	if(m_format == EPlyFileFormat::ASCII)
 	{
@@ -229,16 +417,6 @@ void PlyFile::loadFile(const Path& plyFilePath, const PlyIOConfig& config)
 	{
 		compactBuffer();
 	}
-}
-
-void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
-{
-
-}
-
-void PlyFile::loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
-{
-
 }
 
 void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
@@ -303,9 +481,9 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 				const auto tokenAfterEntry = next_token(headerLine, &headerLine);
 				if(tokenAfterEntry == "list")
 				{
-					prop.listCountType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
-					prop.dataType      = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
-					prop.name          = headerLine;
+					prop.listSizeType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+					prop.dataType     = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+					prop.name         = headerLine;
 				}
 				else
 				{
@@ -342,6 +520,87 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 			break;
 		}
 	}// end while each header line
+}
+
+void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
+{
+	using namespace string_utils;
+
+	std::string lineBuffer;
+	lineBuffer.reserve(128);
+
+	for(PlyElement& element : m_elements)
+	{
+		// Skip already loaded buffer
+		if(!element.isLoaded())
+		{
+			continue;
+		}
+
+		std::vector<std::byte>& rawBuffer = element.rawBuffer;
+
+		try
+		{
+			for(std::size_t ei = 0; ei < element.numElements; ++ei)
+			{
+				stream.readLine(&lineBuffer);
+				auto currentLine = trim(lineBuffer);
+
+				for(PlyProperty& prop : element.properties)
+				{
+					if(prop.isList())
+					{
+						const std::size_t firstSizeByteIdx = rawBuffer.size();
+						rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.listSizeType));
+
+						const auto listSize = static_cast<std::size_t>(ascii_ply_data_to_binary(
+							next_token(currentLine, &currentLine),
+							prop.dataType,
+							&(rawBuffer[firstSizeByteIdx])));
+
+						const std::size_t firstByteIdx = rawBuffer.size();
+						const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
+						rawBuffer.resize(rawBuffer.size() + sizeofData * listSize);
+						for(std::size_t li = 0; li < listSize; ++li)
+						{
+							ascii_ply_data_to_binary(
+								next_token(currentLine, &currentLine), 
+								prop.dataType, 
+								&(rawBuffer[firstByteIdx + li * sizeofData]));
+						}
+
+						// Only set list size on the first encounter. Later if there is a disagreement of 
+						// list size, the list must be variable-sized and we set the size to 0. Also handles
+						// the case where <prop.fixedListSize> is already set to 0.
+						PH_ASSERT_GT(listSize, 0);
+						if(prop.fixedListSize != listSize)
+						{
+							prop.fixedListSize = ei == 0 ? listSize : 0;
+						}
+					}
+					else
+					{
+						const std::size_t firstByteIdx = rawBuffer.size();
+						rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.dataType));
+
+						ascii_ply_data_to_binary(
+							next_token(currentLine, &currentLine), 
+							prop.dataType, 
+							&(rawBuffer[firstByteIdx]));
+					}
+				}
+			}
+		}
+		catch(const IOException& e)
+		{
+			// TODO
+		}
+	}
+}
+
+void PlyFile::loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
+{
+
 }
 
 }// end namespace ph

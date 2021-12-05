@@ -16,6 +16,7 @@ References:
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <climits>
 
 namespace ph { class IInputStream; }
 
@@ -77,44 +78,53 @@ struct PlyIOConfig final
 	std::size_t reduceStorageMemoryThreshold = 512 * math::constant::MiB;
 };
 
+struct PlyProperty final
+{
+	std::string  name;
+	EPlyDataType dataType;
+	EPlyDataType listSizeType;
+	std::size_t  fixedListSize;
+
+	PlyProperty();
+
+	bool isList() const;
+	bool isFixedSizeList() const;
+};
+
+struct PlyElement final
+{
+	std::string              name;
+	std::size_t              numElements;
+	std::vector<PlyProperty> properties;
+	std::vector<std::byte>   rawBuffer;
+
+	PlyElement();
+
+	bool isLoaded() const;
+	std::size_t estimateStrideSize() const;
+};
+
 class PlyFile final
 {
+	static_assert(sizeof(std::byte)* CHAR_BIT == 8,
+		"The file explicitly depends on the fact that std::byte contains 8 bits.");
+
 public:
 	PlyFile();
 	explicit PlyFile(const Path& plyFilePath);
 	PlyFile(const Path& plyFilePath, const PlyIOConfig& config);
 
 	void setFormat(EPlyFileFormat format);
+	void loadFile(const Path& plyFilePath, const PlyIOConfig& config);
 	void clearBuffer();
 	SemanticVersion getVersion() const;
 
 private:
-	struct PlyProperty final
-	{
-		std::string  name;
-		EPlyDataType dataType;
-		EPlyDataType listCountType;
-
-		PlyProperty();
-
-		bool isList() const;
-	};
-
-	struct PlyElement final
-	{
-		std::string              name;
-		std::size_t              numElements;
-		std::vector<PlyProperty> properties;
-		std::vector<std::byte>   rawBuffer;
-
-		PlyElement();
-	};
-
-	void loadFile(const Path& plyFilePath, const PlyIOConfig& config);
+	void parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
 	void loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
 	void loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
-	void parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
 	void compactBuffer();
+	void reserveBuffer();
 
 private:
 	EPlyFileFormat           m_format;
