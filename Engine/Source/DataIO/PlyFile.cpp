@@ -22,6 +22,7 @@ namespace
 enum class EPlyHeaderEntry
 {
 	UNSPECIFIED = 0,
+
 	Property,
 	Element,
 	Comment,
@@ -78,7 +79,9 @@ inline EPlyHeaderEntry ply_keyword_to_entry(const std::string_view keyword)
 {
 	using Value = std::underlying_type_t<EPlyHeaderEntry>;
 
-	for(Value ei = 0; ei < static_cast<Value>(EPlyHeaderEntry::NUM); ++ei)
+	for(Value ei = static_cast<Value>(EPlyHeaderEntry::UNSPECIFIED) + 1; 
+	    ei < static_cast<Value>(EPlyHeaderEntry::NUM); 
+	    ++ei)
 	{
 		const auto enumValue = static_cast<EPlyHeaderEntry>(ei);
 		if(keyword == entry_to_ply_keyword(enumValue))
@@ -113,7 +116,7 @@ inline EPlyDataType ply_keyword_to_data_type(const std::string_view keyword)
 {
 	using Value = std::underlying_type_t<EPlyDataType>;
 
-	// We could use a loop to find matching type just like ply_keyword_to_format(); however, some PLY files
+	// We could use a loop to find matching type just like ply_keyword_to_entry(); however, some PLY files
 	// have non-standard data type keywords. As a result, we manually test them.
 
 	const char firstChar = keyword.empty() ? '\0' : keyword.front();
@@ -218,7 +221,7 @@ inline float64 ascii_ply_data_to_binary(const std::string_view asciiPlyData, std
 
 	const auto value = string_utils::parse_number<DataType>(asciiPlyData);
 	std::memcpy(out_bytes, &value, sizeof(DataType));
-	return value;
+	return static_cast<float64>(value);
 }
 
 inline float64 ascii_ply_data_to_binary(
@@ -398,7 +401,7 @@ void PlyFile::reserveBuffer()
 	for(PlyElement& element : m_elements)
 	{
 		// Skip already loaded buffer
-		if(!element.isLoaded())
+		if(element.isLoaded())
 		{
 			continue;
 		}
@@ -574,7 +577,7 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 	for(PlyElement& element : m_elements)
 	{
 		// Skip already loaded buffer
-		if(!element.isLoaded())
+		if(element.isLoaded())
 		{
 			continue;
 		}
@@ -637,7 +640,8 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 		catch(const std::runtime_error& e)
 		{
 			throw FileIOError(std::format(
-				"Error loading value from element {}.", element.name), plyFilePath.toAbsoluteString());
+				"Error loading value from element {}, detail: {}", element.name, e.what()), 
+				plyFilePath.toAbsoluteString());
 		}
 	}
 }

@@ -16,7 +16,7 @@ TEST(PlyFileTest, LoadSimpleAscii)
 		PlyIOConfig config;
 		config.bIgnoreComments = false;
 
-		PlyFile file(Path("./ascii_property.ply"), config);
+		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_property.ply")), config);
 
 		EXPECT_EQ(file.getFormat(), EPlyFileFormat::ASCII);
 		EXPECT_EQ(file.getVersion(), SemanticVersion(1, 0, 0));
