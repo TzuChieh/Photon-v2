@@ -23,4 +23,12 @@ ByteBufferInputStream::ByteBufferInputStream(const std::size_t numBytes) :
 	m_readHead  (0)
 {}
 
+ByteBufferInputStream::ByteBufferInputStream(const char* const srcCharBuffer, const std::size_t numChars) :
+	ByteBufferInputStream(reinterpret_cast<const std::byte*>(srcCharBuffer), numChars)
+{}
+
+ByteBufferInputStream::ByteBufferInputStream(const unsigned char* const srcUCharBuffer, const std::size_t numUChars) :
+	ByteBufferInputStream(reinterpret_cast<const std::byte*>(srcUCharBuffer), numUChars)
+{}
+
 }// end namespace ph

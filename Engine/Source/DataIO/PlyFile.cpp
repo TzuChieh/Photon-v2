@@ -9,6 +9,7 @@
 #include <memory>
 #include <utility>
 #include <cstring>
+#include <stdexcept>
 
 namespace ph
 {
@@ -328,6 +329,47 @@ PlyFile::PlyFile(const Path& plyFilePath, const PlyIOConfig& config) :
 	loadFile(plyFilePath, config);
 }
 
+const PlyElement* PlyFile::findElement(const std::string_view name) const
+{
+	for(const PlyElement& element : m_elements)
+	{
+		if(element.name == name)
+		{
+			return &element;
+		}
+	}
+	return nullptr;
+}
+
+std::size_t PlyFile::numElements() const
+{
+	return m_elements.size();
+}
+
+EPlyFileFormat PlyFile::getFormat() const
+{
+	return m_format;
+}
+
+std::size_t PlyFile::numComments() const
+{
+	return m_comments.size();
+}
+
+std::string_view PlyFile::getComment(const std::size_t commentIndex) const
+{
+	PH_ASSERT_LT(commentIndex, m_comments.size());
+
+	if(commentIndex < m_comments.size())
+	{
+		return m_comments[commentIndex];
+	}
+	else
+	{
+		return "";
+	}
+}
+
 void PlyFile::setFormat(const EPlyFileFormat format)
 {
 	m_format = format;
@@ -384,7 +426,7 @@ void PlyFile::loadFile(const Path& plyFilePath, const PlyIOConfig& config)
 		if(fileSize && *fileSize < config.preloadMemoryThreshold)
 		{
 			auto preloadedStream = std::make_unique<ByteBufferInputStream>(*fileSize);
-			stream->read(*fileSize, preloadedStream->byteBuffer());
+			fileStream->read(*fileSize, preloadedStream->byteBuffer());
 
 			stream = std::move(preloadedStream);
 		}
@@ -483,12 +525,12 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 				{
 					prop.listSizeType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
 					prop.dataType     = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
-					prop.name         = headerLine;
+					prop.name         = next_token(headerLine);
 				}
 				else
 				{
-					prop.dataType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
-					prop.name     = headerLine;
+					prop.dataType = ply_keyword_to_data_type(tokenAfterEntry);
+					prop.name     = next_token(headerLine);
 				}
 
 				PH_ASSERT(!m_elements.empty());
@@ -499,7 +541,7 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 		case EPlyHeaderEntry::Element:
 			m_elements.push_back(PlyElement());
 			m_elements.back().name = next_token(headerLine, &headerLine);
-			m_elements.back().numElements = parse_int<std::size_t>(headerLine);
+			m_elements.back().numElements = parse_int<std::size_t>(next_token(headerLine));
 			break;
 
 		case EPlyHeaderEntry::Comment:
@@ -512,7 +554,7 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 
 		case EPlyHeaderEntry::Format:
 			m_format  = ply_keyword_to_format(next_token(headerLine, &headerLine));
-			m_version = SemanticVersion(headerLine);
+			m_version = SemanticVersion(next_token(headerLine));
 			break;
 
 		default:
@@ -543,6 +585,7 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 		{
 			for(std::size_t ei = 0; ei < element.numElements; ++ei)
 			{
+				// Each line describes a single element
 				stream.readLine(&lineBuffer);
 				auto currentLine = trim(lineBuffer);
 
@@ -591,9 +634,10 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 				}
 			}
 		}
-		catch(const IOException& e)
+		catch(const std::runtime_error& e)
 		{
-			// TODO
+			throw FileIOError(std::format(
+				"Error loading value from element {}.", element.name), plyFilePath.toAbsoluteString());
 		}
 	}
 }

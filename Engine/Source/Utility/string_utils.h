@@ -165,14 +165,14 @@ inline std::string_view next_token(
 		const auto nextToken = srcStr.substr(0, separatorPos);
 		if(remainingStr)
 		{
-			*remainingStr = cut_head(srcStr.substr(separatorPos + 1), tokenSeparators);
+			*remainingStr = srcStr.substr(separatorPos + 1);
 		}
 
 		return nextToken;
 	}
 	else
 	{
-		return "";
+		return srcStr;
 	}
 }
 

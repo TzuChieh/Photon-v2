@@ -58,7 +58,7 @@ inline std::string FileIOError::whatStr() const
 {
 	std::string filenameInfo = m_filename.empty() ? "(unavailable)" : m_filename;
 
-	return std::format("{}, filename <{}>", IOException::whatStr(), filenameInfo);
+	return std::format("{} | filename <{}>", IOException::whatStr(), filenameInfo);
 }
 
 }// end namespace ph

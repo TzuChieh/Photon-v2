@@ -114,6 +114,11 @@ public:
 	explicit PlyFile(const Path& plyFilePath);
 	PlyFile(const Path& plyFilePath, const PlyIOConfig& config);
 
+	const PlyElement* findElement(std::string_view name) const;
+	std::size_t numElements() const;
+	EPlyFileFormat getFormat() const;
+	std::size_t numComments() const;
+	std::string_view getComment(std::size_t commentIndex) const;
 	void setFormat(EPlyFileFormat format);
 	void loadFile(const Path& plyFilePath, const PlyIOConfig& config);
 	void clearBuffer();

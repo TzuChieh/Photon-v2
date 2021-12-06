@@ -20,6 +20,8 @@ class ByteBufferInputStream : public IInputStream
 public:
 	ByteBufferInputStream();
 	ByteBufferInputStream(const std::byte* srcByteBuffer, std::size_t numBytes);
+	ByteBufferInputStream(const char* srcCharBuffer, std::size_t numChars);
+	ByteBufferInputStream(const unsigned char* srcUCharBuffer, std::size_t numUChars);
 	explicit ByteBufferInputStream(std::size_t numBytes);
 	inline ByteBufferInputStream(ByteBufferInputStream&& other) = default;
 
@@ -124,9 +126,10 @@ inline void ByteBufferInputStream::readString(std::string* const out_string, con
 		out_string->clear();
 
 		// Ternary for not to include the delimiter in the output string
+		const auto numChars = m_readHead < numBufferBytes() ? m_readHead - 1 - beginIdx : m_readHead - beginIdx;
 		out_string->append(
-			charBufferView, 
-			m_readHead < numBufferBytes() ? m_readHead - 1 - beginIdx : m_readHead - beginIdx);
+			&(charBufferView[beginIdx]),
+			numChars);
 	}
 	else
 	{
