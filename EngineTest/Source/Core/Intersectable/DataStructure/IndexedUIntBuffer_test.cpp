@@ -10,7 +10,7 @@ TEST(IndexedUIntBufferTest, BasicBufferStates)
 		IndexedUIntBuffer buffer;
 		EXPECT_FALSE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numUInts(), 0);
-		EXPECT_GT(buffer.estimateMemoryUsageBytes(), 0);
+		EXPECT_GT(buffer.estimateMemoryUsage(), 0);
 	}
 
 	{
@@ -19,7 +19,7 @@ TEST(IndexedUIntBufferTest, BasicBufferStates)
 		buffer.allocate(100);
 		EXPECT_TRUE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numUInts(), 100);
-		EXPECT_GT(buffer.estimateMemoryUsageBytes(), 100 * 32 / 8);
+		EXPECT_GT(buffer.estimateMemoryUsage(), 100 * 32 / 8);
 	}
 }
 

@@ -39,7 +39,7 @@ public:
 	uint64 getUInt(std::size_t index) const;
 
 	std::size_t numUInts() const;
-	std::size_t estimateMemoryUsageBytes() const;
+	std::size_t estimateMemoryUsage() const;
 	bool isAllocated() const;
 	uint64 getMaxAllowedValue() const;
 
@@ -53,7 +53,7 @@ private:
 
 // In-header Implementations:
 
-inline std::size_t IndexedUIntBuffer::estimateMemoryUsageBytes() const
+inline std::size_t IndexedUIntBuffer::estimateMemoryUsage() const
 {
 	return sizeof(IndexedUIntBuffer) + m_byteBufferSize;
 }

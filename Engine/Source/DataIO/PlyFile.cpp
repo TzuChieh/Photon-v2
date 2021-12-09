@@ -10,6 +10,7 @@
 #include <utility>
 #include <cstring>
 #include <stdexcept>
+#include <array>
 
 namespace ph
 {
@@ -263,10 +264,12 @@ inline float64 ascii_ply_data_to_binary(
 }// end anonymous namespace
 
 PlyProperty::PlyProperty() :
-	name         (),
-	dataType     (EPlyDataType::UNSPECIFIED),
-	listSizeType (EPlyDataType::UNSPECIFIED),
-	fixedListSize(0)
+	name              (),
+	dataType          (EPlyDataType::UNSPECIFIED),
+	listSizeType      (EPlyDataType::UNSPECIFIED),
+	fixedListSize     (0),
+	rawListBuffer     (),
+	listSizesPrefixSum()
 {}
 
 bool PlyProperty::isList() const
@@ -276,42 +279,37 @@ bool PlyProperty::isList() const
 
 bool PlyProperty::isFixedSizeList() const
 {
-	return fixedListSize > 0;
+	return isList() && fixedListSize > 0;
 }
 
 PlyElement::PlyElement() :
 	name       (),
 	numElements(0),
 	properties (),
-	rawBuffer  ()
+	rawBuffer  (),
+	strideSize (0)
 {}
 
 bool PlyElement::isLoaded() const
 {
-	return !rawBuffer.empty();
-}
-
-std::size_t PlyElement::estimateStrideSize() const
-{
-	std::size_t estimatedStrideSize = 0;
-	for(const PlyProperty& prop : properties)
+	// First see if there is any data in the raw buffer
+	if(!rawBuffer.empty())
 	{
-		if(prop.isList())
+		return true;
+	}
+	// Otherwise, see if there is any data in the list buffer
+	else
+	{
+		for(const PlyProperty& prop : properties)
 		{
-			const auto listSize = prop.isFixedSizeList() 
-				? prop.fixedListSize
-				: 3;// assumed 3 as in most files lists are for triangle vertices
-
-			estimatedStrideSize += listSize * sizeof_ply_data_type(prop.dataType);
-			estimatedStrideSize += sizeof_ply_data_type(prop.listSizeType);
-		}
-		else
-		{
-			estimatedStrideSize += sizeof_ply_data_type(prop.dataType);
+			if(!prop.rawListBuffer.empty())
+			{
+				return true;
+			}
 		}
 	}
 
-	return estimatedStrideSize * numElements;
+	return false;
 }
 
 PlyFile::PlyFile() :
@@ -388,12 +386,18 @@ void PlyFile::compactBuffer()
 {
 	m_comments.shrink_to_fit();
 
+	m_elements.shrink_to_fit();
 	for(auto& element : m_elements)
 	{
 		element.properties.shrink_to_fit();
+		for(auto& prop : element.properties)
+		{
+			prop.rawListBuffer.shrink_to_fit();
+			prop.listSizesPrefixSum.shrink_to_fit();
+		}
+
 		element.rawBuffer.shrink_to_fit();
 	}
-	m_elements.shrink_to_fit();
 }
 
 void PlyFile::reserveBuffer()
@@ -406,8 +410,22 @@ void PlyFile::reserveBuffer()
 			continue;
 		}
 
-		// Reserve memory space for the element buffer
-		element.rawBuffer.reserve(element.estimateStrideSize());
+		// Reserve memory space for the non-list element buffer
+		element.rawBuffer.reserve(element.numElements * element.strideSize);
+
+		// Reserve memory space for the list buffer
+		for(PlyProperty& prop : element.properties)
+		{
+			if(prop.isList())
+			{
+				const auto listSize = prop.isFixedSizeList()
+					? prop.fixedListSize
+					: 3;// assumed 3 as in most files lists are for triangle vertices
+
+				prop.rawListBuffer.reserve(element.numElements * listSize * sizeof_ply_data_type(prop.dataType));
+				prop.listSizesPrefixSum.reserve(element.numElements + 1);
+			}
+		}
 	}
 }
 
@@ -521,23 +539,27 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 			}
 
 			{
-				PlyProperty prop;
+				PH_ASSERT(!m_elements.empty());
+				PlyElement& currentElement = m_elements.back();
+
+				PlyProperty newProp;
 
 				const auto tokenAfterEntry = next_token(headerLine, &headerLine);
 				if(tokenAfterEntry == "list")
 				{
-					prop.listSizeType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
-					prop.dataType     = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
-					prop.name         = next_token(headerLine);
+					newProp.listSizeType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+					newProp.dataType     = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+					newProp.name         = next_token(headerLine);
 				}
 				else
 				{
-					prop.dataType = ply_keyword_to_data_type(tokenAfterEntry);
-					prop.name     = next_token(headerLine);
+					newProp.dataType = ply_keyword_to_data_type(tokenAfterEntry);
+					newProp.name     = next_token(headerLine);
+
+					currentElement.strideSize += sizeof_ply_data_type(newProp.dataType);
 				}
 
-				PH_ASSERT(!m_elements.empty());
-				m_elements.back().properties.push_back(prop);
+				currentElement.properties.push_back(newProp);
 			}
 			break;
 
@@ -582,7 +604,15 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 			continue;
 		}
 
-		std::vector<std::byte>& rawBuffer = element.rawBuffer;
+		// Prepend prefix sums with a 0
+		for(PlyProperty& prop : element.properties)
+		{
+			if(prop.isList())
+			{
+				PH_ASSERT(prop.listSizesPrefixSum.empty());
+				prop.listSizesPrefixSum.push_back(0);
+			}
+		}
 
 		try
 		{
@@ -596,13 +626,13 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 				{
 					if(prop.isList())
 					{
-						const std::size_t firstSizeByteIdx = rawBuffer.size();
-						rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.listSizeType));
-
+						std::array<std::byte, 8> dummyBuffer;
 						const auto listSize = static_cast<std::size_t>(ascii_ply_data_to_binary(
 							next_token(currentLine, &currentLine),
 							prop.dataType,
-							&(rawBuffer[firstSizeByteIdx])));
+							dummyBuffer.data()));
+
+						std::vector<std::byte>& rawBuffer = prop.rawListBuffer;
 
 						const std::size_t firstByteIdx = rawBuffer.size();
 						const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
@@ -615,6 +645,9 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 								&(rawBuffer[firstByteIdx + li * sizeofData]));
 						}
 
+						PH_ASSERT(!prop.listSizesPrefixSum.empty());
+						prop.listSizesPrefixSum.push_back(prop.listSizesPrefixSum.back() + listSize);
+
 						// Only set list size on the first encounter. Later if there is a disagreement of 
 						// list size, the list must be variable-sized and we set the size to 0. Also handles
 						// the case where <prop.fixedListSize> is already set to 0.
@@ -626,6 +659,8 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 					}
 					else
 					{
+						std::vector<std::byte>& rawBuffer = element.rawBuffer;
+
 						const std::size_t firstByteIdx = rawBuffer.size();
 						rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.dataType));
 
@@ -642,6 +677,15 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 			throw FileIOError(std::format(
 				"Error loading value from element {}, detail: {}", element.name, e.what()), 
 				plyFilePath.toAbsoluteString());
+		}
+
+		// Remove prefix sums if the list has fixed size
+		for(PlyProperty& prop : element.properties)
+		{
+			if(prop.isFixedSizeList())
+			{
+				std::vector<std::size_t>().swap(prop.listSizesPrefixSum);
+			}
 		}
 	}
 }

@@ -18,14 +18,12 @@ private:
 	std::shared_ptr<VolumeOptics> m_optics;
 };
 
-inline 
-const VolumeOptics* VolumeBehavior::getOptics() const
+inline const VolumeOptics* VolumeBehavior::getOptics() const
 {
 	return m_optics.get();
 }
 
-inline 
-void VolumeBehavior::setOptics(const std::shared_ptr<VolumeOptics>& optics)
+inline void VolumeBehavior::setOptics(const std::shared_ptr<VolumeOptics>& optics)
 {
 	PH_ASSERT(optics);
 

@@ -75,15 +75,17 @@ struct PlyIOConfig final
 	std::size_t preloadMemoryThreshold = 1 * math::constant::GiB;
 
 	/*! Reduce memory used for storage by the PlyFile class for files with size larger than the threshold. */
-	std::size_t reduceStorageMemoryThreshold = 512 * math::constant::MiB;
+	std::size_t reduceStorageMemoryThreshold = 768 * math::constant::MiB;
 };
 
 struct PlyProperty final
 {
-	std::string  name;
-	EPlyDataType dataType;
-	EPlyDataType listSizeType;
-	std::size_t  fixedListSize;
+	std::string              name;
+	EPlyDataType             dataType;
+	EPlyDataType             listSizeType;
+	std::size_t              fixedListSize;
+	std::vector<std::byte>   rawListBuffer;
+	std::vector<std::size_t> listSizesPrefixSum;
 
 	PlyProperty();
 
@@ -97,11 +99,11 @@ struct PlyElement final
 	std::size_t              numElements;
 	std::vector<PlyProperty> properties;
 	std::vector<std::byte>   rawBuffer;
+	std::size_t              strideSize;
 
 	PlyElement();
 
 	bool isLoaded() const;
-	std::size_t estimateStrideSize() const;
 };
 
 class PlyFile final
@@ -117,11 +119,24 @@ public:
 	const PlyElement* findElement(std::string_view name) const;
 	std::size_t numElements() const;
 	EPlyFileFormat getFormat() const;
+	void setFormat(EPlyFileFormat format);
+
+	/*! @brief Access to comments in the file.
+	There will be no comments if PlyIOConfig::bIgnoreComments is set.
+	*/
+	///@{
 	std::size_t numComments() const;
 	std::string_view getComment(std::size_t commentIndex) const;
-	void setFormat(EPlyFileFormat format);
+	///@}
+
+	/*! @brief Load and append file content to existing data.
+	*/
 	void loadFile(const Path& plyFilePath, const PlyIOConfig& config);
+
+	/*! @brief Clear all data storages for the elements.
+	*/
 	void clearBuffer();
+
 	SemanticVersion getVersion() const;
 
 private:
