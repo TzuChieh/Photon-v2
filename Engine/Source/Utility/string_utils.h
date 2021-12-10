@@ -459,4 +459,15 @@ inline std::size_t stringify_number(const NumberType value, char* const out_buff
 	}
 }
 
+template<typename NumberType>
+inline void stringify_number(const NumberType value, std::string* const out_str, const std::size_t maxChars = 32)
+{
+	PH_ASSERT(out_str);
+
+	out_str->resize(maxChars);
+	const std::size_t actualStrSize = string_utils::stringify_number<NumberType>(
+		value, out_str->data(), out_str->size());
+	out_str->resize(actualStrSize);
+}
+
 }// end namespace ph::string_utils

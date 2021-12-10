@@ -11,8 +11,7 @@
 
 #include <string>
 #include <string_view>
-#include <array>
-#include <exception>
+#include <vector>
 
 namespace ph
 {
@@ -73,21 +72,21 @@ void save_integer(integer value, std::string* out_str);
 Supports `ph::real`, `float`, `double`, and `long double`.
 */
 template<typename FloatType>
-void save_float(FloatType value, std::string* out_str);
+void save_float(FloatType value, std::string* out_str, std::size_t maxChars = 32);
 
 /*! @brief Converts a integer number to its SDL representation.
 
 Supports `ph::real`, `float`, `double`, and `long double`.
 */
 template<typename IntType>
-void save_int(IntType value, std::string* out_str);
+void save_int(IntType value, std::string* out_str, std::size_t maxChars = 32);
 
 /*! @brief Converts a number to its SDL representation.
 
 Accepts all types supported by save_float() and save_int().
 */
 template<typename NumberType>
-void save_number(NumberType value, std::string* out_str);
+void save_number(NumberType value, std::string* out_str, std::size_t maxChars = 32);
 
 template<typename Element>
 void save_vector2(const math::TVector2<Element>& value, std::string* out_str);
@@ -132,178 +131,6 @@ constexpr ETypeCategory category_of();
 
 //template<typename T>
 //void init_to_default(T& resource);
-
-namespace detail
-{
-
-/*! @brief Check if category information can be obtained statically.
-
-The result is true if the static member variable T::CATEGORY exists,
-otherwise the result is false.
-*/
-///@{
-
-/*! @brief Return type if the result is false.
-*/
-template<typename T, typename = void>
-struct HasStaticCategoryInfo : std::false_type {};
-
-/*! @brief Return type if the result is true.
-*/
-template<typename T>
-struct HasStaticCategoryInfo
-<
-	T,
-	std::enable_if_t
-	<
-		// Check equality of types with cv and ref removed just to be robust.
-		// (TODO: use std::remove_cvref to simplify)
-		std::is_same_v
-		<
-			std::remove_cv_t<std::remove_reference_t<decltype(T::CATEGORY)>>, 
-			ETypeCategory
-		>
-	>
-> : std::true_type {};
-///@}
-
-}// end namespace detail
-
-//*****************************************************************************
-// In-header Implementations:
-
-template<typename FloatType>
-inline FloatType load_float(const std::string_view sdlFloatStr)
-{
-	try
-	{
-		return string_utils::parse_float<FloatType>(sdlFloatStr);
-	}
-	catch(const std::exception& e)
-	{
-		throw SdlLoadError("on loading floating-point value -> " + std::string(e.what()));
-	}
-}
-
-template<typename IntType>
-inline IntType load_int(const std::string_view sdlIntStr)
-{
-	try
-	{
-		return string_utils::parse_int<IntType>(sdlIntStr);
-	}
-	catch(const std::exception& e)
-	{
-		throw SdlLoadError("on loading integer value -> " + std::string(e.what()));
-	}
-}
-
-template<typename NumberType>
-inline NumberType load_number(const std::string_view sdlNumberStr)
-{
-	if constexpr(std::is_floating_point_v<NumberType>)
-	{
-		return load_float<NumberType>(sdlNumberStr);
-	}
-	else
-	{
-		static_assert(std::is_integral_v<NumberType>);
-
-		return load_int<NumberType>(sdlNumberStr);
-	}
-}
-
-inline real load_real(const std::string_view sdlRealStr)
-{
-	return load_float<real>(sdlRealStr);
-}
-
-inline integer load_integer(const std::string_view sdlIntegerStr)
-{
-	return load_int<integer>(sdlIntegerStr);
-}
-
-inline void save_real(const real value, std::string* const out_str)
-{
-	save_float<real>(value, out_str);
-}
-
-inline void save_integer(const integer value, std::string* const out_str)
-{
-	save_int<integer>(value, out_str);
-}
-
-template<typename FloatType>
-inline void save_float(const FloatType value, std::string* const out_str)
-{
-	constexpr std::size_t BUFFER_SIZE = 32;
-
-	PH_ASSERT(out_str);
-
-	try
-	{
-		out_str->resize(BUFFER_SIZE);
-
-		const std::size_t actualStrSize = string_utils::stringify_float<FloatType>(
-			value, out_str->data(), BUFFER_SIZE);
-
-		out_str->resize(actualStrSize);
-	}
-	catch(const std::exception& e)
-	{
-		throw SdlSaveError("on saving floating-point value -> " + std::string(e.what()));
-	}
-}
-
-template<typename IntType>
-inline void save_int(const IntType value, std::string* const out_str)
-{
-	constexpr std::size_t BUFFER_SIZE = 32;
-
-	PH_ASSERT(out_str);
-
-	try
-	{
-		out_str->resize(BUFFER_SIZE);
-
-		const std::size_t actualStrSize = string_utils::stringify_int<IntType>(
-			value, out_str->data(), BUFFER_SIZE);
-
-		out_str->resize(actualStrSize);
-	}
-	catch(const std::exception& e)
-	{
-		throw SdlSaveError("on saving integer value -> " + std::string(e.what()));
-	}
-}
-
-template<typename NumberType>
-inline void save_number(const NumberType value, std::string* const out_str)
-{
-	if constexpr(std::is_floating_point_v<NumberType>)
-	{
-		save_float<NumberType>(value, out_str);
-	}
-	else
-	{
-		static_assert(std::is_integral_v<NumberType>);
-
-		save_int<NumberType>(value, out_str);
-	}
-}
-
-template<typename T>
-inline constexpr ETypeCategory category_of()
-{
-	if constexpr(std::is_base_of_v<ISdlResource, T> && detail::HasStaticCategoryInfo<T>::value)
-	{
-		return T::CATEGORY;
-	}
-	else
-	{
-		return ETypeCategory::UNSPECIFIED;
-	}
-}
 
 }// end namespace ph::sdl
 

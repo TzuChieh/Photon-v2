@@ -11,6 +11,7 @@ References:
 #include "DataIO/FileSystem/Path.h"
 #include "Utility/SemanticVersion.h"
 #include "Math/constant.h"
+#include "Common/primitive_type.h"
 
 #include <vector>
 #include <cstddef>
@@ -104,6 +105,35 @@ struct PlyElement final
 	PlyElement();
 
 	bool isLoaded() const;
+};
+
+class PlyPropertyValues final
+{
+	friend PlyElement;
+
+public:
+	float64 get(std::size_t index) const;
+	void set(std::size_t index, float64 value);
+	std::size_t size() const;
+
+private:
+	PlyPropertyValues();
+
+	PlyPropertyValues(
+		std::byte*   rawBuffer,
+		std::size_t  strideSize,
+		std::size_t  numElements,
+		EPlyDataType valueType);
+
+	std::byte*   m_rawBuffer;
+	std::size_t  m_strideSize;
+	std::size_t  m_numElements;
+	EPlyDataType m_valueType;
+};
+
+class PlyPropertyListValues final
+{
+
 };
 
 class PlyFile final

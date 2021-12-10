@@ -8,7 +8,7 @@
 #include "Utility/string_utils.h"
 #include "DataIO/SDL/SdlOutputPayload.h"
 
-#include <vector>
+#include <exception>
 
 namespace ph::sdl
 {

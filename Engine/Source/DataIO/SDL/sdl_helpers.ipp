@@ -4,8 +4,161 @@
 #include "DataIO/SDL/Tokenizer.h"
 #include "Common/assertion.h"
 
+#include <type_traits>
+
 namespace ph::sdl
 {
+
+namespace detail
+{
+
+/*! @brief Check if category information can be obtained statically.
+
+The result is true if the static member variable T::CATEGORY exists,
+otherwise the result is false.
+*/
+///@{
+
+/*! @brief Return type if the result is false.
+*/
+template<typename T, typename = void>
+struct HasStaticCategoryInfo : std::false_type {};
+
+/*! @brief Return type if the result is true.
+*/
+template<typename T>
+struct HasStaticCategoryInfo
+<
+	T,
+	std::enable_if_t
+	<
+		// Check equality of types with cv and ref removed just to be robust.
+		// (TODO: use std::remove_cvref to simplify)
+		std::is_same_v
+		<
+			std::remove_cv_t<std::remove_reference_t<decltype(T::CATEGORY)>>, 
+			ETypeCategory
+		>
+	>
+> : std::true_type {};
+///@}
+
+}// end namespace detail
+
+template<typename FloatType>
+inline FloatType load_float(const std::string_view sdlFloatStr)
+{
+	try
+	{
+		return string_utils::parse_float<FloatType>(sdlFloatStr);
+	}
+	catch(const std::exception& e)
+	{
+		throw SdlLoadError("on loading floating-point value -> " + std::string(e.what()));
+	}
+}
+
+template<typename IntType>
+inline IntType load_int(const std::string_view sdlIntStr)
+{
+	try
+	{
+		return string_utils::parse_int<IntType>(sdlIntStr);
+	}
+	catch(const std::exception& e)
+	{
+		throw SdlLoadError("on loading integer value -> " + std::string(e.what()));
+	}
+}
+
+template<typename NumberType>
+inline NumberType load_number(const std::string_view sdlNumberStr)
+{
+	if constexpr(std::is_floating_point_v<NumberType>)
+	{
+		return load_float<NumberType>(sdlNumberStr);
+	}
+	else
+	{
+		static_assert(std::is_integral_v<NumberType>);
+
+		return load_int<NumberType>(sdlNumberStr);
+	}
+}
+
+inline real load_real(const std::string_view sdlRealStr)
+{
+	return load_float<real>(sdlRealStr);
+}
+
+inline integer load_integer(const std::string_view sdlIntegerStr)
+{
+	return load_int<integer>(sdlIntegerStr);
+}
+
+inline void save_real(const real value, std::string* const out_str)
+{
+	save_float<real>(value, out_str);
+}
+
+inline void save_integer(const integer value, std::string* const out_str)
+{
+	save_int<integer>(value, out_str);
+}
+
+template<typename FloatType>
+inline void save_float(const FloatType value, std::string* const out_str, const std::size_t maxChars)
+{
+	try
+	{
+		string_utils::stringify_number(value, out_str, maxChars);
+	}
+	catch(const std::exception& e)
+	{
+		throw SdlSaveError("on saving floating-point value -> " + std::string(e.what()));
+	}
+}
+
+template<typename IntType>
+inline void save_int(const IntType value, std::string* const out_str, const std::size_t maxChars)
+{
+	try
+	{
+		string_utils::stringify_number(value, out_str, maxChars);
+	}
+	catch(const std::exception& e)
+	{
+		throw SdlSaveError("on saving integer value -> " + std::string(e.what()));
+	}
+}
+
+template<typename NumberType>
+inline void save_number(const NumberType value, std::string* const out_str, const std::size_t maxChars)
+{
+	if constexpr(std::is_floating_point_v<NumberType>)
+	{
+		save_float<NumberType>(value, out_str, maxChars);
+	}
+	else
+	{
+		static_assert(std::is_integral_v<NumberType>);
+
+		save_int<NumberType>(value, out_str, maxChars);
+	}
+}
+
+template<typename T>
+inline constexpr ETypeCategory category_of()
+{
+	if constexpr(std::is_base_of_v<ISdlResource, T> && detail::HasStaticCategoryInfo<T>::value)
+	{
+		return T::CATEGORY;
+	}
+	else
+	{
+		return ETypeCategory::UNSPECIFIED;
+	}
+}
 
 template<typename Element>
 inline math::TVector2<Element> load_vector2(const std::string& sdlVector2Str)

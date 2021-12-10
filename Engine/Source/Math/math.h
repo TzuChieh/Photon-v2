@@ -540,6 +540,8 @@ If the input (fp32) is too samll, 0 will be returned.
 */
 inline uint16 fp32_to_fp16_bits(const float32 value)
 {
+	static_assert(std::numeric_limits<float32>::is_iec559);
+
 	if(std::abs(value) < 0.0000610352f)
 	{
 		return std::signbit(value) ? 0x8000 : 0x0000;
@@ -561,6 +563,8 @@ inline uint16 fp32_to_fp16_bits(const float32 value)
 */
 inline float32 fp16_bits_to_fp32(const uint16 fp16Bits)
 {
+	static_assert(std::numeric_limits<float32>::is_iec559);
+
 	// 0 if all bits other than the sign bit are 0
 	if((fp16Bits & 0x7FFF) == 0)
 	{
