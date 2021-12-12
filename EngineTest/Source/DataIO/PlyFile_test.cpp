@@ -36,15 +36,15 @@ TEST(PlyFileTest, LoadSimpleAscii)
 
 		EXPECT_STREQ(element->properties[0].name.c_str(), "a");
 		EXPECT_EQ(element->properties[0].dataType, EPlyDataType::PPT_int32);
-		EXPECT_EQ(element->properties[0].isList(), false);
+		EXPECT_FALSE(element->properties[0].isList());
 
 		EXPECT_STREQ(element->properties[1].name.c_str(), "bb");
 		EXPECT_EQ(element->properties[1].dataType, EPlyDataType::PPT_float32);
-		EXPECT_EQ(element->properties[1].isList(), false);
+		EXPECT_FALSE(element->properties[1].isList());
 
 		EXPECT_STREQ(element->properties[2].name.c_str(), "ccc");
 		EXPECT_EQ(element->properties[2].dataType, EPlyDataType::PPT_float64);
-		EXPECT_EQ(element->properties[2].isList(), false);
+		EXPECT_FALSE(element->properties[2].isList());
 		
 		const std::byte* bytes = element->rawBuffer.data();
 		EXPECT_EQ(element->rawBuffer.size(), 3 * (4 + 4 + 8));
@@ -76,5 +76,42 @@ TEST(PlyFileTest, LoadSimpleAscii)
 		EXPECT_FLOAT_EQ(float32Value, 7);
 		std::memcpy(&float64Value, bytes, sizeof(float64Value)); bytes += sizeof(float64Value);
 		EXPECT_DOUBLE_EQ(float64Value, 8);
+	}
+
+	{
+		PlyIOConfig config;
+		config.bIgnoreComments = false;
+
+		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_list.ply")), config);
+
+		EXPECT_EQ(file.getFormat(), EPlyFileFormat::ASCII);
+		EXPECT_EQ(file.getVersion(), SemanticVersion(1, 0, 0));
+		EXPECT_EQ(file.numComments(), 0);
+		EXPECT_EQ(file.numElements(), 1);
+
+		const PlyElement* const element = file.findElement("myList");
+		ASSERT_TRUE(element);
+		EXPECT_TRUE(element->isLoaded());
+		EXPECT_STREQ(element->name.c_str(), "myList");
+		EXPECT_EQ(element->numElements, 3);
+		EXPECT_EQ(element->properties.size(), 1);
+
+		EXPECT_STREQ(element->properties[0].name.c_str(), "myNumbers");
+		EXPECT_EQ(element->properties[0].dataType, EPlyDataType::PPT_int32);
+		EXPECT_TRUE(element->properties[0].isList());
+		EXPECT_TRUE(element->properties[0].isFixedSizeList());
+		EXPECT_EQ(element->properties[0].fixedListSize, 3);
+		
+		const std::byte* bytes = element->properties[0].rawListBuffer.data();
+		EXPECT_EQ(element->properties[0].rawListBuffer.size(), 3 * (3 * 4));
+
+		for(int32 i = 0; i <= 8; ++i)
+		{
+			int32 int32Value;
+			std::memcpy(&int32Value, bytes, sizeof(int32Value));
+			bytes += sizeof(int32Value);
+
+			EXPECT_EQ(int32Value, i);
+		}
 	}
 }

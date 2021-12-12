@@ -233,11 +233,10 @@ inline void write_binary_ply_data(const DataType value, std::byte* const out_bin
 	PH_ASSERT(out_binaryPlyData);
 
 	std::memcpy(out_binaryPlyData, &value, sizeof(DataType));
-	return value;
 }
 
 template<typename DataType>
-inline float64 ascii_ply_data_to_binary(const std::string_view asciiPlyData, std::byte* const out_bytes)
+inline float64 ascii_ply_data_to_bytes(const std::string_view asciiPlyData, std::byte* const out_bytes)
 {
 	const auto value = string_utils::parse_number<DataType>(asciiPlyData);
 	write_binary_ply_data<DataType>(value, out_bytes);
@@ -246,13 +245,13 @@ inline float64 ascii_ply_data_to_binary(const std::string_view asciiPlyData, std
 }
 
 template<typename DataType>
-inline void binary_to_ascii_ply_data(const std::byte* const binaryPlyData, std::string* const out_asciiPlyData)
+inline void bytes_to_ascii_ply_data(const std::byte* const binaryPlyData, std::string* const out_asciiPlyData)
 {
 	const auto value = read_binary_ply_data<DataType>(binaryPlyData);
 	string_utils::stringify_number<DataType>(value, out_asciiPlyData);
 }
 
-inline float64 read_binary_ply_data(const std::byte* const binaryPlyData, const EPlyDataType dataType)
+inline float64 bytes_to_ply_data(const std::byte* const binaryPlyData, const EPlyDataType dataType)
 {
 	switch(dataType)
 	{
@@ -270,7 +269,7 @@ inline float64 read_binary_ply_data(const std::byte* const binaryPlyData, const 
 	return 0.0;
 }
 
-inline void write_binary_ply_data(const float64 value, const EPlyDataType dataType, std::byte* const out_binaryPlyData)
+inline void ply_data_to_bytes(const float64 value, const EPlyDataType dataType, std::byte* const out_binaryPlyData)
 {
 	switch(dataType)
 	{
@@ -310,28 +309,28 @@ inline void write_binary_ply_data(const float64 value, const EPlyDataType dataTy
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
-inline float64 ascii_ply_data_to_binary(
+inline float64 ascii_ply_data_to_bytes(
 	const std::string_view asciiPlyData, 
 	const EPlyDataType     dataType, 
 	std::byte* const       out_binaryPlyData)
 {
 	switch(dataType)
 	{
-	case EPlyDataType::PPT_int8:    return ascii_ply_data_to_binary<int8>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_uint8:   return ascii_ply_data_to_binary<uint8>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_int16:   return ascii_ply_data_to_binary<int16>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_uint16:  return ascii_ply_data_to_binary<uint16>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_int32:   return ascii_ply_data_to_binary<int32>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_uint32:  return ascii_ply_data_to_binary<uint32>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_float32: return ascii_ply_data_to_binary<float32>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_float64: return ascii_ply_data_to_binary<float64>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::PPT_int8:    return ascii_ply_data_to_bytes<int8>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::PPT_uint8:   return ascii_ply_data_to_bytes<uint8>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::PPT_int16:   return ascii_ply_data_to_bytes<int16>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::PPT_uint16:  return ascii_ply_data_to_bytes<uint16>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::PPT_int32:   return ascii_ply_data_to_bytes<int32>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::PPT_uint32:  return ascii_ply_data_to_bytes<uint32>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::PPT_float32: return ascii_ply_data_to_bytes<float32>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::PPT_float64: return ascii_ply_data_to_bytes<float64>(asciiPlyData, out_binaryPlyData);
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
 	return 0.0;
 }
 
-inline void binary_to_ascii_ply_data(
+inline void bytes_to_ascii_ply_data(
 	const std::byte* const binaryPlyData,
 	const EPlyDataType     dataType, 
 	std::string* const     out_asciiPlyData)
@@ -339,35 +338,35 @@ inline void binary_to_ascii_ply_data(
 	switch(dataType)
 	{
 	case EPlyDataType::PPT_int8:
-		binary_to_ascii_ply_data<int8>(binaryPlyData, out_asciiPlyData);
+		bytes_to_ascii_ply_data<int8>(binaryPlyData, out_asciiPlyData);
 		break;
 
 	case EPlyDataType::PPT_uint8:
-		binary_to_ascii_ply_data<uint8>(binaryPlyData, out_asciiPlyData);
+		bytes_to_ascii_ply_data<uint8>(binaryPlyData, out_asciiPlyData);
 		break;
 
 	case EPlyDataType::PPT_int16:
-		binary_to_ascii_ply_data<int16>(binaryPlyData, out_asciiPlyData);
+		bytes_to_ascii_ply_data<int16>(binaryPlyData, out_asciiPlyData);
 		break;
 
 	case EPlyDataType::PPT_uint16:
-		binary_to_ascii_ply_data<uint16>(binaryPlyData, out_asciiPlyData);
+		bytes_to_ascii_ply_data<uint16>(binaryPlyData, out_asciiPlyData);
 		break;
 
 	case EPlyDataType::PPT_int32:
-		binary_to_ascii_ply_data<int32>(binaryPlyData, out_asciiPlyData);
+		bytes_to_ascii_ply_data<int32>(binaryPlyData, out_asciiPlyData);
 		break;
 
 	case EPlyDataType::PPT_uint32:
-		binary_to_ascii_ply_data<uint32>(binaryPlyData, out_asciiPlyData);
+		bytes_to_ascii_ply_data<uint32>(binaryPlyData, out_asciiPlyData);
 		break;
 
 	case EPlyDataType::PPT_float32:
-		binary_to_ascii_ply_data<float32>(binaryPlyData, out_asciiPlyData);
+		bytes_to_ascii_ply_data<float32>(binaryPlyData, out_asciiPlyData);
 		break;
 
 	case EPlyDataType::PPT_float64:
-		binary_to_ascii_ply_data<float64>(binaryPlyData, out_asciiPlyData);
+		bytes_to_ascii_ply_data<float64>(binaryPlyData, out_asciiPlyData);
 		break;
 	}
 
@@ -441,19 +440,122 @@ PlyPropertyValues::PlyPropertyValues(
 	m_valueType  (valueType)
 {}
 
+std::size_t PlyPropertyValues::getBufferOffset(const std::size_t index) const
+{
+	if(index >= size())
+	{
+		throw std::out_of_range(std::format(
+			"PLY property value index {} exceeded element size {}.",
+			index, size()));
+	}
+
+	return index * m_strideSize;
+}
+
 float64 PlyPropertyValues::get(const std::size_t index) const
 {
-
+	PH_ASSERT(m_rawBuffer);
+	return bytes_to_ply_data(
+		&(m_rawBuffer[getBufferOffset(index)]),
+		m_valueType);
 }
 
 void PlyPropertyValues::set(const std::size_t index, const float64 value)
 {
-
+	PH_ASSERT(m_rawBuffer);
+	ply_data_to_bytes(
+		value,
+		m_valueType,
+		&(m_rawBuffer[getBufferOffset(index)]));
 }
 
 std::size_t PlyPropertyValues::size() const
 {
 	return m_numElements;
+}
+
+PlyPropertyListValues::PlyPropertyListValues() :
+	PlyPropertyListValues(nullptr, nullptr, 0, 0, EPlyDataType::UNSPECIFIED)
+{}
+
+PlyPropertyListValues::PlyPropertyListValues(
+	std::byte* const   rawBuffer,
+	std::size_t* const listSizesPrefixSum,
+	const std::size_t  numLists,
+	const std::size_t  fixedListSize,
+	const EPlyDataType valueType) :
+
+	m_rawBuffer         (rawBuffer),
+	m_listSizesPrefixSum(listSizesPrefixSum),
+	m_numLists          (numLists),
+	m_fixedListSize     (fixedListSize),
+	m_valueType         (valueType)
+{}
+
+std::size_t PlyPropertyListValues::getBufferOffset(const std::size_t listIndex, const std::size_t listElementIndex) const
+{
+	const auto numLists      = size();
+	const auto numListValues = listSize(listIndex);
+
+	if(listIndex >= numLists || listElementIndex >= numListValues)
+	{
+		throw std::out_of_range(std::format(
+			"PLY list index {} and list element index {} overflow: # lists = {}, # list values = {}.",
+			listIndex, listElementIndex, numLists, numListValues));
+	}
+
+	PH_ASSERT(
+		isFixedSizeList() ||
+		(!isFixedSizeList() && m_listSizesPrefixSum));
+
+	const auto sizeofValue = sizeof_ply_data_type(m_valueType);
+
+	return isFixedSizeList()
+		? (listIndex * m_fixedListSize + listElementIndex) * sizeofValue
+		: (m_listSizesPrefixSum[listIndex] + listElementIndex) * sizeofValue;
+}
+
+float64 PlyPropertyListValues::get(const std::size_t listIndex, const std::size_t listElementIndex) const
+{
+	PH_ASSERT(m_rawBuffer);
+	return bytes_to_ply_data(
+		&(m_rawBuffer[getBufferOffset(listIndex, listElementIndex)]),
+		m_valueType);
+}
+
+void PlyPropertyListValues::set(std::size_t listIndex, std::size_t listElementIndex, float64 value)
+{
+	PH_ASSERT(m_rawBuffer);
+	ply_data_to_bytes(
+		value,
+		m_valueType,
+		&(m_rawBuffer[getBufferOffset(listIndex, listElementIndex)]));
+}
+
+std::size_t PlyPropertyListValues::size() const
+{
+	return m_numLists;
+}
+
+std::size_t PlyPropertyListValues::listSize(const std::size_t listIndex) const
+{
+	PH_ASSERT(
+		isFixedSizeList() ||
+		(!isFixedSizeList() && m_listSizesPrefixSum));
+
+	return isFixedSizeList()
+		? m_fixedListSize 
+		: m_listSizesPrefixSum[listIndex + 1] - m_listSizesPrefixSum[listIndex];
+}
+
+bool PlyPropertyListValues::isFixedSizeList() const
+{
+	return m_fixedListSize > 0;
+}
+
+std::size_t PlyPropertyListValues::fixedListSize() const
+{
+	return m_fixedListSize;
 }
 
 PlyFile::PlyFile() :
@@ -771,7 +873,7 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 					if(prop.isList())
 					{
 						std::array<std::byte, 8> dummyBuffer;
-						const auto listSize = static_cast<std::size_t>(ascii_ply_data_to_binary(
+						const auto listSize = static_cast<std::size_t>(ascii_ply_data_to_bytes(
 							next_token(currentLine, &currentLine),
 							prop.dataType,
 							dummyBuffer.data()));
@@ -783,7 +885,7 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 						rawBuffer.resize(rawBuffer.size() + sizeofData * listSize);
 						for(std::size_t li = 0; li < listSize; ++li)
 						{
-							ascii_ply_data_to_binary(
+							ascii_ply_data_to_bytes(
 								next_token(currentLine, &currentLine), 
 								prop.dataType, 
 								&(rawBuffer[firstByteIdx + li * sizeofData]));
@@ -808,7 +910,7 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 						const std::size_t firstByteIdx = rawBuffer.size();
 						rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.dataType));
 
-						ascii_ply_data_to_binary(
+						ascii_ply_data_to_bytes(
 							next_token(currentLine, &currentLine), 
 							prop.dataType, 
 							&(rawBuffer[firstByteIdx]));
@@ -836,7 +938,8 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 
 void PlyFile::loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
 {
-
+	// TODO
+	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
 }// end namespace ph

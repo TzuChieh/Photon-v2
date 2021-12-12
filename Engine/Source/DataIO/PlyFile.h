@@ -125,6 +125,8 @@ private:
 		std::size_t  numElements,
 		EPlyDataType valueType);
 
+	std::size_t getBufferOffset(std::size_t index) const;
+
 	std::byte*   m_rawBuffer;
 	std::size_t  m_strideSize;
 	std::size_t  m_numElements;
@@ -133,7 +135,33 @@ private:
 
 class PlyPropertyListValues final
 {
+	friend PlyElement;
 
+public:
+	float64 get(std::size_t listIndex, std::size_t listElementIndex) const;
+	void set(std::size_t listIndex, std::size_t listElementIndex, float64 value);
+	std::size_t size() const;
+	std::size_t listSize(std::size_t listIndex) const;
+	bool isFixedSizeList() const;
+	std::size_t fixedListSize() const;
+
+private:
+	PlyPropertyListValues();
+
+	PlyPropertyListValues(
+		std::byte*   rawBuffer,
+		std::size_t* listSizesPrefixSum,
+		std::size_t  numLists,
+		std::size_t  fixedListSize,
+		EPlyDataType valueType);
+
+	std::size_t getBufferOffset(std::size_t listIndex, std::size_t listElementIndex) const;
+
+	std::byte*   m_rawBuffer;
+	std::size_t* m_listSizesPrefixSum;
+	std::size_t  m_numLists;
+	std::size_t  m_fixedListSize;
+	EPlyDataType m_valueType;
 };
 
 class PlyFile final
