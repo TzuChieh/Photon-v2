@@ -274,35 +274,35 @@ inline void ply_data_to_bytes(const float64 value, const EPlyDataType dataType, 
 	switch(dataType)
 	{
 	case EPlyDataType::PPT_int8: 
-		write_binary_ply_data<int8>(value, out_binaryPlyData);
+		write_binary_ply_data<int8>(static_cast<int8>(value), out_binaryPlyData);
 		break;
 
 	case EPlyDataType::PPT_uint8:
-		write_binary_ply_data<uint8>(value, out_binaryPlyData);
+		write_binary_ply_data<uint8>(static_cast<uint8>(value), out_binaryPlyData);
 		break;
 
 	case EPlyDataType::PPT_int16:
-		write_binary_ply_data<int16>(value, out_binaryPlyData);
+		write_binary_ply_data<int16>(static_cast<int16>(value), out_binaryPlyData);
 		break;
 
 	case EPlyDataType::PPT_uint16: 
-		write_binary_ply_data<uint16>(value, out_binaryPlyData);
+		write_binary_ply_data<uint16>(static_cast<uint16>(value), out_binaryPlyData);
 		break;
 
 	case EPlyDataType::PPT_int32:
-		write_binary_ply_data<int32>(value, out_binaryPlyData);
+		write_binary_ply_data<int32>(static_cast<int32>(value), out_binaryPlyData);
 		break;
 
 	case EPlyDataType::PPT_uint32: 
-		write_binary_ply_data<uint32>(value, out_binaryPlyData);
+		write_binary_ply_data<uint32>(static_cast<uint32>(value), out_binaryPlyData);
 		break;
 
 	case EPlyDataType::PPT_float32:
-		write_binary_ply_data<float32>(value, out_binaryPlyData);
+		write_binary_ply_data<float32>(static_cast<float32>(value), out_binaryPlyData);
 		break;
 
 	case EPlyDataType::PPT_float64:
-		write_binary_ply_data<float64>(value, out_binaryPlyData);
+		write_binary_ply_data<float64>(static_cast<float64>(value), out_binaryPlyData);
 		break;
 	}
 
@@ -379,6 +379,7 @@ PlyProperty::PlyProperty() :
 	name              (),
 	dataType          (EPlyDataType::UNSPECIFIED),
 	listSizeType      (EPlyDataType::UNSPECIFIED),
+	strideOffset      (0),
 	fixedListSize     (0),
 	rawListBuffer     (),
 	listSizesPrefixSum()
@@ -422,6 +423,61 @@ bool PlyElement::isLoaded() const
 	}
 
 	return false;
+}
+
+PlyProperty* PlyElement::findProperty(const std::string_view name)
+{
+	for(PlyProperty& prop : properties)
+	{
+		if(prop.name == name)
+		{
+			return &prop;
+		}
+	}
+	return nullptr;
+}
+
+PlyPropertyValues PlyElement::propertyValues(PlyProperty* const prop)
+{
+	if(!prop)
+	{
+		return PlyPropertyValues();
+	}
+
+	if(prop->isList())
+	{
+		throw std::invalid_argument(std::format(
+			"PLY property {} in element {} is a list property. Cannot access values via non-list accessor.",
+			prop->name, name));
+	}
+
+	return PlyPropertyValues(
+		&(rawBuffer[prop->strideOffset]),
+		strideSize,
+		numElements,
+		prop->dataType);
+}
+
+PlyPropertyListValues PlyElement::listPropertyValues(PlyProperty* const prop)
+{
+	if(!prop)
+	{
+		return PlyPropertyListValues();
+	}
+
+	if(!prop->isList())
+	{
+		throw std::invalid_argument(std::format(
+			"PLY property {} in element {} is a non-list property. Cannot access values via list accessor.",
+			prop->name, name));
+	}
+
+	return PlyPropertyListValues(
+		prop->rawListBuffer.data(),
+		prop->listSizesPrefixSum.data(),
+		numElements,
+		prop->fixedListSize,
+		prop->dataType);
 }
 
 PlyPropertyValues::PlyPropertyValues() :
@@ -472,6 +528,11 @@ void PlyPropertyValues::set(const std::size_t index, const float64 value)
 std::size_t PlyPropertyValues::size() const
 {
 	return m_numElements;
+}
+
+PlyPropertyValues::operator bool() const
+{
+	return m_rawBuffer != nullptr;
 }
 
 PlyPropertyListValues::PlyPropertyListValues() :
@@ -558,6 +619,11 @@ std::size_t PlyPropertyListValues::fixedListSize() const
 	return m_fixedListSize;
 }
 
+PlyPropertyListValues::operator bool() const
+{
+	return m_rawBuffer != nullptr;
+}
+
 PlyFile::PlyFile() :
 	m_format  (EPlyFileFormat::ASCII),
 	m_version (1, 0, 0),
@@ -576,9 +642,9 @@ PlyFile::PlyFile(const Path& plyFilePath, const PlyIOConfig& config) :
 	loadFile(plyFilePath, config);
 }
 
-const PlyElement* PlyFile::findElement(const std::string_view name) const
+PlyElement* PlyFile::findElement(const std::string_view name)
 {
-	for(const PlyElement& element : m_elements)
+	for(PlyElement& element : m_elements)
 	{
 		if(element.name == name)
 		{
@@ -799,8 +865,9 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 				}
 				else
 				{
-					newProp.dataType = ply_keyword_to_data_type(tokenAfterEntry);
-					newProp.name     = next_token(headerLine);
+					newProp.dataType     = ply_keyword_to_data_type(tokenAfterEntry);
+					newProp.name         = next_token(headerLine);
+					newProp.strideOffset = currentElement.strideSize;
 
 					currentElement.strideSize += sizeof_ply_data_type(newProp.dataType);
 				}

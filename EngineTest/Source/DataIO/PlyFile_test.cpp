@@ -12,6 +12,7 @@ using namespace ph;
 
 TEST(PlyFileTest, LoadSimpleAscii)
 {
+	// ASCII property-only
 	{
 		PlyIOConfig config;
 		config.bIgnoreComments = false;
@@ -78,6 +79,7 @@ TEST(PlyFileTest, LoadSimpleAscii)
 		EXPECT_DOUBLE_EQ(float64Value, 8);
 	}
 
+	// ASCII list-only
 	{
 		PlyIOConfig config;
 		config.bIgnoreComments = false;
@@ -112,6 +114,64 @@ TEST(PlyFileTest, LoadSimpleAscii)
 			bytes += sizeof(int32Value);
 
 			EXPECT_EQ(int32Value, i);
+		}
+	}
+}
+
+TEST(PlyFileTest, LoadSimpleAsciiWithHelperClasses)
+{
+	// ASCII property-only
+	{
+		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_property.ply")));
+
+		PlyElement* const element = file.findElement("val");
+		ASSERT_TRUE(element);
+
+		auto aValues = element->propertyValues(element->findProperty("a"));
+		ASSERT_TRUE(aValues);
+		EXPECT_EQ(aValues.size(), 3);
+		EXPECT_EQ(aValues.get(0), 0);
+		EXPECT_EQ(aValues.get(1), 3);
+		EXPECT_EQ(aValues.get(2), 6);
+
+		auto bValues = element->propertyValues(element->findProperty("bb"));
+		ASSERT_TRUE(bValues);
+		EXPECT_EQ(bValues.size(), 3);
+		EXPECT_EQ(bValues.get(0), 1);
+		EXPECT_EQ(bValues.get(1), 4);
+		EXPECT_EQ(bValues.get(2), 7);
+
+		auto cValues = element->propertyValues(element->findProperty("ccc"));
+		ASSERT_TRUE(cValues);
+		EXPECT_EQ(cValues.size(), 3);
+		EXPECT_EQ(cValues.get(0), 2);
+		EXPECT_EQ(cValues.get(1), 5);
+		EXPECT_EQ(cValues.get(2), 8);
+	}
+
+	// ASCII list-only
+	{
+		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_list.ply")));
+
+		PlyElement* const element = file.findElement("myList");
+		ASSERT_TRUE(element);
+
+		auto listValues = element->listPropertyValues(element->findProperty("myNumbers"));
+		ASSERT_TRUE(listValues);
+		EXPECT_TRUE(listValues.isFixedSizeList());
+		EXPECT_EQ(listValues.size(), 3);
+
+		for(std::size_t li = 0; li < listValues.size(); ++li)
+		{
+			EXPECT_EQ(listValues.listSize(li), 3);
+			EXPECT_EQ(listValues.fixedListSize(), 3);
+
+			for(std::size_t i = 0; i < listValues.fixedListSize(); ++i)
+			{
+				EXPECT_EQ(listValues.get(li, i), li * 3 + i);
+				EXPECT_EQ(listValues.get(li, i), li * 3 + i);
+				EXPECT_EQ(listValues.get(li, i), li * 3 + i);
+			}
 		}
 	}
 }

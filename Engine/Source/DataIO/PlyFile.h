@@ -79,11 +79,15 @@ struct PlyIOConfig final
 	std::size_t reduceStorageMemoryThreshold = 768 * math::constant::MiB;
 };
 
+class PlyPropertyValues;
+class PlyPropertyListValues;
+
 struct PlyProperty final
 {
 	std::string              name;
 	EPlyDataType             dataType;
 	EPlyDataType             listSizeType;
+	std::size_t              strideOffset;
 	std::size_t              fixedListSize;
 	std::vector<std::byte>   rawListBuffer;
 	std::vector<std::size_t> listSizesPrefixSum;
@@ -105,6 +109,9 @@ struct PlyElement final
 	PlyElement();
 
 	bool isLoaded() const;
+	PlyProperty* findProperty(std::string_view name);
+	PlyPropertyValues propertyValues(PlyProperty* prop);
+	PlyPropertyListValues listPropertyValues(PlyProperty* prop);
 };
 
 class PlyPropertyValues final
@@ -115,6 +122,7 @@ public:
 	float64 get(std::size_t index) const;
 	void set(std::size_t index, float64 value);
 	std::size_t size() const;
+	operator bool () const;
 
 private:
 	PlyPropertyValues();
@@ -144,6 +152,7 @@ public:
 	std::size_t listSize(std::size_t listIndex) const;
 	bool isFixedSizeList() const;
 	std::size_t fixedListSize() const;
+	operator bool() const;
 
 private:
 	PlyPropertyListValues();
@@ -174,7 +183,7 @@ public:
 	explicit PlyFile(const Path& plyFilePath);
 	PlyFile(const Path& plyFilePath, const PlyIOConfig& config);
 
-	const PlyElement* findElement(std::string_view name) const;
+	PlyElement* findElement(std::string_view name);
 	std::size_t numElements() const;
 	EPlyFileFormat getFormat() const;
 	void setFormat(EPlyFileFormat format);
