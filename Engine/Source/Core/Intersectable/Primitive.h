@@ -39,7 +39,7 @@ public:
 	virtual real calcPositionSamplePdfA(const math::Vector3R& position) const;
 
 	// Calculates the area extended by this primitive. The term "extended"
-	// implies single-sided, e.g., a triangle's extended area is the absolute
+	// implies single-sided, e.g., a triangle's extended area is half the absolute
 	// value of the cross product of its two edge vectors, no need to multiply
 	// by 2 for two sides. A zero return value means the concept of extended
 	// area does not apply to this primitive.
