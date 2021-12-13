@@ -4,9 +4,10 @@
 #include "Math/Geometry/geometry.h"
 #include "Math/TVector2.h"
 
-#include <exception>
+#include <stdexcept>
 #include <cstring>
 #include <cmath>
+#include <format>
 
 namespace ph
 {
@@ -245,7 +246,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 void IndexedVertexBuffer::setAttribute(
 	const EVertexAttribute attribute,
 	const std::size_t      index,
-	const math::Vector3R&  value) const
+	const math::Vector3R&  value)
 {
 	PH_ASSERT(isAllocated());
 
@@ -343,6 +344,21 @@ void IndexedVertexBuffer::setAttribute(
 		PH_ASSERT_UNREACHABLE_SECTION();
 		break;
 	}
+}
+
+void IndexedVertexBuffer::setVertices(const std::byte* const srcBytes, const std::size_t numBytes, const std::size_t dstOffset)
+{
+	PH_ASSERT(srcBytes);
+	PH_ASSERT(isAllocated());
+
+	if(dstOffset + numBytes > m_byteBufferSize)
+	{
+		throw std::invalid_argument(std::format(
+			"Copying {} bytes will overflow the vertex buffer (buffer-size: {} bytes, buffer-offset: {}).",
+			numBytes, numBytes, dstOffset));
+	}
+
+	std::memcpy(&(m_byteBuffer[dstOffset]), srcBytes, numBytes);
 }
 
 }// end namespace ph

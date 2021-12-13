@@ -13,10 +13,13 @@
 #include <format>
 #include <cstring>
 #include <algorithm>
+#include <type_traits>
 
 namespace ph
 {
 
+/*! @brief A general unsigned integer buffer for integers with any number of bits.
+*/
 class IndexedUIntBuffer final
 {
 	static_assert(sizeof(std::byte)* CHAR_BIT == 8,
@@ -32,8 +35,10 @@ public:
 	template<std::integral IntegerType>
 	void setUInt(std::size_t index, IntegerType value);
 
-	template<typename IntegerType>
-	void setUInts(std::size_t beginIndex, std::size_t endIndex, IntegerType* values);
+	template<typename ValueType>
+	void setUInts(const ValueType* values, std::size_t numValues, std::size_t dstBeginValueIndex = 0);
+
+	void setUInts(const std::byte* srcBytes, std::size_t numBytes, std::size_t dstOffset = 0);
 
 	// TODO: templatize
 	uint64 getUInt(std::size_t index) const;
@@ -122,22 +127,36 @@ inline void IndexedUIntBuffer::setUInt(const std::size_t index, const IntegerTyp
 	}
 }
 
-template<typename IntegerType>
+template<typename ValueType>
 inline void IndexedUIntBuffer::setUInts(
-	const std::size_t  beginIndex, 
-	const std::size_t  endIndex, 
-	IntegerType* const values)
+	const ValueType* const values,
+	const std::size_t      numValues,
+	const std::size_t      dstBeginValueIndex)
 {
-	if(endIndex <= beginIndex)
-	{
-		return;
-	}
-
 	PH_ASSERT(values);
-	for(std::size_t uintIdx = beginIndex, valueIdx = 0; uintIdx < endIndex; ++uintIdx, ++valueIdx)
+
+	// Directly copy the value buffer if the formats matched
+	if(std::is_unsigned_v<ValueType> && sizeof(ValueType) * CHAR_BIT == m_numBitsPerUInt)
 	{
-		PH_ASSERT_LT(valueIdx, endIndex - beginIndex);
-		setUInt<IntegerType>(uintIdx, values[valueIdx]);
+		setUInts(
+			reinterpret_cast<const std::byte*>(values), 
+			numValues * sizeof(ValueType), 
+			dstBeginValueIndex * sizeof(ValueType));
+	}
+	// Resort to copy one by one
+	else
+	{
+		for(std::size_t uintIdx = dstBeginValueIndex, valueIdx = 0; valueIdx < numValues; ++uintIdx, ++valueIdx)
+		{
+			if constexpr(std::is_integral_v<ValueType>)
+			{
+				setUInt(uintIdx, values[valueIdx]);
+			}
+			else
+			{
+				setUInt(uintIdx, static_cast<uint64>(values[valueIdx]));
+			}
+		}
 	}
 }
 

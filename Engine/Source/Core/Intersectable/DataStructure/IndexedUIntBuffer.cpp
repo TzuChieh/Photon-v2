@@ -50,4 +50,19 @@ void IndexedUIntBuffer::allocate(const std::size_t numUInts)
 	}
 }
 
+void IndexedUIntBuffer::setUInts(const std::byte* const srcBytes, const std::size_t numBytes, const std::size_t dstOffset)
+{
+	PH_ASSERT(srcBytes);
+	PH_ASSERT(isAllocated());
+
+	if(dstOffset + numBytes > m_byteBufferSize)
+	{
+		throw std::invalid_argument(std::format(
+			"Copying {} bytes will overflow the index buffer (buffer-size: {} bytes, buffer-offset: {}).",
+			numBytes, numBytes, dstOffset));
+	}
+
+	std::memcpy(&(m_byteBuffer[dstOffset]), srcBytes, numBytes);
+}
+
 }// end namespace ph

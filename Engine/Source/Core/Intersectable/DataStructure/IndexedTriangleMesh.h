@@ -18,6 +18,7 @@ class IndexedTriangleMesh final
 public:
 	IndexedTriangleMesh();
 
+	std::array<math::Vector3R, 3> getPositions(std::size_t faceIndex) const;
 	std::array<math::Vector3R, 3> getFaceAttribute(EVertexAttribute attribute, std::size_t faceIndex) const;
 	std::size_t numFaces() const;
 
@@ -32,6 +33,11 @@ private:
 };
 
 // In-header Implementations:
+
+inline std::array<math::Vector3R, 3> IndexedTriangleMesh::getPositions(const std::size_t faceIndex) const
+{
+	return getFaceAttribute(EVertexAttribute::Position_0, faceIndex);
+}
 
 inline std::array<math::Vector3R, 3> IndexedTriangleMesh::getFaceAttribute(
 	const EVertexAttribute attribute,

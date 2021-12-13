@@ -40,6 +40,8 @@ enum class EVertexElement
 	NUM
 };
 
+/*! @brief A general vertex buffer for storing various indexed attributes.
+*/
 class IndexedVertexBuffer final
 {
 	static_assert(sizeof(std::byte) * CHAR_BIT == 8,
@@ -56,9 +58,10 @@ public:
 
 	void allocate(std::size_t numVertices);
 
-	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector3R& value) const;
-	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector2R& value) const;
-	void setAttribute(EVertexAttribute attribute, std::size_t index, real value) const;
+	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector3R& value);
+	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector2R& value);
+	void setAttribute(EVertexAttribute attribute, std::size_t index, real value);
+	void setVertices(const std::byte* srcBytes, std::size_t numBytes, std::size_t dstOffset = 0);
 	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
 	std::size_t estimateMemoryUsage() const;
 	bool isAllocated() const;
@@ -126,12 +129,12 @@ inline std::size_t IndexedVertexBuffer::numVertices() const
 	return m_strideSize > 0 ? m_byteBufferSize / m_strideSize : 0;
 }
 
-inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, const math::Vector2R& value) const
+inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, const math::Vector2R& value)
 {
 	setAttribute(attribute, index, math::Vector3R(value[0], value[1], 0.0_r));
 }
 
-inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, real value) const
+inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, real value)
 {
 	setAttribute(attribute, index, math::Vector3R(value, 0.0_r, 0.0_r));
 }
