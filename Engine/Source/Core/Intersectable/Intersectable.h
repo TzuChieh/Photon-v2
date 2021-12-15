@@ -58,22 +58,20 @@ public:
 
 	/*! @brief Determines whether this object blocks the ray.
 
-	If greater performance is desired, you can override the default
-	implementation which simply calls isIntersecting(const Ray&, HitProbe&)
-	const to do the job.
+	If greater performance is desired, you can override the default implementation which 
+	simply calls isIntersecting(const Ray&, HitProbe&) const to do the job.
 	*/
-	virtual bool isIntersecting(const Ray& ray) const;
+	virtual bool isOccluding(const Ray& ray) const;
 
 	/*! @brief Conservatively checks whether this object overlaps a volume.
 
-	By conservative, it means **true can be returned even though the object does
-	not overlap the volume**; but if it actually does, **true must be
-	returned**. The default implementation performs conservative intersecting
-	test using the AABB calculated by calcAABB(). Although false-positives are
-	allowed for this method, providing an implementation with higher accuracy is
-	benefitial for many algorithms used by the renderer.
+	By conservative, it means **true can be returned even though the object does not overlap
+	the volume**; but if it actually does, **true must be returned**. The default
+	implementation performs conservative intersecting test using the AABB calculated by
+	calcAABB(). Although false-positives are allowed for this method, providing an
+	implementation with higher accuracy is benefitial for many algorithms used by the renderer.
 	*/
-	virtual bool isIntersectingVolumeConservative(const math::AABB3D& volume) const;
+	virtual bool mayIntersectVolume(const math::AABB3D& volume) const;
 };
 
 }// end namespace ph

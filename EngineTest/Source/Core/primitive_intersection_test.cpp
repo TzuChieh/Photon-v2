@@ -20,26 +20,26 @@ TEST(PrimitiveIntersectionTest, RaySphereIntersection)
 		Vector3R(1, 0, 0), 
 		0, 
 		std::numeric_limits<real>::max());
-	EXPECT_TRUE(unitSphere->isIntersecting(longXAxisRay));
+	EXPECT_TRUE(unitSphere->isOccluding(longXAxisRay));
 
 	Ray shortXAxisRay(
 		Vector3R(-100000.0_r, 0, 0),
 		Vector3R(1, 0, 0), 
 		0, 
 		1);
-	EXPECT_FALSE(unitSphere->isIntersecting(shortXAxisRay));
+	EXPECT_FALSE(unitSphere->isOccluding(shortXAxisRay));
 
 	Ray insideUnitSphereRay(
 		Vector3R(0, 0, 0), 
 		Vector3R(1, 0, 0), 
 		0, 
 		0.1_r);
-	EXPECT_FALSE(unitSphere->isIntersecting(insideUnitSphereRay));
+	EXPECT_FALSE(unitSphere->isOccluding(insideUnitSphereRay));
 
 	Ray fromInsideToOutsideUnitSphereRay(
 		Vector3R(0, 0, 0), 
 		Vector3R(1, 0, 0), 
 		0, 
 		std::numeric_limits<real>::max());
-	EXPECT_TRUE(unitSphere->isIntersecting(fromInsideToOutsideUnitSphereRay));
+	EXPECT_TRUE(unitSphere->isOccluding(fromInsideToOutsideUnitSphereRay));
 }

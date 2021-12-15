@@ -22,8 +22,6 @@ public:
 	
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
 	math::AABB3D calcAABB() const override = 0;
-	
-	using Intersectable::isIntersecting;
 
 	void calcIntersectionDetail(
 		const Ray& ray, 

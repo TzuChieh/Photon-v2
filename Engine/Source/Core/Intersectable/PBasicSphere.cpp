@@ -43,7 +43,7 @@ bool PBasicSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 
 // Intersection test for solid box and hollow sphere.
 // Reference: Jim Arvo's algorithm in Graphics Gems 2
-bool PBasicSphere::isIntersectingVolumeConservative(const math::AABB3D& volume) const
+bool PBasicSphere::mayIntersectVolume(const math::AABB3D& volume) const
 {
 	const real radius2 = math::squared(m_radius);
 

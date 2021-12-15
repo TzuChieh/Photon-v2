@@ -97,7 +97,7 @@
 //	//		if(!(intersection.getHitSmoothNormal().dot(toLightVec) * intersection.getHitGeoNormal().dot(toLightVec) <= 0.0_r))
 //	//		{
 //	//			const Ray visRay(intersection.getHitPosition(), toLightVec.normalize(), RAY_DELTA_DIST, toLightVec.length() - RAY_DELTA_DIST * 2, ray.getTime());
-//	//			if(!scene.isIntersecting(visRay))
+//	//			if(!scene.isOccluding(visRay))
 //	//			{
 //	//				Spectrum weight;
 //	//				bsdfEval.inputs.set(intersection, visRay.getDirection(), V);

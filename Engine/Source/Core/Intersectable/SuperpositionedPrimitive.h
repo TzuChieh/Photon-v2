@@ -31,9 +31,9 @@ public:
 	                         const std::vector<const Primitive*>& primitives, 
 	                         std::size_t                          mainPrimitiveIndex);
 
-	bool isIntersecting(const Ray& ray) const override;
+	bool isOccluding(const Ray& ray) const override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	bool isIntersectingVolumeConservative(const math::AABB3D& aabb) const override;
+	bool mayIntersectVolume(const math::AABB3D& aabb) const override;
 
 	void calcIntersectionDetail(
 		const Ray& ray, 

@@ -17,7 +17,7 @@ public:
 
 	virtual void update(const CookedDataStorage& cookedActors) override;
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	virtual bool isIntersecting(const Ray& ray) const override;
+	virtual bool isOccluding(const Ray& ray) const override;
 	virtual math::AABB3D calcAABB() const override;
 
 private:

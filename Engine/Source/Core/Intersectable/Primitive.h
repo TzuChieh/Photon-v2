@@ -20,8 +20,6 @@ class Primitive : public Intersectable
 public:
 	explicit Primitive(const PrimitiveMetadata* metadata);
 
-	using Intersectable::isIntersecting;
-
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
 
 	void calcIntersectionDetail(

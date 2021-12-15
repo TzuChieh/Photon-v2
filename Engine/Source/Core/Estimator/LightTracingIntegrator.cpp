@@ -65,7 +65,7 @@
 //	//	const Vector3R toCameraVec(camera.getPosition().sub(emitterRay.getOrigin()));
 //	//	const Ray toCameraRay(emitterRay.getOrigin(), toCameraVec.normalize(), 
 //	//		RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
-//	//	if(!scene.isIntersecting(toCameraRay))
+//	//	if(!scene.isOccluding(toCameraRay))
 //	//	{
 //	//		Vector3R cameraImportanceWe;
 //	//		Vector2R filmCoord;
@@ -111,7 +111,7 @@
 //	//		{
 //	//			const Ray toCameraRay(intersection.getHitPosition(), toCameraVec.normalize(), 
 //	//				RAY_DELTA_DIST, toCameraVec.length() - 2 * RAY_DELTA_DIST);
-//	//			if(!scene.isIntersecting(toCameraRay))
+//	//			if(!scene.isOccluding(toCameraRay))
 //	//			{
 //	//				BsdfEvaluation bsdfEval;
 //	//				bsdfEval.inputs.set(intersection, toCameraRay.getDirection(), V);

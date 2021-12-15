@@ -59,11 +59,11 @@ bool BruteForceIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 	}
 }
 
-bool BruteForceIntersector::isIntersecting(const Ray& ray) const
+bool BruteForceIntersector::isOccluding(const Ray& ray) const
 {
 	for(const Intersectable* intersectable : m_intersectables)
 	{
-		if(intersectable->isIntersecting(ray))
+		if(intersectable->isOccluding(ray))
 		{
 			return true;
 		}

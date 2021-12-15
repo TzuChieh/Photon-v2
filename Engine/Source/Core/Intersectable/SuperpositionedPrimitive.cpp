@@ -28,11 +28,11 @@ SuperpositionedPrimitive::SuperpositionedPrimitive(
 	m_mainPrimitive = primitives[mainPrimitiveIndex];
 }
 
-bool SuperpositionedPrimitive::isIntersecting(const Ray& ray) const
+bool SuperpositionedPrimitive::isOccluding(const Ray& ray) const
 {
 	PH_ASSERT(m_mainPrimitive);
 
-	return m_mainPrimitive->isIntersecting(ray);
+	return m_mainPrimitive->isOccluding(ray);
 }
 
 bool SuperpositionedPrimitive::isIntersecting(const Ray& ray, HitProbe& probe) const
@@ -76,11 +76,11 @@ void SuperpositionedPrimitive::calcIntersectionDetail(
 	probe.getCurrentHit()->calcIntersectionDetail(ray, probe, out_detail);
 }
 
-bool SuperpositionedPrimitive::isIntersectingVolumeConservative(const math::AABB3D& aabb) const
+bool SuperpositionedPrimitive::mayIntersectVolume(const math::AABB3D& aabb) const
 {
 	PH_ASSERT(m_mainPrimitive);
 
-	return m_mainPrimitive->isIntersectingVolumeConservative(aabb);
+	return m_mainPrimitive->mayIntersectVolume(aabb);
 }
 
 math::AABB3D SuperpositionedPrimitive::calcAABB() const

@@ -19,7 +19,7 @@ public:
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	
 	// TODO: rename to mayOverlapVolume
-	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override;
+	bool mayIntersectVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
 	void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const override;

@@ -78,7 +78,7 @@ void SurfaceAttributeEstimator::estimate(
 		//		}
 
 		//		const Ray aoRay(surfaceHit.getPosition(), L, 0.001_r, std::numeric_limits<real>::max());
-		//		if(!integrand.getScene().isIntersecting(aoRay))
+		//		if(!integrand.getScene().isOccluding(aoRay))
 		//		{
 		//			estimation += 1 / pdfW;
 		//		}

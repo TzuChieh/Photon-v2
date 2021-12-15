@@ -24,7 +24,7 @@ public:
 	Scene();
 	Scene(const Intersector* intersector, const EmitterSampler* emitterSampler);
 
-	bool isIntersecting(const Ray& ray) const;
+	bool isOccluding(const Ray& ray) const;
 	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
 
 	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const;

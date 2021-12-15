@@ -56,7 +56,7 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 		   SidednessAgreement(POLICY).isSidednessAgreed(targetPos, toLightVec))
 		{
 			const Ray visRay(targetPos.getPosition(), toLightVec.normalize(), DL_RAY_DELTA_DIST, toLightVec.length() - DL_RAY_DELTA_DIST * 2, time);
-			if(!m_scene->isIntersecting(visRay))
+			if(!m_scene->isOccluding(visRay))
 			{
 				PH_ASSERT(out_L && out_pdfW && out_emittedRadiance);
 

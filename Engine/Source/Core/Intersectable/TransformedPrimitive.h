@@ -28,9 +28,9 @@ public:
 		const math::RigidTransform* localToWorld,
 		const math::RigidTransform* worldToLocal);
 
-	inline bool isIntersecting(const Ray& ray) const override
+	inline bool isOccluding(const Ray& ray) const override
 	{
-		return m_intersectable.isIntersecting(ray);
+		return m_intersectable.isOccluding(ray);
 	}
 
 	inline bool isIntersecting(const Ray& ray, HitProbe& probe) const override
@@ -58,9 +58,9 @@ public:
 		out_detail->setMisc(this, out_detail->getUvw(), out_detail->getRayT());
 	}
 
-	inline bool isIntersectingVolumeConservative(const math::AABB3D& aabb) const override
+	inline bool mayIntersectVolume(const math::AABB3D& aabb) const override
 	{
-		return m_intersectable.isIntersectingVolumeConservative(aabb);
+		return m_intersectable.mayIntersectVolume(aabb);
 	}
 
 	inline math::AABB3D calcAABB() const override

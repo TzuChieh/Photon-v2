@@ -16,11 +16,11 @@ public:
 	                         const math::Transform* worldToLocal);
 	TransformedIntersectable(const TransformedIntersectable& other);
 
-	bool isIntersecting(const Ray& ray) const override;
+	bool isOccluding(const Ray& ray) const override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	                                    HitDetail* out_detail) const override;
-	bool isIntersectingVolumeConservative(const math::AABB3D& aabb) const override;
+	bool mayIntersectVolume(const math::AABB3D& aabb) const override;
 	math::AABB3D calcAABB() const override;
 
 	TransformedIntersectable& operator = (const TransformedIntersectable& rhs);

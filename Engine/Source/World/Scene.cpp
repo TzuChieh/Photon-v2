@@ -49,17 +49,17 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 	return false;
 }
 
-bool Scene::isIntersecting(const Ray& ray) const
+bool Scene::isOccluding(const Ray& ray) const
 {
 	PH_ASSERT(ray.getOrigin().isFinite() && ray.getDirection().isFinite());
 
-	if(m_intersector->isIntersecting(ray))
+	if(m_intersector->isOccluding(ray))
 	{
 		return true;
 	}
 	else if(m_backgroundPrimitive)
 	{
-		return m_backgroundPrimitive->isIntersecting(ray);
+		return m_backgroundPrimitive->isOccluding(ray);
 	}
 
 	return false;

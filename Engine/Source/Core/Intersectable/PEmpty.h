@@ -13,14 +13,14 @@ public:
 	explicit PEmpty(const PrimitiveMetadata* metadata);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	bool isIntersecting(const Ray& ray) const override;
+	bool isOccluding(const Ray& ray) const override;
 
 	void calcIntersectionDetail(
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
 
-	bool isIntersectingVolumeConservative(const math::AABB3D& volume) const override;
+	bool mayIntersectVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 };
 
@@ -35,7 +35,7 @@ inline bool PEmpty::isIntersecting(const Ray& ray, HitProbe& probe) const
 	return false;
 }
 
-inline bool PEmpty::isIntersecting(const Ray& ray) const
+inline bool PEmpty::isOccluding(const Ray& ray) const
 {
 	return false;
 }
@@ -50,7 +50,7 @@ inline void PEmpty::calcIntersectionDetail(
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
-inline bool PEmpty::isIntersectingVolumeConservative(const math::AABB3D& volume) const
+inline bool PEmpty::mayIntersectVolume(const math::AABB3D& volume) const
 {
 	return false;
 }

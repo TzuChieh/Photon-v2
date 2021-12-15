@@ -30,11 +30,11 @@ TransformedIntersectable::TransformedIntersectable(const TransformedIntersectabl
 
 // FIXME: intersecting routines' time correctness
 
-bool TransformedIntersectable::isIntersecting(const Ray& ray) const
+bool TransformedIntersectable::isOccluding(const Ray& ray) const
 {
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
-	return m_intersectable->isIntersecting(localRay);
+	return m_intersectable->isOccluding(localRay);
 }
 
 bool TransformedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) const
@@ -69,11 +69,11 @@ void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, HitProbe& 
 }
 
 // FIXME: this is broken under timed environment
-bool TransformedIntersectable::isIntersectingVolumeConservative(const math::AABB3D& aabb) const
+bool TransformedIntersectable::mayIntersectVolume(const math::AABB3D& aabb) const
 {
 	math::AABB3D localAABB;
 	m_worldToLocal->transform(aabb, &localAABB);
-	return m_intersectable->isIntersectingVolumeConservative(localAABB);
+	return m_intersectable->mayIntersectVolume(localAABB);
 }
 
 // FIXME: static intersectable do not need to consider time
