@@ -29,18 +29,19 @@ public:
 
 	math::AABB3D calcAABB() const override = 0;
 
-	// Generates a sample point on the surface of this primitive.
+	/*! @brief Generates a sample point on the surface of this primitive.
+	*/
 	virtual void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const;
 
-	// Given a point on the surface of this primitive, calculates the PDF of
-	// sampling this point.
+	/*! @brief Given a point on the surface of this primitive, calculates the PDF of sampling this point.
+	*/
 	virtual real calcPositionSamplePdfA(const math::Vector3R& position) const;
 
-	// Calculates the area extended by this primitive. The term "extended"
-	// implies single-sided, e.g., a triangle's extended area is half the absolute
-	// value of the cross product of its two edge vectors, no need to multiply
-	// by 2 for two sides. A zero return value means the concept of extended
-	// area does not apply to this primitive.
+	/*! @brief Calculates the area extended by this primitive.
+	The term "extended" implies single-sided, e.g., a triangle's extended area is half the absolute
+	value of the cross product of its two edge vectors, no need to multiply by 2 for two sides. 
+	A zero return value means the concept of extended area does not apply to this primitive.
+	*/
 	virtual real calcExtendedArea() const;
 
 	// TODO: make this method for EmitablePrimitive

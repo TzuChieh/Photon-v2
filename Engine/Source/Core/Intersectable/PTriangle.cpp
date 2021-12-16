@@ -103,7 +103,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 		dPdU, dPdV, dNdU, dNdV);
 
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
-	out_detail->setMisc(this, hitUVW, probe.getHitRayT());
+	out_detail->setHitIntrinsics(this, hitUVW, probe.getHitRayT());
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

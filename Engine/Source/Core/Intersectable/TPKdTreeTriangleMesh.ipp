@@ -142,7 +142,7 @@ inline void TPKdTreeTriangleMesh<Index>::calcIntersectionDetail(
 		"dPdU = " + dPdU.toString() + ", dPdV = " + dPdV.toString() + "\n"
 		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 	
-	out_detail->setMisc(this, uvw, probe.getHitRayT());
+	out_detail->setHitIntrinsics(this, uvw, probe.getHitRayT());
 	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
 		position,
 		faceNormal,

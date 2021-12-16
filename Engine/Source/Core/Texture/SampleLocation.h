@@ -55,7 +55,7 @@ private:
 // In-header Implementations:
 
 inline SampleLocation::SampleLocation(const math::Vector3R& uvw, const math::EColorUsage usage) :
-	SampleLocation(HitDetail().setMisc(nullptr, uvw, std::numeric_limits<real>::max()), usage)
+	SampleLocation(HitDetail().setHitIntrinsics(nullptr, uvw, std::numeric_limits<real>::max()), usage)
 {}
 
 inline SampleLocation::SampleLocation(const math::Vector2R& uv, const math::EColorUsage usage) :
@@ -76,7 +76,7 @@ inline SampleLocation::SampleLocation(const SampleLocation& other) :
 
 inline math::Vector3R SampleLocation::uvw() const
 {
-	return m_hit.getUvw();
+	return m_hit.getUVW();
 }
 
 inline math::Vector2R SampleLocation::uv() const
@@ -87,18 +87,18 @@ inline math::Vector2R SampleLocation::uv() const
 
 inline void SampleLocation::setUvw(const math::Vector3R& uvw)
 {
-	m_hit.setMisc(m_hit.getPrimitive(), uvw, m_hit.getRayT());
+	m_hit.setHitIntrinsics(m_hit.getPrimitive(), uvw, m_hit.getRayT());
 }
 
 inline void SampleLocation::setUv(const math::Vector2R& uv)
 {
-	m_hit.setMisc(m_hit.getPrimitive(), math::Vector3R(uv.x(), uv.y(), 0.0_r), m_hit.getRayT());
+	m_hit.setHitIntrinsics(m_hit.getPrimitive(), math::Vector3R(uv.x(), uv.y(), 0.0_r), m_hit.getRayT());
 }
 
 inline SampleLocation SampleLocation::getUvwScaled(const math::Vector3R& scale) const
 {
 	HitDetail newDetail = m_hit;
-	newDetail.setMisc(m_hit.getPrimitive(), m_hit.getUvw().mul(scale), m_hit.getRayT());
+	newDetail.setHitIntrinsics(m_hit.getPrimitive(), m_hit.getUVW().mul(scale), m_hit.getRayT());
 	return SampleLocation(newDetail, m_usage);
 }
 

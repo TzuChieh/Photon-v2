@@ -67,7 +67,7 @@ void PLatLongEnvSphere::calcIntersectionDetail(
 		hitNormal,
 		hitNormal);
 	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
-	out_detail->setMisc(this, math::Vector3R(hitUv.x(), hitUv.y(), 0), probe.getHitRayT());
+	out_detail->setHitIntrinsics(this, math::Vector3R(hitUv.x(), hitUv.y(), 0), probe.getHitRayT());
 
 	// TODO: derivatives are unset; any point on the sphere can potentially map
 	// to any UV for a hemisphere of directions

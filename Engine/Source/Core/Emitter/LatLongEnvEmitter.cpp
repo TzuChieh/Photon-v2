@@ -156,7 +156,7 @@ real LatLongEnvEmitter::calcDirectSamplePdfW(
 	const math::Vector3R& targetPos) const
 {
 	// FIXME: assuming spherical uv mapping us used
-	const math::Vector3R uvw = emitPos.getDetail().getUvw();
+	const math::Vector3R uvw = emitPos.getDetail().getUVW();
 	const real sinTheta = std::sin((1.0_r - uvw.y()) * math::constant::pi<real>);
 	if(sinTheta <= 0.0_r)
 	{

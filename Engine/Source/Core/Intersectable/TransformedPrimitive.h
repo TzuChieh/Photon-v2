@@ -55,7 +55,7 @@ public:
 
 		PH_ASSERT(probe.getCurrentHit() == &m_intersectable);
 		m_intersectable.calcIntersectionDetail(ray, probe, out_detail);
-		out_detail->setMisc(this, out_detail->getUvw(), out_detail->getRayT());
+		out_detail->setHitIntrinsics(this, out_detail->getUVW(), out_detail->getRayT());
 	}
 
 	inline bool mayIntersectVolume(const math::AABB3D& aabb) const override

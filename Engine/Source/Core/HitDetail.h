@@ -7,21 +7,27 @@
 #include "Core/HitInfo.h"
 #include "Common/assertion.h"
 
+#include <cstddef>
+
+namespace ph { class Primitive; }
+
 namespace ph
 {
 
-class Primitive;
-
+/*! @brief Detailed information regarding a ray-primitive intersection.
+*/
 class HitDetail final
 {
 public:
+	inline static constexpr auto NO_FACE_ID = static_cast<std::size_t>(-1);
+
 	HitDetail();
 
-	// TODO: consider renaming to setHitIntrinsic()
-	HitDetail& setMisc(
+	HitDetail& setHitIntrinsics(
 		const Primitive*      primitive,
 		const math::Vector3R& uvw,
-		real                  rayT);
+		real                  rayT,
+		std::size_t           faceId = NO_FACE_ID);
 
 	void computeBases();
 
@@ -32,14 +38,20 @@ public:
 	math::Vector3R getdPdV(ECoordSys coordSys = ECoordSys::WORLD) const;
 	math::Vector3R getdNdU(ECoordSys coordSys = ECoordSys::WORLD) const;
 	math::Vector3R getdNdV(ECoordSys coordSys = ECoordSys::WORLD) const;
-	math::Vector3R getUvw() const;
+	math::Vector3R getUVW() const;
 	const math::Basis3R& getGeometryBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
 	const math::Basis3R& getShadingBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
 
-	// Gets the parametric distance from the incident ray's origin. Notice that
-	// parametric distance is not ordinary distance but defined in terms of a 
-	// ray direction vector's length.
+	/*! @brief Get the parametric distance from the incident ray's origin.
+	Notice that parametric distance is not ordinary distance but defined in terms of a ray
+	direction vector's length.
+	*/
 	real getRayT() const;
+
+	/*! @brief Get the face ID associated to the hit.
+	May be NO_FACE_ID if not applicable to the hit.
+	*/
+	std::size_t getFaceId() const;
 
 	const Primitive* getPrimitive() const;
 	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::WORLD) const;
@@ -49,6 +61,7 @@ private:
 	const Primitive* m_primitive;
 	math::Vector3R   m_uvw;
 	real             m_rayT;
+	std::size_t      m_faceId;
 	HitInfo          m_hitInfos[static_cast<int>(ECoordSys::NUM_ELEMENTS)];
 };
 
@@ -104,49 +117,33 @@ inline real HitDetail::getRayT() const
 	return m_rayT;
 }
 
+inline std::size_t HitDetail::getFaceId() const
+{
+	return m_faceId;
+}
+
 inline const Primitive* HitDetail::getPrimitive() const
 {
 	return m_primitive;
 }
 
-inline math::Vector3R HitDetail::getUvw() const
+inline math::Vector3R HitDetail::getUVW() const
 {
 	return m_uvw;
 }
 
 inline const HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys) const
 {
-	PH_ASSERT_LT(static_cast<int>(coordSys), static_cast<int>(ECoordSys::NUM_ELEMENTS));
+	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, static_cast<int>(ECoordSys::NUM_ELEMENTS));
 
 	return m_hitInfos[static_cast<int>(coordSys)];
 }
 
 inline HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys)
 {
-	PH_ASSERT_LT(static_cast<int>(coordSys), static_cast<int>(ECoordSys::NUM_ELEMENTS));
+	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, static_cast<int>(ECoordSys::NUM_ELEMENTS));
 
 	return m_hitInfos[static_cast<int>(coordSys)];
-}
-
-// TODO: consider renaming to setHitIntrinsic()
-inline HitDetail& HitDetail::setMisc(
-	const Primitive* const primitive,
-	const math::Vector3R&  uvw,
-	const real             rayT)
-{
-	m_primitive = primitive;
-	m_uvw = uvw;
-	m_rayT = rayT;
-
-	return *this;
-}
-
-inline void HitDetail::computeBases()
-{
-	for(int i = 0; i < static_cast<int>(ECoordSys::NUM_ELEMENTS); i++)
-	{
-		m_hitInfos[i].computeBases();
-	}
 }
 
 }// end namespace ph

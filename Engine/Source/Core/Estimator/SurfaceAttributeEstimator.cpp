@@ -49,7 +49,7 @@ void SurfaceAttributeEstimator::estimate(
 
 		/*if(out_estimation.numEstimations() >= 4)
 		{
-			out_estimation[3] = surfaceHit.getDetail().getUvw();
+			out_estimation[3] = surfaceHit.getDetail().getUVW();
 		}*/
 
 		//if(out_estimation.numEstimations() >= 5)
