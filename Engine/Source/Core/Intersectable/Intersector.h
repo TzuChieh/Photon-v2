@@ -13,7 +13,6 @@ class HitProbe;
 class Primitive;
 class CookedDataStorage;
 
-// TODO: rename to ClusteredIntersectable
 class Intersector : public Intersectable
 {
 public:

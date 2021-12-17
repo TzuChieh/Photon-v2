@@ -3,7 +3,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Core/Texture/constant_textures.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Core/Sample/PositionSample.h"
+#include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
 #include "Core/Sample/DirectLightSample.h"
 #include "Core/Ray.h"
 #include "Math/constant.h"

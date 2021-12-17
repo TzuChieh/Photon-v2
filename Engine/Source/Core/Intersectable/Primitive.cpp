@@ -1,6 +1,6 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Common/assertion.h"
-#include "Core/Sample/PositionSample.h"
+#include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
 
 #include <iostream>
 
@@ -13,11 +13,10 @@ Primitive::Primitive(const PrimitiveMetadata* const metadata) :
 	PH_ASSERT(metadata);
 }
 
-void Primitive::genPositionSample(SampleFlow& /* sampleFlow */, PositionSample* const out_sample) const
+void Primitive::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& /* sampleFlow */) const
 {
-	PH_ASSERT(out_sample);
-
-	out_sample->pdf = 0.0_r;
+	query.outputs.pdfA = 0;
+	PH_ASSERT(!query.outputs);
 }
 
 }// end namespace ph

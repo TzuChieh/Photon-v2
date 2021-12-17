@@ -40,6 +40,7 @@ void Transform::transformO(const Vector3R& orientation, Vector3R* const out_orie
 {
 	transformOrientation(orientation, Time(), out_orientation);
 }
+
 void Transform::transformP(const Vector3R& point, Vector3R* const out_point) const
 {
 	transformPoint(point, Time(), out_point);

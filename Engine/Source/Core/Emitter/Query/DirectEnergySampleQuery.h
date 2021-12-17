@@ -8,7 +8,24 @@ namespace ph
 
 class Primitive;
 
-class DirectLightSample final
+class DirectEnergySampleInputs final
+{
+public:
+	math::Vector3R targetPos;
+
+	DirectEnergySampleInputs();
+};
+
+class DirectEnergySampleOutputs final
+{
+public:
+	math::Vector3R   emitPos;
+	math::Spectrum   radianceLe;
+	real             pdfW;
+	const Primitive* srcPrimitive;
+};
+
+class DirectEnergySampleQuery final
 {
 public:
 	math::Vector3R targetPos;

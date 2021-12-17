@@ -1,7 +1,7 @@
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Common/assertion.h"
 #include "Math/Transform/RigidTransform.h"
-#include "Core/Sample/PositionSample.h"
+#include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
 #include "Core/HitDetail.h"
 
 #include <iostream>
@@ -33,23 +33,20 @@ real TransformedPrimitive::calcPositionSamplePdfA(const math::Vector3R& position
 	return m_primitive->calcPositionSamplePdfA(localPosition);
 }
 
-void TransformedPrimitive::genPositionSample(SampleFlow& sampleFlow, PositionSample* const out_sample) const
+void TransformedPrimitive::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
 {
-	PH_ASSERT(out_sample);
+	m_primitive->genPositionSample(query, sampleFlow);
 
-	PositionSample localSample;
-	m_primitive->genPositionSample(sampleFlow, &localSample);
+	if(query.outputs)
+	{
+		math::Vector3R worldPosition;
+		m_localToWorld->transformP(query.outputs.position, &worldPosition);
 
-	if(localSample.pdf > 0)
-	{
-		m_localToWorld->transformP(localSample.position, &out_sample->position);
-		m_localToWorld->transformO(localSample.normal, &out_sample->normal);
-		out_sample->uvw = localSample.uvw;
-		out_sample->pdf = localSample.pdf;
-	}
-	else
-	{
-		out_sample->pdf = 0;
+		math::Vector3R worldNormal;
+		m_localToWorld->transformO(query.outputs.normal, &worldNormal);
+
+		query.outputs.position = worldPosition;
+		query.outputs.normal = worldNormal;
 	}
 }
 

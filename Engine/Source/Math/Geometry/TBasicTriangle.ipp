@@ -14,10 +14,24 @@ inline TVector3<T> TBasicTriangle<T>::interpolate(
 	const std::array<TVector3<T>, 3>& attributes,
 	const TVector3<T>&                barycentricCoords)
 {
+	return interpolate(
+		attributes[0],
+		attributes[1],
+		attributes[2],
+		barycentricCoords);
+}
+
+template<typename T>
+inline TVector3<T> TBasicTriangle<T>::interpolate(
+	const TVector3<T>& attributeA,
+	const TVector3<T>& attributeB,
+	const TVector3<T>& attributeC,
+	const TVector3<T>& barycentricCoords)
+{
 	return TVector3<T>::weightedSum(
-		attributes[0], barycentricCoords.x,
-		attributes[1], barycentricCoords.y,
-		attributes[2], barycentricCoords.z);
+		attributeA, barycentricCoords.x(),
+		attributeB, barycentricCoords.y(),
+		attributeC, barycentricCoords.z());
 }
 
 template<typename T>
@@ -41,16 +55,16 @@ inline bool TBasicTriangle<T>::calcSurfaceParamDerivatives(
 	const auto deltaAttr02 = attributes[2] - attributes[0];
 
 	const std::array<std::array<T, 2>, 3> bs = {
-		deltaAttr01.x, deltaAttr02.x,
-		deltaAttr01.y, deltaAttr02.y,
-		deltaAttr01.z, deltaAttr02.z};
+		deltaAttr01.x(), deltaAttr02.x(),
+		deltaAttr01.y(), deltaAttr02.y(),
+		deltaAttr01.z(), deltaAttr02.z()};
 	
 	std::array<std::array<T, 2>, 3> xs;
 	if(A.solve(bs, &xs))
 	{
-		out_dXdU->x = xs[0][0]; out_dXdV->x = xs[0][1];
-		out_dXdU->y = xs[1][0]; out_dXdV->y = xs[1][1];
-		out_dXdU->z = xs[2][0]; out_dXdV->z = xs[2][1];
+		out_dXdU->x() = xs[0][0]; out_dXdV->x() = xs[0][1];
+		out_dXdU->y() = xs[1][0]; out_dXdV->y() = xs[1][1];
+		out_dXdU->z() = xs[2][0]; out_dXdV->z() = xs[2][1];
 
 		return true;
 	}
@@ -194,6 +208,22 @@ inline TVector3<T> TBasicTriangle<T>::sampleToBarycentricOsada(const std::array<
 		A * (T(1) - B), 
 		B * A
 	};
+}
+
+template<typename T>
+inline TVector3<T> TBasicTriangle<T>::sampleToBarycentricOsada(const std::array<T, 2>& sample, T* const out_pdfA) const
+{
+	PH_ASSERT(out_pdfA);
+
+	*out_pdfA = uniformSurfaceSamplePdfA();
+
+	return sampleToBarycentricOsada(sample);
+}
+
+template<typename T>
+inline T TBasicTriangle<T>::uniformSurfaceSamplePdfA() const
+{
+	return static_cast<T>(1) / getArea();
 }
 
 template<typename T>

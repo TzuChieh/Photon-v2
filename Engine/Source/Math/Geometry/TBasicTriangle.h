@@ -24,6 +24,12 @@ public:
 		const std::array<TVector3<T>, 3>& attributes,
 		const TVector3<T>&                barycentricCoords);
 
+	static TVector3<T> interpolate(
+		const TVector3<T>& attributeA,
+		const TVector3<T>& attributeB,
+		const TVector3<T>& attributeC,
+		const TVector3<T>& barycentricCoords);
+
 	// TODO: doc & test
 	static bool calcSurfaceParamDerivatives(
 		const std::array<TVector3<T>, 3>& attributes,
@@ -75,6 +81,13 @@ public:
 	Reference: Osada et al., Section 4.2, "Shape Distributions", TOG02
 	*/
 	TVector3<T> sampleToBarycentricOsada(const std::array<T, 2>& sample) const;
+
+	/*!
+	An overload with PDF. Expected the input @p sample to be uniform.
+	*/
+	TVector3<T> sampleToBarycentricOsada(const std::array<T, 2>& sample, T* out_pdfA) const;
+
+	T uniformSurfaceSamplePdfA() const;
 
 	bool isDegenerate() const;
 

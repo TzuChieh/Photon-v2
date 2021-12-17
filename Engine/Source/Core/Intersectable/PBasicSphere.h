@@ -22,7 +22,7 @@ public:
 	bool mayIntersectVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
-	void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const override;
+	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
 	real calcExtendedArea() const override;
 
 	real getRadius() const;

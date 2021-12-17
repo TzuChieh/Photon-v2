@@ -69,7 +69,7 @@ public:
 	}
 
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
-	void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const override;
+	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	bool uvwToPosition(
 		const math::Vector3R& uvw,

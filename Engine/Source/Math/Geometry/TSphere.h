@@ -36,7 +36,13 @@ public:
 	this method effectively generates normalized directions.
 	*/
 	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample) const;
+
+	/*!
+	An overload with PDF. Expected the input @p sample to be uniform.
+	*/
 	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample, T* out_pdfA) const;
+
+	T uniformSurfaceSamplePdfA() const;
 
 	TVector2<T> surfaceToLatLong01(const TVector3<T>& surface) const;
 	TVector2<T> latLong01ToPhiTheta(const TVector2<T>& latLong01) const;

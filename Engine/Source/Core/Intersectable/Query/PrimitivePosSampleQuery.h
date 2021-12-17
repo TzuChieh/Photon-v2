@@ -4,6 +4,8 @@
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
 
+#include <cstddef>
+
 namespace ph
 {
 
@@ -16,6 +18,7 @@ public:
 	math::Vector3R position;
 	math::Vector3R normal;
 	math::Vector3R uvw;
+	std::size_t    faceId;
 	real           pdfA;
 
 	PrimitivePosSampleOutput();
@@ -35,15 +38,6 @@ public:
 };
 
 // In-header Implementations:
-
-inline PrimitivePosSampleOutput::PrimitivePosSampleOutput() :
-	position(0),
-	normal  (0, 1, 0),
-	uvw     (0),
-	pdfA    (0)
-{
-	PH_ASSERT(!(*this));
-}
 
 inline PrimitivePosSampleOutput::operator bool () const
 {

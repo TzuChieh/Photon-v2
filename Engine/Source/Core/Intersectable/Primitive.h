@@ -12,7 +12,7 @@ class Ray;
 class HitProbe;
 class HitDetail;
 class PrimitiveMetadata;
-class PositionSample;
+class PrimitivePosSampleQuery;
 class SampleFlow;
 
 class Primitive : public Intersectable
@@ -31,7 +31,7 @@ public:
 
 	/*! @brief Generates a sample point on the surface of this primitive.
 	*/
-	virtual void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const;
+	virtual void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const;
 
 	/*! @brief Given a point on the surface of this primitive, calculates the PDF of sampling this point.
 	*/

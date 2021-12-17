@@ -21,7 +21,7 @@ public:
 	bool mayIntersectVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
-	void genPositionSample(SampleFlow& sampleFlow, PositionSample* out_sample) const override;
+	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	real calcExtendedArea() const override;
 
@@ -79,7 +79,9 @@ public:
 	}
 
 private:
-	math::TWatertightTriangle<real> m_triangle;
+	using Triangle = math::TWatertightTriangle<real>;
+
+	Triangle m_triangle;
 
 	math::Vector3R m_nA;
 	math::Vector3R m_nB;
@@ -90,8 +92,6 @@ private:
 	math::Vector3R m_uvwC;
 
 	math::Vector3R m_faceNormal;
-
-	math::Vector3R calcBarycentricCoord(const math::Vector3R& position) const;
 };
 
 }// end namespace ph

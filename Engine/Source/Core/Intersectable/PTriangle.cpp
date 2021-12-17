@@ -5,7 +5,7 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/Geometry/TAABB3D.h"
-#include "Core/Sample/PositionSample.h"
+#include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
 #include "Math/TVector2.h"
 #include "Math/math.h"
 #include "Core/SampleGenerator/SampleFlow.h"
@@ -243,41 +243,21 @@ bool PTriangle::mayIntersectVolume(const math::AABB3D& volume) const
 	return true;
 }
 
-void PTriangle::genPositionSample(SampleFlow& sampleFlow, PositionSample* const out_sample) const
+void PTriangle::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
 {
-	const math::Vector3R abc = m_triangle.sampleToBarycentricOsada(
-		sampleFlow.flow2D());
+	const math::Vector3R baryABC = m_triangle.sampleToBarycentricOsada(
+		sampleFlow.flow2D(), &query.outputs.pdfA);
 
-	const math::Vector3R localPos = m_triangle.barycentricToSurface(abc);
-	//Vector3R worldPos;
-	//m_metadata->localToWorld.transformP(localPos, &worldPos);
-	//out_sample->position = worldPos;
-	out_sample->position = localPos;
+	query.outputs.position = m_triangle.barycentricToSurface(baryABC);
+	query.outputs.uvw      = Triangle::interpolate(m_uvwA, m_uvwB, m_uvwC, baryABC);
+	query.outputs.normal   = Triangle::interpolate(m_nA, m_nB, m_nC, baryABC).normalize();
 
-	//const Vector3R abc = calcBarycentricCoord(localPos);
-	out_sample->uvw = m_uvwA.mul(1.0_r - abc.y() - abc.z()).addLocal(m_uvwB.mul(abc.y())).addLocal(m_uvwC.mul(abc.z()));
-
-	const math::Vector3R localNormal(m_nA.mul(1.0_r - abc.y() - abc.z()).addLocal(m_nB.mul(abc.y())).addLocal(m_nC.mul(abc.z())));
-	//Vector3R worldN;
-	//m_metadata->localToWorld.transformVector(m_faceNormal, &worldN);
-
-	//m_metadata->localToWorld.transformO(localNormal, &worldN);
-	//out_sample->normal = worldN.normalizeLocal();
-	out_sample->normal = localNormal.normalize();
-
-	out_sample->pdf = this->PTriangle::calcPositionSamplePdfA(out_sample->position);
-
-	PH_ASSERT(out_sample->normal.isFinite() && out_sample->normal.length() > 0.9_r);
+	PH_ASSERT_IN_RANGE(query.outputs.normal.length(), 0.9_r, 1.1_r);
 }
 
 real PTriangle::calcExtendedArea() const
 {
 	return m_triangle.getArea();
-}
-
-math::Vector3R PTriangle::calcBarycentricCoord(const math::Vector3R& position) const
-{
-	return m_triangle.surfaceToBarycentric(position);
 }
 
 real PTriangle::calcPositionSamplePdfA(const math::Vector3R& position) const

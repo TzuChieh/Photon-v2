@@ -144,10 +144,16 @@ inline TVector3<T> TSphere<T>::sampleToSurfaceArchimedes(
 {
 	PH_ASSERT(out_pdfA);
 
-	// PDF_A is 1/(4*pi*r^2)
-	*out_pdfA = static_cast<T>(1) / getArea();
+	*out_pdfA = uniformSurfaceSamplePdfA();
 
 	return sampleToSurfaceArchimedes(sample);
+}
+
+template<typename T>
+inline T TSphere<T>::uniformSurfaceSamplePdfA() const
+{
+	// PDF_A is 1/(4*pi*r^2)
+	return static_cast<T>(1) / getArea();
 }
 
 template<typename T>

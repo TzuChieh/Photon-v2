@@ -10,7 +10,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Math/TMatrix2.h"
-#include "Core/Sample/PositionSample.h"
+#include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/Geometry/TSphere.h"
 #include "Core/SampleGenerator/SampleFlow.h"
@@ -88,23 +88,21 @@ real PBasicSphere::calcPositionSamplePdfA(const math::Vector3R& position) const
 	return 1.0_r / PBasicSphere::calcExtendedArea();
 }
 
-void PBasicSphere::genPositionSample(SampleFlow& sampleFlow, PositionSample* const out_sample) const
+void PBasicSphere::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
 {
-	PH_ASSERT(out_sample);
 	PH_ASSERT(m_metadata);
 
-	out_sample->normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
-		sampleFlow.flow2D());
+	const auto normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
+		sampleFlow.flow2D(), &query.outputs.pdfA);
+	const auto position = normal * m_radius;
 
-	out_sample->position = out_sample->normal.mul(m_radius);
+	query.outputs.normal   = normal;
+	query.outputs.position = position;
 
 	// FIXME: able to specify mapper channel
 	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();
 	PH_ASSERT(mapper);
-	mapper->positionToUvw(out_sample->position, &out_sample->uvw);
-
-	// FIXME: assumed uniform PDF
-	out_sample->pdf = PBasicSphere::calcPositionSamplePdfA(out_sample->position);
+	mapper->positionToUvw(position, &query.outputs.uvw);
 }
 
 real PBasicSphere::calcExtendedArea() const
