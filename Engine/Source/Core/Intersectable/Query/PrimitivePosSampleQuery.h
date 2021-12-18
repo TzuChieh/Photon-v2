@@ -31,8 +31,8 @@ public:
 	using Input  = PrimitivePosSampleInput;
 	using Output = PrimitivePosSampleOutput;
 
-	Input  inputs;
-	Output outputs;
+	Input  in;
+	Output out;
 
 	PrimitivePosSampleQuery();
 };
@@ -46,8 +46,7 @@ inline PrimitivePosSampleOutput::operator bool () const
 }
 
 inline PrimitivePosSampleQuery::PrimitivePosSampleQuery() :
-	inputs (),
-	outputs()
+	in(), out()
 {}
 
 }// end namespace ph

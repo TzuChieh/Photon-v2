@@ -3,7 +3,7 @@
 #include "Actor/ALight.h"
 #include "Math/Random.h"
 #include "Actor/CookedDataStorage.h"
-#include "Core/Sample/DirectLightSample.h"
+#include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersectable/Primitive.h"
@@ -42,7 +42,7 @@ const Emitter* ESUniformRandom::pickEmitter(SampleFlow& sampleFlow, real* const 
 	return m_emitters[pickedIndex];
 }
 
-void ESUniformRandom::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
+void ESUniformRandom::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
 	// randomly and uniformly select an emitter
 	// FIXME: use sampleFlow for index
@@ -50,8 +50,8 @@ void ESUniformRandom::genDirectSample(SampleFlow& sampleFlow, DirectLightSample&
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
 	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
 
-	m_emitters[pickedIndex]->genDirectSample(sampleFlow, sample);
-	sample.pdfW *= pickPdfW;
+	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow);
+	query.out.pdfW *= pickPdfW;
 }
 
 real ESUniformRandom::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const

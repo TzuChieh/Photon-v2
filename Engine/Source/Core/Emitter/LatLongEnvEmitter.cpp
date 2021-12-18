@@ -4,7 +4,7 @@
 #include "Core/Texture/TSampler.h"
 #include "Common/logging.h"
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"
-#include "Core/Sample/DirectLightSample.h"
+#include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Core/Intersectable/PLatLongEnvSphere.h"
 #include "Math/constant.h"
 #include "Math/math.h"
@@ -83,23 +83,23 @@ void LatLongEnvEmitter::evalEmittedRadiance(
 	*out_radiance = sampler.sample(*m_radiance, X);
 }
 
-void LatLongEnvEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
+void LatLongEnvEmitter::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
-	sample.pdfW = 0;
-	sample.sourcePrim = m_surface;
+	query.out.pdfW = 0;
+	query.out.srcPrimitive = m_surface;
 
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
 		sampleFlow.flow2D(),
 		&uvSamplePdf);
 
-	if(!m_surface->latLong01ToSurface(uvSample, sample.targetPos, &(sample.emitPos)))
+	if(!m_surface->latLong01ToSurface(uvSample, query.in.targetPos, &query.out.emitPos))
 	{
 		return;
 	}
 
 	TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
-	sample.radianceLe = sampler.sample(*m_radiance, uvSample);
+	query.out.radianceLe = sampler.sample(*m_radiance, uvSample);
 	
 	// FIXME: assuming spherical uv mapping is used
 	const real sinTheta = std::sin((1.0_r - uvSample.y()) * math::constant::pi<real>);
@@ -107,7 +107,7 @@ void LatLongEnvEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSampl
 	{
 		return;
 	}
-	sample.pdfW = uvSamplePdf / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
+	query.out.pdfW = uvSamplePdf / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
 }
 
 // FIXME: ray time

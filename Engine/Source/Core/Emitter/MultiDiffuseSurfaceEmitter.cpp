@@ -6,8 +6,7 @@
 #include "Core/Texture/TTexture.h"
 #include "Common/utility.h"
 #include "Math/Random.h"
-#include "Core/Sample/PositionSample.h"
-#include "Core/Sample/DirectLightSample.h"
+#include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 
 #include <iostream>
 
@@ -40,16 +39,16 @@ void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, math::
 	m_emitters.front().evalEmittedRadiance(X, out_radiance);
 }
 
-void MultiDiffuseSurfaceEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
+void MultiDiffuseSurfaceEmitter::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
 	PH_ASSERT(!m_emitters.empty());
 
 	// FIXME: use sampleFlow
 	const DiffuseSurfaceEmitter& emitter = m_emitters[math::Random::genUniformIndex_iL_eU(0, m_emitters.size())];
 
-	emitter.genDirectSample(sampleFlow, sample);
+	emitter.genDirectSample(query, sampleFlow);
 	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
-	sample.pdfW *= pickPdf;
+	query.out.pdfW *= pickPdf;
 }
 
 void MultiDiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const

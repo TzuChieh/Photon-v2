@@ -1,7 +1,7 @@
 #include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Math/TVector3.h"
 #include "World/Scene.h"
-#include "Core/Sample/DirectLightSample.h"
+#include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -43,12 +43,12 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 		return false;
 	}*/
 
-	DirectLightSample directLightSample;
-	directLightSample.setDirectSample(targetPos.getPosition());
-	m_scene->genDirectSample(sampleFlow, directLightSample);
-	if(directLightSample.isDirectSampleGood())
+	DirectEnergySampleQuery directLightSample;
+	directLightSample.in.set(targetPos.getPosition());
+	m_scene->genDirectSample(directLightSample, sampleFlow);
+	if(directLightSample.out)
 	{
-		const math::Vector3R toLightVec = directLightSample.emitPos.sub(directLightSample.targetPos);
+		const math::Vector3R toLightVec = directLightSample.out.emitPos - directLightSample.in.targetPos;
 
 		// sidedness agreement between real geometry and shading normal
 		//
@@ -61,8 +61,8 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 				PH_ASSERT(out_L && out_pdfW && out_emittedRadiance);
 
 				*out_L               = visRay.getDirection();
-				*out_pdfW            = directLightSample.pdfW;
-				*out_emittedRadiance = directLightSample.radianceLe;
+				*out_pdfW            = directLightSample.out.pdfW;
+				*out_emittedRadiance = directLightSample.out.radianceLe;
 
 				return true;
 			}

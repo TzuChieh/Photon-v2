@@ -40,8 +40,8 @@ public:
 	using Input  = PrimitivePosSamplePdfInput;
 	using Output = PrimitivePosSamplePdfOutput;
 
-	Input  inputs;
-	Output outputs;
+	Input  in;
+	Output out;
 
 	PrimitivePosSamplePdfQuery();
 };
@@ -58,8 +58,7 @@ inline PrimitivePosSamplePdfOutput::operator bool () const
 }
 
 inline PrimitivePosSamplePdfQuery::PrimitivePosSamplePdfQuery() :
-	inputs (),
-	outputs()
+	in(), out()
 {}
 
 }// end namespace ph

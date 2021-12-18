@@ -15,7 +15,6 @@ namespace ph
 
 class Primitive;
 class SurfaceHit;
-class DirectLightSample;
 class Ray;
 class Time;
 
@@ -25,7 +24,7 @@ public:
 	SurfaceEmitter();
 
 	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override = 0;
-	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const override = 0;
+	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override = 0;
 
 	// FIXME: ray time
 	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override = 0;

@@ -93,16 +93,16 @@ void PBasicSphere::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow&
 	PH_ASSERT(m_metadata);
 
 	const auto normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
-		sampleFlow.flow2D(), &query.outputs.pdfA);
+		sampleFlow.flow2D(), &query.out.pdfA);
 	const auto position = normal * m_radius;
 
-	query.outputs.normal   = normal;
-	query.outputs.position = position;
+	query.out.normal   = normal;
+	query.out.position = position;
 
 	// FIXME: able to specify mapper channel
 	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();
 	PH_ASSERT(mapper);
-	mapper->positionToUvw(position, &query.outputs.uvw);
+	mapper->positionToUvw(position, &query.out.uvw);
 }
 
 real PBasicSphere::calcExtendedArea() const

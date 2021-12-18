@@ -11,7 +11,7 @@ namespace ph
 class Intersector;
 class EmitterSampler;
 class HitProbe;
-class DirectLightSample;
+class DirectEnergySampleQuery;
 class Ray;
 class Emitter;
 class Primitive;
@@ -28,7 +28,7 @@ public:
 	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
 
 	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const;
-	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const;
+	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const;
 	real calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const;
 
 	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const;

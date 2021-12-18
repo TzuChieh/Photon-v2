@@ -14,7 +14,7 @@ public:
 	MultiDiffuseSurfaceEmitter(const std::vector<DiffuseSurfaceEmitter>& emitters);
 
 	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override;
-	void genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const override;
+	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override;
 
 	// FIXME: ray time
 	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;

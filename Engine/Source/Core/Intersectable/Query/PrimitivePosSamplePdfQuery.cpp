@@ -29,9 +29,9 @@ void PrimitivePosSamplePdfInput::set(const HitDetail& detail)
 
 void PrimitivePosSamplePdfInput::set(const PrimitivePosSampleQuery& query)
 {
-	PH_ASSERT(query.outputs);
+	PH_ASSERT(query.out);
 
-	set(query.outputs.position, query.outputs.faceId);
+	set(query.out.position, query.out.faceId);
 }
 
 }// end namespace ph

@@ -37,16 +37,16 @@ void TransformedPrimitive::genPositionSample(PrimitivePosSampleQuery& query, Sam
 {
 	m_primitive->genPositionSample(query, sampleFlow);
 
-	if(query.outputs)
+	if(query.out)
 	{
 		math::Vector3R worldPosition;
-		m_localToWorld->transformP(query.outputs.position, &worldPosition);
+		m_localToWorld->transformP(query.out.position, &worldPosition);
 
 		math::Vector3R worldNormal;
-		m_localToWorld->transformO(query.outputs.normal, &worldNormal);
+		m_localToWorld->transformO(query.out.normal, &worldNormal);
 
-		query.outputs.position = worldPosition;
-		query.outputs.normal = worldNormal;
+		query.out.position = worldPosition;
+		query.out.normal = worldNormal;
 	}
 }
 

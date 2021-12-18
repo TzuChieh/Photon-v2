@@ -1,6 +1,6 @@
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Actor/CookedDataStorage.h"
-#include "Core/Sample/DirectLightSample.h"
+#include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersectable/Primitive.h"
@@ -55,13 +55,13 @@ const Emitter* ESPowerFavoring::pickEmitter(SampleFlow& sampleFlow, real* const 
 	return m_emitters[pickedIndex];
 }
 
-void ESPowerFavoring::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
+void ESPowerFavoring::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
 	const std::size_t pickedIndex = m_distribution.sampleDiscrete(sampleFlow.flow1D());// FIXME: use pick
 	const real        pickPdf     = m_distribution.pdfDiscrete(pickedIndex);
 
-	m_emitters[pickedIndex]->genDirectSample(sampleFlow, sample);
-	sample.pdfW *= pickPdf;
+	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow);
+	query.out.pdfW *= pickPdf;
 }
 
 real ESPowerFavoring::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const

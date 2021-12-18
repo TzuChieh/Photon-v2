@@ -72,9 +72,9 @@ const Emitter* Scene::pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) c
 	return m_emitterSampler->pickEmitter(sampleFlow, out_PDF);
 }
 
-void Scene::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
+void Scene::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
-	m_emitterSampler->genDirectSample(sampleFlow, sample);
+	m_emitterSampler->genDirectSample(query, sampleFlow);
 }
 
 real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const

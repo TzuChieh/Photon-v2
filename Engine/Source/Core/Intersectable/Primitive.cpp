@@ -15,8 +15,8 @@ Primitive::Primitive(const PrimitiveMetadata* const metadata) :
 
 void Primitive::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& /* sampleFlow */) const
 {
-	query.outputs.pdfA = 0;
-	PH_ASSERT(!query.outputs);
+	query.out.pdfA = 0;
+	PH_ASSERT(!query.out);
 }
 
 }// end namespace ph

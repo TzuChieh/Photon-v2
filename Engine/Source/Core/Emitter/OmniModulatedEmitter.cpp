@@ -3,7 +3,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
-#include "Core/Sample/DirectLightSample.h"
+#include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 
 namespace ph
 {
@@ -35,15 +35,15 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectr
 	out_radiance->mulLocal(filterValue);
 }
 
-void OmniModulatedEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSample& sample) const
+void OmniModulatedEmitter::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
 {
-	m_source->genDirectSample(sampleFlow, sample);
-	if(sample.pdfW == 0.0_r)
+	m_source->genDirectSample(query, sampleFlow);
+	if(!query.out)
 	{
 		return;
 	}
 
-	const math::Vector3R emitDirection = sample.targetPos.sub(sample.emitPos);
+	const math::Vector3R emitDirection = query.in.targetPos.sub(query.out.emitPos);
 
 	math::Vector3R uv;
 	m_dirToUv.directionToUvw(emitDirection, &uv);
@@ -52,7 +52,7 @@ void OmniModulatedEmitter::genDirectSample(SampleFlow& sampleFlow, DirectLightSa
 	uv.y() = 1.0_r - uv.y();
 
 	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
-	sample.radianceLe.mulLocal(filterValue);
+	query.out.radianceLe.mulLocal(filterValue);
 }
 
 void OmniModulatedEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const

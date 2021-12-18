@@ -8,45 +8,38 @@ namespace ph
 
 class Primitive;
 
-class DirectEnergySampleInputs final
+class DirectEnergySampleInput final
 {
 public:
 	math::Vector3R targetPos;
 
-	DirectEnergySampleInputs();
+	DirectEnergySampleInput();
+
+	void set(const math::Vector3R& targetPos);
 };
 
-class DirectEnergySampleOutputs final
+class DirectEnergySampleOutput final
 {
 public:
 	math::Vector3R   emitPos;
 	math::Spectrum   radianceLe;
 	real             pdfW;
 	const Primitive* srcPrimitive;
+
+	DirectEnergySampleOutput();
+	operator bool () const;
 };
 
 class DirectEnergySampleQuery final
 {
 public:
-	math::Vector3R targetPos;
-	math::Vector3R emitPos;
-	math::Spectrum radianceLe;
-	real pdfW;
-	const Primitive* sourcePrim;
+	using Input  = DirectEnergySampleInput;
+	using Output = DirectEnergySampleOutput;
 
-	inline DirectLightSample() : 
-		targetPos(0, 0, 0), emitPos(0, 0, 0), radianceLe(0), pdfW(0), sourcePrim(nullptr)
-	{}
+	Input  in;
+	Output out;
 
-	inline bool isDirectSampleGood() const
-	{
-		return pdfW > 0.0_r;
-	}
-
-	inline void setDirectSample(const math::Vector3R& targetPos)
-	{
-		this->targetPos = targetPos;
-	}
+	DirectEnergySampleQuery();
 };
 
 }// end namespace ph

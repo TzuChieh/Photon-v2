@@ -246,13 +246,13 @@ bool PTriangle::mayIntersectVolume(const math::AABB3D& volume) const
 void PTriangle::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
 {
 	const math::Vector3R baryABC = m_triangle.sampleToBarycentricOsada(
-		sampleFlow.flow2D(), &query.outputs.pdfA);
+		sampleFlow.flow2D(), &query.out.pdfA);
 
-	query.outputs.position = m_triangle.barycentricToSurface(baryABC);
-	query.outputs.uvw      = Triangle::interpolate(m_uvwA, m_uvwB, m_uvwC, baryABC);
-	query.outputs.normal   = Triangle::interpolate(m_nA, m_nB, m_nC, baryABC).normalize();
+	query.out.position = m_triangle.barycentricToSurface(baryABC);
+	query.out.uvw      = Triangle::interpolate(m_uvwA, m_uvwB, m_uvwC, baryABC);
+	query.out.normal   = Triangle::interpolate(m_nA, m_nB, m_nC, baryABC).normalize();
 
-	PH_ASSERT_IN_RANGE(query.outputs.normal.length(), 0.9_r, 1.1_r);
+	PH_ASSERT_IN_RANGE(query.out.normal.length(), 0.9_r, 1.1_r);
 }
 
 real PTriangle::calcExtendedArea() const
