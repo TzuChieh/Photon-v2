@@ -3,11 +3,15 @@
 namespace ph
 {
 
-namespace detail
+namespace detail::stats
 {
 
+// TODO: init to 0 and register
+TimeCounter::TimeCounter()
+{
 
+}
 
-}// end namespace detail
+}// end namespace detail::stats
 
 }// end namespace ph
