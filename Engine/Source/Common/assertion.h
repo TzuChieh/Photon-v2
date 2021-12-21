@@ -63,20 +63,17 @@
 #define PH_ASSERT_LE(a, b)\
 	PH_ASSERT_MSG(a <= b, std::string(#a) + " = " + std::to_string(a) + ", " + #b + " = " + std::to_string(b))
 
-/*
-	Asserting that <value> is within [<begin>, <end>).
+/*! @brief Assert that @p value is within [@p begin, @p end).
 */
 #define PH_ASSERT_IN_RANGE(value, begin, end)\
 	PH_ASSERT_MSG(begin <= value && value < end, PH_INTERNAL_RANGE_MSG(value, begin, end, "[", ")"))
 
-/*
-	Similar to PH_ASSERT_IN_RANGE(3), except the bounds are inclusive.
+/*! @brief Similar to PH_ASSERT_IN_RANGE(3), except the bounds are inclusive.
 */
 #define PH_ASSERT_IN_RANGE_INCLUSIVE(value, lowerBound, upperBound)\
 	PH_ASSERT_MSG(lowerBound <= value && value <= upperBound, PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, "[", "]"))
 
-/*
-	Similar to PH_ASSERT_IN_RANGE(3), except the bounds are exclusive.
+/*! @brief Similar to PH_ASSERT_IN_RANGE(3), except the bounds are exclusive.
 */
 #define PH_ASSERT_IN_RANGE_EXCLUSIVE(value, lowerBound, upperBound)\
 	PH_ASSERT_MSG(lowerBound < value && value < upperBound, PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, "(", ")"))
