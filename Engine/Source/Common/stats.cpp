@@ -91,44 +91,7 @@ TimerStatsReport::GroupedTimeRecord TimerStatsReport::getGroupedTimeRecord() con
 
 std::string TimerStatsReport::proportionalReport() const
 {
-	std::string reportStr;
-	reportStr.reserve(128 * m_records.size());
-
-	std::uint64_t totalUSOfAllRecords = 0;
-	std::unordered_map<std::string, std::uint64_t> categoryToTotalUS;
-	for(const TimeRecord& record : m_records)
-	{
-		totalUSOfAllRecords += record.totalMicroseconds;
-
-		// Scalar types are zero initialized by the map
-		categoryToTotalUS[record.category] += record.totalMicroseconds;
-	}
-
-	for(const auto& [category, categoryTotalUS] : categoryToTotalUS)
-	{
-		const auto categoryPercentage = 
-			static_cast<double>(categoryTotalUS) /
-			static_cast<double>(totalUSOfAllRecords) *
-			100.0;
-
-		reportStr += std::format(
-			"- [{:8.4f}%] -> {}:\n",
-			categoryPercentage, category);
-
-		for(const TimeRecord& record : m_records)
-		{
-			const auto recordPercentage = 
-				static_cast<double>(record.totalMicroseconds) /
-				static_cast<double>(categoryTotalUS) *
-				100.0;
-
-			reportStr += std::format(
-				"----- {} [{:8.4f}%] -> {}\n",
-				recordPercentage, record.name);
-		}
-	}
-
-	return reportStr;
+	return makeProportionalReportRecursive(getGroupedTimeRecord(), "-");
 }
 
 std::string TimerStatsReport::rawReport() const
@@ -196,7 +159,25 @@ std::string TimerStatsReport::makeProportionalReportRecursive(
 	const GroupedTimeRecord& records, const std::string& linePrefix)
 {
 	std::string reportStr;
-	// TODO
+	reportStr.reserve(128 * records.subgroups.size());
+
+	reportStr += std::format(
+		"{}\n",
+		records.groupName);
+
+	for(const GroupedTimeRecord& subgroup : records.subgroups)
+	{
+		const auto subgroupPercentage =
+			static_cast<double>(subgroup.totalMicroseconds) /
+			static_cast<double>(records.totalMicroseconds) *
+			100.0;
+
+		reportStr += std::format(
+			"{} [{:8.4f}%] -> {}",
+			linePrefix, subgroupPercentage, makeProportionalReportRecursive(subgroup, linePrefix + "-"));
+	}
+
+	return reportStr;
 }
 
 }// end namespace ph

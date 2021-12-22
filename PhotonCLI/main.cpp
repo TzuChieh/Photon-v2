@@ -3,6 +3,7 @@
 #include "StaticImageRenderer.h"
 
 #include <ph_core.h>
+#include <Common/stats.h>
 
 #include <iostream>
 #include <string>
@@ -87,6 +88,8 @@ int main(int argc, char* argv[])
 	{
 		renderImageSeries(args);
 	}
+
+	std::cout << ph::TimerStatsReport().proportionalReport() << std::endl;
 
 	// end engine operations
 

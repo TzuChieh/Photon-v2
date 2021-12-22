@@ -12,6 +12,7 @@
 #include "Core/Receiver/Receiver.h"
 #include "Core/Renderer/Renderer.h"
 #include "Math/Transform/RigidTransform.h"
+#include "Common/stats.h"
 
 #include <fstream>
 #include <string>
@@ -20,6 +21,9 @@ namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Engine, Core);
+PH_DEFINE_INTERNAL_TIMER_STAT(update, Engine);
+PH_DEFINE_INTERNAL_TIMER_STAT(render, Engine);
+PH_DEFINE_INTERNAL_TIMER_STAT(loadCommands, Engine);
 
 Engine::Engine() : 
 	m_cooked(),
@@ -38,6 +42,8 @@ void Engine::enterCommand(const std::string& commandFragment)
 
 bool Engine::loadCommands(const Path& filePath)
 {
+	PH_SCOPED_TIMER(loadCommands);
+
 	std::ifstream commandFile;
 	commandFile.open(filePath.toAbsoluteString(), std::ios::in);
 	if(!commandFile.is_open())
@@ -74,6 +80,8 @@ bool Engine::loadCommands(const Path& filePath)
 
 void Engine::update()
 {
+	PH_SCOPED_TIMER(update);
+
 	// Wait all potentially unfinished commands
 	m_parser.flush(m_rawScene);
 
@@ -144,6 +152,8 @@ void Engine::update()
 
 void Engine::render()
 {
+	PH_SCOPED_TIMER(render);
+
 	Renderer* const renderer = getRenderer();
 	if(!renderer)
 	{
