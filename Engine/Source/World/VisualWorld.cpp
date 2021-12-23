@@ -26,10 +26,9 @@ namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(VisualWorld, World);
-PH_DEFINE_INTERNAL_TIMER_STAT(UpdateTotal, VisualWorld);
-PH_DEFINE_INTERNAL_TIMER_STAT(CookActorLevels, VisualWorld_Cook);
-PH_DEFINE_INTERNAL_TIMER_STAT(UpdateAccelerators, VisualWorld_Cook);
-PH_DEFINE_INTERNAL_TIMER_STAT(UpdateLightSamplers, VisualWorld_Cook);
+PH_DEFINE_INTERNAL_TIMER_STAT(CookActorLevels, VisualWorld);
+PH_DEFINE_INTERNAL_TIMER_STAT(UpdateAccelerators, VisualWorld);
+PH_DEFINE_INTERNAL_TIMER_STAT(UpdateLightSamplers, VisualWorld);
 
 VisualWorld::VisualWorld() :
 	m_intersector(),
@@ -56,8 +55,6 @@ VisualWorld::VisualWorld() :
 
 void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContext& coreCtx)
 {
-	PH_SCOPED_TIMER(UpdateTotal);
-
 	PH_LOG(VisualWorld, "cooking visual world");
 
 	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources<Actor>();
