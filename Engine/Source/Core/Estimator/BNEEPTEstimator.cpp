@@ -20,6 +20,7 @@
 #include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Core/Estimator/Integrand.h"
+#include "Common/stats.h"
 
 #include <iostream>
 
@@ -30,12 +31,19 @@
 namespace ph
 {
 
+PH_DEFINE_INTERNAL_TIMER_STAT(FullEstimation, Render_BNEEPTEstimator);
+PH_DEFINE_INTERNAL_TIMER_STAT(ZeroBounceDirect, Render_BNEEPTEstimator);
+PH_DEFINE_INTERNAL_TIMER_STAT(DirectLightSampling, Render_BNEEPTEstimator);
+PH_DEFINE_INTERNAL_TIMER_STAT(BSDFAndIndirectLightSampling, Render_BNEEPTEstimator);
+
 void BNEEPTEstimator::estimate(
 	const Ray&        ray,
 	const Integrand&  integrand,
 	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation) const
 {
+	PH_SCOPED_TIMER(FullEstimation);
+
 	const Scene&    scene    = integrand.getScene();
 	const Receiver& receiver = integrand.getReceiver();
 	const auto&     mis      = TMis<EMisStyle::POWER>();
@@ -60,6 +68,8 @@ void BNEEPTEstimator::estimate(
 
 	// 0-bounce direct lighting
 	{
+		PH_SCOPED_TIMER(ZeroBounceDirect);
+
 		surfaceHit = SurfaceHit(tracingRay, hitProbe);
 
 		// sidedness agreement between real geometry and shading normal
@@ -96,6 +106,8 @@ void BNEEPTEstimator::estimate(
 
 		// direct light sample
 		{
+			PH_SCOPED_TIMER(DirectLightSampling);
+
 			math::Vector3R L;
 			real           directPdfW;
 			math::Spectrum emittedRadiance;
@@ -135,6 +147,8 @@ void BNEEPTEstimator::estimate(
 
 		// BSDF sample + indirect light sample
 		{
+			PH_SCOPED_TIMER(BSDFAndIndirectLightSampling);
+
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceBehavior*   surfaceBehavior = &(metadata->getSurface());
 

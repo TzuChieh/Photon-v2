@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 		renderImageSeries(args);
 	}
 
-	std::cout << ph::TimerStatsReport().proportionalReport() << std::endl;
+	std::cout << ph::TimerStatsReport().detailedReport() << std::endl;
 
 	// end engine operations
 

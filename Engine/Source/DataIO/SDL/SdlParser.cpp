@@ -9,6 +9,7 @@
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
+#include "Common/stats.h"
 
 #include <cstddef>
 
@@ -16,6 +17,14 @@ namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlParser, SDL);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseCommandTotal, SDLParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseLoadCommand, SDLParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseExecutionCommand, SDLParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseDirectiveCommand, SDLParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(GetCommandType, SDLParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(GetName, SDLParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(GetClauses, SDLParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(GetSDLClass, SDLParser);
 
 SdlParser::SdlParser() :
 	m_commandVersion      (),
@@ -69,6 +78,8 @@ void SdlParser::flush(SceneDescription& out_scene)
 
 void SdlParser::parseCommand(const std::string& command, SceneDescription& out_scene)
 {
+	PH_SCOPED_TIMER(ParseCommandTotal);
+
 	if(command.empty())
 	{
 		return;
@@ -123,6 +134,8 @@ void SdlParser::parseLoadCommand(
 	static const Tokenizer loadCommandTokenizer(
 		{' ', '\t', '\n', '\r'}, 
 		{{'\"', '\"'}, {'[', ']'}, {'(', ')'}});
+
+	PH_SCOPED_TIMER(ParseLoadCommand);
 
 	std::vector<std::string> tokens;
 	loadCommandTokenizer.tokenize(command, tokens);
@@ -186,6 +199,8 @@ void SdlParser::parseExecutionCommand(
 		{' ', '\t', '\n', '\r'}, 
 		{{'\"', '\"'}, {'[', ']'}, {'(', ')'}});
 
+	PH_SCOPED_TIMER(ParseExecutionCommand);
+
 	std::vector<std::string> tokens;
 	executionCommandTokenizer.tokenize(command, tokens);
 
@@ -247,6 +262,8 @@ void SdlParser::parseDirectiveCommand(
 		{' ', '\t', '\n', '\r'}, 
 		{});
 
+	PH_SCOPED_TIMER(ParseDirectiveCommand);
+
 	std::vector<std::string> tokens;
 	directiveCommandTokenizer.tokenize(command, tokens);
 
@@ -292,6 +309,8 @@ std::string SdlParser::genNameForAnonymity()
 
 std::string SdlParser::getName(const std::string_view resourceNameToken)
 {
+	PH_SCOPED_TIMER(GetName);
+
 	// Remove any leading and trailing blank characters
 	const auto trimmedToken = string_utils::trim(resourceNameToken);
 
@@ -355,6 +374,8 @@ void SdlParser::setWorkingDirectory(const Path& path)
 
 ESdlCommandType SdlParser::getCommandType(const std::string_view commandSegment)
 {
+	PH_SCOPED_TIMER(GetCommandType);
+
 	// Skips any leading whitespace
 	const auto trimmedSegment = string_utils::trim_head(commandSegment);
 
@@ -405,6 +426,8 @@ void SdlParser::getMangledName(const std::string_view categoryName, const std::s
 void SdlParser::getClauses(const std::vector<std::string>& clauseStrings, ValueClauses* const out_clauses)
 {
 	PH_ASSERT(out_clauses);
+
+	PH_SCOPED_TIMER(GetClauses);
 
 	out_clauses->clear();
 	for(const auto& clauseString : clauseStrings)
@@ -465,6 +488,8 @@ const SdlClass* SdlParser::getSdlClass(const std::string& mangledClassName) cons
 
 const SdlClass& SdlParser::getSdlClass(const std::string_view categoryName, const std::string_view typeName) const
 {
+	PH_SCOPED_TIMER(GetSDLClass);
+
 	std::string mangledClassName;
 	getMangledName(categoryName, typeName, &mangledClassName);
 

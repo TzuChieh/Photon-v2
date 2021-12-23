@@ -65,15 +65,27 @@ public:
 
 	GroupedTimeRecord getGroupedTimeRecord() const;
 	std::string proportionalReport() const;
+	std::string averagedReport() const;
+	std::string detailedReport() const;
 	std::string rawReport() const;
 
 private:
+	enum class EGroupedReport
+	{
+		ProportionOnly,
+		AverageOnly,
+		ProportionWithAverage,
+		ProportionWithAverageAndTotal
+	};
+
 	std::vector<TimeRecord> m_records;
 
 	static GroupedTimeRecord makeGroupedTimeRecordRecursive(const std::vector<TimeRecord>& records);
 
-	static std::string makeProportionalReportRecursive(
-		const GroupedTimeRecord& records, const std::string& linePrefix);
+	static std::string makeGroupedReportRecursive(
+		const GroupedTimeRecord& records, 
+		EGroupedReport           reportType,
+		const std::string&       linePrefix);
 };
 
 }// end namespace ph

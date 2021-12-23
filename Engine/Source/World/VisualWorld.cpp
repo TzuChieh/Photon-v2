@@ -15,6 +15,7 @@
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Actor/APhantomModel.h"
 #include "Common/logging.h"
+#include "Common/stats.h"
 
 #include <limits>
 #include <iostream>
@@ -25,6 +26,10 @@ namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(VisualWorld, World);
+PH_DEFINE_INTERNAL_TIMER_STAT(UpdateTotal, VisualWorld);
+PH_DEFINE_INTERNAL_TIMER_STAT(CookActorLevels, VisualWorld_Cook);
+PH_DEFINE_INTERNAL_TIMER_STAT(UpdateAccelerators, VisualWorld_Cook);
+PH_DEFINE_INTERNAL_TIMER_STAT(UpdateLightSamplers, VisualWorld_Cook);
 
 VisualWorld::VisualWorld() :
 	m_intersector(),
@@ -51,6 +56,8 @@ VisualWorld::VisualWorld() :
 
 void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContext& coreCtx)
 {
+	PH_SCOPED_TIMER(UpdateTotal);
+
 	PH_LOG(VisualWorld, "cooking visual world");
 
 	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources<Actor>();
@@ -71,6 +78,8 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	std::size_t numCookedActors = 0;
 	while(numCookedActors < actors.size())
 	{
+		PH_SCOPED_TIMER(CookActorLevels);
+
 		auto actorCookBegin = actors.begin() + numCookedActors;
 
 		// Sort raw actors based on cook order
@@ -133,11 +142,19 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		m_cookedActorStorage.numEmitters());
 
 	PH_LOG(VisualWorld, "updating accelerator...");
-	createTopLevelAccelerator(coreCtx.getTopLevelAccelerator());
-	m_intersector->update(m_cookedActorStorage);
+	{
+		PH_SCOPED_TIMER(UpdateAccelerators);
+
+		createTopLevelAccelerator(coreCtx.getTopLevelAccelerator());
+		m_intersector->update(m_cookedActorStorage);
+	}
 
 	PH_LOG(VisualWorld, "updating light sampler...");
-	m_emitterSampler->update(m_cookedActorStorage);
+	{
+		PH_SCOPED_TIMER(UpdateLightSamplers);
+
+		m_emitterSampler->update(m_cookedActorStorage);
+	}
 
 	m_scene = std::make_unique<Scene>(m_intersector.get(), m_emitterSampler.get());
 	m_scene->setBackgroundPrimitive(m_backgroundPrimitive.get());

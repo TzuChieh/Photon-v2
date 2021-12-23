@@ -5,3 +5,6 @@
 #define PH_DEFINE_LOG_GROUP(groupName, category)
 #define PH_DEFINE_INTERNAL_LOG_GROUP(groupName, category)
 #define PH_DEFINE_EXTERNAL_LOG_GROUP(groupName, category)
+
+#define PH_DEFINE_INTERNAL_TIMER_STAT(statName, categoryName)
+#define PH_DEFINE_EXTERNAL_TIMER_STAT(statName, categoryName)

@@ -91,7 +91,35 @@ TimerStatsReport::GroupedTimeRecord TimerStatsReport::getGroupedTimeRecord() con
 
 std::string TimerStatsReport::proportionalReport() const
 {
-	return makeProportionalReportRecursive(getGroupedTimeRecord(), "-");
+	GroupedTimeRecord rootGroup = getGroupedTimeRecord();
+	if(rootGroup.groupName.empty())
+	{
+		rootGroup.groupName = "Proportional Timing Report";
+	}
+
+	return makeGroupedReportRecursive(rootGroup, EGroupedReport::ProportionOnly, "+");
+}
+
+std::string TimerStatsReport::averagedReport() const
+{
+	GroupedTimeRecord rootGroup = getGroupedTimeRecord();
+	if(rootGroup.groupName.empty())
+	{
+		rootGroup.groupName = "Averaged Timing Report";
+	}
+
+	return makeGroupedReportRecursive(rootGroup, EGroupedReport::AverageOnly, "+");
+}
+
+std::string TimerStatsReport::detailedReport() const
+{
+	GroupedTimeRecord rootGroup = getGroupedTimeRecord();
+	if(rootGroup.groupName.empty())
+	{
+		rootGroup.groupName = "Detailed Timing Report [% time, avg. time] -> name (total time):";
+	}
+
+	return makeGroupedReportRecursive(rootGroup, EGroupedReport::ProportionWithAverageAndTotal, "+");
 }
 
 std::string TimerStatsReport::rawReport() const
@@ -155,15 +183,26 @@ TimerStatsReport::GroupedTimeRecord TimerStatsReport::makeGroupedTimeRecordRecur
 	return groupedRecord;
 }
 
-std::string TimerStatsReport::makeProportionalReportRecursive(
-	const GroupedTimeRecord& records, const std::string& linePrefix)
+std::string TimerStatsReport::makeGroupedReportRecursive(
+	const GroupedTimeRecord& records, 
+	const EGroupedReport     reportType,
+	const std::string&       linePrefix)
 {
 	std::string reportStr;
 	reportStr.reserve(128 * records.subgroups.size());
 
-	reportStr += std::format(
-		"{}\n",
-		records.groupName);
+	if(reportType != EGroupedReport::ProportionWithAverageAndTotal)
+	{
+		reportStr += std::format(
+			"{}\n",
+			records.groupName);
+	}
+	else
+	{
+		reportStr += std::format(
+			"{} ({}ms)\n",
+			records.groupName, records.totalMicroseconds / 1000);
+	}
 
 	for(const GroupedTimeRecord& subgroup : records.subgroups)
 	{
@@ -172,9 +211,37 @@ std::string TimerStatsReport::makeProportionalReportRecursive(
 			static_cast<double>(records.totalMicroseconds) *
 			100.0;
 
-		reportStr += std::format(
-			"{} [{:8.4f}%] -> {}",
-			linePrefix, subgroupPercentage, makeProportionalReportRecursive(subgroup, linePrefix + "-"));
+		const auto subgroupAverageMS = subgroup.count == 0 ? 0.0 :
+			static_cast<double>(subgroup.totalMicroseconds / subgroup.count) / 1000.0;
+
+		const std::string subgroupReport = makeGroupedReportRecursive(subgroup, reportType, linePrefix + "--");
+		
+		switch(reportType)
+		{
+		case EGroupedReport::ProportionOnly:
+			reportStr += std::format(
+				"{} [{:8.4f}%] -> {}",
+				linePrefix, subgroupPercentage, subgroupReport);
+			break;
+
+		case EGroupedReport::AverageOnly:
+			reportStr += std::format(
+				"{} [{:.2f}ms] -> {}",
+				linePrefix, subgroupAverageMS, subgroupReport);
+			break;
+
+		case EGroupedReport::ProportionWithAverage:
+		case EGroupedReport::ProportionWithAverageAndTotal:
+			reportStr += std::format(
+				"{} [{:6.2f}% | {:.2f}ms] -> {}",
+				linePrefix, subgroupPercentage, subgroupAverageMS, subgroupReport);
+			break;
+
+		default:
+			PH_ASSERT_UNREACHABLE_SECTION();
+			reportStr += "(report error)";
+			break;
+		}
 	}
 
 	return reportStr;
