@@ -1,4 +1,4 @@
-#include <Utility/TMRSWResource.h>
+#include <Utility/Concurrent/TMRSWResource.h>
 
 #include <gtest/gtest.h>
 

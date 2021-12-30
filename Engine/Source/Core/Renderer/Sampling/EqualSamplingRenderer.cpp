@@ -19,7 +19,7 @@
 #include "Core/Scheduler/SpiralGridScheduler.h"
 #include "Core/Scheduler/TileScheduler.h"
 #include "Core/Scheduler/WorkUnit.h"
-#include "Utility/FixedSizeThreadPool.h"
+#include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
 #include "Common/logging.h"
 

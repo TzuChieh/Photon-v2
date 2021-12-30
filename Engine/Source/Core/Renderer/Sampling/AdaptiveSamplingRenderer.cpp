@@ -10,7 +10,7 @@
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
 #include "Core/Estimator/Integrand.h"
-#include "Utility/FixedSizeThreadPool.h"
+#include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
 
 #include <cmath>

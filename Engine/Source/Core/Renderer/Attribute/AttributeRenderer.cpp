@@ -16,7 +16,7 @@
 #include "Core/Scheduler/PlateScheduler.h"
 #include "Core/Scheduler/StripeScheduler.h"
 #include "Core/Scheduler/GridScheduler.h"
-#include "Utility/FixedSizeThreadPool.h"
+#include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
 #include "Core/Scheduler/SpiralGridScheduler.h"
 #include "Core/Scheduler/TileScheduler.h"

@@ -1,4 +1,4 @@
-#include <Utility/FixedSizeThreadPool.h>
+#include <Utility/Concurrent/FixedSizeThreadPool.h>
 
 #include <gtest/gtest.h>
 
