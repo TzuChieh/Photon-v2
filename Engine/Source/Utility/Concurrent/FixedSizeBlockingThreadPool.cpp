@@ -29,7 +29,7 @@ FixedSizeBlockingThreadPool::~FixedSizeBlockingThreadPool()
 {
 	requestTermination();
 
-	// wait for any workers that are still processing to finish
+	// Wait for any workers that are still processing to finish
 	for(auto& worker : m_workers)
 	{
 		if(worker.joinable())
@@ -41,8 +41,7 @@ FixedSizeBlockingThreadPool::~FixedSizeBlockingThreadPool()
 
 void FixedSizeBlockingThreadPool::queueWork(const Work& work)
 {
-	// exclusively access the work queue since it is also used by
-	// worker threads
+	// Exclusively access the work queue since it is also used by worker threads
 	{
 		std::lock_guard<std::mutex> lock(m_poolMutex);
 
@@ -72,25 +71,24 @@ void FixedSizeBlockingThreadPool::asyncProcessWork()
 
 	do
 	{
-		// wait until being notified there is new work yet to
-		// be processed
+		// Wait until being notified there is new work yet to be processed
 		m_workersCv.wait(lock, [this]()
 		{
 			return !m_works.empty() || m_isTerminationRequested;
 		});
 
-		// we now own the lock after waiting
+		// We now own the lock after waiting
 		if(!m_works.empty() && !m_isTerminationRequested)
 		{
 			Work work = std::move(m_works.front());
 			m_works.pop();
 
-			// we are done using the work queue
+			// We are done using the work queue
 			lock.unlock();
 
 			work();
 
-			// current thread must own the lock before calling wait(2)
+			// Current thread must own the lock before calling wait(2)
 			lock.lock();
 
 			PH_ASSERT_GT(m_numQueuedWorks, m_numProcessedWorks);
@@ -125,7 +123,7 @@ void FixedSizeBlockingThreadPool::waitAllWorks()
 	{
 		PH_ASSERT_GT(m_numQueuedWorks, m_numProcessedWorks);
 
-		// wait until being notified that all queued works are done
+		// Wait until being notified that all queued works are done
 		m_allWorksDoneCv.wait(lock, [this]()
 		{
 			return m_numQueuedWorks == m_numProcessedWorks;
