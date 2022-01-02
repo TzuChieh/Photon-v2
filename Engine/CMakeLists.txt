@@ -50,6 +50,7 @@ link_thirdparty_lib(Engine ${STB_LIB_NAME})
 link_thirdparty_lib(Engine ${ZLIB_LIB_NAME})
 link_thirdparty_lib(Engine ${ILMBASE_LIB_NAME})
 link_thirdparty_lib(Engine ${OPENEXR_LIB_NAME})
+link_thirdparty_lib(Engine ${CONCURRENTQUEUE_LIB_NAME} PUBLIC)
 
 if(WIN32)
 

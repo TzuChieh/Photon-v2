@@ -7,7 +7,7 @@
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/VPMRadianceEvaluator.h"
 #include "Core/Renderer/PM/FullPhoton.h"
-#include "Utility/Concurrent/FixedSizeThreadPool.h"
+#include "Utility/Concurrent/FixedSizeBlockingThreadPool.h"
 #include "Utility/Concurrent/concurrent.h"
 #include "Common/logging.h"
 #include "Core/Renderer/PM/PPMRadianceEvaluationWork.h"

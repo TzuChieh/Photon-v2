@@ -19,7 +19,7 @@
 #include "Core/Scheduler/SpiralGridScheduler.h"
 #include "Core/Scheduler/TileScheduler.h"
 #include "Core/Scheduler/WorkUnit.h"
-#include "Utility/Concurrent/FixedSizeThreadPool.h"
+#include "Utility/Concurrent/FixedSizeBlockingThreadPool.h"
 #include "Utility/utility.h"
 #include "Common/logging.h"
 
@@ -111,7 +111,7 @@ void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualW
 
 void EqualSamplingRenderer::doRender()
 {
-	FixedSizeThreadPool workers(numWorkers());
+	FixedSizeBlockingThreadPool workers(numWorkers());
 
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{

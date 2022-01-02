@@ -1,4 +1,4 @@
-#include <Utility/Concurrent/FixedSizeThreadPool.h>
+#include <Utility/Concurrent/FixedSizeBlockingThreadPool.h>
 
 #include <gtest/gtest.h>
 
@@ -8,17 +8,17 @@
 
 using namespace ph;
 
-TEST(FixedSizeThreadPoolTest, RequiredProperties)
+TEST(FixedSizeBlockingThreadPoolTest, RequiredProperties)
 {
 	{
-		EXPECT_FALSE(std::is_copy_constructible_v<FixedSizeThreadPool>);
-		EXPECT_FALSE(std::is_copy_assignable_v<FixedSizeThreadPool>);
-		EXPECT_FALSE(std::is_move_constructible_v<FixedSizeThreadPool>);
-		EXPECT_FALSE(std::is_move_assignable_v<FixedSizeThreadPool>);
+		EXPECT_FALSE(std::is_copy_constructible_v<FixedSizeBlockingThreadPool>);
+		EXPECT_FALSE(std::is_copy_assignable_v<FixedSizeBlockingThreadPool>);
+		EXPECT_FALSE(std::is_move_constructible_v<FixedSizeBlockingThreadPool>);
+		EXPECT_FALSE(std::is_move_assignable_v<FixedSizeBlockingThreadPool>);
 	}
 }
 
-TEST(FixedSizeThreadPoolTest, CalculateNumberSum)
+TEST(FixedSizeBlockingThreadPoolTest, CalculateNumberSum)
 {
 	std::random_device rd;
 	std::mt19937 rng(rd());
@@ -40,7 +40,7 @@ TEST(FixedSizeThreadPoolTest, CalculateNumberSum)
 		actualSum += numbers[i];
 	}
 
-	FixedSizeThreadPool threadPool(NUM_WORKERS);
+	FixedSizeBlockingThreadPool threadPool(NUM_WORKERS);
 	std::atomic_int testSum = 0;
 	for(int i = 0; i < NUM_WORKERS; i++)
 	{
@@ -59,8 +59,8 @@ TEST(FixedSizeThreadPoolTest, CalculateNumberSum)
 	EXPECT_EQ(testSum, actualSum);
 }
 
-TEST(FixedSizeThreadPoolTest, GetAttributes)
+TEST(FixedSizeBlockingThreadPoolTest, GetAttributes)
 {
-	FixedSizeThreadPool threadPool(2);
+	FixedSizeBlockingThreadPool threadPool(2);
 	EXPECT_EQ(threadPool.numWorkers(), 2);
 }

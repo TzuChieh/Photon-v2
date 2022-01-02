@@ -1,4 +1,4 @@
-#include "Utility/Concurrent/FixedSizeThreadPool.h"
+#include "Utility/Concurrent/FixedSizeBlockingThreadPool.h"
 #include "Common/assertion.h"
 
 #include <iostream>
@@ -6,11 +6,15 @@
 namespace ph
 {
 	
-FixedSizeThreadPool::FixedSizeThreadPool(const std::size_t numThreads) : 
-	m_workers(numThreads), m_works(), 
-	m_poolMutex(), m_workersCv(), m_allWorksDoneCv(),
+FixedSizeBlockingThreadPool::FixedSizeBlockingThreadPool(const std::size_t numThreads) :
+	m_workers               (numThreads), 
+	m_works                 (), 
+	m_poolMutex             (), 
+	m_workersCv             (), 
+	m_allWorksDoneCv        (),
 	m_isTerminationRequested(false),
-	m_numQueuedWorks(0), m_numProcessedWorks(0)
+	m_numQueuedWorks        (0), 
+	m_numProcessedWorks     (0)
 {
 	for(auto& worker : m_workers)
 	{
@@ -21,7 +25,7 @@ FixedSizeThreadPool::FixedSizeThreadPool(const std::size_t numThreads) :
 	}
 }
 
-FixedSizeThreadPool::~FixedSizeThreadPool()
+FixedSizeBlockingThreadPool::~FixedSizeBlockingThreadPool()
 {
 	requestTermination();
 
@@ -35,7 +39,7 @@ FixedSizeThreadPool::~FixedSizeThreadPool()
 	}
 }
 
-void FixedSizeThreadPool::queueWork(const Work& work)
+void FixedSizeBlockingThreadPool::queueWork(const Work& work)
 {
 	// exclusively access the work queue since it is also used by
 	// worker threads
@@ -50,7 +54,7 @@ void FixedSizeThreadPool::queueWork(const Work& work)
 }
 
 // Essentially the same as its const reference variant, except work is moved.
-void FixedSizeThreadPool::queueWork(Work&& work)
+void FixedSizeBlockingThreadPool::queueWork(Work&& work)
 {
 	{
 		std::lock_guard<std::mutex> lock(m_poolMutex);
@@ -62,7 +66,7 @@ void FixedSizeThreadPool::queueWork(Work&& work)
 	m_workersCv.notify_one();
 }
 
-void FixedSizeThreadPool::asyncProcessWork()
+void FixedSizeBlockingThreadPool::asyncProcessWork()
 {
 	std::unique_lock<std::mutex> lock(m_poolMutex);
 
@@ -100,7 +104,7 @@ void FixedSizeThreadPool::asyncProcessWork()
 	} while(!m_isTerminationRequested);
 }
 
-void FixedSizeThreadPool::requestTermination()
+void FixedSizeBlockingThreadPool::requestTermination()
 {
 	{
 		std::lock_guard<std::mutex> lock(m_poolMutex);
@@ -111,7 +115,7 @@ void FixedSizeThreadPool::requestTermination()
 	m_workersCv.notify_all();
 }
 
-void FixedSizeThreadPool::waitAllWorks()
+void FixedSizeBlockingThreadPool::waitAllWorks()
 {
 	std::unique_lock<std::mutex> lock(m_poolMutex);
 

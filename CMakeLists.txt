@@ -374,6 +374,14 @@ set(IMGUI_LIB_SOURCE_FILES
 set(IMGUI_LIB_GLFW_IMPL_FILES    "${IMGUI_LIB_INSTALL_DIR}/backends/imgui_impl_glfw.cpp")
 set(IMGUI_LIB_OPENGL3_IMPL_FILES "${IMGUI_LIB_INSTALL_DIR}/backends/imgui_impl_opengl3.cpp")
 
+#------------------------------------------------------------------------------
+# concurrentqueue
+#------------------------------------------------------------------------------
+set(CONCURRENTQUEUE_LIB_NAME "concurrentqueue")
+load_library_via_config(${CONCURRENTQUEUE_LIB_NAME}
+    TARGETS    "concurrentqueue"
+    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${CONCURRENTQUEUE_LIB_NAME}/lib/cmake/${CONCURRENTQUEUE_LIB_NAME}/")
+
 ###############################################################################
 # Add CMake Subdirectories                                                    #
 ###############################################################################
