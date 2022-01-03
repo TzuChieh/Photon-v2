@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <queue>
 #include <functional>
+#include <atomic>
 
 namespace ph
 {
@@ -31,7 +32,7 @@ public:
 	~FixedSizeBlockingThreadPool();
 
 	/*! @brief Add a work to the pool.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	///@{
 	void queueWork(const Work& work);
@@ -40,7 +41,7 @@ public:
 
 	/*! @brief Blocks until all queued works are finished.
 	New works can be queued after waiting is finished.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	void waitAllWorks();
 
@@ -48,12 +49,12 @@ public:
 	Workers will stop processing queued works as soon as possible. Works that are already being processed 
 	will still complete. No other operations should be further performed after requesting termination. 
 	Requesting termination multiple times has the same effect.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	void requestTermination();
 
 	/*! @brief Number of worker threads in the pool.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	std::size_t numWorkers() const;
 
@@ -63,11 +64,17 @@ private:
 	std::mutex               m_poolMutex;
 	std::condition_variable  m_workersCv;
 	std::condition_variable  m_allWorksDoneCv;
-	bool                     m_isTerminationRequested;
-	uint64                   m_numQueuedWorks;
-	uint64                   m_numProcessedWorks;
+	std::atomic_flag         m_isTerminationRequested;
 
+	/*! @brief Start processing works.
+	@note Thread-safe.
+	*/
 	void asyncProcessWork();
+
+	/*! @brief Check if the termination of work processing is requested.
+	@note Thread-safe.
+	*/
+	bool isTerminationRequested() const;
 };
 
 // In-header Implementations:
@@ -75,6 +82,11 @@ private:
 inline std::size_t FixedSizeBlockingThreadPool::numWorkers() const
 {
 	return m_workers.size();
+}
+
+inline bool FixedSizeBlockingThreadPool::isTerminationRequested() const
+{
+	return m_isTerminationRequested.test(std::memory_order_relaxed);
 }
 
 }// end namespace ph

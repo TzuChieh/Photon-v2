@@ -26,14 +26,14 @@ public:
 
 	/*! @brief Enqueue an item.
 	@return `true` if the item is enqueued. `false` otherwise.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	template<typename U>
 	bool enqueue(U&& item);
 
 	/*! @brief Try enqueue an item.
 	@return `true` if the item is enqueued. `false` otherwise.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	template<typename U>
 	bool tryEnqueue(U&& item);
@@ -41,14 +41,14 @@ public:
 	/*! @brief Try dequeue an item.
 	Dequeue fails if there is no item. Dequeue can fail spuriously if there is another consumer.
 	@return `true` if an item is dequeued. `false` otherwise (even if the queue is not empty).
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	bool tryDequeue(T* out_item);
 
 	/*! @brief Approximated size of the queue.
 	@return Number of items in the queue. The esimation is only accurate if all memory writes to the queue
 	is guaranteed to be visible. Note that 0 may be returned even if the queue is, in face, not empty.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	std::size_t estimatedSize() const;
 

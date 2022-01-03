@@ -15,9 +15,7 @@ FixedSizeBlockingThreadPool::FixedSizeBlockingThreadPool(const std::size_t numWo
 	m_poolMutex             (), 
 	m_workersCv             (), 
 	m_allWorksDoneCv        (),
-	m_isTerminationRequested(false),
-	m_numQueuedWorks        (0), 
-	m_numProcessedWorks     (0)
+	m_isTerminationRequested()
 {
 	for(auto& worker : m_workers)
 	{
@@ -49,7 +47,6 @@ void FixedSizeBlockingThreadPool::queueWork(const Work& work)
 		std::lock_guard<std::mutex> lock(m_poolMutex);
 
 		m_works.push(work);
-		m_numQueuedWorks++;
 	}
 
 	m_workersCv.notify_one();
@@ -62,7 +59,6 @@ void FixedSizeBlockingThreadPool::queueWork(Work&& work)
 		std::lock_guard<std::mutex> lock(m_poolMutex);
 
 		m_works.push(std::move(work));
-		m_numQueuedWorks++;
 	}
 
 	m_workersCv.notify_one();
@@ -77,11 +73,11 @@ void FixedSizeBlockingThreadPool::asyncProcessWork()
 		// Wait until being notified there is new work yet to be processed
 		m_workersCv.wait(lock, [this]()
 		{
-			return !m_works.empty() || m_isTerminationRequested;
+			return !m_works.empty() || isTerminationRequested();
 		});
 
 		// We now own the lock after waiting
-		if(!m_works.empty() && !m_isTerminationRequested)
+		if(!m_works.empty() && !isTerminationRequested())
 		{
 			Work work = std::move(m_works.front());
 			m_works.pop();
@@ -94,24 +90,17 @@ void FixedSizeBlockingThreadPool::asyncProcessWork()
 			// Current thread must own the lock before calling wait(2)
 			lock.lock();
 
-			PH_ASSERT_GT(m_numQueuedWorks, m_numProcessedWorks);
-
-			m_numProcessedWorks++;
-			if(m_numQueuedWorks == m_numProcessedWorks)
+			if(m_works.empty())
 			{
 				m_allWorksDoneCv.notify_all();
 			}
 		}
-	} while(!m_isTerminationRequested);
+	} while(!isTerminationRequested());
 }
 
 void FixedSizeBlockingThreadPool::requestTermination()
 {
-	{
-		std::lock_guard<std::mutex> lock(m_poolMutex);
-
-		m_isTerminationRequested = true;
-	}
+	m_isTerminationRequested.test_and_set(std::memory_order_relaxed);
 
 	m_workersCv.notify_all();
 }
@@ -120,20 +109,18 @@ void FixedSizeBlockingThreadPool::waitAllWorks()
 {
 	std::unique_lock<std::mutex> lock(m_poolMutex);
 
-	PH_ASSERT(!m_isTerminationRequested);
+	PH_ASSERT(!isTerminationRequested());
 
-	if(m_numQueuedWorks != m_numProcessedWorks)
+	if(!m_works.empty())
 	{
-		PH_ASSERT_GT(m_numQueuedWorks, m_numProcessedWorks);
-
 		// Wait until being notified that all queued works are done
 		m_allWorksDoneCv.wait(lock, [this]()
 		{
-			return m_numQueuedWorks == m_numProcessedWorks;
+			return m_works.empty();
 		});
 	}
 
-	PH_ASSERT_EQ(m_numQueuedWorks, m_numProcessedWorks);
+	PH_ASSERT(m_works.empty());
 }
 
 }// end namespace ph

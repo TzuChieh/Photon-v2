@@ -34,7 +34,7 @@ public:
 	~FixedSizeLockFreeThreadPool();
 
 	/*! @brief Add a work to the pool.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	///@{
 	void queueWork(const Work& work);
@@ -43,7 +43,7 @@ public:
 
 	/*! @brief Blocks until all queued works are finished.
 	New works can be queued after waiting is finished.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	void waitAllWorks();
 
@@ -51,12 +51,12 @@ public:
 	Workers will stop processing queued works as soon as possible. Works that are already being processed 
 	will still complete. No other operations should be further performed after requesting termination. 
 	Requesting termination multiple times has the same effect.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	void requestTermination();
 
 	/*! @brief Number of worker threads in the pool.
-	@note This is thread-safe.
+	@note Thread-safe.
 	*/
 	std::size_t numWorkers() const;
 
