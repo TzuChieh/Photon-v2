@@ -39,6 +39,8 @@ Assertions will be enabled on debug mode.
 */
 #define PH_ENABLE_DEBUG_LOG
 
+#define PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
+
 /*! @brief Directory that stores engine log file.
 */
 #define PH_LOG_FILE_DIRECTRY "./Logs/"

@@ -1,5 +1,7 @@
-#include "Utility/Concurrent/FixedSizeBlockingThreadPool.h"
+#include "Utility/Concurrent/FixedSizeLockFreeThreadPool.h"
 #include "Common/assertion.h"
+
+#include <stdexcept>
 
 /*
 The design is similar to the pool introduced in
@@ -9,15 +11,14 @@ https://embeddedartistry.com/blog/2017/02/08/implementing-an-asynchronous-dispat
 namespace ph
 {
 	
-FixedSizeBlockingThreadPool::FixedSizeBlockingThreadPool(const std::size_t numWorkers) :
+FixedSizeLockFreeThreadPool::FixedSizeLockFreeThreadPool(const std::size_t numWorkers) :
 	m_workers               (numWorkers),
-	m_works                 (), 
+	m_works                 (numWorkers),
 	m_poolMutex             (), 
 	m_workersCv             (), 
 	m_allWorksDoneCv        (),
 	m_isTerminationRequested(false),
-	m_numQueuedWorks        (0), 
-	m_numProcessedWorks     (0)
+	m_numUnfinishedWorks    (0)
 {
 	for(auto& worker : m_workers)
 	{
@@ -28,7 +29,7 @@ FixedSizeBlockingThreadPool::FixedSizeBlockingThreadPool(const std::size_t numWo
 	}
 }
 
-FixedSizeBlockingThreadPool::~FixedSizeBlockingThreadPool()
+FixedSizeLockFreeThreadPool::~FixedSizeLockFreeThreadPool()
 {
 	requestTermination();
 
@@ -42,21 +43,20 @@ FixedSizeBlockingThreadPool::~FixedSizeBlockingThreadPool()
 	}
 }
 
-void FixedSizeBlockingThreadPool::queueWork(const Work& work)
+void FixedSizeLockFreeThreadPool::queueWork(const Work& work)
 {
-	// Exclusively access the work queue since it is also used by worker threads
+	if(!m_works.enqueue(work))
 	{
-		std::lock_guard<std::mutex> lock(m_poolMutex);
-
-		m_works.push(work);
-		m_numQueuedWorks++;
+		throw std::runtime_error("Cannot enqueue new work to lock-free work queue.");
 	}
 
+	m_numUnfinishedWorks.fetch_add(1, std::memory_order_release);
+	
 	m_workersCv.notify_one();
 }
 
 // Essentially the same as its const reference variant, except work is moved.
-void FixedSizeBlockingThreadPool::queueWork(Work&& work)
+void FixedSizeLockFreeThreadPool::queueWork(Work&& work)
 {
 	{
 		std::lock_guard<std::mutex> lock(m_poolMutex);
@@ -68,7 +68,7 @@ void FixedSizeBlockingThreadPool::queueWork(Work&& work)
 	m_workersCv.notify_one();
 }
 
-void FixedSizeBlockingThreadPool::asyncProcessWork()
+void FixedSizeLockFreeThreadPool::asyncProcessWork()
 {
 	std::unique_lock<std::mutex> lock(m_poolMutex);
 

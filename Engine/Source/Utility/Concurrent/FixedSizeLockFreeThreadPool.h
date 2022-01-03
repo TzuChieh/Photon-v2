@@ -1,34 +1,37 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+#include "Utility/Concurrent/TLockFreeQueue.h"
+#include "Common/config.h"
 
 #include <vector>
 #include <thread>
-#include <mutex>
 #include <condition_variable>
-#include <queue>
 #include <functional>
+#include <atomic>
+
+#include <mutex>
 
 namespace ph
 {
 
-/*! @brief A thread pool where works are accessed concurrently by blocking other threads.
-A thread pool that contains fixed number of threads for work processing. It is a blocking pool, i.e., works
-are enqueued and dequeued concurrently by blocking other threads, in FIFO order. The pool can be used 
-concurrently, namely, it is thread-safe. However, the user must ensure that the pool is properly
+/*! @brief A thread pool where works are accessed concurrently without blocking other threads.
+A thread pool that contains fixed number of threads for work processing. It is a lock-free pool, 
+i.e., works are enqueued and dequeued concurrently without blocking other threads. The pool can be 
+used concurrently, namely, it is thread-safe. However, the user must ensure that the pool is properly
 initialized before subsequent usages.
 */
-class FixedSizeBlockingThreadPool final
+class FixedSizeLockFreeThreadPool final
 {
 public:
 	using Work = std::function<void()>;
 
 public:
-	explicit FixedSizeBlockingThreadPool(std::size_t numWorkers);
+	explicit FixedSizeLockFreeThreadPool(std::size_t numWorkers);
 
 	/*! @brief Terminates the pool, effectively the same as calling requestTermination(). 
 	*/
-	~FixedSizeBlockingThreadPool();
+	~FixedSizeLockFreeThreadPool();
 
 	/*! @brief Add a work to the pool.
 	@note This is thread-safe.
@@ -58,21 +61,25 @@ public:
 	std::size_t numWorkers() const;
 
 private:
+
+#ifdef PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
+	static_assert(std::atomic_uint64_t::is_always_lock_free);
+#endif
+
 	std::vector<std::thread> m_workers;
-	std::queue<Work>         m_works;
+	TLockFreeQueue<Work>     m_works;
 	std::mutex               m_poolMutex;
 	std::condition_variable  m_workersCv;
 	std::condition_variable  m_allWorksDoneCv;
 	bool                     m_isTerminationRequested;
-	uint64                   m_numQueuedWorks;
-	uint64                   m_numProcessedWorks;
+	std::atomic_uint64_t     m_numUnfinishedWorks;
 
 	void asyncProcessWork();
 };
 
 // In-header Implementations:
 
-inline std::size_t FixedSizeBlockingThreadPool::numWorkers() const
+inline std::size_t FixedSizeLockFreeThreadPool::numWorkers() const
 {
 	return m_workers.size();
 }
