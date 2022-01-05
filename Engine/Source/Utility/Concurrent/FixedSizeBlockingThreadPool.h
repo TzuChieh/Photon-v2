@@ -1,14 +1,12 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-
+#include <cstddef>
 #include <vector>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <queue>
 #include <functional>
-#include <atomic>
 
 namespace ph
 {
@@ -31,7 +29,8 @@ public:
 	*/
 	~FixedSizeBlockingThreadPool();
 
-	/*! @brief Add a work to the pool.
+	/*! @brief Queue up a work to the pool.
+	Workers start to process the work right away.
 	@note Thread-safe.
 	*/
 	///@{
@@ -40,7 +39,7 @@ public:
 	///@}
 
 	/*! @brief Blocks until all queued works are finished.
-	New works can be queued after waiting is finished.
+	Should not be called on worker thread. New works can be queued after waiting is finished.
 	@note Thread-safe.
 	*/
 	void waitAllWorks();
@@ -48,6 +47,7 @@ public:
 	/*! @brief Stop processing queued works as soon as possible.
 	Workers will stop processing queued works as soon as possible. Works that are already being processed 
 	will still complete. No other operations should be further performed after requesting termination. 
+	Threads waiting for the completion of works, e.g., waiting on waitAllWorks(), will stop waiting.
 	Requesting termination multiple times has the same effect.
 	@note Thread-safe.
 	*/
@@ -59,22 +59,23 @@ public:
 	std::size_t numWorkers() const;
 
 private:
-	std::vector<std::thread> m_workers;
-	std::queue<Work>         m_works;
-	std::mutex               m_poolMutex;
-	std::condition_variable  m_workersCv;
-	std::condition_variable  m_allWorksDoneCv;
-	std::atomic_flag         m_isTerminationRequested;
-
 	/*! @brief Start processing works.
 	@note Thread-safe.
 	*/
 	void asyncProcessWork();
 
-	/*! @brief Check if the termination of work processing is requested.
+	/*! @brief Check whether current thread is one of the worker threads.
 	@note Thread-safe.
 	*/
-	bool isTerminationRequested() const;
+	bool isWorkerThread() const;
+
+	std::vector<std::thread> m_workers;
+	std::queue<Work>         m_works;
+	std::mutex               m_poolMutex;
+	std::condition_variable  m_workersCv;
+	std::condition_variable  m_allWorksDoneCv;
+	bool                     m_isTerminationRequested;
+	std::size_t              m_numUnfinishedWorks;
 };
 
 // In-header Implementations:
@@ -84,9 +85,17 @@ inline std::size_t FixedSizeBlockingThreadPool::numWorkers() const
 	return m_workers.size();
 }
 
-inline bool FixedSizeBlockingThreadPool::isTerminationRequested() const
+inline bool FixedSizeBlockingThreadPool::isWorkerThread() const
 {
-	return m_isTerminationRequested.test(std::memory_order_relaxed);
+	const auto currentThreadId = std::this_thread::get_id();
+	for(const auto& workerThread : m_workers)
+	{
+		if(workerThread.get_id() == currentThreadId)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 }// end namespace ph

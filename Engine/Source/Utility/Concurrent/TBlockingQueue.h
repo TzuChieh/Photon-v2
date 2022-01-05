@@ -1,15 +1,13 @@
 #pragma once
 
-#include "Common/config.h"
-
-#include <moodycamel/concurrentqueue.h>
+#include <moodycamel/blockingconcurrentqueue.h>
 
 #include <cstddef>
 
 namespace ph
 {
 
-/*! @brief A multi-producer, multi-consumer, lock-free concurrent queue.
+/*! @brief A multi-producer, multi-consumer, blocking concurrent queue.
 For single-thread uses, it is a FIFO queue. For multi-thread uses, it is *mostly* a FIFO queue.
 Specifically, items put in by a given producer will all come out in the same order (FIFO). But
 there is no coordination between items from other producers--two items put in by two different
@@ -18,11 +16,11 @@ different streams of items from different producers is undefined).
 It is possible some items will starve in the queue if more items are enqueued than dequeued.
 */
 template<typename T>
-class TLockFreeQueue final
+class TBlockingQueue final
 {
 public:
-	TLockFreeQueue();
-	explicit TLockFreeQueue(std::size_t initialCapacity);
+	TBlockingQueue();
+	explicit TBlockingQueue(std::size_t initialCapacity);
 
 	/*! @brief Enqueue an item. Allocate memory if required.
 	@note Thread-safe.
@@ -52,15 +50,9 @@ public:
 	std::size_t estimatedSize() const;
 
 private:
-
-#ifdef PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
-	static_assert(moodycamel::ConcurrentQueue<T>::is_lock_free());
-#endif
-
-	// Most performant case: single-producer multi-consumer
-	moodycamel::ConcurrentQueue<T> m_queue;
+	moodycamel::BlockingConcurrentQueue<T> m_queue;
 };
 
 }// end namespace ph
 
-#include "Utility/Concurrent/TLockFreeQueue.ipp"
+#include "Utility/Concurrent/TBlockingQueue.ipp"
