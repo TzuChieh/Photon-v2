@@ -87,10 +87,10 @@ inline std::size_t FixedSizeBlockingThreadPool::numWorkers() const
 
 inline bool FixedSizeBlockingThreadPool::isWorkerThread() const
 {
-	const auto currentThreadId = std::this_thread::get_id();
+	const auto thisThreadId = std::this_thread::get_id();
 	for(const auto& workerThread : m_workers)
 	{
-		if(workerThread.get_id() == currentThreadId)
+		if(thisThreadId == workerThread.get_id())
 		{
 			return true;
 		}

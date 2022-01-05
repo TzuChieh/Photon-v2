@@ -43,6 +43,13 @@ inline bool TBlockingQueue<T>::tryDequeue(T* const out_item)
 }
 
 template<typename T>
+inline void TBlockingQueue<T>::waitDequeue(T* const out_item)
+{
+	PH_ASSERT(out_item);
+	m_queue.wait_dequeue(*out_item);
+}
+
+template<typename T>
 inline std::size_t TBlockingQueue<T>::estimatedSize() const
 {
 	return m_queue.size_approx();

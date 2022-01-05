@@ -7,12 +7,14 @@
 namespace ph
 {
 
-// TODO: add a high resolution timer for profiling
-class Timer final
+/*! @brief A stopwatch. Measures relative time (not wall clock).
+*/
+class Stopwatch final
 {
 public:
 	void start();
-	void finish();
+	void accumulatedStart();
+	void stop();
 
 	uint64 getDeltaS() const;
 	uint64 getDeltaMs() const;
@@ -23,14 +25,13 @@ private:
 	using Clock = std::chrono::steady_clock;
 
 	Clock::time_point m_startTime;
-	Clock::time_point m_finishTime;
+	Clock::duration   m_accumulatedDuration;
 
 	template<typename TimeUnit>
 	inline uint64 getDelta() const
 	{
-		const auto& duration = m_finishTime - m_startTime;
-		const auto& delta    = std::chrono::duration_cast<TimeUnit>(duration).count();
-		return static_cast<uint64>(delta);
+		return static_cast<uint64>(
+			std::chrono::duration_cast<TimeUnit>(m_accumulatedDuration).count());
 	}
 };
 

@@ -1,6 +1,8 @@
 #include "Utility/Concurrent/FixedSizeBlockingThreadPool.h"
 #include "Common/assertion.h"
 
+#include <utility>
+
 /*
 The design is similar to the pool introduced in
 https://embeddedartistry.com/blog/2017/02/08/implementing-an-asynchronous-dispatch-queue/

@@ -42,6 +42,11 @@ public:
 	*/
 	bool tryDequeue(T* out_item);
 
+	/*! @brief Blocks the current thread until there is something to dequeue.
+	@note Thread-safe.
+	*/
+	void waitDequeue(T* out_item);
+
 	/*! @brief Approximated size of the queue.
 	@return Number of items in the queue. The esimation is only accurate if all memory writes to the queue
 	is guaranteed to be visible. Note that 0 may be returned even if the queue is, in face, not empty.
