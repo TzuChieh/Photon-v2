@@ -69,7 +69,7 @@ bool Engine::loadCommands(const Path& filePath)
 			enterCommand(lineCommand);
 		}
 
-		timer.finish();
+		timer.stop();
 
 		PH_LOG(Engine, "command file PSDL version: {}", m_parser.getCommandVersion().toString());
 		PH_LOG(Engine, "command file loaded, time elapsed = {} ms", timer.getDeltaMs());

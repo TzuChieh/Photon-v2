@@ -46,7 +46,7 @@ void Renderer::update(const CoreCookedUnit& cooked, const VisualWorld& world)
 	doUpdate(cooked, world);
 
 	m_isUpdating = false;
-	updateTimer.finish();
+	updateTimer.stop();
 
 	PH_LOG(Renderer, "update time: {} ms", updateTimer.getDeltaMs());
 }
@@ -62,7 +62,7 @@ void Renderer::render()
 	doRender();
 
 	m_isRendering = false;
-	renderTimer.finish();
+	renderTimer.stop();
 
 	PH_LOG(Renderer, "render time: {} ms", renderTimer.getDeltaMs());
 }

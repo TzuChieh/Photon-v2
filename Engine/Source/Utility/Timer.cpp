@@ -1,44 +1,44 @@
-#include "Utility/Stopwatch.h"
+#include "Utility/Timer.h"
 
 namespace ph
 {
 
-Stopwatch::Stopwatch() :
+Timer::Timer() :
 	m_startTime(), m_accumulatedDuration()// zero-initialization
 {}
 
-void Stopwatch::start()
+void Timer::start()
 {
 	m_startTime = Clock::now();
 	m_accumulatedDuration = Clock::duration();// zero-initialization
 }
 
-void Stopwatch::accumulatedStart()
+void Timer::accumulatedStart()
 {
 	m_startTime = Clock::now();
 }
 
-void Stopwatch::stop()
+void Timer::stop()
 {
 	m_accumulatedDuration += Clock::now() - m_startTime;
 }
 
-uint64 Stopwatch::getDeltaS() const
+uint64 Timer::getDeltaS() const
 {
 	return getDelta<std::chrono::seconds>();
 }
 
-uint64 Stopwatch::getDeltaMs() const
+uint64 Timer::getDeltaMs() const
 {
 	return getDelta<std::chrono::milliseconds>();
 }
 
-uint64 Stopwatch::getDeltaUs() const
+uint64 Timer::getDeltaUs() const
 {
 	return getDelta<std::chrono::microseconds>();
 }
 
-uint64 Stopwatch::getDeltaNs() const
+uint64 Timer::getDeltaNs() const
 {
 	return getDelta<std::chrono::nanoseconds>();
 }

@@ -7,11 +7,13 @@
 namespace ph
 {
 
-/*! @brief A stopwatch. Measures relative time (not wall clock).
+/*! @brief A timer. Measures relative time (not wall clock).
 */
-class Stopwatch final
+class Timer final
 {
 public:
+	Timer();
+
 	void start();
 	void accumulatedStart();
 	void stop();

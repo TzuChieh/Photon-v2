@@ -3,18 +3,19 @@
 #include "Utility/Timer.h"
 
 #include <utility>
+#include <chrono>
 
 namespace ph
 {
 
-PeriodicSingleThreadExecutor::PeriodicSingleThreadExecutor(const uint64 periodMS) :
+PeriodicSingleThreadExecutor::PeriodicSingleThreadExecutor(const uint64 periodMs) :
 	m_worker                (),
 	m_works                 (),
 	m_executorMutex         (),
 	m_workerCv              (),
 	m_isWorking             (false),
 	m_isTerminationRequested(false),
-	m_periodMS              (periodMS)
+	m_periodMs              (periodMs)
 {
 	m_worker = std::thread([this]()
 	{
@@ -63,6 +64,9 @@ void PeriodicSingleThreadExecutor::addWork(Work&& work)
 
 void PeriodicSingleThreadExecutor::asyncProcessWork()
 {
+	Timer timer;
+	timer.start();
+
 	std::unique_lock<std::mutex> lock(m_executorMutex);
 
 	while(true)
@@ -78,38 +82,33 @@ void PeriodicSingleThreadExecutor::asyncProcessWork()
 			break;
 		}
 
-		
-
-		
-
-		// We now own the lock after waiting
-		if(!m_works.empty() && !m_isTerminationRequested)
+		for(const Work& work : m_works)
 		{
-			Work work = std::move(m_works.front());
-			m_works.pop();
-
-			// We are done using the work queue
-			lock.unlock();
-
 			work();
-
-			// Current thread must own the lock before calling wait(2)
-			lock.lock();
-
-			PH_ASSERT_GT(m_numUnfinishedWorks, m_works.size());
-
-			--m_numUnfinishedWorks;
-			if(m_numUnfinishedWorks == 0)
-			{
-				m_allWorksDoneCv.notify_all();
-			}
 		}
+
+		// We are done using the work storage
+		lock.unlock();
+
+		timer.stop();
+		const uint64 deltaMs = timer.getDeltaMs();
+		timer.start();
+
+		const uint64 periodMs = m_periodMs.load(std::memory_order_relaxed);
+		if(periodMs > deltaMs)
+		{
+			const std::chrono::milliseconds sleepTimeMs(periodMs - deltaMs);
+			std::this_thread::sleep_for(sleepTimeMs);
+		}
+
+		// Current thread must own the lock before calling wait(2)
+		lock.lock();
 	}
 }
 
 void PeriodicSingleThreadExecutor::pause()
 {
-	std::unique_lock<std::mutex> lock(m_executorMutex);
+	std::lock_guard<std::mutex> lock(m_executorMutex);
 
 	PH_ASSERT(!m_isTerminationRequested);
 	PH_ASSERT(!isWorkerThread());

@@ -39,16 +39,18 @@ public:
 	///@}
 
 	/*! @brief Blocks until all queued works are finished.
-	Should not be called on worker thread. New works can be queued after waiting is finished.
+	Should not be called on worker thread. New works can be queued after waiting is finished. It may not
+	be desirable to call this method while works are being queued and done simultaneously (e.g., MPMC).
+	As it is possible that sometimes the work queue is temporarily empty and cause this method to return.
 	@note Thread-safe.
 	*/
 	void waitAllWorks();
 
 	/*! @brief Stop processing queued works as soon as possible.
-	Workers will stop processing queued works as soon as possible. Works that are already being processed 
-	will still complete. No other operations should be further performed after requesting termination. 
-	Threads waiting for the completion of works, e.g., waiting on waitAllWorks(), will stop waiting.
-	Requesting termination multiple times has the same effect.
+	Workers will stop processing queued works as soon as possible. Any work that is already being
+	processed will still complete. No further operations should be performed after requesting
+	termination. Threads waiting for the completion of works, e.g., waiting on waitAllWorks(), will
+	stop waiting. Requesting termination multiple times has the same effect.
 	@note Thread-safe.
 	*/
 	void requestTermination();

@@ -240,7 +240,7 @@ void PMRenderer::renderWithProgressivePM()
 		asyncReplaceFilm(*resultFilm);
 		resultFilm->clear();
 
-		passTimer.finish();
+		passTimer.stop();
 
 		const real passTimeMs   = static_cast<real>(passTimer.getDeltaMs());
 		const real photonsPerMs = passTimeMs != 0 ? static_cast<real>(numPhotonsPerPass) / passTimeMs : 0;
@@ -371,7 +371,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		asyncReplaceFilm(*resultFilm);
 		resultFilm->clear();
 
-		passTimer.finish();
+		passTimer.stop();
 
 		const real passTimeMs   = static_cast<real>(passTimer.getDeltaMs());
 		const real photonsPerMs = passTimeMs != 0 ? static_cast<real>(numPhotonsPerPass) / passTimeMs : 0;

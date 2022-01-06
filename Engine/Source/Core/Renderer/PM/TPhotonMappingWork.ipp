@@ -149,7 +149,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 		if(photonCounter >= 16384)
 		{
-			timer.finish();
+			timer.stop();
 			setElapsedMs(timer.getDeltaMs());
 
 			if(m_statistics)
@@ -161,7 +161,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 		}
 	}// end while photon buffer is not full
 
-	timer.finish();
+	timer.stop();
 	setElapsedMs(timer.getDeltaMs());
 
 	if(m_statistics)

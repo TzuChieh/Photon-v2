@@ -16,7 +16,7 @@ void MetaRecordingProcessor::process(
 
 	m_timer.start();
 	m_processor->process(rasterCoord, ray, quantityWeight, sampleFlow);
-	m_timer.finish();
+	m_timer.stop();
 
 	// Only record if processed position is in bound
 	const auto globalRasterPos = math::TVector2<int64>(rasterCoord.floor());

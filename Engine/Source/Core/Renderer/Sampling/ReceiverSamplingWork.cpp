@@ -122,7 +122,7 @@ void ReceiverSamplingWork::doWork()
 		++batchNumber;
 		incrementWorkDone();
 
-		sampleTimer.finish();
+		sampleTimer.stop();
 		totalMs += static_cast<std::uint32_t>(sampleTimer.getDeltaMs());
 		setElapsedMs(totalMs);
 	}
