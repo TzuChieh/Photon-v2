@@ -21,7 +21,7 @@ namespace ph
 
 class Scene;
 class Receiver;
-class FixedSizeBlockingThreadPool;
+class FixedSizeThreadPool;
 
 class AdaptiveSamplingRenderer : public SamplingRenderer
 {
@@ -80,7 +80,7 @@ private:
 
 	void addUpdatedRegion(const Region& region, bool isUpdating);
 
-	std::function<void()> createWork(FixedSizeBlockingThreadPool& workers, uint32 workerId);
+	std::function<void()> createWork(FixedSizeThreadPool& workers, uint32 workerId);
 };
 
 }// end namespace ph

@@ -2,7 +2,7 @@
 
 #include "Utility/IMoveOnly.h"
 #include "Frame/TFrame.h"
-#include "Utility/Concurrent/FixedSizeBlockingThreadPool.h"
+#include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Math/Function/TConstant2D.h"
 #include "Math/math.h"
 
@@ -80,7 +80,7 @@ public:
 	}
 
 private:
-	FixedSizeBlockingThreadPool m_workers;
+	FixedSizeThreadPool m_workers;
 };
 
 }// end namespace ph

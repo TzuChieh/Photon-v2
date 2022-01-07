@@ -10,7 +10,7 @@
 #include "Core/Renderer/RendererProxy.h"
 #include "Common/assertion.h"
 #include "Core/Estimator/Integrand.h"
-#include "Utility/Concurrent/FixedSizeBlockingThreadPool.h"
+#include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
 
 #include <cmath>
@@ -89,7 +89,7 @@ void AdaptiveSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const Visu
 
 void AdaptiveSamplingRenderer::doRender()
 {
-	FixedSizeBlockingThreadPool workers(numWorkers());
+	FixedSizeThreadPool workers(numWorkers());
 
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
 	{
@@ -99,7 +99,7 @@ void AdaptiveSamplingRenderer::doRender()
 	workers.waitAllWorks();
 }
 
-std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeBlockingThreadPool& workers, uint32 workerId)
+std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& workers, uint32 workerId)
 {
 	return [this, workerId, &workers]()
 	{

@@ -1,4 +1,4 @@
-#include "Utility/Concurrent/FixedSizeBlockingThreadPool.h"
+#include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Common/assertion.h"
 
 #include <utility>
@@ -11,7 +11,7 @@ https://embeddedartistry.com/blog/2017/02/08/implementing-an-asynchronous-dispat
 namespace ph
 {
 	
-FixedSizeBlockingThreadPool::FixedSizeBlockingThreadPool(const std::size_t numWorkers) :
+FixedSizeThreadPool::FixedSizeThreadPool(const std::size_t numWorkers) :
 	m_workers               (numWorkers),
 	m_works                 (), 
 	m_poolMutex             (), 
@@ -29,7 +29,7 @@ FixedSizeBlockingThreadPool::FixedSizeBlockingThreadPool(const std::size_t numWo
 	}
 }
 
-FixedSizeBlockingThreadPool::~FixedSizeBlockingThreadPool()
+FixedSizeThreadPool::~FixedSizeThreadPool()
 {
 	requestTermination();
 
@@ -43,7 +43,7 @@ FixedSizeBlockingThreadPool::~FixedSizeBlockingThreadPool()
 	}
 }
 
-void FixedSizeBlockingThreadPool::queueWork(const Work& work)
+void FixedSizeThreadPool::queueWork(const Work& work)
 {
 	// Exclusively access the work queue since it is also used by worker threads
 	{
@@ -59,7 +59,7 @@ void FixedSizeBlockingThreadPool::queueWork(const Work& work)
 }
 
 // Essentially the same as its const reference variant, except work is moved.
-void FixedSizeBlockingThreadPool::queueWork(Work&& work)
+void FixedSizeThreadPool::queueWork(Work&& work)
 {
 	{
 		std::lock_guard<std::mutex> lock(m_poolMutex);
@@ -73,7 +73,7 @@ void FixedSizeBlockingThreadPool::queueWork(Work&& work)
 	m_workersCv.notify_one();
 }
 
-void FixedSizeBlockingThreadPool::asyncProcessWork()
+void FixedSizeThreadPool::asyncProcessWork()
 {
 	std::unique_lock<std::mutex> lock(m_poolMutex);
 
@@ -110,7 +110,7 @@ void FixedSizeBlockingThreadPool::asyncProcessWork()
 	} while(!m_isTerminationRequested);
 }
 
-void FixedSizeBlockingThreadPool::requestTermination()
+void FixedSizeThreadPool::requestTermination()
 {
 	{
 		std::lock_guard<std::mutex> lock(m_poolMutex);
@@ -122,7 +122,7 @@ void FixedSizeBlockingThreadPool::requestTermination()
 	m_allWorksDoneCv.notify_all();
 }
 
-void FixedSizeBlockingThreadPool::waitAllWorks()
+void FixedSizeThreadPool::waitAllWorks()
 {
 	std::unique_lock<std::mutex> lock(m_poolMutex);
 

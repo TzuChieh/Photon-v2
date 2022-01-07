@@ -17,17 +17,17 @@ are enqueued and dequeued concurrently by blocking other threads, in FIFO order.
 concurrently, namely, it is thread-safe. However, the user must ensure that the pool is properly
 initialized before subsequent usages.
 */
-class FixedSizeBlockingThreadPool final
+class FixedSizeThreadPool final
 {
 public:
 	using Work = std::function<void()>;
 
 public:
-	explicit FixedSizeBlockingThreadPool(std::size_t numWorkers);
+	explicit FixedSizeThreadPool(std::size_t numWorkers);
 
 	/*! @brief Terminates the pool, effectively the same as calling requestTermination(). 
 	*/
-	~FixedSizeBlockingThreadPool();
+	~FixedSizeThreadPool();
 
 	/*! @brief Queue up a work to the pool.
 	Workers start to process the work right away.
@@ -82,12 +82,12 @@ private:
 
 // In-header Implementations:
 
-inline std::size_t FixedSizeBlockingThreadPool::numWorkers() const
+inline std::size_t FixedSizeThreadPool::numWorkers() const
 {
 	return m_workers.size();
 }
 
-inline bool FixedSizeBlockingThreadPool::isWorkerThread() const
+inline bool FixedSizeThreadPool::isWorkerThread() const
 {
 	const auto thisThreadId = std::this_thread::get_id();
 	for(const auto& workerThread : m_workers)
