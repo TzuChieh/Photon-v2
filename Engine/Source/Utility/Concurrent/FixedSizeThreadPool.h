@@ -30,7 +30,7 @@ public:
 	~FixedSizeThreadPool();
 
 	/*! @brief Queue up a work to the pool.
-	Workers start to process the work right away.
+	Workers start to process the work right away. The works are guaranteed to be processed in FIFO order.
 	@note Thread-safe.
 	*/
 	///@{

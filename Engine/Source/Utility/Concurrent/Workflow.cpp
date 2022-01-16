@@ -3,12 +3,15 @@
 #include "Utility/Concurrent/Workflow.h"
 #include "Common/assertion.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
+#include "Common/logging.h"
 
 #include <stdexcept>
 #include <algorithm>
 
 namespace ph
 {
+
+PH_DEFINE_INTERNAL_LOG_GROUP(Workflow, Concurrent);
 
 Workflow::WorkHandle::WorkHandle() :
 	WorkHandle(static_cast<std::size_t>(-1), nullptr)
@@ -29,18 +32,6 @@ void Workflow::WorkHandle::runsAfter(const WorkHandle preceedingWork)
 	PH_ASSERT(m_workflow);
 	m_workflow->dependsOn(*this, preceedingWork);
 }
-
-//Workflow::ControlledWork::ControlledWork(Work work, Workflow* const workflow) :
-//	m_work(std::move(work)), m_workflow(workflow)
-//{
-//	PH_ASSERT(m_work);
-//	PH_ASSERT(m_workflow);
-//}
-//
-//void Workflow::ControlledWork::operator () ()
-//{
-//	m_work();
-//}
 
 Workflow::ManagedWork::ManagedWork(const WorkHandle handle) :
 	m_handle(handle)
@@ -108,7 +99,7 @@ void Workflow::dependsOn(const WorkHandle target, const WorkHandle targetDepende
 
 void Workflow::runAndWaitAllWorks(FixedSizeThreadPool& workers)
 {
-	m_workDoneFlags = std::make_unique<std::atomic_flag[]>(numWorks());
+	startWorkflow();
 
 	// TODO: topo sort
 	for(std::size_t workId = 0; workId < numWorks(); ++workId)
@@ -118,8 +109,7 @@ void Workflow::runAndWaitAllWorks(FixedSizeThreadPool& workers)
 
 	workers.waitAllWorks();
 
-	// We do not need the flags anymore, release memory
-	m_workDoneFlags = nullptr;
+	finishWorkflow();
 }
 
 std::size_t Workflow::numWorks() const
@@ -132,6 +122,153 @@ void Workflow::ensureValidWorkHandle(const WorkHandle work) const
 	if(!work || work.getWorkflow() != this)
 	{
 		throw std::invalid_argument("invalid work handle detected");
+	}
+}
+
+void Workflow::startWorkflow()
+{
+	// Workflow must had been finished
+	PH_ASSERT(!m_workDoneFlags);
+
+	m_workDoneFlags = std::make_unique<std::atomic_flag[]>(numWorks());
+}
+
+void Workflow::finishWorkflow()
+{
+	// Workflow must had been started
+	PH_ASSERT(m_workDoneFlags);
+
+	// We do not need the flags anymore, release memory
+	m_workDoneFlags = nullptr;
+}
+
+std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSort() const
+{
+	// Every resource has an adjacency list storing the indices to the depending resources.
+	// E.g., if resource "i" is the "j"-th resource depending on resource "k" (as "i" depends
+	// on "k"), the relation will be represented as "adjacencyLists[k][j] = i"
+
+	std::vector<int> dependentCounts(numResources, 0);
+
+	PH_LOG(Workflow, "building dispatch order from DAG for {} works", numWorks());
+
+	// Builds the DAG (fill in adjacency lists)
+	{
+		std::vector<const ISdlResource*> tmpReferencedResources;
+		std::size_t maxRefCount = 0;
+
+		for(std::size_t resIdx = 0; resIdx < m_resourceInfos.size(); ++resIdx)
+		{
+			const ResourceInfo& resInfo = m_resourceInfos[resIdx];
+			PH_ASSERT(resInfo.resource);
+
+			const SdlClass* const sdlClass = resInfo.resource->getDynamicSdlClass();
+			PH_ASSERT(sdlClass);
+
+			tmpReferencedResources.clear();
+			sdlClass->associatedResources(*resInfo.resource, tmpReferencedResources);
+
+			maxRefCount = std::max(tmpReferencedResources.size(), maxRefCount);
+
+			for(std::size_t refIdx = 0; refIdx < tmpReferencedResources.size(); ++refIdx)
+			{
+				const ISdlResource* const referencedRes = tmpReferencedResources[refIdx];
+				PH_ASSERT(referencedRes);
+
+				if(referencedRes == resInfo.resource)
+				{
+					PH_LOG_WARNING(SdlReferenceResolver,
+						"resource {} referenced itself, ignoring the reference", resInfo.name);
+					continue;
+				}
+
+				const auto optReferencedResIdx = getResourceInfoIdx(referencedRes);
+				if(!optReferencedResIdx)
+				{
+					PH_LOG_WARNING(SdlReferenceResolver,
+						"resource {} referenced a resource that is not tracked by the analyzed SceneDescription, ignoring the reference",
+						resInfo.name);
+					continue;
+				}
+
+				// Referenced resource index and current resource index must be different
+				// (no self referencing)
+				PH_ASSERT_NE(resIdx, *optReferencedResIdx);
+
+				// Record resource <resIdx> depends on resource <*optReferencedResIdx>
+				adjacencyLists[*optReferencedResIdx].push_back(resIdx);
+				dependentCounts[resIdx]++;
+			}
+		}
+
+		PH_LOG(SdlReferenceResolver, "DAG building done, max references/degree = {}", maxRefCount);
+	}// end DAG building
+
+	// Start topological sorting by finding resources without any dependency
+	std::queue<std::size_t> independentResIndices;
+	for(std::size_t resIdx = 0; resIdx < dependentCounts.size(); ++resIdx)
+	{
+		if(dependentCounts[resIdx] == 0)
+		{
+			independentResIndices.push(resIdx);
+		}
+	}
+
+	PH_LOG(SdlReferenceResolver, "{} resources are already independent", independentResIndices.size());
+
+	// Main topological sorting that produces a valid resource dispatch order
+	m_queuedResources = std::queue<const ISdlResource*>();
+	while(!independentResIndices.empty())
+	{
+		const std::size_t independentResIdx = independentResIndices.front();
+		independentResIndices.pop();
+
+		m_queuedResources.push(m_resourceInfos[independentResIdx].resource);
+
+		// Mark the resource as dispatched
+		PH_ASSERT_EQ(dependentCounts[independentResIdx], 0);
+		dependentCounts[independentResIdx] = -1;
+
+		// Update dependent counts of resources depending on the dispatched resource
+		// (remove dependency "edge")
+		const std::vector<std::size_t>& dependingResIndices = adjacencyLists[independentResIdx];
+		for(std::size_t idx = 0; idx < dependingResIndices.size(); ++idx)
+		{
+			const std::size_t dependingResIdx = dependingResIndices[idx];
+
+			PH_ASSERT_GT(dependentCounts[dependingResIdx], 0);
+			dependentCounts[dependingResIdx]--;
+
+			// If the depending resource is now independent, queue it for dispatchment
+			if(dependentCounts[dependingResIdx] == 0)
+			{
+				independentResIndices.push(dependingResIdx);
+			}
+		}
+	}
+
+	// Now a dispatch order that satisfies the dependencies between all resources
+	// is established. We check each resource's dependent count to see if there is
+	// any error.
+
+	if(m_queuedResources.size() != numResources)
+	{
+		PH_LOG_WARNING(SdlReferenceResolver, "queued {} resources while there are {} in total", 
+			m_queuedResources.size(), numResources);
+	}
+
+	for(std::size_t resIdx = 0; resIdx < dependentCounts.size(); ++resIdx)
+	{
+		const auto dependentCount = dependentCounts[resIdx];
+		PH_ASSERT_NE(dependentCount, 0);
+
+		if(dependentCount != -1)
+		{
+			const ResourceInfo& resInfo = m_resourceInfos[resIdx];
+			PH_LOG_WARNING(SdlReferenceResolver, 
+				"possible cyclic references detected: resource {} has {} references that cannot be resolved",
+				resInfo.name, dependentCount);
+		}
 	}
 }
 

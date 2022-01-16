@@ -76,6 +76,9 @@ private:
 	};
 
 	void ensureValidWorkHandle(WorkHandle work) const;
+	void startWorkflow();
+	void finishWorkflow();
+	std::unique_ptr<std::size_t[]> determineDispatchOrderFromTopologicalSort() const;
 
 	std::vector<Work>                     m_works;
 	std::vector<std::vector<std::size_t>> m_idToDependencyIds;
