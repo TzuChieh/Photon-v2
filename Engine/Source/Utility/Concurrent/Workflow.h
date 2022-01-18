@@ -9,6 +9,8 @@
 #include <utility>
 #include <memory>
 #include <atomic>
+#include <tuple>
+#include <utility>
 
 namespace ph { class FixedSizeThreadPool; }
 
@@ -55,8 +57,8 @@ public:
 
 	WorkHandle addWork(Work work);
 
-	template<std::size_t N>
-	std::array<WorkHandle, N> addWorks(std::array<Work, N> works);
+	template<typename... WorkTypes>
+	auto addWorks(WorkTypes&&... works);
 
 	void dependsOn(WorkHandle target, WorkHandle targetDependency);
 	void runAndWaitAllWorks(FixedSizeThreadPool& workers);
@@ -93,15 +95,10 @@ private:
 
 // In-header Implementations:
 
-template<std::size_t N>
-inline std::array<Workflow::WorkHandle, N> Workflow::addWorks(std::array<Work, N> works)
+template<typename... WorkTypes>
+inline auto Workflow::addWorks(WorkTypes&&... works)
 {
-	std::array<WorkHandle, N> workHandles;
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		workHandles[i] = addWork(std::move(works[i]));
-	}
-	return workHandles;
+	return std::make_tuple(addWork(std::forward<WorkTypes>(works))...);
 }
 
 template<std::size_t N>
