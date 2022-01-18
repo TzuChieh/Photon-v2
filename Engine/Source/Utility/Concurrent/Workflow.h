@@ -80,9 +80,15 @@ private:
 	void finishWorkflow();
 	std::unique_ptr<std::size_t[]> determineDispatchOrderFromTopologicalSort() const;
 
-	std::vector<Work>                     m_works;
+	std::vector<Work> m_works;
+
+	/* An adjacency list recording the depending works of each work. The dependencies are recorded by
+	corresponding work ID. E.g., if work "k" is the "j"-th dependency of work "i", the relation will be
+	represented as "m_idToDependencyIds[i][j] = k".
+	*/
 	std::vector<std::vector<std::size_t>> m_idToDependencyIds;
-	std::unique_ptr<std::atomic_flag[]>   m_workDoneFlags;
+
+	std::unique_ptr<std::atomic_flag[]> m_workDoneFlags;
 };
 
 // In-header Implementations:

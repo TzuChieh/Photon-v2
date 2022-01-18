@@ -4,9 +4,11 @@
 #include "Common/assertion.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Common/logging.h"
+#include "Common/primitive_type.h"
 
 #include <stdexcept>
 #include <algorithm>
+#include <format>
 
 namespace ph
 {
@@ -101,10 +103,15 @@ void Workflow::runAndWaitAllWorks(FixedSizeThreadPool& workers)
 {
 	startWorkflow();
 
-	// TODO: topo sort
-	for(std::size_t workId = 0; workId < numWorks(); ++workId)
 	{
-		workers.queueWork(ManagedWork(WorkHandle(workId, this)));
+		const auto workDispatchOrder = determineDispatchOrderFromTopologicalSort();
+		PH_ASSERT(workDispatchOrder);
+
+		for(std::size_t order = 0; order < numWorks(); ++order)
+		{
+			const auto workId = workDispatchOrder[order];
+			workers.queueWork(ManagedWork(WorkHandle(workId, this)));
+		}
 	}
 
 	workers.waitAllWorks();
@@ -144,132 +151,116 @@ void Workflow::finishWorkflow()
 
 std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSort() const
 {
-	// Every resource has an adjacency list storing the indices to the depending resources.
-	// E.g., if resource "i" is the "j"-th resource depending on resource "k" (as "i" depends
-	// on "k"), the relation will be represented as "adjacencyLists[k][j] = i"
-
-	std::vector<int> dependentCounts(numResources, 0);
+	PH_ASSERT_EQ(m_idToDependencyIds.size(), numWorks());
 
 	PH_LOG(Workflow, "building dispatch order from DAG for {} works", numWorks());
 
-	// Builds the DAG (fill in adjacency lists)
+	// Builds a DAG by reversing the dependency lists
+	auto workDAG          = std::make_unique<std::vector<std::size_t>[]>(numWorks());
+	auto dependencyCounts = std::make_unique<int64[]>(numWorks());
 	{
-		std::vector<const ISdlResource*> tmpReferencedResources;
-		std::size_t maxRefCount = 0;
-
-		for(std::size_t resIdx = 0; resIdx < m_resourceInfos.size(); ++resIdx)
+		std::size_t maxDependencies = 0;
+		for(std::size_t workId = 0; workId < numWorks(); ++workId)
 		{
-			const ResourceInfo& resInfo = m_resourceInfos[resIdx];
-			PH_ASSERT(resInfo.resource);
+			const std::vector<std::size_t>& dependencies = m_idToDependencyIds[workId];
 
-			const SdlClass* const sdlClass = resInfo.resource->getDynamicSdlClass();
-			PH_ASSERT(sdlClass);
+			maxDependencies          = std::max(dependencies.size(), maxDependencies);
+			dependencyCounts[workId] = dependencies.size();
 
-			tmpReferencedResources.clear();
-			sdlClass->associatedResources(*resInfo.resource, tmpReferencedResources);
-
-			maxRefCount = std::max(tmpReferencedResources.size(), maxRefCount);
-
-			for(std::size_t refIdx = 0; refIdx < tmpReferencedResources.size(); ++refIdx)
+			for(const std::size_t dependencyId : dependencies)
 			{
-				const ISdlResource* const referencedRes = tmpReferencedResources[refIdx];
-				PH_ASSERT(referencedRes);
-
-				if(referencedRes == resInfo.resource)
+				if(dependencyId == workId)
 				{
-					PH_LOG_WARNING(SdlReferenceResolver,
-						"resource {} referenced itself, ignoring the reference", resInfo.name);
+					PH_LOG_WARNING(Workflow,
+						"work-{} depends on itself, ignoring the dependency", workId);
 					continue;
 				}
 
-				const auto optReferencedResIdx = getResourceInfoIdx(referencedRes);
-				if(!optReferencedResIdx)
+				if(dependencyId >= numWorks())
 				{
-					PH_LOG_WARNING(SdlReferenceResolver,
-						"resource {} referenced a resource that is not tracked by the analyzed SceneDescription, ignoring the reference",
-						resInfo.name);
+					PH_LOG_WARNING(Workflow,
+						"work-{} referenced work-{} which is not tracked by the current Workflow, ignoring the dependency",
+						workId, dependencyId);
 					continue;
 				}
 
-				// Referenced resource index and current resource index must be different
-				// (no self referencing)
-				PH_ASSERT_NE(resIdx, *optReferencedResIdx);
+				// Must have no self dependency
+				PH_ASSERT_NE(workId, dependencyId);
 
-				// Record resource <resIdx> depends on resource <*optReferencedResIdx>
-				adjacencyLists[*optReferencedResIdx].push_back(resIdx);
-				dependentCounts[resIdx]++;
+				// Record that <workId> depends on <dependencyId> in DAG
+				workDAG[dependencyId].push_back(workId);
 			}
 		}
 
-		PH_LOG(SdlReferenceResolver, "DAG building done, max references/degree = {}", maxRefCount);
+		PH_LOG(Workflow, "DAG building done, max dependencies/degree = {}", maxDependencies);
 	}// end DAG building
 
-	// Start topological sorting by finding resources without any dependency
-	std::queue<std::size_t> independentResIndices;
-	for(std::size_t resIdx = 0; resIdx < dependentCounts.size(); ++resIdx)
+	// Start topological sorting by finding works without any dependency
+	std::queue<std::size_t> independentWorkIds;
+	for(std::size_t workId = 0; workId < numWorks(); ++workId)
 	{
-		if(dependentCounts[resIdx] == 0)
+		if(dependencyCounts[workId] == 0)
 		{
-			independentResIndices.push(resIdx);
+			independentWorkIds.push(workId);
 		}
 	}
 
-	PH_LOG(SdlReferenceResolver, "{} resources are already independent", independentResIndices.size());
+	PH_LOG(Workflow, "{} works are already independent", independentWorkIds.size());
 
-	// Main topological sorting that produces a valid resource dispatch order
-	m_queuedResources = std::queue<const ISdlResource*>();
-	while(!independentResIndices.empty())
+	// Main topological sorting that produces a valid work dispatch order
+	auto        workDispatchOrder  = std::make_unique<std::size_t[]>(numWorks());
+	std::size_t numDispatchedWorks = 0;
+	while(!independentWorkIds.empty())
 	{
-		const std::size_t independentResIdx = independentResIndices.front();
-		independentResIndices.pop();
+		const auto independentWorkId = independentWorkIds.front();
+		independentWorkIds.pop();
 
-		m_queuedResources.push(m_resourceInfos[independentResIdx].resource);
+		workDispatchOrder[numDispatchedWorks++] = independentWorkId;
 
-		// Mark the resource as dispatched
-		PH_ASSERT_EQ(dependentCounts[independentResIdx], 0);
-		dependentCounts[independentResIdx] = -1;
+		// Mark the work as dispatched
+		PH_ASSERT_EQ(dependencyCounts[independentWorkId], 0);
+		dependencyCounts[independentWorkId] = -1;
 
-		// Update dependent counts of resources depending on the dispatched resource
+		// Update the dependency count for works depending on the dispatched work
 		// (remove dependency "edge")
-		const std::vector<std::size_t>& dependingResIndices = adjacencyLists[independentResIdx];
-		for(std::size_t idx = 0; idx < dependingResIndices.size(); ++idx)
+		const std::vector<std::size_t>& dependingWorkIds = workDAG[independentWorkId];
+		for(const std::size_t dependingWorkId : dependingWorkIds)
 		{
-			const std::size_t dependingResIdx = dependingResIndices[idx];
+			PH_ASSERT_GT(dependencyCounts[dependingWorkId], 0);
+			dependencyCounts[dependingWorkId]--;
 
-			PH_ASSERT_GT(dependentCounts[dependingResIdx], 0);
-			dependentCounts[dependingResIdx]--;
-
-			// If the depending resource is now independent, queue it for dispatchment
-			if(dependentCounts[dependingResIdx] == 0)
+			// If the depending work is now independent, queue it for next dispatchment
+			if(dependencyCounts[dependingWorkId] == 0)
 			{
-				independentResIndices.push(dependingResIdx);
+				independentWorkIds.push(dependingWorkId);
 			}
 		}
 	}
 
-	// Now a dispatch order that satisfies the dependencies between all resources
-	// is established. We check each resource's dependent count to see if there is
-	// any error.
+	// Now a dispatch order that satisfies the dependencies between all works is established.
+	// We check each work's dependency count to see if there is any error.
 
-	if(m_queuedResources.size() != numResources)
+	for(std::size_t workId = 0; workId < numWorks(); ++workId)
 	{
-		PH_LOG_WARNING(SdlReferenceResolver, "queued {} resources while there are {} in total", 
-			m_queuedResources.size(), numResources);
-	}
+		const auto dependencyCount = dependencyCounts[workId];
+		PH_ASSERT_NE(dependencyCount, 0);
 
-	for(std::size_t resIdx = 0; resIdx < dependentCounts.size(); ++resIdx)
-	{
-		const auto dependentCount = dependentCounts[resIdx];
-		PH_ASSERT_NE(dependentCount, 0);
-
-		if(dependentCount != -1)
+		if(dependencyCount != -1)
 		{
-			const ResourceInfo& resInfo = m_resourceInfos[resIdx];
-			PH_LOG_WARNING(SdlReferenceResolver, 
-				"possible cyclic references detected: resource {} has {} references that cannot be resolved",
-				resInfo.name, dependentCount);
+			PH_LOG_WARNING(Workflow, 
+				"possible cyclic dependency detected: work-{} has {} dependencies that cannot be resolved",
+				workId, dependencyCount);
 		}
 	}
+
+	if(numDispatchedWorks != numWorks())
+	{
+		throw std::runtime_error(std::format(
+			"dispatched {} works while there are {} in total",
+			numDispatchedWorks, numWorks()));
+	}
+
+	return workDispatchOrder;
 }
 
 }// end namespace ph
