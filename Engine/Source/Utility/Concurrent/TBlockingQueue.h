@@ -49,7 +49,7 @@ public:
 
 	/*! @brief Approximated size of the queue.
 	@return Number of items in the queue. The esimation is only accurate if all memory writes to the queue
-	is guaranteed to be visible. Note that 0 may be returned even if the queue is, in face, not empty.
+	is guaranteed to be visible. Note that 0 may be returned even if the queue is, in fact, not empty.
 	@note Thread-safe.
 	*/
 	std::size_t estimatedSize() const;

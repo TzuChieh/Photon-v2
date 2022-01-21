@@ -29,6 +29,8 @@ public:
 		friend class Workflow;
 
 	public:
+		WorkHandle();
+
 		void runsBefore(WorkHandle succeedingWork);
 		void runsAfter(WorkHandle preceedingWork);
 
@@ -44,7 +46,6 @@ public:
 		operator bool () const;
 
 	private:
-		WorkHandle();
 		WorkHandle(std::size_t workId, Workflow* workflow);
 
 		std::size_t m_workId;
@@ -56,6 +57,7 @@ public:
 	explicit Workflow(std::size_t numExpectedWorks);
 
 	WorkHandle addWork(Work work);
+	WorkHandle acquireWork(std::size_t workIndex);
 
 	template<typename... WorkTypes>
 	auto addWorks(WorkTypes&&... works);
@@ -98,7 +100,7 @@ private:
 template<typename... WorkTypes>
 inline auto Workflow::addWorks(WorkTypes&&... works)
 {
-	return std::make_tuple(addWork(std::forward<WorkTypes>(works))...);
+	return std::array{addWork(std::forward<WorkTypes>(works))...};
 }
 
 template<std::size_t N>

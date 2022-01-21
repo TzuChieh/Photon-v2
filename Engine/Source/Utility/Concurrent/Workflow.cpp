@@ -90,6 +90,18 @@ Workflow::WorkHandle Workflow::addWork(Work work)
 	return WorkHandle(m_works.size() - 1, this);
 }
 
+Workflow::WorkHandle Workflow::acquireWork(const std::size_t workIndex)
+{
+	if(workIndex >= numWorks())
+	{
+		throw std::out_of_range(std::format(
+			"work index {} out of range [0, {})",
+			workIndex, numWorks()));
+	}
+
+	return WorkHandle(workIndex, this);
+}
+
 void Workflow::dependsOn(const WorkHandle target, const WorkHandle targetDependency)
 {
 	ensureValidWorkHandle(target);
