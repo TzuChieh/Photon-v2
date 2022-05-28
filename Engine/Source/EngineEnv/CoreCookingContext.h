@@ -18,24 +18,24 @@ public:
 	const math::TVector2<uint32>& getFrameSizePx() const;
 	float64 getAspectRatio() const;
 	uint32 numWorkers() const;
-	EAccelerator getTopLevelAccelerator() const;
+	EAccelerator getTopLevelAcceleratorType() const;
 
 	void setFrameSizePx(const math::TVector2<uint32>& frameSizePx);
 	void setNumWorkers(uint32 numWorkers);
-	void setTopLevelAccelerator(EAccelerator accelerator);
+	void setTopLevelAcceleratorType(EAccelerator accelerator);
 
 private:
 	math::TVector2<uint32> m_frameSizePx;
 	uint32                 m_numWorkers;
-	EAccelerator           m_topLevelAccelerator;
+	EAccelerator           m_topLevelAcceleratorType;
 };
 
 // In-header Implementations:
 
 inline CoreCookingContext::CoreCookingContext() : 
-	m_frameSizePx        (0, 0),
-	m_numWorkers         (1),
-	m_topLevelAccelerator(EAccelerator::UNSPECIFIED)
+	m_frameSizePx            (0, 0),
+	m_numWorkers             (1),
+	m_topLevelAcceleratorType(EAccelerator::UNSPECIFIED)
 {}
 
 inline const math::TVector2<uint32>& CoreCookingContext::getFrameSizePx() const
@@ -65,14 +65,14 @@ inline void CoreCookingContext::setNumWorkers(const uint32 numWorkers)
 	m_numWorkers = numWorkers;
 }
 
-inline EAccelerator CoreCookingContext::getTopLevelAccelerator() const
+inline EAccelerator CoreCookingContext::getTopLevelAcceleratorType() const
 {
-	return m_topLevelAccelerator;
+	return m_topLevelAcceleratorType;
 }
 
-inline void CoreCookingContext::setTopLevelAccelerator(const EAccelerator accelerator)
+inline void CoreCookingContext::setTopLevelAcceleratorType(const EAccelerator accelerator)
 {
-	m_topLevelAccelerator = accelerator;
+	m_topLevelAcceleratorType = accelerator;
 }
 
 }// end namespace ph

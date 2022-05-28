@@ -25,7 +25,7 @@ void SingleFrameRenderSession::applyToContext(CoreCookingContext& ctx) const
 			"invalid frame size provided: {}", m_frameSizePx.toString());
 	}
 
-	ctx.setTopLevelAccelerator(m_topLevelAccelerator);
+	ctx.setTopLevelAcceleratorType(m_topLevelAcceleratorType);
 }
 
 std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherResources(const SceneDescription& scene) const

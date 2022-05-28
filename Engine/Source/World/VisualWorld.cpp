@@ -142,7 +142,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	{
 		PH_SCOPED_TIMER(UpdateAccelerators);
 
-		createTopLevelAccelerator(coreCtx.getTopLevelAccelerator());
+		createTopLevelAccelerator(coreCtx.getTopLevelAcceleratorType());
 		m_intersector->update(m_cookedActorStorage);
 	}
 

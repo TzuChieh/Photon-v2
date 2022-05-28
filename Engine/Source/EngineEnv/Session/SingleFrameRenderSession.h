@@ -19,19 +19,19 @@ public:
 	void applyToContext(CoreCookingContext& ctx) const override;
 	std::vector<std::shared_ptr<CoreSdlResource>> gatherResources(const SceneDescription& scene) const override;
 
-	void setTopLevelAccelerator(EAccelerator accelerator);
+	void setTopLevelAcceleratorType(EAccelerator accelerator);
 
 	const std::string& getVisualizerName() const;
 	const std::string& getObserverName() const;
 	const std::string& getSampleSourceName() const;
-	EAccelerator getTopLevelAccelerator() const;
+	EAccelerator getTopLevelAcceleratorType() const;
 
 private:
 	math::TVector2<uint32> m_frameSizePx;
 	std::string            m_visualizerName;
 	std::string            m_observerName;
 	std::string            m_sampleSourceName;
-	EAccelerator           m_topLevelAccelerator;
+	EAccelerator           m_topLevelAcceleratorType;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SingleFrameRenderSession>)
@@ -61,11 +61,11 @@ public:
 		sampleSourceName.optional();
 		clazz.addField(sampleSourceName);
 
-		TSdlEnumField<OwnerType, EAccelerator> topLevelAccelerator("top-level-accelerator", &OwnerType::m_topLevelAccelerator);
-		topLevelAccelerator.description("Acceleration structure used on the top level geometries.");
-		topLevelAccelerator.defaultTo(EAccelerator::BVH);
-		topLevelAccelerator.optional();
-		clazz.addField(topLevelAccelerator);
+		TSdlEnumField<OwnerType, EAccelerator> topLevelAcceleratorType("top-level-accelerator", &OwnerType::m_topLevelAcceleratorType);
+		topLevelAcceleratorType.description("Acceleration structure used on the top level geometries.");
+		topLevelAcceleratorType.defaultTo(EAccelerator::BVH);
+		topLevelAcceleratorType.optional();
+		clazz.addField(topLevelAcceleratorType);
 
 		return clazz;
 	}
@@ -88,14 +88,14 @@ inline const std::string& SingleFrameRenderSession::getSampleSourceName() const
 	return m_sampleSourceName;
 }
 
-inline void SingleFrameRenderSession::setTopLevelAccelerator(const EAccelerator accelerator)
+inline void SingleFrameRenderSession::setTopLevelAcceleratorType(const EAccelerator accelerator)
 {
-	m_topLevelAccelerator = accelerator;
+	m_topLevelAcceleratorType = accelerator;
 }
 
-inline EAccelerator SingleFrameRenderSession::getTopLevelAccelerator() const
+inline EAccelerator SingleFrameRenderSession::getTopLevelAcceleratorType() const
 {
-	return m_topLevelAccelerator;
+	return m_topLevelAcceleratorType;
 }
 
 }// end namespace ph
