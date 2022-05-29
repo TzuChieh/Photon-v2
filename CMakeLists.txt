@@ -60,11 +60,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${BUILD_OUTPUT_DIR}/Debug/")
 #get_filename_component(PROJECT_DIR "./" ABSOLUTE)
 #set(PROJECT_DIR "${PROJECT_DIR}/")
 
-# FIXME: cmake doesn't respect CMAKE_PREFIX_PATH for now, seems like a cmake bug
-# see https://gitlab.kitware.com/cmake/cmake/issues/18150
-# Allow pkg-config take hints from CMAKE_PREFIX_PATH
-set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
-
 # Windows does not come with pkg-config pre-installed, manually locate a prebuilt one (affects the
 # behavior for later find_package(PkgConfig) calls)
 if(WIN32)

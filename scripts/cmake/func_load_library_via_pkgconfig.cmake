@@ -63,7 +63,15 @@ function(load_library_via_pkgconfig libName)
     #
     # Force the use of --define-prefix as we are nearly always using relocated libraries.
     # TODO: option to disable this behavior
-    set(PKG_CONFIG_EXECUTABLE "${PKG_CONFIG_EXECUTABLE} --define-prefix")
+    # set(PKG_CONFIG_EXECUTABLE "${PKG_CONFIG_EXECUTABLE}" CACHE STRING "")
+    if(NOT PKG_CONFIG_ARGN)
+        set(PKG_CONFIG_ARGN "--define-prefix" CACHE STRING "" FORCE)
+    endif()
+
+    # FIXME: cmake doesn't respect CMAKE_PREFIX_PATH for now, seems like a cmake bug
+    # see https://gitlab.kitware.com/cmake/cmake/issues/18150
+    # Allow pkg-config take hints from CMAKE_PREFIX_PATH
+    set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
 
     # Hint pkg-config to find package config files from additional directories
     set(CMAKE_PREFIX_PATH    "${ARG_PKG_CONFIG_DIR}")
