@@ -65,7 +65,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${BUILD_OUTPUT_DIR}/Debug/")
 # Allow pkg-config take hints from CMAKE_PREFIX_PATH
 set(PKG_CONFIG_USE_CMAKE_PREFIX_PATH ON)
 
-# Windows does not come with pkg-config pre-installed, manually locate a prebuilt one
+# Windows does not come with pkg-config pre-installed, manually locate a prebuilt one (affects the
+# behavior for later find_package(PkgConfig) calls)
 if(WIN32)
     find_program(PKG_CONFIG_EXECUTABLE
         NAMES "pkg-config"
@@ -79,20 +80,6 @@ if(WIN32)
         message(WARNING 
             "pkg-config not found.")
     endif()
-else()
-# pkg-config on other platforms do not enable "--define-prefix" option
-# by default, meaning that prefix variable in .pc files will not be overridden.
-# If a library using pkg-config file was relocated (as is the case of using 
-# prebuilt libraries), the paths in the config file are no longer valid and
-# can cause problems unless we reset it to a proper prefix. However, CMake
-# does not provide standard means to do this, which leads to the following
-# workaround.
-# Ref [1]: https://gitlab.kitware.com/cmake/cmake/-/issues/19254
-# Ref [2]: https://stackoverflow.com/questions/52440511/
-# Ref [3]: https://www.bassi.io/articles/2018/03/15/pkg-config-and-paths/
-
-    set(PKG_CONFIG_EXECUTABLE "pkg-config --define-prefix")
-
 endif()
 
 ###############################################################################

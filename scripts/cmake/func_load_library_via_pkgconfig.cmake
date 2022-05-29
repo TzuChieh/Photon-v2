@@ -49,6 +49,22 @@ function(load_library_via_pkgconfig libName)
 
     # Now we are sure we have the pkg-config executable located
 
+    # pkg-config on platforms other than Windows do not enable "--define-prefix" option by default,
+    # meaning that prefix variable in .pc files will not be overridden (strangely, on some Windows
+    # machines --define-prefix do not enable by default while it should). If a library using
+    # pkg-config file was relocated (as is the case of using prebuilt libraries), the paths in the
+    # config file are no longer valid and can cause problems unless we reset it to a proper prefix.
+    # However, CMake does not provide standard means to do this, which leads to the following
+    # workaround.
+    #
+    # Ref [1]: https://gitlab.kitware.com/cmake/cmake/-/issues/19254
+    # Ref [2]: https://stackoverflow.com/questions/52440511/
+    # Ref [3]: https://www.bassi.io/articles/2018/03/15/pkg-config-and-paths/
+    #
+    # Force the use of --define-prefix as we are nearly always using relocated libraries.
+    # TODO: option to disable this behavior
+    set(PKG_CONFIG_EXECUTABLE "${PKG_CONFIG_EXECUTABLE} --define-prefix")
+
     # Hint pkg-config to find package config files from additional directories
     set(CMAKE_PREFIX_PATH    "${ARG_PKG_CONFIG_DIR}")
     set(ENV{PKG_CONFIG_PATH} "${ARG_PKG_CONFIG_DIR}")
@@ -59,7 +75,7 @@ function(load_library_via_pkgconfig libName)
         # Look for .pc file and creates an imported target 
         # named PkgConfig::${TARGET_NAME}_PKG (IMPORTED_TARGET requires CMake >= 3.6.3)
         pkg_search_module(${TARGET_NAME}_PKG QUIET IMPORTED_TARGET ${TARGET_NAME})
-
+        
         if(${TARGET_NAME}_PKG_FOUND)
             message(VERBOSE 
                 "load_library_via_pkgconfig(): Found package ${TARGET_NAME} for ${libName}")
@@ -90,7 +106,7 @@ function(load_library_via_pkgconfig libName)
     # Expose general information about how the library is loaded
     if(ALL_TARGETS_FOUND)
         set(${libName}_LOADED      TRUE                   PARENT_SCOPE)
-        set(${libName}_LOAD_MODE  "PKG"                   PARENT_SCOPE)
+        set(${libName}_LOAD_MODE   "PKG"                  PARENT_SCOPE)
         set(${libName}_RUNTIME_DIR ${ARG_PKG_RUNTIME_DIR} PARENT_SCOPE)
 
         message(STATUS
