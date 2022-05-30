@@ -70,10 +70,10 @@ if(WIN32)
 
     if(PKG_CONFIG_EXECUTABLE)
         message(STATUS 
-            "Found pkg-config.")
+            "Found bundled pkg-config.")
     else()
         message(WARNING 
-            "pkg-config not found.")
+            "Bundled pkg-config not found.")
     endif()
 endif()
 
@@ -183,26 +183,32 @@ include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_manually.cmake")
 # googletest
 #------------------------------------------------------------------------------
 if(BUILD_ENGINE_TEST)
-    set(GOOGLETEST_LIB_NAME "googletest")
-
-    # Bringing in the target "gtest" is unnecessary as "gmock" depends on
-    # "gtest" which should be handled by their build system. However, adding
-    # "gtest" will result in runtime error due to not calling
-    # testing::InitGoogleTest(), which I think is a bug in googletest. See
-    # "Photon-v2/EngineTest/Source/main.cpp"
-    # for more info.
+    # Bringing in the target "gtest" is unnecessary as "gmock" depends on "gtest" which should be
+    # handled by their build system. However, adding "gtest" will result in runtime error due to
+    # not calling `testing::InitGoogleTest()`, which I think is a bug in googletest.
+    # See "Photon-v2/EngineTest/Source/main.cpp" for more info.
     
-    load_library_via_pkgconfig(${GOOGLETEST_LIB_NAME} OPTIONAL
-        TARGETS     "gmock"
-        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/pkgconfig/"
-        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/bin/")
+    set(GOOGLETEST_LIB_NAME "GTest")
+    load_library_via_config(${GOOGLETEST_LIB_NAME} OPTIONAL
+        TARGETS      "gmock"
+        CONFIG_DIR   "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/lib/cmake/GTest/"
+        RUNTIME_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/bin/")
 
-    # Fallback to manual loading
-    load_library_manually(${GOOGLETEST_LIB_NAME}
-        LIB_NAMES   "gmock"
-        LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/lib/"
-        INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/include/"
-        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GOOGLETEST_LIB_NAME}/bin/")
+    if(NOT ${GOOGLETEST_LIB_NAME}_LOADED)
+        set(GOOGLETEST_LIB_NAME "googletest")
+
+        load_library_via_pkgconfig(${GOOGLETEST_LIB_NAME} OPTIONAL
+            TARGETS     "gmock"
+            CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/lib/pkgconfig/"
+            RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/bin/")
+
+        # Fallback to manual loading
+        load_library_manually(${GOOGLETEST_LIB_NAME}
+            LIB_NAMES   "gmock"
+            LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/lib/"
+            INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/include/"
+            RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/bin/")
+    endif()
 endif()
 
 #------------------------------------------------------------------------------

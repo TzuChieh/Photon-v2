@@ -50,12 +50,11 @@ function(load_library_via_pkgconfig libName)
     # Now we are sure we have the pkg-config executable located
 
     # pkg-config on platforms other than Windows do not enable "--define-prefix" option by default,
-    # meaning that prefix variable in .pc files will not be overridden (strangely, on some Windows
-    # machines --define-prefix do not enable by default while it should). If a library using
-    # pkg-config file was relocated (as is the case of using prebuilt libraries), the paths in the
-    # config file are no longer valid and can cause problems unless we reset it to a proper prefix.
-    # However, CMake does not provide standard means to do this, which leads to the following
-    # workaround.
+    # meaning that the variable named `prefix` in .pc files will not be overridden (strangely, on
+    # some Windows machines --define-prefix do not enable by default while it should). If a library
+    # using pkg-config file was relocated (as is the case of using prebuilt libraries), the paths
+    # in the config file are no longer valid and can cause problems unless we reset it to a
+    # proper prefix.
     #
     # Ref [1]: https://gitlab.kitware.com/cmake/cmake/-/issues/19254
     # Ref [2]: https://stackoverflow.com/questions/52440511/
@@ -63,9 +62,16 @@ function(load_library_via_pkgconfig libName)
     #
     # Force the use of --define-prefix as we are nearly always using relocated libraries.
     # TODO: option to disable this behavior
-    # set(PKG_CONFIG_EXECUTABLE "${PKG_CONFIG_EXECUTABLE}" CACHE STRING "")
-    if(NOT PKG_CONFIG_ARGN)
-        set(PKG_CONFIG_ARGN "--define-prefix" CACHE STRING "" FORCE)
+    if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.22.0")
+        # In some situations this var may be pre-defined. See doc for more information.
+        if(NOT PKG_CONFIG_ARGN)
+            set(PKG_CONFIG_ARGN "--define-prefix" CACHE STRING "" FORCE)
+        endif()
+    else()
+        # CMake does not provide standard means to do this in version < 3.22, which leads to the
+        # following workaround.
+        # FIXME: this seems buggy
+        set(PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE} "--define-prefix")
     endif()
 
     # FIXME: cmake doesn't respect CMAKE_PREFIX_PATH for now, seems like a cmake bug

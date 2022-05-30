@@ -43,7 +43,8 @@ def download_thirdparty_library(dst_directory):
 
     # Delete old library folder first if it exists
     if os.path.isdir(final_folder_path):
-        shutil.rmtree(final_folder_path)
+        # Setting `ignore_errors` so non-empty folders can be deleted without errors being thrown
+        shutil.rmtree(final_folder_path, ignore_errors=True)
         print("Old library folder deleted")
 
     os.rename(extracted_folder_path, final_folder_path)

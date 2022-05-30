@@ -1,13 +1,14 @@
 #--------------------------------------------------------------------------
 # Try to find library targets by project config files
 #
-# The `CONFIG_NAMES` option can be supplied to override the name used for
-# config file searching (each supplied name will be tried for searching 
-# config file; default behavior is to use `libName` only).
+# The `CONFIG_NAMES` option can be supplied to override the name used for config file searching
+# (each supplied name will be tried for searching config file; default behavior is to use
+# `libName` only).
 #
-# A CMake convention is to use double colon to prefix target name with
-# package name, e.g., myPkg::myTarget. The `NO_PREFIX_ON_TARGETS` option
-# can disable the behavior that uses `libName` as target name prefix.
+# A CMake convention is to use double colon to prefix target name with package name,
+# e.g., myPkg::myTarget. However, not all libraries define their target names this way.
+# The `NO_PREFIX_ON_TARGETS` option can disable the behavior that uses `libName` as target
+# name prefix.
 #
 #--------------------------------------------------------------------------
 function(load_library_via_config libName)
