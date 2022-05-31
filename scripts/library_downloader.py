@@ -4,7 +4,7 @@ from utility import console
 import sys
 import os
 import shutil
-
+import time
 
 # Download third-party libraries for the engine
 def download_thirdparty_library(dst_directory):
@@ -45,6 +45,13 @@ def download_thirdparty_library(dst_directory):
     if os.path.isdir(final_folder_path):
         # Setting `ignore_errors` so non-empty folders can be deleted without errors being thrown
         shutil.rmtree(final_folder_path, ignore_errors=True)
+
+        # Exceptiions might be thrown by `shutil.rmtree()` if the folder-to-delete is currently opened by
+        # the file explorer. Wait a short time to give it a chance to close itself.
+        # [1] https://bugs.python.org/issue33240.
+        # [2] https://stackoverflow.com/questions/33656696/python-throws-error-when-deleting-a-directory-that-is-open-with-windows-explorer
+        time.sleep(1.0)
+
         print("Old library folder deleted")
 
     os.rename(extracted_folder_path, final_folder_path)
