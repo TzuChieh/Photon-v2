@@ -17,7 +17,7 @@ public:
 	void addMethod(PythonMethod method);
 	void addDefaultInit();
 	void setInheritedClass(std::string inheritedClassName);
-	bool hasMethod(std::string_view methodName);
+	bool hasMethod(std::string_view methodName) const;
 
 	std::string genCode() const;
 

@@ -36,7 +36,7 @@ void PythonClass::setInheritedClass(std::string inheritedClassName)
 	m_inheritedClassName = std::move(inheritedClassName);
 }
 
-bool PythonClass::hasMethod(const std::string_view methodName)
+bool PythonClass::hasMethod(const std::string_view methodName) const
 {
 	for(const PythonMethod& method : m_methods)
 	{

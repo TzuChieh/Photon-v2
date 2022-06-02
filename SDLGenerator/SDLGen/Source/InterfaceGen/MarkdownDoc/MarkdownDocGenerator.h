@@ -36,8 +36,8 @@ public:
 	void writeChar(char ch);
 	void writeNewLine();
 	void clearDoc();
-	const std::string& getDoc() const;
 
+	const std::string& getDoc() const;
 	const std::string& getFilename() const;
 
 private:
