@@ -17,7 +17,10 @@ public:
 	TSparseIntMap();
 	explicit TSparseIntMap(std::size_t initialCapacity);
 
-	std::optional<std::size_t> map(KeyType key, ValueType value);
+	std::size_t map(KeyType key, ValueType value);
+
+	// TODO how to return the value if not mapped?
+	std::optional<std::size_t> mapUnique(KeyType key, ValueType value);
 
 	std::optional<ValueType> unmap(KeyType key);
 
