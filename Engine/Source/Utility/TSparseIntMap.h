@@ -20,13 +20,13 @@ public:
 	/*! @brief Map an integer key to a value.
 	Complexity is $ O \left( N \right) $, where N is the size of the map. Duplicated keys are allowed
 	(i.e., one key can map to multiple values).
-	@return Index to the newly-added value.
+	@return Current index to the newly-added value.
 	*/
 	std::size_t map(KeyType key, ValueType value);
 
 	/*! @brief Map an integer key just to a single value.
 	Similar to map(KeyType, ValueType), except that duplicated keys are disallowed.
-	@return Index to the newly-added value. Empty if the key is mapped already.
+	@return Current index to the newly-added value. Empty if the key is mapped already.
 	*/
 	std::optional<std::size_t> mapUnique(KeyType key, ValueType value);
 
