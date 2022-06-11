@@ -25,7 +25,7 @@ public:
 	std::size_t addValue(IntType intValue);
 
 	/*! @brief Add a unique integer value to the vector.
-	Similar to  addValue(IntType), except that duplicated values are disallowed.
+	Similar to addValue(IntType), except that duplicated values are disallowed.
 	@return Index to the newly-added value. Empty if the value exists already.
 	*/
 	std::optional<std::size_t> addUniqueValue(IntType intValue);
