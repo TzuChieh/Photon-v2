@@ -8,6 +8,9 @@
 namespace ph
 {
 
+/*! @brief A container that offers fast value lookup & iteration, while modifications are slow.
+The container has continuous memory allocation.
+*/
 template<std::integral IntType>
 class TSparseIntVector final
 {
@@ -18,7 +21,6 @@ public:
 	explicit TSparseIntVector(std::size_t initialCapacity);
 
 	// TODO: bulk add
-	// TODO: iterators (for each)
 
 	/*! @brief Add an integer value to the vector.
 	Complexity is $ O \left( N \right) $, where N is the size of the vector. Duplicated values are allowed.
@@ -27,7 +29,7 @@ public:
 	std::size_t addValue(IntType intValue);
 
 	/*! @brief Add a unique integer value to the vector.
-	Similar to addValue(IntType), except that duplicated values are disallowed.
+	Similar to addValue(IntType), except that duplicated `intValue`s are disallowed.
 	@return Current index to the newly-added value. Empty if the value exists already.
 	*/
 	std::optional<std::size_t> addUniqueValue(IntType intValue);
@@ -78,6 +80,14 @@ public:
 	*/
 	std::size_t size() const;
 
+	/*! @name Iterators
+	Iterators for stored values.
+	*/
+	///@{
+	typename std::vector<IntType>::const_iterator begin() const noexcept;
+	typename std::vector<IntType>::const_iterator end() const noexcept;
+	///@}
+
 private:
 	std::vector<IntType> m_sortedIntValues;
 
@@ -85,6 +95,11 @@ private:
 	Find the index to the first value x that satisfies `targetValue` <= x.
 	*/
 	std::size_t binarySearchSmallestInsertionIndex(IntType targetValue) const;
+
+	/*!
+	Count how many values are equal to `targetValue` starting from `startingIndex`.
+	*/
+	std::size_t numIdenticalValuesFrom(std::size_t startingIndex, IntType targetValue) const;
 };
 
 }// end namespace ph

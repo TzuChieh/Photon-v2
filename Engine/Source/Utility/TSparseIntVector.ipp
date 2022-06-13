@@ -20,31 +20,61 @@ inline TSparseIntVector<IntType>::TSparseIntVector(const std::size_t initialCapa
 	m_sortedIntValues.reserve(initialCapacity);
 }
 
-/*! @brief Add an integer value to the vector.
-Complexity is $ O \left( N \right) $, where N is the size of the vector. Duplicated values are allowed.
-@return Index to the newly-added value.
-*/
-std::size_t addValue(IntType intValue);
+template<std::integral IntType>
+inline std::size_t TSparseIntVector<IntType>::addValue(const IntType intValue)
+{
+	const std::size_t insertionIndex = binarySearchSmallestInsertionIndex(intValue);
+	m_sortedIntValues.insert(m_sortedIntValues.begin() + insertionIndex, intValue);
+	return insertionIndex;
+}
 
-/*! @brief Add a unique integer value to the vector.
-Similar to addValue(IntType), except that duplicated values are disallowed.
-@return Index to the newly-added value. Empty if the value exists already.
-*/
-std::optional<std::size_t> addUniqueValue(IntType intValue);
+template<std::integral IntType>
+inline std::optional<std::size_t> TSparseIntVector<IntType>::addUniqueValue(const IntType intValue)
+{
+	if(m_sortedIntValues.empty())
+	{
+		return addValue(intValue);
+	}
 
-/*! @brief Remove an integer value from the vector.
-Complexity is $ O \left( N \right) $, where N is the size of the vector.
-@return The index of the just-removed value. If there are more than 1 @p intValue, the returned
-index will be the first one. Empty if the value does not exist.
-*/
-std::optional<std::size_t> removeValue(IntType intValue);
+	const std::size_t insertionIndex = binarySearchSmallestInsertionIndex(intValue);
+	if(get(insertionIndex) == intValue)
+	{
+		return std::nullopt;
+	}
+	else
+	{
+		m_sortedIntValues.insert(m_sortedIntValues.begin() + insertionIndex, intValue);
+		return insertionIndex;
+	}
+}
 
-/*! @brief Remove all integer values that are equal to @p intValue from the vector.
-Complexity is $ O \left( N \right) $, where N is the size of the vector.
-@return The index of the just-removed value. If there are more than 1 @p intValue, the returned
-index will be the first one. Empty if the value does not exist.
-*/
-std::optional<std::size_t> removeValues(IntType intValue);
+template<std::integral IntType>
+inline std::optional<std::size_t> TSparseIntVector<IntType>::removeValue(const IntType intValue)
+{
+	const auto optFirstValueIndex = indexOfValue(intValue);
+	if(!optFirstValueIndex)
+	{
+		return std::nullopt;
+	}
+
+	PH_ASSERT(optFirstValueIndex.has_value());
+	m_sortedIntValues.erase(m_sortedIntValues.begin() + *optFirstValueIndex);
+	return *optFirstValueIndex;
+}
+
+template<std::integral IntType>
+inline std::optional<std::size_t> TSparseIntVector<IntType>::removeValues(const IntType intValue)
+{
+	const std::size_t firstIndex        = binarySearchSmallestInsertionIndex(intValue);
+	const std::size_t numValuesToRemove = numIdenticalValuesFrom(firstIndex, intValue);
+
+	// Handles the cases where `m_sortedIntValues` is empty and/or `intValue` is not found
+	m_sortedIntValues.erase(
+		m_sortedIntValues.begin() + firstIndex,
+		m_sortedIntValues.begin() + firstIndex + numValuesToRemove);
+
+	return numValuesToRemove > 0 ? firstIndex : std::nullopt;
+}
 
 template<std::integral IntType>
 inline IntType TSparseIntVector<IntType>::get(const std::size_t index) const
@@ -61,21 +91,22 @@ inline std::optional<std::size_t> TSparseIntVector<IntType>::indexOfValue(const 
 		return std::nullopt;
 	}
 
-	const std::size_t insertionIndex = binarySearchSmallestInsertionIndex(intValue);
-	return get(insertionIndex) == intValue ? insertionIndex : std::nullopt;
+	const std::size_t firstIndex = binarySearchSmallestInsertionIndex(intValue);
+	return get(firstIndex) == intValue ? firstIndex : std::nullopt;
 }
 
-/*! @brief Check the existence of an integer value.
-Behaves similarly to indexOf(IntType). If the index of the integer value is of interest, use of
-indexOf(IntType) is recommended for efficiency (avoid finding the integer value twice).
-@return `true` if the speficied integer value exists. `false` otherwise.
-*/
-bool hasValue(IntType intValue) const;
+template<std::integral IntType>
+inline bool TSparseIntVector<IntType>::hasValue(const IntType intValue) const
+{
+	return indexOfValue(intValue).has_value();
+}
 
-/*! @brief Check how many stored integer values are equal to @p intValue.
-@return Number of integer values in the vector that are equal to @p intValue.
-*/
-std::size_t numValues(IntType intValue) const;
+template<std::integral IntType>
+inline std::size_t TSparseIntVector<IntType>::numValues(const IntType intValue) const
+{
+	const std::size_t firstIndex = binarySearchSmallestInsertionIndex(intValue);
+	return numIdenticalValuesFrom(firstIndex, intValue);
+}
 
 template<std::integral IntType>
 inline std::size_t TSparseIntVector<IntType>::size() const
@@ -90,6 +121,36 @@ inline std::size_t TSparseIntVector<IntType>::binarySearchSmallestInsertionIndex
 	const auto lowerBound = std::lower_bound(m_sortedIntValues.begin(), m_sortedIntValues.end(), targetValue);
 
 	return static_cast<std::size_t>(lowerBound - m_sortedIntValues.begin());
+}
+
+template<std::integral IntType>
+inline std::size_t TSparseIntVector<IntType>::numIdenticalValuesFrom(const std::size_t startingIndex, const IntType targetValue) const
+{
+	std::size_t valueCount = 0;
+	for(std::size_t i = startingIndex; i < m_sortedIntValues.size(); ++i)
+	{
+		if(get(i) == targetValue)
+		{
+			++valueCount;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return valueCount;
+}
+
+template<std::integral IntType>
+inline typename std::vector<IntType>::const_iterator TSparseIntVector<IntType>::begin() const noexcept
+{
+	return m_sortedIntValues.begin();
+}
+
+template<std::integral IntType>
+inline typename std::vector<IntType>::const_iterator TSparseIntVector<IntType>::end() const noexcept
+{
+	return m_sortedIntValues.end();
 }
 
 }// end namespace ph
