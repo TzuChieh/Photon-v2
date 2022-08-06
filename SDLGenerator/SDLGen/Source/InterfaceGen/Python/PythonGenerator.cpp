@@ -49,12 +49,12 @@ void PythonGenerator::generate(
 		"# NOTE: THIS FILE CONTAINS GENERATED CODE \n"
 		"#       DO NOT MODIFY                     \n"
 		"# ========================================\n");
-	m_file.write("# last generated: {} \n\n", Timestamp().toString());
+	m_file.writeString("# last generated: {} \n\n", Timestamp().toString());
 
 	m_file.writeString(
 		io_utils::load_text(makeResourcePath("pysdl_base.py")));
 
-	m_file.write("\n\n");
+	m_file.writeString("\n\n");
 
 	// Generate reference classes (helper for constructing SDL references)
 	const std::vector<std::string_view> sdlCategories = sdl::acquire_categories();
@@ -67,7 +67,7 @@ void PythonGenerator::generate(
 	PH_LOG(PythonGenerator, "generated {} helper reference classes", 
 		sdlCategories.size());
 
-	m_file.write("\n\n");
+	m_file.writeString("\n\n");
 
 	std::size_t numSdlCreatorClasses = 0;
 	std::size_t numSdlExecutionClasses = 0;

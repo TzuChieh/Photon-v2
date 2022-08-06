@@ -43,7 +43,7 @@ void SdlWriter::write(const SceneDescription& scene)
 	m_refResolver.analyze(scene);
 
 	FormattedTextFileOutputStream sceneFile(sceneFilePath);
-	sceneFile.write("# version {}\n", PH_PSDL_VERSION);
+	sceneFile.writeString("# version {}\n", PH_PSDL_VERSION);
 
 	OutputPayloads payloads;
 	SdlOutputContext ctx(&m_refResolver, m_workingDirectory, nullptr);
@@ -75,7 +75,7 @@ void SdlWriter::write(const SceneDescription& scene)
 			continue;
 		}
 
-		sceneFile.write("+> {}({}) ", sdlClass->genCategoryName(), sdlClass->getTypeName());
+		sceneFile.writeString("+> {}({}) ", sdlClass->genCategoryName(), sdlClass->getTypeName());
 		for(std::size_t payloadIdx = 0; payloadIdx < payloads.numPayloads(); ++payloadIdx)
 		{
 			const SdlOutputPayload& payload = payloads[payloadIdx];

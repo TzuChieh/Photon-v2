@@ -77,4 +77,53 @@ template<typename T, T VALUE>
 struct TNonTypeTemplateArgDummy final
 {};
 
+/*! @brief Cast `const` value to non-`const` value.
+When code duplication is undesirable between `const` and non-`const` getters, one can reuse the `const`
+version in the following way (providing the caller object is actually non-`const`):
+
+```C++
+const T& f() const
+{
+	return something_complicated();
+}
+
+decltype(auto) f()
+{
+	return mutable_cast(std::as_const(*this).f());
+}
+```
+
+The following overloads ensures that `volatile` qualifier will not be accidently cast away unlike common
+`const_cast` approaches. Moreover, deleted overload is there to guard against the case where `T` is
+returned by `f()` and generating a dangling reference (when returning value, we do not need a
+non-`const` overload anyway).
+
+Reference: https://stackoverflow.com/a/47369227
+
+@note Reusing non-`const` getter by casting it to `const` in `const` getter may produce UB. These 
+overloads prevent most misuse cases, still one should be careful using them in the implementation.
+*/
+///@{
+template<typename T>
+inline constexpr T& mutable_cast(const T& value) noexcept
+{
+    return const_cast<T&>(value);
+}
+
+template<typename T>
+inline constexpr T* mutable_cast(const T* value) noexcept
+{
+    return const_cast<T*>(value);
+}
+
+template<typename T>
+inline constexpr T* mutable_cast(T* value) noexcept
+{
+    return value;
+}
+
+template<typename T>
+inline void mutable_cast(const T&&) = delete;
+///@}
+
 }// end namespace ph

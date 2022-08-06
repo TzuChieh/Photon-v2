@@ -26,7 +26,7 @@ public:
 	void addCodeLine(std::string codeLine);
 
 	template<typename... Args>
-	void addCodeLine(Args&&... args);
+	void addCodeLine(std::string_view formatStr, Args&&... args);
 
 	const std::string& getMethodName() const;
 	std::string genCode(std::size_t indentAmount = 0) const;
@@ -45,10 +45,10 @@ inline const std::string& PythonMethod::getMethodName() const
 }
 
 template<typename... Args>
-inline void PythonMethod::addCodeLine(Args&&... args)
+inline void PythonMethod::addCodeLine(const std::string_view formatStr, Args&&... args)
 {
 	addCodeLine(
-		std::format(std::forward<Args>(args)...));
+		std::vformat(formatStr, std::make_format_args(std::forward<Args>(args)...)));
 }
 
 }// end namespace ph::sdlgen

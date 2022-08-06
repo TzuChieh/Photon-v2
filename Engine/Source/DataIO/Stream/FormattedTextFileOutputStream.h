@@ -25,7 +25,7 @@ public:
 	void writeNewLine();
 
 	template<typename... Args>
-	void write(Args&&... args);
+	void writeString(std::string_view formatStr, Args&&... args);
 
 	inline FormattedTextFileOutputStream& operator = (FormattedTextFileOutputStream&& rhs) = default;
 
@@ -36,10 +36,10 @@ private:
 // In-header Implementations:
 
 template<typename... Args>
-inline void FormattedTextFileOutputStream::write(Args&&... args)
+inline void FormattedTextFileOutputStream::writeString(const std::string_view formatStr, Args&&... args)
 {
 	writeString(
-		std::format(std::forward<Args>(args)...));
+		std::vformat(formatStr, std::make_format_args(std::forward<Args>(args)...)));
 }
 
 }// end namespace ph
