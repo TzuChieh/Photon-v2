@@ -127,7 +127,7 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	}
 
 	if(pathLength < m_maxViewpointDepth && 
-	   optics->getAllPhenomena().hasAtLeastOne({
+	   optics->getAllPhenomena().hasAny({
 		ESurfacePhenomenon::DELTA_REFLECTION,
 		ESurfacePhenomenon::DELTA_TRANSMISSION}))
 	{

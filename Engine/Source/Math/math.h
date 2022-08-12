@@ -416,9 +416,9 @@ inline T reverse_bits(const T value)
 
 	constexpr std::size_t NUM_BITS = sizeof(T) * CHAR_BIT;
 
-	// Note that arbitrary can be supported by careful handling of bitwise operations
+	// Note that arbitrary number of bits can be supported by careful handling of bitwise operations
 	static_assert(NUM_BITS % 8 == 0,
-		"Non-multiple-of-8 integers are not supported");
+		"Non-multiple-of-8 integer bits are not supported");
 
 	if constexpr(NUM_BITS == 8)
 	{
@@ -458,8 +458,9 @@ LSB has the bit index 0.
 template<std::unsigned_integral UIntType, std::integral RangeType>
 inline UIntType set_bits_in_range(const UIntType bits, const RangeType beginBitIdx, const RangeType endBitIdx)
 {
+	// Inclusive as empty range is allowed, e.g., `beginBitIdx` == `endBitIdx`
 	PH_ASSERT_IN_RANGE_INCLUSIVE(beginBitIdx, 0, endBitIdx);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(endBitIdx, beginBitIdx, std::numeric_limits<UIntType>::digits);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(endBitIdx, beginBitIdx, sizeof_in_bits(bits));
 
 	// Mask for the bits in range. Constructed by producing required number of 1's then shift
 	// by <beginBitIdx>. 
@@ -481,6 +482,28 @@ inline UIntType clear_bits_in_range(const UIntType bits, const RangeType beginBi
 	const auto bitMask = set_bits_in_range<UIntType, RangeType>(UIntType(0), beginBitIdx, endBitIdx);
 	return bits & (~bitMask);
 }
+
+/*! @brief Set a single bit to 1, others remain 0.
+LSB has the bit index 0.
+*/
+///@{
+template<std::unsigned_integral UIntType>
+inline UIntType flag_bit(const UIntType bitIdx)
+{
+	PH_ASSERT_IN_RANGE(bitIdx, 0, sizeof_in_bits<UIntType>());
+
+	return static_cast<UIntType>(1) << bitIdx;
+}
+
+template<std::unsigned_integral UIntType, UIntType BIT_IDX>
+inline consteval UIntType flag_bit()
+{
+	static_assert(0 <= BIT_IDX && BIT_IDX < sizeof_in_bits<UIntType>(),
+		"BIT_IDX must be within [0, # bits in UIntType)");
+
+	return static_cast<UIntType>(1) << BIT_IDX;
+}
+///@}
 
 template<typename T, T MIN, T MAX, std::size_t N>
 inline std::array<T, N> evenly_spaced_array()

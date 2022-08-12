@@ -77,7 +77,7 @@ inline constexpr std::size_t PiB = TiB * 1024;
 
 /*! @brief Index type that stores/represents axes.
 */
-using AxisIndexType = int;
+using AxisIndexType = std::size_t;
 
 /*! @name Axis Indices
 

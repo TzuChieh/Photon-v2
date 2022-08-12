@@ -298,7 +298,7 @@ inline T TMatrix4<T>::determinant() const
 }
 
 template<typename T>
-inline bool TMatrix4<T>::equals(const TMatrix4& other) const
+inline bool TMatrix4<T>::isEqual(const TMatrix4& other) const
 {
 	// TODO: branchless?
 

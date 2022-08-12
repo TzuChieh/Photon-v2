@@ -221,15 +221,15 @@ TEST(TMatrix4Test, Equality)
 		{ 1.0f,  2.0f,  3.0f, -4.0f}
 	}});
 
-	EXPECT_TRUE(mat1.equals(mat2));
-	EXPECT_FALSE(mat1.equals(Matrix(999.0f)));
+	EXPECT_TRUE(mat1.isEqual(mat2));
+	EXPECT_FALSE(mat1.isEqual(Matrix(999.0f)));
 }
 
 TEST(TMatrix4Test, RotationMatrixFromBasis)
 {
 	Matrix mat1;
 	mat1.initRotation({1, 0, 0}, {0, 1, 0}, {0, 0, 1});
-	EXPECT_TRUE(mat1.equals(Matrix::IDENTITY()));
+	EXPECT_TRUE(mat1.isEqual(Matrix::IDENTITY()));
 
 	Matrix mat2;
 	mat2.initRotation({0, 0, 1}, {-1, 0, 0}, {0, -1, 0});

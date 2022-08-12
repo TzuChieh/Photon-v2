@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Utility/traits.h"
+
 #include <type_traits>
 #include <initializer_list>
 
@@ -31,6 +33,11 @@ public:
 	*/
 	explicit TBitFlags(const FlagsSet& flagsSet);
 
+	/*! @brief Copy construct flags from another `TBitFlags` with a different `Input` type.
+	*/
+	template<typename OtherInput>
+	explicit TBitFlags(const TBitFlags<Value, OtherInput>& otherFlags);
+
 	/*! @brief Unions specified flags into this instance.
 	*/
 	///@{
@@ -55,7 +62,7 @@ public:
 
 	/*! @brief Checks whether this instance contains at least one of the specified flags.
 	*/
-	bool hasAtLeastOne(const FlagsSet& flagsSet) const;
+	bool hasAny(const FlagsSet& flagsSet) const;
 
 	/*! @brief Checks whether this instance contains all of the specified flags.
 	*/
@@ -69,7 +76,11 @@ public:
 	*/
 	bool isEmpty() const;
 
-	bool equals(const TBitFlags& other) const;
+	bool isEqual(const TBitFlags& other) const;
+
+	/*! @brief Get the value representing current flags.
+	*/
+	Value get() const;
 
 	// TODO: method for clear all flags
 	TBitFlags& set(const FlagsSet& flagsSet);
@@ -79,6 +90,11 @@ private:
 
 	static Value collectFlags(const FlagsSet& flagsSet);
 };
+
+/*! @brief Convenient type for using scoped/unscoped enum for bit flags.
+*/
+template<CIsEnum EnumType>
+using TEnumFlags = TBitFlags<std::underlying_type_t<EnumType>, EnumType>;
 
 }// end namespace ph
 

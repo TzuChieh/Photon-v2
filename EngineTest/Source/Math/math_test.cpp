@@ -380,6 +380,26 @@ TEST(MathTest, QuantizeFloat)
 	EXPECT_EQ(quantize_normalized_float<int>(1.0f), std::numeric_limits<int>::max());
 }
 
+TEST(MathTest, SetBitsInRange)
+{
+	// Normal 32-bit
+	EXPECT_EQ(set_bits_in_range<uint32>(0b0011'1100, 0, 2), 0b0011'1111);
+	EXPECT_EQ(set_bits_in_range<uint32>(0b1000'1110, 4, 7), 0b1111'1110);
+	EXPECT_EQ(set_bits_in_range<uint32>(0b0110'0000, 7, 8), 0b1110'0000);
+	EXPECT_EQ(set_bits_in_range<uint32>(0b1111'1111, 5, 8), 0b1111'1111);
+
+	// Normal 8-bit
+	EXPECT_EQ(set_bits_in_range<uint8>(0b0000'0000, 0, 4), 0b0000'1111);
+	EXPECT_EQ(set_bits_in_range<uint8>(0b0000'0000, 4, 8), 0b1111'0000);
+	EXPECT_EQ(set_bits_in_range<uint8>(0b1110'0111, 3, 5), 0b1111'1111);
+	EXPECT_EQ(set_bits_in_range<uint8>(0b0001'1000, 4, 7), 0b0111'1000);
+
+	// Empty range
+	EXPECT_EQ(set_bits_in_range<uint32>(0b1100'1110'1001'1101, 3, 3), 0b1100'1110'1001'1101);
+	EXPECT_EQ(set_bits_in_range<uint8>(0b1001'1101, 7, 7), 0b1001'1101);
+	EXPECT_EQ(set_bits_in_range<uint8>(0b1011'1011, 8, 8), 0b1011'1011);
+}
+
 TEST(MathTest, ClearBitsInRange)
 {
 	// Normal 32-bit
@@ -398,4 +418,37 @@ TEST(MathTest, ClearBitsInRange)
 	EXPECT_EQ(clear_bits_in_range<uint32>(0b1100'1110'1001'1101, 3, 3), 0b1100'1110'1001'1101);
 	EXPECT_EQ(clear_bits_in_range<uint8>(0b1001'1101, 7, 7), 0b1001'1101);
 	EXPECT_EQ(clear_bits_in_range<uint8>(0b1011'1011, 8, 8), 0b1011'1011);
+}
+
+TEST(MathTest, FlagBit)
+{
+	// runtime
+	{
+		EXPECT_EQ(flag_bit<uint8>(0), 0b0000'0001);
+		EXPECT_EQ(flag_bit<uint8>(1), 0b0000'0010);
+		EXPECT_EQ(flag_bit<uint16>(2), 0b0000'0100);
+		EXPECT_EQ(flag_bit<uint16>(3), 0b0000'1000);
+		EXPECT_EQ(flag_bit<uint32>(4), 0b0001'0000);
+		EXPECT_EQ(flag_bit<uint32>(5), 0b0010'0000);
+		EXPECT_EQ(flag_bit<uint32>(6), 0b0100'0000);
+		EXPECT_EQ(flag_bit<uint32>(7), 0b1000'0000);
+
+		EXPECT_EQ(flag_bit<uint32>(30), 0b0100'0000'0000'0000'0000'0000'0000'0000);
+		EXPECT_EQ(flag_bit<uint32>(31), 0b1000'0000'0000'0000'0000'0000'0000'0000);
+	}
+	
+	// compile-time
+	{
+		EXPECT_EQ((flag_bit<uint8, 0>()), 0b0000'0001);
+		EXPECT_EQ((flag_bit<uint8, 1>()), 0b0000'0010);
+		EXPECT_EQ((flag_bit<uint16, 2>()), 0b0000'0100);
+		EXPECT_EQ((flag_bit<uint16, 3>()), 0b0000'1000);
+		EXPECT_EQ((flag_bit<uint32, 4>()), 0b0001'0000);
+		EXPECT_EQ((flag_bit<uint32, 5>()), 0b0010'0000);
+		EXPECT_EQ((flag_bit<uint32, 6>()), 0b0100'0000);
+		EXPECT_EQ((flag_bit<uint32, 7>()), 0b1000'0000);
+
+		EXPECT_EQ((flag_bit<uint32, 30>()), 0b0100'0000'0000'0000'0000'0000'0000'0000);
+		EXPECT_EQ((flag_bit<uint32, 31>()), 0b1000'0000'0000'0000'0000'0000'0000'0000);
+	}
 }

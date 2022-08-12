@@ -119,7 +119,7 @@ const BvhInfoNode* BvhBuilder::buildBinaryBvhInfoNodeRecursive(const std::vector
 			extents.absLocal();
 		}
 
-		const int32 maxDimension = extents.maxDimension();
+		const auto maxDimension = static_cast<int32>(extents.maxDimension());
 
 		if(centroidsAABB.getMinVertex()[maxDimension] == centroidsAABB.getMaxVertex()[maxDimension])
 		{

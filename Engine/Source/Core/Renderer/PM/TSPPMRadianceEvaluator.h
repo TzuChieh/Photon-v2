@@ -159,7 +159,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	}
 	
 	// TODO: better handling of glossy optics
-	if(optics->getAllPhenomena().hasAtLeastOne({ESurfacePhenomenon::DIFFUSE_REFLECTION}) ||
+	if(optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DIFFUSE_REFLECTION}) ||
 		pathLength >= m_maxViewpointDepth)
 	{
 		if constexpr(Viewpoint::template has<EViewpointData::SURFACE_HIT>()) {

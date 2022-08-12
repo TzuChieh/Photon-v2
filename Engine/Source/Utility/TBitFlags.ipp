@@ -16,6 +16,12 @@ inline TBitFlags<Value, Input>::TBitFlags(const FlagsSet& flagsSet) :
 {}
 
 template<typename Value, typename Input>
+template<typename OtherInput>
+inline TBitFlags<Value, Input>::TBitFlags(const TBitFlags<Value, OtherInput>& otherFlags) :
+	m_bits(otherFlags.get())
+{}
+
+template<typename Value, typename Input>
 inline TBitFlags<Value, Input>& TBitFlags<Value, Input>::unionWith(const FlagsSet& flagsSet)
 {
 	TBitFlags flags;
@@ -68,7 +74,7 @@ inline bool TBitFlags<Value, Input>::hasNone(const FlagsSet& flagsSet) const
 }
 
 template<typename Value, typename Input>
-inline bool TBitFlags<Value, Input>::hasAtLeastOne(const FlagsSet& flagsSet) const
+inline bool TBitFlags<Value, Input>::hasAny(const FlagsSet& flagsSet) const
 {
 	return (m_bits & collectFlags(flagsSet)) != 0;
 }
@@ -93,9 +99,15 @@ inline bool TBitFlags<Value, Input>::isEmpty() const
 }
 
 template<typename Value, typename Input>
-inline bool TBitFlags<Value, Input>::equals(const TBitFlags& other) const
+inline bool TBitFlags<Value, Input>::isEqual(const TBitFlags& other) const
 {
 	return m_bits == other.m_bits;
+}
+
+template<typename Value, typename Input>
+inline Value TBitFlags<Value, Input>::get() const
+{
+	return m_bits;
 }
 
 template<typename Value, typename Input>

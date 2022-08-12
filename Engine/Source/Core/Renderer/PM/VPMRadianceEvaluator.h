@@ -126,7 +126,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 	// FIXME: properly handle delta optics (mixed case)
 
-	if(pathLength < MAX_PATH_LENGTH && surfaceOptics->getAllPhenomena().hasAtLeastOne({
+	if(pathLength < MAX_PATH_LENGTH && surfaceOptics->getAllPhenomena().hasAny({
 		ESurfacePhenomenon::DELTA_REFLECTION,
 		ESurfacePhenomenon::DELTA_TRANSMISSION}))
 	{

@@ -295,7 +295,7 @@ buildNodeRecursive(
 	real        bestSplitCost     = std::numeric_limits<real>::max();
 	int         bestAxis          = -1;
 	std::size_t bestEndpointIndex = std::numeric_limits<std::size_t>::max();
-	int         axis              = nodeExtents.maxDimension();
+	int         axis              = static_cast<int>(nodeExtents.maxDimension());
 	int         numSplitTrials    = 0;
 	while(bestAxis == -1 && numSplitTrials < 3)
 	{

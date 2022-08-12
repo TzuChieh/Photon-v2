@@ -51,7 +51,7 @@ public:
 
 	T determinant() const;
 
-	bool equals(const TMatrix4& other) const;
+	bool isEqual(const TMatrix4& other) const;
 	std::string toString() const;
 };
 

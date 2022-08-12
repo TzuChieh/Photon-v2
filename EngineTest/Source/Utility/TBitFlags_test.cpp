@@ -37,22 +37,22 @@ TEST(TBitFlagsTest, Union)
 	flags1b.unionWith({int(1) << 3});
 	flags1b.unionWith({int(1) << 5});
 
-	EXPECT_TRUE(flags1b.equals(flags1b));
+	EXPECT_TRUE(flags1b.isEqual(flags1b));
 
 	UintFlags flags2a, flags2b;
 	flags2a.unionWith({static_cast<unsigned int>(1) << 2, static_cast<unsigned int>(1) << 2});
 	flags2b.unionWith({static_cast<unsigned int>(1) << 2});
 
-	EXPECT_TRUE(flags2a.equals(flags2b));
+	EXPECT_TRUE(flags2a.isEqual(flags2b));
 
 	EnumFlags flags3a, flags3b;
 	flags3a.unionWith({ETest::A, ETest::C, ETest::A, ETest::A});
 	flags3b.unionWith({ETest::C});
 	flags3b.unionWith({ETest::A});
 
-	EXPECT_TRUE(flags3a.equals(flags3b));
+	EXPECT_TRUE(flags3a.isEqual(flags3b));
 	flags3b.unionWith({ETest::D});
-	EXPECT_FALSE(flags3a.equals(flags3b));
+	EXPECT_FALSE(flags3a.isEqual(flags3b));
 }
 
 TEST(TBitFlagsTest, Intersect)
@@ -63,8 +63,8 @@ TEST(TBitFlagsTest, Intersect)
 	flags1b.set({ETest::C});
 	flags1c.set({ETest::A});
 
-	EXPECT_TRUE(flags1a.equals(flags1b));
-	EXPECT_FALSE(flags1a.equals(flags1c));
+	EXPECT_TRUE(flags1a.isEqual(flags1b));
+	EXPECT_FALSE(flags1a.isEqual(flags1c));
 }
 
 TEST(TBitFlagsTest, HasAll)
@@ -89,14 +89,14 @@ TEST(TBitFlagsTest, HasExactly)
 	EXPECT_FALSE(flags1.hasExactly({ETest::A, ETest::B}));
 }
 
-TEST(TBitFlagsTest, HasAtLeastOne)
+TEST(TBitFlagsTest, HasAny)
 {
 	EnumFlags flags1;
 	flags1.set({ETest::A, ETest::B});
 
-	EXPECT_TRUE(flags1.hasAtLeastOne({ETest::A}));
-	EXPECT_TRUE(flags1.hasAtLeastOne({ETest::A, ETest::D, ETest::C}));
-	EXPECT_FALSE(flags1.hasAtLeastOne({ETest::C}));
+	EXPECT_TRUE(flags1.hasAny({ETest::A}));
+	EXPECT_TRUE(flags1.hasAny({ETest::A, ETest::D, ETest::C}));
+	EXPECT_FALSE(flags1.hasAny({ETest::C}));
 }
 
 TEST(TBitFlagsTest, HasNone)

@@ -38,7 +38,7 @@ inline bool TDirectLightEstimator<POLICY>::sample(
 {
 	/*const PrimitiveMetadata* metadata = targetPos.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* optics = metadata->getSurface().getOptics();
-	if(optics->getAllPhenomena().hasAtLeastOne({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION}))
+	if(optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION}))
 	{
 		return false;
 	}*/

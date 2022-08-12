@@ -442,7 +442,7 @@ inline void TIndexedPointKdtree<Item, Index, PointCalculator>::
 	}
 
 	const math::Vector3R& nodeExtents = nodeAABB.getExtents();
-	const int             splitAxis   = nodeExtents.maxDimension();
+	const auto            splitAxis   = nodeExtents.maxDimension();
 
 	const std::size_t midIndicesIndex = numNodeItems / 2;
 	std::nth_element(

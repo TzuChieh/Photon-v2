@@ -98,7 +98,7 @@ void BNEEPTEstimator::estimate(
 		{
 			const PrimitiveMetadata* me = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* op = me->getSurface().getOptics();
-			if(op->getAllPhenomena().hasAtLeastOne({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION}))
+			if(op->getAllPhenomena().hasAny({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION}))
 			{
 				canDoNEE = false;
 			}

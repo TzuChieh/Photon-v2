@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <cstring>
 #include <string>
+#include <climits>
 
 namespace ph
 {
@@ -61,6 +62,18 @@ inline bool is_big_endian()
 
 	const int i = 0x07;
 	return reinterpret_cast<const char*>(&i)[0] != '\x07';
+}
+
+template<typename T>
+inline consteval std::size_t sizeof_in_bits()
+{
+	return CHAR_BIT * sizeof(T);
+}
+
+template<typename T>
+inline constexpr std::size_t sizeof_in_bits(T&& value) noexcept
+{
+	return sizeof_in_bits<decltype(std::forward<T>(value))>();
 }
 
 template<typename EnumType>

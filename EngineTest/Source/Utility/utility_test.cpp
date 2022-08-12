@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <cstdint>
 #include <limits>
+#include <array>
 
 TEST(UtilityTest, PointerAccess)
 {
@@ -74,4 +75,31 @@ TEST(UtilityTest, BitwiseCast)
 	const std::int64_t result3 = ph::bitwise_cast<double, std::int64_t>(target3);
 	EXPECT_NE(source3, target3);
 	EXPECT_EQ(source3, result3);
+}
+
+TEST(UtilityTest, SizeofInBits)
+{
+	// sizeof types
+	{
+		EXPECT_EQ(ph::sizeof_in_bits<std::int8_t>(), 8);
+		EXPECT_EQ(ph::sizeof_in_bits<std::uint16_t>(), 16);
+		EXPECT_EQ(ph::sizeof_in_bits<std::uint32_t>(), 32);
+		EXPECT_EQ(ph::sizeof_in_bits<std::int64_t>(), 64);
+		EXPECT_EQ(ph::sizeof_in_bits<std::uint64_t>(), 64);
+
+		using ArrType = std::array<int, 100>;
+		EXPECT_GE(ph::sizeof_in_bits<ArrType>(), 16 * 100);
+	}
+	
+	// sizeof expressions
+	{
+		EXPECT_EQ(ph::sizeof_in_bits(std::int8_t{}), 8);
+		EXPECT_EQ(ph::sizeof_in_bits(std::int16_t{}), 16);
+		EXPECT_EQ(ph::sizeof_in_bits(std::uint32_t{}), 32);
+		EXPECT_EQ(ph::sizeof_in_bits(std::int32_t{}), 32);
+		EXPECT_EQ(ph::sizeof_in_bits(std::uint64_t{}), 64);
+
+		using ArrType = std::array<int, 100>;
+		EXPECT_GE(ph::sizeof_in_bits(ArrType{}), 16 * 100);
+	}
 }
