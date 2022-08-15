@@ -84,7 +84,7 @@ using AxisIndexType = std::size_t;
 Standard axis indices used in the renderer.
 */
 ///@{
-inline constexpr AxisIndexType UNKNOWN_AXIS = -1;
+inline constexpr AxisIndexType UNKNOWN_AXIS = static_cast<AxisIndexType>(-1);
 inline constexpr AxisIndexType X_AXIS       = 0;
 inline constexpr AxisIndexType Y_AXIS       = 1;
 inline constexpr AxisIndexType Z_AXIS       = 2;
