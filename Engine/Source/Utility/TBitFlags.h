@@ -85,6 +85,15 @@ public:
 	// TODO: method for clear all flags
 	TBitFlags& set(const FlagsSet& flagsSet);
 
+	/*! @brief Get the enum representing current flags.
+	This method is only defined for enum flags.
+	*/
+	inline Input getEnum() const 
+		requires CIsEnum<Input> && (sizeof(Input) >= sizeof(Value))
+	{
+		return static_cast<Input>(m_bits);
+	}
+
 private:
 	Value m_bits;
 
