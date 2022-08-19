@@ -8,6 +8,9 @@
 namespace ph
 {
 
+/*! @brief Fixed-size integer types.
+*/
+///@{
 using int8    = std::int8_t;
 using uint8   = std::uint8_t;
 using int16   = std::int16_t;
@@ -16,9 +19,28 @@ using int32   = std::int32_t;
 using uint32  = std::uint32_t;
 using int64   = std::int64_t;
 using uint64  = std::uint64_t;
+///@}
 
+/*! @brief Fastest integer types with size guarantee.
+For example, `uint32f` is an unsigned integer with at least 32 bits.
+*/
+///@{
+using int8f   = std::int_fast8_t;
+using uint8f  = std::uint_fast8_t;
+using int16f  = std::int_fast16_t;
+using uint16f = std::uint_fast16_t;
+using int32f  = std::int_fast32_t;
+using uint32f = std::uint_fast32_t;
+using int64f  = std::int_fast64_t;
+using uint64f = std::uint_fast64_t;
+///@}
+
+/*! @brief Fixed-size floating-point types.
+*/
+///@{
 using float32 = float;
 using float64 = double;
+///@}
 
 #ifdef PH_STRICT_FLOATING_POINT_SIZES
 	static_assert(sizeof(float32) * CHAR_BIT == 32);

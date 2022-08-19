@@ -1,6 +1,6 @@
 #pragma once
 
-#include "World/Foundation/TUniquePtrCollection.h"
+#include "Utility/TUniquePtrCollection.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
 #include "World/Foundation/ResourceCookReport.h"

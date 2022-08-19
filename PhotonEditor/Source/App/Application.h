@@ -1,5 +1,10 @@
 #pragma once
 
+#include <Common/primitive_type.h>
+#include <Math/TVector2.h>
+
+#include <string>
+
 namespace ph::editor
 {
 
@@ -7,8 +12,9 @@ namespace ph::editor
 class AppSettings final
 {
 public:
-
-private:
+	std::string    windowTitle  = "Photon Editor";
+	math::Vector2S windowSizePx = {0, 0};
+	uint32f        maxFPS       = 60;
 };
 
 class Application final
