@@ -11,7 +11,7 @@ namespace ph
 {
 
 template<typename BaseType>
-class TUniquePtrCollection final
+class TUniquePtrVector final
 {
 public:
 	// TODO: emplace
@@ -36,7 +36,7 @@ private:
 
 template<typename BaseType>
 template<typename T>
-inline void TUniquePtrCollection<BaseType>::add(std::unique_ptr<T> uniquePtr)
+inline void TUniquePtrVector<BaseType>::add(std::unique_ptr<T> uniquePtr)
 {
 	// The `is_same` check is necessary since `is_base_of` would be false if `T` is a fundamental type
 	static_assert(std::is_base_of_v<BaseType, T> || std::is_same_v<BaseType, T>);
@@ -45,7 +45,7 @@ inline void TUniquePtrCollection<BaseType>::add(std::unique_ptr<T> uniquePtr)
 }
 
 template<typename BaseType>
-inline std::unique_ptr<BaseType> TUniquePtrCollection<BaseType>::remove(const std::size_t index)
+inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::remove(const std::size_t index)
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_uniquePtrs.size());
 
@@ -55,13 +55,13 @@ inline std::unique_ptr<BaseType> TUniquePtrCollection<BaseType>::remove(const st
 }
 
 template<typename BaseType>
-inline void TUniquePtrCollection<BaseType>::clear()
+inline void TUniquePtrVector<BaseType>::clear()
 {
 	m_uniquePtrs.clear();
 }
 
 template<typename BaseType>
-inline void TUniquePtrCollection<BaseType>::clearOne(const std::size_t index)
+inline void TUniquePtrVector<BaseType>::clearOne(const std::size_t index)
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_uniquePtrs.size());
 
@@ -69,7 +69,7 @@ inline void TUniquePtrCollection<BaseType>::clearOne(const std::size_t index)
 }
 
 template<typename BaseType>
-inline void TUniquePtrCollection<BaseType>::clearRange(const std::size_t beginIndex, const std::size_t endIndex)
+inline void TUniquePtrVector<BaseType>::clearRange(const std::size_t beginIndex, const std::size_t endIndex)
 {
 	PH_ASSERT_LE(beginIndex, endIndex);
 
@@ -80,7 +80,7 @@ inline void TUniquePtrCollection<BaseType>::clearRange(const std::size_t beginIn
 }
 
 template<typename BaseType>
-inline BaseType* TUniquePtrCollection<BaseType>::get(const std::size_t index) const
+inline BaseType* TUniquePtrVector<BaseType>::get(const std::size_t index) const
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_uniquePtrs.size());
 
@@ -88,13 +88,13 @@ inline BaseType* TUniquePtrCollection<BaseType>::get(const std::size_t index) co
 }
 
 template<typename BaseType>
-inline std::size_t TUniquePtrCollection<BaseType>::numPtrs() const
+inline std::size_t TUniquePtrVector<BaseType>::numPtrs() const
 {
 	return m_uniquePtrs.size();
 }
 
 template<typename BaseType>
-inline BaseType* TUniquePtrCollection<BaseType>::operator [] (const std::size_t index) const
+inline BaseType* TUniquePtrVector<BaseType>::operator [] (const std::size_t index) const
 {
 	return get(index);
 }

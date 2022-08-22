@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/TUniquePtrCollection.h"
+#include "Utility/TUniquePtrVector.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
 #include "World/Foundation/ResourceCookReport.h"
@@ -15,8 +15,8 @@ class CookedResourceCollection final
 public:
 
 private:
-	TUniquePtrCollection<PrimitiveMetadata> m_metadatas;
-	TUniquePtrCollection<math::Transform>   m_transforms;
+	TUniquePtrVector<PrimitiveMetadata> m_metadatas;
+	TUniquePtrVector<math::Transform>   m_transforms;
 
 	std::vector<ResourceCookReport> m_cookReports;
 };
