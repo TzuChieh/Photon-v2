@@ -36,15 +36,15 @@ enum class EEventType
 	MouseMove,
 };
 
-enum class EEventSource : uint32
+enum class EEventSource : uint32f
 {
 	Unknown = 0,
 
-	App         = math::flag_bit<uint32, 0>(),
-	Input       = math::flag_bit<uint32, 1>(),
-	Keyboard    = math::flag_bit<uint32, 2>(),
-	Mouse       = math::flag_bit<uint32, 3>(),
-	MouseButton = math::flag_bit<uint32, 4>(),
+	App         = math::flag_bit<uint32f, 0>(),
+	Input       = math::flag_bit<uint32f, 1>(),
+	Keyboard    = math::flag_bit<uint32f, 2>(),
+	Mouse       = math::flag_bit<uint32f, 3>(),
+	MouseButton = math::flag_bit<uint32f, 4>(),
 };
 
 class Event
