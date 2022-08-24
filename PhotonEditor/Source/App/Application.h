@@ -12,9 +12,9 @@ namespace ph::editor
 class AppSettings final
 {
 public:
-	std::string    windowTitle  = "Photon Editor";
-	math::Vector2S windowSizePx = {0, 0};
-	uint32f        maxFPS       = 60;
+	std::string    title         = "Photon Editor";
+	math::Vector2S displaySizePx = {0, 0};
+	uint32f        maxFPS        = 60;
 };
 
 class Application final
