@@ -1,4 +1,6 @@
 #include "Platform/Platform.h"
+#include "Platform/Display.h"
+#include "Platform/Input.h"
 
 #include <utility>
 
@@ -13,5 +15,6 @@ Platform::Platform(
 	, m_display(std::move(display))
 {}
 
+Platform::~Platform() = default;
 
 }// end namespace ph::editor

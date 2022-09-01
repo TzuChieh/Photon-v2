@@ -18,7 +18,7 @@ public:
 		std::unique_ptr<Input>   input,
 		std::unique_ptr<Display> display);
 
-	inline virtual ~Platform() = default;
+	virtual ~Platform();
 
 	virtual void update(float64 deltaS) = 0;
 

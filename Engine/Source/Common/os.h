@@ -12,6 +12,8 @@ The following macros will be defined for each operating system:
 
 */
 
+#include <cstddef>
+
 // Defined on Windows x64 & x86
 #if defined(_WIN32)
 
@@ -45,7 +47,7 @@ namespace ph::os
 
 enum class EWindowsVersion
 {
-	UNKNOWN = 0,
+	Unknown = 0,
 
 	// Later version must have larger value
 
@@ -58,6 +60,13 @@ enum class EWindowsVersion
 	Windows_10
 };
 
+/*! @brief Get current Windows version at runtime.
+*/
 EWindowsVersion get_windows_version();
+
+/*! @brief Get size of L1 cache at runtime.
+@return Size in bytes.
+*/
+std::size_t get_L1_cache_line_size_in_bytes();
 
 }// end namespace ph::os

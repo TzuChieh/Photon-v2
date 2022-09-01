@@ -1,11 +1,22 @@
 #include "Common/os.h"
 #include "Common/assertion.h"
 
-#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
 
+#include <stdlib.h>
 #include <Windows.h>
 
+#elif defined(PH_OPERATING_SYSTEM_IS_LINUX)
+
+#include <stdio.h>
+
+#elif defined(PH_OPERATING_SYSTEM_IS_OSX)
+
+#include <sys/sysctl.h>
+
 #endif
+
+#include <new>
 
 namespace ph::os
 {
@@ -17,7 +28,7 @@ EWindowsVersion get_windows_version_internal()
 {
 #ifndef PH_OPERATING_SYSTEM_IS_WINDOWS
 
-	return EWindowsVersion::UNKNOWN;
+	return EWindowsVersion::Unknown;
 
 #else
 	
@@ -31,7 +42,7 @@ EWindowsVersion get_windows_version_internal()
 		PH_ASSERT_MSG(false,
 			"ntdll.dll is not loaded by the application.");
 
-		return EWindowsVersion::UNKNOWN;
+		return EWindowsVersion::Unknown;
 	}
 
 	NTSTATUS(WINAPI * RtlGetVersion)(LPOSVERSIONINFOEXW);
@@ -45,7 +56,7 @@ EWindowsVersion get_windows_version_internal()
 	}
 	else
 	{
-		return EWindowsVersion::UNKNOWN;
+		return EWindowsVersion::Unknown;
 	}
 
 	if(osInfo.dwMajorVersion == 10 && osInfo.dwMinorVersion == 0)
@@ -78,8 +89,91 @@ EWindowsVersion get_windows_version_internal()
 	}
 	else
 	{
-		return EWindowsVersion::UNKNOWN;
+		return EWindowsVersion::Unknown;
 	}
+
+#endif
+}
+
+/*!
+Reference: https://stackoverflow.com/questions/794632/programmatically-get-the-cache-line-size
+Alternative approach: https://softpixel.com/~cwright/programming/simd/cpuid.php
+
+Code adapted from: https://github.com/NickStrupat/CacheLineSize
+
+Following is the license information of the original code for getting cache line size:
+
+MIT License
+
+Copyright (c) 2022 Nick Strupat
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+std::size_t get_L1_cache_line_size_in_bytes_internal()
+{
+#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
+
+	size_t lineSize = 0;
+	DWORD bufferSize = 0;
+	DWORD i = 0;
+	SYSTEM_LOGICAL_PROCESSOR_INFORMATION* buffer = 0;
+
+	GetLogicalProcessorInformation(0, &bufferSize);
+	buffer = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION*)malloc(bufferSize);
+	GetLogicalProcessorInformation(&buffer[0], &bufferSize);
+
+	for(i = 0; i != bufferSize / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION); ++i)
+	{
+		if(buffer[i].Relationship == RelationCache && buffer[i].Cache.Level == 1)
+		{
+			lineSize = buffer[i].Cache.LineSize;
+			break;
+		}
+	}
+
+	free(buffer);
+	return lineSize;
+
+#elif defined(PH_OPERATING_SYSTEM_IS_LINUX)
+
+	FILE* p = 0;
+	p = fopen("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size", "r");
+	unsigned int lineSize = 0;
+	if(p)
+	{
+		fscanf(p, "%d", &lineSize);
+		fclose(p);
+	}
+	return lineSize;
+
+#elif defined(PH_OPERATING_SYSTEM_IS_OSX)
+
+	size_t lineSize = 0;
+	size_t sizeOfLineSize = sizeof(lineSize);
+	sysctlbyname("hw.cachelinesize", &lineSize, &sizeOfLineSize, 0, 0);
+	return lineSize;
+
+#else
+
+	#warning "Using an estimated L1 cache size due to unsupported platform."
+
+	return std::hardware_constructive_interference_size;
 
 #endif
 }
@@ -90,6 +184,12 @@ EWindowsVersion get_windows_version()
 {
 	static const EWindowsVersion winVersion = get_windows_version_internal();
 	return winVersion;
+}
+
+std::size_t get_L1_cache_line_size_in_bytes()
+{
+	static const std::size_t numBytes = get_L1_cache_line_size_in_bytes_internal();
+	return numBytes;
 }
 
 }// end namespace ph::os
