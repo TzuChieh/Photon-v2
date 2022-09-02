@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstddef>
+#include <string>
+
 ///////////////////////////////////////////////////////////////////////////////
 // Core Settings                                                             //
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,6 +44,11 @@ Assertions will be enabled on debug mode.
 
 #define PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
 
+/*! @brief Default block size for memory arena.
+Default value is 512 KiB.
+*/
+#define PH_MEMORY_ARENA_DEFAULT_BLOCK_SIZE_IN_BYTES (static_cast<std::size_t>(512) * 1024)
+
 /*! @brief Directory that stores engine log file.
 */
 #define PH_LOG_FILE_DIRECTRY "./Logs/"
@@ -78,8 +86,6 @@ Note that a byte is not necessarily 8-bit.
 #define PH_HIT_PROBE_CACHE_BYTES 12
 
 #define PH_NUMERIC_IMAGE_MAX_ELEMENTS 4
-
-#include <string>
 
 namespace ph
 {

@@ -31,7 +31,7 @@ of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof
 @return Pointer to the beginning of newly allocated memory. `nullptr` on failure.
 @note Call free_aligned_memory(void*) to deallocate the memory.
 */
-inline void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
+inline [[nodiscard]] void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
 {
 	// Alignment must be an integer power of 2.
 	PH_ASSERT(std::has_single_bit(alignmentInBytes));
@@ -77,10 +77,7 @@ inline void free_aligned_memory(void* const ptr)
 #endif
 }
 
-// For empty base optimization on `std::unique_ptr`, see https://stackoverflow.com/questions/42715492/stdunique-ptr-and-custom-deleters.
-// This would reduce the size of the resulting `unique_ptr` to the size of a single pointer.
-// Reference: https://stackoverflow.com/questions/45341371/memory-efficient-custom-deleter-for-stdunique-ptr
-struct AlignedMemoryDeleter final
+struct AlignedMemoryDeleter
 {
 	inline void operator () (void* const ptr) const
 	{
@@ -92,6 +89,14 @@ struct AlignedMemoryDeleter final
 
 template<typename T>
 using TAlignedMemoryUniquePtr = std::unique_ptr<T, detail::AlignedMemoryDeleter>;
+
+// Note that `detail::AlignedMemoryDeleter` is for empty base optimization on `std::unique_ptr`, 
+// see https://stackoverflow.com/questions/42715492/stdunique-ptr-and-custom-deleters.
+// This would reduce the size of the resulting `unique_ptr` to the size of a single pointer.
+// Reference: https://stackoverflow.com/questions/45341371/memory-efficient-custom-deleter-for-stdunique-ptr
+// 
+// The following test will ensure this is true:
+static_assert(sizeof(TAlignedMemoryUniquePtr<void>) == sizeof(void*));
 
 /*! @brief Create an aligned memory resource.
 
