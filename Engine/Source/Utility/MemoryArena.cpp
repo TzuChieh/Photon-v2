@@ -4,6 +4,7 @@
 #include "Common/os.h"
 
 #include <new>
+#include <bit>
 
 namespace ph
 {
@@ -45,7 +46,7 @@ MemoryArena::MemoryArena()
 MemoryArena::MemoryArena(const std::size_t blockSizeInBytes, const std::size_t numDefaultBlocks)
 	: m_blocks               (numDefaultBlocks)
 	, m_blockSizeInBytes     (determine_block_size(blockSizeInBytes))
-	, m_currentBlockIdx      (0)
+	, m_currentBlockIdx      (static_cast<std::size_t>(-1))
 	, m_blockPtr             (nullptr)
 	, m_remainingBytesInBlock(0)
 	, m_numUsedBytes         (0)
@@ -58,6 +59,7 @@ MemoryArena::MemoryArena(const std::size_t blockSizeInBytes, const std::size_t n
 
 	if(!m_blocks.empty())
 	{
+		m_currentBlockIdx = 0;
 		m_blockPtr = m_blocks[0].get();
 		m_remainingBytesInBlock = m_blockSizeInBytes;
 	}
@@ -65,6 +67,12 @@ MemoryArena::MemoryArena(const std::size_t blockSizeInBytes, const std::size_t n
 
 std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t alignmentInBytes)
 {
+	// Relying on the fact that unsigned integral wraps around, so that we do not need to check if this
+	// is the first use of an empty arena.
+	//
+	// This is standard behavior, just to be safe:
+	static_assert(static_cast<std::size_t>(-1) + 1 == 0);
+
 	// It is impossible to allocate memory larger than the fixed block size
 	if(numBytes > m_blockSizeInBytes) [[unlikely]]
 	{
@@ -74,8 +82,15 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 	// NOTE: A better strategy would be keeping a record of remaining space in each block, then pick the
 	// most suitable one to allocate. Here we just use the next block to allocate, trading space for speed. 
 
+	// Alignment must be an integer power of 2.
+	PH_ASSERT(std::has_single_bit(alignmentInBytes));
+
+	void* blockPtr = m_blockPtr;
+	std::size_t bytesInBlock = m_remainingBytesInBlock;
+	void* alignedPtr = std::align(alignmentInBytes, numBytes, blockPtr, bytesInBlock);
+
 	// Use a new block if there is not enough space left
-	if(m_remainingBytesInBlock < numBytes)
+	if(!alignedPtr)
 	{
 		// Allocate a new one if there are no blocks left
 		if(m_currentBlockIdx + 1 == m_blocks.size())
@@ -83,29 +98,33 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 			m_blocks.push_back(allocate_block(m_blockSizeInBytes));
 		}
 
-		PH_ASSERT_LT(m_currentBlockIdx + 1, m_blocks.size());
-		m_blockPtr = m_blocks[++m_currentBlockIdx].get();
-		m_remainingBytesInBlock = m_blockSizeInBytes;
+		// Try to align on the new block again before updating block states
+		blockPtr = m_blocks[m_currentBlockIdx + 1].get();
+		bytesInBlock = m_blockSizeInBytes;
+		alignedPtr = std::align(alignmentInBytes, numBytes, blockPtr, bytesInBlock);
+
+		// It is possible that the alignment requirement is impossible to met due to insufficient bytes
+		// remaining in the block
+		if(!alignedPtr) [[unlikely]]
+		{
+			throw std::bad_alloc();
+		}
+
+		++m_currentBlockIdx;
 	}
 
-	PH_ASSERT(m_blockPtr);
-	PH_ASSERT_GE(m_remainingBytesInBlock, numBytes);
+	PH_ASSERT(alignedPtr);
+	PH_ASSERT_GE(bytesInBlock, numBytes);
 
-	void* newBlockPtr = m_blockPtr;
-	void* const alignedPtr = std::align(alignmentInBytes, numBytes, newBlockPtr, m_remainingBytesInBlock);
+	// We have a successfully aligned allocation here, update block states
 	
-	// It is possible that the alignment requirement is impossible to met due to insufficient bytes
-	// remaining in the block
-	if(!alignedPtr) [[unlikely]]
-	{
-		throw std::bad_alloc();
-	}
+	// `std::align()` only adjusts `blockPtr` to the aligned memory location
+	m_blockPtr = static_cast<std::byte*>(blockPtr) + numBytes;
 
-	// `std::align()` only adjusts `newBlockPtr` to the aligned memory location
-	m_blockPtr = static_cast<std::byte*>(newBlockPtr) + numBytes;
+	// `std::align()` only decreases `bytesInBlock` by the number of bytes used for alignment
+	m_remainingBytesInBlock = bytesInBlock - numBytes;
 
-	// `std::align()` only decreases `m_remainingBytesInBlock` by the number of bytes used for alignment
-	m_remainingBytesInBlock -= numBytes;
+	m_numUsedBytes += numBytes;
 
 	return static_cast<std::byte*>(alignedPtr);
 }

@@ -44,14 +44,16 @@ public:
 	inline std::span<T> allocArray(const std::size_t arraySize)
 		requires std::is_trivially_destructible_v<T>
 	{
-		return std::span<T>(allocRaw(sizeof(T) * arraySize, alignof(T)), arraySize);
+		return std::span<T>(
+			reinterpret_cast<T*>(allocRaw(sizeof(T) * arraySize, alignof(T))), 
+			arraySize);
 	}
 
 	template<typename T, typename... Args>
 	inline T* make(Args&&... args)
 		requires std::is_trivially_destructible_v<T>
 	{
-		return std::construct_at<T, Args>(alloc<T>(), std::forward<Args>(args));
+		return std::construct_at(alloc<T>(), std::forward<Args>(args)...);
 	}
 
 private:
