@@ -71,7 +71,13 @@ inline T next_power_of_2_multiple(const T value, const T multiple)
 	PH_ASSERT_GE(std::numeric_limits<T>::max() - value, multiple - 1);
 
 	// `& ~(multiple - 1)` is the same as `& -multiple` for two's complement arithmetic
-	return (value + (multiple - 1)) & -multiple;
+	return (value + (multiple - 1)) & (0 - multiple);
+
+	// Note:
+	// MSVC may emit C4146 warning on applying a unary negate operation on unsigned types. Subtracting a
+	// value from zero is the same as taking its negative, but using the binary subtraction operator avoids
+	// the warning about taking the negative of an unsigned value. Hence the `0 - multiple` instead of `-multiple`.
+	// Reference: https://stackoverflow.com/a/26893482
 }
 
 }// end namespace ph::math
