@@ -2,6 +2,7 @@
 
 #include "Common/os.h"
 #include "Common/assertion.h"
+#include "Common/math_basics.h"
 
 #if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
 
@@ -34,12 +35,12 @@ of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof
 inline [[nodiscard]] void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
 {
 	// Alignment must be an integer power of 2.
-	PH_ASSERT(std::has_single_bit(alignmentInBytes));
+	PH_ASSERT(math::is_power_of_2(alignmentInBytes));
 
 	// Alignment must be a multiple of `sizeof(void*)`.
 	PH_ASSERT_EQ(alignmentInBytes % sizeof(void*), 0);
 
-	// Allocation size must be an integer multiple pf alignment.
+	// Allocation size must be an integer multiple of alignment.
 	// (here `alignmentInBytes` is guaranteed to be > 0 by the previous assertion)
 	PH_ASSERT(numBytes % alignmentInBytes == 0);
 

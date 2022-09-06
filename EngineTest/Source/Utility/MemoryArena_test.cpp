@@ -4,6 +4,7 @@
 
 #include <utility>
 #include <vector>
+#include <new>
 
 using namespace ph;
 
@@ -96,9 +97,9 @@ TEST(MemoryArenaTest, LoopAllocate)
 
 		for(int i = 0; i < TEST_SIZE; ++i)
 		{
-			EXPECT_EQ(tests[i]->x, i);
-			EXPECT_EQ(tests[i]->y, i * 2.0f);
-			EXPECT_EQ(tests[i]->z, i * 3.0);
+			ASSERT_EQ(tests[i]->x, i);
+			ASSERT_EQ(tests[i]->y, i * 2.0f);
+			ASSERT_EQ(tests[i]->z, i * 3.0);
 		}
 	};
 
@@ -140,8 +141,88 @@ TEST(MemoryArenaTest, Make)
 
 	for(int i = 0; i < TEST_SIZE; ++i)
 	{
-		EXPECT_EQ(tests[i]->x, i * 11);
-		EXPECT_EQ(tests[i]->y, i * 22.0f);
-		EXPECT_EQ(tests[i]->z, i * 33.0);
+		ASSERT_EQ(tests[i]->x, i * 11);
+		ASSERT_EQ(tests[i]->y, i * 22.0f);
+		ASSERT_EQ(tests[i]->z, i * 33.0);
+	}
+}
+
+TEST(MemoryArenaTest, Clear)
+{
+	constexpr int TEST_SIZE = 100000;
+
+	auto testFunc = [](MemoryArena& arena)
+	{
+		std::vector<double*> ptrs(TEST_SIZE);
+		for(int i = 0; i < TEST_SIZE; ++i)
+		{
+			ptrs[i] = arena.make<double>(i);
+		}
+
+		for(int i = 0; i < TEST_SIZE; ++i)
+		{
+			ASSERT_EQ(*ptrs[i], i);
+		}
+	};
+
+	MemoryArena arena(sizeof(double) * 2 + 1, 4);
+	testFunc(arena);
+
+	EXPECT_GT(arena.numAllocatedBlocks(), 0);
+	EXPECT_GT(arena.numAllocatedBytes(), 0);
+	EXPECT_GT(arena.numUsedBytes(), 0);
+
+	arena.clear();
+
+	EXPECT_GT(arena.numAllocatedBlocks(), 0);
+	EXPECT_GT(arena.numAllocatedBytes(), 0);
+	EXPECT_EQ(arena.numUsedBytes(), 0);
+	
+	const auto previousBlockCount = arena.numAllocatedBlocks();
+
+	// Try 10 more times to see if we use the same number of blocks each time
+	for(std::size_t i = 0; i < 10; ++i)
+	{
+		testFunc(arena);
+
+		EXPECT_EQ(arena.numAllocatedBlocks(), previousBlockCount);
+
+		arena.clear();
+	}
+}
+
+TEST(MemoryArenaTest, ErrorAndResume)
+{
+	MemoryArena arena(sizeof(double) * 2 + 1, 4);
+	
+	std::vector<double*> ptrs;
+	for(int i = 0; i < 10; ++i)
+	{
+		ptrs.push_back(arena.make<double>(i));
+	}
+	for(int i = 0; i < 10; ++i)
+	{
+		EXPECT_EQ(*ptrs[i], i);
+	}
+
+	const auto previousUsedBytes = arena.numUsedBytes();
+	const auto previousAllocatedBytes = arena.numAllocatedBytes();
+
+	// Purposely fail the allocation--using a single large array (larger than block size)
+	EXPECT_THROW(arena.allocArray<float>(999), std::bad_alloc);
+
+	// Failed allocation should not affect internal states
+	EXPECT_EQ(arena.numUsedBytes(), previousUsedBytes);
+	EXPECT_EQ(arena.numAllocatedBytes(), previousAllocatedBytes);
+
+	// More followed allocations
+	for(int i = 10; i < 20; ++i)
+	{
+		ptrs.push_back(arena.make<double>(i));
+	}
+	ASSERT_EQ(ptrs.size(), 20);
+	for(int i = 0; i < 20; ++i)
+	{
+		EXPECT_EQ(*ptrs[i], i);
 	}
 }

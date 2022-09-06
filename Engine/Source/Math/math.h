@@ -9,6 +9,7 @@ implementation here since most of them is developed with performance regarding
 to rendering in mind.
 */
 
+#include "Common/math_basics.h"
 #include "Common/primitive_type.h"
 #include "Math/constant.h"
 #include "Math/math_fwd.h"
@@ -133,14 +134,6 @@ inline uint32 next_power_of_2(uint32 value)
 	value |= value >> 16;
 
 	return value + 1;
-}
-
-/*! @brief Determines whether @p value is a power of 2 number.
-*/
-template<typename T>
-inline bool is_power_of_2(const T value)
-{
-	return (value > 0) && !(value & (value - 1));
 }
 
 /*! @brief Calculate a positive number's base 2 logarithm (floored).
@@ -382,22 +375,6 @@ inline float fast_rcp_sqrt(float x)
 inline float fast_sqrt(const float x)
 {
 	return fast_rcp_sqrt(x) * x;
-}
-
-/*! @brief Divide @p numerator by @p denominator and round up to integer.
-
-Both inputs must be a positive integer.
-*/
-template<typename Integer, typename = std::enable_if_t<std::is_integral_v<Integer>>>
-inline Integer ceil_div_positive(const Integer numerator, const Integer denominator)
-{
-	PH_ASSERT_GE(numerator,   0);
-	PH_ASSERT_GT(denominator, 0);
-
-	// check for possible overflow when doing <numerator>+<denominator>
-	PH_ASSERT_GE(std::numeric_limits<Integer>::max() - numerator, denominator);
-
-	return (numerator + denominator - 1) / denominator;
 }
 
 /*! @brief Get an integral value with reversed bits.

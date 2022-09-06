@@ -21,10 +21,30 @@ public:
 	*/
 	MemoryArena();
 
+	/*!
+	@param blockSizeInBytes Size of each memory block in the arena. This imposed a limit 
+	on the maximum size of a single allocation.
+	@param numDefaultBlocks Number of pre-allocated blocks.
+	*/
 	MemoryArena(std::size_t blockSizeInBytes, std::size_t numDefaultBlocks);
+	
 	inline MemoryArena(MemoryArena&& other) = default;
 
+	/*! @brief Allocate raw memory.
+	The memory returned contains no object--placement new is required before any use of the
+	memory content, otherwise it is UB by C++ standard.
+	@param numBytes Number of bytes to allocate.
+	@param alignmentInBytes Alignment requirement of the allocation, in bytes.
+	@return Allocated memory, never `nullptr`.
+	@exception `std::bad_alloc` if the allocation failed.
+	*/
 	std::byte* allocRaw(std::size_t numBytes, std::size_t alignmentInBytes = alignof(std::max_align_t));
+
+	/*! @brief Reset the usage of the arena.
+	All memory handed out are effectively deallocated/deleted after this call. The arena
+	then transitions to its initial state and is ready for allocation again.
+	*/
+	void clear();
 
 	std::size_t numUsedBytes() const;
 	std::size_t numAllocatedBytes() const;
@@ -33,6 +53,11 @@ public:
 
 	inline MemoryArena& operator = (MemoryArena&& rhs) = default;
 
+	/*! @brief Allocate memory for type @p T.
+	Convenient method for allocating memory for object of type @p T. Alignment is handled
+	automatically. See allocRaw(std::size_t, std::size_t) for details.
+	@tparam T Type for the memory allocated.
+	*/
 	template<typename T>
 	inline T* alloc()
 		requires std::is_trivially_destructible_v<T>
@@ -40,6 +65,11 @@ public:
 		return reinterpret_cast<T*>(allocRaw(sizeof(T), alignof(T)));
 	}
 
+	/*! @brief Allocate memory for array of type @p T.
+	Convenient method for allocating memory for array of type @p T. Alignment is handled
+	automatically. See allocRaw(std::size_t, std::size_t) for details.
+	@tparam T Type for the array memory allocated.
+	*/
 	template<typename T>
 	inline std::span<T> allocArray(const std::size_t arraySize)
 		requires std::is_trivially_destructible_v<T>
@@ -49,6 +79,12 @@ public:
 			arraySize);
 	}
 
+	/*! @brief Make an object of type @p T.
+	Convenient method for creating an object without a manual placement new. Equivalent to
+	allocate then placement new for an object of type @p T. Alignment is handled automatically.
+	@tparam T Type for the object created.
+	@param args Arguments for calling the constructor of @p T.
+	*/
 	template<typename T, typename... Args>
 	inline T* make(Args&&... args)
 		requires std::is_trivially_destructible_v<T>

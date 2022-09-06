@@ -2,6 +2,7 @@
 #include "Common/config.h"
 #include "Common/assertion.h"
 #include "Common/os.h"
+#include "Common/math_basics.h"
 
 #include <new>
 #include <bit>
@@ -14,9 +15,9 @@ namespace
 
 inline std::size_t determine_block_size(const std::size_t blockSizeInBytes)
 {
-	return blockSizeInBytes > PH_MEMORY_ARENA_DEFAULT_BLOCK_SIZE_IN_BYTES
-		? blockSizeInBytes
-		: PH_MEMORY_ARENA_DEFAULT_BLOCK_SIZE_IN_BYTES;
+	return math::next_power_of_2_multiple(
+		blockSizeInBytes, 
+		os::get_L1_cache_line_size_in_bytes());
 }
 
 inline auto allocate_block(const std::size_t blockSizeInBytes)
@@ -40,7 +41,7 @@ inline auto allocate_block(const std::size_t blockSizeInBytes)
 }// end anonymous namespace
 
 MemoryArena::MemoryArena()
-	: MemoryArena(determine_block_size(0), 0)
+	: MemoryArena(PH_MEMORY_ARENA_DEFAULT_BLOCK_SIZE_IN_BYTES, 0)
 {}
 
 MemoryArena::MemoryArena(const std::size_t blockSizeInBytes, const std::size_t numDefaultBlocks)
@@ -83,7 +84,7 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 	// most suitable one to allocate. Here we just use the next block to allocate, trading space for speed. 
 
 	// Alignment must be an integer power of 2.
-	PH_ASSERT(std::has_single_bit(alignmentInBytes));
+	PH_ASSERT(math::is_power_of_2(alignmentInBytes));
 
 	void* blockPtr = m_blockPtr;
 	std::size_t bytesInBlock = m_remainingBytesInBlock;
@@ -127,6 +128,24 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 	m_numUsedBytes += numBytes;
 
 	return static_cast<std::byte*>(alignedPtr);
+}
+
+void MemoryArena::clear()
+{
+	if(!m_blocks.empty()) [[likely]]
+	{
+		m_currentBlockIdx       = 0;
+		m_blockPtr              = m_blocks[0].get();
+		m_remainingBytesInBlock = m_blockSizeInBytes;
+		m_numUsedBytes          = 0;
+	}
+	else
+	{
+		m_currentBlockIdx       = static_cast<std::size_t>(-1);
+		m_blockPtr              = nullptr;
+		m_remainingBytesInBlock = m_blockSizeInBytes;
+		m_numUsedBytes          = 0;
+	}
 }
 
 }// end namespace ph

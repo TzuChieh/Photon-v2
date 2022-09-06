@@ -73,24 +73,6 @@ TEST(MathTest, EvaluateNextPowerOf2)
 	EXPECT_EQ(next_power_of_2(0), 0);
 }
 
-TEST(MathTest, CheckIsPowerOf2)
-{
-	EXPECT_FALSE(is_power_of_2(0));
-	EXPECT_TRUE (is_power_of_2(1));
-	EXPECT_TRUE (is_power_of_2(2));
-	EXPECT_FALSE(is_power_of_2(3));
-	EXPECT_TRUE (is_power_of_2(1 << 17));
-	EXPECT_FALSE(is_power_of_2((1 << 17) + 1));
-	EXPECT_FALSE(is_power_of_2(-1));
-	EXPECT_FALSE(is_power_of_2(std::numeric_limits<int>::max()));
-	EXPECT_FALSE(is_power_of_2(std::numeric_limits<int>::min()));
-	EXPECT_FALSE(is_power_of_2(std::numeric_limits<unsigned int>::max()));
-	EXPECT_FALSE(is_power_of_2(0ULL));
-	EXPECT_TRUE (is_power_of_2(1ULL << 50));
-	EXPECT_FALSE(is_power_of_2((1ULL << 50) + 1));
-	EXPECT_FALSE(is_power_of_2(std::numeric_limits<unsigned long long>::max()));
-}
-
 TEST(MathTest, CalculateIntegerBase2Logarithm)
 {
 	EXPECT_EQ(log2_floor(1), 0);
@@ -235,23 +217,6 @@ TEST(MathTest, FastSqrt)
 		// accept at most 1% max. relative error
 		EXPECT_LT(relativeError * 100.0, 1.0);
 	}
-}
-
-TEST(MathTest, CeiledPositiveIntegerDivision)
-{
-	EXPECT_EQ(ceil_div_positive(3, 3),   1);
-	EXPECT_EQ(ceil_div_positive(5, 3),   2);
-	EXPECT_EQ(ceil_div_positive(5, 2),   3);
-	EXPECT_EQ(ceil_div_positive(0, 3),   0);
-	EXPECT_EQ(ceil_div_positive(12, 11), 2);
-	EXPECT_EQ(ceil_div_positive(10, 11), 1);
-
-	const std::uint32_t x1 = std::numeric_limits<std::uint32_t>::max() / 2;
-	const std::uint32_t x2 = x1;
-	EXPECT_EQ(ceil_div_positive(x1, x2), 1);
-	EXPECT_EQ(ceil_div_positive(x1 + 1, x2), 2);
-	EXPECT_EQ(ceil_div_positive(x1 - 1, x2), 1);
-	EXPECT_EQ(ceil_div_positive(x1, x2 - 1), 2);
 }
 
 TEST(MathTest, BitReversing)
