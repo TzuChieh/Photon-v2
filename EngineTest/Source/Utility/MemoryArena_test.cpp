@@ -136,7 +136,7 @@ TEST(MemoryArenaTest, Make)
 	std::vector<Test*> tests(TEST_SIZE);
 	for(int i = 0; i < TEST_SIZE; ++i)
 	{
-		tests[i] = arena.make<Test>(i, i, i);
+		tests[i] = arena.make<Test>(i, static_cast<float>(i), i);
 	}
 
 	for(int i = 0; i < TEST_SIZE; ++i)

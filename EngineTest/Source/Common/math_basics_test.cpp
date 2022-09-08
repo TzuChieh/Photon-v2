@@ -47,7 +47,7 @@ TEST(MathTest, FindNextIntegerMultiple)
 {
 	EXPECT_EQ(next_multiple(4, 5), 5);
 	EXPECT_EQ(next_multiple(4, 4), 4);
-	EXPECT_EQ(next_multiple(4, 3), 4);
+	EXPECT_EQ(next_multiple(4, 3), 6);
 	EXPECT_EQ(next_multiple(9, 8), 16);
 	EXPECT_EQ(next_multiple(10, 8), 16);
 	EXPECT_EQ(next_multiple(11, 8), 16);
