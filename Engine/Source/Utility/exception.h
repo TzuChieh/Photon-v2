@@ -18,4 +18,20 @@ public:
 	virtual std::string whatStr() const;
 };
 
+class LogicalException : public std::logic_error
+{
+public:
+	explicit LogicalException(const std::string& message);
+	explicit LogicalException(const char* message);
+	inline ~LogicalException() override = default;
+
+	virtual std::string whatStr() const;
+};
+
+class UninitializedObjectException : public LogicalException
+{
+public:
+	using LogicalException::LogicalException;
+};
+
 }// end namespace ph

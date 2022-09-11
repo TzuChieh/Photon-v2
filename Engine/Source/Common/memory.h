@@ -32,7 +32,8 @@ of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof
 @return Pointer to the beginning of newly allocated memory. `nullptr` on failure.
 @note Call free_aligned_memory(void*) to deallocate the memory.
 */
-inline [[nodiscard]] void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
+[[nodiscard]]
+inline void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
 {
 	// Alignment must be an integer power of 2.
 	PH_ASSERT(math::is_power_of_2(alignmentInBytes));
