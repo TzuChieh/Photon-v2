@@ -59,6 +59,32 @@ TEST(TFunctionTest, Traits)
 	}
 }
 
+TEST(TFunctionTest, States)
+{
+	{
+		auto func = TFunction<int(int, int, int)>();
+		ASSERT_FALSE(func);
+
+		EXPECT_THROW(func(1, 2, 3), UninitializedObjectException);
+
+		func.set<&get_sum>();
+
+		// Two forms for checking validity
+		ASSERT_TRUE(func);
+		ASSERT_TRUE(func.isValid());
+
+		EXPECT_NO_THROW(func(1, 2, 3));
+
+		func.unset();
+
+		// Two forms for checking validity
+		ASSERT_FALSE(func);
+		ASSERT_FALSE(func.isValid());
+
+		EXPECT_THROW(func(1, 2, 3), UninitializedObjectException);
+	}
+}
+
 TEST(TFunctionTest, CallFreeFunction)
 {
 	{

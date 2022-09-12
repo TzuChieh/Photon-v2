@@ -60,6 +60,7 @@ public:
 	inline TFunction& operator = (const TFunction& rhs) = default;
 
 	/*! @brief Call the stored function.
+	@exception UninitializedObjectException If the function was invalid (e.g., empty).
 	*/
 	template<typename... DeducedArgs>
 	inline R operator () (DeducedArgs&&... args) const
