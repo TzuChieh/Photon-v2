@@ -14,7 +14,6 @@
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 
 #include <algorithm>
-#include <iostream>
 #include <memory>
 #include <vector>
 

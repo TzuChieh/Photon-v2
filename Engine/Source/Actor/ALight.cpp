@@ -14,7 +14,6 @@
 #include "Common/logging.h"
 
 #include <algorithm>
-#include <iostream>
 
 namespace ph
 {

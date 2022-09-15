@@ -34,10 +34,26 @@
 
 #endif
 
-namespace ph
+namespace ph::detail
 {
 
-#ifdef PH_DEBUG
+void output_assertion_message(
+	const std::string& fileName,
+	const std::string& lineNumber,
+	const std::string& condition,
+	const std::string& message)
+{
+	std::cerr << "assertion failed at <" << fileName << ">: "
+	          << "line " << lineNumber
+	          << ", condition: <" << condition << ">";
+
+	if(!message.empty())
+	{
+		std::cerr << "; message: <" << message << ">";
+	}
+
+	std::cerr << std::endl;
+}
 
 void on_assertion_failed()
 {
@@ -74,6 +90,4 @@ void on_assertion_failed()
 #endif
 }
 
-#endif
-
-}// end namespace ph
+}// end namespace ph::detail

@@ -6,8 +6,6 @@
 #include "Core/HitProbe.h"
 #include "Common/assertion.h"
 
-#include <iostream>
-
 namespace ph
 {
 

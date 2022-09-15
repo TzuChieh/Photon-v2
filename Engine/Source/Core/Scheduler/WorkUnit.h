@@ -4,8 +4,6 @@
 #include "Common/assertion.h"
 #include "Core/Scheduler/Region.h"
 
-#include <iostream>
-
 namespace ph
 {
 

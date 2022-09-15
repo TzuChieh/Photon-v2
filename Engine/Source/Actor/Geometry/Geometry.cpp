@@ -3,8 +3,6 @@
 #include "Common/assertion.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
-#include <iostream>
-
 namespace ph
 {
 

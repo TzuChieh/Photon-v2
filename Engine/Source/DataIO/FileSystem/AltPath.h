@@ -4,7 +4,6 @@
 #include "Common/os.h"
 
 #include <string>
-#include <iostream>
 
 #ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
 	#include <direct.h>

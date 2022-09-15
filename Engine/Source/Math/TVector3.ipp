@@ -8,7 +8,6 @@
 #include <cmath>
 #include <string>
 #include <cstdlib>
-#include <iostream>
 #include <algorithm>
 
 namespace ph::math

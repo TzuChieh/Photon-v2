@@ -2,31 +2,35 @@
 
 #include "Common/config.h"
 
+#include <string>
+
+namespace ph::detail
+{
+
+void output_assertion_message(
+	const std::string& fileName,
+	const std::string& lineNumber,
+	const std::string& condition,
+	const std::string& message);
+
+void on_assertion_failed();
+
+}// end namespace ph::detail
+
 #ifdef PH_DEBUG
-
-	#include <iostream>
-	#include <string>
-
-	namespace ph
-	{
-		extern void on_assertion_failed();
-	}
 
 	#define PH_ASSERT_MSG(condition, failMessage)\
 		do\
 		{\
 			if(!(condition))\
 			{\
-				std::cerr << "assertion failed at <" << __FILE__ << ">: "\
-						  << "line " << __LINE__\
-						  << ", condition: <" << #condition << ">";\
-				if(!std::string((failMessage)).empty())\
-				{\
-					std::cerr << "; message: <" << (failMessage) << ">";\
-				}\
-				std::cerr << std::endl;\
+				ph::detail::output_assertion_message(\
+					std::string(__FILE__),\
+					std::to_string(__LINE__),\
+					std::string(#condition),\
+					std::string((failMessage)));\
 				\
-				ph::on_assertion_failed();\
+				ph::detail::on_assertion_failed();\
 			}\
 		} while(0)
 

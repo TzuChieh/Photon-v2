@@ -9,7 +9,6 @@
 #include "DataIO/SDL/sdl_interface.h"
 #include "Math/TArithmeticArray.h"
 
-#include <iostream>
 #include <memory>
 
 namespace ph { class ActorCookingContext; }

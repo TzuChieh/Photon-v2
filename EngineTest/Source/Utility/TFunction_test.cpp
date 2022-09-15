@@ -32,6 +32,14 @@ int get_sum(int a, int b, int c)
 	return a + b + c;
 }
 
+struct Adder
+{
+	int operator () (int x, int y)
+	{
+		return x + y;
+	}
+};
+
 }
 
 TEST(TFunctionTest, Traits)
@@ -56,6 +64,20 @@ TEST(TFunctionTest, Traits)
 		static_assert(IntSetter::TIsFreeFunction<&SimpleGetSet::set>{} == false);
 		static_assert(IntSetter::TIsConstCallableMethod<&SimpleGetSet::set, SimpleGetSet>{} == false);
 		static_assert(IntSetter::TIsNonConstCallableMethod<&SimpleGetSet::set, SimpleGetSet>{} == true);
+	}
+
+	{
+		using IntAdder = TFunction<int(int, int)>;
+
+		auto lambdaFunc = [](int, int) -> int {};
+		
+		int val;
+		auto lambdaFunc2 = [val](int, int) -> int {};
+
+		static_assert(IntAdder::TIsEmptyFunctor<Adder>{} == true);
+		static_assert(IntAdder::TIsEmptyFunctor<SimpleGetSet>{} == false);
+		static_assert(IntAdder::TIsEmptyFunctor<decltype(lambdaFunc)>{} == true);
+		static_assert(IntAdder::TIsEmptyFunctor<decltype(lambdaFunc2)>{} == false);
 	}
 }
 
@@ -157,5 +179,30 @@ TEST(TFunctionTest, CallMethod)
 		ASSERT_TRUE(func.isValid());
 
 		EXPECT_EQ(func(), 777);
+	}
+}
+
+TEST(TFunctionTest, CallEmptyFunctor)
+{
+	// Call empty struct's operator ()
+	{
+		auto func = TFunction<int(int, int)>().set<Adder>();
+		
+		// Two forms for checking validity
+		ASSERT_TRUE(func);
+		ASSERT_TRUE(func.isValid());
+
+		EXPECT_EQ(func(3, 6), 9);
+	}
+
+	// Call lambda without capture
+	{
+		auto func = TFunction<int(int, int)>().set([](int x, int y){ return x * y; });
+
+		// Two forms for checking validity
+		ASSERT_TRUE(func);
+		ASSERT_TRUE(func.isValid());
+
+		EXPECT_EQ(func(-123, 10), -1230);
 	}
 }
