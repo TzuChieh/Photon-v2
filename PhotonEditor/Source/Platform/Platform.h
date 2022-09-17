@@ -18,6 +18,7 @@ public:
 	virtual void render() = 0;
 	virtual const Input& getInput() const = 0;
 	virtual const Display& getDisplay() const = 0;
+	virtual bool isInitialized() const = 0;
 };
 
 }// end namespace ph::editor

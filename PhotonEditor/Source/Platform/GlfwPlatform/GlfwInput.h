@@ -2,28 +2,36 @@
 
 #include "Platform/Input.h"
 
+struct GLFWwindow;
+
 namespace ph::editor
 {
 
 class GlfwInput : public Input
 {
 public:
+	GlfwInput();
+	explicit GlfwInput(GLFWwindow* glfwWindow);
+
 	void poll(float64 deltaS) override;
 
-	virtual void virtualizeCursor() const = 0;
-	virtual void unvirtualizeCursor() const = 0;
+	void virtualizeCursor() const override;
+	void unvirtualizeCursor() const override;
 
-	virtual bool isKeyDown(EKeyCode keyCode) const = 0;
-	virtual bool isMouseButtonDown(EMouseCode mouseCode) const = 0;
+	bool isKeyDown(EKeyCode keyCode) const override;
+	bool isMouseButtonDown(EMouseCode mouseCode) const override;
 
-	virtual bool isKeyUp(EKeyCode keyCode) const = 0;
-	virtual bool isMouseButtonUp(EMouseCode mouseCode) const = 0;
+	bool isKeyUp(EKeyCode keyCode) const override;
+	bool isMouseButtonUp(EMouseCode mouseCode) const override;
 
-	virtual bool isKeyHold(EKeyCode keyCode) const = 0;
-	virtual bool isMouseButtonHold(EMouseCode mouseCode) const = 0;
+	bool isKeyHold(EKeyCode keyCode) const override;
+	bool isMouseButtonHold(EMouseCode mouseCode) const override;
 
-	virtual math::Vector2D getCursorPositionPx() const = 0;
-	virtual math::Vector2D getCursorMovementDeltaPx() const = 0;
+	math::Vector2D getCursorPositionPx() const override;
+	math::Vector2D getCursorMovementDeltaPx() const override;
+
+private:
+	GLFWwindow* m_glfwWindow;
 };
 
 }// end namespace ph::editor
