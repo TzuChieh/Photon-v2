@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Common/assertion.h>
 #include <Common/primitive_type.h>
-
-#include <memory>
 
 namespace ph::editor
 {
@@ -14,32 +11,13 @@ class Display;
 class Platform
 {
 public:
-	Platform(
-		std::unique_ptr<Input>   input,
-		std::unique_ptr<Display> display);
-
+	Platform();
 	virtual ~Platform();
 
 	virtual void update(float64 deltaS) = 0;
-
-	const Input& getInput() const;
-	const Display& getDisplay() const;
-
-private:
-	std::unique_ptr<Input>   m_input;
-	std::unique_ptr<Display> m_display;
+	virtual void render() = 0;
+	virtual const Input& getInput() const = 0;
+	virtual const Display& getDisplay() const = 0;
 };
-
-inline const Input& Platform::getInput() const
-{
-	PH_ASSERT(m_input);
-	return *m_input;
-}
-
-inline const Display& Platform::getDisplay() const
-{
-	PH_ASSERT(m_display);
-	return *m_display;
-}
 
 }// end namespace ph::editor

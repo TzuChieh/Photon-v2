@@ -150,7 +150,7 @@ class Input
 public:
 	inline virtual ~Input() = default;
 
-	virtual void update(float64 deltaS) = 0;
+	virtual void poll(float64 deltaS) = 0;
 
 	/*!
 	"Virtualize Cursor" means to hide the cursor and gives user a sense of
