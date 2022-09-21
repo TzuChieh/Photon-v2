@@ -6,12 +6,14 @@
 namespace ph::editor
 {
 
+class GHI;
+
 class Display
 {
 public:
 	inline virtual ~Display() = default;
 
-	virtual void present() = 0;
+	virtual GHI* getGHI() const = 0;
 	virtual math::Vector2S getSizePx() const = 0;
 };
 

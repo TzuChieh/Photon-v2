@@ -36,6 +36,16 @@ private:
 	GlfwDisplay m_display;
 };
 
+inline const Input& GlfwPlatform::getInput() const
+{
+	return m_input;
+}
+
+inline const Display& GlfwPlatform::getDisplay() const
+{
+	return m_display;
+}
+
 inline bool GlfwPlatform::isGlfwInitialized() const
 {
 	return m_glfwWindow != nullptr;
