@@ -1,10 +1,9 @@
 #include "Platform/GlfwPlatform/GlfwInput.h"
 #include "Platform/Platform.h"
+#include "ThirdParty/GLFW3.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
-
-#include <GLFW/glfw3.h>
 
 namespace ph::editor
 {

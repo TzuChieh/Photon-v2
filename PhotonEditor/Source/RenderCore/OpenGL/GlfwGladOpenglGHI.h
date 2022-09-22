@@ -1,8 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHI.h"
-
-struct GLFWwindow;
+#include "ThirdParty/GLFW3_fwd.h"
 
 namespace ph::editor
 {

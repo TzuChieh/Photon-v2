@@ -1,11 +1,10 @@
 #include "Platform/GlfwPlatform/GlfwDisplay.h"
 #include "RenderCore/OpenGL/GlfwGladOpenglGHI.h"
 #include "Platform/Platform.h"
+#include "ThirdParty/GLFW3.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
-
-#include <GLFW/glfw3.h>
 
 namespace ph::editor
 {

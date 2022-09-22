@@ -2,11 +2,10 @@
 
 #include "Platform/PlatformDisplay.h"
 #include "App/EGraphicsAPI.h"
+#include "ThirdParty/GLFW3_fwd.h"
 
 #include <string>
 #include <memory>
-
-struct GLFWwindow;
 
 namespace ph::editor
 {

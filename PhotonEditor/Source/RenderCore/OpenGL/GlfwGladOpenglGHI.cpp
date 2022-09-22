@@ -1,8 +1,7 @@
 #include "RenderCore/OpenGL/GlfwGladOpenglGHI.h"
+#include "ThirdParty/GLFW3.h"
 
 #include <Common/assertion.h>
-
-#include <GLFW/glfw3.h>
 
 namespace ph::editor
 {
@@ -12,6 +11,8 @@ GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow)
 	, m_glfwWindow(glfwWindow)
 {
 	PH_ASSERT(glfwWindow);
+
+	glfwMakeContextCurrent(m_glfwWindow);
 
 	// TODO
 }

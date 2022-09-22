@@ -1,10 +1,9 @@
 #include "Platform/GlfwPlatform/GlfwPlatform.h"
 #include "App/AppSettings.h"
+#include "ThirdParty/GLFW3.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
-
-#include <GLFW/glfw3.h>
 
 namespace ph::editor
 {
@@ -71,6 +70,7 @@ void GlfwPlatform::init(const AppSettings& settings)
 	}
 
 	m_display.createWindow(settings.title, settings.displaySizePx, requestedGraphicsApi);
+	m_input.start(m_display.getGlfwWindow());
 
 	// TODO
 }

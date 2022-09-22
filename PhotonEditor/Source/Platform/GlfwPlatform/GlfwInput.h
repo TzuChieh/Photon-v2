@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Platform/PlatformInput.h"
-
-struct GLFWwindow;
+#include "ThirdParty/GLFW3_fwd.h"
 
 namespace ph::editor
 {
