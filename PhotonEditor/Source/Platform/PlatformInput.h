@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Utility/INoCopyAndMove.h>
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>
 
@@ -145,10 +146,19 @@ enum class EMouseCode : uint32f
 	Num,
 };// end EMouseCode
 
-class Input
+/*! @brief Platform input abstraction.
+@exception PlatformException When error occurred and the platform must terminate its operations.
+@note Can only be created by `Platform`.
+*/
+class PlatformInput : private INoCopyAndMove
 {
+	friend class Platform;
+
+protected:
+	inline PlatformInput() = default;
+	inline virtual ~PlatformInput() = default;
+
 public:
-	inline virtual ~Input() = default;
 
 	virtual void poll(float64 deltaS) = 0;
 

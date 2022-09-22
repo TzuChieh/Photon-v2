@@ -2,16 +2,21 @@
 
 #include "RenderCore/GHI.h"
 
+struct GLFWwindow;
+
 namespace ph::editor
 {
 
 class GlfwGladOpenglGHI : public GHI
 {
 public:
-	GlfwGladOpenglGHI();
+	explicit GlfwGladOpenglGHI(GLFWwindow* glfwWindow);
 	~GlfwGladOpenglGHI() override;
 
+	void swapBuffers() override;
+
 private:
+	GLFWwindow* m_glfwWindow;
 };
 
 }// end namespace ph::editor

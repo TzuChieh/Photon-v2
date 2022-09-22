@@ -1,17 +1,16 @@
 #pragma once
 
-#include "Platform/Input.h"
+#include "Platform/PlatformInput.h"
 
 struct GLFWwindow;
 
 namespace ph::editor
 {
 
-class GlfwInput : public Input
+class GlfwInput : public PlatformInput
 {
 public:
 	GlfwInput();
-	explicit GlfwInput(GLFWwindow* glfwWindow);
 
 	void poll(float64 deltaS) override;
 
@@ -29,6 +28,9 @@ public:
 
 	math::Vector2D getCursorPositionPx() const override;
 	math::Vector2D getCursorMovementDeltaPx() const override;
+
+	void start(GLFWwindow* glfwWindow);
+	void stop();
 
 private:
 	GLFWwindow* m_glfwWindow;

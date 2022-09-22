@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Platform/Display.h"
+#include "Platform/PlatformDisplay.h"
+#include "App/EGraphicsAPI.h"
 
 #include <string>
 #include <memory>
@@ -10,7 +11,7 @@ struct GLFWwindow;
 namespace ph::editor
 {
 
-class GlfwDisplay : public Display
+class GlfwDisplay : public PlatformDisplay
 {
 public:
 	GlfwDisplay();
@@ -18,11 +19,12 @@ public:
 	GHI* getGHI() const override;
 	math::Vector2S getSizePx() const override;
 
-	bool createWindow(
+	void createWindow(
 		const std::string& windowTitle,
-		math::Vector2S     sizePx);
+		math::Vector2S     sizePx,
+		EGraphicsAPI       graphicsApi);
 
-	void destroyWindow();
+	void closeWindow();
 
 	GLFWwindow* getGlfwWindow() const;
 
@@ -31,6 +33,16 @@ private:
 	std::unique_ptr<GHI> m_ghi;
 	math::Vector2S       m_sizePx;
 };
+
+inline GHI* GlfwDisplay::getGHI() const
+{
+	return m_ghi.get();
+}
+
+inline math::Vector2S GlfwDisplay::getSizePx() const
+{
+	return m_sizePx;
+}
 
 inline GLFWwindow* GlfwDisplay::getGlfwWindow() const
 {

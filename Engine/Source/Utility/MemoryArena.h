@@ -36,7 +36,7 @@ public:
 	@param numBytes Number of bytes to allocate.
 	@param alignmentInBytes Alignment requirement of the allocation, in bytes.
 	@return Allocated memory, never `nullptr`.
-	@exception `std::bad_alloc` if the allocation failed.
+	@exception std::bad_alloc If the allocation failed.
 	*/
 	std::byte* allocRaw(std::size_t numBytes, std::size_t alignmentInBytes = alignof(std::max_align_t));
 

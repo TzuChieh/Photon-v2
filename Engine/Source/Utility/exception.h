@@ -2,9 +2,15 @@
 
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <format>
+#include <type_traits>
+#include <utility>
 
 namespace ph
 {
+
+// Note: When adding new types, the implementation of `CPhotonException` needs to be updated.
 
 /*! @brief General exception thrown on runtime error.
 */
@@ -33,5 +39,16 @@ class UninitializedObjectException : public LogicalException
 public:
 	using LogicalException::LogicalException;
 };
+
+template<typename T>
+concept CPhotonException = 
+	std::is_base_of_v<RuntimeException, T> ||
+	std::is_base_of_v<LogicalException, T>;
+
+template<CPhotonException T, typename... Args>
+inline void throw_formatted(const std::string_view formattedMsg, Args&&... args)
+{
+	throw std::vformat(formattedMsg, std::make_format_args(std::forward<Args>(args)...));
+}
 
 }// end namespace ph

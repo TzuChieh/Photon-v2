@@ -21,14 +21,14 @@ public:
 
 	void update(float64 deltaS) override;
 	void render() override;
-	const Input& getInput() const override;
-	const Display& getDisplay() const override;
+	const PlatformInput& getInput() const override;
+	const PlatformDisplay& getDisplay() const override;
 	bool isInitialized() const override;
 
-	bool isGlfwInitialized() const;
+	bool isGlfwWindowInitialized() const;
 
 private:
-	bool init(const AppSettings& settings);
+	void init(const AppSettings& settings);
 	void terminate();
 
 	GLFWwindow* m_glfwWindow;
@@ -36,17 +36,17 @@ private:
 	GlfwDisplay m_display;
 };
 
-inline const Input& GlfwPlatform::getInput() const
+inline const PlatformInput& GlfwPlatform::getInput() const
 {
 	return m_input;
 }
 
-inline const Display& GlfwPlatform::getDisplay() const
+inline const PlatformDisplay& GlfwPlatform::getDisplay() const
 {
 	return m_display;
 }
 
-inline bool GlfwPlatform::isGlfwInitialized() const
+inline bool GlfwPlatform::isGlfwWindowInitialized() const
 {
 	return m_glfwWindow != nullptr;
 }

@@ -33,7 +33,7 @@ protected:
 	bool isStreamGoodForRead() const;
 
 	/*! @brief Check if the stream has any error.
-	@exception IOException if there is any error.
+	@exception IOException If there is any error.
 	*/
 	void ensureStreamIsGoodForRead() const;
 
