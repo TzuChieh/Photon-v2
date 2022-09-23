@@ -18,6 +18,8 @@ GlfwDisplay::GlfwDisplay()
 	, m_sizePx(0, 0)
 {}
 
+GlfwDisplay::~GlfwDisplay() = default;
+
 void GlfwDisplay::createWindow(
 	const std::string& windowTitle,
 	math::Vector2S     sizePx,

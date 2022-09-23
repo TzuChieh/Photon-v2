@@ -155,11 +155,10 @@ class PlatformInput : private INoCopyAndMove
 	friend class Platform;
 
 protected:
-	inline PlatformInput() = default;
-	inline virtual ~PlatformInput() = default;
+	PlatformInput();
+	virtual ~PlatformInput();
 
 public:
-
 	virtual void poll(float64 deltaS) = 0;
 
 	/*!

@@ -67,12 +67,18 @@ void log_to_logger(Logger& logger, std::string_view groupName, ELogLevel logLeve
 		return ::ph::detail::core_logging::CORE_LOGGER();\
 	}
 
+/*! @brief Defines a logger that is private to a .cpp file.
+Can only appear one time in a translation unit, preferably in a .cpp file. 
+*/
 #define PH_DEFINE_INTERNAL_LOG_GROUP(groupName, category)\
 	namespace\
 	{\
 		PH_DEFINE_INLINE_LOG_GROUP(groupName, category);\
 	}
 
+/*! @brief Defines a public logger in a header file.
+The logger will be usable anywhere that includes the header file containing this call.
+*/
 #define PH_DEFINE_EXTERNAL_LOG_GROUP(groupName, category) PH_DEFINE_INLINE_LOG_GROUP(groupName, category)
 
 #define PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, logLevel, rawString)\

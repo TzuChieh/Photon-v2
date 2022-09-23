@@ -5,6 +5,9 @@
 namespace ph::editor
 {
 
+/*! @brief Graphics API abstraction.
+@exception PlatformException When error occurred and the platform must terminate its operations.
+*/
 class GHI : private INoCopyAndMove
 {
 public:

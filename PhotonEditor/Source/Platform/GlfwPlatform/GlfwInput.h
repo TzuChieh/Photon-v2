@@ -10,6 +10,7 @@ class GlfwInput : public PlatformInput
 {
 public:
 	GlfwInput();
+	~GlfwInput() override;
 
 	void poll(float64 deltaS) override;
 

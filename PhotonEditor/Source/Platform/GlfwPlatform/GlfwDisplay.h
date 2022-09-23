@@ -14,6 +14,7 @@ class GlfwDisplay : public PlatformDisplay
 {
 public:
 	GlfwDisplay();
+	~GlfwDisplay() override;
 
 	GHI* getGHI() const override;
 	math::Vector2S getSizePx() const override;

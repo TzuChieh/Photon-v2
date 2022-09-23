@@ -18,8 +18,8 @@ class PlatformDisplay : private INoCopyAndMove
 	friend class Platform;
 
 protected:
-	inline PlatformDisplay() = default;
-	inline virtual ~PlatformDisplay() = default;
+	PlatformDisplay();
+	virtual ~PlatformDisplay();
 
 public:
 	virtual GHI* getGHI() const = 0;

@@ -15,6 +15,8 @@ GlfwInput::GlfwInput()
 	, m_glfwWindow(nullptr)
 {}
 
+GlfwInput::~GlfwInput() = default;
+
 void GlfwInput::poll(const float64 deltaS)
 {
 	PH_ASSERT(m_glfwWindow);
