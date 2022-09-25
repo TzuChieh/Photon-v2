@@ -7,7 +7,7 @@
 namespace ph
 {
 
-/*! @brief A multi-producer, multi-consumer, blocking concurrent queue.
+/*! @brief A multi-producer, multi-consumer, blockable version of the lock-free concurrent queue.
 For single-thread uses, it is a FIFO queue. For multi-thread uses, it is *mostly* a FIFO queue.
 Specifically, items put in by a given producer will all come out in the same order (FIFO). But
 there is no coordination between items from other producers--two items put in by two different
@@ -16,11 +16,11 @@ different streams of items from different producers is undefined).
 It is possible some items will starve in the queue if more items are enqueued than dequeued.
 */
 template<typename T>
-class TBlockingQueue final
+class TBlockableQueue final
 {
 public:
-	TBlockingQueue();
-	explicit TBlockingQueue(std::size_t initialCapacity);
+	TBlockableQueue();
+	explicit TBlockableQueue(std::size_t initialCapacity);
 
 	/*! @brief Enqueue an item. Allocate memory if required.
 	@note Thread-safe.
@@ -60,4 +60,4 @@ private:
 
 }// end namespace ph
 
-#include "Utility/Concurrent/TBlockingQueue.ipp"
+#include "Utility/Concurrent/TBlockableQueue.ipp"
