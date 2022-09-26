@@ -99,6 +99,9 @@ public:
 	}
 
 private:
+	/*! @brief
+	@note Thread-safe.
+	*/
 	inline void asyncProcessWork()
 	{
 		std::unique_lock<std::mutex> lock(m_threadMutex);
@@ -136,6 +139,9 @@ private:
 		} while(!m_isStopRequested);
 	}
 
+	/*! @brief 
+	@note Thread-safe.
+	*/
 	inline bool isWorkerThread() const
 	{
 		return std::this_thread::get_id() == m_thread.get_id();

@@ -1,15 +1,20 @@
 #pragma once
 
+#include "Common/config.h"
 #include "Common/assertion.h"
 #include "Utility/exception.h"
 
+#include <cstddef>
 #include <type_traits>
 #include <utility>
 
 namespace ph
 {
 
-template<typename T>
+namespace function_detail
+{
+
+template<typename T, std::size_t N = 0>
 class TFunction final
 {
 	// Correct function signature will instantiate the specialized type. If this type is selected
@@ -17,9 +22,6 @@ class TFunction final
 	static_assert(std::is_function_v<T>,
 		"Invalid function signature.");
 };
-
-namespace detail
-{
 
 template<auto Func, typename R, typename... Args>
 concept CFreeFunctionForm = 
@@ -38,25 +40,48 @@ concept CNonConstCallableMethodForm =
 
 template<typename Func, typename R, typename... Args>
 concept CEmptyFunctorForm = 
-	std::is_empty_v<Func> &&
-	std::is_default_constructible_v<Func> &&
+	std::is_empty_v<std::decay_t<Func>> &&// so we do not need to store its states
+	std::is_default_constructible_v<std::decay_t<Func>> &&// we construct it on every call
 	std::is_invocable_r_v<R, Func, Args...>;
 
-}// end namespace detail
+template<typename Func, typename R, typename... Args>
+concept CNonEmptyTrivialFunctorForm = 
+	!std::is_empty_v<std::decay_t<Func>> &&// this also helps to disambiguate from the empty form
+	std::is_constructible_v<std::decay_t<Func>, Func> &&// we placement new using existing instance
+	std::is_trivially_copyable_v<std::decay_t<Func>> &&// so copying the underlying buffer is legal
+	std::is_trivially_destructible_v<std::decay_t<Func>> &&// somewhat redundant as we have `is_trivially_copyable`, but nice to be explicit
+	std::is_invocable_r_v<R, Func, Args...>;
 
 /*! @brief Lightweight callable target wrapper.
 This type is a thin wrapper around stateless callable targets such as free function, method,
 functor and lambda. For methods, the instance must outlive the associated `TFunction`. For functors
-and lambdas, they must be stateless (no member variable/no capture). This type is guaranteed to
-be cheap to construct, copy, destruct and little in size (2 pointers). Calling functions indirectly
-through this type adds almost no overhead.
+and lambdas, they must be stateless (no member variable/no capture) or small enough in size. Unlike
+the standard `std::function` which offers little guarantees, this type is guaranteed to be cheap to 
+construct, copy, destruct and small in size (minimum: 2 pointers for `MIN_SIZE` == 16, may vary
+depending on the platform). Calling functions indirectly through this type adds almost no overhead.
 
 See the amazing post by @bitwizeshift and his github projects, from which is much of the inspiration
 derived: https://bitwizeshift.github.io/posts/2021/02/24/creating-a-fast-and-efficient-delegate-type-part-1/
 */
-template<typename R, typename... Args>
-class TFunction<R(Args...)> final
+template<typename R, typename... Args, std::size_t MIN_SIZE>
+class TFunction<R(Args...), MIN_SIZE> final
 {
+private:
+	using UnifiedCaller = R(*)(const void*, Args...);
+
+	// Aligning to the pointer size should be sufficient in most cases. Currently we do not align the
+	// buffer to `std::max_align_t` or anything greater to save space.
+	constexpr static std::size_t BUFFER_ALIGNMENT = alignof(void*);
+
+	constexpr static std::size_t BUFFER_SIZE = MIN_SIZE > sizeof(UnifiedCaller) + sizeof(void*)
+		? MIN_SIZE - sizeof(UnifiedCaller)
+		: sizeof(void*);
+
+	template<typename Func>
+	using TCanFitBuffer = std::bool_constant<
+		sizeof(Func) <= BUFFER_SIZE &&
+		alignof(Func) <= BUFFER_ALIGNMENT>;
+
 public:
 	/*! @brief Callable target traits.
 	Test whether the target is of specific type and is invocable using @p Args and returns @p R.
@@ -66,14 +91,14 @@ public:
 	/*! @brief Test if the target @p Func is a free function.
 	*/
 	template<auto Func>
-	using TIsFreeFunction = std::bool_constant<detail::CFreeFunctionForm<Func, R, Args...>>;
+	using TIsFreeFunction = std::bool_constant<CFreeFunctionForm<Func, R, Args...>>;
 
 	/*! @brief Test if the target @p Func is a method and is invocable with a const object.
 	Note that the test is for whether the method is invocable using a const object for the `this`
 	argument, not for the constness of the method. See `TIsNonConstCallableMethod` for more examples.
 	*/
 	template<auto Func, typename Class>
-	using TIsConstCallableMethod = std::bool_constant<detail::CConstCallableMethodForm<Func, Class, R, Args...>>;
+	using TIsConstCallableMethod = std::bool_constant<CConstCallableMethodForm<Func, Class, R, Args...>>;
 
 	/*! @brief Test if the target @p Func is a method and is invocable with a non-const object.
 	Note that the test is for whether the method is invocable using a non-const object for the `this`
@@ -81,7 +106,7 @@ public:
 	a non-const instance of @p Class; a method is also invocable using a derived type of @p Class.
 	*/
 	template<auto Func, typename Class>
-	using TIsNonConstCallableMethod = std::bool_constant<detail::CNonConstCallableMethodForm<Func, Class, R, Args...>>;
+	using TIsNonConstCallableMethod = std::bool_constant<CNonConstCallableMethodForm<Func, Class, R, Args...>>;
 
 	/*! @brief Check if the type @p Func is a functor type without member variable.
 	The type @p Func must also be default-constructible as we will construct the type on every
@@ -89,7 +114,12 @@ public:
 	since C++20).
 	*/
 	template<typename Func>
-	using TIsEmptyFunctor = std::bool_constant<detail::CEmptyFunctorForm<Func, R, Args...>>;
+	using TIsEmptyFunctor = std::bool_constant<CEmptyFunctorForm<Func, R, Args...>>;
+
+	template<typename Func>
+	using TIsNonEmptyTrivialFunctor = std::bool_constant<
+		CNonEmptyTrivialFunctorForm<Func, R, Args...> &&
+		TCanFitBuffer<std::decay_t<Func>>>;
 
 	///@}
 
@@ -100,6 +130,7 @@ public:
 
 	inline TFunction(const TFunction& other) = default;
 	inline TFunction& operator = (const TFunction& rhs) = default;
+	inline ~TFunction() = default;
 
 	/*! @brief Call the stored function.
 	@exception UninitializedObjectException If the function was invalid (e.g., empty).
@@ -222,6 +253,8 @@ private:
 	inline static R makeEmptyFunctorCaller(const void* /* unused */, Args... args)
 		requires TIsEmptyFunctor<Func>::value
 	{
+		// Under the assumption that a stateless functor should be cheap to create (and without any
+		// side effects), we construct a new `Func` on every call to it
 		return Func{}(std::forward<Args>(args)...);
 	}
 
@@ -232,13 +265,28 @@ private:
 	}
 
 private:
-	using UnifiedCaller = R(*)(const void*, Args...);
+	struct EmptyStruct
+	{};
+
+	union
+	{
+		// Intentionally provided so that default init of the union is a no-op.
+		EmptyStruct u_emptyStruct;
+
+		// Pointer to class instance. May be empty except for methods.
+		const void* m_instance = nullptr;
+
+		// Buffer for non-empty functors.
+		alignas(BUFFER_ALIGNMENT) std::byte u_buffer[BUFFER_SIZE];
+	};
 
 	// Wrapper function with unified signature for calling the actual function.
 	UnifiedCaller m_caller = &makeInvalidFunctionCaller;
-
-	// Pointer to class instance. May be empty except for methods.
-	const void* m_instance = nullptr;
 };
+
+}// end namespace function_detail
+
+template<typename Func, std::size_t MIN_SIZE = PH_TFUNCTION_MIN_SIZE_IN_BYTES>
+using TFunction = function_detail::TFunction<Func, MIN_SIZE>;
 
 }// end namespace ph

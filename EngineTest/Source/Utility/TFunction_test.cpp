@@ -79,6 +79,21 @@ TEST(TFunctionTest, Traits)
 		static_assert(IntAdder::TIsEmptyFunctor<decltype(lambdaFunc)>{} == true);
 		static_assert(IntAdder::TIsEmptyFunctor<decltype(lambdaFunc2)>{} == false);
 	}
+
+	{
+		// Without size hint: macro determines the lower bound
+		static_assert(sizeof(TFunction<int(int, int)>) >= PH_TFUNCTION_MIN_SIZE_IN_BYTES);
+
+		// Limit the size to 2 pointers: 
+		// 
+		// *** NOTE: 
+		// This test is relatively strict, e.g., function pointers do not necessarily have
+		// a size equal to normal pointers. Consider relaxing it if error occurred.
+		// ***
+		//
+		constexpr auto sizeofTwoPointers = sizeof(void*) * 2;
+		static_assert(sizeof(TFunction<int(int, int), sizeofTwoPointers>) == sizeofTwoPointers);
+	}
 }
 
 TEST(TFunctionTest, States)
