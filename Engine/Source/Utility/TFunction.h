@@ -67,7 +67,7 @@ template<typename R, typename... Args, std::size_t MIN_SIZE>
 class TFunction<R(Args...), MIN_SIZE> final
 {
 private:
-	using UnifiedCaller = R(*)(const void*, Args...);
+	using UnifiedCaller = R(*)(const TFunction*, Args...);
 
 	// Aligning to the pointer size should be sufficient in most cases. Currently we do not align the
 	// buffer to `std::max_align_t` or anything greater to save space.
@@ -121,6 +121,9 @@ public:
 		CNonEmptyTrivialFunctorForm<Func, R, Args...> &&
 		TCanFitBuffer<std::decay_t<Func>>>;
 
+	// TODO: const callable non empty trivial functor
+	// TODO: non const callable non empty trivial functor
+
 	///@}
 
 public:
@@ -139,7 +142,7 @@ public:
 	inline R operator () (DeducedArgs&&... args) const
 		requires std::is_invocable_v<R(Args...), DeducedArgs...>
 	{
-		return (*m_caller)(m_instance, std::forward<DeducedArgs>(args)...);
+		return (*m_caller)(this, std::forward<DeducedArgs>(args)...);
 	}
 
 	/*! @brief Set a free function.
@@ -148,8 +151,8 @@ public:
 	inline TFunction& set()
 		requires TIsFreeFunction<Func>::value
 	{
-		m_instance = nullptr;
-		m_caller   = &makeFreeFunctionCaller<Func>;
+		u_emptyStruct = EmptyStruct{};
+		m_caller      = &makeFreeFunctionCaller<Func>;
 
 		return *this;
 	}
@@ -162,7 +165,7 @@ public:
 	{
 		PH_ASSERT(instancePtr);
 
-		m_instance = instancePtr;
+		u_instance = instancePtr;
 		m_caller   = &makeConstCallableMethodCaller<Func, Class>;
 
 		return *this;
@@ -188,8 +191,8 @@ public:
 	inline TFunction& set()
 		requires TIsEmptyFunctor<Func>::value
 	{
-		m_instance = nullptr;
-		m_caller   = &makeEmptyFunctorCaller<Func>;
+		u_emptyStruct = EmptyStruct{};
+		m_caller      = &makeEmptyFunctorCaller<Func>;
 
 		return *this;
 	}
@@ -227,30 +230,30 @@ public:
 
 private:
 	template<auto Func>
-	inline static R makeFreeFunctionCaller(const void* /* unused */, Args... args)
+	inline static R makeFreeFunctionCaller(const TFunction* /* unused */, Args... args)
 		requires TIsFreeFunction<Func>::value
 	{
 		return (*Func)(std::forward<Args>(args)...);
 	}
 
 	template<auto Func, typename Class>
-	inline static R makeConstCallableMethodCaller(const void* const rawInstancePtr, Args... args)
+	inline static R makeConstCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsConstCallableMethod<Func, Class>::value
 	{
-		const auto* const instancePtr = static_cast<const Class*>(rawInstancePtr);
+		const auto* const instancePtr = static_cast<const Class*>(self->u_instance);
 		return (instancePtr->*Func)(std::forward<Args>(args)...);
 	}
 
 	template<auto Func, typename Class>
-	inline static R makeNonConstCallableMethodCaller(const void* const rawInstancePtr, Args... args)
+	inline static R makeNonConstCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsNonConstCallableMethod<Func, Class>::value
 	{
-		auto* const instancePtr = const_cast<Class*>(static_cast<const Class*>(rawInstancePtr));
+		auto* const instancePtr = const_cast<Class*>(static_cast<const Class*>(self->u_instance));
 		return (instancePtr->*Func)(std::forward<Args>(args)...);
 	}
 
 	template<typename Func>
-	inline static R makeEmptyFunctorCaller(const void* /* unused */, Args... args)
+	inline static R makeEmptyFunctorCaller(const TFunction* /* unused */, Args... args)
 		requires TIsEmptyFunctor<Func>::value
 	{
 		// Under the assumption that a stateless functor should be cheap to create (and without any
@@ -258,8 +261,14 @@ private:
 		return Func{}(std::forward<Args>(args)...);
 	}
 
+	template<typename Func>
+	inline static R makeNonEmptyFunctorCaller(const TFunction* const self, Args... args)
+	{
+		auto&& func = 
+	}
+
 	[[noreturn]]
-	inline static R makeInvalidFunctionCaller(const void* /* unused */, Args... args)
+	inline static R makeInvalidFunctionCaller(const TFunction* /* unused */, Args... args)
 	{
 		throw UninitializedObjectException("Invalid function call: function is not set");
 	}
@@ -274,7 +283,7 @@ private:
 		EmptyStruct u_emptyStruct;
 
 		// Pointer to class instance. May be empty except for methods.
-		const void* m_instance = nullptr;
+		const void* u_instance = nullptr;
 
 		// Buffer for non-empty functors.
 		alignas(BUFFER_ALIGNMENT) std::byte u_buffer[BUFFER_SIZE];

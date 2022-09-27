@@ -6,7 +6,6 @@
 #include "Math/Color/Spectrum.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/Texture/TTexture.h"
-#include "Common/assertion.h"
 
 #include <memory>
 

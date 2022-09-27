@@ -1,6 +1,5 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
 
 #include <iostream>
