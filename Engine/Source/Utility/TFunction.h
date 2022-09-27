@@ -7,6 +7,8 @@
 #include <cstddef>
 #include <type_traits>
 #include <utility>
+#include <new>
+#include <memory>
 
 namespace ph
 {
@@ -42,7 +44,7 @@ template<typename Func, typename R, typename... Args>
 concept CEmptyFunctorForm = 
 	std::is_empty_v<std::decay_t<Func>> &&// so we do not need to store its states
 	std::is_default_constructible_v<std::decay_t<Func>> &&// we construct it on every call
-	std::is_invocable_r_v<R, Func, Args...>;
+	std::is_invocable_r_v<R, std::decay_t<Func>, Args...>;// we call from the newly constructed value, no matter the constness
 
 template<typename Func, typename R, typename... Args>
 concept CNonEmptyTrivialFunctorForm = 
@@ -50,7 +52,7 @@ concept CNonEmptyTrivialFunctorForm =
 	std::is_constructible_v<std::decay_t<Func>, Func> &&// we placement new using existing instance
 	std::is_trivially_copyable_v<std::decay_t<Func>> &&// so copying the underlying buffer is legal
 	std::is_trivially_destructible_v<std::decay_t<Func>> &&// somewhat redundant as we have `is_trivially_copyable`, but nice to be explicit
-	std::is_invocable_r_v<R, Func, Args...>;
+	std::is_invocable_r_v<R, const std::decay_t<Func>&, Args...>;// must be const as we store its states
 
 /*! @brief Lightweight callable target wrapper.
 This type is a thin wrapper around stateless callable targets such as free function, method,
@@ -121,9 +123,6 @@ public:
 		CNonEmptyTrivialFunctorForm<Func, R, Args...> &&
 		TCanFitBuffer<std::decay_t<Func>>>;
 
-	// TODO: const callable non empty trivial functor
-	// TODO: non const callable non empty trivial functor
-
 	///@}
 
 public:
@@ -165,8 +164,8 @@ public:
 	{
 		PH_ASSERT(instancePtr);
 
-		u_instance = instancePtr;
-		m_caller   = &makeConstCallableMethodCaller<Func, Class>;
+		u_constInstance = instancePtr;
+		m_caller        = &makeConstCallableMethodCaller<Func, Class>;
 
 		return *this;
 	}
@@ -179,8 +178,8 @@ public:
 	{
 		PH_ASSERT(instancePtr);
 
-		m_instance = instancePtr;
-		m_caller   = &makeNonConstCallableMethodCaller<Func, Class>;
+		u_nonConstInstance = instancePtr;
+		m_caller           = &makeNonConstCallableMethodCaller<Func, Class>;
 
 		return *this;
 	}
@@ -192,7 +191,7 @@ public:
 		requires TIsEmptyFunctor<Func>::value
 	{
 		u_emptyStruct = EmptyStruct{};
-		m_caller      = &makeEmptyFunctorCaller<Func>;
+		m_caller      = &makeEmptyFunctorCaller<std::decay_t<Func>>;
 
 		return *this;
 	}
@@ -204,6 +203,19 @@ public:
 		requires TIsEmptyFunctor<Func>::value
 	{
 		return set<Func>();
+	}
+
+	template<typename Func>
+	inline TFunction& set(Func&& func)
+		requires TIsNonEmptyTrivialFunctor<Func>::value
+	{
+		std::construct_at(
+			reinterpret_cast<std::decay_t<Func>*>(u_buffer),
+			std::forward<Func>(func));
+
+		m_caller = &makeNonEmptyFunctorCaller<std::decay_t<Func>>;
+		
+		return *this;
 	}
 
 	/*! @brief Check if this function can be called.
@@ -240,7 +252,7 @@ private:
 	inline static R makeConstCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsConstCallableMethod<Func, Class>::value
 	{
-		const auto* const instancePtr = static_cast<const Class*>(self->u_instance);
+		const auto* const instancePtr = static_cast<const Class*>(self->u_constInstance);
 		return (instancePtr->*Func)(std::forward<Args>(args)...);
 	}
 
@@ -248,7 +260,8 @@ private:
 	inline static R makeNonConstCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsNonConstCallableMethod<Func, Class>::value
 	{
-		auto* const instancePtr = const_cast<Class*>(static_cast<const Class*>(self->u_instance));
+		auto* const instancePtr = const_cast<Class*>(static_cast<const Class*>(self->u_nonConstInstance));
+		
 		return (instancePtr->*Func)(std::forward<Args>(args)...);
 	}
 
@@ -264,7 +277,11 @@ private:
 	template<typename Func>
 	inline static R makeNonEmptyFunctorCaller(const TFunction* const self, Args... args)
 	{
-		auto&& func = 
+		// We do not obtain the pointer to `Func` via placement new (or `std::construct_at`), we
+		// cast it from raw buffer and laundering it is required by the standard
+		const auto& func = *std::launder(reinterpret_cast<const Func*>(self->u_buffer));
+
+		return func(std::forward<Args>(args));
 	}
 
 	[[noreturn]]
@@ -282,8 +299,11 @@ private:
 		// Intentionally provided so that default init of the union is a no-op.
 		EmptyStruct u_emptyStruct;
 
-		// Pointer to class instance. May be empty except for methods.
-		const void* u_instance = nullptr;
+		// Pointer to const class instance. May be empty except for methods.
+		const void* u_constInstance;
+
+		// Pointer to non-const class instance. May be empty except for methods.
+		void* u_nonConstInstance;
 
 		// Buffer for non-empty functors.
 		alignas(BUFFER_ALIGNMENT) std::byte u_buffer[BUFFER_SIZE];

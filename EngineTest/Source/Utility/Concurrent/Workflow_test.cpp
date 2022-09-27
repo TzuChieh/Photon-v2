@@ -5,8 +5,8 @@
 
 #include <atomic>
 #include <cstddef>
-#include <array>
 #include <stdexcept>
+#include <vector>
 
 using namespace ph;
 
@@ -77,58 +77,81 @@ TEST(WorkflowTest, Running)
 
 	// Simple summation with dependency
 	{
-		constexpr std::size_t NUM_INCREMENTS       = 4000;
-		constexpr std::size_t NUM_GROUPS           = 10;
-		constexpr std::size_t INCREMENTS_PER_GROUP = NUM_INCREMENTS / NUM_GROUPS;
-
-		ASSERT_EQ(NUM_GROUPS * INCREMENTS_PER_GROUP, NUM_INCREMENTS);
-
-		// Init to 0
-		std::size_t counters[NUM_GROUPS] = {};
-
-		Workflow wf(NUM_INCREMENTS);
-
-		// Split the increments into independent groups (increment sequentially within each group)
-		std::array<Workflow::WorkHandle, NUM_GROUPS> lastWorksInGroup;
-		for(std::size_t gi = 0; gi < NUM_GROUPS; ++gi)
+		auto summationTest = [](
+			const std::size_t numGroups, 
+			const std::size_t incrementsPerGroup,
+			const std::size_t numWorkers)
 		{
-			for(std::size_t i = 0; i < INCREMENTS_PER_GROUP; ++i)
+			const std::size_t numIncrements = numGroups * incrementsPerGroup;
+
+			// Init to 0
+			std::vector<std::size_t> counters(numGroups, 0);
+
+			Workflow wf(numIncrements);
+
+			// Split the increments into independent groups (increment sequentially within each group)
+			std::vector<Workflow::WorkHandle> lastWorksInGroup(numGroups);
+			for(std::size_t gi = 0; gi < numGroups; ++gi)
 			{
-				auto currentWork = wf.addWork([counter = &counters[gi]]()
+				for(std::size_t i = 0; i < incrementsPerGroup; ++i)
 				{
-					*counter += 1;
-				});
+					auto currentWork = wf.addWork([counter = &counters[gi]]()
+					{
+						*counter += 1;
+					});
 
-				if(i == INCREMENTS_PER_GROUP - 1)
-				{
-					lastWorksInGroup[gi] = currentWork;
+					if(i == incrementsPerGroup - 1)
+					{
+						lastWorksInGroup[gi] = currentWork;
+					}
+
+					if(i >= 1)
+					{
+						const auto previousWork = wf.acquireWork(gi * incrementsPerGroup + i - 1);
+						currentWork.runsAfter(previousWork);
+					}
 				}
 
-				if(i >= 1)
-				{
-					const auto previousWork = wf.acquireWork(gi * INCREMENTS_PER_GROUP + i - 1);
-					currentWork.runsAfter(previousWork);
-				}
+				ASSERT_TRUE(lastWorksInGroup[gi]);
 			}
 
-			ASSERT_TRUE(lastWorksInGroup[gi]);
+			// Finally sum all groups (running the summation after all groups are finished)
+			std::size_t finalSum = 0;
+			auto summationWork = wf.addWork([numGroups, &counters, &finalSum]()
+			{
+				for(std::size_t gi = 0; gi < numGroups; ++gi)
+				{
+					finalSum += counters[gi];
+				}
+			});
+			summationWork.runsAfter(lastWorksInGroup);
+
+			FixedSizeThreadPool tp(numWorkers);
+			wf.runAndWaitAllWorks(tp);
+
+			EXPECT_EQ(finalSum, numIncrements);
+		};// end test lambda
+		
+		// Baseline: smaller
+		summationTest(1, 100, 1);
+		summationTest(1, 100, 2);
+		summationTest(2, 100, 1);
+		summationTest(2, 100, 2);
+
+		// Baseline: larger
+		summationTest(10, 400, 12);
+
+		// Test with different settings (smaller)
+		for(std::size_t numGroups = 1; numGroups <= 10; numGroups += 1)
+		{
+			for(std::size_t incrementsPerGroup = 1; incrementsPerGroup <= 100; incrementsPerGroup += 10)
+			{
+				for(std::size_t numWorkers = 1; numWorkers <= 10; ++numWorkers)
+				{
+					summationTest(numGroups, incrementsPerGroup, numWorkers);
+				}
+			}
 		}
-
-		// Finally sum all groups (running the summation after all groups are finished)
-		std::size_t finalSum = 0;
-		auto summationWork = wf.addWork([&counters, &finalSum]()
-		{
-			for(std::size_t gi = 0; gi < NUM_GROUPS; ++gi)
-			{
-				finalSum += counters[gi];
-			}
-		});
-		summationWork.runsAfter(lastWorksInGroup);
-
-		FixedSizeThreadPool tp(12);
-		wf.runAndWaitAllWorks(tp);
-
-		EXPECT_EQ(finalSum, NUM_INCREMENTS);
 	}
 
 	// Detect cyclic dependency

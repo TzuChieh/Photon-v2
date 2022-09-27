@@ -11,6 +11,7 @@
 #include <atomic>
 #include <tuple>
 #include <utility>
+#include <span>
 
 namespace ph { class FixedSizeThreadPool; }
 
@@ -33,6 +34,8 @@ public:
 
 		void runsBefore(WorkHandle succeedingWork);
 		void runsAfter(WorkHandle preceedingWork);
+		void runsBefore(std::span<WorkHandle> succeedingWorks);
+		void runsAfter(std::span<WorkHandle> preceedingWorks);
 
 		template<std::size_t N>
 		void runsBefore(std::array<WorkHandle, N> succeedingWorks);
@@ -103,22 +106,32 @@ inline auto Workflow::addWorks(WorkTypes&&... works)
 	return std::array{addWork(std::forward<WorkTypes>(works))...};
 }
 
+inline void Workflow::WorkHandle::runsBefore(std::span<WorkHandle> succeedingWorks)
+{
+	for(const WorkHandle work : succeedingWorks)
+	{
+		runsBefore(work);
+	}
+}
+
+inline void Workflow::WorkHandle::runsAfter(std::span<WorkHandle> preceedingWorks)
+{
+	for(const WorkHandle work : preceedingWorks)
+	{
+		runsAfter(work);
+	}
+}
+
 template<std::size_t N>
 inline void Workflow::WorkHandle::runsBefore(std::array<WorkHandle, N> succeedingWorks)
 {
-	for(WorkHandle work : succeedingWorks)
-	{
-		runsBefore(std::move(work));
-	}
+	runsBefore(std::span<WorkHandle>(succeedingWorks));
 }
 
 template<std::size_t N>
 inline void Workflow::WorkHandle::runsAfter(std::array<WorkHandle, N> preceedingWorks)
 {
-	for(WorkHandle work : preceedingWorks)
-	{
-		runsAfter(std::move(work));
-	}
+	runsAfter(std::span<WorkHandle>(preceedingWorks));
 }
 
 inline std::size_t Workflow::WorkHandle::getWorkId() const
