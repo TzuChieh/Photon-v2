@@ -126,8 +126,11 @@ TEST(WorkflowTest, Running)
 			});
 			summationWork.runsAfter(lastWorksInGroup);
 
-			FixedSizeThreadPool tp(numWorkers);
-			wf.runAndWaitAllWorks(tp);
+			{
+				FixedSizeThreadPool tp(numWorkers);
+				wf.runAndWaitAllWorks(tp);
+			}
+			
 
 			EXPECT_EQ(finalSum, numIncrements);
 		};// end test lambda
@@ -152,6 +155,9 @@ TEST(WorkflowTest, Running)
 				}
 			}
 		}
+
+		// TODO: the bug seems to be we are using more works than groups... essentially there will be
+		// some counters being incremented concurrently... right?
 	}
 
 	// Detect cyclic dependency

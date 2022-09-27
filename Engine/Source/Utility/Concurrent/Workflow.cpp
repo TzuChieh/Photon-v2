@@ -61,9 +61,12 @@ void Workflow::ManagedWork::operator () ()
 	// All depending works are done--now we can do this work
 	m_handle.getWorkflow()->m_works[workId]();
 
-	// Signify this work is done so works depending on it can unwait/unblock
+	// Signify this work is done so works depending on it will not wait/block
 	const bool hasAlreadyDone = workDoneFlags[workId].test_and_set(std::memory_order_release);
 	PH_ASSERT(!hasAlreadyDone);
+
+	// Notify all works that are already waiting so they can unwait/unblock
+	workDoneFlags[workId].notify_all();
 }
 
 Workflow::Workflow() :
