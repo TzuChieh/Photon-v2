@@ -134,13 +134,13 @@ TEST(WorkflowTest, Running)
 				}
 			}
 
-			std::mutex mmm;
+			//std::mutex mmm;
 
 			// Finally sum all flags that has set (running the check after all groups are finished)
 			std::size_t finalSum = 0;
-			auto summationWork = wf.addWork([&doneFlags, &finalSum, &mmm]()
+			auto summationWork = wf.addWork([&doneFlags, &finalSum]()
 			{
-				std::lock_guard<std::mutex> lock(mmm);
+				//std::lock_guard<std::mutex> lock(mmm);
 
 				for(std::size_t i = 0; i < doneFlags.size(); ++i)
 				{
@@ -158,18 +158,18 @@ TEST(WorkflowTest, Running)
 				//std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			}
 
-			std::lock_guard<std::mutex> lock(mmm);
+			//std::lock_guard<std::mutex> lock(mmm);
 			EXPECT_EQ(finalSum, numIncrements);
 		};// end test lambda
 		
 		// Baseline: smaller
-		summationTest(1, 100, 1);
-		summationTest(1, 100, 2);
-		summationTest(2, 100, 1);
-		summationTest(2, 100, 2);
+		//summationTest(1, 100, 1);
+		//summationTest(1, 100, 2);
+		//summationTest(2, 100, 1);
+		//summationTest(2, 100, 2);
 
-		// Baseline: larger
-		summationTest(10, 400, 12);
+		//// Baseline: larger
+		//summationTest(10, 400, 12);
 
 		// Test with different settings (smaller)
 		for(std::size_t numGroups = 1; numGroups <= 10; numGroups += 1)

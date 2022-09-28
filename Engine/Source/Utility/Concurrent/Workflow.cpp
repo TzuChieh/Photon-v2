@@ -10,6 +10,9 @@
 #include <algorithm>
 #include <format>
 
+// DEBUG
+#include <iostream>
+
 namespace ph
 {
 
@@ -53,6 +56,7 @@ void Workflow::ManagedWork::operator () ()
 	const std::vector<std::size_t>& dependencyIds = idToDependencyIds[workId];
 	for(std::size_t dependencyWorkId = 0; dependencyWorkId < dependencyIds.size(); ++dependencyWorkId)
 	{
+		// DEBUG ^^^^^ buggy, it is index to word id, not work id
 		//workDoneFlags[dependencyWorkId].wait(false, std::memory_order_acquire);
 		workDoneFlags[dependencyWorkId].wait(false);
 
@@ -283,6 +287,13 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 			"dispatched {} works while there are {} in total",
 			numDispatchedWorks, numWorks()));
 	}
+
+	// DEBUG
+	for(std::size_t i = 0; i < numWorks(); ++i)
+	{
+		std::cerr << workDispatchOrder[i] << ", ";
+	}
+	std::cerr << std::endl;
 
 	return workDispatchOrder;
 }
