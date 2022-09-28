@@ -53,7 +53,8 @@ void Workflow::ManagedWork::operator () ()
 	const std::vector<std::size_t>& dependencyIds = idToDependencyIds[workId];
 	for(std::size_t dependencyWorkId = 0; dependencyWorkId < dependencyIds.size(); ++dependencyWorkId)
 	{
-		workDoneFlags[dependencyWorkId].wait(false, std::memory_order_acquire);
+		//workDoneFlags[dependencyWorkId].wait(false, std::memory_order_acquire);
+		workDoneFlags[dependencyWorkId].wait(false);
 
 		PH_ASSERT(workDoneFlags[dependencyWorkId].test(std::memory_order_relaxed));
 	}
@@ -62,7 +63,8 @@ void Workflow::ManagedWork::operator () ()
 	m_handle.getWorkflow()->m_works[workId]();
 
 	// Signify this work is done so works depending on it will not wait/block
-	const bool hasAlreadyDone = workDoneFlags[workId].test_and_set(std::memory_order_release);
+	//const bool hasAlreadyDone = workDoneFlags[workId].test_and_set(std::memory_order_release);
+	const bool hasAlreadyDone = workDoneFlags[workId].test_and_set();
 	PH_ASSERT(!hasAlreadyDone);
 
 	// Notify all works that are already waiting so they can unwait/unblock
@@ -70,13 +72,14 @@ void Workflow::ManagedWork::operator () ()
 }
 
 Workflow::Workflow() :
-	Workflow(128)
+	Workflow(0)
 {}
 
 Workflow::Workflow(const std::size_t numExpectedWorks) :
 	m_works(), m_idToDependencyIds(), m_workDoneFlags()
 {
-	m_idToDependencyIds.reserve(std::max<std::size_t>(numExpectedWorks, 128));
+	m_idToDependencyIds.reserve(numExpectedWorks);
+	//m_idToDependencyIds.reserve(std::max<std::size_t>(numExpectedWorks, 128));
 }
 
 Workflow::WorkHandle Workflow::addWork(Work work)
@@ -126,6 +129,12 @@ void Workflow::runAndWaitAllWorks(FixedSizeThreadPool& workers)
 		{
 			const auto workId = workDispatchOrder[order];
 			workers.queueWork(ManagedWork(WorkHandle(workId, this)));
+		}
+
+		// DEBUG
+		for(std::size_t i = 0; i < numWorks(); ++i)
+		{
+			m_workDoneFlags[i].wait(false);
 		}
 	}
 

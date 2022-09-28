@@ -58,7 +58,7 @@ TEST(WorkflowTest, Running)
 	{
 		constexpr std::size_t NUM_INCREMENTS = 4000;
 
-		std::atomic_uint64_t counter(0);
+		std::atomic_uint32_t counter(0);
 
 		Workflow wf(NUM_INCREMENTS);
 		for(std::size_t i = 0; i < NUM_INCREMENTS; ++i)
@@ -84,8 +84,12 @@ TEST(WorkflowTest, Running)
 		{
 			const std::size_t numIncrements = numGroups * incrementsPerGroup;
 
-			// Init to 0
-			std::vector<std::size_t> counters(numGroups, 0);
+			//std::vector<int> doneFlags(numIncrements, 0);
+			std::vector<std::unique_ptr<std::atomic<int>>> doneFlags(numIncrements);
+			for(auto& atomicPtr : doneFlags)
+			{
+				atomicPtr = std::make_unique<std::atomic<int>>(0);
+			}
 
 			Workflow wf(numIncrements);
 
@@ -93,12 +97,28 @@ TEST(WorkflowTest, Running)
 			std::vector<Workflow::WorkHandle> lastWorksInGroup(numGroups);
 			for(std::size_t gi = 0; gi < numGroups; ++gi)
 			{
+				Workflow::WorkHandle previousWork;
 				for(std::size_t i = 0; i < incrementsPerGroup; ++i)
 				{
-					auto currentWork = wf.addWork([counter = &counters[gi]]()
+					const auto workIdx = gi * incrementsPerGroup + i;
+
+					auto currentWork = wf.addWork([workIdx, i, incrementsPerGroup, &doneFlags]()
 					{
-						*counter += 1;
+						// Only mark current work as done if previous one has done
+						if(i >= 1)
+						{
+							//if(doneFlags[workIdx - 1] == 1)
+							{
+								*doneFlags[workIdx] = 1;
+							}
+						}
+						else
+						{
+							*doneFlags[workIdx] = 1;
+						}
 					});
+
+					// Setup dependencies
 
 					if(i == incrementsPerGroup - 1)
 					{
@@ -107,31 +127,38 @@ TEST(WorkflowTest, Running)
 
 					if(i >= 1)
 					{
-						const auto previousWork = wf.acquireWork(gi * incrementsPerGroup + i - 1);
 						currentWork.runsAfter(previousWork);
 					}
-				}
 
-				ASSERT_TRUE(lastWorksInGroup[gi]);
+					previousWork = currentWork;
+				}
 			}
 
-			// Finally sum all groups (running the summation after all groups are finished)
+			std::mutex mmm;
+
+			// Finally sum all flags that has set (running the check after all groups are finished)
 			std::size_t finalSum = 0;
-			auto summationWork = wf.addWork([numGroups, &counters, &finalSum]()
+			auto summationWork = wf.addWork([&doneFlags, &finalSum, &mmm]()
 			{
-				for(std::size_t gi = 0; gi < numGroups; ++gi)
+				std::lock_guard<std::mutex> lock(mmm);
+
+				for(std::size_t i = 0; i < doneFlags.size(); ++i)
 				{
-					finalSum += counters[gi];
+					//EXPECT_EQ(doneFlags[i], 1) << i;
+
+					finalSum += *doneFlags[i];
 				}
 			});
-			summationWork.runsAfter(lastWorksInGroup);
-
+			summationWork.runsBefore(lastWorksInGroup);
+			
 			{
 				FixedSizeThreadPool tp(numWorkers);
 				wf.runAndWaitAllWorks(tp);
-			}
-			
 
+				//std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			}
+
+			std::lock_guard<std::mutex> lock(mmm);
 			EXPECT_EQ(finalSum, numIncrements);
 		};// end test lambda
 		
