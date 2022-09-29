@@ -40,6 +40,20 @@ struct Adder
 	}
 };
 
+struct MemberGetter
+{
+	int x;
+	float y;
+	double z;
+
+	void operator () (int* out_x, float* out_y, double* out_z) const
+	{
+		*out_x = x;
+		*out_y = y;
+		*out_z = z;
+	}
+};
+
 }
 
 TEST(TFunctionTest, Traits)
@@ -219,5 +233,78 @@ TEST(TFunctionTest, CallEmptyFunctor)
 		ASSERT_TRUE(func.isValid());
 
 		EXPECT_EQ(func(-123, 10), -1230);
+	}
+}
+
+TEST(TFunctionTest, CallNonEmptyFunctor)
+{
+	// Call non-empty functor
+	{
+		auto func = TFunction<void(int*, float*, double*)>().set(MemberGetter{3, 4.0f, 5.0f});
+
+		// Two forms for checking validity
+		ASSERT_TRUE(func);
+		ASSERT_TRUE(func.isValid());
+
+		int x;
+		float y;
+		double z;
+		func(&x, &y, &z);
+		EXPECT_EQ(x, 3);
+		EXPECT_EQ(y, 4.0f);
+		EXPECT_EQ(z, 5.0);
+	}
+
+	// Call capturing lambda
+	{
+		int x = 6;
+		float y = 7.7f;
+		double z = 12345.0;
+
+		// Simply get the captured values
+		auto func = TFunction<void(int*, float*, double*)>().set(
+			[x, y, z](int* out_x, float* out_y, double* out_z)
+			{
+				*out_x = x;
+				*out_y = y;
+				*out_z = z;
+			});
+
+		// Two forms for checking validity
+		ASSERT_TRUE(func);
+		ASSERT_TRUE(func.isValid());
+
+		int testX;
+		float testY;
+		double testZ;
+		func(&x, &y, &z);
+		EXPECT_EQ(x, 6);
+		EXPECT_EQ(y, 7.7f);
+		EXPECT_EQ(z, 12345.0);
+	}
+
+	// Call capturing lambda
+	{
+		// Start the counter from 10
+		int counter = 10;
+
+		auto func = TFunction<void()>().set(
+			[&counter]()
+			{
+				++counter;
+			});
+
+		// Two forms for checking validity
+		ASSERT_TRUE(func);
+		ASSERT_TRUE(func.isValid());
+
+		// Call 1000 times
+		for(int i = 0; i < 1000; ++i)
+		{
+			func();
+		}
+
+		// Should be 10 (initial) + 1000 (loop) = 1010
+		EXPECT_EQ(counter, 1010);
 	}
 }

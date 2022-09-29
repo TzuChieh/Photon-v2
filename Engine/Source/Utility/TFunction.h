@@ -52,7 +52,7 @@ concept CNonEmptyTrivialFunctorForm =
 	std::is_constructible_v<std::decay_t<Func>, Func> &&// we placement new using existing instance
 	std::is_trivially_copyable_v<std::decay_t<Func>> &&// so copying the underlying buffer is legal
 	std::is_trivially_destructible_v<std::decay_t<Func>> &&// somewhat redundant as we have `is_trivially_copyable`, but nice to be explicit
-	std::is_invocable_r_v<R, const std::decay_t<Func>&, Args...>;// must be const as we store its states
+	std::is_invocable_r_v<R, const std::decay_t<Func>&, Args...>;// must be const as we store its states and `operator ()` is `const`
 
 /*! @brief Lightweight callable target wrapper.
 This type is a thin wrapper around stateless callable targets such as free function, method,
@@ -121,7 +121,7 @@ public:
 	template<typename Func>
 	using TIsNonEmptyTrivialFunctor = std::bool_constant<
 		CNonEmptyTrivialFunctorForm<Func, R, Args...> &&
-		TCanFitBuffer<std::decay_t<Func>>>;
+		TCanFitBuffer<std::decay_t<Func>>::value>;
 
 	///@}
 
@@ -150,8 +150,8 @@ public:
 	inline TFunction& set()
 		requires TIsFreeFunction<Func>::value
 	{
-		u_emptyStruct = EmptyStruct{};
-		m_caller      = &makeFreeFunctionCaller<Func>;
+		m_data.u_emptyStruct = EmptyStruct{};
+		m_caller = &makeFreeFunctionCaller<Func>;
 
 		return *this;
 	}
@@ -164,8 +164,8 @@ public:
 	{
 		PH_ASSERT(instancePtr);
 
-		u_constInstance = instancePtr;
-		m_caller        = &makeConstCallableMethodCaller<Func, Class>;
+		m_data.u_constInstance = instancePtr;
+		m_caller = &makeConstCallableMethodCaller<Func, Class>;
 
 		return *this;
 	}
@@ -178,8 +178,8 @@ public:
 	{
 		PH_ASSERT(instancePtr);
 
-		u_nonConstInstance = instancePtr;
-		m_caller           = &makeNonConstCallableMethodCaller<Func, Class>;
+		m_data.u_nonConstInstance = instancePtr;
+		m_caller = &makeNonConstCallableMethodCaller<Func, Class>;
 
 		return *this;
 	}
@@ -190,8 +190,8 @@ public:
 	inline TFunction& set()
 		requires TIsEmptyFunctor<Func>::value
 	{
-		u_emptyStruct = EmptyStruct{};
-		m_caller      = &makeEmptyFunctorCaller<std::decay_t<Func>>;
+		m_data.u_emptyStruct = EmptyStruct{};
+		m_caller = &makeEmptyFunctorCaller<std::decay_t<Func>>;
 
 		return *this;
 	}
@@ -210,7 +210,7 @@ public:
 		requires TIsNonEmptyTrivialFunctor<Func>::value
 	{
 		std::construct_at(
-			reinterpret_cast<std::decay_t<Func>*>(u_buffer),
+			reinterpret_cast<std::decay_t<Func>*>(m_data.u_buffer),
 			std::forward<Func>(func));
 
 		m_caller = &makeNonEmptyFunctorCaller<std::decay_t<Func>>;
@@ -252,7 +252,7 @@ private:
 	inline static R makeConstCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsConstCallableMethod<Func, Class>::value
 	{
-		const auto* const instancePtr = static_cast<const Class*>(self->u_constInstance);
+		const auto* const instancePtr = static_cast<const Class*>(self->m_data.u_constInstance);
 		return (instancePtr->*Func)(std::forward<Args>(args)...);
 	}
 
@@ -260,7 +260,7 @@ private:
 	inline static R makeNonConstCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsNonConstCallableMethod<Func, Class>::value
 	{
-		auto* const instancePtr = const_cast<Class*>(static_cast<const Class*>(self->u_nonConstInstance));
+		auto* const instancePtr = const_cast<Class*>(static_cast<const Class*>(self->m_data.u_nonConstInstance));
 		
 		return (instancePtr->*Func)(std::forward<Args>(args)...);
 	}
@@ -279,9 +279,9 @@ private:
 	{
 		// We do not obtain the pointer to `Func` via placement new (or `std::construct_at`), we
 		// cast it from raw buffer and laundering it is required by the standard
-		const auto& func = *std::launder(reinterpret_cast<const Func*>(self->u_buffer));
+		const auto& func = *std::launder(reinterpret_cast<const Func*>(self->m_data.u_buffer));
 
-		return func(std::forward<Args>(args));
+		return func(std::forward<Args>(args)...);
 	}
 
 	[[noreturn]]
@@ -294,7 +294,7 @@ private:
 	struct EmptyStruct
 	{};
 
-	union
+	union Data
 	{
 		// Intentionally provided so that default init of the union is a no-op.
 		EmptyStruct u_emptyStruct;
@@ -308,6 +308,11 @@ private:
 		// Buffer for non-empty functors.
 		alignas(BUFFER_ALIGNMENT) std::byte u_buffer[BUFFER_SIZE];
 	};
+
+	// Ensure we are not wasting memory. Adjust buffer alignment if failed.
+	static_assert(alignof(Data) == BUFFER_ALIGNMENT);
+
+	Data m_data;
 
 	// Wrapper function with unified signature for calling the actual function.
 	UnifiedCaller m_caller = &makeInvalidFunctionCaller;
