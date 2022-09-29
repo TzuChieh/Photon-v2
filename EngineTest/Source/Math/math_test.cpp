@@ -154,6 +154,16 @@ TEST(MathTest, IntegerWrapping)
 	const unsigned int maxUint = std::numeric_limits<unsigned int>::max();
 	EXPECT_EQ(math::wrap(maxUint - 11, maxUint - 10, maxUint - 8), maxUint - 8);
 	EXPECT_EQ(math::wrap(maxUint - 7,  maxUint - 10, maxUint - 8), maxUint - 10);
+
+	// Range size = 1 ([x, x], singed)
+	{
+
+	}
+
+	// Range size = 1 ([x, x], unsigned)
+	{
+
+	}
 }
 
 TEST(MathTest, EvenlyDividedRanges)

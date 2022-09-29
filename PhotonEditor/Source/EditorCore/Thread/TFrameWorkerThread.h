@@ -6,6 +6,7 @@
 #include <Utility/Concurrent/TLockFreeQueue.h>
 #include <Common/config.h>
 #include <Common/assertion.h>
+#include <Math/math.h>
 
 #include <array>
 #include <cstddef>
@@ -13,14 +14,10 @@
 #include <condition_variable>
 #include <atomic>
 
-#ifdef PH_DEBUG
-#include <atomic>
-#endif
-
 namespace ph::editor
 {
 
-template<std::size_t N, typename T>
+template<std::size_t NUM_BUFFERED_FRAMES, typename T>
 class TFrameWorkerThread final
 {
 	// Correct function signature will instantiate the specialized type. If this type is selected
@@ -29,8 +26,8 @@ class TFrameWorkerThread final
 		"Invalid function signature.");
 };
 
-template<std::size_t N, typename R, typename... Args>
-class TFrameWorkerThread<N, R(Args...)> final : private INoCopyAndMove
+template<std::size_t NUM_BUFFERED_FRAMES, typename R, typename... Args>
+class TFrameWorkerThread<NUM_BUFFERED_FRAMES, R(Args...)> final : private INoCopyAndMove
 {
 private:
 	using Work = TFunction<R(Args...)>;
@@ -38,16 +35,10 @@ private:
 public:
 	inline TFrameWorkerThread()
 		: m_thread()
-		, m_threadMutex()
-		, m_processFrameCv()
+		, m_frameWorks()
 		, m_isTerminationRequested(false)
-		, m_workQueues()
-		, m_workQueueMemories()
-		, m_currentQueueIdx(0)
-		, m_processingQueueIdx(0)
-#ifdef PH_DEBUG
-		, m_queueSizes()
-#endif
+		, m_parenThreadWorkHead(0)
+		, m_workerThreadWorkHead(0)
 	{
 		// TODO
 	}
@@ -147,18 +138,30 @@ private:
 		return std::this_thread::get_id() == m_thread.get_id();
 	}
 
-	std::thread                             m_thread;
-	std::mutex                              m_threadMutex;
-	std::condition_variable                 m_processFrameCv;
-	bool                                    m_isTerminationRequested;
-	std::array<TLockFreeQueue<Work>, N + 1> m_workQueues;
-	std::array<MemoryArena, N + 1>          m_workQueueMemories;
-	std::size_t                             m_currentQueueIdx;
-	std::size_t                             m_processingQueueIdx;
+	inline static std::size_t getNextWorkHead(const std::size_t currentWorkHead)
+	{
+		return math::wrap<std::size_t>(currentWorkHead + 1, 0, NUM_BUFFERED_FRAMES);
+	}
 
-#ifdef PH_DEBUG
-	std::array<std::atomic_uint32_t, N + 1> m_queueSizes;
-#endif
+	struct FrameWork
+	{
+		TLockFreeQueue<Work> workQueue;
+		MemoryArena          workQueueMemory;
+		std::atomic_flag     isFullyFilled;
+
+		inline FrameWork()
+			: workQueue()
+			, workQueueMemory()
+			, isFullyFilled()
+		{}
+	};
+
+	std::array<FrameWork, NUM_BUFFERED_FRAMES + 1> m_frameWorks;
+
+	std::thread      m_thread;
+	std::atomic_bool m_isTerminationRequested;
+	std::size_t      m_parenThreadWorkHead;
+	std::size_t      m_workerThreadWorkHead;
 };
 
 }// end namespace ph::editor
