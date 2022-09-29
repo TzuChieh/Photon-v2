@@ -10,9 +10,6 @@
 #include <algorithm>
 #include <format>
 
-// DEBUG
-#include <iostream>
-
 namespace ph
 {
 
@@ -53,22 +50,18 @@ void Workflow::ManagedWork::operator () ()
 	auto&       workDoneFlags     = m_handle.getWorkflow()->m_workDoneFlags;
 
 	// Wait for all dependencies to finish first
-	const std::vector<std::size_t>& dependencyIds = idToDependencyIds[workId];
-	for(std::size_t dependencyWorkId = 0; dependencyWorkId < dependencyIds.size(); ++dependencyWorkId)
+	for(const std::size_t dependencyId : idToDependencyIds[workId])
 	{
-		// DEBUG ^^^^^ buggy, it is index to word id, not work id
-		//workDoneFlags[dependencyWorkId].wait(false, std::memory_order_acquire);
-		workDoneFlags[dependencyWorkId].wait(false);
+		workDoneFlags[dependencyId].wait(false, std::memory_order_acquire);
 
-		PH_ASSERT(workDoneFlags[dependencyWorkId].test(std::memory_order_relaxed));
+		PH_ASSERT(workDoneFlags[dependencyId].test(std::memory_order_relaxed));
 	}
 
 	// All depending works are done--now we can do this work
 	m_handle.getWorkflow()->m_works[workId]();
 
 	// Signify this work is done so works depending on it will not wait/block
-	//const bool hasAlreadyDone = workDoneFlags[workId].test_and_set(std::memory_order_release);
-	const bool hasAlreadyDone = workDoneFlags[workId].test_and_set();
+	const bool hasAlreadyDone = workDoneFlags[workId].test_and_set(std::memory_order_release);
 	PH_ASSERT(!hasAlreadyDone);
 
 	// Notify all works that are already waiting so they can unwait/unblock
@@ -134,15 +127,14 @@ void Workflow::runAndWaitAllWorks(FixedSizeThreadPool& workers)
 			const auto workId = workDispatchOrder[order];
 			workers.queueWork(ManagedWork(WorkHandle(workId, this)));
 		}
-
-		// DEBUG
-		for(std::size_t i = 0; i < numWorks(); ++i)
-		{
-			m_workDoneFlags[i].wait(false);
-		}
 	}
 
 	workers.waitAllWorks();
+
+	/* Note: Do not wait on each flags here like this `m_workDoneFlags[workId].wait(false);` as 
+	currently the flags are set before `notify_all`, we may not actually wait at all and deallocate
+	the flag buffer, which may cause the call to `notify_all` in the work to crash. 
+	*/
 
 	finishWorkflow();
 }
@@ -287,13 +279,6 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 			"dispatched {} works while there are {} in total",
 			numDispatchedWorks, numWorks()));
 	}
-
-	// DEBUG
-	for(std::size_t i = 0; i < numWorks(); ++i)
-	{
-		std::cerr << workDispatchOrder[i] << ", ";
-	}
-	std::cerr << std::endl;
 
 	return workDispatchOrder;
 }

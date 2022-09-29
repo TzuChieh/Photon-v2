@@ -75,52 +75,49 @@ TEST(WorkflowTest, Running)
 		EXPECT_EQ(counter.load(std::memory_order_relaxed), NUM_INCREMENTS);
 	}
 
-	// Simple summation with dependency
+	// Simple dependency test with various graph sizes
 	{
 		auto summationTest = [](
 			const std::size_t numGroups, 
-			const std::size_t incrementsPerGroup,
+			const std::size_t worksPerGroup,
 			const std::size_t numWorkers)
 		{
-			const std::size_t numIncrements = numGroups * incrementsPerGroup;
+			const std::size_t numTotalWorks = numGroups * worksPerGroup;
 
-			//std::vector<int> doneFlags(numIncrements, 0);
-			std::vector<std::unique_ptr<std::atomic<int>>> doneFlags(numIncrements);
-			for(auto& atomicPtr : doneFlags)
-			{
-				atomicPtr = std::make_unique<std::atomic<int>>(0);
-			}
+			// Using plain `int` and not atomics for flags, as `Workflow` should ensure proper happens-before relation
+			std::vector<int> doneFlags(numTotalWorks, 0);
 
-			Workflow wf(numIncrements);
+			Workflow wf(numTotalWorks);
 
-			// Split the increments into independent groups (increment sequentially within each group)
+			// Split the increments into independent groups (execute sequentially within each group)
 			std::vector<Workflow::WorkHandle> lastWorksInGroup(numGroups);
 			for(std::size_t gi = 0; gi < numGroups; ++gi)
 			{
 				Workflow::WorkHandle previousWork;
-				for(std::size_t i = 0; i < incrementsPerGroup; ++i)
+				for(std::size_t i = 0; i < worksPerGroup; ++i)
 				{
-					const auto workIdx = gi * incrementsPerGroup + i;
+					const auto workIdx = gi * worksPerGroup + i;
 
-					auto currentWork = wf.addWork([workIdx, i, incrementsPerGroup, &doneFlags]()
+					auto currentWork = wf.addWork([workIdx, i, worksPerGroup, &doneFlags]()
 					{
 						// Only mark current work as done if previous one has done
 						if(i >= 1)
 						{
-							//if(doneFlags[workIdx - 1] == 1)
+							// Memory effect (setting the flag) done by previous work should be visible
+							if(doneFlags[workIdx - 1] == 1)
 							{
-								*doneFlags[workIdx] = 1;
+								doneFlags[workIdx] = 1;
 							}
 						}
 						else
 						{
-							*doneFlags[workIdx] = 1;
+							doneFlags[workIdx] = 1;
 						}
 					});
 
 					// Setup dependencies
 
-					if(i == incrementsPerGroup - 1)
+					if(i == worksPerGroup - 1)
 					{
 						lastWorksInGroup[gi] = currentWork;
 					}
@@ -134,57 +131,55 @@ TEST(WorkflowTest, Running)
 				}
 			}
 
-			//std::mutex mmm;
-
 			// Finally sum all flags that has set (running the check after all groups are finished)
 			std::size_t finalSum = 0;
 			auto summationWork = wf.addWork([&doneFlags, &finalSum]()
 			{
-				//std::lock_guard<std::mutex> lock(mmm);
-
 				for(std::size_t i = 0; i < doneFlags.size(); ++i)
 				{
-					//EXPECT_EQ(doneFlags[i], 1) << i;
-
-					finalSum += *doneFlags[i];
+					finalSum += doneFlags[i];
 				}
 			});
-			summationWork.runsBefore(lastWorksInGroup);
+			summationWork.runsAfter(lastWorksInGroup);
 			
-			{
-				FixedSizeThreadPool tp(numWorkers);
-				wf.runAndWaitAllWorks(tp);
+			FixedSizeThreadPool tp(numWorkers);
+			wf.runAndWaitAllWorks(tp);
 
-				//std::this_thread::sleep_for(std::chrono::milliseconds(50));
-			}
-
-			//std::lock_guard<std::mutex> lock(mmm);
-			EXPECT_EQ(finalSum, numIncrements);
+			EXPECT_EQ(finalSum, numTotalWorks);
 		};// end test lambda
 		
 		// Baseline: smaller
-		//summationTest(1, 100, 1);
-		//summationTest(1, 100, 2);
-		//summationTest(2, 100, 1);
-		//summationTest(2, 100, 2);
+		summationTest(1, 100, 1);
+		summationTest(1, 100, 2);
+		summationTest(2, 100, 1);
+		summationTest(2, 100, 2);
 
-		//// Baseline: larger
-		//summationTest(10, 400, 12);
+		// Baseline: larger
+		summationTest(10, 400, 12);
 
 		// Test with different settings (smaller)
 		for(std::size_t numGroups = 1; numGroups <= 10; numGroups += 1)
 		{
-			for(std::size_t incrementsPerGroup = 1; incrementsPerGroup <= 100; incrementsPerGroup += 10)
+			for(std::size_t worksPerGroup = 1; worksPerGroup <= 100; worksPerGroup += 10)
 			{
-				for(std::size_t numWorkers = 1; numWorkers <= 10; ++numWorkers)
+				for(std::size_t numWorkers = 1; numWorkers <= 10; numWorkers += 1)
 				{
-					summationTest(numGroups, incrementsPerGroup, numWorkers);
+					summationTest(numGroups, worksPerGroup, numWorkers);
 				}
 			}
 		}
 
-		// TODO: the bug seems to be we are using more works than groups... essentially there will be
-		// some counters being incremented concurrently... right?
+		// Test with different settings (larger)
+		for(std::size_t numGroups = 10; numGroups <= 50; numGroups += 20)
+		{
+			for(std::size_t worksPerGroup = 100; worksPerGroup <= 1000; worksPerGroup += 200)
+			{
+				for(std::size_t numWorkers = 10; numWorkers <= 50; numWorkers += 20)
+				{
+					summationTest(numGroups, worksPerGroup, numWorkers);
+				}
+			}
+		}
 	}
 
 	// Detect cyclic dependency
