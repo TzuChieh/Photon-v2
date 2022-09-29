@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <thread>
 #include <condition_variable>
-#include <mutex>
+#include <atomic>
 
 #ifdef PH_DEBUG
 #include <atomic>
@@ -40,7 +40,7 @@ public:
 		: m_thread()
 		, m_threadMutex()
 		, m_processFrameCv()
-		, m_isStopRequested(false)
+		, m_isTerminationRequested(false)
 		, m_workQueues()
 		, m_workQueueMemories()
 		, m_currentQueueIdx(0)
@@ -136,7 +136,7 @@ private:
 					m_allWorksDoneCv.notify_all();
 				}
 			}
-		} while(!m_isStopRequested);
+		} while(!m_isTerminationRequested);
 	}
 
 	/*! @brief 
@@ -150,7 +150,7 @@ private:
 	std::thread                             m_thread;
 	std::mutex                              m_threadMutex;
 	std::condition_variable                 m_processFrameCv;
-	bool                                    m_isStopRequested;
+	bool                                    m_isTerminationRequested;
 	std::array<TLockFreeQueue<Work>, N + 1> m_workQueues;
 	std::array<MemoryArena, N + 1>          m_workQueueMemories;
 	std::size_t                             m_currentQueueIdx;

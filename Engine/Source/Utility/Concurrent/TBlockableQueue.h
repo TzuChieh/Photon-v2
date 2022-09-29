@@ -12,7 +12,7 @@ For single-thread uses, it is a FIFO queue. For multi-thread uses, it is *mostly
 Specifically, items put in by a given producer will all come out in the same order (FIFO). But
 there is no coordination between items from other producers--two items put in by two different
 producers will come out in an undefined order relative to each other (the interleaving between
-different streams of items from different producers is undefined).
+different streams of items from different producers is undefined, even with external synchronization).
 It is possible some items will starve in the queue if more items are enqueued than dequeued.
 */
 template<typename T>
