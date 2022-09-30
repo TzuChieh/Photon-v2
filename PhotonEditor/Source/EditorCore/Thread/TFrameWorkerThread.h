@@ -13,6 +13,7 @@
 #include <thread>
 #include <condition_variable>
 #include <atomic>
+#include <mutex>
 
 namespace ph::editor
 {
@@ -37,7 +38,7 @@ public:
 		: m_thread()
 		, m_frameWorks()
 		, m_isTerminationRequested(false)
-		, m_parenThreadWorkHead(0)
+		, m_parentThreadWorkHead(0)
 		, m_workerThreadWorkHead(0)
 	{
 		// TODO
@@ -48,7 +49,7 @@ public:
 
 	}
 
-	inline void beginFrameWork()
+	inline void beginFrame()
 	{
 		PH_ASSERT(!isWorkerThread());
 
@@ -58,14 +59,14 @@ public:
 		// TODO
 	}
 
-	inline void endFrameWork()
+	inline void endFrame()
 	{
 		PH_ASSERT(!isWorkerThread());
 
 		// TODO
 	}
 
-	inline void queueFrameWork()
+	inline void addWork()
 	{
 		PH_ASSERT(!isWorkerThread());
 
@@ -77,16 +78,6 @@ public:
 		PH_ASSERT(!isWorkerThread());
 
 		// TODO
-	}
-
-	inline TLockFreeQueue<Work>& getCurrentWorkQueue()
-	{
-		return m_workQueues[m_currentQueueIdx];
-	}
-
-	inline MemoryArena& getCurrentWorkQueueMemory()
-	{
-		return m_workQueueMemories[m_currentQueueIdx];
 	}
 
 private:
@@ -159,8 +150,9 @@ private:
 	std::array<FrameWork, NUM_BUFFERED_FRAMES + 1> m_frameWorks;
 
 	std::thread      m_thread;
+	std::mutex       m_threadMutex;
 	std::atomic_bool m_isTerminationRequested;
-	std::size_t      m_parenThreadWorkHead;
+	std::size_t      m_parentThreadWorkHead;
 	std::size_t      m_workerThreadWorkHead;
 };
 

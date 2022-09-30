@@ -277,8 +277,8 @@ private:
 	template<typename Func>
 	inline static R makeNonEmptyFunctorCaller(const TFunction* const self, Args... args)
 	{
-		// We do not obtain the pointer to `Func` via placement new (or `std::construct_at`), we
-		// cast it from raw buffer and laundering it is required by the standard
+		// We do not obtain the pointer to `Func` via placement new (or `std::construct_at`).
+		// Instead, we cast it from raw buffer and laundering it is required by the standard
 		const auto& func = *std::launder(reinterpret_cast<const Func*>(self->m_data.u_buffer));
 
 		return func(std::forward<Args>(args)...);

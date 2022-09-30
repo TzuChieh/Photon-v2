@@ -157,12 +157,26 @@ TEST(MathTest, IntegerWrapping)
 
 	// Range size = 1 ([x, x], singed)
 	{
-
+		for(int x = -1000; x <= 1000; ++x)
+		{
+			for(int offset = -10; offset <= 10; ++offset)
+			{
+				// No matter the offset amount, always wrap to same value as range = 1
+				EXPECT_EQ(math::wrap(x + offset, x, x), x);
+			}
+		}
 	}
 
 	// Range size = 1 ([x, x], unsigned)
 	{
-
+		for(unsigned int x = 0; x <= 1000; ++x)
+		{
+			for(unsigned int offset = 0; offset <= 100; ++offset)
+			{
+				// No matter the offset amount, always wrap to same value as range = 1
+				EXPECT_EQ(math::wrap(x + offset, x, x), x);
+			}
+		}
 	}
 }
 
