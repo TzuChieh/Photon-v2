@@ -48,7 +48,8 @@ concept CEmptyFunctorForm =
 
 template<typename Func, typename R, typename... Args>
 concept CNonEmptyTrivialFunctorForm = 
-	!std::is_empty_v<std::decay_t<Func>> &&// this also helps to disambiguate from the empty form
+	!std::is_empty_v<std::decay_t<Func>> &&// to disambiguate from the empty form
+	!std::is_function_v<std::remove_pointer_t<std::decay_t<Func>>> &&// to disambiguate from the free function form
 	std::is_constructible_v<std::decay_t<Func>, Func> &&// we placement new using existing instance
 	std::is_trivially_copyable_v<std::decay_t<Func>> &&// so copying the underlying buffer is legal
 	std::is_trivially_destructible_v<std::decay_t<Func>> &&// somewhat redundant as we have `is_trivially_copyable`, but nice to be explicit
@@ -130,8 +131,30 @@ public:
 	*/
 	inline TFunction() = default;
 
+	template<typename Func>
+	inline TFunction(Func&& func)
+		requires !std::is_same_v<std::decay_t<Func>, TFunction>// avoid ambiguity during copy init
+		: TFunction()
+	{
+		if constexpr(TIsEmptyFunctor<Func>::value)
+		{
+			set<Func>();
+		}
+		else
+		{
+			static_assert(TIsNonEmptyTrivialFunctor<Func>::value,
+				"Cannot direct-init TFunction. Possible cause of errors: (1) The direct-init ctor only "
+				"works for functors. For other function types, please use setters; (2) Invalid/mismatched "
+				"functor signature.");
+
+			set<Func>(std::forward<Func>(func));
+		}
+	}
+
 	inline TFunction(const TFunction& other) = default;
+	inline TFunction(TFunction&& other) = default;
 	inline TFunction& operator = (const TFunction& rhs) = default;
+	inline TFunction& operator = (TFunction&& rhs) = default;
 	inline ~TFunction() = default;
 
 	/*! @brief Call the stored function.
@@ -151,7 +174,7 @@ public:
 		requires TIsFreeFunction<Func>::value
 	{
 		m_data.u_emptyStruct = EmptyStruct{};
-		m_caller = &makeFreeFunctionCaller<Func>;
+		m_caller = &freeFunctionCaller<Func>;
 
 		return *this;
 	}
@@ -165,7 +188,7 @@ public:
 		PH_ASSERT(instancePtr);
 
 		m_data.u_constInstance = instancePtr;
-		m_caller = &makeConstCallableMethodCaller<Func, Class>;
+		m_caller = &constCallableMethodCaller<Func, Class>;
 
 		return *this;
 	}
@@ -179,7 +202,7 @@ public:
 		PH_ASSERT(instancePtr);
 
 		m_data.u_nonConstInstance = instancePtr;
-		m_caller = &makeNonConstCallableMethodCaller<Func, Class>;
+		m_caller = &nonConstCallableMethodCaller<Func, Class>;
 
 		return *this;
 	}
@@ -191,7 +214,7 @@ public:
 		requires TIsEmptyFunctor<Func>::value
 	{
 		m_data.u_emptyStruct = EmptyStruct{};
-		m_caller = &makeEmptyFunctorCaller<std::decay_t<Func>>;
+		m_caller = &emptyFunctorCaller<std::decay_t<Func>>;
 
 		return *this;
 	}
@@ -199,7 +222,7 @@ public:
 	/*! @brief Set an empty functor or lambda without capture from object.
 	*/
 	template<typename Func>
-	inline TFunction& set(Func /* unused */)
+	inline TFunction& set(const Func& /* unused */)
 		requires TIsEmptyFunctor<Func>::value
 	{
 		return set<Func>();
@@ -213,7 +236,7 @@ public:
 			reinterpret_cast<std::decay_t<Func>*>(m_data.u_buffer),
 			std::forward<Func>(func));
 
-		m_caller = &makeNonEmptyFunctorCaller<std::decay_t<Func>>;
+		m_caller = &nonEmptyFunctorCaller<std::decay_t<Func>>;
 		
 		return *this;
 	}
@@ -222,7 +245,7 @@ public:
 	*/
 	inline bool isValid() const
 	{
-		return m_caller != &makeInvalidFunctionCaller;
+		return m_caller != &invalidFunctionCaller;
 	}
 
 	/*! @brief Same as isValid().
@@ -237,19 +260,19 @@ public:
 	*/
 	inline void unset()
 	{
-		m_caller = &makeInvalidFunctionCaller;
+		m_caller = &invalidFunctionCaller;
 	}
 
 private:
 	template<auto Func>
-	inline static R makeFreeFunctionCaller(const TFunction* /* unused */, Args... args)
+	inline static R freeFunctionCaller(const TFunction* /* unused */, Args... args)
 		requires TIsFreeFunction<Func>::value
 	{
 		return (*Func)(std::forward<Args>(args)...);
 	}
 
 	template<auto Func, typename Class>
-	inline static R makeConstCallableMethodCaller(const TFunction* const self, Args... args)
+	inline static R constCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsConstCallableMethod<Func, Class>::value
 	{
 		const auto* const instancePtr = static_cast<const Class*>(self->m_data.u_constInstance);
@@ -257,7 +280,7 @@ private:
 	}
 
 	template<auto Func, typename Class>
-	inline static R makeNonConstCallableMethodCaller(const TFunction* const self, Args... args)
+	inline static R nonConstCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsNonConstCallableMethod<Func, Class>::value
 	{
 		auto* const instancePtr = const_cast<Class*>(static_cast<const Class*>(self->m_data.u_nonConstInstance));
@@ -266,7 +289,7 @@ private:
 	}
 
 	template<typename Func>
-	inline static R makeEmptyFunctorCaller(const TFunction* /* unused */, Args... args)
+	inline static R emptyFunctorCaller(const TFunction* /* unused */, Args... args)
 		requires TIsEmptyFunctor<Func>::value
 	{
 		// Under the assumption that a stateless functor should be cheap to create (and without any
@@ -275,7 +298,7 @@ private:
 	}
 
 	template<typename Func>
-	inline static R makeNonEmptyFunctorCaller(const TFunction* const self, Args... args)
+	inline static R nonEmptyFunctorCaller(const TFunction* const self, Args... args)
 	{
 		// We do not obtain the pointer to `Func` via placement new (or `std::construct_at`).
 		// Instead, we cast it from raw buffer and laundering it is required by the standard
@@ -285,7 +308,7 @@ private:
 	}
 
 	[[noreturn]]
-	inline static R makeInvalidFunctionCaller(const TFunction* /* unused */, Args... args)
+	inline static R invalidFunctionCaller(const TFunction* /* unused */, Args... args)
 	{
 		throw UninitializedObjectException("Invalid function call: function is not set");
 	}
@@ -315,7 +338,7 @@ private:
 	Data m_data;
 
 	// Wrapper function with unified signature for calling the actual function.
-	UnifiedCaller m_caller = &makeInvalidFunctionCaller;
+	UnifiedCaller m_caller = &invalidFunctionCaller;
 };
 
 }// end namespace function_detail

@@ -234,6 +234,20 @@ TEST(TFunctionTest, CallEmptyFunctor)
 
 		EXPECT_EQ(func(-123, 10), -1230);
 	}
+
+	// Use direct-init ctor
+	{
+		TFunction<int(int, int)> multiplier = [](int x, int y)
+		{
+			return x * y;
+		};
+
+		// Two forms for checking validity
+		ASSERT_TRUE(multiplier);
+		ASSERT_TRUE(multiplier.isValid());
+
+		EXPECT_EQ(multiplier(5, -50), -250);
+	}
 }
 
 TEST(TFunctionTest, CallNonEmptyFunctor)
@@ -277,10 +291,10 @@ TEST(TFunctionTest, CallNonEmptyFunctor)
 		int testX;
 		float testY;
 		double testZ;
-		func(&x, &y, &z);
-		EXPECT_EQ(x, 6);
-		EXPECT_EQ(y, 7.7f);
-		EXPECT_EQ(z, 12345.0);
+		func(&testX, &testY, &testZ);
+		EXPECT_EQ(testX, 6);
+		EXPECT_EQ(testY, 7.7f);
+		EXPECT_EQ(testZ, 12345.0);
 	}
 
 	// Call capturing lambda
@@ -306,5 +320,25 @@ TEST(TFunctionTest, CallNonEmptyFunctor)
 
 		// Should be 10 (initial) + 1000 (loop) = 1010
 		EXPECT_EQ(counter, 1010);
+	}
+
+	// Use direct-init ctor
+	{
+		int constant1 = 3;
+		float constant2 = 1.0f;
+		double constant3 = -4.0;
+		TFunction<double(int)> multiplier = [constant1, constant2, constant3](int x)
+		{
+			return constant1 * constant2 * constant3 * x;
+		};
+
+		// Two forms for checking validity
+		ASSERT_TRUE(multiplier);
+		ASSERT_TRUE(multiplier.isValid());
+
+		EXPECT_EQ(multiplier(0), 0.0);
+		EXPECT_EQ(multiplier(1), -12.0);
+		EXPECT_EQ(multiplier(-1), 12.0);
+		EXPECT_EQ(multiplier(5), -60.0);
 	}
 }
