@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
+
 using namespace ph;
 
 namespace
@@ -107,6 +109,16 @@ TEST(TFunctionTest, Traits)
 		//
 		constexpr auto sizeofTwoPointers = sizeof(void*) * 2;
 		static_assert(sizeof(TFunction<int(int, int), sizeofTwoPointers>) == sizeofTwoPointers);
+	}
+
+	{
+		int smallVar;
+		auto smallFunc = [smallVar](){};
+		static_assert(TFunction<void(void)>::TCanFitBuffer<decltype(smallFunc)>{} == true);
+
+		std::array<int, 1024> largeVar;
+		auto largeFunc = [largeVar](){};
+		static_assert(TFunction<void(void)>::TCanFitBuffer<decltype(largeFunc)>{} == false);
 	}
 }
 

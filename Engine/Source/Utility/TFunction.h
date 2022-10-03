@@ -80,12 +80,14 @@ private:
 		? MIN_SIZE - sizeof(UnifiedCaller)
 		: sizeof(void*);
 
+public:
+	/*! @brief Check whether the type @p Func is small enough to be stored in the internal buffer.
+	*/
 	template<typename Func>
 	using TCanFitBuffer = std::bool_constant<
-		sizeof(Func) <= BUFFER_SIZE &&
-		alignof(Func) <= BUFFER_ALIGNMENT>;
+		sizeof(std::decay_t<Func>) <= BUFFER_SIZE &&
+		alignof(std::decay_t<Func>) <= BUFFER_ALIGNMENT>;
 
-public:
 	/*! @brief Callable target traits.
 	Test whether the target is of specific type and is invocable using @p Args and returns @p R.
 	*/
@@ -119,10 +121,14 @@ public:
 	template<typename Func>
 	using TIsEmptyFunctor = std::bool_constant<CEmptyFunctorForm<Func, R, Args...>>;
 
+	/*! @brief Check if the type @p Func is a functor with member variable and can be stored internally.
+	The type @p Func must satisfy a series of conditions in order to be safely stored in the internal
+	buffer. For specific requirements on the type, see the definition of `CNonEmptyTrivialFunctorForm`.
+	*/
 	template<typename Func>
 	using TIsNonEmptyTrivialFunctor = std::bool_constant<
 		CNonEmptyTrivialFunctorForm<Func, R, Args...> &&
-		TCanFitBuffer<std::decay_t<Func>>::value>;
+		TCanFitBuffer<Func>::value>;
 
 	///@}
 
@@ -228,6 +234,8 @@ public:
 		return set<Func>();
 	}
 
+	/*! @brief Set and store a functor or lambda with captures.
+	*/
 	template<typename Func>
 	inline TFunction& set(Func&& func)
 		requires TIsNonEmptyTrivialFunctor<Func>::value
@@ -236,7 +244,7 @@ public:
 			reinterpret_cast<std::decay_t<Func>*>(m_data.u_buffer),
 			std::forward<Func>(func));
 
-		m_caller = &nonEmptyFunctorCaller<std::decay_t<Func>>;
+		m_caller = &nonEmptyTrivialFunctorCaller<std::decay_t<Func>>;
 		
 		return *this;
 	}
@@ -298,7 +306,7 @@ private:
 	}
 
 	template<typename Func>
-	inline static R nonEmptyFunctorCaller(const TFunction* const self, Args... args)
+	inline static R nonEmptyTrivialFunctorCaller(const TFunction* const self, Args... args)
 	{
 		// We do not obtain the pointer to `Func` via placement new (or `std::construct_at`).
 		// Instead, we cast it from raw buffer and laundering it is required by the standard
