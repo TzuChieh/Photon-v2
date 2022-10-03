@@ -29,6 +29,13 @@ class TFrameWorkerThread final
 		"Invalid function signature.");
 };
 
+/*!
+Regarding thread safety notes:
+* Producer Thread: Thread that adds/produces work, can be one or more.
+* Worker Thread: Thread that processes/consumes work, only one worker thread is allowed.
+* Parent Thread: Thread that creates an instance of this class.
+* Thread Safe: Can be used on any thread.
+*/
 template<std::size_t NUM_BUFFERED_FRAMES, typename R, typename... Args>
 class TFrameWorkerThread<NUM_BUFFERED_FRAMES, R(Args...)> final : private INoCopyAndMove
 {
@@ -59,29 +66,63 @@ private:
 	};
 
 public:
+	/*!
+	@note The thread that creates the worker is considered the worker's parent thread.
+	*/
 	inline TFrameWorkerThread()
 		: m_thread()
 		, m_frames()
 		, m_isStopRequested(false)
 		, m_workProducerWorkHead(0)
 		, m_workConsumerWorkHead(0)
+		, m_frameNumber(0)
 #ifdef PH_DEBUG
 		, m_parentThreadId(std::this_thread::get_id())
 #endif
 	{
-		// TODO
+		m_thread = std::thread([this]()
+		{
+			asyncProcessFrame();
+		});
 	}
 
+	/*!
+	@note Parent thread only.
+	*/
 	inline ~TFrameWorkerThread()
 	{
 		PH_ASSERT(isParentThread());
 		PH_ASSERT(!getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+		PH_ASSERT(isStopRequested());
 
-		// TODO
+		// Ensures that `endFrame()` is called at least once before requesting stop, so worker can process 
+		// at least one frame and see the stop request (rather than block forever).
+		PH_ASSERT_NE(getFrameNumber(), 0);
+
+		if(m_thread.joinable())
+		{
+			m_thread.join();
+		}
 	}
 
-	virtual void asyncProcessWork(const Work& work) = 0;
+	/*!
+	@note Called on worker thread only.
+	*/
+	virtual void onAsyncProcessWork(const Work& work) = 0;
 
+	/*!
+	@note Called on parent thread only.
+	*/
+	virtual void onBeginFrame(std::size_t frameNumber) = 0;
+
+	/*!
+	@note Called on parent thread only.
+	*/
+	virtual void onEndFrame() = 0;
+
+	/*!
+	@note Parent thread only.
+	*/
 	inline void beginFrame()
 	{
 		PH_ASSERT(isParentThread());
@@ -100,11 +141,18 @@ public:
 #ifdef PH_DEBUG
 		getCurrentProducerFrame().isBetweenFrameBeginAndEnd = true;
 #endif
+
+		onBeginFrame(getFrameNumber());
 	}
 
+	/*!
+	@note Parent thread only.
+	*/
 	inline void endFrame()
 	{
 		PH_ASSERT(isParentThread());
+
+		onEndFrame();
 
 #ifdef PH_DEBUG
 		getCurrentProducerFrame().isBetweenFrameBeginAndEnd = false;
@@ -123,8 +171,13 @@ public:
 		currentFrame.isSealedForProcessing.notify_one();
 
 		advanceCurrentProducerFrame();
+		++m_frameNumber;
 	}
 
+	/*!
+	Can only be called between `beginFrame()` and `endFrame()`.
+	@note Producer threads only.
+	*/
 	template<typename Func>
 	inline void addWork(Func&& workFunc)
 	{
@@ -148,6 +201,10 @@ public:
 		}
 	}
 
+	/*!
+	Can only be called between `beginFrame()` and `endFrame()`.
+	@note Producer threads only.
+	*/
 	inline void addWork(Work work)
 	{
 		PH_ASSERT(!isWorkerThread());
@@ -162,6 +219,10 @@ public:
 #endif
 	}
 
+	/*!
+	Can only be called between `beginFrame()` and `endFrame()`.
+	@note Parent thread only.
+	*/
 	inline void requestWorkerStop()
 	{
 		PH_ASSERT(isParentThread());
@@ -170,12 +231,30 @@ public:
 		m_isStopRequested.store(true, std::memory_order_relaxed);
 	}
 
-private:
-	/*! @brief
+	/*!
 	@note Thread-safe.
+	*/
+	inline bool isStopRequested() const
+	{
+		return m_isStopRequested.load(std::memory_order_relaxed);
+	}
+
+	/*!
+	@note Thread-safe.
+	*/
+	inline std::thread::id getWorkerThreadId() const
+	{
+		return m_thread.get_id();
+	}
+
+private:
+	/*!
+	@note Worker thread only.
 	*/
 	inline void asyncProcessFrame()
 	{
+		PH_ASSERT(isWorkerThread());
+
 		do
 		{
 			// Wait until being notified there is new frame that can be processed
@@ -189,7 +268,7 @@ private:
 			Work work;
 			while(currentFrame.workQueue.tryDequeue(&work))
 			{
-				asyncProcessWork(work);
+				onAsyncProcessWork(work);
 
 #ifdef PH_DEBUG
 				currentFrame.numWorks.fetch_sub(1, std::memory_order_relaxed);
@@ -235,17 +314,8 @@ private:
 	}
 #endif
 
-	/*! @brief
-	@note Thread-safe.
-	*/
-	inline bool isStopRequested() const
-	{
-		PH_ASSERT(isWorkerThread());
-		return m_isStopRequested.load(std::memory_order_relaxed);
-	}
-
-	/*! @brief
-	@note Thread-safe.
+	/*!
+	@note Producer threads only.
 	*/
 	template<typename Func>
 	inline std::remove_reference_t<Func>* storeFuncInMemoryArena(Func&& workFunc)
@@ -260,30 +330,56 @@ private:
 		return currentArena.make<std::remove_reference_t<Func>>(std::forward<Func>(workFunc));
 	}
 
+	/*!
+	@note Producer threads only.
+	*/
 	inline Frame& getCurrentProducerFrame()
 	{
 		PH_ASSERT(!isWorkerThread());
 		return m_frames[m_workProducerWorkHead];
 	}
 
+	/*!
+	@note Worker thread only.
+	*/
 	inline Frame& getCurrentConsumerFrame()
 	{
 		PH_ASSERT(isWorkerThread());
 		return m_frames[m_workConsumerWorkHead];
 	}
 
+	/*!
+	@note Parent thread only.
+	*/
 	inline void advanceCurrentProducerFrame()
 	{
-		PH_ASSERT(!isWorkerThread());
+		PH_ASSERT(isParentThread());
 		m_workProducerWorkHead = getNextWorkHead(m_workProducerWorkHead);
 	}
 
+	/*!
+	@note Worker thread only.
+	*/
 	inline void advanceCurrentConsumerFrame()
 	{
 		PH_ASSERT(isWorkerThread());
 		m_workConsumerWorkHead = getNextWorkHead(m_workConsumerWorkHead);
 	}
 
+	/*!
+	@note Producer threads only.
+	*/
+	inline std::size_t getFrameNumber() const
+	{
+		PH_ASSERT(!isWorkerThread());
+		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+
+		return m_frameNumber;
+	}
+
+	/*!
+	@note Thread-safe.
+	*/
 	inline static std::size_t getNextWorkHead(const std::size_t currentWorkHead)
 	{
 		return math::wrap<std::size_t>(currentWorkHead + 1, 0, NUM_BUFFERED_FRAMES);
@@ -295,6 +391,7 @@ private:
 	std::atomic_bool m_isStopRequested;
 	std::size_t      m_workProducerWorkHead;
 	std::size_t      m_workConsumerWorkHead;
+	std::size_t      m_frameNumber;
 #ifdef PH_DEBUG
 	std::thread::id  m_parentThreadId;
 #endif

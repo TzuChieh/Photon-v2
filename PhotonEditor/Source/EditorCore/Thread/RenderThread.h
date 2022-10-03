@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EditorCore/Thread/TFrameWorkerThread.h"
+
 #include <Utility/INoCopyAndMove.h>
 
 namespace ph::editor
