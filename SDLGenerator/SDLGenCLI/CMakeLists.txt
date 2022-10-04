@@ -11,7 +11,9 @@ file(GLOB_RECURSE SDLGEN_CLI_SOURCE_FILES "${SDLGEN_CLI_DIR}/*.cpp")
 # Explicitly mark them as headers
 set_source_files_properties(${SDLGEN_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
 
-add_executable(SDLGenCLI ${SDLGEN_CLI_HEADER_FILES} ${SDLGEN_CLI_SOURCE_FILES})
+add_executable(SDLGenCLI
+	${SDLGEN_CLI_HEADER_FILES}
+	${SDLGEN_CLI_SOURCE_FILES})
 
 add_dependencies(SDLGenCLI
 	Engine

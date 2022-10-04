@@ -1,4 +1,4 @@
-# Main build script for Photon-v2 renderer.
+# Main build script for Photon renderer.
 
 ###############################################################################
 # General Settings                                                            #
@@ -88,19 +88,19 @@ option(BUILD_SHARED_LIBS
 
 set(BUILD_SDL_GEN_DEFAULT       ON)
 set(BUILD_PHOTON_CLI_DEFAULT    ON)
-set(BUILD_PHOTON_EDITOR_DEFAULT ON)
-set(BUILD_ENGINE_TEST_DEFAULT   ON)
+set(BUILD_EDITOR_DEFAULT        ON)
+set(BUILD_TESTS_DEFAULT         ON)
 set(BUILD_EDITOR_JNI_DEFAULT    OFF)
 
 if(WIN32)
     set(BUILD_EDITOR_JNI_DEFAULT ON)
 endif()
 
-option(BUILD_SDL_GEN       "Build SDL automation tool."        ${BUILD_SDL_GEN_DEFAULT})
-option(BUILD_PHOTON_CLI    "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
-option(BUILD_PHOTON_EDITOR "Build editor application."         ${BUILD_PHOTON_EDITOR_DEFAULT})
-option(BUILD_ENGINE_TEST   "Build unit tests for core engine." ${BUILD_ENGINE_TEST_DEFAULT})
-option(BUILD_EDITOR_JNI    "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
+option(BUILD_SDL_GEN     "Build SDL automation tool."        ${BUILD_SDL_GEN_DEFAULT})
+option(BUILD_PHOTON_CLI  "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
+option(BUILD_EDITOR      "Build editor application."         ${BUILD_EDITOR_DEFAULT})
+option(BUILD_TESTS       "Build unit tests for the project." ${BUILD_TESTS_DEFAULT})
+option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
 set(THIRD_PARTY_LIBS_INSTALL_DIR 
     "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/release/ThirdParty/" 
@@ -182,7 +182,7 @@ include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_manually.cmake")
 #------------------------------------------------------------------------------
 # googletest
 #------------------------------------------------------------------------------
-if(BUILD_ENGINE_TEST)
+if(BUILD_TESTS)
     # Bringing in the target "gtest" is unnecessary as "gmock" depends on "gtest" which should be
     # handled by their build system. However, adding "gtest" will result in runtime error due to
     # not calling `testing::InitGoogleTest()`, which I think is a bug in googletest.
@@ -381,12 +381,17 @@ if(BUILD_SDL_GEN)
     add_subdirectory("./SDLGenerator/SDLGenCLI/")
 endif()
 
-if(BUILD_PHOTON_EDITOR)
-    add_subdirectory("./PhotonEditor/")
+if(BUILD_EDITOR)
+    add_subdirectory("./Editor/EditorLib/")
+    add_subdirectory("./Editor/Editor/")
 endif()
 
-if(BUILD_ENGINE_TEST)
+if(BUILD_TESTS)
     add_subdirectory("./EngineTest/")
+
+    if(BUILD_EDITOR)
+        add_subdirectory("./Editor/EditorTest/")
+    endif()
 endif()
 
 if(BUILD_EDITOR_JNI)

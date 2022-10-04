@@ -2,14 +2,12 @@
 
 #include <Utility/IUninstantiable.h>
 
-int main(int argc, char* argv[]);
-
 namespace ph::editor
 {
 
 class Program final : private IUninstantiable
 {
-	friend int ::main(int argc, char* argv[]);
+	friend int application_entry_point(int argc, char* argv[]);
 
 private:
 	// Called right after program start. Guaranteed to be on main thread.

@@ -1,4 +1,13 @@
-#include "EditorCore/Program.h"
+#pragma once
+
+/******************************************************************************
+ Note:
+
+ Code that follows this comment section is copied from imgui's "./examples/"
+ directory, with `main()` function renamed to `imgui_main()` to avoid name
+ collision with the actual `main()` in global namespace.
+
+******************************************************************************/
 
 // Dear ImGui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
 // (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
@@ -26,10 +35,8 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-int main(int argc, char* argv[])
+int imgui_main(int argc, char* argv[])
 {
-    ph::editor::Program::onProgramStart();
-
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -194,8 +201,6 @@ int main(int argc, char* argv[])
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    ph::editor::Program::onProgramExit();
 
     return 0;
 }

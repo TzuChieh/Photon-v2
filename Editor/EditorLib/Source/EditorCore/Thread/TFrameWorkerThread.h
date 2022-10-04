@@ -181,7 +181,7 @@ public:
 	template<typename Func>
 	inline void addWork(Func&& workFunc)
 	{
-		if constexpr(Work::template TCanFitBuffer<Func>{})
+		if constexpr(Work::template TCanFitBuffer<Func>::value)
 		{
 			addWork(Work(std::forward<Func>(workFunc)));
 		}
