@@ -97,7 +97,7 @@ public:
 
 		// Ensures that `endFrame()` is called at least once before requesting stop, so worker can process 
 		// at least one frame and see the stop request (rather than block forever).
-		PH_ASSERT_NE(getFrameNumber(), 0);
+		PH_ASSERT_GE(getFrameNumber(), 1);
 
 		if(m_thread.joinable())
 		{
