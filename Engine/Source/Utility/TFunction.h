@@ -291,7 +291,7 @@ private:
 	inline static R nonConstCallableMethodCaller(const TFunction* const self, Args... args)
 		requires TIsNonConstCallableMethod<Func, Class>::value
 	{
-		auto* const instancePtr = const_cast<Class*>(static_cast<const Class*>(self->m_data.u_nonConstInstance));
+		auto* const instancePtr = static_cast<Class*>(self->m_data.u_nonConstInstance);
 		
 		return (instancePtr->*Func)(std::forward<Args>(args)...);
 	}

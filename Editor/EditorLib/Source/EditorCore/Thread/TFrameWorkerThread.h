@@ -21,7 +21,7 @@ namespace ph::editor
 {
 
 template<std::size_t NUM_BUFFERED_FRAMES, typename T>
-class TFrameWorkerThread final
+class TFrameWorkerThread
 {
 	// Correct function signature will instantiate the specialized type. If this type is selected
 	// instead, notify the user about the ill-formed function signature
@@ -37,11 +37,12 @@ Regarding thread safety notes:
 * Thread Safe: Can be used on any thread.
 */
 template<std::size_t NUM_BUFFERED_FRAMES, typename R, typename... Args>
-class TFrameWorkerThread<NUM_BUFFERED_FRAMES, R(Args...)> final : private INoCopyAndMove
+class TFrameWorkerThread<NUM_BUFFERED_FRAMES, R(Args...)> : private INoCopyAndMove
 {
-private:
+protected:
 	using Work = TFunction<R(Args...)>;
 
+private:
 	struct Frame final
 	{
 		TLockFreeQueue<Work> workQueue;
@@ -78,6 +79,7 @@ public:
 		, m_frameNumber(0)
 #ifdef PH_DEBUG
 		, m_parentThreadId(std::this_thread::get_id())
+		, m_isStopped(false)
 #endif
 	{
 		m_thread = std::thread([this]()
@@ -89,20 +91,12 @@ public:
 	/*!
 	@note Parent thread only.
 	*/
-	inline ~TFrameWorkerThread()
+	inline virtual ~TFrameWorkerThread()
 	{
-		PH_ASSERT(isParentThread());
-		PH_ASSERT(!getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
-		PH_ASSERT(isStopRequested());
-
-		// Ensures that `endFrame()` is called at least once before requesting stop, so worker can process 
-		// at least one frame and see the stop request (rather than block forever).
-		PH_ASSERT_GE(getFrameNumber(), 1);
-
-		if(m_thread.joinable())
-		{
-			m_thread.join();
-		}
+		// Do not call `waitForWorkerToStop()` here as the worker sould finish its work before 
+		// reaching dtor to ensure `onAsyncProcessWork()` will not be called after parent object 
+		// has already destructed. This assertion make sure this does not happen.
+		PH_ASSERT(m_isStopped);
 	}
 
 	/*!
@@ -240,6 +234,30 @@ public:
 	}
 
 	/*!
+	Can only be called after `endFrame()`.
+	@note Parent thread only.
+	*/
+	inline void waitForWorkerToStop()
+	{
+		PH_ASSERT(isParentThread());
+		PH_ASSERT(!getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+		PH_ASSERT(isStopRequested());
+
+		// Ensures that `endFrame()` is called at least once before requesting stop, so worker can process 
+		// at least one frame and see the stop request (rather than block forever).
+		PH_ASSERT_GE(getFrameNumber(), 1);
+
+		if(m_thread.joinable())
+		{
+			m_thread.join();
+		}
+
+#ifdef PH_DEBUG
+		m_isStopped = true;
+#endif
+	}
+
+	/*!
 	@note Thread-safe.
 	*/
 	inline std::thread::id getWorkerThreadId() const
@@ -333,20 +351,36 @@ private:
 	/*!
 	@note Producer threads only.
 	*/
-	inline Frame& getCurrentProducerFrame()
+	///@{
+	inline const Frame& getCurrentProducerFrame() const
 	{
 		PH_ASSERT(!isWorkerThread());
 		return m_frames[m_workProducerWorkHead];
 	}
 
+	inline Frame& getCurrentProducerFrame()
+	{
+		PH_ASSERT(!isWorkerThread());
+		return m_frames[m_workProducerWorkHead];
+	}
+	///@}
+
 	/*!
 	@note Worker thread only.
 	*/
+	///@{
+	inline const Frame& getCurrentConsumerFrame() const
+	{
+		PH_ASSERT(isWorkerThread());
+		return m_frames[m_workConsumerWorkHead];
+	}
+
 	inline Frame& getCurrentConsumerFrame()
 	{
 		PH_ASSERT(isWorkerThread());
 		return m_frames[m_workConsumerWorkHead];
 	}
+	///@}
 
 	/*!
 	@note Parent thread only.
@@ -371,8 +405,11 @@ private:
 	*/
 	inline std::size_t getFrameNumber() const
 	{
-		PH_ASSERT(!isWorkerThread());
-		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+		// For all producer threads, it is only safe to access between being/end frame.
+		// If it is parent thread, it is safe to access anytime.
+		PH_ASSERT(
+			(!isWorkerThread() && getCurrentProducerFrame().isBetweenFrameBeginAndEnd) ||
+			(isParentThread()));
 
 		return m_frameNumber;
 	}
@@ -394,6 +431,7 @@ private:
 	std::size_t      m_frameNumber;
 #ifdef PH_DEBUG
 	std::thread::id  m_parentThreadId;
+	bool             m_isStopped;
 #endif
 };
 

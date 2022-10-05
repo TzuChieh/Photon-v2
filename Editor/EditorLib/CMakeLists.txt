@@ -5,6 +5,10 @@ get_filename_component(EDITOR_LIB_DIR "./" ABSOLUTE)
 set(EDITOR_LIB_INCLUDE_DIR         "${EDITOR_LIB_DIR}/Include/")
 set(EDITOR_LIB_PRIVATE_INCLUDE_DIR "${EDITOR_LIB_DIR}/Source/")
 
+set(EDITOR_LIB_CPP_API_INCLUDE_DIRS
+	"${ENGINE_CPP_API_INCLUDE_DIRS}"
+	"${EDITOR_LIB_PRIVATE_INCLUDE_DIR}")
+
 file(GLOB_RECURSE EDITOR_LIB_HEADER_FILES 
 	"${EDITOR_LIB_DIR}/Include/*.h"
 	"${EDITOR_LIB_DIR}/Source/*.h"
@@ -41,7 +45,7 @@ target_include_directories(EditorLib
 	PRIVATE ${IMGUI_LIB_INCLUDE_DIRS})
 
 target_link_libraries(EditorLib
-	PRIVATE Engine
+	PUBLIC Engine
 	PRIVATE SDLGen
 	PRIVATE OpenGL::GL)
 
@@ -52,3 +56,6 @@ link_thirdparty_lib(EditorLib ${GLAD_LIB_NAME})
 
 source_group(TREE ${EDITOR_LIB_DIR} FILES ${EDITOR_LIB_HEADER_FILES})
 source_group(TREE ${EDITOR_LIB_DIR} FILES ${EDITOR_LIB_SOURCE_FILES})
+
+# Make these directories accessible for other sub-projects
+set(EDITOR_LIB_CPP_API_INCLUDE_DIRS "${EDITOR_LIB_CPP_API_INCLUDE_DIRS}" PARENT_SCOPE)
