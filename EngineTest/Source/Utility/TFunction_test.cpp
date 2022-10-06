@@ -56,6 +56,18 @@ struct MemberGetter
 	}
 };
 
+struct MemberIsRef
+{
+	float& fRef;
+
+	explicit MemberIsRef(float& value)
+		: fRef(value)
+	{}
+
+	void operator () () const
+	{}
+};
+
 }
 
 TEST(TFunctionTest, Traits)
@@ -119,6 +131,19 @@ TEST(TFunctionTest, Traits)
 		std::array<int, 1024> largeVar;
 		auto largeFunc = [largeVar](){};
 		static_assert(TFunction<void(void)>::TCanFitBuffer<decltype(largeFunc)>{} == false);
+	}
+
+	// Store non-empty functor with reference member 
+	// Note: `MemberIsRef` still satisfy the standard's "trivially copyable" requirements, 
+	//       so does reference-capturing lambda
+	{
+		using Func = TFunction<void(void)>;
+
+		static_assert(Func::TIsNonEmptyTrivialFunctor<MemberIsRef>{} == true);
+
+		float value;
+		auto refCapturingLambda = [&value](void) -> void {};
+		static_assert(Func::TIsNonEmptyTrivialFunctor<decltype(refCapturingLambda)>{} == true);
 	}
 }
 

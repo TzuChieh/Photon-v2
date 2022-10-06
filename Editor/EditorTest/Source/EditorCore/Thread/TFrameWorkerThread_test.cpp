@@ -113,7 +113,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 
 			std::array<float, NUM_TIMES> someData;
 			someData.fill(i * 123.0f);
-			int someResult = 0;
+			float someResult = 0.0f;
 
 			// adds exactly `i` works
 			for(int j = 0; j < numWorksToAdd; ++j)
@@ -123,7 +123,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 					{
 						// do random useless things
 						someResult += someData[j] + 3 / 5 + num * j;
-						return someResult + someData[j];
+						return static_cast<int>(someResult + someData[j]);
 					});
 			}
 
