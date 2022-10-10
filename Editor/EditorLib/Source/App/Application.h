@@ -7,9 +7,12 @@
 #include <Math/TVector2.h>
 
 #include <string>
+#include <memory>
 
 namespace ph::editor
 {
+
+class Platform;
 
 class Application final
 {
@@ -22,8 +25,9 @@ public:
 private:
 	void close();
 
-	AppSettings m_settings;
-	Editor      m_editor;
+	AppSettings               m_settings;
+	Editor                    m_editor;
+	std::unique_ptr<Platform> m_platform;
 };
 
 }// end namespace ph::editor

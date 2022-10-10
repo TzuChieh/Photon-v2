@@ -16,7 +16,9 @@ public:
 	TArrayAsStack(const TArrayAsStack& other);
 	~TArrayAsStack() = default;
 
-	void push(const T& item);
+	template<typename U>
+	void push(U&& item);
+
 	void pop();
 	T& top();
 	const T& top() const;

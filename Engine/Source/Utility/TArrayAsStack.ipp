@@ -3,6 +3,8 @@
 #include "Utility/TArrayAsStack.h"
 #include "Common/assertion.h"
 
+#include <utility>
+
 namespace ph
 {
 
@@ -17,11 +19,12 @@ inline TArrayAsStack<T, N>::TArrayAsStack(const TArrayAsStack& other) :
 {}
 
 template<typename T, std::size_t N>
-inline void TArrayAsStack<T, N>::push(const T& item)
+template<typename U>
+inline void TArrayAsStack<T, N>::push(U&& item)
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex + 1, Index(0), Index(N));
 
-	m_data[++m_currentIndex] = item;
+	m_data[++m_currentIndex] = std::forward<U>(item);
 }
 
 template<typename T, std::size_t N>

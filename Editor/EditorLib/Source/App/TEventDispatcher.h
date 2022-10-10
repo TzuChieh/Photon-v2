@@ -1,9 +1,11 @@
 #pragma once
 
+#include "App/Event/Event.h"
+
 #include <Utility/TFunction.h>
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
-#include <Utility/TSortedMap.h>
+#include <Utility/TStableIndexDenseVector.h>
 
 #include <limits>
 #include <type_traits>
@@ -14,9 +16,13 @@ namespace ph::editor
 
 using EventListenerHandle = uint16;
 
+inline constexpr auto INVALID_EVENT_LISTENER_HANDLE = std::numeric_limits<EventListenerHandle>::max();
+
 template<typename EventType>
 class TEventDispatcher final
 {
+	static_assert(std::is_base_of_v<Event, EventType>);
+
 public:
 	using Listener = TFunction<void(const EventType& e)>;
 	using Handle   = EventListenerHandle;
@@ -28,55 +34,29 @@ private:
 
 public:
 	Handle addListener(Listener listener);
-	Listener removeListener(Handle handle);
+	bool removeListener(Handle handle);
 
 	template<typename DispatchFunc>
 	void dispatch(DispatchFunc dispatchFunc, EventType e) const;
 
 private:
-	TSortedMap<Handle, Listener> m_handleToListener;
+	TStableIndexDenseVector<Listener, Handle> m_listeners;
+
+	// Just to make sure we are using consistent invalidity identifier
+	static_assert(INVALID_EVENT_LISTENER_HANDLE == decltype(m_listeners)::INVALID_STABLE_INDEX);
 };
 
 template<typename EventType>
 inline auto TEventDispatcher<EventType>::addListener(Listener listener)
 	-> Handle
 {
-	// Check free list first for empty listener slot
-	if(!m_freeHandles.empty())
-	{
-		Handle handle = m_freeHandles.back();
-		m_freeHandles.pop_back();
-		m_listeners[m_freeHandles] = std::move(listener);
-		return handle;
-	}
-	// Otherwise, make new space for it
-	else
-	{
-		m_listeners.push_back(std::move(listener));
-		
-		// Make sure we are not exceeding max. allowed listeners
-		PH_ASSERT_LT(m_listeners.size() - 1, INVALID_HANDLE);
-
-		return static_cast<Handle>(m_listeners.size() - 1);
-	}
+	return m_listeners.add(listener);
 }
 
 template<typename EventType>
-inline auto TEventDispatcher<EventType>::removeListener(Handle handle)
-	-> Listener
+inline bool TEventDispatcher<EventType>::removeListener(Handle handle)
 {
-	if(handle == INVALID_HANDLE)
-	{
-		return Listener();
-	}
-
-	PH_ASSERT_LT(handle, m_listeners.size());
-	Listener listener = std::move(m_listeners[handle]);
-
-	// Recycle the handle
-	m_freeHandles.push_back(handle);
-
-	return listener;
+	return m_listeners.remove(handle);
 }
 
 template<typename EventType>

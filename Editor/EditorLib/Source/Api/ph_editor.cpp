@@ -1,6 +1,7 @@
 #include "ph_editor.h"
 #include "imgui_main.h"
 #include "EditorCore/Program.h"
+#include "App/Application.h"
 
 #include <cstdlib>
 
@@ -11,7 +12,8 @@ int application_entry_point(int argc, char* argv[])
 {
 	Program::onProgramStart();
 
-	// TODO
+	Application app(AppSettings(argc, argv));
+	app.run();
 
 	Program::onProgramExit();
 
