@@ -11,11 +11,12 @@ namespace ph::editor
 {
 
 class AppSettings;
+class Editor;
 
 class GlfwPlatform : public Platform
 {
 public:
-	explicit GlfwPlatform(const AppSettings& settings);
+	GlfwPlatform(const AppSettings& settings, Editor& editor);
 	~GlfwPlatform() override;
 
 	void update(float64 deltaS) override;
@@ -30,7 +31,6 @@ private:
 	void init(const AppSettings& settings);
 	void terminate();
 
-	GLFWwindow* m_glfwWindow;
 	GlfwInput   m_input;
 	GlfwDisplay m_display;
 };
@@ -47,7 +47,7 @@ inline const PlatformDisplay& GlfwPlatform::getDisplay() const
 
 inline bool GlfwPlatform::isGlfwWindowInitialized() const
 {
-	return m_glfwWindow != nullptr;
+	return m_display.getGlfwWindow() != nullptr;
 }
 
 }// end namespace ph::editor

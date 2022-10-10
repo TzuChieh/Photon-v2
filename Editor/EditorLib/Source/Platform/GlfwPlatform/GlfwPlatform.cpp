@@ -21,9 +21,8 @@ inline void glfw_error_callback(const int errorCode, const char* const errorDesc
 
 }// end anonymous namespace
 
-GlfwPlatform::GlfwPlatform(const AppSettings& settings)
-	: Platform()
-	, m_glfwWindow(nullptr)
+GlfwPlatform::GlfwPlatform(const AppSettings& settings, Editor& editor)
+	: Platform(editor)
 	, m_input()
 	, m_display()
 {
@@ -69,10 +68,12 @@ void GlfwPlatform::init(const AppSettings& settings)
 		requestedGraphicsApi = EGraphicsAPI::OpenGL;
 	}
 
-	m_display.createWindow(settings.title, settings.displaySizePx, requestedGraphicsApi);
-	m_input.start(m_display.getGlfwWindow());
+	m_display.createWindow(getEditor(), settings.title, settings.displaySizePx, requestedGraphicsApi);
+	glfwSetWindowUserPointer(m_display.getGlfwWindow(), this);
 
-	// TODO
+	m_input.start(getEditor(), m_display.getGlfwWindow());
+
+	// TODO: GHI related
 }
 
 void GlfwPlatform::terminate()

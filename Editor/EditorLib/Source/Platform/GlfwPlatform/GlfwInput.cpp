@@ -82,7 +82,7 @@ math::Vector2D GlfwInput::getCursorMovementDeltaPx() const
 	return {};
 }
 
-void GlfwInput::start(GLFWwindow* const glfwWindow)
+void GlfwInput::start(Editor& editor, GLFWwindow* const glfwWindow)
 {
 	if(!glfwWindow)
 	{

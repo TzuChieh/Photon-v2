@@ -21,6 +21,7 @@ GlfwDisplay::GlfwDisplay()
 GlfwDisplay::~GlfwDisplay() = default;
 
 void GlfwDisplay::createWindow(
+	Editor&            editor,
 	const std::string& windowTitle,
 	math::Vector2S     sizePx,
 	EGraphicsAPI       graphicsApi)

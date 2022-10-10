@@ -22,10 +22,8 @@ template<typename KeyType, typename ValueType, typename IsLess = std::less<KeyTy
 class TSortedMap final
 {
 public:
-	inline static constexpr std::size_t DEFAULT_INITIAL_CAPACITY = 16;
-
 	inline TSortedMap() requires std::default_initializable<IsLess>
-		: TSortedMap(DEFAULT_INITIAL_CAPACITY, IsLess{})
+		: TSortedMap(0, IsLess{})
 	{}
 
 	inline explicit TSortedMap(const std::size_t initialCapacity) requires std::default_initializable<IsLess>

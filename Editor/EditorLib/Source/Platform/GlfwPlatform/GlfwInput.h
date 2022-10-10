@@ -6,6 +6,8 @@
 namespace ph::editor
 {
 
+class Editor;
+
 class GlfwInput : public PlatformInput
 {
 public:
@@ -29,7 +31,7 @@ public:
 	math::Vector2D getCursorPositionPx() const override;
 	math::Vector2D getCursorMovementDeltaPx() const override;
 
-	void start(GLFWwindow* glfwWindow);
+	void start(Editor& editor, GLFWwindow* glfwWindow);
 	void stop();
 
 private:

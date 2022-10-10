@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/TStableIndexDenseArray.h"
+#include "Utility/TStableIndexDenseVector.h"
 #include "Common/logging.h"
 #include "Core/Engine.h"
 #include "Frame/TFrame.h"
@@ -36,7 +36,7 @@ public:
 
 private:
 	template<typename Resource>
-	static TStableIndexDenseArray<std::shared_ptr<Resource>>& RESOURCES();
+	static TStableIndexDenseVector<std::shared_ptr<Resource>>& RESOURCES();
 
 	static std::mutex& MUTEX();
 };
@@ -98,7 +98,7 @@ inline std::weak_ptr<Resource> ApiDatabase::useResource(const std::size_t id)
 }
 
 template<typename Resource>
-inline TStableIndexDenseArray<std::shared_ptr<Resource>>& ApiDatabase::RESOURCES()
+inline TStableIndexDenseVector<std::shared_ptr<Resource>>& ApiDatabase::RESOURCES()
 {
 	static_assert(
 		std::is_same_v<Resource, Engine>      ||
@@ -107,7 +107,7 @@ inline TStableIndexDenseArray<std::shared_ptr<Resource>>& ApiDatabase::RESOURCES
 		"error: in ApiDatabase::getResource(), "
 		"type of the specified resource is unsupported");
 
-	static TStableIndexDenseArray<std::shared_ptr<Resource>> resources;
+	static TStableIndexDenseVector<std::shared_ptr<Resource>> resources;
 	return resources;
 }
 

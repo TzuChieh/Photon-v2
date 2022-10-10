@@ -21,16 +21,18 @@ enum class EEventType
 	WindowLostFocus,
 	WindowMove,
 
+	FrameBufferResize,
+
 	AppTick,
 	AppUpdate,
 	AppRender,
 
-	KeyPress,
-	KeyRelease,
+	KeyDown,
+	KeyUp,
 	KeyHit,
 
-	MousePress,
-	MouseRelease,
+	MouseButtonDown,
+	MouseButtonUp,
 	MouseClick,
 	MouseScroll,
 	MouseMove,
@@ -50,7 +52,8 @@ enum class EEventSource : uint32f
 class Event
 {
 public:
-	virtual ~Event() = default;
+	inline Event() = default;
+	inline virtual ~Event() = default;
 
 	virtual EEventType getDynamicType() const = 0;
 	virtual EEventSource getSourceType() const = 0;

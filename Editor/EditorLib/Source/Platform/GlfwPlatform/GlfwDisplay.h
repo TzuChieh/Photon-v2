@@ -10,6 +10,8 @@
 namespace ph::editor
 {
 
+class Editor;
+
 class GlfwDisplay : public PlatformDisplay
 {
 public:
@@ -20,6 +22,7 @@ public:
 	math::Vector2S getSizePx() const override;
 
 	void createWindow(
+		Editor&            editor,
 		const std::string& windowTitle,
 		math::Vector2S     sizePx,
 		EGraphicsAPI       graphicsApi);

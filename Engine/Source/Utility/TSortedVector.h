@@ -16,10 +16,8 @@ template<typename ValueType, typename IsLess = std::less<ValueType>>
 class TSortedVector final
 {
 public:
-	inline static constexpr std::size_t DEFAULT_INITIAL_CAPACITY = 16;
-
 	inline TSortedVector() requires std::default_initializable<IsLess>
-		: TSortedVector(DEFAULT_INITIAL_CAPACITY, IsLess{})
+		: TSortedVector(0, IsLess{})
 	{}
 
 	inline explicit TSortedVector(const std::size_t initialCapacity) requires std::default_initializable<IsLess>

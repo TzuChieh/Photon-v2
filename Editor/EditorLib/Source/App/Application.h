@@ -1,6 +1,7 @@
 #pragma once
 
 #include "App/AppSettings.h"
+#include "App/Editor.h"
 
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>
@@ -22,6 +23,7 @@ private:
 	void close();
 
 	AppSettings m_settings;
+	Editor      m_editor;
 };
 
 }// end namespace ph::editor

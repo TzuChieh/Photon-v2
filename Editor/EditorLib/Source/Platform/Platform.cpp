@@ -3,7 +3,9 @@
 namespace ph::editor
 {
 
-Platform::Platform() = default;
+Platform::Platform(Editor& editor)
+	: m_editor(editor)
+{}
 
 Platform::~Platform() = default;
 
