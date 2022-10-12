@@ -51,17 +51,27 @@ enum class EEventSource : uint32f
 
 class Event
 {
-public:
+// Hide special members as this class is not intended to be used polymorphically.
+// It is derived class's choice to expose them (by defining them in public) or not.
+protected:
 	inline Event() = default;
-	inline virtual ~Event() = default;
+	inline Event(const Event& other) = default;
+	inline Event(Event&& other) = default;
+	inline Event& operator = (const Event& rhs) = default;
+	inline Event& operator = (Event&& rhs) = default;
+	inline ~Event() = default;
 
-	virtual EEventType getDynamicType() const = 0;
+public:
+	/*inline Event() = default;
+	inline virtual ~Event() = default;*/
+
+	/*virtual EEventType getDynamicType() const = 0;
 	virtual EEventSource getSourceType() const = 0;
-	virtual std::string toString() const = 0;
+	virtual std::string toString() const = 0;*/
 
 	void consume();
 	bool isConsumed() const;
-	bool isFromSource(EEventSource fromSourceType) const;
+	//bool isFromSource(EEventSource fromSourceType) const;
 
 private:
 	bool m_isConsumed = false;

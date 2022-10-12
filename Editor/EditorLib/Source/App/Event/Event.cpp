@@ -5,9 +5,9 @@
 namespace ph::editor
 {
 
-bool Event::isFromSource(const EEventSource fromSourceType) const
-{
-	return TEnumFlags<EEventSource>({getSourceType()}).hasAny({fromSourceType});
-}
+//bool Event::isFromSource(const EEventSource fromSourceType) const
+//{
+//	return TEnumFlags<EEventSource>({getSourceType()}).hasAny({fromSourceType});
+//}
 
 }// end namespace ph::editor

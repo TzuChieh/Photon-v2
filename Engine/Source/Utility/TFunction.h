@@ -343,7 +343,7 @@ private:
 	// Ensure we are not wasting memory. Adjust buffer alignment if failed.
 	static_assert(alignof(Data) == BUFFER_ALIGNMENT);
 
-	Data m_data;
+	Data m_data = EmptyStruct{};
 
 	// Wrapper function with unified signature for calling the actual function.
 	UnifiedCaller m_caller = &invalidFunctionCaller;

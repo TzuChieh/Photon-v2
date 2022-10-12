@@ -28,7 +28,7 @@ public:
 	bool isGlfwWindowInitialized() const;
 
 private:
-	void init(const AppSettings& settings);
+	void initialize(const AppSettings& settings);
 	void terminate();
 
 	GlfwInput   m_input;

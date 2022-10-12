@@ -26,7 +26,7 @@ GlfwPlatform::GlfwPlatform(const AppSettings& settings, Editor& editor)
 	, m_input()
 	, m_display()
 {
-	init(settings);
+	initialize(settings);
 }
 
 GlfwPlatform::~GlfwPlatform()
@@ -49,7 +49,7 @@ bool GlfwPlatform::isInitialized() const
 	return isGlfwWindowInitialized();
 }
 
-void GlfwPlatform::init(const AppSettings& settings)
+void GlfwPlatform::initialize(const AppSettings& settings)
 {
 	glfwSetErrorCallback(glfw_error_callback);
 
@@ -68,10 +68,10 @@ void GlfwPlatform::init(const AppSettings& settings)
 		requestedGraphicsApi = EGraphicsAPI::OpenGL;
 	}
 
-	m_display.createWindow(getEditor(), settings.title, settings.displaySizePx, requestedGraphicsApi);
+	m_display.initialize(getEditor(), settings.title, settings.displaySizePx, requestedGraphicsApi);
 	glfwSetWindowUserPointer(m_display.getGlfwWindow(), this);
 
-	m_input.start(getEditor(), m_display.getGlfwWindow());
+	m_input.initialize(getEditor(), m_display.getGlfwWindow());
 
 	// TODO: GHI related
 }
@@ -80,8 +80,8 @@ void GlfwPlatform::terminate()
 {
 	if(isGlfwWindowInitialized())
 	{
-		m_input.stop();
-		m_display.closeWindow();
+		m_input.terminate();
+		m_display.terminate();
 
 		PH_LOG(GlfwPlatform, "GLFW input stopped and window closed");
 	}

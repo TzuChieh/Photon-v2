@@ -8,22 +8,17 @@ namespace ph::editor
 class KeyDownEvent : public KeyEvent
 {
 public:
-	KeyDownEvent();
 	explicit KeyDownEvent(EKeyCode key);
 	KeyDownEvent(EKeyCode key, bool isRepeating);
 
-	EEventType getDynamicType() const override;
-	std::string toString() const override;
+	/*EEventType getDynamicType() const override;
+	std::string toString() const override;*/
 
 	bool isRepeating() const;
 
 private:
 	bool m_isRepeating;
 };
-
-inline KeyDownEvent::KeyDownEvent()
-	: KeyDownEvent(EKeyCode::Unknown)
-{}
 
 inline KeyDownEvent::KeyDownEvent(const EKeyCode key)
 	: KeyDownEvent(key, false)
@@ -34,15 +29,15 @@ inline KeyDownEvent::KeyDownEvent(const EKeyCode key, const bool isRepeating)
 	, m_isRepeating(isRepeating)
 {}
 
-inline EEventType KeyDownEvent::getDynamicType() const
-{
-	return EEventType::KeyDown;
-}
+//inline EEventType KeyDownEvent::getDynamicType() const
+//{
+//	return EEventType::KeyDown;
+//}
 
-inline std::string KeyDownEvent::toString() const
-{
-	return "Key Down Event";
-}
+//inline std::string KeyDownEvent::toString() const
+//{
+//	return "Key Down Event";
+//}
 
 inline bool KeyDownEvent::isRepeating() const
 {

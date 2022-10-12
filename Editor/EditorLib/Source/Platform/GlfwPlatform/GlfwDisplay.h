@@ -21,13 +21,13 @@ public:
 	GHI* getGHI() const override;
 	math::Vector2S getSizePx() const override;
 
-	void createWindow(
+	void initialize(
 		Editor&            editor,
 		const std::string& windowTitle,
 		math::Vector2S     sizePx,
 		EGraphicsAPI       graphicsApi);
 
-	void closeWindow();
+	void terminate();
 
 	GLFWwindow* getGlfwWindow() const;
 

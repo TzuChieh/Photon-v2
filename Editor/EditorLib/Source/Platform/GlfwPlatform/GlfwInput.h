@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Platform/PlatformInput.h"
-#include "ThirdParty/GLFW3_fwd.h"
+#include "ThirdParty/GLFW3.h"
+
+#include <array>
 
 namespace ph::editor
 {
@@ -10,6 +12,10 @@ class Editor;
 
 class GlfwInput : public PlatformInput
 {
+public:
+	static const std::array<EKeyCode, GLFW_KEY_LAST + 1>& GLFW_TO_PHOTON_KEYCODE();
+	static const std::array<EMouseCode, GLFW_MOUSE_BUTTON_LAST + 1>& GLFW_TO_PHOTON_MOUSECODE();
+
 public:
 	GlfwInput();
 	~GlfwInput() override;
@@ -31,8 +37,8 @@ public:
 	math::Vector2D getCursorPositionPx() const override;
 	math::Vector2D getCursorMovementDeltaPx() const override;
 
-	void start(Editor& editor, GLFWwindow* glfwWindow);
-	void stop();
+	void initialize(Editor& editor, GLFWwindow* glfwWindow);
+	void terminate();
 
 private:
 	GLFWwindow* m_glfwWindow;

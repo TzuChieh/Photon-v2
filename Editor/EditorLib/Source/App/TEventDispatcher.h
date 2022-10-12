@@ -33,11 +33,11 @@ private:
 	constexpr static Handle INVALID_HANDLE = std::numeric_limits<Handle>::max();
 
 public:
-	Handle addListener(Listener listener);
+	Handle addListener(const Listener& listener);
 	bool removeListener(Handle handle);
 
 	template<typename DispatchFunc>
-	void dispatch(DispatchFunc dispatchFunc, EventType e) const;
+	void dispatch(const EventType& e, DispatchFunc dispatchFunc) const;
 
 private:
 	TStableIndexDenseVector<Listener, Handle> m_listeners;
@@ -47,7 +47,7 @@ private:
 };
 
 template<typename EventType>
-inline auto TEventDispatcher<EventType>::addListener(Listener listener)
+inline auto TEventDispatcher<EventType>::addListener(const Listener& listener)
 	-> Handle
 {
 	return m_listeners.add(listener);
@@ -61,14 +61,14 @@ inline bool TEventDispatcher<EventType>::removeListener(Handle handle)
 
 template<typename EventType>
 template<typename DispatchFunc>
-inline void TEventDispatcher<EventType>::dispatch(DispatchFunc dispatchFunc, EventType e) const
+inline void TEventDispatcher<EventType>::dispatch(const EventType& e, DispatchFunc dispatchFunc) const
 {
-	static_assert(std::is_invocable_v<DispatchFunc, Listener, EventType>,
-		"DispatchFunc must take (Listener, EventType).");
+	static_assert(std::is_invocable_v<DispatchFunc, EventType, Listener>,
+		"DispatchFunc must take (EventType, Listener).");
 
 	for(const Listener& listener : m_listeners)
 	{
-		dispatchFunc(listener, e);
+		dispatchFunc(e, listener);
 	}
 }
 

@@ -20,7 +20,7 @@ GlfwDisplay::GlfwDisplay()
 
 GlfwDisplay::~GlfwDisplay() = default;
 
-void GlfwDisplay::createWindow(
+void GlfwDisplay::initialize(
 	Editor&            editor,
 	const std::string& windowTitle,
 	math::Vector2S     sizePx,
@@ -68,7 +68,7 @@ void GlfwDisplay::createWindow(
 	m_sizePx = sizePx;
 }
 
-void GlfwDisplay::closeWindow()
+void GlfwDisplay::terminate()
 {
 	if(!m_glfwWindow)
 	{
