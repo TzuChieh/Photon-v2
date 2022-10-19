@@ -1,13 +1,19 @@
 #pragma once
 
 #include "EditorCore/Thread/TFrameWorkerThread.h"
+#include "editor_lib_config.h"
 
 #include <Utility/INoCopyAndMove.h>
 
 namespace ph::editor
 {
 
-class RenderThread final : private INoCopyAndMove
+class RTRScene;
+
+class RenderThread final : 
+	public TFrameWorkerThread<
+		config::NUM_RENDER_THREAD_BUFFERED_FRAMES, 
+		void(RTRScene&)>
 {
 public:
 	

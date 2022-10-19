@@ -4,6 +4,8 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <memory>
+#include <algorithm>
 
 using namespace ph::editor;
 
@@ -12,10 +14,10 @@ using testing::Between;
 namespace
 {
 
-template<std::size_t NUM_BUFFERED_FRAMES, typename WorkSignature>
-class TMockFrameWorker : public TFrameWorkerThread<NUM_BUFFERED_FRAMES, WorkSignature>
+template<std::size_t NUM_BUFFERS, typename WorkSignature>
+class TMockFrameWorker : public TFrameWorkerThread<NUM_BUFFERS, WorkSignature>
 {
-	using Base = TFrameWorkerThread<NUM_BUFFERED_FRAMES, WorkSignature>;
+	using Base = TFrameWorkerThread<NUM_BUFFERS, WorkSignature>;
 	using Work = Base::Work;
 
 public:
@@ -35,21 +37,21 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 		// Test for 1000 times to reveal possible threading error
 		for(int i = 0; i < 1000; ++i)
 		{
-		TMockFrameWorker<0, void(void)> worker;
-		EXPECT_CALL(worker, onAsyncProcessWork)
-			.Times(0);
-		EXPECT_CALL(worker, onBeginFrame)
-			.Times(1);
-		EXPECT_CALL(worker, onEndFrame)
-			.Times(1);
+			TMockFrameWorker<1, void(void)> worker;
+			EXPECT_CALL(worker, onAsyncProcessWork)
+				.Times(0);
+			EXPECT_CALL(worker, onBeginFrame)
+				.Times(1);
+			EXPECT_CALL(worker, onEndFrame)
+				.Times(1);
 
-		worker.beginFrame();
+			worker.beginFrame();
 
-		// adds no work...
+			// adds no work...
 
-		worker.requestWorkerStop();
-		worker.endFrame();
-		worker.waitForWorkerToStop();
+			worker.requestWorkerStop();
+			worker.endFrame();
+			worker.waitForWorkerToStop();
 		}
 	}
 
@@ -60,7 +62,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 		{
 			const int numWorksToAdd = i;
 
-			TMockFrameWorker<0, int(int)> worker;
+			TMockFrameWorker<1, int(int)> worker;
 			EXPECT_CALL(worker, onAsyncProcessWork)
 				.Times(numWorksToAdd);
 			EXPECT_CALL(worker, onBeginFrame)
@@ -101,7 +103,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 		{
 			const int numWorksToAdd = i;
 
-			TMockFrameWorker<0, int(int)> worker;
+			TMockFrameWorker<1, int(int)> worker;
 			EXPECT_CALL(worker, onAsyncProcessWork)
 				.Times(numWorksToAdd);
 			EXPECT_CALL(worker, onBeginFrame)
@@ -137,12 +139,9 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 namespace
 {
 
-template<std::size_t NUM_BUFFERED_FRAMES>
+template<std::size_t NUM_BUFFERS>
 inline void run_multiple_frames_buffered_test()
 {
-	static_assert(NUM_BUFFERED_FRAMES >= 1, 
-		"Must be buffered.");
-
 	constexpr std::size_t MAX_FRAMES = 50;
 
 	// Test from 1 frame to `MAX_FRAMES` frames to reveal possible threading error
@@ -151,14 +150,13 @@ inline void run_multiple_frames_buffered_test()
 		const int numSmallWorksToAdd = numFrames * 5;
 		const int numLargeWorksToAdd = numFrames * 2;
 
-		TMockFrameWorker<NUM_BUFFERED_FRAMES, void(int, int, int)> worker;
+		TMockFrameWorker<NUM_BUFFERS, void(int, int, int)> worker;
 
 		// For N buffered frames, we may process every work (#frames * #works); or at most, skipped
-		// N frames (all buffered frames do not get to be processed, worker stop right after currently
-		// processing frame, works processed = (#frames - N) * #works)
-		const int maxSkippedFrames = numFrames >= NUM_BUFFERED_FRAMES
-			? static_cast<int>(NUM_BUFFERED_FRAMES)
-			: numFrames;
+		// N frames (all buffering frames including the current frame do not get to be processed, works 
+		// processed = (#frames - N) * #works)
+		const int maxSkippedFrames = std::min(numFrames, static_cast<int>(NUM_BUFFERS));
+
 		EXPECT_CALL(worker, onAsyncProcessWork)
 			.Times(Between(
 				(numFrames - maxSkippedFrames) * (numSmallWorksToAdd + numLargeWorksToAdd),
@@ -219,7 +217,75 @@ inline void run_multiple_frames_buffered_test()
 
 TEST(TFrameWorkerThreadTest, RunMultipleFramesBuffered)
 {
-	run_multiple_frames_buffered_test<1>();
 	run_multiple_frames_buffered_test<2>();
 	run_multiple_frames_buffered_test<3>();
+	run_multiple_frames_buffered_test<4>();
+}
+
+TEST(TFrameWorkerThreadTest, RunSmartPtrCaptureWork)
+{
+	// Incrementally add small works, unbuffered
+	{
+		struct Counter
+		{
+			int& count;
+
+			Counter(int& count)
+				: count(count)
+			{}
+
+			~Counter()
+			{
+				++count;
+			}
+		};
+
+		// Test for 1000 times to reveal possible threading error
+		for(int i = 0; i < 1000; ++i)
+		{
+			const int numWorksToAdd = i;
+
+			TMockFrameWorker<1, void(void)> worker;
+			EXPECT_CALL(worker, onAsyncProcessWork)
+				.Times(numWorksToAdd);
+			EXPECT_CALL(worker, onBeginFrame)
+				.Times(1);
+			EXPECT_CALL(worker, onEndFrame)
+				.Times(1);
+
+			worker.beginFrame();
+
+			int count = 0;
+
+			// adds exactly `i` works
+			for(int j = 0; j < numWorksToAdd; ++j)
+			{
+				// add `shared_ptr` & `unique_ptr` works based on even/odd `j`
+
+				if(j % 2 == 0)
+				{
+					worker.addWork(
+						[ptr = std::make_unique<Counter>(count)]()
+						{
+							ASSERT_TRUE(ptr);
+						});
+				}
+				else
+				{
+					worker.addWork(
+						[ptr = std::make_shared<Counter>(count)]()
+						{
+							ASSERT_TRUE(ptr);
+						});
+				}
+			}
+
+			worker.requestWorkerStop();
+			worker.endFrame();
+			worker.waitForWorkerToStop();
+
+			// `Counter` should be destructed `numWorksToAdd` times
+			EXPECT_EQ(count, numWorksToAdd);
+		}
+	}
 }

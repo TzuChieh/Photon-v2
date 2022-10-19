@@ -19,6 +19,7 @@ class Application final
 public:
 	// TODO: CommandLineArguments for override or core settings?
 	explicit Application(AppSettings settings);
+	~Application();
 
 	void run();
 

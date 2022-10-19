@@ -3,6 +3,7 @@
 #include "Common/memory.h"
 #include "Common/primitive_type.h"
 #include "Utility/IMoveOnly.h"
+#include "Utility/TFunction.h"
 
 #include <cstddef>
 #include <vector>
@@ -82,14 +83,32 @@ public:
 	/*! @brief Make an object of type @p T.
 	Convenient method for creating an object without a manual placement new. Equivalent to
 	allocate then placement new for an object of type @p T. Alignment is handled automatically.
+	Additionally, destructors will be automatically called (if needed) when clearing the arena.
 	@tparam T Type for the object created.
 	@param args Arguments for calling the constructor of @p T.
 	*/
 	template<typename T, typename... Args>
 	inline T* make(Args&&... args)
-		requires std::is_trivially_destructible_v<T>
 	{
-		return std::construct_at(alloc<T>(), std::forward<Args>(args)...);
+		if constexpr(std::is_trivially_destructible_v<T>)
+		{
+			return std::construct_at(alloc<T>(), std::forward<Args>(args)...);
+		}
+		else
+		{
+			T* const objPtr = std::construct_at(
+				reinterpret_cast<T*>(allocRaw(sizeof(T), alignof(T))), 
+				std::forward<Args>(args)...);
+
+			// Record the dtor so we can call it later (on clear)
+			m_dtorCallers.push_back(
+				[objPtr]()
+				{
+					objPtr->~T();
+				});
+
+			return objPtr;
+		}
 	}
 
 private:
@@ -100,6 +119,10 @@ private:
 	std::byte*  m_blockPtr;
 	std::size_t m_remainingBytesInBlock;
 	std::size_t m_numUsedBytes;
+
+	// Destructors of non-trivially-copyable objects. Simply specify `MIN_SIZE = 0` for smallest
+	// possible `TFunction`; increase it if compilation failed.
+	std::vector<TFunction<void(void), 0>> m_dtorCallers;
 };
 
 inline std::size_t MemoryArena::numUsedBytes() const

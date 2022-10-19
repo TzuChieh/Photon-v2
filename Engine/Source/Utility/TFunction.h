@@ -88,7 +88,7 @@ public:
 		sizeof(std::decay_t<Func>) <= BUFFER_SIZE &&
 		alignof(std::decay_t<Func>) <= BUFFER_ALIGNMENT>;
 
-	/*! @brief Callable target traits.
+	/*! @brief Main callable target traits.
 	Test whether the target is of specific type and is invocable using @p Args and returns @p R.
 	*/
 	///@{
@@ -131,6 +131,13 @@ public:
 		TCanFitBuffer<Func>::value>;
 
 	///@}
+
+	/*! @brief Convenient helper that checks whether @p Func is a supported functor type.
+	*/
+	template<typename Func>
+	using TIsStorableFunctor = std::bool_constant<
+		TIsEmptyFunctor<Func>::value ||
+		TIsNonEmptyTrivialFunctor<Func>::value>;
 
 public:
 	/*! @brief Creates an invalid function that cannot be called.

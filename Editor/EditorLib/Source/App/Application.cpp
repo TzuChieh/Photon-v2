@@ -16,6 +16,8 @@ Application::Application(AppSettings settings)
 	m_platform = std::make_unique<GlfwPlatform>(m_settings, m_editor);
 }
 
+Application::~Application() = default;
+
 void Application::run()
 {
 	// TODO: update & render loop

@@ -51,6 +51,7 @@ MemoryArena::MemoryArena(const std::size_t blockSizeInBytes, const std::size_t n
 	, m_blockPtr             (nullptr)
 	, m_remainingBytesInBlock(0)
 	, m_numUsedBytes         (0)
+	, m_dtorCallers          ()
 {
 	PH_ASSERT_EQ(m_blocks.size(), numDefaultBlocks);
 	for(TAlignedMemoryUniquePtr<std::byte>& block : m_blocks)
@@ -134,6 +135,15 @@ void MemoryArena::clear()
 {
 	if(!m_blocks.empty()) [[likely]]
 	{
+		// Call all destructors in reverse order
+		for(auto dtorCallerIt = m_dtorCallers.crbegin(); 
+		    dtorCallerIt != m_dtorCallers.crend(); 
+		    ++dtorCallerIt)
+		{
+			(*dtorCallerIt)();
+		}
+		m_dtorCallers.clear();
+
 		m_currentBlockIdx       = 0;
 		m_blockPtr              = m_blocks[0].get();
 		m_remainingBytesInBlock = m_blockSizeInBytes;
@@ -141,6 +151,9 @@ void MemoryArena::clear()
 	}
 	else
 	{
+		// Nothing should already be added while there is no block
+		PH_ASSERT(m_dtorCallers.empty());
+
 		m_currentBlockIdx       = static_cast<std::size_t>(-1);
 		m_blockPtr              = nullptr;
 		m_remainingBytesInBlock = m_blockSizeInBytes;

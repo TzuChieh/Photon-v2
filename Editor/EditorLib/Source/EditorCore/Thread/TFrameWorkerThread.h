@@ -20,7 +20,7 @@
 namespace ph::editor
 {
 
-template<std::size_t NUM_BUFFERED_FRAMES, typename T>
+template<std::size_t NUM_BUFFERS, typename T>
 class TFrameWorkerThread
 {
 	// Correct function signature will instantiate the specialized type. If this type is selected
@@ -35,10 +35,17 @@ Regarding thread safety notes:
 * Worker Thread: Thread that processes/consumes work, only one worker thread is allowed.
 * Parent Thread: Thread that creates an instance of this class.
 * Thread Safe: Can be used on any thread.
+@tparam NUM_BUFFERS Number of buffered frames. For example, 1 corresponds to single buffering which
+forces the worker to wait until the work producer is done; 2 corresponds to double buffering where
+the worker and the work producer may have their own buffer (frame) to work on. Any number of buffers
+are supported.
 */
-template<std::size_t NUM_BUFFERED_FRAMES, typename R, typename... Args>
-class TFrameWorkerThread<NUM_BUFFERED_FRAMES, R(Args...)> : private INoCopyAndMove
+template<std::size_t NUM_BUFFERS, typename R, typename... Args>
+class TFrameWorkerThread<NUM_BUFFERS, R(Args...)> : private INoCopyAndMove
 {
+	static_assert(NUM_BUFFERS >= 1,
+		"Must have at least 1 buffer.");
+
 protected:
 	using Work = TFunction<R(Args...)>;
 
@@ -175,14 +182,14 @@ public:
 	template<typename Func>
 	inline void addWork(Func&& workFunc)
 	{
-		if constexpr(Work::template TCanFitBuffer<Func>::value)
+		if constexpr(Work::template TIsStorableFunctor<Func>::value)
 		{
 			addWork(Work(std::forward<Func>(workFunc)));
 		}
 		else
 		{
-			// If `Func` is too large to be stored in the internal buffer of `TFunction`, then
-			// we allocate its space in the arena and call it with a wrapper
+			// If `Func` cannot be stored in the internal buffer of `TFunction`, then
+			// we allocate its space in the arena and call it through a wrapper
 
 			auto* const funcPtr = storeFuncInMemoryArena(std::forward<Func>(workFunc));
 			PH_ASSERT(funcPtr);
@@ -419,10 +426,10 @@ private:
 	*/
 	inline static std::size_t getNextWorkHead(const std::size_t currentWorkHead)
 	{
-		return math::wrap<std::size_t>(currentWorkHead + 1, 0, NUM_BUFFERED_FRAMES);
+		return math::wrap<std::size_t>(currentWorkHead + 1, 0, NUM_BUFFERS - 1);
 	}
 
-	std::array<Frame, NUM_BUFFERED_FRAMES + 1> m_frames;
+	std::array<Frame, NUM_BUFFERS> m_frames;
 
 	std::thread      m_thread;
 	std::atomic_bool m_isStopRequested;

@@ -29,7 +29,7 @@ inline void Editor::dispatchToEventQueue(const EventType& e, const TEventDispatc
 {
 	using Listener = typename TEventDispatcher<EventType>::Listener;
 
-	onKeyDown.dispatch(e, 
+	eventDispatcher.dispatch(e,
 		[this](const EventType& e, const Listener& listener)
 		{
 			m_eventQueue.add(

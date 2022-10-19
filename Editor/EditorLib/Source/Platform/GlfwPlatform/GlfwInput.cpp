@@ -183,6 +183,8 @@ inline std::array<EKeyCode, GLFW_KEY_LAST + 1> make_key_code_map()
 	glfwToPhotonKeyCode[GLFW_KEY_X] = EKeyCode::X;
 	glfwToPhotonKeyCode[GLFW_KEY_Y] = EKeyCode::Y;
 	glfwToPhotonKeyCode[GLFW_KEY_Z] = EKeyCode::Z;
+
+	return glfwToPhotonKeyCode;
 }
 
 inline std::array<EMouseCode, GLFW_MOUSE_BUTTON_LAST + 1> make_mouse_code_map()
@@ -196,6 +198,8 @@ inline std::array<EMouseCode, GLFW_MOUSE_BUTTON_LAST + 1> make_mouse_code_map()
 	glfwToPhotonMouseCode[GLFW_MOUSE_BUTTON_LEFT] = EMouseCode::Left;
 	glfwToPhotonMouseCode[GLFW_MOUSE_BUTTON_RIGHT] = EMouseCode::Right;
 	glfwToPhotonMouseCode[GLFW_MOUSE_BUTTON_MIDDLE] = EMouseCode::Middle;
+
+	return glfwToPhotonMouseCode;
 }
 
 }// end anonymous namespace
