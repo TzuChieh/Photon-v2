@@ -5,10 +5,13 @@
 namespace ph::editor
 {
 
+class Editor;
+
 class ModuleAttachmentInfo final
 {
 public:
-	math::Vector2S frameBufferSizePx;
+	Editor*        editor            = nullptr;
+	math::Vector2S frameBufferSizePx = {0, 0};
 };
 
 }// end namespace ph::editor

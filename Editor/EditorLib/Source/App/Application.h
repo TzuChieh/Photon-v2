@@ -8,11 +8,13 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace ph::editor
 {
 
 class Platform;
+class RenderModule;
 
 class Application final
 {
@@ -26,9 +28,10 @@ public:
 private:
 	void close();
 
-	AppSettings               m_settings;
-	Editor                    m_editor;
-	std::unique_ptr<Platform> m_platform;
+	AppSettings                                m_settings;
+	Editor                                     m_editor;
+	std::unique_ptr<Platform>                  m_platform;
+	std::vector<std::unique_ptr<RenderModule>> m_renderModules;
 };
 
 }// end namespace ph::editor

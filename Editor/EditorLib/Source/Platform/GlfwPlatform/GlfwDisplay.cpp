@@ -2,6 +2,8 @@
 #include "RenderCore/OpenGL/GlfwGladOpenglGHI.h"
 #include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
+#include "App/Editor.h"
+#include "App/Event/FrameBufferResizeEvent.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
@@ -62,6 +64,17 @@ void GlfwDisplay::initialize(
 			windowTitle, sizePx.x(), sizePx.y());
 	}
 
+	glfwSetWindowUserPointer(m_glfwWindow, &editor);
+
+	glfwSetFramebufferSizeCallback(m_glfwWindow, 
+		[](GLFWwindow* window, int width, int height)
+		{
+			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
+
+			FrameBufferResizeEvent e({width, height});
+			editor.dispatchToEventQueue(e, editor.onFrameBufferResize);
+		});
+
 	PH_ASSERT(!m_ghi);
 	m_ghi = std::make_unique<GlfwGladOpenglGHI>(m_glfwWindow);
 
@@ -74,6 +87,8 @@ void GlfwDisplay::terminate()
 	{
 		return;
 	}
+
+	glfwSetFramebufferSizeCallback(m_glfwWindow, nullptr);
 
 	PH_ASSERT(m_ghi);
 

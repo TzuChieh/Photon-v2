@@ -10,6 +10,7 @@ Application::Application(AppSettings settings)
 	: m_settings(std::move(settings))
 	, m_editor()
 	, m_platform()
+	, m_renderModules()
 {
 	// TODO: threads
 

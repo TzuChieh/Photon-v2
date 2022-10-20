@@ -69,8 +69,6 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 	}
 
 	m_display.initialize(getEditor(), settings.title, settings.displaySizePx, requestedGraphicsApi);
-	glfwSetWindowUserPointer(m_display.getGlfwWindow(), this);
-
 	m_input.initialize(getEditor(), m_display.getGlfwWindow());
 
 	// TODO: GHI related

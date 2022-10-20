@@ -22,7 +22,7 @@ class TMockFrameWorker : public TFrameWorkerThread<NUM_BUFFERS, WorkSignature>
 
 public:
 	MOCK_METHOD(void, onAsyncProcessWork, (const Work& work), (override));
-	MOCK_METHOD(void, onBeginFrame, (std::size_t frameNumber), (override));
+	MOCK_METHOD(void, onBeginFrame, (std::size_t frameNumber, std::size_t frameCycleIndex), (override));
 	MOCK_METHOD(void, onEndFrame, (), (override));
 };
 

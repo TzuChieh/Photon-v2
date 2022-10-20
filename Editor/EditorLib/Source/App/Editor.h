@@ -3,6 +3,7 @@
 #include "App/TEventDispatcher.h"
 #include "App/Event/KeyDownEvent.h"
 #include "App/Event/KeyUpEvent.h"
+#include "App/Event/FrameBufferResizeEvent.h"
 #include "App/EditorEventQueue.h"
 
 namespace ph::editor
@@ -17,6 +18,7 @@ public:
 public:
 	TEventDispatcher<KeyDownEvent> onKeyDown;
 	TEventDispatcher<KeyUpEvent> onKeyUp;
+	TEventDispatcher<FrameBufferResizeEvent> onFrameBufferResize;
 
 private:
 	EditorEventQueue m_eventQueue;

@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-class KeyDownEvent : public KeyEvent
+class KeyDownEvent final : public KeyEvent
 {
 public:
 	explicit KeyDownEvent(EKeyCode key);

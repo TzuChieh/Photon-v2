@@ -114,7 +114,7 @@ public:
 	/*!
 	@note Called on parent thread only.
 	*/
-	virtual void onBeginFrame(std::size_t frameNumber) = 0;
+	virtual void onBeginFrame(std::size_t frameNumber, std::size_t frameCycleIndex) = 0;
 
 	/*!
 	@note Called on parent thread only.
@@ -143,7 +143,8 @@ public:
 		getCurrentProducerFrame().isBetweenFrameBeginAndEnd = true;
 #endif
 
-		onBeginFrame(getFrameNumber());
+		const auto frameCycleIndex = m_workProducerWorkHead;
+		onBeginFrame(getFrameNumber(), frameCycleIndex);
 	}
 
 	/*!

@@ -15,11 +15,6 @@ public:
 	virtual void onAttach(const ModuleAttachmentInfo& info) = 0;
 	virtual void onDetach() = 0;
 
-	inline virtual void onFrameBufferSizeChanged(
-		const math::Vector2S& oldSizePx,
-		const math::Vector2S& newSizePx)
-	{}
-
 private:
 };
 

@@ -11,10 +11,6 @@ public:
 	void onAttach(const ModuleAttachmentInfo& info) override;
 	void onDetach() override;
 
-	void onFrameBufferSizeChanged(
-		const math::Vector2S& oldSizePx,
-		const math::Vector2S& newSizePx) override;
-
 private:
 };
 

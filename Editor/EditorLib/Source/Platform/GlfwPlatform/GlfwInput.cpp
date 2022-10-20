@@ -1,5 +1,5 @@
 #include "Platform/GlfwPlatform/GlfwInput.h"
-#include "Platform/GlfwPlatform/GlfwPlatform.h"
+#include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
 #include "App/Event/KeyDownEvent.h"
@@ -98,7 +98,7 @@ void GlfwInput::initialize(Editor& editor, GLFWwindow* const glfwWindow)
 	glfwSetKeyCallback(m_glfwWindow,
 		[](GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
-			Editor& editor = static_cast<GlfwPlatform*>(glfwGetWindowUserPointer(window))->getEditor();
+			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
 
 			switch(action)
 			{

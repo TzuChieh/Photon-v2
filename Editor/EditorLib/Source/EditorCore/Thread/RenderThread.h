@@ -10,7 +10,7 @@ namespace ph::editor
 
 class RTRScene;
 
-class RenderThread final : 
+class RenderThread : 
 	public TFrameWorkerThread<
 		config::NUM_RENDER_THREAD_BUFFERED_FRAMES, 
 		void(RTRScene&)>

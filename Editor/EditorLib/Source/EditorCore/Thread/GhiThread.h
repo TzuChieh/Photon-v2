@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-class GhiThread final : private INoCopyAndMove
+class GHIThread final : private INoCopyAndMove
 {
 public:
 	
