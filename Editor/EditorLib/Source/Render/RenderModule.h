@@ -14,6 +14,7 @@ public:
 
 	virtual void onAttach(const ModuleAttachmentInfo& info) = 0;
 	virtual void onDetach() = 0;
+	virtual void renderUpdate() = 0;
 
 private:
 };

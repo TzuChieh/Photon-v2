@@ -6,7 +6,7 @@
 namespace ph::editor
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(Program, Editor);
+PH_DEFINE_INTERNAL_LOG_GROUP(Program, EditorCore);
 
 void Program::onProgramStart()
 {

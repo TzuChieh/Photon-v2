@@ -1,4 +1,4 @@
-#include "EditorCore/core.h"
+#include "EditorCore/editor_core.h"
 
 namespace ph::editor
 {
