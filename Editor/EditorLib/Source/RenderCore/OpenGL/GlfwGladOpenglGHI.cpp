@@ -1,6 +1,7 @@
 #include "RenderCore/OpenGL/GlfwGladOpenglGHI.h"
 #include "ThirdParty/glad2_with_GLFW3.h"
 #include "Platform/Platform.h"
+#include "EditorCore/Thread/Threads.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -34,13 +35,27 @@ inline std::string GLubyte_to_string(const GLubyte* const ubytes)
 GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow)
 	: GHI()
 	, m_glfwWindow(glfwWindow)
+	, m_isLoaded(false)
+{}
+
+GlfwGladOpenglGHI::~GlfwGladOpenglGHI()
 {
-	// TODO: ensure in GHI thread
+	PH_ASSERT(!m_isLoaded);
+}
+
+void GlfwGladOpenglGHI::load()
+{
+	PH_ASSERT(Threads::isOnGHIThread());
+
+	if(m_isLoaded)
+	{
+		return;
+	}
 
 	if(!m_glfwWindow)
 	{
 		throw PlatformException(
-			"cannot start input due to invalid GLFW window (null)");
+			"invalid GLFW window (null)");
 	}
 
 	glfwMakeContextCurrent(m_glfwWindow);
@@ -63,16 +78,25 @@ GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow)
 		GLubyte_to_string(glGetString(GL_RENDERER)), 
 		GLubyte_to_string(glGetString(GL_VERSION)), 
 		GLubyte_to_string(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+
+	m_isLoaded = true;
 }
 
-GlfwGladOpenglGHI::~GlfwGladOpenglGHI()
+void GlfwGladOpenglGHI::unload()
 {
-	// TODO: ensure in GHI thread
+	PH_ASSERT(Threads::isOnGHIThread());
+
+	m_isLoaded = false;
 }
 
 void GlfwGladOpenglGHI::swapBuffers()
 {
 	glfwSwapBuffers(m_glfwWindow);
+}
+
+std::unique_ptr<GHI> GlfwGladOpenglGHI::clone()
+{
+	return std::make_unique<GlfwGladOpenglGHI>(m_glfwWindow);
 }
 
 }// end namespace ph::editor

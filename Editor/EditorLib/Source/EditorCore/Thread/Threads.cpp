@@ -38,10 +38,10 @@ bool Threads::isOnRenderThread()
 	return std::this_thread::get_id() == getRenderThread().getWorkerThreadId();
 }
 
-//bool Threads::isOnGHIThread()
-//{
-//	return std::this_thread::get_id() == getGHIThread().getWorkerThreadId();
-//}
+bool Threads::isOnGHIThread()
+{
+	return std::this_thread::get_id() == getGHIThread().getWorkerThreadId();
+}
 
 RenderThread& Threads::getRenderThread()
 {
@@ -50,9 +50,11 @@ RenderThread& Threads::getRenderThread()
 	return *renderThread;
 }
 
-//GHIThread& Threads::getGHIThread()
-//{
-//
-//}
+GHIThread& Threads::getGHIThread()
+{
+	PH_ASSERT(ghiThread);
+
+	return *ghiThread;
+}
 
 }// end namespace ph::editor

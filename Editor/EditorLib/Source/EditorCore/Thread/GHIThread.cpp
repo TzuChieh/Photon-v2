@@ -1,4 +1,5 @@
 #include "EditorCore/Thread/GHIThread.h"
+#include "RenderCore/NullGHI.h"
 
 #include <Common/logging.h>
 
@@ -9,6 +10,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(GHIThread, EditorCore);
 
 GHIThread::GHIThread()
 	: Base()
+	, m_ghi(std::make_unique<NullGHI>())
 {
 	PH_LOG(GHIThread, "thread started");
 }
@@ -22,6 +24,11 @@ void GHIThread::onAsyncProcessWork(const Work& work)
 {
 	//PH_ASSERT(Threads::isOnRenderThread());
 
+	// TODO
+}
+
+void GHIThread::onAsyncWorkerStop()
+{
 	// TODO
 }
 

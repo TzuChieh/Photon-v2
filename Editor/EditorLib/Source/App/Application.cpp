@@ -17,6 +17,7 @@ Application::Application(AppSettings settings)
 	, m_isClosing(false)
 {
 	Threads::setRenderThread(&m_renderThread);
+	Threads::setGHIThread(&m_ghiThread);
 
 	// TODO: threads
 
@@ -47,11 +48,8 @@ void Application::close()
 	m_renderThread.requestWorkerStop();
 	m_renderThread.endFrame();
 
-	// TODO: stop GHI thread
-
-	// Wait for all thread to actually stop
+	// Wait for render thread to actually stop
 	m_renderThread.waitForWorkerToStop();
-	// TODO: wait for GHI thread to stop
 }
 
 }// end namespace ph::editor

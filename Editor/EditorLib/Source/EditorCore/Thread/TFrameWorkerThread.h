@@ -106,17 +106,30 @@ public:
 		PH_ASSERT(m_isStopped);
 	}
 
-	/*!
+	/*! @brief Called when each work is extracted and is going to be processed.
+	@param work The work to be processed. How to process it depends on the implementation.
 	@note Called on worker thread only.
 	*/
 	virtual void onAsyncProcessWork(const Work& work) = 0;
 
-	/*!
+	/*! @brief Called when the worker has started.
+	@note Called on worker thread only.
+	*/
+	inline virtual void onAsyncWorkerStart()
+	{}
+
+	/*! @brief Called when the worker has stopped.
+	@note Called on worker thread only.
+	*/
+	inline virtual void onAsyncWorkerStop()
+	{}
+
+	/*! @brief Called right after the frame begins.
 	@note Called on parent thread only.
 	*/
 	virtual void onBeginFrame(std::size_t frameNumber, std::size_t frameCycleIndex) = 0;
 
-	/*!
+	/*! @brief Called right before the frame ends.
 	@note Called on parent thread only.
 	*/
 	virtual void onEndFrame() = 0;
@@ -177,7 +190,7 @@ public:
 	}
 
 	/*!
-	Can only be called between `beginFrame()` and `endFrame()`.
+	Similar to addWork(Work). This variant is for general functors.
 	@note Producer threads only.
 	*/
 	template<typename Func>
@@ -204,7 +217,9 @@ public:
 	}
 
 	/*!
-	Can only be called between `beginFrame()` and `endFrame()`.
+	Can only be called after the frame begins and before the frame ends, i.e., between calls to 
+	`beginFrame()` and `endFrame()`. Additionally, calling from frame callbacks such as `onBeginFrame()`
+	and `onEndFrame()` is also allowed.
 	@note Producer threads only.
 	*/
 	inline void addWork(Work work)
@@ -281,6 +296,8 @@ private:
 	{
 		PH_ASSERT(isWorkerThread());
 
+		onAsyncWorkerStart();
+
 		do
 		{
 			// Wait until being notified there is new frame that can be processed
@@ -320,6 +337,8 @@ private:
 
 			advanceCurrentConsumerFrame();
 		} while(!isStopRequested());
+
+		onAsyncWorkerStop();
 	}
 
 	/*! @brief Check if this thread is worker thread.

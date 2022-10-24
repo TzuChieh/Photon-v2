@@ -16,7 +16,7 @@ class Threads final : private IUninstantiable
 public:
 	static bool isOnMainThread();
 	static bool isOnRenderThread();
-	//static bool isOnGHIThread();
+	static bool isOnGHIThread();
 
 	static RenderThread& getRenderThread();
 	static GHIThread& getGHIThread();

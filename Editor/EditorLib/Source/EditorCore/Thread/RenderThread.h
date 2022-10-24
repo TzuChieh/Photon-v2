@@ -2,14 +2,14 @@
 
 #include "EditorCore/Thread/TFrameWorkerThread.h"
 #include "editor_lib_config.h"
+#include "RenderCore/RTRScene.h"
 
 #include <memory>
 
 namespace ph::editor
 {
 
-class RTRScene;
-class RenderThreadResource;
+class GHIThread;
 
 class RenderThread : 
 	public TFrameWorkerThread<
@@ -25,11 +25,14 @@ public:
 	~RenderThread() override;
 
 	void onAsyncProcessWork(const Work& work) override;
+	void onAsyncWorkerStart() override;
+	void onAsyncWorkerStop() override;
 	void onBeginFrame(std::size_t frameNumber, std::size_t frameCycleIndex) override;
 	void onEndFrame() override;
 
 private:
-	std::unique_ptr<RenderThreadResource> m_resources;
+	RTRScene                   m_scene;
+	std::unique_ptr<GHIThread> m_ghiThread;
 };
 
 }// end namespace ph::editor

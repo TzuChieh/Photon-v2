@@ -1,6 +1,5 @@
 #include "EditorCore/Thread/RenderThread.h"
 #include "EditorCore/RenderThreadResource.h"
-#include "EditorCore/Thread/Threads.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
@@ -12,7 +11,8 @@ PH_DEFINE_INTERNAL_LOG_GROUP(RenderThread, EditorCore);
 
 RenderThread::RenderThread()
 	: Base()
-	, m_resources(std::make_unique<RenderThreadResource>())
+	, m_scene()
+	, m_ghiThread(nullptr)
 {
 	PH_LOG(RenderThread, "thread started");
 }
@@ -24,8 +24,16 @@ RenderThread::~RenderThread()
 
 void RenderThread::onAsyncProcessWork(const Work& work)
 {
-	PH_ASSERT(Threads::isOnRenderThread());
+	// TODO
+}
 
+void RenderThread::onAsyncWorkerStart()
+{
+	// TODO
+}
+
+void RenderThread::onAsyncWorkerStop()
+{
 	// TODO
 }
 
