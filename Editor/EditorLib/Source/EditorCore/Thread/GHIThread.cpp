@@ -10,25 +10,31 @@ PH_DEFINE_INTERNAL_LOG_GROUP(GHIThread, EditorCore);
 
 GHIThread::GHIThread()
 	: Base()
-	, m_ghi(std::make_unique<NullGHI>())
+	, m_ghi(nullptr)
+	, m_defaultGHI(std::make_unique<NullGHI>())
 {
-	PH_LOG(GHIThread, "thread started");
+	PH_LOG(GHIThread, "thread created");
 }
 
 GHIThread::~GHIThread()
 {
-	PH_LOG(GHIThread, "thread ended");
+	PH_LOG(GHIThread, "thread destroyed");
 }
 
-void GHIThread::onAsyncProcessWork(const Work& work)
+void GHIThread::onAsyncWorkerStart()
 {
-	//PH_ASSERT(Threads::isOnRenderThread());
-
-	// TODO
+	// TODO: load ghi
 }
 
 void GHIThread::onAsyncWorkerStop()
 {
+	// TODO: unload ghi
+}
+
+void GHIThread::onAsyncProcessWork(const Work& work)
+{
+	PH_ASSERT(m_ghi);
+
 	// TODO
 }
 
@@ -40,6 +46,16 @@ void GHIThread::onBeginFrame(const std::size_t frameNumber, const std::size_t fr
 void GHIThread::onEndFrame()
 {
 	// TODO
+}
+
+void GHIThread::addSetGHIWork(GHI* ghi)
+{
+	// TODO: setGHI
+}
+
+void GHIThread::setGHI(GHI* ghi)
+{
+	// TODO: unload previous, load new
 }
 
 }// end namespace ph::editor

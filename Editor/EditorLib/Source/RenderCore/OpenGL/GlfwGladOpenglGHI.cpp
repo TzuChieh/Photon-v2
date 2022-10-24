@@ -94,9 +94,4 @@ void GlfwGladOpenglGHI::swapBuffers()
 	glfwSwapBuffers(m_glfwWindow);
 }
 
-std::unique_ptr<GHI> GlfwGladOpenglGHI::clone()
-{
-	return std::make_unique<GlfwGladOpenglGHI>(m_glfwWindow);
-}
-
 }// end namespace ph::editor

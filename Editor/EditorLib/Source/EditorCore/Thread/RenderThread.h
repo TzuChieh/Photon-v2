@@ -10,6 +10,7 @@ namespace ph::editor
 {
 
 class GHIThread;
+class GHI;
 
 class RenderThread : 
 	public TFrameWorkerThread<
@@ -30,9 +31,12 @@ public:
 	void onBeginFrame(std::size_t frameNumber, std::size_t frameCycleIndex) override;
 	void onEndFrame() override;
 
+	void addGHIUpdateWork(GHI* updatedGHI);
+
 private:
 	RTRScene                   m_scene;
 	std::unique_ptr<GHIThread> m_ghiThread;
+	GHI*                       m_updatedGHI;
 };
 
 }// end namespace ph::editor

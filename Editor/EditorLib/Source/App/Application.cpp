@@ -16,8 +16,10 @@ Application::Application(AppSettings settings)
 	, m_frameNumber(0)
 	, m_isClosing(false)
 {
-	Threads::setRenderThread(&m_renderThread);
-	Threads::setGHIThread(&m_ghiThread);
+	// TODO: start worker
+
+	/*Threads::setRenderThread(&m_renderThread);
+	Threads::setGHIThread(&m_ghiThread);*/
 
 	// TODO: threads
 

@@ -7,6 +7,7 @@
 #include <Common/config.h>
 #include <Common/assertion.h>
 #include <Math/math.h>
+#include <Common/logging.h>
 
 #include <array>
 #include <cstddef>
@@ -16,9 +17,12 @@
 #include <mutex>
 #include <utility>
 #include <type_traits>
+#include <vector>
 
 namespace ph::editor
 {
+
+PH_DEFINE_EXTERNAL_LOG_GROUP(TFrameWorkerThread, EditorCore);
 
 template<std::size_t NUM_BUFFERS, typename T>
 class TFrameWorkerThread
@@ -33,8 +37,20 @@ class TFrameWorkerThread
 Regarding thread safety notes:
 * Producer Thread: Thread that adds/produces work, can be one or more.
 * Worker Thread: Thread that processes/consumes work, only one worker thread is allowed.
-* Parent Thread: Thread that creates an instance of this class.
+* Parent Thread: Thread that creates the instance of this class.
 * Thread Safe: Can be used on any thread.
+
+A typical call sequence of the class would be like:
+* ctor call
+* `startWorker()`
+* one or more calls to:
+  - `beginFrame()`
+  - any number of calls to `addWork()`
+  - possibly call `requestWorkerStop()`
+  - `endFrame()`
+* `waitForWorkerToStop()`
+* dtor call
+
 @tparam NUM_BUFFERS Number of buffered frames. For example, 1 corresponds to single buffering which
 forces the worker to wait until the work producer is done; 2 corresponds to double buffering where
 the worker and the work producer may have their own buffer (frame) to work on. Any number of buffers
@@ -50,24 +66,29 @@ protected:
 	using Work = TFunction<R(Args...)>;
 
 private:
+	// Safe limit of concurrent works processed to avoid starvation on parent thread works
+	inline constexpr static std::size_t maxAnyThreadWorksPerFrame = 16384;
+
 	struct Frame final
 	{
-		TLockFreeQueue<Work> workQueue;
+		std::vector<Work>    parentThreadWorkQueue;
+		TLockFreeQueue<Work> anyThreadWorkQueue;
 		MemoryArena          workQueueMemory;
 		std::mutex           memoryMutex;
 		std::atomic_flag     isSealedForProcessing;
 #ifdef PH_DEBUG
-		std::atomic_int32_t  numWorks;
+		std::atomic_int32_t  numAnyThreadWorks;
 		bool                 isBetweenFrameBeginAndEnd;
 #endif
 
 		inline Frame()
-			: workQueue()
+			: parentThreadWorkQueue()
+			, anyThreadWorkQueue()
 			, workQueueMemory()
 			, memoryMutex()
 			, isSealedForProcessing()
 #ifdef PH_DEBUG
-			, numWorks(0)
+			, numAnyThreadWorks(0)
 			, isBetweenFrameBeginAndEnd(false)
 #endif
 		{}
@@ -88,12 +109,7 @@ public:
 		, m_parentThreadId(std::this_thread::get_id())
 		, m_isStopped(false)
 #endif
-	{
-		m_thread = std::thread([this]()
-		{
-			asyncProcessFrame();
-		});
-	}
+	{}
 
 	/*!
 	@note Parent thread only.
@@ -134,12 +150,35 @@ public:
 	*/
 	virtual void onEndFrame() = 0;
 
+	/*! @brief Start the worker.
+	Call to this method establishes a happens-before relationship to the execution of the worker
+	thread. This method should not be called in the ctor as the worker thread will call virtual 
+	methods internally, which leads to possible UB if any derived class has not been initialized yet.
+	@note Parent thread only.
+	*/
+	inline void startWorker()
+	{
+		PH_ASSERT(isParentThread());
+		PH_ASSERT(!getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+
+		// The worker thread must not be already initiated. If this assertion fails, it is likely
+		// that `startWorker()` is called more than once.
+		PH_ASSERT(!hasWorkerStarted());
+
+		m_thread = std::thread(
+			[this]()
+			{
+				asyncProcessFrame();
+			});
+	}
+
 	/*!
 	@note Parent thread only.
 	*/
 	inline void beginFrame()
 	{
 		PH_ASSERT(isParentThread());
+		PH_ASSERT(hasWorkerStarted());
 
 		// Wait until current frame is available for adding works
 		Frame& currentFrame = getCurrentProducerFrame();
@@ -150,7 +189,7 @@ public:
 		//--------------------------------------------------------------------//
 		
 		// Must be empty (already cleared by worker)
-		PH_ASSERT_EQ(currentFrame.numWorks.load(std::memory_order_relaxed), 0);
+		PH_ASSERT_EQ(currentFrame.numAnyThreadWorks.load(std::memory_order_relaxed), 0);
 
 #ifdef PH_DEBUG
 		getCurrentProducerFrame().isBetweenFrameBeginAndEnd = true;
@@ -166,6 +205,7 @@ public:
 	inline void endFrame()
 	{
 		PH_ASSERT(isParentThread());
+		PH_ASSERT(hasWorkerStarted());
 
 		onEndFrame();
 
@@ -224,25 +264,37 @@ public:
 	*/
 	inline void addWork(Work work)
 	{
-		PH_ASSERT(!isWorkerThread());
 		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
 		PH_ASSERT(work.isValid());
 
 		Frame& currentFrame = getCurrentProducerFrame();
-		currentFrame.workQueue.enqueue(std::move(work));
+		if(isParentThread())
+		{
+			currentFrame.parentThreadWorkQueue.push_back(std::move(work));
+		}
+		else
+		{
+			PH_ASSERT(!isWorkerThread());
+
+			currentFrame.anyThreadWorkQueue.enqueue(std::move(work));
 
 #ifdef PH_DEBUG
-		currentFrame.numWorks.fetch_add(1, std::memory_order_relaxed);
+			currentFrame.numAnyThreadWorks.fetch_add(1, std::memory_order_relaxed);
 #endif
+		}
 	}
 
-	/*!
-	Can only be called between `beginFrame()` and `endFrame()`.
+	/*! @brief Ask the worker thread to stop.
+	The worker thread will stop as soon as possible. Currently processing frame will still complete
+	before the worker stop. Can only be called between `beginFrame()` and `endFrame()`.
 	@note Parent thread only.
 	*/
 	inline void requestWorkerStop()
 	{
 		PH_ASSERT(isParentThread());
+
+		// Ensures that `endFrame()` will be called later, which guarantees that the stop condition
+		// will be checked (in case of the worker was already waiting, `endFrame()` will unwait it)
 		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
 
 		m_isStopRequested.store(true, std::memory_order_relaxed);
@@ -285,6 +337,9 @@ public:
 	*/
 	inline std::thread::id getWorkerThreadId() const
 	{
+		// `startWorker()` must be called prior to this.
+		PH_ASSERT(m_thread.get_id() != std::thread::id());
+
 		return m_thread.get_id();
 	}
 
@@ -308,18 +363,41 @@ private:
 			// vvvvv   Works can now be processed after the acquire operation   vvvvv //
 			//------------------------------------------------------------------------//
 
-			Work work;
-			while(currentFrame.workQueue.tryDequeue(&work))
+			// Process works added from parent thread
 			{
-				onAsyncProcessWork(work);
+				for(const Work& workFromParentThread : currentFrame.parentThreadWorkQueue)
+				{
+					onAsyncProcessWork(workFromParentThread);
+				}
+				currentFrame.parentThreadWorkQueue.clear();
+			}
+			
+
+			// Process works added from any thread
+			{
+				Work workFromAnyThread;
+				std::size_t numDequeuedAnyThreadWorks = 0;
+				while(currentFrame.anyThreadWorkQueue.tryDequeue(&workFromAnyThread))
+				{
+					++numDequeuedAnyThreadWorks;
+
+					onAsyncProcessWork(workFromAnyThread);
+
+					if(numDequeuedAnyThreadWorks == maxAnyThreadWorksPerFrame + 1)
+					{
+						PH_LOG_WARNING(TFrameWorkerThread,
+							"too many concurrently added works ({}), current safe limit is {}",
+							numDequeuedAnyThreadWorks + currentFrame.anyThreadWorkQueue.estimatedSize(), maxAnyThreadWorksPerFrame);
+					}
 
 #ifdef PH_DEBUG
-				currentFrame.numWorks.fetch_sub(1, std::memory_order_relaxed);
+					currentFrame.numAnyThreadWorks.fetch_sub(1, std::memory_order_relaxed);
 #endif
+				}
 			}
 
 			// Since there is no consumer contention, there should be no work once `tryDequeue` fails 
-			PH_ASSERT_EQ(currentFrame.numWorks.load(std::memory_order_relaxed), 0);
+			PH_ASSERT_EQ(currentFrame.numAnyThreadWorks.load(std::memory_order_relaxed), 0);
 
 			// It is worker's job to cleanup this frame for producer (for performance reasons).
 			// No need to lock `memoryMutex` here as `isSealedForProcessing` already established
@@ -349,13 +427,21 @@ private:
 		return std::this_thread::get_id() == m_thread.get_id();
 	}
 
-#ifdef PH_DEBUG
 	/*! @brief Check if this thread is parent thread.
 	@note Thread-safe.
 	*/
 	inline bool isParentThread() const
 	{
 		return std::this_thread::get_id() == m_parentThreadId;
+	}
+
+#ifdef PH_DEBUG
+	/*! @brief Check whether the worker thread has started.
+	@note Thread-safe.
+	*/
+	inline bool hasWorkerStarted() const
+	{
+		return m_thread.get_id() != std::thread::id();
 	}
 #endif
 

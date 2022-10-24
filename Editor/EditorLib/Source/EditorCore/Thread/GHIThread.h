@@ -23,13 +23,19 @@ public:
 	GHIThread();
 	~GHIThread() override;
 
-	void onAsyncProcessWork(const Work& work) override;
+	void onAsyncWorkerStart() override;
 	void onAsyncWorkerStop() override;
+	void onAsyncProcessWork(const Work& work) override;
 	void onBeginFrame(std::size_t frameNumber, std::size_t frameCycleIndex) override;
 	void onEndFrame() override;
 
+	void addSetGHIWork(GHI* ghi);
+
 private:
-	std::unique_ptr<GHI> m_ghi;
+	void setGHI(GHI* ghi);
+
+	GHI*                 m_ghi;
+	std::unique_ptr<GHI> m_defaultGHI;
 };
 
 }// end namespace ph::editor

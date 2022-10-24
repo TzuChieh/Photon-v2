@@ -40,18 +40,18 @@ void EditorEventQueue::updateAnyThreadEvents()
 
 	std::size_t numDequeuedWorks = 0;
 	EventUpdateWork work;
-	while(numDequeuedWorks < maxAnyThreadWorksPerUpdate && m_anyThreadWorks.tryDequeue(&work))
+	while(m_anyThreadWorks.tryDequeue(&work))
 	{
 		++numDequeuedWorks;
 
 		work();
-	}
 
-	if(numDequeuedWorks == maxAnyThreadWorksPerUpdate && m_anyThreadWorks.estimatedSize() > 0)
-	{
-		PH_LOG_WARNING(EditorEventQueue,
-			"too many concorrently added editor events, {} are delayed to next frame", 
-			m_anyThreadWorks.estimatedSize());
+		if(numDequeuedWorks == maxAnyThreadWorksPerUpdate + 1)
+		{
+			PH_LOG_WARNING(EditorEventQueue,
+				"too many concurrently added editor events ({}), current safe limit is {}",
+				numDequeuedWorks + m_anyThreadWorks.estimatedSize(), maxAnyThreadWorksPerUpdate);
+		}
 	}
 }
 

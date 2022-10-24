@@ -38,7 +38,8 @@ public:
 	bool tryEnqueue(U&& item);
 
 	/*! @brief Try to dequeue an item.
-	Dequeue fails if there is no item. Dequeue can fail spuriously if there is another consumer.
+	While there is no contention, dequeue fails if there is no item; otherwise, dequeue can fail 
+	spuriously if there is another consumer (under contention).
 	@return `true` if an item is dequeued. `false` otherwise (even if the queue is not empty).
 	@note Thread-safe.
 	*/

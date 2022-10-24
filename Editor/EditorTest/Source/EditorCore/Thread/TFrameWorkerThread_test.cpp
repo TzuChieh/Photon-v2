@@ -45,6 +45,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 			EXPECT_CALL(worker, onEndFrame)
 				.Times(1);
 
+			worker.startWorker();
 			worker.beginFrame();
 
 			// adds no work...
@@ -70,6 +71,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 			EXPECT_CALL(worker, onEndFrame)
 				.Times(1);
 
+			worker.startWorker();
 			worker.beginFrame();
 
 			int someOtherNumber = i * 7;
@@ -111,6 +113,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 			EXPECT_CALL(worker, onEndFrame)
 				.Times(1);
 
+			worker.startWorker();
 			worker.beginFrame();
 
 			std::array<float, NUM_TIMES> someData;
@@ -166,6 +169,8 @@ inline void run_multiple_frames_buffered_test()
 			.Times(numFrames);
 		EXPECT_CALL(worker, onEndFrame)
 			.Times(numFrames);
+
+		worker.startWorker();
 
 		// Run `numFrames` frames
 		for(int fi = 0; fi < numFrames; ++fi)
@@ -253,6 +258,7 @@ TEST(TFrameWorkerThreadTest, RunSmartPtrCaptureWork)
 			EXPECT_CALL(worker, onEndFrame)
 				.Times(1);
 
+			worker.startWorker();
 			worker.beginFrame();
 
 			int count = 0;

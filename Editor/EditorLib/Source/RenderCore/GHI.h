@@ -2,8 +2,6 @@
 
 #include <Utility/INoCopyAndMove.h>
 
-#include <memory>
-
 namespace ph::editor
 {
 
@@ -18,7 +16,6 @@ public:
 	virtual void load() = 0;
 	virtual void unload() = 0;
 	virtual void swapBuffers() = 0;
-	virtual std::unique_ptr<GHI> clone() = 0;
 
 private:
 };

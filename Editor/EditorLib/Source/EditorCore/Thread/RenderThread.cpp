@@ -1,8 +1,9 @@
 #include "EditorCore/Thread/RenderThread.h"
-#include "EditorCore/RenderThreadResource.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
+
+#include <utility>
 
 namespace ph::editor
 {
@@ -14,12 +15,12 @@ RenderThread::RenderThread()
 	, m_scene()
 	, m_ghiThread(nullptr)
 {
-	PH_LOG(RenderThread, "thread started");
+	PH_LOG(RenderThread, "thread created");
 }
 
 RenderThread::~RenderThread()
 {
-	PH_LOG(RenderThread, "thread ended");
+	PH_LOG(RenderThread, "thread destroyed");
 }
 
 void RenderThread::onAsyncProcessWork(const Work& work)
@@ -45,6 +46,16 @@ void RenderThread::onBeginFrame(const std::size_t frameNumber, const std::size_t
 void RenderThread::onEndFrame()
 {
 	// TODO
+}
+
+void RenderThread::addGHIUpdateWork(GHI* updatedGHI)
+{
+	// TODO
+	/*addWork(
+		[this, updatedGHI = std::move(updatedGHI)](RTRScene& scene)
+		{
+			m_updatedGHI = std::move(updatedGHI);
+		});*/
 }
 
 }// end namespace ph::editor

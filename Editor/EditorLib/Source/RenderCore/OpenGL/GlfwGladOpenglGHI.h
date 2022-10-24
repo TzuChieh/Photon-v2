@@ -15,7 +15,6 @@ public:
 	void load() override;
 	void unload() override;
 	void swapBuffers() override;
-	std::unique_ptr<GHI> clone() override;
 
 private:
 	GLFWwindow* m_glfwWindow;

@@ -16,7 +16,7 @@ namespace ph
 namespace function_detail
 {
 
-template<typename T, std::size_t N = 0>
+template<typename T, std::size_t MIN_SIZE_HINT = 0>
 class TFunction final
 {
 	// Correct function signature will instantiate the specialized type. If this type is selected
@@ -60,14 +60,14 @@ This type is a thin wrapper around stateless callable targets such as free funct
 functor and lambda. For methods, the instance must outlive the associated `TFunction`. For functors
 and lambdas, they must be stateless (no member variable/no capture) or small enough in size. Unlike
 the standard `std::function` which offers little guarantees, this type is guaranteed to be cheap to 
-construct, copy, destruct and small in size (minimum: 2 pointers for `MIN_SIZE` == 16, may vary
+construct, copy, destruct and small in size (minimum: 2 pointers for `MIN_SIZE_HINT` == 16, may vary
 depending on the platform). Calling functions indirectly through this type adds almost no overhead.
 
 See the amazing post by @bitwizeshift and his github projects, from which is much of the inspiration
 derived: https://bitwizeshift.github.io/posts/2021/02/24/creating-a-fast-and-efficient-delegate-type-part-1/
 */
-template<typename R, typename... Args, std::size_t MIN_SIZE>
-class TFunction<R(Args...), MIN_SIZE> final
+template<typename R, typename... Args, std::size_t MIN_SIZE_HINT>
+class TFunction<R(Args...), MIN_SIZE_HINT> final
 {
 private:
 	using UnifiedCaller = R(*)(const TFunction*, Args...);
@@ -76,8 +76,8 @@ private:
 	// buffer to `std::max_align_t` or anything greater to save space.
 	constexpr static std::size_t BUFFER_ALIGNMENT = alignof(void*);
 
-	constexpr static std::size_t BUFFER_SIZE = MIN_SIZE > sizeof(UnifiedCaller) + sizeof(void*)
-		? MIN_SIZE - sizeof(UnifiedCaller)
+	constexpr static std::size_t BUFFER_SIZE = MIN_SIZE_HINT > sizeof(UnifiedCaller) + sizeof(void*)
+		? MIN_SIZE_HINT - sizeof(UnifiedCaller)
 		: sizeof(void*);
 
 public:
@@ -358,7 +358,7 @@ private:
 
 }// end namespace function_detail
 
-template<typename Func, std::size_t MIN_SIZE = PH_TFUNCTION_MIN_SIZE_IN_BYTES>
-using TFunction = function_detail::TFunction<Func, MIN_SIZE>;
+template<typename Func, std::size_t MIN_SIZE_HINT = PH_TFUNCTION_MIN_SIZE_IN_BYTES>
+using TFunction = function_detail::TFunction<Func, MIN_SIZE_HINT>;
 
 }// end namespace ph

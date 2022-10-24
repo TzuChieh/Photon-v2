@@ -19,11 +19,6 @@ public:
 	inline void swapBuffers()
 	{}
 
-	inline std::unique_ptr<GHI> clone() override
-	{
-		return std::make_unique<NullGHI>();
-	}
-
 private:
 };
 
