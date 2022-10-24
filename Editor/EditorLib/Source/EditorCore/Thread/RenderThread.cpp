@@ -1,4 +1,5 @@
 #include "EditorCore/Thread/RenderThread.h"
+#include "EditorCore/Thread/GHIThread.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>

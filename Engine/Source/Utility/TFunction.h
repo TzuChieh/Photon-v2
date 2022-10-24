@@ -156,9 +156,9 @@ public:
 		else
 		{
 			static_assert(TIsNonEmptyTrivialFunctor<Func>::value,
-				"Cannot direct-init TFunction. Possible cause of errors: (1) The direct-init ctor only "
-				"works for functors. For other function types, please use setters; (2) Invalid/mismatched "
-				"functor signature.");
+				"Cannot direct-init TFunction. Possible cause of errors: (1) sizeof functor exceeds current "
+				"limit, reduce functor size or increase the limit; (2) Invalid/mismatched functor signature; "
+				"(3) The direct-init ctor only works for functors. For other function types, please use setters.");
 
 			set<Func>(std::forward<Func>(func));
 		}

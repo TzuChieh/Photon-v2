@@ -1,14 +1,13 @@
 #pragma once
 
 #include "RenderCore/RenderThreadUpdateContext.h"
+#include "RenderCore/CustomRenderContent.h"
 
 #include <memory>
 #include <vector>
 
 namespace ph::editor
 {
-
-class CustomRenderContent;
 
 class RTRScene final
 {

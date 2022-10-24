@@ -71,7 +71,7 @@ void GlfwDisplay::initialize(
 		{
 			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
 
-			FrameBufferResizeEvent e({width, height});
+			FrameBufferResizeEvent e(math::Vector2S(width, height));
 			editor.dispatchToEventQueue(e, editor.onFrameBufferResize);
 		});
 

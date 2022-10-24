@@ -1,6 +1,7 @@
 #include "App/Application.h"
 #include "Platform/GlfwPlatform/GlfwPlatform.h"
 #include "EditorCore/Thread/Threads.h"
+#include "Render/RenderModule.h"
 
 #include <utility>
 

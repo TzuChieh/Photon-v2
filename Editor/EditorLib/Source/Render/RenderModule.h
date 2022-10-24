@@ -10,7 +10,7 @@ class ModuleAttachmentInfo;
 class RenderModule
 {
 public:
-	inline virtual ~RenderModule() = default;
+	virtual ~RenderModule();
 
 	virtual void onAttach(const ModuleAttachmentInfo& info) = 0;
 	virtual void onDetach() = 0;

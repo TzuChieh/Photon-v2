@@ -35,7 +35,7 @@ private:
 
 inline void EditorEventQueue::add(EventUpdateWork work)
 {
-	if(Threads::isOnMainThread)
+	if(Threads::isOnMainThread())
 	{
 		m_mainThreadWorks.push_back(std::move(work));
 	}
