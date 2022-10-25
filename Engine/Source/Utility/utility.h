@@ -177,10 +177,14 @@ inline DstType safe_integer_cast(const SrcType src)
 		}
 	}
 
-	// All possible integer overflow scenarios are checked and it is safe to cast now
+	// All possible integer overflow scenarios are checked so it is safe to cast now
 	return static_cast<DstType>(src);
 }
 
+/*! @brief Cast numeric value to another type without any loss of information.
+If there is any possible overflow or precision loss, exception is thrown.
+@exception OverflowException If overflow happens.
+*/
 template<CIsNumber DstType, CIsNumber SrcType>
 inline DstType safe_number_cast(const SrcType src)
 {
