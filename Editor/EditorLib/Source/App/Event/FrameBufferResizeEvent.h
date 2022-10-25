@@ -3,6 +3,8 @@
 #include "App/Event/Event.h"
 
 #include <Math/TVector2.h>
+#include <Common/primitive_type.h>
+#include <Utility/utility.h>
 
 namespace ph::editor
 {
@@ -10,22 +12,31 @@ namespace ph::editor
 class FrameBufferResizeEvent final : public Event
 {
 public:
-	explicit FrameBufferResizeEvent(math::Vector2S newSizePx);
+	explicit FrameBufferResizeEvent(math::TVector2<uint16> newSizePx);
+
+	template<typename T>
+	FrameBufferResizeEvent(T widthPx, T heightPx);
 
 	math::Vector2S getNewSizePx() const;
 
 private:
-	math::Vector2S m_newSizePx;
+	math::TVector2<uint16> m_newSizePx;
 };
 
-inline FrameBufferResizeEvent::FrameBufferResizeEvent(math::Vector2S newSizePx)
+inline FrameBufferResizeEvent::FrameBufferResizeEvent(math::TVector2<uint16> newSizePx)
 	: Event()
 	, m_newSizePx(newSizePx)
 {}
 
+template<typename T>
+inline FrameBufferResizeEvent::FrameBufferResizeEvent(T widthPx, T heightPx)
+	: FrameBufferResizeEvent(
+		math::TVector2<uint16>(safe_number_cast<uint16>(widthPx), safe_number_cast<uint16>(heightPx)))
+{}
+
 inline math::Vector2S FrameBufferResizeEvent::getNewSizePx() const
 {
-	return m_newSizePx;
+	return math::Vector2S(m_newSizePx);
 }
 
 }// end namespace ph::editor

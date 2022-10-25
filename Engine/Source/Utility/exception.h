@@ -10,7 +10,10 @@
 namespace ph
 {
 
-// Note: When adding new types, the implementation of `CPhotonException` needs to be updated.
+// Note: When adding new base types, the implementation of `CPhotonException` needs to be updated.
+
+// A convenient "catch all" type when handling exceptions
+using Exception = std::exception;
 
 /*! @brief General exception thrown on runtime error.
 */
@@ -34,6 +37,12 @@ public:
 	virtual std::string whatStr() const;
 };
 
+class OverflowException : public RuntimeException
+{
+public:
+	using RuntimeException::RuntimeException;
+};
+
 class UninitializedObjectException : public LogicalException
 {
 public:
@@ -45,10 +54,11 @@ concept CPhotonException =
 	std::is_base_of_v<RuntimeException, T> ||
 	std::is_base_of_v<LogicalException, T>;
 
-template<CPhotonException T, typename... Args>
+template<CPhotonException ExceptionType, typename... Args>
 inline void throw_formatted(const std::string_view formattedMsg, Args&&... args)
 {
-	throw std::vformat(formattedMsg, std::make_format_args(std::forward<Args>(args)...));
+	throw ExceptionType(
+		std::vformat(formattedMsg, std::make_format_args(std::forward<Args>(args)...)));
 }
 
 }// end namespace ph

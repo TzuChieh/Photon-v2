@@ -1,10 +1,16 @@
 #pragma once
 
+#include "Utility/exception.h"
+#include "Common/assertion.h"
+#include "Utility/traits.h"
+
 #include <utility>
 #include <type_traits>
 #include <cstring>
 #include <string>
 #include <climits>
+#include <limits>
+#include <concepts>
 
 namespace ph
 {
@@ -138,5 +144,56 @@ inline constexpr T* mutable_cast(T* value) noexcept
 template<typename T>
 inline void mutable_cast(const T&&) = delete;
 ///@}
+
+template<std::integral DstType, std::integral SrcType>
+inline DstType safe_integer_cast(const SrcType src)
+{
+	using SrcLimits = std::numeric_limits<SrcType>;
+	using DstLimits = std::numeric_limits<DstType>;
+
+	// Note that the use of `std::cmp_<X>` functions are important as the comparisons 
+	// may be signed <-> unsigned comparisons, which may cause signed limits to overflow
+
+	// TODO: we may need to cast src to some integer first to support char and bool types (they are not supported by cmp functions)
+
+	constexpr bool mayHavePositiveOverflow = std::cmp_greater(SrcLimits::max(), DstLimits::max());
+	constexpr bool mayHaveNegativeOverflow = std::cmp_less(SrcLimits::lowest(), DstLimits::lowest());
+
+	if constexpr(mayHavePositiveOverflow)
+	{
+		if(std::cmp_greater(src, DstLimits::max()))
+		{
+			throw_formatted<OverflowException>("cast results in positive overflow: {} exceeds the limit {}",
+				src, DstLimits::max());
+		}
+	}
+
+	if constexpr(mayHaveNegativeOverflow)
+	{
+		if(std::cmp_less(src, DstLimits::lowest()))
+		{
+			throw_formatted<OverflowException>("cast results in negative overflow: {} exceeds the limit {}",
+				src, DstLimits::lowest());
+		}
+	}
+
+	// All possible integer overflow scenarios are checked and it is safe to cast now
+	return static_cast<DstType>(src);
+}
+
+template<CIsNumber DstType, CIsNumber SrcType>
+inline DstType safe_number_cast(const SrcType src)
+{
+	if constexpr(std::is_integral_v<SrcType> && std::is_integral_v<DstType>)
+	{
+		return safe_integer_cast<DstType>(src);
+	}
+	else
+	{
+		// TODO: other type combinations
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return 0;
+	}
+}
 
 }// end namespace ph

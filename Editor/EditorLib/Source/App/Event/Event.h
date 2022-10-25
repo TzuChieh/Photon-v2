@@ -74,7 +74,7 @@ public:
 	//bool isFromSource(EEventSource fromSourceType) const;
 
 private:
-	bool m_isConsumed = false;
+	bool m_isConsumed : 1 = false;
 };
 
 inline void Event::consume()

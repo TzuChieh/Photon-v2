@@ -15,6 +15,7 @@ RenderThread::RenderThread()
 	: Base()
 	, m_scene()
 	, m_ghiThread(nullptr)
+	, m_updatedGHI(nullptr)
 {
 	PH_LOG(RenderThread, "thread created");
 }
