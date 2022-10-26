@@ -4,8 +4,6 @@
 #include "editor_lib_config.h"
 #include "RenderCore/RTRScene.h"
 
-#include <memory>
-
 namespace ph::editor
 {
 
@@ -28,15 +26,18 @@ public:
 	void onAsyncProcessWork(const Work& work) override;
 	void onAsyncWorkerStart() override;
 	void onAsyncWorkerStop() override;
-	void onBeginFrame(std::size_t frameNumber, std::size_t frameCycleIndex) override;
+	void onBeginFrame() override;
 	void onEndFrame() override;
 
 	void addGHIUpdateWork(GHI* updatedGHI);
 
 private:
-	RTRScene                   m_scene;
-	std::unique_ptr<GHIThread> m_ghiThread;
-	GHI*                       m_updatedGHI;
+	void beginProcessFrame();
+	void endProcessFrame();
+
+	RTRScene  m_scene;
+	GHIThread m_ghiThread;
+	GHI*      m_updatedGHI;
 };
 
 }// end namespace ph::editor

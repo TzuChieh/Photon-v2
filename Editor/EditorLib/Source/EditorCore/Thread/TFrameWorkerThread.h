@@ -35,12 +35,15 @@ class TFrameWorkerThread
 
 /*!
 Regarding thread safety notes:
+
 * Producer Thread: Thread that adds/produces work, can be one or more.
-* Worker Thread: Thread that processes/consumes work, only one worker thread is allowed.
-* Parent Thread: Thread that creates the instance of this class.
+* Worker Thread: Thread that processes/consumes work, only one worker thread will be spawned.
+* Parent Thread: Thread that starts the worker thread (by calling `startWorker()`).
 * Thread Safe: Can be used on any thread.
+* Anything that has no thread safety notes: It is **NOT** thread safe.
 
 A typical call sequence of the class would be like:
+
 * ctor call
 * `startWorker()`
 * one or more calls to:
@@ -50,6 +53,9 @@ A typical call sequence of the class would be like:
   - `endFrame()`
 * `waitForWorkerToStop()`
 * dtor call
+
+It is the programmer's responsibility to make sure the class instance outlive the worker's full
+working cycle--from `startWorker()` to `waitForWorkerToStop()`. Ctor and dtor calls are not thread safe.
 
 @tparam NUM_BUFFERS Number of buffered frames. For example, 1 corresponds to single buffering which
 forces the worker to wait until the work producer is done; 2 corresponds to double buffering where
@@ -82,37 +88,61 @@ private:
 #endif
 
 		inline Frame()
-			: parentThreadWorkQueue()
-			, anyThreadWorkQueue()
-			, workQueueMemory()
-			, memoryMutex()
-			, isSealedForProcessing()
+			: parentThreadWorkQueue    ()
+			, anyThreadWorkQueue       ()
+			, workQueueMemory          ()
+			, memoryMutex              ()
+			, isSealedForProcessing    ()
 #ifdef PH_DEBUG
-			, numAnyThreadWorks(0)
+			, numAnyThreadWorks        (0)
 			, isBetweenFrameBeginAndEnd(false)
 #endif
 		{}
 	};
 
 public:
+	struct FrameInfo final
+	{
+		std::size_t frameNumber     = 0;
+		std::size_t frameCycleIndex = 0;
+		std::size_t numParentWorks  = 0;
+
+		struct Detail final
+		{
+			std::size_t numEstimatedAnyThreadWorks  = 0;
+			std::size_t numEstimatedTotalWorks      = 0;
+			std::size_t estimatedLocalBytesForWorks = 0;
+			std::size_t extraBytesAllocatedForWorks = 0;
+
+			inline std::size_t estimatedTotalBytesUsed() const
+			{
+				return estimatedLocalBytesForWorks + extraBytesAllocatedForWorks + sizeof(TFrameWorkerThread);
+			}
+		};
+
+		Detail detail;
+		bool hasDetail = false;
+	};
+
+public:
 	/*!
-	@note The thread that creates the worker is considered the worker's parent thread.
+	Does not start the worker thread. Worker thread can be started by calling `startWorker()`.
 	*/
 	inline TFrameWorkerThread()
-		: m_thread()
-		, m_frames()
-		, m_isStopRequested(false)
+		: m_thread              ()
+		, m_frames              ()
+		, m_isStopRequested     (false)
 		, m_workProducerWorkHead(0)
 		, m_workConsumerWorkHead(0)
-		, m_frameNumber(0)
+		, m_frameNumber         (0)
 #ifdef PH_DEBUG
-		, m_parentThreadId(std::this_thread::get_id())
-		, m_isStopped(false)
+		, m_parentThreadId      ()
+		, m_isStopped           (false)
 #endif
 	{}
 
 	/*!
-	@note Parent thread only.
+	Must call `waitForWorkerToStop()` before reaching dtor.
 	*/
 	inline virtual ~TFrameWorkerThread()
 	{
@@ -143,27 +173,30 @@ public:
 	/*! @brief Called right after the frame begins.
 	@note Called on parent thread only.
 	*/
-	virtual void onBeginFrame(std::size_t frameNumber, std::size_t frameCycleIndex) = 0;
+	inline virtual void onBeginFrame()
+	{}
 
 	/*! @brief Called right before the frame ends.
 	@note Called on parent thread only.
 	*/
-	virtual void onEndFrame() = 0;
+	inline virtual void onEndFrame()
+	{}
 
 	/*! @brief Start the worker.
 	Call to this method establishes a happens-before relationship to the execution of the worker
 	thread. This method should not be called in the ctor as the worker thread will call virtual 
 	methods internally, which leads to possible UB if any derived class has not been initialized yet.
-	@note Parent thread only.
+	@note The thread that calls this method is considered the worker's parent thread.
 	*/
 	inline void startWorker()
 	{
-		PH_ASSERT(isParentThread());
 		PH_ASSERT(!getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
 
 		// The worker thread must not be already initiated. If this assertion fails, it is likely
 		// that `startWorker()` is called more than once.
 		PH_ASSERT(!hasWorkerStarted());
+
+		m_parentThreadId = std::this_thread::get_id();
 
 		m_thread = std::thread(
 			[this]()
@@ -195,8 +228,7 @@ public:
 		getCurrentProducerFrame().isBetweenFrameBeginAndEnd = true;
 #endif
 
-		const auto frameCycleIndex = m_workProducerWorkHead;
-		onBeginFrame(getFrameNumber(), frameCycleIndex);
+		onBeginFrame();
 	}
 
 	/*!
@@ -230,7 +262,8 @@ public:
 	}
 
 	/*!
-	Similar to addWork(Work). This variant is for general functors.
+	Similar to addWork(Work). This variant supports general functors. Larger functors or non-trivial
+	functors may induce additional overhead on creating and processing of the work.
 	@note Producer threads only.
 	*/
 	template<typename Func>
@@ -343,6 +376,40 @@ public:
 		return m_thread.get_id();
 	}
 
+	/*!
+	@note Producer threads only.
+	*/
+	inline FrameInfo getFrameInfo(const bool shouldIncludeDetails = false) const
+	{
+		// For all producer threads, it is only safe to access between being/end frame.
+		PH_ASSERT(!isWorkerThread());
+		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+
+		Frame& currentFrame = getCurrentProducerFrame();
+
+		FrameInfo info;
+		info.frameNumber     = getFrameNumber();
+		info.frameCycleIndex = m_workProducerWorkHead;
+		info.numParentWorks  = currentFrame.parentThreadWorkQueue.size();
+
+		if(shouldIncludeDetails)
+		{
+			info.detail.numEstimatedAnyThreadWorks  = currentFrame.anyThreadWorkQueue.estimatedSize();
+			info.detail.numEstimatedTotalWorks      = info.numParentWorks + info.detail.numEstimatedAnyThreadWorks;
+			info.detail.estimatedLocalBytesForWorks = info.detail.numEstimatedTotalWorks * sizeof(Work);
+
+			{
+				std::lock_guard<std::mutex> lock(currentFrame.memoryMutex);
+
+				info.detail.extraBytesAllocatedForWorks = currentFrame.workQueueMemory.numAllocatedBytes();
+			}
+
+			info.hasDetail = true;
+		}
+
+		return info;
+	}
+
 private:
 	/*!
 	@note Worker thread only.
@@ -371,7 +438,6 @@ private:
 				}
 				currentFrame.parentThreadWorkQueue.clear();
 			}
-			
 
 			// Process works added from any thread
 			{

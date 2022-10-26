@@ -35,9 +35,9 @@ private:
 
 	AppSettings                                m_settings;
 	Editor                                     m_editor;
+	RenderThread                               m_renderThread;
 	std::unique_ptr<Platform>                  m_platform;
 	std::vector<std::unique_ptr<RenderModule>> m_renderModules;
-	RenderThread                               m_renderThread;
 	std::size_t                                m_frameNumber;
 	bool                                       m_isClosing;
 };

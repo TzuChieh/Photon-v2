@@ -10,35 +10,38 @@ PH_DEFINE_INTERNAL_LOG_GROUP(GHIThread, EditorCore);
 
 GHIThread::GHIThread()
 	: Base()
-	, m_ghi(nullptr)
-	, m_defaultGHI(std::make_unique<NullGHI>())
+	, m_GHI(nullptr)
+	, m_nullGHI(std::make_unique<NullGHI>())
 {
 	PH_LOG(GHIThread, "thread created");
 }
 
 GHIThread::~GHIThread()
 {
+	// Should already been unset
+	PH_ASSERT(!m_GHI);
+
 	PH_LOG(GHIThread, "thread destroyed");
 }
 
 void GHIThread::onAsyncWorkerStart()
 {
-	// TODO: load ghi
+	setGHI(m_nullGHI.get());
 }
 
 void GHIThread::onAsyncWorkerStop()
 {
-	// TODO: unload ghi
+	setGHI(nullptr);
 }
 
 void GHIThread::onAsyncProcessWork(const Work& work)
 {
-	PH_ASSERT(m_ghi);
+	PH_ASSERT(m_GHI);
 
-	// TODO
+	work(*m_GHI);
 }
 
-void GHIThread::onBeginFrame(const std::size_t frameNumber, const std::size_t frameCycleIndex)
+void GHIThread::onBeginFrame()
 {
 	// TODO
 }
@@ -48,14 +51,34 @@ void GHIThread::onEndFrame()
 	// TODO
 }
 
-void GHIThread::addSetGHIWork(GHI* ghi)
+void GHIThread::addSetGHIWork(GHI* const inGHI)
 {
-	// TODO: setGHI
+	addWork(
+		[this, inGHI](GHI& /* ghi */)
+		{
+			setGHI(inGHI);
+		});
 }
 
-void GHIThread::setGHI(GHI* ghi)
+void GHIThread::setGHI(GHI* const inGHI)
 {
-	// TODO: unload previous, load new
+	// Nothing to do if the GHIs are the same
+	if(m_GHI == inGHI)
+	{
+		return;
+	}
+
+	if(m_GHI)
+	{
+		m_GHI->unload();
+	}
+	
+	m_GHI = inGHI;
+
+	if(m_GHI)
+	{
+		m_GHI->load();
+	}
 }
 
 }// end namespace ph::editor

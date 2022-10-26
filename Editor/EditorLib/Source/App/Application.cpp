@@ -11,9 +11,9 @@ namespace ph::editor
 Application::Application(AppSettings settings)
 	: m_settings(std::move(settings))
 	, m_editor()
+	, m_renderThread()
 	, m_platform()
 	, m_renderModules()
-	, m_renderThread()
 	, m_frameNumber(0)
 	, m_isClosing(false)
 {

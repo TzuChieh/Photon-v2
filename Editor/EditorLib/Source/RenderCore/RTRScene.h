@@ -14,6 +14,9 @@ class RTRScene final
 public:
 	~RTRScene();
 
+private:
+	friend class RenderThread;
+
 	void update(const RenderThreadUpdateContext& ctx);
 	void createGHICommands();
 
