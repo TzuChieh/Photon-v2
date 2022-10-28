@@ -3,6 +3,10 @@
 #include "RenderCore/GHI.h"
 #include "ThirdParty/GLFW3_fwd.h"
 
+#include <Common/config.h>
+
+#include <thread>
+
 namespace ph::editor
 {
 
@@ -17,8 +21,11 @@ public:
 	void swapBuffers() override;
 
 private:
-	GLFWwindow* m_glfwWindow;
-	bool        m_isLoaded;
+	GLFWwindow*     m_glfwWindow;
+	bool            m_isLoaded;
+#ifdef PH_DEBUG
+	std::thread::id m_loadThreadId;
+#endif
 };
 
 }// end namespace ph::editor

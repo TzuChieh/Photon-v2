@@ -1,7 +1,6 @@
 #include "RenderCore/OpenGL/GlfwGladOpenglGHI.h"
 #include "ThirdParty/glad2_with_GLFW3.h"
 #include "Platform/Platform.h"
-#include "EditorCore/Thread/Threads.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -34,8 +33,11 @@ inline std::string GLubyte_to_string(const GLubyte* const ubytes)
 
 GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow)
 	: GHI()
-	, m_glfwWindow(glfwWindow)
-	, m_isLoaded(false)
+	, m_glfwWindow  (glfwWindow)
+	, m_isLoaded    (false)
+#ifdef PH_DEBUG
+	, m_loadThreadId()
+#endif
 {}
 
 GlfwGladOpenglGHI::~GlfwGladOpenglGHI()
@@ -45,7 +47,9 @@ GlfwGladOpenglGHI::~GlfwGladOpenglGHI()
 
 void GlfwGladOpenglGHI::load()
 {
-	PH_ASSERT(Threads::isOnGHIThread());
+#ifdef PH_DEBUG
+	m_loadThreadId = std::this_thread::get_id();
+#endif
 
 	if(m_isLoaded)
 	{
@@ -84,7 +88,12 @@ void GlfwGladOpenglGHI::load()
 
 void GlfwGladOpenglGHI::unload()
 {
-	PH_ASSERT(Threads::isOnGHIThread());
+	PH_ASSERT(std::this_thread::get_id() == m_loadThreadId);
+
+	if(m_isLoaded)
+	{
+		glfwMakeContextCurrent(nullptr);
+	}
 
 	m_isLoaded = false;
 }

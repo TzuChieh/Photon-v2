@@ -1,5 +1,4 @@
 #include "EditorCore/Thread/RenderThread.h"
-#include "EditorCore/Thread/GHIThread.h"
 #include "RenderCore/RenderThreadUpdateContext.h"
 
 #include <Common/logging.h>
@@ -66,7 +65,7 @@ void RenderThread::onEndFrame()
 	updateCtx.frameCycleIndex = frameInfo.frameCycleIndex;
 
 	addWork(
-		[updateCtx](RTRScene& scene)
+		[this, updateCtx](RTRScene& scene)
 		{
 			scene.update(updateCtx);
 		});
@@ -76,7 +75,16 @@ void RenderThread::onEndFrame()
 		[this](RTRScene& scene)
 		{
 			m_ghiThread.beginFrame();
+
+			// If it is non-null, a GHI update is pending
+			if(m_updatedGHI)
+			{
+				m_ghiThread.addSetGHIWork(m_updatedGHI);
+				m_updatedGHI = nullptr;
+			}
+
 			scene.createGHICommands();
+
 			m_ghiThread.endFrame();
 		});
 

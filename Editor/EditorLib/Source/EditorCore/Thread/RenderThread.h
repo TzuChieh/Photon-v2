@@ -3,6 +3,7 @@
 #include "EditorCore/Thread/TFrameWorkerThread.h"
 #include "editor_lib_config.h"
 #include "RenderCore/RTRScene.h"
+#include "EditorCore/Thread/GHIThread.h"
 
 namespace ph::editor
 {

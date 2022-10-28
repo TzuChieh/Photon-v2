@@ -80,7 +80,7 @@ private:
 		std::vector<Work>    parentThreadWorkQueue;
 		TLockFreeQueue<Work> anyThreadWorkQueue;
 		MemoryArena          workQueueMemory;
-		std::mutex           memoryMutex;
+		mutable std::mutex   memoryMutex;
 		std::atomic_flag     isSealedForProcessing;
 #ifdef PH_DEBUG
 		std::atomic_int32_t  numAnyThreadWorks;
@@ -385,7 +385,7 @@ public:
 		PH_ASSERT(!isWorkerThread());
 		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
 
-		Frame& currentFrame = getCurrentProducerFrame();
+		const Frame& currentFrame = getCurrentProducerFrame();
 
 		FrameInfo info;
 		info.frameNumber     = getFrameNumber();
