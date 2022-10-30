@@ -1,5 +1,6 @@
 #include "EditorCore/Thread/RenderThread.h"
 #include "RenderCore/RenderThreadUpdateContext.h"
+#include "EditorCore/Thread/GHIThreadCaller.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
@@ -83,7 +84,8 @@ void RenderThread::onEndFrame()
 				m_updatedGHI = nullptr;
 			}
 
-			scene.createGHICommands();
+			GHIThreadCaller caller(m_ghiThread);
+			scene.createGHICommands(caller);
 
 			m_ghiThread.endFrame();
 		});

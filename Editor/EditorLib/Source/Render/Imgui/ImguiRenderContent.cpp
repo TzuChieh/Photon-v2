@@ -1,4 +1,5 @@
 #include "Render/Imgui/ImguiRenderContent.h"
+#include "RenderCore/RenderThreadUpdateContext.h"
 
 namespace ph::editor
 {

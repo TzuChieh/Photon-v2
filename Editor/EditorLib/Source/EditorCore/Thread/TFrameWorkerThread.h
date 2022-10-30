@@ -8,6 +8,7 @@
 #include <Common/assertion.h>
 #include <Math/math.h>
 #include <Common/logging.h>
+#include <Utility/Concurrent/InitiallyPausedThread.h>
 
 #include <array>
 #include <cstddef>
@@ -139,7 +140,13 @@ public:
 		, m_parentThreadId      ()
 		, m_isStopped           (false)
 #endif
-	{}
+	{
+		m_thread = InitiallyPausedThread(
+			[this]()
+			{
+				asyncProcessFrame();
+			});
+	}
 
 	/*!
 	Must call `waitForWorkerToStop()` before reaching dtor.
@@ -197,12 +204,7 @@ public:
 		PH_ASSERT(!hasWorkerStarted());
 
 		m_parentThreadId = std::this_thread::get_id();
-
-		m_thread = std::thread(
-			[this]()
-			{
-				asyncProcessFrame();
-			});
+		m_thread.start();
 	}
 
 	/*!
@@ -355,10 +357,7 @@ public:
 		// at least one frame and see the stop request (rather than block forever).
 		PH_ASSERT_GE(getFrameNumber(), 1);
 
-		if(m_thread.joinable())
-		{
-			m_thread.join();
-		}
+		m_thread.wait();
 
 #ifdef PH_DEBUG
 		m_isStopped = true;
@@ -370,10 +369,10 @@ public:
 	*/
 	inline std::thread::id getWorkerThreadId() const
 	{
-		// `startWorker()` must be called prior to this.
-		PH_ASSERT(m_thread.get_id() != std::thread::id());
+		// ID is always valid.
+		PH_ASSERT(m_thread.getId() != std::thread::id());
 
-		return m_thread.get_id();
+		return m_thread.getId();
 	}
 
 	/*!
@@ -490,7 +489,7 @@ private:
 	*/
 	inline bool isWorkerThread() const
 	{
-		return std::this_thread::get_id() == m_thread.get_id();
+		return std::this_thread::get_id() == m_thread.getId();
 	}
 
 	/*! @brief Check if this thread is parent thread.
@@ -507,7 +506,7 @@ private:
 	*/
 	inline bool hasWorkerStarted() const
 	{
-		return m_thread.get_id() != std::thread::id();
+		return m_thread.getId() != std::thread::id();
 	}
 #endif
 
@@ -603,14 +602,14 @@ private:
 
 	std::array<Frame, NUM_BUFFERS> m_frames;
 
-	std::thread      m_thread;
-	std::atomic_bool m_isStopRequested;
-	std::size_t      m_workProducerWorkHead;
-	std::size_t      m_workConsumerWorkHead;
-	std::size_t      m_frameNumber;
+	InitiallyPausedThread m_thread;
+	std::atomic_bool      m_isStopRequested;
+	std::size_t           m_workProducerWorkHead;
+	std::size_t           m_workConsumerWorkHead;
+	std::size_t           m_frameNumber;
 #ifdef PH_DEBUG
-	std::thread::id  m_parentThreadId;
-	bool             m_isStopped;
+	std::thread::id       m_parentThreadId;
+	bool                  m_isStopped;
 #endif
 };
 

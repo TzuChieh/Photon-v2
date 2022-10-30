@@ -1,5 +1,6 @@
 #include "RenderCore/RTRScene.h"
 #include "RenderCore/CustomRenderContent.h"
+#include "RenderCore/RenderThreadUpdateContext.h"
 
 namespace ph::editor
 {
@@ -14,11 +15,11 @@ void RTRScene::update(const RenderThreadUpdateContext& ctx)
 	}
 }
 
-void RTRScene::createGHICommands()
+void RTRScene::createGHICommands(GHIThreadCaller& caller)
 {
 	for(const auto& customRenderContent : customRenderContents)
 	{
-		customRenderContent->createGHICommands();
+		customRenderContent->createGHICommands(caller);
 	}
 }
 

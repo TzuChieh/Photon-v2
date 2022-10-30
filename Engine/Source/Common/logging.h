@@ -48,9 +48,15 @@ void log_to_logger(Logger& logger, std::string_view groupName, ELogLevel logLeve
 
 }// end namespace ph::detail::core_logging
 
+/*! @brief Declares a logger.
+The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the source (preferably in a
+.cpp file).
+*/
 #define PH_DECLARE_LOG_GROUP(groupName)\
 	::ph::Logger& internal_impl_logger_access_##groupName()
 
+/*! @brief Defines a logger.
+*/
 #define PH_DEFINE_LOG_GROUP(groupName, category)\
 	::ph::Logger& internal_impl_logger_access_##groupName()\
 	{\
@@ -114,3 +120,19 @@ The logger will be usable anywhere that includes the header file containing this
 
 #define PH_LOG_ERROR_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Error, rawString)
 #define PH_LOG_ERROR(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Error, formatString, __VA_ARGS__)
+
+namespace ph
+{
+
+// Photon renderer's default logger
+PH_DECLARE_LOG_GROUP(PhotonRenderer);
+
+// A set of helper utility macros to log using Photon renderer's default logger
+#define PH_DEFAULT_LOG(formatString, ...) PH_LOG(PhotonRenderer, formatString, __VA_ARGS__)
+#define PH_DEFAULT_LOG_STRING(rawString) PH_LOG_STRING(PhotonRenderer, rawString)
+#define PH_DEFAULT_LOG_WARNING(formatString, ...) PH_LOG_WARNING(PhotonRenderer, formatString, __VA_ARGS__)
+#define PH_DEFAULT_LOG_WARNING_STRING(rawString) PH_LOG_WARNING_STRING(PhotonRenderer, rawString)
+#define PH_DEFAULT_LOG_ERROR(formatString, ...) PH_LOG_ERROR(PhotonRenderer, formatString, __VA_ARGS__)
+#define PH_DEFAULT_LOG_ERROR_STRING(rawString) PH_LOG_ERROR_STRING(PhotonRenderer, rawString)
+
+}// end namespace ph

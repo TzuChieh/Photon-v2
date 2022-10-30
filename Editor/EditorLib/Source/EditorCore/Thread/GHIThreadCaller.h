@@ -7,6 +7,9 @@
 namespace ph::editor
 {
 
+/*! @brief Thin wrapper around GHIThread specifically for adding GHI works.
+This class can only be used between GHIThread::beginFrame() and GHIThread::endFrame().
+*/
 class GHIThreadCaller final
 {
 public:
@@ -24,5 +27,9 @@ public:
 private:
 	GHIThread& m_ghiThread;
 };
+
+inline GHIThreadCaller::GHIThreadCaller(GHIThread& ghiThread)
+	: m_ghiThread(ghiThread)
+{}
 
 }// end namespace ph::editor

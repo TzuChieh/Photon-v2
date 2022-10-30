@@ -1,5 +1,6 @@
 #include "Common/assertion.h"
 #include "Common/os.h"
+#include "Common/debug.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -84,6 +85,9 @@ void on_assertion_failed()
 #endif
 
 #endif
+// end PH_PRINT_STACK_TRACE_ON_ASSERTION_FAILED
+
+	debug_break();
 
 #ifdef PH_ABORT_ON_ASSERTION_FAILED
 	std::abort();

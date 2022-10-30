@@ -27,6 +27,8 @@ public:
 	virtual std::string whatStr() const;
 };
 
+/*! @brief General exception thrown on logical error.
+*/
 class LogicalException : public std::logic_error
 {
 public:
@@ -44,6 +46,12 @@ public:
 };
 
 class UninitializedObjectException : public LogicalException
+{
+public:
+	using LogicalException::LogicalException;
+};
+
+class IllegalOperationException : public LogicalException
 {
 public:
 	using LogicalException::LogicalException;

@@ -1,13 +1,17 @@
 #pragma once
 
-#include "RenderCore/RenderThreadUpdateContext.h"
 #include "RenderCore/CustomRenderContent.h"
+
+#include <Utility/TUniquePtrVector.h>
 
 #include <memory>
 #include <vector>
 
 namespace ph::editor
 {
+
+class RenderThreadUpdateContext;
+class GHIThreadCaller;
 
 class RTRScene final
 {
@@ -18,10 +22,10 @@ private:
 	friend class RenderThread;
 
 	void update(const RenderThreadUpdateContext& ctx);
-	void createGHICommands();
+	void createGHICommands(GHIThreadCaller& caller);
 
-public:
-	std::vector<std::unique_ptr<CustomRenderContent>> customRenderContents;
+private:
+	TUniquePtrVector<CustomRenderContent> customRenderContents;
 };
 
 }// end namespace ph::editor

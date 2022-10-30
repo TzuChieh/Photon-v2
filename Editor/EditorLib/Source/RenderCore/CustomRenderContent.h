@@ -1,10 +1,10 @@
 #pragma once
 
-#include "EditorCore/Thread/RenderThreadCaller.h"
-#include "RenderCore/RenderThreadUpdateContext.h"
-
 namespace ph::editor
 {
+
+class RenderThreadUpdateContext;
+class GHIThreadCaller;
 
 enum class ERenderTiming
 {
@@ -18,8 +18,8 @@ public:
 	explicit CustomRenderContent(ERenderTiming renderTiming);
 	virtual ~CustomRenderContent();
 
-	virtual void update(RenderThreadCaller& caller, const RenderThreadUpdateContext& ctx) = 0;
-	virtual void createGHICommands() = 0;
+	virtual void update(const RenderThreadUpdateContext& ctx) = 0;
+	virtual void createGHICommands(GHIThreadCaller& caller) = 0;
 
 	ERenderTiming getRenderTiming() const;
 

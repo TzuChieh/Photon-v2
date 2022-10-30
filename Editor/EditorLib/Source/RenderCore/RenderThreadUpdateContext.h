@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-struct RenderThreadUpdateContext final
+class RenderThreadUpdateContext final
 {
 public:
 	std::size_t frameNumber = 0;

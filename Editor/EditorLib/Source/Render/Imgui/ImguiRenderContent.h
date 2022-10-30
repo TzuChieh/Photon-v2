@@ -11,7 +11,7 @@ public:
 	ImguiRenderContent();
 
 	void update(const RenderThreadUpdateContext& ctx) override;
-	void createGHICommands() override;
+	void createGHICommands(GHIThreadCaller& caller) override;
 
 private:
 };

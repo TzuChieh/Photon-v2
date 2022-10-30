@@ -122,6 +122,8 @@ void log_to_logger(Logger& logger, const std::string_view groupName, const ELogL
 namespace ph
 {
 
+PH_DEFINE_LOG_GROUP(PhotonRenderer, Core);
+
 std::size_t LogGroups::addGroup(const std::string_view groupName, const std::string_view category)
 {
 	m_groups.push_back({std::string(groupName), std::string(category)});
