@@ -8,3 +8,6 @@
 
 #define PH_DEFINE_INTERNAL_TIMER_STAT(statName, categoryName)
 #define PH_DEFINE_EXTERNAL_TIMER_STAT(statName, categoryName)
+
+#define PH_DEFINE_INLINE_TO_STRING_FORMATTER(...)
+#define PH_DEFINE_INLINE_TO_STRING_FORMATTER_TEMPLATE(...)

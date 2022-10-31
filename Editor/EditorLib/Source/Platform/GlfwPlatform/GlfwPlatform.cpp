@@ -4,6 +4,7 @@
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
+#include <Math/TVector2.h>
 
 namespace ph::editor
 {
@@ -63,12 +64,40 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 	EGraphicsAPI requestedGraphicsApi = settings.graphicsApi;
 	if(settings.graphicsApi == EGraphicsAPI::Default)
 	{
-		PH_LOG(GlfwPlatform, "graphics API defaults to OpenGL");
+		PH_LOG(GlfwPlatform, 
+			"graphics API defaults to OpenGL");
 
 		requestedGraphicsApi = EGraphicsAPI::OpenGL;
 	}
 
-	m_display.initialize(getEditor(), settings.title, settings.displaySizePx, requestedGraphicsApi);
+	math::Vector2S requestedDisplaySizePx = settings.displaySizePx;
+	if(requestedDisplaySizePx.product() == 0)
+	{
+		PH_LOG(GlfwPlatform, 
+			"display area is 0, trying to request a default size");
+
+		GLFWmonitor* const primaryMonitor = glfwGetPrimaryMonitor();
+		if(!primaryMonitor)
+		{
+			requestedDisplaySizePx = {1920, 1080};
+
+			PH_LOG_WARNING(GlfwPlatform, 
+				"cannot find primary monitor, display size defaults to {}", requestedDisplaySizePx);
+		}
+		else
+		{
+			int xPos, yPos, width, height;
+			glfwGetMonitorWorkarea(primaryMonitor, &xPos, &yPos, &width, &height);
+
+			requestedDisplaySizePx.x() = width;
+			requestedDisplaySizePx.y() = height;
+
+			PH_LOG(GlfwPlatform,
+				"display size defaults to primary monitor work area {}", requestedDisplaySizePx);
+		}
+	}
+
+	m_display.initialize(getEditor(), settings.title, requestedDisplaySizePx, requestedGraphicsApi);
 	m_input.initialize(getEditor(), m_display.getGlfwWindow());
 
 	// TODO: GHI related
@@ -81,7 +110,8 @@ void GlfwPlatform::terminate()
 		m_input.terminate();
 		m_display.terminate();
 
-		PH_LOG(GlfwPlatform, "GLFW input stopped and window closed");
+		PH_LOG(GlfwPlatform, 
+			"GLFW input stopped and window closed");
 	}
 
 	glfwTerminate();

@@ -3,6 +3,7 @@
 #include "Math/General/TVectorNBase.h"
 #include "Math/math_fwd.h"
 #include "Math/constant.h"
+#include "Utility/utility.h"
 
 namespace ph::math
 {
@@ -43,5 +44,8 @@ public:
 };
 
 }// end namespace ph::math
+
+template<typename T>
+PH_DEFINE_INLINE_TO_STRING_FORMATTER_TEMPLATE(ph::math::TVector2<T>);
 
 #include "Math/TVector2.ipp"

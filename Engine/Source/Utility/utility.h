@@ -11,6 +11,47 @@
 #include <climits>
 #include <limits>
 #include <concepts>
+#include <format>
+
+#define PH_DEFINE_INLINE_TO_STRING_FORMATTER_SPECIALIZATION(...)\
+	struct std::formatter<__VA_ARGS__> : std::formatter<std::string>\
+	{\
+		/* `parse()` is inherited from the base class */\
+	\
+		/* Define `format()` by calling `std::string`'s implementation with custom type's `toString()`*/\
+		inline auto format(const __VA_ARGS__& value, std::format_context& ctx)\
+		{\
+			return std::formatter<std::string>::format(\
+				value.toString(), ctx);\
+		}\
+	}
+
+/*! @brief Defines a formatter which calls the `toString()` method.
+For example, to define a `toString()` formatter for the class `SomeType`, place the macro after class definition:
+@code
+	class SomeType { (class definitions) };
+
+	PH_DEFINE_INLINE_TO_STRING_FORMATTER(SomeType);
+@endcode
+@param ... The type to define a formatter for.
+*/
+#define PH_DEFINE_INLINE_TO_STRING_FORMATTER(...)\
+	template<>\
+	PH_DEFINE_INLINE_TO_STRING_FORMATTER_SPECIALIZATION(__VA_ARGS__)
+
+/*! @brief Defines a formatter template which calls the `toString()` method.
+For example, to define a `toString()` formatter for the class template `TSomeType`, place the macro after class definition:
+@code
+	template<typename T>
+	class TSomeType { (class definitions) };
+
+	template<typename T>
+	PH_DEFINE_INLINE_TO_STRING_FORMATTER_TEMPLATE(TSomeType<T>);
+@endcode
+@param ... The type to define a formatter for.
+*/
+#define PH_DEFINE_INLINE_TO_STRING_FORMATTER_TEMPLATE(...)\
+	PH_DEFINE_INLINE_TO_STRING_FORMATTER_SPECIALIZATION(__VA_ARGS__)
 
 namespace ph
 {
