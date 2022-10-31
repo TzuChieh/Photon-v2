@@ -23,20 +23,21 @@ void InitiallyPausedThread::start()
 	PH_ASSERT_MSG(!m_hasJoined,
 		"cannot restart an already joined thread");
 
+	// Set started flag **before** promised value, so the future side can see it after waiting is done
+	m_hasStarted = true;
+
 	// Set to `true` to run the work
 	setPromisedValue(true);
-
-	m_hasStarted = true;
 }
 
-void InitiallyPausedThread::wait()
+void InitiallyPausedThread::join()
 {
 	PH_ASSERT_MSG(!isEmptyThread(),
-		"cannot wait a default-constructed thread");
+		"cannot join a default-constructed thread");
 	PH_ASSERT_MSG(m_hasStarted,
-		"cannot wait a thread that has not started already (this can lead to deadlock)");
+		"cannot join a thread that has not started already (this can lead to deadlock)");
 	PH_ASSERT_MSG(!m_hasJoined,
-		"cannot wait an already joined thread");
+		"cannot join an already joined thread");
 
 	if(m_thread.joinable())
 	{

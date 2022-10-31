@@ -25,6 +25,9 @@ public:
 	explicit Application(AppSettings settings);
 	~Application();
 
+	/*! @brief Run the application.
+	This call will block until the application is closed.
+	*/
 	void run();
 
 private:
@@ -32,6 +35,8 @@ private:
 	Closing an already-closed application has no effect.
 	*/
 	void close();
+
+	void initialRenderThreadUpdate();
 
 	AppSettings                                m_settings;
 	Editor                                     m_editor;

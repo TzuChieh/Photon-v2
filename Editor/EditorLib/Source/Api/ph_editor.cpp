@@ -12,8 +12,11 @@ int application_entry_point(int argc, char* argv[])
 {
 	Program::onProgramStart();
 
-	Application app(AppSettings(argc, argv));
-	app.run();
+	// App should not outlive program
+	{
+		Application app(AppSettings(argc, argv));
+		app.run();
+	}
 
 	Program::onProgramExit();
 

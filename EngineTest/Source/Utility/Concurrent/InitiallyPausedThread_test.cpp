@@ -47,7 +47,7 @@ TEST(InitiallyPausedThreadTest, Running)
 			{
 				std::lock_guard<std::mutex> lock(mutex);
 
-				*valuePtr = 3;
+				(*valuePtr)++;
 			},
 			&value);
 
@@ -64,15 +64,37 @@ TEST(InitiallyPausedThreadTest, Running)
 		EXPECT_FALSE(thread.hasJoined());
 
 		thread.start();
-		thread.wait();
+		thread.join();
 		
 		EXPECT_TRUE(thread.hasStarted());
 		EXPECT_TRUE(thread.hasJoined());
 
-		// Thread has done its work--value being set
+		// Thread has done its work--value being incremented exactly 1 time
 		{
 			std::lock_guard<std::mutex> lock(mutex);
-			EXPECT_EQ(value, 3);
+			EXPECT_EQ(value, 1);
 		}
+	}
+}
+
+TEST(InitiallyPausedThreadTest, StartStateVisibility)
+{
+	for(int i = 0; i < 100; ++i)
+	{
+		InitiallyPausedThread thread;
+
+		auto func = 
+			[&thread]()
+			{
+				// Should be immediately visible in the called functor
+				EXPECT_TRUE(thread.hasStarted());
+			};
+
+		thread = InitiallyPausedThread(func);
+		thread.start();
+		
+		EXPECT_TRUE(thread.hasStarted());
+
+		thread.join();
 	}
 }

@@ -17,14 +17,12 @@ Application::Application(AppSettings settings)
 	, m_frameNumber(0)
 	, m_isClosing(false)
 {
+	m_platform = std::make_unique<GlfwPlatform>(m_settings, m_editor);
+	
+	Threads::setRenderThreadID(m_renderThread.getWorkerThreadId());
 	m_renderThread.startWorker();
 
-	/*Threads::setRenderThread(&m_renderThread);
-	Threads::setGHIThread(&m_ghiThread);*/
-
-	// TODO: threads
-
-	m_platform = std::make_unique<GlfwPlatform>(m_settings, m_editor);
+	initialRenderThreadUpdate();
 }
 
 Application::~Application()
@@ -53,6 +51,18 @@ void Application::close()
 
 	// Wait for render thread to actually stop
 	m_renderThread.waitForWorkerToStop();
+	Threads::setRenderThreadID(std::thread::id());
+
+	m_platform = nullptr;
+}
+
+void Application::initialRenderThreadUpdate()
+{
+	m_renderThread.beginFrame();
+
+	m_renderThread.addGHIUpdateWork(m_platform->getDisplay().getGHI());
+
+	m_renderThread.endFrame();
 }
 
 }// end namespace ph::editor

@@ -190,9 +190,9 @@ public:
 	{}
 
 	/*! @brief Start the worker.
-	Call to this method establishes a happens-before relationship to the execution of the worker
-	thread. This method should not be called in the ctor as the worker thread will call virtual 
-	methods internally, which leads to possible UB if any derived class has not been initialized yet.
+	Call to this method establishes synchronizes-with the execution of the worker thread. This method
+	should not be called in the ctor as the worker thread will call virtual methods internally, 
+	which leads to possible UB if any derived class has not been initialized yet.
 	@note The thread that calls this method is considered the worker's parent thread.
 	*/
 	inline void startWorker()
@@ -357,7 +357,7 @@ public:
 		// at least one frame and see the stop request (rather than block forever).
 		PH_ASSERT_GE(getFrameNumber(), 1);
 
-		m_thread.wait();
+		m_thread.join();
 
 #ifdef PH_DEBUG
 		m_isStopped = true;
@@ -506,7 +506,7 @@ private:
 	*/
 	inline bool hasWorkerStarted() const
 	{
-		return m_thread.getId() != std::thread::id();
+		return m_thread.hasStarted();
 	}
 #endif
 

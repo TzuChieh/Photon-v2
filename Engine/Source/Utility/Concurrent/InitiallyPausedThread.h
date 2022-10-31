@@ -2,6 +2,7 @@
 
 #include "Utility/IMoveOnly.h"
 
+
 #include <thread>
 #include <future>
 #include <functional>
@@ -31,22 +32,31 @@ public:
 	explicit InitiallyPausedThread(Func&& func, Args&&... args);
 
 	/*!
-	wait() must be called before the thread destructs.
+	join() must be called before the thread destructs.
 	*/
 	~InitiallyPausedThread();
 
 	/*! @brief Start the execution of the thread.
+	This method synchronizes-with the start of the call to the functor.
 	@exception IllegalOperationException If any error occurred.
 	*/
 	void start();
 
 	/*! @brief Wait until the execution of the thread is finished.
+	The finish of the call to the functor synchronizes-with this method.
 	@exception IllegalOperationException If any error occurred.
 	*/
-	void wait();
+	void join();
 
+	/*! @brief Whether the thread has started executing the functor.
+	The started state is visible to the body of the functor.
+	*/
 	bool hasStarted() const;
+
+	/*! @brief Whether the thread has joined.
+	*/
 	bool hasJoined() const;
+
 	std::thread::id getId() const;
 
 	inline InitiallyPausedThread& operator = (InitiallyPausedThread&& rhs) = default;
@@ -66,8 +76,9 @@ inline InitiallyPausedThread::InitiallyPausedThread(Func&& func, Args&&... args)
 	: InitiallyPausedThread()
 {
 	m_thread = std::thread(
-		[startFuture = m_startPromise.get_future(), 
-		 func = std::bind(std::forward<Func>(func), std::forward<Args>(args)...)]() mutable
+		[startFuture = m_startPromise.get_future(),
+		 func = std::bind(std::forward<Func>(func), std::forward<Args>(args)...)]
+		() mutable
 		{
 			if(startFuture.get())
 			{
