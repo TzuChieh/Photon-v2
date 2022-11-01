@@ -10,7 +10,7 @@ class ImguiRenderModule : public RenderModule
 public:
 	void onAttach(const ModuleAttachmentInfo& info) override;
 	void onDetach() override;
-	void renderUpdate() override;
+	void renderUpdate(const MainThreadRenderUpdateContext& ctx) override;
 
 private:
 };

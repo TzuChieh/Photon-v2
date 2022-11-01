@@ -123,7 +123,7 @@ void GlfwInput::initialize(Editor& editor, GLFWwindow* const glfwWindow)
 			}
 		});
 
-	// TODO: callbacks
+	// TODO: more callbacks
 }
 
 void GlfwInput::terminate()

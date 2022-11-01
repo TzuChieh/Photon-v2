@@ -14,7 +14,6 @@ Application::Application(AppSettings settings)
 	, m_renderThread()
 	, m_platform()
 	, m_renderModules()
-	, m_frameNumber(0)
 	, m_isClosing(false)
 {
 	m_platform = std::make_unique<GlfwPlatform>(m_settings, m_editor);

@@ -16,7 +16,7 @@ public:
 	explicit RenderThreadCaller(RenderThread& renderThread);
 
 	/*!
-	Work signature: callable as `void(RTRScene&)`, can be wrapped as a `TFunction`.
+	Work signature: callable as `void(RenderData&)`, can be wrapped as a `TFunction`.
 	*/
 	template<typename WorkType>
 	inline void add(WorkType&& work)

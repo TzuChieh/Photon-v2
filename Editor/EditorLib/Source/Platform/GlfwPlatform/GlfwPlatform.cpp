@@ -100,7 +100,11 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 	m_display.initialize(getEditor(), settings.title, requestedDisplaySizePx, requestedGraphicsApi);
 	m_input.initialize(getEditor(), m_display.getGlfwWindow());
 
-	// TODO: GHI related
+	if(!m_display.getGHI())
+	{
+		PH_LOG_ERROR(GlfwPlatform,
+			"no GHI present, editor will likely crash");
+	}
 }
 
 void GlfwPlatform::terminate()

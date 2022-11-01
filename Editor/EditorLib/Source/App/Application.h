@@ -43,7 +43,6 @@ private:
 	RenderThread                               m_renderThread;
 	std::unique_ptr<Platform>                  m_platform;
 	std::vector<std::unique_ptr<RenderModule>> m_renderModules;
-	std::size_t                                m_frameNumber;
 	bool                                       m_isClosing;
 };
 

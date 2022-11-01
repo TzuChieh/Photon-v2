@@ -1,6 +1,7 @@
 #include "Render/Imgui/ImguiRenderModule.h"
 #include "App/ModuleAttachmentInfo.h"
 #include "App/Editor.h"
+#include "Render/MainThreadRenderUpdateContext.h"
 
 namespace ph::editor
 {
@@ -12,6 +13,11 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 }
 
 void ImguiRenderModule::onDetach()
+{
+	// TODO
+}
+
+void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
 	// TODO
 }

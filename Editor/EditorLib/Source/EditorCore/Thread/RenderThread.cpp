@@ -14,7 +14,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(RenderThread, EditorCore);
 
 RenderThread::RenderThread()
 	: Base()
-	, m_scene()
+	, m_renderData()
 	, m_ghiThread()
 	, m_updatedGHI(nullptr)
 {
@@ -28,7 +28,7 @@ RenderThread::~RenderThread()
 
 void RenderThread::onAsyncProcessWork(const Work& work)
 {
-	work(m_scene);
+	work(m_renderData);
 }
 
 void RenderThread::onAsyncWorkerStart()
@@ -48,8 +48,22 @@ void RenderThread::onAsyncWorkerStop()
 
 void RenderThread::onBeginFrame()
 {
+	// Update context need to be updated first for render thread
+
+	const auto frameInfo = getFrameInfo();
+
+	RenderThreadUpdateContext updateCtx;
+	updateCtx.frameNumber = frameInfo.frameNumber;
+	updateCtx.frameCycleIndex = frameInfo.frameCycleIndex;
+
 	addWork(
-		[this](RTRScene& /* scene */)
+		[updateCtx](RenderData& renderData)
+		{
+			renderData.updateCtx = updateCtx;
+		});
+
+	addWork(
+		[this](RenderData& /* renderData */)
 		{
 			beginProcessFrame();
 		});
@@ -59,21 +73,15 @@ void RenderThread::onBeginFrame()
 
 void RenderThread::onEndFrame()
 {
-	const auto frameInfo = getFrameInfo();
-
-	RenderThreadUpdateContext updateCtx;
-	updateCtx.frameNumber = frameInfo.frameNumber;
-	updateCtx.frameCycleIndex = frameInfo.frameCycleIndex;
-
 	addWork(
-		[this, updateCtx](RTRScene& scene)
+		[](RenderData& renderData)
 		{
-			scene.update(updateCtx);
+			renderData.scene.update(renderData.updateCtx);
 		});
 
 	// GHI work submission
 	addWork(
-		[this](RTRScene& scene)
+		[this](RenderData& renderData)
 		{
 			m_ghiThread.beginFrame();
 
@@ -85,13 +93,13 @@ void RenderThread::onEndFrame()
 			}
 
 			GHIThreadCaller caller(m_ghiThread);
-			scene.createGHICommands(caller);
+			renderData.scene.createGHICommands(caller);
 
 			m_ghiThread.endFrame();
 		});
 
 	addWork(
-		[this](RTRScene& /* scene */)
+		[this](RenderData& /* renderData */)
 		{
 			endProcessFrame();
 		});
@@ -100,7 +108,7 @@ void RenderThread::onEndFrame()
 void RenderThread::addGHIUpdateWork(GHI* const updatedGHI)
 {
 	addWork(
-		[this, updatedGHI](RTRScene& /* scene */)
+		[this, updatedGHI](RenderData& /* renderData */)
 		{
 			m_updatedGHI = updatedGHI;
 		});
