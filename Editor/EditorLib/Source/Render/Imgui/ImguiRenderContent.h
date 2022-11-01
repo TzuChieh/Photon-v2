@@ -7,6 +7,7 @@
 
 #include <array>
 #include <cstddef>
+#include <vector>
 
 namespace ph::editor
 {
@@ -19,17 +20,18 @@ public:
 	void update(const RenderThreadUpdateContext& ctx) override;
 	void createGHICommands(GHIThreadCaller& caller) override;
 
-	void copyNewDrawDataFromMainThread(const ImDrawData& imguiDrawData, std::size_t frameCycleIndex);
+	void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t frameCycleIndex);
 
 private:
 	// All data required by IMGUI to render a frame.
 	struct ImguiRenderData
 	{
-		ImDrawData            drawData;
-		ImVector<ImDrawList>  drawListBuffer;
-		ImVector<ImDrawList*> drawListPtrBuffer;
+		ImDrawData               drawData;
+		std::vector<ImDrawList>  drawListBuffer;
+		std::vector<ImDrawList*> drawListPtrBuffer;
+		ImGuiViewport            ownerViewportBuffer;
 
-		void copyFrom(const ImDrawData& imguiDrawData);
+		void copyFrom(const ImDrawData& srcDrawData);
 	};
 
 	/*!

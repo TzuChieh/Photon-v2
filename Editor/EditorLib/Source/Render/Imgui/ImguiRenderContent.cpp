@@ -1,30 +1,101 @@
 #include "Render/Imgui/ImguiRenderContent.h"
 #include "RenderCore/RenderThreadUpdateContext.h"
 
+#include <Common/assertion.h>
+#include <Utility/utility.h>
+
+#include <algorithm>
+
 namespace ph::editor
 {
 
 ImguiRenderContent::ImguiRenderContent()
 	: CustomRenderContent(ERenderTiming::AfterMainScene)
-	, m_imguiDrawDataBuffer()
-	, m_imguiDrawListBuffer()
-	, m_imguiDrawListPtrBuffer()
+	, m_imguiRenderDataBuffer()
 {}
 
-void ImguiRenderContent::copyNewDrawDataFromMainThread(
-	const ImDrawData& imguiDrawData, 
-	const std::size_t frameCycleIndex)
+void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 {
-	ImDrawData& dstImguiDrawData = m_imguiDrawDataBuffer[frameCycleIndex];
-	TUniquePtrVector<ImDrawList>& dstimgui
-
-
 	// TODO
 }
 
-void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& imguiDrawData)
+void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 {
-	// TODO
+	// TODO: get cycle index and use that to submit ghi call
+}
+
+void ImguiRenderContent::copyNewDrawDataFromMainThread(
+	const ImDrawData& srcDrawData,
+	const std::size_t frameCycleIndex)
+{
+	ImguiRenderData& dstImguiRenderData = m_imguiRenderDataBuffer[frameCycleIndex];
+	dstImguiRenderData.copyFrom(srcDrawData);
+}
+
+void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData)
+{
+	// We deep copy `ImDrawList` here, as the comment for `ImDrawData::CmdLists` says that the draw lists
+	// are owned by `ImGuiContext`, simply swap them with our buffer (which is a modification) might broke
+	// the IMGUI framework.
+	// Here we aim to minimize the amount of memory allocation & deallocation for max efficiency. May need
+	// to check IMGUI source again if the library is updated.
+
+	const auto srcDrawListsSize = safe_number_cast<std::size_t>(srcDrawData.CmdListsCount);
+
+	// Prepare space for draw list data (only grow, for efficiency)
+	if(drawListBuffer.size() < srcDrawListsSize)
+	{
+		drawListBuffer.resize(srcDrawListsSize, ImDrawList(nullptr));
+	}
+	if(drawListPtrBuffer.size() < srcDrawListsSize)
+	{
+		drawListPtrBuffer.resize(srcDrawListsSize, nullptr);
+	}
+
+	// Shallow copy all data first
+	drawData = srcDrawData;
+
+	// Deep copy `ImGuiViewport`, this struct is only defined in docking branch
+	// NOTE: this struct contains multiple `void*` fields for IMGUI's backend implementation, watchout for
+	// threading issue as those data might get accessed concurrently here
+	ownerViewportBuffer = *srcDrawData.OwnerViewport;
+	ownerViewportBuffer.DrawData = &drawData;
+
+	// Deep copy draw lists
+	for(std::size_t listIdx = 0; listIdx < srcDrawListsSize; ++listIdx)
+	{
+		// Deep copy draw list into buffer first
+
+		PH_ASSERT(srcDrawData.CmdLists[listIdx]);
+		ImDrawList& srcDrawList = *srcDrawData.CmdLists[listIdx];
+		ImDrawList& dstDrawList = drawListBuffer[listIdx];
+
+		// Note that to deep copy an `ImVector`, do not use its assignment operator as it always free &
+		// allocate for all data, which is hugely inefficient.
+
+		// Pre-allocate buffer to the same size (`ImVector::resize()` will grow only)
+		dstDrawList.CmdBuffer.reserve(srcDrawList.CmdBuffer.size());
+		dstDrawList.IdxBuffer.reserve(srcDrawList.IdxBuffer.size());
+		dstDrawList.VtxBuffer.reserve(srcDrawList.VtxBuffer.size());
+
+		std::copy(
+			srcDrawList.CmdBuffer.Data, 
+			srcDrawList.CmdBuffer.Data + srcDrawList.CmdBuffer.Size, 
+			dstDrawList.CmdBuffer.Data);
+		std::copy(
+			srcDrawList.IdxBuffer.Data,
+			srcDrawList.IdxBuffer.Data + srcDrawList.IdxBuffer.Size,
+			dstDrawList.IdxBuffer.Data);
+		std::copy(
+			srcDrawList.VtxBuffer.Data,
+			srcDrawList.VtxBuffer.Data + srcDrawList.VtxBuffer.Size,
+			dstDrawList.VtxBuffer.Data);
+
+		dstDrawList.Flags = srcDrawList.Flags;
+
+		// Done copying draw list into buffer, update the pointer
+		drawListPtrBuffer[listIdx] = &drawListBuffer[listIdx];
+	}
 }
 
 }// end namespace ph::editor
