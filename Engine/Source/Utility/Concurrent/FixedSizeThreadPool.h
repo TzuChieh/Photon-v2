@@ -40,8 +40,9 @@ public:
 
 	/*! @brief Blocks until all queued works are finished.
 	Should not be called on worker thread. New works can be queued after waiting is finished. It may not
-	be desirable to call this method while works are being queued and done simultaneously (e.g., MPMC).
-	As it is possible that sometimes the work queue is temporarily empty and cause this method to return.
+	be desirable to call this method while works are still being queued and processed (e.g., MPMC).
+	As it is possible that sometimes the work queue is temporarily empty and cause this method to 
+	return early.
 	@note Thread-safe.
 	*/
 	void waitAllWorks();
