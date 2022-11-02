@@ -2,7 +2,7 @@
 
 #include "EditorCore/Thread/Threads.h"
 
-#include <Utility/Concurrent/TLockFreeQueue.h>
+#include <Utility/Concurrent/TAtomicQueue.h>
 #include <Utility/TFunction.h>
 
 #include <cstddef>
@@ -30,7 +30,7 @@ private:
 	void updateAnyThreadEvents();
 
 	std::vector<EventUpdateWork> m_mainThreadWorks;
-	TLockFreeQueue<EventUpdateWork> m_anyThreadWorks;
+	TAtomicQueue<EventUpdateWork> m_anyThreadWorks;
 };
 
 inline void EditorEventQueue::add(EventUpdateWork work)

@@ -7,10 +7,10 @@
 
 using namespace ph;
 
-TEST(TLockFreeQueueTest, Creation)
+TEST(TAtomicQueueTest, Creation)
 {
 	{
-		TLockFreeQueue<int> queue;
+		TAtomicQueue<int> queue;
 		EXPECT_EQ(queue.estimatedSize(), 0);
 	}
 
@@ -21,15 +21,15 @@ TEST(TLockFreeQueueTest, Creation)
 			float y;
 		};
 
-		TLockFreeQueue<TestStruct> queue(123);
+		TAtomicQueue<TestStruct> queue(123);
 		EXPECT_EQ(queue.estimatedSize(), 0);
 	}
 }
 
-TEST(TLockFreeQueueTest, SingleThreadedEnqueueAndDequeue)
+TEST(TAtomicQueue, SingleThreadedEnqueueAndDequeue)
 {
 	{
-		TLockFreeQueue<int> queue;
+		TAtomicQueue<int> queue;
 
 		for(int i = 0; i < 64; ++i)
 		{
@@ -51,11 +51,11 @@ TEST(TLockFreeQueueTest, SingleThreadedEnqueueAndDequeue)
 	}
 }
 
-TEST(TLockFreeQueueTest, MultiThreadedEnqueueAndDequeue)
+TEST(TAtomicQueue, MultiThreadedEnqueueAndDequeue)
 {
 	// Based on the sample code from https://github.com/cameron314/concurrentqueue/blob/master/samples.md
 	{
-		TLockFreeQueue<int> q;
+		TAtomicQueue<int> q;
 		int dequeued[1000] = {0};
 		std::thread threads[20];
 

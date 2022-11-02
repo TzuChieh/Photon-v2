@@ -3,7 +3,7 @@
 #include <Utility/INoCopyAndMove.h>
 #include <Utility/MemoryArena.h>
 #include <Utility/TFunction.h>
-#include <Utility/Concurrent/TLockFreeQueue.h>
+#include <Utility/Concurrent/TAtomicQueue.h>
 #include <Common/config.h>
 #include <Common/assertion.h>
 #include <Math/math.h>
@@ -78,14 +78,14 @@ private:
 
 	struct Frame final
 	{
-		std::vector<Work>    parentThreadWorkQueue;
-		TLockFreeQueue<Work> anyThreadWorkQueue;
-		MemoryArena          workQueueMemory;
-		mutable std::mutex   memoryMutex;
-		std::atomic_flag     isSealedForProcessing;
+		std::vector<Work>   parentThreadWorkQueue;
+		TAtomicQueue<Work>  anyThreadWorkQueue;
+		MemoryArena         workQueueMemory;
+		mutable std::mutex  memoryMutex;
+		std::atomic_flag    isSealedForProcessing;
 #ifdef PH_DEBUG
-		std::atomic_int32_t  numAnyThreadWorks;
-		bool                 isBetweenFrameBeginAndEnd;
+		std::atomic_int32_t numAnyThreadWorks;
+		bool                isBetweenFrameBeginAndEnd;
 #endif
 
 		inline Frame()

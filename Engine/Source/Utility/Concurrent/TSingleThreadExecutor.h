@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/Concurrent/TBlockableQueue.h"
+#include "Utility/Concurrent/TBlockableAtomicQueue.h"
 
 #include <type_traits>
 #include <thread>
@@ -31,8 +31,7 @@ public:
 
 	/*! @brief Stop the executor.
 	Worker will stop processing any work as soon as possible. Any work that is already being processed
-	will still complete. Paused state will be resumed and terminate. No further operations should be
-	performed after requesting termination.
+	will still complete. No further operations should be performed after requesting termination. 
 	Requesting termination multiple times has the same effect.
 	@note Thread-safe.
 	*/
@@ -54,9 +53,9 @@ private:
 	*/
 	bool isWorkerThread() const;
 
-	std::thread           m_thread;
-	TBlockableQueue<Work> m_workQueue;
-	std::atomic_bool      m_isTerminationRequested;
+	std::thread                 m_thread;
+	TBlockableAtomicQueue<Work> m_workQueue;
+	std::atomic_bool            m_isTerminationRequested;
 };
 
 }// end namespace ph

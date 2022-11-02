@@ -1,4 +1,4 @@
-#include "Utility/Concurrent/TLockFreeQueue.h"
+#include "Utility/Concurrent/TAtomicQueue.h"
 #include "Common/assertion.h"
 
 #include <utility>
@@ -8,42 +8,42 @@ namespace ph
 {
 
 template<typename T>
-inline TLockFreeQueue<T>::TLockFreeQueue() :
+inline TAtomicQueue<T>::TAtomicQueue() :
 	m_queue()
 {}
 
 template<typename T>
-inline TLockFreeQueue<T>::TLockFreeQueue(const std::size_t initialCapacity) :
+inline TAtomicQueue<T>::TAtomicQueue(const std::size_t initialCapacity) :
 	m_queue(initialCapacity)
 {}
 
 template<typename T>
 template<typename U>
-inline void TLockFreeQueue<T>::enqueue(U&& item)
+inline void TAtomicQueue<T>::enqueue(U&& item)
 {
 	if(!m_queue.enqueue(std::forward<U>(item)))
 	{
 		throw std::runtime_error(
-			"Cannot enqueue an item to TLockFreeQueue. Max subqueue size reached.");
+			"Cannot enqueue an item to TAtomicQueue. Max subqueue size reached.");
 	}
 }
 
 template<typename T>
 template<typename U>
-inline bool TLockFreeQueue<T>::tryEnqueue(U&& item)
+inline bool TAtomicQueue<T>::tryEnqueue(U&& item)
 {
 	return m_queue.try_enqueue(std::forward<U>(item));
 }
 
 template<typename T>
-inline bool TLockFreeQueue<T>::tryDequeue(T* const out_item)
+inline bool TAtomicQueue<T>::tryDequeue(T* const out_item)
 {
 	PH_ASSERT(out_item);
 	return m_queue.try_dequeue(*out_item);
 }
 
 template<typename T>
-inline std::size_t TLockFreeQueue<T>::estimatedSize() const
+inline std::size_t TAtomicQueue<T>::estimatedSize() const
 {
 	return m_queue.size_approx();
 }
