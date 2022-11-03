@@ -1,12 +1,15 @@
 #pragma once
 
 #include "Utility/Concurrent/TBlockableAtomicQueue.h"
+#include "Common/primitive_type.h"
 
 #include <type_traits>
 #include <thread>
 #include <concepts>
 #include <utility>
 #include <atomic>
+#include <condition_variable>
+#include <mutex>
 
 namespace ph
 {
@@ -34,8 +37,10 @@ public:
 	inline explicit TSingleThreadExecutor(DeducedWork&& defaultWork)
 		: m_thread                ()
 		, m_workQueue             ()
+		, m_isTerminationRequested()
 		, m_numWaitingThreads     (0)
-		, m_isTerminationRequested(false)
+		, m_executorMutex         ()
+		, m_waitWorksCv           ()
 		, m_defaultWork           (std::forward<DeducedWork>(defaultWork))
 	{
 		m_thread = std::thread(
@@ -78,15 +83,14 @@ private:
 	*/
 	bool isWorkerThread() const;
 
-	void requestTermination_workerThread();
-	bool isTerminationRequested_workerThread() const;
-
 	std::thread                 m_thread;
 	TBlockableAtomicQueue<Work> m_workQueue;
-	std::atomic_uint32_t        m_numWaitingThreads;
+	std::atomic_flag            m_isTerminationRequested;
+	uint32                      m_numWaitingThreads;
+	std::mutex                  m_executorMutex;
+	std::condition_variable     m_waitWorksCv;
 
 	// Worker-thread only fields
-	bool m_isTerminationRequested;
 	Work m_defaultWork;
 };
 

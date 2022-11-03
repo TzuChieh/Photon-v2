@@ -1,15 +1,18 @@
 #include "Utility/Concurrent/TSingleThreadExecutor.h"
 #include "Common/assertion.h"
 
-#include <condition_variable>
-
 namespace ph
 {
 
 template<typename Work>
 inline TSingleThreadExecutor<Work>::~TSingleThreadExecutor()
 {
-	// TODO
+	requestTermination();
+
+	if(m_thread.joinable())
+	{
+		m_thread.join();
+	}
 }
 
 template<typename Work>
@@ -26,15 +29,63 @@ inline void TSingleThreadExecutor<Work>::waitAllWorksFromThisThread()
 	// thread to finish, we add a new work and wait for it to finish (could be slower because we have
 	// one extra work to process, but generally good enough)
 	
-	addWork();
+	{
+		std::lock_guard<std::mutex> lock(m_executorMutex);
 
-	// TODO
+		++m_numWaitingThreads;
+	}
+
+	bool isFinished = false;
+	addWork(Work(
+		[this, &isFinished]()
+		{
+			{
+				std::lock_guard<std::mutex> lock(m_executorMutex);
+
+				isFinished = true;
+			}
+
+			m_waitWorksCv.notify_all();
+		}));
+
+	{
+		std::unique_lock<std::mutex> lock(m_executorMutex);
+
+		m_waitWorksCv.wait(lock, 
+			[this, &isFinished]()
+			{
+				return isFinished || m_isTerminationRequested.test(std::memory_order_relaxed);
+			});
+
+		PH_ASSERT_GT(m_numWaitingThreads, 0);
+		--m_numWaitingThreads;
+	}
+
+	m_waitWorksCv.notify_all();
 }
 
 template<typename Work>
 inline void TSingleThreadExecutor<Work>::requestTermination()
 {
-	// TODO
+	addWork(Work(
+		[this]()
+		{
+			m_isTerminationRequested.test_and_set(true, std::memory_order_relaxed);
+		}));
+
+	{
+		std::unique_lock<std::mutex> lock(m_executorMutex);
+
+		m_isTerminationRequested.test_and_set(true, std::memory_order_relaxed);
+
+		m_waitWorksCv.wait(lock,
+			[this]()
+			{
+				return m_numWaitingThreads == 0;
+			});
+	}
+
+	m_waitWorksCv.notify_all();
 }
 
 template<typename Work>
@@ -50,40 +101,19 @@ inline void TSingleThreadExecutor<Work>::asyncProcessWork()
 {
 	PH_ASSERT(isWorkerThread());
 
-	while(!isTerminationRequested_workerThread())
+	while(!m_isTerminationRequested.test(std::memory_order_relaxed))
 	{
 		Work& currentWork = m_defaultWork;
 		m_workQueue.waitDequeue(&currentWork);
 
 		currentWork();
 	}
-
-	PH_ASSERT(isTerminationRequested_workerThread());
-	while(m_numWaitingThreads.load(std::memory_order_release))
-
-	// TODO
 }
 
 template<typename Work>
 inline bool TSingleThreadExecutor<Work>::isWorkerThread() const
 {
 	return getId() == std::this_thread::get_id();
-}
-
-template<typename Work>
-inline void TSingleThreadExecutor<Work>::requestTermination_workerThread()
-{
-	PH_ASSERT(isWorkerThread());
-
-	m_isTerminationRequested = true;
-}
-
-template<typename Work>
-inline bool TSingleThreadExecutor<Work>::isTerminationRequested_workerThread() const
-{
-	PH_ASSERT(isWorkerThread());
-
-	return m_isTerminationRequested;
 }
 
 }// end namespace ph
