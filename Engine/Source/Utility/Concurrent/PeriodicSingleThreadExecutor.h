@@ -60,8 +60,8 @@ public:
 
 	/*! @brief Stop the executor.
 	Worker will stop processing any work as soon as possible. Any work that is already being processed
-	will still complete. Paused state will be resumed and terminate. No further operations should be
-	performed after requesting termination.
+	will still complete. Paused state will be resumed and terminate. No further write operations should
+	be performed after requesting termination.
 	Requesting termination multiple times has the same effect.
 	@note Thread-safe.
 	*/

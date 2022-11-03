@@ -4,6 +4,8 @@
 
 #include <type_traits>
 #include <thread>
+#include <concepts>
+#include <utility>
 #include <atomic>
 
 namespace ph
@@ -12,13 +14,36 @@ namespace ph
 template<typename Work>
 class TSingleThreadExecutor final
 {
-	static_assert(std::is_invocable_v<Work>,
-		"Work must be callable without any argument.");
+	static_assert(std::is_invocable_r_v<void, Work>,
+		"Work must be callable as void(void)const.");
+
+	static_assert(std::is_constructible_v<Work, decltype([]() -> void {})>,
+		"Work must be constructible from a functor which is callable as void(void).");
 
 public:
-	/*! @brief Create an executor at waits for new work.
+	/*! @brief Create an executor waiting for new work.
 	*/
-	TSingleThreadExecutor();
+	inline TSingleThreadExecutor()
+		requires std::default_initializable<Work>
+		: TSingleThreadExecutor(Work())
+	{}
+
+	/*! @brief Create an executor waiting for new work.
+	*/
+	template<typename DeducedWork>
+	inline explicit TSingleThreadExecutor(DeducedWork&& defaultWork)
+		: m_thread                ()
+		, m_workQueue             ()
+		, m_numWaitingThreads     (0)
+		, m_isTerminationRequested(false)
+		, m_defaultWork           (std::forward<DeducedWork>(defaultWork))
+	{
+		m_thread = std::thread(
+			[this]()
+			{
+				asyncProcessWork();
+			});
+	}
 
 	/*! @brief Terminate the execution. Wait for any ongoing work to finish.
 	*/
@@ -31,7 +56,7 @@ public:
 
 	/*! @brief Stop the executor.
 	Worker will stop processing any work as soon as possible. Any work that is already being processed
-	will still complete. No further operations should be performed after requesting termination. 
+	will still complete. No further write operations should be performed after requesting termination. 
 	Requesting termination multiple times has the same effect.
 	@note Thread-safe.
 	*/
@@ -53,9 +78,16 @@ private:
 	*/
 	bool isWorkerThread() const;
 
+	void requestTermination_workerThread();
+	bool isTerminationRequested_workerThread() const;
+
 	std::thread                 m_thread;
 	TBlockableAtomicQueue<Work> m_workQueue;
-	std::atomic_bool            m_isTerminationRequested;
+	std::atomic_uint32_t        m_numWaitingThreads;
+
+	// Worker-thread only fields
+	bool m_isTerminationRequested;
+	Work m_defaultWork;
 };
 
 }// end namespace ph

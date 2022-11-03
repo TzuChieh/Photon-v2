@@ -49,7 +49,7 @@ public:
 
 	/*! @brief Stop processing queued works as soon as possible.
 	Workers will stop processing queued works as soon as possible. Any work that is already being
-	processed will still complete. No further operations should be performed after requesting
+	processed will still complete. No further write operations should be performed after requesting
 	termination. Threads waiting for the completion of works, e.g., waiting on waitAllWorks(), will
 	stop waiting. Requesting termination multiple times has the same effect.
 	@note Thread-safe.
