@@ -14,7 +14,7 @@ there is no coordination between items from other producers--two items put in by
 producers will come out in an undefined order relative to each other (the interleaving between
 different streams of items from different producers is undefined, even with external synchronization).
 It is possible some items will starve in the queue if more items are enqueued than dequeued.
-Guarantees release-consume semantics for elements that are enqueued/dequeued.
+Guarantees aquire-release semantics for items that are enqueued/dequeued.
 */
 template<typename T>
 class TBlockableAtomicQueue final

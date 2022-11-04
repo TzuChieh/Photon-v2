@@ -1,4 +1,4 @@
-#include <Utility/Concurrent/TLockFreeQueue.h>
+#include <Utility/Concurrent/TAtomicQueue.h>
 
 #include <gtest/gtest.h>
 

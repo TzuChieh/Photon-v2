@@ -61,8 +61,9 @@ public:
 
 	/*! @brief Stop the executor.
 	Worker will stop processing any work as soon as possible. Any work that is already being processed
-	will still complete. No further write operations should be performed after requesting termination. 
-	Requesting termination multiple times has the same effect.
+	will still complete. Threads waiting for the completion of works, e.g., waiting on 
+	waitAllWorksFromThisThread(), will stop waiting. No further write operations should be performed 
+	after requesting termination. Requesting termination multiple times has the same effect.
 	@note Thread-safe.
 	*/
 	void requestTermination();

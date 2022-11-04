@@ -16,7 +16,7 @@ there is no coordination between items from other producers--two items put in by
 producers will come out in an undefined order relative to each other (the interleaving between
 different streams of items from different producers is undefined, even with external synchronization).
 It is possible some items will starve in the queue if more items are enqueued than dequeued.
-Guarantees release-consume semantics for elements that are enqueued/dequeued.
+Guarantees aquire-release semantics for items that are enqueued/dequeued.
 */
 template<typename T>
 class TAtomicQueue final
@@ -86,6 +86,11 @@ private:
 	        https://github.com/cameron314/concurrentqueue/issues/265
 	    [2] try_enqueue() returns true but approx_size() is always 0 and try_dequeue() fails
 	        https://github.com/cameron314/concurrentqueue/issues/285
+
+	* All the memory effects done by a thread before it enqueues an item will be visible on another
+	thread after it dequeues that item. Basic Guarantees aquire-release semantics are guaranteed.
+	See [1] sequential consistent
+	        https://github.com/cameron314/concurrentqueue/issues/73
 
 	Most performant case: single-producer multi-consumer.
 	*/
