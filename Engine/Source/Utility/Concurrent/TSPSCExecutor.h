@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utility/Concurrent/TBlockableAtomicQueue.h"
+#include "Utility/Concurrent/InitiallyPausedThread.h"
 #include "Common/primitive_type.h"
 
 #include <type_traits>
@@ -15,7 +16,7 @@ namespace ph
 {
 
 template<typename Work>
-class TSingleThreadExecutor final
+class TSPSCExecutor final
 {
 	static_assert(std::is_invocable_r_v<void, Work>,
 		"Work must be callable as void(void)const.");
@@ -26,24 +27,23 @@ class TSingleThreadExecutor final
 public:
 	/*! @brief Create an executor waiting for new work.
 	*/
-	inline TSingleThreadExecutor()
+	inline TSPSCExecutor()
 		requires std::default_initializable<Work>
-		: TSingleThreadExecutor(Work())
+		: TSPSCExecutor(Work())
 	{}
 
 	/*! @brief Create an executor waiting for new work.
 	*/
 	template<typename DeducedWork>
-	inline explicit TSingleThreadExecutor(DeducedWork&& defaultWork)
+	inline explicit TSPSCExecutor(DeducedWork&& defaultWork)
 		: m_thread                ()
 		, m_workQueue             ()
 		, m_isTerminationRequested()
-		, m_numWaitingThreads     (0)
-		, m_executorMutex         ()
 		, m_waitWorksCv           ()
 		, m_defaultWork           (std::forward<DeducedWork>(defaultWork))
+		, m_producerThreadId      ()
 	{
-		m_thread = std::thread(
+		m_thread = InitiallyPausedThread(
 			[this]()
 			{
 				asyncProcessWork();
@@ -52,19 +52,28 @@ public:
 
 	/*! @brief Terminate the execution. Wait for any ongoing work to finish.
 	*/
-	~TSingleThreadExecutor();
+	~TSPSCExecutor();
+
+	/*! @brief Start the execution of the consumer (work processor).
+	Whichever thread calls this method will be the producer thread. Can only be called once in the
+	lifetime of the executor.
+	@note Thread-safe.
+	*/
+	void start();
 
 	template<typename DeducedWork>
 	void addWork(DeducedWork&& work);
 
-	void waitAllWorksFromThisThread();
+	/*!
+	@note Producer thread only.
+	*/
+	void waitAllWorks();
 
 	/*! @brief Stop the executor.
-	Worker will stop processing any work as soon as possible. Any work that is already being processed
-	will still complete. Threads waiting for the completion of works, e.g., waiting on 
-	waitAllWorksFromThisThread(), will stop waiting. No further write operations should be performed 
-	after requesting termination. Requesting termination multiple times has the same effect.
-	@note Thread-safe.
+	Executor will stop processing any work as soon as possible. Any work that is already being processed
+	will still complete. No further write operations should be performed after requesting termination. 
+	Requesting termination multiple times has the same effect.
+	@note Producer thread only.
 	*/
 	void requestTermination();
 
@@ -75,21 +84,32 @@ public:
 
 private:
 	/*! @brief Start processing works.
-	@note Thread-safe.
+	@note Producer thread only.
 	*/
 	void asyncProcessWork();
 
 	/*! @brief Check whether current thread is the worker thread.
 	@note Thread-safe.
 	*/
-	bool isWorkerThread() const;
+	bool isConsumerThread() const;
 
-	std::thread                 m_thread;
+	/*! @brief Check whether current thread is the thread that calls start().
+	@note Thread-safe.
+	*/
+	bool isProducerThread() const;
+
+	/*! @brief Stop processing works.
+	@note Thread-safe.
+	*/
+	void terminate();
+
+	// NOTE: moodycamel has faster SPSC queue, consider using it.
+
+	InitiallyPausedThread       m_thread;
 	TBlockableAtomicQueue<Work> m_workQueue;
 	std::atomic_flag            m_isTerminationRequested;
-	uint32                      m_numWaitingThreads;
-	std::mutex                  m_executorMutex;
 	std::condition_variable     m_waitWorksCv;
+	std::thread::id             m_producerThreadId;
 
 	// Worker-thread only fields
 	Work m_defaultWork;
@@ -97,4 +117,4 @@ private:
 
 }// end namespace ph
 
-#include "Utility/Concurrent/TSingleThreadExecutor.ipp"
+#include "Utility/Concurrent/TSPSCExecutor.ipp"

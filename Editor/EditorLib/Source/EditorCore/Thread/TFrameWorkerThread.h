@@ -352,6 +352,7 @@ public:
 		PH_ASSERT(isParentThread());
 		PH_ASSERT(!getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
 		PH_ASSERT(isStopRequested());
+		PH_ASSERT(hasWorkerStarted());
 
 		// Ensures that `endFrame()` is called at least once before requesting stop, so worker can process 
 		// at least one frame and see the stop request (rather than block forever).

@@ -43,7 +43,8 @@ public:
 	void start();
 
 	/*! @brief Wait until the execution of the thread is finished.
-	The finish of the call to the functor synchronizes-with this method.
+	hasStarted() must be true when calling this method. The finish of the call to the functor 
+	synchronizes-with this method.
 	@exception IllegalOperationException If any error occurred.
 	*/
 	void join();
