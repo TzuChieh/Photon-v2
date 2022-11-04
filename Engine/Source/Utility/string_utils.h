@@ -26,18 +26,18 @@ concept CHasToString = requires (const ObjType& obj)
 }// end namespace ph::string_utils
 
 #define PH_DEFINE_INLINE_TO_STRING_FORMATTER_SPECIALIZATION(...)\
-	struct std::formatter<__VA_ARGS__> : std::formatter<std::string_view>\
+	struct std::formatter<__VA_ARGS__> : std::formatter<std::string>\
 	{\
 		static_assert(ph::string_utils::CHasToString<__VA_ARGS__>,\
 			"type " #__VA_ARGS__ " must have a const method toString() and the result should be "\
-			"implicitly convertible to std::string_view"); \
+			"implicitly convertible to std::string"); \
 	\
 		/* `parse()` is inherited from the base class */\
 	\
-		/* Define `format()` by calling `std::string_view`'s implementation with custom type's `toString()`*/\
-		inline auto format(const __VA_ARGS__& value, std::format_context& ctx) const\
+		/* Define `format()` by calling `std::string`'s implementation with custom type's `toString()`*/\
+		inline auto format(const __VA_ARGS__& value, std::format_context& ctx)\
 		{\
-			return std::formatter<std::string_view>::format(\
+			return std::formatter<std::string>::format(\
 				value.toString(), ctx);\
 		}\
 	}

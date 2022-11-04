@@ -15,6 +15,10 @@
 namespace ph
 {
 
+/*! @brief A single-producer, single-consumer worker thread.
+Ctor and dtor are not thread safe. Most of the methods are either producer thread only, or thread-safe.
+start() must be called before adding work since it also serves as a mean to determine the producer thread.
+*/
 template<typename Work>
 class TSPSCExecutor final
 {
@@ -39,7 +43,6 @@ public:
 		: m_thread                ()
 		, m_workQueue             ()
 		, m_isTerminationRequested()
-		, m_waitWorksCv           ()
 		, m_defaultWork           (std::forward<DeducedWork>(defaultWork))
 		, m_producerThreadId      ()
 	{
@@ -99,7 +102,6 @@ private:
 	bool isProducerThread() const;
 
 	/*! @brief Stop processing works.
-	@note Thread-safe.
 	*/
 	void terminate();
 
@@ -108,7 +110,6 @@ private:
 	InitiallyPausedThread       m_thread;
 	TBlockableAtomicQueue<Work> m_workQueue;
 	std::atomic_flag            m_isTerminationRequested;
-	std::condition_variable     m_waitWorksCv;
 	std::thread::id             m_producerThreadId;
 
 	// Worker-thread only fields

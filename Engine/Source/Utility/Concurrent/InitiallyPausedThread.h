@@ -58,6 +58,9 @@ public:
 	*/
 	bool hasJoined() const;
 
+	/*! @brief Get ID of the underlying thread.
+	@return Thread ID. Will be empty (`std::thread::id()`) if this class is constructed a functor.
+	*/
 	std::thread::id getId() const;
 
 	inline InitiallyPausedThread& operator = (InitiallyPausedThread&& rhs) = default;
