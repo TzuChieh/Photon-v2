@@ -1,4 +1,4 @@
-#include <EditorCore/Thread/TFrameWorkerThread.h>
+#include <EditorCore/Thread/TUnbufferedFrameWorkerThread.h>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -9,15 +9,13 @@
 
 using namespace ph::editor;
 
-using testing::Between;
-
 namespace
 {
 
-template<std::size_t NUM_BUFFERS, typename WorkSignature>
-class TMockFrameWorker : public TFrameWorkerThread<NUM_BUFFERS, WorkSignature>
+template<typename WorkSignature>
+class TMockUnbufferedFrameWorker : public TUnbufferedFrameWorkerThread<WorkSignature>
 {
-	using Base = TFrameWorkerThread<NUM_BUFFERS, WorkSignature>;
+	using Base = TUnbufferedFrameWorkerThread<WorkSignature>;
 	using Work = Base::Work;
 
 public:
@@ -28,16 +26,16 @@ public:
 
 }
 
-TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
+TEST(TUnbufferedFrameWorkerThreadTest, RunSingleFrame)
 {
 	// Smallest possible work duration is running a single frame then exit
 
-	// No work and no buffer
+	// No work
 	{
 		// Test for 100 times to reveal possible threading error
 		for(int i = 0; i < 100; ++i)
 		{
-			TMockFrameWorker<1, void(void)> worker;
+			TMockUnbufferedFrameWorker<void(void)> worker;
 			EXPECT_CALL(worker, onAsyncProcessWork)
 				.Times(0);
 			EXPECT_CALL(worker, onBeginFrame)
@@ -63,7 +61,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 		{
 			const int numWorksToAdd = i;
 
-			TMockFrameWorker<1, int(int)> worker;
+			TMockUnbufferedFrameWorker<int(int)> worker;
 			EXPECT_CALL(worker, onAsyncProcessWork)
 				.Times(numWorksToAdd);
 			EXPECT_CALL(worker, onBeginFrame)
@@ -105,7 +103,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 		{
 			const int numWorksToAdd = i;
 
-			TMockFrameWorker<1, int(int)> worker;
+			TMockUnbufferedFrameWorker<int(int)> worker;
 			EXPECT_CALL(worker, onAsyncProcessWork)
 				.Times(numWorksToAdd);
 			EXPECT_CALL(worker, onBeginFrame)
@@ -139,11 +137,7 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 	}
 }
 
-namespace
-{
-
-template<std::size_t NUM_BUFFERS>
-inline void run_multiple_frames_buffered_test()
+TEST(TUnbufferedFrameWorkerThreadTest, RunMultipleFrames)
 {
 	constexpr std::size_t MAX_FRAMES = 20;
 
@@ -153,18 +147,10 @@ inline void run_multiple_frames_buffered_test()
 		const int numSmallWorksToAdd = numFrames * 5;
 		const int numLargeWorksToAdd = numFrames * 2;
 
-		TMockFrameWorker<NUM_BUFFERS, void(int, int, int)> worker;
-
-		// For N buffered frames, we may process every work (#frames * #works); or at most, skipped
-		// N frames (all buffering frames including the current frame do not get to be processed, works 
-		// processed = (#frames - N) * #works)
-		const int maxSkippedFrames = std::min(numFrames, static_cast<int>(NUM_BUFFERS));
+		TMockUnbufferedFrameWorker<void(int, int, int)> worker;
 
 		EXPECT_CALL(worker, onAsyncProcessWork)
-			.Times(Between(
-				(numFrames - maxSkippedFrames) * (numSmallWorksToAdd + numLargeWorksToAdd),
-				(numFrames) * (numSmallWorksToAdd + numLargeWorksToAdd)));
-
+			.Times(numFrames * (numSmallWorksToAdd + numLargeWorksToAdd));
 		EXPECT_CALL(worker, onBeginFrame)
 			.Times(numFrames);
 		EXPECT_CALL(worker, onEndFrame)
@@ -218,16 +204,7 @@ inline void run_multiple_frames_buffered_test()
 	}
 }
 
-}
-
-TEST(TFrameWorkerThreadTest, RunMultipleFramesBuffered)
-{
-	run_multiple_frames_buffered_test<2>();
-	run_multiple_frames_buffered_test<3>();
-	run_multiple_frames_buffered_test<4>();
-}
-
-TEST(TFrameWorkerThreadTest, RunSmartPtrCaptureWork)
+TEST(TUnbufferedFrameWorkerThreadTest, RunSmartPtrCaptureWork)
 {
 	// Incrementally add small works, unbuffered
 	{
@@ -250,7 +227,7 @@ TEST(TFrameWorkerThreadTest, RunSmartPtrCaptureWork)
 		{
 			const int numWorksToAdd = i;
 
-			TMockFrameWorker<1, void(void)> worker;
+			TMockUnbufferedFrameWorker<void(void)> worker;
 			EXPECT_CALL(worker, onAsyncProcessWork)
 				.Times(numWorksToAdd);
 			EXPECT_CALL(worker, onBeginFrame)

@@ -49,7 +49,7 @@ Default value is 512 KiB.
 */
 #define PH_MEMORY_ARENA_DEFAULT_BLOCK_SIZE_IN_BYTES (static_cast<std::size_t>(512) * 1024)
 
-#define PH_TFUNCTION_MIN_SIZE_IN_BYTES (static_cast<std::size_t>(32))
+#define PH_TFUNCTION_DEFAULT_MIN_SIZE_IN_BYTES (static_cast<std::size_t>(32))
 
 /*! @brief Directory that stores engine log file.
 */

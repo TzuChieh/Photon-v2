@@ -10,7 +10,7 @@
 
 using namespace ph;
 
-TEST(TSPSCExecutorTest, ConstructWithoutWork)
+TEST(TSPSCExecutorTest, ConstructWithoutWorkAndProcessor)
 {
 	for(int i = 0; i < 1000; ++i)
 	{
@@ -32,15 +32,21 @@ TEST(TSPSCExecutorTest, RunningMultipleWorks)
 	{
 		for(int i = 0; i < 100; ++i)
 		{
-			TSPSCExecutor<std::function<void()>> executor;
-			executor.start();
-
 			int value = 0;
-			executor.addWork(
-				[&value]()
+
+			TSPSCExecutor<int*> executor;
+
+			// Use the processor to do work
+			// (the increment can also make sure work processor is not accidentlly called)
+			executor.setWorkProcessor(
+				[](int* valuePtr)
 				{
-					value += 1;
+					*valuePtr += 1;
 				});
+
+			executor.start();
+			
+			executor.addWork(&value);
 
 			executor.waitAllWorks();
 
@@ -53,6 +59,14 @@ TEST(TSPSCExecutorTest, RunningMultipleWorks)
 		for(int i = 0; i < 100; ++i)
 		{
 			TSPSCExecutor<std::function<void()>> executor;
+
+			// The processor simply call the work
+			executor.setWorkProcessor(
+				[](const std::function<void()>& work)
+				{
+					work();
+				});
+
 			executor.start();
 
 			const int numWorks = i + 2;

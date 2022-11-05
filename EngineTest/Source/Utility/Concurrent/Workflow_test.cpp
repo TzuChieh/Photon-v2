@@ -56,7 +56,7 @@ TEST(WorkflowTest, Running)
 {
 	// Simple summation without dependency
 	{
-		constexpr std::size_t NUM_INCREMENTS = 4000;
+		constexpr std::size_t NUM_INCREMENTS = 2000;
 
 		std::atomic_uint32_t counter(0);
 
@@ -149,20 +149,20 @@ TEST(WorkflowTest, Running)
 		};// end test lambda
 		
 		// Baseline: smaller
-		summationTest(1, 100, 1);
-		summationTest(1, 100, 2);
-		summationTest(2, 100, 1);
-		summationTest(2, 100, 2);
+		summationTest(1, 10, 1);
+		summationTest(1, 10, 2);
+		summationTest(2, 10, 1);
+		summationTest(2, 10, 2);
 
 		// Baseline: larger
-		summationTest(10, 400, 12);
+		summationTest(10, 50, 12);
 
 		// Test with different settings (smaller)
-		for(std::size_t numGroups = 1; numGroups <= 10; numGroups += 1)
+		for(std::size_t numGroups = 1; numGroups <= 5; numGroups += 1)
 		{
-			for(std::size_t worksPerGroup = 1; worksPerGroup <= 100; worksPerGroup += 10)
+			for(std::size_t worksPerGroup = 1; worksPerGroup <= 50; worksPerGroup += 10)
 			{
-				for(std::size_t numWorkers = 1; numWorkers <= 10; numWorkers += 1)
+				for(std::size_t numWorkers = 1; numWorkers <= 5; numWorkers += 1)
 				{
 					summationTest(numGroups, worksPerGroup, numWorkers);
 				}

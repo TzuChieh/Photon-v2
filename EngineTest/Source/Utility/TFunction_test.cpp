@@ -110,7 +110,7 @@ TEST(TFunctionTest, Traits)
 
 	{
 		// Without size hint: macro determines the lower bound
-		static_assert(sizeof(TFunction<int(int, int)>) >= PH_TFUNCTION_MIN_SIZE_IN_BYTES);
+		static_assert(sizeof(TFunction<int(int, int)>) >= PH_TFUNCTION_DEFAULT_MIN_SIZE_IN_BYTES);
 
 		// Limit the size to 2 pointers: 
 		// 

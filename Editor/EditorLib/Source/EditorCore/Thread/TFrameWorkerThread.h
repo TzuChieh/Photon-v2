@@ -35,6 +35,12 @@ class TFrameWorkerThread
 };
 
 /*!
+A worker thread that helps to develop the concept of frame-to-frame work which is executed on
+another thread. For unbuffered frames, you can specify `NUM_BUFFERS = 1`, though one might consider
+to use TUnbufferedFrameWorkerThread for this as it is specialized for this case and can offer better
+performance. Note that in TFrameWorkerThread, works will not be processed until endFrame() is called, 
+while in TUnbufferedFrameWorkerThread works will start being processed right after beginFrame().
+
 Regarding thread safety notes:
 
 * Producer Thread: Thread that adds/produces work, can be one or more.
@@ -144,7 +150,7 @@ public:
 		m_thread = InitiallyPausedThread(
 			[this]()
 			{
-				asyncProcessFrame();
+				asyncProcessFrames();
 			});
 	}
 
@@ -190,7 +196,7 @@ public:
 	{}
 
 	/*! @brief Start the worker.
-	Call to this method establishes synchronizes-with the execution of the worker thread. This method
+	Call to this method synchronizes-with the execution of the worker thread. This method
 	should not be called in the ctor as the worker thread will call virtual methods internally, 
 	which leads to possible UB if any derived class has not been initialized yet.
 	@note The thread that calls this method is considered the worker's parent thread.
@@ -208,6 +214,8 @@ public:
 	}
 
 	/*!
+	Start a new frame of works. All works added from previous frame are either being processing or 
+	finished after this call (depending on NUM_BUFFERS).
 	@note Parent thread only.
 	*/
 	inline void beginFrame()
@@ -234,6 +242,7 @@ public:
 	}
 
 	/*!
+	End this frame and works are submitted to the worker for processing.
 	@note Parent thread only.
 	*/
 	inline void endFrame()
@@ -344,7 +353,8 @@ public:
 	}
 
 	/*!
-	Can only be called after `endFrame()`.
+	All operations on the worker thread will be done after this call returns. Can only be called 
+	after `endFrame()`.
 	@note Parent thread only.
 	*/
 	inline void waitForWorkerToStop()
@@ -414,7 +424,7 @@ private:
 	/*!
 	@note Worker thread only.
 	*/
-	inline void asyncProcessFrame()
+	inline void asyncProcessFrames()
 	{
 		PH_ASSERT(isWorkerThread());
 
@@ -490,7 +500,7 @@ private:
 	*/
 	inline bool isWorkerThread() const
 	{
-		return std::this_thread::get_id() == m_thread.getId();
+		return std::this_thread::get_id() == getWorkerThreadId();
 	}
 
 	/*! @brief Check if this thread is parent thread.
@@ -498,6 +508,8 @@ private:
 	*/
 	inline bool isParentThread() const
 	{
+		PH_ASSERT(m_parentThreadId != std::thread::id());
+
 		return std::this_thread::get_id() == m_parentThreadId;
 	}
 

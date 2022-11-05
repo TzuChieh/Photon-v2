@@ -3,14 +3,14 @@
 #include "Utility/Concurrent/TBlockableAtomicQueue.h"
 #include "Utility/Concurrent/InitiallyPausedThread.h"
 #include "Common/primitive_type.h"
+#include "Utility/TFunction.h"
 
 #include <type_traits>
 #include <thread>
-#include <concepts>
 #include <utility>
 #include <atomic>
-#include <condition_variable>
-#include <mutex>
+#include <functional>
+#include <variant>
 
 namespace ph
 {
@@ -18,38 +18,37 @@ namespace ph
 /*! @brief A single-producer, single-consumer worker thread.
 Ctor and dtor are not thread safe. Most of the methods are either producer thread only, or thread-safe.
 start() must be called before adding work since it also serves as a mean to determine the producer thread.
+Setters for function callbacks can only be called before start(). Note that if work processor is not set 
+from ctor, setWorkProcessor() must be called with a valid processor
+function.
+@tparam Work Type of the work to be processed.
 */
 template<typename Work>
 class TSPSCExecutor final
 {
-	static_assert(std::is_invocable_r_v<void, Work>,
-		"Work must be callable as void(void)const.");
-
-	static_assert(std::is_constructible_v<Work, decltype([]() -> void {})>,
-		"Work must be constructible from a functor which is callable as void(void).");
-
 public:
 	/*! @brief Create an executor waiting for new work.
 	*/
 	inline TSPSCExecutor()
-		requires std::default_initializable<Work>
-		: TSPSCExecutor(Work())
+		: TSPSCExecutor(nullptr)
 	{}
 
 	/*! @brief Create an executor waiting for new work.
 	*/
-	template<typename DeducedWork>
-	inline explicit TSPSCExecutor(DeducedWork&& defaultWork)
+	inline explicit TSPSCExecutor(std::function<void(const Work& work)> workProcessor)
 		: m_thread                ()
-		, m_workQueue             ()
+		, m_workloadQueue         ()
 		, m_isTerminationRequested()
-		, m_defaultWork           (std::forward<DeducedWork>(defaultWork))
+		, m_isTerminated          ()
 		, m_producerThreadId      ()
+		, m_workProcessor         (std::move(workProcessor))
+		, m_onConsumerStart       ()
+		, m_onConsumerTerminate   ()
 	{
 		m_thread = InitiallyPausedThread(
 			[this]()
 			{
-				asyncProcessWork();
+				asyncExecute();
 			});
 	}
 
@@ -57,7 +56,17 @@ public:
 	*/
 	~TSPSCExecutor();
 
-	/*! @brief Start the execution of the consumer (work processor).
+	/*! @brief Setters for callbacks.
+	Callbacks will execute on consumer thread.
+	@note Can only be set before start().
+	*/
+	///@{
+	void setWorkProcessor(std::function<void(const Work& work)> workProcessor);
+	void setOnConsumerStart(std::function<void(void)> onConsumerStart);
+	void setOnConsumerTerminate(std::function<void(void)> onConsumerTerminate);
+	///@}
+
+	/*! @brief Start the execution of the consumer (worker thread).
 	Whichever thread calls this method will be the producer thread. Can only be called once in the
 	lifetime of the executor.
 	@note Thread-safe.
@@ -80,16 +89,33 @@ public:
 	*/
 	void requestTermination();
 
+	/*! @brief Wait for the executor to stop.
+	All operations on the consumer thread will be done after this call returns. Cannot be called on
+	consumer thread as this can lead to deadlock.
+	@note Thread-safe.
+	*/
+	void waitForTermination();
+
 	/*! @brief Get ID of the underlying thread.
 	@note Thread-safe.
 	*/
 	std::thread::id getId() const;
 
+	/*! @brief Whether the executor has started processing works.
+	@note Thread-safe.
+	*/
+	bool hasStarted() const;
+
 private:
+	/*! @brief Start the execution of the consumer thread.
+	@note Producer thread only.
+	*/
+	void asyncExecute();
+
 	/*! @brief Start processing works.
 	@note Producer thread only.
 	*/
-	void asyncProcessWork();
+	void asyncProcessWorks();
 
 	/*! @brief Check whether current thread is the worker thread.
 	@note Thread-safe.
@@ -105,15 +131,32 @@ private:
 	*/
 	void terminate();
 
-	// NOTE: moodycamel has faster SPSC queue, consider using it.
+private:
+	// Callable type for internal usages. Warpping with a custom private type so we cannot mix it with
+	// user types
+	struct CustomCallable
+	{
+		TFunction<void(void), 0> callable;
+	};
 
-	InitiallyPausedThread       m_thread;
-	TBlockableAtomicQueue<Work> m_workQueue;
-	std::atomic_flag            m_isTerminationRequested;
-	std::thread::id             m_producerThreadId;
+	// Possibly store both user-specified work and custom callables for internal usages
+	using Workload = std::variant<
+		std::monostate,
+		Work,
+		CustomCallable>;
+
+	// NOTE: moodycamel has faster SPSC queue, consider using it
+
+	InitiallyPausedThread                 m_thread;
+	TBlockableAtomicQueue<Workload>       m_workloadQueue;
+	std::atomic_flag                      m_isTerminationRequested;
+	std::atomic_flag                      m_isTerminated;
+	std::thread::id                       m_producerThreadId;
 
 	// Worker-thread only fields
-	Work m_defaultWork;
+	std::function<void(const Work& work)> m_workProcessor;
+	std::function<void(void)>             m_onConsumerStart;
+	std::function<void(void)>             m_onConsumerTerminate;
 };
 
 }// end namespace ph

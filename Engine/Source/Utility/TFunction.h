@@ -65,6 +65,12 @@ depending on the platform). Calling functions indirectly through this type adds 
 
 See the amazing post by @bitwizeshift and his github projects, from which is much of the inspiration
 derived: https://bitwizeshift.github.io/posts/2021/02/24/creating-a-fast-and-efficient-delegate-type-part-1/
+
+@tparam MIN_SIZE_HINT Hint to the minimum size of TFunction. Larger size may correspond to bigger 
+internal buffer. A size of 0 will result in the most compact TFunction possible. This is the 
+lower-bound of the size of TFunction, and the actual size cannot be guaranteed. Normally, most
+supported callable target types will be guaranteed to be storable regardless of this parameter, 
+except for non-empty functors.
 */
 template<typename R, typename... Args, std::size_t MIN_SIZE_HINT>
 class TFunction<R(Args...), MIN_SIZE_HINT> final
@@ -358,7 +364,7 @@ private:
 
 }// end namespace function_detail
 
-template<typename Func, std::size_t MIN_SIZE_HINT = PH_TFUNCTION_MIN_SIZE_IN_BYTES>
+template<typename Func, std::size_t MIN_SIZE_HINT = PH_TFUNCTION_DEFAULT_MIN_SIZE_IN_BYTES>
 using TFunction = function_detail::TFunction<Func, MIN_SIZE_HINT>;
 
 }// end namespace ph

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "EditorCore/Thread/TFrameWorkerThread.h"
-#include "editor_lib_config.h"
+#include "EditorCore/Thread/TUnbufferedFrameWorkerThread.h"
 
 #include <memory>
 
@@ -10,15 +9,10 @@ namespace ph::editor
 
 class GHI;
 
-class GHIThread : 
-	public TFrameWorkerThread<
-		config::NUM_GHI_THREAD_BUFFERED_FRAMES,
-		void(GHI&)>
+class GHIThread final : public TUnbufferedFrameWorkerThread<void(GHI&)>
 {
 public:
-	using Base = TFrameWorkerThread<
-		config::NUM_GHI_THREAD_BUFFERED_FRAMES,
-		void(GHI&)>;
+	using Base = TUnbufferedFrameWorkerThread<void(GHI&)>;
 
 	GHIThread();
 	~GHIThread() override;
