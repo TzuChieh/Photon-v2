@@ -3,7 +3,7 @@
 #include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
-#include "App/Event/FrameBufferResizeEvent.h"
+#include "EditorCore/Event/FrameBufferResizeEvent.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>

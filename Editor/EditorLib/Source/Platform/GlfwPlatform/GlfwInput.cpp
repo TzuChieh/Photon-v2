@@ -2,8 +2,8 @@
 #include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
-#include "App/Event/KeyDownEvent.h"
-#include "App/Event/KeyUpEvent.h"
+#include "EditorCore/Event/KeyDownEvent.h"
+#include "EditorCore/Event/KeyUpEvent.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>

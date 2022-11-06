@@ -10,13 +10,15 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <cstddef>
 
 namespace ph::editor
 {
 
 class Platform;
+class ProcedureModule;
 class RenderModule;
+class MainThreadUpdateContext;
+class MainThreadRenderUpdateContext;
 
 class Application final
 {
@@ -37,13 +39,18 @@ private:
 	void close();
 
 	void initialRenderThreadUpdate();
+	void appMainLoop();
+	void appUpdate(const MainThreadUpdateContext& ctx);
+	void appRenderUpdate(const MainThreadRenderUpdateContext& ctx);
+	uint64 getFrameTimeInUs() const;
 
-	AppSettings                                m_settings;
-	Editor                                     m_editor;
-	RenderThread                               m_renderThread;
-	std::unique_ptr<Platform>                  m_platform;
-	std::vector<std::unique_ptr<RenderModule>> m_renderModules;
-	bool                                       m_isClosing;
+	AppSettings                                   m_settings;
+	Editor                                        m_editor;
+	RenderThread                                  m_renderThread;
+	std::unique_ptr<Platform>                     m_platform;
+	std::vector<std::unique_ptr<ProcedureModule>> m_procedureModules;
+	std::vector<std::unique_ptr<RenderModule>>    m_renderModules;
+	bool                                          m_shouldClose;
 };
 
 }// end namespace ph::editor

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "App/TEventDispatcher.h"
-#include "App/Event/KeyDownEvent.h"
-#include "App/Event/KeyUpEvent.h"
-#include "App/Event/FrameBufferResizeEvent.h"
+#include "EditorCore/TEventDispatcher.h"
+#include "EditorCore/Event/KeyDownEvent.h"
+#include "EditorCore/Event/KeyUpEvent.h"
+#include "EditorCore/Event/FrameBufferResizeEvent.h"
 #include "App/EditorEventQueue.h"
 
 namespace ph::editor
@@ -14,6 +14,9 @@ class Editor final
 public:
 	template<typename EventType>
 	void dispatchToEventQueue(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher);
+
+public:
+	// TODO: editor scene data
 
 public:
 	TEventDispatcher<KeyDownEvent> onKeyDown;

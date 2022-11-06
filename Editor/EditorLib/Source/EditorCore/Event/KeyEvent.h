@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App/Event/Event.h"
+#include "EditorCore/Event/Event.h"
 #include "EditorCore/EKeyCode.h"
 
 #include <Utility/TBitFlags.h>

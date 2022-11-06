@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App/Event/KeyEvent.h"
+#include "EditorCore/Event/KeyEvent.h"
 
 namespace ph::editor
 {
