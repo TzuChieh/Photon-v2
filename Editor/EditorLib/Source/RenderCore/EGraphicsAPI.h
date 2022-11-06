@@ -5,7 +5,7 @@ namespace ph::editor
 
 enum class EGraphicsAPI
 {
-	Default = 0,
+	Unknown = 0,
 
 	OpenGL,
 	// DirectX_11,

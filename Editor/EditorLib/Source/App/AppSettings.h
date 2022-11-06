@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EGraphicsAPI.h"
+#include "RenderCore/EGraphicsAPI.h"
 
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>

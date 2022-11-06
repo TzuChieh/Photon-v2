@@ -21,6 +21,10 @@ public:
 	void swapBuffers() override;
 
 private:
+	void beginRawCommand() override;
+	void endRawCommand() override;
+
+private:
 	GLFWwindow*     m_glfwWindow;
 	bool            m_isLoaded;
 #ifdef PH_DEBUG

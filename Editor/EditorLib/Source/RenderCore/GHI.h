@@ -1,9 +1,19 @@
 #pragma once
 
+#include "RenderCore/EGraphicsAPI.h"
+
 #include <Utility/INoCopyAndMove.h>
+#include <Common/logging.h>
+#include <Common/assertion.h>
+
+#include <source_location>
+#include <type_traits>
+#include <string>
 
 namespace ph::editor
 {
+
+PH_DECLARE_LOG_GROUP(GHI);
 
 /*! @brief Graphics API abstraction.
 @exception PlatformException When error occurred and the platform must terminate its operations.
@@ -11,6 +21,10 @@ namespace ph::editor
 class GHI : private INoCopyAndMove
 {
 public:
+	static std::string toString(EGraphicsAPI apiType);
+
+public:
+	explicit GHI(EGraphicsAPI apiType);
 	virtual ~GHI();
 
 	/*! @brief Load and initiate the GHI.
@@ -27,7 +41,45 @@ public:
 
 	virtual void swapBuffers() = 0;
 
+	template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
+	void rawCommand(
+		CommandCallingFunctor&& functor,
+		std::source_location    srcLocation = std::source_location::current());
+
 private:
+	/*!
+	Allows the implementer to save/cache internal states before raw commands are inserted manually, 
+	and restore the states afterwards.
+	*/
+	///@{
+	virtual void beginRawCommand() = 0;
+	virtual void endRawCommand() = 0;
+	///@}
+
+	EGraphicsAPI m_apiType;
 };
+
+template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
+inline void GHI::rawCommand(
+	CommandCallingFunctor&&    functor,
+	const std::source_location srcLocation)
+{
+	static_assert(std::is_invocable_v<CommandCallingFunctor>,
+		"must be callable without any argument");
+
+	if(API_TYPE != m_apiType)
+	{
+		PH_LOG_ERROR(GHI,
+			"cannot call raw command of type {} under current GHI type {}, "
+			"skipping command at {}({}:{})",
+			toString(API_TYPE), toString(m_apiType), srcLocation.file_name(), srcLocation.line(), srcLocation.column());
+		
+		return;
+	}
+
+	beginRawCommand();
+	functor();
+	endRawCommand();
+}
 
 }// end namespace ph::editor

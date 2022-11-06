@@ -264,11 +264,11 @@ public:
 
 		m_isStopRequested.store(true, std::memory_order_relaxed);
 
-		// As we guarantee current frame must be finished before worker stopped, unfortunately we 
+		// As we guarantee current frame must be completed before worker stopped, unfortunately we 
 		// have to wait here otherwise we may cancel some work
 		m_thread.waitAllWorks();
 
-		// Request termination as early as possible since there are still some cleanup operation to
+		// Request termination as early as possible since there are still some cleanup operations to
 		// do on worker thread
 		m_thread.requestTermination();
 

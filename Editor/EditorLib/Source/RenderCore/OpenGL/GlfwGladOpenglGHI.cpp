@@ -32,7 +32,7 @@ inline std::string GLubyte_to_string(const GLubyte* const ubytes)
 }// end anonymous namespace
 
 GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow)
-	: GHI()
+	: GHI(EGraphicsAPI::OpenGL)
 	, m_glfwWindow  (glfwWindow)
 	, m_isLoaded    (false)
 #ifdef PH_DEBUG
@@ -101,6 +101,16 @@ void GlfwGladOpenglGHI::unload()
 void GlfwGladOpenglGHI::swapBuffers()
 {
 	glfwSwapBuffers(m_glfwWindow);
+}
+
+void GlfwGladOpenglGHI::beginRawCommand()
+{
+	// TODO: currently no state yet
+}
+
+void GlfwGladOpenglGHI::endRawCommand()
+{
+	// TODO: currently no state yet
 }
 
 }// end namespace ph::editor

@@ -62,7 +62,7 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 	}
 
 	EGraphicsAPI requestedGraphicsApi = settings.graphicsApi;
-	if(settings.graphicsApi == EGraphicsAPI::Default)
+	if(settings.graphicsApi == EGraphicsAPI::Unknown)
 	{
 		PH_LOG(GlfwPlatform, 
 			"graphics API defaults to OpenGL");

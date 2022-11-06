@@ -8,6 +8,10 @@ namespace ph::editor
 class NullGHI : public GHI
 {
 public:
+	inline NullGHI()
+		: GHI(EGraphicsAPI::Unknown)
+	{}
+
 	inline ~NullGHI() override = default;
 
 	inline void load() override
@@ -20,6 +24,11 @@ public:
 	{}
 
 private:
+	inline void beginRawCommand() override
+	{}
+
+	inline void endRawCommand() override
+	{}
 };
 
 }// end namespace ph::editor
