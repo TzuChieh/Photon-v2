@@ -7,6 +7,7 @@
 #include "Render/MainThreadRenderUpdateContext.h"
 
 #include <Common/assertion.h>
+#include <Utility/Timer.h>
 
 #include <utility>
 #include <chrono>
@@ -79,35 +80,40 @@ void Application::appMainLoop()
 	MainThreadUpdateContext updateCtx;
 	MainThreadRenderUpdateContext renderUpdateCtx;
 
-	const uint64 frameTimeUs = getFrameTimeInUs();
-	const auto   frameTimeS  = static_cast<float64>(frameTimeUs) / (1000.0 * 1000.0);
+	using TimeUnit = std::chrono::nanoseconds;
 
-	using Clock = std::chrono::steady_clock;
-	Clock::time_point lastStartTime     = Clock::now();
-	Clock::time_point startTime         = lastStartTime;
-	uint64            unprocessedTimeUs = 0;
+	constexpr auto numNsTicksFor1S = std::chrono::duration_cast<TimeUnit>(std::chrono::seconds(1));
+
+	PH_ASSERT_NE(m_settings.maxFPS, 0);
+	const auto frameTime  = numNsTicksFor1S / m_settings.maxFPS;
+	const auto frameTimeS = static_cast<float64>(frameTime.count()) / static_cast<float64>(numNsTicksFor1S.count());
+
+	auto unprocessedTime = TimeUnit::zero();
+
+	Timer loopTimer;
+	loopTimer.start();
 
 	while(!m_shouldClose)
 	{
-		startTime = Clock::now();
-		const auto passedTimeUs = static_cast<uint64>(std::chrono::duration_cast<std::chrono::microseconds>(
-			startTime - lastStartTime).count());
-		lastStartTime = startTime;
+		const auto passedTime = std::chrono::duration_cast<TimeUnit>(loopTimer.markLap());
 
-		unprocessedTimeUs += passedTimeUs;
+		bool shouldRender = false;
+		unprocessedTime += passedTime;
 
 		// Update
-		while(unprocessedTimeUs > frameTimeUs)
+		while(unprocessedTime > frameTime)
 		{
 			updateCtx.deltaS = frameTimeS;
 
 			appUpdate(updateCtx);
 
 			++updateCtx.frameNumber;
-			unprocessedTimeUs -= frameTimeUs;
+			unprocessedTime -= frameTime;
+			shouldRender = true;
 		}// If there's still bunch of unprocessed time, update the editor again
 
 		// Render update
+		if(shouldRender)
 		{
 			m_renderThread.beginFrame();
 
@@ -120,7 +126,12 @@ void Application::appMainLoop()
 			m_renderThread.endFrame();
 		}
 
+		// Wait for next update
+		{
+			const auto currentLapTime = std::chrono::duration_cast<TimeUnit>(loopTimer.peekLap());
+			const auto 
 
+		}
 
 		std::this_thread::yield();
 	}
@@ -134,13 +145,6 @@ void Application::appUpdate(const MainThreadUpdateContext& ctx)
 void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
 	// TODO
-}
-
-uint64 Application::getFrameTimeInUs() const
-{
-	PH_ASSERT_NE(m_settings.maxFPS, 0);
-	const double secondsPerFrame = 1.0 / m_settings.maxFPS;
-	return static_cast<uint64>(secondsPerFrame * 1000.0 * 1000.0);
 }
 
 }// end namespace ph::editor

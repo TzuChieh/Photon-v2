@@ -42,7 +42,6 @@ private:
 	void appMainLoop();
 	void appUpdate(const MainThreadUpdateContext& ctx);
 	void appRenderUpdate(const MainThreadRenderUpdateContext& ctx);
-	uint64 getFrameTimeInUs() const;
 
 	AppSettings                                   m_settings;
 	Editor                                        m_editor;
