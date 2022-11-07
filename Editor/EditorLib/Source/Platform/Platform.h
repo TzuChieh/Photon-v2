@@ -29,7 +29,6 @@ public:
 	virtual ~Platform();
 
 	virtual void update(float64 deltaS) = 0;
-	virtual void render() = 0;
 	virtual const PlatformInput& getInput() const = 0;
 	virtual const PlatformDisplay& getDisplay() const = 0;
 	virtual bool isInitialized() const = 0;

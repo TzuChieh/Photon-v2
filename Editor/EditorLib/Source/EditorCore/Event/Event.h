@@ -15,11 +15,11 @@ enum class EEventType
 
 	// TODO: distanguish between main window and window (child/internal)?
 
-	WindowClose,
-	WindowResize,
-	WindowFocus,
-	WindowLostFocus,
-	WindowMove,
+	DisplayClose,
+	DisplayResize,
+	DisplayFocus,
+	DisplayLostFocus,
+	DisplayMove,
 
 	FrameBufferResize,
 

@@ -4,6 +4,7 @@
 #include "EditorCore/Event/KeyDownEvent.h"
 #include "EditorCore/Event/KeyUpEvent.h"
 #include "EditorCore/Event/FrameBufferResizeEvent.h"
+#include "EditorCore/Event/DisplayCloseEvent.h"
 #include "App/EditorEventQueue.h"
 
 namespace ph::editor
@@ -12,19 +13,19 @@ namespace ph::editor
 class Editor final
 {
 public:
-	template<typename EventType>
-	void dispatchToEventQueue(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher);
-
-public:
-	// TODO: editor scene data
-
-public:
 	TEventDispatcher<KeyDownEvent> onKeyDown;
 	TEventDispatcher<KeyUpEvent> onKeyUp;
 	TEventDispatcher<FrameBufferResizeEvent> onFrameBufferResize;
+	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
 
-private:
-	EditorEventQueue m_eventQueue;
+	EditorEventQueue eventQueue;
+
+public:
+	template<typename EventType>
+	void dispatchToEventQueue(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher);
+
+
+	// TODO: editor scene data
 
 	// TODO: may require obj/entity add/remove event queue to support concurrent event (to avoid invalidating Listener on addListener())
 };
@@ -37,7 +38,7 @@ inline void Editor::dispatchToEventQueue(const EventType& e, const TEventDispatc
 	eventDispatcher.dispatch(e,
 		[this](const EventType& e, const Listener& listener)
 		{
-			m_eventQueue.add(
+			eventQueue.add(
 				[&listener, e]()
 				{
 					listener(e);

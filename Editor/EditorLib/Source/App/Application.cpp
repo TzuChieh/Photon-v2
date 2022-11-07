@@ -13,6 +13,8 @@
 #include <chrono>
 #include <cstddef>
 #include <thread>
+#include <condition_variable>
+#include <mutex>
 
 namespace ph::editor
 {
@@ -28,6 +30,12 @@ Application::Application(AppSettings settings)
 {
 	m_platform = std::make_unique<GlfwPlatform>(m_settings, m_editor);
 	
+	m_editor.onDisplayClose.addListener(
+		[this](const DisplayCloseEvent& /* e */)
+		{
+			m_shouldClose = true;
+		});
+
 	Threads::setRenderThreadID(m_renderThread.getWorkerThreadId());
 	m_renderThread.startWorker();
 
@@ -77,6 +85,9 @@ void Application::initialRenderThreadUpdate()
 
 void Application::appMainLoop()
 {
+	std::mutex loopMutex;
+	std::condition_variable loopCv;
+
 	MainThreadUpdateContext updateCtx;
 	MainThreadRenderUpdateContext renderUpdateCtx;
 
@@ -129,22 +140,46 @@ void Application::appMainLoop()
 		// Wait for next update
 		{
 			const auto currentLapTime = std::chrono::duration_cast<TimeUnit>(loopTimer.peekLap());
-			const auto 
+			const auto currentUnprocessedTime = unprocessedTime + currentLapTime;
 
+			// Already behind more than a frame, just yield
+			if(currentUnprocessedTime >= frameTime)
+			{
+				std::this_thread::yield();
+			}
+			// Otherwise, sleep until a frame of unprocessed time is available
+			else
+			{
+				const auto timeTillNextFrame = frameTime - currentUnprocessedTime;
+
+				std::unique_lock<std::mutex> loopLock(loopMutex);
+				loopCv.wait_for(loopLock, timeTillNextFrame);// TODO: check return type and possibly sleep more
+			}
 		}
-
-		std::this_thread::yield();
-	}
+	}// end while `!m_shouldClose`
 }
 
 void Application::appUpdate(const MainThreadUpdateContext& ctx)
 {
-	// TODO
+	m_editor.eventQueue.flushAllEvents();
+
+	// TODO: editor scene update
+	
+
+	for(auto& procedureModule : m_procedureModules)
+	{
+		procedureModule->update(ctx);
+	}
+
+	m_platform->update(ctx.deltaS);
 }
 
 void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
-	// TODO
+	for(auto& renderModule : m_renderModules)
+	{
+		renderModule->renderUpdate(ctx);
+	}
 }
 
 }// end namespace ph::editor

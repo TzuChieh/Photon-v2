@@ -37,12 +37,7 @@ GlfwPlatform::~GlfwPlatform()
 
 void GlfwPlatform::update(const float64 deltaS)
 {
-	// TODO
-}
-
-void GlfwPlatform::render()
-{
-	// TODO
+	m_input.poll(deltaS);
 }
 
 bool GlfwPlatform::isInitialized() const

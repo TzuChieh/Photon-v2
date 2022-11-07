@@ -14,7 +14,7 @@ EditorEventQueue::EditorEventQueue()
 	m_mainThreadWorks.reserve(128);
 }
 
-void EditorEventQueue::updateAllEvents()
+void EditorEventQueue::flushAllEvents()
 {
 	PH_ASSERT(Threads::isOnMainThread());
 

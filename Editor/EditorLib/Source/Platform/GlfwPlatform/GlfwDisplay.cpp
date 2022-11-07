@@ -4,6 +4,7 @@
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
 #include "EditorCore/Event/FrameBufferResizeEvent.h"
+#include "EditorCore/Event/DisplayCloseEvent.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
@@ -73,6 +74,15 @@ void GlfwDisplay::initialize(
 
 			FrameBufferResizeEvent e(width, height);
 			editor.dispatchToEventQueue(e, editor.onFrameBufferResize);
+		});
+
+	glfwSetWindowCloseCallback(m_glfwWindow,
+		[](GLFWwindow* window)
+		{
+			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
+
+			DisplayCloseEvent e;
+			editor.dispatchToEventQueue(e, editor.onDisplayClose);
 		});
 
 	PH_ASSERT(!m_ghi);

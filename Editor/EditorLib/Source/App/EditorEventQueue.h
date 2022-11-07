@@ -23,7 +23,7 @@ public:
 	EditorEventQueue();
 
 	void add(EventUpdateWork work);
-	void updateAllEvents();
+	void flushAllEvents();
 
 private:
 	void updateMainThreadEvents();
