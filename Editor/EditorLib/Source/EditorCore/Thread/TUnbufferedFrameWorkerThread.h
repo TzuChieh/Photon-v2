@@ -268,8 +268,8 @@ public:
 		// have to wait here otherwise we may cancel some work
 		m_thread.waitAllWorks();
 
-		// Request termination as early as possible since there are still some cleanup operations to
-		// do on worker thread
+		// Request termination as early as possible since there are still some cleanups to do on
+		// worker thread
 		m_thread.requestTermination();
 
 		// Clear work queue memory after all works are done

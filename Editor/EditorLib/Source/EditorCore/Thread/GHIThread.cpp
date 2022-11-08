@@ -12,26 +12,26 @@ GHIThread::GHIThread()
 	: Base()
 	, m_GHI(nullptr)
 	, m_nullGHI(std::make_unique<NullGHI>())
-{
-	PH_LOG(GHIThread, "thread created");
-}
+{}
 
 GHIThread::~GHIThread()
 {
 	// Should already been unset
 	PH_ASSERT(!m_GHI);
-
-	PH_LOG(GHIThread, "thread destroyed");
 }
 
 void GHIThread::onAsyncWorkerStart()
 {
+	PH_LOG(GHIThread, "thread started");
+
 	setGHI(m_nullGHI.get());
 }
 
 void GHIThread::onAsyncWorkerStop()
 {
 	setGHI(nullptr);
+
+	PH_LOG(GHIThread, "thread stopped");
 }
 
 void GHIThread::onAsyncProcessWork(const Work& work)
@@ -48,7 +48,12 @@ void GHIThread::onBeginFrame()
 
 void GHIThread::onEndFrame()
 {
-	// TODO
+	// Swap buffer at the end of end frame
+	addWork(
+		[](GHI& ghi)
+		{
+			ghi.swapBuffers();
+		});
 }
 
 void GHIThread::addSetGHIWork(GHI* const inGHI)

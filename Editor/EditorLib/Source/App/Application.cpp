@@ -26,14 +26,15 @@ Application::Application(AppSettings settings)
 	, m_platform()
 	, m_procedureModules()
 	, m_renderModules()
-	, m_shouldClose(false)
+	, m_shouldBreakMainLoop(false)
+	, m_isClosing(false)
 {
 	m_platform = std::make_unique<GlfwPlatform>(m_settings, m_editor);
 	
 	m_editor.onDisplayClose.addListener(
 		[this](const DisplayCloseEvent& /* e */)
 		{
-			m_shouldClose = true;
+			m_shouldBreakMainLoop = true;
 		});
 
 	Threads::setRenderThreadID(m_renderThread.getWorkerThreadId());
@@ -55,12 +56,12 @@ void Application::run()
 
 void Application::close()
 {
-	if(m_shouldClose)
+	if(m_isClosing)
 	{
 		return;
 	}
 
-	m_shouldClose = true;
+	m_isClosing = true;
 
 	// Request to stop the render thread
 	m_renderThread.beginFrame();
@@ -104,7 +105,7 @@ void Application::appMainLoop()
 	Timer loopTimer;
 	loopTimer.start();
 
-	while(!m_shouldClose)
+	while(!m_shouldBreakMainLoop)
 	{
 		const auto passedTime = std::chrono::duration_cast<TimeUnit>(loopTimer.markLap());
 

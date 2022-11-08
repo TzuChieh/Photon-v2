@@ -20,6 +20,9 @@ public:
 	inline void unload() override
 	{}
 
+	inline void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override
+	{}
+
 	inline void swapBuffers()
 	{}
 

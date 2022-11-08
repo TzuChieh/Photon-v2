@@ -31,5 +31,11 @@ target_include_directories(Editor
 target_link_libraries(Editor
 	PRIVATE EditorLib)
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set_property(TARGET Editor 
+    	APPEND PROPERTY 
+    	LINK_FLAGS /DEBUG:FULL)
+endif()
+
 source_group(TREE ${EDITOR_DIR} FILES ${EDITOR_HEADER_FILES})
 source_group(TREE ${EDITOR_DIR} FILES ${EDITOR_SOURCE_FILES})

@@ -207,9 +207,10 @@ inline void TSPSCExecutor<Work>::terminate()
 	// Just try to break the worker loop as soon as possible (and as non-intrusive as possible)
 	m_isTerminationRequested.test_and_set(std::memory_order_relaxed);
 
-	// If the consumer as waiting, adding another work that sets the flag is required. The flag will be set 
-	// on the consumer thread and is guaranteed to break the loop there as testing the flag is sequentially 
-	// after setting the flag.
+	// If the consumer is waiting or is going to wait, adding another work that sets the flag is 
+	// required (so the consumer can unwait). The flag will be set on the consumer thread and is 
+	// guaranteed to break the loop there as testing the flag is sequentially after setting 
+	// the flag.
 	CustomCallable terminateWork;
 	terminateWork.callable =
 		[this]()

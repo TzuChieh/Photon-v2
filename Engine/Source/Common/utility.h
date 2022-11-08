@@ -19,3 +19,5 @@
 		std::cerr << "code not implemented in <" << __FILE__ << ">: "\
 		          << "line " << __LINE__ << std::endl;\
 	} while(0)
+
+#define PH_NO_OP() ((void)0)

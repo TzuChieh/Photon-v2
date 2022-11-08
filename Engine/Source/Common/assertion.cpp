@@ -87,7 +87,7 @@ void on_assertion_failed()
 #endif
 // end PH_PRINT_STACK_TRACE_ON_ASSERTION_FAILED
 
-	debug_break();
+	PH_DEBUG_BREAK();
 
 #ifdef PH_ABORT_ON_ASSERTION_FAILED
 	std::abort();

@@ -2,6 +2,7 @@
 
 #include "Common/ELogLevel.h"
 #include "Common/config.h"
+#include "Common/utility.h"
 
 #include <string>
 #include <vector>
@@ -108,8 +109,8 @@ The logger will be usable anywhere that includes the header file containing this
 	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Debug, rawString)
 	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Debug, formatString, __VA_ARGS__)
 #else
-	#define PH_LOG_DEBUG_STRING(groupName, rawString)
-	#define PH_LOG_DEBUG(groupName, formatString, ...)
+	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_NO_OP()
+	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_NO_OP()
 #endif
 
 #define PH_LOG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Note, rawString)

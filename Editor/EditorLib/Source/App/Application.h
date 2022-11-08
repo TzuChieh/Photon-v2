@@ -49,7 +49,8 @@ private:
 	std::unique_ptr<Platform>                     m_platform;
 	std::vector<std::unique_ptr<ProcedureModule>> m_procedureModules;
 	std::vector<std::unique_ptr<RenderModule>>    m_renderModules;
-	bool                                          m_shouldClose;
+	bool                                          m_shouldBreakMainLoop;
+	bool                                          m_isClosing;
 };
 
 }// end namespace ph::editor

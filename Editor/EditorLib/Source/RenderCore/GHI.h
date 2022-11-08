@@ -5,6 +5,7 @@
 #include <Utility/INoCopyAndMove.h>
 #include <Common/logging.h>
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <source_location>
 #include <type_traits>
@@ -38,6 +39,14 @@ public:
 	requirements of this method.
 	*/
 	virtual void unload() = 0;
+
+	/* @brief Set how NDC corresponds to pixels on the display.
+	@param xPx X coordinate of the lower-left corner of the viewport, in pixels.
+	@param yPx Y coordinate of the lower-left corner of the viewport, in pixels.
+	@param widthPx Width of the viewport, in pixels.
+	@param heightPx Height of the viewport, in pixels.
+	*/
+	virtual void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) = 0;
 
 	virtual void swapBuffers() = 0;
 

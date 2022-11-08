@@ -4,6 +4,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Utility/utility.h>
 
 #include <string>
 #include <cstddef>
@@ -96,6 +97,15 @@ void GlfwGladOpenglGHI::unload()
 	}
 
 	m_isLoaded = false;
+}
+
+void GlfwGladOpenglGHI::setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx)
+{
+	glViewport(
+		safe_number_cast<GLint>(xPx),
+		safe_number_cast<GLint>(yPx), 
+		safe_number_cast<GLsizei>(widthPx),
+		safe_number_cast<GLsizei>(heightPx));
 }
 
 void GlfwGladOpenglGHI::swapBuffers()

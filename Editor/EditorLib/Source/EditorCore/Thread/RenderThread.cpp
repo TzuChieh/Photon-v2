@@ -17,14 +17,10 @@ RenderThread::RenderThread()
 	, m_renderData()
 	, m_ghiThread()
 	, m_updatedGHI(nullptr)
-{
-	PH_LOG(RenderThread, "thread created");
-}
+{}
 
 RenderThread::~RenderThread()
-{
-	PH_LOG(RenderThread, "thread destroyed");
-}
+{}
 
 void RenderThread::onAsyncProcessWork(const Work& work)
 {
@@ -33,6 +29,8 @@ void RenderThread::onAsyncProcessWork(const Work& work)
 
 void RenderThread::onAsyncWorkerStart()
 {
+	PH_LOG(RenderThread, "thread started");
+
 	// Must start here--render thread should be the parent thread of GHI thread
 	m_ghiThread.startWorker();
 }
@@ -44,6 +42,8 @@ void RenderThread::onAsyncWorkerStop()
 	m_ghiThread.endFrame();
 
 	m_ghiThread.waitForWorkerToStop();
+
+	PH_LOG(RenderThread, "thread stopped");
 }
 
 void RenderThread::onBeginFrame()

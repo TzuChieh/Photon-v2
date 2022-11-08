@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/config.h"
+#include "Common/utility.h"
 
 #include <string>
 
@@ -24,13 +25,13 @@ void on_assertion_failed();
 		{\
 			if(!(condition))\
 			{\
-				ph::detail::output_assertion_message(\
+				::ph::detail::output_assertion_message(\
 					std::string(__FILE__),\
 					std::to_string(__LINE__),\
 					std::string(#condition),\
 					std::string((failMessage)));\
 				\
-				ph::detail::on_assertion_failed();\
+				::ph::detail::on_assertion_failed();\
 			}\
 		} while(0)
 
@@ -39,8 +40,8 @@ void on_assertion_failed();
 		lowerBoundSymbol + std::to_string(lowerBound) + ", " + std::to_string(upperBound) + upperBoundSymbol)
 
 #else
-	#define PH_ASSERT_MSG(condition, message)
-	#define PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, lowerBoundSymbol, upperBoundSymbol)
+	#define PH_ASSERT_MSG(condition, message) PH_NO_OP()
+	#define PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, lowerBoundSymbol, upperBoundSymbol) PH_NO_OP()
 #endif
 
 #define PH_ASSERT(condition)\
