@@ -107,4 +107,17 @@ using TEnumFlags = TBitFlags<std::underlying_type_t<EnumType>, EnumType>;
 
 }// end namespace ph
 
+#define PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(EnumType)\
+	static_assert(::ph::CIsEnum<EnumType>, #EnumType " must be an enum type");\
+	\
+	inline EnumType operator | (const EnumType lhs, const EnumType rhs)\
+	{\
+		return ::ph::TEnumFlags<EnumType>({lhs, rhs}).getEnum();\
+	}\
+	\
+	inline EnumType operator & (const EnumType lhs, const EnumType rhs)\
+	{\
+		return ::ph::TEnumFlags<EnumType>({lhs}).intersectWith({rhs}).getEnum();\
+	}
+
 #include "Utility/TBitFlags.ipp"

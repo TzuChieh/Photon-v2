@@ -1,11 +1,13 @@
 #pragma once
 
 #include "RenderCore/EGraphicsAPI.h"
+#include "RenderCore/EClearTarget.h"
 
 #include <Utility/INoCopyAndMove.h>
 #include <Common/logging.h>
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Math/TVector4.h>
 
 #include <source_location>
 #include <type_traits>
@@ -47,6 +49,10 @@ public:
 	@param heightPx Height of the viewport, in pixels.
 	*/
 	virtual void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) = 0;
+
+	virtual void clearBuffer(EClearTarget target) = 0;
+
+	virtual void setClearColor(const math::TVector4<float32>& color) = 0;
 
 	virtual void swapBuffers() = 0;
 

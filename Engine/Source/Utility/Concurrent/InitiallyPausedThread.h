@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Utility/IMoveOnly.h"
-
+#include "Common/debug.h"
+#include "Common/logging.h"
+#include "Utility/exception.h"
 
 #include <thread>
 #include <future>
@@ -84,9 +86,19 @@ inline InitiallyPausedThread::InitiallyPausedThread(Func&& func, Args&&... args)
 		 func = std::bind(std::forward<Func>(func), std::forward<Args>(args)...)]
 		() mutable
 		{
-			if(startFuture.get())
+			try
 			{
-				func();
+				if(startFuture.get())
+				{
+					func();
+				}
+			}
+			catch(const Exception& e)
+			{
+				PH_DEFAULT_LOG_ERROR("[InitiallyPausedThread] unhandled exception thrown: {}",
+					e.what());
+
+				PH_DEBUG_BREAK();
 			}
 		});
 }

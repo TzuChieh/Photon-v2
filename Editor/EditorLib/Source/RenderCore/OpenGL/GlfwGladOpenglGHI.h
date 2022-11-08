@@ -19,6 +19,8 @@ public:
 	void load() override;
 	void unload() override;
 	void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override;
+	void clearBuffer(EClearTarget target) override;
+	void setClearColor(const math::TVector4<float32>& color) override;
 	void swapBuffers() override;
 
 private:

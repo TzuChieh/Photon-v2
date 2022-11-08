@@ -108,6 +108,20 @@ void GlfwGladOpenglGHI::setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint
 		safe_number_cast<GLsizei>(heightPx));
 }
 
+void GlfwGladOpenglGHI::clearBuffer(const EClearTarget target)
+{
+	// TODO
+}
+
+void GlfwGladOpenglGHI::setClearColor(const math::TVector4<float32>& color)
+{
+	glClearColor(
+		safe_number_cast<GLclampf>(color.r()), 
+		safe_number_cast<GLclampf>(color.g()), 
+		safe_number_cast<GLclampf>(color.b()), 
+		safe_number_cast<GLclampf>(color.a()));
+}
+
 void GlfwGladOpenglGHI::swapBuffers()
 {
 	glfwSwapBuffers(m_glfwWindow);
