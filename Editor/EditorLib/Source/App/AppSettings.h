@@ -15,10 +15,11 @@ namespace ph::editor
 class AppSettings final
 {
 public:
-	std::string    title         = "Photon Editor";
-	math::Vector2S displaySizePx = {0, 0};
-	uint32f        maxFPS        = 60;
-	EGraphicsAPI   graphicsApi   = EGraphicsAPI::OpenGL;
+	std::string    title           = "Photon Editor";
+	math::Vector2S displaySizePx   = {0, 0};
+	uint32f        maxFPS          = 60;
+	EGraphicsAPI   graphicsApi     = EGraphicsAPI::OpenGL;
+	bool           useDebugModeGHI = false;
 
 	std::span<char*> cmdArgs;
 

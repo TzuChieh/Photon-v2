@@ -9,6 +9,11 @@
 #include <cstddef>
 #include <format>
 
+/*! @file
+Note on loggers:
+All logging functionalities are thread-safe when accessed via pre-defined macros.
+*/
+
 namespace ph { class Logger; }
 
 namespace ph
@@ -128,12 +133,23 @@ namespace ph
 // Photon renderer's default logger
 PH_DECLARE_LOG_GROUP(PhotonRenderer);
 
-// A set of helper utility macros to log using Photon renderer's default logger
+/*! @brief A set of helper utility macros to log using Photon renderer's default logger.
+*/
+///@{
+#ifdef PH_ENABLE_DEBUG_LOG
+	#define PH_DEFAULT_LOG_DEBUG(formatString, ...) PH_LOG_DEBUG(PhotonRenderer, formatString, __VA_ARGS__)
+	#define PH_DEFAULT_LOG_DEBUG_STRING(rawString) PH_LOG_DEBUG_STRING(PhotonRenderer, rawString)
+#else
+	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_NO_OP()
+	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_NO_OP()
+#endif
+
 #define PH_DEFAULT_LOG(formatString, ...) PH_LOG(PhotonRenderer, formatString, __VA_ARGS__)
 #define PH_DEFAULT_LOG_STRING(rawString) PH_LOG_STRING(PhotonRenderer, rawString)
 #define PH_DEFAULT_LOG_WARNING(formatString, ...) PH_LOG_WARNING(PhotonRenderer, formatString, __VA_ARGS__)
 #define PH_DEFAULT_LOG_WARNING_STRING(rawString) PH_LOG_WARNING_STRING(PhotonRenderer, rawString)
 #define PH_DEFAULT_LOG_ERROR(formatString, ...) PH_LOG_ERROR(PhotonRenderer, formatString, __VA_ARGS__)
 #define PH_DEFAULT_LOG_ERROR_STRING(rawString) PH_LOG_ERROR_STRING(PhotonRenderer, rawString)
+///@}
 
 }// end namespace ph

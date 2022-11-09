@@ -27,13 +27,16 @@ void GlfwDisplay::initialize(
 	Editor&            editor,
 	const std::string& windowTitle,
 	math::Vector2S     sizePx,
-	EGraphicsAPI       graphicsApi)
+	EGraphicsAPI       graphicsApi,
+	const bool         useDebugModeGHI)
 {
 	if(m_glfwWindow)
 	{
 		throw PlatformException(
 			"cannot create window when the old one is not destroyed first");
 	}
+
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 	if(graphicsApi == EGraphicsAPI::OpenGL)
 	{
@@ -50,7 +53,14 @@ void GlfwDisplay::initialize(
 			"requesting unsupported graphics API");
 	}
 
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	if(useDebugModeGHI)
+	{
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+	}
+	else
+	{
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_FALSE);
+	}
 
 	m_glfwWindow = glfwCreateWindow(
 		static_cast<int>(sizePx.x()), 
@@ -86,7 +96,7 @@ void GlfwDisplay::initialize(
 		});
 
 	PH_ASSERT(!m_ghi);
-	m_ghi = std::make_unique<GlfwGladOpenglGHI>(m_glfwWindow);
+	m_ghi = std::make_unique<GlfwGladOpenglGHI>(m_glfwWindow, useDebugModeGHI);
 
 	m_sizePx = sizePx;
 }

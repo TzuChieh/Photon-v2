@@ -7,8 +7,9 @@
 #include <Utility/utility.h>
 #include <Utility/TBitFlags.h>
 
-#include <string>
+#include <string_view>
 #include <cstddef>
+#include <format>
 
 namespace ph::editor
 {
@@ -18,20 +19,68 @@ PH_DEFINE_INTERNAL_LOG_GROUP(GlfwGladOpenGL, GHI);
 namespace
 {
 
-inline std::string GLubyte_to_string(const GLubyte* const ubytes)
+inline std::string_view GLubyte_to_sv(const GLubyte* const ubytes)
 {
 	PH_ASSERT(ubytes);
-
-	std::string str;
-	str.reserve(64);
-	for(std::size_t i = 0; ubytes[i] != '\0'; ++i)
-	{
-		str.push_back(static_cast<char>(ubytes[i]));
-	}
-	return str;
+	return std::string_view(reinterpret_cast<const char*>(ubytes));
 }
 
-inline std::string
+inline std::string_view debug_source_GLenum_to_sv(const GLenum dbgSource)
+{
+	switch(dbgSource)
+	{
+	case GL_DEBUG_SOURCE_API:
+		return "API";
+
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+		return "Window System";
+
+	case GL_DEBUG_SOURCE_SHADER_COMPILER:
+		return "Shader Compiler";
+
+	case GL_DEBUG_SOURCE_THIRD_PARTY:
+		return "Third Party";
+
+	case GL_DEBUG_SOURCE_APPLICATION:
+		return "Application";
+
+	case GL_DEBUG_SOURCE_OTHER:
+		return "Other";
+
+	default:
+		return "(unknown)";
+	}
+}
+
+inline std::string_view debug_type_GLenum_to_sv(const GLenum dbgType)
+{
+	switch(dbgType)
+	{
+	case GL_DEBUG_TYPE_ERROR:
+		return "Error";
+
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+		return "Deprecated Behavior";
+
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+		return "Undefined Behavior";
+
+	case GL_DEBUG_TYPE_PORTABILITY:
+		return "Portability";
+
+	case GL_DEBUG_TYPE_PERFORMANCE:
+		return "Performance";
+
+	case GL_DEBUG_TYPE_OTHER:
+		return "Other";
+
+	case GL_DEBUG_TYPE_MARKER:
+		return "Marker";
+
+	default:
+		return "(unknown)";
+	}
+}
 
 }// end anonymous namespace
 
@@ -49,12 +98,33 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
     const GLchar* const message,
     const void* const   userParam)
 {
+	using namespace ph::editor;
+
+	auto debugStr = std::format("{} (source: {}, type: {}, id: {})",
+		std::string_view(reinterpret_cast<const char*>(message), length),
+		debug_source_GLenum_to_sv(source),
+		debug_type_GLenum_to_sv(type),
+		id);
+
 	switch(severity)
 	{
+	// Anything that isn't an error or performance issue
 	case GL_DEBUG_SEVERITY_NOTIFICATION:
+	// Redundant state change performance warning, or unimportant undefined behavior
 	case GL_DEBUG_SEVERITY_LOW:
+		PH_LOG(GlfwGladOpenGL, "{}", debugStr);
+		break;
+
+	// Major performance warnings, shader compilation/linking warnings, or the use of deprecated functionality
 	case GL_DEBUG_SEVERITY_MEDIUM:
+		PH_LOG_WARNING(GlfwGladOpenGL, "{}", debugStr);
+		break;
+
+	// All OpenGL Errors, shader compilation/linking errors, or highly-dangerous undefined behavior
 	case GL_DEBUG_SEVERITY_HIGH:
+	default:
+		PH_LOG_ERROR(GlfwGladOpenGL, "{}", debugStr);
+		break;
 	}
 }
 
@@ -104,6 +174,11 @@ void GlfwGladOpenglGHI::load()
 			"failed to initialize OpenGL context (glad load failed)");
 	}
 
+	if(m_hasDebugContext)
+	{
+		glDebugMessageCallback(ph_editor_OpenGL_debug_callback, nullptr);
+	}
+
 	PH_LOG(GlfwGladOpenGL,
 		"loaded OpenGL {}.{}", 
 		GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
@@ -111,15 +186,10 @@ void GlfwGladOpenglGHI::load()
 	// Log information provided by OpenGL itself
 	PH_LOG(GlfwGladOpenGL,
 		"Vendor: {}, Renderer: {}, Version: {}, GLSL Version: {}",
-		GLubyte_to_string(glGetString(GL_VENDOR)), 
-		GLubyte_to_string(glGetString(GL_RENDERER)), 
-		GLubyte_to_string(glGetString(GL_VERSION)), 
-		GLubyte_to_string(glGetString(GL_SHADING_LANGUAGE_VERSION)));
-
-	if(m_hasDebugContext)
-	{
-		glDebugMessageCallback();
-	}
+		GLubyte_to_sv(glGetString(GL_VENDOR)),
+		GLubyte_to_sv(glGetString(GL_RENDERER)),
+		GLubyte_to_sv(glGetString(GL_VERSION)),
+		GLubyte_to_sv(glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
 	m_isLoaded = true;
 }

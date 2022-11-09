@@ -92,7 +92,13 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 		}
 	}
 
-	m_display.initialize(getEditor(), settings.title, requestedDisplaySizePx, requestedGraphicsApi);
+	m_display.initialize(
+		getEditor(), 
+		settings.title, 
+		requestedDisplaySizePx, 
+		requestedGraphicsApi,
+		settings.useDebugModeGHI);
+
 	m_input.initialize(getEditor(), m_display.getGlfwWindow());
 
 	if(!m_display.getGHI())

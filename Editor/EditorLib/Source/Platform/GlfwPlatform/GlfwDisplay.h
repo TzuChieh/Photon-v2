@@ -25,7 +25,8 @@ public:
 		Editor&            editor,
 		const std::string& windowTitle,
 		math::Vector2S     sizePx,
-		EGraphicsAPI       graphicsApi);
+		EGraphicsAPI       graphicsApi,
+		bool               useDebugModeGHI);
 
 	void terminate();
 

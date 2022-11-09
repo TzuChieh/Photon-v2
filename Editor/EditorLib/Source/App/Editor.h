@@ -27,7 +27,8 @@ public:
 
 	// TODO: editor scene data
 
-	// TODO: may require obj/entity add/remove event queue to support concurrent event (to avoid invalidating Listener on addListener())
+	// TODO: may require obj/entity add/remove event queue to support concurrent event 
+	// (to avoid invalidating Listener on addListener())
 };
 
 template<typename EventType>
