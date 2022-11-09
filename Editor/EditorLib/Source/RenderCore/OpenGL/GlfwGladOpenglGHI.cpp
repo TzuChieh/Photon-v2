@@ -5,6 +5,7 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Utility/utility.h>
+#include <Utility/TBitFlags.h>
 
 #include <string>
 #include <cstddef>
@@ -30,14 +31,45 @@ inline std::string GLubyte_to_string(const GLubyte* const ubytes)
 	return str;
 }
 
+inline std::string
+
 }// end anonymous namespace
 
-GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow)
+}// end namespace ph::editor
+
+extern "C"
+{
+
+inline void APIENTRY ph_editor_OpenGL_debug_callback(
+	const GLenum        source,
+	const GLenum        type,
+	const GLuint        id,
+	const GLenum        severity,
+	const GLsizei       length,
+    const GLchar* const message,
+    const void* const   userParam)
+{
+	switch(severity)
+	{
+	case GL_DEBUG_SEVERITY_NOTIFICATION:
+	case GL_DEBUG_SEVERITY_LOW:
+	case GL_DEBUG_SEVERITY_MEDIUM:
+	case GL_DEBUG_SEVERITY_HIGH:
+	}
+}
+
+}
+
+namespace ph::editor
+{
+
+GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow, const bool hasDebugContext)
 	: GHI(EGraphicsAPI::OpenGL)
-	, m_glfwWindow  (glfwWindow)
-	, m_isLoaded    (false)
+	, m_glfwWindow     (glfwWindow)
+	, m_hasDebugContext(hasDebugContext)
+	, m_isLoaded       (false)
 #ifdef PH_DEBUG
-	, m_loadThreadId()
+	, m_loadThreadId   ()
 #endif
 {}
 
@@ -84,6 +116,11 @@ void GlfwGladOpenglGHI::load()
 		GLubyte_to_string(glGetString(GL_VERSION)), 
 		GLubyte_to_string(glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
+	if(m_hasDebugContext)
+	{
+		glDebugMessageCallback();
+	}
+
 	m_isLoaded = true;
 }
 
@@ -108,9 +145,28 @@ void GlfwGladOpenglGHI::setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint
 		safe_number_cast<GLsizei>(heightPx));
 }
 
-void GlfwGladOpenglGHI::clearBuffer(const EClearTarget target)
+void GlfwGladOpenglGHI::clearBuffer(const EClearTarget targets)
 {
-	// TODO
+	const TEnumFlags<EClearTarget> flags({targets});
+
+	GLbitfield mask = 0;
+
+	if(flags.hasAny({EClearTarget::Color}))
+	{
+		mask |= GL_COLOR_BUFFER_BIT;
+	}
+
+	if(flags.hasAny({EClearTarget::Depth}))
+	{
+		mask |= GL_DEPTH_BUFFER_BIT;
+	}
+
+	if(flags.hasAny({EClearTarget::Stencil}))
+	{
+		mask |= GL_STENCIL_BUFFER_BIT;
+	}
+
+	glClear(mask);
 }
 
 void GlfwGladOpenglGHI::setClearColor(const math::TVector4<float32>& color)

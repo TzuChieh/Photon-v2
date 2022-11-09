@@ -13,13 +13,13 @@ namespace ph::editor
 class GlfwGladOpenglGHI : public GHI
 {
 public:
-	explicit GlfwGladOpenglGHI(GLFWwindow* glfwWindow);
+	GlfwGladOpenglGHI(GLFWwindow* glfwWindow, bool hasDebugContext);
 	~GlfwGladOpenglGHI() override;
 
 	void load() override;
 	void unload() override;
 	void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override;
-	void clearBuffer(EClearTarget target) override;
+	void clearBuffer(EClearTarget targets) override;
 	void setClearColor(const math::TVector4<float32>& color) override;
 	void swapBuffers() override;
 
@@ -29,6 +29,7 @@ private:
 
 private:
 	GLFWwindow*     m_glfwWindow;
+	bool            m_hasDebugContext;
 	bool            m_isLoaded;
 #ifdef PH_DEBUG
 	std::thread::id m_loadThreadId;

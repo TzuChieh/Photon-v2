@@ -23,7 +23,7 @@ public:
 	inline void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override
 	{}
 
-	inline void clearBuffer(EClearTarget target) override
+	inline void clearBuffer(EClearTarget targets) override
 	{}
 
 	inline void setClearColor(const math::TVector4<float32>& color) override
