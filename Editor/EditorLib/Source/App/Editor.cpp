@@ -3,4 +3,9 @@
 namespace ph::editor
 {
 
+void Editor::flushAllEvents()
+{
+
+}
+
 }// end namespace ph::editor

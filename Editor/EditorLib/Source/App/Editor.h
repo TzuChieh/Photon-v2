@@ -7,6 +7,10 @@
 #include "EditorCore/Event/DisplayCloseEvent.h"
 #include "App/EditorEventQueue.h"
 
+#include <Utility/TFunction.h>
+
+#include <vector>
+
 namespace ph::editor
 {
 
@@ -18,11 +22,15 @@ public:
 	TEventDispatcher<FrameBufferResizeEvent> onFrameBufferResize;
 	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
 
-	EditorEventQueue eventQueue;
+	void flushAllEvents();
 
 public:
 	template<typename EventType>
-	void dispatchToEventQueue(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher);
+	void postEvent(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher);
+
+private:
+	EditorEventQueue                   m_eventPostQueue;
+	std::vector<TFunction<void(void)>> m_eventProcessQueue;
 
 
 	// TODO: editor scene data
@@ -32,18 +40,33 @@ public:
 };
 
 template<typename EventType>
-inline void Editor::dispatchToEventQueue(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher)
+inline void Editor::postEvent(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher)
 {
 	using Listener = typename TEventDispatcher<EventType>::Listener;
 
-	eventDispatcher.dispatch(e,
-		[this](const EventType& e, const Listener& listener)
+	// Event should be captured by value since exceution of queued works are delayed, there is no
+	// guarantee that the original event object still lives by the time we execute the work.
+
+	// Work for some event `e` that is going to be posted by `eventDispatcher`. Do not reference 
+	// anything that might not live across frames when constructing post work, as `postEvent()` 
+	// can get called anywhere in a frame and the execution of post works may be delayed to 
+	// next multiple frames.
+	m_eventPostQueue.add(
+		[&eventDispatcher, e]()
 		{
-			eventQueue.add(
-				[&listener, e]()
+			// Work for queueing the event for actual execution. Using a separate queue so it is
+			// possible to do further preprocessing on all events later.
+			auto queueEventForProcess = 
+				[this](const EventType& e, const Listener& listener)
 				{
-					listener(e);
-				});
+					m_eventProcessQueue.add(
+						[&listener, e]()
+						{
+							listener(e);
+						});
+				};
+
+			eventDispatcher.dispatch(e, queueEventForProcess);
 		});
 }
 

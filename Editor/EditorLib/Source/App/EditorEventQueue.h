@@ -15,14 +15,25 @@ namespace ph::editor
 class EditorEventQueue final
 {
 public:
-	// Safe limit of concurrent works updated to avoid starvation on main thread works
+	// Safe limit of concurrent works executed to avoid starvation on main thread works
 	inline constexpr static std::size_t maxAnyThreadWorksPerUpdate = 1024;
 
 	using EventUpdateWork = TFunction<void(void)>;
 
 	EditorEventQueue();
 
+	/*!
+	@note Thread safe.
+	*/
 	void add(EventUpdateWork work);
+
+	/*! @brief Dequeue and execute added works.
+	There is a limit on the max number of concurrently added (any thread) works executed,
+	see `maxAnyThreadWorksPerUpdate`. This is to avoid starvation if too many works are
+	continuously being added concurrently.
+	@return Do not return until works are executed.
+	@note Main thread only.
+	*/
 	void flushAllEvents();
 
 private:
