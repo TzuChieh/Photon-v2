@@ -105,19 +105,19 @@ void GlfwInput::initialize(Editor& editor, GLFWwindow* const glfwWindow)
 			case GLFW_PRESS:
 			{
 				KeyDownEvent e(GLFW_TO_PHOTON_KEYCODE()[key]);
-				editor.dispatchToEventQueue(e, editor.onKeyDown);
+				editor.postEvent(e, editor.onKeyDown);
 				break;
 			}
 			case GLFW_RELEASE:
 			{
 				KeyUpEvent e(GLFW_TO_PHOTON_KEYCODE()[key]);
-				editor.dispatchToEventQueue(e, editor.onKeyUp);
+				editor.postEvent(e, editor.onKeyUp);
 				break;
 			}
 			case GLFW_REPEAT:
 			{
 				KeyDownEvent e(GLFW_TO_PHOTON_KEYCODE()[key], true);
-				editor.dispatchToEventQueue(e, editor.onKeyDown);
+				editor.postEvent(e, editor.onKeyDown);
 				break;
 			}
 			}

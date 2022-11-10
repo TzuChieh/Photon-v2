@@ -162,7 +162,7 @@ void Application::appMainLoop()
 
 void Application::appUpdate(const MainThreadUpdateContext& ctx)
 {
-	m_editor.eventQueue.flushAllEvents();
+	m_editor.flushAllEvents();
 
 	// TODO: editor scene update
 	

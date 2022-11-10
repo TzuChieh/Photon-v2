@@ -83,7 +83,7 @@ void GlfwDisplay::initialize(
 			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
 
 			FrameBufferResizeEvent e(width, height);
-			editor.dispatchToEventQueue(e, editor.onFrameBufferResize);
+			editor.postEvent(e, editor.onFrameBufferResize);
 		});
 
 	glfwSetWindowCloseCallback(m_glfwWindow,
@@ -92,7 +92,7 @@ void GlfwDisplay::initialize(
 			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
 
 			DisplayCloseEvent e;
-			editor.dispatchToEventQueue(e, editor.onDisplayClose);
+			editor.postEvent(e, editor.onDisplayClose);
 		});
 
 	PH_ASSERT(!m_ghi);
