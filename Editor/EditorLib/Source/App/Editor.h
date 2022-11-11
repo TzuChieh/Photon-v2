@@ -5,6 +5,7 @@
 #include "EditorCore/Event/KeyUpEvent.h"
 #include "EditorCore/Event/FrameBufferResizeEvent.h"
 #include "EditorCore/Event/DisplayCloseEvent.h"
+#include "EditorCore/Event/AppModuleActionEvent.h"
 #include "App/EditorEventQueue.h"
 
 #include <Utility/TFunction.h>
@@ -21,6 +22,7 @@ public:
 	TEventDispatcher<KeyUpEvent> onKeyUp;
 	TEventDispatcher<FrameBufferResizeEvent> onFrameBufferResize;
 	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
+	TEventDispatcher<AppModuleActionEvent> onAppModuleAction;
 
 	void flushAllEvents();
 

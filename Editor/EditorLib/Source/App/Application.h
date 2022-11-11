@@ -19,6 +19,7 @@ class ProcedureModule;
 class RenderModule;
 class MainThreadUpdateContext;
 class MainThreadRenderUpdateContext;
+class AppModule;
 
 class Application final
 {
@@ -32,6 +33,11 @@ public:
 	*/
 	void run();
 
+	void attachProcedureModule(ProcedureModule* inModule);
+	void attachRenderModule(RenderModule* inModule);
+	void detachProcedureModule(ProcedureModule* inModule);
+	void detachRenderModule(RenderModule* inModule);
+
 private:
 	/*! @brief Close the application.
 	Closing an already-closed application has no effect.
@@ -42,15 +48,17 @@ private:
 	void appMainLoop();
 	void appUpdate(const MainThreadUpdateContext& ctx);
 	void appRenderUpdate(const MainThreadRenderUpdateContext& ctx);
+	bool validateStatusForModuleAction(AppModule* targetModule, EAppModuleAction intent);
 
-	AppSettings                                   m_settings;
-	Editor                                        m_editor;
-	RenderThread                                  m_renderThread;
-	std::unique_ptr<Platform>                     m_platform;
-	std::vector<std::unique_ptr<ProcedureModule>> m_procedureModules;
-	std::vector<std::unique_ptr<RenderModule>>    m_renderModules;
-	bool                                          m_shouldBreakMainLoop;
-	bool                                          m_isClosing;
+	AppSettings                   m_settings;
+	Editor                        m_editor;
+	RenderThread                  m_renderThread;
+	std::unique_ptr<Platform>     m_platform;
+	std::vector<ProcedureModule*> m_procedureModules;
+	std::vector<RenderModule*>    m_renderModules;
+	bool                          m_isRunning;
+	bool                          m_shouldBreakMainLoop;
+	bool                          m_isClosing;
 };
 
 }// end namespace ph::editor

@@ -24,6 +24,7 @@ protected:
 public:
 	virtual GHI* getGHI() const = 0;
 	virtual math::Vector2S getSizePx() const = 0;
+	virtual math::Vector2S getFrameBufferSizePx() const = 0;
 };
 
 }// end namespace ph::editor

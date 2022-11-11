@@ -8,6 +8,7 @@
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
+#include <Utility/utility.h>
 
 namespace ph::editor
 {
@@ -120,6 +121,18 @@ void GlfwDisplay::terminate()
 	// this function is called. In our case, GHI must be cleaned up and make the context current on main
 	// thread again.
 	glfwDestroyWindow(m_glfwWindow);
+}
+
+math::Vector2S GlfwDisplay::getFrameBufferSizePx() const
+{
+	PH_ASSERT(m_glfwWindow);
+
+	int width, height;
+	glfwGetFramebufferSize(m_glfwWindow, &width, &height);
+
+	return math::Vector2S(
+		safe_number_cast<std::size_t>(width),
+		safe_number_cast<std::size_t>(height));
 }
 
 }// end namespace ph::editor

@@ -5,7 +5,7 @@
 #include <Utility/TFunction.h>
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
-#include <Utility/TStableIndexDenseVector.h>
+#include <Utility/TUniquePtrVector.h>
 
 #include <limits>
 #include <type_traits>
@@ -14,10 +14,6 @@
 namespace ph::editor
 {
 
-using EventListenerHandle = uint16;
-
-inline constexpr auto INVALID_EVENT_LISTENER_HANDLE = std::numeric_limits<EventListenerHandle>::max();
-
 template<typename EventType>
 class TEventDispatcher final
 {
@@ -25,38 +21,29 @@ class TEventDispatcher final
 
 public:
 	using Listener = TFunction<void(const EventType& e)>;
-	using Handle   = EventListenerHandle;
-
-	static_assert(std::is_integral_v<Handle>);
-
-private:
-	constexpr static Handle INVALID_HANDLE = std::numeric_limits<Handle>::max();
 
 public:
-	Handle addListener(const Listener& listener);
-	bool removeListener(Handle handle);
+	Listener* addListener(Listener listener);
+	bool removeListener(Listener* listener);
 
 	template<typename DispatchFunc>
 	void dispatch(const EventType& e, DispatchFunc dispatchFunc) const;
 
 private:
-	TStableIndexDenseVector<Listener, Handle> m_listeners;
-
-	// Just to make sure we are using consistent invalidity identifier
-	static_assert(INVALID_EVENT_LISTENER_HANDLE == decltype(m_listeners)::INVALID_STABLE_INDEX);
+	TUniquePtrVector<Listener> m_listeners;
 };
 
 template<typename EventType>
-inline auto TEventDispatcher<EventType>::addListener(const Listener& listener)
-	-> Handle
+inline auto TEventDispatcher<EventType>::addListener(Listener listener)
+	-> Listener*
 {
-	return m_listeners.add(listener);
+	return m_listeners.add(std::make_unique<Listener>(std::move(listener)));
 }
 
 template<typename EventType>
-inline bool TEventDispatcher<EventType>::removeListener(Handle handle)
+inline bool TEventDispatcher<EventType>::removeListener(Listener* const listener)
 {
-	return m_listeners.remove(handle);
+	return m_listeners.remove(listener);
 }
 
 template<typename EventType>
@@ -68,7 +55,7 @@ inline void TEventDispatcher<EventType>::dispatch(const EventType& e, DispatchFu
 
 	for(const Listener& listener : m_listeners)
 	{
-		dispatchFunc(e, listener);
+		dispatchFunc(e, *listener);
 	}
 }
 

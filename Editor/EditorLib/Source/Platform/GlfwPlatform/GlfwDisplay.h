@@ -20,6 +20,7 @@ public:
 
 	GHI* getGHI() const override;
 	math::Vector2S getSizePx() const override;
+	math::Vector2S getFrameBufferSizePx() const override;
 
 	void initialize(
 		Editor&            editor,

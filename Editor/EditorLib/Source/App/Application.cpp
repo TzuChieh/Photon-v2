@@ -1,13 +1,15 @@
 #include "App/Application.h"
 #include "Platform/GlfwPlatform/GlfwPlatform.h"
 #include "EditorCore/Thread/Threads.h"
-#include "Procedure/ProcedureModule.h"
-#include "Render/RenderModule.h"
-#include "App/MainThreadUpdateContext.h"
-#include "Render/MainThreadRenderUpdateContext.h"
+#include "App/Module/ProcedureModule.h"
+#include "App/Module/RenderModule.h"
+#include "App/Module/MainThreadUpdateContext.h"
+#include "App/Module/MainThreadRenderUpdateContext.h"
+#include "App/Module/ModuleAttachmentInfo.h"
 
 #include <Common/assertion.h>
 #include <Utility/Timer.h>
+#include <Common/logging.h>
 
 #include <utility>
 #include <chrono>
@@ -19,6 +21,8 @@
 namespace ph::editor
 {
 
+PH_DEFINE_INTERNAL_LOG_GROUP(Application, App);
+
 Application::Application(AppSettings settings)
 	: m_settings(std::move(settings))
 	, m_editor()
@@ -26,6 +30,7 @@ Application::Application(AppSettings settings)
 	, m_platform()
 	, m_procedureModules()
 	, m_renderModules()
+	, m_isRunning(false)
 	, m_shouldBreakMainLoop(false)
 	, m_isClosing(false)
 {
@@ -35,6 +40,23 @@ Application::Application(AppSettings settings)
 		[this](const DisplayCloseEvent& /* e */)
 		{
 			m_shouldBreakMainLoop = true;
+		});
+
+	m_editor.onAppModuleAction.addListener(
+		[this](const AppModuleActionEvent& e)
+		{
+			if(e.getAction() == EAppModuleAction::Attach)
+			{
+				ModuleAttachmentInfo info;
+				info.editor = &m_editor;
+				info.frameBufferSizePx = m_platform->getDisplay().getFrameBufferSizePx();
+
+				e.getTargetModule()->onAttach(info);
+			}
+			else if(e.getAction() == EAppModuleAction::Detach)
+			{
+				e.getTargetModule()->onDetach();
+			}
 		});
 
 	Threads::setRenderThreadID(m_renderThread.getWorkerThreadId());
@@ -50,6 +72,8 @@ Application::~Application()
 
 void Application::run()
 {
+	m_isRunning = true;
+
 	appMainLoop();
 	close();
 }
@@ -61,6 +85,7 @@ void Application::close()
 		return;
 	}
 
+	m_isRunning = false;
 	m_isClosing = true;
 
 	// Request to stop the render thread
@@ -181,6 +206,65 @@ void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 	{
 		renderModule->renderUpdate(ctx);
 	}
+}
+
+void Application::attachProcedureModule(ProcedureModule* const inModule)
+{
+	if(!validateStatusForModuleAction(inModule, EAppModuleAction::Attach))
+	{
+		return;
+	}
+
+	inModule->
+}
+
+void Application::attachRenderModule(RenderModule* const inModule)
+{
+	if(!inModule)
+	{
+		PH_LOG_WARNING(Application, "unable to attach an empty render module");
+		return;
+	}
+}
+
+void Application::detachProcedureModule(ProcedureModule* const inModule)
+{
+
+}
+
+void Application::detachRenderModule(RenderModule* const inModule)
+{
+
+}
+
+bool Application::validateStatusForModuleAction(AppModule* const targetModule, const EAppModuleAction intent)
+{
+	if(!targetModule)
+	{
+		PH_LOG_WARNING(Application, "unable to attach an empty module");
+		return false;
+	}
+
+	if(intent == EAppModuleAction::Attach || intent == EAppModuleAction::Detach)
+	{
+		if(m_isRunning)
+		{
+			PH_LOG_WARNING(Application, 
+				"cannot attach {} module while the app is running", 
+				targetModule->getName());
+			return false;
+		}
+
+		if(m_isClosing)
+		{
+			PH_LOG_WARNING(Application, 
+				"cannot attach {} module while the app is closing",
+				targetModule->getName());
+			return false;
+		}
+	}
+
+	return true;
 }
 
 }// end namespace ph::editor

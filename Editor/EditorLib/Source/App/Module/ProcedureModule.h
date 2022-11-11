@@ -1,19 +1,22 @@
 #pragma once
 
+#include "App/Module/AppModule.h"
+
 namespace ph::editor
 {
 
 class ModuleAttachmentInfo;
 class MainThreadUpdateContext;
 
-class ProcedureModule
+class ProcedureModule : public AppModule
 {
 public:
-	virtual ~ProcedureModule();
+	std::string getName() const override = 0;
 
-	virtual void onAttach(const ModuleAttachmentInfo& info) = 0;
-	virtual void onDetach() = 0;
 	virtual void update(const MainThreadUpdateContext& ctx) = 0;
+
+	void onAttach(const ModuleAttachmentInfo& info) override;
+	void onDetach() override;
 
 private:
 };

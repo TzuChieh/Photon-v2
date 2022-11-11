@@ -6,6 +6,7 @@
 #include <memory>
 #include <utility>
 #include <cstddef>
+#include <algorithm>
 
 namespace ph
 {
@@ -20,6 +21,7 @@ public:
 	T* add(std::unique_ptr<T> uniquePtr);
 
 	std::unique_ptr<BaseType> remove(std::size_t index);
+	std::unique_ptr<BaseType> remove(const BaseType* ptr);
 	void removeAll();
 	void clearOne(std::size_t index);
 	void clearRange(std::size_t beginIndex, std::size_t endIndex);
@@ -69,6 +71,22 @@ inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::remove(const std::s
 	auto uniquePtr = std::move(m_uniquePtrs[index]);
 	m_uniquePtrs.erase(m_uniquePtrs.begin() + index);
 	return uniquePtr;
+}
+
+template<typename BaseType>
+inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::remove(const BaseType* const ptr)
+{
+	PH_ASSERT(ptr);
+
+	const auto result = std::find_if(m_uniquePtrs.cbegin(), m_uniquePtrs.cend(), 
+		[ptr](const std::unique_ptr<BaseType>& uniquePtr)
+		{
+			return ptr == uniquePtr.get();
+		});
+
+	return result != m_uniquePtrs.cend() 
+		? remove(result - m_uniquePtrs.cbegin())
+		: nullptr;
 }
 
 template<typename BaseType>

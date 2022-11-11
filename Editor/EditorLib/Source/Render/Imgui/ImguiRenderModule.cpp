@@ -1,7 +1,7 @@
 #include "Render/Imgui/ImguiRenderModule.h"
-#include "App/ModuleAttachmentInfo.h"
+#include "App/Module/ModuleAttachmentInfo.h"
 #include "App/Editor.h"
-#include "Render/MainThreadRenderUpdateContext.h"
+#include "App/Module/MainThreadRenderUpdateContext.h"
 
 namespace ph::editor
 {
