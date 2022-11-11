@@ -53,7 +53,7 @@ inline void TEventDispatcher<EventType>::dispatch(const EventType& e, DispatchFu
 	static_assert(std::is_invocable_v<DispatchFunc, EventType, Listener>,
 		"DispatchFunc must take (EventType, Listener).");
 
-	for(const Listener& listener : m_listeners)
+	for(const auto& listener : m_listeners)
 	{
 		dispatchFunc(e, *listener);
 	}
