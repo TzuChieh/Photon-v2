@@ -38,7 +38,7 @@ void ImguiRenderModule::setFrameBufferSizePx(const math::Vector2S& sizePx)
 
 void ImguiRenderModule::initializeImgui()
 {
-    //// Setup Dear ImGui context
+    // Setup Dear ImGui context
     //IMGUI_CHECKVERSION();
     //ImGui::CreateContext();
     //ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -68,10 +68,10 @@ void ImguiRenderModule::initializeImgui()
 
 void ImguiRenderModule::terminateImgui()
 {
-    //// Cleanup
-    //ImGui_ImplOpenGL3_Shutdown();
-    //ImGui_ImplGlfw_Shutdown();
-    //ImGui::DestroyContext();
+    // Cleanup
+   /* ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();*/
 }
 
 }// end namespace ph::editor

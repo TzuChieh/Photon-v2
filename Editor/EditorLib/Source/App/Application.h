@@ -43,10 +43,10 @@ public:
 	application finishes running.
 	*/
 	///@{
-	void attachProcedureModule(ProcedureModule* inModule);
-	void attachRenderModule(RenderModule* inModule);
-	void detachProcedureModule(ProcedureModule* inModule);
-	void detachRenderModule(RenderModule* inModule);
+	bool attachProcedureModule(ProcedureModule* inModule);
+	bool attachRenderModule(RenderModule* inModule);
+	bool detachProcedureModule(ProcedureModule* inModule);
+	bool detachRenderModule(RenderModule* inModule);
 	///@}
 
 private:
@@ -54,8 +54,8 @@ private:
 	void appMainLoop();
 	void appUpdate(const MainThreadUpdateContext& ctx);
 	void appRenderUpdate(const MainThreadRenderUpdateContext& ctx);
-	void attachModule(AppModule* targetModule);
-	void detachModule(AppModule* targetModule);
+	bool attachModule(AppModule* targetModule);
+	bool detachModule(AppModule* targetModule);
 	/*void postModuleAttachedEvent(AppModule* targetModule);
 	void postModuleDetachedEvent(AppModule* targetModule);*/
 

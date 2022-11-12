@@ -218,59 +218,71 @@ void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 	}
 }
 
-void Application::attachProcedureModule(ProcedureModule* const inModule)
+bool Application::attachProcedureModule(ProcedureModule* const inModule)
 {
-	attachModule(inModule);
+	if(!attachModule(inModule))
+	{
+		return false;
+	}
 
 	m_procedureModules.push_back(inModule);
+	return true;
 }
 
-void Application::attachRenderModule(RenderModule* const inModule)
+bool Application::attachRenderModule(RenderModule* const inModule)
 {
-	attachModule(inModule);
+	if(!attachModule(inModule))
+	{
+		return false;
+	}
 
 	m_renderModules.push_back(inModule);
+	return true;
 }
 
-void Application::detachProcedureModule(ProcedureModule* const inModule)
+bool Application::detachProcedureModule(ProcedureModule* const inModule)
 {
 	const auto numErasedModules = std::erase(m_procedureModules, inModule);
 	if(numErasedModules == 0)
 	{
-		throw_formatted<ModuleException>(
+		PH_LOG_WARNING(Application,
 			"unable to remove procedure module {} since it was not added",
 			inModule->getName());
+		return false;
 	}
 
-	detachModule(inModule);
+	return detachModule(inModule);
 }
 
-void Application::detachRenderModule(RenderModule* const inModule)
+bool Application::detachRenderModule(RenderModule* const inModule)
 {
 	const auto numErasedModules = std::erase(m_renderModules, inModule);
 	if(numErasedModules == 0)
 	{
-		throw_formatted<ModuleException>(
+		PH_LOG_WARNING(Application,
 			"unable to remove render module {} since it was not added",
 			inModule->getName());
+		return false;
 	}
 
-	detachModule(inModule);
+	return detachModule(inModule);
 }
 
-void Application::attachModule(AppModule* const targetModule)
+bool Application::attachModule(AppModule* const targetModule)
 {
 	if(!targetModule)
 	{
-		throw ModuleException(
+		PH_LOG_WARNING(Application,
 			"unable to attach an empty module");
+		return false;
 	}
 
 	if(m_isRunning || m_isClosing)
 	{
-		throw_formatted<ModuleException>(
+		PH_LOG_WARNING(Application,
 			"cannot attach {} module while the app is running or closing",
 			targetModule->getName());
+		return false;
 	}
 
 	ModuleAttachmentInfo info;
@@ -278,33 +290,59 @@ void Application::attachModule(AppModule* const targetModule)
 	info.editor            = &m_editor;
 	info.frameBufferSizePx = m_platform->getDisplay().getFrameBufferSizePx();
 
-	targetModule->onAttach(info);
+	try
+	{
+		targetModule->onAttach(info);
+	}
+	catch(const ModuleException& e)
+	{
+		PH_LOG_WARNING(Application,
+			"cannot attach {} module: {}",
+			targetModule->getName(), e.whatStr());
+		return false;
+	}
 
 	PH_LOG(Application,
 		"{} module attached",
 		targetModule->getName());
+
+	return true;
 }
 
-void Application::detachModule(AppModule* const targetModule)
+bool Application::detachModule(AppModule* const targetModule)
 {
 	if(!targetModule)
 	{
-		throw ModuleException(
+		PH_LOG_WARNING(Application,
 			"unable to detach an empty module");
+		return false;
 	}
 
 	if(m_isRunning || m_isClosing)
 	{
-		throw_formatted<ModuleException>(
+		PH_LOG_WARNING(Application,
 			"cannot detech {} module while the app is running or closing",
 			targetModule->getName());
+		return false;
 	}
 
-	targetModule->onDetach();
+	try
+	{
+		targetModule->onDetach();
+	}
+	catch(const ModuleException& e)
+	{
+		PH_LOG_WARNING(Application,
+			"cannot detach {} module: {}",
+			targetModule->getName(), e.whatStr());
+		return false;
+	}
 
 	PH_LOG(Application,
 		"{} module detached",
 		targetModule->getName());
+
+	return true;
 }
 
 //void Application::postModuleAttachedEvent(AppModule* const targetModule)
