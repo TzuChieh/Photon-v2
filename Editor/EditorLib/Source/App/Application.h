@@ -54,9 +54,10 @@ private:
 	void appMainLoop();
 	void appUpdate(const MainThreadUpdateContext& ctx);
 	void appRenderUpdate(const MainThreadRenderUpdateContext& ctx);
-	bool validateStatusForModuleAction(AppModule* targetModule, EAppModuleAction intent);
-	void postModuleAttachedEvent(AppModule* targetModule);
-	void postModuleDetachedEvent(AppModule* targetModule);
+	void attachModule(AppModule* targetModule);
+	void detachModule(AppModule* targetModule);
+	/*void postModuleAttachedEvent(AppModule* targetModule);
+	void postModuleDetachedEvent(AppModule* targetModule);*/
 
 	AppSettings                   m_settings;
 	Editor                        m_editor;

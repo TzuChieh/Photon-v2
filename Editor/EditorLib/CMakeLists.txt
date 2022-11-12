@@ -51,8 +51,10 @@ target_link_libraries(EditorLib
 
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 
-link_thirdparty_lib(EditorLib ${GLFW_LIB_NAME})
-link_thirdparty_lib(EditorLib ${GLAD_LIB_NAME})
+link_thirdparty_lib(EditorLib ${GLFW_LIB_NAME}
+	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_GLFW)
+link_thirdparty_lib(EditorLib ${GLAD_LIB_NAME}
+	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_GLAD)
 
 source_group(TREE ${EDITOR_LIB_DIR} FILES ${EDITOR_LIB_HEADER_FILES})
 source_group(TREE ${EDITOR_LIB_DIR} FILES ${EDITOR_LIB_SOURCE_FILES})

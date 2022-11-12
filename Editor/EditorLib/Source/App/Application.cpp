@@ -42,7 +42,7 @@ Application::Application(AppSettings settings)
 			m_shouldBreakMainLoop = true;
 		});
 
-	m_editor.onAppModuleAction.addListener(
+	/*m_editor.onAppModuleAction.addListener(
 		[this](const AppModuleActionEvent& e)
 		{
 			if(e.getAction() == EAppModuleAction::Attach)
@@ -58,7 +58,7 @@ Application::Application(AppSettings settings)
 			{
 				e.getTargetModule()->onDetach();
 			}
-		});
+		});*/
 }
 
 Application::~Application()
@@ -220,120 +220,117 @@ void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void Application::attachProcedureModule(ProcedureModule* const inModule)
 {
-	if(!validateStatusForModuleAction(inModule, EAppModuleAction::Attach))
-	{
-		return;
-	}
+	attachModule(inModule);
 
 	m_procedureModules.push_back(inModule);
-	postModuleAttachedEvent(inModule);
 }
 
 void Application::attachRenderModule(RenderModule* const inModule)
 {
-	if(!validateStatusForModuleAction(inModule, EAppModuleAction::Attach))
-	{
-		return;
-	}
+	attachModule(inModule);
 
 	m_renderModules.push_back(inModule);
-	postModuleAttachedEvent(inModule);
 }
 
 void Application::detachProcedureModule(ProcedureModule* const inModule)
 {
-	if(!validateStatusForModuleAction(inModule, EAppModuleAction::Detach))
-	{
-		return;
-	}
-
 	const auto numErasedModules = std::erase(m_procedureModules, inModule);
 	if(numErasedModules == 0)
 	{
-		PH_LOG_WARNING(Application, 
-			"unable to detach procedure module {} since it was not attached",
+		throw_formatted<ModuleException>(
+			"unable to remove procedure module {} since it was not added",
 			inModule->getName());
-		return;
 	}
 
-	postModuleDetachedEvent(inModule);
+	detachModule(inModule);
 }
 
 void Application::detachRenderModule(RenderModule* const inModule)
 {
-	if(!validateStatusForModuleAction(inModule, EAppModuleAction::Detach))
-	{
-		return;
-	}
-
 	const auto numErasedModules = std::erase(m_renderModules, inModule);
 	if(numErasedModules == 0)
 	{
-		PH_LOG_WARNING(Application,
-			"unable to detach render module {} since it was not attached",
+		throw_formatted<ModuleException>(
+			"unable to remove render module {} since it was not added",
 			inModule->getName());
-		return;
 	}
 
-	postModuleDetachedEvent(inModule);
+	detachModule(inModule);
 }
 
-bool Application::validateStatusForModuleAction(AppModule* const targetModule, const EAppModuleAction intent)
+void Application::attachModule(AppModule* const targetModule)
 {
 	if(!targetModule)
 	{
-		PH_LOG_WARNING(Application, "unable perform actions on an empty module");
-		return false;
+		throw ModuleException(
+			"unable to attach an empty module");
 	}
 
-	if(intent == EAppModuleAction::Attach)
+	if(m_isRunning || m_isClosing)
 	{
-		if(m_isRunning || m_isClosing)
-		{
-			PH_LOG_WARNING(Application, 
-				"cannot attach {} module while the app is running or closing", 
-				targetModule->getName());
-			return false;
-		}
-	}
-	else if(intent == EAppModuleAction::Detach)
-	{
-		if(m_isRunning)
-		{
-			PH_LOG_WARNING(Application,
-				"cannot detech {} module while the app is running",
-				targetModule->getName());
-			return false;
-		}
+		throw_formatted<ModuleException>(
+			"cannot attach {} module while the app is running or closing",
+			targetModule->getName());
 	}
 
-	return true;
-}
+	ModuleAttachmentInfo info;
+	info.platform          = m_platform.get();
+	info.editor            = &m_editor;
+	info.frameBufferSizePx = m_platform->getDisplay().getFrameBufferSizePx();
 
-void Application::postModuleAttachedEvent(AppModule* const targetModule)
-{
-	PH_ASSERT(targetModule);
-
-	m_editor.postEvent(
-		AppModuleActionEvent(EAppModuleAction::Attach, targetModule),
-		m_editor.onAppModuleAction);
+	targetModule->onAttach(info);
 
 	PH_LOG(Application,
 		"{} module attached",
 		targetModule->getName());
 }
 
-void Application::postModuleDetachedEvent(AppModule* const targetModule)
+void Application::detachModule(AppModule* const targetModule)
 {
-	PH_ASSERT(targetModule);
+	if(!targetModule)
+	{
+		throw ModuleException(
+			"unable to detach an empty module");
+	}
 
-	m_editor.postEvent(
-		AppModuleActionEvent(EAppModuleAction::Detach, targetModule),
-		m_editor.onAppModuleAction);
+	if(m_isRunning || m_isClosing)
+	{
+		throw_formatted<ModuleException>(
+			"cannot detech {} module while the app is running or closing",
+			targetModule->getName());
+	}
+
+	targetModule->onDetach();
 
 	PH_LOG(Application,
 		"{} module detached",
 		targetModule->getName());
 }
+
+//void Application::postModuleAttachedEvent(AppModule* const targetModule)
+//{
+//	PH_ASSERT(targetModule);
+//
+//	m_editor.postEvent(
+//		AppModuleActionEvent(EAppModuleAction::Attach, targetModule),
+//		m_editor.onAppModuleAction);
+//
+//	PH_LOG(Application,
+//		"{} module attached",
+//		targetModule->getName());
+//}
+//
+//void Application::postModuleDetachedEvent(AppModule* const targetModule)
+//{
+//	PH_ASSERT(targetModule);
+//
+//	m_editor.postEvent(
+//		AppModuleActionEvent(EAppModuleAction::Detach, targetModule),
+//		m_editor.onAppModuleAction);
+//
+//	PH_LOG(Application,
+//		"{} module detached",
+//		targetModule->getName());
+//}
 
 }// end namespace ph::editor

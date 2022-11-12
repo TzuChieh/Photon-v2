@@ -42,7 +42,8 @@ private:
 	References: 
 	[1] Add a helper to simplify and optimize backing up the render frame
 	    https://github.com/ocornut/imgui/pull/2433
-	[2] https://twitter.com/ocornut/status/973093439666520064
+	[2] You only need the ImDrawData struct for rendering
+	    https://twitter.com/ocornut/status/973093439666520064
 	[3] https://twitter.com/ocornut/status/975096904446021633
 	*/
 	std::array<ImguiRenderData, config::NUM_RENDER_THREAD_BUFFERED_FRAMES> m_imguiRenderDataBuffer;

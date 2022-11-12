@@ -2,8 +2,7 @@
 #include "App/Module/ModuleAttachmentInfo.h"
 #include "App/Editor.h"
 #include "App/Module/MainThreadRenderUpdateContext.h"
-
-#include <ThirdParty/DearImGui.h>
+#include "ThirdParty/DearImGui.h"
 
 namespace ph::editor
 {
@@ -24,7 +23,7 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 
 void ImguiRenderModule::onDetach()
 {
-	// TODO
+    terminateImgui();
 }
 
 void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
@@ -61,6 +60,10 @@ void ImguiRenderModule::initializeImgui()
     //    style.WindowRounding = 0.0f;
     //    style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     //}
+
+    //// Setup Platform/Renderer backends
+    //ImGui_ImplGlfw_InitForOpenGL(window, true);
+    //ImGui_ImplOpenGL3_Init("version 460");
 }
 
 void ImguiRenderModule::terminateImgui()

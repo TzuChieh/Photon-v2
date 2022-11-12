@@ -1,4 +1,10 @@
-# TODO: allow to specify link scope
+# 
+# @param targetName Target to link against the third-party library.
+# @param libName The third-party library to link.
+# @param DETECTING_PREPROCESSOR [1-arg] Name of the preprocessor macro to define.
+# Defined to 1 if library is linked, otherwise defined to 0. Note that there should 
+# be no space in the name of the preprocessor macro.
+#
 function(link_thirdparty_lib targetName libName)
     set(OPTIONS 
         OPTIONAL
@@ -6,18 +12,13 @@ function(link_thirdparty_lib targetName libName)
         PRIVATE
         INTERFACE)
 
-    set(ONE_VALUE_ARGS)
+    set(ONE_VALUE_ARGS
+        DETECTING_PREPROCESSOR)
+
     set(MULTI_VALUE_ARGS)
+
     cmake_parse_arguments(ARG "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
     
-    if(NOT ${libName}_LOADED)
-        if(NOT ARG_OPTIONAL)
-            message(FATAL_ERROR 
-                "Cannot link ${targetName} against ${libName}, please make sure load_thirdparty_lib() is correctly invoked.")
-        endif()
-        return()
-    endif()
-
     if(ARG_PUBLIC)
         set(LIB_ACCESSIBILITY "PUBLIC")
     elseif(ARG_PRIVATE)
@@ -27,6 +28,23 @@ function(link_thirdparty_lib targetName libName)
     else()
         # `PRIVATE` by default
         set(LIB_ACCESSIBILITY "PRIVATE")
+    endif()
+
+    # Optionally define a preprocessor macro for detecting the library
+    if(ARG_DETECTING_PREPROCESSOR)
+        if(${libName}_LOADED)
+            target_compile_definitions(${targetName} ${LIB_ACCESSIBILITY} ${ARG_DETECTING_PREPROCESSOR}=1)
+        else()
+            target_compile_definitions(${targetName} ${LIB_ACCESSIBILITY} ${ARG_DETECTING_PREPROCESSOR}=0)
+        endif()
+    endif()
+
+    if(NOT ${libName}_LOADED)
+        if(NOT ARG_OPTIONAL)
+            message(FATAL_ERROR 
+                "Cannot link ${targetName} against ${libName}, please make sure load_thirdparty_lib() is correctly invoked.")
+        endif()
+        return()
     endif()
 
     if(${${libName}_LOAD_MODE} STREQUAL "VARS")

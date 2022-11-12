@@ -9,8 +9,9 @@ class AppModule;
 
 enum class EAppModuleAction
 {
-	Attach,
-	Detach
+	// FIXME: no longer can attach & detach during app running
+	/*Attach,
+	Detach*/
 
 	// TODO: possibly paused, crashed, etc
 };

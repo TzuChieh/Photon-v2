@@ -1,11 +1,19 @@
 #pragma once
 
+#include <Utility/exception.h>
+
 #include <string>
 
 namespace ph::editor
 {
 
 class ModuleAttachmentInfo;
+
+class ModuleException : public RuntimeException
+{
+public:
+	using RuntimeException::RuntimeException;
+};
 
 class AppModule
 {
