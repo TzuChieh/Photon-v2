@@ -48,7 +48,8 @@ Application::Application(AppSettings settings)
 			if(e.getAction() == EAppModuleAction::Attach)
 			{
 				ModuleAttachmentInfo info;
-				info.editor = &m_editor;
+				info.platform          = m_platform.get();
+				info.editor            = &m_editor;
 				info.frameBufferSizePx = m_platform->getDisplay().getFrameBufferSizePx();
 
 				e.getTargetModule()->onAttach(info);
@@ -58,11 +59,6 @@ Application::Application(AppSettings settings)
 				e.getTargetModule()->onDetach();
 			}
 		});
-
-	Threads::setRenderThreadID(m_renderThread.getWorkerThreadId());
-	m_renderThread.startWorker();
-
-	initialRenderThreadUpdate();
 }
 
 Application::~Application()
@@ -72,21 +68,15 @@ Application::~Application()
 
 void Application::run()
 {
+	// Thread ID set before starting the thread to make its memory effect visible on render thread.
+	Threads::setRenderThreadID(m_renderThread.getWorkerThreadId());
+	m_renderThread.startWorker();
+
+	initialRenderThreadUpdate();
+
 	m_isRunning = true;
-
 	appMainLoop();
-	close();
-}
-
-void Application::close()
-{
-	if(m_isClosing)
-	{
-		return;
-	}
-
 	m_isRunning = false;
-	m_isClosing = true;
 
 	// Request to stop the render thread
 	m_renderThread.beginFrame();
@@ -96,6 +86,26 @@ void Application::close()
 	// Wait for render thread to actually stop
 	m_renderThread.waitForWorkerToStop();
 	Threads::setRenderThreadID(std::thread::id());
+}
+
+void Application::close()
+{
+	if(m_isClosing)
+	{
+		return;
+	}
+
+	m_isClosing = true;
+
+	if(!m_procedureModules.empty() || !m_renderModules.empty())
+	{
+		PH_LOG_WARNING(Application,
+			"some modules are not detatched upon closing: "
+			"{} procedure modules, "
+			"{} render modules",
+			m_procedureModules.size(),
+			m_renderModules.size());
+	}
 
 	m_platform = nullptr;
 }

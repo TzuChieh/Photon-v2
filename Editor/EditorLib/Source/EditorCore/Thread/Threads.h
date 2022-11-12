@@ -11,7 +11,10 @@ namespace ph::editor
 class Threads final : private IUninstantiable
 {
 public:
+	/*! @brief Whether current thread is the thread that called `main()`.
+	*/
 	static bool isOnMainThread();
+
 	static bool isOnRenderThread();
 
 private:
@@ -27,6 +30,7 @@ private:
 
 inline bool Threads::isOnMainThread()
 {
+	// Generally should not happen. Except being called outside the editor's domain which should be avoided.
 	PH_ASSERT(mainThreadID != std::thread::id());
 
 	return std::this_thread::get_id() == mainThreadID;
@@ -34,6 +38,8 @@ inline bool Threads::isOnMainThread()
 
 inline bool Threads::isOnRenderThread()
 {
+	// May fail if called before the render thread has been properly initialized. This can happen if
+	// some routine is attempting to use rendering functionalities before the application starts running.
 	PH_ASSERT(renderThreadID != std::thread::id());
 
 	return std::this_thread::get_id() == renderThreadID;

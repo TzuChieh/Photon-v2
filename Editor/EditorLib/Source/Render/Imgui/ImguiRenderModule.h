@@ -2,6 +2,8 @@
 
 #include "App/Module/RenderModule.h"
 
+#include <Math/TVector2.h>
+
 namespace ph::editor
 {
 
@@ -14,6 +16,11 @@ public:
 	void renderUpdate(const MainThreadRenderUpdateContext& ctx) override;
 
 private:
+	void initializeImgui();
+	void terminateImgui();
+	void setFrameBufferSizePx(const math::Vector2S& sizePx);
+
+	math::TVector2<uint32> m_frameBufferSizePx;
 };
 
 inline std::string ImguiRenderModule::getName() const

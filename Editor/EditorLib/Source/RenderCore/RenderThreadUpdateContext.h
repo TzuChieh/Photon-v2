@@ -8,7 +8,12 @@ namespace ph::editor
 class RenderThreadUpdateContext final
 {
 public:
-	std::size_t frameNumber     = 0;
+	/*! @brief Current frame number on the render thread.
+	*/
+	std::size_t frameNumber = 0;
+
+	/*! @brief Current cycle index on the render thread.
+	*/
 	std::size_t frameCycleIndex = 0;
 };
 

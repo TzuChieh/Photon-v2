@@ -32,6 +32,9 @@ public:
 	template<typename U>
 	explicit TVector2(const TVector2<U>& other);
 
+	template<typename U>
+	TVector2<U> safeCast() const;
+
 	T& x();
 	T& y();
 	const T& x() const;

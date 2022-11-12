@@ -2,8 +2,7 @@
 
 #include "RenderCore/CustomRenderContent.h"
 #include "editor_lib_config.h"
-
-#include <imgui.h>
+#include "ThirdParty/DearImGui.h"
 
 #include <array>
 #include <cstddef>
@@ -20,7 +19,7 @@ public:
 	void update(const RenderThreadUpdateContext& ctx) override;
 	void createGHICommands(GHIThreadCaller& caller) override;
 
-	void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t frameCycleIndex);
+	void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t mainThreadFrameCycleIndex);
 
 private:
 	// All data required by IMGUI to render a frame.

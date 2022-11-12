@@ -40,11 +40,6 @@ void GlfwPlatform::update(const float64 deltaS)
 	m_input.poll(deltaS);
 }
 
-bool GlfwPlatform::isInitialized() const
-{
-	return isGlfwWindowInitialized();
-}
-
 void GlfwPlatform::initialize(const AppSettings& settings)
 {
 	glfwSetErrorCallback(glfw_error_callback);

@@ -15,8 +15,8 @@ public:
 
 	virtual void update(const MainThreadUpdateContext& ctx) = 0;
 
-	void onAttach(const ModuleAttachmentInfo& info) override;
-	void onDetach() override;
+	void onAttach(const ModuleAttachmentInfo& info) override = 0;
+	void onDetach() override = 0;
 
 private:
 };

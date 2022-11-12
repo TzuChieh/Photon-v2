@@ -2,6 +2,8 @@
 #include "imgui_main.h"
 #include "EditorCore/Program.h"
 #include "App/Application.h"
+#include "Procedure/TestProcedureModule.h"
+#include "Render/Imgui/ImguiRenderModule.h"
 
 #include <cstdlib>
 
@@ -15,7 +17,18 @@ int application_entry_point(int argc, char* argv[])
 	// App should not outlive program
 	{
 		Application app(AppSettings(argc, argv));
+
+		TestProcedureModule testModule;
+		ImguiRenderModule imguiModule;
+		app.attachProcedureModule(&testModule);
+		app.attachRenderModule(&imguiModule);
+
 		app.run();
+
+		app.detachProcedureModule(&testModule);
+		app.detachRenderModule(&imguiModule);
+
+		app.close();
 	}
 
 	Program::onProgramExit();

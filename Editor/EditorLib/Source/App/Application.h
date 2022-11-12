@@ -29,21 +29,27 @@ public:
 	~Application();
 
 	/*! @brief Run the application.
-	This call will block until the application is closed.
+	This call will block until the application is going to be closed.
 	*/
 	void run();
 
-	void attachProcedureModule(ProcedureModule* inModule);
-	void attachRenderModule(RenderModule* inModule);
-	void detachProcedureModule(ProcedureModule* inModule);
-	void detachRenderModule(RenderModule* inModule);
-
-private:
 	/*! @brief Close the application.
 	Closing an already-closed application has no effect.
 	*/
 	void close();
 
+	/*!
+	Modules can only be attached before the application starts running, and detached only after the
+	application finishes running.
+	*/
+	///@{
+	void attachProcedureModule(ProcedureModule* inModule);
+	void attachRenderModule(RenderModule* inModule);
+	void detachProcedureModule(ProcedureModule* inModule);
+	void detachRenderModule(RenderModule* inModule);
+	///@}
+
+private:
 	void initialRenderThreadUpdate();
 	void appMainLoop();
 	void appUpdate(const MainThreadUpdateContext& ctx);

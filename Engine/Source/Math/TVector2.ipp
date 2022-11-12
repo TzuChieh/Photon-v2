@@ -3,6 +3,7 @@
 #include "Math/TVector2.h"
 #include "Math/math.h"
 #include "Common/assertion.h"
+#include "Utility/utility.h"
 
 #include <cmath>
 #include <algorithm>
@@ -22,6 +23,15 @@ template<typename U>
 inline TVector2<T>::TVector2(const TVector2<U>& other) : 
 	TVector2(static_cast<T>(other[0]), static_cast<T>(other[1]))
 {}
+
+template<typename T>
+template<typename U>
+inline TVector2<U> TVector2<T>::safeCast() const
+{
+	return TVector2<U>(
+		safe_number_cast<U>(m[0]),
+		safe_number_cast<U>(m[1]));
+}
 
 template<typename T>
 inline T& TVector2<T>::x()

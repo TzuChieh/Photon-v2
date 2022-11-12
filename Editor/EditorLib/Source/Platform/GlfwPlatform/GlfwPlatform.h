@@ -22,7 +22,6 @@ public:
 	void update(float64 deltaS) override;
 	const PlatformInput& getInput() const override;
 	const PlatformDisplay& getDisplay() const override;
-	bool isInitialized() const override;
 
 	bool isGlfwWindowInitialized() const;
 

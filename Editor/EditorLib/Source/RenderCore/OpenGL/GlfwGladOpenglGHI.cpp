@@ -128,7 +128,7 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
 	}
 }
 
-}
+}// end extern "C"
 
 namespace ph::editor
 {

@@ -21,6 +21,8 @@ public:
 	GHI* getGHI() const override;
 	math::Vector2S getSizePx() const override;
 	math::Vector2S getFrameBufferSizePx() const override;
+	NativeWindow getNativeWindow() const override;
+	EGraphicsAPI getGraphicsAPIType() const override;
 
 	void initialize(
 		Editor&            editor,
@@ -36,13 +38,9 @@ public:
 private:
 	GLFWwindow*          m_glfwWindow; 
 	std::unique_ptr<GHI> m_ghi;
+	EGraphicsAPI         m_apiType;
 	math::Vector2S       m_sizePx;
 };
-
-inline GHI* GlfwDisplay::getGHI() const
-{
-	return m_ghi.get();
-}
 
 inline math::Vector2S GlfwDisplay::getSizePx() const
 {

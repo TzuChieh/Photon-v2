@@ -5,6 +5,7 @@
 #include "App/Editor.h"
 #include "EditorCore/Event/FrameBufferResizeEvent.h"
 #include "EditorCore/Event/DisplayCloseEvent.h"
+#include "EditorCore/Thread/Threads.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
@@ -19,6 +20,7 @@ GlfwDisplay::GlfwDisplay()
 	: PlatformDisplay()
 	, m_glfwWindow(nullptr)
 	, m_ghi(nullptr)
+	, m_apiType(EGraphicsAPI::Unknown)
 	, m_sizePx(0, 0)
 {}
 
@@ -78,6 +80,9 @@ void GlfwDisplay::initialize(
 
 	glfwSetWindowUserPointer(m_glfwWindow, &editor);
 
+	// Note that although GLFW window is now successfully created, this does not mean the context 
+	// is already current on main thread. We leave it to GHI to decide.
+
 	glfwSetFramebufferSizeCallback(m_glfwWindow, 
 		[](GLFWwindow* window, int width, int height)
 		{
@@ -112,20 +117,35 @@ void GlfwDisplay::terminate()
 	glfwSetFramebufferSizeCallback(m_glfwWindow, nullptr);
 
 	PH_ASSERT(m_ghi);
+	
+	// If this fails, most likely GHI was not unloaded; otherwise, the context must be set incorrectly 
+	// by someone. 
+	PH_ASSERT(!glfwGetCurrentContext());
 
-	// TODO: ensure rendering stopped
-	// TODO: cleanup GHI
-	// TODO: make context current on this thread
-
-	// As GLFW doc notes, the context of the specified window must not be current on any other thread when
-	// this function is called. In our case, GHI must be cleaned up and make the context current on main
-	// thread again.
+	// Destroys the GLFW window. As GLFW doc notes, the context of the specified window must not be 
+	// current on any other thread when `glfwDestroyWindow()` is called. In our case, GHI must have 
+	// been unloaded by other routines.
 	glfwDestroyWindow(m_glfwWindow);
+}
+
+GHI* GlfwDisplay::getGHI() const
+{
+	PH_ASSERT(m_ghi);
+	return m_ghi.get();
+}
+
+EGraphicsAPI GlfwDisplay::getGraphicsAPIType() const
+{
+	PH_ASSERT(m_apiType != EGraphicsAPI::Unknown);
+	return m_apiType;
 }
 
 math::Vector2S GlfwDisplay::getFrameBufferSizePx() const
 {
 	PH_ASSERT(m_glfwWindow);
+
+	// The precondition required by `glfwGetFramebufferSize()`
+	PH_ASSERT(Threads::isOnMainThread());
 
 	int width, height;
 	glfwGetFramebufferSize(m_glfwWindow, &width, &height);
@@ -133,6 +153,12 @@ math::Vector2S GlfwDisplay::getFrameBufferSizePx() const
 	return math::Vector2S(
 		safe_number_cast<std::size_t>(width),
 		safe_number_cast<std::size_t>(height));
+}
+
+GlfwDisplay::NativeWindow GlfwDisplay::getNativeWindow() const
+{
+	PH_ASSERT(m_glfwWindow);
+	return m_glfwWindow;
 }
 
 }// end namespace ph::editor

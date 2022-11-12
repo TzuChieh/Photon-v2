@@ -18,7 +18,8 @@ public:
 };
 
 /*! @brief Platform abstraction.
-A editor platform abstraction layer that handles update and render operations.
+An abstraction layer for the underlying hardware the application is running on. For example, input and 
+render operations are handled here.
 @exception PlatformException When error occurred and the platform must terminate its operations.
 @note This is a RAII resource.
 */
@@ -31,7 +32,6 @@ public:
 	virtual void update(float64 deltaS) = 0;
 	virtual const PlatformInput& getInput() const = 0;
 	virtual const PlatformDisplay& getDisplay() const = 0;
-	virtual bool isInitialized() const = 0;
 
 	Editor& getEditor();
 	const Editor& getEditor() const;

@@ -26,9 +26,9 @@ void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 
 void ImguiRenderContent::copyNewDrawDataFromMainThread(
 	const ImDrawData& srcDrawData,
-	const std::size_t frameCycleIndex)
+	const std::size_t mainThreadFrameCycleIndex)
 {
-	ImguiRenderData& dstImguiRenderData = m_imguiRenderDataBuffer[frameCycleIndex];
+	ImguiRenderData& dstImguiRenderData = m_imguiRenderDataBuffer[mainThreadFrameCycleIndex];
 	dstImguiRenderData.copyFrom(srcDrawData);
 }
 

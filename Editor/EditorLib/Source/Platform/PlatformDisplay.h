@@ -1,8 +1,13 @@
 #pragma once
 
+#include "RenderCore/EGraphicsAPI.h"
+#include "ThirdParty/GLFW3_fwd.h"
+
 #include <Utility/INoCopyAndMove.h>
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>
+
+#include <variant>
 
 namespace ph::editor
 {
@@ -25,6 +30,13 @@ public:
 	virtual GHI* getGHI() const = 0;
 	virtual math::Vector2S getSizePx() const = 0;
 	virtual math::Vector2S getFrameBufferSizePx() const = 0;
+	virtual EGraphicsAPI getGraphicsAPIType() const = 0;
+
+	using NativeWindow = std::variant<
+		std::monostate,
+		GLFWwindow*>;
+
+	virtual NativeWindow getNativeWindow() const;
 };
 
 }// end namespace ph::editor
