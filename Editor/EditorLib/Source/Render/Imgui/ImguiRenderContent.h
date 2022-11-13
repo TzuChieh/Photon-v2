@@ -4,6 +4,8 @@
 #include "editor_lib_config.h"
 #include "ThirdParty/DearImGui.h"
 
+#include <Utility/Concurrent/TSPSCCircularBuffer.h>
+
 #include <array>
 #include <cstddef>
 #include <vector>
@@ -50,6 +52,7 @@ private:
 	[3] https://twitter.com/ocornut/status/975096904446021633
 	*/
 	std::array<ImguiRenderData, config::NUM_RENDER_THREAD_BUFFERED_FRAMES> m_imguiRenderDataBuffer;
+	TSPSCCircularBuffer<ImguiRenderData, config::NUM_RENDER_THREAD_BUFFERED_FRAMES> m_test;
 
 	std::size_t m_currentFrameCycleIndex;
 };

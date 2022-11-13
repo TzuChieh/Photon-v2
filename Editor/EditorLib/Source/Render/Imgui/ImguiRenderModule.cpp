@@ -78,10 +78,17 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    bool shouldShow = true;
+    ImGui::ShowDemoWindow(&shouldShow);
+
 	// TODO: UI
 
     // Rendering
     ImGui::Render();
+
+    ImDrawData* const drawData = ImGui::GetDrawData();
+    PH_ASSERT(drawData);
+    m_renderContent->copyNewDrawDataFromMainThread(*drawData, m_currentFrameCycleIndex);
 
     m_currentFrameCycleIndex = ctx.frameCycleIndex;
 }
@@ -99,9 +106,7 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
         m_isRenderContentAdded = true;
     }
 
-    ImDrawData* const drawData = ImGui::GetDrawData();
-    PH_ASSERT(drawData);
-    m_renderContent->copyNewDrawDataFromMainThread(*drawData, m_currentFrameCycleIndex);
+    
 
     // TODO: remove content before detach
 }
@@ -127,12 +132,15 @@ void ImguiRenderModule::initializeImgui()
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;// Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
 
-    // We do not support support viewports, its frame update functions require changing the current 
+    // We do not support viewports, its frame update functions require changing the current 
     // OpenGL context
     //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
     
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
+
+    // Load Fonts
+    //io.Fonts->AddFontDefault();
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -149,6 +157,20 @@ void ImguiRenderModule::initializeImgui()
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
     ImGui_ImplOpenGL3_Init("version 460");
+    ImGui_ImplOpenGL3_Init();
+
+    // DEBUG
+    {
+        // dummy run to init font
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // do nothing
+
+        ImGui::Render();
+    }
 
     // Ensure we do not change the original context
     glfwMakeContextCurrent(backupCurrentCtx);

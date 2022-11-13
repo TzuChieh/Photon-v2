@@ -14,6 +14,7 @@ namespace ph::editor
 ImguiRenderContent::ImguiRenderContent()
 	: CustomRenderContent(ERenderTiming::AfterMainScene)
 	, m_imguiRenderDataBuffer()
+	, m_test()
 	, m_currentFrameCycleIndex(0)
 {}
 
@@ -24,7 +25,16 @@ void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 
 void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 {
+	// TODO: flag to check if gui data was actually copied, otherwise beginConsume() may block GHI?
+	caller.add(
+		[this](GHI& ghi)
+		{
+			m_test.beginConsume();
 
+			// TODO
+
+			m_test.endConsume();
+		});
 
 	// TODO: get cycle index and use that to submit ghi call
 }
@@ -35,8 +45,17 @@ void ImguiRenderContent::copyNewDrawDataFromMainThread(
 {
 	PH_ASSERT(Threads::isOnMainThread());
 
-	ImguiRenderData& dstImguiRenderData = m_imguiRenderDataBuffer[mainThreadFrameCycleIndex];
+	//ImguiRenderData& dstImguiRenderData = m_imguiRenderDataBuffer[mainThreadFrameCycleIndex];
+	//dstImguiRenderData.copyFrom(srcDrawData);
+
+	m_test.beginProduce();
+	ImguiRenderData& dstImguiRenderData = m_test.getBufferForProducer();
 	dstImguiRenderData.copyFrom(srcDrawData);
+	m_test.endProduce();
+	
+
+
+	
 }
 
 void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData)
@@ -81,9 +100,9 @@ void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData
 		// allocate for all data, which is hugely inefficient.
 
 		// Pre-allocate buffer to the same size (`ImVector::resize()` will grow only)
-		dstDrawList.CmdBuffer.reserve(srcDrawList.CmdBuffer.size());
-		dstDrawList.IdxBuffer.reserve(srcDrawList.IdxBuffer.size());
-		dstDrawList.VtxBuffer.reserve(srcDrawList.VtxBuffer.size());
+		dstDrawList.CmdBuffer.resize(srcDrawList.CmdBuffer.size());
+		dstDrawList.IdxBuffer.resize(srcDrawList.IdxBuffer.size());
+		dstDrawList.VtxBuffer.resize(srcDrawList.VtxBuffer.size());
 
 		std::copy(
 			srcDrawList.CmdBuffer.Data, 
