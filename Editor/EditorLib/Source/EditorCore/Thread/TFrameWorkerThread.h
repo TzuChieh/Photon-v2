@@ -6,14 +6,12 @@
 #include <Utility/Concurrent/TAtomicQueue.h>
 #include <Common/config.h>
 #include <Common/assertion.h>
-#include <Math/math.h>
 #include <Common/logging.h>
 #include <Utility/Concurrent/InitiallyPausedThread.h>
+#include <Utility/Concurrent/TSPSCCircularBuffer.h>
 
-#include <array>
 #include <cstddef>
 #include <thread>
-#include <condition_variable>
 #include <atomic>
 #include <mutex>
 #include <utility>
@@ -88,10 +86,8 @@ private:
 		TAtomicQueue<Work>  anyThreadWorkQueue;
 		MemoryArena         workQueueMemory;
 		mutable std::mutex  memoryMutex;
-		std::atomic_flag    isSealedForProcessing;
 #ifdef PH_DEBUG
 		std::atomic_int32_t numAnyThreadWorks;
-		bool                isBetweenFrameBeginAndEnd;
 #endif
 
 		inline Frame()
@@ -99,10 +95,8 @@ private:
 			, anyThreadWorkQueue       ()
 			, workQueueMemory          ()
 			, memoryMutex              ()
-			, isSealedForProcessing    ()
 #ifdef PH_DEBUG
 			, numAnyThreadWorks        (0)
-			, isBetweenFrameBeginAndEnd(false)
 #endif
 		{}
 	};
@@ -139,8 +133,6 @@ public:
 		: m_thread              ()
 		, m_frames              ()
 		, m_isStopRequested     (false)
-		, m_workProducerWorkHead(0)
-		, m_workConsumerWorkHead(0)
 		, m_frameNumber         (0)
 #ifdef PH_DEBUG
 		, m_parentThreadId      ()
@@ -203,7 +195,7 @@ public:
 	*/
 	inline void startWorker()
 	{
-		PH_ASSERT(!getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+		PH_ASSERT(!m_frames.isProducing());
 
 		// The worker thread must not be already initiated. If this assertion fails, it is likely
 		// that `startWorker()` is called more than once.
@@ -224,19 +216,15 @@ public:
 		PH_ASSERT(hasWorkerStarted());
 
 		// Wait until current frame is available for adding works
-		Frame& currentFrame = getCurrentProducerFrame();
-		currentFrame.isSealedForProcessing.wait(true, std::memory_order_acquire);
+		m_frames.beginProduce();
+		Frame& currentFrame = m_frames.getBufferForProducer();
 
 		//--------------------------------------------------------------------//
-		// vvvvv   Works can now be added after the acquire operation   vvvvv //
+		// vvvvv   Works can now be added after the begin produce call  vvvvv //
 		//--------------------------------------------------------------------//
 		
 		// Must be empty (already cleared by worker)
 		PH_ASSERT_EQ(currentFrame.numAnyThreadWorks.load(std::memory_order_relaxed), 0);
-
-#ifdef PH_DEBUG
-		getCurrentProducerFrame().isBetweenFrameBeginAndEnd = true;
-#endif
 
 		onBeginFrame();
 	}
@@ -252,23 +240,13 @@ public:
 
 		onEndFrame();
 
-#ifdef PH_DEBUG
-		getCurrentProducerFrame().isBetweenFrameBeginAndEnd = false;
-#endif
-
 		// Mark that current frame is now filled and is ready for processing
-		Frame& currentFrame = getCurrentProducerFrame();
-		const bool hasAlreadySealed = currentFrame.isSealedForProcessing.test_and_set(std::memory_order_release);
-		PH_ASSERT(!hasAlreadySealed);
+		m_frames.endProduce();
 
 		//--------------------------------------------------------------------------//
-		// ^^^^^   Works can no longer be added after the release operation   ^^^^^ //
+		// ^^^^^   Works can no longer be added after the end produce call    ^^^^^ //
 		//--------------------------------------------------------------------------//
 
-		// Notify the potentially waiting worker so it can start processing this frame
-		currentFrame.isSealedForProcessing.notify_one();
-
-		advanceCurrentProducerFrame();
 		++m_frameNumber;
 	}
 
@@ -308,10 +286,10 @@ public:
 	*/
 	inline void addWork(Work work)
 	{
-		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
 		PH_ASSERT(work.isValid());
+		PH_ASSERT(m_frames.isProducing());
 
-		Frame& currentFrame = getCurrentProducerFrame();
+		Frame& currentFrame = m_frames.getBufferForProducer();
 		if(isParentThread())
 		{
 			currentFrame.parentThreadWorkQueue.push_back(std::move(work));
@@ -339,7 +317,7 @@ public:
 
 		// Ensures that `endFrame()` will be called later, which guarantees that the stop condition
 		// will be checked (in case of the worker was already waiting, `endFrame()` will unwait it)
-		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+		PH_ASSERT(m_frames.isProducing());
 
 		m_isStopRequested.store(true, std::memory_order_relaxed);
 	}
@@ -360,7 +338,7 @@ public:
 	inline void waitForWorkerToStop()
 	{
 		PH_ASSERT(isParentThread());
-		PH_ASSERT(!getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+		PH_ASSERT(!m_frames.isProducing());
 		PH_ASSERT(isStopRequested());
 		PH_ASSERT(hasWorkerStarted());
 
@@ -387,19 +365,20 @@ public:
 	}
 
 	/*!
+	Get information about current frame. Can only be called between `beginFrame()` and `endFrame()`.
 	@note Producer threads only.
 	*/
 	inline FrameInfo getFrameInfo(const bool shouldIncludeDetails = false) const
 	{
 		// For all producer threads, it is only safe to access between being/end frame.
 		PH_ASSERT(!isWorkerThread());
-		PH_ASSERT(getCurrentProducerFrame().isBetweenFrameBeginAndEnd);
+		PH_ASSERT(m_frames.isProducing());
 
-		const Frame& currentFrame = getCurrentProducerFrame();
+		const Frame& currentFrame = m_frames.getBufferForProducer();
 
 		FrameInfo info;
 		info.frameNumber     = getFrameNumber();
-		info.frameCycleIndex = m_workProducerWorkHead;
+		info.frameCycleIndex = m_frames.getProduceHead();
 		info.numParentWorks  = currentFrame.parentThreadWorkQueue.size();
 
 		if(shouldIncludeDetails)
@@ -433,11 +412,11 @@ private:
 		do
 		{
 			// Wait until being notified there is new frame that can be processed
-			Frame& currentFrame = getCurrentConsumerFrame();
-			currentFrame.isSealedForProcessing.wait(false, std::memory_order_acquire);
+			m_frames.beginConsume();
+			Frame& currentFrame = m_frames.getBufferForConsumer();
 
 			//------------------------------------------------------------------------//
-			// vvvvv   Works can now be processed after the acquire operation   vvvvv //
+			// vvvvv   Works can now be processed after the begin consume call  vvvvv //
 			//------------------------------------------------------------------------//
 
 			// Process works added from parent thread
@@ -481,15 +460,12 @@ private:
 			currentFrame.workQueueMemory.clear();
 
 			//------------------------------------------------------------------------------//
-			// ^^^^^   Works can no longer be processed after the release operation   ^^^^^ //
+			// ^^^^^   Works can no longer be processed after the end consume call    ^^^^^ //
 			//------------------------------------------------------------------------------//
 
-			currentFrame.isSealedForProcessing.clear(std::memory_order_release);
+			// Mark that current frame is now processed and is ready for producer again
+			m_frames.endConsume();
 
-			// Notify the potentially waiting producer (parent thread) so it can start adding work
-			currentFrame.isSealedForProcessing.notify_one();
-
-			advanceCurrentConsumerFrame();
 		} while(!isStopRequested());
 
 		onAsyncWorkerStop();
@@ -533,62 +509,10 @@ private:
 
 		// Since it is possible that multiple threads are concurrently storing oversized functor,
 		// we simply lock the arena since such operation is thread-unsafe
-		std::lock_guard<std::mutex> lock(getCurrentProducerFrame().memoryMutex);
+		std::lock_guard<std::mutex> lock(m_frames.getBufferForProducer().memoryMutex);
 
-		MemoryArena& currentArena = getCurrentProducerFrame().workQueueMemory;
+		MemoryArena& currentArena = m_frames.getBufferForProducer().workQueueMemory;
 		return currentArena.make<std::remove_reference_t<Func>>(std::forward<Func>(workFunc));
-	}
-
-	/*!
-	@note Producer threads only.
-	*/
-	///@{
-	inline const Frame& getCurrentProducerFrame() const
-	{
-		PH_ASSERT(!isWorkerThread());
-		return m_frames[m_workProducerWorkHead];
-	}
-
-	inline Frame& getCurrentProducerFrame()
-	{
-		PH_ASSERT(!isWorkerThread());
-		return m_frames[m_workProducerWorkHead];
-	}
-	///@}
-
-	/*!
-	@note Worker thread only.
-	*/
-	///@{
-	inline const Frame& getCurrentConsumerFrame() const
-	{
-		PH_ASSERT(isWorkerThread());
-		return m_frames[m_workConsumerWorkHead];
-	}
-
-	inline Frame& getCurrentConsumerFrame()
-	{
-		PH_ASSERT(isWorkerThread());
-		return m_frames[m_workConsumerWorkHead];
-	}
-	///@}
-
-	/*!
-	@note Parent thread only.
-	*/
-	inline void advanceCurrentProducerFrame()
-	{
-		PH_ASSERT(isParentThread());
-		m_workProducerWorkHead = getNextWorkHead(m_workProducerWorkHead);
-	}
-
-	/*!
-	@note Worker thread only.
-	*/
-	inline void advanceCurrentConsumerFrame()
-	{
-		PH_ASSERT(isWorkerThread());
-		m_workConsumerWorkHead = getNextWorkHead(m_workConsumerWorkHead);
 	}
 
 	/*!
@@ -599,26 +523,16 @@ private:
 		// For all producer threads, it is only safe to access between being/end frame.
 		// If it is parent thread, it is safe to access anytime.
 		PH_ASSERT(
-			(!isWorkerThread() && getCurrentProducerFrame().isBetweenFrameBeginAndEnd) ||
+			(!isWorkerThread() && m_frames.isProducing()) ||
 			(isParentThread()));
 
 		return m_frameNumber;
 	}
 
-	/*!
-	@note Thread-safe.
-	*/
-	inline static std::size_t getNextWorkHead(const std::size_t currentWorkHead)
-	{
-		return math::wrap<std::size_t>(currentWorkHead + 1, 0, NUM_BUFFERS - 1);
-	}
-
-	std::array<Frame, NUM_BUFFERS> m_frames;
+	TSPSCCircularBuffer<Frame, NUM_BUFFERS> m_frames;
 
 	InitiallyPausedThread m_thread;
 	std::atomic_bool      m_isStopRequested;
-	std::size_t           m_workProducerWorkHead;
-	std::size_t           m_workConsumerWorkHead;
 	std::size_t           m_frameNumber;
 #ifdef PH_DEBUG
 	std::thread::id       m_parentThreadId;

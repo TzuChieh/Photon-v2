@@ -24,18 +24,18 @@ private:
 	{
 		T                storedItem;
 		std::atomic_flag isSealedForConsume;
-#ifdef PH_DEBUG
-		bool             isBetweenProduceBeginAndEnd;
-		bool             isBetweenConsumeBeginAndEnd;
-#endif
+
+		// modify by `beginProcued()` & `endProduce()`, read-only otherwise
+		bool isBetweenProduceBeginAndEnd;
+
+		// modify by `beginConsume()` & `endConsume()`, read-only otherwise
+		bool isBetweenConsumeBeginAndEnd;
 
 		inline Item()
 			: storedItem                 ()
 			, isSealedForConsume         ()
-#ifdef PH_DEBUG
 			, isBetweenProduceBeginAndEnd(false)
 			, isBetweenConsumeBeginAndEnd(false)
-#endif
 		{}
 	};
 
@@ -50,7 +50,7 @@ public:
 #endif
 	{}
 
-	/*!
+	/*! @brief Start producing. Will wait if buffer is unavailable for now.
 	@note Producer thread only.
 	*/
 	inline void beginProduce()
@@ -67,24 +67,20 @@ public:
 
 		// `item` can now be modified by producer
 
-#ifdef PH_DEBUG
-		getCurrentProducerItem().isBetweenProduceBeginAndEnd = true;
-#endif
+		currentItem.isBetweenProduceBeginAndEnd = true;
 	}
 
-	/*!
+	/*! @brief Stop producing. Consumer will unwait and start to consume.
 	@note Producer thread only.
 	*/
 	inline void endProduce()
 	{
 		PH_ASSERT(isProducerThread());
 
-#ifdef PH_DEBUG
-		getCurrentProducerItem().isBetweenProduceBeginAndEnd = false;
-#endif
+		Item& currentItem = getCurrentProducerItem();
+		currentItem.isBetweenProduceBeginAndEnd = false;
 
 		// Mark that current item is now set and is ready for being consumed
-		Item& currentItem = getCurrentProducerItem();
 		const bool hasAlreadySealed = currentItem.isSealedForConsume.test_and_set(std::memory_order_release);
 		PH_ASSERT(!hasAlreadySealed);
 
@@ -96,7 +92,7 @@ public:
 		advanceProduceHead();
 	}
 
-	/*!
+	/*! @brief Start consuming. Will wait if buffer is unavailable for now.
 	@note Consumer thread only.
 	*/
 	inline void beginConsume()
@@ -113,23 +109,20 @@ public:
 
 		// `item` can now be modified by consumer
 
-#ifdef PH_DEBUG
-		getCurrentConsumerItem().isBetweenConsumeBeginAndEnd = true;
-#endif
+		currentItem.isBetweenConsumeBeginAndEnd = true;
 	}
 
-	/*!
+	/*! @brief Stop consuming. Producer will unwait and start to produce.
 	@note Consumer thread only.
 	*/
 	inline void endConsume()
 	{
 		PH_ASSERT(isConsumerThread());
 
-#ifdef PH_DEBUG
-		getCurrentConsumerItem().isBetweenConsumeBeginAndEnd = false;
-#endif
-
 		Item& currentItem = getCurrentConsumerItem();
+		currentItem.isBetweenConsumeBeginAndEnd = false;
+
+		// Mark that current item is now consumed and is ready for use by producer again
 		currentItem.isSealedForConsume.clear(std::memory_order_release);
 
 		// `item` can no longer be modified by consumer
@@ -146,15 +139,13 @@ public:
 	///@{
 	inline T& getBufferForProducer()
 	{
-		PH_ASSERT(getCurrentProducerItem().isBetweenProduceBeginAndEnd);
-
+		PH_ASSERT(isProducing());
 		return getCurrentProducerItem().storedItem;
 	}
 
 	inline const T& getBufferForProducer() const
 	{
-		PH_ASSERT(getCurrentProducerItem().isBetweenProduceBeginAndEnd);
-
+		PH_ASSERT(isProducing());
 		return getCurrentProducerItem().storedItem;
 	}
 	///@}
@@ -165,15 +156,13 @@ public:
 	///@{
 	inline T& getBufferForConsumer()
 	{
-		PH_ASSERT(getCurrentConsumerItem().isBetweenConsumeBeginAndEnd);
-
+		PH_ASSERT(isConsuming());
 		return getCurrentConsumerItem().storedItem;
 	}
 
 	inline const T& getBufferForConsumer() const
 	{
-		PH_ASSERT(getCurrentConsumerItem().isBetweenConsumeBeginAndEnd);
-
+		PH_ASSERT(isConsuming());
 		return getCurrentConsumerItem().storedItem;
 	}
 	///@}
@@ -183,8 +172,7 @@ public:
 	*/
 	inline std::size_t getProduceHead() const
 	{
-		PH_ASSERT(getCurrentProducerItem().isBetweenProduceBeginAndEnd);
-
+		PH_ASSERT(isProducing());
 		return m_produceHead;
 	}
 
@@ -193,33 +181,60 @@ public:
 	*/
 	inline std::size_t getConsumeHead() const
 	{
-		PH_ASSERT(getCurrentConsumerItem().isBetweenConsumeBeginAndEnd);
-
+		PH_ASSERT(isConsuming());
 		return m_consumeHead;
 	}
 
-	/*!
+	/*! @brief Whether the next call to beginProduce() will potentially wait (block).
 	@note Producer thread only.
 	*/
-	inline bool mayWaitForProduce() const
+	inline bool mayWaitToProduce() const
 	{
 #ifdef PH_DEBUG
 		markProducerThread();
 #endif
 
-		return getCurrentProducerItem().isSealedForConsume(std::memory_order_relaxed);
+		PH_ASSERT(isProducerThread());
+		return getCurrentProducerItem().isSealedForConsume.test(std::memory_order_acquire);
 	}
 
-	/*!
+	/*!@brief Whether the next call to beginConsume() will potentially wait (block).
 	@note Consumer thread only.
 	*/
-	inline bool mayWaitForConsume() const
+	inline bool mayWaitToConsume() const
 	{
 #ifdef PH_DEBUG
 		markConsumerThread();
 #endif
 
-		return !getCurrentConsumerItem().isSealedForConsume(std::memory_order_relaxed);
+		PH_ASSERT(isConsumerThread());
+		return !getCurrentConsumerItem().isSealedForConsume.test(std::memory_order_acquire);
+	}
+
+	/*! @brief Whether this thread is producing to the buffer made current.
+	@note Producer thread only.
+	*/
+	inline bool isProducing() const
+	{
+#ifdef PH_DEBUG
+		markProducerThread();
+#endif
+
+		PH_ASSERT(isProducerThread());
+		return getCurrentProducerItem().isBetweenProduceBeginAndEnd;
+	}
+
+	/*! @brief Whether this thread is consuming from the buffer made current.
+	@note Consumer thread only.
+	*/
+	inline bool isConsuming() const
+	{
+#ifdef PH_DEBUG
+		markConsumerThread();
+#endif
+
+		PH_ASSERT(isConsumerThread());
+		return getCurrentConsumerItem().isBetweenConsumeBeginAndEnd;
 	}
 
 private:
@@ -294,14 +309,14 @@ private:
 		return std::this_thread::get_id() == m_consumerThreadID;
 	}
 
-	inline void markProducerThread()
+	inline void markProducerThread() const
 	{
 		// Lazily set producer thread ID
 		m_producerThreadID = m_producerThreadID != std::thread::id() ?
 			m_producerThreadID : std::this_thread::get_id();
 	}
 
-	inline void markConsumerThread()
+	inline void markConsumerThread() const
 	{
 		// Lazily set consumer thread ID
 		m_consumerThreadID = m_consumerThreadID != std::thread::id() ?
@@ -317,15 +332,15 @@ private:
 		return math::wrap<std::size_t>(currentProducerConsumerHead + 1, 0, N - 1);
 	}
 
-	std::array<Item, N> m_items;
-	std::size_t         m_produceHead;
-	std::size_t         m_consumeHead;
+	std::array<Item, N>     m_items;
+	std::size_t             m_produceHead;
+	std::size_t             m_consumeHead;
 #ifdef PH_DEBUG
 	// Though they are lazily set, no need to synchronize them since if everything is used correctly,
 	// each of them should be loaded/stored from their own thread. Seeing uninitialized or corrupted 
 	// value generally will cause the comparison to current thread ID to fail which is also what we want.
-	std::thread::id     m_producerThreadID;
-	std::thread::id     m_consumerThreadID;
+	mutable std::thread::id m_producerThreadID;
+	mutable std::thread::id m_consumerThreadID;
 #endif
 };
 

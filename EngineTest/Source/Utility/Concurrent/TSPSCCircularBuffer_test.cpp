@@ -13,18 +13,48 @@ TEST(TSPSCCircularBufferTest, CtorDtor)
 		TSPSCCircularBuffer<int, 1> intBuffer;
 		TSPSCCircularBuffer<int, 2> intBuffer2;
 		TSPSCCircularBuffer<int, 100> intBuffer3;
+
+		// No way that they start out just for waiting
+		EXPECT_FALSE(intBuffer.mayWaitToProduce());
+		EXPECT_FALSE(intBuffer2.mayWaitToProduce());
+		EXPECT_FALSE(intBuffer3.mayWaitToProduce());
+
+		// No value was produced, consumer must wait
+		EXPECT_TRUE(intBuffer.mayWaitToConsume());
+		EXPECT_TRUE(intBuffer2.mayWaitToConsume());
+		EXPECT_TRUE(intBuffer3.mayWaitToConsume());
 	}
 	
 	{
 		TSPSCCircularBuffer<double, 1> doubleBuffer;
 		TSPSCCircularBuffer<double, 2> doubleBuffer2;
 		TSPSCCircularBuffer<double, 100> doubleBuffer3;
+
+		// No way that they start out just for waiting
+		EXPECT_FALSE(doubleBuffer.mayWaitToProduce());
+		EXPECT_FALSE(doubleBuffer2.mayWaitToProduce());
+		EXPECT_FALSE(doubleBuffer3.mayWaitToProduce());
+
+		// No value was produced, consumer must wait
+		EXPECT_TRUE(doubleBuffer.mayWaitToConsume());
+		EXPECT_TRUE(doubleBuffer2.mayWaitToConsume());
+		EXPECT_TRUE(doubleBuffer3.mayWaitToConsume());
 	}
 	
 	{
 		TSPSCCircularBuffer<std::string, 1> strBuffer;
 		TSPSCCircularBuffer<std::string, 2> strBuffer2;
 		TSPSCCircularBuffer<std::string, 100> strBuffer3;
+
+		// No way that they start out just for waiting
+		EXPECT_FALSE(strBuffer.mayWaitToProduce());
+		EXPECT_FALSE(strBuffer2.mayWaitToProduce());
+		EXPECT_FALSE(strBuffer3.mayWaitToProduce());
+
+		// No value was produced, consumer must wait
+		EXPECT_TRUE(strBuffer.mayWaitToConsume());
+		EXPECT_TRUE(strBuffer2.mayWaitToConsume());
+		EXPECT_TRUE(strBuffer3.mayWaitToConsume());
 	}
 }
 
@@ -41,12 +71,16 @@ TEST(TSPSCCircularBufferTest, Running)
 			{
 				for(int i = 0; i < numIterations; ++i)
 				{
+					EXPECT_FALSE(buffer.isProducing());
 					buffer.beginProduce();
+
+					EXPECT_TRUE(buffer.isProducing());
 
 					double& number = buffer.getBufferForProducer();
 					number = i;
 
 					buffer.endProduce();
+					EXPECT_FALSE(buffer.isProducing());
 				}
 			});
 
@@ -55,12 +89,16 @@ TEST(TSPSCCircularBufferTest, Running)
 			{
 				for(int i = 0; i < numIterations; ++i)
 				{
+					EXPECT_FALSE(buffer.isConsuming());
 					buffer.beginConsume();
+
+					EXPECT_TRUE(buffer.isConsuming());
 
 					const double& number = buffer.getBufferForConsumer();
 					EXPECT_EQ(number, i);
 
 					buffer.endConsume();
+					EXPECT_FALSE(buffer.isConsuming());
 				}
 			});
 
@@ -90,8 +128,8 @@ TEST(TSPSCCircularBufferTest, Running)
 
 					Numbers& numbers = buffer.getBufferForProducer();
 					numbers.x = i;
-					numbers.y = i * 2;
-					numbers.z = i * 3;
+					numbers.y = i * 2.0f;
+					numbers.z = i * 3.0;
 
 					buffer.endProduce();
 				}
@@ -106,8 +144,8 @@ TEST(TSPSCCircularBufferTest, Running)
 
 					const Numbers& numbers = buffer.getBufferForConsumer();
 					EXPECT_EQ(numbers.x, i);
-					EXPECT_EQ(numbers.y, i * 2);
-					EXPECT_EQ(numbers.z, i * 3);
+					EXPECT_EQ(numbers.y, i * 2.0f);
+					EXPECT_EQ(numbers.z, i * 3.0);
 
 					buffer.endConsume();
 				}

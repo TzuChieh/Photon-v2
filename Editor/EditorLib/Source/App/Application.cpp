@@ -163,13 +163,13 @@ void Application::appMainLoop()
 		// Render update
 		if(shouldRender)
 		{
+			m_renderThread.beginFrame();
+
 			const auto renderFrameInfo = m_renderThread.getFrameInfo();
 			renderUpdateCtx.frameNumber = renderFrameInfo.frameNumber;
 			renderUpdateCtx.frameCycleIndex = renderFrameInfo.frameCycleIndex;
 
 			appRenderUpdate(renderUpdateCtx);
-
-			m_renderThread.beginFrame();
 
 			appCreateRenderCommands();
 
