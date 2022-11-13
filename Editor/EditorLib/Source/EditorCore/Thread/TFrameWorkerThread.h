@@ -215,7 +215,7 @@ public:
 
 	/*!
 	Start a new frame of works. All works added from previous frame are either being processing or 
-	finished after this call (depending on NUM_BUFFERS).
+	finished after this call (depending on NUM_BUFFERS). Will potentially wait for works to complete.
 	@note Parent thread only.
 	*/
 	inline void beginFrame()

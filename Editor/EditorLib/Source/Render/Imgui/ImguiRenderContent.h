@@ -19,6 +19,9 @@ public:
 	void update(const RenderThreadUpdateContext& ctx) override;
 	void createGHICommands(GHIThreadCaller& caller) override;
 
+	/*
+	Can only be called during render command generation (on main thread).
+	*/
 	void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t mainThreadFrameCycleIndex);
 
 private:
@@ -47,6 +50,8 @@ private:
 	[3] https://twitter.com/ocornut/status/975096904446021633
 	*/
 	std::array<ImguiRenderData, config::NUM_RENDER_THREAD_BUFFERED_FRAMES> m_imguiRenderDataBuffer;
+
+	std::size_t m_currentFrameCycleIndex;
 };
 
 }// end namespace ph::editor

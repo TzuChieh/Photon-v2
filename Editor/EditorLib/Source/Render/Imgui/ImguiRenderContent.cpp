@@ -1,5 +1,7 @@
 #include "Render/Imgui/ImguiRenderContent.h"
 #include "RenderCore/RenderThreadUpdateContext.h"
+#include "EditorCore/Thread/Threads.h"
+#include "EditorCore/Thread/GHIThreadCaller.h"
 
 #include <Common/assertion.h>
 #include <Utility/utility.h>
@@ -12,15 +14,18 @@ namespace ph::editor
 ImguiRenderContent::ImguiRenderContent()
 	: CustomRenderContent(ERenderTiming::AfterMainScene)
 	, m_imguiRenderDataBuffer()
+	, m_currentFrameCycleIndex(0)
 {}
 
 void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 {
-	// TODO
+	m_currentFrameCycleIndex = ctx.frameCycleIndex;
 }
 
 void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 {
+
+
 	// TODO: get cycle index and use that to submit ghi call
 }
 
@@ -28,6 +33,8 @@ void ImguiRenderContent::copyNewDrawDataFromMainThread(
 	const ImDrawData& srcDrawData,
 	const std::size_t mainThreadFrameCycleIndex)
 {
+	PH_ASSERT(Threads::isOnMainThread());
+
 	ImguiRenderData& dstImguiRenderData = m_imguiRenderDataBuffer[mainThreadFrameCycleIndex];
 	dstImguiRenderData.copyFrom(srcDrawData);
 }

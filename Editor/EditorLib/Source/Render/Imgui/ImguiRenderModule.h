@@ -1,26 +1,40 @@
 #pragma once
 
 #include "App/Module/RenderModule.h"
+#include "ThirdParty/GLFW3_fwd.h"
 
 #include <Math/TVector2.h>
+
+#include <memory>
+#include <cstddef>
 
 namespace ph::editor
 {
 
+class ImguiRenderContent;
+
 class ImguiRenderModule : public RenderModule
 {
 public:
+	ImguiRenderModule();
+	~ImguiRenderModule() override;
+
 	std::string getName() const override;
 	void onAttach(const ModuleAttachmentInfo& info) override;
 	void onDetach() override;
 	void renderUpdate(const MainThreadRenderUpdateContext& ctx) override;
+	void createRenderCommands(RenderThreadCaller& caller) override;
 
 private:
 	void initializeImgui();
 	void terminateImgui();
 	void setFrameBufferSizePx(const math::Vector2S& sizePx);
 
-	math::TVector2<uint32> m_frameBufferSizePx;
+	GLFWwindow*                         m_glfwWindow;
+	math::TVector2<uint32>              m_frameBufferSizePx;
+	std::unique_ptr<ImguiRenderContent> m_renderContent;
+	bool                                m_isRenderContentAdded;
+	std::size_t                         m_currentFrameCycleIndex;
 };
 
 inline std::string ImguiRenderModule::getName() const

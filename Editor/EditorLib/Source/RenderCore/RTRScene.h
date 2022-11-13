@@ -1,10 +1,5 @@
 #pragma once
 
-#include "RenderCore/CustomRenderContent.h"
-
-#include <Utility/TUniquePtrVector.h>
-
-#include <memory>
 #include <vector>
 
 namespace ph::editor
@@ -12,11 +7,15 @@ namespace ph::editor
 
 class RenderThreadUpdateContext;
 class GHIThreadCaller;
+class CustomRenderContent;
 
 class RTRScene final
 {
 public:
 	~RTRScene();
+
+	void addCustomRenderContent(CustomRenderContent* content);
+	void removeCustomRenderContent(CustomRenderContent* content);
 
 private:
 	friend class RenderThread;
@@ -25,7 +24,7 @@ private:
 	void createGHICommands(GHIThreadCaller& caller);
 
 private:
-	TUniquePtrVector<CustomRenderContent> customRenderContents;
+	std::vector<CustomRenderContent*> m_customRenderContents;
 };
 
 }// end namespace ph::editor

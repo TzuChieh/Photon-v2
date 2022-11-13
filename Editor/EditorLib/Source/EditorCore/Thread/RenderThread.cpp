@@ -83,6 +83,7 @@ void RenderThread::onEndFrame()
 	addWork(
 		[this](RenderData& renderData)
 		{
+			// Placement of GHI begin frame is important--it waits for all previous GHI works to finish
 			m_ghiThread.beginFrame();
 
 			// If it is non-null, a GHI update is pending

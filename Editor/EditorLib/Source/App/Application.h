@@ -54,6 +54,7 @@ private:
 	void appMainLoop();
 	void appUpdate(const MainThreadUpdateContext& ctx);
 	void appRenderUpdate(const MainThreadRenderUpdateContext& ctx);
+	void appCreateRenderCommands();
 	bool attachModule(AppModule* targetModule);
 	bool detachModule(AppModule* targetModule);
 	/*void postModuleAttachedEvent(AppModule* targetModule);

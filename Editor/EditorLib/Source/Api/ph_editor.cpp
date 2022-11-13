@@ -21,12 +21,12 @@ int application_entry_point(int argc, char* argv[])
 		TestProcedureModule testModule;
 		ImguiRenderModule imguiModule;
 		app.attachProcedureModule(&testModule);
-		app.attachRenderModule(&imguiModule);
+		//app.attachRenderModule(&imguiModule);
 
 		app.run();
 
 		app.detachProcedureModule(&testModule);
-		app.detachRenderModule(&imguiModule);
+		//app.detachRenderModule(&imguiModule);
 
 		app.close();
 	}

@@ -6,6 +6,7 @@
 #include "App/Module/MainThreadUpdateContext.h"
 #include "App/Module/MainThreadRenderUpdateContext.h"
 #include "App/Module/ModuleAttachmentInfo.h"
+#include "EditorCore/Thread/RenderThreadCaller.h"
 
 #include <Common/assertion.h>
 #include <Utility/Timer.h>
@@ -162,13 +163,15 @@ void Application::appMainLoop()
 		// Render update
 		if(shouldRender)
 		{
-			m_renderThread.beginFrame();
-
 			const auto renderFrameInfo = m_renderThread.getFrameInfo();
 			renderUpdateCtx.frameNumber = renderFrameInfo.frameNumber;
 			renderUpdateCtx.frameCycleIndex = renderFrameInfo.frameCycleIndex;
 
 			appRenderUpdate(renderUpdateCtx);
+
+			m_renderThread.beginFrame();
+
+			appCreateRenderCommands();
 
 			m_renderThread.endFrame();
 		}
@@ -215,6 +218,15 @@ void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 	for(auto& renderModule : m_renderModules)
 	{
 		renderModule->renderUpdate(ctx);
+	}
+}
+
+void Application::appCreateRenderCommands()
+{
+	for(auto& renderModule : m_renderModules)
+	{
+		RenderThreadCaller caller(m_renderThread);
+		renderModule->createRenderCommands(caller);
 	}
 }
 
