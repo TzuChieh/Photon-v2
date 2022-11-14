@@ -27,7 +27,7 @@ void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 {
 	caller.add(
-		[this](GHI& ghi)
+		[](GHI& ghi)
 		{
 			ghi.rawCommand<EGraphicsAPI::OpenGL>(
 				[]()
@@ -51,7 +51,7 @@ void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 				m_sharedRenderData.guardedConsume(
 					[](ImguiRenderData& renderData)
 					{
-						// TODO
+						ImGui_ImplOpenGL3_RenderDrawData(&renderData.drawData);
 					});
 			});
 
