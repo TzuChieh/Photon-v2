@@ -4,6 +4,8 @@
 #include "Common/config.h"
 #include "Math/math.h"
 
+#include <Utility/INoCopyAndMove.h>
+
 #include <cstddef>
 #include <type_traits>
 #include <array>
@@ -237,6 +239,65 @@ public:
 		return getCurrentConsumerItem().isBetweenConsumeBeginAndEnd;
 	}
 
+public:
+	class ProducerGuard final : private INoCopyAndMove
+	{
+	public:
+		inline explicit ProducerGuard(TSPSCCircularBuffer& buffer)
+			: m_buffer(buffer)
+		{
+			m_buffer.beginProduce();
+		}
+
+		inline ~ProducerGuard()
+		{
+			m_buffer.endProduce();
+		}
+
+	private:
+		TSPSCCircularBuffer& m_buffer;
+	};
+
+	class ConsumerGuard final : private INoCopyAndMove
+	{
+	public:
+		inline explicit ConsumerGuard(TSPSCCircularBuffer& buffer)
+			: m_buffer(buffer)
+		{
+			m_buffer.beginConsume();
+		}
+
+		inline ~ConsumerGuard()
+		{
+			m_buffer.endConsume();
+		}
+
+	private:
+		TSPSCCircularBuffer& m_buffer;
+	};
+
+	template<typename ProducerFunc>
+	inline void guardedProduce(ProducerFunc&& func)
+	{
+		static_assert(std::is_invocable_v<ProducerFunc, Item&>,
+			"ProducerFunc must take (Item&).");
+
+		ProducerGuard guard(*this);
+
+		std::forward<ProducerFunc>(func)(m_buffer.getBufferForProducer());
+	}
+
+	template<typename ConsumerFunc>
+	inline void guardedConsume(ConsumerFunc&& func)
+	{
+		static_assert(std::is_invocable_v<ConsumerFunc, Item&>,
+			"ConsumerFunc must take (Item&).");
+
+		ConsumerGuard guard(*this);
+
+		std::forward<ConsumerFunc>(func)(m_buffer.getBufferForConsumer());
+	}
+
 private:
 	/*!
 	@note Producer threads only.
@@ -343,5 +404,7 @@ private:
 	mutable std::thread::id m_consumerThreadID;
 #endif
 };
+
+
 
 }// end namespace ph

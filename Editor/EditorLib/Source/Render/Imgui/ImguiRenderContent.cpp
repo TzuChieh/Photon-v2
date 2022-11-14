@@ -13,50 +13,59 @@ namespace ph::editor
 
 ImguiRenderContent::ImguiRenderContent()
 	: CustomRenderContent(ERenderTiming::AfterMainScene)
-	, m_imguiRenderDataBuffer()
-	, m_test()
-	, m_currentFrameCycleIndex(0)
+	, m_sharedRenderData()
 	, m_numAvailableRenderData(0)
 {}
 
 void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 {
-	m_currentFrameCycleIndex = ctx.frameCycleIndex;
+	// TODO
 }
 
 void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 {
-	// TODO: flag to check if gui data was actually copied, otherwise beginConsume() may block GHI?
-	caller.add(
-		[this](GHI& ghi)
-		{
-			m_test.beginConsume();
+	// Only emit GHI command if render data was actually copied to avoid blocking GHI thread
+	if(m_numAvailableRenderData > 0)
+	{
+		caller.add(
+			[this](GHI& ghi)
+			{
+				m_sharedRenderData.beginConsume();
 
-			// TODO
+				// TODO
 
-			m_test.endConsume();
-		});
+				m_sharedRenderData.endConsume();
+			});
 
-	// TODO: get cycle index and use that to submit ghi call
+		--m_numAvailableRenderData;
+	}
 }
 
-void ImguiRenderContent::copyNewDrawDataFromMainThread(
-	const ImDrawData& srcDrawData,
-	const std::size_t mainThreadFrameCycleIndex)
+//void ImguiRenderContent::copyNewDrawDataFromMainThread(
+//	const ImDrawData& srcDrawData,
+//	const std::size_t mainThreadFrameCycleIndex)
+//{
+//	PH_ASSERT(Threads::isOnMainThread());
+//
+//	m_sharedRenderData.beginProduce();
+//	ImguiRenderData& dstImguiRenderData = m_test.getBufferForProducer();
+//	dstImguiRenderData.copyFrom(srcDrawData);
+//	m_sharedRenderData.endProduce();
+//}
+
+auto ImguiRenderContent::getSharedRenderData() 
+	-> SharedRenderData&
 {
 	PH_ASSERT(Threads::isOnMainThread());
 
-	//ImguiRenderData& dstImguiRenderData = m_imguiRenderDataBuffer[mainThreadFrameCycleIndex];
-	//dstImguiRenderData.copyFrom(srcDrawData);
+	return m_sharedRenderData;
+}
 
-	m_test.beginProduce();
-	ImguiRenderData& dstImguiRenderData = m_test.getBufferForProducer();
-	dstImguiRenderData.copyFrom(srcDrawData);
-	m_test.endProduce();
-	
+void ImguiRenderContent::signifyNewRenderDataIsAvailable()
+{
+	PH_ASSERT(Threads::isOnRenderThread());
 
-
-	
+	++m_numAvailableRenderData;
 }
 
 void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData)

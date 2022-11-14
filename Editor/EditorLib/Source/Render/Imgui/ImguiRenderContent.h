@@ -38,16 +38,22 @@ public:
 	/*
 	Can only be called during render command generation (on main thread).
 	*/
-	void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t mainThreadFrameCycleIndex);
+	/*void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t mainThreadFrameCycleIndex);*/
 
+	/*
+	Can only be called during render update and command generation (on main thread).
+	*/
+	SharedRenderData& getSharedRenderData();
 
+	void signifyNewRenderDataIsAvailable();
 
 private:
 	/*!
-	The array of IMGUI render data are the core of N-buffered rendering, where N is the number of 
-	buffered frames. This enables rendering IMGUI from a separate thread (in our case the render
-	thread) without conflicting concurrent access to the `ImDrawData` on main thread (the one 
-	obtained from `ImGui::GetDrawData()`).
+	Allocating an array of IMGUI render data is the core of N-buffered rendering, where N is the 
+	number of buffered frames. This enables rendering IMGUI from a separate thread (in our case the 
+	GHI thread) without conflicting concurrent access to the `ImDrawData` on main thread (the one 
+	obtained from `ImGui::GetDrawData()`). `SharedRenderData` generalizes this idea into a shared 
+	(circular) buffer and helps to manage concurrent access to it.
 
 	References: 
 	[1] Add a helper to simplify and optimize backing up the render frame
@@ -56,10 +62,8 @@ private:
 	    https://twitter.com/ocornut/status/973093439666520064
 	[3] https://twitter.com/ocornut/status/975096904446021633
 	*/
-	std::array<ImguiRenderData, config::NUM_RENDER_THREAD_BUFFERED_FRAMES> m_imguiRenderDataBuffer;
-	TSPSCCircularBuffer<ImguiRenderData, config::NUM_RENDER_THREAD_BUFFERED_FRAMES> m_test;
+	SharedRenderData m_sharedRenderData;
 
-	std::size_t m_currentFrameCycleIndex;
 	int m_numAvailableRenderData;
 };
 

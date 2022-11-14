@@ -88,7 +88,15 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
     ImDrawData* const drawData = ImGui::GetDrawData();
     PH_ASSERT(drawData);
-    m_renderContent->copyNewDrawDataFromMainThread(*drawData, m_currentFrameCycleIndex);
+
+    auto& sharedData = m_renderContent->getSharedRenderData();
+    {
+
+    }
+    sharedData.beginProduce();
+    auto& renderData = sharedData.getBufferForProducer();
+    renderData.copyFrom(*drawData);
+    sharedData.endProduce();
 
     m_currentFrameCycleIndex = ctx.frameCycleIndex;
 }
@@ -106,7 +114,11 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
         m_isRenderContentAdded = true;
     }
 
-    
+    caller.add(
+        [this](RenderData& renderData)
+        {
+            m_renderContent->signifyNewRenderDataIsAvailable();
+        });
 
     // TODO: remove content before detach
 }

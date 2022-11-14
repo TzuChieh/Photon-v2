@@ -95,7 +95,7 @@ public:
 		alignof(std::decay_t<Func>) <= BUFFER_ALIGNMENT>;
 
 	/*! @brief Main callable target traits.
-	Test whether the target is of specific type and is invocable using @p Args and returns @p R.
+	Test whether the target is of specific form and is invocable using @p Args and returns @p R.
 	*/
 	///@{
 
@@ -138,7 +138,7 @@ public:
 
 	///@}
 
-	/*! @brief Convenient helper that checks whether @p Func is a supported functor type.
+	/*! @brief Convenient helper that checks whether @p Func is a supported functor form.
 	*/
 	template<typename Func>
 	using TIsStorableFunctor = std::bool_constant<
