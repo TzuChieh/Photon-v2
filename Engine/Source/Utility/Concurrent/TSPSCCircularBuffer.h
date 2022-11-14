@@ -277,25 +277,25 @@ public:
 	};
 
 	template<typename ProducerFunc>
-	inline void guardedProduce(ProducerFunc&& func)
+	inline void guardedProduce(ProducerFunc func)
 	{
 		static_assert(std::is_invocable_v<ProducerFunc, Item&>,
 			"ProducerFunc must take (Item&).");
 
 		ProducerGuard guard(*this);
 
-		std::forward<ProducerFunc>(func)(m_buffer.getBufferForProducer());
+		func(m_buffer.getBufferForProducer());
 	}
 
 	template<typename ConsumerFunc>
-	inline void guardedConsume(ConsumerFunc&& func)
+	inline void guardedConsume(ConsumerFunc func)
 	{
 		static_assert(std::is_invocable_v<ConsumerFunc, Item&>,
 			"ConsumerFunc must take (Item&).");
 
 		ConsumerGuard guard(*this);
 
-		std::forward<ConsumerFunc>(func)(m_buffer.getBufferForConsumer());
+		func(m_buffer.getBufferForConsumer());
 	}
 
 private:

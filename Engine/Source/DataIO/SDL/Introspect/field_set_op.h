@@ -32,7 +32,7 @@ void load_fields_from_sdl(
 	FieldSet&              fieldSet,
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx,
-	NoticeReceiver&&       noticeReceiver = NoOpNoticeReceiver());
+	NoticeReceiver         noticeReceiver = NoOpNoticeReceiver());
 
 template<
 	typename Owner,
@@ -43,7 +43,7 @@ void load_fields_from_sdl_with_redundant_clauses(
 	FieldSet&              fieldSet,
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx,
-	NoticeReceiver&&       noticeReceiver = NoOpNoticeReceiver());
+	NoticeReceiver         noticeReceiver = NoOpNoticeReceiver());
 
 }// end namespace ph::field_set_op
 

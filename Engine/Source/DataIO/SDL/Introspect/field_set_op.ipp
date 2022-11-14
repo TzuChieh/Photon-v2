@@ -22,7 +22,7 @@ inline void load_fields_from_sdl(
 	FieldSet&              fieldSet,
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx,
-	NoticeReceiver&&       noticeReceiver)
+	NoticeReceiver         noticeReceiver)
 {
 	// Consider to increase the number if not enough
 	constexpr std::size_t MAX_FIELD_FLAGS = 64;
@@ -54,7 +54,7 @@ inline void load_fields_from_sdl(
 			if constexpr(SHOULD_NOTIFY_REDUNDANT_CLAUSE)
 			{
 				// Treat a redundant clause input as an optional field
-				std::forward<NoticeReceiver>(noticeReceiver)(
+				noticeReceiver(
 					"SDL class <" + ctx.genPrettySrcClassName() + "> has no matching field for "
 					"input clause <" + clause.genPrettyName() + ">, ignoring",
 					EFieldImportance::OPTIONAL);
@@ -81,7 +81,7 @@ inline void load_fields_from_sdl(
 				const auto importance = field.getImportance();
 				if(importance != EFieldImportance::OPTIONAL)
 				{
-					std::forward<NoticeReceiver>(noticeReceiver)(
+					noticeReceiver(
 						"no clause for " + sdl::gen_pretty_name(ctx.getSrcClass(), &field) +
 						", defaults to <" + field.valueToString(owner) + ">",
 						importance);
@@ -107,14 +107,14 @@ inline void load_fields_from_sdl_with_redundant_clauses(
 	FieldSet&              fieldSet,
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx,
-	NoticeReceiver&&       noticeReceiver)
+	NoticeReceiver         noticeReceiver)
 {
 	load_fields_from_sdl<Owner, FieldSet, NoticeReceiver, false>(
 		owner,
 		fieldSet,
 		clauses,
 		ctx,
-		std::forward<NoticeReceiver>(noticeReceiver));
+		std::move(noticeReceiver));
 }
 
 }// end namespace ph::field_set_op
