@@ -36,11 +36,6 @@ public:
 	void createGHICommands(GHIThreadCaller& caller) override;
 
 	/*
-	Can only be called during render command generation (on main thread).
-	*/
-	/*void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t mainThreadFrameCycleIndex);*/
-
-	/*
 	Can only be called during render update and command generation (on main thread).
 	*/
 	SharedRenderData& getSharedRenderData();

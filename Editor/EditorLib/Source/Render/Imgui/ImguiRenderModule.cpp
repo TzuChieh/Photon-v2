@@ -28,7 +28,6 @@ ImguiRenderModule::ImguiRenderModule()
     , m_frameBufferSizePx(0)
     , m_renderContent(nullptr)
     , m_isRenderContentAdded(false)
-    , m_currentFrameCycleIndex(0)
 {}
 
 ImguiRenderModule::~ImguiRenderModule() = default;
@@ -86,23 +85,20 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
     // Rendering
     ImGui::Render();
 
-    ImDrawData* const drawData = ImGui::GetDrawData();
-    PH_ASSERT(drawData);
+    ImDrawData* const mainThreadDrawData = ImGui::GetDrawData();
+    PH_ASSERT(mainThreadDrawData);
 
-    auto& sharedData = m_renderContent->getSharedRenderData();
-    {
-
-    }
-    sharedData.beginProduce();
-    auto& renderData = sharedData.getBufferForProducer();
-    renderData.copyFrom(*drawData);
-    sharedData.endProduce();
-
-    m_currentFrameCycleIndex = ctx.frameCycleIndex;
+    // Copy draw data to a buffer shared with GHI thread
+    m_renderContent->getSharedRenderData().guardedProduce(
+        [mainThreadDrawData](ImguiRenderContent::ImguiRenderData& renderData)
+        {
+            renderData.copyFrom(*mainThreadDrawData);
+        });
 }
 
 void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 {
+    // Add the IMGUI render content to render thread if not already present
     if(!m_isRenderContentAdded)
     {
         caller.add(
@@ -114,6 +110,7 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
         m_isRenderContentAdded = true;
     }
 
+    // Need to notify render thread that there is new render data for GHI
     caller.add(
         [this](RenderData& renderData)
         {

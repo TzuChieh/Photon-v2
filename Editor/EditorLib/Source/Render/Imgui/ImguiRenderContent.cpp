@@ -2,6 +2,8 @@
 #include "RenderCore/RenderThreadUpdateContext.h"
 #include "EditorCore/Thread/Threads.h"
 #include "EditorCore/Thread/GHIThreadCaller.h"
+#include "RenderCore/GHI.h"
+#include "ThirdParty/glad2.h"
 
 #include <Common/assertion.h>
 #include <Utility/utility.h>
@@ -24,34 +26,38 @@ void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 
 void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 {
+	caller.add(
+		[this](GHI& ghi)
+		{
+			ghi.rawCommand<EGraphicsAPI::OpenGL>(
+				[]()
+				{
+					ImGui_ImplOpenGL3_NewFrame();
+
+					//int display_w, display_h;
+					//glfwGetFramebufferSize(window, &display_w, &display_h);
+					glViewport(0, 0, 512, 512);
+					glClearColor(0, 0, 1, 1);
+					glClear(GL_COLOR_BUFFER_BIT);
+				});
+		});
+
 	// Only emit GHI command if render data was actually copied to avoid blocking GHI thread
 	if(m_numAvailableRenderData > 0)
 	{
 		caller.add(
 			[this](GHI& ghi)
 			{
-				m_sharedRenderData.beginConsume();
-
-				// TODO
-
-				m_sharedRenderData.endConsume();
+				m_sharedRenderData.guardedConsume(
+					[](ImguiRenderData& renderData)
+					{
+						// TODO
+					});
 			});
 
 		--m_numAvailableRenderData;
 	}
 }
-
-//void ImguiRenderContent::copyNewDrawDataFromMainThread(
-//	const ImDrawData& srcDrawData,
-//	const std::size_t mainThreadFrameCycleIndex)
-//{
-//	PH_ASSERT(Threads::isOnMainThread());
-//
-//	m_sharedRenderData.beginProduce();
-//	ImguiRenderData& dstImguiRenderData = m_test.getBufferForProducer();
-//	dstImguiRenderData.copyFrom(srcDrawData);
-//	m_sharedRenderData.endProduce();
-//}
 
 auto ImguiRenderContent::getSharedRenderData() 
 	-> SharedRenderData&

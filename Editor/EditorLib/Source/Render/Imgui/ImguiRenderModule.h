@@ -34,7 +34,6 @@ private:
 	math::TVector2<uint32>              m_frameBufferSizePx;
 	std::unique_ptr<ImguiRenderContent> m_renderContent;
 	bool                                m_isRenderContentAdded;
-	std::size_t                         m_currentFrameCycleIndex;
 };
 
 inline std::string ImguiRenderModule::getName() const

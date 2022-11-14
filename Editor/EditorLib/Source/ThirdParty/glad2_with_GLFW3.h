@@ -1,9 +1,7 @@
 #pragma once
 
-#if PH_THIRD_PARTY_HAS_GLAD
-#include <glad/gl.h>
-#endif
+#include "ThirdParty/glad2.h"
 
-// Make sure GLFW includes after glad to avoid potential conflicts (see "ThirdParty/GLFW3_fwd.h"
+// Make sure GLFW includes after glad to avoid potential conflicts (see "ThirdParty/GLFW3.h"
 // for more details).
 #include "ThirdParty/GLFW3.h"

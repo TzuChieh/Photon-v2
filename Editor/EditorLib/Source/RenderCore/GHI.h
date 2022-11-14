@@ -58,8 +58,8 @@ public:
 
 	template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
 	void rawCommand(
-		CommandCallingFunctor&& functor,
-		std::source_location    srcLocation = std::source_location::current());
+		CommandCallingFunctor functor,
+		std::source_location  srcLocation = std::source_location::current());
 
 private:
 	/*!
@@ -76,7 +76,7 @@ private:
 
 template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
 inline void GHI::rawCommand(
-	CommandCallingFunctor&&    functor,
+	CommandCallingFunctor      functor,
 	const std::source_location srcLocation)
 {
 	static_assert(std::is_invocable_v<CommandCallingFunctor>,
