@@ -16,17 +16,6 @@ namespace ph::editor
 class ImguiRenderContent : public CustomRenderContent
 {
 public:
-	ImguiRenderContent();
-
-	void update(const RenderThreadUpdateContext& ctx) override;
-	void createGHICommands(GHIThreadCaller& caller) override;
-
-	/*
-	Can only be called during render command generation (on main thread).
-	*/
-	void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t mainThreadFrameCycleIndex);
-
-private:
 	// All data required by IMGUI to render a frame.
 	struct ImguiRenderData
 	{
@@ -38,6 +27,22 @@ private:
 		void copyFrom(const ImDrawData& srcDrawData);
 	};
 
+	using SharedRenderData = TSPSCCircularBuffer<ImguiRenderData, config::NUM_RENDER_THREAD_BUFFERED_FRAMES>;
+
+public:
+	ImguiRenderContent();
+
+	void update(const RenderThreadUpdateContext& ctx) override;
+	void createGHICommands(GHIThreadCaller& caller) override;
+
+	/*
+	Can only be called during render command generation (on main thread).
+	*/
+	void copyNewDrawDataFromMainThread(const ImDrawData& srcDrawData, std::size_t mainThreadFrameCycleIndex);
+
+
+
+private:
 	/*!
 	The array of IMGUI render data are the core of N-buffered rendering, where N is the number of 
 	buffered frames. This enables rendering IMGUI from a separate thread (in our case the render
@@ -55,6 +60,7 @@ private:
 	TSPSCCircularBuffer<ImguiRenderData, config::NUM_RENDER_THREAD_BUFFERED_FRAMES> m_test;
 
 	std::size_t m_currentFrameCycleIndex;
+	int m_numAvailableRenderData;
 };
 
 }// end namespace ph::editor

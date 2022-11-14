@@ -156,8 +156,8 @@ void ImguiRenderModule::initializeImgui()
 
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
-    ImGui_ImplOpenGL3_Init("version 460");
-    ImGui_ImplOpenGL3_Init();
+    ImGui_ImplOpenGL3_Init("#version 460");
+    //ImGui_ImplOpenGL3_Init();
 
     // DEBUG
     {

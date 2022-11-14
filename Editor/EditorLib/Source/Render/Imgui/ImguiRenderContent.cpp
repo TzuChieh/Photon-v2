@@ -16,6 +16,7 @@ ImguiRenderContent::ImguiRenderContent()
 	, m_imguiRenderDataBuffer()
 	, m_test()
 	, m_currentFrameCycleIndex(0)
+	, m_numAvailableRenderData(0)
 {}
 
 void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
