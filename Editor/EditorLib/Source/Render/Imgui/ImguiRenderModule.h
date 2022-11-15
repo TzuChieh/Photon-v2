@@ -2,6 +2,7 @@
 
 #include "App/Module/RenderModule.h"
 #include "ThirdParty/GLFW3_fwd.h"
+#include "Render/Imgui/ImguiEditorUI.h"
 
 #include <Math/TVector2.h>
 
@@ -34,6 +35,7 @@ private:
 	math::TVector2<uint32>              m_frameBufferSizePx;
 	std::unique_ptr<ImguiRenderContent> m_renderContent;
 	bool                                m_isRenderContentAdded;
+	ImguiEditorUI                       m_editorUI;
 };
 
 inline std::string ImguiRenderModule::getName() const

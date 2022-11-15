@@ -1,13 +1,17 @@
 #pragma once
 
+#include <string_view>
+
 namespace ph::editor
 {
 
 class AboutInformation final
 {
 public:
+	AboutInformation();
 
-private:
+	std::string_view authorInfo;
+	std::string_view citationInfo;
 };
 
 }// end namespace ph::editor

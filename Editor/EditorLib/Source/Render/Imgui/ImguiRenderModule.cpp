@@ -10,6 +10,7 @@
 #include "EditorCore/Thread/RenderThreadCaller.h"
 #include "RenderCore/RenderData.h"
 #include "RenderCore/RTRScene.h"
+#include "Render/Imgui/imgui_common.h"
 
 #include <variant>
 
@@ -28,6 +29,7 @@ ImguiRenderModule::ImguiRenderModule()
     , m_frameBufferSizePx(0)
     , m_renderContent(nullptr)
     , m_isRenderContentAdded(false)
+    , m_editorUI()
 {}
 
 ImguiRenderModule::~ImguiRenderModule() = default;
@@ -64,6 +66,7 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 	initializeImgui();
 
     m_renderContent = std::make_unique<ImguiRenderContent>();
+    m_editorUI.setEditor(info.editor);
 }
 
 void ImguiRenderModule::onDetach()
@@ -77,10 +80,7 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    bool shouldShow = true;
-    ImGui::ShowDemoWindow(&shouldShow);
-
-	// TODO: UI
+    m_editorUI.build();
 
     // Rendering
     ImGui::Render();
@@ -131,14 +131,13 @@ void ImguiRenderModule::setFrameBufferSizePx(const math::Vector2S& sizePx)
 void ImguiRenderModule::initializeImgui()
 {
     PH_ASSERT(m_glfwWindow);
-
+    
     // Ensure we do not change the original context
     GLFWwindow* const backupCurrentCtx = glfwGetCurrentContext();
     glfwMakeContextCurrent(m_glfwWindow);
 
-    glfwSwapInterval(1); // Enable vsync
+    PH_LOG(DearImGui, "setup Dear ImGui context...");
 
-    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -156,7 +155,8 @@ void ImguiRenderModule::initializeImgui()
     // Load Fonts
     //io.Fonts->AddFontDefault();
 
-    // Setup Dear ImGui style
+    PH_LOG(DearImGui, "setup Dear ImGui style...");
+
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
 
@@ -168,15 +168,16 @@ void ImguiRenderModule::initializeImgui()
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    // Setup Platform/Renderer backends
+    PH_LOG(DearImGui, "setup platform renderer backends...");
+
     ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
     ImGui_ImplOpenGL3_Init("#version 460");
-    //ImGui_ImplOpenGL3_Init();
 
-    // DEBUG
+    // A single-frame dummy run to initialize some internal structures
+    // (although we can manually call backend functions such as `ImGui_ImplOpenGL3_CreateFontsTexture()` 
+    // and `ImGui_ImplOpenGL3_CreateDeviceObjects()` etc., a dummy run that do nothing is more
+    // convenient and somewhat more robust to future library updates)
     {
-        // dummy run to init font
-
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -198,7 +199,8 @@ void ImguiRenderModule::terminateImgui()
     GLFWwindow* const backupCurrentCtx = glfwGetCurrentContext();
     glfwMakeContextCurrent(m_glfwWindow);
 
-    // Cleanup
+    PH_LOG(DearImGui, "cleaning up...");
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

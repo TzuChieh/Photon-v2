@@ -1,13 +1,14 @@
 #pragma once
 
+#include "App/HelpMenu/AboutInformation.h"
+
 namespace ph::editor
 {
 
 class HelpMenu final
 {
 public:
-
-private:
+	AboutInformation aboutInformation;
 };
 
 }// end namespace ph

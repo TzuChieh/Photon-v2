@@ -7,6 +7,7 @@
 #include "EditorCore/Event/DisplayCloseEvent.h"
 #include "EditorCore/Event/AppModuleActionEvent.h"
 #include "App/EditorEventQueue.h"
+#include "App/HelpMenu/HelpMenu.h"
 
 #include <Utility/TFunction.h>
 
@@ -17,6 +18,9 @@ namespace ph::editor
 
 class Editor final
 {
+public:
+	HelpMenu helpMenu;
+
 public:
 	TEventDispatcher<KeyDownEvent> onKeyDown;
 	TEventDispatcher<KeyUpEvent> onKeyUp;
