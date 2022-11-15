@@ -16,7 +16,7 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-class TSPSCCircularBuffer final
+class TSPSCRingBuffer final
 {
 	static_assert(std::is_default_constructible_v<T>);
 	static_assert(N != 0);
@@ -42,7 +42,7 @@ private:
 	};
 
 public:
-	inline TSPSCCircularBuffer()
+	inline TSPSCRingBuffer()
 		: m_items           ()
 		, m_produceHead     (0)
 		, m_consumeHead     (0)
@@ -243,7 +243,7 @@ public:
 	class ProducerGuard final : private INoCopyAndMove
 	{
 	public:
-		inline explicit ProducerGuard(TSPSCCircularBuffer& buffer)
+		inline explicit ProducerGuard(TSPSCRingBuffer& buffer)
 			: m_buffer(buffer)
 		{
 			m_buffer.beginProduce();
@@ -255,13 +255,13 @@ public:
 		}
 
 	private:
-		TSPSCCircularBuffer& m_buffer;
+		TSPSCRingBuffer& m_buffer;
 	};
 
 	class ConsumerGuard final : private INoCopyAndMove
 	{
 	public:
-		inline explicit ConsumerGuard(TSPSCCircularBuffer& buffer)
+		inline explicit ConsumerGuard(TSPSCRingBuffer& buffer)
 			: m_buffer(buffer)
 		{
 			m_buffer.beginConsume();
@@ -273,7 +273,7 @@ public:
 		}
 
 	private:
-		TSPSCCircularBuffer& m_buffer;
+		TSPSCRingBuffer& m_buffer;
 	};
 
 	template<typename ProducerFunc>
@@ -404,7 +404,5 @@ private:
 	mutable std::thread::id m_consumerThreadID;
 #endif
 };
-
-
 
 }// end namespace ph

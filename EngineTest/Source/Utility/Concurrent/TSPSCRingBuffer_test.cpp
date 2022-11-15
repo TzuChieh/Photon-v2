@@ -1,4 +1,4 @@
-#include <Utility/Concurrent/TSPSCCircularBuffer.h>
+#include <Utility/Concurrent/TSPSCRingBuffer.h>
 
 #include <gtest/gtest.h>
 
@@ -7,12 +7,12 @@
 
 using namespace ph;
 
-TEST(TSPSCCircularBufferTest, CtorDtor)
+TEST(TSPSCRingBufferTest, CtorDtor)
 {
 	{
-		TSPSCCircularBuffer<int, 1> intBuffer;
-		TSPSCCircularBuffer<int, 2> intBuffer2;
-		TSPSCCircularBuffer<int, 100> intBuffer3;
+		TSPSCRingBuffer<int, 1> intBuffer;
+		TSPSCRingBuffer<int, 2> intBuffer2;
+		TSPSCRingBuffer<int, 100> intBuffer3;
 
 		// No way that they start out just for waiting
 		EXPECT_FALSE(intBuffer.mayWaitToProduce());
@@ -26,9 +26,9 @@ TEST(TSPSCCircularBufferTest, CtorDtor)
 	}
 	
 	{
-		TSPSCCircularBuffer<double, 1> doubleBuffer;
-		TSPSCCircularBuffer<double, 2> doubleBuffer2;
-		TSPSCCircularBuffer<double, 100> doubleBuffer3;
+		TSPSCRingBuffer<double, 1> doubleBuffer;
+		TSPSCRingBuffer<double, 2> doubleBuffer2;
+		TSPSCRingBuffer<double, 100> doubleBuffer3;
 
 		// No way that they start out just for waiting
 		EXPECT_FALSE(doubleBuffer.mayWaitToProduce());
@@ -42,9 +42,9 @@ TEST(TSPSCCircularBufferTest, CtorDtor)
 	}
 	
 	{
-		TSPSCCircularBuffer<std::string, 1> strBuffer;
-		TSPSCCircularBuffer<std::string, 2> strBuffer2;
-		TSPSCCircularBuffer<std::string, 100> strBuffer3;
+		TSPSCRingBuffer<std::string, 1> strBuffer;
+		TSPSCRingBuffer<std::string, 2> strBuffer2;
+		TSPSCRingBuffer<std::string, 100> strBuffer3;
 
 		// No way that they start out just for waiting
 		EXPECT_FALSE(strBuffer.mayWaitToProduce());
@@ -58,13 +58,13 @@ TEST(TSPSCCircularBufferTest, CtorDtor)
 	}
 }
 
-TEST(TSPSCCircularBufferTest, Running)
+TEST(TSPSCRingBufferTest, Running)
 {
 	// Baseline: simple buffer of size 1
 	{
 		constexpr int numIterations = 1000;
 		
-		TSPSCCircularBuffer<double, 1> buffer;
+		TSPSCRingBuffer<double, 1> buffer;
 
 		std::thread producer(
 			[&buffer, numIterations]()
@@ -117,7 +117,7 @@ TEST(TSPSCCircularBufferTest, Running)
 			double z = -999.0;
 		};
 		
-		TSPSCCircularBuffer<Numbers, 3> buffer;
+		TSPSCRingBuffer<Numbers, 3> buffer;
 
 		std::thread producer(
 			[&buffer, numIterations]()
@@ -159,7 +159,7 @@ TEST(TSPSCCircularBufferTest, Running)
 	{
 		constexpr int numIterations = 1000;
 		
-		TSPSCCircularBuffer<std::string, 5> buffer;
+		TSPSCRingBuffer<std::string, 5> buffer;
 
 		std::thread producer(
 			[&buffer, numIterations]()

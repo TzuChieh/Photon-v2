@@ -8,7 +8,7 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Utility/Concurrent/InitiallyPausedThread.h>
-#include <Utility/Concurrent/TSPSCCircularBuffer.h>
+#include <Utility/Concurrent/TSPSCRingBuffer.h>
 
 #include <cstddef>
 #include <thread>
@@ -529,7 +529,7 @@ private:
 		return m_frameNumber;
 	}
 
-	TSPSCCircularBuffer<Frame, NUM_BUFFERS> m_frames;
+	TSPSCRingBuffer<Frame, NUM_BUFFERS> m_frames;
 
 	InitiallyPausedThread m_thread;
 	std::atomic_bool      m_isStopRequested;

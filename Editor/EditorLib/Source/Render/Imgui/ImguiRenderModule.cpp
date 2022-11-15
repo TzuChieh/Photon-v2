@@ -88,6 +88,9 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
     ImDrawData* const mainThreadDrawData = ImGui::GetDrawData();
     PH_ASSERT(mainThreadDrawData);
 
+    // We never want to block main thread. If so, consider increase the size of shared data.
+    PH_ASSERT(m_renderContent->getSharedRenderData().mayWaitToProduce() == false);
+
     // Copy draw data to a buffer shared with GHI thread
     m_renderContent->getSharedRenderData().guardedProduce(
         [mainThreadDrawData](ImguiRenderContent::ImguiRenderData& renderData)

@@ -37,7 +37,7 @@ void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 					//int display_w, display_h;
 					//glfwGetFramebufferSize(window, &display_w, &display_h);
 					glViewport(0, 0, 512, 512);
-					glClearColor(0, 0, 1, 1);
+					glClearColor(0, 0, 0, 1);
 					glClear(GL_COLOR_BUFFER_BIT);
 				});
 		});
@@ -48,6 +48,9 @@ void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 		caller.add(
 			[this](GHI& ghi)
 			{
+				// We never want to block GHI thread. If so, consider increase the size of shared data.
+				PH_ASSERT(m_sharedRenderData.mayWaitToConsume() == false);
+
 				m_sharedRenderData.guardedConsume(
 					[](ImguiRenderData& renderData)
 					{
@@ -76,11 +79,11 @@ void ImguiRenderContent::signifyNewRenderDataIsAvailable()
 
 void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData)
 {
-	// We deep copy `ImDrawList` here, as the comment for `ImDrawData::CmdLists` says that the draw lists
-	// are owned by `ImGuiContext`, simply swap them with our buffer (which is a modification) might broke
-	// the IMGUI framework.
-	// Here we aim to minimize the amount of memory allocation & deallocation for max efficiency. May need
-	// to check IMGUI source again if the library is updated.
+	// We deep copy `ImDrawList` here, as the comment for `ImDrawData::CmdLists` says that the 
+	// draw lists are owned by `ImGuiContext`, simply swap them with our buffer (which is a 
+	// modification) might broke some assumptions from IMGUI framework.
+	// Here we aim to minimize the amount of memory allocation & deallocation for max efficiency. 
+	// May need to check IMGUI source again if the library is updated.
 
 	const auto srcDrawListsSize = safe_number_cast<std::size_t>(srcDrawData.CmdListsCount);
 
@@ -94,27 +97,33 @@ void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData
 		drawListPtrBuffer.resize(srcDrawListsSize, nullptr);
 	}
 
-	// Shallow copy all data first
-	drawData = srcDrawData;
-
-	// Deep copy `ImGuiViewport`, this struct is only defined in docking branch
-	// NOTE: this struct contains multiple `void*` fields for IMGUI's backend implementation, watchout for
-	// threading issue as those data might get accessed concurrently here
+	// Deep copy `ImGuiViewport` into our buffer, this struct is only defined in docking branch
+	// NOTE: this struct contains multiple `void*` fields for IMGUI's backend implementation, 
+	// watchout for threading issue as those data might get accessed concurrently here
 	ownerViewportBuffer = *srcDrawData.OwnerViewport;
 	ownerViewportBuffer.DrawData = &drawData;
 
-	// Deep copy draw lists
+	// Shallow copy `ImDrawData` first
+	drawData = srcDrawData;
+
+	// Set `ImDrawData::CmdLists` to our pointer buffer
+	drawData.CmdLists = drawListPtrBuffer.data();
+
+	// Set `ImDrawData::OwnerViewport` to our viewport buffer
+	drawData.OwnerViewport = &ownerViewportBuffer;
+
+	// Deep copy `ImDrawData` draw lists
 	for(std::size_t listIdx = 0; listIdx < srcDrawListsSize; ++listIdx)
 	{
 		// Deep copy draw list into buffer first
-
-		PH_ASSERT(srcDrawData.CmdLists[listIdx]);
+		PH_ASSERT(srcDrawData.CmdLists && srcDrawData.CmdLists[listIdx]);
 		ImDrawList& srcDrawList = *srcDrawData.CmdLists[listIdx];
 		ImDrawList& dstDrawList = drawListBuffer[listIdx];
 
 		// Note that to deep copy an `ImVector`, do not use its assignment operator as it always free &
 		// allocate for all data, which is hugely inefficient.
 
+		// TODO: use reserve_discard, and don't forget to update Size
 		// Pre-allocate buffer to the same size (`ImVector::resize()` will grow only)
 		dstDrawList.CmdBuffer.resize(srcDrawList.CmdBuffer.size());
 		dstDrawList.IdxBuffer.resize(srcDrawList.IdxBuffer.size());

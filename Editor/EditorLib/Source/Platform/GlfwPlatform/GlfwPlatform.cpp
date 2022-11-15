@@ -82,6 +82,9 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 			requestedDisplaySizePx.x() = width;
 			requestedDisplaySizePx.y() = height;
 
+			// HACK: scale it for now, often too large
+			requestedDisplaySizePx /= 2;
+
 			PH_LOG(GlfwPlatform,
 				"display size defaults to primary monitor work area {}", requestedDisplaySizePx);
 		}
