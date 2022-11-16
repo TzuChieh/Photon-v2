@@ -15,6 +15,7 @@ namespace ph
 {
 
 /*
+	// FIXME: this is no longer true
 	This path class has exactly the same interface as DataIO/FileSystem/Path.h,
 	except that its implementation does not depend on STL's filesystem.
 */

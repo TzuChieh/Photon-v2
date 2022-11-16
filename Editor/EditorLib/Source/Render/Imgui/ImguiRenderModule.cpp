@@ -12,6 +12,8 @@
 #include "RenderCore/RTRScene.h"
 #include "Render/Imgui/imgui_common.h"
 
+#include <ph_cpp_core.h>
+
 #include <variant>
 
 /*
@@ -136,7 +138,7 @@ void ImguiRenderModule::initializeImgui()
     GLFWwindow* const backupCurrentCtx = glfwGetCurrentContext();
     glfwMakeContextCurrent(m_glfwWindow);
 
-    PH_LOG(DearImGui, "setup Dear ImGui context...");
+    PH_LOG(DearImGui, "setting-up context...");
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -152,10 +154,14 @@ void ImguiRenderModule::initializeImgui()
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
 
-    // Load Fonts
-    //io.Fonts->AddFontDefault();
+    PH_LOG(DearImGui, "setting-up fonts...");
 
-    PH_LOG(DearImGui, "setup Dear ImGui style...");
+    //io.Fonts->AddFontDefault();
+    io.FontDefault = io.Fonts->AddFontFromFileTTF(
+        (get_internal_resource_directory(EEngineProject::EditorLib) / "Font" / "Arial-Regular.ttf").toString().c_str(),
+        15.0f);
+
+    PH_LOG(DearImGui, "setting-up style...");
 
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
@@ -168,7 +174,7 @@ void ImguiRenderModule::initializeImgui()
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    PH_LOG(DearImGui, "setup platform renderer backends...");
+    PH_LOG(DearImGui, "setting-up platform renderer backends...");
 
     ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
     ImGui_ImplOpenGL3_Init("#version 460");

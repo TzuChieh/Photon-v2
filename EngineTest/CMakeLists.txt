@@ -44,5 +44,8 @@ endif()
 #		"${PROJECT_BINARY_DIR}/bin/Resource/Test/"
 #)
 
+set_target_properties(EngineTest PROPERTIES 
+	VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}")
+
 source_group(TREE ${ENGINE_TEST_DIR} FILES ${ENGINE_TEST_HEADER_FILES})
 source_group(TREE ${ENGINE_TEST_DIR} FILES ${ENGINE_TEST_SOURCE_FILES})
