@@ -11,6 +11,7 @@
 #include "RenderCore/RenderData.h"
 #include "RenderCore/RTRScene.h"
 #include "Render/Imgui/imgui_common.h"
+#include "Render/Imgui/Font/IconsMaterialDesign.h"
 
 #include <ph_cpp_core.h>
 
@@ -82,7 +83,10 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    m_editorUI.build();
+    //m_editorUI.build();
+    ImGui::Button(ICON_MD_FOLDER_COPY " Search");
+    ImGui::Button(ICON_MD_GRADE " Search");
+    ImGui::Button(ICON_MD_HOTEL " Search");
 
     // Rendering
     ImGui::Render();
@@ -156,10 +160,32 @@ void ImguiRenderModule::initializeImgui()
 
     PH_LOG(DearImGui, "setting-up fonts...");
 
+    const Path fontDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Font";
+    const float fontSizePx = 15.0f;
+
+
     //io.Fonts->AddFontDefault();
     io.FontDefault = io.Fonts->AddFontFromFileTTF(
-        (get_internal_resource_directory(EEngineProject::EditorLib) / "Font" / "Arial-Regular.ttf").toString().c_str(),
-        15.0f);
+        (fontDirectory / "Arial-Regular.ttf").toString().c_str(),
+        fontSizePx);
+
+    // Loading icon font
+    ImFontConfig fontConfig;
+    fontConfig.MergeMode = true;
+    fontConfig.PixelSnapH = true;
+    fontConfig.GlyphMinAdvanceX = fontSizePx;
+    fontConfig.GlyphOffset.x = 0.0f;
+    fontConfig.GlyphOffset.y = 2.2f;
+    static const ImWchar iconRanges[] = {
+        static_cast<ImWchar>(ICON_MIN_MD), 
+        static_cast<ImWchar>(ICON_MAX_MD), 
+        static_cast<ImWchar>(0)};
+    io.Fonts->AddFontFromFileTTF(
+        (fontDirectory / FONT_ICON_FILE_NAME_MD).toString().c_str(),
+        fontSizePx,
+        &fontConfig,
+        iconRanges);
+
 
     PH_LOG(DearImGui, "setting-up style...");
 
