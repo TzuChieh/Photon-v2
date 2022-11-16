@@ -247,58 +247,19 @@ std::vector<const SdlEnum*> get_registered_sdl_enums()
 	};
 }
 
-std::string_view get_config_directory(const EPhotonProject project)
+Path get_config_directory(const EEngineProject project)
 {
-	switch(project)
-	{
-	case EPhotonProject::ENGINE:        return PH_CONFIG_DIRECTORY "Engine/";
-	case EPhotonProject::ENGINE_TEST:   return PH_CONFIG_DIRECTORY "EngineTest/";
-	case EPhotonProject::SDL_GEN:       return PH_CONFIG_DIRECTORY "SDLGen/";
-	case EPhotonProject::SDL_GEN_CLI:   return PH_CONFIG_DIRECTORY "SDLGenCLI/";
-	case EPhotonProject::PHOTON_CLI:    return PH_CONFIG_DIRECTORY "PhotonCLI/";
-	case EPhotonProject::PHOTON_EDITOR: return PH_CONFIG_DIRECTORY "PhotonEditor/";
-
-	default: return PH_CONFIG_DIRECTORY;
-	}
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return "./";
+	return Path(PH_CONFIG_DIRECTORY).append(to_string(project));
 }
 
-std::string_view get_internal_resource_directory(const EPhotonProject project)
+Path get_internal_resource_directory(const EEngineProject project)
 {
-	switch(project)
-	{
-	case EPhotonProject::ENGINE:        return PH_INTERNAL_RESOURCE_DIRECTORY "Engine/";
-	case EPhotonProject::ENGINE_TEST:   return PH_INTERNAL_RESOURCE_DIRECTORY "EngineTest/";
-	case EPhotonProject::SDL_GEN:       return PH_INTERNAL_RESOURCE_DIRECTORY "SDLGen/";
-	case EPhotonProject::SDL_GEN_CLI:   return PH_INTERNAL_RESOURCE_DIRECTORY "SDLGenCLI/";
-	case EPhotonProject::PHOTON_CLI:    return PH_INTERNAL_RESOURCE_DIRECTORY "PhotonCLI/";
-	case EPhotonProject::PHOTON_EDITOR: return PH_INTERNAL_RESOURCE_DIRECTORY "PhotonEditor/";
-
-	default: return PH_INTERNAL_RESOURCE_DIRECTORY;
-	}
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return "./";
+	return Path(PH_INTERNAL_RESOURCE_DIRECTORY).append(to_string(project));
 }
 
-std::string_view get_core_resource_directory(const EPhotonProject project)
+Path get_core_resource_directory(const EEngineProject project)
 {
-	switch(project)
-	{
-	case EPhotonProject::ENGINE:        return PH_RESOURCE_DIRECTORY "Engine/";
-	case EPhotonProject::ENGINE_TEST:   return PH_RESOURCE_DIRECTORY "EngineTest/";
-	case EPhotonProject::SDL_GEN:       return PH_RESOURCE_DIRECTORY "SDLGen/";
-	case EPhotonProject::SDL_GEN_CLI:   return PH_RESOURCE_DIRECTORY "SDLGenCLI/";
-	case EPhotonProject::PHOTON_CLI:    return PH_RESOURCE_DIRECTORY "PhotonCLI/";
-	case EPhotonProject::PHOTON_EDITOR: return PH_RESOURCE_DIRECTORY "PhotonEditor/";
-
-	default: return PH_RESOURCE_DIRECTORY;
-	}
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return "./";
+	return Path(PH_RESOURCE_DIRECTORY).append(to_string(project));
 }
 
 }// end namespace ph

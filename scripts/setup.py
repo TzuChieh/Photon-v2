@@ -43,7 +43,9 @@ project_names = [
     "SDLGen",
     "SDLGenCLI",
     "PhotonCLI",
-    "PhotonEditor",
+    "Editor",
+    "EditorLib",
+    "EditorTest"
 ]
 
 src_dst_directories = []

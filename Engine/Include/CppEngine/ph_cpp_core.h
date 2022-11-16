@@ -1,10 +1,10 @@
 #pragma once
 
-#include "EPhotonProject.h"
+#include "EEngineProject.h"
+#include "DataIO/FileSystem/Path.h"
 
 #include <vector>
 #include <functional>
-#include <string_view>
 
 namespace ph { class SdlClass; }
 namespace ph { class SdlEnum; }
@@ -34,10 +34,10 @@ std::vector<const SdlClass*> get_registered_sdl_classes();
 */
 std::vector<const SdlEnum*> get_registered_sdl_enums();
 
-std::string_view get_config_directory(EPhotonProject project);
+Path get_config_directory(EEngineProject project);
 
-std::string_view get_internal_resource_directory(EPhotonProject project);
+Path get_internal_resource_directory(EEngineProject project);
 
-std::string_view get_core_resource_directory(EPhotonProject project);
+Path get_core_resource_directory(EEngineProject project);
 
 }// end namespace ph

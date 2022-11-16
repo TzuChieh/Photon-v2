@@ -99,7 +99,7 @@ void PythonGenerator::generate(
 
 Path PythonGenerator::makeResourcePath(const std::string& fileSubPath) const
 {
-	return Path(get_internal_resource_directory(EPhotonProject::SDL_GEN))
+	return get_internal_resource_directory(EEngineProject::SDLGen)
 		.append(Path("PythonGenerator"))
 		.append(Path(fileSubPath));
 }
