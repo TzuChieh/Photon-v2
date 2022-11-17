@@ -1,7 +1,6 @@
 #pragma once
 
-#include "RenderCore/EGraphicsAPI.h"
-#include "RenderCore/EClearTarget.h"
+#include "RenderCore/ghi_common.h"
 
 #include <Utility/INoCopyAndMove.h>
 #include <Common/logging.h>
