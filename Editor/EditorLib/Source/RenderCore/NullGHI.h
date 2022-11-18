@@ -26,11 +26,19 @@ public:
 	inline void clearBuffer(EClearTarget targets) override
 	{}
 
-	inline void setClearColor(const math::TVector4<float32>& color) override
+	inline void setClearColor(const math::Vector4F& color) override
 	{}
 
-	inline void swapBuffers()
+	inline void swapBuffers() override
 	{}
+
+	inline std::shared_ptr<GHITexture2D> createTexture2D(
+		const math::TVector2<uint32>& sizePx,
+		EGHITextureFormat format,
+		const GHISampleState& state) override
+	{
+		return nullptr;
+	}
 
 private:
 	inline void beginRawCommand() override

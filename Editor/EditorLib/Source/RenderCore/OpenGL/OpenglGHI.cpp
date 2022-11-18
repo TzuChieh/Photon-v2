@@ -1,6 +1,8 @@
-#include "RenderCore/OpenGL/GlfwGladOpenglGHI.h"
+#include "RenderCore/OpenGL/OpenglGHI.h"
 #include "ThirdParty/glad2_with_GLFW3.h"
 #include "Platform/Platform.h"
+#include "RenderCore/OpenGL/opengl_enums.h"
+#include "RenderCore/OpenGL/OpenglTexture2D.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -14,7 +16,7 @@
 namespace ph::editor
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(GlfwGladOpenGL, GHI);
+PH_DEFINE_INTERNAL_LOG_GROUP(OpenglGHI, GHI);
 
 namespace
 {
@@ -112,18 +114,18 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
 	case GL_DEBUG_SEVERITY_NOTIFICATION:
 	// Redundant state change performance warning, or unimportant undefined behavior
 	case GL_DEBUG_SEVERITY_LOW:
-		PH_LOG(GlfwGladOpenGL, "{}", debugStr);
+		PH_LOG(OpenglGHI, "{}", debugStr);
 		break;
 
 	// Major performance warnings, shader compilation/linking warnings, or the use of deprecated functionality
 	case GL_DEBUG_SEVERITY_MEDIUM:
-		PH_LOG_WARNING(GlfwGladOpenGL, "{}", debugStr);
+		PH_LOG_WARNING(OpenglGHI, "{}", debugStr);
 		break;
 
 	// All OpenGL Errors, shader compilation/linking errors, or highly-dangerous undefined behavior
 	case GL_DEBUG_SEVERITY_HIGH:
 	default:
-		PH_LOG_ERROR(GlfwGladOpenGL, "{}", debugStr);
+		PH_LOG_ERROR(OpenglGHI, "{}", debugStr);
 		break;
 	}
 }
@@ -133,7 +135,7 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
 namespace ph::editor
 {
 
-GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow, const bool hasDebugContext)
+OpenglGHI::OpenglGHI(GLFWwindow* const glfwWindow, const bool hasDebugContext)
 	: GHI(EGraphicsAPI::OpenGL)
 	, m_glfwWindow     (glfwWindow)
 	, m_hasDebugContext(hasDebugContext)
@@ -143,12 +145,12 @@ GlfwGladOpenglGHI::GlfwGladOpenglGHI(GLFWwindow* const glfwWindow, const bool ha
 #endif
 {}
 
-GlfwGladOpenglGHI::~GlfwGladOpenglGHI()
+OpenglGHI::~OpenglGHI()
 {
 	PH_ASSERT(!m_isLoaded);
 }
 
-void GlfwGladOpenglGHI::load()
+void OpenglGHI::load()
 {
 #ifdef PH_DEBUG
 	m_loadThreadId = std::this_thread::get_id();
@@ -171,7 +173,7 @@ void GlfwGladOpenglGHI::load()
 	if(version == 0)
 	{
 		throw PlatformException(
-			"failed to initialize OpenGL context (glad load failed)");
+			"failed to load OpenGL (glad load failed)");
 	}
 
 	if(m_hasDebugContext)
@@ -179,12 +181,12 @@ void GlfwGladOpenglGHI::load()
 		glDebugMessageCallback(ph_editor_OpenGL_debug_callback, nullptr);
 	}
 
-	PH_LOG(GlfwGladOpenGL,
+	PH_LOG(OpenglGHI,
 		"loaded OpenGL {}.{}", 
 		GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
 	// Log information provided by OpenGL itself
-	PH_LOG(GlfwGladOpenGL,
+	PH_LOG(OpenglGHI,
 		"Vendor: {}, Renderer: {}, Version: {}, GLSL Version: {}",
 		GLubyte_to_sv(glGetString(GL_VENDOR)),
 		GLubyte_to_sv(glGetString(GL_RENDERER)),
@@ -194,7 +196,7 @@ void GlfwGladOpenglGHI::load()
 	m_isLoaded = true;
 }
 
-void GlfwGladOpenglGHI::unload()
+void OpenglGHI::unload()
 {
 	PH_ASSERT(std::this_thread::get_id() == m_loadThreadId);
 
@@ -206,7 +208,7 @@ void GlfwGladOpenglGHI::unload()
 	m_isLoaded = false;
 }
 
-void GlfwGladOpenglGHI::setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx)
+void OpenglGHI::setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx)
 {
 	glViewport(
 		safe_number_cast<GLint>(xPx),
@@ -215,7 +217,7 @@ void GlfwGladOpenglGHI::setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint
 		safe_number_cast<GLsizei>(heightPx));
 }
 
-void GlfwGladOpenglGHI::clearBuffer(const EClearTarget targets)
+void OpenglGHI::clearBuffer(const EClearTarget targets)
 {
 	const TEnumFlags<EClearTarget> flags({targets});
 
@@ -239,7 +241,7 @@ void GlfwGladOpenglGHI::clearBuffer(const EClearTarget targets)
 	glClear(mask);
 }
 
-void GlfwGladOpenglGHI::setClearColor(const math::TVector4<float32>& color)
+void OpenglGHI::setClearColor(const math::Vector4F& color)
 {
 	glClearColor(
 		safe_number_cast<GLclampf>(color.r()), 
@@ -248,17 +250,27 @@ void GlfwGladOpenglGHI::setClearColor(const math::TVector4<float32>& color)
 		safe_number_cast<GLclampf>(color.a()));
 }
 
-void GlfwGladOpenglGHI::swapBuffers()
+void OpenglGHI::swapBuffers()
 {
 	glfwSwapBuffers(m_glfwWindow);
 }
 
-void GlfwGladOpenglGHI::beginRawCommand()
+std::shared_ptr<GHITexture2D> OpenglGHI::createTexture2D(
+	const math::TVector2<uint32>& sizePx,
+	const EGHITextureFormat format,
+	const GHISampleState& state)
+{
+	const auto glSizePx = sizePx.safeCast<GLsizei>();
+	return std::make_shared<OpenglTexture2D>(
+		glSizePx.x(), glSizePx.y(), to_OpenGL_internal_format(format), state);
+}
+
+void OpenglGHI::beginRawCommand()
 {
 	// TODO: currently no state yet
 }
 
-void GlfwGladOpenglGHI::endRawCommand()
+void OpenglGHI::endRawCommand()
 {
 	// TODO: currently no state yet
 }

@@ -10,18 +10,23 @@
 namespace ph::editor
 {
 
-class GlfwGladOpenglGHI : public GHI
+class OpenglGHI : public GHI
 {
 public:
-	GlfwGladOpenglGHI(GLFWwindow* glfwWindow, bool hasDebugContext);
-	~GlfwGladOpenglGHI() override;
+	OpenglGHI(GLFWwindow* glfwWindow, bool hasDebugContext);
+	~OpenglGHI() override;
 
 	void load() override;
 	void unload() override;
 	void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override;
 	void clearBuffer(EClearTarget targets) override;
-	void setClearColor(const math::TVector4<float32>& color) override;
+	void setClearColor(const math::Vector4F& color) override;
 	void swapBuffers() override;
+
+	std::shared_ptr<GHITexture2D> createTexture2D(
+		const math::TVector2<uint32>& sizePx,
+		EGHITextureFormat format,
+		const GHISampleState& state) override;
 
 private:
 	void beginRawCommand() override;

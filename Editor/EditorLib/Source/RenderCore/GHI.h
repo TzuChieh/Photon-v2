@@ -1,6 +1,8 @@
 #pragma once
 
-#include "RenderCore/ghi_common.h"
+#include "RenderCore/ghi_enums.h"
+#include "RenderCore/ghi_states.h"
+#include "RenderCore/GHITexture2D.h"
 
 #include <Utility/INoCopyAndMove.h>
 #include <Common/logging.h>
@@ -11,6 +13,7 @@
 #include <source_location>
 #include <type_traits>
 #include <string>
+#include <memory>
 
 namespace ph::editor
 {
@@ -51,9 +54,14 @@ public:
 
 	virtual void clearBuffer(EClearTarget target) = 0;
 
-	virtual void setClearColor(const math::TVector4<float32>& color) = 0;
+	virtual void setClearColor(const math::Vector4F& color) = 0;
 
 	virtual void swapBuffers() = 0;
+
+	virtual std::shared_ptr<GHITexture2D> createTexture2D(
+		const math::TVector2<uint32>& sizePx, 
+		EGHITextureFormat format,
+		const GHISampleState& state) = 0;
 
 	template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
 	void rawCommand(

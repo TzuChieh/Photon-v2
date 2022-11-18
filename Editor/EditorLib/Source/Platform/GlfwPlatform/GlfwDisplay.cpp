@@ -1,5 +1,5 @@
 #include "Platform/GlfwPlatform/GlfwDisplay.h"
-#include "RenderCore/OpenGL/GlfwGladOpenglGHI.h"
+#include "RenderCore/OpenGL/OpenglGHI.h"
 #include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
@@ -104,7 +104,7 @@ void GlfwDisplay::initialize(
 	PH_ASSERT(!m_ghi);
 	if(graphicsApi == EGraphicsAPI::OpenGL)
 	{
-		m_ghi = std::make_unique<GlfwGladOpenglGHI>(m_glfwWindow, useDebugModeGHI);
+		m_ghi = std::make_unique<OpenglGHI>(m_glfwWindow, useDebugModeGHI);
 	}
 	
 	m_apiType = graphicsApi;

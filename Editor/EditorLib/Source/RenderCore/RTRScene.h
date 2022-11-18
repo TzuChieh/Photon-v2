@@ -9,6 +9,8 @@ class RenderThreadUpdateContext;
 class GHIThreadCaller;
 class CustomRenderContent;
 
+/*! @brief A real-time scene for the graphics device only.
+*/
 class RTRScene final
 {
 public:
