@@ -21,10 +21,10 @@ public:
 	*/
 	Editor* editor = nullptr;
 
-	/*! @brief Frame buffer resolution of the main drawing area.
+	/*! @brief Framebuffer resolution of the main drawing area.
 	@note 0 if not applicable.
 	*/
-	math::Vector2S frameBufferSizePx = {0, 0};
+	math::Vector2S framebufferSizePx = {0, 0};
 };
 
 }// end namespace ph::editor

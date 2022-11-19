@@ -1,0 +1,10 @@
+/*! @dir OpenGL
+@brief Implementations of OpenGL GHI.
+
+Note that the implementation uses modern OpenGL (version >= 4.5). Where possible, DSA (Direct State Access)
+is utilized.
+
+References:
+[1] A Guide to Modern OpenGL Functions
+    https://github.com/fendevel/Guide-to-Modern-OpenGL-Functions
+*/

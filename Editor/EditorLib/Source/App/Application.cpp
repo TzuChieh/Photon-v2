@@ -51,7 +51,7 @@ Application::Application(AppSettings settings)
 				ModuleAttachmentInfo info;
 				info.platform          = m_platform.get();
 				info.editor            = &m_editor;
-				info.frameBufferSizePx = m_platform->getDisplay().getFrameBufferSizePx();
+				info.framebufferSizePx = m_platform->getDisplay().getFramebufferSizePx();
 
 				e.getTargetModule()->onAttach(info);
 			}
@@ -300,7 +300,7 @@ bool Application::attachModule(AppModule* const targetModule)
 	ModuleAttachmentInfo info;
 	info.platform          = m_platform.get();
 	info.editor            = &m_editor;
-	info.frameBufferSizePx = m_platform->getDisplay().getFrameBufferSizePx();
+	info.framebufferSizePx = m_platform->getDisplay().getFramebufferSizePx();
 
 	try
 	{

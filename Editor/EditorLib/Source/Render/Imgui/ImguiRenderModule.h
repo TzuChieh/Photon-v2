@@ -29,10 +29,10 @@ public:
 private:
 	void initializeImgui();
 	void terminateImgui();
-	void setFrameBufferSizePx(const math::Vector2S& sizePx);
+	void setFramebufferSizePx(const math::Vector2S& sizePx);
 
 	GLFWwindow*                         m_glfwWindow;
-	math::TVector2<uint32>              m_frameBufferSizePx;
+	math::TVector2<uint32>              m_framebufferSizePx;
 	std::unique_ptr<ImguiRenderContent> m_renderContent;
 	bool                                m_isRenderContentAdded;
 	ImguiEditorUI                       m_editorUI;

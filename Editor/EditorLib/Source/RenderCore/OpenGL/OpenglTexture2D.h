@@ -18,7 +18,7 @@ public:
 
 	~OpenglTexture2D() override;
 
-	void loadPixels(void* pixelData, std::size_t numBytes) override;
+	void upload(void* pixelData, std::size_t numBytes) override;
 	void bind(uint32 slotIndex) override;
 	MemoryInfo getMemoryInfo() const override;
 

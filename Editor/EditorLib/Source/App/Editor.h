@@ -3,7 +3,7 @@
 #include "EditorCore/TEventDispatcher.h"
 #include "EditorCore/Event/KeyDownEvent.h"
 #include "EditorCore/Event/KeyUpEvent.h"
-#include "EditorCore/Event/FrameBufferResizeEvent.h"
+#include "EditorCore/Event/FramebufferResizeEvent.h"
 #include "EditorCore/Event/DisplayCloseEvent.h"
 #include "EditorCore/Event/AppModuleActionEvent.h"
 #include "App/EditorEventQueue.h"
@@ -26,7 +26,7 @@ public:
 public:
 	TEventDispatcher<KeyDownEvent> onKeyDown;
 	TEventDispatcher<KeyUpEvent> onKeyUp;
-	TEventDispatcher<FrameBufferResizeEvent> onFrameBufferResize;
+	TEventDispatcher<FramebufferResizeEvent> onFramebufferResize;
 	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
 	TEventDispatcher<AppModuleActionEvent> onAppModuleAction;
 

@@ -27,7 +27,7 @@ OpenglTexture2D::OpenglTexture2D(
 {
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
 
-	// Cannot change size and format when created this way
+	// Using immutable texture object, cannot change size and format when created this way
 	glTextureStorage2D(m_textureID, 1, internalFormat, widthPx, heightPx);
 	
 	glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, sampleState.filterType);
@@ -42,7 +42,7 @@ OpenglTexture2D::~OpenglTexture2D()
 	glDeleteTextures(1, &m_textureID);
 }
 
-void OpenglTexture2D::loadPixels(void* const pixelData, const std::size_t numBytes)
+void OpenglTexture2D::upload(void* const pixelData, const std::size_t numBytes)
 {
 	PH_ASSERT(pixelData);
 	PH_ASSERT_EQ(numBytes, getApparentSize());

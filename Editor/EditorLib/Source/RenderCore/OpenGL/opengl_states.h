@@ -15,6 +15,8 @@ public:
 
 	OpenglSampleState();
 	explicit OpenglSampleState(const GHISampleState& ghiState);
+
+	inline bool operator == (const OpenglSampleState& rhs) const = default;
 };
 
 inline OpenglSampleState::OpenglSampleState()

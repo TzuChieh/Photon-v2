@@ -29,7 +29,7 @@ protected:
 public:
 	virtual GHI* getGHI() const = 0;
 	virtual math::Vector2S getSizePx() const = 0;
-	virtual math::Vector2S getFrameBufferSizePx() const = 0;
+	virtual math::Vector2S getFramebufferSizePx() const = 0;
 	virtual EGraphicsAPI getGraphicsAPIType() const = 0;
 
 	using NativeWindow = std::variant<

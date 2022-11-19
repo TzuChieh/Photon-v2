@@ -29,7 +29,7 @@ namespace ph::editor
 ImguiRenderModule::ImguiRenderModule()
     : RenderModule()
     , m_glfwWindow(nullptr)
-    , m_frameBufferSizePx(0)
+    , m_framebufferSizePx(0)
     , m_renderContent(nullptr)
     , m_isRenderContentAdded(false)
     , m_editorUI()
@@ -57,13 +57,13 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 
     // Now we are sure all core components required are there.
 
-	setFrameBufferSizePx(info.frameBufferSizePx);
+	setFramebufferSizePx(info.framebufferSizePx);
 
 	// Listen to future size change of frame buffer
-	info.editor->onFrameBufferResize.addListener(
-		[this](const FrameBufferResizeEvent& e)
+	info.editor->onFramebufferResize.addListener(
+		[this](const FramebufferResizeEvent& e)
 		{
-			setFrameBufferSizePx(e.getNewSizePx());
+			setFramebufferSizePx(e.getNewSizePx());
 		});
 
 	initializeImgui();
@@ -129,9 +129,9 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
     // TODO: remove content before detach
 }
 
-void ImguiRenderModule::setFrameBufferSizePx(const math::Vector2S& sizePx)
+void ImguiRenderModule::setFramebufferSizePx(const math::Vector2S& sizePx)
 {
-	m_frameBufferSizePx = sizePx.safeCast<uint32>();
+	m_framebufferSizePx = sizePx.safeCast<uint32>();
 }
 
 void ImguiRenderModule::initializeImgui()

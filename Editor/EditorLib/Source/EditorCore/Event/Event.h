@@ -21,7 +21,7 @@ enum class EEventType
 	DisplayLostFocus,
 	DisplayMove,
 
-	FrameBufferResize,
+	FramebufferResize,
 
 	AppTick,
 	AppUpdate,

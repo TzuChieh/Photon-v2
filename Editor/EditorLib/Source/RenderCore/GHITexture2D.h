@@ -23,7 +23,7 @@ public:
 	GHITexture2D();
 	virtual ~GHITexture2D();
 
-	virtual void loadPixels(void* pixelData, std::size_t numBytes) = 0;
+	virtual void upload(void* pixelData, std::size_t numBytes) = 0;
 	virtual void bind(uint32 slotIndex) = 0;
 
 	virtual MemoryInfo getMemoryInfo() const;

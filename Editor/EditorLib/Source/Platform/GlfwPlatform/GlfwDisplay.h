@@ -20,7 +20,7 @@ public:
 
 	GHI* getGHI() const override;
 	math::Vector2S getSizePx() const override;
-	math::Vector2S getFrameBufferSizePx() const override;
+	math::Vector2S getFramebufferSizePx() const override;
 	NativeWindow getNativeWindow() const override;
 	EGraphicsAPI getGraphicsAPIType() const override;
 
