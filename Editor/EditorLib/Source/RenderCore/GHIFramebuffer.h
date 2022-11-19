@@ -16,7 +16,7 @@ namespace ph::editor
 class GHIFramebufferFormat final
 {
 public:
-	EGHITextureFormat textureFormat;
+	EGHIPixelFormat pixelFormat;
 	GHISampleState sampleState;
 
 	GHIFramebufferFormat();
@@ -45,7 +45,7 @@ public:
 	virtual void unbind() = 0;
 	virtual void setAttachments(const GHIFramebufferAttachmentInfo& attachments) = 0;
 	virtual void clearColor(uint32 slotIndex, const math::Vector4F& color) = 0;
-	virtual void clearDepthStencil() = 0;
+	virtual void clearDepthStencil(float32 depth, uint8 stencil) = 0;
 };
 
 }// end namespace ph::editor

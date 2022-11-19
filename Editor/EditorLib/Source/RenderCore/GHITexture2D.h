@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/ghi_enums.h"
+#include "RenderCore/ghi_states.h"
 
 #include <Math/TVector2.h>
 #include <Common/primitive_type.h>
@@ -9,6 +10,15 @@
 
 namespace ph::editor
 {
+
+class GHITextureFormat final
+{
+public:
+	EGHIPixelFormat pixelFormat;
+	GHISampleState sampleState;
+
+	GHITextureFormat();
+};
 
 class GHITexture2D
 {
@@ -23,7 +33,11 @@ public:
 	GHITexture2D();
 	virtual ~GHITexture2D();
 
-	virtual void upload(void* pixelData, std::size_t numBytes) = 0;
+	virtual void upload(
+		const std::byte* pixelData, 
+		std::size_t numBytes, 
+		EGHIPixelComponent componentType) = 0;
+
 	virtual void bind(uint32 slotIndex) = 0;
 
 	virtual MemoryInfo getMemoryInfo() const;

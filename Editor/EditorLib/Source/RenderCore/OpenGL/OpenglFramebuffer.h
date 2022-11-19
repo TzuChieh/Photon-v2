@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHIFramebuffer.h"
+#include "RenderCore/OpenGL/opengl_enums.h"
 #include "RenderCore/OpenGL/opengl_states.h"
 
 #include <array>
@@ -29,6 +30,7 @@ public:
 	GLsizei numSamples;
 	std::array<OpenglFramebufferFormat, GHIFramebufferAttachmentInfo::MAX_COLOR_ATTACHMENTS> colorFormats;
 	OpenglFramebufferFormat depthStencilFormat;
+	GLenum depthStencilAttachment;
 
 	OpenglFramebufferAttachmentInfo();
 	explicit OpenglFramebufferAttachmentInfo(const GHIFramebufferAttachmentInfo& attachments);
@@ -44,13 +46,14 @@ public:
 	void unbind() override;
 	void setAttachments(const GHIFramebufferAttachmentInfo& attachments) override;
 	void clearColor(uint32 slotIndex, const math::Vector4F& color) override;
-	void clearDepthStencil() override;
+	void clearDepthStencil(float32 depth, uint8 stencil) override;
 
 private:
-	void allocateDeviceColorTexture();
+	void updateDeviceColorTexture(uint32 slotIndex, const OpenglFramebufferAttachmentInfo& newAttachment);
+	void updateDeviceDepthStencilTexture(const OpenglFramebufferAttachmentInfo& newAttachment);
 
 	OpenglFramebufferAttachmentInfo m_attachments;
-	std::array<GLuint, GHIFramebufferAttachmentInfo::MAX_COLOR_ATTACHMENTS> m_textureIDs;
+	std::array<GLuint, GHIFramebufferAttachmentInfo::MAX_COLOR_ATTACHMENTS> m_colorTextureIDs;
 	GLuint m_depthStencilTextureID;
 	GLuint m_framebufferID;
 };

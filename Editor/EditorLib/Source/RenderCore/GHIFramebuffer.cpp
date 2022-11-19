@@ -4,7 +4,7 @@ namespace ph::editor
 {
 
 GHIFramebufferFormat::GHIFramebufferFormat()
-	: textureFormat(EGHITextureFormat::Empty)
+	: pixelFormat(EGHIPixelFormat::Empty)
 	, sampleState()
 {}
 

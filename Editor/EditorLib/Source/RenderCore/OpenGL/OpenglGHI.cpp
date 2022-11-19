@@ -257,12 +257,11 @@ void OpenglGHI::swapBuffers()
 
 std::shared_ptr<GHITexture2D> OpenglGHI::createTexture2D(
 	const math::TVector2<uint32>& sizePx,
-	const EGHITextureFormat format,
-	const GHISampleState& state)
+	const GHITextureFormat& format)
 {
 	const auto glSizePx = sizePx.safeCast<GLsizei>();
 	return std::make_shared<OpenglTexture2D>(
-		glSizePx.x(), glSizePx.y(), to_OpenGL_internal_format(format), state);
+		glSizePx.x(), glSizePx.y(), OpenglTextureFormat(format));
 }
 
 void OpenglGHI::beginRawCommand()

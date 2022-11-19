@@ -8,7 +8,7 @@
 namespace ph::editor
 {
 
-enum class EGHITextureFormat
+enum class EGHIPixelFormat
 {
 	Empty = 0,
 
@@ -19,6 +19,13 @@ enum class EGHITextureFormat
 	RGB_32F,
 	RGBA_32F,
 	Depth_24_Stencil_8
+};
+
+enum class EGHIPixelComponent
+{
+	LDR_8,
+	HDR_16F,
+	HDR_32F
 };
 
 enum class EGHIFilterMode
@@ -33,6 +40,7 @@ enum class EGHIWrapMode
 	Repeat
 };
 
-std::size_t apparent_bytes_in_single_pixel(EGHITextureFormat format);
+std::size_t apparent_bytes_in_single_pixel(EGHIPixelFormat format);
+std::size_t apparent_bytes_in_pixel_component(EGHIPixelComponent component);
 
 }// end namespace ph::editor

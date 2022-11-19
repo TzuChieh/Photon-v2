@@ -60,8 +60,7 @@ public:
 
 	virtual std::shared_ptr<GHITexture2D> createTexture2D(
 		const math::TVector2<uint32>& sizePx, 
-		EGHITextureFormat format,
-		const GHISampleState& state) = 0;
+		const GHITextureFormat& format) = 0;
 
 	template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
 	void rawCommand(
