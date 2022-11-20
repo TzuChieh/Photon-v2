@@ -31,6 +31,7 @@ Application::Application(AppSettings settings)
 	, m_platform()
 	, m_procedureModules()
 	, m_renderModules()
+	, m_modules()
 	, m_isRunning(false)
 	, m_shouldBreakMainLoop(false)
 	, m_isClosing(false)
@@ -297,10 +298,16 @@ bool Application::attachModule(AppModule* const targetModule)
 		return false;
 	}
 
+
 	ModuleAttachmentInfo info;
-	info.platform          = m_platform.get();
-	info.editor            = &m_editor;
+	info.platform = m_platform.get();
+	info.editor = &m_editor;
 	info.framebufferSizePx = m_platform->getDisplay().getFramebufferSizePx();
+
+	for(const AppModule* appModule : m_modules)
+	{
+		info.attachedModuleNames.push_back(appModule->getName());
+	}
 
 	try
 	{
@@ -313,6 +320,8 @@ bool Application::attachModule(AppModule* const targetModule)
 			targetModule->getName(), e.whatStr());
 		return false;
 	}
+
+	m_modules.push_back(targetModule);
 
 	PH_LOG(Application,
 		"{} module attached",

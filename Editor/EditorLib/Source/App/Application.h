@@ -66,6 +66,7 @@ private:
 	std::unique_ptr<Platform>     m_platform;
 	std::vector<ProcedureModule*> m_procedureModules;
 	std::vector<RenderModule*>    m_renderModules;
+	std::vector<AppModule*>       m_modules;
 	bool                          m_isRunning;
 	bool                          m_shouldBreakMainLoop;
 	bool                          m_isClosing;

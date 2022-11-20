@@ -31,6 +31,7 @@ public:
 	const std::unique_ptr<BaseType>& getUniquePtr(std::size_t index) const;
 
 	std::size_t size() const;
+	bool isEmpty() const;
 
 	BaseType* operator [] (std::size_t index) const;
 
@@ -138,6 +139,12 @@ template<typename BaseType>
 inline std::size_t TUniquePtrVector<BaseType>::size() const
 {
 	return m_uniquePtrs.size();
+}
+
+template<typename BaseType>
+inline bool TUniquePtrVector<BaseType>::isEmpty() const
+{
+	return size() == 0;
 }
 
 template<typename BaseType>

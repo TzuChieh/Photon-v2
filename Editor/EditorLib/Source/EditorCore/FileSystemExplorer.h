@@ -7,20 +7,38 @@
 #include <span>
 #include <memory>
 #include <string>
+#include <optional>
+#include <cstddef>
 
 namespace ph::editor
 {
 
 class FileSystemDirectoryEntry final
 {
-public:
-	explicit FileSystemDirectoryEntry(Path directoryPath);
-
-	bool isExpanded() const;
-	std::span<FileSystemDirectoryEntry> getChildren();
-	const Path& getDirectoryName() const;
+	friend class FileSystemExplorer;
 
 private:
+	// A dummy struct to prevent the entry from being constructed by others (ctors are public for
+	// `unique_ptr` to access them)
+	struct CtorAccessToken
+	{};
+
+public:
+	FileSystemDirectoryEntry(Path directoryPath, CtorAccessToken);
+
+	bool hasChildren() const;
+	const FileSystemDirectoryEntry* getChild(std::size_t childIndex) const;
+	std::size_t numChildren() const;
+	const Path& getDirectoryPath() const;
+	const std::string& getDirectoryName() const;
+
+private:
+	inline FileSystemDirectoryEntry(FileSystemDirectoryEntry&& other) = default;
+	inline FileSystemDirectoryEntry& operator = (FileSystemDirectoryEntry&& rhs) = default;
+
+	void populateChildren();
+	void removeChildren();
+
 	TUniquePtrVector<FileSystemDirectoryEntry> m_children;
 	Path m_directoryPath;
 	std::string m_directoryName;
@@ -29,16 +47,25 @@ private:
 class FileSystemExplorer final
 {
 public:
-	std::size_t addRootPath(Path path);
-	void expandRootPath(std::size_t rootIndex);
+	FileSystemExplorer();
+
+	std::optional<std::size_t> addRootPath(const Path& path);
+	void setCurrentRootPath(std::size_t rootPathIndex);
 	std::span<const Path> getRootPaths() const;
-	std::span<FileSystemDirectoryEntry> getRootEntries();
+	const Path& getCurrentRootPath() const;
+
+	FileSystemDirectoryEntry* getCurrentDirectoryEntry();
+	void expand(FileSystemDirectoryEntry* directoryEntry);
+	void collapse(FileSystemDirectoryEntry* directoryEntry);
+	std::vector<Path> makeItemListing(FileSystemDirectoryEntry* directoryEntry) const;
 
 private:
+	std::optional<std::size_t> findRootPathIndex(const Path& rootPath) const;
+
 	std::vector<Path> m_rootPaths;
-	std::vector<FileSystemDirectoryEntry> m_rootDirectoryEntries;
-	/*std::vector<Path> 
-	std::size_t m_currentRootIndex;*/
+	TUniquePtrVector<FileSystemDirectoryEntry> m_rootDirectoryEntries;
+	std::size_t m_currentRootIndex;
+	FileSystemDirectoryEntry* m_currentDirectoryEntry;
 };
 
 }// end namespace ph::editor

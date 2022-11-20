@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/compiler.h"
+#include "Utility/string_utils.h"
 
 #include <string>
 #include <iostream>
@@ -117,6 +118,7 @@ public:
 	}
 
 	std::string toString() const;
+	std_filesystem::path toStdPath() const;
 
 	inline Path removeLeadingSeparator() const
 	{
@@ -241,7 +243,14 @@ inline std::string Path::toString() const
 	return m_path.string();
 }
 
+inline std_filesystem::path Path::toStdPath() const
+{
+	return m_path;
+}
+
 }// end namespace ph
+
+PH_DEFINE_INLINE_TO_STRING_FORMATTER(ph::Path);
 
 #else
 
