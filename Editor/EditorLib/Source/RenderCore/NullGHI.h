@@ -39,6 +39,11 @@ public:
 		return nullptr;
 	}
 
+	inline std::shared_ptr<GHIFramebuffer> createFramebuffer() override
+	{
+		return nullptr;
+	}
+
 private:
 	inline void beginRawCommand() override
 	{}

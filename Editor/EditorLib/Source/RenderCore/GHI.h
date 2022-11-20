@@ -3,6 +3,7 @@
 #include "RenderCore/ghi_enums.h"
 #include "RenderCore/ghi_states.h"
 #include "RenderCore/GHITexture2D.h"
+#include "RenderCore/GHIFramebuffer.h"
 
 #include <Utility/INoCopyAndMove.h>
 #include <Common/logging.h>
@@ -61,6 +62,8 @@ public:
 	virtual std::shared_ptr<GHITexture2D> createTexture2D(
 		const math::TVector2<uint32>& sizePx, 
 		const GHITextureFormat& format) = 0;
+
+	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer() = 0;
 
 	template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
 	void rawCommand(

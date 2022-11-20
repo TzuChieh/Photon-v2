@@ -3,6 +3,7 @@
 #include "Platform/Platform.h"
 #include "RenderCore/OpenGL/opengl_enums.h"
 #include "RenderCore/OpenGL/OpenglTexture2D.h"
+#include "RenderCore/OpenGL/OpenglFramebuffer.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -262,6 +263,11 @@ std::shared_ptr<GHITexture2D> OpenglGHI::createTexture2D(
 	const auto glSizePx = sizePx.safeCast<GLsizei>();
 	return std::make_shared<OpenglTexture2D>(
 		glSizePx.x(), glSizePx.y(), OpenglTextureFormat(format));
+}
+
+std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer()
+{
+	return std::make_shared<OpenglFramebuffer>();
 }
 
 void OpenglGHI::beginRawCommand()

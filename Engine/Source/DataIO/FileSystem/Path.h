@@ -43,23 +43,33 @@ public:
 	inline Path() : 
 		m_path()
 	{}
-
-	// Constructs a path from some string representation of the path. The 
-	// string can be either a relative or absolute path, or even a path 
-	// fragment. The constructed path substitutes all separators to a system 
-	// specific (preferred) one.
-	//
+	
+	/*!
+	Constructs a path from some string representation of the path. The string can be either 
+	a relative or absolute path, or even a path fragment. The constructed path substitutes 
+	all separators to a system specific (preferred) one.
+	*/
 	inline explicit Path(std::string path) : 
-		m_path(std_filesystem::path(std::move(path)).make_preferred())
-	{}
+		m_path(std_filesystem::path(std::move(path)))
+	{
+		m_path.make_preferred();
+	}
 
 	inline explicit Path(const std::string_view path) :
-		m_path(std_filesystem::path(path).make_preferred())
-	{}
+		m_path(std_filesystem::path(path))
+	{
+		m_path.make_preferred();
+	}
 
 	inline explicit Path(const char* const path) :
 		Path(std::string_view(path))
 	{}
+
+	inline explicit Path(std_filesystem::path path) :
+		m_path(std::move(path))
+	{
+		m_path.make_preferred();
+	}
 
 	inline bool isRelative() const
 	{
@@ -89,10 +99,11 @@ public:
 
 		return absPath;
 	}
-
-	// Appending one path to another. System specific directory separators are
-	// added in between two path objects.
-	//
+	
+	/*!
+	Appending one path to another. System specific directory separators are added in 
+	between two path objects.
+	*/
 	inline Path append(const Path& other) const
 	{
 		auto thisPath  = this->removeTrailingSeparator();
@@ -105,10 +116,7 @@ public:
 		return append(Path(pathStr));
 	}
 
-	inline std::string toString() const
-	{
-		return m_path.string();
-	}
+	std::string toString() const;
 
 	inline Path removeLeadingSeparator() const
 	{
@@ -173,6 +181,19 @@ public:
 	*/
 	void createDirectory() const;
 
+	/*!
+	If the path starts with a root directory specifier, it will be returned. Example: for the path 
+	"/abc/def/", "/" will be returned.
+	*/
+	Path getLeadingElement() const;
+
+	/*!
+	If the path ends with a path separator, the element returned will be the name before the separator. 
+	For example, "C:\\abc\\def\\ghi\\" will return "ghi" as the trailing element. If this is not desired
+	and an empty path "" is expected instread, set @p ignoreTrailingSeparator to `false`.
+	*/
+	Path getTrailingElement(bool ignoreTrailingSeparator = true) const;
+
 	Path operator / (const Path& other) const;
 	Path operator / (std::string_view pathStr) const;
 
@@ -213,6 +234,11 @@ inline bool Path::hasFile() const
 inline void Path::createDirectory() const
 {
 	std::filesystem::create_directories(m_path);
+}
+
+inline std::string Path::toString() const
+{
+	return m_path.string();
 }
 
 }// end namespace ph

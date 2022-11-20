@@ -27,6 +27,8 @@ public:
 		const math::TVector2<uint32>& sizePx,
 		const GHITextureFormat& format) override;
 
+	std::shared_ptr<GHIFramebuffer> createFramebuffer() override;
+
 private:
 	void beginRawCommand() override;
 	void endRawCommand() override;
