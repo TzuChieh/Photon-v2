@@ -3,6 +3,7 @@
 #include "App/Module/RenderModule.h"
 #include "ThirdParty/GLFW3_fwd.h"
 #include "Render/Imgui/ImguiEditorUI.h"
+#include "Render/Imgui/ImguiHelper.h"
 
 #include <Math/TVector2.h>
 
@@ -12,6 +13,7 @@
 namespace ph::editor
 {
 
+class Editor;
 class ImguiRenderContent;
 
 class ImguiRenderModule : public RenderModule
@@ -27,7 +29,8 @@ public:
 	void createRenderCommands(RenderThreadCaller& caller) override;
 
 private:
-	void initializeImgui();
+	void initializeImgui(Editor& editor);
+	void initializeImguiFonts(Editor& editor);
 	void terminateImgui();
 	void setFramebufferSizePx(const math::Vector2S& sizePx);
 
@@ -36,6 +39,7 @@ private:
 	std::unique_ptr<ImguiRenderContent> m_renderContent;
 	bool                                m_isRenderContentAdded;
 	ImguiEditorUI                       m_editorUI;
+	ImguiHelper                         m_helper;
 };
 
 inline std::string ImguiRenderModule::getName() const

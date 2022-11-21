@@ -138,10 +138,27 @@ GHI* GlfwDisplay::getGHI() const
 	return m_ghi.get();
 }
 
-EGraphicsAPI GlfwDisplay::getGraphicsAPIType() const
+EGraphicsAPI GlfwDisplay::getGraphicsApiType() const
 {
 	PH_ASSERT(m_apiType != EGraphicsAPI::Unknown);
 	return m_apiType;
+}
+
+float32 GlfwDisplay::getDpiScale() const
+{
+	GLFWmonitor* const primaryMonitor = glfwGetPrimaryMonitor();
+	if(primaryMonitor)
+	{
+		float xscale, yscale;
+		glfwGetMonitorContentScale(primaryMonitor, &xscale, &yscale);
+
+		// Note: Utilize `xscale` only. Currently we cannot handle non-rigid scaling.
+		return xscale;
+	}
+	else
+	{
+		return 1.0f;
+	}
 }
 
 math::Vector2S GlfwDisplay::getFramebufferSizePx() const

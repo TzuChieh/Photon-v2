@@ -1,5 +1,5 @@
 #include "Actor/Image/RasterFileImage.h"
-#include "Core/Texture/Pixel/TFramebuffer2D.h"
+#include "Core/Texture/Pixel/TFrameBuffer2D.h"
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
 #include "Actor/actor_exceptions.h"

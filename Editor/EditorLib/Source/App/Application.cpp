@@ -44,6 +44,8 @@ Application::Application(AppSettings settings)
 			m_shouldBreakMainLoop = true;
 		});
 
+	m_editor.dimensionHints.applyDpiScale(m_platform->getDisplay().getDpiScale());
+
 	/*m_editor.onAppModuleAction.addListener(
 		[this](const AppModuleActionEvent& e)
 		{

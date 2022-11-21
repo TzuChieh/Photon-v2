@@ -116,6 +116,7 @@ void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData
 	for(std::size_t listIdx = 0; listIdx < srcDrawListsSize; ++listIdx)
 	{
 		// Deep copy draw list into buffer first
+
 		PH_ASSERT(srcDrawData.CmdLists && srcDrawData.CmdLists[listIdx]);
 		ImDrawList& srcDrawList = *srcDrawData.CmdLists[listIdx];
 		ImDrawList& dstDrawList = drawListBuffer[listIdx];

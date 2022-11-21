@@ -22,7 +22,8 @@ public:
 	math::Vector2S getSizePx() const override;
 	math::Vector2S getFramebufferSizePx() const override;
 	NativeWindow getNativeWindow() const override;
-	EGraphicsAPI getGraphicsAPIType() const override;
+	EGraphicsAPI getGraphicsApiType() const override;
+	float32 getDpiScale() const override;
 
 	void initialize(
 		Editor&            editor,

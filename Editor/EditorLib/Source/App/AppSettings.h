@@ -20,6 +20,7 @@ public:
 	uint32f        maxFPS          = 60;
 	EGraphicsAPI   graphicsApi     = EGraphicsAPI::OpenGL;
 	bool           useDebugModeGHI = false;
+	//bool           useDebugModeGHI = true;
 
 	std::span<char*> cmdArgs;
 

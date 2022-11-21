@@ -27,35 +27,36 @@ namespace ph::editor
 {
 
 ImguiRenderModule::ImguiRenderModule()
-    : RenderModule()
-    , m_glfwWindow(nullptr)
-    , m_framebufferSizePx(0)
-    , m_renderContent(nullptr)
-    , m_isRenderContentAdded(false)
-    , m_editorUI()
+	: RenderModule()
+	, m_glfwWindow(nullptr)
+	, m_framebufferSizePx(0)
+	, m_renderContent(nullptr)
+	, m_isRenderContentAdded(false)
+	, m_editorUI()
+	, m_helper()
 {}
 
 ImguiRenderModule::~ImguiRenderModule() = default;
 
 void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 {
-    auto nativeWindow = info.platform->getDisplay().getNativeWindow();
-    if(!std::holds_alternative<GLFWwindow*>(nativeWindow))
-    {
-        throw_formatted<ModuleException>(
-            "no GLFW window; currently imgui module requires GLFW");
-    }
+	auto nativeWindow = info.platform->getDisplay().getNativeWindow();
+	if(!std::holds_alternative<GLFWwindow*>(nativeWindow))
+	{
+		throw_formatted<ModuleException>(
+			"no GLFW window; currently imgui module requires GLFW");
+	}
 
-    m_glfwWindow = std::get<GLFWwindow*>(nativeWindow);
-    PH_ASSERT(m_glfwWindow);
+	m_glfwWindow = std::get<GLFWwindow*>(nativeWindow);
+	PH_ASSERT(m_glfwWindow);
 
-    if(info.platform->getDisplay().getGraphicsAPIType() != EGraphicsAPI::OpenGL)
-    {
-        throw_formatted<ModuleException>(
-            "no OpenGL support; currently imgui module requires OpenGL");
-    }
+	if(info.platform->getDisplay().getGraphicsApiType() != EGraphicsAPI::OpenGL)
+	{
+		throw_formatted<ModuleException>(
+			"no OpenGL support; currently imgui module requires OpenGL");
+	}
 
-    // Now we are sure all core components required are there.
+	// Now we are sure all core components required are there.
 
 	setFramebufferSizePx(info.framebufferSizePx);
 
@@ -66,67 +67,67 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 			setFramebufferSizePx(e.getNewSizePx());
 		});
 
-	initializeImgui();
+	initializeImgui(*info.editor);
 
-    m_renderContent = std::make_unique<ImguiRenderContent>();
-    m_editorUI.setEditor(info.editor);
+	m_renderContent = std::make_unique<ImguiRenderContent>();
+	m_editorUI.initialize(info.editor, &m_helper);
 }
 
 void ImguiRenderModule::onDetach()
 {
-    terminateImgui();
+	terminateImgui();
 }
 
 void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
-    // Start the Dear ImGui frame
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+	// Start the Dear ImGui frame
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
-    //m_editorUI.build();
-    ImGui::Button(ICON_MD_FOLDER_COPY " Search");
-    ImGui::Button(ICON_MD_GRADE " Search");
-    ImGui::Button(ICON_MD_HOTEL " Search");
+	m_editorUI.build();
+	/*ImGui::Button(ICON_MD_FOLDER_COPY " Search");
+	ImGui::Button(ICON_MD_GRADE " Search");
+	ImGui::Button(ICON_MD_HOTEL " Search");*/
 
-    // Rendering
-    ImGui::Render();
+	// Rendering
+	ImGui::Render();
 
-    ImDrawData* const mainThreadDrawData = ImGui::GetDrawData();
-    PH_ASSERT(mainThreadDrawData);
+	ImDrawData* const mainThreadDrawData = ImGui::GetDrawData();
+	PH_ASSERT(mainThreadDrawData);
 
-    // We never want to block main thread. If so, consider increase the size of shared data.
-    PH_ASSERT(m_renderContent->getSharedRenderData().mayWaitToProduce() == false);
+	// We never want to block main thread. If so, consider increase the size of shared data.
+	PH_ASSERT(m_renderContent->getSharedRenderData().mayWaitToProduce() == false);
 
-    // Copy draw data to a buffer shared with GHI thread
-    m_renderContent->getSharedRenderData().guardedProduce(
-        [mainThreadDrawData](ImguiRenderContent::ImguiRenderData& renderData)
-        {
-            renderData.copyFrom(*mainThreadDrawData);
-        });
+	// Copy draw data to a buffer shared with GHI thread
+	m_renderContent->getSharedRenderData().guardedProduce(
+		[mainThreadDrawData](ImguiRenderContent::ImguiRenderData& renderData)
+		{
+			renderData.copyFrom(*mainThreadDrawData);
+		});
 }
 
 void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 {
-    // Add the IMGUI render content to render thread if not already present
-    if(!m_isRenderContentAdded)
-    {
-        caller.add(
-            [renderContent = m_renderContent.get()](RenderData& renderData)
-            {
-                renderData.scene.addCustomRenderContent(renderContent);
-            });
+	// Add the IMGUI render content to render thread if not already present
+	if(!m_isRenderContentAdded)
+	{
+		caller.add(
+			[renderContent = m_renderContent.get()](RenderData& renderData)
+			{
+				renderData.scene.addCustomRenderContent(renderContent);
+			});
 
-        m_isRenderContentAdded = true;
-    }
+		m_isRenderContentAdded = true;
+	}
 
-    // Need to notify render thread that there is new render data for GHI
-    caller.add(
-        [this](RenderData& renderData)
-        {
-            m_renderContent->signifyNewRenderDataIsAvailable();
-        });
+	// Need to notify render thread that there is new render data for GHI
+	caller.add(
+		[this](RenderData& renderData)
+		{
+			m_renderContent->signifyNewRenderDataIsAvailable();
+		});
 
-    // TODO: remove content before detach
+	// TODO: remove content before detach
 }
 
 void ImguiRenderModule::setFramebufferSizePx(const math::Vector2S& sizePx)
@@ -134,7 +135,7 @@ void ImguiRenderModule::setFramebufferSizePx(const math::Vector2S& sizePx)
 	m_framebufferSizePx = sizePx.safeCast<uint32>();
 }
 
-void ImguiRenderModule::initializeImgui()
+void ImguiRenderModule::initializeImgui(Editor& editor)
 {
     PH_ASSERT(m_glfwWindow);
     
@@ -157,70 +158,96 @@ void ImguiRenderModule::initializeImgui()
     
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
+   
+	initializeImguiFonts(editor);
 
-    PH_LOG(DearImGui, "setting-up fonts...");
+	PH_LOG(DearImGui, "setting-up style...");
 
-    const Path fontDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Font";
-    const float fontSizePx = 15.0f;
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsLight();
 
+	// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+	ImGuiStyle& style = ImGui::GetStyle();
+	if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		style.WindowRounding = 0.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+	}
 
-    //io.Fonts->AddFontDefault();
-    io.FontDefault = io.Fonts->AddFontFromFileTTF(
-        (fontDirectory / "Arial-Regular.ttf").toString().c_str(),
-        fontSizePx);
+	PH_LOG(DearImGui, "setting-up platform renderer backends...");
 
-    // Loading icon font
-    ImFontConfig fontConfig;
-    fontConfig.MergeMode = true;
-    fontConfig.PixelSnapH = true;
-    fontConfig.GlyphMinAdvanceX = fontSizePx;
-    fontConfig.GlyphOffset.x = 0.0f;
-    fontConfig.GlyphOffset.y = 2.2f;
-    static const ImWchar iconRanges[] = {
-        static_cast<ImWchar>(ICON_MIN_MD), 
-        static_cast<ImWchar>(ICON_MAX_MD), 
-        static_cast<ImWchar>(0)};
-    io.Fonts->AddFontFromFileTTF(
-        (fontDirectory / FONT_ICON_FILE_NAME_MD).toString().c_str(),
-        fontSizePx,
-        &fontConfig,
-        iconRanges);
+	ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
+	ImGui_ImplOpenGL3_Init("#version 460");
 
+	// A single-frame dummy run to initialize some internal structures
+	// (although we can manually call backend functions such as `ImGui_ImplOpenGL3_CreateFontsTexture()` 
+	// and `ImGui_ImplOpenGL3_CreateDeviceObjects()` etc., a dummy run that do nothing is more
+	// convenient and somewhat more robust to future library updates)
+	{
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
 
-    PH_LOG(DearImGui, "setting-up style...");
+		// do nothing
 
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
+		ImGui::Render();
+	}
 
-    // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    ImGuiStyle& style = ImGui::GetStyle();
-    if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
+	// Ensure we do not change the original context
+	glfwMakeContextCurrent(backupCurrentCtx);
+}
 
-    PH_LOG(DearImGui, "setting-up platform renderer backends...");
+void ImguiRenderModule::initializeImguiFonts(Editor& editor)
+{
+	PH_LOG(DearImGui, "setting-up fonts...");
 
-    ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
-    ImGui_ImplOpenGL3_Init("#version 460");
+	ImGuiIO& io = ImGui::GetIO();
 
-    // A single-frame dummy run to initialize some internal structures
-    // (although we can manually call backend functions such as `ImGui_ImplOpenGL3_CreateFontsTexture()` 
-    // and `ImGui_ImplOpenGL3_CreateDeviceObjects()` etc., a dummy run that do nothing is more
-    // convenient and somewhat more robust to future library updates)
-    {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+	const Path fontDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Font";
+	const float fontSizePx = editor.dimensionHints.fontSize;
+	const float largeFontRatio = editor.dimensionHints.largeFontSize / editor.dimensionHints.fontSize;
 
-        // do nothing
+	// Loading default font
+	//io.Fonts->AddFontDefault();
+	m_helper.defaultFont = io.Fonts->AddFontFromFileTTF(
+		(fontDirectory / "Arial-Regular.ttf").toString().c_str(),
+		fontSizePx);
+	io.FontDefault = m_helper.defaultFont;
 
-        ImGui::Render();
-    }
+	// Loading icon font--merge with default font
+	ImFontConfig iconFontConfig;
+	iconFontConfig.MergeMode = true;
+	iconFontConfig.PixelSnapH = true;
+	iconFontConfig.GlyphMinAdvanceX = fontSizePx;
+	iconFontConfig.GlyphOffset.x = 0.0f;
+	iconFontConfig.GlyphOffset.y = 2.2f;
+	static const ImWchar iconFontRanges[] = {
+		static_cast<ImWchar>(ICON_MIN_MD), 
+		static_cast<ImWchar>(ICON_MAX_MD), 
+		static_cast<ImWchar>(0)};
+	io.Fonts->AddFontFromFileTTF(
+		(fontDirectory / FONT_ICON_FILE_NAME_MD).toString().c_str(),
+		fontSizePx,
+		&iconFontConfig,
+		iconFontRanges);
 
-    // Ensure we do not change the original context
-    glfwMakeContextCurrent(backupCurrentCtx);
+	// Loading large default font
+	m_helper.largeFont = io.Fonts->AddFontFromFileTTF(
+		(fontDirectory / "Arial-Regular.ttf").toString().c_str(),
+		fontSizePx * largeFontRatio);
+
+	// Loading large font icon--merge with large default font
+	ImFontConfig largeIconFontConfig;
+	largeIconFontConfig.MergeMode = true;
+	largeIconFontConfig.PixelSnapH = true;
+	largeIconFontConfig.GlyphMinAdvanceX = iconFontConfig.GlyphMinAdvanceX * largeFontRatio;
+	largeIconFontConfig.GlyphOffset.x = iconFontConfig.GlyphOffset.x * largeFontRatio;
+	largeIconFontConfig.GlyphOffset.y = iconFontConfig.GlyphOffset.y * largeFontRatio;
+	io.Fonts->AddFontFromFileTTF(
+		(fontDirectory / FONT_ICON_FILE_NAME_MD).toString().c_str(),
+		fontSizePx * largeFontRatio,
+		&largeIconFontConfig,
+		iconFontRanges);
 }
 
 void ImguiRenderModule::terminateImgui()

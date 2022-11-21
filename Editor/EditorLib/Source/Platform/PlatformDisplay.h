@@ -30,7 +30,9 @@ public:
 	virtual GHI* getGHI() const = 0;
 	virtual math::Vector2S getSizePx() const = 0;
 	virtual math::Vector2S getFramebufferSizePx() const = 0;
-	virtual EGraphicsAPI getGraphicsAPIType() const = 0;
+	virtual EGraphicsAPI getGraphicsApiType() const = 0;
+
+	virtual float32 getDpiScale() const;
 
 	using NativeWindow = std::variant<
 		std::monostate,
@@ -38,5 +40,10 @@ public:
 
 	virtual NativeWindow getNativeWindow() const;
 };
+
+inline float32 PlatformDisplay::getDpiScale() const
+{
+	return 1.0f;
+}
 
 }// end namespace ph::editor
