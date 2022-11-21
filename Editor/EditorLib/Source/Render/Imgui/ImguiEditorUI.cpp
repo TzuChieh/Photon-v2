@@ -3,6 +3,7 @@
 #include "EditorCore/Thread/Threads.h"
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/ImguiHelper.h"
+#include "ThirdParty/DearImGuiExperimental.h"
 
 #include <Common/assertion.h>
 
@@ -63,9 +64,36 @@ void ImguiEditorUI::build()
 		ImGui::EndMainMenuBar();
 	}
 
-	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+	// Experimental Docking API, see https://github.com/ocornut/imgui/issues/2109
 
-	show_imgui_demo_window();
+	
+	static bool hasInit = false;
+	if(!hasInit)
+	{
+		const ImGuiID rootDockSpaceID = ImGui::DockSpaceOverViewport(
+			ImGui::GetMainViewport(),
+			ImGuiDockNodeFlags_PassthruCentralNode);
+
+		ImGui::DockBuilderSetNodeSize(rootDockSpaceID, ImGui::GetMainViewport()->Size);
+
+		const float leftNodeSplitRatio =
+			m_editor->dimensionHints.mainViewportPreferredWidth /
+			ImGui::GetMainViewport()->Size.x;
+		const ImGuiID rootLeftDockSpaceID = ImGui::DockBuilderSplitNode(
+			rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, nullptr);
+
+		ImGui::DockBuilderDockWindow("Window A", rootLeftDockSpaceID);
+
+		ImGui::DockBuilderFinish(rootDockSpaceID);
+
+		hasInit = true;
+	}
+
+	ImGui::Begin("Window A");
+	ImGui::Text("This is window A");
+	ImGui::End();
+
+	//show_imgui_demo_window();
 }
 
 }// end namespace ph::editor
