@@ -7,7 +7,7 @@
 
 #include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/ETypeCategory.h"
-#include "DataIO/SDL/sdl_helpers.h"
+#include "DataIO/SDL/sdl_traits.h"
 
 #include <type_traits>
 #include <concepts>
@@ -16,7 +16,7 @@
 namespace ph
 {
 
-template<sdl::CIsResource T>
+template<CIsSdlResource T>
 class TSdl final
 {
 public:
@@ -27,7 +27,7 @@ public:
 	*/
 	static constexpr ETypeCategory getCategory();
 
-	/*! @brief
+	/*! @brief Creates a resource filled with default values.
 	*/
 	static std::shared_ptr<T> makeResource();
 };

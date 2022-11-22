@@ -6,6 +6,7 @@
 #include "Core/Texture/Pixel/pixel_texture_basics.h"
 #include "Core/Texture/Pixel/PixelBuffer2D.h"
 #include "Math/Color/color_enums.h"
+#include "Frame/pictures.h"
 
 #include <memory>
 
@@ -23,6 +24,9 @@ public:
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
 		ActorCookingContext& ctx) override;
+
+	RegularPicture loadRegularPicture() const;
+	void setFilePath(Path filePath);
 
 protected:
 	std::shared_ptr<PixelBuffer2D> loadPixelBuffer(

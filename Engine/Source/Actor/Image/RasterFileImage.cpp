@@ -147,15 +147,11 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	}
 }
 
-std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
-	ActorCookingContext&               ctx,
-	math::EColorSpace* const           out_colorSpace,
-	pixel_texture::EPixelLayout* const out_pixelLayout) const
+RegularPicture RasterFileImage::loadRegularPicture() const
 {
-	RegularPicture picture;
 	try
 	{
-		picture = io_utils::load_picture(m_filePath);
+		return io_utils::load_picture(m_filePath);
 	}
 	catch(const IOException& e)
 	{
@@ -163,6 +159,19 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 		throw ActorCookException(
 			"error on loading picture: " + e.whatStr());
 	}
+}
+
+void RasterFileImage::setFilePath(Path filePath)
+{
+	m_filePath = std::move(filePath);
+}
+
+std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
+	ActorCookingContext&               ctx,
+	math::EColorSpace* const           out_colorSpace,
+	pixel_texture::EPixelLayout* const out_pixelLayout) const
+{
+	RegularPicture picture = loadRegularPicture();
 
 	if(out_colorSpace)
 	{

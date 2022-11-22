@@ -15,11 +15,11 @@ struct DummyStruct
 
 TEST(SdlHelpersTest, Concepts)
 {
-	static_assert(sdl::CIsResource<DummyStruct> == false);
-	static_assert(sdl::CIsResource<Actor> == true);
+	static_assert(CIsSdlResource<DummyStruct> == false);
+	static_assert(CIsSdlResource<Actor> == true);
 
-	static_assert(sdl::CHasStaticCategoryInfo<DummyStruct> == false);
-	static_assert(sdl::CHasStaticCategoryInfo<Actor> == true);
+	static_assert(CHasStaticSdlCategoryInfo<DummyStruct> == false);
+	static_assert(CHasStaticSdlCategoryInfo<Actor> == true);
 
 	static_assert(sdl::category_of<DummyStruct>() == ETypeCategory::UNSPECIFIED);
 	static_assert(sdl::category_of<Actor>() != ETypeCategory::UNSPECIFIED);

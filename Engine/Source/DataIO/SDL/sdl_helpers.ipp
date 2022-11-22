@@ -3,6 +3,7 @@
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/Tokenizer.h"
 #include "Common/assertion.h"
+#include "DataIO/SDL/sdl_traits.h"
 
 #include <type_traits>
 
@@ -233,7 +234,7 @@ inline void save_number_array(const std::vector<NumberType>& values, std::string
 template<typename T>
 inline constexpr ETypeCategory category_of()
 {
-	if constexpr(CIsResource<T> && CHasStaticCategoryInfo<T>)
+	if constexpr(CIsSdlResource<T> && CHasStaticSdlCategoryInfo<T>)
 	{
 		return T::CATEGORY;
 	}

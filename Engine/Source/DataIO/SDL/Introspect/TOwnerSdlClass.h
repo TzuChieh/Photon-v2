@@ -37,6 +37,8 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const override;
 
+	void initDefaultResource(ISdlResource& resource) const override;
+
 	void saveResource(
 		const ISdlResource&     resource,
 		OutputPayloads&         payloads,
@@ -67,6 +69,8 @@ public:
 		Owner&                 owner,
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const;
+
+	void setFieldsToDefaults(Owner& owner) const;
 
 	/*!
 	Saves only fields in this class. Does *not* take other indirect fields into account
@@ -107,6 +111,9 @@ public:
 	auto baseOn() -> TOwnerSdlClass&;
 
 private:
+	template<typename DeducedSrcResource>
+	decltype(auto) castToOwnerResource(DeducedSrcResource& resource) const;
+
 	using FunctionSet = TArrayAsVector<const SdlFunction*, PH_SDL_MAX_FUNCTIONS>;
 
 	FieldSet    m_fields;

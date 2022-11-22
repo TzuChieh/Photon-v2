@@ -30,7 +30,7 @@ public:
 	TOwnedSdlField(std::string typeName, std::string valueName);
 
 	/*! @brief Set the value of the field to a default one.
-	Since the field class is templatized by `Owner` type, we are able to set default value on
+	Since the field class is templatized by `Owner` type, we are able to define default value on
 	a per owner type basis.
 	*/
 	virtual void setValueToDefault(Owner& owner) const = 0;

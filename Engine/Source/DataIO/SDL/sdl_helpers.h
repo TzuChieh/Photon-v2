@@ -26,24 +26,11 @@ class SdlClass;
 class SdlField;
 class SdlFunction;
 class SdlOutputPayload;
-class ISdlResource;
 
 }// end namespace ph
 
 namespace ph::sdl
 {
-
-template<typename T>
-concept CIsResource = std::is_base_of_v<ISdlResource, T>;
-
-/*! @brief Check if SDL category information can be obtained statically.
-The result is true if the static member variable T::CATEGORY exists, otherwise the result is false.
-*/
-template<typename T>
-concept CHasStaticCategoryInfo = 
-	// Check equality of types with cv and ref removed just to be robust
-	// (in case the implementer qualifies the `CATEGORY` member).
-	std::is_same_v<std::remove_cvref_t<decltype(T::CATEGORY)>, ETypeCategory>;
 
 // TODO: templatize vec3, quat related funcs
 

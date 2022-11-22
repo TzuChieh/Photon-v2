@@ -52,9 +52,6 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx) const
 {
-	static_assert(std::is_base_of_v<ISdlResource, Owner>,
-		"Owner class must derive from ISdlResource.");
-
 	// Init base first just like how standard C++ does
 	if(isDerived())
 	{
@@ -62,16 +59,22 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 		getBase()->initResource(resource, clauses, ctx);
 	}
 
-	Owner* const owner = dynamic_cast<Owner*>(&resource);
-	if(!owner)
+	Owner& ownerResource = castToOwnerResource(resource);
+	loadFieldsFromSdl(ownerResource, clauses, ctx);
+}
+
+template<typename Owner, typename FieldSet>
+inline void TOwnerSdlClass<Owner, FieldSet>::initDefaultResource(ISdlResource& resource) const
+{
+	// Init base first just like how standard C++ does
+	if(isDerived())
 	{
-		throw SdlLoadError(
-			"type cast error: target resource is not owned by "
-			"SDL class <" + genPrettyName() + ">");
+		PH_ASSERT(getBase());
+		getBase()->initDefaultResource(resource);
 	}
 
-	PH_ASSERT(owner);
-	loadFieldsFromSdl(*owner, clauses, ctx);
+	Owner& ownerResource = castToOwnerResource(resource);
+	setFieldsToDefaults(ownerResource);
 }
 
 template<typename Owner, typename FieldSet>
@@ -80,9 +83,6 @@ inline void TOwnerSdlClass<Owner, FieldSet>::saveResource(
 	OutputPayloads&         payloads,
 	const SdlOutputContext& ctx) const
 {
-	static_assert(std::is_base_of_v<ISdlResource, Owner>,
-		"Owner class must derive from ISdlResource.");
-
 	// No specific ordering is required here. We save base class first just like how
 	// the loading process is.
 	if(isDerived())
@@ -91,16 +91,8 @@ inline void TOwnerSdlClass<Owner, FieldSet>::saveResource(
 		getBase()->saveResource(resource, payloads, ctx);
 	}
 
-	auto const owner = dynamic_cast<const Owner*>(&resource);
-	if(!owner)
-	{
-		throw SdlSaveError(
-			"type cast error: target resource is not owned by "
-			"SDL class <" + genPrettyName() + ">");
-	}
-
-	PH_ASSERT(owner);
-	saveFieldsToSdl(*owner, payloads, ctx);
+	const Owner& ownerResource = castToOwnerResource(resource);
+	saveFieldsToSdl(ownerResource, payloads, ctx);
 }
 
 template<typename Owner, typename FieldSet>
@@ -149,18 +141,11 @@ inline void TOwnerSdlClass<Owner, FieldSet>::associatedResources(
 	static_assert(std::is_base_of_v<ISdlResource, Owner>,
 		"Owner class must derive from ISdlResource.");
 
-	auto const ownerResource = dynamic_cast<const Owner*>(&targetResource);
-	if(!ownerResource)
-	{
-		throw SdlLoadError(
-			"type cast error: target resource is not owned by "
-			"SDL class <" + genPrettyName() + ">");
-	}
-
+	const Owner& ownerResource = castToOwnerResource(targetResource);
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
 		const TOwnedSdlField<Owner>& field = m_fields[fieldIdx];
-		auto const associatedResource = field.associatedResource(*ownerResource);
+		auto const associatedResource = field.associatedResource(ownerResource);
 		if(associatedResource)
 		{
 			out_resources.push_back(associatedResource);
@@ -305,6 +290,18 @@ inline void TOwnerSdlClass<Owner, FieldSet>::loadFieldsFromSdl(
 }
 
 template<typename Owner, typename FieldSet>
+inline void TOwnerSdlClass<Owner, FieldSet>::setFieldsToDefaults(Owner& owner) const
+{
+	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
+	{
+		const auto& field = m_fields[fieldIdx];
+
+		// Set field to default value regardless of its importance (field importance is for import/export)
+		field.setValueToDefault(owner);
+	}
+}
+
+template<typename Owner, typename FieldSet>
 inline void TOwnerSdlClass<Owner, FieldSet>::saveFieldsToSdl(
 	const Owner&            owner,
 	OutputPayloads&         payloads,
@@ -343,6 +340,37 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::baseOn()
 
 	setBase<T>();
 	return *this;
+}
+
+template<typename Owner, typename FieldSet>
+template<typename DeducedSrcResource>
+inline decltype(auto) TOwnerSdlClass<Owner, FieldSet>::castToOwnerResource(DeducedSrcResource& srcResource) const
+{
+	// Source resource type, possibly cv-qualified
+	using SrcResource = std::remove_reference_t<DeducedSrcResource>;
+
+	static_assert(std::is_base_of_v<ISdlResource, SrcResource>,
+		"Target resource must derive from ISdlResource.");
+
+	static_assert(std::is_base_of_v<ISdlResource, Owner>,
+		"Owner must derive from ISdlResource.");
+
+	// Owner pointer type, possibly const-qualified (ignoring volatile)
+	using OwnerPtr = std::conditional_t<std::is_const_v<SrcResource>, 
+		const Owner*,
+		Owner*>;
+
+	OwnerPtr const ownerPtr = dynamic_cast<OwnerPtr>(&srcResource);
+	if(!ownerPtr)
+	{
+		throw_formatted<SdlException>(
+			"type cast error: target resource is not owned by SDL class <{}> (resource ID = {})",
+			genPrettyName(), srcResource.getId());
+	}
+
+	// The parentheses are not required here--`*owner` is already an expression, resulting in a 
+	// cv-qualified reference return type. Parentheses added just to be a reminder and also a fail-safe.
+	return (*ownerPtr);
 }
 
 }// end namespace ph

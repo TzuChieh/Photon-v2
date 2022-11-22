@@ -61,6 +61,9 @@ Available functionalities after defining the macro:
 	using ClassType = __VA_ARGS__;\
 	using OwnerType = typename ClassType::OwnerType;\
 	\
+	/* Dummy type so we know the macro has been called. */\
+	using SdlClassDefinitionMarker = void;\
+	\
 	inline static const ClassType* getSdlClass()\
 	{\
 		static_assert(std::is_base_of_v<::ph::ISdlResource, OwnerType>,\
@@ -84,6 +87,9 @@ Available functionalities after defining the macro:
 	using StructType = __VA_ARGS__;\
 	using OwnerType  = typename StructType::OwnerType;\
 	\
+	/* Dummy type so we know the macro has been called. */\
+	using SdlStructDefinitionMarker = void;\
+	\
 	inline static const StructType* getSdlStruct()\
 	{\
 		static_assert(std::is_base_of_v<::ph::SdlStruct, StructType>,\
@@ -99,6 +105,9 @@ Available functionalities after defining the macro:
 	\
 	using FunctionType = __VA_ARGS__;\
 	using OwnerType    = typename FunctionType::OwnerType;\
+	\
+	/* Dummy type so we know the macro has been called. */\
+	using SdlFunctionDefinitionMarker = void;\
 	\
 	inline static const FunctionType* getSdlFunction()\
 	{\

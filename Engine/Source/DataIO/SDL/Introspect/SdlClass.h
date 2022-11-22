@@ -34,11 +34,15 @@ public:
 
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
 
+	/*! @brief Initialize a resource from value clauses.
+	*/
 	virtual void initResource(
 		ISdlResource&          resource,
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
 
+	/*! @brief Initialize a resource with default values.
+	*/
 	virtual void initDefaultResource(ISdlResource& resource) const = 0;
 
 	virtual void saveResource(
