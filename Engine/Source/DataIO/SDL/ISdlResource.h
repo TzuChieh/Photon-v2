@@ -26,7 +26,7 @@ protected:
 public:
 	inline virtual ~ISdlResource() = default;
 
-	virtual ETypeCategory getCategory() const = 0;
+	virtual ETypeCategory getDynamicCategory() const = 0;
 	virtual SdlResourceId getId() const = 0;
 
 	/*! @brief Get runtime SDL class of the resource.

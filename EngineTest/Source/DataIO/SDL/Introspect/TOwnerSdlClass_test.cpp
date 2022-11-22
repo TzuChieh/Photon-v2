@@ -27,7 +27,7 @@ public:
 	real r;
 	std::string str;
 
-	ETypeCategory getCategory() const override
+	ETypeCategory getDynamicCategory() const override
 	{
 		return CATEGORY;
 	}

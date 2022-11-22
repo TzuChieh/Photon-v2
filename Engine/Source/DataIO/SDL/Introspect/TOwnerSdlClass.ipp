@@ -55,7 +55,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 	static_assert(std::is_base_of_v<ISdlResource, Owner>,
 		"Owner class must derive from ISdlResource.");
 
-	// Init base first just like how C++ does
+	// Init base first just like how standard C++ does
 	if(isDerived())
 	{
 		PH_ASSERT(getBase());

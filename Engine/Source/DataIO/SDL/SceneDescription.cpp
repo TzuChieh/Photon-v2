@@ -17,8 +17,10 @@ void SceneDescription::addResource(
 {
 	if(!resource || resourceName.empty())
 	{
-		const std::string resourceInfo = resource ? sdl::category_to_string(resource->getCategory()) : "no resource";
-		const std::string nameInfo     = resourceName.empty() ? resourceName : "no name";
+		const std::string resourceInfo = resource ? 
+			sdl::category_to_string(resource->getDynamicCategory()) : "no resource";
+
+		const std::string nameInfo = resourceName.empty() ? resourceName : "no name";
 
 		throw SdlLoadError(
 			"cannot add SDL resource due to empty resource/name ("
@@ -26,14 +28,14 @@ void SceneDescription::addResource(
 			"name:" + nameInfo + ")");
 	}
 
-	auto& nameToResourceMap = getNameToResourceMap(resource->getCategory());
+	auto& nameToResourceMap = getNameToResourceMap(resource->getDynamicCategory());
 
 	const auto& iter = nameToResourceMap.find(resourceName);
 	if(iter != nameToResourceMap.end())
 	{
 		PH_LOG_WARNING(SceneDescription,
 			"duplicated SDL resource detected, overwriting (resource: {}, name: {})", 
-			sdl::category_to_string(resource->getCategory()), resourceName);
+			sdl::category_to_string(resource->getDynamicCategory()), resourceName);
 	}
 
 	nameToResourceMap[resourceName] = std::move(resource);

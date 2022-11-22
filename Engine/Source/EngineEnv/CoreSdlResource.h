@@ -15,7 +15,7 @@ for derived classes. See SdlResourceBase for more implementation requirements.
 class CoreSdlResource : public SdlResourceBase
 {
 public:
-	ETypeCategory getCategory() const override = 0;
+	ETypeCategory getDynamicCategory() const override = 0;
 
 	virtual void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) = 0;
 };

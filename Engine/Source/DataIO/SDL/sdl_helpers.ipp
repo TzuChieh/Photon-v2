@@ -9,42 +9,6 @@
 namespace ph::sdl
 {
 
-namespace detail
-{
-
-/*! @brief Check if category information can be obtained statically.
-
-The result is true if the static member variable T::CATEGORY exists,
-otherwise the result is false.
-*/
-///@{
-
-/*! @brief Return type if the result is false.
-*/
-template<typename T, typename = void>
-struct HasStaticCategoryInfo : std::false_type {};
-
-/*! @brief Return type if the result is true.
-*/
-template<typename T>
-struct HasStaticCategoryInfo
-<
-	T,
-	std::enable_if_t
-	<
-		// Check equality of types with cv and ref removed just to be robust.
-		// (TODO: use std::remove_cvref to simplify)
-		std::is_same_v
-		<
-			std::remove_cv_t<std::remove_reference_t<decltype(T::CATEGORY)>>, 
-			ETypeCategory
-		>
-	>
-> : std::true_type {};
-///@}
-
-}// end namespace detail
-
 template<typename FloatType>
 inline FloatType load_float(const std::string_view sdlFloatStr)
 {
@@ -144,19 +108,6 @@ inline void save_number(const NumberType value, std::string* const out_str, cons
 		static_assert(std::is_integral_v<NumberType>);
 
 		save_int<NumberType>(value, out_str, maxChars);
-	}
-}
-
-template<typename T>
-inline constexpr ETypeCategory category_of()
-{
-	if constexpr(std::is_base_of_v<ISdlResource, T> && detail::HasStaticCategoryInfo<T>::value)
-	{
-		return T::CATEGORY;
-	}
-	else
-	{
-		return ETypeCategory::UNSPECIFIED;
 	}
 }
 
@@ -276,6 +227,19 @@ inline void save_number_array(const std::vector<NumberType>& values, std::string
 	catch(const SdlSaveError& e)
 	{
 		throw SdlSaveError("on saving number array -> " + e.whatStr());
+	}
+}
+
+template<typename T>
+inline constexpr ETypeCategory category_of()
+{
+	if constexpr(CIsResource<T> && CHasStaticCategoryInfo<T>)
+	{
+		return T::CATEGORY;
+	}
+	else
+	{
+		return ETypeCategory::UNSPECIFIED;
 	}
 }
 

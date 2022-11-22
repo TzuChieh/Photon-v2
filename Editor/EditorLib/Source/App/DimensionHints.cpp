@@ -5,11 +5,11 @@ namespace ph::editor
 
 DimensionHints::DimensionHints()
 	: fontSize(15.0f)
-	, largeFontSize(25.0f)
+	, largeFontSize(40.0f)
 
-	, propertyPanelPreferredWidth(fontSize * 40.0f)
-	, propertyPanelMinWidth(fontSize * 10.0f)
-	, propertyPanelMaxWidth(fontSize * 60.0f)
+	, propertyPanelPreferredWidth(fontSize * 15.0f)
+	, propertyPanelMinWidth(propertyPanelPreferredWidth * 0.333f)
+	, propertyPanelMaxWidth(propertyPanelPreferredWidth * 3.0f)
 
 	, mainViewportPreferredWidth(1920.0f * 0.7f)
 	, mainViewportPreferredHeight(1080.0f * 0.7f)

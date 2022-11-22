@@ -25,7 +25,7 @@ inline void ImguiHelper::useFont(ImFont* const font, UIFunc func)
 
 	ImGui::PushFont(font);
 	func();
-	ImGui::PopFont(font);
+	ImGui::PopFont();
 }
 
 }// end namespace ph::editor

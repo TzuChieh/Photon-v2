@@ -16,7 +16,7 @@ public:
 
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
-	ETypeCategory getCategory() const override;
+	ETypeCategory getDynamicCategory() const override;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Visualizer>)
@@ -30,7 +30,7 @@ public:
 
 // In-header Implementations:
 
-inline ETypeCategory Visualizer::getCategory() const
+inline ETypeCategory Visualizer::getDynamicCategory() const
 {
 	return CATEGORY;
 }

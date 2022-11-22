@@ -1,13 +1,19 @@
 #pragma once
 
+/*! @file
+
+@brief Low-level helpers for SDL.
+Helpers are in an additional `sdl` namespace.
+*/
+
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "Math/TVector3.h"
 #include "Math/TVector2.h"
 #include "Math/TQuaternion.h"
 #include "DataIO/SDL/sdl_exceptions.h"
-#include "DataIO/SDL/ETypeCategory.h"
 #include "Utility/string_utils.h"
+#include "DataIO/SDL/ETypeCategory.h"
 
 #include <string>
 #include <string_view>
@@ -19,13 +25,25 @@ namespace ph
 class SdlClass;
 class SdlField;
 class SdlFunction;
-class ISdlResource;
 class SdlOutputPayload;
+class ISdlResource;
 
 }// end namespace ph
 
 namespace ph::sdl
 {
+
+template<typename T>
+concept CIsResource = std::is_base_of_v<ISdlResource, T>;
+
+/*! @brief Check if SDL category information can be obtained statically.
+The result is true if the static member variable T::CATEGORY exists, otherwise the result is false.
+*/
+template<typename T>
+concept CHasStaticCategoryInfo = 
+	// Check equality of types with cv and ref removed just to be robust
+	// (in case the implementer qualifies the `CATEGORY` member).
+	std::is_same_v<std::remove_cvref_t<decltype(T::CATEGORY)>, ETypeCategory>;
 
 // TODO: templatize vec3, quat related funcs
 
@@ -120,17 +138,13 @@ std::string gen_pretty_name(const SdlField* field);
 std::string gen_pretty_name(const SdlFunction* func);
 std::string gen_pretty_name(const SdlClass* clazz, const SdlField* field);
 
-/*! @brief Statically gets the category of @p T.
-
+/*! @brief Statically gets the SDL category of @p T.
 @tparam T Type that category information is going to be extracted from.
 @return Category of @p T. The result is ETypeCategory::UNSPECIFIED if category
 information does not exist, or @p T is not an @p ISdlResource.
 */
 template<typename T>
 constexpr ETypeCategory category_of();
-
-//template<typename T>
-//void init_to_default(T& resource);
 
 }// end namespace ph::sdl
 

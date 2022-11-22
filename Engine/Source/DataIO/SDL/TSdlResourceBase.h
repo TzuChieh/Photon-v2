@@ -30,13 +30,13 @@ protected:
 	inline TSdlResourceBase& operator = (TSdlResourceBase&& rhs) = default;
 
 public:
-	ETypeCategory getCategory() const override;
+	ETypeCategory getDynamicCategory() const override;
 };
 
 // In-header Implementations:
 
 template<ETypeCategory TYPE_CATEGORY>
-inline ETypeCategory TSdlResourceBase<TYPE_CATEGORY>::getCategory() const
+inline ETypeCategory TSdlResourceBase<TYPE_CATEGORY>::getDynamicCategory() const
 {
 	return CATEGORY;
 }

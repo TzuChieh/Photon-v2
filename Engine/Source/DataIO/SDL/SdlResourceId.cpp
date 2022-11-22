@@ -7,10 +7,10 @@ namespace ph
 
 SdlResourceId gen_sdl_resource_id()
 {
-	static std::atomic<SdlResourceId> counter(0);
+	// Dispatched ID starts from 1 (0 reserved for special purposes)
+	static std::atomic<SdlResourceId> counter(1);
 
-	// Pre-increment, dispatched ID will start from 1 (0 reserved for special purposes)
-	return ++counter;
+	return counter.fetch_add(1, std::memory_order_relaxed)
 }
 
 }// end namespace ph

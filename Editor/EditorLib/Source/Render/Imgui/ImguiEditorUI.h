@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ThirdParty/DearImGuiExperimental.h"
+
 namespace ph::editor
 {
 
@@ -15,8 +17,12 @@ public:
 	void build();
 
 private:
+	void buildMainMenuBar();
+
 	Editor* m_editor;
 	ImguiHelper* m_helper;
+	ImGuiID m_rootDockSpaceID;
+	bool m_shouldResetRootDockSpace;
 };
 
 }// end namespace ph::editor

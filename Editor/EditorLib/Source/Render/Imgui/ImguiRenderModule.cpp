@@ -85,9 +85,16 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 	ImGui::NewFrame();
 
 	m_editorUI.build();
-	/*ImGui::Button(ICON_MD_FOLDER_COPY " Search");
+
+	m_helper.useFont(m_helper.largeFont, 
+		[]()
+		{
+			ImGui::Button(ICON_MD_FOLDER_COPY " Search");
+		});
+
+	ImGui::Button(ICON_MD_FOLDER_COPY " Search");
 	ImGui::Button(ICON_MD_GRADE " Search");
-	ImGui::Button(ICON_MD_HOTEL " Search");*/
+	ImGui::Button(ICON_MD_HOTEL " Search");
 
 	// Rendering
 	ImGui::Render();
@@ -220,7 +227,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	iconFontConfig.PixelSnapH = true;
 	iconFontConfig.GlyphMinAdvanceX = fontSizePx;
 	iconFontConfig.GlyphOffset.x = 0.0f;
-	iconFontConfig.GlyphOffset.y = 2.2f;
+	iconFontConfig.GlyphOffset.y = 3.5f;
 	static const ImWchar iconFontRanges[] = {
 		static_cast<ImWchar>(ICON_MIN_MD), 
 		static_cast<ImWchar>(ICON_MAX_MD), 

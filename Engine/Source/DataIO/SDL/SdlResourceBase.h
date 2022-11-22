@@ -23,7 +23,7 @@ protected:
 	inline SdlResourceBase& operator = (SdlResourceBase&& rhs) = default;
 
 public:
-	ETypeCategory getCategory() const override = 0;
+	ETypeCategory getDynamicCategory() const override = 0;
 
 	SdlResourceId getId() const override;
 

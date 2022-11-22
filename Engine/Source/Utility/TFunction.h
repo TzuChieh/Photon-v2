@@ -357,7 +357,7 @@ private:
 	static_assert(alignof(Data) == BUFFER_ALIGNMENT);
 
 	// Member variables: smallest possible size of `TFunction` is two pointers--one for `UnifiedCaller` 
-	// and  another one in `Data`
+	// and another one in `Data`
 
 	Data m_data = EmptyStruct{};
 

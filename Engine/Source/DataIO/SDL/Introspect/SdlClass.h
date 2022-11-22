@@ -39,6 +39,8 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
 
+	virtual void initDefaultResource(ISdlResource& resource) const = 0;
+
 	virtual void saveResource(
 		const ISdlResource&     resource,
 		OutputPayloads&         payloads,
