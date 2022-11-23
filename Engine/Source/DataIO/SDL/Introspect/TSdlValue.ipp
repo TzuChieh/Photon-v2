@@ -73,21 +73,21 @@ template<typename T, typename Owner>
 inline auto TSdlValue<T, Owner>::optional()
 -> TSdlValue&
 {
-	return withImportance(EFieldImportance::OPTIONAL);
+	return withImportance(EFieldImportance::Optional);
 }
 
 template<typename T, typename Owner>
 inline auto TSdlValue<T, Owner>::niceToHave()
 -> TSdlValue&
 {
-	return withImportance(EFieldImportance::NICE_TO_HAVE);
+	return withImportance(EFieldImportance::NiceToHave);
 }
 
 template<typename T, typename Owner>
 inline auto TSdlValue<T, Owner>::required()
 -> TSdlValue&
 {
-	return withImportance(EFieldImportance::REQUIRED);
+	return withImportance(EFieldImportance::Required);
 }
 
 template<typename T, typename Owner>

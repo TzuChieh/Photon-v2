@@ -3,6 +3,10 @@
 #include "DataIO/SDL/sdl_helpers.h"
 #include "Common/assertion.h"
 
+#include "Common/logging.h"
+
+#include <memory>
+
 namespace ph
 {
 
@@ -22,7 +26,7 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 	PH_ASSERT(clazz);
 
 	// Creates an uninitialized resource
-	std::shared_ptr<T> resource = clazz->createResource();
+	std::shared_ptr<ISdlResource> resource = clazz->createResource();
 
 	// Could be empty due to `T` being abstract or being defined to be
 	if(!resource)
@@ -31,7 +35,16 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 	}
 
 	clazz->initDefaultResource(*resource);
-	return resource;
+
+	// This dynamic cast is required in the sense that `T` might not actually have SDL class
+	// defined locally but inherited; the cast guard against this case.
+	std::shared_ptr<T> typedResource = std::dynamic_pointer_cast<T>(std::move(resource));
+	if(!typedResource)
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"default resource creation failed, the type specified may not have SDL class defined");
+	}
+	return typedResource;
 }
 
 }// end namespace ph

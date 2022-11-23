@@ -2,6 +2,8 @@
 #include "App/Module/MainThreadUpdateContext.h"
 
 #include <Common/logging.h>
+#include <Actor/Image/RasterFileImage.h>
+#include <DataIO/SDL/TSdl.h>
 
 namespace ph::editor
 {
@@ -17,6 +19,23 @@ void TestProcedureModule::update(const MainThreadUpdateContext& ctx)
 
 void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 {
+	auto res = TSdl<RasterFileImage>::makeResource();
+	if(res)
+	{
+		PH_LOG(Test, "res created");
+	}
+
+	res->setFilePath(Path("./rendered_scene - Copy (2).png"));
+	RegularPicture pic = res->loadRegularPicture();
+	PH_LOG(Test, "pic res: {}", pic.frame.getSizePx());
+
+	EImageWrapMode hWrapMode = res->getHorizontalWrapMode();
+	EImageWrapMode vWrapMode = res->getVerticalWrapMode();
+	PH_LOG(Test, "pic h warp mode: {}", TSdlEnum<EImageWrapMode>()[hWrapMode]);
+	PH_LOG(Test, "pic v warp mode: {}", TSdlEnum<EImageWrapMode>()[vWrapMode]);
+
+	PH_LOG(Test, "pic sample mode: {}", TSdlEnum<EImageSampleMode>()[res->getSampleMode()]);
+
 	// TODO
 }
 

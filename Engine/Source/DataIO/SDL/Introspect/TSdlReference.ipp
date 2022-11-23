@@ -163,21 +163,21 @@ template<typename T, typename Owner>
 inline auto TSdlReference<T, Owner>::optional()
 -> TSdlReference&
 {
-	return withImportance(EFieldImportance::OPTIONAL);
+	return withImportance(EFieldImportance::Optional);
 }
 
 template<typename T, typename Owner>
 inline auto TSdlReference<T, Owner>::niceToHave()
 -> TSdlReference&
 {
-	return withImportance(EFieldImportance::NICE_TO_HAVE);
+	return withImportance(EFieldImportance::NiceToHave);
 }
 
 template<typename T, typename Owner>
 inline auto TSdlReference<T, Owner>::required()
 -> TSdlReference&
 {
-	return withImportance(EFieldImportance::REQUIRED);
+	return withImportance(EFieldImportance::Required);
 }
 
 }// end namespace ph

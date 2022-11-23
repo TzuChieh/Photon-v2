@@ -124,6 +124,9 @@ Available functionalities after defining the macro:
 One does not need to define all enum entries. It is valid to partially expose some enum entries
 and keep the others hidden from SDL. Note that it is highly encouraged to provide a valid entry
 with the value 0 as it will be used as the default.
+
+For a enum `EnumType`, after the definition is done by calling this macro, you can use methods in
+`TSdlEnum<EnumType>` to access functionalities.
 */
 #define PH_DEFINE_SDL_ENUM(...)/* variadic args for template types that contain commas */\
 	template<>\

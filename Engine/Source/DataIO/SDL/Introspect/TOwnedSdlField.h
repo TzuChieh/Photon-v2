@@ -122,7 +122,7 @@ inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string v
 
 	SdlField(std::move(typeName), std::move(valueName)),
 
-	m_importance(EFieldImportance::NICE_TO_HAVE)
+	m_importance(EFieldImportance::NiceToHave)
 {}
 
 template<typename Owner>

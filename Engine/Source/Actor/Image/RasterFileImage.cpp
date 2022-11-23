@@ -7,6 +7,7 @@
 #include "Core/Texture/Pixel/TNumericPixelTexture2D.h"
 #include "Core/Texture/Pixel/TColorPixelTexture2D.h"
 #include "Common/logging.h"
+#include "Frame/pictures.h"
 
 #include <utility>
 #include <cstddef>

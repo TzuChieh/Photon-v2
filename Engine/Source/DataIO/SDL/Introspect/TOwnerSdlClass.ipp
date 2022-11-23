@@ -255,7 +255,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::loadFieldsFromSdl(
 {
 	auto noticeReceiver = [](std::string noticeMsg, EFieldImportance importance)
 	{
-		if(importance == EFieldImportance::OPTIONAL || importance == EFieldImportance::NICE_TO_HAVE)
+		if(importance == EFieldImportance::Optional || importance == EFieldImportance::NiceToHave)
 		{
 			PH_LOG_STRING(SdlClass, noticeMsg);
 		}
@@ -356,6 +356,7 @@ inline decltype(auto) TOwnerSdlClass<Owner, FieldSet>::castToOwnerResource(Deduc
 		"Owner must derive from ISdlResource.");
 
 	// Owner pointer type, possibly const-qualified (ignoring volatile)
+	static_assert(!std::is_volatile_v<SrcResource>);
 	using OwnerPtr = std::conditional_t<std::is_const_v<SrcResource>, 
 		const Owner*,
 		Owner*>;

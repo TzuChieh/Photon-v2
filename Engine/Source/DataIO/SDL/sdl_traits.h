@@ -23,14 +23,14 @@ concept CHasStaticSdlCategoryInfo =
 
 template<typename T>
 concept CHasSdlClassDefinition = 
-	std::is_same_v<decltype(T::SdlClassDefinitionMarker), void>;
+	std::is_same_v<typename T::SdlClassDefinitionMarker, void>;
 
 template<typename T>
 concept CHasSdlStructDefinition =
-	std::is_same_v<decltype(T::SdlStructDefinitionMarker), void>;
+	std::is_same_v<typename T::SdlStructDefinitionMarker, void>;
 
 template<typename T>
 concept CHasSdlFunctionDefinition =
-	std::is_same_v<decltype(T::SdlFunctionDefinitionMarker), void>;
+	std::is_same_v<typename T::SdlFunctionDefinitionMarker, void>;
 
 }// end namespace ph

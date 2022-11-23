@@ -49,17 +49,17 @@ TEST(TSdlIntegerTest, ReadFromSdl)
 		// Fallback to default for fields with different importance
 
 		sdlInt.defaultTo(12);
-		sdlInt.withImportance(EFieldImportance::OPTIONAL);
+		sdlInt.withImportance(EFieldImportance::Optional);
 		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputPayload("what"), ctx));
 		EXPECT_EQ(owner.value, 12);
 
 		sdlInt.defaultTo(333);
-		sdlInt.withImportance(EFieldImportance::NICE_TO_HAVE);
+		sdlInt.withImportance(EFieldImportance::NiceToHave);
 		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputPayload("not an int"), ctx));
 		EXPECT_EQ(owner.value, 333);
 
 		sdlInt.defaultTo(444);
-		sdlInt.withImportance(EFieldImportance::REQUIRED);
+		sdlInt.withImportance(EFieldImportance::Required);
 		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputPayload("testing"), ctx));
 		EXPECT_EQ(owner.value, 444);
 	}

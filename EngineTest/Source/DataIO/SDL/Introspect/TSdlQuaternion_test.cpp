@@ -54,15 +54,15 @@ TEST(TSdlQuaternionTest, ReadFromSdl)
 
 		// Read string with different importance
 
-		sdlQuat.withImportance(EFieldImportance::OPTIONAL);
+		sdlQuat.withImportance(EFieldImportance::Optional);
 		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputPayload("0 0 1 0"), ctx));
 		EXPECT_EQ(owner.q, QuaternionR(0, 0, 1, 0));
 
-		sdlQuat.withImportance(EFieldImportance::NICE_TO_HAVE);
+		sdlQuat.withImportance(EFieldImportance::NiceToHave);
 		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputPayload("-1 -1 -1 -1"), ctx));
 		EXPECT_EQ(owner.q, QuaternionR(-1, -1, -1, -1));
 
-		sdlQuat.withImportance(EFieldImportance::REQUIRED);
+		sdlQuat.withImportance(EFieldImportance::Required);
 		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputPayload("100 100 -200 300"), ctx));
 		EXPECT_EQ(owner.q, QuaternionR(100, 100, -200, 300));
 	}

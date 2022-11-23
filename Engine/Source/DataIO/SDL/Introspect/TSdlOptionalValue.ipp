@@ -19,7 +19,7 @@ inline TSdlOptionalValue<T, Owner>::TSdlOptionalValue(
 {
 	PH_ASSERT(m_valuePtr);
 
-	this->setImportance(EFieldImportance::OPTIONAL);
+	this->setImportance(EFieldImportance::Optional);
 }
 
 template<typename T, typename Owner>

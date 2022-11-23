@@ -57,7 +57,7 @@ inline void load_fields_from_sdl(
 				noticeReceiver(
 					"SDL class <" + ctx.genPrettySrcClassName() + "> has no matching field for "
 					"input clause <" + clause.genPrettyName() + ">, ignoring",
-					EFieldImportance::OPTIONAL);
+					EFieldImportance::Optional);
 			}
 
 			// No match is found, skip to next clause
@@ -79,7 +79,7 @@ inline void load_fields_from_sdl(
 				// (emit notice for other importance levels)
 				//
 				const auto importance = field.getImportance();
-				if(importance != EFieldImportance::OPTIONAL)
+				if(importance != EFieldImportance::Optional)
 				{
 					noticeReceiver(
 						"no clause for " + sdl::gen_pretty_name(ctx.getSrcClass(), &field) +

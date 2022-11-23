@@ -6,12 +6,13 @@
 #include "Core/Texture/Pixel/pixel_texture_basics.h"
 #include "Core/Texture/Pixel/PixelBuffer2D.h"
 #include "Math/Color/color_enums.h"
-#include "Frame/pictures.h"
 
 #include <memory>
 
 namespace ph
 {
+
+class RegularPicture;
 
 class RasterFileImage : public RasterImageBase
 {

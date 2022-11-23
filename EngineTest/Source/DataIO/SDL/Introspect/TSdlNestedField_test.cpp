@@ -42,7 +42,7 @@ TEST(TSdlNestedFieldTest, KeepsFieldSettings)
 		TSdlString<TestInner> innerStrField("test-str", &TestInner::str);
 		innerStrField.description("test description");
 		innerStrField.enableFallback(false);
-		innerStrField.withImportance(EFieldImportance::REQUIRED);
+		innerStrField.withImportance(EFieldImportance::Required);
 
 		TSdlNestedField<TestOuter, TestInner> nestedField(&TestOuter::innerObj, &innerStrField);
 

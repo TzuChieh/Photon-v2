@@ -31,8 +31,9 @@ enum class EPicturePixelFormat
 	PPF_RGBA_32F
 };
 
-struct RegularPicture final
+class RegularPicture final
 {
+public:
 	using Frame = TFrame<float32, 4>;
 	using Pixel = Frame::Pixel;
 
@@ -50,6 +51,7 @@ struct RegularPicture final
 
 	// TODO: do we need flag for different alpha order? e.g., ARGB vs RGBA. Do such format exist?
 
+public:
 	RegularPicture();
 
 	explicit RegularPicture(math::TVector2<uint32> sizePx);

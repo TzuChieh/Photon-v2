@@ -77,7 +77,7 @@ inline void TSdlMethod<MethodStruct, TargetType>::loadParameters(
 		ctx,
 		[](std::string noticeMsg, EFieldImportance importance)
 		{
-			if(importance == EFieldImportance::OPTIONAL || importance == EFieldImportance::NICE_TO_HAVE)
+			if(importance == EFieldImportance::Optional || importance == EFieldImportance::NiceToHave)
 			{
 				PH_LOG_STRING(SdlFunction, noticeMsg);
 			}
