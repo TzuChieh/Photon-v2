@@ -25,7 +25,7 @@ void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 		PH_LOG(Test, "res created");
 	}
 
-	res->setFilePath(Path("./rendered_scene - Copy (2).png"));
+	res->setFilePath(Path("./rendered_scene.png"));
 	RegularPicture pic = res->loadRegularPicture();
 	PH_LOG(Test, "pic res: {}", pic.frame.getSizePx());
 

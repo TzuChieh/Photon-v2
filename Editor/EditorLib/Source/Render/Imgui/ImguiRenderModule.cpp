@@ -227,7 +227,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	iconFontConfig.PixelSnapH = true;
 	iconFontConfig.GlyphMinAdvanceX = fontSizePx;
 	iconFontConfig.GlyphOffset.x = 0.0f;
-	iconFontConfig.GlyphOffset.y = 3.5f;
+	iconFontConfig.GlyphOffset.y = 2.2f * (fontSizePx / 15.0f);
 	static const ImWchar iconFontRanges[] = {
 		static_cast<ImWchar>(ICON_MIN_MD), 
 		static_cast<ImWchar>(ICON_MAX_MD), 
