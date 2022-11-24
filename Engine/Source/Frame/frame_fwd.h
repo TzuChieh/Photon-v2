@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/primitive_type.h"
+
 #include <cstddef>
 
 namespace ph

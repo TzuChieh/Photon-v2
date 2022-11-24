@@ -10,9 +10,53 @@
 #include <type_traits>
 #include <utility>
 #include <algorithm>
+#include <concepts>
 
 namespace ph
 {
+
+namespace frame_detail
+{
+
+template<typename Func, typename T, std::size_t N>
+concept CIsGetPixelOp = requires (Func func, typename TFrame<T, N>::Pixel pixel)
+{
+	// Requires returning `void`--to disambiguate with set ops
+	{ func(pixel) } -> std::same_as<void>;
+};
+
+template<typename Func, typename T, std::size_t N>
+concept CIsGetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y, typename TFrame<T, N>::Pixel pixel)
+{
+	// Requires returning `void`--to disambiguate with set ops
+	{ func(x, y, pixel) } -> std::same_as<void>;
+};
+
+template<typename Func, typename T, std::size_t N>
+concept CIsSetPixelOp = requires (Func func)
+{
+	{ func() } -> std::convertible_to<typename TFrame<T, N>::Pixel>;
+};
+
+template<typename Func, typename T, std::size_t N>
+concept CIsSetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y)
+{
+	{ func(x, y) } -> std::convertible_to<typename TFrame<T, N>::Pixel>;
+};
+
+template<typename Func, typename T, std::size_t N>
+concept CIsGetAndSetPixelOp = requires (Func func, typename TFrame<T, N>::Pixel pixel)
+{
+	{ func(pixel) } -> std::convertible_to<typename TFrame<T, N>::Pixel>;
+};
+
+template<typename Func, typename T, std::size_t N>
+concept CIsGetAndSetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y, typename TFrame<T, N>::Pixel pixel)
+{
+	{ func(x, y, pixel) } -> std::convertible_to<typename TFrame<T, N>::Pixel>;
+};
+
+}// end namespace frame_detail
 
 template<typename T, std::size_t N>
 template<typename U>
@@ -230,40 +274,35 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 		{
 			getPixel(x, y, &pixel);
 			
-			if constexpr(std::is_invocable_v<PerPixelOperation, uint32, uint32, Pixel>)
+			if constexpr(frame_detail::CIsGetPixelOp<PerPixelOperation, T, N>)
 			{
-				using Return = decltype(op(std::declval<uint32>(), std::declval<uint32>(), std::declval<Pixel>()));
-				static_assert(std::is_same_v<Return, void> || std::is_same_v<Return, Pixel>,
-					"PerPixelOperation must either returns nothing or a Pixel");
-
-				if constexpr(std::is_same_v<Return, void>)
-				{
-					op(x, y, pixel);
-				}
-				else
-				{
-					setPixel(x, y, op(x, y, pixel));
-				}
+				op(pixel);
 			}
-			else if constexpr(std::is_invocable_v<PerPixelOperation, Pixel>)
+			else if constexpr(frame_detail::CIsGetPixelWithCoordsOp<PerPixelOperation, T, N>)
 			{
-				using Return = decltype(op(std::declval<Pixel>()));
-				static_assert(std::is_same_v<Return, void> || std::is_same_v<Return, Pixel>,
-					"PerPixelOperation must either returns nothing or a Pixel");
-
-				if constexpr(std::is_same_v<Return, void>)
-				{
-					op(pixel);
-				}
-				else
-				{
-					setPixel(x, y, op(pixel));
-				}
+				op(x, y, pixel);
+			}
+			else if constexpr(frame_detail::CIsSetPixelOp<PerPixelOperation, T, N>)
+			{
+				setPixel(x, y, op());
+			}
+			else if constexpr(frame_detail::CIsSetPixelWithCoordsOp<PerPixelOperation, T, N>)
+			{
+				setPixel(x, y, op(x, y));
+			}
+			else if constexpr(frame_detail::CIsGetAndSetPixelOp<PerPixelOperation, T, N>)
+			{
+				setPixel(x, y, op(pixel));
+			}
+			else if constexpr(frame_detail::CIsGetAndSetPixelWithCoordsOp<PerPixelOperation, T, N>)
+			{
+				setPixel(x, y, op(x, y, pixel));
 			}
 			else
 			{
-				// just try to call straightforwardly
-				op(pixel);
+				// Unsupported per pixel operation
+				PH_ASSERT_UNREACHABLE_SECTION();
+				return;
 			}
 		}
 	}
@@ -282,18 +321,19 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 		{
 			getPixel(x, y, &pixel);
 
-			if constexpr(std::is_invocable_v<PerPixelOperation, uint32, uint32, Pixel>)
+			if constexpr(frame_detail::CIsGetPixelOp<PerPixelOperation, T, N>)
+			{
+				op(pixel);
+			}
+			else if constexpr(frame_detail::CIsGetPixelWithCoordsOp<PerPixelOperation, T, N>)
 			{
 				op(x, y, pixel);
 			}
-			else if constexpr(std::is_invocable_v<PerPixelOperation, Pixel>)
-			{
-				op(pixel);
-			}
 			else
 			{
-				// just try to call straightforwardly
-				op(pixel);
+				// Unsupported per pixel operation
+				PH_ASSERT_UNREACHABLE_SECTION();
+				return;
 			}
 		}
 	}

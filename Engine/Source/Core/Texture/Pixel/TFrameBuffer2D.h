@@ -57,6 +57,7 @@ inline auto TFrameBuffer2D<T, N>::getFramePixel(const math::TVector2<uint32> xy,
 {
 	const typename TFrame<T, N>::Pixel framePixel = m_frame.getPixel(xy);
 
+	// TODO: this should be a configurable option for each type; or some fixed policy
 	// Convert from [0, 255] to [0, 1] for LDR values
 	if constexpr(std::is_same_v<T, uint8>)
 	{
