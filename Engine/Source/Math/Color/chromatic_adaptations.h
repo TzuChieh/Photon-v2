@@ -27,7 +27,7 @@ template<EChromaticAdaptation ALGORITHM, typename T>
 class TChromaticAdaptationDefinition final
 {
 	// Available algorithms must provide definition and thus should not end up here.
-	static_assert(ALGORITHM == EChromaticAdaptation::UNSPECIFIED,
+	static_assert(ALGORITHM == EChromaticAdaptation::Unspecified,
 		"No definition for the specified chromatic adaptation ALGORITHM.");
 };
 

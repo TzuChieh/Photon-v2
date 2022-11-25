@@ -7,5 +7,5 @@ using namespace ph;
 
 TEST(TSdlTest, Concepts)
 {
-	static_assert(TSdl<Actor>::getCategory() != ETypeCategory::UNSPECIFIED);
+	static_assert(TSdl<Actor>::getCategory() != ETypeCategory::Unspecified);
 }

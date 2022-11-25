@@ -64,7 +64,7 @@ template<EColorSpace COLOR_SPACE, typename T>
 class TColorSpaceDefinition final
 {
 	// Available color spaces must provide definition and thus should not end up here.
-	static_assert(COLOR_SPACE == EColorSpace::UNSPECIFIED || COLOR_SPACE == EColorSpace::NUM,
+	static_assert(COLOR_SPACE == EColorSpace::Unspecified || COLOR_SPACE == EColorSpace::NUM,
 		"No definition for the specified COLOR_SPACE.");
 };
 

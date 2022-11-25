@@ -12,7 +12,7 @@ UnifiedColorImage::UnifiedColorImage() :
 
 	m_image             (nullptr),
 	m_constant          (0),
-	m_constantColorSpace(math::EColorSpace::UNSPECIFIED)
+	m_constantColorSpace(math::EColorSpace::Unspecified)
 {}
 
 UnifiedColorImage::UnifiedColorImage(std::shared_ptr<Image> image) :
@@ -68,7 +68,7 @@ UnifiedColorImage& UnifiedColorImage::setImage(std::shared_ptr<Image> image)
 UnifiedColorImage& UnifiedColorImage::setConstant(math::Vector3R constant)
 {
 	m_constant           = std::move(constant);
-	m_constantColorSpace = math::EColorSpace::UNSPECIFIED;
+	m_constantColorSpace = math::EColorSpace::Unspecified;
 	return *this;
 }
 

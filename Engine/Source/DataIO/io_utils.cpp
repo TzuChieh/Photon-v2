@@ -4,6 +4,7 @@
 #include "Common/logging.h"
 #include "DataIO/ExrFileReader.h"
 #include "Frame/frame_utils.h"
+#include "Frame/RegularPicture.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -35,7 +36,8 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 
 	// The last parameter is "0" since we want the actual components the image has;
 	// replace "0" with "1" ~ "4" to force that many components per pixel
-	stbi_uc* stbImageData = stbi_load(fullFilename.c_str(), &widthPx, &heightPx, &numComponents, 0);
+	// (we will always get RGBA-ordered data)
+	stbi_uc* const stbImageData = stbi_load(fullFilename.c_str(), &widthPx, &heightPx, &numComponents, 0);
 
 	if(stbImageData == NULL)
 	{
@@ -44,22 +46,24 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 			fullFilename);
 	}
 
-	RegularPicture picture({static_cast<uint32>(widthPx), static_cast<uint32>(heightPx)});
+	auto sizePx = math::Vector2S(widthPx, heightPx);
+	auto numBytesInStbImageData = sizePx.product() * numComponents * sizeof(stbi_uc);
 
 	// HACK: assuming input LDR image is in sRGB color space, we need to properly detect this
-	picture.colorSpace = math::EColorSpace::sRGB;
+	auto colorSpace = math::EColorSpace::sRGB;
 
+	auto nativeFormat = EPicturePixelFormat::Unspecified;
 	if(numComponents == 1)
 	{
-		picture.nativeFormat = EPicturePixelFormat::PPF_Grayscale_8;
+		nativeFormat = EPicturePixelFormat::PPF_Grayscale_8;
 	}
 	else if(numComponents == 3)
 	{
-		picture.nativeFormat = EPicturePixelFormat::PPF_RGB_8;
+		nativeFormat = EPicturePixelFormat::PPF_RGB_8;
 	}
 	else if(numComponents == 4)
 	{
-		picture.nativeFormat = EPicturePixelFormat::PPF_RGBA_8;
+		nativeFormat = EPicturePixelFormat::PPF_RGBA_8;
 	}
 	else
 	{
@@ -68,23 +72,32 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 			fullFilename, numComponents);
 	}
 
-	for(uint32 y = 0; y < picture.frame.heightPx(); y++)
-	{
-		for(uint32 x = 0; x < picture.frame.widthPx(); x++)
-		{
-			const std::size_t i = (static_cast<std::size_t>(y) * picture.frame.widthPx() + x) * numComponents;
-			PH_ASSERT(i < static_cast<std::size_t>(widthPx) * heightPx * numComponents);
+	RegularPicture picture(
+		sizePx,
+		numComponents,
+		EPicturePixelComponent::PPC_UInt8);
 
-			// For each pixel component, transform from [0, 255] to [0, 1]
-			RegularPicture::Pixel pixel(0);
-			for(int ci = 0; ci < numComponents; ++ci)
-			{
-				pixel[ci] = stbImageData[i + ci] / 255.0f;
-			}
+	picture.setNativeFormat(nativeFormat);
+	picture.setColorSpace(colorSpace);
+	picture.getPixels().setPixels(stbImageData, numBytesInStbImageData);
 
-			picture.frame.setPixel(x, y, pixel);
-		}
-	}
+	//for(std::size_t y = 0; y < sizePx.y(); y++)
+	//{
+	//	for(std::size_t x = 0; x < sizePx.x(); x++)
+	//	{
+	//		const std::size_t i = (y * sizePx.x() + x) * numComponents;
+	//		PH_ASSERT_LT(i, static_cast<std::size_t>(widthPx) * heightPx * numComponents);
+
+	//		// For each pixel component, transform from [0, 255] to [0, 1]
+	//		RegularPicture::Pixel pixel(0);
+	//		for(int ci = 0; ci < numComponents; ++ci)
+	//		{
+	//			pixel[ci] = stbImageData[i + ci] / 255.0f;
+	//		}
+
+	//		picture.frame.setPixel(x, y, pixel);
+	//	}
+	//}
 
 	// Free the image data loaded by stb
 	stbi_image_free(stbImageData);
@@ -105,7 +118,8 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 
 	// The last parameter is "0" since we want the actual components the image has
 	// (replace "0" with "1" ~ "4" to force that many components per pixel)
-	float* stbImageData = stbi_loadf(fullFilename.c_str(), &widthPx, &heightPx, &numComponents, 0);
+	// (we will always get RGBA-ordered data)
+	float* const stbImageData = stbi_loadf(fullFilename.c_str(), &widthPx, &heightPx, &numComponents, 0);
 
 	if(stbImageData == NULL)
 	{
@@ -114,22 +128,24 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 			fullFilename);
 	}
 
-	RegularPicture picture({static_cast<uint32>(widthPx), static_cast<uint32>(heightPx)});
+	auto sizePx = math::Vector2S(widthPx, heightPx);
+	auto numBytesInStbImageData = sizePx.product() * numComponents * sizeof(float);
 
 	// HACK: assuming input HDR image is in linear-sRGB color space, we need to properly detect this
-	picture.colorSpace = math::EColorSpace::Linear_sRGB;
+	auto colorSpace = math::EColorSpace::Linear_sRGB;
 
+	auto nativeFormat = EPicturePixelFormat::Unspecified;
 	if(numComponents == 1)
 	{
-		picture.nativeFormat = EPicturePixelFormat::PPF_Grayscale_32F;
+		nativeFormat = EPicturePixelFormat::PPF_Grayscale_32F;
 	}
 	else if(numComponents == 3)
 	{
-		picture.nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
+		nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
 	}
 	else if(numComponents == 4)
 	{
-		picture.nativeFormat = EPicturePixelFormat::PPF_RGBA_32F;
+		nativeFormat = EPicturePixelFormat::PPF_RGBA_32F;
 	}
 	else
 	{
@@ -138,23 +154,32 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 			fullFilename, numComponents);
 	}
 
-	for(uint32 y = 0; y < picture.frame.heightPx(); y++)
-	{
-		for(uint32 x = 0; x < picture.frame.widthPx(); x++)
-		{
-			const std::size_t i = (static_cast<std::size_t>(y) * picture.frame.widthPx() + x) * numComponents;
-			PH_ASSERT(i < static_cast<std::size_t>(widthPx) * heightPx * numComponents);
+	RegularPicture picture(
+		sizePx,
+		numComponents,
+		EPicturePixelComponent::PPC_Float32);
 
-			// For each pixel component, directly copy floating-point values
-			RegularPicture::Pixel pixel(0);
-			for(int ci = 0; ci < numComponents; ++ci)
-			{
-				pixel[ci] = stbImageData[i + ci];
-			}
+	picture.setNativeFormat(nativeFormat);
+	picture.setColorSpace(colorSpace);
+	picture.getPixels().setPixels(stbImageData, numBytesInStbImageData);
 
-			picture.frame.setPixel(x, y, pixel);
-		}
-	}
+	//for(uint32 y = 0; y < picture.frame.heightPx(); y++)
+	//{
+	//	for(uint32 x = 0; x < picture.frame.widthPx(); x++)
+	//	{
+	//		const std::size_t i = (static_cast<std::size_t>(y) * picture.frame.widthPx() + x) * numComponents;
+	//		PH_ASSERT(i < static_cast<std::size_t>(widthPx) * heightPx * numComponents);
+
+	//		// For each pixel component, directly copy floating-point values
+	//		RegularPicture::Pixel pixel(0);
+	//		for(int ci = 0; ci < numComponents; ++ci)
+	//		{
+	//			pixel[ci] = stbImageData[i + ci];
+	//		}
+
+	//		picture.frame.setPixel(x, y, pixel);
+	//	}
+	//}
 
 	// Free the image data loaded by stb
 	stbi_image_free(stbImageData);
@@ -252,22 +277,30 @@ RegularPicture load_HDR_picture(const Path& picturePath)
 		HdrRgbFrame frame;
 		if(exrFileReader.load(&frame))
 		{
-			// TODO: properly handle picture attributes
+			// TODO: properly handle picture attributes; properly load from via EXR
 
-			RegularPicture picture(frame.getSizePx());
-			picture.nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
-			picture.colorSpace = math::EColorSpace::Linear_sRGB;
-			picture.frame.forEachPixel([&frame](const uint32 x, const uint32 y, auto /* pixel */)
-			{
-				const auto framePixel = frame.getPixel({x, y});
+			RegularPicture picture(
+				math::Vector2S(frame.getSizePx()),
+				3,
+				EPicturePixelComponent::PPC_Float32);
+			picture.setNativeFormat(EPicturePixelFormat::PPF_RGB_32F);
+			picture.setColorSpace(math::EColorSpace::Linear_sRGB);
+			picture.getPixels().setPixels(
+				frame.getPixelData(), 
+				math::Vector2S(frame.getSizePx()).product() * 3);
+			//picture.nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
+			//picture.colorSpace = math::EColorSpace::Linear_sRGB;
+			//picture.frame.forEachPixel([&frame](const uint32 x, const uint32 y, auto /* pixel */)
+			//{
+			//	const auto framePixel = frame.getPixel({x, y});
 
-				RegularPicture::Pixel picturePixel(0);
-				picturePixel[0] = framePixel[0];
-				picturePixel[1] = framePixel[1];
-				picturePixel[2] = framePixel[2];
+			//	RegularPicture::Pixel picturePixel(0);
+			//	picturePixel[0] = framePixel[0];
+			//	picturePixel[1] = framePixel[1];
+			//	picturePixel[2] = framePixel[2];
 
-				return picturePixel;
-			});
+			//	return picturePixel;
+			//});
 
 			return picture;
 		}

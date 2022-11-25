@@ -20,7 +20,7 @@ math::Spectrum tristimulus_to_spectrum(const math::Vector3R& tristimulus, const 
 {
 	switch(colorSpace)
 	{
-	case math::EColorSpace::UNSPECIFIED:
+	case math::EColorSpace::Unspecified:
 	case math::EColorSpace::Linear_sRGB:
 		return math::Spectrum().setLinearSRGB(tristimulus.toArray(), usage);
 

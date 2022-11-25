@@ -5,7 +5,7 @@ namespace ph::sdlgen
 
 enum class EInterfaceGenerator
 {
-	UNSPECIFIED,
+	Unspecified,
 	MARKDOWN_DOC,
 	PYTHON
 };

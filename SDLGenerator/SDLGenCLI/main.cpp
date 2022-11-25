@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	}
 
 	SdlGenArguments arguments(argc, argv);
-	if(arguments.getExecutionMode() == ESdlGenMode::UNSPECIFIED)
+	if(arguments.getExecutionMode() == ESdlGenMode::Unspecified)
 	{
 		std::cout << "Photon-v2 SDL Generation" << std::endl;
 		std::cout << "Use --help or -h for how to use the program." << std::endl;

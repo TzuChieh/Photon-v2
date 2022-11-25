@@ -61,7 +61,7 @@ public:
 		verticalWrapMode.description(
 			"Wrap mode of the raster image in the vertical direction. If this field is specified, the "
 			"<wrap-mode> field is treated as the horizontal wrap mode.");
-		verticalWrapMode.defaultTo(EImageWrapMode::UNSPECIFIED);
+		verticalWrapMode.defaultTo(EImageWrapMode::Unspecified);
 		verticalWrapMode.optional();
 		clazz.addField(verticalWrapMode);
 

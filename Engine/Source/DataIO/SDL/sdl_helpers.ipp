@@ -240,7 +240,7 @@ inline constexpr ETypeCategory category_of()
 	}
 	else
 	{
-		return ETypeCategory::UNSPECIFIED;
+		return ETypeCategory::Unspecified;
 	}
 }
 

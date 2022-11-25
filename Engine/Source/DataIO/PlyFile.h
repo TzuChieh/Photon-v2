@@ -35,7 +35,7 @@ enum class EPlyFileFormat
 
 enum class EPlyDataType
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	/*! The `char` type, character with 1 byte. */
 	PPT_int8,

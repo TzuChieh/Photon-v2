@@ -4,6 +4,7 @@
 #include <Common/logging.h>
 #include <Actor/Image/RasterFileImage.h>
 #include <DataIO/SDL/TSdl.h>
+#include <Frame/RegularPicture.h>
 
 namespace ph::editor
 {
@@ -27,7 +28,7 @@ void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 
 	res->setFilePath(Path("./rendered_scene.png"));
 	RegularPicture pic = res->loadRegularPicture();
-	PH_LOG(Test, "pic res: {}", pic.frame.getSizePx());
+	PH_LOG(Test, "pic res: {}", pic.getSizePx());
 
 	EImageWrapMode hWrapMode = res->getHorizontalWrapMode();
 	EImageWrapMode vWrapMode = res->getVerticalWrapMode();

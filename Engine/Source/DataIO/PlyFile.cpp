@@ -22,7 +22,7 @@ namespace
 
 enum class EPlyHeaderEntry
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	Property,
 	Element,
@@ -80,7 +80,7 @@ inline EPlyHeaderEntry ply_keyword_to_entry(const std::string_view keyword)
 {
 	using Value = std::underlying_type_t<EPlyHeaderEntry>;
 
-	for(Value ei = static_cast<Value>(EPlyHeaderEntry::UNSPECIFIED) + 1; 
+	for(Value ei = static_cast<Value>(EPlyHeaderEntry::Unspecified) + 1;
 	    ei < static_cast<Value>(EPlyHeaderEntry::NUM); 
 	    ++ei)
 	{
@@ -92,7 +92,7 @@ inline EPlyHeaderEntry ply_keyword_to_entry(const std::string_view keyword)
 	}
 
 	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify entry.", keyword);
-	return EPlyHeaderEntry::UNSPECIFIED;
+	return EPlyHeaderEntry::Unspecified;
 }
 
 inline std::string_view data_type_to_ply_keyword(const EPlyDataType dataType)
@@ -187,7 +187,7 @@ inline EPlyDataType ply_keyword_to_data_type(const std::string_view keyword)
 	}
 
 	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify data type.", keyword);
-	return EPlyDataType::UNSPECIFIED;
+	return EPlyDataType::Unspecified;
 }
 
 inline std::size_t sizeof_ply_data_type(const EPlyDataType dataType)
@@ -377,8 +377,8 @@ inline void bytes_to_ascii_ply_data(
 
 PlyProperty::PlyProperty() :
 	name              (),
-	dataType          (EPlyDataType::UNSPECIFIED),
-	listSizeType      (EPlyDataType::UNSPECIFIED),
+	dataType          (EPlyDataType::Unspecified),
+	listSizeType      (EPlyDataType::Unspecified),
 	strideOffset      (0),
 	fixedListSize     (0),
 	rawListBuffer     (),
@@ -387,7 +387,7 @@ PlyProperty::PlyProperty() :
 
 bool PlyProperty::isList() const
 {
-	return listSizeType != EPlyDataType::UNSPECIFIED;
+	return listSizeType != EPlyDataType::Unspecified;
 }
 
 bool PlyProperty::isFixedSizeList() const
@@ -481,7 +481,7 @@ PlyPropertyListValues PlyElement::listPropertyValues(PlyProperty* const prop)
 }
 
 PlyPropertyValues::PlyPropertyValues() :
-	PlyPropertyValues(nullptr, 0, 0, EPlyDataType::UNSPECIFIED)
+	PlyPropertyValues(nullptr, 0, 0, EPlyDataType::Unspecified)
 {}
 
 PlyPropertyValues::PlyPropertyValues(
@@ -536,7 +536,7 @@ PlyPropertyValues::operator bool() const
 }
 
 PlyPropertyListValues::PlyPropertyListValues() :
-	PlyPropertyListValues(nullptr, nullptr, 0, 0, EPlyDataType::UNSPECIFIED)
+	PlyPropertyListValues(nullptr, nullptr, 0, 0, EPlyDataType::Unspecified)
 {}
 
 PlyPropertyListValues::PlyPropertyListValues(
@@ -837,7 +837,7 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 		// Detect and remove the entry keyword from the line
 
 		const auto entry = ply_keyword_to_entry(next_token(headerLine, &headerLine));
-		if(entry == EPlyHeaderEntry::UNSPECIFIED)
+		if(entry == EPlyHeaderEntry::Unspecified)
 		{
 			throw FileIOError("PLY header line with unknown entry", plyFilePath.toAbsoluteString());
 		}

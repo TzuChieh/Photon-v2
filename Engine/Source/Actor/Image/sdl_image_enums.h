@@ -7,7 +7,7 @@ namespace ph
 
 enum class EImageSampleMode
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	Bilinear,
 	Nearest,
@@ -19,7 +19,7 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EImageSampleMode>)
 	SdlEnumType sdlEnum("sample-mode");
 	sdlEnum.description("Controls how the image will be sampled.");
 
-	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
+	sdlEnum.addEntry(EnumType::Unspecified, "");
 	sdlEnum.addEntry(EnumType::Nearest,     "nearest");
 	sdlEnum.addEntry(EnumType::Bilinear,    "bilinear");
 	sdlEnum.addEntry(EnumType::Trilinear,   "trilinear");
@@ -29,7 +29,7 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EImageSampleMode>)
 
 enum class EImageWrapMode
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	ClampToEdge,
 	Repeat,
@@ -42,7 +42,7 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EImageWrapMode>)
 	sdlEnum.description(
 		"Controls how the image will be sampled when texture coordinates is not within the range [0, 1].");
 
-	sdlEnum.addEntry(EnumType::UNSPECIFIED,        "");
+	sdlEnum.addEntry(EnumType::Unspecified,        "");
 	sdlEnum.addEntry(EnumType::Repeat,             "repeat");
 	sdlEnum.addEntry(EnumType::ClampToEdge,        "clamp-to-edge");
 	sdlEnum.addEntry(EnumType::FlippedClampToEdge, "flipped-clamp-to-edge");

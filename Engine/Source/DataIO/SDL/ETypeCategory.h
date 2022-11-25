@@ -13,7 +13,7 @@ namespace ph
 
 enum class ETypeCategory
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	REF_GEOMETRY, 
 	REF_MATERIAL,
@@ -28,7 +28,7 @@ enum class ETypeCategory
 	REF_OPTION,
 	
 	// Special values (these entries should always be the last ones)
-	MIN = UNSPECIFIED,
+	MIN = Unspecified,
 	MAX = REF_OPTION,
 	NUM = MAX - MIN + 1
 };
@@ -81,15 +81,15 @@ inline ETypeCategory string_to_category(const std::string_view categoryStr)
 		{category_to_string(ETypeCategory::REF_VISUALIZER),      ETypeCategory::REF_VISUALIZER},
 		{category_to_string(ETypeCategory::REF_OPTION),          ETypeCategory::REF_OPTION}
 
-		// Any other strings including the string for ETypeCategory::UNSPECIFIED
-		// is not explicitly mapped here, as by default they all mapped to ETypeCategory::UNSPECIFIED
+		// Any other strings including the string for `ETypeCategory::Unspecified`
+		// is not explicitly mapped here, as by default they all mapped to `ETypeCategory::Unspecified`
 	};
 
 	const auto& iter = map.find(categoryStr);
 	if(iter == map.end())
 	{
 		// Map to "unspecified" by default
-		return ETypeCategory::UNSPECIFIED;
+		return ETypeCategory::Unspecified;
 	}
 
 	return iter->second;

@@ -10,7 +10,7 @@ RasterImageBase::RasterImageBase() :
 	m_resolution      (0),
 	m_sampleMode      (EImageSampleMode::Bilinear),
 	m_wrapMode        (EImageWrapMode::Repeat),
-	m_verticalWrapMode(EImageWrapMode::UNSPECIFIED)
+	m_verticalWrapMode(EImageWrapMode::Unspecified)
 {}
 
 math::TVector2<uint32> RasterImageBase::getResolution() const
@@ -30,7 +30,7 @@ EImageWrapMode RasterImageBase::getHorizontalWrapMode() const
 
 EImageWrapMode RasterImageBase::getVerticalWrapMode() const
 {
-	return m_verticalWrapMode == EImageWrapMode::UNSPECIFIED ? 
+	return m_verticalWrapMode == EImageWrapMode::Unspecified ?
 		m_wrapMode : m_verticalWrapMode;
 }
 
@@ -43,7 +43,7 @@ RasterImageBase& RasterImageBase::setSampleMode(const EImageSampleMode mode)
 RasterImageBase& RasterImageBase::setWrapMode(const EImageWrapMode mode)
 {
 	m_wrapMode         = mode;
-	m_verticalWrapMode = EImageWrapMode::UNSPECIFIED;
+	m_verticalWrapMode = EImageWrapMode::Unspecified;
 	return *this;
 }
 

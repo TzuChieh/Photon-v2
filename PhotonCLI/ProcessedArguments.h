@@ -20,7 +20,7 @@ enum class EIntervalUnit
 
 //enum class EExecutionMode
 //{
-//	UNSPECIFIED,
+//	Unspecified,
 //	RENDER_SINGLE_IMAGE,
 //	RENDER_IMAGE_SERIES,
 //	SDL_GENERATION

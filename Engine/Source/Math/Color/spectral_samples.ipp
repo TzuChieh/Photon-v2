@@ -73,7 +73,7 @@ inline TSpectralSampleValues<T, SampleProps> resample_spectral_samples(
 {
 	PH_ASSERT(wavelengthsNM);
 	PH_ASSERT(values);
-	PH_ASSERT(algorithm != ESpectralResample::UNSPECIFIED);
+	PH_ASSERT(algorithm != ESpectralResample::Unspecified);
 
 	TSpectralSampleValues<T, SampleProps> sampled;
 	sampled.fill(0);

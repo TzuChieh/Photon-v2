@@ -5,7 +5,7 @@ namespace ph::math
 
 enum class EColorSpace
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	/*! The CIE 1931 color space that many color spaces based on. */
 	CIE_XYZ,
@@ -35,7 +35,7 @@ enum class EColorSpace
 
 enum class EReferenceWhite
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	// CIE Illuminant A
 	A,
@@ -100,7 +100,7 @@ This kind of mapping is commonly called Chromatic Adaptation Transform (CAT).
 */
 enum class EChromaticAdaptation
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	/*! The most simple transform. Generally considered to be an inferior CAT. */
 	XYZScaling,
@@ -126,7 +126,7 @@ Specifying a hint to a method may result in better-converted data depending on t
 */
 enum class EColorUsage
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	/*!
 	Raw numeric data such as position, normal, density information.
@@ -147,7 +147,7 @@ enum class EColorUsage
 
 enum class ESpectralResample
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	PiecewiseAveraged,
 

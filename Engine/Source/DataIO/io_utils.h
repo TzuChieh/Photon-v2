@@ -7,10 +7,11 @@
 
 #include "DataIO/FileSystem/Path.h"
 #include "Common/primitive_type.h"
-#include "Frame/pictures.h"
 
 #include <string>
 #include <string_view>
+
+namespace ph { class RegularPicture; }
 
 namespace ph::io_utils
 {

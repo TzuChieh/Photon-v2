@@ -5,7 +5,7 @@ namespace ph
 
 enum class EAccelerator
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	BRUTE_FORCE,
 	BVH,

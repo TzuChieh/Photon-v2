@@ -5,7 +5,7 @@ namespace ph
 
 enum class ERayEnergyEstimator
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	BVPT,
 	BNEEPT,

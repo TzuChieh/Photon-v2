@@ -35,7 +35,7 @@ private:
 inline CoreCookingContext::CoreCookingContext() : 
 	m_frameSizePx            (0, 0),
 	m_numWorkers             (1),
-	m_topLevelAcceleratorType(EAccelerator::UNSPECIFIED)
+	m_topLevelAcceleratorType(EAccelerator::Unspecified)
 {}
 
 inline const math::TVector2<uint32>& CoreCookingContext::getFrameSizePx() const

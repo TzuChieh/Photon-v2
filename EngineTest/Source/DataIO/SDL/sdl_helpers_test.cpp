@@ -21,8 +21,8 @@ TEST(SdlHelpersTest, Concepts)
 	static_assert(CHasStaticSdlCategoryInfo<DummyStruct> == false);
 	static_assert(CHasStaticSdlCategoryInfo<Actor> == true);
 
-	static_assert(sdl::category_of<DummyStruct>() == ETypeCategory::UNSPECIFIED);
-	static_assert(sdl::category_of<Actor>() != ETypeCategory::UNSPECIFIED);
+	static_assert(sdl::category_of<DummyStruct>() == ETypeCategory::Unspecified);
+	static_assert(sdl::category_of<Actor>() != ETypeCategory::Unspecified);
 }
 
 TEST(SdlHelpersTest, IsResourceIdentifier)

@@ -61,7 +61,7 @@ public:
 
 		TSdlEnumField<OwnerType, math::EColorSpace> colorSpace(&OwnerType::m_colorSpace);
 		colorSpace.description("Associated color space of the constant.");
-		colorSpace.defaultTo(math::EColorSpace::UNSPECIFIED);
+		colorSpace.defaultTo(math::EColorSpace::Unspecified);
 		colorSpace.optional();
 		clazz.addField(colorSpace);
 
@@ -73,17 +73,17 @@ public:
 
 template<typename T>
 inline ConstantImage::ConstantImage(const T value) :
-	ConstantImage(value, math::EColorSpace::UNSPECIFIED)
+	ConstantImage(value, math::EColorSpace::Unspecified)
 {}
 
 template<typename T>
 inline ConstantImage::ConstantImage(const math::TVector3<T>& values) :
-	ConstantImage(values, math::EColorSpace::UNSPECIFIED)
+	ConstantImage(values, math::EColorSpace::Unspecified)
 {}
 
 template<typename T>
 inline ConstantImage::ConstantImage(std::vector<T> values) :
-	ConstantImage(std::move(values), math::EColorSpace::UNSPECIFIED)
+	ConstantImage(std::move(values), math::EColorSpace::Unspecified)
 {}
 
 template<typename T>

@@ -11,7 +11,7 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EScheduler>)
 	SdlEnumType sdlEnum("scheduler");
 	sdlEnum.description("Denotes work distribution types.");
 	
-	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
+	sdlEnum.addEntry(EnumType::Unspecified, "");
 	sdlEnum.addEntry(EnumType::BULK,        "bulk");
 	sdlEnum.addEntry(EnumType::STRIPE,      "stripe");
 	sdlEnum.addEntry(EnumType::GRID,        "grid");

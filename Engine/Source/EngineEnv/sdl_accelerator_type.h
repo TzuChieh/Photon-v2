@@ -11,7 +11,7 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EAccelerator>)
 	SdlEnumType sdlEnum("accelerator");
 	sdlEnum.description("Denotes acceleration structure types.");
 
-	sdlEnum.addEntry(EnumType::UNSPECIFIED,    "");
+	sdlEnum.addEntry(EnumType::Unspecified,    "");
 	sdlEnum.addEntry(EnumType::BRUTE_FORCE,    "brute-force");
 	sdlEnum.addEntry(EnumType::BVH,            "bvh");
 	sdlEnum.addEntry(EnumType::KDTREE,         "kd-tree");

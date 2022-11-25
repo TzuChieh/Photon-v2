@@ -5,7 +5,7 @@ namespace ph
 
 enum class EScheduler
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	BULK,
 	STRIPE,

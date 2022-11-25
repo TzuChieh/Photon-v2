@@ -5,7 +5,7 @@ namespace ph
 
 enum class ESampleFilter
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	BOX,
 	GAUSSIAN,

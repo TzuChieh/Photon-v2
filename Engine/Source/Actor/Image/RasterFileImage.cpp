@@ -7,7 +7,7 @@
 #include "Core/Texture/Pixel/TNumericPixelTexture2D.h"
 #include "Core/Texture/Pixel/TColorPixelTexture2D.h"
 #include "Common/logging.h"
-#include "Frame/pictures.h"
+#include "Frame/RegularPicture.h"
 
 #include <utility>
 #include <cstddef>
@@ -22,42 +22,43 @@ PH_DEFINE_INTERNAL_LOG_GROUP(RasterFileImage, Image);
 namespace
 {
 
-template<typename T, std::size_t N>
-inline TFrame<T, N> make_frame_from_picture(const RegularPicture& picture)
-{
-	TFrame<T, N> frame(picture.frame.widthPx(), picture.frame.heightPx());
-
-	frame.forEachPixel(
-	[&picture](const uint32 x, const uint32 y, auto /* pixel */)
-	{
-		RegularPicture::Pixel srcPixel = picture.frame.getPixel({x, y});
-
-		// For LDR type, transform to the range [0, 255] for later casting
-		if constexpr(std::is_same_v<T, uint8>)
-		{
-			srcPixel = srcPixel * 255.0f + 0.5f;
-		}
-
-		constexpr auto MIN_ELEMENTS = std::min(RegularPicture::Pixel::NUM_ELEMENTS, N);
-
-		// Pixel element casting is based on the smaller number of elements of the two--other
-		// elements are either discarded or defaulted to 0.
-		typename TFrame<T, N>::Pixel dstPixel(0);
-		for(std::size_t ei = 0; ei < MIN_ELEMENTS; ++ei)
-		{
-			dstPixel[ei] = static_cast<T>(srcPixel[ei]);
-		}
-
-		return dstPixel;
-	});
-
-	return frame;
-}
+//template<typename T, std::size_t N>
+//inline TFrame<T, N> make_frame_from_picture(const RegularPicture& picture)
+//{
+//	TFrame<T, N> frame(picture.frame.widthPx(), picture.frame.heightPx());
+//
+//	frame.forEachPixel(
+//	[&picture](const uint32 x, const uint32 y, auto /* pixel */)
+//	{
+//		RegularPicture::Pixel srcPixel = picture.frame.getPixel({x, y});
+//
+//		// For LDR type, transform to the range [0, 255] for later casting
+//		if constexpr(std::is_same_v<T, uint8>)
+//		{
+//			srcPixel = srcPixel * 255.0f + 0.5f;
+//		}
+//
+//		constexpr auto MIN_ELEMENTS = std::min(RegularPicture::Pixel::NUM_ELEMENTS, N);
+//
+//		// Pixel element casting is based on the smaller number of elements of the two--other
+//		// elements are either discarded or defaulted to 0.
+//		typename TFrame<T, N>::Pixel dstPixel(0);
+//		for(std::size_t ei = 0; ei < MIN_ELEMENTS; ++ei)
+//		{
+//			dstPixel[ei] = static_cast<T>(srcPixel[ei]);
+//		}
+//
+//		return dstPixel;
+//	});
+//
+//	return frame;
+//}
 
 template<typename T, std::size_t N>
 inline std::shared_ptr<TFrameBuffer2D<T, N>> make_frame_buffer_from_picture(const RegularPicture& picture)
 {
-	return std::make_shared<TFrameBuffer2D<T, N>>(make_frame_from_picture<T, N>(picture));
+	//return std::make_shared<TFrameBuffer2D<T, N>>(make_frame_from_picture<T, N>(picture));
+	return std::make_shared<TFrameBuffer2D<T, N>>(picture.getPixels().toFrame<T, N>());
 }
 
 inline pixel_texture::EWrapMode to_texture_wrap_mode(const EImageWrapMode wrapMode)
@@ -176,7 +177,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 
 	if(out_colorSpace)
 	{
-		*out_colorSpace = picture.colorSpace;
+		*out_colorSpace = picture.getColorSpace();
 	}
 
 	if(out_pixelLayout)
@@ -188,12 +189,12 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 			break;
 
 		case 3:
-			*out_pixelLayout = !picture.isReversedComponents ?
+			*out_pixelLayout = !picture.isReversedComponents() ?
 				pixel_texture::EPixelLayout::PL_RGB : pixel_texture::EPixelLayout::PL_BGR;
 			break;
 
 		case 4:
-			*out_pixelLayout = !picture.isReversedComponents ?
+			*out_pixelLayout = !picture.isReversedComponents() ?
 				pixel_texture::EPixelLayout::PL_RGBA : pixel_texture::EPixelLayout::PL_ABGR;
 			break;
 
@@ -207,7 +208,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 
 	// TODO: make use of half
 	std::shared_ptr<PixelBuffer2D> pixelBuffer;
-	switch(picture.nativeFormat)
+	switch(picture.getNativeFormat())
 	{
 	case EPicturePixelFormat::PPF_Grayscale_8:
 		pixelBuffer = make_frame_buffer_from_picture<uint8, 1>(picture);

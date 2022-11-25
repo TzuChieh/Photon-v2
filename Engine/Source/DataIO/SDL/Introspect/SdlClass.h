@@ -116,7 +116,7 @@ inline SdlClass::SdlClass(const ETypeCategory category, const std::string& typeN
 	m_base       (nullptr)
 {
 	PH_ASSERT(!m_typeName.empty());
-	PH_ASSERT_MSG(m_category != ETypeCategory::UNSPECIFIED,
+	PH_ASSERT_MSG(m_category != ETypeCategory::Unspecified,
 		"unspecified SDL resource category detected in " + genPrettyName() + "; "
 		"consult documentation of ISdlResource and see if the SDL resource is "
 		"properly implemented");

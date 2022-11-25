@@ -27,26 +27,52 @@ enum class EPicturePixelComponent
 	PPC_Float64
 };
 
-class Picture final
+class PictureData final
 {
 public:
+	/*! @brief Creates an empty picture.
+	*/
+	PictureData();
+
+	/*! @brief Creates a picture with allocated buffer.
+	Use setPixels(const PixelData*, std::size_t) to supply pixel data.
+	*/
+	PictureData(
+		math::Vector2S sizePx,
+		std::size_t numPicComponents,
+		EPicturePixelComponent componentType);
+
+	/*! @brief Creates a picture filled with pixel data.
+	*/
 	template<typename PixelData>
-	Picture(
+	PictureData(
 		math::Vector2S sizePx,
 		std::size_t numPicComponents,
 		EPicturePixelComponent componentType,
 		const PixelData* pixelData,
 		std::size_t pixelDataSize);
 
+	PictureData(PictureData&& other);
+
 	const math::Vector2S& getSizePx() const;
 	std::size_t getWidthPx() const;
 	std::size_t getHeightPx() const;
 	std::size_t numComponents() const;
+	EPicturePixelComponent getComponentType() const;
 	std::byte* getData();
 	const std::byte* getData() const;
+	std::size_t numBytesInData() const;
+	bool isEmpty() const;
+
+	template<typename PixelData>
+	void setPixels(
+		const PixelData* pixelData,
+		std::size_t pixelDataSize);
 
 	template<typename FrameComponent, std::size_t N>
 	TFrame<FrameComponent, N> toFrame() const;
+
+	PictureData& operator = (PictureData&& rhs);
 
 private:
 	template<typename PictureComponent, typename FrameComponent, std::size_t N>
@@ -61,8 +87,9 @@ private:
 	std::size_t m_numComponents;
 	EPicturePixelComponent m_componentType;
 	std::unique_ptr<std::byte[]> m_data;
+	std::size_t m_numBytesInData;
 };
 
 }// end namespace ph
 
-#include "Frame/Picture.ipp"
+#include "Frame/PictureData.ipp"

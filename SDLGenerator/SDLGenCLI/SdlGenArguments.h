@@ -12,7 +12,7 @@ namespace ph::sdlgen
 
 enum class ESdlGenMode
 {
-	UNSPECIFIED,
+	Unspecified,
 	PRINT_HELP_MESSAGE,
 	INTERFACE_GENERATION
 };

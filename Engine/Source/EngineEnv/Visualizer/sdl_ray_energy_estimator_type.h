@@ -11,7 +11,7 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ERayEnergyEstimator>)
 	SdlEnumType sdlEnum("estimator");
 	sdlEnum.description("Type of energy estimation algorithms.");
 	
-	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
+	sdlEnum.addEntry(EnumType::Unspecified, "");
 
 	sdlEnum.addEntry(EnumType::BVPT, "bvpt",
 		"Backward path tracing.");

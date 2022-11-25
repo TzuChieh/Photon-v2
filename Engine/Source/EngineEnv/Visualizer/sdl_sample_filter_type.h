@@ -11,7 +11,7 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ESampleFilter>)
 	SdlEnumType sdlEnum("sample-filter");
 	sdlEnum.description("The type of filter used during the sampling process.");
 	
-	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
+	sdlEnum.addEntry(EnumType::Unspecified, "");
 
 	sdlEnum.addEntry(EnumType::BOX, "box",
 		"The box filter. Fairly sharp, fast to evaluate, but can have obvious aliasing around edges.");

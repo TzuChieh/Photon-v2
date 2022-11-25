@@ -510,7 +510,7 @@ public:
 
 		auto linearSrgbColor = LinearSrgbDef::fromCIEXYZ(CIEXYZColor);
 
-		if(usage == EColorUsage::UNSPECIFIED)
+		if(usage == EColorUsage::Unspecified)
 		{
 			throw ColorError(
 				"A color usage must be specified when converting spectral color samples.");
@@ -533,8 +533,8 @@ public:
 // End Color Space Definitions
 
 // Unspecified color space must not be a valid color space.
-static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, float>, float>);
-static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::UNSPECIFIED, double>, double>);
+static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::Unspecified, float>, float>);
+static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::Unspecified, double>, double>);
 
 template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM>
 inline auto transform_color(const auto& srcColorValues, const EColorUsage usage)
@@ -582,7 +582,7 @@ inline auto transform_color(const auto& srcColorValues, const EColorUsage usage)
 	//                  color-space neutral representation. 
 	if constexpr(!SrcColorSpaceDef::isTristimulus() && !DstColorSpaceDef::isTristimulus())
 	{
-		if(usage == EColorUsage::UNSPECIFIED)
+		if(usage == EColorUsage::Unspecified)
 		{
 			throw ColorError(
 				"A color usage must be specified when converting spectral color samples.");

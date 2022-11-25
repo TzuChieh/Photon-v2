@@ -10,7 +10,7 @@ namespace ph::math
 template<EChromaticAdaptation ALGORITHM>
 class TChromaticAdaptationDefinitionHelper : private IUninstantiable
 {
-	static_assert(ALGORITHM != EChromaticAdaptation::UNSPECIFIED);
+	static_assert(ALGORITHM != EChromaticAdaptation::Unspecified);
 
 public:
 	inline static consteval EChromaticAdaptation getAlgorithm() noexcept
@@ -32,8 +32,8 @@ inline TMatrix3<T> create_von_kries_linear_CAT_matrix(
 	const EReferenceWhite srcRefWhite,
 	const EReferenceWhite dstRefWhite)
 {
-	PH_ASSERT(srcRefWhite != EReferenceWhite::UNSPECIFIED);
-	PH_ASSERT(dstRefWhite != EReferenceWhite::UNSPECIFIED);
+	PH_ASSERT(srcRefWhite != EReferenceWhite::Unspecified);
+	PH_ASSERT(dstRefWhite != EReferenceWhite::Unspecified);
 	PH_ASSERT(srcRefWhite != dstRefWhite);
 	
 	return create_von_kries_linear_CAT_matrix<T>(
@@ -188,7 +188,7 @@ public:
 
 // Unspecified adaption configuration must not be a valid definition.
 static_assert(!CChromaticAdaptationDefinition<
-	TChromaticAdaptationDefinition<EChromaticAdaptation::UNSPECIFIED, ColorValue>, ColorValue>);
+	TChromaticAdaptationDefinition<EChromaticAdaptation::Unspecified, ColorValue>, ColorValue>);
 
 template<EChromaticAdaptation ALGORITHM, typename T>
 inline TTristimulusValues<T> chromatic_adapt(

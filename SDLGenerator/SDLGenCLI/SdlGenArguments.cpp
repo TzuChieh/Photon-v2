@@ -14,8 +14,8 @@ SdlGenArguments::SdlGenArguments(int argc, char* argv[]) :
 {}
 
 SdlGenArguments::SdlGenArguments(CommandLineArguments arguments) :
-	m_executionMode         (ESdlGenMode::UNSPECIFIED),
-	m_interfaceGeneratorType(EInterfaceGenerator::UNSPECIFIED),
+	m_executionMode         (ESdlGenMode::Unspecified),
+	m_interfaceGeneratorType(EInterfaceGenerator::Unspecified),
 	m_outputPath            ("./SDLGenCLI_output/")
 {
 	while(!arguments.isEmpty())
@@ -40,7 +40,7 @@ SdlGenArguments::SdlGenArguments(CommandLineArguments arguments) :
 				PH_LOG_WARNING(SdlGenCliArgs, "unknown interface generation type specified: {}",
 					interfaceType);
 
-				m_interfaceGeneratorType = EInterfaceGenerator::UNSPECIFIED;
+				m_interfaceGeneratorType = EInterfaceGenerator::Unspecified;
 			}
 		}
 		else if(argument == "--output" || argument == "-o")

@@ -127,7 +127,7 @@ std::string gen_pretty_name(const SdlClass* clazz, const SdlField* field);
 
 /*! @brief Statically gets the SDL category of @p T.
 @tparam T Type that category information is going to be extracted from.
-@return Category of @p T. The result is ETypeCategory::UNSPECIFIED if category
+@return Category of @p T. The result is ETypeCategory::Unspecified if category
 information does not exist, or @p T is not an @p ISdlResource.
 */
 template<typename T>
