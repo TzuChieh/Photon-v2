@@ -61,7 +61,7 @@ public:
 
 	virtual std::shared_ptr<GHITexture2D> createTexture2D(
 		const math::TVector2<uint32>& sizePx, 
-		const GHITextureFormat& format) = 0;
+		const GHIInfoTextureFormat& format) = 0;
 
 	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer() = 0;
 

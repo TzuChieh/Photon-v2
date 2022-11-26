@@ -68,8 +68,6 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 		});
 
 	initializeImgui(*info.editor);
-
-	m_renderContent = std::make_unique<ImguiRenderContent>();
 	m_editorUI.initialize(info.editor, &m_helper);
 }
 
@@ -102,29 +100,37 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 	ImDrawData* const mainThreadDrawData = ImGui::GetDrawData();
 	PH_ASSERT(mainThreadDrawData);
 
-	// We never want to block main thread. If so, consider increase the size of shared data.
-	PH_ASSERT(m_renderContent->getSharedRenderData().mayWaitToProduce() == false);
+	if(m_renderContent)
+	{
+		// We never want to block main thread. If so, consider increase the size of shared data.
+		PH_ASSERT(m_renderContent->getSharedRenderData().mayWaitToProduce() == false);
 
-	// Copy draw data to a buffer shared with GHI thread
-	m_renderContent->getSharedRenderData().guardedProduce(
-		[mainThreadDrawData](ImguiRenderContent::ImguiRenderData& renderData)
-		{
-			renderData.copyFrom(*mainThreadDrawData);
-		});
+		// Copy draw data to a buffer shared with GHI thread
+		m_renderContent->getSharedRenderData().guardedProduce(
+			[mainThreadDrawData](ImguiRenderContent::ImguiRenderData& renderData)
+			{
+				renderData.copyFrom(*mainThreadDrawData);
+			});
+	}
 }
 
 void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 {
-	// Add the IMGUI render content to render thread if not already present
-	if(!m_isRenderContentAdded)
+	// Create and add the IMGUI render content to render thread if not already present
+	if(!m_renderContent)
 	{
+		auto renderContent = std::make_unique<ImguiRenderContent>();
+		m_renderContent = renderContent.get();
+
 		caller.add(
-			[renderContent = m_renderContent.get()](RenderData& renderData)
+			[renderContent = std::move(renderContent)](RenderData& renderData) mutable
 			{
-				renderData.scene.addCustomRenderContent(renderContent);
+				renderData.scene.addCustomRenderContent(std::move(renderContent));
 			});
 
-		m_isRenderContentAdded = true;
+		// Early out since we just added the render content, a render update has not been performed 
+		// so no commands to add
+		return;
 	}
 
 	// Need to notify render thread that there is new render data for GHI

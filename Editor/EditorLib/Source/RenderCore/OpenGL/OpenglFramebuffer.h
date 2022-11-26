@@ -16,7 +16,7 @@ public:
 	OpenglSampleState sampleState;
 
 	OpenglFramebufferFormat();
-	explicit OpenglFramebufferFormat(const GHIFramebufferFormat& format);
+	explicit OpenglFramebufferFormat(const GHIInfoFramebufferFormat& format);
 
 	bool isEmpty() const;
 	inline bool operator == (const OpenglFramebufferFormat& rhs) const = default;
@@ -28,12 +28,12 @@ public:
 	GLsizei widthPx;
 	GLsizei heightPx;
 	GLsizei numSamples;
-	std::array<OpenglFramebufferFormat, GHIFramebufferAttachmentInfo::MAX_COLOR_ATTACHMENTS> colorFormats;
+	std::array<OpenglFramebufferFormat, GHIInfoFramebufferAttachment::MAX_COLOR_ATTACHMENTS> colorFormats;
 	OpenglFramebufferFormat depthStencilFormat;
 	GLenum depthStencilAttachment;
 
 	OpenglFramebufferAttachmentInfo();
-	explicit OpenglFramebufferAttachmentInfo(const GHIFramebufferAttachmentInfo& attachments);
+	explicit OpenglFramebufferAttachmentInfo(const GHIInfoFramebufferAttachment& attachments);
 };
 
 class OpenglFramebuffer : public GHIFramebuffer
@@ -44,7 +44,7 @@ public:
 
 	void bind() override;
 	void unbind() override;
-	void setAttachments(const GHIFramebufferAttachmentInfo& attachments) override;
+	void setAttachments(const GHIInfoFramebufferAttachment& attachments) override;
 	void clearColor(uint32 slotIndex, const math::Vector4F& color) override;
 	void clearDepthStencil(float32 depth, uint8 stencil) override;
 
@@ -53,7 +53,7 @@ private:
 	void updateDeviceDepthStencilTexture(const OpenglFramebufferAttachmentInfo& newAttachment);
 
 	OpenglFramebufferAttachmentInfo m_attachments;
-	std::array<GLuint, GHIFramebufferAttachmentInfo::MAX_COLOR_ATTACHMENTS> m_colorTextureIDs;
+	std::array<GLuint, GHIInfoFramebufferAttachment::MAX_COLOR_ATTACHMENTS> m_colorTextureIDs;
 	GLuint m_depthStencilTextureID;
 	GLuint m_framebufferID;
 };

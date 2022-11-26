@@ -11,13 +11,13 @@
 namespace ph::editor
 {
 
-class GHITextureFormat final
+class GHIInfoTextureFormat final
 {
 public:
-	EGHIPixelFormat pixelFormat;
-	GHISampleState sampleState;
+	EGHIInfoPixelFormat pixelFormat;
+	GHIInfoSampleState sampleState;
 
-	GHITextureFormat();
+	GHIInfoTextureFormat();
 };
 
 class GHITexture2D
@@ -36,7 +36,7 @@ public:
 	virtual void upload(
 		const std::byte* pixelData, 
 		std::size_t numBytes, 
-		EGHIPixelComponent componentType) = 0;
+		EGHIInfoPixelComponent componentType) = 0;
 
 	virtual void bind(uint32 slotIndex) = 0;
 

@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-class GHISampleState;
+class GHIInfoSampleState;
 
 class OpenglSampleState final
 {
@@ -14,7 +14,7 @@ public:
 	GLenum wrapType;
 
 	OpenglSampleState();
-	explicit OpenglSampleState(const GHISampleState& ghiState);
+	explicit OpenglSampleState(const GHIInfoSampleState& ghiState);
 
 	inline bool operator == (const OpenglSampleState& rhs) const = default;
 };

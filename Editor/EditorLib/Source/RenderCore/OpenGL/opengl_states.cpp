@@ -6,20 +6,20 @@
 namespace ph::editor
 {
 
-OpenglSampleState::OpenglSampleState(const GHISampleState& ghiState)
+OpenglSampleState::OpenglSampleState(const GHIInfoSampleState& ghiState)
 	: OpenglSampleState()
 {
 	switch(ghiState.filterMode)
 	{
-	case EGHIFilterMode::Point: filterType = GL_NEAREST; break;
-	case EGHIFilterMode::Linear: filterType = GL_LINEAR; break;
+	case EGHIInfoFilterMode::Point: filterType = GL_NEAREST; break;
+	case EGHIInfoFilterMode::Linear: filterType = GL_LINEAR; break;
 	default: PH_ASSERT_UNREACHABLE_SECTION(); break;
 	}
 
 	switch(ghiState.wrapMode)
 	{
-	case EGHIWrapMode::ClampToEdge: wrapType = GL_CLAMP_TO_EDGE; break;
-	case EGHIWrapMode::Repeat: wrapType = GL_REPEAT; break;
+	case EGHIInfoWrapMode::ClampToEdge: wrapType = GL_CLAMP_TO_EDGE; break;
+	case EGHIInfoWrapMode::Repeat: wrapType = GL_REPEAT; break;
 	default: PH_ASSERT_UNREACHABLE_SECTION(); break;
 	}
 }

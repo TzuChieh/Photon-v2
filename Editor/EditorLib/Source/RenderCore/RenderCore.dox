@@ -1,0 +1,8 @@
+/*! @dir RenderCore
+@brief Low-level rendering infrastructure.
+
+GHI (Graphics Hardware Interface) related functionalities may need to be executed from a dedicated thread 
+(never assume main thread or render thread is where they can be executed). One exception is that classes
+prefixed with "GHIInfo" are for passing information around and is safe to be stored and used everywhere.
+
+*/

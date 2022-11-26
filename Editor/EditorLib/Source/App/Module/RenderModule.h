@@ -16,7 +16,14 @@ class RenderModule : public AppModule
 public:
 	std::string getName() const override = 0;
 
+	/*!
+	Called on main thread.
+	*/
 	virtual void renderUpdate(const MainThreadRenderUpdateContext& ctx) = 0;
+
+	/*!
+	Called on main thread.
+	*/
 	virtual void createRenderCommands(RenderThreadCaller& caller) = 0;
 
 	void onAttach(const ModuleAttachmentInfo& info) override = 0;

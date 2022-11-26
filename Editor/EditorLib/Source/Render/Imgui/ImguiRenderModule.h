@@ -7,7 +7,6 @@
 
 #include <Math/TVector2.h>
 
-#include <memory>
 #include <cstddef>
 
 namespace ph::editor
@@ -34,12 +33,12 @@ private:
 	void terminateImgui();
 	void setFramebufferSizePx(const math::Vector2S& sizePx);
 
-	GLFWwindow*                         m_glfwWindow;
-	math::TVector2<uint32>              m_framebufferSizePx;
-	std::unique_ptr<ImguiRenderContent> m_renderContent;
-	bool                                m_isRenderContentAdded;
-	ImguiEditorUI                       m_editorUI;
-	ImguiHelper                         m_helper;
+	GLFWwindow*            m_glfwWindow;
+	math::TVector2<uint32> m_framebufferSizePx;
+	ImguiRenderContent*    m_renderContent;
+	bool                   m_isRenderContentAdded;
+	ImguiEditorUI          m_editorUI;
+	ImguiHelper            m_helper;
 };
 
 inline std::string ImguiRenderModule::getName() const

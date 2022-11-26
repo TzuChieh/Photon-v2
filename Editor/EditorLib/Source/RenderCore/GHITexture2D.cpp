@@ -3,8 +3,8 @@
 namespace ph::editor
 {
 
-GHITextureFormat::GHITextureFormat()
-	: pixelFormat(EGHIPixelFormat::Empty)
+GHIInfoTextureFormat::GHIInfoTextureFormat()
+	: pixelFormat(EGHIInfoPixelFormat::Empty)
 	, sampleState()
 {}
 

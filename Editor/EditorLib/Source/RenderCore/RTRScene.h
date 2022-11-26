@@ -1,13 +1,18 @@
 #pragma once
 
-#include <vector>
+#include "RenderCore/CustomRenderContent.h"
+
+#include <Utility/TUniquePtrVector.h>
+
+#include <memory>
 
 namespace ph::editor
 {
 
 class RenderThreadUpdateContext;
 class GHIThreadCaller;
-class CustomRenderContent;
+class GHITexture2D;
+class GHIFramebuffer;
 
 /*! @brief A real-time scene for the graphics device only.
 */
@@ -16,7 +21,7 @@ class RTRScene final
 public:
 	~RTRScene();
 
-	void addCustomRenderContent(CustomRenderContent* content);
+	void addCustomRenderContent(std::unique_ptr<CustomRenderContent> content);
 	void removeCustomRenderContent(CustomRenderContent* content);
 
 private:
@@ -26,7 +31,7 @@ private:
 	void createGHICommands(GHIThreadCaller& caller);
 
 private:
-	std::vector<CustomRenderContent*> m_customRenderContents;
+	TUniquePtrVector<CustomRenderContent> m_customRenderContents;
 };
 
 }// end namespace ph::editor

@@ -1,9 +1,10 @@
 #include "RenderCore/RTRScene.h"
-#include "RenderCore/CustomRenderContent.h"
 #include "RenderCore/RenderThreadUpdateContext.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+
+#include <utility>
 
 namespace ph::editor
 {
@@ -14,7 +15,7 @@ RTRScene::~RTRScene() = default;
 
 void RTRScene::update(const RenderThreadUpdateContext& ctx)
 {
-	for(CustomRenderContent* const customRenderContent : m_customRenderContents)
+	for(auto& customRenderContent : m_customRenderContents)
 	{
 		customRenderContent->update(ctx);
 	}
@@ -22,13 +23,13 @@ void RTRScene::update(const RenderThreadUpdateContext& ctx)
 
 void RTRScene::createGHICommands(GHIThreadCaller& caller)
 {
-	for(CustomRenderContent* const customRenderContent : m_customRenderContents)
+	for(auto& customRenderContent : m_customRenderContents)
 	{
 		customRenderContent->createGHICommands(caller);
 	}
 }
 
-void RTRScene::addCustomRenderContent(CustomRenderContent* const content)
+void RTRScene::addCustomRenderContent(std::unique_ptr<CustomRenderContent> content)
 {
 	if(!content)
 	{
@@ -37,7 +38,7 @@ void RTRScene::addCustomRenderContent(CustomRenderContent* const content)
 		return;
 	}
 
-	m_customRenderContents.push_back(content);
+	m_customRenderContents.add(std::move(content));
 }
 
 void RTRScene::removeCustomRenderContent(CustomRenderContent* const content)
@@ -49,12 +50,11 @@ void RTRScene::removeCustomRenderContent(CustomRenderContent* const content)
 		return;
 	}
 
-	const auto numErasedContents = std::erase(m_customRenderContents, content);
-	if(numErasedContents != 1)
+	auto removedContent = m_customRenderContents.remove(content);
+	if(!removedContent)
 	{
 		PH_LOG_WARNING(RTRScene,
-			"on custom render content removal: {}",
-			numErasedContents == 0 ? "content not found" : "duplicates found and removed");
+			"on custom render content removal: did not find specified content, nothing removed");
 	}
 }
 

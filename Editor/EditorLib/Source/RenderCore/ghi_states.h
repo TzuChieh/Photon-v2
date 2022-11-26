@@ -5,18 +5,18 @@
 namespace ph::editor
 {
 
-class GHISampleState final
+class GHIInfoSampleState final
 {
 public:
-	EGHIFilterMode filterMode;
-	EGHIWrapMode wrapMode;
+	EGHIInfoFilterMode filterMode;
+	EGHIInfoWrapMode wrapMode;
 
-	GHISampleState();
+	GHIInfoSampleState();
 };
 
-inline GHISampleState::GHISampleState()
-	: filterMode(EGHIFilterMode::Linear)
-	, wrapMode(EGHIWrapMode::Repeat)
+inline GHIInfoSampleState::GHIInfoSampleState()
+	: filterMode(EGHIInfoFilterMode::Linear)
+	, wrapMode(EGHIInfoWrapMode::Repeat)
 {}
 
 }// end namespace ph::editor

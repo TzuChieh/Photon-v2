@@ -17,7 +17,7 @@ public:
 	uint32 numPixelComponents;
 
 	OpenglTextureFormat();
-	explicit OpenglTextureFormat(const GHITextureFormat& format);
+	explicit OpenglTextureFormat(const GHIInfoTextureFormat& format);
 };
 
 class OpenglTexture2D : public GHITexture2D
@@ -33,7 +33,7 @@ public:
 	void upload(
 		const std::byte* pixelData,
 		std::size_t numBytes,
-		EGHIPixelComponent componentType) override;
+		EGHIInfoPixelComponent componentType) override;
 
 	void bind(uint32 slotIndex) override;
 	MemoryInfo getMemoryInfo() const override;

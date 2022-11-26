@@ -25,7 +25,7 @@ inline PictureData::PictureData(
 	, m_numComponents(numPicComponents)
 	, m_componentType(componentType)
 	, m_data()
-	, m_numBytesInData()
+	, m_numBytesInData(0)
 {
 	m_numBytesInData = sizePx.product() * numPicComponents * numBytesInComponent(componentType);
 	m_data = std::make_unique<std::byte[]>(m_numBytesInData);

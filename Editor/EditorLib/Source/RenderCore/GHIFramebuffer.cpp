@@ -3,12 +3,12 @@
 namespace ph::editor
 {
 
-GHIFramebufferFormat::GHIFramebufferFormat()
-	: pixelFormat(EGHIPixelFormat::Empty)
+GHIInfoFramebufferFormat::GHIInfoFramebufferFormat()
+	: pixelFormat(EGHIInfoPixelFormat::Empty)
 	, sampleState()
 {}
 
-GHIFramebufferAttachmentInfo::GHIFramebufferAttachmentInfo()
+GHIInfoFramebufferAttachment::GHIInfoFramebufferAttachment()
 	: sizePx(0, 0)
 	, numSamples(1)
 	, colorFormats()

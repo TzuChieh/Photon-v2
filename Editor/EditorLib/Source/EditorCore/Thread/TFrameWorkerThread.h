@@ -252,7 +252,8 @@ public:
 
 	/*!
 	Similar to addWork(Work). This variant supports general functors. Larger functors or non-trivial
-	functors may induce additional overhead on creating and processing of the work.
+	functors may induce additional overhead on creating and processing of the work. If you want to 
+	ensure minimal overhead, adhere to the binding requirements imposed by `TFunction`.
 	@note Producer threads only.
 	*/
 	template<typename Func>

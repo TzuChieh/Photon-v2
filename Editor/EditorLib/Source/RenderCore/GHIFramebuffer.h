@@ -13,16 +13,16 @@
 namespace ph::editor
 {
 
-class GHIFramebufferFormat final
+class GHIInfoFramebufferFormat final
 {
 public:
-	EGHIPixelFormat pixelFormat;
-	GHISampleState sampleState;
+	EGHIInfoPixelFormat pixelFormat;
+	GHIInfoSampleState sampleState;
 
-	GHIFramebufferFormat();
+	GHIInfoFramebufferFormat();
 };
 
-class GHIFramebufferAttachmentInfo final
+class GHIInfoFramebufferAttachment final
 {
 public:
 	inline constexpr static uint32 MAX_COLOR_ATTACHMENTS = 8;
@@ -30,10 +30,10 @@ public:
 public:
 	math::TVector2<uint32> sizePx;
 	uint32 numSamples;
-	std::array<GHIFramebufferFormat, MAX_COLOR_ATTACHMENTS> colorFormats;
-	GHIFramebufferFormat depthStencilFormat;
+	std::array<GHIInfoFramebufferFormat, MAX_COLOR_ATTACHMENTS> colorFormats;
+	GHIInfoFramebufferFormat depthStencilFormat;
 
-	GHIFramebufferAttachmentInfo();
+	GHIInfoFramebufferAttachment();
 };
 
 class GHIFramebuffer
@@ -43,7 +43,7 @@ public:
 
 	virtual void bind() = 0;
 	virtual void unbind() = 0;
-	virtual void setAttachments(const GHIFramebufferAttachmentInfo& attachments) = 0;
+	virtual void setAttachments(const GHIInfoFramebufferAttachment& attachments) = 0;
 	virtual void clearColor(uint32 slotIndex, const math::Vector4F& color) = 0;
 	virtual void clearDepthStencil(float32 depth, uint8 stencil) = 0;
 };

@@ -11,7 +11,7 @@ OpenglFramebufferFormat::OpenglFramebufferFormat()
 	, sampleState()
 {}
 
-OpenglFramebufferFormat::OpenglFramebufferFormat(const GHIFramebufferFormat& format)
+OpenglFramebufferFormat::OpenglFramebufferFormat(const GHIInfoFramebufferFormat& format)
 	: OpenglFramebufferFormat()
 {
 	internalFormat = opengl::to_internal_format(format.pixelFormat);
@@ -27,7 +27,7 @@ OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo()
 	, depthStencilAttachment(0)
 {}
 
-OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo(const GHIFramebufferAttachmentInfo& attachments)
+OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo(const GHIInfoFramebufferAttachment& attachments)
 	: OpenglFramebufferAttachmentInfo()
 {
 	widthPx = safe_number_cast<GLsizei>(attachments.sizePx.x());
@@ -102,7 +102,7 @@ void OpenglFramebuffer::unbind()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenglFramebuffer::setAttachments(const GHIFramebufferAttachmentInfo& attachments)
+void OpenglFramebuffer::setAttachments(const GHIInfoFramebufferAttachment& attachments)
 {
 	const OpenglFramebufferAttachmentInfo newAttachments(attachments);
 
