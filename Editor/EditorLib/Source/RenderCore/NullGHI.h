@@ -33,7 +33,7 @@ public:
 	{}
 
 	inline std::shared_ptr<GHITexture2D> createTexture2D(
-		const math::TVector2<uint32>& sizePx,
+		const math::Vector2UI& sizePx,
 		const GHIInfoTextureFormat& format) override
 	{
 		return nullptr;

@@ -257,7 +257,7 @@ void OpenglGHI::swapBuffers()
 }
 
 std::shared_ptr<GHITexture2D> OpenglGHI::createTexture2D(
-	const math::TVector2<uint32>& sizePx,
+	const math::Vector2UI& sizePx,
 	const GHIInfoTextureFormat& format)
 {
 	const auto glSizePx = sizePx.safeCast<GLsizei>();
