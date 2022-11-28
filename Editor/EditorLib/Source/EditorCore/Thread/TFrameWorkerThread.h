@@ -254,7 +254,7 @@ public:
 	Similar to addWork(Work). This variant supports general functors. Larger functors or non-trivial
 	functors may induce additional overhead on creating and processing of the work. If you want to 
 	ensure minimal overhead, adhere to the binding requirements imposed by `TFunction`.
-	@note Producer threads only.
+	@note Producer threads only. Work objects will be destructed (if required) on worker thread.
 	*/
 	template<typename Func>
 	inline void addWork(Func&& workFunc)
@@ -289,6 +289,7 @@ public:
 	{
 		PH_ASSERT(work.isValid());
 		PH_ASSERT(m_frames.isProducing());
+		PH_ASSERT(!isStopRequested());
 
 		Frame& currentFrame = m_frames.getBufferForProducer();
 		if(isParentThread())

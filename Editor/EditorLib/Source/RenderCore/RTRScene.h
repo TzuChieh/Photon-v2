@@ -33,7 +33,7 @@ private:
 
 private:
 	TUniquePtrVector<CustomRenderContent> m_customRenderContents;
-	TUniquePtrVector<RTRResource>
+	//TUniquePtrVector<RTRResource>
 };
 
 }// end namespace ph::editor

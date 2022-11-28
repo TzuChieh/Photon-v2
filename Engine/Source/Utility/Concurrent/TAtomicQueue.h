@@ -26,7 +26,9 @@ public:
 	explicit TAtomicQueue(std::size_t initialCapacity);
 
 	/*! @brief Enqueue an item. Allocate memory if required.
-	See tryDequeue(T*) for how to ensure the item can be dequeued on another thread. 
+	Basic aquire-release semantics are guaranteed. This ensures that all the effects of work done 
+	by a thread before it enqueues an item will be visible on another thread after it dequeues 
+	that item. See tryDequeue(T*) for how to ensure the item can be dequeued on another thread. 
 	@note Thread-safe.
 	*/
 	template<typename U>
@@ -88,7 +90,9 @@ private:
 	        https://github.com/cameron314/concurrentqueue/issues/285
 
 	* All the memory effects done by a thread before it enqueues an item will be visible on another
-	thread after it dequeues that item. Basic Guarantees aquire-release semantics are guaranteed.
+	thread after it dequeues that item. Basic aquire-release semantics are guaranteed. This ensures 
+	that all the effects of work done by a thread before it enqueues an element will be visible on 
+	another thread after it dequeues that element.
 	See [1] sequential consistent
 	        https://github.com/cameron314/concurrentqueue/issues/73
 

@@ -24,7 +24,9 @@ public:
 	explicit TBlockableAtomicQueue(std::size_t initialCapacity);
 
 	/*! @brief Enqueue an item. Allocate memory if required.
-	See tryDequeue(T*) for how to ensure the item can be dequeued on another thread. 
+	Basic aquire-release semantics are guaranteed. This ensures that all the effects of work done 
+	by a thread before it enqueues an item will be visible on another thread after it dequeues 
+	that item. See tryDequeue(T*) for how to ensure the item can be dequeued on another thread. 
 	@note Thread-safe.
 	*/
 	template<typename U>
@@ -60,6 +62,10 @@ public:
 	std::size_t estimatedSize() const;
 
 private:
+	/*
+	For more information about the queue, please see the documentation of `TAtomicQueue::m_queue` as they
+	share similar properties.
+	*/
 	moodycamel::BlockingConcurrentQueue<T> m_queue;
 };
 

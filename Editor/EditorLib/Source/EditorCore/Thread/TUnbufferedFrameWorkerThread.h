@@ -169,11 +169,9 @@ public:
 		PH_ASSERT(isParentThread());
 		PH_ASSERT(hasWorkerStarted());
 
-		// Wait until current frame is available for adding works
+		// Wait until current frame is available for adding works, this includes clearing the work 
+		// queue memory (arena)
 		m_thread.waitAllWorks();
-
-		// Clear work queue memory after all works are done
-		m_workQueueMemory.clear();
 
 		// Works can now be added
 
@@ -195,6 +193,9 @@ public:
 
 		onEndFrame();
 
+		// Clear work queue memory (arena) on worker thread after all works are added
+		addClearArenaWork();
+
 		// Works can no longer be added
 
 #ifdef PH_DEBUG
@@ -208,7 +209,7 @@ public:
 	/*!
 	Similar to addWork(Work). This variant supports general functors. Larger functors or non-trivial
 	functors may induce additional overhead on creating and processing of the work.
-	@note Parent thread only.
+	@note Parent thread only. Work objects will be destructed (if required) on worker thread.
 	*/
 	template<typename Func>
 	inline void addWork(Func&& workFunc)
@@ -244,6 +245,7 @@ public:
 		PH_ASSERT(isParentThread());
 		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
 		PH_ASSERT(work.isValid());
+		PH_ASSERT(!isStopRequested());
 
 		m_thread.addWork(std::move(work));
 		++m_numParentWorks;
@@ -262,6 +264,9 @@ public:
 		// will be checked (in case of the worker was already waiting, `endFrame()` will unwait it)
 		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
 
+		// We must clear work queue memory (arena) on worker thread before stopping the worker
+		addClearArenaWork();
+
 		m_isStopRequested.store(true, std::memory_order_relaxed);
 
 		// As we guarantee current frame must be completed before worker stopped, unfortunately we 
@@ -271,9 +276,6 @@ public:
 		// Request termination as early as possible since there are still some cleanups to do on
 		// worker thread
 		m_thread.requestTermination();
-
-		// Clear work queue memory after all works are done
-		m_workQueueMemory.clear();
 	}
 
 	/*!
@@ -370,8 +372,28 @@ private:
 	{
 		PH_ASSERT(isParentThread());
 
-		// No need to lock arena as it is essentially a single-thread resource (for parent thread only)
+		// No need to lock arena as it is essentially a single-thread resource (for parent thread only).
+		// Clearing the arena is done on worker thread however--care must be taken when doing that.
 		return m_workQueueMemory.make<std::remove_reference_t<Func>>(std::forward<Func>(workFunc));
+	}
+
+	/*!
+	@note Parent thread only.
+	*/
+	inline void addClearArenaWork()
+	{
+		PH_ASSERT(isParentThread());
+
+		addWork(
+			[this](Args... /* args */)
+			{
+				m_workQueueMemory.clear();
+
+				if constexpr(!std::is_void_v<R>)
+				{
+					return R{};
+				}
+			});
 	}
 
 	/*!

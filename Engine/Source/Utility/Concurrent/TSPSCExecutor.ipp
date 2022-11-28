@@ -83,13 +83,15 @@ inline void TSPSCExecutor<Work>::waitAllWorks()
 	waitWork.callable =
 		[&isFinished]()
 		{
-			isFinished.test_and_set(std::memory_order_relaxed);
+			// Memory effects on consumer thread should be made visible
+			isFinished.test_and_set(std::memory_order_release);
 			isFinished.notify_one();
 		};
 	m_workloadQueue.enqueue(std::move(waitWork));
 
-	// Wait for works added by this thread to finish
-	isFinished.wait(false, std::memory_order_relaxed);
+	// Wait for works added by this thread to finish; memory effects on consumer thread should be 
+	// made visible
+	isFinished.wait(false, std::memory_order_acquire);
 }
 
 template<typename Work>
@@ -108,7 +110,7 @@ inline void TSPSCExecutor<Work>::waitForTermination()
 		"wait for termination on consumer thread can lead to deadlock");
 
 	PH_ASSERT_MSG(!isProducerThread() || (isProducerThread() && m_isTerminationRequested.test(std::memory_order_relaxed)),
-		"termination not requested before wait on producer thread, this can dead to deadlock");
+		"termination not requested before wait on producer thread, this can lead to deadlock");
 
 	// Memory effects on consumer thread should be made visible
 	m_isTerminated.wait(false, std::memory_order_acquire);

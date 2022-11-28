@@ -73,10 +73,16 @@ public:
 	*/
 	void start();
 
+	/*!
+	Basic aquire-release semantics are guaranteed. This ensures that all the effects of work done 
+	by the producer thread before it enqueues a work will be visible on the consumer thread after it 
+	dequeues that work.
+	*/
 	template<typename DeducedWork>
 	void addWork(DeducedWork&& work);
 
-	/*!
+	/*! @brief Wait for all queued works to finish.
+	Memory effects on consumer thread are made visible to the producer thread.
 	@note Producer thread only.
 	*/
 	void waitAllWorks();
@@ -90,8 +96,9 @@ public:
 	void requestTermination();
 
 	/*! @brief Wait for the executor to stop.
-	All operations on the consumer thread will be done after this call returns. Cannot be called
-	on consumer thread as this can lead to deadlock.
+	All operations on the consumer thread will be done after this call returns. Memory effects on 
+	consumer thread are made visible to the producer thread. Cannot be called on consumer thread 
+	as this can lead to deadlock.
 	@note Thread-safe.
 	*/
 	void waitForTermination();

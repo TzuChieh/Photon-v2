@@ -159,7 +159,7 @@ inline std::optional<std::size_t> TUniquePtrVector<BaseType>::indexOf(const Base
 		});
 
 	return result != m_uniquePtrs.cend() 
-		? result - m_uniquePtrs.cbegin()
+		? std::optional<std::size_t>(result - m_uniquePtrs.cbegin())
 		: std::nullopt;
 }
 
