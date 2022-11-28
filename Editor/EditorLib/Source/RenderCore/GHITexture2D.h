@@ -7,6 +7,7 @@
 #include <Common/primitive_type.h>
 
 #include <cstddef>
+#include <variant>
 
 namespace ph::editor
 {
@@ -30,6 +31,10 @@ public:
 		std::size_t deviceSize = 0;
 	};
 
+	using NativeHandle = std::variant<
+		std::monostate,
+		uint64>;
+
 	GHITexture2D();
 	virtual ~GHITexture2D();
 
@@ -41,13 +46,8 @@ public:
 	virtual void bind(uint32 slotIndex) = 0;
 
 	virtual MemoryInfo getMemoryInfo() const;
-	virtual void* getNativeHandle();
+	virtual NativeHandle getNativeHandle();
 };
-
-inline void* GHITexture2D::getNativeHandle()
-{
-	return nullptr;
-}
 
 inline auto GHITexture2D::getMemoryInfo() const
 -> MemoryInfo

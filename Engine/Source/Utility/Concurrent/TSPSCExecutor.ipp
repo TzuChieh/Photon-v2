@@ -73,9 +73,9 @@ inline void TSPSCExecutor<Work>::waitAllWorks()
 	PH_ASSERT(isProducerThread());
 	PH_ASSERT(m_thread.hasStarted());
 
-	// As the work queue is FIFO when observed from any single thread, to wait all works added by this
-	// thread to finish, we add a new work and wait for it to finish (could be slower because we have
-	// one extra work to process, but generally good enough)
+	// As the work queue is FIFO when observed from any single thread, to wait all works added 
+	// by this thread to finish, we add a new work and wait for it to finish (could be slower 
+	// because we have one extra work to process, but generally good enough)
 
 	std::atomic_flag isFinished;
 

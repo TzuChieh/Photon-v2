@@ -15,8 +15,8 @@ class RTRTexture2D : public RTRResource
 public:
 	RTRTexture2D(const math::Vector2UI& sizePx, const GHIInfoTextureFormat& format);
 
-	void createGHIResource(GHIThreadCaller& caller) override;
-	void destroyGHIResource(GHIThreadCaller& caller) override;
+	void setupGHI(GHIThreadCaller& caller) override;
+	void cleanupGHI(GHIThreadCaller& caller) override;
 
 private:
 	math::Vector2UI m_sizePx;

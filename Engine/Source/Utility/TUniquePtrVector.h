@@ -7,6 +7,7 @@
 #include <utility>
 #include <cstddef>
 #include <algorithm>
+#include <optional>
 
 namespace ph
 {
@@ -22,15 +23,27 @@ public:
 
 	std::unique_ptr<BaseType> remove(std::size_t index);
 	std::unique_ptr<BaseType> remove(const BaseType* ptr);
+
+	/*! @brief Remove a `unique_ptr`. Does not preserve the order of remaining `unique_ptr`s.
+	Complexity: O(N) where N is size of the vector. Needs to find @p ptr linearly, but saves the cost
+	of moving every following element forward.
+	*/
+	std::unique_ptr<BaseType> removeBySwapPop(const BaseType* ptr);
+
 	void removeAll();
-	void clearOne(std::size_t index);
+	void clear(std::size_t index);
+
+	/*! @brief Set `unique_ptr`s in the range [`beginIndex`, `endIndex`) to `nullptr`.
+	*/
 	void clearRange(std::size_t beginIndex, std::size_t endIndex);
+
 	BaseType* get(std::size_t index) const;
 
 	std::unique_ptr<BaseType>& getUniquePtr(std::size_t index);
 	const std::unique_ptr<BaseType>& getUniquePtr(std::size_t index) const;
 
 	std::size_t size() const;
+	std::optional<std::size_t> indexOf(const BaseType* ptr) const;
 	bool isEmpty() const;
 
 	BaseType* operator [] (std::size_t index) const;
@@ -77,17 +90,25 @@ inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::remove(const std::s
 template<typename BaseType>
 inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::remove(const BaseType* const ptr)
 {
-	PH_ASSERT(ptr);
+	const auto optIndex = indexOf(ptr);
+	return optIndex ? remove(*optIndex) : nullptr;
+}
 
-	const auto result = std::find_if(m_uniquePtrs.cbegin(), m_uniquePtrs.cend(), 
-		[ptr](const std::unique_ptr<BaseType>& uniquePtr)
-		{
-			return ptr == uniquePtr.get();
-		});
+template<typename BaseType>
+inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::removeBySwapPop(const BaseType* const ptr)
+{
+	const auto optIndex = indexOf(ptr);
+	if(optIndex)
+	{
+		using std::swap;
 
-	return result != m_uniquePtrs.cend() 
-		? remove(result - m_uniquePtrs.cbegin())
-		: nullptr;
+		swap(m_uniquePtrs[*optIndex], m_uniquePtrs.back());
+		m_uniquePtrs.pop_back();
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 template<typename BaseType>
@@ -97,7 +118,7 @@ inline void TUniquePtrVector<BaseType>::removeAll()
 }
 
 template<typename BaseType>
-inline void TUniquePtrVector<BaseType>::clearOne(const std::size_t index)
+inline void TUniquePtrVector<BaseType>::clear(const std::size_t index)
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_uniquePtrs.size());
 
@@ -111,7 +132,7 @@ inline void TUniquePtrVector<BaseType>::clearRange(const std::size_t beginIndex,
 
 	for(std::size_t ptrIndex = beginIndex; ptrIndex < endIndex; ++ptrIndex)
 	{
-		clearOne(ptrIndex);
+		clear(ptrIndex);
 	}
 }
 
@@ -126,6 +147,20 @@ inline std::unique_ptr<BaseType>& TUniquePtrVector<BaseType>::getUniquePtr(const
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_uniquePtrs.size());
 	return m_uniquePtrs[index];
+}
+
+template<typename BaseType>
+inline std::optional<std::size_t> TUniquePtrVector<BaseType>::indexOf(const BaseType* const ptr) const
+{
+	const auto result = std::find_if(m_uniquePtrs.cbegin(), m_uniquePtrs.cend(), 
+		[ptr](const std::unique_ptr<BaseType>& uniquePtr)
+		{
+			return ptr == uniquePtr.get();
+		});
+
+	return result != m_uniquePtrs.cend() 
+		? result - m_uniquePtrs.cbegin()
+		: std::nullopt;
 }
 
 template<typename BaseType>

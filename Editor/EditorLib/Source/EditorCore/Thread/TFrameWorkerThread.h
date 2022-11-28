@@ -91,12 +91,12 @@ private:
 #endif
 
 		inline Frame()
-			: parentThreadWorkQueue    ()
-			, anyThreadWorkQueue       ()
-			, workQueueMemory          ()
-			, memoryMutex              ()
+			: parentThreadWorkQueue()
+			, anyThreadWorkQueue   ()
+			, workQueueMemory      ()
+			, memoryMutex          ()
 #ifdef PH_DEBUG
-			, numAnyThreadWorks        (0)
+			, numAnyThreadWorks    (0)
 #endif
 		{}
 	};
@@ -455,9 +455,11 @@ private:
 			// Since there is no consumer contention, there should be no work once `tryDequeue` fails 
 			PH_ASSERT_EQ(currentFrame.numAnyThreadWorks.load(std::memory_order_relaxed), 0);
 
-			// It is worker's job to cleanup this frame for producer (for performance reasons).
+			// It is worker's job to cleanup this frame for producer (for performance reasons; 
+			// also, some code is only meant to be called on the worker thread, this includes
+			// non-trivial destructors).
 			// No need to lock `memoryMutex` here as `isSealedForProcessing` already established
-			// proper ordering for the memory effects to be visible
+			// proper ordering for the memory effects to be visible.
 			currentFrame.workQueueMemory.clear();
 
 			//------------------------------------------------------------------------------//

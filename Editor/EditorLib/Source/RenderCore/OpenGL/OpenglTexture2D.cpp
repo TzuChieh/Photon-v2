@@ -113,9 +113,10 @@ auto OpenglTexture2D::getMemoryInfo() const
 	return info;
 }
 
-void* OpenglTexture2D::getNativeHandle()
+auto OpenglTexture2D::getNativeHandle()
+-> NativeHandle
 {
-	return &m_textureID;
+	return safe_number_cast<uint64>(m_textureID);
 }
 
 std::size_t OpenglTexture2D::getApparentSize() const

@@ -82,16 +82,16 @@ public:
 	void waitAllWorks();
 
 	/*! @brief Stop the executor.
-	Executor will stop processing any work as soon as possible. Any work that is already being processed
-	will still complete. No further write operations should be performed after requesting termination. 
-	Requesting termination multiple times has the same effect.
+	Executor will stop processing any work as soon as possible. Any work that is already being 
+	processed will still complete. No further write operations should be performed after 
+	requesting termination. Requesting termination multiple times has the same effect.
 	@note Producer thread only.
 	*/
 	void requestTermination();
 
 	/*! @brief Wait for the executor to stop.
-	All operations on the consumer thread will be done after this call returns. Cannot be called on
-	consumer thread as this can lead to deadlock.
+	All operations on the consumer thread will be done after this call returns. Cannot be called
+	on consumer thread as this can lead to deadlock.
 	@note Thread-safe.
 	*/
 	void waitForTermination();
@@ -132,8 +132,8 @@ private:
 	void terminate();
 
 private:
-	// Callable type for internal usages. Warpping with a custom private type so we cannot mix it with
-	// user types
+	// Callable type for internal usages. Warpping with a custom private type so we cannot mix 
+	// it with user types
 	struct CustomCallable
 	{
 		TFunction<void(void), 0> callable;

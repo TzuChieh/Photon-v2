@@ -37,8 +37,7 @@ public:
 
 	void bind(uint32 slotIndex) override;
 	MemoryInfo getMemoryInfo() const override;
-
-	void* getNativeHandle() override;
+	NativeHandle getNativeHandle() override;
 
 private:
 	std::size_t getApparentSize() const;

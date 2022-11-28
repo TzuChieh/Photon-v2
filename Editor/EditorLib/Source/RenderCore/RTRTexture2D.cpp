@@ -12,7 +12,7 @@ RTRTexture2D::RTRTexture2D(const math::Vector2UI& sizePx, const GHIInfoTextureFo
 	, m_ghiTexture(nullptr)
 {}
 
-void RTRTexture2D::createGHIResource(GHIThreadCaller& caller)
+void RTRTexture2D::setupGHI(GHIThreadCaller& caller)
 {
 	PH_ASSERT(!m_ghiTexture);
 
@@ -23,7 +23,7 @@ void RTRTexture2D::createGHIResource(GHIThreadCaller& caller)
 		});
 }
 
-void RTRTexture2D::destroyGHIResource(GHIThreadCaller& caller)
+void RTRTexture2D::cleanupGHI(GHIThreadCaller& caller)
 {
 	PH_ASSERT(m_ghiTexture);
 

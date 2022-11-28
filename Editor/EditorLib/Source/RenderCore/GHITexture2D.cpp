@@ -13,4 +13,10 @@ GHITexture2D::~GHITexture2D() = default;
 GHITexture2D::GHITexture2D()
 {}
 
+auto GHITexture2D::getNativeHandle()
+-> NativeHandle
+{
+	return std::monostate();
+}
+
 }// end namespace ph::editor

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/CustomRenderContent.h"
+#include "RenderCore/RTRResource.h"
 
 #include <Utility/TUniquePtrVector.h>
 
@@ -32,6 +33,7 @@ private:
 
 private:
 	TUniquePtrVector<CustomRenderContent> m_customRenderContents;
+	TUniquePtrVector<RTRResource>
 };
 
 }// end namespace ph::editor
