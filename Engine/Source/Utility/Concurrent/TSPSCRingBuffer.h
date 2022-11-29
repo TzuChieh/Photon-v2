@@ -170,6 +170,23 @@ public:
 	///@}
 
 	/*!
+	Get buffer directly without any thread safety guarantee.
+	*/
+	///@{
+	inline T& getBufferDirectly(const std::size_t index)
+	{
+		PH_ASSERT_LT(index, N);
+		return m_items[index].storedItem;
+	}
+
+	inline const T& getBufferDirectly(const std::size_t index) const
+	{
+		PH_ASSERT_LT(index, N);
+		return m_items[index].storedItem;
+	}
+	///@}
+
+	/*!
 	@note Producer thread only.
 	*/
 	inline std::size_t getProduceHead() const

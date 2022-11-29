@@ -67,6 +67,13 @@ MemoryArena::MemoryArena(const std::size_t blockSizeInBytes, const std::size_t n
 	}
 }
 
+MemoryArena::~MemoryArena()
+{
+	// Need to ensure `clear()` is called in case the user did not call it. Things like calling
+	// non-trivial destructors are only done here.
+	clear();
+}
+
 std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t alignmentInBytes)
 {
 	// Relying on the fact that unsigned integral wraps around, so that we do not need to check if this

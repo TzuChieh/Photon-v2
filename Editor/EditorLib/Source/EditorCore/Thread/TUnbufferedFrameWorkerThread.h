@@ -253,8 +253,9 @@ public:
 
 	/*! @brief Ask the worker thread to stop.
 	The worker thread will stop as soon as possible. Currently processing frame will still complete
-	before the worker stop. Can only be called between `beginFrame()` and `endFrame()`.
-	@note Parent thread only.
+	before the worker stop. Can only be called between `beginFrame()` and `endFrame()`. It is 
+	caller's job to ensure no work is added after this call.
+	@note Parent thread only. This is a request only, no memory effect is implied.
 	*/
 	inline void requestWorkerStop()
 	{

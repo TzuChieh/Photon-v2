@@ -147,7 +147,7 @@ TEST(MemoryArenaTest, Make)
 	}
 }
 
-TEST(MemoryArenaTest, Clear)
+TEST(MemoryArenaTest, SimpleClear)
 {
 	constexpr int TEST_SIZE = 100000;
 
@@ -188,6 +188,56 @@ TEST(MemoryArenaTest, Clear)
 		EXPECT_EQ(arena.numAllocatedBlocks(), previousBlockCount);
 
 		arena.clear();
+	}
+}
+
+TEST(MemoryArenaTest, NonTrivialClear)
+{
+	struct CustomDtor
+	{
+		int& counter;
+
+		CustomDtor(int& counter)
+			: counter(counter)
+		{}
+
+		~CustomDtor()
+		{
+			++counter;
+		}
+	};
+
+	// Explicitly destruct by calling `clear()`
+	{
+		constexpr int TEST_SIZE = 100000;
+
+		int counter = 0;
+
+		MemoryArena arena;
+		for(int i = 0; i < TEST_SIZE; ++i)
+		{
+			arena.make<CustomDtor>(counter);
+		}
+		arena.clear();
+
+		EXPECT_EQ(counter, TEST_SIZE);
+	}
+
+	// Implicitly destruct by the destruction of arena
+	{
+		constexpr int TEST_SIZE = 100000;
+
+		int counter = 0;
+
+		{
+			MemoryArena arena;
+			for(int i = 0; i < TEST_SIZE; ++i)
+			{
+				arena.make<CustomDtor>(counter);
+			}
+		}
+
+		EXPECT_EQ(counter, TEST_SIZE);
 	}
 }
 

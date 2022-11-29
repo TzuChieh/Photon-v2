@@ -31,6 +31,8 @@ public:
 	
 	inline MemoryArena(MemoryArena&& other) = default;
 
+	~MemoryArena();
+
 	/*! @brief Allocate raw memory.
 	The memory returned contains no object--placement new is required before any use of the
 	memory content, otherwise it is UB by C++ standard.
@@ -43,7 +45,8 @@ public:
 
 	/*! @brief Reset the usage of the arena.
 	All memory handed out are effectively deallocated/deleted after this call. The arena
-	then transitions to its initial state and is ready for allocation again.
+	then transitions to its initial state and is ready for allocation again. Destructors are
+	called if required.
 	*/
 	void clear();
 
@@ -120,8 +123,8 @@ private:
 	std::size_t m_remainingBytesInBlock;
 	std::size_t m_numUsedBytes;
 
-	// Destructors of non-trivially-copyable objects. Simply specify `MIN_SIZE = 0` for smallest
-	// possible `TFunction`; increase it if compilation failed.
+	// Destructors of non-trivially-copyable objects. Simply specify `MIN_SIZE_HINT = 0` for 
+	// smallest possible `TFunction`; increase it if compilation failed (investigate first).
 	std::vector<TFunction<void(void), 0>> m_dtorCallers;
 };
 
