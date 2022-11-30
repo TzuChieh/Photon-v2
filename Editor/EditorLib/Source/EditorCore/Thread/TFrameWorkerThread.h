@@ -130,13 +130,14 @@ public:
 	Does not start the worker thread. Worker thread can be started by calling `startWorker()`.
 	*/
 	inline TFrameWorkerThread()
-		: m_thread              ()
-		, m_frames              ()
-		, m_isStopRequested     (false)
-		, m_frameNumber         (0)
+		: m_thread            ()
+		, m_frames            ()
+		, m_isStopRequested   ()
+		, m_hasFinalFrameEnded()
+		, m_frameNumber       (0)
 #ifdef PH_DEBUG
-		, m_parentThreadId      ()
-		, m_isStopped           (false)
+		, m_parentThreadId    ()
+		, m_isStopped         (false)
 #endif
 	{
 		m_thread = InitiallyPausedThread(
@@ -247,6 +248,13 @@ public:
 		// ^^^^^   Works can no longer be added after the end produce call    ^^^^^ //
 		//--------------------------------------------------------------------------//
 
+		if(isStopRequested())
+		{
+			// Ensure memory effects of `m_frames` will be visible on worker
+			m_hasFinalFrameEnded.test_and_set(std::memory_order_release);
+			m_hasFinalFrameEnded.notify_one();
+		}
+
 		++m_frameNumber;
 	}
 
@@ -322,7 +330,7 @@ public:
 		// will be checked (in case of the worker was already waiting, `endFrame()` will unwait it)
 		PH_ASSERT(m_frames.isProducing());
 
-		m_isStopRequested.store(true, std::memory_order_relaxed);
+		m_isStopRequested.test_and_set(std::memory_order_relaxed);
 	}
 
 	/*!
@@ -330,7 +338,7 @@ public:
 	*/
 	inline bool isStopRequested() const
 	{
-		return m_isStopRequested.load(std::memory_order_relaxed);
+		return m_isStopRequested.test(std::memory_order_relaxed);
 	}
 
 	/*!
@@ -473,6 +481,22 @@ private:
 
 		} while(!isStopRequested());
 
+		// Ensure memory effects of `m_frames` from parent will be visible
+		m_hasFinalFrameEnded.wait(false, std::memory_order_acquire);
+
+		// Parent is waiting worker to stop, and has done using `m_frames` with memory effects
+		// visible to worker--perform cleanup directly
+		for(std::size_t frameIdx = 0; frameIdx < NUM_BUFFERS; ++frameIdx)
+		{
+			Frame& frame = m_frames.getBufferDirectly(frameIdx);
+			frame.parentThreadWorkQueue.clear();
+			frame.anyThreadWorkQueue = TAtomicQueue<Work>();
+#ifdef PH_DEBUG
+			frame.numAnyThreadWorks.store(0, std::memory_order_relaxed);
+#endif
+			frame.workQueueMemory.clear();
+		}
+
 		onAsyncWorkerStop();
 	}
 
@@ -537,7 +561,8 @@ private:
 	TSPSCRingBuffer<Frame, NUM_BUFFERS> m_frames;
 
 	InitiallyPausedThread m_thread;
-	std::atomic_bool      m_isStopRequested;
+	std::atomic_flag      m_isStopRequested;
+	std::atomic_flag      m_hasFinalFrameEnded;
 	std::size_t           m_frameNumber;
 #ifdef PH_DEBUG
 	std::thread::id       m_parentThreadId;

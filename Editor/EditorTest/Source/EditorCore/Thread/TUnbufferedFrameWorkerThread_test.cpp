@@ -272,3 +272,73 @@ TEST(TUnbufferedFrameWorkerThreadTest, RunSmartPtrCaptureWork)
 		}
 	}
 }
+
+TEST(TUnbufferedFrameWorkerThreadTest, WorkObjectDestruct)
+{
+	// Mixing shared ptr and unique ptr
+	{
+		for(int i = 1; i < 10; ++i)
+		{
+			const int numWorksPerFrame = i;
+			const int numFramesToRun = i;
+
+			// Note: this is a buffered worker
+			TMockUnbufferedFrameWorker<void(void)> worker;
+			worker.startWorker();
+
+			int deleteCount = 0;
+			auto ptrDeleter =
+				[&worker, &deleteCount](int* const ptr)
+				{
+					// Must be called on worker thread
+					EXPECT_EQ(worker.getWorkerThreadId(), std::this_thread::get_id());
+
+					delete ptr;
+
+					++deleteCount;
+				};
+
+			for(int fi = 0; fi < numFramesToRun; ++fi)
+			{
+				worker.beginFrame();
+
+				// adds exactly `i` works
+				for(int wi = 0; wi < numWorksPerFrame; ++wi)
+				{
+					// add `shared_ptr` & `unique_ptr` works based on even/odd `wi`
+
+					if(wi % 2 == 0)
+					{
+						worker.addWork(
+							[ptr = std::unique_ptr<int, decltype(ptrDeleter)>(new int(), ptrDeleter)]()
+							{
+								ASSERT_TRUE(ptr);
+							});
+					}
+					else
+					{
+						worker.addWork(
+							[ptr = std::shared_ptr<int>(new int(), ptrDeleter)]()
+							{
+								ASSERT_TRUE(ptr);
+							});
+					}
+				}
+
+				// Request stop on last frame
+				if(fi == numFramesToRun - 1)
+				{
+					worker.requestWorkerStop();
+				}
+
+				worker.endFrame();
+			}
+			
+			worker.waitForWorkerToStop();
+
+			// All works should still be destructed to ensure correctness
+			const auto numTotalWorks = numWorksPerFrame * numFramesToRun;
+			EXPECT_EQ(deleteCount, numTotalWorks);
+		}
+	}
+}
