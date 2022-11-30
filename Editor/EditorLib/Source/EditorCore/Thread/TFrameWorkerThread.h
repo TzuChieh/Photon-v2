@@ -73,7 +73,7 @@ class TFrameWorkerThread<NUM_BUFFERS, R(Args...)> : private INoCopyAndMove
 	static_assert(NUM_BUFFERS >= 1,
 		"Must have at least 1 buffer.");
 
-protected:
+public:
 	using Work = TFunction<R(Args...)>;
 
 private:

@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <atomic>
 #include <thread>
+#include <variant>
 
 namespace ph::editor
 {
@@ -54,8 +55,22 @@ working cycle--from `startWorker()` to `waitForWorkerToStop()`. Ctor and dtor ca
 template<typename R, typename... Args>
 class TUnbufferedFrameWorkerThread<R(Args...)> : private INoCopyAndMove
 {
-protected:
+public:
 	using Work = TFunction<R(Args...)>;
+
+private:
+	// Work type for internal usages. Warpping with a custom private type so we cannot mix 
+	// it with user types
+	struct InternalWork
+	{
+		TFunction<void(void), 0> callable;
+	};
+
+	// Possibly store both user-specified work and custom callables for internal usages
+	using Workload = std::variant<
+		std::monostate,
+		Work,
+		InternalWork>;
 
 public:
 	struct FrameInfo final
@@ -140,9 +155,21 @@ public:
 		m_parentThreadId = std::this_thread::get_id();
 
 		m_thread.setWorkProcessor(
-			[this](const Work& work)
+			[this](const Workload& workload)
 			{
-				onAsyncProcessWork(work);
+				if(std::holds_alternative<Work>(workload))
+				{
+					onAsyncProcessWork(std::get<Work>(workload));
+				}
+				else if(std::holds_alternative<InternalWork>(workload))
+				{
+					std::get<InternalWork>(workload).callable();
+				}
+				else
+				{
+					PH_ASSERT(std::holds_alternative<std::monostate>(workload));
+					PH_ASSERT_UNREACHABLE_SECTION();
+				}
 			});
 
 		m_thread.setOnConsumerStart(
@@ -384,17 +411,16 @@ private:
 	inline void addClearArenaWork()
 	{
 		PH_ASSERT(isParentThread());
+		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
+		PH_ASSERT(!isStopRequested());
 
-		addWork(
-			[this](Args... /* args */)
+		InternalWork clearArenaWork;
+		clearArenaWork.callable = 
+			[this]()
 			{
 				m_workQueueMemory.clear();
-
-				if constexpr(!std::is_void_v<R>)
-				{
-					return R{};
-				}
-			});
+			};
+		m_thread.addWork(std::move(clearArenaWork));
 	}
 
 	/*!
@@ -407,15 +433,15 @@ private:
 		return m_frameNumber;
 	}
 
-	TSPSCExecutor<Work> m_thread;
-	MemoryArena         m_workQueueMemory;
-	std::thread::id     m_parentThreadId;
-	std::atomic_bool    m_isStopRequested;
-	std::size_t         m_frameNumber;
-	std::size_t         m_numParentWorks;
+	TSPSCExecutor<Workload> m_thread;
+	MemoryArena             m_workQueueMemory;
+	std::thread::id         m_parentThreadId;
+	std::atomic_bool        m_isStopRequested;
+	std::size_t             m_frameNumber;
+	std::size_t             m_numParentWorks;
 #ifdef PH_DEBUG
-	bool                m_isBetweenFrameBeginAndEnd;
-	bool                m_isStopped;
+	bool                    m_isBetweenFrameBeginAndEnd;
+	bool                    m_isStopped;
 #endif
 };
 
