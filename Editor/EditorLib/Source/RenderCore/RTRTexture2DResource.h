@@ -10,10 +10,10 @@
 namespace ph::editor
 {
 
-class RTRTexture2D : public RTRResource
+class RTRTexture2DResource : public RTRResource
 {
 public:
-	RTRTexture2D(const math::Vector2UI& sizePx, const GHIInfoTextureFormat& format);
+	RTRTexture2DResource(const math::Vector2UI& sizePx, const GHIInfoTextureFormat& format);
 
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;

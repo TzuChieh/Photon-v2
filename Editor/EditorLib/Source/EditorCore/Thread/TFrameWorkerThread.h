@@ -215,6 +215,7 @@ public:
 	{
 		PH_ASSERT(isParentThread());
 		PH_ASSERT(hasWorkerStarted());
+		PH_ASSERT(!isStopRequested());
 
 		// Wait until current frame is available for adding works
 		m_frames.beginProduce();
@@ -287,7 +288,7 @@ public:
 		}
 	}
 
-	/*!
+	/*! @brief Adds a work that will be executed on the worker thread.
 	Can only be called after the frame begins and before the frame ends, i.e., between calls to 
 	`beginFrame()` and `endFrame()`. Additionally, calling from frame callbacks such as `onBeginFrame()`
 	and `onEndFrame()` is also allowed.
@@ -297,7 +298,6 @@ public:
 	{
 		PH_ASSERT(work.isValid());
 		PH_ASSERT(m_frames.isProducing());
-		PH_ASSERT(!isStopRequested());
 
 		Frame& currentFrame = m_frames.getBufferForProducer();
 		if(isParentThread())

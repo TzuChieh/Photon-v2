@@ -195,6 +195,7 @@ public:
 	{
 		PH_ASSERT(isParentThread());
 		PH_ASSERT(hasWorkerStarted());
+		PH_ASSERT(!isStopRequested());
 
 		// Wait until current frame is available for adding works, this includes clearing the work 
 		// queue memory (arena)
@@ -229,6 +230,17 @@ public:
 		m_isBetweenFrameBeginAndEnd = false;
 #endif
 
+		if(isStopRequested())
+		{
+			// As we guarantee current frame must be completed before worker stopped, 
+			// unfortunately we have to wait here otherwise we may cancel some work
+			m_thread.waitAllWorks();
+
+			// Request termination as early as possible since there are still some cleanups 
+			// to do on worker thread
+			m_thread.requestTermination();
+		}
+
 		m_numParentWorks = 0;
 		++m_frameNumber;
 	}
@@ -261,7 +273,7 @@ public:
 		}
 	}
 
-	/*!
+	/*! @brief Adds a work that will be executed on the worker thread.
 	Can only be called after the frame begins and before the frame ends, i.e., between calls to 
 	`beginFrame()` and `endFrame()`. Additionally, calling from frame callbacks such as `onBeginFrame()`
 	and `onEndFrame()` is also allowed.
@@ -272,7 +284,6 @@ public:
 		PH_ASSERT(isParentThread());
 		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
 		PH_ASSERT(work.isValid());
-		PH_ASSERT(!isStopRequested());
 
 		m_thread.addWork(std::move(work));
 		++m_numParentWorks;
@@ -288,22 +299,10 @@ public:
 	{
 		PH_ASSERT(isParentThread());
 
-		// Ensures that `endFrame()` will be called later, which guarantees that the stop condition
-		// will be checked (in case of the worker was already waiting, `endFrame()` will unwait it)
+		// Ensures that `endFrame()` will be called later, some cleanup works are only done there
 		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
 
-		// We must clear work queue memory (arena) on worker thread before stopping the worker
-		addClearArenaWork();
-
 		m_isStopRequested.store(true, std::memory_order_relaxed);
-
-		// As we guarantee current frame must be completed before worker stopped, unfortunately we 
-		// have to wait here otherwise we may cancel some work
-		m_thread.waitAllWorks();
-
-		// Request termination as early as possible since there are still some cleanups to do on
-		// worker thread
-		m_thread.requestTermination();
 	}
 
 	/*!
@@ -412,7 +411,6 @@ private:
 	{
 		PH_ASSERT(isParentThread());
 		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
-		PH_ASSERT(!isStopRequested());
 
 		InternalWork clearArenaWork;
 		clearArenaWork.callable = 

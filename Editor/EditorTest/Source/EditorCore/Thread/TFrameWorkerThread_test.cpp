@@ -57,6 +57,28 @@ TEST(TFrameWorkerThreadTest, RunSingleFrameUnbuffered)
 		}
 	}
 
+	// Add empty works in allowed places
+	{
+		TMockFrameWorker<1, void(void)> worker;
+		EXPECT_CALL(worker, onAsyncProcessWork)
+			.Times(5);
+		EXPECT_CALL(worker, onBeginFrame)
+			.Times(1);
+		EXPECT_CALL(worker, onEndFrame)
+			.Times(1);
+
+		worker.startWorker();
+		worker.beginFrame();
+		worker.addWork([](){});// #1
+		worker.addWork([](){});// #2
+		worker.addWork([](){});// #3
+		worker.requestWorkerStop();
+		worker.addWork([](){});// #4
+		worker.addWork([](){});// #5
+		worker.endFrame();
+		worker.waitForWorkerToStop();
+	}
+
 	// Incrementally add small works
 	{
 		// Test for 100 times to reveal possible threading error
@@ -305,6 +327,7 @@ TEST(TFrameWorkerThreadTest, WorkObjectDestruct)
 		{
 			const int numWorksPerFrame = i;
 			const int numFramesToRun = i;
+			const int numAdditionalWorks = i;
 
 			// Note: this is a buffered worker
 			TMockFrameWorker<3, void(void)> worker;
@@ -353,6 +376,16 @@ TEST(TFrameWorkerThreadTest, WorkObjectDestruct)
 				if(fi == numFramesToRun - 1)
 				{
 					worker.requestWorkerStop();
+
+					// Adding works after requesting stop should be allowed
+					for(std::size_t wi = 0; wi < numAdditionalWorks; ++wi)
+					{
+						worker.addWork(
+							[ptr = std::unique_ptr<int, decltype(ptrDeleter)>(new int(), ptrDeleter)]()
+							{
+								ASSERT_TRUE(ptr);
+							});
+					}
 				}
 
 				worker.endFrame();
@@ -361,7 +394,7 @@ TEST(TFrameWorkerThreadTest, WorkObjectDestruct)
 			worker.waitForWorkerToStop();
 
 			// Though the worker is buffered, all works should still be destructed to ensure correctness
-			const auto numTotalWorks = numWorksPerFrame * numFramesToRun;
+			const auto numTotalWorks = numWorksPerFrame * numFramesToRun + numAdditionalWorks;
 			EXPECT_EQ(deleteCount, numTotalWorks);
 		}
 	}

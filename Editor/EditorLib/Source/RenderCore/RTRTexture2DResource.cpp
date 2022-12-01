@@ -1,18 +1,18 @@
-#include "RenderCore/RTRTexture2D.h"
+#include "RenderCore/RTRTexture2DResource.h"
 #include "EditorCore/Thread/GHIThreadCaller.h"
 #include "RenderCore/GHI.h"
 
 namespace ph::editor
 {
 
-RTRTexture2D::RTRTexture2D(const math::Vector2UI& sizePx, const GHIInfoTextureFormat& format)
+RTRTexture2DResource::RTRTexture2DResource(const math::Vector2UI& sizePx, const GHIInfoTextureFormat& format)
 	: RTRResource()
 	, m_sizePx(sizePx)
 	, m_format(format)
 	, m_ghiTexture(nullptr)
 {}
 
-void RTRTexture2D::setupGHI(GHIThreadCaller& caller)
+void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
 {
 	PH_ASSERT(!m_ghiTexture);
 
@@ -23,7 +23,7 @@ void RTRTexture2D::setupGHI(GHIThreadCaller& caller)
 		});
 }
 
-void RTRTexture2D::cleanupGHI(GHIThreadCaller& caller)
+void RTRTexture2DResource::cleanupGHI(GHIThreadCaller& caller)
 {
 	PH_ASSERT(m_ghiTexture);
 

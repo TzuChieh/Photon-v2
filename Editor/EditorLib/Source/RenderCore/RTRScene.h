@@ -6,6 +6,7 @@
 #include <Utility/TUniquePtrVector.h>
 
 #include <memory>
+#include <vector>
 
 namespace ph::editor
 {
@@ -32,8 +33,8 @@ private:
 	void createGHICommands(GHIThreadCaller& caller);
 
 private:
+	TUniquePtrVector<RTRResource> m_resources;
 	TUniquePtrVector<CustomRenderContent> m_customRenderContents;
-	//TUniquePtrVector<RTRResource>
 };
 
 }// end namespace ph::editor
