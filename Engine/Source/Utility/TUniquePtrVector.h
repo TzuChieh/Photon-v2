@@ -21,6 +21,9 @@ public:
 	template<typename T>
 	T* add(std::unique_ptr<T> uniquePtr);
 
+	template<typename T>
+	void addAll(TUniquePtrVector<T>& uniquePtrs);
+
 	std::unique_ptr<BaseType> remove(std::size_t index);
 	std::unique_ptr<BaseType> remove(const BaseType* ptr);
 
@@ -70,11 +73,23 @@ template<typename T>
 inline T* TUniquePtrVector<BaseType>::add(std::unique_ptr<T> uniquePtr)
 {
 	// The `is_same` check is necessary since `is_base_of` would be false if `T` is a fundamental type
-	static_assert(std::is_base_of_v<BaseType, T> || std::is_same_v<BaseType, T>);
+	static_assert(std::is_base_of_v<BaseType, T> || std::is_same_v<BaseType, T>,
+		"The type of `unique_ptr` is not compatible to the vector.");
 
 	T* const ptr = uniquePtr.get();
 	m_uniquePtrs.push_back(std::move(uniquePtr));
 	return ptr;
+}
+
+template<typename BaseType>
+template<typename T>
+inline void TUniquePtrVector<BaseType>::addAll(TUniquePtrVector<T>& uniquePtrs)
+{
+	for(std::unique_ptr<T>& uniquePtr : uniquePtrs)
+	{
+		add(std::move(uniquePtr));
+	}
+	uniquePtrs.removeAll();
 }
 
 template<typename BaseType>

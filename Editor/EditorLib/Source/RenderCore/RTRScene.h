@@ -23,6 +23,8 @@ class RTRScene final
 public:
 	~RTRScene();
 
+	void addResource(std::unique_ptr<RTRResource> resource);
+	void removeResource(RTRResource* resource);
 	void addCustomRenderContent(std::unique_ptr<CustomRenderContent> content);
 	void removeCustomRenderContent(CustomRenderContent* content);
 
@@ -34,6 +36,8 @@ private:
 
 private:
 	TUniquePtrVector<RTRResource> m_resources;
+	TUniquePtrVector<RTRResource> m_resourcesPendingAdd;
+	TUniquePtrVector<RTRResource> m_resourcesPendingRemove;
 	TUniquePtrVector<CustomRenderContent> m_customRenderContents;
 };
 
