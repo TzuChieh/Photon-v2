@@ -6,7 +6,7 @@
 #include "App/Module/MainThreadUpdateContext.h"
 #include "App/Module/MainThreadRenderUpdateContext.h"
 #include "App/Module/ModuleAttachmentInfo.h"
-#include "EditorCore/Thread/RenderThreadCaller.h"
+#include "Render/RenderThreadCaller.h"
 
 #include <Common/assertion.h>
 #include <Utility/Timer.h>

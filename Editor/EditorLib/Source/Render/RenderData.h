@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderCore/RTRScene.h"
-#include "RenderCore/RenderThreadUpdateContext.h"
+#include "Render/RTRScene.h"
+#include "Render/RenderThreadUpdateContext.h"
 
 namespace ph::editor
 {

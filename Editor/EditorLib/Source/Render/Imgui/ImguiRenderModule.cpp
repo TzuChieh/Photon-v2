@@ -7,9 +7,9 @@
 #include "Platform/Platform.h"
 #include "Platform/PlatformDisplay.h"
 #include "Render/Imgui/ImguiRenderContent.h"
-#include "EditorCore/Thread/RenderThreadCaller.h"
-#include "RenderCore/RenderData.h"
-#include "RenderCore/RTRScene.h"
+#include "Render/RenderThreadCaller.h"
+#include "Render/RenderData.h"
+#include "Render/RTRScene.h"
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
 

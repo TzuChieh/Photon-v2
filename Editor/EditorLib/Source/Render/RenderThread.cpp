@@ -1,6 +1,6 @@
-#include "EditorCore/Thread/RenderThread.h"
-#include "RenderCore/RenderThreadUpdateContext.h"
-#include "EditorCore/Thread/GHIThreadCaller.h"
+#include "Render/RenderThread.h"
+#include "Render/RenderThreadUpdateContext.h"
+#include "RenderCore/GHIThreadCaller.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
@@ -10,11 +10,11 @@
 namespace ph::editor
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(RenderThread, EditorCore);
+PH_DEFINE_INTERNAL_LOG_GROUP(RenderThread, Render);
 
 RenderThread::RenderThread()
 	: Base()
-	, m_renderData()
+	, m_renderData(std::nullopt)
 	, m_ghiThread()
 	, m_updatedGHI(nullptr)
 {}
@@ -24,12 +24,16 @@ RenderThread::~RenderThread()
 
 void RenderThread::onAsyncProcessWork(const Work& work)
 {
-	work(m_renderData);
+	PH_ASSERT(m_renderData.has_value());
+
+	work(*m_renderData);
 }
 
 void RenderThread::onAsyncWorkerStart()
 {
 	PH_LOG(RenderThread, "thread started");
+
+	m_renderData = RenderData();
 
 	// Must start here--render thread should be the parent thread of GHI thread
 	m_ghiThread.startWorker();
@@ -42,6 +46,8 @@ void RenderThread::onAsyncWorkerStop()
 	m_ghiThread.endFrame();
 
 	m_ghiThread.waitForWorkerToStop();
+
+	m_renderData = std::nullopt;
 
 	PH_LOG(RenderThread, "thread stopped");
 }

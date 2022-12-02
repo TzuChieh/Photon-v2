@@ -1,5 +1,5 @@
-#include "RenderCore/RTRScene.h"
-#include "RenderCore/RenderThreadUpdateContext.h"
+#include "Render/RTRScene.h"
+#include "Render/RenderThreadUpdateContext.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -9,9 +9,32 @@
 namespace ph::editor
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(RTRScene, RenderCore);
+PH_DEFINE_INTERNAL_LOG_GROUP(RTRScene, Render);
 
-RTRScene::~RTRScene() = default;
+RTRScene::RTRScene() = default;
+
+RTRScene::RTRScene(RTRScene&& other) = default;
+
+RTRScene::~RTRScene()
+{
+	const auto numRemainingResources = 
+		m_resources.size() +
+		m_resourcesPendingAdd.size() +
+		m_resourcesPendingRemove.size();
+	if(numRemainingResources != 0)
+	{
+		PH_LOG_ERROR(RTRScene, 
+			"{} resources are leaked; remove the resource when you are done with it", 
+			numRemainingResources);
+	}
+
+	if(!m_customRenderContents.isEmpty())
+	{
+		PH_LOG_ERROR(RTRScene,
+			"{} custom render contents are leaked; remove the content when you are done with it", 
+			m_customRenderContents.size());
+	}
+}
 
 void RTRScene::update(const RenderThreadUpdateContext& ctx)
 {
@@ -23,11 +46,11 @@ void RTRScene::update(const RenderThreadUpdateContext& ctx)
 
 void RTRScene::createGHICommands(GHIThreadCaller& caller)
 {
-	for(RTRResource* const resource : m_resourcesPendingSetup)
+	for(auto& resource : m_resourcesPendingAdd)
 	{
 		resource->setupGHI(caller);
 	}
-	m_resourcesPendingSetup.clear();
+	m_resources.addAll(m_resourcesPendingAdd);
 
 	// TODO: update dynamic resource
 
@@ -36,20 +59,11 @@ void RTRScene::createGHICommands(GHIThreadCaller& caller)
 		customRenderContent->createGHICommands(caller);
 	}
 
-	for(RTRResource* const resource : m_resourcesPendingCleanup)
+	for(auto& resource : m_resourcesPendingRemove)
 	{
-		auto removedResource = m_resources.remove(resource);
-		if(removedResource)
-		{
-			removedResource->cleanupGHI(caller);
-		}
-		else
-		{
-			PH_LOG_WARNING(RTRScene,
-				"on resource removal: did not find specified resource, nothing removed");
-		}
+		resource->cleanupGHI(caller);
 	}
-	m_resourcesPendingCleanup.clear();
+	m_resourcesPendingRemove.removeAll();
 }
 
 void RTRScene::addResource(std::unique_ptr<RTRResource> resource)
@@ -61,21 +75,20 @@ void RTRScene::addResource(std::unique_ptr<RTRResource> resource)
 		return;
 	}
 
-	RTRResource* const resourcePtr = resource.get();
-	m_resources.add(std::move(resource));
-	m_resourcesPendingSetup.push_back(resourcePtr);
+	m_resourcesPendingAdd.add(std::move(resource));
 }
 
-void RTRScene::removeResource(RTRResource* const resource)
+void RTRScene::removeResource(RTRResource* const resourcePtr)
 {
+	auto resource = m_resources.remove(resourcePtr);
 	if(!resource)
 	{
 		PH_LOG_WARNING(RTRScene,
-			"resource not removed since it is empty");
+			"on resource removal: did not find specified resource, nothing removed");
 		return;
 	}
-
-	m_resourcesPendingCleanup.push_back(resource);
+	
+	m_resourcesPendingRemove.add(std::move(resource));
 }
 
 void RTRScene::addCustomRenderContent(std::unique_ptr<CustomRenderContent> content)
@@ -99,5 +112,7 @@ void RTRScene::removeCustomRenderContent(CustomRenderContent* const content)
 			"on custom render content removal: did not find specified content, nothing removed");
 	}
 }
+
+RTRScene& RTRScene::operator = (RTRScene&& rhs) = default;
 
 }// end namespace ph::editor

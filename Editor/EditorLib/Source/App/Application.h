@@ -2,7 +2,7 @@
 
 #include "App/AppSettings.h"
 #include "App/Editor.h"
-#include "EditorCore/Thread/RenderThread.h"
+#include "Render/RenderThread.h"
 
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>

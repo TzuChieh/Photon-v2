@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EditorCore/Thread/RenderThread.h"
+#include "Render/RenderThread.h"
 
 #include <utility>
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/assertion.h"
+#include "Utility/IMoveOnly.h"
 
 #include <vector>
 #include <memory>
@@ -8,12 +9,13 @@
 #include <cstddef>
 #include <algorithm>
 #include <optional>
+#include <iterator>
 
 namespace ph
 {
 
 template<typename BaseType>
-class TUniquePtrVector final
+class TUniquePtrVector final : private IMoveOnly
 {
 public:
 	// TODO: emplace
@@ -85,10 +87,15 @@ template<typename BaseType>
 template<typename T>
 inline void TUniquePtrVector<BaseType>::addAll(TUniquePtrVector<T>& uniquePtrs)
 {
-	for(std::unique_ptr<T>& uniquePtr : uniquePtrs)
-	{
-		add(std::move(uniquePtr));
-	}
+	// The `is_same` check is necessary since `is_base_of` would be false if `T` is a fundamental type
+	static_assert(std::is_base_of_v<BaseType, T> || std::is_same_v<BaseType, T>,
+		"The type of `unique_ptr` is not compatible to the vector.");
+
+	m_uniquePtrs.insert(
+		m_uniquePtrs.end(), 
+		std::make_move_iterator(uniquePtrs.begin()), 
+		std::make_move_iterator(uniquePtrs.end()));
+
 	uniquePtrs.removeAll();
 }
 

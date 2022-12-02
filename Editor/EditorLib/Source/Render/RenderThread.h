@@ -2,8 +2,10 @@
 
 #include "EditorCore/Thread/TFrameWorkerThread.h"
 #include "editor_lib_config.h"
-#include "RenderCore/RenderData.h"
-#include "EditorCore/Thread/GHIThread.h"
+#include "Render/RenderData.h"
+#include "RenderCore/GHIThread.h"
+
+#include <optional>
 
 namespace ph::editor
 {
@@ -36,9 +38,9 @@ private:
 	void beginProcessFrame();
 	void endProcessFrame();
 
-	RenderData m_renderData;
-	GHIThread  m_ghiThread;
-	GHI*       m_updatedGHI;
+	std::optional<RenderData> m_renderData;
+	GHIThread                 m_ghiThread;
+	GHI*                      m_updatedGHI;
 };
 
 }// end namespace ph::editor

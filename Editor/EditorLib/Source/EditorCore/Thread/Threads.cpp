@@ -1,5 +1,4 @@
 #include "EditorCore/Thread/Threads.h"
-#include "EditorCore/Thread/RenderThread.h"
 
 #include <Utility/exception.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EditorCore/Thread/GHIThread.h"
+#include "RenderCore/GHIThread.h"
 
 #include <utility>
 

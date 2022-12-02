@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/RTRResource.h"
+#include "Render/RTRResource.h"
 #include "RenderCore/GHITexture2D.h"
 
 #include <Math/TVector2.h>

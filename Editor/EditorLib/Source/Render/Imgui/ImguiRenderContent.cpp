@@ -1,7 +1,7 @@
 #include "Render/Imgui/ImguiRenderContent.h"
-#include "RenderCore/RenderThreadUpdateContext.h"
+#include "Render/RenderThreadUpdateContext.h"
 #include "EditorCore/Thread/Threads.h"
-#include "EditorCore/Thread/GHIThreadCaller.h"
+#include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GHI.h"
 #include "ThirdParty/glad2.h"
 
@@ -21,7 +21,7 @@ ImguiRenderContent::ImguiRenderContent()
 
 void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 {
-	// TODO
+	// TODO: properly get current viewport size (is it necessary or imgui handles it?)
 }
 
 void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)

@@ -1,4 +1,4 @@
-#include "RenderCore/RTRResource.h"
+#include "Render/RTRResource.h"
 
 namespace ph::editor
 {

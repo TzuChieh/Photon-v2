@@ -1,9 +1,10 @@
 #pragma once
 
-#include "RenderCore/CustomRenderContent.h"
-#include "RenderCore/RTRResource.h"
+#include "Render/CustomRenderContent.h"
+#include "Render/RTRResource.h"
 
 #include <Utility/TUniquePtrVector.h>
+#include <Utility/IMoveOnly.h>
 
 #include <memory>
 #include <vector>
@@ -13,20 +14,22 @@ namespace ph::editor
 
 class RenderThreadUpdateContext;
 class GHIThreadCaller;
-class GHITexture2D;
-class GHIFramebuffer;
 
 /*! @brief A real-time scene for the graphics device only.
 */
-class RTRScene final
+class RTRScene final : private IMoveOnly
 {
 public:
+	RTRScene();
+	RTRScene(RTRScene&& other);
 	~RTRScene();
 
 	void addResource(std::unique_ptr<RTRResource> resource);
-	void removeResource(RTRResource* resource);
+	void removeResource(RTRResource* resourcePtr);
 	void addCustomRenderContent(std::unique_ptr<CustomRenderContent> content);
 	void removeCustomRenderContent(CustomRenderContent* content);
+
+	RTRScene& operator = (RTRScene&& rhs);
 
 private:
 	friend class RenderThread;

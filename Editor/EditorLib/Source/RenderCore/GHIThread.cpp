@@ -1,4 +1,4 @@
-#include "EditorCore/Thread/GHIThread.h"
+#include "RenderCore/GHIThread.h"
 #include "RenderCore/NullGHI.h"
 
 #include <Common/logging.h>
@@ -6,7 +6,7 @@
 namespace ph::editor
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(GHIThread, EditorCore);
+PH_DEFINE_INTERNAL_LOG_GROUP(GHIThread, RenderCore);
 
 GHIThread::GHIThread()
 	: Base()

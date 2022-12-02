@@ -1,5 +1,5 @@
-#include "RenderCore/RTRTexture2DResource.h"
-#include "EditorCore/Thread/GHIThreadCaller.h"
+#include "Render/RTRTexture2DResource.h"
+#include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GHI.h"
 
 namespace ph::editor
