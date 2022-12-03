@@ -188,7 +188,8 @@ public:
 	}
 
 	/*!
-	Start a new frame of works. All works added from previous frame are finished after this call.
+	Start a new frame of works. All works added from previous frame are finished after this call and 
+	memory effects are made visible to the parent thread.
 	@note Parent thread only.
 	*/
 	inline void beginFrame()

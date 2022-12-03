@@ -25,22 +25,23 @@ public:
 	~RTRScene();
 
 	void addResource(std::unique_ptr<RTRResource> resource);
+	void setupGHIForPendingResources(GHIThreadCaller& caller);
+	void cleanupGHIForPendingResources(GHIThreadCaller& caller);
+	void destroyPendingResources();
 	void removeResource(RTRResource* resourcePtr);
+
 	void addCustomRenderContent(std::unique_ptr<CustomRenderContent> content);
+	void updateCustomRenderContents(const RenderThreadUpdateContext& ctx);
+	void createGHICommandsForCustomRenderContents(GHIThreadCaller& caller);
 	void removeCustomRenderContent(CustomRenderContent* content);
 
 	RTRScene& operator = (RTRScene&& rhs);
 
 private:
-	friend class RenderThread;
-
-	void update(const RenderThreadUpdateContext& ctx);
-	void createGHICommands(GHIThreadCaller& caller);
-
-private:
 	TUniquePtrVector<RTRResource> m_resources;
-	TUniquePtrVector<RTRResource> m_resourcesPendingAdd;
-	TUniquePtrVector<RTRResource> m_resourcesPendingRemove;
+	std::vector<RTRResource*> m_resourcesPendingSetup;
+	std::vector<RTRResource*> m_resourcesPendingCleanup;
+	std::vector<RTRResource*> m_resourcesPendingDestroy;
 	TUniquePtrVector<CustomRenderContent> m_customRenderContents;
 };
 

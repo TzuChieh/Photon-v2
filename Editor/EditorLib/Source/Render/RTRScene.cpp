@@ -17,15 +17,11 @@ RTRScene::RTRScene(RTRScene&& other) = default;
 
 RTRScene::~RTRScene()
 {
-	const auto numRemainingResources = 
-		m_resources.size() +
-		m_resourcesPendingAdd.size() +
-		m_resourcesPendingRemove.size();
-	if(numRemainingResources != 0)
+	if(!m_resources.isEmpty())
 	{
 		PH_LOG_ERROR(RTRScene, 
 			"{} resources are leaked; remove the resource when you are done with it", 
-			numRemainingResources);
+			m_resources.size());
 	}
 
 	if(!m_customRenderContents.isEmpty())
@@ -34,36 +30,6 @@ RTRScene::~RTRScene()
 			"{} custom render contents are leaked; remove the content when you are done with it", 
 			m_customRenderContents.size());
 	}
-}
-
-void RTRScene::update(const RenderThreadUpdateContext& ctx)
-{
-	for(auto& customRenderContent : m_customRenderContents)
-	{
-		customRenderContent->update(ctx);
-	}
-}
-
-void RTRScene::createGHICommands(GHIThreadCaller& caller)
-{
-	for(auto& resource : m_resourcesPendingAdd)
-	{
-		resource->setupGHI(caller);
-	}
-	m_resources.addAll(m_resourcesPendingAdd);
-
-	// TODO: update dynamic resource
-
-	for(auto& customRenderContent : m_customRenderContents)
-	{
-		customRenderContent->createGHICommands(caller);
-	}
-
-	for(auto& resource : m_resourcesPendingRemove)
-	{
-		resource->cleanupGHI(caller);
-	}
-	m_resourcesPendingRemove.removeAll();
 }
 
 void RTRScene::addResource(std::unique_ptr<RTRResource> resource)
@@ -75,20 +41,60 @@ void RTRScene::addResource(std::unique_ptr<RTRResource> resource)
 		return;
 	}
 
-	m_resourcesPendingAdd.add(std::move(resource));
+	RTRResource* const resourcePtr = resource.get();
+	m_resources.add(std::move(resource));
+	m_resourcesPendingSetup.push_back(resourcePtr);
+}
+
+void RTRScene::setupGHIForPendingResources(GHIThreadCaller& caller)
+{
+	for(RTRResource* const resourcePtr : m_resourcesPendingSetup)
+	{
+		resourcePtr->setupGHI(caller);
+	}
+	m_resourcesPendingSetup.clear();
+}
+
+void RTRScene::cleanupGHIForPendingResources(GHIThreadCaller& caller)
+{
+	for(RTRResource* const resourcePtr : m_resourcesPendingCleanup)
+	{
+		resourcePtr->cleanupGHI(caller);
+	}
+
+	// Add all cleaned-up resources for destroy before clearing the clean-up list
+	m_resourcesPendingDestroy.insert(
+		m_resourcesPendingDestroy.end(),
+		m_resourcesPendingCleanup.begin(),
+		m_resourcesPendingCleanup.end());
+
+	m_resourcesPendingSetup.clear();
+}
+
+void RTRScene::destroyPendingResources()
+{
+	for(RTRResource* const resourcePtr : m_resourcesPendingDestroy)
+	{
+		auto resource = m_resources.remove(resourcePtr);
+		if(!resource)
+		{
+			PH_LOG_WARNING(RTRScene,
+				"on resource destruction: did not find specified resource, one resource not destroyed");
+		}
+	}
+	m_resourcesPendingDestroy.clear();
 }
 
 void RTRScene::removeResource(RTRResource* const resourcePtr)
 {
-	auto resource = m_resources.remove(resourcePtr);
-	if(!resource)
+	if(!resourcePtr)
 	{
 		PH_LOG_WARNING(RTRScene,
-			"on resource removal: did not find specified resource, nothing removed");
+			"resource removal ignored since it is empty");
 		return;
 	}
 	
-	m_resourcesPendingRemove.add(std::move(resource));
+	m_resourcesPendingCleanup.push_back(resourcePtr);
 }
 
 void RTRScene::addCustomRenderContent(std::unique_ptr<CustomRenderContent> content)
@@ -101,6 +107,22 @@ void RTRScene::addCustomRenderContent(std::unique_ptr<CustomRenderContent> conte
 	}
 
 	m_customRenderContents.add(std::move(content));
+}
+
+void RTRScene::updateCustomRenderContents(const RenderThreadUpdateContext& ctx)
+{
+	for(auto& customRenderContent : m_customRenderContents)
+	{
+		customRenderContent->update(ctx);
+	}
+}
+
+void RTRScene::createGHICommandsForCustomRenderContents(GHIThreadCaller& caller)
+{
+	for(auto& customRenderContent : m_customRenderContents)
+	{
+		customRenderContent->createGHICommands(caller);
+	}
 }
 
 void RTRScene::removeCustomRenderContent(CustomRenderContent* const content)
