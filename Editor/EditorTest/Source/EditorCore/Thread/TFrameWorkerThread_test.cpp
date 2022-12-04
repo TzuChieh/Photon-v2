@@ -22,6 +22,8 @@ class TMockFrameWorker : public TFrameWorkerThread<NUM_BUFFERS, WorkSignature>
 	using Work = Base::Work;
 
 public:
+	using Base::Base;
+
 	MOCK_METHOD(void, onAsyncProcessWork, (const Work& work), (override));
 	MOCK_METHOD(void, onBeginFrame, (), (override));
 	MOCK_METHOD(void, onEndFrame, (), (override));
@@ -166,7 +168,7 @@ namespace
 {
 
 template<std::size_t NUM_BUFFERS>
-inline void run_multiple_frames_buffered_test()
+inline void run_multiple_frames_buffered_test(const bool shouldFlushBufferBeforeStop)
 {
 	constexpr std::size_t MAX_FRAMES = 20;
 
@@ -176,12 +178,16 @@ inline void run_multiple_frames_buffered_test()
 		const int numSmallWorksToAdd = numFrames * 5;
 		const int numLargeWorksToAdd = numFrames * 2;
 
-		TMockFrameWorker<NUM_BUFFERS, void(int, int, int)> worker;
+		TMockFrameWorker<NUM_BUFFERS, void(int, int, int)> worker(shouldFlushBufferBeforeStop);
 
-		// For N buffered frames, we may process every work (#frames * #works); or at most, skipped
-		// N frames (all buffering frames including the current frame do not get to be processed, works 
-		// processed = (#frames - N) * #works)
-		const int maxSkippedFrames = std::min(numFrames, static_cast<int>(NUM_BUFFERS));
+		int maxSkippedFrames = 0;
+		if(!shouldFlushBufferBeforeStop)
+		{
+			// For N buffered frames, we may process every work (#frames * #works); or at most, skipped
+			// N frames (all buffering frames including the current frame do not get to be processed, 
+			// works processed = (#frames - N) * #works)
+			maxSkippedFrames = std::min(numFrames, static_cast<int>(NUM_BUFFERS));
+		}
 
 		EXPECT_CALL(worker, onAsyncProcessWork)
 			.Times(Between(
@@ -245,9 +251,15 @@ inline void run_multiple_frames_buffered_test()
 
 TEST(TFrameWorkerThreadTest, RunMultipleFramesBuffered)
 {
-	run_multiple_frames_buffered_test<2>();
-	run_multiple_frames_buffered_test<3>();
-	run_multiple_frames_buffered_test<4>();
+	// Flush buffer before stop
+	run_multiple_frames_buffered_test<2>(true);
+	run_multiple_frames_buffered_test<3>(true);
+	run_multiple_frames_buffered_test<4>(true);
+
+	// Not flushing buffer before stop
+	run_multiple_frames_buffered_test<2>(false);
+	run_multiple_frames_buffered_test<3>(false);
+	run_multiple_frames_buffered_test<4>(false);
 }
 
 TEST(TFrameWorkerThreadTest, RunSmartPtrCaptureWork)
@@ -322,6 +334,7 @@ TEST(TFrameWorkerThreadTest, RunSmartPtrCaptureWork)
 TEST(TFrameWorkerThreadTest, WorkObjectDestruct)
 {
 	// Mixing shared ptr and unique ptr
+	auto testFunc = [](const bool shouldFlushBufferBeforeStop)
 	{
 		for(int i = 1; i < 10; ++i)
 		{
@@ -330,7 +343,7 @@ TEST(TFrameWorkerThreadTest, WorkObjectDestruct)
 			const int numAdditionalWorks = i;
 
 			// Note: this is a buffered worker
-			TMockFrameWorker<3, void(void)> worker;
+			TMockFrameWorker<3, void(void)> worker(shouldFlushBufferBeforeStop);
 			worker.startWorker();
 
 			int deleteCount = 0;
@@ -397,5 +410,11 @@ TEST(TFrameWorkerThreadTest, WorkObjectDestruct)
 			const auto numTotalWorks = numWorksPerFrame * numFramesToRun + numAdditionalWorks;
 			EXPECT_EQ(deleteCount, numTotalWorks);
 		}
-	}
+	};
+
+	// Flush buffer before stop
+	testFunc(true);
+
+	// Not flushing buffer before stop
+	testFunc(false);
 }

@@ -3,8 +3,8 @@
 #include "Common/assertion.h"
 #include "Common/config.h"
 #include "Math/math.h"
-
-#include <Utility/INoCopyAndMove.h>
+#include "Utility/INoCopyAndMove.h"
+#include "Utility/utility.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -46,6 +46,7 @@ public:
 		: m_items           ()
 		, m_produceHead     (0)
 		, m_consumeHead     (0)
+		, m_headDistance    (0)
 #ifdef PH_DEBUG
 		, m_producerThreadID()
 		, m_consumerThreadID()
@@ -79,14 +80,17 @@ public:
 	{
 		PH_ASSERT(isProducerThread());
 
+		// Increment before flag release--we want this addition to be visible on consumer
+		m_headDistance.fetch_add(1, std::memory_order_relaxed);
+
 		Item& currentItem = getCurrentProducerItem();
 		currentItem.isBetweenProduceBeginAndEnd = false;
 
+		// `item` can no longer be modified by producer
+		
 		// Mark that current item is now set and is ready for being consumed
 		const bool hasAlreadySealed = currentItem.isSealedForConsume.test_and_set(std::memory_order_release);
 		PH_ASSERT(!hasAlreadySealed);
-
-		// `item` can no longer be modified by producer
 
 		// Notify the potentially waiting consumer so it can start consuming this item
 		currentItem.isSealedForConsume.notify_one();
@@ -121,13 +125,17 @@ public:
 	{
 		PH_ASSERT(isConsumerThread());
 
+		// Decrement after flag acquire--will never underflow since every consumption happens after a
+		// production with memory effects made visible
+		m_headDistance.fetch_sub(1, std::memory_order_relaxed);
+
 		Item& currentItem = getCurrentConsumerItem();
 		currentItem.isBetweenConsumeBeginAndEnd = false;
 
+		// `item` can no longer be modified by consumer
+
 		// Mark that current item is now consumed and is ready for use by producer again
 		currentItem.isSealedForConsume.clear(std::memory_order_release);
-
-		// `item` can no longer be modified by consumer
 
 		// Notify the potentially waiting producer so it can start producing
 		currentItem.isSealedForConsume.notify_one();
@@ -169,8 +177,7 @@ public:
 	}
 	///@}
 
-	/*!
-	Get buffer directly without any thread safety guarantee.
+	/*! @brief Get buffer directly without any thread safety guarantee.
 	*/
 	///@{
 	inline T& getBufferDirectly(const std::size_t index)
@@ -186,21 +193,39 @@ public:
 	}
 	///@}
 
-	/*!
+	/*! @brief Get the distance between produce and consume heads without limited thread safety guarantee.
+	This method is thread safe, however note that when called during producing/consuming operations the
+	result is an approximation to the actual distance. The distance is only exact if the buffer is
+	synchronized externally and no one is currently producing/consuming the buffer.
+	*/
+	inline std::size_t getHeadDistanceDirectly() const
+	{
+		// Pad produce head to the next cycle first to ensure positive result, then mod it.
+		// 
+		// `return (m_produceHead + N - m_consumeHead) % N;`
+		//
+		// Above is the straightforward way of calculating distance, however the result is ambiguous on
+		// determining whether the buffer is empty or full--returning 0 on both conditions.
+
+		return safe_integer_cast<std::size_t>(
+			m_headDistance.load(std::memory_order_relaxed));
+	}
+
+	/*! @brief Get the buffer index to be accessed by producer thread.
 	@note Producer thread only.
 	*/
 	inline std::size_t getProduceHead() const
 	{
-		PH_ASSERT(isProducing());
+		PH_ASSERT(isProducerThread());
 		return m_produceHead;
 	}
 
-	/*!
+	/*! @brief Get the buffer index to be accessed by consumer thread.
 	@note Consumer thread only.
 	*/
 	inline std::size_t getConsumeHead() const
 	{
-		PH_ASSERT(isConsuming());
+		PH_ASSERT(isConsumerThread());
 		return m_consumeHead;
 	}
 
@@ -315,6 +340,16 @@ public:
 		func(getBufferForConsumer());
 	}
 
+	/*!
+	@note Thread-safe.
+	*/
+	inline static std::size_t nextProducerConsumerHead(
+		const std::size_t currentProducerConsumerHead,
+		const std::size_t numAdvancements = 1)
+	{
+		return math::wrap<std::size_t>(currentProducerConsumerHead + numAdvancements, 0, N - 1);
+	}
+
 private:
 	/*!
 	@note Producer threads only.
@@ -356,7 +391,7 @@ private:
 	inline void advanceProduceHead()
 	{
 		PH_ASSERT(isProducerThread());
-		m_produceHead = getNextProducerConsumerHead(m_produceHead);
+		m_produceHead = nextProducerConsumerHead(m_produceHead);
 	}
 
 	/*!
@@ -365,7 +400,7 @@ private:
 	inline void advanceConsumeHead()
 	{
 		PH_ASSERT(isConsumerThread());
-		m_consumeHead = getNextProducerConsumerHead(m_consumeHead);
+		m_consumeHead = nextProducerConsumerHead(m_consumeHead);
 	}
 
 #ifdef PH_DEBUG
@@ -402,23 +437,16 @@ private:
 	}
 #endif
 
-	/*!
-	@note Thread-safe.
-	*/
-	inline static std::size_t getNextProducerConsumerHead(const std::size_t currentProducerConsumerHead)
-	{
-		return math::wrap<std::size_t>(currentProducerConsumerHead + 1, 0, N - 1);
-	}
-
-	std::array<Item, N>     m_items;
-	std::size_t             m_produceHead;
-	std::size_t             m_consumeHead;
+	std::array<Item, N>       m_items;
+	std::size_t               m_produceHead;
+	std::size_t               m_consumeHead;
+	std::atomic_uint_fast64_t m_headDistance;
 #ifdef PH_DEBUG
 	// Though they are lazily set, no need to synchronize them since if everything is used correctly,
 	// each of them should be loaded/stored from their own thread. Seeing uninitialized or corrupted 
 	// value generally will cause the comparison to current thread ID to fail which is also what we want.
-	mutable std::thread::id m_producerThreadID;
-	mutable std::thread::id m_consumerThreadID;
+	mutable std::thread::id   m_producerThreadID;
+	mutable std::thread::id   m_consumerThreadID;
 #endif
 };
 

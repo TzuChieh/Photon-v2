@@ -82,10 +82,7 @@ void Application::run()
 	appMainLoop();
 	m_isRunning = false;
 
-	// Request to stop the render thread
-	m_renderThread.beginFrame();
-	m_renderThread.requestWorkerStop();
-	m_renderThread.endFrame();
+	finalRenderThreadUpdate();
 
 	// Wait for render thread to actually stop
 	m_renderThread.waitForWorkerToStop();
@@ -119,6 +116,27 @@ void Application::initialRenderThreadUpdate()
 	m_renderThread.beginFrame();
 
 	m_renderThread.addGHIUpdateWork(m_platform->getDisplay().getGHI());
+
+	for(RenderModule* const renderModule : m_renderModules)
+	{
+		RenderThreadCaller caller(m_renderThread);
+		renderModule->createSetupRenderCommands(caller);
+	}
+
+	m_renderThread.endFrame();
+}
+
+void Application::finalRenderThreadUpdate()
+{
+	m_renderThread.beginFrame();
+
+	for(RenderModule* const renderModule : m_renderModules)
+	{
+		RenderThreadCaller caller(m_renderThread);
+		renderModule->createCleanupRenderCommands(caller);
+	}
+
+	m_renderThread.requestWorkerStop();
 
 	m_renderThread.endFrame();
 }

@@ -126,18 +126,23 @@ public:
 	};
 
 public:
+	inline TFrameWorkerThread()
+		: TFrameWorkerThread(true)
+	{}
+
 	/*!
 	Does not start the worker thread. Worker thread can be started by calling `startWorker()`.
 	*/
-	inline TFrameWorkerThread()
-		: m_thread            ()
-		, m_frames            ()
-		, m_isStopRequested   ()
+	inline TFrameWorkerThread(bool shouldFlushBufferBeforeStop)
+		: m_thread()
+		, m_frames()
+		, m_isStopRequested()
 		, m_hasFinalFrameEnded()
-		, m_frameNumber       (0)
+		, m_frameNumber(0)
+		, m_shouldFlushBufferBeforeStop(shouldFlushBufferBeforeStop)
 #ifdef PH_DEBUG
-		, m_parentThreadId    ()
-		, m_isStopped         (false)
+		, m_parentThreadId()
+		, m_isStopped(false)
 #endif
 	{
 		m_thread = InitiallyPausedThread(
@@ -318,8 +323,9 @@ public:
 
 	/*! @brief Ask the worker thread to stop.
 	The worker thread will stop as soon as possible. Currently processing frame will still complete
-	before the worker stop. Can only be called between `beginFrame()` and `endFrame()`. It is 
-	caller's job to ensure no work is added after this call.
+	before the worker stop. Whether works in buffered frames will be executed or not depends on the
+	value of `shouldFlushBufferedWorksBeforeStop` specified to ctor. Can only be called between 
+	`beginFrame()` and `endFrame()`. Works can still be added after this call.
 	@note Parent thread only. This is a request only, no memory effect is implied.
 	*/
 	inline void requestWorkerStop()
@@ -430,47 +436,7 @@ private:
 			// vvvvv   Works can now be processed after the begin consume call  vvvvv //
 			//------------------------------------------------------------------------//
 
-			// Process works added from parent thread
-			{
-				for(const Work& workFromParentThread : currentFrame.parentThreadWorkQueue)
-				{
-					onAsyncProcessWork(workFromParentThread);
-				}
-				currentFrame.parentThreadWorkQueue.clear();
-			}
-
-			// Process works added from any thread
-			{
-				Work workFromAnyThread;
-				std::size_t numDequeuedAnyThreadWorks = 0;
-				while(currentFrame.anyThreadWorkQueue.tryDequeue(&workFromAnyThread))
-				{
-					++numDequeuedAnyThreadWorks;
-
-					onAsyncProcessWork(workFromAnyThread);
-
-					if(numDequeuedAnyThreadWorks == maxAnyThreadWorksPerFrame + 1)
-					{
-						PH_LOG_WARNING(TFrameWorkerThread,
-							"too many concurrently added works ({}), current safe limit is {}",
-							numDequeuedAnyThreadWorks + currentFrame.anyThreadWorkQueue.estimatedSize(), maxAnyThreadWorksPerFrame);
-					}
-
-#ifdef PH_DEBUG
-					currentFrame.numAnyThreadWorks.fetch_sub(1, std::memory_order_relaxed);
-#endif
-				}
-			}
-
-			// Since there is no consumer contention, there should be no work once `tryDequeue` fails 
-			PH_ASSERT_EQ(currentFrame.numAnyThreadWorks.load(std::memory_order_relaxed), 0);
-
-			// It is worker's job to cleanup this frame for producer (for performance reasons; 
-			// also, some code is only meant to be called on the worker thread, this includes
-			// non-trivial destructors).
-			// No need to lock `memoryMutex` here as `isSealedForProcessing` already established
-			// proper ordering for the memory effects to be visible.
-			currentFrame.workQueueMemory.clear();
+			processSingleFrame(currentFrame);
 
 			//------------------------------------------------------------------------------//
 			// ^^^^^   Works can no longer be processed after the end consume call    ^^^^^ //
@@ -481,23 +447,81 @@ private:
 
 		} while(!isStopRequested());
 
-		// Ensure memory effects of `m_frames` from parent will be visible
+		// Ensure memory effects of `m_frames` from parent will be visible. After this, contents in
+		// `m_frames` are for worker thread to use exclusively.
 		m_hasFinalFrameEnded.wait(false, std::memory_order_acquire);
 
-		// Parent is waiting worker to stop, and has done using `m_frames` with memory effects
-		// visible to worker--perform cleanup directly
-		for(std::size_t frameIdx = 0; frameIdx < NUM_BUFFERS; ++frameIdx)
+		const std::size_t numRemainingFrames = m_frames.getHeadDistanceDirectly();
+		for(std::size_t i = 0; i < numRemainingFrames; ++i)
 		{
-			Frame& frame = m_frames.getBufferDirectly(frameIdx);
-			frame.parentThreadWorkQueue.clear();
-			frame.anyThreadWorkQueue = TAtomicQueue<Work>();
+			const auto consumerHead = m_frames.nextProducerConsumerHead(m_frames.getConsumeHead(), i);
+			Frame& remainingFrame = m_frames.getBufferDirectly(consumerHead);
+
+			// Process all remaining works
+			if(m_shouldFlushBufferBeforeStop)
+			{
+				processSingleFrame(remainingFrame);
+			}
+			// Perform cleanup directly
+			else
+			{
+				remainingFrame.parentThreadWorkQueue.clear();
+				remainingFrame.anyThreadWorkQueue = TAtomicQueue<Work>();
 #ifdef PH_DEBUG
-			frame.numAnyThreadWorks.store(0, std::memory_order_relaxed);
+				remainingFrame.numAnyThreadWorks.store(0, std::memory_order_relaxed);
 #endif
-			frame.workQueueMemory.clear();
+				remainingFrame.workQueueMemory.clear();
+			}
 		}
 
 		onAsyncWorkerStop();
+	}
+
+	inline void processSingleFrame(Frame& frame)
+	{
+		PH_ASSERT(isWorkerThread());
+
+		// Process works added from parent thread
+		{
+			for(const Work& workFromParentThread : frame.parentThreadWorkQueue)
+			{
+				onAsyncProcessWork(workFromParentThread);
+			}
+			frame.parentThreadWorkQueue.clear();
+		}
+
+		// Process works added from any thread
+		{
+			Work workFromAnyThread;
+			std::size_t numDequeuedAnyThreadWorks = 0;
+			while(frame.anyThreadWorkQueue.tryDequeue(&workFromAnyThread))
+			{
+				++numDequeuedAnyThreadWorks;
+
+				onAsyncProcessWork(workFromAnyThread);
+
+				if(numDequeuedAnyThreadWorks == maxAnyThreadWorksPerFrame + 1)
+				{
+					PH_LOG_WARNING(TFrameWorkerThread,
+						"too many concurrently added works ({}), current safe limit is {}",
+						numDequeuedAnyThreadWorks + frame.anyThreadWorkQueue.estimatedSize(), maxAnyThreadWorksPerFrame);
+				}
+
+#ifdef PH_DEBUG
+				frame.numAnyThreadWorks.fetch_sub(1, std::memory_order_relaxed);
+#endif
+			}
+		}
+
+		// Since there is no consumer contention, there should be no work once `tryDequeue` fails 
+		PH_ASSERT_EQ(frame.numAnyThreadWorks.load(std::memory_order_relaxed), 0);
+
+		// It is worker's job to cleanup this frame for producer (for performance reasons; 
+		// also, some code is only meant to be called on the worker thread, this includes
+		// non-trivial destructors).
+		// No need to lock `memoryMutex` here as `isSealedForProcessing` already established
+		// proper ordering for the memory effects to be visible.
+		frame.workQueueMemory.clear();
 	}
 
 	/*! @brief Check if this thread is worker thread.
@@ -564,6 +588,7 @@ private:
 	std::atomic_flag      m_isStopRequested;
 	std::atomic_flag      m_hasFinalFrameEnded;
 	std::size_t           m_frameNumber;
+	bool                  m_shouldFlushBufferBeforeStop;
 #ifdef PH_DEBUG
 	std::thread::id       m_parentThreadId;
 	bool                  m_isStopped;

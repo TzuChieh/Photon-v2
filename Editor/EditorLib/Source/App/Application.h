@@ -51,6 +51,7 @@ public:
 
 private:
 	void initialRenderThreadUpdate();
+	void finalRenderThreadUpdate();
 	void appMainLoop();
 	void appUpdate(const MainThreadUpdateContext& ctx);
 	void appRenderUpdate(const MainThreadRenderUpdateContext& ctx);

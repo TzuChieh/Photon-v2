@@ -26,6 +26,8 @@ public:
 	void onDetach() override;
 	void renderUpdate(const MainThreadRenderUpdateContext& ctx) override;
 	void createRenderCommands(RenderThreadCaller& caller) override;
+	void createSetupRenderCommands(RenderThreadCaller& caller) override;
+	void createCleanupRenderCommands(RenderThreadCaller& caller) override;
 
 private:
 	void initializeImgui(Editor& editor);
