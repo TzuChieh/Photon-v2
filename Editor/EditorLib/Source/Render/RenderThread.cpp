@@ -43,6 +43,7 @@ void RenderThread::onAsyncWorkerStop()
 {
 	PH_ASSERT(m_renderData.has_value());
 
+	// Waits for all previous GHI works to finish
 	m_ghiThread.beginFrame();
 
 	// Destroy resources just like how we did in `onEndFrame()`
