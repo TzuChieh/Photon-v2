@@ -7,7 +7,11 @@
 namespace ph::editor
 {
 
-class ImguiHelper final
+/*!
+Dear ImGui can handle font loading, hence the font data (`ImFont`) here are never null after
+initialization. Some utilities are provided for using the font data.
+*/
+class ImguiFontLibrary final
 {
 public:
 	ImFont* defaultFont = nullptr;
@@ -19,7 +23,7 @@ public:
 };
 
 template<typename UIFunc>
-inline void ImguiHelper::useFont(ImFont* const font, UIFunc func)
+inline void ImguiFontLibrary::useFont(ImFont* const font, UIFunc func)
 {
 	PH_ASSERT(font);
 

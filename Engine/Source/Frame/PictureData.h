@@ -27,6 +27,10 @@ enum class EPicturePixelComponent
 	PPC_Float64
 };
 
+/*!
+Data storage of a picture. Has limited ability on pixel data manipulation. It is recommended
+to convert to `TFrame` via `toFrame()` for operations on pixel data.
+*/
 class PictureData final
 {
 public:
@@ -69,6 +73,7 @@ public:
 		const PixelData* pixelData,
 		std::size_t pixelDataSize);
 
+	// TODO: option for allow/disallow lossy conversion?
 	template<typename FrameComponent, std::size_t N>
 	TFrame<FrameComponent, N> toFrame() const;
 

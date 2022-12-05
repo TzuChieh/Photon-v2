@@ -33,7 +33,7 @@ ImguiRenderModule::ImguiRenderModule()
 	, m_renderContent(nullptr)
 	, m_isRenderContentAdded(false)
 	, m_editorUI()
-	, m_helper()
+	, m_fontLibrary()
 {}
 
 ImguiRenderModule::~ImguiRenderModule() = default;
@@ -68,7 +68,7 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 		});
 
 	initializeImgui(*info.editor);
-	m_editorUI.initialize(info.editor, &m_helper);
+	m_editorUI.initialize(info.editor, &m_fontLibrary);
 }
 
 void ImguiRenderModule::onDetach()
@@ -84,7 +84,7 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 	m_editorUI.build();
 
-	m_helper.useFont(m_helper.largeFont, 
+	m_fontLibrary.useFont(m_fontLibrary.largeFont,
 		[]()
 		{
 			ImGui::Button(ICON_MD_FOLDER_COPY " Search");
@@ -230,10 +230,10 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 
 	// Loading default font
 	//io.Fonts->AddFontDefault();
-	m_helper.defaultFont = io.Fonts->AddFontFromFileTTF(
+	m_fontLibrary.defaultFont = io.Fonts->AddFontFromFileTTF(
 		(fontDirectory / "Arial-Regular.ttf").toString().c_str(),
 		fontSizePx);
-	io.FontDefault = m_helper.defaultFont;
+	io.FontDefault = m_fontLibrary.defaultFont;
 
 	// Loading icon font--merge with default font
 	ImFontConfig iconFontConfig;
@@ -253,7 +253,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 		iconFontRanges);
 
 	// Loading large default font
-	m_helper.largeFont = io.Fonts->AddFontFromFileTTF(
+	m_fontLibrary.largeFont = io.Fonts->AddFontFromFileTTF(
 		(fontDirectory / "Arial-Regular.ttf").toString().c_str(),
 		fontSizePx * largeFontRatio);
 

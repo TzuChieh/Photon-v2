@@ -10,8 +10,9 @@
 namespace ph
 {
 
-/*! @brief Pixel format of picture.
-The characters RGB does not mean the pixel is in RGB color space. It simply represents pixel components, 
+/*! @brief Pixel layout of picture.
+Represent the ordering of pixel components with respect to a color space. The characters RGB
+does not mean the pixel is in RGB color space. It simply represents pixel components,
 using R, G, B as placeholders.
 */
 enum class EPicturePixelFormat

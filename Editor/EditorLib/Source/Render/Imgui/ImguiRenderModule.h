@@ -3,7 +3,7 @@
 #include "App/Module/RenderModule.h"
 #include "ThirdParty/GLFW3_fwd.h"
 #include "Render/Imgui/ImguiEditorUI.h"
-#include "Render/Imgui/ImguiHelper.h"
+#include "Render/Imgui/ImguiFontLibrary.h"
 
 #include <Math/TVector2.h>
 
@@ -40,7 +40,7 @@ private:
 	ImguiRenderContent*    m_renderContent;
 	bool                   m_isRenderContentAdded;
 	ImguiEditorUI          m_editorUI;
-	ImguiHelper            m_helper;
+	ImguiFontLibrary       m_fontLibrary;
 };
 
 inline std::string ImguiRenderModule::getName() const

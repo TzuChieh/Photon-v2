@@ -30,20 +30,25 @@ enum class ESampleMode
 	Trilinear
 };
 
+/*! @brief Pixel layout of pixel texture.
+Represent the ordering of pixel components with respect to a color space. The characters RGB 
+does not mean the pixel is in RGB color space. It simply represents pixel components, 
+using R, G, B as placeholders.
+*/
 enum class EPixelLayout
 {
-	PL_RGBA = 0,
-	PL_R,
-	PL_G,
-	PL_B,
-	PL_Monochromatic,
-	PL_A,
-	PL_RG,
-	PL_RGB,
-	PL_BGR,
-	PL_ARGB,
-	PL_ABGR,
-	PL_BGRA
+	RGBA = 0,
+	R,
+	G,
+	B,
+	Monochromatic,
+	A,
+	RG,
+	RGB,
+	BGR,
+	ARGB,
+	ABGR,
+	BGRA
 };
 
 /*! @brief Transform (u, v) coordinates to (s, t) in [0, 1] according to wrap mode.
@@ -99,24 +104,24 @@ inline std::size_t num_pixel_elements(const EPixelLayout layout)
 {
 	switch(layout)
 	{
-	case EPixelLayout::PL_R:
-	case EPixelLayout::PL_G:
-	case EPixelLayout::PL_B:
-	case EPixelLayout::PL_Monochromatic:
-	case EPixelLayout::PL_A:
+	case EPixelLayout::R:
+	case EPixelLayout::G:
+	case EPixelLayout::B:
+	case EPixelLayout::Monochromatic:
+	case EPixelLayout::A:
 		return 1;
 
-	case EPixelLayout::PL_RG:
+	case EPixelLayout::RG:
 		return 2;
 
-	case EPixelLayout::PL_RGB:
-	case EPixelLayout::PL_BGR:
+	case EPixelLayout::RGB:
+	case EPixelLayout::BGR:
 		return 3;
 
-	case EPixelLayout::PL_RGBA:
-	case EPixelLayout::PL_ARGB:
-	case EPixelLayout::PL_ABGR:
-	case EPixelLayout::PL_BGRA:
+	case EPixelLayout::RGBA:
+	case EPixelLayout::ARGB:
+	case EPixelLayout::ABGR:
+	case EPixelLayout::BGRA:
 		return 4;
 
 	default:
@@ -129,13 +134,13 @@ inline std::size_t alpha_channel_index(const EPixelLayout layout)
 {
 	switch(layout)
 	{
-	case EPixelLayout::PL_A:
-	case EPixelLayout::PL_ARGB:
-	case EPixelLayout::PL_ABGR:
+	case EPixelLayout::A:
+	case EPixelLayout::ARGB:
+	case EPixelLayout::ABGR:
 		return 0;
 
-	case EPixelLayout::PL_RGBA:
-	case EPixelLayout::PL_BGRA:
+	case EPixelLayout::RGBA:
+	case EPixelLayout::BGRA:
 		return 3;
 
 	default:

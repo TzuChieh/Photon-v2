@@ -102,48 +102,48 @@ inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
 	math::TTristimulusValues<float64> color{};
 	switch(m_colorLayout)
 	{
-	case pixel_texture::EPixelLayout::PL_R:
+	case pixel_texture::EPixelLayout::R:
 		color[0] = sampledPixel[0];
 		break;
 
-	case pixel_texture::EPixelLayout::PL_G:
+	case pixel_texture::EPixelLayout::G:
 		color[1] = sampledPixel[0];
 		break;
 
-	case pixel_texture::EPixelLayout::PL_B:
+	case pixel_texture::EPixelLayout::B:
 		color[2] = sampledPixel[0];
 		break;
 
-	case pixel_texture::EPixelLayout::PL_Monochromatic:
+	case pixel_texture::EPixelLayout::Monochromatic:
 		color.fill(sampledPixel[0]);
 		break;
 
-	case pixel_texture::EPixelLayout::PL_RG:
+	case pixel_texture::EPixelLayout::RG:
 		color[0] = sampledPixel[0];
 		color[1] = sampledPixel[1];
 		break;
 
-	case pixel_texture::EPixelLayout::PL_RGB:
-	case pixel_texture::EPixelLayout::PL_RGBA:
+	case pixel_texture::EPixelLayout::RGB:
+	case pixel_texture::EPixelLayout::RGBA:
 		color[0] = sampledPixel[0];
 		color[1] = sampledPixel[1];
 		color[2] = sampledPixel[2];
 		break;
 
-	case pixel_texture::EPixelLayout::PL_BGR:
-	case pixel_texture::EPixelLayout::PL_BGRA:
+	case pixel_texture::EPixelLayout::BGR:
+	case pixel_texture::EPixelLayout::BGRA:
 		color[0] = sampledPixel[2];
 		color[1] = sampledPixel[1];
 		color[2] = sampledPixel[0];
 		break;
 
-	case pixel_texture::EPixelLayout::PL_ARGB:
+	case pixel_texture::EPixelLayout::ARGB:
 		color[0] = sampledPixel[1];
 		color[1] = sampledPixel[2];
 		color[2] = sampledPixel[3];
 		break;
 
-	case pixel_texture::EPixelLayout::PL_ABGR:
+	case pixel_texture::EPixelLayout::ABGR:
 		color[0] = sampledPixel[3];
 		color[1] = sampledPixel[2];
 		color[2] = sampledPixel[1];

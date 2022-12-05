@@ -185,23 +185,23 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 		switch(picture.numComponents())
 		{
 		case 1: 
-			*out_pixelLayout = pixel_texture::EPixelLayout::PL_Monochromatic;
+			*out_pixelLayout = pixel_texture::EPixelLayout::Monochromatic;
 			break;
 
 		case 3:
 			*out_pixelLayout = !picture.isReversedComponents() ?
-				pixel_texture::EPixelLayout::PL_RGB : pixel_texture::EPixelLayout::PL_BGR;
+				pixel_texture::EPixelLayout::RGB : pixel_texture::EPixelLayout::BGR;
 			break;
 
 		case 4:
 			*out_pixelLayout = !picture.isReversedComponents() ?
-				pixel_texture::EPixelLayout::PL_RGBA : pixel_texture::EPixelLayout::PL_ABGR;
+				pixel_texture::EPixelLayout::RGBA : pixel_texture::EPixelLayout::ABGR;
 			break;
 
 		default:
 			PH_LOG_WARNING(RasterFileImage,
 				"Does not support layout of {} pixel elements. Default to RGBA.", picture.numComponents());
-			*out_pixelLayout = pixel_texture::EPixelLayout::PL_RGBA;
+			*out_pixelLayout = pixel_texture::EPixelLayout::RGBA;
 			break;
 		}
 	}
