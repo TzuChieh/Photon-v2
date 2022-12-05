@@ -28,7 +28,7 @@ inline PictureData::PictureData(
 	, m_data()
 	, m_numBytesInData(0)
 {
-	m_numBytesInData = sizePx.product() * numPicComponents * numBytesInComponent(componentType);
+	m_numBytesInData = sizePx.product() * numPicComponents * num_bytes_in_component(componentType);
 	m_data = std::make_unique<std::byte[]>(m_numBytesInData);
 }
 
@@ -123,34 +123,34 @@ inline TFrame<FrameComponent, N> PictureData::toFrame() const
 {
 	switch(m_componentType)
 	{
-	case EPicturePixelComponent::PPC_Int8:
+	case EPicturePixelComponent::Int8:
 		return pictureToFrame<int8, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_UInt8:
+	case EPicturePixelComponent::UInt8:
 		return pictureToFrame<uint8, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_Int16:
+	case EPicturePixelComponent::Int16:
 		return pictureToFrame<int16, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_UInt16:
+	case EPicturePixelComponent::UInt16:
 		return pictureToFrame<uint16, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_Int32:
+	case EPicturePixelComponent::Int32:
 		return pictureToFrame<int32, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_UInt32:
+	case EPicturePixelComponent::UInt32:
 		return pictureToFrame<uint32, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_Int64:
+	case EPicturePixelComponent::Int64:
 		return pictureToFrame<int64, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_UInt64:
+	case EPicturePixelComponent::UInt64:
 		return pictureToFrame<uint64, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_Float32:
+	case EPicturePixelComponent::Float32:
 		return pictureToFrame<float32, FrameComponent, N>();
 
-	case EPicturePixelComponent::PPC_Float64:
+	case EPicturePixelComponent::Float64:
 		return pictureToFrame<float64, FrameComponent, N>();
 
 	default: 

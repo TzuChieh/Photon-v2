@@ -70,8 +70,6 @@ private:
 	template<typename PictureComponent>
 	std::size_t getByteIndex(std::size_t xPx, std::size_t yPx, std::size_t componentIndex) const;
 
-	static std::size_t numBytesInComponent(EPicturePixelComponent componentType);
-
 	math::Vector2S m_sizePx;
 	std::size_t m_numComponents;
 	EPicturePixelComponent m_componentType;
