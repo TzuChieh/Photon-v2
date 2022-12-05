@@ -114,6 +114,7 @@ inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
 		color[2] = sampledPixel[0];
 		break;
 
+	// FIXME: monochromatic may not mean same value on all components -> HSV?
 	case pixel_texture::EPixelLayout::Monochromatic:
 		color.fill(sampledPixel[0]);
 		break;

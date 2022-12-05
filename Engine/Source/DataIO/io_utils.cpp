@@ -49,21 +49,22 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 	auto sizePx = math::Vector2S(widthPx, heightPx);
 	auto numBytesInStbImageData = sizePx.product() * numComponents * sizeof(stbi_uc);
 
-	// HACK: assuming input LDR image is in sRGB color space, we need to properly detect this
-	auto colorSpace = math::EColorSpace::sRGB;
+	RegularPictureFormat format;
 
-	auto nativeFormat = EPicturePixelFormat::Unspecified;
+	// HACK: assuming input LDR image is in sRGB color space, we need to properly detect this
+	format.setColorSpace(math::EColorSpace::sRGB);
+
 	if(numComponents == 1)
 	{
-		nativeFormat = EPicturePixelFormat::PPF_Grayscale_8;
+		format.setIsGrayscale(true);
 	}
 	else if(numComponents == 3)
 	{
-		nativeFormat = EPicturePixelFormat::PPF_RGB_8;
+		format.setIsGrayscale(false);
 	}
 	else if(numComponents == 4)
 	{
-		nativeFormat = EPicturePixelFormat::PPF_RGBA_8;
+		format.setHasAlpha(true);
 	}
 	else
 	{
@@ -75,10 +76,9 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 	RegularPicture picture(
 		sizePx,
 		numComponents,
-		EPicturePixelComponent::PPC_UInt8);
+		EPicturePixelComponent::UInt8);
 
-	picture.setNativeFormat(nativeFormat);
-	picture.setColorSpace(colorSpace);
+	picture.setFormat(format);
 	picture.getPixels().setPixels(stbImageData, numBytesInStbImageData);
 
 	//for(std::size_t y = 0; y < sizePx.y(); y++)
@@ -131,21 +131,22 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	auto sizePx = math::Vector2S(widthPx, heightPx);
 	auto numBytesInStbImageData = sizePx.product() * numComponents * sizeof(float);
 
-	// HACK: assuming input HDR image is in linear-sRGB color space, we need to properly detect this
-	auto colorSpace = math::EColorSpace::Linear_sRGB;
+	RegularPictureFormat format;
 
-	auto nativeFormat = EPicturePixelFormat::Unspecified;
+	// HACK: assuming input HDR image is in linear-sRGB color space, we need to properly detect this
+	format.setColorSpace(math::EColorSpace::Linear_sRGB);
+
 	if(numComponents == 1)
 	{
-		nativeFormat = EPicturePixelFormat::PPF_Grayscale_32F;
+		format.setIsGrayscale(true);
 	}
 	else if(numComponents == 3)
 	{
-		nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
+		format.setIsGrayscale(false);
 	}
 	else if(numComponents == 4)
 	{
-		nativeFormat = EPicturePixelFormat::PPF_RGBA_32F;
+		format.setHasAlpha(true);
 	}
 	else
 	{
@@ -157,10 +158,9 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	RegularPicture picture(
 		sizePx,
 		numComponents,
-		EPicturePixelComponent::PPC_Float32);
+		EPicturePixelComponent::Float32);
 
-	picture.setNativeFormat(nativeFormat);
-	picture.setColorSpace(colorSpace);
+	picture.setFormat(format);
 	picture.getPixels().setPixels(stbImageData, numBytesInStbImageData);
 
 	//for(uint32 y = 0; y < picture.frame.heightPx(); y++)
@@ -282,9 +282,14 @@ RegularPicture load_HDR_picture(const Path& picturePath)
 			RegularPicture picture(
 				math::Vector2S(frame.getSizePx()),
 				3,
-				EPicturePixelComponent::PPC_Float32);
-			picture.setNativeFormat(EPicturePixelFormat::PPF_RGB_32F);
-			picture.setColorSpace(math::EColorSpace::Linear_sRGB);
+				EPicturePixelComponent::Float32);
+
+			RegularPictureFormat format;
+			format.setColorSpace(math::EColorSpace::Linear_sRGB);
+			format.setIsGrayscale(false);
+			format.setHasAlpha(false);
+			picture.setFormat(format);
+
 			picture.getPixels().setPixels(
 				frame.getPixelData(), 
 				math::Vector2S(frame.getSizePx()).product() * 3);

@@ -177,7 +177,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 
 	if(out_colorSpace)
 	{
-		*out_colorSpace = picture.getColorSpace();
+		*out_colorSpace = picture.getFormat().getColorSpace();
 	}
 
 	if(out_pixelLayout)
@@ -189,12 +189,12 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 			break;
 
 		case 3:
-			*out_pixelLayout = !picture.isReversedComponents() ?
+			*out_pixelLayout = !picture.getFormat().isReversedComponents() ?
 				pixel_texture::EPixelLayout::RGB : pixel_texture::EPixelLayout::BGR;
 			break;
 
 		case 4:
-			*out_pixelLayout = !picture.isReversedComponents() ?
+			*out_pixelLayout = !picture.getFormat().isReversedComponents() ?
 				pixel_texture::EPixelLayout::RGBA : pixel_texture::EPixelLayout::ABGR;
 			break;
 
@@ -208,40 +208,41 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 
 	// TODO: make use of half
 	std::shared_ptr<PixelBuffer2D> pixelBuffer;
-	switch(picture.getNativeFormat())
+	if(picture.numComponents() == 3 && picture.getComponentType() == EPicturePixelComponent::UInt8)
 	{
-	case EPicturePixelFormat::PPF_Grayscale_8:
-		pixelBuffer = make_frame_buffer_from_picture<uint8, 1>(picture);
-		break;
-
-	case EPicturePixelFormat::PPF_Grayscale_16F:
-	case EPicturePixelFormat::PPF_Grayscale_32F:
-		pixelBuffer = make_frame_buffer_from_picture<float32, 1>(picture);
-		break;
-
-	case EPicturePixelFormat::PPF_RGB_8:
 		pixelBuffer = make_frame_buffer_from_picture<uint8, 3>(picture);
-		break;
-
-	case EPicturePixelFormat::PPF_RGB_16F:
-	case EPicturePixelFormat::PPF_RGB_32F:
-		pixelBuffer = make_frame_buffer_from_picture<float32, 3>(picture);
-		break;
-
-	case EPicturePixelFormat::PPF_RGBA_8:
+	}
+	else if(picture.numComponents() == 4 && picture.getComponentType() == EPicturePixelComponent::UInt8)
+	{
 		pixelBuffer = make_frame_buffer_from_picture<uint8, 4>(picture);
-		break;
-
-	case EPicturePixelFormat::PPF_RGBA_16F:
-	case EPicturePixelFormat::PPF_RGBA_32F:
+	}
+	else if(picture.numComponents() == 1 && picture.getComponentType() == EPicturePixelComponent::UInt8)
+	{
+		pixelBuffer = make_frame_buffer_from_picture<uint8, 1>(picture);
+	}
+	else if(
+		picture.numComponents() == 3 && 
+		(picture.getComponentType() == EPicturePixelComponent::Float32 || picture.getComponentType() == EPicturePixelComponent::Float16))
+	{
+		pixelBuffer = make_frame_buffer_from_picture<float32, 3>(picture);
+	}
+	else if(
+		picture.numComponents() == 4 &&
+		(picture.getComponentType() == EPicturePixelComponent::Float32 || picture.getComponentType() == EPicturePixelComponent::Float16))
+	{
 		pixelBuffer = make_frame_buffer_from_picture<float32, 4>(picture);
-		break;
-
-	default:
+	}
+	else if(
+		picture.numComponents() == 1 &&
+		(picture.getComponentType() == EPicturePixelComponent::Float32 || picture.getComponentType() == EPicturePixelComponent::Float16))
+	{
+		pixelBuffer = make_frame_buffer_from_picture<float32, 1>(picture);
+	}
+	else
+	{
 		// TODO: better log warning and use a default picture
 		throw ActorCookException(
 			"error on creating frame buffer for <" + m_filePath.toAbsoluteString() + ">");
-		break;
 	}
 
 	return pixelBuffer;

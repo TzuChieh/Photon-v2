@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Frame/picture_basics.h"
 #include "Math/TVector2.h"
 #include "Common/primitive_type.h"
 #include "Frame/frame_fwd.h"
@@ -9,23 +10,6 @@
 
 namespace ph
 {
-
-enum class EPicturePixelComponent
-{
-	Unspecified = 0,
-
-	PPC_Int8,
-	PPC_UInt8,
-	PPC_Int16,
-	PPC_UInt16,
-	PPC_Int32,
-	PPC_UInt32,
-	PPC_Int64,
-	PPC_UInt64,
-	PPC_Float16,
-	PPC_Float32,
-	PPC_Float64
-};
 
 /*!
 Data storage of a picture. Has limited ability on pixel data manipulation. It is recommended

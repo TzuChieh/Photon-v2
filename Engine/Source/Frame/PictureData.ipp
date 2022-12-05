@@ -4,6 +4,7 @@
 #include "Utility/utility.h"
 
 #include <algorithm>
+#include <type_traits>
 
 namespace ph
 {
@@ -107,6 +108,10 @@ inline void PictureData::setPixels(
 	// Should have been allocated; set pixels on empty picture is not allowed.
 	PH_ASSERT(m_data);
 
+	// Generally we would want `PixelData` to be trivially copyable since we are basically handling
+	// raw bytes here
+	static_assert(std::is_trivially_copyable_v<PixelData>);
+
 	std::copy(
 		reinterpret_cast<const std::byte*>(pixelData),
 		reinterpret_cast<const std::byte*>(pixelData + pixelDataSize),
@@ -166,6 +171,11 @@ inline PictureData& PictureData::operator = (PictureData&& rhs) = default;
 template<typename PictureComponent, typename FrameComponent, std::size_t N>
 inline TFrame<FrameComponent, N> PictureData::pictureToFrame() const
 {
+	// Generally we would want `PictureComponent` and `FrameComponent` to be trivially copyable since 
+	// we are basically handling raw bytes here
+	static_assert(std::is_trivially_copyable_v<PictureComponent>);
+	static_assert(std::is_trivially_copyable_v<FrameComponent>);
+
 	PH_ASSERT(m_data);
 
 	using FrameType = TFrame<FrameComponent, N>;
@@ -212,26 +222,6 @@ inline std::size_t PictureData::getByteIndex(
 	PH_ASSERT_LT(componentIndex, m_numComponents);
 
 	return (yPx * m_sizePx.x() * m_numComponents + xPx + componentIndex) * sizeof(PictureComponent);
-}
-
-inline std::size_t PictureData::numBytesInComponent(const EPicturePixelComponent componentType)
-{
-	switch(componentType)
-	{
-	case EPicturePixelComponent::Unspecified: return 0;
-	case EPicturePixelComponent::PPC_Int8: return 1;
-	case EPicturePixelComponent::PPC_UInt8: return 1;
-	case EPicturePixelComponent::PPC_Int16: return 2;
-	case EPicturePixelComponent::PPC_UInt16: return 2;
-	case EPicturePixelComponent::PPC_Int32: return 4;
-	case EPicturePixelComponent::PPC_UInt32: return 4;
-	case EPicturePixelComponent::PPC_Int64: return 8;
-	case EPicturePixelComponent::PPC_UInt64: return 8;
-	case EPicturePixelComponent::PPC_Float16: return 2;
-	case EPicturePixelComponent::PPC_Float32: return 4;
-	case EPicturePixelComponent::PPC_Float64: return 8;
-	default: PH_ASSERT_UNREACHABLE_SECTION(); return 0;
-	}
 }
 
 }// end namespace ph

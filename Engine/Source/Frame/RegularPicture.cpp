@@ -6,10 +6,35 @@
 namespace ph
 {
 
-RegularPicture::RegularPicture()
-	: m_nativeFormat(EPicturePixelFormat::Unspecified)
-	, m_colorSpace(math::EColorSpace::Unspecified)
+RegularPictureFormat::RegularPictureFormat()
+	: m_colorSpace(math::EColorSpace::sRGB)
 	, m_isReversedComponents(false)
+	, m_hasAlpha(false)
+	, m_isGrayscale(false)
+{}
+
+void RegularPictureFormat::setColorSpace(const math::EColorSpace colorSpace)
+{
+	m_colorSpace = colorSpace;
+}
+
+void RegularPictureFormat::setIsReversedComponents(const bool isReversedComponents)
+{
+	m_isReversedComponents = isReversedComponents;
+}
+
+void RegularPictureFormat::setHasAlpha(const bool hasAlpha)
+{
+	m_hasAlpha = hasAlpha;
+}
+
+void RegularPictureFormat::setIsGrayscale(const bool isGrayscale)
+{
+	m_isGrayscale = isGrayscale;
+}
+
+RegularPicture::RegularPicture()
+	: m_format()
 	, m_pictureData()
 {}
 
@@ -23,61 +48,27 @@ RegularPicture::RegularPicture(
 	m_pictureData = PictureData(sizePx, numComponents, componentType);
 }
 
-void RegularPicture::setNativeFormat(const EPicturePixelFormat format)
+void RegularPicture::setFormat(const RegularPictureFormat& format)
 {
-	m_nativeFormat = format;
-
-	// Guess the color space base on LDR/HDR (only if not specified already)
-	if(m_colorSpace == math::EColorSpace::Unspecified)
-	{
-		if(isLDR(format))
-		{
-			m_colorSpace = math::EColorSpace::sRGB;
-		}
-		else if(isHDR(format))
-		{
-			m_colorSpace = math::EColorSpace::Linear_sRGB;
-		}
-	}
-}
-
-void RegularPicture::setComponentReversed(const bool isReversed)
-{
-	m_isReversedComponents = isReversed;
-}
-
-void RegularPicture::setColorSpace(const math::EColorSpace colorSpace)
-{
-	m_colorSpace = colorSpace;
-}
-
-std::size_t RegularPicture::numComponents() const
-{
-	return numComponents(m_nativeFormat);
-}
-
-bool RegularPicture::hasAlpha() const
-{
-	return hasAlpha(m_nativeFormat);
+	m_format = format;
 }
 
 bool RegularPicture::isLDR() const
 {
-	return isLDR(m_nativeFormat);
+	return isLDR(m_pictureData.getComponentType());
 }
 
 bool RegularPicture::isHDR() const
 {
-	return isHDR(m_nativeFormat);
+	return isHDR(m_pictureData.getComponentType());
 }
 
-bool RegularPicture::isLDR(const EPicturePixelFormat format)
+bool RegularPicture::isLDR(const EPicturePixelComponent componentType)
 {
-	switch(format)
+	switch(componentType)
 	{
-	case EPicturePixelFormat::PPF_Grayscale_8:
-	case EPicturePixelFormat::PPF_RGB_8:
-	case EPicturePixelFormat::PPF_RGBA_8:
+	case EPicturePixelComponent::Int8:
+	case EPicturePixelComponent::UInt8:
 		return true;
 
 	default:
@@ -85,54 +76,19 @@ bool RegularPicture::isLDR(const EPicturePixelFormat format)
 	}
 }
 
-bool RegularPicture::isHDR(const EPicturePixelFormat format)
+bool RegularPicture::isHDR(const EPicturePixelComponent componentType)
 {
-	switch(format)
+	switch(componentType)
 	{
-	case EPicturePixelFormat::PPF_Grayscale_16F:
-	case EPicturePixelFormat::PPF_RGB_16F:
-	case EPicturePixelFormat::PPF_RGBA_16F:
-	case EPicturePixelFormat::PPF_Grayscale_32F:
-	case EPicturePixelFormat::PPF_RGB_32F:
-	case EPicturePixelFormat::PPF_RGBA_32F:
-		return true;
-
-	default:
-		return false;
-	}
-}
-
-std::size_t RegularPicture::numComponents(const EPicturePixelFormat format)
-{
-	switch(format)
-	{
-	case EPicturePixelFormat::PPF_Grayscale_8:
-	case EPicturePixelFormat::PPF_Grayscale_16F:
-	case EPicturePixelFormat::PPF_Grayscale_32F:
-		return 1;
-
-	case EPicturePixelFormat::PPF_RGB_8:
-	case EPicturePixelFormat::PPF_RGB_16F:
-	case EPicturePixelFormat::PPF_RGB_32F:
-		return 3;
-
-	case EPicturePixelFormat::PPF_RGBA_8:
-	case EPicturePixelFormat::PPF_RGBA_16F:
-	case EPicturePixelFormat::PPF_RGBA_32F:
-		return 4;
-
-	default:
-		return 0;
-	}
-}
-
-bool RegularPicture::hasAlpha(const EPicturePixelFormat format)
-{
-	switch(format)
-	{
-	case EPicturePixelFormat::PPF_RGBA_8:
-	case EPicturePixelFormat::PPF_RGBA_16F:
-	case EPicturePixelFormat::PPF_RGBA_32F:
+	case EPicturePixelComponent::Int16:
+	case EPicturePixelComponent::UInt16:
+	case EPicturePixelComponent::Int32:
+	case EPicturePixelComponent::UInt32:
+	case EPicturePixelComponent::Int64:
+	case EPicturePixelComponent::UInt64:
+	case EPicturePixelComponent::Float16:
+	case EPicturePixelComponent::Float32:
+	case EPicturePixelComponent::Float64:
 		return true;
 
 	default:

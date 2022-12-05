@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Frame/picture_basics.h"
 #include "Frame/PictureData.h"
 #include "Common/primitive_type.h"
 #include "Math/Color/color_basics.h"
@@ -10,26 +11,33 @@
 namespace ph
 {
 
-/*! @brief Pixel layout of picture.
-Represent the ordering of pixel components with respect to a color space. The characters RGB
-does not mean the pixel is in RGB color space. It simply represents pixel components,
-using R, G, B as placeholders.
-*/
-enum class EPicturePixelFormat
+class RegularPictureFormat final
 {
-	Unspecified = 0,
+public:
+	RegularPictureFormat();
 
-	PPF_Grayscale_8,
-	PPF_RGB_8,
-	PPF_RGBA_8,
+	math::EColorSpace getColorSpace() const;
+	bool isReversedComponents() const;
+	bool hasAlpha() const;
+	bool isGrayscale() const;
 
-	PPF_Grayscale_16F,
-	PPF_RGB_16F,
-	PPF_RGBA_16F,
+	void setColorSpace(math::EColorSpace colorSpace);
+	void setIsReversedComponents(bool isReversedComponents);
+	void setHasAlpha(bool hasAlpha);
+	void setIsGrayscale(bool isGrayscale);
 
-	PPF_Grayscale_32F,
-	PPF_RGB_32F,
-	PPF_RGBA_32F
+private:
+	/*! @brief Color space of the loaded picture. */
+	math::EColorSpace m_colorSpace;
+
+	/*! @brief Whether the pixel components of the frame is stored reversely, e.g, in ABGR order. */
+	bool m_isReversedComponents;
+
+	/*! @brief Whether there is an alpha channel. */
+	bool m_hasAlpha;
+
+	/*! @brief Whether the picture is in grayscale. */
+	bool m_isGrayscale;
 };
 
 class RegularPicture final
@@ -47,58 +55,53 @@ public:
 		std::size_t numComponents,
 		EPicturePixelComponent componentType);
 
+	const RegularPictureFormat& getFormat() const;
+	void setFormat(const RegularPictureFormat& format);
 	std::size_t numComponents() const;
-	bool hasAlpha() const;
+	EPicturePixelComponent getComponentType() const;
 	bool isLDR() const;
 	bool isHDR() const;
-	EPicturePixelFormat getNativeFormat() const;
-	math::EColorSpace getColorSpace() const;
-	bool isReversedComponents() const;
 	math::Vector2S getSizePx() const;
 	std::size_t getWidthPx() const;
 	std::size_t getHeightPx() const;
-
-	void setNativeFormat(EPicturePixelFormat format);
-	void setComponentReversed(bool isReversed);
-	void setColorSpace(math::EColorSpace colorSpace);
 	
 	PictureData& getPixels();
 	const PictureData& getPixels() const;
 
-	// TODO: do we need flag for different alpha order? e.g., ARGB vs RGBA. Do such format exist?
-
 private:
-	static bool isLDR(EPicturePixelFormat format);
-	static bool isHDR(EPicturePixelFormat format);
-	static std::size_t numComponents(EPicturePixelFormat format);
-	static bool hasAlpha(EPicturePixelFormat format);
+	static bool isLDR(EPicturePixelComponent componentType);
+	static bool isHDR(EPicturePixelComponent componentType);
 
-	/*! @brief Data type of the picture when stored natively (e.g., on disk). */
-	EPicturePixelFormat m_nativeFormat;
-
-	/*! @brief Color space of the loaded picture. */
-	math::EColorSpace m_colorSpace;
-
-	/*! @brief Whether the pixel components of the frame is stored reversely, e.g, in ABGR order. */
-	bool m_isReversedComponents;
+	/*! @brief Format of the picture. Typically closely related to how it is stored natively (e.g., on disk). */
+	RegularPictureFormat m_format;
 
 	/*! @brief Storage of actual pixel data. */
 	PictureData m_pictureData;
 };
 
-inline EPicturePixelFormat RegularPicture::getNativeFormat() const
-{
-	return m_nativeFormat;
-}
-
-inline math::EColorSpace RegularPicture::getColorSpace() const
+inline math::EColorSpace RegularPictureFormat::getColorSpace() const
 {
 	return m_colorSpace;
 }
 
-inline bool RegularPicture::isReversedComponents() const
+inline bool RegularPictureFormat::isReversedComponents() const
 {
 	return m_isReversedComponents;
+}
+
+inline bool RegularPictureFormat::hasAlpha() const
+{
+	return m_hasAlpha;
+}
+
+inline bool RegularPictureFormat::isGrayscale() const
+{
+	return m_isGrayscale;
+}
+
+inline const RegularPictureFormat& RegularPicture::getFormat() const
+{
+	return m_format;
 }
 
 inline math::Vector2S RegularPicture::getSizePx() const
@@ -114,6 +117,16 @@ inline std::size_t RegularPicture::getWidthPx() const
 inline std::size_t RegularPicture::getHeightPx() const
 {
 	return m_pictureData.getHeightPx();
+}
+
+inline std::size_t RegularPicture::numComponents() const
+{
+	return m_pictureData.numComponents();
+}
+
+inline EPicturePixelComponent RegularPicture::getComponentType() const
+{
+	return m_pictureData.getComponentType();
 }
 
 inline PictureData& RegularPicture::getPixels()
