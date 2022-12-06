@@ -1,14 +1,19 @@
 #include "Render/RTRDetailedTexture2DResource.h"
 #include "RenderCore/GHIThreadCaller.h"
 
+#include <Frame/PictureData.h>
+
+#include <utility>
+
 namespace ph::editor
 {
 
 RTRDetailedTexture2DResource::RTRDetailedTexture2DResource(
-	const math::Vector2UI& sizePx, 
-	const GHIInfoTextureFormat& format)
+	const GHIInfoTextureFormat& format,
+	std::unique_ptr<PictureData> textureData)
 
-	: RTRTexture2DResource(sizePx, format)
+	: RTRTexture2DResource(format, std::move(textureData))
+
 	, m_sharedNativeHandle(std::nullopt)
 {}
 

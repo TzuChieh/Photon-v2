@@ -17,8 +17,8 @@ public:
 
 public:
 	RTRDetailedTexture2DResource(
-		const math::Vector2UI& sizePx, 
-		const GHIInfoTextureFormat& format);
+		const GHIInfoTextureFormat& format,
+		std::unique_ptr<PictureData> textureData);
 
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;

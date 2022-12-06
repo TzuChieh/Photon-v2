@@ -24,9 +24,9 @@ class OpenglTexture2D : public GHITexture2D
 {
 public:
 	OpenglTexture2D(
+		const OpenglTextureFormat& format,
 		GLsizei widthPx, 
-		GLsizei heightPx, 
-		const OpenglTextureFormat& format);
+		GLsizei heightPx);
 
 	~OpenglTexture2D() override;
 

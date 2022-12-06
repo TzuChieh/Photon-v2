@@ -4,6 +4,7 @@
 #include "ThirdParty/GLFW3_fwd.h"
 #include "Render/Imgui/ImguiEditorUI.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
+#include "Render/Imgui/ImguiImageLibrary.h"
 
 #include <Math/TVector2.h>
 
@@ -32,6 +33,7 @@ public:
 private:
 	void initializeImgui(Editor& editor);
 	void initializeImguiFonts(Editor& editor);
+	void initializeImguiImages(Editor& editor);
 	void terminateImgui();
 	void setFramebufferSizePx(const math::Vector2S& sizePx);
 
@@ -41,6 +43,7 @@ private:
 	bool                   m_isRenderContentAdded;
 	ImguiEditorUI          m_editorUI;
 	ImguiFontLibrary       m_fontLibrary;
+	ImguiImageLibrary      m_imageLibrary;
 };
 
 inline std::string ImguiRenderModule::getName() const

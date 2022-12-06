@@ -12,17 +12,23 @@ namespace ph::editor
 ImguiEditorUI::ImguiEditorUI()
 	: m_editor(nullptr)
 	, m_fontLibrary(nullptr)
+	, m_imageLibrary(nullptr)
 	, m_rootDockSpaceID(0)
 	, m_shouldResetRootDockSpace(false)
 {}
 
-void ImguiEditorUI::initialize(Editor* const editor, ImguiFontLibrary* const fontLibrary)
+void ImguiEditorUI::initialize(
+	Editor* const editor, 
+	ImguiFontLibrary* const fontLibrary, 
+	ImguiImageLibrary* const imageLibrary)
 {
 	PH_ASSERT(editor);
 	PH_ASSERT(fontLibrary);
+	PH_ASSERT(imageLibrary);
 
 	m_editor = editor;
 	m_fontLibrary = fontLibrary;
+	m_imageLibrary = imageLibrary;
 }
 
 void ImguiEditorUI::build()

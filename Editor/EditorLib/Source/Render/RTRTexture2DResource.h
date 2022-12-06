@@ -7,18 +7,24 @@
 
 #include <memory>
 
+namespace ph { class PictureData; }
+
 namespace ph::editor
 {
 
 class RTRTexture2DResource : public RTRResource
 {
 public:
-	RTRTexture2DResource(const math::Vector2UI& sizePx, const GHIInfoTextureFormat& format);
+	RTRTexture2DResource(
+		const GHIInfoTextureFormat& format, 
+		std::unique_ptr<PictureData> textureData);
+
+	~RTRTexture2DResource();
 
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
 
-	const math::Vector2UI& getSizePx() const;
+	math::Vector2S getSizePx() const;
 	const GHIInfoTextureFormat& getFormat() const;
 	const std::shared_ptr<GHITexture2D>& getGHITexture() const;
 
@@ -26,11 +32,12 @@ private:
 	math::Vector2UI m_sizePx;
 	GHIInfoTextureFormat m_format;
 	std::shared_ptr<GHITexture2D> m_ghiTexture;
+	std::unique_ptr<PictureData> m_textureData;
 };
 
-inline const math::Vector2UI& RTRTexture2DResource::getSizePx() const
+inline math::Vector2S RTRTexture2DResource::getSizePx() const
 {
-	return m_sizePx;
+	return m_sizePx.safeCast<std::size_t>();
 }
 
 inline const GHIInfoTextureFormat& RTRTexture2DResource::getFormat() const

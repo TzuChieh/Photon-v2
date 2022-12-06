@@ -27,9 +27,9 @@ OpenglTextureFormat::OpenglTextureFormat(const GHIInfoTextureFormat& format)
 }
 
 OpenglTexture2D::OpenglTexture2D(
+	const OpenglTextureFormat& format,
 	const GLsizei widthPx,
-	const GLsizei heightPx,
-	const OpenglTextureFormat& format)
+	const GLsizei heightPx)
 
 	: GHITexture2D()
 
@@ -77,15 +77,15 @@ void OpenglTexture2D::upload(
 	GLenum pixelComponentType = 0;
 	switch(componentType)
 	{
-	case EGHIInfoPixelComponent::LDR_8:
+	case EGHIInfoPixelComponent::UInt8:
 		pixelComponentType = GL_UNSIGNED_BYTE;
 		break;
 
-	case EGHIInfoPixelComponent::HDR_16F:
+	case EGHIInfoPixelComponent::Float16:
 		pixelComponentType = GL_HALF_FLOAT;
 		break;
 
-	case EGHIInfoPixelComponent::HDR_32F:
+	case EGHIInfoPixelComponent::Float32:
 		pixelComponentType = GL_FLOAT;
 		break;
 

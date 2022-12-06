@@ -7,22 +7,6 @@
 namespace ph
 {
 
-/*! @brief Pixel layout of picture.
-Represent the ordering of pixel components with respect to a color space. The characters RGB
-does not mean the pixel is in RGB color space. It simply represents pixel components,
-using R, G, B as placeholders.
-*/
-enum class EPicturePixelLayout
-{
-	Unspecified = 0,
-
-	Grayscale,
-	RGB,
-	RGBA,
-	BGR,
-	ABGR
-};
-
 enum class EPicturePixelComponent
 {
 	Unspecified = 0,

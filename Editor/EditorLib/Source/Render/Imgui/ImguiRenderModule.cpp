@@ -34,6 +34,7 @@ ImguiRenderModule::ImguiRenderModule()
 	, m_isRenderContentAdded(false)
 	, m_editorUI()
 	, m_fontLibrary()
+	, m_imageLibrary()
 {}
 
 ImguiRenderModule::~ImguiRenderModule() = default;
@@ -68,7 +69,7 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 		});
 
 	initializeImgui(*info.editor);
-	m_editorUI.initialize(info.editor, &m_fontLibrary);
+	m_editorUI.initialize(info.editor, &m_fontLibrary, &m_imageLibrary);
 }
 
 void ImguiRenderModule::onDetach()
@@ -114,10 +115,11 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 {
-	PH_ASSERT(!m_renderContent);
+	m_imageLibrary.addTextures(caller);
 
 	// Create and add the IMGUI render content to render thread
 
+	PH_ASSERT(!m_renderContent);
 	auto renderContent = std::make_unique<ImguiRenderContent>();
 	m_renderContent = renderContent.get();
 
@@ -143,12 +145,13 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 {
 	PH_ASSERT(m_renderContent);
-
 	caller.add(
 		[renderContent = m_renderContent](RenderData& renderData) mutable
 		{
 			renderData.scene.removeCustomRenderContent(renderContent);
 		});
+
+	m_imageLibrary.removeTextures(caller);
 }
 
 void ImguiRenderModule::setFramebufferSizePx(const math::Vector2S& sizePx)
@@ -181,6 +184,7 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
     //io.ConfigViewportsNoTaskBarIcon = true;
    
 	initializeImguiFonts(editor);
+	initializeImguiImages(editor);
 
 	PH_LOG(DearImGui, "setting-up style...");
 
@@ -231,7 +235,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	// Loading default font
 	//io.Fonts->AddFontDefault();
 	m_fontLibrary.defaultFont = io.Fonts->AddFontFromFileTTF(
-		(fontDirectory / "Arial-Regular.ttf").toString().c_str(),
+		(fontDirectory / "Arimo[wght].ttf").toString().c_str(),
 		fontSizePx);
 	io.FontDefault = m_fontLibrary.defaultFont;
 
@@ -269,6 +273,13 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 		fontSizePx * largeFontRatio,
 		&largeIconFontConfig,
 		iconFontRanges);
+}
+
+void ImguiRenderModule::initializeImguiImages(Editor& editor)
+{
+	PH_LOG(DearImGui, "setting-up images...");
+
+	// TODO
 }
 
 void ImguiRenderModule::terminateImgui()

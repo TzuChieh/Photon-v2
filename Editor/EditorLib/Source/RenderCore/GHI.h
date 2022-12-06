@@ -60,8 +60,8 @@ public:
 	virtual void swapBuffers() = 0;
 
 	virtual std::shared_ptr<GHITexture2D> createTexture2D(
-		const math::Vector2UI& sizePx,
-		const GHIInfoTextureFormat& format) = 0;
+		const GHIInfoTextureFormat& format,
+		const math::Vector2UI& sizePx) = 0;
 
 	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer() = 0;
 
