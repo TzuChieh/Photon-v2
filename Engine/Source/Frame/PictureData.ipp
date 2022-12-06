@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <type_traits>
+#include <utility>
 
 namespace ph
 {
@@ -13,7 +14,7 @@ inline PictureData::PictureData()
 	: m_sizePx(0)
 	, m_numComponents(0)
 	, m_componentType(EPicturePixelComponent::Unspecified)
-	, m_data()
+	, m_data(nullptr)
 	, m_numBytesInData(0)
 {}
 
@@ -48,7 +49,11 @@ inline PictureData::PictureData(
 	setPixels(pixelData, pixelDataSize);
 }
 
-inline PictureData::PictureData(PictureData&& other) = default;
+inline PictureData::PictureData(PictureData&& other)
+	: PictureData()
+{
+	*this = std::move(other);
+}
 
 inline const math::Vector2S& PictureData::getSizePx() const
 {
@@ -166,7 +171,14 @@ inline bool PictureData::isEmpty() const
 	return m_data == nullptr;
 }
 
-inline PictureData& PictureData::operator = (PictureData&& rhs) = default;
+inline PictureData& PictureData::operator = (PictureData&& rhs)
+{
+	m_sizePx = rhs.m_sizePx;
+	m_numComponents = rhs.m_numComponents;
+	m_componentType = rhs.m_componentType;
+	m_data = std::move(rhs.m_data);
+	m_numBytesInData = rhs.m_numBytesInData;
+}
 
 template<typename PictureComponent, typename FrameComponent, std::size_t N>
 inline TFrame<FrameComponent, N> PictureData::pictureToFrame() const

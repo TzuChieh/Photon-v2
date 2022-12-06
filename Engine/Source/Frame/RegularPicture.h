@@ -55,6 +55,8 @@ public:
 		std::size_t numComponents,
 		EPicturePixelComponent componentType);
 
+	RegularPicture(RegularPicture&& other);
+
 	const RegularPictureFormat& getFormat() const;
 	void setFormat(const RegularPictureFormat& format);
 	std::size_t numComponents() const;
@@ -67,6 +69,8 @@ public:
 	
 	PictureData& getPixels();
 	const PictureData& getPixels() const;
+
+	RegularPicture& operator = (RegularPicture&& rhs);
 
 private:
 	static bool isLDR(EPicturePixelComponent componentType);

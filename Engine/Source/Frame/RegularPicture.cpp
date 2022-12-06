@@ -48,6 +48,8 @@ RegularPicture::RegularPicture(
 	m_pictureData = PictureData(sizePx, numComponents, componentType);
 }
 
+RegularPicture::RegularPicture(RegularPicture&& other) = default;
+
 void RegularPicture::setFormat(const RegularPictureFormat& format)
 {
 	m_format = format;
@@ -62,6 +64,8 @@ bool RegularPicture::isHDR() const
 {
 	return isHDR(m_pictureData.getComponentType());
 }
+
+RegularPicture& RegularPicture::operator = (RegularPicture&& rhs) = default;
 
 bool RegularPicture::isLDR(const EPicturePixelComponent componentType)
 {

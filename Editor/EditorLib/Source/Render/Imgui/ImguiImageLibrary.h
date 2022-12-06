@@ -1,10 +1,12 @@
 #pragma once
 
 #include "RenderCore/GHITexture2D.h"
+#include "ThirdParty/DearImGui.h"
 
 #include <memory>
 #include <array>
 #include <cstddef>
+#include <optional>
 
 namespace ph { class RegularPicture; }
 namespace ph { class Path; }
@@ -35,8 +37,9 @@ class ImguiImageLibrary final
 public:
 	~ImguiImageLibrary();
 
-	void loadImageFile(EImguiImage targetImage, const Path& filePath);
+	std::optional<ImTextureID> get(EImguiImage targetImage) const;
 
+	void loadImageFile(EImguiImage targetImage, const Path& filePath);
 	void addTextures(RenderThreadCaller& caller);
 	void removeTextures(RenderThreadCaller& caller);
 
@@ -45,13 +48,16 @@ public:
 private:
 	struct ImageEntry final
 	{
-		GHITexture2D::NativeHandle nativeHandle;
+		mutable GHITexture2D::NativeHandle nativeHandle;
 		RTRDetailedTexture2DResource* resource;
 		std::unique_ptr<RegularPicture> sourcePicture;
 
 		ImageEntry();
 		~ImageEntry();
 	};
+
+	ImageEntry& getImageEntry(EImguiImage targetImage);
+	const ImageEntry& getImageEntry(EImguiImage targetImage) const;
 
 	std::array<ImageEntry, static_cast<std::size_t>(EImguiImage::NUM)> m_imageEntries;
 };
