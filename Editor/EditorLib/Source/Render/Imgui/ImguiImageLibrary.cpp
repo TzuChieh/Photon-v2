@@ -26,21 +26,21 @@ ImguiImageLibrary::ImageEntry::~ImageEntry() = default;
 
 std::optional<ImTextureID> ImguiImageLibrary::get(const EImguiImage targetImage) const
 {
-	const ImageEntry& imageEntry = getImageEntry(targetImage);
+	const ImageEntry& entry = getImageEntry(targetImage);
 
 	// First check if the handle is already cached locally, load it if not
-	if(std::holds_alternative<std::monostate>(imageEntry.nativeHandle) && imageEntry.resource)
+	if(std::holds_alternative<std::monostate>(entry.nativeHandle) && entry.resource)
 	{
-		auto optNativeHandle = imageEntry.resource->tryGetNativeHandle();
+		auto optNativeHandle = entry.resource->tryGetNativeHandle();
 		if(optNativeHandle.has_value())
 		{
-			imageEntry.nativeHandle = *optNativeHandle;
+			entry.nativeHandle = *optNativeHandle;
 		}
 	}
 
-	if(std::holds_alternative<uint64>(imageEntry.nativeHandle))
+	if(std::holds_alternative<uint64>(entry.nativeHandle))
 	{
-		const uint64 handle = std::get<uint64>(imageEntry.nativeHandle);
+		const uint64 handle = std::get<uint64>(entry.nativeHandle);
 
 		ImTextureID id;
 		std::copy_n(
@@ -56,15 +56,15 @@ std::optional<ImTextureID> ImguiImageLibrary::get(const EImguiImage targetImage)
 
 void ImguiImageLibrary::loadImageFile(const EImguiImage targetImage, const Path& filePath)
 {
-	ImageEntry& imageEntry = getImageEntry(targetImage);
-	imageEntry.sourcePicture = std::make_unique<RegularPicture>(io_utils::load_LDR_picture(filePath));
+	ImageEntry& entry = getImageEntry(targetImage);
+	entry.sourcePicture = std::make_unique<RegularPicture>(io_utils::load_LDR_picture(filePath));
 }
 
 void ImguiImageLibrary::addTextures(RenderThreadCaller& caller)
 {
-	for(ImageEntry& imageEntry : m_imageEntries)
+	for(ImageEntry& entry : m_imageEntries)
 	{
-		if(!imageEntry.sourcePicture)
+		if(!entry.sourcePicture)
 		{
 			continue;
 		}
@@ -73,13 +73,13 @@ void ImguiImageLibrary::addTextures(RenderThreadCaller& caller)
 		textureFormat.pixelFormat = EGHIInfoPixelFormat::RGBA_8;
 
 		auto textureData = std::make_unique<PictureData>(
-			std::move(imageEntry.sourcePicture->getPixels()));
+			std::move(entry.sourcePicture->getPixels()));
 
 		auto textureResource = std::make_unique<RTRDetailedTexture2DResource>(
 			textureFormat, std::move(textureData));
 
-		imageEntry.resource = textureResource.get();
-		imageEntry.sourcePicture = nullptr;
+		entry.resource = textureResource.get();
+		entry.sourcePicture = nullptr;
 
 		caller.add(
 			[textureResource = std::move(textureResource)](RenderData& renderData) mutable
@@ -91,20 +91,20 @@ void ImguiImageLibrary::addTextures(RenderThreadCaller& caller)
 
 void ImguiImageLibrary::removeTextures(RenderThreadCaller& caller)
 {
-	for(ImageEntry& imageEntry : m_imageEntries)
+	for(ImageEntry& entry : m_imageEntries)
 	{
-		if(!imageEntry.resource)
+		if(!entry.resource)
 		{
 			continue;
 		}
 
 		caller.add(
-			[textureResource = imageEntry.resource](RenderData& renderData)
+			[textureResource = entry.resource](RenderData& renderData)
 			{
 				renderData.scene.removeResource(textureResource);
 			});
 
-		imageEntry.resource = nullptr;
+		entry.resource = nullptr;
 	}
 }
 
