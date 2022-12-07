@@ -3,6 +3,7 @@
 #include "EditorCore/Thread/Threads.h"
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
+#include "Render/Imgui/ImguiImageLibrary.h"
 
 #include <Common/assertion.h>
 
@@ -128,6 +129,10 @@ void ImguiEditorUI::build()
 	ImGui::Begin("Window B");
 	ImGui::Text("This is window B");
 	ImGui::End();
+
+
+	//ImGui::Image(*m_imageLibrary->get(EImguiImage::Image), {200, 200});
+	m_imageLibrary->imguiImage(EImguiImage::Image, {200, 200});
 
 	//show_imgui_demo_window();
 }

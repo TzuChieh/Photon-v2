@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-/*!
+/*! @brief Size reference of various common UI elements.
 Unless otherwise noted, unit is in pixel (raster coordinates). Origin is on the lower-left corner.
 */
 class DimensionHints final
@@ -24,6 +24,8 @@ public:
 	float32 mainViewportMinHeight;
 	float32 mainViewportMaxWidth;
 	float32 mainViewportMaxHeight;
+
+	float32 assetThumbnailSize;
 
 public:
 	DimensionHints();

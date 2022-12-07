@@ -9,7 +9,7 @@ namespace ph
 class Visualizer : public CoreSdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_VISUALIZER;
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::Ref_Visualizer;
 
 public:
 	inline Visualizer() = default;

@@ -98,7 +98,7 @@ inline std::size_t PictureData::numBytesInData() const
 template<typename PixelData>
 inline void PictureData::setPixels(
 	const PixelData* const pixelData,
-	const std::size_t pixelDataSize)
+	const std::size_t numPixelDataElements)
 {
 	// Note that the following assertion my not be true: 
 	//
@@ -108,7 +108,7 @@ inline void PictureData::setPixels(
 	// which contains 4 components already. It is up to the user to provide suitably-sized `pixelData`.
 	
 	// Implies that `PixelData` should not be padded
-	PH_ASSERT_EQ(m_numBytesInData, pixelDataSize * sizeof(PixelData));
+	PH_ASSERT_EQ(m_numBytesInData, numPixelDataElements * sizeof(PixelData));
 
 	// Should have been allocated; set pixels on empty picture is not allowed.
 	PH_ASSERT(m_data);
@@ -119,7 +119,7 @@ inline void PictureData::setPixels(
 
 	std::copy(
 		reinterpret_cast<const std::byte*>(pixelData),
-		reinterpret_cast<const std::byte*>(pixelData + pixelDataSize),
+		reinterpret_cast<const std::byte*>(pixelData + numPixelDataElements),
 		m_data.get());
 }
 
@@ -178,6 +178,8 @@ inline PictureData& PictureData::operator = (PictureData&& rhs)
 	m_componentType = rhs.m_componentType;
 	m_data = std::move(rhs.m_data);
 	m_numBytesInData = rhs.m_numBytesInData;
+
+	return *this;
 }
 
 template<typename PictureComponent, typename FrameComponent, std::size_t N>

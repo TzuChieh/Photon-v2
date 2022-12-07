@@ -7,7 +7,7 @@ namespace ph
 
 enum class ERoughnessToAlpha
 {
-	UNSPECIFIED = 0,
+	Unspecified = 0,
 
 	Equaled,
 	Squared,
@@ -21,7 +21,7 @@ PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ERoughnessToAlpha>)
 		"How roughness value will be mapped to alpha, a value that controls "
 		"surface normal distribution function.");
 
-	sdlEnum.addEntry(EnumType::UNSPECIFIED, "");
+	sdlEnum.addEntry(EnumType::Unspecified, "");
 
 	sdlEnum.addEntry(EnumType::Equaled, "equaled",
 		"Directly assign roughness value as-is to alpha.");

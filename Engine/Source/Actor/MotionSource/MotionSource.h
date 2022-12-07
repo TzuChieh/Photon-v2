@@ -12,7 +12,7 @@ namespace ph
 
 class Time;
 
-class MotionSource : public TSdlResourceBase<ETypeCategory::REF_MOTION>
+class MotionSource : public TSdlResourceBase<ETypeCategory::Ref_Motion>
 {
 public:
 	MotionSource() = default;

@@ -10,7 +10,7 @@ namespace ph { class ActorCookingContext; }
 namespace ph
 {
 
-class Actor : public TSdlResourceBase<ETypeCategory::REF_ACTOR>
+class Actor : public TSdlResourceBase<ETypeCategory::Ref_Actor>
 {
 public:
 	Actor();

@@ -30,8 +30,8 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 	int heightPx;
 	int numComponents;
 
-	// Default loading's origin is on the upper-left corner, this call made stb made the 
-	// origin on the lower-left corner to meet with Photon's expectation
+	// Default loading's origin is on the upper-left corner, this call made the 
+	// origin on the lower-left corner to meet Photon's expectation
 	stbi_set_flip_vertically_on_load(true);
 
 	// The last parameter is "0" since we want the actual components the image has;
@@ -47,7 +47,7 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 	}
 
 	auto sizePx = math::Vector2S(widthPx, heightPx);
-	auto numBytesInStbImageData = sizePx.product() * numComponents * sizeof(stbi_uc);
+	auto numUCharsInStbImageData = sizePx.product() * numComponents;
 
 	RegularPictureFormat format;
 
@@ -79,7 +79,7 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 		EPicturePixelComponent::UInt8);
 
 	picture.setFormat(format);
-	picture.getPixels().setPixels(stbImageData, numBytesInStbImageData);
+	picture.getPixels().setPixels(stbImageData, numUCharsInStbImageData);
 
 	//for(std::size_t y = 0; y < sizePx.y(); y++)
 	//{
@@ -113,7 +113,7 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	int numComponents;
 
 	// Stb's default origin is on the upper-left corner, this call made the 
-	// origin on the lower-left corner to meet with Photon's expectation
+	// origin on the lower-left corner to meet Photon's expectation
 	stbi_set_flip_vertically_on_load(true);
 
 	// The last parameter is "0" since we want the actual components the image has
@@ -129,7 +129,7 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	}
 
 	auto sizePx = math::Vector2S(widthPx, heightPx);
-	auto numBytesInStbImageData = sizePx.product() * numComponents * sizeof(float);
+	auto numFloatsInStbImageData = sizePx.product() * numComponents;
 
 	RegularPictureFormat format;
 
@@ -161,7 +161,7 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 		EPicturePixelComponent::Float32);
 
 	picture.setFormat(format);
-	picture.getPixels().setPixels(stbImageData, numBytesInStbImageData);
+	picture.getPixels().setPixels(stbImageData, numFloatsInStbImageData);
 
 	//for(uint32 y = 0; y < picture.frame.heightPx(); y++)
 	//{

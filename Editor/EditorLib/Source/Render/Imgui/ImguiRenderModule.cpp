@@ -279,7 +279,12 @@ void ImguiRenderModule::initializeImguiImages(Editor& editor)
 {
 	PH_LOG(DearImGui, "setting-up images...");
 
-	// TODO
+	const Path imageDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Image";
+
+	m_imageLibrary.loadImageFile(EImguiImage::Warning, imageDirectory / "hazard-sign.png");
+	m_imageLibrary.loadImageFile(EImguiImage::Folder, imageDirectory / "open-folder.png");
+	m_imageLibrary.loadImageFile(EImguiImage::File, imageDirectory / "database.png");
+	m_imageLibrary.loadImageFile(EImguiImage::Image, imageDirectory / "mona-lisa.png");
 }
 
 void ImguiRenderModule::terminateImgui()

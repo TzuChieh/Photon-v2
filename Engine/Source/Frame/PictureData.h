@@ -55,7 +55,7 @@ public:
 	template<typename PixelData>
 	void setPixels(
 		const PixelData* pixelData,
-		std::size_t pixelDataSize);
+		std::size_t numPixelDataElements);
 
 	// TODO: option for allow/disallow lossy conversion?
 	template<typename FrameComponent, std::size_t N>

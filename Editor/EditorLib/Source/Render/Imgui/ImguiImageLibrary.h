@@ -3,10 +3,14 @@
 #include "RenderCore/GHITexture2D.h"
 #include "ThirdParty/DearImGui.h"
 
+#include <Math/TVector2.h>
+#include <Math/TVector4.h>
+
 #include <memory>
 #include <array>
 #include <cstddef>
 #include <optional>
+#include <string_view>
 
 namespace ph { class RegularPicture; }
 namespace ph { class Path; }
@@ -37,7 +41,20 @@ class ImguiImageLibrary final
 public:
 	~ImguiImageLibrary();
 
+	void imguiImage(
+		EImguiImage targetImage,
+		const math::Vector2F& sizePx,
+		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1),
+		const math::Vector4F& borderColorRGBA = math::Vector4F(0, 0, 0, 0)) const;
+
 	std::optional<ImTextureID> get(EImguiImage targetImage) const;
+
+	/*void imguiDrawImageButton(
+		std::string_view 
+		EImguiImage targetImage,
+		const math::Vector2F& sizePx,
+		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1),
+		const math::Vector4F& borderColorRGBA = math::Vector4F(0, 0, 0, 0));*/
 
 	void loadImageFile(EImguiImage targetImage, const Path& filePath);
 	void addTextures(RenderThreadCaller& caller);

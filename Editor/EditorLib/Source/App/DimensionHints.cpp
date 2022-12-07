@@ -17,11 +17,13 @@ DimensionHints::DimensionHints()
 	, mainViewportMinHeight(300.0f)
 	, mainViewportMaxWidth(3840.0f)
 	, mainViewportMaxHeight(2160.0f)
+
+	, assetThumbnailSize(128.0f)
 {}
 
 void DimensionHints::applyDpiScale(const float32 dpiScale)
 {
-	// Not all dimensions should respond to DPI scale, e.g., images and 3D contents.
+	// Not all dimensions should respond to DPI scale, e.g., 3D contents.
 
 	fontSize *= dpiScale;
 	largeFontSize *= dpiScale;
@@ -29,6 +31,8 @@ void DimensionHints::applyDpiScale(const float32 dpiScale)
 	propertyPanelPreferredWidth *= dpiScale;
 	propertyPanelMinWidth *= dpiScale;
 	propertyPanelMaxWidth *= dpiScale;
+
+	assetThumbnailSize *= dpiScale;
 }
 
 }// end namespace ph::editor

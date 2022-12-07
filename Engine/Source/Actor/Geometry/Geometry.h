@@ -17,7 +17,7 @@ class PrimitiveBuildingMaterial;
 
 // TODO: use highest precision to perform geometry related operations
 
-class Geometry : public TSdlResourceBase<ETypeCategory::REF_GEOMETRY>
+class Geometry : public TSdlResourceBase<ETypeCategory::Ref_Geometry>
 {
 public:
 	Geometry();

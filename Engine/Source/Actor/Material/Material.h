@@ -11,7 +11,7 @@ namespace ph
 
 class PrimitiveMetadata;
 
-class Material : public TSdlResourceBase<ETypeCategory::REF_MATERIAL>
+class Material : public TSdlResourceBase<ETypeCategory::Ref_Material>
 {
 public:
 	inline Material() = default;

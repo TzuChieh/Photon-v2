@@ -22,7 +22,7 @@ namespace
 class TestResource : public ISdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_GEOMETRY;
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::Ref_Geometry;
 
 	real r;
 	std::string str;

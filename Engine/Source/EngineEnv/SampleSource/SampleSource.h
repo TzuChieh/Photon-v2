@@ -9,7 +9,7 @@ namespace ph
 class SampleSource : public CoreSdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_SAMPLE_SOURCE;
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::Ref_SampleSource;
 
 public:
 	inline SampleSource() = default;

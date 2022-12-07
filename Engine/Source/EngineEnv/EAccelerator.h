@@ -7,10 +7,10 @@ enum class EAccelerator
 {
 	Unspecified = 0,
 
-	BRUTE_FORCE,
+	BruteForce,
 	BVH,
-	KDTREE,
-	INDEXED_KDTREE
+	Kdtree,
+	IndexedKdtree
 };
 
 }// end namespace ph

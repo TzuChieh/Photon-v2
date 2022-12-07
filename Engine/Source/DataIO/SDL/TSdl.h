@@ -22,7 +22,7 @@ class TSdl final
 public:
 	/*! @brief Statically gets the category of @p T.
 	@tparam T Type that category information is going to be extracted from.
-	@return Category of @p T. The result is `ETypeCategory::UNSPECIFIED` if category
+	@return Category of @p T. The result is `ETypeCategory::Unspecified` if category
 	information does not exist.
 	*/
 	static constexpr ETypeCategory getCategory();

@@ -16,7 +16,7 @@ namespace ph { class ActorCookingContext; }
 namespace ph
 {
 
-class Image : public TSdlResourceBase<ETypeCategory::REF_IMAGE>
+class Image : public TSdlResourceBase<ETypeCategory::Ref_Image>
 {
 public:
 	using Array = math::TArithmeticArray<float64, PH_NUMERIC_IMAGE_MAX_ELEMENTS>;

@@ -177,7 +177,7 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 	std::string name;
 	switch(acceleratorType)
 	{
-	case EAccelerator::BRUTE_FORCE:
+	case EAccelerator::BruteForce:
 		m_intersector = std::make_unique<BruteForceIntersector>();
 		name = "Brute-Force";
 		break;
@@ -187,13 +187,13 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 		name = "BVH";
 		break;
 
-	case EAccelerator::KDTREE:
+	case EAccelerator::Kdtree:
 		m_intersector = std::make_unique<KdtreeIntersector>();
 		name = "kD-Tree";
 		break;
 
 	// FIXME: need to ensure sufficient max value
-	case EAccelerator::INDEXED_KDTREE:
+	case EAccelerator::IndexedKdtree:
 		m_intersector = std::make_unique<TIndexedKdtreeIntersector<int>>();
 		name = "Indexed kD-Tree";
 		break;

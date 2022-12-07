@@ -11,7 +11,7 @@ namespace ph
 class Observer : public CoreSdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::REF_OBSERVER;
+	static constexpr ETypeCategory CATEGORY = ETypeCategory::Ref_Observer;
 
 public:
 	inline Observer() = default;

@@ -3,6 +3,8 @@
 #include "Render/RenderThreadCaller.h"
 #include "Render/RTRDetailedTexture2DResource.h"
 #include "Render/RenderData.h"
+#include "Render/Imgui/ImguiFontLibrary.h"
+#include "Render/Imgui/Font/IconsMaterialDesign.h"
 
 #include <Frame/RegularPicture.h>
 #include <DataIO/FileSystem/Path.h>
@@ -24,11 +26,34 @@ ImguiImageLibrary::ImageEntry::ImageEntry()
 
 ImguiImageLibrary::ImageEntry::~ImageEntry() = default;
 
+void ImguiImageLibrary::imguiImage(
+	const EImguiImage targetImage,
+	const math::Vector2F& sizePx,
+	const math::Vector4F& tintColorRGBA,
+	const math::Vector4F& borderColorRGBA) const
+{
+	const auto optImTextureID = get(targetImage);
+	if(!optImTextureID.has_value())
+	{
+		// Draw a top-filled hourglass to indicate the image is unavailable for now
+		ImGui::Text(ICON_MD_HOURGLASS_TOP);
+		return;
+	}
+
+	ImGui::Image(
+		*optImTextureID,
+		ImVec2(sizePx.x(), sizePx.y()),
+		ImVec2(0, 1),// `uv0` is at upper-left corner
+		ImVec2(1, 0),// `uv1` is at lower-right corner
+		ImVec4(tintColorRGBA.r(), tintColorRGBA.g(), tintColorRGBA.b(), tintColorRGBA.a()),
+		ImVec4(borderColorRGBA.r(), borderColorRGBA.g(), borderColorRGBA.b(), borderColorRGBA.a()));
+}
+
 std::optional<ImTextureID> ImguiImageLibrary::get(const EImguiImage targetImage) const
 {
 	const ImageEntry& entry = getImageEntry(targetImage);
 
-	// First check if the handle is already cached locally, load it if not
+	// Load the handle if it is not already cached locally
 	if(std::holds_alternative<std::monostate>(entry.nativeHandle) && entry.resource)
 	{
 		auto optNativeHandle = entry.resource->tryGetNativeHandle();
@@ -42,6 +67,10 @@ std::optional<ImTextureID> ImguiImageLibrary::get(const EImguiImage targetImage)
 	{
 		const uint64 handle = std::get<uint64>(entry.nativeHandle);
 
+		static_assert(sizeof(ImTextureID) == sizeof(uint64));
+
+		// Though `ImTextureID` is a pointer type, it expect a non-pointer value to be stored
+		// directly in the pointer variable rather than pointed-to
 		ImTextureID id;
 		std::copy_n(
 			reinterpret_cast<const std::byte*>(&handle), sizeof(uint64),
