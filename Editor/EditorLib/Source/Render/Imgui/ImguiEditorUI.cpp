@@ -6,6 +6,7 @@
 #include "Render/Imgui/ImguiImageLibrary.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 namespace ph::editor
 {
@@ -132,7 +133,14 @@ void ImguiEditorUI::build()
 
 
 	//ImGui::Image(*m_imageLibrary->get(EImguiImage::Image), {200, 200});
-	m_imageLibrary->imguiImage(EImguiImage::Image, {200, 200});
+	//m_imageLibrary->imguiImage(EImguiImage::Image, {200, 200});
+	static int yyy = 0;
+	if(m_imageLibrary->imguiImageButton(EImguiImage::Warning, "", {128, 128}))
+	{
+		ImGui::Text("asdasdasdasdsadsadas");
+
+		PH_DEFAULT_LOG("pressed {}", ++yyy);
+	}
 
 	//show_imgui_demo_window();
 }

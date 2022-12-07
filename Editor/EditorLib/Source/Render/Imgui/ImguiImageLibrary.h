@@ -47,6 +47,13 @@ public:
 		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1),
 		const math::Vector4F& borderColorRGBA = math::Vector4F(0, 0, 0, 0)) const;
 
+	bool imguiImageButton(
+		EImguiImage targetImage, 
+		const char* strId,
+		const math::Vector2F& sizePx, 
+		const math::Vector4F& backgroundColorRGBA = math::Vector4F(0, 0, 0, 0),
+		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1));
+
 	std::optional<ImTextureID> get(EImguiImage targetImage) const;
 
 	/*void imguiDrawImageButton(

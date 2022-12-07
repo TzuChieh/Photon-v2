@@ -167,6 +167,9 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
     GLFWwindow* const backupCurrentCtx = glfwGetCurrentContext();
     glfwMakeContextCurrent(m_glfwWindow);
 
+	// DEBUG
+	//glfwSwapInterval(1); // Enable vsync
+
     PH_LOG(DearImGui, "setting-up context...");
 
     IMGUI_CHECKVERSION();

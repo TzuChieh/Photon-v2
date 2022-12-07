@@ -49,6 +49,30 @@ void ImguiImageLibrary::imguiImage(
 		ImVec4(borderColorRGBA.r(), borderColorRGBA.g(), borderColorRGBA.b(), borderColorRGBA.a()));
 }
 
+bool ImguiImageLibrary::imguiImageButton(
+	const EImguiImage targetImage,
+	const char* const strId,
+	const math::Vector2F& sizePx,
+	const math::Vector4F& backgroundColorRGBA,
+	const math::Vector4F& tintColorRGBA)
+{
+	const auto optImTextureID = get(targetImage);
+	if(!optImTextureID.has_value())
+	{
+		// Add a top-filled hourglass button to indicate the image is unavailable for now
+		return ImGui::Button(ICON_MD_HOURGLASS_TOP);
+	}
+
+	return ImGui::ImageButton(
+		strId,
+		*optImTextureID,
+		ImVec2(sizePx.x(), sizePx.y()),
+		ImVec2(0, 1),// `uv0` is at upper-left corner
+		ImVec2(1, 0),// `uv1` is at lower-right corner
+		ImVec4(backgroundColorRGBA.r(), backgroundColorRGBA.g(), backgroundColorRGBA.b(), backgroundColorRGBA.a()),
+		ImVec4(tintColorRGBA.r(), tintColorRGBA.g(), tintColorRGBA.b(), tintColorRGBA.a()));
+}
+
 std::optional<ImTextureID> ImguiImageLibrary::get(const EImguiImage targetImage) const
 {
 	const ImageEntry& entry = getImageEntry(targetImage);
