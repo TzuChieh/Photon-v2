@@ -35,6 +35,8 @@ public:
 	void createGHICommandsForCustomRenderContents(GHIThreadCaller& caller);
 	void removeCustomRenderContent(CustomRenderContent* content);
 
+	void reportResourceStates();
+
 	RTRScene& operator = (RTRScene&& rhs);
 
 private:
@@ -42,7 +44,7 @@ private:
 	std::vector<RTRResource*> m_resourcesPendingSetup;
 	std::vector<RTRResource*> m_resourcesPendingCleanup;
 	std::vector<RTRResource*> m_resourcesPendingDestroy;
-	TUniquePtrVector<CustomRenderContent> m_customRenderContents;
+	std::vector<CustomRenderContent*> m_customRenderContents;
 };
 
 }// end namespace ph::editor

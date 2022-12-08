@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/RTRResource.h"
+
 namespace ph::editor
 {
 
@@ -12,14 +14,17 @@ enum class ERenderTiming
 	AfterMainScene
 };
 
-class CustomRenderContent
+class CustomRenderContent : public RTRResource
 {
 public:
 	explicit CustomRenderContent(ERenderTiming renderTiming);
-	virtual ~CustomRenderContent();
+	~CustomRenderContent() override;
 
 	virtual void update(const RenderThreadUpdateContext& ctx) = 0;
 	virtual void createGHICommands(GHIThreadCaller& caller) = 0;
+
+	void setupGHI(GHIThreadCaller& caller) override = 0;
+	void cleanupGHI(GHIThreadCaller& caller) override = 0;
 
 	ERenderTiming getRenderTiming() const;
 

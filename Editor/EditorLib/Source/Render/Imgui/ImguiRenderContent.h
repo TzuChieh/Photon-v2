@@ -44,6 +44,8 @@ public:
 
 	void update(const RenderThreadUpdateContext& ctx) override;
 	void createGHICommands(GHIThreadCaller& caller) override;
+	void setupGHI(GHIThreadCaller& caller) override;
+	void cleanupGHI(GHIThreadCaller& caller) override;
 
 	/*
 	Can only be called during render update and command generation (on main thread).

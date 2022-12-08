@@ -62,6 +62,12 @@ void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 	}
 }
 
+void ImguiRenderContent::setupGHI(GHIThreadCaller& caller)
+{}
+
+void ImguiRenderContent::cleanupGHI(GHIThreadCaller& caller)
+{}
+
 auto ImguiRenderContent::getSharedRenderData() 
 	-> SharedRenderData&
 {
