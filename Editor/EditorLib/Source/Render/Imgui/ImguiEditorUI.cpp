@@ -4,12 +4,17 @@
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "Render/Imgui/ImguiImageLibrary.h"
+#include "Render/Imgui/Font/IconsMaterialDesign.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
 namespace ph::editor
 {
+
+const char* const ImguiEditorUI::rootPropertiesWindowName = ICON_MD_TUNE " Properties";
+const char* const ImguiEditorUI::mainViewportWindowName = ICON_MD_CAMERA " Viewport";
+const char* const ImguiEditorUI::assetBrowserWindowName = ICON_MD_FOLDER_OPEN " Asset Browser";
 
 ImguiEditorUI::ImguiEditorUI()
 	: m_editor(nullptr)
@@ -85,11 +90,21 @@ void ImguiEditorUI::build()
 		const float leftNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			viewport->WorkSize.x;
-		PH_DEFAULT_LOG("{}, {}", m_editor->dimensionHints.propertyPanelPreferredWidth, viewport->WorkSize.x);
+		//PH_DEFAULT_LOG("{}, {}", m_editor->dimensionHints.propertyPanelPreferredWidth, viewport->WorkSize.x);
+		ImGuiID childRightDockSpaceID = 0;
 		const ImGuiID rootLeftDockSpaceID = ImGui::DockBuilderSplitNode(
-			m_rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, nullptr);
+			m_rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, &childRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(rootPropertiesWindowName, rootLeftDockSpaceID);
 
-		ImGui::DockBuilderDockWindow("Window A", rootLeftDockSpaceID);
+		const float bottomNodeSplitRatio =
+			m_editor->dimensionHints.propertyPanelPreferredWidth /
+			viewport->WorkSize.y;
+		const ImGuiID rootBottomDockSpaceID = ImGui::DockBuilderSplitNode(
+			m_rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, nullptr);
+		ImGui::DockBuilderDockWindow(assetBrowserWindowName, rootBottomDockSpaceID);
+
+		ImGui::DockBuilderDockWindow(mainViewportWindowName, childRightDockSpaceID);
+
 		ImGui::DockBuilderFinish(m_rootDockSpaceID);
 	}
 
@@ -121,7 +136,17 @@ void ImguiEditorUI::build()
 	//	//hasInit = true;
 	//}
 
-	ImGui::Begin("Window A");
+	ImGui::Begin(rootPropertiesWindowName);
+	ImGui::Text("This is window A");
+	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	ImGui::End();
+
+	ImGui::Begin(assetBrowserWindowName);
+	ImGui::Text("This is window A");
+	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	ImGui::End();
+
+	ImGui::Begin(mainViewportWindowName);
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	ImGui::End();
@@ -217,7 +242,7 @@ void ImguiEditorUI::buildStatsMonitor()
 			windowWidth,
 			windowHeight});
 
-		ImGui::Begin("Stats");
+		ImGui::Begin(ICON_MD_INSIGHTS " Stats");
 
 		ImGui::Text("Main Thread:");
 		ImGui::Text("Update: %f ms", m_editor->editorStats.mainThreadUpdateMs);

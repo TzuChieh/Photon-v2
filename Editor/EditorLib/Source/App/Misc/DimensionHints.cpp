@@ -7,7 +7,7 @@ DimensionHints::DimensionHints()
 	: fontSize(15.0f)
 	, largeFontSize(40.0f)
 
-	, propertyPanelPreferredWidth(fontSize * 15.0f)
+	, propertyPanelPreferredWidth(fontSize * 20.0f)
 	, propertyPanelMinWidth(propertyPanelPreferredWidth * 0.333f)
 	, propertyPanelMaxWidth(propertyPanelPreferredWidth * 3.0f)
 

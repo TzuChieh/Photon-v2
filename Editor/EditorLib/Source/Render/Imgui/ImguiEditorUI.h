@@ -27,6 +27,10 @@ private:
 	ImGuiID m_rootDockSpaceID;
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
+
+	static const char* const rootPropertiesWindowName;
+	static const char* const mainViewportWindowName;
+	static const char* const assetBrowserWindowName;
 };
 
 }// end namespace ph::editor
