@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 
 #include <chrono>
+#include <ratio>
 
 namespace ph
 {
@@ -13,6 +14,7 @@ class Timer final
 {
 public:
 	using Clock = std::chrono::steady_clock;
+	using DefaultTimeUnit = Clock::duration;
 
 public:
 	Timer();
@@ -34,48 +36,66 @@ public:
 	If this is the first markLap() call, start() and accumulatedStart() are treated as
 	implicit lap marker.
 	*/
-	Clock::duration markLap();
+	DefaultTimeUnit markLap();
 
 	/*! @brief Get the time elapsed from last call to markLap().
 	Get the result of markLap() as if it was called, without actually making a lap mark--
 	the state of the timer is not affected in anyway by this call.
 	*/
-	Clock::duration peekLap() const;
+	DefaultTimeUnit peekLap() const;
 
 	/*! @brief Get the time elapsed between start() and stop(). Possibly accumulated.
 	Result may be accumulated if accumulatedStart() was used instead of start().
 	*/
-	Clock::duration getDelta() const;
+	DefaultTimeUnit getDelta() const;
 
-	/*! @brief Variants that return time in plain number with different units.
+	/*! @brief Variants that return time in plain number with different units and types.
+	As casting a numeric value across different types, these methods may induce precision loss 
+	depending on @p NumberType. Stick to base methods (the ones without time unit suffix) if 
+	numeric precision is important.
 	*/
 	///@{
-	uint64 markLapS();
-	uint64 markLapMs();
-	uint64 markLapUs();
-	uint64 markLapNs();
-	uint64 getDeltaS() const;
-	uint64 getDeltaMs() const;
-	uint64 getDeltaUs() const;
-	uint64 getDeltaNs() const;
+	template<typename NumberType = uint64>
+	NumberType markLapS();
+
+	template<typename NumberType = uint64>
+	NumberType markLapMs();
+
+	template<typename NumberType = uint64>
+	NumberType markLapUs();
+
+	template<typename NumberType = uint64>
+	NumberType markLapNs();
+
+	template<typename NumberType = uint64>
+	NumberType getDeltaS() const;
+
+	template<typename NumberType = uint64>
+	NumberType getDeltaMs() const;
+
+	template<typename NumberType = uint64>
+	NumberType getDeltaUs() const;
+
+	template<typename NumberType = uint64>
+	NumberType getDeltaNs() const;
 	///@}
 
 private:
-	Clock::time_point m_timeMark;
-	Clock::duration   m_totalDuration;
+	template<typename TimeRepresentation, typename TimePeriod>
+	static TimeRepresentation castToNumber(DefaultTimeUnit duration);
 
-	template<typename NumberUnit>
-	static uint64 toNumber(Clock::duration duration);
+	Clock::time_point m_timeMark;
+	DefaultTimeUnit   m_totalDuration;
 };
 
 inline Timer::Timer() :
-	m_timeMark(), m_totalDuration(Clock::duration::zero())
+	m_timeMark(), m_totalDuration(DefaultTimeUnit::zero())
 {}
 
 inline void Timer::start()
 {
 	m_timeMark = Clock::now();
-	m_totalDuration = Clock::duration::zero();
+	m_totalDuration = DefaultTimeUnit::zero();
 }
 
 inline void Timer::accumulatedStart()
@@ -88,7 +108,7 @@ inline void Timer::stop()
 	m_totalDuration += Clock::now() - m_timeMark;
 }
 
-inline Timer::Clock::duration Timer::markLap()
+inline Timer::DefaultTimeUnit Timer::markLap()
 {
 	const auto currentTime = Clock::now();
 	const auto lapDuration = currentTime - m_timeMark;
@@ -99,7 +119,7 @@ inline Timer::Clock::duration Timer::markLap()
 	return lapDuration;
 }
 
-inline Timer::Clock::duration Timer::peekLap() const
+inline Timer::DefaultTimeUnit Timer::peekLap() const
 {
 	const auto currentTime = Clock::now();
 	const auto lapDuration = currentTime - m_timeMark;
@@ -107,56 +127,67 @@ inline Timer::Clock::duration Timer::peekLap() const
 	return lapDuration;
 }
 
-inline Timer::Clock::duration Timer::getDelta() const
+inline Timer::DefaultTimeUnit Timer::getDelta() const
 {
 	return m_totalDuration;
 }
 
-inline uint64 Timer::markLapS()
+template<typename NumberType>
+inline NumberType Timer::markLapS()
 {
-	return toNumber<std::chrono::seconds>(markLap());
+	return castToNumber<NumberType, std::ratio<1>>(markLap());
 }
 
-inline uint64 Timer::markLapMs()
+template<typename NumberType>
+inline NumberType Timer::markLapMs()
 {
-	return toNumber<std::chrono::milliseconds>(markLap());
+	return castToNumber<NumberType, std::milli>(markLap());
 }
 
-inline uint64 Timer::markLapUs()
+template<typename NumberType>
+inline NumberType Timer::markLapUs()
 {
-	return toNumber<std::chrono::microseconds>(markLap());
+	return castToNumber<NumberType, std::micro>(markLap());
 }
 
-inline uint64 Timer::markLapNs()
+template<typename NumberType>
+inline NumberType Timer::markLapNs()
 {
-	return toNumber<std::chrono::nanoseconds>(markLap());
+	return castToNumber<NumberType, std::nano>(markLap());
 }
 
-inline uint64 Timer::getDeltaS() const
+template<typename NumberType>
+inline NumberType Timer::getDeltaS() const
 {
-	return toNumber<std::chrono::seconds>(getDelta());
+	return castToNumber<NumberType, std::ratio<1>>(getDelta());
 }
 
-inline uint64 Timer::getDeltaMs() const
+template<typename NumberType>
+inline NumberType Timer::getDeltaMs() const
 {
-	return toNumber<std::chrono::milliseconds>(getDelta());
+	return castToNumber<NumberType, std::milli>(getDelta());
 }
 
-inline uint64 Timer::getDeltaUs() const
+template<typename NumberType>
+inline NumberType Timer::getDeltaUs() const
 {
-	return toNumber<std::chrono::microseconds>(getDelta());
+	return castToNumber<NumberType, std::micro>(getDelta());
 }
 
-inline uint64 Timer::getDeltaNs() const
+template<typename NumberType>
+inline NumberType Timer::getDeltaNs() const
 {
-	return toNumber<std::chrono::nanoseconds>(getDelta());
+	return castToNumber<NumberType, std::nano>(getDelta());
 }
 
-template<typename NumberUnit>
-inline uint64 Timer::toNumber(const Clock::duration duration)
+template<typename TimeRepresentation, typename TimePeriod>
+inline TimeRepresentation Timer::castToNumber(const DefaultTimeUnit duration)
 {
-	return static_cast<uint64>(
-		std::chrono::duration_cast<NumberUnit>(duration).count());
+	using DstDuration = std::chrono::duration<TimeRepresentation, TimePeriod>;
+
+	// We do not simply do `return DstDuration(duration);` since the implicit conversion will not
+	// allow any precision loss. Here we want behavior similar to `static_cast`.
+	return std::chrono::duration_cast<DstDuration>(duration).count();
 }
 
 }// end namespace ph

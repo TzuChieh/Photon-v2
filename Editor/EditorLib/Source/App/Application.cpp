@@ -151,11 +151,8 @@ void Application::appMainLoop()
 
 	using TimeUnit = std::chrono::nanoseconds;
 
-	constexpr auto numNsTicksFor1S = std::chrono::duration_cast<TimeUnit>(std::chrono::seconds(1));
-
 	PH_ASSERT_NE(m_settings.maxFPS, 0);
-	const auto frameTime  = numNsTicksFor1S / m_settings.maxFPS;
-	const auto frameTimeS = static_cast<float64>(frameTime.count()) / static_cast<float64>(numNsTicksFor1S.count());
+	const auto frameTime = TimeUnit(std::chrono::seconds(1)) / m_settings.maxFPS;
 
 	auto unprocessedTime = TimeUnit::zero();
 
@@ -164,15 +161,18 @@ void Application::appMainLoop()
 
 	while(!m_shouldBreakMainLoop)
 	{
-		const auto passedTime = std::chrono::duration_cast<TimeUnit>(loopTimer.markLap());
+		const auto passedTime = TimeUnit(loopTimer.markLap());
 
 		bool shouldRender = false;
 		unprocessedTime += passedTime;
 
+		Timer updateTimer;
+		updateTimer.start();
+
 		// Update
 		while(unprocessedTime > frameTime)
 		{
-			updateCtx.deltaS = frameTimeS;
+			updateCtx.deltaS = std::chrono::duration<float64>(frameTime).count();
 
 			appUpdate(updateCtx);
 
@@ -180,6 +180,9 @@ void Application::appMainLoop()
 			unprocessedTime -= frameTime;
 			shouldRender = true;
 		}// If there's still bunch of unprocessed time, update the editor again
+
+		updateTimer.stop();
+		//m_editor.editorStats.mainThreadUpdateMs = updateTimer
 
 		// Render update
 		if(shouldRender)
@@ -199,7 +202,7 @@ void Application::appMainLoop()
 
 		// Wait for next update
 		{
-			const auto currentLapTime = std::chrono::duration_cast<TimeUnit>(loopTimer.peekLap());
+			const auto currentLapTime = TimeUnit(loopTimer.peekLap());
 			const auto currentUnprocessedTime = unprocessedTime + currentLapTime;
 
 			// Already behind more than a frame, just yield

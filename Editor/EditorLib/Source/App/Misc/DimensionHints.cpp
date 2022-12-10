@@ -1,4 +1,4 @@
-#include "App/DimensionHints.h"
+#include "App/Misc/DimensionHints.h"
 
 namespace ph::editor
 {

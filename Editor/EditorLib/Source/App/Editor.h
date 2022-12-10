@@ -8,7 +8,8 @@
 #include "EditorCore/Event/AppModuleActionEvent.h"
 #include "App/EditorEventQueue.h"
 #include "App/HelpMenu/HelpMenu.h"
-#include "App/DimensionHints.h"
+#include "App/Misc/DimensionHints.h"
+#include "App/Misc/EditorStats.h"
 #include "EditorCore/FileSystemExplorer.h"
 
 #include <Utility/TFunction.h>
@@ -23,6 +24,7 @@ class Editor final
 public:
 	HelpMenu helpMenu;
 	DimensionHints dimensionHints;
+	EditorStats editorStats;
 	FileSystemExplorer fileExplorer;
 
 public:
