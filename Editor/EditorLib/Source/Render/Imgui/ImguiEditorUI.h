@@ -19,12 +19,14 @@ public:
 
 private:
 	void buildMainMenuBar();
+	void buildStatsMonitor();
 
 	Editor* m_editor;
 	ImguiFontLibrary* m_fontLibrary;
 	ImguiImageLibrary* m_imageLibrary;
 	ImGuiID m_rootDockSpaceID;
-	bool m_shouldResetRootDockSpace;
+	bool m_shouldResetWindowLayout;
+	bool m_shouldShowStatsMonitor;
 };
 
 }// end namespace ph::editor

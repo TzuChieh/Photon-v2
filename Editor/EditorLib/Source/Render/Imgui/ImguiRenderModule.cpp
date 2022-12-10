@@ -233,6 +233,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 
 	const Path fontDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Font";
 	const float fontSizePx = editor.dimensionHints.fontSize;
+	const float iconFontSizePx = fontSizePx * 1.2f;
 	const float largeFontRatio = editor.dimensionHints.largeFontSize / editor.dimensionHints.fontSize;
 
 	// Loading default font
@@ -246,16 +247,16 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	ImFontConfig iconFontConfig;
 	iconFontConfig.MergeMode = true;
 	iconFontConfig.PixelSnapH = true;
-	iconFontConfig.GlyphMinAdvanceX = fontSizePx;
+	iconFontConfig.GlyphMinAdvanceX = iconFontSizePx;
 	iconFontConfig.GlyphOffset.x = 0.0f;
-	iconFontConfig.GlyphOffset.y = 2.2f * (fontSizePx / 15.0f);
+	iconFontConfig.GlyphOffset.y = iconFontSizePx * 0.2f;
 	static const ImWchar iconFontRanges[] = {
 		static_cast<ImWchar>(ICON_MIN_MD), 
 		static_cast<ImWchar>(ICON_MAX_MD), 
 		static_cast<ImWchar>(0)};
 	io.Fonts->AddFontFromFileTTF(
 		(fontDirectory / FONT_ICON_FILE_NAME_MD).toString().c_str(),
-		fontSizePx,
+		iconFontSizePx,
 		&iconFontConfig,
 		iconFontRanges);
 
@@ -273,7 +274,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	largeIconFontConfig.GlyphOffset.y = iconFontConfig.GlyphOffset.y * largeFontRatio;
 	io.Fonts->AddFontFromFileTTF(
 		(fontDirectory / FONT_ICON_FILE_NAME_MD).toString().c_str(),
-		fontSizePx * largeFontRatio,
+		iconFontSizePx * largeFontRatio,
 		&largeIconFontConfig,
 		iconFontRanges);
 }

@@ -5,7 +5,11 @@
 #include "Render/RenderData.h"
 #include "RenderCore/GHIThread.h"
 
+#include <Common/primitive_type.h>
+#include <Utility/Timer.h>
+
 #include <optional>
+#include <atomic>
 
 namespace ph::editor
 {
@@ -34,6 +38,16 @@ public:
 
 	void addGHIUpdateWork(GHI* updatedGHI);
 
+	/*!
+	@note Thread-safe.
+	*/
+	float32 getFrameTimeMs() const;
+
+	/*!
+	@note Thread-safe.
+	*/
+	float32 getGHIFrameTimeMs() const;
+
 private:
 	void beginProcessFrame();
 	void endProcessFrame();
@@ -41,6 +55,18 @@ private:
 	std::optional<RenderData> m_renderData;
 	GHIThread                 m_ghiThread;
 	GHI*                      m_updatedGHI;
+	Timer                     m_frameTimer;
+	std::atomic<float32>      m_frameTimeMs;
 };
+
+inline float32 RenderThread::getFrameTimeMs() const
+{
+	return m_frameTimeMs.load(std::memory_order_relaxed);
+}
+
+inline float32 RenderThread::getGHIFrameTimeMs() const
+{
+	return m_ghiThread.getFrameTimeMs();
+}
 
 }// end namespace ph::editor

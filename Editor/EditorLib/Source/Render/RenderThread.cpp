@@ -17,6 +17,8 @@ RenderThread::RenderThread()
 	, m_renderData(std::nullopt)
 	, m_ghiThread()
 	, m_updatedGHI(nullptr)
+	, m_frameTimer()
+	, m_frameTimeMs(0)
 {}
 
 RenderThread::~RenderThread()
@@ -61,6 +63,12 @@ void RenderThread::onAsyncWorkerStop()
 
 void RenderThread::onBeginFrame()
 {
+	addWork(
+		[this](RenderData& /* renderData */)
+		{
+			m_frameTimer.start();
+		});
+
 	// Update context need to be updated first for render thread
 
 	const auto frameInfo = getFrameInfo();
@@ -123,6 +131,13 @@ void RenderThread::onEndFrame()
 		[this](RenderData& /* renderData */)
 		{
 			endProcessFrame();
+		});
+
+	addWork(
+		[this](RenderData& /* renderData */)
+		{
+			m_frameTimer.stop();
+			m_frameTimeMs.store(m_frameTimer.getDeltaMs<float32>(), std::memory_order_relaxed);
 		});
 }
 

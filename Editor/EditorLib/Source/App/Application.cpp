@@ -163,15 +163,16 @@ void Application::appMainLoop()
 	{
 		const auto passedTime = TimeUnit(loopTimer.markLap());
 
+		m_editor.editorStats.mainThreadFrameMs = std::chrono::duration<float32, std::milli>(passedTime).count();
+
 		bool shouldRender = false;
 		unprocessedTime += passedTime;
-
-		Timer updateTimer;
-		updateTimer.start();
 
 		// Update
 		while(unprocessedTime > frameTime)
 		{
+			auto updateTimer = Timer().start();
+
 			updateCtx.deltaS = std::chrono::duration<float64>(frameTime).count();
 
 			appUpdate(updateCtx);
@@ -179,26 +180,31 @@ void Application::appMainLoop()
 			++updateCtx.frameNumber;
 			unprocessedTime -= frameTime;
 			shouldRender = true;
-		}// If there's still bunch of unprocessed time, update the editor again
 
-		updateTimer.stop();
-		//m_editor.editorStats.mainThreadUpdateMs = updateTimer
+			m_editor.editorStats.mainThreadUpdateMs = updateTimer.stop().getDeltaMs<float32>();
+		}// If there's still bunch of unprocessed time, update the editor again
 
 		// Render update
 		if(shouldRender)
 		{
 			m_renderThread.beginFrame();
 
+			auto renderTimer = Timer().start();
+
 			const auto renderFrameInfo = m_renderThread.getFrameInfo();
 			renderUpdateCtx.frameNumber = renderFrameInfo.frameNumber;
 			renderUpdateCtx.frameCycleIndex = renderFrameInfo.frameCycleIndex;
 
 			appRenderUpdate(renderUpdateCtx);
-
 			appCreateRenderCommands();
+
+			m_editor.editorStats.mainThreadRenderMs = renderTimer.stop().getDeltaMs<float32>();
 
 			m_renderThread.endFrame();
 		}
+
+		m_editor.editorStats.renderThreadFrameMs = m_renderThread.getFrameTimeMs();
+		m_editor.editorStats.ghiThreadFrameMs = m_renderThread.getGHIFrameTimeMs();
 
 		// Wait for next update
 		{
@@ -224,7 +230,15 @@ void Application::appMainLoop()
 
 void Application::appUpdate(const MainThreadUpdateContext& ctx)
 {
-	m_editor.flushAllEvents();
+	// Process events
+	{
+		auto eventFlushTimer = Timer().start();
+
+		m_editor.flushAllEvents();
+
+		m_editor.editorStats.mainThreadEventFlushMs = eventFlushTimer.stop().getDeltaMs<float32>();
+	}
+	
 
 	// TODO: editor scene update
 	

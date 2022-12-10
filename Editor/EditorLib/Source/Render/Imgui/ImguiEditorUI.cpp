@@ -16,7 +16,8 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_fontLibrary(nullptr)
 	, m_imageLibrary(nullptr)
 	, m_rootDockSpaceID(0)
-	, m_shouldResetRootDockSpace(false)
+	, m_shouldResetWindowLayout(false)
+	, m_shouldShowStatsMonitor(false)
 {}
 
 void ImguiEditorUI::initialize(
@@ -72,7 +73,7 @@ void ImguiEditorUI::build()
 	ImGui::PopStyleVar(3);
 
 	m_rootDockSpaceID = ImGui::GetID("RootDockSpace");
-	if(!ImGui::DockBuilderGetNode(m_rootDockSpaceID) || m_shouldResetRootDockSpace)
+	if(!ImGui::DockBuilderGetNode(m_rootDockSpaceID) || m_shouldResetWindowLayout)
 	{
 		// Potentially clear out existing layout
 		ImGui::DockBuilderRemoveNode(m_rootDockSpaceID);
@@ -90,8 +91,6 @@ void ImguiEditorUI::build()
 
 		ImGui::DockBuilderDockWindow("Window A", rootLeftDockSpaceID);
 		ImGui::DockBuilderFinish(m_rootDockSpaceID);
-
-		m_shouldResetRootDockSpace = false;
 	}
 
 	// Submit the DockSpace
@@ -142,11 +141,15 @@ void ImguiEditorUI::build()
 		PH_DEFAULT_LOG("pressed {}", ++yyy);
 	}
 
+	buildStatsMonitor();
+
 	//show_imgui_demo_window();
 }
 
 void ImguiEditorUI::buildMainMenuBar()
 {
+	m_shouldResetWindowLayout = false;
+
 	if(ImGui::BeginMainMenuBar())
 	{
 		if(ImGui::BeginMenu("File"))
@@ -182,13 +185,57 @@ void ImguiEditorUI::buildMainMenuBar()
 		{
 			if(ImGui::MenuItem("Reset Window Layout"))
 			{
-				m_shouldResetRootDockSpace = true;
+				m_shouldResetWindowLayout = true;
 			}
 
 			ImGui::EndMenu();
 		}
 
 		ImGui::EndMainMenuBar();
+	}
+}
+
+void ImguiEditorUI::buildStatsMonitor()
+{
+	PH_ASSERT(m_editor);
+
+	if(ImGui::IsKeyReleased(ImGuiKey_F1))
+	{
+		m_shouldShowStatsMonitor = !m_shouldShowStatsMonitor;
+	}
+
+	if(m_shouldShowStatsMonitor)
+	{
+		constexpr float windowWidth = 300;
+		constexpr float windowHeight = 300;
+
+		ImGuiViewport* const viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos({
+			viewport->WorkPos.x + viewport->WorkSize.x - windowWidth,
+			viewport->WorkPos.y});
+		ImGui::SetNextWindowSize({
+			windowWidth,
+			windowHeight});
+
+		ImGui::Begin("Stats");
+
+		ImGui::Text("Main Thread:");
+		ImGui::Text("Update: %f ms", m_editor->editorStats.mainThreadUpdateMs);
+		ImGui::Text("Render: %f ms", m_editor->editorStats.mainThreadRenderMs);
+		ImGui::Text("Event Flush: %f ms", m_editor->editorStats.mainThreadEventFlushMs);
+		ImGui::Text("Frame: %f ms", m_editor->editorStats.mainThreadFrameMs);
+
+		ImGui::Separator();
+
+		ImGui::Text("Render Thread:");
+		ImGui::Text("Frame: %f ms", m_editor->editorStats.renderThreadFrameMs);
+
+		ImGui::Separator();
+
+		ImGui::Text("GHI Thread:");
+		ImGui::Text("Frame: %f ms", m_editor->editorStats.ghiThreadFrameMs);
+
+		ImGui::End();
 	}
 }
 

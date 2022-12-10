@@ -2,7 +2,11 @@
 
 #include "EditorCore/Thread/TUnbufferedFrameWorkerThread.h"
 
+#include <Common/primitive_type.h>
+#include <Utility/Timer.h>
+
 #include <memory>
+#include <atomic>
 
 namespace ph::editor
 {
@@ -25,11 +29,23 @@ public:
 
 	void addSetGHIWork(GHI* inGHI);
 
+	/*!
+	@note Thread-safe.
+	*/
+	float32 getFrameTimeMs() const;
+
 private:
 	void setGHI(GHI* inGHI);
 
 	GHI*                 m_GHI;
 	std::unique_ptr<GHI> m_nullGHI;
+	Timer                m_frameTimer;
+	std::atomic<float32> m_frameTimeMs;
 };
+
+inline float32 GHIThread::getFrameTimeMs() const
+{
+	return m_frameTimeMs.load(std::memory_order_relaxed);
+}
 
 }// end namespace ph::editor

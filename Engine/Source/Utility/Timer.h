@@ -21,16 +21,16 @@ public:
 
 	/*! @brief Zero and start the timer.
 	*/
-	void start();
+	Timer& start();
 
 	/*! @brief Effectively resumes the timer.
 	Start the timer by continuing last result from stop().
 	*/
-	void accumulatedStart();
+	Timer& accumulatedStart();
 
 	/*! @brief Stop the timer and record elapsed time.
 	*/
-	void stop();
+	Timer& stop();
 
 	/*! @brief Get the time elapsed between calls to markLap().
 	If this is the first markLap() call, start() and accumulatedStart() are treated as
@@ -92,20 +92,26 @@ inline Timer::Timer() :
 	m_timeMark(), m_totalDuration(DefaultTimeUnit::zero())
 {}
 
-inline void Timer::start()
+inline Timer& Timer::start()
 {
 	m_timeMark = Clock::now();
 	m_totalDuration = DefaultTimeUnit::zero();
+
+	return *this;
 }
 
-inline void Timer::accumulatedStart()
+inline Timer& Timer::accumulatedStart()
 {
 	m_timeMark = Clock::now();
+
+	return *this;
 }
 
-inline void Timer::stop()
+inline Timer& Timer::stop()
 {
 	m_totalDuration += Clock::now() - m_timeMark;
+
+	return *this;
 }
 
 inline Timer::DefaultTimeUnit Timer::markLap()

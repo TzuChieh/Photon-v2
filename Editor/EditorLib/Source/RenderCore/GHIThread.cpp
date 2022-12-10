@@ -12,6 +12,8 @@ GHIThread::GHIThread()
 	: Base()
 	, m_GHI(nullptr)
 	, m_nullGHI(std::make_unique<NullGHI>())
+	, m_frameTimer()
+	, m_frameTimeMs(0)
 {}
 
 GHIThread::~GHIThread()
@@ -43,7 +45,11 @@ void GHIThread::onAsyncProcessWork(const Work& work)
 
 void GHIThread::onBeginFrame()
 {
-	// TODO
+	addWork(
+		[this](GHI& /* ghi */)
+		{
+			m_frameTimer.start();
+		});
 }
 
 void GHIThread::onEndFrame()
@@ -53,6 +59,13 @@ void GHIThread::onEndFrame()
 		[](GHI& ghi)
 		{
 			ghi.swapBuffers();
+		});
+
+	addWork(
+		[this](GHI& /* ghi */)
+		{
+			m_frameTimer.stop();
+			m_frameTimeMs.store(m_frameTimer.getDeltaMs<float32>(), std::memory_order_relaxed);
 		});
 }
 
