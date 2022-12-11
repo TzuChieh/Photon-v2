@@ -87,6 +87,15 @@ void ImguiEditorUI::build()
 		ImGui::DockBuilderAddNode(m_rootDockSpaceID, ImGuiDockNodeFlags_DockSpace);
 		ImGui::DockBuilderSetNodeSize(m_rootDockSpaceID, viewport->WorkSize);
 
+		// Pre-dock bottom node
+		const float bottomNodeSplitRatio =
+			m_editor->dimensionHints.propertyPanelPreferredWidth /
+			viewport->WorkSize.y;
+		const ImGuiID rootBottomDockSpaceID = ImGui::DockBuilderSplitNode(
+			m_rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, nullptr);
+		ImGui::DockBuilderDockWindow(assetBrowserWindowName, rootBottomDockSpaceID);
+
+		// Pre-dock left node (after bottom node so it can have the full height)
 		const float leftNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			viewport->WorkSize.x;
@@ -95,14 +104,8 @@ void ImguiEditorUI::build()
 		const ImGuiID rootLeftDockSpaceID = ImGui::DockBuilderSplitNode(
 			m_rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, &childRightDockSpaceID);
 		ImGui::DockBuilderDockWindow(rootPropertiesWindowName, rootLeftDockSpaceID);
-
-		const float bottomNodeSplitRatio =
-			m_editor->dimensionHints.propertyPanelPreferredWidth /
-			viewport->WorkSize.y;
-		const ImGuiID rootBottomDockSpaceID = ImGui::DockBuilderSplitNode(
-			m_rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, nullptr);
-		ImGui::DockBuilderDockWindow(assetBrowserWindowName, rootBottomDockSpaceID);
-
+		
+		// Pre-dock center node as the other child of left node
 		ImGui::DockBuilderDockWindow(mainViewportWindowName, childRightDockSpaceID);
 
 		ImGui::DockBuilderFinish(m_rootDockSpaceID);
