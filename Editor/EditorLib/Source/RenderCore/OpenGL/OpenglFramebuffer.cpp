@@ -111,9 +111,9 @@ void OpenglFramebuffer::setAttachments(const GHIInfoFramebufferAttachment& attac
 	   newAttachments.heightPx != m_attachments.heightPx ||
 	   newAttachments.numSamples != m_attachments.numSamples)
 	{
-		for(uint32 slotIndex = 0; slotIndex < m_attachments.colorFormats.size(); ++slotIndex)
+		for(uint32 attachmentIdx = 0; attachmentIdx < m_attachments.colorFormats.size(); ++attachmentIdx)
 		{
-			updateDeviceColorTexture(slotIndex, newAttachments);
+			updateDeviceColorTexture(attachmentIdx, newAttachments);
 		}
 
 		updateDeviceDepthStencilTexture(newAttachments);
@@ -126,11 +126,11 @@ void OpenglFramebuffer::setAttachments(const GHIInfoFramebufferAttachment& attac
 	// Just update textures where format has changed
 	else
 	{
-		for(uint32 slotIndex = 0; slotIndex < m_attachments.colorFormats.size(); ++slotIndex)
+		for(uint32 attachmentIdx = 0; attachmentIdx < m_attachments.colorFormats.size(); ++attachmentIdx)
 		{
-			if(newAttachments.colorFormats[slotIndex] != m_attachments.colorFormats[slotIndex])
+			if(newAttachments.colorFormats[attachmentIdx] != m_attachments.colorFormats[attachmentIdx])
 			{
-				updateDeviceColorTexture(slotIndex, newAttachments);
+				updateDeviceColorTexture(attachmentIdx, newAttachments);
 			}
 		}
 
@@ -141,9 +141,9 @@ void OpenglFramebuffer::setAttachments(const GHIInfoFramebufferAttachment& attac
 	}
 }
 
-void OpenglFramebuffer::clearColor(const uint32 slotIndex, const math::Vector4F& color)
+void OpenglFramebuffer::clearColor(const uint32 attachmentIndex, const math::Vector4F& color)
 {
-	PH_ASSERT(!m_attachments.colorFormats[slotIndex].isEmpty());
+	PH_ASSERT(!m_attachments.colorFormats[attachmentIndex].isEmpty());
 
 	const std::array<GLfloat, 4> values = {
 		safe_number_cast<GLfloat>(color.r()),
@@ -154,7 +154,7 @@ void OpenglFramebuffer::clearColor(const uint32 slotIndex, const math::Vector4F&
 	glClearNamedFramebufferfv(
 		m_framebufferID, 
 		GL_COLOR, 
-		safe_number_cast<GLint>(slotIndex), 
+		safe_number_cast<GLint>(attachmentIndex),
 		values.data());
 }
 
@@ -196,46 +196,51 @@ void OpenglFramebuffer::clearDepthStencil(const float32 depth, const uint8 stenc
 	}
 }
 
-void OpenglFramebuffer::updateDeviceColorTexture(const uint32 slotIndex, const OpenglFramebufferAttachmentInfo& newAttachment)
+std::shared_ptr<GHITexture2D> OpenglFramebuffer::createTextureFromColor(const uint32 attachmentIndex)
 {
-	const OpenglFramebufferFormat& newColorFormat = newAttachment.colorFormats[slotIndex];
-	OpenglFramebufferFormat& oldColorFormat = m_attachments.colorFormats[slotIndex];
+	// TODO
+}
+
+void OpenglFramebuffer::updateDeviceColorTexture(const uint32 attachmentIndex, const OpenglFramebufferAttachmentInfo& newAttachment)
+{
+	const OpenglFramebufferFormat& newColorFormat = newAttachment.colorFormats[attachmentIndex];
+	OpenglFramebufferFormat& oldColorFormat = m_attachments.colorFormats[attachmentIndex];
 
 	PH_ASSERT(opengl::is_color_format(newColorFormat.internalFormat));
 
 	// Possibly detach and delete the texture
 	if(newColorFormat.isEmpty() && !oldColorFormat.isEmpty())
 	{
-		PH_ASSERT_NE(m_colorTextureIDs[slotIndex], 0);
+		PH_ASSERT_NE(m_colorTextureIDs[attachmentIndex], 0);
 
 		// Detach texture from framebuffer
-		glNamedFramebufferTexture(m_framebufferID, opengl::to_color_attachment(slotIndex), 0, 0);
+		glNamedFramebufferTexture(m_framebufferID, opengl::to_color_attachment(attachmentIndex), 0, 0);
 
 		// Delete texture
-		glDeleteTextures(1, &m_colorTextureIDs[slotIndex]);
-		m_colorTextureIDs[slotIndex] = 0;
+		glDeleteTextures(1, &m_colorTextureIDs[attachmentIndex]);
+		m_colorTextureIDs[attachmentIndex] = 0;
 	}
 
 	// Possibly create new texture and attach it
 	if(!newColorFormat.isEmpty() && oldColorFormat.isEmpty())
 	{
-		PH_ASSERT_EQ(m_colorTextureIDs[slotIndex], 0);
+		PH_ASSERT_EQ(m_colorTextureIDs[attachmentIndex], 0);
 
 		// Create texture
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_colorTextureIDs[slotIndex]);
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_colorTextureIDs[attachmentIndex]);
 
 		// Attach texture to framebuffer
 		glNamedFramebufferTexture(
 			m_framebufferID, 
-			opengl::to_color_attachment(slotIndex), 
-			m_colorTextureIDs[slotIndex],
+			opengl::to_color_attachment(attachmentIndex),
+			m_colorTextureIDs[attachmentIndex],
 			0);
 	}
 
 	// Update device texture parameters if available and attached
-	if(m_colorTextureIDs[slotIndex] != 0)
+	if(m_colorTextureIDs[attachmentIndex] != 0)
 	{
-		const GLuint textureID = m_colorTextureIDs[slotIndex];
+		const GLuint textureID = m_colorTextureIDs[attachmentIndex];
 
 		// Ordinary texture
 		if(newAttachment.numSamples == 1)

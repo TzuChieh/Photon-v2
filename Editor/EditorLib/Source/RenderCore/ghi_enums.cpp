@@ -9,6 +9,7 @@ std::size_t apparent_bytes_in_single_pixel(const EGHIInfoPixelFormat format)
 {
 	switch(format)
 	{
+	case EGHIInfoPixelFormat::Empty: return 0;
 	case EGHIInfoPixelFormat::RGB_8: return 3 * 1;
 	case EGHIInfoPixelFormat::RGBA_8: return 4 * 1;
 	case EGHIInfoPixelFormat::RGB_16F: return 3 * 2;
@@ -24,6 +25,7 @@ std::size_t apparent_bytes_in_pixel_component(const EGHIInfoPixelComponent compo
 {
 	switch(component)
 	{
+	case EGHIInfoPixelComponent::Empty: return 0;
 	case EGHIInfoPixelComponent::Int8: return 1;
 	case EGHIInfoPixelComponent::UInt8: return 1;
 	case EGHIInfoPixelComponent::Int16: return 2;
@@ -43,7 +45,7 @@ EGHIInfoPixelComponent from_picture_pixel_component(const EPicturePixelComponent
 {
 	switch(component)
 	{
-	case EPicturePixelComponent::Unspecified: return EGHIInfoPixelComponent::Unspecified;
+	case EPicturePixelComponent::Empty: return EGHIInfoPixelComponent::Empty;
 	case EPicturePixelComponent::Int8: return EGHIInfoPixelComponent::Int8;
 	case EPicturePixelComponent::UInt8: return EGHIInfoPixelComponent::UInt8;
 	case EPicturePixelComponent::Int16: return EGHIInfoPixelComponent::Int16;
@@ -55,7 +57,7 @@ EGHIInfoPixelComponent from_picture_pixel_component(const EPicturePixelComponent
 	case EPicturePixelComponent::Float16: return EGHIInfoPixelComponent::Float16;
 	case EPicturePixelComponent::Float32: return EGHIInfoPixelComponent::Float32;
 	case EPicturePixelComponent::Float64: return EGHIInfoPixelComponent::Float64;
-	default: PH_ASSERT_UNREACHABLE_SECTION(); return EGHIInfoPixelComponent::Unspecified;
+	default: PH_ASSERT_UNREACHABLE_SECTION(); return EGHIInfoPixelComponent::Empty;
 	}
 }
 

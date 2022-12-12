@@ -109,20 +109,27 @@ auto OpenglTexture2D::getMemoryInfo() const
 	MemoryInfo info{};
 	info.sizePx.x() = m_widthPx;
 	info.sizePx.y() = m_heightPx;
-	info.apparentSize = getApparentSize();
+	info.apparentSize = numApparentSizeInBytes();
 	return info;
 }
 
 auto OpenglTexture2D::getNativeHandle()
 -> NativeHandle
 {
-	return safe_number_cast<uint64>(m_textureID);
+	if(m_textureID != 0)
+	{
+		return safe_number_cast<uint64>(m_textureID);
+	}
+	else
+	{
+		return std::monostate{};
+	}
 }
 
-std::size_t OpenglTexture2D::getApparentSize() const
+std::size_t OpenglTexture2D::numApparentSizeInBytes() const
 {
 	const auto ghiFormat = opengl::from_internal_format(m_format.internalFormat);
-	return apparent_bytes_in_single_pixel(ghiFormat) * m_widthPx * m_heightPx;
+	return apparent_bytes_in_single_pixel(ghiFormat) * numPixels();
 }
 
 std::size_t OpenglTexture2D::numPixels() const

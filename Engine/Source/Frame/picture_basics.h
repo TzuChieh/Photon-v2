@@ -9,7 +9,7 @@ namespace ph
 
 enum class EPicturePixelComponent
 {
-	Unspecified = 0,
+	Empty = 0,
 
 	Int8,
 	UInt8,
@@ -28,7 +28,7 @@ inline std::size_t num_bytes_in_component(const EPicturePixelComponent component
 {
 	switch(componentType)
 	{
-	case EPicturePixelComponent::Unspecified: return 0;
+	case EPicturePixelComponent::Empty: return 0;
 	case EPicturePixelComponent::Int8: return 1;
 	case EPicturePixelComponent::UInt8: return 1;
 	case EPicturePixelComponent::Int16: return 2;

@@ -45,12 +45,14 @@ public:
 	void bind() override;
 	void unbind() override;
 	void setAttachments(const GHIInfoFramebufferAttachment& attachments) override;
-	void clearColor(uint32 slotIndex, const math::Vector4F& color) override;
+	void clearColor(uint32 attachmentIndex, const math::Vector4F& color) override;
 	void clearDepthStencil(float32 depth, uint8 stencil) override;
 	std::shared_ptr<GHITexture2D> createTextureFromColor(uint32 slotIndex) override;
 
+	const OpenglFramebufferAttachmentInfo& getAttachments() const;
+
 private:
-	void updateDeviceColorTexture(uint32 slotIndex, const OpenglFramebufferAttachmentInfo& newAttachment);
+	void updateDeviceColorTexture(uint32 attachmentIndex, const OpenglFramebufferAttachmentInfo& newAttachment);
 	void updateDeviceDepthStencilTexture(const OpenglFramebufferAttachmentInfo& newAttachment);
 
 	OpenglFramebufferAttachmentInfo m_attachments;
@@ -62,6 +64,11 @@ private:
 inline bool OpenglFramebufferFormat::isEmpty() const
 {
 	return internalFormat == 0;
+}
+
+inline const OpenglFramebufferAttachmentInfo& OpenglFramebuffer::getAttachments() const
+{
+	return m_attachments;
 }
 
 }// end namespace ph::editor

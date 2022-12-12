@@ -40,7 +40,7 @@ public:
 	NativeHandle getNativeHandle() override;
 
 private:
-	std::size_t getApparentSize() const;
+	std::size_t numApparentSizeInBytes() const;
 	std::size_t numPixels() const;
 
 	GLuint m_textureID;

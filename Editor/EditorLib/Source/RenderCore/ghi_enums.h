@@ -29,7 +29,7 @@ enum class EGHIInfoPixelFormat
 
 enum class EGHIInfoPixelComponent
 {
-	Unspecified = 0,
+	Empty = 0,
 
 	Int8,
 	UInt8,

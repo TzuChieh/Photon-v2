@@ -13,7 +13,7 @@ namespace ph
 inline PictureData::PictureData()
 	: m_sizePx(0)
 	, m_numComponents(0)
-	, m_componentType(EPicturePixelComponent::Unspecified)
+	, m_componentType(EPicturePixelComponent::Empty)
 	, m_data(nullptr)
 	, m_numBytesInData(0)
 {}

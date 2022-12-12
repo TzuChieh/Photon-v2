@@ -47,10 +47,10 @@ public:
 	virtual void bind() = 0;
 	virtual void unbind() = 0;
 	virtual void setAttachments(const GHIInfoFramebufferAttachment& attachments) = 0;
-	virtual void clearColor(uint32 slotIndex, const math::Vector4F& color) = 0;
+	virtual void clearColor(uint32 attachmentIndex, const math::Vector4F& color) = 0;
 	virtual void clearDepthStencil(float32 depth, uint8 stencil) = 0;
 
-	virtual std::shared_ptr<GHITexture2D> createTextureFromColor(uint32 slotIndex);
+	virtual std::shared_ptr<GHITexture2D> createTextureFromColor(uint32 attachmentIndex);
 	virtual std::shared_ptr<GHITexture2D> createTextureFromDepthStencil();
 };
 
