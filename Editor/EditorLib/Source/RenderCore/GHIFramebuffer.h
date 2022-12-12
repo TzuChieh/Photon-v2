@@ -9,9 +9,12 @@
 
 #include <cstddef>
 #include <array>
+#include <memory>
 
 namespace ph::editor
 {
+
+class GHITexture2D;
 
 class GHIInfoFramebufferFormat final
 {
@@ -46,6 +49,9 @@ public:
 	virtual void setAttachments(const GHIInfoFramebufferAttachment& attachments) = 0;
 	virtual void clearColor(uint32 slotIndex, const math::Vector4F& color) = 0;
 	virtual void clearDepthStencil(float32 depth, uint8 stencil) = 0;
+
+	virtual std::shared_ptr<GHITexture2D> createTextureFromColor(uint32 slotIndex);
+	virtual std::shared_ptr<GHITexture2D> createTextureFromDepthStencil();
 };
 
 }// end namespace ph::editor

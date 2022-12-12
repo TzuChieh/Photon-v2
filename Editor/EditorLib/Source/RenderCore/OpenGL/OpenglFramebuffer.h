@@ -47,6 +47,7 @@ public:
 	void setAttachments(const GHIInfoFramebufferAttachment& attachments) override;
 	void clearColor(uint32 slotIndex, const math::Vector4F& color) override;
 	void clearDepthStencil(float32 depth, uint8 stencil) override;
+	std::shared_ptr<GHITexture2D> createTextureFromColor(uint32 slotIndex) override;
 
 private:
 	void updateDeviceColorTexture(uint32 slotIndex, const OpenglFramebufferAttachmentInfo& newAttachment);

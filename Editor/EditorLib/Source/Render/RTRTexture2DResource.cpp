@@ -30,8 +30,6 @@ RTRTexture2DResource::~RTRTexture2DResource() = default;
 
 void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
 {
-	PH_ASSERT(!m_ghiTexture);
-
 	if(!m_textureData)
 	{
 		return;
@@ -40,6 +38,8 @@ void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
 	caller.add(
 		[this](GHI& ghi)
 		{
+			PH_ASSERT(!m_ghiTexture);
+
 			m_ghiTexture = ghi.createTexture2D(m_format, m_sizePx);
 
 			m_ghiTexture->upload(
@@ -53,14 +53,15 @@ void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
 
 void RTRTexture2DResource::cleanupGHI(GHIThreadCaller& caller)
 {
-	PH_ASSERT(m_ghiTexture);
-
 	caller.add(
 		[this](GHI& ghi)
 		{
-			// Note: Always decrement reference count on GHI thread--one of this call will free the GHI
-			// resource, and it must be done on GHI thread
-			m_ghiTexture = nullptr;
+			if(m_ghiTexture)
+			{
+				// Note: Always decrement reference count on GHI thread--one of this call will free 
+				// the GHI resource, and it must be done on GHI thread
+				m_ghiTexture = nullptr;
+			}
 		});
 }
 

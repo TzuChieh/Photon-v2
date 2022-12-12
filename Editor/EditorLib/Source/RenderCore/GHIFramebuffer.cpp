@@ -17,4 +17,14 @@ GHIInfoFramebufferAttachment::GHIInfoFramebufferAttachment()
 
 GHIFramebuffer::~GHIFramebuffer() = default;
 
+std::shared_ptr<GHITexture2D> GHIFramebuffer::createTextureFromColor(const uint32 /* slotIndex */)
+{
+	return nullptr;
+}
+
+std::shared_ptr<GHITexture2D> GHIFramebuffer::createTextureFromDepthStencil()
+{
+	return nullptr;
+}
+
 }// end namespace ph::editor
