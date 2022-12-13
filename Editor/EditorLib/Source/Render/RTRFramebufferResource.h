@@ -22,7 +22,8 @@ public:
 	void cleanupGHI(GHIThreadCaller& caller) override;
 
 	const GHIInfoFramebufferAttachment& getAttachments() const;
-	const std::shared_ptr<GHIFramebuffer>& getGHIFramebuffer() const;
+	GHIFramebuffer* getGHIFramebuffer() const;
+	std::shared_ptr<GHIFramebuffer> getGHIFramebufferResource() const;
 
 private:
 	GHIInfoFramebufferAttachment m_attachments;
@@ -34,7 +35,12 @@ inline const GHIInfoFramebufferAttachment& RTRFramebufferResource::getAttachment
 	return m_attachments;
 }
 
-inline const std::shared_ptr<GHIFramebuffer>& RTRFramebufferResource::getGHIFramebuffer() const
+inline GHIFramebuffer* RTRFramebufferResource::getGHIFramebuffer() const
+{
+	return m_ghiFramebuffer.get();
+}
+
+inline std::shared_ptr<GHIFramebuffer> RTRFramebufferResource::getGHIFramebufferResource() const
 {
 	return m_ghiFramebuffer;
 }

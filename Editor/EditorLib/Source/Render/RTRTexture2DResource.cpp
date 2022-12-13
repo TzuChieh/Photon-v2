@@ -13,7 +13,7 @@ RTRTexture2DResource::RTRTexture2DResource(
 	const GHIInfoTextureFormat& format,
 	std::unique_ptr<PictureData> textureData)
 
-	: RTRResource()
+	: RTRTextureResource()
 
 	, m_sizePx(0)
 	, m_format(format)
@@ -25,8 +25,6 @@ RTRTexture2DResource::RTRTexture2DResource(
 		m_sizePx = m_textureData->getSizePx().safeCast<uint32>();
 	}
 }
-
-RTRTexture2DResource::~RTRTexture2DResource() = default;
 
 void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
 {

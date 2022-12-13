@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/GHITexture2D.h"
+#include "RenderCore/GHITexture.h"
 #include "ThirdParty/DearImGui.h"
 
 #include <Math/TVector2.h>
@@ -19,7 +19,7 @@ namespace ph::editor
 {
 
 class RenderThreadCaller;
-class RTRDetailedTexture2DResource;
+class RTRDetailedTextureResource;
 
 enum class EImguiImage
 {
@@ -72,8 +72,8 @@ public:
 private:
 	struct ImageEntry final
 	{
-		mutable GHITexture2D::NativeHandle nativeHandle;
-		RTRDetailedTexture2DResource* resource;
+		mutable GHITexture::NativeHandle nativeHandle;
+		RTRDetailedTextureResource* resource;
 		std::unique_ptr<RegularPicture> sourcePicture;
 
 		ImageEntry();

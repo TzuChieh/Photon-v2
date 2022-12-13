@@ -18,6 +18,7 @@ class OpenglFramebufferBackedTexture2D : public GHITexture2D
 public:
 	OpenglFramebufferBackedTexture2D(
 		const std::shared_ptr<OpenglFramebuffer>& framebuffer,
+		GLuint textureID,
 		uint32 attachmentIndex,
 		bool isDepthStencilAttachment = false);
 
@@ -39,8 +40,8 @@ private:
 	math::Vector2S getSizePx() const;
 
 	std::shared_ptr<OpenglFramebuffer> m_framebuffer;
-	uint32 m_attachmentIndex;
-	bool m_isDepthStencilAttachment;
+	uint32 m_attachmentIndex : 8;
+	uint32 m_isDepthStencilAttachment : 1;
 	GLuint m_textureID;
 };
 

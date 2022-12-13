@@ -1,7 +1,8 @@
 #include "Render/Imgui/ImguiImageLibrary.h"
 #include "Render/Imgui/imgui_common.h"
 #include "Render/RenderThreadCaller.h"
-#include "Render/RTRDetailedTexture2DResource.h"
+#include "Render/RTRTexture2DResource.h"
+#include "Render/RTRDetailedTextureResource.h"
 #include "Render/RenderData.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
@@ -128,8 +129,8 @@ void ImguiImageLibrary::addTextures(RenderThreadCaller& caller)
 		auto textureData = std::make_unique<PictureData>(
 			std::move(entry.sourcePicture->getPixels()));
 
-		auto textureResource = std::make_unique<RTRDetailedTexture2DResource>(
-			textureFormat, std::move(textureData));
+		auto textureResource = std::make_unique<RTRDetailedTextureResource>(
+			std::make_unique<RTRTexture2DResource>(textureFormat, std::move(textureData)));
 
 		entry.resource = textureResource.get();
 		entry.sourcePicture = nullptr;

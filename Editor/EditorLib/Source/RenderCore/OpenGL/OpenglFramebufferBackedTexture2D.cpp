@@ -3,12 +3,14 @@
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
 
 #include <Math/TVector2.h>
+#include <Math/TVector2.h>
 
 namespace ph::editor
 {
 
 OpenglFramebufferBackedTexture2D::OpenglFramebufferBackedTexture2D(
 	const std::shared_ptr<OpenglFramebuffer>& framebuffer,
+	const GLuint textureID,
 	const uint32 attachmentIndex,
 	const bool isDepthStencilAttachment)
 
@@ -17,7 +19,7 @@ OpenglFramebufferBackedTexture2D::OpenglFramebufferBackedTexture2D(
 	, m_framebuffer(framebuffer)
 	, m_attachmentIndex(attachmentIndex)
 	, m_isDepthStencilAttachment(isDepthStencilAttachment)
-	, m_textureID(0)
+	, m_textureID(textureID)
 {}
 
 OpenglFramebufferBackedTexture2D::~OpenglFramebufferBackedTexture2D()
@@ -31,6 +33,7 @@ void OpenglFramebufferBackedTexture2D::upload(
 	const EGHIInfoPixelComponent componentType)
 {
 	// TODO
+	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
 void OpenglFramebufferBackedTexture2D::bind(const uint32 slotIndex)
@@ -42,7 +45,8 @@ auto OpenglFramebufferBackedTexture2D::getMemoryInfo() const
 -> MemoryInfo
 {
 	MemoryInfo info{};
-	info.sizePx = getSizePx();
+	info.sizePx.x() = getSizePx().x();
+	info.sizePx.y() = getSizePx().y();
 	info.apparentSize = numApparentSizeInBytes();
 	return info;
 }

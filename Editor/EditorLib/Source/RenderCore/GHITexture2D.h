@@ -1,7 +1,6 @@
 #pragma once
 
-#include "RenderCore/ghi_enums.h"
-#include "RenderCore/ghi_states.h"
+#include "RenderCore/GHITexture.h"
 
 #include <Math/TVector2.h>
 #include <Common/primitive_type.h>
@@ -12,47 +11,18 @@
 namespace ph::editor
 {
 
-class GHIInfoTextureFormat final
+class GHITexture2D : public GHITexture
 {
 public:
-	EGHIInfoPixelFormat pixelFormat;
-	GHIInfoSampleState sampleState;
-
-	GHIInfoTextureFormat();
-};
-
-class GHITexture2D
-{
-public:
-	struct MemoryInfo final
-	{
-		math::Vector2S sizePx = {0, 0};
-		std::size_t apparentSize = 0;
-		std::size_t deviceSize = 0;
-	};
-
-	using NativeHandle = std::variant<
-		std::monostate,
-		uint64>;
-
 	GHITexture2D();
-	virtual ~GHITexture2D();
+	~GHITexture2D() override;
 
-	virtual void upload(
+	void upload(
 		const std::byte* pixelData, 
 		std::size_t numBytes, 
-		EGHIInfoPixelComponent componentType) = 0;
+		EGHIInfoPixelComponent componentType) override = 0;
 
-	virtual void bind(uint32 slotIndex) = 0;
-
-	virtual MemoryInfo getMemoryInfo() const;
-	virtual NativeHandle getNativeHandle();
+	void bind(uint32 slotIndex) override = 0;
 };
-
-inline auto GHITexture2D::getMemoryInfo() const
--> MemoryInfo
-{
-	return MemoryInfo{};
-}
 
 }// end namespace ph::editor
