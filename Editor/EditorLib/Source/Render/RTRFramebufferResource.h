@@ -18,15 +18,17 @@ public:
 	explicit RTRFramebufferResource(const GHIInfoFramebufferAttachment& attachments);
 	~RTRFramebufferResource();
 
+	const GHIInfoFramebufferAttachment& getAttachments() const;
+
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
 
-	const GHIInfoFramebufferAttachment& getAttachments() const;
 	GHIFramebuffer* getGHIFramebuffer() const;
 	std::shared_ptr<GHIFramebuffer> getGHIFramebufferResource() const;
 
 private:
 	GHIInfoFramebufferAttachment m_attachments;
+
 	std::shared_ptr<GHIFramebuffer> m_ghiFramebuffer;
 };
 

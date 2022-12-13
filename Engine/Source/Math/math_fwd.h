@@ -47,10 +47,12 @@ using Vector2F  = TVector2<float32>;
 using Vector2D  = TVector2<float64>;
 using Vector2S  = TVector2<std::size_t>;
 
-using Vector3R = TVector3<real>;
-using Vector3F = TVector3<float32>;
-using Vector3D = TVector3<float64>;
-using Vector3S = TVector3<std::size_t>;
+using Vector3I  = TVector3<int32f>;
+using Vector3UI = TVector3<uint32f>;
+using Vector3R  = TVector3<real>;
+using Vector3F  = TVector3<float32>;
+using Vector3D  = TVector3<float64>;
+using Vector3S  = TVector3<std::size_t>;
 
 using Vector4R = TVector4<real>;
 using Vector4F = TVector4<float32>;

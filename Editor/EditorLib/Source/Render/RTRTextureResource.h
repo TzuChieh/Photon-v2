@@ -17,14 +17,15 @@ public:
 
 	~RTRTextureResource() override;
 
-	virtual GHITexture* getGHITexture() const = 0;
-	virtual std::shared_ptr<GHITexture> getGHITextureResource() const = 0;
-	void setupGHI(GHIThreadCaller& caller) override = 0;
-	void cleanupGHI(GHIThreadCaller& caller) override = 0;
-
 	virtual std::size_t getWidthPx() const;
 	virtual std::size_t getHeightPx() const;
 	virtual std::size_t numLayers() const;
+
+	virtual GHITexture* getGHITexture() const = 0;
+	virtual std::shared_ptr<GHITexture> getGHITextureResource() const = 0;
+
+	void setupGHI(GHIThreadCaller& caller) override = 0;
+	void cleanupGHI(GHIThreadCaller& caller) override = 0;
 };
 
 inline std::size_t RTRTextureResource::getWidthPx() const

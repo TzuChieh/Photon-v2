@@ -15,6 +15,7 @@ namespace ph::editor
 {
 
 class GHITexture2D;
+class GHIInfoTextureFormat;
 
 class GHIInfoFramebufferFormat final
 {
@@ -23,6 +24,8 @@ public:
 	GHIInfoSampleState sampleState;
 
 	GHIInfoFramebufferFormat();
+
+	GHIInfoTextureFormat toTextureFormat() const;
 };
 
 class GHIInfoFramebufferAttachment final
@@ -39,7 +42,7 @@ public:
 	GHIInfoFramebufferAttachment();
 };
 
-class GHIFramebuffer
+class GHIFramebuffer : public std::enable_shared_from_this<GHIFramebuffer>
 {
 public:
 	virtual ~GHIFramebuffer();
@@ -52,6 +55,8 @@ public:
 
 	virtual std::shared_ptr<GHITexture2D> createTextureFromColor(uint32 attachmentIndex);
 	virtual std::shared_ptr<GHITexture2D> createTextureFromDepthStencil();
+
+	std::shared_ptr<GHIFramebuffer> getSharedPtrFromThis();
 };
 
 }// end namespace ph::editor

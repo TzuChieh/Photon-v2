@@ -20,19 +20,21 @@ public:
 		const GHIInfoTextureFormat& format, 
 		std::unique_ptr<PictureData> textureData);
 
+	std::size_t getWidthPx() const override;
+	std::size_t getHeightPx() const override;
+	const GHIInfoTextureFormat& getFormat() const;
+
 	GHITexture* getGHITexture() const override;
 	std::shared_ptr<GHITexture> getGHITextureResource() const override;
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
 
-	std::size_t getWidthPx() const override;
-	std::size_t getHeightPx() const override;
-	const GHIInfoTextureFormat& getFormat() const;
 	std::shared_ptr<GHITexture2D> getGHITexture2DResource() const;
 
 private:
 	math::Vector2UI m_sizePx;
 	GHIInfoTextureFormat m_format;
+
 	std::shared_ptr<GHITexture2D> m_ghiTexture;
 	std::unique_ptr<PictureData> m_textureData;
 };

@@ -199,11 +199,13 @@ void OpenglFramebuffer::clearDepthStencil(const float32 depth, const uint8 stenc
 
 std::shared_ptr<GHITexture2D> OpenglFramebuffer::createTextureFromColor(const uint32 attachmentIndex)
 {
-	PH_ASSERT_LT(attachmentIndex, m_attachments.colorFormats.size());
+	PH_ASSERT_LT(attachmentIndex, m_colorTextureIDs.size());
 
-	const OpenglFramebufferFormat& format = m_attachments.colorFormats[attachmentIndex];
 	return std::make_shared<OpenglFramebufferBackedTexture2D>(
-		);
+		getSharedPtrFromThis(),
+		m_colorTextureIDs[attachmentIndex],
+		attachmentIndex,
+		false);
 }
 
 void OpenglFramebuffer::updateDeviceColorTexture(const uint32 attachmentIndex, const OpenglFramebufferAttachmentInfo& newAttachment)
