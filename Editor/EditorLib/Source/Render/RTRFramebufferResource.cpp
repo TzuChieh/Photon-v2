@@ -18,6 +18,12 @@ RTRFramebufferResource::RTRFramebufferResource(
 
 RTRFramebufferResource::~RTRFramebufferResource() = default;
 
+RTRFramebufferResource::~RTRFramebufferResource()
+{
+	// Must have been released by GHI thread
+	PH_ASSERT(!m_ghiFramebuffer);
+}
+
 void RTRFramebufferResource::setupGHI(GHIThreadCaller& caller)
 {
 	caller.add(

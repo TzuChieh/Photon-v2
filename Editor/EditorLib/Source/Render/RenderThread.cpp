@@ -108,7 +108,7 @@ void RenderThread::onEndFrame()
 			m_ghiThread.beginFrame();
 
 			// Destory resources once we are sure the GHI thread is done accessing them
-			// (and memory effects on GHI thread are made visible)
+			// (with memory effects on GHI thread made visible)
 			renderData.scene.destroyPendingResources();
 
 			// If it is non-null, a GHI update is pending

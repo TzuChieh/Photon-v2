@@ -9,12 +9,11 @@ GHIInfoFramebufferFormat::GHIInfoFramebufferFormat()
 	, sampleState()
 {}
 
-GHIInfoTextureFormat GHIInfoFramebufferFormat::toTextureFormat() const
+bool GHIInfoFramebufferFormat::toTextureFormat(GHIInfoTextureFormat& textureFormat) const
 {
-	GHIInfoTextureFormat textureFormat;
 	textureFormat.pixelFormat = pixelFormat;
 	textureFormat.sampleState = sampleState;
-	return textureFormat;
+	return true;
 }
 
 GHIInfoFramebufferAttachment::GHIInfoFramebufferAttachment()

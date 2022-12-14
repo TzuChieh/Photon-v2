@@ -11,7 +11,6 @@ public:
 	~DesignerScene();
 
 	void setEditor(Editor* editor);
-
 	Editor& getEditor();
 	const Editor& getEditor() const;
 

@@ -12,6 +12,8 @@
 namespace ph::editor
 {
 
+class GHIInfoFramebufferFormat;
+
 class GHIInfoTextureFormat final
 {
 public:
@@ -19,6 +21,11 @@ public:
 	GHIInfoSampleState sampleState;
 
 	GHIInfoTextureFormat();
+
+	/*!
+	@return `true` if the conversion is an exact match.
+	*/
+	bool toTextureFormat(GHIInfoFramebufferFormat& framebufferFormat) const;
 };
 
 class GHITexture

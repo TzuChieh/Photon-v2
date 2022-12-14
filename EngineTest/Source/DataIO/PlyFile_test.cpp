@@ -36,15 +36,15 @@ TEST(PlyFileTest, LoadSimpleAscii)
 		EXPECT_EQ(element->properties.size(), 3);
 
 		EXPECT_STREQ(element->properties[0].name.c_str(), "a");
-		EXPECT_EQ(element->properties[0].dataType, EPlyDataType::PPT_int32);
+		EXPECT_EQ(element->properties[0].dataType, EPlyDataType::Int32);
 		EXPECT_FALSE(element->properties[0].isList());
 
 		EXPECT_STREQ(element->properties[1].name.c_str(), "bb");
-		EXPECT_EQ(element->properties[1].dataType, EPlyDataType::PPT_float32);
+		EXPECT_EQ(element->properties[1].dataType, EPlyDataType::Float32);
 		EXPECT_FALSE(element->properties[1].isList());
 
 		EXPECT_STREQ(element->properties[2].name.c_str(), "ccc");
-		EXPECT_EQ(element->properties[2].dataType, EPlyDataType::PPT_float64);
+		EXPECT_EQ(element->properties[2].dataType, EPlyDataType::Float64);
 		EXPECT_FALSE(element->properties[2].isList());
 		
 		const std::byte* bytes = element->rawBuffer.data();
@@ -99,7 +99,7 @@ TEST(PlyFileTest, LoadSimpleAscii)
 		EXPECT_EQ(element->properties.size(), 1);
 
 		EXPECT_STREQ(element->properties[0].name.c_str(), "myNumbers");
-		EXPECT_EQ(element->properties[0].dataType, EPlyDataType::PPT_int32);
+		EXPECT_EQ(element->properties[0].dataType, EPlyDataType::Int32);
 		EXPECT_TRUE(element->properties[0].isList());
 		EXPECT_TRUE(element->properties[0].isFixedSizeList());
 		EXPECT_EQ(element->properties[0].fixedListSize, 3);

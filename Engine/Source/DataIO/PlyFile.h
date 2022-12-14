@@ -38,28 +38,28 @@ enum class EPlyDataType
 	Unspecified = 0,
 
 	/*! The `char` type, character with 1 byte. */
-	PPT_int8,
+	Int8,
 
 	/*! The `uchar` type, unsigned character with 1 byte. */
-	PPT_uint8,
+	UInt8,
 
 	/*! The `short` type, short integer with 2 bytes. */
-	PPT_int16,
+	Int16,
 
 	/*! The `ushort` type, unsigned short integer with 2 bytes. */
-	PPT_uint16,
+	UInt16,
 
 	/*! The `int` type, integer with 4 bytes. */
-	PPT_int32,
+	Int32,
 
 	/*! The `uint` type, integer with 4 bytes. */
-	PPT_uint32,
+	UInt32,
 
 	/*! The `float` type, single-precision float with 4 bytes. */
-	PPT_float32,
+	Float32,
 
 	/*! The `double` type, double-precision float with 8 bytes. */
-	PPT_float64,
+	Float64,
 
 	NUM
 };
@@ -175,7 +175,7 @@ private:
 
 class PlyFile final
 {
-	static_assert(sizeof(std::byte)* CHAR_BIT == 8,
+	static_assert(sizeof(std::byte) * CHAR_BIT == 8,
 		"The file explicitly depends on the fact that std::byte contains 8 bits.");
 
 public:

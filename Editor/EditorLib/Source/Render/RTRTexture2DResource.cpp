@@ -26,6 +26,12 @@ RTRTexture2DResource::RTRTexture2DResource(
 	}
 }
 
+RTRTexture2DResource::~RTRTexture2DResource()
+{
+	// Must have been released by GHI thread
+	PH_ASSERT(!m_ghiTexture);
+}
+
 void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
 {
 	if(!m_textureData)

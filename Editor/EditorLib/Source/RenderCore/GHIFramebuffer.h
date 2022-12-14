@@ -25,7 +25,10 @@ public:
 
 	GHIInfoFramebufferFormat();
 
-	GHIInfoTextureFormat toTextureFormat() const;
+	/*!
+	@return `true` if the conversion is an exact match.
+	*/
+	bool toTextureFormat(GHIInfoTextureFormat& textureFormat) const;
 };
 
 class GHIInfoFramebufferAttachment final

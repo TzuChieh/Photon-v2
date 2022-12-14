@@ -99,14 +99,14 @@ inline std::string_view data_type_to_ply_keyword(const EPlyDataType dataType)
 {
 	switch(dataType)
 	{
-	case EPlyDataType::PPT_int8:    return "char";
-	case EPlyDataType::PPT_uint8:   return "uchar";
-	case EPlyDataType::PPT_int16:   return "short";
-	case EPlyDataType::PPT_uint16:  return "ushort";
-	case EPlyDataType::PPT_int32:   return "int";
-	case EPlyDataType::PPT_uint32:  return "uint";
-	case EPlyDataType::PPT_float32: return "float";
-	case EPlyDataType::PPT_float64: return "double";
+	case EPlyDataType::Int8:    return "char";
+	case EPlyDataType::UInt8:   return "uchar";
+	case EPlyDataType::Int16:   return "short";
+	case EPlyDataType::UInt16:  return "ushort";
+	case EPlyDataType::Int32:   return "int";
+	case EPlyDataType::UInt32:  return "uint";
+	case EPlyDataType::Float32: return "float";
+	case EPlyDataType::Float64: return "double";
 	default: 
 		PH_LOG_WARNING(PlyFile, "Unknown PLY data type, cannot convert to keyword.");
 		return "";
@@ -117,8 +117,8 @@ inline EPlyDataType ply_keyword_to_data_type(const std::string_view keyword)
 {
 	using Value = std::underlying_type_t<EPlyDataType>;
 
-	// We could use a loop to find matching type just like ply_keyword_to_entry(); however, some PLY files
-	// have non-standard data type keywords. As a result, we manually test them.
+	// We could use a loop to find matching type just like ply_keyword_to_entry(); however, 
+	// some PLY files have non-standard data type keywords. As a result, we manually test them.
 
 	const char firstChar = keyword.empty() ? '\0' : keyword.front();
 	switch(firstChar)
@@ -126,62 +126,62 @@ inline EPlyDataType ply_keyword_to_data_type(const std::string_view keyword)
 	case 'c':
 		if(keyword == "char")
 		{
-			return EPlyDataType::PPT_int8;
+			return EPlyDataType::Int8;
 		}
 		break;
 
 	case 'd':
 		if(keyword == "double")
 		{
-			return EPlyDataType::PPT_float64;
+			return EPlyDataType::Float64;
 		}
 		break;
 
 	case 'f':
 		if(keyword == "float" || keyword == "float32")
 		{
-			return EPlyDataType::PPT_float32;
+			return EPlyDataType::Float32;
 		}
 		else if(keyword == "float64")
 		{
-			return EPlyDataType::PPT_float64;
+			return EPlyDataType::Float64;
 		}
 		break;
 
 	case 'i':
 		if(keyword == "int" || keyword == "int32")
 		{
-			return EPlyDataType::PPT_int32;
+			return EPlyDataType::Int32;
 		}
 		else if(keyword == "int8")
 		{
-			return EPlyDataType::PPT_int8;
+			return EPlyDataType::Int8;
 		}
 		else if(keyword == "int16")
 		{
-			return EPlyDataType::PPT_int16;
+			return EPlyDataType::Int16;
 		}
 		break;
 
 	case 's':
 		if(keyword == "short")
 		{
-			return EPlyDataType::PPT_int16;
+			return EPlyDataType::Int16;
 		}
 		break;
 
 	case 'u':
 		if(keyword == "uchar" || keyword == "uint8")
 		{
-			return EPlyDataType::PPT_uint8;
+			return EPlyDataType::UInt8;
 		}
 		else if(keyword == "ushort" || keyword == "uint16")
 		{
-			return EPlyDataType::PPT_uint16;
+			return EPlyDataType::UInt16;
 		}
 		else if(keyword == "uint" || keyword == "uint32")
 		{
-			return EPlyDataType::PPT_uint32;
+			return EPlyDataType::UInt32;
 		}
 		break;
 	}
@@ -194,20 +194,20 @@ inline std::size_t sizeof_ply_data_type(const EPlyDataType dataType)
 {
 	switch(dataType)
 	{
-	case EPlyDataType::PPT_int8:
-	case EPlyDataType::PPT_uint8:
+	case EPlyDataType::Int8:
+	case EPlyDataType::UInt8:
 		return 1;
 
-	case EPlyDataType::PPT_int16:
-	case EPlyDataType::PPT_uint16:
+	case EPlyDataType::Int16:
+	case EPlyDataType::UInt16:
 		return 2;
 
-	case EPlyDataType::PPT_int32:
-	case EPlyDataType::PPT_uint32:
-	case EPlyDataType::PPT_float32:
+	case EPlyDataType::Int32:
+	case EPlyDataType::UInt32:
+	case EPlyDataType::Float32:
 		return 4;
 
-	case EPlyDataType::PPT_float64:
+	case EPlyDataType::Float64:
 		return 8;
 	}
 
@@ -255,14 +255,14 @@ inline float64 bytes_to_ply_data(const std::byte* const binaryPlyData, const EPl
 {
 	switch(dataType)
 	{
-	case EPlyDataType::PPT_int8:    return read_binary_ply_data<int8>(binaryPlyData);
-	case EPlyDataType::PPT_uint8:   return read_binary_ply_data<uint8>(binaryPlyData);
-	case EPlyDataType::PPT_int16:   return read_binary_ply_data<int16>(binaryPlyData);
-	case EPlyDataType::PPT_uint16:  return read_binary_ply_data<uint16>(binaryPlyData);
-	case EPlyDataType::PPT_int32:   return read_binary_ply_data<int32>(binaryPlyData);
-	case EPlyDataType::PPT_uint32:  return read_binary_ply_data<uint32>(binaryPlyData);
-	case EPlyDataType::PPT_float32: return read_binary_ply_data<float32>(binaryPlyData);
-	case EPlyDataType::PPT_float64: return read_binary_ply_data<float64>(binaryPlyData);
+	case EPlyDataType::Int8:    return read_binary_ply_data<int8>(binaryPlyData);
+	case EPlyDataType::UInt8:   return read_binary_ply_data<uint8>(binaryPlyData);
+	case EPlyDataType::Int16:   return read_binary_ply_data<int16>(binaryPlyData);
+	case EPlyDataType::UInt16:  return read_binary_ply_data<uint16>(binaryPlyData);
+	case EPlyDataType::Int32:   return read_binary_ply_data<int32>(binaryPlyData);
+	case EPlyDataType::UInt32:  return read_binary_ply_data<uint32>(binaryPlyData);
+	case EPlyDataType::Float32: return read_binary_ply_data<float32>(binaryPlyData);
+	case EPlyDataType::Float64: return read_binary_ply_data<float64>(binaryPlyData);
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
@@ -273,35 +273,35 @@ inline void ply_data_to_bytes(const float64 value, const EPlyDataType dataType, 
 {
 	switch(dataType)
 	{
-	case EPlyDataType::PPT_int8: 
+	case EPlyDataType::Int8: 
 		write_binary_ply_data<int8>(static_cast<int8>(value), out_binaryPlyData);
 		break;
 
-	case EPlyDataType::PPT_uint8:
+	case EPlyDataType::UInt8:
 		write_binary_ply_data<uint8>(static_cast<uint8>(value), out_binaryPlyData);
 		break;
 
-	case EPlyDataType::PPT_int16:
+	case EPlyDataType::Int16:
 		write_binary_ply_data<int16>(static_cast<int16>(value), out_binaryPlyData);
 		break;
 
-	case EPlyDataType::PPT_uint16: 
+	case EPlyDataType::UInt16: 
 		write_binary_ply_data<uint16>(static_cast<uint16>(value), out_binaryPlyData);
 		break;
 
-	case EPlyDataType::PPT_int32:
+	case EPlyDataType::Int32:
 		write_binary_ply_data<int32>(static_cast<int32>(value), out_binaryPlyData);
 		break;
 
-	case EPlyDataType::PPT_uint32: 
+	case EPlyDataType::UInt32: 
 		write_binary_ply_data<uint32>(static_cast<uint32>(value), out_binaryPlyData);
 		break;
 
-	case EPlyDataType::PPT_float32:
+	case EPlyDataType::Float32:
 		write_binary_ply_data<float32>(static_cast<float32>(value), out_binaryPlyData);
 		break;
 
-	case EPlyDataType::PPT_float64:
+	case EPlyDataType::Float64:
 		write_binary_ply_data<float64>(static_cast<float64>(value), out_binaryPlyData);
 		break;
 	}
@@ -316,14 +316,14 @@ inline float64 ascii_ply_data_to_bytes(
 {
 	switch(dataType)
 	{
-	case EPlyDataType::PPT_int8:    return ascii_ply_data_to_bytes<int8>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_uint8:   return ascii_ply_data_to_bytes<uint8>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_int16:   return ascii_ply_data_to_bytes<int16>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_uint16:  return ascii_ply_data_to_bytes<uint16>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_int32:   return ascii_ply_data_to_bytes<int32>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_uint32:  return ascii_ply_data_to_bytes<uint32>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_float32: return ascii_ply_data_to_bytes<float32>(asciiPlyData, out_binaryPlyData);
-	case EPlyDataType::PPT_float64: return ascii_ply_data_to_bytes<float64>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::Int8:    return ascii_ply_data_to_bytes<int8>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::UInt8:   return ascii_ply_data_to_bytes<uint8>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::Int16:   return ascii_ply_data_to_bytes<int16>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::UInt16:  return ascii_ply_data_to_bytes<uint16>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::Int32:   return ascii_ply_data_to_bytes<int32>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::UInt32:  return ascii_ply_data_to_bytes<uint32>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::Float32: return ascii_ply_data_to_bytes<float32>(asciiPlyData, out_binaryPlyData);
+	case EPlyDataType::Float64: return ascii_ply_data_to_bytes<float64>(asciiPlyData, out_binaryPlyData);
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
@@ -337,35 +337,35 @@ inline void bytes_to_ascii_ply_data(
 {
 	switch(dataType)
 	{
-	case EPlyDataType::PPT_int8:
+	case EPlyDataType::Int8:
 		bytes_to_ascii_ply_data<int8>(binaryPlyData, out_asciiPlyData);
 		break;
 
-	case EPlyDataType::PPT_uint8:
+	case EPlyDataType::UInt8:
 		bytes_to_ascii_ply_data<uint8>(binaryPlyData, out_asciiPlyData);
 		break;
 
-	case EPlyDataType::PPT_int16:
+	case EPlyDataType::Int16:
 		bytes_to_ascii_ply_data<int16>(binaryPlyData, out_asciiPlyData);
 		break;
 
-	case EPlyDataType::PPT_uint16:
+	case EPlyDataType::UInt16:
 		bytes_to_ascii_ply_data<uint16>(binaryPlyData, out_asciiPlyData);
 		break;
 
-	case EPlyDataType::PPT_int32:
+	case EPlyDataType::Int32:
 		bytes_to_ascii_ply_data<int32>(binaryPlyData, out_asciiPlyData);
 		break;
 
-	case EPlyDataType::PPT_uint32:
+	case EPlyDataType::UInt32:
 		bytes_to_ascii_ply_data<uint32>(binaryPlyData, out_asciiPlyData);
 		break;
 
-	case EPlyDataType::PPT_float32:
+	case EPlyDataType::Float32:
 		bytes_to_ascii_ply_data<float32>(binaryPlyData, out_asciiPlyData);
 		break;
 
-	case EPlyDataType::PPT_float64:
+	case EPlyDataType::Float64:
 		bytes_to_ascii_ply_data<float64>(binaryPlyData, out_asciiPlyData);
 		break;
 	}

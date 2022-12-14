@@ -17,7 +17,8 @@ public:
 	virtual void onUninitialize(RenderThreadCaller& caller);
 
 	void setScene(DesignerScene* scene);
-	DesignerScene* getScene() const;
+	DesignerScene& getScene();
+	const DesignerScene& getScene() const;
 
 private:
 	DesignerScene* m_scene;
