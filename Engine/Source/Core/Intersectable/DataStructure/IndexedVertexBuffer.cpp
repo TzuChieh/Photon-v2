@@ -15,10 +15,10 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(IndexedVertexBuffer, Core);
 
 IndexedVertexBuffer::Entry::Entry() :
-	element        (EVertexElement::VE_Float32),
+	strideSize     (INVALID_STRIZE_SIZE),
+	element        (EVertexElement::Float32),
 	numElements    (0),
-	shouldNormalize(0),
-	strideOffset   (0)
+	shouldNormalize(0)
 {
 	PH_ASSERT(isEmpty());
 }
@@ -27,7 +27,7 @@ IndexedVertexBuffer::IndexedVertexBuffer() :
 	m_entries       (),
 	m_byteBuffer    (nullptr),
 	m_byteBufferSize(0),
-	m_strideSize    (0)
+	m_vertexSize    (0)
 {
 	PH_ASSERT(!isAllocated());
 }
@@ -45,7 +45,6 @@ void IndexedVertexBuffer::setEntry(
 	}
 
 	Entry inputEntry;
-
 	if(static_cast<std::size_t>(element) < static_cast<std::size_t>(EVertexElement::NUM))
 	{
 		inputEntry.element = element;
@@ -57,7 +56,7 @@ void IndexedVertexBuffer::setEntry(
 
 	if(numElements <= 3)
 	{
-		if(element == EVertexElement::VE_OctahedralUnitVec3_32 || element == EVertexElement::VE_OctahedralUnitVec3_24)
+		if(element == EVertexElement::OctahedralUnitVec3_32 || element == EVertexElement::OctahedralUnitVec3_24)
 		{
 			if(numElements != 0 && numElements != 3)
 			{
@@ -78,16 +77,19 @@ void IndexedVertexBuffer::setEntry(
 		throw std::invalid_argument("Cannot handle more than 3 elements in a single attribute.");
 	}
 	
-	inputEntry.shouldNormalize = shouldNormalize ? 1 : 0;
+	inputEntry.shouldNormalize = shouldNormalize ? true : false;
 
 	m_entries[entryIndex] = inputEntry;
 }
 
 void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 {
-	// Update stride offset in the entries
+	// Update stride size in the entries (AoS is assumed if no existing stride is provided) 
+	// and calculate vertex size (sum of size of each attribute)
 
-	StrideSize currentStrideSize = 0;
+	// Calculate vertex size (sum of size of each attribute)
+
+	std::size_t currentVertexSize = 0;
 	for(Entry& entry : m_entries)
 	{
 		if(entry.isEmpty())
@@ -95,25 +97,26 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 			continue;
 		}
 
+
 		entry.strideOffset = currentStrideSize;
 
 		switch(entry.element)
 		{
-		case EVertexElement::VE_Float32:
-		case EVertexElement::VE_Int32:
+		case EVertexElement::Float32:
+		case EVertexElement::Int32:
 			currentStrideSize += 4 * entry.numElements;
 			break;
 
-		case EVertexElement::VE_Float16:
-		case EVertexElement::VE_Int16:
+		case EVertexElement::Float16:
+		case EVertexElement::Int16:
 			currentStrideSize += 2 * entry.numElements;
 			break;
 
-		case EVertexElement::VE_OctahedralUnitVec3_32:
+		case EVertexElement::OctahedralUnitVec3_32:
 			currentStrideSize += 4;
 			break;
 
-		case EVertexElement::VE_OctahedralUnitVec3_24:
+		case EVertexElement::OctahedralUnitVec3_24:
 			currentStrideSize += 3;
 			break;
 
@@ -129,6 +132,8 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 
 	// Possibly clear existing buffer first to reduce memory usage
 	m_byteBuffer = nullptr;
+
+	// TODO: aligned byte buffer
 
 	m_byteBufferSize = numVertices * m_strideSize;
 	m_byteBuffer = std::make_unique<std::byte[]>(m_byteBufferSize);
@@ -158,7 +163,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 	math::Vector3R value(0);
 	switch(entry.element)
 	{
-	case EVertexElement::VE_Float32:
+	case EVertexElement::Float32:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			float32 element;
@@ -167,7 +172,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		}
 		break;
 
-	case EVertexElement::VE_Float16:
+	case EVertexElement::Float16:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			uint16 fp16Bits;
@@ -176,31 +181,31 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		}
 		break;
 
-	case EVertexElement::VE_Int32:
+	case EVertexElement::Int32:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			int32 element;
 			std::memcpy(&element, &(m_byteBuffer[byteIndex + ei * 4]), 4);
 
-			value[ei] = entry.isNormalized()
+			value[ei] = entry.shouldNormalize
 				? math::normalize_integer<real>(element)
 				: static_cast<real>(element);
 		}
 		break;
 
-	case EVertexElement::VE_Int16:
+	case EVertexElement::Int16:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			int16 element;
 			std::memcpy(&element, &(m_byteBuffer[byteIndex + ei * 2]), 2);
 
-			value[ei] = entry.isNormalized()
+			value[ei] = entry.shouldNormalize
 				? math::normalize_integer<real>(element)
 				: static_cast<real>(element);
 		}
 		break;
 
-	case EVertexElement::VE_OctahedralUnitVec3_32:
+	case EVertexElement::OctahedralUnitVec3_32:
 		{
 			math::TVector2<uint16> encodedBits;
 			std::memcpy(&encodedBits.x(), &(m_byteBuffer[byteIndex + 0 * 2]), 2);
@@ -214,7 +219,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		}
 		break;
 
-	case EVertexElement::VE_OctahedralUnitVec3_24:
+	case EVertexElement::OctahedralUnitVec3_24:
 		{
 			// Read 3 bytes (we use only the first 3 bytes of the uint32)
 			uint32 packedBits;
@@ -264,7 +269,7 @@ void IndexedVertexBuffer::setAttribute(
 
 	switch(entry.element)
 	{
-	case EVertexElement::VE_Float32:
+	case EVertexElement::Float32:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			const auto element = static_cast<float32>(value[ei]);
@@ -272,7 +277,7 @@ void IndexedVertexBuffer::setAttribute(
 		}
 		break;
 
-	case EVertexElement::VE_Float16:
+	case EVertexElement::Float16:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			const uint16 fp16Bits = math::fp32_to_fp16_bits(static_cast<float32>(value[ei]));
@@ -280,37 +285,37 @@ void IndexedVertexBuffer::setAttribute(
 		}
 		break;
 
-	case EVertexElement::VE_Int32:
+	case EVertexElement::Int32:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
-			if(entry.isNormalized() && std::abs(value[ei]) > 1.0_r)
+			if(entry.shouldNormalize && std::abs(value[ei]) > 1.0_r)
 			{
 				throw std::invalid_argument("Cannot set un-normalized value to a normalized entry.");
 			}
 
-			const auto element = entry.isNormalized()
+			const auto element = entry.shouldNormalize
 				? math::quantize_normalized_float<int32>(value[ei])
 				: static_cast<int32>(std::round(value[ei]));
 			std::memcpy(&(m_byteBuffer[byteIndex + ei * 4]), &element, 4);
 		}
 		break;
 
-	case EVertexElement::VE_Int16:
+	case EVertexElement::Int16:
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
-			if(entry.isNormalized() && std::abs(value[ei]) > 1.0_r)
+			if(entry.shouldNormalize && std::abs(value[ei]) > 1.0_r)
 			{
 				throw std::invalid_argument("Cannot set un-normalized value to a normalized entry.");
 			}
 
-			const auto element = entry.isNormalized()
+			const auto element = entry.shouldNormalize
 				? math::quantize_normalized_float<int16>(value[ei])
 				: static_cast<int16>(std::round(value[ei]));
 			std::memcpy(&(m_byteBuffer[byteIndex + ei * 2]), &element, 2);
 		}
 		break;
 
-	case EVertexElement::VE_OctahedralUnitVec3_32:
+	case EVertexElement::OctahedralUnitVec3_32:
 		{
 			const math::Vector2R encodedVal = math::octahedron_unit_vector_encode(value);
 
@@ -323,7 +328,7 @@ void IndexedVertexBuffer::setAttribute(
 		}
 		break;
 
-	case EVertexElement::VE_OctahedralUnitVec3_24:
+	case EVertexElement::OctahedralUnitVec3_24:
 		{
 			const math::Vector2R encodedVal = math::octahedron_unit_vector_encode(value);
 

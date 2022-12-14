@@ -21,7 +21,7 @@ TEST(IndexedVertexBufferTest, BasicBufferStates)
 
 	{
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::VE_Float32, 3);
+		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
 		buffer.allocate(100);
 		EXPECT_TRUE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numVertices(), 100);
@@ -30,9 +30,9 @@ TEST(IndexedVertexBufferTest, BasicBufferStates)
 
 	{
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::VE_Float16, 3);
-		buffer.setEntry(EVertexAttribute::Normal_0, EVertexElement::VE_OctahedralUnitVec3_24, 3);
-		buffer.setEntry(EVertexAttribute::TexCoord_0, EVertexElement::VE_Int16, 2);
+		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::Float16, 3);
+		buffer.setEntry(EVertexAttribute::Normal_0, EVertexElement::OctahedralUnitVec3_24, 3);
+		buffer.setEntry(EVertexAttribute::TexCoord_0, EVertexElement::Int16, 2);
 		buffer.allocate(100);
 		EXPECT_TRUE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numVertices(), 100);
@@ -46,7 +46,7 @@ TEST(IndexedVertexBufferTest, BufferIOFloatTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::VE_Float32, 3);
+		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
 		buffer.allocate(1);
 
 		buffer.setAttribute(EVertexAttribute::Position_0, 0, {-1, -2, -3});
@@ -57,7 +57,7 @@ TEST(IndexedVertexBufferTest, BufferIOFloatTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::TexCoord_0, EVertexElement::VE_Float32, 2);
+		buffer.setEntry(EVertexAttribute::TexCoord_0, EVertexElement::Float32, 2);
 		buffer.allocate(3);
 
 		buffer.setAttribute(EVertexAttribute::TexCoord_0, 0, {-1, -2});
@@ -72,7 +72,7 @@ TEST(IndexedVertexBufferTest, BufferIOFloatTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::Normal_0, EVertexElement::VE_Float32, 3);
+		buffer.setEntry(EVertexAttribute::Normal_0, EVertexElement::Float32, 3);
 		buffer.allocate(1000);
 
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
@@ -92,7 +92,7 @@ TEST(IndexedVertexBufferTest, BufferIOFloatTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::VE_Float16, 3);
+		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::Float16, 3);
 		buffer.allocate(1000);
 
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
@@ -115,7 +115,7 @@ TEST(IndexedVertexBufferTest, BufferIOIntegerTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-5_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::VE_Int32, 3);
+		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::Int32, 3);
 		buffer.allocate(1000);
 
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
@@ -136,7 +136,7 @@ TEST(IndexedVertexBufferTest, BufferIOIntegerTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-5_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::VE_Int32, 3, true);
+		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::Int32, 3, true);
 		buffer.allocate(1000);
 
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
@@ -171,7 +171,7 @@ TEST(IndexedVertexBufferTest, BufferIOOctahedronNormalEncoding)
 	auto makeNormalBuffer = [&normalVectors](const EVertexElement element)
 	{
 		IndexedVertexBuffer buffer;
-		buffer.setEntry(EVertexAttribute::Normal_0, EVertexElement::VE_Float32, 3);
+		buffer.setEntry(EVertexAttribute::Normal_0, EVertexElement::Float32, 3);
 		buffer.allocate(normalVectors.size());
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
 		{
@@ -186,7 +186,7 @@ TEST(IndexedVertexBufferTest, BufferIOOctahedronNormalEncoding)
 		// Sould really have much smaller error than 1e-6 (re-normalization error only)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
-		const auto buffer = makeNormalBuffer(EVertexElement::VE_Float32);
+		const auto buffer = makeNormalBuffer(EVertexElement::Float32);
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
 		{
 			EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Normal_0, i).isNear(normalVectors[i], MAX_ALLOWED_ABS_ERROR));
@@ -197,7 +197,7 @@ TEST(IndexedVertexBufferTest, BufferIOOctahedronNormalEncoding)
 	{
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-4_r;
 
-		const auto buffer = makeNormalBuffer(EVertexElement::VE_OctahedralUnitVec3_32);
+		const auto buffer = makeNormalBuffer(EVertexElement::OctahedralUnitVec3_32);
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
 		{
 			EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Normal_0, i).isNear(normalVectors[i], MAX_ALLOWED_ABS_ERROR));
@@ -208,10 +208,12 @@ TEST(IndexedVertexBufferTest, BufferIOOctahedronNormalEncoding)
 	{
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-3_r;
 
-		const auto buffer = makeNormalBuffer(EVertexElement::VE_OctahedralUnitVec3_24);
+		const auto buffer = makeNormalBuffer(EVertexElement::OctahedralUnitVec3_24);
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
 		{
 			EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Normal_0, i).isNear(normalVectors[i], MAX_ALLOWED_ABS_ERROR));
 		}
 	}
 }
+
+// TODO: general buffer IO mixed types
