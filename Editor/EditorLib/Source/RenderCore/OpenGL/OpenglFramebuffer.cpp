@@ -202,7 +202,7 @@ std::shared_ptr<GHITexture2D> OpenglFramebuffer::createTextureFromColor(const ui
 	PH_ASSERT_LT(attachmentIndex, m_colorTextureIDs.size());
 
 	return std::make_shared<OpenglFramebufferBackedTexture2D>(
-		getSharedPtrFromThis(),
+		std::static_pointer_cast<OpenglFramebuffer>(getSharedPtrFromThis()),
 		m_colorTextureIDs[attachmentIndex],
 		attachmentIndex,
 		false);

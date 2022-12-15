@@ -216,4 +216,35 @@ TEST(IndexedVertexBufferTest, BufferIOOctahedronNormalEncoding)
 	}
 }
 
-// TODO: general buffer IO mixed types
+TEST(IndexedVertexBufferTest, BufferIOMixedAttributes)
+{
+	// Mixed attributes with default AoS layout
+	{
+		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
+
+		IndexedVertexBuffer buffer;
+		buffer.setEntry(EVertexAttribute::TexCoord_0, EVertexElement::Float32, 2);
+		buffer.setEntry(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
+		buffer.allocate(3);
+
+		buffer.setAttribute(EVertexAttribute::TexCoord_0, 0, {-1, -2});
+		buffer.setAttribute(EVertexAttribute::Position_0, 0, {-3, -4, -5});
+
+		buffer.setAttribute(EVertexAttribute::TexCoord_0, 1, {6, 7});
+		buffer.setAttribute(EVertexAttribute::Position_0, 1, {-8, -9, -10});
+
+		buffer.setAttribute(EVertexAttribute::TexCoord_0, 2, {-11, -12});
+		buffer.setAttribute(EVertexAttribute::Position_0, 2, {13, 14, 15});
+
+		EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::TexCoord_0, 0).isNear({-1, -2, 0}, MAX_ALLOWED_ABS_ERROR));
+		EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Position_0, 0).isNear({-3, -4, -5}, MAX_ALLOWED_ABS_ERROR));
+		
+		EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::TexCoord_0, 1).isNear({6, 7, 0}, MAX_ALLOWED_ABS_ERROR));
+		EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Position_0, 1).isNear({-8, -9, -10}, MAX_ALLOWED_ABS_ERROR));
+	
+		EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::TexCoord_0, 2).isNear({-11, -12, 0}, MAX_ALLOWED_ABS_ERROR));
+		EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Position_0, 2).isNear({13, 14, 15}, MAX_ALLOWED_ABS_ERROR));
+	}
+
+	// TODO: SoA
+}

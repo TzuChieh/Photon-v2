@@ -58,6 +58,8 @@ public:
 		std::size_t      numElements,
 		bool             shouldNormalize = false);
 
+	// TODO: custom layout
+
 	void allocate(std::size_t numVertices);
 
 	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector3R& value);
@@ -113,10 +115,11 @@ private:
 		bool hasStrideSize() const;
 	};
 
+	bool hasEntry(EVertexAttribute attribute) const;
 	const Entry& getEntry(EVertexAttribute attribute) const;
 	void ensureConsistentVertexLayout() const;
 
-	inline constexpr static auto MAX_ENTRIES = static_cast<std::size_t>(EVertexAttribute::NUM);
+	inline constexpr static auto MAX_ENTRIES = enum_to_value(EVertexAttribute::NUM);
 
 	std::array<std::underlying_type_t<EVertexAttribute>, MAX_ENTRIES> m_attributeTypeToEntryIndex;
 	std::array<Entry, MAX_ENTRIES> m_entries;
@@ -162,6 +165,11 @@ inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, 
 inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, real value)
 {
 	setAttribute(attribute, index, math::Vector3R(value, 0.0_r, 0.0_r));
+}
+
+inline bool IndexedVertexBuffer::hasEntry(const EVertexAttribute attribute) const
+{
+	return m_attributeTypeToEntryIndex[enum_to_value(attribute)] != MAX_ENTRIES;
 }
 
 inline const IndexedVertexBuffer::Entry& IndexedVertexBuffer::getEntry(const EVertexAttribute attribute) const

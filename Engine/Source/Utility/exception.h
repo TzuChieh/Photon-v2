@@ -57,6 +57,12 @@ public:
 	using LogicalException::LogicalException;
 };
 
+class InvalidArgumentException : public LogicalException
+{
+public:
+	using LogicalException::LogicalException;
+};
+
 template<typename T>
 concept CPhotonException = 
 	std::is_base_of_v<RuntimeException, T> ||

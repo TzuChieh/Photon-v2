@@ -3,11 +3,10 @@
 #include "Math/math.h"
 #include "Math/Geometry/geometry.h"
 #include "Math/TVector2.h"
+#include "Utility/exception.h"
 
-#include <stdexcept>
 #include <cstring>
 #include <cmath>
-#include <format>
 
 namespace ph
 {
@@ -34,7 +33,7 @@ IndexedVertexBuffer::IndexedVertexBuffer()
 {
 	PH_ASSERT(!isAllocated());
 
-	m_attributeTypeToEntryIndex.fill(enum_to_value(EVertexAttribute::NUM));
+	m_attributeTypeToEntryIndex.fill(MAX_ENTRIES);
 }
 
 void IndexedVertexBuffer::setEntry(
@@ -43,13 +42,17 @@ void IndexedVertexBuffer::setEntry(
 	const std::size_t      numElements,
 	const bool             shouldNormalize)
 {
-	if(enum_to_value(attribute) >= m_entries.size())
+	if(attribute >= EVertexAttribute::NUM ||
+	   element >= EVertexElement::NUM ||
+	   numElements == 0)
 	{
-		throw std::invalid_argument("Invalid vertex attribute.");
+		throw_formatted<InvalidArgumentException>(
+			"invalid input parameter detected: attribute = {}, element = {}, numElements = {}",
+			enum_to_value(attribute), enum_to_value(element), numElements);
 	}
 
 	auto entryIndex = m_numEntries;
-	if(m_attributeTypeToEntryIndex[enum_to_value(attribute)] < enum_to_value(EVertexAttribute::NUM))
+	if(m_attributeTypeToEntryIndex[enum_to_value(attribute)] < MAX_ENTRIES)
 	{
 		// Use existing entry index mapping
 		entryIndex = m_attributeTypeToEntryIndex[enum_to_value(attribute)];
@@ -59,14 +62,7 @@ void IndexedVertexBuffer::setEntry(
 	// Start filling new entry information
 
 	Entry inputEntry;
-	if(element < EVertexElement::NUM)
-	{
-		inputEntry.element = element;
-	}
-	else
-	{
-		throw std::invalid_argument("Invalid vertex element type.");
-	}
+	inputEntry.element = element;
 
 	if(numElements <= 3)
 	{
@@ -88,7 +84,7 @@ void IndexedVertexBuffer::setEntry(
 	}
 	else
 	{
-		throw std::invalid_argument("Cannot handle more than 3 elements in a single attribute.");
+		throw InvalidArgumentException("Cannot handle more than 3 elements in a single attribute.");
 	}
 	
 	inputEntry.shouldNormalize = shouldNormalize ? true : false;
@@ -137,7 +133,7 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 			break;
 
 		default:
-			throw std::invalid_argument("Cannot allocate storage for invalid vertex element type.");
+			throw InvalidArgumentException("Cannot allocate storage for invalid vertex element type.");
 			break;
 		}
 	}
@@ -182,17 +178,16 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 {
 	PH_ASSERT(isAllocated());
 
-	const auto entryIndex = static_cast<std::size_t>(attribute);
-	PH_ASSERT_LT(entryIndex, m_entries.size());
-
-	const Entry& entry = m_entries[entryIndex];
-	if(entry.isEmpty())
+	if(!hasEntry(attribute))
 	{
 		return math::Vector3R(0);
 	}
 
-	const auto byteIndex = index * m_strideSize + entry.strideOffset;
-	PH_ASSERT_LT(byteIndex, m_byteBufferSize);
+	const Entry& entry = getEntry(attribute);
+	PH_ASSERT(!entry.isEmpty());
+
+	const std::byte* const bufferPtr = entry.u_attributeBuffer + index * entry.strideSize;
+	PH_ASSERT(bufferPtr);
 
 	math::Vector3R value(0);
 	switch(entry.element)
@@ -201,7 +196,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			float32 element;
-			std::memcpy(&element, &(m_byteBuffer[byteIndex + ei * 4]), 4);
+			std::memcpy(&element, bufferPtr + ei * 4, 4);
 			value[ei] = element;
 		}
 		break;
@@ -210,7 +205,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			uint16 fp16Bits;
-			std::memcpy(&fp16Bits, &(m_byteBuffer[byteIndex + ei * 2]), 2);
+			std::memcpy(&fp16Bits, bufferPtr + ei * 2, 2);
 			value[ei] = math::fp16_bits_to_fp32(fp16Bits);
 		}
 		break;
@@ -219,7 +214,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			int32 element;
-			std::memcpy(&element, &(m_byteBuffer[byteIndex + ei * 4]), 4);
+			std::memcpy(&element, bufferPtr + ei * 4, 4);
 
 			value[ei] = entry.shouldNormalize
 				? math::normalize_integer<real>(element)
@@ -231,7 +226,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			int16 element;
-			std::memcpy(&element, &(m_byteBuffer[byteIndex + ei * 2]), 2);
+			std::memcpy(&element, bufferPtr + ei * 2, 2);
 
 			value[ei] = entry.shouldNormalize
 				? math::normalize_integer<real>(element)
@@ -242,8 +237,8 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 	case EVertexElement::OctahedralUnitVec3_32:
 		{
 			math::TVector2<uint16> encodedBits;
-			std::memcpy(&encodedBits.x(), &(m_byteBuffer[byteIndex + 0 * 2]), 2);
-			std::memcpy(&encodedBits.y(), &(m_byteBuffer[byteIndex + 1 * 2]), 2);
+			std::memcpy(&encodedBits.x(), bufferPtr + 0 * 2, 2);
+			std::memcpy(&encodedBits.y(), bufferPtr + 1 * 2, 2);
 
 			const math::Vector2R encodedVal(
 				math::normalize_integer<real>(encodedBits.x()),
@@ -257,7 +252,7 @@ math::Vector3R IndexedVertexBuffer::getAttribute(const EVertexAttribute attribut
 		{
 			// Read 3 bytes (we use only the first 3 bytes of the uint32)
 			uint32 packedBits;
-			std::memcpy(&packedBits, &(m_byteBuffer[byteIndex]), 3);
+			std::memcpy(&packedBits, bufferPtr, 3);
 
 			const math::TVector2<uint32> encodedBits(
 				(packedBits & 0x00000FFF),
@@ -289,17 +284,18 @@ void IndexedVertexBuffer::setAttribute(
 {
 	PH_ASSERT(isAllocated());
 
-	const auto entryIndex = static_cast<std::size_t>(attribute);
-	PH_ASSERT_LT(entryIndex, m_entries.size());
-
-	const Entry& entry = m_entries[entryIndex];
-	if(entry.isEmpty())
+	if(!hasEntry(attribute))
 	{
-		throw std::invalid_argument("Setting value to an empty vertex atrribute.");
+		throw_formatted<InvalidArgumentException>(
+			"Setting value to an empty vertex atrribute {}.", 
+			enum_to_value(attribute));
 	}
 
-	const auto byteIndex = index * m_strideSize + entry.strideOffset;
-	PH_ASSERT_LT(byteIndex, m_byteBufferSize);
+	const Entry& entry = getEntry(attribute);
+	PH_ASSERT(!entry.isEmpty());
+
+	std::byte* const bufferPtr = entry.u_attributeBuffer + index * entry.strideSize;
+	PH_ASSERT(bufferPtr);
 
 	switch(entry.element)
 	{
@@ -307,7 +303,7 @@ void IndexedVertexBuffer::setAttribute(
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			const auto element = static_cast<float32>(value[ei]);
-			std::memcpy(&(m_byteBuffer[byteIndex + ei * 4]), &element, 4);
+			std::memcpy(bufferPtr + ei * 4, &element, 4);
 		}
 		break;
 
@@ -315,7 +311,7 @@ void IndexedVertexBuffer::setAttribute(
 		for(std::size_t ei = 0; ei < entry.numElements; ++ei)
 		{
 			const uint16 fp16Bits = math::fp32_to_fp16_bits(static_cast<float32>(value[ei]));
-			std::memcpy(&(m_byteBuffer[byteIndex + ei * 2]), &fp16Bits, 2);
+			std::memcpy(bufferPtr + ei * 2, &fp16Bits, 2);
 		}
 		break;
 
@@ -324,13 +320,13 @@ void IndexedVertexBuffer::setAttribute(
 		{
 			if(entry.shouldNormalize && std::abs(value[ei]) > 1.0_r)
 			{
-				throw std::invalid_argument("Cannot set un-normalized value to a normalized entry.");
+				throw InvalidArgumentException("Cannot set un-normalized value to a normalized entry.");
 			}
 
 			const auto element = entry.shouldNormalize
 				? math::quantize_normalized_float<int32>(value[ei])
 				: static_cast<int32>(std::round(value[ei]));
-			std::memcpy(&(m_byteBuffer[byteIndex + ei * 4]), &element, 4);
+			std::memcpy(bufferPtr + ei * 4, &element, 4);
 		}
 		break;
 
@@ -339,13 +335,13 @@ void IndexedVertexBuffer::setAttribute(
 		{
 			if(entry.shouldNormalize && std::abs(value[ei]) > 1.0_r)
 			{
-				throw std::invalid_argument("Cannot set un-normalized value to a normalized entry.");
+				throw InvalidArgumentException("Cannot set un-normalized value to a normalized entry.");
 			}
 
 			const auto element = entry.shouldNormalize
 				? math::quantize_normalized_float<int16>(value[ei])
 				: static_cast<int16>(std::round(value[ei]));
-			std::memcpy(&(m_byteBuffer[byteIndex + ei * 2]), &element, 2);
+			std::memcpy(bufferPtr + ei * 2, &element, 2);
 		}
 		break;
 
@@ -357,8 +353,8 @@ void IndexedVertexBuffer::setAttribute(
 				math::quantize_normalized_float<uint16>(encodedVal.x()),
 				math::quantize_normalized_float<uint16>(encodedVal.y()));
 
-			std::memcpy(&(m_byteBuffer[byteIndex + 0 * 2]), &encodedBits.x(), 2);
-			std::memcpy(&(m_byteBuffer[byteIndex + 1 * 2]), &encodedBits.y(), 2);
+			std::memcpy(bufferPtr + 0 * 2, &encodedBits.x(), 2);
+			std::memcpy(bufferPtr + 1 * 2, &encodedBits.y(), 2);
 		}
 		break;
 
@@ -375,7 +371,7 @@ void IndexedVertexBuffer::setAttribute(
 
 			// Write 3 bytes (we use only the first 3 bytes of the uint32)
 			const uint32 packedBits = (encodedBits.x() & 0x00000FFF) | ((encodedBits.y() & 0x00000FFF) << 12);
-			std::memcpy(&(m_byteBuffer[byteIndex]), &packedBits, 3);
+			std::memcpy(bufferPtr, &packedBits, 3);
 		}
 		break;
 
@@ -392,9 +388,9 @@ void IndexedVertexBuffer::setVertices(const std::byte* const srcBytes, const std
 
 	if(dstOffset + numBytes > m_byteBufferSize)
 	{
-		throw std::invalid_argument(std::format(
+		throw_formatted<InvalidArgumentException>(
 			"Copying {} bytes will overflow the vertex buffer (buffer-size: {} bytes, buffer-offset: {}).",
-			numBytes, numBytes, dstOffset));
+			numBytes, numBytes, dstOffset);
 	}
 
 	std::memcpy(&(m_byteBuffer[dstOffset]), srcBytes, numBytes);
@@ -412,7 +408,7 @@ void IndexedVertexBuffer::ensureConsistentVertexLayout() const
 	{
 		if(m_entries[entryIndex].hasStrideSize() != hasStrideSize)
 		{
-			throw std::invalid_argument(
+			throw InvalidArgumentException(
 				"Inconsistent vertex stride size detected. Attributes must all use automatic stride "
 				"size (AoS) or all with custom stride size.");
 		}

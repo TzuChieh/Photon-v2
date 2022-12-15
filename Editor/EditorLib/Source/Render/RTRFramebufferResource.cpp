@@ -16,8 +16,6 @@ RTRFramebufferResource::RTRFramebufferResource(
 	, m_ghiFramebuffer(nullptr)
 {}
 
-RTRFramebufferResource::~RTRFramebufferResource() = default;
-
 RTRFramebufferResource::~RTRFramebufferResource()
 {
 	// Must have been released by GHI thread

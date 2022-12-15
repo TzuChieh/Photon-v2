@@ -20,6 +20,8 @@ public:
 		const GHIInfoTextureFormat& format, 
 		std::unique_ptr<PictureData> textureData);
 
+	~RTRTexture2DResource() override;
+
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
 	const GHIInfoTextureFormat& getFormat() const;

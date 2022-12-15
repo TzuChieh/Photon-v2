@@ -33,6 +33,8 @@ public:
 		uint32 attachmentIndex,
 		bool isDepthStencilAttachment = false);
 
+	~RTRRenderTargetResource() override;
+
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
 	std::size_t numLayers() const override;
