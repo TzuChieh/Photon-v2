@@ -90,18 +90,6 @@ TEST(UtilityTest, SizeofInBits)
 		using ArrType = std::array<int, 100>;
 		EXPECT_GE(ph::sizeof_in_bits<ArrType>(), 16 * 100);
 	}
-	
-	// sizeof expressions
-	{
-		EXPECT_EQ(ph::sizeof_in_bits(std::int8_t{}), 8);
-		EXPECT_EQ(ph::sizeof_in_bits(std::int16_t{}), 16);
-		EXPECT_EQ(ph::sizeof_in_bits(std::uint32_t{}), 32);
-		EXPECT_EQ(ph::sizeof_in_bits(std::int32_t{}), 32);
-		EXPECT_EQ(ph::sizeof_in_bits(std::uint64_t{}), 64);
-
-		using ArrType = std::array<int, 100>;
-		EXPECT_GE(ph::sizeof_in_bits(ArrType{}), 16 * 100);
-	}
 }
 
 namespace

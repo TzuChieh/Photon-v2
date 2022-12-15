@@ -14,22 +14,27 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(IndexedVertexBuffer, Core);
 
-IndexedVertexBuffer::Entry::Entry() :
-	strideSize     (INVALID_STRIZE_SIZE),
-	element        (EVertexElement::Float32),
-	numElements    (0),
-	shouldNormalize(0)
+IndexedVertexBuffer::Entry::Entry()
+	: u_attributeBuffer(nullptr)
+	, strideSize(INVALID_STRIDE_SIZE)
+	, element(EVertexElement::Float32)
+	, numElements(0)
+	, shouldNormalize(0)
 {
 	PH_ASSERT(isEmpty());
 }
 
-IndexedVertexBuffer::IndexedVertexBuffer() :
-	m_entries       (),
-	m_byteBuffer    (nullptr),
-	m_byteBufferSize(0),
-	m_vertexSize    (0)
+IndexedVertexBuffer::IndexedVertexBuffer()
+	: m_attributeTypeToEntryIndex()
+	, m_entries()
+	, m_numEntries(0)
+	, m_byteBuffer(nullptr)
+	, m_byteBufferSize(0)
+	, m_vertexSize(0)
 {
 	PH_ASSERT(!isAllocated());
+
+	m_attributeTypeToEntryIndex.fill(enum_to_value(EVertexAttribute::NUM));
 }
 
 void IndexedVertexBuffer::setEntry(
@@ -38,14 +43,23 @@ void IndexedVertexBuffer::setEntry(
 	const std::size_t      numElements,
 	const bool             shouldNormalize)
 {
-	const auto entryIndex = static_cast<std::size_t>(attribute);
-	if(entryIndex >= m_entries.size())
+	if(enum_to_value(attribute) >= m_entries.size())
 	{
-		throw std::invalid_argument("Invalid entry index. Check the input attribute.");
+		throw std::invalid_argument("Invalid vertex attribute.");
 	}
 
+	auto entryIndex = m_numEntries;
+	if(m_attributeTypeToEntryIndex[enum_to_value(attribute)] < enum_to_value(EVertexAttribute::NUM))
+	{
+		// Use existing entry index mapping
+		entryIndex = m_attributeTypeToEntryIndex[enum_to_value(attribute)];
+	}
+	PH_ASSERT_LT(entryIndex, m_entries.size());
+
+	// Start filling new entry information
+
 	Entry inputEntry;
-	if(static_cast<std::size_t>(element) < static_cast<std::size_t>(EVertexElement::NUM))
+	if(element < EVertexElement::NUM)
 	{
 		inputEntry.element = element;
 	}
@@ -69,7 +83,7 @@ void IndexedVertexBuffer::setEntry(
 		}
 		else
 		{
-			inputEntry.numElements = static_cast<uint8>(numElements);
+			inputEntry.numElements = safe_integer_cast<uint8>(numElements);
 		}	
 	}
 	else
@@ -79,45 +93,47 @@ void IndexedVertexBuffer::setEntry(
 	
 	inputEntry.shouldNormalize = shouldNormalize ? true : false;
 
+	// Writing new entry information
+	// 
+	// Note: Some info such as vertex size are not set here since user may still update/overwrite 
+	// existing entries. Those info are set in `allocate()` instead.
+
 	m_entries[entryIndex] = inputEntry;
+	m_attributeTypeToEntryIndex[enum_to_value(attribute)] = entryIndex;
+	++m_numEntries;
 }
 
 void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 {
-	// Update stride size in the entries (AoS is assumed if no existing stride is provided) 
-	// and calculate vertex size (sum of size of each attribute)
+	ensureConsistentVertexLayout();
 
-	// Calculate vertex size (sum of size of each attribute)
+	// Calculate vertex size (sum of size of each attribute) and byte offset for each attribute
 
+	std::array<std::size_t, MAX_ENTRIES> byteOffsetInVertex{};
 	std::size_t currentVertexSize = 0;
-	for(Entry& entry : m_entries)
+	for(std::size_t entryIndex = 0; entryIndex < m_numEntries; ++entryIndex)
 	{
-		if(entry.isEmpty())
-		{
-			continue;
-		}
-
-
-		entry.strideOffset = currentStrideSize;
+		Entry& entry = m_entries[entryIndex];
+		byteOffsetInVertex[entryIndex] = currentVertexSize;
 
 		switch(entry.element)
 		{
 		case EVertexElement::Float32:
 		case EVertexElement::Int32:
-			currentStrideSize += 4 * entry.numElements;
+			currentVertexSize += 4 * entry.numElements;
 			break;
 
 		case EVertexElement::Float16:
 		case EVertexElement::Int16:
-			currentStrideSize += 2 * entry.numElements;
+			currentVertexSize += 2 * entry.numElements;
 			break;
 
 		case EVertexElement::OctahedralUnitVec3_32:
-			currentStrideSize += 4;
+			currentVertexSize += 4;
 			break;
 
 		case EVertexElement::OctahedralUnitVec3_24:
-			currentStrideSize += 3;
+			currentVertexSize += 3;
 			break;
 
 		default:
@@ -125,8 +141,8 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 			break;
 		}
 	}
-	
-	m_strideSize = currentStrideSize;
+
+	m_vertexSize = currentVertexSize;
 
 	// Allocate storage for the entries
 
@@ -134,9 +150,27 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 	m_byteBuffer = nullptr;
 
 	// TODO: aligned byte buffer
-
-	m_byteBufferSize = numVertices * m_strideSize;
+	m_byteBufferSize = numVertices * m_vertexSize;
 	m_byteBuffer = std::make_unique<std::byte[]>(m_byteBufferSize);
+
+	// Set buffer offset information for each entry
+
+	for(std::size_t entryIndex = 0; entryIndex < m_numEntries; ++entryIndex)
+	{
+		Entry& entry = m_entries[entryIndex];
+
+		// Use AoS if no existing stride size is provided
+		if(!entry.hasStrideSize())
+		{
+			entry.u_attributeBuffer = m_byteBuffer.get() + byteOffsetInVertex[entryIndex];
+			entry.strideSize = m_vertexSize;
+		}
+		// Use custom vertex layout
+		else
+		{
+			entry.u_attributeBuffer = m_byteBuffer.get() + entry.u_strideOffset;
+		}
+	}
 
 	if(m_byteBufferSize == 0)
 	{
@@ -364,6 +398,25 @@ void IndexedVertexBuffer::setVertices(const std::byte* const srcBytes, const std
 	}
 
 	std::memcpy(&(m_byteBuffer[dstOffset]), srcBytes, numBytes);
+}
+
+void IndexedVertexBuffer::ensureConsistentVertexLayout() const
+{
+	if(m_numEntries == 0)
+	{
+		return;
+	}
+
+	bool hasStrideSize = m_entries[0].hasStrideSize();
+	for(std::size_t entryIndex = 1; entryIndex < m_numEntries; ++entryIndex)
+	{
+		if(m_entries[entryIndex].hasStrideSize() != hasStrideSize)
+		{
+			throw std::invalid_argument(
+				"Inconsistent vertex stride size detected. Attributes must all use automatic stride "
+				"size (AoS) or all with custom stride size.");
+		}
+	}
 }
 
 }// end namespace ph

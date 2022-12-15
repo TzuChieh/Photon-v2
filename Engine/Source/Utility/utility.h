@@ -76,20 +76,17 @@ inline consteval std::size_t sizeof_in_bits()
 	return CHAR_BIT * sizeof(T);
 }
 
-template<typename T>
-inline constexpr std::size_t sizeof_in_bits(T&& value) noexcept
+template<CIsEnum EnumType>
+inline constexpr auto enum_to_value(const EnumType enumValue)
 {
-	return sizeof_in_bits<decltype(std::forward<T>(value))>();
+	using ValueType = std::underlying_type_t<EnumType>;
+	return static_cast<ValueType>(enumValue);
 }
 
-template<typename EnumType>
-inline std::string enum_to_string(EnumType value)
+template<CIsEnum EnumType>
+inline std::string enum_to_string(const EnumType enumValue)
 {
-	static_assert(std::is_enum_v<EnumType>, 
-		"EnumType accepts only enum (both scoped and unscoped).");
-
-	using ValueType = std::underlying_type_t<EnumType>;
-	return std::to_string(static_cast<ValueType>(value));
+	return std::to_string(enum_to_value(enumValue));
 }
 
 template<typename T, T VALUE>

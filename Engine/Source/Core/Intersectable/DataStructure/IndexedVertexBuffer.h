@@ -4,17 +4,19 @@
 #include "Common/assertion.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
+#include "Utility/utility.h"
 
 #include <memory>
 #include <cstddef>
 #include <limits>
 #include <array>
 #include <climits>
+#include <type_traits>
 
 namespace ph
 {
 
-enum class EVertexAttribute
+enum class EVertexAttribute : uint8f
 {
 	Position_0 = 0,
 	Normal_0,
@@ -27,7 +29,7 @@ enum class EVertexAttribute
 	NUM
 };
 
-enum class EVertexElement
+enum class EVertexElement : uint8f
 {
 	Float32 = 0,
 	Float16,
@@ -73,10 +75,20 @@ private:
 	// Info for a vertex attribute. Members are ordered to minimize padding.
 	struct Entry final
 	{
-		inline constexpr static std::size_t INVALID_STRIZE_SIZE;
+		inline constexpr static auto INVALID_STRIDE_SIZE = static_cast<std::size_t>(-1);
 
-		/*! @brief Pointer to the beginning of the attribute data. */
-		std::byte* attributeBuffer;
+		union
+		{
+			/*! @brief Pointer to the beginning of the attribute data. 
+			This is the only valid member after `allocate()`.
+			*/
+			std::byte* u_attributeBuffer;
+
+			/*! @brief Offset to the beginning of the attribute data in bytes. 
+			Valid during the construction of custom vertex layout only.
+			*/
+			std::size_t u_strideOffset;
+		};
 
 		/*! @brief Number of bytes to offset to get the next attribute. */
 		std::size_t strideSize;
@@ -87,9 +99,9 @@ private:
 		uint8 numElements : 2;
 
 		/*! @brief Whether the stored value is in [0, 1] ([-1, 1] for signed types). 
-		This attribute is for integral types only. Take uint8 for example, if this attribute is true, an
-		input value of 255 will be converted to 1.0 on load; otherwise, the value is converted to real
-		as-is (i.e., 255 becomes 255.0).
+		This attribute is for integral types only. Take uint8 for example, if this attribute is true, 
+		an input value of 255 will be converted to 1.0 on load; otherwise, the value is converted to 
+		real as-is (i.e., 255 becomes 255.0).
 		*/
 		uint8 shouldNormalize : 1;
 
@@ -97,9 +109,18 @@ private:
 
 		/*! @brief Whether the attribute is not used. */
 		bool isEmpty() const;
+
+		bool hasStrideSize() const;
 	};
 
-	std::array<Entry, static_cast<std::size_t>(EVertexAttribute::NUM)> m_entries;
+	const Entry& getEntry(EVertexAttribute attribute) const;
+	void ensureConsistentVertexLayout() const;
+
+	inline constexpr static auto MAX_ENTRIES = static_cast<std::size_t>(EVertexAttribute::NUM);
+
+	std::array<std::underlying_type_t<EVertexAttribute>, MAX_ENTRIES> m_attributeTypeToEntryIndex;
+	std::array<Entry, MAX_ENTRIES> m_entries;
+	std::underlying_type_t<EVertexAttribute> m_numEntries;
 
 	std::unique_ptr<std::byte[]> m_byteBuffer;
 	std::size_t                  m_byteBufferSize;
@@ -116,6 +137,11 @@ inline std::size_t IndexedVertexBuffer::estimateMemoryUsage() const
 inline bool IndexedVertexBuffer::Entry::isEmpty() const
 {
 	return numElements == 0;
+}
+
+inline bool IndexedVertexBuffer::Entry::hasStrideSize() const
+{
+	return strideSize != INVALID_STRIDE_SIZE;
 }
 
 inline bool IndexedVertexBuffer::isAllocated() const
@@ -136,6 +162,13 @@ inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, 
 inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, real value)
 {
 	setAttribute(attribute, index, math::Vector3R(value, 0.0_r, 0.0_r));
+}
+
+inline const IndexedVertexBuffer::Entry& IndexedVertexBuffer::getEntry(const EVertexAttribute attribute) const
+{
+	const auto entryIndex = m_attributeTypeToEntryIndex[enum_to_value(attribute)];
+	PH_ASSERT_LT(entryIndex, m_numEntries);
+	return m_entries[entryIndex];
 }
 
 }// end namespace ph

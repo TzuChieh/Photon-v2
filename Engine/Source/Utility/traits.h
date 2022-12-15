@@ -65,6 +65,8 @@ concept CSubscriptable = requires (ObjType obj, std::size_t index)
 	obj[index];
 };
 
+/*! @brief Whether the type is a scoped/unscoped enum.
+*/
 template<typename EnumType>
 concept CIsEnum = std::is_enum_v<EnumType>;
 

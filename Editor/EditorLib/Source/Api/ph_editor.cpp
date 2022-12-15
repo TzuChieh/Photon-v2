@@ -5,6 +5,9 @@
 #include "Procedure/TestProcedureModule.h"
 #include "Render/Imgui/ImguiRenderModule.h"
 
+#include <Common/assertion.h>
+#include <Utility/exception.h>
+
 #include <cstdlib>
 
 namespace ph::editor
@@ -15,6 +18,7 @@ int application_entry_point(int argc, char* argv[])
 	Program::onProgramStart();
 
 	// App should not outlive program
+	try
 	{
 		Application app(AppSettings(argc, argv));
 
@@ -29,6 +33,13 @@ int application_entry_point(int argc, char* argv[])
 		app.detachRenderModule(&imguiModule);
 
 		app.close();
+	}
+	catch(const Exception& e)
+	{
+		PH_DEFAULT_LOG_ERROR("unhandled exception thrown: {}",
+			e.what());
+
+		PH_DEBUG_BREAK();
 	}
 
 	Program::onProgramExit();

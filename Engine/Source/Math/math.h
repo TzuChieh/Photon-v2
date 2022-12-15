@@ -437,7 +437,7 @@ inline UIntType set_bits_in_range(const UIntType bits, const RangeType beginBitI
 {
 	// Inclusive as empty range is allowed, e.g., `beginBitIdx` == `endBitIdx`
 	PH_ASSERT_IN_RANGE_INCLUSIVE(beginBitIdx, 0, endBitIdx);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(endBitIdx, beginBitIdx, sizeof_in_bits(bits));
+	PH_ASSERT_IN_RANGE_INCLUSIVE(endBitIdx, beginBitIdx, sizeof_in_bits<UIntType>());
 
 	// Mask for the bits in range. Constructed by producing required number of 1's then shift
 	// by <beginBitIdx>. 
