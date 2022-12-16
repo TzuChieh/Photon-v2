@@ -70,6 +70,12 @@ concept CSubscriptable = requires (ObjType obj, std::size_t index)
 template<typename EnumType>
 concept CIsEnum = std::is_enum_v<EnumType>;
 
+template<typename EnumType>
+concept CIsEnumWithSizeInfo = CIsEnum<EnumType> && requires
+{
+	{ EnumType::SIZE } -> std::convertible_to<EnumType>
+};
+
 template<typename NumberType>
 concept CIsNumber = std::is_arithmetic_v<NumberType>;
 

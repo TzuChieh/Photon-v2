@@ -13,6 +13,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(IndexedVertexBuffer, Core);
 
+
 IndexedVertexBuffer::Entry::Entry()
 	: u_attributeBuffer(nullptr)
 	, strideSize(INVALID_STRIDE_SIZE)
@@ -93,6 +94,75 @@ void IndexedVertexBuffer::setEntry(
 	// 
 	// Note: Some info such as vertex size are not set here since user may still update/overwrite 
 	// existing entries. Those info are set in `allocate()` instead.
+
+	m_entries[entryIndex] = inputEntry;
+	m_attributeTypeToEntryIndex[enum_to_value(attribute)] = entryIndex;
+	++m_numEntries;
+}
+
+void IndexedVertexBuffer::declareEntry(
+	const EVertexAttribute attribute,
+	const EVertexElement element,
+	const std::size_t numElements,
+	const std::size_t strideOffset,
+	const std::size_t strideSize,
+	const bool shouldNormalize)
+{
+	if(attribute >= EVertexAttribute::SIZE ||
+	   element >= EVertexElement::SIZE ||
+	   numElements == 0)
+	{
+		throw_formatted<InvalidArgumentException>(
+			"invalid input parameter detected: attribute = {}, element = {}, numElements = {}",
+			enum_to_value(attribute), enum_to_value(element), numElements);
+	}
+
+	if(m_attributeTypeToEntryIndex[enum_to_value(attribute)] != MAX_ENTRIES)
+	{
+		throw_formatted<InvalidArgumentException>(
+			"redeclaring existing vertex attribute {}",
+			enum_to_value(attribute));
+	}
+
+	auto entryIndex = m_numEntries;
+	PH_ASSERT_LT(entryIndex, m_entries.size());
+
+	// Start filling new entry information
+
+	Entry inputEntry;
+	inputEntry.element = element;
+
+	if(numElements <= 3)
+	{
+		if(element == EVertexElement::OctahedralUnitVec3_32 || element == EVertexElement::OctahedralUnitVec3_24)
+		{
+			if(numElements != 0 && numElements != 3)
+			{
+				PH_LOG(IndexedVertexBuffer, 
+					"Octahedral unit vector is defined to have 3 elements. The specified number ({}) is ignored.",
+					numElements);
+			}
+
+			inputEntry.numElements = 3;
+		}
+		else
+		{
+			inputEntry.numElements = safe_integer_cast<uint8>(numElements);
+		}	
+	}
+	else
+	{
+		throw InvalidArgumentException("Cannot handle more than 3 elements in a single attribute.");
+	}
+	
+	inputEntry.shouldNormalize = shouldNormalize ? true : false;
+	inputEntry.u_strideOffset = strideOffset;
+	inputEntry.strideSize = strideSize;
+
+	// Writing new entry information
+	// 
+	// Note: Some info such as vertex size are not set here since user may still declare new
+	// entries. They are set in `allocate()` instead when those info can be determined.
 
 	m_entries[entryIndex] = inputEntry;
 	m_attributeTypeToEntryIndex[enum_to_value(attribute)] = entryIndex;

@@ -15,7 +15,7 @@ TEST(IndexedUIntBufferTest, BasicBufferStates)
 
 	{
 		IndexedUIntBuffer buffer;
-		buffer.setUIntFormat(32);
+		buffer.declareUIntFormat(32);
 		buffer.allocate(100);
 		EXPECT_TRUE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numUInts(), 100);
@@ -28,7 +28,7 @@ TEST(IndexedUIntBufferTest, BufferIO)
 	// Single-uint buffer
 	{
 		IndexedUIntBuffer buffer;
-		buffer.setUIntFormat(32);
+		buffer.declareUIntFormat(32);
 		buffer.allocate(1);
 
 		buffer.setUInt(0, 7);
@@ -38,7 +38,7 @@ TEST(IndexedUIntBufferTest, BufferIO)
 	// Small buffer
 	{
 		IndexedUIntBuffer buffer;
-		buffer.setUIntFormat(32);
+		buffer.declareUIntFormat(32);
 		buffer.allocate(10);
 
 		buffer.setUInt(0,   0);
@@ -67,7 +67,7 @@ TEST(IndexedUIntBufferTest, BufferIO)
 	// Arbitrary-bit number
 	{
 		IndexedUIntBuffer buffer;
-		buffer.setUIntFormat(3);// can only store 0 ~ 7
+		buffer.declareUIntFormat(3);// can only store 0 ~ 7
 		buffer.allocate(5);
 
 		buffer.setUInt(0, 6);
@@ -86,7 +86,7 @@ TEST(IndexedUIntBufferTest, BufferIO)
 	// Arbitrary-bit number
 	{
 		IndexedUIntBuffer buffer;
-		buffer.setUIntFormat(50);
+		buffer.declareUIntFormat(50);
 		buffer.allocate(5);
 
 		buffer.setUInt(0, (uint64(1) << 50) - 1);
@@ -105,7 +105,7 @@ TEST(IndexedUIntBufferTest, BufferIO)
 	// Larger buffer
 	{
 		IndexedUIntBuffer buffer;
-		buffer.setUIntFormat(16);
+		buffer.declareUIntFormat(16);
 		buffer.allocate(4096);
 
 		for(std::size_t i = 0; i < buffer.numUInts(); ++i)

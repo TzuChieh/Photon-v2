@@ -28,8 +28,8 @@ class IndexedUIntBuffer final
 public:
 	IndexedUIntBuffer();
 
-	void setUIntFormat(uint8 numBitsPerUInt);
-	void setUIntFormatByMaxValue(uint64 maxValue);
+	void declareUIntFormat(uint8 numBitsPerUInt);
+	void declareUIntFormatByMaxValue(uint64 maxValue);
 	void allocate(std::size_t numUInts);
 
 	template<std::integral IntegerType>

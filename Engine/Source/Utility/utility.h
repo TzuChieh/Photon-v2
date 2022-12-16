@@ -89,6 +89,12 @@ inline std::string enum_to_string(const EnumType enumValue)
 	return std::to_string(enum_to_value(enumValue));
 }
 
+template<CIsEnumWithSizeInfo EnumType>
+inline constexpr auto enum_size()
+{
+	return enum_to_value(EnumType::SIZE);
+}
+
 template<typename T, T VALUE>
 struct TNonTypeTemplateArgDummy final
 {};

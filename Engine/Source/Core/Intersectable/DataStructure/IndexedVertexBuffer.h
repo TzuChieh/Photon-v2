@@ -26,7 +26,7 @@ enum class EVertexAttribute : uint8f
 	Color_0,
 
 	// Special values
-	NUM
+	SIZE
 };
 
 enum class EVertexElement : uint8f
@@ -39,7 +39,7 @@ enum class EVertexElement : uint8f
 	OctahedralUnitVec3_24,
 
 	// Special values
-	NUM
+	SIZE
 };
 
 /*! @brief A general vertex buffer for storing various indexed attributes.
@@ -52,11 +52,21 @@ class IndexedVertexBuffer final
 public:
 	IndexedVertexBuffer();
 
-	void setEntry(
+	/*! @brief Declares a vertex attribute with default layout (AoS).
+	*/
+	void declareEntry(
 		EVertexAttribute attribute,
-		EVertexElement   element,
-		std::size_t      numElements,
-		bool             shouldNormalize = false);
+		EVertexElement element,
+		std::size_t numElements,
+		bool shouldNormalize = false);
+
+	void declareEntry(
+		EVertexAttribute attribute,
+		EVertexElement element,
+		std::size_t numElements,
+		std::size_t strideOffset,
+		std::size_t strideSize,
+		bool shouldNormalize = false);
 
 	// TODO: custom layout
 
@@ -87,7 +97,7 @@ private:
 			std::byte* u_attributeBuffer;
 
 			/*! @brief Offset to the beginning of the attribute data in bytes. 
-			Valid during the construction of custom vertex layout only.
+			Valid during the declaration of vertex layout only.
 			*/
 			std::size_t u_strideOffset;
 		};
@@ -119,7 +129,7 @@ private:
 	const Entry& getEntry(EVertexAttribute attribute) const;
 	void ensureConsistentVertexLayout() const;
 
-	inline constexpr static auto MAX_ENTRIES = enum_to_value(EVertexAttribute::NUM);
+	inline constexpr static auto MAX_ENTRIES = enum_size<EVertexAttribute>();
 
 	std::array<std::underlying_type_t<EVertexAttribute>, MAX_ENTRIES> m_attributeTypeToEntryIndex;
 	std::array<Entry, MAX_ENTRIES> m_entries;

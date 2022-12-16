@@ -12,25 +12,25 @@ IndexedUIntBuffer::IndexedUIntBuffer() :
 	m_numBitsPerUInt(0)
 {}
 
-void IndexedUIntBuffer::setUIntFormat(const uint8 numBitsPerUInt)
+void IndexedUIntBuffer::declareUIntFormat(const uint8 numBitsPerUInt)
 {
 	m_numBitsPerUInt = numBitsPerUInt;
 }
 
-void IndexedUIntBuffer::setUIntFormatByMaxValue(const uint64 maxValue)
+void IndexedUIntBuffer::declareUIntFormatByMaxValue(const uint64 maxValue)
 {
 	for(uint8 numBitsPerUInt = 1; numBitsPerUInt <= 64; ++numBitsPerUInt)
 	{
 		if(maxAllowedValue(numBitsPerUInt) >= maxValue)
 		{
-			setUIntFormat(numBitsPerUInt);
+			declareUIntFormat(numBitsPerUInt);
 			return;
 		}
 	}
 
 	PH_LOG_WARNING(IndexedUIntBuffer, 
 		"Unable to store integer value {}, max allowed value is {}", maxValue, maxAllowedValue(64));
-	setUIntFormat(64);
+	declareUIntFormat(64);
 }
 
 void IndexedUIntBuffer::allocate(const std::size_t numUInts)
