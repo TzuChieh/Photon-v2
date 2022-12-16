@@ -15,8 +15,8 @@ PH_DEFINE_INTERNAL_LOG_GROUP(IndexedVertexBuffer, Core);
 
 
 IndexedVertexBuffer::Entry::Entry()
-	: u_attributeBuffer(nullptr)
-	, strideSize(INVALID_STRIDE_SIZE)
+	: u_strideOffset(INVALID_STRIDE_VALUE)
+	, strideSize(INVALID_STRIDE_VALUE)
 	, element(EVertexElement::Float32)
 	, numElements(0)
 	, shouldNormalize(0)
@@ -37,67 +37,19 @@ IndexedVertexBuffer::IndexedVertexBuffer()
 	m_attributeTypeToEntryIndex.fill(MAX_ENTRIES);
 }
 
-void IndexedVertexBuffer::setEntry(
+void IndexedVertexBuffer::declareEntry(
 	const EVertexAttribute attribute,
 	const EVertexElement   element,
 	const std::size_t      numElements,
 	const bool             shouldNormalize)
 {
-	if(attribute >= EVertexAttribute::NUM ||
-	   element >= EVertexElement::NUM ||
-	   numElements == 0)
-	{
-		throw_formatted<InvalidArgumentException>(
-			"invalid input parameter detected: attribute = {}, element = {}, numElements = {}",
-			enum_to_value(attribute), enum_to_value(element), numElements);
-	}
-
-	auto entryIndex = m_numEntries;
-	if(m_attributeTypeToEntryIndex[enum_to_value(attribute)] < MAX_ENTRIES)
-	{
-		// Use existing entry index mapping
-		entryIndex = m_attributeTypeToEntryIndex[enum_to_value(attribute)];
-	}
-	PH_ASSERT_LT(entryIndex, m_entries.size());
-
-	// Start filling new entry information
-
-	Entry inputEntry;
-	inputEntry.element = element;
-
-	if(numElements <= 3)
-	{
-		if(element == EVertexElement::OctahedralUnitVec3_32 || element == EVertexElement::OctahedralUnitVec3_24)
-		{
-			if(numElements != 0 && numElements != 3)
-			{
-				PH_LOG(IndexedVertexBuffer, 
-					"Octahedral unit vector is defined to have 3 elements. The specified number ({}) is ignored.",
-					numElements);
-			}
-
-			inputEntry.numElements = 3;
-		}
-		else
-		{
-			inputEntry.numElements = safe_integer_cast<uint8>(numElements);
-		}	
-	}
-	else
-	{
-		throw InvalidArgumentException("Cannot handle more than 3 elements in a single attribute.");
-	}
-	
-	inputEntry.shouldNormalize = shouldNormalize ? true : false;
-
-	// Writing new entry information
-	// 
-	// Note: Some info such as vertex size are not set here since user may still update/overwrite 
-	// existing entries. Those info are set in `allocate()` instead.
-
-	m_entries[entryIndex] = inputEntry;
-	m_attributeTypeToEntryIndex[enum_to_value(attribute)] = entryIndex;
-	++m_numEntries;
+	declareEntry(
+		attribute,
+		element,
+		numElements,
+		Entry::INVALID_STRIDE_VALUE,
+		Entry::INVALID_STRIDE_VALUE,
+		shouldNormalize);
 }
 
 void IndexedVertexBuffer::declareEntry(
@@ -175,12 +127,12 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 
 	// Calculate vertex size (sum of size of each attribute) and byte offset for each attribute
 
-	std::array<std::size_t, MAX_ENTRIES> byteOffsetInVertex{};
+	std::array<std::size_t, MAX_ENTRIES> aosByteOffsetInVertex{};
 	std::size_t currentVertexSize = 0;
 	for(std::size_t entryIndex = 0; entryIndex < m_numEntries; ++entryIndex)
 	{
 		Entry& entry = m_entries[entryIndex];
-		byteOffsetInVertex[entryIndex] = currentVertexSize;
+		aosByteOffsetInVertex[entryIndex] = currentVertexSize;
 
 		switch(entry.element)
 		{
@@ -208,7 +160,7 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 		}
 	}
 
-	m_vertexSize = currentVertexSize;
+	m_vertexSize = safe_integer_cast<decltype(m_vertexSize)>(currentVertexSize);
 
 	// Allocate storage for the entries
 
@@ -226,9 +178,9 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 		Entry& entry = m_entries[entryIndex];
 
 		// Use AoS if no existing stride size is provided
-		if(!entry.hasStrideSize())
+		if(!entry.hasStrideInfo())
 		{
-			entry.u_attributeBuffer = m_byteBuffer.get() + byteOffsetInVertex[entryIndex];
+			entry.u_attributeBuffer = m_byteBuffer.get() + aosByteOffsetInVertex[entryIndex];
 			entry.strideSize = m_vertexSize;
 		}
 		// Use custom vertex layout
@@ -473,14 +425,14 @@ void IndexedVertexBuffer::ensureConsistentVertexLayout() const
 		return;
 	}
 
-	bool hasStrideSize = m_entries[0].hasStrideSize();
+	bool shouldHaveStrideInfo = m_entries[0].hasStrideInfo();
 	for(std::size_t entryIndex = 1; entryIndex < m_numEntries; ++entryIndex)
 	{
-		if(m_entries[entryIndex].hasStrideSize() != hasStrideSize)
+		if(m_entries[entryIndex].hasStrideInfo() != shouldHaveStrideInfo)
 		{
 			throw InvalidArgumentException(
-				"Inconsistent vertex stride size detected. Attributes must all use automatic stride "
-				"size (AoS) or all with custom stride size.");
+				"Inconsistent stride info detected. Attributes must all use automatic stride "
+				"size/offset (AoS) or all with custom stride size/offset.");
 		}
 	}
 }

@@ -246,5 +246,31 @@ TEST(IndexedVertexBufferTest, BufferIOMixedAttributes)
 		EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Position_0, 2).isNear({13, 14, 15}, MAX_ALLOWED_ABS_ERROR));
 	}
 
-	// TODO: SoA
+	// Mixed attributes with SoA layout
+	{
+		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
+
+		std::size_t numVertices = 10;
+
+		IndexedVertexBuffer buffer;
+		buffer.declareEntry(EVertexAttribute::Normal_0, EVertexElement::Float16, 3, 0, 2*3);
+		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Float32, 3, 2*3*numVertices, 4*3);
+		buffer.allocate(numVertices);
+
+		// Setting values
+		for(std::size_t vi = 0; vi < numVertices; ++vi)
+		{
+			const auto value = static_cast<real>(vi);
+			buffer.setAttribute(EVertexAttribute::Normal_0, vi, {-value, -value, value});
+			buffer.setAttribute(EVertexAttribute::Position_0, vi, {value, value, value});
+		}
+
+		// Testing values
+		for(std::size_t vi = 0; vi < numVertices; ++vi)
+		{
+			const auto value = static_cast<real>(vi);
+			EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Normal_0, vi).isNear({-value, -value, value}, MAX_ALLOWED_ABS_ERROR));
+			EXPECT_TRUE(buffer.getAttribute(EVertexAttribute::Position_0, vi).isNear({value, value, value}, MAX_ALLOWED_ABS_ERROR));
+		}
+	}
 }

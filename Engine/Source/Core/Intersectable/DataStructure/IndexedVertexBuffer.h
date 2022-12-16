@@ -87,7 +87,7 @@ private:
 	// Info for a vertex attribute. Members are ordered to minimize padding.
 	struct Entry final
 	{
-		inline constexpr static auto INVALID_STRIDE_SIZE = static_cast<std::size_t>(-1);
+		inline constexpr static auto INVALID_STRIDE_VALUE = static_cast<std::size_t>(-1);
 
 		union
 		{
@@ -122,7 +122,7 @@ private:
 		/*! @brief Whether the attribute is not used. */
 		bool isEmpty() const;
 
-		bool hasStrideSize() const;
+		bool hasStrideInfo() const;
 	};
 
 	bool hasEntry(EVertexAttribute attribute) const;
@@ -152,9 +152,14 @@ inline bool IndexedVertexBuffer::Entry::isEmpty() const
 	return numElements == 0;
 }
 
-inline bool IndexedVertexBuffer::Entry::hasStrideSize() const
+inline bool IndexedVertexBuffer::Entry::hasStrideInfo() const
 {
-	return strideSize != INVALID_STRIDE_SIZE;
+	// Cannot have partially filled stride info
+	PH_ASSERT(
+		(u_strideOffset != INVALID_STRIDE_VALUE && strideSize != INVALID_STRIDE_VALUE) ||
+		(u_strideOffset == INVALID_STRIDE_VALUE && strideSize == INVALID_STRIDE_VALUE));
+
+	return u_strideOffset != INVALID_STRIDE_VALUE && strideSize != INVALID_STRIDE_VALUE;
 }
 
 inline bool IndexedVertexBuffer::isAllocated() const

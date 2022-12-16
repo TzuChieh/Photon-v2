@@ -73,7 +73,7 @@ concept CIsEnum = std::is_enum_v<EnumType>;
 template<typename EnumType>
 concept CIsEnumWithSizeInfo = CIsEnum<EnumType> && requires
 {
-	{ EnumType::SIZE } -> std::convertible_to<EnumType>
+	{ EnumType::SIZE } -> std::convertible_to<EnumType>;
 };
 
 template<typename NumberType>
