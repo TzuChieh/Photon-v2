@@ -4,6 +4,7 @@
 #include "RenderCore/EClearTarget.h"
 
 #include <Frame/picture_basics.h>
+#include <Utility/traits.h>
 
 #include <cstddef>
 
@@ -17,7 +18,6 @@ It simply represents pixel components, using R, G, B as placeholders.
 enum class EGHIInfoPixelFormat
 {
 	Empty = 0,
-
 	RGB_8,
 	RGBA_8,
 	RGB_16F,
@@ -30,7 +30,6 @@ enum class EGHIInfoPixelFormat
 enum class EGHIInfoPixelComponent
 {
 	Empty = 0,
-
 	Int8,
 	UInt8,
 	Int16,
@@ -56,8 +55,43 @@ enum class EGHIInfoWrapMode
 	Repeat
 };
 
-std::size_t apparent_bytes_in_single_pixel(EGHIInfoPixelFormat format);
-std::size_t apparent_bytes_in_pixel_component(EGHIInfoPixelComponent component);
-EGHIInfoPixelComponent from_picture_pixel_component(EPicturePixelComponent component);
+enum class EGHIInfoStorageElement
+{
+	Empty = 0,
+	Int8,
+	UInt8,
+	Int16,
+	UInt16,
+	Int32,
+	UInt32,
+	Int64,
+	UInt64,
+	Float16,
+	Float32,
+	Float64
+};
+
+enum class EGHIInfoStorageUsage
+{
+	Unspecified = 0,
+	Static,
+	Dynamic
+};
+
+enum class EGHIInfoShadingStage
+{
+	Unspecified = 0,
+	Vertex,
+	Fragment
+};
+
+std::size_t num_bytes(EGHIInfoPixelFormat format);
+std::size_t num_bytes(EGHIInfoPixelComponent component);
+std::size_t num_bytes(EGHIInfoStorageElement element);
+
+template<CIsEnum DstEnumType>
+DstEnumType translate_to(EPicturePixelComponent pictureComponent);
 
 }// end namespace ph::editor
+
+#include "RenderCore/ghi_enums.ipp"

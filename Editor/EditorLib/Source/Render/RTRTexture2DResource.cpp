@@ -49,8 +49,8 @@ void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
 			m_ghiTexture->upload(
 				m_textureData->getData(),
 				m_textureData->numBytesInData(),
-				from_picture_pixel_component(m_textureData->getComponentType()));
-
+				translate_to<EGHIInfoPixelComponent>(m_textureData->getComponentType()));
+			
 			m_textureData = nullptr;
 		});
 }

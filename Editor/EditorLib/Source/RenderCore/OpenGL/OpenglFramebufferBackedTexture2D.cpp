@@ -67,7 +67,7 @@ auto OpenglFramebufferBackedTexture2D::getNativeHandle()
 std::size_t OpenglFramebufferBackedTexture2D::numApparentSizeInBytes() const
 {
 	const auto ghiFormat = opengl::from_internal_format(getInternalFormat());
-	return apparent_bytes_in_single_pixel(ghiFormat) * numPixels();
+	return num_bytes(ghiFormat) * numPixels();
 }
 
 std::size_t OpenglFramebufferBackedTexture2D::numPixels() const

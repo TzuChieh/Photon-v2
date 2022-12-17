@@ -68,7 +68,7 @@ void OpenglTexture2D::upload(
 	// The input pixel data must be for the entire texture--same number of total pixel components
 	PH_ASSERT_EQ(
 		numPixels() * m_format.numPixelComponents, 
-		numBytes / apparent_bytes_in_pixel_component(componentType));
+		numBytes / num_bytes(componentType));
 
 	// Format of input pixel data must be compatible to the internal format
 	const GLenum pixelDataFormat = opengl::to_base_format(m_format.internalFormat);
@@ -129,7 +129,7 @@ auto OpenglTexture2D::getNativeHandle()
 std::size_t OpenglTexture2D::numApparentSizeInBytes() const
 {
 	const auto ghiFormat = opengl::from_internal_format(m_format.internalFormat);
-	return apparent_bytes_in_single_pixel(ghiFormat) * numPixels();
+	return num_bytes(ghiFormat) * numPixels();
 }
 
 std::size_t OpenglTexture2D::numPixels() const
