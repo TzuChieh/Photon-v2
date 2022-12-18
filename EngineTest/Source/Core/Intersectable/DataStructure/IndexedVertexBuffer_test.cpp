@@ -21,7 +21,7 @@ TEST(IndexedVertexBufferTest, BasicBufferStates)
 
 	{
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
+		buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
 		buffer.allocate(100);
 		EXPECT_TRUE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numVertices(), 100);
@@ -30,9 +30,9 @@ TEST(IndexedVertexBufferTest, BasicBufferStates)
 
 	{
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Float16, 3);
-		buffer.declareEntry(EVertexAttribute::Normal_0, EVertexElement::OctahedralUnitVec3_24, 3);
-		buffer.declareEntry(EVertexAttribute::TexCoord_0, EVertexElement::Int16, 2);
+		buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Float16, 3);
+		buffer.declareAttribute(EVertexAttribute::Normal_0, EVertexElement::OctahedralUnitVec3_24, 3);
+		buffer.declareAttribute(EVertexAttribute::TexCoord_0, EVertexElement::Int16, 2);
 		buffer.allocate(100);
 		EXPECT_TRUE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numVertices(), 100);
@@ -46,7 +46,7 @@ TEST(IndexedVertexBufferTest, BufferIOFloatTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
+		buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
 		buffer.allocate(1);
 
 		buffer.setAttribute(EVertexAttribute::Position_0, 0, {-1, -2, -3});
@@ -57,7 +57,7 @@ TEST(IndexedVertexBufferTest, BufferIOFloatTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::TexCoord_0, EVertexElement::Float32, 2);
+		buffer.declareAttribute(EVertexAttribute::TexCoord_0, EVertexElement::Float32, 2);
 		buffer.allocate(3);
 
 		buffer.setAttribute(EVertexAttribute::TexCoord_0, 0, {-1, -2});
@@ -72,7 +72,7 @@ TEST(IndexedVertexBufferTest, BufferIOFloatTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Normal_0, EVertexElement::Float32, 3);
+		buffer.declareAttribute(EVertexAttribute::Normal_0, EVertexElement::Float32, 3);
 		buffer.allocate(1000);
 
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
@@ -92,7 +92,7 @@ TEST(IndexedVertexBufferTest, BufferIOFloatTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Float16, 3);
+		buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Float16, 3);
 		buffer.allocate(1000);
 
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
@@ -115,7 +115,7 @@ TEST(IndexedVertexBufferTest, BufferIOIntegerTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-5_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Int32, 3);
+		buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Int32, 3);
 		buffer.allocate(1000);
 
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
@@ -136,7 +136,7 @@ TEST(IndexedVertexBufferTest, BufferIOIntegerTypes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-5_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Int32, 3, true);
+		buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Int32, 3, true);
 		buffer.allocate(1000);
 
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
@@ -171,7 +171,7 @@ TEST(IndexedVertexBufferTest, BufferIOOctahedronNormalEncoding)
 	auto makeNormalBuffer = [&normalVectors](const EVertexElement element)
 	{
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Normal_0, EVertexElement::Float32, 3);
+		buffer.declareAttribute(EVertexAttribute::Normal_0, EVertexElement::Float32, 3);
 		buffer.allocate(normalVectors.size());
 		for(std::size_t i = 0; i < buffer.numVertices(); ++i)
 		{
@@ -223,8 +223,8 @@ TEST(IndexedVertexBufferTest, BufferIOMixedAttributes)
 		constexpr auto MAX_ALLOWED_ABS_ERROR = 1e-6_r;
 
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::TexCoord_0, EVertexElement::Float32, 2);
-		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
+		buffer.declareAttribute(EVertexAttribute::TexCoord_0, EVertexElement::Float32, 2);
+		buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Float32, 3);
 		buffer.allocate(3);
 
 		buffer.setAttribute(EVertexAttribute::TexCoord_0, 0, {-1, -2});
@@ -253,8 +253,8 @@ TEST(IndexedVertexBufferTest, BufferIOMixedAttributes)
 		std::size_t numVertices = 10;
 
 		IndexedVertexBuffer buffer;
-		buffer.declareEntry(EVertexAttribute::Normal_0, EVertexElement::Float16, 3, 0, 2*3);
-		buffer.declareEntry(EVertexAttribute::Position_0, EVertexElement::Float32, 3, 2*3*numVertices, 4*3);
+		buffer.declareAttribute(EVertexAttribute::Normal_0, EVertexElement::Float16, 3, 0, 2*3);
+		buffer.declareAttribute(EVertexAttribute::Position_0, EVertexElement::Float32, 3, 2*3*numVertices, 4*3);
 		buffer.allocate(numVertices);
 
 		// Setting values

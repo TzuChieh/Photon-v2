@@ -34,13 +34,13 @@ public:
 class GHIInfoFramebufferAttachment final
 {
 public:
-	inline constexpr static uint32 MAX_COLOR_ATTACHMENTS = 8;
+	inline constexpr static uint8 MAX_COLOR_ATTACHMENTS = 8;
 
 public:
 	math::TVector2<uint32> sizePx;
-	uint32 numSamples;
 	std::array<GHIInfoFramebufferFormat, MAX_COLOR_ATTACHMENTS> colorFormats;
 	GHIInfoFramebufferFormat depthStencilFormat;
+	uint8 numSamples;
 
 	GHIInfoFramebufferAttachment();
 };

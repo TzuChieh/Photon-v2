@@ -18,9 +18,9 @@ bool GHIInfoFramebufferFormat::toTextureFormat(GHIInfoTextureFormat& textureForm
 
 GHIInfoFramebufferAttachment::GHIInfoFramebufferAttachment()
 	: sizePx(0, 0)
-	, numSamples(1)
 	, colorFormats()
 	, depthStencilFormat()
+	, numSamples(1)
 {}
 
 GHIFramebuffer::~GHIFramebuffer() = default;

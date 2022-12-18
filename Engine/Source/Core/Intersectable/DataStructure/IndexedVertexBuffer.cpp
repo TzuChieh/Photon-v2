@@ -19,7 +19,17 @@ IndexedVertexBuffer::Entry::Entry()
 	, strideSize(INVALID_STRIDE_VALUE)
 	, element(EVertexElement::Float32)
 	, numElements(0)
-	, shouldNormalize(0)
+	, shouldNormalize(false)
+{
+	PH_ASSERT(isEmpty());
+}
+
+IndexedVertexBuffer::AttributeDeclaration::AttributeDeclaration()
+	: strideOffset(Entry::INVALID_STRIDE_VALUE)
+	, strideSize(Entry::INVALID_STRIDE_VALUE)
+	, element(EVertexElement::Float32)
+	, numElements(0)
+	, shouldNormalize(false)
 {
 	PH_ASSERT(isEmpty());
 }
@@ -37,13 +47,13 @@ IndexedVertexBuffer::IndexedVertexBuffer()
 	m_attributeTypeToEntryIndex.fill(MAX_ENTRIES);
 }
 
-void IndexedVertexBuffer::declareEntry(
+void IndexedVertexBuffer::declareAttribute(
 	const EVertexAttribute attribute,
 	const EVertexElement   element,
 	const std::size_t      numElements,
 	const bool             shouldNormalize)
 {
-	declareEntry(
+	declareAttribute(
 		attribute,
 		element,
 		numElements,
@@ -52,7 +62,7 @@ void IndexedVertexBuffer::declareEntry(
 		shouldNormalize);
 }
 
-void IndexedVertexBuffer::declareEntry(
+void IndexedVertexBuffer::declareAttribute(
 	const EVertexAttribute attribute,
 	const EVertexElement element,
 	const std::size_t numElements,
@@ -416,6 +426,29 @@ void IndexedVertexBuffer::setVertices(const std::byte* const srcBytes, const std
 	}
 
 	std::memcpy(&(m_byteBuffer[dstOffset]), srcBytes, numBytes);
+}
+
+auto IndexedVertexBuffer::getAttributeDeclaration(const EVertexAttribute attribute) const
+-> AttributeDeclaration
+{
+	// Can only be called after allocation
+	PH_ASSERT(isAllocated());
+
+	if(!hasEntry(attribute))
+	{
+		return AttributeDeclaration();
+	}
+
+	const Entry& entry = getEntry(attribute);
+	
+	AttributeDeclaration declaration;
+	declaration.strideOffset = safe_integer_cast<std::size_t>(entry.u_attributeBuffer - m_byteBuffer.get());
+	declaration.strideSize = entry.strideSize;
+	declaration.element = entry.element;
+	declaration.numElements = entry.numElements;
+	declaration.shouldNormalize = entry.shouldNormalize;
+
+	return declaration;
 }
 
 void IndexedVertexBuffer::ensureConsistentVertexLayout() const

@@ -54,13 +54,15 @@ public:
 
 	/*! @brief Declares a vertex attribute with default layout (AoS).
 	*/
-	void declareEntry(
+	void declareAttribute(
 		EVertexAttribute attribute,
 		EVertexElement element,
 		std::size_t numElements,
 		bool shouldNormalize = false);
 
-	void declareEntry(
+	/*! @brief Declares a vertex attribute with custom layout.
+	*/
+	void declareAttribute(
 		EVertexAttribute attribute,
 		EVertexElement element,
 		std::size_t numElements,
@@ -81,10 +83,30 @@ public:
 	bool isAllocated() const;
 	std::size_t numVertices() const;
 
+	/*! @brief Info for a declared vertex attribute.
+	*/
+	struct AttributeDeclaration final
+	{
+		std::size_t strideOffset;
+		std::size_t strideSize;
+		EVertexElement element;
+		uint8 numElements : 2;
+		uint8 shouldNormalize : 1;
+
+		AttributeDeclaration();
+
+		bool isEmpty() const;
+	};
+
+	/*! @brief Get information for a previously declared attribute.
+	Can only be called after allocation.
+	*/
+	AttributeDeclaration getAttributeDeclaration(EVertexAttribute attribute) const;
+
 private:
 	// Sizes are in bytes
 
-	// Info for a vertex attribute. Members are ordered to minimize padding.
+	// Internal info for a vertex attribute. Members are ordered to minimize padding.
 	struct Entry final
 	{
 		inline constexpr static auto INVALID_STRIDE_VALUE = static_cast<std::size_t>(-1);
@@ -187,11 +209,17 @@ inline bool IndexedVertexBuffer::hasEntry(const EVertexAttribute attribute) cons
 	return m_attributeTypeToEntryIndex[enum_to_value(attribute)] != MAX_ENTRIES;
 }
 
-inline const IndexedVertexBuffer::Entry& IndexedVertexBuffer::getEntry(const EVertexAttribute attribute) const
+inline auto IndexedVertexBuffer::getEntry(const EVertexAttribute attribute) const
+-> const Entry&
 {
 	const auto entryIndex = m_attributeTypeToEntryIndex[enum_to_value(attribute)];
 	PH_ASSERT_LT(entryIndex, m_numEntries);
 	return m_entries[entryIndex];
+}
+
+inline bool IndexedVertexBuffer::AttributeDeclaration::isEmpty() const
+{
+	return numElements == 0;
 }
 
 }// end namespace ph
