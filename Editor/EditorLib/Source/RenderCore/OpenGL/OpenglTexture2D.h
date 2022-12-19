@@ -5,6 +5,7 @@
 #include "RenderCore/OpenGL/opengl_states.h"
 
 #include <Common/primitive_type.h>
+#include <Math/math_fwd.h>
 
 namespace ph::editor
 {
@@ -24,9 +25,8 @@ class OpenglTexture2D : public GHITexture2D
 {
 public:
 	OpenglTexture2D(
-		const OpenglTextureFormat& format,
-		GLsizei widthPx, 
-		GLsizei heightPx);
+		const GHIInfoTextureFormat& format,
+		const math::Vector2UI& sizePx);
 
 	~OpenglTexture2D() override;
 
@@ -39,6 +39,8 @@ public:
 	MemoryInfo getMemoryInfo() const override;
 	NativeHandle getNativeHandle() override;
 
+	const OpenglTextureFormat& getOpenglFormat() const;
+
 private:
 	std::size_t numApparentSizeInBytes() const;
 	std::size_t numPixels() const;
@@ -48,5 +50,10 @@ private:
 	GLsizei m_heightPx;
 	OpenglTextureFormat m_format;
 };
+
+inline const OpenglTextureFormat& OpenglTexture2D::getOpenglFormat() const
+{
+	return m_format;
+}
 
 }// end namespace ph::editor

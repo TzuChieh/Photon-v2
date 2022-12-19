@@ -28,7 +28,7 @@ public:
 	/*!
 	@return `true` if the conversion is an exact match.
 	*/
-	bool toTextureFormat(GHIInfoTextureFormat& textureFormat) const;
+	bool toTextureFormat(GHIInfoTextureFormat& out_textureFormat) const;
 };
 
 class GHIInfoFramebufferAttachment final
@@ -48,11 +48,11 @@ public:
 class GHIFramebuffer : public std::enable_shared_from_this<GHIFramebuffer>
 {
 public:
+	explicit GHIFramebuffer(const GHIInfoFramebufferAttachment& attachments);
 	virtual ~GHIFramebuffer();
 
 	virtual void bind() = 0;
 	virtual void unbind() = 0;
-	virtual void setAttachments(const GHIInfoFramebufferAttachment& attachments) = 0;
 	virtual void clearColor(uint32 attachmentIndex, const math::Vector4F& color) = 0;
 	virtual void clearDepthStencil(float32 depth, uint8 stencil) = 0;
 
@@ -60,6 +60,15 @@ public:
 	virtual std::shared_ptr<GHITexture2D> createTextureFromDepthStencil();
 
 	std::shared_ptr<GHIFramebuffer> getSharedPtrFromThis();
+	const GHIInfoFramebufferAttachment& getAttachments() const;
+
+private:
+	GHIInfoFramebufferAttachment m_attachments;
 };
+
+inline const GHIInfoFramebufferAttachment& GHIFramebuffer::getAttachments() const
+{
+	return m_attachments;
+}
 
 }// end namespace ph::editor

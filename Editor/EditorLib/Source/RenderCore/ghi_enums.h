@@ -15,7 +15,7 @@ namespace ph::editor
 Unless stated explicitly, the characters RGB does not mean the pixel is in RGB color space. 
 It simply represents pixel components, using R, G, B as placeholders.
 */
-enum class EGHIInfoPixelFormat
+enum class EGHIInfoPixelFormat : uint8
 {
 	Empty = 0,
 	RGB_8,
@@ -27,7 +27,7 @@ enum class EGHIInfoPixelFormat
 	Depth_24_Stencil_8
 };
 
-enum class EGHIInfoPixelComponent
+enum class EGHIInfoPixelComponent : uint8
 {
 	Empty = 0,
 	Int8,
@@ -43,19 +43,19 @@ enum class EGHIInfoPixelComponent
 	Float64
 };
 
-enum class EGHIInfoFilterMode
+enum class EGHIInfoFilterMode : uint8
 {
 	Point,
 	Linear
 };
 
-enum class EGHIInfoWrapMode
+enum class EGHIInfoWrapMode : uint8
 {
 	ClampToEdge,
 	Repeat
 };
 
-enum class EGHIInfoStorageElement
+enum class EGHIInfoStorageElement : uint8
 {
 	Empty = 0,
 	Int8,
@@ -71,14 +71,14 @@ enum class EGHIInfoStorageElement
 	Float64
 };
 
-enum class EGHIInfoStorageUsage
+enum class EGHIInfoStorageUsage : uint8
 {
 	Unspecified = 0,
 	Static,
 	Dynamic
 };
 
-enum class EGHIInfoShadingStage
+enum class EGHIInfoShadingStage : uint8
 {
 	Unspecified = 0,
 	Vertex,

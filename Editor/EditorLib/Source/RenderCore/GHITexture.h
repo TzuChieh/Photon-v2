@@ -42,7 +42,7 @@ public:
 		std::monostate,
 		uint64>;
 
-	GHITexture();
+	explicit GHITexture(const GHIInfoTextureFormat& format);
 	virtual ~GHITexture();
 
 	virtual void upload(
@@ -54,6 +54,11 @@ public:
 
 	virtual MemoryInfo getMemoryInfo() const;
 	virtual NativeHandle getNativeHandle();
+
+	const GHIInfoTextureFormat& getFormat() const;
+
+private:
+	GHIInfoTextureFormat m_format;
 };
 
 inline auto GHITexture::getMemoryInfo() const
@@ -66,6 +71,11 @@ inline auto GHITexture::getNativeHandle()
 -> NativeHandle
 {
 	return std::monostate();
+}
+
+inline const GHIInfoTextureFormat& GHITexture::getFormat() const
+{
+	return m_format;
 }
 
 }// end namespace ph::editor

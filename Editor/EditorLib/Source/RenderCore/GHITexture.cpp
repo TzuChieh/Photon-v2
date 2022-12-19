@@ -18,7 +18,8 @@ bool GHIInfoTextureFormat::toTextureFormat(GHIInfoFramebufferFormat& framebuffer
 
 GHITexture::~GHITexture() = default;
 
-GHITexture::GHITexture()
+GHITexture::GHITexture(const GHIInfoTextureFormat& format)
+	: m_format(format)
 {}
 
 }// end namespace ph::editor

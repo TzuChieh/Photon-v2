@@ -16,7 +16,7 @@
 namespace ph
 {
 
-enum class EVertexAttribute : uint8f
+enum class EVertexAttribute : uint8
 {
 	Position_0 = 0,
 	Normal_0,
@@ -29,7 +29,7 @@ enum class EVertexAttribute : uint8f
 	SIZE
 };
 
-enum class EVertexElement : uint8f
+enum class EVertexElement : uint8
 {
 	Float32 = 0,
 	Float16,

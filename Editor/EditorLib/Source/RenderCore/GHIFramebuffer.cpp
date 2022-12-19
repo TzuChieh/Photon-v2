@@ -9,10 +9,10 @@ GHIInfoFramebufferFormat::GHIInfoFramebufferFormat()
 	, sampleState()
 {}
 
-bool GHIInfoFramebufferFormat::toTextureFormat(GHIInfoTextureFormat& textureFormat) const
+bool GHIInfoFramebufferFormat::toTextureFormat(GHIInfoTextureFormat& out_textureFormat) const
 {
-	textureFormat.pixelFormat = pixelFormat;
-	textureFormat.sampleState = sampleState;
+	out_textureFormat.pixelFormat = pixelFormat;
+	out_textureFormat.sampleState = sampleState;
 	return true;
 }
 
@@ -21,6 +21,10 @@ GHIInfoFramebufferAttachment::GHIInfoFramebufferAttachment()
 	, colorFormats()
 	, depthStencilFormat()
 	, numSamples(1)
+{}
+
+GHIFramebuffer::GHIFramebuffer(const GHIInfoFramebufferAttachment& attachments)
+	: m_attachments(attachments)
 {}
 
 GHIFramebuffer::~GHIFramebuffer() = default;

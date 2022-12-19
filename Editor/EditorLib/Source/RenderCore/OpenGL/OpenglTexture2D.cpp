@@ -27,30 +27,29 @@ OpenglTextureFormat::OpenglTextureFormat(const GHIInfoTextureFormat& format)
 }
 
 OpenglTexture2D::OpenglTexture2D(
-	const OpenglTextureFormat& format,
-	const GLsizei widthPx,
-	const GLsizei heightPx)
+	const GHIInfoTextureFormat& format,
+	const math::Vector2UI& sizePx)
 
-	: GHITexture2D()
+	: GHITexture2D(format)
 
 	, m_textureID(0)
-	, m_widthPx(widthPx)
-	, m_heightPx(heightPx)
+	, m_widthPx(safe_integer_cast<GLsizei>(sizePx.x()))
+	, m_heightPx(safe_integer_cast<GLsizei>(sizePx.y()))
 	, m_format(format)
 {
 	// Currently depth is not supported
-	PH_ASSERT(opengl::is_color_format(format.internalFormat));
+	PH_ASSERT(opengl::is_color_format(m_format.internalFormat));
 
 	glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
 
 	// Using immutable texture object, cannot change size and format when created this way
-	glTextureStorage2D(m_textureID, 1, format.internalFormat, widthPx, heightPx);
+	glTextureStorage2D(m_textureID, 1, m_format.internalFormat, m_widthPx, m_heightPx);
 	
-	glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, format.sampleState.filterType);
-	glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, format.sampleState.filterType);
+	glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, m_format.sampleState.filterType);
+	glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, m_format.sampleState.filterType);
 
-	glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, format.sampleState.wrapType);
-	glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, format.sampleState.wrapType);
+	glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, m_format.sampleState.wrapType);
+	glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, m_format.sampleState.wrapType);
 }
 
 OpenglTexture2D::~OpenglTexture2D()

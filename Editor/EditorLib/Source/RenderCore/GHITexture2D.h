@@ -14,7 +14,7 @@ namespace ph::editor
 class GHITexture2D : public GHITexture
 {
 public:
-	GHITexture2D();
+	explicit GHITexture2D(const GHIInfoTextureFormat& format);
 	~GHITexture2D() override;
 
 	void upload(

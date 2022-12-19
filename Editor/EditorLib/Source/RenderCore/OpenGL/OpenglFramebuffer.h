@@ -39,17 +39,16 @@ public:
 class OpenglFramebuffer : public GHIFramebuffer
 {
 public:
-	OpenglFramebuffer();
+	explicit OpenglFramebuffer(const GHIInfoFramebufferAttachment& attachments);
 	~OpenglFramebuffer() override;
 
 	void bind() override;
 	void unbind() override;
-	void setAttachments(const GHIInfoFramebufferAttachment& attachments) override;
 	void clearColor(uint32 attachmentIndex, const math::Vector4F& color) override;
 	void clearDepthStencil(float32 depth, uint8 stencil) override;
 	std::shared_ptr<GHITexture2D> createTextureFromColor(uint32 slotIndex) override;
 
-	const OpenglFramebufferAttachmentInfo& getAttachments() const;
+	const OpenglFramebufferAttachmentInfo& getOpenglAttachments() const;
 
 private:
 	void updateDeviceColorTexture(uint32 attachmentIndex, const OpenglFramebufferAttachmentInfo& newAttachment);
@@ -66,7 +65,7 @@ inline bool OpenglFramebufferFormat::isEmpty() const
 	return internalFormat == 0;
 }
 
-inline const OpenglFramebufferAttachmentInfo& OpenglFramebuffer::getAttachments() const
+inline const OpenglFramebufferAttachmentInfo& OpenglFramebuffer::getOpenglAttachments() const
 {
 	return m_attachments;
 }

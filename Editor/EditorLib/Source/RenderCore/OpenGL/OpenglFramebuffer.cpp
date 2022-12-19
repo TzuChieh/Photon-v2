@@ -70,14 +70,16 @@ OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo(const GHIInfoFr
 	}
 }
 
-OpenglFramebuffer::OpenglFramebuffer()
-	: GHIFramebuffer()
-	, m_attachments()
+OpenglFramebuffer::OpenglFramebuffer(const GHIInfoFramebufferAttachment& attachments)
+	: GHIFramebuffer(attachments)
+	, m_attachments(attachments)
 	, m_colorTextureIDs{}
 	, m_depthStencilTextureID(0)
 	, m_framebufferID(0)
 {
 	glCreateFramebuffers(1, &m_framebufferID);
+
+
 }
 
 OpenglFramebuffer::~OpenglFramebuffer()
