@@ -51,8 +51,8 @@ public:
 	const OpenglFramebufferAttachmentInfo& getOpenglAttachments() const;
 
 private:
-	void updateDeviceColorTexture(uint32 attachmentIndex, const OpenglFramebufferAttachmentInfo& newAttachment);
-	void updateDeviceDepthStencilTexture(const OpenglFramebufferAttachmentInfo& newAttachment);
+	void createDeviceColorTexture(uint32 attachmentIndex);
+	void createDeviceDepthStencilTexture();
 
 	OpenglFramebufferAttachmentInfo m_attachments;
 	std::array<GLuint, GHIInfoFramebufferAttachment::MAX_COLOR_ATTACHMENTS> m_colorTextureIDs;

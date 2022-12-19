@@ -29,8 +29,7 @@ void RTRFramebufferResource::setupGHI(GHIThreadCaller& caller)
 		{
 			PH_ASSERT(!m_ghiFramebuffer);
 
-			m_ghiFramebuffer = ghi.createFramebuffer();
-			m_ghiFramebuffer->setAttachments(m_attachments);
+			m_ghiFramebuffer = ghi.createFramebuffer(m_attachments);
 
 			// TODO: pre clear?
 		});

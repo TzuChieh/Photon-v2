@@ -260,14 +260,14 @@ std::shared_ptr<GHITexture2D> OpenglGHI::createTexture2D(
 	const GHIInfoTextureFormat& format,
 	const math::Vector2UI& sizePx)
 {
-	const auto glSizePx = sizePx.safeCast<GLsizei>();
 	return std::make_shared<OpenglTexture2D>(
-		OpenglTextureFormat(format), glSizePx.x(), glSizePx.y());
+		format, sizePx);
 }
 
-std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer()
+std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer(
+	const GHIInfoFramebufferAttachment& attachments)
 {
-	return std::make_shared<OpenglFramebuffer>();
+	return std::make_shared<OpenglFramebuffer>(attachments);
 }
 
 void OpenglGHI::beginRawCommand()

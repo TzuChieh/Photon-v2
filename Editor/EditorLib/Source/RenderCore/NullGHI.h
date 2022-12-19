@@ -39,7 +39,8 @@ public:
 		return nullptr;
 	}
 
-	inline std::shared_ptr<GHIFramebuffer> createFramebuffer() override
+	inline std::shared_ptr<GHIFramebuffer> createFramebuffer(
+		const GHIInfoFramebufferAttachment& attachments) override
 	{
 		return nullptr;
 	}

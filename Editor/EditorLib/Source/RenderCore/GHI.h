@@ -63,7 +63,8 @@ public:
 		const GHIInfoTextureFormat& format,
 		const math::Vector2UI& sizePx) = 0;
 
-	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer() = 0;
+	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer(
+		const GHIInfoFramebufferAttachment& attachments) = 0;
 
 	template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
 	void rawCommand(

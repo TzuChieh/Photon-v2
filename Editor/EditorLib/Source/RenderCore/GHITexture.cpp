@@ -22,4 +22,9 @@ GHITexture::GHITexture(const GHIInfoTextureFormat& format)
 	: m_format(format)
 {}
 
+void GHITexture::setFormat(const GHIInfoTextureFormat& format)
+{
+	m_format = format;
+}
+
 }// end namespace ph::editor

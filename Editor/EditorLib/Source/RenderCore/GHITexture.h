@@ -57,6 +57,9 @@ public:
 
 	const GHIInfoTextureFormat& getFormat() const;
 
+protected:
+	void setFormat(const GHIInfoTextureFormat& format);
+
 private:
 	GHIInfoTextureFormat m_format;
 };

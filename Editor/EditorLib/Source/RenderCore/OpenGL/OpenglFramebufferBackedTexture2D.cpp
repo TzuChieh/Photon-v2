@@ -3,7 +3,7 @@
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
 
 #include <Math/TVector2.h>
-#include <Math/TVector2.h>
+#include <Common/logging.h>
 
 namespace ph::editor
 {
@@ -14,13 +14,37 @@ OpenglFramebufferBackedTexture2D::OpenglFramebufferBackedTexture2D(
 	const uint32 attachmentIndex,
 	const bool isDepthStencilAttachment)
 
-	: GHITexture2D()
+	: GHITexture2D(GHIInfoTextureFormat())
 
 	, m_framebuffer(framebuffer)
 	, m_attachmentIndex(attachmentIndex)
 	, m_isDepthStencilAttachment(isDepthStencilAttachment)
 	, m_textureID(textureID)
-{}
+{
+	if(m_framebuffer)
+	{
+		GHIInfoFramebufferFormat fbFormat;
+		if(!m_isDepthStencilAttachment)
+		{
+			fbFormat = m_framebuffer->getAttachments().colorFormats[attachmentIndex];
+		}
+		else
+		{
+			fbFormat = m_framebuffer->getAttachments().depthStencilFormat;
+		}
+
+		GHIInfoTextureFormat texFormat;
+		if(fbFormat.toTextureFormat(texFormat))
+		{
+			setFormat(texFormat);
+		}
+		else
+		{
+			PH_DEFAULT_LOG_WARNING("[OpenglFramebufferBackedTexture2D] "
+				"no valid texture format for the input framebuffer");
+		}
+	}
+}
 
 OpenglFramebufferBackedTexture2D::~OpenglFramebufferBackedTexture2D()
 {
@@ -82,11 +106,11 @@ GLenum OpenglFramebufferBackedTexture2D::getInternalFormat() const
 	{
 		if(!m_isDepthStencilAttachment)
 		{
-			internalFormat = m_framebuffer->getAttachments().colorFormats[m_attachmentIndex].internalFormat;
+			internalFormat = m_framebuffer->getOpenglAttachments().colorFormats[m_attachmentIndex].internalFormat;
 		}
 		else
 		{
-			internalFormat = m_framebuffer->getAttachments().depthStencilFormat.internalFormat;
+			internalFormat = m_framebuffer->getOpenglAttachments().depthStencilFormat.internalFormat;
 		}
 	}
 
@@ -98,8 +122,8 @@ math::Vector2S OpenglFramebufferBackedTexture2D::getSizePx() const
 	math::Vector2S sizePx(0);
 	if(m_framebuffer)
 	{
-		sizePx.x() = m_framebuffer->getAttachments().widthPx;
-		sizePx.y() = m_framebuffer->getAttachments().heightPx;
+		sizePx.x() = m_framebuffer->getOpenglAttachments().widthPx;
+		sizePx.y() = m_framebuffer->getOpenglAttachments().heightPx;
 	}
 
 	return sizePx;

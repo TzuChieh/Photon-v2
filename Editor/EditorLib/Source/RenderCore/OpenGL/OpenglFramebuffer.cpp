@@ -71,7 +71,9 @@ OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo(const GHIInfoFr
 }
 
 OpenglFramebuffer::OpenglFramebuffer(const GHIInfoFramebufferAttachment& attachments)
+
 	: GHIFramebuffer(attachments)
+
 	, m_attachments(attachments)
 	, m_colorTextureIDs{}
 	, m_depthStencilTextureID(0)
@@ -79,7 +81,12 @@ OpenglFramebuffer::OpenglFramebuffer(const GHIInfoFramebufferAttachment& attachm
 {
 	glCreateFramebuffers(1, &m_framebufferID);
 
+	for(uint32 attachmentIdx = 0; attachmentIdx < m_attachments.colorFormats.size(); ++attachmentIdx)
+	{
+		createDeviceColorTexture(attachmentIdx);
+	}
 
+	createDeviceDepthStencilTexture();
 }
 
 OpenglFramebuffer::~OpenglFramebuffer()
@@ -103,45 +110,6 @@ void OpenglFramebuffer::bind()
 void OpenglFramebuffer::unbind()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void OpenglFramebuffer::setAttachments(const GHIInfoFramebufferAttachment& attachments)
-{
-	const OpenglFramebufferAttachmentInfo newAttachments(attachments);
-
-	// Need to update all textures if these parameters changed
-	if(newAttachments.widthPx != m_attachments.widthPx ||
-	   newAttachments.heightPx != m_attachments.heightPx ||
-	   newAttachments.numSamples != m_attachments.numSamples)
-	{
-		for(uint32 attachmentIdx = 0; attachmentIdx < m_attachments.colorFormats.size(); ++attachmentIdx)
-		{
-			updateDeviceColorTexture(attachmentIdx, newAttachments);
-		}
-
-		updateDeviceDepthStencilTexture(newAttachments);
-
-		// Update locally-tracked states
-		m_attachments.widthPx = newAttachments.widthPx;
-		m_attachments.heightPx = newAttachments.heightPx;
-		m_attachments.numSamples = newAttachments.widthPx;
-	}
-	// Just update textures where format has changed
-	else
-	{
-		for(uint32 attachmentIdx = 0; attachmentIdx < m_attachments.colorFormats.size(); ++attachmentIdx)
-		{
-			if(newAttachments.colorFormats[attachmentIdx] != m_attachments.colorFormats[attachmentIdx])
-			{
-				updateDeviceColorTexture(attachmentIdx, newAttachments);
-			}
-		}
-
-		if(newAttachments.depthStencilFormat != m_attachments.depthStencilFormat)
-		{
-			updateDeviceDepthStencilTexture(newAttachments);
-		}
-	}
 }
 
 void OpenglFramebuffer::clearColor(const uint32 attachmentIndex, const math::Vector4F& color)
@@ -210,180 +178,151 @@ std::shared_ptr<GHITexture2D> OpenglFramebuffer::createTextureFromColor(const ui
 		false);
 }
 
-void OpenglFramebuffer::updateDeviceColorTexture(const uint32 attachmentIndex, const OpenglFramebufferAttachmentInfo& newAttachment)
+void OpenglFramebuffer::createDeviceColorTexture(const uint32 attachmentIndex)
 {
-	const OpenglFramebufferFormat& newColorFormat = newAttachment.colorFormats[attachmentIndex];
-	OpenglFramebufferFormat& oldColorFormat = m_attachments.colorFormats[attachmentIndex];
+	// Must have valid framebuffer
+	PH_ASSERT_NE(m_framebufferID, 0);
 
-	PH_ASSERT(opengl::is_color_format(newColorFormat.internalFormat));
-
-	// Possibly detach and delete the texture
-	if(newColorFormat.isEmpty() && !oldColorFormat.isEmpty())
+	const OpenglFramebufferFormat& format = m_attachments.colorFormats[attachmentIndex];
+	if(format.isEmpty())
 	{
-		PH_ASSERT_NE(m_colorTextureIDs[attachmentIndex], 0);
+		// No need to create texture for an empty attachment
+		return;
+	}
+	PH_ASSERT(opengl::is_color_format(format.internalFormat));
 
-		// Detach texture from framebuffer
-		glNamedFramebufferTexture(m_framebufferID, opengl::to_color_attachment(attachmentIndex), 0, 0);
+	// Create new texture and attach it
+	
+	// Must not already created
+	PH_ASSERT_EQ(m_colorTextureIDs[attachmentIndex], 0);
 
-		// Delete texture
-		glDeleteTextures(1, &m_colorTextureIDs[attachmentIndex]);
-		m_colorTextureIDs[attachmentIndex] = 0;
+	// Create texture
+	GLuint& textureID = m_colorTextureIDs[attachmentIndex];
+	glCreateTextures(GL_TEXTURE_2D, 1, &textureID);
+
+	// Update texture parameters
+	
+	PH_ASSERT_NE(textureID, 0);
+
+	// Ordinary texture
+	if(m_attachments.numSamples == 1)
+	{
+		// Need bind since we are using non-DSA calls here (for mutable textures)
+		glBindTexture(GL_TEXTURE_2D, textureID);
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0, 
+			format.internalFormat,
+			m_attachments.widthPx,
+			m_attachments.heightPx,
+			0,
+			GL_RED,  //
+			GL_FLOAT,// Just some dummy values, we are not specifying any input data
+			nullptr);//
+
+		glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, format.sampleState.filterType);
+		glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, format.sampleState.filterType);
+
+		glTextureParameteri(textureID, GL_TEXTURE_WRAP_S, format.sampleState.wrapType);
+		glTextureParameteri(textureID, GL_TEXTURE_WRAP_T, format.sampleState.wrapType);
+	}
+	// Multi-sampled texture
+	else
+	{
+		PH_ASSERT_GT(m_attachments.numSamples, 1);
+
+		// Need bind since we are using non-DSA calls here (for mutable textures)
+		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureID);
+
+		glTexImage2DMultisample(
+			GL_TEXTURE_2D_MULTISAMPLE, 
+			m_attachments.numSamples,
+			format.internalFormat,
+			m_attachments.widthPx,
+			m_attachments.heightPx,
+			GL_FALSE);
 	}
 
-	// Possibly create new texture and attach it
-	if(!newColorFormat.isEmpty() && oldColorFormat.isEmpty())
-	{
-		PH_ASSERT_EQ(m_colorTextureIDs[attachmentIndex], 0);
-
-		// Create texture
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_colorTextureIDs[attachmentIndex]);
-
-		// Attach texture to framebuffer
-		glNamedFramebufferTexture(
-			m_framebufferID, 
-			opengl::to_color_attachment(attachmentIndex),
-			m_colorTextureIDs[attachmentIndex],
-			0);
-	}
-
-	// Update device texture parameters if available and attached
-	if(m_colorTextureIDs[attachmentIndex] != 0)
-	{
-		const GLuint textureID = m_colorTextureIDs[attachmentIndex];
-
-		// Ordinary texture
-		if(newAttachment.numSamples == 1)
-		{
-			// Need bind since we are using non-DSA calls here (for mutable textures)
-			glBindTexture(GL_TEXTURE_2D, textureID);
-
-			glTexImage2D(
-				GL_TEXTURE_2D,
-				0, 
-				newColorFormat.internalFormat, 
-				newAttachment.widthPx,
-				newAttachment.heightPx,
-				0,
-				GL_RED,  //
-				GL_FLOAT,// Just some dummy values, we are not specifying any input data
-				nullptr);//
-
-			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, newColorFormat.sampleState.filterType);
-			glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, newColorFormat.sampleState.filterType);
-
-			glTextureParameteri(textureID, GL_TEXTURE_WRAP_S, newColorFormat.sampleState.wrapType);
-			glTextureParameteri(textureID, GL_TEXTURE_WRAP_T, newColorFormat.sampleState.wrapType);
-		}
-		// Multi-sampled texture
-		else
-		{
-			PH_ASSERT_GT(newAttachment.numSamples, 1);
-
-			// Need bind since we are using non-DSA calls here (for mutable textures)
-			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureID);
-
-			glTexImage2DMultisample(
-				GL_TEXTURE_2D_MULTISAMPLE, 
-				newAttachment.numSamples, 
-				newColorFormat.internalFormat, 
-				newAttachment.widthPx, 
-				newAttachment.heightPx,
-				GL_FALSE);
-		}
-	}
-
-	// Finally update locally-tracked states
-	oldColorFormat = newColorFormat;
+	// Attach texture to framebuffer (DSA)
+	glNamedFramebufferTexture(
+		m_framebufferID,
+		opengl::to_color_attachment(attachmentIndex),
+		textureID,
+		0);
 }
 
-void OpenglFramebuffer::updateDeviceDepthStencilTexture(const OpenglFramebufferAttachmentInfo& newAttachment)
+void OpenglFramebuffer::createDeviceDepthStencilTexture()
 {
-	const OpenglFramebufferFormat& newFormat = newAttachment.depthStencilFormat;
-	OpenglFramebufferFormat& oldFormat = m_attachments.depthStencilFormat;
+	// Must have valid framebuffer
+	PH_ASSERT_NE(m_framebufferID, 0);
 
-	PH_ASSERT(!opengl::is_color_format(newFormat.internalFormat));
-
-	// Possibly detach and delete the texture
-	if(newFormat.isEmpty() && !oldFormat.isEmpty())
+	const OpenglFramebufferFormat& format = m_attachments.depthStencilFormat;
+	if(format.isEmpty())
 	{
-		PH_ASSERT_NE(m_depthStencilTextureID, 0);
+		// No need to create texture for an empty attachment
+		return;
+	}
+	PH_ASSERT(!opengl::is_color_format(format.internalFormat));
 
-		// Detach texture from framebuffer
-		glNamedFramebufferTexture(
-			m_framebufferID, 
-			m_attachments.depthStencilAttachment,// note: use old attachment info
-			0, 
-			0);
+	// Create new texture and attach it
 
-		// Delete texture
-		glDeleteTextures(1, &m_depthStencilTextureID);
-		m_depthStencilTextureID = 0;
+	// Must not already created
+	PH_ASSERT_EQ(m_depthStencilTextureID, 0);
+
+	// Create texture
+	glCreateTextures(GL_TEXTURE_2D, 1, &m_depthStencilTextureID);
+
+	// Update texture parameters
+
+	PH_ASSERT_NE(m_depthStencilTextureID, 0);
+
+	// Ordinary texture
+	if(m_attachments.numSamples == 1)
+	{
+		// Need bind since we are using non-DSA calls here (for mutable textures)
+		glBindTexture(GL_TEXTURE_2D, m_depthStencilTextureID);
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			format.internalFormat,
+			m_attachments.widthPx,
+			m_attachments.heightPx,
+			0,
+			GL_RED,  //
+			GL_FLOAT,// Just some dummy values, we are not specifying any input data
+			nullptr);//
+
+		glTextureParameteri(m_depthStencilTextureID, GL_TEXTURE_MIN_FILTER, format.sampleState.filterType);
+		glTextureParameteri(m_depthStencilTextureID, GL_TEXTURE_MAG_FILTER, format.sampleState.filterType);
+
+		glTextureParameteri(m_depthStencilTextureID, GL_TEXTURE_WRAP_S, format.sampleState.wrapType);
+		glTextureParameteri(m_depthStencilTextureID, GL_TEXTURE_WRAP_T, format.sampleState.wrapType);
+	}
+	// Multi-sampled texture
+	else
+	{
+		PH_ASSERT_GT(m_attachments.numSamples, 1);
+
+		// Need bind since we are using non-DSA calls here (for mutable textures)
+		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_depthStencilTextureID);
+
+		glTexImage2DMultisample(
+			GL_TEXTURE_2D_MULTISAMPLE,
+			m_attachments.numSamples,
+			format.internalFormat,
+			m_attachments.widthPx,
+			m_attachments.heightPx,
+			GL_FALSE);
 	}
 
-	// Possibly create new texture and attach it
-	if(!newFormat.isEmpty() && oldFormat.isEmpty())
-	{
-		PH_ASSERT_EQ(m_depthStencilTextureID, 0);
-
-		// Create texture
-		glCreateTextures(GL_TEXTURE_2D, 1, &m_depthStencilTextureID);
-
-		// Attach texture to framebuffer
-		glNamedFramebufferTexture(
-			m_framebufferID, 
-			newAttachment.depthStencilAttachment,
-			m_depthStencilTextureID,
-			0);
-	}
-
-	// Update device texture parameters if available and attached
-	if(m_depthStencilTextureID != 0)
-	{
-		const GLuint textureID = m_depthStencilTextureID;
-
-		// Ordinary texture
-		if(newAttachment.numSamples == 1)
-		{
-			// Need bind since we are using non-DSA calls here (for mutable textures)
-			glBindTexture(GL_TEXTURE_2D, textureID);
-
-			glTexImage2D(
-				GL_TEXTURE_2D,
-				0, 
-				newFormat.internalFormat, 
-				newAttachment.widthPx,
-				newAttachment.heightPx,
-				0,
-				GL_RED,  //
-				GL_FLOAT,// Just some dummy values, we are not specifying any input data
-				nullptr);//
-
-			glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, newFormat.sampleState.filterType);
-			glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, newFormat.sampleState.filterType);
-
-			glTextureParameteri(textureID, GL_TEXTURE_WRAP_S, newFormat.sampleState.wrapType);
-			glTextureParameteri(textureID, GL_TEXTURE_WRAP_T, newFormat.sampleState.wrapType);
-		}
-		// Multi-sampled texture
-		else
-		{
-			PH_ASSERT_GT(newAttachment.numSamples, 1);
-
-			// Need bind since we are using non-DSA calls here (for mutable textures)
-			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureID);
-
-			glTexImage2DMultisample(
-				GL_TEXTURE_2D_MULTISAMPLE, 
-				newAttachment.numSamples, 
-				newFormat.internalFormat,
-				newAttachment.widthPx, 
-				newAttachment.heightPx,
-				GL_FALSE);
-		}
-	}
-
-	// Finally update locally-tracked states
-	oldFormat = newFormat;
+	// Attach texture to framebuffer (DSA)
+	glNamedFramebufferTexture(
+		m_framebufferID,
+		m_attachments.depthStencilAttachment,
+		m_depthStencilTextureID,
+		0);
 }
 
 }// end namespace ph::editor

@@ -27,7 +27,8 @@ public:
 		const GHIInfoTextureFormat& format,
 		const math::Vector2UI& sizePx) override;
 
-	std::shared_ptr<GHIFramebuffer> createFramebuffer() override;
+	std::shared_ptr<GHIFramebuffer> createFramebuffer(
+		const GHIInfoFramebufferAttachment& attachments) override;
 
 private:
 	void beginRawCommand() override;
