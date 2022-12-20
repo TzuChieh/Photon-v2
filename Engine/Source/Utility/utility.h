@@ -184,22 +184,71 @@ inline DstType lossless_integer_cast(const SrcType src)
 	return static_cast<DstType>(src);
 }
 
+template<std::floating_point DstType, std::floating_point SrcType>
+inline DstType lossless_float_cast(const SrcType src)
+{
+	// Nothing to do if both types are the same
+	if constexpr(std::is_same_v<SrcType, DstType>)
+	{
+		return src;
+	}
+	// If we are converting to a wider floating-point type, generally it will be lossless
+	else if constexpr(sizeof(DstType) > sizeof(SrcType))
+	{
+		// We need both types to be IEEE-754
+		static_assert(std::numeric_limits<SrcType>::is_iec559);
+		static_assert(std::numeric_limits<DstType>::is_iec559);
+
+		return static_cast<DstType>(src);
+	}
+	// Otherwise, cast to `DstType` then back to `SrcType` and see if there is any difference
+	else
+	{
+		const auto dst = static_cast<DstType>(src);
+		const auto dstBackToSrc = static_cast<SrcType>(dst);
+		if(src != dstBackToSrc)
+		{
+			throw_formatted<NumericException>("cast results in numeric precision loss: {} -> {}",
+				src, dstBackToSrc);
+		}
+
+		return dst;
+	}
+}
+
 /*! @brief Cast numeric value to another type without any loss of information.
-If there is any possible overflow or precision loss, exception is thrown.
+If there is any possible overflow or numeric precision loss, exception is thrown.
 @exception OverflowException If overflow happens.
+@exception Numericxception If any numeric precision loss happens.
 */
 template<CIsNumber DstType, CIsNumber SrcType>
 inline DstType lossless_cast(const SrcType src)
 {
+	// Integer -> Integer
 	if constexpr(std::is_integral_v<SrcType> && std::is_integral_v<DstType>)
 	{
 		return lossless_integer_cast<DstType>(src);
 	}
-	else
+	// Integer -> Floating-point
+	else if constexpr(std::is_integral_v<SrcType> && std::is_floating_point_v<DstType>)
 	{
-		// TODO: other type combinations
+		// TODO
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return 0;
+	}
+	// Floating-point -> Integer
+	else if constexpr(std::is_floating_point_v<SrcType> && std::is_integral_v<DstType>)
+	{
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return 0;
+	}
+	// Floating-point -> Floating-point
+	else
+	{
+		static_assert(std::is_floating_point_v<SrcType> && std::is_floating_point_v<DstType>);
+
+		return lossless_float_cast<DstType>(src);
 	}
 }
 

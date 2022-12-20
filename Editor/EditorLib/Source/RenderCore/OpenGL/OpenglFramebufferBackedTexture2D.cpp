@@ -62,7 +62,7 @@ void OpenglFramebufferBackedTexture2D::upload(
 
 void OpenglFramebufferBackedTexture2D::bind(const uint32 slotIndex)
 {
-	glBindTextureUnit(loseless_cast<GLuint>(slotIndex), m_textureID);
+	glBindTextureUnit(lossless_cast<GLuint>(slotIndex), m_textureID);
 }
 
 auto OpenglFramebufferBackedTexture2D::getMemoryInfo() const

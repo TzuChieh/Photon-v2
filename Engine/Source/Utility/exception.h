@@ -39,10 +39,16 @@ public:
 	virtual std::string whatStr() const;
 };
 
-class OverflowException : public RuntimeException
+class NumericException : public RuntimeException
 {
 public:
 	using RuntimeException::RuntimeException;
+};
+
+class OverflowException : public NumericException
+{
+public:
+	using NumericException::NumericException;
 };
 
 class UninitializedObjectException : public LogicalException
