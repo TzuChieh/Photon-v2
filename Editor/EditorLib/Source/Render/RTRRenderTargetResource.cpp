@@ -17,7 +17,7 @@ RTRRenderTargetResource::RTRRenderTargetResource(
 
 	: RTRTextureResource()
 
-	, m_sizePx(safe_integer_cast<uint32f>(sizePx.x()), safe_integer_cast<uint32f>(sizePx.y()), 0)
+	, m_sizePx(lossless_integer_cast<uint32f>(sizePx.x()), lossless_integer_cast<uint32f>(sizePx.y()), 0)
 	, m_format(format)
 	, m_attachmentIndex(0)
 	, m_isDepthStencilAttachment(false)

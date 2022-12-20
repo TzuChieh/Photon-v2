@@ -91,7 +91,7 @@ void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData
 	// Here we aim to minimize the amount of memory allocation & deallocation for max efficiency. 
 	// May need to check IMGUI source again if the library is updated.
 
-	const auto srcDrawListsSize = safe_number_cast<std::size_t>(srcDrawData.CmdListsCount);
+	const auto srcDrawListsSize = lossless_cast<std::size_t>(srcDrawData.CmdListsCount);
 
 	// Prepare space for draw list data (only grow, for efficiency)
 	if(drawListBuffer.size() < srcDrawListsSize)

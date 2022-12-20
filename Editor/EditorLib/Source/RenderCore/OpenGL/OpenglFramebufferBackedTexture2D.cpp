@@ -62,7 +62,7 @@ void OpenglFramebufferBackedTexture2D::upload(
 
 void OpenglFramebufferBackedTexture2D::bind(const uint32 slotIndex)
 {
-	glBindTextureUnit(safe_number_cast<GLuint>(slotIndex), m_textureID);
+	glBindTextureUnit(loseless_cast<GLuint>(slotIndex), m_textureID);
 }
 
 auto OpenglFramebufferBackedTexture2D::getMemoryInfo() const
@@ -80,7 +80,7 @@ auto OpenglFramebufferBackedTexture2D::getNativeHandle()
 {
 	if(m_textureID != 0)
 	{
-		return safe_number_cast<uint64>(m_textureID);
+		return lossless_cast<uint64>(m_textureID);
 	}
 	else
 	{

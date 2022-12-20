@@ -200,8 +200,8 @@ inline TFrame<FrameComponent, N> PictureData::pictureToFrame() const
 	const std::size_t minComponents = std::min(m_numComponents, N);
 
 	FrameType frame(
-		safe_number_cast<uint32>(m_sizePx.x()), 
-		safe_number_cast<uint32>(m_sizePx.y()));
+		lossless_cast<uint32>(m_sizePx.x()),
+		lossless_cast<uint32>(m_sizePx.y()));
 	frame.forEachPixel(
 		[this, minComponents](const std::size_t x, const std::size_t y)
 		{

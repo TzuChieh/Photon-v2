@@ -33,7 +33,7 @@ public:
 	explicit TVector2(const TVector2<U>& other);
 
 	template<typename U>
-	TVector2<U> safeCast() const;
+	TVector2<U> losslessCast() const;
 
 	T& x();
 	T& y();

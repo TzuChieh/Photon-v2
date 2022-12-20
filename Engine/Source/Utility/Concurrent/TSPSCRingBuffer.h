@@ -207,7 +207,7 @@ public:
 		// Above is the straightforward way of calculating distance, however the result is ambiguous on
 		// determining whether the buffer is empty or full--returning 0 on both conditions.
 
-		return safe_integer_cast<std::size_t>(
+		return lossless_integer_cast<std::size_t>(
 			m_headDistance.load(std::memory_order_relaxed));
 	}
 

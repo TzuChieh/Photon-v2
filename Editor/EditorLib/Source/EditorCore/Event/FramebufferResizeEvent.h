@@ -31,7 +31,7 @@ inline FramebufferResizeEvent::FramebufferResizeEvent(math::TVector2<uint16> new
 template<typename T>
 inline FramebufferResizeEvent::FramebufferResizeEvent(T widthPx, T heightPx)
 	: FramebufferResizeEvent(
-		math::TVector2<uint16>(safe_number_cast<uint16>(widthPx), safe_number_cast<uint16>(heightPx)))
+		math::TVector2<uint16>(lossless_cast<uint16>(widthPx), lossless_cast<uint16>(heightPx)))
 {}
 
 inline math::Vector2S FramebufferResizeEvent::getNewSizePx() const

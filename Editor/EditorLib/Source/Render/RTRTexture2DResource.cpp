@@ -22,7 +22,7 @@ RTRTexture2DResource::RTRTexture2DResource(
 {
 	if(m_textureData)
 	{
-		m_sizePx = m_textureData->getSizePx().safeCast<uint32>();
+		m_sizePx = m_textureData->getSizePx().losslessCast<uint32>();
 	}
 }
 

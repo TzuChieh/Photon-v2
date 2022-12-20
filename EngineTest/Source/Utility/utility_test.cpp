@@ -96,7 +96,7 @@ namespace
 {
 
 template<typename SrcType, typename DstType>
-void test_safe_number_cast(std::type_identity_t<SrcType> src)
+void test_lossless_cast(std::type_identity_t<SrcType> src)
 {
 	const auto expectedDst = static_cast<DstType>(src);
 	EXPECT_EQ(expectedDst, ph::safe_number_cast<DstType>(src));
@@ -109,53 +109,53 @@ TEST(UtilityTest, SafeNumberCast)
 	// Integer cast
 	{
 		// signed -> signed
-		test_safe_number_cast<std::int64_t, std::int32_t>(0);
-		test_safe_number_cast<std::int64_t, std::int32_t>(-1234);
-		test_safe_number_cast<std::int64_t, std::int32_t>(56789);
-		test_safe_number_cast<std::int64_t, std::int32_t>(std::numeric_limits<std::int32_t>::max());
-		test_safe_number_cast<std::int64_t, std::int32_t>(std::numeric_limits<std::int32_t>::lowest());
-		test_safe_number_cast<std::int16_t, std::int32_t>(-2785);
-		test_safe_number_cast<std::int8_t, std::int16_t>(-66);
-		test_safe_number_cast<std::int8_t, std::int8_t>(std::numeric_limits<std::int8_t>::lowest());
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::int32_t>(static_cast<std::int64_t>(std::numeric_limits<std::int32_t>::max()) + 1)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::int32_t>(std::numeric_limits<std::int64_t>::max())), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::int32_t>(static_cast<std::int64_t>(std::numeric_limits<std::int32_t>::lowest()) - 1)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::int32_t>(std::numeric_limits<std::int64_t>::lowest())), ph::OverflowException);
+		test_lossless_cast<std::int64_t, std::int32_t>(0);
+		test_lossless_cast<std::int64_t, std::int32_t>(-1234);
+		test_lossless_cast<std::int64_t, std::int32_t>(56789);
+		test_lossless_cast<std::int64_t, std::int32_t>(std::numeric_limits<std::int32_t>::max());
+		test_lossless_cast<std::int64_t, std::int32_t>(std::numeric_limits<std::int32_t>::lowest());
+		test_lossless_cast<std::int16_t, std::int32_t>(-2785);
+		test_lossless_cast<std::int8_t, std::int16_t>(-66);
+		test_lossless_cast<std::int8_t, std::int8_t>(std::numeric_limits<std::int8_t>::lowest());
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::int32_t>(static_cast<std::int64_t>(std::numeric_limits<std::int32_t>::max()) + 1)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::int32_t>(std::numeric_limits<std::int64_t>::max())), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::int32_t>(static_cast<std::int64_t>(std::numeric_limits<std::int32_t>::lowest()) - 1)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::int32_t>(std::numeric_limits<std::int64_t>::lowest())), ph::OverflowException);
 
 		// signed -> unsigned
-		test_safe_number_cast<std::int64_t, std::uint32_t>(0);
-		test_safe_number_cast<std::int64_t, std::uint32_t>(7777);
-		test_safe_number_cast<std::int64_t, std::uint32_t>(22222);
-		test_safe_number_cast<std::int64_t, std::uint32_t>(std::numeric_limits<std::uint32_t>::max());
-		test_safe_number_cast<std::int64_t, std::uint32_t>(std::numeric_limits<std::uint32_t>::lowest());
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::uint32_t>(static_cast<std::int64_t>(std::numeric_limits<std::uint32_t>::max()) + 1)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::uint32_t>(std::numeric_limits<std::int64_t>::max())), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::uint32_t>(-1)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::uint32_t>(-33333)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::int64_t, std::uint32_t>(std::numeric_limits<std::int64_t>::lowest())), ph::OverflowException);
+		test_lossless_cast<std::int64_t, std::uint32_t>(0);
+		test_lossless_cast<std::int64_t, std::uint32_t>(7777);
+		test_lossless_cast<std::int64_t, std::uint32_t>(22222);
+		test_lossless_cast<std::int64_t, std::uint32_t>(std::numeric_limits<std::uint32_t>::max());
+		test_lossless_cast<std::int64_t, std::uint32_t>(std::numeric_limits<std::uint32_t>::lowest());
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::uint32_t>(static_cast<std::int64_t>(std::numeric_limits<std::uint32_t>::max()) + 1)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::uint32_t>(std::numeric_limits<std::int64_t>::max())), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::uint32_t>(-1)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::uint32_t>(-33333)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::int64_t, std::uint32_t>(std::numeric_limits<std::int64_t>::lowest())), ph::OverflowException);
 
 		// usigned -> signed
-		test_safe_number_cast<std::uint64_t, std::int32_t>(0);
-		test_safe_number_cast<std::uint64_t, std::int32_t>(56789);
-		test_safe_number_cast<std::uint64_t, std::int32_t>(std::numeric_limits<std::int32_t>::max());
-		test_safe_number_cast<std::uint16_t, std::int32_t>(2785);
-		test_safe_number_cast<std::uint8_t, std::int16_t>(240);
-		test_safe_number_cast<std::uint8_t, std::int8_t>(std::numeric_limits<std::int8_t>::max());
-		EXPECT_THROW((test_safe_number_cast<std::uint64_t, std::int32_t>(static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max()) + 1)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::uint64_t, std::int32_t>(std::numeric_limits<std::uint64_t>::max())), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::uint32_t, std::int8_t>(static_cast<std::uint32_t>(std::numeric_limits<std::int8_t>::max()) + 1)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::uint16_t, std::int8_t>(static_cast<std::uint16_t>(std::numeric_limits<std::int8_t>::max()) + 1)), ph::OverflowException);
+		test_lossless_cast<std::uint64_t, std::int32_t>(0);
+		test_lossless_cast<std::uint64_t, std::int32_t>(56789);
+		test_lossless_cast<std::uint64_t, std::int32_t>(std::numeric_limits<std::int32_t>::max());
+		test_lossless_cast<std::uint16_t, std::int32_t>(2785);
+		test_lossless_cast<std::uint8_t, std::int16_t>(240);
+		test_lossless_cast<std::uint8_t, std::int8_t>(std::numeric_limits<std::int8_t>::max());
+		EXPECT_THROW((test_lossless_cast<std::uint64_t, std::int32_t>(static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max()) + 1)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::uint64_t, std::int32_t>(std::numeric_limits<std::uint64_t>::max())), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::uint32_t, std::int8_t>(static_cast<std::uint32_t>(std::numeric_limits<std::int8_t>::max()) + 1)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::uint16_t, std::int8_t>(static_cast<std::uint16_t>(std::numeric_limits<std::int8_t>::max()) + 1)), ph::OverflowException);
 
 		// usigned -> usigned
-		test_safe_number_cast<std::uint64_t, std::uint32_t>(0);
-		test_safe_number_cast<std::uint64_t, std::uint32_t>(56789);
-		test_safe_number_cast<std::uint64_t, std::uint32_t>(std::numeric_limits<std::uint32_t>::max());
-		test_safe_number_cast<std::uint16_t, std::uint32_t>(2785);
-		test_safe_number_cast<std::uint8_t, std::uint16_t>(240);
-		test_safe_number_cast<std::uint8_t, std::uint8_t>(std::numeric_limits<std::uint8_t>::max());
-		EXPECT_THROW((test_safe_number_cast<std::uint64_t, std::uint32_t>(static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()) + 1)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::uint64_t, std::uint32_t>(std::numeric_limits<std::uint64_t>::max())), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::uint32_t, std::uint8_t>(static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max()) + 1)), ph::OverflowException);
-		EXPECT_THROW((test_safe_number_cast<std::uint16_t, std::uint8_t>(static_cast<std::uint16_t>(std::numeric_limits<std::uint8_t>::max()) + 1)), ph::OverflowException);
+		test_lossless_cast<std::uint64_t, std::uint32_t>(0);
+		test_lossless_cast<std::uint64_t, std::uint32_t>(56789);
+		test_lossless_cast<std::uint64_t, std::uint32_t>(std::numeric_limits<std::uint32_t>::max());
+		test_lossless_cast<std::uint16_t, std::uint32_t>(2785);
+		test_lossless_cast<std::uint8_t, std::uint16_t>(240);
+		test_lossless_cast<std::uint8_t, std::uint8_t>(std::numeric_limits<std::uint8_t>::max());
+		EXPECT_THROW((test_lossless_cast<std::uint64_t, std::uint32_t>(static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()) + 1)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::uint64_t, std::uint32_t>(std::numeric_limits<std::uint64_t>::max())), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::uint32_t, std::uint8_t>(static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max()) + 1)), ph::OverflowException);
+		EXPECT_THROW((test_lossless_cast<std::uint16_t, std::uint8_t>(static_cast<std::uint16_t>(std::numeric_limits<std::uint8_t>::max()) + 1)), ph::OverflowException);
 	}
 }

@@ -26,11 +26,11 @@ inline TVector2<T>::TVector2(const TVector2<U>& other) :
 
 template<typename T>
 template<typename U>
-inline TVector2<U> TVector2<T>::safeCast() const
+inline TVector2<U> TVector2<T>::losslessCast() const
 {
 	return TVector2<U>(
-		safe_number_cast<U>(m[0]),
-		safe_number_cast<U>(m[1]));
+		lossless_cast<U>(m[0]),
+		lossless_cast<U>(m[1]));
 }
 
 template<typename T>

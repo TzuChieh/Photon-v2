@@ -172,8 +172,8 @@ math::Vector2S GlfwDisplay::getFramebufferSizePx() const
 	glfwGetFramebufferSize(m_glfwWindow, &width, &height);
 
 	return math::Vector2S(
-		safe_number_cast<std::size_t>(width),
-		safe_number_cast<std::size_t>(height));
+		lossless_cast<std::size_t>(width),
+		lossless_cast<std::size_t>(height));
 }
 
 GlfwDisplay::NativeWindow GlfwDisplay::getNativeWindow() const

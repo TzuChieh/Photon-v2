@@ -33,8 +33,8 @@ OpenglTexture2D::OpenglTexture2D(
 	: GHITexture2D(format)
 
 	, m_textureID(0)
-	, m_widthPx(safe_integer_cast<GLsizei>(sizePx.x()))
-	, m_heightPx(safe_integer_cast<GLsizei>(sizePx.y()))
+	, m_widthPx(lossless_integer_cast<GLsizei>(sizePx.x()))
+	, m_heightPx(lossless_integer_cast<GLsizei>(sizePx.y()))
 	, m_format(format)
 {
 	// Currently depth is not supported
@@ -99,7 +99,7 @@ void OpenglTexture2D::upload(
 
 void OpenglTexture2D::bind(const uint32 slotIndex)
 {
-	glBindTextureUnit(safe_integer_cast<GLuint>(slotIndex), m_textureID);
+	glBindTextureUnit(lossless_integer_cast<GLuint>(slotIndex), m_textureID);
 }
 
 auto OpenglTexture2D::getMemoryInfo() const

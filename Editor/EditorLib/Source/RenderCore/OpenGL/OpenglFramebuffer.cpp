@@ -31,9 +31,9 @@ OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo()
 OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo(const GHIInfoFramebufferAttachment& attachments)
 	: OpenglFramebufferAttachmentInfo()
 {
-	widthPx = safe_number_cast<GLsizei>(attachments.sizePx.x());
-	heightPx = safe_number_cast<GLsizei>(attachments.sizePx.y());
-	numSamples = safe_number_cast<GLsizei>(attachments.numSamples);
+	widthPx = lossless_cast<GLsizei>(attachments.sizePx.x());
+	heightPx = lossless_cast<GLsizei>(attachments.sizePx.y());
+	numSamples = lossless_cast<GLsizei>(attachments.numSamples);
 
 	for(std::size_t i = 0; i < attachments.colorFormats.size(); ++i)
 	{
@@ -117,15 +117,15 @@ void OpenglFramebuffer::clearColor(const uint32 attachmentIndex, const math::Vec
 	PH_ASSERT(!m_attachments.colorFormats[attachmentIndex].isEmpty());
 
 	const std::array<GLfloat, 4> values = {
-		safe_number_cast<GLfloat>(color.r()),
-		safe_number_cast<GLfloat>(color.g()),
-		safe_number_cast<GLfloat>(color.b()), 
-		safe_number_cast<GLfloat>(color.a())};
+		lossless_cast<GLfloat>(color.r()),
+		lossless_cast<GLfloat>(color.g()),
+		lossless_cast<GLfloat>(color.b()),
+		lossless_cast<GLfloat>(color.a())};
 
 	glClearNamedFramebufferfv(
 		m_framebufferID, 
 		GL_COLOR, 
-		safe_number_cast<GLint>(attachmentIndex),
+		lossless_cast<GLint>(attachmentIndex),
 		values.data());
 }
 
@@ -135,8 +135,8 @@ void OpenglFramebuffer::clearDepthStencil(const float32 depth, const uint8 stenc
 
 	PH_ASSERT(!m_attachments.depthStencilFormat.isEmpty());
 
-	const auto depthValue = safe_number_cast<GLfloat>(depth);
-	const auto stencilValue = safe_number_cast<GLint>(stencil);
+	const auto depthValue = lossless_cast<GLfloat>(depth);
+	const auto stencilValue = lossless_cast<GLint>(stencil);
 
 	if(m_attachments.depthStencilAttachment == GL_DEPTH_ATTACHMENT)
 	{

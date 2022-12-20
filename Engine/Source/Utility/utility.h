@@ -149,7 +149,7 @@ inline void mutable_cast(const T&&) = delete;
 ///@}
 
 template<std::integral DstType, std::integral SrcType>
-inline DstType safe_integer_cast(const SrcType src)
+inline DstType lossless_integer_cast(const SrcType src)
 {
 	using SrcLimits = std::numeric_limits<SrcType>;
 	using DstLimits = std::numeric_limits<DstType>;
@@ -189,11 +189,11 @@ If there is any possible overflow or precision loss, exception is thrown.
 @exception OverflowException If overflow happens.
 */
 template<CIsNumber DstType, CIsNumber SrcType>
-inline DstType safe_number_cast(const SrcType src)
+inline DstType lossless_cast(const SrcType src)
 {
 	if constexpr(std::is_integral_v<SrcType> && std::is_integral_v<DstType>)
 	{
-		return safe_integer_cast<DstType>(src);
+		return lossless_integer_cast<DstType>(src);
 	}
 	else
 	{

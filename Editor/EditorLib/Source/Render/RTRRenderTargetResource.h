@@ -61,17 +61,17 @@ private:
 
 inline std::size_t RTRRenderTargetResource::getWidthPx() const
 {
-	return safe_integer_cast<std::size_t>(m_sizePx.x());
+	return lossless_integer_cast<std::size_t>(m_sizePx.x());
 }
 
 inline std::size_t RTRRenderTargetResource::getHeightPx() const
 {
-	return safe_integer_cast<std::size_t>(m_sizePx.y());
+	return lossless_integer_cast<std::size_t>(m_sizePx.y());
 }
 
 inline std::size_t RTRRenderTargetResource::numLayers() const
 {
-	return safe_integer_cast<std::size_t>(m_sizePx.z());
+	return lossless_integer_cast<std::size_t>(m_sizePx.z());
 }
 
 inline const GHIInfoTextureFormat& RTRRenderTargetResource::getFormat() const

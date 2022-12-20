@@ -109,7 +109,7 @@ void IndexedVertexBuffer::declareAttribute(
 		}
 		else
 		{
-			inputEntry.numElements = safe_integer_cast<uint8>(numElements);
+			inputEntry.numElements = lossless_integer_cast<uint8>(numElements);
 		}	
 	}
 	else
@@ -170,7 +170,7 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 		}
 	}
 
-	m_vertexSize = safe_integer_cast<decltype(m_vertexSize)>(currentVertexSize);
+	m_vertexSize = lossless_integer_cast<decltype(m_vertexSize)>(currentVertexSize);
 
 	// Allocate storage for the entries
 
@@ -442,7 +442,7 @@ auto IndexedVertexBuffer::getAttributeDeclaration(const EVertexAttribute attribu
 	const Entry& entry = getEntry(attribute);
 	
 	AttributeDeclaration declaration;
-	declaration.strideOffset = safe_integer_cast<std::size_t>(entry.u_attributeBuffer - m_byteBuffer.get());
+	declaration.strideOffset = lossless_integer_cast<std::size_t>(entry.u_attributeBuffer - m_byteBuffer.get());
 	declaration.strideSize = entry.strideSize;
 	declaration.element = entry.element;
 	declaration.numElements = entry.numElements;

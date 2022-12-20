@@ -43,12 +43,12 @@ private:
 
 inline std::size_t RTRTexture2DResource::getWidthPx() const
 {
-	return safe_integer_cast<std::size_t>(m_sizePx.x());
+	return lossless_integer_cast<std::size_t>(m_sizePx.x());
 }
 
 inline std::size_t RTRTexture2DResource::getHeightPx() const
 {
-	return safe_integer_cast<std::size_t>(m_sizePx.y());
+	return lossless_integer_cast<std::size_t>(m_sizePx.y());
 }
 
 inline const GHIInfoTextureFormat& RTRTexture2DResource::getFormat() const
