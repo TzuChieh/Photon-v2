@@ -171,6 +171,8 @@ std::shared_ptr<GHITexture2D> OpenglFramebuffer::createTextureFromColor(const ui
 {
 	PH_ASSERT_LT(attachmentIndex, m_colorTextureIDs.size());
 
+	// The texture holds a reference to `this`--this will ensure that the OpenGL texture will not 
+	// be deleted until the texture is released. Relied on `this` being RAII.
 	return std::make_shared<OpenglFramebufferBackedTexture2D>(
 		std::static_pointer_cast<OpenglFramebuffer>(getSharedPtrFromThis()),
 		m_colorTextureIDs[attachmentIndex],

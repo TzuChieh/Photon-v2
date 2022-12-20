@@ -99,7 +99,7 @@ void OpenglTexture2D::upload(
 
 void OpenglTexture2D::bind(const uint32 slotIndex)
 {
-	glBindTextureUnit(safe_number_cast<GLuint>(slotIndex), m_textureID);
+	glBindTextureUnit(safe_integer_cast<GLuint>(slotIndex), m_textureID);
 }
 
 auto OpenglTexture2D::getMemoryInfo() const
@@ -117,7 +117,7 @@ auto OpenglTexture2D::getNativeHandle()
 {
 	if(m_textureID != 0)
 	{
-		return safe_number_cast<uint64>(m_textureID);
+		return static_cast<uint64>(m_textureID);
 	}
 	else
 	{

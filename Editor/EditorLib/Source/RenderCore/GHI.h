@@ -21,6 +21,8 @@ namespace ph::editor
 
 PH_DECLARE_LOG_GROUP(GHI);
 
+class GHIInfoDeviceCapability;
+
 /*! @brief Graphics API abstraction.
 @exception PlatformException When error occurred and the platform must terminate its operations.
 */
@@ -65,6 +67,8 @@ public:
 
 	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) = 0;
+
+	virtual GHIInfoDeviceCapability getDeviceCapabilities();
 
 	template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
 	void rawCommand(

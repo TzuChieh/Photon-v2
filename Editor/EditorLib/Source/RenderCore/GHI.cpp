@@ -1,4 +1,5 @@
 #include "RenderCore/GHI.h"
+#include "RenderCore/GHIInfoDeviceCapability.h"
 
 namespace ph::editor
 {
@@ -23,5 +24,10 @@ GHI::GHI(const EGraphicsAPI apiType)
 {}
 
 GHI::~GHI() = default;
+
+GHIInfoDeviceCapability GHI::getDeviceCapabilities()
+{
+	return GHIInfoDeviceCapability();
+}
 
 }// end namespace ph::editor

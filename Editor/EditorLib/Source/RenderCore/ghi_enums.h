@@ -71,7 +71,7 @@ enum class EGHIInfoStorageElement : uint8
 	Float64
 };
 
-enum class EGHIInfoStorageUsage : uint8
+enum class EGHIInfoStorageHint : uint8
 {
 	Unspecified = 0,
 	Static,

@@ -1,17 +1,12 @@
 #pragma once
 
-#include "RenderCore/GHIStorage.h"
-#include "RenderCore/ghi_enums.h"
-
-#include <Common/primitive_type.h>
-
-#include <array>
-#include <cstddef>
+#include "RenderCore/GHIVertexStorage.h"
+#include "ThirdParty/glad2.h"
 
 namespace ph::editor
 {
 
-class GHIInfoVertexAttributeLocator final
+class OpenglVertexAttributeLocator final
 {
 public:
 	std::size_t strideOffset;
@@ -25,7 +20,7 @@ public:
 	GHIInfoVertexAttributeLocator();
 };
 
-class GHIInfoVertexLayout final
+class OpenglVertexLayout final
 {
 public:
 	inline constexpr static uint8 MAX_VERTEX_ATTRIBUTES = 16;
@@ -33,7 +28,7 @@ public:
 	std::array<GHIInfoVertexAttributeLocator, MAX_VERTEX_ATTRIBUTES> attributes;
 };
 
-class GHIVertexStorage : public GHIStorage
+class OpenglVertexStorage : public GHIVertexStorage
 {
 public:
 	explicit GHIVertexStorage(const GHIInfoVertexLayout& vertexLayout);

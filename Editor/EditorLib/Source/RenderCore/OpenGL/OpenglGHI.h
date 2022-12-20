@@ -30,6 +30,8 @@ public:
 	std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) override;
 
+	GHIInfoDeviceCapability getDeviceCapabilities() override;
+
 private:
 	void beginRawCommand() override;
 	void endRawCommand() override;

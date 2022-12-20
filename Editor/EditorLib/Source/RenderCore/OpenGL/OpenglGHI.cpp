@@ -4,6 +4,7 @@
 #include "RenderCore/OpenGL/opengl_enums.h"
 #include "RenderCore/OpenGL/OpenglTexture2D.h"
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
+#include "RenderCore/GHIInfoDeviceCapability.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -268,6 +269,13 @@ std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer(
 	const GHIInfoFramebufferAttachment& attachments)
 {
 	return std::make_shared<OpenglFramebuffer>(attachments);
+}
+
+GHIInfoDeviceCapability OpenglGHI::getDeviceCapabilities() override
+{
+	GHIInfoDeviceCapability c;
+
+	return c;
 }
 
 void OpenglGHI::beginRawCommand()
