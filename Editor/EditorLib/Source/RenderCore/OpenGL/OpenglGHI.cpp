@@ -5,6 +5,7 @@
 #include "RenderCore/OpenGL/OpenglTexture2D.h"
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
 #include "RenderCore/GHIInfoDeviceCapability.h"
+#include "RenderCore/OpenGL/Opengl.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -145,6 +146,7 @@ OpenglGHI::OpenglGHI(GLFWwindow* const glfwWindow, const bool hasDebugContext)
 #ifdef PH_DEBUG
 	, m_loadThreadId   ()
 #endif
+	, m_deviceCapability(nullptr)
 {}
 
 OpenglGHI::~OpenglGHI()
@@ -271,10 +273,21 @@ std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer(
 	return std::make_shared<OpenglFramebuffer>(attachments);
 }
 
-GHIInfoDeviceCapability OpenglGHI::getDeviceCapabilities() override
+GHIInfoDeviceCapability OpenglGHI::getDeviceCapabilities()
 {
-	GHIInfoDeviceCapability c;
+	if(m_deviceCapability != nullptr)
+	{
+		return *m_deviceCapability;
+	}
 
+	// Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGet.xhtml
+
+	m_deviceCapability = std::make_unique<GHIInfoDeviceCapability>();
+
+	GHIInfoDeviceCapability& c = *m_deviceCapability;
+	c.maxTextureUnitsForVertexShadingStage = Opengl::getInteger<uint8>(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+	c.maxTextureUnitsForFragmentShadingStage = Opengl::getInteger<uint8>(GL_MAX_TEXTURE_IMAGE_UNITS);
+	c.maxVertexAttributes = Opengl::getInteger<uint8>(GL_MAX_VERTEX_ATTRIBS);
 	return c;
 }
 

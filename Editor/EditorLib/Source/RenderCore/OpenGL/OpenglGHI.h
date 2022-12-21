@@ -6,6 +6,7 @@
 #include <Common/config.h>
 
 #include <thread>
+#include <memory>
 
 namespace ph::editor
 {
@@ -37,12 +38,13 @@ private:
 	void endRawCommand() override;
 
 private:
-	GLFWwindow*     m_glfwWindow;
-	bool            m_hasDebugContext;
-	bool            m_isLoaded;
+	GLFWwindow* m_glfwWindow;
+	bool m_hasDebugContext;
+	bool m_isLoaded;
 #ifdef PH_DEBUG
 	std::thread::id m_loadThreadId;
 #endif
+	std::unique_ptr<GHIInfoDeviceCapability> m_deviceCapability;
 };
 
 }// end namespace ph::editor
