@@ -8,7 +8,7 @@ namespace ph::editor
 {
 
 OpenglFramebufferFormat::OpenglFramebufferFormat()
-	: internalFormat(0)
+	: internalFormat(GL_NONE)
 	, sampleState()
 {}
 

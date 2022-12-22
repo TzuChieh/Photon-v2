@@ -252,4 +252,13 @@ inline DstType lossless_cast(const SrcType src)
 	}
 }
 
+template<CIsNumber DstType, CIsNumber SrcType>
+inline DstType lossless_cast(const SrcType src, DstType* const out_dst)
+{
+	PH_ASSERT(out_dst);
+
+	*out_dst = lossless_cast<DstType>(src);
+	return *out_dst;
+}
+
 }// end namespace ph

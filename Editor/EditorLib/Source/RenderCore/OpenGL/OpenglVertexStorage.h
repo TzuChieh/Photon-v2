@@ -9,43 +9,55 @@ namespace ph::editor
 class OpenglVertexAttributeLocator final
 {
 public:
-	std::size_t strideOffset;
-	std::size_t strideSize;
-	EGHIInfoStorageElement elementType;
-	uint8 numElements : 2;
-	uint8 shouldNormalize : 1;
+	/*! Number of bytes to offset from the start of the vertex buffer. */
+	GLintptr bufferOffset;
+
+	/*! Number of bytes to offset from the start of the vertex. Effectively added to `bufferOffset` to
+	obtain the final offset for the attribute.
+	*/
+	GLuint relativeOffset;
+
+	GLenum elementType;
+	GLint numElements;
+	GLboolean shouldNormalize;
 
 	/*! @brief Empty attribute.
 	*/
-	GHIInfoVertexAttributeLocator();
+	OpenglVertexAttributeLocator();
+
+	bool isEmpty() const;
 };
 
 class OpenglVertexLayout final
 {
 public:
-	inline constexpr static uint8 MAX_VERTEX_ATTRIBUTES = 16;
+	std::array<OpenglVertexAttributeLocator, GHIInfoVertexLayout::MAX_VERTEX_ATTRIBUTES> attributes;
 
-	std::array<GHIInfoVertexAttributeLocator, MAX_VERTEX_ATTRIBUTES> attributes;
+	explicit OpenglVertexLayout(const GHIInfoVertexLayout& vertexLayout);
 };
 
 class OpenglVertexStorage : public GHIVertexStorage
 {
 public:
-	explicit GHIVertexStorage(const GHIInfoVertexLayout& vertexLayout);
-	~GHIVertexStorage() override;
+	explicit OpenglVertexStorage(const GHIInfoVertexLayout& vertexLayout);
 
 	virtual void upload(
 		const std::byte* vertexData,
 		std::size_t numBytes,
 		EGHIInfoStorageElement elementType) = 0;
 
-	const GHIInfoVertexLayout& getVertexLayout() const;
+	const OpenglVertexLayout& getOpenglVertexLayout() const;
 
 private:
-	GHIInfoVertexLayout m_vertexLayout;
+	OpenglVertexLayout m_vertexLayout;
 };
 
-inline const GHIInfoVertexLayout& GHIVertexStorage::getVertexLayout() const
+inline bool OpenglVertexAttributeLocator::isEmpty() const
+{
+	return elementType == GL_NONE;
+}
+
+inline const OpenglVertexLayout& OpenglVertexStorage::getOpenglVertexLayout() const
 {
 	return m_vertexLayout;
 }

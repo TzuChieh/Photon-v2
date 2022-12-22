@@ -9,7 +9,7 @@ GHIInfoTextureFormat::GHIInfoTextureFormat()
 	, sampleState()
 {}
 
-bool GHIInfoTextureFormat::toTextureFormat(GHIInfoFramebufferFormat& framebufferFormat) const
+bool GHIInfoTextureFormat::toFramebufferFormat(GHIInfoFramebufferFormat& framebufferFormat) const
 {
 	framebufferFormat.pixelFormat = pixelFormat;
 	framebufferFormat.sampleState = sampleState;

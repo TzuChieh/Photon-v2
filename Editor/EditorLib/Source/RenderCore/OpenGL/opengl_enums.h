@@ -9,7 +9,6 @@ namespace ph::editor::opengl
 {
 
 GLenum to_internal_format(EGHIInfoPixelFormat format);
-EGHIInfoPixelFormat from_internal_format(GLenum internalFormat);
 GLenum to_color_attachment(uint32 slotIndex);
 GLenum to_base_format(GLenum internalFormat);
 uint32 num_pixel_components(GLenum internalFormat);

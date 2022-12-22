@@ -62,7 +62,7 @@ private:
 
 inline bool OpenglFramebufferFormat::isEmpty() const
 {
-	return internalFormat == 0;
+	return internalFormat == GL_NONE;
 }
 
 inline const OpenglFramebufferAttachmentInfo& OpenglFramebuffer::getOpenglAttachments() const

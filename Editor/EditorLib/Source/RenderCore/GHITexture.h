@@ -25,7 +25,7 @@ public:
 	/*!
 	@return `true` if the conversion is an exact match.
 	*/
-	bool toTextureFormat(GHIInfoFramebufferFormat& framebufferFormat) const;
+	bool toFramebufferFormat(GHIInfoFramebufferFormat& framebufferFormat) const;
 };
 
 class GHITexture

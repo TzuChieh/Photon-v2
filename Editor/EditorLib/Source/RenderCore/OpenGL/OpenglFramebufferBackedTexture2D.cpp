@@ -90,8 +90,7 @@ auto OpenglFramebufferBackedTexture2D::getNativeHandle()
 
 std::size_t OpenglFramebufferBackedTexture2D::numApparentSizeInBytes() const
 {
-	const auto ghiFormat = opengl::from_internal_format(getInternalFormat());
-	return num_bytes(ghiFormat) * numPixels();
+	return num_bytes(getFormat().pixelFormat) * numPixels();
 }
 
 std::size_t OpenglFramebufferBackedTexture2D::numPixels() const
@@ -101,7 +100,7 @@ std::size_t OpenglFramebufferBackedTexture2D::numPixels() const
 
 GLenum OpenglFramebufferBackedTexture2D::getInternalFormat() const
 {
-	GLenum internalFormat = 0;
+	GLenum internalFormat = GL_NONE;
 	if(m_framebuffer)
 	{
 		if(!m_isDepthStencilAttachment)

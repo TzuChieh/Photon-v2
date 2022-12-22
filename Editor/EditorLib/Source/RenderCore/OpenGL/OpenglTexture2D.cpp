@@ -13,7 +13,7 @@ https://www.khronos.org/opengl/wiki/Direct_State_Access
 */
 
 OpenglTextureFormat::OpenglTextureFormat()
-	: internalFormat(0)
+	: internalFormat(GL_NONE)
 	, sampleState()
 	, numPixelComponents(0)
 {}
@@ -73,7 +73,7 @@ void OpenglTexture2D::upload(
 	const GLenum pixelDataFormat = opengl::to_base_format(m_format.internalFormat);
 	
 	// Type of each pixel component in the input pixel data
-	GLenum pixelComponentType = 0;
+	GLenum pixelComponentType = GL_NONE;
 	switch(componentType)
 	{
 	case EGHIInfoPixelComponent::UInt8:
@@ -127,8 +127,7 @@ auto OpenglTexture2D::getNativeHandle()
 
 std::size_t OpenglTexture2D::numApparentSizeInBytes() const
 {
-	const auto ghiFormat = opengl::from_internal_format(m_format.internalFormat);
-	return num_bytes(ghiFormat) * numPixels();
+	return num_bytes(getFormat().pixelFormat) * numPixels();
 }
 
 std::size_t OpenglTexture2D::numPixels() const

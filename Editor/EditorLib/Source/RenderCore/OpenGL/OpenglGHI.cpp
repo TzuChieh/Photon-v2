@@ -287,7 +287,10 @@ GHIInfoDeviceCapability OpenglGHI::getDeviceCapabilities()
 	GHIInfoDeviceCapability& c = *m_deviceCapability;
 	c.maxTextureUnitsForVertexShadingStage = Opengl::getInteger<uint8>(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
 	c.maxTextureUnitsForFragmentShadingStage = Opengl::getInteger<uint8>(GL_MAX_TEXTURE_IMAGE_UNITS);
+	
+	// TODO: also see GL_MAX_VERTEX_ATTRIB_BINDINGS
 	c.maxVertexAttributes = Opengl::getInteger<uint8>(GL_MAX_VERTEX_ATTRIBS);
+	
 	return c;
 }
 

@@ -9,7 +9,7 @@ GLenum to_internal_format(const EGHIInfoPixelFormat format)
 {
 	switch(format)
 	{
-	case EGHIInfoPixelFormat::Empty: return 0;
+	case EGHIInfoPixelFormat::Empty: return GL_NONE;
 	case EGHIInfoPixelFormat::RGB_8: return GL_RGB8;
 	case EGHIInfoPixelFormat::RGBA_8: return GL_RGBA8;
 	case EGHIInfoPixelFormat::RGB_16F: return GL_RGB16F;
@@ -17,23 +17,7 @@ GLenum to_internal_format(const EGHIInfoPixelFormat format)
 	case EGHIInfoPixelFormat::RGB_32F: return GL_RGB32F;
 	case EGHIInfoPixelFormat::RGBA_32F: return GL_RGBA32F;
 	case EGHIInfoPixelFormat::Depth_24_Stencil_8: return GL_DEPTH24_STENCIL8;
-	default: PH_ASSERT_UNREACHABLE_SECTION(); return 0;
-	}
-}
-
-EGHIInfoPixelFormat from_internal_format(const GLenum internalFormat)
-{
-	switch(internalFormat)
-	{
-	case 0: return EGHIInfoPixelFormat::Empty;
-	case GL_RGB8: return EGHIInfoPixelFormat::RGB_8;
-	case GL_RGBA8: return EGHIInfoPixelFormat::RGBA_8;
-	case GL_RGB16F: return EGHIInfoPixelFormat::RGB_16F;
-	case GL_RGBA16F: return EGHIInfoPixelFormat::RGBA_16F;
-	case GL_RGB32F: return EGHIInfoPixelFormat::RGB_32F;
-	case GL_RGBA32F: return EGHIInfoPixelFormat::RGBA_32F;
-	case GL_DEPTH24_STENCIL8: return EGHIInfoPixelFormat::Depth_24_Stencil_8;
-	default: PH_ASSERT_UNREACHABLE_SECTION(); return EGHIInfoPixelFormat::Empty;
+	default: PH_ASSERT_UNREACHABLE_SECTION(); return GL_NONE;
 	}
 }
 
@@ -50,7 +34,7 @@ GLenum to_color_attachment(const uint32 slotIndex)
 	case 6: return GL_COLOR_ATTACHMENT6;
 	case 7: return GL_COLOR_ATTACHMENT7;
 	case 8: return GL_COLOR_ATTACHMENT8;
-	default: PH_ASSERT_UNREACHABLE_SECTION(); return 0;
+	default: PH_ASSERT_UNREACHABLE_SECTION(); return GL_NONE;
 	}
 }
 
@@ -90,7 +74,7 @@ GLenum to_base_format(const GLenum internalFormat)
 
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
-		return 0;
+		return GL_NONE;
 	}
 }
 
