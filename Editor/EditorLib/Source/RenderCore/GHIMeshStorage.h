@@ -3,6 +3,7 @@
 #include "RenderCore/GHIStorage.h"
 
 #include <Common/primitive_type.h>
+#include <Common/assertion.h>
 
 #include <array>
 #include <span>
@@ -14,6 +15,7 @@ namespace ph::editor
 {
 
 class GHIVertexStorage;
+class GHIIndexStorage;
 
 class GHIInfoMeshVertexLayout final
 {
@@ -45,14 +47,77 @@ public:
 		const GHIInfoMeshVertexLayout& layout,
 		std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages);
 
+	GHIMeshStorage(
+		const GHIInfoMeshVertexLayout& layout,
+		std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+		const std::shared_ptr<GHIIndexStorage>& indexStorage);
+
+	~GHIMeshStorage() override;
+
+	virtual void bind() = 0;
+
 	const GHIInfoMeshVertexLayout& getLayout() const;
-	const GHIVertexStorage& getStorage(std::size_t storageIndex) const;
-	GHIVertexStorage& getStorage(std::size_t storageIndex);
-	std::shared_ptr<GHIVertexStorage> getStorageResource(std::size_t storageIndex) const;
+
+	std::size_t numVertexStorages() const;
+	const GHIVertexStorage& getVertexStorage(std::size_t storageIndex) const;
+	GHIVertexStorage& getVertexStorage(std::size_t storageIndex);
+	std::shared_ptr<GHIVertexStorage> getVertexStorageResource(std::size_t storageIndex) const;
+
+	bool hasIndexStorage() const;
+	const GHIIndexStorage& getIndexStorage() const;
+	GHIIndexStorage& getIndexStorage();
+	std::shared_ptr<GHIIndexStorage> getIndexStorageResource() const;
 
 private:
 	GHIInfoMeshVertexLayout m_layout;
 	std::vector<std::shared_ptr<GHIVertexStorage>> m_vertexStorages;
+	std::shared_ptr<GHIIndexStorage> m_indexStorage;
 };
+
+inline bool GHIInfoMeshVertexLayout::isEmpty() const
+{
+	return numAttributes == 0;
+}
+
+inline const GHIInfoMeshVertexLayout& GHIMeshStorage::getLayout() const
+{
+	return m_layout;
+}
+
+inline std::size_t GHIMeshStorage::numVertexStorages() const
+{
+	return m_vertexStorages.size();
+}
+
+inline const GHIVertexStorage& GHIMeshStorage::getVertexStorage(const std::size_t storageIndex) const
+{
+	PH_ASSERT_LT(storageIndex, m_vertexStorages.size());
+	PH_ASSERT(m_vertexStorages[storageIndex]);
+	return *m_vertexStorages[storageIndex].get();
+}
+
+inline GHIVertexStorage& GHIMeshStorage::getVertexStorage(const std::size_t storageIndex)
+{
+	PH_ASSERT_LT(storageIndex, m_vertexStorages.size());
+	PH_ASSERT(m_vertexStorages[storageIndex]);
+	return *m_vertexStorages[storageIndex];
+}
+
+inline bool GHIMeshStorage::hasIndexStorage() const
+{
+	return m_indexStorage != nullptr;
+}
+
+inline const GHIIndexStorage& GHIMeshStorage::getIndexStorage() const
+{
+	PH_ASSERT(m_indexStorage);
+	return *m_indexStorage;
+}
+
+inline GHIIndexStorage& GHIMeshStorage::getIndexStorage()
+{
+	PH_ASSERT(m_indexStorage);
+	return *m_indexStorage;
+}
 
 }// end namespace ph::editor

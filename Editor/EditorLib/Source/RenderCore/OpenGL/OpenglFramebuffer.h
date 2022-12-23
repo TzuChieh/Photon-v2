@@ -5,6 +5,7 @@
 #include "RenderCore/OpenGL/opengl_states.h"
 
 #include <array>
+#include <string>
 
 namespace ph::editor
 {
@@ -53,6 +54,7 @@ public:
 private:
 	void createDeviceColorTexture(uint32 attachmentIndex);
 	void createDeviceDepthStencilTexture();
+	static std::string getFramebufferStatusInfo(GLuint framebufferID);
 
 	OpenglFramebufferAttachmentInfo m_attachments;
 	std::array<GLuint, GHIInfoFramebufferAttachment::MAX_COLOR_ATTACHMENTS> m_colorTextureIDs;

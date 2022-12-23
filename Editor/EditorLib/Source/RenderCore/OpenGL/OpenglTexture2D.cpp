@@ -58,11 +58,11 @@ OpenglTexture2D::~OpenglTexture2D()
 }
 
 void OpenglTexture2D::upload(
-	const std::byte* const pixelData,
+	const std::byte* const rawPixelData,
 	const std::size_t numBytes,
 	const EGHIInfoPixelComponent componentType)
 {
-	PH_ASSERT(pixelData);
+	PH_ASSERT(rawPixelData);
 
 	// The input pixel data must be for the entire texture--same number of total pixel components
 	PH_ASSERT_EQ(
@@ -71,30 +71,17 @@ void OpenglTexture2D::upload(
 
 	// Format of input pixel data must be compatible to the internal format
 	const GLenum pixelDataFormat = opengl::to_base_format(m_format.internalFormat);
-	
-	// Type of each pixel component in the input pixel data
-	GLenum pixelComponentType = GL_NONE;
-	switch(componentType)
-	{
-	case EGHIInfoPixelComponent::UInt8:
-		pixelComponentType = GL_UNSIGNED_BYTE;
-		break;
-
-	case EGHIInfoPixelComponent::Float16:
-		pixelComponentType = GL_HALF_FLOAT;
-		break;
-
-	case EGHIInfoPixelComponent::Float32:
-		pixelComponentType = GL_FLOAT;
-		break;
-
-	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
-		break;
-	}
 
 	glTextureSubImage2D(
-		m_textureID, 0, 0, 0, m_widthPx, m_heightPx, pixelDataFormat, pixelComponentType, pixelData);
+		m_textureID, 
+		0, 
+		0, 
+		0, 
+		m_widthPx, 
+		m_heightPx, 
+		pixelDataFormat, 
+		opengl::translate(componentType),// type of each pixel component in the raw pixel data input
+		rawPixelData);
 }
 
 void OpenglTexture2D::bind(const uint32 slotIndex)

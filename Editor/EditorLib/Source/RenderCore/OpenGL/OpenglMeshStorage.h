@@ -1,28 +1,31 @@
 #pragma once
 
+#include "RenderCore/GHIMeshStorage.h"
+#include "ThirdParty/glad2.h"
+
 namespace ph::editor
 {
 
-class OpenglVertexAttributeLocator final
+class OpenglMeshStorage : public GHIMeshStorage
 {
 public:
-	/*! Number of bytes to offset from the start of the vertex buffer. */
-	GLintptr bufferOffset;
+	OpenglMeshStorage(
+		const GHIInfoMeshVertexLayout& layout,
+		std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages);
 
-	/*! Number of bytes to offset from the start of the vertex. Effectively added to `bufferOffset` to
-	obtain the final offset for the attribute.
-	*/
-	GLuint relativeOffset;
+	OpenglMeshStorage(
+		const GHIInfoMeshVertexLayout& layout,
+		std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+		const std::shared_ptr<GHIIndexStorage>& indexStorage);
 
-	GLenum elementType;
-	GLint numElements;
-	GLboolean shouldNormalize;
+	~OpenglMeshStorage() override;
 
-	/*! @brief Empty attribute.
-	*/
-	OpenglVertexAttributeLocator();
+	void bind() override;
 
-	bool isEmpty() const;
+private:
+	static GLuint getOpenglHandle(GHIStorage& storage);
+
+	GLuint m_vaoID;
 };
 
 }// end namespace ph::editor

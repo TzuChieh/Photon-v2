@@ -27,7 +27,7 @@ public:
 	std::size_t numBytes() const;
 
 private:
-	GLuint m_vertexBufferID;
+	GLuint m_vboID;
 	std::size_t m_numVertices;
 };
 

@@ -27,7 +27,7 @@ public:
 	std::size_t numBytes() const;
 
 private:
-	GLuint m_indexBufferID;
+	GLuint m_iboID;
 	std::size_t m_numIndices;
 };
 

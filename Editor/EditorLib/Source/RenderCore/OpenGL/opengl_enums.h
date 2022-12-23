@@ -14,4 +14,7 @@ GLenum to_base_format(GLenum internalFormat);
 uint32 num_pixel_components(GLenum internalFormat);
 bool is_color_format(GLenum internalFormat);
 
+GLenum translate(EGHIInfoPixelComponent componentType);
+GLenum translate(EGHIInfoStorageElement elementType);
+
 }// end namespace ph::editor::opengl

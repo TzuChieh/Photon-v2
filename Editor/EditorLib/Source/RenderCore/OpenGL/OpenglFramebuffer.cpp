@@ -3,6 +3,7 @@
 
 #include <Utility/utility.h>
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 namespace ph::editor
 {
@@ -85,8 +86,12 @@ OpenglFramebuffer::OpenglFramebuffer(const GHIInfoFramebufferAttachment& attachm
 	{
 		createDeviceColorTexture(attachmentIdx);
 	}
-
 	createDeviceDepthStencilTexture();
+
+	if(glCheckNamedFramebufferStatus(m_framebufferID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		PH_DEFAULT_LOG_ERROR("[OpenglFramebuffer] {}", getFramebufferStatusInfo(m_framebufferID));
+	}
 }
 
 OpenglFramebuffer::~OpenglFramebuffer()
@@ -325,6 +330,71 @@ void OpenglFramebuffer::createDeviceDepthStencilTexture()
 		m_attachments.depthStencilAttachment,
 		m_depthStencilTextureID,
 		0);
+}
+
+std::string OpenglFramebuffer::getFramebufferStatusInfo(const GLuint framebufferID)
+{
+	std::string messagePrefix = "ID <" + std::to_string(framebufferID) + "> status: ";
+
+	GLenum statusCode = glCheckNamedFramebufferStatus(framebufferID, GL_FRAMEBUFFER);
+
+	std::string message;
+	switch(statusCode)
+	{
+	case GL_FRAMEBUFFER_COMPLETE:
+		message = "Complete, no error.";
+		break;
+
+	case GL_FRAMEBUFFER_UNDEFINED:
+		message = "The specified framebuffer is the default read or draw framebuffer, but "
+		          "the default framebuffer does not exist.";
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+		message = "One or more of the framebuffer attachment points are framebuffer incomplete.";
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+		message = "The framebuffer does not have at least one image attached to it.";
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+		message = "The value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for any color "
+		          "attachment point(s) named by GL_DRAW_BUFFERi.";
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+		message = "GL_READ_BUFFER is not GL_NONE and the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE "
+		          "is GL_NONE for the color attachment point named by GL_READ_BUFFER.";
+		break;
+
+	case GL_FRAMEBUFFER_UNSUPPORTED:
+		message = "The combination of internal formats of the attached images violates an "
+		          "implementation-dependent set of restrictions.";
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+		message = "Two possible errors: 1. The value of GL_RENDERBUFFER_SAMPLES is not the same for "
+		          "all attached renderbuffers; if the value of GL_TEXTURE_SAMPLES is the not same for all "
+		          "attached textures; or, if the attached images are a mix of renderbuffers and textures, "
+		          "the value of GL_RENDERBUFFER_SAMPLES does not match the value of GL_TEXTURE_SAMPLES. "
+		          "2. The value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not the same for all attached "
+		          "textures; or, if the attached images are a mix of renderbuffers and textures, the "
+		          "value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not GL_TRUE for all attached textures.";
+		break;
+
+	case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+		message = "One or more framebuffer attachment are layered, and one or more populated attachment "
+		          "are not layered, or if all populated color attachments are not from textures of "
+		          "the same target.";
+		break;
+
+	default:
+		message = "Unknown error.";
+		break;
+	}
+
+	return messagePrefix + message;
 }
 
 }// end namespace ph::editor

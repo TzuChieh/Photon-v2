@@ -144,4 +144,88 @@ bool is_color_format(const GLenum internalFormat)
 	}
 }
 
+GLenum translate(const EGHIInfoPixelComponent componentType)
+{
+	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
+
+	switch(componentType)
+	{
+	case EGHIInfoPixelComponent::Empty:
+		return GL_NONE;
+
+	case EGHIInfoPixelComponent::Int8:
+		return GL_BYTE;
+
+	case EGHIInfoPixelComponent::UInt8:
+		return GL_UNSIGNED_BYTE;
+
+	case EGHIInfoPixelComponent::Int16:
+		return GL_SHORT;
+
+	case EGHIInfoPixelComponent::UInt16:
+		return GL_UNSIGNED_SHORT;
+
+	case EGHIInfoPixelComponent::Int32:
+		return GL_INT;
+
+	case EGHIInfoPixelComponent::UInt32:
+		return GL_UNSIGNED_INT;
+
+	case EGHIInfoPixelComponent::Float16:
+		return GL_HALF_FLOAT;
+
+	case EGHIInfoPixelComponent::Float32:
+		return GL_FLOAT;
+
+	case EGHIInfoPixelComponent::Float64:
+		return GL_DOUBLE;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
+GLenum translate(const EGHIInfoStorageElement elementType)
+{
+	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
+
+	switch(elementType)
+	{
+	case EGHIInfoStorageElement::Empty:
+		return GL_NONE;
+
+	case EGHIInfoStorageElement::Int8:
+		return GL_BYTE;
+
+	case EGHIInfoStorageElement::UInt8:
+		return GL_UNSIGNED_BYTE;
+
+	case EGHIInfoStorageElement::Int16:
+		return GL_SHORT;
+
+	case EGHIInfoStorageElement::UInt16:
+		return GL_UNSIGNED_SHORT;
+
+	case EGHIInfoStorageElement::Int32:
+		return GL_INT;
+
+	case EGHIInfoStorageElement::UInt32:
+		return GL_UNSIGNED_INT;
+
+	case EGHIInfoStorageElement::Float16:
+		return GL_HALF_FLOAT;
+
+	case EGHIInfoStorageElement::Float32:
+		return GL_FLOAT;
+
+	case EGHIInfoStorageElement::Float64:
+		return GL_DOUBLE;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
 }// end namespace ph::editor::opengl

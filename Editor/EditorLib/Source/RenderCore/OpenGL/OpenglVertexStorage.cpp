@@ -45,15 +45,15 @@ OpenglVertexStorage::OpenglVertexStorage(
 
 	: GHIVertexStorage(format, usage)
 
-	, m_vertexBufferID(0)
+	, m_vboID(0)
 	, m_numVertices(numVertices)
 {
-	glCreateBuffers(1, &m_vertexBufferID);
+	glCreateBuffers(1, &m_vboID);
 }
 
 OpenglVertexStorage::~OpenglVertexStorage()
 {
-	glDeleteBuffers(1, &m_vertexBufferID);
+	glDeleteBuffers(1, &m_vboID);
 }
 
 void OpenglVertexStorage::upload(
@@ -61,7 +61,7 @@ void OpenglVertexStorage::upload(
 	const std::size_t inNumBytes)
 {
 	PH_ASSERT(vertexData);
-	PH_ASSERT_NE(m_vertexBufferID, 0);
+	PH_ASSERT_NE(m_vboID, 0);
 
 	// The input data must be for the entire vertex buffer--same number of total bytes
 	PH_ASSERT_EQ(numBytes(), inNumBytes);
@@ -69,7 +69,7 @@ void OpenglVertexStorage::upload(
 	if(getUsage() == EGHIInfoStorageUsage::Static)
 	{
 		glNamedBufferStorage(
-			m_vertexBufferID, 
+			m_vboID,
 			lossless_cast<GLsizeiptr>(numBytes()),
 			vertexData,
 			0);
@@ -77,7 +77,7 @@ void OpenglVertexStorage::upload(
 	else
 	{
 		glNamedBufferData(
-			m_vertexBufferID,
+			m_vboID,
 			lossless_cast<GLsizeiptr>(numBytes()),
 			vertexData,
 			GL_DYNAMIC_DRAW);
@@ -87,9 +87,9 @@ void OpenglVertexStorage::upload(
 auto OpenglVertexStorage::getNativeHandle()
 -> NativeHandle
 {
-	if(m_vertexBufferID != 0)
+	if(m_vboID != 0)
 	{
-		return static_cast<uint64>(m_vertexBufferID);
+		return static_cast<uint64>(m_vboID);
 	}
 	else
 	{

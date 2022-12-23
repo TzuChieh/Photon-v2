@@ -12,7 +12,7 @@ OpenglIndexStorage::OpenglIndexStorage(
 
 	: GHIIndexStorage(indexType, usage)
 
-	, m_indexBufferID(0)
+	, m_iboID(0)
 	, m_numIndices(numIndices)
 {
 	if(!isIntegerIndexType())
@@ -24,7 +24,7 @@ OpenglIndexStorage::OpenglIndexStorage(
 
 OpenglIndexStorage::~OpenglIndexStorage()
 {
-	glDeleteBuffers(1, &m_indexBufferID);
+	glDeleteBuffers(1, &m_iboID);
 }
 
 void OpenglIndexStorage::upload(
@@ -32,7 +32,7 @@ void OpenglIndexStorage::upload(
 	const std::size_t inNumBytes)
 {
 	PH_ASSERT(rawIndexData);
-	PH_ASSERT_NE(m_indexBufferID, 0);
+	PH_ASSERT_NE(m_iboID, 0);
 
 	// The input data must be for the entire index buffer--same number of total bytes
 	PH_ASSERT_EQ(numBytes(), inNumBytes);
@@ -40,7 +40,7 @@ void OpenglIndexStorage::upload(
 	if(getUsage() == EGHIInfoStorageUsage::Static)
 	{
 		glNamedBufferStorage(
-			m_indexBufferID,
+			m_iboID,
 			lossless_cast<GLsizeiptr>(numBytes()),
 			rawIndexData,
 			0);
@@ -48,7 +48,7 @@ void OpenglIndexStorage::upload(
 	else
 	{
 		glNamedBufferData(
-			m_indexBufferID,
+			m_iboID,
 			lossless_cast<GLsizeiptr>(numBytes()),
 			rawIndexData,
 			GL_DYNAMIC_DRAW);
@@ -58,9 +58,9 @@ void OpenglIndexStorage::upload(
 auto OpenglIndexStorage::getNativeHandle()
 -> NativeHandle
 {
-	if(m_indexBufferID != 0)
+	if(m_iboID != 0)
 	{
-		return static_cast<uint64>(m_indexBufferID);
+		return static_cast<uint64>(m_iboID);
 	}
 	else
 	{
