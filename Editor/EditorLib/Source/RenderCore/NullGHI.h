@@ -29,6 +29,9 @@ public:
 	inline void setClearColor(const math::Vector4F& color) override
 	{}
 
+	inline void draw(GHIMeshStorage& meshStorage, EGHIInfoMeshDrawMode drawMode) override
+	{}
+
 	inline void swapBuffers() override
 	{}
 

@@ -5,6 +5,7 @@
 
 #include <Common/assertion.h>
 #include <Utility/utility.h>
+#include <Common/logging.h>
 
 namespace ph::editor
 {
@@ -62,6 +63,17 @@ OpenglMeshStorage::OpenglMeshStorage(
 	// Potentially bind an IBO
 	if(hasIndexStorage())
 	{
+		GHIIndexStorage& indexStorage = getIndexStorage();
+
+		// For drawing purposes, OpenGL supports only these types
+		if(!(indexStorage.getIndexType() == EGHIInfoStorageElement::UInt8 ||
+		     indexStorage.getIndexType() == EGHIInfoStorageElement::UInt16 ||
+		     indexStorage.getIndexType() == EGHIInfoStorageElement::UInt32))
+		{
+			PH_DEFAULT_LOG_ERROR(
+				"[OpenglMeshStorage] using index storage with unsupported index type for drawing");
+		}
+
 		glVertexArrayElementBuffer(m_vaoID, getOpenglHandle(getIndexStorage()));
 	}
 }

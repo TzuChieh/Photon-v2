@@ -13,6 +13,8 @@ public:
 	GHIIndexStorage(EGHIInfoStorageElement indexType, EGHIInfoStorageUsage usage);
 	~GHIIndexStorage() override;
 
+	virtual std::size_t numIndices() const = 0;
+
 	void upload(
 		const std::byte* rawVertexData,
 		std::size_t numBytes) override = 0;

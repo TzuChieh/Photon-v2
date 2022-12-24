@@ -228,4 +228,35 @@ GLenum translate(const EGHIInfoStorageElement elementType)
 	}
 }
 
+GLenum translate(const EGHIInfoMeshDrawMode drawMode)
+{
+	switch(drawMode)
+	{
+	case EGHIInfoMeshDrawMode::Points:
+		return GL_POINTS;
+
+	case EGHIInfoMeshDrawMode::LineSegments:
+		return GL_LINES;
+
+	case EGHIInfoMeshDrawMode::LineCurveOpened:
+		return GL_LINE_STRIP;
+
+	case EGHIInfoMeshDrawMode::LineCurveClosed:
+		return GL_LINE_LOOP;
+
+	case EGHIInfoMeshDrawMode::TriangleStrip:
+		return GL_TRIANGLE_STRIP;
+
+	case EGHIInfoMeshDrawMode::TriangleFan:
+		return GL_TRIANGLE_FAN;
+
+	case EGHIInfoMeshDrawMode::Triangles:
+		return GL_TRIANGLES;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
 }// end namespace ph::editor::opengl

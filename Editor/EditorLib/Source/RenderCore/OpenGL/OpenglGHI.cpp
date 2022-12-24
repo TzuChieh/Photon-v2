@@ -6,6 +6,9 @@
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
 #include "RenderCore/GHIInfoDeviceCapability.h"
 #include "RenderCore/OpenGL/Opengl.h"
+#include "RenderCore/GHIMeshStorage.h"
+#include "RenderCore/GHIIndexStorage.h"
+#include "RenderCore/GHIVertexStorage.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -252,6 +255,35 @@ void OpenglGHI::setClearColor(const math::Vector4F& color)
 		lossless_cast<GLclampf>(color.g()),
 		lossless_cast<GLclampf>(color.b()),
 		lossless_cast<GLclampf>(color.a()));
+}
+
+void OpenglGHI::draw(GHIMeshStorage& meshStorage, const EGHIInfoMeshDrawMode drawMode)
+{
+	meshStorage.bind();
+
+	if(meshStorage.hasIndexStorage())
+	{
+		const GHIIndexStorage& indexStorage = meshStorage.getIndexStorage();
+
+		glDrawElements(
+			opengl::translate(drawMode), 
+			lossless_cast<GLsizei>(indexStorage.numIndices()),
+			opengl::translate(indexStorage.getIndexType()),
+			reinterpret_cast<GLbyte*>(0));
+	}
+	else if(meshStorage.numVertexStorages() > 0)
+	{
+		glDrawArrays(
+			opengl::translate(drawMode),
+			0,
+			lossless_cast<GLsizei>(meshStorage.getVertexStorage(0).numVertices()));
+	}
+	else
+	{
+		PH_LOG_ERROR(OpenglGHI,
+			"cannot draw mesh; index buffer: {}, # vertex buffers: {}, draw mode: {}",
+			meshStorage.hasIndexStorage(), meshStorage.numVertexStorages(), enum_to_value(drawMode));
+	}
 }
 
 void OpenglGHI::swapBuffers()

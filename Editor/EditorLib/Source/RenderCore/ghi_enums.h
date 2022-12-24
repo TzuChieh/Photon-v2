@@ -78,11 +78,23 @@ enum class EGHIInfoStorageUsage : uint8
 	Dynamic
 };
 
+enum class EGHIInfoMeshDrawMode : uint8
+{
+	Points,
+	LineSegments,
+	LineCurveOpened,
+	LineCurveClosed,
+	TriangleStrip,
+	TriangleFan,
+	Triangles
+};
+
 enum class EGHIInfoShadingStage : uint8
 {
 	Unspecified = 0,
 	Vertex,
-	Fragment
+	Fragment,
+	Compute
 };
 
 std::size_t num_bytes(EGHIInfoPixelFormat format);

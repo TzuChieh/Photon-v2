@@ -53,6 +53,8 @@ public:
 	GHIVertexStorage(const GHIInfoVertexGroupFormat& format, EGHIInfoStorageUsage usage);
 	~GHIVertexStorage() override;
 
+	virtual std::size_t numVertices() const = 0;
+
 	void upload(
 		const std::byte* rawVertexData,
 		std::size_t numBytes) override = 0;

@@ -22,6 +22,7 @@ public:
 	void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override;
 	void clearBuffer(EClearTarget targets) override;
 	void setClearColor(const math::Vector4F& color) override;
+	void draw(GHIMeshStorage& meshStorage, EGHIInfoMeshDrawMode drawMode) override;
 	void swapBuffers() override;
 
 	std::shared_ptr<GHITexture2D> createTexture2D(

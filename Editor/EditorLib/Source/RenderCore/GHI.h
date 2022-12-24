@@ -22,6 +22,7 @@ namespace ph::editor
 PH_DECLARE_LOG_GROUP(GHI);
 
 class GHIInfoDeviceCapability;
+class GHIMeshStorage;
 
 /*! @brief Graphics API abstraction.
 @exception PlatformException When error occurred and the platform must terminate its operations.
@@ -58,6 +59,8 @@ public:
 	virtual void clearBuffer(EClearTarget target) = 0;
 
 	virtual void setClearColor(const math::Vector4F& color) = 0;
+
+	virtual void draw(GHIMeshStorage& meshStorage, EGHIInfoMeshDrawMode drawMode) = 0;
 
 	virtual void swapBuffers() = 0;
 
