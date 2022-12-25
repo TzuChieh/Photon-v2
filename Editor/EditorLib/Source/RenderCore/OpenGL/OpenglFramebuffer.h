@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHIFramebuffer.h"
+#include "ThirdParty/glad2.h"
 #include "RenderCore/OpenGL/opengl_enums.h"
 #include "RenderCore/OpenGL/opengl_states.h"
 

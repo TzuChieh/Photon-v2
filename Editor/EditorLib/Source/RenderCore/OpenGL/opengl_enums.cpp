@@ -259,4 +259,23 @@ GLenum translate(const EGHIInfoMeshDrawMode drawMode)
 	}
 }
 
+GLenum translate(const EGHIInfoShadingStage shadingStage)
+{
+	switch(shadingStage)
+	{
+	case EGHIInfoShadingStage::Vertex:
+		return GL_VERTEX_SHADER;
+
+	case EGHIInfoShadingStage::Fragment:
+		return GL_FRAGMENT_SHADER;
+
+	case EGHIInfoShadingStage::Compute:
+		return GL_COMPUTE_SHADER;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
 }// end namespace ph::editor::opengl

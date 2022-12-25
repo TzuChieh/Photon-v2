@@ -17,5 +17,6 @@ bool is_color_format(GLenum internalFormat);
 GLenum translate(EGHIInfoPixelComponent componentType);
 GLenum translate(EGHIInfoStorageElement elementType);
 GLenum translate(EGHIInfoMeshDrawMode drawMode);
+GLenum translate(EGHIInfoShadingStage shadingStage);
 
 }// end namespace ph::editor::opengl
