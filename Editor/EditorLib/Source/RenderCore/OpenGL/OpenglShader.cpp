@@ -4,7 +4,6 @@
 #include <Common/logging.h>
 
 #include <utility>
-#include <vector>
 
 namespace ph::editor
 {
@@ -33,15 +32,8 @@ OpenglShader::OpenglShader(
 
 	// Check compilation status and possibly log warning/error
 
-	GLint infoLogLength = 0;
-	glGetShaderiv(m_shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-	// `infoLogLength` includes the NULL character \0
-	std::vector<GLchar> infoLog(infoLogLength);
-	glGetShaderInfoLog(m_shaderID, infoLogLength, nullptr, infoLog.data());
-
 	PH_LOG(OpenglShader,
-		"[shader {}] compile log: {}", getName(), infoLog.data());
+		"[shader {}] compile log: {}", getName(), getInfoLog());
 
 	GLint isCompiled;
 	glGetShaderiv(m_shaderID, GL_COMPILE_STATUS, &isCompiled);
@@ -73,6 +65,18 @@ auto OpenglShader::getNativeHandle()
 	{
 		return std::monostate{};
 	}
+}
+
+std::string OpenglShader::getInfoLog() const
+{
+	GLint infoLogLength = 0;
+	glGetShaderiv(m_shaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+	// `infoLogLength` includes the NULL character \0
+	std::string infoLog(infoLogLength, '\0');
+	glGetShaderInfoLog(m_shaderID, infoLogLength, nullptr, infoLog.data());
+
+	return infoLog;
 }
 
 }// end namespace ph::editor

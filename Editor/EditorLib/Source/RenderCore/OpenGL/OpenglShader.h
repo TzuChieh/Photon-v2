@@ -21,6 +21,8 @@ public:
 	NativeHandle getNativeHandle() override;
 
 private:
+	std::string getInfoLog() const;
+
 	GLuint m_shaderID;
 };
 
