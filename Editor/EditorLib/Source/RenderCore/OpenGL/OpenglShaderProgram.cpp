@@ -4,7 +4,8 @@
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
 #include <Common/assertion.h>
-#include <Utility/utility.h>
+#include <Math/TVector3.h>
+#include <Math/TVector4.h>
 
 #include <utility>
 
@@ -53,27 +54,53 @@ void OpenglShaderProgram::bind()
 
 void OpenglShaderProgram::setInt32(std::string_view name, const int32 value)
 {
-
+	auto const uniform = getUniform(GL_INT, name);
+	if(uniform)
+	{
+		glUniform1i(uniform->location, lossless_cast<GLint>(value));
+	}
 }
 
 void OpenglShaderProgram::setFloat32(std::string_view name, const float32 value)
 {
-
+	auto const uniform = getUniform(GL_FLOAT, name);
+	if(uniform)
+	{
+		glUniform1f(uniform->location, lossless_cast<GLfloat>(value));
+	}
 }
 
 void OpenglShaderProgram::setVector3F(std::string_view name, const math::Vector3F& value)
 {
-
+	auto const uniform = getUniform(GL_FLOAT_VEC3, name);
+	if(uniform)
+	{
+		glUniform3f(
+			uniform->location, 
+			lossless_cast<GLfloat>(value.x()),
+			lossless_cast<GLfloat>(value.y()),
+			lossless_cast<GLfloat>(value.z()));
+	}
 }
 
 void OpenglShaderProgram::setVector4F(std::string_view name, const math::Vector4F& value)
 {
-
+	auto const uniform = getUniform(GL_FLOAT_VEC4, name);
+	if(uniform)
+	{
+		glUniform4f(
+			uniform->location,
+			lossless_cast<GLfloat>(value.x()),
+			lossless_cast<GLfloat>(value.y()),
+			lossless_cast<GLfloat>(value.z()),
+			lossless_cast<GLfloat>(value.w()));
+	}
 }
 
 void OpenglShaderProgram::setMatrix4F(std::string_view name, const math::Matrix4F& value)
 {
-
+	// TODO
+	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
 GLuint OpenglShaderProgram::getOpenglHandle(GHIShader& shader)
@@ -158,6 +185,25 @@ std::string OpenglShaderProgram::getInfoLog() const
 	glGetProgramInfoLog(m_programID, infoLogLength, nullptr, infoLog.data());
 
 	return infoLog;
+}
+
+void OpenglShaderProgram::warnUniformNotFound(
+	const Uniform* const uniform,
+	const GLenum intendedType,
+	std::string_view intendedName) const
+{
+	if(!uniform)
+	{
+		PH_LOG_WARNING(OpenglShaderProgram,
+			"in shader {}, uniform with name {} not found",
+			getName(), intendedName);
+	}
+	else
+	{
+		PH_LOG_WARNING(OpenglShaderProgram,
+			"in shader {}, uniform {} with type {} not found (closest match has type = {} instead)",
+			getName(), intendedName, intendedType, uniform->type);
+	}
 }
 
 }// end namespace ph::editor

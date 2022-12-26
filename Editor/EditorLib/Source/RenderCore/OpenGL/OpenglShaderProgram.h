@@ -3,6 +3,8 @@
 #include "RenderCore/GHIShaderProgram.h"
 #include "ThirdParty/glad2.h"
 
+#include <Utility/utility.h>
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -42,17 +44,29 @@ private:
 	void checkLinkStatus(const GHIShader& vertexShader, const GHIShader& fragmentShader) const;
 	void validateProgram(const GHIShader& vertexShader, const GHIShader& fragmentShader) const;
 	void collectProgramUniforms();
-	const Uniform* findUniform(std::string_view name) const;
+	const Uniform* getUniform(GLenum type, std::string_view name) const;
+	void warnUniformNotFound(const Uniform* uniform, GLenum intendedType, std::string_view intendedName) const;
 	std::string getInfoLog() const;
 
 	GLuint m_programID;
-	std::unordered_map<std::string, Uniform> m_nameToUniform;
+	TStdUnorderedStringMap<Uniform> m_nameToUniform;
 };
 
-inline auto OpenglShaderProgram::findUniform(std::string_view name) const
+inline auto OpenglShaderProgram::getUniform(const GLenum type, std::string_view name) const
 -> const Uniform*
 {
 	const auto& iter = m_nameToUniform.find(name);
+	const Uniform* uniform = nullptr;
+	if(iter != m_nameToUniform.cend() && iter->second.type == type)
+	{
+		uniform = &(iter->second);
+	}
+	else
+	{
+		uniform = nullptr;
+	}
+
+	warnUniformNotFound(uniform, type, name);
 }
 
 }// end namespace ph::editor
