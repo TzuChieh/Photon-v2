@@ -49,6 +49,11 @@ enum class EEventSource : uint32f
 	MouseButton = math::flag_bit<uint32f, 4>(),
 };
 
+/*! @brief Base of all event types.
+Derived classes should strive to keep the size of the object small, as most of the time event
+objects are passed by value for thread safety and ease of lifetime management. The type should
+also remain `trivially-copyable`.
+*/
 class Event
 {
 // Hide special members as this class is not intended to be used polymorphically.
@@ -74,7 +79,7 @@ public:
 	//bool isFromSource(EEventSource fromSourceType) const;
 
 private:
-	bool m_isConsumed : 1 = false;
+	uint8 m_isConsumed : 1 = false;
 };
 
 inline void Event::consume()

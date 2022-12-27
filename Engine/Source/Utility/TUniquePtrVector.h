@@ -161,14 +161,7 @@ inline void TUniquePtrVector<BaseType>::clearRange(const std::size_t beginIndex,
 template<typename BaseType>
 inline BaseType* TUniquePtrVector<BaseType>::get(const std::size_t index) const
 {
-	return getUniquePtr(index).get();
-}
-
-template<typename BaseType>
-inline std::unique_ptr<BaseType>& TUniquePtrVector<BaseType>::getUniquePtr(const std::size_t index)
-{
-	PH_ASSERT_IN_RANGE(index, 0, m_uniquePtrs.size());
-	return m_uniquePtrs[index];
+	return index < m_uniquePtrs.size() ? getUniquePtr(index).get() : nullptr;
 }
 
 template<typename BaseType>
@@ -183,6 +176,13 @@ inline std::optional<std::size_t> TUniquePtrVector<BaseType>::indexOf(const Base
 	return result != m_uniquePtrs.cend() 
 		? std::optional<std::size_t>(result - m_uniquePtrs.cbegin())
 		: std::nullopt;
+}
+
+template<typename BaseType>
+inline std::unique_ptr<BaseType>& TUniquePtrVector<BaseType>::getUniquePtr(const std::size_t index)
+{
+	PH_ASSERT_IN_RANGE(index, 0, m_uniquePtrs.size());
+	return m_uniquePtrs[index];
 }
 
 template<typename BaseType>
@@ -207,7 +207,7 @@ inline bool TUniquePtrVector<BaseType>::isEmpty() const
 template<typename BaseType>
 inline BaseType* TUniquePtrVector<BaseType>::operator [] (const std::size_t index) const
 {
-	return get(index);
+	return getUniquePtr(index).get();
 }
 
 template<typename BaseType>

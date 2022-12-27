@@ -4,6 +4,7 @@
 #include "App/Application.h"
 #include "Procedure/TestProcedureModule.h"
 #include "Render/Imgui/ImguiRenderModule.h"
+#include "Render/EditorDebug/EditorDebugRenderModule.h"
 
 #include <Common/assertion.h>
 #include <Utility/exception.h>
@@ -24,13 +25,16 @@ int application_entry_point(int argc, char* argv[])
 
 		TestProcedureModule testModule;
 		ImguiRenderModule imguiModule;
+		EditorDebugRenderModule editorDebugRenderModule;
 		app.attachProcedureModule(&testModule);
 		app.attachRenderModule(&imguiModule);
+		app.attachRenderModule(&editorDebugRenderModule);
 
 		app.run();
 
 		app.detachProcedureModule(&testModule);
 		app.detachRenderModule(&imguiModule);
+		app.detachRenderModule(&editorDebugRenderModule);
 
 		app.close();
 	}

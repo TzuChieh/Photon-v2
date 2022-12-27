@@ -17,8 +17,6 @@ public:
 
 	void onAttach(const ModuleAttachmentInfo& info) override = 0;
 	void onDetach() override = 0;
-
-private:
 };
 
 }// end namespace ph::editor

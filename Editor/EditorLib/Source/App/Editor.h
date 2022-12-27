@@ -3,7 +3,8 @@
 #include "EditorCore/TEventDispatcher.h"
 #include "EditorCore/Event/KeyDownEvent.h"
 #include "EditorCore/Event/KeyUpEvent.h"
-#include "EditorCore/Event/FramebufferResizeEvent.h"
+#include "EditorCore/Event/DisplayFramebufferResizeEvent.h"
+#include "EditorCore/Event/SceneFramebufferResizeEvent.h"
 #include "EditorCore/Event/DisplayCloseEvent.h"
 #include "EditorCore/Event/AppModuleActionEvent.h"
 #include "App/EditorEventQueue.h"
@@ -12,14 +13,20 @@
 #include "App/Misc/EditorStats.h"
 #include "EditorCore/FileSystemExplorer.h"
 
+#include <Common/assertion.h>
 #include <Utility/TFunction.h>
+#include <Utility/TUniquePtrVector.h>
+#include <Utility/INoCopyAndMove.h>
 
+#include <cstddef>
 #include <vector>
 
 namespace ph::editor
 {
 
-class Editor final
+class DesignerScene;
+
+class Editor final : private INoCopyAndMove
 {
 public:
 	HelpMenu helpMenu;
@@ -27,16 +34,27 @@ public:
 	EditorStats editorStats;
 	FileSystemExplorer fileExplorer;
 
+	Editor();
+	~Editor();
+
+	DesignerScene& createScene(std::size_t* out_sceneIndex = nullptr);
+	DesignerScene* getScene(std::size_t sceneIndex) const;
+	std::size_t numScenes() const;
+
+private:
+	TUniquePtrVector<DesignerScene> m_scenes;
+
+// Event System
 public:
 	TEventDispatcher<KeyDownEvent> onKeyDown;
 	TEventDispatcher<KeyUpEvent> onKeyUp;
-	TEventDispatcher<FramebufferResizeEvent> onFramebufferResize;
+	TEventDispatcher<DisplayFramebufferResizeEvent> onDisplayFramebufferResize;
+	TEventDispatcher<SceneFramebufferResizeEvent> onSceneFramebufferResize;
 	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
 	TEventDispatcher<AppModuleActionEvent> onAppModuleAction;
 
 	void flushAllEvents();
 
-public:
 	template<typename EventType>
 	void postEvent(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher);
 
@@ -47,15 +65,23 @@ private:
 		const TEventDispatcher<EventType>&  eventDispatcher,
 		std::vector<TFunction<void(void)>>& out_eventProcessQueue);
 
-	EditorEventQueue                   m_eventPostQueue;
+	EditorEventQueue m_eventPostQueue;
 	std::vector<TFunction<void(void)>> m_eventProcessQueue;
-
-
-	// TODO: editor scene data
 
 	// TODO: may require obj/entity add/remove event queue to support concurrent event 
 	// (to avoid invalidating Listener on addListener())
+// End Event System
 };
+
+inline DesignerScene* Editor::getScene(const std::size_t sceneIndex) const
+{
+	return m_scenes.get(sceneIndex);
+}
+
+inline std::size_t Editor::numScenes() const
+{
+	return m_scenes.size();
+}
 
 template<typename EventType>
 inline void Editor::postEvent(const EventType& e, const TEventDispatcher<EventType>& eventDispatcher)

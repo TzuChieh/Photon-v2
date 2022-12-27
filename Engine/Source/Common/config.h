@@ -57,8 +57,12 @@ Default value is 512 KiB.
 
 #define PH_CONFIG_DIRECTORY "./Config/"
 
+/*! @brief Resources that are integrated as part of the renderer.
+*/
 #define PH_INTERNAL_RESOURCE_DIRECTORY "./InternalResource/"
 
+/*! @brief Resources that are optional for the renderer.
+*/
 #define PH_RESOURCE_DIRECTORY "./Photon-v2-Resource-main/Resource/"
 
 ///////////////////////////////////////////////////////////////////////////////

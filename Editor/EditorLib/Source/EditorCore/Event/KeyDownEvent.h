@@ -2,6 +2,8 @@
 
 #include "EditorCore/Event/KeyEvent.h"
 
+#include <Common/primitive_type.h>
+
 namespace ph::editor
 {
 
@@ -17,7 +19,7 @@ public:
 	bool isRepeating() const;
 
 private:
-	bool m_isRepeating;
+	uint8 m_isRepeating : 1;
 };
 
 inline KeyDownEvent::KeyDownEvent(const EKeyCode key)

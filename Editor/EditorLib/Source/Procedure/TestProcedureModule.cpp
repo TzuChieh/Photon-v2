@@ -9,8 +9,6 @@
 namespace ph::editor
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(Test, Module);
-
 void TestProcedureModule::update(const MainThreadUpdateContext& ctx)
 {
 	/*PH_LOG(Test,
@@ -23,19 +21,19 @@ void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 	auto res = TSdl<RasterFileImage>::makeResource();
 	if(res)
 	{
-		PH_LOG(Test, "res created");
+		PH_DEFAULT_LOG("res created");
 	}
 
 	res->setFilePath(Path("./rendered_scene.png"));
 	RegularPicture pic = res->loadRegularPicture();
-	PH_LOG(Test, "pic res: {}", pic.getSizePx());
+	PH_DEFAULT_LOG("pic res: {}", pic.getSizePx());
 
 	EImageWrapMode hWrapMode = res->getHorizontalWrapMode();
 	EImageWrapMode vWrapMode = res->getVerticalWrapMode();
-	PH_LOG(Test, "pic h warp mode: {}", TSdlEnum<EImageWrapMode>()[hWrapMode]);
-	PH_LOG(Test, "pic v warp mode: {}", TSdlEnum<EImageWrapMode>()[vWrapMode]);
+	PH_DEFAULT_LOG("pic h warp mode: {}", TSdlEnum<EImageWrapMode>()[hWrapMode]);
+	PH_DEFAULT_LOG("pic v warp mode: {}", TSdlEnum<EImageWrapMode>()[vWrapMode]);
 
-	PH_LOG(Test, "pic sample mode: {}", TSdlEnum<EImageSampleMode>()[res->getSampleMode()]);
+	PH_DEFAULT_LOG("pic sample mode: {}", TSdlEnum<EImageSampleMode>()[res->getSampleMode()]);
 
 	// TODO
 }

@@ -17,18 +17,21 @@ public:
 	std::string getName() const override = 0;
 
 	/*!
-	Called before a frame is going to be rendered. Called on main thread.
+	Called before a frame is going to be rendered.
+	@note Called on main thread.
 	*/
 	virtual void renderUpdate(const MainThreadRenderUpdateContext& ctx) = 0;
 
 	/*!
-	Called when a frame is being rendered. Called on main thread.
+	Called when a frame is being rendered.
+	@note Called on main thread.
 	*/
 	virtual void createRenderCommands(RenderThreadCaller& caller) = 0;
 
 	/*!
 	Optionally perform initialization and termination operations on render thread.
-	Default implementation does nothing. Called on main thread.
+	Default implementation does nothing.
+	@note Called on main thread.
 	*/
 	///@{
 	virtual void createSetupRenderCommands(RenderThreadCaller& caller);
@@ -37,8 +40,6 @@ public:
 
 	void onAttach(const ModuleAttachmentInfo& info) override = 0;
 	void onDetach() override = 0;
-
-private:
 };
 
 }// end namespace ph::editor

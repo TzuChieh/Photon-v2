@@ -35,10 +35,10 @@ private:
 	void initializeImguiFonts(Editor& editor);
 	void initializeImguiImages(Editor& editor);
 	void terminateImgui();
-	void setFramebufferSizePx(const math::Vector2S& sizePx);
+	void setDisplayFramebufferSizePx(const math::Vector2S& sizePx);
 
 	GLFWwindow*            m_glfwWindow;
-	math::TVector2<uint32> m_framebufferSizePx;
+	math::TVector2<uint32> m_displayFramebufferSizePx;
 	ImguiRenderContent*    m_renderContent;
 	bool                   m_isRenderContentAdded;
 	ImguiEditorUI          m_editorUI;

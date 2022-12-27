@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-enum class EMouseCode : uint32f
+enum class EMouseCode : uint8
 {
 	// Unknow/unsupported mouse button
 	Unknown = 0,

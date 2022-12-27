@@ -3,7 +3,7 @@
 #include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
-#include "EditorCore/Event/FramebufferResizeEvent.h"
+#include "EditorCore/Event/DisplayFramebufferResizeEvent.h"
 #include "EditorCore/Event/DisplayCloseEvent.h"
 #include "EditorCore/Thread/Threads.h"
 
@@ -88,8 +88,8 @@ void GlfwDisplay::initialize(
 		{
 			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
 
-			FramebufferResizeEvent e(width, height);
-			editor.postEvent(e, editor.onFramebufferResize);
+			DisplayFramebufferResizeEvent e(width, height);
+			editor.postEvent(e, editor.onDisplayFramebufferResize);
 		});
 
 	glfwSetWindowCloseCallback(m_glfwWindow,

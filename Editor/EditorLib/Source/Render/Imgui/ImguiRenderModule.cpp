@@ -29,7 +29,7 @@ namespace ph::editor
 ImguiRenderModule::ImguiRenderModule()
 	: RenderModule()
 	, m_glfwWindow(nullptr)
-	, m_framebufferSizePx(0)
+	, m_displayFramebufferSizePx(0)
 	, m_renderContent(nullptr)
 	, m_isRenderContentAdded(false)
 	, m_editorUI()
@@ -59,13 +59,13 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 
 	// Now we are sure all core components required are there.
 
-	setFramebufferSizePx(info.framebufferSizePx);
+	setDisplayFramebufferSizePx(info.framebufferSizePx);
 
 	// Listen to future size change of frame buffer
-	info.editor->onFramebufferResize.addListener(
-		[this](const FramebufferResizeEvent& e)
+	info.editor->onDisplayFramebufferResize.addListener(
+		[this](const DisplayFramebufferResizeEvent& e)
 		{
-			setFramebufferSizePx(e.getNewSizePx());
+			setDisplayFramebufferSizePx(e.getNewSizePx());
 		});
 
 	initializeImgui(*info.editor);
@@ -154,9 +154,9 @@ void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 	m_imageLibrary.removeTextures(caller);
 }
 
-void ImguiRenderModule::setFramebufferSizePx(const math::Vector2S& sizePx)
+void ImguiRenderModule::setDisplayFramebufferSizePx(const math::Vector2S& sizePx)
 {
-	m_framebufferSizePx = sizePx.losslessCast<uint32f>();
+	m_displayFramebufferSizePx = sizePx.losslessCast<uint32f>();
 }
 
 void ImguiRenderModule::initializeImgui(Editor& editor)

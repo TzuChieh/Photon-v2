@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-enum class EKeyCode : uint32f
+enum class EKeyCode : uint8
 {
 	// Unknow/unsupported key
 	Unknown = 0,
