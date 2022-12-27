@@ -30,7 +30,7 @@ inline DisplayFramebufferResizeEvent::DisplayFramebufferResizeEvent(math::TVecto
 
 template<typename T>
 inline DisplayFramebufferResizeEvent::DisplayFramebufferResizeEvent(T widthPx, T heightPx)
-	: FramebufferResizeEvent(
+	: DisplayFramebufferResizeEvent(
 		math::TVector2<uint16>(lossless_cast<uint16>(widthPx), lossless_cast<uint16>(heightPx)))
 {}
 

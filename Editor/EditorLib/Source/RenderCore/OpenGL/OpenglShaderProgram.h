@@ -64,9 +64,10 @@ inline auto OpenglShaderProgram::getUniform(const GLenum type, std::string_view 
 	else
 	{
 		uniform = nullptr;
+		warnUniformNotFound(uniform, type, name);
 	}
 
-	warnUniformNotFound(uniform, type, name);
+	return uniform;
 }
 
 }// end namespace ph::editor

@@ -23,13 +23,13 @@ private:
 	Editor* m_editor;
 };
 
-Editor& DesignerScene::getEditor()
+inline Editor& DesignerScene::getEditor()
 {
 	PH_ASSERT(m_editor);
 	return *m_editor;
 }
 
-const Editor& DesignerScene::getEditor() const
+inline const Editor& DesignerScene::getEditor() const
 {
 	PH_ASSERT(m_editor);
 	return *m_editor;
