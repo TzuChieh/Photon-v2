@@ -70,8 +70,6 @@ public:
 		std::size_t strideSize,
 		bool shouldNormalize = false);
 
-	// TODO: custom layout
-
 	void allocate(std::size_t numVertices);
 
 	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector3R& value);
@@ -82,6 +80,13 @@ public:
 	std::size_t estimateMemoryUsage() const;
 	bool isAllocated() const;
 	std::size_t numVertices() const;
+
+	/*! @brief Access to the underlying raw byte buffer.
+	*/
+	///@{
+	std::byte* getData();
+	const std::byte* getData() const;
+	///@}
 
 	/*! @brief Info for a declared vertex attribute.
 	*/
@@ -158,8 +163,8 @@ private:
 	std::underlying_type_t<EVertexAttribute> m_numEntries;
 
 	std::unique_ptr<std::byte[]> m_byteBuffer;
-	std::size_t                  m_byteBufferSize;
-	uint32f                      m_vertexSize;
+	std::size_t m_byteBufferSize;
+	uint16 m_vertexSize;
 };
 
 // In-header Implementations:
@@ -215,6 +220,18 @@ inline auto IndexedVertexBuffer::getEntry(const EVertexAttribute attribute) cons
 	const auto entryIndex = m_attributeTypeToEntryIndex[enum_to_value(attribute)];
 	PH_ASSERT_LT(entryIndex, m_numEntries);
 	return m_entries[entryIndex];
+}
+
+inline std::byte* IndexedVertexBuffer::getData()
+{
+	PH_ASSERT(isAllocated());
+	return m_byteBuffer.get();
+}
+
+inline const std::byte* IndexedVertexBuffer::getData() const
+{
+	PH_ASSERT(isAllocated());
+	return m_byteBuffer.get();
 }
 
 inline bool IndexedVertexBuffer::AttributeDeclaration::isEmpty() const

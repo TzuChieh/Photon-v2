@@ -49,8 +49,8 @@ public:
 
 		TSdlVector3Array<OwnerType> positions("positions", &OwnerType::m_positions);
 		positions.description(
-			"Vertices of all triangles. Every three vector3s in the array represents a single triangle. "
-			"The vertices are expected to be given in counterclockwise order.");
+			"Vertex coordinates of all triangles. Every three vector3s in the array represents "
+			"a single triangle. The vertices are expected to be given in counterclockwise order.");
 		positions.required();
 		clazz.addField(positions);
 

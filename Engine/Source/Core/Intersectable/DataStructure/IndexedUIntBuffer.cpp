@@ -12,14 +12,14 @@ IndexedUIntBuffer::IndexedUIntBuffer() :
 	m_numBitsPerUInt(0)
 {}
 
-void IndexedUIntBuffer::declareUIntFormat(const uint8 numBitsPerUInt)
+void IndexedUIntBuffer::declareUIntFormat(const std::size_t numBitsPerUInt)
 {
-	m_numBitsPerUInt = numBitsPerUInt;
+	m_numBitsPerUInt = lossless_integer_cast<decltype(m_numBitsPerUInt)>(numBitsPerUInt);
 }
 
 void IndexedUIntBuffer::declareUIntFormatByMaxValue(const uint64 maxValue)
 {
-	for(uint8 numBitsPerUInt = 1; numBitsPerUInt <= 64; ++numBitsPerUInt)
+	for(std::size_t numBitsPerUInt = 1; numBitsPerUInt <= 64; ++numBitsPerUInt)
 	{
 		if(maxAllowedValue(numBitsPerUInt) >= maxValue)
 		{

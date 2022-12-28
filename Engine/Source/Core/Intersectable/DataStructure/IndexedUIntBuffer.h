@@ -3,6 +3,7 @@
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "Math/math.h"
+#include "Utility/utility.h"
 
 #include <cstddef>
 #include <climits>
@@ -28,13 +29,26 @@ class IndexedUIntBuffer final
 public:
 	IndexedUIntBuffer();
 
-	void declareUIntFormat(uint8 numBitsPerUInt);
+	// TODO: aligned memory allocation?
+
+	void declareUIntFormat(std::size_t numBitsPerUInt);
 	void declareUIntFormatByMaxValue(uint64 maxValue);
+
+	template<std::integral IntegerType>
+	void declareUIntFormat();
+
 	void allocate(std::size_t numUInts);
 
+	/*! @brief Set a single integer.
+	*/
 	template<std::integral IntegerType>
 	void setUInt(std::size_t index, IntegerType value);
 
+	/*! @brief Set integers to a range of indices.
+	This method handles all types, including both integer and floating-point types. If `ValueType`
+	matches the buffer's integer format (unsigned and with same bit count), it will be a direct
+	memory copy.
+	*/
 	template<typename ValueType>
 	void setUInts(const ValueType* values, std::size_t numValues, std::size_t dstBeginValueIndex = 0);
 
@@ -48,6 +62,13 @@ public:
 	bool isAllocated() const;
 	uint64 getMaxAllowedValue() const;
 
+	/*! @brief Access to the underlying raw byte buffer.
+	*/
+	///@{
+	std::byte* getData();
+	const std::byte* getData() const;
+	///@}
+
 private:
 	static uint64 maxAllowedValue(uint8 numBitsPerUInt);
 
@@ -57,6 +78,12 @@ private:
 };
 
 // In-header Implementations:
+
+template<std::integral IntegerType>
+inline void IndexedUIntBuffer::declareUIntFormat()
+{
+	declareUIntFormat(sizeof_in_bits<IntegerType>());
+}
 
 inline std::size_t IndexedUIntBuffer::estimateMemoryUsage() const
 {
@@ -90,7 +117,7 @@ inline void IndexedUIntBuffer::setUInt(const std::size_t index, const IntegerTyp
 {
 	PH_ASSERT(isAllocated());
 
-	const auto uint64Value = static_cast<uint64>(value);
+	const auto uint64Value = lossless_integer_cast<uint64>(value);
 	if(uint64Value > getMaxAllowedValue())
 	{
 		throw std::invalid_argument(std::format(
@@ -114,7 +141,8 @@ inline void IndexedUIntBuffer::setUInt(const std::size_t index, const IntegerTyp
 	rawBits |= (uint64Value << firstByteBitOffset);
 	std::memcpy(&m_byteBuffer[firstByteIndex], &rawBits, std::min<std::size_t>(numStraddledBytes, 8));
 
-	// Handle situations where the value needs the 9-th byte (straddles next byte)
+	// Handle situations where the value needs the 9-th byte (straddles next byte), this can happen
+	// since we support any number of bits per index
 	if(numStraddledBytes > 8)
 	{
 		uint8 remainingRawBits;
@@ -136,7 +164,7 @@ inline void IndexedUIntBuffer::setUInts(
 	PH_ASSERT(values);
 
 	// Directly copy the value buffer if the formats matched
-	if(std::is_unsigned_v<ValueType> && sizeof(ValueType) * CHAR_BIT == m_numBitsPerUInt)
+	if(std::is_unsigned_v<ValueType> && sizeof_in_bits<ValueType>() == m_numBitsPerUInt)
 	{
 		setUInts(
 			reinterpret_cast<const std::byte*>(values), 
@@ -180,7 +208,8 @@ inline uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
 	const auto bitMask = math::set_bits_in_range<uint64>(0, firstByteBitOffset, firstByteBitOffset + m_numBitsPerUInt);
 	uint64 value = (rawBits & bitMask) >> firstByteBitOffset;
 
-	// Handle situations where the value needs the 9-th byte (straddles next byte)
+	// Handle situations where the value needs the 9-th byte (straddles next byte), this can happen
+	// since we support any number of bits per index
 	if(numStraddledBytes > 8)
 	{
 		uint8 remainingRawBits;
@@ -195,6 +224,18 @@ inline uint64 IndexedUIntBuffer::getUInt(const std::size_t index) const
 	}
 
 	return value;
+}
+
+inline std::byte* IndexedUIntBuffer::getData()
+{
+	PH_ASSERT(isAllocated());
+	return m_byteBuffer.get();
+}
+
+inline const std::byte* IndexedUIntBuffer::getData() const
+{
+	PH_ASSERT(isAllocated());
+	return m_byteBuffer.get();
 }
 
 }// end namespace ph

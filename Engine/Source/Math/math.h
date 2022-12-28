@@ -584,6 +584,7 @@ the maximum value will be mapped to 1; the rest of the integer values will be un
 range [0, 1]. Signed integer types follow the same rule, except the mapped range will be [-1, 1].
 */
 // TODO: numeric analysis
+// TODO: long double is not needed for shorter integer types
 template<std::floating_point FloatType, std::integral IntType>
 inline FloatType normalize_integer(const IntType intVal)
 {
@@ -601,6 +602,7 @@ inline FloatType normalize_integer(const IntType intVal)
 }
 
 // TODO: numeric analysis
+// TODO: long double is not needed for shorter integer types
 template<std::integral IntType, std::floating_point FloatType>
 inline IntType quantize_normalized_float(const FloatType floatVal)
 {
