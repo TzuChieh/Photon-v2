@@ -75,6 +75,16 @@ public:
 		T                  hInRadians = to_radians<T>(1)) const;
 
 private:
+	/*! Naive and striaghtforward sphere-line intersection. */
+	bool isIntersectingNaive(
+		const TLineSegment<T>& segment,
+		real* out_hitT) const;
+
+	/*! Hearn and Baker's formulation of sphere-line intersection. This is more numerically robust. */
+	bool isIntersectingHearnBaker(
+		const TLineSegment<T>& segment,
+		real* out_hitT) const;
+
 	T m_radius;
 };
 

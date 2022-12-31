@@ -19,7 +19,7 @@ void IndexedUIntBuffer::declareUIntFormat(const std::size_t numBitsPerUInt)
 
 void IndexedUIntBuffer::declareUIntFormatByMaxValue(const uint64 maxValue)
 {
-	for(std::size_t numBitsPerUInt = 1; numBitsPerUInt <= 64; ++numBitsPerUInt)
+	for(uint8 numBitsPerUInt = 1; numBitsPerUInt <= 64; ++numBitsPerUInt)
 	{
 		if(maxAllowedValue(numBitsPerUInt) >= maxValue)
 		{

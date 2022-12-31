@@ -85,7 +85,7 @@ math::AABB3D PBasicSphere::calcAABB() const
 
 real PBasicSphere::calcPositionSamplePdfA(const math::Vector3R& position) const
 {
-	return 1.0_r / PBasicSphere::calcExtendedArea();
+	return math::TSphere(m_radius).uniformSurfaceSamplePdfA();
 }
 
 void PBasicSphere::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
@@ -93,11 +93,12 @@ void PBasicSphere::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow&
 	PH_ASSERT(m_metadata);
 
 	const auto normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
-		sampleFlow.flow2D(), &query.out.pdfA);
+		sampleFlow.flow2D());
 	const auto position = normal * m_radius;
 
-	query.out.normal   = normal;
+	query.out.normal = normal;
 	query.out.position = position;
+	query.out.pdfA = PBasicSphere::calcPositionSamplePdfA(position);
 
 	// FIXME: able to specify mapper channel
 	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();

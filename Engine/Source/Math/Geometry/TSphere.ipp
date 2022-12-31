@@ -32,9 +32,20 @@ inline bool TSphere<T>::isIntersecting(
 	const TLineSegment<T>& segment,
 	real* const            out_hitT) const
 {
+	//return isIntersectingNaive(segment, out_hitT);
+	return isIntersectingHearnBaker(segment, out_hitT);
+}
+
+template<typename T>
+inline bool TSphere<T>::isIntersectingNaive(
+	const TLineSegment<T>& segment,
+	real* const out_hitT) const
+{
 	PH_ASSERT_GE(m_radius, T(0));
 	PH_ASSERT(out_hitT);
 
+	// Construct a ray/line then use its parametric form to test against the sphere and solve for t
+	//
 	// ray origin:         o
 	// ray direction:      d
 	// sphere center:      c
@@ -52,17 +63,17 @@ inline bool TSphere<T>::isIntersecting(
 	
 	// FIXME: T may be more precise than float64
 
-	const Vector3D segmentO(segment.getOrigin());
-	const Vector3D segmentD(segment.getDirection());
+	const Vector3D rayO(segment.getOrigin());
+	const Vector3D rayD(segment.getDirection());
 
 	// Vector from ray origin (o) to sphere center (c)
-	const Vector3D oc = Vector3D(0).sub(segmentO);
+	const Vector3D oc = Vector3D(0).sub(rayO);
 	
 	// a in equation (1)
-	const float64 a = segmentD.dot(segmentD);
+	const float64 a = rayD.dot(rayD);
 
 	// b in equation (1) (-2 is cancelled while solving t)
-	const float64 b = segmentD.dot(oc);
+	const float64 b = rayD.dot(oc);
 
 	// c in equation (1)
 	const float64 c = oc.dot(oc) - static_cast<float64>(m_radius) * m_radius;
@@ -79,7 +90,7 @@ inline bool TSphere<T>::isIntersecting(
 		const float64 rcpA = 1.0 / a;
 
 		// t = (b +- D) / a
-		// Pick the closest point in front of ray tail
+		// t1 must be <= t2 (rcpA & D always > 0)
 		const float64 t1 = (b - D) * rcpA;
 		const float64 t2 = (b + D) * rcpA;
 
@@ -87,27 +98,119 @@ inline bool TSphere<T>::isIntersecting(
 			"t1            = " + std::to_string(t1) + "\n"
 			"t2            = " + std::to_string(t2) + "\n"
 			"(a, b, c)     = (" + std::to_string(a) + ", " + std::to_string(b) + ", " + std::to_string(c) + ")\n"
-			"ray-origin    = " + segmentO.toString() + "\n"
-			"ray-direction = " + segmentD.toString());
+			"ray-origin    = " + rayO.toString() + "\n"
+			"ray-direction = " + rayD.toString());
 
-		// t1 is smaller than t2, we test t1 first
-		//
-		float64 t;
-		if(segment.getMinT() < t1 && t1 < segment.getMaxT())
-		{
-			t = t1;
-		}
-		else if(segment.getMinT() < t2 && t2 < segment.getMaxT())
-		{
-			t = t2;
-		}
-		else
+		// We now know that the ray/line intersects the sphere, but it may not be the case for the line
+		// segment. There are 3 cases in total (with t1 <= t2 being kept in mind):
+		
+		if(t2 < segment.getMinT() || // Case 1: t1 & t2 both behind t_min, no intersection
+		   segment.getMaxT() < t1)   // Case 2: t1 & t2 both ahead of t_max, no intersection
 		{
 			return false;
 		}
+		// Case 3: one of t1 and t2 is a valid intersection in [t_min, t_max]
+		else
+		{
+			// t1 is smaller than t2, we test t1 first
+			const float64 tClosest = segment.getMinT() <= t1 ? t1 : t2;
 
-		*out_hitT = static_cast<real>(t);
-		return true;
+			PH_ASSERT_IN_RANGE_INCLUSIVE(tClosest, segment.getMinT(), segment.getMaxT());
+
+			*out_hitT = static_cast<real>(tClosest);
+			return true;
+		}
+	}
+}
+
+// References:
+// [1] Ray Tracing Gems Chapter 7: Precision Improvements for Ray/Sphere Intersection
+// [2] Best reference would be code for chapter 7 with method 5 (our line direction is not normalized)
+//     https://github.com/Apress/ray-tracing-gems/
+// [3] https://github.com/NVIDIAGameWorks/Falcor (Source/Falcor/Utils/Geometry/IntersectionHelpers.slang)
+//
+template<typename T>
+inline bool TSphere<T>::isIntersectingHearnBaker(
+	const TLineSegment<T>& segment,
+	real* const out_hitT) const
+{
+	PH_ASSERT_GE(m_radius, T(0));
+	PH_ASSERT(out_hitT);
+
+	// We use the same notation as `isIntersectingNaive()` for the geometries
+
+	const Vector3D rayO(segment.getOrigin());
+	const Vector3D rayD(segment.getDirection());
+	const Vector3D unitRayD = rayD.normalize();
+
+	// Vector from sphere center (c) to ray origin (o)
+	// (vector f in Ray Tracing Gems, note this is the negated version of oc in `isIntersectingNaive()`)
+	const Vector3D co = rayO;// rayO - Vector3D(0);
+
+	const float64 r2 = static_cast<float64>(m_radius) * m_radius;
+
+	// a in equation (1) in `isIntersectingNaive()`
+	// (same as in RT Gems)
+	const float64 a = rayD.dot(rayD);
+
+	// b term in RT Gems eq. 8 without the negative sign (handled in q later to save one negation)
+	const float64 b = co.dot(rayD);
+
+	// vector fd in RT Gems eq. 5 (curvy_L^2)
+	const Vector3D fd = co - unitRayD * co.dot(unitRayD);
+
+	// Basically the discriminant term in RT Gems eq. 5 with 4s and 2s eliminated
+	const float64 D = a * (r2 - fd.dot(fd));
+	if(D < 0.0)
+	{
+		return false;
+	}
+	else
+	{
+		// c in equation (1) in `isIntersectingNaive()`
+		// (same as in RT Gems)
+		const float64 c = co.dot(co) - r2;
+
+		const float64 sqrtD = std::sqrt(D);
+
+		// q term in RT Gems eq. 10
+		const float64 q = (b >= 0.0) ? -sqrtD - b : sqrtD - b;
+
+		// t0 & t1 term in RT Gems eq. 10 (here we let t0 <= t1)
+		// (unlike `isIntersectingNaive()`, we cannot determine which one is smaller due to its formulation)
+		float64 t0 = c / q;
+		float64 t1 = q / a;
+		if(t0 > t1)
+		{
+			std::swap(t0, t1);
+		}
+
+		PH_ASSERT_MSG(t0 <= t1, "\n"
+			"t0            = " + std::to_string(t0) + "\n"
+			"t1            = " + std::to_string(t1) + "\n"
+			"(a, b, c)     = (" + std::to_string(a) + ", " + std::to_string(b) + ", " + std::to_string(c) + ")\n"
+			"ray-origin    = " + rayO.toString() + "\n"
+			"ray-direction = " + rayD.toString());
+
+		// We now know that the ray/line intersects the sphere, but it may not be the case for the line
+		// segment. There are 3 cases in total (with t0 <= t1 being kept in mind):
+		
+		if(t1 < segment.getMinT() || // Case 1: t0 & t1 both behind t_min, no intersection
+		   segment.getMaxT() < t0)   // Case 2: t0 & t1 both ahead of t_max, no intersection
+		{
+			return false;
+		}
+		// Case 3: one of t0 and t1 is a valid intersection in [t_min, t_max]
+		else
+		{
+			// t0 is smaller than t1, we test t1 first
+			const float64 tClosest = segment.getMinT() <= t0 ? t0 : t1;
+
+			PH_ASSERT_IN_RANGE_INCLUSIVE(tClosest, segment.getMinT(), segment.getMaxT());
+
+			*out_hitT = static_cast<real>(tClosest);
+			return true;
+		}
 	}
 }
 
