@@ -1,1 +1,1 @@
-from .output import PhOutputNode
+from bmodule.material.output_nodes.output import PhOutputNode

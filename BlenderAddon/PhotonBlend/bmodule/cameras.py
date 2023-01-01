@@ -1,4 +1,4 @@
-from ..utility import settings, blender
+from utility import settings, blender
 
 import bpy
 

@@ -2,9 +2,7 @@ from ..node_base import (
         PhMaterialNode,
         PhSurfaceMaterialSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....generated.pysdl import (
-        IdealSubstanceMaterialCreator,
-        SDLString)
+from psdl import sdl
 from ... import naming
 
 
@@ -17,9 +15,9 @@ class PhPureAbsorberNode(PhMaterialNode):
         surface_mat_socket = self.outputs[0]
         surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
-        creator = IdealSubstanceMaterialCreator()
+        creator = sdl.IdealSubstanceMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
-        creator.set_type(SDLString("absorber"))
+        creator.set_type(sdl.String("absorber"))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

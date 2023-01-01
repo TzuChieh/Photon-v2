@@ -3,11 +3,7 @@ from ..node_base import (
     PhSurfaceMaterialSocket,
     PhFloatFactorSocket,
     SURFACE_MATERIAL_CATEGORY)
-from ....generated.pysdl import (
-        AbradedOpaqueMaterialCreator,
-        SDLString,
-        SDLVector3,
-        SDLReal)
+from psdl import sdl
 from ... import naming
 
 import bpy
@@ -50,23 +46,23 @@ class PhAbradedOpaqueNode(PhMaterialNode):
         surface_mat_socket = self.outputs[0]
         surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
-        creator = AbradedOpaqueMaterialCreator()
+        creator = sdl.AbradedOpaqueMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
-        creator.set_distribution_model(SDLString("ggx"))
-        creator.set_f0(SDLVector3(mathutils.Color((self.f0[0], self.f0[1], self.f0[2]))))
+        creator.set_distribution_model(sdl.String("ggx"))
+        creator.set_f0(sdl.Vector3(mathutils.Color((self.f0[0], self.f0[1], self.f0[2]))))
 
         if not self.is_anisotropic:
-            creator.set_roughness(SDLReal(self.inputs[0].default_value))
+            creator.set_roughness(sdl.Real(self.inputs[0].default_value))
         else:
-            creator.set_roughness_u(SDLReal(self.inputs[1].default_value))
-            creator.set_roughness_v(SDLReal(self.inputs[2].default_value))
+            creator.set_roughness_u(sdl.Real(self.inputs[1].default_value))
+            creator.set_roughness_v(sdl.Real(self.inputs[2].default_value))
 
         if self.mapping_type == 'SQUARED':
-            creator.set_mapping(SDLString("squared"))
+            creator.set_mapping(sdl.String("squared"))
         elif self.mapping_type == 'PBRTV3':
-            creator.set_mapping(SDLString("pbrt-v3"))
+            creator.set_mapping(sdl.String("pbrt-v3"))
         elif self.mapping_type == 'EQUALED':
-            creator.set_mapping(SDLString("equaled"))
+            creator.set_mapping(sdl.String("equaled"))
 
         sdlconsole.queue_command(creator)
 

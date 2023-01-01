@@ -2,11 +2,7 @@ from ..node_base import (
         PhMaterialNode,
         PhColorSocket,
         MATH_CATEGORY)
-from ....psdl.pysdl import (
-        RealMathImageCreator,
-        SDLString,
-        SDLReal,
-        SDLImage)
+from psdl import sdl
 from ... import naming
 
 import bpy
@@ -33,11 +29,11 @@ class PhAddNode(PhMaterialNode):
             print("warning: node <%s> has no input linked, ignoring" % self.name)
             return
 
-        creator = RealMathImageCreator()
+        creator = sdl.RealMathImageCreator()
         creator.set_data_name(output_color_res_name)
-        creator.set_operand(SDLImage(input_color_res_name))
-        creator.set_math_op(SDLString("add"))
-        creator.set_value(SDLReal(self.factor))
+        creator.set_operand(sdl.Image(input_color_res_name))
+        creator.set_math_op(sdl.String("add"))
+        creator.set_value(sdl.Real(self.factor))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

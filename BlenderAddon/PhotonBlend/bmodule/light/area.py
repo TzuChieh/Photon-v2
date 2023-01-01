@@ -1,6 +1,5 @@
-from ...psdl.sdlconsole import SdlConsole
-from ...psdl.pysdl import RectangleLightSourceCreator
-from ...psdl.pysdl import SDLReal, SDLVector3
+from psdl.sdlconsole import SdlConsole
+from psdl import sdl
 from .. import naming
 
 import bpy
@@ -15,12 +14,12 @@ def light_to_sdl_area_light(b_light: bpy.types.AreaLight, console: SdlConsole):
         rec_width = b_light.size
         rec_height = b_light.size_y if b_light.shape == 'RECTANGLE' else b_light.size
 
-        creator = RectangleLightSourceCreator()
+        creator = sdl.RectangleLightSourceCreator()
         creator.set_data_name(source_name)
-        creator.set_width(SDLReal(rec_width))
-        creator.set_height(SDLReal(rec_height))
-        creator.set_linear_srgb(SDLVector3(b_light.ph_light_color_linear_srgb))
-        creator.set_watts(SDLReal(b_light.ph_light_watts))
+        creator.set_width(sdl.Real(rec_width))
+        creator.set_height(sdl.Real(rec_height))
+        creator.set_linear_srgb(sdl.Vector3(b_light.ph_light_color_linear_srgb))
+        creator.set_watts(sdl.Real(b_light.ph_light_watts))
     else:
         print("warning: light <%s> has shape %s which is not supported" % b_light.name)
         creator = None

@@ -2,10 +2,7 @@ from ..node_base import (
         PhMaterialNode,
         PhColorSocket,
         INPUT_CATEGORY)
-from ....psdl.pysdl import (
-        ConstantImageCreator,
-        SDLVector3,
-        SDLString)
+from psdl import sdl
 from ... import naming
 
 import bpy
@@ -39,13 +36,13 @@ class PhConstantColorInputNode(PhMaterialNode):
 
     def to_sdl(self, b_material, sdlconsole):
         output_socket = self.outputs[0]
-        creator = ConstantImageCreator()
+        creator = sdl.ConstantImageCreator()
         creator.set_data_name(naming.get_mangled_output_node_socket_name(output_socket, b_material))
-        creator.set_value(SDLVector3(mathutils.Color((self.color[0], self.color[1], self.color[2]))))
+        creator.set_value(sdl.Vector3(mathutils.Color((self.color[0], self.color[1], self.color[2]))))
         if self.usage == "EMISSION":
-            creator.set_value_type(SDLString("emr-linear-srgb"))
+            creator.set_value_type(sdl.String("emr-linear-srgb"))
         elif self.usage == "REFLECTANCE":
-            creator.set_value_type(SDLString("ecf-linear-srgb"))
+            creator.set_value_type(sdl.String("ecf-linear-srgb"))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

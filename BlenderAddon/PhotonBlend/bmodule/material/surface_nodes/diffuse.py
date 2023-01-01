@@ -3,13 +3,7 @@ from ..node_base import (
         PhSurfaceMaterialSocket,
         PhColorSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....generated.pysdl import (
-        MatteOpaqueMaterialCreator,
-        ConstantImageCreator,
-        SDLString,
-        SDLVector3,
-        SDLReal,
-        SDLImage)
+from psdl import sdl
 from ... import naming
 
 import bpy
@@ -44,19 +38,19 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
 
         albedo_res_name = albedo_socket.get_from_res_name(b_material)
         if albedo_res_name is None:
-            creator = ConstantImageCreator()
+            creator = sdl.ConstantImageCreator()
             albedo_res_name = naming.get_mangled_input_node_socket_name(albedo_socket, b_material)
             creator.set_data_name(albedo_res_name)
             albedo = albedo_socket.default_value
-            creator.set_value(SDLVector3(mathutils.Color((albedo[0], albedo[1], albedo[2]))))
-            creator.set_value_type(SDLString("ecf-linear-srgb"))
+            creator.set_value(sdl.Vector3(mathutils.Color((albedo[0], albedo[1], albedo[2]))))
+            creator.set_value_type(sdl.String("ecf-linear-srgb"))
             sdlconsole.queue_command(creator)
 
-        creator = MatteOpaqueMaterialCreator()
+        creator = sdl.MatteOpaqueMaterialCreator()
         creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_material_socket, b_material))
-        creator.set_albedo(SDLImage(albedo_res_name))
+        creator.set_albedo(sdl.Image(albedo_res_name))
         if self.diffusion_type == 'OREN_NAYAR':
-            creator.set_sigma_degrees(SDLReal(self.roughness * 180.0))
+            creator.set_sigma_degrees(sdl.Real(self.roughness * 180.0))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

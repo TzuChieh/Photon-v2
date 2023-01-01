@@ -1,4 +1,4 @@
-from .. import utility
+import utility
 
 
 class SdlResourceIdentifier:

@@ -2,10 +2,7 @@ from ..node_base import (
         PhMaterialNode,
         PhSurfaceMaterialSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....generated.pysdl import (
-        AbradedTranslucentMaterialCreator,
-        SDLString,
-        SDLReal)
+from psdl import sdl
 from ... import naming
 
 import bpy
@@ -53,15 +50,15 @@ class PhAbradedTranslucentNode(PhMaterialNode):
         surface_mat_socket = self.outputs[0]
         surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
-        creator = AbradedTranslucentMaterialCreator()
+        creator = sdl.AbradedTranslucentMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
-        creator.set_roughness(SDLReal(self.roughness))
-        creator.set_ior_inner(SDLReal(self.ior_inner))
-        creator.set_ior_outer(SDLReal(self.ior_outer))
+        creator.set_roughness(sdl.Real(self.roughness))
+        creator.set_ior_inner(sdl.Real(self.ior_inner))
+        creator.set_ior_outer(sdl.Real(self.ior_outer))
         if self.fresnel_type == 'SCHLICK':
-            creator.set_fresnel_model(SDLString("schlick"))
+            creator.set_fresnel_model(sdl.String("schlick"))
         elif self.fresnel_type == 'EXACT':
-            creator.set_fresnel_model(SDLString("exact"))
+            creator.set_fresnel_model(sdl.String("exact"))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

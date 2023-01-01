@@ -4,14 +4,7 @@ from ..node_base import (
         PhColorSocket,
         PhSurfaceMaterialSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....generated.pysdl import (
-        BinaryMixedSurfaceMaterialCreator,
-        ConstantImageCreator,
-        SDLMaterial,
-        SDLReal,
-        SDLVector3,
-        SDLString,
-        SDLImage)
+from psdl import sdl
 from ... import naming
 from .. import helper
 from .pure_absorber import PhPureAbsorberNode
@@ -52,22 +45,22 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 
         factor_res_name = factor_socket.get_from_res_name(b_material)
         if factor_res_name is None:
-            image_creator = ConstantImageCreator()
+            image_creator = sdl.ConstantImageCreator()
             factor_res_name = naming.get_mangled_input_node_socket_name(factor_socket, b_material)
             image_creator.set_data_name(factor_res_name)
             factor = factor_socket.default_value
             if self.factor_type == 'FLOAT':
-                image_creator.set_value(SDLReal(factor))
+                image_creator.set_value(sdl.Real(factor))
             else:
-                image_creator.set_value(SDLVector3(mathutils.Color((factor[0], factor[1], factor[2]))))
-            image_creator.set_value_type(SDLString("ecf-linear-srgb"))
+                image_creator.set_value(sdl.Vector3(mathutils.Color((factor[0], factor[1], factor[2]))))
+            image_creator.set_value_type(sdl.String("ecf-linear-srgb"))
             sdlconsole.queue_command(image_creator)
 
-        creator = BinaryMixedSurfaceMaterialCreator()
+        creator = sdl.BinaryMixedSurfaceMaterialCreator()
         creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material))
-        creator.set_material_0(SDLMaterial(mat0_res_name))
-        creator.set_material_1(SDLMaterial(mat1_res_name))
-        creator.set_factor(SDLImage(factor_res_name))
+        creator.set_material_0(sdl.Material(mat0_res_name))
+        creator.set_material_1(sdl.Material(mat1_res_name))
+        creator.set_factor(sdl.Image(factor_res_name))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

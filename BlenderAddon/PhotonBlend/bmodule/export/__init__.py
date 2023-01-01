@@ -1,48 +1,17 @@
-from ... import utility
-from .. import (
+import utility
+from bmodule import (
         naming,
         material,
         scene,
         light)
-from ..material import nodes
-from ..mesh import triangle_mesh
-from ...psdl import sdlresource
-from ...psdl.cmd import RawCommand
-from ...psdl.pysdl import (
-    PinholeReceiverCreator,
-    SDLReal,
-    SDLVector3,
-    LightActorCreator,
-    SDLLightSource,
-    LightActorTranslate,
-    LightActorRotate,
-    SDLQuaternion,
-    LightActorScale,
-    ModelActorCreator,
-    SDLGeometry,
-    SDLMaterial,
-    ModelActorTranslate,
-    ModelActorRotate,
-    ModelActorScale,
-    ModelLightSourceCreator,
-    SDLImage,
-    ThinLensReceiverCreator,
-    ImageDomeActorCreator,
-    PreethamDomeActorCreator,
-    SDLString,
-    DomeActorRotate,
-    UniformRandomSampleGeneratorCreator,
-    StratifiedSampleGeneratorCreator,
-    HaltonSampleGeneratorCreator,
-    SDLInteger,
-    EqualSamplingRendererCreator,
-    PmRendererCreator,
-    AttributeRendererCreator,
-    CookSettingsOptionCreator,
-    EngineOptionCreator)
-from ...psdl.sdlconsole import SdlConsole
-from ...utility import meta, blender
-from . import cycles_material
+from bmodule.material import nodes
+from bmodule.mesh import triangle_mesh
+from psdl import sdlresource
+from psdl.cmd import RawCommand
+from psdl import sdl
+from psdl.sdlconsole import SdlConsole
+from utility import meta, blender
+from bmodule.export import cycles_material
 
 import bpy
 import mathutils
@@ -107,9 +76,9 @@ class Exporter:
         scale = self.__blendToPhotonVector(scale)
 
         if lightSourceName is not None:
-            creator = LightActorCreator()
+            creator = sdl.LightActorCreator()
             creator.set_data_name(actorLightName)
-            creator.set_light_source(SDLLightSource(lightSourceName))
+            creator.set_light_source(sdl.LightSource(lightSourceName))
             self.__sdlconsole.queue_command(creator)
         else:
             print("warning: expecting a none light source name for actor-light %s, not exporting" % actorLightName)
@@ -121,19 +90,19 @@ class Exporter:
         # if materialName != None:
         # 	command.append_string("[material material %s] " %("\"@" + materialName + "\""))
 
-        translator = LightActorTranslate()
+        translator = sdl.LightActorTranslate()
         translator.set_target_name(actorLightName)
-        translator.set_factor(SDLVector3(position))
+        translator.set_factor(sdl.Vector3(position))
         self.__sdlconsole.queue_command(translator)
 
-        rotator = LightActorRotate()
+        rotator = sdl.LightActorRotate()
         rotator.set_target_name(actorLightName)
-        rotator.set_factor(SDLQuaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
+        rotator.set_factor(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
         self.__sdlconsole.queue_command(rotator)
 
-        scaler = LightActorScale()
+        scaler = sdl.abstractmethodLightActorScale()
         scaler.set_target_name(actorLightName)
-        scaler.set_factor(SDLVector3(scale))
+        scaler.set_factor(sdl.Vector3(scale))
         self.__sdlconsole.queue_command(scaler)
 
     def export_actor_model(self, actorModelName, geometryName, materialName, position, rotation, scale):
@@ -149,25 +118,25 @@ class Exporter:
         rotation = self.__blendToPhotonQuaternion(rotation)
         scale = self.__blendToPhotonVector(scale)
 
-        creator = ModelActorCreator()
+        creator = sdl.ModelActorCreator()
         creator.set_data_name(actorModelName)
-        creator.set_geometry(SDLGeometry(geometryName))
-        creator.set_material(SDLMaterial(materialName))
+        creator.set_geometry(sdl.Geometry(geometryName))
+        creator.set_material(sdl.Material(materialName))
         self.__sdlconsole.queue_command(creator)
 
-        translator = ModelActorTranslate()
+        translator = sdl.ModelActorTranslate()
         translator.set_target_name(actorModelName)
-        translator.set_factor(SDLVector3(position))
+        translator.set_factor(sdl.Vector3(position))
         self.__sdlconsole.queue_command(translator)
 
-        rotator = ModelActorRotate()
+        rotator = sdl.ModelActorRotate()
         rotator.set_target_name(actorModelName)
-        rotator.set_factor(SDLQuaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
+        rotator.set_factor(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
         self.__sdlconsole.queue_command(rotator)
 
-        scaler = ModelActorScale()
+        scaler = sdl.ModelActorScale()
         scaler.set_target_name(actorModelName)
-        scaler.set_factor(SDLVector3(scale))
+        scaler.set_factor(sdl.Vector3(scale))
         self.__sdlconsole.queue_command(scaler)
 
     # def exportRaw(self, rawText):
@@ -268,11 +237,11 @@ class Exporter:
 
             if material.helper.is_emissive(b_material):
                 light_source_name = geometry_name
-                creator = ModelLightSourceCreator()
+                creator = sdl.ModelLightSourceCreator()
                 creator.set_data_name(light_source_name)
-                creator.set_emitted_radiance(SDLImage(material.helper.get_emission_image_res_name(b_material)))
-                creator.set_geometry(SDLGeometry(geometry_name))
-                creator.set_material(SDLMaterial(material_name))
+                creator.set_emitted_radiance(sdl.Image(material.helper.get_emission_image_res_name(b_material)))
+                creator.set_geometry(sdl.Geometry(geometry_name))
+                creator.set_material(sdl.Material(material_name))
                 self.get_sdlconsole().queue_command(creator)
 
                 actor_light_name = naming.get_mangled_object_name(b_mesh_object, suffix=str(material_idx))
@@ -326,29 +295,29 @@ class Exporter:
                 direction = utility.to_photon_vec3(cam_dir)
                 up_direction = utility.to_photon_vec3(cam_up_dir)
 
-                camera = PinholeReceiverCreator()
-                camera.set_fov_degree(SDLReal(fov_degrees))
-                camera.set_position(SDLVector3(position))
-                camera.set_direction(SDLVector3(direction))
-                camera.set_up_axis(SDLVector3(up_direction))
+                camera = sdl.PinholeReceiverCreator()
+                camera.set_fov_degree(sdl.Real(fov_degrees))
+                camera.set_position(sdl.Vector3(position))
+                camera.set_direction(sdl.Vector3(direction))
+                camera.set_up_axis(sdl.Vector3(up_direction))
 
             else:
                 position = utility.to_photon_vec3(pos)
                 direction = utility.to_photon_vec3(cam_dir)
                 up_direction = utility.to_photon_vec3(cam_up_dir)
 
-                camera = ThinLensReceiverCreator()
-                camera.set_fov_degree(SDLReal(fov_degrees))
-                camera.set_position(SDLVector3(position))
-                camera.set_direction(SDLVector3(direction))
-                camera.set_up_axis(SDLVector3(up_direction))
-                camera.set_lens_radius_mm(SDLReal(b_camera.ph_lens_radius_mm))
-                camera.set_focal_distance_mm(SDLReal(b_camera.ph_focal_meters * 1000))
+                camera = sdl.ThinLensReceiverCreator()
+                camera.set_fov_degree(sdl.Real(fov_degrees))
+                camera.set_position(sdl.Vector3(position))
+                camera.set_direction(sdl.Vector3(direction))
+                camera.set_up_axis(sdl.Vector3(up_direction))
+                camera.set_lens_radius_mm(sdl.Real(b_camera.ph_lens_radius_mm))
+                camera.set_focal_distance_mm(sdl.Real(b_camera.ph_focal_meters * 1000))
 
         if camera is not None:
             camera.set_data_name("receiver")
-            camera.set_resolution_x(SDLInteger(resolution_x))
-            camera.set_resolution_y(SDLInteger(resolution_y))
+            camera.set_resolution_x(sdl.Integer(resolution_x))
+            camera.set_resolution_y(sdl.Integer(resolution_y))
             self.__sdlconsole.queue_command(camera)
         else:
             print("warning: camera (%s) type (%s) is unsupported, not exporting" % (b_camera.name, b_camera.type))
@@ -358,14 +327,14 @@ class Exporter:
 
         creator = None
         if b_world.ph_background_type == 'IMAGE' and b_world.ph_image_file_path != "":
-            creator = ImageDomeActorCreator()
+            creator = sdl.ImageDomeActorCreator()
             creator.set_data_name(actor_name)
 
             image_path = bpy.path.abspath(b_world.ph_image_file_path)
             image_sdlri = sdlresource.SdlResourceIdentifier()
             image_sdlri.append_folder(b_world.name + "_data")
             image_sdlri.set_file(utility.get_filename(image_path))
-            creator.set_image(SDLString(image_sdlri.get_identifier()))
+            creator.set_image(sdl.String(image_sdlri.get_identifier()))
 
             # copy the envmap to scene folder
             self.get_sdlconsole().create_resource_folder(image_sdlri)
@@ -374,25 +343,25 @@ class Exporter:
                 image_sdlri.get_path())
             shutil.copyfile(image_path, dst_path)
         elif b_world.ph_background_type == 'PREETHAM':
-            creator = PreethamDomeActorCreator()
+            creator = sdl.PreethamDomeActorCreator()
             creator.set_data_name(actor_name)
 
-            creator.set_turbidity(SDLReal(b_world.ph_preetham_turbidity))
-            creator.set_standard_time_24h(SDLReal(b_world.ph_standard_time))
-            creator.set_standard_meridian_degrees(SDLReal(b_world.ph_standard_meridian))
-            creator.set_site_latitude_decimal(SDLReal(b_world.ph_latitude))
-            creator.set_site_longitude_decimal(SDLReal(b_world.ph_longitude))
-            creator.set_julian_date(SDLInteger(b_world.ph_julian_date))
+            creator.set_turbidity(sdl.Real(b_world.ph_preetham_turbidity))
+            creator.set_standard_time_24h(sdl.Real(b_world.ph_standard_time))
+            creator.set_standard_meridian_degrees(sdl.Real(b_world.ph_standard_meridian))
+            creator.set_site_latitude_decimal(sdl.Real(b_world.ph_latitude))
+            creator.set_site_longitude_decimal(sdl.Real(b_world.ph_longitude))
+            creator.set_julian_date(sdl.Integer(b_world.ph_julian_date))
 
         if creator is not None:
-            creator.set_energy_scale(SDLReal(b_world.ph_energy_scale))
+            creator.set_energy_scale(sdl.Real(b_world.ph_energy_scale))
 
             self.get_sdlconsole().queue_command(creator)
 
-            rotation = DomeActorRotate()
+            rotation = sdl.DomeActorRotate()
             rotation.set_target_name(actor_name)
-            rotation.set_axis(SDLVector3((0, 1, 0)))
-            rotation.set_degree(SDLReal(b_world.ph_up_rotation))
+            rotation.set_axis(sdl.Vector3((0, 1, 0)))
+            rotation.set_degree(sdl.Real(b_world.ph_up_rotation))
             self.get_sdlconsole().queue_command(rotation)
 
     def export_core_commands(self, b_scene):
@@ -400,14 +369,14 @@ class Exporter:
 
         sample_generator = None
         if b_scene.ph_render_sample_generator_type == 'RANDOM':
-            sample_generator = UniformRandomSampleGeneratorCreator()
-            sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
+            sample_generator = sdl.UniformRandomSampleGeneratorCreator()
+            sample_generator.set_sample_amount(sdl.Integer(meta_info.spp()))
         elif b_scene.ph_render_sample_generator_type == 'STRATIFIED':
-            sample_generator = StratifiedSampleGeneratorCreator()
-            sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
+            sample_generator = sdl.StratifiedSampleGeneratorCreator()
+            sample_generator.set_sample_amount(sdl.Integer(meta_info.spp()))
         elif b_scene.ph_render_sample_generator_type == 'HALTON':
-            sample_generator = HaltonSampleGeneratorCreator()
-            sample_generator.set_sample_amount(SDLInteger(meta_info.spp()))
+            sample_generator = sdl.HaltonSampleGeneratorCreator()
+            sample_generator.set_sample_amount(sdl.Integer(meta_info.spp()))
 
         if sample_generator is not None:
             sample_generator.set_data_name("sample-generator")
@@ -420,26 +389,26 @@ class Exporter:
         renderer = None
 
         if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL":
-            renderer = EqualSamplingRendererCreator()
-            renderer.set_filter_name(SDLString(meta_info.sample_filter_name()))
-            renderer.set_estimator(SDLString(meta_info.integrator_type_name()))
-            renderer.set_scheduler(SDLString(b_scene.ph_scheduler_type))
+            renderer = sdl.EqualSamplingRendererCreator()
+            renderer.set_filter_name(sdl.String(meta_info.sample_filter_name()))
+            renderer.set_estimator(sdl.String(meta_info.integrator_type_name()))
+            renderer.set_scheduler(sdl.String(b_scene.ph_scheduler_type))
         elif render_method == "VPM":
-            renderer = PmRendererCreator()
-            renderer.set_mode(SDLString("vanilla"))
-            renderer.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
-            renderer.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
-            renderer.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
+            renderer = sdl.PmRendererCreator()
+            renderer.set_mode(sdl.String("vanilla"))
+            renderer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
+            renderer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
+            renderer.set_radius(sdl.Real(b_scene.ph_render_kernel_radius))
         elif render_method == "PPM" or render_method == "SPPM":
             mode_name = "progressive" if render_method == "PPM" else "stochastic-progressive"
-            renderer = PmRendererCreator()
-            renderer.set_mode(SDLString(mode_name))
-            renderer.set_num_photons(SDLInteger(b_scene.ph_render_num_photons))
-            renderer.set_num_samples_per_pixel(SDLInteger(b_scene.ph_render_num_spp_pm))
-            renderer.set_radius(SDLReal(b_scene.ph_render_kernel_radius))
-            renderer.set_num_passes(SDLInteger(b_scene.ph_render_num_passes))
+            renderer = sdl.PmRendererCreator()
+            renderer.set_mode(sdl.String(mode_name))
+            renderer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
+            renderer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
+            renderer.set_radius(sdl.Real(b_scene.ph_render_kernel_radius))
+            renderer.set_num_passes(sdl.Integer(b_scene.ph_render_num_passes))
         elif render_method == "ATTRIBUTE":
-            renderer = AttributeRendererCreator()
+            renderer = sdl.AttributeRendererCreator()
         elif render_method == "CUSTOM":
             custom_renderer_sdl_command = RawCommand()
             custom_renderer_sdl_command.append_string(b_scene.ph_render_custom_sdl)
@@ -453,30 +422,30 @@ class Exporter:
             renderer.set_data_name("renderer")
 
             if b_scene.ph_use_crop_window:
-                renderer.set_rect_x(SDLInteger(b_scene.ph_crop_min_x))
-                renderer.set_rect_y(SDLInteger(b_scene.ph_crop_min_y))
-                renderer.set_rect_w(SDLInteger(b_scene.ph_crop_width))
-                renderer.set_rect_h(SDLInteger(b_scene.ph_crop_height))
+                renderer.set_rect_x(sdl.Integer(b_scene.ph_crop_min_x))
+                renderer.set_rect_y(sdl.Integer(b_scene.ph_crop_min_y))
+                renderer.set_rect_w(sdl.Integer(b_scene.ph_crop_width))
+                renderer.set_rect_h(sdl.Integer(b_scene.ph_crop_height))
 
             self.get_sdlconsole().queue_command(renderer)
 
     def export_options(self, b_scene):
-        cook_settings = CookSettingsOptionCreator()
+        cook_settings = sdl.CookSettingsOptionCreator()
         cook_settings.set_data_name("cook-settings")
         if b_scene.ph_top_level_accelerator == 'BF':
-            cook_settings.set_top_level_accelerator(SDLString("brute-force"))
+            cook_settings.set_top_level_accelerator(sdl.String("brute-force"))
         elif b_scene.ph_top_level_accelerator == 'BVH':
-            cook_settings.set_top_level_accelerator(SDLString("bvh"))
+            cook_settings.set_top_level_accelerator(sdl.String("bvh"))
         elif b_scene.ph_top_level_accelerator == 'IKD':
-            cook_settings.set_top_level_accelerator(SDLString("indexed-kd-tree"))
+            cook_settings.set_top_level_accelerator(sdl.String("indexed-kd-tree"))
         self.get_sdlconsole().queue_command(cook_settings)
 
-        engine_option = EngineOptionCreator()
+        engine_option = sdl.EngineOptionCreator()
         engine_option.set_data_name("engine-option")
-        engine_option.set_renderer(SDLString("@renderer"))# HACK
-        engine_option.set_receiver(SDLString("@receiver"))# HACK
-        engine_option.set_sample_generator(SDLString("@sample-generator"))# HACK
-        engine_option.set_cook_settings(SDLString("@cook-settings"))# HACK
+        engine_option.set_renderer(sdl.String("@renderer"))# HACK
+        engine_option.set_receiver(sdl.String("@receiver"))# HACK
+        engine_option.set_sample_generator(sdl.String("@sample-generator"))# HACK
+        engine_option.set_cook_settings(sdl.String("@cook-settings"))# HACK
         self.get_sdlconsole().queue_command(engine_option)
 
     # TODO: write/flush commands to disk once a while (reducing memory usage)

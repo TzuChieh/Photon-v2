@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class SDLData(ABC):
+class AbstractData(ABC):
     def __init__(self):
         super().__init__()
 
@@ -14,7 +14,7 @@ class SDLData(ABC):
         pass
 
 
-class SDLString(SDLData):
+class String(AbstractData):
     def __init__(self, string=""):
         super().__init__()
         self.string = string
@@ -26,7 +26,7 @@ class SDLString(SDLData):
         return self.string
 
 
-class SDLInteger(SDLData):
+class Integer(AbstractData):
     def __init__(self, integer=0):
         super().__init__()
         self.integer = integer
@@ -38,7 +38,7 @@ class SDLInteger(SDLData):
         return str(self.integer)
 
 
-class SDLReal(SDLData):
+class Real(AbstractData):
     def __init__(self, real=0):
         super().__init__()
         self.real = real
@@ -50,7 +50,7 @@ class SDLReal(SDLData):
         return str(self.real)
 
 
-class SDLVector3(SDLData):
+class Vector3(AbstractData):
     def __init__(self, vector=(0, 0, 0)):
         super().__init__()
         self.vector = vector
@@ -62,7 +62,7 @@ class SDLVector3(SDLData):
         return "\"%f %f %f\"" % (self.vector[0], self.vector[1], self.vector[2])
 
 
-class SDLQuaternion(SDLData):
+class Quaternion(AbstractData):
     def __init__(self, quaternion=(0, 0, 0, 0)):
         super().__init__()
         self.quaternion = quaternion
@@ -74,7 +74,7 @@ class SDLQuaternion(SDLData):
         return "\"%f %f %f %f\"" % (self.quaternion[0], self.quaternion[1], self.quaternion[2], self.quaternion[3])
 
 
-class SDLRealArray(SDLData):
+class RealArray(AbstractData):
     def __init__(self, array=None):
         super().__init__()
         if array is None:
@@ -101,7 +101,7 @@ class SDLRealArray(SDLData):
         return self
 
 
-class SDLVector3Array(SDLData):
+class Vector3Array(AbstractData):
     def __init__(self, array=None):
         super().__init__()
         if array is None:
@@ -128,7 +128,7 @@ class SDLVector3Array(SDLData):
         return self
 
 
-class SDLReference(SDLData):
+class Reference(AbstractData):
     def __init__(self, ref_type="", ref_name=""):
         super().__init__()
         self.ref_type = ref_type
@@ -141,7 +141,7 @@ class SDLReference(SDLData):
         return "\"@%s\"" % self.ref_name
 
 
-class SDLRaw(SDLData):
+class RawData(AbstractData):
     def __init__(self, type_string="", data_string=""):
         super().__init__()
         self.type_string = type_string
@@ -154,7 +154,7 @@ class SDLRaw(SDLData):
         return self.data_string
 
 
-class SDLCommand(ABC):
+class AbstractCommand(ABC):
     def __init__(self):
         super().__init__()
         self._inputs = []
@@ -171,7 +171,7 @@ class SDLCommand(ABC):
     def generate(self):
         pass
 
-    def set_input(self, name, data: SDLData):
+    def set_input(self, name, data: AbstractData):
         self._inputs.append((name, data))
 
     def _generate_input_fragments(self, out_fragments):
@@ -183,7 +183,7 @@ class SDLCommand(ABC):
             out_fragments.append("]")
 
 
-class SDLCreatorCommand(SDLCommand):
+class CreatorCommand(AbstractCommand):
     def __init__(self):
         super().__init__()
         self.__data_name = ""
@@ -193,7 +193,7 @@ class SDLCreatorCommand(SDLCommand):
         pass
 
     def get_prefix(self):
-        return "->"
+        return "+>"
 
     def generate(self):
         # TODO: some part can be pre-generated
@@ -210,7 +210,7 @@ class SDLCreatorCommand(SDLCommand):
         self.__data_name = data_name
 
 
-class SDLExecutorCommand(SDLCommand):
+class ExecutorCommand(AbstractCommand):
     def __init__(self):
         super().__init__()
         self.__target_name = ""
@@ -224,7 +224,7 @@ class SDLExecutorCommand(SDLCommand):
         pass
 
     def get_prefix(self):
-        return "->"
+        return ">>"
 
     def generate(self):
         # TODO: some part can be pre-generated

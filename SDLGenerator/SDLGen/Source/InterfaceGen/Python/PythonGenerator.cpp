@@ -109,8 +109,8 @@ namespace
 
 PythonClass gen_sdl_reference_class(const std::string_view categoryName)
 {
-	PythonClass clazz("SDL" + sdl_name_to_camel_case(categoryName, true));
-	clazz.setInheritedClass("SDLReference");
+	PythonClass clazz(sdl_name_to_camel_case(categoryName, true));
+	clazz.setInheritedClass("Reference");
 
 	PythonMethod initMethod("__init__");
 	initMethod.addInput("ref_name", "\"\"");
@@ -126,7 +126,7 @@ PythonClass gen_sdl_creator_class(const SdlClass* const sdlClass)
 	PH_ASSERT(!sdlClass->isBlueprint());
 
 	PythonClass clazz(gen_class_name_base(sdlClass) + "Creator");
-	clazz.setInheritedClass("SDLCreatorCommand");
+	clazz.setInheritedClass("CreatorCommand");
 	clazz.addDefaultInit();
 
 	// Override get_full_type()
@@ -144,7 +144,7 @@ PythonClass gen_sdl_creator_class(const SdlClass* const sdlClass)
 		const auto fieldName = sdl_name_to_snake_case(field->getFieldName());
 
 		PythonMethod inputMethod("set_" + fieldName);
-		inputMethod.addInput(fieldName, "", "SDLData");
+		inputMethod.addInput(fieldName, "", "AbstractData");
 		inputMethod.addCodeLine("self.set_input(\"{}\", {})", field->getFieldName(), fieldName);
 		clazz.addMethod(inputMethod);
 	}
@@ -160,7 +160,7 @@ PythonClass gen_sdl_executor_class(const SdlFunction* const sdlFunction, const S
 	PythonClass clazz(
 		gen_class_name_base(parentClass) +
 		sdl_name_to_camel_case(sdlFunction->getName(), true));
-	clazz.setInheritedClass("SDLExecutorCommand");
+	clazz.setInheritedClass("ExecutorCommand");
 	clazz.addDefaultInit();
 
 	// Override get_full_type()
@@ -183,7 +183,7 @@ PythonClass gen_sdl_executor_class(const SdlFunction* const sdlFunction, const S
 		const auto paramName = sdl_name_to_snake_case(param->getFieldName());
 
 		PythonMethod inputMethod("set_" + paramName);
-		inputMethod.addInput(paramName, "", "SDLData");
+		inputMethod.addInput(paramName, "", "AbstractData");
 		inputMethod.addCodeLine("self.set_input(\"{}\", {})", param->getFieldName(), paramName);
 		clazz.addMethod(inputMethod);
 	}

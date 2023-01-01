@@ -1,4 +1,4 @@
-from ..utility import settings
+from utility import settings
 
 import bpy
 

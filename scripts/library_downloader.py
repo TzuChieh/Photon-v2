@@ -48,6 +48,7 @@ def download_thirdparty_library(dst_directory):
 
         # Exceptiions might be thrown by `shutil.rmtree()` if the folder-to-delete is currently opened by
         # the file explorer. Wait a short time to give it a chance to close itself.
+        # (FIXME: still occucasionally happens on Win7)
         # [1] https://bugs.python.org/issue33240.
         # [2] https://stackoverflow.com/questions/33656696/python-throws-error-when-deleting-a-directory-that-is-open-with-windows-explorer
         time.sleep(1.0)

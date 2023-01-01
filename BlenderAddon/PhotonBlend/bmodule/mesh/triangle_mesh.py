@@ -1,7 +1,6 @@
-from ... import utility
-from ...psdl.sdlconsole import SdlConsole
-from ...psdl.pysdl import TriangleMeshGeometryCreator
-from ...psdl.pysdl import SDLVector3Array
+import utility
+from psdl import sdl
+from psdl.sdlconsole import SdlConsole
 
 from mathutils import Vector, Quaternion
 
@@ -11,20 +10,20 @@ def buffers_to_sdl_triangle_mesh(
         console: SdlConsole,
         **buffers):
     
-    creator = TriangleMeshGeometryCreator()
+    creator = sdl.TriangleMeshGeometryCreator()
     creator.set_data_name(resource_name)
 
-    positions = SDLVector3Array()
+    positions = sdl.Vector3Array()
     for b_position in buffers["positions"]:
         positions.add(utility.to_photon_vec3(b_position))
     creator.set_positions(positions)
 
-    tex_coords = SDLVector3Array()
+    tex_coords = sdl.Vector3Array()
     for b_tex_coord in buffers["tex_coords"]:
         tex_coords.add(b_tex_coord)
     creator.set_texture_coordinates(tex_coords)
 
-    normals = SDLVector3Array()
+    normals = sdl.Vector3Array()
     for b_normal in buffers["normals"]:
         normals.add(utility.to_photon_vec3(b_normal))
     creator.set_normals(normals)

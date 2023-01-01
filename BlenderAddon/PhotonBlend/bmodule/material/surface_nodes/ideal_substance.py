@@ -2,11 +2,7 @@ from ..node_base import (
         PhMaterialNode,
         PhSurfaceMaterialSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....generated.pysdl import (
-        IdealSubstanceMaterialCreator,
-        SDLString,
-        SDLVector3,
-        SDLReal)
+from psdl import sdl
 from ... import naming
 
 import bpy
@@ -80,22 +76,22 @@ class PhIdealSubstanceNode(PhMaterialNode):
         surface_mat_socket = self.outputs[0]
         surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
-        creator = IdealSubstanceMaterialCreator()
+        creator = sdl.IdealSubstanceMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
-        creator.set_ior_outer(SDLReal(self.ior_outer))
-        creator.set_ior_inner(SDLReal(self.ior_inner))
-        creator.set_f0_rgb(SDLVector3(self.f0))
-        creator.set_reflection_scale(SDLVector3(self.reflection_scale))
-        creator.set_transmission_scale(SDLVector3(self.transmission_scale))
+        creator.set_ior_outer(sdl.Real(self.ior_outer))
+        creator.set_ior_inner(sdl.Real(self.ior_inner))
+        creator.set_f0_rgb(sdl.Vector3(self.f0))
+        creator.set_reflection_scale(sdl.Vector3(self.reflection_scale))
+        creator.set_transmission_scale(sdl.Vector3(self.transmission_scale))
 
         if self.substance_type == "DIELECTRIC_REFLECTOR":
-            creator.set_type(SDLString("dielectric-reflector"))
+            creator.set_type(sdl.String("dielectric-reflector"))
         elif self.substance_type == "METALLIC_REFLECTOR":
-            creator.set_type(SDLString("metallic-reflector"))
+            creator.set_type(sdl.String("metallic-reflector"))
         elif self.substance_type == "DIELECTRIC_TRANSMITTER":
-            creator.set_type(SDLString("transmitter"))
+            creator.set_type(sdl.String("transmitter"))
         elif self.substance_type == "DIELECTRIC":
-            creator.set_type(SDLString("dielectric"))
+            creator.set_type(sdl.String("dielectric"))
 
         sdlconsole.queue_command(creator)
 

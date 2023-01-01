@@ -1,4 +1,4 @@
-from ..utility import settings
+from utility import settings
 from .material import helper
 from . import material
 from .material.output_nodes import PhOutputNode

@@ -1,16 +1,8 @@
-from ...psdl.sdlconsole import SdlConsole
-from ...psdl.pysdl import (
-        SDLVector3,
-        SDLQuaternion,
-        SDLLightSource)
-from ...psdl.pysdl import (
-        LightActorCreator,
-        LightActorTranslate,
-        LightActorRotate,
-        LightActorScale)
-from .. import naming
-from ... import utility
-from . import area, point
+from psdl.sdlconsole import SdlConsole
+from psdl import sdl
+from bmodule import naming
+import utility
+from bmodule.light import area, point
 
 import bpy
 import math
@@ -43,22 +35,22 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
     rot = utility.to_photon_quat(rot)
     scale = utility.to_photon_vec3(scale)
 
-    creator = LightActorCreator()
+    creator = sdl.LightActorCreator()
     creator.set_data_name(actor_name)
-    creator.set_light_source(SDLLightSource(source_name))
+    creator.set_light_source(sdl.LightSource(source_name))
     console.queue_command(creator)
 
-    translator = LightActorTranslate()
+    translator = sdl.LightActorTranslate()
     translator.set_target_name(actor_name)
-    translator.set_factor(SDLVector3(pos))
+    translator.set_factor(sdl.Vector3(pos))
     console.queue_command(translator)
 
-    rotator = LightActorRotate()
+    rotator = sdl.LightActorRotate()
     rotator.set_target_name(actor_name)
-    rotator.set_factor(SDLQuaternion((rot.x, rot.y, rot.z, rot.w)))
+    rotator.set_factor(sdl.Quaternion((rot.x, rot.y, rot.z, rot.w)))
     console.queue_command(rotator)
 
-    scaler = LightActorScale()
+    scaler = sdl.LightActorScale()
     scaler.set_target_name(actor_name)
-    scaler.set_factor(SDLVector3(scale))
+    scaler.set_factor(sdl.Vector3(scale))
     console.queue_command(scaler)

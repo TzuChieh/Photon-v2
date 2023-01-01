@@ -1,4 +1,4 @@
-from . import (
+from bmodule import (
         cameras,
         exporter,
         lights,

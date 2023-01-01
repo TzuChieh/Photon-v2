@@ -1,6 +1,6 @@
 from .export import Exporter
 from .material import helper
-from ..utility import blender
+from utility import blender
 from .mesh import helper
 from . import scene
 

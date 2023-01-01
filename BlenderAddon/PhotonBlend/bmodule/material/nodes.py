@@ -1,7 +1,7 @@
-from ...utility import blender
-from . import helper
-from . import node_base
-from . import (
+from utility import blender
+from bmodule.material import helper
+from bmodule.material import node_base
+from bmodule.material import (
         output_nodes,
         input_nodes,
         surface_nodes,

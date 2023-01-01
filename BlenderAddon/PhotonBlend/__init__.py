@@ -1,9 +1,16 @@
-from .utility.blender import BlenderModuleManager
-
 import sys
+import os
 import importlib
 import datetime
 
+# We are using absolute imports using `PhotonBlend` folder as the root
+root_folder_path = os.path.abspath(os.path.dirname(__file__))
+print("PhotonBlend: using %s as root" % root_folder_path)
+sys.path.append(root_folder_path)
+
+from utility.blender import BlenderModuleManager
+
+# Required by Blender: addon header info
 bl_info = {
 	"name": "Photon-v2",
 	"description": "A renderer featuring physically based rendering.",
@@ -40,9 +47,9 @@ def register():
 		if hasattr(package, "include_module"):
 			package.include_module(module_manager)
 		else:
-			print("Blender package %s should contain a include_module(1) function" % main_package_full_name)
+			print("Blender package `%s` should contain a `include_module(1)` function" % main_package_full_name)
 	else:
-		print("Blender package %s is not correctly imported" % main_package_full_name)
+		print("Blender package `%s` is not correctly imported" % main_package_full_name)
 
 	module_manager.register_all()
 

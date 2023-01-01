@@ -3,9 +3,7 @@ from ..node_base import (
         PhSurfaceMaterialSocket,
         PhColorSocket,
         OUTPUT_CATEGORY)
-from ....psdl.pysdl import (
-        FullMaterialCreator,
-        SDLMaterial)
+from psdl import sdl
 from ... import naming
 
 
@@ -21,9 +19,9 @@ class PhOutputNode(PhMaterialNode):
             print("material <%s>'s output node is not linked, ignored" % b_material.name)
             return
 
-        creator = FullMaterialCreator()
+        creator = sdl.FullMaterialCreator()
         creator.set_data_name(naming.get_mangled_material_name(b_material))
-        creator.set_surface(SDLMaterial(surface_mat_res_name))
+        creator.set_surface(sdl.SDLMaterial(surface_mat_res_name))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

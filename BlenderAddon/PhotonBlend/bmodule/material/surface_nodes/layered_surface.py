@@ -3,13 +3,7 @@ from ..node_base import (
         PhSurfaceMaterialSocket,
         PhSurfaceLayerSocket,
         SURFACE_MATERIAL_CATEGORY)
-from ....generated.pysdl import (
-        LayeredSurfaceMaterialCreator,
-        LayeredSurfaceMaterialSet,
-        LayeredSurfaceMaterialAdd,
-        SDLVector3,
-        SDLReal,
-        SDLInteger)
+from psdl import sdl
 from ... import naming
 
 import bpy
@@ -41,7 +35,7 @@ class PhLayeredSurfaceNode(PhMaterialNode):
         surface_mat_socket = self.outputs[0]
         surface_mat_res_name = naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material)
 
-        creator = LayeredSurfaceMaterialCreator()
+        creator = sdl.LayeredSurfaceMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
         sdlconsole.queue_command(creator)
 
@@ -51,25 +45,25 @@ class PhLayeredSurfaceNode(PhMaterialNode):
 
             layer_node = self.inputs[i].links[0].from_node
 
-            adder = LayeredSurfaceMaterialAdd()
+            adder = sdl.LayeredSurfaceMaterialAdd()
             adder.set_target_name(surface_mat_res_name)
             sdlconsole.queue_command(adder)
 
-            setter = LayeredSurfaceMaterialSet()
+            setter = sdl.LayeredSurfaceMaterialSet()
             setter.set_target_name(surface_mat_res_name)
-            setter.set_index(SDLInteger(i))
+            setter.set_index(sdl.Integer(i))
 
-            setter.set_roughness(SDLReal(layer_node.roughness))
+            setter.set_roughness(sdl.CreatorCommandReal(layer_node.roughness))
             if layer_node.ior_type == "SCALAR":
-                setter.set_ior_n(SDLReal(layer_node.ior_n))
-                setter.set_ior_k(SDLReal(layer_node.ior_k))
+                setter.set_ior_n(sdl.Real(layer_node.ior_n))
+                setter.set_ior_k(sdl.Real(layer_node.ior_k))
             elif layer_node.ior_type == "RGB":
-                setter.set_ior_n(SDLVector3(layer_node.ior_n_rgb))
-                setter.set_ior_k(SDLVector3(layer_node.ior_k_rgb))
-            setter.set_depth(SDLReal(layer_node.depth))
-            setter.set_g(SDLReal(layer_node.g))
-            setter.set_sigma_a(SDLReal(layer_node.sigma_a))
-            setter.set_sigma_s(SDLReal(layer_node.sigma_s))
+                setter.set_ior_n(sdl.Vector3(layer_node.ior_n_rgb))
+                setter.set_ior_k(sdl.Vector3(layer_node.ior_k_rgb))
+            setter.set_depth(sdl.Real(layer_node.depth))
+            setter.set_g(sdl.Real(layer_node.g))
+            setter.set_sigma_a(sdl.Real(layer_node.sigma_a))
+            setter.set_sigma_s(sdl.Real(layer_node.sigma_s))
 
             sdlconsole.queue_command(setter)
 

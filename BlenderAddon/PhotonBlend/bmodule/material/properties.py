@@ -1,4 +1,4 @@
-from ...utility import blender
+from utility import blender
 
 import bpy
 

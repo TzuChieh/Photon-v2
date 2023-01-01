@@ -1,5 +1,5 @@
-from ... import psdl
-from ... import utility
+import psdl
+import utility
 
 import bpy
 import mathutils

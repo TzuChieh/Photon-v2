@@ -2,14 +2,10 @@ from ..node_base import (
         PhMaterialNode,
         PhColorSocket,
         INPUT_CATEGORY)
-from ....psdl.pysdl import (
-        LdrPictureImageCreator,
-        ConstantImageCreator,
-        SDLReal,
-        SDLString)
-from ... import naming
-from .... import utility
-from ....psdl import sdlresource
+from psdl import sdl
+from bmodule import naming
+import utility
+from psdl import sdlresource
 
 import bpy
 
@@ -32,13 +28,13 @@ class PhPictureNode(PhMaterialNode):
         image_res_name = naming.get_mangled_output_node_socket_name(image_socket, b_material)
 
         if self.file_path != "":
-            creator = LdrPictureImageCreator()
+            creator = sdl.LdrPictureImageCreator()
             image_path = bpy.path.abspath(self.file_path)
             image_sdlri = sdlresource.SdlResourceIdentifier()
             image_sdlri.append_folder(PhPictureNode.bl_idname + "_pictures")
             image_sdlri.set_file(utility.get_filename(image_path))
-            creator.set_image(SDLString(image_sdlri.get_identifier()))
-            creator.set_sample_mode(SDLString("bilinear"))
+            creator.set_image(sdl.String(image_sdlri.get_identifier()))
+            creator.set_sample_mode(sdl.String("bilinear"))
 
             # copy the file to scene folder
             sdlconsole.create_resource_folder(image_sdlri)
@@ -48,9 +44,9 @@ class PhPictureNode(PhMaterialNode):
         else:
             print("warning: picture node in material %s has no image file, result will be black" % b_material.name)
 
-            creator = ConstantImageCreator()
-            creator.set_value_type(SDLString("raw"))
-            creator.set_value(SDLReal(0))
+            creator = sdl.ConstantImageCreator()
+            creator.set_value_type(sdl.String("raw"))
+            creator.set_value(sdl.Real(0))
 
         creator.set_data_name(image_res_name)
         sdlconsole.queue_command(creator)

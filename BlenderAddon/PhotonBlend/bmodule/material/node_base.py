@@ -2,9 +2,9 @@
 Basic definitions and data for node-based materials.
 """
 
-from ...utility import settings, blender
-from .. import naming
-from . import helper
+from utility import settings, blender
+from bmodule import naming
+from bmodule.material import helper
 
 import bpy
 import nodeitems_utils

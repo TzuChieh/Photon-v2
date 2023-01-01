@@ -1,4 +1,4 @@
-from .. import utility
+import utility
 
 from collections import deque
 
