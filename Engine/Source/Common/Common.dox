@@ -1,0 +1,7 @@
+/*! @dir Common
+@brief Common functionalities and definitions for the engine.
+
+For developers, try to avoid any use of other parts of the engine for implementation here. This part of the
+engine is fairly low-level and referencing other parts of the engine may introduce undesirable dependencies
+or worse, a cyclic dependency.
+*/

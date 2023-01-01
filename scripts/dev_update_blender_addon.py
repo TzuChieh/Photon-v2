@@ -32,7 +32,7 @@ command_result = console.run_command_from(
     "--interface", "python",
     "--output", pysdl_output_directory)
 
-print("SDLGenCLI: %s" % command_result)
+print("SDLGenCLI output: %s" % command_result)
 
 # Setup the addon
 blender_addon.setup_photon_blend(setup_config)

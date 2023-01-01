@@ -32,11 +32,11 @@ Logger make_core_logger()
 {
 	Logger logger;
 
-	// Wrap a lock around StdOutLogPrinter to avoid potential race between threads. This only protect against 
-	// the core logger itself--logging from multiple threads will not cause interleaved characters in the output, 
-	// but others using std::cout/cerr concurrently might still interleave their characters into core logger's 
-	// output. Still, it is safe to access standard output stream from multiple threads as long as sync_with_stdio(true)
-	// is set. 
+	// Wrap a lock around StdOutLogPrinter to avoid potential race between threads. This only protect 
+	// against the core logger itself--logging from multiple threads will not cause interleaved characters
+	// in the output, but others using std::cout/cerr concurrently might still interleave their characters
+	// into core logger's output. Still, it is safe to access standard output stream from multiple threads
+	// as long as `sync_with_stdio(true)` is set. 
 	// 
 	// See: https://en.cppreference.com/w/cpp/io/cout
 	//      https://stackoverflow.com/questions/28660602/synchronizing-output-to-stdcout
@@ -53,24 +53,27 @@ Logger make_core_logger()
 	auto coreLogFilename = Timestamp().toYMDHMS() + "_core_logs.txt";
 	auto coreLogFilePath = std::string(PH_LOG_FILE_DIRECTRY) + coreLogFilename;
 
-	// Replace any ':' in the path with '-' as the OS may not allow it
+	// Replace any ':' in the path with '-' as some OS may not allow it
 	std::replace(coreLogFilePath.begin(), coreLogFilePath.end(), ':', '-');
 
 	// Possibly create non-existing directory first otherwise std::ofstream
 	// will result in an error
 	std::filesystem::create_directories(PH_LOG_FILE_DIRECTRY);
 
-	// A static stream as there should be only one core log file ever created
+	// FIXME: we should explicitly open/close stream/logger in engine init/exit code. static order should
+	// not be relied upon as it can cause error in dtors
+	// A `static` stream as there should be only one core log file ever created
 	// per engine run
 	static std::ofstream stream(coreLogFilePath, std::ios_base::out);
 
+	const auto coreLogFileAbsPath = std::filesystem::absolute(coreLogFilePath);
 	if(stream.good())
 	{
-		std::cout << "log file <" << coreLogFilePath << "> created" << '\n';
+		std::cout << "log file <" << coreLogFileAbsPath << "> created" << '\n';
 	}
 	else
 	{
-		std::cerr << "warning: log file <" << coreLogFilePath << "> creation failed" << '\n';
+		std::cerr << "warning: log file <" << coreLogFileAbsPath << "> creation failed" << '\n';
 	}
 
 	logger.addLogHandler(
@@ -106,6 +109,9 @@ std::size_t add_log_group(const std::string_view groupName, const std::string_vi
 	return CORE_LOG_GROUPS().addGroup(groupName, category);
 }
 
+// FIXME: we should explicitly open/close stream/logger in engine init/exit code. static order should
+// not be relied upon as it can cause error in dtors; better, create using dynamic allocation (pointers)
+// so we can easily detect uninitialized core logger
 Logger& CORE_LOGGER()
 {
 	static Logger logger = make_core_logger();

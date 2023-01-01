@@ -6,6 +6,12 @@ def run_command(command_name, *arguments):
 
 def run_command_from(working_directory, command_name, *arguments):
 
+	"""
+	Execute a console command from a specific directory. Errors (stderr), if any,
+	are printed out automatically.
+	@return The output (stdout) from the command.
+	"""
+
 	command_args = [command_name]
 	command_args.extend([arg for arg in arguments])
 
