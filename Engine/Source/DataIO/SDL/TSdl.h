@@ -32,7 +32,6 @@ public:
 	static std::shared_ptr<T> makeResource();
 };
 
-
 }// end namespace ph
 
 #include "DataIO/SDL/TSdl.ipp"

@@ -49,6 +49,21 @@ bool PythonClass::hasMethod(const std::string_view methodName) const
 	return false;
 }
 
+bool PythonClass::isInheriting() const
+{
+	return !m_inheritedClassName.empty();
+}
+
+std::string PythonClass::getClassName() const
+{
+	return m_className;
+}
+
+std::string PythonClass::getInheritedClassName() const
+{
+	return m_inheritedClassName;
+}
+
 std::string PythonClass::genCode() const
 {
 	std::string code;

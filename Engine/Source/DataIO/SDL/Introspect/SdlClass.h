@@ -72,7 +72,8 @@ public:
 	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
 
 	/*! @brief Whether the class is for building other classes only.
-	Note that a blueprint class cannot be instantiated as a SDL resource.
+	A blueprint class cannot be instantiated as a SDL resource. Note that blueprint class is semantically
+	different to abstract class; nevertheless, they often are closely related.
 	*/
 	virtual bool isBlueprint() const = 0;
 
@@ -84,6 +85,8 @@ public:
 	const std::string& getDescription() const;
 	const SdlClass* getBase() const;
 	bool isDerived() const;
+	bool hasField() const;
+	bool hasFunction() const;
 
 protected:
 	SdlClass& setDescription(std::string description);
@@ -150,6 +153,16 @@ inline const SdlClass* SdlClass::getBase() const
 inline bool SdlClass::isDerived() const
 {
 	return getBase() != nullptr;
+}
+
+inline bool SdlClass::hasField() const
+{
+	return numFields() != 0;
+}
+
+inline bool SdlClass::hasFunction() const
+{
+	return numFunctions() != 0;
 }
 
 inline SdlClass& SdlClass::setDescription(std::string description)

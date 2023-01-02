@@ -18,7 +18,9 @@ public:
 	void addDefaultInit();
 	void setInheritedClass(std::string inheritedClassName);
 	bool hasMethod(std::string_view methodName) const;
-
+	bool isInheriting() const;
+	std::string getClassName() const;
+	std::string getInheritedClassName() const;
 	std::string genCode() const;
 
 private:

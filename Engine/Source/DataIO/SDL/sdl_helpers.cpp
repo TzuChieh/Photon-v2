@@ -241,4 +241,23 @@ std::string gen_pretty_name(const SdlClass* const clazz, const SdlField* const f
 	return "SDL class <" + gen_pretty_name(clazz) + ">, value <" + gen_pretty_name(field) + ">";
 }
 
+auto get_all_callable_functions(const SdlClass* const callableParentClass)
+-> std::vector<std::pair<const SdlFunction*, const SdlClass*>>
+{
+	std::vector<std::pair<const SdlFunction*, const SdlClass*>> results;
+	
+	const SdlClass* currentClass = callableParentClass;
+	while(currentClass)
+	{
+		for(std::size_t fi = 0; fi < currentClass->numFunctions(); ++fi)
+		{
+			results.push_back({currentClass->getFunction(fi), currentClass});
+		}
+
+		currentClass = currentClass->getBase();
+	}
+
+	return results;
+}
+
 }// end namespace ph::sdl

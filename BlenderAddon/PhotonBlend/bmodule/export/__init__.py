@@ -367,86 +367,83 @@ class Exporter:
     def export_core_commands(self, b_scene):
         meta_info = meta.MetaGetter(b_scene)
 
-        sample_generator = None
-        if b_scene.ph_render_sample_generator_type == 'RANDOM':
-            sample_generator = sdl.UniformRandomSampleGeneratorCreator()
-            sample_generator.set_sample_amount(sdl.Integer(meta_info.spp()))
-        elif b_scene.ph_render_sample_generator_type == 'STRATIFIED':
-            sample_generator = sdl.StratifiedSampleGeneratorCreator()
-            sample_generator.set_sample_amount(sdl.Integer(meta_info.spp()))
-        elif b_scene.ph_render_sample_generator_type == 'HALTON':
-            sample_generator = sdl.HaltonSampleGeneratorCreator()
-            sample_generator.set_sample_amount(sdl.Integer(meta_info.spp()))
+        sample_source = None
+        if b_scene.ph_render_sample_source_type == 'RANDOM':
+            sample_source = sdl.UniformRandomSampleSourceCreator()
+            sample_source.set_samples(sdl.Integer(meta_info.spp()))
+        elif b_scene.ph_render_sample_source_type == 'STRATIFIED':
+            sample_source = sdl.StratifiedSampleSourceCreator()
+            sample_source.set_samples(sdl.Integer(meta_info.spp()))
+        elif b_scene.ph_render_sample_source_type == 'HALTON':
+            sample_source = sdl.HaltonSampleSourceCreator()
+            sample_source.set_samples(sdl.Integer(meta_info.spp()))
 
-        if sample_generator is not None:
-            sample_generator.set_data_name("sample-generator")
-            self.get_sdlconsole().queue_command(sample_generator)
+        if sample_source is not None:
+            sample_source.set_data_name("sample-source")
+            self.get_sdlconsole().queue_command(sample_source)
         else:
-            print("warning: no sample generator present")
+            print("warning: no sample source present")
 
         render_method = meta_info.render_method()
 
-        renderer = None
-
+        visualizer = None
         if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL":
-            renderer = sdl.EqualSamplingRendererCreator()
-            renderer.set_filter_name(sdl.String(meta_info.sample_filter_name()))
-            renderer.set_estimator(sdl.String(meta_info.integrator_type_name()))
-            renderer.set_scheduler(sdl.String(b_scene.ph_scheduler_type))
-        elif render_method == "VPM":
-            renderer = sdl.PmRendererCreator()
-            renderer.set_mode(sdl.String("vanilla"))
-            renderer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
-            renderer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
-            renderer.set_radius(sdl.Real(b_scene.ph_render_kernel_radius))
-        elif render_method == "PPM" or render_method == "SPPM":
-            mode_name = "progressive" if render_method == "PPM" else "stochastic-progressive"
-            renderer = sdl.PmRendererCreator()
-            renderer.set_mode(sdl.String(mode_name))
-            renderer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
-            renderer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
-            renderer.set_radius(sdl.Real(b_scene.ph_render_kernel_radius))
-            renderer.set_num_passes(sdl.Integer(b_scene.ph_render_num_passes))
-        elif render_method == "ATTRIBUTE":
-            renderer = sdl.AttributeRendererCreator()
-        elif render_method == "CUSTOM":
-            custom_renderer_sdl_command = RawCommand()
-            custom_renderer_sdl_command.append_string(b_scene.ph_render_custom_sdl)
-            custom_renderer_sdl_command.append_string("\n")
-            self.get_sdlconsole().queue_command(custom_renderer_sdl_command)
+            visualizer = sdl.PathTracingVisualizerCreator()
+            visualizer.set_sample_filter(sdl.String(meta_info.sample_filter_name()))
+            visualizer.set_estimator(sdl.String(meta_info.integrator_type_name()))
+            visualizer.set_scheduler(sdl.String(b_scene.ph_scheduler_type))
+        # elif render_method == "VPM":
+        #     renderer = sdl.PmRendererCreator()
+        #     renderer.set_mode(sdl.String("vanilla"))
+        #     renderer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
+        #     renderer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
+        #     renderer.set_radius(sdl.Real(b_scene.ph_render_kernel_radius))
+        # elif render_method == "PPM" or render_method == "SPPM":
+        #     mode_name = "progressive" if render_method == "PPM" else "stochastic-progressive"
+        #     renderer = sdl.PmRendererCreator()
+        #     renderer.set_mode(sdl.String(mode_name))
+        #     renderer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
+        #     renderer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
+        #     renderer.set_radius(sdl.Real(b_scene.ph_render_kernel_radius))
+        #     renderer.set_num_passes(sdl.Integer(b_scene.ph_render_num_passes))
+        # elif render_method == "ATTRIBUTE":
+        #     renderer = sdl.AttributeRendererCreator()
+        # elif render_method == "CUSTOM":
+        #     custom_renderer_sdl_command = RawCommand()
+        #     custom_renderer_sdl_command.append_string(b_scene.ph_render_custom_sdl)
+        #     custom_renderer_sdl_command.append_string("\n")
+        #     self.get_sdlconsole().queue_command(custom_renderer_sdl_command)
         else:
             print("warning: render method %s is not supported" % render_method)
 
-        if renderer is not None:
+        if visualizer is not None:
 
-            renderer.set_data_name("renderer")
+            visualizer.set_data_name("visualizer")
 
             if b_scene.ph_use_crop_window:
-                renderer.set_rect_x(sdl.Integer(b_scene.ph_crop_min_x))
-                renderer.set_rect_y(sdl.Integer(b_scene.ph_crop_min_y))
-                renderer.set_rect_w(sdl.Integer(b_scene.ph_crop_width))
-                renderer.set_rect_h(sdl.Integer(b_scene.ph_crop_height))
+                visualizer.set_rect_x(sdl.Integer(b_scene.ph_crop_min_x))
+                visualizer.set_rect_y(sdl.Integer(b_scene.ph_crop_min_y))
+                visualizer.set_rect_w(sdl.Integer(b_scene.ph_crop_width))
+                visualizer.set_rect_h(sdl.Integer(b_scene.ph_crop_height))
 
-            self.get_sdlconsole().queue_command(renderer)
+            self.get_sdlconsole().queue_command(visualizer)
 
     def export_options(self, b_scene):
-        cook_settings = sdl.CookSettingsOptionCreator()
-        cook_settings.set_data_name("cook-settings")
+        top_level_accelerator = None
         if b_scene.ph_top_level_accelerator == 'BF':
-            cook_settings.set_top_level_accelerator(sdl.String("brute-force"))
+            top_level_accelerator = sdl.String("brute-force")
         elif b_scene.ph_top_level_accelerator == 'BVH':
-            cook_settings.set_top_level_accelerator(sdl.String("bvh"))
+            top_level_accelerator = sdl.String("bvh")
         elif b_scene.ph_top_level_accelerator == 'IKD':
-            cook_settings.set_top_level_accelerator(sdl.String("indexed-kd-tree"))
-        self.get_sdlconsole().queue_command(cook_settings)
+            top_level_accelerator = sdl.String("indexed-kd-tree")
 
-        engine_option = sdl.EngineOptionCreator()
-        engine_option.set_data_name("engine-option")
-        engine_option.set_renderer(sdl.String("@renderer"))# HACK
-        engine_option.set_receiver(sdl.String("@receiver"))# HACK
-        engine_option.set_sample_generator(sdl.String("@sample-generator"))# HACK
-        engine_option.set_cook_settings(sdl.String("@cook-settings"))# HACK
-        self.get_sdlconsole().queue_command(engine_option)
+        render_session = sdl.SingleFrameRenderSessionOptionCreator()
+        render_session.set_data_name("session")
+        render_session.set_visualizer(sdl.String("@visualizer"))# HACK
+        render_session.set_observer(sdl.String("@observer"))# HACK
+        render_session.set_sample_source(sdl.String("@sample-source"))# HACK
+        render_session.set_top_level_accelerator(top_level_accelerator)# HACK
+        self.get_sdlconsole().queue_command(render_session)
 
     # TODO: write/flush commands to disk once a while (reducing memory usage)
     def export(self, b_depsgraph: bpy.types.Depsgraph):

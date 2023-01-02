@@ -18,6 +18,7 @@ Helpers are in an additional `sdl` namespace.
 #include <string>
 #include <string_view>
 #include <vector>
+#include <utility>
 
 namespace ph
 {
@@ -124,6 +125,12 @@ std::string gen_pretty_name(const SdlClass* clazz);
 std::string gen_pretty_name(const SdlField* field);
 std::string gen_pretty_name(const SdlFunction* func);
 std::string gen_pretty_name(const SdlClass* clazz, const SdlField* field);
+
+/*! @brief Get a list of callable functions from the class.
+@return A list of pairs containing {callable function, original parent class}.
+*/
+auto get_all_callable_functions(const SdlClass* callableParentClass)
+-> std::vector<std::pair<const SdlFunction*, const SdlClass*>>;
 
 /*! @brief Statically gets the SDL category of @p T.
 @tparam T Type that category information is going to be extracted from.

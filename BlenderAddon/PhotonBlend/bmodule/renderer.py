@@ -362,14 +362,14 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
         default="BH"
     )
 
-    bpy.types.Scene.ph_render_sample_generator_type = bpy.props.EnumProperty(
+    bpy.types.Scene.ph_render_sample_source_type = bpy.props.EnumProperty(
         items=[
             ("RANDOM", "Random", "Pseudorandom numbers"),
             ("STRATIFIED", "Stratified", "Quasirandom numbers based on domain subdivision"),
             ("HALTON", "Halton", "Quasirandom numbers that are well distributed over all dimensions")
         ],
-        name="Sample Generator",
-        description="Photon-v2's sample generator types",
+        name="Sample Source",
+        description="Photon-v2's sample source types",
         default="STRATIFIED"
     )
 
@@ -379,7 +379,7 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
 
         layout.prop(b_scene, "ph_render_num_spp")
         layout.prop(b_scene, "ph_render_sample_filter_type")
-        layout.prop(b_scene, "ph_render_sample_generator_type")
+        layout.prop(b_scene, "ph_render_sample_source_type")
 
 
 class PH_RENDERING_PT_data_structures(PhRenderPanel):
