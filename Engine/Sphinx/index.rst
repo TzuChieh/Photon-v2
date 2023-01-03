@@ -10,7 +10,7 @@ Welcome to Photon's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   _generated_api/library_root
 
 Indices and tables
 ==================

@@ -110,7 +110,10 @@ breathe_default_members = ('members', 'undoc-members')
 # Setup the exhale extension
 exhale_args = {
     # These arguments are required
-    "containmentFolder":     "./_build/api/",
+
+    # Do not place in "_build" as it will not get parsed
+    "containmentFolder":     "./_generated_api/",
+    
     "rootFileName":          "library_root.rst",
     "doxygenStripFromPath":  "..",
     # Heavily encouraged optional argument (see docs)
