@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Common/primitive_type.h"
 #include "Common/config.h"

@@ -16,7 +16,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 import subprocess, os
 
 # Doxygen
-# subprocess.call("doxygen ./doxygen.config", shell=True)
+subprocess.call("doxygen ./doxygen.config", shell=True)
 
 
 # -- Project information -----------------------------------------------------
@@ -119,7 +119,7 @@ exhale_args = {
     "createTreeView":        True,
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
-    "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    "INPUT = ../Source/Math/Color/",
+    # "exhaleExecutesDoxygen": True,
+    # "exhaleDoxygenStdin":    "INPUT = ../Source/Math/Color/",
     # "verboseBuild": True
 }

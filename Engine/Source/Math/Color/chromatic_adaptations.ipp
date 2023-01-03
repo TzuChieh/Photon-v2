@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Math/Color/chromatic_adaptations.h"
 #include "Common/assertion.h"

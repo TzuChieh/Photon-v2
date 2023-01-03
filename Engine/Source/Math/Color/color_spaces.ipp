@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Math/Color/color_spaces.h"
 #include "Math/TMatrix3.h"
