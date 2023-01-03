@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "Math/Color/color_spaces.h"
 #include "Math/TMatrix3.h"
@@ -294,9 +294,9 @@ Note that the white point of ACEScg is the same as ACES2065-1 [2] as stated in t
 References:
 [1] General Documentation Page
 https://www.oscars.org/science-technology/aces/aces-documentation
-[2] Informative Notes on SMPTE ST 2065-1 ¡V Academy Color Encoding Specification (ACES)
+[2] Informative Notes on SMPTE ST 2065-1 â€“ Academy Color Encoding Specification (ACES)
 http://j.mp/TB-2014-004
-[3] ACEScg ¡X A Working Space for CGI Render and Compositing
+[3] ACEScg â€” A Working Space for CGI Render and Compositing
 http://j.mp/S-2014-004
 [4] AMPAS ACES project repo: readme for matrix transformations
 https://github.com/ampas/aces-dev/blob/dev/transforms/ctl/README-MATRIX.md

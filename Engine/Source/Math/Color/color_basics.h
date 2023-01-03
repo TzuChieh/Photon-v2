@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Common/primitive_type.h"
 #include "Common/config.h"
@@ -106,7 +106,7 @@ inline auto make_chromaticity_table()
 	table[static_cast<std::size_t>(EReferenceWhite::LED_V2)]   = {0.37810, 0.37750};
 
 	// References: 
-	// [1] TB-2014-004: Informative Notes on SMPTE ST 2065-1 �V Academy Color Encoding Specification (ACES)
+	// [1] TB-2014-004: Informative Notes on SMPTE ST 2065-1 – Academy Color Encoding Specification (ACES)
 	// https://www.oscars.org/science-technology/aces/aces-documentation
 	// [2] TB-2018-001: Derivation of the ACES White Point Chromaticity Coordinates
 	// https://www.oscars.org/science-technology/aces/aces-documentation

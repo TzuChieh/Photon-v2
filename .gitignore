@@ -155,6 +155,10 @@ count.bat
 doc/
 docs/
 
+# Sphinx documentation
+# (https://stackoverflow.com/questions/9570382/which-files-should-i-tell-my-vcs-to-ignore-when-using-sphinx-for-documentation)
+**/Sphinx/_build/
+
 ###############################################################################
 # HACKING REGION                                                              #
 ###############################################################################
