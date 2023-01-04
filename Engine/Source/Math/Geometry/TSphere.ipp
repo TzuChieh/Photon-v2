@@ -102,24 +102,30 @@ inline bool TSphere<T>::isIntersectingNaive(
 			"ray-direction = " + rayD.toString());
 
 		// We now know that the ray/line intersects the sphere, but it may not be the case for the line
-		// segment. There are 3 cases in total (with t1 <= t2 being kept in mind):
-		
-		if(t2 < segment.getMinT() || // Case 1: t1 & t2 both behind t_min, no intersection
-		   segment.getMaxT() < t1)   // Case 2: t1 & t2 both ahead of t_max, no intersection
+		// segment. We test all cases with t1 <= t2 being kept in mind:
+
+		float64 tClosest;
+
+		// t1 is smaller than t2, we test t1 first
+		if(segment.getMinT() <= t1 && t1 <= segment.getMaxT())
+		{
+			tClosest = t1;
+		}
+		// test t2
+		else if(segment.getMinT() <= t2 && t2 <= segment.getMaxT())
+		{
+			tClosest = t2;
+		}
+		// no intersection found in [t_min, t_max] (NaN aware)
+		else
 		{
 			return false;
 		}
-		// Case 3: one of t1 and t2 is a valid intersection in [t_min, t_max]
-		else
-		{
-			// t1 is smaller than t2, we test t1 first
-			const float64 tClosest = segment.getMinT() <= t1 ? t1 : t2;
 
-			PH_ASSERT_IN_RANGE_INCLUSIVE(tClosest, segment.getMinT(), segment.getMaxT());
+		PH_ASSERT_IN_RANGE_INCLUSIVE(tClosest, segment.getMinT(), segment.getMaxT());
 
-			*out_hitT = static_cast<real>(tClosest);
-			return true;
-		}
+		*out_hitT = static_cast<real>(tClosest);
+		return true;
 	}
 }
 
@@ -193,24 +199,30 @@ inline bool TSphere<T>::isIntersectingHearnBaker(
 			"ray-direction = " + rayD.toString());
 
 		// We now know that the ray/line intersects the sphere, but it may not be the case for the line
-		// segment. There are 3 cases in total (with t0 <= t1 being kept in mind):
+		// segment. We test all cases with t0 <= t1 being kept in mind:
 		
-		if(t1 < segment.getMinT() || // Case 1: t0 & t1 both behind t_min, no intersection
-		   segment.getMaxT() < t0)   // Case 2: t0 & t1 both ahead of t_max, no intersection
+		float64 tClosest;
+
+		// t0 is smaller than t1, we test t0 first
+		if(segment.getMinT() <= t0 && t0 <= segment.getMaxT())
+		{
+			tClosest = t0;
+		}
+		// test t1
+		else if(segment.getMinT() <= t1 && t1 <= segment.getMaxT())
+		{
+			tClosest = t1;
+		}
+		// no intersection found in [t_min, t_max] (NaN aware)
+		else
 		{
 			return false;
 		}
-		// Case 3: one of t0 and t1 is a valid intersection in [t_min, t_max]
-		else
-		{
-			// t0 is smaller than t1, we test t1 first
-			const float64 tClosest = segment.getMinT() <= t0 ? t0 : t1;
 
-			PH_ASSERT_IN_RANGE_INCLUSIVE(tClosest, segment.getMinT(), segment.getMaxT());
+		PH_ASSERT_IN_RANGE_INCLUSIVE(tClosest, segment.getMinT(), segment.getMaxT());
 
-			*out_hitT = static_cast<real>(tClosest);
-			return true;
-		}
+		*out_hitT = static_cast<real>(tClosest);
+		return true;
 	}
 }
 

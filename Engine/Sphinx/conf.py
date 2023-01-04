@@ -31,6 +31,10 @@ release = "2.0.0-beta"
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+# Read the doc theme: https://sphinx-rtd-theme.readthedocs.io/en/stable/installing.html
+
+import sphinx_rtd_theme
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
@@ -45,6 +49,13 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_sitemap',
     'sphinx.ext.inheritance_diagram',
+
+    # Automatically adds a `.nojekyll` file to the `html` folder 
+    # (for publishing directly to GitHub Pages)
+    # https://stackoverflow.com/questions/62626125/github-pages-with-sphinx-generated-documentation-not-displaying-html-correctly
+    'sphinx.ext.githubpages',
+
+    'sphinx_rtd_theme',
     'breathe',
     'exhale'
 ]

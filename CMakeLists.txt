@@ -149,6 +149,8 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     # https://devblogs.microsoft.com/cppblog/announcing-full-support-for-a-c-c-conformant-preprocessor-in-msvc/
     set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zc:preprocessor")
 
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+
 # Using GCC
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 

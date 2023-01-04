@@ -14,6 +14,7 @@
 #include <concepts>
 #include <unordered_map>
 #include <functional>
+#include <bit>
 
 namespace ph
 {
@@ -87,27 +88,34 @@ inline decltype(auto) regular_access(T& t)
 	}
 }
 
-// TODO: replace this with C++20 std::bit_cast
 template<typename Source, typename Target>
-inline Target bitwise_cast(const Source source)
+inline Target bitwise_cast(const Source& source)
 {
-	static_assert(std::is_arithmetic_v<Source> && std::is_arithmetic_v<Target>);
+	static_assert(std::is_trivially_copyable_v<Source>);
+	static_assert(std::is_trivially_copyable_v<Target>);
 
 	static_assert(sizeof(Source) == sizeof(Target),
-		"Source and Target should have same size");
+		"Source and Target should have the same size");
 
+#if __cpp_lib_bit_cast
+	return std::bit_cast<Target>(source);
+#else
 	Target target;
 	std::memcpy(&target, &source, sizeof(Source));
 	return target;
+#endif
 }
 
-// TODO: replace this with C++20 std::endian
 inline bool is_big_endian()
 {
+#if __cpp_lib_endian
+	return std::endian::native == std::endian::big;
+#else
 	static_assert(sizeof(int) > sizeof(char));
 
 	const int i = 0x07;
 	return reinterpret_cast<const char*>(&i)[0] != '\x07';
+#endif
 }
 
 template<typename T>
