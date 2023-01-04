@@ -5,6 +5,7 @@
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
 #include "Math/Color/Spectrum.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <memory>
 
@@ -40,6 +41,28 @@ private:
 	real m_turbidity;
 
 	static void checkTurbidity(real turbidity);
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<APreethamDome>)
+	{
+		ClassType clazz("preetham-dome");
+		clazz.docName("Preetham Dome Actor");
+		clazz.description(
+			"Using Preetham model to generate absolute energy from sky.");
+		clazz.baseOn<ADome>();
+
+		TSdlReal<OwnerType> sunPhi("yaw-pitch-row-degrees", &OwnerType::m_yawPitchRollDegrees);
+		yawPitchRollDegrees.description(
+			"Direction that this observer is looking at in yaw pitch form. "
+			"yaw: Rotation around +y axis in [-180, 180]; "
+			"pitch: Declination from the horizon in [-90, 90]; "
+			"row: Rotation around +z axis in [-180, 180].");
+		yawPitchRollDegrees.defaultTo({ 0, 0, 0 });
+		yawPitchRollDegrees.optional();
+		clazz.addField(yawPitchRollDegrees);
+
+		return clazz;
+	}
 };
 
 // In-header Implementations:

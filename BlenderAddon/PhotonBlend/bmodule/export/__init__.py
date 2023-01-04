@@ -266,7 +266,7 @@ class Exporter:
             resolution_x = int(b_camera.ph_resolution_x * resolution_scale)
             resolution_y = int(b_camera.ph_resolution_y * resolution_scale)
 
-        camera = None
+        observer = None
         if b_camera.type == "PERSP":
 
             pos, rot, scale = b_camera_object.matrix_world.decompose()
@@ -295,30 +295,28 @@ class Exporter:
                 direction = utility.to_photon_vec3(cam_dir)
                 up_direction = utility.to_photon_vec3(cam_up_dir)
 
-                camera = sdl.PinholeReceiverCreator()
-                camera.set_fov_degree(sdl.Real(fov_degrees))
-                camera.set_position(sdl.Vector3(position))
-                camera.set_direction(sdl.Vector3(direction))
-                camera.set_up_axis(sdl.Vector3(up_direction))
+                observer = sdl.SingleLensObserverCreator()
+                observer.set_fov_degrees(sdl.Real(fov_degrees))
+                observer.set_position(sdl.Vector3(position))
+                observer.set_direction(sdl.Vector3(direction))
+                observer.set_up_axis(sdl.Vector3(up_direction))
 
             else:
                 position = utility.to_photon_vec3(pos)
                 direction = utility.to_photon_vec3(cam_dir)
                 up_direction = utility.to_photon_vec3(cam_up_dir)
 
-                camera = sdl.ThinLensReceiverCreator()
-                camera.set_fov_degree(sdl.Real(fov_degrees))
-                camera.set_position(sdl.Vector3(position))
-                camera.set_direction(sdl.Vector3(direction))
-                camera.set_up_axis(sdl.Vector3(up_direction))
-                camera.set_lens_radius_mm(sdl.Real(b_camera.ph_lens_radius_mm))
-                camera.set_focal_distance_mm(sdl.Real(b_camera.ph_focal_meters * 1000))
+                observer = sdl.SingleLensObserverCreator()
+                observer.set_fov_degrees(sdl.Real(fov_degrees))
+                observer.set_position(sdl.Vector3(position))
+                observer.set_direction(sdl.Vector3(direction))
+                observer.set_up_axis(sdl.Vector3(up_direction))
+                observer.set_lens_radius_mm(sdl.Real(b_camera.ph_lens_radius_mm))
+                observer.set_focal_distance_mm(sdl.Real(b_camera.ph_focal_meters * 1000))
 
-        if camera is not None:
-            camera.set_data_name("receiver")
-            camera.set_resolution_x(sdl.Integer(resolution_x))
-            camera.set_resolution_y(sdl.Integer(resolution_y))
-            self.__sdlconsole.queue_command(camera)
+        if observer is not None:
+            observer.set_data_name("observer")
+            self.__sdlconsole.queue_command(observer)
         else:
             print("warning: camera (%s) type (%s) is unsupported, not exporting" % (b_camera.name, b_camera.type))
 
