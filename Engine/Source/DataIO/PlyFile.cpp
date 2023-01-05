@@ -952,6 +952,8 @@ void PlyFile::loadBuffer(IInputStream& stream, const PlyIOConfig& config, const 
 		}
 		else
 		{
+			// TODO: endianness
+
 			if(element.containsList())
 			{
 				loadBinaryElementBuffer(stream, element, config, plyFilePath);
@@ -1074,15 +1076,6 @@ void PlyFile::loadBinaryElementBuffer(
 
 					stream.read(numListBytes, &(rawBuffer[firstByteIdx]));
 
-					for(std::size_t li = 0; li < listSize; ++li)
-					{
-						stream.read();
-						ascii_ply_data_to_bytes(
-							next_token(currentLine, &currentLine), 
-							prop.dataType, 
-							&(rawBuffer[firstByteIdx + li * sizeofData]));
-					}
-
 					PH_ASSERT(!prop.listSizesPrefixSum.empty());
 					prop.listSizesPrefixSum.push_back(prop.listSizesPrefixSum.back() + listSize);
 
@@ -1100,12 +1093,10 @@ void PlyFile::loadBinaryElementBuffer(
 					std::vector<std::byte>& rawBuffer = element.rawBuffer;
 
 					const std::size_t firstByteIdx = rawBuffer.size();
-					rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.dataType));
+					const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
+					rawBuffer.resize(rawBuffer.size() + sizeofData);
 
-					ascii_ply_data_to_bytes(
-						next_token(currentLine, &currentLine), 
-						prop.dataType, 
-						&(rawBuffer[firstByteIdx]));
+					stream.read(sizeofData, &(rawBuffer[firstByteIdx]));
 				}
 			}
 		}

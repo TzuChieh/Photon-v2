@@ -81,7 +81,7 @@ public:
 
 		TSdlInteger<OwnerType> julianDate("julian-date", &OwnerType::m_julianDate);
 		julianDate.description("The day of the year as an integer in the range [1, 366].");
-		julianDate.defaultTo(0.0_r);
+		julianDate.defaultTo(1);
 		julianDate.optional();
 		clazz.addField(julianDate);
 
