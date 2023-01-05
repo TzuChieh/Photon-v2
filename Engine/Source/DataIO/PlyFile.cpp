@@ -235,6 +235,10 @@ inline void write_binary_ply_data(const DataType value, std::byte* const out_bin
 	std::memcpy(out_binaryPlyData, &value, sizeof(DataType));
 }
 
+/*!
+@param[out] out_bytes Binary data that represents the same value as ASCII.
+@return The value represented by the ASCII.
+*/
 template<typename DataType>
 inline float64 ascii_ply_data_to_bytes(const std::string_view asciiPlyData, std::byte* const out_bytes)
 {
@@ -309,6 +313,10 @@ inline void ply_data_to_bytes(const float64 value, const EPlyDataType dataType, 
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
+/*!
+@param[out] out_binaryPlyData Binary data that represents the same value as ASCII.
+@return The value represented by the ASCII.
+*/
 inline float64 ascii_ply_data_to_bytes(
 	const std::string_view asciiPlyData, 
 	const EPlyDataType     dataType, 
@@ -399,8 +407,8 @@ PlyElement::PlyElement() :
 	name       (),
 	numElements(0),
 	properties (),
-	rawBuffer  (),
-	strideSize (0)
+	strideSize (0),
+	rawBuffer  ()
 {}
 
 bool PlyElement::isLoaded() const
@@ -419,6 +427,19 @@ bool PlyElement::isLoaded() const
 			{
 				return true;
 			}
+		}
+	}
+
+	return false;
+}
+
+bool PlyElement::containsList() const
+{
+	for(const PlyProperty& prop : properties)
+	{
+		if(prop.isList())
+		{
+			return true;
 		}
 	}
 
@@ -705,7 +726,18 @@ void PlyFile::compactBuffer()
 		for(auto& prop : element.properties)
 		{
 			prop.rawListBuffer.shrink_to_fit();
-			prop.listSizesPrefixSum.shrink_to_fit();
+
+			// Remove prefix sums if the list has fixed size (prefix sum is required by 
+			// variable-sized list only)
+			if(prop.isFixedSizeList())
+			{
+				std::vector<std::size_t>().swap(prop.listSizesPrefixSum);
+			}
+			// Otherwise, shrink to fit as usual
+			else
+			{
+				prop.listSizesPrefixSum.shrink_to_fit();
+			}
 		}
 
 		element.rawBuffer.shrink_to_fit();
@@ -778,15 +810,7 @@ void PlyFile::loadFile(const Path& plyFilePath, const PlyIOConfig& config)
 	// Load PLY buffer
 
 	reserveBuffer();
-
-	if(m_format == EPlyFileFormat::ASCII)
-	{
-		loadTextBuffer(*stream, config, plyFilePath);
-	}
-	else
-	{
-		loadBinaryBuffer(*stream, config, plyFilePath);
-	}
+	loadBuffer(*stream, config, plyFilePath);
 
 	if(shouldReduceStorageMemory)
 	{
@@ -902,13 +926,8 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 	}// end while each header line
 }
 
-void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
+void PlyFile::loadBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
 {
-	using namespace string_utils;
-
-	std::string lineBuffer;
-	lineBuffer.reserve(128);
-
 	for(PlyElement& element : m_elements)
 	{
 		// Skip already loaded buffer
@@ -927,86 +946,205 @@ void PlyFile::loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, co
 			}
 		}
 
-		try
+		if(m_format == EPlyFileFormat::ASCII)
 		{
-			for(std::size_t ei = 0; ei < element.numElements; ++ei)
+			loadAsciiElementBuffer(stream, element, config, plyFilePath);
+		}
+		else
+		{
+			if(element.containsList())
 			{
-				// Each line describes a single element
-				stream.readLine(&lineBuffer);
-				auto currentLine = trim(lineBuffer);
-
-				for(PlyProperty& prop : element.properties)
-				{
-					if(prop.isList())
-					{
-						std::array<std::byte, 8> dummyBuffer;
-						const auto listSize = static_cast<std::size_t>(ascii_ply_data_to_bytes(
-							next_token(currentLine, &currentLine),
-							prop.dataType,
-							dummyBuffer.data()));
-
-						std::vector<std::byte>& rawBuffer = prop.rawListBuffer;
-
-						const std::size_t firstByteIdx = rawBuffer.size();
-						const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
-						rawBuffer.resize(rawBuffer.size() + sizeofData * listSize);
-						for(std::size_t li = 0; li < listSize; ++li)
-						{
-							ascii_ply_data_to_bytes(
-								next_token(currentLine, &currentLine), 
-								prop.dataType, 
-								&(rawBuffer[firstByteIdx + li * sizeofData]));
-						}
-
-						PH_ASSERT(!prop.listSizesPrefixSum.empty());
-						prop.listSizesPrefixSum.push_back(prop.listSizesPrefixSum.back() + listSize);
-
-						// Only set list size on the first encounter. Later if there is a disagreement of 
-						// list size, the list must be variable-sized and we set the size to 0. Also handles
-						// the case where <prop.fixedListSize> is already set to 0.
-						PH_ASSERT_GT(listSize, 0);
-						if(prop.fixedListSize != listSize)
-						{
-							prop.fixedListSize = ei == 0 ? listSize : 0;
-						}
-					}
-					else
-					{
-						std::vector<std::byte>& rawBuffer = element.rawBuffer;
-
-						const std::size_t firstByteIdx = rawBuffer.size();
-						rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.dataType));
-
-						ascii_ply_data_to_bytes(
-							next_token(currentLine, &currentLine), 
-							prop.dataType, 
-							&(rawBuffer[firstByteIdx]));
-					}
-				}
+				loadBinaryElementBuffer(stream, element, config, plyFilePath);
 			}
-		}
-		catch(const std::runtime_error& e)
-		{
-			throw FileIOError(std::format(
-				"Error loading value from element {}, detail: {}", element.name, e.what()), 
-				plyFilePath.toAbsoluteString());
-		}
-
-		// Remove prefix sums if the list has fixed size
-		for(PlyProperty& prop : element.properties)
-		{
-			if(prop.isFixedSizeList())
+			else
 			{
-				std::vector<std::size_t>().swap(prop.listSizesPrefixSum);
+				loadNonListBinaryElementBuffer(stream, element, config, plyFilePath);
 			}
 		}
 	}
 }
 
-void PlyFile::loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
+void PlyFile::loadAsciiElementBuffer(
+	IInputStream& stream, 
+	PlyElement& element, 
+	const PlyIOConfig& config, 
+	const Path& plyFilePath)
 {
-	// TODO
-	PH_ASSERT_UNREACHABLE_SECTION();
+	using namespace string_utils;
+
+	std::string lineBuffer;
+	lineBuffer.reserve(128);
+
+	try
+	{
+		for(std::size_t ei = 0; ei < element.numElements; ++ei)
+		{
+			// Each line describes a single element
+			stream.readLine(&lineBuffer);
+			auto currentLine = trim(lineBuffer);
+
+			for(PlyProperty& prop : element.properties)
+			{
+				if(prop.isList())
+				{
+					// First token encountered is the size of the list
+					std::array<std::byte, 8> dummyBuffer;
+					const auto listSize = static_cast<std::size_t>(ascii_ply_data_to_bytes(
+						next_token(currentLine, &currentLine),
+						prop.dataType,
+						dummyBuffer.data()));
+
+					std::vector<std::byte>& rawBuffer = prop.rawListBuffer;
+
+					const std::size_t firstByteIdx = rawBuffer.size();
+					const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
+					rawBuffer.resize(rawBuffer.size() + sizeofData * listSize);
+					for(std::size_t li = 0; li < listSize; ++li)
+					{
+						ascii_ply_data_to_bytes(
+							next_token(currentLine, &currentLine), 
+							prop.dataType, 
+							&(rawBuffer[firstByteIdx + li * sizeofData]));
+					}
+
+					PH_ASSERT(!prop.listSizesPrefixSum.empty());
+					prop.listSizesPrefixSum.push_back(prop.listSizesPrefixSum.back() + listSize);
+
+					// Only set list size on the first encounter. Later, if there is a disagreement on 
+					// list size, the list must be variable-sized and we set the size to 0. Also handles
+					// the case where <prop.fixedListSize> is already set to 0.
+					PH_ASSERT_GT(listSize, 0);
+					if(prop.fixedListSize != listSize)
+					{
+						prop.fixedListSize = ei == 0 ? listSize : 0;
+					}
+				}
+				else
+				{
+					std::vector<std::byte>& rawBuffer = element.rawBuffer;
+
+					const std::size_t firstByteIdx = rawBuffer.size();
+					rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.dataType));
+
+					ascii_ply_data_to_bytes(
+						next_token(currentLine, &currentLine), 
+						prop.dataType, 
+						&(rawBuffer[firstByteIdx]));
+				}
+			}
+		}
+	}
+	catch(const std::runtime_error& e)
+	{
+		throw FileIOError(std::format(
+			"Error loading ASCII data from element {}, detail: {}", element.name, e.what()), 
+			plyFilePath.toAbsoluteString());
+	}
+}
+
+void PlyFile::loadBinaryElementBuffer(
+	IInputStream& stream, 
+	PlyElement& element, 
+	const PlyIOConfig& config, 
+	const Path& plyFilePath)
+{
+	// The concept is mostly the same as `loadAsciiElementBuffer()`, except here it is adpated to
+	// load binary data instead.
+
+	try
+	{
+		for(std::size_t ei = 0; ei < element.numElements; ++ei)
+		{
+			for(PlyProperty& prop : element.properties)
+			{
+				if(prop.isList())
+				{
+					// First bytes are the size of the list
+					std::array<std::byte, 8> listSizeBuffer;
+					stream.read(sizeof_ply_data_type(prop.listSizeType), listSizeBuffer.data());
+					const auto listSize = static_cast<std::size_t>(bytes_to_ply_data(
+						listSizeBuffer.data(), prop.listSizeType));
+
+					std::vector<std::byte>& rawBuffer = prop.rawListBuffer;
+
+					const std::size_t firstByteIdx = rawBuffer.size();
+					const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
+					const std::size_t numListBytes = sizeofData * listSize;
+					rawBuffer.resize(rawBuffer.size() + numListBytes);
+
+					stream.read(numListBytes, &(rawBuffer[firstByteIdx]));
+
+					for(std::size_t li = 0; li < listSize; ++li)
+					{
+						stream.read();
+						ascii_ply_data_to_bytes(
+							next_token(currentLine, &currentLine), 
+							prop.dataType, 
+							&(rawBuffer[firstByteIdx + li * sizeofData]));
+					}
+
+					PH_ASSERT(!prop.listSizesPrefixSum.empty());
+					prop.listSizesPrefixSum.push_back(prop.listSizesPrefixSum.back() + listSize);
+
+					// Only set list size on the first encounter. Later, if there is a disagreement on 
+					// list size, the list must be variable-sized and we set the size to 0. Also handles
+					// the case where <prop.fixedListSize> is already set to 0.
+					PH_ASSERT_GT(listSize, 0);
+					if(prop.fixedListSize != listSize)
+					{
+						prop.fixedListSize = ei == 0 ? listSize : 0;
+					}
+				}
+				else
+				{
+					std::vector<std::byte>& rawBuffer = element.rawBuffer;
+
+					const std::size_t firstByteIdx = rawBuffer.size();
+					rawBuffer.resize(rawBuffer.size() + sizeof_ply_data_type(prop.dataType));
+
+					ascii_ply_data_to_bytes(
+						next_token(currentLine, &currentLine), 
+						prop.dataType, 
+						&(rawBuffer[firstByteIdx]));
+				}
+			}
+		}
+	}
+	catch(const std::runtime_error& e)
+	{
+		throw FileIOError(std::format(
+			"Error loading binary data from element {}, detail: {}", element.name, e.what()), 
+			plyFilePath.toAbsoluteString());
+	}
+}
+
+void PlyFile::loadNonListBinaryElementBuffer(
+	IInputStream& stream, 
+	PlyElement& element, 
+	const PlyIOConfig& config, 
+	const Path& plyFilePath)
+{
+	// All properties must be non-list so we can read all of them in one go
+	PH_ASSERT(!element.containsList());
+
+	try
+	{
+		PH_ASSERT(!element.isLoaded());
+		
+		std::vector<std::byte>& rawBuffer = element.rawBuffer;
+
+		// Create memory space for all properties
+		const std::size_t numTotalBytes = element.numElements * element.strideSize;
+		rawBuffer.resize(numTotalBytes);
+
+		stream.read(numTotalBytes, rawBuffer.data());
+	}
+	catch(const std::runtime_error& e)
+	{
+		throw FileIOError(std::format(
+			"Error loading non-list binary data from element {}, detail: {}", element.name, e.what()), 
+			plyFilePath.toAbsoluteString());
+	}
 }
 
 }// end namespace ph

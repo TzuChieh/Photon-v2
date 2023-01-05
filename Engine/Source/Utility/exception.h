@@ -12,7 +12,7 @@ namespace ph
 
 // Note: When adding new base types, the implementation of `CPhotonException` needs to be updated.
 
-// A convenient "catch all" type when handling exceptions
+// A convenient "catch all" (including std exceptions) type when handling exceptions
 using Exception = std::exception;
 
 /*! @brief General exception thrown on runtime error.

@@ -84,12 +84,20 @@ class PlyPropertyListValues;
 
 struct PlyProperty final
 {
-	std::string              name;
-	EPlyDataType             dataType;
-	EPlyDataType             listSizeType;
-	std::size_t              strideOffset;
-	std::size_t              fixedListSize;
-	std::vector<std::byte>   rawListBuffer;
+	std::string  name;
+	EPlyDataType dataType;
+	EPlyDataType listSizeType;
+	std::size_t  strideOffset;
+	std::size_t  fixedListSize;
+
+	/*! Raw data storage for a single list property only. Do not contain size information. 
+	See `PlyElement::rawBuffer` for why lists have their own data storages.
+	*/
+	std::vector<std::byte> rawListBuffer;
+
+	/*! For variable-sized list to calculate byte offset and list size in O(1). Not needed for 
+	fixed size list.
+	*/
 	std::vector<std::size_t> listSizesPrefixSum;
 
 	PlyProperty();
@@ -103,12 +111,22 @@ struct PlyElement final
 	std::string              name;
 	std::size_t              numElements;
 	std::vector<PlyProperty> properties;
-	std::vector<std::byte>   rawBuffer;
 	std::size_t              strideSize;
+
+	/*! Raw data storage for properties in a PLY element. Note that this buffer is for non-list
+	properties only, as list may be variable-sized which will make properties no longer locatable
+	via a constant stride size (properties in a PLY element is stored in AoS). Fixed size lists,
+	in theory, can fit into non-list properties without problem; however, most data have list
+	properties separated into its own element already and we find it is also easier to deal with
+	lists with the current policy.
+	Each list has its own raw data storage in `PlyProperty::rawListBuffer`.
+	*/
+	std::vector<std::byte> rawBuffer;
 
 	PlyElement();
 
 	bool isLoaded() const;
+	bool containsList() const;
 	PlyProperty* findProperty(std::string_view name);
 	PlyPropertyValues propertyValues(PlyProperty* prop);
 	PlyPropertyListValues listPropertyValues(PlyProperty* prop);
@@ -208,9 +226,35 @@ public:
 
 private:
 	void parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
-	void loadTextBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
-	void loadBinaryBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
+
+	/*! Load data described by header into memory. */
+	void loadBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
+
+	/*! Load a single PLY element data in ASCII form into memory. */
+	void loadAsciiElementBuffer(
+		IInputStream& stream, 
+		PlyElement& element, 
+		const PlyIOConfig& config, 
+		const Path& plyFilePath);
+
+	/*! Load a single PLY element data in binary form into memory. */
+	void loadBinaryElementBuffer(
+		IInputStream& stream, 
+		PlyElement& element, 
+		const PlyIOConfig& config, 
+		const Path& plyFilePath);
+
+	/*! Load a single non-list PLY element data in binary form into memory. */
+	void loadNonListBinaryElementBuffer(
+		IInputStream& stream,
+		PlyElement& element,
+		const PlyIOConfig& config,
+		const Path& plyFilePath);
+
+	/*! Try to make internal memory footprint smaller after the data is loaded. */
 	void compactBuffer();
+
+	/*! Reserve memory space before loading so there can be fewer dynamic allocations during load. */
 	void reserveBuffer();
 
 private:

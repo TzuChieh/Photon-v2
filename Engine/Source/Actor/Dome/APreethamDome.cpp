@@ -10,33 +10,50 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PreethamDomeActor, Actor);
 
-APreethamDome::APreethamDome() :
-	APreethamDome(
-		0.0_r,
-		45.0_r,
-		3.0_r)
-{}
-
-APreethamDome::APreethamDome(
-	const real sunPhiDegrees,
-	const real sunThetaDegrees,
-	const real turbidity) :
-
-	ADome(),
-
-	m_sunPhi   (math::to_radians(sunPhiDegrees)),
-	m_sunTheta (math::to_radians(sunThetaDegrees)),
-	m_turbidity(turbidity)
-{}
-
 std::shared_ptr<TTexture<math::Spectrum>> APreethamDome::loadRadianceFunction(ActorCookingContext& ctx)
 {
 	checkTurbidity(m_turbidity);
 
+	const math::Vector2R sunPhiTheta = calcSunSphericalCoordinates();
+
 	return std::make_shared<PreethamTexture>(
-		m_sunPhi,
-		m_sunTheta,
+		sunPhiTheta.x(),
+		sunPhiTheta.y(),
 		m_turbidity);
+}
+
+math::Vector2R APreethamDome::calcSunSphericalCoordinates() const
+{
+	math::Vector2R sunPhiTheta(0, 0);
+	if(m_sunPhiThetaDegrees.has_value())
+	{
+		PH_LOG(PreethamDomeActor,
+			"Using direct specification of sun position [{}, {}] (spherical coordinates) in the sky. "
+			"Note that this may not be physically correct since not every position in the sky is "
+			"possible for the sun given a location on Earth.");
+
+		sunPhiTheta.x() = math::to_radians(m_sunPhiThetaDegrees->x());
+		sunPhiTheta.y() = math::to_radians(m_sunPhiThetaDegrees->y());
+	}
+	else
+	{
+		const auto siteLatitude = math::to_radians(m_siteLatitudeDegrees);
+		const auto siteLongitude = math::to_radians(m_siteLongitudeDegrees);
+		const auto standardMeridian = math::to_radians(m_standardMeridianDegrees);
+
+		const auto solarTime24H = math::mean_solar_time_to_solar_time_24H(
+			m_standardTime24H,
+			standardMeridian,
+			siteLongitude,
+			static_cast<real>(m_julianDate));
+
+		sunPhiTheta = math::sun_sky_phi_theta(
+			solarTime24H,
+			static_cast<real>(m_julianDate),
+			siteLatitude);
+	}
+
+	return sunPhiTheta;
 }
 
 void APreethamDome::checkTurbidity(const real turbidity)
@@ -47,25 +64,6 @@ void APreethamDome::checkTurbidity(const real turbidity)
 			"turbidity values not in [2, 10] may cause rendering artifacts as "
 			"the fitting might break (this is the range being tested in the paper)");
 	}
-}
-
-APreethamDome& APreethamDome::operator = (APreethamDome rhs)
-{
-	swap(*this, rhs);
-
-	return *this;
-}
-
-void swap(APreethamDome& first, APreethamDome& second)
-{
-	// Enable ADL
-	using std::swap;
-
-	swap(static_cast<ADome&>(first), static_cast<ADome&>(second));
-
-	swap(first.m_sunPhi,    second.m_sunPhi);
-	swap(first.m_sunTheta,  second.m_sunTheta);
-	swap(first.m_turbidity, second.m_turbidity);
 }
 
 }// end namespace ph
