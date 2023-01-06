@@ -28,9 +28,10 @@ math::Vector2R APreethamDome::calcSunSphericalCoordinates() const
 	if(m_sunPhiThetaDegrees.has_value())
 	{
 		PH_LOG(PreethamDomeActor,
-			"Using direct specification of sun position [{}, {}] (spherical coordinates) in the sky. "
-			"Note that this may not be physically correct since not every position in the sky is "
-			"possible for the sun given a location on Earth.");
+			"Using direct specification of sun position [{} deg, {} deg] (spherical coordinates) "
+			"in the sky. Note that this may not be physically correct since not every position "
+			"in the sky is possible for the sun given a location on Earth.",
+			m_sunPhiThetaDegrees->x(), m_sunPhiThetaDegrees->y());
 
 		sunPhiTheta.x() = math::to_radians(m_sunPhiThetaDegrees->x());
 		sunPhiTheta.y() = math::to_radians(m_sunPhiThetaDegrees->y());

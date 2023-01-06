@@ -166,8 +166,15 @@ class PlyPropertyListValues final
 public:
 	float64 get(std::size_t listIndex, std::size_t listElementIndex) const;
 	void set(std::size_t listIndex, std::size_t listElementIndex, float64 value);
+	
+	/*! @brief Number of lists in this property.
+	*/
 	std::size_t size() const;
+
+	/*! @brief Size of the list on index @p listIndex.
+	*/
 	std::size_t listSize(std::size_t listIndex) const;
+
 	bool isFixedSizeList() const;
 	std::size_t fixedListSize() const;
 	operator bool() const;

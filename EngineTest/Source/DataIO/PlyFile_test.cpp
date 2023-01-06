@@ -180,7 +180,81 @@ TEST(PlyFileTest, LoadSmallAsciiMesh)
 {
 	// quad
 	{
-		// TODO
+		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_quad.ply")));
+
+		PlyElement* const vertexElement = file.findElement("vertex");
+		ASSERT_TRUE(vertexElement);
+		EXPECT_EQ(vertexElement->numElements, 4);
+
+		PlyElement* const faceElement = file.findElement("face");
+		ASSERT_TRUE(faceElement);
+		EXPECT_EQ(faceElement->numElements, 2);
+
+		auto xValues = vertexElement->propertyValues(vertexElement->findProperty("x"));
+		auto yValues = vertexElement->propertyValues(vertexElement->findProperty("y"));
+		auto zValues = vertexElement->propertyValues(vertexElement->findProperty("z"));
+		auto nxValues = vertexElement->propertyValues(vertexElement->findProperty("nx"));
+		auto nyValues = vertexElement->propertyValues(vertexElement->findProperty("ny"));
+		auto nzValues = vertexElement->propertyValues(vertexElement->findProperty("nz"));
+		auto sValues = vertexElement->propertyValues(vertexElement->findProperty("s"));
+		auto tValues = vertexElement->propertyValues(vertexElement->findProperty("t"));
+		ASSERT_TRUE(xValues);
+		ASSERT_TRUE(yValues);
+		ASSERT_TRUE(zValues);
+		ASSERT_TRUE(nxValues);
+		ASSERT_TRUE(nyValues);
+		ASSERT_TRUE(nzValues);
+		ASSERT_TRUE(sValues);
+		ASSERT_TRUE(tValues);
+
+		EXPECT_DOUBLE_EQ(xValues.get(0), -1);
+		EXPECT_DOUBLE_EQ(yValues.get(0), -1);
+		EXPECT_DOUBLE_EQ(zValues.get(0), 0);
+		EXPECT_DOUBLE_EQ(nxValues.get(0), 0);
+		EXPECT_DOUBLE_EQ(nyValues.get(0), 0);
+		EXPECT_DOUBLE_EQ(nzValues.get(0), 1);
+		EXPECT_DOUBLE_EQ(sValues.get(0), 0);
+		EXPECT_DOUBLE_EQ(tValues.get(0), 0);
+
+		EXPECT_DOUBLE_EQ(xValues.get(1), 1);
+		EXPECT_DOUBLE_EQ(yValues.get(1), -1);
+		EXPECT_DOUBLE_EQ(zValues.get(1), 0);
+		EXPECT_DOUBLE_EQ(nxValues.get(1), 0);
+		EXPECT_DOUBLE_EQ(nyValues.get(1), 0);
+		EXPECT_DOUBLE_EQ(nzValues.get(1), 1);
+		EXPECT_DOUBLE_EQ(sValues.get(1), 1);
+		EXPECT_DOUBLE_EQ(tValues.get(1), 0);
+
+		EXPECT_DOUBLE_EQ(xValues.get(2), 1);
+		EXPECT_DOUBLE_EQ(yValues.get(2), 1);
+		EXPECT_DOUBLE_EQ(zValues.get(2), 0);
+		EXPECT_DOUBLE_EQ(nxValues.get(2), 0);
+		EXPECT_DOUBLE_EQ(nyValues.get(2), 0);
+		EXPECT_DOUBLE_EQ(nzValues.get(2), 1);
+		EXPECT_DOUBLE_EQ(sValues.get(2), 1);
+		EXPECT_DOUBLE_EQ(tValues.get(2), 1);
+
+		EXPECT_DOUBLE_EQ(xValues.get(3), -1);
+		EXPECT_DOUBLE_EQ(yValues.get(3), 1);
+		EXPECT_DOUBLE_EQ(zValues.get(3), 0);
+		EXPECT_DOUBLE_EQ(nxValues.get(3), 0);
+		EXPECT_DOUBLE_EQ(nyValues.get(3), 0);
+		EXPECT_DOUBLE_EQ(nzValues.get(3), 1);
+		EXPECT_DOUBLE_EQ(sValues.get(3), 0);
+		EXPECT_DOUBLE_EQ(tValues.get(3), 1);
+
+		auto vertexIndicesValues = faceElement->listPropertyValues(faceElement->findProperty("vertex_indices"));
+		ASSERT_TRUE(vertexIndicesValues);
+		EXPECT_TRUE(vertexIndicesValues.isFixedSizeList());
+		EXPECT_EQ(vertexIndicesValues.size(), 2);
+
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(0, 0)), 0);
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(0, 1)), 1);
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(0, 2)), 2);
+
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(1, 0)), 0);
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(1, 1)), 2);
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(1, 2)), 3);
 	}
 }
 
@@ -188,6 +262,80 @@ TEST(PlyFileTest, LoadSmallBinaryMesh)
 {
 	// the same quad as the one in `LoadSmallAsciiMesh`, in little endian
 	{
-		// TODO
+		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/binary_quad.ply")));
+
+		PlyElement* const vertexElement = file.findElement("vertex");
+		ASSERT_TRUE(vertexElement);
+		EXPECT_EQ(vertexElement->numElements, 4);
+
+		PlyElement* const faceElement = file.findElement("face");
+		ASSERT_TRUE(faceElement);
+		EXPECT_EQ(faceElement->numElements, 2);
+
+		auto xValues = vertexElement->propertyValues(vertexElement->findProperty("x"));
+		auto yValues = vertexElement->propertyValues(vertexElement->findProperty("y"));
+		auto zValues = vertexElement->propertyValues(vertexElement->findProperty("z"));
+		auto nxValues = vertexElement->propertyValues(vertexElement->findProperty("nx"));
+		auto nyValues = vertexElement->propertyValues(vertexElement->findProperty("ny"));
+		auto nzValues = vertexElement->propertyValues(vertexElement->findProperty("nz"));
+		auto sValues = vertexElement->propertyValues(vertexElement->findProperty("texture_u"));
+		auto tValues = vertexElement->propertyValues(vertexElement->findProperty("texture_v"));
+		ASSERT_TRUE(xValues);
+		ASSERT_TRUE(yValues);
+		ASSERT_TRUE(zValues);
+		ASSERT_TRUE(nxValues);
+		ASSERT_TRUE(nyValues);
+		ASSERT_TRUE(nzValues);
+		ASSERT_TRUE(sValues);
+		ASSERT_TRUE(tValues);
+
+		EXPECT_DOUBLE_EQ(xValues.get(0), -1);
+		EXPECT_DOUBLE_EQ(yValues.get(0), -1);
+		EXPECT_DOUBLE_EQ(zValues.get(0), 0);
+		EXPECT_DOUBLE_EQ(nxValues.get(0), 0);
+		EXPECT_DOUBLE_EQ(nyValues.get(0), 0);
+		EXPECT_DOUBLE_EQ(nzValues.get(0), 1);
+		EXPECT_DOUBLE_EQ(sValues.get(0), 0);
+		EXPECT_DOUBLE_EQ(tValues.get(0), 0);
+
+		EXPECT_DOUBLE_EQ(xValues.get(1), 1);
+		EXPECT_DOUBLE_EQ(yValues.get(1), -1);
+		EXPECT_DOUBLE_EQ(zValues.get(1), 0);
+		EXPECT_DOUBLE_EQ(nxValues.get(1), 0);
+		EXPECT_DOUBLE_EQ(nyValues.get(1), 0);
+		EXPECT_DOUBLE_EQ(nzValues.get(1), 1);
+		EXPECT_DOUBLE_EQ(sValues.get(1), 1);
+		EXPECT_DOUBLE_EQ(tValues.get(1), 0);
+
+		EXPECT_DOUBLE_EQ(xValues.get(2), 1);
+		EXPECT_DOUBLE_EQ(yValues.get(2), 1);
+		EXPECT_DOUBLE_EQ(zValues.get(2), 0);
+		EXPECT_DOUBLE_EQ(nxValues.get(2), 0);
+		EXPECT_DOUBLE_EQ(nyValues.get(2), 0);
+		EXPECT_DOUBLE_EQ(nzValues.get(2), 1);
+		EXPECT_DOUBLE_EQ(sValues.get(2), 1);
+		EXPECT_DOUBLE_EQ(tValues.get(2), 1);
+
+		EXPECT_DOUBLE_EQ(xValues.get(3), -1);
+		EXPECT_DOUBLE_EQ(yValues.get(3), 1);
+		EXPECT_DOUBLE_EQ(zValues.get(3), 0);
+		EXPECT_DOUBLE_EQ(nxValues.get(3), 0);
+		EXPECT_DOUBLE_EQ(nyValues.get(3), 0);
+		EXPECT_DOUBLE_EQ(nzValues.get(3), 1);
+		EXPECT_DOUBLE_EQ(sValues.get(3), 0);
+		EXPECT_DOUBLE_EQ(tValues.get(3), 1);
+
+		auto vertexIndicesValues = faceElement->listPropertyValues(faceElement->findProperty("vertex_indices"));
+		ASSERT_TRUE(vertexIndicesValues);
+		EXPECT_TRUE(vertexIndicesValues.isFixedSizeList());
+		EXPECT_EQ(vertexIndicesValues.size(), 2);
+
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(0, 0)), 0);
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(0, 1)), 1);
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(0, 2)), 2);
+
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(1, 0)), 0);
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(1, 1)), 2);
+		EXPECT_EQ(static_cast<int>(vertexIndicesValues.get(1, 2)), 3);
 	}
 }
