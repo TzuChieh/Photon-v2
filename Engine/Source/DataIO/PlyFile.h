@@ -24,10 +24,10 @@ namespace ph { class IInputStream; }
 namespace ph
 {
 
-enum class EPlyFileFormat
+enum class EPlyDataFormat
 {
 	ASCII = 0,
-	Binary,
+	BinaryLittleEndian,
 	BinaryBigEndian,
 
 	NUM
@@ -203,8 +203,11 @@ public:
 
 	PlyElement* findElement(std::string_view name);
 	std::size_t numElements() const;
-	EPlyFileFormat getFormat() const;
-	void setFormat(EPlyFileFormat format);
+
+	EPlyDataFormat getInputFormat() const;
+	void setInputFormat(EPlyDataFormat format);
+	EPlyDataFormat getOutputFormat() const;
+	void setOutputFormat(EPlyDataFormat format);
 
 	/*! @brief Access to comments in the file.
 	There will be no comments if PlyIOConfig::bIgnoreComments is set.
@@ -225,31 +228,39 @@ public:
 	SemanticVersion getVersion() const;
 
 private:
+	/*! Parse and append to existing header info. */
 	void parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
 
-	/*! Load data described by header into memory. */
+	/*! Load data described by header into memory. Already loaded elements do not participate in
+	the data description of the current buffer/stream.
+	*/
 	void loadBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
 
-	/*! Load a single PLY element data in ASCII form into memory. */
+	/*! Load PLY element data in ASCII form into memory. */
 	void loadAsciiElementBuffer(
 		IInputStream& stream, 
 		PlyElement& element, 
 		const PlyIOConfig& config, 
 		const Path& plyFilePath);
 
-	/*! Load a single PLY element data in binary form into memory. */
+	/*! Load PLY element data in binary form into memory. */
 	void loadBinaryElementBuffer(
 		IInputStream& stream, 
 		PlyElement& element, 
 		const PlyIOConfig& config, 
 		const Path& plyFilePath);
 
-	/*! Load a single non-list PLY element data in binary form into memory. */
+	/*! Load non-list PLY element data in binary form into memory. */
 	void loadNonListBinaryElementBuffer(
 		IInputStream& stream,
 		PlyElement& element,
 		const PlyIOConfig& config,
 		const Path& plyFilePath);
+
+	void loadSingleBinaryPlyDataToBuffer(
+		IInputStream& stream, 
+		EPlyDataType dataType, 
+		std::byte* out_buffer);
 
 	/*! Try to make internal memory footprint smaller after the data is loaded. */
 	void compactBuffer();
@@ -258,7 +269,9 @@ private:
 	void reserveBuffer();
 
 private:
-	EPlyFileFormat           m_format;
+	EPlyDataFormat           m_inputFormat;
+	EPlyDataFormat           m_outputFormat;
+	EPlyDataFormat           m_nativeFormat;
 	SemanticVersion          m_version;
 	std::vector<std::string> m_comments;
 	std::vector<PlyElement>  m_elements;

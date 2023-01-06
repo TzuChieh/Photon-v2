@@ -19,7 +19,7 @@ TEST(PlyFileTest, LoadSimpleAscii)
 
 		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_property.ply")), config);
 
-		EXPECT_EQ(file.getFormat(), EPlyFileFormat::ASCII);
+		EXPECT_EQ(file.getInputFormat(), EPlyDataFormat::ASCII);
 		EXPECT_EQ(file.getVersion(), SemanticVersion(1, 0, 0));
 
 		EXPECT_EQ(file.numComments(), 2);
@@ -86,7 +86,7 @@ TEST(PlyFileTest, LoadSimpleAscii)
 
 		PlyFile file(Path(PH_TEST_RESOURCE_PATH("PLY/ascii_list.ply")), config);
 
-		EXPECT_EQ(file.getFormat(), EPlyFileFormat::ASCII);
+		EXPECT_EQ(file.getInputFormat(), EPlyDataFormat::ASCII);
 		EXPECT_EQ(file.getVersion(), SemanticVersion(1, 0, 0));
 		EXPECT_EQ(file.numComments(), 0);
 		EXPECT_EQ(file.numElements(), 1);
@@ -173,5 +173,21 @@ TEST(PlyFileTest, LoadSimpleAsciiWithHelperClasses)
 				EXPECT_EQ(listValues.get(li, i), li * 3 + i);
 			}
 		}
+	}
+}
+
+TEST(PlyFileTest, LoadSmallAsciiMesh)
+{
+	// quad
+	{
+		// TODO
+	}
+}
+
+TEST(PlyFileTest, LoadSmallBinaryMesh)
+{
+	// the same quad as the one in `LoadSmallAsciiMesh`, in little endian
+	{
+		// TODO
 	}
 }

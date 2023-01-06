@@ -1,9 +1,11 @@
 #include "DataIO/PlyFile.h"
 #include "Common/logging.h"
+#include "Common/memory.h"
 #include "DataIO/Stream/BinaryFileInputStream.h"
 #include "DataIO/Stream/ByteBufferInputStream.h"
 #include "DataIO/io_exceptions.h"
 #include "Utility/string_utils.h"
+#include "Utility/utility.h"
 
 #include <type_traits>
 #include <memory>
@@ -11,6 +13,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <array>
+#include <bit>
 
 namespace ph
 {
@@ -32,26 +35,26 @@ enum class EPlyHeaderEntry
 	NUM
 };
 
-inline std::string_view format_to_ply_keyword(const EPlyFileFormat format)
+inline std::string_view format_to_ply_keyword(const EPlyDataFormat format)
 {
 	switch(format)
 	{
-	case EPlyFileFormat::Binary:          return "binary_little_endian";
-	case EPlyFileFormat::ASCII:           return "ascii";
-	case EPlyFileFormat::BinaryBigEndian: return "binary_big_endian";
+	case EPlyDataFormat::ASCII:              return "ascii";
+	case EPlyDataFormat::BinaryLittleEndian: return "binary_little_endian";
+	case EPlyDataFormat::BinaryBigEndian:    return "binary_big_endian";
 	default: 
 		PH_LOG_WARNING(PlyFile, "Unknown PLY format, cannot convert to keyword.");
 		return "";
 	}
 }
 
-inline EPlyFileFormat ply_keyword_to_format(const std::string_view keyword)
+inline EPlyDataFormat ply_keyword_to_format(const std::string_view keyword)
 {
-	using Value = std::underlying_type_t<EPlyFileFormat>;
+	using Value = std::underlying_type_t<EPlyDataFormat>;
 
-	for(Value ei = 0; ei < static_cast<Value>(EPlyFileFormat::NUM); ++ei)
+	for(Value ei = 0; ei < static_cast<Value>(EPlyDataFormat::NUM); ++ei)
 	{
-		const auto enumValue = static_cast<EPlyFileFormat>(ei);
+		const auto enumValue = static_cast<EPlyDataFormat>(ei);
 		if(keyword == format_to_ply_keyword(enumValue))
 		{
 			return enumValue;
@@ -59,7 +62,7 @@ inline EPlyFileFormat ply_keyword_to_format(const std::string_view keyword)
 	}
 
 	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify format; assuming ASCII.", keyword);
-	return EPlyFileFormat::ASCII;
+	return EPlyDataFormat::ASCII;
 }
 
 inline std::string_view entry_to_ply_keyword(const EPlyHeaderEntry entry)
@@ -646,11 +649,31 @@ PlyPropertyListValues::operator bool() const
 }
 
 PlyFile::PlyFile() :
-	m_format  (EPlyFileFormat::ASCII),
-	m_version (1, 0, 0),
-	m_comments(),
-	m_elements()
-{}
+	m_inputFormat (EPlyDataFormat::ASCII),
+	m_outputFormat(EPlyDataFormat::ASCII),
+	m_nativeFormat(EPlyDataFormat::BinaryLittleEndian),
+	m_version     (1, 0, 0),
+	m_comments    (),
+	m_elements    ()
+{
+	// We will only ever store input data in binary format (in native byte ordering)
+	switch(std::endian::native)
+	{
+	case std::endian::little:
+		m_nativeFormat = EPlyDataFormat::BinaryLittleEndian;
+		break;
+
+	case std::endian::big:
+		m_nativeFormat = EPlyDataFormat::BinaryBigEndian;
+		break;
+
+	default:
+		PH_LOG_WARNING(PlyFile, 
+			"unsupported native byte ordering {} detected", 
+			enum_to_value(std::endian::native));
+		break;
+	}
+}
 
 PlyFile::PlyFile(const Path& plyFilePath) :
 	PlyFile(plyFilePath, PlyIOConfig())
@@ -680,11 +703,6 @@ std::size_t PlyFile::numElements() const
 	return m_elements.size();
 }
 
-EPlyFileFormat PlyFile::getFormat() const
-{
-	return m_format;
-}
-
 std::size_t PlyFile::numComments() const
 {
 	return m_comments.size();
@@ -704,9 +722,24 @@ std::string_view PlyFile::getComment(const std::size_t commentIndex) const
 	}
 }
 
-void PlyFile::setFormat(const EPlyFileFormat format)
+EPlyDataFormat PlyFile::getInputFormat() const
 {
-	m_format = format;
+	return m_inputFormat;
+}
+
+void PlyFile::setInputFormat(const EPlyDataFormat format)
+{
+	m_inputFormat = format;
+}
+
+EPlyDataFormat PlyFile::getOutputFormat() const
+{
+	return m_outputFormat;
+}
+
+void PlyFile::setOutputFormat(const EPlyDataFormat format)
+{
+	m_outputFormat = format;
 }
 
 void PlyFile::clearBuffer()
@@ -869,59 +902,67 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 		switch(entry)
 		{
 		case EPlyHeaderEntry::Property:
+		{
 			if(m_elements.empty())
 			{
 				throw FileIOError("PLY header defines a property without element", plyFilePath.toAbsoluteString());
 			}
 
+			PH_ASSERT(!m_elements.empty());
+			PlyElement& currentElement = m_elements.back();
+
+			PlyProperty newProp;
+
+			const auto tokenAfterEntry = next_token(headerLine, &headerLine);
+			if(tokenAfterEntry == "list")
 			{
-				PH_ASSERT(!m_elements.empty());
-				PlyElement& currentElement = m_elements.back();
-
-				PlyProperty newProp;
-
-				const auto tokenAfterEntry = next_token(headerLine, &headerLine);
-				if(tokenAfterEntry == "list")
-				{
-					newProp.listSizeType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
-					newProp.dataType     = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
-					newProp.name         = next_token(headerLine);
-				}
-				else
-				{
-					newProp.dataType     = ply_keyword_to_data_type(tokenAfterEntry);
-					newProp.name         = next_token(headerLine);
-					newProp.strideOffset = currentElement.strideSize;
-
-					currentElement.strideSize += sizeof_ply_data_type(newProp.dataType);
-				}
-
-				currentElement.properties.push_back(newProp);
+				newProp.listSizeType = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+				newProp.dataType     = ply_keyword_to_data_type(next_token(headerLine, &headerLine));
+				newProp.name         = next_token(headerLine);
 			}
+			else
+			{
+				newProp.dataType     = ply_keyword_to_data_type(tokenAfterEntry);
+				newProp.name         = next_token(headerLine);
+				newProp.strideOffset = currentElement.strideSize;
+
+				currentElement.strideSize += sizeof_ply_data_type(newProp.dataType);
+			}
+
+			currentElement.properties.push_back(newProp);
 			break;
+		}
 
 		case EPlyHeaderEntry::Element:
+		{
 			m_elements.push_back(PlyElement());
 			m_elements.back().name = next_token(headerLine, &headerLine);
 			m_elements.back().numElements = parse_int<std::size_t>(next_token(headerLine));
 			break;
+		}
 
 		case EPlyHeaderEntry::Comment:
+		{
 			if(!config.bIgnoreComments)
 			{
 				// The rest of the line should all be comments
 				m_comments.push_back(std::string(headerLine));
 			}
 			break;
+		}
 
 		case EPlyHeaderEntry::Format:
-			m_format  = ply_keyword_to_format(next_token(headerLine, &headerLine));
+		{
+			m_inputFormat = ply_keyword_to_format(next_token(headerLine, &headerLine));
 			m_version = SemanticVersion(next_token(headerLine));
 			break;
+		}
 
 		default:
+		{
 			PH_ASSERT_UNREACHABLE_SECTION();
 			break;
+		}
 		}
 	}// end while each header line
 }
@@ -946,14 +987,12 @@ void PlyFile::loadBuffer(IInputStream& stream, const PlyIOConfig& config, const 
 			}
 		}
 
-		if(m_format == EPlyFileFormat::ASCII)
+		if(m_inputFormat == EPlyDataFormat::ASCII)
 		{
 			loadAsciiElementBuffer(stream, element, config, plyFilePath);
 		}
 		else
 		{
-			// TODO: endianness
-
 			if(element.containsList())
 			{
 				loadBinaryElementBuffer(stream, element, config, plyFilePath);
@@ -972,11 +1011,14 @@ void PlyFile::loadAsciiElementBuffer(
 	const PlyIOConfig& config, 
 	const Path& plyFilePath)
 {
+	PH_ASSERT(m_inputFormat == EPlyDataFormat::ASCII);
+
 	using namespace string_utils;
 
 	std::string lineBuffer;
 	lineBuffer.reserve(128);
 
+	// New data will append to existing data
 	try
 	{
 		for(std::size_t ei = 0; ei < element.numElements; ++ei)
@@ -999,7 +1041,7 @@ void PlyFile::loadAsciiElementBuffer(
 					std::vector<std::byte>& rawBuffer = prop.rawListBuffer;
 
 					const std::size_t firstByteIdx = rawBuffer.size();
-					const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
+					const std::size_t sizeofData = sizeof_ply_data_type(prop.dataType);
 					rawBuffer.resize(rawBuffer.size() + sizeofData * listSize);
 					for(std::size_t li = 0; li < listSize; ++li)
 					{
@@ -1050,9 +1092,12 @@ void PlyFile::loadBinaryElementBuffer(
 	const PlyIOConfig& config, 
 	const Path& plyFilePath)
 {
+	PH_ASSERT(m_inputFormat != EPlyDataFormat::ASCII);
+
 	// The concept is mostly the same as `loadAsciiElementBuffer()`, except here it is adpated to
 	// load binary data instead.
 
+	// New data will append to existing data
 	try
 	{
 		for(std::size_t ei = 0; ei < element.numElements; ++ei)
@@ -1063,18 +1108,22 @@ void PlyFile::loadBinaryElementBuffer(
 				{
 					// First bytes are the size of the list
 					std::array<std::byte, 8> listSizeBuffer;
-					stream.read(sizeof_ply_data_type(prop.listSizeType), listSizeBuffer.data());
+					loadSingleBinaryPlyDataToBuffer(stream, prop.listSizeType, listSizeBuffer.data());
 					const auto listSize = static_cast<std::size_t>(bytes_to_ply_data(
 						listSizeBuffer.data(), prop.listSizeType));
 
 					std::vector<std::byte>& rawBuffer = prop.rawListBuffer;
 
 					const std::size_t firstByteIdx = rawBuffer.size();
-					const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
-					const std::size_t numListBytes = sizeofData * listSize;
-					rawBuffer.resize(rawBuffer.size() + numListBytes);
-
-					stream.read(numListBytes, &(rawBuffer[firstByteIdx]));
+					const std::size_t sizeofData = sizeof_ply_data_type(prop.dataType);
+					rawBuffer.resize(rawBuffer.size() + sizeofData * listSize);
+					for(std::size_t li = 0; li < listSize; ++li)
+					{
+						loadSingleBinaryPlyDataToBuffer(
+							stream, 
+							prop.dataType, 
+							&(rawBuffer[firstByteIdx + li * sizeofData]));
+					}
 
 					PH_ASSERT(!prop.listSizesPrefixSum.empty());
 					prop.listSizesPrefixSum.push_back(prop.listSizesPrefixSum.back() + listSize);
@@ -1093,10 +1142,9 @@ void PlyFile::loadBinaryElementBuffer(
 					std::vector<std::byte>& rawBuffer = element.rawBuffer;
 
 					const std::size_t firstByteIdx = rawBuffer.size();
-					const std::size_t sizeofData   = sizeof_ply_data_type(prop.dataType);
+					const std::size_t sizeofData = sizeof_ply_data_type(prop.dataType);
 					rawBuffer.resize(rawBuffer.size() + sizeofData);
-
-					stream.read(sizeofData, &(rawBuffer[firstByteIdx]));
+					loadSingleBinaryPlyDataToBuffer(stream, prop.dataType, &(rawBuffer[firstByteIdx]));
 				}
 			}
 		}
@@ -1115,26 +1163,69 @@ void PlyFile::loadNonListBinaryElementBuffer(
 	const PlyIOConfig& config, 
 	const Path& plyFilePath)
 {
-	// All properties must be non-list so we can read all of them in one go
+	PH_ASSERT(m_inputFormat != EPlyDataFormat::ASCII);
 	PH_ASSERT(!element.containsList());
 
+	// New data will append to existing data
 	try
 	{
-		PH_ASSERT(!element.isLoaded());
-		
 		std::vector<std::byte>& rawBuffer = element.rawBuffer;
 
-		// Create memory space for all properties
-		const std::size_t numTotalBytes = element.numElements * element.strideSize;
-		rawBuffer.resize(numTotalBytes);
+		if(m_nativeFormat == m_inputFormat)
+		{
+			// Create memory space for all properties
+			const std::size_t firstByteIdx = rawBuffer.size();
+			const std::size_t numTotalBytes = element.numElements * element.strideSize;
+			rawBuffer.resize(rawBuffer.size() + numTotalBytes);
 
-		stream.read(numTotalBytes, rawBuffer.data());
+			// Read all of them in one go
+			stream.read(numTotalBytes, &(rawBuffer[firstByteIdx]));
+		}
+		else
+		{
+			for(std::size_t ei = 0; ei < element.numElements; ++ei)
+			{
+				for(PlyProperty& prop : element.properties)
+				{
+					const std::size_t firstByteIdx = rawBuffer.size();
+					const std::size_t sizeofData = sizeof_ply_data_type(prop.dataType);
+					rawBuffer.resize(rawBuffer.size() + sizeofData);
+					loadSingleBinaryPlyDataToBuffer(stream, prop.dataType, &(rawBuffer[firstByteIdx]));
+				}
+			}
+		}
 	}
 	catch(const std::runtime_error& e)
 	{
 		throw FileIOError(std::format(
 			"Error loading non-list binary data from element {}, detail: {}", element.name, e.what()), 
 			plyFilePath.toAbsoluteString());
+	}
+}
+
+void PlyFile::loadSingleBinaryPlyDataToBuffer(
+	IInputStream& stream,
+	const EPlyDataType dataType,
+	std::byte* const out_buffer)
+{
+	PH_ASSERT(m_inputFormat != EPlyDataFormat::ASCII);
+	PH_ASSERT(out_buffer);
+
+	const std::size_t sizeofData = sizeof_ply_data_type(dataType);
+	stream.read(sizeofData, out_buffer);
+
+	if(m_nativeFormat != m_inputFormat)
+	{
+		PH_ASSERT(m_nativeFormat != EPlyDataFormat::ASCII);
+
+		switch(sizeofData)
+		{
+		case 1: reverse_bytes<1>(out_buffer); break;
+		case 2: reverse_bytes<2>(out_buffer); break;
+		case 4: reverse_bytes<4>(out_buffer); break;
+		case 8: reverse_bytes<8>(out_buffer); break;
+		default: PH_ASSERT_UNREACHABLE_SECTION(); break;
+		}
 	}
 }
 

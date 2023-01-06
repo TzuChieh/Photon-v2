@@ -120,4 +120,15 @@ inline auto make_aligned_memory(const std::size_t numBytes, const std::size_t al
 		: nullptr;
 }
 
+template<typename T>
+void from_bytes(const std::byte* srcBytes, T* out_dstValue);
+
+template<typename T>
+void to_bytes(const T& srcValue, std::byte* out_dstBytes);
+
+template<std::size_t N>
+void reverse_bytes(std::byte* bytes);
+
 }// end namespace ph
+
+#include "Common/memory.ipp"
