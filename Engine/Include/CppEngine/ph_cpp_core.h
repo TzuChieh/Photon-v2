@@ -36,8 +36,12 @@ std::vector<const SdlEnum*> get_registered_sdl_enums();
 
 Path get_config_directory(EEngineProject project);
 
+/*! @brief Directory to resources required by the project.
+*/
 Path get_internal_resource_directory(EEngineProject project);
 
-Path get_core_resource_directory(EEngineProject project);
+/*! @brief Directory to additional/optional resources used by the project.
+*/
+Path get_resource_directory(EEngineProject project);
 
 }// end namespace ph

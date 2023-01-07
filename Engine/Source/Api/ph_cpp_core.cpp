@@ -257,7 +257,7 @@ Path get_internal_resource_directory(const EEngineProject project)
 	return Path(PH_INTERNAL_RESOURCE_DIRECTORY).append(to_string(project));
 }
 
-Path get_core_resource_directory(const EEngineProject project)
+Path get_resource_directory(const EEngineProject project)
 {
 	return Path(PH_RESOURCE_DIRECTORY).append(to_string(project));
 }
