@@ -37,20 +37,20 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
 
     creator = sdl.LightActorCreator()
     creator.set_data_name(actor_name)
-    creator.set_light_source(sdl.LightSource(source_name))
+    creator.set_source(sdl.LightSource(source_name))
     console.queue_command(creator)
 
     translator = sdl.LightActorTranslate()
     translator.set_target_name(actor_name)
-    translator.set_factor(sdl.Vector3(pos))
+    translator.set_amount(sdl.Vector3(pos))
     console.queue_command(translator)
 
     rotator = sdl.LightActorRotate()
     rotator.set_target_name(actor_name)
-    rotator.set_factor(sdl.Quaternion((rot.x, rot.y, rot.z, rot.w)))
+    rotator.set_rotation(sdl.Quaternion((rot.x, rot.y, rot.z, rot.w)))
     console.queue_command(rotator)
 
     scaler = sdl.LightActorScale()
     scaler.set_target_name(actor_name)
-    scaler.set_factor(sdl.Vector3(scale))
+    scaler.set_amount(sdl.Vector3(scale))
     console.queue_command(scaler)

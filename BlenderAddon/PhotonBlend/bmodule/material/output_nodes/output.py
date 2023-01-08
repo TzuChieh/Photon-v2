@@ -21,7 +21,7 @@ class PhOutputNode(PhMaterialNode):
 
         creator = sdl.FullMaterialCreator()
         creator.set_data_name(naming.get_mangled_material_name(b_material))
-        creator.set_surface(sdl.SDLMaterial(surface_mat_res_name))
+        creator.set_surface(sdl.Material(surface_mat_res_name))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

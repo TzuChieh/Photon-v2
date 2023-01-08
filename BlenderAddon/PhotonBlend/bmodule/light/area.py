@@ -18,7 +18,7 @@ def light_to_sdl_area_light(b_light: bpy.types.AreaLight, console: SdlConsole):
         creator.set_data_name(source_name)
         creator.set_width(sdl.Real(rec_width))
         creator.set_height(sdl.Real(rec_height))
-        creator.set_linear_srgb(sdl.Vector3(b_light.ph_light_color_linear_srgb))
+        creator.set_color(sdl.Spectrum(b_light.ph_light_color_linear_srgb))
         creator.set_watts(sdl.Real(b_light.ph_light_watts))
     else:
         print("warning: light <%s> has shape %s which is not supported" % b_light.name)

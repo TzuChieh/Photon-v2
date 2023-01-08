@@ -26,6 +26,18 @@ class String(AbstractData):
         return self.string
 
 
+class Enum(AbstractData):
+    def __init__(self, stringID=""):
+        super().__init__()
+        self.stringID = stringID
+
+    def get_type(self):
+        return "enum"
+
+    def generate_data(self):
+        return self.stringID
+
+
 class Integer(AbstractData):
     def __init__(self, integer=0):
         super().__init__()
@@ -126,6 +138,22 @@ class Vector3Array(AbstractData):
     def add(self, vector3):
         self.array.append(vector3)
         return self
+
+
+class Spectrum(AbstractData):
+    def __init__(self, values=(0, 0, 0)):
+        super().__init__()
+        self.values = values
+
+    def get_type(self):
+        return "spectrum"
+
+    def generate_data(self):
+        fragments = ["\""]
+        for value in self.values:
+            fragments.append(str(value) + " ")
+        fragments.append("\"")
+        return "".join(fragments)
 
 
 class Reference(AbstractData):

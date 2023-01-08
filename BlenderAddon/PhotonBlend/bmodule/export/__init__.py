@@ -78,7 +78,7 @@ class Exporter:
         if lightSourceName is not None:
             creator = sdl.LightActorCreator()
             creator.set_data_name(actorLightName)
-            creator.set_light_source(sdl.LightSource(lightSourceName))
+            creator.set_source(sdl.LightSource(lightSourceName))
             self.__sdlconsole.queue_command(creator)
         else:
             print("warning: expecting a none light source name for actor-light %s, not exporting" % actorLightName)
@@ -92,17 +92,17 @@ class Exporter:
 
         translator = sdl.LightActorTranslate()
         translator.set_target_name(actorLightName)
-        translator.set_factor(sdl.Vector3(position))
+        translator.set_amount(sdl.Vector3(position))
         self.__sdlconsole.queue_command(translator)
 
         rotator = sdl.LightActorRotate()
         rotator.set_target_name(actorLightName)
-        rotator.set_factor(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
+        rotator.set_rotation(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
         self.__sdlconsole.queue_command(rotator)
 
-        scaler = sdl.abstractmethodLightActorScale()
+        scaler = sdl.LightActorScale()
         scaler.set_target_name(actorLightName)
-        scaler.set_factor(sdl.Vector3(scale))
+        scaler.set_amount(sdl.Vector3(scale))
         self.__sdlconsole.queue_command(scaler)
 
     def export_actor_model(self, actorModelName, geometryName, materialName, position, rotation, scale):
@@ -126,17 +126,17 @@ class Exporter:
 
         translator = sdl.ModelActorTranslate()
         translator.set_target_name(actorModelName)
-        translator.set_factor(sdl.Vector3(position))
+        translator.set_amount(sdl.Vector3(position))
         self.__sdlconsole.queue_command(translator)
 
         rotator = sdl.ModelActorRotate()
         rotator.set_target_name(actorModelName)
-        rotator.set_factor(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
+        rotator.set_rotation(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
         self.__sdlconsole.queue_command(rotator)
 
         scaler = sdl.ModelActorScale()
         scaler.set_target_name(actorModelName)
-        scaler.set_factor(sdl.Vector3(scale))
+        scaler.set_amount(sdl.Vector3(scale))
         self.__sdlconsole.queue_command(scaler)
 
     # def exportRaw(self, rawText):
@@ -347,8 +347,8 @@ class Exporter:
             creator.set_turbidity(sdl.Real(b_world.ph_preetham_turbidity))
             creator.set_standard_time_24h(sdl.Real(b_world.ph_standard_time))
             creator.set_standard_meridian_degrees(sdl.Real(b_world.ph_standard_meridian))
-            creator.set_site_latitude_decimal(sdl.Real(b_world.ph_latitude))
-            creator.set_site_longitude_decimal(sdl.Real(b_world.ph_longitude))
+            creator.set_site_latitude_degrees(sdl.Real(b_world.ph_latitude))
+            creator.set_site_longitude_degrees(sdl.Real(b_world.ph_longitude))
             creator.set_julian_date(sdl.Integer(b_world.ph_julian_date))
 
         if creator is not None:
@@ -387,9 +387,9 @@ class Exporter:
         visualizer = None
         if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL":
             visualizer = sdl.PathTracingVisualizerCreator()
-            visualizer.set_sample_filter(sdl.String(meta_info.sample_filter_name()))
-            visualizer.set_estimator(sdl.String(meta_info.integrator_type_name()))
-            visualizer.set_scheduler(sdl.String(b_scene.ph_scheduler_type))
+            visualizer.set_sample_filter(sdl.Enum(meta_info.sample_filter_name()))
+            visualizer.set_estimator(sdl.Enum(meta_info.integrator_type_name()))
+            visualizer.set_scheduler(sdl.Enum(b_scene.ph_scheduler_type))
         # elif render_method == "VPM":
         #     renderer = sdl.PmRendererCreator()
         #     renderer.set_mode(sdl.String("vanilla"))
@@ -429,11 +429,11 @@ class Exporter:
     def export_options(self, b_scene):
         top_level_accelerator = None
         if b_scene.ph_top_level_accelerator == 'BF':
-            top_level_accelerator = sdl.String("brute-force")
+            top_level_accelerator = sdl.Enum("brute-force")
         elif b_scene.ph_top_level_accelerator == 'BVH':
-            top_level_accelerator = sdl.String("bvh")
+            top_level_accelerator = sdl.Enum("bvh")
         elif b_scene.ph_top_level_accelerator == 'IKD':
-            top_level_accelerator = sdl.String("indexed-kd-tree")
+            top_level_accelerator = sdl.Enum("indexed-kd-tree")
 
         render_session = sdl.SingleFrameRenderSessionOptionCreator()
         render_session.set_data_name("session")

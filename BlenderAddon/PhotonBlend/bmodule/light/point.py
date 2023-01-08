@@ -10,6 +10,6 @@ def light_to_sdl_point_light(b_light: bpy.types.PointLight, console: SdlConsole)
 
     creator = sdl.PointLightSourceCreator()
     creator.set_data_name(source_name)
-    creator.set_linear_srgb(sdl.Vector3(b_light.ph_light_color_linear_srgb))
+    creator.set_color(sdl.Spectrum(b_light.ph_light_color_linear_srgb))
     creator.set_watts(sdl.Real(b_light.ph_light_watts))
     console.queue_command(creator)

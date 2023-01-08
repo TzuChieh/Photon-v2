@@ -42,8 +42,8 @@ class PhDiffuseSurfaceNode(PhMaterialNode):
             albedo_res_name = naming.get_mangled_input_node_socket_name(albedo_socket, b_material)
             creator.set_data_name(albedo_res_name)
             albedo = albedo_socket.default_value
-            creator.set_value(sdl.Vector3(mathutils.Color((albedo[0], albedo[1], albedo[2]))))
-            creator.set_value_type(sdl.String("ecf-linear-srgb"))
+            creator.set_value(sdl.RealArray(mathutils.Color((albedo[0], albedo[1], albedo[2]))))
+            creator.set_color_space(sdl.Enum("LSRGB"))
             sdlconsole.queue_command(creator)
 
         creator = sdl.MatteOpaqueMaterialCreator()

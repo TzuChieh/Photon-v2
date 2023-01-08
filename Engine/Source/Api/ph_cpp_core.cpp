@@ -225,6 +225,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<ALight>(),
 		get_sdl_class<ADome>(),
 		get_sdl_class<AImageDome>(),
+		get_sdl_class<APreethamDome>(),
 	};
 }
 
