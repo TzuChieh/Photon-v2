@@ -36,16 +36,17 @@ public:
 
 		TSdlReference<SurfaceMaterial, OwnerType> surfaceMaterial("surface", &OwnerType::m_surfaceMaterial);
 		surfaceMaterial.description("A surface material.");
+		surfaceMaterial.optional();
 		clazz.addField(surfaceMaterial);
 
 		TSdlReference<VolumeMaterial, OwnerType> interiorMaterial("interior", &OwnerType::m_interiorMaterial);
 		interiorMaterial.description("A volume material describing the inside of the surface.");
-		interiorMaterial.required();
+		interiorMaterial.optional();
 		clazz.addField(interiorMaterial);
 
 		TSdlReference<VolumeMaterial, OwnerType> exteriorMaterial("exterior", &OwnerType::m_exteriorMaterial);
 		exteriorMaterial.description("A volume material describing the outside of the surface.");
-		exteriorMaterial.required();
+		exteriorMaterial.optional();
 		clazz.addField(exteriorMaterial);
 
 		return clazz;
