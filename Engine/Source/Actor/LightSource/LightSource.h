@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace ph { class ActorCookingContext; }
+namespace ph { class CookingContext; }
 
 namespace ph
 {
@@ -24,19 +24,19 @@ public:
 	// Generates the core emission part of the light source.
 	//
 	virtual std::unique_ptr<Emitter> genEmitter(
-		ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const = 0;
+		CookingContext& ctx, EmitterBuildingMaterial&& data) const = 0;
 
 	// A light source may need to place a corresponding geometry in the scene.
 	// Override this method if there is a need for that. This method will
 	// return nullptr if no geometry is needed.
 	//
-	virtual std::shared_ptr<Geometry> genGeometry(ActorCookingContext& ctx) const;
+	virtual std::shared_ptr<Geometry> genGeometry(CookingContext& ctx) const;
 
 	// Generate a suitable material for the light source if physical entity will
 	// be present in the scene. The default implementation generates a pure diffuse
 	// material with moderate albedo.
 	//
-	virtual std::shared_ptr<Material> genMaterial(ActorCookingContext& ctx) const;
+	virtual std::shared_ptr<Material> genMaterial(CookingContext& ctx) const;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<LightSource>)

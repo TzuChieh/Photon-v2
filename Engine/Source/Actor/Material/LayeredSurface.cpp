@@ -10,7 +10,7 @@ LayeredSurface::LayeredSurface() :
 	m_layers()
 {}
 
-void LayeredSurface::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
+void LayeredSurface::genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	std::vector<real>           alphas;
 	std::vector<math::Spectrum> iorNs;

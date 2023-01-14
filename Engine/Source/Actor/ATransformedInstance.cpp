@@ -4,13 +4,13 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedUnit.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/MotionSource/MotionSource.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
-#include "Actor/ActorCookingContext.h"
+#include "World/Foundation/CookingContext.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
 
@@ -39,7 +39,7 @@ ATransformedInstance& ATransformedInstance::operator = (ATransformedInstance rhs
 	return *this;
 }
 
-CookedUnit ATransformedInstance::cook(ActorCookingContext& ctx)
+CookedUnit ATransformedInstance::cook(CookingContext& ctx)
 {
 	CookedUnit cooked;
 

@@ -4,19 +4,19 @@
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedUnit.h"
 
 #include <memory>
 
 namespace ph
 {
 
-class ActorCookingContext;
+class CookingContext;
 
 class ModelBuilder final : private IMoveOnly
 {
 public:
-	explicit ModelBuilder(ActorCookingContext& ctx);
+	explicit ModelBuilder(CookingContext& ctx);
 
 	ModelBuilder& addIntersectable(std::unique_ptr<Intersectable> isable);
 
@@ -27,8 +27,8 @@ public:
 	CookedUnit claimBuildResult();
 
 private:
-	ActorCookingContext& m_ctx;
-	CookedUnit           m_cookedResults;
+	CookingContext& m_ctx;
+	CookedUnit m_cookedResults;
 };
 
 }// end namespace ph

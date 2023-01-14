@@ -19,7 +19,7 @@ VAbsorptionOnly::VAbsorptionOnly(const math::Spectrum& absorptionCoeff) :
 	m_absorptionCoeff(absorptionCoeff)
 {}
 
-void VAbsorptionOnly::genVolume(ActorCookingContext& ctx, VolumeBehavior& behavior) const
+void VAbsorptionOnly::genVolume(CookingContext& ctx, VolumeBehavior& behavior) const
 {
 	auto blockFunc = std::make_shared<BfConstant>(m_absorptionCoeff);
 	behavior.setOptics(std::make_shared<VoHomoAbsorption>(blockFunc));

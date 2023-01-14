@@ -94,7 +94,7 @@ RasterFileImage::RasterFileImage(Path filePath) :
 {}
 
 std::shared_ptr<TTexture<Image::Array>> RasterFileImage::genNumericTexture(
-	ActorCookingContext& ctx)
+	CookingContext& ctx)
 {
 	auto pixelBuffer = loadPixelBuffer(ctx);// TODO: warn or throw if elements may be discarded (Image::ARRAY_SIZE too small)
 	setResolution(pixelBuffer->getSize());
@@ -107,7 +107,7 @@ std::shared_ptr<TTexture<Image::Array>> RasterFileImage::genNumericTexture(
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
-	ActorCookingContext& ctx)
+	CookingContext& ctx)
 {
 	math::EColorSpace           colorSpace;
 	pixel_texture::EPixelLayout pixelLayout;
@@ -169,7 +169,7 @@ void RasterFileImage::setFilePath(Path filePath)
 }
 
 std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
-	ActorCookingContext&               ctx,
+	CookingContext&                    ctx,
 	math::EColorSpace* const           out_colorSpace,
 	pixel_texture::EPixelLayout* const out_pixelLayout) const
 {

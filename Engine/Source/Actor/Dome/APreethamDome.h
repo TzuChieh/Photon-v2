@@ -21,7 +21,7 @@ Using Preetham model to generate absolute energy from sky.
 class APreethamDome : public ADome
 {
 public:
-	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(ActorCookingContext& ctx) override;
+	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(CookingContext& ctx) override;
 	math::Vector2S getResolution() const override;
 
 private:

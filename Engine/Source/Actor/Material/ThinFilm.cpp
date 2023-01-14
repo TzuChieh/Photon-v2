@@ -13,7 +13,7 @@ ThinFilm::ThinFilm() :
 	SurfaceMaterial()
 {}
 
-void ThinFilm::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
+void ThinFilm::genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	std::vector<math::SampledSpectrum> reflectanceTable(91);
 	std::vector<math::SampledSpectrum> transmittanceTable(91);

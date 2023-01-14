@@ -188,7 +188,7 @@ inline std::array<uint8, N> to_exact_texture_swizzle_map(const std::string_view 
 }// end anonymous namespace
 
 std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
-	ActorCookingContext& ctx)
+	CookingContext& ctx)
 {
 	if(m_swizzleSubscripts.size() > Image::ARRAY_SIZE)
 	{
@@ -217,7 +217,7 @@ std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> UnifiedNumericImage::genColorTexture(
-	ActorCookingContext& ctx)
+	CookingContext& ctx)
 {
 	if(!m_swizzleSubscripts.empty())
 	{
@@ -242,7 +242,7 @@ std::shared_ptr<TTexture<math::Spectrum>> UnifiedNumericImage::genColorTexture(
 	}
 }
 
-std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(ActorCookingContext& ctx)
+std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(CookingContext& ctx)
 {
 	if(m_image)
 	{
@@ -262,7 +262,7 @@ std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(ActorCooking
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTexture(ActorCookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTexture(CookingContext& ctx)
 {
 	if(m_image)
 	{
@@ -277,7 +277,7 @@ std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTextur
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTexture(ActorCookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTexture(CookingContext& ctx)
 {
 	if(m_image)
 	{
@@ -292,7 +292,7 @@ std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTextur
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTexture(ActorCookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTexture(CookingContext& ctx)
 {
 	if(m_image)
 	{

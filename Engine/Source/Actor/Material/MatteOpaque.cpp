@@ -21,7 +21,7 @@ MatteOpaque::MatteOpaque(const math::Vector3R& albedo) :
 	setAlbedo(albedo);
 }
 
-void MatteOpaque::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
+void MatteOpaque::genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_albedo);
 

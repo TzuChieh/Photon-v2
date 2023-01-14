@@ -27,8 +27,8 @@ FullMaterial::FullMaterial(const std::shared_ptr<SurfaceMaterial>& surfaceMateri
 {}
 
 void FullMaterial::genBehaviors(
-	ActorCookingContext& ctx,
-	PrimitiveMetadata&   metadata) const
+	CookingContext& ctx,
+	PrimitiveMetadata& metadata) const
 {
 	if(!m_surfaceMaterial && !m_interiorMaterial && !m_exteriorMaterial)
 	{

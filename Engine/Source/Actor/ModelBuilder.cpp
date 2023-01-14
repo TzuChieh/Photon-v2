@@ -1,12 +1,12 @@
 #include "Actor/ModelBuilder.h"
-#include "Actor/CookedUnit.h"
-#include "Actor/ActorCookingContext.h"
+#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/CookingContext.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 
 namespace ph
 {
 
-ModelBuilder::ModelBuilder(ActorCookingContext& ctx) :
+ModelBuilder::ModelBuilder(CookingContext& ctx) :
 	m_ctx(ctx), m_cookedResults()
 {}
 

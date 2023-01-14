@@ -11,7 +11,7 @@
 
 #include <memory>
 
-namespace ph { class ActorCookingContext; }
+namespace ph { class CookingContext; }
 
 namespace ph
 {
@@ -27,10 +27,10 @@ public:
 	Image();
 
 	virtual std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		ActorCookingContext& ctx) = 0;
+		CookingContext& ctx) = 0;
 
 	virtual std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) = 0;
+		CookingContext& ctx) = 0;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Image>)

@@ -33,7 +33,7 @@ IesAttenuatedSource::IesAttenuatedSource(
 }
 
 std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
-	ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const
+	CookingContext& ctx, EmitterBuildingMaterial&& data) const
 {
 	if(!m_source)
 	{
@@ -85,7 +85,7 @@ std::unique_ptr<Emitter> IesAttenuatedSource::genEmitter(
 	return attenuatedEmitter;
 }
 
-std::shared_ptr<Geometry> IesAttenuatedSource::genGeometry(ActorCookingContext& ctx) const
+std::shared_ptr<Geometry> IesAttenuatedSource::genGeometry(CookingContext& ctx) const
 {
 	if(!m_source)
 	{
@@ -95,7 +95,7 @@ std::shared_ptr<Geometry> IesAttenuatedSource::genGeometry(ActorCookingContext& 
 	return m_source->genGeometry(ctx);
 }
 
-std::shared_ptr<Material> IesAttenuatedSource::genMaterial(ActorCookingContext& ctx) const
+std::shared_ptr<Material> IesAttenuatedSource::genMaterial(CookingContext& ctx) const
 {
 	if(!m_source)
 	{

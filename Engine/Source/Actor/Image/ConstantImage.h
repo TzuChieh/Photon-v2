@@ -36,10 +36,10 @@ public:
 	ConstantImage(std::vector<T> values, math::EColorSpace colorSpace);
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		ActorCookingContext& ctx) override;
+		CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) override;
+		CookingContext& ctx) override;
 
 private:
 	std::vector<float64> m_values;

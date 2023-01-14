@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Intersectable/Intersector/TIndexedKdtreeIntersector.h"
-#include "Actor/CookedDataStorage.h"
+#include "World/Foundation/CookedDataStorage.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 

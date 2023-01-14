@@ -25,7 +25,7 @@ MathImage::MathImage() :
 {}
 
 std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
-	ActorCookingContext& ctx)
+	CookingContext& ctx)
 {
 	if(!m_operandImage)
 	{
@@ -74,7 +74,7 @@ std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> MathImage::genColorTexture(
-	ActorCookingContext& ctx)
+	CookingContext& ctx)
 {
 	if(!m_operandImage)
 	{

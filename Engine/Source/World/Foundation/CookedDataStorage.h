@@ -5,7 +5,7 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedUnit.h"
 #include "Math/Transform/Transform.h"
 
 #include <vector>

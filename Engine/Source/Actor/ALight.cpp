@@ -2,7 +2,7 @@
 #include "Math/math.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/MatteOpaque.h"
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedUnit.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
@@ -10,7 +10,7 @@
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
-#include "Actor/ActorCookingContext.h"
+#include "World/Foundation/CookingContext.h"
 #include "Common/logging.h"
 
 #include <algorithm>
@@ -42,7 +42,7 @@ ALight& ALight::operator = (ALight rhs)
 	return *this;
 }
 
-CookedUnit ALight::cook(ActorCookingContext& ctx)
+CookedUnit ALight::cook(CookingContext& ctx)
 {
 	if(!m_lightSource)
 	{
@@ -79,7 +79,7 @@ void ALight::setLightSource(const std::shared_ptr<LightSource>& lightSource)
 }
 
 CookedUnit ALight::buildGeometricLight(
-	ActorCookingContext&      ctx,
+	CookingContext& ctx,
 	std::shared_ptr<Geometry> geometry,
 	std::shared_ptr<Material> material) const
 {
@@ -152,7 +152,7 @@ CookedUnit ALight::buildGeometricLight(
 }
 
 std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
-	ActorCookingContext&                   ctx,
+	CookingContext&                        ctx,
 	const std::shared_ptr<Geometry>&       geometry,
 	std::unique_ptr<math::RigidTransform>* const out_baseLW,
 	std::unique_ptr<math::RigidTransform>* const out_baseWL) const

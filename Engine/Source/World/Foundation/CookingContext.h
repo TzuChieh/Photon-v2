@@ -2,7 +2,7 @@
 
 #include "Actor/Actor.h"
 #include "Utility/IMoveOnly.h"
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedUnit.h"
 #include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
 
@@ -17,12 +17,12 @@ namespace ph
 
 class VisualWorldInfo;
 
-class ActorCookingContext final : private IMoveOnly
+class CookingContext final : private IMoveOnly
 {
 	friend class VisualWorld;
 
 public:
-	ActorCookingContext();
+	CookingContext();
 
 	// TODO: we can assign child actors special attributes such as
 	// deferred cooking, which opens the possibility of calculating
@@ -50,12 +50,12 @@ private:
 
 // In-header Implementations:
 
-inline const VisualWorldInfo* ActorCookingContext::getVisualWorldInfo() const
+inline const VisualWorldInfo* CookingContext::getVisualWorldInfo() const
 {
 	return m_visualWorldInfo;
 }
 
-inline void ActorCookingContext::setBackgroundPrimitive(std::unique_ptr<Primitive> primitive)
+inline void CookingContext::setBackgroundPrimitive(std::unique_ptr<Primitive> primitive)
 {
 	PH_ASSERT_MSG(!m_backgroundPrimitive, 
 		"Cannot overwrite existing background primitive");
@@ -63,7 +63,7 @@ inline void ActorCookingContext::setBackgroundPrimitive(std::unique_ptr<Primitiv
 	m_backgroundPrimitive = std::move(primitive);
 }
 
-inline std::unique_ptr<Primitive> ActorCookingContext::claimBackgroundPrimitive()
+inline std::unique_ptr<Primitive> CookingContext::claimBackgroundPrimitive()
 {
 	return std::move(m_backgroundPrimitive);
 }

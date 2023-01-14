@@ -2,8 +2,8 @@
 
 #include "Common/primitive_type.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Actor/CookedDataStorage.h"
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedDataStorage.h"
+#include "World/Foundation/CookedUnit.h"
 #include "Actor/Actor.h"
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"
@@ -19,7 +19,7 @@
 
 namespace ph { class SceneDescription; }
 namespace ph { class CoreCookingContext; }
-namespace ph { class ActorCookingContext; }
+namespace ph { class CookingContext; }
 
 namespace ph
 {
@@ -52,8 +52,8 @@ private:
 
 	void cookActors(
 		std::shared_ptr<Actor>* actors, 
-		std::size_t             numActors, 
-		ActorCookingContext&    ctx);
+		std::size_t numActors, 
+		CookingContext& ctx);
 
 	void createTopLevelAccelerator(EAccelerator acceleratorType);
 

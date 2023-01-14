@@ -22,15 +22,15 @@ public:
 	UnifiedNumericImage();
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		ActorCookingContext& ctx) override;
+		CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) override;
+		CookingContext& ctx) override;
 
-	std::shared_ptr<TTexture<real>> genRealTexture(ActorCookingContext& ctx);
-	std::shared_ptr<TTexture<math::Vector2R>> genVector2RTexture(ActorCookingContext& ctx);
-	std::shared_ptr<TTexture<math::Vector3R>> genVector3RTexture(ActorCookingContext& ctx);
-	std::shared_ptr<TTexture<math::Vector4R>> genVector4RTexture(ActorCookingContext& ctx);
+	std::shared_ptr<TTexture<real>> genRealTexture(CookingContext& ctx);
+	std::shared_ptr<TTexture<math::Vector2R>> genVector2RTexture(CookingContext& ctx);
+	std::shared_ptr<TTexture<math::Vector3R>> genVector3RTexture(CookingContext& ctx);
+	std::shared_ptr<TTexture<math::Vector4R>> genVector4RTexture(CookingContext& ctx);
 
 	UnifiedNumericImage& setImage(std::shared_ptr<Image> image);
 	UnifiedNumericImage& setSwizzleSubscripts(std::string swizzleSubscripts);

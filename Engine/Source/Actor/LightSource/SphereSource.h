@@ -13,7 +13,7 @@ public:
 	SphereSource(real radius, const math::Vector3R& linearSrgbColor, real numWatts);
 	SphereSource(real radius, const math::Spectrum& color, real numWatts);
 
-	std::shared_ptr<Geometry> genAreas(ActorCookingContext& ctx) const override;
+	std::shared_ptr<Geometry> genAreas(CookingContext& ctx) const override;
 
 	void setRadius(real radius);
 

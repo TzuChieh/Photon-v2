@@ -13,7 +13,7 @@ class AbradedOpaque : public SurfaceMaterial
 public:
 	AbradedOpaque();
 
-	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const override;
 
 private:
 	ConductiveInterfaceInfo m_interfaceInfo;

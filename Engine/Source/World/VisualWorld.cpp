@@ -1,8 +1,8 @@
 #include "World/VisualWorld.h"
 #include "Common/primitive_type.h"
 #include "DataIO/SDL/SceneDescription.h"
-#include "Actor/CookedUnit.h"
-#include "Actor/ActorCookingContext.h"
+#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/CookingContext.h"
 #include "EngineEnv/CoreCookingContext.h"
 #include "EngineEnv/CoreCookedUnit.h"
 #include "Actor/Actor.h"
@@ -61,10 +61,10 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 	// TODO: clear cooked data
 
-	ActorCookingContext cookingContext;
+	CookingContext ctx;
 
 	VisualWorldInfo visualWorldInfo;
-	cookingContext.setVisualWorldInfo(&visualWorldInfo);
+	ctx.setVisualWorldInfo(&visualWorldInfo);
 
 	// TODO: should union with receiver's bound instead
 	visualWorldInfo.setRootActorsBound(math::AABB3D(m_receiverPos));
@@ -96,7 +96,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 				return a < b->getCookOrder().level;
 			});
 
-		cookActors(&actors[numCookedActors], actorCookEnd - actorCookBegin, cookingContext);
+		cookActors(&actors[numCookedActors], actorCookEnd - actorCookBegin, ctx);
 
 		// Prepare for next cooking iteration
 
@@ -117,7 +117,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		visualWorldInfo.setLeafActorsBound(bound);
 
 		// Add newly created actors
-		auto childActors = cookingContext.claimChildActors();
+		auto childActors = ctx.claimChildActors();
 		actors.insert(actors.end(), std::make_move_iterator(childActors.begin()), std::make_move_iterator(childActors.end()));
 
 		numCookedActors += actorCookEnd - actorCookBegin;
@@ -125,13 +125,13 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		PH_LOG(VisualWorld, "# cooked actors: {}", numCookedActors);
 	}// end while more raw actors
 
-	for(auto& phantom : cookingContext.m_phantoms)
+	for(auto& phantom : ctx.m_phantoms)
 	{
 		phantom.second.claimCookedData(m_phantomStorage);
 		phantom.second.claimCookedBackend(m_phantomStorage);
 	}
 
-	m_backgroundPrimitive = cookingContext.claimBackgroundPrimitive();
+	m_backgroundPrimitive = ctx.claimBackgroundPrimitive();
 
 	PH_LOG(VisualWorld, "visual world discretized into {} intersectables", 
 		m_cookedActorStorage.numIntersectables());
@@ -159,8 +159,8 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 void VisualWorld::cookActors(
 	std::shared_ptr<Actor>* const actors,
-	const std::size_t             numActors,
-	ActorCookingContext&          ctx)
+	const std::size_t  numActors,
+	CookingContext& ctx)
 {
 	PH_ASSERT(actors);
 

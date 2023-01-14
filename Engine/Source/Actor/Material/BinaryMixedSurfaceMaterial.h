@@ -29,7 +29,7 @@ class BinaryMixedSurfaceMaterial final : public SurfaceMaterial
 public:
 	BinaryMixedSurfaceMaterial();
 
-	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const override;
 
 	void setMode(ESurfaceMaterialMixMode mode);
 

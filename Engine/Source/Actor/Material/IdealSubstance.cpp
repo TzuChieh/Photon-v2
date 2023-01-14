@@ -38,7 +38,7 @@ IdealSubstance::IdealSubstance() :
 	m_iorInnerK        ()
 {}
 
-void IdealSubstance::genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const
+void IdealSubstance::genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	switch(m_substance)
 	{

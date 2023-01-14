@@ -23,7 +23,7 @@ PointSource::PointSource(const math::Spectrum& color, real numWatts) :
 	AreaSource(color, numWatts)
 {}
 
-std::shared_ptr<Geometry> PointSource::genAreas(ActorCookingContext& ctx) const
+std::shared_ptr<Geometry> PointSource::genAreas(CookingContext& ctx) const
 {
 	return std::make_shared<GSphere>(POINT_SOURCE_RADIUS);
 }

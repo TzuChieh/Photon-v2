@@ -1,5 +1,5 @@
 #include "Actor/LightSource/AreaSource.h"
-#include "Actor/ActorCookingContext.h"
+#include "World/Foundation/CookingContext.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Math/Transform/RigidTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
@@ -42,7 +42,7 @@ AreaSource::AreaSource(const math::Spectrum& color, const real numWatts) :
 }
 
 std::unique_ptr<Emitter> AreaSource::genEmitter(
-	ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const
+	CookingContext& ctx, EmitterBuildingMaterial&& data) const
 {
 	if(data.primitives.empty())
 	{
@@ -92,7 +92,7 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	return emitter;
 }
 
-std::shared_ptr<Geometry> AreaSource::genGeometry(ActorCookingContext& ctx) const
+std::shared_ptr<Geometry> AreaSource::genGeometry(CookingContext& ctx) const
 {
 	std::shared_ptr<Geometry> areas = genAreas(ctx);
 	PH_ASSERT(areas != nullptr);

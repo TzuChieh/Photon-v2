@@ -1,6 +1,6 @@
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedUnit.h"
 #include "Common/assertion.h"
-#include "Actor/CookedDataStorage.h"
+#include "World/Foundation/CookedDataStorage.h"
 
 namespace ph
 {

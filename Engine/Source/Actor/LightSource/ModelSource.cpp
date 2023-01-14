@@ -49,7 +49,7 @@ ModelSource::ModelSource(const std::shared_ptr<Image>& emittedRadiance) :
 }
 
 std::unique_ptr<Emitter> ModelSource::genEmitter(
-	ActorCookingContext& ctx, EmitterBuildingMaterial&& data) const
+	CookingContext& ctx, EmitterBuildingMaterial&& data) const
 {
 	if(data.primitives.empty())
 	{
@@ -96,13 +96,13 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 	return emitter;
 }
 
-std::shared_ptr<Geometry> ModelSource::genGeometry(ActorCookingContext& ctx) const
+std::shared_ptr<Geometry> ModelSource::genGeometry(CookingContext& ctx) const
 {
 	PH_ASSERT(m_geometry);
 	return m_geometry;
 }
 
-std::shared_ptr<Material> ModelSource::genMaterial(ActorCookingContext& ctx) const
+std::shared_ptr<Material> ModelSource::genMaterial(CookingContext& ctx) const
 {
 	if(m_material)
 	{

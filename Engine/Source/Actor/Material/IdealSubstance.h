@@ -41,7 +41,7 @@ class IdealSubstance : public SurfaceMaterial
 public:
 	IdealSubstance();
 
-	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const override;
 
 	void setSubstance(EIdealSubstance substance);
 

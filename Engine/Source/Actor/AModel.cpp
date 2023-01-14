@@ -2,13 +2,13 @@
 #include "Math/math.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedUnit.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
-#include "Actor/ActorCookingContext.h"
+#include "World/Foundation/CookingContext.h"
 
 #include <algorithm>
 #include <iostream>
@@ -45,7 +45,7 @@ AModel& AModel::operator = (AModel rhs)
 	return *this;
 }
 
-CookedUnit AModel::cook(ActorCookingContext& ctx)
+CookedUnit AModel::cook(CookingContext& ctx)
 {
 	if(!m_geometry || !m_material)
 	{

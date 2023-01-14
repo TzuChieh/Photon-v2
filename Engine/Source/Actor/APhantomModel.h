@@ -16,7 +16,7 @@ public:
 		const std::shared_ptr<Material>& material);
 	APhantomModel(const APhantomModel& other);
 
-	CookedUnit cook(ActorCookingContext& ctx) override;
+	CookedUnit cook(CookingContext& ctx) override;
 	CookOrder getCookOrder() const override;
 
 	APhantomModel& operator = (APhantomModel rhs);

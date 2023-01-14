@@ -1,7 +1,7 @@
 #include "Actor/ADome.h"
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Material/IdealSubstance.h"
-#include "Actor/ActorCookingContext.h"
+#include "World/Foundation/CookingContext.h"
 #include "World/VisualWorldInfo.h"
 #include "Math/Transform/StaticRigidTransform.h"
 #include "Core/Intersectable/PLatLongEnvSphere.h"
@@ -25,7 +25,7 @@ ADome::ADome() :
 	m_energyScale(1.0_r)
 {}
 
-CookedUnit ADome::cook(ActorCookingContext& ctx)
+CookedUnit ADome::cook(CookingContext& ctx)
 {
 	// Ensure reasonable transformation for the dome
 	math::TDecomposedTransform<real> sanifiedLocalToWorld = m_localToWorld;

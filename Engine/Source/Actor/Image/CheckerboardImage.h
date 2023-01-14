@@ -16,10 +16,10 @@ public:
 	CheckerboardImage();
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		ActorCookingContext& ctx) override;
+		CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) override;
+		CookingContext& ctx) override;
 
 	void setNumTiles(real numTilesX, real numTilesY);
 	void setOddImage(const std::weak_ptr<Image>& oddImage);

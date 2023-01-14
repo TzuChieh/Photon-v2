@@ -4,13 +4,13 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Actor/CookedUnit.h"
+#include "World/Foundation/CookedUnit.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/MotionSource/MotionSource.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
-#include "Actor/ActorCookingContext.h"
+#include "World/Foundation/CookingContext.h"
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 
 #include <algorithm>
@@ -42,7 +42,7 @@ APhantomModel& APhantomModel::operator = (APhantomModel rhs)
 	return *this;
 }
 
-CookedUnit APhantomModel::cook(ActorCookingContext& ctx)
+CookedUnit APhantomModel::cook(CookingContext& ctx)
 {
 	CookedUnit cooked = AModel::cook(ctx);
 

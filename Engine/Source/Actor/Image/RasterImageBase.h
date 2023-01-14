@@ -15,10 +15,10 @@ public:
 	RasterImageBase();
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		ActorCookingContext& ctx) override = 0;
+		CookingContext& ctx) override = 0;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) override  = 0;
+		CookingContext& ctx) override  = 0;
 
 	math::TVector2<uint32> getResolution() const;
 	EImageSampleMode getSampleMode() const;

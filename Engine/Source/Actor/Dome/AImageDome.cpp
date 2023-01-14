@@ -16,7 +16,7 @@ AImageDome::AImageDome(const Path& imagePath) :
 	m_imageResolution(1, 1)
 {}
 
-std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(ActorCookingContext& ctx)
+std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(CookingContext& ctx)
 {
 	RasterFileImage image(m_imagePath);
 	image.setSampleMode(EImageSampleMode::Bilinear);

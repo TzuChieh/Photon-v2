@@ -13,7 +13,7 @@ public:
 	ATransformedInstance();
 	ATransformedInstance(const ATransformedInstance& other);
 
-	CookedUnit cook(ActorCookingContext& ctx) override;
+	CookedUnit cook(CookingContext& ctx) override;
 
 	ATransformedInstance& operator = (ATransformedInstance rhs);
 

@@ -34,10 +34,10 @@ public:
 	MathImage();
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		ActorCookingContext& ctx) override;
+		CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		ActorCookingContext& ctx) override;
+		CookingContext& ctx) override;
 
 	MathImage& setOperation(EMathImageOp op);
 	MathImage& setOperandImage(std::shared_ptr<Image> operand);

@@ -17,7 +17,7 @@ public:
 	inline MatteOpaque() = default;
 	explicit MatteOpaque(const math::Vector3R& albedo);
 
-	void genSurface(ActorCookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const override;
 
 	/*!
 	@param albedo Albedo in linear-sRGB.

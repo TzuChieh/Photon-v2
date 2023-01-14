@@ -4,7 +4,7 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "DataIO/SDL/sdl_interface.h"
 
-namespace ph { class ActorCookingContext; }
+namespace ph { class CookingContext; }
 
 namespace ph
 {
@@ -16,7 +16,7 @@ class Material : public TSdlResourceBase<ETypeCategory::Ref_Material>
 public:
 	inline Material() = default;
 
-	virtual void genBehaviors(ActorCookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
+	virtual void genBehaviors(CookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Material>)

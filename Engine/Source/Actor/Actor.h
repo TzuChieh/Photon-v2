@@ -1,11 +1,11 @@
 #pragma once
 
 #include "DataIO/SDL/TSdlResourceBase.h"
-#include "Actor/CookedUnit.h"
-#include "Actor/CookOrder.h"
+#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/CookOrder.h"
 #include "DataIO/SDL/sdl_interface.h"
 
-namespace ph { class ActorCookingContext; }
+namespace ph { class CookingContext; }
 
 namespace ph
 {
@@ -16,7 +16,7 @@ public:
 	Actor();
 	Actor(const Actor& other);
 
-	virtual CookedUnit cook(ActorCookingContext& ctx) = 0;
+	virtual CookedUnit cook(CookingContext& ctx) = 0;
 	virtual CookOrder getCookOrder() const;
 
 	Actor& operator = (const Actor& rhs);
