@@ -24,8 +24,8 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
 
     pos, rot, scale = b_light_object.matrix_world.decompose()
 
-    # Blender's rectangle area light is in its xy-plane (facing -z axis) by default, while Photon's rectangle is in
-    # Blender's yz-plane (facing +x axis); these rotations accounts for such difference
+    # Blender's rectangle area light is in its xy-plane (facing -z axis) by default, while Photon's rectangle
+    # is in Blender's yz-plane (facing +x axis); these rotations accounts for such difference
     if b_light.type == 'AREA':
         if b_light.shape == 'SQUARE' or b_light.shape == 'RECTANGLE':
             rot = rot @ mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))

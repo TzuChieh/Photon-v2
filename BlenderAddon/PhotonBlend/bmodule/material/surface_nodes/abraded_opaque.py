@@ -48,21 +48,21 @@ class PhAbradedOpaqueNode(PhMaterialNode):
 
         creator = sdl.AbradedOpaqueMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
-        creator.set_distribution_model(sdl.String("ggx"))
+        creator.set_microsurface(sdl.String("ggx"))
         creator.set_f0(sdl.Vector3(mathutils.Color((self.f0[0], self.f0[1], self.f0[2]))))
 
         if not self.is_anisotropic:
             creator.set_roughness(sdl.Real(self.inputs[0].default_value))
         else:
-            creator.set_roughness_u(sdl.Real(self.inputs[1].default_value))
+            creator.set_roughness(sdl.Real(self.inputs[1].default_value))
             creator.set_roughness_v(sdl.Real(self.inputs[2].default_value))
 
         if self.mapping_type == 'SQUARED':
-            creator.set_mapping(sdl.String("squared"))
+            creator.set_roughness_to_alpha(sdl.String("squared"))
         elif self.mapping_type == 'PBRTV3':
-            creator.set_mapping(sdl.String("pbrt-v3"))
+            creator.set_roughness_to_alpha(sdl.String("pbrt-v3"))
         elif self.mapping_type == 'EQUALED':
-            creator.set_mapping(sdl.String("equaled"))
+            creator.set_roughness_to_alpha(sdl.String("equaled"))
 
         sdlconsole.queue_command(creator)
 

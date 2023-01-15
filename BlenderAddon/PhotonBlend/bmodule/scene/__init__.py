@@ -28,6 +28,9 @@ def find_materials_from_mesh_objects(b_mesh_objects):
 	for b_object in b_mesh_objects:
 		b_mesh = b_object.data
 		for b_material in b_mesh.materials:
-			name_to_material[b_material.name] = b_material
+			if b_material is not None:
+				name_to_material[b_material.name] = b_material
+			else:
+				print("warning: mesh %s has incomplete material assignment, ignoring" % b_mesh.name)
 
 	return name_to_material.values()
