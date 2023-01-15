@@ -79,8 +79,8 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
 
         res_col = b_layout.column()
 
-        # Check if this camera is the active one. If so, resolution should be set from output panel
-        # (this behavior can be disabled via <ph_force_resolution>)
+        # Disabled if resolution should be set from Output panel. Can be enabled by 
+        # setting `ph_force_resolution=True` and if this camera is the active one.
         res_col.enabled = b_camera.name != b_scene.camera.data.name or b_camera.ph_force_resolution
         res_col.prop(b_camera, "ph_resolution_x")
         res_col.prop(b_camera, "ph_resolution_y")

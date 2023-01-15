@@ -62,6 +62,18 @@ class Real(AbstractData):
         return str(self.real)
 
 
+class Vector2(AbstractData):
+    def __init__(self, vector=(0, 0)):
+        super().__init__()
+        self.vector = vector
+
+    def get_type(self):
+        return "vector2"
+
+    def generate_data(self):
+        return "\"%f %f\"" % (self.vector[0], self.vector[1])
+
+
 class Vector3(AbstractData):
     def __init__(self, vector=(0, 0, 0)):
         super().__init__()

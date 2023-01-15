@@ -1,9 +1,13 @@
 import utility
+
+from utility import blender
+
 from bmodule import (
         naming,
         material,
         scene,
         light)
+
 from bmodule.material import nodes
 from bmodule.mesh import triangle_mesh
 from psdl import sdlresource
@@ -252,19 +256,6 @@ class Exporter:
 
     def export_camera(self, b_camera_object):
         b_camera = b_camera_object.data
-        b_scene = bpy.context.scene
-
-        # Check if this camera is the active one and override resolution if so;
-        # otherwise use the resolution settings carried by camera itself
-        # (this behavior can be disabled via <ph_force_resolution>)
-        if b_camera.name == b_scene.camera.data.name and not b_camera.ph_force_resolution:
-            resolution_scale = b_scene.render.resolution_percentage / 100.0
-            resolution_x = int(b_scene.render.resolution_x * resolution_scale)
-            resolution_y = int(b_scene.render.resolution_y * resolution_scale)
-        else:
-            resolution_scale = b_camera.ph_resolution_percentage / 100.0
-            resolution_x = int(b_camera.ph_resolution_x * resolution_scale)
-            resolution_y = int(b_camera.ph_resolution_y * resolution_scale)
 
         observer = None
         if b_camera.type == "PERSP":
@@ -390,6 +381,7 @@ class Exporter:
             visualizer.set_sample_filter(sdl.Enum(meta_info.sample_filter_name()))
             visualizer.set_estimator(sdl.Enum(meta_info.integrator_type_name()))
             visualizer.set_scheduler(sdl.Enum(b_scene.ph_scheduler_type))
+            
         # elif render_method == "VPM":
         #     renderer = sdl.PmRendererCreator()
         #     renderer.set_mode(sdl.String("vanilla"))
@@ -441,6 +433,10 @@ class Exporter:
         render_session.set_observer(sdl.String("@observer"))# HACK
         render_session.set_sample_source(sdl.String("@sample-source"))# HACK
         render_session.set_top_level_accelerator(top_level_accelerator)# HACK
+
+        render_size_px = blender.get_render_size_px(b_scene)
+        render_session.set_frame_size(sdl.Vector2(render_size_px))
+
         self.get_sdlconsole().queue_command(render_session)
 
     # TODO: write/flush commands to disk once a while (reducing memory usage)
