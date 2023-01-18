@@ -70,8 +70,6 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const;
 
-	void setFieldsToDefaults(Owner& owner) const;
-
 	/*!
 	Saves only fields in this class. Does *not* take other indirect fields into account
 	(such as fields in base class).
@@ -111,8 +109,17 @@ public:
 	auto baseOn() -> TOwnerSdlClass&;
 
 private:
-	template<typename DeducedSrcResource>
-	decltype(auto) castToOwnerResource(DeducedSrcResource& resource) const;
+	/*!
+	Set fields of the instance @p owner to default values (as described in SDL class definition).
+	Note that fields in base class are not set.
+	*/
+	void setFieldsToDefaults(Owner& owner) const;
+
+	/*!
+	Cast input instance to owner type `Owner`, possibly `const` qualified.
+	*/
+	template<typename DeducedSrcType>
+	decltype(auto) castToOwnerType(DeducedSrcType& srcInstance) const;
 
 	using FunctionSet = TArrayAsVector<const SdlFunction*, PH_SDL_MAX_FUNCTIONS>;
 

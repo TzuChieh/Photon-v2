@@ -2,7 +2,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/Geometry/GeometrySoup.h"
-#include "Actor/actor_exceptions.h"
+#include "Actor/Basic/exceptions.h"
 
 #include <utility>
 
@@ -40,21 +40,21 @@ std::vector<GTriangle> GTriangleMesh::genTriangles() const
 {
 	if(m_positions.empty() || m_positions.size() % 3 != 0)
 	{
-		throw ActorCookException(
+		throw CookException(
 			"Triangle mesh with bad/zero position buffer size (" + std::to_string(m_positions.size()) + 
 			" positions given). ");
 	}
 
 	if(m_texCoords.size() != m_positions.size())
 	{
-		throw ActorCookException(
+		throw CookException(
 			"Triangle mesh with mismatched texture-coordinate buffer size (" + 
 			std::to_string(m_texCoords.size()) + " texture coordinates given). ");
 	}
 
 	if(m_normals.size() != m_positions.size())
 	{
-		throw ActorCookException(
+		throw CookException(
 			"Triangle mesh with mismatched normal buffer size (" +
 			std::to_string(m_normals.size()) + " normal vectors given). ");
 	}

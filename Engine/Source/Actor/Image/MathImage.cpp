@@ -1,7 +1,7 @@
 #include "Actor/Image/MathImage.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
-#include "Actor/actor_exceptions.h"
+#include "Actor/Basic/exceptions.h"
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Core/Texture/Function/binary_texture_operators.h"
 
@@ -29,7 +29,7 @@ std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
 {
 	if(!m_operandImage)
 	{
-		throw ActorCookException("No operand image provided for numeric texture.");
+		throw CookException("No operand image provided for numeric texture.");
 	}
 
 	auto operandTexture = m_operandImage->genNumericTexture(ctx);
@@ -69,7 +69,7 @@ std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
 	}
 
 	default:
-		throw ActorCookException("Specified math image operation is not supported on numeric texture.");
+		throw CookException("Specified math image operation is not supported on numeric texture.");
 	}
 }
 
@@ -78,7 +78,7 @@ std::shared_ptr<TTexture<math::Spectrum>> MathImage::genColorTexture(
 {
 	if(!m_operandImage)
 	{
-		throw ActorCookException("No operand image provided for color texture.");
+		throw CookException("No operand image provided for color texture.");
 	}
 
 	auto operandTexture = m_operandImage->genColorTexture(ctx);
@@ -116,7 +116,7 @@ std::shared_ptr<TTexture<math::Spectrum>> MathImage::genColorTexture(
 	}
 
 	default:
-		throw ActorCookException("Specified math image operation is not supported on color texture.");
+		throw CookException("Specified math image operation is not supported on color texture.");
 	}
 }
 

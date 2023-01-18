@@ -9,12 +9,12 @@
 namespace ph::math
 {
 
-/*
-	A window function similar to Gaussian function in shape. It is defined 
-	over [-<radius>, <radius>] and will take on value 0 at boundaries. 
-	The peak of the function is at (0, 0).
+/*! @brief Blackman-Harris window function.
+A window function similar to Gaussian function in shape. It is defined 
+over [-<radius>, <radius>] and will take on value 0 at boundaries. 
+The peak of the function is at (0, 0).
 
-	Reference: https://en.wikipedia.org/wiki/Window_function
+Reference: https://en.wikipedia.org/wiki/Window_function
 */
 template<typename Value>
 class TBlackmanHarris2D : public TMathFunction2D<Value>

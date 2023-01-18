@@ -32,6 +32,7 @@
 #include "DataIO/SDL/Introspect/TSdlMethod.h"
 
 #include "DataIO/SDL/ISdlResource.h"
+#include "DataIO/SDL/TSdl.h"
 
 #include <type_traits>
 

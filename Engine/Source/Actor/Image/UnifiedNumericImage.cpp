@@ -4,7 +4,7 @@
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
 #include "Math/TVector4.h"
-#include "Actor/actor_exceptions.h"
+#include "Actor/Basic/exceptions.h"
 #include "Utility/string_utils.h"
 #include "Core/Texture/TSwizzledTexture.h"
 #include "Core/Texture/Function/unary_texture_operators.h"
@@ -138,7 +138,7 @@ inline std::array<uint8, N> to_texture_swizzle_map(const std::string_view swizzl
 {
 	if(used_swizzle_char_set(swizzleSubscripts) == static_cast<std::size_t>(-1))
 	{
-		throw ActorCookException(std::format(
+		throw CookException(std::format(
 			"Specified swizzle subscripts ({}) is invalid.",
 			swizzleSubscripts.size()));
 	}
@@ -163,7 +163,7 @@ inline std::array<uint8, N> to_texture_swizzle_map(const std::string_view swizzl
 	{
 		if(idxOfInput >= Image::ARRAY_SIZE)
 		{
-			throw ActorCookException("Swizzle subscripts overflow input array.");
+			throw CookException("Swizzle subscripts overflow input array.");
 		}
 	}
 
@@ -177,7 +177,7 @@ inline std::array<uint8, N> to_exact_texture_swizzle_map(const std::string_view 
 {
 	if(N != swizzleSubscripts.size())
 	{
-		throw ActorCookException(std::format(
+		throw CookException(std::format(
 			"Mismatched number of subscripts ({}) to specified number of components ({}).", 
 			swizzleSubscripts.size(), N));
 	}
@@ -192,7 +192,7 @@ std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
 {
 	if(m_swizzleSubscripts.size() > Image::ARRAY_SIZE)
 	{
-		throw ActorCookException(std::format(
+		throw CookException(std::format(
 			"Input swizzle subscripts has more elements ({}) than the max number ({}) swizzler can handle.",
 			m_swizzleSubscripts.size(), Image::ARRAY_SIZE));
 	}
@@ -225,7 +225,7 @@ std::shared_ptr<TTexture<math::Spectrum>> UnifiedNumericImage::genColorTexture(
 		// components can vary. Swizzling such a type would be inconsistent if the same scene file
 		// is used for different spectrum type configuration.
 		//
-		throw ActorCookException(std::format(
+		throw CookException(std::format(
 			"Swizzling (subscript {}) is forbidden for color texture from unified numeric image.",
 			m_swizzleSubscripts));
 	}

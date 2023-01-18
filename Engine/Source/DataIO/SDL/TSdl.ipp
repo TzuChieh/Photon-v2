@@ -1,5 +1,6 @@
 #include "DataIO/SDL/TSdl.h"
 #include "DataIO/SDL/Introspect/SdlClass.h"
+#include "DataIO/SDL/Introspect/SdlStruct.h"
 #include "DataIO/SDL/sdl_helpers.h"
 #include "Common/assertion.h"
 
@@ -45,6 +46,40 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 			"default resource creation failed, the type specified may not have SDL class defined");
 	}
 	return typedResource;
+}
+
+template<CIsSdlResource T>
+inline T TSdl<T>::make()
+{
+	static_assert(std::is_default_constructible_v<T>,
+		"T must be default constructible");
+
+	T instance;
+	if constexpr(CHasSdlClassDefinition<T>)
+	{
+		const SdlClass* clazz = T::getSdlClass();
+		PH_ASSERT(clazz);
+
+		clazz->initDefaultResource(instance);
+	}
+	else if(CHasSdlStructDefinition<T>)
+	{
+		static_assert(CSdlStructSupportsInitToDefault<T>,
+			"SDL struct definition of T does not support initializing to default values");
+
+		const auto* ztruct = T::getSdlStruct();
+		PH_ASSERT(ztruct);
+
+		ztruct->initDefaultStruct(instance);
+	}
+	else
+	{
+		static_assert(CHasSdlClassDefinition<T> || CHasSdlStructDefinition<T>,
+			"No SDL class/struct definition found. Did you call "
+			"PH_DEFINE_SDL_CLASS()/PH_DEFINE_SDL_STRUCT() in the body of type T?");
+	}
+
+	return instance;
 }
 
 }// end namespace ph

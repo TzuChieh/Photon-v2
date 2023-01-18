@@ -21,16 +21,28 @@ concept CHasStaticSdlCategoryInfo =
 	// (in case the implementer qualifies the `CATEGORY` member).
 	std::is_same_v<std::remove_cvref_t<decltype(T::CATEGORY)>, ETypeCategory>;
 
+/*! @brief Whether @p T is a well-defined SDL class.
+*/
 template<typename T>
 concept CHasSdlClassDefinition = 
 	std::is_same_v<typename T::SdlClassDefinitionMarker, void>;
 
+/*! @brief Whether @p T is a well-defined SDL struct.
+*/
 template<typename T>
 concept CHasSdlStructDefinition =
 	std::is_same_v<typename T::SdlStructDefinitionMarker, void>;
 
+/*! @brief Whether @p T is a well-defined SDL function.
+*/
 template<typename T>
 concept CHasSdlFunctionDefinition =
 	std::is_same_v<typename T::SdlFunctionDefinitionMarker, void>;
+
+template<typename T>
+concept CSdlStructSupportsInitToDefault = CHasSdlStructDefinition<T> && requires (T instance)
+{
+	T::getSdlStruct()->initDefaultStruct(instance);
+};
 
 }// end namespace ph

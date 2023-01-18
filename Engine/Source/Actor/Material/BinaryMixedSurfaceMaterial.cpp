@@ -4,7 +4,7 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
-#include "Actor/actor_exceptions.h"
+#include "Actor/Basic/exceptions.h"
 
 #include <utility>
 
@@ -27,7 +27,7 @@ void BinaryMixedSurfaceMaterial::genSurface(CookingContext& ctx, SurfaceBehavior
 {
 	if(!m_material0 || !m_material1)
 	{
-		throw ActorCookException("One or more materials are empty. Cannot perform binary mix operation.");
+		throw CookException("One or more materials are empty. Cannot perform binary mix operation.");
 	}
 
 	SurfaceBehavior behavior0, behavior1;
@@ -37,7 +37,7 @@ void BinaryMixedSurfaceMaterial::genSurface(CookingContext& ctx, SurfaceBehavior
 	auto optics1 = behavior1.getOpticsResource();
 	if(!optics0 || !optics1)
 	{
-		throw ActorCookException("Surface optics generation failed. Cannot perform binary mix operation.");
+		throw CookException("Surface optics generation failed. Cannot perform binary mix operation.");
 	}
 
 	switch(m_mode)
@@ -57,7 +57,7 @@ void BinaryMixedSurfaceMaterial::genSurface(CookingContext& ctx, SurfaceBehavior
 		break;
 
 	default:
-		throw ActorCookException("Unsupported material mixing mode.");
+		throw CookException("Unsupported material mixing mode.");
 		break;
 	}
 }

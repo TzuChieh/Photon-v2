@@ -70,6 +70,12 @@ inline auto TOwnerSdlStruct<StructType>::addStruct(
 }
 
 template<typename StructType>
+inline void TOwnerSdlStruct<StructType>::initDefaultStruct(StructType& structObj) const
+{
+	setFieldsToDefaults(structObj);
+}
+
+template<typename StructType>
 inline std::size_t TOwnerSdlStruct<StructType>::numFields() const
 {
 	return m_fields.numFields();
@@ -94,6 +100,18 @@ inline auto TOwnerSdlStruct<StructType>::description(std::string descriptionStr)
 {
 	setDescription(std::move(descriptionStr));
 	return *this;
+}
+
+template<typename StructType>
+inline void TOwnerSdlStruct<StructType>::setFieldsToDefaults(StructType& structObj) const
+{
+	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
+	{
+		const auto& field = m_fields[fieldIdx];
+
+		// Set field to default value regardless of its importance (field importance is for import/export)
+		field.setValueToDefault(structObj);
+	}
 }
 
 }// end namespace ph

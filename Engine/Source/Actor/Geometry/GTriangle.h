@@ -11,13 +11,6 @@ namespace ph
 class GTriangle : public Geometry
 {
 public:
-	GTriangle();
-
-	GTriangle(
-		const math::Vector3R& vA, 
-		const math::Vector3R& vB, 
-		const math::Vector3R& vC);
-
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
@@ -61,7 +54,10 @@ public:
 	{
 		ClassType clazz("triangle");
 		clazz.docName("Triangle Geometry");
-		clazz.description("A single triangle-shaped surface.");
+		clazz.description(
+			"A single triangle-shaped surface. Please note that using this type of triangle for "
+			"triangle mesh may induce significant overhead (in terms of memory usage). This is "
+			"meant for very simple shapes or debug usages.");
 		clazz.baseOn<Geometry>();
 
 		TSdlVector3<OwnerType> vA("v-A", &OwnerType::m_vA);

@@ -3,7 +3,6 @@
 
 #include <Common/logging.h>
 #include <Actor/Image/RasterFileImage.h>
-#include <DataIO/SDL/TSdl.h>
 #include <Frame/RegularPicture.h>
 
 namespace ph::editor

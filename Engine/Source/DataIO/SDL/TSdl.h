@@ -27,9 +27,13 @@ public:
 	*/
 	static constexpr ETypeCategory getCategory();
 
-	/*! @brief Creates a resource filled with default values.
+	/*! @brief Creates a sharable resource filled with default values.
 	*/
 	static std::shared_ptr<T> makeResource();
+
+	/*! @brief Creates a resource or struct instance filled with default values.
+	*/
+	static T make();
 };
 
 }// end namespace ph

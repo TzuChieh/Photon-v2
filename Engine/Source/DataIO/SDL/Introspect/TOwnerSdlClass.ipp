@@ -343,30 +343,30 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::baseOn()
 }
 
 template<typename Owner, typename FieldSet>
-template<typename DeducedSrcResource>
-inline decltype(auto) TOwnerSdlClass<Owner, FieldSet>::castToOwnerResource(DeducedSrcResource& srcResource) const
+template<typename DeducedSrcType>
+inline decltype(auto) TOwnerSdlClass<Owner, FieldSet>::castToOwnerType(DeducedSrcType& srcInstance) const
 {
 	// Source resource type, possibly cv-qualified
-	using SrcResource = std::remove_reference_t<DeducedSrcResource>;
+	using SrcType = std::remove_reference_t<DeducedSrcType>;
 
-	static_assert(std::is_base_of_v<ISdlResource, SrcResource>,
-		"Target resource must derive from ISdlResource.");
+	static_assert(std::is_base_of_v<ISdlResource, SrcType>,
+		"srcInstance must derive from ISdlResource.");
 
 	static_assert(std::is_base_of_v<ISdlResource, Owner>,
 		"Owner must derive from ISdlResource.");
 
 	// Owner pointer type, possibly const-qualified (ignoring volatile)
-	static_assert(!std::is_volatile_v<SrcResource>);
-	using OwnerPtr = std::conditional_t<std::is_const_v<SrcResource>, 
+	static_assert(!std::is_volatile_v<SrcType>);
+	using OwnerPtr = std::conditional_t<std::is_const_v<SrcType>,
 		const Owner*,
 		Owner*>;
 
-	OwnerPtr const ownerPtr = dynamic_cast<OwnerPtr>(&srcResource);
+	OwnerPtr const ownerPtr = dynamic_cast<OwnerPtr>(&srcInstance);
 	if(!ownerPtr)
 	{
 		throw_formatted<SdlException>(
 			"type cast error: target resource is not owned by SDL class <{}> (resource ID = {})",
-			genPrettyName(), srcResource.getId());
+			genPrettyName(), srcInstance.getId());
 	}
 
 	// The parentheses are not required here--`*owner` is already an expression, resulting in a 

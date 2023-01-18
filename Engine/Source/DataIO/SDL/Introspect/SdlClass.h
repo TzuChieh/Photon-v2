@@ -41,7 +41,7 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
 
-	/*! @brief Initialize a resource with default values.
+	/*! @brief Initialize a resource to default values.
 	*/
 	virtual void initDefaultResource(ISdlResource& resource) const = 0;
 

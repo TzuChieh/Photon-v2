@@ -10,7 +10,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
 #include "Core/Texture/constant_textures.h"
 #include "Common/logging.h"
-#include "Actor/actor_exceptions.h"
+#include "Actor/Basic/exceptions.h"
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
 #include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
 
@@ -103,7 +103,7 @@ void IdealSubstance::genSurface(CookingContext& ctx, SurfaceBehavior& behavior) 
 	break;
 
 	default:
-		throw ActorCookException("Unsupported ideal substance type.");
+		throw CookException("Unsupported ideal substance type.");
 	}
 }
 

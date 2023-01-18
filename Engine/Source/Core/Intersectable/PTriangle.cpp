@@ -16,12 +16,14 @@
 namespace ph
 {
 
-PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC) :
+PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC)
 
-	Primitive(metadata),
+	: Primitive(metadata)
 
-	m_triangle(vA, vB, vC),
-	m_uvwA(0, 0, 0), m_uvwB(1, 0, 0), m_uvwC(0, 1, 0)
+	, m_triangle(vA, vB, vC)
+	, m_uvwA(0, 0, 0)
+	, m_uvwB(1, 0, 0)
+	, m_uvwC(0, 1, 0)
 {
 	m_faceNormal = m_triangle.getFaceNormalSafe(math::Vector3R(0, 1, 0));
 	PH_ASSERT(m_faceNormal.isFinite() && m_faceNormal.length() > 0.0_r);

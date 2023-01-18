@@ -4,7 +4,7 @@
 #include "Common/logging.h"
 #include "Common/assertion.h"
 #include "Math/math.h"
-#include "Actor/actor_exceptions.h"
+#include "Actor/Basic/exceptions.h"
 
 namespace ph
 {
@@ -97,7 +97,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		}
 		else
 		{
-			throw ActorCookException(
+			throw CookException(
 				"invalid constant spectrum representation: "
 				"(number of input values = " + std::to_string(m_values.size()) + ")");
 		}

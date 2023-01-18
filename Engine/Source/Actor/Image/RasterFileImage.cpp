@@ -2,7 +2,7 @@
 #include "Core/Texture/Pixel/TFrameBuffer2D.h"
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
-#include "Actor/actor_exceptions.h"
+#include "Actor/Basic/exceptions.h"
 #include "Frame/TFrame.h"
 #include "Core/Texture/Pixel/TNumericPixelTexture2D.h"
 #include "Core/Texture/Pixel/TColorPixelTexture2D.h"
@@ -144,7 +144,7 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	// We should not have other color spaces from raster files
 	default:
 		// TODO: better log warning and use a default picture
-		throw ActorCookException(
+		throw CookException(
 			"error on generating texture for picture <" + m_filePath.toAbsoluteString() + ">: invalid color space");
 	}
 }
@@ -158,7 +158,7 @@ RegularPicture RasterFileImage::loadRegularPicture() const
 	catch(const IOException& e)
 	{
 		// TODO: better log warning and use a default picture
-		throw ActorCookException(
+		throw CookException(
 			"error on loading picture: " + e.whatStr());
 	}
 }
@@ -241,7 +241,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 	else
 	{
 		// TODO: better log warning and use a default picture
-		throw ActorCookException(
+		throw CookException(
 			"error on creating frame buffer for <" + m_filePath.toAbsoluteString() + ">");
 	}
 

@@ -3,6 +3,7 @@
 #include "Math/General/TVectorNBase.h"
 #include "Math/math_fwd.h"
 #include "Math/constant.h"
+#include "Utility/string_utils.h"
 
 namespace ph::math
 {
@@ -75,5 +76,8 @@ template<typename T>
 inline TVector3<T> operator * (T rhs, const TVector3<T>& lhs);
 
 }// end namespace ph::math
+
+template<typename T>
+PH_DEFINE_INLINE_TO_STRING_FORMATTER_TEMPLATE(ph::math::TVector3<T>);
 
 #include "Math/TVector3.ipp"

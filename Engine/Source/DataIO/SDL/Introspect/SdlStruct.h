@@ -14,6 +14,15 @@ class SdlField;
 class ValueClause;
 class SdlInputContext;
 
+/*!
+SDL struct do not provide interface for initializing instances to default values such as the one
+provided by SDL class (`SdlClass::initDefaultResource()`). The rationale behind this is that SDL
+struct is designed to be a simple grouped data carrier without the burden of inheritance and 
+member functions. For efficiency and ease of reuse, initializing instances to default values 
+requires a concrete type (the exact type of the struct). Implementations that wish to support this
+feature should define a method with signature `initDefaultStruct(T& instance) const` where T is
+the concrete type of the struct.
+*/
 class SdlStruct
 {
 public:
