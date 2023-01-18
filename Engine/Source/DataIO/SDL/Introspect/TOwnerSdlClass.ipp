@@ -59,7 +59,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 		getBase()->initResource(resource, clauses, ctx);
 	}
 
-	Owner& ownerResource = castToOwnerResource(resource);
+	Owner& ownerResource = castToOwnerType(resource);
 	loadFieldsFromSdl(ownerResource, clauses, ctx);
 }
 
@@ -73,7 +73,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initDefaultResource(ISdlResource& r
 		getBase()->initDefaultResource(resource);
 	}
 
-	Owner& ownerResource = castToOwnerResource(resource);
+	Owner& ownerResource = castToOwnerType(resource);
 	setFieldsToDefaults(ownerResource);
 }
 
@@ -91,7 +91,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::saveResource(
 		getBase()->saveResource(resource, payloads, ctx);
 	}
 
-	const Owner& ownerResource = castToOwnerResource(resource);
+	const Owner& ownerResource = castToOwnerType(resource);
 	saveFieldsToSdl(ownerResource, payloads, ctx);
 }
 
@@ -141,7 +141,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::associatedResources(
 	static_assert(std::is_base_of_v<ISdlResource, Owner>,
 		"Owner class must derive from ISdlResource.");
 
-	const Owner& ownerResource = castToOwnerResource(targetResource);
+	const Owner& ownerResource = castToOwnerType(targetResource);
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
 		const TOwnedSdlField<Owner>& field = m_fields[fieldIdx];

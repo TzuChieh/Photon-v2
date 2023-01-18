@@ -29,12 +29,18 @@ public:
 	const math::Vector3R& getUVWa() const;
 	const math::Vector3R& getUVWb() const;
 	const math::Vector3R& getUVWc() const;
-	void setNa(const math::Vector3R& nA);
-	void setNb(const math::Vector3R& nB);
-	void setNc(const math::Vector3R& nC);
-	void setUVWa(const math::Vector3R& uvwA);
-	void setUVWb(const math::Vector3R& uvwB);
-	void setUVWc(const math::Vector3R& uvwC);
+
+	GTriangle& setNa(const math::Vector3R& nA);
+	GTriangle& setNb(const math::Vector3R& nB);
+	GTriangle& setNc(const math::Vector3R& nC);
+	GTriangle& setUVWa(const math::Vector3R& uvwA);
+	GTriangle& setUVWb(const math::Vector3R& uvwB);
+	GTriangle& setUVWc(const math::Vector3R& uvwC);
+
+	GTriangle& setVertices(
+		const math::Vector3R& vA, 
+		const math::Vector3R& vB, 
+		const math::Vector3R& vC);
 
 private:
 	math::Vector3R m_vA;
@@ -93,19 +99,19 @@ public:
 		uvwC.optional();
 		clazz.addField(uvwC);
 
-		TSdlVector3<OwnerType> nA("nA", &OwnerType::m_nA);
+		TSdlVector3<OwnerType> nA("n-A", &OwnerType::m_nA);
 		nA.description("Normal vector of the first vertex.");
 		nA.defaultTo({0, 0, 0});
 		nA.optional();
 		clazz.addField(nA);
 
-		TSdlVector3<OwnerType> nB("nB", &OwnerType::m_nB);
+		TSdlVector3<OwnerType> nB("n-B", &OwnerType::m_nB);
 		nB.description("Normal vector of the second vertex.");
 		nB.defaultTo({0, 0, 0});
 		nB.optional();
 		clazz.addField(nB);
 
-		TSdlVector3<OwnerType> nC("nC", &OwnerType::m_nC);
+		TSdlVector3<OwnerType> nC("n-C", &OwnerType::m_nC);
 		nC.description("Normal vector of the third vertex.");
 		nC.defaultTo({0, 0, 0});
 		nC.optional();
@@ -162,34 +168,58 @@ inline const math::Vector3R& GTriangle::getUVWc() const
 	return m_uvwC;
 }
 
-inline void GTriangle::setNa(const math::Vector3R& nA)
+inline GTriangle& GTriangle::setNa(const math::Vector3R& nA)
 {
 	m_nA = nA;
+
+	return *this;
 }
 
-inline void GTriangle::setNb(const math::Vector3R& nB)
+inline GTriangle& GTriangle::setNb(const math::Vector3R& nB)
 {
 	m_nB = nB;
+
+	return *this;
 }
 
-inline void GTriangle::setNc(const math::Vector3R& nC)
+inline GTriangle& GTriangle::setNc(const math::Vector3R& nC)
 {
 	m_nC = nC;
+
+	return *this;
 }
 
-inline void GTriangle::setUVWa(const math::Vector3R& uvwA)
+inline GTriangle& GTriangle::setUVWa(const math::Vector3R& uvwA)
 {
 	m_uvwA = uvwA;
+
+	return *this;
 }
 
-inline void GTriangle::setUVWb(const math::Vector3R& uvwB)
+inline GTriangle& GTriangle::setUVWb(const math::Vector3R& uvwB)
 {
 	m_uvwB = uvwB;
+
+	return *this;
 }
 
-inline void GTriangle::setUVWc(const math::Vector3R& uvwC)
+inline GTriangle& GTriangle::setUVWc(const math::Vector3R& uvwC)
 {
 	m_uvwC = uvwC;
+
+	return *this;
+}
+
+inline GTriangle& GTriangle::setVertices(
+	const math::Vector3R& vA, 
+	const math::Vector3R& vB, 
+	const math::Vector3R& vC)
+{
+	m_vA = vA;
+	m_vB = vB;
+	m_vC = vC;
+
+	return *this;
 }
 
 }// end namespace ph

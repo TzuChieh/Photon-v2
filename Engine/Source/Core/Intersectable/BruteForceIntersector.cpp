@@ -3,7 +3,7 @@
 #include "Core/HitProbe.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
-#include "Actor/CookedDataStorage.h"
+#include "World/Foundation/CookedDataStorage.h"
 #include "Math/Geometry/TAABB3D.h"
 
 #include <limits>

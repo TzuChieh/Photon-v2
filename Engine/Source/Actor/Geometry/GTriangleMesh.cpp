@@ -63,7 +63,8 @@ std::vector<GTriangle> GTriangleMesh::genTriangles() const
 	for(std::size_t i = 0; i < m_positions.size(); i += 3)
 	{
 		PH_ASSERT_LT(i + 2, m_positions.size());
-		GTriangle gTriangle(m_positions[i + 0], m_positions[i + 1], m_positions[i + 2]);
+		auto gTriangle = TSdl<GTriangle>::make().setVertices(
+			m_positions[i + 0], m_positions[i + 1], m_positions[i + 2]);
 		if(gTriangle.isDegenerate())
 		{
 			continue;

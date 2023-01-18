@@ -8,7 +8,7 @@
 namespace ph::math
 {
 
-/*! @brief Mitchell¡VNetravali filter function.
+/*! @brief Mitchellâ€“Netravali filter function.
 */
 template<typename ValueType>
 class TMNCubic2D : public TMathFunction2D<ValueType>

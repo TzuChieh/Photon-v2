@@ -58,12 +58,12 @@ std::shared_ptr<GTriangleMesh> GRectangle::genTriangleMesh() const
 
 	// 2 triangles for a rectangle (both CCW)
 
-	GTriangle tri1(vA, vB, vD);
+	auto tri1 = TSdl<GTriangle>::make().setVertices(vA, vB, vD);
 	tri1.setUVWa(tA.mul(m_texCoordScale));
 	tri1.setUVWb(tB.mul(m_texCoordScale));
 	tri1.setUVWc(tD.mul(m_texCoordScale));
 
-	GTriangle tri2(vB, vC, vD);
+	auto tri2 = TSdl<GTriangle>::make().setVertices(vB, vC, vD);
 	tri2.setUVWa(tB.mul(m_texCoordScale));
 	tri2.setUVWb(tC.mul(m_texCoordScale));
 	tri2.setUVWc(tD.mul(m_texCoordScale));

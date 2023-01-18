@@ -165,7 +165,7 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 		math::Vector3R vB(vertices[iTriangle.iB]);
 		math::Vector3R vC(vertices[iTriangle.iC]);
 
-		GTriangle triangle(vA, vB, vC);
+		auto triangle = TSdl<GTriangle>::make().setVertices(vA, vB, vC);
 		triangle.setNa(vA.normalize());
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());

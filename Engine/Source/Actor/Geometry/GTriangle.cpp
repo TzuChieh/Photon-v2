@@ -20,8 +20,9 @@ void GTriangle::genPrimitive(
 {
 	PH_ASSERT(data.metadata);
 
-	if(isDegenerate() || 
-	   (!m_vA.isFinite() || !m_vB.isFinite() || !m_vC.isFinite()))
+	// FIXME: we often have triangle that is a single point (one form of degenerate), should properly handle this
+	if(/* isDegenerate() || */
+		(!m_vA.isFinite() || !m_vB.isFinite() || !m_vC.isFinite()))
 	{
 		throw_formatted<CookException>(
 			"improper triangle vertex detected: v-A = {}, v-B = {}, v-C = {}",

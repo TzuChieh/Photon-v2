@@ -1,7 +1,7 @@
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "Core/HitProbe.h"
 #include "Core/Ray.h"
-#include "Actor/CookedDataStorage.h"
+#include "World/Foundation/CookedDataStorage.h"
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Core/Intersectable/Bvh/BvhBuilder.h"
 #include "Math/Geometry/TAABB3D.h"
