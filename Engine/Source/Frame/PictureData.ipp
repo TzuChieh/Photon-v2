@@ -235,7 +235,8 @@ inline std::size_t PictureData::getByteIndex(
 	PH_ASSERT_LT(yPx, m_sizePx.y());
 	PH_ASSERT_LT(componentIndex, m_numComponents);
 
-	return (yPx * m_sizePx.x() * m_numComponents + xPx + componentIndex) * sizeof(PictureComponent);
+	const auto linearPixelIndex = yPx * m_sizePx.x() + xPx;
+	return (linearPixelIndex * m_numComponents + componentIndex) * sizeof(PictureComponent);
 }
 
 }// end namespace ph
