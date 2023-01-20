@@ -159,16 +159,24 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 void VisualWorld::cookActors(
 	std::shared_ptr<Actor>* const actors,
-	const std::size_t  numActors,
+	const std::size_t numActors,
 	CookingContext& ctx)
 {
 	PH_ASSERT(actors);
 
 	for(std::size_t i = 0; i < numActors; ++i)
 	{
-		CookedUnit cookedUnit = actors[i]->cook(ctx);
-		cookedUnit.claimCookedData(m_cookedActorStorage);
-		cookedUnit.claimCookedBackend(m_cookedBackendStorage);// TODO: make backend phantoms
+		try
+		{
+			CookedUnit cookedUnit = actors[i]->cook(ctx);
+			cookedUnit.claimCookedData(m_cookedActorStorage);
+			cookedUnit.claimCookedBackend(m_cookedBackendStorage);// TODO: make backend phantoms
+		}
+		catch(const Exception& e)
+		{
+			PH_LOG_ERROR(VisualWorld,
+				"error on cooking actor: {}", e.what());
+		}
 	}
 }
 

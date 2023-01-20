@@ -168,6 +168,18 @@ class Spectrum(AbstractData):
         return "".join(fragments)
 
 
+class Path(AbstractData):
+    def __init__(self, string=""):
+        super().__init__()
+        self.string = string
+
+    def get_type(self):
+        return "path"
+
+    def generate_data(self):
+        return self.string
+
+
 class Reference(AbstractData):
     def __init__(self, ref_type="", ref_name=""):
         super().__init__()

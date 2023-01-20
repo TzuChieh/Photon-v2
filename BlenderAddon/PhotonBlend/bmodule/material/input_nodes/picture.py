@@ -25,16 +25,16 @@ class PhPictureNode(PhMaterialNode):
 
     def to_sdl(self, b_material, sdlconsole):
         image_socket = self.outputs[0]
-        image_res_name = naming.get_mangled_output_node_socket_name(image_socket, b_material)
+        image_res_name = naming.get_mangled_output_node_socket_name(image_socket, b_material) 
 
         if self.file_path != "":
-            creator = sdl.LdrPictureImageCreator()
+            creator = sdl.RasterFileImageCreator()
             image_path = bpy.path.abspath(self.file_path)
             image_sdlri = sdlresource.SdlResourceIdentifier()
             image_sdlri.append_folder(PhPictureNode.bl_idname + "_pictures")
             image_sdlri.set_file(utility.get_filename(image_path))
-            creator.set_image(sdl.String(image_sdlri.get_identifier()))
-            creator.set_sample_mode(sdl.String("bilinear"))
+            creator.set_file_path(sdl.Path(image_sdlri.get_identifier()))
+            creator.set_sample_mode(sdl.Enum("bilinear"))
 
             # copy the file to scene folder
             sdlconsole.create_resource_folder(image_sdlri)
@@ -44,8 +44,9 @@ class PhPictureNode(PhMaterialNode):
         else:
             print("warning: picture node in material %s has no image file, result will be black" % b_material.name)
 
+            # TODO: properly handle color space
             creator = sdl.ConstantImageCreator()
-            creator.set_value_type(sdl.String("raw"))
+            creator.set_color_space(sdl.String("LSRGB"))
             creator.set_value(sdl.Real(0))
 
         creator.set_data_name(image_res_name)
