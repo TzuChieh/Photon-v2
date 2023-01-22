@@ -1,12 +1,13 @@
 from psdl.sdlconsole import SdlConsole
 from psdl import sdl
 from bmodule import naming
-import utility
 from bmodule.light import area, point
+import utility
 
 import bpy
-import math
 import mathutils
+
+import math
 
 
 def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlConsole):
@@ -22,18 +23,14 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
     source_name = naming.get_mangled_light_name(b_light)
     actor_name = naming.get_mangled_object_name(b_light_object)
 
-    pos, rot, scale = b_light_object.matrix_world.decompose()
+    pos, rot, scale = utility.to_photon_pos_rot_scale(b_light_object.matrix_world)
 
-    # Blender's rectangle area light is in its xy-plane (facing -z axis) by default, while Photon's rectangle
-    # is in Blender's yz-plane (facing +x axis); these rotations accounts for such difference
+    # Blender's rectangle area light is facing downwards (Blender's -z) by default, while Photon's rectangle 
+    # is facing upwards (Blender's +z); these rotations account for such differences (for symmetric shape 
+    # this works, otherwise the result of the rotations may make the shape upside down)
     if b_light.type == 'AREA':
         if b_light.shape == 'SQUARE' or b_light.shape == 'RECTANGLE':
-            rot = rot @ mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(90.0))
-            rot = rot @ mathutils.Quaternion((0.0, 0.0, 1.0), math.radians(-90.0))
-
-    pos = utility.to_photon_vec3(pos)
-    rot = utility.to_photon_quat(rot)
-    scale = utility.to_photon_vec3(scale)
+            rot = rot @ mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(180.0))
 
     creator = sdl.LightActorCreator()
     creator.set_data_name(actor_name)

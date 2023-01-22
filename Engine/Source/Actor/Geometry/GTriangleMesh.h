@@ -12,7 +12,7 @@ namespace ph
 /*! @brief Basic triangle mesh.
 
 This is a naive representation of triangle mesh (simply an aggregate of 
-individual triangles).
+individual triangle attributes).
 */
 class GTriangleMesh : public Geometry
 {

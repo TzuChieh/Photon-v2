@@ -15,7 +15,8 @@ def buffers_to_sdl_triangle_mesh(
 
     positions = sdl.Vector3Array()
     for b_position in buffers["positions"]:
-        positions.add(utility.to_photon_vec3(b_position))
+        # positions.add(utility.to_photon_vec3(b_position))
+        positions.add(b_position)
     creator.set_positions(positions)
 
     tex_coords = sdl.Vector3Array()
@@ -25,7 +26,8 @@ def buffers_to_sdl_triangle_mesh(
 
     normals = sdl.Vector3Array()
     for b_normal in buffers["normals"]:
-        normals.add(utility.to_photon_vec3(b_normal))
+        # normals.add(utility.to_photon_vec3(b_normal))
+        normals.add(b_normal)
     creator.set_normals(normals)
 
     console.queue_command(creator)

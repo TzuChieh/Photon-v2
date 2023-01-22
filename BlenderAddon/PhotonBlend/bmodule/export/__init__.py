@@ -75,10 +75,6 @@ class Exporter:
 
         # TODO: check non-uniform scale
 
-        position = self.__blendToPhotonVector(position)
-        rotation = self.__blendToPhotonQuaternion(rotation)
-        scale = self.__blendToPhotonVector(scale)
-
         if lightSourceName is not None:
             creator = sdl.LightActorCreator()
             creator.set_data_name(actorLightName)
@@ -118,10 +114,6 @@ class Exporter:
             print("warning: no name should be none, not exporting")
             return
 
-        position = self.__blendToPhotonVector(position)
-        rotation = self.__blendToPhotonQuaternion(rotation)
-        scale = self.__blendToPhotonVector(scale)
-
         creator = sdl.ModelActorCreator()
         creator.set_data_name(actorModelName)
         creator.set_geometry(sdl.Geometry(geometryName))
@@ -147,20 +139,6 @@ class Exporter:
     # 	command = RawCommand()
     # 	command.append_string(rawText)
     # 	self.__sdlconsole.queue_command(command)
-
-    def __blendToPhotonVector(self, blenderVector):
-        photonVector = mathutils.Vector((blenderVector.y,
-                                         blenderVector.z,
-                                         blenderVector.x))
-        return photonVector
-
-    def __blendToPhotonQuaternion(self, blenderQuaternion):
-        # initializer is like mathutils.Quaternion(w, x, y, z)
-        photonQuaternion = mathutils.Quaternion((blenderQuaternion.w,
-                                                 blenderQuaternion.y,
-                                                 blenderQuaternion.z,
-                                                 blenderQuaternion.x))
-        return photonQuaternion
 
     def export_mesh_object(self, b_mesh_object: bpy.types.Object):
         b_mesh = b_mesh_object.data
@@ -237,7 +215,7 @@ class Exporter:
                 b_mesh.has_custom_normals)
 
             # creating actor (can be either model or light depending on emissivity)
-            pos, rot, scale = b_mesh_object.matrix_world.decompose()
+            pos, rot, scale = utility.to_photon_pos_rot_scale(b_mesh_object.matrix_world)
 
             if material.helper.is_emissive(b_material):
                 light_source_name = geometry_name
@@ -260,7 +238,7 @@ class Exporter:
         observer = None
         if b_camera.type == "PERSP":
 
-            pos, rot, scale = b_camera_object.matrix_world.decompose()
+            position, rot, scale = utility.to_photon_pos_rot_scale(b_camera_object.matrix_world)
             if abs(scale.x - 1.0) > 0.0001 or abs(scale.y - 1.0) > 0.0001 or abs(scale.z - 1.0) > 0.0001:
                 print("warning: camera (%s) contains scale factor, ignoring" % b_camera.name)
 
@@ -282,26 +260,18 @@ class Exporter:
                     b_camera.name, b_camera.lens_unit))
 
             if not b_camera.ph_has_dof:
-                position = utility.to_photon_vec3(pos)
-                direction = utility.to_photon_vec3(cam_dir)
-                up_direction = utility.to_photon_vec3(cam_up_dir)
-
                 observer = sdl.SingleLensObserverCreator()
                 observer.set_fov_degrees(sdl.Real(fov_degrees))
                 observer.set_position(sdl.Vector3(position))
-                observer.set_direction(sdl.Vector3(direction))
-                observer.set_up_axis(sdl.Vector3(up_direction))
+                observer.set_direction(sdl.Vector3(cam_dir))
+                observer.set_up_axis(sdl.Vector3(cam_up_dir))
 
             else:
-                position = utility.to_photon_vec3(pos)
-                direction = utility.to_photon_vec3(cam_dir)
-                up_direction = utility.to_photon_vec3(cam_up_dir)
-
                 observer = sdl.SingleLensObserverCreator()
                 observer.set_fov_degrees(sdl.Real(fov_degrees))
                 observer.set_position(sdl.Vector3(position))
-                observer.set_direction(sdl.Vector3(direction))
-                observer.set_up_axis(sdl.Vector3(up_direction))
+                observer.set_direction(sdl.Vector3(cam_dir))
+                observer.set_up_axis(sdl.Vector3(cam_up_dir))
                 observer.set_lens_radius_mm(sdl.Real(b_camera.ph_lens_radius_mm))
                 observer.set_focal_distance_mm(sdl.Real(b_camera.ph_focal_meters * 1000))
 
