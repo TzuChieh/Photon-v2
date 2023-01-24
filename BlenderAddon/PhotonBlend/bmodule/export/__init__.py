@@ -151,7 +151,7 @@ class Exporter:
             print("warning: mesh object (%s) has no material, not exporting" % b_mesh_object.name)
             return
 
-        # Group faces with the same material, then export each face-material pair as a Photon-v2's actor.
+        # Group faces with the same material, then export each material-faces pair as a Photon actor.
 
         b_mesh.calc_loop_triangles()
         if not b_mesh.has_custom_normals:

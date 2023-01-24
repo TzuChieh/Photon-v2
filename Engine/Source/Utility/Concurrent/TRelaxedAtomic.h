@@ -6,21 +6,24 @@
 namespace ph
 {
 
+/*! @brief Wrapper for relaxed atomic read and write. 
+May resort to lock based read/write if atomic read/write for type @p T is not supported.
+*/
 template<typename T>
-class TRelaxedRW final
+class TRelaxedAtomic final
 {
 public:
-	inline TRelaxedRW()
+	inline TRelaxedAtomic()
 		: m_atomic(T())
 	{}
 
 	template<typename U>
-	inline TRelaxedRW(U&& value)
+	inline TRelaxedAtomic(U&& value)
 		: m_atomic(std::forward<U>(value))
 	{}
 
 	/*!
-	@note Prefixing the method with the word "relaxed" is not redundant. It is to emphasize the
+	@note Prefixing the method with the word "relaxed" is intended--it is to emphasize the
 	fact that the read operation is with relaxed memory order, just like `std::memory_order_relaxed`
 	would be specified at the call site if `std::atomic` was used directly.
 	*/
@@ -30,7 +33,7 @@ public:
 	}
 
 	/*!
-	@note Prefixing the method with the word "relaxed" is not redundant. It is to emphasize the
+	@note Prefixing the method with the word "relaxed" is intended--it is to emphasize the
 	fact that the write operation is with relaxed memory order, just like `std::memory_order_relaxed`
 	would be specified at the call site if `std::atomic` was used directly.
 	*/

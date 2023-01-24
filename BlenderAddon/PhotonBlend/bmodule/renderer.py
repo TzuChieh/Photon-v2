@@ -37,7 +37,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         print("Photon Renderer started (id: %s)" % self.identifier)
 
-    # When the render engine instance is destroy, this is called. Clean up any render engine data here, for example
+    # When the render engine instance is destroyed, this is called. Clean up any render engine data here, for example
     # stopping running render threads.
     def __del__(self):
         # HACK: blender seems to be calling __del__ even if __init__ is not called first, filtering this situation out

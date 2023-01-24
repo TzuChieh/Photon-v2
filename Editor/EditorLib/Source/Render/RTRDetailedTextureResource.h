@@ -3,7 +3,7 @@
 #include "Render/RTRTextureResource.h"
 #include "RenderCore/GHITexture.h"
 
-#include <Utility/Concurrent/TRelaxedRW.h>
+#include <Utility/Concurrent/TRelaxedAtomic.h>
 
 #include <memory>
 #include <optional>
@@ -31,7 +31,7 @@ public:
 
 private:
 	std::unique_ptr<RTRTextureResource> m_resource;
-	TRelaxedRW<std::optional<GHITexture::NativeHandle>> m_sharedNativeHandle;
+	TRelaxedAtomic<std::optional<GHITexture::NativeHandle>> m_sharedNativeHandle;
 };
 
 }// end namespace ph::editor

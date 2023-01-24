@@ -15,7 +15,6 @@ def buffers_to_sdl_triangle_mesh(
 
     positions = sdl.Vector3Array()
     for b_position in buffers["positions"]:
-        # positions.add(utility.to_photon_vec3(b_position))
         positions.add(b_position)
     creator.set_positions(positions)
 
@@ -26,7 +25,6 @@ def buffers_to_sdl_triangle_mesh(
 
     normals = sdl.Vector3Array()
     for b_normal in buffers["normals"]:
-        # normals.add(utility.to_photon_vec3(b_normal))
         normals.add(b_normal)
     creator.set_normals(normals)
 
@@ -46,8 +44,8 @@ def loop_triangles_to_sdl_triangle_mesh(
     normals = []
     for b_loop_triangle in loop_triangles:
         """
-        Vertices and loops can be different since loops are primarily for shading--UVs/colors across an edge might be 
-        different (or hard edges), while vertices generally do not.
+        `vertices` and `loops` can be different since loops are primarily for shading--UVs/colors across an 
+        edge might be different (or hard edges), while vertices generally do not.
         """
         for vertex_index in b_loop_triangle.vertices:
             b_mesh_vertex = b_mesh_vertices[vertex_index]

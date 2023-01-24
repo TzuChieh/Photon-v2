@@ -78,7 +78,7 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         exporter.export_options(b_scene)
         exporter.end()
 
-    def get_evaluated_depsgraph(self, b_context):
+    def get_evaluated_depsgraph(self, b_context: bpy.types.Context):
         # Make sure we are getting up-to-date data before obtaining depsgraph
         b_context.view_layer.update()
         b_depsgraph = b_context.evaluated_depsgraph_get()

@@ -3,10 +3,9 @@ import bpy
 
 def mesh_object_force_subdiv_level(b_mesh_object: bpy.types.Object, out_original_settings, level):
     """
-    Enforce a subdivision level if the object has a subdivision surface modifier. Original settings are recorded and can
-    be used to restore to previous state.
+    Enforce a subdivision level if the object has a subdivision surface modifier. Original settings are 
+    recorded and can be used to restore to previous state.
     """
-
     settings = {}
     for b_modifier in b_mesh_object.modifiers:
         if b_modifier.type == 'SUBSURF':
@@ -30,7 +29,6 @@ def restore_mesh_object_subdiv_level(b_mesh_object: bpy.types.Object, original_s
     """
     Restore object subdivision level from the records.
     """
-
     if b_mesh_object.name not in original_settings:
         return
 
