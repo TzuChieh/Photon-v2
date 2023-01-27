@@ -13,6 +13,7 @@
 #include "Common/assertion.h"
 #include "Utility/IMoveOnly.h"
 #include "EngineEnv/EAccelerator.h"
+#include "World/Foundation/CookedResourceCollection.h"
 
 #include <vector>
 #include <memory>
@@ -37,13 +38,28 @@ public:
 	const Intersector* getIntersector() const;
 	const EmitterSampler* getEmitterSampler() const;
 	const Scene* getScene() const;
+	CookedResourceCollection* getCookedResources();
+
+	/*! @brief Bounds actors cooked in the first level.
+	The bound is only available after the first level has done cooking.
+	*/
+	math::AABB3D getRootActorsBound() const;
+
+	/*! @brief Bounds actors from levels finished cooking.
+	The bound is updated every time a level has done cooking. Generally this bound only grows as it
+	encapsulates all previous levels including the root level.
+	*/
+	math::AABB3D getLeafActorsBound() const;
 
 private:
+	std::unique_ptr<CookedResourceCollection> m_cookedResources;
 	std::vector<CookedUnit> m_cookedUnits;
 	CookedDataStorage m_cookedActorStorage;
 	CookedDataStorage m_cookedBackendStorage;
 	CookedDataStorage m_phantomStorage;
 	math::Vector3R m_receiverPos;
+	math::AABB3D m_rootActorsBound;
+	math::AABB3D m_leafActorsBound;
 
 	std::unique_ptr<Intersector>    m_intersector;
 	std::unique_ptr<EmitterSampler> m_emitterSampler;

@@ -10,7 +10,6 @@
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESUniformRandom.h"
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
-#include "World/VisualWorldInfo.h"
 #include "Core/Intersectable/Intersector/TIndexedKdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Actor/APhantomModel.h"
@@ -30,13 +29,16 @@ PH_DEFINE_INTERNAL_TIMER_STAT(CookActorLevels, VisualWorld);
 PH_DEFINE_INTERNAL_TIMER_STAT(UpdateAccelerators, VisualWorld);
 PH_DEFINE_INTERNAL_TIMER_STAT(UpdateLightSamplers, VisualWorld);
 
-VisualWorld::VisualWorld() :
-	m_intersector(),
+VisualWorld::VisualWorld()
+	: m_cookedResources(nullptr)
+	, m_intersector()
 	//m_emitterSampler(std::make_shared<ESUniformRandom>()),
-	m_emitterSampler(std::make_unique<ESPowerFavoring>()),
-	m_scene(),
-	m_receiverPos(0),
-	m_backgroundPrimitive(nullptr)
+	, m_emitterSampler(std::make_unique<ESPowerFavoring>())
+	, m_scene()
+	, m_receiverPos(0)
+	, m_backgroundPrimitive(nullptr)
+	, m_rootActorsBound(math::Vector3R(0))
+	, m_leafActorsBound(math::Vector3R(0))
 {}
 
 //void VisualWorld::addActor(std::shared_ptr<Actor> actor)
@@ -57,18 +59,18 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 {
 	PH_LOG(VisualWorld, "cooking visual world");
 
+	// Create the storage for cooked resources, and potentially free all previous resources
+	m_cookedResources = std::make_unique<CookedResourceCollection>();
+
 	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources<Actor>();
 
 	// TODO: clear cooked data
 
-	CookingContext ctx;
+	CookingContext ctx(this);
 
-	VisualWorldInfo visualWorldInfo;
-	ctx.setVisualWorldInfo(&visualWorldInfo);
-
-	// TODO: should union with receiver's bound instead
-	visualWorldInfo.setRootActorsBound(math::AABB3D(m_receiverPos));
-	visualWorldInfo.setLeafActorsBound(math::AABB3D(m_receiverPos));
+	// TODO: should set to be receiver's bounds instead
+	m_rootActorsBound = math::AABB3D(m_receiverPos);
+	m_leafActorsBound = math::AABB3D(m_receiverPos);
 
 	// Cook actors level by level (from lowest to highest)
 
@@ -111,10 +113,10 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		{
 			PH_LOG(VisualWorld, "root actors bound calculated to be: {}", bound.toString());
 
-			visualWorldInfo.setRootActorsBound(bound);
+			m_rootActorsBound = bound;
 		}
 
-		visualWorldInfo.setLeafActorsBound(bound);
+		m_leafActorsBound = bound;
 
 		// Add newly created actors
 		auto childActors = ctx.claimChildActors();
@@ -228,6 +230,21 @@ math::AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storag
 		fullBound.unionWith(intersectable->calcAABB());
 	}
 	return fullBound;
+}
+
+CookedResourceCollection* VisualWorld::getCookedResources()
+{
+	return m_cookedResources.get();
+}
+
+math::AABB3D VisualWorld::getRootActorsBound() const
+{
+	return m_rootActorsBound;
+}
+
+math::AABB3D VisualWorld::getLeafActorsBound() const
+{
+	return m_leafActorsBound;
 }
 
 }// end namespace ph

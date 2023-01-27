@@ -1,24 +1,23 @@
 #pragma once
 
+#include "Utility/INoCopyAndMove.h"
 #include "Utility/TUniquePtrVector.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
-#include "World/Foundation/ResourceCookReport.h"
+#include "Utility/Concurrent/TSynchronized.h"
 
 #include <vector>
 
 namespace ph
 {
 
-class CookedResourceCollection final
+class CookedResourceCollection final : private INoCopyAndMove
 {
 public:
 
 private:
 	TUniquePtrVector<PrimitiveMetadata> m_metadatas;
 	TUniquePtrVector<math::Transform> m_transforms;
-
-	std::vector<ResourceCookReport> m_cookReports;
 };
 
 }// end namespace ph

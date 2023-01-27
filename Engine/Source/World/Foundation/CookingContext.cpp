@@ -1,17 +1,26 @@
 #include "World/Foundation/CookingContext.h"
 #include "Common/logging.h"
+#include "World/Foundation/CookedResourceCollection.h"
+#include "World/VisualWorld.h"
 
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(CookingContext, World);
 
-CookingContext::CookingContext() :
-	m_childActors        (), 
-	m_phantoms           (), 
-	m_visualWorldInfo    (nullptr),
-	m_backgroundPrimitive(nullptr)
-{}
+CookingContext::CookingContext(VisualWorld* const world)
+	: m_world(world)
+	, m_resources(nullptr)
+	, m_childActors        ()
+	, m_phantoms           ()
+	, m_backgroundPrimitive(nullptr)
+{
+	m_resources = getWorld().getCookedResources();
+	if(!m_resources)
+	{
+		PH_LOG(CookingContext, "cooked resource storage is empty");
+	}
+}
 
 void CookingContext::addChildActor(std::unique_ptr<Actor> actor)
 {
@@ -35,16 +44,38 @@ const CookedUnit* CookingContext::getPhantom(const std::string& name) const
 	return result != m_phantoms.end() ? &(result->second) : nullptr;
 }
 
-void CookingContext::setVisualWorldInfo(const VisualWorldInfo* const info)
-{
-	m_visualWorldInfo = info;
-}
-
 std::vector<std::unique_ptr<Actor>> CookingContext::claimChildActors()
 {
 	auto childActors = std::move(m_childActors);
 	m_childActors.clear();
 	return childActors;
+}
+
+CookedResourceCollection* CookingContext::getResources() const
+{
+	return m_resources;
+}
+
+math::AABB3D CookingContext::getRootActorsBound() const
+{
+	return getWorld().getRootActorsBound();
+}
+
+math::AABB3D CookingContext::getLeafActorsBound() const
+{
+	return getWorld().getLeafActorsBound();
+}
+
+VisualWorld& CookingContext::getWorld()
+{
+	PH_ASSERT(m_world);
+	return *m_world;
+}
+
+const VisualWorld& CookingContext::getWorld() const
+{
+	PH_ASSERT(m_world);
+	return *m_world;
 }
 
 }// end namespace ph

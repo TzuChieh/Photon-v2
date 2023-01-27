@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Actor/Actor.h"
 #include "Utility/IMoveOnly.h"
+#include "Actor/Actor.h"
 #include "World/Foundation/CookedUnit.h"
 #include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
+#include "Math/Geometry/TAABB3D.h"
 
 #include <vector>
 #include <memory>
@@ -15,14 +16,18 @@
 namespace ph
 {
 
-class VisualWorldInfo;
+class VisualWorld;
+class CookedResourceCollection;
 
+/*! @brief Information about the world being cooked.
+*/
 class CookingContext final : private IMoveOnly
 {
+	// TODO: remove
 	friend class VisualWorld;
 
 public:
-	CookingContext();
+	explicit CookingContext(VisualWorld* world);
 
 	// TODO: we can assign child actors special attributes such as
 	// deferred cooking, which opens the possibility of calculating
@@ -34,26 +39,32 @@ public:
 
 	std::vector<std::unique_ptr<Actor>> claimChildActors();
 
-	const VisualWorldInfo* getVisualWorldInfo() const;
 	void setBackgroundPrimitive(std::unique_ptr<Primitive> primitive);
 	std::unique_ptr<Primitive> claimBackgroundPrimitive();
 
-protected:
-	void setVisualWorldInfo(const VisualWorldInfo* info);
+	CookedResourceCollection* getResources() const;
+
+	/*! @brief Bounds actors cooked in the first level.
+	The bound is only available after the first level has done cooking.
+	*/
+	math::AABB3D getRootActorsBound() const;
+
+	/*! @brief Bounds actors from levels finished cooking.
+	The bound is updated every time a level has done cooking. Generally this bound only grows as it
+	encapsulates all previous levels including the root level.
+	*/
+	math::AABB3D getLeafActorsBound() const;
 
 private:
+	VisualWorld& getWorld();
+	const VisualWorld& getWorld() const;
+
+	VisualWorld* m_world;
+	CookedResourceCollection* m_resources;
 	std::vector<std::unique_ptr<Actor>>         m_childActors;
 	std::unordered_map<std::string, CookedUnit> m_phantoms;
-	const VisualWorldInfo*                      m_visualWorldInfo;
 	std::unique_ptr<Primitive>                  m_backgroundPrimitive;
 };
-
-// In-header Implementations:
-
-inline const VisualWorldInfo* CookingContext::getVisualWorldInfo() const
-{
-	return m_visualWorldInfo;
-}
 
 inline void CookingContext::setBackgroundPrimitive(std::unique_ptr<Primitive> primitive)
 {

@@ -2,7 +2,6 @@
 #include "Actor/Geometry/GSphere.h"
 #include "Actor/Material/IdealSubstance.h"
 #include "World/Foundation/CookingContext.h"
-#include "World/VisualWorldInfo.h"
 #include "Math/Transform/StaticRigidTransform.h"
 #include "Core/Intersectable/PLatLongEnvSphere.h"
 #include "Core/Emitter/LatLongEnvEmitter.h"
@@ -44,25 +43,15 @@ CookedUnit ADome::cook(CookingContext& ctx)
 
 	// Get the sphere radius that can encompass all actors
 	real domeRadius = 1000.0_r;
-	if(ctx.getVisualWorldInfo())
+	const auto worldBound = ctx.getLeafActorsBound();
+	for(auto vertex : worldBound.getBoundVertices())
 	{
-		const auto worldBound = ctx.getVisualWorldInfo()->getLeafActorsBound();
-		for(auto vertex : worldBound.getBoundVertices())
-		{
-			constexpr real ENLARGEMENT = 1.01_r;
+		constexpr real ENLARGEMENT = 1.01_r;
 
-			const auto vertexToCenter = (vertex - math::Vector3R(sanifiedLocalToWorld.getPosition()));
-			const real ri             = vertexToCenter.length() * ENLARGEMENT;
+		const auto vertexToCenter = (vertex - math::Vector3R(sanifiedLocalToWorld.getPosition()));
+		const real ri             = vertexToCenter.length() * ENLARGEMENT;
 
-			domeRadius = std::max(ri, domeRadius);
-		}
-	}
-	else
-	{
-		PH_LOG_WARNING(DomeActor,
-			"No visual world information available, cannot access actor bounds."
-			"Using {} as dome radius.", 
-			domeRadius);
+		domeRadius = std::max(ri, domeRadius);
 	}
 
 	auto metadata = std::make_unique<PrimitiveMetadata>();
