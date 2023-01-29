@@ -27,8 +27,9 @@ enum class ECookLevel : CookLevel
 
 /*! @brief Controls the order actors are cooked.
 */
-struct CookOrder
+class CookOrder final
 {
+public:
 	CookPriority priority;
 	CookLevel    level;
 

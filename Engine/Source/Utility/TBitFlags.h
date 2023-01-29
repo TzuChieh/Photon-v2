@@ -89,7 +89,7 @@ public:
 	This method is only defined for enum flags.
 	*/
 	inline Input getEnum() const 
-		requires CIsEnum<Input> && (sizeof(Input) >= sizeof(Value))
+		requires CEnum<Input> && (sizeof(Input) >= sizeof(Value))
 	{
 		return static_cast<Input>(m_bits);
 	}
@@ -102,13 +102,13 @@ private:
 
 /*! @brief Convenient type for using scoped/unscoped enum for bit flags.
 */
-template<CIsEnum EnumType>
+template<CEnum EnumType>
 using TEnumFlags = TBitFlags<std::underlying_type_t<EnumType>, EnumType>;
 
 }// end namespace ph
 
 #define PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(EnumType)\
-	static_assert(::ph::CIsEnum<EnumType>, #EnumType " must be an enum type");\
+	static_assert(::ph::CEnum<EnumType>, #EnumType " must be an enum type");\
 	\
 	inline EnumType operator | (const EnumType lhs, const EnumType rhs)\
 	{\

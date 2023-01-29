@@ -101,7 +101,7 @@ std::size_t num_bytes(EGHIInfoPixelFormat format);
 std::size_t num_bytes(EGHIInfoPixelComponent component);
 std::size_t num_bytes(EGHIInfoStorageElement element);
 
-template<CIsEnum DstEnumType>
+template<CEnum DstEnumType>
 DstEnumType translate_to(EPicturePixelComponent pictureComponent);
 
 }// end namespace ph::editor

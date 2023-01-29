@@ -12,28 +12,24 @@
 namespace ph
 {
 
-/*! @brief An actor that models the sky of the scene.
+struct DomeRadianceFunctionInfo final
+{
+	math::Vector2S resolution = {1, 1};
+	bool isAnalytical = false;
+};
 
-Model the sky in latitude-longitude format. Effectively a large energy
-emitting source encompassing the whole scene.
+/*! @brief An actor that models the sky of the scene.
+Model the sky in latitude-longitude format. Effectively a large energy emitting source encompassing 
+the whole scene.
 */
 class ADome : public PhysicalActor
 {
 public:
-	ADome();
-	ADome(const ADome& other) = default;
+	virtual std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(
+		CookingContext& ctx, DomeRadianceFunctionInfo* out_info) = 0;
 
-	virtual std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(CookingContext& ctx) = 0;
-	virtual math::Vector2S getResolution() const = 0;
-
-	CookedUnit cook(CookingContext& ctx) override;
+	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override;
 	CookOrder getCookOrder() const override;
-
-	bool isAnalytical() const;
-
-	ADome& operator = (const ADome& rhs);
-
-	friend void swap(ADome& first, ADome& second);
 
 private:
 	real m_energyScale;
@@ -55,18 +51,5 @@ public:
 		return clazz;
 	}
 };
-
-// In-header Implementations:
-
-inline CookOrder ADome::getCookOrder() const
-{
-	return CookOrder(ECookPriority::LOW, ECookLevel::LAST);
-}
-
-inline bool ADome::isAnalytical() const
-{
-	const auto resolution = getResolution();
-	return resolution.x() == 0 && resolution.y() == 0;
-}
 
 }// end namespace ph

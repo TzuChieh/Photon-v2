@@ -15,6 +15,8 @@
 #include "Actor/APhantomModel.h"
 #include "Common/logging.h"
 #include "Common/stats.h"
+#include "World/Foundation/CookOrder.h"
+#include "World/Foundation/PreCookReport.h"
 
 #include <limits>
 #include <iostream>
@@ -166,11 +168,18 @@ void VisualWorld::cookActors(
 {
 	PH_ASSERT(actors);
 
+	// TODO: parallel preCook() and postCook()
+
 	for(std::size_t i = 0; i < numActors; ++i)
 	{
+		auto actor = actors[i];
+
 		try
 		{
-			CookedUnit cookedUnit = actors[i]->cook(ctx);
+			PreCookReport report = actor->preCook(ctx);
+			CookedUnit cookedUnit = actor->cook(ctx, report);
+			actor->postCook(ctx, cookedUnit);
+
 			cookedUnit.claimCookedData(m_cookedActorStorage);
 			cookedUnit.claimCookedBackend(m_cookedBackendStorage);// TODO: make backend phantoms
 		}

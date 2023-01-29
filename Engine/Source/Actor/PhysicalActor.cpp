@@ -1,19 +1,27 @@
 #include "Actor/PhysicalActor.h"
 #include "Math/math.h"
 #include "Math/TVector3.h"
+#include "World/Foundation/PreCookReport.h"
+#include "World/Foundation/CookingContext.h"
+#include "World/Foundation/CookedResourceCollection.h"
+#include "Math/Transform/StaticAffineTransform.h"
 
 namespace ph
 {
 
-PhysicalActor::PhysicalActor() : 
-	Actor(), 
-	m_localToWorld()
-{}
+PreCookReport PhysicalActor::preCook(CookingContext& ctx)
+{
+	PreCookReport report = Actor::preCook(ctx);
 
-PhysicalActor::PhysicalActor(const PhysicalActor& other) : 
-	Actor(other), 
-	m_localToWorld()
-{}
+	auto localToWorld = ctx.getResources()->makeTransform<math::StaticAffineTransform>(
+		math::StaticAffineTransform::makeForward(m_localToWorld));
+	auto worldToLocal = ctx.getResources()->makeTransform<math::StaticAffineTransform>(
+		math::StaticAffineTransform::makeInverse(m_localToWorld));
+
+	report.setBaseTransforms(localToWorld, worldToLocal);
+
+	return report;
+}
 
 void PhysicalActor::translate(const math::Vector3R& translation)
 {
@@ -70,24 +78,5 @@ void PhysicalActor::setBaseTransform(const math::TDecomposedTransform<real>& bas
 //	m_localToWorld = m_transformInfo.genTransform(parentTransform);
 //	m_worldToLocal = m_transformInfo.genInverseTransform(parentInverseTransform);
 //}
-
-PhysicalActor& PhysicalActor::operator = (const PhysicalActor& rhs)
-{
-	Actor::operator = (rhs);
-
-	m_localToWorld = rhs.m_localToWorld;
-
-	return *this;
-}
-
-void swap(PhysicalActor& first, PhysicalActor& second)
-{
-	// Enable ADL
-	using std::swap;
-
-	// By swapping the members of two objects, the two objects are effectively swapped
-	swap(static_cast<Actor&>(first), static_cast<Actor&>(second));
-	swap(first.m_localToWorld,       second.m_localToWorld);
-}
 
 }// end namespace ph

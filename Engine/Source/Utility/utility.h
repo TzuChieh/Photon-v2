@@ -124,20 +124,20 @@ inline consteval std::size_t sizeof_in_bits()
 	return CHAR_BIT * sizeof(T);
 }
 
-template<CIsEnum EnumType>
+template<CEnum EnumType>
 inline constexpr auto enum_to_value(const EnumType enumValue)
 {
 	using ValueType = std::underlying_type_t<EnumType>;
 	return static_cast<ValueType>(enumValue);
 }
 
-template<CIsEnum EnumType>
+template<CEnum EnumType>
 inline std::string enum_to_string(const EnumType enumValue)
 {
 	return std::to_string(enum_to_value(enumValue));
 }
 
-template<CIsEnumWithSizeInfo EnumType>
+template<CEnumWithSizeInfo EnumType>
 inline constexpr auto enum_size()
 {
 	return enum_to_value(EnumType::SIZE);
@@ -269,7 +269,7 @@ If there is any possible overflow or numeric precision loss, exception is thrown
 @exception OverflowException If overflow happens.
 @exception Numericxception If any numeric precision loss happens.
 */
-template<CIsNumber DstType, CIsNumber SrcType>
+template<CNumber DstType, CNumber SrcType>
 inline DstType lossless_cast(const SrcType src)
 {
 	// Integer -> Integer
@@ -300,7 +300,7 @@ inline DstType lossless_cast(const SrcType src)
 	}
 }
 
-template<CIsNumber DstType, CIsNumber SrcType>
+template<CNumber DstType, CNumber SrcType>
 inline DstType lossless_cast(const SrcType src, DstType* const out_dst)
 {
 	PH_ASSERT(out_dst);

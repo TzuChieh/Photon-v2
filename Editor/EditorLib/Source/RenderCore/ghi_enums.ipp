@@ -65,7 +65,7 @@ inline std::size_t num_bytes(const EGHIInfoStorageElement element)
 	}
 }
 
-template<CIsEnum DstEnumType>
+template<CEnum DstEnumType>
 DstEnumType translate_to(const EPicturePixelComponent pictureComponent)
 {
 	if constexpr(std::is_same_v<DstEnumType, EGHIInfoPixelComponent>)

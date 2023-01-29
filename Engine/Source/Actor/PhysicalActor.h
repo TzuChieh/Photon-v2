@@ -14,10 +14,9 @@ namespace ph
 class PhysicalActor : public Actor
 {
 public:
-	PhysicalActor();
-	PhysicalActor(const PhysicalActor& other);
+	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override = 0;
 
-	CookedUnit cook(CookingContext& ctx) override = 0;
+	PreCookReport preCook(CookingContext& ctx) override;
 
 	void translate(const math::Vector3R& translation);
 	void translate(const real x, const real y, const real z);
@@ -31,10 +30,6 @@ public:
 
 	/*const StaticTransform* getLocalToWorldTransform() const;
 	const StaticTransform* getWorldToLocalTransform() const;*/
-
-	PhysicalActor& operator = (const PhysicalActor& rhs);
-
-	friend void swap(PhysicalActor& first, PhysicalActor& second);
 
 protected:
 	math::TDecomposedTransform<real> m_localToWorld;

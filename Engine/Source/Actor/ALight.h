@@ -16,18 +16,10 @@ namespace ph
 class ALight : public PhysicalActor
 {
 public:
-	ALight();
-	explicit ALight(const std::shared_ptr<LightSource>& lightSource);
-	ALight(const ALight& other);
-
-	CookedUnit cook(CookingContext& ctx) override;
+	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override;
 
 	const LightSource* getLightSource() const;
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);
-
-	ALight& operator = (ALight rhs);
-
-	friend void swap(ALight& first, ALight& second);
 
 private:
 	std::shared_ptr<LightSource> m_lightSource;

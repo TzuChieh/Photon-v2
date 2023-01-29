@@ -23,6 +23,7 @@ class TDecomposedTransform final
 {
 public:
 	/*! @brief Creates a transformation that will not have any effect.
+	Defaults to identity transform.
 	*/
 	TDecomposedTransform();
 

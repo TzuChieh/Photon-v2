@@ -22,24 +22,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(TransformedInstanceActor, Actor);
 
-
-ATransformedInstance::ATransformedInstance() :
-	PhysicalActor()
-{}
-
-ATransformedInstance::ATransformedInstance(const ATransformedInstance& other) :
-	PhysicalActor(other),
-	m_phantomName(other.m_phantomName)
-{}
-
-ATransformedInstance& ATransformedInstance::operator = (ATransformedInstance rhs)
-{
-	swap(*this, rhs);
-
-	return *this;
-}
-
-CookedUnit ATransformedInstance::cook(CookingContext& ctx)
+CookedUnit ATransformedInstance::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	CookedUnit cooked;
 
@@ -73,16 +56,6 @@ CookedUnit ATransformedInstance::cook(CookingContext& ctx)
 	cooked.addTransform(std::move(baseWL));
 
 	return cooked;
-}
-
-void swap(ATransformedInstance& first, ATransformedInstance& second)
-{
-	// enable ADL
-	using std::swap;
-
-	// by swapping the members of two objects, the two objects are effectively swapped
-	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
-	swap(first.m_phantomName,                second.m_phantomName);
 }
 
 }// end namespace ph

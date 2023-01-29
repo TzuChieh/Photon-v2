@@ -12,26 +12,16 @@ namespace ph
 {
 
 /*! @brief Model the sky of the scene with an image.
-
 Using a background image to represent the energy emitted from far away.
 */
 class AImageDome : public ADome
 {
 public:
-	AImageDome();
-	explicit AImageDome(const Path& imagePath);
-	AImageDome(const AImageDome& other) = default;
-
-	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(CookingContext& ctx) override;
-	math::Vector2S getResolution() const override;
-
-	AImageDome& operator = (AImageDome rhs);
-
-	friend void swap(AImageDome& first, AImageDome& second);
+	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(
+		CookingContext& ctx, DomeRadianceFunctionInfo* out_info) override;
 
 private:
-	Path           m_imagePath;
-	math::Vector2S m_imageResolution;
+	Path m_imagePath;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AImageDome>)

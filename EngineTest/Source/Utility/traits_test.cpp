@@ -108,3 +108,14 @@ TEST(TraitsTest, IsBuildable)
 	EXPECT_FALSE((ph::IsBuildable<int, std::string()>{}));
 	EXPECT_FALSE((ph::IsBuildable<std::string(), std::vector<float>()>{}));
 }
+
+TEST(TriatsTest, IsDerived)
+{
+	// A class type is its own derived type
+	static_assert(ph::CDerived<std::string, std::string> == true);
+
+	// Primitive types are never related to derivations
+	static_assert(ph::CDerived<int, int> == false);
+	static_assert(ph::CDerived<int, float> == false);
+	static_assert(ph::CDerived<double, double> == false);
+}

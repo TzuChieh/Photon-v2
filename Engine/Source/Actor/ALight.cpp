@@ -20,29 +20,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(LightActor, Actor);
 
-ALight::ALight() : 
-	PhysicalActor(), 
-	m_lightSource(nullptr)
-{}
-
-ALight::ALight(const std::shared_ptr<LightSource>& lightSource) : 
-	PhysicalActor(),
-	m_lightSource(lightSource)
-{}
-
-ALight::ALight(const ALight& other) : 
-	PhysicalActor(other),
-	m_lightSource(other.m_lightSource)
-{}
-
-ALight& ALight::operator = (ALight rhs)
-{
-	swap(*this, rhs);
-
-	return *this;
-}
-
-CookedUnit ALight::cook(CookingContext& ctx)
+CookedUnit ALight::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	if(!m_lightSource)
 	{
@@ -194,16 +172,6 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	}
 
 	return sanifiedGeometry;
-}
-
-void swap(ALight& first, ALight& second)
-{
-	// enable ADL
-	using std::swap;
-
-	// by swapping the members of two objects, the two objects are effectively swapped
-	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
-	swap(first.m_lightSource,                second.m_lightSource);
 }
 
 }// end namespace ph

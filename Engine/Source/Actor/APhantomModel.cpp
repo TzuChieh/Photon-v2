@@ -12,6 +12,7 @@
 #include "Actor/ModelBuilder.h"
 #include "World/Foundation/CookingContext.h"
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
+#include "World/Foundation/CookOrder.h"
 
 #include <algorithm>
 #include <memory>
@@ -20,31 +21,9 @@
 namespace ph
 {
 
-APhantomModel::APhantomModel() :
-	AModel()
-{}
-
-APhantomModel::APhantomModel(
-	const std::shared_ptr<Geometry>& geometry,
-	const std::shared_ptr<Material>& material) : 
-	AModel(geometry, material)
-{}
-
-APhantomModel::APhantomModel(const APhantomModel& other) :
-	AModel(other),
-	m_phantomName(other.m_phantomName)
-{}
-
-APhantomModel& APhantomModel::operator = (APhantomModel rhs)
+CookedUnit APhantomModel::cook(CookingContext& ctx, const PreCookReport& report)
 {
-	swap(*this, rhs);
-
-	return *this;
-}
-
-CookedUnit APhantomModel::cook(CookingContext& ctx)
-{
-	CookedUnit cooked = AModel::cook(ctx);
+	CookedUnit cooked = AModel::cook(ctx, report);
 
 	std::vector<const Intersectable*> intersectables;
 	for(auto& intersectable : cooked.intersectables())
@@ -63,14 +42,9 @@ CookedUnit APhantomModel::cook(CookingContext& ctx)
 	return CookedUnit();
 }
 
-void swap(APhantomModel& first, APhantomModel& second)
+CookOrder APhantomModel::getCookOrder() const
 {
-	// enable ADL
-	using std::swap;
-
-	// by swapping the members of two objects, the two objects are effectively swapped
-	swap(static_cast<AModel&>(first), static_cast<AModel&>(second));
-	swap(first.m_phantomName,         second.m_phantomName);
+	return CookOrder(ECookPriority::HIGH);
 }
 
 }// end namespace ph

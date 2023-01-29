@@ -2,10 +2,11 @@
 
 #include "DataIO/SDL/TSdlResourceBase.h"
 #include "World/Foundation/CookedUnit.h"
-#include "World/Foundation/CookOrder.h"
 #include "DataIO/SDL/sdl_interface.h"
 
+namespace ph { class PreCookReport; }
 namespace ph { class CookingContext; }
+namespace ph { class CookOrder; }
 
 namespace ph
 {
@@ -13,15 +14,21 @@ namespace ph
 class Actor : public TSdlResourceBase<ETypeCategory::Ref_Actor>
 {
 public:
-	Actor();
-	Actor(const Actor& other);
+	virtual CookedUnit cook(CookingContext& ctx, const PreCookReport& report) = 0;
 
-	virtual CookedUnit cook(CookingContext& ctx) = 0;
+	/*! @brief Cooking supplemental data before `cook()`.
+	This method allows user to specify additional configurations for the following cooking process.
+	The method is guaranteed to run in parallel.
+	*/
+	virtual PreCookReport preCook(CookingContext& ctx);
+
+	/*! @brief Adjust cooked unit after `cook()`.
+	This method allows user to decorate (perform additional modifications to) the cooked data.
+	The method is guaranteed to run in parallel.
+	*/
+	virtual void postCook(CookingContext& ctx, CookedUnit& cookedUnit);
+
 	virtual CookOrder getCookOrder() const;
-
-	Actor& operator = (const Actor& rhs);
-
-	friend void swap(Actor& first, Actor& second);
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Actor>)
@@ -34,12 +41,5 @@ public:
 		return clazz;
 	}
 };
-
-// In-header Implementations:
-
-inline CookOrder Actor::getCookOrder() const
-{
-	return CookOrder();
-}
 
 }// end namespace ph

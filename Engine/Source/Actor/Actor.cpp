@@ -1,20 +1,23 @@
 #include "Actor/Actor.h"
+#include "World/Foundation/PreCookReport.h"
+#include "World/Foundation/CookOrder.h"
 
 #include <utility>
 
 namespace ph
 {
 
-Actor::Actor() = default;
-
-Actor::Actor(const Actor& other) = default;
-
-Actor& Actor::operator = (const Actor& rhs)
+PreCookReport Actor::preCook(CookingContext& ctx)
 {
-	return *this;
+	return PreCookReport(getId());
 }
 
-void swap(Actor& first, Actor& second)
+void Actor::postCook(CookingContext& ctx, CookedUnit& cookedUnit)
 {}
+
+CookOrder Actor::getCookOrder() const
+{
+	return CookOrder();
+}
 
 }// end namespace ph

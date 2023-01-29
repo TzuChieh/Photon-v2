@@ -9,6 +9,7 @@
 #include "Actor/Dome/APreethamDome.h"
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Common/logging.h"
+#include "World/Foundation/CookOrder.h"
 
 #include <algorithm>
 
@@ -17,14 +18,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(DomeActor, Actor);
 
-ADome::ADome() : 
-
-	PhysicalActor(),
-
-	m_energyScale(1.0_r)
-{}
-
-CookedUnit ADome::cook(CookingContext& ctx)
+CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	// Ensure reasonable transformation for the dome
 	math::TDecomposedTransform<real> sanifiedLocalToWorld = m_localToWorld;
@@ -67,7 +61,8 @@ CookedUnit ADome::cook(CookingContext& ctx)
 		localToWorld.get(),
 		worldToLocal.get());
 	
-	auto radianceFunction = loadRadianceFunction(ctx);
+	DomeRadianceFunctionInfo radianceFunctionInfo;
+	auto radianceFunction = loadRadianceFunction(ctx, &radianceFunctionInfo);
 	if(m_energyScale != 1.0_r)
 	{
 		auto scaledRadianceFunction = std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, texfunc::SpectrumMultiplyScalar>>(
@@ -76,19 +71,18 @@ CookedUnit ADome::cook(CookingContext& ctx)
 		radianceFunction = scaledRadianceFunction;
 	}
 
-	// HACK:
+	// FIXME:
 	std::unique_ptr<Emitter> domeEmitter;
-	if(!isAnalytical())
+	if(!radianceFunctionInfo.isAnalytical)
 	{
-		auto resolution = getResolution();
-
 		domeEmitter = std::make_unique<LatLongEnvEmitter>(
 			domePrimitive.get(),
 			radianceFunction,
-			resolution);
+			radianceFunctionInfo.resolution);
 	}
 	else
 	{
+		// FIXME: proper resolution for analytical emitter
 		domeEmitter = std::make_unique<LatLongEnvEmitter>(
 			domePrimitive.get(),
 			radianceFunction,
@@ -110,19 +104,9 @@ CookedUnit ADome::cook(CookingContext& ctx)
 	return cookedActor;
 }
 
-ADome& ADome::operator = (const ADome& rhs)
+CookOrder ADome::getCookOrder() const
 {
-	PhysicalActor::operator = (rhs);
-
-	return *this;
-}
-
-void swap(ADome& first, ADome& second)
-{
-	// Enable ADL
-	using std::swap;
-
-	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
+	return CookOrder(ECookPriority::LOW, ECookLevel::LAST);
 }
 
 }// end namespace ph

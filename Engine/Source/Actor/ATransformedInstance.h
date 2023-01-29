@@ -10,14 +10,7 @@ namespace ph
 class ATransformedInstance : public PhysicalActor
 {
 public:
-	ATransformedInstance();
-	ATransformedInstance(const ATransformedInstance& other);
-
-	CookedUnit cook(CookingContext& ctx) override;
-
-	ATransformedInstance& operator = (ATransformedInstance rhs);
-
-	friend void swap(ATransformedInstance& first, ATransformedInstance& second);
+	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override;
 
 private:
 	std::string m_phantomName;

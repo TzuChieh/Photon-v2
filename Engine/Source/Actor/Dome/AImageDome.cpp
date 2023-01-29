@@ -4,19 +4,8 @@
 namespace ph
 {
 
-AImageDome::AImageDome() :
-	AImageDome(Path())
-{}
-
-AImageDome::AImageDome(const Path& imagePath) :
-
-	ADome(),
-
-	m_imagePath      (imagePath),
-	m_imageResolution(1, 1)
-{}
-
-std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(CookingContext& ctx)
+std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(
+	CookingContext& ctx, DomeRadianceFunctionInfo* const out_info)
 {
 	RasterFileImage image(m_imagePath);
 	image.setSampleMode(EImageSampleMode::Bilinear);
@@ -26,32 +15,14 @@ std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(Cooki
 
 	auto radianceFunc = image.genColorTexture(ctx);
 
-	// Access image property after cooking for an up-to-date value
-	m_imageResolution = math::Vector2S(image.getResolution());
+	// Provide info for image property after successfully cooking for an up-to-date value
+	if(out_info)
+	{
+		out_info->isAnalytical = false;
+		out_info->resolution = math::Vector2S(image.getResolution());
+	}
 
 	return radianceFunc;
-}
-
-math::Vector2S AImageDome::getResolution() const
-{
-	return m_imageResolution;
-}
-
-AImageDome& AImageDome::operator = (AImageDome rhs)
-{
-	swap(*this, rhs);
-
-	return *this;
-}
-
-void swap(AImageDome& first, AImageDome& second)
-{
-	// Enable ADL
-	using std::swap;
-
-	swap(static_cast<ADome&>(first), static_cast<ADome&>(second));
-	swap(first.m_imagePath,          second.m_imagePath);
-	swap(first.m_imageResolution,    second.m_imageResolution);
 }
 
 }// end namespace ph

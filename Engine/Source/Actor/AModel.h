@@ -15,22 +15,13 @@ namespace ph
 class AModel : public PhysicalActor
 {
 public:
-	AModel();
-	AModel(const std::shared_ptr<Geometry>& geometry, 
-	       const std::shared_ptr<Material>& material);
-	AModel(const AModel& other);
-
-	CookedUnit cook(CookingContext& ctx) override;
-
-	AModel& operator = (AModel rhs);
+	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override;
 
 	const Geometry* getGeometry() const;
 	const Material* getMaterial() const;
 	void setGeometry(const std::shared_ptr<Geometry>& geometry);
 	void setMaterial(const std::shared_ptr<Material>& material);
 	void setMotionSource(const std::shared_ptr<MotionSource>& motion);
-
-	friend void swap(AModel& first, AModel& second);
 
 private:
 	std::shared_ptr<Geometry>     m_geometry;

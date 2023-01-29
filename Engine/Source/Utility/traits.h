@@ -68,15 +68,18 @@ concept CSubscriptable = requires (ObjType obj, std::size_t index)
 /*! @brief Whether the type is a scoped/unscoped enum.
 */
 template<typename EnumType>
-concept CIsEnum = std::is_enum_v<EnumType>;
+concept CEnum = std::is_enum_v<EnumType>;
 
 template<typename EnumType>
-concept CIsEnumWithSizeInfo = CIsEnum<EnumType> && requires
+concept CEnumWithSizeInfo = CEnum<EnumType> && requires
 {
 	{ EnumType::SIZE } -> std::convertible_to<EnumType>;
 };
 
 template<typename NumberType>
-concept CIsNumber = std::is_arithmetic_v<NumberType>;
+concept CNumber = std::is_arithmetic_v<NumberType>;
+
+template<typename DerivedType, typename BaseType>
+concept CDerived = std::derived_from<DerivedType, BaseType>;
 
 }// end namespace ph

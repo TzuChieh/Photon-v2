@@ -10,12 +10,18 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PreethamDomeActor, Actor);
 
-std::shared_ptr<TTexture<math::Spectrum>> APreethamDome::loadRadianceFunction(CookingContext& ctx)
+std::shared_ptr<TTexture<math::Spectrum>> APreethamDome::loadRadianceFunction(
+	CookingContext& ctx, DomeRadianceFunctionInfo* const out_info)
 {
 	checkTurbidity(m_turbidity);
 
-	const math::Vector2R sunPhiTheta = calcSunSphericalCoordinates();
+	if(out_info)
+	{
+		out_info->isAnalytical = true;
+		out_info->resolution = {0, 0};
+	}
 
+	const math::Vector2R sunPhiTheta = calcSunSphericalCoordinates();
 	return std::make_shared<PreethamTexture>(
 		sunPhiTheta.x(),
 		sunPhiTheta.y(),

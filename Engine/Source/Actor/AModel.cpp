@@ -16,36 +16,7 @@
 namespace ph
 {
 
-AModel::AModel() : 
-	PhysicalActor(), 
-	m_geometry(nullptr), 
-	m_material(nullptr), 
-	m_motionSource(nullptr)
-{}
-
-AModel::AModel(const std::shared_ptr<Geometry>& geometry, 
-               const std::shared_ptr<Material>& material) : 
-	PhysicalActor(), 
-	m_geometry(geometry), 
-	m_material(material), 
-	m_motionSource(nullptr)
-{}
-
-AModel::AModel(const AModel& other) : 
-	PhysicalActor(other), 
-	m_geometry(other.m_geometry), 
-	m_material(other.m_material), 
-	m_motionSource(other.m_motionSource)
-{}
-
-AModel& AModel::operator = (AModel rhs)
-{
-	swap(*this, rhs);
-
-	return *this;
-}
-
-CookedUnit AModel::cook(CookingContext& ctx)
+CookedUnit AModel::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	if(!m_geometry || !m_material)
 	{
@@ -115,18 +86,6 @@ const Geometry* AModel::getGeometry() const
 const Material* AModel::getMaterial() const
 {
 	return m_material.get();
-}
-
-void swap(AModel& first, AModel& second)
-{
-	// Enable ADL
-	using std::swap;
-
-	// By swapping the members of two objects, the two objects are effectively swapped
-	swap(static_cast<PhysicalActor&>(first), static_cast<PhysicalActor&>(second));
-	swap(first.m_geometry,                   second.m_geometry);
-	swap(first.m_material,                   second.m_material);
-	swap(first.m_motionSource,               second.m_motionSource);
 }
 
 }// end namespace ph
