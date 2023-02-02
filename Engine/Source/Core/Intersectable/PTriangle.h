@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Math/TVector3.h"
 #include "Core/Intersectable/Primitive.h"
+#include "Math/TVector3.h"
 #include "Common/assertion.h"
 #include "Math/Geometry/TWatertightTriangle.h"
 
@@ -13,7 +13,7 @@ class Ray;
 class PTriangle : public Primitive
 {
 public:
-	PTriangle(const PrimitiveMetadata* metadata, const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC);
+	PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,

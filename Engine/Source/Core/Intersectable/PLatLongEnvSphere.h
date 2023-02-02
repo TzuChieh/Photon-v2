@@ -32,6 +32,8 @@ public:
 		const math::RigidTransform* localToWorld,
 		const math::RigidTransform* worldToLocal);
 
+	math::Vector2R positionToUV(const math::Vector3R& position) const override;
+
 	void calcIntersectionDetail(
 		const Ray& ray,
 		HitProbe&  probe,

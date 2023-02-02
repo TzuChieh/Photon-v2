@@ -7,7 +7,6 @@
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Math/TMatrix2.h"
 #include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
@@ -22,9 +21,10 @@
 namespace ph
 {
 
-PBasicSphere::PBasicSphere(const PrimitiveMetadata* const metadata, const real radius) :
-	Primitive(metadata),
-	m_radius(radius), m_rcpRadius(radius > 0.0_r ? 1.0_r / radius : 0.0_r)
+PBasicSphere::PBasicSphere(const real radius)
+	: Primitive()
+	, m_radius(radius)
+	, m_rcpRadius(radius > 0.0_r ? 1.0_r / radius : 0.0_r)
 {
 	PH_ASSERT_GE(radius, 0.0_r);
 }
@@ -90,8 +90,6 @@ real PBasicSphere::calcPositionSamplePdfA(const math::Vector3R& position) const
 
 void PBasicSphere::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
 {
-	PH_ASSERT(m_metadata);
-
 	const auto normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
 		sampleFlow.flow2D());
 	const auto position = normal * m_radius;
@@ -100,10 +98,8 @@ void PBasicSphere::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow&
 	query.out.position = position;
 	query.out.pdfA = PBasicSphere::calcPositionSamplePdfA(position);
 
-	// FIXME: able to specify mapper channel
-	const UvwMapper* mapper = m_metadata->getDefaultChannel().getMapper();
-	PH_ASSERT(mapper);
-	mapper->positionToUvw(position, &query.out.uvw);
+	const math::Vector2R uv = positionToUV(position);
+	query.out.uvw = {uv.x(), uv.y(), 0.0_r};
 }
 
 real PBasicSphere::calcExtendedArea() const

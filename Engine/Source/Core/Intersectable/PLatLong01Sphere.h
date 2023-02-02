@@ -8,7 +8,9 @@ namespace ph
 class PLatLong01Sphere : public PBasicSphere
 {
 public:
-	PLatLong01Sphere(const PrimitiveMetadata* metadata, real radius);
+	explicit PLatLong01Sphere(real radius);
+
+	math::Vector2R positionToUV(const math::Vector3R& position) const override;
 
 	void calcIntersectionDetail(
 		const Ray& ray,

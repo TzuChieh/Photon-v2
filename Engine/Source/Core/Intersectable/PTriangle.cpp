@@ -1,5 +1,4 @@
 #include "Core/Intersectable/PTriangle.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
@@ -16,9 +15,9 @@
 namespace ph
 {
 
-PTriangle::PTriangle(const PrimitiveMetadata* const metadata, const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC)
+PTriangle::PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC)
 
-	: Primitive(metadata)
+	: Primitive()
 
 	, m_triangle(vA, vB, vC)
 	, m_uvwA(0, 0, 0)

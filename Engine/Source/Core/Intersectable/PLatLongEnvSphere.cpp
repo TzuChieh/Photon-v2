@@ -35,6 +35,16 @@ PLatLongEnvSphere::PLatLongEnvSphere(
 	PH_ASSERT(worldToLocal);
 }
 
+math::Vector2R PLatLongEnvSphere::positionToUV(const math::Vector3R& position) const
+{
+	// UV is mapped from incident direction for the purpose of environment lighting
+	// (no need to renormalize after transform due to rigidity)
+	PH_ASSERT(m_worldToLocal);
+	math::Vector3R localUnitRayDir;
+	m_worldToLocal->transformV(unitRayDir, &localUnitRayDir);
+	const math::Vector2R& hitUv = unitSphere.surfaceToLatLong01(localUnitRayDir);
+}
+
 // TODO: use exact UV derivatives
 void PLatLongEnvSphere::calcIntersectionDetail(
 	const Ray&       ray,

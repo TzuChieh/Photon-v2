@@ -2,6 +2,7 @@
 
 #include "Core/Intersectable/Primitive.h"
 #include "Common/primitive_type.h"
+#include "Math/math_fwd.h"
 
 namespace ph
 {
@@ -9,7 +10,9 @@ namespace ph
 class PBasicSphere : public Primitive
 {
 public:
-	PBasicSphere(const PrimitiveMetadata* metadata, real radius);
+	explicit PBasicSphere(real radius);
+
+	virtual math::Vector2R positionToUV(const math::Vector3R& position) const = 0;
 
 	void calcIntersectionDetail(
 		const Ray& ray,

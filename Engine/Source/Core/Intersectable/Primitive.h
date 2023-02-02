@@ -18,8 +18,6 @@ class SampleFlow;
 class Primitive : public Intersectable
 {
 public:
-	explicit Primitive(const PrimitiveMetadata* metadata);
-
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
 
 	void calcIntersectionDetail(
@@ -52,10 +50,7 @@ public:
 		const math::Vector3R& uvw,
 		math::Vector3R*       out_position) const;
 
-	const PrimitiveMetadata* getMetadata() const;
-
-protected:
-	const PrimitiveMetadata* m_metadata;
+	virtual const PrimitiveMetadata* getMetadata() const;
 };
 
 // In-header Implementation:
@@ -70,16 +65,16 @@ inline real Primitive::calcExtendedArea() const
 	return 0.0_r;
 }
 
-inline const PrimitiveMetadata* Primitive::getMetadata() const
-{
-	return m_metadata;
-}
-
 inline bool Primitive::uvwToPosition(
 	const math::Vector3R& /* uvw */,
 	math::Vector3R*       /* out_position */) const
 {
 	return false;
+}
+
+inline const PrimitiveMetadata* Primitive::getMetadata() const
+{
+	return nullptr;
 }
 
 }// end namespace ph
