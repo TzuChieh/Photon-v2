@@ -56,8 +56,8 @@ private:
 	std::unique_ptr<Emitter>                      m_emitter;
 	std::vector<std::unique_ptr<Intersectable>>   m_backendIntersectables;
 
-	std::vector<const Intersectable*> m_topLevelIntersectables;
-	std::vector<const Intersectable*> m_bottomLevelIntersectables;
+	/*std::vector<const Intersectable*> m_topLevelIntersectables;
+	std::vector<const Intersectable*> m_bottomLevelIntersectables;*/
 };
 
 }// end namespace ph

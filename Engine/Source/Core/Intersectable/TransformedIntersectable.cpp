@@ -69,11 +69,11 @@ void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, HitProbe& 
 }
 
 // FIXME: this is broken under timed environment
-bool TransformedIntersectable::mayIntersectVolume(const math::AABB3D& aabb) const
+bool TransformedIntersectable::mayOverlapVolume(const math::AABB3D& aabb) const
 {
 	math::AABB3D localAABB;
 	m_worldToLocal->transform(aabb, &localAABB);
-	return m_intersectable->mayIntersectVolume(localAABB);
+	return m_intersectable->mayOverlapVolume(localAABB);
 }
 
 // FIXME: static intersectable do not need to consider time

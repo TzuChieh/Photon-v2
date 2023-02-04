@@ -79,6 +79,9 @@ concept CEnumWithSizeInfo = CEnum<EnumType> && requires
 template<typename NumberType>
 concept CNumber = std::is_arithmetic_v<NumberType>;
 
+template<typename TypeA, typename TypeB>
+concept CSame = std::same_as<TypeA, TypeB>;
+
 template<typename DerivedType, typename BaseType>
 concept CDerived = std::derived_from<DerivedType, BaseType>;
 

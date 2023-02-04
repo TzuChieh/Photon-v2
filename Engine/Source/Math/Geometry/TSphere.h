@@ -2,6 +2,8 @@
 
 #include "Math/Geometry/TLineSegment.h"
 #include "Math/math.h"
+#include "Math/math_fwd.h"
+#include "Math/Geometry/TAABB3D.h"
 
 #include <array>
 #include <utility>
@@ -26,7 +28,18 @@ public:
 		const TLineSegment<T>& segment,
 		real*                  out_hitT) const;
 
+	bool isInside(const TVector3<T>& point) const;
+
 	T getArea() const;
+	TAABB3D<T> getAABB() const;
+
+	/*! @brief Conservatively checks whether this sphere overlaps a volume.
+
+	By conservative, it means **true can be returned even though the sphere does not overlap 
+	the volume**; but if it actually does, **true must be returned**. The test considers the 
+	sphere as **hollow** and the volume is **solid**.
+	*/
+	bool mayOverlapVolume(const TAABB3D<T>& volume) const;
 
 	/*! @brief Map the 2D sample to a position on the surface of the sphere.
 	

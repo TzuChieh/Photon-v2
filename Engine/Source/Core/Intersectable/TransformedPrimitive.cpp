@@ -14,7 +14,7 @@ TransformedPrimitive::TransformedPrimitive(
 	const math::RigidTransform* const localToWorld,
 	const math::RigidTransform* const worldToLocal) :
 
-	Primitive(primitive != nullptr ? primitive->getMetadata() : nullptr),
+	Primitive(),
 
 	m_primitive(primitive),
 	m_intersectable(primitive, localToWorld, worldToLocal),

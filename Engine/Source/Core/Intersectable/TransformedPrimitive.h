@@ -56,9 +56,9 @@ public:
 		out_detail->setHitIntrinsics(this, out_detail->getUVW(), out_detail->getRayT());
 	}
 
-	inline bool mayIntersectVolume(const math::AABB3D& aabb) const override
+	inline bool mayOverlapVolume(const math::AABB3D& aabb) const override
 	{
-		return m_intersectable.mayIntersectVolume(aabb);
+		return m_intersectable.mayOverlapVolume(aabb);
 	}
 
 	inline math::AABB3D calcAABB() const override
@@ -79,11 +79,18 @@ public:
 		return m_primitive->calcExtendedArea();
 	}
 
+	const PrimitiveMetadata* getMetadata() const;
+
 private:
 	const Primitive*            m_primitive;
 	TransformedIntersectable    m_intersectable;
 	const math::RigidTransform* m_localToWorld;
 	const math::RigidTransform* m_worldToLocal;
 };
+
+inline const PrimitiveMetadata* TransformedPrimitive::getMetadata() const
+{
+	return m_primitive->getMetadata();
+}
 
 }// end namespace ph

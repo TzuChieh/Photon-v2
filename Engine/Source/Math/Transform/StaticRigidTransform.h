@@ -11,9 +11,8 @@ namespace ph::math
 
 PH_DEFINE_EXTERNAL_LOG_GROUP(StaticRigidTransform, Math);
 
-/*
-	A static transform that enforces object rigidity during the 
-	transformation process.
+/*!
+A static transform that enforces object rigidity during the transformation process.
 */
 class StaticRigidTransform : public RigidTransform
 {

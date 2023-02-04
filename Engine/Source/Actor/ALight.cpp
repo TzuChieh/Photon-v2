@@ -11,6 +11,7 @@
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
 #include "World/Foundation/CookingContext.h"
+#include "World/Foundation/CookedResourceCollection.h"
 #include "Common/logging.h"
 
 #include <algorithm>
@@ -81,20 +82,13 @@ CookedUnit ALight::buildGeometricLight(
 		sanifiedGeometry = geometry;
 	}
 
-	CookedUnit cookedActor;
-
-	PrimitiveMetadata* metadata;
-	{
-		auto primitiveMetadata = std::make_unique<PrimitiveMetadata>();
-		metadata = primitiveMetadata.get();
-		cookedActor.setPrimitiveMetadata(std::move(primitiveMetadata));
-	}
-
+	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 	material->genBehaviors(ctx, *metadata);
 
 	std::vector<std::unique_ptr<Primitive>> primitiveData;
 	sanifiedGeometry->genPrimitive(PrimitiveBuildingMaterial(metadata), primitiveData);
 
+	CookedUnit cookedActor;
 	std::vector<const Primitive*> primitives;
 	for(auto& primitiveDatum : primitiveData)
 	{
@@ -111,9 +105,6 @@ CookedUnit ALight::buildGeometricLight(
 		cookedActor.addBackend(std::move(primitiveDatum));
 		cookedActor.addIntersectable(std::move(transformedPrimitive));
 	}
-
-	// HACK
-	const Primitive* firstPrimitive = primitives.front();
 
 	EmitterBuildingMaterial emitterBuildingMaterial;
 	emitterBuildingMaterial.primitives = primitives;

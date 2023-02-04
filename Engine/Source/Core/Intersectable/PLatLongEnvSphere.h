@@ -3,11 +3,11 @@
 #include "Core/Intersectable/PBasicSphere.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
+#include "Math/Geometry/TAABB3D.h"
+#include "Math/Transform/StaticRigidTransform.h"
 
 namespace ph
 {
-
-namespace math { class RigidTransform; }
 
 /*! @brief A sphere specifically built for environment lighting.
 
@@ -24,20 +24,24 @@ nested primitive is discouraged unless the specification say so.
 class PLatLongEnvSphere : public PBasicSphere
 {
 public:
-	PLatLongEnvSphere(const PrimitiveMetadata* metadata, real radius);
+	explicit PLatLongEnvSphere(real radius);
 
 	PLatLongEnvSphere(
-		const PrimitiveMetadata*    metadata, 
-		real                        radius, 
-		const math::RigidTransform* localToWorld,
-		const math::RigidTransform* worldToLocal);
+		real radius, 
+		const math::StaticRigidTransform* localToWorld,
+		const math::StaticRigidTransform* worldToLocal);
 
-	math::Vector2R positionToUV(const math::Vector3R& position) const override;
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+	bool isOccluding(const Ray& ray) const override;
 
 	void calcIntersectionDetail(
 		const Ray& ray,
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
+
+	bool mayOverlapVolume(const math::AABB3D& volume) const override;
+	math::AABB3D calcAABB() const override;
+	real calcExtendedArea() const override;
 
 	bool latLong01ToSurface(
 		const math::Vector2R& latLong01, 
@@ -45,8 +49,36 @@ public:
 		math::Vector3R*       out_surface) const;
 
 private:
-	const math::RigidTransform* m_localToWorld;
-	const math::RigidTransform* m_worldToLocal;
+	const math::StaticRigidTransform* m_localToWorld;
+	const math::StaticRigidTransform* m_worldToLocal;
 };
+
+inline bool PLatLongEnvSphere::mayOverlapVolume(const math::AABB3D& volume) const
+{
+	// Note the naive implementation here has similar performance hit as `calcAABB()`, which
+	// is acceptable for now.
+	//
+	math::AABB3D localVolume;
+	m_worldToLocal->transform(volume, &localVolume);
+	return PBasicSphere::mayOverlapVolume(localVolume);
+}
+
+inline math::AABB3D PLatLongEnvSphere::calcAABB() const
+{
+	// Note that this is not a tight fit as we care about translation only. However this 
+	// primitive is used as background and generally do not participate in the building of 
+	// acceleration structures where `calcAABB()` is used the most--the performance hit is 
+	// acceptable for now.
+	//
+	math::AABB3D worldAABB;
+	m_localToWorld->transform(PBasicSphere::calcAABB(), &worldAABB);
+	return worldAABB;
+}
+
+inline real PLatLongEnvSphere::calcExtendedArea() const
+{
+	// Does not change under rigid transform
+	return PBasicSphere::calcExtendedArea();
+}
 
 }// end namespace ph

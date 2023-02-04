@@ -11,7 +11,7 @@ bool Intersectable::isOccluding(const Ray& ray) const
 	return isIntersecting(ray, dummyProbe);
 }
 
-bool Intersectable::mayIntersectVolume(const math::AABB3D& volume) const
+bool Intersectable::mayOverlapVolume(const math::AABB3D& volume) const
 {
 	return calcAABB().isIntersectingVolume(volume);
 }

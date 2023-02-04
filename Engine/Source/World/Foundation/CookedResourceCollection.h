@@ -19,10 +19,19 @@ namespace ph
 class CookedResourceCollection final : private INoCopyAndMove
 {
 public:
+	template<typename... DeducedArgs>
+	PrimitiveMetadata* makeMetadata(DeducedArgs&&... args)
+	{
+		// Create metadata in separate expression since no lock is required yet
+		auto newMetadata = std::make_unique<PrimitiveMetadata>(std::forward<DeducedArgs>(args)...);
+
+		return m_metadatas->add(std::move(newMetadata));
+	}
+
 	template<CDerived<math::Transform> TransformType, typename... DeducedArgs>
 	TransformType* makeTransform(DeducedArgs&&... args)
 	{
-		// Create transform in separate expression since no lock is required
+		// Create transform in separate expression since no lock is required yet
 		auto newTransform = std::make_unique<TransformType>(std::forward<DeducedArgs>(args)...);
 
 		return m_transforms->add(std::move(newTransform));

@@ -12,20 +12,14 @@ class PBasicSphere : public Primitive
 public:
 	explicit PBasicSphere(real radius);
 
-	virtual math::Vector2R positionToUV(const math::Vector3R& position) const = 0;
-
 	void calcIntersectionDetail(
 		const Ray& ray,
 		HitProbe&  probe,
 		HitDetail* out_detail) const override = 0;
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	
-	// TODO: rename to mayOverlapVolume
-	bool mayIntersectVolume(const math::AABB3D& volume) const override;
+	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
-	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
-	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
 	real calcExtendedArea() const override;
 
 	real getRadius() const;

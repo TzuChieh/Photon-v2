@@ -20,7 +20,7 @@ public:
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
 
-	bool mayIntersectVolume(const math::AABB3D& volume) const override;
+	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 };
 
@@ -50,7 +50,7 @@ inline void PEmpty::calcIntersectionDetail(
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
-inline bool PEmpty::mayIntersectVolume(const math::AABB3D& volume) const
+inline bool PEmpty::mayOverlapVolume(const math::AABB3D& volume) const
 {
 	return false;
 }

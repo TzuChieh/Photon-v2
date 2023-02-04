@@ -118,9 +118,9 @@ public:
 		return m_primitiveGetter()->isOccluding(ray);
 	}
 
-	bool mayIntersectVolume(const math::AABB3D& volume) const override
+	bool mayOverlapVolume(const math::AABB3D& volume) const override
 	{
-		return m_primitiveGetter()->mayIntersectVolume(volume);
+		return m_primitiveGetter()->mayOverlapVolume(volume);
 	}
 
 	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override

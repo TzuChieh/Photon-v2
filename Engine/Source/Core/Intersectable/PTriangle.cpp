@@ -120,7 +120,7 @@ math::AABB3D PTriangle::calcAABB() const
 // Reference: Tomas Akenine-Moeller's "Fast 3D Triangle-Box Overlap Testing", 
 // which is based on SAT but faster.
 //
-bool PTriangle::mayIntersectVolume(const math::AABB3D& volume) const
+bool PTriangle::mayOverlapVolume(const math::AABB3D& volume) const
 {
 	math::Vector3R tvA = m_triangle.getVa();
 	math::Vector3R tvB = m_triangle.getVb();

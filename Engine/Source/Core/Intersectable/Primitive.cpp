@@ -7,7 +7,7 @@ namespace ph
 
 void Primitive::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& /* sampleFlow */) const
 {
-	query.out.pdfA = 0;
+	query.setInvalidOutput();
 	PH_ASSERT(!query.out);
 }
 

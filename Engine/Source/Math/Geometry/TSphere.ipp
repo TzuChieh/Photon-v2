@@ -37,6 +37,13 @@ inline bool TSphere<T>::isIntersecting(
 }
 
 template<typename T>
+inline bool TSphere<T>::isInside(const TVector3<T>& point) const
+{
+	// Checks whether the point is within radius (sphere center = origin)
+	return point.lengthSquared() < math::squared(m_radius);
+}
+
+template<typename T>
 inline bool TSphere<T>::isIntersectingNaive(
 	const TLineSegment<T>& segment,
 	real* const out_hitT) const
@@ -232,6 +239,53 @@ inline T TSphere<T>::getArea() const
 	PH_ASSERT_GE(m_radius, T(0));
 
 	return constant::four_pi<T> * m_radius * m_radius;
+}
+
+template<typename T>
+inline TAABB3D<T> TSphere<T>::getAABB() const
+{
+	constexpr auto EXPANSION_RATIO = T(0.0001);
+
+	return TAABB3D<T>(
+		TVector3<T>(-m_radius, -m_radius, -m_radius),
+		TVector3<T>( m_radius,  m_radius,  m_radius))
+		.expand(TVector3<T>(EXPANSION_RATIO * m_radius));
+}
+
+template<typename T>
+inline bool TSphere<T>::mayOverlapVolume(const TAABB3D<T>& volume) const
+{
+	// Intersection test for solid box and hollow sphere.
+	// Reference: Jim Arvo's algorithm in Graphics Gems 2
+
+	const T radius2 = math::squared(m_radius);
+
+	// These variables are gonna store minimum and maximum squared distances 
+	// from the sphere's center to the AABB volume.
+	T minDist2 = T(0);
+	T maxDist2 = T(0);
+
+	T a, b;
+
+	a = math::squared(volume.getMinVertex().x());
+	b = math::squared(volume.getMaxVertex().x());
+	maxDist2 += std::max(a, b);
+	if     (T(0) < volume.getMinVertex().x()) minDist2 += a;
+	else if(T(0) > volume.getMaxVertex().x()) minDist2 += b;
+
+	a = math::squared(volume.getMinVertex().y());
+	b = math::squared(volume.getMaxVertex().y());
+	maxDist2 += std::max(a, b);
+	if     (T(0) < volume.getMinVertex().y()) minDist2 += a;
+	else if(T(0) > volume.getMaxVertex().y()) minDist2 += b;
+
+	a = math::squared(volume.getMinVertex().z());
+	b = math::squared(volume.getMaxVertex().z());
+	maxDist2 += std::max(a, b);
+	if     (T(0) < volume.getMinVertex().z()) minDist2 += a;
+	else if(T(0) > volume.getMaxVertex().z()) minDist2 += b;
+
+	return minDist2 <= radius2 && radius2 <= maxDist2;
 }
 
 template<typename T>

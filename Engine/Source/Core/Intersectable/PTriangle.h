@@ -18,7 +18,7 @@ public:
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	                            HitDetail* out_detail) const override;
-	bool mayIntersectVolume(const math::AABB3D& volume) const override;
+	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
 	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;

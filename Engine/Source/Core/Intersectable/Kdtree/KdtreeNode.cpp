@@ -238,7 +238,7 @@ std::unique_ptr<KdtreeNode> KdtreeNode::buildChildNode(const KdtreeAABB& childAA
 
 	for(const Intersectable* intersectable : parentIntersectables)
 	{
-		if(intersectable->mayIntersectVolume(childNodeAABB))
+		if(intersectable->mayOverlapVolume(childNodeAABB))
 		{
 			intersectables.push_back(intersectable);
 		}	

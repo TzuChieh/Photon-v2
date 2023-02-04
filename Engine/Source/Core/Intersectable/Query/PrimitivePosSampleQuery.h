@@ -35,6 +35,8 @@ public:
 	Output out;
 
 	PrimitivePosSampleQuery();
+
+	void setInvalidOutput();
 };
 
 // In-header Implementations:
@@ -48,5 +50,11 @@ inline PrimitivePosSampleOutput::operator bool () const
 inline PrimitivePosSampleQuery::PrimitivePosSampleQuery() :
 	in(), out()
 {}
+
+inline void PrimitivePosSampleQuery::setInvalidOutput()
+{
+	// Must cuase `PrimitivePosSampleOutput::operator bool ()` method to evaluate to `false`
+	out.pdfA = 0.0_r;
+}
 
 }// end namespace ph

@@ -5,6 +5,8 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/Geometry/TSphere.h"
+#include "Core/SampleGenerator/SampleFlow.h"
+#include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
 
 namespace ph
 {
@@ -12,11 +14,6 @@ namespace ph
 PLatLong01Sphere::PLatLong01Sphere(const real radius) :
 	PBasicSphere(radius)
 {}
-
-math::Vector2R PLatLong01Sphere::positionToUV(const math::Vector3R& position) const
-{
-	return math::TSphere<real>(getRadius()).surfaceToLatLong01(position);
-}
 
 // TODO: use exact UV derivatives
 void PLatLong01Sphere::calcIntersectionDetail(
@@ -61,6 +58,30 @@ void PLatLong01Sphere::calcIntersectionDetail(
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"
 		"dPdU = " + dPdU.toString() + ", dPdV = " + dPdV.toString() + "\n"
 		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
+}
+
+real PLatLong01Sphere::calcPositionSamplePdfA(const math::Vector3R& position) const
+{
+	return math::TSphere(getRadius()).uniformSurfaceSamplePdfA();
+}
+
+void PLatLong01Sphere::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
+{
+	const auto normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
+		sampleFlow.flow2D());
+	const auto position = normal * getRadius();
+
+	query.out.normal = normal;
+	query.out.position = position;
+	query.out.pdfA = PBasicSphere::calcPositionSamplePdfA(position);
+
+	const math::Vector2R uv = positionToUV(position);
+	query.out.uvw = {uv.x(), uv.y(), 0.0_r};
+}
+
+math::Vector2R PLatLong01Sphere::positionToUV(const math::Vector3R& position) const
+{
+	return math::TSphere<real>(getRadius()).surfaceToLatLong01(position);
 }
 
 }// end namespace ph

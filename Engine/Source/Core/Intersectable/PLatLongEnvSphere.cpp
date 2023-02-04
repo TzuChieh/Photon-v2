@@ -5,28 +5,25 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/Geometry/TSphere.h"
-#include "Math/Transform/RigidTransform.h"
-#include "Math/Transform/StaticRigidTransform.h"
 #include "Math/Geometry/TLineSegment.h"
+#include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
 
 namespace ph
 {
 
-PLatLongEnvSphere::PLatLongEnvSphere(const PrimitiveMetadata* const metadata, const real radius) :
+PLatLongEnvSphere::PLatLongEnvSphere(const real radius) :
 	PLatLongEnvSphere(
-		metadata, 
 		radius,
 		&math::StaticRigidTransform::IDENTITY(),
 		&math::StaticRigidTransform::IDENTITY())
 {}
 
 PLatLongEnvSphere::PLatLongEnvSphere(
-	const PrimitiveMetadata* const    metadata,
-	const real                        radius,
-	const math::RigidTransform* const localToWorld,
-	const math::RigidTransform* const worldToLocal) :
+	const real radius,
+	const math::StaticRigidTransform* const localToWorld,
+	const math::StaticRigidTransform* const worldToLocal) :
 
-	PBasicSphere(metadata, radius),
+	PBasicSphere(radius),
 
 	m_localToWorld(localToWorld),
 	m_worldToLocal(worldToLocal)
@@ -35,14 +32,14 @@ PLatLongEnvSphere::PLatLongEnvSphere(
 	PH_ASSERT(worldToLocal);
 }
 
-math::Vector2R PLatLongEnvSphere::positionToUV(const math::Vector3R& position) const
+bool PLatLongEnvSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	// UV is mapped from incident direction for the purpose of environment lighting
-	// (no need to renormalize after transform due to rigidity)
-	PH_ASSERT(m_worldToLocal);
-	math::Vector3R localUnitRayDir;
-	m_worldToLocal->transformV(unitRayDir, &localUnitRayDir);
-	const math::Vector2R& hitUv = unitSphere.surfaceToLatLong01(localUnitRayDir);
+
+}
+
+bool PLatLongEnvSphere::isOccluding(const Ray& ray) const
+{
+
 }
 
 // TODO: use exact UV derivatives

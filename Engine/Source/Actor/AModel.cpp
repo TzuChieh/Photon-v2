@@ -9,6 +9,7 @@
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
 #include "World/Foundation/CookingContext.h"
+#include "World/Foundation/CookedResourceCollection.h"
 
 #include <algorithm>
 #include <iostream>
@@ -27,9 +28,9 @@ CookedUnit AModel::cook(CookingContext& ctx, const PreCookReport& report)
 
 	ModelBuilder builder(ctx);
 	
-	auto metadata = std::make_unique<PrimitiveMetadata>();
+	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 
-	PrimitiveBuildingMaterial primitiveBuildingMatl(metadata.get());
+	PrimitiveBuildingMaterial primitiveBuildingMatl(metadata);
 
 	std::vector<std::unique_ptr<Primitive>> primitives;
 	m_geometry->genPrimitive(primitiveBuildingMatl, primitives);
@@ -39,8 +40,6 @@ CookedUnit AModel::cook(CookingContext& ctx, const PreCookReport& report)
 	}
 
 	m_material->genBehaviors(ctx, *metadata);
-
-	builder.addPrimitiveMetadata(std::move(metadata));
 
 	auto baseLW = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeForward(m_localToWorld));
 	auto baseWL = std::make_unique<math::StaticAffineTransform>(math::StaticAffineTransform::makeInverse(m_localToWorld));
