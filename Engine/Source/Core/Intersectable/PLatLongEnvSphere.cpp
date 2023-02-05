@@ -21,15 +21,18 @@ PLatLongEnvSphere::PLatLongEnvSphere(const real radius) :
 PLatLongEnvSphere::PLatLongEnvSphere(
 	const real radius,
 	const math::StaticRigidTransform* const localToWorld,
-	const math::StaticRigidTransform* const worldToLocal) :
+	const math::StaticRigidTransform* const worldToLocal)
 
-	PBasicSphere(radius),
+	: PBasicSphere(radius)
 
-	m_localToWorld(localToWorld),
-	m_worldToLocal(worldToLocal)
+	, m_localToWorld(localToWorld)
+	, m_worldToLocal(worldToLocal)
+	, m_worldOrigin()
 {
 	PH_ASSERT(localToWorld);
 	PH_ASSERT(worldToLocal);
+
+	m_localToWorld->transformP({0, 0, 0}, &m_worldOrigin);
 }
 
 bool PLatLongEnvSphere::isIntersecting(const Ray& ray, HitProbe& probe) const

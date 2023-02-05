@@ -73,6 +73,8 @@ public:
 	*/
 	TAABB3D& setVertices(std::pair<TVector3<T>, TVector3<T>> minMaxVertices);
 
+	TAABB3D& translate(const TVector3<T>& amount);
+
 	/*! @brief Makes the bounds grow by some amount.
 
 	@param amount The amount to grow in 3 dimensions.

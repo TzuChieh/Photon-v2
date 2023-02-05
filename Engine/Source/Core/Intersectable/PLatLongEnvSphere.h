@@ -51,28 +51,22 @@ public:
 private:
 	const math::StaticRigidTransform* m_localToWorld;
 	const math::StaticRigidTransform* m_worldToLocal;
+	math::Vector3R m_worldOrigin;
 };
 
 inline bool PLatLongEnvSphere::mayOverlapVolume(const math::AABB3D& volume) const
 {
-	// Note the naive implementation here has similar performance hit as `calcAABB()`, which
-	// is acceptable for now.
-	//
-	math::AABB3D localVolume;
-	m_worldToLocal->transform(volume, &localVolume);
-	return PBasicSphere::mayOverlapVolume(localVolume);
+	// Rather than transform `volume` to local space, we transform the sphere to world space instead.
+	// Under static rigid transform the sphere shape is rotational invariant, we can inverse-translate
+	// `volume` and test against the sphere at the origin
+	auto effectiveVolume = math::AABB3D(volume).translate(m_worldOrigin.negate());
+	return PBasicSphere::mayOverlapVolume(effectiveVolume);
 }
 
 inline math::AABB3D PLatLongEnvSphere::calcAABB() const
 {
-	// Note that this is not a tight fit as we care about translation only. However this 
-	// primitive is used as background and generally do not participate in the building of 
-	// acceleration structures where `calcAABB()` is used the most--the performance hit is 
-	// acceptable for now.
-	//
-	math::AABB3D worldAABB;
-	m_localToWorld->transform(PBasicSphere::calcAABB(), &worldAABB);
-	return worldAABB;
+	// Under static rigid transform, only translation will matter to the AABB of a sphere
+	return PBasicSphere::calcAABB().translate(m_worldOrigin);
 }
 
 inline real PLatLongEnvSphere::calcExtendedArea() const

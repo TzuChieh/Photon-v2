@@ -257,6 +257,15 @@ inline TAABB3D<T>& TAABB3D<T>::setVertices(std::pair<TVector3<T>, TVector3<T>> m
 }
 
 template<typename T>
+inline TAABB3D<T>& TAABB3D<T>::translate(const TVector3<T>& amount)
+{
+	m_minVertex.addLocal(amount);
+	m_maxVertex.addLocal(amount);
+
+	return *this;
+}
+
+template<typename T>
 inline TAABB3D<T>& TAABB3D<T>::expand(const TVector3<T>& amount)
 {
 	m_minVertex.subLocal(amount);
