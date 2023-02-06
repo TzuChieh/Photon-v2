@@ -10,17 +10,11 @@ namespace ph
 {
 
 /*! @brief A sphere specifically built for environment lighting.
-
-This primitive is for environment map with latitude-longitude format. Unlike
-regular primitives, transformations are done locally rather than wrapping the
-primitive by another. This is due to the fact that UV for environment map is
-based on incident direction in world space, i.e., mapping UV from local space
-incident direction can result in inconsistent lighting on different objects
-in world space (as UV is not transformed to world space later). Making this a 
-nested primitive is discouraged unless the specification say so.
+This primitive is for environment map with latitude-longitude format. Unlike regular primitives, 
+transformations are done locally rather than wrapping the primitive by another to allow a wider
+set of custom operations. Note that the UV for the environment sphere is based on the direction
+of incident ray.
 */
-
-// TODO: assert on transform wrappers that this class is not applicable
 class PLatLongEnvSphere : public PBasicSphere
 {
 public:
@@ -56,10 +50,10 @@ private:
 
 inline bool PLatLongEnvSphere::mayOverlapVolume(const math::AABB3D& volume) const
 {
-	// Rather than transform `volume` to local space, we transform the sphere to world space instead.
-	// Under static rigid transform the sphere shape is rotational invariant, we can inverse-translate
-	// `volume` and test against the sphere at the origin
-	auto effectiveVolume = math::AABB3D(volume).translate(m_worldOrigin.negate());
+	// Rather than transforming `volume` to local space, we transform the sphere to world space 
+	// instead. Under static rigid transform the sphere shape is rotational invariant, we can 
+	// inversely translate `volume` and test against the sphere at the origin
+	auto effectiveVolume = volume.getTranslated(m_worldOrigin.negate());
 	return PBasicSphere::mayOverlapVolume(effectiveVolume);
 }
 

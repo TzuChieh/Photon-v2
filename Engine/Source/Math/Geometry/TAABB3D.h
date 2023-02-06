@@ -159,6 +159,8 @@ public:
 	*/
 	T getVolume() const;
 
+	TAABB3D getTranslated(const TVector3<T>& amount) const;
+
 	/*! @brief Split the bound in specific position on an axis.
 
 	@param axis The target axis.

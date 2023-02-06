@@ -10,7 +10,7 @@ namespace ph
 class PEmpty : public Primitive
 {
 public:
-	explicit PEmpty(const PrimitiveMetadata* metadata);
+	PEmpty();
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	bool isOccluding(const Ray& ray) const override;
@@ -26,8 +26,8 @@ public:
 
 // In-header Implementation:
 
-inline PEmpty::PEmpty(const PrimitiveMetadata* const metadata) : 
-	Primitive(metadata)
+inline PEmpty::PEmpty() : 
+	Primitive()
 {}
 
 inline bool PEmpty::isIntersecting(const Ray& ray, HitProbe& probe) const

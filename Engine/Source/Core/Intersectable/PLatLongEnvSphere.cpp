@@ -37,12 +37,16 @@ PLatLongEnvSphere::PLatLongEnvSphere(
 
 bool PLatLongEnvSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+	return PBasicSphere::isIntersecting(localRay, probe);
 }
 
 bool PLatLongEnvSphere::isOccluding(const Ray& ray) const
 {
-
+	Ray localRay;
+	m_worldToLocal->transform(ray, &localRay);
+	return PBasicSphere::isOccluding(localRay);
 }
 
 // TODO: use exact UV derivatives
@@ -92,11 +96,10 @@ bool PLatLongEnvSphere::latLong01ToSurface(
 	PH_ASSERT(m_worldToLocal);
 	PH_ASSERT(out_surface);
 
-	const math::Vector3R& localDir = math::TSphere<real>::makeUnit().latLong01ToSurface(latLong01);
-
 	math::Vector3R localObservationPos;
 	m_worldToLocal->transformP(observationPos, &localObservationPos);
 
+	const math::Vector3R localDir = math::TSphere<real>::makeUnit().latLong01ToSurface(latLong01);
 	const math::TLineSegment<real> localLine(localObservationPos, localDir);
 	const math::TSphere<real> localSphere(getRadius());
 
@@ -106,8 +109,8 @@ bool PLatLongEnvSphere::latLong01ToSurface(
 		// This means the observer cannot see the environment sphere
 		return false;
 	}
-	const math::Vector3R localHitPos = localLine.getPoint(hitT);
 
+	const math::Vector3R localHitPos = localLine.getPoint(hitT);
 	m_localToWorld->transformP(localHitPos, out_surface);
 	return true;
 }

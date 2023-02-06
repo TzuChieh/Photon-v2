@@ -296,6 +296,12 @@ inline bool TAABB3D<T>::isValid() const
 }
 
 template<typename T>
+inline TAABB3D<T> TAABB3D<T>::getTranslated(const TVector3<T>& amount) const
+{
+	return TAABB3D(*this).translate(amount);
+}
+
+template<typename T>
 inline std::pair<TAABB3D<T>, TAABB3D<T>> TAABB3D<T>::getSplitted(const constant::AxisIndexType axis, const T splitPoint) const
 {
 	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, m_minVertex[axis], m_maxVertex[axis]);
