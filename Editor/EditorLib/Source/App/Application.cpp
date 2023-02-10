@@ -396,6 +396,13 @@ bool Application::detachModule(AppModule* const targetModule)
 		return false;
 	}
 
+	if(const auto numErased = std::erase(m_modules, targetModule); numErased != 1)
+	{
+		PH_LOG_WARNING(Application,
+			"erased {} {} modules, expecting exactly 1 module", 
+			numErased, targetModule->getName());
+	}
+
 	PH_LOG(Application,
 		"{} module detached",
 		targetModule->getName());

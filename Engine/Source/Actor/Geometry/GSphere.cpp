@@ -7,6 +7,9 @@
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Core/Intersectable/PLatLong01Sphere.h"
+#include "World/Foundation/CookingContext.h"
+#include "World/Foundation/CookedResourceCollection.h"
+#include "World/Foundation/CookedGeometry.h"
 
 #include <cmath>
 #include <iostream>
@@ -35,7 +38,22 @@ GSphere::GSphere(const real radius) :
 	m_radius(radius)
 {}
 
-// discretize the sphere into an icosphere
+void GSphere::cook(
+	CookedGeometry& out_geometry,
+	const CookingContext& ctx,
+	const GeometryCookConfig& config) const
+{
+	if(config.preferTriangulated)
+	{
+		genTriangleMesh()->cook(out_geometry, ctx, config);
+	}
+	else
+	{
+		out_geometry.primitives.push_back(
+			ctx.getResources()->makeIntersectable<PLatLong01Sphere>(m_radius));
+	}
+}
+
 void GSphere::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
 	std::vector<std::unique_ptr<Primitive>>& out_primitives) const
@@ -49,7 +67,7 @@ void GSphere::genPrimitive(
 
 	//genTriangleMesh()->genPrimitive(data, out_primitives);
 
-	out_primitives.push_back(std::make_unique<PLatLong01Sphere>(data.metadata, m_radius));
+	out_primitives.push_back(std::make_unique<PLatLong01Sphere>(m_radius));
 }
 
 std::shared_ptr<Geometry> GSphere::genTransformed(
@@ -77,6 +95,8 @@ std::size_t GSphere::addMidpointVertex(const std::size_t iA, const std::size_t i
 
 std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 {
+	// Discretize the sphere into an icosphere
+
 	// TODO: check data
 
 	const uint32 nRefinements = 5;

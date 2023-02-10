@@ -97,7 +97,17 @@ public:
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override
 	{
-		m_primitiveGetter()->isIntersecting(ray, probe);
+		if(m_primitiveGetter()->isIntersecting(ray, probe))
+		{
+			// Hit detail will be modified by this primitive
+			probe.pushIntermediateHit(this);
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	void calcIntersectionDetail(
@@ -106,6 +116,9 @@ public:
 		HitDetail* const out_detail) const override
 	{
 		m_primitiveGetter()->calcIntersectionDetail(ray, probe, out_detail);
+
+		// This is a representative of the original primitive
+		out_detail->setHitIntrinsics(this, out_detail->getUVW(), out_detail->getRayT());
 	}
 
 	math::AABB3D calcAABB() const override

@@ -57,10 +57,10 @@ public:
 
 	inline MemoryArena& operator = (MemoryArena&& rhs) = default;
 
-	/*! @brief Allocate memory for type @p T.
-	Convenient method for allocating memory for object of type @p T. Alignment is handled
+	/*! @brief Allocate raw memory for type @p T.
+	Convenient method for allocating raw memory for object of type @p T. Alignment is handled
 	automatically. See allocRaw(std::size_t, std::size_t) for details.
-	@tparam T Type for the memory allocated.
+	@tparam T Type for the raw memory allocated.
 	*/
 	template<typename T>
 	inline T* alloc()
@@ -69,10 +69,10 @@ public:
 		return reinterpret_cast<T*>(allocRaw(sizeof(T), alignof(T)));
 	}
 
-	/*! @brief Allocate memory for array of type @p T.
-	Convenient method for allocating memory for array of type @p T. Alignment is handled
+	/*! @brief Allocate raw memory for array of type @p T.
+	Convenient method for allocating raw memory for array of type @p T. Alignment is handled
 	automatically. See allocRaw(std::size_t, std::size_t) for details.
-	@tparam T Type for the array memory allocated.
+	@tparam T Type for the raw array memory allocated.
 	*/
 	template<typename T>
 	inline std::span<T> allocArray(const std::size_t arraySize)
@@ -84,7 +84,7 @@ public:
 	}
 
 	/*! @brief Make an object of type @p T.
-	Convenient method for creating an object without a manual placement new. Equivalent to
+	Convenient method for creating an object without needing a placement new later. Equivalent to
 	allocate then placement new for an object of type @p T. Alignment is handled automatically.
 	Additionally, destructors will be automatically called (if needed) when clearing the arena.
 	@tparam T Type for the object created.

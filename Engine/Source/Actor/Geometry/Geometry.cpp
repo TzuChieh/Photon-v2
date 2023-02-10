@@ -1,29 +1,62 @@
 #include "Actor/Geometry/Geometry.h"
-#include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 #include "Common/assertion.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "World/Foundation/CookedResourceCollection.h"
+#include "World/Foundation/CookedGeometry.h"
+#include "World/Foundation/CookingContext.h"
+#include "Actor/Basic/exceptions.h"
+#include "Common/logging.h"
 
 namespace ph
 {
 
-Geometry::Geometry() : 
-	m_uvwMapper(std::make_shared<SphericalMapper>())
+PH_DEFINE_INTERNAL_LOG_GROUP(Geometry, Geometry);
+
+std::shared_ptr<Geometry> Geometry::genTransformed(
+	const math::StaticAffineTransform& transform) const
 {
-	PH_ASSERT(m_uvwMapper);
+	auto triangulatedGeometry = genTriangulated();
+	if(triangulatedGeometry == nullptr)
+	{
+		return nullptr;
+	}
+
+	return triangulatedGeometry->genTransformed(transform);
 }
 
-void Geometry::setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper)
+std::shared_ptr<Geometry> Geometry::genTriangulated() const
 {
-	PH_ASSERT(uvwMapper);
-
-	m_uvwMapper = uvwMapper;
+	return nullptr;
 }
 
-const UvwMapper* Geometry::getUvwMapper() const
+CookedGeometry* Geometry::genCooked(
+	const CookingContext& ctx,
+	const GeometryCookConfig& config) const
 {
-	PH_ASSERT(m_uvwMapper);
+	CookedGeometry* cookedGeometry = nullptr;
+	if(config.forceTriangulated)
+	{
+		auto transientGeometry = genTriangulated();
+		if(transientGeometry == nullptr)
+		{
+			throw_formatted<CookException>(
+				"failed to force triangulation on geometry (id: {})", getId());
+		}
 
-	return m_uvwMapper.get();
+		// Using the original geometry's ID since we want it to have triangulated result
+		cookedGeometry = ctx.getResources()->makeGeometry(getId());
+
+		transientGeometry->cook(*cookedGeometry, ctx, config);
+	}
+	else
+	{
+		cookedGeometry = ctx.getResources()->makeGeometry(getId());
+		PH_ASSERT(cookedGeometry);
+
+		cook(*cookedGeometry, ctx, config);
+	}
+
+	return cookedGeometry;
 }
 
 }// end namespace ph

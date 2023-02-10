@@ -14,6 +14,11 @@ class GWave : public Geometry
 public:
 	GWave(real xLen, real yLen, real zLen);
 
+	void cook(
+		CookedGeometry& out_geometry,
+		const CookingContext& ctx,
+		const GeometryCookConfig& config) const override;
+
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
@@ -25,6 +30,7 @@ private:
 
 	static void genTessellatedRectangleXZ(const real xLen, const real zLen, const int32 numXdivs, const int32 numZdivs, std::vector<math::Vector3R>& positions);
 	static bool checkData(const PrimitiveBuildingMaterial& data, const real xLen, const real yLen, const real zLen);
+	static bool checkData(real xLen, real yLen, real zLen);
 };
 
 }// end namespace ph

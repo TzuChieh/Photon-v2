@@ -12,15 +12,20 @@ namespace ph
 {
 
 class Primitive;
-class UvwMapper;
+class CookedGeometry;
+class GeometryCookConfig;
+class CookingContext;
 class PrimitiveBuildingMaterial;
-
-// TODO: use highest precision to perform geometry related operations
 
 class Geometry : public TSdlResourceBase<ETypeCategory::Ref_Geometry>
 {
 public:
-	Geometry();
+	/*! @brief Create and store data suitable for rendering into `out_geometry`.
+	*/
+	virtual void cook(
+		CookedGeometry& out_geometry,
+		const CookingContext& ctx,
+		const GeometryCookConfig& config) const = 0;
 
 	virtual void genPrimitive(
 		const PrimitiveBuildingMaterial&         data, 
@@ -31,11 +36,11 @@ public:
 
 	virtual std::shared_ptr<Geometry> genTriangulated() const;
 
-	const UvwMapper* getUvwMapper() const;
-	void setUvwMapper(const std::shared_ptr<UvwMapper>& uvwMapper);
-
-protected:
-	std::shared_ptr<UvwMapper> m_uvwMapper;
+	/*! @brief Create a `CookedGeometry` that contains data suitable for rendering.
+	*/
+	CookedGeometry* genCooked(
+		const CookingContext& ctx,
+		const GeometryCookConfig& config) const;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Geometry>)
@@ -46,24 +51,5 @@ public:
 		return clazz;
 	}
 };
-
-// In-header Implementations:
-
-inline std::shared_ptr<Geometry> Geometry::genTransformed(
-	const math::StaticAffineTransform& transform) const
-{
-	const auto& triangulated = genTriangulated();
-	if(!triangulated)
-	{
-		return nullptr;
-	}
-
-	return triangulated->genTransformed(transform);
-}
-
-inline std::shared_ptr<Geometry> Geometry::genTriangulated() const
-{
-	return nullptr;
-}
 
 }// end namespace ph

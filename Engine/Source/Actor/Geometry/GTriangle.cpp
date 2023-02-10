@@ -8,11 +8,42 @@
 #include "Math/math.h"
 #include "Math/Geometry/TTriangle.h"
 #include "Actor/Basic/exceptions.h"
+#include "World/Foundation/CookingContext.h"
+#include "World/Foundation/CookedResourceCollection.h"
 
 #include <iostream>
 
 namespace ph
 {
+
+void GTriangle::cook(
+	CookedGeometry& out_geometry,
+	const CookingContext& ctx,
+	const GeometryCookConfig& config) const
+{
+	// FIXME: we often have triangle that is a single point (one form of degenerate), should properly handle this
+	if(/* isDegenerate() || */
+		(!m_vA.isFinite() || !m_vB.isFinite() || !m_vC.isFinite()))
+	{
+		throw_formatted<CookException>(
+			"improper triangle vertex detected: v-A = {}, v-B = {}, v-C = {}",
+			m_vA, m_vB, m_vC);
+	}
+
+	PTriangle triangle(m_vA, m_vB, m_vC);
+	triangle.setUVWa(m_uvwA);
+	triangle.setUVWb(m_uvwB);
+	triangle.setUVWc(m_uvwC);
+
+	// Use face normal if vertex normal was not supplied
+	const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).getFaceNormalSafe();
+	triangle.setNa(!m_nA.isZero() ? m_nA.normalize() : faceNormal);
+	triangle.setNb(!m_nB.isZero() ? m_nB.normalize() : faceNormal);
+	triangle.setNc(!m_nC.isZero() ? m_nC.normalize() : faceNormal);
+
+	out_geometry.primitives.push_back(
+		ctx.getResources()->makeIntersectable<PTriangle>(triangle));
+}
 
 void GTriangle::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
@@ -29,7 +60,7 @@ void GTriangle::genPrimitive(
 			m_vA, m_vB, m_vC);
 	}
 
-	PTriangle triangle(data.metadata, m_vA, m_vB, m_vC);
+	PTriangle triangle(m_vA, m_vB, m_vC);
 	triangle.setUVWa(m_uvwA);
 	triangle.setUVWb(m_uvwB);
 	triangle.setUVWc(m_uvwC);

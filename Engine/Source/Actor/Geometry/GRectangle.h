@@ -12,8 +12,10 @@ class GTriangleMesh;
 class GRectangle : public Geometry
 {
 public:
-	inline GRectangle() = default;
-	GRectangle(real width, real height);
+	void cook(
+		CookedGeometry& out_geometry,
+		const CookingContext& ctx,
+		const GeometryCookConfig& config) const override;
 
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,
@@ -22,6 +24,8 @@ public:
 	std::shared_ptr<Geometry> genTransformed(
 		const math::StaticAffineTransform& transform) const override;
 
+	void setWidth(real width);
+	void setHeight(real height);
 	void setTexCoordScale(const real scale);
 
 private:
@@ -32,6 +36,7 @@ private:
 	std::shared_ptr<GTriangleMesh> genTriangleMesh() const;
 
 	static bool checkData(const PrimitiveBuildingMaterial& data, const real width, const real height);
+	static bool checkData(real width, real height);
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GRectangle>)

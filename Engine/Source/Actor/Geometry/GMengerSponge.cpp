@@ -19,6 +19,24 @@ GMengerSponge::GMengerSponge(const uint32 numIteration) :
 	m_numIteration(numIteration)
 {}
 
+void GMengerSponge::cook(
+	CookedGeometry& out_geometry,
+	const CookingContext& ctx,
+	const GeometryCookConfig& config) const
+{
+	std::vector<GCuboid> cubes;
+	genMengerSpongeRecursive(
+		math::Vector3R(-0.5_r, -0.5_r, -0.5_r),
+		math::Vector3R( 0.5_r,  0.5_r,  0.5_r),
+		0,
+		cubes);
+
+	for(const auto& cube : cubes)
+	{
+		cube.cook(out_geometry, ctx, config);
+	}
+}
+
 void GMengerSponge::genPrimitive(
 	const PrimitiveBuildingMaterial&         data,
 	std::vector<std::unique_ptr<Primitive>>& out_primitives) const

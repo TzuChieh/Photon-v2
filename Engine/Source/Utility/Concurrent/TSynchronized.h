@@ -16,7 +16,7 @@ As many of the other concurrent utilities provided by Photon, ctor and dtor acce
 thread-safe, and it is the programmer's responsibility to ensure all accesses to this class and its
 derived temporaries are within the class's lifetime.
 
-An important note that this class relies on the face that const methods from the wrapped type are safe
+An important note that this class relies on the fact that const methods from the wrapped type are safe
 to access (read) concurrently, and non-const methods are unsafe to access (write) without exclusive
 locking. Later standards of C++ (C++11) enforces this and thus most STL classes are safe to use with 
 this type. The interface deliberately avoid the wordings of read & write locking as one can change
@@ -36,7 +36,7 @@ s2.constLock();        s1.constLock();
 
 An easy solution to this problem is to break the cycle--always (write) lock the lower address first 
 (see [1] for more details). Currently this operation is not supplied by the class since our class 
-interface simplicitly do not support such operation explicitly (e.g., assigning a `TSynchronized` to
+interface simply do not support such operation explicitly (e.g., assigning a `TSynchronized` to
 another one). This is just a reminder of a potentially hard-to-debug misuse.
 
 References:
@@ -141,6 +141,14 @@ public:
 		return AutoConstLockingPtr(*this);
 	}
 
+	/*! @brief Access to the wrapped value with automatic non-const locking/unlocking.
+	Nesting another locking mechanism within `func` is not recommended unless there is a good reason
+	to do so, since it can potentially lead to deadlock or other issues (see the main doc of this 
+	class for more info). Consider to make a struct for multiple data and wrap with a single
+	`TSynchronized` instead.
+	@param func Functor with `T&` as the only input. Non-const locking is automatically applied 
+	during the execution of `func`.
+	*/
 	template<typename LockedFunc>
 	void locked(LockedFunc func)
 	{
@@ -151,6 +159,14 @@ public:
 		func(*lockedPtr);
 	}
 
+	/*! @brief Access to the wrapped value with automatic const locking/unlocking.
+	Nesting another locking mechanism within `func` is not recommended unless there is a good reason
+	to do so, since it can potentially lead to deadlock or other issues (see the main doc of this 
+	class for more info). Consider to make a struct for multiple data and wrap with a single
+	`TSynchronized` instead.
+	@param func Functor with `const T&` as the only input. Const locking is automatically applied 
+	during the execution of `func`.
+	*/
 	template<typename ConstLockedFunc>
 	void constLocked(ConstLockedFunc func) const
 	{
@@ -161,6 +177,8 @@ public:
 		func(*lockedPtr);
 	}
 
+	/*! @brief Get a copy of the wrapped value.
+	*/
 	T makeCopy() const
 	{
 		AutoConstLockingPtr lockedPtr(*this);
@@ -187,7 +205,7 @@ public:
 		return *this;
 	}
 
-	/*! @brief Access to a member of wrapped value with automatic write locking/unlocking.
+	/*! @brief Access to a member of wrapped value with automatic non-const locking/unlocking.
 	*/
 	AutoLockingPtr operator -> ()
 	{
@@ -195,7 +213,7 @@ public:
 		return AutoLockingPtr(*this);
 	}
 
-	/*! @brief Access to a member of wrapped value with automatic read locking/unlocking.
+	/*! @brief Access to a member of wrapped value with automatic const locking/unlocking.
 	*/
 	AutoConstLockingPtr operator -> () const
 	{

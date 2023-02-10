@@ -23,6 +23,11 @@ public:
 	GCuboid(const math::Vector3R& minVertex, const math::Vector3R& maxVertex);
 	GCuboid(real xLen, real yLen, real zLen, const math::Vector3R& offset);
 
+	void cook(
+		CookedGeometry& out_geometry,
+		const CookingContext& ctx,
+		const GeometryCookConfig& config) const override;
+
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
@@ -37,6 +42,8 @@ private:
 	static bool checkData(
 		const PrimitiveBuildingMaterial& data, 
 		const real xLen, const real yLen, const real zLen);
+
+	static bool checkData(real xLen, real yLen, real zLen);
 
 	static std::array<math::AABB2D, 6> genNormalizedFaceUVs();
 

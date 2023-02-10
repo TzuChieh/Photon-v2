@@ -7,6 +7,7 @@
 #include "Common/assertion.h"
 #include "Math/math.h"
 #include "Actor/Geometry/GTriangleMesh.h"
+#include "Common/logging.h"
 
 #include <cmath>
 #include <iostream>
@@ -43,6 +44,19 @@ GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const math::
 	m_size(xLen, yLen, zLen), m_offset(offset), m_faceUVs(genNormalizedFaceUVs())
 {
 	PH_ASSERT(xLen > 0.0_r && yLen > 0.0_r && zLen > 0.0_r);
+}
+
+void GCuboid::cook(
+	CookedGeometry& out_geometry,
+	const CookingContext& ctx,
+	const GeometryCookConfig& config) const
+{
+	if(!checkData(m_size.x(), m_size.y(), m_size.z()))
+	{
+		return;
+	}
+
+	GCuboid::genTriangulated()->cook(out_geometry, ctx, config);
 }
 
 void GCuboid::genPrimitive(
@@ -178,6 +192,20 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	}
 
 	return triangleMesh;
+}
+
+bool GCuboid::checkData(const real xLen, const real yLen, const real zLen)
+{
+	if(xLen <= 0.0_r || yLen <= 0.0_r || zLen <= 0.0_r)
+	{
+		PH_DEFAULT_LOG_ERROR(
+			"at GCuboid::checkData(), GCuboid's dimensions (x: {}, y: {}, z: {}) are zero or negative",
+			xLen, yLen, zLen);
+
+		return false;
+	}
+
+	return true;
 }
 
 bool GCuboid::checkData(

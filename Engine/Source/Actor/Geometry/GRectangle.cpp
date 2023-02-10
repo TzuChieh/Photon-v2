@@ -5,16 +5,25 @@
 #include "Math/TVector3.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+#include "Common/logging.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-GRectangle::GRectangle(const real width, const real height) :
-	m_width(width), m_height(height),
-	m_texCoordScale(1)
-{}
+void GRectangle::cook(
+	CookedGeometry& out_geometry,
+	const CookingContext& ctx,
+	const GeometryCookConfig& config) const
+{
+	if(!checkData(m_width, m_height))
+	{
+		return;
+	}
+
+	genTriangleMesh()->cook(out_geometry, ctx, config);
+}
 
 void GRectangle::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
@@ -32,6 +41,16 @@ std::shared_ptr<Geometry> GRectangle::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {
 	return genTriangleMesh()->genTransformed(transform);
+}
+
+void GRectangle::setWidth(const real width)
+{
+	m_width = width;
+}
+
+void GRectangle::setHeight(const real height)
+{
+	m_height = height;
 }
 
 void GRectangle::setTexCoordScale(const real scale)
@@ -86,6 +105,20 @@ bool GRectangle::checkData(const PrimitiveBuildingMaterial& data, const real wid
 	if(width <= 0.0_r || height <= 0.0_r)
 	{
 		std::cerr << "warning: at GRectangle::checkData(), GRectangle's dimension is zero or negative" << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
+bool GRectangle::checkData(const real width, const real height)
+{
+	if(width <= 0.0_r || height <= 0.0_r)
+	{
+		PH_DEFAULT_LOG_ERROR(
+			"at GRectangle::checkData(), rectangle dimensions ({}, {}) are zero or negative",
+			width, height);
+
 		return false;
 	}
 

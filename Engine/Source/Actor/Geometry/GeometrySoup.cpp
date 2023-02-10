@@ -11,6 +11,17 @@ GeometrySoup::GeometrySoup() :
 	m_geometries()
 {}
 
+void GeometrySoup::cook(
+	CookedGeometry& out_geometry,
+	const CookingContext& ctx,
+	const GeometryCookConfig& config) const
+{
+	for(const auto& geometry : m_geometries)
+	{
+		geometry->cook(out_geometry, ctx, config);
+	}
+}
+
 void GeometrySoup::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
 	std::vector<std::unique_ptr<Primitive>>& out_primitives) const

@@ -33,21 +33,16 @@ public:
 	void calcIntersectionDetail(const Ray& ray, HitDetail* out_detail);
 	bool isOnDefaultChannel() const;
 
-	// Pushes a hit target that will aprticipate in hit detail's calculation 
-	// onto the stack.
-	inline void pushIntermediateHit(const Intersectable* const hitTarget)
-	{
-		m_hitStack.push(hitTarget);
-	}
+	/*!
+	Pushes a hit target that will participate in hit detail's calculation onto the stack.
+	*/
+	void pushIntermediateHit(const Intersectable* hitTarget);
 
-	// Similar to pushIntermediateHit(), except the parametric hit distance 
-	// <hitRayT> must also be reported.
-	inline void pushBaseHit(const Intersectable* const hitTarget,
-	                        const real hitRayT)
-	{
-		m_hitStack.push(hitTarget);
-		m_hitRayT = hitRayT;
-	}
+	/*!
+	Similar to `pushIntermediateHit()`, except the parametric hit distance `hitRayT` must also 
+	be reported.
+	*/
+	void pushBaseHit(const Intersectable* hitTarget, real hitRayT);
 
 	inline void popIntermediateHit()
 	{
@@ -80,7 +75,9 @@ public:
 		return m_hitDetailChannel;
 	}
 
-	// Clears the probe object and makes it ready for probing again. 
+	/*!
+	Clears the probe object and makes it ready for probing again. 
+	*/
 	void clear();
 
 	template<typename T>
@@ -100,6 +97,17 @@ private:
 };
 
 // In-header Implementations:
+
+inline void HitProbe::pushIntermediateHit(const Intersectable* const hitTarget)
+{
+	m_hitStack.push(hitTarget);
+}
+
+inline void HitProbe::pushBaseHit(const Intersectable* const hitTarget, const real hitRayT)
+{
+	m_hitStack.push(hitTarget);
+	m_hitRayT = hitRayT;
+}
 
 inline void HitProbe::clear()
 {

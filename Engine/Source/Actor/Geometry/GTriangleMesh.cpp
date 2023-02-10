@@ -25,6 +25,18 @@ GTriangleMesh::GTriangleMesh(
 	m_normals  (std::move(normals))
 {}
 
+void GTriangleMesh::cook(
+	CookedGeometry& out_geometry,
+	const CookingContext& ctx,
+	const GeometryCookConfig& config) const
+{
+	const auto gTriangles = genTriangles();
+	for(const auto& gTriangle : gTriangles)
+	{
+		gTriangle.cook(out_geometry, ctx, config);
+	}
+}
+
 void GTriangleMesh::genPrimitive(
 	const PrimitiveBuildingMaterial& data,
 	std::vector<std::unique_ptr<Primitive>>& out_primitives) const

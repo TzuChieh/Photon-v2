@@ -30,7 +30,7 @@ namespace detail
 @param alignmentInBytes How many bytes to align (so the returned pointer is an integer multiple
 of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof(void*)`.
 @return Pointer to the beginning of newly allocated memory. `nullptr` on failure.
-@note Call free_aligned_memory(void*) to deallocate the memory.
+@note Call free_aligned_memory(void*) to deallocate the memory. This function is thread safe.
 */
 [[nodiscard]]
 inline void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
@@ -63,6 +63,7 @@ inline void* allocate_aligned_memory(const std::size_t numBytes, const std::size
 /*!
 @param ptr The memory to be deallocated. @p ptr must be allocated by allocate_aligned_memory(std::size_t, std::size_t).
 If @p ptr is `nullptr`, no action is performed.
+@note This function is thread safe.
 */
 inline void free_aligned_memory(void* const ptr)
 {
@@ -108,6 +109,7 @@ The returned memory resource will follow the life time of `std::unique_ptr`.
 @param alignmentInBytes How many bytes to align (so the returned pointer is an integer multiple
 of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof(void*)`.
 @return Pointer to the beginning of newly allocated memory. `nullptr` on failure.
+@note This function is thread safe.
 */
 template<typename T = void>
 inline auto make_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
