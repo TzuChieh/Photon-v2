@@ -3,7 +3,6 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Common/logging.h"
-#include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Core/Intersectable/PLatLongEnvSphere.h"
 #include "Math/constant.h"

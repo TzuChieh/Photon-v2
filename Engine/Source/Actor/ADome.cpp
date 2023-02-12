@@ -10,6 +10,9 @@
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Common/logging.h"
 #include "World/Foundation/CookOrder.h"
+#include "World/Foundation/CookingContext.h"
+#include "World/Foundation/CookedResourceCollection.h"
+#include "Core/Intersectable/TMetaInjectionPrimitive.h"
 
 #include <algorithm>
 
@@ -25,9 +28,9 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 	if(sanifiedLocalToWorld.hasScaleEffect())
 	{
 		PH_LOG(DomeActor,
-			"Scale detected and is ignored; scaling on dome light should "
-			"be avoided as it does not have any effect. If resizing the dome is "
-			"desired, it should be done by changing its radius.");
+			"Scale detected and is ignored; scaling on dome light should be avoided as it does "
+			"not have any effect. If resizing the dome is desired, it should be done by "
+			"changing its radius.");
 
 		sanifiedLocalToWorld.setScale(1);
 	}
@@ -48,18 +51,22 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 		domeRadius = std::max(ri, domeRadius);
 	}
 
-	auto metadata = std::make_unique<PrimitiveMetadata>();
+	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 
 	// A dome should not have any visible inter-reflections, ideally
 	auto material = std::make_shared<IdealSubstance>();
 	material->setSubstance(EIdealSubstance::Absorber);
 	material->genBehaviors(ctx, *metadata);
 
-	auto domePrimitive = std::make_unique<PLatLongEnvSphere>(
-		metadata.get(),
-		domeRadius,
-		localToWorld.get(),
-		worldToLocal.get());
+	PLatLongEnvSphere envPrimitive(domeRadius, localToWorld.get(), worldToLocal.get());
+
+	auto aaa = TEmbeddedPrimitiveGetter(envPrimitive);
+
+	TMetaInjectionPrimitive domePrimitive(
+		ReferencedPrimitiveMetaGetter(metadata),
+		TEmbeddedPrimitiveGetter(envPrimitive));
+
+
 	
 	DomeRadianceFunctionInfo radianceFunctionInfo;
 	auto radianceFunction = loadRadianceFunction(ctx, &radianceFunctionInfo);

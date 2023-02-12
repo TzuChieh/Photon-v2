@@ -1,6 +1,5 @@
 #include "Actor/LightSource/IesAttenuatedSource.h"
 #include "DataIO/Data/IesData.h"
-#include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
 #include "Frame/TFrame.h"

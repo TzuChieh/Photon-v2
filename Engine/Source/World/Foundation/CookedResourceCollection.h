@@ -30,19 +30,22 @@ public:
 	template<typename... DeducedArgs>
 	PrimitiveMetadata* makeMetadata(DeducedArgs&&... args)
 	{
-		return makeCookedResource(m_metadatas, std::forward<DeducedArgs>(args)...);
+		return makeCookedResource<PrimitiveMetadata>(
+			m_metadatas, std::forward<DeducedArgs>(args)...);
 	}
 
 	template<CDerived<math::Transform> TransformType, typename... DeducedArgs>
 	TransformType* makeTransform(DeducedArgs&&... args)
 	{
-		return makeCookedResource(m_transforms, std::forward<DeducedArgs>(args)...);
+		return makeCookedResource<TransformType>(
+			m_transforms, std::forward<DeducedArgs>(args)...);
 	}
 
 	template<CDerived<Intersectable> IntersectableType, typename... DeducedArgs>
 	IntersectableType* makeIntersectable(DeducedArgs&&... args)
 	{
-		return makeCookedResource(m_intersectables, std::forward<DeducedArgs>(args)...);
+		return makeCookedResource<IntersectableType>(
+			m_intersectables, std::forward<DeducedArgs>(args)...);
 	}
 
 	template<typename... DeducedArgs>
@@ -55,21 +58,27 @@ private:
 	template<typename CookedType>
 	using TSdlResourceIdMap = std::unordered_map<SdlResourceId, std::unique_ptr<CookedType>>;
 
-	template<typename CookedType, typename... DeducedArgs>
-	static CookedType* makeCookedResource(
-		TSynchronized<TUniquePtrVector<CookedType>>& resources,
+	template<typename DerivedType, typename BaseType, typename... DeducedArgs>
+	static DerivedType* makeCookedResource(
+		TSynchronized<TUniquePtrVector<BaseType>>& syncedResources,
 		DeducedArgs&&... args)
 	{
 		// Create resource in separate expression since no lock is required yet
-		auto newResource = std::make_unique<CookedType>(std::forward<DeducedArgs>(args)...);
+		auto newResource = std::make_unique<DerivedType>(std::forward<DeducedArgs>(args)...);
 
-		// Arrow accessor to take advantage of auto synchronization
-		return (&resources)->add(std::move(newResource));
+		DerivedType* resourcePtr = nullptr;
+		syncedResources.locked(
+			[&resourcePtr, &newResource](auto& resources)
+			{
+				resourcePtr = resources.add(std::move(newResource));
+			});
+
+		return resourcePtr;
 	}
 
 	template<typename CookedType, typename... DeducedArgs>
 	static CookedType* makeCookedResourceByID(
-		TSynchronized<TSdlResourceIdMap<CookedType>>& idToResource,
+		TSynchronized<TSdlResourceIdMap<CookedType>>& syncedIdToResource,
 		const SdlResourceId id, 
 		DeducedArgs&&... args)
 	{
@@ -78,8 +87,8 @@ private:
 
 		CookedType* resourcePtr = nullptr;
 
-		idToResource.locked(
-			[id, &resourcePtr, newResource = std::move(newResource)](auto& idToResource)
+		syncedIdToResource.locked(
+			[id, &resourcePtr, &newResource](auto& idToResource)
 			{
 				auto findResult = idToResource.find(id);
 				if(findResult == idToResource.end())

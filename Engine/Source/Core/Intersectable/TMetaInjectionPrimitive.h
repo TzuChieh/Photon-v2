@@ -2,6 +2,7 @@
 
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/HitProbe.h"
 #include "Utility/traits.h"
 
 #include <concepts>

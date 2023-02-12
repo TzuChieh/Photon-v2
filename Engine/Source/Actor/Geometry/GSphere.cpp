@@ -2,7 +2,7 @@
 #include "Core/Intersectable/PTriangle.h"
 #include "Actor/Geometry/GTriangle.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Core/Intersectable/UvwMapper/UvwMapper.h"
+#include "Math/Geometry/TSphere.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/Geometry/GTriangleMesh.h"
@@ -126,7 +126,7 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 	addVertex(math::Vector3R(-t,  0, -1), &vertices);// 10
 	addVertex(math::Vector3R(-t,  0,  1), &vertices);// 11
 
-	// generate 20 triangles from the icosahedron (all CCW)
+	// Generate 20 triangles from the icosahedron (all CCW)
 
 	// 5 triangles around vertex 0
 	indexedTriangles.push_back(IndexedTriangle(0, 11,  5));
@@ -135,7 +135,7 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 	indexedTriangles.push_back(IndexedTriangle(0,  7, 10));
 	indexedTriangles.push_back(IndexedTriangle(0, 10, 11));
 
-	// above's 5 adjacent triangles
+	// Above's 5 adjacent triangles
 	indexedTriangles.push_back(IndexedTriangle( 1,  5, 9));
 	indexedTriangles.push_back(IndexedTriangle( 5, 11, 4));
 	indexedTriangles.push_back(IndexedTriangle(11, 10, 2));
@@ -149,14 +149,14 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 	indexedTriangles.push_back(IndexedTriangle(3, 6, 8));
 	indexedTriangles.push_back(IndexedTriangle(3, 8, 9));
 
-	// above's 5 adjacent triangles
+	// Above's 5 adjacent triangles
 	indexedTriangles.push_back(IndexedTriangle(4, 9,  5));
 	indexedTriangles.push_back(IndexedTriangle(2, 4, 11));
 	indexedTriangles.push_back(IndexedTriangle(6, 2, 10));
 	indexedTriangles.push_back(IndexedTriangle(8, 6,  7));
 	indexedTriangles.push_back(IndexedTriangle(9, 8,  1));
 
-	// refine triangles
+	// Refine triangles
 	for(uint32 i = 0; i < nRefinements; i++)
 	{
 		std::vector<IndexedTriangle> refined;
@@ -176,9 +176,10 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 		indexedTriangles = refined;
 	}
 
-	auto triangleMesh = std::make_shared<GTriangleMesh>();
+	math::TSphere referenceSphere(m_radius);
 
-	// construct actual triangles
+	// Construct actual triangles
+	auto triangleMesh = std::make_shared<GTriangleMesh>();
 	for(const IndexedTriangle& iTriangle : indexedTriangles)
 	{
 		math::Vector3R vA(vertices[iTriangle.iA]);
@@ -190,16 +191,14 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 		triangle.setNb(vB.normalize());
 		triangle.setNc(vC.normalize());
 
-		math::Vector3R mappedUVW;
+		const auto uvA = referenceSphere.surfaceToLatLong01(vA);
+		triangle.setUVWa({uvA.x(), uvA.y(), 0.0_r});
 
-		m_uvwMapper->positionToUvw(vA, &mappedUVW);
-		triangle.setUVWa(mappedUVW);
+		const auto uvB = referenceSphere.surfaceToLatLong01(vB);
+		triangle.setUVWb({uvB.x(), uvB.y(), 0.0_r});
 
-		m_uvwMapper->positionToUvw(vB, &mappedUVW);
-		triangle.setUVWb(mappedUVW);
-
-		m_uvwMapper->positionToUvw(vC, &mappedUVW);
-		triangle.setUVWc(mappedUVW);
+		const auto uvC = referenceSphere.surfaceToLatLong01(vC);
+		triangle.setUVWc({uvC.x(), uvC.y(), 0.0_r});
 
 		triangleMesh->addTriangle(triangle);
 	}
