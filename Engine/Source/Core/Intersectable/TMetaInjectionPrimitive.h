@@ -166,6 +166,13 @@ public:
 		return m_metaGetter();
 	}
 
+	/*! @brief Gets the primitive that has got metadata injected.
+	*/
+	const Primitive* getInjectee() const
+	{
+		return m_primitiveGetter();
+	}
+
 private:
 	PrimitiveMetaGetter m_metaGetter;
 	PrimitiveGetter m_primitiveGetter;

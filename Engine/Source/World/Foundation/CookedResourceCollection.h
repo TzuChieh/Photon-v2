@@ -48,6 +48,12 @@ public:
 			m_intersectables, std::forward<DeducedArgs>(args)...);
 	}
 
+	template<CDerived<Intersectable> IntersectableType>
+	IntersectableType* copyIntersectable(IntersectableType intersectable)
+	{
+		return makeIntersectable<IntersectableType>(std::move(intersectable));
+	}
+
 	template<typename... DeducedArgs>
 	CookedGeometry* makeGeometry(const SdlResourceId id, DeducedArgs&&... args)
 	{

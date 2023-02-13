@@ -58,15 +58,9 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 	material->setSubstance(EIdealSubstance::Absorber);
 	material->genBehaviors(ctx, *metadata);
 
-	PLatLongEnvSphere envPrimitive(domeRadius, localToWorld.get(), worldToLocal.get());
-
-	auto aaa = TEmbeddedPrimitiveGetter(envPrimitive);
-
-	TMetaInjectionPrimitive domePrimitive(
-		ReferencedPrimitiveMetaGetter(metadata),
-		TEmbeddedPrimitiveGetter(envPrimitive));
-
-
+	auto* domePrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
+		ReferencedPrimitiveMetaGetter(metadata), 
+		TEmbeddedPrimitiveGetter(PLatLongEnvSphere(domeRadius, localToWorld.get(), worldToLocal.get()))));
 	
 	DomeRadianceFunctionInfo radianceFunctionInfo;
 	auto radianceFunction = loadRadianceFunction(ctx, &radianceFunctionInfo);
@@ -83,7 +77,7 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 	if(!radianceFunctionInfo.isAnalytical)
 	{
 		domeEmitter = std::make_unique<LatLongEnvEmitter>(
-			domePrimitive.get(),
+			domePrimitive->getInjectee(),
 			radianceFunction,
 			radianceFunctionInfo.resolution);
 	}
@@ -91,7 +85,7 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 	{
 		// FIXME: proper resolution for analytical emitter
 		domeEmitter = std::make_unique<LatLongEnvEmitter>(
-			domePrimitive.get(),
+			domePrimitive->getInjectee(),
 			radianceFunction,
 			math::Vector2S(512, 256));
 	}
@@ -101,7 +95,6 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 	// Store cooked data
 
 	CookedUnit cookedActor;
-	cookedActor.setPrimitiveMetadata(std::move(metadata));
 	cookedActor.addTransform(std::move(localToWorld));
 	cookedActor.addTransform(std::move(worldToLocal));
 	cookedActor.setEmitter(std::move(domeEmitter));
