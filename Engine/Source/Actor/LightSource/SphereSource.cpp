@@ -24,7 +24,10 @@ SphereSource::SphereSource(const real radius, const math::Spectrum& color, real 
 
 std::shared_ptr<Geometry> SphereSource::genAreas(CookingContext& ctx) const
 {
-	return std::make_shared<GSphere>(m_radius);
+	auto sphere = TSdl<GSphere>::makeResource();
+	sphere->setRadius(m_radius);
+
+	return sphere;
 }
 
 void SphereSource::setRadius(const real radius)

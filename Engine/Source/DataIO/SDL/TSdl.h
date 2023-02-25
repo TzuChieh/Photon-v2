@@ -16,7 +16,7 @@
 namespace ph
 {
 
-template<CIsSdlResource T>
+template<CSdlResource T>
 class TSdl final
 {
 public:

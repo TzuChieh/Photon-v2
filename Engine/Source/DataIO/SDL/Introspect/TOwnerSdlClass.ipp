@@ -59,8 +59,8 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 		getBase()->initResource(resource, clauses, ctx);
 	}
 
-	Owner& ownerResource = castToOwnerType(resource);
-	loadFieldsFromSdl(ownerResource, clauses, ctx);
+	Owner* const ownerResource = castTo<Owner>(&resource);
+	loadFieldsFromSdl(*ownerResource, clauses, ctx);
 }
 
 template<typename Owner, typename FieldSet>
@@ -73,8 +73,8 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initDefaultResource(ISdlResource& r
 		getBase()->initDefaultResource(resource);
 	}
 
-	Owner& ownerResource = castToOwnerType(resource);
-	setFieldsToDefaults(ownerResource);
+	Owner* const ownerResource = castTo<Owner>(&resource);
+	setFieldsToDefaults(*ownerResource);
 }
 
 template<typename Owner, typename FieldSet>
@@ -91,8 +91,8 @@ inline void TOwnerSdlClass<Owner, FieldSet>::saveResource(
 		getBase()->saveResource(resource, payloads, ctx);
 	}
 
-	const Owner& ownerResource = castToOwnerType(resource);
-	saveFieldsToSdl(ownerResource, payloads, ctx);
+	const Owner* const ownerResource = castTo<const Owner>(&resource);
+	saveFieldsToSdl(*ownerResource, payloads, ctx);
 }
 
 template<typename Owner, typename FieldSet>
@@ -134,29 +134,24 @@ inline void TOwnerSdlClass<Owner, FieldSet>::call(
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::associatedResources(
-	const ISdlResource&               targetResource,
+inline void TOwnerSdlClass<Owner, FieldSet>::referencedResources(
+	const ISdlResource* const targetResource,
 	std::vector<const ISdlResource*>& out_resources) const
 {
 	static_assert(std::is_base_of_v<ISdlResource, Owner>,
 		"Owner class must derive from ISdlResource.");
 
-	const Owner& ownerResource = castToOwnerType(targetResource);
+	const Owner& owner = *(castTo<const Owner>(targetResource));
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
-		const TOwnedSdlField<Owner>& field = m_fields[fieldIdx];
-		auto const associatedResource = field.associatedResource(ownerResource);
-		if(associatedResource)
-		{
-			out_resources.push_back(associatedResource);
-		}
+		m_fields[fieldIdx].ownedResources(owner, out_resources);
 	}
 
-	// Find more associations in base class
+	// Find more references in base class
 	if(isDerived())
 	{
 		PH_ASSERT(getBase());
-		getBase()->associatedResources(targetResource, out_resources);
+		getBase()->referencedResources(targetResource, out_resources);
 	}
 }
 
@@ -343,35 +338,19 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::baseOn()
 }
 
 template<typename Owner, typename FieldSet>
-template<typename DeducedSrcType>
-inline decltype(auto) TOwnerSdlClass<Owner, FieldSet>::castToOwnerType(DeducedSrcType& srcInstance) const
+template<typename DstType, typename SrcType>
+inline DstType* TOwnerSdlClass<Owner, FieldSet>::castTo(SrcType* const srcInstance) const
 {
-	// Source resource type, possibly cv-qualified
-	using SrcType = std::remove_reference_t<DeducedSrcType>;
-
-	static_assert(std::is_base_of_v<ISdlResource, SrcType>,
-		"srcInstance must derive from ISdlResource.");
-
-	static_assert(std::is_base_of_v<ISdlResource, Owner>,
-		"Owner must derive from ISdlResource.");
-
-	// Owner pointer type, possibly const-qualified (ignoring volatile)
-	static_assert(!std::is_volatile_v<SrcType>);
-	using OwnerPtr = std::conditional_t<std::is_const_v<SrcType>,
-		const Owner*,
-		Owner*>;
-
-	OwnerPtr const ownerPtr = dynamic_cast<OwnerPtr>(&srcInstance);
-	if(!ownerPtr)
+	try
+	{
+		return sdl::cast_to<DstType>(srcInstance);
+	}
+	catch(const SdlException& e)
 	{
 		throw_formatted<SdlException>(
-			"type cast error: target resource is not owned by SDL class <{}> (resource ID = {})",
-			genPrettyName(), srcInstance.getId());
+			"input resource is not owned by this class <{}> ({})",
+			genPrettyName(), e.whatStr());
 	}
-
-	// The parentheses are not required here--`*owner` is already an expression, resulting in a 
-	// cv-qualified reference return type. Parentheses added just to be a reminder and also a fail-safe.
-	return (*ownerPtr);
 }
 
 }// end namespace ph

@@ -42,7 +42,7 @@ void GTriangle::cook(
 	triangle.setNc(!m_nC.isZero() ? m_nC.normalize() : faceNormal);
 
 	out_geometry.primitives.push_back(
-		ctx.getResources()->makeIntersectable<PTriangle>(triangle));
+		ctx.getCooked()->makeIntersectable<PTriangle>(triangle));
 }
 
 void GTriangle::genPrimitive(

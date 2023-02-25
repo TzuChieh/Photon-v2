@@ -10,6 +10,7 @@
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
+#include "World/Foundation/PreCookReport.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Common/logging.h"
@@ -19,13 +20,35 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(LightActor, Actor);
+PH_DEFINE_INTERNAL_LOG_GROUP(ALight, Actor);
+
+PreCookReport ALight::preCook(CookingContext& ctx)
+{
+	PreCookReport report = PhysicalActor::preCook(ctx);
+
+	// TODO: test "isRigid()" may be more appropriate
+	if(m_localToWorld.hasScaleEffect())
+	{
+		report.setBaseTransforms(nullptr, nullptr);
+	}
+	else
+	{
+		auto localToWorld = ctx.getCooked()->makeTransform<math::StaticRigidTransform>(
+			math::StaticRigidTransform::makeForward(m_localToWorld));
+		auto worldToLocal = ctx.getCooked()->makeTransform<math::StaticRigidTransform>(
+			math::StaticRigidTransform::makeInverse(m_localToWorld));
+
+		report.setBaseTransforms(localToWorld, worldToLocal);
+	}
+
+	return report;
+}
 
 CookedUnit ALight::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	if(!m_lightSource)
 	{
-		PH_LOG_WARNING(LightActor, "incomplete data detected, this light is ignored");
+		PH_LOG_WARNING(ALight, "incomplete data detected, this light is ignored");
 		return CookedUnit();
 	}
 
@@ -66,7 +89,7 @@ CookedUnit ALight::buildGeometricLight(
 
 	if(!material)
 	{
-		PH_LOG(LightActor, "material is not specified, using default diffusive material");
+		PH_LOG(ALight, "material is not specified, using default diffusive material");
 
 		material = std::make_shared<MatteOpaque>();
 	}
@@ -75,14 +98,14 @@ CookedUnit ALight::buildGeometricLight(
 	auto sanifiedGeometry = getSanifiedGeometry(ctx, geometry, &baseLW, &baseWL);
 	if(!sanifiedGeometry)
 	{
-		PH_LOG_WARNING(LightActor,
+		PH_LOG_WARNING(ALight,
 			"sanified geometry cannot be made during the process of "
 			"geometric light building; proceed at your own risk");
 
 		sanifiedGeometry = geometry;
 	}
 
-	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
+	PrimitiveMetadata* metadata = ctx.getCooked()->makeMetadata();
 	material->genBehaviors(ctx, *metadata);
 
 	std::vector<std::unique_ptr<Primitive>> primitiveData;
@@ -138,7 +161,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 		sanifiedGeometry = geometry->genTransformed(baseLW);
 		if(!sanifiedGeometry)
 		{
-			PH_LOG_WARNING(LightActor,
+			PH_LOG_WARNING(ALight,
 				"scale detected and has failed to apply it to the geometry; "
 				"scaling on light with attached geometry may have unexpected "
 				"behaviors such as miscalculated primitive surface area, which "

@@ -73,7 +73,7 @@ void GCuboid::genPrimitive(
 
 std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 {
-	auto triangleMesh = std::make_shared<GTriangleMesh>();
+	auto triangleMesh = TSdl<GTriangleMesh>::makeResource();
 
 	const math::Vector3R halfSize = m_size * 0.5_r;
 

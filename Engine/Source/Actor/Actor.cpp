@@ -12,7 +12,7 @@ PreCookReport Actor::preCook(CookingContext& ctx)
 	return PreCookReport(getId());
 }
 
-void Actor::postCook(CookingContext& ctx, CookedUnit& cookedUnit)
+void Actor::postCook(const CookingContext& ctx, const CookedUnit& cookedUnit) const
 {}
 
 CookOrder Actor::getCookOrder() const

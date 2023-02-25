@@ -170,6 +170,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		get_sdl_class<GTriangleMesh>(),
 		//get_sdl_class<GCuboid>(),
 		get_sdl_class<GMengerSponge>(),
+		get_sdl_class<GeometrySoup>(),
 
 		// Materials
 		get_sdl_class<Material>(),

@@ -10,6 +10,7 @@
 #include "DataIO/SDL/SdlResourceId.h"
 #include "Common/logging.h"
 #include "Core/Intersectable/Intersectable.h"
+#include "World/Foundation/CookedNamedResource.h"
 
 #include <vector>
 #include <utility>
@@ -60,6 +61,11 @@ public:
 		return makeCookedResourceByID(m_idToGeometry, id, std::forward<DeducedArgs>(args)...);
 	}
 
+	TSynchronized<CookedNamedResource>& getNamed()
+	{
+		return m_namedResource;
+	}
+
 private:
 	template<typename CookedType>
 	using TSdlResourceIdMap = std::unordered_map<SdlResourceId, std::unique_ptr<CookedType>>;
@@ -108,7 +114,7 @@ private:
 						"overwriting existing cooked resource (id: {})", id);
 
 					// Clear the content of existing resource while keeping its pointer valid
-					resourcePtr = (*findResult).get();
+					resourcePtr = findResult->second.get();
 					*resourcePtr = std::move(*newResource);
 				}
 			});
@@ -120,6 +126,7 @@ private:
 	TSynchronized<TUniquePtrVector<math::Transform>> m_transforms;
 	TSynchronized<TUniquePtrVector<Intersectable>> m_intersectables;
 	TSynchronized<TSdlResourceIdMap<CookedGeometry>> m_idToGeometry;
+	TSynchronized<CookedNamedResource> m_namedResource;
 };
 
 }// end namespace ph

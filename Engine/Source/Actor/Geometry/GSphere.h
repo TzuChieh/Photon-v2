@@ -15,9 +15,6 @@ class GTriangleMesh;
 class GSphere : public Geometry
 {
 public:
-	GSphere();
-	explicit GSphere(real radius);
-
 	void cook(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
@@ -29,6 +26,8 @@ public:
 
 	std::shared_ptr<Geometry> genTransformed(
 		const math::StaticAffineTransform& transform) const override;
+
+	GSphere& setRadius(real radius);
 
 private:
 	real m_radius;

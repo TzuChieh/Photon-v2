@@ -7,6 +7,7 @@
 #include "DataIO/SDL/Introspect/SdlFunction.h"
 #include "Utility/string_utils.h"
 #include "DataIO/SDL/SdlOutputPayload.h"
+#include "DataIO/SDL/sdl_exceptions.h"
 
 #include <exception>
 

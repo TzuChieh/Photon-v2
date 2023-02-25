@@ -16,6 +16,7 @@ namespace ph
 class ALight : public PhysicalActor
 {
 public:
+	PreCookReport preCook(CookingContext& ctx) override;
 	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override;
 
 	const LightSource* getLightSource() const;

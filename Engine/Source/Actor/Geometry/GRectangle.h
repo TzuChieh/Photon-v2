@@ -24,9 +24,9 @@ public:
 	std::shared_ptr<Geometry> genTransformed(
 		const math::StaticAffineTransform& transform) const override;
 
-	void setWidth(real width);
-	void setHeight(real height);
-	void setTexCoordScale(const real scale);
+	GRectangle& setWidth(real width);
+	GRectangle& setHeight(real height);
+	GRectangle& setTexCoordScale(const real scale);
 
 private:
 	real m_width;

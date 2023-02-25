@@ -44,13 +44,13 @@ CookedGeometry* Geometry::genCooked(
 		}
 
 		// Using the original geometry's ID since we want it to have triangulated result
-		cookedGeometry = ctx.getResources()->makeGeometry(getId());
+		cookedGeometry = ctx.getCooked()->makeGeometry(getId());
 
 		transientGeometry->cook(*cookedGeometry, ctx, config);
 	}
 	else
 	{
-		cookedGeometry = ctx.getResources()->makeGeometry(getId());
+		cookedGeometry = ctx.getCooked()->makeGeometry(getId());
 		PH_ASSERT(cookedGeometry);
 
 		cook(*cookedGeometry, ctx, config);

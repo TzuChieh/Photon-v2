@@ -112,9 +112,9 @@ void GWave::cook(
 
 			// 2 triangles for a mesh (both CCW)
 			out_geometry.primitives.push_back(
-				ctx.getResources()->makeIntersectable<PTriangle>(tri1));
+				ctx.getCooked()->makeIntersectable<PTriangle>(tri1));
 			out_geometry.primitives.push_back(
-				ctx.getResources()->makeIntersectable<PTriangle>(tri2));
+				ctx.getCooked()->makeIntersectable<PTriangle>(tri2));
 		}
 	}
 
@@ -129,9 +129,9 @@ void GWave::cook(
 
 		// 2 triangles for a rectangle (both CCW)
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri1));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri1));
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri2));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri2));
 	}
 	
 	const real meshSizeX = m_xLen / static_cast<real>(numXdivs);
@@ -151,9 +151,9 @@ void GWave::cook(
 
 		// Both CCW
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri1));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri1));
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri2));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri2));
 	}
 
 	// Wave back side
@@ -168,9 +168,9 @@ void GWave::cook(
 
 		// Both CCW
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri1));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri1));
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri2));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri2));
 	}
 
 	// Wave right side
@@ -185,9 +185,9 @@ void GWave::cook(
 
 		// Both CCW
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri1));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri1));
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri2));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri2));
 	}
 
 	// Wave left side
@@ -202,9 +202,9 @@ void GWave::cook(
 
 		// Both CCW
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri1));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri1));
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PTriangle>(tri2));
+			ctx.getCooked()->makeIntersectable<PTriangle>(tri2));
 	}
 }
 

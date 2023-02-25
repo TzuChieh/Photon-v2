@@ -35,7 +35,10 @@ RectangleSource::RectangleSource(
 
 std::shared_ptr<Geometry> RectangleSource::genAreas(CookingContext& ctx) const
 {
-	return std::make_shared<GRectangle>(m_width, m_height);
+	auto rectangle = TSdl<GRectangle>::makeResource();
+	rectangle->setWidth(m_width).setHeight(m_height);
+
+	return rectangle;
 }
 
 void RectangleSource::setDimension(const real width, const real height)

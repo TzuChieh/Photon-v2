@@ -15,8 +15,8 @@ struct DummyStruct
 
 TEST(SdlHelpersTest, Concepts)
 {
-	static_assert(CIsSdlResource<DummyStruct> == false);
-	static_assert(CIsSdlResource<Actor> == true);
+	static_assert(CSdlResource<DummyStruct> == false);
+	static_assert(CSdlResource<Actor> == true);
 
 	static_assert(CHasStaticSdlCategoryInfo<DummyStruct> == false);
 	static_assert(CHasStaticSdlCategoryInfo<Actor> == true);

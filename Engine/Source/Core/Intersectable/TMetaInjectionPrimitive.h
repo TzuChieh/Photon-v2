@@ -46,8 +46,9 @@ struct EmbeddedPrimitiveMetaGetter final
 {
 	PrimitiveMetadata metadata;
 
-	explicit EmbeddedPrimitiveMetaGetter(PrimitiveMetadata metadata)
-		: metadata(std::move(metadata))
+	template<typename... DeducedArgs>
+	explicit EmbeddedPrimitiveMetaGetter(DeducedArgs&&... args)
+		: metadata(std::forward<DeducedArgs>(args)...)
 	{}
 
 	const PrimitiveMetadata* operator () () const
@@ -76,8 +77,9 @@ struct TEmbeddedPrimitiveGetter final
 {
 	PrimitiveType primitive;
 
-	explicit TEmbeddedPrimitiveGetter(PrimitiveType primitive)
-		: primitive(std::move(primitive))
+	template<typename... DeducedArgs>
+	explicit TEmbeddedPrimitiveGetter(DeducedArgs&&... args)
+		: primitive(std::forward<DeducedArgs>(args)...)
 	{}
 
 	const PrimitiveType* operator () () const
@@ -167,8 +169,9 @@ public:
 	}
 
 	/*! @brief Gets the primitive that has got metadata injected.
+	@return Pointer to the primitive carried by `PrimitiveGetter`.
 	*/
-	const Primitive* getInjectee() const
+	const auto* getInjectee() const
 	{
 		return m_primitiveGetter();
 	}

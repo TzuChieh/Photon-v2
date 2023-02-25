@@ -4,6 +4,7 @@
 #include "Common/assertion.h"
 
 #include <string>
+#include <vector>
 
 namespace ph
 {
@@ -35,7 +36,9 @@ public:
 
 	std::string valueToString(const Owner& owner) const override;
 
-	const ISdlResource* associatedResource(const Owner& owner) const override;
+	void ownedResources(
+		const Owner& owner,
+		std::vector<const ISdlResource*>& out_resources) const override;
 
 protected:
 	void loadFromSdl(

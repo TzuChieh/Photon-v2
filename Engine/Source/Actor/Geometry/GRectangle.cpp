@@ -43,19 +43,25 @@ std::shared_ptr<Geometry> GRectangle::genTransformed(
 	return genTriangleMesh()->genTransformed(transform);
 }
 
-void GRectangle::setWidth(const real width)
+GRectangle& GRectangle::setWidth(const real width)
 {
 	m_width = width;
+
+	return *this;
 }
 
-void GRectangle::setHeight(const real height)
+GRectangle& GRectangle::setHeight(const real height)
 {
 	m_height = height;
+
+	return *this;
 }
 
-void GRectangle::setTexCoordScale(const real scale)
+GRectangle& GRectangle::setTexCoordScale(const real scale)
 {
 	m_texCoordScale = scale;
+
+	return *this;
 }
 
 std::shared_ptr<GTriangleMesh> GRectangle::genTriangleMesh() const
@@ -87,11 +93,11 @@ std::shared_ptr<GTriangleMesh> GRectangle::genTriangleMesh() const
 	tri2.setUVWb(tC.mul(m_texCoordScale));
 	tri2.setUVWc(tD.mul(m_texCoordScale));
 
-	auto triMesh = std::make_shared<GTriangleMesh>();
-	triMesh->addTriangle(tri1);
-	triMesh->addTriangle(tri2);
+	auto triMeshRes = TSdl<GTriangleMesh>::makeResource();
+	triMeshRes->addTriangle(tri1);
+	triMeshRes->addTriangle(tri2);
 
-	return triMesh;
+	return triMeshRes;
 }
 
 bool GRectangle::checkData(const PrimitiveBuildingMaterial& data, const real width, const real height)

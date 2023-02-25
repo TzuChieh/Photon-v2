@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/TSdlValue.h"
-#include "DataIO/SDL/Introspect/TSdlOptionalValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 
@@ -51,8 +50,5 @@ protected:
 		}
 	}
 };
-
-template<typename Owner>
-using TSdlOptionalString = TSdlString<Owner, TSdlOptionalValue<std::string, Owner>>;
 
 }// end namespace ph

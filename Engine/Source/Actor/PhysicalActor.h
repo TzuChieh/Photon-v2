@@ -16,8 +16,6 @@ class PhysicalActor : public Actor
 public:
 	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override = 0;
 
-	PreCookReport preCook(CookingContext& ctx) override;
-
 	void translate(const math::Vector3R& translation);
 	void translate(const real x, const real y, const real z);
 	void rotate(const math::Vector3R& axis, const real degrees);

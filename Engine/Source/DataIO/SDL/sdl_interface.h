@@ -25,6 +25,7 @@
 #include "DataIO/SDL/Introspect/TSdlRealArray.h"
 #include "DataIO/SDL/Introspect/TSdlVector3Array.h"
 #include "DataIO/SDL/Introspect/TSdlReference.h"
+#include "DataIO/SDL/Introspect/TSdlReferenceArray.h"
 #include "DataIO/SDL/Introspect/TSdlEnumField.h"
 #include "DataIO/SDL/Introspect/TSdlPath.h"
 
@@ -35,8 +36,6 @@
 #include "DataIO/SDL/TSdl.h"
 
 #include <type_traits>
-
-// TODO: need traits helper to verify a sdl class/struct also contains the required macro
 
 /*! @brief Define a SDL class with function-like syntax.
 
@@ -63,7 +62,7 @@ Available functionalities after defining the macro:
 	using OwnerType = typename ClassType::OwnerType;\
 	\
 	/* Dummy type so we know the macro has been called. */\
-	using SdlClassDefinitionMarker = void;\
+	using SdlClassDefinitionMarker = OwnerType;\
 	\
 	inline static const ClassType* getSdlClass()\
 	{\
@@ -89,7 +88,7 @@ Available functionalities after defining the macro:
 	using OwnerType  = typename StructType::OwnerType;\
 	\
 	/* Dummy type so we know the macro has been called. */\
-	using SdlStructDefinitionMarker = void;\
+	using SdlStructDefinitionMarker = OwnerType;\
 	\
 	inline static const StructType* getSdlStruct()\
 	{\
@@ -108,7 +107,7 @@ Available functionalities after defining the macro:
 	using OwnerType    = typename FunctionType::OwnerType;\
 	\
 	/* Dummy type so we know the macro has been called. */\
-	using SdlFunctionDefinitionMarker = void;\
+	using SdlFunctionDefinitionMarker = OwnerType;\
 	\
 	inline static const FunctionType* getSdlFunction()\
 	{\

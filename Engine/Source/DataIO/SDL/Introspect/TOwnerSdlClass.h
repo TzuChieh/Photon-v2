@@ -50,8 +50,8 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const override;
 
-	void associatedResources(
-		const ISdlResource& targetResource,
+	void referencedResources(
+		const ISdlResource* targetResource,
 		std::vector<const ISdlResource*>& out_resources) const override;
 
 	std::size_t numFields() const override;
@@ -116,10 +116,11 @@ private:
 	void setFieldsToDefaults(Owner& owner) const;
 
 	/*!
-	Cast input instance to owner type `Owner`, possibly `const` qualified.
+	Cast input instance to another type, possibly `const` qualified.
+	@return The casted-to instance. Never null.
 	*/
-	template<typename DeducedSrcType>
-	decltype(auto) castToOwnerType(DeducedSrcType& srcInstance) const;
+	template<typename DstType, typename SrcType>
+	DstType* castTo(SrcType* srcInstance) const;
 
 	using FunctionSet = TArrayAsVector<const SdlFunction*, PH_SDL_MAX_FUNCTIONS>;
 

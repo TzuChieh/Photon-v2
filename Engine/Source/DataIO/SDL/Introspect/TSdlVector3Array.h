@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/TSdlValue.h"
-#include "DataIO/SDL/Introspect/TSdlOptionalValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/sdl_helpers.h"
@@ -57,8 +56,5 @@ protected:
 		}
 	}
 };
-
-template<typename Owner, typename Element = real>
-using TSdlOptionalVector3Array = TSdlVector3Array<Owner, Element, TSdlOptionalValue<std::vector<math::TVector3<Element>>, Owner>>;
 
 }// end namespace ph

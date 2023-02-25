@@ -25,7 +25,10 @@ PointSource::PointSource(const math::Spectrum& color, real numWatts) :
 
 std::shared_ptr<Geometry> PointSource::genAreas(CookingContext& ctx) const
 {
-	return std::make_shared<GSphere>(POINT_SOURCE_RADIUS);
+	auto sphere = TSdl<GSphere>::makeResource();
+	sphere->setRadius(POINT_SOURCE_RADIUS);
+
+	return sphere;
 }
 
 }// end namespace ph

@@ -56,12 +56,13 @@ public:
 		ValueClauses&          clauses,
 		const SdlInputContext& ctx) const = 0;
 
-	/*! @brief Get all SDL resources bound to the @p targetResource.
+	/*! @brief Get all SDL resources referenced by @p targetResource.
 	@param targetResource Resource instance in question.
-	@param out_resources SDL resources associated to @p targetResource.
+	@param out_resources SDL resources referenced by @p targetResource. Never contains null.
+	Appends to existing ones.
 	*/
-	virtual void associatedResources(
-		const ISdlResource&               targetResource,
+	virtual void referencedResources(
+		const ISdlResource* targetResource,
 		std::vector<const ISdlResource*>& out_resources) const = 0;
 
 	// TODO: saveToSdl()

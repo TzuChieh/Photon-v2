@@ -4,6 +4,8 @@
 #include "DataIO/SDL/Tokenizer.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/sdl_traits.h"
+#include "DataIO/SDL/sdl_exceptions.h"
+#include "DataIO/SDL/ISdlResource.h"
 
 #include <type_traits>
 
@@ -234,7 +236,7 @@ inline void save_number_array(const std::vector<NumberType>& values, std::string
 template<typename T>
 inline constexpr ETypeCategory category_of()
 {
-	if constexpr(CIsSdlResource<T> && CHasStaticSdlCategoryInfo<T>)
+	if constexpr(CSdlResource<T> && CHasStaticSdlCategoryInfo<T>)
 	{
 		return T::CATEGORY;
 	}
@@ -242,6 +244,33 @@ inline constexpr ETypeCategory category_of()
 	{
 		return ETypeCategory::Unspecified;
 	}
+}
+
+template<typename DstType, typename SrcType>
+inline DstType* cast_to(SrcType* const srcResource)
+{
+	// `SrcType` and `DstType` are both possibly cv-qualified
+
+	static_assert(std::is_base_of_v<ISdlResource, SrcType>,
+		"Source resource must derive from ISdlResource.");
+
+	static_assert(std::is_base_of_v<ISdlResource, DstType>,
+		"Casted-to type must derive from ISdlResource.");
+
+	if(srcResource == nullptr)
+	{
+		throw SdlException("source resource is empty");
+	}
+
+	DstType* const dstResource = dynamic_cast<DstType*>(srcResource);
+	if(dstResource == nullptr)
+	{
+		throw_formatted<SdlException>(
+			"type cast error: source resource cannot be casted to the specified type (resource ID: {})",
+			srcResource->getId());
+	}
+
+	return dstResource;
 }
 
 }// end namespace ph::sdl

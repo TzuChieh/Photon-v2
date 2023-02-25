@@ -11,7 +11,6 @@ Helpers are in an additional `sdl` namespace.
 #include "Math/TVector3.h"
 #include "Math/TVector2.h"
 #include "Math/TQuaternion.h"
-#include "DataIO/SDL/sdl_exceptions.h"
 #include "Utility/string_utils.h"
 #include "DataIO/SDL/ETypeCategory.h"
 
@@ -105,6 +104,8 @@ void save_number_array(const std::vector<NumberType>& values, std::string* out_s
 
 void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* out_str);
 
+/*! @brief Save the identity of the field to output payload.
+*/
 void save_field_id(const SdlField* sdlField, SdlOutputPayload& payload);
 
 /*! @brief Check whether the string represents a SDL resource identifier.
@@ -139,6 +140,14 @@ information does not exist, or @p T is not an @p ISdlResource.
 */
 template<typename T>
 constexpr ETypeCategory category_of();
+
+/*! @brief Cast between SDL resource types.
+Cast the input SDL resource instance of `SrcType` to an instance of `DstType`.
+@param srcResource The resource to be casted.
+@return The casted resource. Never null.
+*/
+template<typename DstType, typename SrcType>
+DstType* cast_to(SrcType* srcResource);
 
 }// end namespace ph::sdl
 

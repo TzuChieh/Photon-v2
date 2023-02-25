@@ -3,11 +3,11 @@
 #include "DataIO/SDL/Introspect/TSdlReference.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
+#include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/SceneDescription.h"
-#include "Utility/string_utils.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/sdl_helpers.h"
-#include "DataIO/SDL/ISdlResource.h"
+#include "Utility/string_utils.h"
 
 #include <utility>
 
@@ -47,9 +47,15 @@ inline std::string TSdlReference<T, Owner>::valueToString(const Owner& owner) co
 }
 
 template<typename T, typename Owner>
-inline const ISdlResource* TSdlReference<T, Owner>::associatedResource(const Owner& owner) const
+inline void TSdlReference<T, Owner>::ownedResources(
+	const Owner& owner,
+	std::vector<const ISdlResource*>& out_resources) const
 {
-	return getValueRef(owner).get();
+	const T* const storedResource = getValueRef(owner).get();
+	if(storedResource != nullptr)
+	{
+		out_resources.push_back(storedResource);
+	}
 }
 
 template<typename T, typename Owner>
@@ -96,7 +102,7 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 
 	try
 	{
-		const std::string_view resourceName = ctx.getReferenceResolver().getResourceName(resource.get());
+		const auto& resourceName = ctx.getReferenceResolver().getResourceName(resource.get());
 		if(resourceName.empty())
 		{
 			throw SdlSaveError(

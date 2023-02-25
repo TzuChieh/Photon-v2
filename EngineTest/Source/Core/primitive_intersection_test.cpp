@@ -12,8 +12,7 @@ using namespace ph::math;
 
 TEST(PrimitiveIntersectionTest, RaySphereIntersection)
 {
-	PrimitiveMetadata metadata;
-	std::unique_ptr<Intersectable> unitSphere = std::make_unique<PLatLong01Sphere>(&metadata, 1.0_r);
+	std::unique_ptr<Intersectable> unitSphere = std::make_unique<PLatLong01Sphere>(1.0_r);
 
 	Ray longXAxisRay(
 		Vector3R(-100000.0_r, 0, 0), 

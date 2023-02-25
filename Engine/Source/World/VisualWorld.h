@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Common/primitive_type.h"
-#include "Core/Intersectable/Primitive.h"
 #include "World/Foundation/CookedDataStorage.h"
 #include "World/Foundation/CookedUnit.h"
 #include "Actor/Actor.h"
@@ -21,6 +20,7 @@
 namespace ph { class SceneDescription; }
 namespace ph { class CoreCookingContext; }
 namespace ph { class CookingContext; }
+namespace ph { class Primitive; }
 
 namespace ph
 {
@@ -38,7 +38,7 @@ public:
 	const Intersector* getIntersector() const;
 	const EmitterSampler* getEmitterSampler() const;
 	const Scene* getScene() const;
-	CookedResourceCollection* getCookedResources();
+	CookedResourceCollection* getCookedResources() const;
 
 	/*! @brief Bounds actors cooked in the first level.
 	The bound is only available after the first level has done cooking.
@@ -64,7 +64,7 @@ private:
 	std::unique_ptr<Intersector>    m_intersector;
 	std::unique_ptr<EmitterSampler> m_emitterSampler;
 	std::unique_ptr<Scene>          m_scene;
-	std::unique_ptr<Primitive>      m_backgroundPrimitive;
+	const Primitive* m_backgroundPrimitive;
 
 	void cookActors(
 		std::shared_ptr<Actor>* actors, 

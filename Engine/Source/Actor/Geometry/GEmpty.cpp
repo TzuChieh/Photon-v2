@@ -13,7 +13,7 @@ void GEmpty::cook(
 	const GeometryCookConfig& config) const
 {
 	out_geometry.primitives.push_back(
-		ctx.getResources()->makeIntersectable<PEmpty>());
+		ctx.getCooked()->makeIntersectable<PEmpty>());
 }
 
 void GEmpty::genPrimitive(

@@ -135,7 +135,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		phantom.second.claimCookedBackend(m_phantomStorage);
 	}
 
-	m_backgroundPrimitive = ctx.claimBackgroundPrimitive();
+	m_backgroundPrimitive = m_cookedResources->getNamed().asConst()->getBackgroundPrimitive();
 
 	PH_LOG(VisualWorld, "visual world discretized into {} intersectables", 
 		m_cookedActorStorage.numIntersectables());
@@ -158,7 +158,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	}
 
 	m_scene = std::make_unique<Scene>(m_intersector.get(), m_emitterSampler.get());
-	m_scene->setBackgroundPrimitive(m_backgroundPrimitive.get());
+	m_scene->setBackgroundPrimitive(m_backgroundPrimitive);
 }
 
 void VisualWorld::cookActors(
@@ -241,7 +241,7 @@ math::AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storag
 	return fullBound;
 }
 
-CookedResourceCollection* VisualWorld::getCookedResources()
+CookedResourceCollection* VisualWorld::getCookedResources() const
 {
 	return m_cookedResources.get();
 }

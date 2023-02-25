@@ -29,15 +29,6 @@ public:
 	std::size_t iC;
 };
 
-GSphere::GSphere() :
-	GSphere(1.0_r)
-{}
-
-GSphere::GSphere(const real radius) :
-	Geometry(), 
-	m_radius(radius)
-{}
-
 void GSphere::cook(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx,
@@ -50,7 +41,7 @@ void GSphere::cook(
 	else
 	{
 		out_geometry.primitives.push_back(
-			ctx.getResources()->makeIntersectable<PLatLong01Sphere>(m_radius));
+			ctx.getCooked()->makeIntersectable<PLatLong01Sphere>(m_radius));
 	}
 }
 
@@ -74,6 +65,13 @@ std::shared_ptr<Geometry> GSphere::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {
 	return genTriangleMesh()->genTransformed(transform);
+}
+
+GSphere& GSphere::setRadius(const real radius)
+{
+	m_radius = radius;
+
+	return *this;
 }
 
 std::size_t GSphere::addVertex(const math::Vector3R& vertex, std::vector<math::Vector3R>* const out_vertices) const
@@ -179,7 +177,7 @@ std::shared_ptr<GTriangleMesh> GSphere::genTriangleMesh() const
 	math::TSphere referenceSphere(m_radius);
 
 	// Construct actual triangles
-	auto triangleMesh = std::make_shared<GTriangleMesh>();
+	auto triangleMesh = TSdl<GTriangleMesh>::makeResource();
 	for(const IndexedTriangle& iTriangle : indexedTriangles)
 	{
 		math::Vector3R vA(vertices[iTriangle.iA]);

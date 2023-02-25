@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Actor/Geometry/Geometry.h"
+#include "DataIO/SDL/sdl_interface.h"
 
 #include <vector>
 #include <memory>
@@ -33,6 +34,21 @@ public:
 
 private:
 	std::vector<std::shared_ptr<Geometry>> m_geometries;
+
+public:
+	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GeometrySoup>)
+	{
+		ClassType clazz("geometry-soup");
+		clazz.docName("Geometry Soup");
+		clazz.description("A collection of random geometries.");
+		clazz.baseOn<Geometry>();
+
+		TSdlReferenceArray<Geometry, GeometrySoup> geometries("geometries", &OwnerType::m_geometries);
+		geometries.description("Array of references to the geometries in the soup.");
+		clazz.addField(geometries);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph

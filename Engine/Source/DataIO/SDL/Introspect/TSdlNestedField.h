@@ -29,7 +29,10 @@ public:
 
 	void setValueToDefault(OuterType& outerObj) const override;
 	std::string valueToString(const OuterType& outerObj) const override;
-	const ISdlResource* associatedResource(const OuterType& outerObj) const override;
+
+	void ownedResources(
+		const OuterType& outerObj,
+		std::vector<const ISdlResource*>& out_resources) const override;
 
 protected:
 	void loadFromSdl(
@@ -85,9 +88,11 @@ inline std::string TSdlNestedField<OuterType, InnerType>::valueToString(const Ou
 }
 
 template<typename OuterType, typename InnerType>
-inline const ISdlResource* TSdlNestedField<OuterType, InnerType>::associatedResource(const OuterType& outerObj) const
+inline void TSdlNestedField<OuterType, InnerType>::ownedResources(
+	const OuterType& outerObj,
+	std::vector<const ISdlResource*>& out_resources) const
 {
-	return m_innerObjField->associatedResource(outerObj.*m_innerObjPtr);
+	m_innerObjField->ownedResources(outerObj.*m_innerObjPtr, out_resources);
 }
 
 template<typename OuterType, typename InnerType>

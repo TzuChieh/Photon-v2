@@ -1,27 +1,9 @@
 #include "Actor/PhysicalActor.h"
 #include "Math/math.h"
 #include "Math/TVector3.h"
-#include "World/Foundation/PreCookReport.h"
-#include "World/Foundation/CookingContext.h"
-#include "World/Foundation/CookedResourceCollection.h"
-#include "Math/Transform/StaticAffineTransform.h"
 
 namespace ph
 {
-
-PreCookReport PhysicalActor::preCook(CookingContext& ctx)
-{
-	PreCookReport report = Actor::preCook(ctx);
-
-	auto localToWorld = ctx.getResources()->makeTransform<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeForward(m_localToWorld));
-	auto worldToLocal = ctx.getResources()->makeTransform<math::StaticAffineTransform>(
-		math::StaticAffineTransform::makeInverse(m_localToWorld));
-
-	report.setBaseTransforms(localToWorld, worldToLocal);
-
-	return report;
-}
 
 void PhysicalActor::translate(const math::Vector3R& translation)
 {

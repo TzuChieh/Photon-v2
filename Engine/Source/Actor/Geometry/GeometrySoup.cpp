@@ -35,7 +35,7 @@ void GeometrySoup::genPrimitive(
 std::shared_ptr<Geometry> GeometrySoup::genTransformed(
 	const math::StaticAffineTransform& transform) const
 {
-	auto tGeometrySoup = std::make_shared<GeometrySoup>();
+	auto tGeometrySoup = TSdl<GeometrySoup>::makeResource();
 	for(const auto& geometry : m_geometries)
 	{
 		const auto& tGeometry = geometry->genTransformed(transform);

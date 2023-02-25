@@ -8,12 +8,11 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(CookingContext, World);
 
-CookingContext::CookingContext(VisualWorld* const world)
+CookingContext::CookingContext(const VisualWorld* const world)
 	: m_world(world)
 	, m_resources(nullptr)
 	, m_childActors        ()
 	, m_phantoms           ()
-	, m_backgroundPrimitive(nullptr)
 {
 	m_resources = getWorld().getCookedResources();
 	if(!m_resources)
@@ -51,7 +50,7 @@ std::vector<std::unique_ptr<Actor>> CookingContext::claimChildActors()
 	return childActors;
 }
 
-CookedResourceCollection* CookingContext::getResources() const
+CookedResourceCollection* CookingContext::getCooked() const
 {
 	return m_resources;
 }
@@ -64,12 +63,6 @@ math::AABB3D CookingContext::getRootActorsBound() const
 math::AABB3D CookingContext::getLeafActorsBound() const
 {
 	return getWorld().getLeafActorsBound();
-}
-
-VisualWorld& CookingContext::getWorld()
-{
-	PH_ASSERT(m_world);
-	return *m_world;
 }
 
 const VisualWorld& CookingContext::getWorld() const

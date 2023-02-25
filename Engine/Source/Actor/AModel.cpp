@@ -8,8 +8,10 @@
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
+#include "World/Foundation/PreCookReport.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
+#include "Common/logging.h"
 
 #include <algorithm>
 #include <iostream>
@@ -17,18 +19,36 @@
 namespace ph
 {
 
+PH_DEFINE_INTERNAL_LOG_GROUP(AModel, Actor);
+
+PreCookReport AModel::preCook(CookingContext& ctx)
+{
+	PreCookReport report = PhysicalActor::preCook(ctx);
+
+	auto localToWorld = ctx.getCooked()->makeTransform<math::StaticAffineTransform>(
+		math::StaticAffineTransform::makeForward(m_localToWorld));
+	auto worldToLocal = ctx.getCooked()->makeTransform<math::StaticAffineTransform>(
+		math::StaticAffineTransform::makeInverse(m_localToWorld));
+
+	report.setBaseTransforms(localToWorld, worldToLocal);
+
+	return report;
+}
+
 CookedUnit AModel::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	if(!m_geometry || !m_material)
 	{
-		std::cerr << "warning: at AModel::cook(), " 
-		          << "incomplete data detected" << std::endl;
+		PH_LOG_WARNING(AModel,
+			"incomplete data detected (missing geometry: {}, missing material: {})",
+			m_geometry == nullptr, m_material == nullptr);
+
 		return CookedUnit();
 	}
 
 	ModelBuilder builder(ctx);
 	
-	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
+	PrimitiveMetadata* metadata = ctx.getCooked()->makeMetadata();
 
 	PrimitiveBuildingMaterial primitiveBuildingMatl(metadata);
 

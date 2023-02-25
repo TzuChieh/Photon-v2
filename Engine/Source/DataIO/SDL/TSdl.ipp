@@ -1,3 +1,5 @@
+#pragma once
+
 #include "DataIO/SDL/TSdl.h"
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/Introspect/SdlStruct.h"
@@ -11,13 +13,13 @@
 namespace ph
 {
 
-template<CIsSdlResource T>
+template<CSdlResource T>
 inline constexpr ETypeCategory TSdl<T>::getCategory()
 {
 	return sdl::category_of<T>();
 }
 
-template<CIsSdlResource T>
+template<CSdlResource T>
 inline std::shared_ptr<T> TSdl<T>::makeResource()
 {
 	static_assert(CHasSdlClassDefinition<T>,
@@ -29,26 +31,31 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 	// Creates an uninitialized resource
 	std::shared_ptr<ISdlResource> resource = clazz->createResource();
 
-	// Could be empty due to `T` being abstract or being defined to be
+	// Could be empty due to `T` being abstract or being defined to be uninstantiable
 	if(!resource)
 	{
+		PH_DEFAULT_LOG_WARNING(
+			"default resource creation failed, {} could be abstract or defined to be uninstantiable",
+			clazz->genPrettyName());
+
 		return nullptr;
 	}
 
 	clazz->initDefaultResource(*resource);
 
-	// This dynamic cast is required in the sense that `T` might not actually have SDL class
-	// defined locally but inherited; the cast guard against this case.
+	// Obtain typed resource. This dynamic cast also guard against the case where
+	// `T` might not actually have SDL class defined locally but inherited.
 	std::shared_ptr<T> typedResource = std::dynamic_pointer_cast<T>(std::move(resource));
 	if(!typedResource)
 	{
 		PH_DEFAULT_LOG_WARNING(
-			"default resource creation failed, the type specified may not have SDL class defined");
+			"default resource creation failed, {} may not have SDL class defined",
+			clazz->genPrettyName());
 	}
 	return typedResource;
 }
 
-template<CIsSdlResource T>
+template<CSdlResource T>
 inline T TSdl<T>::make()
 {
 	static_assert(std::is_default_constructible_v<T>,

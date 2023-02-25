@@ -105,7 +105,7 @@ std::shared_ptr<Geometry> GTriangleMesh::genTransformed(
 {
 	const auto gTriangles = genTriangles();
 
-	auto geometrySoup = std::make_shared<GeometrySoup>();
+	auto geometrySoup = TSdl<GeometrySoup>::makeResource();
 	for(const auto& gTriangle : gTriangles)
 	{
 		geometrySoup->add(std::make_shared<GTriangle>(gTriangle));

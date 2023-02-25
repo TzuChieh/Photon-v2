@@ -75,6 +75,7 @@ concept CPhotonException =
 	std::is_base_of_v<LogicalException, T>;
 
 template<CPhotonException ExceptionType, typename... Args>
+[[noreturn]]
 inline void throw_formatted(const std::string_view formattedMsg, Args&&... args)
 {
 	throw ExceptionType(

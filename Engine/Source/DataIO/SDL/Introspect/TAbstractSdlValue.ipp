@@ -21,10 +21,14 @@ inline std::string TAbstractSdlValue<T, Owner>::valueToString(const Owner& owner
 }
 
 template<typename T, typename Owner>
-inline const ISdlResource* TAbstractSdlValue<T, Owner>::associatedResource(const Owner& owner) const
+inline void TAbstractSdlValue<T, Owner>::ownedResources(
+	const Owner& /* owner */,
+	std::vector<const ISdlResource*>& /* out_resources */) const
 {
-	// Returns nullptr always--SDL value is not a reference type and thus cannot have associated resource
-	return nullptr;
+	// Returns nullptr always--SDL value is not a reference type and thus cannot have 
+	// associated resource
+	// 
+	// Nothing to return.
 }
 
 }// end namespace ph
