@@ -96,49 +96,12 @@ public:
 		return *this;
 	}
 
-	inline void get(
-		TVector3<T>* const    out_position, 
-		TQuaternion<T>* const out_rotation, 
-		TVector3<T>* const    out_scale) const
-	{
-		*out_position = m_position;
-		*out_rotation = m_rotation;
-		*out_scale    = m_scale;
-	}
-
 	TVector3<T> getPosition() const;
 	TQuaternion<T> getRotation() const;
 	TVector3<T> getScale() const;
 
-	inline void genTransformMatrix(TMatrix4<T>* const out_result) const
-	{
-		PH_ASSERT(out_result);
-
-		TMatrix4<T> translationMatrix;
-		TMatrix4<T> rotationMatrix;
-		TMatrix4<T> scaleMatrix;
-		translationMatrix.initTranslation(m_position);
-		rotationMatrix.initRotation(m_rotation);
-		scaleMatrix.initScale(m_scale);
-
-		*out_result = translationMatrix.mul(rotationMatrix).mul(scaleMatrix);
-	}
-
-	inline void genInverseTransformMatrix(TMatrix4<T>* const out_result) const
-	{
-		PH_ASSERT(out_result);
-
-		TDecomposedTransform inverted = this->invert();
-
-		TMatrix4<T> inverseTranslationMatrix;
-		TMatrix4<T> inverseRotationMatrix;
-		TMatrix4<T> inverseScaleMatrix;
-		inverseTranslationMatrix.initTranslation(inverted.m_position);
-		inverseRotationMatrix.initRotation(inverted.m_rotation);
-		inverseScaleMatrix.initScale(inverted.m_scale);
-
-		*out_result = inverseScaleMatrix.mul(inverseRotationMatrix).mul(inverseTranslationMatrix);
-	}
+	void genTransformMatrix(TMatrix4<T>* out_result) const;
+	void genInverseTransformMatrix(TMatrix4<T>* out_result) const;
 
 	// Inverts the transformation components. The effect of inverted and 
 	// un-inverted transforms will cancel each other out.
@@ -146,6 +109,10 @@ public:
 
 	bool hasScaleEffect(T margin = 0) const;
 	bool isScaleUniform(T margin = 0) const;
+	bool isIdentity() const;
+
+	bool operator == (const TDecomposedTransform& rhs) const;
+	bool operator != (const TDecomposedTransform& rhs) const;
 
 private:
 	TVector3<T>    m_position;
@@ -159,6 +126,38 @@ template<typename T>
 TDecomposedTransform<T>::TDecomposedTransform() : 
 	m_position(0, 0, 0), m_rotation(TQuaternion<T>::makeNoRotation()), m_scale(1, 1, 1)
 {}
+
+template<typename T>
+inline void TDecomposedTransform<T>::genTransformMatrix(TMatrix4<T>* const out_result) const
+{
+	PH_ASSERT(out_result);
+
+	TMatrix4<T> translationMatrix;
+	TMatrix4<T> rotationMatrix;
+	TMatrix4<T> scaleMatrix;
+	translationMatrix.initTranslation(m_position);
+	rotationMatrix.initRotation(m_rotation);
+	scaleMatrix.initScale(m_scale);
+
+	*out_result = translationMatrix.mul(rotationMatrix).mul(scaleMatrix);
+}
+
+template<typename T>
+inline void TDecomposedTransform<T>::genInverseTransformMatrix(TMatrix4<T>* const out_result) const
+{
+	PH_ASSERT(out_result);
+
+	TDecomposedTransform inverted = this->invert();
+
+	TMatrix4<T> inverseTranslationMatrix;
+	TMatrix4<T> inverseRotationMatrix;
+	TMatrix4<T> inverseScaleMatrix;
+	inverseTranslationMatrix.initTranslation(inverted.m_position);
+	inverseRotationMatrix.initRotation(inverted.m_rotation);
+	inverseScaleMatrix.initScale(inverted.m_scale);
+
+	*out_result = inverseScaleMatrix.mul(inverseRotationMatrix).mul(inverseTranslationMatrix);
+}
 
 template<typename T>
 inline TDecomposedTransform<T> TDecomposedTransform<T>::invert() const
@@ -186,6 +185,26 @@ inline bool TDecomposedTransform<T>::isScaleUniform(const T margin) const
 	const T dSzSx = std::abs(m_scale.z() - m_scale.x());
 
 	return dSxSy < margin && dSySz < margin && dSzSx < margin;
+}
+
+template<typename T>
+inline bool TDecomposedTransform<T>::isIdentity() const
+{
+	return *this == TDecomposedTransform();
+}
+
+template<typename T>
+inline bool TDecomposedTransform<T>::operator == (const TDecomposedTransform& rhs) const
+{
+	return m_position == rhs.m_position &&
+	       m_rotation == rhs.m_rotation &&
+	       m_scale == rhs.m_scale;
+}
+
+template<typename T>
+inline bool TDecomposedTransform<T>::operator != (const TDecomposedTransform& rhs) const
+{
+	return !(*this == rhs);
 }
 
 template<typename T>

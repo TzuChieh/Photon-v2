@@ -12,6 +12,9 @@ public:
 	DynamicLinearTranslation(const Vector3R& translationT0, 
 	                         const Vector3R& translationT1);
 
+	DynamicLinearTranslation makeInversed() const;
+
+	// DEPRECATED
 	std::unique_ptr<Transform> genInversed() const override;
 
 private:

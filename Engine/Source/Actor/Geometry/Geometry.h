@@ -20,13 +20,14 @@ class PrimitiveBuildingMaterial;
 class Geometry : public TSdlResourceBase<ETypeCategory::Ref_Geometry>
 {
 public:
-	/*! @brief Create and store data suitable for rendering into `out_geometry`.
+	/*! @brief Store data suitable for rendering into `out_geometry`.
 	*/
 	virtual void cook(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const = 0;
 
+	// DEPRECATED
 	virtual void genPrimitive(
 		const PrimitiveBuildingMaterial&         data, 
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const = 0;

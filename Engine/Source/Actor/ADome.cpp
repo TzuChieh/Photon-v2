@@ -38,9 +38,9 @@ PreCookReport ADome::preCook(CookingContext& ctx)
 		sanifiedLocalToWorld.setScale(1);
 	}
 
-	auto localToWorld = ctx.getCooked()->makeTransform<math::StaticRigidTransform>(
+	auto localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
 		math::StaticRigidTransform::makeForward(sanifiedLocalToWorld));
-	auto worldToLocal = ctx.getCooked()->makeTransform<math::StaticRigidTransform>(
+	auto worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
 		math::StaticRigidTransform::makeInverse(sanifiedLocalToWorld));
 
 	report.setBaseTransforms(localToWorld, worldToLocal);
@@ -71,14 +71,14 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 		domeRadius = std::max(ri, domeRadius);
 	}
 
-	PrimitiveMetadata* metadata = ctx.getCooked()->makeMetadata();
+	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 
 	// A dome should not have any visible inter-reflections, ideally
 	auto material = std::make_shared<IdealSubstance>();
 	material->setSubstance(EIdealSubstance::Absorber);
 	material->genBehaviors(ctx, *metadata);
 
-	auto* domePrimitive = ctx.getCooked()->copyIntersectable(TMetaInjectionPrimitive(
+	auto* domePrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
 		ReferencedPrimitiveMetaGetter(metadata), 
 		TEmbeddedPrimitiveGetter<PLatLongEnvSphere>(domeRadius, localToWorld, worldToLocal)));
 	
@@ -117,7 +117,7 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 	CookedUnit cookedActor;
 	cookedActor.setEmitter(std::move(domeEmitter));
 
-	ctx.getCooked()->getNamed()->setBackgroundPrimitive(domePrimitive);
+	ctx.getResources()->getNamed()->setBackgroundPrimitive(domePrimitive);
 
 	return cookedActor;
 }

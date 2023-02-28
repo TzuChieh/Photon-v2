@@ -10,6 +10,11 @@ DynamicLinearTranslation::DynamicLinearTranslation(const Vector3R& translationT0
 	m_translationT1(translationT1)
 {}
 
+DynamicLinearTranslation DynamicLinearTranslation::makeInversed() const
+{
+	return DynamicLinearTranslation(m_translationT0.mul(-1), m_translationT1.mul(-1));
+}
+
 std::unique_ptr<Transform> DynamicLinearTranslation::genInversed() const
 {
 	return std::make_unique<DynamicLinearTranslation>(m_translationT0.mul(-1),

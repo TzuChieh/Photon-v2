@@ -5,6 +5,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
 #include "World/Foundation/CookedGeometry.h"
+#include "World/Foundation/CookedMotion.h"
 #include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/traits.h"
 #include "DataIO/SDL/SdlResourceId.h"
@@ -17,6 +18,8 @@
 #include <memory>
 #include <unordered_map>
 #include <string_view>
+#include <string>
+#include <format>
 
 namespace ph
 {
@@ -24,6 +27,8 @@ namespace ph
 PH_DEFINE_EXTERNAL_LOG_GROUP(CookedResourceCollection, World);
 
 /*! @brief Provides thread-safe cooked data creation and storage.
+All methods are thread-safe to call, however manipulating the created data is not thread-safe unless
+stated explicitly.
 */
 class CookedResourceCollection final : private INoCopyAndMove
 {
@@ -58,12 +63,42 @@ public:
 	template<typename... DeducedArgs>
 	CookedGeometry* makeGeometry(const SdlResourceId id, DeducedArgs&&... args)
 	{
-		return makeCookedResourceByID(m_idToGeometry, id, std::forward<DeducedArgs>(args)...);
+		return makeCookedResourceWithID(m_idToGeometry, id, std::forward<DeducedArgs>(args)...);
 	}
 
+	template<typename... DeducedArgs>
+	CookedMotion* makeMotion(const SdlResourceId id, DeducedArgs&&... args)
+	{
+		return makeCookedResourceWithID(m_idToMotion, id, std::forward<DeducedArgs>(args)...);
+	}
+
+	/*! @brief Get the named resource sub-storage.
+	@return A thread-safe storage.
+	*/
 	TSynchronized<CookedNamedResource>& getNamed()
 	{
 		return m_namedResource;
+	}
+
+	const CookedGeometry* getGeometry(const SdlResourceId id) const
+	{
+		return getCookedResourceByID(m_idToGeometry, id);
+	}
+
+	const CookedMotion* getMotion(const SdlResourceId id) const
+	{
+		return getCookedResourceByID(m_idToMotion, id);
+	}
+
+	std::string getStats() const
+	{
+		return std::format(
+			"{} metadatas, {} transforms, {} intersectables, {} geometries, {} motions",
+			m_metadatas->size(),
+			m_transforms->size(), 
+			m_intersectables->size(),
+			m_idToGeometry->size(),
+			m_idToMotion->size());
 	}
 
 private:
@@ -89,7 +124,7 @@ private:
 	}
 
 	template<typename CookedType, typename... DeducedArgs>
-	static CookedType* makeCookedResourceByID(
+	static CookedType* makeCookedResourceWithID(
 		TSynchronized<TSdlResourceIdMap<CookedType>>& syncedIdToResource,
 		const SdlResourceId id, 
 		DeducedArgs&&... args)
@@ -98,7 +133,6 @@ private:
 		auto newResource = std::make_unique<CookedType>(std::forward<DeducedArgs>(args)...);
 
 		CookedType* resourcePtr = nullptr;
-
 		syncedIdToResource.locked(
 			[id, &resourcePtr, &newResource](auto& idToResource)
 			{
@@ -122,10 +156,30 @@ private:
 		return resourcePtr;
 	}
 
+	template<typename CookedType, typename... DeducedArgs>
+	static const CookedType* getCookedResourceByID(
+		const TSynchronized<TSdlResourceIdMap<CookedType>>& syncedIdToResource,
+		const SdlResourceId id)
+	{
+		const CookedType* resourcePtr = nullptr;
+		syncedIdToResource.constLocked(
+			[id, &resourcePtr](const auto& idToResource)
+			{
+				auto findResult = idToResource.find(id);
+				if(findResult != idToResource.end())
+				{
+					resourcePtr = findResult->second.get();
+				}
+			});
+
+		return resourcePtr;
+	}
+
 	TSynchronized<TUniquePtrVector<PrimitiveMetadata>> m_metadatas;
 	TSynchronized<TUniquePtrVector<math::Transform>> m_transforms;
 	TSynchronized<TUniquePtrVector<Intersectable>> m_intersectables;
 	TSynchronized<TSdlResourceIdMap<CookedGeometry>> m_idToGeometry;
+	TSynchronized<TSdlResourceIdMap<CookedMotion>> m_idToMotion;
 	TSynchronized<CookedNamedResource> m_namedResource;
 };
 

@@ -2,6 +2,7 @@
 #include "Common/logging.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "World/VisualWorld.h"
+#include "Actor/Geometry/Geometry.h"
 
 namespace ph
 {
@@ -50,7 +51,7 @@ std::vector<std::unique_ptr<Actor>> CookingContext::claimChildActors()
 	return childActors;
 }
 
-CookedResourceCollection* CookingContext::getCooked() const
+CookedResourceCollection* CookingContext::getResources() const
 {
 	return m_resources;
 }
@@ -63,6 +64,13 @@ math::AABB3D CookingContext::getRootActorsBound() const
 math::AABB3D CookingContext::getLeafActorsBound() const
 {
 	return getWorld().getLeafActorsBound();
+}
+
+const CookedGeometry* CookingContext::getCooked(const std::shared_ptr<Geometry>& geometry) const
+{
+	return geometry != nullptr
+		? getResources()->getGeometry(geometry->getId())
+		: nullptr;
 }
 
 const VisualWorld& CookingContext::getWorld() const

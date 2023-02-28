@@ -33,9 +33,9 @@ PreCookReport ALight::preCook(CookingContext& ctx)
 	}
 	else
 	{
-		auto localToWorld = ctx.getCooked()->makeTransform<math::StaticRigidTransform>(
+		auto localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
 			math::StaticRigidTransform::makeForward(m_localToWorld));
-		auto worldToLocal = ctx.getCooked()->makeTransform<math::StaticRigidTransform>(
+		auto worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
 			math::StaticRigidTransform::makeInverse(m_localToWorld));
 
 		report.setBaseTransforms(localToWorld, worldToLocal);
@@ -105,7 +105,7 @@ CookedUnit ALight::buildGeometricLight(
 		sanifiedGeometry = geometry;
 	}
 
-	PrimitiveMetadata* metadata = ctx.getCooked()->makeMetadata();
+	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 	material->genBehaviors(ctx, *metadata);
 
 	std::vector<std::unique_ptr<Primitive>> primitiveData;

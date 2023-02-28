@@ -22,6 +22,7 @@ class Transform
 public:
 	virtual ~Transform() = default;
 
+	// DEPRECATED
 	virtual std::unique_ptr<Transform> genInversed() const;
 
 	// Treating a Vector3R as either

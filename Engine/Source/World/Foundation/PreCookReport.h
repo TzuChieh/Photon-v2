@@ -13,8 +13,8 @@ class PreCookReport final
 public:
 	explicit PreCookReport(SdlResourceId rawResourceId);
 
-	PreCookReport& cookable();
-	PreCookReport& uncookable();
+	PreCookReport& markAsCookable();
+	PreCookReport& markAsUncookable();
 
 	PreCookReport& setBaseTransforms(
 		const math::Transform* localToWorld, 

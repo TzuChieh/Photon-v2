@@ -88,6 +88,8 @@ struct TEmbeddedPrimitiveGetter final
 	}
 };
 
+// TODO: could use EBO on some cases
+
 template<detail::CPrimitiveMetaGetter PrimitiveMetaGetter, detail::CPrimitiveGetter PrimitiveGetter>
 class TMetaInjectionPrimitive : public Primitive
 {

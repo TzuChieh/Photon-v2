@@ -7,6 +7,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Utility/Concurrent/TSynchronized.h"
+#include "DataIO/SDL/sdl_traits.h"
 
 #include <vector>
 #include <memory>
@@ -19,6 +20,8 @@ namespace ph
 
 class VisualWorld;
 class CookedResourceCollection;
+class Geometry;
+class CookedGeometry;
 
 /*! @brief Information about the world being cooked.
 */
@@ -40,7 +43,7 @@ public:
 
 	std::vector<std::unique_ptr<Actor>> claimChildActors();
 
-	CookedResourceCollection* getCooked() const;
+	CookedResourceCollection* getResources() const;
 
 	/*! @brief Bounds actors cooked in the first level.
 	The bound is only available after the first level has done cooking.
@@ -52,6 +55,8 @@ public:
 	encapsulates all previous levels including the root level.
 	*/
 	math::AABB3D getLeafActorsBound() const;
+
+	const CookedGeometry* getCooked(const std::shared_ptr<Geometry>& geometry) const;
 
 private:
 	const VisualWorld& getWorld() const;

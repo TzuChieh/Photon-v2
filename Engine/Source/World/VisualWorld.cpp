@@ -157,6 +157,10 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		m_emitterSampler->update(m_cookedActorStorage);
 	}
 
+	PH_LOG(VisualWorld, 
+		"cooking done, data cooked: {}", 
+		getCookedResources()->getStats());
+
 	m_scene = std::make_unique<Scene>(m_intersector.get(), m_emitterSampler.get());
 	m_scene->setBackgroundPrimitive(m_backgroundPrimitive);
 }

@@ -13,13 +13,13 @@ PreCookReport::PreCookReport(SdlResourceId rawResourceId)
 	PH_ASSERT_NE(rawResourceId, EMPTY_SDL_RESOURCE_ID);
 }
 
-PreCookReport& PreCookReport::cookable()
+PreCookReport& PreCookReport::markAsCookable()
 {
 	m_isCookable = true;
 	return *this;
 }
 
-PreCookReport& PreCookReport::uncookable()
+PreCookReport& PreCookReport::markAsUncookable()
 {
 	m_isCookable = false;
 	return *this;
