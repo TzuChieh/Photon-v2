@@ -1,7 +1,7 @@
 #include "World/VisualWorld.h"
 #include "Common/primitive_type.h"
 #include "DataIO/SDL/SceneDescription.h"
-#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/TransientVisualElement.h"
 #include "World/Foundation/CookingContext.h"
 #include "EngineEnv/CoreCookingContext.h"
 #include "EngineEnv/CoreCookedUnit.h"
@@ -77,6 +77,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// Cook actors level by level (from lowest to highest)
 
 	std::size_t numCookedActors = 0;
+	std::vector<TransientVisualElement> elements;
 	while(numCookedActors < actors.size())
 	{
 		PH_SCOPED_TIMER(CookActorLevels);
@@ -100,12 +101,12 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 				return a < b->getCookOrder().level;
 			});
 
-		cookActors(&actors[numCookedActors], actorCookEnd - actorCookBegin, ctx);
+		cookActors(&actors[numCookedActors], actorCookEnd - actorCookBegin, ctx, elements);
 
 		// Prepare for next cooking iteration
 
 		// FIXME: calc bounds from newly cooked actors and union
-		math::AABB3D bound = calcIntersectableBound(m_cookedActorStorage);
+		math::AABB3D bound = calcElementBound(elements);
 		// TODO: should union with receiver's bound instead
 		bound.unionWith(m_receiverPos);
 
@@ -129,32 +130,45 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		PH_LOG(VisualWorld, "# cooked actors: {}", numCookedActors);
 	}// end while more raw actors
 
-	for(auto& phantom : ctx.m_phantoms)
+	/*for(auto& phantom : ctx.m_phantoms)
 	{
 		phantom.second.claimCookedData(m_phantomStorage);
 		phantom.second.claimCookedBackend(m_phantomStorage);
-	}
+	}*/
 
 	m_backgroundPrimitive = m_cookedResources->getNamed().asConst()->getBackgroundPrimitive();
 
-	PH_LOG(VisualWorld, "visual world discretized into {} intersectables", 
-		m_cookedActorStorage.numIntersectables());
-	PH_LOG(VisualWorld, "number of emitters: {}", 
-		m_cookedActorStorage.numEmitters());
+	std::vector<const Intersectable*> visibleIntersectables;
+	std::vector<const Emitter*> emitters;
+	for(const TransientVisualElement& element : elements)
+	{
+		for(const Intersectable* intersectable : element.intersectables)
+		{
+			visibleIntersectables.push_back(intersectable);
+		}
+
+		for(const Emitter* emitter : element.emitters)
+		{
+			emitters.push_back(emitter);
+		}
+	}
+
+	PH_LOG(VisualWorld, "discretized into {} visible intersectables, number of emitters: {}", 
+		visibleIntersectables.size(), emitters.size());
 
 	PH_LOG(VisualWorld, "updating accelerator...");
 	{
 		PH_SCOPED_TIMER(UpdateAccelerators);
 
 		createTopLevelAccelerator(coreCtx.getTopLevelAcceleratorType());
-		m_intersector->update(m_cookedActorStorage);
+		m_intersector->update(visibleIntersectables);
 	}
 
 	PH_LOG(VisualWorld, "updating light sampler...");
 	{
 		PH_SCOPED_TIMER(UpdateLightSamplers);
 
-		m_emitterSampler->update(m_cookedActorStorage);
+		m_emitterSampler->update(emitters);
 	}
 
 	PH_LOG(VisualWorld, 
@@ -168,7 +182,8 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 void VisualWorld::cookActors(
 	std::shared_ptr<Actor>* const actors,
 	const std::size_t numActors,
-	CookingContext& ctx)
+	CookingContext& ctx,
+	std::vector<TransientVisualElement>& out_elements)
 {
 	PH_ASSERT(actors);
 
@@ -181,11 +196,21 @@ void VisualWorld::cookActors(
 		try
 		{
 			PreCookReport report = actor->preCook(ctx);
-			CookedUnit cookedUnit = actor->cook(ctx, report);
-			actor->postCook(ctx, cookedUnit);
+			TransientVisualElement element = actor->cook(ctx, report);
+			actor->postCook(ctx, element);
 
-			cookedUnit.claimCookedData(m_cookedActorStorage);
-			cookedUnit.claimCookedBackend(m_cookedBackendStorage);// TODO: make backend phantoms
+			// DEPRECATED
+			if(element.emitter)
+			{
+				element.emitters.push_back(element.emitter.get());
+				m_cookedActorStorage.add(std::move(element.emitter));
+			}
+
+			// DEPRECATED
+			//cookedUnit.claimCookedData(m_cookedActorStorage);
+			//cookedUnit.claimCookedBackend(m_cookedBackendStorage);// TODO: make backend phantoms
+
+			out_elements.push_back(std::move(element));
 		}
 		catch(const Exception& e)
 		{
@@ -230,15 +255,24 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 	PH_LOG(VisualWorld, "top level accelerator type: {}", name);
 }
 
-math::AABB3D VisualWorld::calcIntersectableBound(const CookedDataStorage& storage)
+math::AABB3D VisualWorld::calcElementBound(std::span<TransientVisualElement> elements)
 {
-	if(storage.numIntersectables() == 0)
+	std::vector<const Intersectable*> intersectables;
+	for(const TransientVisualElement& element : elements)
+	{
+		for(const Intersectable* intersectable : element.intersectables)
+		{
+			intersectables.push_back(intersectable);
+		}
+	}
+
+	if(intersectables.size() == 0)
 	{
 		return math::AABB3D();
 	}
 
-	math::AABB3D fullBound = storage.intersectables().begin()->get()->calcAABB();
-	for(const auto& intersectable : storage.intersectables())
+	math::AABB3D fullBound = intersectables.front()->calcAABB();
+	for(const Intersectable* intersectable : intersectables)
 	{
 		fullBound.unionWith(intersectable->calcAABB());
 	}

@@ -29,14 +29,14 @@ public:
 	std::size_t iC;
 };
 
-void GSphere::cook(
+void GSphere::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx,
 	const GeometryCookConfig& config) const
 {
 	if(config.preferTriangulated)
 	{
-		genTriangleMesh()->cook(out_geometry, ctx, config);
+		genTriangleMesh()->storeCooked(out_geometry, ctx, config);
 	}
 	else
 	{

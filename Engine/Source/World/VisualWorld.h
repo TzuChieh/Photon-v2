@@ -2,7 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "World/Foundation/CookedDataStorage.h"
-#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/TransientVisualElement.h"
 #include "Actor/Actor.h"
 #include "World/Scene.h"
 #include "Core/Intersectable/Intersector.h"
@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <memory>
+#include <span>
 
 namespace ph { class SceneDescription; }
 namespace ph { class CoreCookingContext; }
@@ -53,7 +54,7 @@ public:
 
 private:
 	std::unique_ptr<CookedResourceCollection> m_cookedResources;
-	std::vector<CookedUnit> m_cookedUnits;
+	std::vector<TransientVisualElement> m_cookedUnits;
 	CookedDataStorage m_cookedActorStorage;
 	CookedDataStorage m_cookedBackendStorage;
 	CookedDataStorage m_phantomStorage;
@@ -69,11 +70,12 @@ private:
 	void cookActors(
 		std::shared_ptr<Actor>* actors, 
 		std::size_t numActors, 
-		CookingContext& ctx);
+		CookingContext& ctx,
+		std::vector<TransientVisualElement>& out_elements);
 
 	void createTopLevelAccelerator(EAccelerator acceleratorType);
 
-	static math::AABB3D calcIntersectableBound(const CookedDataStorage& storage);
+	static math::AABB3D calcElementBound(std::span<TransientVisualElement> elements);
 };
 
 // In-header Implementations:

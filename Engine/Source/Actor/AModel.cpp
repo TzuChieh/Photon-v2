@@ -2,7 +2,7 @@
 #include "Math/math.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/TransientVisualElement.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
@@ -41,7 +41,7 @@ PreCookReport AModel::preCook(CookingContext& ctx)
 	return report;
 }
 
-CookedUnit AModel::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement AModel::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	if(!m_geometry || !m_material)
 	{
@@ -49,14 +49,14 @@ CookedUnit AModel::cook(CookingContext& ctx, const PreCookReport& report)
 			"incomplete data detected (missing geometry: {}, missing material: {})",
 			m_geometry == nullptr, m_material == nullptr);
 
-		return CookedUnit();
+		return TransientVisualElement();
 	}
 	
 	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 	// FIXME
-	const CookedGeometry* cookedGeometry = m_geometry->genCooked(ctx, GeometryCookConfig());
+	const CookedGeometry* cookedGeometry = m_geometry->createCooked(ctx, GeometryCookConfig());
 
-	CookedUnit cookedUnit;
+	TransientVisualElement cookedUnit;
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
 		auto* metaPrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
@@ -83,7 +83,7 @@ CookedUnit AModel::cook(CookingContext& ctx, const PreCookReport& report)
 	if(m_motionSource)
 	{
 		// FIXME
-		const CookedMotion* cookedMotion = m_motionSource->genCooked(ctx, MotionCookConfig());
+		const CookedMotion* cookedMotion = m_motionSource->createCooked(ctx, MotionCookConfig());
 
 		auto localToWorld = cookedMotion->localToWorld;
 		auto worldToLocal = cookedMotion->worldToLocal;

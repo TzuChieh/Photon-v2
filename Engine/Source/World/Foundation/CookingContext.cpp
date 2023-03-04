@@ -27,7 +27,7 @@ void CookingContext::addChildActor(std::unique_ptr<Actor> actor)
 	m_childActors.push_back(std::move(actor));
 }
 
-void CookingContext::addPhantom(const std::string& name, CookedUnit phantom)
+void CookingContext::addPhantom(const std::string& name, TransientVisualElement phantom)
 {
 	if(m_phantoms.find(name) != m_phantoms.end())
 	{
@@ -38,7 +38,7 @@ void CookingContext::addPhantom(const std::string& name, CookedUnit phantom)
 	m_phantoms[name] = std::move(phantom);
 }
 
-const CookedUnit* CookingContext::getPhantom(const std::string& name) const
+const TransientVisualElement* CookingContext::getPhantom(const std::string& name) const
 {
 	const auto result = m_phantoms.find(name);
 	return result != m_phantoms.end() ? &(result->second) : nullptr;

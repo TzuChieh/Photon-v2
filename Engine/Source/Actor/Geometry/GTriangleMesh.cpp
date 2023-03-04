@@ -25,7 +25,7 @@ GTriangleMesh::GTriangleMesh(
 	m_normals  (std::move(normals))
 {}
 
-void GTriangleMesh::cook(
+void GTriangleMesh::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx,
 	const GeometryCookConfig& config) const
@@ -33,7 +33,7 @@ void GTriangleMesh::cook(
 	const auto gTriangles = genTriangles();
 	for(const auto& gTriangle : gTriangles)
 	{
-		gTriangle.cook(out_geometry, ctx, config);
+		gTriangle.storeCooked(out_geometry, ctx, config);
 	}
 }
 

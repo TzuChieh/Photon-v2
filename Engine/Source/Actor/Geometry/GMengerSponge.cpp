@@ -19,7 +19,7 @@ GMengerSponge::GMengerSponge(const uint32 numIteration) :
 	m_numIteration(numIteration)
 {}
 
-void GMengerSponge::cook(
+void GMengerSponge::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx,
 	const GeometryCookConfig& config) const
@@ -33,7 +33,7 @@ void GMengerSponge::cook(
 
 	for(const auto& cube : cubes)
 	{
-		cube.cook(out_geometry, ctx, config);
+		cube.storeCooked(out_geometry, ctx, config);
 	}
 }
 

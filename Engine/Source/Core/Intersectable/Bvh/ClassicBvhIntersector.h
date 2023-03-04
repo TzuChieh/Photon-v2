@@ -5,21 +5,18 @@
 #include "Core/Intersectable/Bvh/BvhLinearNode.h"
 
 #include <vector>
-#include <memory>
 
 namespace ph
 {
 
-class Intersectable;
-
 class ClassicBvhIntersector : public Intersector
 {
 public:
-	void update(const CookedDataStorage& cookedActors) override;
+	void update(std::span<const Intersectable*> intersectables) override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	math::AABB3D calcAABB() const override;
 
-	void rebuildWithIntersectables(std::vector<const Intersectable*> intersectables);
+	void rebuildWithIntersectables(std::span<const Intersectable*> intersectables);
 
 private:
 	std::vector<const Intersectable*> m_intersectables;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/TSdlResourceBase.h"
-#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/TransientVisualElement.h"
 #include "DataIO/SDL/sdl_interface.h"
 
 namespace ph { class PreCookReport; }
@@ -20,14 +20,14 @@ public:
 	*/
 	virtual PreCookReport preCook(CookingContext& ctx);
 
-	virtual CookedUnit cook(CookingContext& ctx, const PreCookReport& report) = 0;
+	virtual TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) = 0;
 
 	/*! @brief Cooking additional data after `cook()`.
 	This method provides an opportunity for user to decorate the cooked data or any post-cook
 	operations (such as generating debug data). 
 	The method is guaranteed to run in parallel.
 	*/
-	virtual void postCook(const CookingContext& ctx, const CookedUnit& cookedUnit) const;
+	virtual void postCook(const CookingContext& ctx, const TransientVisualElement& element) const;
 
 	virtual CookOrder getCookOrder() const;
 

@@ -16,7 +16,7 @@ class AModel : public PhysicalActor
 {
 public:
 	PreCookReport preCook(CookingContext& ctx) override;
-	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override;
+	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
 
 	const Geometry* getGeometry() const;
 	const Material* getMaterial() const;

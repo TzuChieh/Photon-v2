@@ -46,7 +46,7 @@ GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const math::
 	PH_ASSERT(xLen > 0.0_r && yLen > 0.0_r && zLen > 0.0_r);
 }
 
-void GCuboid::cook(
+void GCuboid::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx,
 	const GeometryCookConfig& config) const
@@ -56,7 +56,7 @@ void GCuboid::cook(
 		return;
 	}
 
-	GCuboid::genTriangulated()->cook(out_geometry, ctx, config);
+	GCuboid::genTriangulated()->storeCooked(out_geometry, ctx, config);
 }
 
 void GCuboid::genPrimitive(

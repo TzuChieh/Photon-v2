@@ -4,7 +4,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/TransientVisualElement.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/MotionSource/MotionSource.h"
@@ -22,11 +22,11 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(TransformedInstanceActor, Actor);
 
-CookedUnit ATransformedInstance::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement ATransformedInstance::cook(CookingContext& ctx, const PreCookReport& report)
 {
-	CookedUnit cooked;
+	TransientVisualElement cooked;
 
-	const CookedUnit* phantom = ctx.getPhantom(m_phantomName);
+	/*const CookedUnit* phantom = ctx.getPhantom(m_phantomName);
 	if(!phantom)
 	{
 		PH_LOG_WARNING(TransformedInstanceActor, 
@@ -53,7 +53,8 @@ CookedUnit ATransformedInstance::cook(CookingContext& ctx, const PreCookReport& 
 
 	cooked.addIntersectable(std::move(transformedTarget));
 	cooked.addTransform(std::move(baseLW));
-	cooked.addTransform(std::move(baseWL));
+	cooked.addTransform(std::move(baseWL));*/
+	PH_ASSERT_UNREACHABLE_SECTION();
 
 	return cooked;
 }

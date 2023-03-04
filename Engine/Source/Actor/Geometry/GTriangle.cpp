@@ -16,7 +16,7 @@
 namespace ph
 {
 
-void GTriangle::cook(
+void GTriangle::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx,
 	const GeometryCookConfig& config) const

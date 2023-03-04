@@ -23,7 +23,7 @@ public:
 	GCuboid(const math::Vector3R& minVertex, const math::Vector3R& maxVertex);
 	GCuboid(real xLen, real yLen, real zLen, const math::Vector3R& offset);
 
-	void cook(
+	void storeCooked(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const override;

@@ -2,7 +2,6 @@
 #include "Actor/AModel.h"
 #include "Actor/ALight.h"
 #include "Math/Random.h"
-#include "World/Foundation/CookedDataStorage.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
@@ -10,20 +9,21 @@
 #include "Core/Emitter/Emitter.h"
 #include "Common/assertion.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 
 #include <iostream>
 
 namespace ph
 {
 
-void ESUniformRandom::update(const CookedDataStorage& cookedActors)
+void ESUniformRandom::update(std::span<const Emitter*> emitters)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
 
-	for(const auto& emitter : cookedActors.emitters())
+	for(const auto& emitter : emitters)
 	{
-		m_emitters.push_back(emitter.get());
+		m_emitters.push_back(emitter);
 	}
 
 	if(m_emitters.empty())

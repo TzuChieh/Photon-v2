@@ -7,14 +7,14 @@
 namespace ph
 {
 
-CookedMotion* MotionSource::genCooked(
+CookedMotion* MotionSource::createCooked(
 	const CookingContext& ctx,
 	const MotionCookConfig& config) const
 {
 	CookedMotion* cookedMotion = ctx.getResources()->makeMotion(getId());
 	PH_ASSERT(cookedMotion);
 
-	cook(*cookedMotion, ctx, config);
+	storeCooked(*cookedMotion, ctx, config);
 
 	return cookedMotion;
 }

@@ -29,7 +29,7 @@ public:
 		CookingContext& ctx, DomeRadianceFunctionInfo* out_info) = 0;
 
 	PreCookReport preCook(CookingContext& ctx) override;
-	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override;
+	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
 	CookOrder getCookOrder() const override;
 
 private:

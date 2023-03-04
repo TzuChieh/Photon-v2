@@ -14,7 +14,7 @@ class GeometrySoup : public Geometry
 public:
 	GeometrySoup();
 
-	void cook(
+	void storeCooked(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const override;

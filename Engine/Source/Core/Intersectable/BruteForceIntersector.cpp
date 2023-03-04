@@ -3,7 +3,6 @@
 #include "Core/HitProbe.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
-#include "World/Foundation/CookedDataStorage.h"
 #include "Math/Geometry/TAABB3D.h"
 
 #include <limits>
@@ -11,14 +10,12 @@
 namespace ph
 {
 
-BruteForceIntersector::~BruteForceIntersector() = default;
-
-void BruteForceIntersector::update(const CookedDataStorage& cookedActors)
+void BruteForceIntersector::update(std::span<const Intersectable*> intersectables)
 {
 	m_intersectables.clear();
 	m_intersectables.shrink_to_fit();
 
-	for(const auto& intersectable : cookedActors.intersectables())
+	for(const auto& intersectable : intersectables)
 	{
 		// HACK
 		if(!intersectable->calcAABB().isFiniteVolume())
@@ -26,7 +23,7 @@ void BruteForceIntersector::update(const CookedDataStorage& cookedActors)
 			continue;
 		}
 
-		m_intersectables.push_back(intersectable.get());
+		m_intersectables.push_back(intersectable);
 	}
 }
 

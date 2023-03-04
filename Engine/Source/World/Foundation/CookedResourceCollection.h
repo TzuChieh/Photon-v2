@@ -19,7 +19,6 @@
 #include <unordered_map>
 #include <string_view>
 #include <string>
-#include <format>
 
 namespace ph
 {
@@ -75,31 +74,12 @@ public:
 	/*! @brief Get the named resource sub-storage.
 	@return A thread-safe storage.
 	*/
-	TSynchronized<CookedNamedResource>& getNamed()
-	{
-		return m_namedResource;
-	}
+	TSynchronized<CookedNamedResource>& getNamed();
 
-	const CookedGeometry* getGeometry(const SdlResourceId id) const
-	{
-		return getCookedResourceByID(m_idToGeometry, id);
-	}
+	const CookedGeometry* getGeometry(const SdlResourceId id) const;
+	const CookedMotion* getMotion(const SdlResourceId id) const;
 
-	const CookedMotion* getMotion(const SdlResourceId id) const
-	{
-		return getCookedResourceByID(m_idToMotion, id);
-	}
-
-	std::string getStats() const
-	{
-		return std::format(
-			"{} metadatas, {} transforms, {} intersectables, {} geometries, {} motions",
-			m_metadatas->size(),
-			m_transforms->size(), 
-			m_intersectables->size(),
-			m_idToGeometry->size(),
-			m_idToMotion->size());
-	}
+	std::string getStats() const;
 
 private:
 	template<typename CookedType>

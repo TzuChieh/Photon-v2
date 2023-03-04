@@ -10,7 +10,7 @@ namespace ph
 class ESUniformRandom : public EmitterSampler
 {
 public:
-	void update(const CookedDataStorage& cookedActors) override;
+	void update(std::span<const Emitter*> emitters) override;
 	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const override;
 	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override;
 	real calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override;

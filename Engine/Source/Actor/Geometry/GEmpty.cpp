@@ -7,7 +7,7 @@
 namespace ph
 {
 
-void GEmpty::cook(
+void GEmpty::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx,
 	const GeometryCookConfig& config) const

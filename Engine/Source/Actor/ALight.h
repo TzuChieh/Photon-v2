@@ -17,7 +17,7 @@ class ALight : public PhysicalActor
 {
 public:
 	PreCookReport preCook(CookingContext& ctx) override;
-	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override;
+	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
 
 	const LightSource* getLightSource() const;
 	void setLightSource(const std::shared_ptr<LightSource>& lightSource);
@@ -25,19 +25,19 @@ public:
 private:
 	std::shared_ptr<LightSource> m_lightSource;
 
-	CookedUnit buildGeometricLight(
-		CookingContext&           ctx,
+	TransientVisualElement buildGeometricLight(
+		CookingContext& ctx,
 		std::shared_ptr<Geometry> geometry,
-		std::shared_ptr<Material> material) const;
+		std::shared_ptr<Material> material,
+		const PreCookReport& report) const;
 
 	// Tries to return a geometry suitable for emitter calculations (can be the 
 	// original one if it is already suitable). If the current actor has undesired 
 	// configurations, nullptr is returned.
 	std::shared_ptr<Geometry> getSanifiedGeometry(
-		CookingContext&                        ctx,
-		const std::shared_ptr<Geometry>&       geometry,
-		std::unique_ptr<math::RigidTransform>* out_baseLW,
-		std::unique_ptr<math::RigidTransform>* out_baseWL) const;
+		CookingContext& ctx,
+		const std::shared_ptr<Geometry>& srcGeometry,
+		math::TDecomposedTransform<real>* out_remainingLocalToWorld) const;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ALight>)

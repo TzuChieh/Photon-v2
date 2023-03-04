@@ -22,7 +22,7 @@ class Geometry : public TSdlResourceBase<ETypeCategory::Ref_Geometry>
 public:
 	/*! @brief Store data suitable for rendering into `out_geometry`.
 	*/
-	virtual void cook(
+	virtual void storeCooked(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const = 0;
@@ -39,7 +39,7 @@ public:
 
 	/*! @brief Create a `CookedGeometry` that contains data suitable for rendering.
 	*/
-	CookedGeometry* genCooked(
+	CookedGeometry* createCooked(
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const;
 

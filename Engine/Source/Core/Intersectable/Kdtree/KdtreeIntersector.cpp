@@ -14,10 +14,10 @@ KdtreeIntersector::KdtreeIntersector() :
 	m_nodeIntersectableBuffer(), m_rootKdtreeNode(&m_nodeIntersectableBuffer)// FIXME: rely on init ordering is dangerous
 {}
 
-void KdtreeIntersector::update(const CookedDataStorage& cookedActors)
+void KdtreeIntersector::update(std::span<const Intersectable*> intersectables)
 {
-	std::vector<const Intersectable*> intersectables;
-	for(const auto& intersectable : cookedActors.intersectables())
+	std::vector<const Intersectable*> treeIntersectables;
+	for(const auto& intersectable : intersectables)
 	{
 		// HACK
 		if(!intersectable->calcAABB().isFiniteVolume())
@@ -25,10 +25,10 @@ void KdtreeIntersector::update(const CookedDataStorage& cookedActors)
 			continue;
 		}
 
-		intersectables.push_back(intersectable.get());
+		treeIntersectables.push_back(intersectable);
 	}
 
-	m_rootKdtreeNode.buildTree(intersectables);
+	m_rootKdtreeNode.buildTree(treeIntersectables);
 }
 
 bool KdtreeIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const

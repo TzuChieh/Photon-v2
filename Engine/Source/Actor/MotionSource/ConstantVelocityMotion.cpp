@@ -13,7 +13,7 @@ ConstantVelocityMotion::ConstantVelocityMotion(const math::Vector3R& velocity) :
 	m_velocity(velocity)
 {}
 
-void ConstantVelocityMotion::cook(
+void ConstantVelocityMotion::storeCooked(
 	CookedMotion& out_motion,
 	const CookingContext& ctx,
 	const MotionCookConfig& config) const
@@ -25,7 +25,7 @@ void ConstantVelocityMotion::cook(
 	out_motion.localToWorld = ctx.getResources()->makeTransform<math::DynamicLinearTranslation>(
 		translation);
 	out_motion.worldToLocal = ctx.getResources()->makeTransform<math::DynamicLinearTranslation>(
-		translation.genInversed());
+		translation.makeInversed());
 }
 
 std::unique_ptr<math::Transform> ConstantVelocityMotion::genLocalToWorld(

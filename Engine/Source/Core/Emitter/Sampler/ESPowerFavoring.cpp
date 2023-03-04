@@ -1,5 +1,4 @@
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
-#include "World/Foundation/CookedDataStorage.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
@@ -8,6 +7,7 @@
 #include "Common/assertion.h"
 #include "Common/logging.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+#include "Core/Intersectable/PrimitiveMetadata.h"
 
 #include <iostream>
 
@@ -16,16 +16,16 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PowerFavoringEmitterSampler, EmitterSampler);
 
-void ESPowerFavoring::update(const CookedDataStorage& cookedActors)
+void ESPowerFavoring::update(std::span<const Emitter*> emitters)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();
 	m_distribution      = math::TPwcDistribution1D<real>();
 	m_emitterToIndexMap = std::unordered_map<const Emitter*, std::size_t>();
 
-	for(const auto& emitter : cookedActors.emitters())
+	for(const Emitter* emitter : emitters)
 	{
-		m_emitters.push_back(emitter.get());
+		m_emitters.push_back(emitter);
 	}
 	PH_LOG(PowerFavoringEmitterSampler, "added {} emitters", m_emitters.size());
 

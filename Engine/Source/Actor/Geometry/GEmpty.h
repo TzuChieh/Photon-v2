@@ -13,7 +13,7 @@ class GEmpty : public Geometry
 public:
 	GEmpty() = default;
 
-	void cook(
+	void storeCooked(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const override;

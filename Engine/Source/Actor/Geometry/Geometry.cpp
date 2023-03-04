@@ -29,7 +29,7 @@ std::shared_ptr<Geometry> Geometry::genTriangulated() const
 	return nullptr;
 }
 
-CookedGeometry* Geometry::genCooked(
+CookedGeometry* Geometry::createCooked(
 	const CookingContext& ctx,
 	const GeometryCookConfig& config) const
 {
@@ -46,14 +46,14 @@ CookedGeometry* Geometry::genCooked(
 		// Using the original geometry's ID since we want it to have triangulated result
 		cookedGeometry = ctx.getResources()->makeGeometry(getId());
 
-		transientGeometry->cook(*cookedGeometry, ctx, config);
+		transientGeometry->storeCooked(*cookedGeometry, ctx, config);
 	}
 	else
 	{
 		cookedGeometry = ctx.getResources()->makeGeometry(getId());
 		PH_ASSERT(cookedGeometry);
 
-		cook(*cookedGeometry, ctx, config);
+		storeCooked(*cookedGeometry, ctx, config);
 	}
 
 	return cookedGeometry;

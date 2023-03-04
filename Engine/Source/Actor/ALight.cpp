@@ -2,7 +2,7 @@
 #include "Math/math.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/MatteOpaque.h"
-#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/TransientVisualElement.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
@@ -14,6 +14,7 @@
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Common/logging.h"
+#include "Core/Intersectable/TMetaInjectionPrimitive.h"
 
 #include <algorithm>
 
@@ -27,7 +28,7 @@ PreCookReport ALight::preCook(CookingContext& ctx)
 	PreCookReport report = PhysicalActor::preCook(ctx);
 
 	// TODO: test "isRigid()" may be more appropriate
-	if(m_localToWorld.hasScaleEffect())
+	if(m_localToWorld.hasScaleEffect() || m_localToWorld.isIdentity())
 	{
 		report.setBaseTransforms(nullptr, nullptr);
 	}
@@ -44,27 +45,27 @@ PreCookReport ALight::preCook(CookingContext& ctx)
 	return report;
 }
 
-CookedUnit ALight::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement ALight::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	if(!m_lightSource)
 	{
 		PH_LOG_WARNING(ALight, "incomplete data detected, this light is ignored");
-		return CookedUnit();
+		return TransientVisualElement();
 	}
 
 	PH_ASSERT(m_lightSource);
 	std::shared_ptr<Geometry> geometry = m_lightSource->genGeometry(ctx);
 
-	CookedUnit cookedActor;
+	TransientVisualElement cookedActor;
 	if(geometry)
 	{
 		std::shared_ptr<Material> material = m_lightSource->genMaterial(ctx);
-		cookedActor = buildGeometricLight(ctx, geometry, material);
+		cookedActor = buildGeometricLight(ctx, geometry, material, report);
 	}
 	else
 	{
 		std::unique_ptr<Emitter> emitter = m_lightSource->genEmitter(ctx, EmitterBuildingMaterial());
-		cookedActor.setEmitter(std::move(emitter));
+		cookedActor.emitter = std::move(emitter);
 	}
 
 	return cookedActor;
@@ -80,10 +81,11 @@ void ALight::setLightSource(const std::shared_ptr<LightSource>& lightSource)
 	m_lightSource = lightSource;
 }
 
-CookedUnit ALight::buildGeometricLight(
+TransientVisualElement ALight::buildGeometricLight(
 	CookingContext& ctx,
 	std::shared_ptr<Geometry> geometry,
-	std::shared_ptr<Material> material) const
+	std::shared_ptr<Material> material,
+	const PreCookReport& report) const
 {
 	PH_ASSERT(geometry);
 
@@ -94,71 +96,102 @@ CookedUnit ALight::buildGeometricLight(
 		material = std::make_shared<MatteOpaque>();
 	}
 
-	std::unique_ptr<math::RigidTransform> baseLW, baseWL;
-	auto sanifiedGeometry = getSanifiedGeometry(ctx, geometry, &baseLW, &baseWL);
-	if(!sanifiedGeometry)
-	{
-		PH_LOG_WARNING(ALight,
-			"sanified geometry cannot be made during the process of "
-			"geometric light building; proceed at your own risk");
-
-		sanifiedGeometry = geometry;
-	}
+	math::TDecomposedTransform<real> remainingLocalToWorld;
+	auto sanifiedGeometry = getSanifiedGeometry(ctx, geometry, &remainingLocalToWorld);
 
 	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 	material->genBehaviors(ctx, *metadata);
 
-	std::vector<std::unique_ptr<Primitive>> primitiveData;
-	sanifiedGeometry->genPrimitive(PrimitiveBuildingMaterial(metadata), primitiveData);
+	// FIXME
+	const CookedGeometry* cookedGeometry = sanifiedGeometry->createCooked(ctx, GeometryCookConfig());
 
-	CookedUnit cookedActor;
-	std::vector<const Primitive*> primitives;
-	for(auto& primitiveDatum : primitiveData)
+	std::vector<const Primitive*> lightPrimitives;
+	lightPrimitives.reserve(cookedGeometry->primitives.size());
+	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
-		// TODO: baseLW & baseWL may be identity transform if base transform
-		// is applied to the geometry, in such case, wrapping primitives with
-		// TransformedIntersectable is a total waste
-		auto transformedPrimitive = std::make_unique<TransformedPrimitive>(
-			primitiveDatum.get(), 
-			baseLW.get(), 
-			baseWL.get());
+		auto* metaPrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
+			ReferencedPrimitiveMetaGetter(metadata),
+			TReferencedPrimitiveGetter<Primitive>(primitive)));
 
-		primitives.push_back(transformedPrimitive.get());
+		lightPrimitives.push_back(metaPrimitive);
+	}
 
-		cookedActor.addBackend(std::move(primitiveDatum));
-		cookedActor.addIntersectable(std::move(transformedPrimitive));
+	if(!m_localToWorld.isIdentity())
+	{
+		const math::RigidTransform* localToWorld = nullptr;
+		const math::RigidTransform* worldToLocal = nullptr;
+		if(m_localToWorld.hasScaleEffect())
+		{
+			// Should use transform from the sanification process
+			PH_ASSERT(!report.getBaseLocalToWorld());
+			PH_ASSERT(!report.getBaseWorldToLocal());
+
+			if(!remainingLocalToWorld.isIdentity())
+			{
+				localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+					math::StaticRigidTransform::makeForward(remainingLocalToWorld));
+				worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+					math::StaticRigidTransform::makeInverse(remainingLocalToWorld));
+			}
+		}
+		else
+		{
+			// Can (and should) be pre-cooked
+			PH_ASSERT(report.getBaseLocalToWorld());
+			PH_ASSERT(report.getBaseWorldToLocal());
+
+			// Must match the type used in `preCook()`
+			localToWorld = static_cast<const math::StaticRigidTransform*>(report.getBaseLocalToWorld());
+			worldToLocal = static_cast<const math::StaticRigidTransform*>(report.getBaseWorldToLocal());
+		}
+
+		if(localToWorld && worldToLocal)
+		{
+			for(auto& lightPrimitive : lightPrimitives)
+			{
+				auto* transformedPrimitive = ctx.getResources()->makeIntersectable<TransformedPrimitive>(
+					lightPrimitive, localToWorld, worldToLocal);
+
+				lightPrimitive = transformedPrimitive;
+			}
+		}
+	}
+
+	TransientVisualElement cookedLight;
+	for(const Primitive* primitive : lightPrimitives)
+	{
+		cookedLight.intersectables.push_back(primitive);
 	}
 
 	EmitterBuildingMaterial emitterBuildingMaterial;
-	emitterBuildingMaterial.primitives = primitives;
+	emitterBuildingMaterial.primitives = lightPrimitives;
 	emitterBuildingMaterial.metadata   = metadata;
 	auto emitter = m_lightSource->genEmitter(ctx, std::move(emitterBuildingMaterial));
 
 	metadata->getSurface().setEmitter(emitter.get());
-	cookedActor.setEmitter(std::move(emitter));
+	cookedLight.emitter = std::move(emitter);
 
-	cookedActor.addTransform(std::move(baseLW));
-	cookedActor.addTransform(std::move(baseWL));
-
-	return cookedActor;
+	return cookedLight;
 }
 
 std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
-	CookingContext&                        ctx,
-	const std::shared_ptr<Geometry>&       geometry,
-	std::unique_ptr<math::RigidTransform>* const out_baseLW,
-	std::unique_ptr<math::RigidTransform>* const out_baseWL) const
+	CookingContext& ctx,
+	const std::shared_ptr<Geometry>& srcGeometry,
+	math::TDecomposedTransform<real>* const out_remainingLocalToWorld) const
 {
+	if(!srcGeometry)
+	{
+		return nullptr;
+	}
+
 	std::shared_ptr<Geometry> sanifiedGeometry = nullptr;
-	*out_baseLW = nullptr;
-	*out_baseWL = nullptr;
 
 	// TODO: test "isRigid()" may be more appropriate
 	if(m_localToWorld.hasScaleEffect())
 	{
 		const auto baseLW = math::StaticAffineTransform::makeForward(m_localToWorld);
 
-		sanifiedGeometry = geometry->genTransformed(baseLW);
+		sanifiedGeometry = srcGeometry->genTransformed(baseLW);
 		if(!sanifiedGeometry)
 		{
 			PH_LOG_WARNING(ALight,
@@ -167,22 +200,26 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 				"behaviors such as miscalculated primitive surface area, which "
 				"can cause severe rendering artifacts");
 
-			sanifiedGeometry = geometry;
-			*out_baseLW = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeForward(m_localToWorld));
-			*out_baseWL = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeInverse(m_localToWorld));
+			sanifiedGeometry = srcGeometry;
+			
+			if(out_remainingLocalToWorld)
+			{
+				*out_remainingLocalToWorld = m_localToWorld;
+			}
 		}
 		else
 		{
-			// TODO: combine identity transforms...
-			*out_baseLW = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::IDENTITY());
-			*out_baseWL = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::IDENTITY());
+			*out_remainingLocalToWorld = math::TDecomposedTransform<real>();
 		}
 	}
 	else
 	{
-		sanifiedGeometry = geometry;
-		*out_baseLW = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeForward(m_localToWorld));
-		*out_baseWL = std::make_unique<math::StaticRigidTransform>(math::StaticRigidTransform::makeInverse(m_localToWorld));
+		sanifiedGeometry = srcGeometry;
+
+		if(out_remainingLocalToWorld)
+		{
+			*out_remainingLocalToWorld = m_localToWorld;
+		}
 	}
 
 	return sanifiedGeometry;

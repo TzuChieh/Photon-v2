@@ -2,7 +2,7 @@
 
 #include "Utility/IMoveOnly.h"
 #include "Actor/Actor.h"
-#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/TransientVisualElement.h"
 #include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Geometry/TAABB3D.h"
@@ -38,8 +38,8 @@ public:
 	// full scene bound before cooking (or their parent actor)
 	void addChildActor(std::unique_ptr<Actor> actor);
 
-	void addPhantom(const std::string& name, CookedUnit phantom);
-	const CookedUnit* getPhantom(const std::string& name) const;
+	void addPhantom(const std::string& name, TransientVisualElement phantom);
+	const TransientVisualElement* getPhantom(const std::string& name) const;
 
 	std::vector<std::unique_ptr<Actor>> claimChildActors();
 
@@ -64,7 +64,7 @@ private:
 	const VisualWorld* m_world;
 	CookedResourceCollection* m_resources;
 	std::vector<std::unique_ptr<Actor>>         m_childActors;
-	std::unordered_map<std::string, CookedUnit> m_phantoms;
+	std::unordered_map<std::string, TransientVisualElement> m_phantoms;
 };
 
 }// end namespace ph

@@ -20,7 +20,7 @@ class MotionSource : public TSdlResourceBase<ETypeCategory::Ref_Motion>
 public:
 	/*! @brief Store data suitable for rendering into `out_motion`.
 	*/
-	virtual void cook(
+	virtual void storeCooked(
 		CookedMotion& out_motion,
 		const CookingContext& ctx,
 		const MotionCookConfig& config) const = 0;
@@ -32,7 +32,7 @@ public:
 
 	/*! @brief Create a `CookedMotion` that contains data suitable for rendering.
 	*/
-	CookedMotion* genCooked(
+	CookedMotion* createCooked(
 		const CookingContext& ctx,
 		const MotionCookConfig& config) const;
 };

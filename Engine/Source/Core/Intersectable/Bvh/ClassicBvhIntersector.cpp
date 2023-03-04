@@ -1,7 +1,6 @@
 #include "Core/Intersectable/Bvh/ClassicBvhIntersector.h"
 #include "Core/HitProbe.h"
 #include "Core/Ray.h"
-#include "World/Foundation/CookedDataStorage.h"
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Core/Intersectable/Bvh/BvhBuilder.h"
 #include "Math/Geometry/TAABB3D.h"
@@ -14,10 +13,10 @@ namespace ph
 
 const int32 ClassicBvhIntersector::NODE_STACK_SIZE;
 
-void ClassicBvhIntersector::update(const CookedDataStorage& cookedActors)
+void ClassicBvhIntersector::update(std::span<const Intersectable*> intersectables)
 {
-	std::vector<const Intersectable*> intersectables;
-	for(const auto& intersectable : cookedActors.intersectables())
+	std::vector<const Intersectable*> treeIntersectables;
+	for(const auto& intersectable : intersectables)
 	{
 		// HACK
 		if(!intersectable->calcAABB().isFiniteVolume())
@@ -25,10 +24,10 @@ void ClassicBvhIntersector::update(const CookedDataStorage& cookedActors)
 			continue;
 		}
 
-		intersectables.push_back(intersectable.get());
+		treeIntersectables.push_back(intersectable);
 	}
 
-	rebuildWithIntersectables(std::move(intersectables));
+	rebuildWithIntersectables(treeIntersectables);
 
 	// printing information about the constructed BVH
 
@@ -137,7 +136,7 @@ math::AABB3D ClassicBvhIntersector::calcAABB() const
 	return unionedAabb;
 }
 
-void ClassicBvhIntersector::rebuildWithIntersectables(std::vector<const Intersectable*> intersectables)
+void ClassicBvhIntersector::rebuildWithIntersectables(std::span<const Intersectable*> intersectables)
 {
 	BvhBuilder bvhBuilder(EBvhType::SAH_BUCKET);
 	const BvhInfoNode* root = bvhBuilder.buildInformativeBinaryBvh(intersectables);

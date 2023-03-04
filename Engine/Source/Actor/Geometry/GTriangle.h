@@ -11,7 +11,7 @@ namespace ph
 class GTriangle : public Geometry
 {
 public:
-	void cook(
+	void storeCooked(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const override;

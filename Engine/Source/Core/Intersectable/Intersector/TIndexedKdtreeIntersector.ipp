@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/Intersectable/Intersector/TIndexedKdtreeIntersector.h"
-#include "World/Foundation/CookedDataStorage.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 
@@ -12,7 +11,6 @@ namespace ph
 
 template<typename Index>
 inline TIndexedKdtreeIntersector<Index>::
-
 TIndexedKdtreeIntersector(const math::IndexedKdtreeParams params) :
 
 	Intersector(),
@@ -27,32 +25,30 @@ TIndexedKdtreeIntersector(const math::IndexedKdtreeParams params) :
 
 template<typename Index>
 inline void TIndexedKdtreeIntersector<Index>::
-
-update(const CookedDataStorage& cookedActors)
+update(std::span<const Intersectable> intersectables)
 {
-	IndexedIntersectables intersectables;
-	for(const auto& intersectable : cookedActors.intersectables())
+	IndexedIntersectables indexedIntersectables;
+	for(const auto& intersectable : intersectables)
 	{
 		// HACK
-		if(!intersectable->calcAABB().isFiniteVolume())
+		if(!intersectable.calcAABB().isFiniteVolume())
 		{
 			continue;
 		}
 
-		intersectables.vec.push_back(intersectable.get());
+		indexedIntersectables.vec.push_back(&intersectable);
 	}
 
-	const std::size_t numIntersectables = intersectables.vec.size();
+	const std::size_t numIntersectables = indexedIntersectables.vec.size();
 	m_tree = Tree(
 		numIntersectables,
-		std::move(intersectables),
+		std::move(indexedIntersectables),
 		IntersectableAABBCalculator(),
 		m_params);
 }
 
 template<typename Index>
 inline auto TIndexedKdtreeIntersector<Index>::
-
 isIntersecting(const Ray& ray, HitProbe& probe) const
 -> bool
 {
@@ -86,7 +82,6 @@ isIntersecting(const Ray& ray, HitProbe& probe) const
 
 template<typename Index>
 inline auto TIndexedKdtreeIntersector<Index>::
-
 calcAABB() const
 -> math::AABB3D
 {

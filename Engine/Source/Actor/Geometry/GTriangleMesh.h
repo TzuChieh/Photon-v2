@@ -24,7 +24,7 @@ public:
 		std::vector<math::Vector3R> texCoords,
 		std::vector<math::Vector3R> normals);
 
-	void cook(
+	void storeCooked(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const override;

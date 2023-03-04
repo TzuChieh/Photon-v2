@@ -48,7 +48,7 @@ PreCookReport ADome::preCook(CookingContext& ctx)
 	return report;
 }
 
-CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement ADome::cook(CookingContext& ctx, const PreCookReport& report)
 {
 	// Must match what was used in `preCook()`
 	auto localToWorld = static_cast<const math::StaticRigidTransform*>(report.getBaseLocalToWorld());
@@ -114,8 +114,8 @@ CookedUnit ADome::cook(CookingContext& ctx, const PreCookReport& report)
 	
 	// Store cooked data
 
-	CookedUnit cookedActor;
-	cookedActor.setEmitter(std::move(domeEmitter));
+	TransientVisualElement cookedActor;
+	cookedActor.emitter = std::move(domeEmitter);
 
 	ctx.getResources()->getNamed()->setBackgroundPrimitive(domePrimitive);
 

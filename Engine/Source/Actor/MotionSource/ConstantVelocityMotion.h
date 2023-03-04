@@ -12,7 +12,7 @@ public:
 	// TODO: remove
 	explicit ConstantVelocityMotion(const math::Vector3R& velocity);
 
-	void cook(
+	void storeCooked(
 		CookedMotion& out_motion,
 		const CookingContext& ctx,
 		const MotionCookConfig& config) const override;

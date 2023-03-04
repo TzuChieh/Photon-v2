@@ -14,7 +14,7 @@ class GWave : public Geometry
 public:
 	GWave(real xLen, real yLen, real zLen);
 
-	void cook(
+	void storeCooked(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx,
 		const GeometryCookConfig& config) const override;

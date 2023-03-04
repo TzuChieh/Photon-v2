@@ -14,7 +14,7 @@ namespace ph
 class PhysicalActor : public Actor
 {
 public:
-	CookedUnit cook(CookingContext& ctx, const PreCookReport& report) override = 0;
+	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override = 0;
 
 	void translate(const math::Vector3R& translation);
 	void translate(const real x, const real y, const real z);

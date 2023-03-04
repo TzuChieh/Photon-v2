@@ -4,7 +4,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "World/Foundation/CookedUnit.h"
+#include "World/Foundation/TransientVisualElement.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Actor/MotionSource/MotionSource.h"
@@ -21,11 +21,11 @@
 namespace ph
 {
 
-CookedUnit APhantomModel::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement APhantomModel::cook(CookingContext& ctx, const PreCookReport& report)
 {
-	CookedUnit cooked = AModel::cook(ctx, report);
+	TransientVisualElement cooked = AModel::cook(ctx, report);
 
-	std::vector<const Intersectable*> intersectables;
+	/*std::vector<const Intersectable*> intersectables;
 	for(auto& intersectable : cooked.intersectables())
 	{
 		intersectables.push_back(intersectable.get());
@@ -37,9 +37,10 @@ CookedUnit APhantomModel::cook(CookingContext& ctx, const PreCookReport& report)
 	bvh->rebuildWithIntersectables(std::move(intersectables));
 	cooked.addIntersectable(std::move(bvh));
 
-	ctx.addPhantom(m_phantomName, std::move(cooked));
+	ctx.addPhantom(m_phantomName, std::move(cooked));*/
+	PH_ASSERT_UNREACHABLE_SECTION();
 
-	return CookedUnit();
+	return TransientVisualElement();
 }
 
 CookOrder APhantomModel::getCookOrder() const

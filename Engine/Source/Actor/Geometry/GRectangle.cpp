@@ -12,7 +12,7 @@
 namespace ph
 {
 
-void GRectangle::cook(
+void GRectangle::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx,
 	const GeometryCookConfig& config) const
@@ -22,7 +22,7 @@ void GRectangle::cook(
 		return;
 	}
 
-	genTriangleMesh()->cook(out_geometry, ctx, config);
+	genTriangleMesh()->storeCooked(out_geometry, ctx, config);
 }
 
 void GRectangle::genPrimitive(

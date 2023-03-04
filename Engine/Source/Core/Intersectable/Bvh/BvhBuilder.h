@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <vector>
+#include <span>
 
 namespace ph
 {
@@ -24,7 +25,7 @@ public:
 public:
 	explicit BvhBuilder(EBvhType type);
 
-	const BvhInfoNode* buildInformativeBinaryBvh(const std::vector<const Intersectable*>& intersectables);
+	const BvhInfoNode* buildInformativeBinaryBvh(std::span<const Intersectable*> intersectables);
 	void buildLinearDepthFirstBinaryBvh(const BvhInfoNode* rootNode, 
 	                                    std::vector<BvhLinearNode>* out_linearNodes, 
 	                                    std::vector<const Intersectable*>* out_intersectables);
