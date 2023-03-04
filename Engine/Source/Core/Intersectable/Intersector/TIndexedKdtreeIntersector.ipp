@@ -25,18 +25,18 @@ TIndexedKdtreeIntersector(const math::IndexedKdtreeParams params) :
 
 template<typename Index>
 inline void TIndexedKdtreeIntersector<Index>::
-update(std::span<const Intersectable> intersectables)
+update(std::span<const Intersectable*> intersectables)
 {
 	IndexedIntersectables indexedIntersectables;
-	for(const auto& intersectable : intersectables)
+	for(const Intersectable* intersectable : intersectables)
 	{
 		// HACK
-		if(!intersectable.calcAABB().isFiniteVolume())
+		if(!intersectable->calcAABB().isFiniteVolume())
 		{
 			continue;
 		}
 
-		indexedIntersectables.vec.push_back(&intersectable);
+		indexedIntersectables.vec.push_back(intersectable);
 	}
 
 	const std::size_t numIntersectables = indexedIntersectables.vec.size();
