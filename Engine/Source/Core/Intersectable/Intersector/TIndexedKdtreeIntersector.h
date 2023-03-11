@@ -17,7 +17,7 @@ class TIndexedKdtreeIntersector : public Intersector
 public:
 	explicit TIndexedKdtreeIntersector(math::IndexedKdtreeParams params = math::IndexedKdtreeParams());
 
-	void update(std::span<const Intersectable*> intersectables) override;
+	void update(TSpanView<const Intersectable*> intersectables) override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	math::AABB3D calcAABB() const override;
 

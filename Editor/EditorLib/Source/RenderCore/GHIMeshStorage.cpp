@@ -10,7 +10,7 @@ GHIInfoMeshVertexLayout::GHIInfoMeshVertexLayout()
 
 GHIMeshStorage::GHIMeshStorage(
 	const GHIInfoMeshVertexLayout& layout,
-	std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages)
+	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages)
 
 	: GHIMeshStorage(layout, vertexStorages, nullptr)
 {}
@@ -18,7 +18,7 @@ GHIMeshStorage::GHIMeshStorage(
 
 GHIMeshStorage::GHIMeshStorage(
 	const GHIInfoMeshVertexLayout& layout,
-	std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
 	const std::shared_ptr<GHIIndexStorage>& indexStorage)
 
 	: GHIStorage(EGHIInfoStorageUsage::Unspecified)

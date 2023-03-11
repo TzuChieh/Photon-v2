@@ -1,4 +1,4 @@
-#include "Actor/ALight.h"
+#include "Actor/Light/ALight.h"
 #include "Math/math.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/MatteOpaque.h"
@@ -27,19 +27,22 @@ PreCookReport ALight::preCook(CookingContext& ctx)
 {
 	PreCookReport report = PhysicalActor::preCook(ctx);
 
-	// TODO: test "isRigid()" may be more appropriate
-	if(m_localToWorld.hasScaleEffect() || m_localToWorld.isIdentity())
+	if(isGeometric())
 	{
-		report.setBaseTransforms(nullptr, nullptr);
-	}
-	else
-	{
-		auto localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
-			math::StaticRigidTransform::makeForward(m_localToWorld));
-		auto worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
-			math::StaticRigidTransform::makeInverse(m_localToWorld));
+		// TODO: test "isRigid()" may be more appropriate
+		if(m_localToWorld.hasScaleEffect() || m_localToWorld.isIdentity())
+		{
+			report.setBaseTransforms(nullptr, nullptr);
+		}
+		else
+		{
+			auto localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+				math::StaticRigidTransform::makeForward(m_localToWorld));
+			auto worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+				math::StaticRigidTransform::makeInverse(m_localToWorld));
 
-		report.setBaseTransforms(localToWorld, worldToLocal);
+			report.setBaseTransforms(localToWorld, worldToLocal);
+		}
 	}
 
 	return report;
@@ -83,21 +86,32 @@ void ALight::setLightSource(const std::shared_ptr<LightSource>& lightSource)
 
 TransientVisualElement ALight::buildGeometricLight(
 	CookingContext& ctx,
-	std::shared_ptr<Geometry> geometry,
-	std::shared_ptr<Material> material,
+	const std::shared_ptr<Geometry>& srcGeometry,
+	const std::shared_ptr<Material>& srcMaterial,
 	const PreCookReport& report) const
 {
-	PH_ASSERT(geometry);
+	std::shared_ptr<Geometry> geometry = srcGeometry;
+	std::shared_ptr<Material> material = srcMaterial;
+
+	if(!isGeometric() || !geometry)
+	{
+		PH_LOG_ERROR(ALight, 
+			"cannot build geometric light, please make sure the actor is geometric or supply a "
+			"valid geometry resource");
+
+		return TransientVisualElement();
+	}
 
 	if(!material)
 	{
-		PH_LOG(ALight, "material is not specified, using default diffusive material");
+		PH_LOG(ALight, 
+			"material is not specified, using default diffusive material");
 
 		material = std::make_shared<MatteOpaque>();
 	}
 
 	math::TDecomposedTransform<real> remainingLocalToWorld;
-	auto sanifiedGeometry = getSanifiedGeometry(ctx, geometry, &remainingLocalToWorld);
+	auto sanifiedGeometry = getSanifiedGeometry(geometry, &remainingLocalToWorld);
 
 	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 	material->genBehaviors(ctx, *metadata);
@@ -116,13 +130,19 @@ TransientVisualElement ALight::buildGeometricLight(
 		lightPrimitives.push_back(metaPrimitive);
 	}
 
-	if(!m_localToWorld.isIdentity())
+	if(m_localToWorld.isIdentity())
+	{
+		// Just to make sure we are not pre-cooking identity transforms
+		PH_ASSERT(!report.getBaseLocalToWorld());
+		PH_ASSERT(!report.getBaseWorldToLocal());
+	}
+	else
 	{
 		const math::RigidTransform* localToWorld = nullptr;
 		const math::RigidTransform* worldToLocal = nullptr;
 		if(m_localToWorld.hasScaleEffect())
 		{
-			// Should use transform from the sanification process
+			// Should use transform from the sanification process (should not be pre-cooked)
 			PH_ASSERT(!report.getBaseLocalToWorld());
 			PH_ASSERT(!report.getBaseWorldToLocal());
 
@@ -175,7 +195,6 @@ TransientVisualElement ALight::buildGeometricLight(
 }
 
 std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
-	CookingContext& ctx,
 	const std::shared_ptr<Geometry>& srcGeometry,
 	math::TDecomposedTransform<real>* const out_remainingLocalToWorld) const
 {
@@ -189,6 +208,12 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	// TODO: test "isRigid()" may be more appropriate
 	if(m_localToWorld.hasScaleEffect())
 	{
+		PH_LOG(ALight,
+			"scale detected, this is undesirable since many light attributes will "
+			"be affected; can incur additional memory overhead as the original cooked "
+			"geometry may not be used (e.g., a transformed temporary is used instead "
+			"and the original is not referenced)");
+
 		const auto baseLW = math::StaticAffineTransform::makeForward(m_localToWorld);
 
 		sanifiedGeometry = srcGeometry->genTransformed(baseLW);

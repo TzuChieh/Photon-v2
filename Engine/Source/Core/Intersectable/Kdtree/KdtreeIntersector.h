@@ -14,7 +14,7 @@ class KdtreeIntersector : public Intersector
 public:
 	KdtreeIntersector();
 
-	void update(std::span<const Intersectable*> intersectables) override;
+	void update(TSpanView<const Intersectable*> intersectables) override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	math::AABB3D calcAABB() const override;
 

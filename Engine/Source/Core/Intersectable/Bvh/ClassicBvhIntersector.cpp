@@ -13,7 +13,7 @@ namespace ph
 
 const int32 ClassicBvhIntersector::NODE_STACK_SIZE;
 
-void ClassicBvhIntersector::update(std::span<const Intersectable*> intersectables)
+void ClassicBvhIntersector::update(TSpanView<const Intersectable*> intersectables)
 {
 	std::vector<const Intersectable*> treeIntersectables;
 	for(const auto& intersectable : intersectables)
@@ -136,7 +136,7 @@ math::AABB3D ClassicBvhIntersector::calcAABB() const
 	return unionedAabb;
 }
 
-void ClassicBvhIntersector::rebuildWithIntersectables(std::span<const Intersectable*> intersectables)
+void ClassicBvhIntersector::rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables)
 {
 	BvhBuilder bvhBuilder(EBvhType::SAH_BUCKET);
 	const BvhInfoNode* root = bvhBuilder.buildInformativeBinaryBvh(intersectables);

@@ -23,10 +23,11 @@ const CookedMotion* CookedResourceCollection::getMotion(const SdlResourceId id) 
 std::string CookedResourceCollection::getStats() const
 {
 	return std::format(
-		"{} metadatas, {} transforms, {} intersectables, {} geometries, {} motions",
+		"{} metadatas, {} transforms, {} intersectables, {} emitters, {} geometries, {} motions",
 		m_metadatas->size(),
 		m_transforms->size(), 
 		m_intersectables->size(),
+		m_emitters->size(),
 		m_idToGeometry->size(),
 		m_idToMotion->size());
 }

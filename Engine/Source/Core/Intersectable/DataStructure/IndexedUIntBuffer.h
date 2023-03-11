@@ -87,7 +87,7 @@ inline void IndexedUIntBuffer::declareUIntFormat()
 
 inline std::size_t IndexedUIntBuffer::estimateMemoryUsage() const
 {
-	return sizeof(IndexedUIntBuffer) + m_byteBufferSize;
+	return sizeof(*this) + m_byteBufferSize;
 }
 
 inline bool IndexedUIntBuffer::isAllocated() const

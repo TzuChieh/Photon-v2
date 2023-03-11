@@ -10,7 +10,7 @@
 #include "World/VisualWorld.h"
 #include "Actor/Geometry/GRectangle.h"
 #include "Actor/ModelLoader.h"
-#include "Actor/ALight.h"
+//#include "Actor/ALight.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/GWave.h"
 

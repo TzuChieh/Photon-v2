@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utility/INoCopyAndMove.h"
+#include "Utility/TSpan.h"
 
 #include <vector>
 #include <cstddef>
@@ -11,7 +12,6 @@
 #include <atomic>
 #include <tuple>
 #include <utility>
-#include <span>
 
 namespace ph { class FixedSizeThreadPool; }
 
@@ -34,8 +34,8 @@ public:
 
 		void runsBefore(WorkHandle succeedingWork);
 		void runsAfter(WorkHandle preceedingWork);
-		void runsBefore(std::span<WorkHandle> succeedingWorks);
-		void runsAfter(std::span<WorkHandle> preceedingWorks);
+		void runsBefore(TSpanView<WorkHandle> succeedingWorks);
+		void runsAfter(TSpanView<WorkHandle> preceedingWorks);
 
 		template<std::size_t N>
 		void runsBefore(std::array<WorkHandle, N> succeedingWorks);
@@ -106,7 +106,7 @@ inline auto Workflow::addWorks(WorkTypes&&... works)
 	return std::array{addWork(std::forward<WorkTypes>(works))...};
 }
 
-inline void Workflow::WorkHandle::runsBefore(std::span<WorkHandle> succeedingWorks)
+inline void Workflow::WorkHandle::runsBefore(TSpanView<WorkHandle> succeedingWorks)
 {
 	for(const WorkHandle work : succeedingWorks)
 	{
@@ -114,7 +114,7 @@ inline void Workflow::WorkHandle::runsBefore(std::span<WorkHandle> succeedingWor
 	}
 }
 
-inline void Workflow::WorkHandle::runsAfter(std::span<WorkHandle> preceedingWorks)
+inline void Workflow::WorkHandle::runsAfter(TSpanView<WorkHandle> preceedingWorks)
 {
 	for(const WorkHandle work : preceedingWorks)
 	{
@@ -125,13 +125,13 @@ inline void Workflow::WorkHandle::runsAfter(std::span<WorkHandle> preceedingWork
 template<std::size_t N>
 inline void Workflow::WorkHandle::runsBefore(std::array<WorkHandle, N> succeedingWorks)
 {
-	runsBefore(std::span<WorkHandle>(succeedingWorks));
+	runsBefore(TSpanView<WorkHandle>(succeedingWorks));
 }
 
 template<std::size_t N>
 inline void Workflow::WorkHandle::runsAfter(std::array<WorkHandle, N> preceedingWorks)
 {
-	runsAfter(std::span<WorkHandle>(preceedingWorks));
+	runsAfter(TSpanView<WorkHandle>(preceedingWorks));
 }
 
 inline std::size_t Workflow::WorkHandle::getWorkId() const

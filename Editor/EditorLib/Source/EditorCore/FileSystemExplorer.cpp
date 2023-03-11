@@ -137,7 +137,7 @@ std::vector<Path> FileSystemExplorer::makeItemListing(FileSystemDirectoryEntry* 
 	return itemSubpaths;
 }
 
-std::span<const Path> FileSystemExplorer::getRootPaths() const
+TSpanView<Path> FileSystemExplorer::getRootPaths() const
 {
 	return m_rootPaths;
 }

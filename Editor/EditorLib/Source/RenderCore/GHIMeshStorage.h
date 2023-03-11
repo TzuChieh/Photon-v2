@@ -4,9 +4,9 @@
 
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
+#include <Utility/TSpan.h>
 
 #include <array>
-#include <span>
 #include <memory>
 #include <vector>
 #include <cstddef>
@@ -45,11 +45,11 @@ class GHIMeshStorage : public GHIStorage
 public:
 	GHIMeshStorage(
 		const GHIInfoMeshVertexLayout& layout,
-		std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages);
+		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages);
 
 	GHIMeshStorage(
 		const GHIInfoMeshVertexLayout& layout,
-		std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
 		const std::shared_ptr<GHIIndexStorage>& indexStorage);
 
 	~GHIMeshStorage() override;

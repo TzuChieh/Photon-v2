@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Core/Intersectable/Intersectable.h"
-
-#include <span>
+#include "Utility/TSpan.h"
 
 namespace ph
 {
@@ -14,7 +13,7 @@ class Intersectable;
 class Intersector : public Intersectable
 {
 public:
-	virtual void update(std::span<const Intersectable*> intersectables) = 0;
+	virtual void update(TSpanView<const Intersectable*> intersectables) = 0;
 	
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
 	math::AABB3D calcAABB() const override = 0;

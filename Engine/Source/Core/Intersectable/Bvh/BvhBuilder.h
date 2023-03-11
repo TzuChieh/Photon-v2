@@ -4,10 +4,10 @@
 #include "Core/Intersectable/Bvh/BvhIntersectableInfo.h"
 #include "Core/Intersectable/Bvh/BvhLinearNode.h"
 #include "Math/Geometry/TAABB3D.h"
+#include "Utility/TSpan.h"
 
 #include <memory>
 #include <vector>
-#include <span>
 
 namespace ph
 {
@@ -25,7 +25,7 @@ public:
 public:
 	explicit BvhBuilder(EBvhType type);
 
-	const BvhInfoNode* buildInformativeBinaryBvh(std::span<const Intersectable*> intersectables);
+	const BvhInfoNode* buildInformativeBinaryBvh(TSpanView<const Intersectable*> intersectables);
 	void buildLinearDepthFirstBinaryBvh(const BvhInfoNode* rootNode, 
 	                                    std::vector<BvhLinearNode>* out_linearNodes, 
 	                                    std::vector<const Intersectable*>* out_intersectables);

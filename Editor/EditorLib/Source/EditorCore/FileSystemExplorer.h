@@ -2,9 +2,9 @@
 
 #include <DataIO/FileSystem/Path.h>
 #include <Utility/TUniquePtrVector.h>
+#include <Utility/TSpan.h>
 
 #include <vector>
-#include <span>
 #include <memory>
 #include <string>
 #include <optional>
@@ -51,7 +51,7 @@ public:
 
 	std::optional<std::size_t> addRootPath(const Path& path);
 	void setCurrentRootPath(std::size_t rootPathIndex);
-	std::span<const Path> getRootPaths() const;
+	TSpanView<Path> getRootPaths() const;
 	const Path& getCurrentRootPath() const;
 
 	FileSystemDirectoryEntry* getCurrentDirectoryEntry();

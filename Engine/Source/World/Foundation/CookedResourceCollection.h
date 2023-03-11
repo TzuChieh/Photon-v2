@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/INoCopyAndMove.h"
+#include "World/Foundation/CookedResourceCollectionBase.h"
 #include "Utility/TUniquePtrVector.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
@@ -11,14 +11,10 @@
 #include "DataIO/SDL/SdlResourceId.h"
 #include "Common/logging.h"
 #include "Core/Intersectable/Intersectable.h"
+#include "Core/Emitter/Emitter.h"
 #include "World/Foundation/CookedNamedResource.h"
 
-#include <vector>
 #include <utility>
-#include <memory>
-#include <unordered_map>
-#include <string_view>
-#include <string>
 
 namespace ph
 {
@@ -29,9 +25,11 @@ PH_DEFINE_EXTERNAL_LOG_GROUP(CookedResourceCollection, World);
 All methods are thread-safe to call, however manipulating the created data is not thread-safe unless
 stated explicitly.
 */
-class CookedResourceCollection final : private INoCopyAndMove
+class CookedResourceCollection : public CookedResourceCollectionBase
 {
 public:
+	std::string getStats() const override;
+
 	template<typename... DeducedArgs>
 	PrimitiveMetadata* makeMetadata(DeducedArgs&&... args)
 	{
@@ -59,6 +57,13 @@ public:
 		return makeIntersectable<IntersectableType>(std::move(intersectable));
 	}
 
+	template<CDerived<Emitter> EmitterType, typename... DeducedArgs>
+	EmitterType* makeEmitter(DeducedArgs&&... args)
+	{
+		return makeCookedResource<EmitterType>(
+			m_emitters, std::forward<DeducedArgs>(args)...);
+	}
+
 	template<typename... DeducedArgs>
 	CookedGeometry* makeGeometry(const SdlResourceId id, DeducedArgs&&... args)
 	{
@@ -79,85 +84,11 @@ public:
 	const CookedGeometry* getGeometry(const SdlResourceId id) const;
 	const CookedMotion* getMotion(const SdlResourceId id) const;
 
-	std::string getStats() const;
-
 private:
-	template<typename CookedType>
-	using TSdlResourceIdMap = std::unordered_map<SdlResourceId, std::unique_ptr<CookedType>>;
-
-	template<typename DerivedType, typename BaseType, typename... DeducedArgs>
-	static DerivedType* makeCookedResource(
-		TSynchronized<TUniquePtrVector<BaseType>>& syncedResources,
-		DeducedArgs&&... args)
-	{
-		// Create resource in separate expression since no lock is required yet
-		auto newResource = std::make_unique<DerivedType>(std::forward<DeducedArgs>(args)...);
-
-		DerivedType* resourcePtr = nullptr;
-		syncedResources.locked(
-			[&resourcePtr, &newResource](auto& resources)
-			{
-				resourcePtr = resources.add(std::move(newResource));
-			});
-
-		return resourcePtr;
-	}
-
-	template<typename CookedType, typename... DeducedArgs>
-	static CookedType* makeCookedResourceWithID(
-		TSynchronized<TSdlResourceIdMap<CookedType>>& syncedIdToResource,
-		const SdlResourceId id, 
-		DeducedArgs&&... args)
-	{
-		// Create resource in separate expression since no lock is required yet
-		auto newResource = std::make_unique<CookedType>(std::forward<DeducedArgs>(args)...);
-
-		CookedType* resourcePtr = nullptr;
-		syncedIdToResource.locked(
-			[id, &resourcePtr, &newResource](auto& idToResource)
-			{
-				auto findResult = idToResource.find(id);
-				if(findResult == idToResource.end())
-				{
-					resourcePtr = newResource.get();
-					idToResource[id] = std::move(newResource);
-				}
-				else
-				{
-					PH_LOG(CookedResourceCollection,
-						"overwriting existing cooked resource (id: {})", id);
-
-					// Clear the content of existing resource while keeping its pointer valid
-					resourcePtr = findResult->second.get();
-					*resourcePtr = std::move(*newResource);
-				}
-			});
-
-		return resourcePtr;
-	}
-
-	template<typename CookedType, typename... DeducedArgs>
-	static const CookedType* getCookedResourceByID(
-		const TSynchronized<TSdlResourceIdMap<CookedType>>& syncedIdToResource,
-		const SdlResourceId id)
-	{
-		const CookedType* resourcePtr = nullptr;
-		syncedIdToResource.constLocked(
-			[id, &resourcePtr](const auto& idToResource)
-			{
-				auto findResult = idToResource.find(id);
-				if(findResult != idToResource.end())
-				{
-					resourcePtr = findResult->second.get();
-				}
-			});
-
-		return resourcePtr;
-	}
-
 	TSynchronized<TUniquePtrVector<PrimitiveMetadata>> m_metadatas;
 	TSynchronized<TUniquePtrVector<math::Transform>> m_transforms;
 	TSynchronized<TUniquePtrVector<Intersectable>> m_intersectables;
+	TSynchronized<TUniquePtrVector<Emitter>> m_emitters;
 	TSynchronized<TSdlResourceIdMap<CookedGeometry>> m_idToGeometry;
 	TSynchronized<TSdlResourceIdMap<CookedMotion>> m_idToMotion;
 	TSynchronized<CookedNamedResource> m_namedResource;

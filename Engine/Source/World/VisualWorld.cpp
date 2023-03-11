@@ -255,7 +255,7 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 	PH_LOG(VisualWorld, "top level accelerator type: {}", name);
 }
 
-math::AABB3D VisualWorld::calcElementBound(std::span<TransientVisualElement> elements)
+math::AABB3D VisualWorld::calcElementBound(TSpanView<TransientVisualElement> elements)
 {
 	std::vector<const Intersectable*> intersectables;
 	for(const TransientVisualElement& element : elements)

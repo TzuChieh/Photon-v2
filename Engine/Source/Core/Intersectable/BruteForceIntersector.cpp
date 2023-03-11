@@ -10,7 +10,7 @@
 namespace ph
 {
 
-void BruteForceIntersector::update(std::span<const Intersectable*> intersectables)
+void BruteForceIntersector::update(TSpanView<const Intersectable*> intersectables)
 {
 	m_intersectables.clear();
 	m_intersectables.shrink_to_fit();

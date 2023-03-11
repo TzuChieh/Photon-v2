@@ -14,7 +14,7 @@ KdtreeIntersector::KdtreeIntersector() :
 	m_nodeIntersectableBuffer(), m_rootKdtreeNode(&m_nodeIntersectableBuffer)// FIXME: rely on init ordering is dangerous
 {}
 
-void KdtreeIntersector::update(std::span<const Intersectable*> intersectables)
+void KdtreeIntersector::update(TSpanView<const Intersectable*> intersectables)
 {
 	std::vector<const Intersectable*> treeIntersectables;
 	for(const auto& intersectable : intersectables)

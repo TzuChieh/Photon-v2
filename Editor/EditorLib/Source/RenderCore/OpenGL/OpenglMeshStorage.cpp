@@ -12,14 +12,14 @@ namespace ph::editor
 
 OpenglMeshStorage::OpenglMeshStorage(
 	const GHIInfoMeshVertexLayout& layout,
-	std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages)
+	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages)
 	
 	: OpenglMeshStorage(layout, vertexStorages, nullptr)
 {}
 
 OpenglMeshStorage::OpenglMeshStorage(
 	const GHIInfoMeshVertexLayout& layout,
-	std::span<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
 	const std::shared_ptr<GHIIndexStorage>& indexStorage)
 
 	: GHIMeshStorage(layout, vertexStorages, indexStorage)

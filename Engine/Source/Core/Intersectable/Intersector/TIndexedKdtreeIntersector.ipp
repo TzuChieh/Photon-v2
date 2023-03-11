@@ -25,7 +25,7 @@ TIndexedKdtreeIntersector(const math::IndexedKdtreeParams params) :
 
 template<typename Index>
 inline void TIndexedKdtreeIntersector<Index>::
-update(std::span<const Intersectable*> intersectables)
+update(TSpanView<const Intersectable*> intersectables)
 {
 	IndexedIntersectables indexedIntersectables;
 	for(const Intersectable* intersectable : intersectables)

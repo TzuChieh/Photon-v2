@@ -4,9 +4,9 @@
 
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>
+#include <Utility/TSpan.h>
 
 #include <string>
-#include <span>
 
 namespace ph::editor
 {
@@ -22,7 +22,7 @@ public:
 	bool           useDebugModeGHI = false;
 	//bool           useDebugModeGHI = true;
 
-	std::span<char*> cmdArgs;
+	TSpanView<const char*> cmdArgs;
 
 	AppSettings(int argc, char* argv[]);
 };

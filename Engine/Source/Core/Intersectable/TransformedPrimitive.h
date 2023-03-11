@@ -79,7 +79,7 @@ public:
 		return m_primitive->calcExtendedArea();
 	}
 
-	const PrimitiveMetadata* getMetadata() const;
+	const PrimitiveMetadata* getMetadata() const override;
 
 private:
 	const Primitive*            m_primitive;

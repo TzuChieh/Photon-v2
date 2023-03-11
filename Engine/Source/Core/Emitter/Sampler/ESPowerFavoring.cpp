@@ -16,7 +16,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PowerFavoringEmitterSampler, EmitterSampler);
 
-void ESPowerFavoring::update(std::span<const Emitter*> emitters)
+void ESPowerFavoring::update(TSpanView<const Emitter*> emitters)
 {
 	m_emitters.clear();
 	m_emitters.shrink_to_fit();

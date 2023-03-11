@@ -12,11 +12,11 @@ namespace ph
 class ClassicBvhIntersector : public Intersector
 {
 public:
-	void update(std::span<const Intersectable*> intersectables) override;
+	void update(TSpanView<const Intersectable*> intersectables) override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	math::AABB3D calcAABB() const override;
 
-	void rebuildWithIntersectables(std::span<const Intersectable*> intersectables);
+	void rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables);
 
 private:
 	std::vector<const Intersectable*> m_intersectables;

@@ -13,10 +13,10 @@
 #include "Utility/IMoveOnly.h"
 #include "EngineEnv/EAccelerator.h"
 #include "World/Foundation/CookedResourceCollection.h"
+#include "Utility/TSpan.h"
 
 #include <vector>
 #include <memory>
-#include <span>
 
 namespace ph { class SceneDescription; }
 namespace ph { class CoreCookingContext; }
@@ -75,7 +75,7 @@ private:
 
 	void createTopLevelAccelerator(EAccelerator acceleratorType);
 
-	static math::AABB3D calcElementBound(std::span<TransientVisualElement> elements);
+	static math::AABB3D calcElementBound(TSpanView<TransientVisualElement> elements);
 };
 
 // In-header Implementations:

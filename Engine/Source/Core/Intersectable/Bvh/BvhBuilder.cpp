@@ -25,7 +25,7 @@ BvhBuilder::BvhBuilder(const EBvhType type) :
 	m_type(type)
 {}
 
-const BvhInfoNode* BvhBuilder::buildInformativeBinaryBvh(std::span<const Intersectable*> intersectables)
+const BvhInfoNode* BvhBuilder::buildInformativeBinaryBvh(TSpanView<const Intersectable*> intersectables)
 {
 	m_infoNodes.clear();
 	m_infoNodes.shrink_to_fit();

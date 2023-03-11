@@ -171,7 +171,7 @@ private:
 
 inline std::size_t IndexedVertexBuffer::estimateMemoryUsage() const
 {
-	return sizeof(IndexedVertexBuffer) + m_byteBufferSize;
+	return sizeof(*this) + m_byteBufferSize;
 }
 
 inline bool IndexedVertexBuffer::Entry::isEmpty() const

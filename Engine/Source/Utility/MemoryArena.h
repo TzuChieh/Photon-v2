@@ -4,10 +4,10 @@
 #include "Common/primitive_type.h"
 #include "Utility/IMoveOnly.h"
 #include "Utility/TFunction.h"
+#include "Utility/TSpan.h"
 
 #include <cstddef>
 #include <vector>
-#include <span>
 #include <utility>
 #include <memory>
 #include <type_traits>
@@ -75,10 +75,10 @@ public:
 	@tparam T Type for the raw array memory allocated.
 	*/
 	template<typename T>
-	inline std::span<T> allocArray(const std::size_t arraySize)
+	inline TSpan<T> allocArray(const std::size_t arraySize)
 		requires std::is_trivially_destructible_v<T>
 	{
-		return std::span<T>(
+		return TSpan<T>(
 			reinterpret_cast<T*>(allocRaw(sizeof(T) * arraySize, alignof(T))), 
 			arraySize);
 	}

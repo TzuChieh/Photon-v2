@@ -42,7 +42,7 @@
 #include "Actor/Actor.h"
 #include "Actor/PhysicalActor.h"
 #include "Actor/AModel.h"
-#include "Actor/ALight.h"
+//#include "Actor/ALight.h"
 #include "Actor/ADome.h"
 #include "Actor/APhantomModel.h"
 #include "Actor/ATransformedInstance.h"

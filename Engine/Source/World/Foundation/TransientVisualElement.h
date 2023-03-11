@@ -23,6 +23,9 @@ public:
 
 	// DEPRECATED
 	std::unique_ptr<Emitter> emitter;
+
+public:
+	TransientVisualElement& add(const TransientVisualElement& other);
 };
 
 }// end namespace ph
