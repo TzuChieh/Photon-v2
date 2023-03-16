@@ -13,6 +13,7 @@
 #include "Utility/IMoveOnly.h"
 #include "EngineEnv/EAccelerator.h"
 #include "World/Foundation/CookedResourceCollection.h"
+#include "World/Foundation/TransientResourceCache.h"
 #include "Utility/TSpan.h"
 
 #include <vector>
@@ -40,6 +41,7 @@ public:
 	const EmitterSampler* getEmitterSampler() const;
 	const Scene* getScene() const;
 	CookedResourceCollection* getCookedResources() const;
+	TransientResourceCache* getCache() const;
 
 	/*! @brief Bounds actors cooked in the first level.
 	The bound is only available after the first level has done cooking.
@@ -54,6 +56,7 @@ public:
 
 private:
 	std::unique_ptr<CookedResourceCollection> m_cookedResources;
+	std::unique_ptr<TransientResourceCache> m_cache;
 	std::vector<TransientVisualElement> m_cookedUnits;
 	CookedDataStorage m_cookedActorStorage;
 	CookedDataStorage m_cookedBackendStorage;

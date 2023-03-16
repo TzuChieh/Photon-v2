@@ -33,6 +33,7 @@ PH_DEFINE_INTERNAL_TIMER_STAT(UpdateLightSamplers, VisualWorld);
 
 VisualWorld::VisualWorld()
 	: m_cookedResources(nullptr)
+	, m_cache(nullptr)
 	, m_intersector()
 	//m_emitterSampler(std::make_shared<ESUniformRandom>()),
 	, m_emitterSampler(std::make_unique<ESPowerFavoring>())
@@ -59,10 +60,14 @@ VisualWorld::VisualWorld()
 
 void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContext& coreCtx)
 {
-	PH_LOG(VisualWorld, "cooking visual world");
+	PH_LOG(VisualWorld, "started cooking...");
 
 	// Create the storage for cooked resources, and potentially free all previous resources
 	m_cookedResources = std::make_unique<CookedResourceCollection>();
+
+	// Cache should be freed already as it is not needed for rendering
+	PH_ASSERT(m_cache);
+	m_cache = std::make_unique<TransientResourceCache>();
 
 	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources<Actor>();
 
@@ -171,9 +176,14 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		m_emitterSampler->update(emitters);
 	}
 
+	// Finished cooking
+
 	PH_LOG(VisualWorld, 
-		"cooking done, data cooked: {}", 
+		"done done, data cooked: {}", 
 		getCookedResources()->getStats());
+
+	// Clean up cache as it is not needed afterwards
+	m_cache = nullptr;
 
 	m_scene = std::make_unique<Scene>(m_intersector.get(), m_emitterSampler.get());
 	m_scene->setBackgroundPrimitive(m_backgroundPrimitive);
@@ -282,6 +292,11 @@ math::AABB3D VisualWorld::calcElementBound(TSpanView<TransientVisualElement> ele
 CookedResourceCollection* VisualWorld::getCookedResources() const
 {
 	return m_cookedResources.get();
+}
+
+TransientResourceCache* VisualWorld::getCache() const
+{
+	return m_cache.get();
 }
 
 math::AABB3D VisualWorld::getRootActorsBound() const

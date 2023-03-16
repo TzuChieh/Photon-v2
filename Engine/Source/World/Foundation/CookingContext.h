@@ -20,6 +20,7 @@ namespace ph
 
 class VisualWorld;
 class CookedResourceCollection;
+class TransientResourceCache;
 class Geometry;
 class CookedGeometry;
 
@@ -44,6 +45,7 @@ public:
 	std::vector<std::unique_ptr<Actor>> claimChildActors();
 
 	CookedResourceCollection* getResources() const;
+	TransientResourceCache* getCache() const;
 
 	/*! @brief Bounds actors cooked in the first level.
 	The bound is only available after the first level has done cooking.
@@ -57,12 +59,15 @@ public:
 	math::AABB3D getLeafActorsBound() const;
 
 	const CookedGeometry* getCooked(const std::shared_ptr<Geometry>& geometry) const;
+	const TransientVisualElement* getCached(const std::shared_ptr<Actor>& actor) const;
 
 private:
 	const VisualWorld& getWorld() const;
 
 	const VisualWorld* m_world;
 	CookedResourceCollection* m_resources;
+	TransientResourceCache* m_cache;
+
 	std::vector<std::unique_ptr<Actor>>         m_childActors;
 	std::unordered_map<std::string, TransientVisualElement> m_phantoms;
 };

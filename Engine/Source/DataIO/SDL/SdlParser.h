@@ -17,13 +17,14 @@ class SdlClass;
 
 enum class ESdlCommandType
 {
-	UNKNOWN,
-	DIRECTIVE,
-	LOAD,
-	REMOVAL,
-	UPDATE,
-	EXECUTION,
-	COMMENT
+	Unknown = 0,
+	Directive,
+	Load,
+	Removal,
+	Update,
+	Execution,
+	Comment,
+	Phantom
 };
 
 class SdlParser final
@@ -76,15 +77,15 @@ private:
 
 	void parseLoadCommand( 
 		const std::string& command,
-		SceneDescription&  out_scene);
+		SceneDescription& out_scene);
 
 	void parseExecutionCommand(
 		const std::string& command,
-		SceneDescription&  out_scene);
+		SceneDescription& out_scene);
 
 	void parseDirectiveCommand(
 		const std::string& command,
-		SceneDescription&  out_scene);
+		SceneDescription& out_scene);
 
 	std::string getName(std::string_view resourceNameToken);
 	std::string genNameForAnonymity();

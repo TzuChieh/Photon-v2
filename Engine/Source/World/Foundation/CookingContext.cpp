@@ -12,14 +12,20 @@ PH_DEFINE_INTERNAL_LOG_GROUP(CookingContext, World);
 CookingContext::CookingContext(const VisualWorld* const world)
 	: m_world(world)
 	, m_resources(nullptr)
+	, m_cache(nullptr)
+
 	, m_childActors        ()
 	, m_phantoms           ()
 {
-	m_resources = getWorld().getCookedResources();
-	if(!m_resources)
+	if(world)
 	{
-		PH_LOG(CookingContext, "cooked resource storage is empty");
+		m_resources = getWorld().getCookedResources();
+		m_cache = getWorld().getCache();
 	}
+	
+	PH_LOG(CookingContext, 
+		"created context, contains resource storage: {}, contains transient cache: {}",
+		m_resources != nullptr, m_cache != nullptr);
 }
 
 void CookingContext::addChildActor(std::unique_ptr<Actor> actor)
@@ -56,6 +62,11 @@ CookedResourceCollection* CookingContext::getResources() const
 	return m_resources;
 }
 
+TransientResourceCache* CookingContext::getCache() const
+{
+	return m_cache;
+}
+
 math::AABB3D CookingContext::getRootActorsBound() const
 {
 	return getWorld().getRootActorsBound();
@@ -70,6 +81,13 @@ const CookedGeometry* CookingContext::getCooked(const std::shared_ptr<Geometry>&
 {
 	return geometry != nullptr
 		? getResources()->getGeometry(geometry->getId())
+		: nullptr;
+}
+
+const TransientVisualElement* CookingContext::getCached(const std::shared_ptr<Actor>& actor) const
+{
+	return actor != nullptr
+		? getCache()->getVisualElement(actor->getId())
 		: nullptr;
 }
 

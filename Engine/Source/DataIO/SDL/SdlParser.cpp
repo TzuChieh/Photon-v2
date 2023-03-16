@@ -58,7 +58,7 @@ SdlParser::SdlParser() :
 void SdlParser::enter(const std::string_view commandSegment, SceneDescription& out_scene)
 {
 	const ESdlCommandType commandType = getCommandType(commandSegment);
-	const bool hasEnteredNewCommand = commandType != ESdlCommandType::UNKNOWN;
+	const bool hasEnteredNewCommand = commandType != ESdlCommandType::Unknown;
 
 	// If new command has been entered, parse cached commands first
 	if(hasEnteredNewCommand)
@@ -103,19 +103,19 @@ void SdlParser::parseSingleCommand(const ESdlCommandType type, const std::string
 {
 	switch(type)
 	{
-	case ESdlCommandType::LOAD:
+	case ESdlCommandType::Load:
 		parseLoadCommand(command, out_scene);
 		break;
 
-	case ESdlCommandType::EXECUTION:
+	case ESdlCommandType::Execution:
 		parseExecutionCommand(command, out_scene);
 		break;
 
-	case ESdlCommandType::COMMENT:
+	case ESdlCommandType::Comment:
 		// do nothing
 		break;
 
-	case ESdlCommandType::DIRECTIVE:
+	case ESdlCommandType::Directive:
 		parseDirectiveCommand(command, out_scene);
 		break;
 
@@ -129,7 +129,7 @@ void SdlParser::parseSingleCommand(const ESdlCommandType type, const std::string
 
 void SdlParser::parseLoadCommand(
 	const std::string& command,
-	SceneDescription&  out_scene)
+	SceneDescription& out_scene)
 {
 	static const Tokenizer loadCommandTokenizer(
 		{' ', '\t', '\n', '\r'}, 
@@ -147,7 +147,7 @@ void SdlParser::parseLoadCommand(
 			"syntax error: improper load command");
 	}
 
-	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::LOAD);
+	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::Load);
 	PH_ASSERT_GE(tokens.size(), 4);
 
 	// Get category and type then acquire the matching SDL class
@@ -193,7 +193,7 @@ void SdlParser::parseLoadCommand(
 
 void SdlParser::parseExecutionCommand(
 	const std::string& command,
-	SceneDescription&  out_scene)
+	SceneDescription& out_scene)
 {
 	static const Tokenizer executionCommandTokenizer(
 		{' ', '\t', '\n', '\r'}, 
@@ -211,7 +211,7 @@ void SdlParser::parseExecutionCommand(
 			"syntax error: improper execution command");
 	}
 
-	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::EXECUTION);
+	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::Execution);
 	PH_ASSERT_GE(tokens.size(), 5);
 
 	// Get category and type then acquire the matching SDL class
@@ -256,7 +256,7 @@ void SdlParser::parseExecutionCommand(
 
 void SdlParser::parseDirectiveCommand(
 	const std::string& command,
-	SceneDescription&  out_scene)
+	SceneDescription& out_scene)
 {
 	static const Tokenizer directiveCommandTokenizer(
 		{' ', '\t', '\n', '\r'}, 
@@ -274,7 +274,7 @@ void SdlParser::parseDirectiveCommand(
 			"empty directive command");
 	}
 
-	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::DIRECTIVE);
+	PH_ASSERT(getCommandType(tokens[0]) == ESdlCommandType::Directive);
 	PH_ASSERT_GE(tokens.size(), 2);
 
 	if(tokens[1] == "version")
@@ -377,35 +377,52 @@ ESdlCommandType SdlParser::getCommandType(const std::string_view commandSegment)
 	PH_SCOPED_TIMER(GetCommandType);
 
 	// Skips any leading whitespace
-	const auto trimmedSegment = string_utils::trim_head(commandSegment);
+	const auto headTrimmedSegment = string_utils::trim_head(commandSegment);
 
 	// We cannot know the type yet with too few characters
-	if(trimmedSegment.size() < 2)
+	if(headTrimmedSegment.size() < 2)
 	{
-		return ESdlCommandType::UNKNOWN;
+		return ESdlCommandType::Unknown;
 	}
-	
+
 	// Test to see if any command symbol is matched
-	//
-	// "//": comment
-	// "+>": load
-	// "->": removal
-	// "=>": update
-	// ">>": execution
-	// "##": directive
-
-	PH_ASSERT_GE(trimmedSegment.size(), 2);
-	switch(trimmedSegment[0])
+	PH_ASSERT_GE(headTrimmedSegment.size(), 2);
+	const auto firstChar = headTrimmedSegment[0];
+	const auto secondChar = headTrimmedSegment[1];
+	switch(firstChar)
 	{
-	case '/': return trimmedSegment[1] == '/' ? ESdlCommandType::COMMENT   : ESdlCommandType::UNKNOWN;
-	case '+': return trimmedSegment[1] == '>' ? ESdlCommandType::LOAD      : ESdlCommandType::UNKNOWN;
-	case '-': return trimmedSegment[1] == '>' ? ESdlCommandType::REMOVAL   : ESdlCommandType::UNKNOWN;
-	case '=': return trimmedSegment[1] == '>' ? ESdlCommandType::UPDATE    : ESdlCommandType::UNKNOWN;
-	case '>': return trimmedSegment[1] == '>' ? ESdlCommandType::EXECUTION : ESdlCommandType::UNKNOWN;
-	case '#': return trimmedSegment[1] == '#' ? ESdlCommandType::DIRECTIVE : ESdlCommandType::UNKNOWN;
+	case '/': 
+		// "//": comment
+		return secondChar == '/' ? ESdlCommandType::Comment : ESdlCommandType::Unknown;
+
+	case '+':
+		// "+>": load
+		return secondChar == '>' ? ESdlCommandType::Load : ESdlCommandType::Unknown;
+
+	case '-': 
+		// "->": removal
+		return secondChar == '>' ? ESdlCommandType::Removal : ESdlCommandType::Unknown;
+
+	case '=': 
+		// "=>": update
+		return secondChar == '>' ? ESdlCommandType::Update : ESdlCommandType::Unknown;
+
+	case '>':
+		// ">>": execution
+		return secondChar == '>' ? ESdlCommandType::Execution : ESdlCommandType::Unknown;
+
+	case '#': 
+		// "##": directive
+		return secondChar == '#' ? ESdlCommandType::Directive : ESdlCommandType::Unknown;
+
+	case 'p':
+		// "phantom": invisible object
+		return string_utils::trim_tail(headTrimmedSegment) == "phantom"
+			? ESdlCommandType::Phantom
+			: ESdlCommandType::Unknown;
 	}
 
-	return ESdlCommandType::UNKNOWN;
+	return ESdlCommandType::Unknown;
 }
 
 std::string SdlParser::getMangledName(const std::string_view categoryName, const std::string_view typeName)
