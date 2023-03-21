@@ -24,7 +24,12 @@ public:
 		const CookingContext& ctx,
 		TSpanView<const Primitive*> primitives) const = 0;*/
 
-	virtual bool isGeometric() const = 0;
+	// TODO
+	//virtual bool isGeometric() const = 0;
+	virtual bool isGeometric() const
+	{
+		return true;
+	}
 
 	PreCookReport preCook(CookingContext& ctx) override;
 	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;

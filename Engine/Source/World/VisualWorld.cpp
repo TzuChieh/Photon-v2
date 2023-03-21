@@ -66,10 +66,10 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	m_cookedResources = std::make_unique<CookedResourceCollection>();
 
 	// Cache should be freed already as it is not needed for rendering
-	PH_ASSERT(m_cache);
+	PH_ASSERT(m_cache == nullptr);
 	m_cache = std::make_unique<TransientResourceCache>();
 
-	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources<Actor>();
+	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources().getAll<Actor>();
 
 	// TODO: clear cooked data
 

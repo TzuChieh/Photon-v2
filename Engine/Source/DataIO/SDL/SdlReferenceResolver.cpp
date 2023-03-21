@@ -24,7 +24,7 @@ void SdlReferenceResolver::analyze(const SceneDescription& scene)
 	{
 		std::vector<const ISdlResource*> resources;
 		std::vector<std::string_view> names;
-		scene.listAllResources(&resources, &names);
+		scene.getResources().listAll(&resources, &names);
 
 		PH_ASSERT_EQ(resources.size(), names.size());
 

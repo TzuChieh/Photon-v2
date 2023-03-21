@@ -180,7 +180,7 @@ void SdlParser::parseLoadCommand(
 
 		// Finally, add the resource to storage
 
-		out_scene.addResource(std::move(resource), resourceName);
+		out_scene.getResources().add(std::move(resource), resourceName);
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -230,7 +230,7 @@ void SdlParser::parseExecutionCommand(
 	// Catch load errors here to provide name information and re-throw.
 	try
 	{
-		std::shared_ptr<ISdlResource> resource = out_scene.getResource(targetResourceName, clazz.getCategory());
+		std::shared_ptr<ISdlResource> resource = out_scene.getResources().get(targetResourceName, clazz.getCategory());
 		if(!resource)
 		{
 			throw SdlLoadError("cannot find target resource from scene");

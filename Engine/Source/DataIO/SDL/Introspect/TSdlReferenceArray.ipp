@@ -176,7 +176,7 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 			referenceName);
 	}
 
-	auto resource = ctx.getRawScene()->getResource<ResourceType>(std::string(referenceName));
+	auto resource = ctx.getRawScene()->getResources().get<ResourceType>(std::string(referenceName));
 	if(!resource)
 	{
 		throw_formatted<SdlLoadError>(

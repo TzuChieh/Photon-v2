@@ -139,7 +139,7 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
 			"invalid reference name <" + payload.value + ">, should be prefixed with \'@\'");
 	}
 
-	auto resource = ctx.getRawScene()->getResource<ResourceType>(referenceName);
+	auto resource = ctx.getRawScene()->getResources().get<ResourceType>(referenceName);
 	if(!resource)
 	{
 		throw SdlLoadError(

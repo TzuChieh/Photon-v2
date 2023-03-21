@@ -92,7 +92,7 @@ void Engine::update()
 	{
 		// TODO: means to specify the requested session
 
-		std::vector<std::shared_ptr<RenderSession>> renderSessions = m_rawScene.getResources<RenderSession>();
+		std::vector<std::shared_ptr<RenderSession>> renderSessions = m_rawScene.getResources().getAll<RenderSession>();
 		if(renderSessions.empty())
 		{
 			PH_LOG_ERROR(Engine, "require at least a render session; engine failed to update");

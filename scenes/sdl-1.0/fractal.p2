@@ -1,0 +1,28 @@
+## version 1.0.0
+
++> option(single-frame-render-session) @session [vector2 frame-size "720 480"] [string visualizer @visualizer] [string observer @observer] [string sample-source @sampler]
+
++> observer(single-lens) @observer [real fov-degrees 30] [vector3 position "0 7 60"] [vector3 direction "0 0 -1"] [vector3 up-axis "0 1 0"]
++> sample-source(stratified) @sampler [integer samples 40]
++> visualizer(path-tracing) @visualizer [enum sample-filter gaussian] [enum estimator bneept]
+
++> geometry(rectangle) @plane [real width 15] [real height 15]
++> geometry(rectangle) @smallPlane [real width 0.5] [real height 0.5]
++> geometry(menger-sponge) @target [integer iterations 2]
+
++> material(matte-opaque) @white [image albedo "0.8 0.8 0.8"]
+
++> actor(model) @ground [geometry geometry @plane] [material material @white]
+>> actor(model) rotate(@ground) [vector3 axis "1 0 0"] [real degrees -90]
+>> actor(model) scale(@ground) [vector3 amount "10 10 10"]
+
++> actor(model) @object [geometry geometry @target]  [material material @white]
+>> actor(model) translate(@object) [vector3 amount "0 7 0"]
+>> actor(model) scale(@object) [vector3 amount "10 10 10"]
+>> actor(model) rotate(@object) [vector3 axis "1 0 0"] [real degrees 20]
+>> actor(model) rotate(@object) [vector3 axis "0 0 1"] [real degrees 20]
+>> actor(model) rotate(@object) [vector3 axis "0 1 0"] [real degrees 35]
+
++> light-source(point) @lightSource [spectrum color "1 1 0.95"] [real watts 5000]
++> actor(light) @light [light-source source @lightSource]
+>> actor(light) translate(@light) [vector3 amount "0 7 0"]
