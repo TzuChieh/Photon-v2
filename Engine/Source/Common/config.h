@@ -13,7 +13,7 @@
 
 /*! @brief Version of Photon Scene Description Language.
 */
-#define PH_PSDL_VERSION "1.0.0"
+#define PH_PSDL_VERSION "1.1.0"
 
 /*! @brief Enable debug functionalities.
 Assertions will be enabled on debug mode.
