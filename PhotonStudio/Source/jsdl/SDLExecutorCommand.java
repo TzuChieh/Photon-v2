@@ -29,7 +29,7 @@ public abstract class SDLExecutorCommand extends SDLCommand
 		out_sdlBuffer.append(' ');
 		out_sdlBuffer.append(getName());
 		out_sdlBuffer.append('(');
-		out_sdlBuffer.append("\"" + m_targetName + "\") ");
+		out_sdlBuffer.append("\"@" + m_targetName + "\") ");
 		generateInputs(out_sdlBuffer);
 		out_sdlBuffer.append('\n');
 	}
