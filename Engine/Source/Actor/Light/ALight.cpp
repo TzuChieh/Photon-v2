@@ -209,10 +209,11 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	if(m_localToWorld.hasScaleEffect())
 	{
 		PH_LOG(ALight,
-			"scale detected, this is undesirable since many light attributes will "
-			"be affected; can incur additional memory overhead as the original cooked "
-			"geometry may not be used (e.g., a transformed temporary is used instead "
-			"and the original is not referenced)");
+			"scale detected (which is {}), this is undesirable since many light attributes will "
+			"be affected; can incur additional memory overhead as the original cooked geometry "
+			"may not be used (e.g., a transformed temporary is used instead and the original is "
+			"not referenced)",
+			m_localToWorld.getScale());
 
 		const auto baseLW = math::StaticAffineTransform::makeForward(m_localToWorld);
 

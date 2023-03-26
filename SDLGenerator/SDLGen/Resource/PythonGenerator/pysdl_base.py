@@ -212,10 +212,6 @@ class AbstractCommand(ABC):
         self._inputs = []
 
     @abstractmethod
-    def get_prefix(self):
-        pass
-
-    @abstractmethod
     def get_full_type(self):
         pass
 
@@ -244,17 +240,13 @@ class CreatorCommand(AbstractCommand):
     def get_full_type(self):
         pass
 
-    def get_prefix(self):
-        return "+>"
-
     def generate(self):
         # TODO: some part can be pre-generated
         fragments = [
-            self.get_prefix(), " ",
             self.get_full_type(), " ",
-            "\"@" + self.__data_name + "\"", " "]
+            "\"@" + self.__data_name + "\"", " = "]
         self._generate_input_fragments(fragments)
-        fragments.append("\n")
+        fragments.append(";\n")
 
         return "".join(fragments)
 
@@ -275,18 +267,14 @@ class ExecutorCommand(AbstractCommand):
     def get_name(self):
         pass
 
-    def get_prefix(self):
-        return ">>"
-
     def generate(self):
         # TODO: some part can be pre-generated
         fragments = [
-            self.get_prefix(), " ",
             self.get_full_type(), " ",
             self.get_name(), "(",
-            "\"@" + self.__target_name + "\")", " "]
+            "\"@" + self.__target_name + "\")", " = "]
         self._generate_input_fragments(fragments)
-        fragments.append("\n")
+        fragments.append(";\n")
 
         return "".join(fragments)
 
