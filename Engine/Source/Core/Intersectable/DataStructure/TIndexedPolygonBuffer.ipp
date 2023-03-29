@@ -1,22 +1,22 @@
-#include "Core/Intersectable/DataStructure/TIndexedPolygonMesh.h"
+#include "Core/Intersectable/DataStructure/TIndexedPolygonBuffer.h"
 
 namespace ph
 {
 
 template<std::size_t N>
-inline TIndexedPolygonMesh<N>::TIndexedPolygonMesh()
+inline TIndexedPolygonBuffer<N>::TIndexedPolygonBuffer()
 	: m_vertexBuffer()
 	, m_indexBuffer()
 {}
 
 template<std::size_t N>
-inline std::array<math::Vector3R, N> TIndexedPolygonMesh<N>::getPositions(const std::size_t faceIndex) const
+inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getPositions(const std::size_t faceIndex) const
 {
 	return getFaceAttribute(EVertexAttribute::Position_0, faceIndex);
 }
 
 template<std::size_t N>
-inline std::array<math::Vector3R, N> TIndexedPolygonMesh<N>::getFaceAttribute(
+inline std::array<math::Vector3R, N> TIndexedPolygonBuffer<N>::getFaceAttribute(
 	const EVertexAttribute attribute,
 	const std::size_t      faceIndex) const
 {
@@ -33,32 +33,32 @@ inline std::array<math::Vector3R, N> TIndexedPolygonMesh<N>::getFaceAttribute(
 }
 
 template<std::size_t N>
-inline std::size_t TIndexedPolygonMesh<N>::numFaces() const
+inline std::size_t TIndexedPolygonBuffer<N>::numFaces() const
 {
 	PH_ASSERT_EQ(m_indexBuffer.numUInts() % N, 0);
 	return m_indexBuffer.numUInts() / N;
 }
 
 template<std::size_t N>
-inline IndexedVertexBuffer& TIndexedPolygonMesh<N>::getVertexBuffer()
+inline IndexedVertexBuffer& TIndexedPolygonBuffer<N>::getVertexBuffer()
 {
 	return m_vertexBuffer;
 }
 
 template<std::size_t N>
-inline const IndexedVertexBuffer& TIndexedPolygonMesh<N>::getVertexBuffer() const
+inline const IndexedVertexBuffer& TIndexedPolygonBuffer<N>::getVertexBuffer() const
 {
 	return m_vertexBuffer;
 }
 
 template<std::size_t N>
-inline IndexedUIntBuffer& TIndexedPolygonMesh<N>::getIndexBuffer()
+inline IndexedUIntBuffer& TIndexedPolygonBuffer<N>::getIndexBuffer()
 {
 	return m_indexBuffer;
 }
 
 template<std::size_t N>
-inline const IndexedUIntBuffer& TIndexedPolygonMesh<N>::getIndexBuffer() const
+inline const IndexedUIntBuffer& TIndexedPolygonBuffer<N>::getIndexBuffer() const
 {
 	return m_indexBuffer;
 }

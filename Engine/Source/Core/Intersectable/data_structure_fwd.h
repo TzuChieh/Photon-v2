@@ -6,9 +6,9 @@ namespace ph
 {
 
 template<std::size_t N>
-class TIndexedPolygonMesh;
+class TIndexedPolygonBuffer;
 
-using IndexedTriangleMesh = TIndexedPolygonMesh<3>;
-using IndexedQuadMesh = TIndexedPolygonMesh<4>;
+using IndexedTriangleBuffer = TIndexedPolygonBuffer<3>;
+using IndexedQuadBuffer = TIndexedPolygonBuffer<4>;
 
 }// end namespace ph

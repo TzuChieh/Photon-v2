@@ -13,6 +13,7 @@
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Emitter/Emitter.h"
 #include "World/Foundation/CookedNamedResource.h"
+#include "Core/Intersectable/DataStructure/TIndexedPolygonBuffer.h"
 
 #include <utility>
 
@@ -65,6 +66,13 @@ public:
 	}
 
 	template<typename... DeducedArgs>
+	IndexedTriangleBuffer* makeTriangleBuffer(DeducedArgs&&... args)
+	{
+		return makeCookedResource<IndexedTriangleBuffer>(
+			m_triangleBuffers, std::forward<DeducedArgs>(args)...);
+	}
+
+	template<typename... DeducedArgs>
 	CookedGeometry* makeGeometry(const SdlResourceId id, DeducedArgs&&... args)
 	{
 		return makeCookedResourceWithID(m_idToGeometry, id, std::forward<DeducedArgs>(args)...);
@@ -89,6 +97,7 @@ private:
 	TSynchronized<TUniquePtrVector<math::Transform>> m_transforms;
 	TSynchronized<TUniquePtrVector<Intersectable>> m_intersectables;
 	TSynchronized<TUniquePtrVector<Emitter>> m_emitters;
+	TSynchronized<TUniquePtrVector<IndexedTriangleBuffer>> m_triangleBuffers;
 	TSynchronized<TSdlResourceIdMap<CookedGeometry>> m_idToGeometry;
 	TSynchronized<TSdlResourceIdMap<CookedMotion>> m_idToMotion;
 	TSynchronized<CookedNamedResource> m_namedResource;

@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Core/Intersectable/data_structure_fwd.h"
+
 #include <vector>
 
 namespace ph
 {
 
 class Primitive;
-class IndexedVertexBuffer;
 
 class GeometryCookConfig final
 {
@@ -24,8 +25,11 @@ public:
 class CookedGeometry final
 {
 public:
+	/*! Primitives that form the geometry. */
 	std::vector<const Primitive*> primitives;
-	const IndexedVertexBuffer* vertexBuffer;
+
+	/*! An alternative representation of the geometry. May not always be available. */
+	const IndexedTriangleBuffer* triangleBuffer = nullptr;
 };
 
 }// end namespace ph

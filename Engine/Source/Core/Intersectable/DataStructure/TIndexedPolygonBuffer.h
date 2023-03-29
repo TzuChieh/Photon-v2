@@ -18,13 +18,13 @@ namespace ph
 @tparam N Number of polygon vertices.
 */
 template<std::size_t N>
-class TIndexedPolygonMesh final
+class TIndexedPolygonBuffer final
 {
 	// We do not consider strange cases such as a digon.
 	static_assert(N >= 3);
 
 public:
-	TIndexedPolygonMesh();
+	TIndexedPolygonBuffer();
 
 	std::array<math::Vector3R, N> getPositions(std::size_t faceIndex) const;
 	std::array<math::Vector3R, N> getFaceAttribute(EVertexAttribute attribute, std::size_t faceIndex) const;
@@ -42,4 +42,4 @@ private:
 
 }// end namespace ph
 
-#include "Core/Intersectable/DataStructure/TIndexedPolygonMesh.ipp"
+#include "Core/Intersectable/DataStructure/TIndexedPolygonBuffer.ipp"
