@@ -81,10 +81,10 @@ public:
 	void clear();
 
 	template<typename T>
-	void cache(const T& data);
+	void pushCache(const T& data);
 
 	template<typename T>
-	void getCached(T* out_data);
+	T popCache();
 
 private:
 	using Stack = TArrayAsStack<const Intersectable*, PH_HIT_PROBE_DEPTH>;
@@ -118,7 +118,7 @@ inline void HitProbe::clear()
 }
 
 template<typename T>
-inline void HitProbe::cache(const T& data)
+inline void HitProbe::pushCache(const T& data)
 {
 	static_assert(std::is_trivially_copyable_v<T>,
 		"target type is not cacheable");
@@ -136,14 +136,17 @@ inline void HitProbe::cache(const T& data)
 }
 
 template<typename T>
-inline void HitProbe::getCached(T* const out_data)
+inline T HitProbe::popCache()
 {
-	static_assert(std::is_trivially_copyable_v<T> && sizeof(T) <= sizeof(m_cache));
-	PH_ASSERT(out_data);
+	static_assert(std::is_trivially_copyable_v<T>);
+	static_assert(sizeof(T) <= sizeof(m_cache));
 
 	PH_ASSERT_IN_RANGE_INCLUSIVE(m_cacheHead, sizeof(T), sizeof(m_cache));
 	m_cacheHead -= sizeof(T);
-	std::memcpy(out_data, m_cache + m_cacheHead, sizeof(T));
+
+	T data;
+	std::memcpy(&data, m_cache + m_cacheHead, sizeof(T));
+	return data;
 }
 
 }// end namespace ph

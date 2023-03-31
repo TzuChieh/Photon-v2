@@ -60,6 +60,10 @@ public:
 	std::size_t numUInts() const;
 	std::size_t estimateMemoryUsage() const;
 	bool isAllocated() const;
+
+	/*!
+	@return The largest possible integer that can be stored in this buffer.
+	*/
 	uint64 getMaxAllowedValue() const;
 
 	/*! @brief Access to the underlying raw byte buffer.

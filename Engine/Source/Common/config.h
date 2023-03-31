@@ -89,7 +89,7 @@ Default value is 512 KiB.
 /*! @brief Number of available bytes for a probe's cache.
 Note that a byte is not necessarily 8-bit.
 */
-#define PH_HIT_PROBE_CACHE_BYTES 12
+#define PH_HIT_PROBE_CACHE_BYTES 32
 
 #define PH_NUMERIC_IMAGE_MAX_ELEMENTS 4
 

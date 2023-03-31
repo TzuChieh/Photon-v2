@@ -11,10 +11,11 @@ enum class EEndpoint
 	MAX
 };
 
-struct IndexedItemEndpoint
+template<typename Index>
+struct TIndexedItemEndpoint
 {
 	real      position;
-	int       index;// FIXME: templatize
+	Index     index;
 	EEndpoint type;
 };
 

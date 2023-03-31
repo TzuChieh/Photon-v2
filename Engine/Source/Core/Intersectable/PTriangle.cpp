@@ -42,7 +42,7 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 	}
 
 	probe.pushBaseHit(this, hitT);
-	probe.cache(hitBaryABCs);
+	probe.pushCache(hitBaryABCs);
 	return true;
 }
 
@@ -51,9 +51,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 {
 	PH_ASSERT(out_detail);
 
-	math::Vector3R hitBaryABC;
-	probe.getCached(&hitBaryABC);
-
+	const auto hitBaryABC = probe.popCache<math::Vector3R>();
 	PH_ASSERT_MSG(!hitBaryABC.isZero() && hitBaryABC.isFinite(), 
 		hitBaryABC.toString());
 

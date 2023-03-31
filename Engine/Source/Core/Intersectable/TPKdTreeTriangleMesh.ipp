@@ -65,8 +65,8 @@ inline bool TPKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, HitProbe
 	if(hasHit)
 	{
 		probe.pushBaseHit(this, closestHitT);
-		probe.cache(closestHitBary);
-		probe.cache(closestHitFaceIndex);
+		probe.pushCache(closestHitBary);
+		probe.pushCache(closestHitFaceIndex);
 
 		return true;
 	}
@@ -85,11 +85,8 @@ inline void TPKdTreeTriangleMesh<Index>::calcIntersectionDetail(
 	PH_ASSERT(out_detail);
 	PH_ASSERT(m_triMesh);
 
-	std::size_t    faceIndex;
-	math::Vector3R bary;
-	probe.getCached(faceIndex);
-	probe.getCached(bary);
-
+	const auto faceIndex = probe.popCache<std::size_t>();
+	const auto bary = probe.popCache<math::Vector3R>();
 	PH_ASSERT_MSG(bary.isNotZero() && bary.isFinite(),
 		bary.toString());
 

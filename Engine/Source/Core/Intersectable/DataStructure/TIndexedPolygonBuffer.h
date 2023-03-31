@@ -27,17 +27,25 @@ public:
 	TIndexedPolygonBuffer();
 
 	std::array<math::Vector3R, N> getPositions(std::size_t faceIndex) const;
+	std::array<math::Vector3R, N> getTexCoords(std::size_t faceIndex) const;
+	std::array<math::Vector3R, N> getNormals(std::size_t faceIndex) const;
 	std::array<math::Vector3R, N> getFaceAttribute(EVertexAttribute attribute, std::size_t faceIndex) const;
 	std::size_t numFaces() const;
+	bool hasTexCoord() const;
+	bool hasNormal() const;
+	bool hasFaceAttribute(EVertexAttribute attribute) const;
 
 	IndexedVertexBuffer& getVertexBuffer();
 	const IndexedVertexBuffer& getVertexBuffer() const;
 	IndexedUIntBuffer& getIndexBuffer();
 	const IndexedUIntBuffer& getIndexBuffer() const;
 
+	static constexpr std::size_t numPolygonVertices();
+	static constexpr bool isTriangular();
+
 private:
 	IndexedVertexBuffer m_vertexBuffer;
-	IndexedUIntBuffer   m_indexBuffer;
+	IndexedUIntBuffer m_indexBuffer;
 };
 
 }// end namespace ph

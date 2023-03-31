@@ -31,8 +31,8 @@ inline TMatrix2<T>::TMatrix2(const T m00, const T m01, const T m10, const T m11)
 
 template<typename T>
 inline TMatrix2<T>::TMatrix2(const TVector2<T>& m00m01, const TVector2<T>& m10m11) : 
-	m{m00m01.x, m00m01.y,
-	  m10m11.x, m10m11.y}
+	m{m00m01.x(), m00m01.y(),
+	  m10m11.x(), m10m11.y()}
 {}
 
 template<typename T>

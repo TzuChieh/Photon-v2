@@ -61,6 +61,12 @@ public:
 		bool shouldNormalize = false);
 
 	/*! @brief Declares a vertex attribute with custom layout.
+	@param attribute Primary type of the vertex attribute.
+	@param element Type of the datum that comprise a single attribute.
+	@param numElements Number of the data that comprise a single attribute.
+	@param strideOffset Offset in the allocated buffer that points to the beginning of the attribute.
+	@param strideSize The amount of offset to reach the next attribute.
+	@param shouldNormalize Whether to map the stored value to [-1, 1]/[0, 1] depending on @p element.
 	*/
 	void declareAttribute(
 		EVertexAttribute attribute,
@@ -76,6 +82,7 @@ public:
 	void setAttribute(EVertexAttribute attribute, std::size_t index, const math::Vector2R& value);
 	void setAttribute(EVertexAttribute attribute, std::size_t index, real value);
 	void setVertices(const std::byte* srcBytes, std::size_t numBytes, std::size_t dstOffset = 0);
+	bool hasAttribute(EVertexAttribute attribute) const;
 	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
 	std::size_t estimateMemoryUsage() const;
 	bool isAllocated() const;
@@ -207,6 +214,11 @@ inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, 
 inline void IndexedVertexBuffer::setAttribute(const EVertexAttribute attribute, const std::size_t index, real value)
 {
 	setAttribute(attribute, index, math::Vector3R(value, 0.0_r, 0.0_r));
+}
+
+inline bool IndexedVertexBuffer::hasAttribute(const EVertexAttribute attribute) const
+{
+	return hasEntry(attribute);
 }
 
 inline bool IndexedVertexBuffer::hasEntry(const EVertexAttribute attribute) const

@@ -13,6 +13,7 @@
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/GEmpty.h"
 #include "Actor/Geometry/GeometrySoup.h"
+#include "Actor/Geometry/GPlyPolygonMesh.h"
 
 // Materials
 #include "Actor/Material/Material.h"
@@ -171,6 +172,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 		//get_sdl_class<GCuboid>(),
 		get_sdl_class<GMengerSponge>(),
 		get_sdl_class<GeometrySoup>(),
+		get_sdl_class<GPlyPolygonMesh>(),
 
 		// Materials
 		get_sdl_class<Material>(),

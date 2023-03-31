@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Core/Intersectable/Primitive.h"
-#include "Core/Intersectable/DataStructure/IndexedVertexBuffer.h"
+#include "Core/Intersectable/DataStructure/TIndexedPolygonBuffer.h"
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtree.h"
+#include "Math/Geometry/TWatertightTriangle.h"
+#include "Common/assertion.h"
 
 #include <utility>
 
@@ -13,9 +15,8 @@ template<typename Index>
 class TPIndexedKdTreeTriangleMesh : public Primitive
 {
 public:
-	TPIndexedKdTreeTriangleMesh(
-		IndexedVertexBuffer       vertexBuffer,
-		const PrimitiveMetadata*  metadata,
+	explicit TPIndexedKdTreeTriangleMesh(
+		IndexedTriangleBuffer* triangleBuffer,
 		math::IndexedKdtreeParams params = math::IndexedKdtreeParams());
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
@@ -28,13 +29,38 @@ public:
 	math::AABB3D calcAABB() const override;
 
 private:
-	struct 
+	using Triangle = math::TWatertightTriangle<real>;
 
-	IndexedVertexBuffer m_vertexBuffer;
+	struct IndexToTriangle
+	{
+		IndexedTriangleBuffer* triangleBuffer;
+
+		Triangle operator () (const std::size_t index) const
+		{
+			PH_ASSERT(triangleBuffer);
+			PH_ASSERT_LT(index, triangleBuffer->numFaces());
+
+			return Triangle(triangleBuffer->getPositions(index));
+		}
+	};
+
+	struct TriangleToAABB
+	{
+		math::AABB3D operator () (const Triangle& triangle) const
+		{
+			return triangle.getAABB();
+		}
+	};
+
+	using KdTree = math::TIndexedKdtree<
+		IndexToTriangle,
+		TriangleToAABB,
+		Index>;
+
+	IndexedTriangleBuffer* m_triangleBuffer;
+	KdTree m_kdTree;
 };
 
-// In-header Implementations:
-
-
-
 }// end namespace ph
+
+#include "Core/Intersectable/TPIndexedKdTreeTriangleMesh.ipp"

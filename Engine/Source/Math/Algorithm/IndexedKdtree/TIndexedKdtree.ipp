@@ -2,7 +2,6 @@
 
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtree.h"
 
-#include <optional>
 #include <limits>
 #include <array>
 #include <cmath>
@@ -16,7 +15,6 @@ template<
 	typename ItemToAABB,
 	typename Index>
 inline TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-
 TIndexedKdtree(
 	const std::size_t   numItems,
 	IndexToItem         indexToItem,
@@ -41,12 +39,13 @@ template<
 	typename ItemToAABB,
 	typename Index>
 template<
-	typename ItemSegmentIntersector>
+	typename TesterFunc>
 inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-
-nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& intersector) const
+nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 -> bool
 {
+	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
+
 	PH_ASSERT_GT(m_numNodes, 0);
 
 	struct NodeState
@@ -56,6 +55,7 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 		real        maxT;
 	};
 
+	constexpr bool TEST_WITH_ITEM_IDX = CItemSegmentIntersectionTesterWithIndex<TesterFunc, Item>;
 	constexpr int MAX_STACK_HEIGHT = 64;
 
 	real minT, maxT;
@@ -128,9 +128,19 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 
 			if(numItems == 1)
 			{
-				const Item& item = m_indexToItem(currentNode->singleItemDirectIndex());
+				const auto itemIndex = currentNode->singleItemDirectIndex();
+				const Item& item = m_indexToItem(itemIndex);
 
-				const std::optional<real> hitT = intersector(item, intersectSegment);
+				std::optional<real> hitT;
+				if constexpr(TEST_WITH_ITEM_IDX)
+				{
+					hitT = intersectionTester(item, intersectSegment, itemIndex);
+				}
+				else
+				{
+					hitT = intersectionTester(item, intersectSegment);
+				}
+
 				if(hitT)
 				{
 					intersectSegment.setMaxT(*hitT);
@@ -142,9 +152,18 @@ nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& int
 				for(std::size_t i = 0; i < numItems; ++i)
 				{
 					const Index itemIndex = m_itemIndices[currentNode->indexBufferOffset() + i];
-					const Item& item      = m_indexToItem(itemIndex);
+					const Item& item = m_indexToItem(itemIndex);
 
-					const std::optional<real> hitT = intersector(item, intersectSegment);
+					std::optional<real> hitT;
+					if constexpr(TEST_WITH_ITEM_IDX)
+					{
+						hitT = intersectionTester(item, intersectSegment, itemIndex);
+					}
+					else
+					{
+						hitT = intersectionTester(item, intersectSegment);
+					}
+
 					if(hitT)
 					{
 						intersectSegment.setMaxT(*hitT);
@@ -181,7 +200,6 @@ template<
 	typename ItemToAABB,
 	typename Index>
 inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-
 getAABB() const
 -> AABB3D
 {
@@ -207,7 +225,6 @@ template<
 	typename ItemToAABB,
 	typename Index>
 inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-
 build(ItemToAABB itemToAABB, IndexedKdtreeParams params)
 {
 	PH_ASSERT_GT(m_numItems, 0);
@@ -234,10 +251,10 @@ build(ItemToAABB itemToAABB, IndexedKdtreeParams params)
 		negativeItemIndicesCache[i] = static_cast<Index>(i);
 	}
 
-	std::array<std::unique_ptr<IndexedItemEndpoint[]>, 3> endPointsCache;
+	std::array<std::unique_ptr<ItemEndpoint[]>, 3> endPointsCache;
 	for(auto&& cache : endPointsCache)
 	{
-		cache = std::unique_ptr<IndexedItemEndpoint[]>(new IndexedItemEndpoint[m_numItems * 2]);
+		cache = std::unique_ptr<ItemEndpoint[]>(new ItemEndpoint[m_numItems * 2]);
 	}
 
 	buildNodeRecursive(
@@ -260,7 +277,6 @@ template<
 	typename ItemToAABB,
 	typename Index>
 inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-
 buildNodeRecursive(
 	std::size_t nodeIndex,
 	const AABB3D& nodeAABB,
@@ -273,7 +289,7 @@ buildNodeRecursive(
 	IndexedKdtreeParams params,
 	Index* negativeItemIndicesCache,
 	Index* positiveItemIndicesCache,
-	std::array<std::unique_ptr<IndexedItemEndpoint[]>, 3>& endpointsCache)
+	std::array<std::unique_ptr<ItemEndpoint[]>, 3>& endpointsCache)
 {
 	++m_numNodes;
 	if(m_numNodes > m_nodeBuffer.size())
@@ -303,12 +319,12 @@ buildNodeRecursive(
 		{
 			const Index   itemIndex = nodeItemIndices[i];
 			const AABB3D& itemAABB  = itemAABBs[itemIndex];
-			endpointsCache[axis][2 * i]     = IndexedItemEndpoint{itemAABB.getMinVertex()[axis], itemIndex, EEndpoint::MIN};
-			endpointsCache[axis][2 * i + 1] = IndexedItemEndpoint{itemAABB.getMaxVertex()[axis], itemIndex, EEndpoint::MAX};
+			endpointsCache[axis][2 * i]     = ItemEndpoint{itemAABB.getMinVertex()[axis], itemIndex, EEndpoint::MIN};
+			endpointsCache[axis][2 * i + 1] = ItemEndpoint{itemAABB.getMaxVertex()[axis], itemIndex, EEndpoint::MAX};
 		}
 
 		std::sort(&(endpointsCache[axis][0]), &(endpointsCache[axis][2 * numNodeItems]), 
-			[](const IndexedItemEndpoint& a, const IndexedItemEndpoint& b) -> bool
+			[](const ItemEndpoint& a, const ItemEndpoint& b) -> bool
 			{
 				return a.position != b.position ? a.position < b.position 
 												: a.type     < b.type;

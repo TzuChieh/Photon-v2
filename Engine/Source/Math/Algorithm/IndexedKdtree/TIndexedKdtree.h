@@ -3,7 +3,7 @@
 #include "Math/Geometry/TAABB3D.h"
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtreeNode.h"
 #include "Utility/utility.h"
-#include "Math/Algorithm/IndexedKdtree/IndexedItemEndpoint.h"
+#include "Math/Algorithm/IndexedKdtree/TIndexedItemEndpoint.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 #include "Common/assertion.h"
@@ -15,9 +15,31 @@
 #include <utility>
 #include <memory>
 #include <type_traits>
+#include <optional>
 
 namespace ph::math
 {
+
+template<typename TesterFunc, typename Item>
+concept CItemSegmentIntersectionTesterVanilla = requires (TesterFunc func, Item item)
+{
+	{ func(item, TLineSegment<real>{}) } -> std::same_as<std::optional<real>>;
+};
+
+template<typename TesterFunc, typename Item>
+concept CItemSegmentIntersectionTesterWithIndex = requires (
+	TesterFunc func, 
+	Item item, 
+	TLineSegment<real> segment,
+	std::size_t itemIndex)
+{
+	{ func(item, segment, itemIndex) } -> std::same_as<std::optional<real>>;
+};
+
+template<typename TesterFunc, typename Item>
+concept CItemSegmentIntersectionTester = 
+	CItemSegmentIntersectionTesterVanilla<TesterFunc, Item> ||
+	CItemSegmentIntersectionTesterWithIndex<TesterFunc, Item>;
 
 template<
 	typename IndexToItem,
@@ -25,11 +47,13 @@ template<
 	typename Index = std::size_t>
 class TIndexedKdtree final
 {
-private:
-	using Node = TIndexedKdtreeNode<Index>;
-
+public:
 	static_assert(std::is_invocable_v<IndexToItem, Index>);
 	using Item = decltype(std::declval<IndexToItem>()(std::declval<Index>()));
+
+private:
+	using Node = TIndexedKdtreeNode<Index>;
+	using ItemEndpoint = TIndexedItemEndpoint<Index>;
 
 	static_assert(std::is_invocable_r_v<AABB3D, ItemToAABB, Item>);
 
@@ -40,8 +64,8 @@ public:
 		ItemToAABB          itemToAABB,
 		IndexedKdtreeParams params = IndexedKdtreeParams());
 
-	template<typename ItemSegmentIntersector>
-	bool nearestTraversal(const TLineSegment<real>& segment, ItemSegmentIntersector&& intersetor) const;
+	template<typename TesterFunc>
+	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;
 
 	AABB3D getAABB() const;
 	bool isEmpty() const;
@@ -61,7 +85,7 @@ private:
 		IndexedKdtreeParams params,
 		Index* negativeItemIndicesCache,
 		Index* positiveItemIndicesCache,
-		std::array<std::unique_ptr<IndexedItemEndpoint[]>, 3>& endpointsCache);
+		std::array<std::unique_ptr<ItemEndpoint[]>, 3>& endpointsCache);
 
 private:
 	std::size_t        m_numItems;

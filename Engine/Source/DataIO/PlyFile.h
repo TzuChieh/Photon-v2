@@ -82,6 +82,8 @@ struct PlyIOConfig final
 class PlyPropertyValues;
 class PlyPropertyListValues;
 
+/*! @brief PLY property storage.
+*/
 struct PlyProperty final
 {
 	std::string  name;
@@ -106,6 +108,8 @@ struct PlyProperty final
 	bool isFixedSizeList() const;
 };
 
+/*! @brief PLY element storage.
+*/
 struct PlyElement final
 {
 	std::string              name;
@@ -132,6 +136,8 @@ struct PlyElement final
 	PlyPropertyListValues listPropertyValues(PlyProperty* prop);
 };
 
+/*! @brief A convenient PLY property accessor.
+*/
 class PlyPropertyValues final
 {
 	friend PlyElement;
@@ -159,6 +165,8 @@ private:
 	EPlyDataType m_valueType;
 };
 
+/*! @brief A convenient PLY list property accessor.
+*/
 class PlyPropertyListValues final
 {
 	friend PlyElement;
@@ -205,7 +213,14 @@ class PlyFile final
 
 public:
 	PlyFile();
+
+	/*! @brief Load file with default config.
+	*/
 	explicit PlyFile(const Path& plyFilePath);
+
+	/*! @brief Load file with specified config.
+	@exception FileIOError If any loading and parsing process failed.
+	*/
 	PlyFile(const Path& plyFilePath, const PlyIOConfig& config);
 
 	PlyElement* findElement(std::string_view name);

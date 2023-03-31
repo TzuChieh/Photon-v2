@@ -640,6 +640,7 @@ bool PlyPropertyListValues::isFixedSizeList() const
 
 std::size_t PlyPropertyListValues::fixedListSize() const
 {
+	PH_ASSERT(isFixedSizeList());
 	return m_fixedListSize;
 }
 
