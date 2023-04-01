@@ -99,24 +99,29 @@ IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer() const
 	}
 
 	vertexBuffer.allocate(vertexElement->numElements);
-	for(std::size_t vi = 0; vi < vertexElement->numElements; ++vi)
+	for(std::size_t vertexIdx = 0; vertexIdx < vertexElement->numElements; ++vertexIdx)
 	{
-		const auto x = static_cast<real>(xValues.get(vi));
-		const auto y = static_cast<real>(yValues.get(vi));
-		const auto z = static_cast<real>(zValues.get(vi));
+		const math::Vector3D position(
+			xValues.get(vertexIdx), 
+			yValues.get(vertexIdx), 
+			zValues.get(vertexIdx));
 
-		vertexBuffer.setAttribute(EVertexAttribute::Position_0, vi, {x, y, z});
+		vertexBuffer.setAttribute(EVertexAttribute::Position_0, vertexIdx, math::Vector3R(position));
 	}
 
 	if(hasNormals)
 	{
 		for(std::size_t vertexIdx = 0; vertexIdx < vertexElement->numElements; ++vertexIdx)
 		{
-			const auto nx = static_cast<real>(nxValues.get(vertexIdx));
-			const auto ny = static_cast<real>(nyValues.get(vertexIdx));
-			const auto nz = static_cast<real>(nzValues.get(vertexIdx));
+			math::Vector3D normal(
+				nxValues.get(vertexIdx), 
+				nyValues.get(vertexIdx), 
+				nzValues.get(vertexIdx));
 
-			vertexBuffer.setAttribute(EVertexAttribute::Normal_0, vertexIdx, {nx, ny, nz});
+			// Re-normalize as some mesh may not come in with normalized normals
+			normal.normalizeLocal();
+
+			vertexBuffer.setAttribute(EVertexAttribute::Normal_0, vertexIdx, math::Vector3R(normal));
 		}
 	}
 

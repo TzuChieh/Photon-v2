@@ -119,7 +119,7 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcIntersectionDetail(
 	const bool hasShadingNormal = m_triangleBuffer->hasNormal();
 
 	const auto shadingNormal = hasShadingNormal
-		? Triangle::interpolate(normals, closestHit.bary)
+		? Triangle::interpolate(normals, closestHit.bary).normalize()
 		: faceNormal;
 
 	const auto uvw = hasTexCoords
