@@ -179,7 +179,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// Finished cooking
 
 	PH_LOG(VisualWorld, 
-		"done done, data cooked: {}", 
+		"done cooking actors, data cooked: {}", 
 		getCookedResources()->getStats());
 
 	// Clean up cache as it is not needed afterwards
@@ -222,10 +222,15 @@ void VisualWorld::cookActors(
 
 			out_elements.push_back(std::move(element));
 		}
+		catch(const RuntimeException& e)
+		{
+			PH_LOG_ERROR(VisualWorld,
+				"on cooking actor: {}", e.whatStr());
+		}
 		catch(const Exception& e)
 		{
 			PH_LOG_ERROR(VisualWorld,
-				"error on cooking actor: {}", e.what());
+				"on cooking actor: {}", e.what());
 		}
 	}
 }

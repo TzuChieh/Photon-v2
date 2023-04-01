@@ -18,8 +18,8 @@ Note on the implementation:
 One might want to enable exceptions by setting std::istream::exceptions(). However, many operations 
 depend on the detection of EOF, e.g., std::istream_iterator stops on EOF, if an exception is to 
 thrown there, the iterating process may stop prematurely. Moreover, not setting std::istream::eofbit
-to std::istream::exceptions() may not be enough as std::istream::failbit may be set after 
-std::istream::eofbit is set, triggering an exception nevertheless. 
+to std::istream::exceptions() may not be enough to avoid EOF exception as std::istream::failbit may 
+be set after std::istream::eofbit is set, triggering an exception nevertheless. 
 
 We resort to default std::istream behavior and check for stream status manually after each operation
 and throw exceptions as appropriate (otherwise we may need to check for error code and catch istream

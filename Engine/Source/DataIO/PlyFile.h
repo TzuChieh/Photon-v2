@@ -251,33 +251,30 @@ public:
 
 private:
 	/*! Parse and append to existing header info. */
-	void parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
+	void parseHeader(IInputStream& stream, const PlyIOConfig& config);
 
 	/*! Load data described by header into memory. Already loaded elements do not participate in
 	the data description of the current buffer/stream.
 	*/
-	void loadBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath);
+	void loadBuffer(IInputStream& stream, const PlyIOConfig& config);
 
 	/*! Load PLY element data in ASCII form into memory. */
 	void loadAsciiElementBuffer(
 		IInputStream& stream, 
 		PlyElement& element, 
-		const PlyIOConfig& config, 
-		const Path& plyFilePath);
+		const PlyIOConfig& config);
 
 	/*! Load PLY element data in binary form into memory. */
 	void loadBinaryElementBuffer(
 		IInputStream& stream, 
 		PlyElement& element, 
-		const PlyIOConfig& config, 
-		const Path& plyFilePath);
+		const PlyIOConfig& config);
 
 	/*! Load non-list PLY element data in binary form into memory. */
 	void loadNonListBinaryElementBuffer(
 		IInputStream& stream,
 		PlyElement& element,
-		const PlyIOConfig& config,
-		const Path& plyFilePath);
+		const PlyIOConfig& config);
 
 	void loadSingleBinaryPlyDataToBuffer(
 		IInputStream& stream, 

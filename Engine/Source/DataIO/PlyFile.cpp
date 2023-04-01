@@ -684,7 +684,16 @@ PlyFile::PlyFile(const Path& plyFilePath, const PlyIOConfig& config) :
 	PlyFile()
 {
 	clearBuffer();
-	loadFile(plyFilePath, config);
+
+	try
+	{
+		loadFile(plyFilePath, config);
+	}
+	catch(const Exception& e)
+	{
+		// Re-throw all exceptions as FileIOError which provides filename info
+		throw FileIOError(e.what(), plyFilePath.toAbsoluteString());
+	}
 }
 
 PlyElement* PlyFile::findElement(const std::string_view name)
@@ -839,12 +848,12 @@ void PlyFile::loadFile(const Path& plyFilePath, const PlyIOConfig& config)
 	
 	// Load PLY header
 
-	parseHeader(*stream, config, plyFilePath);
+	parseHeader(*stream, config);
 
 	// Load PLY buffer
 
 	reserveBuffer();
-	loadBuffer(*stream, config, plyFilePath);
+	loadBuffer(*stream, config);
 
 	if(shouldReduceStorageMemory)
 	{
@@ -852,7 +861,7 @@ void PlyFile::loadFile(const Path& plyFilePath, const PlyIOConfig& config)
 	}
 }
 
-void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
+void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config)
 {
 	using namespace string_utils;
 
@@ -870,7 +879,7 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 	stream.readLine(&lineBuffer);
 	if(trim(lineBuffer) != MAGIC_NUMBER)
 	{
-		throw FileIOError("Invalid PLY file magic number", plyFilePath.toAbsoluteString());
+		throw FileIOError("invalid PLY file magic number");
 	}
 
 	// Parse line by line and populate definition of elements (as well as attributes other than raw data, 
@@ -897,7 +906,7 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 		const auto entry = ply_keyword_to_entry(next_token(headerLine, &headerLine));
 		if(entry == EPlyHeaderEntry::Unspecified)
 		{
-			throw FileIOError("PLY header line with unknown entry", plyFilePath.toAbsoluteString());
+			throw FileIOError("PLY header line with unknown entry");
 		}
 
 		switch(entry)
@@ -906,7 +915,7 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 		{
 			if(m_elements.empty())
 			{
-				throw FileIOError("PLY header defines a property without element", plyFilePath.toAbsoluteString());
+				throw FileIOError("PLY header defines a property without element");
 			}
 
 			PH_ASSERT(!m_elements.empty());
@@ -968,7 +977,7 @@ void PlyFile::parseHeader(IInputStream& stream, const PlyIOConfig& config, const
 	}// end while each header line
 }
 
-void PlyFile::loadBuffer(IInputStream& stream, const PlyIOConfig& config, const Path& plyFilePath)
+void PlyFile::loadBuffer(IInputStream& stream, const PlyIOConfig& config)
 {
 	for(PlyElement& element : m_elements)
 	{
@@ -990,17 +999,17 @@ void PlyFile::loadBuffer(IInputStream& stream, const PlyIOConfig& config, const 
 
 		if(m_inputFormat == EPlyDataFormat::ASCII)
 		{
-			loadAsciiElementBuffer(stream, element, config, plyFilePath);
+			loadAsciiElementBuffer(stream, element, config);
 		}
 		else
 		{
 			if(element.containsList())
 			{
-				loadBinaryElementBuffer(stream, element, config, plyFilePath);
+				loadBinaryElementBuffer(stream, element, config);
 			}
 			else
 			{
-				loadNonListBinaryElementBuffer(stream, element, config, plyFilePath);
+				loadNonListBinaryElementBuffer(stream, element, config);
 			}
 		}
 	}
@@ -1009,8 +1018,7 @@ void PlyFile::loadBuffer(IInputStream& stream, const PlyIOConfig& config, const 
 void PlyFile::loadAsciiElementBuffer(
 	IInputStream& stream, 
 	PlyElement& element, 
-	const PlyIOConfig& config, 
-	const Path& plyFilePath)
+	const PlyIOConfig& config)
 {
 	PH_ASSERT(m_inputFormat == EPlyDataFormat::ASCII);
 
@@ -1081,17 +1089,16 @@ void PlyFile::loadAsciiElementBuffer(
 	}
 	catch(const std::runtime_error& e)
 	{
-		throw FileIOError(std::format(
-			"Error loading ASCII data from element {}, detail: {}", element.name, e.what()), 
-			plyFilePath.toAbsoluteString());
+		throw_formatted<FileIOError>(
+			"Error loading ASCII data from element {}, detail: {}", 
+			element.name, e.what());
 	}
 }
 
 void PlyFile::loadBinaryElementBuffer(
 	IInputStream& stream, 
 	PlyElement& element, 
-	const PlyIOConfig& config, 
-	const Path& plyFilePath)
+	const PlyIOConfig& config)
 {
 	PH_ASSERT(m_inputFormat != EPlyDataFormat::ASCII);
 
@@ -1152,17 +1159,16 @@ void PlyFile::loadBinaryElementBuffer(
 	}
 	catch(const std::runtime_error& e)
 	{
-		throw FileIOError(std::format(
-			"Error loading binary data from element {}, detail: {}", element.name, e.what()), 
-			plyFilePath.toAbsoluteString());
+		throw_formatted<FileIOError>(
+			"Error loading binary data from element {}, detail: {}", 
+			element.name, e.what());
 	}
 }
 
 void PlyFile::loadNonListBinaryElementBuffer(
 	IInputStream& stream, 
 	PlyElement& element, 
-	const PlyIOConfig& config, 
-	const Path& plyFilePath)
+	const PlyIOConfig& config)
 {
 	PH_ASSERT(m_inputFormat != EPlyDataFormat::ASCII);
 	PH_ASSERT(!element.containsList());
@@ -1198,9 +1204,9 @@ void PlyFile::loadNonListBinaryElementBuffer(
 	}
 	catch(const std::runtime_error& e)
 	{
-		throw FileIOError(std::format(
-			"Error loading non-list binary data from element {}, detail: {}", element.name, e.what()), 
-			plyFilePath.toAbsoluteString());
+		throw_formatted<FileIOError>(
+			"Error loading non-list binary data from element {}, detail: {}", 
+			element.name, e.what());
 	}
 }
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Utility/exception.h"
+
 #include <stdexcept>
 #include <string>
 
@@ -8,13 +10,12 @@ namespace ph::math
 
 /*! @brief General exception thrown on error related to math functionalities.
 */
-class MathException : public std::runtime_error
+class MathException : public RuntimeException
 {
 public:
-	explicit MathException(const std::string& message);
-	explicit MathException(const char* message);
+	using RuntimeException::RuntimeException;
 
-	std::string whatStr() const;
+	std::string whatStr() const override;
 };
 
 /*! @brief Error on the color-related functionalities.
@@ -26,14 +27,6 @@ public:
 };
 
 // In-header Implementations:
-
-inline MathException::MathException(const std::string& message) :
-	std::runtime_error(message)
-{}
-
-inline MathException::MathException(const char* const message) :
-	std::runtime_error(message)
-{}
 
 inline std::string MathException::whatStr() const
 {

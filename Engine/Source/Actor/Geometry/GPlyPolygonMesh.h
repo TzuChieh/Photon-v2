@@ -33,7 +33,7 @@ private:
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GPlyPolygonMesh>)
 	{
-		ClassType clazz("ply-mesh");
+		ClassType clazz("ply");
 		clazz.docName("PLY Polygon Mesh");
 		clazz.description("Polygon mesh stored as a .ply file.");
 		clazz.baseOn<Geometry>();

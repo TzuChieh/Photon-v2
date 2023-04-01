@@ -128,12 +128,13 @@ void SdlParser::enter(std::string_view rawCommandSegment, SceneDescription& out_
 					// Just a standalone slash, then it should be part of the command
 					else
 					{
-						++numCharsToSubmit;
+						// One for the standalone slash and the other is the peeked char
+						numCharsToSubmit += 2;
 					}
 
 					enterProcessed(remainingSegment.substr(0, numCharsToSubmit), out_scene);
 
-					// Note that we peeked and processed the next char, hence +2
+					// Note that either way we peeked and processed the next char, hence +2
 					remainingSegment = remainingSegment.substr(keyCharPos + 2);
 					break;
 				}
