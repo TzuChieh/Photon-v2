@@ -58,7 +58,7 @@ public:
 	uint64 getUInt(std::size_t index) const;
 
 	std::size_t numUInts() const;
-	std::size_t estimateMemoryUsage() const;
+	std::size_t memoryUsage() const;
 	bool isAllocated() const;
 
 	/*!
@@ -89,7 +89,7 @@ inline void IndexedUIntBuffer::declareUIntFormat()
 	declareUIntFormat(sizeof_in_bits<IntegerType>());
 }
 
-inline std::size_t IndexedUIntBuffer::estimateMemoryUsage() const
+inline std::size_t IndexedUIntBuffer::memoryUsage() const
 {
 	return sizeof(*this) + m_byteBufferSize;
 }

@@ -35,6 +35,16 @@ public:
 	bool hasNormal() const;
 	bool hasFaceAttribute(EVertexAttribute attribute) const;
 
+	/*!
+	@return Number of bytes used by the polygons.
+	*/
+	std::size_t memoryUsage() const;
+
+	/*!
+	@return Number of bytes used by a single polygon.
+	*/
+	float averagePerPolygonMemoryUsage() const;
+
 	IndexedVertexBuffer& getVertexBuffer();
 	const IndexedVertexBuffer& getVertexBuffer() const;
 	IndexedUIntBuffer& getIndexBuffer();

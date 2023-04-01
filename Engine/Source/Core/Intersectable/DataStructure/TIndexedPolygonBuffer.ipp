@@ -70,6 +70,25 @@ inline bool TIndexedPolygonBuffer<N>::hasFaceAttribute(const EVertexAttribute at
 }
 
 template<std::size_t N>
+inline std::size_t TIndexedPolygonBuffer<N>::memoryUsage() const
+{
+	return sizeof(*this) + m_vertexBuffer.memoryUsage() + m_indexBuffer.memoryUsage();
+}
+
+template<std::size_t N>
+inline float TIndexedPolygonBuffer<N>::averagePerPolygonMemoryUsage() const
+{
+	if(numFaces() == 0)
+	{
+		return 0.0f;
+	}
+
+	const auto numTotalBytes = static_cast<double>(memoryUsage());
+	const auto numPolygons = static_cast<double>(numFaces());
+	return static_cast<float>(numTotalBytes / numPolygons);
+}
+
+template<std::size_t N>
 inline IndexedVertexBuffer& TIndexedPolygonBuffer<N>::getVertexBuffer()
 {
 	return m_vertexBuffer;

@@ -16,7 +16,7 @@ TEST(IndexedVertexBufferTest, BasicBufferStates)
 		IndexedVertexBuffer buffer;
 		EXPECT_FALSE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numVertices(), 0);
-		EXPECT_GT(buffer.estimateMemoryUsage(), 0);
+		EXPECT_GT(buffer.memoryUsage(), 0);
 	}
 
 	{
@@ -25,7 +25,7 @@ TEST(IndexedVertexBufferTest, BasicBufferStates)
 		buffer.allocate(100);
 		EXPECT_TRUE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numVertices(), 100);
-		EXPECT_GT(buffer.estimateMemoryUsage(), 100 * 32 * 3 / 8);
+		EXPECT_GT(buffer.memoryUsage(), 100 * 32 * 3 / 8);
 	}
 
 	{
@@ -36,7 +36,7 @@ TEST(IndexedVertexBufferTest, BasicBufferStates)
 		buffer.allocate(100);
 		EXPECT_TRUE(buffer.isAllocated());
 		EXPECT_EQ(buffer.numVertices(), 100);
-		EXPECT_GT(buffer.estimateMemoryUsage(), 100 * (16 * 3 + 24 + 16 * 2) / 8);
+		EXPECT_GT(buffer.memoryUsage(), 100 * (16 * 3 + 24 + 16 * 2) / 8);
 	}
 }
 

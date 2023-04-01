@@ -84,7 +84,7 @@ public:
 	void setVertices(const std::byte* srcBytes, std::size_t numBytes, std::size_t dstOffset = 0);
 	bool hasAttribute(EVertexAttribute attribute) const;
 	math::Vector3R getAttribute(EVertexAttribute attribute, std::size_t index) const;
-	std::size_t estimateMemoryUsage() const;
+	std::size_t memoryUsage() const;
 	bool isAllocated() const;
 	std::size_t numVertices() const;
 
@@ -176,7 +176,7 @@ private:
 
 // In-header Implementations:
 
-inline std::size_t IndexedVertexBuffer::estimateMemoryUsage() const
+inline std::size_t IndexedVertexBuffer::memoryUsage() const
 {
 	return sizeof(*this) + m_byteBufferSize;
 }

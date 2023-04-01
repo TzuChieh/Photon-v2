@@ -156,15 +156,16 @@ public:
 		return Path(pathStr);
 	}
 
-	/*! @brief Returns filename extension if present.
+	/*! @brief Returns the filename if present.
+	@return Filename including the extension part. Empty if not present.
+	*/
+	std::string getFilename() const;
 
+	/*! @brief Returns filename extension if present.
 	The extension string will start with a period character ".". If the path
 	contains no extension, then an empty string is returned.
 	*/
-	inline std::string getExtension() const
-	{
-		return m_path.extension().string();
-	}
+	std::string getExtension() const;
 
 	/*! @brief Check if the path points to an existing directory.
 	*/
@@ -222,6 +223,16 @@ private:
 };
 
 // In-header Implementations:
+
+inline std::string Path::getFilename() const
+{
+	return m_path.filename().string();
+}
+
+inline std::string Path::getExtension() const
+{
+	return m_path.extension().string();
+}
 
 inline bool Path::hasDirectory() const
 {

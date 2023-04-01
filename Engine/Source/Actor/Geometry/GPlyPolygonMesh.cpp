@@ -9,6 +9,8 @@
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Core/Intersectable/TPIndexedKdTreeTriangleMesh.h"
+#include "Math/math.h"
+#include "Utility/Timer.h"
 
 namespace ph
 {
@@ -21,14 +23,44 @@ void GPlyPolygonMesh::storeCooked(
 	const GeometryCookConfig& config) const
 {
 	IndexedTriangleBuffer* triangleBuffer = ctx.getResources()->makeTriangleBuffer();
+
+	Timer loadTimer;
+	loadTimer.start();
+
 	*triangleBuffer = loadTriangleBuffer();
 
+	loadTimer.stop();
+
+	Timer buildTimer;
+	buildTimer.start();
+
 	// TODO: more index types
+	// TODO: count tree memory usage
 	auto* kdTreeMesh = ctx.getResources()->makeIntersectable<TPIndexedKdTreeTriangleMesh<uint32>>(
 		triangleBuffer);
 
+	buildTimer.stop();
+
 	out_geometry.primitives.push_back(kdTreeMesh);
 	out_geometry.triangleBuffer = triangleBuffer;
+
+	// Log some stats for performance analysis
+	if(triangleBuffer)
+	{
+		PH_LOG(GPlyPolygonMesh, 
+			"{} buffer stats: {} verts, {} faces ({:.3f} MiB, {:.3f} B per face)", 
+			m_filePath.getFilename(),
+			triangleBuffer->getVertexBuffer().numVertices(),
+			triangleBuffer->numFaces(),
+			math::bytes_to_MiB<double>(triangleBuffer->memoryUsage()),
+			triangleBuffer->averagePerPolygonMemoryUsage());
+
+		PH_LOG(GPlyPolygonMesh,
+			"{} buffer timings: {:.2f} ms loading, {:.2f} ms building accel",
+			m_filePath.getFilename(),
+			loadTimer.getDeltaMs<double>(),
+			buildTimer.getDeltaMs<double>());
+	}
 }
 
 void GPlyPolygonMesh::genPrimitive(
