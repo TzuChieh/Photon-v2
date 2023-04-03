@@ -479,7 +479,7 @@ auto SdlParser::parseCommandHeader(const std::string_view command)
 -> CommandHeader
 {
 	static const Tokenizer commandTokenizer(
-		{' ', '\t', '\n', '\r', '.'},
+		{' ', '\t', '\n', '\r'},
 		{{'\"', '\"'}, {'(', ')'}});
 
 	PH_SCOPED_TIMER(GetCommandHeader);
@@ -516,8 +516,7 @@ auto SdlParser::parseCommandHeader(const std::string_view command)
 
 	// Parsing resource command
 	
-	// Find `=` with offset for shortest possible resource command, e.g., `f()=;`
-	const auto equalSignPos = headTrimmedCommand.find('=', 3);
+	const auto equalSignPos = headTrimmedCommand.find('=');
 	if(equalSignPos == std::string_view::npos)
 	{
 		throw SdlLoadError(
@@ -527,70 +526,110 @@ auto SdlParser::parseCommandHeader(const std::string_view command)
 	const auto headerString = string_utils::trim_tail(headTrimmedCommand.substr(0, equalSignPos));
 	header.dataString = headTrimmedCommand.substr(equalSignPos + 1);
 
-	// OPT: use view
-	std::vector<std::string> tokens;
-	commandTokenizer.tokenize(std::string(headerString), tokens);
+	const auto dotSignPos = headerString.find('.');
 
-	switch(tokens.size())
+	// No dot sign
+	if(dotSignPos == std::string_view::npos)
 	{
-	case 1:
-		// Executor call without SDL type and reference, e.g., `Func()`
-		header.commandType = ESdlCommandType::Execution;
-		header.executorName = tokens[0];
-		break;
+		// OPT: use view
+		std::vector<std::string> tokens;
+		commandTokenizer.tokenize(std::string(headerString), tokens);
 
-	case 2:
-		// Executor call without SDL type but with reference, e.g., `Func(@Ref)`
-		header.commandType = ESdlCommandType::Execution;
-		header.executorName = tokens[0];
-		header.reference = tokens[1];
-		break;
-
-	case 3:
-		// Two possibilities here:
-		// (1) Creator with SDL type and reference, e.g., `Category(Type) @Ref`
-		if(tokens[2].starts_with('@'))
+		switch(tokens.size())
 		{
+		case 1:
+			// Executor call without SDL type and reference, e.g., `Func()`
+			header.commandType = ESdlCommandType::Execution;
+			header.executorName = tokens[0];
+			break;
+
+		case 2:
+			// Executor call without SDL type but with reference, e.g., `Func(@Ref)`
+			header.commandType = ESdlCommandType::Execution;
+			header.executorName = tokens[0];
+			header.reference = tokens[1];
+			break;
+
+		case 3:
+			// Creator with SDL type and reference, e.g., `Category(Type) @Ref`
 			header.commandType = ESdlCommandType::Load;
 			header.targetCategory = tokens[0];
 			header.targetType = tokens[1];
 			header.reference = tokens[2];
-		}
-		// (2) Executor call with SDL type but without reference, e.g., `Category(Type).Func()`
-		else
-		{
-			PH_ASSERT_NE(headerString.find('.'), std::string_view::npos);
+			break;
 
-			header.commandType = ESdlCommandType::Execution;
-			header.targetCategory = tokens[0];
-			header.targetType = tokens[1];
-			header.executorName = tokens[2];
-		}
-		break;
+		case 4:
+			// Phantom with SDL type and reference, e.g., `phantom Category(Type) @Ref`
+			if(tokens[0] == "phantom")
+			{
+				header.commandType = ESdlCommandType::Phantom;
+				header.targetCategory = tokens[1];
+				header.targetType = tokens[2];
+				header.reference = tokens[3];
+			}
+			else
+			{
+				throw_formatted<SdlLoadError>(
+					"unknown keyword <{}> found in creator command",
+					tokens[0]);
+			}
+			break;
 
-	case 4:
+		default:
+			return CommandHeader();
+		}
+	}
+	// With dot sign
+	else
+	{
+		const auto dotSignLhsString = headerString.substr(0, dotSignPos);
+		const auto dotSignRhsString = headerString.substr(dotSignPos + 1);
+
+		// OPT: use view
+		std::vector<std::string> dotSignLhsTokens;
+		commandTokenizer.tokenize(std::string(dotSignLhsString), dotSignLhsTokens);
+
+		// OPT: use view
+		std::vector<std::string> dotSignRhsTokens;
+		commandTokenizer.tokenize(std::string(dotSignRhsString), dotSignRhsTokens);
+
 		// Two possibilities here:
-		// (1) Phantom with SDL type and reference, e.g., `phantom Category(Type) @Ref`
-		if(tokens[0] == "phantom")
-		{
-			header.commandType = ESdlCommandType::Phantom;
-			header.targetCategory = tokens[1];
-			header.targetType = tokens[2];
-			header.reference = tokens[3];
-		}
+		// (1) Executor call with SDL type but without reference, e.g., `Category(Type).Func()`
 		// (2) Executor call with SDL type and reference, e.g., `Category(Type).Func(@Ref)`
+
+		header.commandType = ESdlCommandType::Execution;
+
+		// LHS is always category and type info, e.g., `Category(Type)`
+		if(dotSignLhsTokens.size() == 2)
+		{
+			header.targetCategory = dotSignLhsTokens[0];
+			header.targetType = dotSignLhsTokens[1];
+		}
 		else
 		{
-			header.commandType = ESdlCommandType::Execution;
-			header.targetCategory = tokens[0];
-			header.targetType = tokens[1];
-			header.executorName = tokens[2];
-			header.reference = tokens[3];
+			throw_formatted<SdlLoadError>(
+				"invalid category and type info <{}> found in executor command (explicit form)",
+				dotSignLhsString);
 		}
-		break;
 
-	default:
-		return CommandHeader();
+		switch(dotSignRhsTokens.size())
+		{
+		case 1:
+			// Executor call without reference, e.g., `Func()`
+			header.executorName = dotSignRhsTokens[0];
+			break;
+
+		case 2:
+			// Executor call with reference, e.g., `Func(@Ref)`
+			header.executorName = dotSignRhsTokens[0];
+			header.reference = dotSignRhsTokens[1];
+			break;
+
+		default:
+			throw_formatted<SdlLoadError>(
+				"invalid call target <{}> found in executor command (explicit form)",
+				dotSignRhsString);
+		}
 	}
 
 	return header;
