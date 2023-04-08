@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RTRResource.h"
+#include "Render/RendererResource.h"
 
 #include <memory>
 #include <cstddef>
@@ -10,12 +10,12 @@ namespace ph::editor
 
 class GHITexture;
 
-class RTRTextureResource : public RTRResource
+class RendererTexture : public RendererResource
 {
 public:
-	RTRTextureResource();
+	RendererTexture();
 
-	~RTRTextureResource() override;
+	~RendererTexture() override;
 
 	virtual std::size_t getWidthPx() const;
 	virtual std::size_t getHeightPx() const;
@@ -28,17 +28,17 @@ public:
 	void cleanupGHI(GHIThreadCaller& caller) override = 0;
 };
 
-inline std::size_t RTRTextureResource::getWidthPx() const
+inline std::size_t RendererTexture::getWidthPx() const
 {
 	return 0;
 }
 
-inline std::size_t RTRTextureResource::getHeightPx() const
+inline std::size_t RendererTexture::getHeightPx() const
 {
 	return 0;
 }
 
-inline std::size_t RTRTextureResource::numLayers() const
+inline std::size_t RendererTexture::numLayers() const
 {
 	return 0;
 }

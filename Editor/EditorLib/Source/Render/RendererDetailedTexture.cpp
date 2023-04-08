@@ -1,4 +1,4 @@
-#include "Render/RTRDetailedTextureResource.h"
+#include "Render/RendererDetailedTexture.h"
 #include "RenderCore/GHIThreadCaller.h"
 
 #include <Frame/PictureData.h>
@@ -8,16 +8,16 @@
 namespace ph::editor
 {
 
-RTRDetailedTextureResource::RTRDetailedTextureResource(
-	std::unique_ptr<RTRTextureResource> resource)
+RendererDetailedTexture::RendererDetailedTexture(
+	std::unique_ptr<RendererTexture> resource)
 
-	: RTRTextureResource()
+	: RendererTexture()
 
 	, m_resource(std::move(resource))
 	, m_sharedNativeHandle(std::nullopt)
 {}
 
-void RTRDetailedTextureResource::setupGHI(GHIThreadCaller& caller)
+void RendererDetailedTexture::setupGHI(GHIThreadCaller& caller)
 {
 	if(m_resource)
 	{
@@ -38,7 +38,7 @@ void RTRDetailedTextureResource::setupGHI(GHIThreadCaller& caller)
 		});
 }
 
-void RTRDetailedTextureResource::cleanupGHI(GHIThreadCaller& caller)
+void RendererDetailedTexture::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GHI& /* ghi */)
@@ -52,32 +52,32 @@ void RTRDetailedTextureResource::cleanupGHI(GHIThreadCaller& caller)
 	}
 }
 
-std::optional<GHITexture::NativeHandle> RTRDetailedTextureResource::tryGetNativeHandle() const
+std::optional<GHITexture::NativeHandle> RendererDetailedTexture::tryGetNativeHandle() const
 {
 	return m_sharedNativeHandle.relaxedRead();
 }
 
-GHITexture* RTRDetailedTextureResource::getGHITexture() const
+GHITexture* RendererDetailedTexture::getGHITexture() const
 {
 	return m_resource ? m_resource->getGHITexture() : nullptr;
 }
 
-std::shared_ptr<GHITexture> RTRDetailedTextureResource::getGHITextureResource() const
+std::shared_ptr<GHITexture> RendererDetailedTexture::getGHITextureResource() const
 {
 	return m_resource ? m_resource->getGHITextureResource() : nullptr;
 }
 
-std::size_t RTRDetailedTextureResource::getWidthPx() const
+std::size_t RendererDetailedTexture::getWidthPx() const
 {
 	return m_resource ? m_resource->getWidthPx() : 0;
 }
 
-std::size_t RTRDetailedTextureResource::getHeightPx() const
+std::size_t RendererDetailedTexture::getHeightPx() const
 {
 	return m_resource ? m_resource->getHeightPx() : 0;
 }
 
-std::size_t RTRDetailedTextureResource::numLayers() const
+std::size_t RendererDetailedTexture::numLayers() const
 {
 	return m_resource ? m_resource->numLayers() : 0;
 }

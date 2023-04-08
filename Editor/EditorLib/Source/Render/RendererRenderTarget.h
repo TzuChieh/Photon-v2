@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RTRTextureResource.h"
+#include "Render/RendererTexture.h"
 #include "RenderCore/GHITexture.h"
 #include "RenderCore/GHIFramebuffer.h"
 
@@ -15,25 +15,25 @@ namespace ph { class PictureData; }
 namespace ph::editor
 {
 
-class RTRFramebufferResource;
+class RendererFramebuffer;
 
-class RTRRenderTargetResource : public RTRTextureResource
+class RendererRenderTarget : public RendererTexture
 {
 public:
 	/*! @brief A texture render target with custom format.
 	*/
-	RTRRenderTargetResource(
+	RendererRenderTarget(
 		const GHIInfoTextureFormat& format,
 		const math::Vector2S& sizePx);
 
 	/*! @brief A texture render target backed by a framebuffer.
 	*/
-	RTRRenderTargetResource(
-		RTRFramebufferResource* framebufferResource,
+	RendererRenderTarget(
+		RendererFramebuffer* framebufferResource,
 		uint32 attachmentIndex,
 		bool isDepthStencilAttachment = false);
 
-	~RTRRenderTargetResource() override;
+	~RendererRenderTarget() override;
 
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
@@ -56,45 +56,45 @@ private:
 
 	std::shared_ptr<GHITexture> m_ghiTexture;
 	std::shared_ptr<GHIFramebuffer> m_ghiFramebuffer;
-	RTRFramebufferResource* m_framebufferResource;
+	RendererFramebuffer* m_framebufferResource;
 };
 
-inline std::size_t RTRRenderTargetResource::getWidthPx() const
+inline std::size_t RendererRenderTarget::getWidthPx() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.x());
 }
 
-inline std::size_t RTRRenderTargetResource::getHeightPx() const
+inline std::size_t RendererRenderTarget::getHeightPx() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.y());
 }
 
-inline std::size_t RTRRenderTargetResource::numLayers() const
+inline std::size_t RendererRenderTarget::numLayers() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.z());
 }
 
-inline const GHIInfoTextureFormat& RTRRenderTargetResource::getFormat() const
+inline const GHIInfoTextureFormat& RendererRenderTarget::getFormat() const
 {
 	return m_format;
 }
 
-inline GHITexture* RTRRenderTargetResource::getGHITexture() const
+inline GHITexture* RendererRenderTarget::getGHITexture() const
 {
 	return m_ghiTexture.get();
 }
 
-inline std::shared_ptr<GHITexture> RTRRenderTargetResource::getGHITextureResource() const
+inline std::shared_ptr<GHITexture> RendererRenderTarget::getGHITextureResource() const
 {
 	return m_ghiTexture;
 }
 
-inline GHIFramebuffer* RTRRenderTargetResource::getGHIFramebuffer() const
+inline GHIFramebuffer* RendererRenderTarget::getGHIFramebuffer() const
 {
 	return m_ghiFramebuffer.get();
 }
 
-inline std::shared_ptr<GHIFramebuffer> RTRRenderTargetResource::getGHIFramebufferResource() const
+inline std::shared_ptr<GHIFramebuffer> RendererRenderTarget::getGHIFramebufferResource() const
 {
 	return m_ghiFramebuffer;
 }

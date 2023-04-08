@@ -239,9 +239,7 @@ void Application::appUpdate(const MainThreadUpdateContext& ctx)
 		m_editor.editorStats.mainThreadEventFlushMs = eventFlushTimer.stop().getDeltaMs<float32>();
 	}
 	
-
-	// TODO: editor scene update
-	
+	m_editor.updateScenes(ctx);
 
 	for(auto& procedureModule : m_procedureModules)
 	{
@@ -253,6 +251,8 @@ void Application::appUpdate(const MainThreadUpdateContext& ctx)
 
 void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
+	m_editor.renderUpdateScenes(ctx);
+
 	for(auto& renderModule : m_renderModules)
 	{
 		renderModule->renderUpdate(ctx);
@@ -261,6 +261,11 @@ void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void Application::appCreateRenderCommands()
 {
+	{
+		RenderThreadCaller caller(m_renderThread);
+		m_editor.createRenderCommandsForScenes(caller);
+	}
+
 	for(auto& renderModule : m_renderModules)
 	{
 		RenderThreadCaller caller(m_renderThread);

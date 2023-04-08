@@ -19,7 +19,7 @@ namespace ph::editor
 {
 
 class RenderThreadCaller;
-class RTRDetailedTextureResource;
+class RendererDetailedTexture;
 
 enum class EImguiImage
 {
@@ -73,7 +73,7 @@ private:
 	struct ImageEntry final
 	{
 		mutable GHITexture::NativeHandle nativeHandle;
-		RTRDetailedTextureResource* resource;
+		RendererDetailedTexture* resource;
 		std::unique_ptr<RegularPicture> sourcePicture;
 
 		ImageEntry();

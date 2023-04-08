@@ -1,4 +1,4 @@
-#include "Render/RTRTexture2DResource.h"
+#include "Render/RendererTexture2D.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GHI.h"
 
@@ -9,11 +9,11 @@
 namespace ph::editor
 {
 
-RTRTexture2DResource::RTRTexture2DResource(
+RendererTexture2D::RendererTexture2D(
 	const GHIInfoTextureFormat& format,
 	std::unique_ptr<PictureData> textureData)
 
-	: RTRTextureResource()
+	: RendererTexture()
 
 	, m_sizePx(0)
 	, m_format(format)
@@ -26,13 +26,13 @@ RTRTexture2DResource::RTRTexture2DResource(
 	}
 }
 
-RTRTexture2DResource::~RTRTexture2DResource()
+RendererTexture2D::~RendererTexture2D()
 {
 	// Must have been released by GHI thread
 	PH_ASSERT(!m_ghiTexture);
 }
 
-void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
+void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 {
 	if(!m_textureData)
 	{
@@ -55,7 +55,7 @@ void RTRTexture2DResource::setupGHI(GHIThreadCaller& caller)
 		});
 }
 
-void RTRTexture2DResource::cleanupGHI(GHIThreadCaller& caller)
+void RendererTexture2D::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GHI& ghi)

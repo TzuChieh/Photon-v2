@@ -3,27 +3,67 @@
 #include "Designer/DesignerScene.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <memory>
 
 namespace ph::editor
 {
 
+PH_DEFINE_INTERNAL_LOG_GROUP(Editor, App);
+
 Editor::Editor() = default;
 
 Editor::~Editor() = default;
 
-DesignerScene& Editor::createScene(std::size_t* const out_sceneIndex)
+void Editor::updateScenes(const MainThreadUpdateContext& ctx)
+{
+	for(auto& scene : m_scenes)
+	{
+		scene->update(ctx);
+	}
+}
+
+void Editor::renderUpdateScenes(const MainThreadRenderUpdateContext& ctx)
+{
+	for(auto& scene : m_scenes)
+	{
+		scene->renderUpdate(ctx);
+	}
+}
+
+void Editor::createRenderCommandsForScenes(RenderThreadCaller& caller)
+{
+	for(auto& scene : m_scenes)
+	{
+		scene->createRenderCommands(caller);
+	}
+}
+
+std::size_t Editor::createScene()
 {
 	DesignerScene* const scene = m_scenes.add(std::make_unique<DesignerScene>());
-	scene->setEditor(this);
+	PH_ASSERT(scene != nullptr);
+	scene->onSceneCreated(this);
 
-	if(out_sceneIndex)
+	const std::size_t sceneIndex = m_scenes.size() - 1;
+	return sceneIndex;
+}
+
+void Editor::removeScene(const std::size_t sceneIndex)
+{
+	if(sceneIndex >= m_scenes.size())
 	{
-		*out_sceneIndex = m_scenes.size() - 1;
+		PH_LOG_WARNING(Editor,
+			"scene not removed (scene index {} is invalid, must < {})",
+			sceneIndex, m_scenes.size());
+
+		return;
 	}
 
-	return *scene;
+	std::unique_ptr<DesignerScene> scene = m_scenes.remove(sceneIndex);
+	PH_ASSERT(scene != nullptr);
+	scene->onSceneRemoved();
 }
 
 void Editor::flushAllEvents()

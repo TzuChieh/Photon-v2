@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RTRTextureResource.h"
+#include "Render/RendererTexture.h"
 #include "RenderCore/GHITexture.h"
 
 #include <Utility/Concurrent/TRelaxedAtomic.h>
@@ -11,13 +11,13 @@
 namespace ph::editor
 {
 
-class RTRDetailedTextureResource : public RTRTextureResource
+class RendererDetailedTexture : public RendererTexture
 {
 public:
-	using Base = RTRTextureResource;
+	using Base = RendererTexture;
 
 public:
-	explicit RTRDetailedTextureResource(std::unique_ptr<RTRTextureResource> resource);
+	explicit RendererDetailedTexture(std::unique_ptr<RendererTexture> resource);
 
 	GHITexture* getGHITexture() const override;
 	std::shared_ptr<GHITexture> getGHITextureResource() const override;
@@ -30,7 +30,7 @@ public:
 	std::optional<GHITexture::NativeHandle> tryGetNativeHandle() const;
 
 private:
-	std::unique_ptr<RTRTextureResource> m_resource;
+	std::unique_ptr<RendererTexture> m_resource;
 	TRelaxedAtomic<std::optional<GHITexture::NativeHandle>> m_sharedNativeHandle;
 };
 

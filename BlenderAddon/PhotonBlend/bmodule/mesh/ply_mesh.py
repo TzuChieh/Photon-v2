@@ -81,7 +81,6 @@ def _write_ascii_ply_mesh_data(
         ply_file.write(b"\n")
 
 
-
 def _write_binary_ply_mesh_data(
     ply_file,
     vertices,

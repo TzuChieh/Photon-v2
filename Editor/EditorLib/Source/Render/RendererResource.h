@@ -5,10 +5,10 @@ namespace ph::editor
 
 class GHIThreadCaller;
 
-class RTRResource
+class RendererResource
 {
 public:
-	virtual ~RTRResource();
+	virtual ~RendererResource();
 
 	virtual void setupGHI(GHIThreadCaller& caller) = 0;
 	virtual void cleanupGHI(GHIThreadCaller& caller) = 0;

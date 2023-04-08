@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RTRResource.h"
+#include "Render/RendererResource.h"
 #include "RenderCore/GHIFramebuffer.h"
 
 #include <Math/TVector2.h>
@@ -12,11 +12,11 @@ namespace ph { class PictureData; }
 namespace ph::editor
 {
 
-class RTRFramebufferResource : public RTRResource
+class RendererFramebuffer : public RendererResource
 {
 public:
-	explicit RTRFramebufferResource(const GHIInfoFramebufferAttachment& attachments);
-	~RTRFramebufferResource();
+	explicit RendererFramebuffer(const GHIInfoFramebufferAttachment& attachments);
+	~RendererFramebuffer() override;
 
 	const GHIInfoFramebufferAttachment& getAttachments() const;
 
@@ -32,17 +32,17 @@ private:
 	std::shared_ptr<GHIFramebuffer> m_ghiFramebuffer;
 };
 
-inline const GHIInfoFramebufferAttachment& RTRFramebufferResource::getAttachments() const
+inline const GHIInfoFramebufferAttachment& RendererFramebuffer::getAttachments() const
 {
 	return m_attachments;
 }
 
-inline GHIFramebuffer* RTRFramebufferResource::getGHIFramebuffer() const
+inline GHIFramebuffer* RendererFramebuffer::getGHIFramebuffer() const
 {
 	return m_ghiFramebuffer.get();
 }
 
-inline std::shared_ptr<GHIFramebuffer> RTRFramebufferResource::getGHIFramebufferResource() const
+inline std::shared_ptr<GHIFramebuffer> RendererFramebuffer::getGHIFramebufferResource() const
 {
 	return m_ghiFramebuffer;
 }

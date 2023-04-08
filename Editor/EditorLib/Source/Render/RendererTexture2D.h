@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RTRTextureResource.h"
+#include "Render/RendererTexture.h"
 #include "RenderCore/GHITexture2D.h"
 
 #include <Math/TVector2.h>
@@ -13,14 +13,14 @@ namespace ph { class PictureData; }
 namespace ph::editor
 {
 
-class RTRTexture2DResource : public RTRTextureResource
+class RendererTexture2D : public RendererTexture
 {
 public:
-	RTRTexture2DResource(
+	RendererTexture2D(
 		const GHIInfoTextureFormat& format, 
 		std::unique_ptr<PictureData> textureData);
 
-	~RTRTexture2DResource() override;
+	~RendererTexture2D() override;
 
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
@@ -41,32 +41,32 @@ private:
 	std::unique_ptr<PictureData> m_textureData;
 };
 
-inline std::size_t RTRTexture2DResource::getWidthPx() const
+inline std::size_t RendererTexture2D::getWidthPx() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.x());
 }
 
-inline std::size_t RTRTexture2DResource::getHeightPx() const
+inline std::size_t RendererTexture2D::getHeightPx() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.y());
 }
 
-inline const GHIInfoTextureFormat& RTRTexture2DResource::getFormat() const
+inline const GHIInfoTextureFormat& RendererTexture2D::getFormat() const
 {
 	return m_format;
 }
 
-inline GHITexture* RTRTexture2DResource::getGHITexture() const
+inline GHITexture* RendererTexture2D::getGHITexture() const
 {
 	return m_ghiTexture.get();
 }
 
-inline std::shared_ptr<GHITexture> RTRTexture2DResource::getGHITextureResource() const
+inline std::shared_ptr<GHITexture> RendererTexture2D::getGHITextureResource() const
 {
 	return getGHITexture2DResource();
 }
 
-inline std::shared_ptr<GHITexture2D> RTRTexture2DResource::getGHITexture2DResource() const
+inline std::shared_ptr<GHITexture2D> RendererTexture2D::getGHITexture2DResource() const
 {
 	return m_ghiTexture;
 }

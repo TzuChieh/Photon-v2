@@ -49,7 +49,10 @@ void RenderThread::onAsyncWorkerStop()
 	m_ghiThread.beginFrame();
 
 	// Destroy resources just like how we did in `onEndFrame()`
-	m_renderData->scene.destroyPendingResources();
+	for(auto& scene : m_renderData->scenes)
+	{
+		scene->destroyPendingResources();
+	}
 
 	m_ghiThread.requestWorkerStop();
 	m_ghiThread.endFrame();
@@ -97,7 +100,10 @@ void RenderThread::onEndFrame()
 	addWork(
 		[](RenderData& renderData)
 		{
-			renderData.scene.updateCustomRenderContents(renderData.updateCtx);
+			for(auto& scene : renderData.scenes)
+			{
+				scene->updateCustomRenderContents(renderData.updateCtx);
+			}
 		});
 
 	// GHI work submission
@@ -109,7 +115,10 @@ void RenderThread::onEndFrame()
 
 			// Destory resources once we are sure the GHI thread is done accessing them
 			// (with memory effects on GHI thread made visible)
-			renderData.scene.destroyPendingResources();
+			for(auto& scene : renderData.scenes)
+			{
+				scene->destroyPendingResources();
+			}
 
 			// If it is non-null, a GHI update is pending
 			if(m_updatedGHI)
@@ -120,9 +129,12 @@ void RenderThread::onEndFrame()
 
 			GHIThreadCaller caller(m_ghiThread);
 
-			renderData.scene.setupGHIForPendingResources(caller);
-			renderData.scene.createGHICommandsForCustomRenderContents(caller);
-			renderData.scene.cleanupGHIForPendingResources(caller);
+			for(auto& scene : renderData.scenes)
+			{
+				scene->setupGHIForPendingResources(caller);
+				scene->createGHICommandsForCustomRenderContents(caller);
+				scene->cleanupGHIForPendingResources(caller);
+			}
 
 			m_ghiThread.endFrame();
 		});

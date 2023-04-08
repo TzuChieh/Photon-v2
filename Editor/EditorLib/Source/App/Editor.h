@@ -14,6 +14,7 @@
 #include "EditorCore/FileSystemExplorer.h"
 
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
 #include <Utility/TFunction.h>
 #include <Utility/TUniquePtrVector.h>
 #include <Utility/INoCopyAndMove.h>
@@ -25,6 +26,9 @@ namespace ph::editor
 {
 
 class DesignerScene;
+class MainThreadUpdateContext;
+class MainThreadRenderUpdateContext;
+class RenderThreadCaller;
 
 class Editor final : private INoCopyAndMove
 {
@@ -37,8 +41,12 @@ public:
 	Editor();
 	~Editor();
 
-	DesignerScene& createScene(std::size_t* out_sceneIndex = nullptr);
+	void updateScenes(const MainThreadUpdateContext& ctx);
+	void renderUpdateScenes(const MainThreadRenderUpdateContext& ctx);
+	void createRenderCommandsForScenes(RenderThreadCaller& caller);
+	std::size_t createScene();
 	DesignerScene* getScene(std::size_t sceneIndex) const;
+	void removeScene(std::size_t sceneIndex);
 	std::size_t numScenes() const;
 
 private:

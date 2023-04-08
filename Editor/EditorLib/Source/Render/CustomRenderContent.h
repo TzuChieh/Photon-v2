@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RTRResource.h"
+#include "Render/RendererResource.h"
 
 namespace ph::editor
 {
@@ -14,7 +14,7 @@ enum class ERenderTiming
 	AfterMainScene
 };
 
-class CustomRenderContent : public RTRResource
+class CustomRenderContent : public RendererResource
 {
 public:
 	explicit CustomRenderContent(ERenderTiming renderTiming);

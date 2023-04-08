@@ -9,7 +9,7 @@
 #include "Render/Imgui/ImguiRenderContent.h"
 #include "Render/RenderThreadCaller.h"
 #include "Render/RenderData.h"
-#include "Render/RTRScene.h"
+#include "Render/RendererScene.h"
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
 
@@ -126,7 +126,7 @@ void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 	caller.add(
 		[renderContent = std::move(renderContent)](RenderData& renderData) mutable
 		{
-			renderData.scene.addCustomRenderContent(std::move(renderContent));
+			renderData.getPersistentScene().addCustomRenderContent(std::move(renderContent));
 		});
 }
 
@@ -148,7 +148,7 @@ void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 	caller.add(
 		[renderContent = m_renderContent](RenderData& renderData) mutable
 		{
-			renderData.scene.removeCustomRenderContent(renderContent);
+			renderData.getPersistentScene().removeCustomRenderContent(renderContent);
 		});
 
 	m_imageLibrary.removeTextures(caller);

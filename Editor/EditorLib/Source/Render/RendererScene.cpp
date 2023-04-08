@@ -1,4 +1,4 @@
-#include "Render/RTRScene.h"
+#include "Render/RendererScene.h"
 #include "Render/RenderThreadUpdateContext.h"
 
 #include <Common/assertion.h>
@@ -9,13 +9,13 @@
 namespace ph::editor
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(RTRScene, Render);
+PH_DEFINE_INTERNAL_LOG_GROUP(RendererScene, Render);
 
-RTRScene::RTRScene() = default;
+RendererScene::RendererScene() = default;
 
-RTRScene::RTRScene(RTRScene&& other) = default;
+RendererScene::RendererScene(RendererScene&& other) = default;
 
-RTRScene::~RTRScene()
+RendererScene::~RendererScene()
 {
 	bool hasRemainedResources = false;
 
@@ -23,7 +23,7 @@ RTRScene::~RTRScene()
 	{
 		hasRemainedResources = true;
 
-		PH_LOG_ERROR(RTRScene, 
+		PH_LOG_ERROR(RendererScene,
 			"{} resources are leaked; remove the resource when you are done with it", 
 			m_resources.size());
 	}
@@ -37,39 +37,39 @@ RTRScene::~RTRScene()
 
 	if(hasRemainedResources)
 	{
-		PH_LOG_WARNING(RTRScene,
+		PH_LOG_WARNING(RendererScene,
 			"remained resources detected on scene destruction");
 
 		reportResourceStates();
 	}
 }
 
-void RTRScene::addResource(std::unique_ptr<RTRResource> resource)
+void RendererScene::addResource(std::unique_ptr<RendererResource> resource)
 {
 	if(!resource)
 	{
-		PH_LOG_WARNING(RTRScene,
+		PH_LOG_WARNING(RendererScene,
 			"resource not added since it is empty");
 		return;
 	}
 
-	RTRResource* const resourcePtr = resource.get();
+	RendererResource* const resourcePtr = resource.get();
 	m_resources.add(std::move(resource));
 	m_resourcesPendingSetup.push_back(resourcePtr);
 }
 
-void RTRScene::setupGHIForPendingResources(GHIThreadCaller& caller)
+void RendererScene::setupGHIForPendingResources(GHIThreadCaller& caller)
 {
-	for(RTRResource* const resource : m_resourcesPendingSetup)
+	for(RendererResource* const resource : m_resourcesPendingSetup)
 	{
 		resource->setupGHI(caller);
 	}
 	m_resourcesPendingSetup.clear();
 }
 
-void RTRScene::cleanupGHIForPendingResources(GHIThreadCaller& caller)
+void RendererScene::cleanupGHIForPendingResources(GHIThreadCaller& caller)
 {
-	for(RTRResource* const resource : m_resourcesPendingCleanup)
+	for(RendererResource* const resource : m_resourcesPendingCleanup)
 	{
 		resource->cleanupGHI(caller);
 	}
@@ -83,25 +83,25 @@ void RTRScene::cleanupGHIForPendingResources(GHIThreadCaller& caller)
 	m_resourcesPendingCleanup.clear();
 }
 
-void RTRScene::destroyPendingResources()
+void RendererScene::destroyPendingResources()
 {
-	for(RTRResource* const resourcePtr : m_resourcesPendingDestroy)
+	for(RendererResource* const resourcePtr : m_resourcesPendingDestroy)
 	{
 		auto resource = m_resources.remove(resourcePtr);
 		if(!resource)
 		{
-			PH_LOG_WARNING(RTRScene,
+			PH_LOG_WARNING(RendererScene,
 				"on resource destruction: did not find specified resource, one resource not destroyed");
 		}
 	}
 	m_resourcesPendingDestroy.clear();
 }
 
-void RTRScene::removeResource(RTRResource* const resourcePtr)
+void RendererScene::removeResource(RendererResource* const resourcePtr)
 {
 	if(!resourcePtr)
 	{
-		PH_LOG_WARNING(RTRScene,
+		PH_LOG_WARNING(RendererScene,
 			"resource removal ignored since it is empty");
 		return;
 	}
@@ -109,11 +109,11 @@ void RTRScene::removeResource(RTRResource* const resourcePtr)
 	m_resourcesPendingCleanup.push_back(resourcePtr);
 }
 
-void RTRScene::addCustomRenderContent(std::unique_ptr<CustomRenderContent> content)
+void RendererScene::addCustomRenderContent(std::unique_ptr<CustomRenderContent> content)
 {
 	if(!content)
 	{
-		PH_LOG_WARNING(RTRScene,
+		PH_LOG_WARNING(RendererScene,
 			"custom render content ignored since it is empty");
 		return;
 	}
@@ -122,7 +122,7 @@ void RTRScene::addCustomRenderContent(std::unique_ptr<CustomRenderContent> conte
 	addResource(std::move(content));
 }
 
-void RTRScene::updateCustomRenderContents(const RenderThreadUpdateContext& ctx)
+void RendererScene::updateCustomRenderContents(const RenderThreadUpdateContext& ctx)
 {
 	for(CustomRenderContent* const content : m_customRenderContents)
 	{
@@ -130,7 +130,7 @@ void RTRScene::updateCustomRenderContents(const RenderThreadUpdateContext& ctx)
 	}
 }
 
-void RTRScene::createGHICommandsForCustomRenderContents(GHIThreadCaller& caller)
+void RendererScene::createGHICommandsForCustomRenderContents(GHIThreadCaller& caller)
 {
 	for(CustomRenderContent* const content : m_customRenderContents)
 	{
@@ -138,7 +138,7 @@ void RTRScene::createGHICommandsForCustomRenderContents(GHIThreadCaller& caller)
 	}
 }
 
-void RTRScene::removeCustomRenderContent(CustomRenderContent* const content)
+void RendererScene::removeCustomRenderContent(CustomRenderContent* const content)
 {
 	for(CustomRenderContent*& content : m_customRenderContents)
 	{
@@ -149,15 +149,15 @@ void RTRScene::removeCustomRenderContent(CustomRenderContent* const content)
 	const auto numErasedContents = std::erase(m_customRenderContents, nullptr);
 	if(numErasedContents != 1)
 	{
-		PH_LOG_WARNING(RTRScene,
+		PH_LOG_WARNING(RendererScene,
 			"on custom render content removal: {}",
 			numErasedContents == 0 ? "content not found" : "duplicates found and removed");
 	}
 }
 
-void RTRScene::reportResourceStates()
+void RendererScene::reportResourceStates()
 {
-	PH_LOG(RTRScene,
+	PH_LOG(RendererScene,
 		"stats on resources:\n"
 		"# resources: {}\n"
 		"# pending setup: {}\n"
@@ -169,6 +169,6 @@ void RTRScene::reportResourceStates()
 		m_resourcesPendingDestroy.size());
 }
 
-RTRScene& RTRScene::operator = (RTRScene&& rhs) = default;
+RendererScene& RendererScene::operator = (RendererScene&& rhs) = default;
 
 }// end namespace ph::editor

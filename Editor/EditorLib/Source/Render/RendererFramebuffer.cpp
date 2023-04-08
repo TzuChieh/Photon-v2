@@ -1,4 +1,4 @@
-#include "Render/RTRFramebufferResource.h"
+#include "Render/RendererFramebuffer.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GHI.h"
 
@@ -7,22 +7,22 @@
 namespace ph::editor
 {
 
-RTRFramebufferResource::RTRFramebufferResource(
+RendererFramebuffer::RendererFramebuffer(
 	const GHIInfoFramebufferAttachment& attachments)
 
-	: RTRResource()
+	: RendererResource()
 
 	, m_attachments(attachments)
 	, m_ghiFramebuffer(nullptr)
 {}
 
-RTRFramebufferResource::~RTRFramebufferResource()
+RendererFramebuffer::~RendererFramebuffer()
 {
 	// Must have been released by GHI thread
 	PH_ASSERT(!m_ghiFramebuffer);
 }
 
-void RTRFramebufferResource::setupGHI(GHIThreadCaller& caller)
+void RendererFramebuffer::setupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GHI& ghi)
@@ -35,7 +35,7 @@ void RTRFramebufferResource::setupGHI(GHIThreadCaller& caller)
 		});
 }
 
-void RTRFramebufferResource::cleanupGHI(GHIThreadCaller& caller)
+void RendererFramebuffer::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GHI& ghi)

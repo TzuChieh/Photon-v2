@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Render/CustomRenderContent.h"
-#include "Render/RTRResource.h"
+#include "Render/RendererResource.h"
+#include "Render/View/ProjectiveView.h"
 
 #include <Utility/TUniquePtrVector.h>
 #include <Utility/IMoveOnly.h>
@@ -17,18 +18,18 @@ class GHIThreadCaller;
 
 /*! @brief A real-time scene for the graphics device only.
 */
-class RTRScene final : private IMoveOnly
+class RendererScene final : private IMoveOnly
 {
 public:
-	RTRScene();
-	RTRScene(RTRScene&& other);
-	~RTRScene();
+	RendererScene();
+	RendererScene(RendererScene&& other);
+	~RendererScene();
 
-	void addResource(std::unique_ptr<RTRResource> resource);
+	void addResource(std::unique_ptr<RendererResource> resource);
 	void setupGHIForPendingResources(GHIThreadCaller& caller);
 	void cleanupGHIForPendingResources(GHIThreadCaller& caller);
 	void destroyPendingResources();
-	void removeResource(RTRResource* resourcePtr);
+	void removeResource(RendererResource* resourcePtr);
 
 	void addCustomRenderContent(std::unique_ptr<CustomRenderContent> content);
 	void updateCustomRenderContents(const RenderThreadUpdateContext& ctx);
@@ -37,13 +38,16 @@ public:
 
 	void reportResourceStates();
 
-	RTRScene& operator = (RTRScene&& rhs);
+	RendererScene& operator = (RendererScene&& rhs);
+
+public:
+	ProjectiveView mainView;
 
 private:
-	TUniquePtrVector<RTRResource> m_resources;
-	std::vector<RTRResource*> m_resourcesPendingSetup;
-	std::vector<RTRResource*> m_resourcesPendingCleanup;
-	std::vector<RTRResource*> m_resourcesPendingDestroy;
+	TUniquePtrVector<RendererResource> m_resources;
+	std::vector<RendererResource*> m_resourcesPendingSetup;
+	std::vector<RendererResource*> m_resourcesPendingCleanup;
+	std::vector<RendererResource*> m_resourcesPendingDestroy;
 	std::vector<CustomRenderContent*> m_customRenderContents;
 };
 

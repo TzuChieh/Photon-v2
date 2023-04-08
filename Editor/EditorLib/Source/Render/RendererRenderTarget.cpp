@@ -1,5 +1,5 @@
-#include "Render/RTRRenderTargetResource.h"
-#include "Render/RTRFramebufferResource.h"
+#include "Render/RendererRenderTarget.h"
+#include "Render/RendererFramebuffer.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GHITexture2D.h"
 
@@ -9,13 +9,13 @@
 namespace ph::editor
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(RenderTarget, RTRResource);
+PH_DEFINE_INTERNAL_LOG_GROUP(RenderTarget, RendererResource);
 
-RTRRenderTargetResource::RTRRenderTargetResource(
+RendererRenderTarget::RendererRenderTarget(
 	const GHIInfoTextureFormat& format,
 	const math::Vector2S& sizePx)
 
-	: RTRTextureResource()
+	: RendererTexture()
 
 	, m_sizePx(lossless_integer_cast<uint32f>(sizePx.x()), lossless_integer_cast<uint32f>(sizePx.y()), 0)
 	, m_format(format)
@@ -27,12 +27,12 @@ RTRRenderTargetResource::RTRRenderTargetResource(
 	, m_framebufferResource(nullptr)
 {}
 	
-RTRRenderTargetResource::RTRRenderTargetResource(
-	RTRFramebufferResource* const framebufferResource,
+RendererRenderTarget::RendererRenderTarget(
+	RendererFramebuffer* const framebufferResource,
 	const uint32 attachmentIndex,
 	const bool isDepthStencilAttachment)
 
-	: RTRTextureResource()
+	: RendererTexture()
 
 	, m_sizePx(0)
 	, m_format()
@@ -74,14 +74,14 @@ RTRRenderTargetResource::RTRRenderTargetResource(
 	}
 }
 
-RTRRenderTargetResource::~RTRRenderTargetResource()
+RendererRenderTarget::~RendererRenderTarget()
 {
 	// Must have been released by GHI thread
 	PH_ASSERT(!m_ghiTexture);
 	PH_ASSERT(!m_ghiFramebuffer);
 }
 
-void RTRRenderTargetResource::setupGHI(GHIThreadCaller& caller)
+void RendererRenderTarget::setupGHI(GHIThreadCaller& caller)
 {
 	// Render target backed by existing framebuffer resource, copy the underlying GHI for our use
 	if(m_framebufferResource)
@@ -114,7 +114,7 @@ void RTRRenderTargetResource::setupGHI(GHIThreadCaller& caller)
 	}
 }
 
-void RTRRenderTargetResource::cleanupGHI(GHIThreadCaller& caller)
+void RendererRenderTarget::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GHI& ghi)

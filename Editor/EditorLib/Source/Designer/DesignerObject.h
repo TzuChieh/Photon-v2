@@ -11,10 +11,10 @@ class DesignerObject
 public:
 	virtual ~DesignerObject();
 
-	virtual void onInitialize(DesignerScene& scene);
-	virtual void onUninitialize(DesignerScene& scene);
-	virtual void onInitialize(RenderThreadCaller& caller);
-	virtual void onUninitialize(RenderThreadCaller& caller);
+	virtual void onInit(DesignerScene& scene);
+	virtual void onUninit(DesignerScene& scene);
+	virtual void onRenderInit(RenderThreadCaller& caller);
+	virtual void onRenderUninit(RenderThreadCaller& caller);
 
 	void setScene(DesignerScene* scene);
 	DesignerScene& getScene();
