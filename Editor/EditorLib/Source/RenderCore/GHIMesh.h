@@ -1,7 +1,5 @@
 #pragma once
 
-#include "RenderCore/GHIStorage.h"
-
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
 #include <Utility/TSpan.h>
@@ -40,19 +38,19 @@ public:
 	bool isEmpty() const;
 };
 
-class GHIMeshStorage : public GHIStorage
+class GHIMesh
 {
 public:
-	GHIMeshStorage(
+	GHIMesh(
 		const GHIInfoMeshVertexLayout& layout,
 		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages);
 
-	GHIMeshStorage(
+	GHIMesh(
 		const GHIInfoMeshVertexLayout& layout,
 		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
 		const std::shared_ptr<GHIIndexStorage>& indexStorage);
 
-	~GHIMeshStorage() override;
+	virtual ~GHIMesh();
 
 	virtual void bind() = 0;
 
@@ -79,42 +77,42 @@ inline bool GHIInfoMeshVertexLayout::isEmpty() const
 	return numAttributes == 0;
 }
 
-inline const GHIInfoMeshVertexLayout& GHIMeshStorage::getLayout() const
+inline const GHIInfoMeshVertexLayout& GHIMesh::getLayout() const
 {
 	return m_layout;
 }
 
-inline std::size_t GHIMeshStorage::numVertexStorages() const
+inline std::size_t GHIMesh::numVertexStorages() const
 {
 	return m_vertexStorages.size();
 }
 
-inline const GHIVertexStorage& GHIMeshStorage::getVertexStorage(const std::size_t storageIndex) const
+inline const GHIVertexStorage& GHIMesh::getVertexStorage(const std::size_t storageIndex) const
 {
 	PH_ASSERT_LT(storageIndex, m_vertexStorages.size());
 	PH_ASSERT(m_vertexStorages[storageIndex]);
 	return *m_vertexStorages[storageIndex].get();
 }
 
-inline GHIVertexStorage& GHIMeshStorage::getVertexStorage(const std::size_t storageIndex)
+inline GHIVertexStorage& GHIMesh::getVertexStorage(const std::size_t storageIndex)
 {
 	PH_ASSERT_LT(storageIndex, m_vertexStorages.size());
 	PH_ASSERT(m_vertexStorages[storageIndex]);
 	return *m_vertexStorages[storageIndex];
 }
 
-inline bool GHIMeshStorage::hasIndexStorage() const
+inline bool GHIMesh::hasIndexStorage() const
 {
 	return m_indexStorage != nullptr;
 }
 
-inline const GHIIndexStorage& GHIMeshStorage::getIndexStorage() const
+inline const GHIIndexStorage& GHIMesh::getIndexStorage() const
 {
 	PH_ASSERT(m_indexStorage);
 	return *m_indexStorage;
 }
 
-inline GHIIndexStorage& GHIMeshStorage::getIndexStorage()
+inline GHIIndexStorage& GHIMesh::getIndexStorage()
 {
 	PH_ASSERT(m_indexStorage);
 	return *m_indexStorage;

@@ -82,6 +82,9 @@ concept CNumber = std::is_arithmetic_v<NumberType>;
 template<typename TypeA, typename TypeB>
 concept CSame = std::same_as<TypeA, TypeB>;
 
+/*! @brief Checks whether @p DerivedType is derived from @p BaseType.
+The result is `true` if both types are the same.
+*/
 template<typename DerivedType, typename BaseType>
 concept CDerived = std::derived_from<DerivedType, BaseType>;
 

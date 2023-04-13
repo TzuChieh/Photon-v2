@@ -4,17 +4,24 @@
 #include "RenderCore/ghi_states.h"
 #include "RenderCore/GHITexture2D.h"
 #include "RenderCore/GHIFramebuffer.h"
+#include "RenderCore/GHIShader.h"
+#include "RenderCore/GHIShaderProgram.h"
+#include "RenderCore/GHIVertexStorage.h"
+#include "RenderCore/GHIIndexStorage.h"
+#include "RenderCore/GHIMesh.h"
 
 #include <Utility/INoCopyAndMove.h>
 #include <Common/logging.h>
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 #include <Math/TVector4.h>
+#include <Utility/TSpan.h>
 
 #include <source_location>
 #include <type_traits>
 #include <string>
 #include <memory>
+#include <cstddef>
 
 namespace ph::editor
 {
@@ -22,7 +29,7 @@ namespace ph::editor
 PH_DECLARE_LOG_GROUP(GHI);
 
 class GHIInfoDeviceCapability;
-class GHIMeshStorage;
+class GHIMesh;
 
 /*! @brief Graphics API abstraction.
 @exception PlatformException When error occurred and the platform must terminate its operations.
@@ -60,7 +67,7 @@ public:
 
 	virtual void setClearColor(const math::Vector4F& color) = 0;
 
-	virtual void draw(GHIMeshStorage& meshStorage, EGHIInfoMeshDrawMode drawMode) = 0;
+	virtual void draw(GHIMesh& mesh, EGHIInfoMeshDrawMode drawMode) = 0;
 
 	virtual void swapBuffers() = 0;
 
@@ -70,6 +77,30 @@ public:
 
 	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) = 0;
+
+	virtual std::shared_ptr<GHIShader> createShader(
+		std::string name, 
+		EGHIInfoShadingStage shadingStage,
+		std::string shaderSource) = 0;
+
+	virtual std::shared_ptr<GHIShaderProgram> createShaderProgram(
+		std::string name,
+		const GHIShaderSet& shaders) = 0;
+
+	virtual std::shared_ptr<GHIVertexStorage> createVertexStorage(
+		const GHIInfoVertexGroupFormat& format,
+		std::size_t numVertices,
+		EGHIInfoStorageUsage usage) = 0;
+
+	virtual std::shared_ptr<GHIIndexStorage> createIndexStorage(
+		EGHIInfoStorageElement indexType,
+		std::size_t numIndices,
+		EGHIInfoStorageUsage usage) = 0;
+
+	virtual std::shared_ptr<GHIMesh> createMesh(
+		const GHIInfoMeshVertexLayout& layout,
+		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+		const std::shared_ptr<GHIIndexStorage>& indexStorage) = 0;
 
 	virtual GHIInfoDeviceCapability getDeviceCapabilities();
 

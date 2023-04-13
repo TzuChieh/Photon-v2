@@ -22,7 +22,7 @@ public:
 	void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override;
 	void clearBuffer(EClearTarget targets) override;
 	void setClearColor(const math::Vector4F& color) override;
-	void draw(GHIMeshStorage& meshStorage, EGHIInfoMeshDrawMode drawMode) override;
+	void draw(GHIMesh& mesh, EGHIInfoMeshDrawMode drawMode) override;
 	void swapBuffers() override;
 
 	std::shared_ptr<GHITexture2D> createTexture2D(
@@ -31,6 +31,30 @@ public:
 
 	std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) override;
+
+	std::shared_ptr<GHIShader> createShader(
+		std::string name,
+		EGHIInfoShadingStage shadingStage,
+		std::string shaderSource) override;
+
+	std::shared_ptr<GHIShaderProgram> createShaderProgram(
+		std::string name,
+		const GHIShaderSet& shaders) override;
+
+	std::shared_ptr<GHIVertexStorage> createVertexStorage(
+		const GHIInfoVertexGroupFormat& format,
+		std::size_t numVertices,
+		EGHIInfoStorageUsage usage) override;
+
+	std::shared_ptr<GHIIndexStorage> createIndexStorage(
+		EGHIInfoStorageElement indexType,
+		std::size_t numIndices,
+		EGHIInfoStorageUsage usage) override;
+
+	std::shared_ptr<GHIMesh> createMesh(
+		const GHIInfoMeshVertexLayout& layout,
+		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+		const std::shared_ptr<GHIIndexStorage>& indexStorage) override;
 
 	GHIInfoDeviceCapability getDeviceCapabilities() override;
 

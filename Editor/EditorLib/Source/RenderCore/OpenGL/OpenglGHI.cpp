@@ -6,9 +6,11 @@
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
 #include "RenderCore/GHIInfoDeviceCapability.h"
 #include "RenderCore/OpenGL/Opengl.h"
-#include "RenderCore/GHIMeshStorage.h"
-#include "RenderCore/GHIIndexStorage.h"
-#include "RenderCore/GHIVertexStorage.h"
+#include "RenderCore/OpenGL/OpenglMesh.h"
+#include "RenderCore/OpenGL/OpenglIndexStorage.h"
+#include "RenderCore/OpenGL/OpenglVertexStorage.h"
+#include "RenderCore/OpenGL/OpenglShader.h"
+#include "RenderCore/OpenGL/OpenglShaderProgram.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -257,13 +259,13 @@ void OpenglGHI::setClearColor(const math::Vector4F& color)
 		lossless_cast<GLclampf>(color.a()));
 }
 
-void OpenglGHI::draw(GHIMeshStorage& meshStorage, const EGHIInfoMeshDrawMode drawMode)
+void OpenglGHI::draw(GHIMesh& mesh, const EGHIInfoMeshDrawMode drawMode)
 {
-	meshStorage.bind();
+	mesh.bind();
 
-	if(meshStorage.hasIndexStorage())
+	if(mesh.hasIndexStorage())
 	{
-		const GHIIndexStorage& indexStorage = meshStorage.getIndexStorage();
+		const GHIIndexStorage& indexStorage = mesh.getIndexStorage();
 
 		glDrawElements(
 			opengl::translate(drawMode), 
@@ -271,18 +273,18 @@ void OpenglGHI::draw(GHIMeshStorage& meshStorage, const EGHIInfoMeshDrawMode dra
 			opengl::translate(indexStorage.getIndexType()),
 			reinterpret_cast<GLbyte*>(0));
 	}
-	else if(meshStorage.numVertexStorages() > 0)
+	else if(mesh.numVertexStorages() > 0)
 	{
 		glDrawArrays(
 			opengl::translate(drawMode),
 			0,
-			lossless_cast<GLsizei>(meshStorage.getVertexStorage(0).numVertices()));
+			lossless_cast<GLsizei>(mesh.getVertexStorage(0).numVertices()));
 	}
 	else
 	{
 		PH_LOG_ERROR(OpenglGHI,
 			"cannot draw mesh; index buffer: {}, # vertex buffers: {}, draw mode: {}",
-			meshStorage.hasIndexStorage(), meshStorage.numVertexStorages(), enum_to_value(drawMode));
+			mesh.hasIndexStorage(), mesh.numVertexStorages(), enum_to_value(drawMode));
 	}
 }
 
@@ -303,6 +305,69 @@ std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer(
 	const GHIInfoFramebufferAttachment& attachments)
 {
 	return std::make_shared<OpenglFramebuffer>(attachments);
+}
+
+std::shared_ptr<GHIShader> OpenglGHI::createShader(
+	std::string name,
+	const EGHIInfoShadingStage shadingStage,
+	std::string shaderSource)
+{
+	return std::make_shared<OpenglShader>(
+		std::move(name),
+		shadingStage,
+		std::move(shaderSource));
+}
+
+std::shared_ptr<GHIShaderProgram> OpenglGHI::createShaderProgram(
+	std::string name,
+	const GHIShaderSet& shaders)
+{
+	if(shaders.vertexShader && shaders.fragmentShader)
+	{
+		return std::make_shared<OpenglShaderProgram>(
+			std::move(name),
+			shaders.vertexShader,
+			shaders.fragmentShader);
+	}
+	else
+	{
+		PH_LOG_ERROR(OpenglGHI,
+			"cannot create shader program (some shaders are missing)");
+		return nullptr;
+	}
+}
+
+std::shared_ptr<GHIVertexStorage> OpenglGHI::createVertexStorage(
+	const GHIInfoVertexGroupFormat& format,
+	const std::size_t numVertices,
+	const EGHIInfoStorageUsage usage)
+{
+	return std::make_shared<OpenglVertexStorage>(
+		format,
+		numVertices,
+		usage);
+}
+
+std::shared_ptr<GHIIndexStorage> OpenglGHI::createIndexStorage(
+	const EGHIInfoStorageElement indexType,
+	const std::size_t numIndices,
+	const EGHIInfoStorageUsage usage)
+{
+	return std::make_shared<OpenglIndexStorage>(
+		indexType, 
+		numIndices,
+		usage);
+}
+
+std::shared_ptr<GHIMesh> OpenglGHI::createMesh(
+	const GHIInfoMeshVertexLayout& layout,
+	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+	const std::shared_ptr<GHIIndexStorage>& indexStorage)
+{
+	return std::make_shared<OpenglMesh>(
+		layout,
+		vertexStorages,
+		indexStorage);
 }
 
 GHIInfoDeviceCapability OpenglGHI::getDeviceCapabilities()

@@ -1,4 +1,4 @@
-#include "RenderCore/GHIMeshStorage.h"
+#include "RenderCore/GHIMesh.h"
 
 namespace ph::editor
 {
@@ -8,36 +8,34 @@ GHIInfoMeshVertexLayout::GHIInfoMeshVertexLayout()
 	, numAttributes(0)
 {}
 
-GHIMeshStorage::GHIMeshStorage(
+GHIMesh::GHIMesh(
 	const GHIInfoMeshVertexLayout& layout,
 	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages)
 
-	: GHIMeshStorage(layout, vertexStorages, nullptr)
+	: GHIMesh(layout, vertexStorages, nullptr)
 {}
 
 
-GHIMeshStorage::GHIMeshStorage(
+GHIMesh::GHIMesh(
 	const GHIInfoMeshVertexLayout& layout,
 	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
 	const std::shared_ptr<GHIIndexStorage>& indexStorage)
 
-	: GHIStorage(EGHIInfoStorageUsage::Unspecified)
-
-	, m_layout()
+	: m_layout()
 	, m_vertexStorages(vertexStorages.begin(), vertexStorages.end())
 	, m_indexStorage(indexStorage)
 {}
 
-GHIMeshStorage::~GHIMeshStorage() = default;
+GHIMesh::~GHIMesh() = default;
 
-std::shared_ptr<GHIVertexStorage> GHIMeshStorage::getVertexStorageResource(const std::size_t storageIndex) const
+std::shared_ptr<GHIVertexStorage> GHIMesh::getVertexStorageResource(const std::size_t storageIndex) const
 {
 	return storageIndex < m_vertexStorages.size()
 		? m_vertexStorages[storageIndex]
 		: nullptr;
 }
 
-std::shared_ptr<GHIIndexStorage> GHIMeshStorage::getIndexStorageResource() const
+std::shared_ptr<GHIIndexStorage> GHIMesh::getIndexStorageResource() const
 {
 	return m_indexStorage;
 }

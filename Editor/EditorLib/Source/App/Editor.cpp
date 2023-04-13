@@ -44,7 +44,7 @@ std::size_t Editor::createScene()
 {
 	DesignerScene* const scene = m_scenes.add(std::make_unique<DesignerScene>());
 	PH_ASSERT(scene != nullptr);
-	scene->onSceneCreated(this);
+	scene->onCreate(this);
 
 	const std::size_t sceneIndex = m_scenes.size() - 1;
 	return sceneIndex;
@@ -63,7 +63,7 @@ void Editor::removeScene(const std::size_t sceneIndex)
 
 	std::unique_ptr<DesignerScene> scene = m_scenes.remove(sceneIndex);
 	PH_ASSERT(scene != nullptr);
-	scene->onSceneRemoved();
+	scene->onRemove();
 }
 
 void Editor::flushAllEvents()

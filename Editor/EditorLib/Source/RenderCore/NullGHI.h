@@ -29,7 +29,7 @@ public:
 	inline void setClearColor(const math::Vector4F& color) override
 	{}
 
-	inline void draw(GHIMeshStorage& meshStorage, EGHIInfoMeshDrawMode drawMode) override
+	inline void draw(GHIMesh& mesh, EGHIInfoMeshDrawMode drawMode) override
 	{}
 
 	inline void swapBuffers() override
@@ -44,6 +44,45 @@ public:
 
 	inline std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) override
+	{
+		return nullptr;
+	}
+
+	inline std::shared_ptr<GHIShader> createShader(
+		std::string name,
+		EGHIInfoShadingStage shadingStage,
+		std::string shaderSource) override
+	{
+		return nullptr;
+	}
+
+	inline std::shared_ptr<GHIShaderProgram> createShaderProgram(
+		std::string name,
+		const GHIShaderSet& shaders) override
+	{
+		return nullptr;
+	}
+
+	inline std::shared_ptr<GHIVertexStorage> createVertexStorage(
+		const GHIInfoVertexGroupFormat& format,
+		std::size_t numVertices,
+		EGHIInfoStorageUsage usage) override
+	{
+		return nullptr;
+	}
+
+	inline std::shared_ptr<GHIIndexStorage> createIndexStorage(
+		EGHIInfoStorageElement indexType,
+		std::size_t numIndices,
+		EGHIInfoStorageUsage usage) override
+	{
+		return nullptr;
+	}
+
+	inline std::shared_ptr<GHIMesh> createMesh(
+		const GHIInfoMeshVertexLayout& layout,
+		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
+		const std::shared_ptr<GHIIndexStorage>& indexStorage) override
 	{
 		return nullptr;
 	}

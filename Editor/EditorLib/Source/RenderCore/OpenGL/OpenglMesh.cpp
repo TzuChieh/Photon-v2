@@ -1,4 +1,4 @@
-#include "RenderCore/OpenGL/OpenglMeshStorage.h"
+#include "RenderCore/OpenGL/OpenglMesh.h"
 #include "RenderCore/GHIVertexStorage.h"
 #include "RenderCore/GHIIndexStorage.h"
 #include "RenderCore/OpenGL/opengl_enums.h"
@@ -10,19 +10,19 @@
 namespace ph::editor
 {
 
-OpenglMeshStorage::OpenglMeshStorage(
+OpenglMesh::OpenglMesh(
 	const GHIInfoMeshVertexLayout& layout,
 	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages)
 	
-	: OpenglMeshStorage(layout, vertexStorages, nullptr)
+	: OpenglMesh(layout, vertexStorages, nullptr)
 {}
 
-OpenglMeshStorage::OpenglMeshStorage(
+OpenglMesh::OpenglMesh(
 	const GHIInfoMeshVertexLayout& layout,
 	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
 	const std::shared_ptr<GHIIndexStorage>& indexStorage)
 
-	: GHIMeshStorage(layout, vertexStorages, indexStorage)
+	: GHIMesh(layout, vertexStorages, indexStorage)
 
 	, m_vaoID(0)
 {
@@ -71,26 +71,26 @@ OpenglMeshStorage::OpenglMeshStorage(
 		     indexStorage.getIndexType() == EGHIInfoStorageElement::UInt32))
 		{
 			PH_DEFAULT_LOG_ERROR(
-				"[OpenglMeshStorage] using index storage with unsupported index type for drawing");
+				"[OpenglMesh] using index storage with unsupported index type for drawing");
 		}
 
 		glVertexArrayElementBuffer(m_vaoID, getOpenglHandle(getIndexStorage()));
 	}
 }
 
-OpenglMeshStorage::~OpenglMeshStorage()
+OpenglMesh::~OpenglMesh()
 {
 	glDeleteVertexArrays(1, &m_vaoID);
 }
 
-void OpenglMeshStorage::bind()
+void OpenglMesh::bind()
 {
 	PH_ASSERT_NE(m_vaoID, 0);
 
 	glBindVertexArray(m_vaoID);
 }
 
-GLuint OpenglMeshStorage::getOpenglHandle(GHIStorage& storage)
+GLuint OpenglMesh::getOpenglHandle(GHIStorage& storage)
 {
 	const auto nativeHandle = storage.getNativeHandle();
 

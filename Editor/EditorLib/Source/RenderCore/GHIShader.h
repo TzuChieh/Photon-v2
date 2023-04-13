@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 #include <variant>
+#include <memory>
 
 namespace ph::editor
 {
@@ -46,5 +47,16 @@ inline EGHIInfoShadingStage GHIShader::getShadingStage() const
 {
 	return m_shadingStage;
 }
+
+/*!
+Basically stores a shader reference for each `EGHIInfoShadingStage` entry.
+*/
+class GHIShaderSet final
+{
+public:
+	std::shared_ptr<GHIShader> vertexShader;
+	std::shared_ptr<GHIShader> fragmentShader;
+	std::shared_ptr<GHIShader> computeShader;
+};
 
 }// end namespace ph::editor

@@ -111,6 +111,7 @@ void RendererRenderTarget::setupGHI(GHIThreadCaller& caller)
 	else
 	{
 		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 }
 
