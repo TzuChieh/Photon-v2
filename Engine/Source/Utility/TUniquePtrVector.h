@@ -43,6 +43,8 @@ public:
 	void clearRange(std::size_t beginIndex, std::size_t endIndex);
 
 	BaseType* get(std::size_t index) const;
+	BaseType* first() const;
+	BaseType* last() const;
 
 	std::unique_ptr<BaseType>& getUniquePtr(std::size_t index);
 	const std::unique_ptr<BaseType>& getUniquePtr(std::size_t index) const;
@@ -162,6 +164,20 @@ template<typename BaseType>
 inline BaseType* TUniquePtrVector<BaseType>::get(const std::size_t index) const
 {
 	return index < m_uniquePtrs.size() ? getUniquePtr(index).get() : nullptr;
+}
+
+template<typename BaseType>
+inline BaseType* TUniquePtrVector<BaseType>::first() const
+{
+	PH_ASSERT(!isEmpty());
+	return m_uniquePtrs[0].get();
+}
+
+template<typename BaseType>
+inline BaseType* TUniquePtrVector<BaseType>::last() const
+{
+	PH_ASSERT(!isEmpty());
+	return m_uniquePtrs[size() - 1].get();
 }
 
 template<typename BaseType>

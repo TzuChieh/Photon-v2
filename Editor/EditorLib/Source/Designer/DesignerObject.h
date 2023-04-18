@@ -2,13 +2,16 @@
 
 #include "Designer/designer_fwd.h"
 
-#include <Utility/TSpan.h>
 #include <Common/primitive_type.h>
+#include <Common/config.h>
+#include <Utility/INoCopyAndMove.h>
+#include <Math/math.h>
+#include <Utility/TBitFlags.h>
 
 #include <string>
-#include <vector>
 #include <memory>
 #include <cstddef>
+#include <vector>
 
 namespace ph::editor
 {
@@ -18,42 +21,63 @@ class MainThreadUpdateContext;
 class MainThreadRenderUpdateContext;
 class RenderThreadCaller;
 
-class DesignerObject
+enum class EObjectState : uint32f
+{
+	// Lifetime management
+	Initialized = math::flag_bit<uint32f, 0>(),
+	RenderInitialized = math::flag_bit<uint32f, 1>(),
+	RenderUninitialized = math::flag_bit<uint32f, 2>(),
+	Uninitialized = math::flag_bit<uint32f, 3>(),
+
+	// Category
+	Root = math::flag_bit<uint32f, 4>(),
+	Ticking = math::flag_bit<uint32f, 5>(),
+	RenderTicking = math::flag_bit<uint32f, 6>()
+};
+
+class DesignerObject : private INoCopyAndMove
 {
 public:
-	DesignerObject();
+	explicit DesignerObject(DesignerScene* scene);
 	virtual ~DesignerObject();
 
-	virtual void onCreate(DesignerScene* scene);
-	virtual void onRemove();
-	virtual void onRenderInit(RenderThreadCaller& caller);
-	virtual void onRenderUninit(RenderThreadCaller& caller);
-	virtual void onUpdate(const MainThreadUpdateContext& ctx);
-	virtual void onRenderUpdate(const MainThreadRenderUpdateContext& ctx);
-	virtual void onCreateRenderCommands(RenderThreadCaller& caller);
+	virtual void init();
+	virtual void uninit();
+	virtual void renderInit(RenderThreadCaller& caller);
+	virtual void renderUninit(RenderThreadCaller& caller);
+	virtual void update(const MainThreadUpdateContext& ctx);
+	virtual void renderUpdate(const MainThreadRenderUpdateContext& ctx);
+	virtual void createRenderCommands(RenderThreadCaller& caller);
 
-	TSpanView<std::shared_ptr<DesignerObject>> getChildren() const;
-	const std::shared_ptr<DesignerObject>& getChild(std::size_t childIndex) const;
+	DesignerObject* getChild(std::size_t childIndex) const;
 	std::size_t numChildren() const;
+	bool hasChildren() const;
 
 	template<typename ChildType, typename... DeducedArgs>
-	const std::shared_ptr<DesignerObject>& createChild(DeducedArgs&&... args);
+	ChildType* initNewChild(DeducedArgs&&... args);
 
-	void setScene(DesignerScene* scene);
+	void removeChild(std::size_t childIndex, bool isRecursive = true);
 	void setName(std::string name);
-	void setTick(bool isTicking);
-	void setRenderTick(bool isTicking);
-
+	void setTick(bool shouldTick);
+	void setRenderTick(bool shouldTick);
 	DesignerScene& getScene();
 	const DesignerScene& getScene() const;
 	const std::string& getName() const;
+	bool isRemoved() const;
+	const TEnumFlags<EObjectState>& getState() const;
 
 private:
-	std::vector<std::shared_ptr<DesignerObject>> m_children;
 	DesignerScene* m_scene;
+	std::vector<DesignerObject*> m_children;
 	std::string m_name;
-	uint32 m_isTicking : 1;
-	uint32 m_isRenderTicking : 1;
+	uint32 m_isRemoved : 1;
+
+private:
+	friend class DesignerScene;
+
+	TEnumFlags<EObjectState> m_state;
+
+	TEnumFlags<EObjectState>& getState();
 };
 
 }// end namespace ph::editor

@@ -4,9 +4,12 @@
 #include "Designer/ViewportCamera.h"
 
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
+#include <Utility/TUniquePtrVector.h>
 
 #include <vector>
 #include <memory>
+#include <cstddef>
 
 namespace ph::editor
 {
@@ -19,44 +22,65 @@ class RenderThreadCaller;
 class DesignerScene final
 {
 public:
-	DesignerScene();
+	explicit DesignerScene(Editor* fromEditor);
 	~DesignerScene();
-
-	// TODO: create typed designer object
 
 	void update(const MainThreadUpdateContext& ctx);
 	void renderUpdate(const MainThreadRenderUpdateContext& ctx);
 	void createRenderCommands(RenderThreadCaller& caller);
+	void beforeUpdateStage();
+	void afterUpdateStage();
+	void beforeRenderStage();
+	void afterRenderStage();
 
-	void onCreate(Editor* fromEditor);
-	void onRemove();
-	void onObjectCreated(DesignerObject* obj);
-	void onObjectRemoved(std::shared_ptr<DesignerObject> obj);
-	void onObjectTickStateChanged(DesignerObject* obj, bool isTicking);
-	void onObjectRenderTickStateChanged(DesignerObject* obj, bool isTicking);
+	void markObjectTickState(DesignerObject* obj, bool markTick);
+	void markObjectRenderTickState(DesignerObject* obj, bool markTick);
+
+	template<typename ObjectType, typename... DeducedArgs>
+	[[nodiscard]]
+	ObjectType* initNewObject(DeducedArgs&&... args);
+
+	template<typename ObjectType, typename... DeducedArgs>
+	ObjectType* initNewRootObject(DeducedArgs&&... args);
+
+	void removeObject(DesignerObject* obj);
 
 	Editor& getEditor();
 	const Editor& getEditor() const;
 
 private:
-	std::vector<std::shared_ptr<DesignerObject>> m_rootObjs;
-	std::vector<DesignerObject*> m_pendingTickObjs;
-	std::vector<DesignerObject*> m_pendingRenderTickObjs;
+	enum class EObjectAction : uint8
+	{
+		None,
+		Create,
+		Remove,
+		EnableTick,
+		DisableTick,
+		EnableRenderTick,
+		DisableRenderTick
+	};
+
+	struct ObjectAction
+	{
+		DesignerObject* obj = nullptr;
+		EObjectAction action = EObjectAction::None;
+
+		void done();
+		bool isDone() const;
+	};
+
+	void queueObjectAction(DesignerObject* obj, EObjectAction objAction);
+
+private:
+	TUniquePtrVector<DesignerObject> m_objs;
+	std::vector<DesignerObject*> m_rootObjs;
+	std::vector<DesignerObject*> m_tickingObjs;
+	std::vector<DesignerObject*> m_renderTickingObjs;
+	std::vector<ObjectAction> m_objActionQueue;
+	std::size_t m_numObjActionsToProcess;
 	Editor* m_editor;
 	ViewportCamera m_mainCamera;
 };
-
-inline Editor& DesignerScene::getEditor()
-{
-	PH_ASSERT(m_editor);
-	return *m_editor;
-}
-
-inline const Editor& DesignerScene::getEditor() const
-{
-	PH_ASSERT(m_editor);
-	return *m_editor;
-}
 
 }// end namespace ph::editor
 

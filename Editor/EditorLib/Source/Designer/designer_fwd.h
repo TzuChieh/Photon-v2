@@ -6,6 +6,7 @@ namespace ph::editor
 {
 
 class DesignerObject;
+class DesignerResource;
 class DesignerScene;
 
 }// end namespace ph::editor

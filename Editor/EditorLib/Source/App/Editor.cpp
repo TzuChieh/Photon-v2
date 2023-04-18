@@ -4,6 +4,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Utility/Timer.h>
 
 #include <memory>
 
@@ -16,15 +17,24 @@ Editor::Editor() = default;
 
 Editor::~Editor() = default;
 
-void Editor::updateScenes(const MainThreadUpdateContext& ctx)
+void Editor::update(const MainThreadUpdateContext& ctx)
 {
+	// Process events
+	{
+		auto eventFlushTimer = Timer().start();
+
+		flushAllEvents();
+
+		editorStats.mainThreadEventFlushMs = eventFlushTimer.stop().getDeltaMs<float32>();
+	}
+
 	for(auto& scene : m_scenes)
 	{
 		scene->update(ctx);
 	}
 }
 
-void Editor::renderUpdateScenes(const MainThreadRenderUpdateContext& ctx)
+void Editor::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
 	for(auto& scene : m_scenes)
 	{
@@ -32,7 +42,7 @@ void Editor::renderUpdateScenes(const MainThreadRenderUpdateContext& ctx)
 	}
 }
 
-void Editor::createRenderCommandsForScenes(RenderThreadCaller& caller)
+void Editor::createRenderCommands(RenderThreadCaller& caller)
 {
 	for(auto& scene : m_scenes)
 	{
@@ -40,11 +50,42 @@ void Editor::createRenderCommandsForScenes(RenderThreadCaller& caller)
 	}
 }
 
+void Editor::beforeUpdateStage()
+{
+	for(auto& scene : m_scenes)
+	{
+		scene->beforeUpdateStage();
+	}
+}
+
+void Editor::afterUpdateStage()
+{
+	for(auto& scene : m_scenes)
+	{
+		scene->afterUpdateStage();
+	}
+}
+
+void Editor::beforeRenderStage()
+{
+	for(auto& scene : m_scenes)
+	{
+		scene->beforeRenderStage();
+	}
+}
+
+void Editor::afterRenderStage()
+{
+	for(auto& scene : m_scenes)
+	{
+		scene->afterRenderStage();
+	}
+}
+
 std::size_t Editor::createScene()
 {
-	DesignerScene* const scene = m_scenes.add(std::make_unique<DesignerScene>());
+	DesignerScene* const scene = m_scenes.add(std::make_unique<DesignerScene>(this));
 	PH_ASSERT(scene != nullptr);
-	scene->onCreate(this);
 
 	const std::size_t sceneIndex = m_scenes.size() - 1;
 	return sceneIndex;
@@ -63,7 +104,8 @@ void Editor::removeScene(const std::size_t sceneIndex)
 
 	std::unique_ptr<DesignerScene> scene = m_scenes.remove(sceneIndex);
 	PH_ASSERT(scene != nullptr);
-	scene->onRemove();
+
+	// TODO: scene cleanup all
 }
 
 void Editor::flushAllEvents()

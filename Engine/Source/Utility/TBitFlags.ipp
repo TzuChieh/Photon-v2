@@ -93,6 +93,18 @@ inline bool TBitFlags<Value, Input>::hasExactly(const FlagsSet& flagsSet) const
 }
 
 template<typename Value, typename Input>
+inline bool TBitFlags<Value, Input>::has(const Input singleFlag) const
+{
+	return (m_bits & static_cast<Value>(singleFlag)) != 0;
+}
+
+template<typename Value, typename Input>
+inline bool TBitFlags<Value, Input>::hasNo(const Input singleFlag) const
+{
+	return (m_bits & static_cast<Value>(singleFlag)) == 0;
+}
+
+template<typename Value, typename Input>
 inline bool TBitFlags<Value, Input>::isEmpty() const
 {
 	return m_bits == 0;
@@ -114,9 +126,9 @@ template<typename Value, typename Input>
 inline Value TBitFlags<Value, Input>::collectFlags(const FlagsSet& flagsSet)
 {
 	Value inputFlags = 0;
-	for(const auto& flags : flagsSet)
+	for(const auto& flag : flagsSet)
 	{
-		inputFlags |= static_cast<Value>(flags);
+		inputFlags |= static_cast<Value>(flag);
 	}
 
 	return inputFlags;

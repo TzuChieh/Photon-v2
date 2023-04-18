@@ -165,28 +165,45 @@ void Application::appMainLoop()
 
 		m_editor.editorStats.mainThreadFrameMs = std::chrono::duration<float32, std::milli>(passedTime).count();
 
-		bool shouldRender = false;
+		bool hasUpdated = false;
+		bool hasRendered = false;
 		unprocessedTime += passedTime;
 
 		// Update
 		while(unprocessedTime > frameTime)
 		{
+			// Call only once in each main loop
+			if(!hasUpdated)
+			{
+				appBeforeUpdateStage();
+			}
+
 			auto updateTimer = Timer().start();
 
 			updateCtx.deltaS = std::chrono::duration<float64>(frameTime).count();
-
 			appUpdate(updateCtx);
 
 			++updateCtx.frameNumber;
 			unprocessedTime -= frameTime;
-			shouldRender = true;
+			hasUpdated = true;
 
 			m_editor.editorStats.mainThreadUpdateMs = updateTimer.stop().getDeltaMs<float32>();
 		}// If there's still bunch of unprocessed time, update the editor again
 
-		// Render update
-		if(shouldRender)
+		if(hasUpdated)
 		{
+			appAfterUpdateStage();
+		}
+
+		// Render update
+		if(hasUpdated)
+		{
+			// Call only once in each main loop
+			if(!hasRendered)
+			{
+				appBeforeRenderStage();
+			}
+
 			m_renderThread.beginFrame();
 
 			auto renderTimer = Timer().start();
@@ -194,10 +211,10 @@ void Application::appMainLoop()
 			const auto renderFrameInfo = m_renderThread.getFrameInfo();
 			renderUpdateCtx.frameNumber = renderFrameInfo.frameNumber;
 			renderUpdateCtx.frameCycleIndex = renderFrameInfo.frameCycleIndex;
-
 			appRenderUpdate(renderUpdateCtx);
 			appCreateRenderCommands();
 
+			hasRendered = true;
 			m_editor.editorStats.mainThreadRenderMs = renderTimer.stop().getDeltaMs<float32>();
 
 			m_renderThread.endFrame();
@@ -205,6 +222,11 @@ void Application::appMainLoop()
 
 		m_editor.editorStats.renderThreadFrameMs = m_renderThread.getFrameTimeMs();
 		m_editor.editorStats.ghiThreadFrameMs = m_renderThread.getGHIFrameTimeMs();
+
+		if(hasRendered)
+		{
+			appAfterRenderStage();
+		}
 
 		// Wait for next update
 		{
@@ -230,16 +252,7 @@ void Application::appMainLoop()
 
 void Application::appUpdate(const MainThreadUpdateContext& ctx)
 {
-	// Process events
-	{
-		auto eventFlushTimer = Timer().start();
-
-		m_editor.flushAllEvents();
-
-		m_editor.editorStats.mainThreadEventFlushMs = eventFlushTimer.stop().getDeltaMs<float32>();
-	}
-	
-	m_editor.updateScenes(ctx);
+	m_editor.update(ctx);
 
 	for(auto& procedureModule : m_procedureModules)
 	{
@@ -251,7 +264,7 @@ void Application::appUpdate(const MainThreadUpdateContext& ctx)
 
 void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
-	m_editor.renderUpdateScenes(ctx);
+	m_editor.renderUpdate(ctx);
 
 	for(auto& renderModule : m_renderModules)
 	{
@@ -263,7 +276,7 @@ void Application::appCreateRenderCommands()
 {
 	{
 		RenderThreadCaller caller(m_renderThread);
-		m_editor.createRenderCommandsForScenes(caller);
+		m_editor.createRenderCommands(caller);
 	}
 
 	for(auto& renderModule : m_renderModules)
@@ -271,6 +284,26 @@ void Application::appCreateRenderCommands()
 		RenderThreadCaller caller(m_renderThread);
 		renderModule->createRenderCommands(caller);
 	}
+}
+
+void Application::appBeforeUpdateStage()
+{
+	m_editor.beforeUpdateStage();
+}
+
+void Application::appAfterUpdateStage()
+{
+	m_editor.afterUpdateStage();
+}
+
+void Application::appBeforeRenderStage()
+{
+	m_editor.beforeRenderStage();
+}
+
+void Application::appAfterRenderStage()
+{
+	m_editor.afterRenderStage();
 }
 
 bool Application::attachProcedureModule(ProcedureModule* const inModule)

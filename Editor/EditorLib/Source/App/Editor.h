@@ -41,9 +41,14 @@ public:
 	Editor();
 	~Editor();
 
-	void updateScenes(const MainThreadUpdateContext& ctx);
-	void renderUpdateScenes(const MainThreadRenderUpdateContext& ctx);
-	void createRenderCommandsForScenes(RenderThreadCaller& caller);
+	void update(const MainThreadUpdateContext& ctx);
+	void renderUpdate(const MainThreadRenderUpdateContext& ctx);
+	void createRenderCommands(RenderThreadCaller& caller);
+	void beforeUpdateStage();
+	void afterUpdateStage();
+	void beforeRenderStage();
+	void afterRenderStage();
+
 	std::size_t createScene();
 	DesignerScene* getScene(std::size_t sceneIndex) const;
 	void removeScene(std::size_t sceneIndex);
@@ -61,8 +66,6 @@ public:
 	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
 	TEventDispatcher<AppModuleActionEvent> onAppModuleAction;
 
-	void flushAllEvents();
-
 	template<typename EventType>
 	void postEvent(const EventType& e, TEventDispatcher<EventType>& eventDispatcher);
 
@@ -71,6 +74,8 @@ private:
 	static void dispatchEventToListeners(
 		const EventType& e, 
 		TEventDispatcher<EventType>& eventDispatcher);
+
+	void flushAllEvents();
 
 	EditorEventQueue m_eventPostQueue;
 

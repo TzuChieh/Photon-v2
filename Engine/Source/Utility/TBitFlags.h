@@ -71,6 +71,9 @@ public:
 	/*! @brief Checks whether this instance contains exactly the specified flags. No more, no less.
 	*/
 	bool hasExactly(const FlagsSet& flagsSet) const;
+
+	bool has(Input singleFlag) const;
+	bool hasNo(Input singleFlag) const;
 	
 	/*! @brief Checks whether this instance contains no flags.
 	*/
