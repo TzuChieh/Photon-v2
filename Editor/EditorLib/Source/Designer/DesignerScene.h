@@ -5,6 +5,7 @@
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 #include <Utility/TUniquePtrVector.h>
 
 #include <vector>
@@ -18,6 +19,8 @@ class Editor;
 class MainThreadUpdateContext;
 class MainThreadRenderUpdateContext;
 class RenderThreadCaller;
+
+PH_DECLARE_LOG_GROUP(DesignerScene);
 
 class DesignerScene final
 {
@@ -44,6 +47,8 @@ public:
 	ObjectType* initNewRootObject(DeducedArgs&&... args);
 
 	void removeObject(DesignerObject* obj);
+	void renderCleanup(RenderThreadCaller& caller);
+	void cleanup();
 
 	Editor& getEditor();
 	const Editor& getEditor() const;

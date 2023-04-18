@@ -84,6 +84,8 @@ void Application::run()
 
 	finalRenderThreadUpdate();
 
+	m_editor.cleanup();
+
 	// Wait for render thread to actually stop
 	m_renderThread.waitForWorkerToStop();
 	Threads::setRenderThreadID(std::thread::id());
@@ -136,8 +138,12 @@ void Application::finalRenderThreadUpdate()
 		renderModule->createCleanupRenderCommands(caller);
 	}
 
-	m_renderThread.requestWorkerStop();
+	{
+		RenderThreadCaller caller(m_renderThread);
+		m_editor.renderCleanup(caller);
+	}
 
+	m_renderThread.requestWorkerStop();
 	m_renderThread.endFrame();
 }
 
@@ -247,7 +253,7 @@ void Application::appMainLoop()
 				loopCv.wait_for(loopLock, timeTillNextFrame);// TODO: check return type and possibly sleep more
 			}
 		}
-	}// end while `!m_shouldClose`
+	}// end while `!m_shouldBreakMainLoop`
 }
 
 void Application::appUpdate(const MainThreadUpdateContext& ctx)

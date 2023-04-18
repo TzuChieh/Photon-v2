@@ -20,7 +20,7 @@
 #include <Utility/INoCopyAndMove.h>
 
 #include <cstddef>
-#include <vector>
+#include <list>
 
 namespace ph::editor
 {
@@ -48,6 +48,8 @@ public:
 	void afterUpdateStage();
 	void beforeRenderStage();
 	void afterRenderStage();
+	void renderCleanup(RenderThreadCaller& caller);
+	void cleanup();
 
 	std::size_t createScene();
 	DesignerScene* getScene(std::size_t sceneIndex) const;
@@ -55,7 +57,18 @@ public:
 	std::size_t numScenes() const;
 
 private:
+	struct PendingRemovalScene
+	{
+		std::unique_ptr<DesignerScene> scene;
+		bool hasRenderCleanupDone = false;
+		bool hasCleanupDone = false;
+	};
+
 	TUniquePtrVector<DesignerScene> m_scenes;
+	std::list<PendingRemovalScene> m_removingScenes;
+
+	void renderCleanupRemovingScenes(RenderThreadCaller& caller);
+	void cleanupRemovingScenes();
 
 // Event System
 public:

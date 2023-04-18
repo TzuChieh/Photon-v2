@@ -12,7 +12,6 @@ DesignerObject::DesignerObject(DesignerScene* const scene)
 	: m_scene(scene)
 	, m_children()
 	, m_name()
-	, m_isRemoved(false)
 	, m_state()
 {
 	PH_ASSERT(m_scene != nullptr);
@@ -20,10 +19,13 @@ DesignerObject::DesignerObject(DesignerScene* const scene)
 
 DesignerObject::~DesignerObject()
 {
-	PH_ASSERT(m_state.has(EObjectState::Initialized));
-	PH_ASSERT(m_state.has(EObjectState::Uninitialized));
-	PH_ASSERT(m_state.has(EObjectState::RenderInitialized));
-	PH_ASSERT(m_state.has(EObjectState::RenderUninitialized));
+	// Initializations must happen either in pairs or not happen at all
+	PH_ASSERT(
+		(m_state.has(EObjectState::Initialized) && m_state.has(EObjectState::Uninitialized)) ||
+		(m_state.hasNo(EObjectState::Initialized) && m_state.hasNo(EObjectState::Uninitialized)));
+	PH_ASSERT(
+		(m_state.has(EObjectState::RenderInitialized) && m_state.has(EObjectState::RenderUninitialized)) ||
+		(m_state.hasNo(EObjectState::RenderInitialized) && m_state.hasNo(EObjectState::RenderUninitialized)));
 }
 
 void DesignerObject::init()
@@ -46,6 +48,15 @@ void DesignerObject::renderUninit(RenderThreadCaller& caller)
 	PH_ASSERT(m_state.hasNo(EObjectState::RenderUninitialized));
 }
 
+void DesignerObject::update(const MainThreadUpdateContext& ctx)
+{}
+
+void DesignerObject::renderUpdate(const MainThreadRenderUpdateContext& ctx)
+{}
+
+void DesignerObject::createRenderCommands(RenderThreadCaller& caller)
+{}
+
 void DesignerObject::removeChild(const std::size_t childIndex, const bool isRecursive)
 {
 	if(childIndex >= m_children.size())
@@ -66,13 +77,22 @@ void DesignerObject::removeChild(const std::size_t childIndex, const bool isRecu
 	// Actually remove from other children and the scene
 	m_children.erase(m_children.begin() + childIndex);
 	getScene().removeObject(objToRemove);
-	m_isRemoved = true;
 }
 
 void DesignerObject::setName(std::string name)
 {
 	// TODO: ensure unique name in scene
 	m_name = std::move(name);
+}
+
+void DesignerObject::setTick(const bool shouldTick)
+{
+	getScene().markObjectTickState(this, shouldTick);
+}
+
+void DesignerObject::setRenderTick(const bool shouldTick)
+{
+	getScene().markObjectRenderTickState(this, shouldTick);
 }
 
 }// end namespace ph::editor

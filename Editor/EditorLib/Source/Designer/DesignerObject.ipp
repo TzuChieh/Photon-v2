@@ -35,11 +35,6 @@ inline auto DesignerObject::getState()
 	return m_state;
 }
 
-inline bool DesignerObject::isRemoved() const
-{
-	return m_isRemoved;
-}
-
 inline DesignerScene& DesignerObject::getScene()
 {
 	PH_ASSERT(m_scene);

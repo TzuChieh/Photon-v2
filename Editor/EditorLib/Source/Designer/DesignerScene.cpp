@@ -2,8 +2,12 @@
 #include "App/Editor.h"
 #include "Designer/DesignerObject.h"
 
+#include <ranges>
+
 namespace ph::editor
 {
+
+PH_DEFINE_LOG_GROUP(DesignerScene, Designer);
 
 DesignerScene::DesignerScene(Editor* const fromEditor)
 	: m_objs()
@@ -18,18 +22,31 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	PH_ASSERT(m_editor != nullptr);
 }
 
-DesignerScene::~DesignerScene() = default;
+DesignerScene::~DesignerScene()
+{
+	// Make sure everything is cleaned up
+	PH_ASSERT_EQ(m_objs.size(), 0);
+}
 
 void DesignerScene::update(const MainThreadUpdateContext& ctx)
 {
+	// Remove all done actions
+	std::erase_if(
+		m_objActionQueue, 
+		[](const ObjectAction& queuedAction)
+		{
+			return queuedAction.isDone();
+		});
+
+	// Record current number of actions so actions added later can be delayed to next cycle
+	m_numObjActionsToProcess = m_objActionQueue.size();
+
 	// Process queued actions
 	for(std::size_t actionIdx = 0; actionIdx < m_numObjActionsToProcess; ++actionIdx)
 	{
 		ObjectAction& queuedAction = m_objActionQueue[actionIdx];
 		if(queuedAction.action == EObjectAction::Remove)
 		{
-			PH_ASSERT(queuedAction.obj->isRemoved());
-
 			// We always want to remove the object from the cache arrays
 			std::erase(m_tickingObjs, queuedAction.obj);
 			std::erase(m_renderTickingObjs, queuedAction.obj);
@@ -38,7 +55,8 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 				std::erase(m_rootObjs, queuedAction.obj);
 			}
 
-			if(queuedAction.obj->getState().has(EObjectState::RenderUninitialized))
+			if(queuedAction.obj->getState().has(EObjectState::RenderUninitialized) &&
+			   queuedAction.obj->getState().hasNo(EObjectState::Uninitialized))
 			{
 				queuedAction.obj->uninit();
 				queuedAction.obj->getState().turnOn({EObjectState::Uninitialized});
@@ -124,16 +142,18 @@ void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 	for(std::size_t actionIdx = 0; actionIdx < m_numObjActionsToProcess; ++actionIdx)
 	{
 		ObjectAction& queuedAction = m_objActionQueue[actionIdx];
-		if(queuedAction.action == EObjectAction::Create)
+		if(queuedAction.action == EObjectAction::Create && 
+		   queuedAction.obj->getState().has(EObjectState::Initialized) &&
+		   queuedAction.obj->getState().hasNo(EObjectState::RenderInitialized))
 		{
-			if(queuedAction.obj->getState().has(EObjectState::Initialized))
-			{
-				queuedAction.obj->renderInit(caller);
-				queuedAction.obj->getState().turnOn({EObjectState::RenderInitialized});
-				queuedAction.done();
-			}
+			queuedAction.obj->renderInit(caller);
+			queuedAction.obj->getState().turnOn({EObjectState::RenderInitialized});
+			queuedAction.done();
 		}
-		else if(queuedAction.action == EObjectAction::Remove)
+		else if(
+			queuedAction.action == EObjectAction::Remove &&
+			queuedAction.obj->getState().has(EObjectState::RenderInitialized) &&
+			queuedAction.obj->getState().hasNo(EObjectState::RenderUninitialized))
 		{
 			queuedAction.obj->renderUninit(caller);
 			queuedAction.obj->getState().turnOn({EObjectState::RenderUninitialized});
@@ -148,18 +168,7 @@ void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 }
 
 void DesignerScene::beforeUpdateStage()
-{
-	// Remove all done actions
-	std::erase_if(
-		m_objActionQueue, 
-		[](const ObjectAction& queuedAction)
-		{
-			return queuedAction.isDone();
-		});
-
-	// Record current number of actions so actions added later can be delayed to next cycle
-	m_numObjActionsToProcess = m_objActionQueue.size();
-}
+{}
 
 void DesignerScene::afterUpdateStage()
 {}
@@ -200,21 +209,62 @@ void DesignerScene::markObjectRenderTickState(DesignerObject* const obj, const b
 
 void DesignerScene::removeObject(DesignerObject* const obj)
 {
-	PH_ASSERT(obj);
-
-	if(!obj->isRemoved())
-	{
-		queueObjectAction(obj, EObjectAction::Remove);
-	}
+	queueObjectAction(obj, EObjectAction::Remove);
 }
 
 void DesignerScene::queueObjectAction(DesignerObject* const obj, const EObjectAction objAction)
 {
-	PH_ASSERT(obj);
+	if(obj)
+	{
+		m_objActionQueue.push_back({
+			.obj = obj, 
+			.action = objAction});
+	}
+}
 
-	m_objActionQueue.push_back({
-		.obj = obj, 
-		.action = objAction});
+void DesignerScene::renderCleanup(RenderThreadCaller& caller)
+{
+	// Render uninitialize all objects in the reverse order
+	for(auto& obj : std::views::reverse(m_objs))
+	{
+		if(obj->getState().has(EObjectState::RenderInitialized) &&
+		   obj->getState().hasNo(EObjectState::RenderUninitialized))
+		{
+			obj->renderUninit(caller);
+			obj->getState().turnOn({EObjectState::RenderUninitialized});
+		}
+	}
+}
+
+void DesignerScene::cleanup()
+{
+	// Uninitialize all objects in the reverse order
+	for(auto& obj : std::views::reverse(m_objs))
+	{
+		if(obj->getState().has(EObjectState::Initialized) &&
+		   obj->getState().hasNo(EObjectState::Uninitialized))
+		{
+			// Potentially detect a call order failure case (render cleanup was not called)
+			if(obj->getState().has(EObjectState::RenderInitialized) &&
+			   obj->getState().hasNo(EObjectState::RenderUninitialized))
+			{
+				PH_LOG_ERROR(DesignerScene,
+					"invalid object cleanup state detected: object {} needs render cleanup first",
+					obj->getName());
+			}
+			else
+			{
+				obj->uninit();
+				obj->getState().turnOn({EObjectState::Uninitialized});
+			}
+		}
+	}
+
+	// Destruct all objects in the reverse order
+	while(!m_objs.isEmpty())
+	{
+		m_objs.removeLast();
+	}
 }
 
 }// end namespace ph::editor

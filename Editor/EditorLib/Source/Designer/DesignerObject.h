@@ -63,14 +63,12 @@ public:
 	DesignerScene& getScene();
 	const DesignerScene& getScene() const;
 	const std::string& getName() const;
-	bool isRemoved() const;
 	const TEnumFlags<EObjectState>& getState() const;
 
 private:
 	DesignerScene* m_scene;
 	std::vector<DesignerObject*> m_children;
 	std::string m_name;
-	uint32 m_isRemoved : 1;
 
 private:
 	friend class DesignerScene;

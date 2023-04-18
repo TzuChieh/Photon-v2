@@ -15,7 +15,12 @@ PH_DEFINE_INTERNAL_LOG_GROUP(Editor, App);
 
 Editor::Editor() = default;
 
-Editor::~Editor() = default;
+Editor::~Editor()
+{
+	// Make sure everything is cleaned up
+	PH_ASSERT_EQ(m_scenes.size(), 0);
+	PH_ASSERT_EQ(m_removingScenes.size(), 0);
+}
 
 void Editor::update(const MainThreadUpdateContext& ctx)
 {
@@ -32,6 +37,8 @@ void Editor::update(const MainThreadUpdateContext& ctx)
 	{
 		scene->update(ctx);
 	}
+
+	cleanupRemovingScenes();
 }
 
 void Editor::renderUpdate(const MainThreadRenderUpdateContext& ctx)
@@ -48,6 +55,8 @@ void Editor::createRenderCommands(RenderThreadCaller& caller)
 	{
 		scene->createRenderCommands(caller);
 	}
+
+	renderCleanupRemovingScenes(caller);
 }
 
 void Editor::beforeUpdateStage()
@@ -82,6 +91,60 @@ void Editor::afterRenderStage()
 	}
 }
 
+void Editor::renderCleanupRemovingScenes(RenderThreadCaller& caller)
+{
+	for(auto& removingScene : m_removingScenes)
+	{
+		if(!removingScene.hasRenderCleanupDone)
+		{
+			PH_ASSERT(!removingScene.hasCleanupDone);
+			removingScene.scene->renderCleanup(caller);
+			removingScene.hasRenderCleanupDone = true;
+		}
+	}
+}
+
+void Editor::cleanupRemovingScenes()
+{
+	for(auto& removingScene : m_removingScenes)
+	{
+		if(removingScene.hasRenderCleanupDone && !removingScene.hasCleanupDone)
+		{
+			removingScene.scene->cleanup();
+			removingScene.hasCleanupDone = true;
+		}
+	}
+
+	std::erase_if(
+		m_removingScenes,
+		[](const PendingRemovalScene& removingScene)
+		{
+			return removingScene.hasRenderCleanupDone && removingScene.hasCleanupDone;
+		});
+}
+
+void Editor::renderCleanup(RenderThreadCaller& caller)
+{
+	renderCleanupRemovingScenes(caller);
+
+	// Also cleanup existing scenes
+	for(auto& scene : m_scenes)
+	{
+		scene->renderCleanup(caller);
+	}
+}
+
+void Editor::cleanup()
+{
+	cleanupRemovingScenes();
+
+	// Also cleanup existing scenes
+	for(auto& scene : m_scenes)
+	{
+		scene->cleanup();
+	}
+}
+
 std::size_t Editor::createScene()
 {
 	DesignerScene* const scene = m_scenes.add(std::make_unique<DesignerScene>(this));
@@ -102,10 +165,10 @@ void Editor::removeScene(const std::size_t sceneIndex)
 		return;
 	}
 
-	std::unique_ptr<DesignerScene> scene = m_scenes.remove(sceneIndex);
-	PH_ASSERT(scene != nullptr);
-
-	// TODO: scene cleanup all
+	m_removingScenes.push_back({
+		.scene = m_scenes.remove(sceneIndex),
+		.hasRenderCleanupDone = false,
+		.hasCleanupDone = false});
 }
 
 void Editor::flushAllEvents()

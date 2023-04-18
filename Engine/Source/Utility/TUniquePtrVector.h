@@ -28,6 +28,7 @@ public:
 
 	std::unique_ptr<BaseType> remove(std::size_t index);
 	std::unique_ptr<BaseType> remove(const BaseType* ptr);
+	std::unique_ptr<BaseType> removeLast();
 
 	/*! @brief Remove a `unique_ptr`. Does not preserve the order of remaining `unique_ptr`s.
 	Complexity: O(N) where N is size of the vector. Needs to find @p ptr linearly, but saves the cost
@@ -116,6 +117,13 @@ inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::remove(const BaseTy
 {
 	const auto optIndex = indexOf(ptr);
 	return optIndex ? remove(*optIndex) : nullptr;
+}
+
+template<typename BaseType>
+inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::removeLast()
+{
+	PH_ASSERT(!isEmpty());
+	return remove(size() - 1);
 }
 
 template<typename BaseType>
