@@ -46,6 +46,9 @@ public:
 	template<typename ObjectType, typename... DeducedArgs>
 	ObjectType* initNewRootObject(DeducedArgs&&... args);
 
+	template<typename ObjectType, typename... DeducedArgs>
+	std::shared_ptr<ObjectType> initNewSharedRootObject(DeducedArgs&&... args);
+
 	void deleteObject(DesignerObject* obj);
 	void renderCleanup(RenderThreadCaller& caller);
 	void cleanup();

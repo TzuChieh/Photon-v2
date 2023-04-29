@@ -12,6 +12,28 @@
 namespace ph::editor
 {
 
+namespace detail
+{
+
+template<typename ObjectType>
+struct TSharedObjectDeleter
+{
+	inline void operator () (ObjectType* const obj) const
+	{
+		static_assert(CDerived<ObjectType, DesignerObject>,
+			"Object must be a designer object.");
+
+		if(!obj)
+		{
+			return;
+		}
+
+		obj->getScene().deleteObject(obj);
+	}
+};
+
+}// end namespace detail
+
 template<typename ObjectType, typename... DeducedArgs>
 inline ObjectType* DesignerScene::initNewRootObject(DeducedArgs&&... args)
 {
@@ -37,10 +59,18 @@ inline ObjectType* DesignerScene::initNewObject(DeducedArgs&&... args)
 }
 
 template<typename ObjectType, typename... DeducedArgs>
+inline std::shared_ptr<ObjectType> DesignerScene::initNewSharedRootObject(DeducedArgs&&... args)
+{
+	return std::shared_ptr<ObjectType>(
+		initNewRootObject<ObjectType>(std::forward<DeducedArgs>(args)...),
+		detail::TSharedObjectDeleter<ObjectType>());
+}
+
+template<typename ObjectType, typename... DeducedArgs>
 inline ObjectType* DesignerScene::makeObjectFromStorage(DeducedArgs&&... args)
 {
 	static_assert(CDerived<ObjectType, DesignerObject>,
-		"Object type must be a designer object.");
+		"Object must be a designer object.");
 
 	PH_ASSERT(Threads::isOnMainThread());
 
