@@ -26,7 +26,7 @@ private:
 public:
 	FileSystemDirectoryEntry(Path directoryPath, CtorAccessToken);
 
-	bool hasChildren() const;
+	bool haveChildren() const;
 	const FileSystemDirectoryEntry* getChild(std::size_t childIndex) const;
 	std::size_t numChildren() const;
 	const Path& getDirectoryPath() const;

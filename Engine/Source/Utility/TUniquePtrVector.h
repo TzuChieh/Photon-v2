@@ -123,7 +123,10 @@ template<typename BaseType>
 inline std::unique_ptr<BaseType> TUniquePtrVector<BaseType>::removeLast()
 {
 	PH_ASSERT(!isEmpty());
-	return remove(size() - 1);
+
+	auto uniquePtr = std::move(m_uniquePtrs.back());
+	m_uniquePtrs.pop_back();
+	return uniquePtr;
 }
 
 template<typename BaseType>

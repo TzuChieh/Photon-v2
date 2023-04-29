@@ -2,6 +2,8 @@
 #include "App/Editor.h"
 #include "Designer/DesignerObject.h"
 
+#include <Utility/exception.h>
+
 #include <ranges>
 
 namespace ph::editor
@@ -10,7 +12,8 @@ namespace ph::editor
 PH_DEFINE_LOG_GROUP(DesignerScene, Designer);
 
 DesignerScene::DesignerScene(Editor* const fromEditor)
-	: m_objs()
+	: m_objStorage()
+	, m_freeObjStorageIndices()
 	, m_rootObjs()
 	, m_tickingObjs()
 	, m_renderTickingObjs()
@@ -25,7 +28,7 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 DesignerScene::~DesignerScene()
 {
 	// Make sure everything is cleaned up
-	PH_ASSERT_EQ(m_objs.size(), 0);
+	PH_ASSERT_EQ(m_objStorage.size(), 0);
 }
 
 void DesignerScene::update(const MainThreadUpdateContext& ctx)
@@ -45,61 +48,74 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 	for(std::size_t actionIdx = 0; actionIdx < m_numObjActionsToProcess; ++actionIdx)
 	{
 		ObjectAction& queuedAction = m_objActionQueue[actionIdx];
+		DesignerObject* const obj = queuedAction.obj;
+
 		if(queuedAction.action == EObjectAction::Remove)
 		{
 			// We always want to remove the object from the cache arrays
-			std::erase(m_tickingObjs, queuedAction.obj);
-			std::erase(m_renderTickingObjs, queuedAction.obj);
-			if(queuedAction.obj->getState().has(EObjectState::Root))
+			std::erase(m_tickingObjs, obj);
+			std::erase(m_renderTickingObjs, obj);
+			if(obj->getState().has(EObjectState::Root))
 			{
-				std::erase(m_rootObjs, queuedAction.obj);
+				const auto numErasedObjs = std::erase(m_rootObjs, obj);
+				if(numErasedObjs != 1)
+				{
+					throw_formatted<IllegalOperationException>(
+						"object {} is identified as root but does not appear in the root set "
+						"({} were found)",
+						obj ? obj->getName() : "(null)", numErasedObjs);
+				}
 			}
 
-			if(queuedAction.obj->getState().has(EObjectState::RenderUninitialized) &&
-			   queuedAction.obj->getState().hasNo(EObjectState::Uninitialized))
+			if(obj->getState().has(EObjectState::RenderUninitialized) &&
+			   obj->getState().hasNo(EObjectState::Uninitialized))
 			{
-				queuedAction.obj->uninit();
-				queuedAction.obj->getState().turnOn({EObjectState::Uninitialized});
+				obj->uninit();
+				obj->getState().turnOn({EObjectState::Uninitialized});
 			}
 
-			if(queuedAction.obj->getState().has(EObjectState::Uninitialized))
+			if(obj->getState().has(EObjectState::Uninitialized))
 			{
-				std::unique_ptr<DesignerObject> removedObj = m_objs.remove(queuedAction.obj);
-				PH_ASSERT(removedObj != nullptr);
+				if(!removeObjectFromStorage(obj))
+				{
+					throw_formatted<IllegalOperationException>(
+						"cannot remove object {} from storage",
+						obj ? obj->getName() : "(null)");
+				}
 
 				queuedAction.done();
 			}
 		}
 		else if(
 			queuedAction.action == EObjectAction::EnableTick && 
-			queuedAction.obj->getState().hasNo(EObjectState::Ticking))
+			obj->getState().hasNo(EObjectState::Ticking))
 		{
-			m_tickingObjs.push_back(queuedAction.obj);
-			queuedAction.obj->getState().turnOn({EObjectState::Ticking});
+			m_tickingObjs.push_back(obj);
+			obj->getState().turnOn({EObjectState::Ticking});
 			queuedAction.done();
 		}
 		else if(
 			queuedAction.action == EObjectAction::DisableTick &&
-			queuedAction.obj->getState().has(EObjectState::Ticking))
+			obj->getState().has(EObjectState::Ticking))
 		{
-			std::erase(m_tickingObjs, queuedAction.obj);
-			queuedAction.obj->getState().turnOff({EObjectState::Ticking});
+			std::erase(m_tickingObjs, obj);
+			obj->getState().turnOff({EObjectState::Ticking});
 			queuedAction.done();
 		}
 		else if(
 			queuedAction.action == EObjectAction::EnableRenderTick &&
-			queuedAction.obj->getState().hasNo(EObjectState::RenderTicking))
+			obj->getState().hasNo(EObjectState::RenderTicking))
 		{
-			m_renderTickingObjs.push_back(queuedAction.obj);
-			queuedAction.obj->getState().turnOn({EObjectState::RenderTicking});
+			m_renderTickingObjs.push_back(obj);
+			obj->getState().turnOn({EObjectState::RenderTicking});
 			queuedAction.done();
 		}
 		else if(
 			queuedAction.action == EObjectAction::DisableRenderTick &&
-			queuedAction.obj->getState().has(EObjectState::RenderTicking))
+			obj->getState().has(EObjectState::RenderTicking))
 		{
-			std::erase(m_renderTickingObjs, queuedAction.obj);
-			queuedAction.obj->getState().turnOff({EObjectState::RenderTicking});
+			std::erase(m_renderTickingObjs, obj);
+			obj->getState().turnOff({EObjectState::RenderTicking});
 			queuedAction.done();
 		}
 	}// end process queued actions
@@ -207,8 +223,14 @@ void DesignerScene::markObjectRenderTickState(DesignerObject* const obj, const b
 	}
 }
 
-void DesignerScene::removeObject(DesignerObject* const obj)
+void DesignerScene::deleteObject(DesignerObject* const obj)
 {
+	// It is a no-op if object is already empty
+	if(!obj)
+	{
+		return;
+	}
+
 	queueObjectAction(obj, EObjectAction::Remove);
 }
 
@@ -225,9 +247,10 @@ void DesignerScene::queueObjectAction(DesignerObject* const obj, const EObjectAc
 void DesignerScene::renderCleanup(RenderThreadCaller& caller)
 {
 	// Render uninitialize all objects in the reverse order
-	for(auto& obj : std::views::reverse(m_objs))
+	for(auto& obj : std::views::reverse(m_objStorage))
 	{
-		if(obj->getState().has(EObjectState::RenderInitialized) &&
+		if(obj &&
+		   obj->getState().has(EObjectState::RenderInitialized) &&
 		   obj->getState().hasNo(EObjectState::RenderUninitialized))
 		{
 			obj->renderUninit(caller);
@@ -239,9 +262,10 @@ void DesignerScene::renderCleanup(RenderThreadCaller& caller)
 void DesignerScene::cleanup()
 {
 	// Uninitialize all objects in the reverse order
-	for(auto& obj : std::views::reverse(m_objs))
+	for(auto& obj : std::views::reverse(m_objStorage))
 	{
-		if(obj->getState().has(EObjectState::Initialized) &&
+		if(obj &&
+		   obj->getState().has(EObjectState::Initialized) &&
 		   obj->getState().hasNo(EObjectState::Uninitialized))
 		{
 			// Potentially detect a call order failure case (render cleanup was not called)
@@ -261,10 +285,12 @@ void DesignerScene::cleanup()
 	}
 
 	// Destruct all objects in the reverse order
-	while(!m_objs.isEmpty())
+	while(!m_objStorage.isEmpty())
 	{
-		m_objs.removeLast();
+		m_objStorage.removeLast();
 	}
+
+	m_freeObjStorageIndices.clear();
 }
 
 }// end namespace ph::editor

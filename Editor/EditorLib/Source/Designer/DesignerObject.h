@@ -7,6 +7,7 @@
 #include <Utility/INoCopyAndMove.h>
 #include <Math/math.h>
 #include <Utility/TBitFlags.h>
+#include <Utility/TSpan.h>
 
 #include <string>
 #include <memory>
@@ -38,8 +39,11 @@ enum class EObjectState : uint32f
 class DesignerObject : private INoCopyAndMove
 {
 public:
-	explicit DesignerObject(DesignerScene* scene);
+	DesignerObject();
 	virtual ~DesignerObject();
+
+	virtual TSpanView<DesignerObject*> getChildren() const = 0;
+	virtual bool canHaveChildren() const = 0;
 
 	virtual void init();
 	virtual void uninit();
@@ -49,33 +53,60 @@ public:
 	virtual void renderUpdate(const MainThreadRenderUpdateContext& ctx);
 	virtual void createRenderCommands(RenderThreadCaller& caller);
 
-	DesignerObject* getChild(std::size_t childIndex) const;
-	std::size_t numChildren() const;
-	bool hasChildren() const;
-
+	/*! @brief Create, initialize and add the new object as a child.
+	*/
 	template<typename ChildType, typename... DeducedArgs>
 	ChildType* initNewChild(DeducedArgs&&... args);
 
-	void removeChild(std::size_t childIndex, bool isRecursive = true);
+	/*! @brief Remove, uninitialize and destruct a child.
+	*/
+	void deleteChild(DesignerObject* childObj);
+
 	void setName(std::string name);
 	void setTick(bool shouldTick);
 	void setRenderTick(bool shouldTick);
+	bool haveChildren() const;
 	DesignerScene& getScene();
 	const DesignerScene& getScene() const;
+	DesignerObject* getParent();
+	const DesignerObject* getParent() const;
 	const std::string& getName() const;
 	const TEnumFlags<EObjectState>& getState() const;
 
 private:
-	DesignerScene* m_scene;
-	std::vector<DesignerObject*> m_children;
+	/*! @brief Called when a child is initialized and is ready to be attached to their parent.
+	@return The child that had just been added.
+	*/
+	virtual DesignerObject* addChild(DesignerObject* childObj) = 0;
+
+	/*! @brief Called when a child is going to be deleted and should be removed from their parent.
+	@return Whether the child had actually been removed.
+	*/
+	virtual bool removeChild(DesignerObject* childObj) = 0;
+
+	void setParentObject(DesignerObject* object);
+
+private:
+	union GeneralParent
+	{
+		DesignerScene* u_scene;
+		DesignerObject* u_object;
+	};
+	
+	GeneralParent m_parent;
 	std::string m_name;
 
 private:
+	// For accessing some shared internal data
 	friend class DesignerScene;
 
 	TEnumFlags<EObjectState> m_state;
+	uint64 m_sceneStorageIndex;
 
 	TEnumFlags<EObjectState>& getState();
+	uint64 getSceneStorageIndex() const;
+	void setParentScene(DesignerScene* scene);
+	void setSceneStorageIndex(uint64 storageIndex);
 };
 
 }// end namespace ph::editor

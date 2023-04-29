@@ -19,7 +19,7 @@ FileSystemDirectoryEntry::FileSystemDirectoryEntry(Path directoryPath, CtorAcces
 	m_directoryName = m_directoryPath.getTrailingElement().toString();
 }
 
-bool FileSystemDirectoryEntry::hasChildren() const
+bool FileSystemDirectoryEntry::haveChildren() const
 {
 	return !m_children.isEmpty();
 }
@@ -46,7 +46,7 @@ const std::string& FileSystemDirectoryEntry::getDirectoryName() const
 
 void FileSystemDirectoryEntry::populateChildren()
 {
-	if(hasChildren())
+	if(haveChildren())
 	{
 		return;
 	}

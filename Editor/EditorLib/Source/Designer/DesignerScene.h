@@ -46,7 +46,7 @@ public:
 	template<typename ObjectType, typename... DeducedArgs>
 	ObjectType* initNewRootObject(DeducedArgs&&... args);
 
-	void removeObject(DesignerObject* obj);
+	void deleteObject(DesignerObject* obj);
 	void renderCleanup(RenderThreadCaller& caller);
 	void cleanup();
 
@@ -76,8 +76,14 @@ private:
 
 	void queueObjectAction(DesignerObject* obj, EObjectAction objAction);
 
+	template<typename ObjectType, typename... DeducedArgs>
+	ObjectType* makeObjectFromStorage(DeducedArgs&&... args);
+
+	bool removeObjectFromStorage(DesignerObject* obj);
+
 private:
-	TUniquePtrVector<DesignerObject> m_objs;
+	TUniquePtrVector<DesignerObject> m_objStorage;
+	std::vector<uint64> m_freeObjStorageIndices;
 	std::vector<DesignerObject*> m_rootObjs;
 	std::vector<DesignerObject*> m_tickingObjs;
 	std::vector<DesignerObject*> m_renderTickingObjs;

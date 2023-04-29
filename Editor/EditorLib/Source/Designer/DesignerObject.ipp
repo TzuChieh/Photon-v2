@@ -16,11 +16,17 @@ inline ChildType* DesignerObject::initNewChild(DeducedArgs&&... args)
 	static_assert(CDerived<ChildType, DesignerObject>,
 		"Child type must be a designer object.");
 
-	PH_ASSERT(m_scene != nullptr);
+	if(!canHaveChildren())
+	{
+		return nullptr;
+	}
 
 	ChildType* child = getScene().initNewObject<ChildType>(std::forward<DeducedArgs>(args)...);
-	m_children.push_back(child);
-	return m_children.back();
+	PH_ASSERT(child);
+	child->setParentObject(this);
+	addChild(child);
+
+	return child;
 }
 
 inline auto DesignerObject::getState() const
@@ -35,16 +41,32 @@ inline auto DesignerObject::getState()
 	return m_state;
 }
 
-inline DesignerScene& DesignerObject::getScene()
+inline uint64 DesignerObject::getSceneStorageIndex() const
 {
-	PH_ASSERT(m_scene);
-	return *m_scene;
+	return m_sceneStorageIndex;
 }
 
-inline const DesignerScene& DesignerObject::getScene() const
+inline void DesignerObject::setSceneStorageIndex(const uint64 storageIndex)
 {
-	PH_ASSERT(m_scene);
-	return *m_scene;
+	PH_ASSERT_NE(storageIndex, static_cast<uint64>(-1));
+	m_sceneStorageIndex = storageIndex;
+}
+
+inline void DesignerObject::setParentObject(DesignerObject* const object)
+{
+	PH_ASSERT(object != nullptr);
+	PH_ASSERT(object != this);
+
+	getState().turnOff({EObjectState::Root});
+	m_parent.u_object = object;
+}
+
+inline void DesignerObject::setParentScene(DesignerScene* const scene)
+{
+	PH_ASSERT(scene != nullptr);
+
+	getState().turnOn({EObjectState::Root});
+	m_parent.u_scene = scene;
 }
 
 inline const std::string& DesignerObject::getName() const
@@ -52,19 +74,9 @@ inline const std::string& DesignerObject::getName() const
 	return m_name;
 }
 
-inline DesignerObject* DesignerObject::getChild(const std::size_t childIndex) const
+inline bool DesignerObject::haveChildren() const
 {
-	return childIndex < m_children.size() ? m_children[childIndex] : nullptr;
-}
-
-inline std::size_t DesignerObject::numChildren() const
-{
-	return m_children.size();
-}
-
-inline bool DesignerObject::hasChildren() const
-{
-	return numChildren() > 0;
+	return getChildren().size() > 0;
 }
 
 }// end namespace ph::editor

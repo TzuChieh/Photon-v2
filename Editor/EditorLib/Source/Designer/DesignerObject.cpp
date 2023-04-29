@@ -2,19 +2,21 @@
 #include "Designer/DesignerScene.h"
 
 #include <Common/assertion.h>
+#include <Utility/utility.h>
+#include <Utility/exception.h>
 
 #include <utility>
 
 namespace ph::editor
 {
 
-DesignerObject::DesignerObject(DesignerScene* const scene)
-	: m_scene(scene)
-	, m_children()
+DesignerObject::DesignerObject()
+	: m_parent()
 	, m_name()
 	, m_state()
+	, m_sceneStorageIndex(static_cast<uint64>(-1))
 {
-	PH_ASSERT(m_scene != nullptr);
+	m_parent.u_object = nullptr;
 }
 
 DesignerObject::~DesignerObject()
@@ -57,26 +59,33 @@ void DesignerObject::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 void DesignerObject::createRenderCommands(RenderThreadCaller& caller)
 {}
 
-void DesignerObject::removeChild(const std::size_t childIndex, const bool isRecursive)
+void DesignerObject::deleteChild(DesignerObject* const childObj)
 {
-	if(childIndex >= m_children.size())
+	if(!canHaveChildren())
 	{
 		return;
 	}
 
-	DesignerObject* objToRemove = m_children[childIndex];
-	if(isRecursive)
+	if(childObj)
 	{
 		// Recursively remove all children, starting from the last child
-		while(objToRemove->hasChildren())
+		while(childObj->haveChildren())
 		{
-			objToRemove->removeChild(objToRemove->numChildren() - 1, isRecursive);
+			childObj->deleteChild(childObj->getChildren().back());
 		}
 	}
 
-	// Actually remove from other children and the scene
-	m_children.erase(m_children.begin() + childIndex);
-	getScene().removeObject(objToRemove);
+	// Actually remove from parent and the scene
+	if(removeChild(childObj))
+	{
+		getScene().deleteObject(childObj);
+	}
+	else
+	{
+		throw_formatted<IllegalOperationException>(
+			"failed to remove child object {} from parent object {}",
+			childObj ? childObj->getName() : "(null)", getName());
+	}
 }
 
 void DesignerObject::setName(std::string name)
@@ -93,6 +102,48 @@ void DesignerObject::setTick(const bool shouldTick)
 void DesignerObject::setRenderTick(const bool shouldTick)
 {
 	getScene().markObjectRenderTickState(this, shouldTick);
+}
+
+DesignerScene& DesignerObject::getScene()
+{
+	return mutable_cast(std::as_const(*this).getScene());
+}
+
+const DesignerScene& DesignerObject::getScene() const
+{
+	if(getState().has(EObjectState::Root))
+	{
+		PH_ASSERT_MSG(m_parent.u_scene,
+			"object was not properly initialized; did you call setParentScene()?");
+
+		return *m_parent.u_scene;
+	}
+	else
+	{
+		// Traverse through the hierarchy finding the root scene
+		PH_ASSERT(getParent());
+		return getParent()->getScene();
+	}
+}
+
+DesignerObject* DesignerObject::getParent()
+{
+	return mutable_cast(std::as_const(*this).getParent());
+}
+
+const DesignerObject* DesignerObject::getParent() const
+{
+	if(getState().hasNo(EObjectState::Root))
+	{
+		PH_ASSERT_MSG(m_parent.u_object,
+			"object was not properly initialized; did you call setParentObject()?");
+
+		return m_parent.u_object;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 }// end namespace ph::editor
