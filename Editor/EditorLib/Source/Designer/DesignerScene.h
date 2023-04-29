@@ -11,6 +11,7 @@
 #include <vector>
 #include <memory>
 #include <cstddef>
+#include <string>
 
 namespace ph::editor
 {
@@ -56,6 +57,9 @@ public:
 	Editor& getEditor();
 	const Editor& getEditor() const;
 
+	void setName(std::string name);
+	const std::string& getName() const;
+
 private:
 	enum class EObjectAction : uint8
 	{
@@ -93,6 +97,7 @@ private:
 	std::vector<ObjectAction> m_objActionQueue;
 	std::size_t m_numObjActionsToProcess;
 	Editor* m_editor;
+	std::string m_name;
 	ViewportCamera m_mainCamera;
 };
 

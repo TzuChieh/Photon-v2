@@ -15,6 +15,7 @@ namespace ph::editor
 const char* const ImguiEditorUI::rootPropertiesWindowName = ICON_MD_TUNE " Properties";
 const char* const ImguiEditorUI::mainViewportWindowName = ICON_MD_CAMERA " Viewport";
 const char* const ImguiEditorUI::assetBrowserWindowName = ICON_MD_FOLDER_OPEN " Asset Browser";
+const char* const ImguiEditorUI::objectBrowserWindowName = ICON_MD_CATEGORY " Object Browser";
 
 ImguiEditorUI::ImguiEditorUI()
 	: m_editor(nullptr)
@@ -87,15 +88,14 @@ void ImguiEditorUI::build()
 		ImGui::DockBuilderAddNode(m_rootDockSpaceID, ImGuiDockNodeFlags_DockSpace);
 		ImGui::DockBuilderSetNodeSize(m_rootDockSpaceID, viewport->WorkSize);
 
-		// Pre-dock bottom node
+		// Creating bottom node
 		const float bottomNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			viewport->WorkSize.y;
 		const ImGuiID rootBottomDockSpaceID = ImGui::DockBuilderSplitNode(
 			m_rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, nullptr);
-		ImGui::DockBuilderDockWindow(assetBrowserWindowName, rootBottomDockSpaceID);
 
-		// Pre-dock left node (after bottom node so it can have the full height)
+		// Creating left node (after bottom node so it can have the full height)
 		const float leftNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			viewport->WorkSize.x;
@@ -103,10 +103,20 @@ void ImguiEditorUI::build()
 		ImGuiID childRightDockSpaceID = 0;
 		const ImGuiID rootLeftDockSpaceID = ImGui::DockBuilderSplitNode(
 			m_rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, &childRightDockSpaceID);
+
+		// Creating right node (after bottom node so it can have the full height)
+		const float rightNodeSplitRatio =
+			m_editor->dimensionHints.propertyPanelPreferredWidth /
+			(viewport->WorkSize.x * (1 - leftNodeSplitRatio));
+		ImGuiID grandchildLeftDockSpaceID = 0;
+		const ImGuiID grandchildRightDockSpaceID = ImGui::DockBuilderSplitNode(
+			childRightDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, &grandchildLeftDockSpaceID);
+
+		// Pre-dock windows
+		ImGui::DockBuilderDockWindow(assetBrowserWindowName, rootBottomDockSpaceID);
 		ImGui::DockBuilderDockWindow(rootPropertiesWindowName, rootLeftDockSpaceID);
-		
-		// Pre-dock center node as the other child of left node
-		ImGui::DockBuilderDockWindow(mainViewportWindowName, childRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(objectBrowserWindowName, grandchildRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(mainViewportWindowName, grandchildLeftDockSpaceID);
 
 		ImGui::DockBuilderFinish(m_rootDockSpaceID);
 	}
@@ -150,6 +160,11 @@ void ImguiEditorUI::build()
 	ImGui::End();
 
 	ImGui::Begin(mainViewportWindowName);
+	ImGui::Text("This is window A");
+	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	ImGui::End();
+
+	ImGui::Begin(objectBrowserWindowName);
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	ImGui::End();

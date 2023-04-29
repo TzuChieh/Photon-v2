@@ -31,6 +31,7 @@ private:
 	static const char* const rootPropertiesWindowName;
 	static const char* const mainViewportWindowName;
 	static const char* const assetBrowserWindowName;
+	static const char* const objectBrowserWindowName;
 };
 
 }// end namespace ph::editor

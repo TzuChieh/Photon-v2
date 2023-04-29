@@ -20,6 +20,7 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	, m_objActionQueue()
 	, m_numObjActionsToProcess(0)
 	, m_editor(fromEditor)
+	, m_name("untitled scene")
 	, m_mainCamera()
 {
 	PH_ASSERT(m_editor != nullptr);

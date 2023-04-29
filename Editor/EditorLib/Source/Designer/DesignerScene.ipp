@@ -135,4 +135,14 @@ inline bool DesignerScene::ObjectAction::isDone() const
 	return action == EObjectAction::None;
 }
 
+inline void DesignerScene::setName(std::string name)
+{
+	m_name = std::move(name);
+}
+
+inline const std::string& DesignerScene::getName() const
+{
+	return m_name;
+}
+
 }// end namespace ph::editor
