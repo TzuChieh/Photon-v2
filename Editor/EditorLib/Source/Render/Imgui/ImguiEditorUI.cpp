@@ -22,6 +22,10 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_fontLibrary(nullptr)
 	, m_imageLibrary(nullptr)
 	, m_rootDockSpaceID(0)
+	, m_leftDockSpaceID(0)
+	, m_rightDockSpaceID(0)
+	, m_bottomDockSpaceID(0)
+	, m_centerDockSpaceID(0)
 	, m_shouldResetWindowLayout(false)
 	, m_shouldShowStatsMonitor(false)
 {}
@@ -78,6 +82,7 @@ void ImguiEditorUI::build()
 
 	ImGui::PopStyleVar(3);
 
+	// Dock builder nodes are retained--we create them if they do not exist or a reset is requested
 	m_rootDockSpaceID = ImGui::GetID("RootDockSpace");
 	if(!ImGui::DockBuilderGetNode(m_rootDockSpaceID) || m_shouldResetWindowLayout)
 	{
@@ -88,38 +93,43 @@ void ImguiEditorUI::build()
 		ImGui::DockBuilderAddNode(m_rootDockSpaceID, ImGuiDockNodeFlags_DockSpace);
 		ImGui::DockBuilderSetNodeSize(m_rootDockSpaceID, viewport->WorkSize);
 
+		// Note that `ImGui::DockBuilderSplitNode()` is like using the splitting icon in the 
+		// docking UI, while using the dock space ID without splitting is like using the central 
+		// square icon in the docking UI.
+
 		// Creating bottom node
 		const float bottomNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			viewport->WorkSize.y;
+		ImGuiID childTopDockSpaceID = 0;
 		const ImGuiID rootBottomDockSpaceID = ImGui::DockBuilderSplitNode(
-			m_rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, nullptr);
+			m_rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, &childTopDockSpaceID);
 
 		// Creating left node (after bottom node so it can have the full height)
 		const float leftNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			viewport->WorkSize.x;
 		//PH_DEFAULT_LOG("{}, {}", m_editor->dimensionHints.propertyPanelPreferredWidth, viewport->WorkSize.x);
-		ImGuiID childRightDockSpaceID = 0;
 		const ImGuiID rootLeftDockSpaceID = ImGui::DockBuilderSplitNode(
-			m_rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, &childRightDockSpaceID);
+			m_rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, nullptr);
 
 		// Creating right node (after bottom node so it can have the full height)
 		const float rightNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			(viewport->WorkSize.x * (1 - leftNodeSplitRatio));
-		ImGuiID grandchildLeftDockSpaceID = 0;
-		const ImGuiID grandchildRightDockSpaceID = ImGui::DockBuilderSplitNode(
-			childRightDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, &grandchildLeftDockSpaceID);
+		const ImGuiID rootRightDockSpaceID = ImGui::DockBuilderSplitNode(
+			m_rootDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, nullptr);
 
-		// Pre-dock windows
+		// Pre-dock some persistent windows
 		ImGui::DockBuilderDockWindow(assetBrowserWindowName, rootBottomDockSpaceID);
 		ImGui::DockBuilderDockWindow(rootPropertiesWindowName, rootLeftDockSpaceID);
-		ImGui::DockBuilderDockWindow(objectBrowserWindowName, grandchildRightDockSpaceID);
-		ImGui::DockBuilderDockWindow(mainViewportWindowName, grandchildLeftDockSpaceID);
+		ImGui::DockBuilderDockWindow(objectBrowserWindowName, rootRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(mainViewportWindowName, childTopDockSpaceID);
 
 		ImGui::DockBuilderFinish(m_rootDockSpaceID);
 	}
+
+	PH_ASSERT_NE(m_rootDockSpaceID, 0);
 
 	// Submit the DockSpace
 	ImGui::DockSpace(m_rootDockSpaceID, ImVec2(0.0f, 0.0f), dockSpaceFlags);
@@ -149,25 +159,35 @@ void ImguiEditorUI::build()
 	//	//hasInit = true;
 	//}
 
-	ImGui::Begin(rootPropertiesWindowName);
-	ImGui::Text("This is window A");
-	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	ImGui::End();
-
 	ImGui::Begin(assetBrowserWindowName);
+	m_bottomDockSpaceID = ImGui::GetWindowDockID();
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	ImGui::End();
 
-	ImGui::Begin(mainViewportWindowName);
+	ImGui::Begin(rootPropertiesWindowName);
+	m_leftDockSpaceID = ImGui::GetWindowDockID();
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	ImGui::End();
 
 	ImGui::Begin(objectBrowserWindowName);
+	m_rightDockSpaceID = ImGui::GetWindowDockID();
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	ImGui::End();
+
+	ImGui::Begin(mainViewportWindowName);
+	m_centerDockSpaceID = ImGui::GetWindowDockID();
+	ImGui::Text("This is window A");
+	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	ImGui::End();
+
+	/*ImGui::SetNextWindowDockID(m_centerDockSpaceID, ImGuiCond_FirstUseEver);
+	ImGui::Begin("whatever###TTT");
+	ImGui::Text("This is window A");
+	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	ImGui::End();*/
 
 	ImGui::Begin("Window B");
 	ImGui::Text("This is window B");

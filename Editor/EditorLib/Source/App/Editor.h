@@ -12,6 +12,8 @@
 #include "App/Misc/DimensionHints.h"
 #include "App/Misc/EditorStats.h"
 #include "EditorCore/FileSystemExplorer.h"
+#include "App/EditContext.h"
+#include "App/Event/EditContextUpdateEvent.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -56,6 +58,8 @@ public:
 	void removeScene(std::size_t sceneIndex);
 	std::size_t numScenes() const;
 
+	EditContext getEditContext() const;
+
 private:
 	struct PendingRemovalScene
 	{
@@ -66,6 +70,7 @@ private:
 
 	TUniquePtrVector<DesignerScene> m_scenes;
 	std::list<PendingRemovalScene> m_removingScenes;
+	DesignerScene* m_activeScene = nullptr;
 
 	void renderCleanupRemovingScenes(RenderThreadCaller& caller);
 	void cleanupRemovingScenes();
@@ -78,6 +83,7 @@ public:
 	TEventDispatcher<SceneFramebufferResizeEvent> onSceneFramebufferResize;
 	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
 	TEventDispatcher<AppModuleActionEvent> onAppModuleAction;
+	TEventDispatcher<EditContextUpdateEvent> onEditContextUpdate;
 
 	template<typename EventType>
 	void postEvent(const EventType& e, TEventDispatcher<EventType>& eventDispatcher);

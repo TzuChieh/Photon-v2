@@ -25,9 +25,14 @@ private:
 	ImguiFontLibrary* m_fontLibrary;
 	ImguiImageLibrary* m_imageLibrary;
 	ImGuiID m_rootDockSpaceID;
+	ImGuiID m_leftDockSpaceID;
+	ImGuiID m_rightDockSpaceID;
+	ImGuiID m_bottomDockSpaceID;
+	ImGuiID m_centerDockSpaceID;
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
 
+private:
 	static const char* const rootPropertiesWindowName;
 	static const char* const mainViewportWindowName;
 	static const char* const assetBrowserWindowName;

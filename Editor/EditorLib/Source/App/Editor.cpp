@@ -150,6 +150,9 @@ std::size_t Editor::createScene()
 	DesignerScene* const scene = m_scenes.add(std::make_unique<DesignerScene>(this));
 	PH_ASSERT(scene != nullptr);
 
+	m_activeScene = scene;
+	postEvent(EditContextUpdateEvent(this, EEditContextEvent::ActiveSceneChanged), onEditContextUpdate);
+
 	const std::size_t sceneIndex = m_scenes.size() - 1;
 	return sceneIndex;
 }
@@ -165,6 +168,21 @@ void Editor::removeScene(const std::size_t sceneIndex)
 		return;
 	}
 
+	// Reassign another scene as the active one
+	m_activeScene = nullptr;
+	for(std::size_t i = 0; i < m_scenes.size(); ++i)
+	{
+		if(i != sceneIndex)
+		{
+			m_activeScene = m_scenes[i];
+		}
+	}
+
+	if(m_activeScene != m_scenes[sceneIndex])
+	{
+		postEvent(EditContextUpdateEvent(this, EEditContextEvent::ActiveSceneChanged), onEditContextUpdate);
+	}
+
 	m_removingScenes.push_back({
 		.scene = m_scenes.remove(sceneIndex),
 		.hasRenderCleanupDone = false,
@@ -177,6 +195,13 @@ void Editor::flushAllEvents()
 
 	// Dispatch queued events to listeners
 	m_eventPostQueue.flushAllEvents();
+}
+
+EditContext Editor::getEditContext() const
+{
+	EditContext ctx;
+	ctx.activeScene = m_activeScene;
+	return ctx;
 }
 
 }// end namespace ph::editor
