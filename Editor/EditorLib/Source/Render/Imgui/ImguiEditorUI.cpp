@@ -116,7 +116,7 @@ void ImguiEditorUI::build()
 		// Creating right node (after bottom node so it can have the full height)
 		const float rightNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
-			(viewport->WorkSize.x * (1 - leftNodeSplitRatio));
+			viewport->WorkSize.x;
 		const ImGuiID rootRightDockSpaceID = ImGui::DockBuilderSplitNode(
 			m_rootDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, nullptr);
 
@@ -159,29 +159,10 @@ void ImguiEditorUI::build()
 	//	//hasInit = true;
 	//}
 
-	ImGui::Begin(assetBrowserWindowName);
-	m_bottomDockSpaceID = ImGui::GetWindowDockID();
-	ImGui::Text("This is window A");
-	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	ImGui::End();
-
-	ImGui::Begin(rootPropertiesWindowName);
-	m_leftDockSpaceID = ImGui::GetWindowDockID();
-	ImGui::Text("This is window A");
-	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	ImGui::End();
-
-	ImGui::Begin(objectBrowserWindowName);
-	m_rightDockSpaceID = ImGui::GetWindowDockID();
-	ImGui::Text("This is window A");
-	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	ImGui::End();
-
-	ImGui::Begin(mainViewportWindowName);
-	m_centerDockSpaceID = ImGui::GetWindowDockID();
-	ImGui::Text("This is window A");
-	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	ImGui::End();
+	buildAssetBrowserWindow();
+	buildRootPropertiesWindow();
+	buildObjectBrowserWindow();
+	buildMainViewportWindow();
 
 	/*ImGui::SetNextWindowDockID(m_centerDockSpaceID, ImGuiCond_FirstUseEver);
 	ImGui::Begin("whatever###TTT");
@@ -256,6 +237,67 @@ void ImguiEditorUI::buildMainMenuBar()
 
 		ImGui::EndMainMenuBar();
 	}
+}
+
+void ImguiEditorUI::buildAssetBrowserWindow()
+{
+	ImGui::Begin(assetBrowserWindowName);
+	m_bottomDockSpaceID = ImGui::GetWindowDockID();
+	ImGui::Text("This is window A");
+	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	ImGui::End();
+}
+
+void ImguiEditorUI::buildRootPropertiesWindow()
+{
+	ImGui::Begin(rootPropertiesWindowName);
+	m_leftDockSpaceID = ImGui::GetWindowDockID();
+	ImGui::Text("This is window A");
+	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	ImGui::End();
+}
+
+void ImguiEditorUI::buildObjectBrowserWindow()
+{
+	ImGui::Begin(objectBrowserWindowName);
+	m_rightDockSpaceID = ImGui::GetWindowDockID();
+
+	if(ImGui::TreeNode("Basic"))
+	{
+		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+		if(ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
+		{
+			if(ImGui::BeginTabItem("Avocado"))
+			{
+				ImGui::Text("This is the Avocado tab!\nblah blah blah blah blah");
+				ImGui::EndTabItem();
+			}
+			if(ImGui::BeginTabItem("Broccoli"))
+			{
+				ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
+				ImGui::EndTabItem();
+			}
+			if(ImGui::BeginTabItem("Cucumber"))
+			{
+				ImGui::Text("This is the Cucumber tab!\nblah blah blah blah blah");
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+		ImGui::Separator();
+		ImGui::TreePop();
+	}
+
+	ImGui::End();
+}
+
+void ImguiEditorUI::buildMainViewportWindow()
+{
+	ImGui::Begin(mainViewportWindowName);
+	m_centerDockSpaceID = ImGui::GetWindowDockID();
+	ImGui::Text("This is window A");
+	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	ImGui::End();
 }
 
 void ImguiEditorUI::buildStatsMonitor()

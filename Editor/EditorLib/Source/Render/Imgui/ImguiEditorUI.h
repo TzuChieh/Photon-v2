@@ -19,6 +19,10 @@ public:
 
 private:
 	void buildMainMenuBar();
+	void buildAssetBrowserWindow();
+	void buildRootPropertiesWindow();
+	void buildObjectBrowserWindow();
+	void buildMainViewportWindow();
 	void buildStatsMonitor();
 
 	Editor* m_editor;
