@@ -25,6 +25,8 @@ private:
 	void buildMainViewportWindow();
 	void buildStatsMonitor();
 
+	Editor& getEditor();
+
 	Editor* m_editor;
 	ImguiFontLibrary* m_fontLibrary;
 	ImguiImageLibrary* m_imageLibrary;

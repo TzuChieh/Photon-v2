@@ -22,6 +22,11 @@ Editor::~Editor()
 	PH_ASSERT_EQ(m_removingScenes.size(), 0);
 }
 
+void Editor::start()
+{
+	loadDefaultScene();
+}
+
 void Editor::update(const MainThreadUpdateContext& ctx)
 {
 	// Process events
@@ -91,6 +96,20 @@ void Editor::afterRenderStage()
 	}
 }
 
+void Editor::stop()
+{
+	PH_LOG(Editor,
+		"{} scenes to be closed",
+		m_scenes.size());
+
+	// TODO: ask whether to save current scene
+}
+
+void Editor::loadDefaultScene()
+{
+	createScene();
+}
+
 void Editor::renderCleanupRemovingScenes(RenderThreadCaller& caller)
 {
 	for(auto& removingScene : m_removingScenes)
@@ -143,18 +162,54 @@ void Editor::cleanup()
 	{
 		scene->cleanup();
 	}
+
+	m_scenes.removeAll();
 }
 
-std::size_t Editor::createScene()
+std::size_t Editor::createScene(const std::string& name)
 {
 	DesignerScene* const scene = m_scenes.add(std::make_unique<DesignerScene>(this));
 	PH_ASSERT(scene != nullptr);
-
-	m_activeScene = scene;
-	postEvent(EditContextUpdateEvent(this, EEditContextEvent::ActiveSceneChanged), onEditContextUpdate);
-
 	const std::size_t sceneIndex = m_scenes.size() - 1;
+
+	if(!name.empty())
+	{
+		scene->setName(name);
+	}
+
+	PH_LOG(Editor,
+		"created scene \"{}\"",
+		scene->getName());
+
+	setActiveScene(sceneIndex);
 	return sceneIndex;
+}
+
+DesignerScene* Editor::getActiveScene() const
+{
+	return m_activeScene;
+}
+
+void Editor::setActiveScene(const std::size_t sceneIndex)
+{
+	DesignerScene* const sceneToBeActive = getScene(sceneIndex);
+	if(sceneToBeActive != m_activeScene)
+	{
+		m_activeScene = sceneToBeActive;
+		postEvent(EditContextUpdateEvent(this, EEditContextEvent::ActiveSceneChanged), onEditContextUpdate);
+	
+		if(m_activeScene)
+		{
+			PH_LOG(Editor,
+				"scene \"{}\" is now active",
+				m_activeScene->getName());
+		}
+		else
+		{
+			PH_LOG(Editor,
+				"no scene is now active");
+		}
+	}
 }
 
 void Editor::removeScene(const std::size_t sceneIndex)
@@ -164,29 +219,36 @@ void Editor::removeScene(const std::size_t sceneIndex)
 		PH_LOG_WARNING(Editor,
 			"scene not removed (scene index {} is invalid, must < {})",
 			sceneIndex, m_scenes.size());
-
 		return;
 	}
 
 	// Reassign another scene as the active one
-	m_activeScene = nullptr;
-	for(std::size_t i = 0; i < m_scenes.size(); ++i)
+	if(m_scenes.size() == 1)
 	{
-		if(i != sceneIndex)
-		{
-			m_activeScene = m_scenes[i];
-		}
+		// The scene to be removed is the last one, set active one to null
+		setActiveScene(static_cast<std::size_t>(-1));
 	}
-
-	if(m_activeScene != m_scenes[sceneIndex])
+	else
 	{
-		postEvent(EditContextUpdateEvent(this, EEditContextEvent::ActiveSceneChanged), onEditContextUpdate);
+		PH_ASSERT_GE(m_scenes.size(), 2);
+		for(std::size_t i = 0; i < m_scenes.size(); ++i)
+		{
+			if(i != sceneIndex)
+			{
+				setActiveScene(i);
+				break;
+			}
+		}
 	}
 
 	m_removingScenes.push_back({
 		.scene = m_scenes.remove(sceneIndex),
 		.hasRenderCleanupDone = false,
 		.hasCleanupDone = false});
+
+	PH_LOG(Editor, 
+		"removed scene \"{}\"", 
+		m_removingScenes.back().scene->getName());
 }
 
 void Editor::flushAllEvents()

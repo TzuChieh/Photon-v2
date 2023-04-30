@@ -79,7 +79,7 @@ void Application::run()
 	initialRenderThreadUpdate();
 
 	m_isRunning = true;
-	appMainLoop();
+	runMainLoop();
 	m_isRunning = false;
 
 	finalRenderThreadUpdate();
@@ -147,8 +147,10 @@ void Application::finalRenderThreadUpdate()
 	m_renderThread.endFrame();
 }
 
-void Application::appMainLoop()
+void Application::runMainLoop()
 {
+	appStart();
+
 	std::mutex loopMutex;
 	std::condition_variable loopCv;
 
@@ -254,6 +256,13 @@ void Application::appMainLoop()
 			}
 		}
 	}// end while `!m_shouldBreakMainLoop`
+
+	appStop();
+}
+
+void Application::appStart()
+{
+	m_editor.start();
 }
 
 void Application::appUpdate(const MainThreadUpdateContext& ctx)
@@ -310,6 +319,11 @@ void Application::appBeforeRenderStage()
 void Application::appAfterRenderStage()
 {
 	m_editor.afterRenderStage();
+}
+
+void Application::appStop()
+{
+	m_editor.stop();
 }
 
 bool Application::attachProcedureModule(ProcedureModule* const inModule)

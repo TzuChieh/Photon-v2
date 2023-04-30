@@ -52,7 +52,8 @@ public:
 private:
 	void initialRenderThreadUpdate();
 	void finalRenderThreadUpdate();
-	void appMainLoop();
+	void runMainLoop();
+	void appStart();
 	void appUpdate(const MainThreadUpdateContext& ctx);
 	void appRenderUpdate(const MainThreadRenderUpdateContext& ctx);
 	void appCreateRenderCommands();
@@ -60,6 +61,7 @@ private:
 	void appAfterUpdateStage();
 	void appBeforeRenderStage();
 	void appAfterRenderStage();
+	void appStop();
 	bool attachModule(AppModule* targetModule);
 	bool detachModule(AppModule* targetModule);
 	/*void postModuleAttachedEvent(AppModule* targetModule);

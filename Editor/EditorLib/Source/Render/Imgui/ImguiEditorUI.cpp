@@ -5,6 +5,7 @@
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "Render/Imgui/ImguiImageLibrary.h"
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
+#include "Designer/DesignerScene.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -187,7 +188,7 @@ void ImguiEditorUI::build()
 
 	buildStatsMonitor();
 
-	//show_imgui_demo_window();
+	show_imgui_demo_window();
 }
 
 void ImguiEditorUI::buildMainMenuBar()
@@ -288,6 +289,34 @@ void ImguiEditorUI::buildObjectBrowserWindow()
 		ImGui::TreePop();
 	}
 
+	ImGui::Separator();
+
+	ImGui::Text("Active Scene:");
+
+	// Custom size: use all width, 5 items tall
+	if(ImGui::BeginListBox("##Active Scene", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
+	{
+		for(std::size_t sceneIdx = 0; sceneIdx < getEditor().numScenes(); ++sceneIdx)
+		{
+			DesignerScene* const scene = getEditor().getScene(sceneIdx);
+			const bool isSelected = scene == getEditor().getActiveScene();
+			if(ImGui::Selectable(scene->getName().c_str(), isSelected))
+			{
+				if(!isSelected)
+				{
+					getEditor().setActiveScene(sceneIdx);
+				}
+			}
+
+			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+			if(isSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndListBox();
+	}
+
 	ImGui::End();
 }
 
@@ -342,6 +371,12 @@ void ImguiEditorUI::buildStatsMonitor()
 
 		ImGui::End();
 	}
+}
+
+Editor& ImguiEditorUI::getEditor()
+{
+	PH_ASSERT(m_editor);
+	return *m_editor;
 }
 
 }// end namespace ph::editor

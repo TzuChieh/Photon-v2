@@ -23,6 +23,7 @@
 
 #include <cstddef>
 #include <list>
+#include <string>
 
 namespace ph::editor
 {
@@ -43,6 +44,7 @@ public:
 	Editor();
 	~Editor();
 
+	void start();
 	void update(const MainThreadUpdateContext& ctx);
 	void renderUpdate(const MainThreadRenderUpdateContext& ctx);
 	void createRenderCommands(RenderThreadCaller& caller);
@@ -50,11 +52,14 @@ public:
 	void afterUpdateStage();
 	void beforeRenderStage();
 	void afterRenderStage();
+	void stop();
 	void renderCleanup(RenderThreadCaller& caller);
 	void cleanup();
 
-	std::size_t createScene();
+	std::size_t createScene(const std::string& name = "");
 	DesignerScene* getScene(std::size_t sceneIndex) const;
+	DesignerScene* getActiveScene() const;
+	void setActiveScene(std::size_t sceneIndex);
 	void removeScene(std::size_t sceneIndex);
 	std::size_t numScenes() const;
 
@@ -72,6 +77,7 @@ private:
 	std::list<PendingRemovalScene> m_removingScenes;
 	DesignerScene* m_activeScene = nullptr;
 
+	void loadDefaultScene();
 	void renderCleanupRemovingScenes(RenderThreadCaller& caller);
 	void cleanupRemovingScenes();
 
