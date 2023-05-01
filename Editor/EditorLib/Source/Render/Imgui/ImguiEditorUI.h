@@ -24,6 +24,7 @@ private:
 	void buildObjectBrowserWindow();
 	void buildMainViewportWindow();
 	void buildStatsMonitor();
+	void buildImguiDemo();
 
 	Editor& getEditor();
 
@@ -37,6 +38,7 @@ private:
 	ImGuiID m_centerDockSpaceID;
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
+	bool m_shouldShowImguiDemo;
 
 private:
 	static const char* const rootPropertiesWindowName;

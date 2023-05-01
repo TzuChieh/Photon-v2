@@ -108,8 +108,8 @@ void generate_sdl_interface(const EInterfaceGenerator type, const std::string_vi
 	PH_LOG(SdlGenApi, "generating SDL interface via generator {}", generator->getName());
 
 	generator->generate(
-		get_registered_sdl_classes(),
-		get_registered_sdl_enums());
+		get_registered_engine_classes(),
+		get_registered_engine_enums());
 
 	PH_LOG(SdlGenApi, "done generating SDL interface, output to <{}>",
 		generator->getOutputDirectory().toAbsoluteString());

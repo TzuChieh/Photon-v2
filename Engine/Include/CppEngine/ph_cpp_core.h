@@ -28,11 +28,11 @@ bool exit_render_engine();
 
 /*! @brief Get a list of registered SDL classes from the engine.
 */
-std::vector<const SdlClass*> get_registered_sdl_classes();
+std::vector<const SdlClass*> get_registered_engine_classes();
 
 /*! @brief Get a list of registered SDL enums from the engine.
 */
-std::vector<const SdlEnum*> get_registered_sdl_enums();
+std::vector<const SdlEnum*> get_registered_engine_enums();
 
 Path get_config_directory(EEngineProject project);
 

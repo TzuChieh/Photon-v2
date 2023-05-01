@@ -29,6 +29,7 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_centerDockSpaceID(0)
 	, m_shouldResetWindowLayout(false)
 	, m_shouldShowStatsMonitor(false)
+	, m_shouldShowImguiDemo(false)
 {}
 
 void ImguiEditorUI::initialize(
@@ -187,8 +188,7 @@ void ImguiEditorUI::build()
 	}
 
 	buildStatsMonitor();
-
-	show_imgui_demo_window();
+	buildImguiDemo();
 }
 
 void ImguiEditorUI::buildMainMenuBar()
@@ -370,6 +370,19 @@ void ImguiEditorUI::buildStatsMonitor()
 		ImGui::Text("Frame: %f ms", m_editor->editorStats.ghiThreadFrameMs);
 
 		ImGui::End();
+	}
+}
+
+void ImguiEditorUI::buildImguiDemo()
+{
+	if(ImGui::IsKeyReleased(ImGuiKey_F2))
+	{
+		m_shouldShowImguiDemo = !m_shouldShowImguiDemo;
+	}
+
+	if(m_shouldShowImguiDemo)
+	{
+		show_imgui_demo_window();
 	}
 }
 

@@ -37,7 +37,7 @@ SdlParser::SdlParser()
 	, m_numParsedCommands(0)
 	, m_numParseErrors(0)
 {
-	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
+	const std::vector<const SdlClass*> sdlClasses = get_registered_engine_classes();
 	for(const SdlClass* const clazz : sdlClasses)
 	{
 		PH_ASSERT(clazz);

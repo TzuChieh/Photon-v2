@@ -113,13 +113,13 @@ bool init_render_engine()
 	// be done in strange places/order later (which may cause problems).
 	// Enums are initialized first as they have less dependencies.
 	//
-	const std::vector<const SdlEnum*> sdlEnums = get_registered_sdl_enums();
+	const std::vector<const SdlEnum*> sdlEnums = get_registered_engine_enums();
 	PH_LOG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
 
 	// Get SDL classes once here to initialize them--this is not required,
 	// same reason as SDL enums.
 	//
-	const std::vector<const SdlClass*> sdlClasses = get_registered_sdl_classes();
+	const std::vector<const SdlClass*> sdlClasses = get_registered_engine_classes();
 	PH_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
 
 	if(!init_command_parser())
@@ -159,7 +159,7 @@ const SdlEnum* get_sdl_enum()
 
 }
 
-std::vector<const SdlClass*> get_registered_sdl_classes()
+std::vector<const SdlClass*> get_registered_engine_classes()
 {
 	return
 	{
@@ -232,7 +232,7 @@ std::vector<const SdlClass*> get_registered_sdl_classes()
 	};
 }
 
-std::vector<const SdlEnum*> get_registered_sdl_enums()
+std::vector<const SdlEnum*> get_registered_engine_enums()
 {
 	return
 	{
