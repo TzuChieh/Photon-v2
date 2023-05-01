@@ -11,7 +11,7 @@ namespace ph { class CookOrder; }
 namespace ph
 {
 
-class Actor : public TSdlResourceBase<ETypeCategory::Ref_Actor>
+class Actor : public TSdlResourceBase<ESdlTypeCategory::Ref_Actor>
 {
 public:
 	/*! @brief Cooking supplemental data before `cook()`.

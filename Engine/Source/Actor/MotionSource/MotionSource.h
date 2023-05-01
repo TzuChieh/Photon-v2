@@ -15,7 +15,7 @@ class CookingContext;
 class CookedMotion;
 class MotionCookConfig;
 
-class MotionSource : public TSdlResourceBase<ETypeCategory::Ref_Motion>
+class MotionSource : public TSdlResourceBase<ESdlTypeCategory::Ref_Motion>
 {
 public:
 	/*! @brief Store data suitable for rendering into `out_motion`.

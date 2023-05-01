@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/ISdlResource.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 #include "DataIO/SDL/sdl_helpers.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "Common/assertion.h"
@@ -38,7 +38,7 @@ public:
 	*/
 	std::shared_ptr<ISdlResource> get(
 		const std::string& resourceName,
-		ETypeCategory category) const;
+		ESdlTypeCategory category) const;
 	
 	/*! @brief Get a resource of type @p T with name @p resourceName.
 	@return The resource requested. `nullptr` if not found.
@@ -78,13 +78,13 @@ public:
 private:
 	std::array<
 		std::unordered_map<std::string, std::shared_ptr<ISdlResource>>, 
-		static_cast<std::size_t>(ETypeCategory::NUM)
+		static_cast<std::size_t>(ESdlTypeCategory::NUM)
 	> m_resources;
 	
 private:
-	std::size_t toCategoryIndex(ETypeCategory category) const;
-	auto getNameToResourceMap(ETypeCategory category) -> std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&;
-	auto getNameToResourceMap(ETypeCategory category) const -> const std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&;
+	std::size_t toCategoryIndex(ESdlTypeCategory category) const;
+	auto getNameToResourceMap(ESdlTypeCategory category) -> std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&;
+	auto getNameToResourceMap(ESdlTypeCategory category) const -> const std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&;
 };
 
 // In-header Implementations:
@@ -96,7 +96,7 @@ inline std::shared_ptr<T> RawResourceCollection::get(
 	static_assert(std::is_base_of_v<ISdlResource, T>,
 		"T is not a SDL resource.");
 
-	const ETypeCategory category = sdl::category_of<T>();
+	const ESdlTypeCategory category = sdl::category_of<T>();
 	std::shared_ptr<ISdlResource> rawResource = get(resourceName, category);
 	if(!rawResource)
 	{
@@ -151,7 +151,7 @@ inline bool RawResourceCollection::has(const std::string& resourceName) const
 	return iter != nameToResourceMap.end();
 }
 
-inline std::size_t RawResourceCollection::toCategoryIndex(const ETypeCategory category) const
+inline std::size_t RawResourceCollection::toCategoryIndex(const ESdlTypeCategory category) const
 {
 	const std::size_t index = static_cast<std::size_t>(category);
 	PH_ASSERT_LT(index, m_resources.size());
@@ -159,13 +159,13 @@ inline std::size_t RawResourceCollection::toCategoryIndex(const ETypeCategory ca
 	return index;
 }
 
-inline auto RawResourceCollection::getNameToResourceMap(const ETypeCategory category)
+inline auto RawResourceCollection::getNameToResourceMap(const ESdlTypeCategory category)
 	-> std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&
 {
 	return m_resources[toCategoryIndex(category)];
 }
 
-inline auto RawResourceCollection::getNameToResourceMap(const ETypeCategory category) const
+inline auto RawResourceCollection::getNameToResourceMap(const ESdlTypeCategory category) const
 	-> const std::unordered_map<std::string, std::shared_ptr<ISdlResource>>&
 {
 	return m_resources[toCategoryIndex(category)];

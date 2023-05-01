@@ -15,7 +15,7 @@ using namespace ph;
 namespace
 {
 
-class TestResource : public TSdlResourceBase<ETypeCategory::Ref_Option>
+class TestResource : public TSdlResourceBase<ESdlTypeCategory::Ref_Option>
 {
 public:
 	std::string str;

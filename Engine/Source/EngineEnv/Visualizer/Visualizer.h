@@ -9,14 +9,14 @@ namespace ph
 class Visualizer : public CoreSdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::Ref_Visualizer;
+	static constexpr ESdlTypeCategory CATEGORY = ESdlTypeCategory::Ref_Visualizer;
 
 public:
 	inline Visualizer() = default;
 
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
-	ETypeCategory getDynamicCategory() const override;
+	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Visualizer>)
@@ -30,7 +30,7 @@ public:
 
 // In-header Implementations:
 
-inline ETypeCategory Visualizer::getDynamicCategory() const
+inline ESdlTypeCategory Visualizer::getDynamicCategory() const
 {
 	return CATEGORY;
 }

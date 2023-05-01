@@ -10,7 +10,7 @@
 #include <DataIO/SDL/Introspect/SdlFunction.h>
 #include <DataIO/SDL/Introspect/SdlField.h>
 #include <DataIO/SDL/Introspect/SdlEnum.h>
-#include <DataIO/SDL/ETypeCategory.h>
+#include <DataIO/SDL/ESdlTypeCategory.h>
 #include <DataIO/SDL/sdl_helpers.h>
 #include <Common/logging.h>
 

@@ -22,12 +22,12 @@ namespace
 class TestResource : public ISdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::Ref_Geometry;
+	static constexpr ESdlTypeCategory CATEGORY = ESdlTypeCategory::Ref_Geometry;
 
 	real r;
 	std::string str;
 
-	ETypeCategory getDynamicCategory() const override
+	ESdlTypeCategory getDynamicCategory() const override
 	{
 		return CATEGORY;
 	}

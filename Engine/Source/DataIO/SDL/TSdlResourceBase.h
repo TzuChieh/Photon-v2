@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/SdlResourceBase.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 
 namespace ph
 {
@@ -11,7 +11,7 @@ This class is similar to SdlResourceBase, except that it provides a way for
 derived classes to supply static category information. Dynamic category is 
 directly obtained from it.
 */
-template<ETypeCategory TYPE_CATEGORY>
+template<ESdlTypeCategory TYPE_CATEGORY>
 class TSdlResourceBase : public SdlResourceBase
 {
 public:
@@ -19,7 +19,7 @@ public:
 	This static category information is required by ISdlResource. See its documentation
 	for more details.
 	*/
-	static constexpr ETypeCategory CATEGORY = TYPE_CATEGORY;
+	static constexpr ESdlTypeCategory CATEGORY = TYPE_CATEGORY;
 
 protected:
 	inline TSdlResourceBase() = default;
@@ -30,13 +30,13 @@ protected:
 	inline TSdlResourceBase& operator = (TSdlResourceBase&& rhs) = default;
 
 public:
-	ETypeCategory getDynamicCategory() const override;
+	ESdlTypeCategory getDynamicCategory() const override;
 };
 
 // In-header Implementations:
 
-template<ETypeCategory TYPE_CATEGORY>
-inline ETypeCategory TSdlResourceBase<TYPE_CATEGORY>::getDynamicCategory() const
+template<ESdlTypeCategory TYPE_CATEGORY>
+inline ESdlTypeCategory TSdlResourceBase<TYPE_CATEGORY>::getDynamicCategory() const
 {
 	return CATEGORY;
 }

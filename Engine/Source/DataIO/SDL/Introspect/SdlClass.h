@@ -3,7 +3,7 @@
 #include "Common/assertion.h"
 #include "Common/logging.h"
 #include "DataIO/SDL/ValueClauses.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 #include "Utility/IMoveOnly.h"
 #include "DataIO/SDL/OutputPayloads.h"
 
@@ -29,7 +29,7 @@ PH_DEFINE_EXTERNAL_LOG_GROUP(SdlClass, SDL);
 class SdlClass
 {
 public:
-	SdlClass(ETypeCategory category, const std::string& typeName);
+	SdlClass(ESdlTypeCategory category, const std::string& typeName);
 	virtual ~SdlClass() = default;
 
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
@@ -80,7 +80,7 @@ public:
 
 	std::string genPrettyName() const;
 	std::string genCategoryName() const;
-	ETypeCategory getCategory() const;
+	ESdlTypeCategory getCategory() const;
 	const std::string& getTypeName() const;
 	const std::string& getDocName() const;
 	const std::string& getDescription() const;
@@ -102,17 +102,17 @@ protected:
 	SdlClass& setBase();
 
 private:
-	ETypeCategory m_category;
-	std::string   m_typeName;
-	std::string   m_docName;
-	std::string   m_description;
+	ESdlTypeCategory m_category;
+	std::string m_typeName;
+	std::string m_docName;
+	std::string m_description;
 
 	const SdlClass* m_base;
 };
 
 // In-header Implementation:
 
-inline SdlClass::SdlClass(const ETypeCategory category, const std::string& typeName) :
+inline SdlClass::SdlClass(const ESdlTypeCategory category, const std::string& typeName) :
 	m_category   (category), 
 	m_typeName   (typeName),
 	m_docName    (typeName),
@@ -120,13 +120,13 @@ inline SdlClass::SdlClass(const ETypeCategory category, const std::string& typeN
 	m_base       (nullptr)
 {
 	PH_ASSERT(!m_typeName.empty());
-	PH_ASSERT_MSG(m_category != ETypeCategory::Unspecified,
+	PH_ASSERT_MSG(m_category != ESdlTypeCategory::Unspecified,
 		"unspecified SDL resource category detected in " + genPrettyName() + "; "
 		"consult documentation of ISdlResource and see if the SDL resource is "
 		"properly implemented");
 }
 
-inline ETypeCategory SdlClass::getCategory() const
+inline ESdlTypeCategory SdlClass::getCategory() const
 {
 	return m_category;
 }

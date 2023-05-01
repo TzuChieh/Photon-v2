@@ -14,7 +14,7 @@ namespace ph
 {
 
 template<CSdlResource T>
-inline constexpr ETypeCategory TSdl<T>::getCategory()
+inline constexpr ESdlTypeCategory TSdl<T>::getCategory()
 {
 	return sdl::category_of<T>();
 }

@@ -234,7 +234,7 @@ inline void save_number_array(const std::vector<NumberType>& values, std::string
 }
 
 template<typename T>
-inline constexpr ETypeCategory category_of()
+inline constexpr ESdlTypeCategory category_of()
 {
 	if constexpr(CSdlResource<T> && CHasStaticSdlCategoryInfo<T>)
 	{
@@ -242,7 +242,7 @@ inline constexpr ETypeCategory category_of()
 	}
 	else
 	{
-		return ETypeCategory::Unspecified;
+		return ESdlTypeCategory::Unspecified;
 	}
 }
 

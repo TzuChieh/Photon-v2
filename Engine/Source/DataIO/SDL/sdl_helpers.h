@@ -12,7 +12,7 @@ Helpers are in an additional `sdl` namespace.
 #include "Math/TVector2.h"
 #include "Math/TQuaternion.h"
 #include "Utility/string_utils.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 
 #include <string>
 #include <string_view>
@@ -135,11 +135,11 @@ auto get_all_callable_functions(const SdlClass* callableParentClass)
 
 /*! @brief Statically gets the SDL category of @p T.
 @tparam T Type that category information is going to be extracted from.
-@return Category of @p T. The result is ETypeCategory::Unspecified if category
+@return Category of @p T. The result is ESdlTypeCategory::Unspecified if category
 information does not exist, or @p T is not an @p ISdlResource.
 */
 template<typename T>
-constexpr ETypeCategory category_of();
+constexpr ESdlTypeCategory category_of();
 
 /*! @brief Cast between SDL resource types.
 Cast the input SDL resource instance of `SrcType` to an instance of `DstType`.

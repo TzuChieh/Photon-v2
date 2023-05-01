@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 
 #include <type_traits>
 
@@ -21,7 +21,7 @@ concept CHasStaticSdlCategoryInfo =
 	CSdlResource<T> &&
 	// Check equality of types with cv and ref removed just to be robust
 	// (in case the implementer qualifies the `CATEGORY` member).
-	std::is_same_v<std::remove_cvref_t<decltype(T::CATEGORY)>, ETypeCategory>;
+	std::is_same_v<std::remove_cvref_t<decltype(T::CATEGORY)>, ESdlTypeCategory>;
 
 /*! @brief Whether @p T is a well-defined SDL class.
 */

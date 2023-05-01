@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/TOwnedSdlField.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 
 #include <string>
 #include <string_view>

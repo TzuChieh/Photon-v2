@@ -9,14 +9,14 @@ namespace ph
 class SampleSource : public CoreSdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::Ref_SampleSource;
+	static constexpr ESdlTypeCategory CATEGORY = ESdlTypeCategory::Ref_SampleSource;
 
 public:
 	inline SampleSource() = default;
 
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
-	ETypeCategory getDynamicCategory() const override;
+	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SampleSource>)
@@ -30,7 +30,7 @@ public:
 
 // In-header Implementations:
 
-inline ETypeCategory SampleSource::getDynamicCategory() const
+inline ESdlTypeCategory SampleSource::getDynamicCategory() const
 {
 	return CATEGORY;
 }

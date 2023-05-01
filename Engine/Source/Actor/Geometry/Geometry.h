@@ -17,7 +17,7 @@ class GeometryCookConfig;
 class CookingContext;
 class PrimitiveBuildingMaterial;
 
-class Geometry : public TSdlResourceBase<ETypeCategory::Ref_Geometry>
+class Geometry : public TSdlResourceBase<ESdlTypeCategory::Ref_Geometry>
 {
 public:
 	/*! @brief Store data suitable for rendering into `out_geometry`.

@@ -6,7 +6,7 @@
 */
 
 #include "DataIO/SDL/ISdlResource.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 #include "DataIO/SDL/sdl_traits.h"
 
 #include <type_traits>
@@ -22,10 +22,10 @@ class TSdl final
 public:
 	/*! @brief Statically gets the category of @p T.
 	@tparam T Type that category information is going to be extracted from.
-	@return Category of @p T. The result is `ETypeCategory::Unspecified` if category
+	@return Category of @p T. The result is `ESdlTypeCategory::Unspecified` if category
 	information does not exist.
 	*/
-	static constexpr ETypeCategory getCategory();
+	static constexpr ESdlTypeCategory getCategory();
 
 	/*! @brief Creates a sharable resource filled with default values.
 	*/

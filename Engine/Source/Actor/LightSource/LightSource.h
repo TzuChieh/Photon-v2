@@ -16,7 +16,7 @@ class Emitter;
 class Geometry;
 class Material;
 
-class LightSource : public TSdlResourceBase<ETypeCategory::Ref_LightSource>
+class LightSource : public TSdlResourceBase<ESdlTypeCategory::Ref_LightSource>
 {
 public:
 	LightSource() = default;

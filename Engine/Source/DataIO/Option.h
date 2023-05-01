@@ -6,7 +6,7 @@
 namespace ph
 {
 
-class Option : public TSdlResourceBase<ETypeCategory::Ref_Option>
+class Option : public TSdlResourceBase<ESdlTypeCategory::Ref_Option>
 {
 public:
 	inline Option() = default;

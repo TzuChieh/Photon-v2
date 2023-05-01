@@ -2,7 +2,7 @@
 
 #include "DataIO/SDL/ISdlResource.h"
 #include "DataIO/SDL/SdlResourceId.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 #include "Common/assertion.h"
 
 namespace ph
@@ -23,7 +23,7 @@ protected:
 	inline SdlResourceBase& operator = (SdlResourceBase&& rhs) = default;
 
 public:
-	ETypeCategory getDynamicCategory() const override = 0;
+	ESdlTypeCategory getDynamicCategory() const override = 0;
 
 	SdlResourceId getId() const override;
 

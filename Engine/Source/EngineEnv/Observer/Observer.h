@@ -11,14 +11,14 @@ namespace ph
 class Observer : public CoreSdlResource
 {
 public:
-	static constexpr ETypeCategory CATEGORY = ETypeCategory::Ref_Observer;
+	static constexpr ESdlTypeCategory CATEGORY = ESdlTypeCategory::Ref_Observer;
 
 public:
 	inline Observer() = default;
 
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
-	ETypeCategory getDynamicCategory() const override;
+	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
 	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Observer>)
@@ -32,7 +32,7 @@ public:
 
 // In-header Implementations:
 
-inline ETypeCategory Observer::getDynamicCategory() const
+inline ESdlTypeCategory Observer::getDynamicCategory() const
 {
 	return CATEGORY;
 }

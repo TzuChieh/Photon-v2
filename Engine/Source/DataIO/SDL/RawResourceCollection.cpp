@@ -1,5 +1,5 @@
 #include "DataIO/SDL/RawResourceCollection.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 #include "Common/logging.h"
 
 namespace ph
@@ -43,7 +43,7 @@ void RawResourceCollection::add(
 
 std::shared_ptr<ISdlResource> RawResourceCollection::get(
 	const std::string& resourceName,
-	const ETypeCategory category) const
+	const ESdlTypeCategory category) const
 {
 	const auto& nameToResourceMap = getNameToResourceMap(category);
 

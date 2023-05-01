@@ -4,7 +4,7 @@
 #include "Common/logging.h"
 #include "ph_cpp_core.h"
 #include "DataIO/SDL/sdl_helpers.h"
-#include "DataIO/SDL/ETypeCategory.h"
+#include "DataIO/SDL/ESdlTypeCategory.h"
 #include "Utility/string_utils.h"
 #include "DataIO/SDL/Introspect/SdlClass.h"
 #include "DataIO/SDL/sdl_exceptions.h"
