@@ -37,7 +37,14 @@ inline void TSdlOptionalValue<T, Owner>::setValue(Owner& owner, T value) const
 }
 
 template<typename T, typename Owner>
-inline const T* TSdlOptionalValue<T, Owner>::getValue(const Owner& owner) const
+inline T* TSdlOptionalValue<T, Owner>::getValue(Owner& owner) const
+{
+	std::optional<T>& optValue = owner.*m_valuePtr;
+	return optValue.has_value() ? &optValue.value() : nullptr;
+}
+
+template<typename T, typename Owner>
+inline const T* TSdlOptionalValue<T, Owner>::getConstValue(const Owner& owner) const
 {
 	const std::optional<T>& optValue = owner.*m_valuePtr;
 	return optValue.has_value() ? &optValue.value() : nullptr;
@@ -47,19 +54,6 @@ template<typename T, typename Owner>
 inline void TSdlOptionalValue<T, Owner>::setValueToDefault(Owner& owner) const
 {
 	owner.*m_valuePtr = std::nullopt;
-}
-
-template<typename T, typename Owner>
-inline SdlNativeData TSdlOptionalValue<T, Owner>::ownedNativeData(Owner& owner) const
-{
-	SdlNativeData data;
-	data.format = getNativeFormat();
-	data.dataType = getNativeType();
-
-	std::optional<T>& optValue = owner.*m_valuePtr;
-	data.dataPtr = optValue.has_value() ? &optValue.value() : nullptr;
-
-	return data;
 }
 
 }// end namespace ph

@@ -42,14 +42,20 @@ public:
 		return std::string(TSdlEnum<EnumType>()[value]);
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Single;
-	}
+		EnumType* const enumPtr = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
-		return ESdlDataType::Enum;
+		SdlNativeData data;
+		if(enumPtr)
+		{
+			data = SdlNativeData(enumPtr);
+		}
+
+		data.format = ESdlDataFormat::Single;
+		data.dataType = ESdlDataType::Enum;
+
+		return data;
 	}
 
 protected:
@@ -66,7 +72,7 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const EnumType* const enumValue = this->getValue(owner); enumValue)
+		if(const EnumType* const enumValue = this->getConstValue(owner); enumValue)
 		{
 			sdl::save_field_id(this, out_payload);
 			out_payload.value = TSdlEnum<EnumType>()[*enumValue];

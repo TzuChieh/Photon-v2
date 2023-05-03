@@ -42,21 +42,32 @@ public:
 		return vec3.toString();
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Vector3;
-	}
+		math::TVector3<Element>* const vec3 = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
+		SdlNativeData data;
+		if(vec3)
+		{
+			data = SdlNativeData(
+				[vec3](const std::size_t elementIdx) -> void*
+				{
+					return &((*vec3)[elementIdx]);
+				},
+				3);
+		}
+
+		data.format = ESdlDataFormat::Vector3;
 		if constexpr(std::is_floating_point_v<Element>)
 		{
-			return sdl::float_type_of<Element>();
+			data.dataType = sdl::float_type_of<Element>();
 		}
 		else
 		{
-			return sdl::int_type_of<Element>();
+			data.dataType = sdl::int_type_of<Element>();
 		}
+
+		return data;
 	}
 
 protected:
@@ -74,7 +85,7 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const math::TVector3<Element>* const vec3 = this->getValue(owner); vec3)
+		if(const math::TVector3<Element>* const vec3 = this->getConstValue(owner); vec3)
 		{
 			sdl::save_field_id(this, out_payload);
 			sdl::save_vector3(*vec3, &out_payload.value);

@@ -26,14 +26,20 @@ public:
 		return str;
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Single;
-	}
+		std::string* const str = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
-		return ESdlDataType::String;
+		SdlNativeData data;
+		if(str)
+		{
+			data = SdlNativeData(str);
+		}
+
+		data.format = ESdlDataFormat::Single;
+		data.dataType = ESdlDataType::String;
+
+		return data;
 	}
 
 protected:
@@ -51,7 +57,7 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const std::string* const str = this->getValue(owner); str)
+		if(const std::string* const str = this->getConstValue(owner); str)
 		{
 			sdl::save_field_id(this, out_payload);
 

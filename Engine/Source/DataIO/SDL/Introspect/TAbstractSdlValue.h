@@ -30,10 +30,12 @@ public:
 	/*! @brief Get a pointer to the stored value.
 	@return Pointer to the stored value. nullptr if no value is stored.
 	*/
-	virtual const T* getValue(const Owner& owner) const = 0;
+	virtual T* getValue(Owner& owner) const = 0;
 
-	virtual ESdlDataFormat getNativeFormat() const = 0;
-	virtual ESdlDataType getNativeType() const = 0;
+	/*! @brief Get a pointer to the stored value.
+	@return Pointer to the stored value. nullptr if no value is stored.
+	*/
+	virtual const T* getConstValue(const Owner& owner) const = 0;
 
 	void setValueToDefault(Owner& owner) const override = 0;
 

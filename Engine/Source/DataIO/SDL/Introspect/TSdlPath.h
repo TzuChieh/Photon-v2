@@ -32,14 +32,20 @@ public:
 		return path.toString();
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Single;
-	}
+		Path* const path = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
-		return ESdlDataType::Path;
+		SdlNativeData data;
+		if(path)
+		{
+			data = SdlNativeData(path);
+		}
+
+		data.format = ESdlDataFormat::Single;
+		data.dataType = ESdlDataType::Path;
+
+		return data;
 	}
 
 protected:
@@ -64,9 +70,10 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const Path* const path = this->getValue(owner); path)
+		if(const Path* const path = this->getConstValue(owner); path)
 		{
 			// TODO
+			PH_ASSERT_UNREACHABLE_SECTION();
 		}
 	}
 };

@@ -45,14 +45,20 @@ public:
 		return spectrum.toString();
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Single;
-	}
+		math::Spectrum* const spectrum = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
-		return ESdlDataType::Spectrum;
+		SdlNativeData data;
+		if(spectrum)
+		{
+			data = SdlNativeData(spectrum);
+		}
+
+		data.format = ESdlDataFormat::Single;
+		data.dataType = ESdlDataType::Spectrum;
+
+		return data;
 	}
 
 protected:

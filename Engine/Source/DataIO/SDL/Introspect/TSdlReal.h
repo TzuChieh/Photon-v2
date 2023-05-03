@@ -32,14 +32,20 @@ public:
 		return std::to_string(value);
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Single;
-	}
+		FloatType* const floatPtr = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
-		return sdl::float_type_of<FloatType>();
+		SdlNativeData data;
+		if(floatPtr)
+		{
+			data = SdlNativeData(floatPtr);
+		}
+
+		data.format = ESdlDataFormat::Single;
+		data.dataType = sdl::float_type_of<FloatType>();
+
+		return data;
 	}
 
 protected:
@@ -56,7 +62,7 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const FloatType* const value = this->getValue(owner); value)
+		if(const FloatType* const value = this->getConstValue(owner); value)
 		{
 			sdl::save_field_id(this, out_payload);
 			sdl::save_float<FloatType>(*value, &out_payload.value);

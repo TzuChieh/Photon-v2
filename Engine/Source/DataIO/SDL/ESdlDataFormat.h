@@ -4,7 +4,7 @@ namespace ph
 {
 
 /*! @brief Format of the data used by SDL.
-Each listed data format tells how a group of data is arranged as well as its meaning.
+Each listed data format tells how a group of data is arranged internally as well as its meaning.
 Useful for code that require some determinable runtime behavior.
 */
 enum class ESdlDataFormat
@@ -23,14 +23,13 @@ enum class ESdlDataFormat
 	/*! `math::TQuaternion<?>` types. */
 	Quaternion,
 
-	/*! `std::vector<?>` types. */
-	Vector,
+	/*! An array of objects. */
+	Array,
 
-	/*! `std::vector<math::TVector3<?>>` types. */
-	Vector3Vector,
+	/*! An array of `math::TVector3<?>` objects. */
+	Vector3Array,
 
-	/*! `std::vector<std::shared_ptr<?>>` types. */
-	SharedPtrVector,
+	SIZE
 };
 
 }// end namespace ph

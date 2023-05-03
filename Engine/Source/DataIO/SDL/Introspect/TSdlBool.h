@@ -29,14 +29,20 @@ public:
 		return value ? "true" : "false";
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Single;
-	}
+		bool* const boolPtr = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
-		return ESdlDataType::Bool;
+		SdlNativeData data;
+		if(boolPtr)
+		{
+			data = SdlNativeData(boolPtr);
+		}
+
+		data.format = ESdlDataFormat::Single;
+		data.dataType = ESdlDataType::Bool;
+
+		return data;
 	}
 
 protected:
@@ -60,7 +66,7 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const bool* const value = this->getValue(owner); value)
+		if(const bool* const value = this->getConstValue(owner); value)
 		{
 			sdl::save_field_id(this, out_payload);
 			out_payload.value = *value ? "true" : "false";

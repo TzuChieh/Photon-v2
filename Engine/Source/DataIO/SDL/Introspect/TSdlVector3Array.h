@@ -35,21 +35,33 @@ public:
 		return "[" + std::to_string(vec3Array.size()) + " vector3 values...]";
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Vector3Vector;
-	}
+		std::vector<math::TVector3<Element>>* const vec3Vec = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
+		SdlNativeData data;
+		if(vec3Vec)
+		{
+			data = SdlNativeData(
+				[vec3Vec](const std::size_t elementIdx) -> void*
+				{
+					const auto vec3Idx = elementIdx / 3;
+					return &((*vec3Vec)[vec3Idx]);
+				},
+				vec3Vec->size() * 3);
+		}
+		
+		data.format = ESdlDataFormat::Vector3Array;
 		if constexpr(std::is_floating_point_v<Element>)
 		{
-			return sdl::float_type_of<Element>();
+			data.dataType = sdl::float_type_of<Element>();
 		}
 		else
 		{
-			return sdl::int_type_of<Element>();
+			data.dataType = sdl::int_type_of<Element>();
 		}
+
+		return data;
 	}
 
 protected:
@@ -66,7 +78,7 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const std::vector<math::TVector3<Element>>* const vec3Arr = this->getValue(owner); vec3Arr)
+		if(const std::vector<math::TVector3<Element>>* const vec3Arr = this->getConstValue(owner); vec3Arr)
 		{
 			sdl::save_field_id(this, out_payload);
 			sdl::save_vector3_array(*vec3Arr, &out_payload.value);

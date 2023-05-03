@@ -34,14 +34,25 @@ public:
 		return "[" + std::to_string(realArray.size()) + " real values...]";
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Vector;
-	}
+		std::vector<Element>* const vec = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
-		return sdl::float_type_of<Element>();
+		SdlNativeData data;
+		if(vec)
+		{
+			data = SdlNativeData(
+				[vec](const std::size_t elementIdx) -> void*
+				{
+					return &((*vec)[elementIdx]);
+				},
+				vec->size());
+		}
+
+		data.format = ESdlDataFormat::Array;
+		data.dataType = sdl::float_type_of<Element>();
+
+		return data;
 	}
 
 protected:
@@ -77,7 +88,7 @@ protected:
 	{
 		// TODO: optionally as file
 
-		if(const std::vector<Element>* const numberArr = this->getValue(owner); numberArr)
+		if(const std::vector<Element>* const numberArr = this->getConstValue(owner); numberArr)
 		{
 			sdl::save_field_id(this, out_payload);
 			sdl::save_number_array<Element>(*numberArr, &out_payload.value);

@@ -28,7 +28,13 @@ inline void TSdlValue<T, Owner>::setValue(Owner& owner, T value) const
 }
 
 template<typename T, typename Owner>
-inline const T* TSdlValue<T, Owner>::getValue(const Owner& owner) const
+inline T* TSdlValue<T, Owner>::getValue(Owner& owner) const
+{
+	return &(owner.*m_valuePtr);
+}
+
+template<typename T, typename Owner>
+inline const T* TSdlValue<T, Owner>::getConstValue(const Owner& owner) const
 {
 	return &(owner.*m_valuePtr);
 }
@@ -37,16 +43,6 @@ template<typename T, typename Owner>
 inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner) const
 {
 	setValue(owner, m_defaultValue);
-}
-
-template<typename T, typename Owner>
-inline SdlNativeData TSdlValue<T, Owner>::ownedNativeData(Owner& owner) const
-{
-	SdlNativeData data;
-	data.format = getNativeFormat();
-	data.dataType = getNativeType();
-	data.dataPtr = &(owner.*m_valuePtr);
-	return data;
 }
 
 template<typename T, typename Owner>

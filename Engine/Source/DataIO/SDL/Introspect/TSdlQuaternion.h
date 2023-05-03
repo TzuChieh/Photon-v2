@@ -38,21 +38,39 @@ public:
 		return quat.toString();
 	}
 
-	inline ESdlDataFormat getNativeFormat() const override
+	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		return ESdlDataFormat::Quaternion;
-	}
+		math::TQuaternion<Element>* const quat = this->getValue(owner);
 
-	inline ESdlDataType getNativeType() const override
-	{
+		SdlNativeData data;
+		if(quat)
+		{
+			data = SdlNativeData(
+				[quat](const std::size_t elementIdx) -> void*
+				{
+					switch(elementIdx)
+					{
+					case 0: return &(quat->x);
+					case 1: return &(quat->y);
+					case 2: return &(quat->z);
+					case 3: return &(quat->w);
+					default: return nullptr;
+					}
+				},
+				4);
+		}
+
+		data.format = ESdlDataFormat::Quaternion;
 		if constexpr(std::is_floating_point_v<Element>)
 		{
-			return sdl::float_type_of<Element>();
+			data.dataType = sdl::float_type_of<Element>();
 		}
 		else
 		{
-			return sdl::int_type_of<Element>();
+			data.dataType = sdl::int_type_of<Element>();
 		}
+
+		return data;
 	}
 
 protected:
@@ -69,7 +87,7 @@ protected:
 		SdlOutputPayload&       out_payload,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const math::TQuaternion<Element>* const quat = this->getValue(owner); quat)
+		if(const math::TQuaternion<Element>* const quat = this->getConstValue(owner); quat)
 		{
 			sdl::save_field_id(this, out_payload);
 			sdl::save_quaternion(*quat, &out_payload.value);

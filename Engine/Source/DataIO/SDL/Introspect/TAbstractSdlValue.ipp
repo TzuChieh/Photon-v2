@@ -16,7 +16,7 @@ inline TAbstractSdlValue<T, Owner>::TAbstractSdlValue(
 template<typename T, typename Owner>
 inline std::string TAbstractSdlValue<T, Owner>::valueToString(const Owner& owner) const
 {
-	const T* const valuePtr = getValue(owner);
+	const T* const valuePtr = getConstValue(owner);
 	return valuePtr ? valueAsString(*valuePtr) : "(empty)";
 }
 

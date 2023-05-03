@@ -76,34 +76,71 @@ inline void TSdlReferenceArray<T, Owner>::ownedResources(
 template<typename T, typename Owner>
 inline SdlNativeData TSdlReferenceArray<T, Owner>::ownedNativeData(Owner& owner) const
 {
-	std::vector<std::shared_ptr<T>>* const referenceVectorPtr = &(owner.*m_valuePtr);
+	constexpr ESdlDataType RES_TYPE = sdl::resource_type_of<T>();
 
-	SdlNativeData data;
-	data.format = ESdlDataFormat::SharedPtrVector;
+	std::vector<std::shared_ptr<T>>* const refVec = &(owner.*m_valuePtr);
 
-	// C++ does not support covariant array/vector, so only a couple of cases (where `T` is an exact
-	// match to one of the base resource type) are fully supported. For other cases, data pointer is
-	// still provided though the user need to figure out the actual type themselves.
-	if constexpr(
-		CSame<T, Geometry> ||
-		CSame<T, Material> ||
-		CSame<T, MotionSource> || 
-		CSame<T, LightSource> || 
-		CSame<T, Actor> || 
-		CSame<T, Image> || 
-		CSame<T, FrameProcessor> || 
-		CSame<T, Observer> || 
-		CSame<T, SampleSource> || 
-		CSame<T, Visualizer> || 
-		CSame<T, Option>)
-	{
-		data.dataType = sdl::resource_type_of<T>();
-	}
-	else
-	{
-		data.dataType = ESdlDataType::None;
-	}
-	data.dataPtr = &(owner.*m_valuePtr);
+	SdlNativeData data(
+		[refVec](const std::size_t elementIdx) -> void*
+		{
+			T* const originalDataPtr = (*refVec)[elementIdx].get();
+
+			// Cast to appropriate pointer type before return (casting to/from void* is only 
+			// valid if the exact same type is used)
+			if constexpr(RES_TYPE == ESdlDataType::Geometry)
+			{
+				return static_cast<Geometry*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::Material)
+			{
+				return static_cast<Material*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::Motion)
+			{
+				return static_cast<MotionSource*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::LightSource)
+			{
+				return static_cast<LightSource*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::Actor)
+			{
+				return static_cast<Actor*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::Image)
+			{
+				return static_cast<Image*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::FrameProcessor)
+			{
+				return static_cast<FrameProcessor*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::Observer)
+			{
+				return static_cast<Observer*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::SampleSource)
+			{
+				return static_cast<SampleSource*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::Visualizer)
+			{
+				return static_cast<Visualizer*>(originalDataPtr);
+			}
+			else if constexpr(RES_TYPE == ESdlDataType::Option)
+			{
+				return static_cast<Option*>(originalDataPtr);
+			}
+			else
+			{
+				PH_ASSERT_UNREACHABLE_SECTION();
+				return nullptr;
+			}
+		},
+		refVec->size());
+
+	data.format = ESdlDataFormat::Array;
+	data.dataType = RES_TYPE;
 	
 	return data;
 }
