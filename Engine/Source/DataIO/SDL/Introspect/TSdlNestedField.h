@@ -34,6 +34,8 @@ public:
 		const OuterType& outerObj,
 		std::vector<const ISdlResource*>& out_resources) const override;
 
+	SdlNativeData ownedNativeData(OuterType& outerObj) const override;
+
 protected:
 	void loadFromSdl(
 		OuterType&             outerObj,
@@ -93,6 +95,12 @@ inline void TSdlNestedField<OuterType, InnerType>::ownedResources(
 	std::vector<const ISdlResource*>& out_resources) const
 {
 	m_innerObjField->ownedResources(outerObj.*m_innerObjPtr, out_resources);
+}
+
+template<typename OuterType, typename InnerType>
+inline SdlNativeData TSdlNestedField<OuterType, InnerType>::ownedNativeData(OuterType& outerObj) const
+{
+	return m_innerObjField->ownedNativeData(outerObj.*m_innerObjPtr);
 }
 
 template<typename OuterType, typename InnerType>

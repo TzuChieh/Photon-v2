@@ -26,6 +26,16 @@ public:
 		return str;
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Single;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		return ESdlDataType::String;
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,

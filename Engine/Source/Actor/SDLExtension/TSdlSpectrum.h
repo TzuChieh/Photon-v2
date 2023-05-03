@@ -45,6 +45,16 @@ public:
 		return spectrum.toString();
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Single;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		return ESdlDataType::Spectrum;
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,

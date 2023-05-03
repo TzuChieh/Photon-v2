@@ -2,9 +2,12 @@
 
 #include "Common/assertion.h"
 #include "Common/logging.h"
+#include "DataIO/SDL/Introspect/SdlNativeData.h"
 
 #include <string>
 #include <utility>
+
+namespace ph { class ISdlResource; }
 
 namespace ph
 {
@@ -16,6 +19,14 @@ class SdlField
 public:
 	SdlField(std::string typeName, std::string fieldName);
 	virtual ~SdlField() = default;
+
+	/*! @brief Direct access to the field memory of a SDL resource.
+	Note that this field may not necessarily be bound to a SDL resource type (e.g., function parameter
+	structs). Empty native data info will be returned in cases where this field is not part of the
+	input resource. Obtaining native data requires the input resource be valid during this call and
+	any further usages of the returned native data.
+	*/
+	virtual SdlNativeData nativeData(ISdlResource& resource) const = 0;
 
 	std::string genPrettyName() const;
 	const std::string& getTypeName() const;

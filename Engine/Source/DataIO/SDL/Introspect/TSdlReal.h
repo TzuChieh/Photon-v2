@@ -32,6 +32,16 @@ public:
 		return std::to_string(value);
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Single;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		return sdl::float_type_of<FloatType>();
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,

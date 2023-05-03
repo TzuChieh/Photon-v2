@@ -40,6 +40,16 @@ inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner) const
 }
 
 template<typename T, typename Owner>
+inline SdlNativeData TSdlValue<T, Owner>::ownedNativeData(Owner& owner) const
+{
+	SdlNativeData data;
+	data.format = getNativeFormat();
+	data.dataType = getNativeType();
+	data.dataPtr = &(owner.*m_valuePtr);
+	return data;
+}
+
+template<typename T, typename Owner>
 inline auto TSdlValue<T, Owner>::defaultTo(T defaultValue)
 -> TSdlValue&
 {

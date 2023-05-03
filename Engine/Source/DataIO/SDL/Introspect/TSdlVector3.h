@@ -42,6 +42,23 @@ public:
 		return vec3.toString();
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Vector3;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		if constexpr(std::is_floating_point_v<Element>)
+		{
+			return sdl::float_type_of<Element>();
+		}
+		else
+		{
+			return sdl::int_type_of<Element>();
+		}
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,

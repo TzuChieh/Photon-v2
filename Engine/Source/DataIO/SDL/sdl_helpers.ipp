@@ -6,6 +6,7 @@
 #include "DataIO/SDL/sdl_traits.h"
 #include "DataIO/SDL/sdl_exceptions.h"
 #include "DataIO/SDL/ISdlResource.h"
+#include "Utility/traits.h"
 
 #include <type_traits>
 
@@ -243,6 +244,119 @@ inline constexpr ESdlTypeCategory category_of()
 	else
 	{
 		return ESdlTypeCategory::Unspecified;
+	}
+}
+
+template<std::integral IntType>
+inline constexpr ESdlDataType int_type_of()
+{
+	if constexpr(CSame<IntType, bool>)
+	{
+		return ESdlDataType::Bool;
+	}
+	else if constexpr(CSame<IntType, int8>)
+	{
+		return ESdlDataType::Int8;
+	}
+	else if constexpr(CSame<IntType, uint8>)
+	{
+		return ESdlDataType::UInt8;
+	}
+	else if constexpr(CSame<IntType, int16>)
+	{
+		return ESdlDataType::Int16;
+	}
+	else if constexpr(CSame<IntType, uint16>)
+	{
+		return ESdlDataType::UInt16;
+	}
+	else if constexpr(CSame<IntType, int32>)
+	{
+		return ESdlDataType::Int32;
+	}
+	else if constexpr(CSame<IntType, uint32>)
+	{
+		return ESdlDataType::UInt32;
+	}
+	else if constexpr(CSame<IntType, int64>)
+	{
+		return ESdlDataType::Int64;
+	}
+	else
+	{
+		static_assert(CSame<IntType, uint64>);
+		return ESdlDataType::UInt64;
+	}
+}
+
+template<std::floating_point FloatType>
+inline constexpr ESdlDataType float_type_of()
+{
+	if constexpr(CSame<FloatType, float32>)
+	{
+		return ESdlDataType::Float32;
+	}
+	else
+	{
+		static_assert(CSame<FloatType, float64>);
+		return ESdlDataType::Float64;
+	}
+}
+
+template<typename T>
+inline constexpr ESdlDataType resource_type_of()
+{
+	constexpr ESdlTypeCategory CATEGORY = sdl::category_of<T>();
+
+	if constexpr(CATEGORY == ESdlTypeCategory::Ref_Geometry)
+	{
+		return ESdlDataType::Geometry;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_Material)
+	{
+		return ESdlDataType::Material;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_Motion)
+	{
+		return ESdlDataType::Motion;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_LightSource)
+	{
+		return ESdlDataType::LightSource;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_Actor)
+	{
+		return ESdlDataType::Actor;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_Image)
+	{
+		return ESdlDataType::Image;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_FrameProcessor)
+	{
+		return ESdlDataType::FrameProcessor;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_Observer)
+	{
+		return ESdlDataType::Observer;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_SampleSource)
+	{
+		return ESdlDataType::SampleSource;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_Visualizer)
+	{
+		return ESdlDataType::Visualizer;
+	}
+	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_Option)
+	{
+		return ESdlDataType::Option;
+	}
+	else
+	{
+		static_assert(CATEGORY == ESdlTypeCategory::Unspecified);
+
+		return ESdlDataType::None;
 	}
 }
 

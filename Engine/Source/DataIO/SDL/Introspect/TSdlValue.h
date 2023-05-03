@@ -26,10 +26,13 @@ public:
 		T Owner::*  valuePtr);
 
 	std::string valueAsString(const T& value) const override = 0;
+	ESdlDataFormat getNativeFormat() const override = 0;
+	ESdlDataType getNativeType() const override = 0;
 
 	void setValue(Owner& owner, T value) const override;
 	const T* getValue(const Owner& owner) const override;
 	void setValueToDefault(Owner& owner) const override;
+	SdlNativeData ownedNativeData(Owner& owner) const override;
 
 	TSdlValue& defaultTo(T defaultValue);
 	const T& defaultValue() const;

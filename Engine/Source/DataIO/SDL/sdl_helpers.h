@@ -13,11 +13,13 @@ Helpers are in an additional `sdl` namespace.
 #include "Math/TQuaternion.h"
 #include "Utility/string_utils.h"
 #include "DataIO/SDL/ESdlTypeCategory.h"
+#include "DataIO/SDL/ESdlDataType.h"
 
 #include <string>
 #include <string_view>
 #include <vector>
 #include <utility>
+#include <concepts>
 
 namespace ph
 {
@@ -141,8 +143,18 @@ information does not exist, or @p T is not an @p ISdlResource.
 template<typename T>
 constexpr ESdlTypeCategory category_of();
 
+template<std::integral IntType>
+constexpr ESdlDataType int_type_of();
+
+template<std::floating_point FloatType>
+constexpr ESdlDataType float_type_of();
+
+template<typename T>
+constexpr ESdlDataType resource_type_of();
+
 /*! @brief Cast between SDL resource types.
-Cast the input SDL resource instance of `SrcType` to an instance of `DstType`.
+Cast the input SDL resource instance of `SrcType` to an instance of `DstType`. Each of the input types
+can possibly be `const` qualified.
 @param srcResource The resource to be casted.
 @return The casted resource. Never null.
 */

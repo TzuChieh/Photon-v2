@@ -15,6 +15,18 @@
 namespace ph
 {
 
+class Geometry;
+class Material;
+class MotionSource;
+class LightSource;
+class Actor;
+class Image;
+class FrameProcessor;
+class Observer;
+class SampleSource;
+class Visualizer;
+class Option;
+
 template<typename T, typename Owner>
 inline TSdlReferenceArray<T, Owner>::TSdlReferenceArray(
 	std::string valueName,
@@ -59,6 +71,41 @@ inline void TSdlReferenceArray<T, Owner>::ownedResources(
 	{
 		out_resources.push_back(storedResource.get());
 	}
+}
+
+template<typename T, typename Owner>
+inline SdlNativeData TSdlReferenceArray<T, Owner>::ownedNativeData(Owner& owner) const
+{
+	std::vector<std::shared_ptr<T>>* const referenceVectorPtr = &(owner.*m_valuePtr);
+
+	SdlNativeData data;
+	data.format = ESdlDataFormat::SharedPtrVector;
+
+	// C++ does not support covariant array/vector, so only a couple of cases (where `T` is an exact
+	// match to one of the base resource type) are fully supported. For other cases, data pointer is
+	// still provided though the user need to figure out the actual type themselves.
+	if constexpr(
+		CSame<T, Geometry> ||
+		CSame<T, Material> ||
+		CSame<T, MotionSource> || 
+		CSame<T, LightSource> || 
+		CSame<T, Actor> || 
+		CSame<T, Image> || 
+		CSame<T, FrameProcessor> || 
+		CSame<T, Observer> || 
+		CSame<T, SampleSource> || 
+		CSame<T, Visualizer> || 
+		CSame<T, Option>)
+	{
+		data.dataType = sdl::resource_type_of<T>();
+	}
+	else
+	{
+		data.dataType = ESdlDataType::None;
+	}
+	data.dataPtr = &(owner.*m_valuePtr);
+	
+	return data;
 }
 
 template<typename T, typename Owner>

@@ -32,6 +32,8 @@ public:
 		const Owner& owner,
 		std::vector<const ISdlResource*>& out_resources) const override;
 
+	SdlNativeData ownedNativeData(Owner& owner) const override;
+
 	void setValueRef(Owner& owner, std::shared_ptr<T> value) const;
 	const std::shared_ptr<T>& getValueRef(const Owner& owner) const;
 

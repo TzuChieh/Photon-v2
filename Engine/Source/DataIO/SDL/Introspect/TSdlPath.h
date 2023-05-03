@@ -32,6 +32,16 @@ public:
 		return path.toString();
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Single;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		return ESdlDataType::Path;
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,

@@ -42,6 +42,16 @@ public:
 		return std::string(TSdlEnum<EnumType>()[value]);
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Single;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		return ESdlDataType::Enum;
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,

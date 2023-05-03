@@ -32,7 +32,12 @@ public:
 	*/
 	virtual const T* getValue(const Owner& owner) const = 0;
 
+	virtual ESdlDataFormat getNativeFormat() const = 0;
+	virtual ESdlDataType getNativeType() const = 0;
+
 	void setValueToDefault(Owner& owner) const override = 0;
+
+	SdlNativeData ownedNativeData(Owner& owner) const override = 0;
 
 	std::string valueToString(const Owner& owner) const override;
 

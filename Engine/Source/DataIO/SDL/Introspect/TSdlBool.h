@@ -29,6 +29,16 @@ public:
 		return value ? "true" : "false";
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Single;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		return ESdlDataType::Bool;
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,

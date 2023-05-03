@@ -10,6 +10,7 @@
 #include "DataIO/SDL/SdlInputPayload.h"
 #include "DataIO/SDL/SdlOutputPayload.h"
 #include "DataIO/SDL/SdlResourceId.h"
+#include "Utility/traits.h"
 
 #include <utility>
 #include <string>
@@ -19,8 +20,9 @@ namespace ph { class ISdlResource; }
 namespace ph
 {
 
-/*! @brief Abstraction for a value that is owned by a SDL resource.
+/*! @brief Abstraction for a value that is owned by some owner type.
 Governs how a field should be initialized on the policy level.
+@tparam Owner The owner type. May be any class/struct type including SDL resource types.
 */
 template<typename Owner>
 class TOwnedSdlField : public SdlField
@@ -46,6 +48,15 @@ public:
 	virtual void ownedResources(
 		const Owner& owner,
 		std::vector<const ISdlResource*>& out_resources) const = 0;
+
+	/*! @brief Direct access to the field memory of an owner.
+	Unlike SdlField::nativeData(ISdlResource&), this variant can obtain native data for more types 
+	including non SDL resources. Short-lived owner objects such as function parameter structs must 
+	be kept alive during during this call and any further usages of the returned native data.
+	*/
+	virtual SdlNativeData ownedNativeData(Owner& owner) const = 0;
+
+	SdlNativeData nativeData(ISdlResource& resource) const override;
 
 	/*! @brief Acquire value and store in the owner's field.
 	The loading process will follow a series of preset policy. In addition,
@@ -92,9 +103,6 @@ protected:
 	*/
 	TOwnedSdlField& setImportance(EFieldImportance importance);
 
-	template<typename DstType, typename SrcType>
-	DstType* castTo(SrcType* const srcInstance) const;
-
 private:
 	EFieldImportance m_importance;
 
@@ -122,6 +130,28 @@ inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string v
 
 	m_importance(EFieldImportance::NiceToHave)
 {}
+
+template<typename Owner>
+inline SdlNativeData TOwnedSdlField<Owner>::nativeData(ISdlResource& resource) const
+{
+	if constexpr(CDerived<Owner, ISdlResource>)
+	{
+		try
+		{
+			Owner* const owner = sdl::cast_to<Owner>(&resource);
+			return ownedNativeData(*owner);
+		}
+		catch(const SdlException& /* e */)
+		{
+			return {};
+		}
+	}
+	else
+	{
+		// Non SDL resource--cannot get native data, need to use `ownedNativeData()`
+		return {};
+	}
+}
 
 template<typename Owner>
 inline void TOwnedSdlField<Owner>::fromSdl(
@@ -186,22 +216,6 @@ inline TOwnedSdlField<Owner>& TOwnedSdlField<Owner>::setImportance(const EFieldI
 	m_importance = importance;
 
 	return *this;
-}
-
-template<typename Owner>
-template<typename DstType, typename SrcType>
-inline DstType* TOwnedSdlField<Owner>::castTo(SrcType* const srcInstance) const
-{
-	try
-	{
-		return sdl::cast_to<DstType>(srcInstance);
-	}
-	catch(const SdlException& e)
-	{
-		throw_formatted<SdlException>(
-			"input resource is not owned by this field <{}> ({})",
-			genPrettyName(), e.whatStr());
-	}
 }
 
 template<typename Owner>

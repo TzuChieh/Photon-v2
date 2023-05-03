@@ -34,6 +34,8 @@ public:
 		const Owner& owner,
 		std::vector<const ISdlResource*>& out_resources) const override;
 
+	SdlNativeData ownedNativeData(Owner& owner) const override;
+
 	void setValueVec(Owner& owner, std::vector<std::shared_ptr<T>> value) const;
 	const std::vector<std::shared_ptr<T>>& getValueVec(const Owner& owner) const;
 

@@ -14,6 +14,18 @@
 namespace ph
 {
 
+class Geometry;
+class Material;
+class MotionSource;
+class LightSource;
+class Actor;
+class Image;
+class FrameProcessor;
+class Observer;
+class SampleSource;
+class Visualizer;
+class Option;
+
 template<typename T, typename Owner>
 inline TSdlReference<T, Owner>::TSdlReference(
 	std::string                       valueName,
@@ -56,6 +68,71 @@ inline void TSdlReference<T, Owner>::ownedResources(
 	{
 		out_resources.push_back(storedResource);
 	}
+}
+
+template<typename T, typename Owner>
+inline SdlNativeData TSdlReference<T, Owner>::ownedNativeData(Owner& owner) const
+{
+	constexpr ESdlDataType RES_TYPE = sdl::resource_type_of<T>();
+
+	T* const originalDataPtr = (owner.*m_valuePtr).get();
+
+	SdlNativeData data;
+	data.format = ESdlDataFormat::Single;
+	data.dataType = RES_TYPE;
+
+	// Cast to appropriate pointer type before assignment (casting to/from void* is only valid if the
+	// exact same type is used)
+	if constexpr(RES_TYPE == ESdlDataType::Geometry)
+	{
+		data.dataPtr = static_cast<Geometry*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::Material)
+	{
+		data.dataPtr = static_cast<Material*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::Motion)
+	{
+		data.dataPtr = static_cast<MotionSource*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::LightSource)
+	{
+		data.dataPtr = static_cast<LightSource*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::Actor)
+	{
+		data.dataPtr = static_cast<Actor*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::Image)
+	{
+		data.dataPtr = static_cast<Image*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::FrameProcessor)
+	{
+		data.dataPtr = static_cast<FrameProcessor*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::Observer)
+	{
+		data.dataPtr = static_cast<Observer*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::SampleSource)
+	{
+		data.dataPtr = static_cast<SampleSource*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::Visualizer)
+	{
+		data.dataPtr = static_cast<Visualizer*>(originalDataPtr);
+	}
+	else if constexpr(RES_TYPE == ESdlDataType::Option)
+	{
+		data.dataPtr = static_cast<Option*>(originalDataPtr);
+	}
+	else
+	{
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
+	
+	return data;
 }
 
 template<typename T, typename Owner>

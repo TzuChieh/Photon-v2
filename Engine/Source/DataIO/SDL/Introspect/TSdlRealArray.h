@@ -34,6 +34,16 @@ public:
 		return "[" + std::to_string(realArray.size()) + " real values...]";
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Vector;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		return sdl::float_type_of<Element>();
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DataIO/SDL/ESdlTypeCategory.h"
+#include "Utility/traits.h"
 
 #include <type_traits>
 
@@ -10,7 +11,7 @@ namespace ph
 class ISdlResource;
 
 template<typename T>
-concept CSdlResource = std::is_base_of_v<ISdlResource, T>;
+concept CSdlResource = CDerived<T, ISdlResource>;
 
 /*! @brief Check if SDL category information can be obtained statically.
 The result is true if the static member variable `T::CATEGORY` exists, otherwise 

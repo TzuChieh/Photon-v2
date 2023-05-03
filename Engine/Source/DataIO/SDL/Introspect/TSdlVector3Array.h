@@ -35,6 +35,23 @@ public:
 		return "[" + std::to_string(vec3Array.size()) + " vector3 values...]";
 	}
 
+	inline ESdlDataFormat getNativeFormat() const override
+	{
+		return ESdlDataFormat::Vector3Vector;
+	}
+
+	inline ESdlDataType getNativeType() const override
+	{
+		if constexpr(std::is_floating_point_v<Element>)
+		{
+			return sdl::float_type_of<Element>();
+		}
+		else
+		{
+			return sdl::int_type_of<Element>();
+		}
+	}
+
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
