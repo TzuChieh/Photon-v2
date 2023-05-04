@@ -30,14 +30,14 @@ enum class ESdlTypeCategory
 	// Special values (these entries should always be the last ones)
 	MIN = Unspecified,
 	MAX = Ref_Option,
-	NUM = MAX - MIN + 1
+	SIZE = MAX - MIN + 1
 };
 
 namespace sdl::detail
 {
 
-// Must match the entries in ETypeCategory
-inline constexpr std::array<std::string_view, static_cast<std::size_t>(ESdlTypeCategory::NUM)> CATEGORY_TO_STRING =
+// Must match the entries in `ESdlTypeCategory`
+inline constexpr std::array<std::string_view, static_cast<std::size_t>(ESdlTypeCategory::SIZE)> CATEGORY_TO_STRING =
 {{
 	"unspecified",
 	"geometry",

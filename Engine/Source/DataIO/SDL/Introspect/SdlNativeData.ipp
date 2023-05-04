@@ -41,7 +41,7 @@ inline void* SdlNativeData::operator [] (const std::size_t elementIdx) const
 
 inline SdlNativeData::operator bool() const
 {
-	return m_elementGetter.isValid();
+	return numElements > 0;
 }
 
 }// end namespace ph

@@ -145,4 +145,9 @@ inline const std::string& DesignerScene::getName() const
 	return m_name;
 }
 
+inline TSpanView<DesignerObject*> DesignerScene::getRootObjects() const
+{
+	return m_rootObjs;
+}
+
 }// end namespace ph::editor

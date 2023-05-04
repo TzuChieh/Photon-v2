@@ -7,6 +7,7 @@
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
 #include <Utility/TUniquePtrVector.h>
+#include <Utility/TSpan.h>
 
 #include <vector>
 #include <memory>
@@ -56,9 +57,10 @@ public:
 
 	Editor& getEditor();
 	const Editor& getEditor() const;
+	const std::string& getName() const;
+	TSpanView<DesignerObject*> getRootObjects() const;
 
 	void setName(std::string name);
-	const std::string& getName() const;
 
 private:
 	enum class EObjectAction : uint8

@@ -78,7 +78,7 @@ public:
 private:
 	std::array<
 		std::unordered_map<std::string, std::shared_ptr<ISdlResource>>, 
-		static_cast<std::size_t>(ESdlTypeCategory::NUM)
+		static_cast<std::size_t>(ESdlTypeCategory::SIZE)
 	> m_resources;
 	
 private:

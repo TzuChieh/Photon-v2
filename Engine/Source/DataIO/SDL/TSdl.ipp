@@ -44,7 +44,8 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 	clazz->initDefaultResource(*resource);
 
 	// Obtain typed resource. This dynamic cast also guard against the case where
-	// `T` might not actually have SDL class defined locally but inherited.
+	// `T` might not actually have SDL class defined locally but inherited (i.e., the resource
+	// created was in fact not of type `T`).
 	std::shared_ptr<T> typedResource = std::dynamic_pointer_cast<T>(std::move(resource));
 	if(!typedResource)
 	{
