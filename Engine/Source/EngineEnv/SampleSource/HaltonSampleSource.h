@@ -14,7 +14,7 @@ public:
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<HaltonSampleSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<HaltonSampleSource>)
 	{
 		ClassType clazz("halton");
 		clazz.docName("Halton Sample Source");

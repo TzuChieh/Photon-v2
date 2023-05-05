@@ -14,7 +14,7 @@ public:
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<UniformRandomSampleSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<UniformRandomSampleSource>)
 	{
 		ClassType clazz("uniform-random");
 		clazz.docName("Uniform Random Sample Source");

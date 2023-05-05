@@ -13,7 +13,7 @@ enum class EInterfaceFresnel
 	Exact
 };
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EInterfaceFresnel>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EInterfaceFresnel>)
 {
 	SdlEnumType sdlEnum("interface-fresnel");
 	sdlEnum.description("Controls the Fresnel model used.");

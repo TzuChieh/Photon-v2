@@ -6,7 +6,7 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ESampleFilter>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ESampleFilter>)
 {
 	SdlEnumType sdlEnum("sample-filter");
 	sdlEnum.description("The type of filter used during the sampling process.");

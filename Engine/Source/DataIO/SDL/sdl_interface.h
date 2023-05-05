@@ -7,12 +7,12 @@
 #include "DataIO/SDL/Introspect/SdlEnum.h"
 
 // Enum types
-#include "DataIO/SDL/Introspect/TBasicSdlEnum.h"
+#include "DataIO/SDL/Introspect/TSdlGeneralEnum.h"
 #include "DataIO/SDL/Introspect/TSdlEnum.h"
 
 // Owner types
-#include "DataIO/SDL/Introspect/TOwnerSdlClass.h"
-#include "DataIO/SDL/Introspect/TOwnerSdlStruct.h"
+#include "DataIO/SDL/Introspect/TSdlOwnerClass.h"
+#include "DataIO/SDL/Introspect/TSdlOwnerStruct.h"
 
 // Field types
 #include "DataIO/SDL/Introspect/TSdlBool.h"

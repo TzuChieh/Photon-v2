@@ -14,7 +14,7 @@ enum class ESurfaceMaterialMixMode
 	Lerp = 0
 };
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ESurfaceMaterialMixMode>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ESurfaceMaterialMixMode>)
 {
 	SdlEnumType sdlEnum("surface-material-mix-mode");
 	sdlEnum.description("Specify how surface materials are mixed.");
@@ -50,7 +50,7 @@ private:
 	std::shared_ptr<UnifiedColorImage> m_factor;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<BinaryMixedSurfaceMaterial>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<BinaryMixedSurfaceMaterial>)
 	{
 		ClassType clazz("binary-mixed-surface");
 		clazz.docName("Binary Mixed Surface");

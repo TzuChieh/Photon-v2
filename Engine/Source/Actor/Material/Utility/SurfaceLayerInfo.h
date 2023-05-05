@@ -35,7 +35,7 @@ private:
 	math::Spectrum m_sigmaS;
 
 public:
-	/*PH_DEFINE_SDL_STRUCT(TOwnerSdlStruct<SurfaceLayerInfo>)
+	/*PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<SurfaceLayerInfo>)
 	{
 		StructType ztruct("surface-layer-info");
 		ztruct.setDescription("Information for layered material construction.");

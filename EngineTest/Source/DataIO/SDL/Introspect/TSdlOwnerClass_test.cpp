@@ -1,6 +1,6 @@
 #include "util.h"
 
-#include <DataIO/SDL/Introspect/TOwnerSdlClass.h>
+#include <DataIO/SDL/Introspect/TSdlOwnerClass.h>
 #include <DataIO/SDL/ISdlResource.h>
 #include <Common/primitive_type.h>
 #include <DataIO/SDL/Introspect/TSdlReal.h>
@@ -57,10 +57,10 @@ struct TestMethodStruct2
 
 }// end namespace
 
-TEST(TOwnerSdlClassTest, RequiredProperties)
+TEST(TSdlOwnerClassTest, RequiredProperties)
 {
 	{
-		using SdlClassType = TOwnerSdlClass<TestResource>;
+		using SdlClassType = TSdlOwnerClass<TestResource>;
 
 		// Non-copyable as it is not needed--just access via reference.
 		EXPECT_FALSE(std::is_copy_constructible_v<SdlClassType>);
@@ -72,10 +72,10 @@ TEST(TOwnerSdlClassTest, RequiredProperties)
 	}
 }
 
-TEST(TOwnerSdlClassTest, DefaultStates)
+TEST(TSdlOwnerClassTest, DefaultStates)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass("testName");
+		TSdlOwnerClass<TestResource> sdlClass("testName");
 
 		EXPECT_EQ(sdlClass.numFields(), 0);
 		EXPECT_EQ(sdlClass.numFunctions(), 0);
@@ -96,10 +96,10 @@ TEST(TOwnerSdlClassTest, DefaultStates)
 	}
 }
 
-TEST(TOwnerSdlClassTest, AddAndGetFields)
+TEST(TSdlOwnerClassTest, AddAndGetFields)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass("testName");
+		TSdlOwnerClass<TestResource> sdlClass("testName");
 		sdlClass.addField(TSdlReal<TestResource>("testReal", &TestResource::r));
 		EXPECT_EQ(sdlClass.numFields(), 1);
 
@@ -129,10 +129,10 @@ TEST(TOwnerSdlClassTest, AddAndGetFields)
 	}
 }
 
-TEST(TOwnerSdlClassTest, AddAndGetFunctions)
+TEST(TSdlOwnerClassTest, AddAndGetFunctions)
 {
 	{
-		TOwnerSdlClass<TestResource> sdlClass("testName");
+		TSdlOwnerClass<TestResource> sdlClass("testName");
 		sdlClass.addFunction<TestMethodStruct>();
 		EXPECT_EQ(sdlClass.numFunctions(), 1);
 

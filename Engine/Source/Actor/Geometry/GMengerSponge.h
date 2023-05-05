@@ -34,7 +34,7 @@ private:
 		std::vector<GCuboid>& cubes) const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GMengerSponge>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GMengerSponge>)
 	{
 		ClassType clazz("menger-sponge");
 		clazz.docName("Menger Sponge Geometry");

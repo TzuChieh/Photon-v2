@@ -22,7 +22,7 @@ enum class EIdealSubstance
 	Dielectric
 };
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EIdealSubstance>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EIdealSubstance>)
 {
 	SdlEnumType sdlEnum("ideal-substance");
 	sdlEnum.description("Type of the physical behavior of a perfectly smooth surface.");
@@ -57,7 +57,7 @@ private:
 	std::optional<math::Spectrum> m_iorInnerK;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<IdealSubstance>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<IdealSubstance>)
 	{
 		ClassType clazz("ideal-substance");
 		clazz.description("Models a perfectly smooth surface with various physical properties.");

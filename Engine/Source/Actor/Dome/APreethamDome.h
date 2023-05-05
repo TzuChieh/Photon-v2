@@ -39,7 +39,7 @@ private:
 	std::optional<math::Vector2R> m_sunPhiThetaDegrees;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<APreethamDome>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<APreethamDome>)
 	{
 		ClassType clazz("preetham-dome");
 		clazz.docName("Preetham Dome Actor");

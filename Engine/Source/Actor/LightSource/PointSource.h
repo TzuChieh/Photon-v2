@@ -16,7 +16,7 @@ public:
 	std::shared_ptr<Geometry> genAreas(CookingContext& ctx) const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<PointSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PointSource>)
 	{
 		ClassType clazz("point");
 		clazz.docName("Point Light Source");

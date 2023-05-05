@@ -17,8 +17,8 @@ namespace ph
 template<typename Owner, typename Element, typename SdlValueType = TSdlValue<math::TVector2<Element>, Owner>>
 class TSdlVector2 : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<math::TVector2<Element>, Owner>, SdlValueType>,
-		"SdlValueType should be a subclass of TAbstractSdlValue.");
+	static_assert(std::is_base_of_v<TSdlAbstractValue<math::TVector2<Element>, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TSdlAbstractValue.");
 
 public:
 	template<typename ValueType>

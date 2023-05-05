@@ -18,8 +18,8 @@ namespace ph
 template<typename Owner, typename FloatType = real, typename SdlValueType = TSdlValue<FloatType, Owner>>
 class TSdlReal : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<FloatType, Owner>, SdlValueType>,
-		"SdlValueType should be a subclass of TAbstractSdlValue.");
+	static_assert(std::is_base_of_v<TSdlAbstractValue<FloatType, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TSdlAbstractValue.");
 
 public:
 	template<typename ValueType>

@@ -38,7 +38,7 @@ private:
 	ESampleFilter       m_sampleFilter;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<PathTracingVisualizer>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PathTracingVisualizer>)
 	{
 		ClassType clazz("path-tracing");
 		clazz.docName("Path Tracing Visualizer");

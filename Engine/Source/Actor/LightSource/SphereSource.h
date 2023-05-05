@@ -21,7 +21,7 @@ private:
 	real m_radius;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SphereSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SphereSource>)
 	{
 		ClassType clazz("sphere");
 		clazz.docName("Spherical Light Source");

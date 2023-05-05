@@ -18,7 +18,7 @@ private:
 	Path m_filePath;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GIndexedTriangleMesh>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GIndexedTriangleMesh>)
 	{
 		ClassType clazz("indexed-triangle-mesh");
 		clazz.docName("Indexed Triangle Mesh");

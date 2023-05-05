@@ -37,7 +37,7 @@ private:
 	std::shared_ptr<GTriangleMesh> genTriangleMesh() const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GSphere>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GSphere>)
 	{
 		ClassType clazz("sphere");
 		clazz.docName("Spherical Geometry");

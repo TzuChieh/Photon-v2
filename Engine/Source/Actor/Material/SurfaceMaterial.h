@@ -21,7 +21,7 @@ public:
 	void genBehaviors(CookingContext& ctx, PrimitiveMetadata& metadata) const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SurfaceMaterial>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SurfaceMaterial>)
 	{
 		ClassType clazz("surface-material");
 		clazz.docName("Surface Material");

@@ -24,7 +24,7 @@ private:
 	Path m_imagePath;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AImageDome>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AImageDome>)
 	{
 		ClassType clazz("image-dome");
 		clazz.docName("Image Dome Actor");

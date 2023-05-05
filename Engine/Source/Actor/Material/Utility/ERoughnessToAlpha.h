@@ -14,7 +14,7 @@ enum class ERoughnessToAlpha
 	PbrtV3
 };
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ERoughnessToAlpha>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ERoughnessToAlpha>)
 {
 	SdlEnumType sdlEnum("roughness-to-alpha");
 	sdlEnum.description(

@@ -45,7 +45,7 @@ private:
 	std::optional<math::Spectrum> m_iorInnerK;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TOwnerSdlStruct<ConductiveInterfaceInfo>)
+	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<ConductiveInterfaceInfo>)
 	{
 		StructType ztruct("conductive-interface");
 		ztruct.description("Data describing the effects when light hits an conductive interface.");

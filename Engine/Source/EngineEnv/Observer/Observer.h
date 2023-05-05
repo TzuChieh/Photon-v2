@@ -21,7 +21,7 @@ public:
 	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Observer>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Observer>)
 	{
 		ClassType clazz("observer");
 		clazz.docName("Observer");

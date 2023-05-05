@@ -44,7 +44,7 @@ public:
 		const GeometryCookConfig& config) const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Geometry>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Geometry>)
 	{
 		ClassType clazz(sdl::category_to_string(CATEGORY));
 		clazz.docName("Geometry");

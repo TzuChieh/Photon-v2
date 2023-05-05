@@ -31,7 +31,7 @@ inline TSdlReference<T, Owner>::TSdlReference(
 	std::string                       valueName,
 	std::shared_ptr<T> Owner::* const valuePtr) :
 
-	TOwnedSdlField<Owner>(
+	TSdlOwnedField<Owner>(
 		sdl::category_to_string(sdl::category_of<T>()),
 		std::move(valueName)),
 

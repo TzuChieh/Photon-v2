@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TAbstractSdlValue.h"
+#include "DataIO/SDL/Introspect/TSdlAbstractValue.h"
 #include "Common/assertion.h"
 
 #include <string_view>
@@ -17,7 +17,7 @@ not explicitly provided (by `defaultTo()` or other means), default value will be
   https://en.cppreference.com/w/cpp/language/value_initialization
 */
 template<typename T, typename Owner>
-class TSdlValue : public TAbstractSdlValue<T, Owner>
+class TSdlValue : public TSdlAbstractValue<T, Owner>
 {
 public:
 	TSdlValue(

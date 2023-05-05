@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TOwnerSdlStruct.h"
+#include "DataIO/SDL/Introspect/TSdlOwnerStruct.h"
 #include "DataIO/SDl/Introspect/SdlField.h"
 #include "DataIO/SDL/Introspect/SdlStructFieldStump.h"
 #include "Common/assertion.h"
@@ -13,7 +13,7 @@ namespace ph
 {
 
 template<typename StructType>
-inline TOwnerSdlStruct<StructType>::TOwnerSdlStruct(std::string name) :
+inline TSdlOwnerStruct<StructType>::TSdlOwnerStruct(std::string name) :
 
 	SdlStruct(std::move(name)),
 
@@ -22,8 +22,8 @@ inline TOwnerSdlStruct<StructType>::TOwnerSdlStruct(std::string name) :
 
 template<typename StructType>
 template<typename T>
-inline auto TOwnerSdlStruct<StructType>::addField(T sdlField)
-	-> TOwnerSdlStruct&
+inline auto TSdlOwnerStruct<StructType>::addField(T sdlField)
+	-> TSdlOwnerStruct&
 {
 	// More restrictions on the type of T may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlField, T>,
@@ -36,8 +36,8 @@ inline auto TOwnerSdlStruct<StructType>::addField(T sdlField)
 
 template<typename StructType>
 template<typename StructObjType>
-inline auto TOwnerSdlStruct<StructType>::addStruct(StructObjType StructType::* const structObjPtr)
-	-> TOwnerSdlStruct&
+inline auto TSdlOwnerStruct<StructType>::addStruct(StructObjType StructType::* const structObjPtr)
+	-> TSdlOwnerStruct&
 {
 	// More restrictions on StructObjType may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlStruct, StructObjType>,
@@ -52,11 +52,11 @@ inline auto TOwnerSdlStruct<StructType>::addStruct(StructObjType StructType::* c
 
 template<typename StructType>
 template<typename StructObjType>
-inline auto TOwnerSdlStruct<StructType>::addStruct(
+inline auto TSdlOwnerStruct<StructType>::addStruct(
 	StructObjType StructType::* const structObjPtr,
 	const SdlStructFieldStump&        structFieldStump)
 
-	-> TOwnerSdlStruct&
+	-> TSdlOwnerStruct&
 {
 	// More restrictions on StructObjType may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlStruct, StructObjType>,
@@ -70,40 +70,40 @@ inline auto TOwnerSdlStruct<StructType>::addStruct(
 }
 
 template<typename StructType>
-inline void TOwnerSdlStruct<StructType>::initDefaultStruct(StructType& structObj) const
+inline void TSdlOwnerStruct<StructType>::initDefaultStruct(StructType& structObj) const
 {
 	setFieldsToDefaults(structObj);
 }
 
 template<typename StructType>
-inline std::size_t TOwnerSdlStruct<StructType>::numFields() const
+inline std::size_t TSdlOwnerStruct<StructType>::numFields() const
 {
 	return m_fields.numFields();
 }
 
 template<typename StructType>
-inline const SdlField* TOwnerSdlStruct<StructType>::getField(const std::size_t index) const
+inline const SdlField* TSdlOwnerStruct<StructType>::getField(const std::size_t index) const
 {
 	return m_fields.getField(index);
 }
 
 template<typename StructType>
-inline auto TOwnerSdlStruct<StructType>::getFields() const
-	-> const TBasicSdlFieldSet<TOwnedSdlField<StructType>>&
+inline auto TSdlOwnerStruct<StructType>::getFields() const
+	-> const TSdlBruteForceFieldSet<TSdlOwnedField<StructType>>&
 {
 	return m_fields;
 }
 
 template<typename StructType>
-inline auto TOwnerSdlStruct<StructType>::description(std::string descriptionStr)
-	-> TOwnerSdlStruct&
+inline auto TSdlOwnerStruct<StructType>::description(std::string descriptionStr)
+	-> TSdlOwnerStruct&
 {
 	setDescription(std::move(descriptionStr));
 	return *this;
 }
 
 template<typename StructType>
-inline void TOwnerSdlStruct<StructType>::setFieldsToDefaults(StructType& structObj) const
+inline void TSdlOwnerStruct<StructType>::setFieldsToDefaults(StructType& structObj) const
 {
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{

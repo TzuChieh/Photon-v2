@@ -38,7 +38,7 @@ private:
 	EImageWrapMode         m_verticalWrapMode;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<RasterImageBase>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RasterImageBase>)
 	{
 		ClassType clazz("raster-base");
 		clazz.docName("Base of Raster Image");

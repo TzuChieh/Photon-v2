@@ -12,7 +12,7 @@ public:
 	inline Option() = default;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Option>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Option>)
 	{
 		ClassType clazz(sdl::category_to_string(CATEGORY));
 		clazz.docName("Option");

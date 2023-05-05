@@ -28,10 +28,12 @@ public:
 	static constexpr ESdlTypeCategory getCategory();
 
 	/*! @brief Creates a sharable resource filled with default values.
+	Default values are determined by SDL class definition.
 	*/
 	static std::shared_ptr<T> makeResource();
 
 	/*! @brief Creates a resource or struct instance filled with default values.
+	Default values are determined by SDL class definition.
 	*/
 	static T make();
 };

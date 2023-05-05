@@ -38,7 +38,7 @@ private:
 	std::shared_ptr<UnifiedNumericImage> m_sigmaDegrees;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<MatteOpaque>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<MatteOpaque>)
 	{
 		ClassType clazz("matte-opaque");
 		clazz.docName("Matte Opaque Material");

@@ -45,7 +45,7 @@ private:
 	std::vector<math::Vector3R> m_normals;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GTriangleMesh>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GTriangleMesh>)
 	{
 		ClassType clazz("triangle-mesh");
 		clazz.docName("Triangle Mesh");

@@ -39,7 +39,7 @@ private:
 	real              m_iorInner;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TOwnerSdlStruct<DielectricInterfaceInfo>)
+	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<DielectricInterfaceInfo>)
 	{
 		StructType ztruct("dielectric-interface");
 		ztruct.description("Data describing the effects when light hits an dielectric interface.");

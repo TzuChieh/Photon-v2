@@ -16,10 +16,13 @@ namespace ph
 {
 
 /*! @brief SDL enum implementation with common features.
+Enum value and string mapping are done in a brute-force way.
 */
 template<typename EnumType_, std::size_t MAX_ENTRIES = 64>
-class TBasicSdlEnum : public SdlEnum
+class TSdlGeneralEnum : public SdlEnum
 {
+	// TODO: whether the mapping is done should be a template param
+	// TODO: can have other kinds of enum such as TSdlFlagEnum
 public:
 	using EnumType = EnumType_;
 
@@ -27,7 +30,7 @@ public:
 		"EnumType must be a C++ enum. Currently it is not.");
 
 public:
-	inline explicit TBasicSdlEnum(std::string name) :
+	inline explicit TSdlGeneralEnum(std::string name) :
 
 		SdlEnum(std::move(name)),
 
@@ -48,7 +51,7 @@ public:
 		return m_entries.size();
 	}
 
-	inline TBasicSdlEnum& addEntry(
+	inline TSdlGeneralEnum& addEntry(
 		const EnumType         enumValue, 
 		const std::string_view valueName,
 		std::string            description = "")
@@ -124,7 +127,7 @@ public:
 		throw SdlLoadError("use of invalid enum value: " + enum_to_string(enumValue));
 	}
 
-	inline TBasicSdlEnum& description(std::string descriptionStr)
+	inline TSdlGeneralEnum& description(std::string descriptionStr)
 	{
 		setDescription(std::move(descriptionStr));
 		return *this;

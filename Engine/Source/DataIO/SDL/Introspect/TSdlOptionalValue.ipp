@@ -13,7 +13,7 @@ inline TSdlOptionalValue<T, Owner>::TSdlOptionalValue(
 	std::string                     valueName,
 	std::optional<T> Owner::* const valuePtr) :
 
-	TAbstractSdlValue<T, Owner>(std::move(typeName), std::move(valueName)),
+	TSdlAbstractValue<T, Owner>(std::move(typeName), std::move(valueName)),
 
 	m_valuePtr(valuePtr)
 {

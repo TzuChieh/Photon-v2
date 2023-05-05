@@ -32,7 +32,7 @@ inline TSdlReferenceArray<T, Owner>::TSdlReferenceArray(
 	std::string valueName,
 	std::vector<std::shared_ptr<T>> Owner::* const valuePtr)
 
-	: TOwnedSdlField<Owner>(
+	: TSdlOwnedField<Owner>(
 		sdl::category_to_string(sdl::category_of<T>()) + "-array",
 		std::move(valueName))
 

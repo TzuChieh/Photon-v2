@@ -42,7 +42,7 @@ private:
 	uint32      m_numWorkers;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<RenderSession>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RenderSession>)
 	{
 		ClassType clazz("render-session");
 		clazz.docName("Render Session");

@@ -36,7 +36,7 @@ private:
 	std::vector<std::shared_ptr<Geometry>> m_geometries;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GeometrySoup>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GeometrySoup>)
 	{
 		ClassType clazz("geometry-soup");
 		clazz.docName("Geometry Soup");

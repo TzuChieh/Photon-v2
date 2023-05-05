@@ -6,7 +6,7 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EAccelerator>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EAccelerator>)
 {
 	SdlEnumType sdlEnum("accelerator");
 	sdlEnum.description("Denotes acceleration structure types.");

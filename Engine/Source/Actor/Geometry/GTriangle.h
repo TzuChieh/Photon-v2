@@ -61,7 +61,7 @@ private:
 	math::Vector3R m_nC;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GTriangle>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GTriangle>)
 	{
 		ClassType clazz("triangle");
 		clazz.docName("Triangle Geometry");

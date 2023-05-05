@@ -6,7 +6,7 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<math::EColorSpace>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<math::EColorSpace>)
 {
 	SdlEnumType sdlEnum("color-space");
 	sdlEnum.description("Marks color space information of input values.");

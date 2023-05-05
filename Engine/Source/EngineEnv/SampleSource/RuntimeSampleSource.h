@@ -25,7 +25,7 @@ private:
 	std::size_t m_numSamples;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<RuntimeSampleSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RuntimeSampleSource>)
 	{
 		ClassType clazz("runtime");
 		clazz.docName("Runtime Sample Source");

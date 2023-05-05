@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TOwnedSdlField.h"
+#include "DataIO/SDL/Introspect/TSdlOwnedField.h"
 #include "Common/assertion.h"
 
 #include <string>
@@ -12,10 +12,10 @@ namespace ph
 /*! @brief General concept of a SDL value type.
 */
 template<typename T, typename Owner>
-class TAbstractSdlValue : public TOwnedSdlField<Owner>
+class TSdlAbstractValue : public TSdlOwnedField<Owner>
 {
 public:
-	TAbstractSdlValue(
+	TSdlAbstractValue(
 		std::string typeName, 
 		std::string valueName);
 
@@ -61,4 +61,4 @@ protected:
 
 }// end namespace ph
 
-#include "DataIO/SDL/Introspect/TAbstractSdlValue.ipp"
+#include "DataIO/SDL/Introspect/TSdlAbstractValue.ipp"

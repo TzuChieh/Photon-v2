@@ -33,7 +33,7 @@ private:
 	std::optional<real>    m_roughnessV;
 
 public:
-	PH_DEFINE_SDL_STRUCT(TOwnerSdlStruct<MicrosurfaceInfo>)
+	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<MicrosurfaceInfo>)
 	{
 		StructType ztruct("microsurface");
 		ztruct.description("Describing microsurface structure of the material.");

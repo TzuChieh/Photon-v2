@@ -32,7 +32,7 @@ public:
 	virtual CookOrder getCookOrder() const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Actor>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Actor>)
 	{
 		ClassType clazz(sdl::category_to_string(CATEGORY));
 		clazz.docName("Actor");

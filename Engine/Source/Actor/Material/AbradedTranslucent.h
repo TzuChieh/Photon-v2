@@ -20,7 +20,7 @@ private:
 	MicrosurfaceInfo        m_microsurfaceInfo;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AbradedTranslucent>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AbradedTranslucent>)
 	{
 		ClassType clazz("abraded-translucent");
 		clazz.docName("Abraded Translucent Material");

@@ -13,7 +13,8 @@ namespace ph
 /*! @brief A helper for accessing SDL enum properties.
 
 This is a base type without any functionality implemented. Specializations
-are required to provide implementation for the methods.
+are required to provide implementation for the methods, and this is generally done by providing
+an enum definition via `PH_DEFINE_SDL_ENUM()`.
 */
 template<typename EnumType>
 class TSdlEnum final

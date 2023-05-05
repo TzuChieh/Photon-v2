@@ -19,7 +19,7 @@ public:
 	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Visualizer>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Visualizer>)
 	{
 		ClassType clazz("visualizer");
 		clazz.docName("Visualizer");

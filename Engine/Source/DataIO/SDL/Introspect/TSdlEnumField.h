@@ -20,8 +20,8 @@ present before the use of the enum field.
 template<typename Owner, typename EnumType, typename SdlValueType = TSdlValue<EnumType, Owner>>
 class TSdlEnumField : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<EnumType, Owner>, SdlValueType>,
-		"SdlValueType should be a subclass of TAbstractSdlValue.");
+	static_assert(std::is_base_of_v<TSdlAbstractValue<EnumType, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TSdlAbstractValue.");
 
 	static_assert(std::is_enum_v<EnumType>,
 		"EnumType must be a C++ enum.");

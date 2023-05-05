@@ -1,8 +1,8 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/SdlFunction.h"
-#include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
-#include "DataIO/SDL/Introspect/TOwnedSdlField.h"
+#include "DataIO/SDL/Introspect/TSdlBruteForceFieldSet.h"
+#include "DataIO/SDL/Introspect/TSdlOwnedField.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -55,7 +55,7 @@ public:
 	// TODO: support structs?
 
 private:
-	TBasicSdlFieldSet<TOwnedSdlField<MethodStruct>> m_fields;
+	TSdlBruteForceFieldSet<TSdlOwnedField<MethodStruct>> m_fields;
 };
 
 }// end namespace ph

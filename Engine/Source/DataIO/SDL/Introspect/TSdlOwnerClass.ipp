@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TOwnerSdlClass.h"
+#include "DataIO/SDL/Introspect/TSdlOwnerClass.h"
 #include "DataIO/SDL/Introspect/field_set_op.h"
 #include "DataIO/SDL/Introspect/SdlStruct.h"
 #include "DataIO/SDL/Introspect/SdlStructFieldStump.h"
@@ -15,7 +15,7 @@ namespace ph
 {
 
 template<typename Owner, typename FieldSet>
-inline TOwnerSdlClass<Owner, FieldSet>::TOwnerSdlClass(std::string displayName) :
+inline TSdlOwnerClass<Owner, FieldSet>::TSdlOwnerClass(std::string displayName) :
 
 	SdlClass(sdl::category_of<Owner>(), std::move(displayName)),
 
@@ -24,7 +24,7 @@ inline TOwnerSdlClass<Owner, FieldSet>::TOwnerSdlClass(std::string displayName) 
 {}
 
 template<typename Owner, typename FieldSet>
-inline std::shared_ptr<ISdlResource> TOwnerSdlClass<Owner, FieldSet>::createResource() const
+inline std::shared_ptr<ISdlResource> TSdlOwnerClass<Owner, FieldSet>::createResource() const
 {
 	if constexpr(!std::is_abstract_v<Owner>)
 	{
@@ -47,7 +47,7 @@ inline std::shared_ptr<ISdlResource> TOwnerSdlClass<Owner, FieldSet>::createReso
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
+inline void TSdlOwnerClass<Owner, FieldSet>::initResource(
 	ISdlResource&          resource,
 	ValueClauses&          clauses,
 	const SdlInputContext& ctx) const
@@ -64,7 +64,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initResource(
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::initDefaultResource(ISdlResource& resource) const
+inline void TSdlOwnerClass<Owner, FieldSet>::initDefaultResource(ISdlResource& resource) const
 {
 	// Init base first just like how standard C++ does
 	if(isDerived())
@@ -78,7 +78,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::initDefaultResource(ISdlResource& r
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::saveResource(
+inline void TSdlOwnerClass<Owner, FieldSet>::saveResource(
 	const ISdlResource&     resource,
 	OutputPayloads&         payloads,
 	const SdlOutputContext& ctx) const
@@ -96,7 +96,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::saveResource(
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::call(
+inline void TSdlOwnerClass<Owner, FieldSet>::call(
 	const std::string_view funcName,
 	ISdlResource* const    resource,
 	ValueClauses&          clauses,
@@ -134,7 +134,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::call(
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::referencedResources(
+inline void TSdlOwnerClass<Owner, FieldSet>::referencedResources(
 	const ISdlResource* const targetResource,
 	std::vector<const ISdlResource*>& out_resources) const
 {
@@ -156,45 +156,45 @@ inline void TOwnerSdlClass<Owner, FieldSet>::referencedResources(
 }
 
 template<typename Owner, typename FieldSet>
-inline std::size_t TOwnerSdlClass<Owner, FieldSet>::numFields() const
+inline std::size_t TSdlOwnerClass<Owner, FieldSet>::numFields() const
 {
 	return m_fields.numFields();
 }
 
 template<typename Owner, typename FieldSet>
-inline const SdlField* TOwnerSdlClass<Owner, FieldSet>::getField(const std::size_t index) const
+inline const SdlField* TSdlOwnerClass<Owner, FieldSet>::getField(const std::size_t index) const
 {
 	return getOwnedField(index);
 }
 
 template<typename Owner, typename FieldSet>
-inline std::size_t TOwnerSdlClass<Owner, FieldSet>::numFunctions() const
+inline std::size_t TSdlOwnerClass<Owner, FieldSet>::numFunctions() const
 {
 	return m_functions.size();
 }
 
 template<typename Owner, typename FieldSet>
-inline const SdlFunction* TOwnerSdlClass<Owner, FieldSet>::getFunction(const std::size_t index) const
+inline const SdlFunction* TSdlOwnerClass<Owner, FieldSet>::getFunction(const std::size_t index) const
 {
 	return index < m_functions.size() ? m_functions[index] : nullptr;
 }
 
 template<typename Owner, typename FieldSet>
-inline const TOwnedSdlField<Owner>* TOwnerSdlClass<Owner, FieldSet>::getOwnedField(const std::size_t index) const
+inline const TSdlOwnedField<Owner>* TSdlOwnerClass<Owner, FieldSet>::getOwnedField(const std::size_t index) const
 {
 	return m_fields.getField(index);
 }
 
 template<typename Owner, typename FieldSet>
-inline bool TOwnerSdlClass<Owner, FieldSet>::isBlueprint() const
+inline bool TSdlOwnerClass<Owner, FieldSet>::isBlueprint() const
 {
 	return std::is_abstract_v<Owner>;
 }
 
 template<typename Owner, typename FieldSet>
 template<typename SdlFieldType>
-inline auto TOwnerSdlClass<Owner, FieldSet>::addField(SdlFieldType sdlField)
-	-> TOwnerSdlClass&
+inline auto TSdlOwnerClass<Owner, FieldSet>::addField(SdlFieldType sdlField)
+	-> TSdlOwnerClass&
 {
 	// More restrictions on the type of SdlFieldType may be imposed by FieldSet
 	static_assert(std::is_base_of_v<SdlField, SdlFieldType>,
@@ -207,19 +207,19 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::addField(SdlFieldType sdlField)
 
 template<typename Owner, typename FieldSet>
 template<typename StructType>
-inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(StructType Owner::* const structObjPtr)
-	-> TOwnerSdlClass&
+inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(StructType Owner::* const structObjPtr)
+	-> TSdlOwnerClass&
 {
 	return addStruct(structObjPtr, SdlStructFieldStump());
 }
 
 template<typename Owner, typename FieldSet>
 template<typename StructType>
-inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(
+inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(
 	StructType Owner::* const  structObjPtr,
 	const SdlStructFieldStump& structFieldStump)
 
-	-> TOwnerSdlClass&
+	-> TSdlOwnerClass&
 {
 	// TODO: require StructType has getSdlFunction()
 
@@ -232,8 +232,8 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::addStruct(
 
 template<typename Owner, typename FieldSet>
 template<typename T>
-inline auto TOwnerSdlClass<Owner, FieldSet>::addFunction()
-	-> TOwnerSdlClass&
+inline auto TSdlOwnerClass<Owner, FieldSet>::addFunction()
+	-> TSdlOwnerClass&
 {
 	// TODO: require T has getSdlFunction()
 
@@ -243,7 +243,7 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::addFunction()
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::loadFieldsFromSdl(
+inline void TSdlOwnerClass<Owner, FieldSet>::loadFieldsFromSdl(
 	Owner&                  owner, 
 	ValueClauses&           clauses,
 	const SdlInputContext&  ctx) const
@@ -285,7 +285,7 @@ inline void TOwnerSdlClass<Owner, FieldSet>::loadFieldsFromSdl(
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::setFieldsToDefaults(Owner& owner) const
+inline void TSdlOwnerClass<Owner, FieldSet>::setFieldsToDefaults(Owner& owner) const
 {
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
@@ -297,29 +297,29 @@ inline void TOwnerSdlClass<Owner, FieldSet>::setFieldsToDefaults(Owner& owner) c
 }
 
 template<typename Owner, typename FieldSet>
-inline void TOwnerSdlClass<Owner, FieldSet>::saveFieldsToSdl(
+inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 	const Owner&            owner,
 	OutputPayloads&         payloads,
 	const SdlOutputContext& ctx) const
 {
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
-		const TOwnedSdlField<Owner>& field = m_fields[fieldIdx];
+		const TSdlOwnedField<Owner>& field = m_fields[fieldIdx];
 		field.toSdl(owner, payloads.createPayload(), ctx);
 	}
 }
 
 template<typename Owner, typename FieldSet>
-inline auto TOwnerSdlClass<Owner, FieldSet>::description(std::string descriptionStr)
-	-> TOwnerSdlClass&
+inline auto TSdlOwnerClass<Owner, FieldSet>::description(std::string descriptionStr)
+	-> TSdlOwnerClass&
 {
 	setDescription(std::move(descriptionStr));
 	return *this;
 }
 
 template<typename Owner, typename FieldSet>
-inline auto TOwnerSdlClass<Owner, FieldSet>::docName(std::string docName)
-	-> TOwnerSdlClass&
+inline auto TSdlOwnerClass<Owner, FieldSet>::docName(std::string docName)
+	-> TSdlOwnerClass&
 {
 	setDocName(std::move(docName));
 	return *this;
@@ -327,8 +327,8 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::docName(std::string docName)
 
 template<typename Owner, typename FieldSet>
 template<typename T>
-inline auto TOwnerSdlClass<Owner, FieldSet>::baseOn()
-	-> TOwnerSdlClass&
+inline auto TSdlOwnerClass<Owner, FieldSet>::baseOn()
+	-> TSdlOwnerClass&
 {
 	static_assert(!std::is_same_v<T, Owner>,
 		"A SDL class cannot base on itself.");
@@ -339,7 +339,7 @@ inline auto TOwnerSdlClass<Owner, FieldSet>::baseOn()
 
 template<typename Owner, typename FieldSet>
 template<typename DstType, typename SrcType>
-inline DstType* TOwnerSdlClass<Owner, FieldSet>::castTo(SrcType* const srcInstance) const
+inline DstType* TSdlOwnerClass<Owner, FieldSet>::castTo(SrcType* const srcInstance) const
 {
 	try
 	{

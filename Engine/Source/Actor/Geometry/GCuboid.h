@@ -49,7 +49,7 @@ private:
 
 public:
 	// TODO: math::AABB to vec4
-	/*PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GCuboid>)
+	/*PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GCuboid>)
 	{
 		ClassType clazz("cuboid");
 		clazz.setDescription(

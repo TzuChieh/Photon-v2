@@ -27,7 +27,7 @@ private:
 	std::shared_ptr<VolumeMaterial>  m_exteriorMaterial;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<FullMaterial>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<FullMaterial>)
 	{
 		ClassType clazz("full");
 		clazz.docName("Full Material");

@@ -17,7 +17,7 @@ enum class EMathImageOp
 	Multiply
 };
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EMathImageOp>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EMathImageOp>)
 {
 	SdlEnumType sdlEnum("math-image-op");
 	sdlEnum.description("The mathematical operation used on images.");
@@ -53,7 +53,7 @@ private:
 	std::shared_ptr<Image> m_imageInput1;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<MathImage>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<MathImage>)
 	{
 		ClassType clazz("math");
 		clazz.docName("Math Image");

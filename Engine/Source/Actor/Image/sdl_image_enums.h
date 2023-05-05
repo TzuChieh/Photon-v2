@@ -14,7 +14,7 @@ enum class EImageSampleMode
 	Trilinear
 };
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EImageSampleMode>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EImageSampleMode>)
 {
 	SdlEnumType sdlEnum("sample-mode");
 	sdlEnum.description("Controls how the image will be sampled.");
@@ -36,7 +36,7 @@ enum class EImageWrapMode
 	FlippedClampToEdge
 };
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EImageWrapMode>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EImageWrapMode>)
 {
 	SdlEnumType sdlEnum("wrap-mode");
 	sdlEnum.description(

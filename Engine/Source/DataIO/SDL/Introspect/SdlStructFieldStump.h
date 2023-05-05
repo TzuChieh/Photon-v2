@@ -1,7 +1,7 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
-#include "DataIO/SDL/Introspect/TOwnedSdlField.h"
+#include "DataIO/SDL/Introspect/TSdlBruteForceFieldSet.h"
+#include "DataIO/SDL/Introspect/TSdlOwnedField.h"
 
 namespace ph
 {
@@ -13,7 +13,7 @@ class SdlStructFieldStump final
 public:
 	template<typename StructType, typename Owner>
 	auto genFieldSet(StructType Owner::* structObjPtr) const
-		-> TBasicSdlFieldSet<TOwnedSdlField<Owner>>;
+		-> TSdlBruteForceFieldSet<TSdlOwnedField<Owner>>;
 
 	// TODO: funcs for optional prefix names or some override properties?
 

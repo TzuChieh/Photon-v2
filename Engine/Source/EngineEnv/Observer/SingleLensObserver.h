@@ -40,7 +40,7 @@ private:
 	std::optional<real> m_fovDegrees;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SingleLensObserver>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SingleLensObserver>)
 	{
 		ClassType clazz("single-lens");
 		clazz.docName("Single-Lens Observer");

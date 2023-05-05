@@ -6,7 +6,7 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EScheduler>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EScheduler>)
 {
 	SdlEnumType sdlEnum("scheduler");
 	sdlEnum.description("Denotes work distribution types.");

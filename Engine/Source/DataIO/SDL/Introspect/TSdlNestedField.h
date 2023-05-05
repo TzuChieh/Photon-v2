@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TOwnedSdlField.h"
+#include "DataIO/SDL/Introspect/TSdlOwnedField.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "DataIO/SDL/Introspect/SdlInputContext.h"
@@ -20,12 +20,12 @@ values as inner field, and can be overridden by manually setting the properties
 later.
 */
 template<typename OuterType, typename InnerType>
-class TSdlNestedField : public TOwnedSdlField<OuterType>
+class TSdlNestedField : public TSdlOwnedField<OuterType>
 {
 public:
 	TSdlNestedField(
 		InnerType OuterType::*           innerObjPtr, 
-		const TOwnedSdlField<InnerType>* innerObjField);
+		const TSdlOwnedField<InnerType>* innerObjField);
 
 	void setValueToDefault(OuterType& outerObj) const override;
 	std::string valueToString(const OuterType& outerObj) const override;
@@ -49,7 +49,7 @@ protected:
 
 private:
 	InnerType OuterType::*           m_innerObjPtr;
-	const TOwnedSdlField<InnerType>* m_innerObjField;
+	const TSdlOwnedField<InnerType>* m_innerObjField;
 };
 
 // In-header Implementations:
@@ -57,9 +57,9 @@ private:
 template<typename OuterType, typename InnerType>
 inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 	InnerType OuterType::* const           innerObjPtr,
-	const TOwnedSdlField<InnerType>* const innerObjField) :
+	const TSdlOwnedField<InnerType>* const innerObjField) :
 
-	TOwnedSdlField<OuterType>(
+	TSdlOwnedField<OuterType>(
 		innerObjField ? innerObjField->getTypeName()  : "unavailable",
 		innerObjField ? innerObjField->getFieldName() : "unavailable"),
 

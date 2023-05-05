@@ -38,7 +38,7 @@ private:
 	static math::QuaternionD makeRotationFromYawPitchRoll(real yawDegrees, real pitchDegrees, real rollDegrees);
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<OrientedRasterObserver>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<OrientedRasterObserver>)
 	{
 		ClassType clazz("oriented-raster");
 		clazz.docName("Oriented Raster Observer");

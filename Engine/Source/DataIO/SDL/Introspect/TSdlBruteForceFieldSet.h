@@ -27,13 +27,13 @@ This class accepts polymorphic field types.
 This class finds a field using brute-force method.
 */
 template<typename BaseFieldType, std::size_t MAX_FIELDS = PH_SDL_MAX_FIELDS>
-class TBasicSdlFieldSet final : private IMoveOnly
+class TSdlBruteForceFieldSet final : private IMoveOnly
 {
 	static_assert(std::is_base_of_v<SdlField, BaseFieldType>,
 		"Field type must derive from SdlField.");
 
 	template<typename OtherBaseFieldType, std::size_t OTHER_MAX_FIELDS>
-	friend class TBasicSdlFieldSet;
+	friend class TSdlBruteForceFieldSet;
 
 public:
 	using FieldType = BaseFieldType;
@@ -50,7 +50,8 @@ public:
 	}
 
 	template<typename T>
-	inline TBasicSdlFieldSet& addField(T field)
+	inline auto addField(T field)
+	-> TSdlBruteForceFieldSet&
 	{
 		if(canAddField(field))
 		{
@@ -61,7 +62,8 @@ public:
 	}
 
 	template<typename OtherBaseFieldType, std::size_t OTHER_MAX_FIELDS>
-	inline TBasicSdlFieldSet& addFields(TBasicSdlFieldSet<OtherBaseFieldType, OTHER_MAX_FIELDS> fields)
+	inline auto addFields(TSdlBruteForceFieldSet<OtherBaseFieldType, OTHER_MAX_FIELDS> fields)
+	-> TSdlBruteForceFieldSet&
 	{
 		static_assert(std::is_base_of_v<BaseFieldType, OtherBaseFieldType>,
 			"Incoming field type must derive from the field type that this set stores.");

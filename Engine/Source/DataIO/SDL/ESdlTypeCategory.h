@@ -28,9 +28,7 @@ enum class ESdlTypeCategory
 	Ref_Option,
 	
 	// Special values (these entries should always be the last ones)
-	MIN = Unspecified,
-	MAX = Ref_Option,
-	SIZE = MAX - MIN + 1
+	SIZE
 };
 
 namespace sdl::detail

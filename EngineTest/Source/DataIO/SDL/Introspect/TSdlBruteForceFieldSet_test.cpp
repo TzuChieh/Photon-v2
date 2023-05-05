@@ -1,4 +1,4 @@
-#include <DataIO/SDL/Introspect/TBasicSdlFieldSet.h>
+#include <DataIO/SDL/Introspect/TSdlBruteForceFieldSet.h>
 #include <DataIO/SDL/Introspect/TSdlString.h>
 #include <DataIO/SDL/Introspect/TSdlInteger.h>
 #include <DataIO/SDL/Introspect/TSdlReal.h>
@@ -21,12 +21,12 @@ namespace
 	};
 }
 
-TEST(TBasicSdlFieldSetTest, RequiredProperties)
+TEST(TSdlBruteForceFieldSetTest, RequiredProperties)
 {
 	// SDL string is the most trivial field as it simply copies the input
 
 	{
-		using FieldSet = TBasicSdlFieldSet<TSdlString<TestOwner>>;
+		using FieldSet = TSdlBruteForceFieldSet<TSdlString<TestOwner>>;
 		EXPECT_FALSE(std::is_copy_constructible_v<FieldSet>);
 		EXPECT_TRUE(std::is_move_constructible_v<FieldSet>);
 		EXPECT_FALSE(std::is_copy_assignable_v<FieldSet>);
@@ -34,12 +34,12 @@ TEST(TBasicSdlFieldSetTest, RequiredProperties)
 	}
 }
 
-TEST(TBasicSdlFieldSetTest, AddFields)
+TEST(TSdlBruteForceFieldSetTest, AddFields)
 {
 	// SDL string is the most trivial field as it simply copies the input
 
 	{
-		TBasicSdlFieldSet<TSdlString<TestOwner>> fieldSetA;
+		TSdlBruteForceFieldSet<TSdlString<TestOwner>> fieldSetA;
 		{
 			EXPECT_EQ(fieldSetA.numFields(), 0);
 
@@ -71,7 +71,7 @@ TEST(TBasicSdlFieldSetTest, AddFields)
 			}
 		}
 
-		TBasicSdlFieldSet<TSdlString<TestOwner>> fieldSetB;
+		TSdlBruteForceFieldSet<TSdlString<TestOwner>> fieldSetB;
 		{
 			EXPECT_EQ(fieldSetB.numFields(), 0);
 
@@ -122,10 +122,10 @@ TEST(TBasicSdlFieldSetTest, AddFields)
 	}
 }
 
-TEST(TBasicSdlFieldSetTest, AddPolymorphicFields)
+TEST(TSdlBruteForceFieldSetTest, AddPolymorphicFields)
 {
 	{
-		TBasicSdlFieldSet<TOwnedSdlField<TestOwner>> fieldSetA;
+		TSdlBruteForceFieldSet<TSdlOwnedField<TestOwner>> fieldSetA;
 		{
 			EXPECT_EQ(fieldSetA.numFields(), 0);
 
@@ -141,7 +141,7 @@ TEST(TBasicSdlFieldSetTest, AddPolymorphicFields)
 			EXPECT_STREQ(fieldSetA[2].getFieldName().c_str(), "realA");
 		}
 
-		TBasicSdlFieldSet<TOwnedSdlField<TestOwner>> fieldSetB;
+		TSdlBruteForceFieldSet<TSdlOwnedField<TestOwner>> fieldSetB;
 		{
 			EXPECT_EQ(fieldSetB.numFields(), 0);
 

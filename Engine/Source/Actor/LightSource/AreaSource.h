@@ -32,7 +32,7 @@ private:
 	real           m_numWatts;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AreaSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AreaSource>)
 	{
 		ClassType clazz("area");
 		clazz.docName("Area Light Source");

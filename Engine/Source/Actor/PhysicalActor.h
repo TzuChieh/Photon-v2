@@ -128,7 +128,7 @@ public:
 		}
 	};
 
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<PhysicalActor>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PhysicalActor>)
 	{
 		ClassType clazz("physical");
 		clazz.docName("Physical Actor");

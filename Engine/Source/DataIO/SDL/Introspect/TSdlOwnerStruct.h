@@ -1,8 +1,8 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/SdlStruct.h"
-#include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
-#include "DataIO/SDL/Introspect/TOwnedSdlField.h"
+#include "DataIO/SDL/Introspect/TSdlBruteForceFieldSet.h"
+#include "DataIO/SDL/Introspect/TSdlOwnedField.h"
 
 #include <cstddef>
 #include <string>
@@ -15,13 +15,13 @@ class SdlStructFieldStump;
 /*! @brief SDL binding type for a typical C++ struct.
 */
 template<typename StructType>
-class TOwnerSdlStruct : public SdlStruct
+class TSdlOwnerStruct : public SdlStruct
 {
 public:
 	using OwnerType = StructType;
 
 public:
-	explicit TOwnerSdlStruct(std::string name);
+	explicit TSdlOwnerStruct(std::string name);
 
 	/*! @brief Initialize a struct object to default values.
 	*/
@@ -31,19 +31,19 @@ public:
 	const SdlField* getField(std::size_t index) const override;
 
 	template<typename T>
-	TOwnerSdlStruct& addField(T sdlField);
+	TSdlOwnerStruct& addField(T sdlField);
 
 	template<typename StructObjType>
-	TOwnerSdlStruct& addStruct(StructObjType StructType::* structObjPtr);
+	TSdlOwnerStruct& addStruct(StructObjType StructType::* structObjPtr);
 
 	template<typename StructObjType>
-	TOwnerSdlStruct& addStruct(
+	TSdlOwnerStruct& addStruct(
 		StructObjType StructType::* structObjPtr,
 		const SdlStructFieldStump&  structFieldStump);
 
-	auto getFields() const -> const TBasicSdlFieldSet<TOwnedSdlField<StructType>>&;
+	auto getFields() const -> const TSdlBruteForceFieldSet<TSdlOwnedField<StructType>>&;
 
-	TOwnerSdlStruct& description(std::string descriptionStr);
+	TSdlOwnerStruct& description(std::string descriptionStr);
 
 private:
 	/*!
@@ -51,9 +51,9 @@ private:
 	*/
 	void setFieldsToDefaults(StructType& structObj) const;
 
-	TBasicSdlFieldSet<TOwnedSdlField<StructType>> m_fields;
+	TSdlBruteForceFieldSet<TSdlOwnedField<StructType>> m_fields;
 };
 
 }// end namespace ph
 
-#include "DataIO/SDL/Introspect/TOwnerSdlStruct.ipp"
+#include "DataIO/SDL/Introspect/TSdlOwnerStruct.ipp"

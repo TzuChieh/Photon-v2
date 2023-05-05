@@ -36,7 +36,7 @@ private:
 	real m_energyScale;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ADome>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ADome>)
 	{
 		ClassType clazz("dome");
 		clazz.docName("Dome Actor");

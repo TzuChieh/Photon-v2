@@ -20,8 +20,8 @@ namespace ph
 template<typename Owner, typename Element = real, typename SdlValueType = TSdlValue<std::vector<Element>, Owner>>
 class TSdlRealArray : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<std::vector<Element>, Owner>, SdlValueType>,
-		"SdlValueType should be a subclass of TAbstractSdlValue.");
+	static_assert(std::is_base_of_v<TSdlAbstractValue<std::vector<Element>, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TSdlAbstractValue.");
 
 public:
 	template<typename ValueType>

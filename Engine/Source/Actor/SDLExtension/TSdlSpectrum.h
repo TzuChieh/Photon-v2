@@ -24,8 +24,8 @@ namespace ph
 template<typename Owner, typename SdlValueType = TSdlValue<math::Spectrum, Owner>>
 class TSdlSpectrum : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<math::Spectrum, Owner>, SdlValueType>,
-		"SdlValueType should be a subclass of TAbstractSdlValue.");
+	static_assert(std::is_base_of_v<TSdlAbstractValue<math::Spectrum, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TSdlAbstractValue.");
 
 public:
 	template<typename ValueType>

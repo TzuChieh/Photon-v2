@@ -19,7 +19,7 @@ public:
 	ESdlTypeCategory getDynamicCategory() const override;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<SampleSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SampleSource>)
 	{
 		ClassType clazz("sample-source");
 		clazz.docName("Sample Source");

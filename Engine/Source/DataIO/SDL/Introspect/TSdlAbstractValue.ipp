@@ -1,27 +1,27 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TAbstractSdlValue.h"
+#include "DataIO/SDL/Introspect/TSdlAbstractValue.h"
 
 namespace ph
 {
 
 template<typename T, typename Owner>
-inline TAbstractSdlValue<T, Owner>::TAbstractSdlValue(
+inline TSdlAbstractValue<T, Owner>::TSdlAbstractValue(
 	std::string typeName, 
 	std::string valueName) : 
 
-	TOwnedSdlField<Owner>(std::move(typeName), std::move(valueName))
+	TSdlOwnedField<Owner>(std::move(typeName), std::move(valueName))
 {}
 
 template<typename T, typename Owner>
-inline std::string TAbstractSdlValue<T, Owner>::valueToString(const Owner& owner) const
+inline std::string TSdlAbstractValue<T, Owner>::valueToString(const Owner& owner) const
 {
 	const T* const valuePtr = getConstValue(owner);
 	return valuePtr ? valueAsString(*valuePtr) : "(empty)";
 }
 
 template<typename T, typename Owner>
-inline void TAbstractSdlValue<T, Owner>::ownedResources(
+inline void TSdlAbstractValue<T, Owner>::ownedResources(
 	const Owner& /* owner */,
 	std::vector<const ISdlResource*>& /* out_resources */) const
 {

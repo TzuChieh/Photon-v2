@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TAbstractSdlValue.h"
+#include "DataIO/SDL/Introspect/TSdlAbstractValue.h"
 #include "Common/assertion.h"
 
 #include <string_view>
@@ -17,7 +17,7 @@ for the optional field, it allows the detection of uninitialized value during
 runtime. If the above properties are undesired, consider using @p TSdlValue.
 */
 template<typename T, typename Owner>
-class TSdlOptionalValue : public TAbstractSdlValue<T, Owner>
+class TSdlOptionalValue : public TSdlAbstractValue<T, Owner>
 {
 public:
 	TSdlOptionalValue(

@@ -39,7 +39,7 @@ public:
 	virtual std::shared_ptr<Material> genMaterial(CookingContext& ctx) const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<LightSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<LightSource>)
 	{
 		ClassType clazz(sdl::category_to_string(CATEGORY));
 		clazz.docName("Light Source");

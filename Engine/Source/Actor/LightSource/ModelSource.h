@@ -40,7 +40,7 @@ private:
 	bool                               m_isBackFaceEmit;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ModelSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ModelSource>)
 	{
 		ClassType clazz("model");
 		clazz.docName("Model Light Source");

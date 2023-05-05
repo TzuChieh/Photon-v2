@@ -18,8 +18,8 @@ namespace ph
 template<typename Owner, typename Element = real, typename SdlValueType = TSdlValue<std::vector<math::TVector3<Element>>, Owner>>
 class TSdlVector3Array : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<std::vector<math::TVector3<Element>>, Owner>, SdlValueType>,
-		"SdlValueType should be a subclass of TAbstractSdlValue.");
+	static_assert(std::is_base_of_v<TSdlAbstractValue<std::vector<math::TVector3<Element>>, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TSdlAbstractValue.");
 
 	static_assert(std::is_same_v<Element, real>,
 		"Currently supports only ph::real");

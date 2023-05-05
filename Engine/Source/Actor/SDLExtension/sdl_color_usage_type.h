@@ -6,7 +6,7 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<math::EColorUsage>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<math::EColorUsage>)
 {
 	SdlEnumType sdlEnum("color-usage");
 	sdlEnum.description("Marks color usage information of input values.");

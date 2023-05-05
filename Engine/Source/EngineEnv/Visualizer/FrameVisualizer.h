@@ -27,7 +27,7 @@ private:
 	int64 m_cropWindowHPx;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<FrameVisualizer>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<FrameVisualizer>)
 	{
 		ClassType clazz("frame");
 		clazz.docName("Frame Visualizer");

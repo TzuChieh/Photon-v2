@@ -46,7 +46,7 @@ private:
 	math::EColorSpace    m_colorSpace;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ConstantImage>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ConstantImage>)
 	{
 		ClassType clazz("constant");
 		clazz.docName("Constant Image");

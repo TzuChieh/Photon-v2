@@ -43,7 +43,7 @@ private:
 	Path m_filePath;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<RasterFileImage>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RasterFileImage>)
 	{
 		ClassType clazz("raster-file");
 		clazz.docName("Raster File Image");

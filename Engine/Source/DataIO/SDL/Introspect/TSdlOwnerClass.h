@@ -1,8 +1,8 @@
 #pragma once
 
 #include "DataIO/SDL/Introspect/SdlClass.h"
-#include "DataIO/SDL/Introspect/TOwnedSdlField.h"
-#include "DataIO/SDL/Introspect/TBasicSdlFieldSet.h"
+#include "DataIO/SDL/Introspect/TSdlOwnedField.h"
+#include "DataIO/SDL/Introspect/TSdlBruteForceFieldSet.h"
 #include "Utility/TArrayAsVector.h"
 #include "Common/config.h"
 
@@ -21,14 +21,14 @@ class SdlStructFieldStump;
 
 /*! @brief SDL binding type for a canonical SDL resource class.
 */
-template<typename Owner, typename FieldSet = TBasicSdlFieldSet<TOwnedSdlField<Owner>>>
-class TOwnerSdlClass : public SdlClass
+template<typename Owner, typename FieldSet = TSdlBruteForceFieldSet<TSdlOwnedField<Owner>>>
+class TSdlOwnerClass : public SdlClass
 {
 public:
 	using OwnerType = Owner;
 
 public:
-	explicit TOwnerSdlClass(std::string displayName);
+	explicit TSdlOwnerClass(std::string displayName);
 
 	std::shared_ptr<ISdlResource> createResource() const override;
 
@@ -79,34 +79,34 @@ public:
 		OutputPayloads&         payloads,
 		const SdlOutputContext& ctx) const;
 
-	const TOwnedSdlField<Owner>* getOwnedField(std::size_t index) const;
+	const TSdlOwnedField<Owner>* getOwnedField(std::size_t index) const;
 
 	template<typename SdlFieldType>
-	TOwnerSdlClass& addField(SdlFieldType sdlField);
+	TSdlOwnerClass& addField(SdlFieldType sdlField);
 
 	template<typename StructType>
-	TOwnerSdlClass& addStruct(StructType Owner::* structObjPtr);
+	TSdlOwnerClass& addStruct(StructType Owner::* structObjPtr);
 
 	template<typename StructType>
-	TOwnerSdlClass& addStruct(
+	TSdlOwnerClass& addStruct(
 		StructType Owner::*        structObjPtr,
 		const SdlStructFieldStump& structFieldStump);
 
 	/*! @brief Adds a function that can later be called.
 	*/
 	template<typename T>
-	TOwnerSdlClass& addFunction();
+	TSdlOwnerClass& addFunction();
 
-	auto description(std::string descriptionStr) -> TOwnerSdlClass&;
+	auto description(std::string descriptionStr) -> TSdlOwnerClass&;
 
-	auto docName(std::string docName) -> TOwnerSdlClass&;
+	auto docName(std::string docName) -> TSdlOwnerClass&;
 
 	/*! @brief Set another SDL class as the base of this class.
 
 	By default, fields and functions in the base are automatically inherited.
 	*/
 	template<typename T>
-	auto baseOn() -> TOwnerSdlClass&;
+	auto baseOn() -> TSdlOwnerClass&;
 
 private:
 	/*!
@@ -130,4 +130,4 @@ private:
 
 }// end namespace ph
 
-#include "DataIO/SDL/Introspect/TOwnerSdlClass.ipp"
+#include "DataIO/SDL/Introspect/TSdlOwnerClass.ipp"

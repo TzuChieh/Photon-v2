@@ -22,7 +22,7 @@ private:
 	real m_height;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<RectangleSource>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RectangleSource>)
 	{
 		ClassType clazz("rectangle");
 		clazz.docName("Rectangular Light Source");

@@ -25,10 +25,10 @@ Governs how a field should be initialized on the policy level.
 @tparam Owner The owner type. May be any class/struct type including SDL resource types.
 */
 template<typename Owner>
-class TOwnedSdlField : public SdlField
+class TSdlOwnedField : public SdlField
 {
 public:
-	TOwnedSdlField(std::string typeName, std::string valueName);
+	TSdlOwnedField(std::string typeName, std::string valueName);
 
 	/*! @brief Set the value of the field to a default one.
 	Since the field class is templatized by `Owner` type, we are able to define default value on
@@ -101,7 +101,7 @@ protected:
 	Different importance affect the underlying policy used during the import
 	and export of the field, e.g., whether warnings are emitted.
 	*/
-	TOwnedSdlField& setImportance(EFieldImportance importance);
+	TSdlOwnedField& setImportance(EFieldImportance importance);
 
 private:
 	EFieldImportance m_importance;
@@ -124,7 +124,7 @@ private:
 // In-header Implementations:
 
 template<typename Owner>
-inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string valueName) : 
+inline TSdlOwnedField<Owner>::TSdlOwnedField(std::string typeName, std::string valueName) :
 
 	SdlField(std::move(typeName), std::move(valueName)),
 
@@ -132,7 +132,7 @@ inline TOwnedSdlField<Owner>::TOwnedSdlField(std::string typeName, std::string v
 {}
 
 template<typename Owner>
-inline SdlNativeData TOwnedSdlField<Owner>::nativeData(ISdlResource& resource) const
+inline SdlNativeData TSdlOwnedField<Owner>::nativeData(ISdlResource& resource) const
 {
 	if constexpr(CDerived<Owner, ISdlResource>)
 	{
@@ -154,7 +154,7 @@ inline SdlNativeData TOwnedSdlField<Owner>::nativeData(ISdlResource& resource) c
 }
 
 template<typename Owner>
-inline void TOwnedSdlField<Owner>::fromSdl(
+inline void TSdlOwnedField<Owner>::fromSdl(
 	Owner&                 owner,
 	const SdlInputPayload& payload,
 	const SdlInputContext& ctx) const
@@ -191,7 +191,7 @@ inline void TOwnedSdlField<Owner>::fromSdl(
 }
 
 template<typename Owner>
-inline void TOwnedSdlField<Owner>::toSdl(
+inline void TSdlOwnedField<Owner>::toSdl(
 	const Owner&            owner,
 	SdlOutputPayload&       out_payload,
 	const SdlOutputContext& ctx) const
@@ -211,7 +211,7 @@ inline void TOwnedSdlField<Owner>::toSdl(
 }
 
 template<typename Owner>
-inline TOwnedSdlField<Owner>& TOwnedSdlField<Owner>::setImportance(const EFieldImportance importance)
+inline TSdlOwnedField<Owner>& TSdlOwnedField<Owner>::setImportance(const EFieldImportance importance)
 {
 	m_importance = importance;
 
@@ -219,7 +219,7 @@ inline TOwnedSdlField<Owner>& TOwnedSdlField<Owner>::setImportance(const EFieldI
 }
 
 template<typename Owner>
-inline EFieldImportance TOwnedSdlField<Owner>::getImportance() const
+inline EFieldImportance TSdlOwnedField<Owner>::getImportance() const
 {
 	return m_importance;
 }

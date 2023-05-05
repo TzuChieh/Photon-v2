@@ -31,7 +31,7 @@ private:
 	IndexedTriangleBuffer loadTriangleBuffer() const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GPlyPolygonMesh>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GPlyPolygonMesh>)
 	{
 		ClassType clazz("ply");
 		clazz.docName("PLY Polygon Mesh");

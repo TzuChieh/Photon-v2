@@ -56,7 +56,7 @@ protected:
 		math::TDecomposedTransform<real>* out_remainingLocalToWorld) const;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<ALight>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ALight>)
 	{
 		ClassType clazz("light");
 		clazz.docName("Light Actor");

@@ -30,7 +30,7 @@ private:
 	std::shared_ptr<MotionSource> m_motionSource;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<AModel>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AModel>)
 	{
 		ClassType clazz("model");
 		clazz.docName("Model Actor");

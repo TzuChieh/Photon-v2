@@ -19,7 +19,7 @@ public:
 	virtual void genBehaviors(CookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Material>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Material>)
 	{
 		ClassType clazz(sdl::category_to_string(CATEGORY));
 		clazz.docName("Material");

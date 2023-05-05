@@ -39,7 +39,7 @@ private:
 	static bool checkData(real width, real height);
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<GRectangle>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GRectangle>)
 	{
 		ClassType clazz("rectangle");
 		clazz.docName("Rectangular Geometry");

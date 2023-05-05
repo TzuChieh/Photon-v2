@@ -16,8 +16,8 @@ namespace ph
 template<typename Owner, typename Element = real, typename SdlValueType = TSdlValue<math::TQuaternion<Element>, Owner>>
 class TSdlQuaternion : public SdlValueType
 {
-	static_assert(std::is_base_of_v<TAbstractSdlValue<math::TQuaternion<Element>, Owner>, SdlValueType>,
-		"SdlValueType should be a subclass of TAbstractSdlValue.");
+	static_assert(std::is_base_of_v<TSdlAbstractValue<math::TQuaternion<Element>, Owner>, SdlValueType>,
+		"SdlValueType should be a subclass of TSdlAbstractValue.");
 
 	static_assert(std::is_same_v<Element, real>,
 		"Currently supports only ph::real");

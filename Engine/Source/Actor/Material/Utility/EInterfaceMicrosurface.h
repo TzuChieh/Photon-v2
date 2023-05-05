@@ -13,7 +13,7 @@ enum class EInterfaceMicrosurface
 	Beckmann
 };
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<EInterfaceMicrosurface>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EInterfaceMicrosurface>)
 {
 	SdlEnumType sdlEnum("interface-microsurface");
 	sdlEnum.description("Controls the model for describing the micro structure of the interface.");

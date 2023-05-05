@@ -6,7 +6,7 @@
 namespace ph
 {
 
-PH_DEFINE_SDL_ENUM(TBasicSdlEnum<ERayEnergyEstimator>)
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ERayEnergyEstimator>)
 {
 	SdlEnumType sdlEnum("estimator");
 	sdlEnum.description("Type of energy estimation algorithms.");

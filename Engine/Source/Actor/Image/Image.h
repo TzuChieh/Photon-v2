@@ -33,7 +33,7 @@ public:
 		CookingContext& ctx) = 0;
 
 public:
-	PH_DEFINE_SDL_CLASS(TOwnerSdlClass<Image>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Image>)
 	{
 		ClassType clazz("image");
 		clazz.docName("Image");

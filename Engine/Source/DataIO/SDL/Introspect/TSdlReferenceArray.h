@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TOwnedSdlField.h"
+#include "DataIO/SDL/Introspect/TSdlOwnedField.h"
 #include "DataIO/SDL/ESdlTypeCategory.h"
 
 #include <string>
@@ -19,7 +19,7 @@ class ISdlResource;
 @tparam Owner Owner type of @p T. Note that Owner can be any type (not necessarily a SDL resource).
 */
 template<typename T, typename Owner>
-class TSdlReferenceArray : public TOwnedSdlField<Owner>
+class TSdlReferenceArray : public TSdlOwnedField<Owner>
 {
 public:
 	TSdlReferenceArray(std::string valueName, std::vector<std::shared_ptr<T>> Owner::* valuePtr);
