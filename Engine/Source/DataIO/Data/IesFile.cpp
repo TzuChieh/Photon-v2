@@ -1,7 +1,7 @@
 #include "DataIO/Data/IesFile.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
-#include "DataIO/SDL/Tokenizer.h"
+#include "SDL/Tokenizer.h"
 
 #include <fstream>
 #include <vector>

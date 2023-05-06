@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EngineEnv/Observer/Observer.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"

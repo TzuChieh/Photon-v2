@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/SdlResourceBase.h"
+#include "SDL/SdlResourceBase.h"
 
 namespace ph { class CoreCookingContext; }
 namespace ph { class CoreCookedUnit; }

@@ -2,7 +2,7 @@
 
 #include "Actor/Image/Image.h"
 #include "Common/primitive_type.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <vector>
 #include <utility>

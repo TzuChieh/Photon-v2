@@ -3,7 +3,7 @@
 #include "Actor/LightSource/LightSource.h"
 #include "Math/math_fwd.h"
 #include "DataIO/FileSystem/Path.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 #include "Actor/SDLExtension/TSdlUnifiedColorImage.h"
 
 #include <memory>

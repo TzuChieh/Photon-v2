@@ -4,7 +4,7 @@
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
 #include "Math/Color/Spectrum.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <memory>
 

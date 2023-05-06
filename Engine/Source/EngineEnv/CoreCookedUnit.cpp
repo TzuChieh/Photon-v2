@@ -1,5 +1,5 @@
 #include "EngineEnv/CoreCookedUnit.h"
-#include "DataIO/SDL/SceneDescription.h"
+#include "SDL/SceneDescription.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
 #include "World/VisualWorld.h"

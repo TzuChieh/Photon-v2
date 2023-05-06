@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Geometry/Geometry.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <vector>
 #include <memory>

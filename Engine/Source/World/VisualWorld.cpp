@@ -1,6 +1,6 @@
 #include "World/VisualWorld.h"
 #include "Common/primitive_type.h"
-#include "DataIO/SDL/SceneDescription.h"
+#include "SDL/SceneDescription.h"
 #include "World/Foundation/TransientVisualElement.h"
 #include "World/Foundation/CookingContext.h"
 #include "EngineEnv/CoreCookingContext.h"

@@ -11,7 +11,7 @@
 //#include "Math/math.h"
 //#include "Math/Random.h"
 //#include "Core/Sample/DirectLightSample.h"
-//#include "DataIO/SDL/InputPacket.h"
+//#include "SDL/InputPacket.h"
 //#include "Core/SurfaceBehavior/BsdfSample.h"
 //#include "Core/SurfaceBehavior/BsdfEvaluation.h"
 //#include "Core/Quantity/Spectrum.h"

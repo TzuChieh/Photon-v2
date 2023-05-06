@@ -1,13 +1,13 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TSdlReference.h"
+#include "SDL/Introspect/TSdlReference.h"
 #include "Actor/Image/UnifiedNumericImage.h"
 #include "Common/assertion.h"
 #include "Actor/SDLExtension/image_loaders.h"
-#include "DataIO/SDL/sdl_exceptions.h"
-#include "DataIO/SDL/sdl_helpers.h"
-#include "DataIO/SDL/SdlResourceIdentifier.h"
-#include "DataIO/SDL/Introspect/SdlInputContext.h"
+#include "SDL/sdl_exceptions.h"
+#include "SDL/sdl_helpers.h"
+#include "SDL/SdlResourceIdentifier.h"
+#include "SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
 #include "Actor/SDLExtension/sdl_color_usage_type.h"
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "World/VisualWorld.h"
-#include "DataIO/SDL/SdlParser.h"
-#include "DataIO/SDL/SceneDescription.h"
+#include "SDL/SdlParser.h"
+#include "SDL/SceneDescription.h"
 #include "Math/TVector2.h"
 #include "Core/Renderer/ERegionStatus.h"
 #include "Frame/frame_fwd.h"

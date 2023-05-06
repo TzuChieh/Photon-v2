@@ -4,7 +4,7 @@
 #include "Actor/Material/Utility/EInterfaceMicrosurface.h"
 #include "Actor/Material/Utility/ERoughnessToAlpha.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <memory>
 #include <optional>

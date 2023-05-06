@@ -1,9 +1,9 @@
 #pragma once
 
-#include "DataIO/Option.h"
+#include "SDL/Option.h"
 #include "EngineEnv/CoreSdlResource.h"
 #include "Common/primitive_type.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <string>
 #include <memory>

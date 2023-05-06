@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/Geometry/TAABB2D.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 #include "EngineEnv/Visualizer/sdl_scheduler_type.h"
 #include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
 #include "EngineEnv/Visualizer/sdl_sample_filter_type.h"

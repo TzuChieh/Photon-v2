@@ -6,7 +6,7 @@
 #include "Core/Texture/TTexture.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector2.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <memory>
 #include <optional>

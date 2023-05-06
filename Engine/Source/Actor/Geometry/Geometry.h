@@ -1,9 +1,9 @@
 #pragma once
 
-#include "DataIO/SDL/TSdlResourceBase.h"
+#include "SDL/TSdlResourceBase.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Transform/StaticAffineTransform.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <vector>
 #include <memory>

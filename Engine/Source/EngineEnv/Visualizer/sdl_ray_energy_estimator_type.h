@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EngineEnv/Visualizer/ERayEnergyEstimator.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 namespace ph
 {

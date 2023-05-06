@@ -2,7 +2,7 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 namespace ph
 {

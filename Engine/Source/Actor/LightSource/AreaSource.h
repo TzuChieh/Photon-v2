@@ -3,7 +3,7 @@
 #include "Actor/LightSource/LightSource.h"
 #include "Math/Color/Spectrum.h"
 #include "Actor/Geometry/Geometry.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 #include "Actor/SDLExtension/TSdlSpectrum.h"
 
 #include <memory>

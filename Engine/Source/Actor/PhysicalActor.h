@@ -4,7 +4,7 @@
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/math_fwd.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <optional>
 

@@ -2,7 +2,7 @@
 
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Math/math_fwd.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 #include "Actor/SDLExtension/TSdlUnifiedColorImage.h"
 #include "Actor/SDLExtension/TSdlUnifiedNumericImage.h"
 

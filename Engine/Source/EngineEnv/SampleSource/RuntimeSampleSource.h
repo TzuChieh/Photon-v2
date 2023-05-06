@@ -3,7 +3,7 @@
 #include "EngineEnv/SampleSource/SampleSource.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <cstddef>
 

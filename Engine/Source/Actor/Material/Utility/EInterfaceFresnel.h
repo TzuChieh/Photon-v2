@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 namespace ph
 {

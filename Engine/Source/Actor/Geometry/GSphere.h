@@ -3,7 +3,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <vector>
 

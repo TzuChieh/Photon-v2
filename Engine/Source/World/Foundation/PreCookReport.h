@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataIO/SDL/SdlResourceId.h"
+#include "SDL/SdlResourceId.h"
 #include "Common/primitive_type.h"
 
 namespace ph::math { class Transform; }

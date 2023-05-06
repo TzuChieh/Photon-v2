@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Scheduler/EScheduler.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 namespace ph
 {

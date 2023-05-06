@@ -2,7 +2,7 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Geometry/GTriangle.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <vector>
 

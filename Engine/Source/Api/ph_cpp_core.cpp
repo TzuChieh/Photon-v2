@@ -68,7 +68,7 @@
 #include "EngineEnv/Visualizer/PathTracingVisualizer.h"
 
 // Options
-#include "DataIO/Option.h"
+#include "SDL/Option.h"
 #include "EngineEnv/Session/RenderSession.h"
 #include "EngineEnv/Session/SingleFrameRenderSession.h"
 

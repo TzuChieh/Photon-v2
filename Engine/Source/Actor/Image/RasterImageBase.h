@@ -4,7 +4,7 @@
 #include "Actor/Image/sdl_image_enums.h"
 #include "Math/TVector2.h"
 #include "Common/primitive_type.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 namespace ph
 {

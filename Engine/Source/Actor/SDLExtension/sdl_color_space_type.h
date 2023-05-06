@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Math/Color/color_enums.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 namespace ph
 {

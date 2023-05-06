@@ -7,7 +7,7 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Utility/Concurrent/TSynchronized.h"
-#include "DataIO/SDL/sdl_traits.h"
+#include "SDL/sdl_traits.h"
 
 #include <vector>
 #include <memory>

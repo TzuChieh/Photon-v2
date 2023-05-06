@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Math/Geometry/TAABB2D.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <array>
 #include <vector>

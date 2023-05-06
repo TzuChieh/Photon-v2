@@ -6,12 +6,12 @@
 #include <ph_cpp_core.h>
 #include <Utility/Timestamp.h>
 #include <DataIO/io_utils.h>
-#include <DataIO/SDL/Introspect/SdlClass.h>
-#include <DataIO/SDL/Introspect/SdlFunction.h>
-#include <DataIO/SDL/Introspect/SdlField.h>
-#include <DataIO/SDL/Introspect/SdlEnum.h>
-#include <DataIO/SDL/ESdlTypeCategory.h>
-#include <DataIO/SDL/sdl_helpers.h>
+#include <SDL/Introspect/SdlClass.h>
+#include <SDL/Introspect/SdlFunction.h>
+#include <SDL/Introspect/SdlField.h>
+#include <SDL/Introspect/SdlEnum.h>
+#include <SDL/ESdlTypeCategory.h>
+#include <SDL/sdl_helpers.h>
 #include <Common/logging.h>
 
 #include <utility>

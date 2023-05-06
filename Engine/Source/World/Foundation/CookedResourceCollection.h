@@ -8,7 +8,7 @@
 #include "World/Foundation/CookedMotion.h"
 #include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/traits.h"
-#include "DataIO/SDL/SdlResourceId.h"
+#include "SDL/SdlResourceId.h"
 #include "Common/logging.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/Emitter/Emitter.h"

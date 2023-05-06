@@ -1,8 +1,8 @@
 #pragma once
 
-#include "DataIO/SDL/TSdlResourceBase.h"
+#include "SDL/TSdlResourceBase.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 namespace ph { class CookingContext; }
 

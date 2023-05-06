@@ -4,7 +4,7 @@
 #include "Utility/TUniquePtrVector.h"
 #include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/traits.h"
-#include "DataIO/SDL/SdlResourceId.h"
+#include "SDL/SdlResourceId.h"
 #include "Common/logging.h"
 #include "World/Foundation/TransientVisualElement.h"
 

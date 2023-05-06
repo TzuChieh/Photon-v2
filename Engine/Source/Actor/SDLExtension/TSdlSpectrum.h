@@ -1,13 +1,13 @@
 #pragma once
 
-#include "DataIO/SDL/Introspect/TSdlValue.h"
-#include "DataIO/SDL/Introspect/TSdlOptionalValue.h"
+#include "SDL/Introspect/TSdlValue.h"
+#include "SDL/Introspect/TSdlOptionalValue.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "Math/Color/Spectrum.h"
-#include "DataIO/SDL/sdl_helpers.h"
-#include "DataIO/SDL/SdlResourceIdentifier.h"
-#include "DataIO/SDL/Introspect/SdlInputContext.h"
+#include "SDL/sdl_helpers.h"
+#include "SDL/SdlResourceIdentifier.h"
+#include "SDL/Introspect/SdlInputContext.h"
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
 #include "Actor/SDLExtension/image_loaders.h"

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "DataIO/SDL/TSdlResourceBase.h"
+#include "SDL/TSdlResourceBase.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Common/primitive_type.h"
-#include "DataIO/SDL/sdl_interface.h"
+#include "SDL/sdl_interface.h"
 
 #include <memory>
 
