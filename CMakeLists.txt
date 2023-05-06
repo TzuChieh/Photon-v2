@@ -346,9 +346,9 @@ load_library_via_config(${GLAD_LIB_NAME}
 #------------------------------------------------------------------------------
 # imgui
 #------------------------------------------------------------------------------
-# We do not use imgui the standard way here, as its design is to include the
-# library source into your project directly. Several variables are set here
-# to facilitate the integration process.
+# We do not use imgui the standard way (as most libraries in Photon) here, as 
+# its design is to include the library source into your project directly. 
+# Several variables are set here to facilitate the integration process.
 
 set(IMGUI_LIB_NAME        "imgui")
 set(IMGUI_LIB_INSTALL_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${IMGUI_LIB_NAME}/")
@@ -371,6 +371,14 @@ set(CONCURRENTQUEUE_LIB_NAME "concurrentqueue")
 load_library_via_config(${CONCURRENTQUEUE_LIB_NAME}
     TARGETS    "concurrentqueue"
     CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${CONCURRENTQUEUE_LIB_NAME}/lib/cmake/${CONCURRENTQUEUE_LIB_NAME}/")
+
+#------------------------------------------------------------------------------
+# json
+#------------------------------------------------------------------------------
+set(JSON_LIB_NAME "nlohmann_json")
+load_library_via_config(${JSON_LIB_NAME}
+    TARGETS    "nlohmann_json"
+    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/json/share/cmake/${JSON_LIB_NAME}/")
 
 ###############################################################################
 # Add CMake Subdirectories                                                    #
