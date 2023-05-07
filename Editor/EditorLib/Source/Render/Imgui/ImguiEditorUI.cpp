@@ -351,7 +351,7 @@ void ImguiEditorUI::buildStatsMonitor()
 			windowWidth,
 			windowHeight});
 
-		ImGui::Begin(ICON_MD_INSIGHTS " Stats");
+		ImGui::Begin(ICON_MD_INSIGHTS " Stats", &m_shouldShowStatsMonitor);
 
 		ImGui::Text("Main Thread:");
 		ImGui::Text("Update: %f ms", m_editor->editorStats.mainThreadUpdateMs);
@@ -382,7 +382,7 @@ void ImguiEditorUI::buildImguiDemo()
 
 	if(m_shouldShowImguiDemo)
 	{
-		show_imgui_demo_window();
+		show_imgui_demo_window(&m_shouldShowImguiDemo);
 	}
 }
 

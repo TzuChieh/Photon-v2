@@ -6,10 +6,9 @@ namespace ph::editor
 
 PH_DEFINE_LOG_GROUP(DearImGui, Module);
 
-void show_imgui_demo_window()
+void show_imgui_demo_window(bool* const isOpening)
 {
-	bool shouldShow = true;
-	ImGui::ShowDemoWindow(&shouldShow);
+	ImGui::ShowDemoWindow(isOpening);
 }
 
 }// end namespace ph::editor
