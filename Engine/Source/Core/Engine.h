@@ -1,7 +1,7 @@
 #pragma once
 
 #include "World/VisualWorld.h"
-#include "SDL/SdlParser.h"
+#include "SDL/SdlCommandParser.h"
 #include "SDL/SceneDescription.h"
 #include "Math/TVector2.h"
 #include "Core/Renderer/ERegionStatus.h"
@@ -53,7 +53,7 @@ public:
 	Renderer* getRenderer() const;
 
 private:
-	SdlParser        m_parser;
+	SdlCommandParser m_parser;
 	SceneDescription m_rawScene;
 	VisualWorld      m_visualWorld;
 	CoreCookedUnit   m_cooked;

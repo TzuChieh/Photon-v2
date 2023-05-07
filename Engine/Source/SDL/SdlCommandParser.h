@@ -13,7 +13,7 @@ namespace ph
 {
 
 class SceneDescription;
-class SdlClass;
+class SdlCommandParser;
 
 enum class ESdlCommandType
 {
@@ -26,10 +26,10 @@ enum class ESdlCommandType
 	Phantom
 };
 
-class SdlParser final
+class SdlCommandParser final
 {
 public:
-	SdlParser();
+	SdlCommandParser();
 
 	// TODO: rename existing methods to enterAndWait() and flushAndWait() and add flush() and enter() once multithreading is added
 
@@ -124,22 +124,22 @@ private:
 
 // In-header Implementations:
 
-inline const SemanticVersion& SdlParser::getCommandVersion() const
+inline const SemanticVersion& SdlCommandParser::getCommandVersion() const
 {
 	return m_commandVersion;
 }
 
-inline std::size_t SdlParser::numParsedCommands() const
+inline std::size_t SdlCommandParser::numParsedCommands() const
 {
 	return m_numParsedCommands;
 }
 
-inline std::size_t SdlParser::numParseErrors() const
+inline std::size_t SdlCommandParser::numParseErrors() const
 {
 	return m_numParseErrors;
 }
 
-inline bool SdlParser::CommandHeader::isRecognized() const
+inline bool SdlCommandParser::CommandHeader::isRecognized() const
 {
 	return commandType != ESdlCommandType::Unknown;
 }

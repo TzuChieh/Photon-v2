@@ -1,4 +1,4 @@
-#include "SDL/SdlParser.h"
+#include "SDL/SdlCommandParser.h"
 #include "SDL/Tokenizer.h"
 #include "SDL/SceneDescription.h"
 #include "Common/logging.h"
@@ -17,17 +17,17 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(SdlParser, SDL);
-PH_DEFINE_INTERNAL_TIMER_STAT(ParseCommandTotal, SDLParser);
-PH_DEFINE_INTERNAL_TIMER_STAT(ParseLoadCommand, SDLParser);
-PH_DEFINE_INTERNAL_TIMER_STAT(ParseExecutionCommand, SDLParser);
-PH_DEFINE_INTERNAL_TIMER_STAT(ParseDirectiveCommand, SDLParser);
-PH_DEFINE_INTERNAL_TIMER_STAT(GetCommandHeader, SDLParser);
-PH_DEFINE_INTERNAL_TIMER_STAT(GetName, SDLParser);
-PH_DEFINE_INTERNAL_TIMER_STAT(GetClauses, SDLParser);
-PH_DEFINE_INTERNAL_TIMER_STAT(GetSDLClass, SDLParser);
+PH_DEFINE_INTERNAL_LOG_GROUP(SdlCommandParser, SDL);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseCommandTotal, SdlCommandParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseLoadCommand, SdlCommandParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseExecutionCommand, SdlCommandParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseDirectiveCommand, SdlCommandParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(GetCommandHeader, SdlCommandParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(GetName, SdlCommandParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(GetClauses, SdlCommandParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(GetSDLClass, SdlCommandParser);
 
-SdlParser::SdlParser()
+SdlCommandParser::SdlCommandParser()
 	: m_commandVersion(PH_PSDL_VERSION)
 	, m_mangledNameToClass()
 	, m_workingDirectory()
@@ -47,7 +47,7 @@ SdlParser::SdlParser()
 		const auto& iter = m_mangledNameToClass.find(mangledClassName);
 		if(iter != m_mangledNameToClass.end())
 		{
-			PH_LOG_WARNING(SdlParser, 
+			PH_LOG_WARNING(SdlCommandParser,
 				"SDL class <{}> already registered, overwriting; please check for name "
 				"collision: mangled name is <{}>", 
 				clazz->genPrettyName(), mangledClassName);
@@ -57,7 +57,7 @@ SdlParser::SdlParser()
 	}
 }
 
-void SdlParser::enter(std::string_view rawCommandSegment, SceneDescription& out_scene)
+void SdlCommandParser::enter(std::string_view rawCommandSegment, SceneDescription& out_scene)
 {
 	// TODO: we may need to preprocess string enclosures ("") here too (think "//" inside a string)
 
@@ -148,7 +148,7 @@ void SdlParser::enter(std::string_view rawCommandSegment, SceneDescription& out_
 	}// end while segment is not empty
 }
 
-void SdlParser::enterProcessed(std::string_view processedCommandSegment, SceneDescription& out_scene)
+void SdlCommandParser::enterProcessed(std::string_view processedCommandSegment, SceneDescription& out_scene)
 {
 	// Note: a `processedCommandSegment` may contain zero to multiple commands, and the command 
 	// may be incomplete
@@ -176,7 +176,7 @@ void SdlParser::enterProcessed(std::string_view processedCommandSegment, SceneDe
 	}// end while segment is not empty
 }
 
-void SdlParser::flush(SceneDescription& out_scene)
+void SdlCommandParser::flush(SceneDescription& out_scene)
 {
 	// OPT: use view
 	parseCommand(m_processedCommandCache, out_scene);
@@ -185,7 +185,7 @@ void SdlParser::flush(SceneDescription& out_scene)
 	m_processedCommandCache.shrink_to_fit();// TODO: reconsider, maybe only reset if too large
 }
 
-void SdlParser::parseCommand(const std::string& command, SceneDescription& out_scene)
+void SdlCommandParser::parseCommand(const std::string& command, SceneDescription& out_scene)
 {
 	PH_SCOPED_TIMER(ParseCommandTotal);
 
@@ -213,7 +213,7 @@ void SdlParser::parseCommand(const std::string& command, SceneDescription& out_s
 			: command;
 		shortenedCommand = string_utils::trim(shortenedCommand);
 
-		PH_LOG_WARNING(SdlParser, 
+		PH_LOG_WARNING(SdlCommandParser,
 			"command failed to run -> {} (parsing <{}>)", 
 			e.whatStr(), shortenedCommand);
 
@@ -221,7 +221,7 @@ void SdlParser::parseCommand(const std::string& command, SceneDescription& out_s
 	}
 }
 
-void SdlParser::parseSingleCommand(const CommandHeader& command, SceneDescription& out_scene)
+void SdlCommandParser::parseSingleCommand(const CommandHeader& command, SceneDescription& out_scene)
 {
 	switch(command.commandType)
 	{
@@ -246,7 +246,7 @@ void SdlParser::parseSingleCommand(const CommandHeader& command, SceneDescriptio
 	++m_numParsedCommands;
 }
 
-void SdlParser::parseLoadCommand(
+void SdlCommandParser::parseLoadCommand(
 	const CommandHeader& command,
 	SceneDescription& out_scene)
 {
@@ -304,7 +304,7 @@ void SdlParser::parseLoadCommand(
 	}
 }
 
-void SdlParser::parseExecutionCommand(
+void SdlCommandParser::parseExecutionCommand(
 	const CommandHeader& command,
 	SceneDescription& out_scene)
 {
@@ -347,7 +347,7 @@ void SdlParser::parseExecutionCommand(
 	}
 }
 
-void SdlParser::parseDirectiveCommand(
+void SdlCommandParser::parseDirectiveCommand(
 	const CommandHeader& command,
 	SceneDescription& out_scene)
 {
@@ -387,7 +387,7 @@ void SdlParser::parseDirectiveCommand(
 
 		if(loadedVersion != m_commandVersion)
 		{
-			PH_LOG_WARNING(SdlParser, 
+			PH_LOG_WARNING(SdlCommandParser,
 				"switching PSDL version: old={}, new={} (engine native PSDL={})", 
 				m_commandVersion.toString(), versionStr, PH_PSDL_VERSION);
 		}
@@ -401,12 +401,12 @@ void SdlParser::parseDirectiveCommand(
 	}
 }
 
-std::string SdlParser::genNameForAnonymity()
+std::string SdlCommandParser::genNameForAnonymity()
 {
 	return "@__anonymous-item-" + std::to_string(m_generatedNameCounter++);
 }
 
-std::string SdlParser::getName(const std::string_view referenceToken)
+std::string SdlCommandParser::getName(const std::string_view referenceToken)
 {
 	PH_SCOPED_TIMER(GetName);
 
@@ -470,12 +470,12 @@ std::string SdlParser::getName(const std::string_view referenceToken)
 	}
 }
 
-void SdlParser::setWorkingDirectory(const Path& path)
+void SdlCommandParser::setWorkingDirectory(const Path& path)
 {
 	m_workingDirectory = path;
 }
 
-auto SdlParser::parseCommandHeader(const std::string_view command)
+auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 -> CommandHeader
 {
 	static const Tokenizer commandTokenizer(
@@ -490,7 +490,7 @@ auto SdlParser::parseCommandHeader(const std::string_view command)
 	// Require at least 2 characters, e.g., `#?` or `//`
 	if(headTrimmedCommand.size() < 2)
 	{
-		PH_LOG_WARNING(SdlParser, "invalid command detected: {}", command);
+		PH_LOG_WARNING(SdlCommandParser, "invalid command detected: {}", command);
 		return CommandHeader();
 	}
 
@@ -635,7 +635,7 @@ auto SdlParser::parseCommandHeader(const std::string_view command)
 	return header;
 }
 
-std::string SdlParser::getMangledName(const std::string_view categoryName, const std::string_view typeName)
+std::string SdlCommandParser::getMangledName(const std::string_view categoryName, const std::string_view typeName)
 {
 	// OPT: no alloc
 	std::string mangledName;
@@ -643,7 +643,7 @@ std::string SdlParser::getMangledName(const std::string_view categoryName, const
 	return mangledName;
 }
 
-void SdlParser::getMangledName(const std::string_view categoryName, const std::string_view typeName, std::string* const out_mangledName)
+void SdlCommandParser::getMangledName(const std::string_view categoryName, const std::string_view typeName, std::string* const out_mangledName)
 {
 	PH_ASSERT(out_mangledName);
 
@@ -651,7 +651,7 @@ void SdlParser::getMangledName(const std::string_view categoryName, const std::s
 	*out_mangledName += std::string(categoryName) + std::string(typeName);
 }
 
-void SdlParser::getClauses(std::string_view clauseString, ValueClauses* const out_clauses)
+void SdlCommandParser::getClauses(std::string_view clauseString, ValueClauses* const out_clauses)
 {
 	static const Tokenizer clausesTokenizer(
 		{' ', '\t', '\n', '\r'}, 
@@ -666,7 +666,7 @@ void SdlParser::getClauses(std::string_view clauseString, ValueClauses* const ou
 	getClauses(clauseStrings, out_clauses);
 }
 
-void SdlParser::getClauses(const std::vector<std::string>& clauseStrings, ValueClauses* const out_clauses)
+void SdlCommandParser::getClauses(const std::vector<std::string>& clauseStrings, ValueClauses* const out_clauses)
 {
 	PH_ASSERT(out_clauses);
 
@@ -679,7 +679,7 @@ void SdlParser::getClauses(const std::vector<std::string>& clauseStrings, ValueC
 	}
 }
 
-void SdlParser::getSingleClause(const std::string_view clauseString, ValueClauses::Clause* const out_clause)
+void SdlCommandParser::getSingleClause(const std::string_view clauseString, ValueClauses::Clause* const out_clause)
 {
 	PH_ASSERT(out_clause);
 
@@ -721,13 +721,13 @@ void SdlParser::getSingleClause(const std::string_view clauseString, ValueClause
 	}
 }
 
-const SdlClass* SdlParser::getSdlClass(const std::string& mangledClassName) const
+const SdlClass* SdlCommandParser::getSdlClass(const std::string& mangledClassName) const
 {
 	const auto& iter = m_mangledNameToClass.find(mangledClassName);
 	return iter != m_mangledNameToClass.end() ? iter->second : nullptr;
 }
 
-const SdlClass& SdlParser::getSdlClass(const std::string_view categoryName, const std::string_view typeName) const
+const SdlClass& SdlCommandParser::getSdlClass(const std::string_view categoryName, const std::string_view typeName) const
 {
 	PH_SCOPED_TIMER(GetSDLClass);
 
