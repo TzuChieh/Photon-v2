@@ -2,6 +2,8 @@
 
 #include "Designer/DesignerObject.h"
 
+#include <SDL/sdl_interface.h>
+
 #include <vector>
 
 namespace ph::editor
@@ -21,6 +23,16 @@ private:
 
 private:
 	std::vector<DesignerObject*> m_children;
+
+public:
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<HierarchicalDesignerObject>)
+	{
+		ClassType clazz("hierarchical-dobj");
+		clazz.docName("Hierarchical Designer Object");
+		clazz.description("A designer object that allow children.");
+		clazz.baseOn<DesignerObject>();
+		return clazz;
+	}
 };
 
 }// end namespace ph::editor

@@ -5,6 +5,10 @@
 #include "Procedure/TestProcedureModule.h"
 #include "Render/Imgui/ImguiRenderModule.h"
 #include "Render/EditorDebug/EditorDebugRenderModule.h"
+#include "Designer/AbstractDesignerObject.h"
+#include "Designer/DesignerObject.h"
+#include "Designer/FlatDesignerObject.h"
+#include "Designer/HierarchicalDesignerObject.h"
 
 #include <Common/assertion.h>
 #include <Utility/exception.h>
@@ -54,6 +58,28 @@ int application_entry_point(int argc, char* argv[])
 int imgui_demo_entry_point(int argc, char* argv[])
 {
 	return imgui_main(argc, argv);
+}
+
+namespace
+{
+
+template<typename SdlClassType>
+const SdlClass* get_sdl_class()
+{
+	return SdlClassType::getSdlClass();
+}
+
+}// end anonymous namespace
+
+std::vector<const SdlClass*> get_registered_editor_classes()
+{
+	return
+	{
+		get_sdl_class<AbstractDesignerObject>(),
+		get_sdl_class<DesignerObject>(),
+		get_sdl_class<FlatDesignerObject>(),
+		get_sdl_class<HierarchicalDesignerObject>(),
+	};
 }
 
 }// end namespace ph::editor

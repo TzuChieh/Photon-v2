@@ -72,6 +72,9 @@
 #include "EngineEnv/Session/RenderSession.h"
 #include "EngineEnv/Session/SingleFrameRenderSession.h"
 
+// Objects
+#include "SDL/Object.h"
+
 // Actors
 #include "Actor/Actor.h"
 #include "Actor/PhysicalActor.h"
@@ -157,7 +160,7 @@ const SdlEnum* get_sdl_enum()
 	return TSdlEnum<EnumType>::getSdlEnum();
 }
 
-}
+}// end anonymous namespace
 
 std::vector<const SdlClass*> get_registered_engine_classes()
 {
@@ -220,6 +223,9 @@ std::vector<const SdlClass*> get_registered_engine_classes()
 		get_sdl_class<Option>(),
 		get_sdl_class<RenderSession>(),
 		get_sdl_class<SingleFrameRenderSession>(),
+
+		// Objects
+		get_sdl_class<Object>(),
 
 		// Actors
 		get_sdl_class<Actor>(),

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Designer/designer_fwd.h"
+#include "Designer/AbstractDesignerObject.h"
 
 #include <Common/primitive_type.h>
 #include <Common/config.h>
@@ -8,6 +8,7 @@
 #include <Math/math.h>
 #include <Utility/TBitFlags.h>
 #include <Utility/TSpan.h>
+#include <SDL/sdl_interface.h>
 
 #include <string>
 #include <memory>
@@ -36,11 +37,13 @@ enum class EObjectState : uint32f
 	RenderTicking = math::flag_bit<uint32f, 6>()
 };
 
-class DesignerObject : private INoCopyAndMove
+class DesignerObject
+	: public AbstractDesignerObject
+	, private INoCopyAndMove
 {
 public:
 	DesignerObject();
-	virtual ~DesignerObject();
+	~DesignerObject() override;
 
 	virtual TSpanView<DesignerObject*> getChildren() const = 0;
 	virtual bool canHaveChildren() const = 0;
@@ -107,6 +110,25 @@ private:
 	uint64 getSceneStorageIndex() const;
 	void setParentScene(DesignerScene* scene);
 	void setSceneStorageIndex(uint64 storageIndex);
+
+public:
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DesignerObject>)
+	{
+		ClassType clazz("dobj");
+		clazz.docName("Designer Object");
+		clazz.description("Main base class of designer object.");
+
+		// Creation and removal should be handled by designer scene
+		clazz.allowCreateFromClass(false);
+
+		clazz.baseOn<AbstractDesignerObject>();
+
+		TSdlString<OwnerType> name("name", &OwnerType::m_name);
+		name.description("Name of the designer object.");
+		clazz.addField(name);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph::editor

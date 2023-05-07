@@ -10,28 +10,28 @@
 #include "SDL/sdl_helpers.h"
 
 #include <type_traits>
+#include <format>
 
 namespace ph
 {
 
 template<typename Owner, typename FieldSet>
-inline TSdlOwnerClass<Owner, FieldSet>::TSdlOwnerClass(std::string displayName) :
+inline TSdlOwnerClass<Owner, FieldSet>::TSdlOwnerClass(std::string displayName)
 
-	SdlClass(sdl::category_of<Owner>(), std::move(displayName)),
+	: SdlClass(sdl::category_of<Owner>(), std::move(displayName))
 
-	m_fields(),
-	m_functions()
-{}
+	, m_fields()
+	, m_functions()
+{
+	setIsBlueprint(std::is_abstract_v<Owner>);
+}
 
 template<typename Owner, typename FieldSet>
 inline std::shared_ptr<ISdlResource> TSdlOwnerClass<Owner, FieldSet>::createResource() const
 {
-	if constexpr(!std::is_abstract_v<Owner>)
+	if constexpr(!std::is_abstract_v<Owner> && std::is_default_constructible_v<Owner>)
 	{
-		static_assert(std::is_default_constructible_v<Owner>,
-			"A non-abstract owner class must have a default constructor.");
-
-		if(!isBlueprint())
+		if(!isBlueprint() && allowCreateFromClass())
 		{
 			return std::make_shared<Owner>();
 		}
@@ -42,6 +42,11 @@ inline std::shared_ptr<ISdlResource> TSdlOwnerClass<Owner, FieldSet>::createReso
 	}
 	else
 	{
+		// The resource is abstract and/or not default-constructible, make sure this is intended
+		PH_ASSERT_MSG(isBlueprint() || !allowCreateFromClass(),
+			std::format("Cannot create resource while the definition permits it (is blueprint: {}, "
+			"allow create from class: {})", isBlueprint(), allowCreateFromClass()));
+
 		return nullptr;
 	}
 }
@@ -186,12 +191,6 @@ inline const TSdlOwnedField<Owner>* TSdlOwnerClass<Owner, FieldSet>::getOwnedFie
 }
 
 template<typename Owner, typename FieldSet>
-inline bool TSdlOwnerClass<Owner, FieldSet>::isBlueprint() const
-{
-	return std::is_abstract_v<Owner>;
-}
-
-template<typename Owner, typename FieldSet>
 template<typename SdlFieldType>
 inline auto TSdlOwnerClass<Owner, FieldSet>::addField(SdlFieldType sdlField)
 	-> TSdlOwnerClass&
@@ -311,7 +310,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 
 template<typename Owner, typename FieldSet>
 inline auto TSdlOwnerClass<Owner, FieldSet>::description(std::string descriptionStr)
-	-> TSdlOwnerClass&
+-> TSdlOwnerClass&
 {
 	setDescription(std::move(descriptionStr));
 	return *this;
@@ -319,7 +318,7 @@ inline auto TSdlOwnerClass<Owner, FieldSet>::description(std::string description
 
 template<typename Owner, typename FieldSet>
 inline auto TSdlOwnerClass<Owner, FieldSet>::docName(std::string docName)
-	-> TSdlOwnerClass&
+-> TSdlOwnerClass&
 {
 	setDocName(std::move(docName));
 	return *this;
@@ -328,12 +327,27 @@ inline auto TSdlOwnerClass<Owner, FieldSet>::docName(std::string docName)
 template<typename Owner, typename FieldSet>
 template<typename T>
 inline auto TSdlOwnerClass<Owner, FieldSet>::baseOn()
-	-> TSdlOwnerClass&
+-> TSdlOwnerClass&
 {
 	static_assert(!std::is_same_v<T, Owner>,
 		"A SDL class cannot base on itself.");
 
 	setBase<T>();
+
+	// If base cannot be created from class, the derived should be the same
+	if(getBase() && !getBase()->allowCreateFromClass())
+	{
+		allowCreateFromClass(false);
+	}
+
+	return *this;
+}
+
+template<typename Owner, typename FieldSet>
+auto TSdlOwnerClass<Owner, FieldSet>::allowCreateFromClass(const bool allowCreateFromClass)
+-> TSdlOwnerClass&
+{
+	setAllowCreateFromClass(allowCreateFromClass);
 	return *this;
 }
 

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+
+namespace ph { class SdlClass; }
+
 namespace ph::editor
 {
 
@@ -11,6 +15,8 @@ int application_entry_point(int argc, char* argv[]);
 */
 int imgui_demo_entry_point(int argc, char* argv[]);
 
-
+/*! @brief Get a list of registered SDL classes from the editor.
+*/
+std::vector<const SdlClass*> get_registered_editor_classes();
 
 }// end namespace ph::editor

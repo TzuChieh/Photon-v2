@@ -10,7 +10,6 @@
 #include <utility>
 #include <string_view>
 #include <array>
-#include <type_traits>
 
 namespace ph
 {
@@ -59,8 +58,6 @@ public:
 	std::size_t numFunctions() const override;
 	const SdlFunction* getFunction(std::size_t index) const override;
 
-	bool isBlueprint() const override;
-
 	/*!
 	Loads only fields in this class. Does *not* take other indirect fields into account 
 	(such as fields in base class).
@@ -107,6 +104,9 @@ public:
 	*/
 	template<typename T>
 	auto baseOn() -> TSdlOwnerClass&;
+
+	using SdlClass::allowCreateFromClass;
+	auto allowCreateFromClass(bool allowCreateFromClass) -> TSdlOwnerClass&;
 
 private:
 	/*!

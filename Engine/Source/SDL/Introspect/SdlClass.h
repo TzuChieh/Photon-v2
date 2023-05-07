@@ -1,17 +1,15 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "Common/logging.h"
+#include "Common/primitive_type.h"
 #include "SDL/ValueClauses.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "Utility/IMoveOnly.h"
 #include "SDL/OutputPayloads.h"
 
 #include <vector>
-#include <memory>
 #include <cstddef>
 #include <string>
-#include <utility>
 #include <string_view>
 #include <type_traits>
 
@@ -76,7 +74,14 @@ public:
 	A blueprint class cannot be instantiated as a SDL resource. Note that blueprint class is semantically
 	different to abstract class; nevertheless, they often are closely related.
 	*/
-	virtual bool isBlueprint() const = 0;
+	bool isBlueprint() const;
+
+	/*! @brief Whether a resource can be created by calling createResource().
+	This attribute is useful to decide whether the resource need custom construction routines to create
+	them. A true return value does not mean createResource() always return a valid resource, e.g.,
+	a blueprint class or some error occurs.
+	*/
+	bool allowCreateFromClass() const;
 
 	std::string genPrettyName() const;
 	std::string genCategoryName() const;
@@ -101,29 +106,29 @@ protected:
 	template<typename SdlResourceType>
 	SdlClass& setBase();
 
+	SdlClass& setIsBlueprint(bool isBlueprint);
+	SdlClass& setAllowCreateFromClass(bool allowCreateFromClass);
+
 private:
 	ESdlTypeCategory m_category;
 	std::string m_typeName;
 	std::string m_docName;
 	std::string m_description;
-
 	const SdlClass* m_base;
+	uint32 m_isBlueprint : 1;
+	uint32 m_allowCreateFromClass : 1;
 };
 
 // In-header Implementation:
 
-inline SdlClass::SdlClass(const ESdlTypeCategory category, const std::string& typeName) :
-	m_category   (category), 
-	m_typeName   (typeName),
-	m_docName    (typeName),
-	m_description(),
-	m_base       (nullptr)
+inline bool SdlClass::isBlueprint() const
 {
-	PH_ASSERT(!m_typeName.empty());
-	PH_ASSERT_MSG(m_category != ESdlTypeCategory::Unspecified,
-		"unspecified SDL resource category detected in " + genPrettyName() + "; "
-		"consult documentation of ISdlResource and see if the SDL resource is "
-		"properly implemented");
+	return m_isBlueprint;
+}
+
+inline bool SdlClass::allowCreateFromClass() const
+{
+	return m_allowCreateFromClass;
 }
 
 inline ESdlTypeCategory SdlClass::getCategory() const
@@ -164,18 +169,6 @@ inline bool SdlClass::hasField() const
 inline bool SdlClass::hasFunction() const
 {
 	return numFunctions() != 0;
-}
-
-inline SdlClass& SdlClass::setDescription(std::string description)
-{
-	m_description = std::move(description);
-	return *this;
-}
-
-inline SdlClass& SdlClass::setDocName(std::string docName)
-{
-	m_docName = std::move(docName);
-	return *this;
 }
 
 template<typename SdlResourceType>
