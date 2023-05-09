@@ -62,8 +62,6 @@ public:
 		const ISdlResource* targetResource,
 		std::vector<const ISdlResource*>& out_resources) const = 0;
 
-	// TODO: saveToSdl()
-
 	virtual std::size_t numFields() const = 0;
 	virtual const SdlField* getField(std::size_t index) const = 0;
 	virtual std::size_t numFunctions() const = 0;

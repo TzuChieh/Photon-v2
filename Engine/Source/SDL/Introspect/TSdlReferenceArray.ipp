@@ -188,8 +188,6 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 
 	try
 	{
-		sdl::save_field_id(this, out_clause);
-
 		out_clause.value = '{';
 		for(const std::shared_ptr<T>& resource : referenceVector)
 		{

@@ -64,7 +64,6 @@ protected:
 	{
 		if(const FloatType* const value = this->getConstValue(owner); value)
 		{
-			sdl::save_field_id(this, out_clause);
 			sdl::save_float<FloatType>(*value, &out_clause.value);
 		}
 	}

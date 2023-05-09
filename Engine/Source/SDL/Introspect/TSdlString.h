@@ -48,7 +48,7 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		// Load <sdlValue> directly as it is already a string
+		// Load value directly as it is already a string
 		this->setValue(owner, std::string(clause.value));
 	}
 
@@ -59,9 +59,7 @@ protected:
 	{
 		if(const std::string* const str = this->getConstValue(owner); str)
 		{
-			sdl::save_field_id(this, out_clause);
-
-			// Save <sdlValue> directly as it is already a string
+			// Save value directly as it is already a string
 			out_clause.value = *str;
 		}
 	}

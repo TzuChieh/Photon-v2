@@ -81,7 +81,6 @@ protected:
 	{
 		if(const math::TVector2<Element>* const vec2 = this->getConstValue(owner); vec2)
 		{
-			sdl::save_field_id(this, out_clause);
 			sdl::save_vector2<Element>(*vec2, &out_clause.value);
 		}
 	}

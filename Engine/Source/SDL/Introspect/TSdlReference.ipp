@@ -187,7 +187,6 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 				"resource name is not tracked by the reference resolver");
 		}
 
-		sdl::save_field_id(this, out_clause);
 		out_clause.value = resourceName;
 	}
 	catch(const SdlSaveError& e)

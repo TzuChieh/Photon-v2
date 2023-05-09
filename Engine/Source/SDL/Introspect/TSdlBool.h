@@ -68,7 +68,6 @@ protected:
 	{
 		if(const bool* const value = this->getConstValue(owner); value)
 		{
-			sdl::save_field_id(this, out_clause);
 			out_clause.value = *value ? "true" : "false";
 		}
 	}

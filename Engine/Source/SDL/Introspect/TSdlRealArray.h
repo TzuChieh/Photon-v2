@@ -90,7 +90,6 @@ protected:
 
 		if(const std::vector<Element>* const numberArr = this->getConstValue(owner); numberArr)
 		{
-			sdl::save_field_id(this, out_clause);
 			sdl::save_number_array<Element>(*numberArr, &out_clause.value);
 		}
 	}

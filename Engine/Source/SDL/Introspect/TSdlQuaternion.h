@@ -89,7 +89,6 @@ protected:
 	{
 		if(const math::TQuaternion<Element>* const quat = this->getConstValue(owner); quat)
 		{
-			sdl::save_field_id(this, out_clause);
 			sdl::save_quaternion(*quat, &out_clause.value);
 		}
 	}

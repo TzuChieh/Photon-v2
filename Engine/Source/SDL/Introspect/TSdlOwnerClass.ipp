@@ -304,7 +304,10 @@ inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
 		const TSdlOwnedField<Owner>& field = m_fields[fieldIdx];
-		field.toSdl(owner, out_clauses.createClause(), ctx);
+
+		SdlOutputClause& clause = out_clauses.createClause();
+		sdl::save_field_id(this, clause);
+		field.toSdl(owner, clause, ctx);
 	}
 }
 
