@@ -279,7 +279,7 @@ void SdlCommandParser::parseLoadCommand(
 
 		// Initialize SDL resource from input value clauses
 
-		ValueClauses clauses;
+		SdlInputClauses clauses;
 		getClauses(command.dataString, &clauses);
 
 		SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
@@ -330,7 +330,7 @@ void SdlCommandParser::parseExecutionCommand(
 			throw SdlLoadError("cannot find target resource from scene");
 		}
 
-		ValueClauses clauses;
+		SdlInputClauses clauses;
 		getClauses(command.dataString, &clauses);
 
 		// Finally, call the executor
@@ -651,7 +651,7 @@ void SdlCommandParser::getMangledName(const std::string_view categoryName, const
 	*out_mangledName += std::string(categoryName) + std::string(typeName);
 }
 
-void SdlCommandParser::getClauses(std::string_view clauseString, ValueClauses* const out_clauses)
+void SdlCommandParser::getClauses(std::string_view clauseString, SdlInputClauses* const out_clauses)
 {
 	static const Tokenizer clausesTokenizer(
 		{' ', '\t', '\n', '\r'}, 
@@ -666,20 +666,20 @@ void SdlCommandParser::getClauses(std::string_view clauseString, ValueClauses* c
 	getClauses(clauseStrings, out_clauses);
 }
 
-void SdlCommandParser::getClauses(const std::vector<std::string>& clauseStrings, ValueClauses* const out_clauses)
+void SdlCommandParser::getClauses(const std::vector<std::string>& clauseStrings, SdlInputClauses* const out_clauses)
 {
 	PH_ASSERT(out_clauses);
 
 	out_clauses->clear();
 	for(const auto& clauseString : clauseStrings)
 	{
-		ValueClauses::Clause clause;
+		SdlInputClause clause;
 		getSingleClause(clauseString, &clause);
 		out_clauses->add(std::move(clause));
 	}
 }
 
-void SdlCommandParser::getSingleClause(const std::string_view clauseString, ValueClauses::Clause* const out_clause)
+void SdlCommandParser::getSingleClause(const std::string_view clauseString, SdlInputClause* const out_clause)
 {
 	PH_ASSERT(out_clause);
 
@@ -702,7 +702,7 @@ void SdlCommandParser::getSingleClause(const std::string_view clauseString, Valu
 	}
 
 	out_clause->type = tokens[0];
-	out_clause->payload.value = tokens[2];
+	out_clause->value = tokens[2];
 	
 	// Parse name and an optional tag
 	// tokens[1] contains name and tag, syntax: <name>:<optional-tag>
@@ -712,12 +712,12 @@ void SdlCommandParser::getSingleClause(const std::string_view clauseString, Valu
 	if(colonPos == std::string_view::npos)
 	{
 		out_clause->name = tokens[1];
-		out_clause->payload.tag = "";
+		out_clause->tag = "";
 	}
 	else
 	{
 		out_clause->name = std::string(nameAndTag.substr(0, colonPos + 1));
-		out_clause->payload.tag = nameAndTag.substr(colonPos);
+		out_clause->tag = nameAndTag.substr(colonPos);
 	}
 }
 

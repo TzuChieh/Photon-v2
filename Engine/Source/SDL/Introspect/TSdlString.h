@@ -45,24 +45,24 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
 		// Load <sdlValue> directly as it is already a string
-		this->setValue(owner, std::string(payload.value));
+		this->setValue(owner, std::string(clause.value));
 	}
 
 	inline void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		if(const std::string* const str = this->getConstValue(owner); str)
 		{
-			sdl::save_field_id(this, out_payload);
+			sdl::save_field_id(this, out_clause);
 
 			// Save <sdlValue> directly as it is already a string
-			out_payload.value = *str;
+			out_clause.value = *str;
 		}
 	}
 };

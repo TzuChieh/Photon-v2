@@ -102,16 +102,16 @@ void SdlCommandGenerator::generateLoadCommand(
 
 	const SdlClass& clazz = *(ctx.getSrcClass());
 
-	clazz.saveResource(resource, out_result.payloads, ctx);
+	clazz.saveResource(resource, out_result.clauses, ctx);
 
 	appendFullSdlType(clazz, out_result.commandStr);
 	out_result.commandStr += ' ';
 	out_result.commandStr += resourceName;
 	out_result.commandStr += " = ";
 
-	for(std::size_t payloadIdx = 0; payloadIdx < out_result.payloads.numPayloads(); ++payloadIdx)
+	for(std::size_t clauseIdx = 0; clauseIdx < out_result.clauses.numClauses(); ++clauseIdx)
 	{
-		appendClause(out_result.payloads[payloadIdx], out_result.commandStr);
+		appendClause(out_result.clauses[clauseIdx], out_result.commandStr);
 	}
 
 	out_result.commandStr += '\n';
@@ -128,22 +128,22 @@ void SdlCommandGenerator::appendFullSdlType(
 }
 
 void SdlCommandGenerator::appendClause(
-	const SdlOutputPayload& payload,
+	const SdlOutputClause& clause,
 	std::string& out_commandStr)
 {
 	out_commandStr += '[';
-	out_commandStr += payload.type;
+	out_commandStr += clause.type;
 	out_commandStr += ' ';
-	out_commandStr += payload.name;
+	out_commandStr += clause.name;
 
-	if(payload.hasTag())
+	if(clause.hasTag())
 	{
 		out_commandStr += ": ";
-		out_commandStr += payload.tag;
+		out_commandStr += clause.tag;
 	}
 
 	out_commandStr += ' ';
-	out_commandStr += payload.value;
+	out_commandStr += clause.value;
 	out_commandStr += ']';
 }
 

@@ -44,25 +44,25 @@ TEST(TSdlStringTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputPayload("Jason the Dog"), ctx));
+		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputClause("Jason the Dog"), ctx));
 		EXPECT_EQ(owner.s, "Jason the Dog");
 
 		// Should not remove any spaces from string
-		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputPayload("  2-space prefix & 3-space suffix   "), ctx));
+		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputClause("  2-space prefix & 3-space suffix   "), ctx));
 		EXPECT_EQ(owner.s, "  2-space prefix & 3-space suffix   ");
 
 		// Read string with different importance
 
 		sdlStr.optional();
-		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputPayload("WhaT"), ctx));
+		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputClause("WhaT"), ctx));
 		EXPECT_EQ(owner.s, "WhaT");
 
 		sdlStr.niceToHave();
-		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputPayload("hmm?"), ctx));
+		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputClause("hmm?"), ctx));
 		EXPECT_EQ(owner.s, "hmm?");
 
 		sdlStr.required();
-		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputPayload(" testing"), ctx));
+		EXPECT_NO_THROW(sdlStr.fromSdl(owner, SdlInputClause(" testing"), ctx));
 		EXPECT_EQ(owner.s, " testing");
 	}
 }

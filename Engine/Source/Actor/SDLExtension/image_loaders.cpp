@@ -5,7 +5,7 @@
 #include "Actor/Image/ConstantImage.h"
 #include "SDL/sdl_helpers.h"
 #include "Actor/Image/RasterFileImage.h"
-#include "SDL/SdlInputPayload.h"
+#include "SDL/SdlInputClause.h"
 #include "SDL/Introspect/TSdlEnum.h"
 #include "Math/Color/color_spaces.h"
 #include "Math/Color/spectral_samples.h"
@@ -35,16 +35,16 @@ math::Spectrum tristimulus_to_spectrum(const math::Vector3R& tristimulus, const 
 	}
 }
 
-math::Spectrum load_spectrum(const SdlInputPayload& payload, const math::EColorUsage usage)
+math::Spectrum load_spectrum(const SdlInputClause& clause, const math::EColorUsage usage)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
-	const auto colorSpace = TSdlEnum<math::EColorSpace>()[payload.tag];
+	const auto colorSpace = TSdlEnum<math::EColorSpace>()[clause.tag];
 
 	try
 	{
 		std::vector<std::string> tokens;
-		tokenizer.tokenize(std::string(payload.value), tokens);
+		tokenizer.tokenize(std::string(clause.value), tokens);
 
 		// 3 input values correspond to tristimulus color
 		if(tokens.size() == 3)

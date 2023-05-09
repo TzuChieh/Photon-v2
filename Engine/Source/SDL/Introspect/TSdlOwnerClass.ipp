@@ -54,7 +54,7 @@ inline std::shared_ptr<ISdlResource> TSdlOwnerClass<Owner, FieldSet>::createReso
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::initResource(
 	ISdlResource&          resource,
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
 	// Init base first just like how standard C++ does
@@ -85,7 +85,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::initDefaultResource(ISdlResource& r
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::saveResource(
 	const ISdlResource&     resource,
-	SdlOutputPayloads&      payloads,
+	SdlOutputClauses&       out_clauses,
 	const SdlOutputContext& ctx) const
 {
 	// No specific ordering is required here. We save base class first just like how
@@ -93,18 +93,18 @@ inline void TSdlOwnerClass<Owner, FieldSet>::saveResource(
 	if(isDerived())
 	{
 		PH_ASSERT(getBase());
-		getBase()->saveResource(resource, payloads, ctx);
+		getBase()->saveResource(resource, out_clauses, ctx);
 	}
 
 	const Owner* const ownerResource = castTo<const Owner>(&resource);
-	saveFieldsToSdl(*ownerResource, payloads, ctx);
+	saveFieldsToSdl(*ownerResource, out_clauses, ctx);
 }
 
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::call(
 	const std::string_view funcName,
 	ISdlResource* const    resource,
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
 	// Find SDL function by name
@@ -244,7 +244,7 @@ inline auto TSdlOwnerClass<Owner, FieldSet>::addFunction()
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::loadFieldsFromSdl(
 	Owner&                  owner, 
-	ValueClauses&           clauses,
+	SdlInputClauses&        clauses,
 	const SdlInputContext&  ctx) const
 {
 	auto noticeReceiver = [](std::string noticeMsg, EFieldImportance importance)
@@ -298,13 +298,13 @@ inline void TSdlOwnerClass<Owner, FieldSet>::setFieldsToDefaults(Owner& owner) c
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 	const Owner&            owner,
-	SdlOutputPayloads&      payloads,
+	SdlOutputClauses&       out_clauses,
 	const SdlOutputContext& ctx) const
 {
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
 		const TSdlOwnedField<Owner>& field = m_fields[fieldIdx];
-		field.toSdl(owner, payloads.createPayload(), ctx);
+		field.toSdl(owner, out_clauses.createClause(), ctx);
 	}
 }
 

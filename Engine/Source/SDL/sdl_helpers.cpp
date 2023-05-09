@@ -6,7 +6,7 @@
 #include "SDL/Introspect/SdlField.h"
 #include "SDL/Introspect/SdlFunction.h"
 #include "Utility/string_utils.h"
-#include "SDL/SdlOutputPayload.h"
+#include "SDL/SdlOutputClause.h"
 #include "SDL/sdl_exceptions.h"
 
 #include <exception>
@@ -190,12 +190,12 @@ void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* 
 	}
 }
 
-void save_field_id(const SdlField* const sdlField, SdlOutputPayload& payload)
+void save_field_id(const SdlField* const sdlField, SdlOutputClause& clause)
 {
 	PH_ASSERT(sdlField);
 
-	payload.type = sdlField->getTypeName();
-	payload.name = sdlField->getFieldName();
+	clause.type = sdlField->getTypeName();
+	clause.name = sdlField->getFieldName();
 }
 
 bool is_resource_identifier(const std::string_view sdlValueStr)

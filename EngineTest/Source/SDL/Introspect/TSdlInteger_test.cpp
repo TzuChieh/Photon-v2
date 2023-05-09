@@ -37,11 +37,11 @@ TEST(TSdlIntegerTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputPayload("123"), ctx));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputClause("123"), ctx));
 		EXPECT_EQ(owner.value, 123);
 
 		// Value with spaces
-		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputPayload("  -7 "), ctx));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputClause("  -7 "), ctx));
 		EXPECT_EQ(owner.value, -7);
 
 		// TODO: scientific notation
@@ -50,17 +50,17 @@ TEST(TSdlIntegerTest, ReadFromSdl)
 
 		sdlInt.defaultTo(12);
 		sdlInt.withImportance(EFieldImportance::Optional);
-		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputPayload("what"), ctx));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputClause("what"), ctx));
 		EXPECT_EQ(owner.value, 12);
 
 		sdlInt.defaultTo(333);
 		sdlInt.withImportance(EFieldImportance::NiceToHave);
-		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputPayload("not an int"), ctx));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputClause("not an int"), ctx));
 		EXPECT_EQ(owner.value, 333);
 
 		sdlInt.defaultTo(444);
 		sdlInt.withImportance(EFieldImportance::Required);
-		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputPayload("testing"), ctx));
+		EXPECT_NO_THROW(sdlInt.fromSdl(owner, SdlInputClause("testing"), ctx));
 		EXPECT_EQ(owner.value, 444);
 	}
 
@@ -75,7 +75,7 @@ TEST(TSdlIntegerTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_THROW(sdlInt.fromSdl(owner, SdlInputPayload("hello"), ctx), SdlLoadError);
+		EXPECT_THROW(sdlInt.fromSdl(owner, SdlInputClause("hello"), ctx), SdlLoadError);
 		EXPECT_NE(owner.value, 22);// owner value should not update
 	}
 }

@@ -46,17 +46,17 @@ public:
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override;
 
 	void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override;
 
 	template<typename ResourceType = T>
 	static std::shared_ptr<ResourceType> loadResource(
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx);
 
 private:

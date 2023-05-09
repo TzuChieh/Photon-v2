@@ -58,12 +58,12 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		if(payload.isResourceIdentifier())
+		if(clause.isResourceIdentifier())
 		{
-			const SdlResourceIdentifier sdlResId(payload.value, ctx.getWorkingDirectory());
+			const SdlResourceIdentifier sdlResId(clause.value, ctx.getWorkingDirectory());
 
 			try
 			{
@@ -77,21 +77,21 @@ protected:
 		}
 		else
 		{
-			this->setValue(owner, sdl::load_number_array<Element>(payload.value));
+			this->setValue(owner, sdl::load_number_array<Element>(clause.value));
 		}
 	}
 
 	void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		// TODO: optionally as file
 
 		if(const std::vector<Element>* const numberArr = this->getConstValue(owner); numberArr)
 		{
-			sdl::save_field_id(this, out_payload);
-			sdl::save_number_array<Element>(*numberArr, &out_payload.value);
+			sdl::save_field_id(this, out_clause);
+			sdl::save_number_array<Element>(*numberArr, &out_clause.value);
 		}
 	}
 };

@@ -151,12 +151,12 @@ inline const std::shared_ptr<T>& TSdlReference<T, Owner>::getValueRef(const Owne
 template<typename T, typename Owner>
 inline void TSdlReference<T, Owner>::loadFromSdl(
 	Owner&                 owner,
-	const SdlInputPayload& payload,
+	const SdlInputClause&  clause,
 	const SdlInputContext& ctx) const
 {
 	try
 	{
-		setValueRef(owner, loadResource(payload, ctx));
+		setValueRef(owner, loadResource(clause, ctx));
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -169,7 +169,7 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 template<typename T, typename Owner>
 inline void TSdlReference<T, Owner>::saveToSdl(
 	const Owner&            owner,
-	SdlOutputPayload&       out_payload,
+	SdlOutputClause&        out_clause,
 	const SdlOutputContext& ctx) const
 {
 	const auto& resource = getValueRef(owner);
@@ -187,8 +187,8 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 				"resource name is not tracked by the reference resolver");
 		}
 
-		sdl::save_field_id(this, out_payload);
-		out_payload.value = resourceName;
+		sdl::save_field_id(this, out_clause);
+		out_clause.value = resourceName;
 	}
 	catch(const SdlSaveError& e)
 	{
@@ -201,10 +201,10 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 template<typename T, typename Owner>
 template<typename ResourceType>
 inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
-	const SdlInputPayload& payload,
+	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
-	const auto referenceName = payload.value;
+	const auto referenceName = clause.value;
 
 	// TODO: get res should accept str view
 	// TODO: allow type mismatch?
@@ -214,7 +214,7 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
 	if(referenceName.empty() || referenceName.front() != '@')
 	{
 		throw SdlLoadError(
-			"invalid reference name <" + payload.value + ">, should be prefixed with \'@\'");
+			"invalid reference name <" + clause.value + ">, should be prefixed with \'@\'");
 	}
 
 	auto resource = ctx.getRawScene()->getResources().get<ResourceType>(referenceName);

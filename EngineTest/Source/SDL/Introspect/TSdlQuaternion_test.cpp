@@ -45,25 +45,25 @@ TEST(TSdlQuaternionTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputPayload("1 2 3 4"), ctx));
+		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputClause("1 2 3 4"), ctx));
 		EXPECT_EQ(owner.q, QuaternionR(1, 2, 3, 4));
 
 		// Spaces in SDL string are skipped
-		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputPayload("  2  2 2  2 "), ctx));
+		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputClause("  2  2 2  2 "), ctx));
 		EXPECT_EQ(owner.q, QuaternionR(2, 2, 2, 2));
 
 		// Read string with different importance
 
 		sdlQuat.withImportance(EFieldImportance::Optional);
-		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputPayload("0 0 1 0"), ctx));
+		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputClause("0 0 1 0"), ctx));
 		EXPECT_EQ(owner.q, QuaternionR(0, 0, 1, 0));
 
 		sdlQuat.withImportance(EFieldImportance::NiceToHave);
-		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputPayload("-1 -1 -1 -1"), ctx));
+		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputClause("-1 -1 -1 -1"), ctx));
 		EXPECT_EQ(owner.q, QuaternionR(-1, -1, -1, -1));
 
 		sdlQuat.withImportance(EFieldImportance::Required);
-		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputPayload("100 100 -200 300"), ctx));
+		EXPECT_NO_THROW(sdlQuat.fromSdl(owner, SdlInputClause("100 100 -200 300"), ctx));
 		EXPECT_EQ(owner.q, QuaternionR(100, 100, -200, 300));
 	}
 }

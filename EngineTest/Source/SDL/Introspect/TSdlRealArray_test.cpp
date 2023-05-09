@@ -38,7 +38,7 @@ TEST(TSdlRealArrayTest, ReadFromSdl)
 		RealArrOwner owner;
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlRealArr.fromSdl(owner, SdlInputPayload("1.2    2   3.876 -456.789"), ctx));
+		EXPECT_NO_THROW(sdlRealArr.fromSdl(owner, SdlInputClause("1.2    2   3.876 -456.789"), ctx));
 		ASSERT_TRUE(owner.arr.size() == 4);
 		PH_EXPECT_REAL_EQ(owner.arr[0], 1.2_r);
 		PH_EXPECT_REAL_EQ(owner.arr[1], 2.0_r);
@@ -51,13 +51,13 @@ TEST(TSdlRealArrayTest, ReadFromSdl)
 
 		sdlRealArr.defaultTo({0.0_r});
 		sdlRealArr.optional();
-		EXPECT_NO_THROW(sdlRealArr.fromSdl(owner, SdlInputPayload("Wowowowow"), ctx));
+		EXPECT_NO_THROW(sdlRealArr.fromSdl(owner, SdlInputClause("Wowowowow"), ctx));
 		ASSERT_TRUE(owner.arr.size() == 1);
 		PH_EXPECT_REAL_EQ(owner.arr[0], 0.0_r);
 
 		sdlRealArr.defaultTo({-2.0_r, -1.0_r});
 		sdlRealArr.niceToHave();
-		EXPECT_NO_THROW(sdlRealArr.fromSdl(owner, SdlInputPayload("testing"), ctx));
+		EXPECT_NO_THROW(sdlRealArr.fromSdl(owner, SdlInputClause("testing"), ctx));
 		ASSERT_TRUE(owner.arr.size() == 2);
 		PH_EXPECT_REAL_EQ(owner.arr[0], -2.0_r);
 		PH_EXPECT_REAL_EQ(owner.arr[1], -1.0_r);
@@ -74,7 +74,7 @@ TEST(TSdlRealArrayTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_THROW(sdlRealArr.fromSdl(owner, SdlInputPayload("fltArrYoyo"), ctx), SdlLoadError);
+		EXPECT_THROW(sdlRealArr.fromSdl(owner, SdlInputClause("fltArrYoyo"), ctx), SdlLoadError);
 		ASSERT_TRUE(owner.arr.size() == 2);
 		PH_EXPECT_REAL_EQ(owner.arr[0],  6.7_r);// owner value should not update
 		PH_EXPECT_REAL_EQ(owner.arr[1], -8.9_r);//

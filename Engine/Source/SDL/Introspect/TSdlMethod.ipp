@@ -2,7 +2,7 @@
 
 #include "SDL/Introspect/TSdlMethod.h"
 #include "Common/assertion.h"
-#include "SDL/ValueClauses.h"
+#include "SDL/SdlInputClauses.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/Introspect/field_set_op.h"
 #include "SDL/SceneDescription.h"
@@ -21,7 +21,7 @@ inline TSdlMethod<MethodStruct, TargetType>::TSdlMethod(std::string name) :
 template<typename MethodStruct, typename TargetType>
 inline void TSdlMethod<MethodStruct, TargetType>::call(
 	ISdlResource*          resource,
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
 	if(!resource)
@@ -46,7 +46,7 @@ inline void TSdlMethod<MethodStruct, TargetType>::call(
 template<typename MethodStruct, typename TargetType>
 inline void TSdlMethod<MethodStruct, TargetType>::callMethod(
 	TargetType&            targetType, 
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
 	static_assert(!std::is_abstract_v<MethodStruct> && std::is_default_constructible_v<MethodStruct>,
@@ -67,7 +67,7 @@ inline void TSdlMethod<MethodStruct, TargetType>::callMethod(
 template<typename MethodStruct, typename TargetType>
 inline void TSdlMethod<MethodStruct, TargetType>::loadParameters(
 	MethodStruct&          parameterStruct,
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
 	field_set_op::load_fields_from_sdl(

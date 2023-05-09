@@ -7,8 +7,8 @@
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/Introspect/EFieldImportance.h"
-#include "SDL/SdlInputPayload.h"
-#include "SDL/SdlOutputPayload.h"
+#include "SDL/SdlInputClause.h"
+#include "SDL/SdlOutputClause.h"
 #include "SDL/SdlResourceId.h"
 #include "Utility/traits.h"
 
@@ -64,12 +64,12 @@ public:
 	*/
 	void fromSdl(
 		Owner&                 owner, 
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const;
 
 	void toSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const;
 
 	EFieldImportance getImportance() const;
@@ -79,22 +79,22 @@ protected:
 	Implementations are highly encouraged to throw SdlLoadError if the loading
 	process is not successful. This will allow things such as automatic
 	fallback to work according to field policies.
-	@param payload The SDL representation to be loaded into actual value.
+	@param clause The SDL representation to be loaded into actual value.
 	*/
 	virtual void loadFromSdl(
 		Owner&                 owner, 
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const = 0;
 
 	/*! @brief Convert actual value back to SDL value.
 	Saving a loaded value as SDL value should rarely fail--as loaded value has been
 	properly handled by the loading process already. In case of failure, throw SdlSaveError 
 	and provide detailed reason describing the event.
-	@param out_payload The SDL representation for the actual value.
+	@param out_clause The SDL representation for the actual value.
 	*/
 	virtual void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const = 0;
 
 	/*! @brief Sets the importance of the field.
@@ -156,12 +156,12 @@ inline SdlNativeData TSdlOwnedField<Owner>::nativeData(ISdlResource& resource) c
 template<typename Owner>
 inline void TSdlOwnedField<Owner>::fromSdl(
 	Owner&                 owner,
-	const SdlInputPayload& payload,
+	const SdlInputClause&  clause,
 	const SdlInputContext& ctx) const
 {
 	try
 	{
-		loadFromSdl(owner, payload, ctx);
+		loadFromSdl(owner, clause, ctx);
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -193,12 +193,12 @@ inline void TSdlOwnedField<Owner>::fromSdl(
 template<typename Owner>
 inline void TSdlOwnedField<Owner>::toSdl(
 	const Owner&            owner,
-	SdlOutputPayload&       out_payload,
+	SdlOutputClause&        out_clause,
 	const SdlOutputContext& ctx) const
 {
 	try
 	{
-		saveToSdl(owner, out_payload, ctx);
+		saveToSdl(owner, out_clause, ctx);
 	}
 	catch(const SdlSaveError& e)
 	{

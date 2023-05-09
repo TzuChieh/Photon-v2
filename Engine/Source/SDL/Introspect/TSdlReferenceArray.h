@@ -48,17 +48,17 @@ public:
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override;
 
 	void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override;
 
 	template<typename ResourceType = T>
 	static std::vector<std::shared_ptr<T>> loadReferenceArray(
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx);
 
 	template<typename ResourceType = T>

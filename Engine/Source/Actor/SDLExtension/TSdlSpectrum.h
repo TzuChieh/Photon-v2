@@ -64,16 +64,16 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
 		// TODO: allow for more color spaces via tag
-		this->setValue(owner, sdl::load_spectrum(payload, m_usage));
+		this->setValue(owner, sdl::load_spectrum(clause, m_usage));
 	}
 
 	void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		// TODO

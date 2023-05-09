@@ -2,10 +2,9 @@
 
 #include "Common/logging.h"
 #include "Common/primitive_type.h"
-#include "SDL/ValueClauses.h"
+#include "SDL/SdlInputClauses.h"
+#include "SDL/SdlOutputClauses.h"
 #include "SDL/ESdlTypeCategory.h"
-#include "Utility/IMoveOnly.h"
-#include "SDL/SdlOutputPayloads.h"
 
 #include <vector>
 #include <cstddef>
@@ -36,7 +35,7 @@ public:
 	*/
 	virtual void initResource(
 		ISdlResource&          resource,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const = 0;
 
 	/*! @brief Initialize a resource to default values.
@@ -45,13 +44,13 @@ public:
 
 	virtual void saveResource(
 		const ISdlResource&     resource,
-		SdlOutputPayloads&      payloads,
+		SdlOutputClauses&       clauses,
 		const SdlOutputContext& ctx) const = 0;
 
 	virtual void call(
 		std::string_view       funcName,
 		ISdlResource*          resource,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const = 0;
 
 	/*! @brief Get all SDL resources referenced by @p targetResource.

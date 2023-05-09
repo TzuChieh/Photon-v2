@@ -39,12 +39,12 @@ public:
 protected:
 	void loadFromSdl(
 		OuterType&             outerObj,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override;
 
 	void saveToSdl(
 		const OuterType&        outerObj,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override;
 
 private:
@@ -106,24 +106,24 @@ inline SdlNativeData TSdlNestedField<OuterType, InnerType>::ownedNativeData(Oute
 template<typename OuterType, typename InnerType>
 inline void TSdlNestedField<OuterType, InnerType>::loadFromSdl(
 	OuterType&             outerObj,
-	const SdlInputPayload& payload,
+	const SdlInputClause&  clause,
 	const SdlInputContext& ctx) const
 {
 	m_innerObjField->loadFromSdl(
 		outerObj.*m_innerObjPtr,
-		payload,
+		clause,
 		ctx);
 }
 
 template<typename OuterType, typename InnerType>
 void TSdlNestedField<OuterType, InnerType>::saveToSdl(
 	const OuterType&        outerObj,
-	SdlOutputPayload&       out_payload,
+	SdlOutputClause&        out_clause,
 	const SdlOutputContext& ctx) const
 {
 	m_innerObjField->saveToSdl(
 		outerObj.*m_innerObjPtr,
-		out_payload,
+		out_clause,
 		ctx);
 }
 

@@ -56,7 +56,7 @@ public:
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override;
 
 	// TODO: save
@@ -84,7 +84,7 @@ inline TSdlUnifiedNumericImage<Owner>::TSdlUnifiedNumericImage(
 template<typename Owner>
 inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 	Owner&                 owner,
-	const SdlInputPayload& payload,
+	const SdlInputClause& clause,
 	const SdlInputContext& ctx) const
 {
 	auto numericImage = std::make_shared<UnifiedNumericImage>();
@@ -93,19 +93,19 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 	{
 		// TODO: should register newly generated images to scene, so they can be saved later
 
-		if(payload.isReference())
+		if(clause.isReference())
 		{
-			numericImage->setImage(Base::template loadResource<Image>(payload, ctx));
+			numericImage->setImage(Base::template loadResource<Image>(clause, ctx));
 		}
 		// TODO: subscripts
-		else if(payload.isResourceIdentifier())
+		else if(clause.isResourceIdentifier())
 		{
-			const SdlResourceIdentifier resId(payload.value, ctx.getWorkingDirectory());
+			const SdlResourceIdentifier resId(clause.value, ctx.getWorkingDirectory());
 			numericImage->setImage(sdl::load_picture_file(resId.getPathToResource()));
 		}
 		else
 		{
-			const auto numberArray = sdl::load_number_array<float64>(payload.value);
+			const auto numberArray = sdl::load_number_array<float64>(clause.value);
 			numericImage->setConstant(numberArray.data(), numberArray.size());
 		}
 	}

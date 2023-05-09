@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL/Introspect/field_set_op.h"
-#include "SDL/ValueClauses.h"
+#include "SDL/SdlInputClauses.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
@@ -20,7 +20,7 @@ template<
 inline void load_fields_from_sdl(
 	Owner&                 owner,
 	FieldSet&              fieldSet,
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx,
 	NoticeReceiver         noticeReceiver)
 {
@@ -41,7 +41,7 @@ inline void load_fields_from_sdl(
 		if(fieldIdx)
 		{
 			const auto& field = fieldSet[fieldIdx.value()];
-			field.fromSdl(owner, clause.payload, ctx);
+			field.fromSdl(owner, clause, ctx);
 
 			isFieldTouched[fieldIdx.value()] = true;
 
@@ -105,7 +105,7 @@ template<
 inline void load_fields_from_sdl_with_redundant_clauses(
 	Owner&                 owner,
 	FieldSet&              fieldSet,
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx,
 	NoticeReceiver         noticeReceiver)
 {

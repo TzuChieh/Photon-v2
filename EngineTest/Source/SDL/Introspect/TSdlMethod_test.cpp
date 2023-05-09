@@ -3,7 +3,7 @@
 #include <SDL/Introspect/TSdlMethod.h>
 #include <SDL/TSdlResourceBase.h>
 #include <SDL/Introspect/TSdlString.h>
-#include <SDL/ValueClauses.h>
+#include <SDL/SdlInputClauses.h>
 
 #include <gtest/gtest.h>
 
@@ -80,7 +80,7 @@ TEST(TSdlMethodTest, CallMethod)
 		TestResource res;
 		res.str = "today is a nice day";
 
-		ValueClauses clauses;
+		SdlInputClauses clauses;
 		clauses.add("string", "someParam", "hello");
 
 		// The method should set the <str> field in the resource to "hello"

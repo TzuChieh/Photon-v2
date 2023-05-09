@@ -13,7 +13,7 @@ PH_DEFINE_EXTERNAL_LOG_GROUP(SdlFunction, SDL);
 
 class SdlField;
 class SdlInputContext;
-class ValueClauses;
+class SdlInputClauses;
 class ISdlResource;
 
 class SdlFunction
@@ -24,7 +24,7 @@ public:
 
 	virtual void call(
 		ISdlResource*          resource,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const = 0;
 
 	// TODO: saveCall() & asyncCall() ?

@@ -43,26 +43,26 @@ TEST(TSdlVector3Test, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputPayload("1 2 3"), ctx));
+		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputClause("1 2 3"), ctx));
 
 		EXPECT_EQ(owner.v, Vector3R(1, 2, 3));
 
 		// Spaces in SDL string are skipped
-		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputPayload("  1 1   1 "), ctx));
+		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputClause("  1 1   1 "), ctx));
 		EXPECT_EQ(owner.v, Vector3R(1, 1, 1));
 
 		// Read string with different importance
 
 		sdlVec.optional();
-		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputPayload("0 0 1"), ctx));
+		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputClause("0 0 1"), ctx));
 		EXPECT_EQ(owner.v, Vector3R(0, 0, 1));
 
 		sdlVec.niceToHave();
-		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputPayload("-1 -1 -1"), ctx));
+		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputClause("-1 -1 -1"), ctx));
 		EXPECT_EQ(owner.v, Vector3R(-1, -1, -1));
 
 		sdlVec.required();
-		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputPayload("100 100 -200"), ctx));
+		EXPECT_NO_THROW(sdlVec.fromSdl(owner, SdlInputClause("100 100 -200"), ctx));
 		EXPECT_EQ(owner.v, Vector3R(100, 100, -200));
 	}
 }

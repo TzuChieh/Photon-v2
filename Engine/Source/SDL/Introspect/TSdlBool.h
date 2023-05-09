@@ -48,10 +48,10 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		if(payload.value == "true" || payload.value == "TRUE")
+		if(clause.value == "true" || clause.value == "TRUE")
 		{
 			this->setValue(owner, true);
 		}
@@ -63,13 +63,13 @@ protected:
 
 	inline void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		if(const bool* const value = this->getConstValue(owner); value)
 		{
-			sdl::save_field_id(this, out_payload);
-			out_payload.value = *value ? "true" : "false";
+			sdl::save_field_id(this, out_clause);
+			out_clause.value = *value ? "true" : "false";
 		}
 	}
 };

@@ -31,7 +31,7 @@ public:
 
 	void call(
 		ISdlResource*          resource,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const override;
 
 	std::size_t numParams() const override;
@@ -39,12 +39,12 @@ public:
 
 	void callMethod(
 		TargetType&            targetType,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const;
 
 	void loadParameters(
 		MethodStruct&          parameterStruct,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const;
 
 	template<typename T>

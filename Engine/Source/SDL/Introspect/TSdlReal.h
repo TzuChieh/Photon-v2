@@ -51,21 +51,21 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		this->setValue(owner, sdl::load_float<FloatType>(payload.value));
+		this->setValue(owner, sdl::load_float<FloatType>(clause.value));
 	}
 
 	inline void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		if(const FloatType* const value = this->getConstValue(owner); value)
 		{
-			sdl::save_field_id(this, out_payload);
-			sdl::save_float<FloatType>(*value, &out_payload.value);
+			sdl::save_field_id(this, out_clause);
+			sdl::save_float<FloatType>(*value, &out_clause.value);
 		}
 	}
 };

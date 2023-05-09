@@ -76,21 +76,21 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		this->setValue(owner, sdl::load_quaternion(std::string(payload.value)));
+		this->setValue(owner, sdl::load_quaternion(std::string(clause.value)));
 	}
 
 	inline void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		if(const math::TQuaternion<Element>* const quat = this->getConstValue(owner); quat)
 		{
-			sdl::save_field_id(this, out_payload);
-			sdl::save_quaternion(*quat, &out_payload.value);
+			sdl::save_field_id(this, out_clause);
+			sdl::save_quaternion(*quat, &out_clause.value);
 		}
 	}
 };

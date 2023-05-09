@@ -51,12 +51,12 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		if(payload.isResourceIdentifier())
+		if(clause.isResourceIdentifier())
 		{
-			const SdlResourceIdentifier resId(payload.value, ctx.getWorkingDirectory());
+			const SdlResourceIdentifier resId(clause.value, ctx.getWorkingDirectory());
 			this->setValue(owner, resId.getPathToResource());
 		}
 		else
@@ -67,7 +67,7 @@ protected:
 
 	inline void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		if(const Path* const path = this->getConstValue(owner); path)

@@ -73,22 +73,22 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
 		// TODO: view
-		this->setValue(owner, sdl::load_vector3(std::string(payload.value)));
+		this->setValue(owner, sdl::load_vector3(std::string(clause.value)));
 	}
 
 	inline void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		if(const math::TVector3<Element>* const vec3 = this->getConstValue(owner); vec3)
 		{
-			sdl::save_field_id(this, out_payload);
-			sdl::save_vector3(*vec3, &out_payload.value);
+			sdl::save_field_id(this, out_clause);
+			sdl::save_vector3(*vec3, &out_clause.value);
 		}
 	}
 };

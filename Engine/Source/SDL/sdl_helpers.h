@@ -27,7 +27,7 @@ namespace ph
 class SdlClass;
 class SdlField;
 class SdlFunction;
-class SdlOutputPayload;
+class SdlOutputClause;
 
 }// end namespace ph
 
@@ -106,9 +106,9 @@ void save_number_array(const std::vector<NumberType>& values, std::string* out_s
 
 void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* out_str);
 
-/*! @brief Save the identity of the field to output payload.
+/*! @brief Save the identity of the field to output clause.
 */
-void save_field_id(const SdlField* sdlField, SdlOutputPayload& payload);
+void save_field_id(const SdlField* sdlField, SdlOutputClause& clause);
 
 /*! @brief Check whether the string represents a SDL resource identifier.
 

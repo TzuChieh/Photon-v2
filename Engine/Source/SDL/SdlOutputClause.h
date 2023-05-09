@@ -8,8 +8,9 @@ namespace ph
 {
 
 /*! @brief Carries SDL representation of various data during the output process.
+Helps to write output data such as command clauses or data packets.
 */
-class SdlOutputPayload final
+class SdlOutputClause final
 {
 public:
 	std::string type;
@@ -17,8 +18,10 @@ public:
 	std::string value;
 	std::string tag;
 
+	// TODO: support binary data
+
 public:
-	SdlOutputPayload();
+	SdlOutputClause();
 
 	void clear();
 	bool hasTag() const;
@@ -28,11 +31,11 @@ public:
 
 // In-header Implementations:
 
-inline SdlOutputPayload::SdlOutputPayload() :
+inline SdlOutputClause::SdlOutputClause() :
 	type(""), name(""), value(""), tag("")
 {}
 
-inline void SdlOutputPayload::clear()
+inline void SdlOutputClause::clear()
 {
 	type.clear();
 	name.clear();
@@ -40,12 +43,12 @@ inline void SdlOutputPayload::clear()
 	tag.clear();
 }
 
-inline bool SdlOutputPayload::hasTag() const
+inline bool SdlOutputClause::hasTag() const
 {
 	return !tag.empty();
 }
 
-inline std::string SdlOutputPayload::toString() const
+inline std::string SdlOutputClause::toString() const
 {
 	return "type: " + type + ", name: " + name + ", value: " + value + (tag.empty() ? "" : ", tag: " + tag);
 }

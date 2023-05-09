@@ -61,21 +61,21 @@ public:
 protected:
 	inline void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		this->setValue(owner, TSdlEnum<EnumType>()[payload.value]);
+		this->setValue(owner, TSdlEnum<EnumType>()[clause.value]);
 	}
 
 	inline void saveToSdl(
 		const Owner&            owner,
-		SdlOutputPayload&       out_payload,
+		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		if(const EnumType* const enumValue = this->getConstValue(owner); enumValue)
 		{
-			sdl::save_field_id(this, out_payload);
-			out_payload.value = TSdlEnum<EnumType>()[*enumValue];
+			sdl::save_field_id(this, out_clause);
+			out_clause.value = TSdlEnum<EnumType>()[*enumValue];
 		}
 	}
 };

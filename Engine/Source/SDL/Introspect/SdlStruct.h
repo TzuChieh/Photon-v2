@@ -11,7 +11,7 @@ namespace ph
 PH_DEFINE_EXTERNAL_LOG_GROUP(SdlStruct, SDL);
 
 class SdlField;
-class ValueClause;
+class SdlInputClauses;
 class SdlInputContext;
 
 /*!

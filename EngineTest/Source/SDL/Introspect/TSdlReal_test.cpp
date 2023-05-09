@@ -39,11 +39,11 @@ TEST(TSdlReadTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlInputPayload("123.456"), ctx));
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlInputClause("123.456"), ctx));
 		PH_EXPECT_REAL_EQ(owner.value, 123.456_r);
 
 		// Value with spaces
-		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlInputPayload(" 12.5  "), ctx));
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlInputClause(" 12.5  "), ctx));
 		PH_EXPECT_REAL_EQ(owner.value, 12.5_r);
 
 		// TODO: scientific notation
@@ -52,12 +52,12 @@ TEST(TSdlReadTest, ReadFromSdl)
 
 		sdlReal.defaultTo(777.0f);
 		sdlReal.optional();
-		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlInputPayload("yoyoyo"), ctx));
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlInputClause("yoyoyo"), ctx));
 		PH_EXPECT_REAL_EQ(owner.value, 777.0_r);
 
 		sdlReal.defaultTo(888.0f);
 		sdlReal.niceToHave();
-		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlInputPayload("test"), ctx));
+		EXPECT_NO_THROW(sdlReal.fromSdl(owner, SdlInputClause("test"), ctx));
 		PH_EXPECT_REAL_EQ(owner.value, 888.0_r);
 	}
 	
@@ -72,7 +72,7 @@ TEST(TSdlReadTest, ReadFromSdl)
 
 		SdlInputContext ctx;
 
-		EXPECT_THROW(sdlReal.fromSdl(owner, SdlInputPayload("fltflt"), ctx), SdlLoadError);
+		EXPECT_THROW(sdlReal.fromSdl(owner, SdlInputClause("fltflt"), ctx), SdlLoadError);
 		PH_EXPECT_REAL_EQ(owner.value, 6.8_r);// owner value should not update
 	}
 }

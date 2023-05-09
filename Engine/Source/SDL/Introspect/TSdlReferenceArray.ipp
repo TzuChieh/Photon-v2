@@ -163,12 +163,12 @@ inline auto TSdlReferenceArray<T, Owner>::getValueVec(const Owner& owner) const
 template<typename T, typename Owner>
 inline void TSdlReferenceArray<T, Owner>::loadFromSdl(
 	Owner& owner,
-	const SdlInputPayload& payload,
+	const SdlInputClause& clause,
 	const SdlInputContext& ctx) const
 {
 	try
 	{
-		setValueVec(owner, loadReferenceArray(payload, ctx));
+		setValueVec(owner, loadReferenceArray(clause, ctx));
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -181,16 +181,16 @@ inline void TSdlReferenceArray<T, Owner>::loadFromSdl(
 template<typename T, typename Owner>
 inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 	const Owner& owner,
-	SdlOutputPayload& out_payload,
+	SdlOutputClause& out_clause,
 	const SdlOutputContext& ctx) const
 {
 	const std::vector<std::shared_ptr<T>>& referenceVector = getValueVec(owner);
 
 	try
 	{
-		sdl::save_field_id(this, out_payload);
+		sdl::save_field_id(this, out_clause);
 
-		out_payload.value = '{';
+		out_clause.value = '{';
 		for(const std::shared_ptr<T>& resource : referenceVector)
 		{
 			const auto& resourceName = ctx.getDependencyResolver().getResourceName(resource.get());
@@ -200,11 +200,11 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 					"resource name is not tracked by the dependency resolver");
 			}
 
-			out_payload.value += "\"";
-			out_payload.value += resourceName;
-			out_payload.value += "\"";
+			out_clause.value += "\"";
+			out_clause.value += resourceName;
+			out_clause.value += "\"";
 		}
-		out_payload.value += '}';
+		out_clause.value += '}';
 	}
 	catch(const SdlSaveError& e)
 	{
@@ -217,7 +217,7 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 template<typename T, typename Owner>
 template<typename ResourceType>
 inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferenceArray(
-	const SdlInputPayload& payload,
+	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
@@ -225,7 +225,7 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 	try
 	{
 		std::vector<std::string> referenceTokens;
-		tokenizer.tokenize(payload.value, referenceTokens);
+		tokenizer.tokenize(clause.value, referenceTokens);
 
 		std::vector<std::shared_ptr<T>> referenceVector(referenceTokens.size());
 		for(std::size_t i = 0; i < referenceVector.size(); ++i)

@@ -55,7 +55,7 @@ public:
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
-		const SdlInputPayload& payload,
+		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override;
 
 	// TODO: save
@@ -83,20 +83,20 @@ inline TSdlUnifiedColorImage<Owner>::TSdlUnifiedColorImage(
 template<typename Owner>
 inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 	Owner&                 owner,
-	const SdlInputPayload& payload,
+	const SdlInputClause&  clause,
 	const SdlInputContext& ctx) const
 {
 	auto colorImage = std::make_shared<UnifiedColorImage>();
 
 	try
 	{
-		if(payload.isReference())
+		if(clause.isReference())
 		{
-			colorImage->setImage(Base::template loadResource<Image>(payload, ctx));
+			colorImage->setImage(Base::template loadResource<Image>(clause, ctx));
 		}
-		else if(payload.isResourceIdentifier())
+		else if(clause.isResourceIdentifier())
 		{
-			const SdlResourceIdentifier resId(payload.value, ctx.getWorkingDirectory());
+			const SdlResourceIdentifier resId(clause.value, ctx.getWorkingDirectory());
 			colorImage->setImage(sdl::load_picture_file(resId.getPathToResource()));
 		}
 		else
@@ -104,11 +104,11 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 			// TODO: load spectral image
 
 			// For constant color input, default to linear-sRGB if not specified
-			const auto colorSpace = !payload.tag.empty() ? 
-				TSdlEnum<math::EColorSpace>()[payload.tag] : math::EColorSpace::Linear_sRGB;
+			const auto colorSpace = !clause.tag.empty() ?
+				TSdlEnum<math::EColorSpace>()[clause.tag] : math::EColorSpace::Linear_sRGB;
 
 			colorImage->setConstantColor(
-				sdl::load_vector3(payload.value), 
+				sdl::load_vector3(clause.value),
 				colorSpace);
 		}
 	}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDL/ValueClauses.h"
+#include "SDL/SdlInputClauses.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Utility/SemanticVersion.h"
 
@@ -116,9 +116,9 @@ private:
 private:
 	static std::string getMangledName(std::string_view categoryName, std::string_view typeName);
 	static void getMangledName(std::string_view categoryName, std::string_view typeName, std::string* out_mangledName);
-	static void getClauses(std::string_view clauseString, ValueClauses* out_clauses);
-	static void getClauses(const std::vector<std::string>& clauseStrings, ValueClauses* out_clauses);
-	static void getSingleClause(std::string_view clauseString, ValueClauses::Clause* out_clause);
+	static void getClauses(std::string_view clauseString, SdlInputClauses* out_clauses);
+	static void getClauses(const std::vector<std::string>& clauseStrings, SdlInputClauses* out_clauses);
+	static void getSingleClause(std::string_view clauseString, SdlInputClause* out_clause);
 	static CommandHeader parseCommandHeader(std::string_view command);
 };
 

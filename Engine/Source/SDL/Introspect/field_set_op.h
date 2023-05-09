@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class ValueClauses;
+class SdlInputClauses;
 class SdlInputContext;
 
 }// end namespace ph
@@ -30,7 +30,7 @@ template<
 void load_fields_from_sdl(
 	Owner&                 owner,
 	FieldSet&              fieldSet,
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx,
 	NoticeReceiver         noticeReceiver = NoOpNoticeReceiver());
 
@@ -41,7 +41,7 @@ template<
 void load_fields_from_sdl_with_redundant_clauses(
 	Owner&                 owner,
 	FieldSet&              fieldSet,
-	ValueClauses&          clauses,
+	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx,
 	NoticeReceiver         noticeReceiver = NoOpNoticeReceiver());
 

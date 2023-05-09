@@ -14,8 +14,6 @@
 namespace ph
 {
 
-class ValueClauses;
-class SdlInputContext;
 class SdlStructFieldStump;
 
 /*! @brief SDL binding type for a canonical SDL resource class.
@@ -33,20 +31,20 @@ public:
 
 	void initResource(
 		ISdlResource&          resource,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const override;
 
 	void initDefaultResource(ISdlResource& resource) const override;
 
 	void saveResource(
 		const ISdlResource&     resource,
-		SdlOutputPayloads&      payloads,
+		SdlOutputClauses&       out_clauses,
 		const SdlOutputContext& ctx) const override;
 
 	void call(
 		std::string_view       funcName,
 		ISdlResource*          resource,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const override;
 
 	void referencedResources(
@@ -64,7 +62,7 @@ public:
 	*/
 	void loadFieldsFromSdl(
 		Owner&                 owner,
-		ValueClauses&          clauses,
+		SdlInputClauses&       clauses,
 		const SdlInputContext& ctx) const;
 
 	/*!
@@ -73,7 +71,7 @@ public:
 	*/
 	void saveFieldsToSdl(
 		const Owner&            owner,
-		SdlOutputPayloads&      payloads,
+		SdlOutputClauses&       out_clauses,
 		const SdlOutputContext& ctx) const;
 
 	const TSdlOwnedField<Owner>* getOwnedField(std::size_t index) const;

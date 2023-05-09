@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "SDL/SdlOutputPayloads.h"
+#include "SDL/SdlOutputClauses.h"
 
 #include <string_view>
 #include <string>
@@ -43,7 +43,7 @@ private:
 	struct OutputBuffer
 	{
 		std::string commandStr;
-		SdlOutputPayloads payloads;
+		SdlOutputClauses clauses;
 
 		void clear();
 	};
@@ -59,7 +59,7 @@ private:
 		std::string& out_commandStr);
 
 	static void appendClause(
-		const SdlOutputPayload& payload,
+		const SdlOutputClause& clause,
 		std::string& out_commandStr);
 
 private:
@@ -74,7 +74,7 @@ inline const Path& SdlCommandGenerator::getSceneWorkingDirectory() const
 inline void SdlCommandGenerator::OutputBuffer::clear()
 {
 	commandStr.clear();
-	payloads.clear();
+	clauses.clear();
 }
 
 }// end namespace ph
