@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 
 namespace ph
 {
@@ -46,7 +47,7 @@ public:
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Geometry>)
 	{
-		ClassType clazz(sdl::category_to_string(CATEGORY));
+		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Geometry");
 		clazz.description("Defining the shape of scene elements.");
 		return clazz;

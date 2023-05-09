@@ -6,6 +6,7 @@
 #include "SDL/sdl_interface.h"
 
 #include <memory>
+#include <string>
 
 namespace ph { class CookingContext; }
 
@@ -41,7 +42,7 @@ public:
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<LightSource>)
 	{
-		ClassType clazz(sdl::category_to_string(CATEGORY));
+		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Light Source");
 		clazz.description(
 			"The source of all energy emitting entity in the scene.");

@@ -2,7 +2,7 @@
 
 #include "SDL/Introspect/SdlIOContext.h"
 #include "DataIO/FileSystem/Path.h"
-#include "SDL/SdlReferenceResolver.h"
+#include "SDL/SdlDependencyResolver.h"
 #include "Common/assertion.h"
 
 #include <utility>
@@ -12,10 +12,7 @@ namespace ph
 {
 
 /*! @brief Data that SDL output process can rely on.
-
-All data in the output context may be accessed concurrently.
-
-@note Modifications to this class must be ready for concurrent use cases.
+@note Modifications to this class must be aware for potential concurrent use cases.
 */
 class SdlOutputContext final : public SdlIOContext
 {
@@ -23,39 +20,39 @@ public:
 	SdlOutputContext();
 
 	SdlOutputContext(
-		const SdlReferenceResolver* refResolver,
-		Path                        workingDirectory,
-		const SdlClass*             srcClass);
+		const SdlDependencyResolver* dependencyResolver,
+		Path workingDirectory,
+		const SdlClass* srcClass);
 
-	const SdlReferenceResolver& getReferenceResolver() const;
+	const SdlDependencyResolver& getDependencyResolver() const;
 
 private:
-	const SdlReferenceResolver* m_refResolver;
+	const SdlDependencyResolver* m_dependencyResolver;
 };
 
 // In-header Implementation:
 
 inline SdlOutputContext::SdlOutputContext() :
 	SdlIOContext(),
-	m_refResolver(nullptr)
+	m_dependencyResolver(nullptr)
 {}
 
 inline SdlOutputContext::SdlOutputContext(
-	const SdlReferenceResolver* const refResolver,
-	Path                              workingDirectory,
-	const SdlClass* const             srcClass) :
+	const SdlDependencyResolver* const dependencyResolver,
+	Path workingDirectory,
+	const SdlClass* const srcClass) :
 
 	SdlIOContext(
 		std::move(workingDirectory), 
 		srcClass),
 
-	m_refResolver(refResolver)
+	m_dependencyResolver(dependencyResolver)
 {}
 
-inline const SdlReferenceResolver& SdlOutputContext::getReferenceResolver() const
+inline const SdlDependencyResolver& SdlOutputContext::getDependencyResolver() const
 {
-	PH_ASSERT(m_refResolver);
-	return *m_refResolver;
+	PH_ASSERT(m_dependencyResolver);
+	return *m_dependencyResolver;
 }
 
 }// end namespace ph

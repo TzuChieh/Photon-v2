@@ -33,7 +33,7 @@ inline TSdlReferenceArray<T, Owner>::TSdlReferenceArray(
 	std::vector<std::shared_ptr<T>> Owner::* const valuePtr)
 
 	: TSdlOwnedField<Owner>(
-		sdl::category_to_string(sdl::category_of<T>()) + "-array",
+		std::string(sdl::category_to_string(sdl::category_of<T>())) + "-array",
 		std::move(valueName))
 
 	, m_valuePtr(valuePtr)
@@ -58,7 +58,7 @@ inline std::string TSdlReferenceArray<T, Owner>::valueToString(const Owner& owne
 
 	return 
 		"[" + std::to_string(referenceVector.size()) + " " +
-		sdl::category_to_string(sdl::category_of<T>()) + " references...]";
+		std::string(sdl::category_to_string(sdl::category_of<T>())) + " references...]";
 }
 
 template<typename T, typename Owner>
@@ -193,11 +193,11 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 		out_payload.value = '{';
 		for(const std::shared_ptr<T>& resource : referenceVector)
 		{
-			const auto& resourceName = ctx.getReferenceResolver().getResourceName(resource.get());
+			const auto& resourceName = ctx.getDependencyResolver().getResourceName(resource.get());
 			if(resourceName.empty())
 			{
 				throw SdlSaveError(
-					"resource name is not tracked by the reference resolver");
+					"resource name is not tracked by the dependency resolver");
 			}
 
 			out_payload.value += "\"";

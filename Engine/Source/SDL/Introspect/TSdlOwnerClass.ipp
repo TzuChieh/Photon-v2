@@ -85,7 +85,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::initDefaultResource(ISdlResource& r
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::saveResource(
 	const ISdlResource&     resource,
-	OutputPayloads&         payloads,
+	SdlOutputPayloads&      payloads,
 	const SdlOutputContext& ctx) const
 {
 	// No specific ordering is required here. We save base class first just like how
@@ -298,7 +298,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::setFieldsToDefaults(Owner& owner) c
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 	const Owner&            owner,
-	OutputPayloads&         payloads,
+	SdlOutputPayloads&      payloads,
 	const SdlOutputContext& ctx) const
 {
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)

@@ -19,7 +19,7 @@ public:
 
 	virtual bool beingPacket(const SdlClass* targetClass) = 0;
 	virtual ISdlResource* createResource(const SdlClass* targetClass) = 0;
-	virtual void storeResource(ISdlResource* resource) = 0;
+	virtual void parsedResource(ISdlResource* resource) = 0;
 	virtual bool endPacket() = 0;
 
 	void parse(std::string_view packetStr);

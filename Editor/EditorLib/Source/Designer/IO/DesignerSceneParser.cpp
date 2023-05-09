@@ -22,7 +22,7 @@ ISdlResource* DesignerSceneParser::createResource(const SdlClass* targetClass)
 	return nullptr;
 }
 
-void DesignerSceneParser::storeResource(ISdlResource* resource)
+void DesignerSceneParser::parsedResource(ISdlResource* resource)
 {
 	// TODO
 }

@@ -110,9 +110,9 @@ inline std::shared_ptr<T> RawResourceCollection::get(
 		// type itself, the cast can still fail if a wrong type for the resource
 		// is specified (within the same category, but a wrong type).
 
-		throw SdlLoadError(
-			"expected resource type different from the requested type "
-			"(category: " + sdl::category_to_string(category) + ", name: " + resourceName + ")");
+		throw_formatted<SdlLoadError>(
+			"expected resource type different from the requested type (category: {}, name: {})",
+			sdl::category_to_string(category), resourceName);
 	}
 
 	return castedResource;

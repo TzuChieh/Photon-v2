@@ -21,7 +21,7 @@ Enum value and string mapping are done in a brute-force way.
 template<typename EnumType_, std::size_t MAX_ENTRIES = 64>
 class TSdlGeneralEnum : public SdlEnum
 {
-	// TODO: whether the mapping is done should be a template param
+	// TODO: how the mapping is done should be a template param
 	// TODO: can have other kinds of enum such as TSdlFlagEnum
 public:
 	using EnumType = EnumType_;

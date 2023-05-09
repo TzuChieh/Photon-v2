@@ -4,6 +4,8 @@
 #include "World/Foundation/TransientVisualElement.h"
 #include "SDL/sdl_interface.h"
 
+#include <string>
+
 namespace ph { class PreCookReport; }
 namespace ph { class CookingContext; }
 namespace ph { class CookOrder; }
@@ -34,7 +36,7 @@ public:
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Actor>)
 	{
-		ClassType clazz(sdl::category_to_string(CATEGORY));
+		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Actor");
 		clazz.description(
 			"Represents an entity in the scene. "

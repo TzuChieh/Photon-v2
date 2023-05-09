@@ -5,7 +5,7 @@
 #include "SDL/ValueClauses.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "Utility/IMoveOnly.h"
-#include "SDL/OutputPayloads.h"
+#include "SDL/SdlOutputPayloads.h"
 
 #include <vector>
 #include <cstddef>
@@ -45,7 +45,7 @@ public:
 
 	virtual void saveResource(
 		const ISdlResource&     resource,
-		OutputPayloads&         payloads,
+		SdlOutputPayloads&      payloads,
 		const SdlOutputContext& ctx) const = 0;
 
 	virtual void call(

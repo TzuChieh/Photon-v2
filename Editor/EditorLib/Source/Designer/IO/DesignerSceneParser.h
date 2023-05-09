@@ -15,7 +15,7 @@ public:
 
 	bool beingPacket(const SdlClass* targetClass) override;
 	ISdlResource* createResource(const SdlClass* targetClass) override;
-	void storeResource(ISdlResource* resource) override;
+	void parsedResource(ISdlResource* resource) override;
 	bool endPacket() override;
 
 	void parseScene(const Path& file, DesignerScene* out_scene);

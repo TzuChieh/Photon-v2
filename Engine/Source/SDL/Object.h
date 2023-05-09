@@ -3,6 +3,8 @@
 #include "SDL/TSdlResourceBase.h"
 #include "SDL/sdl_interface.h"
 
+#include <string>
+
 namespace ph
 {
 
@@ -15,7 +17,7 @@ public:
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Object>)
 	{
-		ClassType clazz(sdl::category_to_string(CATEGORY));
+		ClassType clazz(std::string(sdl::category_to_string(CATEGORY)));
 		clazz.docName("Object");
 		clazz.description("General object that may refer to any type.");
 		return clazz;

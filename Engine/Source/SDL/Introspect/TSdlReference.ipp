@@ -32,7 +32,7 @@ inline TSdlReference<T, Owner>::TSdlReference(
 	std::shared_ptr<T> Owner::* const valuePtr) :
 
 	TSdlOwnedField<Owner>(
-		sdl::category_to_string(sdl::category_of<T>()),
+		std::string(sdl::category_to_string(sdl::category_of<T>())),
 		std::move(valueName)),
 
 	m_valuePtr(valuePtr)
@@ -54,7 +54,7 @@ template<typename T, typename Owner>
 inline std::string TSdlReference<T, Owner>::valueToString(const Owner& owner) const
 {
 	return 
-		"[" + sdl::category_to_string(sdl::category_of<T>()) + " ref: " +
+		"[" + std::string(sdl::category_to_string(sdl::category_of<T>())) + " ref: " +
 		std::string(getValueRef(owner) ? "valid" : "empty") + "]";
 }
 
@@ -180,7 +180,7 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 
 	try
 	{
-		const auto& resourceName = ctx.getReferenceResolver().getResourceName(resource.get());
+		const auto& resourceName = ctx.getDependencyResolver().getResourceName(resource.get());
 		if(resourceName.empty())
 		{
 			throw SdlSaveError(

@@ -18,7 +18,7 @@ void RawResourceCollection::add(
 	if(!resource || resourceName.empty())
 	{
 		const std::string resourceInfo = resource ? 
-			sdl::category_to_string(resource->getDynamicCategory()) : "no resource";
+			std::string(sdl::category_to_string(resource->getDynamicCategory())) : "no resource";
 
 		const std::string nameInfo = resourceName.empty() ? resourceName : "no name";
 

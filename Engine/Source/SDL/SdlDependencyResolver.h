@@ -14,14 +14,24 @@ namespace ph { class ISdlResource; }
 namespace ph
 {
 
-class SdlReferenceResolver final
+class SdlDependencyResolver final
 {
 public:
-	SdlReferenceResolver();
+	SdlDependencyResolver();
 
+	/*! @brief Submit a scene and start to resolve resource dependencies.
+	*/
 	void analyze(const SceneDescription& scene);
-	const ISdlResource* dispatch();
 
+	/*! @brief Get a resource from the analyzed scene with a valid dependency ordering.
+	@return A resource. Can be called repeatedly until `nullptr` is returned (which indicates all
+	analyzed resources are returned).
+	*/
+	const ISdlResource* next();
+
+	/*! @brief Get resource name by resource pointer.
+	Only valid for the resources in the last `analyze()` call.
+	*/
 	std::string_view getResourceName(const ISdlResource* resource) const;
 
 private:

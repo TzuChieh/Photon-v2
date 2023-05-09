@@ -30,7 +30,7 @@ std::string SdlClass::genPrettyName() const
 
 std::string SdlClass::genCategoryName() const
 {
-	return sdl::category_to_string(getCategory());
+	return std::string(sdl::category_to_string(getCategory()));
 }
 
 SdlClass& SdlClass::setDescription(std::string description)

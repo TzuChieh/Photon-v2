@@ -11,10 +11,7 @@ namespace ph
 {
 
 /*! @brief Data that SDL input/output process can rely on.
-
-All data in the context may be accessed concurrently.
-
-@note Modifications to this class must be ready for concurrent use cases.
+@note Modifications to this class must be aware for potential concurrent use cases.
 */
 class SdlIOContext
 {

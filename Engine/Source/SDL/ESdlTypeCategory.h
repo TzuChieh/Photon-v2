@@ -58,11 +58,11 @@ inline constexpr std::array<std::string_view, static_cast<std::size_t>(ESdlTypeC
 namespace sdl
 {
 
-inline std::string category_to_string(const ESdlTypeCategory category)
+inline std::string_view category_to_string(const ESdlTypeCategory category)
 {
 	const auto categoryIndex = static_cast<std::size_t>(category);
 	PH_ASSERT_LT(categoryIndex, detail::CATEGORY_TO_STRING.size());
-	return std::string(detail::CATEGORY_TO_STRING[categoryIndex]);
+	return detail::CATEGORY_TO_STRING[categoryIndex];
 }
 
 inline ESdlTypeCategory string_to_category(const std::string_view categoryStr)

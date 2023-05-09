@@ -9,10 +9,10 @@
 namespace ph
 {
 
-class OutputPayloads final
+class SdlOutputPayloads final
 {
 public:
-	OutputPayloads();
+	SdlOutputPayloads();
 
 	SdlOutputPayload& createPayload();
 	void clear();
@@ -27,12 +27,12 @@ private:
 
 // In-header Implementations:
 
-inline OutputPayloads::OutputPayloads() :
+inline SdlOutputPayloads::SdlOutputPayloads() :
 	m_payloadBuffer  (),
 	m_numUsedPayloads(0)
 {}
 
-inline SdlOutputPayload& OutputPayloads::createPayload()
+inline SdlOutputPayload& SdlOutputPayloads::createPayload()
 {
 	// Increase buffer size if there is not enough payloads
 	if(m_numUsedPayloads == m_payloadBuffer.size())
@@ -49,18 +49,18 @@ inline SdlOutputPayload& OutputPayloads::createPayload()
 	return newPayload;
 }
 
-inline void OutputPayloads::clear()
+inline void SdlOutputPayloads::clear()
 {
 	m_numUsedPayloads = 0;
 }
 
-inline std::size_t OutputPayloads::numPayloads() const
+inline std::size_t SdlOutputPayloads::numPayloads() const
 {
 	PH_ASSERT_LE(m_numUsedPayloads, m_payloadBuffer.size());
 	return m_numUsedPayloads;
 }
 
-inline const SdlOutputPayload& OutputPayloads::operator [] (const std::size_t payloadIdx) const
+inline const SdlOutputPayload& SdlOutputPayloads::operator [] (const std::size_t payloadIdx) const
 {
 	PH_ASSERT_LT(payloadIdx, numPayloads());
 	return m_payloadBuffer[payloadIdx];
