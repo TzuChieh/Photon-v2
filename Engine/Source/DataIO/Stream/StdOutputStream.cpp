@@ -3,7 +3,6 @@
 #include "DataIO/io_exceptions.h"
 
 #include <utility>
-#include <format>
 #include <cerrno>
 #include <cstring>
 
@@ -35,9 +34,25 @@ void StdOutputStream::write(const std::size_t numBytes, const std::byte* const b
 
 	if(!m_ostream->good())
 	{
-		throw IOException(std::format(
+		throw_formatted<IOException>(
 			"Error on trying to write {} bytes to std::ostream ({}).",
-			numBytes, getReasonForError()));
+			numBytes, getReasonForError());
+	}
+}
+
+void StdOutputStream::writeString(std::string_view str)
+{
+	PH_ASSERT(getStream());
+
+	ensureStreamIsGoodForWrite();
+
+	*m_ostream << str;
+
+	if(!m_ostream->good())
+	{
+		throw_formatted<IOException>(
+			"Error writing string to std::ostream (string length: {}); reason: {}",
+			str.size(), getReasonForError());
 	}
 }
 
@@ -51,9 +66,9 @@ void StdOutputStream::seekPut(const std::size_t pos)
 	
 	if(!m_ostream->good())
 	{
-		throw IOException(std::format(
+		throw_formatted<IOException>(
 			"Error seeking to position {} on std::ostream ({}).",
-			pos, getReasonForError()));
+			pos, getReasonForError());
 	}
 }
 
@@ -81,17 +96,27 @@ void StdOutputStream::ensureStreamIsGoodForWrite() const
 
 std::string StdOutputStream::getReasonForError() const
 {
+	std::string errorMsg;
 	if(isStreamGoodForWrite())
 	{
-		return "No error.";
+		errorMsg += "No error.";
 	}
-
-	if(!m_ostream)
+	else if(!m_ostream)
 	{
-		return "Stream is uninitialized.";
+		errorMsg += "Stream is uninitialized.";
+	}
+	else
+	{
+		return std::strerror(errno);
 	}
 
-	return std::strerror(errno);
+	std::string name = acquireName();
+	if(name.empty())
+	{
+		name = "(unavailable)";
+	}
+
+	return errorMsg + " Stream name: " + name;
 }
 
 }// end namespace ph

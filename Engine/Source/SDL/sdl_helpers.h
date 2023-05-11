@@ -124,10 +124,15 @@ actually points to a valid resource or not.
 */
 bool is_reference(std::string_view sdlValueStr);
 
+/*! @brief Generate a human-readable name for the SDL types.
+These helpers allow input types to be null.
+*/
+///@{
 std::string gen_pretty_name(const SdlClass* clazz);
 std::string gen_pretty_name(const SdlField* field);
 std::string gen_pretty_name(const SdlFunction* func);
 std::string gen_pretty_name(const SdlClass* clazz, const SdlField* field);
+///@}
 
 /*! @brief Get a list of callable functions from the class.
 @return A list of pairs containing {callable function, original parent class}.

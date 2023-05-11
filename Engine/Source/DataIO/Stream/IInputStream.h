@@ -48,7 +48,8 @@ public:
 	*/
 	virtual std::size_t readSome(std::size_t numBytes, std::byte* out_bytes);
 
-	/*! @brief Read a line. Equivalent to calling read(std::string*, char) with '\n' as the delimiter.
+	/*! @brief Read a line. Equivalent to calling readString(std::string*, char) with '\n' as 
+	the delimiter.
 	@param out_string The read string. Does not include the new-line character.
 	@exception IOException If the read operation failed.
 	*/

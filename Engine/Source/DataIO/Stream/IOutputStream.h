@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <string_view>
 
 namespace ph
 {
@@ -16,6 +17,12 @@ public:
 	@exception IOException If the write operation failed.
 	*/
 	virtual void write(std::size_t numBytes, const std::byte* bytes) = 0;
+
+	/*! @brief Write a string in one go.
+	@param str The written string.
+	@exception IOException If the write operation failed.
+	*/
+	virtual void writeString(std::string_view str) = 0;
 
 	/*! @brief Set the output position of the stream.
 	The unit of the position is defined by the implementation.
@@ -38,6 +45,13 @@ public:
 	@exception IOException If the write operation failed.
 	*/
 	virtual std::size_t writeSome(std::size_t numBytes, const std::byte* bytes);
+
+	/*! @brief Write a line. Equivalent to calling writeString(std::string_view) with '\n' as 
+	an extra character.
+	@param str The written string. Ideally should not include the new-line character.
+	@exception IOException If the write operation failed.
+	*/
+	void writeLine(std::string_view str);
 };
 
 // In-header Implementations:
@@ -46,6 +60,12 @@ inline std::size_t IOutputStream::writeSome(const std::size_t numBytes, const st
 {
 	write(numBytes, out_bytes);
 	return numBytes;
+}
+
+inline void IOutputStream::writeLine(std::string_view str)
+{
+	writeString(str);
+	writeString("\n");
 }
 
 }// end namespace ph

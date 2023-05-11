@@ -14,7 +14,7 @@ public:
 	This method is not meant to be used in a high performance context, unless
 	otherwise stated by the overridder. Stream name is not always available.
 	*/
-	virtual std::string acquireName();
+	virtual std::string acquireName() const;
 
 	/*! @brief Whether the stream is in a non-erroneous state.
 	*/
@@ -23,7 +23,7 @@ public:
 
 // In-header Implementations:
 
-inline std::string IDataStream::acquireName()
+inline std::string IDataStream::acquireName() const
 {
 	return "";
 }

@@ -2,7 +2,7 @@
 
 #include "InterfaceGen/InterfaceGenerator.h"
 
-#include <DataIO/Stream/FormattedTextFileOutputStream.h>
+#include <DataIO/Stream/FormattedTextOutputStream.h>
 
 #include <string>
 #include <string_view>
@@ -29,7 +29,7 @@ public:
 	Path makeResourcePath(const std::string& fileSubPath) const;
 
 private:
-	FormattedTextFileOutputStream m_file;
+	FormattedTextOutputStream m_file;
 };
 
 }// end namespace ph::sdlgen

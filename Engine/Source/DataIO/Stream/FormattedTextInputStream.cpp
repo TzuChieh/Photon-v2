@@ -11,35 +11,34 @@
 #include <iterator>
 #include <cctype>
 #include <utility>
-#include <format>
 
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(FormattedTextInputStream, DataIO);
 
-FormattedTextInputStream::FormattedTextInputStream(const Path& textFilePath) : 
-	FormattedTextInputStream(
+FormattedTextInputStream::FormattedTextInputStream(const Path& textFilePath)
+	: FormattedTextInputStream(
 		std::make_unique<std::ifstream>(
 			textFilePath.toAbsoluteString().c_str(),
 			std::ios_base::in),
 		textFilePath.toAbsoluteString())
 {}
 
-FormattedTextInputStream::FormattedTextInputStream(const std::string& textString) : 
-	FormattedTextInputStream(
+FormattedTextInputStream::FormattedTextInputStream(const std::string& textString)
+	: FormattedTextInputStream(
 		std::make_unique<std::istringstream>(
 			textString, 
 			std::ios_base::in),
 		"")
 {}
 
-FormattedTextInputStream::FormattedTextInputStream(std::unique_ptr<std::istream> stream, std::string streamName) :
-	StdInputStream(std::move(stream)),
-	m_streamName(std::move(streamName))
+FormattedTextInputStream::FormattedTextInputStream(std::unique_ptr<std::istream> stream, std::string streamName)
+	: StdInputStream(std::move(stream))
+	, m_streamName(std::move(streamName))
 {}
 
-std::string FormattedTextInputStream::acquireName()
+std::string FormattedTextInputStream::acquireName() const
 {
 	return m_streamName;
 }
@@ -62,9 +61,9 @@ void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 	// Report non-EOF error
 	if(!getStream()->good() && !getStream()->eof())
 	{
-		throw IOException(std::format(
+		throw_formatted<IOException>(
 			"Error reading all text from std::istream ({}).",
-			getReasonForError()));
+			getReasonForError());
 	}
 }
 

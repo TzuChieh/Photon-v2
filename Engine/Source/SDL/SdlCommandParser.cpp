@@ -1,8 +1,6 @@
 #include "SDL/SdlCommandParser.h"
 #include "SDL/Tokenizer.h"
-#include "SDL/SceneDescription.h"
 #include "Common/logging.h"
-#include "ph_cpp_core.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "Utility/string_utils.h"
@@ -13,6 +11,7 @@
 #include "Common/config.h"
 
 #include <cstddef>
+#include <utility>
 
 namespace ph
 {
@@ -27,23 +26,30 @@ PH_DEFINE_INTERNAL_TIMER_STAT(GetName, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetClauses, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetSDLClass, SdlCommandParser);
 
-SdlCommandParser::SdlCommandParser()
+SdlCommandParser::SdlCommandParser(TSpanView<const SdlClass*> targetClasses)
+	: SdlCommandParser(targetClasses, Path("./"))
+{}
+
+SdlCommandParser::SdlCommandParser(TSpanView<const SdlClass*> targetClasses, Path sceneWorkingDirectory)
 	: m_commandVersion(PH_PSDL_VERSION)
 	, m_mangledNameToClass()
-	, m_workingDirectory()
+	, m_sceneWorkingDirectory(std::move(sceneWorkingDirectory))
 	, m_isInSingleLineComment(false)
 	, m_processedCommandCache()
 	, m_generatedNameCounter(0)
 	, m_numParsedCommands(0)
 	, m_numParseErrors(0)
 {
-	const std::vector<const SdlClass*> sdlClasses = get_registered_engine_classes();
-	for(const SdlClass* const clazz : sdlClasses)
+	for(const SdlClass* clazz : targetClasses)
 	{
-		PH_ASSERT(clazz);
+		if(!clazz)
+		{
+			PH_LOG_WARNING(SdlCommandParser, 
+				"null SDL target class detected during parser construction");
+			continue;
+		}
 
 		const auto mangledClassName = getMangledName(clazz->genCategoryName(), clazz->getTypeName());
-
 		const auto& iter = m_mangledNameToClass.find(mangledClassName);
 		if(iter != m_mangledNameToClass.end())
 		{
@@ -57,7 +63,9 @@ SdlCommandParser::SdlCommandParser()
 	}
 }
 
-void SdlCommandParser::enter(std::string_view rawCommandSegment, SceneDescription& out_scene)
+SdlCommandParser::~SdlCommandParser() = default;
+
+void SdlCommandParser::enter(std::string_view rawCommandSegment)
 {
 	// TODO: we may need to preprocess string enclosures ("") here too (think "//" inside a string)
 
@@ -79,7 +87,7 @@ void SdlCommandParser::enter(std::string_view rawCommandSegment, SceneDescriptio
 			else
 			{
 				// Still need to submit the newline char as it is part of the syntax (separator)
-				enterProcessed("\n", out_scene);
+				enterProcessed("\n");
 
 				remainingSegment = remainingSegment.substr(newlinePos + 1);
 				m_isInSingleLineComment = false;
@@ -92,7 +100,7 @@ void SdlCommandParser::enter(std::string_view rawCommandSegment, SceneDescriptio
 			{
 				// Submit all since no special character is met
 				PH_ASSERT(!m_isInSingleLineComment);
-				enterProcessed(remainingSegment, out_scene);
+				enterProcessed(remainingSegment);
 				remainingSegment = "";
 			}
 			else
@@ -104,7 +112,7 @@ void SdlCommandParser::enter(std::string_view rawCommandSegment, SceneDescriptio
 				{
 					// Submit with the newline as it is part of the syntax (separator)
 					PH_ASSERT(!m_isInSingleLineComment);
-					enterProcessed(remainingSegment.substr(0, keyCharPos + 1), out_scene);
+					enterProcessed(remainingSegment.substr(0, keyCharPos + 1));
 
 					remainingSegment = remainingSegment.substr(keyCharPos + 1);
 					break;
@@ -132,7 +140,7 @@ void SdlCommandParser::enter(std::string_view rawCommandSegment, SceneDescriptio
 						numCharsToSubmit += 2;
 					}
 
-					enterProcessed(remainingSegment.substr(0, numCharsToSubmit), out_scene);
+					enterProcessed(remainingSegment.substr(0, numCharsToSubmit));
 
 					// Note that either way we peeked and processed the next char, hence +2
 					remainingSegment = remainingSegment.substr(keyCharPos + 2);
@@ -148,7 +156,7 @@ void SdlCommandParser::enter(std::string_view rawCommandSegment, SceneDescriptio
 	}// end while segment is not empty
 }
 
-void SdlCommandParser::enterProcessed(std::string_view processedCommandSegment, SceneDescription& out_scene)
+void SdlCommandParser::enterProcessed(std::string_view processedCommandSegment)
 {
 	// Note: a `processedCommandSegment` may contain zero to multiple commands, and the command 
 	// may be incomplete
@@ -171,21 +179,21 @@ void SdlCommandParser::enterProcessed(std::string_view processedCommandSegment, 
 			remainingSegment = remainingSegment.substr(semicolonPos + 1);
 
 			// Flush when a full command is entered
-			flush(out_scene);
+			flush();
 		}
 	}// end while segment is not empty
 }
 
-void SdlCommandParser::flush(SceneDescription& out_scene)
+void SdlCommandParser::flush()
 {
 	// OPT: use view
-	parseCommand(m_processedCommandCache, out_scene);
+	parseCommand(m_processedCommandCache);
 
 	m_processedCommandCache.clear();
 	m_processedCommandCache.shrink_to_fit();// TODO: reconsider, maybe only reset if too large
 }
 
-void SdlCommandParser::parseCommand(const std::string& command, SceneDescription& out_scene)
+void SdlCommandParser::parseCommand(const std::string& command)
 {
 	PH_SCOPED_TIMER(ParseCommandTotal);
 
@@ -203,7 +211,7 @@ void SdlCommandParser::parseCommand(const std::string& command, SceneDescription
 				"unrecognizable command type");
 		}
 
-		parseSingleCommand(header, out_scene);
+		parseSingleCommand(header);
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -221,21 +229,21 @@ void SdlCommandParser::parseCommand(const std::string& command, SceneDescription
 	}
 }
 
-void SdlCommandParser::parseSingleCommand(const CommandHeader& command, SceneDescription& out_scene)
+void SdlCommandParser::parseSingleCommand(const CommandHeader& command)
 {
 	switch(command.commandType)
 	{
 	case ESdlCommandType::Load:
 	case ESdlCommandType::Phantom:
-		parseLoadCommand(command, out_scene);
+		parseLoadCommand(command);
 		break;
 
 	case ESdlCommandType::Execution:
-		parseExecutionCommand(command, out_scene);
+		parseExecutionCommand(command);
 		break;
 
 	case ESdlCommandType::Directive:
-		parseDirectiveCommand(command, out_scene);
+		parseDirectiveCommand(command);
 		break;
 
 	default:
@@ -246,9 +254,7 @@ void SdlCommandParser::parseSingleCommand(const CommandHeader& command, SceneDes
 	++m_numParsedCommands;
 }
 
-void SdlCommandParser::parseLoadCommand(
-	const CommandHeader& command,
-	SceneDescription& out_scene)
+void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 {
 	PH_SCOPED_TIMER(ParseLoadCommand);
 
@@ -271,7 +277,12 @@ void SdlCommandParser::parseLoadCommand(
 	// Catch load errors here to provide name information and re-throw.
 	try
 	{
-		std::shared_ptr<ISdlResource> resource = clazz.createResource();
+		if(!beginCommand(command.commandType, &clazz))
+		{
+			return;
+		}
+
+		ISdlResource* resource = createResource(resourceName, &clazz, command.commandType);
 		if(!resource)
 		{
 			throw SdlLoadError("empty resource generated");
@@ -279,21 +290,18 @@ void SdlCommandParser::parseLoadCommand(
 
 		// Initialize SDL resource from input value clauses
 
+		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
 		getClauses(command.dataString, &clauses);
 
-		SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
-		clazz.initResource(*resource, clauses, inputContext);
+		initResource(
+			resource, 
+			&clazz,
+			resourceName,
+			clauses,
+			command.commandType);
 
-		// Finally, add the resource to storage
-		if(command.commandType == ESdlCommandType::Load)
-		{
-			out_scene.getResources().add(std::move(resource), resourceName);
-		}
-		else
-		{
-			out_scene.getPhantoms().add(std::move(resource), resourceName);
-		}
+		endCommand();
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -304,9 +312,7 @@ void SdlCommandParser::parseLoadCommand(
 	}
 }
 
-void SdlCommandParser::parseExecutionCommand(
-	const CommandHeader& command,
-	SceneDescription& out_scene)
+void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 {
 	PH_SCOPED_TIMER(ParseExecutionCommand);
 
@@ -322,21 +328,29 @@ void SdlCommandParser::parseExecutionCommand(
 	// Catch load errors here to provide name information and re-throw.
 	try
 	{
-		// Get target SDL resource and clauses
-
-		std::shared_ptr<ISdlResource> resource = out_scene.getResources().get(targetResourceName, clazz.getCategory());
-		if(!resource)
+		if(!beginCommand(command.commandType, &clazz))
 		{
-			throw SdlLoadError("cannot find target resource from scene");
+			return;
 		}
 
+		// Get target SDL resource and clauses
+
+		ISdlResource* resource = getResource(targetResourceName, clazz.getCategory());
+
+		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
 		getClauses(command.dataString, &clauses);
 
 		// Finally, call the executor
 
-		SdlInputContext inputContext(&out_scene, m_workingDirectory, &clazz);
-		clazz.call(executorName, resource.get(), clauses, inputContext);
+		runExecutor(
+			executorName,
+			&clazz,
+			resource,
+			clauses,
+			command.commandType);
+
+		endCommand();
 	}
 	catch(const SdlLoadError& e)
 	{
@@ -347,9 +361,7 @@ void SdlCommandParser::parseExecutionCommand(
 	}
 }
 
-void SdlCommandParser::parseDirectiveCommand(
-	const CommandHeader& command,
-	SceneDescription& out_scene)
+void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 {
 	static const Tokenizer directiveTokenizer(
 		{' ', '\t', '\n', '\r'}, 
@@ -374,6 +386,11 @@ void SdlCommandParser::parseDirectiveCommand(
 	PH_ASSERT(command.commandType == ESdlCommandType::Directive);
 	PH_ASSERT(!tokens.empty());
 
+	if(!beginCommand(command.commandType, nullptr))
+	{
+		return;
+	}
+
 	if(tokens[0] == "version")
 	{
 		if(tokens.size() < 2)
@@ -393,12 +410,15 @@ void SdlCommandParser::parseDirectiveCommand(
 		}
 
 		m_commandVersion = loadedVersion;
+		commandVersionSet(loadedVersion);
 	}
 	else
 	{
 		throw SdlLoadError(
 			"unknown SDL directive: " + tokens[0] + ", ignoring");
 	}
+
+	endCommand();
 }
 
 std::string SdlCommandParser::genNameForAnonymity()
@@ -470,9 +490,9 @@ std::string SdlCommandParser::getName(const std::string_view referenceToken)
 	}
 }
 
-void SdlCommandParser::setWorkingDirectory(const Path& path)
+void SdlCommandParser::setSceneWorkingDirectory(Path directory)
 {
-	m_workingDirectory = path;
+	m_sceneWorkingDirectory = std::move(directory);
 }
 
 auto SdlCommandParser::parseCommandHeader(const std::string_view command)

@@ -9,7 +9,7 @@ namespace ph
 {
 
 class SceneDescription;
-class FormattedTextFileOutputStream;
+class FormattedTextOutputStream;
 
 class SdlSceneFileWriter : public SdlCommandGenerator
 {
@@ -19,14 +19,16 @@ public:
 	~SdlSceneFileWriter() override;
 
 	bool beginCommand(const SdlClass* targetClass) override;
-	void generatedCommand(std::string_view commandStr) override;
-	bool endCommand() override;
+	void commandGenerated(std::string_view commandStr) override;
+	void endCommand() override;
 
-	void save(const SceneDescription& scene);
+	void write(const SceneDescription& scene);
+
+	void setSceneName(std::string sceneName);
 
 private:
 	std::string m_sceneName;
-	FormattedTextFileOutputStream* m_fileStream;
+	FormattedTextOutputStream* m_fileStream;
 };
 
 }// end namespace ph

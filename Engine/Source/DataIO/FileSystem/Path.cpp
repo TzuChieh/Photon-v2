@@ -36,4 +36,19 @@ Path Path::getTrailingElement(const bool ignoreTrailingSeparator) const
 	return Path(*lastIter);
 }
 
+Path Path::getParent() const
+{
+	return Path(m_path.parent_path());
+}
+
+Path Path::replaceExtension(std::string_view replacement) const
+{
+	return Path(std_filesystem::path(m_path).replace_extension(replacement));
+}
+
+Path Path::removeExtension() const
+{
+	return replaceExtension("");
+}
+
 }// end namespace ph

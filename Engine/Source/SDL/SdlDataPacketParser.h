@@ -17,10 +17,10 @@ public:
 	explicit SdlDataPacketParser(TSpanView<const SdlClass*> targetClasses);
 	virtual ~SdlDataPacketParser();
 
-	virtual bool beingPacket(const SdlClass* targetClass) = 0;
-	virtual ISdlResource* createResource(const SdlClass* targetClass) = 0;
-	virtual void parsedResource(ISdlResource* resource) = 0;
-	virtual bool endPacket() = 0;
+	virtual bool beginPacket(const SdlClass* targetClass) = 0;
+	virtual ISdlResource* createResource(const SdlClass* resourceClass) = 0;
+	virtual void initResourceDone(ISdlResource* resource) = 0;
+	virtual void endPacket() = 0;
 
 	void parse(std::string_view packetStr);
 	void parse(TSpanView<std::byte> packetBytes);

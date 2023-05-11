@@ -1,7 +1,7 @@
 #pragma once
 
 #include "World/VisualWorld.h"
-#include "SDL/SdlCommandParser.h"
+#include "SDL/SdlSceneFileReader.h"
 #include "SDL/SceneDescription.h"
 #include "Math/TVector2.h"
 #include "Core/Renderer/ERegionStatus.h"
@@ -53,13 +53,13 @@ public:
 	Renderer* getRenderer() const;
 
 private:
-	SdlCommandParser m_parser;
+	SdlSceneFileReader m_sceneParser;
 	SceneDescription m_rawScene;
-	VisualWorld      m_visualWorld;
-	CoreCookedUnit   m_cooked;
+	VisualWorld m_visualWorld;
+	CoreCookedUnit m_cooked;
 
 	// TODO: remove this
-	uint32           m_numRenderThreads;
+	uint32 m_numRenderThreads;
 
 	//FrameProcessor m_frameProcessor;
 	// TODO: associate each attribute with a pipeline

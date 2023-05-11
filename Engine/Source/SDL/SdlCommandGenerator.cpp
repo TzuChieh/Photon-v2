@@ -61,7 +61,7 @@ void SdlCommandGenerator::generateScene(const SceneDescription& scene)
 				std::string(resolver.getResourceName(resource)),
 				result);
 
-			generatedCommand(result.commandStr);
+			commandGenerated(result.commandStr);
 
 			++numGeneratedCommands;
 		}
@@ -80,15 +80,17 @@ void SdlCommandGenerator::generateScene(const SceneDescription& scene)
 			++numErrors;
 		}
 
-		if(endCommand())
-		{
-			break;
-		}
+		endCommand();
 	}
 
 	PH_LOG(SdlCommandGenerator, 
 		"generated {} commands (errors: {})", 
 		numGeneratedCommands, numErrors);
+}
+
+void SdlCommandGenerator::setSceneWorkingDirectory(Path directory)
+{
+	m_sceneWorkingDirectory = std::move(directory);
 }
 
 void SdlCommandGenerator::generateLoadCommand(
@@ -100,9 +102,10 @@ void SdlCommandGenerator::generateLoadCommand(
 	PH_ASSERT(ctx.getSrcClass());
 	PH_ASSERT(ctx.getSrcClass() == resource.getDynamicSdlClass());
 
-	const SdlClass& clazz = *(ctx.getSrcClass());
+	const SdlClass* clazz = ctx.getSrcClass();
+	PH_ASSERT(clazz);
 
-	clazz.saveResource(resource, out_result.clauses, ctx);
+	clazz->saveResource(resource, out_result.clauses, ctx);
 
 	appendFullSdlType(clazz, out_result.commandStr);
 	out_result.commandStr += ' ';
@@ -118,12 +121,14 @@ void SdlCommandGenerator::generateLoadCommand(
 }
 
 void SdlCommandGenerator::appendFullSdlType(
-	const SdlClass& clazz,
+	const SdlClass* clazz,
 	std::string& out_commandStr)
 {
-	out_commandStr += sdl::category_to_string(clazz.getCategory());
+	PH_ASSERT(clazz);
+
+	out_commandStr += sdl::category_to_string(clazz->getCategory());
 	out_commandStr += '(';
-	out_commandStr += clazz.getTypeName();
+	out_commandStr += clazz->getTypeName();
 	out_commandStr += ')';
 }
 

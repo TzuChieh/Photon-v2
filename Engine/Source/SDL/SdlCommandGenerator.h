@@ -24,20 +24,17 @@ public:
 	// TODO: parameters like binary form? multi-thread?
 
 	/*!
-	@return Whether to keep generating command for this class.
+	@return Whether to generate command for this class.
 	*/
 	virtual bool beginCommand(const SdlClass* targetClass) = 0;
 
-	virtual void generatedCommand(std::string_view commandStr) = 0;
-
-	/*!
-	@return Whether to continue the whole command generating process.
-	*/
-	virtual bool endCommand() = 0;
+	virtual void commandGenerated(std::string_view commandStr) = 0;
+	virtual void endCommand() = 0;
 
 	void generateScene(const SceneDescription& scene);
 
 	const Path& getSceneWorkingDirectory() const;
+	void setSceneWorkingDirectory(Path directory);
 
 private:
 	struct OutputBuffer
@@ -55,7 +52,7 @@ private:
 		OutputBuffer& out_result);
 
 	static void appendFullSdlType(
-		const SdlClass& clazz,
+		const SdlClass* clazz,
 		std::string& out_commandStr);
 
 	static void appendClause(

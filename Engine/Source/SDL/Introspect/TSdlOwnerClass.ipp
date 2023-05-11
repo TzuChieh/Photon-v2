@@ -306,7 +306,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 		const TSdlOwnedField<Owner>& field = m_fields[fieldIdx];
 
 		SdlOutputClause& clause = out_clauses.createClause();
-		sdl::save_field_id(this, clause);
+		sdl::save_field_id(&field, clause);
 		field.toSdl(owner, clause, ctx);
 	}
 }

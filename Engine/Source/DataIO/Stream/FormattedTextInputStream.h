@@ -25,7 +25,7 @@ public:
 
 	inline FormattedTextInputStream(FormattedTextInputStream&& other) = default;
 
-	std::string acquireName() override;
+	std::string acquireName() const override;
 
 	/*! @brief Read all text without any whitespaces.
 	*/

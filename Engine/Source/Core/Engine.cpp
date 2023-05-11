@@ -6,13 +6,13 @@
 #include "Common/logging.h"
 #include "Common/config.h"
 #include "Math/Geometry/TAABB2D.h"
-#include "Utility/Timer.h"
 #include "EngineEnv/Session/RenderSession.h"
 #include "EngineEnv/CoreCookingContext.h"
 #include "Core/Receiver/Receiver.h"
 #include "Core/Renderer/Renderer.h"
 #include "Math/Transform/RigidTransform.h"
 #include "Common/stats.h"
+#include "SDL/sdl_exceptions.h"
 
 #include <fstream>
 #include <string>
@@ -25,57 +25,56 @@ PH_DEFINE_INTERNAL_TIMER_STAT(Update, Engine);
 PH_DEFINE_INTERNAL_TIMER_STAT(Render, Engine);
 PH_DEFINE_INTERNAL_TIMER_STAT(LoadCommands, Engine);
 
-Engine::Engine() : 
-	m_cooked(),
-	m_visualWorld()
+Engine::Engine() 
+	: m_sceneParser()
+	, m_rawScene()
+	, m_visualWorld()
+	, m_cooked()
+	, m_numRenderThreads(1)
 {
-	setNumRenderThreads(1);
-
-	PH_LOG(Engine, "Photon version: {}, PSDL version: {}",
+	PH_LOG(Engine, 
+		"Photon version: {}, PSDL version: {}",
 		PH_ENGINE_VERSION, PH_PSDL_VERSION);
+
+	setNumRenderThreads(1);
+	m_sceneParser.setScene(&m_rawScene);
 }
 
 void Engine::enterCommand(const std::string& commandFragment)
 {
-	m_parser.enter(commandFragment, m_rawScene);
+	try
+	{
+		m_sceneParser.enter(commandFragment);
+	}
+	catch(const Exception& e)
+	{
+		PH_LOG(Engine, 
+			"error running command: {}",
+			e.what());
+	}
 }
 
 bool Engine::loadCommands(const Path& filePath)
 {
 	PH_SCOPED_TIMER(LoadCommands);
 
-	std::ifstream commandFile;
-	commandFile.open(filePath.toAbsoluteString(), std::ios::in);
-	if(!commandFile.is_open())
-	{
-		PH_LOG_WARNING(Engine, "command file <{}> opening failed", 
-			filePath.toAbsoluteString());
+	// Scene file must reside in the scene working directory as it may be accompanied with data files
+	m_sceneParser.setSceneWorkingDirectory(filePath.getParent());
+	m_sceneParser.setSceneName(filePath.removeExtension().getFilename());
 
+	try
+	{
+		m_sceneParser.read();
+	}
+	catch(const Exception& e)
+	{
+		PH_LOG(Engine,
+			"error loading scene file {}: {}",
+			filePath.toAbsoluteString(), e.what());
 		return false;
 	}
-	else
-	{
-		PH_LOG(Engine, "loading command file <{}>", filePath.toAbsoluteString());
-
-		Timer timer;
-		timer.start();
-
-		std::string lineCommand;
-		while(commandFile.good())
-		{
-			std::getline(commandFile, lineCommand);
-			lineCommand += '\n';
-
-			enterCommand(lineCommand);
-		}
-
-		timer.stop();
-
-		PH_LOG(Engine, "command file PSDL version: {}", m_parser.getCommandVersion().toString());
-		PH_LOG(Engine, "command file loaded, time elapsed = {} ms", timer.getDeltaMs());
-
-		return true;
-	}
+	
+	return true;
 }
 
 void Engine::update()
@@ -83,10 +82,10 @@ void Engine::update()
 	PH_SCOPED_TIMER(Update);
 
 	// Wait all potentially unfinished commands
-	m_parser.flush(m_rawScene);
+	m_sceneParser.flush();
 
 	PH_LOG(Engine, "parsed {} commands, {} errors generated", 
-		m_parser.numParsedCommands(), m_parser.numParseErrors());
+		m_sceneParser.numParsedCommands(), m_sceneParser.numParseErrors());
 
 	std::shared_ptr<RenderSession> renderSession;
 	{
@@ -236,7 +235,7 @@ void Engine::asyncQueryStatistics(
 
 void Engine::setWorkingDirectory(const Path& path)
 {
-	m_parser.setWorkingDirectory(path);
+	m_sceneParser.setSceneWorkingDirectory(path);
 }
 
 }// end namespace ph

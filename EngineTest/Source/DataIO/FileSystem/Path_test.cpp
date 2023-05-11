@@ -5,7 +5,7 @@
 
 using namespace ph;
 
-TEST(FileSystemPath, PathOperationTest)
+TEST(FileSystemPathTest, PathOperation)
 {
 	const Path relativePath("./some/path");
 	EXPECT_TRUE(relativePath.isRelative());
@@ -31,7 +31,7 @@ TEST(FileSystemPath, PathOperationTest)
 	EXPECT_TRUE(fullPath == Path("C:/first/second/third/fourth/"));
 }
 
-TEST(FileSystemPath, FileExtensionTest)
+TEST(FileSystemPathTest, FileExtension)
 {
 	const Path pathWithExtension("/some/path/file.ext");
 	EXPECT_STREQ(pathWithExtension.getExtension().c_str(), ".ext");
@@ -40,7 +40,7 @@ TEST(FileSystemPath, FileExtensionTest)
 	EXPECT_STREQ(pathWithoutExtension.getExtension().c_str(), "");
 }
 
-TEST(FileSystemPath, LeadingAndTrailingElement)
+TEST(FileSystemPathTest, LeadingAndTrailingElement)
 {
 	// Get leading element
 	{
@@ -76,5 +76,88 @@ TEST(FileSystemPath, LeadingAndTrailingElement)
 		// Do not ignore the trailing separator
 		Path path4("./aaa/bbb/ccc/");
 		EXPECT_STREQ(path4.getTrailingElement(false).toString().c_str(), "");
+	}
+}
+
+TEST(FileSystemPathTest, GetParent)
+{
+	// Folder only
+	{
+		Path path("./aaa/bbb/ccc");
+		Path result("./aaa/bbb");
+		EXPECT_STREQ(path.getParent().toString().c_str(), result.toString().c_str());
+	}
+
+	// Folder only
+	{
+		Path path("aaa/bbb/ccc/ddd/.");
+		Path result("aaa/bbb/ccc/ddd");
+		EXPECT_STREQ(path.getParent().toString().c_str(), result.toString().c_str());
+	}
+
+	// Folder only (absolute path)
+	{
+		Path path("/aaa");
+		Path result("/");
+		EXPECT_STREQ(path.getParent().toString().c_str(), result.toString().c_str());
+	}
+
+	// File path
+	{
+		Path path("aaa/bbb/ccc.txt");
+		Path result("aaa/bbb");
+		EXPECT_STREQ(path.getParent().toString().c_str(), result.toString().c_str());
+	}
+}
+
+TEST(FileSystemPathTest, ExtensionManipulation)
+{
+	{
+		Path path("./aaa/bbb.txt");
+		Path result("./aaa/bbb.wow");
+		EXPECT_STREQ(path.replaceExtension(".wow").toString().c_str(), result.toString().c_str());
+	}
+
+	{
+		Path path("./aaa/bbb.jpg");
+		Path result("./aaa/bbb.wow");
+		EXPECT_STREQ(path.replaceExtension("wow").toString().c_str(), result.toString().c_str());
+	}
+
+	{
+		Path path("aaa/bbb.");
+		Path result("aaa/bbb.wow");
+		EXPECT_STREQ(path.replaceExtension("wow").toString().c_str(), result.toString().c_str());
+	}
+
+	{
+		Path path("aaa/bbb");
+		Path result("aaa/bbb.wow");
+		EXPECT_STREQ(path.replaceExtension("wow").toString().c_str(), result.toString().c_str());
+	}
+
+	{
+		Path path("aaa/bbb.jpg");
+		Path result("aaa/bbb");
+		EXPECT_STREQ(path.removeExtension().toString().c_str(), result.toString().c_str());
+	}
+
+	{
+		Path path("aaa/bbb.");
+		Path result("aaa/bbb");
+		EXPECT_STREQ(path.removeExtension().toString().c_str(), result.toString().c_str());
+	}
+
+	{
+		Path path("aaa/bbb");
+		Path result("aaa/bbb");
+		EXPECT_STREQ(path.removeExtension().toString().c_str(), result.toString().c_str());
+	}
+
+	// Corner case: current directory specifier
+	{
+		Path path("/path/to/current/.");
+		Path result("/path/to/current/.");
+		EXPECT_STREQ(path.removeExtension().toString().c_str(), result.toString().c_str());
 	}
 }

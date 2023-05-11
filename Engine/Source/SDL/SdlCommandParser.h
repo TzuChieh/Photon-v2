@@ -1,8 +1,10 @@
 #pragma once
 
 #include "SDL/SdlInputClauses.h"
+#include "SDL/ESdlTypeCategory.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Utility/SemanticVersion.h"
+#include "Utility/TSpan.h"
 
 #include <vector>
 #include <string>
@@ -11,9 +13,6 @@
 
 namespace ph
 {
-
-class SceneDescription;
-class SdlCommandParser;
 
 enum class ESdlCommandType
 {
@@ -26,35 +25,62 @@ enum class ESdlCommandType
 	Phantom
 };
 
-class SdlCommandParser final
+class SdlCommandParser
 {
 public:
-	SdlCommandParser();
+	explicit SdlCommandParser(TSpanView<const SdlClass*> targetClasses);
+	SdlCommandParser(TSpanView<const SdlClass*> targetClasses, Path sceneWorkingDirectory);
+	virtual ~SdlCommandParser();
 
 	// TODO: rename existing methods to enterAndWait() and flushAndWait() and add flush() and enter() once multithreading is added
+	// TODO: removeResource() callback for load error, etc.
+
+	virtual bool beginCommand(ESdlCommandType commandType, const SdlClass* targetClass) = 0;
+
+	virtual ISdlResource* createResource(
+		std::string_view resourceName, 
+		const SdlClass* resourceClass, 
+		ESdlCommandType commandType) = 0;
+	
+	virtual void initResource(
+		ISdlResource* resource, 
+		const SdlClass* resourceClass,
+		std::string_view resourceName,
+		SdlInputClauses& clauses,
+		ESdlCommandType commandType) = 0;
+	
+	virtual ISdlResource* getResource(std::string_view resourceName, ESdlTypeCategory category) = 0;
+
+	virtual void runExecutor(
+		std::string_view executorName,
+		const SdlClass* targetClass,
+		ISdlResource* targetResource,
+		SdlInputClauses& clauses,
+		ESdlCommandType commandType) = 0;
+
+	virtual void commandVersionSet(const SemanticVersion& version) = 0;
+	virtual void endCommand() = 0;
 
 	/*! @brief Enters a string and parse it as one or more commands.
 
 	The command segment must have valid syntax. The method will potentially cache the command
 	segment in subsequent calls until a command is complete, at which point the command will 
-	be parsed and the result will act on the provided scene.
+	be parsed and the result will act on the target (e.g., a scene, depending on the implementation).
 	
 	A valid command segment is a portion of a complete command or a chunk of multiple commands 
 	that do not break any keyword or symbol of PSDL. For example, you can break any
 	opening/closing braces, but you cannot break a type name.
 
 	@param commandSegment A valid segment of command.
-	@param[out] out_scene The target for parsed results.
 	*/
-	void enter(std::string_view rawCommandSegment, SceneDescription& out_scene);
+	void enter(std::string_view rawCommandSegment);
 
 	/*! @brief Force the parse of commands that were cached in the parser.
-
-	@param[out] out_scene The target for parsed results.
 	*/
-	void flush(SceneDescription& out_scene);
+	void flush();
 
-	void setWorkingDirectory(const Path& path);
+	const Path& getSceneWorkingDirectory() const;
+	void setSceneWorkingDirectory(Path directory);
 
 	const SemanticVersion& getCommandVersion() const;
 	std::size_t numParsedCommands() const;
@@ -78,7 +104,7 @@ private:
 
 	std::unordered_map<std::string, const SdlClass*> m_mangledNameToClass;
 
-	Path m_workingDirectory;
+	Path m_sceneWorkingDirectory;
 	bool m_isInSingleLineComment;
 	std::string m_processedCommandCache;
 	std::size_t m_generatedNameCounter;
@@ -90,22 +116,14 @@ private:
 	@param processedCommandSegment A command segment with all pre-processing being done (e.g., 
 	comment string removal).
 	*/
-	void enterProcessed(std::string_view processedCommandSegment, SceneDescription& out_scene);
+	void enterProcessed(std::string_view processedCommandSegment);
 
-	void parseCommand(const std::string& command, SceneDescription& out_scene);
-	void parseSingleCommand(const CommandHeader& command, SceneDescription& out_scene);
+	void parseCommand(const std::string& command);
+	void parseSingleCommand(const CommandHeader& command);
 
-	void parseLoadCommand(
-		const CommandHeader& command,
-		SceneDescription& out_scene);
-
-	void parseExecutionCommand(
-		const CommandHeader& command,
-		SceneDescription& out_scene);
-
-	void parseDirectiveCommand(
-		const CommandHeader& command,
-		SceneDescription& out_scene);
+	void parseLoadCommand(const CommandHeader& command);
+	void parseExecutionCommand(const CommandHeader& command);
+	void parseDirectiveCommand(const CommandHeader& command);
 
 	std::string getName(std::string_view referenceToken);
 	std::string genNameForAnonymity();
@@ -123,6 +141,11 @@ private:
 };
 
 // In-header Implementations:
+
+inline const Path& SdlCommandParser::getSceneWorkingDirectory() const
+{
+	return m_sceneWorkingDirectory;
+}
 
 inline const SemanticVersion& SdlCommandParser::getCommandVersion() const
 {

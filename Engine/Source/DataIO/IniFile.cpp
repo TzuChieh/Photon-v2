@@ -1,7 +1,7 @@
 #include "DataIO/IniFile.h"
 #include "DataIO/io_exceptions.h"
 #include "DataIO/Stream/FormattedTextInputStream.h"
-#include "DataIO/Stream/FormattedTextFileOutputStream.h"
+#include "DataIO/Stream/FormattedTextOutputStream.h"
 #include "Utility/string_utils.h"
 #include "Common/logging.h"
 
@@ -29,7 +29,7 @@ IniFile::IniFile(const Path& iniFilePath) :
 
 void IniFile::save(const Path& iniFilePath)
 {
-	FormattedTextFileOutputStream output(iniFilePath);
+	FormattedTextOutputStream output(iniFilePath);
 
 	for(const IniSection& section : m_sections)
 	{

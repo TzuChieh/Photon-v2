@@ -44,9 +44,9 @@ void StdInputStream::read(const std::size_t numBytes, std::byte* const out_bytes
 	m_istream->read(reinterpret_cast<char*>(out_bytes), numBytes);
 	if(!m_istream->good())
 	{
-		throw IOException(std::format(
+		throw_formatted<IOException>(
 			"Error on trying to read {} bytes from std::istream ({}).",
-			numBytes, getReasonForError()));
+			numBytes, getReasonForError());
 	}
 
 	PH_ASSERT_EQ(numBytes, m_istream->gcount());
@@ -67,9 +67,9 @@ void StdInputStream::readString(std::string* const out_string, const char delimi
 
 	if(!m_istream->good() && !m_istream->eof())
 	{
-		throw IOException(std::format(
+		throw_formatted<IOException>(
 			"Error on trying to read a string with delimiter {} from std::istream ({}).",
-			delimiter, getReasonForError()));
+			delimiter, getReasonForError());
 	}
 }
 
@@ -91,9 +91,9 @@ std::size_t StdInputStream::readSome(const std::size_t numBytes, std::byte* cons
 			return numBytesRead;
 		}
 
-		throw IOException(std::format(
+		throw_formatted<IOException>(
 			"Error on trying to read {} bytes from std::istream ({}).",
-			numBytes, getReasonForError()));
+			numBytes, getReasonForError());
 	}
 
 	PH_ASSERT_EQ(numBytes, m_istream->gcount());
@@ -110,9 +110,9 @@ void StdInputStream::seekGet(const std::size_t pos)
 	
 	if(!m_istream->good())
 	{
-		throw IOException(std::format(
+		throw_formatted<IOException>(
 			"Error seeking to position {} on std::istream ({}).",
-			pos, getReasonForError()));
+			pos, getReasonForError());
 	}
 }
 
@@ -140,22 +140,31 @@ void StdInputStream::ensureStreamIsGoodForRead() const
 
 std::string StdInputStream::getReasonForError() const
 {
+	std::string errorMsg;
 	if(isStreamGoodForRead())
 	{
-		return "No error.";
+		errorMsg += "No error.";
 	}
-
-	if(!m_istream)
+	else if(!m_istream)
 	{
-		return "Stream is uninitialized.";
+		errorMsg += "Stream is uninitialized.";
 	}
-
-	if(m_istream->eof())
+	else if(m_istream->eof())
 	{
-		return "Stream is on EOF (expected std::istream to not being on EOF already).";
+		errorMsg += "Stream is on EOF (expected std::istream to not being on EOF already).";
+	}
+	else
+	{
+		errorMsg += std::strerror(errno);
 	}
 
-	return std::strerror(errno);
+	std::string name = acquireName();
+	if(name.empty())
+	{
+		name = "(unavailable)";
+	}
+
+	return errorMsg + " Stream name: " + name;
 }
 
 }// end namespace ph

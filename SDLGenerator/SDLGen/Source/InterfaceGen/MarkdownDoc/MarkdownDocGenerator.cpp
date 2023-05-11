@@ -62,7 +62,7 @@ void MarkdownDocGenerator::generate(
 	writeNewLine();
 
 	// Finally, write the doc to file
-	m_file = FormattedTextFileOutputStream(makeOutputFilePath(getFilename()));
+	m_file = FormattedTextOutputStream(makeOutputFilePath(getFilename()));
 	m_file.writeString(getDoc());
 }
 

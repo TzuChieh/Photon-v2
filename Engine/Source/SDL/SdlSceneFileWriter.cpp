@@ -3,7 +3,7 @@
 #include "Common/assertion.h"
 #include "Common/config.h"
 #include "Common/logging.h"
-#include "DataIO/Stream/FormattedTextFileOutputStream.h"
+#include "DataIO/Stream/FormattedTextOutputStream.h"
 
 #include <utility>
 
@@ -29,33 +29,36 @@ bool SdlSceneFileWriter::beginCommand(const SdlClass* const targetClass)
 	return true;
 }
 
-void SdlSceneFileWriter::generatedCommand(std::string_view commandStr)
+void SdlSceneFileWriter::commandGenerated(std::string_view commandStr)
 {
 	PH_ASSERT(m_fileStream);
 	m_fileStream->writeString(commandStr);
 }
 
-bool SdlSceneFileWriter::endCommand()
-{
-	return true;
-}
+void SdlSceneFileWriter::endCommand()
+{}
 
-void SdlSceneFileWriter::save(const SceneDescription& scene)
+void SdlSceneFileWriter::write(const SceneDescription& scene)
 {
 	// TODO: currently will overwrite existing file; should provide options for whether to append
 
-	// Scene file resides in a folder with the same name as it may be accompanied with data files
-	Path sceneFilePath = getSceneWorkingDirectory().append(m_sceneName);
-	sceneFilePath.createDirectory();
-	sceneFilePath.append(m_sceneName + ".p2");
+	// Scene file must reside in the scene working directory as it may be accompanied with data files
+	getSceneWorkingDirectory().createDirectory();
+	Path sceneFilePath = getSceneWorkingDirectory().append(m_sceneName + ".p2");
 
-	FormattedTextFileOutputStream fileStream(sceneFilePath);
+	FormattedTextOutputStream fileStream(sceneFilePath);
 	m_fileStream = &fileStream;
 	m_fileStream->writeString("#version {};\n", PH_PSDL_VERSION);
 
 	generateScene(scene);
 
 	PH_LOG(SdlSceneFileWriter, "scene file written to {}", sceneFilePath);
+	m_fileStream = nullptr;
+}
+
+void SdlSceneFileWriter::setSceneName(std::string sceneName)
+{
+	m_sceneName = std::move(sceneName);
 }
 
 }// end namespace ph

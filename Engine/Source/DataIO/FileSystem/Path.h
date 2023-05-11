@@ -193,9 +193,20 @@ public:
 	/*!
 	If the path ends with a path separator, the element returned will be the name before the separator. 
 	For example, "C:\\abc\\def\\ghi\\" will return "ghi" as the trailing element. If this is not desired
-	and an empty path "" is expected instread, set @p ignoreTrailingSeparator to `false`.
+	and an empty path "" is expected instread, set @p ignoreTrailingSeparator to `false`. Filename
+	with its extension is considered a single element, i.e., "./aaa/bbb.ext" would return "bbb.ext".
 	*/
 	Path getTrailingElement(bool ignoreTrailingSeparator = true) const;
+
+	/*!
+	Get the parent directory of this path, e.g., the parent of "./aaa/bbb.ext" would be "./aaa".
+	*/
+	Path getParent() const;
+
+	// TODO: replace/remove filename
+
+	Path replaceExtension(std::string_view replacement) const;
+	Path removeExtension() const;
 
 	Path operator / (const Path& other) const;
 	Path operator / (std::string_view pathStr) const;

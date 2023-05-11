@@ -19,6 +19,7 @@ public:
 	StdOutputStream(StdOutputStream&& other);
 
 	void write(std::size_t numBytes, const std::byte* bytes) override;
+	void writeString(std::string_view str) override;
 	void seekPut(std::size_t pos) override;
 	std::optional<std::size_t> tellPut() override;
 	operator bool () const override;

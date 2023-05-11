@@ -63,7 +63,7 @@ void PythonGenerator::generate(
 	const std::vector<const SdlClass*>& sdlClasses,
 	const std::vector<const SdlEnum*>&  sdlEnums)
 {
-	m_file = FormattedTextFileOutputStream(makeOutputFilePath("pysdl.py"));
+	m_file = FormattedTextOutputStream(makeOutputFilePath("pysdl.py"));
 
 	m_file.writeString(
 		"# ========================================\n"

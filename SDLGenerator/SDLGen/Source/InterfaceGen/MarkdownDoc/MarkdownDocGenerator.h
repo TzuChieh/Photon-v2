@@ -2,7 +2,7 @@
 
 #include "InterfaceGen/InterfaceGenerator.h"
 
-#include <DataIO/Stream/FormattedTextFileOutputStream.h>
+#include <DataIO/Stream/FormattedTextOutputStream.h>
 
 #include <string>
 #include <utility>
@@ -41,9 +41,9 @@ public:
 	const std::string& getFilename() const;
 
 private:
-	FormattedTextFileOutputStream m_file;
-	std::string                   m_filename;
-	std::string                   m_docString;
+	FormattedTextOutputStream m_file;
+	std::string               m_filename;
+	std::string               m_docString;
 
 	static std::vector<const SdlField*> gatherInputs(const SdlClass* sdlClass);
 	static std::vector<const SdlField*> gatherInputs(const SdlFunction* sdlFunc);
