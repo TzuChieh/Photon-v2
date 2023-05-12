@@ -25,7 +25,7 @@ void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 		PH_DEFAULT_LOG("res created");
 	}
 
-	res->setFilePath(Path("./rendered_scene.png"));
+	/*res->setFilePath(Path("./rendered_scene.png"));
 	RegularPicture pic = res->loadRegularPicture();
 	PH_DEFAULT_LOG("pic res: {}", pic.getSizePx());
 
@@ -34,7 +34,7 @@ void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 	PH_DEFAULT_LOG("pic h warp mode: {}", TSdlEnum<EImageWrapMode>()[hWrapMode]);
 	PH_DEFAULT_LOG("pic v warp mode: {}", TSdlEnum<EImageWrapMode>()[vWrapMode]);
 
-	PH_DEFAULT_LOG("pic sample mode: {}", TSdlEnum<EImageSampleMode>()[res->getSampleMode()]);
+	PH_DEFAULT_LOG("pic sample mode: {}", TSdlEnum<EImageSampleMode>()[res->getSampleMode()]);*/
 
 	info.editor->onKeyDown.addListener(
 		[](const KeyDownEvent& e)

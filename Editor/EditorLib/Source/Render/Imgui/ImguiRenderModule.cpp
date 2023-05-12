@@ -16,6 +16,7 @@
 #include <ph_cpp_core.h>
 
 #include <variant>
+#include <string_view>
 
 /*
 Note that the implementation here is quite sensitive to the windowing system and corresponding graphics
@@ -229,6 +230,9 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 {
 	PH_LOG(DearImGui, "setting-up fonts...");
 
+	constexpr std::string_view BASE_FONT_FILENAME = "Arimo[wght].ttf";
+	constexpr std::string_view FONT_ICON_FILENAME = FONT_ICON_FILE_NAME_MD;
+
 	ImGuiIO& io = ImGui::GetIO();
 
 	const Path fontDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Font";
@@ -239,7 +243,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	// Loading default font
 	//io.Fonts->AddFontDefault();
 	m_fontLibrary.defaultFont = io.Fonts->AddFontFromFileTTF(
-		(fontDirectory / "Arimo[wght].ttf").toString().c_str(),
+		(fontDirectory / BASE_FONT_FILENAME).toString().c_str(),
 		fontSizePx);
 	io.FontDefault = m_fontLibrary.defaultFont;
 
@@ -255,14 +259,14 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 		static_cast<ImWchar>(ICON_MAX_MD), 
 		static_cast<ImWchar>(0)};
 	io.Fonts->AddFontFromFileTTF(
-		(fontDirectory / FONT_ICON_FILE_NAME_MD).toString().c_str(),
+		(fontDirectory / FONT_ICON_FILENAME).toString().c_str(),
 		iconFontSizePx,
 		&iconFontConfig,
 		iconFontRanges);
 
 	// Loading large default font
 	m_fontLibrary.largeFont = io.Fonts->AddFontFromFileTTF(
-		(fontDirectory / "Arial-Regular.ttf").toString().c_str(),
+		(fontDirectory / BASE_FONT_FILENAME).toString().c_str(),
 		fontSizePx * largeFontRatio);
 
 	// Loading large font icon--merge with large default font
@@ -273,10 +277,17 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	largeIconFontConfig.GlyphOffset.x = iconFontConfig.GlyphOffset.x * largeFontRatio;
 	largeIconFontConfig.GlyphOffset.y = iconFontConfig.GlyphOffset.y * largeFontRatio;
 	io.Fonts->AddFontFromFileTTF(
-		(fontDirectory / FONT_ICON_FILE_NAME_MD).toString().c_str(),
+		(fontDirectory / FONT_ICON_FILENAME).toString().c_str(),
 		iconFontSizePx * largeFontRatio,
 		&largeIconFontConfig,
 		iconFontRanges);
+
+	if(!m_fontLibrary.defaultFont || !m_fontLibrary.largeFont)
+	{
+		PH_LOG_ERROR(DearImGui,
+			"font initialization failed (default font valid: {}, large font valid: {})",
+			m_fontLibrary.defaultFont != nullptr, m_fontLibrary.largeFont != nullptr);
+	}
 }
 
 void ImguiRenderModule::initializeImguiImages(Editor& editor)
