@@ -3,6 +3,7 @@ import shutil
 import time
 import warnings
 
+
 # Returns whether the folder is deleted
 def delete_folder_with_contents(folder_path):
 

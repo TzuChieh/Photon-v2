@@ -5,6 +5,7 @@ from utility import filesystem
 import sys
 import os
 
+
 # Download third-party libraries for the engine
 def download_thirdparty_library(dst_directory):
 
@@ -40,7 +41,7 @@ def download_thirdparty_library(dst_directory):
     extracted_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty-" + git_branch_name)
     final_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty")
 
-    # Delete old library folder first if it exists
+    # Delete old library folder first if it exists (basically a clean install)
     if filesystem.delete_folder_with_contents(final_folder_path):
         print("Old library folder deleted")
 
