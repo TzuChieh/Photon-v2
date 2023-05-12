@@ -1,10 +1,9 @@
 from utility import downloader
 from utility import console
+from utility import filesystem
 
 import sys
 import os
-import shutil
-import time
 
 # Download third-party libraries for the engine
 def download_thirdparty_library(dst_directory):
@@ -42,17 +41,7 @@ def download_thirdparty_library(dst_directory):
     final_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty")
 
     # Delete old library folder first if it exists
-    if os.path.isdir(final_folder_path):
-        # Setting `ignore_errors` so non-empty folders can be deleted without errors being thrown
-        shutil.rmtree(final_folder_path, ignore_errors=True)
-
-        # Exceptiions might be thrown by `shutil.rmtree()` if the folder-to-delete is currently opened by
-        # the file explorer. Wait a short time to give it a chance to close itself.
-        # (FIXME: still occucasionally happens on Win7)
-        # [1] https://bugs.python.org/issue33240.
-        # [2] https://stackoverflow.com/questions/33656696/python-throws-error-when-deleting-a-directory-that-is-open-with-windows-explorer
-        time.sleep(1.0)
-
+    if filesystem.delete_folder_with_contents(final_folder_path):
         print("Old library folder deleted")
 
     os.rename(extracted_folder_path, final_folder_path)
