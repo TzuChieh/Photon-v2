@@ -33,10 +33,16 @@ ImguiRenderModule::ImguiRenderModule()
 	, m_displayFramebufferSizePx(0)
 	, m_renderContent(nullptr)
 	, m_isRenderContentAdded(false)
+	, m_fontIconGlyphRanges()
 	, m_editorUI()
 	, m_fontLibrary()
 	, m_imageLibrary()
-{}
+{
+	m_fontIconGlyphRanges = {
+		static_cast<ImWchar>(ICON_MIN_MD),
+		static_cast<ImWchar>(ICON_MAX_MD),
+		static_cast<ImWchar>(0)};
+}
 
 ImguiRenderModule::~ImguiRenderModule() = default;
 
@@ -254,15 +260,11 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	iconFontConfig.GlyphMinAdvanceX = iconFontSizePx;
 	iconFontConfig.GlyphOffset.x = 0.0f;
 	iconFontConfig.GlyphOffset.y = iconFontSizePx * 0.2f;
-	static const ImWchar iconFontRanges[] = {
-		static_cast<ImWchar>(ICON_MIN_MD), 
-		static_cast<ImWchar>(ICON_MAX_MD), 
-		static_cast<ImWchar>(0)};
 	io.Fonts->AddFontFromFileTTF(
 		(fontDirectory / FONT_ICON_FILENAME).toString().c_str(),
 		iconFontSizePx,
 		&iconFontConfig,
-		iconFontRanges);
+		m_fontIconGlyphRanges.data());
 
 	// Loading large default font
 	m_fontLibrary.largeFont = io.Fonts->AddFontFromFileTTF(
@@ -280,7 +282,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 		(fontDirectory / FONT_ICON_FILENAME).toString().c_str(),
 		iconFontSizePx * largeFontRatio,
 		&largeIconFontConfig,
-		iconFontRanges);
+		m_fontIconGlyphRanges.data());
 
 	if(!m_fontLibrary.defaultFont || !m_fontLibrary.largeFont)
 	{

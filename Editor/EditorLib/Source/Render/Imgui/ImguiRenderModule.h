@@ -9,6 +9,7 @@
 #include <Math/TVector2.h>
 
 #include <cstddef>
+#include <array>
 
 namespace ph::editor
 {
@@ -41,6 +42,7 @@ private:
 	math::TVector2<uint32> m_displayFramebufferSizePx;
 	ImguiRenderContent*    m_renderContent;
 	bool                   m_isRenderContentAdded;
+	std::array<ImWchar, 3> m_fontIconGlyphRanges;
 	ImguiEditorUI          m_editorUI;
 	ImguiFontLibrary       m_fontLibrary;
 	ImguiImageLibrary      m_imageLibrary;
