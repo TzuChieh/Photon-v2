@@ -11,12 +11,22 @@ namespace ph::editor
 
 PH_DEFINE_INTERNAL_LOG_GROUP(FileSystemExplorer, EditorCore);
 
-FileSystemDirectoryEntry::FileSystemDirectoryEntry(Path directoryPath, CtorAccessToken)
-	: m_children()
+FileSystemDirectoryEntry::FileSystemDirectoryEntry(
+	FileSystemDirectoryEntry* const parent, 
+	Path directoryPath, 
+	CtorAccessToken)
+
+	: m_parent(parent)
+	, m_children()
 	, m_directoryPath(std::move(directoryPath))
 	, m_directoryName()
 {
 	m_directoryName = m_directoryPath.getTrailingElement().toString();
+}
+
+FileSystemDirectoryEntry* FileSystemDirectoryEntry::getParent() const
+{
+	return m_parent;
 }
 
 bool FileSystemDirectoryEntry::haveChildren() const
@@ -24,7 +34,7 @@ bool FileSystemDirectoryEntry::haveChildren() const
 	return !m_children.isEmpty();
 }
 
-const FileSystemDirectoryEntry* FileSystemDirectoryEntry::getChild(const std::size_t childIndex) const
+FileSystemDirectoryEntry* FileSystemDirectoryEntry::getChild(const std::size_t childIndex) const
 {
 	return m_children.get(childIndex);
 }
@@ -46,10 +56,7 @@ const std::string& FileSystemDirectoryEntry::getDirectoryName() const
 
 void FileSystemDirectoryEntry::populateChildren()
 {
-	if(haveChildren())
-	{
-		return;
-	}
+	removeChildren();
 
 	for(const auto& stdPath : std::filesystem::directory_iterator(m_directoryPath.toStdPath()))
 	{
@@ -60,7 +67,8 @@ void FileSystemDirectoryEntry::populateChildren()
 			continue;
 		}
 
-		m_children.add(std::make_unique<FileSystemDirectoryEntry>(childPath, CtorAccessToken()));
+		m_children.add(std::make_unique<FileSystemDirectoryEntry>(
+			this, childPath, CtorAccessToken()));
 	}
 }
 
@@ -97,7 +105,7 @@ std::optional<std::size_t> FileSystemExplorer::addRootPath(const Path& path)
 
 	m_rootPaths.push_back(path);
 	m_rootDirectoryEntries.add(std::make_unique<FileSystemDirectoryEntry>(
-		path, FileSystemDirectoryEntry::CtorAccessToken()));
+		nullptr, path, FileSystemDirectoryEntry::CtorAccessToken()));
 	return m_rootPaths.size() - 1;
 }
 
@@ -113,18 +121,21 @@ void FileSystemExplorer::setCurrentRootPath(const std::size_t rootPathIndex)
 void FileSystemExplorer::expand(FileSystemDirectoryEntry* const directoryEntry)
 {
 	PH_ASSERT(directoryEntry);
-
-	directoryEntry->populateChildren();
+	if(!directoryEntry->haveChildren())
+	{
+		directoryEntry->populateChildren();
+	}
 }
 
 void FileSystemExplorer::collapse(FileSystemDirectoryEntry* const directoryEntry)
 {
 	PH_ASSERT(directoryEntry);
-
 	directoryEntry->removeChildren();
 }
 
-std::vector<Path> FileSystemExplorer::makeItemListing(FileSystemDirectoryEntry* const directoryEntry) const
+std::vector<Path> FileSystemExplorer::makeItemListing(
+	FileSystemDirectoryEntry* const directoryEntry,
+	const bool withDirectories) const
 {
 	PH_ASSERT(directoryEntry);
 
@@ -132,7 +143,15 @@ std::vector<Path> FileSystemExplorer::makeItemListing(FileSystemDirectoryEntry* 
 	itemSubpaths.reserve(128);
 	for(const auto& stdPath : std::filesystem::directory_iterator(directoryEntry->getDirectoryPath().toStdPath()))
 	{
-		itemSubpaths.push_back(Path(stdPath).getTrailingElement());
+		const Path itemPath(stdPath);
+
+		// Potentially skip directory item
+		if(!withDirectories && itemPath.hasDirectory())
+		{
+			continue;
+		}
+
+		itemSubpaths.push_back(itemPath.getTrailingElement());
 	}
 	return itemSubpaths;
 }

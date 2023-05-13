@@ -10,6 +10,8 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
+#include <string_view>
+
 namespace ph::editor
 {
 
@@ -17,6 +19,14 @@ const char* const ImguiEditorUI::rootPropertiesWindowName = ICON_MD_TUNE " Prope
 const char* const ImguiEditorUI::mainViewportWindowName = ICON_MD_CAMERA " Viewport";
 const char* const ImguiEditorUI::assetBrowserWindowName = ICON_MD_FOLDER_OPEN " Asset Browser";
 const char* const ImguiEditorUI::objectBrowserWindowName = ICON_MD_CATEGORY " Object Browser";
+
+namespace
+{
+
+//constexpr std::string_view OPEN_FILE_DIALOG_POPUP_NAME = "Open File";
+//constexpr std::string_view SAVE_FILE_DIALOG_POPUP_NAME = "Save File";
+
+}// end anonymous namespace
 
 ImguiEditorUI::ImguiEditorUI()
 	: m_editor(nullptr)
@@ -30,6 +40,10 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_shouldResetWindowLayout(false)
 	, m_shouldShowStatsMonitor(false)
 	, m_shouldShowImguiDemo(false)
+	, m_fsDialogExplorer()
+	, m_fsDialogSelectedEntry(nullptr)
+	, m_fsDialogEntryItems()
+	, m_fsDialogSelectedItemIdx(static_cast<std::size_t>(-1))
 {}
 
 void ImguiEditorUI::initialize(
@@ -189,6 +203,9 @@ void ImguiEditorUI::build()
 
 	buildStatsMonitor();
 	buildImguiDemo();
+
+	// DEBUG
+	buildFilesystemDialogContent(m_fsDialogExplorer);
 }
 
 void ImguiEditorUI::buildMainMenuBar()
@@ -373,6 +390,139 @@ void ImguiEditorUI::buildStatsMonitor()
 	}
 }
 
+void ImguiEditorUI::buildFilesystemDialogTreeNodeRecursive(
+	FileSystemDirectoryEntry* baseEntry,
+	FileSystemExplorer& explorer)
+{
+	if(!baseEntry)
+	{
+		return;
+	}
+
+	const bool isNodeOpened = ImGui::TreeNode(baseEntry->getDirectoryName().c_str());
+	if(ImGui::IsItemClicked())
+	{
+		m_fsDialogEntryItems.clear();
+		for(const Path& itemPath : explorer.makeItemListing(baseEntry, false))
+		{
+			m_fsDialogEntryItems.push_back(itemPath.toString());
+		}
+	}
+
+	if(isNodeOpened)
+	{
+		explorer.expand(baseEntry);
+		for(std::size_t entryIdx = 0; entryIdx < baseEntry->numChildren(); ++entryIdx)
+		{
+			FileSystemDirectoryEntry* derivedEntry = baseEntry->getChild(entryIdx);
+			buildFilesystemDialogTreeNodeRecursive(derivedEntry, explorer);
+		}
+		ImGui::TreePop();
+	}
+	else
+	{
+		explorer.collapse(baseEntry);
+	}
+}
+
+void ImguiEditorUI::buildFilesystemDialogContent(FileSystemExplorer& explorer)
+{
+	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_HorizontalScrollbar;
+	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+	ImGui::BeginChild("fs_tree", ImVec2(300, 0), true, windowFlags);
+
+	//explorer.getCurrentDirectoryEntry()->
+	FileSystemDirectoryEntry* entry = explorer.getCurrentDirectoryEntry();
+
+	buildFilesystemDialogTreeNodeRecursive(entry, explorer);
+
+	for(const std::string& item : m_fsDialogEntryItems)
+	{
+		ImGui::Text(item.c_str());
+	}
+
+	if(ImGui::TreeNode("Advanced, with Selectable nodes"))
+	{
+		static ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		static bool align_label_with_current_x_position = false;
+		static bool test_drag_and_drop = false;
+		ImGui::CheckboxFlags("ImGuiTreeNodeFlags_OpenOnArrow", &base_flags, ImGuiTreeNodeFlags_OpenOnArrow);
+		ImGui::CheckboxFlags("ImGuiTreeNodeFlags_OpenOnDoubleClick", &base_flags, ImGuiTreeNodeFlags_OpenOnDoubleClick);
+		ImGui::CheckboxFlags("ImGuiTreeNodeFlags_SpanAvailWidth", &base_flags, ImGuiTreeNodeFlags_SpanAvailWidth); ImGui::SameLine();
+		ImGui::CheckboxFlags("ImGuiTreeNodeFlags_SpanFullWidth", &base_flags, ImGuiTreeNodeFlags_SpanFullWidth);
+		ImGui::Checkbox("Align label with current X position", &align_label_with_current_x_position);
+		ImGui::Checkbox("Test tree node as drag source", &test_drag_and_drop);
+		ImGui::Text("Hello!");
+		if(align_label_with_current_x_position)
+			ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
+
+		// 'selection_mask' is dumb representation of what may be user-side selection state.
+		//  You may retain selection state inside or outside your objects in whatever format you see fit.
+		// 'node_clicked' is temporary storage of what node we have clicked to process selection at the end
+		/// of the loop. May be a pointer to your own node type, etc.
+		static int selection_mask = (1 << 2);
+		int node_clicked = -1;
+		for(int i = 0; i < 6; i++)
+		{
+			// Disable the default "open on single-click behavior" + set Selected flag according to our selection.
+			// To alter selection we use IsItemClicked() && !IsItemToggledOpen(), so clicking on an arrow doesn't alter selection.
+			ImGuiTreeNodeFlags node_flags = base_flags;
+			const bool is_selected = (selection_mask & (1 << i)) != 0;
+			if(is_selected)
+				node_flags |= ImGuiTreeNodeFlags_Selected;
+			if(i < 3)
+			{
+				// Items 0..2 are Tree Node
+				bool node_open = ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "Selectable Node %d", i);
+				if(ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+					node_clicked = i;
+				if(test_drag_and_drop && ImGui::BeginDragDropSource())
+				{
+					ImGui::SetDragDropPayload("_TREENODE", NULL, 0);
+					ImGui::Text("This is a drag and drop source");
+					ImGui::EndDragDropSource();
+				}
+				if(node_open)
+				{
+					ImGui::BulletText("Blah blah\nBlah Blah");
+					ImGui::TreePop();
+				}
+			}
+			else
+			{
+				// Items 3..5 are Tree Leaves
+				// The only reason we use TreeNode at all is to allow selection of the leaf. Otherwise we can
+				// use BulletText() or advance the cursor by GetTreeNodeToLabelSpacing() and call Text().
+				node_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen; // ImGuiTreeNodeFlags_Bullet
+				ImGui::TreeNodeEx((void*)(intptr_t)i, node_flags, "Selectable Leaf %d", i);
+				if(ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+					node_clicked = i;
+				if(test_drag_and_drop && ImGui::BeginDragDropSource())
+				{
+					ImGui::SetDragDropPayload("_TREENODE", NULL, 0);
+					ImGui::Text("This is a drag and drop source");
+					ImGui::EndDragDropSource();
+				}
+			}
+		}
+		if(node_clicked != -1)
+		{
+			// Update selection state
+			// (process outside of tree loop to avoid visual inconsistencies during the clicking frame)
+			if(ImGui::GetIO().KeyCtrl)
+				selection_mask ^= (1 << node_clicked);          // CTRL+click to toggle
+			else //if (!(selection_mask & (1 << node_clicked))) // Depending on selection behavior you want, may want to preserve selection when clicking on item that is part of the selection
+				selection_mask = (1 << node_clicked);           // Click to single-select
+		}
+		if(align_label_with_current_x_position)
+			ImGui::Indent(ImGui::GetTreeNodeToLabelSpacing());
+		ImGui::TreePop();
+	}
+
+	ImGui::EndChild();
+	ImGui::PopStyleVar();
+}
+
 void ImguiEditorUI::buildImguiDemo()
 {
 	if(ImGui::IsKeyReleased(ImGuiKey_F2))
@@ -382,7 +532,7 @@ void ImguiEditorUI::buildImguiDemo()
 
 	if(m_shouldShowImguiDemo)
 	{
-		show_imgui_demo_window(&m_shouldShowImguiDemo);
+		imgui_show_demo_window(&m_shouldShowImguiDemo);
 	}
 }
 

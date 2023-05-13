@@ -13,6 +13,8 @@
 namespace ph::editor
 {
 
+/*! @brief Information for a filesystem directory.
+*/
 class FileSystemDirectoryEntry final
 {
 	friend class FileSystemExplorer;
@@ -24,10 +26,11 @@ private:
 	{};
 
 public:
-	FileSystemDirectoryEntry(Path directoryPath, CtorAccessToken);
+	FileSystemDirectoryEntry(FileSystemDirectoryEntry* parent, Path directoryPath, CtorAccessToken);
 
 	bool haveChildren() const;
-	const FileSystemDirectoryEntry* getChild(std::size_t childIndex) const;
+	FileSystemDirectoryEntry* getParent() const;
+	FileSystemDirectoryEntry* getChild(std::size_t childIndex) const;
 	std::size_t numChildren() const;
 	const Path& getDirectoryPath() const;
 	const std::string& getDirectoryName() const;
@@ -39,6 +42,7 @@ private:
 	void populateChildren();
 	void removeChildren();
 
+	FileSystemDirectoryEntry* m_parent;
 	TUniquePtrVector<FileSystemDirectoryEntry> m_children;
 	Path m_directoryPath;
 	std::string m_directoryName;
@@ -55,9 +59,20 @@ public:
 	const Path& getCurrentRootPath() const;
 
 	FileSystemDirectoryEntry* getCurrentDirectoryEntry();
+
+	/*! @brief Expand the entry by linking it with potential child entries.
+	Expanding an already-expanded entry has no effect.
+	*/
 	void expand(FileSystemDirectoryEntry* directoryEntry);
+
+	/*! @brief Collapse the entry by removing all potential child entries.
+	Collapsing an already-collapsed entry has no effect.
+	*/
 	void collapse(FileSystemDirectoryEntry* directoryEntry);
-	std::vector<Path> makeItemListing(FileSystemDirectoryEntry* directoryEntry) const;
+
+	std::vector<Path> makeItemListing(
+		FileSystemDirectoryEntry* directoryEntry,
+		bool withDirectories = true) const;
 
 private:
 	std::optional<std::size_t> findRootPathIndex(const Path& rootPath) const;

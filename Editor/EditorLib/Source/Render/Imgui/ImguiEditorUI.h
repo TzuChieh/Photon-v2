@@ -1,6 +1,13 @@
 #pragma once
 
 #include "ThirdParty/DearImGuiExperimental.h"
+#include "EditorCore/FileSystemExplorer.h"
+
+#include <DataIO/FileSystem/Path.h>
+
+#include <vector>
+#include <cstddef>
+#include <string>
 
 namespace ph::editor
 {
@@ -8,6 +15,7 @@ namespace ph::editor
 class Editor;
 class ImguiFontLibrary;
 class ImguiImageLibrary;
+class FileSystemExplorer;
 
 class ImguiEditorUI final
 {
@@ -18,6 +26,13 @@ public:
 	void build();
 
 private:
+	Editor& getEditor();
+
+	Editor* m_editor;
+	ImguiFontLibrary* m_fontLibrary;
+	ImguiImageLibrary* m_imageLibrary;
+
+private:
 	void buildMainMenuBar();
 	void buildAssetBrowserWindow();
 	void buildRootPropertiesWindow();
@@ -26,11 +41,6 @@ private:
 	void buildStatsMonitor();
 	void buildImguiDemo();
 
-	Editor& getEditor();
-
-	Editor* m_editor;
-	ImguiFontLibrary* m_fontLibrary;
-	ImguiImageLibrary* m_imageLibrary;
 	ImGuiID m_rootDockSpaceID;
 	ImGuiID m_leftDockSpaceID;
 	ImGuiID m_rightDockSpaceID;
@@ -39,6 +49,17 @@ private:
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
 	bool m_shouldShowImguiDemo;
+
+private:
+	void buildFilesystemDialogContent(FileSystemExplorer& explorer);
+	void buildFilesystemDialogTreeNodeRecursive(
+		FileSystemDirectoryEntry* baseEntry,
+		FileSystemExplorer& explorer);
+
+	FileSystemExplorer m_fsDialogExplorer;
+	FileSystemDirectoryEntry* m_fsDialogSelectedEntry;
+	std::vector<std::string> m_fsDialogEntryItems;
+	std::size_t m_fsDialogSelectedItemIdx;
 
 private:
 	static const char* const rootPropertiesWindowName;
