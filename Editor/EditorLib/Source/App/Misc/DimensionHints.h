@@ -27,6 +27,9 @@ public:
 
 	float32 assetThumbnailSize;
 
+	float32 fileDialogPreferredWidth;
+	float32 fileDialogPreferredHeight;
+
 public:
 	DimensionHints();
 
