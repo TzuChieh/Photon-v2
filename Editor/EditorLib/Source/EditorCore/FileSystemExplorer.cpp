@@ -20,6 +20,7 @@ FileSystemDirectoryEntry::FileSystemDirectoryEntry(
 	, m_children()
 	, m_directoryPath(std::move(directoryPath))
 	, m_directoryName()
+	, m_hasBeenPopulated(false)
 {
 	m_directoryName = m_directoryPath.getTrailingElement().toString();
 }
@@ -56,7 +57,12 @@ const std::string& FileSystemDirectoryEntry::getDirectoryName() const
 
 void FileSystemDirectoryEntry::populateChildren()
 {
-	removeChildren();
+	// Using a separate flag instead of checking `haveChildren()` to avoid having to iterate the
+	// directory repeatedly (consider a directory with no child directory while having many files).
+	if(m_hasBeenPopulated)
+	{
+		return;
+	}
 
 	for(const auto& stdPath : std::filesystem::directory_iterator(m_directoryPath.toStdPath()))
 	{
@@ -70,11 +76,14 @@ void FileSystemDirectoryEntry::populateChildren()
 		m_children.add(std::make_unique<FileSystemDirectoryEntry>(
 			this, childPath, CtorAccessToken()));
 	}
+
+	m_hasBeenPopulated = true;
 }
 
 void FileSystemDirectoryEntry::removeChildren()
 {
 	m_children.removeAll();
+	m_hasBeenPopulated = false;
 }
 
 FileSystemExplorer::FileSystemExplorer()
@@ -121,10 +130,7 @@ void FileSystemExplorer::setCurrentRootPath(const std::size_t rootPathIndex)
 void FileSystemExplorer::expand(FileSystemDirectoryEntry* const directoryEntry)
 {
 	PH_ASSERT(directoryEntry);
-	if(!directoryEntry->haveChildren())
-	{
-		directoryEntry->populateChildren();
-	}
+	directoryEntry->populateChildren();
 }
 
 void FileSystemExplorer::collapse(FileSystemDirectoryEntry* const directoryEntry)

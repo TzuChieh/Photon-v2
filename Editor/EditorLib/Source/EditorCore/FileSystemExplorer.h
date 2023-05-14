@@ -46,6 +46,7 @@ private:
 	TUniquePtrVector<FileSystemDirectoryEntry> m_children;
 	Path m_directoryPath;
 	std::string m_directoryName;
+	bool m_hasBeenPopulated;
 };
 
 class FileSystemExplorer final
