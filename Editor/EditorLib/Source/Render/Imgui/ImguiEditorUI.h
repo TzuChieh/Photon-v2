@@ -2,6 +2,7 @@
 
 #include "ThirdParty/DearImGuiExperimental.h"
 #include "EditorCore/FileSystemExplorer.h"
+#include "Render/Imgui/Editor/ImguiEditorSidebarState.h"
 
 #include <Common/primitive_type.h>
 #include <DataIO/FileSystem/Path.h>
@@ -29,6 +30,8 @@ public:
 
 private:
 	Editor& getEditor();
+	ImguiFontLibrary& getFontLibrary();
+	ImguiImageLibrary& getImageLibrary();
 	DimensionHints& getDimensionHints();
 
 	Editor* m_editor;
@@ -41,17 +44,22 @@ private:
 	void buildRootPropertiesWindow();
 	void buildObjectBrowserWindow();
 	void buildMainViewportWindow();
+	void buildSceneManagerWindow();
+	void buildEditorSettingsWindow();
+	void buildSidebarWindow();
 	void buildStatsMonitor();
 	void buildImguiDemo();
 
 	ImGuiID m_rootDockSpaceID;
 	ImGuiID m_leftDockSpaceID;
-	ImGuiID m_rightDockSpaceID;
+	ImGuiID m_upperRightDockSpaceID;
+	ImGuiID m_lowerRightDockSpaceID;
 	ImGuiID m_bottomDockSpaceID;
 	ImGuiID m_centerDockSpaceID;
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
 	bool m_shouldShowImguiDemo;
+	ImguiEditorSidebarState m_sidebarState;
 
 private:
 	void buildFileSystemDialogPopupModal(
@@ -78,12 +86,6 @@ private:
 	std::vector<std::string> m_fsDialogEntryItemNames;
 	std::size_t m_fsDialogSelectedEntryItemIdx;
 	std::vector<uint8> m_fsDialogEntryItemSelection;
-
-private:
-	static const char* const rootPropertiesWindowName;
-	static const char* const mainViewportWindowName;
-	static const char* const assetBrowserWindowName;
-	static const char* const objectBrowserWindowName;
 };
 
 }// end namespace ph::editor
