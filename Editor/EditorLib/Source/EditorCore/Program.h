@@ -11,10 +11,10 @@ class Program final : private IUninstantiable
 
 private:
 	// Called right after program start. Guaranteed to be on main thread.
-	static void onProgramStart();
+	static void programStart();
 
 	// Called right before program exit. Guaranteed to be on main thread.
-	static void onProgramExit();
+	static void programExit();
 };
 
 }// end namespace ph::editor

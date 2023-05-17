@@ -10,17 +10,24 @@
 #include "Designer/FlatDesignerObject.h"
 #include "Designer/HierarchicalDesignerObject.h"
 
+#include <ph_cpp_core.h>
 #include <Common/assertion.h>
 #include <Utility/exception.h>
 
 #include <cstdlib>
+#include <iostream>
 
 namespace ph::editor
 {
 
 int application_entry_point(int argc, char* argv[])
 {
-	Program::onProgramStart();
+	if(!init_render_engine(EngineInitSettings()))
+	{
+		return EXIT_FAILURE;
+	}
+
+	Program::programStart();
 
 	// App should not outlive program
 	try
@@ -50,7 +57,12 @@ int application_entry_point(int argc, char* argv[])
 		PH_DEBUG_BREAK();
 	}
 
-	Program::onProgramExit();
+	Program::programExit();
+
+	if(!exit_render_engine())
+	{
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }

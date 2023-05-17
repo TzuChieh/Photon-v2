@@ -8,14 +8,14 @@ namespace ph::editor
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Program, EditorCore);
 
-void Program::onProgramStart()
+void Program::programStart()
 {
 	Threads::setMainThreadID(std::this_thread::get_id());
 
 	PH_LOG(Program, "editor program start");
 }
 
-void Program::onProgramExit()
+void Program::programExit()
 {
 	PH_LOG(Program, "editor program exit");
 
