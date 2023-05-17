@@ -34,6 +34,8 @@ bool init_picture_IO()
 	// load call so more control
 	stbi_set_flip_vertically_on_load(true);
 	stbi_flip_vertically_on_write(true);
+
+	return true;
 }
 
 }// end namespace detail

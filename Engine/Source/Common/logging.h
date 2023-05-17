@@ -47,7 +47,9 @@ LogGroups get_core_log_groups();
 namespace ph::detail::core_logging
 {
 
-Logger& CORE_LOGGER();
+void init();
+void exit();
+Logger& get_core_logger();
 std::size_t add_log_group(std::string_view groupName, std::string_view category = "");
 void log_to_logger(Logger& logger, std::string_view groupName, ELogLevel logLevel, std::string_view logMessage);
 
@@ -67,7 +69,7 @@ The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the sour
 	{\
 		static const std::size_t logGroupIndex = ::ph::detail::core_logging::add_log_group(#groupName, #category);\
 	\
-		return ::ph::detail::core_logging::CORE_LOGGER();\
+		return ::ph::detail::core_logging::get_core_logger();\
 	}
 
 #define PH_DEFINE_INLINE_LOG_GROUP(groupName, category)\
@@ -75,7 +77,7 @@ The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the sour
 	{\
 		static const std::size_t logGroupIndex = ::ph::detail::core_logging::add_log_group(#groupName, #category);\
 	\
-		return ::ph::detail::core_logging::CORE_LOGGER();\
+		return ::ph::detail::core_logging::get_core_logger();\
 	}
 
 /*! @brief Defines a logger that is private to a .cpp file.

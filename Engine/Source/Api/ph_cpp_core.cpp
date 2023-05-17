@@ -108,13 +108,25 @@ PH_DEFINE_INTERNAL_LOG_GROUP(CppAPI, Engine);
 
 bool init_render_engine(EngineInitSettings settings)
 {
-	if(!handler)
-	{
-		PH_LOG_ERROR(CppAPI, "attempting to add a null core log handler");
-		return;
-	}
+	detail::core_logging::init();
 
-	detail::core_logging::CORE_LOGGER().addLogHandler(std::move(handler));
+	if(!settings.additionalLogHandlers.empty())
+	{
+		PH_LOG(CppAPI, "adding {} additional log handler(s)", settings.additionalLogHandlers.size());
+		for(LogHandler& handler : settings.additionalLogHandlers)
+		{
+			if(!handler)
+			{
+				PH_LOG_WARNING(CppAPI,
+					"attempting to add a null core log handler");
+				continue;
+			}
+			
+			detail::core_logging::get_core_logger().addLogHandler(std::move(handler));
+		}
+
+		settings.additionalLogHandlers.clear();
+	}
 
 	if(!init_engine_IO_infrastructure())
 	{
@@ -146,6 +158,8 @@ bool exit_render_engine()
 		PH_LOG_ERROR(CppAPI, "C API database exiting failed");
 		return false;
 	}
+
+	detail::core_logging::exit();
 
 	return true;
 }

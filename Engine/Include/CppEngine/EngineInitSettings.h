@@ -10,7 +10,7 @@ namespace ph
 class EngineInitSettings
 {
 public:
-	/*! @brief Additional log handlers for the engine's internal logger.
+	/*! @brief Additional log handlers for the core engine's internal logger.
 	Important note: Handler may be called concurrently hence its implementation must ensure proper
 	thread-safety. It is also inadvisable to perform time consuming tasks in the handler.
 	*/
