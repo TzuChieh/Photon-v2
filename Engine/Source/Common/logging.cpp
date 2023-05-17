@@ -1,6 +1,6 @@
 #include "Common/logging.h"
 #include "Common/assertion.h"
-#include "Common/Logger.h"
+#include "Common/Log/Logger.h"
 #include "Utility/Timestamp.h"
 
 #include <utility>

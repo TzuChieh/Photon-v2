@@ -5,6 +5,9 @@
 #include "DataIO/ExrFileReader.h"
 #include "Frame/frame_utils.h"
 #include "Frame/RegularPicture.h"
+#include "DataIO/FileSystem/Path.h"
+#include "DataIO/ExrFileWriter.h"
+#include "DataIO/PfmFileWriter.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -12,11 +15,28 @@
 #include <iostream>
 #include <sstream>
 #include <format>
+#include <climits>
+#include <type_traits>
 
 namespace ph::io_utils
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(IOUtils, DataIO);
+
+namespace detail
+{
+
+bool init_picture_IO()
+{
+	// Default loading's origin is on the upper-left corner, these calls made the 
+	// origin on the lower-left corner to meet Photon's expectation
+	// TODO: New release of stb seems to fix this (need check). Maybe we can just set this for every
+	// load call so more control
+	stbi_set_flip_vertically_on_load(true);
+	stbi_flip_vertically_on_write(true);
+}
+
+}// end namespace detail
 
 // TODO: make use stb "*_is_16_bit" related funcs
 
@@ -29,10 +49,6 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 	int widthPx;
 	int heightPx;
 	int numComponents;
-
-	// Default loading's origin is on the upper-left corner, this call made the 
-	// origin on the lower-left corner to meet Photon's expectation
-	stbi_set_flip_vertically_on_load(true);
 
 	// The last parameter is "0" since we want the actual components the image has;
 	// replace "0" with "1" ~ "4" to force that many components per pixel
@@ -111,10 +127,6 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	int widthPx;
 	int heightPx;
 	int numComponents;
-
-	// Stb's default origin is on the upper-left corner, this call made the 
-	// origin on the lower-left corner to meet Photon's expectation
-	stbi_set_flip_vertically_on_load(true);
 
 	// The last parameter is "0" since we want the actual components the image has
 	// (replace "0" with "1" ~ "4" to force that many components per pixel)
@@ -245,7 +257,8 @@ RegularPicture load_picture(const Path& picturePath)
 
 RegularPicture load_LDR_picture(const Path& picturePath)
 {
-	PH_LOG_DEBUG(IOUtils, "loading LDR picture <{}>", picturePath.toString());
+	PH_LOG_DEBUG(IOUtils, 
+		"loading LDR picture <{}>", picturePath.toString());
 
 	const std::string& ext = picturePath.getExtension();
 	if(ext == ".png"  || ext == ".PNG"  ||
@@ -267,7 +280,8 @@ RegularPicture load_LDR_picture(const Path& picturePath)
 
 RegularPicture load_HDR_picture(const Path& picturePath)
 {
-	PH_LOG_DEBUG(IOUtils, "loading HDR picture <{}>", picturePath.toString());
+	PH_LOG_DEBUG(IOUtils, 
+		"loading HDR picture <{}>", picturePath.toString());
 
 	const std::string& ext = picturePath.getExtension();
 	if(ext == ".exr" || ext == ".EXR")
@@ -322,7 +336,7 @@ RegularPicture load_HDR_picture(const Path& picturePath)
 	else
 	{
 		throw FileIOError(
-			"unsupported HDR image format <" + ext + ">", picturePath.toString());
+			"unsupported HDR picture format <" + ext + ">", picturePath.toString());
 	}
 }
 
@@ -345,6 +359,226 @@ bool has_HDR_support(const std::string_view filenameExt)
 	return
 		filenameExt == ".exr" || filenameExt == ".EXR" ||
 		filenameExt == ".hdr" || filenameExt == ".HDR";
+}
+
+void save(const LdrRgbFrame& frame, const Path& picturePath)
+{
+	const std::string& ext = picturePath.getExtension();
+
+	if(ext == ".png" || ext == ".PNG")
+	{
+		save_png(frame, picturePath);
+	}
+	else if(ext == ".jpg" || ext == ".JPG")
+	{
+		save_jpg(frame, picturePath);
+	}
+	else if(ext == ".bmp" || ext == ".BMP")
+	{
+		save_bmp(frame, picturePath);
+	}
+	else if(ext == ".tga" || ext == ".TGA")
+	{
+		save_tga(frame, picturePath);
+	}
+	else if(
+		ext == ".exr" || ext == ".EXR" ||
+		ext == ".hdr" || ext == ".HDR" ||
+		ext == ".pfm" || ext == ".PFM")
+	{
+		HdrRgbFrame HdrFrame;
+		frame_utils::to_HDR(frame, &HdrFrame);
+
+		save(HdrFrame, picturePath);
+	}
+	else
+	{
+		throw FileIOError(
+			"unsupported picture format <" + ext + ">", picturePath.toString());
+	}
+}
+
+void save(const HdrRgbFrame& frame, const Path& picturePath)
+{
+	const std::string& ext = picturePath.getExtension();
+	if(ext == ".exr" || ext == ".EXR")
+	{
+		save_exr(frame, picturePath);
+	}
+	else if(ext == ".hdr" || ext == ".HDR")
+	{
+		save_hdr(frame, picturePath);
+	}
+	else if(ext == ".pfm" || ext == ".PFM")
+	{
+		save_pfm(frame, picturePath);
+	}
+	else if(
+		ext == ".png" || ext == ".PNG" ||
+		ext == ".jpg" || ext == ".JPG" ||
+		ext == ".bmp" || ext == ".BMP" ||
+		ext == ".tga" || ext == ".TGA")
+	{
+		LdrRgbFrame ldrFrame;
+		frame_utils::to_LDR(frame, &ldrFrame);
+
+		save(ldrFrame, picturePath);
+	}
+	else
+	{
+		throw FileIOError(
+			"unsupported picture format <" + ext + ">", picturePath.toString());
+	}
+}
+
+void save_png(const LdrRgbFrame& frame, const Path& picturePath)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	PH_LOG(IOUtils,
+		"saving png <{}>", picturePath.toAbsoluteString());
+
+	const bool stbiResult = stbi_write_png(
+		picturePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData(),
+		static_cast<int>(frame.widthPx()) * 3);
+
+	if(stbiResult == 0)
+	{
+		throw FileIOError(
+			"failed saving png", picturePath.toString());
+	}
+}
+
+void save_jpg(const LdrRgbFrame& frame, const Path& picturePath)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	// FIXME: variable quality
+	constexpr int QUALITY = 10;
+
+	PH_LOG(IOUtils,
+		"saving jpg <{}> with quality = {}", picturePath.toAbsoluteString(), QUALITY);
+
+	const bool stbiResult = stbi_write_jpg(
+		picturePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData(),
+		10);
+
+	if(stbiResult == 0)
+	{
+		throw FileIOError(
+			"failed saving jpg", picturePath.toString());
+	}
+}
+
+void save_bmp(const LdrRgbFrame& frame, const Path& picturePath)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	PH_LOG(IOUtils, 
+		"saving bmp <{}>", picturePath.toAbsoluteString());
+
+	const bool stbiResult = stbi_write_bmp(
+		picturePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData());
+
+	if(stbiResult == 0)
+	{
+		throw FileIOError(
+			"failed saving bmp", picturePath.toString());
+	}
+}
+
+void save_tga(const LdrRgbFrame& frame, const Path& picturePath)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	PH_LOG(IOUtils,
+		"saving tga <{}>", picturePath.toAbsoluteString());
+
+	const bool stbiResult = stbi_write_tga(
+		picturePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData());
+
+	if(stbiResult == 0)
+	{
+		throw FileIOError(
+			"failed saving tga", picturePath.toString());
+	}
+}
+
+void save_hdr(const HdrRgbFrame& frame, const Path& picturePath)
+{
+	static_assert(std::is_same_v<HdrComponent, float>);
+
+	PH_LOG(IOUtils, 
+		"saving hdr <{}>", picturePath.toAbsoluteString());
+
+	const bool stbiResult = stbi_write_hdr(
+		picturePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData());
+
+	if(stbiResult == 0)
+	{
+		throw FileIOError(
+			"failed saving hdr", picturePath.toString());
+	}
+}
+
+void save_exr(const HdrRgbFrame& frame, const Path& picturePath)
+{
+	ExrFileWriter writer(picturePath);
+	if(!writer.save(frame))
+	{
+		throw FileIOError(
+			"failed saving exr", picturePath.toString());
+	}
+}
+
+void save_exr_high_precision(const HdrRgbFrame& frame, const Path& picturePath)
+{
+	ExrFileWriter writer(picturePath);
+	if(!writer.saveHighPrecision(frame))
+	{
+		throw FileIOError(
+			"failed saving high precision exr", picturePath.toString());
+	}
+}
+
+void save_pfm(const HdrRgbFrame& frame, const Path& picturePath)
+{
+	PfmFileWriter writer(picturePath);
+	if(!writer.save(frame))
+	{
+		throw FileIOError(
+			"failed saving pfm", picturePath.toString());
+	}
+}
+
+void save_exr(const HdrRgbFrame& frame, std::string& byteBuffer)
+{
+	ExrFileWriter writer(Path(""));
+	if(!writer.save(frame, byteBuffer))
+	{
+		throw FileIOError(
+			"failed saving exr to byte buffer");
+	}
 }
 
 }// end namespace ph::io_utils

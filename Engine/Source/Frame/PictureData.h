@@ -12,7 +12,7 @@ namespace ph
 {
 
 /*!
-Data storage of a picture. Has limited ability on pixel data manipulation. It is recommended
+Raw data storage of a picture. Has limited ability on pixel data manipulation. It is recommended
 to convert to `TFrame` via `toFrame()` for operations on pixel data.
 */
 class PictureData final

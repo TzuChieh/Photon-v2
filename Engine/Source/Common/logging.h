@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Common/ELogLevel.h"
+#include "Common/Log/logger_fwd.h"
+#include "Common/Log/ELogLevel.h"
 #include "Common/config.h"
 #include "Common/utility.h"
 
@@ -13,8 +14,6 @@
 Note on loggers:
 All logging functionalities are thread-safe when accessed via pre-defined macros.
 */
-
-namespace ph { class Logger; }
 
 namespace ph
 {
@@ -130,10 +129,10 @@ The logger will be usable anywhere that includes the header file containing this
 namespace ph
 {
 
-// Photon renderer's default logger
+// Photon renderer's default log group
 PH_DECLARE_LOG_GROUP(PhotonRenderer);
 
-/*! @brief A set of helper utility macros to log using Photon renderer's default logger.
+/*! @brief A set of helper utility macros to log using Photon renderer's default log group.
 */
 ///@{
 #ifdef PH_ENABLE_DEBUG_LOG

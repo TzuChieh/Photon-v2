@@ -2,7 +2,6 @@
 
 #include <DataIO/Data/IesFile.h>
 #include <DataIO/Data/IesData.h>
-#include <DataIO/PictureSaver.h>
 #include <Frame/TFrame.h>
 #include <Math/math.h>
 

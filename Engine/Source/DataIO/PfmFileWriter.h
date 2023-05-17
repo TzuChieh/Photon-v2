@@ -6,7 +6,7 @@
 namespace ph
 {
 
-/*! @brief Writer for Portable FloatMap image format
+/*! @brief Writer for Portable FloatMap image format.
 
 Reference site 1: http://www.pauldebevec.com/Research/HDR/PFM/
 Reference site 2: http://netpbm.sourceforge.net/doc/pfm.html

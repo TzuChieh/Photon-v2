@@ -11,6 +11,8 @@
 namespace ph
 {
 
+/*! @brief Format of common pictures.
+*/
 class RegularPictureFormat final
 {
 public:
@@ -40,6 +42,8 @@ private:
 	bool m_isGrayscale;
 };
 
+/*! @brief Raw representation of common picture types.
+*/
 class RegularPicture final
 {
 public:

@@ -3,9 +3,7 @@
 namespace ph
 {
 
-bool init_core_infrastructure();
-bool init_command_parser();
-
-bool exit_api_database();
+bool init_engine_IO_infrastructure();
+bool exit_API_database();
 
 }// end namespace ph

@@ -1,6 +1,7 @@
 #include "ph_cpp_core.h"
 #include "Api/init_and_exit.h"
 #include "Common/logging.h"
+#include "Common/Log/Logger.h"
 #include "Common/config.h"
 
 // Geometries
@@ -98,16 +99,26 @@
 #include "Actor/Material/Utility/EInterfaceMicrosurface.h"
 #include "Actor/Material/Utility/ERoughnessToAlpha.h"
 
+#include <utility>
+
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(CppAPI, Engine);
 
-bool init_render_engine()
+bool init_render_engine(EngineInitSettings settings)
 {
-	if(!init_core_infrastructure())
+	if(!handler)
 	{
-		PH_LOG_ERROR(CppAPI, "core infrastructure initialization failed");
+		PH_LOG_ERROR(CppAPI, "attempting to add a null core log handler");
+		return;
+	}
+
+	detail::core_logging::CORE_LOGGER().addLogHandler(std::move(handler));
+
+	if(!init_engine_IO_infrastructure())
+	{
+		PH_LOG_ERROR(CppAPI, "IO infrastructure initialization failed");
 		return false;
 	}
 
@@ -125,18 +136,12 @@ bool init_render_engine()
 	const std::vector<const SdlClass*> sdlClasses = get_registered_engine_classes();
 	PH_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
 
-	if(!init_command_parser())
-	{
-		PH_LOG_ERROR(CppAPI, "command parser initialization failed");
-		return false;
-	}
-
 	return true;
 }
 
 bool exit_render_engine()
 {
-	if(!exit_api_database())
+	if(!exit_API_database())
 	{
 		PH_LOG_ERROR(CppAPI, "C API database exiting failed");
 		return false;

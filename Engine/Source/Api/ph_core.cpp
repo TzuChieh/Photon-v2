@@ -10,13 +10,13 @@
 #include "DataIO/FileSystem/Path.h"
 #include "Common/assertion.h"
 #include "DataIO/io_utils.h"
-#include "DataIO/PictureSaver.h"
 #include "Api/ApiHelper.h"
 #include "Core/Scheduler/Region.h"
 #include "Common/config.h"
 #include "Common/logging.h"
 #include "Frame/frame_utils.h"
 #include "Utility/ByteBuffer.h"
+#include "DataIO/io_exceptions.h"
 
 #include <memory>
 #include <iostream>
@@ -36,15 +36,9 @@ void phConfigCoreResourceDirectory(const PHchar* const directory)
 
 int phInit()
 {
-	if(!init_core_infrastructure())
+	if(!init_engine_IO_infrastructure())
 	{
-		PH_LOG_ERROR(CoreAPI, "core infrastructure initialization failed");
-		return PH_FALSE;
-	}
-
-	if(!init_command_parser())
-	{
-		PH_LOG_ERROR(CoreAPI, "command parser initialization failed");
+		PH_LOG_ERROR(CoreAPI, "IO infrastructure initialization failed");
 		return PH_FALSE;
 	}
 
@@ -53,7 +47,7 @@ int phInit()
 
 int phExit()
 {
-	if(!exit_api_database())
+	if(!exit_API_database())
 	{
 		PH_LOG_ERROR(CoreAPI, "API database exiting failed");
 		return PH_FALSE;
@@ -300,13 +294,16 @@ int phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
 	const HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	if(frame)
 	{
-		if(PictureSaver::save(*frame, Path(filePath)))
+		try
 		{
+			io_utils::save(*frame, Path(filePath));
 			return PH_TRUE;
 		}
-		else
+		catch(const FileIOError& e)
 		{
-			PH_LOG_WARNING(CoreAPI, "frame<{}> saving failed", frameId);
+			PH_LOG_WARNING(CoreAPI, 
+				"frame<{}> saving failed: {}", 
+				frameId, e.whatStr());
 			return PH_FALSE;
 		}
 	}
@@ -325,9 +322,15 @@ int phSaveFrameToBuffer(const PHuint64 frameId, const PHuint64 bufferId)
 	}
 
 	std::string buf;
-	if(!PictureSaver::saveExr(*frame, buf))
+	try
 	{
-		PH_LOG_WARNING(CoreAPI, "frame<{}> saving failed", frameId);
+		io_utils::save_exr(*frame, buf);
+	}
+	catch(const FileIOError& e)
+	{
+		PH_LOG_WARNING(CoreAPI, 
+			"frame<{}> saving failed: {}", 
+			frameId, e.whatStr());
 		return PH_FALSE;
 	}
 
