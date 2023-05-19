@@ -1,9 +1,11 @@
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
+
 #include "ThirdParty/DearImGui.h"
 
 #include <Common/assertion.h>
 #include <Utility/Concurrent/TAtomicQueue.h>
 #include <Utility/utility.h>
+#include <Common/Log/ELogLevel.h>
 
 #include <cstddef>
 #include <utility>
@@ -37,6 +39,7 @@ inline LogStorage& LOG_STORAGE()
 ImguiEditorLog::ImguiEditorLog()
 	: m_logBuffer()
 	, m_numLogs(0)
+	, m_numClearedLogs(0)
 	, isAutoScrollEnabled(true)
 {
 	constexpr std::size_t numReservedLogs = 128;
@@ -58,11 +61,14 @@ void ImguiEditorLog::buildWindow(const char* title, bool* isOpening)
 
 	if(ImGui::Button("Clear"))
 	{
-		// TODO
+		clearLogs();
 	}
 	ImGui::SameLine();
 	ImGui::Checkbox("Auto-scroll", &isAutoScrollEnabled);
-
+	ImGui::SameLine();
+	const auto numLogs = lossless_cast<int>(m_numLogs);
+	const auto numTotalLogs = lossless_cast<int>(m_numLogs + m_numClearedLogs);
+	ImGui::Text("Showing %d/%d logs", numLogs, numTotalLogs);
 	ImGui::Separator();
 
 	ImGui::BeginChild("##scrolling_child", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
@@ -71,13 +77,26 @@ void ImguiEditorLog::buildWindow(const char* title, bool* isOpening)
 
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 	ImGuiListClipper clipper;
-	clipper.Begin(lossless_cast<int>(m_numLogs));
+	clipper.Begin(numLogs);
 	while(clipper.Step())
 	{
 		for(int logIdx = clipper.DisplayStart; logIdx < clipper.DisplayEnd; ++logIdx)
 		{
 			const LogMessage& log = m_logBuffer[logIdx];
+
+			switch(log.level)
+			{
+			case ELogLevel::Debug: 
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.2f, 1.0f, 1.0f)); break;
+			case ELogLevel::Warning:
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.2f, 1.0f)); break;
+			case ELogLevel::Error:
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); break;
+			default: 
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.95f, 0.95f, 1.0f)); break;
+			}
 			ImGui::TextUnformatted(log.text.data(), log.text.data() + log.text.size());
+			ImGui::PopStyleColor();
 		}
 	}
 	clipper.End();
@@ -114,6 +133,12 @@ void ImguiEditorLog::retrieveNewLogs()
 			break;
 		}
 	}
+}
+
+void ImguiEditorLog::clearLogs()
+{
+	m_numClearedLogs += m_numLogs;
+	m_numLogs = 0;
 }
 
 bool ImguiEditorLog::tryRetrieveOneLog(LogMessage* const out_message)

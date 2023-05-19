@@ -2,8 +2,6 @@
 #include "App/Module/ModuleAttachmentInfo.h"
 #include "App/Editor.h"
 #include "App/Module/MainThreadRenderUpdateContext.h"
-#include "ThirdParty/DearImGui.h"
-#include "ThirdParty/GLFW3.h"
 #include "Platform/Platform.h"
 #include "Platform/PlatformDisplay.h"
 #include "Render/Imgui/ImguiRenderContent.h"
@@ -12,6 +10,9 @@
 #include "Render/RendererScene.h"
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
+
+#include "ThirdParty/DearImGui.h"
+#include "ThirdParty/GLFW3.h"
 
 #include <ph_cpp_core.h>
 

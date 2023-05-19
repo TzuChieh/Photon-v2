@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHITexture.h"
+
 #include "ThirdParty/DearImGui.h"
 
 #include <Math/TVector2.h>

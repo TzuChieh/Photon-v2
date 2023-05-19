@@ -28,10 +28,16 @@ private:
 	};
 
 	void retrieveNewLogs();
+	void clearLogs();
+
+	// TODO: filter 1: combobox for log level (toggle)
+	// TODO: filter 2: word filter
+
 	static bool tryRetrieveOneLog(LogMessage* out_message);
 
 	std::vector<LogMessage> m_logBuffer;
 	std::size_t m_numLogs;
+	std::size_t m_numClearedLogs;
 	bool isAutoScrollEnabled;
 };
 

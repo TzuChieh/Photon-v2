@@ -1,9 +1,11 @@
 #pragma once
 
-#include "ThirdParty/DearImGuiExperimental.h"
 #include "EditorCore/FileSystemExplorer.h"
 #include "Render/Imgui/Editor/ImguiEditorSidebarState.h"
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
+#include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
+
+#include "ThirdParty/DearImGuiExperimental.h"
 
 #include <Common/primitive_type.h>
 #include <DataIO/FileSystem/Path.h>
@@ -66,6 +68,7 @@ private:
 	bool m_shouldShowImguiDemo;
 	ImguiEditorSidebarState m_sidebarState;
 	ImguiEditorLog m_editorLog;
+	ImguiEditorSceneManager m_editorSceneManager;
 
 private:
 	void buildFileSystemDialogPopupModal(
