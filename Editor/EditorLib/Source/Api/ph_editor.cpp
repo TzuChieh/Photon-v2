@@ -9,6 +9,7 @@
 #include "Designer/DesignerObject.h"
 #include "Designer/FlatDesignerObject.h"
 #include "Designer/HierarchicalDesignerObject.h"
+#include "Render/Imgui/Editor/ImguiEditorLog.h"
 
 #include <ph_cpp_core.h>
 #include <Common/assertion.h>
@@ -30,7 +31,7 @@ not invoke any engine functionalities.
 inline EngineInitSettings get_editor_engine_init_settings()
 {
 	EngineInitSettings settings;
-
+	settings.additionalLogHandlers.push_back(ImguiEditorLog::engineLogHook);
 	return settings;
 }
 

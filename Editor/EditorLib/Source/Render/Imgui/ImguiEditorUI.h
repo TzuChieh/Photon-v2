@@ -3,6 +3,7 @@
 #include "ThirdParty/DearImGuiExperimental.h"
 #include "EditorCore/FileSystemExplorer.h"
 #include "Render/Imgui/Editor/ImguiEditorSidebarState.h"
+#include "Render/Imgui/Editor/ImguiEditorLog.h"
 
 #include <Common/primitive_type.h>
 #include <DataIO/FileSystem/Path.h>
@@ -38,6 +39,7 @@ private:
 	ImguiFontLibrary& getFontLibrary();
 	ImguiImageLibrary& getImageLibrary();
 	DimensionHints& getDimensionHints();
+	bool isMainEditor() const;
 
 	Editor* m_editor;
 	ImguiFontLibrary* m_fontLibrary;
@@ -55,6 +57,7 @@ private:
 
 	void buildSceneManagerWindow();
 	void buildEditorSettingsWindow();
+	void buildLogWindow();
 	void buildStatsMonitor();
 	void buildImguiDemo();
 
@@ -62,6 +65,7 @@ private:
 	bool m_shouldShowStatsMonitor;
 	bool m_shouldShowImguiDemo;
 	ImguiEditorSidebarState m_sidebarState;
+	ImguiEditorLog m_editorLog;
 
 private:
 	void buildFileSystemDialogPopupModal(

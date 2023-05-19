@@ -40,6 +40,7 @@ constexpr const char* OBJECT_BROWSER_WINDOW_NAME = PH_IMGUI_OBJECT_ICON " Object
 constexpr const char* SIDEBAR_WINDOW_NAME = "##sidebar_window";
 
 constexpr const char* SCENE_BROWSER_WINDOW_NAME = PH_IMGUI_SCENE_ICON " Scene Manager";
+constexpr const char* LOG_WINDOW_NAME = PH_IMGUI_LOG_ICON " Log";
 
 constexpr const char* OPEN_FILE_DIALOG_POPUP_NAME = PH_IMGUI_OPEN_FILE_ICON " Open File";
 constexpr const char* SAVE_FILE_DIALOG_POPUP_NAME = PH_IMGUI_SAVE_FILE_ICON " Save File";
@@ -57,6 +58,7 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_shouldShowStatsMonitor(false)
 	, m_shouldShowImguiDemo(false)
 	, m_sidebarState()
+	, m_editorLog()
 
 	, m_fsDialogExplorer()
 	, m_fsDialogRootNames()
@@ -67,6 +69,7 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_fsDialogSelectedEntryItemIdx(static_cast<std::size_t>(-1))
 	, m_fsDialogEntryItemSelection()
 {
+	// If no main editor was specified, the first editor created after is the main one
 	if(!mainEditor)
 	{
 		mainEditor = this;
@@ -196,6 +199,7 @@ void ImguiEditorUI::build()
 
 		// Pre-dock other windows
 		ImGui::DockBuilderDockWindow(SCENE_BROWSER_WINDOW_NAME, upperRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(LOG_WINDOW_NAME, bottomDockSpaceID);
 
 		ImGui::DockBuilderFinish(rootDockSpaceID);
 	}
@@ -238,6 +242,7 @@ void ImguiEditorUI::build()
 	buildSidebarWindow();
 
 	buildEditorSettingsWindow();
+	buildLogWindow();
 
 	/*ImGui::SetNextWindowDockID(m_centerDockSpaceID, ImGuiCond_FirstUseEver);
 	ImGui::Begin("whatever###TTT");
@@ -331,7 +336,11 @@ void ImguiEditorUI::buildAssetBrowserWindow()
 
 void ImguiEditorUI::buildRootPropertiesWindow()
 {
-	ImGui::Begin(ROOT_PROPERTIES_WINDOW_NAME);
+	if(!ImGui::Begin(ROOT_PROPERTIES_WINDOW_NAME))
+	{
+		ImGui::End();
+		return;
+	}
 
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -340,7 +349,11 @@ void ImguiEditorUI::buildRootPropertiesWindow()
 
 void ImguiEditorUI::buildObjectBrowserWindow()
 {
-	ImGui::Begin(OBJECT_BROWSER_WINDOW_NAME);
+	if(!ImGui::Begin(OBJECT_BROWSER_WINDOW_NAME))
+	{
+		ImGui::End();
+		return;
+	}
 
 	if(ImGui::TreeNode("Basic"))
 	{
@@ -373,7 +386,11 @@ void ImguiEditorUI::buildObjectBrowserWindow()
 
 void ImguiEditorUI::buildMainViewportWindow()
 {
-	ImGui::Begin(MAIN_VIEWPORT_WINDOW_NAME);
+	if(!ImGui::Begin(MAIN_VIEWPORT_WINDOW_NAME))
+	{
+		ImGui::End();
+		return;
+	}
 
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
@@ -400,12 +417,12 @@ void ImguiEditorUI::buildSidebarWindow()
 	const float posToCenter = (ImGui::GetWindowContentRegionMax().x - iconButtonSize) * 0.5f;
 
 	ImGui::Spacing();
+
 	ImGui::SetCursorPosX(posToCenter);
 	if(ImGui::Button(PH_IMGUI_SCENE_ICON))
 	{
 		m_sidebarState.showSceneManager = !m_sidebarState.showSceneManager;
 	}
-
 	ImGui::PushFont(originalFont);
 	if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 	{
@@ -414,12 +431,12 @@ void ImguiEditorUI::buildSidebarWindow()
 	ImGui::PopFont();
 
 	ImGui::Spacing();
+
 	ImGui::SetCursorPosX(posToCenter);
 	if(ImGui::Button(PH_IMGUI_LOG_ICON))
 	{
 		m_sidebarState.showLog = !m_sidebarState.showLog;
 	}
-
 	ImGui::PushFont(originalFont);
 	if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 	{
@@ -428,12 +445,12 @@ void ImguiEditorUI::buildSidebarWindow()
 	ImGui::PopFont();
 
 	ImGui::Spacing();
+
 	ImGui::SetCursorPosX(posToCenter);
 	if(ImGui::Button(PH_IMGUI_SETTINGS_ICON))
 	{
 		m_sidebarState.showEditorSettings = !m_sidebarState.showEditorSettings;
 	}
-
 	ImGui::PushFont(originalFont);
 	if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
 	{
@@ -454,7 +471,11 @@ void ImguiEditorUI::buildSceneManagerWindow()
 		return;
 	}
 	
-	ImGui::Begin(SCENE_BROWSER_WINDOW_NAME, &m_sidebarState.showSceneManager);
+	if(!ImGui::Begin(SCENE_BROWSER_WINDOW_NAME, &m_sidebarState.showSceneManager))
+	{
+		ImGui::End();
+		return;
+	}
 
 	ImGui::Text("Active Scene");
 
@@ -503,11 +524,31 @@ void ImguiEditorUI::buildEditorSettingsWindow()
 		{viewport->WorkSize.x * 0.5f, viewport->WorkSize.y * 0.8f}, 
 		windowLayoutCond);
 
-	ImGui::Begin(PH_IMGUI_SETTINGS_ICON " Editor Settings", &m_sidebarState.showEditorSettings);
+	if(!ImGui::Begin(PH_IMGUI_SETTINGS_ICON " Editor Settings", &m_sidebarState.showEditorSettings))
+	{
+		ImGui::End();
+		return;
+	}
 
 	PH_DEFAULT_LOG("{}", m_sidebarState.showEditorSettings);
 
 	ImGui::End();
+}
+
+void ImguiEditorUI::buildLogWindow()
+{
+	// Only the main editor can have log window
+	if(!isMainEditor())
+	{
+		return;
+	}
+
+	if(!m_sidebarState.showLog)
+	{
+		return;
+	}
+
+	m_editorLog.buildWindow(LOG_WINDOW_NAME, &m_sidebarState.showLog);
 }
 
 void ImguiEditorUI::buildStatsMonitor()
@@ -519,39 +560,45 @@ void ImguiEditorUI::buildStatsMonitor()
 		m_shouldShowStatsMonitor = !m_shouldShowStatsMonitor;
 	}
 
-	if(m_shouldShowStatsMonitor)
+	if(!m_shouldShowStatsMonitor)
 	{
-		constexpr float windowWidth = 300;
-		constexpr float windowHeight = 300;
-
-		ImGuiViewport* const viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos({
-			viewport->WorkPos.x + viewport->WorkSize.x - windowWidth,
-			viewport->WorkPos.y});
-		ImGui::SetNextWindowSize({
-			windowWidth,
-			windowHeight});
-
-		ImGui::Begin(PH_IMGUI_STATS_ICON " Stats", &m_shouldShowStatsMonitor);
-
-		ImGui::Text("Main Thread:");
-		ImGui::Text("Update: %f ms", m_editor->editorStats.mainThreadUpdateMs);
-		ImGui::Text("Render: %f ms", m_editor->editorStats.mainThreadRenderMs);
-		ImGui::Text("Event Flush: %f ms", m_editor->editorStats.mainThreadEventFlushMs);
-		ImGui::Text("Frame: %f ms", m_editor->editorStats.mainThreadFrameMs);
-
-		ImGui::Separator();
-
-		ImGui::Text("Render Thread:");
-		ImGui::Text("Frame: %f ms", m_editor->editorStats.renderThreadFrameMs);
-
-		ImGui::Separator();
-
-		ImGui::Text("GHI Thread:");
-		ImGui::Text("Frame: %f ms", m_editor->editorStats.ghiThreadFrameMs);
-
-		ImGui::End();
+		return;
 	}
+
+	constexpr float windowWidth = 300;
+	constexpr float windowHeight = 300;
+
+	ImGuiViewport* const viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos({
+		viewport->WorkPos.x + viewport->WorkSize.x - windowWidth,
+		viewport->WorkPos.y});
+	ImGui::SetNextWindowSize({
+		windowWidth,
+		windowHeight});
+
+	if(!ImGui::Begin(PH_IMGUI_STATS_ICON " Stats", &m_shouldShowStatsMonitor))
+	{
+		ImGui::End();
+		return;
+	}
+
+	ImGui::Text("Main Thread:");
+	ImGui::Text("Update: %f ms", m_editor->editorStats.mainThreadUpdateMs);
+	ImGui::Text("Render: %f ms", m_editor->editorStats.mainThreadRenderMs);
+	ImGui::Text("Event Flush: %f ms", m_editor->editorStats.mainThreadEventFlushMs);
+	ImGui::Text("Frame: %f ms", m_editor->editorStats.mainThreadFrameMs);
+
+	ImGui::Separator();
+
+	ImGui::Text("Render Thread:");
+	ImGui::Text("Frame: %f ms", m_editor->editorStats.renderThreadFrameMs);
+
+	ImGui::Separator();
+
+	ImGui::Text("GHI Thread:");
+	ImGui::Text("Frame: %f ms", m_editor->editorStats.ghiThreadFrameMs);
+
+	ImGui::End();
 }
 
 void ImguiEditorUI::buildFileSystemDialogPopupModal(
@@ -809,6 +856,12 @@ ImguiImageLibrary& ImguiEditorUI::getImageLibrary()
 DimensionHints& ImguiEditorUI::getDimensionHints()
 {
 	return getEditor().dimensionHints;
+}
+
+bool ImguiEditorUI::isMainEditor() const
+{
+	PH_ASSERT(mainEditor);
+	return mainEditor == this;
 }
 
 }// end namespace ph::editor
