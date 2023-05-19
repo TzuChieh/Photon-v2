@@ -22,8 +22,8 @@ LogGroups g_coreLogGroups;
 
 /*!
 We explicitly open/close stream/logger in engine init/exit code. Static order should not be relied 
-upon as it can cause error in dtors. Errors regarding uninitialized logging utilities would likely
-be logging in statics (not within engine init & exit).
+upon as it can cause error in dtors of statics. Errors regarding uninitialized logging utilities would 
+likely be logging in statics (not within engine init & exit).
 */
 ///@{
 std::ofstream g_coreLogStream;

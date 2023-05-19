@@ -12,7 +12,9 @@
 
 /*! @file
 Note on loggers:
-All logging functionalities are thread-safe when accessed via pre-defined macros.
+All logging functionalities are thread-safe when accessed via pre-defined macros. It is not advisible
+to log in class dtor, especially for static instances. Also make sure not to call any logging 
+functions when the logger is not initialized.
 */
 
 namespace ph

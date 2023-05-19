@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <string_view>
 #include <cstdio>
+#include <utility>
 
 #define PH_IMGUI_PROPERTIES_ICON   ICON_MD_TUNE
 #define PH_IMGUI_VIEWPORT_ICON     ICON_MD_CAMERA
@@ -38,22 +39,20 @@ constexpr const char* ASSET_BROWSER_WINDOW_NAME = PH_IMGUI_ASSET_ICON " Asset Br
 constexpr const char* OBJECT_BROWSER_WINDOW_NAME = PH_IMGUI_OBJECT_ICON " Object Browser";
 constexpr const char* SIDEBAR_WINDOW_NAME = "##sidebar_window";
 
+constexpr const char* SCENE_BROWSER_WINDOW_NAME = PH_IMGUI_SCENE_ICON " Scene Manager";
+
 constexpr const char* OPEN_FILE_DIALOG_POPUP_NAME = PH_IMGUI_OPEN_FILE_ICON " Open File";
 constexpr const char* SAVE_FILE_DIALOG_POPUP_NAME = PH_IMGUI_SAVE_FILE_ICON " Save File";
 
 }// end anonymous namespace
+
+const ImguiEditorUI* ImguiEditorUI::mainEditor = nullptr;
 
 ImguiEditorUI::ImguiEditorUI()
 	: m_editor(nullptr)
 	, m_fontLibrary(nullptr)
 	, m_imageLibrary(nullptr)
 
-	, m_rootDockSpaceID(0)
-	, m_leftDockSpaceID(0)
-	, m_upperRightDockSpaceID(0)
-	, m_lowerRightDockSpaceID(0)
-	, m_bottomDockSpaceID(0)
-	, m_centerDockSpaceID(0)
 	, m_shouldResetWindowLayout(false)
 	, m_shouldShowStatsMonitor(false)
 	, m_shouldShowImguiDemo(false)
@@ -68,6 +67,11 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_fsDialogSelectedEntryItemIdx(static_cast<std::size_t>(-1))
 	, m_fsDialogEntryItemSelection()
 {
+	if(!mainEditor)
+	{
+		mainEditor = this;
+	}
+
 	for(const Path& rootPath : m_fsDialogExplorer.getRootPaths())
 	{
 		m_fsDialogRootNames.push_back(rootPath.toString());
@@ -77,6 +81,14 @@ ImguiEditorUI::ImguiEditorUI()
 	{
 		m_fsDialogSelectedRootIdx = 0;
 		m_fsDialogExplorer.setCurrentRootPath(m_fsDialogSelectedRootIdx);
+	}
+}
+
+ImguiEditorUI::~ImguiEditorUI()
+{
+	if(mainEditor == this)
+	{
+		mainEditor = nullptr;
 	}
 }
 
@@ -133,15 +145,15 @@ void ImguiEditorUI::build()
 	ImGui::PopStyleVar(3);
 
 	// Dock builder nodes are retained--we create them if they do not exist or a reset is requested
-	m_rootDockSpaceID = ImGui::GetID("RootDockSpace");
-	if(!ImGui::DockBuilderGetNode(m_rootDockSpaceID) || m_shouldResetWindowLayout)
+	const ImGuiID rootDockSpaceID = ImGui::GetID("RootDockSpace");
+	if(!ImGui::DockBuilderGetNode(rootDockSpaceID) || m_shouldResetWindowLayout)
 	{
 		// Potentially clear out existing layout
-		ImGui::DockBuilderRemoveNode(m_rootDockSpaceID);
+		ImGui::DockBuilderRemoveNode(rootDockSpaceID);
 
 		// Add an empty node with the size of viewport (minus menu bar)
-		ImGui::DockBuilderAddNode(m_rootDockSpaceID, ImGuiDockNodeFlags_DockSpace);
-		ImGui::DockBuilderSetNodeSize(m_rootDockSpaceID, viewport->WorkSize);
+		ImGui::DockBuilderAddNode(rootDockSpaceID, ImGuiDockNodeFlags_DockSpace);
+		ImGui::DockBuilderSetNodeSize(rootDockSpaceID, viewport->WorkSize);
 
 		// Note that `ImGui::DockBuilderSplitNode()` is like using the splitting icon in the 
 		// docking UI, while using the dock space ID without splitting is like using the central 
@@ -151,42 +163,47 @@ void ImguiEditorUI::build()
 		const float bottomNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth * 0.5f /
 			viewport->WorkSize.y;
-		m_bottomDockSpaceID = ImGui::DockBuilderSplitNode(
-			m_rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, &m_centerDockSpaceID);
+		ImGuiID centerDockSpaceID;
+		const ImGuiID bottomDockSpaceID = ImGui::DockBuilderSplitNode(
+			rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, &centerDockSpaceID);
 
 		// Creating left node (after bottom node so it can have the full height)
 		const float leftNodeSplitRatio =
 			m_editor->dimensionHints.largeFontSize * 1.5f /
 			viewport->WorkSize.x;
-		m_leftDockSpaceID = ImGui::DockBuilderSplitNode(
-			m_rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, nullptr);
+		const ImGuiID leftDockSpaceID = ImGui::DockBuilderSplitNode(
+			rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, nullptr);
 
 		// Creating right node (after bottom node so it can have the full height)
 		const float rightNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			viewport->WorkSize.x;
 		const ImGuiID rightDockSpaceID = ImGui::DockBuilderSplitNode(
-			m_rootDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, nullptr);
+			rootDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, nullptr);
 
 		// Creating child upper-right and upper-left nodes
 		const float upperRightNodeSplitRatio = 0.4f;
+		ImGuiID upperRightDockSpaceID, lowerRightDockSpaceID;
 		ImGui::DockBuilderSplitNode(
-			rightDockSpaceID, ImGuiDir_Up, upperRightNodeSplitRatio, &m_upperRightDockSpaceID, &m_lowerRightDockSpaceID);
+			rightDockSpaceID, ImGuiDir_Up, upperRightNodeSplitRatio, &upperRightDockSpaceID, &lowerRightDockSpaceID);
 
 		// Pre-dock some persistent windows
-		ImGui::DockBuilderDockWindow(ASSET_BROWSER_WINDOW_NAME, m_bottomDockSpaceID);
-		ImGui::DockBuilderDockWindow(ROOT_PROPERTIES_WINDOW_NAME, m_lowerRightDockSpaceID);
-		ImGui::DockBuilderDockWindow(OBJECT_BROWSER_WINDOW_NAME, m_upperRightDockSpaceID);
-		ImGui::DockBuilderDockWindow(MAIN_VIEWPORT_WINDOW_NAME, m_centerDockSpaceID);
-		ImGui::DockBuilderDockWindow(SIDEBAR_WINDOW_NAME, m_leftDockSpaceID);
+		ImGui::DockBuilderDockWindow(ASSET_BROWSER_WINDOW_NAME, bottomDockSpaceID);
+		ImGui::DockBuilderDockWindow(ROOT_PROPERTIES_WINDOW_NAME, lowerRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(OBJECT_BROWSER_WINDOW_NAME, upperRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(MAIN_VIEWPORT_WINDOW_NAME, centerDockSpaceID);
+		ImGui::DockBuilderDockWindow(SIDEBAR_WINDOW_NAME, leftDockSpaceID);
 
-		ImGui::DockBuilderFinish(m_rootDockSpaceID);
+		// Pre-dock other windows
+		ImGui::DockBuilderDockWindow(SCENE_BROWSER_WINDOW_NAME, upperRightDockSpaceID);
+
+		ImGui::DockBuilderFinish(rootDockSpaceID);
 	}
 
-	PH_ASSERT_NE(m_rootDockSpaceID, 0);
+	PH_ASSERT_NE(rootDockSpaceID, 0);
 
 	// Submit the DockSpace
-	ImGui::DockSpace(m_rootDockSpaceID, ImVec2(0.0f, 0.0f), dockSpaceFlags);
+	ImGui::DockSpace(rootDockSpaceID, ImVec2(0.0f, 0.0f), dockSpaceFlags);
 
 	ImGui::End();
 
@@ -218,8 +235,9 @@ void ImguiEditorUI::build()
 	buildObjectBrowserWindow();
 	buildMainViewportWindow();
 	buildSceneManagerWindow();
-	buildEditorSettingsWindow();
 	buildSidebarWindow();
+
+	buildEditorSettingsWindow();
 
 	/*ImGui::SetNextWindowDockID(m_centerDockSpaceID, ImGuiCond_FirstUseEver);
 	ImGui::Begin("whatever###TTT");
@@ -314,6 +332,7 @@ void ImguiEditorUI::buildAssetBrowserWindow()
 void ImguiEditorUI::buildRootPropertiesWindow()
 {
 	ImGui::Begin(ROOT_PROPERTIES_WINDOW_NAME);
+
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 	ImGui::End();
@@ -355,76 +374,9 @@ void ImguiEditorUI::buildObjectBrowserWindow()
 void ImguiEditorUI::buildMainViewportWindow()
 {
 	ImGui::Begin(MAIN_VIEWPORT_WINDOW_NAME);
+
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	ImGui::End();
-}
-
-void ImguiEditorUI::buildSceneManagerWindow()
-{
-	if(!m_sidebarState.showSceneManager)
-	{
-		return;
-	}
-
-	if(m_shouldResetWindowLayout)
-	{
-		ImGui::SetNextWindowDockID(m_upperRightDockSpaceID);
-	}
-	
-	ImGui::Begin(PH_IMGUI_SCENE_ICON " Scene Manager", &m_sidebarState.showSceneManager);
-
-	ImGui::Text("Active Scene");
-
-	// Custom size: use all width, 5 items tall
-	if(ImGui::BeginListBox("##Active Scene", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
-	{
-		for(std::size_t sceneIdx = 0; sceneIdx < getEditor().numScenes(); ++sceneIdx)
-		{
-			DesignerScene* const scene = getEditor().getScene(sceneIdx);
-			const bool isSelected = scene == getEditor().getActiveScene();
-			if(ImGui::Selectable(scene->getName().c_str(), isSelected))
-			{
-				if(!isSelected)
-				{
-					getEditor().setActiveScene(sceneIdx);
-				}
-			}
-
-			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-			if(isSelected)
-			{
-				ImGui::SetItemDefaultFocus();
-			}
-		}
-		ImGui::EndListBox();
-	}
-
-	ImGui::End();
-}
-
-void ImguiEditorUI::buildEditorSettingsWindow()
-{
-	if(!m_sidebarState.showEditorSettings)
-	{
-		return;
-	}
-
-	// Always center this window when appearing
-	ImGuiCond windowLayoutCond = ImGuiCond_Appearing;
-	const ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(
-		viewport->GetCenter(),
-		windowLayoutCond,
-		ImVec2(0.5f, 0.5f));
-	ImGui::SetNextWindowSize(
-		{viewport->WorkSize.x * 0.5f, viewport->WorkSize.y * 0.8f}, 
-		windowLayoutCond);
-
-	ImGui::Begin(PH_IMGUI_SETTINGS_ICON " Editor Settings", &m_sidebarState.showEditorSettings);
-
-
-
 	ImGui::End();
 }
 
@@ -491,6 +443,69 @@ void ImguiEditorUI::buildSidebarWindow()
 
 	ImGui::PopStyleColor();
 	ImGui::PopFont();
+
+	ImGui::End();
+}
+
+void ImguiEditorUI::buildSceneManagerWindow()
+{
+	if(!m_sidebarState.showSceneManager)
+	{
+		return;
+	}
+	
+	ImGui::Begin(SCENE_BROWSER_WINDOW_NAME, &m_sidebarState.showSceneManager);
+
+	ImGui::Text("Active Scene");
+
+	// Custom size: use all width, 5 items tall
+	if(ImGui::BeginListBox("##Active Scene", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
+	{
+		for(std::size_t sceneIdx = 0; sceneIdx < getEditor().numScenes(); ++sceneIdx)
+		{
+			DesignerScene* const scene = getEditor().getScene(sceneIdx);
+			const bool isSelected = scene == getEditor().getActiveScene();
+			if(ImGui::Selectable(scene->getName().c_str(), isSelected))
+			{
+				if(!isSelected)
+				{
+					getEditor().setActiveScene(sceneIdx);
+				}
+			}
+
+			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+			if(isSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndListBox();
+	}
+
+	ImGui::End();
+}
+
+void ImguiEditorUI::buildEditorSettingsWindow()
+{
+	if(!m_sidebarState.showEditorSettings)
+	{
+		return;
+	}
+
+	// Always center this window when appearing
+	ImGuiCond windowLayoutCond = ImGuiCond_Appearing;
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(
+		viewport->GetCenter(),
+		windowLayoutCond,
+		ImVec2(0.5f, 0.5f));
+	ImGui::SetNextWindowSize(
+		{viewport->WorkSize.x * 0.5f, viewport->WorkSize.y * 0.8f}, 
+		windowLayoutCond);
+
+	ImGui::Begin(PH_IMGUI_SETTINGS_ICON " Editor Settings", &m_sidebarState.showEditorSettings);
+
+	PH_DEFAULT_LOG("{}", m_sidebarState.showEditorSettings);
 
 	ImGui::End();
 }

@@ -6,6 +6,7 @@
 
 #include <Common/primitive_type.h>
 #include <DataIO/FileSystem/Path.h>
+#include <Utility/INoCopyAndMove.h>
 
 #include <vector>
 #include <cstddef>
@@ -20,10 +21,14 @@ class ImguiFontLibrary;
 class ImguiImageLibrary;
 class FileSystemExplorer;
 
-class ImguiEditorUI final
+class ImguiEditorUI final 
+	// Copy makes no sense as almost all fields are unique to this instance and should not 
+	// be duplicated. Move makes little sense as moving around editor UI is generally not needed.
+	: private INoCopyAndMove
 {
 public:
 	ImguiEditorUI();
+	~ImguiEditorUI();
 
 	void initialize(Editor* editor, ImguiFontLibrary* fontLibrary, ImguiImageLibrary* imageLibrary);
 	void build();
@@ -38,24 +43,21 @@ private:
 	ImguiFontLibrary* m_fontLibrary;
 	ImguiImageLibrary* m_imageLibrary;
 
+	static const ImguiEditorUI* mainEditor;
+
 private:
 	void buildMainMenuBar();
 	void buildAssetBrowserWindow();
 	void buildRootPropertiesWindow();
 	void buildObjectBrowserWindow();
 	void buildMainViewportWindow();
+	void buildSidebarWindow();
+
 	void buildSceneManagerWindow();
 	void buildEditorSettingsWindow();
-	void buildSidebarWindow();
 	void buildStatsMonitor();
 	void buildImguiDemo();
 
-	ImGuiID m_rootDockSpaceID;
-	ImGuiID m_leftDockSpaceID;
-	ImGuiID m_upperRightDockSpaceID;
-	ImGuiID m_lowerRightDockSpaceID;
-	ImGuiID m_bottomDockSpaceID;
-	ImGuiID m_centerDockSpaceID;
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
 	bool m_shouldShowImguiDemo;

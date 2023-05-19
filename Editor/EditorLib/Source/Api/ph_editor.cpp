@@ -20,9 +20,25 @@
 namespace ph::editor
 {
 
+namespace
+{
+
+/*!
+Important note: At this point the engine has not been initialized yet--creation of the settings must
+not invoke any engine functionalities.
+*/
+inline EngineInitSettings get_editor_engine_init_settings()
+{
+	EngineInitSettings settings;
+
+	return settings;
+}
+
+}// end anonymous namespace
+
 int application_entry_point(int argc, char* argv[])
 {
-	if(!init_render_engine(EngineInitSettings()))
+	if(!init_render_engine(get_editor_engine_init_settings()))
 	{
 		return EXIT_FAILURE;
 	}

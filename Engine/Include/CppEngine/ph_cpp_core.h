@@ -19,8 +19,8 @@ Must be called before any other use of the engine.
 bool init_render_engine(EngineInitSettings settings);
 
 /*! @brief Exit the render engine.
-Must be called before leaving the engine. Any other use of the engine after
-this call returned is prohibited.
+Must be called before leaving the engine. Using the engine after this call 
+returned is prohibited (except some cleanup operations such as destruction).
 */
 bool exit_render_engine();
 
