@@ -143,7 +143,10 @@ std::vector<Path> FileSystemExplorer::makeItemListing(
 	FileSystemDirectoryEntry* const directoryEntry,
 	const bool withDirectories) const
 {
-	PH_ASSERT(directoryEntry);
+	if(!directoryEntry)
+	{
+		return {};
+	}
 
 	std::vector<Path> itemSubpaths;
 	itemSubpaths.reserve(128);
