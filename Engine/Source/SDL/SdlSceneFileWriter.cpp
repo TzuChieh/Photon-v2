@@ -4,6 +4,9 @@
 #include "Common/config.h"
 #include "Common/logging.h"
 #include "DataIO/Stream/FormattedTextOutputStream.h"
+#include "SDL/sdl_helpers.h"
+#include "SDL/Introspect/SdlOutputContext.h"
+#include "SDL/Introspect/SdlClass.h"
 
 #include <utility>
 
@@ -27,6 +30,26 @@ SdlSceneFileWriter::~SdlSceneFileWriter() = default;
 bool SdlSceneFileWriter::beginCommand(const SdlClass* const targetClass)
 {
 	return true;
+}
+
+void SdlSceneFileWriter::saveResource(
+	const ISdlResource* const resource,
+	const SdlClass* const resourceClass,
+	SdlOutputClauses& clauses,
+	const SdlDependencyResolver* const resolver)
+{
+	if(!resource || !resourceClass)
+	{
+		PH_LOG_WARNING(SdlSceneFileWriter,
+			"Unable to save resource (class = {}): {}",
+			sdl::gen_pretty_name(resourceClass),
+			!resource ? "null resource" : "null class");
+		return;
+	}
+
+	// TODO: reuse output ctx
+	SdlOutputContext outputContext(resolver, getSceneWorkingDirectory(), resourceClass);
+	resourceClass->saveResource(*resource, clauses, outputContext);
 }
 
 void SdlSceneFileWriter::commandGenerated(std::string_view commandStr)

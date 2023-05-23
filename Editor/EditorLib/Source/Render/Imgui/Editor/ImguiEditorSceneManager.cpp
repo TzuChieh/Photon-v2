@@ -23,10 +23,16 @@ void ImguiEditorSceneManager::buildWindow(
 		return;
 	}
 
-	ImGui::Text("Active Scene");
+	ImGui::Button("New");
+	ImGui::SameLine();
+	ImGui::Button("Open");
 
+	ImGui::Text("Active Scene: %s", 
+		editor.getActiveScene() ? editor.getActiveScene()->getName().c_str() : "(none)");
+	
+	// List box for all opened scenes
 	// Custom size: use all width, 5 items tall
-	if(ImGui::BeginListBox("##Active Scene", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
+	if(ImGui::BeginListBox("##scenes_listbox", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
 	{
 		for(std::size_t sceneIdx = 0; sceneIdx < editor.numScenes(); ++sceneIdx)
 		{
@@ -48,6 +54,10 @@ void ImguiEditorSceneManager::buildWindow(
 		}
 		ImGui::EndListBox();
 	}
+
+	ImGui::Button("Make Active");
+	ImGui::SameLine();
+	ImGui::Button("Save");
 
 	ImGui::End();
 }

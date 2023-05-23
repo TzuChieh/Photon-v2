@@ -35,6 +35,32 @@ public:
 	// TODO: rename existing methods to enterAndWait() and flushAndWait() and add flush() and enter() once multithreading is added
 	// TODO: removeResource() callback for load error, etc.
 
+	/*! @brief Enters a string and parse it as one or more commands.
+
+	The command segment must have valid syntax. The method will potentially cache the command
+	segment in subsequent calls until a command is complete, at which point the command will 
+	be parsed and the result will act on the target (e.g., a scene, depending on the implementation).
+	
+	A valid command segment is a portion of a complete command or a chunk of multiple commands 
+	that do not break any keyword or symbol of PSDL. For example, you can break any
+	opening/closing braces, but you cannot break a type name.
+
+	@param commandSegment A valid segment of command.
+	*/
+	void enter(std::string_view rawCommandSegment);
+
+	/*! @brief Force the parse of commands that were cached in the parser.
+	*/
+	void flush();
+
+	const Path& getSceneWorkingDirectory() const;
+	void setSceneWorkingDirectory(Path directory);
+
+	const SemanticVersion& getCommandVersion() const;
+	std::size_t numParsedCommands() const;
+	std::size_t numParseErrors() const;
+
+protected:
 	virtual bool beginCommand(ESdlCommandType commandType, const SdlClass* targetClass) = 0;
 
 	virtual ISdlResource* createResource(
@@ -60,31 +86,6 @@ public:
 
 	virtual void commandVersionSet(const SemanticVersion& version) = 0;
 	virtual void endCommand() = 0;
-
-	/*! @brief Enters a string and parse it as one or more commands.
-
-	The command segment must have valid syntax. The method will potentially cache the command
-	segment in subsequent calls until a command is complete, at which point the command will 
-	be parsed and the result will act on the target (e.g., a scene, depending on the implementation).
-	
-	A valid command segment is a portion of a complete command or a chunk of multiple commands 
-	that do not break any keyword or symbol of PSDL. For example, you can break any
-	opening/closing braces, but you cannot break a type name.
-
-	@param commandSegment A valid segment of command.
-	*/
-	void enter(std::string_view rawCommandSegment);
-
-	/*! @brief Force the parse of commands that were cached in the parser.
-	*/
-	void flush();
-
-	const Path& getSceneWorkingDirectory() const;
-	void setSceneWorkingDirectory(Path directory);
-
-	const SemanticVersion& getCommandVersion() const;
-	std::size_t numParsedCommands() const;
-	std::size_t numParseErrors() const;
 
 private:
 	// OPT: use view

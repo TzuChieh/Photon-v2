@@ -18,13 +18,21 @@ public:
 	SdlSceneFileWriter(std::string sceneName, Path sceneWorkingDirectory);
 	~SdlSceneFileWriter() override;
 
-	bool beginCommand(const SdlClass* targetClass) override;
-	void commandGenerated(std::string_view commandStr) override;
-	void endCommand() override;
-
 	void write(const SceneDescription& scene);
 
 	void setSceneName(std::string sceneName);
+
+protected:
+	bool beginCommand(const SdlClass* targetClass) override;
+
+	void saveResource(
+		const ISdlResource* resource,
+		const SdlClass* resourceClass,
+		SdlOutputClauses& clauses,
+		const SdlDependencyResolver* resolver) override;
+
+	void commandGenerated(std::string_view commandStr) override;
+	void endCommand() override;
 
 private:
 	std::string m_sceneName;

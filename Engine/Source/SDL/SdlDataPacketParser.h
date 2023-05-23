@@ -11,6 +11,8 @@ namespace ph
 class SdlClass;
 class ISdlResource;
 
+/*! @brief Parsing a standalone collection of SDL clauses.
+*/
 class SdlDataPacketParser
 {
 public:

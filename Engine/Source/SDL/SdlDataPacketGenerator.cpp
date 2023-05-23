@@ -33,6 +33,7 @@ void SdlCommandGenerator::generateScene(const SceneDescription& scene)
 	SdlDependencyResolver resolver;
 	resolver.analyze(scene);
 
+	SdlOutputContext ctx(&resolver, getSceneWorkingDirectory(), nullptr);
 	std::size_t numGeneratedCommands = 0;
 	std::size_t numErrors = 0;
 	OutputBuffer result;
@@ -50,21 +51,15 @@ void SdlCommandGenerator::generateScene(const SceneDescription& scene)
 		}
 
 		result.clear();
+		ctx.setSrcClass(clazz);
 
 		try
 		{
-			saveResource(
-				resource, 
-				clazz,
-				result.clauses,
-				&resolver);
-
 			generateLoadCommand(
+				ctx, 
 				*resource, 
-				clazz,
 				std::string(resolver.getResourceName(resource)),
-				result.clauses,
-				result.commandStr);
+				result);
 
 			commandGenerated(result.commandStr);
 
@@ -99,25 +94,30 @@ void SdlCommandGenerator::setSceneWorkingDirectory(Path directory)
 }
 
 void SdlCommandGenerator::generateLoadCommand(
+	const SdlOutputContext& ctx,
 	const ISdlResource& resource,
-	const SdlClass* const resourceClass,
 	const std::string& resourceName,
-	const SdlOutputClauses& clauses,
-	std::string& out_commandStr)
+	OutputBuffer& out_result)
 {
-	PH_ASSERT(resource.getDynamicSdlClass() == resourceClass);
+	PH_ASSERT(ctx.getSrcClass());
+	PH_ASSERT(ctx.getSrcClass() == resource.getDynamicSdlClass());
 
-	appendFullSdlType(resourceClass, out_commandStr);
-	out_commandStr += ' ';
-	out_commandStr += resourceName;
-	out_commandStr += " = ";
+	const SdlClass* clazz = ctx.getSrcClass();
+	PH_ASSERT(clazz);
 
-	for(std::size_t clauseIdx = 0; clauseIdx < clauses.numClauses(); ++clauseIdx)
+	clazz->saveResource(resource, out_result.clauses, ctx);
+
+	appendFullSdlType(clazz, out_result.commandStr);
+	out_result.commandStr += ' ';
+	out_result.commandStr += resourceName;
+	out_result.commandStr += " = ";
+
+	for(std::size_t clauseIdx = 0; clauseIdx < out_result.clauses.numClauses(); ++clauseIdx)
 	{
-		appendClause(clauses[clauseIdx], out_commandStr);
+		appendClause(out_result.clauses[clauseIdx], out_result.commandStr);
 	}
 
-	out_commandStr += '\n';
+	out_result.commandStr += '\n';
 }
 
 void SdlCommandGenerator::appendFullSdlType(

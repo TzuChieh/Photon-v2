@@ -11,8 +11,10 @@ namespace ph
 
 class SdlClass;
 class ISdlResource;
+class SdlOutputClauses;
 class SdlOutputContext;
 class SceneDescription;
+class SdlDependencyResolver;
 
 class SdlCommandGenerator
 {
@@ -23,18 +25,27 @@ public:
 
 	// TODO: parameters like binary form? multi-thread?
 
+	const Path& getSceneWorkingDirectory() const;
+	void setSceneWorkingDirectory(Path directory);
+
+protected:
 	/*!
 	@return Whether to generate command for this class.
 	*/
 	virtual bool beginCommand(const SdlClass* targetClass) = 0;
 
+	/*! @brief Save target resource into output clauses.
+	*/
+	virtual void saveResource(
+		const ISdlResource* resource,
+		const SdlClass* resourceClass,
+		SdlOutputClauses& clauses,
+		const SdlDependencyResolver* resolver) = 0;
+
 	virtual void commandGenerated(std::string_view commandStr) = 0;
 	virtual void endCommand() = 0;
 
 	void generateScene(const SceneDescription& scene);
-
-	const Path& getSceneWorkingDirectory() const;
-	void setSceneWorkingDirectory(Path directory);
 
 private:
 	struct OutputBuffer
@@ -46,10 +57,11 @@ private:
 	};
 
 	static void generateLoadCommand(
-		const SdlOutputContext& ctx,
 		const ISdlResource& resource, 
+		const SdlClass* resourceClass,
 		const std::string& resourceName,
-		OutputBuffer& out_result);
+		const SdlOutputClauses& clauses,
+		std::string& out_commandStr);
 
 	static void appendFullSdlType(
 		const SdlClass* clazz,
