@@ -30,16 +30,16 @@ PreCookReport ALight::preCook(CookingContext& ctx)
 	if(isGeometric())
 	{
 		// TODO: test "isRigid()" may be more appropriate
-		if(m_localToWorld.hasScaleEffect() || m_localToWorld.isIdentity())
+		if(m_localToWorld.getDecomposed().hasScaleEffect() || m_localToWorld.getDecomposed().isIdentity())
 		{
 			report.setBaseTransforms(nullptr, nullptr);
 		}
 		else
 		{
 			auto localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
-				math::StaticRigidTransform::makeForward(m_localToWorld));
+				m_localToWorld.getForwardStaticRigid());
 			auto worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
-				math::StaticRigidTransform::makeInverse(m_localToWorld));
+				m_localToWorld.getInverseStaticRigid());
 
 			report.setBaseTransforms(localToWorld, worldToLocal);
 		}
@@ -130,7 +130,7 @@ TransientVisualElement ALight::buildGeometricLight(
 		lightPrimitives.push_back(metaPrimitive);
 	}
 
-	if(m_localToWorld.isIdentity())
+	if(m_localToWorld.getDecomposed().isIdentity())
 	{
 		// Just to make sure we are not pre-cooking identity transforms
 		PH_ASSERT(!report.getBaseLocalToWorld());
@@ -140,7 +140,7 @@ TransientVisualElement ALight::buildGeometricLight(
 	{
 		const math::RigidTransform* localToWorld = nullptr;
 		const math::RigidTransform* worldToLocal = nullptr;
-		if(m_localToWorld.hasScaleEffect())
+		if(m_localToWorld.getDecomposed().hasScaleEffect())
 		{
 			// Should use transform from the sanification process (should not be pre-cooked)
 			PH_ASSERT(!report.getBaseLocalToWorld());
@@ -206,7 +206,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	std::shared_ptr<Geometry> sanifiedGeometry = nullptr;
 
 	// TODO: test "isRigid()" may be more appropriate
-	if(m_localToWorld.hasScaleEffect())
+	if(m_localToWorld.getDecomposed().hasScaleEffect())
 	{
 		PH_LOG(ALight,
 			"scale detected (which is {}), this is undesirable since many light attributes will "
@@ -215,7 +215,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 			"not referenced)",
 			m_localToWorld.getScale());
 
-		const auto baseLW = math::StaticAffineTransform::makeForward(m_localToWorld);
+		const auto baseLW = m_localToWorld.getForwardStaticAffine();
 
 		sanifiedGeometry = srcGeometry->genTransformed(baseLW);
 		if(!sanifiedGeometry)
@@ -230,7 +230,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 			
 			if(out_remainingLocalToWorld)
 			{
-				*out_remainingLocalToWorld = m_localToWorld;
+				*out_remainingLocalToWorld = m_localToWorld.getDecomposed();
 			}
 		}
 		else
@@ -244,7 +244,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 
 		if(out_remainingLocalToWorld)
 		{
-			*out_remainingLocalToWorld = m_localToWorld;
+			*out_remainingLocalToWorld = m_localToWorld.getDecomposed();
 		}
 	}
 

@@ -29,7 +29,7 @@ public:
 
 protected:
 	/*!
-	@return Whether to generate command for this class.
+	@return Whether to generate packet for this class.
 	*/
 	virtual bool beginPacket(const SdlClass* targetClass) = 0;
 
@@ -37,6 +37,8 @@ protected:
 	virtual void binaryPacketGenerated(TSpanView<std::byte> packetBytes) = 0;
 	virtual void endPacket() = 0;
 
+	/*! @brief Turn all data in the @p resource into a packet.
+	*/
 	void generate(const ISdlResource& resource);
 
 private:

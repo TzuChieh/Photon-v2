@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Actor/Actor.h"
+#include "Common/primitive_type.h"
 #include "Math/Transform/StaticAffineTransform.h"
-#include "Math/Transform/TDecomposedTransform.h"
-#include "Math/math_fwd.h"
+#include "Actor/Basic/TransformInfo.h"
+#include "Math/TVector3.h"
+#include "Math/TQuaternion.h"
 #include "SDL/sdl_interface.h"
 
 #include <optional>
@@ -16,24 +18,18 @@ class PhysicalActor : public Actor
 public:
 	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override = 0;
 
-	void translate(const math::Vector3R& translation);
-	void translate(const real x, const real y, const real z);
-	void rotate(const math::Vector3R& axis, const real degrees);
-	void rotate(const math::QuaternionR& rotation);
-	void scale(const math::Vector3R& scaleFactor);
-	void scale(const real x, const real y, const real z);
-	void scale(const real scaleFactor);
+	void translate(const real amountX, const real amountY, const real amountZ);
+	void translate(const math::Vector3R& amount);
+	void rotate(const math::Vector3R& axis, const real additionanDegrees);
+	void rotate(const math::QuaternionR& additionalRotation);
+	void scale(const real uniformAmount);
+	void scale(const real amountX, const real amountY, const real amountZ);
+	void scale(const math::Vector3R& amount);
 
 	void setBaseTransform(const math::TDecomposedTransform<real>& baseLocalToWorld);
 
-	/*const StaticTransform* getLocalToWorldTransform() const;
-	const StaticTransform* getWorldToLocalTransform() const;*/
-
 protected:
-	math::TDecomposedTransform<real> m_localToWorld;
-
-	/*virtual void updateTransforms(const StaticTransform& parentTransform = StaticTransform(),
-	                              const StaticTransform& parentInverseTransform = StaticTransform());*/
+	TransformInfo m_localToWorld;
 
 public:
 	struct SdlTranslate
@@ -134,6 +130,8 @@ public:
 		clazz.docName("Physical Actor");
 		clazz.description("An actor that is visible and can be transformed.");
 		clazz.baseOn<Actor>();
+
+		clazz.addStruct(&OwnerType::m_localToWorld);
 
 		clazz.addFunction<SdlTranslate>();
 		clazz.addFunction<SdlRotate>();

@@ -27,7 +27,7 @@ PreCookReport ADome::preCook(CookingContext& ctx)
 	PreCookReport report = PhysicalActor::preCook(ctx);
 
 	// Ensure reasonable transformation for the dome
-	math::TDecomposedTransform<real> sanifiedLocalToWorld = m_localToWorld;
+	math::TDecomposedTransform<real> sanifiedLocalToWorld = m_localToWorld.getDecomposed();
 	if(sanifiedLocalToWorld.hasScaleEffect())
 	{
 		PH_LOG_WARNING(DomeActor,

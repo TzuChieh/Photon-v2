@@ -8,6 +8,7 @@
 #include "SDL/sdl_exceptions.h"
 #include "SDL/Introspect/SdlFunction.h"
 #include "SDL/sdl_helpers.h"
+#include "SDL/sdl_traits.h"
 
 #include <type_traits>
 #include <format>
@@ -220,7 +221,8 @@ inline auto TSdlOwnerClass<Owner, FieldSet>::addStruct(
 
 	-> TSdlOwnerClass&
 {
-	// TODO: require StructType has getSdlFunction()
+	static_assert(CHasSdlStructDefinition<StructType>,
+		"SDL struct definition not found.");
 
 	PH_ASSERT(structObjPtr);
 
@@ -234,7 +236,8 @@ template<typename T>
 inline auto TSdlOwnerClass<Owner, FieldSet>::addFunction()
 	-> TSdlOwnerClass&
 {
-	// TODO: require T has getSdlFunction()
+	static_assert(CHasSdlFunctionDefinition<T>,
+		"SDL function definition not found.");
 
 	m_functions.pushBack(T::getSdlFunction());
 

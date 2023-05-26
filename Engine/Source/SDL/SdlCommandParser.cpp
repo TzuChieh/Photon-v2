@@ -65,7 +65,7 @@ SdlCommandParser::SdlCommandParser(TSpanView<const SdlClass*> targetClasses, Pat
 
 SdlCommandParser::~SdlCommandParser() = default;
 
-void SdlCommandParser::enter(std::string_view rawCommandSegment)
+void SdlCommandParser::parse(std::string_view rawCommandSegment)
 {
 	// TODO: we may need to preprocess string enclosures ("") here too (think "//" inside a string)
 

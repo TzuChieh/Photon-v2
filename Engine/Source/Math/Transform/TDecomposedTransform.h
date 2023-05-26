@@ -27,6 +27,11 @@ public:
 	*/
 	TDecomposedTransform();
 
+	TDecomposedTransform(
+		const TVector3<T>& position,
+		const TQuaternion<T>& rotation,
+		const TVector3<T>& scale);
+
 	inline TDecomposedTransform& translate(const TVector3<T>& amount)
 	{
 		return translate(amount.x(), amount.y(), amount.z());
@@ -115,16 +120,30 @@ public:
 	bool operator != (const TDecomposedTransform& rhs) const;
 
 private:
-	TVector3<T>    m_position;
+	TVector3<T> m_position;
 	TQuaternion<T> m_rotation;
-	TVector3<T>    m_scale;
+	TVector3<T> m_scale;
 };
 
 // In-header Implementations:
 
 template<typename T>
-TDecomposedTransform<T>::TDecomposedTransform() : 
-	m_position(0, 0, 0), m_rotation(TQuaternion<T>::makeNoRotation()), m_scale(1, 1, 1)
+inline TDecomposedTransform<T>::TDecomposedTransform()
+	: TDecomposedTransform(
+		{0, 0, 0},
+		TQuaternion<T>::makeNoRotation(),
+		{1, 1, 1})
+{}
+
+template<typename T>
+inline TDecomposedTransform<T>::TDecomposedTransform(
+	const TVector3<T>& position,
+	const TQuaternion<T>& rotation,
+	const TVector3<T>& scale)
+
+	: m_position(position)
+	, m_rotation(rotation)
+	, m_scale(scale)
 {}
 
 template<typename T>

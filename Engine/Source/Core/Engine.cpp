@@ -44,7 +44,7 @@ void Engine::enterCommand(const std::string& commandFragment)
 {
 	try
 	{
-		m_sceneParser.enter(commandFragment);
+		m_sceneParser.parse(commandFragment);
 	}
 	catch(const Exception& e)
 	{

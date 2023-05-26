@@ -47,7 +47,7 @@ public:
 
 	@param commandSegment A valid segment of command.
 	*/
-	void enter(std::string_view rawCommandSegment);
+	void parse(std::string_view rawCommandSegment);
 
 	/*! @brief Force the parse of commands that were cached in the parser.
 	*/

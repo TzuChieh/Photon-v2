@@ -2,6 +2,7 @@
 
 #include "SDL/SdlCommandGenerator.h"
 #include "DataIO/FileSystem/Path.h"
+#include "SDL/SdlDependencyResolver.h"
 
 #include <string>
 
@@ -28,14 +29,14 @@ protected:
 	void saveResource(
 		const ISdlResource* resource,
 		const SdlClass* resourceClass,
-		SdlOutputClauses& clauses,
-		const SdlDependencyResolver* resolver) override;
+		SdlOutputClauses& clauses) override;
 
 	void commandGenerated(std::string_view commandStr) override;
 	void endCommand() override;
 
 private:
 	std::string m_sceneName;
+	SdlDependencyResolver m_resolver;
 	FormattedTextOutputStream* m_fileStream;
 };
 

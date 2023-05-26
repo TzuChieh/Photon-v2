@@ -1,64 +1,46 @@
 #include "Actor/PhysicalActor.h"
-#include "Math/math.h"
-#include "Math/TVector3.h"
 
 namespace ph
 {
 
-void PhysicalActor::translate(const math::Vector3R& translation)
+void PhysicalActor::translate(const real amountX, const real amountY, const real amountZ)
 {
-	m_localToWorld.translate(translation);
+	m_localToWorld.translate(amountX, amountY, amountZ);
 }
 
-void PhysicalActor::rotate(const math::QuaternionR& rotation)
+void PhysicalActor::translate(const math::Vector3R& amount)
 {
-	m_localToWorld.rotate(rotation);
+	m_localToWorld.translate(amount);
 }
 
-void PhysicalActor::scale(const math::Vector3R& scaleFactor)
+void PhysicalActor::rotate(const math::Vector3R& axis, const real additionalDegrees)
 {
-	m_localToWorld.scale(scaleFactor);
+	m_localToWorld.rotate(axis, additionalDegrees);
 }
 
-void PhysicalActor::rotate(const math::Vector3R& axis, const real degrees)
+void PhysicalActor::rotate(const math::QuaternionR& additionalRotation)
 {
-	m_localToWorld.rotate(axis, degrees);
+	m_localToWorld.rotate(additionalRotation);
 }
 
-void PhysicalActor::translate(const real x, const real y, const real z)
+void PhysicalActor::scale(const real uniformAmount)
 {
-	translate(math::Vector3R(x, y, z));
+	m_localToWorld.scale(uniformAmount);
 }
 
-void PhysicalActor::scale(const real x, const real y, const real z)
+void PhysicalActor::scale(const real amountX, const real amountY, const real amountZ)
 {
-	scale(math::Vector3R(x, y, z));
+	m_localToWorld.scale(amountX, amountY, amountZ);
 }
 
-void PhysicalActor::scale(const real scaleFactor)
+void PhysicalActor::scale(const math::Vector3R& amount)
 {
-	scale(math::Vector3R(scaleFactor));
+	m_localToWorld.scale(amount);
 }
 
 void PhysicalActor::setBaseTransform(const math::TDecomposedTransform<real>& baseLocalToWorld)
 {
-	m_localToWorld = baseLocalToWorld;
+	m_localToWorld.set(baseLocalToWorld);
 }
-
-//const StaticTransform* PhysicalActor::getLocalToWorldTransform() const
-//{
-//	return &m_localToWorld;
-//}
-//
-//const StaticTransform* PhysicalActor::getWorldToLocalTransform() const
-//{
-//	return &m_worldToLocal;
-//}
-
-//void PhysicalActor::updateTransforms(const StaticTransform& parentTransform, const StaticTransform& parentInverseTransform)
-//{
-//	m_localToWorld = m_transformInfo.genTransform(parentTransform);
-//	m_worldToLocal = m_transformInfo.genInverseTransform(parentInverseTransform);
-//}
 
 }// end namespace ph

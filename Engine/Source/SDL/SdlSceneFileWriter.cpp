@@ -22,6 +22,7 @@ SdlSceneFileWriter::SdlSceneFileWriter()
 SdlSceneFileWriter::SdlSceneFileWriter(std::string sceneName, Path sceneWorkingDirectory)
 	: SdlCommandGenerator(std::move(sceneWorkingDirectory))
 	, m_sceneName(std::move(sceneName))
+	, m_resolver()
 	, m_fileStream(nullptr)
 {}
 
@@ -35,8 +36,7 @@ bool SdlSceneFileWriter::beginCommand(const SdlClass* const targetClass)
 void SdlSceneFileWriter::saveResource(
 	const ISdlResource* const resource,
 	const SdlClass* const resourceClass,
-	SdlOutputClauses& clauses,
-	const SdlDependencyResolver* const resolver)
+	SdlOutputClauses& clauses)
 {
 	if(!resource || !resourceClass)
 	{
@@ -48,13 +48,17 @@ void SdlSceneFileWriter::saveResource(
 	}
 
 	// TODO: reuse output ctx
-	SdlOutputContext outputContext(resolver, getSceneWorkingDirectory(), resourceClass);
+	SdlOutputContext outputContext(&m_resolver, getSceneWorkingDirectory(), resourceClass);
 	resourceClass->saveResource(*resource, clauses, outputContext);
 }
 
 void SdlSceneFileWriter::commandGenerated(std::string_view commandStr)
 {
-	PH_ASSERT(m_fileStream);
+	if(!m_fileStream)
+	{
+		return;
+	}
+
 	m_fileStream->writeString(commandStr);
 }
 
@@ -69,13 +73,31 @@ void SdlSceneFileWriter::write(const SceneDescription& scene)
 	getSceneWorkingDirectory().createDirectory();
 	Path sceneFilePath = getSceneWorkingDirectory().append(m_sceneName + ".p2");
 
+	PH_LOG(SdlSceneFileWriter, "generating scene file: {}", sceneFilePath);
+
+	clearStats();
+
 	FormattedTextOutputStream fileStream(sceneFilePath);
 	m_fileStream = &fileStream;
 	m_fileStream->writeString("#version {};\n", PH_PSDL_VERSION);
 
-	generateScene(scene);
+	m_resolver.analyze(scene);
 
-	PH_LOG(SdlSceneFileWriter, "scene file written to {}", sceneFilePath);
+	for(const ISdlResource* resource = m_resolver.next();
+	    resource != nullptr; 
+	    resource = m_resolver.next())
+	{
+		const SdlClass* clazz = resource->getDynamicSdlClass();
+		PH_ASSERT(clazz);
+
+		generateLoadCommand(resource, m_resolver.getResourceName(resource));
+	}
+
+	PH_LOG(SdlSceneFileWriter,
+		"generated {} commands (errors: {})", 
+		numGeneratedCommands(), numGenerationErrors());
+
+	PH_LOG(SdlSceneFileWriter, "scene file generated");
 	m_fileStream = nullptr;
 }
 

@@ -124,7 +124,8 @@ private:
 	std::size_t m_numUsedBytes;
 
 	// Destructors of non-trivially-copyable objects. Simply specify `MIN_SIZE_HINT = 0` for 
-	// smallest possible `TFunction`; increase it if compilation failed (investigate first).
+	// smallest possible `TFunction`; increase it if compilation failed (this is unlikely, 
+	// should investigate first).
 	std::vector<TFunction<void(void), 0>> m_dtorCallers;
 };
 

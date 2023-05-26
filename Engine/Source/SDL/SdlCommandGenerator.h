@@ -1,20 +1,19 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "SDL/SdlOutputClauses.h"
 
 #include <string_view>
 #include <string>
+#include <cstddef>
 
 namespace ph
 {
 
 class SdlClass;
 class ISdlResource;
+class SdlOutputClause;
 class SdlOutputClauses;
-class SdlOutputContext;
-class SceneDescription;
-class SdlDependencyResolver;
+class SdlDataPacketGenerator;
 
 class SdlCommandGenerator
 {
@@ -24,9 +23,19 @@ public:
 	virtual ~SdlCommandGenerator();
 
 	// TODO: parameters like binary form? multi-thread?
+	// TODO: command types, e.g., phantom
+
+	virtual SdlDataPacketGenerator& getPacketGenerator();
+
+	void generateLoadCommand(
+		const ISdlResource* resource,
+		std::string_view resourceName);
 
 	const Path& getSceneWorkingDirectory() const;
 	void setSceneWorkingDirectory(Path directory);
+	std::size_t numGeneratedCommands() const;
+	std::size_t numGenerationErrors() const;
+	void clearStats();
 
 protected:
 	/*!
@@ -39,27 +48,16 @@ protected:
 	virtual void saveResource(
 		const ISdlResource* resource,
 		const SdlClass* resourceClass,
-		SdlOutputClauses& clauses,
-		const SdlDependencyResolver* resolver) = 0;
+		SdlOutputClauses& clauses) = 0;
 
 	virtual void commandGenerated(std::string_view commandStr) = 0;
 	virtual void endCommand() = 0;
 
-	void generateScene(const SceneDescription& scene);
-
 private:
-	struct OutputBuffer
-	{
-		std::string commandStr;
-		SdlOutputClauses clauses;
-
-		void clear();
-	};
-
 	static void generateLoadCommand(
 		const ISdlResource& resource, 
 		const SdlClass* resourceClass,
-		const std::string& resourceName,
+		std::string_view resourceName,
 		const SdlOutputClauses& clauses,
 		std::string& out_commandStr);
 
@@ -73,6 +71,8 @@ private:
 
 private:
 	Path m_sceneWorkingDirectory;
+	std::size_t m_numGeneratedCommands;
+	std::size_t m_numGenerationErrors;
 };
 
 inline const Path& SdlCommandGenerator::getSceneWorkingDirectory() const
@@ -80,10 +80,14 @@ inline const Path& SdlCommandGenerator::getSceneWorkingDirectory() const
 	return m_sceneWorkingDirectory;
 }
 
-inline void SdlCommandGenerator::OutputBuffer::clear()
+inline std::size_t SdlCommandGenerator::numGeneratedCommands() const
 {
-	commandStr.clear();
-	clauses.clear();
+	return m_numGeneratedCommands;
+}
+
+inline std::size_t SdlCommandGenerator::numGenerationErrors() const
+{
+	return m_numGenerationErrors;
 }
 
 }// end namespace ph

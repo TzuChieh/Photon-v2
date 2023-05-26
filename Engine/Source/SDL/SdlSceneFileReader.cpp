@@ -175,7 +175,7 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 			commandFile.readLine(&lineOfCommand);
 			lineOfCommand += '\n';
 
-			enter(lineOfCommand);
+			parse(lineOfCommand);
 		}
 
 		timer.stop();

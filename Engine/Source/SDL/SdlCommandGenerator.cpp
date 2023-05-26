@@ -1,10 +1,8 @@
 #include "SDL/SdlCommandGenerator.h"
-#include "SDL/SdlDependencyResolver.h"
-#include "SDL/SceneDescription.h"
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/ISdlResource.h"
-#include "SDL/Introspect/SdlOutputContext.h"
 #include "SDL/sdl_exceptions.h"
+#include "SDL/SdlOutputClauses.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
 
@@ -22,75 +20,66 @@ SdlCommandGenerator::SdlCommandGenerator()
 
 SdlCommandGenerator::SdlCommandGenerator(Path sceneWorkingDirectory)
 	: m_sceneWorkingDirectory(std::move(sceneWorkingDirectory))
+	, m_numGeneratedCommands(0)
+	, m_numGenerationErrors(0)
 {}
 
 SdlCommandGenerator::~SdlCommandGenerator() = default;
 
-void SdlCommandGenerator::generateScene(const SceneDescription& scene)
+void SdlCommandGenerator::generateLoadCommand(
+	const ISdlResource* const resource,
+	std::string_view resourceName)
 {
-	PH_LOG(SdlCommandGenerator, "start generating commands");
-
-	SdlDependencyResolver resolver;
-	resolver.analyze(scene);
-
-	std::size_t numGeneratedCommands = 0;
-	std::size_t numErrors = 0;
-	OutputBuffer result;
-
-	for(const ISdlResource* resource = resolver.next(); 
-	    resource != nullptr; 
-	    resource = resolver.next())
+	if(!resource)
 	{
-		const SdlClass* clazz = resource->getDynamicSdlClass();
-		PH_ASSERT(clazz);
-
-		if(!beginCommand(clazz))
-		{
-			continue;
-		}
-
-		result.clear();
-
-		try
-		{
-			saveResource(
-				resource, 
-				clazz,
-				result.clauses,
-				&resolver);
-
-			generateLoadCommand(
-				*resource, 
-				clazz,
-				std::string(resolver.getResourceName(resource)),
-				result.clauses,
-				result.commandStr);
-
-			commandGenerated(result.commandStr);
-
-			++numGeneratedCommands;
-		}
-		catch(const SdlSaveError& e)
-		{
-			std::string resourceName = std::string(resolver.getResourceName(resource));
-			if(resourceName.empty())
-			{
-				resourceName = "(unavailable)";
-			}
-
-			PH_LOG_WARNING(SdlCommandGenerator, 
-				"error generating command for resource {} ({}) -> {}, skipping this resource",
-				resourceName, clazz->genPrettyName(), e.whatStr());
-
-			++numErrors;
-		}
-
-		endCommand();
+		return;
 	}
 
-	PH_LOG(SdlCommandGenerator, 
-		"generated {} commands (errors: {})", 
-		numGeneratedCommands, numErrors);
+	const SdlClass* clazz = resource->getDynamicSdlClass();
+	PH_ASSERT(clazz);
+
+	try
+	{
+		if(!beginCommand(clazz))
+		{
+			return;
+		}
+
+		// TODO: reuse clause buffer
+		SdlOutputClauses clauses;
+		saveResource(resource, clazz, clauses);
+
+		// TODO: reuse string buffer
+		std::string generatedCommand;
+		generateLoadCommand(
+			*resource, 
+			clazz,
+			resourceName,
+			clauses,
+			generatedCommand);
+
+		if(!generatedCommand.empty())
+		{
+			commandGenerated(generatedCommand);
+			++m_numGeneratedCommands;
+		}
+		
+		endCommand();
+	}
+	catch(const SdlSaveError& e)
+	{
+		std::string resourceNameInfo(resourceName);
+		if(resourceNameInfo.empty())
+		{
+			resourceNameInfo = "(unavailable)";
+		}
+
+		PH_LOG_WARNING(SdlCommandGenerator, 
+			"error generating load command for resource {} ({}) -> {}",
+			resourceNameInfo, clazz->genPrettyName(), e.whatStr());
+
+		++m_numGenerationErrors;
+	}
 }
 
 void SdlCommandGenerator::setSceneWorkingDirectory(Path directory)
@@ -98,10 +87,16 @@ void SdlCommandGenerator::setSceneWorkingDirectory(Path directory)
 	m_sceneWorkingDirectory = std::move(directory);
 }
 
+void SdlCommandGenerator::clearStats()
+{
+	m_numGeneratedCommands = 0;
+	m_numGenerationErrors = 0;
+}
+
 void SdlCommandGenerator::generateLoadCommand(
 	const ISdlResource& resource,
 	const SdlClass* const resourceClass,
-	const std::string& resourceName,
+	std::string_view resourceName,
 	const SdlOutputClauses& clauses,
 	std::string& out_commandStr)
 {

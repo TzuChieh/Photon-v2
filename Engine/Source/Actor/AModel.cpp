@@ -28,12 +28,12 @@ PreCookReport AModel::preCook(CookingContext& ctx)
 {
 	PreCookReport report = PhysicalActor::preCook(ctx);
 
-	if(!m_localToWorld.isIdentity())
+	if(!m_localToWorld.getDecomposed().isIdentity())
 	{
 		auto localToWorld = ctx.getResources()->makeTransform<math::StaticAffineTransform>(
-			math::StaticAffineTransform::makeForward(m_localToWorld));
+			m_localToWorld.getForwardStaticAffine());
 		auto worldToLocal = ctx.getResources()->makeTransform<math::StaticAffineTransform>(
-			math::StaticAffineTransform::makeInverse(m_localToWorld));
+			m_localToWorld.getInverseStaticAffine());
 
 		report.setBaseTransforms(localToWorld, worldToLocal);
 	}
@@ -66,7 +66,7 @@ TransientVisualElement AModel::cook(CookingContext& ctx, const PreCookReport& re
 		cookedUnit.intersectables.push_back(metaPrimitive);
 	}
 	
-	if(!m_localToWorld.isIdentity())
+	if(!m_localToWorld.getDecomposed().isIdentity())
 	{
 		auto localToWorld = report.getBaseLocalToWorld();
 		auto worldToLocal = report.getBaseWorldToLocal();
