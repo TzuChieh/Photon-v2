@@ -1,45 +1,30 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "Utility/TSpan.h"
 
-#include <string_view>
-#include <cstddef>
+#include <string>
 
 namespace ph
 {
 
-class SdlClass;
 class SdlOutputClauses;
-class ISdlResource;
 
 /*! @brief Generating a standalone collection of SDL clauses.
 */
 class SdlDataPacketGenerator
 {
 public:
-	SdlDataPacketGenerator();
 	explicit SdlDataPacketGenerator(Path sceneWorkingDirectory);
 	virtual ~SdlDataPacketGenerator();
 
-	// TODO: parameters like binary form? multi-thread?
+	/*! @brief Turn all data in the @p clauses into a packet.
+	*/
+	virtual void generate(
+		const SdlOutputClauses& clauses,
+		std::string& out_packetCommand) const = 0;
 
 	const Path& getSceneWorkingDirectory() const;
 	void setSceneWorkingDirectory(Path directory);
-
-protected:
-	/*!
-	@return Whether to generate packet for this class.
-	*/
-	virtual bool beginPacket(const SdlClass* targetClass) = 0;
-
-	virtual void packetGenerated(std::string_view packetStr) = 0;
-	virtual void binaryPacketGenerated(TSpanView<std::byte> packetBytes) = 0;
-	virtual void endPacket() = 0;
-
-	/*! @brief Turn all data in the @p resource into a packet.
-	*/
-	void generate(const ISdlResource& resource);
 
 private:
 	Path m_sceneWorkingDirectory;

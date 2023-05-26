@@ -18,13 +18,19 @@ SdlCommandGenerator::SdlCommandGenerator()
 	: SdlCommandGenerator(Path("./"))
 {}
 
-SdlCommandGenerator::SdlCommandGenerator(Path sceneWorkingDirectory)
-	: m_sceneWorkingDirectory(std::move(sceneWorkingDirectory))
+SdlCommandGenerator::SdlCommandGenerator(const Path& sceneWorkingDirectory)
+	: m_sceneWorkingDirectory(sceneWorkingDirectory)
+	, m_inlinePacketGenerator(sceneWorkingDirectory)
 	, m_numGeneratedCommands(0)
 	, m_numGenerationErrors(0)
 {}
 
 SdlCommandGenerator::~SdlCommandGenerator() = default;
+
+SdlDataPacketGenerator& SdlCommandGenerator::getPacketGenerator()
+{
+	return m_inlinePacketGenerator;
+}
 
 void SdlCommandGenerator::generateLoadCommand(
 	const ISdlResource* const resource,
@@ -107,10 +113,7 @@ void SdlCommandGenerator::generateLoadCommand(
 	out_commandStr += resourceName;
 	out_commandStr += " = ";
 
-	for(std::size_t clauseIdx = 0; clauseIdx < clauses.numClauses(); ++clauseIdx)
-	{
-		appendClause(clauses[clauseIdx], out_commandStr);
-	}
+	getPacketGenerator().generate(clauses, out_commandStr);
 
 	out_commandStr += '\n';
 }
@@ -125,26 +128,6 @@ void SdlCommandGenerator::appendFullSdlType(
 	out_commandStr += '(';
 	out_commandStr += clazz->getTypeName();
 	out_commandStr += ')';
-}
-
-void SdlCommandGenerator::appendClause(
-	const SdlOutputClause& clause,
-	std::string& out_commandStr)
-{
-	out_commandStr += '[';
-	out_commandStr += clause.type;
-	out_commandStr += ' ';
-	out_commandStr += clause.name;
-
-	if(clause.hasTag())
-	{
-		out_commandStr += ": ";
-		out_commandStr += clause.tag;
-	}
-
-	out_commandStr += ' ';
-	out_commandStr += clause.value;
-	out_commandStr += ']';
 }
 
 }// end namespace ph
