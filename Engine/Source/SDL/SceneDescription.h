@@ -6,7 +6,7 @@ namespace ph
 {
 
 /*! @brief Data that describe a scene.
-Basically the in-memory version of SDL commands.
+Represents the result of running SDL commands.
 */
 class SceneDescription final
 {

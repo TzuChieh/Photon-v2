@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <array>
+#include <string>
 
 namespace ph::editor
 {
@@ -39,14 +40,16 @@ private:
 	void terminateImgui();
 	void setDisplayFramebufferSizePx(const math::Vector2S& sizePx);
 
-	GLFWwindow*            m_glfwWindow;
+	GLFWwindow* m_glfwWindow;
+	ImguiRenderContent* m_renderContent;
+	std::string m_configFilePath;
 	math::TVector2<uint32> m_displayFramebufferSizePx;
-	ImguiRenderContent*    m_renderContent;
-	bool                   m_isRenderContentAdded;
+	bool m_isRenderContentAdded;
 	std::array<ImWchar, 3> m_fontIconGlyphRanges;
-	ImguiEditorUI          m_editorUI;
-	ImguiFontLibrary       m_fontLibrary;
-	ImguiImageLibrary      m_imageLibrary;
+
+	ImguiEditorUI m_editorUI;
+	ImguiFontLibrary m_fontLibrary;
+	ImguiImageLibrary m_imageLibrary;
 };
 
 inline std::string ImguiRenderModule::getName() const

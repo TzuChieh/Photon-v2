@@ -15,6 +15,7 @@
 #include "ThirdParty/GLFW3.h"
 
 #include <ph_cpp_core.h>
+#include <DataIO/FileSystem/Path.h>
 
 #include <variant>
 #include <string_view>
@@ -31,10 +32,12 @@ namespace ph::editor
 ImguiRenderModule::ImguiRenderModule()
 	: RenderModule()
 	, m_glfwWindow(nullptr)
-	, m_displayFramebufferSizePx(0)
 	, m_renderContent(nullptr)
+	, m_configFilePath()
+	, m_displayFramebufferSizePx(0)
 	, m_isRenderContentAdded(false)
 	, m_fontIconGlyphRanges()
+
 	, m_editorUI()
 	, m_fontLibrary()
 	, m_imageLibrary()
@@ -75,6 +78,11 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 		{
 			setDisplayFramebufferSizePx(e.getNewSizePx());
 		});
+
+	// Make sure config directory exist so config file can be saved
+	const Path configDirectory = get_imgui_data_directory();
+	configDirectory.createDirectory();
+	m_configFilePath = (configDirectory / "imgui.ini").toAbsoluteString();
 
 	initializeImgui(*info.editor);
 	m_editorUI.initialize(info.editor, &m_fontLibrary, &m_imageLibrary);
@@ -169,9 +177,8 @@ void ImguiRenderModule::setDisplayFramebufferSizePx(const math::Vector2S& sizePx
 
 void ImguiRenderModule::initializeImgui(Editor& editor)
 {
-    PH_ASSERT(m_glfwWindow);
-    
     // Ensure we do not change the original context
+    PH_ASSERT(m_glfwWindow);
     GLFWwindow* const backupCurrentCtx = glfwGetCurrentContext();
     glfwMakeContextCurrent(m_glfwWindow);
 
@@ -186,6 +193,7 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;// Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
+	io.IniFilename = m_configFilePath.c_str();
 
     // We do not support viewports, its frame update functions require changing the current 
     // OpenGL context

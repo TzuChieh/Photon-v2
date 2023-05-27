@@ -145,6 +145,16 @@ inline const std::string& DesignerScene::getName() const
 	return m_name;
 }
 
+inline SceneDescription& DesignerScene::getDescription()
+{
+	return m_description;
+}
+
+inline const SceneDescription& DesignerScene::getDescription() const
+{
+	return m_description;
+}
+
 inline TSpanView<DesignerObject*> DesignerScene::getRootObjects() const
 {
 	return m_rootObjs;

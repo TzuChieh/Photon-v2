@@ -14,9 +14,9 @@
 #include <ph_cpp_core.h>
 #include <Common/assertion.h>
 #include <Utility/exception.h>
+#include <DataIO/FileSystem/Path.h>
 
 #include <cstdlib>
-#include <iostream>
 
 namespace ph::editor
 {
@@ -109,6 +109,11 @@ std::vector<const SdlClass*> get_registered_editor_classes()
 		get_sdl_class<FlatDesignerObject>(),
 		get_sdl_class<HierarchicalDesignerObject>(),
 	};
+}
+
+Path get_editor_data_directory()
+{
+	return Path("./EditorData/");
 }
 
 }// end namespace ph::editor

@@ -8,6 +8,8 @@
 #include <Common/logging.h>
 #include <Utility/TUniquePtrVector.h>
 #include <Utility/TSpan.h>
+#include <Utility/INoCopyAndMove.h>
+#include <SDL/SceneDescription.h>
 
 #include <vector>
 #include <memory>
@@ -24,7 +26,7 @@ class RenderThreadCaller;
 
 PH_DECLARE_LOG_GROUP(DesignerScene);
 
-class DesignerScene final
+class DesignerScene final : private INoCopyAndMove
 {
 public:
 	explicit DesignerScene(Editor* fromEditor);
@@ -58,6 +60,8 @@ public:
 	Editor& getEditor();
 	const Editor& getEditor() const;
 	const std::string& getName() const;
+	SceneDescription& getDescription();
+	const SceneDescription& getDescription() const;
 	TSpanView<DesignerObject*> getRootObjects() const;
 
 	void setName(std::string name);
@@ -98,8 +102,10 @@ private:
 	std::vector<DesignerObject*> m_renderTickingObjs;
 	std::vector<ObjectAction> m_objActionQueue;
 	std::size_t m_numObjActionsToProcess;
+
 	Editor* m_editor;
 	std::string m_name;
+	SceneDescription m_description;
 	ViewportCamera m_mainCamera;
 };
 

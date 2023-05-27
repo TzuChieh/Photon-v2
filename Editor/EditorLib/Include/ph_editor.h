@@ -3,6 +3,7 @@
 #include <vector>
 
 namespace ph { class SdlClass; }
+namespace ph { class Path; }
 
 namespace ph::editor
 {
@@ -18,5 +19,7 @@ int imgui_demo_entry_point(int argc, char* argv[]);
 /*! @brief Get a list of registered SDL classes from the editor.
 */
 std::vector<const SdlClass*> get_registered_editor_classes();
+
+Path get_editor_data_directory();
 
 }// end namespace ph::editor

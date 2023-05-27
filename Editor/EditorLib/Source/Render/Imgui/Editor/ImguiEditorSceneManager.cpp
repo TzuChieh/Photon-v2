@@ -26,6 +26,10 @@ void ImguiEditorSceneManager::buildWindow(
 	ImGui::Button("New");
 	ImGui::SameLine();
 	ImGui::Button("Open");
+	ImGui::SameLine();
+	ImGui::Button("Make Active");
+	ImGui::SameLine();
+	ImGui::Button("Save");
 
 	ImGui::Text("Active Scene: %s", 
 		editor.getActiveScene() ? editor.getActiveScene()->getName().c_str() : "(none)");
@@ -54,10 +58,6 @@ void ImguiEditorSceneManager::buildWindow(
 		}
 		ImGui::EndListBox();
 	}
-
-	ImGui::Button("Make Active");
-	ImGui::SameLine();
-	ImGui::Button("Save");
 
 	ImGui::End();
 }
