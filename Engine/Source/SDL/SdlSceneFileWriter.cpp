@@ -19,8 +19,8 @@ SdlSceneFileWriter::SdlSceneFileWriter()
 	: SdlSceneFileWriter("untitled-scene", Path("./"))
 {}
 
-SdlSceneFileWriter::SdlSceneFileWriter(std::string sceneName, Path sceneWorkingDirectory)
-	: SdlCommandGenerator(std::move(sceneWorkingDirectory))
+SdlSceneFileWriter::SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory)
+	: SdlCommandGenerator(sceneWorkingDirectory)
 	, m_sceneName(std::move(sceneName))
 	, m_resolver()
 	, m_fileStream(nullptr)

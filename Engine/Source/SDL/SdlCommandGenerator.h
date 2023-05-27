@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "SDL/SdlInlinePacketGenerator.h"
+#include "SDL/SdlInlinePacketInterface.h"
 
 #include <string_view>
 #include <string>
@@ -14,7 +14,7 @@ class SdlClass;
 class ISdlResource;
 class SdlOutputClause;
 class SdlOutputClauses;
-class SdlDataPacketGenerator;
+class SdlDataPacketInterface;
 
 class SdlCommandGenerator
 {
@@ -26,14 +26,14 @@ public:
 	// TODO: parameters like binary form? multi-thread?
 	// TODO: command types, e.g., phantom
 
-	virtual SdlDataPacketGenerator& getPacketGenerator();
+	virtual SdlDataPacketInterface& getPacketInterface();
 
 	void generateLoadCommand(
 		const ISdlResource* resource,
 		std::string_view resourceName);
 
 	const Path& getSceneWorkingDirectory() const;
-	void setSceneWorkingDirectory(Path directory);
+	void setSceneWorkingDirectory(const Path& directory);
 	std::size_t numGeneratedCommands() const;
 	std::size_t numGenerationErrors() const;
 	void clearStats();
@@ -68,7 +68,7 @@ private:
 
 private:
 	Path m_sceneWorkingDirectory;
-	SdlInlinePacketGenerator m_inlinePacketGenerator;
+	SdlInlinePacketInterface m_inlinePacketInterface;
 	std::size_t m_numGeneratedCommands;
 	std::size_t m_numGenerationErrors;
 };

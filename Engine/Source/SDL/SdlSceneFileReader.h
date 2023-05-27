@@ -15,7 +15,7 @@ class SdlSceneFileReader : public SdlCommandParser
 {
 public:
 	SdlSceneFileReader();
-	SdlSceneFileReader(std::string sceneName, Path sceneWorkingDirectory);
+	SdlSceneFileReader(std::string sceneName, const Path& sceneWorkingDirectory);
 	~SdlSceneFileReader() override;
 
 	/*!

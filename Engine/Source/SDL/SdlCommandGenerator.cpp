@@ -20,16 +20,16 @@ SdlCommandGenerator::SdlCommandGenerator()
 
 SdlCommandGenerator::SdlCommandGenerator(const Path& sceneWorkingDirectory)
 	: m_sceneWorkingDirectory(sceneWorkingDirectory)
-	, m_inlinePacketGenerator(sceneWorkingDirectory)
+	, m_inlinePacketInterface(sceneWorkingDirectory)
 	, m_numGeneratedCommands(0)
 	, m_numGenerationErrors(0)
 {}
 
 SdlCommandGenerator::~SdlCommandGenerator() = default;
 
-SdlDataPacketGenerator& SdlCommandGenerator::getPacketGenerator()
+SdlDataPacketInterface& SdlCommandGenerator::getPacketInterface()
 {
-	return m_inlinePacketGenerator;
+	return m_inlinePacketInterface;
 }
 
 void SdlCommandGenerator::generateLoadCommand(
@@ -88,9 +88,9 @@ void SdlCommandGenerator::generateLoadCommand(
 	}
 }
 
-void SdlCommandGenerator::setSceneWorkingDirectory(Path directory)
+void SdlCommandGenerator::setSceneWorkingDirectory(const Path& directory)
 {
-	m_sceneWorkingDirectory = std::move(directory);
+	m_sceneWorkingDirectory = directory;
 }
 
 void SdlCommandGenerator::clearStats()
@@ -113,7 +113,7 @@ void SdlCommandGenerator::generateLoadCommand(
 	out_commandStr += resourceName;
 	out_commandStr += " = ";
 
-	getPacketGenerator().generate(clauses, out_commandStr);
+	getPacketInterface().generate(clauses, out_commandStr);
 
 	out_commandStr += '\n';
 }

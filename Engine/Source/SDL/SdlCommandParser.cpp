@@ -12,6 +12,7 @@
 
 #include <cstddef>
 #include <utility>
+#include <vector>
 
 namespace ph
 {
@@ -30,10 +31,14 @@ SdlCommandParser::SdlCommandParser(TSpanView<const SdlClass*> targetClasses)
 	: SdlCommandParser(targetClasses, Path("./"))
 {}
 
-SdlCommandParser::SdlCommandParser(TSpanView<const SdlClass*> targetClasses, Path sceneWorkingDirectory)
+SdlCommandParser::SdlCommandParser(
+	TSpanView<const SdlClass*> targetClasses, 
+	const Path& sceneWorkingDirectory)
+
 	: m_commandVersion(PH_PSDL_VERSION)
 	, m_mangledNameToClass()
-	, m_sceneWorkingDirectory(std::move(sceneWorkingDirectory))
+	, m_sceneWorkingDirectory(sceneWorkingDirectory)
+	, m_inlinePacketInterface(sceneWorkingDirectory)
 	, m_isInSingleLineComment(false)
 	, m_processedCommandCache()
 	, m_generatedNameCounter(0)
@@ -64,6 +69,11 @@ SdlCommandParser::SdlCommandParser(TSpanView<const SdlClass*> targetClasses, Pat
 }
 
 SdlCommandParser::~SdlCommandParser() = default;
+
+SdlDataPacketInterface& SdlCommandParser::getPacketInterface()
+{
+	return m_inlinePacketInterface;
+}
 
 void SdlCommandParser::parse(std::string_view rawCommandSegment)
 {
@@ -421,6 +431,15 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 	endCommand();
 }
 
+void SdlCommandParser::getClauses(std::string_view packetCommand, SdlInputClauses* const out_clauses)
+{
+	PH_SCOPED_TIMER(GetClauses);
+
+	PH_ASSERT(out_clauses);
+	out_clauses->clear();
+	getPacketInterface().parse(packetCommand, *out_clauses);
+}
+
 std::string SdlCommandParser::genNameForAnonymity()
 {
 	return "@__anonymous-item-" + std::to_string(m_generatedNameCounter++);
@@ -490,9 +509,9 @@ std::string SdlCommandParser::getName(const std::string_view referenceToken)
 	}
 }
 
-void SdlCommandParser::setSceneWorkingDirectory(Path directory)
+void SdlCommandParser::setSceneWorkingDirectory(const Path& directory)
 {
-	m_sceneWorkingDirectory = std::move(directory);
+	m_sceneWorkingDirectory = directory;
 }
 
 auto SdlCommandParser::parseCommandHeader(const std::string_view command)
@@ -669,76 +688,6 @@ void SdlCommandParser::getMangledName(const std::string_view categoryName, const
 
 	out_mangledName->clear();
 	*out_mangledName += std::string(categoryName) + std::string(typeName);
-}
-
-void SdlCommandParser::getClauses(std::string_view clauseString, SdlInputClauses* const out_clauses)
-{
-	static const Tokenizer clausesTokenizer(
-		{' ', '\t', '\n', '\r'}, 
-		{{'[', ']'}});
-
-	PH_SCOPED_TIMER(GetClauses);
-
-	// OPT: use view
-	std::vector<std::string> clauseStrings;
-	clausesTokenizer.tokenize(std::string(clauseString), clauseStrings);
-
-	getClauses(clauseStrings, out_clauses);
-}
-
-void SdlCommandParser::getClauses(const std::vector<std::string>& clauseStrings, SdlInputClauses* const out_clauses)
-{
-	PH_ASSERT(out_clauses);
-
-	out_clauses->clear();
-	for(const auto& clauseString : clauseStrings)
-	{
-		SdlInputClause clause;
-		getSingleClause(clauseString, &clause);
-		out_clauses->add(std::move(clause));
-	}
-}
-
-void SdlCommandParser::getSingleClause(const std::string_view clauseString, SdlInputClause* const out_clause)
-{
-	PH_ASSERT(out_clause);
-
-	static const Tokenizer clauseTokenizer(
-		{' ', '\t', '\n', '\r'}, 
-		{{'\"', '\"'}, {'{', '}'}});
-
-	if(clauseString.empty())
-	{
-		throw SdlLoadError("syntax error: clause string is empty");
-	}
-
-	// TODO: tokenize string_view
-	std::vector<std::string> tokens;
-	clauseTokenizer.tokenize(std::string(clauseString), tokens);
-	if(tokens.size() != 3)
-	{
-		throw SdlLoadError(
-			"syntax error: bad number of tokens < " + std::to_string(tokens.size()) + ">, expected to be 3");
-	}
-
-	out_clause->type = tokens[0];
-	out_clause->value = tokens[2];
-	
-	// Parse name and an optional tag
-	// tokens[1] contains name and tag, syntax: <name>:<optional-tag>
-
-	const std::string_view nameAndTag = tokens[1];
-	const auto colonPos = nameAndTag.find(':');
-	if(colonPos == std::string_view::npos)
-	{
-		out_clause->name = tokens[1];
-		out_clause->tag = "";
-	}
-	else
-	{
-		out_clause->name = std::string(nameAndTag.substr(0, colonPos + 1));
-		out_clause->tag = nameAndTag.substr(colonPos);
-	}
 }
 
 const SdlClass* SdlCommandParser::getSdlClass(const std::string& mangledClassName) const

@@ -2,17 +2,19 @@
 
 #include "SDL/SdlInputClauses.h"
 #include "SDL/ESdlTypeCategory.h"
+#include "SDL/SdlInlinePacketInterface.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Utility/SemanticVersion.h"
 #include "Utility/TSpan.h"
 
-#include <vector>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 
 namespace ph
 {
+
+class SdlDataPacketInterface;
 
 enum class ESdlCommandType
 {
@@ -29,11 +31,13 @@ class SdlCommandParser
 {
 public:
 	explicit SdlCommandParser(TSpanView<const SdlClass*> targetClasses);
-	SdlCommandParser(TSpanView<const SdlClass*> targetClasses, Path sceneWorkingDirectory);
+	SdlCommandParser(TSpanView<const SdlClass*> targetClasses, const Path& sceneWorkingDirectory);
 	virtual ~SdlCommandParser();
 
 	// TODO: rename existing methods to enterAndWait() and flushAndWait() and add flush() and enter() once multithreading is added
 	// TODO: removeResource() callback for load error, etc.
+
+	virtual SdlDataPacketInterface& getPacketInterface();
 
 	/*! @brief Enters a string and parse it as one or more commands.
 
@@ -54,7 +58,7 @@ public:
 	void flush();
 
 	const Path& getSceneWorkingDirectory() const;
-	void setSceneWorkingDirectory(Path directory);
+	void setSceneWorkingDirectory(const Path& directory);
 
 	const SemanticVersion& getCommandVersion() const;
 	std::size_t numParsedCommands() const;
@@ -106,6 +110,7 @@ private:
 	std::unordered_map<std::string, const SdlClass*> m_mangledNameToClass;
 
 	Path m_sceneWorkingDirectory;
+	SdlInlinePacketInterface m_inlinePacketInterface;
 	bool m_isInSingleLineComment;
 	std::string m_processedCommandCache;
 	std::size_t m_generatedNameCounter;
@@ -126,6 +131,8 @@ private:
 	void parseExecutionCommand(const CommandHeader& command);
 	void parseDirectiveCommand(const CommandHeader& command);
 
+	void getClauses(std::string_view packetCommand, SdlInputClauses* out_clauses);
+
 	std::string getName(std::string_view referenceToken);
 	std::string genNameForAnonymity();
 
@@ -135,9 +142,6 @@ private:
 private:
 	static std::string getMangledName(std::string_view categoryName, std::string_view typeName);
 	static void getMangledName(std::string_view categoryName, std::string_view typeName, std::string* out_mangledName);
-	static void getClauses(std::string_view clauseString, SdlInputClauses* out_clauses);
-	static void getClauses(const std::vector<std::string>& clauseStrings, SdlInputClauses* out_clauses);
-	static void getSingleClause(std::string_view clauseString, SdlInputClause* out_clause);
 	static CommandHeader parseCommandHeader(std::string_view command);
 };
 

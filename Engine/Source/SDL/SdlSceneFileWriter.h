@@ -16,7 +16,7 @@ class SdlSceneFileWriter : public SdlCommandGenerator
 {
 public:
 	SdlSceneFileWriter();
-	SdlSceneFileWriter(std::string sceneName, Path sceneWorkingDirectory);
+	SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory);
 	~SdlSceneFileWriter() override;
 
 	void write(const SceneDescription& scene);

@@ -22,8 +22,8 @@ SdlSceneFileReader::SdlSceneFileReader()
 	: SdlSceneFileReader("untitled-scene", Path("./"))
 {}
 
-SdlSceneFileReader::SdlSceneFileReader(std::string sceneName, Path sceneWorkingDirectory)
-	: SdlCommandParser(get_registered_engine_classes(), std::move(sceneWorkingDirectory))
+SdlSceneFileReader::SdlSceneFileReader(std::string sceneName, const Path& sceneWorkingDirectory)
+	: SdlCommandParser(get_registered_engine_classes(), sceneWorkingDirectory)
 	, m_sceneName(std::move(sceneName))
 	, m_fileStream(nullptr)
 	, m_scene(nullptr)
