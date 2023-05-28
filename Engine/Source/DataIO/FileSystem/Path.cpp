@@ -13,6 +13,11 @@ Path Path::operator / (std::string_view pathStr) const
 	return Path(*this).append(pathStr);
 }
 
+bool Path::operator == (const Path& other) const
+{
+	return m_path == other.m_path;
+}
+
 Path Path::getLeadingElement() const
 {
 	return m_path.begin() != m_path.end()

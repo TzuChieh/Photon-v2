@@ -16,6 +16,7 @@ public:
 		bool* isOpening = nullptr);
 
 private:
+
 };
 
 }// end namespace ph::editor

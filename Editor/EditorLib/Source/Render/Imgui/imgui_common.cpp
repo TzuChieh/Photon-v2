@@ -16,7 +16,7 @@ void imgui_show_demo_window(bool* const isOpening)
 
 Path get_imgui_data_directory()
 {
-	return get_editor_data_directory() / "imgui";
+	return get_editor_data_directory() / "ImGui";
 }
 
 }// end namespace ph::editor

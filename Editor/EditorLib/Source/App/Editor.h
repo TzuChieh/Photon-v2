@@ -44,7 +44,10 @@ public:
 	Editor();
 	~Editor();
 
+	/*! @brief Called once before the update loop begins.
+	*/
 	void start();
+
 	void update(const MainThreadUpdateContext& ctx);
 	void renderUpdate(const MainThreadRenderUpdateContext& ctx);
 	void createRenderCommands(RenderThreadCaller& caller);
@@ -52,7 +55,11 @@ public:
 	void afterUpdateStage();
 	void beforeRenderStage();
 	void afterRenderStage();
+
+	/*! @brief Called once after the update loop ends.
+	*/
 	void stop();
+
 	void renderCleanup(RenderThreadCaller& caller);
 	void cleanup();
 

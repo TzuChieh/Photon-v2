@@ -210,11 +210,7 @@ public:
 
 	Path operator / (const Path& other) const;
 	Path operator / (std::string_view pathStr) const;
-
-	inline bool operator == (const Path& other) const
-	{
-		return m_path == other.m_path;
-	}
+	bool operator == (const Path& other) const;
 
 private:
 	std_filesystem::path m_path;

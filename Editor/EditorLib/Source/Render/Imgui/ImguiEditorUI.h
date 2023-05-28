@@ -1,9 +1,9 @@
 #pragma once
 
-#include "EditorCore/FileSystemExplorer.h"
 #include "Render/Imgui/Editor/ImguiEditorSidebarState.h"
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
+#include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
 
 #include "ThirdParty/DearImGuiExperimental.h"
 
@@ -35,6 +35,8 @@ public:
 
 	void initialize(Editor* editor, ImguiFontLibrary* fontLibrary, ImguiImageLibrary* imageLibrary);
 	void build();
+
+	ImguiFileSystemDialog& getGeneralFileSystemDialog();
 
 private:
 	Editor& getEditor();
@@ -70,31 +72,7 @@ private:
 	ImguiEditorLog m_editorLog;
 	ImguiEditorSceneManager m_editorSceneManager;
 
-private:
-	void buildFileSystemDialogPopupModal(
-		const char* popupName, 
-		FileSystemExplorer& explorer,
-		bool canSelectFile = true,
-		bool canSelectDirectory = false);
-
-	void buildFileSystemDialogContent(
-		FileSystemExplorer& explorer,
-		bool canSelectFile,
-		bool canSelectDirectory);
-
-	void buildFileSystemDialogTreeNodeRecursive(
-		FileSystemDirectoryEntry* baseEntry,
-		FileSystemExplorer& explorer);
-
-	FileSystemExplorer m_fsDialogExplorer;
-	std::vector<std::string> m_fsDialogRootNames;
-	std::size_t m_fsDialogSelectedRootIdx;
-	FileSystemDirectoryEntry* m_fsDialogSelectedEntry;
-	std::string m_fsDialogEntryPreview;
-	std::vector<Path> m_fsDialogEntryItems;
-	std::vector<std::string> m_fsDialogEntryItemNames;
-	std::size_t m_fsDialogSelectedEntryItemIdx;
-	std::vector<uint8> m_fsDialogEntryItemSelection;
+	ImguiFileSystemDialog m_generalFileSystemDialog;
 };
 
 }// end namespace ph::editor

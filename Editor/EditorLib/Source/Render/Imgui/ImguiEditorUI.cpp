@@ -23,9 +23,6 @@
 #define PH_IMGUI_LOG_ICON          ICON_MD_WYSIWYG
 #define PH_IMGUI_SETTINGS_ICON     ICON_MD_SETTINGS
 #define PH_IMGUI_STATS_ICON        ICON_MD_INSIGHTS
-#define PH_IMGUI_GENERAL_FILE_ICON ICON_MD_DESCRIPTION
-#define PH_IMGUI_OPEN_FILE_ICON    ICON_MD_FOLDER_OPEN
-#define PH_IMGUI_SAVE_FILE_ICON    ICON_MD_SAVE
 
 namespace ph::editor
 {
@@ -41,9 +38,6 @@ constexpr const char* SIDEBAR_WINDOW_NAME = "##sidebar_window";
 
 constexpr const char* SCENE_BROWSER_WINDOW_NAME = PH_IMGUI_SCENE_ICON " Scene Manager";
 constexpr const char* LOG_WINDOW_NAME = PH_IMGUI_LOG_ICON " Log";
-
-constexpr const char* OPEN_FILE_DIALOG_POPUP_NAME = PH_IMGUI_OPEN_FILE_ICON " Open File";
-constexpr const char* SAVE_FILE_DIALOG_POPUP_NAME = PH_IMGUI_SAVE_FILE_ICON " Save File";
 
 }// end anonymous namespace
 
@@ -61,30 +55,12 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_editorLog()
 	, m_editorSceneManager()
 
-	, m_fsDialogExplorer()
-	, m_fsDialogRootNames()
-	, m_fsDialogSelectedRootIdx(static_cast<std::size_t>(-1))
-	, m_fsDialogSelectedEntry(nullptr)
-	, m_fsDialogEntryPreview()
-	, m_fsDialogEntryItems()
-	, m_fsDialogSelectedEntryItemIdx(static_cast<std::size_t>(-1))
-	, m_fsDialogEntryItemSelection()
+	, m_generalFileSystemDialog()
 {
 	// If no main editor was specified, the first editor created after is the main one
 	if(!mainEditor)
 	{
 		mainEditor = this;
-	}
-
-	for(const Path& rootPath : m_fsDialogExplorer.getRootPaths())
-	{
-		m_fsDialogRootNames.push_back(rootPath.toString());
-	}
-
-	if(!m_fsDialogRootNames.empty())
-	{
-		m_fsDialogSelectedRootIdx = 0;
-		m_fsDialogExplorer.setCurrentRootPath(m_fsDialogSelectedRootIdx);
 	}
 }
 
@@ -272,10 +248,20 @@ void ImguiEditorUI::build()
 	// DEBUG
 	if(ImGui::Button("fs"))
 	{
-		ImGui::OpenPopup(OPEN_FILE_DIALOG_POPUP_NAME);
+		m_generalFileSystemDialog.openPopup(ImguiFileSystemDialog::OPEN_FILE_TITLE);
 	}
-	buildFileSystemDialogPopupModal(OPEN_FILE_DIALOG_POPUP_NAME, m_fsDialogExplorer);
+	m_generalFileSystemDialog.buildFileSystemDialogPopupModal(
+		ImguiFileSystemDialog::OPEN_FILE_TITLE,
+		ImVec2(
+			getDimensionHints().fileDialogPreferredWidth,
+			getDimensionHints().fileDialogPreferredHeight));
+	//buildFileSystemDialogPopupModal(OPEN_FILE_DIALOG_POPUP_NAME, m_fsDialogExplorer);
 	//buildFileSystemDialogContent(m_fsDialogExplorer);
+}
+
+ImguiFileSystemDialog& ImguiEditorUI::getGeneralFileSystemDialog()
+{
+	return m_generalFileSystemDialog;
 }
 
 void ImguiEditorUI::buildMainMenuBar()
@@ -571,227 +557,6 @@ void ImguiEditorUI::buildStatsMonitor()
 	ImGui::Text("Frame: %f ms", m_editor->editorStats.ghiThreadFrameMs);
 
 	ImGui::End();
-}
-
-void ImguiEditorUI::buildFileSystemDialogPopupModal(
-	const char* const popupName,
-	FileSystemExplorer& explorer,
-	const bool canSelectFile,
-	const bool canSelectDirectory)
-{
-	// Always center this window when appearing
-	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-	if(ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		buildFileSystemDialogContent(explorer, canSelectFile, canSelectDirectory);
-
-		ImGui::Separator();
-
-		if(ImGui::Button("OK", ImVec2(120, 0)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-		ImGui::SetItemDefaultFocus();
-		ImGui::SameLine();
-		if(ImGui::Button("Cancel", ImVec2(120, 0)))
-		{
-			ImGui::CloseCurrentPopup();
-		}
-
-		ImGui::EndPopup();
-	}
-}
-
-void ImguiEditorUI::buildFileSystemDialogContent(
-	FileSystemExplorer& explorer,
-	const bool canSelectFile,
-	const bool canSelectDirectory)
-{
-	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
-	if(ImGui::BeginCombo("##root_combo", m_fsDialogRootNames[m_fsDialogSelectedRootIdx].c_str()))
-	{
-		for(std::size_t rootIdx = 0; rootIdx < m_fsDialogRootNames.size(); ++rootIdx)
-		{
-			const bool isSelected = (rootIdx == m_fsDialogSelectedRootIdx);
-			if(ImGui::Selectable(m_fsDialogRootNames[m_fsDialogSelectedRootIdx].c_str(), isSelected))
-			{
-				m_fsDialogSelectedRootIdx = rootIdx;
-				explorer.setCurrentRootPath(m_fsDialogSelectedRootIdx);
-			}
-
-			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-			if(isSelected)
-			{
-				ImGui::SetItemDefaultFocus();
-			}
-		}
-		ImGui::EndCombo();
-	}
-
-	ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
-
-	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_HorizontalScrollbar;
-
-	// Left child: file system directory tree view
-	ImGui::BeginChild(
-		"fs_dialog_tree", 
-		ImVec2(
-			getDimensionHints().fileDialogPreferredWidth * 0.4f,
-			getDimensionHints().fileDialogPreferredHeight),
-		true, 
-		windowFlags);
-	buildFileSystemDialogTreeNodeRecursive(explorer.getCurrentDirectoryEntry(), explorer);
-	ImGui::EndChild();
-
-	ImGui::SameLine();
-
-	// Right child: file system item view
-	ImGui::BeginChild(
-		"fs_dialog_selectable",
-		ImVec2(
-			getDimensionHints().fileDialogPreferredWidth * 0.6f, 
-			getDimensionHints().fileDialogPreferredHeight),
-		true,
-		windowFlags);
-
-	for(std::size_t itemIdx = 0; itemIdx < m_fsDialogEntryItemNames.size(); ++itemIdx)
-	{
-		const std::string& itemName = m_fsDialogEntryItemNames[itemIdx];
-		const bool isSelected = m_fsDialogEntryItemSelection[itemIdx] != 0;
-		if(ImGui::Selectable(itemName.c_str(), isSelected))
-		{
-			// Clear selection when CTRL is not held
-			if(!ImGui::GetIO().KeyCtrl)
-			{
-				std::fill(m_fsDialogEntryItemSelection.begin(), m_fsDialogEntryItemSelection.end(), 0);
-			}
-
-			m_fsDialogSelectedEntryItemIdx = itemIdx;
-			m_fsDialogEntryItemSelection[itemIdx] = 1;
-		}
-	}
-	ImGui::EndChild();
-
-	ImGui::PopStyleVar();
-
-	if(canSelectFile || canSelectDirectory)
-	{
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		if(m_fsDialogSelectedEntry)
-		{
-			ImGui::InputText(
-				"##directory_preview",
-				m_fsDialogEntryPreview.data(),
-				m_fsDialogEntryPreview.size(),
-				ImGuiInputTextFlags_ReadOnly);
-		}
-		else
-		{
-			static std::string noSelectionMsg = "(no directory selected)";
-
-			ImGui::InputText(
-				"##directory_preview",
-				noSelectionMsg.data(),
-				noSelectionMsg.size(),
-				ImGuiInputTextFlags_ReadOnly);
-		}
-	}
-
-	if(canSelectFile)
-	{
-		int numSelectedItems = 0;
-		for(auto value : m_fsDialogEntryItemSelection)
-		{
-			numSelectedItems += value != 0;
-		}
-
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		if(numSelectedItems == 0)
-		{
-			static std::string noSelectionMsg = "(no file selected)";
-
-			ImGui::InputText(
-				"##file_preview",
-				noSelectionMsg.data(),
-				noSelectionMsg.size(),
-				ImGuiInputTextFlags_ReadOnly);
-		}
-		else if(numSelectedItems == 1)
-		{
-			ImGui::InputText(
-				"##file_preview",
-				m_fsDialogEntryItemNames[m_fsDialogSelectedEntryItemIdx].data(),
-				m_fsDialogEntryItemNames[m_fsDialogSelectedEntryItemIdx].size(),
-				ImGuiInputTextFlags_ReadOnly);
-		}
-		else
-		{
-			std::array<char, 32> buf;
-			std::snprintf(buf.data(), buf.size(), "(%d files selected)", numSelectedItems);
-			ImGui::InputText(
-				"##file_preview",
-				buf.data(),
-				buf.size(),
-				ImGuiInputTextFlags_ReadOnly);
-		}
-	}
-}
-
-void ImguiEditorUI::buildFileSystemDialogTreeNodeRecursive(
-	FileSystemDirectoryEntry* baseEntry,
-	FileSystemExplorer& explorer)
-{
-	if(!baseEntry)
-	{
-		return;
-	}
-
-	const bool isRootEntry = baseEntry->getParent() == nullptr;
-
-	ImGuiTreeNodeFlags nodeFlags = 0;
-	if(baseEntry == m_fsDialogSelectedEntry)
-	{
-		nodeFlags |= ImGuiTreeNodeFlags_Selected;
-	}
-	if(isRootEntry)
-	{
-		nodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
-	}
-	
-	const bool isNodeOpened = ImGui::TreeNodeEx(baseEntry->getDirectoryName().c_str(), nodeFlags);
-	if(ImGui::IsItemClicked() || !m_fsDialogSelectedEntry)
-	{
-		m_fsDialogSelectedEntry = baseEntry;
-		m_fsDialogEntryItems = explorer.makeItemListing(baseEntry, false);
-
-		m_fsDialogEntryItemNames.clear();
-		for(const Path& item : m_fsDialogEntryItems)
-		{
-			m_fsDialogEntryItemNames.push_back(PH_IMGUI_GENERAL_FILE_ICON " " + item.toString());
-		}
-
-		m_fsDialogSelectedEntryItemIdx = static_cast<std::size_t>(-1);
-		m_fsDialogEntryItemSelection.resize(m_fsDialogEntryItems.size());
-		std::fill(m_fsDialogEntryItemSelection.begin(), m_fsDialogEntryItemSelection.end(), 0);
-		m_fsDialogEntryPreview = baseEntry->getDirectoryPath().toAbsoluteString();
-	}
-
-	if(isNodeOpened)
-	{
-		explorer.expand(baseEntry);
-		for(std::size_t entryIdx = 0; entryIdx < baseEntry->numChildren(); ++entryIdx)
-		{
-			FileSystemDirectoryEntry* derivedEntry = baseEntry->getChild(entryIdx);
-			buildFileSystemDialogTreeNodeRecursive(derivedEntry, explorer);
-		}
-		ImGui::TreePop();
-	}
-	else
-	{
-		explorer.collapse(baseEntry);
-	}
 }
 
 void ImguiEditorUI::buildImguiDemo()
