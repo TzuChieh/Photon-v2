@@ -1,20 +1,46 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
+#include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
+#include "Render/Imgui/Font/IconsMaterialDesign.h"
 
 #include "ThirdParty/DearImGui.h"
 
-#include <cstddef>
+#include <Common/logging.h>
+
+#include <string>
+
+#define PH_IMGUI_OPEN_FILE_ICON ICON_MD_FOLDER_OPEN
+#define PH_IMGUI_SAVE_FILE_ICON ICON_MD_SAVE
 
 namespace ph::editor
 {
 
+constexpr const char* OPEN_SCENE_TITLE = PH_IMGUI_OPEN_FILE_ICON " Open Scene";
+constexpr const char* SAVE_SCENE_TITLE = PH_IMGUI_SAVE_FILE_ICON " Save Scene";
+
+namespace
+{
+
+inline ImVec2 get_file_dialog_size(const Editor& editor)
+{
+	return ImVec2(
+		editor.dimensionHints.fileDialogPreferredWidth,
+		editor.dimensionHints.fileDialogPreferredHeight);
+}
+
+}// end anonymous namespace
+
 ImguiEditorSceneManager::ImguiEditorSceneManager()
-{}
+	: m_newSceneNameBuffer()
+	, m_selectedSceneIdx(static_cast<std::size_t>(-1))
+{
+	m_newSceneNameBuffer.fill('\0');
+}
 
 void ImguiEditorSceneManager::buildWindow(
 	const char* title, 
-	Editor& editor,
+	ImguiEditorUIProxy editorUI,
 	bool* isOpening)
 {
 	if(!ImGui::Begin(title, isOpening))
@@ -23,13 +49,42 @@ void ImguiEditorSceneManager::buildWindow(
 		return;
 	}
 
-	ImGui::Button("New");
+	Editor& editor = editorUI.getEditor();
+
+	{
+		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
+		if(ImGui::Button("Open"))
+		{
+			fsDialog.openPopup(OPEN_SCENE_TITLE);
+		}
+
+		fsDialog.buildFileSystemDialogPopupModal(OPEN_SCENE_TITLE, get_file_dialog_size(editor));
+		if(fsDialog.selectionConfirmed())
+		{
+			auto items = fsDialog.getSelectedItems();
+			for(const auto& item : items)
+			{
+				PH_DEFAULT_LOG("selected: {}", item.toString());
+			}
+		}
+	}
+
 	ImGui::SameLine();
-	ImGui::Button("Open");
+	
+	if(ImGui::Button("Save"))
+	{
+		// TODO
+	}
+
 	ImGui::SameLine();
-	ImGui::Button("Make Active");
-	ImGui::SameLine();
-	ImGui::Button("Save");
+
+	if(ImGui::Button("Make Active"))
+	{
+		if(m_selectedSceneIdx < editor.numScenes())
+		{
+			editor.setActiveScene(m_selectedSceneIdx);
+		}
+	}
 
 	ImGui::Text("Active Scene: %s", 
 		editor.getActiveScene() ? editor.getActiveScene()->getName().c_str() : "(none)");
@@ -40,14 +95,10 @@ void ImguiEditorSceneManager::buildWindow(
 	{
 		for(std::size_t sceneIdx = 0; sceneIdx < editor.numScenes(); ++sceneIdx)
 		{
-			DesignerScene* const scene = editor.getScene(sceneIdx);
-			const bool isSelected = scene == editor.getActiveScene();
-			if(ImGui::Selectable(scene->getName().c_str(), isSelected))
+			const bool isSelected = (sceneIdx == m_selectedSceneIdx);
+			if(ImGui::Selectable(editor.getScene(sceneIdx)->getName().c_str(), isSelected))
 			{
-				if(!isSelected)
-				{
-					editor.setActiveScene(sceneIdx);
-				}
+				m_selectedSceneIdx = sceneIdx;
 			}
 
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -58,6 +109,16 @@ void ImguiEditorSceneManager::buildWindow(
 		}
 		ImGui::EndListBox();
 	}
+
+	if(ImGui::Button("New"))
+	{
+		editor.createScene(m_newSceneNameBuffer.data());
+	}
+	ImGui::SameLine();
+	ImGui::InputText(
+		"Scene Name",
+		m_newSceneNameBuffer.data(),
+		m_newSceneNameBuffer.size());
 
 	ImGui::End();
 }

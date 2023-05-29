@@ -36,15 +36,14 @@ public:
 	void initialize(Editor* editor, ImguiFontLibrary* fontLibrary, ImguiImageLibrary* imageLibrary);
 	void build();
 
-	ImguiFileSystemDialog& getGeneralFileSystemDialog();
-
-private:
 	Editor& getEditor();
 	ImguiFontLibrary& getFontLibrary();
 	ImguiImageLibrary& getImageLibrary();
 	DimensionHints& getDimensionHints();
 	bool isMainEditor() const;
+	ImguiFileSystemDialog& getGeneralFileSystemDialog();
 
+private:
 	Editor* m_editor;
 	ImguiFontLibrary* m_fontLibrary;
 	ImguiImageLibrary* m_imageLibrary;

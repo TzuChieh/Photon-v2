@@ -3,8 +3,8 @@
 namespace ph::editor
 {
 
+class Editor;
 class ImguiEditorUI;
-class FileSystemExplorer;
 class ImguiFileSystemDialog;
 
 class ImguiEditorUIProxy final
@@ -12,6 +12,7 @@ class ImguiEditorUIProxy final
 public:
 	ImguiEditorUIProxy(ImguiEditorUI& editorUI);
 
+	Editor& getEditor();
 	ImguiFileSystemDialog& getGeneralFileSystemDialog();
 
 private:

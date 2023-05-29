@@ -5,8 +5,10 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Utility/Timer.h>
+#include <DataIO/FileSystem/Path.h>
 
 #include <memory>
+#include <utility>
 
 namespace ph::editor
 {
@@ -168,13 +170,24 @@ void Editor::cleanup()
 
 std::size_t Editor::createScene(const std::string& name)
 {
-	DesignerScene* const scene = m_scenes.add(std::make_unique<DesignerScene>(this));
-	PH_ASSERT(scene != nullptr);
-	const std::size_t sceneIndex = m_scenes.size() - 1;
+	DesignerScene* scene = nullptr;
+	auto sceneIndex = static_cast<std::size_t>(-1);
 
-	if(!name.empty())
+	// Create new scene with required initial properties
 	{
-		scene->setName(name);
+		auto newScene = std::make_unique<DesignerScene>(this);
+
+		// Optionally keep the default scene name
+		if(!name.empty())
+		{
+			newScene->setName(name);
+		}
+
+		// Ensure no duplicated scene names
+		newScene->setName(getUniqueSceneName(newScene->getName()));
+
+		scene = m_scenes.add(std::move(newScene));
+		sceneIndex = m_scenes.size() - 1;
 	}
 
 	PH_LOG(Editor,
@@ -183,6 +196,11 @@ std::size_t Editor::createScene(const std::string& name)
 
 	setActiveScene(sceneIndex);
 	return sceneIndex;
+}
+
+void Editor::openScene(const Path& sceneFilePath)
+{
+	// TODO
 }
 
 DesignerScene* Editor::getActiveScene() const
@@ -249,6 +267,38 @@ void Editor::removeScene(const std::size_t sceneIndex)
 	PH_LOG(Editor, 
 		"removed scene \"{}\"", 
 		m_removingScenes.back().scene->getName());
+}
+
+std::string Editor::getUniqueSceneName(const std::string& intendedName) const
+{
+	int suffixNumber = 1;
+	while(true)
+	{
+		// Generating a name sequence like "name", "name (2)", "name (3)", etc.
+		const std::string generatedName = 
+			intendedName +
+			(suffixNumber == 1 ? "" : " (" + std::to_string(suffixNumber) + ")");
+
+		bool foundDuplicatedName = false;
+		for(const auto& scene : m_scenes)
+		{
+			if(generatedName == scene->getName())
+			{
+				foundDuplicatedName = true;
+				break;
+			}
+		}
+
+		if(!foundDuplicatedName)
+		{
+			return generatedName;
+		}
+
+		++suffixNumber;
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return "";
 }
 
 void Editor::flushAllEvents()

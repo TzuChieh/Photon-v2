@@ -6,6 +6,7 @@
 #include "Render/Imgui/ImguiImageLibrary.h"
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
 #include "Designer/DesignerScene.h"
+#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -259,11 +260,6 @@ void ImguiEditorUI::build()
 	//buildFileSystemDialogContent(m_fsDialogExplorer);
 }
 
-ImguiFileSystemDialog& ImguiEditorUI::getGeneralFileSystemDialog()
-{
-	return m_generalFileSystemDialog;
-}
-
 void ImguiEditorUI::buildMainMenuBar()
 {
 	m_shouldResetWindowLayout = false;
@@ -460,7 +456,7 @@ void ImguiEditorUI::buildSceneManagerWindow()
 	
 	m_editorSceneManager.buildWindow(
 		SCENE_BROWSER_WINDOW_NAME,
-		getEditor(),
+		*this,
 		&m_sidebarState.showSceneManager);
 }
 
@@ -599,6 +595,11 @@ bool ImguiEditorUI::isMainEditor() const
 {
 	PH_ASSERT(mainEditor);
 	return mainEditor == this;
+}
+
+ImguiFileSystemDialog& ImguiEditorUI::getGeneralFileSystemDialog()
+{
+	return m_generalFileSystemDialog;
 }
 
 }// end namespace ph::editor

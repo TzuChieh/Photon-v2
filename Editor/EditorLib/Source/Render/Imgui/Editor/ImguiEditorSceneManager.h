@@ -1,9 +1,14 @@
 #pragma once
 
+#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
+
+#include <array>
+#include <cstddef>
+
 namespace ph::editor
 {
 
-class Editor;
+class ImguiEditorUIProxy;
 
 class ImguiEditorSceneManager final
 {
@@ -12,11 +17,12 @@ public:
 
 	void buildWindow(
 		const char* title, 
-		Editor& editor,
+		ImguiEditorUIProxy editorUI,
 		bool* isOpening = nullptr);
 
 private:
-
+	std::size_t m_selectedSceneIdx;
+	std::array<char, 128> m_newSceneNameBuffer;
 };
 
 }// end namespace ph::editor
