@@ -2,10 +2,12 @@
 
 #include "DataIO/FileSystem/Path.h"
 #include "SDL/SdlInlinePacketInterface.h"
+#include "Utility/TSpan.h"
 
 #include <string_view>
 #include <string>
 #include <cstddef>
+#include <unordered_set>
 
 namespace ph
 {
@@ -19,8 +21,8 @@ class SdlDataPacketInterface;
 class SdlCommandGenerator
 {
 public:
-	SdlCommandGenerator();
-	explicit SdlCommandGenerator(const Path& sceneWorkingDirectory);
+	explicit SdlCommandGenerator(TSpanView<const SdlClass*> targetClasses);
+	SdlCommandGenerator(TSpanView<const SdlClass*> targetClasses, const Path& sceneWorkingDirectory);
 	virtual ~SdlCommandGenerator();
 
 	// TODO: parameters like binary form? multi-thread?
@@ -37,6 +39,7 @@ public:
 	std::size_t numGeneratedCommands() const;
 	std::size_t numGenerationErrors() const;
 	void clearStats();
+	bool hasTarget(const SdlClass* clazz) const;
 
 protected:
 	/*!
@@ -67,6 +70,7 @@ private:
 		std::string& out_commandStr);
 
 private:
+	std::unordered_set<const SdlClass*> m_targetClasses;
 	Path m_sceneWorkingDirectory;
 	SdlInlinePacketInterface m_inlinePacketInterface;
 	std::size_t m_numGeneratedCommands;

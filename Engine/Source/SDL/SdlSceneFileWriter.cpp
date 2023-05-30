@@ -7,6 +7,7 @@
 #include "SDL/sdl_helpers.h"
 #include "SDL/Introspect/SdlOutputContext.h"
 #include "SDL/Introspect/SdlClass.h"
+#include "ph_cpp_core.h"
 
 #include <utility>
 
@@ -20,7 +21,7 @@ SdlSceneFileWriter::SdlSceneFileWriter()
 {}
 
 SdlSceneFileWriter::SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory)
-	: SdlCommandGenerator(sceneWorkingDirectory)
+	: SdlCommandGenerator(get_registered_engine_classes(), sceneWorkingDirectory)
 	, m_sceneName(std::move(sceneName))
 	, m_resolver()
 	, m_fileStream(nullptr)

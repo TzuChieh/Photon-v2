@@ -14,12 +14,16 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlCommandGenerator, SDL);
 
-SdlCommandGenerator::SdlCommandGenerator()
-	: SdlCommandGenerator(Path("./"))
+SdlCommandGenerator::SdlCommandGenerator(TSpanView<const SdlClass*> targetClasses)
+	: SdlCommandGenerator(targetClasses, Path("./"))
 {}
 
-SdlCommandGenerator::SdlCommandGenerator(const Path& sceneWorkingDirectory)
-	: m_sceneWorkingDirectory(sceneWorkingDirectory)
+SdlCommandGenerator::SdlCommandGenerator(
+	TSpanView<const SdlClass*> targetClasses, 
+	const Path& sceneWorkingDirectory)
+
+	: m_targetClasses(targetClasses.begin(), targetClasses.end())
+	, m_sceneWorkingDirectory(sceneWorkingDirectory)
 	, m_inlinePacketInterface(sceneWorkingDirectory)
 	, m_numGeneratedCommands(0)
 	, m_numGenerationErrors(0)
@@ -46,6 +50,12 @@ void SdlCommandGenerator::generateLoadCommand(
 
 	try
 	{
+		// Do not start the generation if the class is not a target
+		if(hasTarget(clazz))
+		{
+			throw SdlSaveError("unsupported target class");
+		}
+
 		if(!beginCommand(clazz))
 		{
 			return;
@@ -99,6 +109,12 @@ void SdlCommandGenerator::clearStats()
 	m_numGenerationErrors = 0;
 }
 
+bool SdlCommandGenerator::hasTarget(const SdlClass* const clazz) const
+{
+	const auto& result = m_targetClasses.find(clazz);
+	return result != m_targetClasses.end();
+}
+
 void SdlCommandGenerator::generateLoadCommand(
 	const ISdlResource& resource,
 	const SdlClass* const resourceClass,
@@ -113,7 +129,7 @@ void SdlCommandGenerator::generateLoadCommand(
 	out_commandStr += resourceName;
 	out_commandStr += " = ";
 
-	getPacketInterface().generate(clauses, out_commandStr);
+	getPacketInterface().generate(clauses, resourceClass, resourceName, out_commandStr);
 
 	out_commandStr += '\n';
 }
