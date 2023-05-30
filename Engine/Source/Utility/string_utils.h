@@ -215,9 +215,16 @@ inline std::string_view trim(const std::string_view srcStr)
 	return trim_head<TYPE>(trim_tail<TYPE>(srcStr));
 }
 
+/*! @brief Retrieve a token from a string.
+
+@param srcStr The string that token is going to be retrieved from.
+@param[out] out_remainingStr If not null, stores the string with the retrieved token and its separator
+removed. Pointing to @p srcStr is valid, e.g., `next_token(str, &str)`.
+@param tokenSeparators Charactors that separate the tokens. Defaults to whitespace characters.
+*/
 inline std::string_view next_token(
 	std::string_view        srcStr, 
-	std::string_view* const remainingStr    = nullptr,
+	std::string_view* const out_remainingStr = nullptr,
 	const std::string_view  tokenSeparators = get_whitespaces<>())
 {
 	srcStr = cut_head(srcStr, tokenSeparators);
@@ -226,9 +233,10 @@ inline std::string_view next_token(
 	if(separatorPos != std::string_view::npos)
 	{
 		const auto nextToken = srcStr.substr(0, separatorPos);
-		if(remainingStr)
+		if(out_remainingStr)
 		{
-			*remainingStr = srcStr.substr(separatorPos + 1);
+			// `separatorPos + 1` as we do not want to include the separator
+			*out_remainingStr = srcStr.substr(separatorPos + 1);
 		}
 
 		return nextToken;

@@ -9,6 +9,46 @@ using namespace ph;
 
 TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 {
+	// Read all--preserve all contents
+
+	{
+		auto stream = FormattedTextInputStream("123456");
+		
+		std::string content;
+		ASSERT_NO_THROW(stream.readAll(&content));
+		EXPECT_STREQ(content.c_str(), "123456");
+		EXPECT_FALSE(stream);
+	}
+
+	{
+		auto stream = FormattedTextInputStream("abc de fg hijk");
+
+		std::string content;
+		ASSERT_NO_THROW(stream.readAll(&content));
+		EXPECT_STREQ(content.c_str(), "abc de fg hijk");
+	}
+
+	{
+		auto stream = FormattedTextInputStream(
+			"0, \n"
+			"2, \r\n"
+			"4, \t\t\r6, 8, 10\n"
+			"\n");
+
+		std::string content;
+		ASSERT_NO_THROW(stream.readAll(&content));
+		EXPECT_STREQ(content.c_str(), "0, \n"
+		                              "2, \r\n"
+		                              "4, \t\t\r6, 8, 10\n"
+		                              "\n");
+		EXPECT_FALSE(stream);
+	}
+}
+
+TEST(FormattedTextInputStreamTest, StringStreamReadAllTightly)
+{
+	// Read all tightly--without whitespaces
+
 	{
 		auto stream = FormattedTextInputStream("123456");
 		
@@ -31,8 +71,7 @@ TEST(FormattedTextInputStreamTest, StringStreamReadAll)
 			"0, \n"
 			"2, \r\n"
 			"4, \t\t\r6, 8, 10\n"
-			"\n"
-			"");
+			"\n");
 
 		std::string content;
 		ASSERT_NO_THROW(stream.readAllTightly(&content));

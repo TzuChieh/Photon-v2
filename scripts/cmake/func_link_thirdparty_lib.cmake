@@ -4,6 +4,9 @@
 # @param DETECTING_PREPROCESSOR [1-arg] Name of the preprocessor macro to define.
 # Defined to 1 if library is linked, otherwise defined to 0. Note that there should 
 # be no space in the name of the preprocessor macro.
+# @param PRIVATE [0-arg] Link as private library. This is the default if not specified.
+# @param PUBLIC [0-arg] Link as public library.
+# @param INTERFACE [0-arg] Link as interface library.
 #
 function(link_thirdparty_lib targetName libName)
     set(OPTIONS 

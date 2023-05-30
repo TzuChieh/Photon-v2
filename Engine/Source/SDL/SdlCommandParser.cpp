@@ -302,7 +302,7 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 
 		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
-		getClauses(command.dataString, &clauses);
+		getClauses(command.dataString, &clazz, resourceName, &clauses);
 
 		initResource(
 			resource, 
@@ -349,7 +349,7 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 
 		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
-		getClauses(command.dataString, &clauses);
+		getClauses(command.dataString, &clazz, targetResourceName, &clauses);
 
 		// Finally, call the executor
 
@@ -431,13 +431,22 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 	endCommand();
 }
 
-void SdlCommandParser::getClauses(std::string_view packetCommand, SdlInputClauses* const out_clauses)
+void SdlCommandParser::getClauses(
+	std::string_view packetCommand, 
+	const SdlClass* const targetClass,
+	std::string_view targetName,
+	SdlInputClauses* const out_clauses)
 {
 	PH_SCOPED_TIMER(GetClauses);
 
 	PH_ASSERT(out_clauses);
+
 	out_clauses->clear();
-	getPacketInterface().parse(packetCommand, *out_clauses);
+	getPacketInterface().parse(
+		packetCommand, 
+		targetClass,
+		targetName,
+		*out_clauses);
 }
 
 std::string SdlCommandParser::genNameForAnonymity()

@@ -43,6 +43,34 @@ std::string FormattedTextInputStream::acquireName() const
 	return m_streamName;
 }
 
+void FormattedTextInputStream::readAll(std::string* const out_allText)
+{
+	PH_ASSERT(getStream());
+	PH_ASSERT(out_allText);
+
+	ensureStreamIsGoodForRead();
+
+	std::ostringstream buffer;
+	buffer << getStream()->rdbuf();
+
+	// `move()` required as we want to call the rvalue-qualified overload of `str()`
+	*out_allText = std::move(buffer).str();
+
+	// EOF-bit of the stream is not set as we are reading indirectly through the stream buffer,
+	// attempting to read the next character through `peek()` seems to fix this (set the EOF-bit). 
+	// We need the EOF-bit set so `operator bool ()` properly returns false after `readAll()`.
+	// See https://stackoverflow.com/questions/6114231/c-io-file-streams-writing-from-one-file-to-another-using-operator-and-rdbuf
+	getStream()->peek();
+
+	// Report non-EOF error
+	if(!getStream()->good() && !getStream()->eof())
+	{
+		throw_formatted<IOException>(
+			"Error reading all text from std::istream ({}).",
+			getReasonForError());
+	}
+}
+
 void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 {
 	PH_ASSERT(getStream());
@@ -62,7 +90,7 @@ void FormattedTextInputStream::readAllTightly(std::string* const out_allText)
 	if(!getStream()->good() && !getStream()->eof())
 	{
 		throw_formatted<IOException>(
-			"Error reading all text from std::istream ({}).",
+			"Error reading all remaining text tightly from std::istream ({}).",
 			getReasonForError());
 	}
 }

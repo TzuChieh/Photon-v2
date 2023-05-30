@@ -36,6 +36,9 @@ public:
 	*/
 	virtual std::optional<std::size_t> tellPut() = 0;
 
+	/*!
+	@return Whether the stream is good for write.
+	*/
 	operator bool () const override = 0;
 
 	/*! @brief Write some data in the form of raw bytes.

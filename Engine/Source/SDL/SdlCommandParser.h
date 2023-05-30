@@ -131,7 +131,13 @@ private:
 	void parseExecutionCommand(const CommandHeader& command);
 	void parseDirectiveCommand(const CommandHeader& command);
 
-	void getClauses(std::string_view packetCommand, SdlInputClauses* out_clauses);
+	/*! @brief Retrieve clauses from the packet command.
+	*/
+	void getClauses(
+		std::string_view packetCommand, 
+		const SdlClass* targetClass,
+		std::string_view targetName,
+		SdlInputClauses* out_clauses);
 
 	std::string getName(std::string_view referenceToken);
 	std::string genNameForAnonymity();

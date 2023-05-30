@@ -38,6 +38,9 @@ public:
 	*/
 	virtual std::optional<std::size_t> tellGet() = 0;
 
+	/*!
+	@return Whether the stream is good for read.
+	*/
 	operator bool () const override = 0;
 
 	/*! @brief Read some data in the form of raw bytes.

@@ -17,6 +17,8 @@ public:
 
 	const Path& getPathToResource() const;
 
+	// TODO: ctor should take some asset context object instead
+
 private:
 	Path m_pathToResource;
 };

@@ -27,7 +27,11 @@ public:
 
 	std::string acquireName() const override;
 
-	/*! @brief Read all text without any whitespaces.
+	/*! @brief Read all remaining text. All contents are preserved.
+	*/
+	void readAll(std::string* out_allText);
+
+	/*! @brief Read all remaining text without any whitespaces.
 	*/
 	void readAllTightly(std::string* out_allText);
 
