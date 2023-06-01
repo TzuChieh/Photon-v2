@@ -68,8 +68,9 @@ public:
 	std::size_t createScene(const std::string& name = "");
 	void openScene(const Path& sceneFilePath);
 	DesignerScene* getScene(std::size_t sceneIndex) const;
-	DesignerScene* getActiveScene() const;
 	void setActiveScene(std::size_t sceneIndex);
+	void pauseActiveScene();
+	void resumeActiveScene();
 	void removeScene(std::size_t sceneIndex);
 	std::size_t numScenes() const;
 	std::string getUniqueSceneName(const std::string& intendedName) const;
@@ -87,6 +88,7 @@ private:
 	TUniquePtrVector<DesignerScene> m_scenes;
 	std::list<PendingRemovalScene> m_removingScenes;
 	DesignerScene* m_activeScene = nullptr;
+	bool m_isActiveScenePaused = false;
 
 	void loadDefaultScene();
 	void renderCleanupRemovingScenes(RenderThreadCaller& caller);

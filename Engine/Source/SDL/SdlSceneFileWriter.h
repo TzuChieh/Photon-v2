@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL/SdlCommandGenerator.h"
-#include "DataIO/FileSystem/Path.h"
 #include "SDL/SdlDependencyResolver.h"
 
 #include <string>
@@ -12,6 +11,9 @@ namespace ph
 class SceneDescription;
 class FormattedTextOutputStream;
 
+/*! @brief Saving utility for renderer scene.
+Writes .p2 (Photon-v2) file.
+*/
 class SdlSceneFileWriter : public SdlCommandGenerator
 {
 public:
@@ -35,6 +37,8 @@ protected:
 	void endCommand() override;
 
 private:
+	void saveSceneToFile(const SceneDescription& scene, const Path& filePath);
+
 	std::string m_sceneName;
 	SdlDependencyResolver m_resolver;
 	FormattedTextOutputStream* m_fileStream;

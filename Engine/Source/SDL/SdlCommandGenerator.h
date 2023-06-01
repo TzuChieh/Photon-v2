@@ -17,6 +17,7 @@ class ISdlResource;
 class SdlOutputClause;
 class SdlOutputClauses;
 class SdlDataPacketInterface;
+class SemanticVersion;
 
 class SdlCommandGenerator
 {
@@ -33,6 +34,8 @@ public:
 	void generateLoadCommand(
 		const ISdlResource* resource,
 		std::string_view resourceName);
+
+	void generateVersionCommand(const SemanticVersion& version);
 
 	const Path& getSceneWorkingDirectory() const;
 	void setSceneWorkingDirectory(const Path& directory);

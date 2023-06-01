@@ -64,6 +64,13 @@ public:
 	const SceneDescription& getDescription() const;
 	TSpanView<DesignerObject*> getRootObjects() const;
 
+	/*! @brief Find objects of a matching type.
+	@tparam ObjectType Type of the objects to be found. Only types in the hierarchy of `DesignerObject`
+	is allowed, including all bases of `DesignerObject`.
+	*/
+	template<typename ObjectType>
+	void findObjectsByType(std::vector<ObjectType*>& out_objs) const;
+
 	void setName(std::string name);
 
 private:

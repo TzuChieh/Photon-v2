@@ -1,5 +1,4 @@
 #include "SDL/SdlSceneFileWriter.h"
-#include "DataIO/Stream/IOutputStream.h"
 #include "Common/assertion.h"
 #include "Common/config.h"
 #include "Common/logging.h"
@@ -7,9 +6,13 @@
 #include "SDL/sdl_helpers.h"
 #include "SDL/Introspect/SdlOutputContext.h"
 #include "SDL/Introspect/SdlClass.h"
+#include "DataIO/FileSystem/Path.h"
 #include "ph_cpp_core.h"
+#include "SDL/SceneDescription.h"
+#include "Utility/SemanticVersion.h"
 
 #include <utility>
+#include <vector>
 
 namespace ph
 {
@@ -72,17 +75,35 @@ void SdlSceneFileWriter::write(const SceneDescription& scene)
 
 	// Scene file must reside in the scene working directory as it may be accompanied with data files
 	getSceneWorkingDirectory().createDirectory();
-	Path sceneFilePath = getSceneWorkingDirectory().append(m_sceneName + ".p2");
+	Path sceneFile = getSceneWorkingDirectory().append(m_sceneName + ".p2");
 
-	PH_LOG(SdlSceneFileWriter, "generating scene file: {}", sceneFilePath);
+	PH_LOG(SdlSceneFileWriter, "generating scene file: {}", sceneFile);
 
 	clearStats();
+	saveSceneToFile(scene, sceneFile);
 
-	FormattedTextOutputStream fileStream(sceneFilePath);
+	PH_LOG(SdlSceneFileWriter,
+		"scene file generated, totalling {} commands (errors: {})",
+		numGeneratedCommands(), numGenerationErrors());
+}
+
+void SdlSceneFileWriter::setSceneName(std::string sceneName)
+{
+	m_sceneName = std::move(sceneName);
+}
+
+void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene, const Path& filePath)
+{
+	FormattedTextOutputStream fileStream(filePath);
 	m_fileStream = &fileStream;
-	m_fileStream->writeString("#version {};\n", PH_PSDL_VERSION);
 
-	m_resolver.analyze(scene);
+	generateVersionCommand(SemanticVersion(PH_PSDL_VERSION));
+
+	std::vector<const ISdlResource*> resources;
+	std::vector<std::string_view> names;
+	scene.getResources().listAll(&resources, &names);
+
+	m_resolver.analyze(resources, names);
 
 	for(const ISdlResource* resource = m_resolver.next();
 	    resource != nullptr; 
@@ -94,17 +115,7 @@ void SdlSceneFileWriter::write(const SceneDescription& scene)
 		generateLoadCommand(resource, m_resolver.getResourceName(resource));
 	}
 
-	PH_LOG(SdlSceneFileWriter,
-		"generated {} commands (errors: {})", 
-		numGeneratedCommands(), numGenerationErrors());
-
-	PH_LOG(SdlSceneFileWriter, "scene file generated");
 	m_fileStream = nullptr;
-}
-
-void SdlSceneFileWriter::setSceneName(std::string sceneName)
-{
-	m_sceneName = std::move(sceneName);
 }
 
 }// end namespace ph

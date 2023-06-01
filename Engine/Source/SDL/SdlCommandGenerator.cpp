@@ -5,6 +5,7 @@
 #include "SDL/SdlOutputClauses.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
+#include "Utility/SemanticVersion.h"
 
 #include <cstddef>
 #include <utility>
@@ -93,6 +94,33 @@ void SdlCommandGenerator::generateLoadCommand(
 		PH_LOG_WARNING(SdlCommandGenerator, 
 			"error generating load command for resource {} ({}) -> {}",
 			resourceNameInfo, clazz->genPrettyName(), e.whatStr());
+
+		++m_numGenerationErrors;
+	}
+}
+
+void SdlCommandGenerator::generateVersionCommand(const SemanticVersion& version)
+{
+	try
+	{
+		if(!beginCommand(nullptr))
+		{
+			return;
+		}
+
+		// TODO: reuse string buffer
+		std::string generatedCommand = "#version ";
+		generatedCommand += version.toString();
+		generatedCommand += ";\n";
+		commandGenerated(generatedCommand);
+
+		endCommand();
+	}
+	catch(const SdlSaveError& e)
+	{
+		PH_LOG_WARNING(SdlCommandGenerator,
+			"error generating version command (intended version: {}) -> {}",
+			version.toString(), e.whatStr());
 
 		++m_numGenerationErrors;
 	}

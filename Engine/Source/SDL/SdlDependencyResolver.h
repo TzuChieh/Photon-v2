@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Utility/TSpan.h"
+
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -8,7 +10,6 @@
 #include <queue>
 #include <optional>
 
-namespace ph { class SceneDescription; }
 namespace ph { class ISdlResource; }
 
 namespace ph
@@ -19,9 +20,14 @@ class SdlDependencyResolver final
 public:
 	SdlDependencyResolver();
 
-	/*! @brief Submit a scene and start to resolve resource dependencies.
+	/*! @brief Submit resources and start to resolve their dependencies.
+	The containers for input do not need to be kept alive after this call.
+	@param resources Resources to be analyzed.
+	@param resourceNames Names for the resources. Must have exactly the same size as @p resources if provided.
 	*/
-	void analyze(const SceneDescription& scene);
+	void analyze(
+		TSpanView<const ISdlResource*> resources,
+		TSpanView<std::string_view> resourceNames = {});
 
 	/*! @brief Get a resource from the analyzed scene with a valid dependency ordering.
 	@return A resource. Can be called repeatedly until `nullptr` is returned (which indicates all

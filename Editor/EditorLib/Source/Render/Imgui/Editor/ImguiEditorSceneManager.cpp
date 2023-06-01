@@ -78,16 +78,21 @@ void ImguiEditorSceneManager::buildWindow(
 
 	ImGui::SameLine();
 
-	if(ImGui::Button("Make Active"))
 	{
-		if(m_selectedSceneIdx < editor.numScenes())
-		{
-			editor.setActiveScene(m_selectedSceneIdx);
-		}
-	}
+		EditContext editCtx = editor.getEditContext();
 
-	ImGui::Text("Active Scene: %s", 
-		editor.getActiveScene() ? editor.getActiveScene()->getName().c_str() : "(none)");
+		if(ImGui::Button("Make Active"))
+		{
+			if(m_selectedSceneIdx < editor.numScenes())
+			{
+				editor.setActiveScene(m_selectedSceneIdx);
+			}
+		}
+
+		ImGui::Text("Active Scene: %s (%s)",
+			editCtx.activeScene ? editCtx.activeScene->getName().c_str() : "(none)",
+			editCtx.isActiveScenePaused ? "paused" : "resumed");
+	}
 	
 	// List box for all opened scenes
 	// Custom size: use all width, 5 items tall

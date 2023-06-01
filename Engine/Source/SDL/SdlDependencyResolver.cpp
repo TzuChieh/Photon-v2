@@ -2,7 +2,6 @@
 #include "Common/assertion.h"
 #include "Common/logging.h"
 #include "SDL/ISdlResource.h"
-#include "SDL/SceneDescription.h"
 #include "SDL/Introspect/SdlClass.h"
 
 #include <algorithm>
@@ -18,16 +17,26 @@ SdlDependencyResolver::SdlDependencyResolver() :
 	m_resourceToInfoIndex()
 {}
 
-void SdlDependencyResolver::analyze(const SceneDescription& scene)
+void SdlDependencyResolver::analyze(
+	TSpanView<const ISdlResource*> resources,
+	TSpanView<std::string_view> resourceNames)
 {
-	// Gather all resources in the scene for analyzing dependencies
+	if(!resourceNames.empty())
 	{
-		std::vector<const ISdlResource*> resources;
-		std::vector<std::string_view> names;
-		scene.getResources().listAll(&resources, &names);
+		if(resourceNames.size() != resources.size())
+		{
+			PH_LOG_WARNING(SdlDependencyResolver,
+				"incomplete resource name info detected: {} resource names provided (expecting {})", 
+				resourceNames.size(),
+				resources.size());
 
-		PH_ASSERT_EQ(resources.size(), names.size());
+			// Proceed as if no resource names were provided
+			resourceNames = {};
+		}
+	}
 
+	// Gather all resources for analyzing dependencies
+	{
 		m_resourceInfos.resize(resources.size());
 
 		m_resourceToInfoIndex.clear();
@@ -37,7 +46,7 @@ void SdlDependencyResolver::analyze(const SceneDescription& scene)
 		{
 			ResourceInfo& resInfo = m_resourceInfos[i];
 			resInfo.resource = resources[i];
-			resInfo.name = names[i];
+			resInfo.name = resourceNames.empty() ? "" : resourceNames[i];
 
 			m_resourceToInfoIndex[resources[i]] = i;
 		}
@@ -113,7 +122,8 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 				if(!optReferencedResIdx)
 				{
 					PH_LOG_WARNING(SdlDependencyResolver,
-						"resource {} referenced a resource that is not tracked by the analyzed SceneDescription, ignoring the reference",
+						"resource {} referenced a resource that is not tracked by the analyzer, ignoring the reference "
+						"(this typically happens if the referenced resource is not submitted for analysis)",
 						resInfo.name);
 					continue;
 				}

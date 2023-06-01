@@ -160,4 +160,30 @@ inline TSpanView<DesignerObject*> DesignerScene::getRootObjects() const
 	return m_rootObjs;
 }
 
+template<typename ObjectType>
+inline void DesignerScene::findObjectsByType(std::vector<ObjectType*>& out_objs) const
+{
+	out_objs.reserve(out_objs.size() + m_objStorage.size());
+	for(auto& obj : m_objStorage)
+	{
+		// Implicit cast if `ObjectType` is a base type
+		if constexpr(CDerived<DesignerObject, ObjectType>)
+		{
+			out_objs.push_back(obj.get());
+		}
+		// Otherwise explicit downcasting is required
+		else
+		{
+			static_assert(CDerived<ObjectType, DesignerObject>,
+				"Object must be a designer object.");
+
+			auto const derivedObj = dynamic_cast<ObjectType*>(obj.get());
+			if(derivedObj)
+			{
+				out_objs.push_back(derivedObj);
+			}
+		}
+	}
+}
+
 }// end namespace ph::editor

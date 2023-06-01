@@ -11,6 +11,9 @@ namespace ph
 class SceneDescription;
 class FormattedTextInputStream;
 
+/*! @brief Loading utility for renderer scene.
+Loads .p2 (Photon-v2) file.
+*/
 class SdlSceneFileReader : public SdlCommandParser
 {
 public:
