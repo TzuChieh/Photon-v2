@@ -63,8 +63,20 @@ public:
 	SceneDescription& getRenderDescription();
 	const SceneDescription& getRenderDescription() const;
 	TSpanView<DesignerObject*> getRootObjects() const;
+
+	/*! @brief Temporarily stop the update of scene.
+	When paused, most scene states should not be changed, including all contained objects. 
+	Contained objects will not be updated (while render related operations are not affected).
+	*/
 	void pause();
+
+	/*! @brief Continue the update of scene.
+	Resuming an already-resumed scene has no effect.
+	*/
 	void resume();
+
+	/*! @brief Whether the scene is pausing.
+	*/
 	bool isPaused() const;
 
 	/*! @brief Find objects of a matching type.

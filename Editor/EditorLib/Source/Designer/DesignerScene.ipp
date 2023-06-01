@@ -204,12 +204,27 @@ template<typename ObjectType>
 inline void DesignerScene::findObjectsByType(std::vector<ObjectType*>& out_objs) const
 {
 	out_objs.reserve(out_objs.size() + m_objStorage.size());
-	for(auto& obj : m_objStorage)
+	for(auto& objRes : m_objStorage)
 	{
+		DesignerObject* const obj = objRes.get();
+
+		// Skip removed object
+		if(!obj)
+		{
+			continue;
+		}
+
+		// Skip object with incomplete initialization state (we do not care about render state here)
+		if(obj->getState().hasNo(EObjectState::Initialized) ||
+		   obj->getState().has(EObjectState::Uninitialized))
+		{
+			continue;
+		}
+
 		// Implicit cast if `ObjectType` is a base type
 		if constexpr(CDerived<DesignerObject, ObjectType>)
 		{
-			out_objs.push_back(obj.get());
+			out_objs.push_back(obj);
 		}
 		// Otherwise explicit downcasting is required
 		else
@@ -217,7 +232,7 @@ inline void DesignerScene::findObjectsByType(std::vector<ObjectType*>& out_objs)
 			static_assert(CDerived<ObjectType, DesignerObject>,
 				"Object must be a designer object.");
 
-			auto const derivedObj = dynamic_cast<ObjectType*>(obj.get());
+			auto const derivedObj = dynamic_cast<ObjectType*>(obj);
 			if(derivedObj)
 			{
 				out_objs.push_back(derivedObj);

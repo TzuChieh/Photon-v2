@@ -89,9 +89,10 @@ void ImguiEditorSceneManager::buildWindow(
 			}
 		}
 
-		ImGui::Text("Active Scene: %s (%s)",
-			editCtx.activeScene ? editCtx.activeScene->getName().c_str() : "(none)",
-			editCtx.isActiveScenePaused ? "paused" : "resumed");
+		DesignerScene* activeScene = editCtx.activeScene;
+		ImGui::Text("Active Scene: %s%s",
+			activeScene ? activeScene->getName().c_str() : "(none)",
+			activeScene ? activeScene->isPaused() ? " (paused)" : " (running)" : "");
 	}
 	
 	// List box for all opened scenes

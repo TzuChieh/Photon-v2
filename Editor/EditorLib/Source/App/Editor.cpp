@@ -203,11 +203,6 @@ void Editor::openScene(const Path& sceneFilePath)
 	// TODO
 }
 
-DesignerScene* Editor::getActiveScene() const
-{
-	return m_activeScene;
-}
-
 void Editor::setActiveScene(const std::size_t sceneIndex)
 {
 	DesignerScene* const sceneToBeActive = getScene(sceneIndex);
