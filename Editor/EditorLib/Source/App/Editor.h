@@ -69,8 +69,6 @@ public:
 	void openScene(const Path& sceneFilePath);
 	DesignerScene* getScene(std::size_t sceneIndex) const;
 	void setActiveScene(std::size_t sceneIndex);
-	void pauseActiveScene();
-	void resumeActiveScene();
 	void removeScene(std::size_t sceneIndex);
 	std::size_t numScenes() const;
 	std::string getUniqueSceneName(const std::string& intendedName) const;

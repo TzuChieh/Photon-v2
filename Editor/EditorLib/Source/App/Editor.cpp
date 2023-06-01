@@ -40,9 +40,9 @@ void Editor::update(const MainThreadUpdateContext& ctx)
 		editorStats.mainThreadEventFlushMs = eventFlushTimer.stop().getDeltaMs<float32>();
 	}
 
-	if(m_activeScene && !m_isActiveScenePaused)
+	for(auto& scene : m_scenes)
 	{
-		m_activeScene->update(ctx);
+		scene->update(ctx);
 	}
 
 	cleanupRemovingScenes();
@@ -68,17 +68,17 @@ void Editor::createRenderCommands(RenderThreadCaller& caller)
 
 void Editor::beforeUpdateStage()
 {
-	if(m_activeScene && !m_isActiveScenePaused)
+	for(auto& scene : m_scenes)
 	{
-		m_activeScene->beforeUpdateStage();
+		scene->beforeUpdateStage();
 	}
 }
 
 void Editor::afterUpdateStage()
 {
-	if(m_activeScene && !m_isActiveScenePaused)
+	for(auto& scene : m_scenes)
 	{
-		m_activeScene->afterUpdateStage();
+		scene->afterUpdateStage();
 	}
 }
 
@@ -203,6 +203,11 @@ void Editor::openScene(const Path& sceneFilePath)
 	// TODO
 }
 
+DesignerScene* Editor::getActiveScene() const
+{
+	return m_activeScene;
+}
+
 void Editor::setActiveScene(const std::size_t sceneIndex)
 {
 	DesignerScene* const sceneToBeActive = getScene(sceneIndex);
@@ -210,8 +215,7 @@ void Editor::setActiveScene(const std::size_t sceneIndex)
 	{
 		m_activeScene = sceneToBeActive;
 		postEvent(EditContextUpdateEvent(this, EEditContextEvent::ActiveSceneChanged), onEditContextUpdate);
-		resumeActiveScene();
-
+	
 		if(m_activeScene)
 		{
 			PH_LOG(Editor,
@@ -224,16 +228,6 @@ void Editor::setActiveScene(const std::size_t sceneIndex)
 				"no scene is now active");
 		}
 	}
-}
-
-void Editor::pauseActiveScene()
-{
-	m_isActiveScenePaused = true;
-}
-
-void Editor::resumeActiveScene()
-{
-	m_isActiveScenePaused = false;
 }
 
 void Editor::removeScene(const std::size_t sceneIndex)
@@ -319,7 +313,6 @@ EditContext Editor::getEditContext() const
 {
 	EditContext ctx;
 	ctx.activeScene = m_activeScene;
-	ctx.isActiveScenePaused = m_isActiveScenePaused;
 	return ctx;
 }
 

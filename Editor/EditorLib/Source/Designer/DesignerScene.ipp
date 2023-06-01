@@ -6,6 +6,7 @@
 
 #include <Utility/traits.h>
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <utility>
 
@@ -40,8 +41,14 @@ inline ObjectType* DesignerScene::initNewRootObject(DeducedArgs&&... args)
 	PH_ASSERT(Threads::isOnMainThread());
 
 	ObjectType* obj = initNewObject<ObjectType>(std::forward<DeducedArgs>(args)...);
+	if(!obj)
+	{
+		return nullptr;
+	}
+
 	obj->setParentScene(this);
 	m_rootObjs.push_back(obj);
+	
 	return obj;
 }
 
@@ -49,7 +56,11 @@ template<typename ObjectType, typename... DeducedArgs>
 inline ObjectType* DesignerScene::initNewObject(DeducedArgs&&... args)
 {
 	ObjectType* obj = makeObjectFromStorage<ObjectType>(std::forward<DeducedArgs>(args)...);
-	PH_ASSERT(obj != nullptr);
+	if(!obj)
+	{
+		return nullptr;
+	}
+
 	obj->init();
 	obj->getState().turnOn({EObjectState::Initialized});
 
@@ -61,8 +72,14 @@ inline ObjectType* DesignerScene::initNewObject(DeducedArgs&&... args)
 template<typename ObjectType, typename... DeducedArgs>
 inline std::shared_ptr<ObjectType> DesignerScene::initNewSharedRootObject(DeducedArgs&&... args)
 {
+	ObjectType* rootObj = initNewRootObject<ObjectType>(std::forward<DeducedArgs>(args)...);
+	if(!rootObj)
+	{
+		return nullptr;
+	}
+
 	return std::shared_ptr<ObjectType>(
-		initNewRootObject<ObjectType>(std::forward<DeducedArgs>(args)...),
+		rootObj,
 		detail::TSharedObjectDeleter<ObjectType>());
 }
 
@@ -73,6 +90,15 @@ inline ObjectType* DesignerScene::makeObjectFromStorage(DeducedArgs&&... args)
 		"Object must be a designer object.");
 
 	PH_ASSERT(Threads::isOnMainThread());
+
+	if(isPaused())
+	{
+		// This is a condition that should be investigated (API misuse)
+		PH_ASSERT_MSG(false, 
+			"Cannot create object when paused--this may modify object storage.");
+
+		return nullptr;
+	}
 
 	auto storageIndex = static_cast<uint64>(-1);
 
@@ -100,6 +126,15 @@ inline ObjectType* DesignerScene::makeObjectFromStorage(DeducedArgs&&... args)
 
 inline bool DesignerScene::removeObjectFromStorage(DesignerObject* const obj)
 {
+	if(isPaused())
+	{
+		// This is a condition that should be investigated (API misuse)
+		PH_ASSERT_MSG(false,
+			"Cannot remove object when paused--this may modify object storage.");
+
+		return false;
+	}
+
 	if(!obj || &(obj->getScene()) != this || obj->getSceneStorageIndex() == static_cast<uint64>(-1))
 	{
 		return false;
@@ -145,19 +180,24 @@ inline const std::string& DesignerScene::getName() const
 	return m_name;
 }
 
-inline SceneDescription& DesignerScene::getDescription()
+inline SceneDescription& DesignerScene::getRenderDescription()
 {
-	return m_description;
+	return m_renderDescription;
 }
 
-inline const SceneDescription& DesignerScene::getDescription() const
+inline const SceneDescription& DesignerScene::getRenderDescription() const
 {
-	return m_description;
+	return m_renderDescription;
 }
 
 inline TSpanView<DesignerObject*> DesignerScene::getRootObjects() const
 {
 	return m_rootObjs;
+}
+
+inline bool DesignerScene::isPaused() const
+{
+	return m_isPaused;
 }
 
 template<typename ObjectType>

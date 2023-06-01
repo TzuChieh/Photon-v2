@@ -22,8 +22,9 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 
 	, m_editor(fromEditor)
 	, m_name("untitled scene")
-	, m_description()
+	, m_renderDescription()
 	, m_mainCamera()
+	, m_isPaused(false)
 {
 	PH_ASSERT(m_editor != nullptr);
 }
@@ -46,6 +47,12 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 
 	// Record current number of actions so actions added later can be delayed to next cycle
 	m_numObjActionsToProcess = m_objActionQueue.size();
+
+	// No need to process further if the scene is currently paused
+	if(isPaused())
+	{
+		return;
+	}
 
 	// Process queued actions
 	for(std::size_t actionIdx = 0; actionIdx < m_numObjActionsToProcess; ++actionIdx)
@@ -239,6 +246,8 @@ void DesignerScene::deleteObject(DesignerObject* const obj)
 
 void DesignerScene::queueObjectAction(DesignerObject* const obj, const EObjectAction objAction)
 {
+	// We still allow new actions to be queued when the scene is paused
+
 	if(obj)
 	{
 		m_objActionQueue.push_back({
@@ -294,6 +303,16 @@ void DesignerScene::cleanup()
 	}
 
 	m_freeObjStorageIndices.clear();
+}
+
+void DesignerScene::pause()
+{
+	m_isPaused = true;
+}
+
+void DesignerScene::resume()
+{
+	m_isPaused = false;
 }
 
 }// end namespace ph::editor

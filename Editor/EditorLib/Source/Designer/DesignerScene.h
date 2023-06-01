@@ -60,9 +60,12 @@ public:
 	Editor& getEditor();
 	const Editor& getEditor() const;
 	const std::string& getName() const;
-	SceneDescription& getDescription();
-	const SceneDescription& getDescription() const;
+	SceneDescription& getRenderDescription();
+	const SceneDescription& getRenderDescription() const;
 	TSpanView<DesignerObject*> getRootObjects() const;
+	void pause();
+	void resume();
+	bool isPaused() const;
 
 	/*! @brief Find objects of a matching type.
 	@tparam ObjectType Type of the objects to be found. Only types in the hierarchy of `DesignerObject`
@@ -112,8 +115,10 @@ private:
 
 	Editor* m_editor;
 	std::string m_name;
-	SceneDescription m_description;
+	SceneDescription m_renderDescription;
 	ViewportCamera m_mainCamera;
+
+	uint32 m_isPaused : 1;
 };
 
 }// end namespace ph::editor
