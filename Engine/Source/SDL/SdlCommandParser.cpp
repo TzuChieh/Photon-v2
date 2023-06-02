@@ -302,7 +302,7 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 
 		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
-		getClauses(command.dataString, &clazz, resourceName, &clauses);
+		getClauses(command.dataString, &clazz, resourceName, resource, &clauses);
 
 		initResource(
 			resource, 
@@ -349,7 +349,7 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 
 		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
-		getClauses(command.dataString, &clazz, targetResourceName, &clauses);
+		getClauses(command.dataString, &clazz, targetResourceName, resource, &clauses);
 
 		// Finally, call the executor
 
@@ -435,6 +435,7 @@ void SdlCommandParser::getClauses(
 	std::string_view packetCommand, 
 	const SdlClass* const targetClass,
 	std::string_view targetName,
+	ISdlResource* const targetInstance,
 	SdlInputClauses* const out_clauses)
 {
 	PH_SCOPED_TIMER(GetClauses);
@@ -446,6 +447,7 @@ void SdlCommandParser::getClauses(
 		packetCommand, 
 		targetClass,
 		targetName,
+		targetInstance,
 		*out_clauses);
 }
 

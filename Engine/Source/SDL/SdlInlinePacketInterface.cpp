@@ -24,6 +24,7 @@ void SdlInlinePacketInterface::parse(
 	std::string_view packetCommand,
 	const SdlClass* /* targetClass */,
 	std::string_view /* targetName */,
+	ISdlResource* /* targetInstance */,
 	SdlInputClauses& out_clauses) const
 {
 	parseClauses(packetCommand, out_clauses);
@@ -33,6 +34,7 @@ void SdlInlinePacketInterface::generate(
 	const SdlOutputClauses& clauses,
 	const SdlClass* /* targetClass */,
 	std::string_view /* targetName */,
+	const ISdlResource* /* targetInstance */,
 	std::string& out_packetCommand) const
 {
 	for(std::size_t clauseIdx = 0; clauseIdx < clauses.numClauses(); ++clauseIdx)

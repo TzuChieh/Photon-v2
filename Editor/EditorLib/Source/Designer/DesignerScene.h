@@ -9,6 +9,8 @@
 #include <Utility/TUniquePtrVector.h>
 #include <Utility/TSpan.h>
 #include <Utility/INoCopyAndMove.h>
+#include <SDL/Object.h>
+#include <SDL/sdl_interface.h>
 #include <SDL/SceneDescription.h>
 
 #include <vector>
@@ -26,11 +28,13 @@ class RenderThreadCaller;
 
 PH_DECLARE_LOG_GROUP(DesignerScene);
 
-class DesignerScene final : private INoCopyAndMove
+class DesignerScene final
+	: public Object
+	, private INoCopyAndMove
 {
 public:
 	explicit DesignerScene(Editor* fromEditor);
-	~DesignerScene();
+	~DesignerScene() override;
 
 	void update(const MainThreadUpdateContext& ctx);
 	void renderUpdate(const MainThreadRenderUpdateContext& ctx);
@@ -50,6 +54,10 @@ public:
 	template<typename ObjectType, typename... DeducedArgs>
 	ObjectType* initNewRootObject(DeducedArgs&&... args);
 
+	/*! @brief Create root object with automatic lifetime management.
+	The root object will delete itself once the `shared_ptr` free its pointer. Similar to normal objects,
+	using the object pointer after the scene is removed is an error.
+	*/
 	template<typename ObjectType, typename... DeducedArgs>
 	std::shared_ptr<ObjectType> initNewSharedRootObject(DeducedArgs&&... args);
 
@@ -76,6 +84,8 @@ public:
 	void resume();
 
 	/*! @brief Whether the scene is pausing.
+	When the scene is pausing, object and scene states should not be modified. Render states can
+	ignore the pausing state.
 	*/
 	bool isPaused() const;
 
@@ -126,11 +136,30 @@ private:
 	std::size_t m_numObjActionsToProcess;
 
 	Editor* m_editor;
-	std::string m_name;
 	SceneDescription m_renderDescription;
 	ViewportCamera m_mainCamera;
-
 	uint32 m_isPaused : 1;
+
+	std::string m_name;
+
+public:
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DesignerScene>)
+	{
+		ClassType clazz("dscene");
+		clazz.docName("Designer Scene");
+		clazz.description("Designer scene. The main container of designer objects.");
+
+		// Creation and removal should be handled by editor
+		clazz.allowCreateFromClass(false);
+
+		clazz.baseOn<Object>();
+
+		TSdlString<OwnerType> name("name", &OwnerType::m_name);
+		name.description("Name of the designer scene.");
+		clazz.addField(name);
+
+		return clazz;
+	}
 };
 
 }// end namespace ph::editor

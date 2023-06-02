@@ -82,6 +82,14 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 {
 	// TODO: currently will overwrite existing file; should provide options for whether to append
 
+	if(!scene.isPaused())
+	{
+		PH_LOG_WARNING(DesignerSceneWriter,
+			"Designer scene {} should be paused before writing started. If not, its internal states "
+			"might change and cause corruption in the saved data.",
+			scene.getName());
+	}
+
 	// Scene file must reside in the scene working directory as it may be accompanied with data files
 	getSceneWorkingDirectory().createDirectory();
 	Path sceneFile = getSceneWorkingDirectory().append(scene.getName() + ".pds");

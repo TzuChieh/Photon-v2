@@ -45,7 +45,7 @@ inline std::shared_ptr<ISdlResource> TSdlOwnerClass<Owner, FieldSet>::createReso
 	{
 		// The resource is abstract and/or not default-constructible, make sure this is intended
 		PH_ASSERT_MSG(isBlueprint() || !allowCreateFromClass(),
-			std::format("Cannot create resource while the definition permits it (is blueprint: {}, "
+			std::format("Cannot create resource while the SDL definition permits it (is blueprint: {}, "
 			"allow create from class: {})", isBlueprint(), allowCreateFromClass()));
 
 		return nullptr;

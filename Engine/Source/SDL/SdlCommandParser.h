@@ -137,6 +137,7 @@ private:
 		std::string_view packetCommand, 
 		const SdlClass* targetClass,
 		std::string_view targetName,
+		ISdlResource* targetInstance,
 		SdlInputClauses* out_clauses);
 
 	std::string getName(std::string_view referenceToken);

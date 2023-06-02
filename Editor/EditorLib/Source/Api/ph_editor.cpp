@@ -5,11 +5,16 @@
 #include "Procedure/TestProcedureModule.h"
 #include "Render/Imgui/ImguiRenderModule.h"
 #include "Render/EditorDebug/EditorDebugRenderModule.h"
-#include "Designer/AbstractDesignerObject.h"
+#include "Render/Imgui/Editor/ImguiEditorLog.h"
+
+// Designer Scenes
+#include "Designer/DesignerScene.h"
+
+// Designer Objects
 #include "Designer/DesignerObject.h"
+#include "Designer/AbstractDesignerObject.h"
 #include "Designer/FlatDesignerObject.h"
 #include "Designer/HierarchicalDesignerObject.h"
-#include "Render/Imgui/Editor/ImguiEditorLog.h"
 
 #include <ph_cpp_core.h>
 #include <Common/assertion.h>
@@ -104,6 +109,10 @@ std::vector<const SdlClass*> get_registered_editor_classes()
 {
 	return
 	{
+		// Designer Scenes
+		get_sdl_class<DesignerScene>(),
+
+		// Designer Objects
 		get_sdl_class<AbstractDesignerObject>(),
 		get_sdl_class<DesignerObject>(),
 		get_sdl_class<FlatDesignerObject>(),

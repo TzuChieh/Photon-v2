@@ -21,12 +21,14 @@ public:
 		std::string_view packetCommand,
 		const SdlClass* targetClass,
 		std::string_view targetName,
+		ISdlResource* targetInstance,
 		SdlInputClauses& out_clauses) const override;
 
 	void generate(
 		const SdlOutputClauses& clauses,
 		const SdlClass* targetClass,
 		std::string_view targetName,
+		const ISdlResource* targetInstance,
 		std::string& out_packetCommand) const override;
 
 private:

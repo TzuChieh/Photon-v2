@@ -157,7 +157,7 @@ void SdlCommandGenerator::generateLoadCommand(
 	out_commandStr += resourceName;
 	out_commandStr += " = ";
 
-	getPacketInterface().generate(clauses, resourceClass, resourceName, out_commandStr);
+	getPacketInterface().generate(clauses, resourceClass, resourceName, &resource, out_commandStr);
 
 	out_commandStr += '\n';
 }

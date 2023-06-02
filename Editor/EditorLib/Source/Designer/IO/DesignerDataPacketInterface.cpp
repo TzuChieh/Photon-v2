@@ -34,6 +34,7 @@ void DesignerDataPacketInterface::parse(
 	std::string_view packetCommand,
 	const SdlClass* const targetClass,
 	std::string_view const targetName,
+	ISdlResource* const targetInstance,
 	SdlInputClauses& out_clauses) const
 {
 	// Packet command is packet filename with a leading slash
@@ -60,10 +61,11 @@ void DesignerDataPacketInterface::parse(
 		catch(const IOException& e)
 		{
 			throw_formatted<SdlLoadError>(
-				"error while loading packet {} (for target class: {}, name: {})",
+				"error while loading packet {} (for target class: {}, name: {}) -> {}",
 				packetFile,
 				sdl::gen_pretty_name(targetClass),
-				targetName.empty() ? "(unavailable)" : targetName);
+				targetName.empty() ? "(unavailable)" : targetName,
+				e.whatStr());
 		}
 	}
 	else
@@ -78,6 +80,7 @@ void DesignerDataPacketInterface::generate(
 	const SdlOutputClauses& clauses,
 	const SdlClass* const targetClass,
 	std::string_view targetName,
+	const ISdlResource* const targetInstance,
 	std::string& out_packetCommand) const
 {
 	if(!targetClass || targetName.empty())
@@ -123,10 +126,11 @@ void DesignerDataPacketInterface::generate(
 	catch(const IOException& e)
 	{
 		throw_formatted<SdlLoadError>(
-			"error while writing packet {} (for target class: {}, name: {})",
+			"error while writing packet {} (for target class: {}, name: {}) -> {}",
 			packetDirectory / packetFilename,
 			sdl::gen_pretty_name(targetClass),
-			targetName.empty() ? "(unavailable)" : targetName);
+			targetName.empty() ? "(unavailable)" : targetName,
+			e.whatStr());
 	}
 
 	// Packet command is packet filename with a leading slash
