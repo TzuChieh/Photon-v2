@@ -4,7 +4,6 @@
 
 #include <Common/primitive_type.h>
 #include <Common/config.h>
-#include <Utility/INoCopyAndMove.h>
 #include <Math/math.h>
 #include <Utility/TBitFlags.h>
 #include <Utility/TSpan.h>
@@ -37,12 +36,12 @@ enum class EObjectState : uint32f
 	RenderTicking = math::flag_bit<uint32f, 6>()
 };
 
-class DesignerObject
-	: public AbstractDesignerObject
-	, private INoCopyAndMove
+class DesignerObject : public AbstractDesignerObject
 {
 public:
 	DesignerObject();
+	DesignerObject(const DesignerObject& other);
+	DesignerObject(DesignerObject&& other);
 	~DesignerObject() override;
 
 	virtual TSpanView<DesignerObject*> getChildren() const = 0;
@@ -75,6 +74,9 @@ public:
 	const DesignerObject* getParent() const;
 	const std::string& getName() const;
 	const TEnumFlags<EObjectState>& getState() const;
+
+	DesignerObject& operator = (const DesignerObject& rhs);
+	DesignerObject& operator = (DesignerObject&& rhs);
 
 private:
 	/*! @brief Called when a child is initialized and is ready to be attached to their parent.

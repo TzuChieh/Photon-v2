@@ -134,10 +134,11 @@ bool init_render_engine(EngineInitSettings settings)
 		return false;
 	}
 
-	// Get SDL enums once here to initialize them--this is not required,
-	// just to be safe as SDL enum instances are lazy-constructed and may
-	// be done in strange places/order later (which may cause problems).
-	// Enums are initialized first as they have less dependencies.
+	// Get SDL enums once here to initialize them--this is not required, just to be safe 
+	// as SDL enum instances are lazy-constructed and may be done in strange places/order 
+	// later (which may cause problems). Also, there may be some extra code in the definition
+	// that want to be ran early.
+	// Enums are initialized first as they have fewer dependencies.
 	//
 	const std::vector<const SdlEnum*> sdlEnums = get_registered_engine_enums();
 	PH_LOG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());

@@ -12,7 +12,12 @@ class AbstractDesignerObject : public Object
 {
 public:
 	AbstractDesignerObject();
+	AbstractDesignerObject(const AbstractDesignerObject& other);
+	AbstractDesignerObject(AbstractDesignerObject&& other);
 	~AbstractDesignerObject() override = 0;
+
+	AbstractDesignerObject& operator = (const AbstractDesignerObject& rhs);
+	AbstractDesignerObject& operator = (AbstractDesignerObject&& rhs);
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AbstractDesignerObject>)

@@ -25,16 +25,20 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	, m_mainCamera()
 	, m_isPaused(false)
 
-	, m_name("untitled scene")
+	, m_name()
 {
 	PH_ASSERT(m_editor != nullptr);
 }
+
+DesignerScene::DesignerScene(DesignerScene&& other) = default;
 
 DesignerScene::~DesignerScene()
 {
 	// Make sure everything is cleaned up
 	PH_ASSERT_EQ(m_objStorage.size(), 0);
 }
+
+DesignerScene& DesignerScene::operator = (DesignerScene&& rhs) = default;
 
 void DesignerScene::update(const MainThreadUpdateContext& ctx)
 {

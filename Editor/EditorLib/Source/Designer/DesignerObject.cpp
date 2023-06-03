@@ -19,6 +19,10 @@ DesignerObject::DesignerObject()
 	m_parent.u_object = nullptr;
 }
 
+DesignerObject::DesignerObject(const DesignerObject& other) = default;
+
+DesignerObject::DesignerObject(DesignerObject&& other) = default;
+
 DesignerObject::~DesignerObject()
 {
 	// Initializations must happen either in pairs or not happen at all
@@ -29,6 +33,10 @@ DesignerObject::~DesignerObject()
 		(m_state.has(EObjectState::RenderInitialized) && m_state.has(EObjectState::RenderUninitialized)) ||
 		(m_state.hasNo(EObjectState::RenderInitialized) && m_state.hasNo(EObjectState::RenderUninitialized)));
 }
+
+DesignerObject& DesignerObject::operator = (const DesignerObject& rhs) = default;
+
+DesignerObject& DesignerObject::operator = (DesignerObject&& rhs) = default;
 
 void DesignerObject::init()
 {

@@ -18,6 +18,7 @@
 
 #include <ph_cpp_core.h>
 #include <Common/assertion.h>
+#include <Common/logging.h>
 #include <Utility/exception.h>
 #include <DataIO/FileSystem/Path.h>
 
@@ -48,6 +49,20 @@ int application_entry_point(int argc, char* argv[])
 	{
 		return EXIT_FAILURE;
 	}
+
+	// Get SDL enums once here to initialize them--this is not required, just to be safe 
+	// as SDL enum instances are lazy-constructed and may be done in strange places/order 
+	// later (which may cause problems). Also, there may be some extra code in the definition
+	// that want to be ran early.
+	// Enums are initialized first as they have fewer dependencies.
+	//
+	// TODO
+
+	// Get SDL classes once here to initialize them--this is not required,
+	// same reason as SDL enums.
+	//
+	const std::vector<const SdlClass*> sdlClasses = get_registered_editor_classes();
+	PH_DEFAULT_LOG("initialized {} editor SDL class definitions", sdlClasses.size());
 
 	Program::programStart();
 

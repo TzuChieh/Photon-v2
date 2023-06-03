@@ -8,10 +8,10 @@
 #include <Common/logging.h>
 #include <Utility/TUniquePtrVector.h>
 #include <Utility/TSpan.h>
-#include <Utility/INoCopyAndMove.h>
 #include <SDL/Object.h>
 #include <SDL/sdl_interface.h>
 #include <SDL/SceneDescription.h>
+#include <Utility/IMoveOnly.h>
 
 #include <vector>
 #include <memory>
@@ -28,12 +28,13 @@ class RenderThreadCaller;
 
 PH_DECLARE_LOG_GROUP(DesignerScene);
 
-class DesignerScene final
+class DesignerScene final 
 	: public Object
-	, private INoCopyAndMove
+	, private IMoveOnly
 {
 public:
 	explicit DesignerScene(Editor* fromEditor);
+	DesignerScene(DesignerScene&& other);
 	~DesignerScene() override;
 
 	void update(const MainThreadUpdateContext& ctx);
@@ -98,6 +99,8 @@ public:
 
 	void setName(std::string name);
 
+	DesignerScene& operator = (DesignerScene&& rhs);
+
 private:
 	enum class EObjectAction : uint8
 	{
@@ -156,6 +159,7 @@ public:
 
 		TSdlString<OwnerType> name("name", &OwnerType::m_name);
 		name.description("Name of the designer scene.");
+		name.defaultTo("untitled scene");
 		clazz.addField(name);
 
 		return clazz;
