@@ -7,8 +7,11 @@
 #include <Utility/traits.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <SDL/sdl_helpers.h>
+#include <Utility/exception.h>
 
 #include <utility>
+#include <type_traits>
 
 namespace ph::editor
 {
@@ -35,52 +38,45 @@ struct TSharedObjectDeleter
 
 }// end namespace detail
 
-template<typename ObjectType, typename... DeducedArgs>
-inline ObjectType* DesignerScene::initNewRootObject(DeducedArgs&&... args)
+template<typename ObjectType>
+inline ObjectType* DesignerScene::newObject(
+	const bool shouldInit,
+	const bool shouldSetToDefault)
 {
-	PH_ASSERT(Threads::isOnMainThread());
+	DesignerObject* obj = newObject(
+		ObjectType::getSdlClass(),
+		shouldInit,
+		shouldSetToDefault);
 
-	ObjectType* obj = initNewObject<ObjectType>(std::forward<DeducedArgs>(args)...);
-	if(!obj)
-	{
-		return nullptr;
-	}
-
-	obj->setParentScene(this);
-	m_rootObjs.push_back(obj);
-	
-	return obj;
+	// We know the exact type
+	return static_cast<ObjectType*>(obj);
 }
 
-template<typename ObjectType, typename... DeducedArgs>
-inline ObjectType* DesignerScene::initNewObject(DeducedArgs&&... args)
+template<typename ObjectType>
+inline ObjectType* DesignerScene::newRootObject(
+	const bool shouldInit,
+	const bool shouldSetToDefault)
 {
-	ObjectType* obj = makeObjectFromStorage<ObjectType>(std::forward<DeducedArgs>(args)...);
-	if(!obj)
-	{
-		return nullptr;
-	}
+	DesignerObject* obj = newRootObject(
+		ObjectType::getSdlClass(),
+		shouldInit,
+		shouldSetToDefault);
 
-	obj->init();
-	obj->getState().turnOn({EObjectState::Initialized});
-
-	queueObjectAction(obj, EObjectAction::Create);
-
-	return obj;
+	// We know the exact type
+	return static_cast<ObjectType*>(obj);
 }
 
-template<typename ObjectType, typename... DeducedArgs>
-inline std::shared_ptr<ObjectType> DesignerScene::initNewSharedRootObject(DeducedArgs&&... args)
+template<typename ObjectType>
+inline std::shared_ptr<ObjectType> DesignerScene::newSharedRootObject(
+	const bool shouldInit,
+	const bool shouldSetToDefault)
 {
-	ObjectType* rootObj = initNewRootObject<ObjectType>(std::forward<DeducedArgs>(args)...);
-	if(!rootObj)
-	{
-		return nullptr;
-	}
+	std::shared_ptr<ObjectType> rootObj = newSharedRootObject(
+		ObjectType::getSdlClass(),
+		shouldInit, 
+		shouldSetToDefault);
 
-	return std::shared_ptr<ObjectType>(
-		rootObj,
-		detail::TSharedObjectDeleter<ObjectType>());
+	return std::static_pointer_cast<ObjectType>(std::move(rootObj));
 }
 
 template<typename ObjectType, typename... DeducedArgs>
@@ -96,7 +92,6 @@ inline ObjectType* DesignerScene::makeObjectFromStorage(DeducedArgs&&... args)
 		// This is a condition that should be investigated (API misuse)
 		PH_ASSERT_MSG(false, 
 			"Cannot create object when paused--this may modify object storage.");
-
 		return nullptr;
 	}
 
@@ -122,6 +117,38 @@ inline ObjectType* DesignerScene::makeObjectFromStorage(DeducedArgs&&... args)
 	PH_ASSERT(obj != nullptr);
 	obj->setSceneStorageIndex(storageIndex);
 	return obj;
+}
+
+template<typename ObjectType>
+inline void DesignerScene::registerObjectType()
+{
+	static_assert(CDerived<ObjectType, DesignerObject>,
+		"Object must be a designer object.");
+
+	const SdlClass* const clazz = ObjectType::getSdlClass();
+	if(classToObjMaker.find(clazz) != classToObjMaker.end())
+	{
+		PH_LOG_ERROR(DesignerScene,
+			"designer object already registered ({})",
+			sdl::gen_pretty_name(clazz));
+
+		return;
+	}
+		
+	classToObjMaker[clazz] = 
+		[](DesignerScene& scene) -> DesignerObject*
+		{
+			if constexpr(std::is_abstract_v<ObjectType>)
+			{
+				PH_ASSERT_MSG(false,
+					"Attempting to create object of an abstract type.");
+				return nullptr;
+			}
+			else
+			{
+				return scene.makeObjectFromStorage<ObjectType>();
+			}
+		};
 }
 
 inline bool DesignerScene::removeObjectFromStorage(DesignerObject* const obj)

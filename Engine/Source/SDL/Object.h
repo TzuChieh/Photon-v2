@@ -13,11 +13,11 @@ class Object : public TSdlResourceBase<ESdlTypeCategory::Ref_Object>
 public:
 	Object();
 	Object(const Object& other);
-	Object(Object&& other);
+	Object(Object&& other) noexcept;
 	~Object() override = 0;
 
 	Object& operator = (const Object& rhs);
-	Object& operator = (Object&& rhs);
+	Object& operator = (Object&& rhs) noexcept;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Object>)

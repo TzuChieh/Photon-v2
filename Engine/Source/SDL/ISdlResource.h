@@ -24,7 +24,12 @@ protected:
 	inline ISdlResource() = default;
 
 public:
+	inline ISdlResource(const ISdlResource& other) = default;
+	inline ISdlResource(ISdlResource&& other) = default;
 	inline virtual ~ISdlResource() = default;
+	
+	inline ISdlResource& operator = (const ISdlResource& rhs) = default;
+	inline ISdlResource& operator = (ISdlResource&& rhs) = default;
 
 	virtual ESdlTypeCategory getDynamicCategory() const = 0;
 	virtual SdlResourceId getId() const = 0;

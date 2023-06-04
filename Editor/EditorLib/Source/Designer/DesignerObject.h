@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Designer/AbstractDesignerObject.h"
+#include "Designer/designer_fwd.h"
 
 #include <Common/primitive_type.h>
 #include <Common/config.h>
@@ -41,7 +42,7 @@ class DesignerObject : public AbstractDesignerObject
 public:
 	DesignerObject();
 	DesignerObject(const DesignerObject& other);
-	DesignerObject(DesignerObject&& other);
+	DesignerObject(DesignerObject&& other) noexcept;
 	~DesignerObject() override;
 
 	virtual TSpanView<DesignerObject*> getChildren() const = 0;
@@ -57,8 +58,17 @@ public:
 
 	/*! @brief Create, initialize and add the new object as a child.
 	*/
-	template<typename ChildType, typename... DeducedArgs>
-	ChildType* initNewChild(DeducedArgs&&... args);
+	template<typename ChildType>
+	ChildType* newChild(
+		bool shouldInit = true,
+		bool shouldSetToDefault = true);
+
+	/*! @brief Similar to its templated version, except that child type is inferred dynamically.
+	*/
+	DesignerObject* newChild(
+		const SdlClass* clazz,
+		bool shouldInit = true,
+		bool shouldSetToDefault = true);
 
 	/*! @brief Remove, uninitialize and destruct a child.
 	*/
@@ -76,7 +86,7 @@ public:
 	const TEnumFlags<EObjectState>& getState() const;
 
 	DesignerObject& operator = (const DesignerObject& rhs);
-	DesignerObject& operator = (DesignerObject&& rhs);
+	DesignerObject& operator = (DesignerObject&& rhs) noexcept;
 
 private:
 	/*! @brief Called when a child is initialized and is ready to be attached to their parent.

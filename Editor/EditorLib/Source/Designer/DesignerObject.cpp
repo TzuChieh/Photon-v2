@@ -21,7 +21,7 @@ DesignerObject::DesignerObject()
 
 DesignerObject::DesignerObject(const DesignerObject& other) = default;
 
-DesignerObject::DesignerObject(DesignerObject&& other) = default;
+DesignerObject::DesignerObject(DesignerObject&& other) noexcept = default;
 
 DesignerObject::~DesignerObject()
 {
@@ -36,7 +36,7 @@ DesignerObject::~DesignerObject()
 
 DesignerObject& DesignerObject::operator = (const DesignerObject& rhs) = default;
 
-DesignerObject& DesignerObject::operator = (DesignerObject&& rhs) = default;
+DesignerObject& DesignerObject::operator = (DesignerObject&& rhs) noexcept = default;
 
 void DesignerObject::init()
 {
@@ -66,6 +66,28 @@ void DesignerObject::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void DesignerObject::createRenderCommands(RenderThreadCaller& caller)
 {}
+
+DesignerObject* DesignerObject::newChild(
+	const SdlClass* const clazz,
+	const bool shouldInit,
+	const bool shouldSetToDefault)
+{
+	if(!canHaveChildren())
+	{
+		return nullptr;
+	}
+
+	DesignerObject* childObj = getScene().newObject(clazz, shouldInit, shouldSetToDefault);
+	if(!childObj)
+	{
+		return nullptr;
+	}
+
+	childObj->setParentObject(this);
+	addChild(childObj);
+
+	return childObj;
+}
 
 void DesignerObject::deleteChild(DesignerObject* const childObj)
 {

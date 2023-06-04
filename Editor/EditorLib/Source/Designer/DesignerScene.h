@@ -17,6 +17,10 @@
 #include <memory>
 #include <cstddef>
 #include <string>
+#include <functional>
+#include <unordered_map>
+
+namespace ph { class SdlClass; }
 
 namespace ph::editor
 {
@@ -34,7 +38,7 @@ class DesignerScene final
 {
 public:
 	explicit DesignerScene(Editor* fromEditor);
-	DesignerScene(DesignerScene&& other);
+	DesignerScene(DesignerScene&& other) noexcept;
 	~DesignerScene() override;
 
 	void update(const MainThreadUpdateContext& ctx);
@@ -48,19 +52,56 @@ public:
 	void markObjectTickState(DesignerObject* obj, bool markTick);
 	void markObjectRenderTickState(DesignerObject* obj, bool markTick);
 
-	template<typename ObjectType, typename... DeducedArgs>
+	template<typename ObjectType>
 	[[nodiscard]]
-	ObjectType* initNewObject(DeducedArgs&&... args);
+	ObjectType* newObject(
+		bool shouldInit = true, 
+		bool shouldSetToDefault = true);
 
-	template<typename ObjectType, typename... DeducedArgs>
-	ObjectType* initNewRootObject(DeducedArgs&&... args);
+	template<typename ObjectType>
+	ObjectType* newRootObject(
+		bool shouldInit = true,
+		bool shouldSetToDefault = true);
 
 	/*! @brief Create root object with automatic lifetime management.
 	The root object will delete itself once the `shared_ptr` free its pointer. Similar to normal objects,
 	using the object pointer after the scene is removed is an error.
 	*/
-	template<typename ObjectType, typename... DeducedArgs>
-	std::shared_ptr<ObjectType> initNewSharedRootObject(DeducedArgs&&... args);
+	template<typename ObjectType>
+	std::shared_ptr<ObjectType> newSharedRootObject(
+		bool shouldInit = true,
+		bool shouldSetToDefault = true);
+
+	/*! @brief Similar to its templated version, except that object type is inferred dynamically.
+	*/
+	[[nodiscard]]
+	DesignerObject* newObject(
+		const SdlClass* clazz,
+		bool shouldInit = true,
+		bool shouldSetToDefault = true);
+
+	/*! @brief Similar to its templated version, except that object type is inferred dynamically.
+	*/
+	DesignerObject* newRootObject(
+		const SdlClass* clazz,
+		bool shouldInit = true,
+		bool shouldSetToDefault = true);
+
+	/*! @brief Similar to its templated version, except that object type is inferred dynamically.
+	*/
+	std::shared_ptr<DesignerObject> newSharedRootObject(
+		const SdlClass* clazz,
+		bool shouldInit = true,
+		bool shouldSetToDefault = true);
+
+	/*! @brief Initialize the object.
+	By default this is called automatically when creating new object. If the object creation routine 
+	has been specifically instructed to not initialize the object, then this method must be called
+	manually after creating the object.
+	*/
+	void initObject(DesignerObject* obj);
+
+	void setObjectToDefault(DesignerObject* obj);
 
 	void deleteObject(DesignerObject* obj);
 	void renderCleanup(RenderThreadCaller& caller);
@@ -99,7 +140,7 @@ public:
 
 	void setName(std::string name);
 
-	DesignerScene& operator = (DesignerScene&& rhs);
+	DesignerScene& operator = (DesignerScene&& rhs) noexcept;
 
 private:
 	enum class EObjectAction : uint8
@@ -144,6 +185,18 @@ private:
 	uint32 m_isPaused : 1;
 
 	std::string m_name;
+
+/*! @brief Dynamic object creation routines	
+*/
+///@{
+private:
+	using DynamicObjectMaker = std::function<DesignerObject*(DesignerScene& scene)>;
+	static std::unordered_map<const SdlClass*, DynamicObjectMaker> classToObjMaker;
+
+public:
+	template<typename ObjectType>
+	static void registerObjectType();
+///@}
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DesignerScene>)

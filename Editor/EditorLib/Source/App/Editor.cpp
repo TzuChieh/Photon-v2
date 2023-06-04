@@ -6,6 +6,7 @@
 #include <Common/logging.h>
 #include <Utility/Timer.h>
 #include <DataIO/FileSystem/Path.h>
+#include <SDL/TSdl.h>
 
 #include <memory>
 #include <utility>
@@ -175,7 +176,7 @@ std::size_t Editor::createScene(const std::string& name)
 
 	// Create new scene with required initial properties
 	{
-		auto newScene = std::make_unique<DesignerScene>(this);
+		auto newScene = std::make_unique<DesignerScene>(TSdl<DesignerScene>::make(this));
 
 		// Optionally keep the default scene name
 		if(!name.empty())

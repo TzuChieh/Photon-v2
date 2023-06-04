@@ -34,8 +34,8 @@ MarkdownDocGenerator::MarkdownDocGenerator(Path outputDirectory, std::string fil
 }
 
 void MarkdownDocGenerator::generate(
-	const std::vector<const SdlClass*>& sdlClasses,
-	const std::vector<const SdlEnum*>&  sdlEnums)
+	TSpanView<const SdlClass*> sdlClasses,
+	TSpanView<const SdlEnum*> sdlEnums)
 {
 	clearDoc();
 

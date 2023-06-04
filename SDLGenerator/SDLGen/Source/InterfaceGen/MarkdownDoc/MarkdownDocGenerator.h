@@ -23,8 +23,8 @@ public:
 	MarkdownDocGenerator(Path outputDirectory, std::string filenameWithoutExt);
 
 	void generate(
-		const std::vector<const SdlClass*>& sdlClasses,
-		const std::vector<const SdlEnum*>&  sdlEnums) override;
+		TSpanView<const SdlClass*> sdlClasses,
+		TSpanView<const SdlEnum*> sdlEnums) override;
 
 	void writeClassDoc(const SdlClass* sdlClass);
 	void writeClassCreationDoc(const SdlClass* sdlClass);

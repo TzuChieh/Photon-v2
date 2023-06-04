@@ -4,7 +4,7 @@
 #include "EEngineProject.h"
 #include "DataIO/FileSystem/Path.h"
 
-#include <vector>
+#include <span>
 
 namespace ph { class SdlClass; }
 namespace ph { class SdlEnum; }
@@ -26,11 +26,11 @@ bool exit_render_engine();
 
 /*! @brief Get a list of registered SDL classes from the engine.
 */
-std::vector<const SdlClass*> get_registered_engine_classes();
+std::span<const SdlClass* const> get_registered_engine_classes();
 
 /*! @brief Get a list of registered SDL enums from the engine.
 */
-std::vector<const SdlEnum*> get_registered_engine_enums();
+std::span<const SdlEnum* const> get_registered_engine_enums();
 
 Path get_config_directory(EEngineProject project);
 

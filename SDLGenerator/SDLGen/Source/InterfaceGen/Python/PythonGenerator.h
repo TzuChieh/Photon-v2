@@ -23,8 +23,8 @@ public:
 	explicit PythonGenerator(Path outputDirectory);
 
 	void generate(
-		const std::vector<const SdlClass*>& sdlClasses,
-		const std::vector<const SdlEnum*>&  sdlEnums) override;
+		TSpanView<const SdlClass*> sdlClasses,
+		TSpanView<const SdlEnum*> sdlEnums) override;
 
 	Path makeResourcePath(const std::string& fileSubPath) const;
 

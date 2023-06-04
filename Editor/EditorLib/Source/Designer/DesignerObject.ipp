@@ -10,8 +10,10 @@
 namespace ph::editor
 {
 
-template<typename ChildType, typename... DeducedArgs>
-inline ChildType* DesignerObject::initNewChild(DeducedArgs&&... args)
+template<typename ChildType>
+inline ChildType* DesignerObject::newChild(
+	const bool shouldInit,
+	const bool shouldSetToDefault)
 {
 	static_assert(CDerived<ChildType, DesignerObject>,
 		"Child type must be a designer object.");
@@ -21,12 +23,13 @@ inline ChildType* DesignerObject::initNewChild(DeducedArgs&&... args)
 		return nullptr;
 	}
 
-	ChildType* child = getScene().initNewObject<ChildType>(std::forward<DeducedArgs>(args)...);
-	PH_ASSERT(child);
-	child->setParentObject(this);
-	addChild(child);
+	ChildType* childObj = newChild(
+		ChildType::getSdlClass(),
+		shouldInit,
+		shouldSetToDefault);
 
-	return child;
+	// We know the exact type
+	return static_cast<ChildType*>(childObj);
 }
 
 inline auto DesignerObject::getState() const

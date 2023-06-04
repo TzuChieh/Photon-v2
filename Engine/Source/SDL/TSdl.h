@@ -35,7 +35,8 @@ public:
 	/*! @brief Creates a resource or struct instance filled with default values.
 	Default values are determined by SDL class definition.
 	*/
-	static T make();
+	template<typename... DeducedArgs>
+	static T make(DeducedArgs&&... args);
 };
 
 }// end namespace ph

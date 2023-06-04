@@ -21,8 +21,10 @@
 #include <Common/logging.h>
 #include <Utility/exception.h>
 #include <DataIO/FileSystem/Path.h>
+#include <Utility/traits.h>
 
 #include <cstdlib>
+#include <vector>
 
 namespace ph::editor
 {
@@ -39,6 +41,35 @@ inline EngineInitSettings get_editor_engine_init_settings()
 	EngineInitSettings settings;
 	settings.additionalLogHandlers.push_back(ImguiEditorLog::engineLogHook);
 	return settings;
+}
+
+template<typename SdlClassType>
+inline const SdlClass* register_editor_sdl_class()
+{
+	const SdlClass* const clazz = SdlClassType::getSdlClass();
+
+	// Register for dynamic designer object creation
+	if constexpr(CDerived<SdlClassType, DesignerObject>)
+	{
+		DesignerScene::registerObjectType<SdlClassType>();
+	}
+
+	return clazz;
+}
+
+inline std::vector<const SdlClass*> register_editor_classes()
+{
+	return
+	{
+		// Designer Scenes
+		register_editor_sdl_class<DesignerScene>(),
+
+		// Designer Objects
+		register_editor_sdl_class<AbstractDesignerObject>(),
+		register_editor_sdl_class<DesignerObject>(),
+		register_editor_sdl_class<FlatDesignerObject>(),
+		register_editor_sdl_class<HierarchicalDesignerObject>(),
+	};
 }
 
 }// end anonymous namespace
@@ -61,7 +92,7 @@ int application_entry_point(int argc, char* argv[])
 	// Get SDL classes once here to initialize them--this is not required,
 	// same reason as SDL enums.
 	//
-	const std::vector<const SdlClass*> sdlClasses = get_registered_editor_classes();
+	const auto sdlClasses = get_registered_editor_classes();
 	PH_DEFAULT_LOG("initialized {} editor SDL class definitions", sdlClasses.size());
 
 	Program::programStart();
@@ -109,30 +140,10 @@ int imgui_demo_entry_point(int argc, char* argv[])
 	return imgui_main(argc, argv);
 }
 
-namespace
+std::span<const SdlClass* const> get_registered_editor_classes()
 {
-
-template<typename SdlClassType>
-const SdlClass* get_sdl_class()
-{
-	return SdlClassType::getSdlClass();
-}
-
-}// end anonymous namespace
-
-std::vector<const SdlClass*> get_registered_editor_classes()
-{
-	return
-	{
-		// Designer Scenes
-		get_sdl_class<DesignerScene>(),
-
-		// Designer Objects
-		get_sdl_class<AbstractDesignerObject>(),
-		get_sdl_class<DesignerObject>(),
-		get_sdl_class<FlatDesignerObject>(),
-		get_sdl_class<HierarchicalDesignerObject>(),
-	};
+	static std::vector<const SdlClass*> classes = register_editor_classes();
+	return classes;
 }
 
 Path get_editor_data_directory()

@@ -1,8 +1,11 @@
 #include "Designer/DesignerScene.h"
 #include "App/Editor.h"
 #include "Designer/DesignerObject.h"
+#include "EditorCore/Thread/Threads.h"
 
 #include <Utility/exception.h>
+#include <SDL/Introspect/SdlClass.h>
+#include <Common/assertion.h>
 
 #include <ranges>
 
@@ -10,6 +13,23 @@ namespace ph::editor
 {
 
 PH_DEFINE_LOG_GROUP(DesignerScene, Designer);
+
+namespace
+{
+
+inline std::string get_object_debug_info(DesignerObject* const obj)
+{
+	if(!obj)
+	{
+		return "(null)";
+	}
+
+	return obj->getName().empty() ? "(no name)" : obj->getName();
+}
+
+}// end anonymous namespace
+
+std::unordered_map<const SdlClass*, DesignerScene::DynamicObjectMaker> DesignerScene::classToObjMaker;
 
 DesignerScene::DesignerScene(Editor* const fromEditor)
 	: m_objStorage()
@@ -30,7 +50,7 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	PH_ASSERT(m_editor != nullptr);
 }
 
-DesignerScene::DesignerScene(DesignerScene&& other) = default;
+DesignerScene::DesignerScene(DesignerScene&& other) noexcept = default;
 
 DesignerScene::~DesignerScene()
 {
@@ -38,7 +58,7 @@ DesignerScene::~DesignerScene()
 	PH_ASSERT_EQ(m_objStorage.size(), 0);
 }
 
-DesignerScene& DesignerScene::operator = (DesignerScene&& rhs) = default;
+DesignerScene& DesignerScene::operator = (DesignerScene&& rhs) noexcept = default;
 
 void DesignerScene::update(const MainThreadUpdateContext& ctx)
 {
@@ -60,14 +80,32 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 	}
 
 	// Process queued actions
+	// 
+	// Cache arrays are modified here, as this is one of the few places that we can be sure that
+	// those arrays are not in use (otherwise modifying them can invalidate their iterators)
+	//
 	for(std::size_t actionIdx = 0; actionIdx < m_numObjActionsToProcess; ++actionIdx)
 	{
 		ObjectAction& queuedAction = m_objActionQueue[actionIdx];
 		DesignerObject* const obj = queuedAction.obj;
 
-		if(queuedAction.action == EObjectAction::Remove)
+		if(queuedAction.action == EObjectAction::Create)
 		{
-			// We always want to remove the object from the cache arrays
+			if(obj->getState().hasNo(EObjectState::Initialized))
+			{
+				throw_formatted<IllegalOperationException>(
+					"object {} is not initialized",
+					get_object_debug_info(obj));
+			}
+
+			if(obj->getState().has(EObjectState::Root))
+			{
+				m_rootObjs.push_back(obj);
+			}
+		}
+		else if(queuedAction.action == EObjectAction::Remove)
+		{
+			// We always want to remove the object from cache arrays
 			std::erase(m_tickingObjs, obj);
 			std::erase(m_renderTickingObjs, obj);
 			if(obj->getState().has(EObjectState::Root))
@@ -76,9 +114,9 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 				if(numErasedObjs != 1)
 				{
 					throw_formatted<IllegalOperationException>(
-						"object {} is identified as root but does not appear in the root set "
+						"object {} is identified as root but does not appear (uniquely) in the root set "
 						"({} were found)",
-						obj ? obj->getName() : "(null)", numErasedObjs);
+						get_object_debug_info(obj), numErasedObjs);
 				}
 			}
 
@@ -95,7 +133,7 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 				{
 					throw_formatted<IllegalOperationException>(
 						"cannot remove object {} from storage",
-						obj ? obj->getName() : "(null)");
+						get_object_debug_info(obj));
 				}
 
 				queuedAction.done();
@@ -238,6 +276,105 @@ void DesignerScene::markObjectRenderTickState(DesignerObject* const obj, const b
 	}
 }
 
+DesignerObject* DesignerScene::newObject(
+	const SdlClass* const clazz,
+	const bool shouldInit,
+	const bool shouldSetToDefault)
+{
+	PH_ASSERT(Threads::isOnMainThread());
+
+	auto objMakerIter = classToObjMaker.find(clazz);
+	if(objMakerIter == classToObjMaker.end())
+	{
+		throw_formatted<IllegalOperationException>(
+			"target object ({}) is not a registered type",
+			sdl::gen_pretty_name(clazz));
+	}
+
+	DesignerObject* obj = (objMakerIter->second)(*this);
+	if(!obj)
+	{
+		return nullptr;
+	}
+
+	// Set object to default before init so default states can be considered
+	if(shouldSetToDefault)
+	{
+		setObjectToDefault(obj);
+	}
+
+	if(shouldInit)
+	{
+		initObject(obj);
+	}
+
+	return obj;
+}
+
+DesignerObject* DesignerScene::newRootObject(
+	const SdlClass* const clazz,
+	const bool shouldInit,
+	const bool shouldSetToDefault)
+{
+	DesignerObject* obj = newObject(clazz, shouldInit, shouldSetToDefault);
+	if(!obj)
+	{
+		return nullptr;
+	}
+
+	obj->setParentScene(this);
+
+	return obj;
+}
+
+std::shared_ptr<DesignerObject> DesignerScene::newSharedRootObject(
+	const SdlClass* const clazz,
+	const bool shouldInit,
+	const bool shouldSetToDefault)
+{
+	DesignerObject* rootObj = newRootObject(clazz, shouldInit, shouldSetToDefault);
+	if(!rootObj)
+	{
+		return nullptr;
+	}
+
+	return std::shared_ptr<DesignerObject>(
+		rootObj,
+		detail::TSharedObjectDeleter<DesignerObject>());
+}
+
+void DesignerScene::initObject(DesignerObject* const obj)
+{
+	if(!obj)
+	{
+		return;
+	}
+
+	if(obj->getState().has(EObjectState::Initialized))
+	{
+		throw_formatted<IllegalOperationException>(
+			"object {} has already been initialized",
+			get_object_debug_info(obj));
+	}
+
+	obj->init();
+	obj->getState().turnOn({EObjectState::Initialized});
+
+	queueObjectAction(obj, EObjectAction::Create);
+}
+
+void DesignerScene::setObjectToDefault(DesignerObject* const obj)
+{
+	if(!obj)
+	{
+		return;
+	}
+
+	const SdlClass* const clazz = obj->getDynamicSdlClass();
+	PH_ASSERT(clazz);
+	clazz->initDefaultResource(*obj);
+}
+
 void DesignerScene::deleteObject(DesignerObject* const obj)
 {
 	// It is a no-op if object is already empty
@@ -291,7 +428,7 @@ void DesignerScene::cleanup()
 			{
 				PH_LOG_ERROR(DesignerScene,
 					"invalid object cleanup state detected: object {} needs render cleanup first",
-					obj->getName());
+					get_object_debug_info(obj.get()));
 			}
 			else
 			{

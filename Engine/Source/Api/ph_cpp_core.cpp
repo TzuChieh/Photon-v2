@@ -100,89 +100,29 @@
 #include "Actor/Material/Utility/ERoughnessToAlpha.h"
 
 #include <utility>
+#include <vector>
 
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(CppAPI, Engine);
 
-bool init_render_engine(EngineInitSettings settings)
-{
-	detail::core_logging::init();
-
-	if(!settings.additionalLogHandlers.empty())
-	{
-		PH_LOG(CppAPI, "adding {} additional log handler(s)", settings.additionalLogHandlers.size());
-		for(LogHandler& handler : settings.additionalLogHandlers)
-		{
-			if(!handler)
-			{
-				PH_LOG_WARNING(CppAPI,
-					"attempting to add a null core log handler");
-				continue;
-			}
-			
-			detail::core_logging::get_core_logger().addLogHandler(std::move(handler));
-		}
-
-		settings.additionalLogHandlers.clear();
-	}
-
-	if(!init_engine_IO_infrastructure())
-	{
-		PH_LOG_ERROR(CppAPI, "IO infrastructure initialization failed");
-		return false;
-	}
-
-	// Get SDL enums once here to initialize them--this is not required, just to be safe 
-	// as SDL enum instances are lazy-constructed and may be done in strange places/order 
-	// later (which may cause problems). Also, there may be some extra code in the definition
-	// that want to be ran early.
-	// Enums are initialized first as they have fewer dependencies.
-	//
-	const std::vector<const SdlEnum*> sdlEnums = get_registered_engine_enums();
-	PH_LOG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
-
-	// Get SDL classes once here to initialize them--this is not required,
-	// same reason as SDL enums.
-	//
-	const std::vector<const SdlClass*> sdlClasses = get_registered_engine_classes();
-	PH_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
-
-	return true;
-}
-
-bool exit_render_engine()
-{
-	if(!exit_API_database())
-	{
-		PH_LOG_ERROR(CppAPI, "C API database exiting failed");
-		return false;
-	}
-
-	detail::core_logging::exit();
-
-	return true;
-}
-
 namespace
 {
 
 template<typename SdlClassType>
-const SdlClass* get_sdl_class()
+inline const SdlClass* get_sdl_class()
 {
 	return SdlClassType::getSdlClass();
 }
 
 template<typename EnumType>
-const SdlEnum* get_sdl_enum()
+inline const SdlEnum* get_sdl_enum()
 {
 	return TSdlEnum<EnumType>::getSdlEnum();
 }
 
-}// end anonymous namespace
-
-std::vector<const SdlClass*> get_registered_engine_classes()
+inline std::vector<const SdlClass*> register_engine_classes()
 {
 	return
 	{
@@ -258,7 +198,7 @@ std::vector<const SdlClass*> get_registered_engine_classes()
 	};
 }
 
-std::vector<const SdlEnum*> get_registered_engine_enums()
+inline std::vector<const SdlEnum*> register_engine_enums()
 {
 	return
 	{
@@ -275,6 +215,79 @@ std::vector<const SdlEnum*> get_registered_engine_enums()
 		get_sdl_enum<EIdealSubstance>(),
 		get_sdl_enum<ESurfaceMaterialMixMode>(),
 	};
+}
+
+}// end anonymous namespace
+
+bool init_render_engine(EngineInitSettings settings)
+{
+	detail::core_logging::init();
+
+	if(!settings.additionalLogHandlers.empty())
+	{
+		PH_LOG(CppAPI, "adding {} additional log handler(s)", settings.additionalLogHandlers.size());
+		for(LogHandler& handler : settings.additionalLogHandlers)
+		{
+			if(!handler)
+			{
+				PH_LOG_WARNING(CppAPI,
+					"attempting to add a null core log handler");
+				continue;
+			}
+			
+			detail::core_logging::get_core_logger().addLogHandler(std::move(handler));
+		}
+
+		settings.additionalLogHandlers.clear();
+	}
+
+	if(!init_engine_IO_infrastructure())
+	{
+		PH_LOG_ERROR(CppAPI, "IO infrastructure initialization failed");
+		return false;
+	}
+
+	// Get SDL enums once here to initialize them--this is not required, just to be safe 
+	// as SDL enum instances are lazy-constructed and may be done in strange places/order 
+	// later (which may cause problems). Also, there may be some extra code in the definition
+	// that want to be ran early.
+	// Enums are initialized first as they have fewer dependencies.
+	//
+	const auto sdlEnums = get_registered_engine_enums();
+	PH_LOG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
+
+	// Get SDL classes once here to initialize them--this is not required,
+	// same reason as SDL enums.
+	//
+	const auto sdlClasses = get_registered_engine_classes();
+	PH_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
+
+	return true;
+}
+
+bool exit_render_engine()
+{
+	if(!exit_API_database())
+	{
+		PH_LOG_ERROR(CppAPI, "C API database exiting failed");
+		return false;
+	}
+
+	detail::core_logging::exit();
+
+	return true;
+}
+
+std::span<const SdlClass* const> get_registered_engine_classes()
+{
+	static std::vector<const SdlClass*> classes = register_engine_classes();
+	return classes;
+}
+
+std::span<const SdlEnum* const> get_registered_engine_enums()
+{
+	static std::vector<const SdlEnum*> enums = register_engine_enums();
+	return enums;
 }
 
 Path get_config_directory(const EEngineProject project)

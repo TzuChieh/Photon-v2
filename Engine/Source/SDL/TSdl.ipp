@@ -8,7 +8,7 @@
 
 #include "Common/logging.h"
 
-#include <memory>
+#include <utility>
 
 namespace ph
 {
@@ -57,12 +57,13 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 }
 
 template<CSdlResource T>
-inline T TSdl<T>::make()
+template<typename... DeducedArgs>
+inline T TSdl<T>::make(DeducedArgs&&... args)
 {
-	static_assert(std::is_default_constructible_v<T>,
-		"T must be default constructible");
+	static_assert(std::is_constructible_v<T, DeducedArgs...>,
+		"SDL class type T is not constructible using the specified arguments.");
 
-	T instance;
+	T instance(std::forward<DeducedArgs>(args)...);
 	if constexpr(CHasSdlClassDefinition<T>)
 	{
 		const SdlClass* clazz = T::getSdlClass();

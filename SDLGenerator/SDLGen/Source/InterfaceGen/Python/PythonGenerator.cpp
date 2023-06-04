@@ -60,8 +60,8 @@ PythonGenerator::PythonGenerator(Path outputDirectory) :
 {}
 
 void PythonGenerator::generate(
-	const std::vector<const SdlClass*>& sdlClasses,
-	const std::vector<const SdlEnum*>&  sdlEnums)
+	TSpanView<const SdlClass*> sdlClasses,
+	TSpanView<const SdlEnum*> sdlEnums)
 {
 	m_file = FormattedTextOutputStream(makeOutputFilePath("pysdl.py"));
 

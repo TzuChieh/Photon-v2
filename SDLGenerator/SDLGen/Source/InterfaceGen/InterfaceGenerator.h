@@ -4,8 +4,8 @@
 
 #include <DataIO/FileSystem/Path.h>
 #include <Common/assertion.h>
+#include <Utility/TSpan.h>
 
-#include <vector>
 #include <string>
 #include <string_view>
 #include <memory>
@@ -27,8 +27,8 @@ public:
 	virtual ~InterfaceGenerator() = default;
 
 	virtual void generate(
-		const std::vector<const SdlClass*>& sdlClasses,
-		const std::vector<const SdlEnum*>&  sdlEnums) = 0;
+		TSpanView<const SdlClass*> sdlClasses,
+		TSpanView<const SdlEnum*> sdlEnums) = 0;
 
 	const std::string& getName() const;
 	const Path& getOutputDirectory() const;
