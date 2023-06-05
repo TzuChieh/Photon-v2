@@ -1,6 +1,8 @@
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
+#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "EditorCore/FileSystemExplorer.h"
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
+#include "Render/Imgui/ImguiFontLibrary.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -11,6 +13,7 @@
 #define PH_IMGUI_OPEN_FILE_ICON    ICON_MD_FOLDER_OPEN
 #define PH_IMGUI_SAVE_FILE_ICON    ICON_MD_SAVE
 #define PH_IMGUI_GENERAL_FILE_ICON ICON_MD_DESCRIPTION
+#define PH_IMGUI_NOTIFICATION_ICON ICON_MD_FEEDBACK
 
 namespace ph::editor
 {
@@ -20,6 +23,8 @@ const char* const ImguiFileSystemDialog::SAVE_FILE_TITLE = PH_IMGUI_SAVE_FILE_IC
 
 namespace
 {
+
+constexpr const char* REQUIRES_SELECTION_TITLE = "Target Specification Required";
 
 constexpr std::string_view FILE_ITEM_NAME_PREFIX = PH_IMGUI_GENERAL_FILE_ICON " ";
 
@@ -98,9 +103,9 @@ void ImguiFileSystemDialog::openPopup(
 
 void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 	const char* const popupName,
+	ImguiEditorUIProxy editorUI,
 	const ImVec2& dialogSize,
-	const bool canSelectFile,
-	const bool canSelectDirectory)
+	const ImguiFileSystemDialogParameters& params)
 {
 	// Potentially skip more code before `ImGui::BeginPopupModal()`
 	if(!ImGui::IsPopupOpen(popupName))
@@ -112,16 +117,25 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-	if(ImGui::BeginPopupModal(popupName, NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	if(ImGui::BeginPopupModal(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		buildFileSystemDialogContent(dialogSize, canSelectFile, canSelectDirectory);
+		buildFileSystemDialogContent(dialogSize, params);
 
 		ImGui::Separator();
 
 		if(ImGui::Button("OK", ImVec2(120, 0)))
 		{
 			m_selectionConfirmedFlag = true;
-			ImGui::CloseCurrentPopup();
+
+			if((params.requiresItemSelection && !hasSelectedItem()) || 
+			   (params.requiresDirectorySelection && !hasSelectedDirectory()))
+			{
+				ImGui::OpenPopup(REQUIRES_SELECTION_TITLE);
+			}
+			else
+			{
+				ImGui::CloseCurrentPopup();
+			}
 		}
 		ImGui::SetItemDefaultFocus();
 		ImGui::SameLine();
@@ -129,6 +143,21 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 		{
 			m_selectionConfirmedFlag = false;
 			ImGui::CloseCurrentPopup();
+		}
+
+		if(ImGui::BeginPopupModal(REQUIRES_SELECTION_TITLE, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::PushFont(editorUI.getFontLibrary().largeFont);
+			ImGui::Text(PH_IMGUI_NOTIFICATION_ICON " ");
+			ImGui::PopFont();
+			ImGui::SameLine();
+			ImGui::Text("Please specify a target for action (such as a directory or file).");
+			if(ImGui::Button("Close"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
 		}
 
 		ImGui::EndPopup();
@@ -243,10 +272,33 @@ std::vector<Path> ImguiFileSystemDialog::getSelectedItems() const
 	return selectedItems;
 }
 
+bool ImguiFileSystemDialog::hasSelectedDirectory() const
+{
+	// If is editing, the preview buffer contains an edited path
+	if(m_isEditingEntry)
+	{
+		PH_ASSERT(!m_fsDialogEntryPreviewBuffer.empty());
+		return m_fsDialogEntryPreviewBuffer.front() != '\0';
+	}
+
+	return m_selectedEntry;
+}
+
+bool ImguiFileSystemDialog::hasSelectedItem() const
+{
+	// If is editing, the preview buffer contains an edited item
+	if(m_isEditingItem)
+	{
+		PH_ASSERT(!m_fsDialogItemPreviewBuffer.empty());
+		return m_fsDialogItemPreviewBuffer.front() != '\0';
+	}
+
+	return m_fsDialogSelectedEntryItemIdx != static_cast<std::size_t>(-1);
+}
+
 void ImguiFileSystemDialog::buildFileSystemDialogContent(
 	const ImVec2& dialogSize,
-	const bool canSelectFile,
-	const bool canSelectDirectory)
+	const ImguiFileSystemDialogParameters& params)
 {
 	ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
 	if(ImGui::BeginCombo("##root_combo", m_fsDialogRootNames[m_fsDialogSelectedRootIdx].c_str()))
@@ -319,7 +371,7 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 
 	ImGui::PopStyleVar();
 
-	if(canSelectFile || canSelectDirectory)
+	if(params.canSelectItem || params.canSelectDirectory)
 	{
 		// Only set the input text content if not editing
 		if(!m_isEditingEntry)
@@ -336,7 +388,7 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		ImGui::InputText(
-			"##directory_preview",
+			"##entry_preview",
 			m_fsDialogEntryPreviewBuffer.data(),
 			m_fsDialogEntryPreviewBuffer.size());
 
@@ -347,15 +399,15 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 		}
 	}
 
-	// Only show the result of item select/edit if selecting file is allowed
-	if(canSelectFile)
+	// Only show the result of item select/edit if selecting item is allowed
+	if(params.canSelectItem)
 	{
 		// Only set the input text content if not editing
 		if(!m_isEditingItem)
 		{
 			if(m_fsDialogNumSelectedItems == 0)
 			{
-				copy_to_buffer("(no file selected)", m_fsDialogItemPreviewBuffer);
+				copy_to_buffer("(no item selected)", m_fsDialogItemPreviewBuffer);
 			}
 			else if(m_fsDialogNumSelectedItems == 1)
 			{
@@ -368,14 +420,14 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 				std::snprintf(
 					m_fsDialogItemPreviewBuffer.data(),
 					m_fsDialogItemPreviewBuffer.size(),
-					"(%d files selected)", 
+					"(%d items selected)", 
 					static_cast<int>(m_fsDialogNumSelectedItems));
 			}
 		}
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		ImGui::InputText(
-			"##file_item_preview",
+			"##item_preview",
 			m_fsDialogItemPreviewBuffer.data(),
 			m_fsDialogItemPreviewBuffer.size());
 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
-
 #include <array>
 #include <cstddef>
 

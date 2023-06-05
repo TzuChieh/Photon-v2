@@ -1,4 +1,5 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
+#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
@@ -99,7 +100,11 @@ void ImguiEditorSceneManager::buildWindow(
 			fsDialog.openPopup(OPEN_SCENE_TITLE);
 		}
 
-		fsDialog.buildFileSystemDialogPopupModal(OPEN_SCENE_TITLE, get_file_dialog_size(editor));
+		fsDialog.buildFileSystemDialogPopupModal(
+			OPEN_SCENE_TITLE, 
+			editorUI,
+			get_file_dialog_size(editor));
+
 		if(fsDialog.selectionConfirmed())
 		{
 			auto items = fsDialog.getSelectedItems();
@@ -120,12 +125,17 @@ void ImguiEditorSceneManager::buildWindow(
 		}
 
 		ImGui::SameLine();
-		ImGui::Checkbox("checkbox", &m_shouldSaveWithFolder);
+		ImGui::Checkbox("With Folder", &m_shouldSaveWithFolder);
 
-		fsDialog.buildFileSystemDialogPopupModal(SAVE_SCENE_TITLE, get_file_dialog_size(editor));
+		fsDialog.buildFileSystemDialogPopupModal(
+			SAVE_SCENE_TITLE, 
+			editorUI,
+			get_file_dialog_size(editor),
+			{.canSelectItem = true, .requiresItemSelection = true});
+
 		if(fsDialog.selectionConfirmed())
 		{
-
+			//auto optPath
 
 			auto items = fsDialog.getSelectedItems();
 			for(const auto& item : items)

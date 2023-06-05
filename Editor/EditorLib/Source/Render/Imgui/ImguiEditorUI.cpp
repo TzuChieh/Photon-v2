@@ -253,6 +253,7 @@ void ImguiEditorUI::build()
 	}
 	m_generalFileSystemDialog.buildFileSystemDialogPopupModal(
 		ImguiFileSystemDialog::OPEN_FILE_TITLE,
+		*this,
 		ImVec2(
 			getDimensionHints().fileDialogPreferredWidth,
 			getDimensionHints().fileDialogPreferredHeight));

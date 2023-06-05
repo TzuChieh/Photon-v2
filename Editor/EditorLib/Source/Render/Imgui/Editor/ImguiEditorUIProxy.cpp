@@ -13,6 +13,16 @@ Editor& ImguiEditorUIProxy::getEditor()
 	return m_editorUI.getEditor();
 }
 
+ImguiFontLibrary& ImguiEditorUIProxy::getFontLibrary()
+{
+	return m_editorUI.getFontLibrary();
+}
+
+ImguiImageLibrary& ImguiEditorUIProxy::getImageLibrary()
+{
+	return m_editorUI.getImageLibrary();
+}
+
 ImguiFileSystemDialog& ImguiEditorUIProxy::getGeneralFileSystemDialog()
 {
 	return m_editorUI.getGeneralFileSystemDialog();

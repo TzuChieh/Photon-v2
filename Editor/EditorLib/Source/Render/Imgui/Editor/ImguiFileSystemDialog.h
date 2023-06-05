@@ -16,6 +16,16 @@
 namespace ph::editor
 {
 
+class ImguiEditorUIProxy;
+
+struct ImguiFileSystemDialogParameters
+{
+	bool canSelectItem = true;
+	bool canSelectDirectory = false;
+	bool requiresItemSelection = false;
+	bool requiresDirectorySelection = false;
+};
+
 class ImguiFileSystemDialog final
 {
 public:
@@ -30,9 +40,9 @@ public:
 
 	void buildFileSystemDialogPopupModal(
 		const char* popupName,
+		ImguiEditorUIProxy editorUI,
 		const ImVec2& dialogSize = ImVec2(0, 0),
-		bool canSelectFile = true,
-		bool canSelectDirectory = false);
+		const ImguiFileSystemDialogParameters& params = {});
 
 	void clearSelection();
 	bool selectionConfirmed();
@@ -40,12 +50,13 @@ public:
 	std::optional<Path> getSelectedDirectory() const;
 	std::optional<Path> getSelectedItem() const;
 	std::vector<Path> getSelectedItems() const;
+	bool hasSelectedDirectory() const;
+	bool hasSelectedItem() const;
 
 private:
 	void buildFileSystemDialogContent(
 		const ImVec2& dialogSize,
-		bool canSelectFile,
-		bool canSelectDirectory);
+		const ImguiFileSystemDialogParameters& params);
 
 	void buildFileSystemDialogTreeNodeRecursive(
 		FileSystemDirectoryEntry* baseEntry);
