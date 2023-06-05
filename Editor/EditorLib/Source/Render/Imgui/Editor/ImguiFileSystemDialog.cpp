@@ -55,9 +55,11 @@ ImguiFileSystemDialog::ImguiFileSystemDialog()
 	, m_isEditingEntry(false)
 	, m_isEditingItem(false)
 
+	, m_fsDialogEntryPathName()
+	, m_fsDialogEntryItems()
+
 	, m_fsDialogRootNames()
 	, m_fsDialogSelectedRootIdx(static_cast<std::size_t>(-1))
-	, m_fsDialogEntryItems()
 	, m_fsDialogSelectedEntryItemIdx(static_cast<std::size_t>(-1))
 	, m_fsDialogEntryItemSelection()
 {
@@ -263,17 +265,30 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 
 	if(canSelectFile || canSelectDirectory)
 	{
-		if(!m_selectedEntry)
+		// Only set the input text content if not editing
+		if(!m_isEditingEntry)
 		{
-			copy_to_buffer("(no directory selected)", m_fsDialogEntryPreviewBuffer);
+			if(m_selectedEntry)
+			{
+				copy_to_buffer(m_fsDialogEntryPathName, m_fsDialogEntryPreviewBuffer);
+			}
+			else
+			{
+				copy_to_buffer("(no directory selected)", m_fsDialogEntryPreviewBuffer);
+			}
 		}
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 		ImGui::InputText(
 			"##directory_preview",
 			m_fsDialogEntryPreviewBuffer.data(),
-			m_fsDialogEntryPreviewBuffer.size(),
-			ImGuiInputTextFlags_ReadOnly);
+			m_fsDialogEntryPreviewBuffer.size());
+
+		// We are editing if the entry text is clicked
+		if(ImGui::IsItemClicked())
+		{
+			m_isEditingEntry = true;
+		}
 	}
 
 	// Only show the result of item select/edit if selecting file is allowed
@@ -343,7 +358,10 @@ void ImguiFileSystemDialog::buildFileSystemDialogTreeNodeRecursive(
 	}
 	
 	const bool isNodeOpened = ImGui::TreeNodeEx(baseEntry->getDirectoryName().c_str(), nodeFlags);
-	if(ImGui::IsItemClicked() || !m_selectedEntry)
+	const bool isNodeClicked = ImGui::IsItemClicked();
+
+	// Initialize entry related data when an entry is clicked or there was no entry selected
+	if(isNodeClicked || !m_selectedEntry)
 	{
 		m_selectedEntry = baseEntry;
 		m_fsDialogEntryItems = m_explorer.makeItemListing(baseEntry, false);
@@ -357,7 +375,13 @@ void ImguiFileSystemDialog::buildFileSystemDialogTreeNodeRecursive(
 		m_fsDialogSelectedEntryItemIdx = static_cast<std::size_t>(-1);
 		m_fsDialogEntryItemSelection.resize(m_fsDialogEntryItems.size());
 		std::fill(m_fsDialogEntryItemSelection.begin(), m_fsDialogEntryItemSelection.end(), 0);
-		copy_to_buffer(baseEntry->getDirectoryPath().toAbsoluteString(), m_fsDialogEntryPreviewBuffer);
+		m_fsDialogEntryPathName = baseEntry->getDirectoryPath().toAbsoluteString();
+	}
+
+	// We are selecting, not editing entry, if the entry node is clicked
+	if(isNodeClicked)
+	{
+		m_isEditingEntry = false;
 	}
 
 	if(isNodeOpened)

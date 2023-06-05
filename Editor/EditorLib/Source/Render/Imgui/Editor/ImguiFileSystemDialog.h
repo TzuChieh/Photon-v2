@@ -58,17 +58,20 @@ private:
 	FileSystemDirectoryEntry* m_selectedEntry;
 	bool m_selectionConfirmedFlag;
 
-	// vector of chars since input text seems to cache buffer size internally (cannot alter input
-	// text buffer size without closing then repoening the dialog window)
+	// `std::vector` of chars since input text seems to cache buffer size internally (cannot alter 
+	// input text buffer size without closing then repoening the dialog window)
 	std::vector<char> m_fsDialogEntryPreviewBuffer;
 	std::vector<char> m_fsDialogItemPreviewBuffer;
-	bool m_isEditingEntry;// TODO
+	bool m_isEditingEntry;
 	bool m_isEditingItem;
+
+	// Cached for display
+	std::string m_fsDialogEntryPathName;
+	std::vector<std::string> m_fsDialogEntryItemNames;
 
 	std::vector<std::string> m_fsDialogRootNames;
 	std::size_t m_fsDialogSelectedRootIdx;
 	std::vector<Path> m_fsDialogEntryItems;
-	std::vector<std::string> m_fsDialogEntryItemNames;
 	std::size_t m_fsDialogSelectedEntryItemIdx;
 	std::vector<uint8> m_fsDialogEntryItemSelection;
 };
