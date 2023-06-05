@@ -73,6 +73,7 @@ private:
 	std::size_t m_fsDialogSelectedRootIdx;
 	std::vector<Path> m_fsDialogEntryItems;
 	std::size_t m_fsDialogSelectedEntryItemIdx;
+	std::size_t m_fsDialogNumSelectedItems;
 	std::vector<uint8> m_fsDialogEntryItemSelection;
 };
 

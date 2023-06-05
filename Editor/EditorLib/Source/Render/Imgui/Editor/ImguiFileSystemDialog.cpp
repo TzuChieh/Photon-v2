@@ -61,6 +61,7 @@ ImguiFileSystemDialog::ImguiFileSystemDialog()
 	, m_fsDialogRootNames()
 	, m_fsDialogSelectedRootIdx(static_cast<std::size_t>(-1))
 	, m_fsDialogSelectedEntryItemIdx(static_cast<std::size_t>(-1))
+	, m_fsDialogNumSelectedItems(0)
 	, m_fsDialogEntryItemSelection()
 {
 	m_fsDialogEntryPreviewBuffer.resize(512);
@@ -126,6 +127,7 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 		ImGui::SameLine();
 		if(ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
+			m_selectionConfirmedFlag = false;
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -140,6 +142,12 @@ void ImguiFileSystemDialog::clearSelection()
 	m_fsDialogSelectedRootIdx = static_cast<std::size_t>(-1);
 	m_fsDialogSelectedEntryItemIdx = static_cast<std::size_t>(-1);
 	std::fill(m_fsDialogEntryItemSelection.begin(), m_fsDialogEntryItemSelection.end(), 0);
+	m_fsDialogNumSelectedItems = 0;
+
+	m_isEditingEntry = false;
+	m_isEditingItem = false;
+	copy_to_buffer("", m_fsDialogEntryPreviewBuffer);
+	copy_to_buffer("", m_fsDialogItemPreviewBuffer);
 }
 
 bool ImguiFileSystemDialog::selectionConfirmed()
@@ -155,27 +163,70 @@ bool ImguiFileSystemDialog::selectionConfirmed()
 
 std::optional<Path> ImguiFileSystemDialog::getSelectedDirectory() const
 {
-	if(!m_selectedEntry)
+	// If is editing, the preview buffer contains an edited path
+	if(m_isEditingEntry)
 	{
-		return std::nullopt;
+		PH_ASSERT(!m_fsDialogEntryPreviewBuffer.empty());
+		if(m_fsDialogEntryPreviewBuffer.front() != '\0')
+		{
+			return Path(m_fsDialogEntryPreviewBuffer.data());
+		}
+		else
+		{
+			return std::nullopt;
+		}
 	}
 
-	return m_selectedEntry->getDirectoryPath();
+	if(m_selectedEntry)
+	{
+		return m_selectedEntry->getDirectoryPath();
+	}
+
+	return std::nullopt;
 }
 
 std::optional<Path> ImguiFileSystemDialog::getSelectedItem() const
 {
-	if(m_fsDialogSelectedEntryItemIdx == static_cast<std::size_t>(-1))
+	// If is editing, the preview buffer contains an edited item
+	if(m_isEditingItem)
 	{
-		return std::nullopt;
+		PH_ASSERT(!m_fsDialogItemPreviewBuffer.empty());
+		if(m_fsDialogItemPreviewBuffer.front() != '\0')
+		{
+			return Path(m_fsDialogItemPreviewBuffer.data());
+		}
+		else
+		{
+			return std::nullopt;
+		}
 	}
 
-	PH_ASSERT_LT(m_fsDialogSelectedEntryItemIdx, m_fsDialogEntryItems.size());
-	return m_fsDialogEntryItems[m_fsDialogSelectedEntryItemIdx];
+	if(m_fsDialogSelectedEntryItemIdx != static_cast<std::size_t>(-1))
+	{
+		PH_ASSERT_LT(m_fsDialogSelectedEntryItemIdx, m_fsDialogEntryItems.size());
+		return m_fsDialogEntryItems[m_fsDialogSelectedEntryItemIdx];
+	}
+
+	return std::nullopt;
 }
 
 std::vector<Path> ImguiFileSystemDialog::getSelectedItems() const
 {
+	if(m_fsDialogNumSelectedItems <= 1)
+	{
+		auto optPath = getSelectedItem();
+		if(optPath)
+		{
+			return {*optPath};
+		}
+		else
+		{
+			return {};
+		}
+	}
+
+	// Currently does not support edited multiple items
+
 	PH_ASSERT_EQ(m_fsDialogEntryItemSelection.size(), m_fsDialogEntryItems.size());
 	
 	std::vector<Path> selectedItems;
@@ -186,6 +237,9 @@ std::vector<Path> ImguiFileSystemDialog::getSelectedItems() const
 			selectedItems.push_back(m_fsDialogEntryItems[itemIdx]);
 		}
 	}
+
+	PH_ASSERT_EQ(selectedItems.size(), m_fsDialogNumSelectedItems);
+
 	return selectedItems;
 }
 
@@ -247,10 +301,12 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 			if(!ImGui::GetIO().KeyCtrl)
 			{
 				std::fill(m_fsDialogEntryItemSelection.begin(), m_fsDialogEntryItemSelection.end(), 0);
+				m_fsDialogNumSelectedItems = 0;
 			}
 
 			m_fsDialogSelectedEntryItemIdx = itemIdx;
 			m_fsDialogEntryItemSelection[itemIdx] = 1;
+			++m_fsDialogNumSelectedItems;
 		}
 
 		// We are selecting, not editing item input text, if the item selectable is clicked
@@ -297,17 +353,11 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 		// Only set the input text content if not editing
 		if(!m_isEditingItem)
 		{
-			int numSelectedItems = 0;
-			for(auto value : m_fsDialogEntryItemSelection)
-			{
-				numSelectedItems += value != 0;
-			}
-
-			if(numSelectedItems == 0)
+			if(m_fsDialogNumSelectedItems == 0)
 			{
 				copy_to_buffer("(no file selected)", m_fsDialogItemPreviewBuffer);
 			}
-			else if(numSelectedItems == 1)
+			else if(m_fsDialogNumSelectedItems == 1)
 			{
 				copy_to_buffer(
 					getEntryItemNameWithoutDecorations(m_fsDialogSelectedEntryItemIdx), 
@@ -319,7 +369,7 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 					m_fsDialogItemPreviewBuffer.data(),
 					m_fsDialogItemPreviewBuffer.size(),
 					"(%d files selected)", 
-					numSelectedItems);
+					static_cast<int>(m_fsDialogNumSelectedItems));
 			}
 		}
 

@@ -56,12 +56,19 @@ public:
 		m_path.make_preferred();
 	}
 
+	/*!
+	A std::string_view variant of Path(std::string).
+	*/
 	inline explicit Path(const std::string_view path) :
 		m_path(std_filesystem::path(path))
 	{
 		m_path.make_preferred();
 	}
 
+	/*!
+	Similar to Path(std::string), except the string is a null-terminated character sequence pointed to
+	by @p path.
+	*/
 	inline explicit Path(const char* const path) :
 		Path(std::string_view(path))
 	{}
