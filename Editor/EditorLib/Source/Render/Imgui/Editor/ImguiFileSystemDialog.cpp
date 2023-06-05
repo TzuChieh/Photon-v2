@@ -5,6 +5,9 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
+#include <cstdio>
+#include <algorithm>
+
 #define PH_IMGUI_OPEN_FILE_ICON    ICON_MD_FOLDER_OPEN
 #define PH_IMGUI_SAVE_FILE_ICON    ICON_MD_SAVE
 #define PH_IMGUI_GENERAL_FILE_ICON ICON_MD_DESCRIPTION
@@ -15,18 +18,52 @@ namespace ph::editor
 const char* const ImguiFileSystemDialog::OPEN_FILE_TITLE = PH_IMGUI_OPEN_FILE_ICON " Open File";
 const char* const ImguiFileSystemDialog::SAVE_FILE_TITLE = PH_IMGUI_SAVE_FILE_ICON " Save File";
 
+namespace
+{
+
+constexpr std::string_view FILE_ITEM_NAME_PREFIX = PH_IMGUI_GENERAL_FILE_ICON " ";
+
+// Copy string to a vector buffer. The result is always null-terminated.
+inline void copy_to_buffer(std::string_view srcStr, std::vector<char>& dstBuffer)
+{
+	PH_ASSERT(!dstBuffer.empty());
+
+	// Can only copy what the buffer can hold
+	const auto numCharsToCopy = std::min(srcStr.size(), dstBuffer.size());
+	std::copy(srcStr.begin(), srcStr.begin() + numCharsToCopy, dstBuffer.begin());
+
+	// Always make the result null-terminated
+	if(numCharsToCopy < dstBuffer.size())
+	{
+		dstBuffer[numCharsToCopy] = '\0';
+	}
+	else
+	{
+		dstBuffer.back() = '\0';
+	}
+}
+
+}// end anonymous namespace
+
 ImguiFileSystemDialog::ImguiFileSystemDialog()
 	: m_explorer()
 	, m_selectedEntry(nullptr)
 	, m_selectionConfirmedFlag(false)
 
+	, m_fsDialogEntryPreviewBuffer()
+	, m_fsDialogItemPreviewBuffer()
+	, m_isEditingEntry(false)
+	, m_isEditingItem(false)
+
 	, m_fsDialogRootNames()
 	, m_fsDialogSelectedRootIdx(static_cast<std::size_t>(-1))
-	, m_fsDialogEntryPreview()
 	, m_fsDialogEntryItems()
 	, m_fsDialogSelectedEntryItemIdx(static_cast<std::size_t>(-1))
 	, m_fsDialogEntryItemSelection()
-{}
+{
+	m_fsDialogEntryPreviewBuffer.resize(512);
+	m_fsDialogItemPreviewBuffer.resize(256);
+}
 
 void ImguiFileSystemDialog::openPopup(
 	const char* const popupName)
@@ -213,6 +250,12 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 			m_fsDialogSelectedEntryItemIdx = itemIdx;
 			m_fsDialogEntryItemSelection[itemIdx] = 1;
 		}
+
+		// We are selecting, not editing item input text, if the item selectable is clicked
+		if(ImGui::IsItemClicked())
+		{
+			m_isEditingItem = false;
+		}
 	}
 	ImGui::EndChild();
 
@@ -220,65 +263,61 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 
 	if(canSelectFile || canSelectDirectory)
 	{
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		if(m_selectedEntry)
+		if(!m_selectedEntry)
 		{
-			ImGui::InputText(
-				"##directory_preview",
-				m_fsDialogEntryPreview.data(),
-				m_fsDialogEntryPreview.size(),
-				ImGuiInputTextFlags_ReadOnly);
+			copy_to_buffer("(no directory selected)", m_fsDialogEntryPreviewBuffer);
 		}
-		else
-		{
-			static std::string noSelectionMsg = "(no directory selected)";
 
-			ImGui::InputText(
-				"##directory_preview",
-				noSelectionMsg.data(),
-				noSelectionMsg.size(),
-				ImGuiInputTextFlags_ReadOnly);
-		}
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::InputText(
+			"##directory_preview",
+			m_fsDialogEntryPreviewBuffer.data(),
+			m_fsDialogEntryPreviewBuffer.size(),
+			ImGuiInputTextFlags_ReadOnly);
 	}
 
+	// Only show the result of item select/edit if selecting file is allowed
 	if(canSelectFile)
 	{
-		int numSelectedItems = 0;
-		for(auto value : m_fsDialogEntryItemSelection)
+		// Only set the input text content if not editing
+		if(!m_isEditingItem)
 		{
-			numSelectedItems += value != 0;
+			int numSelectedItems = 0;
+			for(auto value : m_fsDialogEntryItemSelection)
+			{
+				numSelectedItems += value != 0;
+			}
+
+			if(numSelectedItems == 0)
+			{
+				copy_to_buffer("(no file selected)", m_fsDialogItemPreviewBuffer);
+			}
+			else if(numSelectedItems == 1)
+			{
+				copy_to_buffer(
+					getEntryItemNameWithoutDecorations(m_fsDialogSelectedEntryItemIdx), 
+					m_fsDialogItemPreviewBuffer);
+			}
+			else
+			{
+				std::snprintf(
+					m_fsDialogItemPreviewBuffer.data(),
+					m_fsDialogItemPreviewBuffer.size(),
+					"(%d files selected)", 
+					numSelectedItems);
+			}
 		}
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		if(numSelectedItems == 0)
-		{
-			static std::string noSelectionMsg = "(no file selected)";
+		ImGui::InputText(
+			"##file_item_preview",
+			m_fsDialogItemPreviewBuffer.data(),
+			m_fsDialogItemPreviewBuffer.size());
 
-			ImGui::InputText(
-				"##file_preview",
-				noSelectionMsg.data(),
-				noSelectionMsg.size(),
-				ImGuiInputTextFlags_ReadOnly);
-		}
-		else if(numSelectedItems == 1)
+		// We are editing if the item input text is clicked
+		if(ImGui::IsItemClicked())
 		{
-			PH_ASSERT_LT(m_fsDialogSelectedEntryItemIdx, m_fsDialogEntryItemNames.size());
-
-			ImGui::InputText(
-				"##file_preview",
-				m_fsDialogEntryItemNames[m_fsDialogSelectedEntryItemIdx].data(),
-				m_fsDialogEntryItemNames[m_fsDialogSelectedEntryItemIdx].size(),
-				ImGuiInputTextFlags_ReadOnly);
-		}
-		else
-		{
-			std::array<char, 32> buf;
-			std::snprintf(buf.data(), buf.size(), "(%d files selected)", numSelectedItems);
-			ImGui::InputText(
-				"##file_preview",
-				buf.data(),
-				buf.size(),
-				ImGuiInputTextFlags_ReadOnly);
+			m_isEditingItem = true;
 		}
 	}
 }
@@ -312,13 +351,13 @@ void ImguiFileSystemDialog::buildFileSystemDialogTreeNodeRecursive(
 		m_fsDialogEntryItemNames.clear();
 		for(const Path& item : m_fsDialogEntryItems)
 		{
-			m_fsDialogEntryItemNames.push_back(PH_IMGUI_GENERAL_FILE_ICON " " + item.toString());
+			m_fsDialogEntryItemNames.push_back(std::string(FILE_ITEM_NAME_PREFIX) + item.toString());
 		}
 
 		m_fsDialogSelectedEntryItemIdx = static_cast<std::size_t>(-1);
 		m_fsDialogEntryItemSelection.resize(m_fsDialogEntryItems.size());
 		std::fill(m_fsDialogEntryItemSelection.begin(), m_fsDialogEntryItemSelection.end(), 0);
-		m_fsDialogEntryPreview = baseEntry->getDirectoryPath().toAbsoluteString();
+		copy_to_buffer(baseEntry->getDirectoryPath().toAbsoluteString(), m_fsDialogEntryPreviewBuffer);
 	}
 
 	if(isNodeOpened)
@@ -335,6 +374,19 @@ void ImguiFileSystemDialog::buildFileSystemDialogTreeNodeRecursive(
 	{
 		m_explorer.collapse(baseEntry);
 	}
+}
+
+std::string_view ImguiFileSystemDialog::getEntryItemNameWithoutDecorations(
+	const std::size_t itemIndex) const
+{
+	PH_ASSERT_LT(itemIndex, m_fsDialogEntryItemNames.size());
+
+	std::string_view itemName = m_fsDialogEntryItemNames[itemIndex];
+	
+	PH_ASSERT_LE(FILE_ITEM_NAME_PREFIX.size(), itemName.size());
+	itemName.remove_prefix(FILE_ITEM_NAME_PREFIX.size());
+
+	return itemName;
 }
 
 }// end namespace ph::editor

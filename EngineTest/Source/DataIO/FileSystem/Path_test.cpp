@@ -20,15 +20,21 @@ TEST(FileSystemPathTest, PathOperation)
 	EXPECT_TRUE(absolutePath.isAbsolute());
 
 	const Path leadingSeparatorPath("/some/path/");
-	EXPECT_TRUE(leadingSeparatorPath.removeLeadingSeparator() == Path("some/path/"));
+	EXPECT_STREQ(
+		leadingSeparatorPath.removeLeadingSeparator().toString().c_str(), 
+		Path("some/path/").toString().c_str());
 
 	const Path trailingSeparatorPath("/some/path/");
-	EXPECT_TRUE(trailingSeparatorPath.removeTrailingSeparator() == Path("/some/path"));
+	EXPECT_STREQ(
+		trailingSeparatorPath.removeTrailingSeparator().toString().c_str(), 
+		Path("/some/path").toString().c_str());
 
 	const Path firstPath("C:/first/second/");
 	const Path secondPath("/third/fourth/");
 	const Path fullPath = firstPath.append(secondPath);
-	EXPECT_TRUE(fullPath == Path("C:/first/second/third/fourth/"));
+	EXPECT_STREQ(
+		fullPath.toString().c_str(),
+		Path("C:/first/second/third/fourth/").toString().c_str());
 }
 
 TEST(FileSystemPathTest, FileExtension)

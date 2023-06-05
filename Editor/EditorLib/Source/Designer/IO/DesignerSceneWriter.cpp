@@ -111,6 +111,7 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 
 	generateVersionCommand(SemanticVersion(PH_PSDL_VERSION));
 
+	// Find by the common base type `DesignerObject` effectively retrieves all valid objects
 	std::vector<DesignerObject*> objs;
 	scene.findObjectsByType(objs);
 
@@ -134,7 +135,7 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 		generateLoadCommand(resource, m_resolver.getResourceName(resource));
 	}
 
-	// TODO: save designer scene itself
+	generateLoadCommand(&scene, scene.getName());
 
 	m_fileStream = nullptr;
 }

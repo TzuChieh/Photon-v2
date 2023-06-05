@@ -107,9 +107,12 @@ public:
 	*/
 	inline Path append(const Path& other) const
 	{
-		auto thisPath  = this->removeTrailingSeparator();
+		auto thisPath = this->removeTrailingSeparator();
 		auto otherPath = other.removeLeadingSeparator();
-		return Path((thisPath.m_path /= otherPath.m_path).string());
+		return Path(thisPath.m_path / otherPath.m_path);
+
+		// FIXME: strangely this fails unit test; windows with slash prefix = root?
+		//return Path(this->m_path / other.m_path);
 	}
 
 	inline Path append(std::string_view pathStr) const
@@ -117,7 +120,12 @@ public:
 		return append(Path(pathStr));
 	}
 
+	/*! @brief Get a string representation of this path.
+	*/
 	std::string toString() const;
+
+	/*! @brief Get a standard path representation of this path.
+	*/
 	std_filesystem::path toStdPath() const;
 
 	inline Path removeLeadingSeparator() const

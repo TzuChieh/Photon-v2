@@ -56,7 +56,9 @@ public:
 	virtual void renderUpdate(const MainThreadRenderUpdateContext& ctx);
 	virtual void createRenderCommands(RenderThreadCaller& caller);
 
-	/*! @brief Create, initialize and add the new object as a child.
+	/*! @brief Create and add the new object as a child.
+	@param shouldInit Whether to initialize the new child.
+	@param shouldSetToDefault Whether to set the new child to default as defined by its SDL interface.
 	*/
 	template<typename ChildType>
 	ChildType* newChild(
@@ -69,6 +71,11 @@ public:
 		const SdlClass* clazz,
 		bool shouldInit = true,
 		bool shouldSetToDefault = true);
+
+	/*! @brief Add the object as a child. 
+	This method allows an object to be created separately then added to this object as a child later.
+	*/
+	DesignerObject* addNewChild(DesignerObject* childObj);
 
 	/*! @brief Remove, uninitialize and destruct a child.
 	*/

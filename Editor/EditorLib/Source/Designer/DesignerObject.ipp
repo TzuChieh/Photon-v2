@@ -60,7 +60,9 @@ inline void DesignerObject::setParentObject(DesignerObject* const object)
 	PH_ASSERT(object != nullptr);
 	PH_ASSERT(object != this);
 
-	getState().turnOff({EObjectState::Root});
+	// Only root object can have a scene as parent
+	PH_ASSERT(getState().hasNo(EObjectState::Root));
+
 	m_parent.u_object = object;
 }
 
@@ -68,7 +70,9 @@ inline void DesignerObject::setParentScene(DesignerScene* const scene)
 {
 	PH_ASSERT(scene != nullptr);
 
-	getState().turnOn({EObjectState::Root});
+	// Only root object can have a scene as parent
+	PH_ASSERT(getState().has(EObjectState::Root));
+
 	m_parent.u_scene = scene;
 }
 

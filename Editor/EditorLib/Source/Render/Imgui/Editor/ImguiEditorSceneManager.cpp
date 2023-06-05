@@ -32,8 +32,9 @@ inline ImVec2 get_file_dialog_size(const Editor& editor)
 }// end anonymous namespace
 
 ImguiEditorSceneManager::ImguiEditorSceneManager()
-	: m_newSceneNameBuffer()
-	, m_selectedSceneIdx(static_cast<std::size_t>(-1))
+	: m_selectedSceneIdx(static_cast<std::size_t>(-1))
+	, m_shouldSaveWithFolder(true)
+	, m_newSceneNameBuffer()
 {
 	m_newSceneNameBuffer.fill('\0');
 }
@@ -52,42 +53,17 @@ void ImguiEditorSceneManager::buildWindow(
 	Editor& editor = editorUI.getEditor();
 
 	{
-		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
-		if(ImGui::Button("Open"))
-		{
-			fsDialog.openPopup(OPEN_SCENE_TITLE);
-		}
-
-		fsDialog.buildFileSystemDialogPopupModal(OPEN_SCENE_TITLE, get_file_dialog_size(editor));
-		if(fsDialog.selectionConfirmed())
-		{
-			auto items = fsDialog.getSelectedItems();
-			for(const auto& item : items)
-			{
-				PH_DEFAULT_LOG("selected: {}", item.toString());
-			}
-		}
-	}
-
-	ImGui::SameLine();
-	
-	if(ImGui::Button("Save"))
-	{
-		// TODO
-	}
-
-	ImGui::SameLine();
-
-	{
 		EditContext editCtx = editor.getEditContext();
 
-		if(ImGui::Button("Make Active"))
+		if(ImGui::Button("Make Selection Active"))
 		{
 			if(m_selectedSceneIdx < editor.numScenes())
 			{
 				editor.setActiveScene(m_selectedSceneIdx);
 			}
 		}
+
+		ImGui::SameLine();
 
 		DesignerScene* activeScene = editCtx.activeScene;
 		ImGui::Text("Active Scene: %s%s",
@@ -114,6 +90,50 @@ void ImguiEditorSceneManager::buildWindow(
 			}
 		}
 		ImGui::EndListBox();
+	}
+
+	{
+		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
+		if(ImGui::Button("Open"))
+		{
+			fsDialog.openPopup(OPEN_SCENE_TITLE);
+		}
+
+		fsDialog.buildFileSystemDialogPopupModal(OPEN_SCENE_TITLE, get_file_dialog_size(editor));
+		if(fsDialog.selectionConfirmed())
+		{
+			auto items = fsDialog.getSelectedItems();
+			for(const auto& item : items)
+			{
+				PH_DEFAULT_LOG("selected: {}", item.toString());
+			}
+		}
+
+		// TODO
+	}
+	
+	{
+		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
+		if(ImGui::Button("Save"))
+		{
+			fsDialog.openPopup(SAVE_SCENE_TITLE);
+		}
+
+		ImGui::SameLine();
+		ImGui::Checkbox("checkbox", &m_shouldSaveWithFolder);
+
+		fsDialog.buildFileSystemDialogPopupModal(SAVE_SCENE_TITLE, get_file_dialog_size(editor));
+		if(fsDialog.selectionConfirmed())
+		{
+
+
+			auto items = fsDialog.getSelectedItems();
+			for(const auto& item : items)
+			{
+				PH_DEFAULT_LOG("selected: {}", item.toString());
+			}
+		}
+		// TODO
 	}
 
 	if(ImGui::Button("New"))

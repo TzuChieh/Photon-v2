@@ -322,6 +322,7 @@ DesignerObject* DesignerScene::newRootObject(
 		return nullptr;
 	}
 
+	obj->getState().turnOn({EObjectState::Root});
 	obj->setParentScene(this);
 
 	return obj;

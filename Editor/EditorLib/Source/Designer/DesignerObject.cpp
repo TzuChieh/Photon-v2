@@ -10,6 +10,21 @@
 namespace ph::editor
 {
 
+namespace
+{
+
+inline std::string get_object_debug_info(DesignerObject* const obj)
+{
+	if(!obj)
+	{
+		return "(null)";
+	}
+
+	return obj->getName().empty() ? "(no name)" : obj->getName();
+}
+
+}// end anonymous namespace
+
 DesignerObject::DesignerObject()
 	: m_parent()
 	, m_name()
@@ -83,10 +98,34 @@ DesignerObject* DesignerObject::newChild(
 		return nullptr;
 	}
 
-	childObj->setParentObject(this);
-	addChild(childObj);
+	return addNewChild(childObj);
+}
 
-	return childObj;
+DesignerObject* DesignerObject::addNewChild(DesignerObject* const childObj)
+{
+	if(!childObj)
+	{
+		return nullptr;
+	}
+
+	if(childObj->getState().has(EObjectState::Root))
+	{
+		throw_formatted<IllegalOperationException>(
+			"cannot add root object {} as a child of object {}",
+			get_object_debug_info(childObj), getName());
+	}
+
+	// Ensure the child object is not already somebody's child
+	if(childObj->getState().hasNo(EObjectState::Root) && 
+	   m_parent.u_object != nullptr)
+	{
+		throw_formatted<IllegalOperationException>(
+			"cannot add object {} as a child of object {} (parent already exists: {})",
+			get_object_debug_info(childObj), getName(), m_parent.u_object->getName());
+	}
+
+	childObj->setParentObject(this);
+	return addChild(childObj);
 }
 
 void DesignerObject::deleteChild(DesignerObject* const childObj)

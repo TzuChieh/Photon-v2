@@ -67,6 +67,7 @@ public:
 
 	std::size_t createScene(const std::string& name = "");
 	void openScene(const Path& sceneFilePath);
+	void saveScene(const Path& sceneFilePath);
 	DesignerScene* getScene(std::size_t sceneIndex) const;
 	void setActiveScene(std::size_t sceneIndex);
 	void removeScene(std::size_t sceneIndex);

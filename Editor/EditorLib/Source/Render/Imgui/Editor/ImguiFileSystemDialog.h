@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <optional>
 
 namespace ph::editor
@@ -49,13 +50,23 @@ private:
 	void buildFileSystemDialogTreeNodeRecursive(
 		FileSystemDirectoryEntry* baseEntry);
 
+	/*! @brief Lightweight helper to get an undecorated item name from current entry.
+	*/
+	std::string_view getEntryItemNameWithoutDecorations(std::size_t itemIndex) const;
+
 	FileSystemExplorer m_explorer;
 	FileSystemDirectoryEntry* m_selectedEntry;
 	bool m_selectionConfirmedFlag;
 
+	// vector of chars since input text seems to cache buffer size internally (cannot alter input
+	// text buffer size without closing then repoening the dialog window)
+	std::vector<char> m_fsDialogEntryPreviewBuffer;
+	std::vector<char> m_fsDialogItemPreviewBuffer;
+	bool m_isEditingEntry;// TODO
+	bool m_isEditingItem;
+
 	std::vector<std::string> m_fsDialogRootNames;
 	std::size_t m_fsDialogSelectedRootIdx;
-	std::string m_fsDialogEntryPreview;
 	std::vector<Path> m_fsDialogEntryItems;
 	std::vector<std::string> m_fsDialogEntryItemNames;
 	std::size_t m_fsDialogSelectedEntryItemIdx;

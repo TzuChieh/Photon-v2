@@ -7,6 +7,7 @@
 #include <Utility/Timer.h>
 #include <DataIO/FileSystem/Path.h>
 #include <SDL/TSdl.h>
+#include <Designer/IO/DesignerSceneWriter.h>
 
 #include <memory>
 #include <utility>
@@ -202,6 +203,19 @@ std::size_t Editor::createScene(const std::string& name)
 void Editor::openScene(const Path& sceneFilePath)
 {
 	// TODO
+}
+
+void Editor::saveScene(const Path& sceneFilePath)
+{
+	if(!m_activeScene)
+	{
+		PH_LOG_WARNING(Editor,
+			"cannot save scene--current active scene is null");
+		return;
+	}
+
+	DesignerSceneWriter sceneWriter(sceneFilePath.getParent());
+	sceneWriter.write(*m_activeScene);
 }
 
 void Editor::setActiveScene(const std::size_t sceneIndex)
