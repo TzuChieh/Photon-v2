@@ -125,15 +125,15 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 
 		if(ImGui::Button("OK", ImVec2(120, 0)))
 		{
-			m_selectionConfirmedFlag = true;
-
 			if((params.requiresItemSelection && !hasSelectedItem()) || 
 			   (params.requiresDirectorySelection && !hasSelectedDirectory()))
 			{
+				m_selectionConfirmedFlag = false;
 				ImGui::OpenPopup(REQUIRES_SELECTION_TITLE);
 			}
 			else
 			{
+				m_selectionConfirmedFlag = true;
 				ImGui::CloseCurrentPopup();
 			}
 		}
@@ -237,6 +237,18 @@ std::optional<Path> ImguiFileSystemDialog::getSelectedItem() const
 	}
 
 	return std::nullopt;
+}
+
+std::optional<Path> ImguiFileSystemDialog::getSelectedTarget() const
+{
+	auto optDirectory = getSelectedDirectory();
+	if(!optDirectory)
+	{
+		return std::nullopt;
+	}
+
+	auto optItem = getSelectedItem();
+	return optItem ? optDirectory->append(*optItem) : *optDirectory;
 }
 
 std::vector<Path> ImguiFileSystemDialog::getSelectedItems() const

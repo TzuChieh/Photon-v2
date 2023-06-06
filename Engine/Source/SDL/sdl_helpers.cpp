@@ -79,7 +79,7 @@ math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr)
 
 std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3ArrayStr)
 {
-	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'"', '"'}});
 
 	try
 	{
@@ -116,7 +116,7 @@ void save_vector3(const math::Vector3R& value, std::string* const out_str)
 
 			std::string savedReal;
 
-			(*out_str) += '\"';
+			(*out_str) += '"';
 			save_real(value.x(), &savedReal);
 			(*out_str) += savedReal;
 			(*out_str) += ' ';
@@ -125,7 +125,7 @@ void save_vector3(const math::Vector3R& value, std::string* const out_str)
 			(*out_str) += ' ';
 			save_real(value.z(), &savedReal);
 			(*out_str) += savedReal;
-			(*out_str) += '\"';
+			(*out_str) += '"';
 		}
 	}
 	catch(const SdlSaveError& e)
@@ -146,7 +146,7 @@ void save_quaternion(const math::QuaternionR& value, std::string* const out_str)
 
 		std::string savedReal;
 
-		(*out_str) += '\"';
+		(*out_str) += '"';
 		save_real(value.x, &savedReal);
 		(*out_str) += savedReal;
 		(*out_str) += ' ';
@@ -158,7 +158,7 @@ void save_quaternion(const math::QuaternionR& value, std::string* const out_str)
 		(*out_str) += ' ';
 		save_real(value.w, &savedReal);
 		(*out_str) += savedReal;
-		(*out_str) += '\"';
+		(*out_str) += '"';
 	}
 	catch(const SdlSaveError& e)
 	{

@@ -488,9 +488,9 @@ std::string SdlCommandParser::getName(const std::string_view referenceToken)
 		}
 
 	// Token is a name with quotes
-	case '\"':
+	case '"':
 		// Should at least contain 3 characters: opening and closing double quotes, the name prefix '@'
-		if(trimmedToken.size() >= 3 && trimmedToken.back() == '\"' && trimmedToken[1] == '@')
+		if(trimmedToken.size() >= 3 && trimmedToken.back() == '"' && trimmedToken[1] == '@')
 		{
 			// Token has more character(s) following '@'
 			if(trimmedToken.size() > 4)
@@ -530,7 +530,7 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 {
 	static const Tokenizer commandTokenizer(
 		{' ', '\t', '\n', '\r'},
-		{{'\"', '\"'}, {'(', ')'}});
+		{{'"', '"'}, {'(', ')'}});
 
 	PH_SCOPED_TIMER(GetCommandHeader);
 

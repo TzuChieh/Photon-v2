@@ -30,6 +30,52 @@ inline ImVec2 get_file_dialog_size(const Editor& editor)
 		editor.dimensionHints.fileDialogPreferredHeight);
 }
 
+inline void save_scene(
+	Editor& editor, 
+	const ImguiFileSystemDialog& fsDialog,
+	const bool shouldSaveWithFolder)
+{
+	auto optDirPath = fsDialog.getSelectedDirectory();
+	if(!optDirPath)
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"cannot save scene: no directory specified");
+		return;
+	}
+	
+	auto optItemPath = fsDialog.getSelectedItem();
+	if(!optItemPath)
+	{
+		DesignerScene* scene = editor.getActiveScene();
+		if(scene)
+		{
+			PH_DEFAULT_LOG(
+				"save scene: no file name specified, default to {}", scene->getName());
+			optItemPath = Path(scene->getName());
+		}
+		else
+		{
+			PH_DEFAULT_LOG_WARNING(
+				"cannot save scene: file name not specified and there is no active scene");
+			return;
+		}
+	}
+
+	PH_ASSERT(optDirPath);
+	PH_ASSERT(optItemPath);
+
+	if(shouldSaveWithFolder)
+	{
+		Path containingFolder = optDirPath->getTrailingElement();
+		if(containingFolder != *optItemPath)
+		{
+			*optDirPath = *optDirPath / *optItemPath;
+		}
+	}
+
+	editor.saveScene(*optDirPath / *optItemPath);
+}
+
 }// end anonymous namespace
 
 ImguiEditorSceneManager::ImguiEditorSceneManager()
@@ -54,8 +100,6 @@ void ImguiEditorSceneManager::buildWindow(
 	Editor& editor = editorUI.getEditor();
 
 	{
-		EditContext editCtx = editor.getEditContext();
-
 		if(ImGui::Button("Make Selection Active"))
 		{
 			if(m_selectedSceneIdx < editor.numScenes())
@@ -66,7 +110,7 @@ void ImguiEditorSceneManager::buildWindow(
 
 		ImGui::SameLine();
 
-		DesignerScene* activeScene = editCtx.activeScene;
+		DesignerScene* activeScene = editor.getActiveScene();
 		ImGui::Text("Active Scene: %s%s",
 			activeScene ? activeScene->getName().c_str() : "(none)",
 			activeScene ? activeScene->isPaused() ? " (paused)" : " (running)" : "");
@@ -131,19 +175,12 @@ void ImguiEditorSceneManager::buildWindow(
 			SAVE_SCENE_TITLE, 
 			editorUI,
 			get_file_dialog_size(editor),
-			{.canSelectItem = true, .requiresItemSelection = true});
+			{.canSelectItem = true, .canSelectDirectory = true, .requiresDirectorySelection = true});
 
 		if(fsDialog.selectionConfirmed())
 		{
-			//auto optPath
-
-			auto items = fsDialog.getSelectedItems();
-			for(const auto& item : items)
-			{
-				PH_DEFAULT_LOG("selected: {}", item.toString());
-			}
+			save_scene(editor, fsDialog, m_shouldSaveWithFolder);
 		}
-		// TODO
 	}
 
 	if(ImGui::Button("New"))

@@ -133,8 +133,10 @@ void DesignerDataPacketInterface::generate(
 			e.whatStr());
 	}
 
-	// Packet command is packet filename with a leading slash
+	// Packet command is packet filename with a leading slash (quoted)
+	out_packetCommand += '"';
 	out_packetCommand.append("/" + packetFilename);
+	out_packetCommand += '"';
 }
 
 void DesignerDataPacketInterface::parseTextPacket(const std::string& text, SdlInputClauses& out_clauses)

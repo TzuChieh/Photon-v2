@@ -218,7 +218,7 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
-	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'\"', '\"'}});
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'"', '"'}});
 
 	try
 	{

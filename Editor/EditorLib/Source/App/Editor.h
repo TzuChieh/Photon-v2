@@ -69,6 +69,7 @@ public:
 	void openScene(const Path& sceneFilePath);
 	void saveScene(const Path& sceneFilePath);
 	DesignerScene* getScene(std::size_t sceneIndex) const;
+	DesignerScene* getActiveScene() const;
 	void setActiveScene(std::size_t sceneIndex);
 	void removeScene(std::size_t sceneIndex);
 	std::size_t numScenes() const;
@@ -124,6 +125,11 @@ private:
 inline DesignerScene* Editor::getScene(const std::size_t sceneIndex) const
 {
 	return m_scenes.get(sceneIndex);
+}
+
+inline DesignerScene* Editor::getActiveScene() const
+{
+	return m_activeScene;
 }
 
 inline std::size_t Editor::numScenes() const

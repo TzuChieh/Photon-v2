@@ -215,7 +215,10 @@ void Editor::saveScene(const Path& sceneFilePath)
 	}
 
 	DesignerSceneWriter sceneWriter(sceneFilePath.getParent());
+
+	m_activeScene->pause();
 	sceneWriter.write(*m_activeScene);
+	m_activeScene->resume();
 }
 
 void Editor::setActiveScene(const std::size_t sceneIndex)

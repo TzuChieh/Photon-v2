@@ -52,7 +52,7 @@ void SdlCommandGenerator::generateLoadCommand(
 	try
 	{
 		// Do not start the generation if the class is not a target
-		if(hasTarget(clazz))
+		if(!hasTarget(clazz))
 		{
 			throw SdlSaveError("unsupported target class");
 		}
@@ -159,7 +159,7 @@ void SdlCommandGenerator::generateLoadCommand(
 
 	getPacketInterface().generate(clauses, resourceClass, resourceName, &resource, out_commandStr);
 
-	out_commandStr += '\n';
+	out_commandStr += ";\n";
 }
 
 void SdlCommandGenerator::appendFullSdlType(

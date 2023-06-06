@@ -22,7 +22,11 @@ struct ImguiFileSystemDialogParameters
 {
 	bool canSelectItem = true;
 	bool canSelectDirectory = false;
+
+	/*! Show a notification if no item was selected. */
 	bool requiresItemSelection = false;
+
+	/*! Show a notification if no directory was selected. */
 	bool requiresDirectorySelection = false;
 };
 
@@ -47,9 +51,24 @@ public:
 	void clearSelection();
 	bool selectionConfirmed();
 
+	/*! @brief Get the selected directory.
+	*/
 	std::optional<Path> getSelectedDirectory() const;
+
+	/*! @brief Get the selected item.
+	*/
 	std::optional<Path> getSelectedItem() const;
+
+	/*! @brief Get the selected filesystem target.
+	The result can be either the selected directory or a full path to the selected item. This method 
+	effectively combines the result of getSelectedDirectory() and getSelectedItem().
+	*/
+	std::optional<Path> getSelectedTarget() const;
+
+	/*! @brief Get all selected items.
+	*/
 	std::vector<Path> getSelectedItems() const;
+
 	bool hasSelectedDirectory() const;
 	bool hasSelectedItem() const;
 

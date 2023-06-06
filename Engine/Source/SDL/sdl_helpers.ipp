@@ -192,13 +192,13 @@ inline void save_vector2(const math::TVector2<Element>& value, std::string* cons
 
 			std::string savedElement;
 
-			(*out_str) += '\"';
+			(*out_str) += '"';
 			save_number<Element>(value.x(), &savedElement);
 			(*out_str) += savedElement;
 			(*out_str) += ' ';
 			save_number<Element>(value.y(), &savedElement);
 			(*out_str) += savedElement;
-			(*out_str) += '\"';
+			(*out_str) += '"';
 		}
 	}
 	catch(const SdlSaveError& e)
@@ -216,7 +216,7 @@ inline void save_number_array(const std::vector<NumberType>& values, std::string
 
 	try
 	{
-		(*out_str) += '\"';
+		(*out_str) += '"';
 
 		std::string savedNumber;
 		for(const auto& value : values)
@@ -226,7 +226,7 @@ inline void save_number_array(const std::vector<NumberType>& values, std::string
 			(*out_str) += ' ';
 		}
 
-		(*out_str) += '\"';
+		(*out_str) += '"';
 	}
 	catch(const SdlSaveError& e)
 	{

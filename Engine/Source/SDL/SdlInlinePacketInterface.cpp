@@ -66,7 +66,7 @@ void SdlInlinePacketInterface::parseSingleClause(std::string_view clauseString, 
 {
 	static const Tokenizer clauseTokenizer(
 		{' ', '\t', '\n', '\r'}, 
-		{{'\"', '\"'}, {'{', '}'}});
+		{{'"', '"'}, {'{', '}'}});
 
 	if(clauseString.empty())
 	{
