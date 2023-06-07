@@ -7,7 +7,7 @@
 #include <utility>
 #include <string>
 
-namespace ph { class SceneDescription; }
+namespace ph { class ISdlReferenceGroup; }
 
 namespace ph
 {
@@ -25,21 +25,24 @@ public:
 		const SdlClass* srcClass);
 
 	SdlInputContext(
-		const SceneDescription* scene,
+		const ISdlReferenceGroup* srcReferences,
 		Path workingDirectory,
 		const SdlClass* srcClass);
 
-	const SceneDescription* getRawScene() const;
+	/*!
+	@return References that are relevant to the current input.
+	*/
+	const ISdlReferenceGroup* getSrcReferences() const;
 
 private:
-	const SceneDescription* m_rawScene;
+	const ISdlReferenceGroup* m_srcReferences;
 };
 
 // In-header Implementation:
 
 inline SdlInputContext::SdlInputContext()
 	: SdlIOContext()
-	, m_rawScene(nullptr)
+	, m_srcReferences(nullptr)
 {}
 
 inline SdlInputContext::SdlInputContext(
@@ -50,18 +53,18 @@ inline SdlInputContext::SdlInputContext(
 {}
 
 inline SdlInputContext::SdlInputContext(
-	const SceneDescription* const scene,
+	const ISdlReferenceGroup* const srcReferences,
 	Path workingDirectory,
 	const SdlClass* const srcClass)
 
 	: SdlIOContext(std::move(workingDirectory), srcClass)
 
-	, m_rawScene(scene)
+	, m_srcReferences(srcReferences)
 {}
 
-inline const SceneDescription* SdlInputContext::getRawScene() const
+inline const ISdlReferenceGroup* SdlInputContext::getSrcReferences() const
 {
-	return m_rawScene;
+	return m_srcReferences;
 }
 
 }// end namespace ph

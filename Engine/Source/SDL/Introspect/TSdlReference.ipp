@@ -209,7 +209,7 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
 	// TODO: get res should accept str view
 	// TODO: allow type mismatch?
 
-	PH_ASSERT(ctx.getRawScene());
+	PH_ASSERT(ctx.getSrcReferences());
 
 	if(referenceName.empty() || referenceName.front() != '@')
 	{
@@ -217,7 +217,7 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
 			"invalid reference name <" + clause.value + ">, should be prefixed with \'@\'");
 	}
 
-	auto resource = ctx.getRawScene()->getTyped<ResourceType>(referenceName);
+	auto resource = ctx.getSrcReferences()->getTyped<ResourceType>(referenceName);
 	if(!resource)
 	{
 		throw SdlLoadError(

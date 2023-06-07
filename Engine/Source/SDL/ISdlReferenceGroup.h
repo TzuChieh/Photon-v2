@@ -12,6 +12,8 @@
 namespace ph
 {
 
+/*! @brief A group of SDL references.
+*/
 class ISdlReferenceGroup
 {
 public:

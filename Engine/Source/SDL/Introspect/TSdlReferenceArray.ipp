@@ -249,7 +249,7 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 	// TODO: allow type mismatch?
 	// TODO: we may support some simple syntax such as wildcards or empty ref etc.
 
-	PH_ASSERT(ctx.getRawScene());
+	PH_ASSERT(ctx.getSrcReferences());
 
 	if(referenceName.empty() || referenceName.front() != '@')
 	{
@@ -258,7 +258,7 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 			referenceName);
 	}
 
-	auto resource = ctx.getRawScene()->getTyped<ResourceType>(referenceName);
+	auto resource = ctx.getSrcReferences()->getTyped<ResourceType>(referenceName);
 	if(!resource)
 	{
 		throw_formatted<SdlLoadError>(
