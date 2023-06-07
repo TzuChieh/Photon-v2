@@ -4,10 +4,10 @@
 #include "ThirdParty/glad2.h"
 
 #include <Utility/utility.h>
+#include <Utility/string_utils.h>
 
 #include <memory>
 #include <string>
-#include <unordered_map>
 
 namespace ph::editor
 {
@@ -49,7 +49,7 @@ private:
 	std::string getInfoLog() const;
 
 	GLuint m_programID;
-	TStdUnorderedStringMap<Uniform> m_nameToUniform;
+	string_utils::TStdUnorderedStringMap<Uniform> m_nameToUniform;
 };
 
 inline auto OpenglShaderProgram::getUniform(const GLenum type, std::string_view name) const

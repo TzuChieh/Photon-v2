@@ -21,9 +21,13 @@ public:
 	SdlInputContext();
 
 	SdlInputContext(
+		Path workingDirectory,
+		const SdlClass* srcClass);
+
+	SdlInputContext(
 		const SceneDescription* scene,
-		Path                    workingDirectory,
-		const SdlClass*         srcClass);
+		Path workingDirectory,
+		const SdlClass* srcClass);
 
 	const SceneDescription* getRawScene() const;
 
@@ -33,22 +37,27 @@ private:
 
 // In-header Implementation:
 
-inline SdlInputContext::SdlInputContext() :
-	SdlIOContext(),
-	m_rawScene(nullptr)
+inline SdlInputContext::SdlInputContext()
+	: SdlIOContext()
+	, m_rawScene(nullptr)
+{}
+
+inline SdlInputContext::SdlInputContext(
+	Path workingDirectory,
+	const SdlClass* const srcClass)
+
+	: SdlInputContext(nullptr, std::move(workingDirectory), srcClass)
 {}
 
 inline SdlInputContext::SdlInputContext(
 	const SceneDescription* const scene,
-	Path                          workingDirectory,
-	const SdlClass* const         srcClass) :
+	Path workingDirectory,
+	const SdlClass* const srcClass)
 
-	SdlIOContext(std::move(workingDirectory), srcClass),
+	: SdlIOContext(std::move(workingDirectory), srcClass)
 
-	m_rawScene(scene)
-{
-	PH_ASSERT(m_rawScene);
-}
+	, m_rawScene(scene)
+{}
 
 inline const SceneDescription* SdlInputContext::getRawScene() const
 {

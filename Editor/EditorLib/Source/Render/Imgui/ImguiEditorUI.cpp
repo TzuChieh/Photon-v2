@@ -54,7 +54,8 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_shouldShowImguiDemo(false)
 	, m_sidebarState()
 	, m_editorLog()
-	, m_editorSceneManager()
+	, m_sceneManager()
+	, m_assetBrowser()
 
 	, m_generalFileSystemDialog()
 {
@@ -142,7 +143,7 @@ void ImguiEditorUI::build()
 
 		// Creating bottom node
 		const float bottomNodeSplitRatio =
-			m_editor->dimensionHints.propertyPanelPreferredWidth * 0.5f /
+			m_editor->dimensionHints.propertyPanelPreferredWidth * 0.6f /
 			viewport->WorkSize.y;
 		ImGuiID centerDockSpaceID;
 		const ImGuiID bottomDockSpaceID = ImGui::DockBuilderSplitNode(
@@ -312,10 +313,7 @@ void ImguiEditorUI::buildMainMenuBar()
 
 void ImguiEditorUI::buildAssetBrowserWindow()
 {
-	ImGui::Begin(ASSET_BROWSER_WINDOW_NAME);
-
-
-	ImGui::End();
+	m_assetBrowser.buildWindow(ASSET_BROWSER_WINDOW_NAME, *this);
 }
 
 void ImguiEditorUI::buildRootPropertiesWindow()
@@ -455,7 +453,7 @@ void ImguiEditorUI::buildSceneManagerWindow()
 		return;
 	}
 	
-	m_editorSceneManager.buildWindow(
+	m_sceneManager.buildWindow(
 		SCENE_BROWSER_WINDOW_NAME,
 		*this,
 		&m_sidebarState.showSceneManager);

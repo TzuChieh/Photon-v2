@@ -13,6 +13,8 @@
 #include <type_traits>
 #include <format>
 #include <concepts>
+#include <unordered_map>
+#include <functional>
 
 namespace ph::string_utils
 {
@@ -77,6 +79,46 @@ after class definition:
 
 namespace ph::string_utils
 {
+
+namespace detail
+{
+
+// References: 
+// [1] https://www.cppstories.com/2021/heterogeneous-access-cpp20/
+// [2] https://en.cppreference.com/w/cpp/container/unordered_map/find
+struct HeterogeneousStringHash
+{
+	using is_transparent = void;
+
+	[[nodiscard]]
+	std::size_t operator () (const char* txt) const
+	{
+		return std::hash<std::string_view>{}(txt);
+	}
+
+	[[nodiscard]]
+	std::size_t operator () (std::string_view txt) const
+	{
+		return std::hash<std::string_view>{}(txt);
+	}
+
+	[[nodiscard]]
+	std::size_t operator () (const std::string& txt) const
+	{
+		return std::hash<std::string>{}(txt);
+	}
+};
+
+}// end namespace detail
+
+/*! @brief Unordered `std::string` map with support for heterogeneous string key lookup.
+Supports `std::string_view` and literal (C-style) string lookup in addition to the original
+`std::string` lookup. The heterogeneous access can save redundant dynamic allocations when querying
+the map.
+*/
+template<typename Value>
+using TStdUnorderedStringMap = std::unordered_map<
+	std::string, Value, detail::HeterogeneousStringHash, std::equal_to<>>;
 
 enum class EWhitespace
 {

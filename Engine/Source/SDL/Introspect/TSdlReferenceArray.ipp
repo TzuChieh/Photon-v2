@@ -242,7 +242,7 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 template<typename T, typename Owner>
 template<typename ResourceType>
 inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference(
-	const std::string_view referenceName,
+	std::string_view referenceName,
 	const SdlInputContext& ctx)
 {
 	// TODO: get res should accept str view
@@ -258,7 +258,7 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 			referenceName);
 	}
 
-	auto resource = ctx.getRawScene()->getResources().get<ResourceType>(std::string(referenceName));
+	auto resource = ctx.getRawScene()->getTyped<ResourceType>(referenceName);
 	if(!resource)
 	{
 		throw_formatted<SdlLoadError>(

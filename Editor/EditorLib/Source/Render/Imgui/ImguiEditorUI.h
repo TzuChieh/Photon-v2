@@ -3,6 +3,7 @@
 #include "Render/Imgui/Editor/ImguiEditorSidebarState.h"
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
+#include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
 
 #include "ThirdParty/DearImGuiExperimental.h"
@@ -69,7 +70,8 @@ private:
 	bool m_shouldShowImguiDemo;
 	ImguiEditorSidebarState m_sidebarState;
 	ImguiEditorLog m_editorLog;
-	ImguiEditorSceneManager m_editorSceneManager;
+	ImguiEditorSceneManager m_sceneManager;
+	ImguiEditorAssetBrowser m_assetBrowser;
 
 	ImguiFileSystemDialog m_generalFileSystemDialog;
 };

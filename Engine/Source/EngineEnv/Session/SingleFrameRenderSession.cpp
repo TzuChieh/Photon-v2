@@ -36,7 +36,7 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	std::vector<std::shared_ptr<CoreSdlResource>> resources = RenderSession::gatherResources(scene);
 	resources.reserve(resources.size() + 3);
 
-	auto observer = scene.getResources().get<Observer>(getObserverName());
+	auto observer = scene.getResources().getTyped<Observer>(getObserverName());
 	if(observer)
 	{
 		resources.push_back(std::move(observer));
@@ -47,7 +47,7 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 			"observer <{}> not found", getObserverName());
 	}
 
-	auto sampleSource = scene.getResources().get<SampleSource>(getSampleSourceName());
+	auto sampleSource = scene.getResources().getTyped<SampleSource>(getSampleSourceName());
 	if(sampleSource)
 	{
 		resources.push_back(std::move(sampleSource));
@@ -58,7 +58,7 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 			"sample source <{}> not found", getSampleSourceName());
 	}
 
-	auto visualizer = scene.getResources().get<Visualizer>(getVisualizerName());
+	auto visualizer = scene.getResources().getTyped<Visualizer>(getVisualizerName());
 	if(visualizer)
 	{
 		resources.push_back(std::move(visualizer));

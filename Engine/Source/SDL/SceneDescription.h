@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL/RawResourceCollection.h"
+#include "SDL/ISdlReferenceGroup.h"
 
 namespace ph
 {
@@ -8,10 +9,18 @@ namespace ph
 /*! @brief Data that describe a scene.
 Represents the result of running SDL commands.
 */
-class SceneDescription final
+class SceneDescription : public ISdlReferenceGroup
 {
 public:
 	SceneDescription();
+
+	std::shared_ptr<ISdlResource> get(
+		std::string_view resourceName,
+		ESdlTypeCategory category) const override;
+
+	bool has(
+		std::string_view resourceName,
+		ESdlTypeCategory category) const override;
 
 	RawResourceCollection& getResources();
 	const RawResourceCollection& getResources() const;

@@ -203,6 +203,7 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
+	// TODO: view
 	const auto referenceName = clause.value;
 
 	// TODO: get res should accept str view
@@ -216,7 +217,7 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
 			"invalid reference name <" + clause.value + ">, should be prefixed with \'@\'");
 	}
 
-	auto resource = ctx.getRawScene()->getResources().get<ResourceType>(referenceName);
+	auto resource = ctx.getRawScene()->getTyped<ResourceType>(referenceName);
 	if(!resource)
 	{
 		throw SdlLoadError(

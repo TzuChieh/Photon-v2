@@ -1,5 +1,4 @@
 #include "SDL/RawResourceCollection.h"
-#include "SDL/ESdlTypeCategory.h"
 #include "Common/logging.h"
 
 namespace ph
@@ -8,24 +7,30 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(RawResourceCollection, SDL);
 
 RawResourceCollection::RawResourceCollection()
-	: m_resources()
+	: ISdlReferenceGroup()
+	, m_resources()
 {}
+
+std::shared_ptr<ISdlResource> RawResourceCollection::get(
+	std::string_view resourceName,
+	const ESdlTypeCategory category) const
+{
+	const auto& nameToResourceMap = getNameToResourceMap(category);
+
+	const auto& iter = nameToResourceMap.find(resourceName);
+	return iter != nameToResourceMap.end() ? iter->second : nullptr;
+}
 
 void RawResourceCollection::add(
 	std::shared_ptr<ISdlResource> resource,
-	const std::string& resourceName)
+	std::string_view resourceName)
 {
 	if(!resource || resourceName.empty())
 	{
-		const std::string resourceInfo = resource ? 
-			std::string(sdl::category_to_string(resource->getDynamicCategory())) : "no resource";
-
-		const std::string nameInfo = resourceName.empty() ? resourceName : "no name";
-
-		throw SdlLoadError(
-			"cannot add SDL resource due to empty resource/name ("
-			"resource: " + resourceInfo + ", "
-			"name:" + nameInfo + ")");
+		throw_formatted<SdlLoadError>(
+			"cannot add SDL resource due to empty resource/name (resource: {}, name: {})", 
+			resource ? sdl::category_to_string(resource->getDynamicCategory()) : "no resource",
+			resourceName.empty() ? resourceName : "no name");
 	}
 
 	auto& nameToResourceMap = getNameToResourceMap(resource->getDynamicCategory());
@@ -38,17 +43,7 @@ void RawResourceCollection::add(
 			sdl::category_to_string(resource->getDynamicCategory()), resourceName);
 	}
 
-	nameToResourceMap[resourceName] = std::move(resource);
-}
-
-std::shared_ptr<ISdlResource> RawResourceCollection::get(
-	const std::string& resourceName,
-	const ESdlTypeCategory category) const
-{
-	const auto& nameToResourceMap = getNameToResourceMap(category);
-
-	const auto& iter = nameToResourceMap.find(resourceName);
-	return iter != nameToResourceMap.end() ? iter->second : nullptr;
+	nameToResourceMap[std::string(resourceName)] = std::move(resource);
 }
 
 void RawResourceCollection::listAll(

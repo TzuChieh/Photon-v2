@@ -56,7 +56,8 @@ void ImguiEditorLog::buildWindow(const char* title, bool* isOpening)
 {
 	if(!ImGui::Begin(title, isOpening))
 	{
-		return ImGui::End();
+		ImGui::End();
+		return;
 	}
 
 	if(ImGui::Button("Clear"))
