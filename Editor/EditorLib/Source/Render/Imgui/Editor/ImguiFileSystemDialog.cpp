@@ -355,6 +355,13 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 		true,
 		windowFlags);
 
+	// Disable item view if item selection is not allowed. Not hiding the item view since it can help
+	// if the user can still see what is inside a directory.
+	if(!params.canSelectItem)
+	{
+		ImGui::BeginDisabled();
+	}
+
 	for(std::size_t itemIdx = 0; itemIdx < m_fsDialogEntryItemNames.size(); ++itemIdx)
 	{
 		const std::string& itemName = m_fsDialogEntryItemNames[itemIdx];
@@ -379,6 +386,12 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 			m_isEditingItem = false;
 		}
 	}
+
+	if(!params.canSelectItem)
+	{
+		ImGui::EndDisabled();
+	}
+
 	ImGui::EndChild();
 
 	ImGui::PopStyleVar();
