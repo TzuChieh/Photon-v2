@@ -13,7 +13,7 @@ namespace ph
 {
 
 SdlInlinePacketInterface::SdlInlinePacketInterface()
-	: SdlInlinePacketInterface(Path("./"))
+	: SdlInlinePacketInterface(Path("./temp_sdl/"))
 {}
 
 SdlInlinePacketInterface::SdlInlinePacketInterface(const Path& sceneWorkingDirectory)

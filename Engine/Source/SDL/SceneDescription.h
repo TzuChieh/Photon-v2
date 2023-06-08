@@ -2,6 +2,7 @@
 
 #include "SDL/RawResourceCollection.h"
 #include "SDL/ISdlReferenceGroup.h"
+#include "DataIO/FileSystem/Path.h"
 
 namespace ph
 {
@@ -28,7 +29,11 @@ public:
 	RawResourceCollection& getPhantoms();
 	const RawResourceCollection& getPhantoms() const;
 	
+	const Path& getWorkingDirectory() const;
+	void setWorkingDirectory(Path directory);
+
 private:
+	Path m_workingDirectory;
 	RawResourceCollection m_resources;
 	RawResourceCollection m_phantomResources;
 };
@@ -51,6 +56,11 @@ inline RawResourceCollection& SceneDescription::getPhantoms()
 inline const RawResourceCollection& SceneDescription::getPhantoms() const
 {
 	return m_phantomResources;
+}
+
+inline const Path& SceneDescription::getWorkingDirectory() const
+{
+	return m_workingDirectory;
 }
 
 }// end namespace ph

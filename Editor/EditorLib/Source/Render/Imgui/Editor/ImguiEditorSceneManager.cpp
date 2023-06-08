@@ -42,38 +42,9 @@ inline void save_scene(
 			"cannot save scene: no directory specified");
 		return;
 	}
-	
-	auto optItemPath = fsDialog.getSelectedItem();
-	if(!optItemPath)
-	{
-		DesignerScene* scene = editor.getActiveScene();
-		if(scene)
-		{
-			PH_DEFAULT_LOG(
-				"save scene: no file name specified, default to {}", scene->getName());
-			optItemPath = Path(scene->getName());
-		}
-		else
-		{
-			PH_DEFAULT_LOG_WARNING(
-				"cannot save scene: file name not specified and there is no active scene");
-			return;
-		}
-	}
 
 	PH_ASSERT(optDirPath);
-	PH_ASSERT(optItemPath);
-
-	if(shouldSaveWithFolder)
-	{
-		Path containingFolder = optDirPath->getTrailingElement();
-		if(containingFolder != *optItemPath)
-		{
-			*optDirPath = *optDirPath / *optItemPath;
-		}
-	}
-
-	editor.saveScene(*optDirPath / *optItemPath);
+	editor.saveScene(*optDirPath, shouldSaveWithFolder);
 }
 
 }// end anonymous namespace
@@ -175,7 +146,7 @@ void ImguiEditorSceneManager::buildWindow(
 			SAVE_SCENE_TITLE, 
 			editorUI,
 			get_file_dialog_size(editor),
-			{.canSelectItem = true, .canSelectDirectory = true, .requiresDirectorySelection = true});
+			{.canSelectItem = false, .canSelectDirectory = true, .requiresDirectorySelection = true});
 
 		if(fsDialog.selectionConfirmed())
 		{

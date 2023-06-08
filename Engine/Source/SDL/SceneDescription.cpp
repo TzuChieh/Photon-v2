@@ -1,6 +1,8 @@
 #include "SDL/SceneDescription.h"
 #include "Common/logging.h"
 
+#include <utility>
+
 namespace ph
 {
 
@@ -8,6 +10,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(SceneDescription, SDL);
 
 SceneDescription::SceneDescription()
 	: ISdlReferenceGroup()
+	, m_workingDirectory("./temp_sdl/")
 	, m_resources()
 	, m_phantomResources()
 {}
@@ -40,6 +43,11 @@ bool SceneDescription::has(
 	}
 
 	return false;
+}
+
+void SceneDescription::setWorkingDirectory(Path directory)
+{
+	m_workingDirectory = std::move(directory);
 }
 
 }// end namespace ph

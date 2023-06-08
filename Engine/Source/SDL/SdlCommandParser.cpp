@@ -28,7 +28,7 @@ PH_DEFINE_INTERNAL_TIMER_STAT(GetClauses, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetSDLClass, SdlCommandParser);
 
 SdlCommandParser::SdlCommandParser(TSpanView<const SdlClass*> targetClasses)
-	: SdlCommandParser(targetClasses, Path("./"))
+	: SdlCommandParser(targetClasses, Path("./temp_sdl/"))
 {}
 
 SdlCommandParser::SdlCommandParser(

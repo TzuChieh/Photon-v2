@@ -20,7 +20,7 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlSceneFileWriter, SDL);
 
 SdlSceneFileWriter::SdlSceneFileWriter()
-	: SdlSceneFileWriter("untitled-scene", Path("./"))
+	: SdlSceneFileWriter("untitled-scene", Path("./temp_sdl/"))
 {}
 
 SdlSceneFileWriter::SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory)
@@ -72,6 +72,9 @@ void SdlSceneFileWriter::endCommand()
 void SdlSceneFileWriter::write(const SceneDescription& scene)
 {
 	// TODO: currently will overwrite existing file; should provide options for whether to append
+
+	// Obey the working directory from scene description
+	setSceneWorkingDirectory(scene.getWorkingDirectory());
 
 	// Scene file must reside in the scene working directory as it may be accompanied with data files
 	getSceneWorkingDirectory().createDirectory();

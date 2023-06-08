@@ -19,7 +19,7 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlSceneFileReader, SDL);
 
 SdlSceneFileReader::SdlSceneFileReader()
-	: SdlSceneFileReader("untitled-scene", Path("./"))
+	: SdlSceneFileReader("untitled-scene", Path("./temp_sdl/"))
 {}
 
 SdlSceneFileReader::SdlSceneFileReader(std::string sceneName, const Path& sceneWorkingDirectory)
@@ -147,6 +147,18 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 	if(scene)
 	{
 		setScene(scene);
+	}
+
+	if(m_scene)
+	{
+		m_scene->setWorkingDirectory(getSceneWorkingDirectory());
+	}
+	else
+	{
+		PH_LOG_WARNING(SdlSceneFileReader,
+			"Unable to read scene {} (from {}): no scene description is given",
+			m_sceneName, getSceneWorkingDirectory());
+		return;
 	}
 
 	// Scene file must reside in the scene working directory as it may be accompanied with data files

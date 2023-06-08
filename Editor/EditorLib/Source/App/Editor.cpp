@@ -205,7 +205,9 @@ void Editor::openScene(const Path& sceneFilePath)
 	// TODO
 }
 
-void Editor::saveScene(const Path& sceneFilePath)
+void Editor::saveScene(
+	const Path& saveDirectory,
+	const bool withContainingFolder)
 {
 	if(!m_activeScene)
 	{
@@ -214,7 +216,17 @@ void Editor::saveScene(const Path& sceneFilePath)
 		return;
 	}
 
-	DesignerSceneWriter sceneWriter(sceneFilePath.getParent());
+	Path workingDirectory = saveDirectory;
+	if(withContainingFolder)
+	{
+		Path containingFolder = saveDirectory.getTrailingElement();
+		if(containingFolder.toString() != m_activeScene->getName())
+		{
+			workingDirectory = workingDirectory / m_activeScene->getName();
+		}
+	}
+
+	DesignerSceneWriter sceneWriter(workingDirectory);
 
 	m_activeScene->pause();
 	sceneWriter.write(*m_activeScene);

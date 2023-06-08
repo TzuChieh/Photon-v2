@@ -16,7 +16,7 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlCommandGenerator, SDL);
 
 SdlCommandGenerator::SdlCommandGenerator(TSpanView<const SdlClass*> targetClasses)
-	: SdlCommandGenerator(targetClasses, Path("./"))
+	: SdlCommandGenerator(targetClasses, Path("./temp_sdl/"))
 {}
 
 SdlCommandGenerator::SdlCommandGenerator(
