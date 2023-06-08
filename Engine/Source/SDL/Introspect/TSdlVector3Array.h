@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
-#include "SDL/SdlResourceIdentifier.h"
+#include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
 
@@ -70,6 +70,8 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
+		// TODO: resource file
+
 		this->setValue(owner, sdl::load_vector3_array(std::string(clause.value)));
 	}
 
@@ -78,6 +80,8 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
+		// TODO: resource file
+
 		if(const std::vector<math::TVector3<Element>>* const vec3Arr = this->getConstValue(owner); vec3Arr)
 		{
 			sdl::save_vector3_array(*vec3Arr, &out_clause.value);

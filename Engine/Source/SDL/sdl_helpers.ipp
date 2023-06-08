@@ -145,7 +145,7 @@ inline math::TVector2<Element> load_vector2(const std::string& sdlVector2Str)
 				"(number of values = " + std::to_string(tokens.size()) + ")");
 		}
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError("on parsing Vector2 -> " + e.whatStr());
 	}
@@ -169,7 +169,7 @@ inline std::vector<NumberType> load_number_array(const std::string& sdlNumberArr
 
 		return numberArray;
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError("on parsing number array -> " + e.whatStr());
 	}
@@ -201,7 +201,7 @@ inline void save_vector2(const math::TVector2<Element>& value, std::string* cons
 			(*out_str) += '"';
 		}
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlSaveError("on saving Vector2 -> " + e.whatStr());
 	}
@@ -228,7 +228,7 @@ inline void save_number_array(const std::vector<NumberType>& values, std::string
 
 		(*out_str) += '"';
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlSaveError("on saving number array -> " + e.whatStr());
 	}

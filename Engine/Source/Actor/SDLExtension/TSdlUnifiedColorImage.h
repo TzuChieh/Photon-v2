@@ -6,7 +6,7 @@
 #include "Actor/SDLExtension/image_loaders.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_helpers.h"
-#include "SDL/SdlResourceIdentifier.h"
+#include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
 #include "Actor/SDLExtension/sdl_color_space_type.h"
@@ -94,11 +94,12 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 		{
 			colorImage->setImage(Base::template loadResource<Image>(clause, ctx));
 		}
-		else if(clause.isResourceIdentifier())
+		else if(clause.isBundleIdentifier())
 		{
-			const SdlResourceIdentifier resId(clause.value, ctx.getWorkingDirectory());
-			colorImage->setImage(sdl::load_picture_file(resId.getPathToResource()));
+			colorImage->setImage(sdl::load_picture_file(
+				SdlResourceLocator(clause.value).toPath(ctx)));
 		}
+		// TODO: detect if clause is external file and load it
 		else
 		{
 			// TODO: load spectral image
@@ -112,7 +113,7 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 				colorSpace);
 		}
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError(
 			"on parsing unified color image -> " + e.whatStr());

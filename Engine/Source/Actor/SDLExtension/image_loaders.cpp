@@ -93,7 +93,7 @@ math::Spectrum load_spectrum(const SdlInputClause& clause, const math::EColorUsa
 				"(number of values = " + std::to_string(tokens.size()) + ")");
 		}
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError("on parsing Spectrum -> " + e.whatStr());
 	}

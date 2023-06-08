@@ -223,7 +223,7 @@ void SdlCommandParser::parseCommand(const std::string& command)
 
 		parseSingleCommand(header);
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		// Make a shorter version of the command in case the data string is large
 		std::string shortenedCommand = command.size() > 64
@@ -313,7 +313,7 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 
 		endCommand();
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError(
 			"failed to load resource <" + resourceName + "> "
@@ -362,7 +362,7 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 
 		endCommand();
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError(
 			"failed to run <" + executorName + "> on resource <" + targetResourceName + "> "

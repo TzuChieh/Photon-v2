@@ -83,7 +83,7 @@ void SdlCommandGenerator::generateLoadCommand(
 		
 		endCommand();
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		std::string resourceNameInfo(resourceName);
 		if(resourceNameInfo.empty())
@@ -116,7 +116,7 @@ void SdlCommandGenerator::generateVersionCommand(const SemanticVersion& version)
 
 		endCommand();
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		PH_LOG_WARNING(SdlCommandGenerator,
 			"error generating version command (intended version: {}) -> {}",

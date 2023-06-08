@@ -9,10 +9,12 @@
 #include <DataIO/Stream/FormattedTextOutputStream.h>
 #include <Common/assertion.h>
 #include <Utility/string_utils.h>
-#include <SDL/SdlResourceIdentifier.h>
+#include <SDL/SdlResourceLocator.h>
 #include <SDL/sdl_exceptions.h>
 #include <SDL/SdlInputClauses.h>
 #include <SDL/SdlOutputClauses.h>
+#include <SDL/Introspect/SdlInputContext.h>
+#include <SDL/Introspect/SdlOutputContext.h>
 #include <SDL/Introspect/SdlClass.h>
 #include <SDL/sdl_helpers.h>
 #include <DataIO/io_exceptions.h>
@@ -37,10 +39,9 @@ void DesignerDataPacketInterface::parse(
 	ISdlResource* const targetInstance,
 	SdlInputClauses& out_clauses) const
 {
-	// Packet command is packet filename with a leading slash
-	const Path& packetFile = SdlResourceIdentifier(
-			"/designer_packet" + std::string(packetCommand),
-			getSceneWorkingDirectory()).getPathToResource();
+	// Packet command is a bundled resource identifier (for the packet file)
+	const Path packetFile = SdlResourceLocator(packetCommand).toPath(
+		SdlInputContext(getSceneWorkingDirectory()));
 
 	const auto& fileExt = packetFile.getExtension();
 	if(fileExt == ".pddp")
@@ -91,12 +92,6 @@ void DesignerDataPacketInterface::generate(
 			targetName.empty() ? "(unavailable)" : targetName);
 	}
 
-	// Filename: <target-type>_<target-name>.<ext> (ignore angle brackets)
-	const auto packetFilename = targetClass->getTypeName() + "_" + std::string(targetName) + ".pddpa";
-
-	const Path packetDirectory = getSceneWorkingDirectory() / "designer_packet";
-	packetDirectory.createDirectory();
-
 	std::string valueInfoBuffer;
 	valueInfoBuffer.reserve(256);
 
@@ -118,24 +113,35 @@ void DesignerDataPacketInterface::generate(
 		jsonObj[valueInfoBuffer] = clause.name;
 	}
 
+	// Filename: <target-type>_<target-name>.<ext> (ignore angle brackets)
+	const auto packetFilename = targetClass->getTypeName() + "_" + std::string(targetName) + ".pddpa";
+
+	const Path packetDirectory = getSceneWorkingDirectory() / "designer_packet";
+	packetDirectory.createDirectory();
+
+	const Path packetFile = packetDirectory / packetFilename;
+
 	try
 	{
-		FormattedTextOutputStream stream(packetDirectory / packetFilename);
+		FormattedTextOutputStream stream(packetFile);
 		stream.writeString(nlohmann::to_string(jsonObj));
 	}
 	catch(const IOException& e)
 	{
 		throw_formatted<SdlLoadError>(
 			"error while writing packet {} (for target class: {}, name: {}) -> {}",
-			packetDirectory / packetFilename,
+			packetFile,
 			sdl::gen_pretty_name(targetClass),
 			targetName.empty() ? "(unavailable)" : targetName,
 			e.whatStr());
 	}
 
-	// Packet command is packet filename with a leading slash (quoted)
+	const std::string bundleIdentifier = SdlResourceLocator(packetFile.toString()).toBundleIdentifier(
+		SdlOutputContext(getSceneWorkingDirectory()));
+
+	// Packet command is a bundled resource identifier, quoted (for the packet file)
 	out_packetCommand += '"';
-	out_packetCommand.append("/" + packetFilename);
+	out_packetCommand.append(bundleIdentifier);
 	out_packetCommand += '"';
 }
 

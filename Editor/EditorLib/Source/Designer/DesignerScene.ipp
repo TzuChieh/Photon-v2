@@ -217,6 +217,16 @@ inline const SceneDescription& DesignerScene::getRenderDescription() const
 	return m_renderDescription;
 }
 
+inline const Path& DesignerScene::getRenderDescriptionLink() const
+{
+	return m_renderDescriptionLink;
+}
+
+inline void DesignerScene::setRenderDescriptionLink(Path link)
+{
+	m_renderDescriptionLink = std::move(link);
+}
+
 inline TSpanView<DesignerObject*> DesignerScene::getRootObjects() const
 {
 	return m_rootObjs;

@@ -12,6 +12,7 @@
 #include <SDL/sdl_interface.h>
 #include <SDL/SceneDescription.h>
 #include <Utility/IMoveOnly.h>
+#include <DataIO/FileSystem/Path.h>
 
 #include <vector>
 #include <memory>
@@ -112,6 +113,8 @@ public:
 	const std::string& getName() const;
 	SceneDescription& getRenderDescription();
 	const SceneDescription& getRenderDescription() const;
+	const Path& getRenderDescriptionLink() const;
+	void setRenderDescriptionLink(Path link);
 	TSpanView<DesignerObject*> getRootObjects() const;
 
 	/*! @brief Temporarily stop the update of scene.
@@ -184,7 +187,9 @@ private:
 	ViewportCamera m_mainCamera;
 	uint32 m_isPaused : 1;
 
+	// SDL-binded fields:
 	std::string m_name;
+	Path m_renderDescriptionLink;
 
 /*! @brief Dynamic object creation routines	
 */
@@ -214,6 +219,11 @@ public:
 		name.description("Name of the designer scene.");
 		name.defaultTo("untitled scene");
 		clazz.addField(name);
+
+		TSdlPath<OwnerType> renderDescriptionLink("render-description-link", &OwnerType::m_renderDescriptionLink);
+		renderDescriptionLink.description("Path to the associated scene description.");
+		renderDescriptionLink.defaultTo(Path());
+		clazz.addField(renderDescriptionLink);
 
 		return clazz;
 	}

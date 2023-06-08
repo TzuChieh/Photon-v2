@@ -43,7 +43,7 @@ math::Vector3R load_vector3(const std::string& sdlVector3Str)
 				"(number of values = " + std::to_string(tokens.size()) + ")");
 		}
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError("on parsing Vector3R -> " + e.whatStr());
 	}
@@ -71,7 +71,7 @@ math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr)
 			load_real(tokens[2]),
 			load_real(tokens[3]));
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError("on parsing QuaternionR -> " + e.whatStr());
 	}
@@ -94,7 +94,7 @@ std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3Arra
 
 		return vec3Array;
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError("on parsing Vector3R array -> " + e.whatStr());
 	}
@@ -128,7 +128,7 @@ void save_vector3(const math::Vector3R& value, std::string* const out_str)
 			(*out_str) += '"';
 		}
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlSaveError("on saving Vector3R -> " + e.whatStr());
 	}
@@ -160,7 +160,7 @@ void save_quaternion(const math::QuaternionR& value, std::string* const out_str)
 		(*out_str) += savedReal;
 		(*out_str) += '"';
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlSaveError("on saving QuaternionR -> " + e.whatStr());
 	}
@@ -184,7 +184,7 @@ void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* 
 
 		(*out_str) += '}';
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlSaveError("on saving Vector3R array -> " + e.whatStr());
 	}
@@ -198,13 +198,13 @@ void save_field_id(const SdlField* const sdlField, SdlOutputClause& clause)
 	clause.name = sdlField->getFieldName();
 }
 
-bool is_resource_identifier(const std::string_view sdlValueStr)
+bool is_bundled_resource_identifier(const std::string_view sdlValueStr)
 {
 	// Remove leading blank characters
 	const auto trimmedStr = string_utils::trim_head(sdlValueStr);
 
-	// Valid SDL resource identifier starts with "/"
-	return !trimmedStr.empty() && trimmedStr[0] == '/';
+	// Valid SDL bundled resource identifier starts with a single colon ":"
+	return !trimmedStr.empty() && trimmedStr[0] == ':';
 }
 
 bool is_reference(const std::string_view sdlValueStr)

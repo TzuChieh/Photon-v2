@@ -6,7 +6,7 @@
 #include "Actor/SDLExtension/image_loaders.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_helpers.h"
-#include "SDL/SdlResourceIdentifier.h"
+#include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
 #include "Actor/SDLExtension/sdl_color_usage_type.h"
@@ -98,18 +98,19 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 			numericImage->setImage(Base::template loadResource<Image>(clause, ctx));
 		}
 		// TODO: subscripts
-		else if(clause.isResourceIdentifier())
+		else if(clause.isBundleIdentifier())
 		{
-			const SdlResourceIdentifier resId(clause.value, ctx.getWorkingDirectory());
-			numericImage->setImage(sdl::load_picture_file(resId.getPathToResource()));
+			numericImage->setImage(sdl::load_picture_file(
+				SdlResourceLocator(clause.value).toPath(ctx)));
 		}
+		// TODO: detect if clause is external file and load it
 		else
 		{
 			const auto numberArray = sdl::load_number_array<float64>(clause.value);
 			numericImage->setConstant(numberArray.data(), numberArray.size());
 		}
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError(
 			"on parsing unified numeric image -> " + e.whatStr());

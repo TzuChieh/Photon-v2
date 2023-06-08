@@ -4,7 +4,7 @@
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
-#include "SDL/SdlResourceIdentifier.h"
+#include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
@@ -61,13 +61,14 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		if(clause.isResourceIdentifier())
-		{
-			const SdlResourceIdentifier sdlResId(clause.value, ctx.getWorkingDirectory());
+		// TODO: handle external file
 
+		if(clause.isBundleIdentifier())
+		{
 			try
 			{
-				const std::string loadedSdlValue = io_utils::load_text(sdlResId.getPathToResource());
+				const std::string loadedSdlValue = io_utils::load_text(
+					SdlResourceLocator(clause.value).toPath(ctx));
 				this->setValue(owner, sdl::load_number_array<Element>(loadedSdlValue));
 			}
 			catch(const FileIOError& e)

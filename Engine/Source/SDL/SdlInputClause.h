@@ -33,9 +33,9 @@ public:
 	*/
 	bool isReference() const;
 
-	/*! @brief Helper to check if the carried value is a SDL resource identifier.
+	/*! @brief Helper to check if the carried value is a SDL bundled resource identifier.
 	*/
-	bool isResourceIdentifier() const;
+	bool isBundleIdentifier() const;
 
 	std::string genPrettyName() const;
 	std::string toString() const;
@@ -71,9 +71,9 @@ inline bool SdlInputClause::isReference() const
 	return sdl::is_reference(value);
 }
 
-inline bool SdlInputClause::isResourceIdentifier() const
+inline bool SdlInputClause::isBundleIdentifier() const
 {
-	return sdl::is_resource_identifier(value);
+	return sdl::is_bundled_resource_identifier(value);
 }
 
 inline std::string SdlInputClause::genPrettyName() const

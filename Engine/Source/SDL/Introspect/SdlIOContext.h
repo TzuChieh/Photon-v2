@@ -17,6 +17,12 @@ class SdlIOContext
 {
 public:
 	std::string genPrettySrcClassName() const;
+
+	/*! @brief Get working directory of the current IO session.
+	Do not treat this as the classical definition of working directory (for a process). 
+	A SDL working directory may be different for each IO session, and different to the working
+	directory of the current process.
+	*/
 	const Path& getWorkingDirectory() const;
 
 	/*! @brief The SDL class that was originally involved in an input process.
@@ -30,13 +36,15 @@ public:
 protected:
 	SdlIOContext();
 
+	explicit SdlIOContext(Path workingDirectory);
+
 	/*! 
 	@param workingDirectory Working directory of the current SDL IO process. Note that
 	SDL working directory can be different to the program's working directory. It is specific
 	to the related SDL command.
 	*/
 	SdlIOContext(
-		Path            workingDirectory,
+		Path workingDirectory,
 		const SdlClass* srcClass);
 
 	inline ~SdlIOContext() = default;
@@ -54,17 +62,21 @@ private:
 
 // In-header Implementation:
 
-inline SdlIOContext::SdlIOContext() :
-	m_workingDirectory(),
-	m_srcClass        (nullptr)
+inline SdlIOContext::SdlIOContext()
+	: m_workingDirectory()
+	, m_srcClass(nullptr)
+{}
+
+inline SdlIOContext::SdlIOContext(Path workingDirectory)
+	: SdlIOContext(std::move(workingDirectory), nullptr)
 {}
 
 inline SdlIOContext::SdlIOContext(
-	Path                  workingDirectory,
-	const SdlClass* const srcClass) :
+	Path workingDirectory,
+	const SdlClass* const srcClass)
 
-	m_workingDirectory(std::move(workingDirectory)),
-	m_srcClass        (srcClass)
+	: m_workingDirectory(std::move(workingDirectory))
+	, m_srcClass(srcClass)
 {}
 
 inline const Path& SdlIOContext::getWorkingDirectory() const

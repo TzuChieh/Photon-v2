@@ -158,7 +158,7 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 	{
 		setValueRef(owner, loadResource(clause, ctx));
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError(
 			"unable to load resource on parsing reference " + 
@@ -189,7 +189,7 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 
 		out_clause.value = resourceName;
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlSaveError(
 			"unable to save resource reference " +

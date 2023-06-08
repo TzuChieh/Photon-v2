@@ -6,7 +6,7 @@
 #include "Common/assertion.h"
 #include "Math/Color/Spectrum.h"
 #include "SDL/sdl_helpers.h"
-#include "SDL/SdlResourceIdentifier.h"
+#include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"

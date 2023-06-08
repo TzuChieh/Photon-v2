@@ -19,6 +19,8 @@ class SdlOutputContext final : public SdlIOContext
 public:
 	SdlOutputContext();
 
+	explicit SdlOutputContext(Path workingDirectory);
+
 	SdlOutputContext(
 		const SdlDependencyResolver* dependencyResolver,
 		Path workingDirectory,
@@ -35,6 +37,11 @@ private:
 inline SdlOutputContext::SdlOutputContext() :
 	SdlIOContext(),
 	m_dependencyResolver(nullptr)
+{}
+
+inline SdlOutputContext::SdlOutputContext(Path workingDirectory)
+	: SdlIOContext(std::move(workingDirectory))
+	, m_dependencyResolver(nullptr)
 {}
 
 inline SdlOutputContext::SdlOutputContext(

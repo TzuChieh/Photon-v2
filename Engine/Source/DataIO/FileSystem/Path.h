@@ -220,7 +220,13 @@ public:
 
 	// TODO: replace/remove filename
 
+	/*! @brief Changes filename extension in the path, if any.
+	The behavior is the same as `std::filesystem::path::replace_extension(1)`.
+	*/
 	Path replaceExtension(std::string_view replacement) const;
+
+	/*! @brief Removes filename extension in the path, if any.
+	*/
 	Path removeExtension() const;
 
 	Path operator / (const Path& other) const;

@@ -163,7 +163,7 @@ inline void TSdlOwnedField<Owner>::fromSdl(
 	{
 		loadFromSdl(owner, clause, ctx);
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		if(isFallbackEnabled())
 		{
@@ -200,7 +200,7 @@ inline void TSdlOwnedField<Owner>::toSdl(
 	{
 		saveToSdl(owner, out_clause, ctx);
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		// Provide more information and let caller handle the error
 		//

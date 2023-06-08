@@ -52,7 +52,7 @@ public:
 		clazz.baseOn<RasterImageBase>();
 
 		TSdlPath<OwnerType> filePath("file-path", &OwnerType::m_filePath);
-		filePath.description("Path to the image file. May be a SDL resource identifier.");
+		filePath.description("Path to the image file.");
 		filePath.required();
 		clazz.addField(filePath);
 

@@ -6,7 +6,7 @@
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
-#include "SDL/SdlResourceIdentifier.h"
+#include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/sdl_exceptions.h"
 
@@ -54,14 +54,15 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		if(clause.isResourceIdentifier())
+		try
 		{
-			const SdlResourceIdentifier resId(clause.value, ctx.getWorkingDirectory());
-			this->setValue(owner, resId.getPathToResource());
+			this->setValue(
+				owner, 
+				SdlResourceLocator(clause.value).toPath(ctx));
 		}
-		else
+		catch(const SdlException& e)
 		{
-			throw SdlLoadError("input value is not a SDL resource identifier");
+			throw SdlLoadError("SDL resource identifier load failed -> " + e.whatStr());
 		}
 	}
 

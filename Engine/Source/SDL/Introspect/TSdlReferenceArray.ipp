@@ -170,7 +170,7 @@ inline void TSdlReferenceArray<T, Owner>::loadFromSdl(
 	{
 		setValueVec(owner, loadReferenceArray(clause, ctx));
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw_formatted<SdlLoadError>(
 			"unable to load resource on parsing reference array {} -> {}",
@@ -204,7 +204,7 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 		}
 		out_clause.value += '}';
 	}
-	catch(const SdlSaveError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlSaveError(
 			"unable to save reference array " +
@@ -233,7 +233,7 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 
 		return referenceVector;
 	}
-	catch(const SdlLoadError& e)
+	catch(const SdlException& e)
 	{
 		throw SdlLoadError("on parsing reference array -> " + e.whatStr());
 	}

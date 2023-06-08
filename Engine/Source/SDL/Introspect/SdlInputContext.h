@@ -20,6 +20,8 @@ class SdlInputContext final : public SdlIOContext
 public:
 	SdlInputContext();
 
+	explicit SdlInputContext(Path workingDirectory);
+
 	SdlInputContext(
 		Path workingDirectory,
 		const SdlClass* srcClass);
@@ -42,6 +44,11 @@ private:
 
 inline SdlInputContext::SdlInputContext()
 	: SdlIOContext()
+	, m_srcReferences(nullptr)
+{}
+
+inline SdlInputContext::SdlInputContext(Path workingDirectory)
+	: SdlIOContext(std::move(workingDirectory))
 	, m_srcReferences(nullptr)
 {}
 

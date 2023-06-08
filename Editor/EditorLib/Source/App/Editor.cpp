@@ -1,13 +1,14 @@
 #include "App/Editor.h"
 #include "EditorCore/Thread/Threads.h"
 #include "Designer/DesignerScene.h"
+#include "Designer/IO/DesignerSceneWriter.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Utility/Timer.h>
 #include <DataIO/FileSystem/Path.h>
 #include <SDL/TSdl.h>
-#include <Designer/IO/DesignerSceneWriter.h>
+#include <SDL/SdlSceneFileWriter.h>
 
 #include <memory>
 #include <utility>
@@ -217,6 +218,8 @@ void Editor::saveScene(
 	}
 
 	Path workingDirectory = saveDirectory;
+
+	// Optionally saves to a folder that has the same name as the scene
 	if(withContainingFolder)
 	{
 		Path containingFolder = saveDirectory.getTrailingElement();
@@ -226,10 +229,31 @@ void Editor::saveScene(
 		}
 	}
 
-	DesignerSceneWriter sceneWriter(workingDirectory);
+	// The description link will be empty if the designer scene is a newly created one.
+	// Set the link to the same folder and same name as the designer scene (bundled description).
+	if(m_activeScene->getRenderDescriptionLink().isEmpty())
+	{
+		m_activeScene->setRenderDescriptionLink(workingDirectory / m_activeScene->getName() / ".p2");
+	}
 
 	m_activeScene->pause();
-	sceneWriter.write(*m_activeScene);
+
+	// Save designer scene
+	{
+		DesignerSceneWriter sceneWriter(workingDirectory);
+		sceneWriter.write(*m_activeScene);
+	}
+
+	// Save render description
+	{
+		const Path& descLink = m_activeScene->getRenderDescriptionLink();
+		const std::string& descName = descLink.removeExtension().getFilename();
+		const Path& descWorkingDirectory = descLink.getParent();
+
+		SdlSceneFileWriter descriptionWriter(descName, descWorkingDirectory);
+		descriptionWriter.write(m_activeScene->getRenderDescription());
+	}
+	
 	m_activeScene->resume();
 }
 
