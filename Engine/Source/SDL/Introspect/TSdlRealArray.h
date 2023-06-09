@@ -63,7 +63,7 @@ protected:
 	{
 		// TODO: handle external file
 
-		if(clause.isBundleIdentifier())
+		if(clause.isResourceIdentifier())
 		{
 			try
 			{

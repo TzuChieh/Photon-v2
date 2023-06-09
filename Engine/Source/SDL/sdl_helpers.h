@@ -110,13 +110,6 @@ void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* 
 */
 void save_field_id(const SdlField* sdlField, SdlOutputClause& clause);
 
-/*! @brief Check whether the string represents a SDL bundled resource identifier.
-
-Checks the format of the string only. Does not test whether the identifier
-actually points to a valid resource or not.
-*/
-bool is_bundled_resource_identifier(std::string_view sdlValueStr);
-
 /*! @brief Check whether the string represents a SDL reference.
 
 Checks the format of the string only. Does not test whether the reference

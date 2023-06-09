@@ -94,7 +94,7 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 		{
 			colorImage->setImage(Base::template loadResource<Image>(clause, ctx));
 		}
-		else if(clause.isBundleIdentifier())
+		else if(clause.isResourceIdentifier())
 		{
 			colorImage->setImage(sdl::load_picture_file(
 				SdlResourceLocator(clause.value).toPath(ctx)));

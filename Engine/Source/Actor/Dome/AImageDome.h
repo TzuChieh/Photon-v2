@@ -32,7 +32,7 @@ public:
 		clazz.baseOn<ADome>();
 
 		TSdlPath<OwnerType> imagePath("image", &OwnerType::m_imagePath);
-		imagePath.description("Resource identifier for an image describing the energy distribution.");
+		imagePath.description("Path to an image describing the energy distribution.");
 		imagePath.required();
 		clazz.addField(imagePath);
 

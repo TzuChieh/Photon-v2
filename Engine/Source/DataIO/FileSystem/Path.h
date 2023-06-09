@@ -4,8 +4,6 @@
 #include "Utility/string_utils.h"
 
 #include <string>
-#include <iostream>
-#include <cwchar>
 #include <utility>
 
 // TODO: other platforms and versions that do not need the "experimental" folder
@@ -93,20 +91,6 @@ public:
 	{
 		return m_path.empty();
 	}
-
-	inline std::string toAbsoluteString() const
-	{
-		const std::string& absPath = std_filesystem::absolute(m_path).string();
-		if(!Path(absPath).isAbsolute())
-		{
-			std::cerr << "warning: at Path::getAbsoluteString(), " 
-			          << "path <" 
-			          << m_path.string() 
-			          << "> cannot convert to absolute path" << std::endl;
-		}
-
-		return absPath;
-	}
 	
 	/*!
 	Appending one path to another. System specific directory separators are added in 
@@ -130,6 +114,8 @@ public:
 	/*! @brief Get a string representation of this path.
 	*/
 	std::string toString() const;
+
+	std::string toAbsoluteString() const;
 
 	/*! @brief Get a standard path representation of this path.
 	*/
@@ -236,18 +222,7 @@ public:
 private:
 	std_filesystem::path m_path;
 
-	inline static wchar_t charToWchar(const char ch)
-	{
-		const std::wint_t wch = std::btowc(ch);
-		if(wch == WEOF)
-		{
-			std::cout << "warning: at Path::charToWchar(), " 
-			          << "char <" << ch
-			          << "> failed to widen to wchar" << std::endl;
-		}
-		
-		return static_cast<wchar_t>(wch);
-	}
+	static wchar_t charToWchar(const char ch);
 };
 
 // In-header Implementations:

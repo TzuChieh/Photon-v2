@@ -198,15 +198,6 @@ void save_field_id(const SdlField* const sdlField, SdlOutputClause& clause)
 	clause.name = sdlField->getFieldName();
 }
 
-bool is_bundled_resource_identifier(const std::string_view sdlValueStr)
-{
-	// Remove leading blank characters
-	const auto trimmedStr = string_utils::trim_head(sdlValueStr);
-
-	// Valid SDL bundled resource identifier starts with a single colon ":"
-	return !trimmedStr.empty() && trimmedStr[0] == ':';
-}
-
 bool is_reference(const std::string_view sdlValueStr)
 {
 	// Remove leading blank characters

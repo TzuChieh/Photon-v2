@@ -98,7 +98,7 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 			numericImage->setImage(Base::template loadResource<Image>(clause, ctx));
 		}
 		// TODO: subscripts
-		else if(clause.isBundleIdentifier())
+		else if(clause.isResourceIdentifier())
 		{
 			numericImage->setImage(sdl::load_picture_file(
 				SdlResourceLocator(clause.value).toPath(ctx)));
