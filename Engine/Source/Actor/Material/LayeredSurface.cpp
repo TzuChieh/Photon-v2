@@ -1,6 +1,7 @@
 #include "Actor/Material/LayeredSurface.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h"
+#include "Common/assertion.h"
 
 namespace ph
 {
@@ -30,8 +31,6 @@ void LayeredSurface::genSurface(CookingContext& ctx, SurfaceBehavior& behavior) 
 		sigmaSs.push_back(layer.getSigmaS());
 	}
 
-	std::cout << iorKs.back().toString();
-
 	behavior.setOptics(std::make_shared<LbLayeredSurface>(iorNs, iorKs, alphas, depths, gs, sigmaAs, sigmaSs));
 }
 
@@ -42,12 +41,7 @@ void LayeredSurface::addLayer()
 
 void LayeredSurface::setLayer(const std::size_t layerIndex, const SurfaceLayerInfo& layer)
 {
-	if(layerIndex >= m_layers.size())
-	{
-		std::cerr << "warning: at LayeredSurface::setLayer(2), invalid index" << std::endl;
-		return;
-	}
-
+	PH_ASSERT_LT(layerIndex, m_layers.size());
 	m_layers[layerIndex] = layer;
 }
 

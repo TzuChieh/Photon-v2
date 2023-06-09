@@ -62,7 +62,7 @@ protected:
 		}
 		catch(const SdlException& e)
 		{
-			throw SdlLoadError("SDL resource identifier load failed -> " + e.whatStr());
+			throw SdlLoadError("failed loading path -> " + e.whatStr());
 		}
 	}
 

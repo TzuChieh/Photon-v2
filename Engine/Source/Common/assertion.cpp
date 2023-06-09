@@ -39,12 +39,12 @@ namespace ph::detail
 {
 
 void output_assertion_message(
-	const std::string& fileName,
+	const std::string& filename,
 	const std::string& lineNumber,
 	const std::string& condition,
 	const std::string& message)
 {
-	std::cerr << "assertion failed at <" << fileName << ">: "
+	std::cerr << "assertion failed at <" << filename << ">: "
 	          << "line " << lineNumber
 	          << ", condition: <" << condition << ">";
 

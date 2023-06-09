@@ -2,7 +2,7 @@
 
 #include "Common/config.h"
 
-#include <iostream>
+#include <string>
 #include <type_traits>
 
 #define PH_CONCAT_2(a, b) a##b
@@ -13,11 +13,21 @@
 #define PH_CONCAT_7(a, b, c, d, e, f, g) a##b##c##d##e##f##g
 #define PH_CONCAT_8(a, b, c, d, e, f, g, h) a##b##c##d##e##f##g##h
 
+namespace ph::detail
+{
+
+void output_not_implemented_warning(
+	const std::string& filename,
+	const std::string& lineNumber);
+
+}// end namespace ph::detail
+
 #define PH_NOT_IMPLEMENTED_WARNING()\
 	do\
 	{\
-		std::cerr << "code not implemented in <" << __FILE__ << ">: "\
-		          << "line " << __LINE__ << std::endl;\
+		::ph::detail::output_not_implemented_warning(\
+			std::string(__FILE__),\
+			std::to_string(__LINE__));\
 	} while(0)
 
 #define PH_NO_OP() ((void)0)
