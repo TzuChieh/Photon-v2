@@ -35,16 +35,16 @@ inline void save_scene(
 	const ImguiFileSystemDialog& fsDialog,
 	const bool shouldSaveWithFolder)
 {
-	auto optDirPath = fsDialog.getSelectedDirectory();
-	if(!optDirPath)
+	auto dirPath = fsDialog.getSelectedDirectory();
+	if(dirPath.isEmpty())
 	{
 		PH_DEFAULT_LOG_WARNING(
 			"cannot save scene: no directory specified");
 		return;
 	}
 
-	PH_ASSERT(optDirPath);
-	editor.saveScene(*optDirPath, shouldSaveWithFolder);
+	PH_ASSERT(!dirPath.isEmpty());
+	editor.saveScene(dirPath, shouldSaveWithFolder);
 }
 
 }// end anonymous namespace

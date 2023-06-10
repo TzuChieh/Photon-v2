@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlValue.h"
-#include "SDL/Introspect/TSdlOptionalValue.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
@@ -78,8 +77,5 @@ protected:
 		}
 	}
 };
-
-template<typename Owner>
-using TSdlOptionalPath = TSdlPath<Owner, TSdlOptionalValue<Path, Owner>>;
 
 }// end namespace ph

@@ -190,7 +190,7 @@ bool ImguiFileSystemDialog::selectionConfirmed()
 	return false;
 }
 
-std::optional<Path> ImguiFileSystemDialog::getSelectedDirectory() const
+Path ImguiFileSystemDialog::getSelectedDirectory() const
 {
 	// If is editing, the preview buffer contains an edited path
 	if(m_isEditingEntry)
@@ -202,7 +202,7 @@ std::optional<Path> ImguiFileSystemDialog::getSelectedDirectory() const
 		}
 		else
 		{
-			return std::nullopt;
+			return Path{};
 		}
 	}
 
@@ -211,10 +211,10 @@ std::optional<Path> ImguiFileSystemDialog::getSelectedDirectory() const
 		return m_selectedEntry->getDirectoryPath();
 	}
 
-	return std::nullopt;
+	return Path{};
 }
 
-std::optional<Path> ImguiFileSystemDialog::getSelectedItem() const
+Path ImguiFileSystemDialog::getSelectedItem() const
 {
 	// If is editing, the preview buffer contains an edited item
 	if(m_isEditingItem)
@@ -226,7 +226,7 @@ std::optional<Path> ImguiFileSystemDialog::getSelectedItem() const
 		}
 		else
 		{
-			return std::nullopt;
+			return Path{};
 		}
 	}
 
@@ -236,33 +236,26 @@ std::optional<Path> ImguiFileSystemDialog::getSelectedItem() const
 		return m_fsDialogEntryItems[m_fsDialogSelectedEntryItemIdx];
 	}
 
-	return std::nullopt;
+	return {};
 }
 
-std::optional<Path> ImguiFileSystemDialog::getSelectedTarget() const
+Path ImguiFileSystemDialog::getSelectedTarget() const
 {
-	auto optDirectory = getSelectedDirectory();
-	if(!optDirectory)
-	{
-		return std::nullopt;
-	}
-
-	auto optItem = getSelectedItem();
-	return optItem ? optDirectory->append(*optItem) : *optDirectory;
+	return getSelectedDirectory() / getSelectedItem();
 }
 
 std::vector<Path> ImguiFileSystemDialog::getSelectedItems() const
 {
 	if(m_fsDialogNumSelectedItems <= 1)
 	{
-		auto optPath = getSelectedItem();
-		if(optPath)
+		auto item = getSelectedItem();
+		if(item.isEmpty())
 		{
-			return {*optPath};
+			return {};
 		}
 		else
 		{
-			return {};
+			return {item};
 		}
 	}
 

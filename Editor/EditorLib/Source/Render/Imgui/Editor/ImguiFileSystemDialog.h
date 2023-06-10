@@ -11,7 +11,6 @@
 #include <vector>
 #include <string>
 #include <string_view>
-#include <optional>
 
 namespace ph::editor
 {
@@ -53,17 +52,17 @@ public:
 
 	/*! @brief Get the selected directory.
 	*/
-	std::optional<Path> getSelectedDirectory() const;
+	Path getSelectedDirectory() const;
 
 	/*! @brief Get the selected item.
 	*/
-	std::optional<Path> getSelectedItem() const;
+	Path getSelectedItem() const;
 
 	/*! @brief Get the selected filesystem target.
 	The result can be either the selected directory or a full path to the selected item. This method 
 	effectively combines the result of getSelectedDirectory() and getSelectedItem().
 	*/
-	std::optional<Path> getSelectedTarget() const;
+	Path getSelectedTarget() const;
 
 	/*! @brief Get all selected items.
 	*/
