@@ -5,6 +5,7 @@
 #include "Common/assertion.h"
 #include "SDL/Introspect/SdlIOContext.h"
 #include "SDL/sdl_exceptions.h"
+#include "DataIO/FileSystem/ResourceIdentifier.h"
 
 #include <utility>
 #include <filesystem>
@@ -42,62 +43,70 @@ bool SdlResourceLocator::isRecognized(std::string_view sdlValueStr)
 	return SdlResourceLocator::determineType(sdlValueStr) != ESdlResourceIdentifier::Unknown;
 }
 
-SdlResourceLocator::SdlResourceLocator(std::string_view resourceIdentifier)
-	: SdlResourceLocator(std::string(resourceIdentifier))
+SdlResourceLocator::SdlResourceLocator(const SdlIOContext& ctx)
+	: IResourceIdentifierResolver()
+	, m_ctx(ctx)
 {}
 
-SdlResourceLocator::SdlResourceLocator(std::string resourceIdentifier)
-	: m_resourceIdentifier(std::move(resourceIdentifier))
-	, m_type(ESdlResourceIdentifier::Unknown)
+void SdlResourceLocator::resolve(ResourceIdentifier& identifier)
 {
-	m_type = determineType(m_resourceIdentifier);
+	switch(getType(identifier.getIdentifier()))
+	{
+	case ESdlResourceIdentifier::Bundle:
+	case ESdlResourceIdentifier::External:
+		identifier.setResolved(toPath(identifier.getIdentifier()));
+		break;
+
+	default:
+		identifier.clearResolved();
+	}
 }
 
-Path SdlResourceLocator::toPath(const SdlIOContext& ctx) const
+Path SdlResourceLocator::toPath(std::string_view identifier) const
 {
-	switch(m_type)
+	switch(getType(identifier))
 	{
 	case ESdlResourceIdentifier::Bundle:
 	{
-		return bundle_identifier_to_path(m_resourceIdentifier, ctx.getWorkingDirectory());
+		return bundle_identifier_to_path(identifier, m_ctx.getWorkingDirectory());
 	}
 
 	case ESdlResourceIdentifier::External:
 	{
-		return external_identifier_to_path(m_resourceIdentifier);
+		return external_identifier_to_path(identifier);
 	}
 
 	default:
 		throw_formatted<SdlException>(
 			"failed to generate path: {} is not a valid SDL resource identifier",
-			m_resourceIdentifier);
+			identifier);
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
 	return Path();
 }
 
-std::string SdlResourceLocator::toBundleIdentifier(const SdlIOContext& ctx) const
+std::string SdlResourceLocator::toBundleIdentifier(std::string_view identifier) const
 {
-	switch(m_type)
+	switch(getType(identifier))
 	{
 	case ESdlResourceIdentifier::Bundle:
 	{
 		// The identifier is already what we want
-		return std::string(string_utils::trim_head(m_resourceIdentifier));
+		return std::string(string_utils::trim_head(identifier));
 	}
 
 	case ESdlResourceIdentifier::External:
 	{
 		std::filesystem::path resourceRelPath = std::filesystem::relative(
-			external_identifier_to_path(m_resourceIdentifier).toStdPath(),
-			ctx.getWorkingDirectory().toStdPath());
+			external_identifier_to_path(identifier).toStdPath(),
+			m_ctx.getWorkingDirectory().toStdPath());
 
 		if(resourceRelPath.empty())
 		{
 			throw_formatted<SdlException>(
 				"failed to generate bundle identifier for <{}> (with bundle directory {})",
-				m_resourceIdentifier, ctx.getWorkingDirectory());
+				identifier, m_ctx.getWorkingDirectory());
 		}
 
 		// Note that `resourceRelPath` may contain parent folder director (e.g., "../aaa"). 
@@ -112,44 +121,49 @@ std::string SdlResourceLocator::toBundleIdentifier(const SdlIOContext& ctx) cons
 	default:
 		throw_formatted<SdlException>(
 			"failed to generate bundle identifier: {} is not a valid SDL resource identifier",
-			m_resourceIdentifier);
+			identifier);
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
 	return std::string();
 }
 
-std::string SdlResourceLocator::toExternalIdentifier(const SdlIOContext& ctx) const
+std::string SdlResourceLocator::toExternalIdentifier(std::string_view identifier) const
 {
-	switch(m_type)
+	switch(getType(identifier))
 	{
 	case ESdlResourceIdentifier::Bundle:
 	{
-		const Path& path = bundle_identifier_to_path(m_resourceIdentifier, ctx.getWorkingDirectory());
+		const Path& path = bundle_identifier_to_path(identifier, m_ctx.getWorkingDirectory());
 		return "ext:" + path.toAbsoluteString();
 	}
 
 	case ESdlResourceIdentifier::External:
 	{
 		// The identifier is already what we want
-		return std::string(string_utils::trim_head(m_resourceIdentifier));
+		return std::string(string_utils::trim_head(identifier));
 	}
 
 	default:
 		throw_formatted<SdlException>(
 			"failed to generate external identifier: {} is not a valid SDL resource identifier",
-			m_resourceIdentifier);
+			identifier);
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
 	return std::string();
 }
 
-auto SdlResourceLocator::determineType(std::string_view resourceIdentifier)
+ESdlResourceIdentifier SdlResourceLocator::getType(std::string_view resourceIdentifier) const
+{
+	return determineType(resourceIdentifier);
+}
+
+auto SdlResourceLocator::determineType(std::string_view identifier)
 -> ESdlResourceIdentifier
 {
 	// Remove leading blank characters
-	const auto headTrimmedStr = string_utils::trim_head(resourceIdentifier);
+	const auto headTrimmedStr = string_utils::trim_head(identifier);
 	if(headTrimmedStr.empty())
 	{
 		return ESdlResourceIdentifier::Unknown;

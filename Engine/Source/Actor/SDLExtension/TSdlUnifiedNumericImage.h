@@ -101,7 +101,7 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 		else if(clause.isResourceIdentifier())
 		{
 			numericImage->setImage(sdl::load_picture_file(
-				SdlResourceLocator(clause.value).toPath(ctx)));
+				SdlResourceLocator(ctx).toPath(clause.value)));
 		}
 		// TODO: detect if clause is external file and load it
 		else

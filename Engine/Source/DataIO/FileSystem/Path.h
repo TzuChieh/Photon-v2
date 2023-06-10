@@ -34,7 +34,7 @@
 namespace ph
 {
 
-class Path
+class Path final
 {
 public:
 	/*! @brief Creates empty path.

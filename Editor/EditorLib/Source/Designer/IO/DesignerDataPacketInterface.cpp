@@ -40,8 +40,8 @@ void DesignerDataPacketInterface::parse(
 	SdlInputClauses& out_clauses) const
 {
 	// Packet command is a bundled resource identifier (for the packet file)
-	const Path packetFile = SdlResourceLocator(packetCommand).toPath(
-		SdlInputContext(getSceneWorkingDirectory()));
+	const Path packetFile = SdlResourceLocator(
+		SdlInputContext(getSceneWorkingDirectory())).toPath(packetCommand);
 
 	const auto& fileExt = packetFile.getExtension();
 	if(fileExt == ".pddp")
@@ -136,8 +136,8 @@ void DesignerDataPacketInterface::generate(
 			e.whatStr());
 	}
 
-	const std::string bundleIdentifier = SdlResourceLocator(packetFile.toString()).toBundleIdentifier(
-		SdlOutputContext(getSceneWorkingDirectory()));
+	const std::string bundleIdentifier = SdlResourceLocator(
+		SdlOutputContext(getSceneWorkingDirectory())).toBundleIdentifier(packetFile.toString());
 
 	// Packet command is a bundled resource identifier, quoted (for the packet file)
 	out_packetCommand += '"';

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DataIO/FileSystem/IResourceIdentifierResolver.h"
+
 #include <string>
 #include <string_view>
 
@@ -16,7 +18,7 @@ enum class ESdlResourceIdentifier
 	External
 };
 
-class SdlResourceLocator final
+class SdlResourceLocator : public IResourceIdentifierResolver
 {
 public:
 	/*! @brief Check whether the string is a SDL resource identifier.
@@ -27,26 +29,21 @@ public:
 	static bool isRecognized(std::string_view sdlValueStr);
 
 public:
-	explicit SdlResourceLocator(std::string_view resourceIdentifier);
-	explicit SdlResourceLocator(std::string resourceIdentifier);
+	explicit SdlResourceLocator(const SdlIOContext& ctx);
 
-	Path toPath(const SdlIOContext& ctx) const;
-	std::string toBundleIdentifier(const SdlIOContext& ctx) const;
-	std::string toExternalIdentifier(const SdlIOContext& ctx) const;
-	ESdlResourceIdentifier getType() const;
+	void resolve(ResourceIdentifier& identifier) override;
+
+	Path toPath(std::string_view identifier) const;
+	std::string toBundleIdentifier(std::string_view identifier) const;
+	std::string toExternalIdentifier(std::string_view identifier) const;
+	ESdlResourceIdentifier getType(std::string_view resourceIdentifier) const;
 
 	// TODO: method to migrate external to bundle or vice versa
 
 private:
-	static auto determineType(std::string_view resourceIdentifier) -> ESdlResourceIdentifier;
+	static auto determineType(std::string_view identifier) -> ESdlResourceIdentifier;
 
-	std::string m_resourceIdentifier;
-	ESdlResourceIdentifier m_type;
+	const SdlIOContext& m_ctx;
 };
-
-inline ESdlResourceIdentifier SdlResourceLocator::getType() const
-{
-	return m_type;
-}
 
 }// end namespace ph

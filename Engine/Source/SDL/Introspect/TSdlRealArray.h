@@ -68,7 +68,7 @@ protected:
 			try
 			{
 				const std::string loadedSdlValue = io_utils::load_text(
-					SdlResourceLocator(clause.value).toPath(ctx));
+					SdlResourceLocator(ctx).toPath(clause.value));
 				this->setValue(owner, sdl::load_number_array<Element>(loadedSdlValue));
 			}
 			catch(const FileIOError& e)

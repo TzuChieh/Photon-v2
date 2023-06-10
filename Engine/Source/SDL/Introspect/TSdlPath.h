@@ -58,7 +58,7 @@ protected:
 		{
 			this->setValue(
 				owner, 
-				SdlResourceLocator(clause.value).toPath(ctx));
+				SdlResourceLocator(ctx).toPath(clause.value));
 		}
 		catch(const SdlException& e)
 		{
