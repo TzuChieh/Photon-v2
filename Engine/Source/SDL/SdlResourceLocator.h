@@ -31,17 +31,23 @@ public:
 public:
 	explicit SdlResourceLocator(const SdlIOContext& ctx);
 
-	void resolve(ResourceIdentifier& identifier) override;
+	bool resolve(ResourceIdentifier& identifier) override;
 
-	Path toPath(std::string_view identifier) const;
-	std::string toBundleIdentifier(std::string_view identifier) const;
-	std::string toExternalIdentifier(std::string_view identifier) const;
-	ESdlResourceIdentifier getType(std::string_view resourceIdentifier) const;
+	Path toPath(std::string_view sri) const;
+	std::string toBundleIdentifier(std::string_view sri) const;
+	std::string toExternalIdentifier(std::string_view sri) const;
+	std::string toExternalIdentifier(const Path& path) const;
+
+	/*! @brief Tries to get type information from a potential SRI.
+	@param identifier The identifier to get type from. Does not need to be a SRI.
+	@return Type of the identifier. `ESdlResourceIdentifier::Unknown` if not a SRI.
+	*/
+	ESdlResourceIdentifier getType(std::string_view identifier) const;
 
 	// TODO: method to migrate external to bundle or vice versa
 
 private:
-	static auto determineType(std::string_view identifier) -> ESdlResourceIdentifier;
+	static auto determineType(std::string_view sri) -> ESdlResourceIdentifier;
 
 	const SdlIOContext& m_ctx;
 };

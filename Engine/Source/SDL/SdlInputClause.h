@@ -33,7 +33,7 @@ public:
 	*/
 	bool isReference() const;
 
-	/*! @brief Helper to check if the carried value is a SDL resource identifier.
+	/*! @brief Helper to check if the carried value is a SDL resource identifier (SRI).
 	*/
 	bool isResourceIdentifier() const;
 

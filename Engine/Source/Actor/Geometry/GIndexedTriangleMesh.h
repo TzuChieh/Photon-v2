@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Actor/Geometry/Geometry.h"
+#include "DataIO/FileSystem/ResourceIdentifier.h"
 #include "SDL/sdl_interface.h"
-#include "DataIO/FileSystem/Path.h"
 
 namespace ph
 {
@@ -15,7 +15,7 @@ public:
 		std::vector<std::unique_ptr<Primitive>>& out_primitives) const override;
 
 private:
-	Path m_filePath;
+	ResourceIdentifier m_meshFile;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GIndexedTriangleMesh>)
@@ -28,10 +28,10 @@ public:
 			"most cases.");
 		clazz.baseOn<Geometry>();
 
-		TSdlPath<OwnerType> filePath("file-path", &OwnerType::m_filePath);
-		filePath.description("Path to the file that stores the triangle mesh.");
-		filePath.required();
-		clazz.addField(filePath);
+		TSdlResourceIdentifier<OwnerType> meshFile("mesh", &OwnerType::m_meshFile);
+		meshFile.description("File that stores the triangle mesh.");
+		meshFile.required();
+		clazz.addField(meshFile);
 
 		return clazz;
 	}

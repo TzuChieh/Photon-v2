@@ -49,7 +49,7 @@ void GPlyPolygonMesh::storeCooked(
 	{
 		PH_LOG(GPlyPolygonMesh, 
 			"{} buffer stats: {} verts, {} faces ({:.3f} MiB, {:.3f} B per face)", 
-			m_filePath.getFilename(),
+			m_plyFile,
 			triangleBuffer->getVertexBuffer().numVertices(),
 			triangleBuffer->numFaces(),
 			math::bytes_to_MiB<double>(triangleBuffer->memoryUsage()),
@@ -57,7 +57,7 @@ void GPlyPolygonMesh::storeCooked(
 
 		PH_LOG(GPlyPolygonMesh,
 			"{} buffer timings: {:.2f} ms loading, {:.2f} ms building accel",
-			m_filePath.getFilename(),
+			m_plyFile,
 			loadTimer.getDeltaMs<double>(),
 			buildTimer.getDeltaMs<double>());
 	}
@@ -79,9 +79,9 @@ std::shared_ptr<Geometry> GPlyPolygonMesh::genTransformed(
 
 IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer() const
 {
-	PH_LOG(GPlyPolygonMesh, "loading file {}", m_filePath);
+	PH_LOG(GPlyPolygonMesh, "loading file {}", m_plyFile);
 
-	PlyFile file(m_filePath);
+	PlyFile file(m_plyFile.getPath());
 
 	PlyElement* vertexElement = file.findElement("vertex");
 	if(!vertexElement)

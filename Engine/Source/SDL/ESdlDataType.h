@@ -50,6 +50,9 @@ enum class ESdlDataType
 	/*! The `ph::Path` type. */
 	Path,
 
+	/*! The `ph::ResourceIdentifier` type. */
+	ResourceIdentifier,
+
 	/*! The `math::Spectrum` type. */
 	Spectrum,
 

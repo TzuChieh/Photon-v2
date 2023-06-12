@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/ADome.h"
-#include "DataIO/FileSystem/Path.h"
+#include "DataIO/FileSystem/ResourceIdentifier.h"
 #include "Core/Texture/TTexture.h"
 #include "Math/Color/Spectrum.h"
 #include "SDL/sdl_interface.h"
@@ -21,7 +21,7 @@ public:
 		CookingContext& ctx, DomeRadianceFunctionInfo* out_info) override;
 
 private:
-	Path m_imagePath;
+	ResourceIdentifier m_imageFile;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AImageDome>)
@@ -31,10 +31,10 @@ public:
 		clazz.description("Using a background image to represent the energy emitted from far away.");
 		clazz.baseOn<ADome>();
 
-		TSdlPath<OwnerType> imagePath("image", &OwnerType::m_imagePath);
-		imagePath.description("Path to an image describing the energy distribution.");
-		imagePath.required();
-		clazz.addField(imagePath);
+		TSdlResourceIdentifier<OwnerType> imageFile("image-file", &OwnerType::m_imageFile);
+		imageFile.description("An image describing the energy distribution.");
+		imageFile.required();
+		clazz.addField(imageFile);
 
 		return clazz;
 	}

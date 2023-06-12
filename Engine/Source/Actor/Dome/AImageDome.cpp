@@ -7,7 +7,7 @@ namespace ph
 std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(
 	CookingContext& ctx, DomeRadianceFunctionInfo* const out_info)
 {
-	RasterFileImage image(m_imagePath);
+	RasterFileImage image(m_imageFile.getPath());
 	image.setSampleMode(EImageSampleMode::Bilinear);
 
 	// Since we are viewing it from inside a sphere, we flip the image horizontally

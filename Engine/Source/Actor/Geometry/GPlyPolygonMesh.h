@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Actor/Geometry/Geometry.h"
+#include "DataIO/FileSystem/ResourceIdentifier.h"
 #include "SDL/sdl_interface.h"
-#include "DataIO/FileSystem/Path.h"
 #include "Core/Intersectable/data_structure_fwd.h"
 
 namespace ph
@@ -26,7 +26,7 @@ public:
 		const math::StaticAffineTransform& transform) const override;
 
 private:
-	Path m_filePath;
+	ResourceIdentifier m_plyFile;
 
 	IndexedTriangleBuffer loadTriangleBuffer() const;
 
@@ -38,11 +38,11 @@ public:
 		clazz.description("Polygon mesh stored as a .ply file.");
 		clazz.baseOn<Geometry>();
 
-		TSdlPath<OwnerType> filePath("file-path", &OwnerType::m_filePath);
-		filePath.description(
-			"Path to the .ply file that stores the polygon mesh.");
-		filePath.required();
-		clazz.addField(filePath);
+		TSdlResourceIdentifier<OwnerType> plyFile("ply-file", &OwnerType::m_plyFile);
+		plyFile.description(
+			"The .ply file that stores the polygon mesh.");
+		plyFile.required();
+		clazz.addField(plyFile);
 
 		return clazz;
 	}

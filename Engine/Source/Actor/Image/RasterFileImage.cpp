@@ -86,11 +86,15 @@ RasterFileImage::RasterFileImage() :
 	RasterFileImage(Path())
 {}
 
-RasterFileImage::RasterFileImage(Path filePath) :
-	
-	RasterImageBase(),
+RasterFileImage::RasterFileImage(Path filePath)
+	: RasterFileImage(ResourceIdentifier())
+{
+	m_imageFile.setPath(std::move(filePath));
+}
 
-	m_filePath(std::move(filePath))
+RasterFileImage::RasterFileImage(ResourceIdentifier imageFile)
+	: RasterImageBase()
+	, m_imageFile(std::move(imageFile))
 {}
 
 std::shared_ptr<TTexture<Image::Array>> RasterFileImage::genNumericTexture(
@@ -145,7 +149,7 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	default:
 		// TODO: better log warning and use a default picture
 		throw CookException(
-			"error on generating texture for picture <" + m_filePath.toAbsoluteString() + ">: invalid color space");
+			"error on generating texture for picture <" + m_imageFile.toString() + ">: invalid color space");
 	}
 }
 
@@ -153,7 +157,7 @@ RegularPicture RasterFileImage::loadRegularPicture() const
 {
 	try
 	{
-		return io_utils::load_picture(m_filePath);
+		return io_utils::load_picture(m_imageFile.getPath());
 	}
 	catch(const IOException& e)
 	{
@@ -165,7 +169,7 @@ RegularPicture RasterFileImage::loadRegularPicture() const
 
 void RasterFileImage::setFilePath(Path filePath)
 {
-	m_filePath = std::move(filePath);
+	m_imageFile.setPath(std::move(filePath));
 }
 
 std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
@@ -242,7 +246,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 	{
 		// TODO: better log warning and use a default picture
 		throw CookException(
-			"error on creating frame buffer for <" + m_filePath.toAbsoluteString() + ">");
+			"error on creating frame buffer for <" + m_imageFile.toString() + ">");
 	}
 
 	return pixelBuffer;

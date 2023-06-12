@@ -61,8 +61,6 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		// TODO: handle external file
-
 		if(clause.isResourceIdentifier())
 		{
 			try

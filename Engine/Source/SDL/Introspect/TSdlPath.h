@@ -5,9 +5,6 @@
 #include "Common/primitive_type.h"
 #include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
-#include "SDL/SdlResourceLocator.h"
-#include "SDL/Introspect/SdlInputContext.h"
-#include "SDL/sdl_exceptions.h"
 
 #include <string>
 
@@ -53,16 +50,7 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		try
-		{
-			this->setValue(
-				owner, 
-				SdlResourceLocator(ctx).toPath(clause.value));
-		}
-		catch(const SdlException& e)
-		{
-			throw SdlLoadError("failed loading path -> " + e.whatStr());
-		}
+		this->setValue(owner, Path(clause.value));
 	}
 
 	inline void saveToSdl(
@@ -72,8 +60,7 @@ protected:
 	{
 		if(const Path* const path = this->getConstValue(owner); path)
 		{
-			// TODO
-			PH_ASSERT_UNREACHABLE_SECTION();
+			out_clause.value = path->toString();
 		}
 	}
 };

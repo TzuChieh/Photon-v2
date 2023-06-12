@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Image/RasterImageBase.h"
-#include "DataIO/FileSystem/Path.h"
+#include "DataIO/FileSystem/ResourceIdentifier.h"
 #include "SDL/sdl_interface.h"
 #include "Core/Texture/Pixel/pixel_texture_basics.h"
 #include "Core/Texture/Pixel/PixelBuffer2D.h"
@@ -19,6 +19,7 @@ class RasterFileImage : public RasterImageBase
 public:
 	RasterFileImage();
 	explicit RasterFileImage(Path filePath);
+	explicit RasterFileImage(ResourceIdentifier image);
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
 		CookingContext& ctx) override;
@@ -40,7 +41,7 @@ protected:
 	pixel_texture::EWrapMode getTextureWrapModeT() const;
 
 private:
-	Path m_filePath;
+	ResourceIdentifier m_imageFile;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<RasterFileImage>)
@@ -51,10 +52,10 @@ public:
 			"Raster-based image file (most common image file formats belongs to this category).");
 		clazz.baseOn<RasterImageBase>();
 
-		TSdlPath<OwnerType> filePath("file-path", &OwnerType::m_filePath);
-		filePath.description("Path to the image file.");
-		filePath.required();
-		clazz.addField(filePath);
+		TSdlResourceIdentifier<OwnerType> imageFile("image-file", &OwnerType::m_imageFile);
+		imageFile.description("The image file.");
+		imageFile.required();
+		clazz.addField(imageFile);
 
 		return clazz;
 	}

@@ -28,6 +28,7 @@
 #include "SDL/Introspect/TSdlReferenceArray.h"
 #include "SDL/Introspect/TSdlEnumField.h"
 #include "SDL/Introspect/TSdlPath.h"
+#include "SDL/Introspect/TSdlResourceIdentifier.h"
 
 // Function types
 #include "SDL/Introspect/TSdlMethod.h"
