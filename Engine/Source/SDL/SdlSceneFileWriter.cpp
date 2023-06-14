@@ -104,7 +104,7 @@ void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene, const Pa
 
 	std::vector<const ISdlResource*> resources;
 	std::vector<std::string_view> names;
-	scene.getResources().listAll(&resources, &names);
+	scene.getResources().listAll(resources, &names);
 
 	m_resolver.analyze(resources, names);
 

@@ -111,7 +111,7 @@ ISdlResource* SdlSceneFileReader::getResource(std::string_view resourceName, con
 
 	// TODO: use string_view
 	// TODO: just get resource ptr, not shared_ptr
-	std::shared_ptr<ISdlResource> resource = m_scene->getResources().get(std::string(resourceName), category);
+	std::shared_ptr<ISdlResource> resource = m_scene->getResources().get(std::string(resourceName));
 	return resource.get();
 }
 

@@ -15,29 +15,25 @@ SceneDescription::SceneDescription()
 	, m_phantomResources()
 {}
 
-std::shared_ptr<ISdlResource> SceneDescription::get(
-	std::string_view resourceName,
-	const ESdlTypeCategory category) const
+std::shared_ptr<ISdlResource> SceneDescription::get(std::string_view resourceName) const
 {
-	std::shared_ptr<ISdlResource> result = m_resources.get(resourceName, category);
+	std::shared_ptr<ISdlResource> result = m_resources.get(resourceName);
 	if(!result)
 	{
-		result = m_phantomResources.get(resourceName, category);
+		result = m_phantomResources.get(resourceName);
 	}
 
 	return result;
 }
 
-bool SceneDescription::has(
-	std::string_view resourceName,
-	const ESdlTypeCategory category) const
+bool SceneDescription::has(std::string_view resourceName) const
 {
-	if(m_resources.has(resourceName, category))
+	if(m_resources.has(resourceName))
 	{
 		return true;
 	}
 	
-	if(m_phantomResources.has(resourceName, category))
+	if(m_phantomResources.has(resourceName))
 	{
 		return true;
 	}

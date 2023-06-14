@@ -15,13 +15,8 @@ class SceneDescription : public ISdlReferenceGroup
 public:
 	SceneDescription();
 
-	std::shared_ptr<ISdlResource> get(
-		std::string_view resourceName,
-		ESdlTypeCategory category) const override;
-
-	bool has(
-		std::string_view resourceName,
-		ESdlTypeCategory category) const override;
+	std::shared_ptr<ISdlResource> get(std::string_view resourceName) const override;
+	bool has(std::string_view resourceName) const override;
 
 	RawResourceCollection& getResources();
 	const RawResourceCollection& getResources() const;
