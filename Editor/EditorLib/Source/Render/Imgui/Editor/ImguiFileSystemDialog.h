@@ -34,6 +34,8 @@ class ImguiFileSystemDialog final
 public:
 	static const char* const OPEN_FILE_TITLE;
 	static const char* const SAVE_FILE_TITLE;
+	static const char* const OPEN_FOLDER_TITLE;
+	static const char* const SAVE_FOLDER_TITLE;
 
 public:
 	ImguiFileSystemDialog();
@@ -44,7 +46,12 @@ public:
 	void buildFileSystemDialogPopupModal(
 		const char* popupName,
 		ImguiEditorUIProxy editorUI,
-		const ImVec2& dialogSize = ImVec2(0, 0),
+		const ImguiFileSystemDialogParameters& params = {});
+
+	void buildFileSystemDialogPopupModal(
+		const char* popupName,
+		ImguiEditorUIProxy editorUI,
+		const ImVec2& dialogSize,
 		const ImguiFileSystemDialogParameters& params = {});
 
 	void clearSelection();

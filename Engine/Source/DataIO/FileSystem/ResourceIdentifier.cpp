@@ -44,7 +44,7 @@ void ResourceIdentifier::clearResolved()
 
 bool ResourceIdentifier::isResolved() const
 {
-	return std::holds_alternative<std::monostate>(m_resolvedIdentifier);
+	return !std::holds_alternative<std::monostate>(m_resolvedIdentifier);
 }
 
 bool ResourceIdentifier::hasIdentifier() const

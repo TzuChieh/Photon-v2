@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <cstddef>
 
 namespace ph::editor
@@ -20,8 +19,6 @@ public:
 
 private:
 	std::size_t m_selectedSceneIdx;
-	bool m_shouldSaveWithFolder;
-	std::array<char, 128> m_newSceneNameBuffer;
 };
 
 }// end namespace ph::editor

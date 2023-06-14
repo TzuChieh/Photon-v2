@@ -2,6 +2,7 @@
 
 #include "Render/Imgui/Editor/ImguiEditorSidebarState.h"
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
+#include "Render/Imgui/Editor/ImguiEditorSceneCreator.h"
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
 #include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
@@ -59,6 +60,7 @@ private:
 	void buildMainViewportWindow();
 	void buildSidebarWindow();
 
+	void buildSceneCreatorWindow();
 	void buildSceneManagerWindow();
 	void buildEditorSettingsWindow();
 	void buildLogWindow();
@@ -70,6 +72,7 @@ private:
 	bool m_shouldShowImguiDemo;
 	ImguiEditorSidebarState m_sidebarState;
 	ImguiEditorLog m_editorLog;
+	ImguiEditorSceneCreator m_sceneCreator;
 	ImguiEditorSceneManager m_sceneManager;
 	ImguiEditorAssetBrowser m_assetBrowser;
 

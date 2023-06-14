@@ -3,6 +3,8 @@
 #include "EditorCore/FileSystemExplorer.h"
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
+#include "App/Editor.h"
+#include "Render/Imgui/Utility/imgui_helpers.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -20,6 +22,8 @@ namespace ph::editor
 
 const char* const ImguiFileSystemDialog::OPEN_FILE_TITLE = PH_IMGUI_OPEN_FILE_ICON " Open File";
 const char* const ImguiFileSystemDialog::SAVE_FILE_TITLE = PH_IMGUI_SAVE_FILE_ICON " Save File";
+const char* const ImguiFileSystemDialog::OPEN_FOLDER_TITLE = PH_IMGUI_OPEN_FILE_ICON " Open Folder";
+const char* const ImguiFileSystemDialog::SAVE_FOLDER_TITLE = PH_IMGUI_SAVE_FILE_ICON " Save Folder";
 
 namespace
 {
@@ -28,26 +32,6 @@ constexpr const char* REQUIRES_SELECTION_TITLE = "Target Specification Required"
 
 constexpr std::string_view FILE_ITEM_NAME_PREFIX = PH_IMGUI_GENERAL_FILE_ICON " ";
 
-// Copy string to a vector buffer. The result is always null-terminated.
-inline void copy_to_buffer(std::string_view srcStr, std::vector<char>& dstBuffer)
-{
-	PH_ASSERT(!dstBuffer.empty());
-
-	// Can only copy what the buffer can hold
-	const auto numCharsToCopy = std::min(srcStr.size(), dstBuffer.size());
-	std::copy(srcStr.begin(), srcStr.begin() + numCharsToCopy, dstBuffer.begin());
-
-	// Always make the result null-terminated
-	if(numCharsToCopy < dstBuffer.size())
-	{
-		dstBuffer[numCharsToCopy] = '\0';
-	}
-	else
-	{
-		dstBuffer.back() = '\0';
-	}
-}
-
 }// end anonymous namespace
 
 ImguiFileSystemDialog::ImguiFileSystemDialog()
@@ -55,8 +39,8 @@ ImguiFileSystemDialog::ImguiFileSystemDialog()
 	, m_selectedEntry(nullptr)
 	, m_selectionConfirmedFlag(false)
 
-	, m_fsDialogEntryPreviewBuffer()
-	, m_fsDialogItemPreviewBuffer()
+	, m_fsDialogEntryPreviewBuffer(512, '\0')
+	, m_fsDialogItemPreviewBuffer(256, '\0')
 	, m_isEditingEntry(false)
 	, m_isEditingItem(false)
 
@@ -68,10 +52,7 @@ ImguiFileSystemDialog::ImguiFileSystemDialog()
 	, m_fsDialogSelectedEntryItemIdx(static_cast<std::size_t>(-1))
 	, m_fsDialogNumSelectedItems(0)
 	, m_fsDialogEntryItemSelection()
-{
-	m_fsDialogEntryPreviewBuffer.resize(512);
-	m_fsDialogItemPreviewBuffer.resize(256);
-}
+{}
 
 void ImguiFileSystemDialog::openPopup(
 	const char* const popupName)
@@ -99,6 +80,19 @@ void ImguiFileSystemDialog::openPopup(
 	}
 
 	ImGui::OpenPopup(popupName);
+}
+
+void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
+	const char* const popupName,
+	ImguiEditorUIProxy editorUI,
+	const ImguiFileSystemDialogParameters& params)
+{
+	buildFileSystemDialogPopupModal(
+		popupName, 
+		editorUI, 
+		ImVec2(
+			editorUI.getEditor().dimensionHints.fileDialogPreferredWidth,
+			editorUI.getEditor().dimensionHints.fileDialogPreferredHeight));
 }
 
 void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
@@ -175,8 +169,8 @@ void ImguiFileSystemDialog::clearSelection()
 
 	m_isEditingEntry = false;
 	m_isEditingItem = false;
-	copy_to_buffer("", m_fsDialogEntryPreviewBuffer);
-	copy_to_buffer("", m_fsDialogItemPreviewBuffer);
+	imgui::copy_to(m_fsDialogEntryPreviewBuffer, "");
+	imgui::copy_to(m_fsDialogItemPreviewBuffer, "");
 }
 
 bool ImguiFileSystemDialog::selectionConfirmed()
@@ -396,11 +390,11 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 		{
 			if(m_selectedEntry)
 			{
-				copy_to_buffer(m_fsDialogEntryPathName, m_fsDialogEntryPreviewBuffer);
+				imgui::copy_to(m_fsDialogEntryPreviewBuffer, m_fsDialogEntryPathName);
 			}
 			else
 			{
-				copy_to_buffer("(no directory selected)", m_fsDialogEntryPreviewBuffer);
+				imgui::copy_to(m_fsDialogEntryPreviewBuffer, "(no directory selected)");
 			}
 		}
 
@@ -425,13 +419,13 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 		{
 			if(m_fsDialogNumSelectedItems == 0)
 			{
-				copy_to_buffer("(no item selected)", m_fsDialogItemPreviewBuffer);
+				imgui::copy_to(m_fsDialogItemPreviewBuffer, "(no item selected)");
 			}
 			else if(m_fsDialogNumSelectedItems == 1)
 			{
-				copy_to_buffer(
-					getEntryItemNameWithoutDecorations(m_fsDialogSelectedEntryItemIdx), 
-					m_fsDialogItemPreviewBuffer);
+				imgui::copy_to(
+					m_fsDialogItemPreviewBuffer,
+					getEntryItemNameWithoutDecorations(m_fsDialogSelectedEntryItemIdx));
 			}
 			else
 			{

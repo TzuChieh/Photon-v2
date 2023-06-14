@@ -217,12 +217,12 @@ inline const SceneDescription& DesignerScene::getRenderDescription() const
 	return m_renderDescription;
 }
 
-inline const Path& DesignerScene::getRenderDescriptionLink() const
+inline const ResourceIdentifier& DesignerScene::getRenderDescriptionLink() const
 {
 	return m_renderDescriptionLink;
 }
 
-inline void DesignerScene::setRenderDescriptionLink(Path link)
+inline void DesignerScene::setRenderDescriptionLink(ResourceIdentifier link)
 {
 	m_renderDescriptionLink = std::move(link);
 }

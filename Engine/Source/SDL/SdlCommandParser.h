@@ -14,6 +14,7 @@
 namespace ph
 {
 
+class SdlClass;
 class SdlDataPacketInterface;
 
 enum class ESdlCommandType

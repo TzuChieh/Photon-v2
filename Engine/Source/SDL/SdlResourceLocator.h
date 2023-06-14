@@ -10,8 +10,11 @@ namespace ph
 
 class Path;
 class SdlIOContext;
+class ResourceIdentifier;
 
-enum class ESdlResourceIdentifier
+/*! @brief Type of the SDL Resource Identifier (SRI).
+*/
+enum class ESriType
 {
 	Unknown = 0,
 	Bundle,
@@ -34,20 +37,29 @@ public:
 	bool resolve(ResourceIdentifier& identifier) override;
 
 	Path toPath(std::string_view sri) const;
-	std::string toBundleIdentifier(std::string_view sri) const;
-	std::string toExternalIdentifier(std::string_view sri) const;
-	std::string toExternalIdentifier(const Path& path) const;
+	std::string toBundleSRI(std::string_view sri) const;
+	std::string toExternalSRI(std::string_view sri) const;
+
+	/*! @brief Get an identifier representing the path.
+	@return A bundle identifier resolving to @p path.
+	*/
+	ResourceIdentifier toBundleIdentifier(const Path& path) const;
+
+	/*! @brief Get an identifier representing the path.
+	@return An external identifier resolving to @p path.
+	*/
+	ResourceIdentifier toExternalIdentifier(const Path& path) const;
 
 	/*! @brief Tries to get type information from a potential SRI.
 	@param identifier The identifier to get type from. Does not need to be a SRI.
-	@return Type of the identifier. `ESdlResourceIdentifier::Unknown` if not a SRI.
+	@return Type of the identifier. `ESriType::Unknown` if not a SRI.
 	*/
-	ESdlResourceIdentifier getType(std::string_view identifier) const;
+	ESriType getType(std::string_view identifier) const;
 
 	// TODO: method to migrate external to bundle or vice versa
 
 private:
-	static auto determineType(std::string_view sri) -> ESdlResourceIdentifier;
+	static auto determineType(std::string_view sri) -> ESriType;
 
 	const SdlIOContext& m_ctx;
 };

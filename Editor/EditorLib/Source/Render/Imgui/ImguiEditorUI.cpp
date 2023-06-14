@@ -16,14 +16,15 @@
 #include <cstdio>
 #include <utility>
 
-#define PH_IMGUI_PROPERTIES_ICON   ICON_MD_TUNE
-#define PH_IMGUI_VIEWPORT_ICON     ICON_MD_CAMERA
-#define PH_IMGUI_ASSET_ICON        ICON_MD_FOLDER_OPEN
-#define PH_IMGUI_OBJECT_ICON       ICON_MD_CATEGORY
-#define PH_IMGUI_SCENE_ICON        ICON_MD_LANDSCAPE
-#define PH_IMGUI_LOG_ICON          ICON_MD_WYSIWYG
-#define PH_IMGUI_SETTINGS_ICON     ICON_MD_SETTINGS
-#define PH_IMGUI_STATS_ICON        ICON_MD_INSIGHTS
+#define PH_IMGUI_PROPERTIES_ICON       ICON_MD_TUNE
+#define PH_IMGUI_VIEWPORT_ICON         ICON_MD_CAMERA
+#define PH_IMGUI_ASSET_ICON            ICON_MD_FOLDER_OPEN
+#define PH_IMGUI_OBJECT_ICON           ICON_MD_CATEGORY
+#define PH_IMGUI_SCENE_CREATION_ICON   ICON_MD_ADD_PHOTO_ALTERNATE
+#define PH_IMGUI_SCENE_MANAGER_ICON    ICON_MD_PHOTO_LIBRARY
+#define PH_IMGUI_LOG_ICON              ICON_MD_WYSIWYG
+#define PH_IMGUI_SETTINGS_ICON         ICON_MD_SETTINGS
+#define PH_IMGUI_STATS_ICON            ICON_MD_INSIGHTS
 
 namespace ph::editor
 {
@@ -37,7 +38,8 @@ constexpr const char* ASSET_BROWSER_WINDOW_NAME = PH_IMGUI_ASSET_ICON " Asset Br
 constexpr const char* OBJECT_BROWSER_WINDOW_NAME = PH_IMGUI_OBJECT_ICON " Object Browser";
 constexpr const char* SIDEBAR_WINDOW_NAME = "##sidebar_window";
 
-constexpr const char* SCENE_BROWSER_WINDOW_NAME = PH_IMGUI_SCENE_ICON " Scene Manager";
+constexpr const char* SCENE_CREATOR_WINDOW_NAME = PH_IMGUI_SCENE_CREATION_ICON " Scene Creator";
+constexpr const char* SCENE_MANAGER_WINDOW_NAME = PH_IMGUI_SCENE_MANAGER_ICON " Scene Manager";
 constexpr const char* LOG_WINDOW_NAME = PH_IMGUI_LOG_ICON " Log";
 
 }// end anonymous namespace
@@ -54,6 +56,7 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_shouldShowImguiDemo(false)
 	, m_sidebarState()
 	, m_editorLog()
+	, m_sceneCreator()
 	, m_sceneManager()
 	, m_assetBrowser()
 
@@ -177,7 +180,7 @@ void ImguiEditorUI::build()
 		ImGui::DockBuilderDockWindow(SIDEBAR_WINDOW_NAME, leftDockSpaceID);
 
 		// Pre-dock other windows
-		ImGui::DockBuilderDockWindow(SCENE_BROWSER_WINDOW_NAME, upperRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(SCENE_MANAGER_WINDOW_NAME, upperRightDockSpaceID);
 		ImGui::DockBuilderDockWindow(LOG_WINDOW_NAME, bottomDockSpaceID);
 
 		ImGui::DockBuilderFinish(rootDockSpaceID);
@@ -217,6 +220,7 @@ void ImguiEditorUI::build()
 	buildRootPropertiesWindow();
 	buildObjectBrowserWindow();
 	buildMainViewportWindow();
+	buildSceneCreatorWindow();
 	buildSceneManagerWindow();
 	buildSidebarWindow();
 
@@ -398,52 +402,70 @@ void ImguiEditorUI::buildSidebarWindow()
 	const float iconButtonSize = getDimensionHints().largeFontSize + style.FramePadding.x * 2.0f;
 	const float posToCenter = (ImGui::GetWindowContentRegionMax().x - iconButtonSize) * 0.5f;
 
-	ImGui::Spacing();
-
-	ImGui::SetCursorPosX(posToCenter);
-	if(ImGui::Button(PH_IMGUI_SCENE_ICON))
-	{
-		m_sidebarState.showSceneManager = !m_sidebarState.showSceneManager;
-	}
-	ImGui::PushFont(originalFont);
-	if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-	{
-		ImGui::SetTooltip("Scene Manager");
-	}
-	ImGui::PopFont();
-
-	ImGui::Spacing();
-
-	ImGui::SetCursorPosX(posToCenter);
-	if(ImGui::Button(PH_IMGUI_LOG_ICON))
-	{
-		m_sidebarState.showLog = !m_sidebarState.showLog;
-	}
-	ImGui::PushFont(originalFont);
-	if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-	{
-		ImGui::SetTooltip("Log");
-	}
-	ImGui::PopFont();
+	auto buildSidebarButton = 
+		[originalFont, posToCenter](
+			const char* buttonIcon, 
+			const char* tooltip,
+			bool& toggleState)
+		{
+			ImGui::SetCursorPosX(posToCenter);
+			if(ImGui::Button(buttonIcon))
+			{
+				toggleState = !toggleState;
+			}
+			ImGui::PushFont(originalFont);
+			if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+			{
+				ImGui::SetTooltip(tooltip);
+			}
+			ImGui::PopFont();
+		};
 
 	ImGui::Spacing();
 
-	ImGui::SetCursorPosX(posToCenter);
-	if(ImGui::Button(PH_IMGUI_SETTINGS_ICON))
-	{
-		m_sidebarState.showEditorSettings = !m_sidebarState.showEditorSettings;
-	}
-	ImGui::PushFont(originalFont);
-	if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-	{
-		ImGui::SetTooltip("Editor Settings");
-	}
-	ImGui::PopFont();
+	buildSidebarButton(
+		PH_IMGUI_SCENE_CREATION_ICON,
+		"Scene Creator",
+		m_sidebarState.showSceneCreator);
+
+	ImGui::Spacing();
+
+	buildSidebarButton(
+		PH_IMGUI_SCENE_MANAGER_ICON,
+		"Scene Manager",
+		m_sidebarState.showSceneManager);
+
+	ImGui::Spacing();
+
+	buildSidebarButton(
+		PH_IMGUI_LOG_ICON,
+		"Log",
+		m_sidebarState.showLog);
+
+	ImGui::Spacing();
+
+	buildSidebarButton(
+		PH_IMGUI_SETTINGS_ICON,
+		"Editor Settings",
+		m_sidebarState.showEditorSettings);
 
 	ImGui::PopStyleColor();
 	ImGui::PopFont();
 
 	ImGui::End();
+}
+
+void ImguiEditorUI::buildSceneCreatorWindow()
+{
+	if(!m_sidebarState.showSceneCreator)
+	{
+		return;
+	}
+
+	m_sceneCreator.buildWindow(
+		SCENE_CREATOR_WINDOW_NAME,
+		*this,
+		&m_sidebarState.showSceneCreator);
 }
 
 void ImguiEditorUI::buildSceneManagerWindow()
@@ -454,7 +476,7 @@ void ImguiEditorUI::buildSceneManagerWindow()
 	}
 	
 	m_sceneManager.buildWindow(
-		SCENE_BROWSER_WINDOW_NAME,
+		SCENE_MANAGER_WINDOW_NAME,
 		*this,
 		&m_sidebarState.showSceneManager);
 }

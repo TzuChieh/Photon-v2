@@ -117,7 +117,7 @@ protected:
 						"failed saving SRI -> no valid information provided");
 				}
 
-				out_clause.value = SdlResourceLocator(ctx).toExternalIdentifier(path);
+				out_clause.value = SdlResourceLocator(ctx).toExternalIdentifier(path).getIdentifier();
 			}
 		}
 		else

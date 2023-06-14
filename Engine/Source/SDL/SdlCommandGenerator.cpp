@@ -153,9 +153,9 @@ void SdlCommandGenerator::generateLoadCommand(
 	PH_ASSERT(resource.getDynamicSdlClass() == resourceClass);
 
 	appendFullSdlType(resourceClass, out_commandStr);
-	out_commandStr += ' ';
+	out_commandStr += " \"";
 	out_commandStr += resourceName;
-	out_commandStr += " = ";
+	out_commandStr += "\" = ";
 
 	getPacketInterface().generate(clauses, resourceClass, resourceName, &resource, out_commandStr);
 

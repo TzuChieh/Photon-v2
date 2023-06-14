@@ -91,7 +91,7 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 	}
 
 	// Expected be set, too late to determine a good link here
-	PH_ASSERT(!scene.getRenderDescriptionLink().isEmpty());
+	PH_ASSERT(scene.getRenderDescriptionLink().hasIdentifier());
 
 	// Scene file must reside in the scene working directory as it may be accompanied with data files
 	getSceneWorkingDirectory().createDirectory();

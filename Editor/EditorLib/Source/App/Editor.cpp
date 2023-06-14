@@ -9,6 +9,8 @@
 #include <DataIO/FileSystem/Path.h>
 #include <SDL/TSdl.h>
 #include <SDL/SdlSceneFileWriter.h>
+#include <SDL/Introspect/SdlOutputContext.h>
+#include <SDL/SdlResourceLocator.h>
 
 #include <memory>
 #include <utility>
@@ -229,11 +231,15 @@ void Editor::saveScene(
 		}
 	}
 
-	// The description link will be empty if the designer scene is a newly created one.
+	// The description link will be empty if the designer scene is a newly created one 
+	// (other than being explicitly set by the user). 
 	// Set the link to the same folder and same name as the designer scene (bundled description).
-	if(m_activeScene->getRenderDescriptionLink().isEmpty())
+	if(!m_activeScene->getRenderDescriptionLink().hasIdentifier())
 	{
-		m_activeScene->setRenderDescriptionLink(workingDirectory / m_activeScene->getName() / ".p2");
+		m_activeScene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(workingDirectory))
+			.toBundleIdentifier(workingDirectory / m_activeScene->getName() / ".p2"));
+
+		//m_activeScene->getRenderDescription().setWorkingDirectory(workingDirectory);
 	}
 
 	m_activeScene->pause();
@@ -246,9 +252,11 @@ void Editor::saveScene(
 
 	// Save render description
 	{
-		const Path& descLink = m_activeScene->getRenderDescriptionLink();
-		const std::string& descName = descLink.removeExtension().getFilename();
-		const Path& descWorkingDirectory = descLink.getParent();
+		const ResourceIdentifier& descLink = m_activeScene->getRenderDescriptionLink();
+		PH_ASSERT(descLink.isResolved());
+
+		const std::string& descName = descLink.getPath().removeExtension().getFilename();
+		const Path& descWorkingDirectory = descLink.getPath().getParent();
 
 		SdlSceneFileWriter descriptionWriter(descName, descWorkingDirectory);
 		descriptionWriter.write(m_activeScene->getRenderDescription());

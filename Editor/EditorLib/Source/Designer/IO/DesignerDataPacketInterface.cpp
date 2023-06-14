@@ -18,6 +18,7 @@
 #include <SDL/Introspect/SdlClass.h>
 #include <SDL/sdl_helpers.h>
 #include <DataIO/io_exceptions.h>
+#include <DataIO/FileSystem/ResourceIdentifier.h>
 
 #include <utility>
 
@@ -110,7 +111,7 @@ void DesignerDataPacketInterface::generate(
 			valueInfoBuffer += clause.tag;
 		}
 
-		jsonObj[valueInfoBuffer] = clause.name;
+		jsonObj[valueInfoBuffer] = clause.value;
 	}
 
 	// Filename: <target-type>_<target-name>.<ext> (ignore angle brackets)
@@ -136,10 +137,10 @@ void DesignerDataPacketInterface::generate(
 			e.whatStr());
 	}
 
-	const std::string bundleIdentifier = SdlResourceLocator(
-		SdlOutputContext(getSceneWorkingDirectory())).toBundleIdentifier(packetFile.toString());
+	const std::string bundleIdentifier = SdlResourceLocator(SdlOutputContext(getSceneWorkingDirectory()))
+		.toBundleIdentifier(packetFile).getIdentifier();
 
-	// Packet command is a bundled resource identifier, quoted (for the packet file)
+	// Packet command is a bundle resource identifier, quoted (for the packet file)
 	out_packetCommand += '"';
 	out_packetCommand.append(bundleIdentifier);
 	out_packetCommand += '"';

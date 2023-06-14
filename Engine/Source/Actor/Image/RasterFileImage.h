@@ -19,7 +19,7 @@ class RasterFileImage : public RasterImageBase
 public:
 	RasterFileImage();
 	explicit RasterFileImage(Path filePath);
-	explicit RasterFileImage(ResourceIdentifier image);
+	explicit RasterFileImage(ResourceIdentifier imageFile);
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
 		CookingContext& ctx) override;

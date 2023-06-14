@@ -16,7 +16,7 @@ namespace ph
 namespace
 {
 
-inline Path bundle_identifier_to_path(std::string_view bundleIdentifier, const Path& bundleRoot)
+inline Path bundle_SRI_to_path(std::string_view bundleIdentifier, const Path& bundleRoot)
 {
 	auto identifier = string_utils::trim_head(bundleIdentifier);
 	PH_ASSERT_GE(identifier.size(), 1);
@@ -26,7 +26,7 @@ inline Path bundle_identifier_to_path(std::string_view bundleIdentifier, const P
 	return bundleRoot / identifier;
 }
 
-inline Path external_identifier_to_path(std::string_view externalIdentifier)
+inline Path external_SRI_to_path(std::string_view externalIdentifier)
 {
 	auto identifier = string_utils::trim_head(externalIdentifier);
 	PH_ASSERT_GE(identifier.size(), 4);
@@ -36,11 +36,17 @@ inline Path external_identifier_to_path(std::string_view externalIdentifier)
 	return Path(identifier);
 }
 
+inline std::string path_to_external_SRI(const Path& path)
+{
+	// Already a path--it must point directly to the target
+	return "ext:" + path.toString();
+}
+
 }// end anonymous namespace
 
 bool SdlResourceLocator::isRecognized(std::string_view sdlValueStr)
 {
-	return SdlResourceLocator::determineType(sdlValueStr) != ESdlResourceIdentifier::Unknown;
+	return SdlResourceLocator::determineType(sdlValueStr) != ESriType::Unknown;
 }
 
 SdlResourceLocator::SdlResourceLocator(const SdlIOContext& ctx)
@@ -52,8 +58,8 @@ bool SdlResourceLocator::resolve(ResourceIdentifier& identifier)
 {
 	switch(getType(identifier.getIdentifier()))
 	{
-	case ESdlResourceIdentifier::Bundle:
-	case ESdlResourceIdentifier::External:
+	case ESriType::Bundle:
+	case ESriType::External:
 		setResolved(identifier, toPath(identifier.getIdentifier()));
 		return true;
 
@@ -67,14 +73,14 @@ Path SdlResourceLocator::toPath(std::string_view sri) const
 {
 	switch(getType(sri))
 	{
-	case ESdlResourceIdentifier::Bundle:
+	case ESriType::Bundle:
 	{
-		return bundle_identifier_to_path(sri, m_ctx.getWorkingDirectory());
+		return bundle_SRI_to_path(sri, m_ctx.getWorkingDirectory());
 	}
 
-	case ESdlResourceIdentifier::External:
+	case ESriType::External:
 	{
-		return external_identifier_to_path(sri);
+		return external_SRI_to_path(sri);
 	}
 	}
 
@@ -83,20 +89,20 @@ Path SdlResourceLocator::toPath(std::string_view sri) const
 		sri);
 }
 
-std::string SdlResourceLocator::toBundleIdentifier(std::string_view sri) const
+std::string SdlResourceLocator::toBundleSRI(std::string_view sri) const
 {
 	switch(getType(sri))
 	{
-	case ESdlResourceIdentifier::Bundle:
+	case ESriType::Bundle:
 	{
 		// The identifier is already what we want
 		return std::string(string_utils::trim_head(sri));
 	}
 
-	case ESdlResourceIdentifier::External:
+	case ESriType::External:
 	{
 		std::filesystem::path resourceRelPath = std::filesystem::relative(
-			external_identifier_to_path(sri).toStdPath(),
+			external_SRI_to_path(sri).toStdPath(),
 			m_ctx.getWorkingDirectory().toStdPath());
 
 		if(resourceRelPath.empty())
@@ -121,17 +127,17 @@ std::string SdlResourceLocator::toBundleIdentifier(std::string_view sri) const
 		sri);
 }
 
-std::string SdlResourceLocator::toExternalIdentifier(std::string_view sri) const
+std::string SdlResourceLocator::toExternalSRI(std::string_view sri) const
 {
 	switch(getType(sri))
 	{
-	case ESdlResourceIdentifier::Bundle:
+	case ESriType::Bundle:
 	{
-		const Path& path = bundle_identifier_to_path(sri, m_ctx.getWorkingDirectory());
+		const Path& path = bundle_SRI_to_path(sri, m_ctx.getWorkingDirectory());
 		return "ext:" + path.toAbsoluteString();
 	}
 
-	case ESdlResourceIdentifier::External:
+	case ESriType::External:
 	{
 		// The identifier is already what we want
 		return std::string(string_utils::trim_head(sri));
@@ -143,25 +149,33 @@ std::string SdlResourceLocator::toExternalIdentifier(std::string_view sri) const
 		sri);
 }
 
-std::string SdlResourceLocator::toExternalIdentifier(const Path& path) const
+ResourceIdentifier SdlResourceLocator::toBundleIdentifier(const Path& path) const
 {
-	// Already a path--it must point directly to the target
-	return "ext:" + path.toString();
+	ResourceIdentifier identifier(toBundleSRI(path_to_external_SRI(path)));
+	setResolved(identifier, path);
+	return identifier;
 }
 
-ESdlResourceIdentifier SdlResourceLocator::getType(std::string_view identifier) const
+ResourceIdentifier SdlResourceLocator::toExternalIdentifier(const Path& path) const
+{
+	ResourceIdentifier identifier(path_to_external_SRI(path));
+	setResolved(identifier, path);
+	return identifier;
+}
+
+ESriType SdlResourceLocator::getType(std::string_view identifier) const
 {
 	return determineType(identifier);
 }
 
 auto SdlResourceLocator::determineType(std::string_view identifier)
--> ESdlResourceIdentifier
+-> ESriType
 {
 	// Remove leading blank characters
 	const auto headTrimmedStr = string_utils::trim_head(identifier);
 	if(headTrimmedStr.empty())
 	{
-		return ESdlResourceIdentifier::Unknown;
+		return ESriType::Unknown;
 	}
 
 	PH_ASSERT_GE(headTrimmedStr.size(), 1);
@@ -169,7 +183,7 @@ auto SdlResourceLocator::determineType(std::string_view identifier)
 	{
 	case ':':
 		// Valid SDL bundled resource identifier starts with a single colon ":"
-		return ESdlResourceIdentifier::Bundle;
+		return ESriType::Bundle;
 
 	case 'e':
 		// Valid SDL external resource identifier starts with "ext:"
@@ -178,15 +192,15 @@ auto SdlResourceLocator::determineType(std::string_view identifier)
 		   headTrimmedStr[2] == 't' &&
 		   headTrimmedStr[3] == ':')
 		{
-			return ESdlResourceIdentifier::External;
+			return ESriType::External;
 		}
 		else
 		{
-			return ESdlResourceIdentifier::Unknown;
+			return ESriType::Unknown;
 		}
 	}
 
-	return ESdlResourceIdentifier::Unknown;
+	return ESriType::Unknown;
 }
 
 }// end namespace ph

@@ -12,7 +12,7 @@
 #include <SDL/sdl_interface.h>
 #include <SDL/SceneDescription.h>
 #include <Utility/IMoveOnly.h>
-#include <DataIO/FileSystem/Path.h>
+#include <DataIO/FileSystem/ResourceIdentifier.h>
 
 #include <vector>
 #include <memory>
@@ -113,8 +113,8 @@ public:
 	const std::string& getName() const;
 	SceneDescription& getRenderDescription();
 	const SceneDescription& getRenderDescription() const;
-	const Path& getRenderDescriptionLink() const;
-	void setRenderDescriptionLink(Path link);
+	const ResourceIdentifier& getRenderDescriptionLink() const;
+	void setRenderDescriptionLink(ResourceIdentifier link);
 	TSpanView<DesignerObject*> getRootObjects() const;
 
 	/*! @brief Temporarily stop the update of scene.
@@ -189,7 +189,7 @@ private:
 
 	// SDL-binded fields:
 	std::string m_name;
-	Path m_renderDescriptionLink;
+	ResourceIdentifier m_renderDescriptionLink;
 
 /*! @brief Dynamic object creation routines	
 */
@@ -220,9 +220,9 @@ public:
 		name.defaultTo("untitled scene");
 		clazz.addField(name);
 
-		TSdlPath<OwnerType> renderDescriptionLink("render-description-link", &OwnerType::m_renderDescriptionLink);
+		TSdlResourceIdentifier<OwnerType> renderDescriptionLink("render-description-link", &OwnerType::m_renderDescriptionLink);
 		renderDescriptionLink.description("Path to the associated scene description.");
-		renderDescriptionLink.defaultTo(Path());
+		renderDescriptionLink.defaultTo(ResourceIdentifier());
 		clazz.addField(renderDescriptionLink);
 
 		return clazz;
