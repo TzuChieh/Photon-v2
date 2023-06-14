@@ -188,9 +188,6 @@ std::size_t Editor::createScene(const std::string& name)
 			newScene->setName(name);
 		}
 
-		// Ensure no duplicated scene names
-		newScene->setName(getUniqueSceneName(newScene->getName()));
-
 		scene = m_scenes.add(std::move(newScene));
 		sceneIndex = m_scenes.size() - 1;
 	}
@@ -326,37 +323,37 @@ void Editor::removeScene(const std::size_t sceneIndex)
 		m_removingScenes.back().scene->getName());
 }
 
-std::string Editor::getUniqueSceneName(const std::string& intendedName) const
-{
-	int suffixNumber = 1;
-	while(true)
-	{
-		// Generating a name sequence like "name", "name (2)", "name (3)", etc.
-		const std::string generatedName = 
-			intendedName +
-			(suffixNumber == 1 ? "" : " (" + std::to_string(suffixNumber) + ")");
-
-		bool foundDuplicatedName = false;
-		for(const auto& scene : m_scenes)
-		{
-			if(generatedName == scene->getName())
-			{
-				foundDuplicatedName = true;
-				break;
-			}
-		}
-
-		if(!foundDuplicatedName)
-		{
-			return generatedName;
-		}
-
-		++suffixNumber;
-	}
-
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return "";
-}
+//std::string Editor::getUniqueSceneName(const std::string& intendedName) const
+//{
+//	int suffixNumber = 1;
+//	while(true)
+//	{
+//		// Generating a name sequence like "name", "name (2)", "name (3)", etc.
+//		const std::string generatedName = 
+//			intendedName +
+//			(suffixNumber == 1 ? "" : " (" + std::to_string(suffixNumber) + ")");
+//
+//		bool foundDuplicatedName = false;
+//		for(const auto& scene : m_scenes)
+//		{
+//			if(generatedName == scene->getName())
+//			{
+//				foundDuplicatedName = true;
+//				break;
+//			}
+//		}
+//
+//		if(!foundDuplicatedName)
+//		{
+//			return generatedName;
+//		}
+//
+//		++suffixNumber;
+//	}
+//
+//	PH_ASSERT_UNREACHABLE_SECTION();
+//	return "";
+//}
 
 void Editor::flushAllEvents()
 {

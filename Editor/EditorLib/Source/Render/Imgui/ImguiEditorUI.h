@@ -70,6 +70,7 @@ private:
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
 	bool m_shouldShowImguiDemo;
+	bool m_shouldShowSceneCreator;
 	ImguiEditorSidebarState m_sidebarState;
 	ImguiEditorLog m_editorLog;
 	ImguiEditorSceneCreator m_sceneCreator;

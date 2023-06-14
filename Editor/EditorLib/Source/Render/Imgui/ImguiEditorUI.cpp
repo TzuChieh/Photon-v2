@@ -26,21 +26,40 @@
 #define PH_IMGUI_SETTINGS_ICON         ICON_MD_SETTINGS
 #define PH_IMGUI_STATS_ICON            ICON_MD_INSIGHTS
 
+#define PH_IMGUI_ICON_TIGHT_PADDING " "
+#define PH_IMGUI_ICON_LOOSE_PADDING "   "
+
 namespace ph::editor
 {
 
 namespace
 {
 
-constexpr const char* ROOT_PROPERTIES_WINDOW_NAME = PH_IMGUI_PROPERTIES_ICON " Properties";
-constexpr const char* MAIN_VIEWPORT_WINDOW_NAME = PH_IMGUI_VIEWPORT_ICON " Viewport";
-constexpr const char* ASSET_BROWSER_WINDOW_NAME = PH_IMGUI_ASSET_ICON " Asset Browser";
-constexpr const char* OBJECT_BROWSER_WINDOW_NAME = PH_IMGUI_OBJECT_ICON " Object Browser";
+constexpr const char* ROOT_PROPERTIES_WINDOW_NAME = 
+	PH_IMGUI_PROPERTIES_ICON PH_IMGUI_ICON_TIGHT_PADDING "Properties";
+
+constexpr const char* MAIN_VIEWPORT_WINDOW_NAME = 
+	PH_IMGUI_VIEWPORT_ICON PH_IMGUI_ICON_TIGHT_PADDING "Viewport";
+
+constexpr const char* ASSET_BROWSER_WINDOW_NAME = 
+	PH_IMGUI_ASSET_ICON PH_IMGUI_ICON_TIGHT_PADDING "Asset Browser";
+
+constexpr const char* OBJECT_BROWSER_WINDOW_NAME = 
+	PH_IMGUI_OBJECT_ICON PH_IMGUI_ICON_TIGHT_PADDING "Object Browser";
+
 constexpr const char* SIDEBAR_WINDOW_NAME = "##sidebar_window";
 
-constexpr const char* SCENE_CREATOR_WINDOW_NAME = PH_IMGUI_SCENE_CREATION_ICON " Scene Creator";
-constexpr const char* SCENE_MANAGER_WINDOW_NAME = PH_IMGUI_SCENE_MANAGER_ICON " Scene Manager";
-constexpr const char* LOG_WINDOW_NAME = PH_IMGUI_LOG_ICON " Log";
+constexpr const char* SCENE_CREATOR_WINDOW_NAME = 
+	PH_IMGUI_SCENE_CREATION_ICON PH_IMGUI_ICON_TIGHT_PADDING "Scene Creator";
+
+constexpr const char* SCENE_MANAGER_WINDOW_NAME = 
+	PH_IMGUI_SCENE_MANAGER_ICON PH_IMGUI_ICON_TIGHT_PADDING "Scene Manager";
+
+constexpr const char* LOG_WINDOW_NAME = 
+	PH_IMGUI_LOG_ICON PH_IMGUI_ICON_TIGHT_PADDING "Log";
+
+constexpr const char* EDITOR_SETTINGS_WINDOW_NAME = 
+	PH_IMGUI_SETTINGS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Editor Settings";
 
 }// end anonymous namespace
 
@@ -54,6 +73,7 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_shouldResetWindowLayout(false)
 	, m_shouldShowStatsMonitor(false)
 	, m_shouldShowImguiDemo(false)
+	, m_shouldShowSceneCreator(false)
 	, m_sidebarState()
 	, m_editorLog()
 	, m_sceneCreator()
@@ -274,7 +294,11 @@ void ImguiEditorUI::buildMainMenuBar()
 	{
 		if(ImGui::BeginMenu("File"))
 		{
-			//ShowExampleMenuFile();
+			if(ImGui::MenuItem(PH_IMGUI_SCENE_CREATION_ICON PH_IMGUI_ICON_LOOSE_PADDING "New Scene"))
+			{
+				m_shouldShowSceneCreator = true;
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -424,13 +448,6 @@ void ImguiEditorUI::buildSidebarWindow()
 	ImGui::Spacing();
 
 	buildSidebarButton(
-		PH_IMGUI_SCENE_CREATION_ICON,
-		"Scene Creator",
-		m_sidebarState.showSceneCreator);
-
-	ImGui::Spacing();
-
-	buildSidebarButton(
 		PH_IMGUI_SCENE_MANAGER_ICON,
 		"Scene Manager",
 		m_sidebarState.showSceneManager);
@@ -457,7 +474,7 @@ void ImguiEditorUI::buildSidebarWindow()
 
 void ImguiEditorUI::buildSceneCreatorWindow()
 {
-	if(!m_sidebarState.showSceneCreator)
+	if(!m_shouldShowSceneCreator)
 	{
 		return;
 	}
@@ -465,7 +482,7 @@ void ImguiEditorUI::buildSceneCreatorWindow()
 	m_sceneCreator.buildWindow(
 		SCENE_CREATOR_WINDOW_NAME,
 		*this,
-		&m_sidebarState.showSceneCreator);
+		&m_shouldShowSceneCreator);
 }
 
 void ImguiEditorUI::buildSceneManagerWindow()
@@ -499,7 +516,7 @@ void ImguiEditorUI::buildEditorSettingsWindow()
 		{viewport->WorkSize.x * 0.5f, viewport->WorkSize.y * 0.8f}, 
 		windowLayoutCond);
 
-	if(!ImGui::Begin(PH_IMGUI_SETTINGS_ICON " Editor Settings", &m_sidebarState.showEditorSettings))
+	if(!ImGui::Begin(EDITOR_SETTINGS_WINDOW_NAME, &m_sidebarState.showEditorSettings))
 	{
 		ImGui::End();
 		return;

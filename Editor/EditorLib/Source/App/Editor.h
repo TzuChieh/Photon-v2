@@ -77,7 +77,7 @@ public:
 	void setActiveScene(std::size_t sceneIndex);
 	void removeScene(std::size_t sceneIndex);
 	std::size_t numScenes() const;
-	std::string getUniqueSceneName(const std::string& intendedName) const;
+	//std::string getUniqueSceneName(const std::string& intendedName) const;
 
 	EditContext getEditContext() const;
 
