@@ -38,6 +38,11 @@ struct TSharedObjectDeleter
 
 }// end namespace detail
 
+inline const char* DesignerScene::defaultSceneName()
+{
+	return "untitled scene";
+}
+
 template<typename ObjectType>
 inline ObjectType* DesignerScene::newObject(
 	const bool shouldInit,
@@ -197,9 +202,9 @@ inline bool DesignerScene::ObjectAction::isDone() const
 	return action == EObjectAction::None;
 }
 
-inline void DesignerScene::setName(std::string name)
+inline const Path& DesignerScene::getWorkingDirectory() const
 {
-	m_name = std::move(name);
+	return m_workingDirectory;
 }
 
 inline const std::string& DesignerScene::getName() const

@@ -25,6 +25,7 @@
 #define PH_IMGUI_LOG_ICON              ICON_MD_WYSIWYG
 #define PH_IMGUI_SETTINGS_ICON         ICON_MD_SETTINGS
 #define PH_IMGUI_STATS_ICON            ICON_MD_INSIGHTS
+#define PH_IMGUI_SAVE_FILE_ICON        ICON_MD_SAVE
 
 #define PH_IMGUI_ICON_TIGHT_PADDING " "
 #define PH_IMGUI_ICON_LOOSE_PADDING "   "
@@ -48,6 +49,7 @@ constexpr const char* OBJECT_BROWSER_WINDOW_NAME =
 	PH_IMGUI_OBJECT_ICON PH_IMGUI_ICON_TIGHT_PADDING "Object Browser";
 
 constexpr const char* SIDEBAR_WINDOW_NAME = "##sidebar_window";
+constexpr const char* TOOLBAR_WINDOW_NAME = "##toolbar_window";
 
 constexpr const char* SCENE_CREATOR_WINDOW_NAME = 
 	PH_IMGUI_SCENE_CREATION_ICON PH_IMGUI_ICON_TIGHT_PADDING "Scene Creator";
@@ -81,6 +83,8 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_assetBrowser()
 
 	, m_generalFileSystemDialog()
+
+	, m_theme()
 {
 	// If no main editor was specified, the first editor created after is the main one
 	if(!mainEditor)
@@ -116,7 +120,6 @@ void ImguiEditorUI::build()
 	PH_ASSERT(Threads::isOnMainThread());
 	PH_ASSERT(m_editor);
 
-
 	buildMainMenuBar();
 
 	// Experimental Docking API
@@ -132,7 +135,7 @@ void ImguiEditorUI::build()
 
 	ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
 
-	ImGuiWindowFlags rootWindowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+	ImGuiWindowFlags rootWindowFlags = ImGuiWindowFlags_NoDocking;
 	rootWindowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 	rootWindowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 	
@@ -156,7 +159,7 @@ void ImguiEditorUI::build()
 		// Potentially clear out existing layout
 		ImGui::DockBuilderRemoveNode(rootDockSpaceID);
 
-		// Add an empty node with the size of viewport (minus menu bar)
+		// Add an empty node with the size of available viewport (minus menu bar and toolbar)
 		ImGui::DockBuilderAddNode(rootDockSpaceID, ImGuiDockNodeFlags_DockSpace);
 		ImGui::DockBuilderSetNodeSize(rootDockSpaceID, viewport->WorkSize);
 
@@ -172,19 +175,26 @@ void ImguiEditorUI::build()
 		const ImGuiID bottomDockSpaceID = ImGui::DockBuilderSplitNode(
 			rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, &centerDockSpaceID);
 
-		// Creating left node (after bottom node so it can have the full height)
+		// Creating left node (after bottom node to cover it)
 		const float leftNodeSplitRatio =
 			m_editor->dimensionHints.largeFontSize * 1.5f /
 			viewport->WorkSize.x;
 		const ImGuiID leftDockSpaceID = ImGui::DockBuilderSplitNode(
 			rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, nullptr);
 
-		// Creating right node (after bottom node so it can have the full height)
+		// Creating right node (after bottom node to cover it)
 		const float rightNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
 			viewport->WorkSize.x;
 		const ImGuiID rightDockSpaceID = ImGui::DockBuilderSplitNode(
 			rootDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, nullptr);
+
+		// Creating top node (after left & right nodes to cover them)
+		const float topNodeSplitRatio =
+			m_editor->dimensionHints.fontSize * 2.0f /
+			viewport->WorkSize.y;
+		const ImGuiID topDockSpaceID = ImGui::DockBuilderSplitNode(
+			rootDockSpaceID, ImGuiDir_Up, topNodeSplitRatio, nullptr, nullptr);
 
 		// Creating child upper-right and upper-left nodes
 		const float upperRightNodeSplitRatio = 0.4f;
@@ -198,6 +208,7 @@ void ImguiEditorUI::build()
 		ImGui::DockBuilderDockWindow(OBJECT_BROWSER_WINDOW_NAME, upperRightDockSpaceID);
 		ImGui::DockBuilderDockWindow(MAIN_VIEWPORT_WINDOW_NAME, centerDockSpaceID);
 		ImGui::DockBuilderDockWindow(SIDEBAR_WINDOW_NAME, leftDockSpaceID);
+		ImGui::DockBuilderDockWindow(TOOLBAR_WINDOW_NAME, topDockSpaceID);
 
 		// Pre-dock other windows
 		ImGui::DockBuilderDockWindow(SCENE_MANAGER_WINDOW_NAME, upperRightDockSpaceID);
@@ -243,6 +254,7 @@ void ImguiEditorUI::build()
 	buildSceneCreatorWindow();
 	buildSceneManagerWindow();
 	buildSidebarWindow();
+	buildToolbarWindow();
 
 	buildEditorSettingsWindow();
 	buildLogWindow();
@@ -297,6 +309,11 @@ void ImguiEditorUI::buildMainMenuBar()
 			if(ImGui::MenuItem(PH_IMGUI_SCENE_CREATION_ICON PH_IMGUI_ICON_LOOSE_PADDING "New Scene"))
 			{
 				m_shouldShowSceneCreator = true;
+			}
+
+			if(ImGui::MenuItem(PH_IMGUI_SAVE_FILE_ICON PH_IMGUI_ICON_LOOSE_PADDING "Save Active Scene"))
+			{
+				saveActiveScene();
 			}
 
 			ImGui::EndMenu();
@@ -423,8 +440,8 @@ void ImguiEditorUI::buildSidebarWindow()
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
 
 	ImGuiStyle& style = ImGui::GetStyle();
-	const float iconButtonSize = getDimensionHints().largeFontSize + style.FramePadding.x * 2.0f;
-	const float posToCenter = (ImGui::GetWindowContentRegionMax().x - iconButtonSize) * 0.5f;
+	const float buttonItemWidth = ImGui::GetFontSize() + style.FramePadding.x * 2.0f;
+	const float posToCenter = (ImGui::GetWindowContentRegionMax().x - buttonItemWidth) * 0.5f;
 
 	auto buildSidebarButton = 
 		[originalFont, posToCenter](
@@ -468,6 +485,69 @@ void ImguiEditorUI::buildSidebarWindow()
 
 	ImGui::PopStyleColor();
 	ImGui::PopFont();
+
+	ImGui::End();
+}
+
+void ImguiEditorUI::buildToolbarWindow()
+{
+	ImGuiWindowClass toolbarWindowClass;
+	toolbarWindowClass.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+
+	ImGuiWindowFlags toolbarWindowFlags = 
+		ImGuiWindowFlags_NoTitleBar | 
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoScrollWithMouse;
+
+	ImGui::SetNextWindowClass(&toolbarWindowClass);
+	ImGui::Begin(TOOLBAR_WINDOW_NAME, nullptr, toolbarWindowFlags);
+
+	ImFont* const originalFont = ImGui::GetFont();
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	const float buttonItemHeight = ImGui::GetFontSize() + style.FramePadding.y * 2.0f;
+	float posToCenter = (ImGui::GetWindowContentRegionMax().y - buttonItemHeight) * 0.5f;
+
+	auto toolbarButton = 
+		[posToCenter](
+			const char* buttonIcon, 
+			const char* tooltip) 
+		-> bool
+		{
+			// FIXME:
+			// seems to be similar to `ImGuiStyleVar_WindowMinSize` (enforcing window min size), except
+			// that this may be related to min size of dockspace
+			// see https://github.com/ocornut/imgui/issues/4975
+			const float offsetHack = ImGui::GetFontSize() * 0.3f;
+
+			ImGui::SetCursorPosY(posToCenter + offsetHack);
+			const bool isClicked = ImGui::Button(buttonIcon);
+			if(ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+			{
+				ImGui::SetTooltip(tooltip);
+			}
+
+			return isClicked;
+		};
+
+	if(toolbarButton(PH_IMGUI_SCENE_CREATION_ICON, "New Scene"))
+	{
+		m_shouldShowSceneCreator = true;
+	}
+
+	ImGui::SameLine();
+
+	if(toolbarButton(PH_IMGUI_SAVE_FILE_ICON, "Save Active Scene"))
+	{
+		saveActiveScene();
+	}
+
+	ImGui::PopStyleVar();
+	ImGui::PopStyleColor();
 
 	ImGui::End();
 }
@@ -540,7 +620,10 @@ void ImguiEditorUI::buildLogWindow()
 		return;
 	}
 
-	m_editorLog.buildWindow(LOG_WINDOW_NAME, &m_sidebarState.showLog);
+	m_editorLog.buildWindow(
+		LOG_WINDOW_NAME, 
+		*this, 
+		&m_sidebarState.showLog);
 }
 
 void ImguiEditorUI::buildStatsMonitor()
@@ -604,6 +687,11 @@ void ImguiEditorUI::buildImguiDemo()
 	{
 		imgui_show_demo_window(&m_shouldShowImguiDemo);
 	}
+}
+
+void ImguiEditorUI::saveActiveScene()
+{
+	getEditor().saveScene();
 }
 
 Editor& ImguiEditorUI::getEditor()

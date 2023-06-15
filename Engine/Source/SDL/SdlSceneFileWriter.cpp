@@ -73,9 +73,6 @@ void SdlSceneFileWriter::write(const SceneDescription& scene)
 {
 	// TODO: currently will overwrite existing file; should provide options for whether to append
 
-	// Obey the working directory from scene description
-	setSceneWorkingDirectory(scene.getWorkingDirectory());
-
 	// Scene file must reside in the scene working directory as it may be accompanied with data files
 	getSceneWorkingDirectory().createDirectory();
 	Path sceneFile = getSceneWorkingDirectory().append(m_sceneName + ".p2");

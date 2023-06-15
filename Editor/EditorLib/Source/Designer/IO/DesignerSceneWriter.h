@@ -25,6 +25,8 @@ public:
 
 	SdlDataPacketInterface& getPacketInterface() override;
 
+	/*! @brief Writes the scene to the writer-specified destination.
+	*/
 	void write(const DesignerScene& scene);
 
 protected:

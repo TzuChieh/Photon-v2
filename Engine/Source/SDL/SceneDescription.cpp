@@ -10,7 +10,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(SceneDescription, SDL);
 
 SceneDescription::SceneDescription()
 	: ISdlReferenceGroup()
-	, m_workingDirectory("./temp_sdl/")
+	, m_workingDirectory()
 	, m_resources()
 	, m_phantomResources()
 {}

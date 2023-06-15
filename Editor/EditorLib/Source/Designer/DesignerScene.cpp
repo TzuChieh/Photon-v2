@@ -7,6 +7,7 @@
 #include <SDL/Introspect/SdlClass.h>
 #include <Common/assertion.h>
 
+#include <utility>
 #include <ranges>
 
 namespace ph::editor
@@ -32,7 +33,9 @@ inline std::string get_object_debug_info(DesignerObject* const obj)
 std::unordered_map<const SdlClass*, DesignerScene::DynamicObjectMaker> DesignerScene::classToObjMaker;
 
 DesignerScene::DesignerScene(Editor* const fromEditor)
-	: m_objStorage()
+	: m_workingDirectory()
+
+	, m_objStorage()
 	, m_freeObjStorageIndices()
 	, m_rootObjs()
 	, m_tickingObjs()
@@ -456,6 +459,16 @@ void DesignerScene::pause()
 void DesignerScene::resume()
 {
 	m_isPaused = false;
+}
+
+void DesignerScene::setWorkingDirectory(Path directory)
+{
+	m_workingDirectory = std::move(directory);
+}
+
+void DesignerScene::setName(std::string name)
+{
+	m_name = std::move(name);
 }
 
 }// end namespace ph::editor

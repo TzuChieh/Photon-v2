@@ -6,6 +6,7 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
 #include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
+#include "Render/Imgui/Editor/ImguiEditorTheme.h"
 
 #include "ThirdParty/DearImGuiExperimental.h"
 
@@ -45,6 +46,8 @@ public:
 	bool isMainEditor() const;
 	ImguiFileSystemDialog& getGeneralFileSystemDialog();
 
+	const ImguiEditorTheme& getTheme();
+
 private:
 	Editor* m_editor;
 	ImguiFontLibrary* m_fontLibrary;
@@ -59,6 +62,7 @@ private:
 	void buildObjectBrowserWindow();
 	void buildMainViewportWindow();
 	void buildSidebarWindow();
+	void buildToolbarWindow();
 
 	void buildSceneCreatorWindow();
 	void buildSceneManagerWindow();
@@ -66,6 +70,8 @@ private:
 	void buildLogWindow();
 	void buildStatsMonitor();
 	void buildImguiDemo();
+
+	void saveActiveScene();
 
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
@@ -78,6 +84,13 @@ private:
 	ImguiEditorAssetBrowser m_assetBrowser;
 
 	ImguiFileSystemDialog m_generalFileSystemDialog;
+
+	ImguiEditorTheme m_theme;
 };
+
+inline const ImguiEditorTheme& ImguiEditorUI::getTheme()
+{
+	return m_theme;
+}
 
 }// end namespace ph::editor

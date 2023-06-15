@@ -112,9 +112,25 @@ void Editor::stop()
 	// TODO: ask whether to save current scene
 }
 
+std::size_t Editor::newScene()
+{
+	DesignerScene* scene = nullptr;
+	auto sceneIndex = static_cast<std::size_t>(-1);
+
+	{
+		auto newScene = std::make_unique<DesignerScene>(TSdl<DesignerScene>::make(this));
+
+		scene = m_scenes.add(std::move(newScene));
+		sceneIndex = m_scenes.size() - 1;
+	}
+
+	return sceneIndex;
+}
+
 void Editor::loadDefaultScene()
 {
-	createScene();
+	// TODO: should be from a startup scene template (file)
+	//createScene();
 }
 
 void Editor::renderCleanupRemovingScenes(RenderThreadCaller& caller)
@@ -173,41 +189,47 @@ void Editor::cleanup()
 	m_scenes.removeAll();
 }
 
-std::size_t Editor::createScene(const std::string& name)
+std::size_t Editor::createScene(const Path& workingDirectory, const std::string& name)
 {
-	DesignerScene* scene = nullptr;
-	auto sceneIndex = static_cast<std::size_t>(-1);
+	auto sceneIdx = newScene();
+	DesignerScene* scene = getScene(sceneIdx);
 
-	// Create new scene with required initial properties
+	setActiveScene(sceneIdx);
+
+	// Fill the created new scene with required initial properties
+	
+	// Optionally keep the default scene name
+	if(!name.empty())
 	{
-		auto newScene = std::make_unique<DesignerScene>(TSdl<DesignerScene>::make(this));
-
-		// Optionally keep the default scene name
-		if(!name.empty())
-		{
-			newScene->setName(name);
-		}
-
-		scene = m_scenes.add(std::move(newScene));
-		sceneIndex = m_scenes.size() - 1;
+		scene->setName(name);
 	}
+
+	// The description link will be empty if the designer scene is a newly created one. 
+	// Set the link to the same folder and same name as the designer scene (bundled description).
+	PH_ASSERT(!scene->getRenderDescriptionLink().hasIdentifier());
+	scene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(workingDirectory))
+		.toBundleIdentifier(workingDirectory / scene->getName() / ".p2"));
+
+	// Bundled description uses the same working directory as the designer scene
+	scene->setWorkingDirectory(workingDirectory);
+	scene->getRenderDescription().setWorkingDirectory(workingDirectory);
 
 	PH_LOG(Editor,
 		"created scene \"{}\"",
 		scene->getName());
 
-	setActiveScene(sceneIndex);
-	return sceneIndex;
+	// Save the scene once, so any necessary files and directories can be created
+	saveScene();
+
+	return sceneIdx;
 }
 
-void Editor::openScene(const Path& sceneFilePath)
+void Editor::loadScene(const Path& sceneFile)
 {
 	// TODO
 }
 
-void Editor::saveScene(
-	const Path& saveDirectory,
-	const bool withContainingFolder)
+void Editor::saveScene()
 {
 	if(!m_activeScene)
 	{
@@ -216,46 +238,49 @@ void Editor::saveScene(
 		return;
 	}
 
-	Path workingDirectory = saveDirectory;
-
-	// Optionally saves to a folder that has the same name as the scene
-	if(withContainingFolder)
-	{
-		Path containingFolder = saveDirectory.getTrailingElement();
-		if(containingFolder.toString() != m_activeScene->getName())
-		{
-			workingDirectory = workingDirectory / m_activeScene->getName();
-		}
-	}
-
-	// The description link will be empty if the designer scene is a newly created one 
-	// (other than being explicitly set by the user). 
-	// Set the link to the same folder and same name as the designer scene (bundled description).
-	if(!m_activeScene->getRenderDescriptionLink().hasIdentifier())
-	{
-		m_activeScene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(workingDirectory))
-			.toBundleIdentifier(workingDirectory / m_activeScene->getName() / ".p2"));
-
-		//m_activeScene->getRenderDescription().setWorkingDirectory(workingDirectory);
-	}
-
 	m_activeScene->pause();
 
 	// Save designer scene
 	{
-		DesignerSceneWriter sceneWriter(workingDirectory);
+		DesignerSceneWriter sceneWriter;
+		if(m_activeScene->getWorkingDirectory().isEmpty())
+		{
+			PH_LOG_WARNING(Editor,
+				"designer scene has no working directory specified, using writer's: {}",
+				sceneWriter.getSceneWorkingDirectory());
+		}
+		else
+		{
+			// Obey the working directory from designer scene
+			sceneWriter.setSceneWorkingDirectory(m_activeScene->getWorkingDirectory());
+		}
+
 		sceneWriter.write(*m_activeScene);
 	}
 
 	// Save render description
 	{
+		const SceneDescription& description = m_activeScene->getRenderDescription();
+
+		SdlSceneFileWriter descriptionWriter;
+		if(description.getWorkingDirectory().isEmpty())
+		{
+			PH_LOG_WARNING(Editor,
+				"scene description has no working directory specified, using writer's: {}",
+				descriptionWriter.getSceneWorkingDirectory());
+		}
+		else
+		{
+			// Obey the working directory from scene description
+			descriptionWriter.setSceneWorkingDirectory(description.getWorkingDirectory());
+		}
+
+		// Extract description name using link from the designer scene
 		const ResourceIdentifier& descLink = m_activeScene->getRenderDescriptionLink();
 		PH_ASSERT(descLink.isResolved());
-
 		const std::string& descName = descLink.getPath().removeExtension().getFilename();
-		const Path& descWorkingDirectory = descLink.getPath().getParent();
+		descriptionWriter.setSceneName(descName);
 
-		SdlSceneFileWriter descriptionWriter(descName, descWorkingDirectory);
 		descriptionWriter.write(m_activeScene->getRenderDescription());
 	}
 	

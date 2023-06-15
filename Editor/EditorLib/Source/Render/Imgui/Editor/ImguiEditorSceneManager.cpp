@@ -37,7 +37,7 @@ inline void save_scene(
 	}
 
 	PH_ASSERT(!dirPath.isEmpty());
-	editor.saveScene(dirPath, shouldSaveWithFolder);
+	//editor.saveScene(dirPath);
 }
 
 }// end anonymous namespace

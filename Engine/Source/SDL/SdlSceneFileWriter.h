@@ -21,6 +21,8 @@ public:
 	SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory);
 	~SdlSceneFileWriter() override;
 
+	/*! @brief Writes the scene to the writer-specified destination.
+	*/
 	void write(const SceneDescription& scene);
 
 	void setSceneName(std::string sceneName);

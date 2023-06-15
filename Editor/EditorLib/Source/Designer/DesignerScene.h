@@ -12,6 +12,7 @@
 #include <SDL/sdl_interface.h>
 #include <SDL/SceneDescription.h>
 #include <Utility/IMoveOnly.h>
+#include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/ResourceIdentifier.h>
 
 #include <vector>
@@ -37,6 +38,9 @@ class DesignerScene final
 	: public Object
 	, private IMoveOnly
 {
+public:
+	static const char* defaultSceneName();
+
 public:
 	explicit DesignerScene(Editor* fromEditor);
 	DesignerScene(DesignerScene&& other) noexcept;
@@ -141,6 +145,8 @@ public:
 	template<typename ObjectType>
 	void findObjectsByType(std::vector<ObjectType*>& out_objs) const;
 
+	const Path& getWorkingDirectory() const;
+	void setWorkingDirectory(Path directory);
 	void setName(std::string name);
 
 	DesignerScene& operator = (DesignerScene&& rhs) noexcept;
@@ -174,6 +180,10 @@ private:
 	bool removeObjectFromStorage(DesignerObject* obj);
 
 private:
+	// Working directory is only set when it can be determined (e.g., during loading).
+	// Not saved as working directory can be different on each load.
+	Path m_workingDirectory;
+
 	TUniquePtrVector<DesignerObject> m_objStorage;
 	std::vector<uint64> m_freeObjStorageIndices;
 	std::vector<DesignerObject*> m_rootObjs;
@@ -217,7 +227,7 @@ public:
 
 		TSdlString<OwnerType> name("name", &OwnerType::m_name);
 		name.description("Name of the designer scene.");
-		name.defaultTo("untitled scene");
+		name.defaultTo(defaultSceneName());
 		clazz.addField(name);
 
 		TSdlResourceIdentifier<OwnerType> renderDescriptionLink("render-description-link", &OwnerType::m_renderDescriptionLink);

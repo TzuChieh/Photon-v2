@@ -8,6 +8,7 @@ class Editor;
 class ImguiFontLibrary;
 class ImguiImageLibrary;
 class ImguiFileSystemDialog;
+class ImguiEditorTheme;
 
 class ImguiEditorUIProxy final
 {
@@ -21,6 +22,8 @@ public:
 	ImguiFontLibrary& getFontLibrary();
 	ImguiImageLibrary& getImageLibrary();
 	ImguiFileSystemDialog& getGeneralFileSystemDialog();
+
+	const ImguiEditorTheme& getTheme();
 
 private:
 	ImguiEditorUI& m_editorUI;

@@ -28,4 +28,9 @@ ImguiFileSystemDialog& ImguiEditorUIProxy::getGeneralFileSystemDialog()
 	return m_editorUI.getGeneralFileSystemDialog();
 }
 
+const ImguiEditorTheme& ImguiEditorUIProxy::getTheme()
+{
+	return m_editorUI.getTheme();
+}
+
 }// end namespace ph::editor

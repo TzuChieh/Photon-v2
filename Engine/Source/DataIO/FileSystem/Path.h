@@ -87,10 +87,8 @@ public:
 		return m_path.is_absolute();
 	}
 
-	inline bool isEmpty() const
-	{
-		return m_path.empty();
-	}
+	bool isEmpty() const;
+	void clear();
 	
 	/*!
 	Appending one path to another. System specific directory separators are added in 
@@ -225,7 +223,15 @@ private:
 	static wchar_t charToWchar(const char ch);
 };
 
-// In-header Implementations:
+inline bool Path::isEmpty() const
+{
+	return m_path.empty();
+}
+
+inline void Path::clear()
+{
+	m_path.clear();
+}
 
 inline std::string Path::getFilename() const
 {

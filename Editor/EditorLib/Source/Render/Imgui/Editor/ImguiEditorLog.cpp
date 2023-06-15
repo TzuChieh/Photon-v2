@@ -1,4 +1,6 @@
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
+#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
+#include "Render/Imgui/Editor/ImguiEditorTheme.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -52,7 +54,10 @@ ImguiEditorLog::ImguiEditorLog()
 	}
 }
 
-void ImguiEditorLog::buildWindow(const char* title, bool* isOpening)
+void ImguiEditorLog::buildWindow(
+	const char* title, 
+	ImguiEditorUIProxy editorUI,
+	bool* const isOpening)
 {
 	if(!ImGui::Begin(title, isOpening))
 	{
@@ -90,9 +95,9 @@ void ImguiEditorLog::buildWindow(const char* title, bool* isOpening)
 			case ELogLevel::Debug: 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.2f, 1.0f, 1.0f)); break;
 			case ELogLevel::Warning:
-				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.2f, 1.0f)); break;
+				ImGui::PushStyleColor(ImGuiCol_Text, editorUI.getTheme().warningColor); break;
 			case ELogLevel::Error:
-				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.2f, 0.2f, 1.0f)); break;
+				ImGui::PushStyleColor(ImGuiCol_Text, editorUI.getTheme().errorColor); break;
 			default: 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.95f, 0.95f, 1.0f)); break;
 			}

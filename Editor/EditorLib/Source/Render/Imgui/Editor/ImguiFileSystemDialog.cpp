@@ -92,7 +92,8 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 		editorUI, 
 		ImVec2(
 			editorUI.getEditor().dimensionHints.fileDialogPreferredWidth,
-			editorUI.getEditor().dimensionHints.fileDialogPreferredHeight));
+			editorUI.getEditor().dimensionHints.fileDialogPreferredHeight),
+		params);
 }
 
 void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(

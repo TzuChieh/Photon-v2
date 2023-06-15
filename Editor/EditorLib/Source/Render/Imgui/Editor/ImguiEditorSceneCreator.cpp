@@ -1,20 +1,32 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneCreator.h"
 #include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
-#include "App/Editor.h"
+#include "Render/Imgui/Editor/ImguiEditorTheme.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
+#include "App/Editor.h"
+#include "Designer/DesignerScene.h"
 
 #include "ThirdParty/DearImGui.h"
+
+#include <Common/logging.h>
+
+#include <cstring>
 
 namespace ph::editor
 {
 
 ImguiEditorSceneCreator::ImguiEditorSceneCreator()
 	: m_sceneNameBuffer(128, '\0')
-	, m_sceneWorkingDirectory()
-	, m_sceneWorkingDirectoryPreview()
+	, m_baseWorkingDirectory()
+	, m_composedWorkingDirectory()
+	, m_workingDirectoryPreview()
+	, m_unsatisfactionMessage()
 	, m_withContainingFolder(true)
-{}
+{
+	imgui::copy_to(m_sceneNameBuffer, DesignerScene::defaultSceneName());
+
+	composeSceneWorkingDirectory();
+}
 
 void ImguiEditorSceneCreator::buildWindow(
 	const char* const title, 
@@ -33,56 +45,88 @@ void ImguiEditorSceneCreator::buildWindow(
 
 	Editor& editor = editorUI.getEditor();
 
-	ImGui::InputText(
-		"Scene Name",
-		m_sceneNameBuffer.data(),
-		m_sceneNameBuffer.size());
+	if(ImGui::InputText("Scene Name", m_sceneNameBuffer.data(), m_sceneNameBuffer.size()))
+	{
+		composeSceneWorkingDirectory();
+	}
 
 	{
-		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
+		ImguiFileSystemDialog& selectBaseWorkingDirectory = editorUI.getGeneralFileSystemDialog();
 		if(ImGui::Button("Select Scene Working Directory"))
 		{
-			m_sceneWorkingDirectory = Path();
-			m_sceneWorkingDirectoryPreview.clear();
-			fsDialog.openPopup(ImguiFileSystemDialog::OPEN_FOLDER_TITLE);
+			m_baseWorkingDirectory.clear();
+			m_composedWorkingDirectory.clear();
+			m_workingDirectoryPreview.clear();
+
+			selectBaseWorkingDirectory.openPopup(ImguiFileSystemDialog::OPEN_FOLDER_TITLE);
 		}
 
-		fsDialog.buildFileSystemDialogPopupModal(
+		selectBaseWorkingDirectory.buildFileSystemDialogPopupModal(
 			ImguiFileSystemDialog::OPEN_FOLDER_TITLE,
 			editorUI,
 			{.canSelectItem = false, .canSelectDirectory = true, .requiresDirectorySelection = true});
 
-		ImGui::Checkbox("With Containing Folder", &m_withContainingFolder);
-		ImGui::Text("Directory Preview:");
+		if(ImGui::Checkbox("With Containing Folder", &m_withContainingFolder))
+		{
+			composeSceneWorkingDirectory();
+		}
 
-		//if(fsDialog.selectionConfirmed())
-		//{
-		//	// Optionally add a folder that has the same name as the scene
-		//	if(m_withContainingFolder)
-		//	{
-		//		Path containingFolder = fsDialog.getSelectedDirectory().getTrailingElement();
-		//		if(containingFolder.toString() != m_activeScene->getName())
-		//		{
-		//			workingDirectory = workingDirectory / m_activeScene->getName();
-		//		}
-		//	}
-		//}
+		if(selectBaseWorkingDirectory.selectionConfirmed())
+		{
+			m_baseWorkingDirectory = selectBaseWorkingDirectory.getSelectedDirectory();
+
+			composeSceneWorkingDirectory();
+		}
+
+		ImGui::Spacing();
+		ImGui::Text("Directory Preview:");
+		ImGui::BeginDisabled();
+		ImGui::TextWrapped(m_workingDirectoryPreview.c_str());
+		ImGui::EndDisabled();
+		ImGui::Spacing();
 	}
 	
+	ImGui::Separator();
+
+	if(!m_unsatisfactionMessage.empty())
+	{
+		ImGui::Spacing();
+		ImGui::TextColored(editorUI.getTheme().warningColor, m_unsatisfactionMessage.c_str());
+		ImGui::Spacing();
+	}
 
 	if(ImGui::Button("OK"))
 	{
-		//editor.createScene(m_newSceneNameBuffer.data());
+		m_unsatisfactionMessage.clear();
 
-		if(isOpening)
+		if(std::strlen(m_sceneNameBuffer.data()) == 0)
 		{
-			*isOpening = false;
+			m_unsatisfactionMessage += "* Please specify a scene name.\n";
+		}
+
+		if(m_baseWorkingDirectory.isEmpty())
+		{
+			m_unsatisfactionMessage += "* Please specify a scene working directory.\n";
+		}
+
+		const bool canCreateScene = m_unsatisfactionMessage.empty();
+		if(canCreateScene)
+		{
+			composeSceneWorkingDirectory();
+			editor.createScene(m_composedWorkingDirectory, m_sceneNameBuffer.data());
+
+			if(isOpening)
+			{
+				*isOpening = false;
+			}
 		}
 	}
 	ImGui::SetItemDefaultFocus();
 	ImGui::SameLine();
 	if(ImGui::Button("Cancel"))
 	{
+		m_unsatisfactionMessage.clear();
+
 		if(isOpening)
 		{
 			*isOpening = false;
@@ -90,6 +134,32 @@ void ImguiEditorSceneCreator::buildWindow(
 	}
 
 	ImGui::End();
+}
+
+void ImguiEditorSceneCreator::composeSceneWorkingDirectory()
+{
+	if(m_baseWorkingDirectory.isEmpty())
+	{
+		m_workingDirectoryPreview = "(no directory specified)";
+		return;
+	}
+
+	// Optionally add a folder that has the same name as the scene
+	if(m_withContainingFolder)
+	{
+		Path containingFolder = m_baseWorkingDirectory.getTrailingElement();
+		std::string sceneName(m_sceneNameBuffer.data());
+		if(containingFolder.toString() != sceneName)
+		{
+			m_composedWorkingDirectory = m_baseWorkingDirectory / sceneName;
+		}
+	}
+	else
+	{
+		m_composedWorkingDirectory = m_baseWorkingDirectory;
+	}
+
+	m_workingDirectoryPreview = m_composedWorkingDirectory.toAbsoluteString();
 }
 
 }// end namespace ph::editor

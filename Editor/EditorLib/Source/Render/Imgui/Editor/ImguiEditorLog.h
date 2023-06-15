@@ -10,12 +10,17 @@
 namespace ph::editor
 {
 
+class ImguiEditorUIProxy;
+
 class ImguiEditorLog final
 {
 public:
 	ImguiEditorLog();
 
-	void buildWindow(const char* title, bool* isOpening = nullptr);
+	void buildWindow(
+		const char* title, 
+		ImguiEditorUIProxy editorUI,
+		bool* isOpening = nullptr);
 
 	static void engineLogHook(ELogLevel logLevel, std::string_view logString);
 

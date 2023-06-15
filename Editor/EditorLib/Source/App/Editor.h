@@ -65,12 +65,19 @@ public:
 	void renderCleanup(RenderThreadCaller& caller);
 	void cleanup();
 
-	std::size_t createScene(const std::string& name = "");
-	void openScene(const Path& sceneFilePath);
+	/*! @brief Create a new scene. The scene will be made active automatically.
+	This method is for a scene that is being created for the first time. If a scene file already exists,
+	use `loadScene()` for it.
+	*/
+	std::size_t createScene(const Path& workingDirectory, const std::string& name = "");
 
-	void saveScene(
-		const Path& saveDirectory, 
-		bool withContainingFolder);
+	/*! @brief Load a scene. The scene will be made active automatically.
+	*/
+	void loadScene(const Path& sceneFile);
+
+	/*! @brief Save the active scene.
+	*/
+	void saveScene();
 
 	DesignerScene* getScene(std::size_t sceneIndex) const;
 	DesignerScene* getActiveScene() const;
@@ -93,6 +100,11 @@ private:
 	std::list<PendingRemovalScene> m_removingScenes;
 	DesignerScene* m_activeScene = nullptr;
 	bool m_isActiveScenePaused = false;
+
+	/*! @brief Make a new scene.
+	A brand new scene without any properties set (all defaulted to what the scene defined).
+	*/
+	std::size_t newScene();
 
 	void loadDefaultScene();
 	void renderCleanupRemovingScenes(RenderThreadCaller& caller);
