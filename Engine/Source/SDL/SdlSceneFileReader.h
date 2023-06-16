@@ -35,30 +35,38 @@ public:
 	void setScene(SceneDescription* scene);
 
 protected:
-	bool beginCommand(ESdlCommandType commandType, const SdlClass* targetClass) override;
+	bool beginCommand(
+		ESdlCommandType commandType, 
+		const SdlClass* targetClass,
+		SdlInputContext* out_ctx) override;
 
 	ISdlResource* createResource(
 		std::string_view resourceName,
-		const SdlClass* resourceClass,
+		const SdlInputContext& ctx,
 		ESdlCommandType commandType) override;
 
 	void initResource(
 		ISdlResource* resource,
-		const SdlClass* resourceClass,
+		const SdlInputContext& ctx,
 		std::string_view resourceName,
 		SdlInputClauses& clauses,
 		ESdlCommandType commandType) override;
 
-	ISdlResource* getResource(std::string_view resourceName, ESdlTypeCategory category) override;
+	ISdlResource* getResource(
+		std::string_view resourceName, 
+		const SdlInputContext& ctx) override;
 
 	void runExecutor(
 		std::string_view executorName,
-		const SdlClass* targetClass,
+		const SdlInputContext& ctx,
 		ISdlResource* targetResource,
 		SdlInputClauses& clauses,
 		ESdlCommandType commandType) override;
 
-	void commandVersionSet(const SemanticVersion& version) override;
+	void commandVersionSet(
+		const SemanticVersion& version,
+		const SdlInputContext& ctx) override;
+
 	void endCommand() override;
 
 private:

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "DataIO/FileSystem/Path.h"
-
 #include <string>
 #include <string_view>
 
@@ -9,6 +7,8 @@ namespace ph
 {
 
 class SdlClass;
+class SdlInputContext;
+class SdlOutputContext;
 class ISdlResource;
 class SdlInputClauses;
 class SdlOutputClauses;
@@ -18,7 +18,7 @@ class SdlOutputClauses;
 class SdlDataPacketInterface
 {
 public:
-	explicit SdlDataPacketInterface(const Path& sceneWorkingDirectory);
+	SdlDataPacketInterface();
 	virtual ~SdlDataPacketInterface();
 
 	/*! @brief Turn a packet command into @p out_clauses.
@@ -30,7 +30,7 @@ public:
 	*/
 	virtual void parse(
 		std::string_view packetCommand,
-		const SdlClass* targetClass,
+		const SdlInputContext& ctx,
 		std::string_view targetName,
 		ISdlResource* targetInstance,
 		SdlInputClauses& out_clauses) const = 0;
@@ -43,16 +43,10 @@ public:
 	*/
 	virtual void generate(
 		const SdlOutputClauses& clauses,
-		const SdlClass* targetClass,
+		const SdlOutputContext& ctx,
 		std::string_view targetName,
 		const ISdlResource* targetInstance,
 		std::string& out_packetCommand) const = 0;
-
-	const Path& getSceneWorkingDirectory() const;
-	void setSceneWorkingDirectory(const Path& directory);
-
-private:
-	Path m_sceneWorkingDirectory;
 };
 
 }// end namespace ph

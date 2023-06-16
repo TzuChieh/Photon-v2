@@ -26,23 +26,20 @@ namespace ph::editor
 {
 
 DesignerDataPacketInterface::DesignerDataPacketInterface()
-	: DesignerDataPacketInterface(Path("./"))
-{}
-
-DesignerDataPacketInterface::DesignerDataPacketInterface(const Path& sceneWorkingDirectory)
-	: SdlDataPacketInterface(sceneWorkingDirectory)
+	: SdlDataPacketInterface()
 {}
 
 void DesignerDataPacketInterface::parse(
 	std::string_view packetCommand,
-	const SdlClass* const targetClass,
+	const SdlInputContext& ctx,
 	std::string_view const targetName,
 	ISdlResource* const targetInstance,
 	SdlInputClauses& out_clauses) const
 {
+	const SdlClass* targetClass = ctx.getSrcClass();
+
 	// Packet command is a bundled resource identifier (for the packet file)
-	const Path packetFile = SdlResourceLocator(
-		SdlInputContext(getSceneWorkingDirectory())).toPath(packetCommand);
+	const Path packetFile = SdlResourceLocator(ctx).toPath(packetCommand);
 
 	const auto& fileExt = packetFile.getExtension();
 	if(fileExt == ".pddp")
@@ -80,11 +77,12 @@ void DesignerDataPacketInterface::parse(
 
 void DesignerDataPacketInterface::generate(
 	const SdlOutputClauses& clauses,
-	const SdlClass* const targetClass,
+	const SdlOutputContext& ctx,
 	std::string_view targetName,
 	const ISdlResource* const targetInstance,
 	std::string& out_packetCommand) const
 {
+	const SdlClass* targetClass = ctx.getSrcClass();
 	if(!targetClass || targetName.empty())
 	{
 		throw_formatted<SdlSaveError>(
@@ -117,7 +115,7 @@ void DesignerDataPacketInterface::generate(
 	// Filename: <target-type>_<target-name>.<ext> (ignore angle brackets)
 	const auto packetFilename = targetClass->getTypeName() + "_" + std::string(targetName) + ".pddpa";
 
-	const Path packetDirectory = getSceneWorkingDirectory() / "designer_packet";
+	const Path packetDirectory = ctx.getWorkingDirectory() / "designer_packet";
 	packetDirectory.createDirectory();
 
 	const Path packetFile = packetDirectory / packetFilename;
@@ -137,7 +135,7 @@ void DesignerDataPacketInterface::generate(
 			e.whatStr());
 	}
 
-	const std::string bundleIdentifier = SdlResourceLocator(SdlOutputContext(getSceneWorkingDirectory()))
+	const std::string bundleIdentifier = SdlResourceLocator(ctx)
 		.toBundleIdentifier(packetFile).getIdentifier();
 
 	// Packet command is a bundle resource identifier, quoted (for the packet file)

@@ -31,17 +31,23 @@ SdlSceneFileReader::SdlSceneFileReader(std::string sceneName, const Path& sceneW
 
 SdlSceneFileReader::~SdlSceneFileReader() = default;
 
-bool SdlSceneFileReader::beginCommand(ESdlCommandType /* commandType */, const SdlClass* /* targetClass */)
+bool SdlSceneFileReader::beginCommand(
+	ESdlCommandType /* commandType */, 
+	const SdlClass* const targetClass,
+	SdlInputContext* const out_ctx)
 {
+	*out_ctx = SdlInputContext(m_scene, getSceneWorkingDirectory(), targetClass);
+
 	// Consume all commands
 	return true;
 }
 
 ISdlResource* SdlSceneFileReader::createResource(
 	std::string_view resourceName,
-	const SdlClass* const resourceClass,
+	const SdlInputContext& ctx,
 	const ESdlCommandType commandType)
 {
+	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resourceClass || !resourceClass->allowCreateFromClass())
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
@@ -82,11 +88,12 @@ ISdlResource* SdlSceneFileReader::createResource(
 
 void SdlSceneFileReader::initResource(
 	ISdlResource* const resource,
-	const SdlClass* const resourceClass,
+	const SdlInputContext& ctx,
 	std::string_view resourceName,
 	SdlInputClauses& clauses,
 	const ESdlCommandType commandType)
 {
+	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
@@ -97,31 +104,31 @@ void SdlSceneFileReader::initResource(
 		return;
 	}
 
-	// TODO: reuse input ctx
-	SdlInputContext inputContext(m_scene, getSceneWorkingDirectory(), resourceClass);
-	resourceClass->initResource(*resource, clauses, inputContext);
+	resourceClass->initResource(*resource, clauses, ctx);
 }
 
-ISdlResource* SdlSceneFileReader::getResource(std::string_view resourceName, const ESdlTypeCategory category)
+ISdlResource* SdlSceneFileReader::getResource(
+	std::string_view resourceName, 
+	const SdlInputContext& /* ctx */)
 {
 	if(!m_scene)
 	{
 		return nullptr;
 	}
 
-	// TODO: use string_view
 	// TODO: just get resource ptr, not shared_ptr
-	std::shared_ptr<ISdlResource> resource = m_scene->getResources().get(std::string(resourceName));
+	std::shared_ptr<ISdlResource> resource = m_scene->getResources().get(resourceName);
 	return resource.get();
 }
 
 void SdlSceneFileReader::runExecutor(
 	std::string_view executorName,
-	const SdlClass* const targetClass,
+	const SdlInputContext& ctx,
 	ISdlResource* const targetResource,
 	SdlInputClauses& clauses,
 	const ESdlCommandType commandType)
 {
+	const SdlClass* targetClass = ctx.getSrcClass();
 	if(!targetClass)
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
@@ -130,12 +137,12 @@ void SdlSceneFileReader::runExecutor(
 		return;
 	}
 
-	// TODO: reuse input ctx
-	SdlInputContext inputContext(m_scene, getSceneWorkingDirectory(), targetClass);
-	targetClass->call(executorName, targetResource, clauses, inputContext);
+	targetClass->call(executorName, targetResource, clauses, ctx);
 }
 
-void SdlSceneFileReader::commandVersionSet(const SemanticVersion& version)
+void SdlSceneFileReader::commandVersionSet(
+	const SemanticVersion& /* version */,
+	const SdlInputContext& /* ctx */)
 {}
 
 void SdlSceneFileReader::endCommand()

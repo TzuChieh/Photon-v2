@@ -32,16 +32,21 @@ SdlSceneFileWriter::SdlSceneFileWriter(std::string sceneName, const Path& sceneW
 
 SdlSceneFileWriter::~SdlSceneFileWriter() = default;
 
-bool SdlSceneFileWriter::beginCommand(const SdlClass* const targetClass)
+bool SdlSceneFileWriter::beginCommand(
+	const SdlClass* const targetClass,
+	SdlOutputContext* const out_ctx)
 {
+	*out_ctx = SdlOutputContext(&m_resolver, getSceneWorkingDirectory(), targetClass);
+
 	return true;
 }
 
 void SdlSceneFileWriter::saveResource(
 	const ISdlResource* const resource,
-	const SdlClass* const resourceClass,
+	const SdlOutputContext& ctx,
 	SdlOutputClauses& clauses)
 {
+	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
 	{
 		PH_LOG_WARNING(SdlSceneFileWriter,
@@ -51,12 +56,12 @@ void SdlSceneFileWriter::saveResource(
 		return;
 	}
 
-	// TODO: reuse output ctx
-	SdlOutputContext outputContext(&m_resolver, getSceneWorkingDirectory(), resourceClass);
-	resourceClass->saveResource(*resource, clauses, outputContext);
+	resourceClass->saveResource(*resource, clauses, ctx);
 }
 
-void SdlSceneFileWriter::commandGenerated(std::string_view commandStr)
+void SdlSceneFileWriter::commandGenerated(
+	std::string_view commandStr,
+	const SdlOutputContext& /* ctx */)
 {
 	if(!m_fileStream)
 	{

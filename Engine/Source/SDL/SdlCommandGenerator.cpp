@@ -1,5 +1,6 @@
 #include "SDL/SdlCommandGenerator.h"
 #include "SDL/Introspect/SdlClass.h"
+#include "SDL/Introspect/SdlOutputContext.h"
 #include "SDL/ISdlResource.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/SdlOutputClauses.h"
@@ -25,7 +26,7 @@ SdlCommandGenerator::SdlCommandGenerator(
 
 	: m_targetClasses(targetClasses.begin(), targetClasses.end())
 	, m_sceneWorkingDirectory(sceneWorkingDirectory)
-	, m_inlinePacketInterface(sceneWorkingDirectory)
+	, m_inlinePacketInterface()
 	, m_numGeneratedCommands(0)
 	, m_numGenerationErrors(0)
 {}
@@ -57,27 +58,29 @@ void SdlCommandGenerator::generateLoadCommand(
 			throw SdlSaveError("unsupported target class");
 		}
 
-		if(!beginCommand(clazz))
+		// TODO: resue output context
+		SdlOutputContext ctx;
+		if(!beginCommand(clazz, &ctx))
 		{
 			return;
 		}
 
 		// TODO: reuse clause buffer
 		SdlOutputClauses clauses;
-		saveResource(resource, clazz, clauses);
+		saveResource(resource, ctx, clauses);
 
 		// TODO: reuse string buffer
 		std::string generatedCommand;
 		generateLoadCommand(
 			*resource, 
-			clazz,
+			ctx,
 			resourceName,
 			clauses,
 			generatedCommand);
 
 		if(!generatedCommand.empty())
 		{
-			commandGenerated(generatedCommand);
+			commandGenerated(generatedCommand, ctx);
 			++m_numGeneratedCommands;
 		}
 		
@@ -103,7 +106,9 @@ void SdlCommandGenerator::generateVersionCommand(const SemanticVersion& version)
 {
 	try
 	{
-		if(!beginCommand(nullptr))
+		// TODO: resue output context
+		SdlOutputContext ctx;
+		if(!beginCommand(nullptr, &ctx))
 		{
 			return;
 		}
@@ -112,7 +117,7 @@ void SdlCommandGenerator::generateVersionCommand(const SemanticVersion& version)
 		std::string generatedCommand = "#version ";
 		generatedCommand += version.toString();
 		generatedCommand += ";\n";
-		commandGenerated(generatedCommand);
+		commandGenerated(generatedCommand, ctx);
 
 		endCommand();
 	}
@@ -145,11 +150,12 @@ bool SdlCommandGenerator::hasTarget(const SdlClass* const clazz) const
 
 void SdlCommandGenerator::generateLoadCommand(
 	const ISdlResource& resource,
-	const SdlClass* const resourceClass,
+	const SdlOutputContext& ctx,
 	std::string_view resourceName,
 	const SdlOutputClauses& clauses,
 	std::string& out_commandStr)
 {
+	const SdlClass* resourceClass = ctx.getSrcClass();
 	PH_ASSERT(resource.getDynamicSdlClass() == resourceClass);
 
 	appendFullSdlType(resourceClass, out_commandStr);
@@ -157,7 +163,7 @@ void SdlCommandGenerator::generateLoadCommand(
 	out_commandStr += resourceName;
 	out_commandStr += "\" = ";
 
-	getPacketInterface().generate(clauses, resourceClass, resourceName, &resource, out_commandStr);
+	getPacketInterface().generate(clauses, ctx, resourceName, &resource, out_commandStr);
 
 	out_commandStr += ";\n";
 }

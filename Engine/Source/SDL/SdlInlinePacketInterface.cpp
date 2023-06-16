@@ -13,16 +13,12 @@ namespace ph
 {
 
 SdlInlinePacketInterface::SdlInlinePacketInterface()
-	: SdlInlinePacketInterface(Path("./temp_sdl/"))
-{}
-
-SdlInlinePacketInterface::SdlInlinePacketInterface(const Path& sceneWorkingDirectory)
-	: SdlDataPacketInterface(sceneWorkingDirectory)
+	: SdlDataPacketInterface()
 {}
 
 void SdlInlinePacketInterface::parse(
 	std::string_view packetCommand,
-	const SdlClass* /* targetClass */,
+	const SdlInputContext& /* ctx */,
 	std::string_view /* targetName */,
 	ISdlResource* /* targetInstance */,
 	SdlInputClauses& out_clauses) const
@@ -32,7 +28,7 @@ void SdlInlinePacketInterface::parse(
 
 void SdlInlinePacketInterface::generate(
 	const SdlOutputClauses& clauses,
-	const SdlClass* /* targetClass */,
+	const SdlOutputContext& /* ctx */,
 	std::string_view /* targetName */,
 	const ISdlResource* /* targetInstance */,
 	std::string& out_packetCommand) const

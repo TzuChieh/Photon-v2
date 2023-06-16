@@ -30,21 +30,26 @@ public:
 	void write(const DesignerScene& scene);
 
 protected:
-	bool beginCommand(const SdlClass* targetClass) override;
+	bool beginCommand(
+		const SdlClass* targetClass,
+		SdlOutputContext* out_ctx) override;
 
 	void saveResource(
 		const ISdlResource* resource,
-		const SdlClass* resourceClass,
+		const SdlOutputContext& ctx,
 		SdlOutputClauses& clauses) override;
 
-	void commandGenerated(std::string_view commandStr) override;
+	void commandGenerated(
+		std::string_view commandStr,
+		const SdlOutputContext& ctx) override;
+
 	void endCommand() override;
 
 private:
 	void saveSceneToFile(const DesignerScene& scene, const Path& filePath);
 
 	SdlDependencyResolver m_resolver;
-	DesignerDataPacketInterface m_packetInterface;
+	DesignerDataPacketInterface m_desingerPacketInterface;
 	FormattedTextOutputStream* m_fileStream;
 };
 

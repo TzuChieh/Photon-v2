@@ -30,7 +30,7 @@ DesignerSceneWriter::DesignerSceneWriter(const Path& sceneWorkingDirectory)
 	: SdlCommandGenerator(get_registered_editor_classes(), sceneWorkingDirectory)
 
 	, m_resolver()
-	, m_packetInterface(sceneWorkingDirectory)
+	, m_desingerPacketInterface()
 	, m_fileStream(nullptr)
 {}
 
@@ -38,19 +38,24 @@ DesignerSceneWriter::~DesignerSceneWriter() = default;
 
 SdlDataPacketInterface& DesignerSceneWriter::getPacketInterface()
 {
-	return m_packetInterface;
+	return m_desingerPacketInterface;
 }
 
-bool DesignerSceneWriter::beginCommand(const SdlClass* const targetClass)
+bool DesignerSceneWriter::beginCommand(
+	const SdlClass* const targetClass,
+	SdlOutputContext* const out_ctx)
 {
+	*out_ctx = SdlOutputContext(&m_resolver, getSceneWorkingDirectory(), targetClass);
+
 	return true;
 }
 
 void DesignerSceneWriter::saveResource(
 	const ISdlResource* const resource,
-	const SdlClass* const resourceClass,
+	const SdlOutputContext& ctx,
 	SdlOutputClauses& clauses)
 {
+	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
 	{
 		PH_LOG_WARNING(DesignerSceneWriter,
@@ -60,12 +65,12 @@ void DesignerSceneWriter::saveResource(
 		return;
 	}
 
-	// TODO: reuse output ctx
-	SdlOutputContext outputContext(&m_resolver, getSceneWorkingDirectory(), resourceClass);
-	resourceClass->saveResource(*resource, clauses, outputContext);
+	resourceClass->saveResource(*resource, clauses, ctx);
 }
 
-void DesignerSceneWriter::commandGenerated(std::string_view commandStr)
+void DesignerSceneWriter::commandGenerated(
+	std::string_view commandStr,
+	const SdlOutputContext& /* ctx */)
 {
 	if(!m_fileStream)
 	{

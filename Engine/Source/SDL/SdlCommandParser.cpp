@@ -5,8 +5,8 @@
 #include "SDL/ESdlTypeCategory.h"
 #include "Utility/string_utils.h"
 #include "SDL/Introspect/SdlClass.h"
-#include "SDL/sdl_exceptions.h"
 #include "SDL/Introspect/SdlInputContext.h"
+#include "SDL/sdl_exceptions.h"
 #include "Common/stats.h"
 #include "Common/config.h"
 
@@ -38,7 +38,7 @@ SdlCommandParser::SdlCommandParser(
 	: m_commandVersion(PH_PSDL_VERSION)
 	, m_mangledNameToClass()
 	, m_sceneWorkingDirectory(sceneWorkingDirectory)
-	, m_inlinePacketInterface(sceneWorkingDirectory)
+	, m_inlinePacketInterface()
 	, m_isInSingleLineComment(false)
 	, m_processedCommandCache()
 	, m_generatedNameCounter(0)
@@ -287,12 +287,14 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 	// Catch load errors here to provide name information and re-throw.
 	try
 	{
-		if(!beginCommand(command.commandType, &clazz))
+		// TODO: reuse input context
+		SdlInputContext ctx;
+		if(!beginCommand(command.commandType, &clazz, &ctx))
 		{
 			return;
 		}
 
-		ISdlResource* resource = createResource(resourceName, &clazz, command.commandType);
+		ISdlResource* resource = createResource(resourceName, ctx, command.commandType);
 		if(!resource)
 		{
 			throw SdlLoadError("empty resource generated");
@@ -302,11 +304,11 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 
 		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
-		getClauses(command.dataString, &clazz, resourceName, resource, &clauses);
+		getClauses(command.dataString, ctx, resourceName, resource, &clauses);
 
 		initResource(
 			resource, 
-			&clazz,
+			ctx,
 			resourceName,
 			clauses,
 			command.commandType);
@@ -338,24 +340,26 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 	// Catch load errors here to provide name information and re-throw.
 	try
 	{
-		if(!beginCommand(command.commandType, &clazz))
+		// TODO: reuse input context
+		SdlInputContext ctx;
+		if(!beginCommand(command.commandType, &clazz, &ctx))
 		{
 			return;
 		}
 
 		// Get target SDL resource and clauses
 
-		ISdlResource* resource = getResource(targetResourceName, clazz.getCategory());
+		ISdlResource* resource = getResource(targetResourceName, ctx);
 
 		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
-		getClauses(command.dataString, &clazz, targetResourceName, resource, &clauses);
+		getClauses(command.dataString, ctx, targetResourceName, resource, &clauses);
 
 		// Finally, call the executor
 
 		runExecutor(
 			executorName,
-			&clazz,
+			ctx,
 			resource,
 			clauses,
 			command.commandType);
@@ -396,7 +400,9 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 	PH_ASSERT(command.commandType == ESdlCommandType::Directive);
 	PH_ASSERT(!tokens.empty());
 
-	if(!beginCommand(command.commandType, nullptr))
+	// TODO: reuse input context
+	SdlInputContext ctx;
+	if(!beginCommand(command.commandType, nullptr, &ctx))
 	{
 		return;
 	}
@@ -420,7 +426,7 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 		}
 
 		m_commandVersion = loadedVersion;
-		commandVersionSet(loadedVersion);
+		commandVersionSet(loadedVersion, ctx);
 	}
 	else
 	{
@@ -433,7 +439,7 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 
 void SdlCommandParser::getClauses(
 	std::string_view packetCommand, 
-	const SdlClass* const targetClass,
+	const SdlInputContext& ctx,
 	std::string_view targetName,
 	ISdlResource* const targetInstance,
 	SdlInputClauses* const out_clauses)
@@ -445,7 +451,7 @@ void SdlCommandParser::getClauses(
 	out_clauses->clear();
 	getPacketInterface().parse(
 		packetCommand, 
-		targetClass,
+		ctx,
 		targetName,
 		targetInstance,
 		*out_clauses);

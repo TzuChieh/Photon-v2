@@ -13,6 +13,7 @@ namespace ph
 {
 
 class SdlClass;
+class SdlOutputContext;
 class ISdlResource;
 class SdlOutputClause;
 class SdlOutputClauses;
@@ -48,22 +49,27 @@ protected:
 	/*!
 	@return Whether to generate command for this class.
 	*/
-	virtual bool beginCommand(const SdlClass* targetClass) = 0;
+	virtual bool beginCommand(
+		const SdlClass* targetClass,
+		SdlOutputContext* out_ctx) = 0;
 
 	/*! @brief Save target resource into output clauses.
 	*/
 	virtual void saveResource(
 		const ISdlResource* resource,
-		const SdlClass* resourceClass,
+		const SdlOutputContext& ctx,
 		SdlOutputClauses& clauses) = 0;
 
-	virtual void commandGenerated(std::string_view commandStr) = 0;
+	virtual void commandGenerated(
+		std::string_view commandStr,
+		const SdlOutputContext& ctx) = 0;
+
 	virtual void endCommand() = 0;
 
 private:
 	void generateLoadCommand(
 		const ISdlResource& resource, 
-		const SdlClass* resourceClass,
+		const SdlOutputContext& ctx,
 		std::string_view resourceName,
 		const SdlOutputClauses& clauses,
 		std::string& out_commandStr);

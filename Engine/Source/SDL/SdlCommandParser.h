@@ -15,6 +15,7 @@ namespace ph
 {
 
 class SdlClass;
+class SdlInputContext;
 class SdlDataPacketInterface;
 
 enum class ESdlCommandType
@@ -66,30 +67,38 @@ public:
 	std::size_t numParseErrors() const;
 
 protected:
-	virtual bool beginCommand(ESdlCommandType commandType, const SdlClass* targetClass) = 0;
+	virtual bool beginCommand(
+		ESdlCommandType commandType, 
+		const SdlClass* targetClass,
+		SdlInputContext* out_ctx) = 0;
 
 	virtual ISdlResource* createResource(
 		std::string_view resourceName, 
-		const SdlClass* resourceClass, 
+		const SdlInputContext& ctx,
 		ESdlCommandType commandType) = 0;
 	
 	virtual void initResource(
 		ISdlResource* resource, 
-		const SdlClass* resourceClass,
+		const SdlInputContext& ctx,
 		std::string_view resourceName,
 		SdlInputClauses& clauses,
 		ESdlCommandType commandType) = 0;
 	
-	virtual ISdlResource* getResource(std::string_view resourceName, ESdlTypeCategory category) = 0;
+	virtual ISdlResource* getResource(
+		std::string_view resourceName,
+		const SdlInputContext& ctx) = 0;
 
 	virtual void runExecutor(
 		std::string_view executorName,
-		const SdlClass* targetClass,
+		const SdlInputContext& ctx,
 		ISdlResource* targetResource,
 		SdlInputClauses& clauses,
 		ESdlCommandType commandType) = 0;
 
-	virtual void commandVersionSet(const SemanticVersion& version) = 0;
+	virtual void commandVersionSet(
+		const SemanticVersion& version,
+		const SdlInputContext& ctx) = 0;
+
 	virtual void endCommand() = 0;
 
 private:
@@ -136,7 +145,7 @@ private:
 	*/
 	void getClauses(
 		std::string_view packetCommand, 
-		const SdlClass* targetClass,
+		const SdlInputContext& ctx,
 		std::string_view targetName,
 		ISdlResource* targetInstance,
 		SdlInputClauses* out_clauses);

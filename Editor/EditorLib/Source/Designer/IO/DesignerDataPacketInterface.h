@@ -15,18 +15,17 @@ class DesignerDataPacketInterface : public SdlDataPacketInterface
 {
 public:
 	DesignerDataPacketInterface();
-	explicit DesignerDataPacketInterface(const Path& sceneWorkingDirectory);
 
 	void parse(
 		std::string_view packetCommand,
-		const SdlClass* targetClass,
+		const SdlInputContext& ctx,
 		std::string_view targetName,
 		ISdlResource* targetInstance,
 		SdlInputClauses& out_clauses) const override;
 
 	void generate(
 		const SdlOutputClauses& clauses,
-		const SdlClass* targetClass,
+		const SdlOutputContext& ctx,
 		std::string_view targetName,
 		const ISdlResource* targetInstance,
 		std::string& out_packetCommand) const override;
