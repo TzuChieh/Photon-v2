@@ -208,7 +208,7 @@ std::size_t Editor::createScene(const Path& workingDirectory, const std::string&
 	// Set the link to the same folder and same name as the designer scene (bundled description).
 	PH_ASSERT(!scene->getRenderDescriptionLink().hasIdentifier());
 	scene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(workingDirectory))
-		.toBundleIdentifier(workingDirectory / scene->getName() / ".p2"));
+		.toBundleIdentifier(workingDirectory / (scene->getName() + ".p2")));
 
 	// Bundled description uses the same working directory as the designer scene
 	scene->setWorkingDirectory(workingDirectory);
