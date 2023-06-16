@@ -123,7 +123,8 @@ void DesignerDataPacketInterface::generate(
 	try
 	{
 		FormattedTextOutputStream stream(packetFile);
-		stream.writeString(nlohmann::to_string(jsonObj));
+		//stream.writeString(nlohmann::to_string(jsonObj));
+		stream.writeString(jsonObj.dump(1, '\t'));
 	}
 	catch(const IOException& e)
 	{
