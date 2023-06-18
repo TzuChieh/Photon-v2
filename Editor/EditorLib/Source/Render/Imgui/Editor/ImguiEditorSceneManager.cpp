@@ -17,8 +17,13 @@
 namespace ph::editor
 {
 
+namespace
+{
+
 constexpr const char* OPEN_SCENE_TITLE = PH_IMGUI_OPEN_FILE_ICON " Open Scene";
 constexpr const char* SAVE_SCENE_TITLE = PH_IMGUI_SAVE_FILE_ICON " Save Scene";
+
+}// end anonymous namespace
 
 namespace
 {
@@ -108,7 +113,7 @@ void ImguiEditorSceneManager::buildWindow(
 			OPEN_SCENE_TITLE, 
 			editorUI);
 
-		if(fsDialog.selectionConfirmed())
+		if(fsDialog.dialogClosed())
 		{
 			auto items = fsDialog.getSelectedItems();
 			for(const auto& item : items)
@@ -132,7 +137,7 @@ void ImguiEditorSceneManager::buildWindow(
 			editorUI,
 			{.canSelectItem = false, .canSelectDirectory = true, .requiresDirectorySelection = true});
 
-		if(fsDialog.selectionConfirmed())
+		if(fsDialog.dialogClosed())
 		{
 			//save_scene(editor, fsDialog, m_shouldSaveWithFolder);
 		}

@@ -40,14 +40,28 @@ public:
 public:
 	ImguiFileSystemDialog();
 
+	/*!
+	Note that popup identifiers are relative to the current ID-stack (so for example, `openPopup()`
+	and `buildFileSystemDialogPopupModal()` needs to be at the same level).
+	*/
 	void openPopup(
 		const char* popupName);
 
+	/*!
+	This overload builds a popup modal with dialog size determined by editor's dimension hints.
+	See other overloads for more detail.
+	*/
 	void buildFileSystemDialogPopupModal(
 		const char* popupName,
 		ImguiEditorUIProxy editorUI,
 		const ImguiFileSystemDialogParameters& params = {});
 
+	/*!
+	Treat this call like `ImGui::BeginPopupModal()`. `ImGui::BeginPopupModal()` will establish
+	a new ID relative to the current window (like many other built-in widgets), so different
+	popups with the same name will not conflict with each other (as long as they are not within
+	the same window).
+	*/
 	void buildFileSystemDialogPopupModal(
 		const char* popupName,
 		ImguiEditorUIProxy editorUI,
@@ -55,27 +69,52 @@ public:
 		const ImguiFileSystemDialogParameters& params = {});
 
 	void clearSelection();
-	bool selectionConfirmed();
+
+	/*!
+	@return True if the opened dialog is closed. Will not return true on subsequent calls unless 
+	the dialog is opened and closed again.
+	*/
+	bool dialogClosed();
 
 	/*! @brief Get the selected directory.
+	Call after `dialogClosed()` for a complete result. If the dialog is not closed, intermediate result
+	will be returned.
+	@return Selected directory. May be none (by checking `Path::isEmpty()`).
 	*/
 	Path getSelectedDirectory() const;
 
 	/*! @brief Get the selected item.
+	Call after `dialogClosed()` for a complete result. If the dialog is not closed, intermediate result
+	will be returned.
+	@return Selected item. May be none (by checking `Path::isEmpty()`).
 	*/
 	Path getSelectedItem() const;
 
 	/*! @brief Get the selected filesystem target.
-	The result can be either the selected directory or a full path to the selected item. This method 
+	The result can be either the selected directory or a full path to the selected item. This method
 	effectively combines the result of getSelectedDirectory() and getSelectedItem().
+	Call after `dialogClosed()` for a complete result. If the dialog is not closed, intermediate result
+	will be returned.
+	@return Selected target. May be none (by checking `Path::isEmpty()`).
 	*/
 	Path getSelectedTarget() const;
 
 	/*! @brief Get all selected items.
+	Call after `dialogClosed()` for a complete result. If the dialog is not closed, intermediate result
+	will be returned.
 	*/
 	std::vector<Path> getSelectedItems() const;
 
+	/*! @brief Fast way to check whether a directory has been selected.
+	Call after `dialogClosed()` for a complete result. If the dialog is not closed, intermediate result
+	will be returned.
+	*/
 	bool hasSelectedDirectory() const;
+
+	/*! @brief Fast way to check whether an item has been selected.
+	Call after `dialogClosed()` for a complete result. If the dialog is not closed, intermediate result
+	will be returned.
+	*/
 	bool hasSelectedItem() const;
 
 private:
@@ -92,7 +131,7 @@ private:
 
 	FileSystemExplorer m_explorer;
 	FileSystemDirectoryEntry* m_selectedEntry;
-	bool m_selectionConfirmedFlag;
+	bool m_dialogClosedFlag;
 
 	// `std::vector` of chars since input text seems to cache buffer size internally (cannot alter 
 	// input text buffer size without closing then repoening the dialog window)

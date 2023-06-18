@@ -71,7 +71,7 @@ void ImguiEditorSceneCreator::buildWindow(
 			composeSceneWorkingDirectory();
 		}
 
-		if(selectBaseWorkingDirectory.selectionConfirmed())
+		if(selectBaseWorkingDirectory.dialogClosed())
 		{
 			m_baseWorkingDirectory = selectBaseWorkingDirectory.getSelectedDirectory();
 
@@ -144,6 +144,8 @@ void ImguiEditorSceneCreator::composeSceneWorkingDirectory()
 		return;
 	}
 
+	m_composedWorkingDirectory = m_baseWorkingDirectory;
+
 	// Optionally add a folder that has the same name as the scene
 	if(m_withContainingFolder)
 	{
@@ -153,10 +155,6 @@ void ImguiEditorSceneCreator::composeSceneWorkingDirectory()
 		{
 			m_composedWorkingDirectory = m_baseWorkingDirectory / sceneName;
 		}
-	}
-	else
-	{
-		m_composedWorkingDirectory = m_baseWorkingDirectory;
 	}
 
 	m_workingDirectoryPreview = m_composedWorkingDirectory.toAbsoluteString();

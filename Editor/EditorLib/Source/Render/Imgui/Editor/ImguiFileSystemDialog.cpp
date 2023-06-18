@@ -37,7 +37,7 @@ constexpr std::string_view FILE_ITEM_NAME_PREFIX = PH_IMGUI_GENERAL_FILE_ICON " 
 ImguiFileSystemDialog::ImguiFileSystemDialog()
 	: m_explorer()
 	, m_selectedEntry(nullptr)
-	, m_selectionConfirmedFlag(false)
+	, m_dialogClosedFlag(false)
 
 	, m_fsDialogEntryPreviewBuffer(512, '\0')
 	, m_fsDialogItemPreviewBuffer(256, '\0')
@@ -59,9 +59,6 @@ void ImguiFileSystemDialog::openPopup(
 {
 	if(ImGui::IsPopupOpen(popupName))
 	{
-		PH_DEFAULT_LOG_DEBUG(
-			"recursive file dialog popup call (popup name = {})",
-			popupName);
 		return;
 	}
 
@@ -123,12 +120,12 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 			if((params.requiresItemSelection && !hasSelectedItem()) || 
 			   (params.requiresDirectorySelection && !hasSelectedDirectory()))
 			{
-				m_selectionConfirmedFlag = false;
+				m_dialogClosedFlag = false;
 				ImGui::OpenPopup(REQUIRES_SELECTION_TITLE);
 			}
 			else
 			{
-				m_selectionConfirmedFlag = true;
+				m_dialogClosedFlag = true;
 				ImGui::CloseCurrentPopup();
 			}
 		}
@@ -136,7 +133,11 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 		ImGui::SameLine();
 		if(ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
-			m_selectionConfirmedFlag = false;
+			m_dialogClosedFlag = true;
+
+			// Dialog will be closed and we are canceling--no selection is expected
+			clearSelection();
+
 			ImGui::CloseCurrentPopup();
 		}
 
@@ -174,11 +175,11 @@ void ImguiFileSystemDialog::clearSelection()
 	imgui::copy_to(m_fsDialogItemPreviewBuffer, "");
 }
 
-bool ImguiFileSystemDialog::selectionConfirmed()
+bool ImguiFileSystemDialog::dialogClosed()
 {
-	if(m_selectionConfirmedFlag)
+	if(m_dialogClosedFlag)
 	{
-		m_selectionConfirmedFlag = false;
+		m_dialogClosedFlag = false;
 		return true;
 	}
 		
@@ -231,12 +232,20 @@ Path ImguiFileSystemDialog::getSelectedItem() const
 		return m_fsDialogEntryItems[m_fsDialogSelectedEntryItemIdx];
 	}
 
-	return {};
+	return Path{};
 }
 
 Path ImguiFileSystemDialog::getSelectedTarget() const
 {
-	return getSelectedDirectory() / getSelectedItem();
+	Path selectedDirectory = getSelectedDirectory();
+
+	// Cannot identify a target if directory is none
+	if(selectedDirectory.isEmpty())
+	{
+		return Path{};
+	}
+
+	return selectedDirectory / getSelectedItem();
 }
 
 std::vector<Path> ImguiFileSystemDialog::getSelectedItems() const

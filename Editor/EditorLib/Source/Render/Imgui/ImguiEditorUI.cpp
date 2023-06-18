@@ -26,6 +26,7 @@
 #define PH_IMGUI_SETTINGS_ICON         ICON_MD_SETTINGS
 #define PH_IMGUI_STATS_ICON            ICON_MD_INSIGHTS
 #define PH_IMGUI_SAVE_FILE_ICON        ICON_MD_SAVE
+#define PH_IMGUI_OPEN_FILE_ICON        ICON_MD_FOLDER_OPEN
 
 #define PH_IMGUI_ICON_TIGHT_PADDING " "
 #define PH_IMGUI_ICON_LOOSE_PADDING "   "
@@ -63,6 +64,8 @@ constexpr const char* LOG_WINDOW_NAME =
 constexpr const char* EDITOR_SETTINGS_WINDOW_NAME = 
 	PH_IMGUI_SETTINGS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Editor Settings";
 
+constexpr const char* OPEN_SCENE_DIALOG_TITLE = PH_IMGUI_OPEN_FILE_ICON " Open Scene";
+
 }// end anonymous namespace
 
 const ImguiEditorUI* ImguiEditorUI::mainEditor = nullptr;
@@ -81,6 +84,8 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_sceneCreator()
 	, m_sceneManager()
 	, m_assetBrowser()
+
+	, m_isOpeningScene(false)
 
 	, m_generalFileSystemDialog()
 
@@ -255,9 +260,9 @@ void ImguiEditorUI::build()
 	buildSceneManagerWindow();
 	buildSidebarWindow();
 	buildToolbarWindow();
-
 	buildEditorSettingsWindow();
 	buildLogWindow();
+	buildOpenSceneDialog();
 
 	/*ImGui::SetNextWindowDockID(m_centerDockSpaceID, ImGuiCond_FirstUseEver);
 	ImGui::Begin("whatever###TTT");
@@ -309,6 +314,11 @@ void ImguiEditorUI::buildMainMenuBar()
 			if(ImGui::MenuItem(PH_IMGUI_SCENE_CREATION_ICON PH_IMGUI_ICON_LOOSE_PADDING "New Scene"))
 			{
 				m_shouldShowSceneCreator = true;
+			}
+
+			if(ImGui::MenuItem(PH_IMGUI_OPEN_FILE_ICON PH_IMGUI_ICON_LOOSE_PADDING "Open Scene"))
+			{
+				m_isOpeningScene = true;
 			}
 
 			if(ImGui::MenuItem(PH_IMGUI_SAVE_FILE_ICON PH_IMGUI_ICON_LOOSE_PADDING "Save Active Scene"))
@@ -541,6 +551,13 @@ void ImguiEditorUI::buildToolbarWindow()
 
 	ImGui::SameLine();
 
+	if(toolbarButton(PH_IMGUI_OPEN_FILE_ICON, "Open Scene"))
+	{
+		m_isOpeningScene = true;
+	}
+
+	ImGui::SameLine();
+
 	if(toolbarButton(PH_IMGUI_SAVE_FILE_ICON, "Save Active Scene"))
 	{
 		saveActiveScene();
@@ -686,6 +703,31 @@ void ImguiEditorUI::buildImguiDemo()
 	if(m_shouldShowImguiDemo)
 	{
 		imgui_show_demo_window(&m_shouldShowImguiDemo);
+	}
+}
+
+void ImguiEditorUI::buildOpenSceneDialog()
+{
+	if(!m_isOpeningScene)
+	{
+		return;
+	}
+
+	m_generalFileSystemDialog.openPopup(OPEN_SCENE_DIALOG_TITLE);
+	m_generalFileSystemDialog.buildFileSystemDialogPopupModal(
+		OPEN_SCENE_DIALOG_TITLE,
+		*this,
+		{.canSelectItem = true, .requiresItemSelection = true});
+
+	if(m_generalFileSystemDialog.dialogClosed())
+	{
+		if(m_generalFileSystemDialog.hasSelectedItem())
+		{
+			Path sceneFile = m_generalFileSystemDialog.getSelectedTarget();
+			getEditor().loadScene(sceneFile);
+		}
+
+		m_isOpeningScene = false;
 	}
 }
 

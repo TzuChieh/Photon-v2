@@ -71,6 +71,7 @@ private:
 	void buildStatsMonitor();
 	void buildImguiDemo();
 
+	void buildOpenSceneDialog();
 	void saveActiveScene();
 
 	bool m_shouldResetWindowLayout;
@@ -82,6 +83,8 @@ private:
 	ImguiEditorSceneCreator m_sceneCreator;
 	ImguiEditorSceneManager m_sceneManager;
 	ImguiEditorAssetBrowser m_assetBrowser;
+
+	bool m_isOpeningScene;
 
 	ImguiFileSystemDialog m_generalFileSystemDialog;
 
