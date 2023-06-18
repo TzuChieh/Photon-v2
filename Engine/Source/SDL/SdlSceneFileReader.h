@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL/SdlCommandParser.h"
-#include "DataIO/FileSystem/Path.h"
 
 #include <string>
 
@@ -9,7 +8,6 @@ namespace ph
 {
 
 class SceneDescription;
-class FormattedTextInputStream;
 
 /*! @brief Loading utility for renderer scene.
 Loads .p2 (Photon-v2) file.
@@ -30,6 +28,8 @@ public:
 	void setSceneName(std::string sceneName);
 
 	/*!
+	The reader takes a pointer to scene and cache it since a possible use case is to treat the reader
+	as a command interpreter. Not specifying a scene on each method call makes a cleaner interface.
 	@param[in, out] scene The target for parsed results. @p scene will be the current scene.
 	*/
 	void setScene(SceneDescription* scene);
@@ -71,7 +71,6 @@ protected:
 
 private:
 	std::string m_sceneName;
-	FormattedTextInputStream* m_fileStream;
 	SceneDescription* m_scene;
 };
 

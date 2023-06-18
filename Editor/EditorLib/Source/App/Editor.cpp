@@ -2,6 +2,7 @@
 #include "EditorCore/Thread/Threads.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/IO/DesignerSceneWriter.h"
+#include "Designer/IO/DesignerSceneReader.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -9,6 +10,7 @@
 #include <DataIO/FileSystem/Path.h>
 #include <SDL/TSdl.h>
 #include <SDL/SdlSceneFileWriter.h>
+#include <SDL/SdlSceneFileReader.h>
 #include <SDL/Introspect/SdlOutputContext.h>
 #include <SDL/SdlResourceLocator.h>
 
@@ -19,6 +21,11 @@ namespace ph::editor
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Editor, App);
+
+namespace
+{
+
+}// end anonymous namespace
 
 Editor::Editor() = default;
 
@@ -115,7 +122,7 @@ void Editor::stop()
 std::size_t Editor::newScene()
 {
 	DesignerScene* scene = nullptr;
-	auto sceneIndex = static_cast<std::size_t>(-1);
+	auto sceneIndex = nullSceneIndex();
 
 	{
 		auto newScene = std::make_unique<DesignerScene>(TSdl<DesignerScene>::make(this));
@@ -224,9 +231,56 @@ std::size_t Editor::createScene(const Path& workingDirectory, const std::string&
 	return sceneIdx;
 }
 
-void Editor::loadScene(const Path& sceneFile)
+std::size_t Editor::createSceneFromDescription(
+	const Path& descriptionFile,
+	const Path& workingDirectory,
+	const std::string& name)
 {
 	// TODO
+	return nullSceneIndex();
+}
+
+std::size_t Editor::loadScene(const Path& sceneFile)
+{
+	// Firstly, make sure the designer scene is there
+
+	const std::string& filenameExt = sceneFile.getExtension();
+	if(filenameExt != ".pds")
+	{
+		PH_LOG_ERROR(Editor,
+			"cannot load designer scene {}: unsupported file type",
+			sceneFile);
+		return nullSceneIndex();
+	}
+	
+	if(!sceneFile.hasFile())
+	{
+		PH_LOG_ERROR(Editor,
+			"cannot load designer scene {}: file does not exist",
+			sceneFile);
+		return nullSceneIndex();
+	}
+
+	// Make new scene and load data into it
+
+	auto sceneIdx = newScene();
+	DesignerScene* scene = getScene(sceneIdx);
+
+	setActiveScene(sceneIdx);
+
+	// Read designer scene
+	{
+		const Path& workingDirectory = sceneFile.getParent();
+
+		DesignerSceneReader reader(workingDirectory);
+		reader.read(scene);
+	}
+	
+
+
+	// TODO: read description
+
+	return sceneIdx;
 }
 
 void Editor::saveScene()
@@ -242,46 +296,46 @@ void Editor::saveScene()
 
 	// Save designer scene
 	{
-		DesignerSceneWriter sceneWriter;
+		DesignerSceneWriter writer;
 		if(m_activeScene->getWorkingDirectory().isEmpty())
 		{
 			PH_LOG_WARNING(Editor,
 				"designer scene has no working directory specified, using writer's: {}",
-				sceneWriter.getSceneWorkingDirectory());
+				writer.getSceneWorkingDirectory());
 		}
 		else
 		{
 			// Obey the working directory from designer scene
-			sceneWriter.setSceneWorkingDirectory(m_activeScene->getWorkingDirectory());
+			writer.setSceneWorkingDirectory(m_activeScene->getWorkingDirectory());
 		}
 
-		sceneWriter.write(*m_activeScene);
+		writer.write(*m_activeScene);
 	}
 
 	// Save render description
 	{
 		const SceneDescription& description = m_activeScene->getRenderDescription();
 
-		SdlSceneFileWriter descriptionWriter;
+		SdlSceneFileWriter writer;
 		if(description.getWorkingDirectory().isEmpty())
 		{
 			PH_LOG_WARNING(Editor,
 				"scene description has no working directory specified, using writer's: {}",
-				descriptionWriter.getSceneWorkingDirectory());
+				writer.getSceneWorkingDirectory());
 		}
 		else
 		{
 			// Obey the working directory from scene description
-			descriptionWriter.setSceneWorkingDirectory(description.getWorkingDirectory());
+			writer.setSceneWorkingDirectory(description.getWorkingDirectory());
 		}
 
 		// Extract description name using link from the designer scene
 		const ResourceIdentifier& descLink = m_activeScene->getRenderDescriptionLink();
 		PH_ASSERT(descLink.isResolved());
 		const std::string& descName = descLink.getPath().removeExtension().getFilename();
-		descriptionWriter.setSceneName(descName);
+		writer.setSceneName(descName);
 
-		descriptionWriter.write(m_activeScene->getRenderDescription());
+		writer.write(m_activeScene->getRenderDescription());
 	}
 	
 	m_activeScene->resume();
@@ -323,7 +377,7 @@ void Editor::removeScene(const std::size_t sceneIndex)
 	if(m_scenes.size() == 1)
 	{
 		// The scene to be removed is the last one, set active one to null
-		setActiveScene(static_cast<std::size_t>(-1));
+		setActiveScene(nullSceneIndex());
 	}
 	else
 	{

@@ -42,11 +42,11 @@ DesignerObject::~DesignerObject()
 {
 	// Initializations must happen either in pairs or not happen at all
 	PH_ASSERT(
-		(m_state.has(EObjectState::Initialized) && m_state.has(EObjectState::Uninitialized)) ||
-		(m_state.hasNo(EObjectState::Initialized) && m_state.hasNo(EObjectState::Uninitialized)));
+		(m_state.has(EObjectState::HasInitialized) && m_state.has(EObjectState::HasUninitialized)) ||
+		(m_state.hasNo(EObjectState::HasInitialized) && m_state.hasNo(EObjectState::HasUninitialized)));
 	PH_ASSERT(
-		(m_state.has(EObjectState::RenderInitialized) && m_state.has(EObjectState::RenderUninitialized)) ||
-		(m_state.hasNo(EObjectState::RenderInitialized) && m_state.hasNo(EObjectState::RenderUninitialized)));
+		(m_state.has(EObjectState::HasRenderInitialized) && m_state.has(EObjectState::HasRenderUninitialized)) ||
+		(m_state.hasNo(EObjectState::HasRenderInitialized) && m_state.hasNo(EObjectState::HasRenderUninitialized)));
 }
 
 DesignerObject& DesignerObject::operator = (const DesignerObject& rhs) = default;
@@ -55,22 +55,22 @@ DesignerObject& DesignerObject::operator = (DesignerObject&& rhs) noexcept = def
 
 void DesignerObject::init()
 {
-	PH_ASSERT(m_state.hasNo(EObjectState::Initialized));
+	PH_ASSERT(m_state.hasNo(EObjectState::HasInitialized));
 }
 
 void DesignerObject::uninit()
 {
-	PH_ASSERT(m_state.hasNo(EObjectState::Uninitialized));
+	PH_ASSERT(m_state.hasNo(EObjectState::HasUninitialized));
 }
 
 void DesignerObject::renderInit(RenderThreadCaller& caller)
 {
-	PH_ASSERT(m_state.hasNo(EObjectState::RenderInitialized));
+	PH_ASSERT(m_state.hasNo(EObjectState::HasRenderInitialized));
 }
 
 void DesignerObject::renderUninit(RenderThreadCaller& caller)
 {
-	PH_ASSERT(m_state.hasNo(EObjectState::RenderUninitialized));
+	PH_ASSERT(m_state.hasNo(EObjectState::HasRenderUninitialized));
 }
 
 void DesignerObject::update(const MainThreadUpdateContext& ctx)

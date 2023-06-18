@@ -180,6 +180,26 @@ inline bool DesignerScene::removeObjectFromStorage(DesignerObject* const obj)
 	return true;
 }
 
+inline bool DesignerScene::isFullyInitialized(const DesignerObject& obj)
+{
+	return obj.getState().hasAll({EObjectState::HasInitialized, EObjectState::HasRenderInitialized}) &&
+	       obj.getState().hasNone({EObjectState::HasUninitialized, EObjectState::HasRenderUninitialized});
+}
+
+inline bool DesignerScene::isInitialized(const DesignerObject& obj)
+{
+	return obj.getState().has(EObjectState::HasInitialized) &&
+	       obj.getState().hasNo(EObjectState::HasUninitialized);
+}
+
+inline bool DesignerScene::isOrphan(const DesignerObject& obj)
+{
+	const bool isChild = obj.getState().hasNo(EObjectState::Root);
+	const bool hasParent = obj.getParent() != nullptr;
+
+	return isChild && !hasParent;
+}
+
 inline Editor& DesignerScene::getEditor()
 {
 	PH_ASSERT(m_editor);
@@ -243,9 +263,82 @@ inline bool DesignerScene::isPaused() const
 }
 
 template<typename ObjectType>
+inline ObjectType* DesignerScene::findObjectByName(std::string_view name) const
+{
+	ObjectType* result = nullptr;
+
+	forEachUsableObject(
+		[name, &result](DesignerObject* obj) -> bool
+		{
+			// Implicit cast if `ObjectType` is a base type
+			if constexpr(CDerived<DesignerObject, ObjectType>)
+			{
+				if(obj->getName() == name)
+				{
+					result = obj;
+					return false;
+				}
+			}
+			// Otherwise explicit downcasting is required
+			else
+			{
+				static_assert(CDerived<ObjectType, DesignerObject>,
+					"Object must be a designer object.");
+
+				if(obj->getName() == name)
+				{
+					// Directly use the result of `dynamic_cast`. This can be null if the type does
+					// not match--which is fine, as the object name is unique (and we already found the
+					// object) there is no point in continuing the search.
+					result = dynamic_cast<ObjectType*>(obj);
+					return false;
+				}
+			}
+
+			return true;
+		});
+
+	return result;
+}
+
+template<typename ObjectType>
 inline void DesignerScene::findObjectsByType(std::vector<ObjectType*>& out_objs) const
 {
 	out_objs.reserve(out_objs.size() + m_objStorage.size());
+
+	forEachUsableObject(
+		[&out_objs](DesignerObject* obj) -> bool
+		{
+			// Implicit cast if `ObjectType` is a base type
+			if constexpr(CDerived<DesignerObject, ObjectType>)
+			{
+				out_objs.push_back(obj);
+			}
+			// Otherwise explicit downcasting is required
+			else
+			{
+				static_assert(CDerived<ObjectType, DesignerObject>,
+					"Object must be a designer object.");
+
+				auto const derivedObj = dynamic_cast<ObjectType*>(obj);
+				if(derivedObj)
+				{
+					out_objs.push_back(derivedObj);
+				}
+			}
+
+			// Always continue
+			return true;
+		});
+}
+
+template<typename PerObjectOperation>
+inline void DesignerScene::forEachUsableObject(PerObjectOperation op) const
+{
+	static_assert(std::is_invocable_r_v<bool, PerObjectOperation, DesignerObject*>);
+
+	PH_ASSERT(Threads::isOnMainThread());
+
 	for(auto& objRes : m_objStorage)
 	{
 		DesignerObject* const obj = objRes.get();
@@ -257,28 +350,21 @@ inline void DesignerScene::findObjectsByType(std::vector<ObjectType*>& out_objs)
 		}
 
 		// Skip object with incomplete initialization state (we do not care about render state here)
-		if(obj->getState().hasNo(EObjectState::Initialized) ||
-		   obj->getState().has(EObjectState::Uninitialized))
+		if(!isInitialized(*obj))
 		{
 			continue;
 		}
 
-		// Implicit cast if `ObjectType` is a base type
-		if constexpr(CDerived<DesignerObject, ObjectType>)
+		// Skip orphans
+		if(isOrphan(*obj))
 		{
-			out_objs.push_back(obj);
+			continue;
 		}
-		// Otherwise explicit downcasting is required
-		else
-		{
-			static_assert(CDerived<ObjectType, DesignerObject>,
-				"Object must be a designer object.");
 
-			auto const derivedObj = dynamic_cast<ObjectType*>(obj);
-			if(derivedObj)
-			{
-				out_objs.push_back(derivedObj);
-			}
+		const bool shouldContinue = op(obj);
+		if(!shouldContinue)
+		{
+			break;
 		}
 	}
 }

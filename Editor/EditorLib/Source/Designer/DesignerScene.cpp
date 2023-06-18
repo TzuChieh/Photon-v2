@@ -91,17 +91,18 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 	{
 		ObjectAction& queuedAction = m_objActionQueue[actionIdx];
 		DesignerObject* const obj = queuedAction.obj;
+		auto& objState = obj->getState();
 
 		if(queuedAction.action == EObjectAction::Create)
 		{
-			if(obj->getState().hasNo(EObjectState::Initialized))
+			if(objState.hasNo(EObjectState::HasInitialized))
 			{
 				throw_formatted<IllegalOperationException>(
 					"object {} is not initialized",
 					get_object_debug_info(obj));
 			}
 
-			if(obj->getState().has(EObjectState::Root))
+			if(objState.has(EObjectState::Root))
 			{
 				m_rootObjs.push_back(obj);
 			}
@@ -111,7 +112,7 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 			// We always want to remove the object from cache arrays
 			std::erase(m_tickingObjs, obj);
 			std::erase(m_renderTickingObjs, obj);
-			if(obj->getState().has(EObjectState::Root))
+			if(objState.has(EObjectState::Root))
 			{
 				const auto numErasedObjs = std::erase(m_rootObjs, obj);
 				if(numErasedObjs != 1)
@@ -123,14 +124,14 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 				}
 			}
 
-			if(obj->getState().has(EObjectState::RenderUninitialized) &&
-			   obj->getState().hasNo(EObjectState::Uninitialized))
+			if(objState.has(EObjectState::HasRenderUninitialized) &&
+			   objState.hasNo(EObjectState::HasUninitialized))
 			{
 				obj->uninit();
-				obj->getState().turnOn({EObjectState::Uninitialized});
+				objState.turnOn({EObjectState::HasUninitialized});
 			}
 
-			if(obj->getState().has(EObjectState::Uninitialized))
+			if(objState.has(EObjectState::HasUninitialized))
 			{
 				if(!removeObjectFromStorage(obj))
 				{
@@ -144,34 +145,34 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 		}
 		else if(
 			queuedAction.action == EObjectAction::EnableTick && 
-			obj->getState().hasNo(EObjectState::Ticking))
+			objState.hasNo(EObjectState::Ticking))
 		{
 			m_tickingObjs.push_back(obj);
-			obj->getState().turnOn({EObjectState::Ticking});
+			objState.turnOn({EObjectState::Ticking});
 			queuedAction.done();
 		}
 		else if(
 			queuedAction.action == EObjectAction::DisableTick &&
-			obj->getState().has(EObjectState::Ticking))
+			objState.has(EObjectState::Ticking))
 		{
 			std::erase(m_tickingObjs, obj);
-			obj->getState().turnOff({EObjectState::Ticking});
+			objState.turnOff({EObjectState::Ticking});
 			queuedAction.done();
 		}
 		else if(
 			queuedAction.action == EObjectAction::EnableRenderTick &&
-			obj->getState().hasNo(EObjectState::RenderTicking))
+			objState.hasNo(EObjectState::RenderTicking))
 		{
 			m_renderTickingObjs.push_back(obj);
-			obj->getState().turnOn({EObjectState::RenderTicking});
+			objState.turnOn({EObjectState::RenderTicking});
 			queuedAction.done();
 		}
 		else if(
 			queuedAction.action == EObjectAction::DisableRenderTick &&
-			obj->getState().has(EObjectState::RenderTicking))
+			objState.has(EObjectState::RenderTicking))
 		{
 			std::erase(m_renderTickingObjs, obj);
-			obj->getState().turnOff({EObjectState::RenderTicking});
+			objState.turnOff({EObjectState::RenderTicking});
 			queuedAction.done();
 		}
 	}// end process queued actions
@@ -179,11 +180,7 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 	// Tick objects
 	for(DesignerObject* obj : m_tickingObjs)
 	{
-		const bool isFullyInitialized = 
-			obj->getState().hasAll({EObjectState::Initialized, EObjectState::RenderInitialized}) &&
-			obj->getState().hasNone({EObjectState::Uninitialized, EObjectState::RenderUninitialized});
-
-		if(isFullyInitialized)
+		if(isFullyInitialized(*obj))
 		{
 			PH_ASSERT(obj->getState().has(EObjectState::Ticking));
 			obj->update(ctx);
@@ -196,11 +193,7 @@ void DesignerScene::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 	// Tick objects
 	for(DesignerObject* obj : m_renderTickingObjs)
 	{
-		const bool isFullyInitialized = 
-			obj->getState().hasAll({EObjectState::Initialized, EObjectState::RenderInitialized}) &&
-			obj->getState().hasNone({EObjectState::Uninitialized, EObjectState::RenderUninitialized});
-
-		if(isFullyInitialized)
+		if(isFullyInitialized(*obj))
 		{
 			PH_ASSERT(obj->getState().has(EObjectState::RenderTicking));
 			obj->renderUpdate(ctx);
@@ -214,21 +207,24 @@ void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 	for(std::size_t actionIdx = 0; actionIdx < m_numObjActionsToProcess; ++actionIdx)
 	{
 		ObjectAction& queuedAction = m_objActionQueue[actionIdx];
+		DesignerObject* const obj = queuedAction.obj;
+		auto& objState = obj->getState();
+
 		if(queuedAction.action == EObjectAction::Create && 
-		   queuedAction.obj->getState().has(EObjectState::Initialized) &&
-		   queuedAction.obj->getState().hasNo(EObjectState::RenderInitialized))
+		   objState.has(EObjectState::HasInitialized) &&
+		   objState.hasNo(EObjectState::HasRenderInitialized))
 		{
-			queuedAction.obj->renderInit(caller);
-			queuedAction.obj->getState().turnOn({EObjectState::RenderInitialized});
+			obj->renderInit(caller);
+			objState.turnOn({EObjectState::HasRenderInitialized});
 			queuedAction.done();
 		}
 		else if(
 			queuedAction.action == EObjectAction::Remove &&
-			queuedAction.obj->getState().has(EObjectState::RenderInitialized) &&
-			queuedAction.obj->getState().hasNo(EObjectState::RenderUninitialized))
+			objState.has(EObjectState::HasRenderInitialized) &&
+			objState.hasNo(EObjectState::HasRenderUninitialized))
 		{
-			queuedAction.obj->renderUninit(caller);
-			queuedAction.obj->getState().turnOn({EObjectState::RenderUninitialized});
+			obj->renderUninit(caller);
+			objState.turnOn({EObjectState::HasRenderUninitialized});
 		}
 	}// end process queued actions
 
@@ -354,7 +350,7 @@ void DesignerScene::initObject(DesignerObject* const obj)
 		return;
 	}
 
-	if(obj->getState().has(EObjectState::Initialized))
+	if(obj->getState().has(EObjectState::HasInitialized))
 	{
 		throw_formatted<IllegalOperationException>(
 			"object {} has already been initialized",
@@ -362,7 +358,7 @@ void DesignerScene::initObject(DesignerObject* const obj)
 	}
 
 	obj->init();
-	obj->getState().turnOn({EObjectState::Initialized});
+	obj->getState().turnOn({EObjectState::HasInitialized});
 
 	queueObjectAction(obj, EObjectAction::Create);
 }
@@ -407,12 +403,14 @@ void DesignerScene::renderCleanup(RenderThreadCaller& caller)
 	// Render uninitialize all objects in the reverse order
 	for(auto& obj : std::views::reverse(m_objStorage))
 	{
+		auto& objState = obj->getState();
+
 		if(obj &&
-		   obj->getState().has(EObjectState::RenderInitialized) &&
-		   obj->getState().hasNo(EObjectState::RenderUninitialized))
+		   objState.has(EObjectState::HasRenderInitialized) &&
+		   objState.hasNo(EObjectState::HasRenderUninitialized))
 		{
 			obj->renderUninit(caller);
-			obj->getState().turnOn({EObjectState::RenderUninitialized});
+			objState.turnOn({EObjectState::HasRenderUninitialized});
 		}
 	}
 }
@@ -422,13 +420,15 @@ void DesignerScene::cleanup()
 	// Uninitialize all objects in the reverse order
 	for(auto& obj : std::views::reverse(m_objStorage))
 	{
+		auto& objState = obj->getState();
+
 		if(obj &&
-		   obj->getState().has(EObjectState::Initialized) &&
-		   obj->getState().hasNo(EObjectState::Uninitialized))
+		   objState.has(EObjectState::HasInitialized) &&
+		   objState.hasNo(EObjectState::HasUninitialized))
 		{
 			// Potentially detect a call order failure case (render cleanup was not called)
-			if(obj->getState().has(EObjectState::RenderInitialized) &&
-			   obj->getState().hasNo(EObjectState::RenderUninitialized))
+			if(objState.has(EObjectState::HasRenderInitialized) &&
+			   objState.hasNo(EObjectState::HasRenderUninitialized))
 			{
 				PH_LOG_ERROR(DesignerScene,
 					"invalid object cleanup state detected: object {} needs render cleanup first",
@@ -437,7 +437,7 @@ void DesignerScene::cleanup()
 			else
 			{
 				obj->uninit();
-				obj->getState().turnOn({EObjectState::Uninitialized});
+				objState.turnOn({EObjectState::HasUninitialized});
 			}
 		}
 	}

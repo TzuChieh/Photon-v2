@@ -32,6 +32,7 @@ public:
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
 
 	/*! @brief Initialize a resource from value clauses.
+	How the resource will be initialized depends on the resource class's SDL definition.
 	*/
 	virtual void initResource(
 		ISdlResource&          resource,
@@ -39,6 +40,7 @@ public:
 		const SdlInputContext& ctx) const = 0;
 
 	/*! @brief Initialize a resource to default values.
+	Default values are defined by the resource class's SDL definition.
 	*/
 	virtual void initDefaultResource(ISdlResource& resource) const = 0;
 

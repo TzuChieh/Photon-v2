@@ -14,6 +14,7 @@
 #include <memory>
 #include <cstddef>
 #include <vector>
+#include <type_traits>
 
 namespace ph::editor
 {
@@ -26,10 +27,10 @@ class RenderThreadCaller;
 enum class EObjectState : uint32f
 {
 	// Lifetime management
-	Initialized = math::flag_bit<uint32f, 0>(),
-	RenderInitialized = math::flag_bit<uint32f, 1>(),
-	RenderUninitialized = math::flag_bit<uint32f, 2>(),
-	Uninitialized = math::flag_bit<uint32f, 3>(),
+	HasInitialized = math::flag_bit<uint32f, 0>(),
+	HasRenderInitialized = math::flag_bit<uint32f, 1>(),
+	HasRenderUninitialized = math::flag_bit<uint32f, 2>(),
+	HasUninitialized = math::flag_bit<uint32f, 3>(),
 
 	// Category
 	Root = math::flag_bit<uint32f, 4>(),
@@ -116,11 +117,14 @@ private:
 	};
 	
 	GeneralParent m_parent;
+
+	// SDL-binded fields:
 	std::string m_name;
 
 private:
 	// For accessing some shared internal data
 	friend class DesignerScene;
+	friend class DesignerSceneMetaInfo;
 
 	TEnumFlags<EObjectState> m_state;
 	uint64 m_sceneStorageIndex;

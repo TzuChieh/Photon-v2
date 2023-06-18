@@ -2,6 +2,7 @@
 #include "ph_editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
+#include "Designer/IO/DesignerSceneMetaInfo.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -98,8 +99,16 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 	// Expected be set, too late to determine a good link here
 	PH_ASSERT(scene.getRenderDescriptionLink().hasIdentifier());
 
-	// Scene file must reside in the scene working directory as it may be accompanied with data files
 	getSceneWorkingDirectory().createDirectory();
+
+	// Save scene meta info
+	{
+		DesignerSceneMetaInfo metaInfo;
+		metaInfo.gather(scene);
+		metaInfo.save(getSceneWorkingDirectory(), scene.getName());
+	}
+
+	// Scene file must reside in the scene working directory as it may be accompanied with data files
 	Path sceneFile = getSceneWorkingDirectory().append(scene.getName() + ".pds");
 
 	PH_LOG(DesignerSceneWriter, "generating scene file: {}", sceneFile);
@@ -114,11 +123,6 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 
 void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path& filePath)
 {
-	FormattedTextOutputStream fileStream(filePath);
-	m_fileStream = &fileStream;
-
-	generateVersionCommand(SemanticVersion(PH_PSDL_VERSION));
-
 	// Find by the common base type `DesignerObject` effectively retrieves all valid objects
 	std::vector<DesignerObject*> objs;
 	scene.findObjectsByType(objs);
@@ -133,6 +137,16 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 	std::vector<ISdlResource*> resources(objs.begin(), objs.end());
 	m_resolver.analyze(resources, names);
 
+	// Start saving scene
+	FormattedTextOutputStream fileStream(filePath);
+	m_fileStream = &fileStream;
+
+	generateVersionCommand(SemanticVersion(PH_PSDL_VERSION));
+
+	// Save designer scene first, since object creation depends on scene
+	generateLoadCommand(&scene, scene.getName());
+
+	// Save designer objects
 	for(const ISdlResource* resource = m_resolver.next();
 	    resource != nullptr; 
 	    resource = m_resolver.next())
@@ -142,8 +156,6 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 
 		generateLoadCommand(resource, m_resolver.getResourceName(resource));
 	}
-
-	generateLoadCommand(&scene, scene.getName());
 
 	m_fileStream = nullptr;
 }

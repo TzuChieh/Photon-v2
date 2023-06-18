@@ -128,7 +128,7 @@ void DesignerDataPacketInterface::generate(
 	}
 	catch(const IOException& e)
 	{
-		throw_formatted<SdlLoadError>(
+		throw_formatted<SdlSaveError>(
 			"error while writing packet {} (for target class: {}, name: {}) -> {}",
 			packetFile,
 			sdl::gen_pretty_name(targetClass),

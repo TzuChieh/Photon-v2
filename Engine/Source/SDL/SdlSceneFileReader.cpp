@@ -1,4 +1,5 @@
 #include "SDL/SdlSceneFileReader.h"
+#include "DataIO/FileSystem/Path.h"
 #include "ph_cpp_core.h"
 #include "SDL/SceneDescription.h"
 #include "DataIO/Stream/FormattedTextInputStream.h"
@@ -25,7 +26,6 @@ SdlSceneFileReader::SdlSceneFileReader()
 SdlSceneFileReader::SdlSceneFileReader(std::string sceneName, const Path& sceneWorkingDirectory)
 	: SdlCommandParser(get_registered_engine_classes(), sceneWorkingDirectory)
 	, m_sceneName(std::move(sceneName))
-	, m_fileStream(nullptr)
 	, m_scene(nullptr)
 {}
 
@@ -91,7 +91,7 @@ void SdlSceneFileReader::initResource(
 	const SdlInputContext& ctx,
 	std::string_view resourceName,
 	SdlInputClauses& clauses,
-	const ESdlCommandType commandType)
+	const ESdlCommandType /* commandType */)
 {
 	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
@@ -132,8 +132,8 @@ void SdlSceneFileReader::runExecutor(
 	if(!targetClass)
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
-			"Unable to run executor {}: {}",
-			executorName, "null class");
+			"Unable to run executor {}: null target class",
+			executorName);
 		return;
 	}
 
@@ -163,7 +163,7 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 	else
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
-			"Unable to read scene {} (from {}): no scene description is given",
+			"Unable to read scene {} (from {}): no target scene description was set",
 			m_sceneName, getSceneWorkingDirectory());
 		return;
 	}

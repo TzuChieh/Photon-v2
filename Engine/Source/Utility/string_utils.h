@@ -122,31 +122,34 @@ using TStdUnorderedStringMap = std::unordered_map<
 
 enum class EWhitespace
 {
-	COMMON,
-	STANDARD
+	/*! Smaller set of whitespace characters that are often seen (see `table::common_whitespaces`). */
+	Common,
+
+	/*! Complete set of whitespace characters (see `table::standard_whitespaces`). */
+	Standard
 };
 
-template<EWhitespace TYPE = EWhitespace::COMMON>
+template<EWhitespace TYPE = EWhitespace::Common>
 inline std::string_view get_whitespaces()
 {
-	if constexpr(TYPE == EWhitespace::COMMON)
+	if constexpr(TYPE == EWhitespace::Common)
 	{
 		return table::common_whitespaces;
 	}
-	else if constexpr(TYPE == EWhitespace::STANDARD)
+	else if constexpr(TYPE == EWhitespace::Standard)
 	{
 		return table::standard_whitespaces;
 	}
 	else
 	{
-		static_assert(TYPE == EWhitespace::COMMON || TYPE == EWhitespace::STANDARD,
+		static_assert(TYPE == EWhitespace::Common || TYPE == EWhitespace::Standard,
 			"Must include a case for each enum entry; did you forget to add one?");
 		
 		return "";
 	}
 }
 
-template<EWhitespace TYPE = EWhitespace::COMMON>
+template<EWhitespace TYPE = EWhitespace::Common>
 inline constexpr bool is_whitespace(const char ch)
 {
 	return get_whitespaces<TYPE>().find(ch) != std::string_view::npos;
@@ -229,7 +232,7 @@ inline std::string_view cut_ends(const std::string_view srcStr, const std::strin
 @param srcStr String that is going to be trimmed.
 @return The trimmed string.
 */
-template<EWhitespace TYPE = EWhitespace::COMMON>
+template<EWhitespace TYPE = EWhitespace::Common>
 inline std::string_view trim_head(const std::string_view srcStr)
 {
 	return cut_head(srcStr, get_whitespaces<TYPE>());
@@ -240,7 +243,7 @@ inline std::string_view trim_head(const std::string_view srcStr)
 @param srcStr String that is going to be trimmed.
 @return The trimmed string.
 */
-template<EWhitespace TYPE = EWhitespace::COMMON>
+template<EWhitespace TYPE = EWhitespace::Common>
 inline std::string_view trim_tail(const std::string_view srcStr)
 {
 	return cut_tail(srcStr, get_whitespaces<TYPE>());
@@ -251,7 +254,7 @@ inline std::string_view trim_tail(const std::string_view srcStr)
 @param srcStr String that is going to be trimmed.
 @return The trimmed string.
 */
-template<EWhitespace TYPE = EWhitespace::COMMON>
+template<EWhitespace TYPE = EWhitespace::Common>
 inline std::string_view trim(const std::string_view srcStr)
 {
 	return trim_head<TYPE>(trim_tail<TYPE>(srcStr));
