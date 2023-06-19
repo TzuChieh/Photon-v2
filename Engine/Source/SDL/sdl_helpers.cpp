@@ -198,15 +198,6 @@ void save_field_id(const SdlField* const sdlField, SdlOutputClause& clause)
 	clause.name = sdlField->getFieldName();
 }
 
-bool is_reference(const std::string_view sdlValueStr)
-{
-	// Remove leading blank characters
-	const auto trimmedStr = string_utils::trim_head(sdlValueStr);
-
-	// Valid SDL reference starts with "@"
-	return !trimmedStr.empty() && trimmedStr[0] == '@';
-}
-
 std::string gen_pretty_name(const SdlClass* const clazz)
 {
 	return clazz ? 

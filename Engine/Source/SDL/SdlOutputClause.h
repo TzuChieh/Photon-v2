@@ -17,11 +17,17 @@ public:
 	std::string name;
 	std::string value;
 	std::string tag;
+	
+	/*! @brief If the carried value is a SDL reference.
+	Identify the format of the string only. Does not test whether the reference actually
+	points to a valid target or not.
+	*/
+	bool isReference = false;
 
 	// TODO: support binary data
 
 public:
-	SdlOutputClause();
+	inline SdlOutputClause() = default;
 
 	void clear();
 	bool hasTag() const;
@@ -29,18 +35,14 @@ public:
 	std::string toString() const;
 };
 
-// In-header Implementations:
-
-inline SdlOutputClause::SdlOutputClause() :
-	type(""), name(""), value(""), tag("")
-{}
-
 inline void SdlOutputClause::clear()
 {
 	type.clear();
 	name.clear();
 	value.clear();
 	tag.clear();
+
+	isReference = false;
 }
 
 inline bool SdlOutputClause::hasTag() const

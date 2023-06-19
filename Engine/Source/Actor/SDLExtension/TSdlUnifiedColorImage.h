@@ -90,7 +90,7 @@ inline void TSdlUnifiedColorImage<Owner>::loadFromSdl(
 
 	try
 	{
-		if(clause.isReference())
+		if(clause.isReference)
 		{
 			colorImage->setImage(Base::template loadResource<Image>(clause, ctx));
 		}

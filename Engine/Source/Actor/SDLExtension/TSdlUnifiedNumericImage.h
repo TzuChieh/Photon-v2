@@ -93,7 +93,7 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 	{
 		// TODO: should register newly generated images to scene, so they can be saved later
 
-		if(clause.isReference())
+		if(clause.isReference)
 		{
 			numericImage->setImage(Base::template loadResource<Image>(clause, ctx));
 		}

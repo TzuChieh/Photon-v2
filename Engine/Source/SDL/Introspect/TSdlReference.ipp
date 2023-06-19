@@ -188,6 +188,7 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 		}
 
 		out_clause.value = resourceName;
+		out_clause.isReference = true;
 	}
 	catch(const SdlException& e)
 	{
@@ -203,25 +204,26 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
-	// TODO: view
-	const auto referenceName = clause.value;
-
-	// TODO: get res should accept str view
-	// TODO: allow type mismatch?
-
-	PH_ASSERT(ctx.getSrcReferences());
-
-	if(referenceName.empty() || referenceName.front() != '@')
+	const auto& referenceName = clause.value;
+	if(referenceName.empty())
 	{
 		throw SdlLoadError(
-			"invalid reference name <" + clause.value + ">, should be prefixed with \'@\'");
+			"reference name cannot be empty");
 	}
 
+	if(!ctx.getSrcReferences())
+	{
+		throw_formatted<SdlLoadError>(
+			"no target reference group specified");
+	}
+
+	// TODO: allow type mismatch?
 	auto resource = ctx.getSrcReferences()->getTyped<ResourceType>(referenceName);
 	if(!resource)
 	{
-		throw SdlLoadError(
-			"cannot find resource referenced by <" + referenceName + ">");
+		throw_formatted<SdlLoadError>(
+			"cannot find resource referenced by <{}>",
+			referenceName);
 	}
 
 	return resource;

@@ -9,6 +9,7 @@
 #include "SDL/sdl_exceptions.h"
 #include "Common/stats.h"
 #include "Common/config.h"
+#include "SDL/sdl_parser.h"
 
 #include <cstddef>
 #include <utility>
@@ -23,7 +24,6 @@ PH_DEFINE_INTERNAL_TIMER_STAT(ParseLoadCommand, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(ParseExecutionCommand, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(ParseDirectiveCommand, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetCommandHeader, SdlCommandParser);
-PH_DEFINE_INTERNAL_TIMER_STAT(GetName, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetClauses, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetSDLClass, SdlCommandParser);
 
@@ -212,6 +212,9 @@ void SdlCommandParser::parseCommand(const std::string& command)
 		return;
 	}
 
+	// Input command should not contain semicolon (the command delimiter)
+	PH_ASSERT_NE(command.back(), ';');
+
 	try
 	{
 		const CommandHeader header = parseCommandHeader(command);
@@ -281,7 +284,7 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 	// Get category and type then acquire the matching SDL class
 	const SdlClass& clazz = getSdlClass(command.targetCategory, command.targetType);
 
-	const std::string& resourceName = getName(command.reference);
+	const std::string& resourceName = command.reference;
 
 	// Now we have name-related information, which is useful for debugging. 
 	// Catch load errors here to provide name information and re-throw.
@@ -333,7 +336,7 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 	// Get category and type then acquire the matching SDL class
 	const SdlClass& clazz = getSdlClass(command.targetCategory, command.targetType);
 
-	const std::string& targetResourceName = getName(command.reference);
+	const std::string& targetResourceName = command.reference;
 	const std::string& executorName = command.executorName;
 
 	// Now we have name-related information, which is useful for debugging. 
@@ -457,75 +460,6 @@ void SdlCommandParser::getClauses(
 		*out_clauses);
 }
 
-std::string SdlCommandParser::genNameForAnonymity()
-{
-	return "@__anonymous-item-" + std::to_string(m_generatedNameCounter++);
-}
-
-std::string SdlCommandParser::getName(const std::string_view referenceToken)
-{
-	PH_SCOPED_TIMER(GetName);
-
-	// Remove any leading and trailing blank characters
-	const auto trimmedToken = string_utils::trim(referenceToken);
-
-	// Should at least contain a '@' character
-	if(trimmedToken.empty())
-	{
-		throw_formatted<SdlLoadError>(
-			"syntax error: reference is empty, <{}> was given",
-			referenceToken);
-	}
-
-	switch(trimmedToken.front())
-	{
-	// Token is a name without quotes
-	case '@':
-		// Token has more character(s) following '@'
-		if(trimmedToken.size() > 1)
-		{
-			return std::string(trimmedToken);
-		}
-		// Token is anonymous
-		else
-		{
-			PH_ASSERT_EQ(trimmedToken.size(), 1);
-			return genNameForAnonymity();
-		}
-
-	// Token is a name with quotes
-	case '"':
-		// Should at least contain 3 characters: opening and closing double quotes, the name prefix '@'
-		if(trimmedToken.size() >= 3 && trimmedToken.back() == '"' && trimmedToken[1] == '@')
-		{
-			// Token has more character(s) following '@'
-			if(trimmedToken.size() > 4)
-			{
-				// Remove the double quotes
-				return std::string(trimmedToken.substr(1, trimmedToken.size() - 2));
-			}
-			// Token is anonymous
-			else
-			{
-				return genNameForAnonymity();
-			}
-		}
-		else
-		{
-			throw_formatted<SdlLoadError>(
-				"syntax error: resource name missing ending double quote and/or the @ prefix, "
-				"<{}> was given",
-				referenceToken);
-		}
-
-	default:
-		throw_formatted<SdlLoadError>(
-			"syntax error: resource name should start with @, optionally "
-			"enclosed by double quotes, <{}> was given",
-			referenceToken);
-	}
-}
-
 void SdlCommandParser::setSceneWorkingDirectory(const Path& directory)
 {
 	m_sceneWorkingDirectory = directory;
@@ -594,45 +528,96 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 		switch(tokens.size())
 		{
 		case 1:
-			// Executor call without SDL type and reference, e.g., `Func()`
+			// Executor call without SDL type and reference, 
+			// e.g., `Func()`
 			header.commandType = ESdlCommandType::Execution;
 			header.executorName = tokens[0];
 			break;
 
 		case 2:
-			// Executor call without SDL type but with reference, e.g., `Func(@Ref)`
+			// Executor call without SDL type but with reference, 
+			// e.g., `Func(@Ref)`, `Func(@"Ref with spaces")`
+			// (@ may be surrounded by whitespaces)
 			header.commandType = ESdlCommandType::Execution;
 			header.executorName = tokens[0];
-			header.reference = tokens[1];
+			header.reference = sdl_parser::get_reference(tokens[1]);
 			break;
 
 		case 3:
-			// Creator with SDL type and reference, e.g., `Category(Type) @Ref`
+			// Creator with SDL type and reference,
+			// e.g., `Category(Type) @Ref`
 			header.commandType = ESdlCommandType::Load;
 			header.targetCategory = tokens[0];
 			header.targetType = tokens[1];
-			header.reference = tokens[2];
+			header.reference = sdl_parser::get_reference(tokens[2]);
 			break;
 
 		case 4:
-			// Phantom with SDL type and reference, e.g., `phantom Category(Type) @Ref`
+			// Phantom with SDL type and reference,
+			// e.g., `phantom Category(Type) @Ref`
 			if(tokens[0] == "phantom")
 			{
 				header.commandType = ESdlCommandType::Phantom;
 				header.targetCategory = tokens[1];
 				header.targetType = tokens[2];
+				header.reference = sdl_parser::get_reference(tokens[3]);
+			}
+			// Creator with SDL type and reference,
+			// e.g., `Category(Type) @ Ref`, `Category(Type) @"Ref with spaces"`
+			//                        ^ with whitespaces
+			else if(tokens[2] == "@")
+			{
+				header.commandType = ESdlCommandType::Load;
+				header.targetCategory = tokens[0];
+				header.targetType = tokens[1];
 				header.reference = tokens[3];
 			}
 			else
 			{
 				throw_formatted<SdlLoadError>(
-					"unknown keyword <{}> found in creator command",
-					tokens[0]);
+					"unknown sequence <{}, {}, {}> found in creator command",
+					tokens[0], tokens[1], tokens[2]);
+			}
+			break;
+
+		case 5:
+			// Phantom with SDL type and reference,
+			// e.g., `phantom Category(Type) @ Ref`
+			//                                ^ with whitespaces
+			if(tokens[0] == "phantom")
+			{
+				if(tokens[3] != "@")
+				{
+					throw_formatted<SdlLoadError>(
+						"expecting a reference indicator \"@\", receiving \"{}\" instead",
+						tokens[3]);
+				}
+
+				header.commandType = ESdlCommandType::Phantom;
+				header.targetCategory = tokens[1];
+				header.targetType = tokens[2];
+				header.reference = tokens[4];
+			}
+			else
+			{
+				throw_formatted<SdlLoadError>(
+					"unknown sequence <{}, {}, {}, {}> found in creator command",
+					tokens[0], tokens[1], tokens[2], tokens[3]);
 			}
 			break;
 
 		default:
-			return CommandHeader();
+			if(tokens.size() == 0)
+			{
+				throw_formatted<SdlLoadError>(
+					"command cannot be empty");
+			}
+			else
+			{
+				throw_formatted<SdlLoadError>(
+					"too many tokens ({}) are in the command",
+					tokens.size());
+			}
 		}
 	}
 	// With dot sign
@@ -650,8 +635,11 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 		commandTokenizer.tokenize(std::string(dotSignRhsString), dotSignRhsTokens);
 
 		// Two possibilities here:
-		// (1) Executor call with SDL type but without reference, e.g., `Category(Type).Func()`
-		// (2) Executor call with SDL type and reference, e.g., `Category(Type).Func(@Ref)`
+		// (1) Executor call with SDL type but without reference, 
+		//     e.g., `Category(Type).Func()`
+		// (2) Executor call with SDL type and reference, 
+		//     e.g., `Category(Type).Func(@Ref)`, `Category(Type).Func(@"Ref with spaces")`
+		//     (@ may be surrounded by whitespaces)
 
 		header.commandType = ESdlCommandType::Execution;
 
@@ -671,14 +659,17 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 		switch(dotSignRhsTokens.size())
 		{
 		case 1:
-			// Executor call without reference, e.g., `Func()`
+			// Executor call without reference, 
+			// e.g., `Func()`
 			header.executorName = dotSignRhsTokens[0];
 			break;
 
 		case 2:
-			// Executor call with reference, e.g., `Func(@Ref)`
+			// Executor call with reference,
+			// e.g., `Func(@Ref)`, `Func(@"Ref with spaces")`
+			// (@ may be surrounded by whitespaces)
 			header.executorName = dotSignRhsTokens[0];
-			header.reference = dotSignRhsTokens[1];
+			header.reference = sdl_parser::get_reference(dotSignRhsTokens[1]);
 			break;
 
 		default:

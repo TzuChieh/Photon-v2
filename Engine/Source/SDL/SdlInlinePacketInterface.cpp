@@ -5,6 +5,7 @@
 #include "SDL/SdlOutputClauses.h"
 #include "SDL/Tokenizer.h"
 #include "SDL/sdl_exceptions.h"
+#include "SDL/sdl_parser.h"
 
 #include <utility>
 #include <vector>
@@ -66,24 +67,25 @@ void SdlInlinePacketInterface::parseSingleClause(std::string_view clauseString, 
 
 	if(clauseString.empty())
 	{
-		throw SdlLoadError("syntax error: clause string is empty");
+		throw SdlLoadError(
+			"syntax error: clause string is empty");
 	}
 
 	// TODO: tokenize string_view
 	std::vector<std::string> tokens;
 	clauseTokenizer.tokenize(std::string(clauseString), tokens);
-	if(tokens.size() != 3)
+	if(tokens.size() < 3)
 	{
 		throw_formatted<SdlLoadError>(
-			"syntax error: bad number of tokens ({}), expected to be 3",
+			"syntax error: incomplete clause detected, only {} tokens are specified",
 			tokens.size());
 	}
 
+	// The first token is always type
 	out_clause.type = tokens[0];
-	out_clause.value = tokens[2];
 	
 	// Parse name and an optional tag
-	// tokens[1] contains name and tag, syntax: <name>:<optional-tag>
+	// `tokens[1]` contains name and tag, syntax: <name>:<optional-tag>
 
 	const std::string_view nameAndTag = tokens[1];
 	const auto colonPos = nameAndTag.find(':');
@@ -97,6 +99,50 @@ void SdlInlinePacketInterface::parseSingleClause(std::string_view clauseString, 
 		out_clause.name = std::string(nameAndTag.substr(0, colonPos + 1));
 		out_clause.tag = nameAndTag.substr(colonPos);
 	}
+
+	// Parse the value section of a SDL clause
+	switch(tokens.size())
+	{
+	case 3:
+		// "@" signifies a following reference,
+		// e.g., `@Ref`
+		if(tokens[2].starts_with('@'))
+		{
+			out_clause.isReference = true;
+			out_clause.value = sdl_parser::get_reference(tokens[2]);
+		}
+		// Otherwise, just a ordinary value
+		else
+		{
+			out_clause.isReference = false;
+			out_clause.value = tokens[2];
+		}
+		break;
+
+	case 4:
+		// "@" signifies a following reference,
+		// e.g., `@ Ref`, `@"Ref"`
+		//         ^ with whitespaces
+		if(tokens[2] == "@")
+		{
+			out_clause.isReference = true;
+			out_clause.value = tokens[3];
+		}
+		// Otherwise, it is an error
+		else
+		{
+			throw_formatted<SdlLoadError>(
+				"syntax error: unexpected token sequence <{} {}> specified in clause",
+				tokens[2], tokens[3]);
+		}
+		break;
+
+	default:
+		throw_formatted<SdlLoadError>(
+			"syntax error: too many tokens ({}) are specified for the clause",
+			tokens.size());
+		break;
+	}
 }
 
 void SdlInlinePacketInterface::appendSingleClause(
@@ -104,10 +150,10 @@ void SdlInlinePacketInterface::appendSingleClause(
 	std::string& out_commandStr)
 {
 	out_commandStr += '[';
+
 	out_commandStr += clause.type;
 	out_commandStr += ' ';
 	out_commandStr += clause.name;
-
 	if(clause.hasTag())
 	{
 		out_commandStr += ": ";
@@ -115,7 +161,17 @@ void SdlInlinePacketInterface::appendSingleClause(
 	}
 
 	out_commandStr += ' ';
+	if(clause.isReference)
+	{
+		out_commandStr += '@';
+	}
+
+	// We are not testing whether the value contains whitespaces; 
+	// hence, value is always double-quoted (TODO: could be improved)
+	out_commandStr += '"';
 	out_commandStr += clause.value;
+	out_commandStr += '"';
+
 	out_commandStr += ']';
 }
 

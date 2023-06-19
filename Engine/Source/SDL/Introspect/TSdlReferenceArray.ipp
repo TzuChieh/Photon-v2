@@ -186,6 +186,7 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 {
 	const std::vector<std::shared_ptr<T>>& referenceVector = getValueVec(owner);
 
+	// Basically generates a list of reference names
 	try
 	{
 		out_clause.value = '{';
@@ -245,19 +246,20 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 	std::string_view referenceName,
 	const SdlInputContext& ctx)
 {
-	// TODO: get res should accept str view
-	// TODO: allow type mismatch?
-	// TODO: we may support some simple syntax such as wildcards or empty ref etc.
-
-	PH_ASSERT(ctx.getSrcReferences());
-
-	if(referenceName.empty() || referenceName.front() != '@')
+	if(referenceName.empty())
 	{
-		throw_formatted<SdlLoadError>(
-			"invalid reference name <{}>, should be prefixed with \'@\'",
-			referenceName);
+		throw SdlLoadError(
+			"reference name cannot be empty");
 	}
 
+	if(!ctx.getSrcReferences())
+	{
+		throw_formatted<SdlLoadError>(
+			"no target reference group specified");
+	}
+
+	// TODO: allow type mismatch?
+	// TODO: we may support some simple syntax such as wildcards or empty ref etc.
 	auto resource = ctx.getSrcReferences()->getTyped<ResourceType>(referenceName);
 	if(!resource)
 	{

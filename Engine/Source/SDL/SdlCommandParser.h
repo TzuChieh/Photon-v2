@@ -150,9 +150,6 @@ private:
 		ISdlResource* targetInstance,
 		SdlInputClauses* out_clauses);
 
-	std::string getName(std::string_view referenceToken);
-	std::string genNameForAnonymity();
-
 	const SdlClass* getSdlClass(const std::string& mangledClassName) const;
 	const SdlClass& getSdlClass(std::string_view categoryName, std::string_view typeName) const;
 

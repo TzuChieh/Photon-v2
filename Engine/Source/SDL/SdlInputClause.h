@@ -19,6 +19,12 @@ public:
 	std::string value;
 	std::string tag;
 
+	/*! @brief If the carried value is a SDL reference.
+	Identify the format of the string only. Does not test whether the reference actually 
+	points to a valid target or not.
+	*/
+	bool isReference = false;
+
 	// TODO: update to string_view
 	// TODO: support binary data
 
@@ -28,10 +34,6 @@ public:
 	SdlInputClause(std::string value, std::string tag);
 	SdlInputClause(std::string type, std::string name, std::string value);
 	SdlInputClause(std::string type, std::string name, std::string value, std::string tag);
-
-	/*! @brief Helper to check if the carried value is a SDL reference.
-	*/
-	bool isReference() const;
 
 	/*! @brief Helper to check if the carried value is a SDL resource identifier (SRI).
 	*/
@@ -64,12 +66,6 @@ inline SdlInputClause::SdlInputClause(
 	, value(std::move(value))
 	, tag(std::move(tag))
 {}
-
-
-inline bool SdlInputClause::isReference() const
-{
-	return sdl::is_reference(value);
-}
 
 inline std::string SdlInputClause::genPrettyName() const
 {

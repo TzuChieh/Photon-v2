@@ -124,7 +124,7 @@ void ImguiEditorSceneManager::buildWindow(
 
 		// TODO
 	}
-	
+
 	{
 		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
 		if(ImGui::Button("Save"))

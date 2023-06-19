@@ -110,13 +110,6 @@ void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* 
 */
 void save_field_id(const SdlField* sdlField, SdlOutputClause& clause);
 
-/*! @brief Check whether the string represents a SDL reference.
-
-Checks the format of the string only. Does not test whether the reference
-actually points to a valid resource or not.
-*/
-bool is_reference(std::string_view sdlValueStr);
-
 /*! @brief Generate a human-readable name for the SDL types.
 These helpers allow input types to be null.
 */
