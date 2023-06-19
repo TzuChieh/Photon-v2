@@ -38,8 +38,12 @@ void DesignerDataPacketInterface::parse(
 {
 	const SdlClass* targetClass = ctx.getSrcClass();
 
-	// Packet command is a bundled resource identifier (for the packet file)
-	const Path packetFile = SdlResourceLocator(ctx).toPath(packetCommand);
+	// Packet command is a bundled resource identifier (for the packet file), quoted.
+	// Remove quotes to obtain the identifier:
+	std::string_view identifier = string_utils::trim(packetCommand);
+	identifier = string_utils::cut_ends(identifier, "\"");
+
+	const Path packetFile = SdlResourceLocator(ctx).toPath(identifier);
 
 	const auto& fileExt = packetFile.getExtension();
 	if(fileExt == ".pddp")
@@ -99,6 +103,17 @@ void DesignerDataPacketInterface::generate(
 	{
 		const SdlOutputClause& clause = clauses[clauseIdx];
 
+		// Designer does not support saving SDL reference. This need to be reported and fail early, 
+		// otherwise saved data may be corrupted or cumbersome to recover. A better way to prevent 
+		// this would be to disallow binding to references during SDL definition stage.
+		if(clause.isReference)
+		{
+			throw_formatted<SdlSaveError>(
+				"Attempting to directly save SDL reference, this is not a feature supported by "
+				"designer data packet interface. Clause type: {}, name: {}, reference: {}",
+				clause.type, clause.name, clause.value);
+		}
+
 		valueInfoBuffer.clear();
 		valueInfoBuffer += clause.type;
 		valueInfoBuffer += ", ";
@@ -139,7 +154,7 @@ void DesignerDataPacketInterface::generate(
 	const std::string bundleIdentifier = SdlResourceLocator(ctx)
 		.toBundleIdentifier(packetFile).getIdentifier();
 
-	// Packet command is a bundle resource identifier, quoted (for the packet file)
+	// Packet command is a bundle resource identifier (for the packet file), quoted
 	out_packetCommand += '"';
 	out_packetCommand.append(bundleIdentifier);
 	out_packetCommand += '"';

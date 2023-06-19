@@ -159,7 +159,9 @@ void SdlCommandGenerator::generateLoadCommand(
 	PH_ASSERT(resource.getDynamicSdlClass() == resourceClass);
 
 	appendFullSdlType(resourceClass, out_commandStr);
-	out_commandStr += " \"";
+
+	// Resource name is always quoted (TODO: not needed if contains no whitespaces)
+	out_commandStr += " @\"";
 	out_commandStr += resourceName;
 	out_commandStr += "\" = ";
 

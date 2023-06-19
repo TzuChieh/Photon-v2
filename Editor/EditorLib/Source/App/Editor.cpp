@@ -276,9 +276,25 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 		reader.read(scene);
 	}
 	
+	// Read render description
+	{
+		if(scene->getRenderDescriptionLink().isResolved())
+		{
+			const Path& descFile = scene->getRenderDescriptionLink().getPath();
+			const Path& workingDirectory = descFile.getParent();
+			const std::string& descName = descFile.removeExtension().getFilename();
 
-
-	// TODO: read description
+			SdlSceneFileReader reader(descName, workingDirectory);
+			reader.read(&(scene->getRenderDescription()));
+		}
+		else
+		{
+			PH_LOG_ERROR(Editor,
+				"cannot load render description of designer scene {}: "
+				"description link ({}) is unresolved",
+				scene->getName(), scene->getRenderDescriptionLink());
+		}
+	}
 
 	return sceneIdx;
 }
@@ -320,7 +336,7 @@ void Editor::saveScene()
 		if(description.getWorkingDirectory().isEmpty())
 		{
 			PH_LOG_WARNING(Editor,
-				"scene description has no working directory specified, using writer's: {}",
+				"render description has no working directory specified, using writer's: {}",
 				writer.getSceneWorkingDirectory());
 		}
 		else

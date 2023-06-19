@@ -188,6 +188,7 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 		Timer timer;
 		timer.start();
 
+		// TODO: can just read all then parse all
 		std::string lineOfCommand;
 		while(commandFile)
 		{
@@ -196,6 +197,7 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 
 			parse(lineOfCommand);
 		}
+		flush();
 
 		timer.stop();
 

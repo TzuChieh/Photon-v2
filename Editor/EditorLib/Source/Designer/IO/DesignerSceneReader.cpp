@@ -22,11 +22,17 @@ DesignerSceneReader::DesignerSceneReader()
 
 DesignerSceneReader::DesignerSceneReader(const Path& sceneWorkingDirectory)
 	: SdlCommandParser(get_registered_editor_classes(), sceneWorkingDirectory)
+	, m_designerPacketInterface()
 	, m_scene(nullptr)
 	, m_metaInfo()
 {}
 
 DesignerSceneReader::~DesignerSceneReader() = default;
+
+SdlDataPacketInterface& DesignerSceneReader::getPacketInterface()
+{
+	return m_designerPacketInterface;
+}
 
 void DesignerSceneReader::read(DesignerScene* const scene)
 {
