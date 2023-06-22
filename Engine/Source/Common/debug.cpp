@@ -1,4 +1,8 @@
 #include "Common/debug.h"
+#include "Common/config.h"
+#include "Common/os.h"
+
+#include <version>
 
 //*****************************************************************************
 // The portable `psnip_trap()` call is copied from the portable-snippets
@@ -53,12 +57,57 @@
 #endif
 //*****************************************************************************
 
+#if __cpp_lib_stacktrace
+	#include <stacktrace>
+#else
+	#if defined(PH_OPERATING_SYSTEM_IS_LINUX) || defined(PH_OPERATING_SYSTEM_IS_OSX)
+		#include <execinfo.h>
+	#endif
+#endif
+
 namespace ph
 {
 
 void debug_break()
 {
     psnip_trap();
+}
+
+std::string obtain_stack_trace()
+{
+#if __cpp_lib_stacktrace
+
+	auto stackTrace = std::stacktrace::current();
+	return std::to_string(stackTrace);
+
+#else
+#if defined(PH_OPERATING_SYSTEM_IS_LINUX) || defined(PH_OPERATING_SYSTEM_IS_OSX)
+
+    const int ENTRY_BUFFER_SIZE = 64;
+
+	int numEntries;
+	void* entryBuffer[ENTRY_BUFFER_SIZE];
+	numEntries = backtrace(entryBuffer, ENTRY_BUFFER_SIZE);
+
+	std::string stackTraceMsg;
+	stackTraceMsg += std::to_string(numEntries) + " entries recorded, ";
+	stackTraceMsg += "showing most recent call first:\n";
+
+	char** symbolStrings = backtrace_symbols(entryBuffer, numEntries);
+	for(int i = 0; i < numEntries; ++i)
+	{
+		stackTraceMsg += symbolStrings[i];
+		stackTraceMsg += '\n';
+	}
+
+	return stackTraceMsg;
+
+#else
+
+    return "stack trace unavailable";
+
+#endif
+#endif
 }
 
 }// end namespace ph

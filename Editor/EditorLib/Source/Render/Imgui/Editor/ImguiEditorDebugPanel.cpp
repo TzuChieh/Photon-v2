@@ -39,6 +39,11 @@ void ImguiEditorDebugPanel::buildWindow(
 	ImGui::SameLine();
 	ImGui::InputText("Object Name", m_objectNameBuffer.data(), m_objectNameBuffer.size());
 
+	if(ImGui::Button("Assert False"))
+	{
+		PH_ASSERT(false);
+	}
+
 	ImGui::End();
 }
 

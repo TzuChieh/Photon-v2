@@ -13,6 +13,7 @@
 #include <limits>
 #include <concepts>
 #include <bit>
+#include <version>
 
 namespace ph
 {
