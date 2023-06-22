@@ -230,22 +230,6 @@ load_library_via_config(${ASIO_LIB_NAME}
     CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/")
 
 #------------------------------------------------------------------------------
-# StackWalker
-#------------------------------------------------------------------------------
-# TODO: debug build?
-# TODO: make this optional
-
-# StackWalker works on Windows only
-if(WIN32)
-    set(STACKWALKER_LIB_NAME "StackWalker")
-
-    load_library_manually(${STACKWALKER_LIB_NAME}
-        LIB_NAMES "StackWalker"
-        LIB_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STACKWALKER_LIB_NAME}/lib/"
-        INC_DIRS  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STACKWALKER_LIB_NAME}/include/")
-endif()
-
-#------------------------------------------------------------------------------
 # zlib
 #------------------------------------------------------------------------------
 

@@ -53,13 +53,8 @@ link_thirdparty_lib(Engine ${OPENEXR_LIB_NAME})
 link_thirdparty_lib(Engine ${CONCURRENTQUEUE_LIB_NAME} PUBLIC)
 link_thirdparty_lib(Engine ${JSON_LIB_NAME})
 
-if(WIN32)
-
-	link_thirdparty_lib(Engine ${STACKWALKER_LIB_NAME})
-
-# other platforms do not link to threading and filesystem libraries by default
-else()
-
+# Non-Windows platforms do not link to threading and filesystem libraries by default
+if(NOT WIN32)
 	find_package(Threads)
 	target_link_libraries(Engine PUBLIC ${CMAKE_THREAD_LIBS_INIT})
 
@@ -67,7 +62,6 @@ else()
 	if(NOT APPLE)
 		target_link_libraries(Engine PUBLIC stdc++fs)
 	endif()
-
 endif()
 
 target_compile_definitions(Engine
