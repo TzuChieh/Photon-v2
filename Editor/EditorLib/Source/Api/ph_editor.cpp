@@ -15,6 +15,7 @@
 #include "Designer/AbstractDesignerObject.h"
 #include "Designer/FlatDesignerObject.h"
 #include "Designer/HierarchicalDesignerObject.h"
+#include "Designer/NoteDesignerObject.h"
 
 #include <ph_cpp_core.h>
 #include <Common/assertion.h>
@@ -69,6 +70,7 @@ inline std::vector<const SdlClass*> register_editor_classes()
 		register_editor_sdl_class<DesignerObject>(),
 		register_editor_sdl_class<FlatDesignerObject>(),
 		register_editor_sdl_class<HierarchicalDesignerObject>(),
+		register_editor_sdl_class<NoteDesignerObject>(),
 	};
 }
 

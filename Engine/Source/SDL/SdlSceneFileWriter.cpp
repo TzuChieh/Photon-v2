@@ -114,9 +114,6 @@ void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene, const Pa
 	    resource != nullptr; 
 	    resource = m_resolver.next())
 	{
-		const SdlClass* clazz = resource->getDynamicSdlClass();
-		PH_ASSERT(clazz);
-
 		generateLoadCommand(resource, m_resolver.getResourceName(resource));
 	}
 

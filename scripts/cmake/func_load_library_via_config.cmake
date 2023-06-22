@@ -8,7 +8,12 @@
 # A CMake convention is to use double colon to prefix target name with package name,
 # e.g., myPkg::myTarget. However, not all libraries define their target names this way.
 # The `NO_PREFIX_ON_TARGETS` option can disable the behavior that uses `libName` as target
-# name prefix.
+# name prefix. This namespace-like convention will sometimes affect script behavior. An example
+# is `target_link_libraries()`, where target name containing `::` will ensure the linked
+# target is an `IMPORTED` one and prevent the usual fallback mechanism (try resolving this as
+# a library filename on disk).
+# See https://stackoverflow.com/questions/60605281/do-cmake-namespaces-actually-mean-anything
+# for more details. 
 #
 #--------------------------------------------------------------------------
 function(load_library_via_config libName)

@@ -27,6 +27,7 @@
 #define PH_IMGUI_STATS_ICON            ICON_MD_INSIGHTS
 #define PH_IMGUI_SAVE_FILE_ICON        ICON_MD_SAVE
 #define PH_IMGUI_OPEN_FILE_ICON        ICON_MD_FOLDER_OPEN
+#define PH_IMGUI_BUG_ICON              ICON_MD_ADB
 
 #define PH_IMGUI_ICON_TIGHT_PADDING " "
 #define PH_IMGUI_ICON_LOOSE_PADDING "   "
@@ -65,6 +66,7 @@ constexpr const char* EDITOR_SETTINGS_WINDOW_NAME =
 	PH_IMGUI_SETTINGS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Editor Settings";
 
 constexpr const char* OPEN_SCENE_DIALOG_TITLE = PH_IMGUI_OPEN_FILE_ICON " Open Scene";
+constexpr const char* DEBUG_MODE_TITLE = PH_IMGUI_BUG_ICON " Debug Mode";
 
 }// end anonymous namespace
 
@@ -84,8 +86,10 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_sceneCreator()
 	, m_sceneManager()
 	, m_assetBrowser()
+	, m_debugPanel()
 
 	, m_isOpeningScene(false)
+	, m_isOnDebugMode(false)
 
 	, m_generalFileSystemDialog()
 
@@ -288,6 +292,11 @@ void ImguiEditorUI::build()
 	buildStatsMonitor();
 	buildImguiDemo();
 
+	if(m_isOnDebugMode)
+	{
+		buildDebugPanelWindow();
+	}
+
 	// DEBUG
 	if(ImGui::Button("fs"))
 	{
@@ -311,17 +320,17 @@ void ImguiEditorUI::buildMainMenuBar()
 	{
 		if(ImGui::BeginMenu("File"))
 		{
-			if(ImGui::MenuItem(PH_IMGUI_SCENE_CREATION_ICON PH_IMGUI_ICON_LOOSE_PADDING "New Scene"))
+			if(ImGui::MenuItem("New Scene"))
 			{
 				m_shouldShowSceneCreator = true;
 			}
 
-			if(ImGui::MenuItem(PH_IMGUI_OPEN_FILE_ICON PH_IMGUI_ICON_LOOSE_PADDING "Open Scene"))
+			if(ImGui::MenuItem("Open Scene"))
 			{
 				m_isOpeningScene = true;
 			}
 
-			if(ImGui::MenuItem(PH_IMGUI_SAVE_FILE_ICON PH_IMGUI_ICON_LOOSE_PADDING "Save Active Scene"))
+			if(ImGui::MenuItem("Save Active Scene"))
 			{
 				saveActiveScene();
 			}
@@ -358,6 +367,14 @@ void ImguiEditorUI::buildMainMenuBar()
 			{
 				m_shouldResetWindowLayout = true;
 			}
+
+			ImGui::EndMenu();
+		}
+
+		if(ImGui::BeginMenu("Debug"))
+		{
+			if(ImGui::MenuItem("Debug Mode", nullptr, &m_isOnDebugMode))
+			{}
 
 			ImGui::EndMenu();
 		}
@@ -492,6 +509,16 @@ void ImguiEditorUI::buildSidebarWindow()
 		PH_IMGUI_SETTINGS_ICON,
 		"Editor Settings",
 		m_sidebarState.showEditorSettings);
+
+	if(m_isOnDebugMode)
+	{
+		ImGui::Spacing();
+
+		buildSidebarButton(
+			PH_IMGUI_BUG_ICON,
+			"Debug Panel",
+			m_sidebarState.showDebugPanel);
+	}
 
 	ImGui::PopStyleColor();
 	ImGui::PopFont();
@@ -691,6 +718,19 @@ void ImguiEditorUI::buildStatsMonitor()
 	ImGui::Text("Frame: %f ms", m_editor->editorStats.ghiThreadFrameMs);
 
 	ImGui::End();
+}
+
+void ImguiEditorUI::buildDebugPanelWindow()
+{
+	if(!m_sidebarState.showDebugPanel)
+	{
+		return;
+	}
+
+	m_debugPanel.buildWindow(
+		DEBUG_MODE_TITLE,
+		*this,
+		&m_sidebarState.showDebugPanel);
 }
 
 void ImguiEditorUI::buildImguiDemo()

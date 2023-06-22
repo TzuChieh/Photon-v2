@@ -23,7 +23,7 @@ namespace ph::editor
 PH_DEFINE_INTERNAL_LOG_GROUP(DesignerSceneWriter, Designer);
 
 DesignerSceneWriter::DesignerSceneWriter()
-	: DesignerSceneWriter(Path("./"))
+	: DesignerSceneWriter(Path("./temp_sdl/"))
 {}
 
 DesignerSceneWriter::DesignerSceneWriter(const Path& sceneWorkingDirectory)
@@ -148,12 +148,9 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 
 	// Save designer objects
 	for(const ISdlResource* resource = m_resolver.next();
-	    resource != nullptr; 
+	    resource != nullptr;
 	    resource = m_resolver.next())
 	{
-		const SdlClass* clazz = resource->getDynamicSdlClass();
-		PH_ASSERT(clazz);
-
 		generateLoadCommand(resource, m_resolver.getResourceName(resource));
 	}
 
