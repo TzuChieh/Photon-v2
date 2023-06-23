@@ -103,7 +103,7 @@ option(BUILD_TESTS       "Build unit tests for the project." ${BUILD_TESTS_DEFAU
 option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
 set(THIRD_PARTY_LIBS_INSTALL_DIR 
-    "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/release/ThirdParty/" 
+    "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/ThirdParty/" 
     CACHE PATH 
     "Path to third-party library install directory.")
 
