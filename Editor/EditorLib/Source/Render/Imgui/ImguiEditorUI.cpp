@@ -282,7 +282,7 @@ void ImguiEditorUI::build()
 	//ImGui::Image(*m_imageLibrary->get(EImguiImage::Image), {200, 200});
 	//m_imageLibrary->imguiImage(EImguiImage::Image, {200, 200});
 	static int yyy = 0;
-	if(m_imageLibrary->imguiImageButton(EImguiImage::Warning, "", {128, 128}))
+	if(m_imageLibrary->imguiImageButton(EImguiImage::Warning, "##test_img_btn", {128, 128}))
 	{
 		ImGui::Text("asdasdasdasdsadsadas");
 
