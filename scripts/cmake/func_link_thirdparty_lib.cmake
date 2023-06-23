@@ -67,10 +67,16 @@ function(link_thirdparty_lib targetName libName)
             "Cannot link ${targetName} against ${libName}, unknown load mode <${${libName}_LOAD_MODE}> detected.")
     endif()
 
-    # TODO: no copy if no change, and option to force copy
     if(${libName}_RUNTIME_DIR)
+        # TODO: no copy if no change, and option to force copy
+        # TODO: `add_custom_command()` supports generator expression
         file(COPY
             "${${libName}_RUNTIME_DIR}/"
             DESTINATION ${BUILD_OUTPUT_DIR})
+
+        # TODO: better if we can just copy what debug build needs
+        file(COPY
+            "${${libName}_RUNTIME_DIR}/"
+            DESTINATION ${DEBUG_BUILD_OUTPUT_DIR})   
     endif()
 endfunction()

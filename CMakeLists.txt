@@ -40,8 +40,9 @@ else()
     set(THIRD_PARTY_PLATFORM "linux")
 endif()
 
-set(BUILD_OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin/")
-set(THIRDPARTY_DIR   "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/")
+set(BUILD_OUTPUT_DIR       "${PROJECT_BINARY_DIR}/bin/")
+set(DEBUG_BUILD_OUTPUT_DIR "${BUILD_OUTPUT_DIR}/Debug/")
+set(THIRDPARTY_DIR         "${PROJECT_BINARY_DIR}/Photon-v2-ThirdParty/")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BUILD_OUTPUT_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BUILD_OUTPUT_DIR}")
@@ -53,9 +54,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE "${BUILD_OUTPUT_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${BUILD_OUTPUT_DIR}")
 
 # To eliminate debug folder in source directory on MSVC
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${BUILD_OUTPUT_DIR}/Debug/")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${BUILD_OUTPUT_DIR}/Debug/")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${BUILD_OUTPUT_DIR}/Debug/")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${DEBUG_BUILD_OUTPUT_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG "${DEBUG_BUILD_OUTPUT_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${DEBUG_BUILD_OUTPUT_DIR}")
 
 #get_filename_component(PROJECT_DIR "./" ABSOLUTE)
 #set(PROJECT_DIR "${PROJECT_DIR}/")
@@ -121,7 +122,7 @@ message(STATUS
 # appropriate flags manually and only use standard variables as a fallback.
 
 # Using MSVC
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
     # Use C++20
     # If this does not work, you should consider using /std:c++latest or other flags
@@ -152,12 +153,12 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 
 # Using GCC
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     # Use C++20
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
-# Using regular Clang or AppleClang
+# Using regular Clang or AppleClang (note we use `MATCHES` here)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
     # TODO: enforce C++20 if previous requests have no use

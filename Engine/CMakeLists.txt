@@ -64,8 +64,17 @@ if(NOT WIN32)
 	endif()
 endif()
 
-target_compile_definitions(Engine
-	PRIVATE _CRT_SECURE_NO_WARNINGS)
+# Using MSVC
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+
+	target_compile_definitions(Engine
+		PRIVATE _CRT_SECURE_NO_WARNINGS)
+
+	# Add `/bigobj` flag (on debug build only) so error C1128 will not occur (this is for `ph_cpp_core.cpp`)
+	target_compile_options(Engine
+		PRIVATE $<$<CONFIG:Debug>:/bigobj>)
+
+endif()
 
 #[[
 
