@@ -37,7 +37,7 @@ void RawResourceCollection::add(
 
 void RawResourceCollection::listAll(
 	std::vector<const ISdlResource*>& out_resources,
-	std::vector<std::string_view>* const out_resourceNames) const
+	std::vector<std::string>* const out_resourceNames) const
 {
 	for(const auto& keyValPair : m_nameToResource)
 	{

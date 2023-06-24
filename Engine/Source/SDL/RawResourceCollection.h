@@ -42,14 +42,14 @@ public:
 	over all resources.
 	@param out_resources Storage for all resources.
 	@param out_resourceNames Storage for all resource names (1-to-1 mapping to @p out_resources).
-	The memory of resource names are backed by this SceneDescription. Left unspecified (nullptr) 
-	if resource names are not required.
+	Left unspecified (nullptr) if resource names are not required.
 	@note Changing the state of the scene may invalidate the returned resource pointers as well as
 	the returned names.
 	*/
+	// TODO: use span
 	void listAll(
 		std::vector<const ISdlResource*>& out_resources,
-		std::vector<std::string_view>* out_resourceNames = nullptr) const;
+		std::vector<std::string>* out_resourceNames = nullptr) const;
 
 private:
 	using ResourceMapType = string_utils::TStdUnorderedStringMap<std::shared_ptr<ISdlResource>>;

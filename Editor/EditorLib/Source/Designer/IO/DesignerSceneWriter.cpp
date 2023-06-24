@@ -127,7 +127,7 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 	std::vector<DesignerObject*> objs;
 	scene.findObjectsByType(objs);
 
-	std::vector<std::string_view> names;
+	std::vector<std::string> names;
 	names.reserve(objs.size());
 	for(DesignerObject* obj : objs)
 	{
@@ -151,7 +151,9 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 	    resource != nullptr;
 	    resource = m_resolver.next())
 	{
-		generateLoadCommand(resource, m_resolver.getResourceName(resource));
+		std::string_view temp = m_resolver.getResourceName(resource);
+		generateLoadCommand(resource, temp);
+		//generateLoadCommand(resource, m_resolver.getResourceName(resource));
 	}
 
 	m_fileStream = nullptr;

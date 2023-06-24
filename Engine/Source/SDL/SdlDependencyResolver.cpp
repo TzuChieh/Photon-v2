@@ -19,7 +19,7 @@ SdlDependencyResolver::SdlDependencyResolver() :
 
 void SdlDependencyResolver::analyze(
 	TSpanView<const ISdlResource*> resources,
-	TSpanView<std::string_view> resourceNames)
+	TSpanView<std::string> resourceNames)
 {
 	if(!resourceNames.empty())
 	{

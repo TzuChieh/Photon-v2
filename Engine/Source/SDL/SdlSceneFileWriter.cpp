@@ -105,7 +105,7 @@ void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene, const Pa
 	generateVersionCommand(SemanticVersion(PH_PSDL_VERSION));
 
 	std::vector<const ISdlResource*> resources;
-	std::vector<std::string_view> names;
+	std::vector<std::string> names;
 	scene.getResources().listAll(resources, &names);
 
 	m_resolver.analyze(resources, names);

@@ -27,7 +27,7 @@ public:
 	*/
 	void analyze(
 		TSpanView<const ISdlResource*> resources,
-		TSpanView<std::string_view> resourceNames = {});
+		TSpanView<std::string> resourceNames = {});
 
 	/*! @brief Get a resource from the analyzed scene with a valid dependency ordering.
 	@return A resource. Can be called repeatedly until `nullptr` is returned (which indicates all
