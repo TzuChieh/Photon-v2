@@ -151,9 +151,7 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 	    resource != nullptr;
 	    resource = m_resolver.next())
 	{
-		std::string_view temp = m_resolver.getResourceName(resource);
-		generateLoadCommand(resource, temp);
-		//generateLoadCommand(resource, m_resolver.getResourceName(resource));
+		generateLoadCommand(resource, m_resolver.getResourceName(resource));
 	}
 
 	m_fileStream = nullptr;

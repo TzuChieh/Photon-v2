@@ -38,7 +38,7 @@ public:
 	/*! @brief Get resource name by resource pointer.
 	Only valid for the resources in the last `analyze()` call.
 	*/
-	std::string_view getResourceName(const ISdlResource* resource) const;
+	std::string getResourceName(const ISdlResource* resource) const;
 
 private:
 	struct ResourceInfo

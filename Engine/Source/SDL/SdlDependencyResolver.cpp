@@ -70,7 +70,7 @@ const ISdlResource* SdlDependencyResolver::next()
 	return resource;
 }
 
-std::string_view SdlDependencyResolver::getResourceName(const ISdlResource* const resource) const
+std::string SdlDependencyResolver::getResourceName(const ISdlResource* const resource) const
 {
 	const auto optIdx = getResourceInfoIdx(resource);
 	return optIdx ? m_resourceInfos[*optIdx].name : "";
