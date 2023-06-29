@@ -14,6 +14,7 @@
 #include <Utility/IMoveOnly.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/ResourceIdentifier.h>
+#include <Utility/TFunction.h>
 
 #include <vector>
 #include <memory>
@@ -55,8 +56,8 @@ public:
 	void beforeRenderStage();
 	void afterRenderStage();
 
-	void markObjectTickState(DesignerObject* obj, bool markTick);
-	void markObjectRenderTickState(DesignerObject* obj, bool markTick);
+	void markObjectTickState(DesignerObject* obj, bool shouldTick);
+	void markObjectRenderTickState(DesignerObject* obj, bool shouldTick);
 
 	template<typename ObjectType>
 	[[nodiscard]]
@@ -161,27 +162,22 @@ public:
 	DesignerScene& operator = (DesignerScene&& rhs) noexcept;
 
 private:
-	enum class EObjectAction : uint8
+	struct SceneAction
 	{
-		None,
-		Create,
-		Remove,
-		EnableTick,
-		DisableTick,
-		EnableRenderTick,
-		DisableRenderTick
-	};
+		using UpdateTask = TFunction<bool(const MainThreadUpdateContext& ctx), 32>;
+		using RenderTask = TFunction<bool(RenderThreadCaller& caller), 32>;
 
-	struct ObjectAction
-	{
-		DesignerObject* obj = nullptr;
-		EObjectAction action = EObjectAction::None;
+		UpdateTask updateTask;
+		RenderTask renderTask;
 
-		void done();
 		bool isDone() const;
 	};
 
-	void queueObjectAction(DesignerObject* obj, EObjectAction objAction);
+	void queueCreateObjectAction(DesignerObject* obj);
+	void queueRemoveObjectAction(DesignerObject* obj);
+	void queueObjectTickAction(DesignerObject* obj, bool shouldTick);
+	void queueObjectRenderTickAction(DesignerObject* obj, bool shouldTick);
+	void queueSceneAction(SceneAction action);
 
 	template<typename ObjectType, typename... DeducedArgs>
 	ObjectType* makeObjectFromStorage(DeducedArgs&&... args);
@@ -224,8 +220,8 @@ private:
 	std::vector<DesignerObject*> m_rootObjs;
 	std::vector<DesignerObject*> m_tickingObjs;
 	std::vector<DesignerObject*> m_renderTickingObjs;
-	std::vector<ObjectAction> m_objActionQueue;
-	std::size_t m_numObjActionsToProcess;
+	std::vector<SceneAction> m_sceneActionQueue;
+	std::size_t m_numSceneActionsToProcess;
 
 	Editor* m_editor;
 	SceneDescription m_renderDescription;

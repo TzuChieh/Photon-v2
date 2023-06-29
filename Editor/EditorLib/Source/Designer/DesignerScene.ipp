@@ -212,14 +212,9 @@ inline const Editor& DesignerScene::getEditor() const
 	return *m_editor;
 }
 
-inline void DesignerScene::ObjectAction::done()
+inline bool DesignerScene::SceneAction::isDone() const
 {
-	action = EObjectAction::None;
-}
-
-inline bool DesignerScene::ObjectAction::isDone() const
-{
-	return action == EObjectAction::None;
+	return !updateTask && !renderTask;
 }
 
 inline const Path& DesignerScene::getWorkingDirectory() const

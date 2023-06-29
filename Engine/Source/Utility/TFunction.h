@@ -370,8 +370,8 @@ private:
 template<typename Func, std::size_t MIN_SIZE_HINT = PH_TFUNCTION_DEFAULT_MIN_SIZE_IN_BYTES>
 using TFunction = function_detail::TFunction<Func, MIN_SIZE_HINT>;
 
-// This is a stricter requirement than what TFunction guaranteed. However, if its code works 
-// correctly the size should be exactly what be requested (providing the hint is >= 16 bytes).
+// This is a stricter requirement than what `TFunction` guaranteed. However, if its code works 
+// correctly the size should be exactly what has been requested (providing the hint is >= 16 bytes).
 static_assert(sizeof(TFunction<int(int, int)>) == PH_TFUNCTION_DEFAULT_MIN_SIZE_IN_BYTES);
 
 }// end namespace ph

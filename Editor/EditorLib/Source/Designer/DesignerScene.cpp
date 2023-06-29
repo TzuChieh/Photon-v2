@@ -40,8 +40,8 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	, m_rootObjs()
 	, m_tickingObjs()
 	, m_renderTickingObjs()
-	, m_objActionQueue()
-	, m_numObjActionsToProcess(0)
+	, m_sceneActionQueue()
+	, m_numSceneActionsToProcess(0)
 
 	, m_editor(fromEditor)
 	, m_renderDescription()
@@ -67,14 +67,14 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 {
 	// Remove all done actions
 	std::erase_if(
-		m_objActionQueue, 
-		[](const ObjectAction& queuedAction)
+		m_sceneActionQueue,
+		[](const SceneAction& action)
 		{
-			return queuedAction.isDone();
+			return action.isDone();
 		});
 
 	// Record current number of actions so actions added later can be delayed to next cycle
-	m_numObjActionsToProcess = m_objActionQueue.size();
+	m_numSceneActionsToProcess = m_sceneActionQueue.size();
 
 	// No need to process further if the scene is currently paused
 	if(isPaused())
@@ -82,100 +82,20 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 		return;
 	}
 
-	// Process queued actions
-	// 
-	// Cache arrays are modified here, as this is one of the few places that we can be sure that
-	// those arrays are not in use (otherwise modifying them can invalidate their iterators)
-	//
-	for(std::size_t actionIdx = 0; actionIdx < m_numObjActionsToProcess; ++actionIdx)
+	// Process queued actions: Cache arrays can be modified in action tasks, as this is one of the 
+	// few places that we can be sure that those arrays are not in use (otherwise modifying them
+	// can invalidate their iterators)
+	for(std::size_t actionIdx = 0; actionIdx < m_numSceneActionsToProcess; ++actionIdx)
 	{
-		ObjectAction& queuedAction = m_objActionQueue[actionIdx];
-		DesignerObject* const obj = queuedAction.obj;
-		auto& objState = obj->getState();
-
-		if(queuedAction.action == EObjectAction::Create)
+		SceneAction& action = m_sceneActionQueue[actionIdx];
+		if(action.updateTask)
 		{
-			if(objState.hasNo(EObjectState::HasInitialized))
+			if(action.updateTask(ctx))
 			{
-				throw_formatted<IllegalOperationException>(
-					"object {} is not initialized",
-					get_object_debug_info(obj));
-			}
-
-			if(objState.has(EObjectState::Root))
-			{
-				m_rootObjs.push_back(obj);
+				action.updateTask.unset();
 			}
 		}
-		else if(queuedAction.action == EObjectAction::Remove)
-		{
-			// We always want to remove the object from cache arrays
-			std::erase(m_tickingObjs, obj);
-			std::erase(m_renderTickingObjs, obj);
-			if(objState.has(EObjectState::Root))
-			{
-				const auto numErasedObjs = std::erase(m_rootObjs, obj);
-				if(numErasedObjs != 1)
-				{
-					throw_formatted<IllegalOperationException>(
-						"object {} is identified as root but does not appear (uniquely) in the root set "
-						"({} were found)",
-						get_object_debug_info(obj), numErasedObjs);
-				}
-			}
-
-			if(objState.has(EObjectState::HasRenderUninitialized) &&
-			   objState.hasNo(EObjectState::HasUninitialized))
-			{
-				obj->uninit();
-				objState.turnOn({EObjectState::HasUninitialized});
-			}
-
-			if(objState.has(EObjectState::HasUninitialized))
-			{
-				if(!removeObjectFromStorage(obj))
-				{
-					throw_formatted<IllegalOperationException>(
-						"cannot remove object {} from storage",
-						get_object_debug_info(obj));
-				}
-
-				queuedAction.done();
-			}
-		}
-		else if(
-			queuedAction.action == EObjectAction::EnableTick && 
-			objState.hasNo(EObjectState::Ticking))
-		{
-			m_tickingObjs.push_back(obj);
-			objState.turnOn({EObjectState::Ticking});
-			queuedAction.done();
-		}
-		else if(
-			queuedAction.action == EObjectAction::DisableTick &&
-			objState.has(EObjectState::Ticking))
-		{
-			std::erase(m_tickingObjs, obj);
-			objState.turnOff({EObjectState::Ticking});
-			queuedAction.done();
-		}
-		else if(
-			queuedAction.action == EObjectAction::EnableRenderTick &&
-			objState.hasNo(EObjectState::RenderTicking))
-		{
-			m_renderTickingObjs.push_back(obj);
-			objState.turnOn({EObjectState::RenderTicking});
-			queuedAction.done();
-		}
-		else if(
-			queuedAction.action == EObjectAction::DisableRenderTick &&
-			objState.has(EObjectState::RenderTicking))
-		{
-			std::erase(m_renderTickingObjs, obj);
-			objState.turnOff({EObjectState::RenderTicking});
-			queuedAction.done();
-		}
-	}// end process queued actions
+	}
 
 	// Tick objects
 	for(DesignerObject* obj : m_tickingObjs)
@@ -203,30 +123,20 @@ void DesignerScene::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 {
-	// Process queued actions
-	for(std::size_t actionIdx = 0; actionIdx < m_numObjActionsToProcess; ++actionIdx)
+	// Process queued actions: Cache arrays can be modified in action tasks, as this is one of the 
+	// few places that we can be sure that those arrays are not in use (otherwise modifying them
+	// can invalidate their iterators)
+	for(std::size_t actionIdx = 0; actionIdx < m_numSceneActionsToProcess; ++actionIdx)
 	{
-		ObjectAction& queuedAction = m_objActionQueue[actionIdx];
-		DesignerObject* const obj = queuedAction.obj;
-		auto& objState = obj->getState();
-
-		if(queuedAction.action == EObjectAction::Create && 
-		   objState.has(EObjectState::HasInitialized) &&
-		   objState.hasNo(EObjectState::HasRenderInitialized))
+		SceneAction& action = m_sceneActionQueue[actionIdx];
+		if(action.renderTask)
 		{
-			obj->renderInit(caller);
-			objState.turnOn({EObjectState::HasRenderInitialized});
-			queuedAction.done();
+			if(action.renderTask(caller))
+			{
+				action.renderTask.unset();
+			}
 		}
-		else if(
-			queuedAction.action == EObjectAction::Remove &&
-			objState.has(EObjectState::HasRenderInitialized) &&
-			objState.hasNo(EObjectState::HasRenderUninitialized))
-		{
-			obj->renderUninit(caller);
-			objState.turnOn({EObjectState::HasRenderUninitialized});
-		}
-	}// end process queued actions
+	}
 
 	// Tick objects
 	for(DesignerObject* obj : m_renderTickingObjs)
@@ -247,32 +157,24 @@ void DesignerScene::beforeRenderStage()
 void DesignerScene::afterRenderStage()
 {}
 
-void DesignerScene::markObjectTickState(DesignerObject* const obj, const bool markTick)
+void DesignerScene::markObjectTickState(DesignerObject* const obj, const bool shouldTick)
 {
-	PH_ASSERT(obj);
+	if(!obj)
+	{
+		return;
+	}
 
-	if(markTick && obj->getState().hasNo(EObjectState::Ticking))
-	{
-		queueObjectAction(obj, EObjectAction::EnableTick);
-	}
-	else if(!markTick && obj->getState().has(EObjectState::Ticking))
-	{
-		queueObjectAction(obj, EObjectAction::DisableTick);
-	}
+	queueObjectTickAction(obj, shouldTick);
 }
 
-void DesignerScene::markObjectRenderTickState(DesignerObject* const obj, const bool markTick)
+void DesignerScene::markObjectRenderTickState(DesignerObject* const obj, const bool shouldTick)
 {
-	PH_ASSERT(obj);
+	if(!obj)
+	{
+		return;
+	}
 
-	if(markTick && obj->getState().hasNo(EObjectState::RenderTicking))
-	{
-		queueObjectAction(obj, EObjectAction::EnableRenderTick);
-	}
-	else if(!markTick && obj->getState().has(EObjectState::RenderTicking))
-	{
-		queueObjectAction(obj, EObjectAction::DisableRenderTick);
-	}
+	queueObjectRenderTickAction(obj, shouldTick);
 }
 
 DesignerObject* DesignerScene::newObject(
@@ -360,7 +262,7 @@ void DesignerScene::initObject(DesignerObject* const obj)
 	obj->init();
 	obj->getState().turnOn({EObjectState::HasInitialized});
 
-	queueObjectAction(obj, EObjectAction::Create);
+	queueCreateObjectAction(obj);
 }
 
 void DesignerScene::setObjectToDefault(DesignerObject* const obj)
@@ -390,19 +292,181 @@ void DesignerScene::deleteObject(
 		obj->deleteAllChildren();
 	}
 
-	queueObjectAction(obj, EObjectAction::Remove);
+	queueRemoveObjectAction(obj);
 }
 
-void DesignerScene::queueObjectAction(DesignerObject* const obj, const EObjectAction objAction)
+void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
+{
+	SceneAction action;
+
+	action.updateTask = 
+		[this, obj](const MainThreadUpdateContext& ctx)
+		-> bool
+		{
+			PH_ASSERT(obj);
+			auto& objState = obj->getState();
+
+			if(objState.hasNo(EObjectState::HasInitialized))
+			{
+				// Object initialization is expected to be done before creation task
+				throw_formatted<IllegalOperationException>(
+					"object {} is not initialized",
+					get_object_debug_info(obj));
+			}
+
+			if(objState.has(EObjectState::Root))
+			{
+				m_rootObjs.push_back(obj);
+			}
+
+			return objState.has(EObjectState::HasInitialized);
+		};
+
+	action.renderTask = 
+		[this, obj](RenderThreadCaller& caller)
+		-> bool
+		{
+			PH_ASSERT(obj);
+			auto& objState = obj->getState();
+
+			if(objState.has(EObjectState::HasInitialized) &&
+			   objState.hasNo(EObjectState::HasRenderInitialized))
+			{
+				obj->renderInit(caller);
+				objState.turnOn({EObjectState::HasRenderInitialized});
+			}
+
+			return objState.has(EObjectState::HasRenderInitialized);
+		};
+
+	queueSceneAction(std::move(action));
+}
+
+void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
+{
+	SceneAction action;
+
+	action.updateTask = 
+		[this, obj](const MainThreadUpdateContext& ctx)
+		-> bool
+		{
+			PH_ASSERT(obj);
+			auto& objState = obj->getState();
+
+			// We always want to remove the object from cache arrays
+			std::erase(m_tickingObjs, obj);
+			std::erase(m_renderTickingObjs, obj);
+			if(objState.has(EObjectState::Root))
+			{
+				const auto numErasedObjs = std::erase(m_rootObjs, obj);
+				if(numErasedObjs != 1)
+				{
+					throw_formatted<IllegalOperationException>(
+						"object {} is identified as root but does not appear (uniquely) in the root set "
+						"({} were found)",
+						get_object_debug_info(obj), numErasedObjs);
+				}
+			}
+
+			if(objState.has(EObjectState::HasRenderUninitialized) &&
+			   objState.hasNo(EObjectState::HasUninitialized))
+			{
+				obj->uninit();
+				objState.turnOn({EObjectState::HasUninitialized});
+			}
+
+			if(objState.has(EObjectState::HasUninitialized))
+			{
+				if(!removeObjectFromStorage(obj))
+				{
+					throw_formatted<IllegalOperationException>(
+						"cannot remove object {} from storage",
+						get_object_debug_info(obj));
+				}
+			}
+
+			return objState.has(EObjectState::HasUninitialized);
+		};
+
+	action.renderTask = 
+		[this, obj](RenderThreadCaller& caller)
+		-> bool
+		{
+			PH_ASSERT(obj);
+			auto& objState = obj->getState();
+			
+			if(objState.has(EObjectState::HasRenderInitialized) &&
+			   objState.hasNo(EObjectState::HasRenderUninitialized))
+			{
+				obj->renderUninit(caller);
+				objState.turnOn({EObjectState::HasRenderUninitialized});
+			}
+
+			return objState.has(EObjectState::HasRenderUninitialized);
+		};
+
+	queueSceneAction(std::move(action));
+}
+
+void DesignerScene::queueObjectTickAction(DesignerObject* const obj, const bool shouldTick)
+{
+	SceneAction action;
+	action.updateTask = 
+		[this, obj, shouldTick](const MainThreadUpdateContext& ctx)
+		-> bool
+		{
+			PH_ASSERT(obj);
+			auto& objState = obj->getState();
+
+			if(shouldTick && objState.hasNo(EObjectState::Ticking))
+			{
+				m_tickingObjs.push_back(obj);
+				objState.turnOn({EObjectState::Ticking});
+			}
+			else if(!shouldTick && objState.has(EObjectState::Ticking))
+			{
+				std::erase(m_tickingObjs, obj);
+				objState.turnOff({EObjectState::Ticking});
+			}
+
+			return true;
+		};
+
+	queueSceneAction(std::move(action));
+}
+
+void DesignerScene::queueObjectRenderTickAction(DesignerObject* const obj, const bool shouldTick)
+{
+	SceneAction action;
+	action.updateTask =
+		[this, obj, shouldTick](const MainThreadUpdateContext& ctx)
+		-> bool
+		{
+			PH_ASSERT(obj);
+			auto& objState = obj->getState();
+
+			if(shouldTick && objState.hasNo(EObjectState::RenderTicking))
+			{
+				m_renderTickingObjs.push_back(obj);
+				objState.turnOn({EObjectState::RenderTicking});
+			}
+			else if(!shouldTick && objState.has(EObjectState::RenderTicking))
+			{
+				std::erase(m_renderTickingObjs, obj);
+				objState.turnOff({EObjectState::RenderTicking});
+			}
+
+			return true;
+		};
+
+	queueSceneAction(std::move(action));
+}
+
+void DesignerScene::queueSceneAction(SceneAction action)
 {
 	// We still allow new actions to be queued when the scene is paused
 
-	if(obj)
-	{
-		m_objActionQueue.push_back({
-			.obj = obj, 
-			.action = objAction});
-	}
+	m_sceneActionQueue.push_back(std::move(action));
 }
 
 void DesignerScene::renderCleanup(RenderThreadCaller& caller)
