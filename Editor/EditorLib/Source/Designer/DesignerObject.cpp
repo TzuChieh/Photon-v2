@@ -137,11 +137,8 @@ void DesignerObject::deleteChild(DesignerObject* const childObj)
 
 	if(childObj)
 	{
-		// Recursively remove all children, starting from the last child
-		while(childObj->haveChildren())
-		{
-			childObj->deleteChild(childObj->getChildren().back());
-		}
+		// Recursively remove all children
+		childObj->deleteAllChildren();
 	}
 
 	// Actually remove from parent and the scene
@@ -154,6 +151,20 @@ void DesignerObject::deleteChild(DesignerObject* const childObj)
 		throw_formatted<IllegalOperationException>(
 			"failed to remove child object {} from parent object {}",
 			childObj ? childObj->getName() : "(null)", getName());
+	}
+}
+
+void DesignerObject::deleteAllChildren()
+{
+	if(!canHaveChildren())
+	{
+		return;
+	}
+
+	// Remove all children, starting from the last child
+	while(haveChildren())
+	{
+		deleteChild(getChildren().back());
 	}
 }
 

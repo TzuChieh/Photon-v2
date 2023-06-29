@@ -109,7 +109,10 @@ public:
 
 	void setObjectToDefault(DesignerObject* obj);
 
-	void deleteObject(DesignerObject* obj);
+	void deleteObject(
+		DesignerObject* obj,
+		bool shouldDeleteRecursively = true);
+
 	void renderCleanup(RenderThreadCaller& caller);
 	void cleanup();
 

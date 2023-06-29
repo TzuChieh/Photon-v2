@@ -53,22 +53,22 @@ public:
 	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<TransformInfo>)
 	{
 		StructType ztruct("transform");
-		ztruct.description("Data structure describing placement of an object in the virtual world.");
+		ztruct.description("Data structure describing placement of an entity in the virtual world.");
 
 		TSdlVector3<OwnerType> position("position", &OwnerType::m_position);
-		position.description("Position of the object.");
+		position.description("Position of the entity.");
 		position.optional();
 		position.defaultTo({0, 0, 0});
 		ztruct.addField(position);
 
 		TSdlQuaternion<OwnerType> rotation("rotation", &OwnerType::m_rotation);
-		rotation.description("Rotation of the object");
+		rotation.description("Rotation of the entity");
 		rotation.optional();
 		rotation.defaultTo(math::QuaternionR::makeNoRotation());
 		ztruct.addField(rotation);
 
 		TSdlVector3<OwnerType> scale("scale", &OwnerType::m_scale);
-		scale.description("Scale of the object.");
+		scale.description("Scale of the entity.");
 		scale.optional();
 		scale.defaultTo({1, 1, 1});
 		ztruct.addField(scale);

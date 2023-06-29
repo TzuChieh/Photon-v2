@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Designer/FlatDesignerObject.h"
+#include "Designer/Basic/ObjectTransform.h"
 
 #include <SDL/sdl_interface.h>
 
@@ -15,6 +16,7 @@ public:
 
 private:
 	std::string m_text;
+	ObjectTransform m_transform;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<NoteDesignerObject>)
@@ -27,6 +29,8 @@ public:
 		TSdlString<OwnerType> text("text", &OwnerType::m_text);
 		text.description("Notes in string.");
 		clazz.addField(text);
+
+		clazz.addStruct(&OwnerType::m_transform);
 
 		return clazz;
 	}

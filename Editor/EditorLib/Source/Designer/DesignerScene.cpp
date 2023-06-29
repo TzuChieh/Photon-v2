@@ -375,12 +375,19 @@ void DesignerScene::setObjectToDefault(DesignerObject* const obj)
 	clazz->initDefaultResource(*obj);
 }
 
-void DesignerScene::deleteObject(DesignerObject* const obj)
+void DesignerScene::deleteObject(
+	DesignerObject* const obj,
+	const bool shouldDeleteRecursively)
 {
 	// It is a no-op if object is already empty
 	if(!obj)
 	{
 		return;
+	}
+
+	if(shouldDeleteRecursively)
+	{
+		obj->deleteAllChildren();
 	}
 
 	queueObjectAction(obj, EObjectAction::Remove);

@@ -82,6 +82,10 @@ public:
 	*/
 	void deleteChild(DesignerObject* childObj);
 
+	/*! @brief Remove, uninitialize and destruct all children.
+	*/
+	void deleteAllChildren();
+
 	void setName(std::string name);
 	void setTick(bool shouldTick);
 	void setRenderTick(bool shouldTick);

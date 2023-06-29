@@ -17,6 +17,10 @@
 #include "Designer/HierarchicalDesignerObject.h"
 #include "Designer/NoteDesignerObject.h"
 
+// Imposters
+#include "Designer/Imposter/ImposterObject.h"
+#include "Designer/Imposter/GeneralImposter.h"
+
 #include <ph_cpp_core.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -71,6 +75,10 @@ inline std::vector<const SdlClass*> register_editor_classes()
 		register_editor_sdl_class<FlatDesignerObject>(),
 		register_editor_sdl_class<HierarchicalDesignerObject>(),
 		register_editor_sdl_class<NoteDesignerObject>(),
+
+		// Imposters
+		register_editor_sdl_class<ImposterObject>(),
+		register_editor_sdl_class<GeneralImposter>(),
 	};
 }
 
