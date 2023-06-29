@@ -119,6 +119,15 @@ private:
 
 // Event System
 public:
+	/*! @brief Editor events.
+	Subscribe to editor event by adding listener to the corresponding dispatcher. Note that when
+	listening to events from a non-permanent resource, be sure to unsubscribe to the event before
+	the resource is cleaned up so the event will not act on a dangling resource. Unsubscribing to
+	an event can be done by removing listeners from the dispatcher, e.g., by calling 
+	`TEventDispatcher::removeListenerImmediately()` (calling the non-immediate overload is 
+	also acceptable).
+	*/
+	///@{
 	TEventDispatcher<KeyDownEvent> onKeyDown;
 	TEventDispatcher<KeyUpEvent> onKeyUp;
 	TEventDispatcher<DisplayFramebufferResizeEvent> onDisplayFramebufferResize;
@@ -126,7 +135,12 @@ public:
 	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
 	TEventDispatcher<AppModuleActionEvent> onAppModuleAction;
 	TEventDispatcher<EditContextUpdateEvent> onEditContextUpdate;
+	///@}
 
+	/*! @brief Specify an event that is going to be dispatched by the dispatcher.
+	The event will not be dispatched immediately--instead, it will be delayed (potentially to the next
+	multiple frames).
+	*/
 	template<typename EventType>
 	void postEvent(const EventType& e, TEventDispatcher<EventType>& eventDispatcher);
 

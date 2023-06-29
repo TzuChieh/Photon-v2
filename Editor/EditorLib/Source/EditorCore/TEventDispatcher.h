@@ -6,6 +6,7 @@
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
 #include <Utility/TUniquePtrVector.h>
+#include <Utility/exception.h>
 
 #include <limits>
 #include <type_traits>
@@ -26,7 +27,19 @@ public:
 
 public:
 	Listener* addListener(Listener listener);
+
+	/*! @biref Remove a listener that was added to this dispatcher.
+	The listener will not be removed immediately. Instead, @p listener will be marked for removal,
+	and actually be removed during dispatch. The removal process is delayed so calling
+	`removeListener()` in an event is valid and will not invalidate any listeners while they are
+	still in use. If the delayed removal is not desired, use `removeListenerImmediately()` to
+	immediately remove the listener.
+	*/
 	void removeListener(Listener* listener);
+
+	/*! @biref Immediately remove a listener that was added to this dispatcher.
+	*/
+	void removeListenerImmediately(Listener* listener);
 
 	template<typename DispatchFunc>
 	void dispatch(const EventType& e, DispatchFunc dispatchFunc);
@@ -34,6 +47,7 @@ public:
 private:
 	TUniquePtrVector<Listener> m_listeners;
 	std::vector<Listener*> m_listenersToRemove;
+	bool m_isDispatching = false;
 };
 
 template<typename EventType>
@@ -51,31 +65,52 @@ inline void TEventDispatcher<EventType>::removeListener(Listener* const listener
 }
 
 template<typename EventType>
+inline void TEventDispatcher<EventType>::removeListenerImmediately(Listener* const listener)
+{
+	if(m_isDispatching)
+	{
+		throw IllegalOperationException(
+			"Cannot remove listeners during dispatch. Use removeListener(1) instead.");
+	}
+
+	const auto removedListener = m_listeners.remove(listener);
+	PH_ASSERT(removedListener != nullptr);
+}
+
+template<typename EventType>
 template<typename DispatchFunc>
 inline void TEventDispatcher<EventType>::dispatch(const EventType& e, DispatchFunc dispatchFunc)
 {
 	static_assert(std::is_invocable_v<DispatchFunc, EventType, Listener>,
 		"DispatchFunc must take (EventType, Listener).");
 
-	// Iterate through all listeners and invoke the dispatch function on each of them. The code is
-	// aware of that listeners might get added/removed in the call to dispatch function. Listeners
-	// added/removed in the dispatch function will only participate in the next call to `dispatch()`.
-
-	// Record current count so newly added listeners will not get involved this time
-	const auto numListeners = m_listeners.size();
-
-	for(std::size_t listenerIdx = 0; listenerIdx < numListeners; ++listenerIdx)
-	{
-		dispatchFunc(e, *m_listeners[listenerIdx]);
-	}
-
-	// Only actually remove listeners after dispatch--so they can be kept valid during dispatch
+	// Only actually remove listeners before dispatch--so other listeners can be kept valid
+	// during dispatch. Also, removal is done before dispatch so calls to `removeListener()` 
+	// are respected. Calling `removeListener()` during dispatch will take effect in the next dispatch.
 	for(Listener* listener : m_listenersToRemove)
 	{
 		const auto removedListener = m_listeners.remove(listener);
 		PH_ASSERT(removedListener != nullptr);
 	}
 	m_listenersToRemove.clear();
+
+	// Iterate through all listeners and invoke the dispatch function on each of them. The code is
+	// aware of that listeners might get added/removed (calling `addListener()` and `removeListener()`)
+	// in the call to dispatch function. Listeners added/removed in the dispatch function will only
+	// participate in the next call to `dispatch()`.
+
+	// Record current count so newly added listeners will not get involved this time
+	const auto numListeners = m_listeners.size();
+
+	// Guard against nested dispatch call
+	PH_ASSERT(!m_isDispatching);
+
+	m_isDispatching = true;
+	for(std::size_t listenerIdx = 0; listenerIdx < numListeners; ++listenerIdx)
+	{
+		dispatchFunc(e, *m_listeners[listenerIdx]);
+	}
+	m_isDispatching = false;
 }
 
 }// end namespace ph
