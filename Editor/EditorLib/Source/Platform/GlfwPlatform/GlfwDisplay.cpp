@@ -3,8 +3,9 @@
 #include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
-#include "EditorCore/Event/DisplayFramebufferResizeEvent.h"
-#include "EditorCore/Event/DisplayCloseEvent.h"
+#include "EditorCore/Event/DisplayFramebufferResizedEvent.h"
+#include "EditorCore/Event/DisplayClosedEvent.h"
+#include "EditorCore/Event/DisplayFocusChangedEvent.h"
 #include "EditorCore/Thread/Threads.h"
 
 #include <Common/logging.h>
@@ -88,8 +89,8 @@ void GlfwDisplay::initialize(
 		{
 			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
 
-			DisplayFramebufferResizeEvent e(width, height);
-			editor.postEvent(e, editor.onDisplayFramebufferResize);
+			DisplayFramebufferResizedEvent e(width, height);
+			editor.postEvent(e, editor.onDisplayFramebufferResized);
 		});
 
 	glfwSetWindowCloseCallback(m_glfwWindow,
@@ -97,8 +98,17 @@ void GlfwDisplay::initialize(
 		{
 			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
 
-			DisplayCloseEvent e;
-			editor.postEvent(e, editor.onDisplayClose);
+			DisplayClosedEvent e;
+			editor.postEvent(e, editor.onDisplayClosed);
+		});
+
+	glfwSetWindowFocusCallback(m_glfwWindow, 
+		[](GLFWwindow* window, int focused)
+		{
+			Editor& editor = *(static_cast<Editor*>(glfwGetWindowUserPointer(window)));
+
+			DisplayFocusChangedEvent e(focused == GLFW_TRUE);
+			editor.postEvent(e, editor.onDisplayFocusChanged);
 		});
 
 	PH_ASSERT(!m_ghi);

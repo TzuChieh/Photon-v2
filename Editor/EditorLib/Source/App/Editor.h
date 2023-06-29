@@ -1,11 +1,12 @@
 #pragma once
 
 #include "EditorCore/TEventDispatcher.h"
-#include "EditorCore/Event/KeyDownEvent.h"
-#include "EditorCore/Event/KeyUpEvent.h"
-#include "EditorCore/Event/DisplayFramebufferResizeEvent.h"
-#include "EditorCore/Event/SceneFramebufferResizeEvent.h"
-#include "EditorCore/Event/DisplayCloseEvent.h"
+#include "EditorCore/Event/KeyPressedEvent.h"
+#include "EditorCore/Event/KeyReleasedEvent.h"
+#include "EditorCore/Event/DisplayFramebufferResizedEvent.h"
+#include "EditorCore/Event/SceneFramebufferResizedEvent.h"
+#include "EditorCore/Event/DisplayClosedEvent.h"
+#include "EditorCore/Event/DisplayFocusChangedEvent.h"
 #include "EditorCore/Event/AppModuleActionEvent.h"
 #include "App/EditorEventQueue.h"
 #include "App/HelpMenu/HelpMenu.h"
@@ -13,7 +14,7 @@
 #include "App/Misc/EditorStats.h"
 #include "EditorCore/FileSystemExplorer.h"
 #include "App/EditContext.h"
-#include "App/Event/EditContextUpdateEvent.h"
+#include "App/Event/EditContextUpdatedEvent.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -128,13 +129,14 @@ public:
 	also acceptable).
 	*/
 	///@{
-	TEventDispatcher<KeyDownEvent> onKeyDown;
-	TEventDispatcher<KeyUpEvent> onKeyUp;
-	TEventDispatcher<DisplayFramebufferResizeEvent> onDisplayFramebufferResize;
-	TEventDispatcher<SceneFramebufferResizeEvent> onSceneFramebufferResize;
-	TEventDispatcher<DisplayCloseEvent> onDisplayClose;
+	TEventDispatcher<KeyPressedEvent> onKeyPressed;
+	TEventDispatcher<KeyReleasedEvent> onKeyReleased;
+	TEventDispatcher<DisplayFramebufferResizedEvent> onDisplayFramebufferResized;
+	TEventDispatcher<SceneFramebufferResizedEvent> onSceneFramebufferResized;
+	TEventDispatcher<DisplayClosedEvent> onDisplayClosed;
+	TEventDispatcher<DisplayFocusChangedEvent> onDisplayFocusChanged;
 	TEventDispatcher<AppModuleActionEvent> onAppModuleAction;
-	TEventDispatcher<EditContextUpdateEvent> onEditContextUpdate;
+	TEventDispatcher<EditContextUpdatedEvent> onEditContextUpdated;
 	///@}
 
 	/*! @brief Specify an event that is going to be dispatched by the dispatcher.

@@ -17,10 +17,10 @@ enum class EEditContextEvent : uint8
 	ActiveSceneChanged
 };
 
-class EditContextUpdateEvent final : public Event
+class EditContextUpdatedEvent final : public Event
 {
 public:
-	EditContextUpdateEvent(Editor* editor, EEditContextEvent type);
+	EditContextUpdatedEvent(Editor* editor, EEditContextEvent type);
 
 	EditContext getContext() const;
 	Editor& getEditor() const;
@@ -31,7 +31,7 @@ private:
 	EEditContextEvent m_type;
 };
 
-inline EditContextUpdateEvent::EditContextUpdateEvent(
+inline EditContextUpdatedEvent::EditContextUpdatedEvent(
 	Editor* const editor,
 	const EEditContextEvent type)
 
@@ -43,13 +43,13 @@ inline EditContextUpdateEvent::EditContextUpdateEvent(
 	PH_ASSERT(editor);
 }
 
-inline Editor& EditContextUpdateEvent::getEditor() const
+inline Editor& EditContextUpdatedEvent::getEditor() const
 {
 	PH_ASSERT(m_editor);
 	return *m_editor;
 }
 
-inline EEditContextEvent EditContextUpdateEvent::getType() const
+inline EEditContextEvent EditContextUpdatedEvent::getType() const
 {
 	return m_type;
 }

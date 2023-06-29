@@ -1,10 +1,10 @@
-#include "App/Event/EditContextUpdateEvent.h"
+#include "App/Event/EditContextUpdatedEvent.h"
 #include "App/Editor.h"
 
 namespace ph::editor
 {
 
-EditContext EditContextUpdateEvent::getContext() const
+EditContext EditContextUpdatedEvent::getContext() const
 {
 	return getEditor().getEditContext();
 }

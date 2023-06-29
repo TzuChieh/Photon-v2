@@ -5,10 +5,10 @@
 namespace ph::editor
 {
 
-class DisplayCloseEvent final : public Event
+class DisplayClosedEvent final : public Event
 {
 public:
-	inline DisplayCloseEvent() = default;
+	inline DisplayClosedEvent() = default;
 };
 
 }// end namespace ph::editor

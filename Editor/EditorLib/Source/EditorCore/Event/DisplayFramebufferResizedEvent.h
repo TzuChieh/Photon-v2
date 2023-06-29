@@ -9,13 +9,13 @@
 namespace ph::editor
 {
 
-class DisplayFramebufferResizeEvent final : public Event
+class DisplayFramebufferResizedEvent final : public Event
 {
 public:
-	explicit DisplayFramebufferResizeEvent(math::TVector2<uint16> newSizePx);
+	explicit DisplayFramebufferResizedEvent(math::TVector2<uint16> newSizePx);
 
 	template<typename T>
-	DisplayFramebufferResizeEvent(T widthPx, T heightPx);
+	DisplayFramebufferResizedEvent(T widthPx, T heightPx);
 
 	math::Vector2S getNewSizePx() const;
 
@@ -23,18 +23,18 @@ private:
 	math::TVector2<uint16> m_newSizePx;
 };
 
-inline DisplayFramebufferResizeEvent::DisplayFramebufferResizeEvent(math::TVector2<uint16> newSizePx)
+inline DisplayFramebufferResizedEvent::DisplayFramebufferResizedEvent(math::TVector2<uint16> newSizePx)
 	: Event()
 	, m_newSizePx(newSizePx)
 {}
 
 template<typename T>
-inline DisplayFramebufferResizeEvent::DisplayFramebufferResizeEvent(T widthPx, T heightPx)
-	: DisplayFramebufferResizeEvent(
+inline DisplayFramebufferResizedEvent::DisplayFramebufferResizedEvent(T widthPx, T heightPx)
+	: DisplayFramebufferResizedEvent(
 		math::TVector2<uint16>(lossless_cast<uint16>(widthPx), lossless_cast<uint16>(heightPx)))
 {}
 
-inline math::Vector2S DisplayFramebufferResizeEvent::getNewSizePx() const
+inline math::Vector2S DisplayFramebufferResizedEvent::getNewSizePx() const
 {
 	return math::Vector2S(m_newSizePx);
 }

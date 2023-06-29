@@ -2,8 +2,8 @@
 #include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
-#include "EditorCore/Event/KeyDownEvent.h"
-#include "EditorCore/Event/KeyUpEvent.h"
+#include "EditorCore/Event/KeyPressedEvent.h"
+#include "EditorCore/Event/KeyReleasedEvent.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -104,20 +104,20 @@ void GlfwInput::initialize(Editor& editor, GLFWwindow* const glfwWindow)
 			{
 			case GLFW_PRESS:
 			{
-				KeyDownEvent e(GLFW_TO_PHOTON_KEYCODE()[key]);
-				editor.postEvent(e, editor.onKeyDown);
+				KeyPressedEvent e(GLFW_TO_PHOTON_KEYCODE()[key]);
+				editor.postEvent(e, editor.onKeyPressed);
 				break;
 			}
 			case GLFW_RELEASE:
 			{
-				KeyUpEvent e(GLFW_TO_PHOTON_KEYCODE()[key]);
-				editor.postEvent(e, editor.onKeyUp);
+				KeyReleasedEvent e(GLFW_TO_PHOTON_KEYCODE()[key]);
+				editor.postEvent(e, editor.onKeyReleased);
 				break;
 			}
 			case GLFW_REPEAT:
 			{
-				KeyDownEvent e(GLFW_TO_PHOTON_KEYCODE()[key], true);
-				editor.postEvent(e, editor.onKeyDown);
+				KeyPressedEvent e(GLFW_TO_PHOTON_KEYCODE()[key], true);
+				editor.postEvent(e, editor.onKeyPressed);
 				break;
 			}
 			}

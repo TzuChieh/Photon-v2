@@ -363,7 +363,7 @@ void Editor::setActiveScene(const std::size_t sceneIndex)
 	if(sceneToBeActive != m_activeScene)
 	{
 		m_activeScene = sceneToBeActive;
-		postEvent(EditContextUpdateEvent(this, EEditContextEvent::ActiveSceneChanged), onEditContextUpdate);
+		postEvent(EditContextUpdatedEvent(this, EEditContextEvent::ActiveSceneChanged), onEditContextUpdated);
 	
 		if(m_activeScene)
 		{

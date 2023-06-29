@@ -73,8 +73,8 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 	setDisplayFramebufferSizePx(info.framebufferSizePx);
 
 	// Listen to future size change of frame buffer
-	info.editor->onDisplayFramebufferResize.addListener(
-		[this](const DisplayFramebufferResizeEvent& e)
+	info.editor->onDisplayFramebufferResized.addListener(
+		[this](const DisplayFramebufferResizedEvent& e)
 		{
 			setDisplayFramebufferSizePx(e.getNewSizePx());
 		});

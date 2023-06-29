@@ -36,14 +36,14 @@ void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 
 	PH_DEFAULT_LOG("pic sample mode: {}", TSdlEnum<EImageSampleMode>()[res->getSampleMode()]);*/
 
-	info.editor->onKeyDown.addListener(
-		[](const KeyDownEvent& e)
+	info.editor->onKeyPressed.addListener(
+		[](const KeyPressedEvent& e)
 		{
 			PH_DEFAULT_LOG("key down: {}", static_cast<int>(e.getKey()));
 		});
 
-	info.editor->onKeyUp.addListener(
-		[](const KeyUpEvent& e)
+	info.editor->onKeyReleased.addListener(
+		[](const KeyReleasedEvent& e)
 		{
 			PH_DEFAULT_LOG("key up: {}", static_cast<int>(e.getKey()));
 		});

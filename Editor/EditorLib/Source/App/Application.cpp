@@ -38,8 +38,8 @@ Application::Application(AppSettings settings)
 {
 	m_platform = std::make_unique<GlfwPlatform>(m_settings, m_editor);
 	
-	m_editor.onDisplayClose.addListener(
-		[this](const DisplayCloseEvent& /* e */)
+	m_editor.onDisplayClosed.addListener(
+		[this](const DisplayClosedEvent& /* e */)
 		{
 			m_shouldBreakMainLoop = true;
 		});
