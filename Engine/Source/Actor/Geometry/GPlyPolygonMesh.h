@@ -15,8 +15,7 @@ class GPlyPolygonMesh : public Geometry
 public:
 	void storeCooked(
 		CookedGeometry& out_geometry,
-		const CookingContext& ctx,
-		const GeometryCookConfig& config) const override;
+		const CookingContext& ctx) const override;
 
 	void genPrimitive(
 		const PrimitiveBuildingMaterial& data,

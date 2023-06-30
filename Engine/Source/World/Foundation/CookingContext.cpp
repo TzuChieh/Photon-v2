@@ -4,13 +4,16 @@
 #include "World/VisualWorld.h"
 #include "Actor/Geometry/Geometry.h"
 
+#include <utility>
+
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(CookingContext, World);
 
 CookingContext::CookingContext(const VisualWorld* const world)
-	: m_world(world)
+	: m_config()
+	, m_world(world)
 	, m_resources(nullptr)
 	, m_cache(nullptr)
 
@@ -55,6 +58,16 @@ std::vector<std::unique_ptr<Actor>> CookingContext::claimChildActors()
 	auto childActors = std::move(m_childActors);
 	m_childActors.clear();
 	return childActors;
+}
+
+const CookingConfig& CookingContext::getConfig() const
+{
+	return m_config;
+}
+
+void CookingContext::setConfig(CookingConfig config)
+{
+	m_config = std::move(config);
 }
 
 CookedResourceCollection* CookingContext::getResources() const

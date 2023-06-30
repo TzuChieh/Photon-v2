@@ -13,12 +13,11 @@ GeometrySoup::GeometrySoup() :
 
 void GeometrySoup::storeCooked(
 	CookedGeometry& out_geometry,
-	const CookingContext& ctx,
-	const GeometryCookConfig& config) const
+	const CookingContext& ctx) const
 {
 	for(const auto& geometry : m_geometries)
 	{
-		geometry->storeCooked(out_geometry, ctx, config);
+		geometry->storeCooked(out_geometry, ctx);
 	}
 }
 

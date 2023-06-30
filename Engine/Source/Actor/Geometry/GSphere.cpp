@@ -31,12 +31,11 @@ public:
 
 void GSphere::storeCooked(
 	CookedGeometry& out_geometry,
-	const CookingContext& ctx,
-	const GeometryCookConfig& config) const
+	const CookingContext& ctx) const
 {
-	if(config.preferTriangulated)
+	if(ctx.getConfig().preferTriangulated)
 	{
-		genTriangleMesh()->storeCooked(out_geometry, ctx, config);
+		genTriangleMesh()->storeCooked(out_geometry, ctx);
 	}
 	else
 	{

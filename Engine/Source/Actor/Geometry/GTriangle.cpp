@@ -18,8 +18,7 @@ namespace ph
 
 void GTriangle::storeCooked(
 	CookedGeometry& out_geometry,
-	const CookingContext& ctx,
-	const GeometryCookConfig& config) const
+	const CookingContext& ctx) const
 {
 	// FIXME: we often have triangle that is a single point (one form of degenerate), should properly handle this
 	if(/* isDegenerate() || */

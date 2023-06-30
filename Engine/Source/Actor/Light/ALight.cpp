@@ -117,7 +117,7 @@ TransientVisualElement ALight::buildGeometricLight(
 	material->genBehaviors(ctx, *metadata);
 
 	// FIXME
-	const CookedGeometry* cookedGeometry = sanifiedGeometry->createCooked(ctx, GeometryCookConfig());
+	const CookedGeometry* cookedGeometry = sanifiedGeometry->createCooked(ctx);
 
 	std::vector<const Primitive*> lightPrimitives;
 	lightPrimitives.reserve(cookedGeometry->primitives.size());

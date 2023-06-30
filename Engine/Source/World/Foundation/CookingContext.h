@@ -8,12 +8,12 @@
 #include "Math/Geometry/TAABB3D.h"
 #include "Utility/Concurrent/TSynchronized.h"
 #include "SDL/sdl_traits.h"
+#include "World/Foundation/CookingConfig.h"
 
 #include <vector>
 #include <memory>
 #include <unordered_map>
 #include <string>
-#include <utility>
 
 namespace ph
 {
@@ -44,6 +44,8 @@ public:
 
 	std::vector<std::unique_ptr<Actor>> claimChildActors();
 
+	const CookingConfig& getConfig() const;
+	void setConfig(CookingConfig config);
 	CookedResourceCollection* getResources() const;
 	TransientResourceCache* getCache() const;
 
@@ -64,6 +66,7 @@ public:
 private:
 	const VisualWorld& getWorld() const;
 
+	CookingConfig m_config;
 	const VisualWorld* m_world;
 	CookedResourceCollection* m_resources;
 	TransientResourceCache* m_cache;

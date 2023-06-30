@@ -48,15 +48,14 @@ GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const math::
 
 void GCuboid::storeCooked(
 	CookedGeometry& out_geometry,
-	const CookingContext& ctx,
-	const GeometryCookConfig& config) const
+	const CookingContext& ctx) const
 {
 	if(!checkData(m_size.x(), m_size.y(), m_size.z()))
 	{
 		return;
 	}
 
-	GCuboid::genTriangulated()->storeCooked(out_geometry, ctx, config);
+	GCuboid::genTriangulated()->storeCooked(out_geometry, ctx);
 }
 
 void GCuboid::genPrimitive(

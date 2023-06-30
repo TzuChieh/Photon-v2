@@ -14,7 +14,6 @@ namespace ph
 
 class Primitive;
 class CookedGeometry;
-class GeometryCookConfig;
 class CookingContext;
 class PrimitiveBuildingMaterial;
 
@@ -25,8 +24,7 @@ public:
 	*/
 	virtual void storeCooked(
 		CookedGeometry& out_geometry,
-		const CookingContext& ctx,
-		const GeometryCookConfig& config) const = 0;
+		const CookingContext& ctx) const = 0;
 
 	// DEPRECATED
 	virtual void genPrimitive(
@@ -40,9 +38,7 @@ public:
 
 	/*! @brief Create a `CookedGeometry` that contains data suitable for rendering.
 	*/
-	CookedGeometry* createCooked(
-		const CookingContext& ctx,
-		const GeometryCookConfig& config) const;
+	CookedGeometry* createCooked(const CookingContext& ctx) const;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Geometry>)

@@ -9,8 +9,7 @@ namespace ph
 
 void GEmpty::storeCooked(
 	CookedGeometry& out_geometry,
-	const CookingContext& ctx,
-	const GeometryCookConfig& config) const
+	const CookingContext& ctx) const
 {
 	out_geometry.primitives.push_back(
 		ctx.getResources()->makeIntersectable<PEmpty>());

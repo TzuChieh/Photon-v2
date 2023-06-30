@@ -54,7 +54,7 @@ TransientVisualElement AModel::cook(CookingContext& ctx, const PreCookReport& re
 	
 	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 	// FIXME
-	const CookedGeometry* cookedGeometry = m_geometry->createCooked(ctx, GeometryCookConfig());
+	const CookedGeometry* cookedGeometry = m_geometry->createCooked(ctx);
 
 	TransientVisualElement cookedUnit;
 	for(const Primitive* primitive : cookedGeometry->primitives)

@@ -21,8 +21,7 @@ GMengerSponge::GMengerSponge(const uint32 numIteration) :
 
 void GMengerSponge::storeCooked(
 	CookedGeometry& out_geometry,
-	const CookingContext& ctx,
-	const GeometryCookConfig& config) const
+	const CookingContext& ctx) const
 {
 	std::vector<GCuboid> cubes;
 	genMengerSpongeRecursive(
@@ -33,7 +32,7 @@ void GMengerSponge::storeCooked(
 
 	for(const auto& cube : cubes)
 	{
-		cube.storeCooked(out_geometry, ctx, config);
+		cube.storeCooked(out_geometry, ctx);
 	}
 }
 

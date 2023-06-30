@@ -14,15 +14,14 @@ namespace ph
 
 void GRectangle::storeCooked(
 	CookedGeometry& out_geometry,
-	const CookingContext& ctx,
-	const GeometryCookConfig& config) const
+	const CookingContext& ctx) const
 {
 	if(!checkData(m_width, m_height))
 	{
 		return;
 	}
 
-	genTriangleMesh()->storeCooked(out_geometry, ctx, config);
+	genTriangleMesh()->storeCooked(out_geometry, ctx);
 }
 
 void GRectangle::genPrimitive(
