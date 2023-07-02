@@ -1,0 +1,10 @@
+/*! @dir Light
+@brief Defines energy emitting entities.
+
+Without energy sources, you simply cannot take a picture of the scene. Light
+sources are essential for defining behaviors of radiant energy emission. Here I
+distinguish model and area sources by their emission profile: area sources have
+constant emission across its defined surface; whereas model sources are more
+general and allow texture mapped emission along with arbitrary geometry.
+
+*/

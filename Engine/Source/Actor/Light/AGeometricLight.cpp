@@ -1,4 +1,4 @@
-#include "Actor/Light/ALight.h"
+#include "Actor/Light/AGeometricLight.h"
 #include "Math/math.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/MatteOpaque.h"
@@ -6,7 +6,6 @@
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Core/Intersectable/TransformedIntersectable.h"
-#include "Actor/ModelBuilder.h"
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/StaticRigidTransform.h"
@@ -15,68 +14,65 @@
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Common/logging.h"
 #include "Core/Intersectable/TMetaInjectionPrimitive.h"
+#include "Core/Emitter/DiffuseSurfaceEmitter.h"
+#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 
 #include <algorithm>
 
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(ALight, Actor);
+PH_DEFINE_INTERNAL_LOG_GROUP(AGeometricLight, Actor);
 
-TransientVisualElement ALight::cook(CookingContext& ctx, const PreCookReport& report)
+std::shared_ptr<Material> AGeometricLight::getMaterial(const CookingContext& ctx) const
 {
-	if(!m_lightSource)
-	{
-		PH_LOG_WARNING(ALight, "incomplete data detected, this light is ignored");
-		return TransientVisualElement();
-	}
+	return std::make_shared<MatteOpaque>();
+}
 
-	PH_ASSERT(m_lightSource);
-	std::shared_ptr<Geometry> geometry = m_lightSource->genGeometry(ctx);
+PreCookReport AGeometricLight::preCook(CookingContext& ctx) const
+{
+	PreCookReport report = PhysicalActor::preCook(ctx);
 
-	TransientVisualElement cookedActor;
-	if(geometry)
+	// TODO: test "isRigid()" may be more appropriate
+	if(m_localToWorld.getDecomposed().hasScaleEffect() || m_localToWorld.getDecomposed().isIdentity())
 	{
-		std::shared_ptr<Material> material = m_lightSource->genMaterial(ctx);
-		cookedActor = buildGeometricLight(ctx, geometry, material, report);
+		report.setBaseTransforms(nullptr, nullptr);
 	}
 	else
 	{
-		std::unique_ptr<Emitter> emitter = m_lightSource->genEmitter(ctx, EmitterBuildingMaterial());
-		cookedActor.emitter = std::move(emitter);
+		auto localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+			m_localToWorld.getForwardStaticRigid());
+		auto worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+			m_localToWorld.getInverseStaticRigid());
+
+		report.setBaseTransforms(localToWorld, worldToLocal);
 	}
 
-	return cookedActor;
+	return report;
 }
 
-TransientVisualElement ALight::buildGeometricLight(
-	CookingContext& ctx,
-	const std::shared_ptr<Geometry>& srcGeometry,
-	const std::shared_ptr<Material>& srcMaterial,
-	const PreCookReport& report) const
+TransientVisualElement AGeometricLight::cook(CookingContext& ctx, const PreCookReport& report)
 {
-	std::shared_ptr<Geometry> geometry = srcGeometry;
-	std::shared_ptr<Material> material = srcMaterial;
+	std::shared_ptr<Geometry> geometry = getGeometry(ctx);
+	std::shared_ptr<Material> material = getMaterial(ctx);
 
-	if(!isGeometric() || !geometry)
+	if(!geometry)
 	{
-		PH_LOG_ERROR(ALight, 
+		PH_LOG_ERROR(AGeometricLight,
 			"cannot build geometric light, please make sure the actor is geometric or supply a "
 			"valid geometry resource");
-
 		return TransientVisualElement();
 	}
 
 	if(!material)
 	{
-		PH_LOG(ALight, 
+		PH_LOG(AGeometricLight,
 			"material is not specified, using default diffusive material");
-
 		material = std::make_shared<MatteOpaque>();
 	}
 
 	math::TDecomposedTransform<real> remainingLocalToWorld;
-	auto sanifiedGeometry = getSanifiedGeometry(geometry, &remainingLocalToWorld);
+	auto sanifiedGeometry = getSanifiedGeometry(geometry, m_localToWorld, &remainingLocalToWorld);
 
 	PrimitiveMetadata* metadata = ctx.getResources()->makeMetadata();
 	material->genBehaviors(ctx, *metadata);
@@ -148,20 +144,23 @@ TransientVisualElement ALight::buildGeometricLight(
 		cookedLight.intersectables.push_back(primitive);
 	}
 
-	EmitterBuildingMaterial emitterBuildingMaterial;
-	emitterBuildingMaterial.primitives = lightPrimitives;
-	emitterBuildingMaterial.metadata   = metadata;
-	auto emitter = m_lightSource->genEmitter(ctx, std::move(emitterBuildingMaterial));
+	const Emitter* emitter = buildEmitter(ctx, lightPrimitives);
+	if(!emitter)
+	{
+		PH_LOG_ERROR(AGeometricLight,
+			"no emitter generated");
+		return cookedLight;
+	}
 
-	metadata->getSurface().setEmitter(emitter.get());
-	cookedLight.emitter = std::move(emitter);
-
+	cookedLight.emitters.push_back(emitter);
+	metadata->getSurface().setEmitter(emitter);
 	return cookedLight;
 }
 
-std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
+std::shared_ptr<Geometry> AGeometricLight::getSanifiedGeometry(
 	const std::shared_ptr<Geometry>& srcGeometry,
-	math::TDecomposedTransform<real>* const out_remainingLocalToWorld) const
+	const TransformInfo& srcLocalToWorld,
+	math::TDecomposedTransform<real>* const out_remainingLocalToWorld)
 {
 	if(!srcGeometry)
 	{
@@ -171,21 +170,21 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 	std::shared_ptr<Geometry> sanifiedGeometry = nullptr;
 
 	// TODO: test "isRigid()" may be more appropriate
-	if(m_localToWorld.getDecomposed().hasScaleEffect())
+	if(srcLocalToWorld.getDecomposed().hasScaleEffect())
 	{
-		PH_LOG(ALight,
+		PH_LOG(AGeometricLight,
 			"scale detected (which is {}), this is undesirable since many light attributes will "
 			"be affected; can incur additional memory overhead as the original cooked geometry "
 			"may not be used (e.g., a transformed temporary is used instead and the original is "
 			"not referenced)",
-			m_localToWorld.getScale());
+			srcLocalToWorld.getScale());
 
-		const auto baseLW = m_localToWorld.getForwardStaticAffine();
+		const auto baseLW = srcLocalToWorld.getForwardStaticAffine();
 
 		sanifiedGeometry = srcGeometry->genTransformed(baseLW);
 		if(!sanifiedGeometry)
 		{
-			PH_LOG_WARNING(ALight,
+			PH_LOG_WARNING(AGeometricLight,
 				"scale detected and has failed to apply it to the geometry; "
 				"scaling on light with attached geometry may have unexpected "
 				"behaviors such as miscalculated primitive surface area, which "
@@ -195,7 +194,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 			
 			if(out_remainingLocalToWorld)
 			{
-				*out_remainingLocalToWorld = m_localToWorld.getDecomposed();
+				*out_remainingLocalToWorld = srcLocalToWorld.getDecomposed();
 			}
 		}
 		else
@@ -209,7 +208,7 @@ std::shared_ptr<Geometry> ALight::getSanifiedGeometry(
 
 		if(out_remainingLocalToWorld)
 		{
-			*out_remainingLocalToWorld = m_localToWorld.getDecomposed();
+			*out_remainingLocalToWorld = srcLocalToWorld.getDecomposed();
 		}
 	}
 

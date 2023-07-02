@@ -20,10 +20,10 @@ public:
 	UnifiedColorImage(math::Vector3R colorValue, math::EColorSpace colorSpace);
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		CookingContext& ctx) override;
+		const CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		CookingContext& ctx) override;
+		const CookingContext& ctx) override;
 
 	UnifiedColorImage& setImage(std::shared_ptr<Image> image);
 	UnifiedColorImage& setConstant(math::Vector3R constant);

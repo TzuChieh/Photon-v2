@@ -32,6 +32,7 @@ public:
 	std::string getStats() const override;
 
 	template<typename... DeducedArgs>
+	[[nodiscard]]
 	PrimitiveMetadata* makeMetadata(DeducedArgs&&... args)
 	{
 		return makeCookedResource<PrimitiveMetadata>(
@@ -39,6 +40,7 @@ public:
 	}
 
 	template<CDerived<math::Transform> TransformType, typename... DeducedArgs>
+	[[nodiscard]]
 	TransformType* makeTransform(DeducedArgs&&... args)
 	{
 		return makeCookedResource<TransformType>(
@@ -46,6 +48,7 @@ public:
 	}
 
 	template<CDerived<Intersectable> IntersectableType, typename... DeducedArgs>
+	[[nodiscard]]
 	IntersectableType* makeIntersectable(DeducedArgs&&... args)
 	{
 		return makeCookedResource<IntersectableType>(
@@ -53,12 +56,14 @@ public:
 	}
 
 	template<CDerived<Intersectable> IntersectableType>
+	[[nodiscard]]
 	IntersectableType* copyIntersectable(IntersectableType intersectable)
 	{
 		return makeIntersectable<IntersectableType>(std::move(intersectable));
 	}
 
 	template<CDerived<Emitter> EmitterType, typename... DeducedArgs>
+	[[nodiscard]]
 	EmitterType* makeEmitter(DeducedArgs&&... args)
 	{
 		return makeCookedResource<EmitterType>(
@@ -66,6 +71,7 @@ public:
 	}
 
 	template<typename... DeducedArgs>
+	[[nodiscard]]
 	IndexedTriangleBuffer* makeTriangleBuffer(DeducedArgs&&... args)
 	{
 		return makeCookedResource<IndexedTriangleBuffer>(

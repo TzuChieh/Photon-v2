@@ -12,7 +12,7 @@ CheckerboardImage::CheckerboardImage() :
 {}
 
 std::shared_ptr<TTexture<Image::Array>> CheckerboardImage::genNumericTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	const auto& images = checkOutImages();
 	if(images.first == nullptr || images.second == nullptr)
@@ -27,7 +27,7 @@ std::shared_ptr<TTexture<Image::Array>> CheckerboardImage::genNumericTexture(
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> CheckerboardImage::genColorTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	const auto& images = checkOutImages();
 	if(images.first == nullptr || images.second == nullptr)

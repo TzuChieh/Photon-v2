@@ -22,10 +22,10 @@ public:
 	UnifiedNumericImage();
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		CookingContext& ctx) override;
+		const CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		CookingContext& ctx) override;
+		const CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<real>> genRealTexture(CookingContext& ctx);
 	std::shared_ptr<TTexture<math::Vector2R>> genVector2RTexture(CookingContext& ctx);

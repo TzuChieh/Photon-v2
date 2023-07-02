@@ -37,11 +37,16 @@ public:
 	// TODO: we can assign child actors special attributes such as
 	// deferred cooking, which opens the possibility of calculating
 	// full scene bound before cooking (or their parent actor)
+	// DEPRECATED
 	void addChildActor(std::unique_ptr<Actor> actor);
 
+	// DEPRECATED
 	void addPhantom(const std::string& name, TransientVisualElement phantom);
+
+	// DEPRECATED
 	const TransientVisualElement* getPhantom(const std::string& name) const;
 
+	// DEPRECATED
 	std::vector<std::unique_ptr<Actor>> claimChildActors();
 
 	const CookingConfig& getConfig() const;

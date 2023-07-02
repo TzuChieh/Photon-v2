@@ -13,7 +13,7 @@ GradientImage::GradientImage() :
 {}
 
 std::shared_ptr<TTexture<Image::Array>> GradientImage::genNumericTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	const auto& images = checkoutImages();
 	if(!images.first|| !images.second)
@@ -29,7 +29,7 @@ std::shared_ptr<TTexture<Image::Array>> GradientImage::genNumericTexture(
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> GradientImage::genColorTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	const auto& images = checkoutImages();
 	if(!images.first || !images.second)

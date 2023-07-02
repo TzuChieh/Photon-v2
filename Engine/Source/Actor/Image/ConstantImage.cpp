@@ -16,7 +16,7 @@ ConstantImage::ConstantImage() :
 {}
 
 std::shared_ptr<TTexture<Image::Array>> ConstantImage::genNumericTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	if(m_values.size() > Image::ARRAY_SIZE)
 	{
@@ -36,7 +36,7 @@ std::shared_ptr<TTexture<Image::Array>> ConstantImage::genNumericTexture(
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	if(m_colorSpace != math::EColorSpace::Spectral)
 	{

@@ -18,18 +18,18 @@ class Actor : public TSdlResourceBase<ESdlTypeCategory::Ref_Actor>
 public:
 	/*! @brief Cooking supplemental data before `cook()`.
 	This method allows user to specify additional configurations for the following cooking process.
-	The method is guaranteed to run in parallel.
+	This method may run in parallel without taking into account resource dependencies.
 	*/
-	virtual PreCookReport preCook(CookingContext& ctx);
+	virtual PreCookReport preCook(CookingContext& ctx) const;
 
 	virtual TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) = 0;
 
 	/*! @brief Cooking additional data after `cook()`.
 	This method provides an opportunity for user to decorate the cooked data or any post-cook
 	operations (such as generating debug data). 
-	The method is guaranteed to run in parallel.
+	This method may run in parallel without taking into account resource dependencies.
 	*/
-	virtual void postCook(const CookingContext& ctx, const TransientVisualElement& element) const;
+	virtual void postCook(const CookingContext& ctx, TransientVisualElement& element) const;
 
 	virtual CookOrder getCookOrder() const;
 

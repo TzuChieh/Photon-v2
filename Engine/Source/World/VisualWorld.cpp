@@ -69,7 +69,15 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	PH_ASSERT(m_cache == nullptr);
 	m_cache = std::make_unique<TransientResourceCache>();
 
-	std::vector<std::shared_ptr<Actor>> actors = rawScene.getResources().getAll<Actor>();
+	std::vector<SceneActor> sceneActors;
+	for(auto actor : rawScene.getResources().getAll<Actor>())
+	{
+		sceneActors.push_back({.actor = actor, .isPhantom = false});
+	}
+	for(auto phantomActor : rawScene.getPhantoms().getAll<Actor>())
+	{
+		sceneActors.push_back({.actor = phantomActor, .isPhantom = true});
+	}
 
 	// TODO: clear cooked data
 
@@ -83,30 +91,30 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 	std::size_t numCookedActors = 0;
 	std::vector<TransientVisualElement> elements;
-	while(numCookedActors < actors.size())
+	while(numCookedActors < sceneActors.size())
 	{
 		PH_SCOPED_TIMER(CookActorLevels);
 
-		auto actorCookBegin = actors.begin() + numCookedActors;
+		auto actorCookBegin = sceneActors.begin() + numCookedActors;
 
 		// Sort raw actors based on cook order
-		std::sort(actorCookBegin, actors.end(),
-			[](const std::shared_ptr<Actor>& a, const std::shared_ptr<Actor>& b)
+		std::sort(actorCookBegin, sceneActors.end(),
+			[](const SceneActor& a, const SceneActor& b)
 			{
-				return a->getCookOrder() < b->getCookOrder();
+				return a.actor->getCookOrder() < b.actor->getCookOrder();
 			});
 
-		const CookLevel currentActorLevel = (*actorCookBegin)->getCookOrder().level;
+		const CookLevel currentActorLevel = actorCookBegin->actor->getCookOrder().level;
 		PH_LOG(VisualWorld, "cooking actor level: {}", currentActorLevel);
 
 		// Find the transition point from current level to next level
-		auto actorCookEnd = std::upper_bound(actorCookBegin, actors.end(), currentActorLevel,
-			[](const CookLevel a, const std::shared_ptr<Actor>& b)
+		auto actorCookEnd = std::upper_bound(actorCookBegin, sceneActors.end(), currentActorLevel,
+			[](const CookLevel a, SceneActor& b)
 			{
-				return a < b->getCookOrder().level;
+				return a < b.actor->getCookOrder().level;
 			});
 
-		cookActors(&actors[numCookedActors], actorCookEnd - actorCookBegin, ctx, elements);
+		cookActors({actorCookBegin, actorCookEnd}, ctx, elements);
 
 		// Prepare for next cooking iteration
 
@@ -127,8 +135,8 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		m_leafActorsBound = bound;
 
 		// Add newly created actors
-		auto childActors = ctx.claimChildActors();
-		actors.insert(actors.end(), std::make_move_iterator(childActors.begin()), std::make_move_iterator(childActors.end()));
+		/*auto childActors = ctx.claimChildActors();
+		actors.insert(actors.end(), std::make_move_iterator(childActors.begin()), std::make_move_iterator(childActors.end()));*/
 
 		numCookedActors += actorCookEnd - actorCookBegin;
 
@@ -190,24 +198,25 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 }
 
 void VisualWorld::cookActors(
-	std::shared_ptr<Actor>* const actors,
-	const std::size_t numActors,
+	TSpan<SceneActor> sceneActors,
 	CookingContext& ctx,
 	std::vector<TransientVisualElement>& out_elements)
 {
-	PH_ASSERT(actors);
-
 	// TODO: parallel preCook() and postCook()
 
-	for(std::size_t i = 0; i < numActors; ++i)
+	for(const SceneActor& sceneActor : sceneActors)
 	{
-		auto actor = actors[i];
-
 		try
 		{
-			PreCookReport report = actor->preCook(ctx);
-			TransientVisualElement element = actor->cook(ctx, report);
-			actor->postCook(ctx, element);
+			PreCookReport report = sceneActor.actor->preCook(ctx);
+			TransientVisualElement element = sceneActor.actor->cook(ctx, report);
+			sceneActor.actor->postCook(ctx, element);
+
+			// Phantom actor is always cached
+			if(sceneActor.isPhantom)
+			{
+				m_cache->makeVisualElement(sceneActor.actor->getId(), element);
+			}
 
 			// DEPRECATED
 			if(element.emitter)

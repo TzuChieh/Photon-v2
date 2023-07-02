@@ -188,7 +188,7 @@ inline std::array<uint8, N> to_exact_texture_swizzle_map(const std::string_view 
 }// end anonymous namespace
 
 std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	if(m_swizzleSubscripts.size() > Image::ARRAY_SIZE)
 	{
@@ -217,7 +217,7 @@ std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> UnifiedNumericImage::genColorTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	if(!m_swizzleSubscripts.empty())
 	{

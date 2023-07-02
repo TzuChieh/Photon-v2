@@ -22,7 +22,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(DomeActor, Actor);
 
-PreCookReport ADome::preCook(CookingContext& ctx)
+PreCookReport ADome::preCook(CookingContext& ctx) const
 {
 	PreCookReport report = PhysicalActor::preCook(ctx);
 

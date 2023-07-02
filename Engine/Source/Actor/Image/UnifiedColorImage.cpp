@@ -34,7 +34,7 @@ UnifiedColorImage::UnifiedColorImage(const math::Vector3R colorValue, const math
 }
 
 std::shared_ptr<TTexture<Image::Array>> UnifiedColorImage::genNumericTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	if(m_image)
 	{
@@ -47,7 +47,7 @@ std::shared_ptr<TTexture<Image::Array>> UnifiedColorImage::genNumericTexture(
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> UnifiedColorImage::genColorTexture(
-	CookingContext& ctx)
+	const CookingContext& ctx)
 {
 	if(m_image)
 	{

@@ -32,6 +32,7 @@ protected:
 	using TSdlResourceIdMap = std::unordered_map<SdlResourceId, std::unique_ptr<CookedType>>;
 
 	template<typename DerivedType, typename BaseType, typename... DeducedArgs>
+	[[nodiscard]]
 	static DerivedType* makeCookedResource(
 		TSynchronized<TUniquePtrVector<BaseType>>& syncedResources,
 		DeducedArgs&&... args)

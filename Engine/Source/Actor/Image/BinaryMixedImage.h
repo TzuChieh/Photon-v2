@@ -14,10 +14,10 @@ public:
 	BinaryMixedImage();
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		CookingContext& ctx) override = 0;
+		const CookingContext& ctx) override = 0;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		CookingContext& ctx) override = 0;
+		const CookingContext& ctx) override = 0;
 
 	void setImageA(const std::weak_ptr<Image>& imageA);
 	void setImageB(const std::weak_ptr<Image>& imageB);

@@ -15,7 +15,7 @@ namespace ph
 class AModel : public PhysicalActor
 {
 public:
-	PreCookReport preCook(CookingContext& ctx) override;
+	PreCookReport preCook(CookingContext& ctx) const override;
 	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
 
 	const Geometry* getGeometry() const;

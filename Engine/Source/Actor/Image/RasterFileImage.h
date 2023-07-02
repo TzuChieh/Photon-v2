@@ -22,17 +22,17 @@ public:
 	explicit RasterFileImage(ResourceIdentifier imageFile);
 
 	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
-		CookingContext& ctx) override;
+		const CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
-		CookingContext& ctx) override;
+		const CookingContext& ctx) override;
 
 	RegularPicture loadRegularPicture() const;
 	void setFilePath(Path filePath);
 
 protected:
 	std::shared_ptr<PixelBuffer2D> loadPixelBuffer(
-		CookingContext&              ctx,
+		const CookingContext&        ctx,
 		math::EColorSpace*           out_colorSpace = nullptr,
 		pixel_texture::EPixelLayout* out_pixelLayout = nullptr) const;
 

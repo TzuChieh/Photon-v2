@@ -7,12 +7,12 @@
 namespace ph
 {
 
-PreCookReport Actor::preCook(CookingContext& ctx)
+PreCookReport Actor::preCook(CookingContext& ctx) const
 {
 	return PreCookReport(getId());
 }
 
-void Actor::postCook(const CookingContext& ctx, const TransientVisualElement& element) const
+void Actor::postCook(const CookingContext& ctx, TransientVisualElement& element) const
 {}
 
 CookOrder Actor::getCookOrder() const

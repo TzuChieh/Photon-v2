@@ -55,6 +55,12 @@ public:
 	math::AABB3D getLeafActorsBound() const;
 
 private:
+	struct SceneActor
+	{
+		std::shared_ptr<Actor> actor;
+		bool isPhantom = false;
+	};
+
 	std::unique_ptr<CookedResourceCollection> m_cookedResources;
 	std::unique_ptr<TransientResourceCache> m_cache;
 	std::vector<TransientVisualElement> m_cookedUnits;
@@ -71,8 +77,7 @@ private:
 	const Primitive* m_backgroundPrimitive;
 
 	void cookActors(
-		std::shared_ptr<Actor>* actors, 
-		std::size_t numActors, 
+		TSpan<SceneActor> sceneActors,
 		CookingContext& ctx,
 		std::vector<TransientVisualElement>& out_elements);
 
