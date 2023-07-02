@@ -10,7 +10,7 @@ namespace ph
 class ATransformedInstance : public PhysicalActor
 {
 public:
-	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
+	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) override;
 
 private:
 	std::string m_phantomName;

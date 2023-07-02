@@ -24,7 +24,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(AModel, Actor);
 
-PreCookReport AModel::preCook(CookingContext& ctx) const
+PreCookReport AModel::preCook(const CookingContext& ctx) const
 {
 	PreCookReport report = PhysicalActor::preCook(ctx);
 
@@ -41,7 +41,7 @@ PreCookReport AModel::preCook(CookingContext& ctx) const
 	return report;
 }
 
-TransientVisualElement AModel::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookReport& report)
 {
 	if(!m_geometry || !m_material)
 	{

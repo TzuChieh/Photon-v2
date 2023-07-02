@@ -23,7 +23,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(ALight, Actor);
 
-TransientVisualElement ALight::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement ALight::cook(const CookingContext& ctx, const PreCookReport& report)
 {
 	if(!m_lightSource)
 	{
@@ -50,7 +50,7 @@ TransientVisualElement ALight::cook(CookingContext& ctx, const PreCookReport& re
 }
 
 TransientVisualElement ALight::buildGeometricLight(
-	CookingContext& ctx,
+	const CookingContext& ctx,
 	const std::shared_ptr<Geometry>& srcGeometry,
 	const std::shared_ptr<Material>& srcMaterial,
 	const PreCookReport& report) const

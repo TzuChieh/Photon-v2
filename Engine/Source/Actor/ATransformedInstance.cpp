@@ -22,7 +22,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(TransformedInstanceActor, Actor);
 
-TransientVisualElement ATransformedInstance::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement ATransformedInstance::cook(const CookingContext& ctx, const PreCookReport& report)
 {
 	TransientVisualElement cooked;
 

@@ -29,7 +29,7 @@ std::shared_ptr<Material> AGeometricLight::getMaterial(const CookingContext& ctx
 	return std::make_shared<MatteOpaque>();
 }
 
-PreCookReport AGeometricLight::preCook(CookingContext& ctx) const
+PreCookReport AGeometricLight::preCook(const CookingContext& ctx) const
 {
 	PreCookReport report = PhysicalActor::preCook(ctx);
 
@@ -51,7 +51,7 @@ PreCookReport AGeometricLight::preCook(CookingContext& ctx) const
 	return report;
 }
 
-TransientVisualElement AGeometricLight::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const PreCookReport& report)
 {
 	std::shared_ptr<Geometry> geometry = getGeometry(ctx);
 	std::shared_ptr<Material> material = getMaterial(ctx);

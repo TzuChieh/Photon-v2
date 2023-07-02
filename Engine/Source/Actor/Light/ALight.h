@@ -9,8 +9,8 @@ namespace ph
 class ALight : public PhysicalActor
 {
 public:
-	PreCookReport preCook(CookingContext& ctx) const override = 0;
-	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override = 0;
+	PreCookReport preCook(const CookingContext& ctx) const override = 0;
+	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) override = 0;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ALight>)

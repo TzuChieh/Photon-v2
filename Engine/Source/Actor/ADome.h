@@ -28,8 +28,8 @@ public:
 	virtual std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(
 		CookingContext& ctx, DomeRadianceFunctionInfo* out_info) = 0;
 
-	PreCookReport preCook(CookingContext& ctx) const override;
-	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
+	PreCookReport preCook(const CookingContext& ctx) const override;
+	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) override;
 	CookOrder getCookOrder() const override;
 
 private:

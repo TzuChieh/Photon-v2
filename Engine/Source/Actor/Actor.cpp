@@ -7,7 +7,7 @@
 namespace ph
 {
 
-PreCookReport Actor::preCook(CookingContext& ctx) const
+PreCookReport Actor::preCook(const CookingContext& ctx) const
 {
 	return PreCookReport(getId());
 }

@@ -20,9 +20,9 @@ public:
 	This method allows user to specify additional configurations for the following cooking process.
 	This method may run in parallel without taking into account resource dependencies.
 	*/
-	virtual PreCookReport preCook(CookingContext& ctx) const;
+	virtual PreCookReport preCook(const CookingContext& ctx) const;
 
-	virtual TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) = 0;
+	virtual TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) = 0;
 
 	/*! @brief Cooking additional data after `cook()`.
 	This method provides an opportunity for user to decorate the cooked data or any post-cook

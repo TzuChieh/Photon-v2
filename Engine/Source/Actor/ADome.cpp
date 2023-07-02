@@ -22,7 +22,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(DomeActor, Actor);
 
-PreCookReport ADome::preCook(CookingContext& ctx) const
+PreCookReport ADome::preCook(const CookingContext& ctx) const
 {
 	PreCookReport report = PhysicalActor::preCook(ctx);
 
@@ -48,7 +48,7 @@ PreCookReport ADome::preCook(CookingContext& ctx) const
 	return report;
 }
 
-TransientVisualElement ADome::cook(CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookReport& report)
 {
 	// Must match what was used in `preCook()`
 	auto localToWorld = static_cast<const math::StaticRigidTransform*>(report.getBaseLocalToWorld());

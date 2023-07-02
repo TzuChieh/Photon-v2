@@ -10,7 +10,7 @@ namespace ph
 class APhantomModel : public AModel
 {
 public:
-	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
+	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) override;
 	CookOrder getCookOrder() const override;
 
 private:

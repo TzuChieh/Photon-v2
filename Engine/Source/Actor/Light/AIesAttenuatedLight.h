@@ -13,8 +13,8 @@ namespace ph
 class AIesAttenuatedLight : public ALight
 {
 public:
-	PreCookReport preCook(CookingContext& ctx) const override;
-	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
+	PreCookReport preCook(const CookingContext& ctx) const override;
+	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) override;
 
 	void setSource(const std::shared_ptr<ALight>& source);
 	void setIesFile(const Path& iesFile);

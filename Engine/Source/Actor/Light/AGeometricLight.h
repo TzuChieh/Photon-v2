@@ -25,8 +25,8 @@ public:
 
 	virtual std::shared_ptr<Material> getMaterial(const CookingContext& ctx) const;
 
-	PreCookReport preCook(CookingContext& ctx) const override;
-	TransientVisualElement cook(CookingContext& ctx, const PreCookReport& report) override;
+	PreCookReport preCook(const CookingContext& ctx) const override;
+	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) override;
 
 	/*!
 	Tries to return a geometry suitable for emitter calculations (can be the 
