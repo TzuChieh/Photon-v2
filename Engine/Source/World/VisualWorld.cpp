@@ -133,21 +133,10 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		}
 
 		m_leafActorsBound = bound;
-
-		// Add newly created actors
-		/*auto childActors = ctx.claimChildActors();
-		actors.insert(actors.end(), std::make_move_iterator(childActors.begin()), std::make_move_iterator(childActors.end()));*/
-
 		numCookedActors += actorCookEnd - actorCookBegin;
 
 		PH_LOG(VisualWorld, "# cooked actors: {}", numCookedActors);
 	}// end while more raw actors
-
-	/*for(auto& phantom : ctx.m_phantoms)
-	{
-		phantom.second.claimCookedData(m_phantomStorage);
-		phantom.second.claimCookedBackend(m_phantomStorage);
-	}*/
 
 	m_backgroundPrimitive = m_cookedResources->getNamed().asConst()->getBackgroundPrimitive();
 
@@ -217,17 +206,6 @@ void VisualWorld::cookActors(
 			{
 				m_cache->makeVisualElement(sceneActor.actor->getId(), element);
 			}
-
-			// DEPRECATED
-			if(element.emitter)
-			{
-				element.emitters.push_back(element.emitter.get());
-				m_cookedActorStorage.add(std::move(element.emitter));
-			}
-
-			// DEPRECATED
-			//cookedUnit.claimCookedData(m_cookedActorStorage);
-			//cookedUnit.claimCookedBackend(m_cookedBackendStorage);// TODO: make backend phantoms
 
 			out_elements.push_back(std::move(element));
 		}

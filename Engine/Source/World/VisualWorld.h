@@ -64,9 +64,6 @@ private:
 	std::unique_ptr<CookedResourceCollection> m_cookedResources;
 	std::unique_ptr<TransientResourceCache> m_cache;
 	std::vector<TransientVisualElement> m_cookedUnits;
-	CookedDataStorage m_cookedActorStorage;
-	CookedDataStorage m_cookedBackendStorage;
-	CookedDataStorage m_phantomStorage;
 	math::Vector3R m_receiverPos;
 	math::AABB3D m_rootActorsBound;
 	math::AABB3D m_leafActorsBound;

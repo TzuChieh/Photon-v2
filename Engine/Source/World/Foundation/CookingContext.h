@@ -1,19 +1,11 @@
 #pragma once
 
 #include "Utility/IMoveOnly.h"
-#include "Actor/Actor.h"
-#include "World/Foundation/TransientVisualElement.h"
 #include "Common/assertion.h"
-#include "Core/Intersectable/Primitive.h"
 #include "Math/Geometry/TAABB3D.h"
-#include "Utility/Concurrent/TSynchronized.h"
-#include "SDL/sdl_traits.h"
 #include "World/Foundation/CookingConfig.h"
 
-#include <vector>
 #include <memory>
-#include <unordered_map>
-#include <string>
 
 namespace ph
 {
@@ -21,7 +13,9 @@ namespace ph
 class VisualWorld;
 class CookedResourceCollection;
 class TransientResourceCache;
+class TransientVisualElement;
 class Geometry;
+class Actor;
 class CookedGeometry;
 
 /*! @brief Information about the world being cooked.
@@ -33,21 +27,6 @@ class CookingContext final : private IMoveOnly
 
 public:
 	explicit CookingContext(const VisualWorld* world);
-
-	// TODO: we can assign child actors special attributes such as
-	// deferred cooking, which opens the possibility of calculating
-	// full scene bound before cooking (or their parent actor)
-	// DEPRECATED
-	void addChildActor(std::unique_ptr<Actor> actor);
-
-	// DEPRECATED
-	void addPhantom(const std::string& name, TransientVisualElement phantom);
-
-	// DEPRECATED
-	const TransientVisualElement* getPhantom(const std::string& name) const;
-
-	// DEPRECATED
-	std::vector<std::unique_ptr<Actor>> claimChildActors();
 
 	const CookingConfig& getConfig() const;
 	void setConfig(CookingConfig config);
@@ -75,9 +54,6 @@ private:
 	const VisualWorld* m_world;
 	CookedResourceCollection* m_resources;
 	TransientResourceCache* m_cache;
-
-	std::vector<std::unique_ptr<Actor>>         m_childActors;
-	std::unordered_map<std::string, TransientVisualElement> m_phantoms;
 };
 
 }// end namespace ph

@@ -3,6 +3,8 @@
 #include "World/Foundation/CookedResourceCollection.h"
 #include "World/VisualWorld.h"
 #include "Actor/Geometry/Geometry.h"
+#include "Actor/Actor.h"
+#include "World/Foundation/TransientVisualElement.h"
 
 #include <utility>
 
@@ -16,9 +18,6 @@ CookingContext::CookingContext(const VisualWorld* const world)
 	, m_world(world)
 	, m_resources(nullptr)
 	, m_cache(nullptr)
-
-	, m_childActors        ()
-	, m_phantoms           ()
 {
 	if(world)
 	{
@@ -29,35 +28,6 @@ CookingContext::CookingContext(const VisualWorld* const world)
 	PH_LOG(CookingContext, 
 		"created context, contains resource storage: {}, contains transient cache: {}",
 		m_resources != nullptr, m_cache != nullptr);
-}
-
-void CookingContext::addChildActor(std::unique_ptr<Actor> actor)
-{
-	m_childActors.push_back(std::move(actor));
-}
-
-void CookingContext::addPhantom(const std::string& name, TransientVisualElement phantom)
-{
-	if(m_phantoms.find(name) != m_phantoms.end())
-	{
-		PH_LOG_WARNING(CookingContext, 
-			"phantom name <{}> already exists, overwriting", name);
-	}
-
-	m_phantoms[name] = std::move(phantom);
-}
-
-const TransientVisualElement* CookingContext::getPhantom(const std::string& name) const
-{
-	const auto result = m_phantoms.find(name);
-	return result != m_phantoms.end() ? &(result->second) : nullptr;
-}
-
-std::vector<std::unique_ptr<Actor>> CookingContext::claimChildActors()
-{
-	auto childActors = std::move(m_childActors);
-	m_childActors.clear();
-	return childActors;
 }
 
 const CookingConfig& CookingContext::getConfig() const
