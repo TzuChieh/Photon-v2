@@ -11,7 +11,7 @@ LayeredSurface::LayeredSurface() :
 	m_layers()
 {}
 
-void LayeredSurface::genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const
+void LayeredSurface::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	std::vector<real>           alphas;
 	std::vector<math::Spectrum> iorNs;

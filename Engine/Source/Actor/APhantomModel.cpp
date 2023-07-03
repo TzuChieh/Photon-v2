@@ -21,7 +21,7 @@
 namespace ph
 {
 
-TransientVisualElement APhantomModel::cook(const CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement APhantomModel::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
 	TransientVisualElement cooked = AModel::cook(ctx, report);
 

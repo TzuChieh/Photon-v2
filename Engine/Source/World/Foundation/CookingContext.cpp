@@ -7,6 +7,7 @@
 #include "World/Foundation/TransientVisualElement.h"
 
 #include <utility>
+#include <type_traits>
 
 namespace ph
 {
@@ -79,5 +80,8 @@ const VisualWorld& CookingContext::getWorld() const
 	PH_ASSERT(m_world);
 	return *m_world;
 }
+
+static_assert(std::is_copy_constructible_v<CookingContext>,
+	"CookingContext must be copyable so modified context can be easily created.");
 
 }// end namespace ph

@@ -13,7 +13,7 @@ class AbradedTranslucent : public SurfaceMaterial
 public:
 	AbradedTranslucent();
 
-	void genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override;
 
 private:
 	DielectricInterfaceInfo m_interfaceInfo;

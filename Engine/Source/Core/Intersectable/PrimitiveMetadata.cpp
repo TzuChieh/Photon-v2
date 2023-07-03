@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <limits>
+#include <type_traits>
 
 namespace ph
 {
@@ -44,5 +45,8 @@ void PrimitiveMetadata::setChannel(const uint32 channelId, const PrimitiveChanne
 		PH_LOG_WARNING(PrimitiveMetadata, "channel ID ({}) is invalid", channelId);
 	}
 }
+
+static_assert(std::is_copy_constructible_v<PrimitiveMetadata>,
+	"PrimitiveMetadata should be copyable so modified context can be easily created.");
 
 }// end namespace ph

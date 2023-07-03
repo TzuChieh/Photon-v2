@@ -20,10 +20,10 @@ class IesFile final
 public:
 	enum class EIesFileType
 	{
+		Unknown = 0,
 		LM_63_1986,
 		LM_63_1991,
 		LM_63_1995,
-		UNKNOWN
 	};
 
 	enum class EPhotometricWebType

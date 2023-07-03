@@ -15,8 +15,10 @@ public:
 	/*! Primitives that form the geometry. */
 	std::vector<const Primitive*> primitives;
 
-	/*! An alternative representation of the geometry. May not always be available. */
-	const IndexedTriangleBuffer* triangleBuffer = nullptr;
+	/*! An alternative representation of the geometry. May not always be available. Will cover 
+	all the shapes defined by `primitives` if provided.
+	*/
+	const IndexedTriangleBuffer* triangleView = nullptr;
 };
 
 }// end namespace ph

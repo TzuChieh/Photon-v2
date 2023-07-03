@@ -14,6 +14,8 @@ public:
 	is not possible.
 	*/
 	bool forceTriangulated = false;
+
+	// TODO: prefer hidden emitter
 };
 
 }// end namespace ph

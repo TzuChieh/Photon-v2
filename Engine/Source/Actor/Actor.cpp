@@ -20,4 +20,18 @@ CookOrder Actor::getCookOrder() const
 	return CookOrder();
 }
 
+TransientVisualElement Actor::stagelessCook(const CookingContext& ctx) const
+{
+	PreCookReport report = preCook(ctx);
+	if(!report.isCookable())
+	{
+		return {};
+	}
+
+	TransientVisualElement visualElement = cook(ctx, report);
+	postCook(ctx, visualElement);
+
+	return visualElement;
+}
+
 }// end namespace ph

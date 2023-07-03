@@ -8,9 +8,9 @@
 namespace ph
 {
 
-OmniModulatedEmitter::OmniModulatedEmitter(std::unique_ptr<Emitter> source) :
-	m_source(std::move(source)),
-	m_filter(nullptr)
+OmniModulatedEmitter::OmniModulatedEmitter(const Emitter* source)
+	: m_source(source)
+	, m_filter(nullptr)
 {
 	PH_ASSERT(m_source);
 }

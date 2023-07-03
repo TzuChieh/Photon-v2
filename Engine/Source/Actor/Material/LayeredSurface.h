@@ -13,7 +13,7 @@ class LayeredSurface : public SurfaceMaterial
 public:
 	LayeredSurface();
 
-	void genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const override;
+	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override;
 	
 	void addLayer();
 	void setLayer(std::size_t layerIndex, const SurfaceLayerInfo& layer);

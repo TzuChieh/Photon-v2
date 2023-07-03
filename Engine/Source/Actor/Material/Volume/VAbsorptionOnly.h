@@ -15,7 +15,7 @@ public:
 	explicit VAbsorptionOnly(const math::Vector3R& absorptionCoeffSrgb);
 	explicit VAbsorptionOnly(const math::Spectrum& absorptionCoeff);
 
-	void genVolume(CookingContext& ctx, VolumeBehavior& behavior) const override;
+	void genVolume(const CookingContext& ctx, VolumeBehavior& behavior) const override;
 
 private:
 	math::Spectrum m_absorptionCoeff;

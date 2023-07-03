@@ -14,7 +14,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(IesFile, DataIO);
 
 IesFile::IesFile(const Path& iesFilePath) :
 	m_path(iesFilePath),
-	m_iesFileType(EIesFileType::UNKNOWN)
+	m_iesFileType(EIesFileType::Unknown)
 {}
 
 bool IesFile::load()

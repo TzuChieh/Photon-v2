@@ -51,7 +51,7 @@ PreCookReport AGeometricLight::preCook(const CookingContext& ctx) const
 	return report;
 }
 
-TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
 	std::shared_ptr<Geometry> geometry = getGeometry(ctx);
 	std::shared_ptr<Material> material = getMaterial(ctx);
@@ -141,7 +141,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	TransientVisualElement cookedLight;
 	for(const Primitive* primitive : lightPrimitives)
 	{
-		cookedLight.intersectables.push_back(primitive);
+		cookedLight.add(primitive);
 	}
 
 	const Emitter* emitter = buildEmitter(ctx, lightPrimitives);

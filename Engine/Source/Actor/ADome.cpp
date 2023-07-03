@@ -48,7 +48,7 @@ PreCookReport ADome::preCook(const CookingContext& ctx) const
 	return report;
 }
 
-TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
 	// Must match what was used in `preCook()`
 	auto localToWorld = static_cast<const math::StaticRigidTransform*>(report.getBaseLocalToWorld());

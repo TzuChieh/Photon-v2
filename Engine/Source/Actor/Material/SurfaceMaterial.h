@@ -16,9 +16,9 @@ class SurfaceMaterial : public Material
 public:
 	SurfaceMaterial();
 
-	virtual void genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const = 0;
+	virtual void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const = 0;
 
-	void genBehaviors(CookingContext& ctx, PrimitiveMetadata& metadata) const override;
+	void genBehaviors(const CookingContext& ctx, PrimitiveMetadata& metadata) const override;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<SurfaceMaterial>)

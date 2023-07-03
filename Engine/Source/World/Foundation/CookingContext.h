@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Utility/IMoveOnly.h"
 #include "Common/assertion.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "World/Foundation/CookingConfig.h"
@@ -20,7 +19,7 @@ class CookedGeometry;
 
 /*! @brief Information about the world being cooked.
 */
-class CookingContext final : private IMoveOnly
+class CookingContext final
 {
 	// TODO: remove
 	friend class VisualWorld;

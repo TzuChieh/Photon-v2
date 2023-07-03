@@ -127,15 +127,15 @@ void IesData::processCandelaValues()
 	{
 		// The luminaire is assumed to be symmetric in each quadrant.
 		//
-		reflectCandelaValues(EReflectFrom::PHI_TAIL);
-		reflectCandelaValues(EReflectFrom::PHI_TAIL);
+		reflectCandelaValues(EReflectFrom::Phi_Tail);
+		reflectCandelaValues(EReflectFrom::Phi_Tail);
 	}
 	else if(std::abs(hDegreesDiff - 180.0_r) < 0.0001_r)
 	{
 		// The luminaire is assumed to be bilaterally symmetric about the
 		// 0 - 180 degree photometric plane.
 		//
-		reflectCandelaValues(EReflectFrom::PHI_TAIL);
+		reflectCandelaValues(EReflectFrom::Phi_Tail);
 	}
 	else if(std::abs(hDegreesDiff - 360.0_r) < 0.0001_r)
 	{
@@ -156,11 +156,11 @@ void IesData::processCandelaValues()
 	{
 		if(std::abs(vDegrees.front() - 0.0_r) < 0.0001_r)
 		{
-			reflectCandelaValues(EReflectFrom::THETA_TAIL, 0.0_r);
+			reflectCandelaValues(EReflectFrom::Theta_Tail, 0.0_r);
 		}
 		else if(std::abs(vDegrees.front() - 90.0_r) < 0.0001_r)
 		{
-			reflectCandelaValues(EReflectFrom::THETA_HEAD, 0.0_r);
+			reflectCandelaValues(EReflectFrom::Theta_Head, 0.0_r);
 		}
 	}
 	else if(std::abs(vDegreesDiff - 180.0_r) < 0.0001_r)
@@ -217,7 +217,7 @@ void IesData::processAttenuationFactors()
 
 void IesData::reflectCandelaValues(const EReflectFrom reflectFrom, const real reflectionMultiplier)
 {
-	if(reflectFrom == EReflectFrom::THETA_HEAD || reflectFrom == EReflectFrom::THETA_TAIL)
+	if(reflectFrom == EReflectFrom::Theta_Head || reflectFrom == EReflectFrom::Theta_Tail)
 	{
 		for(std::size_t pi = 0; pi < m_sphericalCandelas.size(); pi++)
 		{
@@ -231,7 +231,7 @@ void IesData::reflectCandelaValues(const EReflectFrom reflectFrom, const real re
 				value *= reflectionMultiplier;
 			}
 
-			if(reflectFrom == EReflectFrom::THETA_HEAD)
+			if(reflectFrom == EReflectFrom::Theta_Head)
 			{
 				reflectedThetas.insert(reflectedThetas.end() - 1, thetas.begin(), thetas.end());
 				m_sphericalCandelas[pi] = std::move(reflectedThetas);
@@ -243,7 +243,7 @@ void IesData::reflectCandelaValues(const EReflectFrom reflectFrom, const real re
 			}
 		}
 	}
-	else if(reflectFrom == EReflectFrom::PHI_HEAD || reflectFrom == EReflectFrom::PHI_TAIL)
+	else if(reflectFrom == EReflectFrom::Phi_Head || reflectFrom == EReflectFrom::Phi_Tail)
 	{
 		std::vector<std::vector<real>> phis = std::move(m_sphericalCandelas);
 		PH_ASSERT(phis.size() >= 2);
@@ -258,7 +258,7 @@ void IesData::reflectCandelaValues(const EReflectFrom reflectFrom, const real re
 			}
 		}
 
-		if(reflectFrom == EReflectFrom::PHI_HEAD)
+		if(reflectFrom == EReflectFrom::Phi_Head)
 		{
 			reflectedPhis.insert(reflectedPhis.end() - 1, phis.begin(), phis.end());
 			m_sphericalCandelas = std::move(reflectedPhis);

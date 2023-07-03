@@ -11,7 +11,7 @@ VolumeMaterial::VolumeMaterial() :
 {}
 
 void VolumeMaterial::genBehaviors(
-	CookingContext& ctx,
+	const CookingContext& ctx,
 	PrimitiveMetadata& metadata) const
 {
 	switch(m_sidedness)

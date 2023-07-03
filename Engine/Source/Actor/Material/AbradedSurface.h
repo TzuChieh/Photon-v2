@@ -10,7 +10,7 @@ namespace ph
 class AbradedSurface : public SurfaceMaterial
 {
 public:
-	void genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const override = 0;
+	void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const override = 0;
 
 private:
 

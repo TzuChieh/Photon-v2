@@ -18,7 +18,7 @@ class Material : public TSdlResourceBase<ESdlTypeCategory::Ref_Material>
 public:
 	inline Material() = default;
 
-	virtual void genBehaviors(CookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
+	virtual void genBehaviors(const CookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Material>)

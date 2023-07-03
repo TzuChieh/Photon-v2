@@ -23,7 +23,7 @@ BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial() :
 	m_factor   (nullptr)
 {}
 
-void BinaryMixedSurfaceMaterial::genSurface(CookingContext& ctx, SurfaceBehavior& behavior) const
+void BinaryMixedSurfaceMaterial::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	if(!m_material0 || !m_material1)
 	{

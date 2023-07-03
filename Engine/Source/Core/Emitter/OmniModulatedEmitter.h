@@ -5,8 +5,6 @@
 #include "Core/Texture/TTexture.h"
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"
 
-#include <memory>
-
 namespace ph
 {
 
@@ -15,7 +13,7 @@ namespace ph
 class OmniModulatedEmitter final : public Emitter
 {
 public:
-	OmniModulatedEmitter(std::unique_ptr<Emitter> source);
+	OmniModulatedEmitter(const Emitter* source);
 
 	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override;
 	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override;
@@ -29,7 +27,7 @@ public:
 	void setFilter(const std::shared_ptr<TTexture<math::Spectrum>>& filter);
 
 private:
-	std::unique_ptr<Emitter>                  m_source;
+	const Emitter*                            m_source;
 	std::shared_ptr<TTexture<math::Spectrum>> m_filter;
 	SphericalMapper                           m_dirToUv;
 };

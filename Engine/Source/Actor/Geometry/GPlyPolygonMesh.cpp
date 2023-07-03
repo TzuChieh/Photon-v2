@@ -41,7 +41,7 @@ void GPlyPolygonMesh::storeCooked(
 	buildTimer.stop();
 
 	out_geometry.primitives.push_back(kdTreeMesh);
-	out_geometry.triangleBuffer = triangleBuffer;
+	out_geometry.triangleView = triangleBuffer;
 
 	// Log some stats for performance analysis
 	if(triangleBuffer)

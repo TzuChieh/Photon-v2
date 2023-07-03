@@ -41,7 +41,7 @@ PreCookReport AModel::preCook(const CookingContext& ctx) const
 	return report;
 }
 
-TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookReport& report)
+TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookReport& report) const
 {
 	if(!m_geometry || !m_material)
 	{
@@ -56,22 +56,25 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 	// FIXME
 	const CookedGeometry* cookedGeometry = m_geometry->createCooked(ctx);
 
-	TransientVisualElement cookedUnit;
+	TransientVisualElement result;
 	for(const Primitive* primitive : cookedGeometry->primitives)
 	{
 		auto* metaPrimitive = ctx.getResources()->copyIntersectable(TMetaInjectionPrimitive(
 			ReferencedPrimitiveMetaGetter(metadata),
 			TReferencedPrimitiveGetter<Primitive>(primitive)));
 
-		cookedUnit.intersectables.push_back(metaPrimitive);
+		result.add(metaPrimitive);
 	}
 	
 	if(!m_localToWorld.getDecomposed().isIdentity())
 	{
+		// Cannot have primitive view as we are transforming as intersectable
+		result.primitivesView.clear();
+
 		auto localToWorld = report.getBaseLocalToWorld();
 		auto worldToLocal = report.getBaseWorldToLocal();
 
-		for(auto& intersectable : cookedUnit.intersectables)
+		for(auto& intersectable : result.intersectables)
 		{
 			auto* transformedIntersectable = ctx.getResources()->makeIntersectable<TransformedIntersectable>(
 				intersectable, localToWorld, worldToLocal);
@@ -82,13 +85,16 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 	if(m_motionSource)
 	{
+		// Cannot have primitive view as we are transforming as intersectable
+		result.primitivesView.clear();
+
 		// FIXME
 		const CookedMotion* cookedMotion = m_motionSource->createCooked(ctx, MotionCookConfig());
 
 		auto localToWorld = cookedMotion->localToWorld;
 		auto worldToLocal = cookedMotion->worldToLocal;
 
-		for(auto& intersectable : cookedUnit.intersectables)
+		for(auto& intersectable : result.intersectables)
 		{
 			auto* transformedIntersectable = ctx.getResources()->makeIntersectable<TransformedIntersectable>(
 				intersectable, localToWorld, worldToLocal);
@@ -99,7 +105,7 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 
 	m_material->genBehaviors(ctx, *metadata);
 
-	return cookedUnit;
+	return result;
 }
 
 void AModel::setGeometry(const std::shared_ptr<Geometry>& geometry)

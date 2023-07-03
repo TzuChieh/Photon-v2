@@ -4,6 +4,8 @@
 #include "DataIO/FileSystem/ResourceIdentifier.h"
 #include "DataIO/FileSystem/Path.h"
 #include "SDL/sdl_interface.h"
+#include "Core/Texture/TTexture.h"
+#include "Math/Color/Spectrum.h"
 
 #include <memory>
 
@@ -14,12 +16,15 @@ class AIesAttenuatedLight : public ALight
 {
 public:
 	PreCookReport preCook(const CookingContext& ctx) const override;
-	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) override;
+	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) const override;
 
 	void setSource(const std::shared_ptr<ALight>& source);
 	void setIesFile(const Path& iesFile);
 
 private:
+	TransientVisualElement getSourceVisualElement(const CookingContext& ctx) const;
+	std::shared_ptr<TTexture<math::Spectrum>> loadAttenuationTexture() const;
+
 	std::shared_ptr<ALight> m_source;
 	ResourceIdentifier m_iesFile;
 

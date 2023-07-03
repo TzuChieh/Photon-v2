@@ -35,10 +35,10 @@ private:
 
 	enum class EReflectFrom
 	{
-		THETA_HEAD,
-		THETA_TAIL,
-		PHI_HEAD,
-		PHI_TAIL
+		Theta_Head,
+		Theta_Tail,
+		Phi_Head,
+		Phi_Tail
 	};
 
 	void processCandelaValues();

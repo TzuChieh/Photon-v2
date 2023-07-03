@@ -22,7 +22,7 @@ public:
 	*/
 	virtual PreCookReport preCook(const CookingContext& ctx) const;
 
-	virtual TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) = 0;
+	virtual TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) const = 0;
 
 	/*! @brief Cooking additional data after `cook()`.
 	This method provides an opportunity for user to decorate the cooked data or any post-cook
@@ -32,6 +32,12 @@ public:
 	virtual void postCook(const CookingContext& ctx, TransientVisualElement& element) const;
 
 	virtual CookOrder getCookOrder() const;
+
+	/*! @brief Helper to execute the full cooking procedure in one go.
+	*/
+	TransientVisualElement stagelessCook(const CookingContext& ctx) const;
+
+	// TODO: may need a new method for cache generation (request this stage from precook?)
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<Actor>)
