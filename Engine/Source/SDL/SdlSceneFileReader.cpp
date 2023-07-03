@@ -120,7 +120,7 @@ ISdlResource* SdlSceneFileReader::getResource(
 	}
 
 	// TODO: just get resource ptr, not shared_ptr
-	std::shared_ptr<ISdlResource> resource = m_scene->getResources().get(resourceName);
+	std::shared_ptr<ISdlResource> resource = m_scene->get(resourceName);
 	return resource.get();
 }
 

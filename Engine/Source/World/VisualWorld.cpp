@@ -90,7 +90,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// Cook actors level by level (from lowest to highest)
 
 	std::size_t numCookedActors = 0;
-	std::vector<TransientVisualElement> elements;
+	std::vector<TransientVisualElement> visibleElements;
 	while(numCookedActors < sceneActors.size())
 	{
 		PH_SCOPED_TIMER(CookActorLevels);
@@ -114,12 +114,12 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 				return a < b.actor->getCookOrder().level;
 			});
 
-		cookActors({actorCookBegin, actorCookEnd}, ctx, elements);
+		cookActors({actorCookBegin, actorCookEnd}, ctx, visibleElements);
 
 		// Prepare for next cooking iteration
 
 		// FIXME: calc bounds from newly cooked actors and union
-		math::AABB3D bound = calcElementBound(elements);
+		math::AABB3D bound = calcElementBound(visibleElements);
 		// TODO: should union with receiver's bound instead
 		bound.unionWith(m_receiverPos);
 
@@ -142,7 +142,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 	std::vector<const Intersectable*> visibleIntersectables;
 	std::vector<const Emitter*> emitters;
-	for(const TransientVisualElement& element : elements)
+	for(const TransientVisualElement& element : visibleElements)
 	{
 		for(const Intersectable* intersectable : element.intersectables)
 		{
@@ -204,10 +204,13 @@ void VisualWorld::cookActors(
 			// Phantom actor is always cached
 			if(sceneActor.isPhantom)
 			{
-				m_cache->makeVisualElement(sceneActor.actor->getId(), element);
+				m_cache->makeVisualElement(sceneActor.actor->getId(), std::move(element));
 			}
-
-			out_elements.push_back(std::move(element));
+			// Normal actor is not cached
+			else
+			{
+				out_elements.push_back(std::move(element));
+			}
 		}
 		catch(const RuntimeException& e)
 		{
