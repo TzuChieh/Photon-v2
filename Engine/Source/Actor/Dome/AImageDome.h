@@ -18,7 +18,7 @@ class AImageDome : public ADome
 {
 public:
 	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(
-		CookingContext& ctx, DomeRadianceFunctionInfo* out_info) override;
+		const CookingContext& ctx, DomeRadianceFunctionInfo* out_info) const override;
 
 private:
 	ResourceIdentifier m_imageFile;

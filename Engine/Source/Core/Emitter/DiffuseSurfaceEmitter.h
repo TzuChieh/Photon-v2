@@ -14,7 +14,7 @@ class Primitive;
 class DiffuseSurfaceEmitter : public SurfaceEmitter
 {
 public:
-	DiffuseSurfaceEmitter(const Primitive* surface);
+	explicit DiffuseSurfaceEmitter(const Primitive* surface);
 
 	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override;
 	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override;

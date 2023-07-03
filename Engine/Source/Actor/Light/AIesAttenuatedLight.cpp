@@ -72,9 +72,9 @@ TransientVisualElement AIesAttenuatedLight::cook(
 
 	// Modulate source emitters with IES profile
 	std::shared_ptr<TTexture<math::Spectrum>> attenuationTexture = loadAttenuationTexture();
-	for(const Emitter* sourceEmitter : sourceElement.emitters)
+	for(auto* sourceEmitter : sourceElement.emitters)
 	{
-		auto attenuatedEmitter = ctx.getResources()->makeEmitter<OmniModulatedEmitter>(sourceEmitter);
+		auto* attenuatedEmitter = ctx.getResources()->makeEmitter<OmniModulatedEmitter>(sourceEmitter);
 		attenuatedEmitter->setFilter(attenuationTexture);
 		result.emitters.push_back(attenuatedEmitter);
 	}
@@ -86,7 +86,7 @@ TransientVisualElement AIesAttenuatedLight::cook(
 		PH_ASSERT(metadata);
 
 		bool hasSingleMetadata = true;
-		for(const Primitive* sourcePrimitive : sourceElement.primitivesView)
+		for(auto* sourcePrimitive : sourceElement.primitivesView)
 		{
 			if(sourcePrimitive->getMetadata() != metadata)
 			{
@@ -105,11 +105,11 @@ TransientVisualElement AIesAttenuatedLight::cook(
 		// 1 emitter to many primitives
 		if(result.emitters.size() == 1)
 		{
-			auto iesMetadata = ctx.getResources()->makeMetadata(*metadata);
+			auto* iesMetadata = ctx.getResources()->makeMetadata(*metadata);
 			iesMetadata->getSurface().setEmitter(result.emitters[0]);
-			for(const Primitive* sourcePrimitive : sourceElement.primitivesView)
+			for(auto* sourcePrimitive : sourceElement.primitivesView)
 			{
-				auto iesPrimitive = ctx.getResources()->copyIntersectable(
+				auto* iesPrimitive = ctx.getResources()->copyIntersectable(
 					TMetaInjectionPrimitive(
 						ReferencedPrimitiveMetaGetter(iesMetadata),
 						TReferencedPrimitiveGetter<Primitive>(sourcePrimitive)));
@@ -123,10 +123,10 @@ TransientVisualElement AIesAttenuatedLight::cook(
 			PH_ASSERT_EQ(result.emitters.size(), sourceElement.primitivesView.size());
 			for(std::size_t i = 0; i < result.emitters.size(); ++i)
 			{
-				auto iesMetadata = ctx.getResources()->makeMetadata(*metadata);
+				auto* iesMetadata = ctx.getResources()->makeMetadata(*metadata);
 				iesMetadata->getSurface().setEmitter(result.emitters[i]);
 
-				auto iesPrimitive = ctx.getResources()->copyIntersectable(
+				auto* iesPrimitive = ctx.getResources()->copyIntersectable(
 					TMetaInjectionPrimitive(
 						ReferencedPrimitiveMetaGetter(iesMetadata),
 						TReferencedPrimitiveGetter<Primitive>(sourceElement.primitivesView[i])));

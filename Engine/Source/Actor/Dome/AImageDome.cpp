@@ -5,7 +5,7 @@ namespace ph
 {
 
 std::shared_ptr<TTexture<math::Spectrum>> AImageDome::loadRadianceFunction(
-	CookingContext& ctx, DomeRadianceFunctionInfo* const out_info)
+	const CookingContext& ctx, DomeRadianceFunctionInfo* const out_info) const
 {
 	RasterFileImage image(m_imageFile.getPath());
 	image.setSampleMode(EImageSampleMode::Bilinear);

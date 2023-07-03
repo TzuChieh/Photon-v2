@@ -22,7 +22,7 @@ class APreethamDome : public ADome
 {
 public:
 	std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(
-		CookingContext& ctx, DomeRadianceFunctionInfo* out_info) override;
+		const CookingContext& ctx, DomeRadianceFunctionInfo* out_info) const override;
 
 private:
 	math::Vector2R calcSunSphericalCoordinates() const;

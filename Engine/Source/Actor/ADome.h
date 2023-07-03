@@ -26,7 +26,7 @@ class ADome : public PhysicalActor
 {
 public:
 	virtual std::shared_ptr<TTexture<math::Spectrum>> loadRadianceFunction(
-		CookingContext& ctx, DomeRadianceFunctionInfo* out_info) = 0;
+		const CookingContext& ctx, DomeRadianceFunctionInfo* out_info) const = 0;
 
 	PreCookReport preCook(const CookingContext& ctx) const override;
 	TransientVisualElement cook(const CookingContext& ctx, const PreCookReport& report) const override;

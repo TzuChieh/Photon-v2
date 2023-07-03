@@ -34,7 +34,7 @@ const Emitter* AAreaLight::buildEmitter(
 	}
 
 	real lightArea = 0.0_r;
-	for(auto primitive : lightPrimitives)
+	for(auto* primitive : lightPrimitives)
 	{
 		lightArea += primitive->calcExtendedArea();
 	}
@@ -44,12 +44,12 @@ const Emitter* AAreaLight::buildEmitter(
 	const auto totalWattColor = math::Spectrum(m_color).putEnergy(m_numWatts);
 	const auto lightRadiance  = totalWattColor / (lightArea * math::constant::pi<real>);
 
-	const auto& emittedRadiance = std::make_shared<TConstantTexture<math::Spectrum>>(lightRadiance);
+	auto emittedRadiance = std::make_shared<TConstantTexture<math::Spectrum>>(lightRadiance);
 
 	const Emitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)
 	{
-		auto emitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(lightPrimitives[0]);
+		auto* emitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(lightPrimitives[0]);
 		emitter->setEmittedRadiance(emittedRadiance);
 		lightEmitter = emitter;
 	}
@@ -58,12 +58,12 @@ const Emitter* AAreaLight::buildEmitter(
 		PH_ASSERT_GT(lightPrimitives.size(), 1);
 
 		std::vector<DiffuseSurfaceEmitter> areaEmitters;
-		for(auto primitive : lightPrimitives)
+		for(auto* primitive : lightPrimitives)
 		{
 			areaEmitters.push_back(DiffuseSurfaceEmitter(primitive));
 		}
 
-		auto multiEmitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(
+		auto* multiEmitter = ctx.getResources()->makeEmitter<MultiDiffuseSurfaceEmitter>(
 			std::move(areaEmitters));
 		multiEmitter->setEmittedRadiance(emittedRadiance);
 		lightEmitter = multiEmitter;

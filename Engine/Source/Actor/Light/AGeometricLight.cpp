@@ -40,9 +40,9 @@ PreCookReport AGeometricLight::preCook(const CookingContext& ctx) const
 	}
 	else
 	{
-		auto localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+		auto* localToWorld = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
 			m_localToWorld.getForwardStaticRigid());
-		auto worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
+		auto* worldToLocal = ctx.getResources()->makeTransform<math::StaticRigidTransform>(
 			m_localToWorld.getInverseStaticRigid());
 
 		report.setBaseTransforms(localToWorld, worldToLocal);

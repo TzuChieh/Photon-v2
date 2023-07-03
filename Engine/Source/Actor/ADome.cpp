@@ -92,11 +92,10 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 		radianceFunction = scaledRadianceFunction;
 	}
 
-	// FIXME:
-	std::unique_ptr<Emitter> domeEmitter;
+	const Emitter* domeEmitter = nullptr;
 	if(!radianceFunctionInfo.isAnalytical)
 	{
-		domeEmitter = std::make_unique<LatLongEnvEmitter>(
+		domeEmitter = ctx.getResources()->makeEmitter<LatLongEnvEmitter>(
 			domePrimitive->getInjectee(),
 			radianceFunction,
 			radianceFunctionInfo.resolution);
@@ -104,22 +103,21 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	else
 	{
 		// FIXME: proper resolution for analytical emitter
-		domeEmitter = std::make_unique<LatLongEnvEmitter>(
+		domeEmitter = ctx.getResources()->makeEmitter<LatLongEnvEmitter>(
 			domePrimitive->getInjectee(),
 			radianceFunction,
 			math::Vector2S(512, 256));
 	}
 
-	metadata->getSurface().setEmitter(domeEmitter.get());
+	metadata->getSurface().setEmitter(domeEmitter);
 	
 	// Store cooked data
 
-	TransientVisualElement cookedActor;
-	cookedActor.emitter = std::move(domeEmitter);
-
 	ctx.getResources()->getNamed()->setBackgroundPrimitive(domePrimitive);
 
-	return cookedActor;
+	TransientVisualElement result;
+	result.emitters.push_back(domeEmitter);
+	return result;
 }
 
 CookOrder ADome::getCookOrder() const

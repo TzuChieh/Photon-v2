@@ -242,7 +242,7 @@ std::shared_ptr<TTexture<math::Spectrum>> UnifiedNumericImage::genColorTexture(
 	}
 }
 
-std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(CookingContext& ctx)
+std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(const CookingContext& ctx)
 {
 	if(m_image)
 	{
@@ -262,7 +262,7 @@ std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(CookingConte
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTexture(CookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTexture(const CookingContext& ctx)
 {
 	if(m_image)
 	{
@@ -277,7 +277,7 @@ std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTextur
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTexture(CookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTexture(const CookingContext& ctx)
 {
 	if(m_image)
 	{
@@ -292,7 +292,7 @@ std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTextur
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTexture(CookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTexture(const CookingContext& ctx)
 {
 	if(m_image)
 	{

@@ -11,7 +11,7 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(PreethamDomeActor, Actor);
 
 std::shared_ptr<TTexture<math::Spectrum>> APreethamDome::loadRadianceFunction(
-	CookingContext& ctx, DomeRadianceFunctionInfo* const out_info)
+	const CookingContext& ctx, DomeRadianceFunctionInfo* const out_info) const
 {
 	checkTurbidity(m_turbidity);
 

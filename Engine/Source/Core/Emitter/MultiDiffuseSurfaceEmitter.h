@@ -11,7 +11,7 @@ namespace ph
 class MultiDiffuseSurfaceEmitter : public SurfaceEmitter
 {
 public:
-	MultiDiffuseSurfaceEmitter(const std::vector<DiffuseSurfaceEmitter>& emitters);
+	explicit MultiDiffuseSurfaceEmitter(const std::vector<DiffuseSurfaceEmitter>& emitters);
 
 	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override;
 	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override;

@@ -38,7 +38,7 @@ const Emitter* AModelLight::buildEmitter(
 	const Emitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)
 	{
-		auto emitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(lightPrimitives[0]);
+		auto* emitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(lightPrimitives[0]);
 		emitter->setEmittedRadiance(emittedRadiance);
 
 		if(m_isBackFaceEmit)
@@ -57,14 +57,14 @@ const Emitter* AModelLight::buildEmitter(
 		PH_ASSERT_GT(lightPrimitives.size(), 1);
 
 		std::vector<DiffuseSurfaceEmitter> primitiveEmitters;
-		for(auto primitive : lightPrimitives)
+		for(auto* primitive : lightPrimitives)
 		{
 			DiffuseSurfaceEmitter emitter(primitive);
 			emitter.setEmittedRadiance(emittedRadiance);
 			primitiveEmitters.push_back(emitter);
 		}
 
-		auto multiEmitter = ctx.getResources()->makeEmitter<MultiDiffuseSurfaceEmitter>(
+		auto* multiEmitter = ctx.getResources()->makeEmitter<MultiDiffuseSurfaceEmitter>(
 			std::move(primitiveEmitters));
 		multiEmitter->setEmittedRadiance(emittedRadiance);
 
