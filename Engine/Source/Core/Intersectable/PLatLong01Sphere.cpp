@@ -73,7 +73,7 @@ void PLatLong01Sphere::genPositionSample(PrimitivePosSampleQuery& query, SampleF
 
 	query.out.normal = normal;
 	query.out.position = position;
-	query.out.pdfA = PBasicSphere::calcPositionSamplePdfA(position);
+	query.out.pdfA = PLatLong01Sphere::calcPositionSamplePdfA(position);
 
 	const math::Vector2R uv = positionToUV(position);
 	query.out.uvw = {uv.x(), uv.y(), 0.0_r};
