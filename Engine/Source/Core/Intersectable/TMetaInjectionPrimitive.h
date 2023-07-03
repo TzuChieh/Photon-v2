@@ -4,6 +4,7 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/HitProbe.h"
 #include "Utility/traits.h"
+#include "Common/assertion.h"
 
 #include <concepts>
 #include <utility>
@@ -120,6 +121,11 @@ public:
 		HitProbe& probe,
 		HitDetail* const out_detail) const override
 	{
+		probe.popIntermediateHit();
+
+		// If failed, it is likely to be caused by mismatched/missing probe push or pop in the hit stack
+		PH_ASSERT(probe.getCurrentHit() == getInjectee());
+
 		m_primitiveGetter()->calcIntersectionDetail(ray, probe, out_detail);
 
 		// This is a representative of the original primitive

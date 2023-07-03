@@ -51,7 +51,9 @@ public:
 	{
 		probe.popIntermediateHit();
 
+		// If failed, it is likely to be caused by mismatched/missing probe push or pop in the hit stack
 		PH_ASSERT(probe.getCurrentHit() == &m_intersectable);
+
 		m_intersectable.calcIntersectionDetail(ray, probe, out_detail);
 		out_detail->setHitIntrinsics(this, out_detail->getUVW(), out_detail->getRayT());
 	}
