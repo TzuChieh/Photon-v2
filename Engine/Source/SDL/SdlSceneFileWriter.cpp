@@ -41,6 +41,9 @@ bool SdlSceneFileWriter::beginCommand(
 	return true;
 }
 
+void SdlSceneFileWriter::endCommand()
+{}
+
 void SdlSceneFileWriter::saveResource(
 	const ISdlResource* const resource,
 	const SdlOutputContext& ctx,
@@ -70,9 +73,6 @@ void SdlSceneFileWriter::commandGenerated(
 
 	m_fileStream->writeString(commandStr);
 }
-
-void SdlSceneFileWriter::endCommand()
-{}
 
 void SdlSceneFileWriter::write(const SceneDescription& scene)
 {

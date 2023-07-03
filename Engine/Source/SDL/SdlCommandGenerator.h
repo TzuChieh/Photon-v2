@@ -46,12 +46,16 @@ public:
 	bool hasTarget(const SdlClass* clazz) const;
 
 protected:
-	/*!
+	/*! @brief Called when the generator starts producing a command.
 	@return Whether to generate command for this class.
 	*/
 	virtual bool beginCommand(
 		const SdlClass* targetClass,
 		SdlOutputContext* out_ctx) = 0;
+
+	/*! @brief Called when the generator finishes producing a command.
+	*/
+	virtual void endCommand() = 0;
 
 	/*! @brief Save target resource into output clauses.
 	*/
@@ -63,8 +67,6 @@ protected:
 	virtual void commandGenerated(
 		std::string_view commandStr,
 		const SdlOutputContext& ctx) = 0;
-
-	virtual void endCommand() = 0;
 
 private:
 	void generateLoadCommand(

@@ -51,6 +51,9 @@ bool DesignerSceneWriter::beginCommand(
 	return true;
 }
 
+void DesignerSceneWriter::endCommand()
+{}
+
 void DesignerSceneWriter::saveResource(
 	const ISdlResource* const resource,
 	const SdlOutputContext& ctx,
@@ -80,9 +83,6 @@ void DesignerSceneWriter::commandGenerated(
 
 	m_fileStream->writeString(commandStr);
 }
-
-void DesignerSceneWriter::endCommand()
-{}
 
 void DesignerSceneWriter::write(const DesignerScene& scene)
 {

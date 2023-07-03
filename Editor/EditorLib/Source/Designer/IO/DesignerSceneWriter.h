@@ -34,6 +34,8 @@ protected:
 		const SdlClass* targetClass,
 		SdlOutputContext* out_ctx) override;
 
+	void endCommand() override;
+
 	void saveResource(
 		const ISdlResource* resource,
 		const SdlOutputContext& ctx,
@@ -42,8 +44,6 @@ protected:
 	void commandGenerated(
 		std::string_view commandStr,
 		const SdlOutputContext& ctx) override;
-
-	void endCommand() override;
 
 private:
 	void saveSceneToFile(const DesignerScene& scene, const Path& filePath);

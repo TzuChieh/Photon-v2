@@ -282,7 +282,15 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 		command.commandType == ESdlCommandType::Phantom);
 
 	// Get category and type then acquire the matching SDL class
-	const SdlClass& clazz = getSdlClass(command.targetCategory, command.targetType);
+	const SdlClass* clazz = getSdlClass(command.targetCategory, command.targetType);
+
+	// Load command requires the class to be valid to create the correct resource
+	if(!clazz)
+	{
+		throw_formatted<SdlLoadError>(
+			"SDL class <category: {}, type: {}> does not exist; load command requires a valid class",
+			command.targetCategory, command.targetType);
+	}
 
 	const std::string& resourceName = command.reference;
 
@@ -292,7 +300,7 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 	{
 		// TODO: reuse input context
 		SdlInputContext ctx;
-		if(!beginCommand(command.commandType, &clazz, &ctx))
+		if(!beginCommand(command.commandType, clazz, &ctx))
 		{
 			return;
 		}
@@ -322,7 +330,7 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 	{
 		throw SdlLoadError(
 			"failed to load resource <" + resourceName + "> "
-			"(from SDL class: " + clazz.genPrettyName() + ") "
+			"(from SDL class: " + sdl::gen_pretty_name(clazz) + ") "
 			"-> " + e.whatStr());
 	}
 }
@@ -333,11 +341,16 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 
 	PH_ASSERT(command.commandType == ESdlCommandType::Execution);
 
-	// Get category and type then acquire the matching SDL class
-	const SdlClass& clazz = getSdlClass(command.targetCategory, command.targetType);
-
 	const std::string& targetResourceName = command.reference;
 	const std::string& executorName = command.executorName;
+	const bool withExplicitClassInfo = !command.targetCategory.empty() && !command.targetType.empty();
+
+	// Get category and type then acquire the matching SDL class
+	const SdlClass* clazz = nullptr;
+	if(withExplicitClassInfo)
+	{
+		clazz = getSdlClass(command.targetCategory, command.targetType);
+	}
 
 	// Now we have name-related information, which is useful for debugging. 
 	// Catch load errors here to provide name information and re-throw.
@@ -345,7 +358,7 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 	{
 		// TODO: reuse input context
 		SdlInputContext ctx;
-		if(!beginCommand(command.commandType, &clazz, &ctx))
+		if(!beginCommand(command.commandType, clazz, &ctx))
 		{
 			return;
 		}
@@ -354,12 +367,25 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 
 		ISdlResource* resource = getResource(targetResourceName, ctx);
 
+		// Potentially deduce SDL class type from the resource
+		if(!withExplicitClassInfo)
+		{
+			PH_ASSERT(!clazz);
+			if(!resource)
+			{
+				throw SdlLoadError(
+					"cannot deduce SDL class from resource (resource not found)");
+			}
+			
+			clazz = resource->getDynamicSdlClass();
+			ctx.setSrcClass(clazz);
+		}
+
 		// TODO: reuse clause buffer
 		SdlInputClauses clauses;
 		getClauses(command.dataString, ctx, targetResourceName, resource, &clauses);
 
 		// Finally, call the executor
-
 		runExecutor(
 			executorName,
 			ctx,
@@ -373,7 +399,7 @@ void SdlCommandParser::parseExecutionCommand(const CommandHeader& command)
 	{
 		throw SdlLoadError(
 			"failed to run <" + executorName + "> on resource <" + targetResourceName + "> "
-			"(from SDL class: " + clazz.genPrettyName() + ") "
+			"(from SDL class: " + sdl::gen_pretty_name(clazz) + ") "
 			"-> " + e.whatStr());
 	}
 }
@@ -704,21 +730,13 @@ const SdlClass* SdlCommandParser::getSdlClass(const std::string& mangledClassNam
 	return iter != m_mangledNameToClass.end() ? iter->second : nullptr;
 }
 
-const SdlClass& SdlCommandParser::getSdlClass(const std::string_view categoryName, const std::string_view typeName) const
+const SdlClass* SdlCommandParser::getSdlClass(const std::string_view categoryName, const std::string_view typeName) const
 {
 	PH_SCOPED_TIMER(GetSDLClass);
 
 	std::string mangledClassName;
 	getMangledName(categoryName, typeName, &mangledClassName);
-
-	const SdlClass* const clazz = getSdlClass(mangledClassName);
-	if(!clazz)
-	{
-		throw SdlLoadError(
-			"SDL class <" + std::string(categoryName) + ", " + std::string(typeName) + "> does not exist");
-	}
-
-	return *clazz;
+	return getSdlClass(mangledClassName);
 }
 
 }// end namespace ph

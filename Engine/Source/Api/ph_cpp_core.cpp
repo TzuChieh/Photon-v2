@@ -28,15 +28,6 @@
 #include "Actor/Material/LayeredSurface.h"
 #include "Actor/Material/ThinFilm.h"
 
-// Light Sources
-#include "Actor/LightSource/LightSource.h"
-#include "Actor/LightSource/ModelSource.h"
-#include "Actor/LightSource/AreaSource.h"
-#include "Actor/LightSource/PointSource.h"
-#include "Actor/LightSource/SphereSource.h"
-#include "Actor/LightSource/RectangleSource.h"
-#include "Actor/LightSource/IesAttenuatedSource.h"
-
 // Motions
 #include "Actor/MotionSource/MotionSource.h"
 #include "Actor/MotionSource/ConstantVelocityMotion.h"
@@ -86,6 +77,14 @@
 #include "Actor/ATransformedInstance.h"
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
+#include "Actor/Light/ALight.h"
+#include "Actor/Light/AGeometricLight.h"
+#include "Actor/Light/AAreaLight.h"
+#include "Actor/Light/AModelLight.h"
+#include "Actor/Light/APointLight.h"
+#include "Actor/Light/ARectangleLight.h"
+#include "Actor/Light/ASphereLight.h"
+#include "Actor/Light/AIesAttenuatedLight.h"
 
 // Enums
 #include "EngineEnv/sdl_accelerator_type.h"
@@ -147,14 +146,6 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<IdealSubstance>(),
 		get_sdl_class<BinaryMixedSurfaceMaterial>(),
 
-		// Light Sources
-		get_sdl_class<LightSource>(),
-		get_sdl_class<AreaSource>(),
-		get_sdl_class<SphereSource>(),
-		get_sdl_class<RectangleSource>(),
-		get_sdl_class<PointSource>(),
-		get_sdl_class<ModelSource>(),
-
 		// Images
 		get_sdl_class<Image>(),
 		get_sdl_class<ConstantImage>(),
@@ -195,6 +186,14 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<ADome>(),
 		get_sdl_class<AImageDome>(),
 		get_sdl_class<APreethamDome>(),
+		get_sdl_class<ALight>(),
+		get_sdl_class<AGeometricLight>(),
+		get_sdl_class<AAreaLight>(),
+		get_sdl_class<AModelLight>(),
+		get_sdl_class<APointLight>(),
+		get_sdl_class<ARectangleLight>(),
+		get_sdl_class<ASphereLight>(),
+		get_sdl_class<AIesAttenuatedLight>(),
 	};
 }
 

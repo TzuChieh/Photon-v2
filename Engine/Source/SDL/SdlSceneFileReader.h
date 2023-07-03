@@ -40,6 +40,8 @@ protected:
 		const SdlClass* targetClass,
 		SdlInputContext* out_ctx) override;
 
+	void endCommand() override;
+
 	ISdlResource* createResource(
 		std::string_view resourceName,
 		const SdlInputContext& ctx,
@@ -66,8 +68,6 @@ protected:
 	void commandVersionSet(
 		const SemanticVersion& version,
 		const SdlInputContext& ctx) override;
-
-	void endCommand() override;
 
 private:
 	std::string m_sceneName;

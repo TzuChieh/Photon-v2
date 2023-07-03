@@ -91,6 +91,9 @@ bool DesignerSceneReader::beginCommand(
 	return true;
 }
 
+void DesignerSceneReader::endCommand()
+{}
+
 ISdlResource* DesignerSceneReader::createResource(
 	std::string_view resourceName,
 	const SdlInputContext& ctx,
@@ -189,9 +192,6 @@ void DesignerSceneReader::runExecutor(
 void DesignerSceneReader::commandVersionSet(
 	const SemanticVersion& /* version */,
 	const SdlInputContext& /* ctx */)
-{}
-
-void DesignerSceneReader::endCommand()
 {}
 
 void DesignerSceneReader::readScene()

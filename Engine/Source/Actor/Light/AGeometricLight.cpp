@@ -26,7 +26,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(AGeometricLight, Actor);
 
 std::shared_ptr<Material> AGeometricLight::getMaterial(const CookingContext& ctx) const
 {
-	return std::make_shared<MatteOpaque>();
+	return TSdl<MatteOpaque>::makeResource();
 }
 
 PreCookReport AGeometricLight::preCook(const CookingContext& ctx) const
@@ -68,7 +68,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	{
 		PH_LOG(AGeometricLight,
 			"material is not specified, using default diffusive material");
-		material = std::make_shared<MatteOpaque>();
+		material = TSdl<MatteOpaque>::makeResource();
 	}
 
 	math::TDecomposedTransform<real> remainingLocalToWorld;

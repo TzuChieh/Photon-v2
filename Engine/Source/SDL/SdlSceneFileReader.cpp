@@ -42,6 +42,9 @@ bool SdlSceneFileReader::beginCommand(
 	return true;
 }
 
+void SdlSceneFileReader::endCommand()
+{}
+
 ISdlResource* SdlSceneFileReader::createResource(
 	std::string_view resourceName,
 	const SdlInputContext& ctx,
@@ -128,6 +131,8 @@ void SdlSceneFileReader::runExecutor(
 	SdlInputClauses& clauses,
 	const ESdlCommandType commandType)
 {
+	// Note that we do not obtain target class from resource since an executor may be called with
+	// an explicit class (context object has this information)
 	const SdlClass* targetClass = ctx.getSrcClass();
 	if(!targetClass)
 	{
@@ -143,9 +148,6 @@ void SdlSceneFileReader::runExecutor(
 void SdlSceneFileReader::commandVersionSet(
 	const SemanticVersion& /* version */,
 	const SdlInputContext& /* ctx */)
-{}
-
-void SdlSceneFileReader::endCommand()
 {}
 
 void SdlSceneFileReader::read(SceneDescription* const scene)

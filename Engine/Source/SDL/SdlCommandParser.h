@@ -67,10 +67,17 @@ public:
 	std::size_t numParseErrors() const;
 
 protected:
+	/*! @brief Called when the parser starts processing a command.
+	@return Whether to generate command for this class.
+	*/
 	virtual bool beginCommand(
 		ESdlCommandType commandType, 
 		const SdlClass* targetClass,
 		SdlInputContext* out_ctx) = 0;
+
+	/*! @brief Called when the parser finishes processing a command.
+	*/
+	virtual void endCommand() = 0;
 
 	virtual ISdlResource* createResource(
 		std::string_view resourceName, 
@@ -88,6 +95,12 @@ protected:
 		std::string_view resourceName,
 		const SdlInputContext& ctx) = 0;
 
+	/*! @brief Called when an executor command has been processed and is ready to run.
+	For implementations, obtaining the target class from context object should be preferred over
+	obtaining from the resource itself, since an executor may be called with an explicit class and
+	context object has this information (this is part of the SDL grammar, where class type can be
+	omitted and deduced from the reference).
+	*/
 	virtual void runExecutor(
 		std::string_view executorName,
 		const SdlInputContext& ctx,
@@ -98,8 +111,6 @@ protected:
 	virtual void commandVersionSet(
 		const SemanticVersion& version,
 		const SdlInputContext& ctx) = 0;
-
-	virtual void endCommand() = 0;
 
 private:
 	// OPT: use view
@@ -151,7 +162,7 @@ private:
 		SdlInputClauses* out_clauses);
 
 	const SdlClass* getSdlClass(const std::string& mangledClassName) const;
-	const SdlClass& getSdlClass(std::string_view categoryName, std::string_view typeName) const;
+	const SdlClass* getSdlClass(std::string_view categoryName, std::string_view typeName) const;
 
 private:
 	static std::string getMangledName(std::string_view categoryName, std::string_view typeName);
