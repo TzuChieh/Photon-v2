@@ -29,6 +29,9 @@ concept CSupportsTristimulusConversions = requires (TTristimulusValues<T> thisCo
 };
 
 /*! @brief Basic requirements a spectral color space definition must satisfy in addition to CHasColorSpaceProperties.
+Bound tristimulus color space: A spectral color space must choose a tristimulus color space as its 
+binding space, which will be used by color space operations that cannot operate in the spectral space.
+The chosen color space is often referred to as "bound space" for simplicity.
 */
 template<typename DefType, typename T>
 concept CSupportsSpectralConversions = requires (
@@ -57,8 +60,8 @@ concept CColorSpaceDefinition =
 	CSpectralColorSpaceDefinition<DefType, T>;
 
 /*! @brief Sinkhole for color spaces without definition.
-Specialize the class to provide definitions for color space. Must satisfy CTristimulusColorSpaceDefinition or
-CSpectralColorSpaceDefinition.
+Specialize the class to provide definitions for color space. Must satisfy
+`CTristimulusColorSpaceDefinition` or `CSpectralColorSpaceDefinition`.
 */
 template<EColorSpace COLOR_SPACE, typename T>
 class TColorSpaceDefinition final
@@ -73,9 +76,19 @@ class TColorSpaceDefinition final
 template<EColorSpace COLOR_SPACE>
 using TColorSpaceDef = TColorSpaceDefinition<COLOR_SPACE, ColorValue>;
 
+/*! @brief Check whether @p colorSpace is a tristimulus color space.
+This is a runtime check. For compile-time check, use `TColorSpaceDef< ? >::isTristimulus()`.
+*/
+bool is_tristimulus(EColorSpace colorSpace);
+
+/*! @brief Check whether @p InColorValuesType is suitable to represent values in @p COLOR_SPACE.
+*/
+template<typename InColorValuesType, EColorSpace COLOR_SPACE>
+constexpr bool is_compatible();
+
 /*!
-@param srcColorValues A @p TTristimulusValues or a @p TSpectralSampleValues depending on whether @p SRC_COLOR_SPACE
-is tristimulus.
+@param srcColorValues A @p TTristimulusValues or a @p TSpectralSampleValues depending on
+whether@p SRC_COLOR_SPACE is tristimulus.
 @return A @p TTristimulusValues or a @p TSpectralSampleValues depending on whether @p DST_COLOR_SPACE
 is tristimulus.
 */
@@ -84,8 +97,9 @@ auto transform_color(const auto& srcColorValues, EColorUsage usage);
 
 /*!
 @return Relative luminance of @p srcColorValues. Normally for a tristimulus color, its reference white's
-relative luminance will be 1. For spectral samples, it is the result of performing an inner product with the
-luminous efficiency function. For ECF usages, its relative luminance is guaranteed to be within [0, 1].
+relative luminance will be 1. For spectral samples, it is the result of performing an inner product
+with the luminous efficiency function. For ECF usages, its relative luminance is guaranteed to be 
+within [0, 1].
 */
 template<EColorSpace SRC_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM = EChromaticAdaptation::Default>
 T relative_luminance(const auto& srcColorValues, EColorUsage usage = EColorUsage::EMR);

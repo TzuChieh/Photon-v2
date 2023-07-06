@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/General/TMatrixMxNBase.h"
+#include "Utility/utility.h"
 
 namespace ph::math
 {
@@ -24,12 +25,7 @@ protected:
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline TMatrixNBase() = default;
-	inline TMatrixNBase(const TMatrixNBase& other) = default;
-	inline TMatrixNBase(TMatrixNBase&& other) = default;
-	inline TMatrixNBase& operator = (const TMatrixNBase& rhs) = default;
-	inline TMatrixNBase& operator = (TMatrixNBase&& rhs) = default;
-	inline ~TMatrixNBase() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TMatrixNBase);
 
 public:
 	/*! @brief Sets the matrix to be an identity matrix.

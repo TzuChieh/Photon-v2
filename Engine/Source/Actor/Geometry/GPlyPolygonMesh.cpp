@@ -48,7 +48,7 @@ void GPlyPolygonMesh::storeCooked(
 	{
 		PH_LOG(GPlyPolygonMesh, 
 			"{} buffer stats: {} verts, {} faces ({:.3f} MiB, {:.3f} B per face)", 
-			m_plyFile,
+			m_plyFile.getIdentifier(),
 			triangleBuffer->getVertexBuffer().numVertices(),
 			triangleBuffer->numFaces(),
 			math::bytes_to_MiB<double>(triangleBuffer->memoryUsage()),
@@ -56,7 +56,7 @@ void GPlyPolygonMesh::storeCooked(
 
 		PH_LOG(GPlyPolygonMesh,
 			"{} buffer timings: {:.2f} ms loading, {:.2f} ms building accel",
-			m_plyFile,
+			m_plyFile.getIdentifier(),
 			loadTimer.getDeltaMs<double>(),
 			buildTimer.getDeltaMs<double>());
 	}

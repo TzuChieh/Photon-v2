@@ -517,8 +517,8 @@ public:
 		}
 
 		// We do not care about EMR color usage here since spectral samples should be independent of
-		// reference whites (this may make round-trip conversions less stable, we think such stability
-		// is unimportant, however). We do nothing for RAW usage. 
+		// reference whites. This may make round-trip conversions less stable (numerical error), 
+		// we think such stability is unimportant, however. We do nothing for RAW usage. 
 		// 
 		// For ECF usage, we make sure the resulting value is well being in [0, 1].
 		if(usage == EColorUsage::ECF)
@@ -535,6 +535,54 @@ public:
 // Unspecified color space must not be a valid color space.
 static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::Unspecified, float>, float>);
 static_assert(!CColorSpaceDefinition<TColorSpaceDefinition<EColorSpace::Unspecified, double>, double>);
+
+inline bool is_tristimulus(const EColorSpace colorSpace)
+{
+	switch(colorSpace)
+	{
+	case EColorSpace::CIE_XYZ:
+	case EColorSpace::CIE_xyY:
+	case EColorSpace::Linear_sRGB:
+	case EColorSpace::sRGB:
+	case EColorSpace::ACEScg:
+		return true;
+
+	case EColorSpace::Unspecified:
+	case EColorSpace::Spectral_Smits:
+		return false;
+
+	default:
+		// When failed, you may have added/removed some entries. Handle it in the above section.
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return false;
+	}
+}
+
+template<typename InColorValuesType, EColorSpace COLOR_SPACE>
+inline constexpr bool is_compatible()
+{
+	using ColorValuesType = std::remove_cvref_t<InColorValuesType>;
+	using ElementType = detail::TColorValuesElementType<ColorValuesType>;
+	if constexpr(std::is_same_v<ElementType, void>)
+	{
+		return false;
+	}
+
+	using ColorSpaceDef = TColorSpaceDefinition<COLOR_SPACE, ElementType>;
+
+	constexpr auto REQUIRED_SIZE = ColorSpaceDef::isTristimulus()
+		? std::tuple_size_v<TTristimulusValues<ElementType>>
+		: std::tuple_size_v<TSpectralSampleValues<ElementType>>;
+
+	if constexpr(CColorValuesInterface<ColorValuesType>)
+	{
+		return std::tuple_size_v<decltype(std::declval<ColorValuesType>().getColorValues())> == REQUIRED_SIZE;
+	}
+	else
+	{
+		return std::tuple_size_v<ColorValuesType> == REQUIRED_SIZE;
+	}
+}
 
 template<EColorSpace SRC_COLOR_SPACE, EColorSpace DST_COLOR_SPACE, typename T, EChromaticAdaptation ALGORITHM>
 inline auto transform_color(const auto& srcColorValues, const EColorUsage usage)

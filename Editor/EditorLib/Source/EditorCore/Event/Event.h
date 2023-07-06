@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Common/primitive_type.h>
-#include <Math/math.h>
 #include <Common/assertion.h>
+#include <Math/math.h>
+#include <Utility/utility.h>
 
 #include <string>
 
@@ -59,12 +60,7 @@ class Event
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline Event() = default;
-	inline Event(const Event& other) = default;
-	inline Event(Event&& other) = default;
-	inline Event& operator = (const Event& rhs) = default;
-	inline Event& operator = (Event&& rhs) = default;
-	inline ~Event() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(Event);
 
 public:
 	/*inline Event() = default;

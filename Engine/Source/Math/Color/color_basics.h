@@ -5,10 +5,13 @@
 #include "Common/assertion.h"
 #include "Math/Color/color_enums.h"
 #include "Utility/utility.h"
+#include "Utility/traits.h"
 
 #include <array>
 #include <cstddef>
 #include <concepts>
+#include <type_traits>
+#include <utility>
 
 namespace ph::math
 {
@@ -28,6 +31,12 @@ public:
 	inline static constexpr std::size_t MIN_WAVELENGTH_NM = PH_SPECTRUM_SAMPLED_MIN_WAVELENGTH_NM;
 	inline static constexpr std::size_t MAX_WAVELENGTH_NM = PH_SPECTRUM_SAMPLED_MAX_WAVELENGTH_NM;
 };
+
+/*
+Color implementations generally use dedicated types for color values. For example, `TTristimulusValues` 
+is used for tristimulus values and `TSpectralSampleValues` is for spectral values. There are also
+more types for other color-related concepts.
+*/
 
 using ColorValue = real;
 
@@ -49,6 +58,55 @@ using TChromaticityValues = TRawColorValues<T, 2>;
 using TristimulusValues    = TTristimulusValues<ColorValue>;
 using SpectralSampleValues = TSpectralSampleValues<ColorValue>;
 using ChromaticityValues   = TChromaticityValues<ColorValue>;
+
+namespace detail
+{
+
+template<EColorSpace COLOR_SPACE>
+class TColorSpaceDummy final
+{};
+
+}// end namespace detail
+
+/*! @brief Satisfying this concept makes @p ImplType usable as color values.
+*/
+template<typename ImplType>
+concept CColorValuesInterface = requires (
+	ImplType       instance,
+	const ImplType constInstance)
+{
+	// getColorSpace() must be usable as a non-type template argument
+	detail::TColorSpaceDummy<ImplType::getColorSpace()>();
+
+	// Test for the method void setColorValues(const TRawColorValues<T, N>&).
+	// Note: we do not want to pass in the template parameters (for convenience), so we test by calling 
+	// the method with an empty braced-init-list.
+	instance.setColorValues({});
+
+	// Test for the method getColorValues().
+	// Note: we do not want to pass in the template parameters (for convenience), so we test by calling 
+	// the method and see if the return value can be subscripted.
+	constInstance.getColorValues()[0];
+};
+
+/*! @brief Whether @p ColorValuesType is a raw color values type.
+*/
+template<typename ColorValuesType>
+concept CRawColorValues = 
+	// We would want to have something like `std::is_std_array`, the following is good enough though
+	// (covers most of the use cases)
+	!CColorValuesInterface<ColorValuesType> &&
+	CSubscriptable<ColorValuesType> &&
+	std::is_aggregate_v<ColorValuesType> &&
+	requires (ColorValuesType colorValues)
+	{
+		colorValues.fill(0);
+		colorValues.begin();
+		colorValues.end();
+		colorValues.cbegin();
+		colorValues.cend();
+		{ colorValues.size() } -> std::convertible_to<std::size_t>;
+	};
 
 namespace detail
 {
@@ -120,6 +178,30 @@ inline auto make_chromaticity_table()
 	}
 	return castedTable;
 }
+
+template<typename ColorValuesType>
+inline constexpr auto get_any_element_from_color_values(const ColorValuesType& colorValues)
+{
+	if constexpr(CRawColorValues<ColorValuesType>)
+	{
+		return colorValues[0];
+	}
+	else if constexpr(CColorValuesInterface<ColorValuesType>)
+	{
+		return colorValues.getColorValues()[0];
+	}
+	else
+	{
+		/* Note: According to [expr.type.conv]/2, quote:
+		"if the type is cv void and the initializer is () or {} (after pack expansion, if any), 
+		the expression is a prvalue of the specified type that performs no initialization."
+		*/
+		return void{};
+	}
+}
+
+template<typename ColorValuesType>
+using TColorValuesElementType = decltype(get_any_element_from_color_values(std::declval<ColorValuesType>()));
 
 }// end namespace detail
 

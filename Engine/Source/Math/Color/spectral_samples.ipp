@@ -137,22 +137,54 @@ inline TSpectralSampleValues<T, SampleProps> resample_illuminant_D65()
 }
 
 template<typename T, CSpectralSampleProps SampleProps>
+inline TSpectralSampleValues<T, SampleProps> resample_black_body(const T temperatureK)
+{
+	const auto samples = resample_black_body_spectral_radiance<T, SampleProps>(temperatureK);
+
+	// Normalize the spectral radiance distribution (slightly cheaper to compute than radiance)
+	// for the SPD. Does not matter which unit to take as we want the distribution only.
+	return normalize_samples_energy<T, SampleProps>(samples);
+}
+
+template<typename T, CSpectralSampleProps SampleProps>
 inline TSpectralSampleValues<T, SampleProps> resample_black_body_radiance(const T temperatureK)
 {
-	std::vector<T> radianceLambdas;
-	const std::vector<T> radianceValues = black_body_radiance_curve<double>(
+	const auto spectralRadianceSamples = resample_black_body_spectral_radiance<T, SampleProps>(
+		temperatureK);
+
+	// A more proper & accurate way to obtain radiance from spectral radiance is to directly 
+	// integrate the spectral radiance curve within each wavelength interval. We cheap out 
+	// here by directly multiplying each spectral radiance sample with its corresponding
+	// wavelength interval. This should have similar numerical precision as integrating the
+	// curve using trapezoidal rule.
+
+	constexpr auto wavelengthIntervalInMeter = 
+		wavelength_interval_of<double, SampleProps>() * 1e-9;// convert nm to m;
+
+	TArithmeticArray<T, SampleProps::NUM_SAMPLES> radianceSamples(spectralRadianceSamples);
+	radianceSamples.mulLocal(static_cast<T>(wavelengthIntervalInMeter));
+	return radianceSamples.toArray();
+}
+
+template<typename T, CSpectralSampleProps SampleProps>
+inline TSpectralSampleValues<T, SampleProps> resample_black_body_spectral_radiance(const T temperatureK)
+{
+	using ComputeT = double;
+
+	std::vector<ComputeT> spectralRadianceLambdas;
+	const std::vector<ComputeT> spectralRadianceValues = black_body_spectral_radiance_curve<ComputeT>(
 		temperatureK, 
 		SampleProps::MIN_WAVELENGTH_NM, 
 		SampleProps::MAX_WAVELENGTH_NM, 
 		SampleProps::NUM_SAMPLES,
-		&radianceLambdas);
+		&spectralRadianceLambdas);
 
-	const auto samples = resample_spectral_samples<T, double, SampleProps>(
-		radianceLambdas.data(),
-		radianceValues.data(),
-		radianceValues.size());
+	const auto samples = resample_spectral_samples<T, ComputeT, SampleProps>(
+		spectralRadianceLambdas.data(),
+		spectralRadianceValues.data(),
+		spectralRadianceValues.size());
 
-	return normalize_samples_energy<T, SampleProps>(samples);
+	return samples;
 }
 
 namespace detail

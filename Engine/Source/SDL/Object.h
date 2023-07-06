@@ -10,7 +10,7 @@ namespace ph
 
 class Object : public TSdlResourceBase<ESdlTypeCategory::Ref_Object>
 {
-public:
+protected:
 	Object();
 	Object(const Object& other);
 	Object(Object&& other) noexcept;

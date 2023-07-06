@@ -15,6 +15,36 @@
 #include <bit>
 #include <version>
 
+/*! @brief Helper to declare special class members.
+*/
+#define PH_DECLARE_RULE_OF_5_MEMBERS(ClassType)\
+	ClassType();\
+	ClassType(const ClassType& other);\
+	ClassType(ClassType&& other) noexcept;\
+	ClassType& operator = (const ClassType& rhs);\
+	ClassType& operator = (ClassType&& rhs) noexcept;\
+	~ClassType() = default;
+
+/*! @brief Helper to define special class members.
+*/
+#define PH_DEFINE_RULE_OF_5_MEMBERS(ClassType)\
+	ClassType::ClassType() = default;\
+	ClassType::ClassType(const ClassType& other) = default;\
+	ClassType::ClassType(ClassType&& other) noexcept = default;\
+	ClassType& ClassType::operator = (const ClassType& rhs) = default;\
+	ClassType& ClassType::operator = (ClassType&& rhs) noexcept = default;\
+	ClassType::~ClassType() = default;
+
+/*! @brief Helper to define special class members.
+*/
+#define PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(ClassType)\
+	inline ClassType() = default;\
+	inline ClassType(const ClassType& other) = default;\
+	inline ClassType(ClassType&& other) noexcept = default;\
+	inline ClassType& operator = (const ClassType& rhs) = default;\
+	inline ClassType& operator = (ClassType&& rhs) noexcept = default;\
+	inline ~ClassType() = default;
+
 namespace ph
 {
 

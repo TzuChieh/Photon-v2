@@ -4,6 +4,7 @@
 #include "EditorCore/EKeyCode.h"
 
 #include <Utility/TBitFlags.h>
+#include <Utility/utility.h>
 
 namespace ph::editor
 {
@@ -13,12 +14,7 @@ class KeyEvent : public Event
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline KeyEvent() = default;
-	inline KeyEvent(const KeyEvent& other) = default;
-	inline KeyEvent(KeyEvent&& other) = default;
-	inline KeyEvent& operator = (const KeyEvent& rhs) = default;
-	inline KeyEvent& operator = (KeyEvent&& rhs) = default;
-	inline ~KeyEvent() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(KeyEvent);
 
 public:
 	explicit KeyEvent(EKeyCode key);

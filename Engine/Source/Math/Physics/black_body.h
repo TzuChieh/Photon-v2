@@ -12,13 +12,15 @@
 namespace ph::math
 {
 
-/*! @brief Get Black-body radiance at specific temperature and wavelength.
+/*! @brief Get Black-body spectral radiance at specific temperature and wavelength.
+Note that this function is not returning radiance but spectral radiance. The returned 
+spectral radiance has the unit of watt per steradian per square meter per meter (W * sr^-1 * m^-2 * m^-1).
 @param temperatureK Temperature in Kelvin.
 @param wavelengthNM Wavelength of the interest, in nanometers.
-@return Emitted radiance on specified parameters.
+@return Emitted spectral radiance on specified parameters, in SI unit (W * sr^-1 * m^-2 * m^-1).
 */
 template<typename T>
-inline T black_body_radiance_at(const T temperatureK, const T wavelengthNM)
+inline T black_body_spectral_radiance_at(const T temperatureK, const T wavelengthNM)
 {
 	PH_ASSERT_GE(temperatureK, 0);
 	PH_ASSERT_GT(wavelengthNM, 0);
@@ -28,7 +30,7 @@ inline T black_body_radiance_at(const T temperatureK, const T wavelengthNM)
 		return 0;
 	}
 
-	// Using double for calculation as the values are pretty small
+	// Using double for calculation as the values can extend a wide range
 
 	using namespace constant;
 
@@ -43,13 +45,16 @@ inline T black_body_radiance_at(const T temperatureK, const T wavelengthNM)
 }
 
 /*! @brief Get a curve for Black-body radiation.
+Note that this function is not returning radiance but spectral radiance. The returned
+spectral radiance has the unit of watt per steradian per square meter per meter (W * sr^-1 * m^-2 * m^-1).
 @param lambdaMinNM Minimum wavelength of the curve data, in nanometers.
 @param lambdaMaxNM Maximum wavelength of the curve data, in nanometers.
 @param numCurvePoints Number of points for the curve. Evenly spaced in [lambdaMinNM, lambdaMaxNM].
-@return Emitted radiance on each wavelength.
+Must be >= 2.
+@return Emitted spectral radiance on each wavelength, in SI unit (W * sr^-1 * m^-2 * m^-1).
 */
 template<typename T>
-std::vector<T> black_body_radiance_curve(
+std::vector<T> black_body_spectral_radiance_curve(
 	const T               temperatureK,
 	const T               lambdaMinNM,
 	const T               lambdaMaxNM,
@@ -64,7 +69,7 @@ std::vector<T> black_body_radiance_curve(
 	std::vector<T> radianceCurve(numCurvePoints, 0);
 	for(std::size_t i = 0; i < numCurvePoints; ++i)
 	{
-		radianceCurve[i] = black_body_radiance_at(temperatureK, lambdaValues[i]);
+		radianceCurve[i] = black_body_spectral_radiance_at(temperatureK, lambdaValues[i]);
 	}
 
 	if(out_lambdaValues)

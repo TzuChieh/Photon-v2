@@ -5,6 +5,10 @@ namespace ph::math
 
 enum class EColorSpace
 {
+	/*
+	Update `is_tristimulus()` if entries are modified.
+	*/
+
 	Unspecified = 0,
 
 	/*! The CIE 1931 color space that many color spaces based on. */
@@ -22,6 +26,9 @@ enum class EColorSpace
 	/*! A color space proposed by the AMPAS and they recommended it for rendering and compositing. */
 	ACEScg,
 
+	/*! Using spectral values as a color space, and performing down-sample (e.g., spectral to tristimulus)
+	and up-sample (e.g., tristimulus to spectral) operations with Smit's method.
+	*/
 	Spectral_Smits,
 
 	// Special values:

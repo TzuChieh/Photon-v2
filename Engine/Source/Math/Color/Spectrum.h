@@ -30,4 +30,9 @@ namespace ph::math
 
 #endif
 
+static_assert(CColorValuesInterface<Spectrum>);
+static_assert(CColorValuesInterface<LinearSRGBSpectrum>);
+static_assert(CColorValuesInterface<ACESSpectrum>);
+static_assert(CColorValuesInterface<SampledSpectrum>);
+
 }// end namespace ph::math

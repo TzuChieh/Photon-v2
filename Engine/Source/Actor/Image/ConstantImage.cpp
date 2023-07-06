@@ -62,6 +62,9 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 
 		const math::TristimulusValues color = math::TVector3<math::ColorValue>(values).toArray();
 
+		// Using tristimulus texture here since we do not know how the texture will be used
+		// (e.g., as energy, as raw values, etc.)
+
 		switch(m_colorSpace)
 		{
 		case math::EColorSpace::Linear_sRGB:
@@ -102,6 +105,9 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 				"(number of input values = " + std::to_string(m_values.size()) + ")");
 		}
 
+		// Using spectral texture here since we do not know how the texture will be used
+		// (e.g., as energy, as raw values, etc.)
+		//
 		return std::make_shared<TConstantSpectralTexture<math::EColorSpace::Spectral>>(
 			sampledSpectrum.getColorValues());
 	}

@@ -3,6 +3,7 @@
 #include "Math/TVector3.h"
 #include "Math/TVector2.h"
 #include "Math/Geometry/TAABB3D.h"
+#include "Utility/utility.h"
 
 #include <cstddef>
 #include <utility>
@@ -48,12 +49,7 @@ public:
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline TBasicTriangle() = default;
-	inline TBasicTriangle(const TBasicTriangle& other) = default;
-	inline TBasicTriangle(TBasicTriangle&& other) = default;
-	inline TBasicTriangle& operator = (const TBasicTriangle& rhs) = default;
-	inline TBasicTriangle& operator = (TBasicTriangle&& rhs) = default;
-	inline ~TBasicTriangle() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TBasicTriangle);
 
 public:
 	T getArea() const;

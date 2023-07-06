@@ -2,6 +2,7 @@
 
 #include "Math/General/TArithmeticArrayBase.h"
 #include "Math/math_fwd.h"
+#include "Utility/utility.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -22,12 +23,7 @@ protected:
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline TVectorNBase() = default;
-	inline TVectorNBase(const TVectorNBase& other) = default;
-	inline TVectorNBase(TVectorNBase&& other) = default;
-	inline TVectorNBase& operator = (const TVectorNBase& rhs) = default;
-	inline TVectorNBase& operator = (TVectorNBase && rhs) = default;
-	inline ~TVectorNBase() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TVectorNBase);
 
 public:
 	using Base::Base;

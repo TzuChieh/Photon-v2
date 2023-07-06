@@ -2,6 +2,7 @@
 
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
+#include "Utility/utility.h"
 
 #include <string>
 #include <array>
@@ -42,12 +43,7 @@ public:
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline TMatrixMxNBase() = default;
-	inline TMatrixMxNBase(const TMatrixMxNBase& other) = default;
-	inline TMatrixMxNBase(TMatrixMxNBase&& other) = default;
-	inline TMatrixMxNBase& operator = (const TMatrixMxNBase& rhs) = default;
-	inline TMatrixMxNBase& operator = (TMatrixMxNBase&& rhs) = default;
-	inline ~TMatrixMxNBase() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TMatrixMxNBase);
 
 protected:
 	inline static constexpr auto NUM_ROWS = M;

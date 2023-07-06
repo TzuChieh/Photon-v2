@@ -5,6 +5,7 @@
 #include "Math/math_fwd.h"
 #include "Math/Color/color_enums.h"
 #include "Math/Color/color_basics.h"
+#include "Utility/utility.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -14,38 +15,10 @@
 namespace ph::math
 {
 
-namespace detail
-{
-
-template<EColorSpace COLOR_SPACE>
-class TColorSpaceDummy final
-{};
-
-}// end namespace detail
-
-template<typename ImplType>
-concept CColorTransformInterface = requires (
-	ImplType       instance,
-	const ImplType constInstance)
-{
-	// getColorSpace() must be usable as a non-type template argument
-	detail::TColorSpaceDummy<ImplType::getColorSpace()>();
-
-	// Test for the method void setColorValues(const TRawColorValues<T, N>&).
-	// Note: we do not want to pass in the template parameters (for convenience), so we test by calling 
-	// the method with an empty braced-init-list.
-	instance.setColorValues({});
-
-	// Test for the method getColorValues().
-	// Note: we do not want to pass in the template parameters (for convenience), so we test by calling 
-	// the method and see if the return value can be subscripted.
-	constInstance.getColorValues()[0];
-};
-
 /*! @brief Base for spectrum implementations.
 
 An important assumption is that spectrum implementations are all color samples that can be linearly
-combined. @p CColorTransformInterface can be used for directly access the raw sample values.
+combined. `CColorValuesInterface` can be used for directly access the raw sample values.
 
 @note It is not recommended to add your own field in your spectrum implementation. If you must, make sure
 there will not be inconsistent object state (slicing) when @p CColorTransformInterface is being used.
@@ -62,12 +35,7 @@ protected:
 // Hide special members as this class is not intended to be used polymorphically.
 // It is derived class's choice to expose them (by defining them in public) or not.
 protected:
-	inline TSpectrumBase() = default;
-	inline TSpectrumBase(const TSpectrumBase& other) = default;
-	inline TSpectrumBase(TSpectrumBase&& other) = default;
-	inline TSpectrumBase& operator = (const TSpectrumBase& rhs) = default;
-	inline TSpectrumBase& operator = (TSpectrumBase&& rhs) = default;
-	inline ~TSpectrumBase() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TSpectrumBase);
 
 public:
 	using Base::Base;
@@ -89,8 +57,31 @@ public:
 	template<EColorSpace SRC_COLOR_SPACE>
 	Derived& setTransformed(const auto& srcColorValues, EColorUsage usage);
 
+	template<CColorValuesInterface ImplType>
+	Derived& setTransformed(const ImplType& srcColorValues, EColorUsage usage);
+
+	template<EColorSpace DST_COLOR_SPACE>
+	auto toTransformed(EColorUsage usage) const;
+
+	void transformFrom(const auto& srcColorValues, EColorSpace srcColorSpace, EColorUsage usage);
+	void transformTo(auto* out_dstColorValues, EColorSpace dstColorSpace, EColorUsage usage) const;
+	
+	/*! @brief Helper for setting spectral values to this spectrum.
+	*/
 	template<EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral>
 	Derived& setSpectral(const TSpectralSampleValues<T>& sampleValues, EColorUsage usage);
+
+	/*! @brief Helper for setting spectral values to this spectrum.
+	*/
+	template<CColorValuesInterface ImplType>
+	Derived& setSpectral(const ImplType& sampleValues, EColorUsage usage);
+
+	/*! @brief Helper for getting spectral values from this spectrum.
+	*/
+	template<EColorSpace SPECTRAL_COLOR_SPACE = EColorSpace::Spectral>
+	TSpectralSampleValues<T> toSpectral(EColorUsage usage) const;
+
+	// TODO: overloads for directly take another TSpectrumBase in different space
 
 	T relativeLuminance(EColorUsage usage = EColorUsage::EMR) const;
 
@@ -167,6 +158,21 @@ public:
 	using Base::operator *=;
 	using Base::operator /;
 	using Base::operator /=;
+	
+private:
+	/*!
+	Similar to `setTransformed()`, except that the method does not fail to compile if the type
+	of `srcColorValues` is incompatible with `SRC_COLOR_SPACE` (instead, it is a runtime error if called).
+	*/
+	template<EColorSpace SRC_COLOR_SPACE>
+	void setTransformedIfCompatible(const auto& srcColorValues, EColorUsage usage);
+
+	/*!
+	Similar to `toTransformed()`, except that the method does not fail to compile if the type
+	of `*out_dstColorValues` is incompatible with `DST_COLOR_SPACE`, (instead, it is a runtime error if called).
+	*/
+	template<EColorSpace DST_COLOR_SPACE>
+	void toTransformedIfCompatible(auto* out_dstColorValues, EColorUsage usage) const;
 };
 
 }// end namespace ph::math
