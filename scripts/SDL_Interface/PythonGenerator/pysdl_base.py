@@ -138,7 +138,7 @@ class SDLReference(SDLData):
         return self.ref_type
 
     def generate_data(self):
-        return "\"@%s\"" % self.ref_name
+        return "@\"%s\"" % self.ref_name
 
 
 class SDLRaw(SDLData):
@@ -200,7 +200,7 @@ class SDLCreatorCommand(SDLCommand):
         fragments = [
             self.get_prefix(), " ",
             self.get_full_type(), " ",
-            "\"@" + self.__data_name + "\"", " "]
+            "@\"" + self.__data_name + "\"", " "]
         self._generate_input_fragments(fragments)
         fragments.append("\n")
 
@@ -232,7 +232,7 @@ class SDLExecutorCommand(SDLCommand):
             self.get_prefix(), " ",
             self.get_full_type(), " ",
             self.get_name(), "(",
-            "\"@" + self.__target_name + "\")", " "]
+            "@\"" + self.__target_name + "\")", " "]
         self._generate_input_fragments(fragments)
         fragments.append("\n")
 

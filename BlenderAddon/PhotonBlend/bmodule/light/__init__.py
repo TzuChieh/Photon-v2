@@ -20,8 +20,7 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
         print("warning: light object <%s> has unsupported light type %s" % (b_light_object.name, b_light.type))
         return
 
-    source_name = naming.get_mangled_light_name(b_light)
-    actor_name = naming.get_mangled_object_name(b_light_object)
+    light_actor_name = naming.get_mangled_light_name(b_light)
 
     pos, rot, scale = utility.to_photon_pos_rot_scale(b_light_object.matrix_world)
 
@@ -32,22 +31,17 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
         if b_light.shape == 'SQUARE' or b_light.shape == 'RECTANGLE':
             rot = rot @ mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(180.0))
 
-    creator = sdl.LightActorCreator()
-    creator.set_data_name(actor_name)
-    creator.set_source(sdl.LightSource(source_name))
-    console.queue_command(creator)
-
-    translator = sdl.LightActorTranslate()
-    translator.set_target_name(actor_name)
+    translator = sdl.CallTranslate()
+    translator.set_target_name(light_actor_name)
     translator.set_amount(sdl.Vector3(pos))
     console.queue_command(translator)
 
-    rotator = sdl.LightActorRotate()
-    rotator.set_target_name(actor_name)
+    rotator = sdl.CallRotate()
+    rotator.set_target_name(light_actor_name)
     rotator.set_rotation(sdl.Quaternion((rot.x, rot.y, rot.z, rot.w)))
     console.queue_command(rotator)
 
-    scaler = sdl.LightActorScale()
-    scaler.set_target_name(actor_name)
+    scaler = sdl.CallScale()
+    scaler.set_target_name(light_actor_name)
     scaler.set_amount(sdl.Vector3(scale))
     console.queue_command(scaler)

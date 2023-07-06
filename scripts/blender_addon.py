@@ -1,3 +1,5 @@
+from utility import filesystem
+
 import shutil
 import os
 import configparser
@@ -17,6 +19,10 @@ def setup_photon_blend(setup_config: configparser.ConfigParser):
 
     src_directory = get_photon_blend_src_directory(setup_config)
     install_directory = get_photon_blend_install_directory(setup_config)
+
+    # Delete old installed content first if it exists (basically a clean install)
+    if filesystem.delete_folder_with_contents(install_directory):
+        print("Old installed content deleted")
 
     src_folder_name = os.path.basename(src_directory)
     if not src_folder_name:

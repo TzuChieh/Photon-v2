@@ -96,7 +96,7 @@ class SdlReferenceClause(SdlClause):
 		return self.__reference_type_name
 
 	def data_to_string(self, reference_name):
-		return "\"@" + reference_name + "\""
+		return "@\"" + reference_name + "\""
 
 
 class Vector3Clause(SdlClause):

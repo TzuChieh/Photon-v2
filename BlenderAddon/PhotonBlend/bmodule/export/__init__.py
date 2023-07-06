@@ -71,69 +71,52 @@ class Exporter:
             # return node.MaterialNodeTranslateResult()
             return None
 
-    def export_actor_light(self, actorLightName, lightSourceName, geometryName, materialName, position, rotation, scale):
+    def export_light_actor(self, light_actor_name, emission_image_name, geometry_name, material_name, position, rotation, scale):
 
-        # TODO: check non-uniform scale
+        creator = sdl.ModelLightActorCreator()
+        creator.set_data_name(light_actor_name)
+        creator.set_emitted_radiance(sdl.Image(emission_image_name))
+        creator.set_geometry(sdl.Geometry(geometry_name))
+        creator.set_material(sdl.Material(material_name))
+        self.get_sdlconsole().queue_command(creator)   
 
-        if lightSourceName is not None:
-            creator = sdl.LightActorCreator()
-            creator.set_data_name(actorLightName)
-            creator.set_source(sdl.LightSource(lightSourceName))
-            self.__sdlconsole.queue_command(creator)
-        else:
-            print("warning: expecting a none light source name for actor-light %s, not exporting" % actorLightName)
-            return
-
-        # if geometryName != None:
-        # 	command.append_string("[geometry geometry %s] " %("\"@" + geometryName + "\""))
-        #
-        # if materialName != None:
-        # 	command.append_string("[material material %s] " %("\"@" + materialName + "\""))
-
-        translator = sdl.LightActorTranslate()
-        translator.set_target_name(actorLightName)
+        translator = sdl.CallTranslate()
+        translator.set_target_name(light_actor_name)
         translator.set_amount(sdl.Vector3(position))
-        self.__sdlconsole.queue_command(translator)
+        self.get_sdlconsole().queue_command(translator)
 
-        rotator = sdl.LightActorRotate()
-        rotator.set_target_name(actorLightName)
+        rotator = sdl.CallRotate()
+        rotator.set_target_name(light_actor_name)
         rotator.set_rotation(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
-        self.__sdlconsole.queue_command(rotator)
+        self.get_sdlconsole().queue_command(rotator)
 
-        scaler = sdl.LightActorScale()
-        scaler.set_target_name(actorLightName)
+        scaler = sdl.CallScale()
+        scaler.set_target_name(light_actor_name)
         scaler.set_amount(sdl.Vector3(scale))
-        self.__sdlconsole.queue_command(scaler)
+        self.get_sdlconsole().queue_command(scaler)
 
-    def export_actor_model(self, actorModelName, geometryName, materialName, position, rotation, scale):
-        if (
-            actorModelName is None or
-            geometryName is None or
-            materialName is None
-        ):
-            print("warning: no name should be none, not exporting")
-            return
-
+    def export_model_actor(self, model_actor_name, geometry_name, material_name, position, rotation, scale):
+        
         creator = sdl.ModelActorCreator()
-        creator.set_data_name(actorModelName)
-        creator.set_geometry(sdl.Geometry(geometryName))
-        creator.set_material(sdl.Material(materialName))
-        self.__sdlconsole.queue_command(creator)
+        creator.set_data_name(model_actor_name)
+        creator.set_geometry(sdl.Geometry(geometry_name))
+        creator.set_material(sdl.Material(material_name))
+        self.get_sdlconsole().queue_command(creator)
 
-        translator = sdl.ModelActorTranslate()
-        translator.set_target_name(actorModelName)
+        translator = sdl.CallTranslate()
+        translator.set_target_name(model_actor_name)
         translator.set_amount(sdl.Vector3(position))
-        self.__sdlconsole.queue_command(translator)
+        self.get_sdlconsole().queue_command(translator)
 
-        rotator = sdl.ModelActorRotate()
-        rotator.set_target_name(actorModelName)
+        rotator = sdl.CallRotate()
+        rotator.set_target_name(model_actor_name)
         rotator.set_rotation(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
-        self.__sdlconsole.queue_command(rotator)
+        self.get_sdlconsole().queue_command(rotator)
 
-        scaler = sdl.ModelActorScale()
-        scaler.set_target_name(actorModelName)
+        scaler = sdl.CallScale()
+        scaler.set_target_name(model_actor_name)
         scaler.set_amount(sdl.Vector3(scale))
-        self.__sdlconsole.queue_command(scaler)
+        self.get_sdlconsole().queue_command(scaler)
 
     # def exportRaw(self, rawText):
     # 	command = RawCommand()
@@ -207,7 +190,7 @@ class Exporter:
 
             triangle_mesh.loop_triangles_to_sdl_triangle_mesh(
                 geometry_name,
-                self.__sdlconsole,
+                self.get_sdlconsole(),
                 loop_triangles,
                 b_mesh.vertices,
                 # b_active_uv_layer.data)
@@ -218,19 +201,12 @@ class Exporter:
             pos, rot, scale = utility.to_photon_pos_rot_scale(b_mesh_object.matrix_world)
 
             if material.helper.is_emissive(b_material):
-                light_source_name = geometry_name
-                creator = sdl.ModelLightSourceCreator()
-                creator.set_data_name(light_source_name)
-                creator.set_emitted_radiance(sdl.Image(material.helper.get_emission_image_res_name(b_material)))
-                creator.set_geometry(sdl.Geometry(geometry_name))
-                creator.set_material(sdl.Material(material_name))
-                self.get_sdlconsole().queue_command(creator)
-
-                actor_light_name = naming.get_mangled_object_name(b_mesh_object, suffix=str(material_idx))
-                self.export_actor_light(actor_light_name, light_source_name, geometry_name, material_name, pos, rot, scale)
+                light_actor_name = naming.get_mangled_object_name(b_mesh_object, prefix="EMISSIVE", suffix=str(material_idx))
+                emission_image_name = material.helper.get_emission_image_res_name(b_material)
+                self.export_light_actor(light_actor_name, emission_image_name, geometry_name, material_name, pos, rot, scale)
             else:
-                actor_model_name = naming.get_mangled_object_name(b_mesh_object, suffix=str(material_idx))
-                self.export_actor_model(actor_model_name, geometry_name, material_name, pos, rot, scale)
+                model_actor_name = naming.get_mangled_object_name(b_mesh_object, suffix=str(material_idx))
+                self.export_model_actor(model_actor_name, geometry_name, material_name, pos, rot, scale)
 
     def export_camera(self, b_camera_object):
         b_camera = b_camera_object.data
@@ -277,7 +253,7 @@ class Exporter:
 
         if observer is not None:
             observer.set_data_name("observer")
-            self.__sdlconsole.queue_command(observer)
+            self.get_sdlconsole().queue_command(observer)
         else:
             print("warning: camera (%s) type (%s) is unsupported, not exporting" % (b_camera.name, b_camera.type))
 

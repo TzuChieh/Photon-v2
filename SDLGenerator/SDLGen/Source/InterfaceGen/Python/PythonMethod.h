@@ -16,6 +16,7 @@ public:
 	inline static constexpr std::string_view UNIT_INDENT = "    ";
 
 public:
+	inline PythonMethod() = default;
 	explicit PythonMethod(std::string methodName);
 
 	void addInput(

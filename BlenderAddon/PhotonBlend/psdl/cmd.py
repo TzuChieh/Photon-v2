@@ -36,7 +36,7 @@ class WorldCommand(cmd_base.SdlCommand):
 		return self.__clauses
 
 	def _get_formated_data_name(self):
-		return "\"@" + self.__data_name + "\""
+		return "@\"" + self.__data_name + "\""
 
 
 class CreationCommand(WorldCommand):

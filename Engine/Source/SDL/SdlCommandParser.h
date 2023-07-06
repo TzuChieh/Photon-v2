@@ -96,10 +96,18 @@ protected:
 		const SdlInputContext& ctx) = 0;
 
 	/*! @brief Called when an executor command has been processed and is ready to run.
+	
+	A side note for SDL grammer: An executor may be called with an explicit class type, or with
+	the type part omitted and let the class type deduced from the reference. Calling with explicit
+	class type has potential performance benefit as the parser may not need to search the full
+	class hierarchy to find the target executor to call (deducing from the reference itself always
+	yield the exact, most derived type); however, calling with explicit class type may miss the
+	derived implementation if the executor is overridden (the parser will only search from the
+	class type you specified).
+
 	For implementations, obtaining the target class from context object should be preferred over
 	obtaining from the resource itself, since an executor may be called with an explicit class and
-	context object has this information (this is part of the SDL grammar, where class type can be
-	omitted and deduced from the reference).
+	context object has this information.
 	*/
 	virtual void runExecutor(
 		std::string_view executorName,

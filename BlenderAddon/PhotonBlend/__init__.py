@@ -3,7 +3,7 @@ import os
 import importlib
 import datetime
 
-# We are using absolute imports using `PhotonBlend` folder as the root
+# We are using absolute imports with `PhotonBlend` folder as the root
 root_folder_path = os.path.abspath(os.path.dirname(__file__))
 print("PhotonBlend: using %s as root" % root_folder_path)
 sys.path.append(root_folder_path)

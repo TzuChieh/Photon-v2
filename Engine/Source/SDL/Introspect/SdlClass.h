@@ -64,9 +64,20 @@ public:
 		const ISdlResource* targetResource,
 		std::vector<const ISdlResource*>& out_resources) const = 0;
 
+	/*!
+	@return Number of fields directly contained in this class.
+	Fields from any associated classes are not accounted for.
+	*/
 	virtual std::size_t numFields() const = 0;
+
 	virtual const SdlField* getField(std::size_t index) const = 0;
+
+	/*!
+	@return Number of functions directly contained in this class.
+	Functions from any associated classes are not accounted for.
+	*/
 	virtual std::size_t numFunctions() const = 0;
+
 	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
 
 	/*! @brief Whether the class is for building other classes only.

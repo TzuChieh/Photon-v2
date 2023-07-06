@@ -22,6 +22,11 @@ def _get_decorated_name(name, **decorations):
 	return decorated_name
 
 
+# Get a new resource name from an existing name.
+def get_mangled_name(src_name, **decorations):
+	return _get_decorated_name(src_name, **decorations)
+
+
 # Get a unique resource name for the mesh resource.
 def get_mangled_mesh_name(b_mesh: bpy.types.Mesh, **decorations):
 	return "GE" + _get_decorated_name(b_mesh.name, **decorations)

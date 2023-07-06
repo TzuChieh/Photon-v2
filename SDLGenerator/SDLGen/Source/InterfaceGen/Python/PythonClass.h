@@ -12,6 +12,7 @@ namespace ph::sdlgen
 class PythonClass final
 {
 public:
+	inline PythonClass() = default;
 	explicit PythonClass(std::string className);
 
 	void addMethod(PythonMethod method);

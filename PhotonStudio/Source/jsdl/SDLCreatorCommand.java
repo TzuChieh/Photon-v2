@@ -25,7 +25,7 @@ public abstract class SDLCreatorCommand extends SDLCommand
 		out_sdlBuffer.append(' ');
 		out_sdlBuffer.append(getFullType());
 		out_sdlBuffer.append(' ');
-		out_sdlBuffer.append("\"@" + m_dataName + "\" ");
+		out_sdlBuffer.append("@\"" + m_dataName + "\" ");
 		generateInputs(out_sdlBuffer);
 		out_sdlBuffer.append('\n');
 	}

@@ -190,7 +190,7 @@ class Reference(AbstractData):
         return self.ref_type
 
     def generate_data(self):
-        return "\"@%s\"" % self.ref_name
+        return "@\"%s\"" % self.ref_name
 
 
 class RawData(AbstractData):
@@ -244,7 +244,7 @@ class CreatorCommand(AbstractCommand):
         # TODO: some part can be pre-generated
         fragments = [
             self.get_full_type(), " ",
-            "\"@" + self.__data_name + "\"", " = "]
+            "@\"" + self.__data_name + "\"", " = "]
         self._generate_input_fragments(fragments)
         fragments.append(";\n")
 
@@ -254,7 +254,7 @@ class CreatorCommand(AbstractCommand):
         self.__data_name = data_name
 
 
-class ExecutorCommand(AbstractCommand):
+class ExplicitExecutorCommand(AbstractCommand):
     def __init__(self):
         super().__init__()
         self.__target_name = ""
@@ -270,9 +270,35 @@ class ExecutorCommand(AbstractCommand):
     def generate(self):
         # TODO: some part can be pre-generated
         fragments = [
-            self.get_full_type(), " ",
+            self.get_full_type(), ".",
             self.get_name(), "(",
-            "\"@" + self.__target_name + "\")", " = "]
+            "@\"" + self.__target_name + "\")", " = "]
+        self._generate_input_fragments(fragments)
+        fragments.append(";\n")
+
+        return "".join(fragments)
+
+    def set_target_name(self, data_name):
+        self.__target_name = data_name
+
+
+class ImplicitExecutorCommand(AbstractCommand):
+    def __init__(self):
+        super().__init__()
+        self.__target_name = ""
+
+    def get_full_type(self):
+        return None
+
+    @abstractmethod
+    def get_name(self):
+        pass
+
+    def generate(self):
+        # TODO: some part can be pre-generated
+        fragments = [
+            self.get_name(), "(",
+            "@\"" + self.__target_name + "\")", " = "]
         self._generate_input_fragments(fragments)
         fragments.append(";\n")
 
