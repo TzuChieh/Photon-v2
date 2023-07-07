@@ -73,7 +73,7 @@ public:
 		operandImage.required();
 		clazz.addField(operandImage);
 
-		TSdlReal<OwnerType, float64> scalarInput("scalar", &OwnerType::m_scalarInput);
+		TSdlReal<OwnerType, float64> scalarInput("scalar-input", &OwnerType::m_scalarInput);
 		scalarInput.description("A scalar input for the specified mathematical operation.");
 		scalarInput.defaultTo(0.0);
 		scalarInput.optional();

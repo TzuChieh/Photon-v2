@@ -29,11 +29,11 @@ class PhAddNode(PhMaterialNode):
             print("warning: node <%s> has no input linked, ignoring" % self.name)
             return
 
-        creator = sdl.RealMathImageCreator()
+        creator = sdl.MathImageCreator()
         creator.set_data_name(output_color_res_name)
         creator.set_operand(sdl.Image(input_color_res_name))
-        creator.set_math_op(sdl.String("add"))
-        creator.set_value(sdl.Real(self.factor))
+        creator.set_math_image_op(sdl.Enum("ADD"))
+        creator.set_scalar_input(sdl.Real(self.factor))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
