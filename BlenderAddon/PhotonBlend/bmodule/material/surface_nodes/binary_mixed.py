@@ -53,7 +53,7 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
                 image_creator.set_value(sdl.Real(factor))
             else:
                 image_creator.set_value(sdl.Vector3(mathutils.Color((factor[0], factor[1], factor[2]))))
-            image_creator.set_value_type(sdl.String("ecf-linear-srgb"))
+            image_creator.set_color_space(sdl.Enum("LSRGB"))
             sdlconsole.queue_command(image_creator)
 
         creator = sdl.BinaryMixedSurfaceMaterialCreator()
