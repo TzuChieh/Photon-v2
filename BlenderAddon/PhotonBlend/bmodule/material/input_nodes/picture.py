@@ -4,12 +4,8 @@ from ..node_base import (
         INPUT_CATEGORY)
 from psdl import sdl
 from bmodule import naming
-import utility
-from psdl import sdlresource
 
 import bpy
-
-import shutil
 
 
 class PhPictureNode(PhMaterialNode):
@@ -27,20 +23,19 @@ class PhPictureNode(PhMaterialNode):
         image_socket = self.outputs[0]
         image_res_name = naming.get_mangled_output_node_socket_name(image_socket, b_material) 
 
-        if self.file_path != "":
-            creator = sdl.RasterFileImageCreator()
-            image_path = bpy.path.abspath(self.file_path)
-            image_sdlri = sdlresource.SdlResourceIdentifier()
-            image_sdlri.append_folder(PhPictureNode.bl_idname + "_pictures")
-            image_sdlri.set_file(utility.get_filename(image_path))
-            creator.set_file_path(sdl.Path(image_sdlri.get_identifier()))
-            creator.set_sample_mode(sdl.Enum("bilinear"))
+        # TODO: not bundle/copy the same file if already present
 
-            # copy the file to scene folder
-            sdlconsole.create_resource_folder(image_sdlri)
-            dst_path = utility.get_appended_path(sdlconsole.get_working_directory(),
-                                                 image_sdlri.get_path())
-            shutil.copyfile(image_path, dst_path)
+        if self.file_path != "":
+
+            # Copy the image file to scene folder and obtain an identifier for it
+            image_path = bpy.path.abspath(self.file_path)
+            bundled_image_path = sdlconsole.bundle_file(image_path, PhPictureNode.bl_idname + "_pictures")
+            image_identifier = sdl.ResourceIdentifier()
+            image_identifier.set_bundled_path(bundled_image_path)
+
+            creator = sdl.RasterFileImageCreator()
+            creator.set_image_file(image_identifier)
+            creator.set_sample_mode(sdl.Enum("bilinear"))
         else:
             print("warning: picture node in material %s has no image file, result will be black" % b_material.name)
 

@@ -10,7 +10,6 @@ from bmodule import (
 
 from bmodule.material import nodes
 from bmodule.mesh import triangle_mesh
-from psdl import sdlresource
 from psdl import sdl
 from psdl.sdlconsole import SdlConsole
 from utility import meta, blender
@@ -20,7 +19,6 @@ import bpy
 import mathutils
 
 import math
-import shutil
 
 
 class Exporter:
@@ -261,21 +259,19 @@ class Exporter:
 
         creator = None
         if b_world.ph_background_type == 'IMAGE' and b_world.ph_image_file_path != "":
+            
+            # TODO: not bundle/copy the same file if already present
+
+            # Copy the envmap file to scene folder and obtain an identifier for it
+            image_path = bpy.path.abspath(b_world.ph_image_file_path)
+            bundled_image_path = self.get_sdlconsole().bundle_file(image_path, b_world.name + "_data")
+            image_identifier = sdl.ResourceIdentifier()
+            image_identifier.set_bundled_path(bundled_image_path)
+
             creator = sdl.ImageDomeActorCreator()
             creator.set_data_name(actor_name)
+            creator.set_image_file(image_identifier)
 
-            image_path = bpy.path.abspath(b_world.ph_image_file_path)
-            image_sdlri = sdlresource.SdlResourceIdentifier()
-            image_sdlri.append_folder(b_world.name + "_data")
-            image_sdlri.set_file(utility.get_filename(image_path))
-            creator.set_image(sdl.String(image_sdlri.get_identifier()))
-
-            # copy the envmap to scene folder
-            self.get_sdlconsole().create_resource_folder(image_sdlri)
-            dst_path = utility.get_appended_path(
-                self.get_sdlconsole().get_working_directory(),
-                image_sdlri.get_path())
-            shutil.copyfile(image_path, dst_path)
         elif b_world.ph_background_type == 'PREETHAM':
             creator = sdl.PreethamDomeActorCreator()
             creator.set_data_name(actor_name)
@@ -295,7 +291,7 @@ class Exporter:
             rotation = sdl.DomeActorRotate()
             rotation.set_target_name(actor_name)
             rotation.set_axis(sdl.Vector3((0, 1, 0)))
-            rotation.set_degree(sdl.Real(b_world.ph_up_rotation))
+            rotation.set_degrees(sdl.Real(b_world.ph_up_rotation))
             self.get_sdlconsole().queue_command(rotation)
 
     def export_core_commands(self, b_scene):

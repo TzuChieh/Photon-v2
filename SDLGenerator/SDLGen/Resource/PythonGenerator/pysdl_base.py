@@ -23,7 +23,7 @@ class String(AbstractData):
         return "string"
 
     def generate_data(self):
-        return self.__string
+        return "\"" + self.__string + "\""
 
 
 class Enum(AbstractData):
@@ -35,7 +35,7 @@ class Enum(AbstractData):
         return "enum"
 
     def generate_data(self):
-        return self.__stringID
+        return "\"" + self.__stringID + "\""
 
 
 class Integer(AbstractData):
@@ -177,7 +177,25 @@ class Path(AbstractData):
         return "path"
 
     def generate_data(self):
-        return self.__string
+        return "\"" + self.__string + "\""
+
+
+class ResourceIdentifier(AbstractData):
+    def __init__(self, string=""):
+        super().__init__()
+        self.__string = string
+
+    def get_type(self):
+        return "PRI"
+
+    def generate_data(self):
+        return "\"" + self.__string + "\""
+
+    def set_bundled_path(self, path):
+        self.__string = ":" + str(path)
+
+    def set_external_path(self, path):
+        self.__string = "ext:" + str(path)
 
 
 class Reference(AbstractData):

@@ -1,6 +1,7 @@
 import utility
 
 from collections import deque
+import shutil
 
 
 class SdlCommandQueue:
@@ -60,6 +61,18 @@ class SdlConsole:
 		res_path        = utility.get_appended_path(self.__working_directory, sdl_resource_identifier.get_path())
 		res_folder_path = utility.get_folder_path(res_path)
 		utility.create_folder(res_folder_path)
+
+	def bundle_file(self, src_file_path, bundled_folder_path):
+		# Create the bundled folder
+		dst_folder_path = utility.get_appended_path(self.get_working_directory(), bundled_folder_path)
+		utility.create_folder(dst_folder_path)
+		
+		# Copy source file to the bundled folder
+		dst_file_path = utility.get_appended_path(dst_folder_path, utility.get_filename(src_file_path))
+		shutil.copyfile(src_file_path, dst_file_path)
+
+		bundled_file_path = utility.get_appended_path(bundled_folder_path, utility.get_filename(src_file_path))
+		return bundled_file_path
 
 	def queue_command(self, command):
 		self.__command_queue.queue_command(command)

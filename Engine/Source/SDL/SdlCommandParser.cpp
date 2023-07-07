@@ -542,7 +542,16 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 	const auto headerString = string_utils::trim_tail(headTrimmedCommand.substr(0, equalSignPos));
 	header.dataString = headTrimmedCommand.substr(equalSignPos + 1);
 
-	const auto dotSignPos = headerString.find('.');
+	
+	// Find the syntax dot sign (must escape the ones potentially in quoted names)
+	auto dotSignPos = std::string_view::npos;
+	{
+		// Syntax dot sign must occur before any occurrence of reference specifiers or double quotes
+		// (this may be `npos`, then the whole header string will be searched)
+		auto endFindPos = headerString.find_first_of("@\"");
+
+		dotSignPos = headerString.substr(0, endFindPos).find('.');
+	}
 
 	// No dot sign
 	if(dotSignPos == std::string_view::npos)

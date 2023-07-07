@@ -1,6 +1,7 @@
 import utility
 
 
+# DEPRECATED
 class SdlResourceIdentifier:
 
 	def __init__(self):
@@ -38,6 +39,7 @@ class SdlResourceIdentifier:
 
 	def __bool__(self):
 		return self.is_valid()
+
 	__nonzero__ = __bool__
 
 
