@@ -265,10 +265,7 @@ class DirectiveCommand(AbstractCommand):
         self.__directive_string += string
 
     def generate(self):
-        fragments = ["#", self.__directive_string, ";"]
-        self._generate_input_fragments(fragments)
-        fragments.append(";\n")
-
+        fragments = ["#", self.__directive_string, ";\n"]
         return "".join(fragments)
 
 

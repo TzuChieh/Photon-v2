@@ -6,11 +6,16 @@ from pathlib import Path
 
 class RenderProcess:
     def __init__(self):
-        addon_name = __name__.split(".")[0]
+        addon_name = "PhotonBlend"
         b_context = bpy.context
         b_preferences = b_context.preferences.addons[addon_name].preferences
 
-        self.installation_path = str(Path(b_preferences.installation_path).resolve())
+        if b_preferences.installation_path:
+            self.installation_path = str(Path(b_preferences.installation_path).resolve())
+        else:
+            self.installation_path = None
+            print("*** Please set the installation path for Photon renderer in addon preferences ***")
+        
         self.process = None
         self.arguments = {}
 
@@ -24,11 +29,14 @@ class RenderProcess:
             print("warning: process is already running")
             return
 
+        if not self.installation_path:
+            print("warning: cannot run render process, no installation path is set")
+            return
+
         argument_string = self._generate_argument_string()
 
-        # DEBUG
-        print(argument_string)
-        print(self.installation_path)
+        print("Using renderer installation: %s" % self.installation_path)
+        print("Renderer arguments: %s" % argument_string)
 
         self.process = subprocess.Popen(argument_string, cwd=self.installation_path)
 
