@@ -29,13 +29,24 @@ public:
 	template<typename... Args>
 	void addCodeLine(std::string_view formatStr, Args&&... args);
 
+	void beginIndent();
+	void endIndent();
+
 	const std::string& getMethodName() const;
+
+	/*!
+	@param indentAmount Additional indent to apply when generating code.
+	*/
 	std::string genCode(std::size_t indentAmount = 0) const;
 
 private:
-	std::string              m_methodName;
+	std::string m_methodName;
 	std::vector<std::string> m_codeLines;
 	std::vector<std::string> m_inputs;
+
+	/*! Indent amount in the method body, e.g., first code line has indent = 0, 
+	body of a conditional would have indent >= 1. */
+	std::size_t m_currentIndentAmount;
 };
 
 // In-header Implementations:

@@ -11,10 +11,11 @@ namespace ph::sdlgen
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PythonMethod, SDLGen);
 
-PythonMethod::PythonMethod(std::string methodName) :
-	m_methodName(std::move(methodName)),
-	m_codeLines (),
-	m_inputs    ()
+PythonMethod::PythonMethod(std::string methodName)
+	: m_methodName(std::move(methodName))
+	, m_codeLines()
+	, m_inputs()
+	, m_currentIndentAmount(0)
 {
 	PH_ASSERT(!m_methodName.empty());
 
@@ -43,8 +44,23 @@ void PythonMethod::addInput(
 
 void PythonMethod::addCodeLine(std::string codeLine)
 {
+	// Code line in a method should be indented too (hence indent amount +1)
+	const std::string indention = string_utils::repeat(UNIT_INDENT, m_currentIndentAmount + 1);
+
 	m_codeLines.push_back(
-		std::format("{}{}\n", UNIT_INDENT, std::move(codeLine)));
+		std::format("{}{}\n", indention, std::move(codeLine)));
+}
+
+void PythonMethod::beginIndent()
+{
+	++m_currentIndentAmount;
+}
+
+void PythonMethod::endIndent()
+{
+	PH_ASSERT_GT(m_currentIndentAmount, 0);
+
+	--m_currentIndentAmount;
 }
 
 std::string PythonMethod::genCode(const std::size_t indentAmount) const

@@ -13,6 +13,7 @@
 #include <SDL/ESdlTypeCategory.h>
 #include <SDL/sdl_helpers.h>
 #include <Common/logging.h>
+#include <Common/config.h>
 
 #include <utility>
 #include <vector>
@@ -48,6 +49,8 @@ is deduced from the target reference.
 */
 std::vector<PythonClass> gen_sdl_implicit_executor_classes(TSpanView<const SdlFunction*> sdlFunctions);
 
+PythonClass gen_sdl_version_directive_class();
+
 std::string gen_class_name_base(const SdlClass& sdlClass);
 std::string gen_creator_class_name(const SdlClass& sdlClass);
 std::string gen_explicit_executor_class_name(const SdlFunction& sdlFunction, const SdlClass& parentClass);
@@ -78,7 +81,9 @@ void PythonGenerator::generate(
 		"# NOTE: THIS FILE CONTAINS GENERATED CODE \n"
 		"#       DO NOT MODIFY                     \n"
 		"# ========================================\n");
-	m_file.writeString("# last generated: {} \n\n", Timestamp().toYMDHMS());
+	m_file.writeString("# engine version: {}\n", PH_ENGINE_VERSION);
+	m_file.writeString("# SDL version: {}\n", PH_PSDL_VERSION);
+	m_file.writeString("# last generated: {}\n\n", Timestamp().toYMDHMS());
 
 	m_file.writeString(
 		io_utils::load_text(makeResourcePath("pysdl_base.py")));
@@ -97,6 +102,21 @@ void PythonGenerator::generate(
 	m_file.writeString("\n\n");
 
 	PH_LOG(PythonGenerator, "generated {} helper reference classes", sdlCategories.size());
+
+	// Generate directive classes
+	{
+		std::vector<PythonClass> directiveClasses;
+		directiveClasses.push_back(gen_sdl_version_directive_class());
+
+		for(const auto& pyClass : directiveClasses)
+		{
+			m_file.writeString(pyClass.genCode());
+		}
+
+		m_file.writeString("\n\n");
+
+		PH_LOG(PythonGenerator, "generated {} directive classes", directiveClasses.size());
+	}
 
 	// Generate creator classes (for SDL creation command)
 
@@ -351,6 +371,28 @@ inline std::vector<PythonClass> gen_sdl_implicit_executor_classes(TSpanView<cons
 	}
 
 	return classes;
+}
+
+inline PythonClass gen_sdl_version_directive_class()
+{
+	PythonClass clazz("VersionDirectiveCommand");
+	clazz.setInheritedClass("DirectiveCommand");
+
+	// Set version on init, or default to the current PSDL version
+	PythonMethod initMethod("__init__");
+	initMethod.addInput("version", "None", "str");
+	initMethod.addCodeLine("super().__init__()");
+	initMethod.addCodeLine("self.__version = \"{}\"", PH_PSDL_VERSION);
+	initMethod.addCodeLine("if version is not None:");
+	initMethod.beginIndent();
+	{
+		initMethod.addCodeLine("self.__version = version");
+	}
+	initMethod.endIndent();
+	initMethod.addCodeLine("self.append_directive(\"version %s\" % self.__version)");
+	clazz.addMethod(initMethod);
+
+	return clazz;
 }
 
 inline std::string gen_class_name_base(const SdlClass& sdlClass)

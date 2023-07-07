@@ -11,7 +11,6 @@ from bmodule import (
 from bmodule.material import nodes
 from bmodule.mesh import triangle_mesh
 from psdl import sdlresource
-from psdl.cmd import RawCommand
 from psdl import sdl
 from psdl.sdlconsole import SdlConsole
 from utility import meta, blender
@@ -65,7 +64,7 @@ class Exporter:
         else:
             print("not using node tree")
             # BROKEN CODE
-            # command = RawCommand()
+            # command = sdl.RawCommand()
             # command.append_string(ui.material.to_sdl(b_material, self.__sdlconsole, material_name))
             # self.__sdlconsole.queue_command(command)
             # return node.MaterialNodeTranslateResult()
@@ -119,7 +118,7 @@ class Exporter:
         self.get_sdlconsole().queue_command(scaler)
 
     # def exportRaw(self, rawText):
-    # 	command = RawCommand()
+    # 	command = sdl.RawCommand()
     # 	command.append_string(rawText)
     # 	self.__sdlconsole.queue_command(command)
 
@@ -300,6 +299,9 @@ class Exporter:
             self.get_sdlconsole().queue_command(rotation)
 
     def export_core_commands(self, b_scene):
+        versionDirective = sdl.VersionDirectiveCommand()
+        self.get_sdlconsole().queue_command(versionDirective)
+        
         meta_info = meta.MetaGetter(b_scene)
 
         sample_source = None
@@ -345,7 +347,7 @@ class Exporter:
         # elif render_method == "ATTRIBUTE":
         #     renderer = sdl.AttributeRendererCreator()
         # elif render_method == "CUSTOM":
-        #     custom_renderer_sdl_command = RawCommand()
+        #     custom_renderer_sdl_command = sdl.RawCommand()
         #     custom_renderer_sdl_command.append_string(b_scene.ph_render_custom_sdl)
         #     custom_renderer_sdl_command.append_string("\n")
         #     self.get_sdlconsole().queue_command(custom_renderer_sdl_command)

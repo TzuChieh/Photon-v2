@@ -1,6 +1,8 @@
 import psdl
 import utility
 
+from psdl import sdl
+
 import bpy
 import mathutils
 
@@ -33,7 +35,7 @@ def translate_non_node_material(b_material, sdlconsole, res_name):
 	diffuse = b_material.diffuse_color
 	diffuse_color = mathutils.Color((diffuse[0], diffuse[1], diffuse[2]))
 
-	command = psdl.materialcmd.MatteOpaqueCreator()
+	command = sdl.MatteOpaqueMaterialCreator()
 	command.set_data_name(res_name)
 	command.set_albedo_color(diffuse_color)
 	sdlconsole.queue_command(command)
@@ -60,7 +62,7 @@ def translate_image_texture_node(this_node, sdlconsole, res_name):
 
 def translate_diffuse_bsdf_node(this_node, sdlconsole, res_name):
 
-	command = psdl.materialcmd.MatteOpaqueCreator()
+	command = psdl.MatteOpaqueMaterialCreator()
 	command.set_data_name(res_name)
 
 	color_socket = this_node.inputs.get("Color")
@@ -105,9 +107,8 @@ def translate_glossy_bsdf_node(this_node, sdlconsole, res_name):
 		else:
 			print("warning: cannot handle non-leaf Glossy BSDF node (material %s)" % res_name)
 
-		command = psdl.materialcmd.AbradedOpaqueCreator()
+		command = sdl.AbradedOpaqueMaterialCreator()
 		command.set_data_name(res_name)
-		command.set_albedo(mathutils.Color((0, 0, 0)))
 		command.set_f0(mathutils.Color((color[0], color[1], color[2])))
 		command.set_roughness(roughness)
 		command.set_anisotropicity(False)
@@ -133,10 +134,10 @@ def translate_vector_math_node(node, sdlconsole, res_name):
 			print("material %s's vector math node operand image conversion failed, using default value" % res_name)
 
 	if operand_image_command is None:
-		operand_image_command = psdl.imagecmd.ConstantImageCreator()
+		operand_image_command = sdl.ConstantImageCreator()
 		operand_image_command.set_data_name("socket_0_value_" + res_name)  # FIXME: be aware of name collision
 		socket0_vec3 = vector_socket_0.inputs[0].default_value
-		operand_image_command.set_vec3_value(socket0_vec3)
+		operand_image_command.set_value(socket0_vec3)
 		operand_image_command.intent_is_raw()
 		sdlconsole.queue_command(operand_image_command)
 
