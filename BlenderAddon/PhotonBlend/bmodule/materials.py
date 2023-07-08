@@ -202,7 +202,3 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
 #         row = layout.row()
 #         row.prop(material, "ph_is_emissive")
 #         row.prop(material, "ph_emitted_radiance")
-
-
-def include_module(module_manager):
-    pass

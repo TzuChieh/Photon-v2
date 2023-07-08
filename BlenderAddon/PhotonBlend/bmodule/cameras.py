@@ -94,6 +94,3 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
         dof_row.prop(b_camera, "ph_lens_radius_mm")
         dof_row.prop(b_camera, "ph_focal_meters")
 
-
-def include_module(module_manager):
-    pass

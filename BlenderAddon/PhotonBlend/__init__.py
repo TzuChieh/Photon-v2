@@ -39,16 +39,6 @@ def register():
 	else:
 		importlib.import_module(main_package_full_name)
 
-	# Include modules for further operations
-	if main_package_full_name in sys.modules:
-		package = sys.modules[main_package_full_name]
-		if hasattr(package, "include_module"):
-			package.include_module(blender.module_manager)
-		else:
-			print("Blender package `%s` should contain a `include_module(1)` function" % main_package_full_name)
-	else:
-		print("Blender package `%s` is not correctly imported" % main_package_full_name)
-
 	blender.module_manager.register_all()
 
 

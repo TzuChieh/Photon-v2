@@ -25,7 +25,3 @@ class PhPhotonBlendPreferences(bpy.types.AddonPreferences):
     def draw(self, b_context):
         b_layout = self.layout
         b_layout.prop(self, "installation_path")
-
-
-def include_module(module_manager):
-    pass

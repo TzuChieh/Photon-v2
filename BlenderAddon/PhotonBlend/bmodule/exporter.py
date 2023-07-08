@@ -136,7 +136,3 @@ class ExporterModule(blender.BlenderModule):
     def unregister(self):
         bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
         bpy.utils.unregister_class(OBJECT_OT_p2_exporter)
-
-
-def include_module(module_manager):
-    pass

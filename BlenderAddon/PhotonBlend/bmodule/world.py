@@ -113,7 +113,3 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 			b_layout.prop(b_world, "ph_julian_date")
 
 		b_layout.prop(b_world, "ph_energy_scale")
-
-
-def include_module(module_manager):
-	pass

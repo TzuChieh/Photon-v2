@@ -27,7 +27,3 @@ class MaterialProperties(blender.BlenderModule):
 
     def unregister(self):
         bpy.utils.unregister_class(PhotonMaterialData)
-
-
-def include_module(module_manager):
-    pass

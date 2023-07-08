@@ -93,7 +93,3 @@ class MaterialNodes(blender.BlenderModule):
             bpy.utils.unregister_class(node_type)
 
         nodeitems_utils.unregister_node_categories(self.node_category_idname)
-
-
-def include_module(module_manager):
-    pass

@@ -214,7 +214,3 @@ OUTPUT_CATEGORY = NodeCategory("OUTPUT", "Output")
 INPUT_CATEGORY = NodeCategory("INPUT", "Input")
 SURFACE_MATERIAL_CATEGORY = NodeCategory("SURFACE", "Surface Material")
 MATH_CATEGORY = NodeCategory("MATH", "Math")
-
-
-def include_module(module_manager):
-    pass

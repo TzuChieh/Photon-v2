@@ -80,7 +80,3 @@ class PH_LIGHT_PT_properties(PhLightPanel):
 
         else:
             print("warning: unsupported light type %s" % b_light.type)
-
-
-def include_module(module_manager):
-    pass

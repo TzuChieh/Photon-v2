@@ -453,7 +453,3 @@ class RendererModule(blender.BlenderModule):
         # properties_data_light.DATA_PT_area.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 
         # properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-
-
-def include_module(module_manager):
-    pass
