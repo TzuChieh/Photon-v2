@@ -16,6 +16,7 @@ class PhotonMaterialData(bpy.types.PropertyGroup):
     )
 
 
+@blender.register_module
 class MaterialProperties(blender.BlenderModule):
     def register(self):
         bpy.utils.register_class(PhotonMaterialData)
@@ -29,4 +30,4 @@ class MaterialProperties(blender.BlenderModule):
 
 
 def include_module(module_manager):
-    module_manager.add_module(MaterialProperties())
+    pass

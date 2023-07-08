@@ -48,16 +48,24 @@ class BasicClassModule(BlenderModule):
     def unregister(self):
         bpy.utils.unregister_class(self.clazz)
 
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self.clazz == other.clazz
+
+    def __str__(self):
+        return self.clazz.__name__
+
 
 class BlenderModuleManager:
     def __init__(self):
+        # Using list not set as we would like to retain the order of registration
         self.modules = []
 
     def add_module(self, module: BlenderModule):
-        self.modules.append(module)
+        if module in self.modules:
+            print("ERROR: module %s already registered" % module)
+            return
 
-    def add_class(self, clazz):
-        self.add_module(BasicClassModule(clazz))
+        self.modules.append(module)
 
     def register_all(self):
         for module in self.modules:
@@ -66,3 +74,35 @@ class BlenderModuleManager:
     def unregister_all(self):
         for module in reversed(self.modules):
             module.unregister()
+
+
+module_manager = None
+
+
+# Helper decorator to register a module to Blender
+def register_module(module_class):
+    global module_manager
+
+    if module_manager is None:
+        print("ERROR: cannot register %s (module manager is not set)" % module_class.__name__)
+        return
+
+    # Check for potential misuse
+    if not issubclass(module_class, BlenderModule):
+        print("ERROR: cannot register %s (not a BlenderModule type)" % module_class.__name__)
+        return
+
+    module_manager.add_module(module_class())
+    return module_class
+
+
+# Helper decorator to register a addon class (bpy classes) to Blender
+def register_class(bpy_addon_class):
+    global module_manager
+
+    if module_manager is None:
+        print("ERROR: cannot register %s (module manager is not set)" % bpy_addon_class.__name__)
+        return
+    
+    module_manager.add_module(BasicClassModule(bpy_addon_class))
+    return bpy_addon_class

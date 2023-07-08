@@ -1,8 +1,9 @@
-from utility import settings
+from utility import settings, blender
 
 import bpy
 
 
+@blender.register_class
 class PH_WORLD_PT_background(bpy.types.Panel):
 	bl_label = "PR: Background"
 	bl_context = "world"
@@ -114,11 +115,5 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 		b_layout.prop(b_world, "ph_energy_scale")
 
 
-WORLD_PANEL_CLASSES = [
-	PH_WORLD_PT_background
-]
-
-
 def include_module(module_manager):
-	for clazz in WORLD_PANEL_CLASSES:
-		module_manager.add_class(clazz)
+	pass

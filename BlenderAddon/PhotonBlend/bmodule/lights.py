@@ -1,4 +1,4 @@
-from utility import settings
+from utility import settings, blender
 
 import bpy
 import sys
@@ -18,6 +18,7 @@ class PhLightPanel(bpy.types.Panel):
                 context.light)
 
 
+@blender.register_class
 class PH_LIGHT_PT_properties(PhLightPanel):
     """
     Specify and control light properties.
@@ -81,11 +82,5 @@ class PH_LIGHT_PT_properties(PhLightPanel):
             print("warning: unsupported light type %s" % b_light.type)
 
 
-LIGHT_PANELS = [
-    PH_LIGHT_PT_properties
-]
-
-
 def include_module(module_manager):
-    for clazz in LIGHT_PANELS:
-        module_manager.add_class(clazz)
+    pass

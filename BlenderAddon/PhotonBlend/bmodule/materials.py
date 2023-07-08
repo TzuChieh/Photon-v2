@@ -1,4 +1,4 @@
-from utility import settings
+from utility import settings, blender
 from .material import helper
 from . import material
 from .material.output_nodes import PhOutputNode
@@ -7,6 +7,7 @@ from .material.surface_nodes import PhDiffuseSurfaceNode
 import bpy
 
 
+@blender.register_class
 class PH_MATERIAL_PT_header(bpy.types.Panel):
     bl_label = ""
     bl_context = "material"
@@ -71,6 +72,7 @@ class PH_MATERIAL_PT_header(bpy.types.Panel):
             split.separator()
 
 
+@blender.register_class
 class PH_MATERIAL_OT_add_material_nodes(bpy.types.Operator):
     """
     Adds a node tree for a material.
@@ -139,6 +141,7 @@ class PhMaterialPanel(bpy.types.Panel):
         )
 
 
+@blender.register_class
 class PH_MATERIAL_PT_properties(PhMaterialPanel):
     """
     Setting up primary material properties.
@@ -201,20 +204,5 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
 #         row.prop(material, "ph_emitted_radiance")
 
 
-MATERIAL_PANELS = [
-    PH_MATERIAL_PT_header,
-    PH_MATERIAL_PT_properties,
-    # PhOptionPanel
-]
-
-MATERIAL_OPERATORS = [
-    PH_MATERIAL_OT_add_material_nodes
-]
-
-
 def include_module(module_manager):
-    classes = MATERIAL_PANELS + MATERIAL_OPERATORS
-    for clazz in classes:
-        module_manager.add_class(clazz)
-
-    material.include_module(module_manager)
+    pass

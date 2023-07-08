@@ -127,6 +127,7 @@ def menu_func_export(self, b_context):
     self.layout.operator(OBJECT_OT_p2_exporter.bl_idname, text="Photon Scene (.p2)")
 
 
+@blender.register_module
 class ExporterModule(blender.BlenderModule):
     def register(self):
         bpy.utils.register_class(OBJECT_OT_p2_exporter)
@@ -138,4 +139,4 @@ class ExporterModule(blender.BlenderModule):
 
 
 def include_module(module_manager):
-    module_manager.add_module(ExporterModule())
+    pass

@@ -1,3 +1,4 @@
+from utility import blender
 from bmodule import (
         cameras,
         exporter,
@@ -9,6 +10,7 @@ from bmodule import (
 import bpy
 
 
+@blender.register_class
 class PhPhotonBlendPreferences(bpy.types.AddonPreferences):
     # This must match the add-on name, use '__package__' when defining this in a submodule of a python package.
     bl_idname = __name__.split(".")[0]
@@ -26,11 +28,4 @@ class PhPhotonBlendPreferences(bpy.types.AddonPreferences):
 
 
 def include_module(module_manager):
-    module_manager.add_class(PhPhotonBlendPreferences)
-
-    cameras.include_module(module_manager)
-    exporter.include_module(module_manager)
-    lights.include_module(module_manager)
-    materials.include_module(module_manager)
-    renderer.include_module(module_manager)
-    world.include_module(module_manager)
+    pass

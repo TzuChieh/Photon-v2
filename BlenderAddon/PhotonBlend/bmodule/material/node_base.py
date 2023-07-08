@@ -12,6 +12,7 @@ import nodeitems_utils
 from abc import abstractmethod
 
 
+@blender.register_class
 class PhMaterialNodeTree(bpy.types.NodeTree):
     bl_idname = 'PH_MATERIAL_NODE_TREE'
     bl_label = "Photon Node Tree"
@@ -105,6 +106,7 @@ class PhMaterialNode(bpy.types.Node):
         pass
 
 
+@blender.register_class
 class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
     bl_idname = 'PH_SURFACE_MATERIAL_SOCKET'
     bl_label = "Surface Material"
@@ -123,6 +125,7 @@ class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
         return [0.8, 0.1, 0.1, 1.0]  # red
 
 
+@blender.register_class
 class PhFloatValueSocket(PhMaterialNodeSocket):
     bl_idname = 'PH_FLOAT_VALUE_SOCKET'
     bl_label = "Value"
@@ -139,6 +142,7 @@ class PhFloatValueSocket(PhMaterialNodeSocket):
         return [0.5, 0.5, 0.5, 1.0]  # gray
 
 
+@blender.register_class
 class PhFloatFactorSocket(PhMaterialNodeSocket):
     bl_idname = 'PH_FLOAT_SOCKET'
     bl_label = "Factor"
@@ -155,6 +159,7 @@ class PhFloatFactorSocket(PhMaterialNodeSocket):
         return [0.5, 0.5, 0.5, 1.0]  # gray
 
 
+@blender.register_class
 class PhColorSocket(PhMaterialNodeSocket):
     bl_idname = 'PH_COLOR_SOCKET'
     bl_label = "Color"
@@ -173,6 +178,7 @@ class PhColorSocket(PhMaterialNodeSocket):
         return [0.7, 0.7, 0.1, 1.0]  # yellow
 
 
+@blender.register_class
 class PhSurfaceLayerSocket(PhMaterialNodeSocket):
     bl_idname = 'PH_SURFACE_LAYER_SOCKET'
     bl_label = "Surface Layer"
@@ -187,6 +193,7 @@ class PhMaterialNodeCategory(nodeitems_utils.NodeCategory):
         return b_context.space_data.tree_type == PhMaterialNodeTree.bl_idname
 
 
+@blender.register_class
 class PH_MATERIAL_HT_header(bpy.types.Header):
     bl_space_type = "NODE_EDITOR"
 
@@ -209,32 +216,5 @@ SURFACE_MATERIAL_CATEGORY = NodeCategory("SURFACE", "Surface Material")
 MATH_CATEGORY = NodeCategory("MATH", "Math")
 
 
-PH_MATERIAL_NODE_SOCKETS = [
-    PhSurfaceMaterialSocket,
-    PhFloatValueSocket,
-    PhFloatFactorSocket,
-    PhColorSocket,
-    PhSurfaceLayerSocket
-]
-
-
-class MaterialNodeBase(blender.BlenderModule):
-    def register(self):
-        bpy.utils.register_class(PhMaterialNodeTree)
-
-        for socket_class in PH_MATERIAL_NODE_SOCKETS:
-            bpy.utils.register_class(socket_class)
-
-        bpy.utils.register_class(PH_MATERIAL_HT_header)
-
-    def unregister(self):
-        bpy.utils.unregister_class(PhMaterialNodeTree)
-
-        for socket_class in PH_MATERIAL_NODE_SOCKETS:
-            bpy.utils.unregister_class(socket_class)
-
-        bpy.utils.unregister_class(PH_MATERIAL_HT_header)
-
-
 def include_module(module_manager):
-    module_manager.add_module(MaterialNodeBase())
+    pass

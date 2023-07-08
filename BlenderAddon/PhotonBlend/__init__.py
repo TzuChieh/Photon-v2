@@ -8,7 +8,7 @@ root_folder_path = os.path.abspath(os.path.dirname(__file__))
 print("PhotonBlend: using %s as root" % root_folder_path)
 sys.path.append(root_folder_path)
 
-from utility.blender import BlenderModuleManager
+from utility import blender
 
 # Required by Blender: addon header info
 bl_info = {
@@ -25,15 +25,13 @@ bl_info = {
 print("PhotonBlend activated. %s" % datetime.datetime.now())
 
 main_package_full_name = "{}.{}".format(__name__, "bmodule")
-module_manager = None
 
 
-# Register all modules. (A required Blender callback.)
+# Register all modules (a required Blender callback)
 def register():
-	global module_manager
 	global main_package_full_name
 
-	module_manager = BlenderModuleManager()
+	blender.module_manager = blender.BlenderModuleManager()
 
 	# Import or update existing modules
 	if main_package_full_name in sys.modules:
@@ -45,18 +43,16 @@ def register():
 	if main_package_full_name in sys.modules:
 		package = sys.modules[main_package_full_name]
 		if hasattr(package, "include_module"):
-			package.include_module(module_manager)
+			package.include_module(blender.module_manager)
 		else:
 			print("Blender package `%s` should contain a `include_module(1)` function" % main_package_full_name)
 	else:
 		print("Blender package `%s` is not correctly imported" % main_package_full_name)
 
-	module_manager.register_all()
+	blender.module_manager.register_all()
 
 
-# Unregister all modules. (A required Blender callback.)
+# Unregister all modules (a required Blender callback)
 def unregister():
-	global module_manager
-
-	module_manager.unregister_all()
-	module_manager = None
+	blender.module_manager.unregister_all()
+	blender.module_manager = None

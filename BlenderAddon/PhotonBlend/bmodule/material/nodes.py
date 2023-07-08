@@ -57,6 +57,7 @@ PH_MATERIAL_NODES = [
         math_nodes.PhAddNode]
 
 
+@blender.register_module
 class MaterialNodes(blender.BlenderModule):
     node_category_idname = 'PH_MATERIAL_NODE_CATEGORIES'
 
@@ -95,4 +96,4 @@ class MaterialNodes(blender.BlenderModule):
 
 
 def include_module(module_manager):
-    module_manager.add_module(MaterialNodes())
+    pass

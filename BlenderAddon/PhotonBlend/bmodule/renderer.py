@@ -19,12 +19,16 @@ import sys
 import time
 
 
+@blender.register_class
 class PhPhotonRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
     # RenderEngine; define its internal name, visible name and capabilities.
     bl_idname = settings.renderer_id_name
     bl_label = "Photon"
     bl_use_preview = False
+
+    # Do not expose Cycles and Eevee shading nodes in the node editor user interface, so own nodes can be used instead.
+    bl_use_shading_nodes_custom = True
 
     # Init is called whenever a new render engine instance is created. Multiple instances may exist at the same time,
     # for example for a viewport and final render.
@@ -205,6 +209,7 @@ class PhRenderPanel(bpy.types.Panel):
         return render_settings.engine in cls.COMPATIBLE_ENGINES
 
 
+@blender.register_class
 class PH_RENDERING_PT_rendering(PhRenderPanel):
     bl_label = "PR: Rendering"
 
@@ -339,6 +344,7 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
             b_layout.prop(b_scene, "ph_crop_height")
 
 
+@blender.register_class
 class PH_RENDERING_PT_sampling(PhRenderPanel):
     bl_label = "PR: Sampling"
 
@@ -382,6 +388,7 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
         layout.prop(b_scene, "ph_render_sample_source_type")
 
 
+@blender.register_class
 class PH_RENDERING_PT_data_structures(PhRenderPanel):
     bl_label = "PR: Data Structures"
 
@@ -419,19 +426,9 @@ class PH_RENDERING_PT_data_structures(PhRenderPanel):
 #         layout.prop(scene, "ph_use_cycles_material")
 
 
-RENDER_PANEL_CLASSES = [
-    PH_RENDERING_PT_sampling,
-    # PH_RENDERING_PT_options,
-    PH_RENDERING_PT_rendering,
-    PH_RENDERING_PT_data_structures
-]
-
-
+@blender.register_module
 class RendererModule(blender.BlenderModule):
     def register(self):
-        # Register the render engine.
-        bpy.utils.register_class(PhPhotonRenderEngine)
-
         # RenderEngines also need to tell UI Panels that they are compatible;
         # otherwise most of the UI will be empty when the engine is selected.
 
@@ -445,12 +442,8 @@ class RendererModule(blender.BlenderModule):
 
         # properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 
-        for clazz in RENDER_PANEL_CLASSES:
-            bpy.utils.register_class(clazz)
 
     def unregister(self):
-        bpy.utils.unregister_class(PhPhotonRenderEngine)
-
         properties_output.RENDER_PT_dimensions.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
 
         properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
@@ -461,9 +454,6 @@ class RendererModule(blender.BlenderModule):
 
         # properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
 
-        for clazz in RENDER_PANEL_CLASSES:
-            bpy.utils.unregister_class(clazz)
-
 
 def include_module(module_manager):
-    module_manager.add_module(RendererModule())
+    pass

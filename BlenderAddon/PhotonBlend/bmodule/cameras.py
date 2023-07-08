@@ -5,6 +5,7 @@ import bpy
 import sys
 
 
+@blender.register_class
 class PH_CAMERA_PT_camera(bpy.types.Panel):
     bl_label = "PR: Camera"
     bl_context = "data"
@@ -94,11 +95,5 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
         dof_row.prop(b_camera, "ph_focal_meters")
 
 
-CAMERA_PANELS = [
-    PH_CAMERA_PT_camera
-]
-
-
 def include_module(module_manager):
-    for clazz in CAMERA_PANELS:
-        module_manager.add_class(clazz)
+    pass

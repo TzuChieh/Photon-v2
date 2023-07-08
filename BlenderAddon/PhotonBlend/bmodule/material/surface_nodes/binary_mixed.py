@@ -50,7 +50,7 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
             image_creator.set_data_name(factor_res_name)
             factor = factor_socket.default_value
             if self.factor_type == 'FLOAT':
-                image_creator.set_value(sdl.Real(factor))
+                image_creator.set_value(sdl.RealArray([factor]))
             else:
                 image_creator.set_value(sdl.Vector3(mathutils.Color((factor[0], factor[1], factor[2]))))
             image_creator.set_color_space(sdl.Enum("LSRGB"))
@@ -58,6 +58,7 @@ class PhBinaryMixedSurfaceNode(PhMaterialNode):
 
         creator = sdl.BinaryMixedSurfaceMaterialCreator()
         creator.set_data_name(naming.get_mangled_output_node_socket_name(surface_mat_socket, b_material))
+        creator.set_mode(sdl.Enum("lerp"))
         creator.set_material_0(sdl.Material(mat0_res_name))
         creator.set_material_1(sdl.Material(mat1_res_name))
         creator.set_factor(sdl.Image(factor_res_name))
