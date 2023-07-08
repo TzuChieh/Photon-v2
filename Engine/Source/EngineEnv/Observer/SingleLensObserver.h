@@ -73,7 +73,8 @@ public:
 
 		TSdlReal<OwnerType> sensorOffsetMM("sensor-offset-mm", &OwnerType::m_sensorOffsetMM);
 		sensorOffsetMM.description(
-			"Distance between sensor and light entry. Can be overridden if FoV is provided.");
+			"Distance between sensor and light entry (more commonly known as focal length). "
+			"Will be overridden if FoV is provided.");
 		sensorOffsetMM.defaultTo(36);
 		sensorOffsetMM.optional();
 		clazz.addField(sensorOffsetMM);

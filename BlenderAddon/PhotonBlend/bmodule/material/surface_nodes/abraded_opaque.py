@@ -49,7 +49,7 @@ class PhAbradedOpaqueNode(PhMaterialNode):
         creator = sdl.AbradedOpaqueMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
         creator.set_microsurface(sdl.Enum("ggx"))
-        creator.set_f0(sdl.Vector3(mathutils.Color((self.f0[0], self.f0[1], self.f0[2]))))
+        creator.set_f0(sdl.Spectrum(mathutils.Color((self.f0[0], self.f0[1], self.f0[2]))))
 
         if not self.is_anisotropic:
             creator.set_roughness(sdl.Real(self.inputs[0].default_value))

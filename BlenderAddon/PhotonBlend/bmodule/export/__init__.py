@@ -219,32 +219,26 @@ class Exporter:
             # (also note that Blender's quaternion works this way, does not require q*v*q').
             cam_dir = rot @ mathutils.Vector((0, 0, -1))
             cam_up_dir = rot @ mathutils.Vector((0, 1, 0))
-            fov_degrees = 70.0
+
+            observer = sdl.SingleLensObserverCreator()
+            observer.set_position(sdl.Vector3(position))
+            observer.set_direction(sdl.Vector3(cam_dir))
+            observer.set_up_axis(sdl.Vector3(cam_up_dir))
 
             lens_unit = b_camera.lens_unit
-            if lens_unit == "FOV":
+            if lens_unit == 'FOV':
                 fov_degrees = math.degrees(b_camera.angle)
-            elif lens_unit == "MILLIMETERS":
+                observer.set_fov_degrees(sdl.Real(fov_degrees))
+            elif lens_unit == 'MILLIMETERS':
                 sensor_width = b_camera.sensor_width
                 focal_length = b_camera.lens
-                fov_degrees = math.degrees(math.atan((sensor_width / 2.0) / focal_length)) * 2.0
+                observer.set_sensor_width_mm(sdl.Real(sensor_width))
+                observer.set_sensor_offset_mm(sdl.Real(focal_length))
             else:
                 print("warning: camera (%s) with lens unit %s is unsupported, not exporting" % (
                     b_camera.name, b_camera.lens_unit))
 
-            if not b_camera.ph_has_dof:
-                observer = sdl.SingleLensObserverCreator()
-                observer.set_fov_degrees(sdl.Real(fov_degrees))
-                observer.set_position(sdl.Vector3(position))
-                observer.set_direction(sdl.Vector3(cam_dir))
-                observer.set_up_axis(sdl.Vector3(cam_up_dir))
-
-            else:
-                observer = sdl.SingleLensObserverCreator()
-                observer.set_fov_degrees(sdl.Real(fov_degrees))
-                observer.set_position(sdl.Vector3(position))
-                observer.set_direction(sdl.Vector3(cam_dir))
-                observer.set_up_axis(sdl.Vector3(cam_up_dir))
+            if b_camera.ph_has_dof:
                 observer.set_lens_radius_mm(sdl.Real(b_camera.ph_lens_radius_mm))
                 observer.set_focal_distance_mm(sdl.Real(b_camera.ph_focal_meters * 1000))
 

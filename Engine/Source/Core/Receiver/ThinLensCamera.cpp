@@ -31,19 +31,19 @@ math::Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray
 {
 	PH_ASSERT(out_ray);
 
-	// The following calculations are in camera space
-
 	math::Vector3R sensorPos;
 	getRasterToSensor().transformP(
 		math::Vector3R(math::Vector3D(rasterCoord.x(), rasterCoord.y(), 0)),
 		&sensorPos);
 
+	// The following calculations are in camera space
+
 	// Subtracting lens' center position is omitted since it is at (0, 0, 0)
 	const auto lensCenterToSensorDir = math::Vector3D(sensorPos.normalize());
 
 	PH_ASSERT_GT(lensCenterToSensorDir.z(), 0);
-	const auto focalPlaneDist = m_focalDistance / lensCenterToSensorDir.z();
-	const auto focalPlanePos  = lensCenterToSensorDir.mul(-focalPlaneDist);
+	const auto lensCenterToFocalPlanePosLength = m_focalDistance / lensCenterToSensorDir.z();
+	const auto focalPlanePos = lensCenterToSensorDir.mul(-lensCenterToFocalPlanePosLength);
 
 	math::TDisk<float64> lensDisk(m_lensRadius);
 	const auto lensPos2D = lensDisk.sampleToSurface2D({
@@ -53,7 +53,7 @@ math::Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray
 
 	// Now we transform camera space data to world space
 
-	// XXX: numerical error can be large when focalPlanePosMM is far away
+	// XXX: numerical error can be large when focalPlanePos is far away
 	math::Vector3R worldSensedRayDir;
 	getCameraToWorld().transformV(math::Vector3R(lensPos - focalPlanePos), &worldSensedRayDir);
 	worldSensedRayDir.normalizeLocal();
