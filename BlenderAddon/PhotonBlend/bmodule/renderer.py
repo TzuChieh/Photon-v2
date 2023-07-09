@@ -30,14 +30,15 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
     # Do not expose Cycles and Eevee shading nodes in the node editor user interface, so own nodes can be used instead.
     bl_use_shading_nodes_custom = True
 
-    # Init is called whenever a new render engine instance is created. Multiple instances may exist at the same time,
-    # for example for a viewport and final render.
+    # Init is called whenever a new render engine instance is created. Multiple instances may exist at the same 
+    # time, for example for a viewport and final render.
     def __init__(self):
         super().__init__()
 
         self.renderer = render.RenderProcess()
         self.identifier = str(uuid.uuid4())
-        self.renderer_data_path = None
+        self.renderer_data_path = self._get_temp_folder_path(self.identifier)
+        self.scene_file_path = None
 
         print("Photon Renderer started (id: %s)" % self.identifier)
 
@@ -58,32 +59,39 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         print("Photon Renderer exited (id: %s)" % self.identifier)
 
-    # This is the method called by Blender for both final renders (F12) and small preview for materials, world
-    # and lights.
-    def render(self, b_depsgraph):
+    # Export scene data for render
+    def update(self, b_blend_data, b_depsgraph):
         b_scene = b_depsgraph.scene
-        width_px = blender.get_render_width_px(b_scene)
-        height_px = blender.get_render_height_px(b_scene)
-        renderer_data_path = self._get_temp_folder_path()
+
         scene_file_name = "__temp_scene"
-        image_file_name = "__temp_rendered"
-        image_file_format = "exr"
-        refresh_seconds = 2
 
-        self.renderer_data_path = renderer_data_path
-
-        exporter = export.Exporter(str(renderer_data_path.resolve()))
+        exporter = export.Exporter(str(self.renderer_data_path))
         exporter.begin(scene_file_name)
         exporter.export_core_commands(b_scene)
         exporter.export(b_depsgraph)
         exporter.export_options(b_scene)
         exporter.end()
 
-        scene_file_path = renderer_data_path / (scene_file_name + ".p2")
-        self.renderer.set_scene_file_path("\"" + str(scene_file_path.resolve()) + "\"")
+        self.scene_file_path = self.renderer_data_path / (scene_file_name + ".p2")
 
-        image_file_path = renderer_data_path / image_file_name
-        self.renderer.set_image_output_path("\"" + str(image_file_path.resolve()) + "\"")
+    # This is the method called by Blender for both final renders (F12) and small preview for materials, world
+    # and lights.
+    def render(self, b_depsgraph):
+        if not self.scene_file_path:
+            print("ERROR: no scene file is generated")
+            return
+
+        b_scene = b_depsgraph.scene
+        width_px = blender.get_render_width_px(b_scene)
+        height_px = blender.get_render_height_px(b_scene)
+        
+        image_file_name = "__temp_rendered"
+        image_file_format = "exr"
+        image_file_path = self.renderer_data_path / image_file_name
+        refresh_seconds = 2
+
+        self.renderer.set_scene_file_path(self.scene_file_path)
+        self.renderer.set_image_output_path(image_file_path)
         self.renderer.set_image_format(image_file_format)
         self.renderer.request_raw_output()
 
@@ -96,6 +104,12 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         HOST = '127.0.0.1'  # The server's hostname or IP address
         PORT = 7000  # The port used by the server
         self.renderer.set_port(PORT)
+
+        # Test if the render is canceled once before running the renderer (export can take a long time
+        # and user might want to cancel the rendering during that time)
+        if self.test_break():
+            print("render canceled")
+            return
 
         self.renderer.run()
 
@@ -165,14 +179,25 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                             num_image_bytes = -1
 
                             time.sleep(refresh_seconds)
+
+                    if self.test_break():
+                        print("render canceled")
+                        self.renderer.exit()
+                        break
             else:
                 print("warning: connection failed")
 
-        image_file_path = image_file_path.with_suffix("." + image_file_format)
-        b_render_layer.load_from_file(str(image_file_path.resolve()))
-        self.end_result(b_render_result)
-
+        while self.renderer.is_running():
+            print("waiting for renderer to finish running...")
+            time.sleep(refresh_seconds)
+        
         self.renderer.exit()
+
+        is_canceled = self.test_break()
+        if not is_canceled:
+            image_file_path = image_file_path.with_suffix("." + image_file_format)
+            b_render_layer.load_from_file(str(image_file_path))
+            self.end_result(b_render_result)
 
     # For viewport renders, this method gets called once at the start and whenever the scene or 3D viewport 
     # changes. This method is where data should be read from Blender in the same thread. Typically a render
@@ -186,8 +211,9 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
     def view_draw(self, b_context, b_depsgraph):
         print("view_draw")
 
-    def _get_temp_folder_path(self):
-        folder_name = "__photon_temp_" + self.identifier
+    @staticmethod
+    def _get_temp_folder_path(unique_identifier):
+        folder_name = "__photon_temp_" + unique_identifier
 
         blend_file_folder_path = bpy.path.abspath("//")
         if bpy.data.is_saved and blend_file_folder_path:
@@ -195,7 +221,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         else:
             folder_path = Path(tempfile.gettempdir())
 
-        return folder_path / folder_name
+        return (folder_path / folder_name).resolve()
 
 
 class PhRenderPanel(bpy.types.Panel):

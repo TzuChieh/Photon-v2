@@ -32,7 +32,7 @@ def get_render_threads(b_scene: bpy.types.Scene):
     # This will automatically adapt to what `threads_mode` specifies
     num_specified_threads = b_scene.render.threads
 
-    num_reserved_threads = b_scene.render.ph_num_reserved_threads
+    num_reserved_threads = b_scene.ph_num_reserved_threads
     return max(num_specified_threads - num_reserved_threads, 1)
 
 

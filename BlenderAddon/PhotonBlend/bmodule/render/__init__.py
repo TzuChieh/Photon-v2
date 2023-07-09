@@ -57,10 +57,10 @@ class RenderProcess:
             self.process.kill()
 
     def set_scene_file_path(self, scene_file_path):
-        self._set_argument("-s", scene_file_path)
+        self._set_argument("-s", "\"" + str(scene_file_path) + "\"")
 
     def set_image_output_path(self, image_output_path):
-        self._set_argument("-o", image_output_path)
+        self._set_argument("-o", "\"" + str(image_output_path) + "\"")
 
     def set_image_format(self, image_format):
         self._set_argument("-of", image_format)
