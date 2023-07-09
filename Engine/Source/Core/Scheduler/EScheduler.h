@@ -7,12 +7,12 @@ enum class EScheduler
 {
 	Unspecified = 0,
 
-	BULK,
-	STRIPE,
-	GRID,
-	TILE,
-	SPIRAL,
-	SPIRAL_GRID
+	Bulk,
+	Stripe,
+	Grid,
+	Tile,
+	Spiral,
+	SpiralGrid
 };
 
 }// end namespace ph

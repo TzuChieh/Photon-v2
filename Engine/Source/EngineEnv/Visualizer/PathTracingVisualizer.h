@@ -47,7 +47,7 @@ public:
 		
 		TSdlEnumField<OwnerType, EScheduler> scheduler("scheduler", &OwnerType::m_scheduler);
 		scheduler.description("Scheduler for rendering, affect the order of rendered regions.");
-		scheduler.defaultTo(EScheduler::SPIRAL_GRID);
+		scheduler.defaultTo(EScheduler::SpiralGrid);
 		scheduler.optional();
 		clazz.addField(scheduler);
 
@@ -59,7 +59,7 @@ public:
 
 		TSdlEnumField<OwnerType, ESampleFilter> sampleFilter("sample-filter", &OwnerType::m_sampleFilter);
 		sampleFilter.description("Sample filter for the film sampling process.");
-		sampleFilter.defaultTo(ESampleFilter::BLACKMAN_HARRIS);
+		sampleFilter.defaultTo(ESampleFilter::BlackmanHarris);
 		sampleFilter.optional();
 		clazz.addField(sampleFilter);
 

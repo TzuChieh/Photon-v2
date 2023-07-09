@@ -41,8 +41,8 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         print("Photon Renderer started (id: %s)" % self.identifier)
 
-    # When the render engine instance is destroyed, this is called. Clean up any render engine data here, for example
-    # stopping running render threads.
+    # When the render engine instance is destroyed, this is called. Clean up any render engine data here, 
+    # for example stopping running render threads.
     def __del__(self):
         # HACK: blender seems to be calling __del__ even if __init__ is not called first, filtering this situation out
         if not hasattr(self, "renderer") or not hasattr(self, "identifier") or not hasattr(self, "renderer_data_path"):
@@ -91,7 +91,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         intermediate_image_file_path = Path(str(image_file_path) + "_intermediate_")
         intermediate_image_file_path = intermediate_image_file_path.with_suffix("." + image_file_format)
 
-        self.renderer.set_num_render_threads(b_scene.render.threads)
+        self.renderer.set_num_render_threads(blender.get_render_threads(b_scene))
 
         HOST = '127.0.0.1'  # The server's hostname or IP address
         PORT = 7000  # The port used by the server
@@ -154,6 +154,8 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                                 image_file.write(data[8:8 + num_image_bytes])
 
                             b_render_layer.load_from_file(str(intermediate_image_file_path.resolve()))
+
+                            # Signal that pixels have been updated and can be redrawn in the user interface
                             self.update_result(b_render_result)
 
                             # Chop current image data off
@@ -172,15 +174,15 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         self.renderer.exit()
 
-    # For viewport renders, this method gets called once at the start and whenever the scene or 3D viewport changes.
-    # This method is where data should be read from Blender in the same thread. Typically a render thread will be
-    # started to do the work while keeping Blender responsive.
+    # For viewport renders, this method gets called once at the start and whenever the scene or 3D viewport 
+    # changes. This method is where data should be read from Blender in the same thread. Typically a render
+    # thread will be started to do the work while keeping Blender responsive.
     def view_update(self, b_context, b_depsgraph):
         print("view_update")
 
-    # For viewport renders, this method is called whenever Blender redraws the 3D viewport. The renderer is expected to
-    # quickly draw the render with OpenGL, and not perform other expensive work. Blender will draw overlays for
-    # selection and editing on top of the rendered image automatically.
+    # For viewport renders, this method is called whenever Blender redraws the 3D viewport. The renderer
+    # is expected to quickly draw the render with OpenGL, and not perform other expensive work. 
+    # Blender will draw overlays for selection and editing on top of the rendered image automatically.
     def view_draw(self, b_context, b_depsgraph):
         print("view_draw")
 
@@ -197,6 +199,10 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
 
 class PhRenderPanel(bpy.types.Panel):
+    """
+    Base type for Photon render panels.
+    """
+
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "render"
@@ -319,7 +325,6 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
 
         render_method = b_scene.ph_render_integrator_type
         if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL" or render_method == "ATTRIBUTE":
-            b_layout.prop(b_scene, "ph_render_num_spp")
             b_layout.prop(b_scene, "ph_render_sample_filter_type")
             if render_method != "ATTRIBUTE":
                 b_layout.prop(b_scene, "ph_scheduler_type")
@@ -408,6 +413,30 @@ class PH_RENDERING_PT_data_structures(PhRenderPanel):
         b_layout = self.layout
 
         b_layout.prop(b_scene, "ph_top_level_accelerator")
+
+
+@blender.register_class
+class PH_RENDERING_PT_performance(PhRenderPanel):
+    bl_label = "PR: Performance"
+
+    bpy.types.Scene.ph_num_reserved_threads = bpy.props.IntProperty(
+        name="Reserved Threads",
+        description="Number of reserved threads for other background tasks.",
+        default=0,
+        min=0
+    )
+
+    def draw(self, b_context):
+        b_scene = b_context.scene
+        b_layout = self.layout
+
+        b_layout.prop(b_scene.render, "threads_mode")
+
+        b_sub_col = b_layout.column(align=True)
+        b_sub_col.enabled = b_scene.render.threads_mode == 'FIXED'
+        b_sub_col.prop(b_scene.render, "threads")
+
+        b_layout.prop(b_scene, "ph_num_reserved_threads")
 
 
 # class PH_RENDERING_PT_options(PhRenderPanel):

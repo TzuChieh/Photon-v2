@@ -38,16 +38,16 @@ SampleFilter PathTracingVisualizer::makeSampleFilter() const
 {
 	switch(getSampleFilter())
 	{
-	case ESampleFilter::BOX:
+	case ESampleFilter::Box:
 		return SampleFilters::createBoxFilter();
 
-	case ESampleFilter::GAUSSIAN:
+	case ESampleFilter::Gaussian:
 		return SampleFilters::createGaussianFilter();
 
-	case ESampleFilter::MITCHELL_NETRAVALI:
+	case ESampleFilter::MitchellNetravali:
 		return SampleFilters::createMitchellNetravaliFilter();
 
-	case ESampleFilter::BLACKMAN_HARRIS:
+	case ESampleFilter::BlackmanHarris:
 		return SampleFilters::createBlackmanHarrisFilter();
 	}
 

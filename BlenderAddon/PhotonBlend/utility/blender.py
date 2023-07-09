@@ -28,6 +28,14 @@ def get_render_size_px(b_scene: bpy.types.Scene):
     return (resolution_x, resolution_y)
 
 
+def get_render_threads(b_scene: bpy.types.Scene):
+    # This will automatically adapt to what `threads_mode` specifies
+    num_specified_threads = b_scene.render.threads
+
+    num_reserved_threads = b_scene.render.ph_num_reserved_threads
+    return max(num_specified_threads - num_reserved_threads, 1)
+
+
 class BlenderModule(ABC):
     @abstractmethod
     def register(self):

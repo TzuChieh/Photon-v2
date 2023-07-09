@@ -5,6 +5,11 @@ from pathlib import Path
 
 
 class RenderProcess:
+    """
+    Create and cleanup a render process. Basically calls `PhotonCLI.exe` for rendering. Contains various
+    utility methods for controlling the renderer.
+    """
+
     def __init__(self):
         addon_name = "PhotonBlend"
         b_context = bpy.context
@@ -18,8 +23,6 @@ class RenderProcess:
         
         self.process = None
         self.arguments = {}
-
-        self.set_num_render_threads(b_context.scene.render.threads)
 
     def __del__(self):
         self.exit()
@@ -62,8 +65,8 @@ class RenderProcess:
     def set_image_format(self, image_format):
         self._set_argument("-of", image_format)
 
-    def set_num_render_threads(self, num_render_threads):
-        self._set_argument("-t", str(num_render_threads))
+    def set_num_render_threads(self, num):
+        self._set_argument("-t", str(num))
 
     def request_intermediate_output(self, **options):
         values = ""

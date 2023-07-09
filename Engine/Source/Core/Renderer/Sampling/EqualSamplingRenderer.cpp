@@ -311,32 +311,32 @@ void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
 
 	switch(m_schedulerType)
 	{
-	case EScheduler::BULK:
+	case EScheduler::Bulk:
 		m_scheduler = std::make_unique<PlateScheduler>(
 			numWorkers(), totalWorks);
 		break;
 
-	case EScheduler::STRIPE:
+	case EScheduler::Stripe:
 		m_scheduler = std::make_unique<StripeScheduler>(
 			numWorkers(), totalWorks, math::constant::X_AXIS);
 		break;
 
-	case EScheduler::GRID:
+	case EScheduler::Grid:
 		m_scheduler = std::make_unique<GridScheduler>(
 			numWorkers(), totalWorks);
 		break;
 
-	case EScheduler::TILE:
+	case EScheduler::Tile:
 		m_scheduler = std::make_unique<TileScheduler>(
 			numWorkers(), totalWorks, m_blockSize);
 		break;
 
-	case EScheduler::SPIRAL:
+	case EScheduler::Spiral:
 		m_scheduler = std::make_unique<SpiralScheduler>(
 			numWorkers(), totalWorks, m_blockSize);
 		break;
 
-	case EScheduler::SPIRAL_GRID:
+	case EScheduler::SpiralGrid:
 		m_scheduler = std::make_unique<SpiralGridScheduler>(
 			numWorkers(), totalWorks, m_blockSize);
 		break;
