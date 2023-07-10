@@ -1,9 +1,8 @@
 from ..node_base import (
-        PhMaterialNode,
+        PhSurfaceMaterialNode,
         PhFloatFactorSocket,
         PhColorSocket,
-        PhSurfaceMaterialSocket,
-        SURFACE_MATERIAL_CATEGORY)
+        PhSurfaceMaterialSocket)
 from psdl import sdl
 from ... import naming
 from .. import helper
@@ -13,10 +12,9 @@ import bpy
 import mathutils
 
 
-class PhBinaryMixedSurfaceNode(PhMaterialNode):
-    bl_idname = "PH_BINARY_MIXED_SURFACE"
+class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
+    bl_idname = 'PH_BINARY_MIXED_SURFACE'
     bl_label = "Binary Mixed Surface"
-    node_category = SURFACE_MATERIAL_CATEGORY
 
     # DEFAULT_NODE_NAME = "__" + bl_idname + "_default_node"
 

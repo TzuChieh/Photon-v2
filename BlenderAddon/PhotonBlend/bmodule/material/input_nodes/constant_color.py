@@ -1,7 +1,6 @@
 from ..node_base import (
-        PhMaterialNode,
-        PhColorSocket,
-        INPUT_CATEGORY)
+        PhMaterialInputNode,
+        PhColorSocket)
 from psdl import sdl
 from ... import naming
 
@@ -9,10 +8,9 @@ import bpy
 import mathutils
 
 
-class PhConstantColorInputNode(PhMaterialNode):
-    bl_idname = "PH_CONSTANT_COLOR"
+class PhConstantColorInputNode(PhMaterialInputNode):
+    bl_idname = 'PH_CONSTANT_COLOR'
     bl_label = "Constant Color"
-    node_category = INPUT_CATEGORY
 
     color: bpy.props.FloatVectorProperty(
         name="Color",

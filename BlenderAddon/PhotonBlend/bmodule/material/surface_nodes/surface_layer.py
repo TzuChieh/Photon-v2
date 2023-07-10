@@ -1,17 +1,15 @@
 from ..node_base import (
-        PhMaterialNode,
-        PhSurfaceLayerSocket,
-        SURFACE_MATERIAL_CATEGORY)
+        PhSurfaceMaterialNode,
+        PhSurfaceLayerSocket)
 
 import bpy
 
 import sys
 
 
-class PhSurfaceLayerNode(PhMaterialNode):
-    bl_idname = "PH_SURFACE_LAYER"
+class PhSurfaceLayerNode(PhSurfaceMaterialNode):
+    bl_idname = 'PH_SURFACE_LAYER'
     bl_label = "Surface Layer"
-    node_category = SURFACE_MATERIAL_CATEGORY
 
     roughness: bpy.props.FloatProperty(
         name="Roughness",

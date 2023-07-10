@@ -61,7 +61,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
     # Export scene data for render
     def update(self, b_blend_data, b_depsgraph):
-        b_scene = b_depsgraph.scene
+        b_scene = b_depsgraph.scene_eval
 
         scene_file_name = "__temp_scene"
 
@@ -81,7 +81,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
             print("ERROR: no scene file is generated")
             return
 
-        b_scene = b_depsgraph.scene
+        b_scene = b_depsgraph.scene_eval
         width_px = blender.get_render_width_px(b_scene)
         height_px = blender.get_render_height_px(b_scene)
         
@@ -197,7 +197,9 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         if not is_canceled:
             image_file_path = image_file_path.with_suffix("." + image_file_format)
             b_render_layer.load_from_file(str(image_file_path))
-            self.end_result(b_render_result)
+            self.update_result(b_render_result)
+
+        self.end_result(b_render_result)
 
     # For viewport renders, this method gets called once at the start and whenever the scene or 3D viewport 
     # changes. This method is where data should be read from Blender in the same thread. Typically a render

@@ -1,17 +1,15 @@
 from ..node_base import (
-        PhMaterialNode,
-        PhFloatValueSocket,
-        INPUT_CATEGORY)
+        PhMaterialInputNode,
+        PhFloatValueSocket)
 from psdl import sdl
 from ... import naming
 
 import bpy
 
 
-class PhFloatValueInputNode(PhMaterialNode):
+class PhFloatValueInputNode(PhMaterialInputNode):
     bl_idname = 'PH_FLOAT_VALUE'
     bl_label = "Float Value"
-    node_category = INPUT_CATEGORY
 
     value: bpy.props.FloatProperty(
         name="Value",

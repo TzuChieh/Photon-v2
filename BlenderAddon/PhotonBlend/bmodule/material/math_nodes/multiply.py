@@ -1,17 +1,15 @@
 from ..node_base import (
-        PhMaterialNode,
-        PhColorSocket,
-        MATH_CATEGORY)
+        PhMaterialMathNode,
+        PhColorSocket)
 from psdl import sdl
 from ... import naming
 
 import bpy
 
 
-class PhMultiplyNode(PhMaterialNode):
+class PhMultiplyNode(PhMaterialMathNode):
     bl_idname = 'PH_MULTIPLY'
     bl_label = "Multiply"
-    node_category = MATH_CATEGORY
 
     factor: bpy.props.FloatProperty(
         name="Factor",

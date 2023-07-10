@@ -1,8 +1,7 @@
 from ..node_base import (
-        PhMaterialNode,
+        PhSurfaceMaterialNode,
         PhSurfaceMaterialSocket,
-        PhColorSocket,
-        SURFACE_MATERIAL_CATEGORY)
+        PhColorSocket)
 from psdl import sdl
 from ... import naming
 
@@ -10,10 +9,9 @@ import bpy
 import mathutils
 
 
-class PhDiffuseSurfaceNode(PhMaterialNode):
+class PhDiffuseSurfaceNode(PhSurfaceMaterialNode):
     bl_idname = 'PH_DIFFUSE_SURFACE'
     bl_label = "Diffuse Surface"
-    node_category = SURFACE_MATERIAL_CATEGORY
 
     diffusion_type: bpy.props.EnumProperty(
         items=[

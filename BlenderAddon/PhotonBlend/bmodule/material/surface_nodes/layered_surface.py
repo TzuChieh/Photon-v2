@@ -1,18 +1,16 @@
 from ..node_base import (
-        PhMaterialNode,
+        PhSurfaceMaterialNode,
         PhSurfaceMaterialSocket,
-        PhSurfaceLayerSocket,
-        SURFACE_MATERIAL_CATEGORY)
+        PhSurfaceLayerSocket)
 from psdl import sdl
 from ... import naming
 
 import bpy
 
 
-class PhLayeredSurfaceNode(PhMaterialNode):
-    bl_idname = "PH_LAYERED_SURFACE"
+class PhLayeredSurfaceNode(PhSurfaceMaterialNode):
+    bl_idname = 'PH_LAYERED_SURFACE'
     bl_label = "Layered Surface"
-    node_category = SURFACE_MATERIAL_CATEGORY
 
     def update_inputs(self, b_context):
         specified_num_layers = self["num_layers"]

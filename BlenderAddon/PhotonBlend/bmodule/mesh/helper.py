@@ -1,7 +1,7 @@
 import bpy
 
 
-def mesh_object_force_subdiv_level(b_mesh_object: bpy.types.Object, out_original_settings, level):
+def mesh_object_force_subdiv_level(b_mesh_object: bpy.types.Object, level, out_original_settings):
     """
     Enforce a subdivision level if the object has a subdivision surface modifier. Original settings are 
     recorded and can be used to restore to previous state.

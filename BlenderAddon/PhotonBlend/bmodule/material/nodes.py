@@ -45,6 +45,7 @@ PH_MATERIAL_NODES = [
         input_nodes.PhFloatValueInputNode,
         input_nodes.PhConstantColorInputNode,
         input_nodes.PhPictureNode,
+        input_nodes.PhBlackBodyInputNode,
         surface_nodes.PhDiffuseSurfaceNode,
         surface_nodes.PhBinaryMixedSurfaceNode,
         surface_nodes.PhAbradedOpaqueNode,
@@ -73,13 +74,13 @@ class MaterialNodes(blender.BlenderModule):
                 node_category_to_items[node_category].append(nodeitems_utils.NodeItem(node_class.bl_idname))
             else:
                 print("error: node class <%s> has no \"node_category\" class attribute which is required" % (
-                        node_class.__name__))
+                    node_class.__name__))
 
         for node_category, items in node_category_to_items.items():
             b_node_category = node_base.PhMaterialNodeCategory(
-                    node_category.id_name,
-                    node_category.label,
-                    items=items)
+                node_category.id_name,
+                node_category.label,
+                items=items)
             self.b_node_categories.append(b_node_category)
 
     def register(self):

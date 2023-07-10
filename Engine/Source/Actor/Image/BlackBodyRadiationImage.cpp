@@ -67,14 +67,6 @@ std::shared_ptr<TTexture<Image::Array>> BlackBodyRadiationImage::genNumericTextu
 std::shared_ptr<TTexture<math::Spectrum>> BlackBodyRadiationImage::genColorTexture(
 	const CookingContext& ctx)
 {
-	m_temperatureK = 4800;
-	m_energy = 1;
-	PH_DEFAULT_LOG("4800 = {}", getRadiation().toString());
-
-	m_temperatureK = 7000;
-	m_energy = 1;
-	PH_DEFAULT_LOG("7000 = {}", getRadiation().toString());
-
 	// Using constant texture here since we already know the data represents energy source
 	//
 	return std::make_shared<TConstantTexture<math::Spectrum>>(

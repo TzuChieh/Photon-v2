@@ -1,8 +1,7 @@
 from ..node_base import (
-    PhMaterialNode,
+    PhSurfaceMaterialNode,
     PhSurfaceMaterialSocket,
-    PhFloatFactorSocket,
-    SURFACE_MATERIAL_CATEGORY)
+    PhFloatFactorSocket)
 from psdl import sdl
 from ... import naming
 
@@ -10,10 +9,9 @@ import bpy
 import mathutils
 
 
-class PhAbradedOpaqueNode(PhMaterialNode):
-    bl_idname = "PH_ABRADED_OPAQUE"
+class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
+    bl_idname = 'PH_ABRADED_OPAQUE'
     bl_label = "Abraded Opaque"
-    node_category = SURFACE_MATERIAL_CATEGORY
 
     mapping_type: bpy.props.EnumProperty(
         items=[

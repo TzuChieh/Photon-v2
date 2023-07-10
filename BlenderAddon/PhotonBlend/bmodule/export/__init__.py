@@ -379,15 +379,17 @@ class Exporter:
 
     # TODO: write/flush commands to disk once a while (reducing memory usage)
     def export(self, b_depsgraph: bpy.types.Depsgraph):
+        print("Input dependency graph mode (Exporter): %s" % str(b_depsgraph.mode))
+        
         b_camera_object = scene.find_active_camera_object(b_depsgraph)
         b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
         b_materials = scene.find_materials_from_mesh_objects(b_mesh_objects)
         b_light_objects = scene.find_light_objects(b_depsgraph)
 
         print("Exporter found %d mesh objects, %d materials, and %d light objects" % (
-                len(b_mesh_objects),
-                len(b_materials),
-                len(b_light_objects)))
+            len(b_mesh_objects),
+            len(b_materials),
+            len(b_light_objects)))
 
         # Exporting Blender data as SDL
 

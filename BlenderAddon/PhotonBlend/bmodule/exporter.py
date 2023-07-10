@@ -8,6 +8,13 @@ import bpy
 import bpy_extras
 
 
+class ExporterCache:
+    def __init__(self):
+        super().__init__()
+        self.subdiv_original_settings = None
+        self.autosmooth_original_settings = None
+
+
 # ExportHelper is a helper class, defines filename and invoke() function which calls the file selector.
 class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """
@@ -35,16 +42,17 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
     subdivision_quality: bpy.props.EnumProperty(
         items=[
-            ("VIEWPORT", "Viewport", "The level as seen in the viewport."),
-            ("RENDER", "Render", "Final render quality."),
+            ('VIEWPORT', "Viewport", "The level as seen in the viewport."),
+            ('RENDER', "Render", "Final render quality."),
         ],
         name="Subdivision Quality",
         description="The subdivision quality of exported mesh.",
         default="RENDER"
     )
 
-    def execute(self, b_context):
-        # Blender may not write data while editing--we want to avoid exporting in edit mode so data will be complete
+    def execute(self, b_context: bpy.types.Context):
+        # Blender may not write data while editing--we want to avoid exporting in edit mode so data will 
+        # be complete
         edit_modes = {
             'EDIT_MESH',
             'EDIT_CURVE',
@@ -59,18 +67,30 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
             print("Export failed. Please exit edit mode for exporting.")
             return {'CANCELLED'}
 
-        b_scene = b_context.scene
+        # Make sure we are getting up-to-date data before obtaining depsgraph
+        b_context.view_layer.update()
+
         if not self.is_animation:
-            self.save_scene("scene", b_scene, self.get_evaluated_depsgraph(b_context))
+            cache = ExporterCache()
+            b_depsgraph = self.get_evaluated_depsgraph(b_context, cache)
+            self.save_scene("scene", b_depsgraph)
+            self.restore_modified_settings(b_context, cache)
         else:
+            b_scene = b_context.scene
             for frame_number in range(b_scene.frame_start, b_scene.frame_end + 1):
                 print("Exporting frame", frame_number)
                 b_scene.frame_set(frame_number)
-                self.save_scene("scene_" + str(frame_number).zfill(6), b_scene, self.get_evaluated_depsgraph(b_context))
+
+                cache = ExporterCache()
+                b_depsgraph = self.get_evaluated_depsgraph(b_context, cache)
+                self.save_scene("scene_" + str(frame_number).zfill(6), b_depsgraph)
+                self.restore_modified_settings(b_context, cache)
 
         return {'FINISHED'}
 
-    def save_scene(self, scene_name, b_scene, b_depsgraph: bpy.types.Depsgraph):
+    def save_scene(self, scene_name, b_depsgraph: bpy.types.Depsgraph):
+        b_scene = b_depsgraph.scene_eval
+
         exporter = Exporter(self.filepath)
         exporter.begin(scene_name)
         exporter.export_core_commands(b_scene)
@@ -78,9 +98,16 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         exporter.export_options(b_scene)
         exporter.end()
 
-    def get_evaluated_depsgraph(self, b_context: bpy.types.Context):
-        # Make sure we are getting up-to-date data before obtaining depsgraph
-        b_context.view_layer.update()
+    def get_evaluated_depsgraph(self, b_context: bpy.types.Context, cache: ExporterCache):
+        """
+        Replacement for `bpy.types.Context.evaluated_depsgraph_get()`. Unfortunately Blender currently does
+        not support getting a depsgraph with `depsgraph.mode == 'RENDER'` (except the one passed to
+        `bpy.types.RenderEngine` by Blender). This will cause the exporter to export in `VIEWPORT` mode,
+        and many settings such as subdivision modifiers will not apply their `RENDER` mode settings.
+        This method attempts to enhance this part by trying to automatically adjust object settings to
+        match the one used for final rendering (or what the user specifies).
+        """
+        
         b_depsgraph = b_context.evaluated_depsgraph_get()
 
         b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
@@ -92,9 +119,11 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
             for b_evaluated_mesh_object in b_mesh_objects:
                 b_mesh_object = b_evaluated_mesh_object.original
                 helper.mesh_object_force_subdiv_level(
-                        b_mesh_object,
-                        subdiv_original_settings,
-                        level=self.subdivision_quality)
+                    b_mesh_object,
+                    self.subdivision_quality,
+                    subdiv_original_settings)
+        
+        cache.subdiv_original_settings = subdiv_original_settings
 
         # Emulate autosmooth settings with edge split modifier
         autosmooth_original_settings = {}
@@ -104,22 +133,34 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
                 b_mesh_object,
                 autosmooth_original_settings)
 
-        # Make sure we are getting up-to-date data before updating depsgraph
-        b_context.view_layer.update()
+        cache.autosmooth_original_settings = autosmooth_original_settings
+
+        # Re-evaluate any modified data-blocks, for example for animation or modifiers. 
+        # This invalidates all references to evaluated data-blocks from this dependency graph.
         b_depsgraph.update()
+        return b_depsgraph
 
-        # After updating the depsgraph, restore mesh objects to original settings
+    def restore_modified_settings(self, b_context: bpy.types.Context, cache: ExporterCache):
+        """
+        Calling `get_evaluated_depsgraph()` may modify scene settings. This method restores the settings
+        modified to their original states.
+        """
+        
+        b_depsgraph = b_context.evaluated_depsgraph_get()
 
-        if should_force_subdiv:
+        # Restore mesh objects to original settings
+
+        b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
+
+        if cache.subdiv_original_settings is not None:
             for b_evaluated_mesh_object in b_mesh_objects:
                 b_mesh_object = b_evaluated_mesh_object.original
-                helper.restore_mesh_object_subdiv_level(b_mesh_object, subdiv_original_settings)
+                helper.restore_mesh_object_subdiv_level(b_mesh_object, cache.subdiv_original_settings)
 
-        for b_evaluated_mesh_object in b_mesh_objects:
-            b_mesh_object = b_evaluated_mesh_object.original
-            helper.restore_mesh_object_autosmooth(b_mesh_object, autosmooth_original_settings)
-
-        return b_depsgraph
+        if cache.autosmooth_original_settings is not None:
+            for b_evaluated_mesh_object in b_mesh_objects:
+                b_mesh_object = b_evaluated_mesh_object.original
+                helper.restore_mesh_object_autosmooth(b_mesh_object, cache.autosmooth_original_settings)
 
 
 # Add exporter into a dynamic menu

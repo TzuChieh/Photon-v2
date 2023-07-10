@@ -1,7 +1,6 @@
 from ..node_base import (
-        PhMaterialNode,
-        PhSurfaceMaterialSocket,
-        SURFACE_MATERIAL_CATEGORY)
+        PhSurfaceMaterialNode,
+        PhSurfaceMaterialSocket)
 from psdl import sdl
 from ... import naming
 
@@ -10,10 +9,9 @@ import bpy
 import sys
 
 
-class PhIdealSubstanceNode(PhMaterialNode):
-    bl_idname = "PH_IDEAL_SUBSTANCE"
+class PhIdealSubstanceNode(PhSurfaceMaterialNode):
+    bl_idname = 'PH_IDEAL_SUBSTANCE'
     bl_label = "Ideal Substance"
-    node_category = SURFACE_MATERIAL_CATEGORY
 
     substance_type: bpy.props.EnumProperty(
         items=[
@@ -85,13 +83,13 @@ class PhIdealSubstanceNode(PhMaterialNode):
         creator.set_transmission_scale(sdl.Vector3(self.transmission_scale))
 
         if self.substance_type == "DIELECTRIC_REFLECTOR":
-            creator.set_type(sdl.String("dielectric-reflector"))
+            creator.set_substance(sdl.Enum("dielectric-reflector"))
         elif self.substance_type == "METALLIC_REFLECTOR":
-            creator.set_type(sdl.String("metallic-reflector"))
+            creator.set_substance(sdl.Enum("metallic-reflector"))
         elif self.substance_type == "DIELECTRIC_TRANSMITTER":
-            creator.set_type(sdl.String("transmitter"))
+            creator.set_substance(sdl.Enum("transmitter"))
         elif self.substance_type == "DIELECTRIC":
-            creator.set_type(sdl.String("dielectric"))
+            creator.set_substance(sdl.Enum("dielectric"))
 
         sdlconsole.queue_command(creator)
 

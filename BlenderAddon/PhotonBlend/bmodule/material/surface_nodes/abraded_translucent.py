@@ -1,7 +1,6 @@
 from ..node_base import (
-        PhMaterialNode,
-        PhSurfaceMaterialSocket,
-        SURFACE_MATERIAL_CATEGORY)
+        PhSurfaceMaterialNode,
+        PhSurfaceMaterialSocket)
 from psdl import sdl
 from ... import naming
 
@@ -10,10 +9,9 @@ import bpy
 import sys
 
 
-class PhAbradedTranslucentNode(PhMaterialNode):
+class PhAbradedTranslucentNode(PhSurfaceMaterialNode):
     bl_idname = 'PH_ABRADED_TRANSLUCENT'
     bl_label = "Abraded Translucent"
-    node_category = SURFACE_MATERIAL_CATEGORY
 
     fresnel_type: bpy.props.EnumProperty(
         items=[

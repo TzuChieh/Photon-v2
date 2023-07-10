@@ -1,17 +1,15 @@
 from ..node_base import (
-        PhMaterialNode,
-        PhColorSocket,
-        INPUT_CATEGORY)
+        PhMaterialInputNode,
+        PhColorSocket)
 from psdl import sdl
 from bmodule import naming
 
 import bpy
 
 
-class PhPictureNode(PhMaterialNode):
-    bl_idname = "PH_PICTURE"
+class PhPictureNode(PhMaterialInputNode):
+    bl_idname = 'PH_PICTURE'
     bl_label = "Picture"
-    node_category = INPUT_CATEGORY
 
     file_path: bpy.props.StringProperty(
         name="File",

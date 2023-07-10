@@ -1,16 +1,14 @@
 from ..node_base import (
-        PhMaterialNode,
+        PhMaterialOutputNode,
         PhSurfaceMaterialSocket,
-        PhColorSocket,
-        OUTPUT_CATEGORY)
+        PhColorSocket)
 from psdl import sdl
 from ... import naming
 
 
-class PhOutputNode(PhMaterialNode):
-    bl_idname = "PH_OUTPUT"
+class PhOutputNode(PhMaterialOutputNode):
+    bl_idname = 'PH_OUTPUT'
     bl_label = "Output"
-    node_category = OUTPUT_CATEGORY
 
     def to_sdl(self, b_material, sdlconsole):
         surface_mat_socket = self.inputs[0]
