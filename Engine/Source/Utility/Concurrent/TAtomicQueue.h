@@ -60,7 +60,7 @@ public:
 
 private:
 
-#ifdef PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
+#if PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
 	static_assert(moodycamel::ConcurrentQueue<T>::is_lock_free());
 #endif
 

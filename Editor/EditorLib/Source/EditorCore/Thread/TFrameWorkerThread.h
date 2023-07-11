@@ -86,7 +86,7 @@ private:
 		TAtomicQueue<Work>  anyThreadWorkQueue;
 		MemoryArena         workQueueMemory;
 		mutable std::mutex  memoryMutex;
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		std::atomic_int32_t numAnyThreadWorks;
 #endif
 
@@ -95,7 +95,7 @@ private:
 			, anyThreadWorkQueue   ()
 			, workQueueMemory      ()
 			, memoryMutex          ()
-#ifdef PH_DEBUG
+#if PH_DEBUG
 			, numAnyThreadWorks    (0)
 #endif
 		{}
@@ -141,7 +141,7 @@ public:
 		, m_frameNumber(0)
 		, m_shouldFlushBufferBeforeStop(shouldFlushBufferBeforeStop)
 		, m_parentThreadId()
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		, m_isStopped(false)
 #endif
 	{
@@ -315,7 +315,7 @@ public:
 
 			currentFrame.anyThreadWorkQueue.enqueue(std::move(work));
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 			currentFrame.numAnyThreadWorks.fetch_add(1, std::memory_order_relaxed);
 #endif
 		}
@@ -365,7 +365,7 @@ public:
 
 		m_thread.join();
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		m_isStopped = true;
 #endif
 	}
@@ -467,7 +467,7 @@ private:
 			{
 				remainingFrame.parentThreadWorkQueue.clear();
 				remainingFrame.anyThreadWorkQueue = TAtomicQueue<Work>();
-#ifdef PH_DEBUG
+#if PH_DEBUG
 				remainingFrame.numAnyThreadWorks.store(0, std::memory_order_relaxed);
 #endif
 				remainingFrame.workQueueMemory.clear();
@@ -507,7 +507,7 @@ private:
 						numDequeuedAnyThreadWorks + frame.anyThreadWorkQueue.estimatedSize(), maxAnyThreadWorksPerFrame);
 				}
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 				frame.numAnyThreadWorks.fetch_sub(1, std::memory_order_relaxed);
 #endif
 			}
@@ -542,7 +542,7 @@ private:
 		return std::this_thread::get_id() == m_parentThreadId;
 	}
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	/*! @brief Check whether the worker thread has started.
 	@note Thread-safe.
 	*/
@@ -590,7 +590,7 @@ private:
 	std::size_t           m_frameNumber;
 	bool                  m_shouldFlushBufferBeforeStop;
 	std::thread::id       m_parentThreadId;
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	bool                  m_isStopped;
 #endif
 };

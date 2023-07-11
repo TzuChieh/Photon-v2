@@ -91,7 +91,7 @@ public:
 		, m_isStopRequested          (false)
 		, m_frameNumber              (0)
 		, m_numParentWorks           (0)
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		, m_isBetweenFrameBeginAndEnd()
 		, m_isStopped                (false)
 #endif
@@ -204,7 +204,7 @@ public:
 
 		// Works can now be added
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		m_isBetweenFrameBeginAndEnd = true;
 #endif
 
@@ -227,7 +227,7 @@ public:
 
 		// Works can no longer be added
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		m_isBetweenFrameBeginAndEnd = false;
 #endif
 
@@ -329,7 +329,7 @@ public:
 		// Wait for cleanup operations to finish
 		m_thread.waitForTermination();
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		m_isStopped = true;
 #endif
 	}
@@ -382,7 +382,7 @@ private:
 		return std::this_thread::get_id() == m_parentThreadId;
 	}
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	/*! @brief Check whether the worker thread has started.
 	@note Thread-safe.
 	*/
@@ -438,7 +438,7 @@ private:
 	std::atomic_bool        m_isStopRequested;
 	std::size_t             m_frameNumber;
 	std::size_t             m_numParentWorks;
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	bool                    m_isBetweenFrameBeginAndEnd;
 	bool                    m_isStopped;
 #endif

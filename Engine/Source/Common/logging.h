@@ -113,7 +113,7 @@ The logger will be usable anywhere that includes the header file containing this
 		logLevel,\
 		std::format(formatString __VA_OPT__(,) __VA_ARGS__))
 
-#ifdef PH_ENABLE_DEBUG_LOG
+#if PH_ENABLE_DEBUG_LOG
 	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Debug, rawString)
 	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Debug, formatString, __VA_ARGS__)
 #else
@@ -139,7 +139,7 @@ PH_DECLARE_LOG_GROUP(PhotonRenderer);
 /*! @brief A set of helper utility macros to log using Photon renderer's default log group.
 */
 ///@{
-#ifdef PH_ENABLE_DEBUG_LOG
+#if PH_ENABLE_DEBUG_LOG
 	#define PH_DEFAULT_LOG_DEBUG(formatString, ...) PH_LOG_DEBUG(PhotonRenderer, formatString, __VA_ARGS__)
 	#define PH_DEFAULT_LOG_DEBUG_STRING(rawString) PH_LOG_DEBUG_STRING(PhotonRenderer, rawString)
 #else

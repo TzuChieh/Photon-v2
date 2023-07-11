@@ -18,7 +18,7 @@ void on_assertion_failed();
 
 }// end namespace ph::detail
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 
 	#define PH_ASSERT_MSG(condition, failMessage)\
 		do\

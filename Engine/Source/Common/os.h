@@ -4,7 +4,7 @@
 
 @brief Operating system detection macros and utilities.
 
-The following macros will be defined for each operating system:
+The following macros will be defined as 1 for each operating system:
 
 * Windows: `PH_OPERATING_SYSTEM_IS_WINDOWS`
 * Linux: `PH_OPERATING_SYSTEM_IS_LINUX`
@@ -17,12 +17,12 @@ The following macros will be defined for each operating system:
 // Defined on Windows x64 & x86
 #if defined(_WIN32)
 
-	#define PH_OPERATING_SYSTEM_IS_WINDOWS
+	#define PH_OPERATING_SYSTEM_IS_WINDOWS 1
 
 // Defined on Linux
 #elif defined(__linux__)
 
-	#define PH_OPERATING_SYSTEM_IS_LINUX
+	#define PH_OPERATING_SYSTEM_IS_LINUX 1
 
 // Defined on Apple platforms
 // Reference: https://stackoverflow.com/questions/12132933/preprocessor-macro-for-os-x-targets
@@ -31,7 +31,7 @@ The following macros will be defined for each operating system:
 	#include <TargetConditionals.h>
 
 	#if TARGET_OS_MAC == 1 && TARGET_OS_OSX == 1
-		#define PH_OPERATING_SYSTEM_IS_OSX
+		#define PH_OPERATING_SYSTEM_IS_OSX 1
 	#else
 		#error "Unsupported Apple operating system."
 	#endif
@@ -40,6 +40,18 @@ The following macros will be defined for each operating system:
 
 	#error "Unsupported operating system."
 
+#endif
+
+#ifndef PH_OPERATING_SYSTEM_IS_WINDOWS
+	#define PH_OPERATING_SYSTEM_IS_WINDOWS 0
+#endif
+
+#ifndef PH_OPERATING_SYSTEM_IS_LINUX
+	#define PH_OPERATING_SYSTEM_IS_LINUX 0
+#endif
+
+#ifndef PH_OPERATING_SYSTEM_IS_OSX
+	#define PH_OPERATING_SYSTEM_IS_OSX 0
 #endif
 
 namespace ph::os

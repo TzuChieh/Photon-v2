@@ -8,7 +8,7 @@
 #include <string>
 #include <utility>
 
-#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 	
 #include <Windows.h>
 
@@ -110,7 +110,7 @@ auto Logger::makeStdOutLogPrinter() -> LogHandler
 
 auto Logger::makeColoredStdOutLogPrinter() -> LogHandler
 {
-#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 	return [stdOutLogPrinter = makeStdOutLogPrinter()](const ELogLevel logLevel, const std::string_view logString)
 	{
 		/*

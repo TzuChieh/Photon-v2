@@ -13,7 +13,7 @@ namespace ph
 template<typename T, std::size_t N>
 inline TArrayAsVector<T, N>::TArrayAsVector() :
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	// Request value-initialization: set to zeros for primitive types
 	m_data{},
 #else

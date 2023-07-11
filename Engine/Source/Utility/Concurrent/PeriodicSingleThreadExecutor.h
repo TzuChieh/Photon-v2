@@ -79,7 +79,7 @@ private:
 	bool isWorkerThread() const;
 
 
-#ifdef PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
+#if PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
 	static_assert(std::atomic<uint64>::is_always_lock_free);
 #endif
 

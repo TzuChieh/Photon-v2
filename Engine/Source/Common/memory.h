@@ -4,7 +4,7 @@
 #include "Common/assertion.h"
 #include "Common/math_basics.h"
 
-#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 
 #include <malloc.h>
 #include <crtdbg.h>
@@ -47,7 +47,7 @@ inline void* allocate_aligned_memory(const std::size_t numBytes, const std::size
 
 	PH_ASSERT_GT(numBytes, 0);
 
-#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 
 	// Reduced to a call to `_aligned_malloc` when `_DEBUG` is not defined.
 	// See https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/aligned-malloc-dbg?view=msvc-170
@@ -67,7 +67,7 @@ If @p ptr is `nullptr`, no action is performed.
 */
 inline void free_aligned_memory(void* const ptr)
 {
-#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 
 	// Reduced to a call to `_aligned_free` when `_DEBUG` is not defined.
 	// See https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/aligned-free-dbg?view=msvc-170

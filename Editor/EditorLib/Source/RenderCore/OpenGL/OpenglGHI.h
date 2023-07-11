@@ -66,7 +66,7 @@ private:
 	GLFWwindow* m_glfwWindow;
 	bool m_hasDebugContext;
 	bool m_isLoaded;
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	std::thread::id m_loadThreadId;
 #endif
 	std::unique_ptr<GHIInfoDeviceCapability> m_deviceCapability;

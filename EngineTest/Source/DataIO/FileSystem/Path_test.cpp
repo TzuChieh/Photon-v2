@@ -11,7 +11,7 @@ TEST(FileSystemPathTest, PathOperation)
 	EXPECT_TRUE(relativePath.isRelative());
 	EXPECT_FALSE(relativePath.isAbsolute());
 
-#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 	const Path absolutePath("D:/some/path");
 #else
 	const Path absolutePath("/some/path");
@@ -57,7 +57,7 @@ TEST(FileSystemPathTest, LeadingAndTrailingElement)
 		EXPECT_STREQ(path2.getLeadingElement().toString().c_str(), "..");
 
 		Path path3("/abc/def/");
-#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 		EXPECT_STREQ(path3.getLeadingElement().toString().c_str(), "\\");
 #else
 		EXPECT_STREQ(path3.getLeadingElement().toString().c_str(), "/");

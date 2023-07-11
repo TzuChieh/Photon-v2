@@ -60,7 +60,7 @@
 #if __cpp_lib_stacktrace
 	#include <stacktrace>
 #else
-	#if defined(PH_OPERATING_SYSTEM_IS_LINUX) || defined(PH_OPERATING_SYSTEM_IS_OSX)
+	#if PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
 		#include <execinfo.h>
 	#endif
 #endif
@@ -81,7 +81,7 @@ std::string obtain_stack_trace()
 	return std::to_string(stackTrace);
 
 #else
-#if defined(PH_OPERATING_SYSTEM_IS_LINUX) || defined(PH_OPERATING_SYSTEM_IS_OSX)
+#if PH_OPERATING_SYSTEM_IS_LINUX || PH_OPERATING_SYSTEM_IS_OSX
 
     const int ENTRY_BUFFER_SIZE = 64;
 

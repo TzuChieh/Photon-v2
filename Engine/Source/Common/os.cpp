@@ -1,16 +1,16 @@
 #include "Common/os.h"
 #include "Common/assertion.h"
 
-#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 
 #include <stdlib.h>
 #include <Windows.h>
 
-#elif defined(PH_OPERATING_SYSTEM_IS_LINUX)
+#elif PH_OPERATING_SYSTEM_IS_LINUX
 
 #include <stdio.h>
 
-#elif defined(PH_OPERATING_SYSTEM_IS_OSX)
+#elif PH_OPERATING_SYSTEM_IS_OSX
 
 #include <sys/sysctl.h>
 
@@ -26,7 +26,7 @@ namespace
 
 EWindowsVersion get_windows_version_internal()
 {
-#ifndef PH_OPERATING_SYSTEM_IS_WINDOWS
+#if !PH_OPERATING_SYSTEM_IS_WINDOWS
 
 	return EWindowsVersion::Unknown;
 
@@ -127,7 +127,7 @@ SOFTWARE.
 */
 std::size_t get_L1_cache_line_size_in_bytes_internal()
 {
-#if defined(PH_OPERATING_SYSTEM_IS_WINDOWS)
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 
 	size_t lineSize = 0;
 	DWORD bufferSize = 0;
@@ -150,7 +150,7 @@ std::size_t get_L1_cache_line_size_in_bytes_internal()
 	free(buffer);
 	return lineSize;
 
-#elif defined(PH_OPERATING_SYSTEM_IS_LINUX)
+#elif PH_OPERATING_SYSTEM_IS_LINUX
 
 	FILE* p = 0;
 	p = fopen("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size", "r");
@@ -162,7 +162,7 @@ std::size_t get_L1_cache_line_size_in_bytes_internal()
 	}
 	return lineSize;
 
-#elif defined(PH_OPERATING_SYSTEM_IS_OSX)
+#elif PH_OPERATING_SYSTEM_IS_OSX
 
 	size_t lineSize = 0;
 	size_t sizeOfLineSize = sizeof(lineSize);

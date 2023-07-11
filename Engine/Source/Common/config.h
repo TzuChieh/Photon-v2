@@ -18,31 +18,40 @@
 /*! @brief Enable debug functionalities.
 Assertions will be enabled on debug mode.
 */
-//#define PH_DEBUG
+#ifdef PH_CONFIG_ENABLE_DEBUG
+	#define PH_DEBUG 1
+#else
+	#define PH_DEBUG 0
+#endif
 
 /*! @brief Abort the engine on assertion fail.
 */
-#define PH_ABORT_ON_ASSERTION_FAILED
+#define PH_ABORT_ON_ASSERTION_FAILED 1
 
 /*! @brief Perform and print a stack trace when assertion failed.
 */
-#define PH_PRINT_STACK_TRACE_ON_ASSERTION_FAILED
+#define PH_PRINT_STACK_TRACE_ON_ASSERTION_FAILED 1
 
 /*! @brief Assuring floating point types has specified sizes.
 */
-#define PH_STRICT_FLOATING_POINT_SIZES
+#define PH_STRICT_FLOATING_POINT_SIZES 1
 
 // Log as soon as possible (primarily for debugging).
 //#define PH_UNBUFFERED_LOG
 
-// If defined, double precision real number will be used.
-//#define PH_USE_DOUBLE_REAL
+/*! @brief Use double precision real numbers.
+*/
+#ifdef PH_CONFIG_DOUBLE_PRECISION_REAL
+#define PH_USE_DOUBLE_REAL 1
+#else
+#define PH_USE_DOUBLE_REAL 0
+#endif
 
 /*! @brief Enable debug log level.
 */
-#define PH_ENABLE_DEBUG_LOG
+#define PH_ENABLE_DEBUG_LOG PH_DEBUG
 
-#define PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
+#define PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS 1
 
 /*! @brief Default block size for memory arena.
 Default value is 512 KiB.

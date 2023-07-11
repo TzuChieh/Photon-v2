@@ -148,7 +148,7 @@ OpenglGHI::OpenglGHI(GLFWwindow* const glfwWindow, const bool hasDebugContext)
 	, m_glfwWindow     (glfwWindow)
 	, m_hasDebugContext(hasDebugContext)
 	, m_isLoaded       (false)
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	, m_loadThreadId   ()
 #endif
 	, m_deviceCapability(nullptr)
@@ -161,7 +161,7 @@ OpenglGHI::~OpenglGHI()
 
 void OpenglGHI::load()
 {
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	m_loadThreadId = std::this_thread::get_id();
 #endif
 

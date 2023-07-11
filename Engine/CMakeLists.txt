@@ -76,6 +76,19 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
 endif()
 
+option(ENABLE_DEBUG "Enable debug functionalities." ON)
+option(DOUBLE_PRECISION_REAL "Use double precision type for real numbers." OFF)
+
+if(ENABLE_DEBUG)
+	target_compile_definitions(Engine
+		PRIVATE PH_CONFIG_ENABLE_DEBUG)
+endif()
+
+if(DOUBLE_PRECISION_REAL)
+	target_compile_definitions(Engine
+		PRIVATE PH_CONFIG_DOUBLE_PRECISION_REAL)
+endif()
+
 #[[
 
 # shared and static libraries built from the same object files

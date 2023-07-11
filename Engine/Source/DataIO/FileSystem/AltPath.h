@@ -5,7 +5,7 @@
 
 #include <string>
 
-#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 	#include <direct.h>
 #else
 	#include <unistd.h>
@@ -56,7 +56,7 @@ public:
 		}
 		else
 		{
-		#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+		#if PH_OPERATING_SYSTEM_IS_WINDOWS
 			return m_path.length() >= 3 && m_path[1] == ':' && m_path[2] == '/';
 		#else
 			return m_path[0] == '/' || m_path[0] == '~';

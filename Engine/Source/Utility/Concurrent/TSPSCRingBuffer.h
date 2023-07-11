@@ -47,7 +47,7 @@ public:
 		, m_produceHead     (0)
 		, m_consumeHead     (0)
 		, m_headDistance    (0)
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		, m_producerThreadID()
 		, m_consumerThreadID()
 #endif
@@ -58,7 +58,7 @@ public:
 	*/
 	inline void beginProduce()
 	{
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		markProducerThread();
 #endif
 
@@ -103,7 +103,7 @@ public:
 	*/
 	inline void beginConsume()
 	{
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		markConsumerThread();
 #endif
 
@@ -234,7 +234,7 @@ public:
 	*/
 	inline bool mayWaitToProduce() const
 	{
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		markProducerThread();
 #endif
 
@@ -247,7 +247,7 @@ public:
 	*/
 	inline bool mayWaitToConsume() const
 	{
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		markConsumerThread();
 #endif
 
@@ -260,7 +260,7 @@ public:
 	*/
 	inline bool isProducing() const
 	{
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		markProducerThread();
 #endif
 
@@ -273,7 +273,7 @@ public:
 	*/
 	inline bool isConsuming() const
 	{
-#ifdef PH_DEBUG
+#if PH_DEBUG
 		markConsumerThread();
 #endif
 
@@ -403,7 +403,7 @@ private:
 		m_consumeHead = nextProducerConsumerHead(m_consumeHead);
 	}
 
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	/*! @brief Check if this thread is producer thread.
 	@note Thread-safe.
 	*/
@@ -441,7 +441,7 @@ private:
 	std::size_t               m_produceHead;
 	std::size_t               m_consumeHead;
 	std::atomic_uint_fast64_t m_headDistance;
-#ifdef PH_DEBUG
+#if PH_DEBUG
 	// Though they are lazily set, no need to synchronize them since if everything is used correctly,
 	// each of them should be loaded/stored from their own thread. Seeing uninitialized or corrupted 
 	// value generally will cause the comparison to current thread ID to fail which is also what we want.

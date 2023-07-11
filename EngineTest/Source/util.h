@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <string>
 
-#ifndef PH_USE_DOUBLE_REAL
+#if PH_USE_DOUBLE_REAL
 	static_assert(std::is_same_v<::ph::real, float>,
 		"Macro PH_EXPECT_REAL_EQ() expect real type to be float.");	
 

@@ -243,7 +243,7 @@ TEST(FormattedTextInputStreamTest, FileStreamReadByte)
 		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'v'});
 
-#ifdef PH_OPERATING_SYSTEM_IS_WINDOWS
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
 		// CRLF should be formatted to LF only
 		ASSERT_NO_THROW(stream.read(1, &byte));
 		EXPECT_EQ(byte, std::byte{'\n'});
