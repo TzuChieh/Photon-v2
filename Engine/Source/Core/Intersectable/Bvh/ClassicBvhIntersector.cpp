@@ -49,9 +49,6 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 
 	Ray bvhRay(ray);
 	HitProbe closestProbe;
-
-	real minT    = 0.0_r;
-	real maxT    = 0.0_r;
 	real minHitT = std::numeric_limits<real>::max();
 
 	// TODO: possibly make use of minT & maxT found by AABB intersection?
@@ -60,7 +57,7 @@ bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) cons
 	{
 		const BvhLinearNode& node = m_nodes[currentNodeIndex];
 
-		if(node.aabb.isIntersectingVolume(bvhRay.getSegment(), &minT, &maxT))
+		if(node.aabb.isIntersectingVolume(bvhRay.getSegment()))
 		{
 			if(node.isLeaf())
 			{

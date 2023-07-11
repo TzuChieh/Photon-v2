@@ -18,7 +18,7 @@
 /*! @brief Enable debug functionalities.
 Assertions will be enabled on debug mode.
 */
-#define PH_DEBUG
+//#define PH_DEBUG
 
 /*! @brief Abort the engine on assertion fail.
 */

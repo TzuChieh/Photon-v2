@@ -37,7 +37,6 @@ inline TAABB3D<T>::TAABB3D(const TVector3<T>& minVertex, const TVector3<T>& maxV
 		"maxVertex = " + maxVertex.toString());
 }
 
-// REFACTOR: this method is duplicated with isIntersectingVolume(3)
 template<typename T>
 inline bool TAABB3D<T>::isIntersectingVolume(const TLineSegment<T>& segment) const
 {
@@ -45,100 +44,16 @@ inline bool TAABB3D<T>::isIntersectingVolume(const TLineSegment<T>& segment) con
 	return isIntersectingVolume(segment, &nearHitT, &farHitT);
 }
 
-/*
-	Reference: Kay and Kayjia's "slab method" from a project of the ACM 
-	SIGGRAPH Education Committee named HyperGraph.
-*/
 template<typename T>
 inline bool TAABB3D<T>::isIntersectingVolume(
 	const TLineSegment<T>& segment,
 	T* const               out_nearHitT,
 	T* const               out_farHitT) const
 {
-	PH_ASSERT(out_nearHitT);
-	PH_ASSERT(out_farHitT);
+	return isIntersectingVolumeKajiyaKay(segment, out_nearHitT, out_farHitT);
 
-	// The starting ray interval (tMin, tMax) will be incrementally intersect
-	// against each ray-slab hitting interval (t1, t2) and be updated with the
-	// resulting interval.
-	//
-	// Note that the following implementation is NaN-aware 
-	// (tMin & tMax will never have NaNs)
-
-	PH_ASSERT(!std::isnan(segment.getMinT()) && !std::isnan(segment.getMaxT()));
-
-	T tMin = segment.getMinT();
-	T tMax = segment.getMaxT();
-
-	// find ray-slab hitting interval in x-axis then intersect with (tMin, tMax)
-
-	T rcpDir = T(1) / segment.getDirection().x();
-	T t1     = (m_minVertex.x() - segment.getOrigin().x()) * rcpDir;
-	T t2     = (m_maxVertex.x() - segment.getOrigin().x()) * rcpDir;
-
-	if(t1 < t2)
-	{
-		tMin = t1 > tMin ? t1 : tMin;
-		tMax = t2 < tMax ? t2 : tMax;
-	}
-	else
-	{
-		tMin = t2 > tMin ? t2 : tMin;
-		tMax = t1 < tMax ? t1 : tMax;
-	}
-
-	if(tMin > tMax)
-	{
-		return false;
-	}
-
-	// find ray-slab hitting interval in y-axis then intersect with (tMin, tMax)
-
-	rcpDir = T(1) / segment.getDirection().y();
-	t1     = (m_minVertex.y() - segment.getOrigin().y()) * rcpDir;
-	t2     = (m_maxVertex.y() - segment.getOrigin().y()) * rcpDir;
-
-	if(t1 < t2)
-	{
-		tMin = t1 > tMin ? t1 : tMin;
-		tMax = t2 < tMax ? t2 : tMax;
-	}
-	else
-	{
-		tMin = t2 > tMin ? t2 : tMin;
-		tMax = t1 < tMax ? t1 : tMax;
-	}
-
-	if(tMin > tMax)
-	{
-		return false;
-	}
-
-	// find ray-slab hitting interval in z-axis then intersect with (tMin, tMax)
-
-	rcpDir = T(1) / segment.getDirection().z();
-	t1     = (m_minVertex.z() - segment.getOrigin().z()) * rcpDir;
-	t2     = (m_maxVertex.z() - segment.getOrigin().z()) * rcpDir;
-
-	if(t1 < t2)
-	{
-		tMin = t1 > tMin ? t1 : tMin;
-		tMax = t2 < tMax ? t2 : tMax;
-	}
-	else
-	{
-		tMin = t2 > tMin ? t2 : tMin;
-		tMax = t1 < tMax ? t1 : tMax;
-	}
-
-	if(tMin > tMax)
-	{
-		return false;
-	}
-
-	*out_nearHitT = tMin;
-	*out_farHitT  = tMax;
-	return true;
+	// Somewhat slower, don't know why
+	//return isIntersectingVolumeTavian(segment, out_nearHitT, out_farHitT);
 }
 
 template<typename T>
@@ -321,6 +236,155 @@ inline bool TAABB3D<T>::isEqual(const TAABB3D& other) const
 {
 	return this->m_minVertex.isEqual(other.m_minVertex) && 
 	       this->m_maxVertex.isEqual(other.m_maxVertex);
+}
+
+template<typename T>
+inline bool TAABB3D<T>::isIntersectingVolumeKajiyaKay(
+	const TLineSegment<T>& segment,
+	T* const out_nearHitT,
+	T* const out_farHitT) const
+{
+	PH_ASSERT(out_nearHitT);
+	PH_ASSERT(out_farHitT);
+
+	// The starting ray interval (tMin, tMax) will be incrementally intersect
+	// against each ray-slab hitting interval (t1, t2) and be updated with the
+	// resulting interval.
+	//
+	// Note that the following implementation is NaN-aware 
+	// (tMin & tMax will never have NaNs)
+
+	PH_ASSERT(!std::isnan(segment.getMinT()) && !std::isnan(segment.getMaxT()));
+
+	T tMin = segment.getMinT();
+	T tMax = segment.getMaxT();
+
+	// find ray-slab hitting interval in x-axis then intersect with (tMin, tMax)
+
+	T rcpDir = T(1) / segment.getDirection().x();
+	T t1     = (m_minVertex.x() - segment.getOrigin().x()) * rcpDir;
+	T t2     = (m_maxVertex.x() - segment.getOrigin().x()) * rcpDir;
+
+	if(t1 < t2)
+	{
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
+	}
+	else
+	{
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
+	}
+
+	if(tMin > tMax)
+	{
+		return false;
+	}
+
+	// find ray-slab hitting interval in y-axis then intersect with (tMin, tMax)
+
+	rcpDir = T(1) / segment.getDirection().y();
+	t1     = (m_minVertex.y() - segment.getOrigin().y()) * rcpDir;
+	t2     = (m_maxVertex.y() - segment.getOrigin().y()) * rcpDir;
+
+	if(t1 < t2)
+	{
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
+	}
+	else
+	{
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
+	}
+
+	if(tMin > tMax)
+	{
+		return false;
+	}
+
+	// find ray-slab hitting interval in z-axis then intersect with (tMin, tMax)
+
+	rcpDir = T(1) / segment.getDirection().z();
+	t1     = (m_minVertex.z() - segment.getOrigin().z()) * rcpDir;
+	t2     = (m_maxVertex.z() - segment.getOrigin().z()) * rcpDir;
+
+	if(t1 < t2)
+	{
+		tMin = t1 > tMin ? t1 : tMin;
+		tMax = t2 < tMax ? t2 : tMax;
+	}
+	else
+	{
+		tMin = t2 > tMin ? t2 : tMin;
+		tMax = t1 < tMax ? t1 : tMax;
+	}
+
+	if(tMin > tMax)
+	{
+		return false;
+	}
+
+	*out_nearHitT = tMin;
+	*out_farHitT  = tMax;
+	return true;
+}
+
+template<typename T>
+inline bool TAABB3D<T>::isIntersectingVolumeTavian(
+	const TLineSegment<T>& segment,
+	T* const out_nearHitT,
+	T* const out_farHitT) const
+{
+	PH_ASSERT(out_nearHitT);
+	PH_ASSERT(out_farHitT);
+
+	PH_ASSERT(!std::isnan(segment.getMinT()) && !std::isnan(segment.getMaxT()));
+
+	T tMin = segment.getMinT();
+	T tMax = segment.getMaxT();
+
+	// Find ray-slab hitting interval in the i-th dimension then intersect with (tMin, tMax)
+	for(std::size_t i = 0; i < 3; ++i)
+	{
+		T rcpDir = T(1) / segment.getDirection()[i];
+		T t1 = (m_minVertex[i] - segment.getOrigin()[i]) * rcpDir;
+		T t2 = (m_maxVertex[i] - segment.getOrigin()[i]) * rcpDir;
+
+		tMin = std::max(tMin, std::min(t1, t2));
+		tMax = std::min(tMax, std::max(t1, t2));
+
+		/*T minT1T2 = t1 < t2 ? t1 : t2;
+		T maxT1T2 = t1 > t2 ? t1 : t2;
+		tMin = tMin > minT1T2 ? tMin : minT1T2;
+		tMax = tMax < maxT1T2 ? tMax : maxT1T2;*/
+
+		// Early out (branching)
+		/*if(tMin > tMax)
+		{
+			return false;
+		}*/
+	}
+
+	/*T rcpDirX = T(1) / segment.getDirection().x();
+	T t1X = (m_minVertex.x() - segment.getOrigin().x()) * rcpDirX;
+	T t2X = (m_maxVertex.x() - segment.getOrigin().x()) * rcpDirX;
+	tMin = std::max(tMin, std::min(t1X, t2X));
+	tMax = std::min(tMax, std::max(t1X, t2X));
+	T rcpDirY = T(1) / segment.getDirection().y();
+	T t1Y = (m_minVertex.y() - segment.getOrigin().y()) * rcpDirY;
+	T t2Y = (m_maxVertex.y() - segment.getOrigin().y()) * rcpDirY;
+	tMin = std::max(tMin, std::min(t1Y, t2Y));
+	tMax = std::min(tMax, std::max(t1Y, t2Y));
+	T rcpDirZ = T(1) / segment.getDirection().z();
+	T t1Z = (m_minVertex.z() - segment.getOrigin().z()) * rcpDirZ;
+	T t2Z = (m_maxVertex.z() - segment.getOrigin().z()) * rcpDirZ;
+	tMin = std::max(tMin, std::min(t1Z, t2Z));
+	tMax = std::min(tMax, std::max(t1Z, t2Z));*/
+
+	*out_nearHitT = tMin;
+	*out_farHitT = tMax;
+	return tMax >= tMin;
 }
 
 }// end namespace ph::math

@@ -4,6 +4,7 @@
 #include "Math/math_fwd.h"
 #include "Math/constant.h"
 #include "Utility/string_utils.h"
+#include "Utility/utility.h"
 
 namespace ph::math
 {
@@ -29,12 +30,7 @@ public:
 		T               parametricT);
 
 public:
-	inline TVector3() = default;
-	inline TVector3(const TVector3& other) = default;
-	inline TVector3(TVector3&& other) = default;
-	inline TVector3& operator = (const TVector3& rhs) = default;
-	inline TVector3& operator = (TVector3&& rhs) = default;
-	inline ~TVector3() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TVector3);
 
 	using Base::Base;
 

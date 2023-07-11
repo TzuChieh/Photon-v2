@@ -92,6 +92,7 @@ set(BUILD_PHOTON_CLI_DEFAULT    ON)
 set(BUILD_EDITOR_DEFAULT        ON)
 set(BUILD_TESTS_DEFAULT         ON)
 set(BUILD_EDITOR_JNI_DEFAULT    OFF)
+set(USE_FAST_MATH_DEFAULT       OFF)
 
 if(WIN32)
     set(BUILD_EDITOR_JNI_DEFAULT ON)
@@ -110,6 +111,10 @@ set(THIRD_PARTY_LIBS_INSTALL_DIR
 
 message(STATUS 
     "Third-party library install directory set to \"${THIRD_PARTY_LIBS_INSTALL_DIR}\"; Modify by setting \"THIRD_PARTY_LIBS_INSTALL_DIR\".")
+
+option(USE_FAST_MATH
+    "More room for optimization, may not preserve strict IEEE compliance." 
+    ${USE_FAST_MATH_DEFAULT})
 
 ###############################################################################
 # Compiler Settings                                                           #
@@ -152,16 +157,28 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 
-# Using GCC
+    if(USE_FAST_MATH)
+        add_compile_options(/fp:fast)
+    endif()
+
+# Using gcc/g++
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
     # Use C++20
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
+    if(USE_FAST_MATH)
+        add_compile_options(-ffast-math)
+    endif()
+
 # Using regular Clang or AppleClang (note we use `MATCHES` here)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
     # TODO: enforce C++20 if previous requests have no use
+
+    if(USE_FAST_MATH)
+        add_compile_options(-ffast-math)
+    endif()
 
 else()
     message(WARNING

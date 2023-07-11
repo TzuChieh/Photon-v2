@@ -140,8 +140,8 @@ public:
 		, m_hasFinalFrameEnded()
 		, m_frameNumber(0)
 		, m_shouldFlushBufferBeforeStop(shouldFlushBufferBeforeStop)
-#ifdef PH_DEBUG
 		, m_parentThreadId()
+#ifdef PH_DEBUG
 		, m_isStopped(false)
 #endif
 	{
@@ -589,8 +589,8 @@ private:
 	std::atomic_flag      m_hasFinalFrameEnded;
 	std::size_t           m_frameNumber;
 	bool                  m_shouldFlushBufferBeforeStop;
-#ifdef PH_DEBUG
 	std::thread::id       m_parentThreadId;
+#ifdef PH_DEBUG
 	bool                  m_isStopped;
 #endif
 };

@@ -105,8 +105,8 @@ public:
 	*/
 	bool isIntersectingVolume(
 		const TLineSegment<T>& segment,
-		T*                     out_nearHitT, 
-		T*                     out_farHitT) const;
+		T* out_nearHitT, 
+		T* out_farHitT) const;
 
 	/*! @brief Checks whether another bound intersects this volume.
 
@@ -180,6 +180,24 @@ public:
 	bool isEqual(const TAABB3D& other) const;
 
 private:
+	/*!
+	Reference: Kay and Kayjia's "slab method" from a project of the ACM
+	SIGGRAPH Education Committee named HyperGraph.
+	*/
+	bool isIntersectingVolumeKajiyaKay(
+		const TLineSegment<T>& segment,
+		T* out_nearHitT,
+		T* out_farHitT) const;
+
+	/*!
+	A fast and branchless method developed by Tavian Barnes. The algorithm is
+	based on slab method.
+	*/
+	bool isIntersectingVolumeTavian(
+		const TLineSegment<T>& segment,
+		T* out_nearHitT,
+		T* out_farHitT) const;
+
 	TVector3<T> m_minVertex;
 	TVector3<T> m_maxVertex;
 };
