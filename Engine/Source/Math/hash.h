@@ -87,9 +87,9 @@ https://mostlymangling.blogspot.com/2019/12/stronger-better-morer-moremur-better
 inline uint64 moremur_bit_mix(uint64 value)
 {
 	value ^= value >> 27;
-	value *= 0x3C79AC492BA7B653UL;
+	value *= 0x3C79AC492BA7B653ULL;
 	value ^= value >> 33;
-	value *= 0x1C69B3F74AC4AE35UL;
+	value *= 0x1C69B3F74AC4AE35ULL;
 	value ^= value >> 27;
 
 	return value;

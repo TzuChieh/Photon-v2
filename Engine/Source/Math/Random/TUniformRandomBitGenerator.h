@@ -16,7 +16,6 @@ concept CUniformRandomBitGenerator = requires (T instance)
 {
 	typename T::BitsType;
 	instance.generate();
-	instance.template generate<uint64>();
 	instance.generateSample();
 	instance.template generateSample<float64>();
 	{ instance.jumpAhead(uint64{}) } -> std::same_as<void>;
@@ -32,9 +31,6 @@ public:
 	using BitsType = Bits;
 
 	Bits generate();
-
-	template<typename TargetBits>
-	TargetBits generate();
 
 	template<typename TargetSample = real>
 	TargetSample generateSample();
