@@ -82,3 +82,15 @@ void on_assertion_failed();
 */
 #define PH_ASSERT_IN_RANGE_EXCLUSIVE(value, lowerBound, upperBound)\
 	PH_ASSERT_MSG(lowerBound < value && value < upperBound, PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, "(", ")"))
+
+
+namespace ph::detail
+{
+
+template<typename T>
+inline constexpr bool DEPENDENT_FALSE = false;
+
+}// end namespace ph::detail
+
+#define PH_STATIC_ASSERT_DEPENDENT_FALSE(DependentType, message)\
+	static_assert(::ph::detail::DEPENDENT_FALSE<DependentType>, #message)

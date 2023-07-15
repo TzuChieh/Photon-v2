@@ -80,22 +80,29 @@ inline decltype(auto) regular_access(T& t)
 	}
 }
 
-template<typename Source, typename Target>
+template<typename Target, typename Source>
 inline Target bitwise_cast(const Source& source)
 {
 	static_assert(std::is_trivially_copyable_v<Source>);
 	static_assert(std::is_trivially_copyable_v<Target>);
 
 	static_assert(sizeof(Source) == sizeof(Target),
-		"Source and Target should have the same size");
+		"Source and Target must have the same size");
 
+	if constexpr(std::is_same_v<Source, Target>)
+	{
+		return source;
+	}
+	else
+	{
 #if __cpp_lib_bit_cast
-	return std::bit_cast<Target>(source);
+		return std::bit_cast<Target>(source);
 #else
-	Target target;
-	std::memcpy(&target, &source, sizeof(Source));
-	return target;
+		Target target;
+		std::memcpy(&target, &source, sizeof(Source));
+		return target;
 #endif
+	}
 }
 
 inline bool is_big_endian()

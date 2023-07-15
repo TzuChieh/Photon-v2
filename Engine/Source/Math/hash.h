@@ -2,6 +2,7 @@
 
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
+#include "Common/primitive_type.h"
 
 #include <cstddef>
 #include <type_traits>
@@ -10,14 +11,14 @@
 namespace ph::math
 {
 
-/*
-	Implements the hash function described in the paper "Optimized Spatial 
-	Hashing for Collision Detection of Deformable Objects". Note that although
-	they stated in the paper that 73856093, 19349663 and 83492791 are all prime
-	numbers, 19349663 is in fact a composite number (41 * 471943).
+/*!
+Implements the hash function described in the paper "Optimized Spatial 
+Hashing for Collision Detection of Deformable Objects". Note that although
+they stated in the paper that 73856093, 19349663 and 83492791 are all prime
+numbers, 19349663 is in fact a composite number (41 * 471943).
 
-	Reference: 
-	http://www.beosil.com/download/CollisionDetectionHashing_VMV03.pdf
+Reference: 
+http://www.beosil.com/download/CollisionDetectionHashing_VMV03.pdf
 */
 template<typename Integer>
 inline std::size_t discrete_spatial_hash(
@@ -35,8 +36,8 @@ inline std::size_t discrete_spatial_hash(
 	        (static_cast<std::size_t>(z) * 83492791)) % hashTableSize;
 }
 
-/*
-	Extending the original 3-D version of discrete_spatial_hash() to 2-D.
+/*!
+Extending the original 3-D version of discrete_spatial_hash() to 2-D.
 */
 template<typename Integer>
 inline std::size_t discrete_spatial_hash(
@@ -58,9 +59,9 @@ inline std::size_t discrete_spatial_hash(const TVector3<T>& point, const std::si
 	return discrete_spatial_hash(point.x, point.y, point.z, hashTableSize);
 }
 
-/*
-	Discretized spatial hash for floating point values are done by first 
-	quantizing the value to integers according to cell size.
+/*!
+Discretized spatial hash for floating point values are done by first 
+quantizing the value to integers according to cell size.
 */
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 inline std::size_t discrete_spatial_hash(
@@ -77,6 +78,21 @@ inline std::size_t discrete_spatial_hash(
 		static_cast<std::size_t>(std::floor(point.y / cellSize.y)), 
 		static_cast<std::size_t>(std::floor(point.z / cellSize.z)), 
 		hashTableSize);
+}
+
+/*! @brief A MurmurHash3-style bit mixer that outperforms the original by quite some margin.
+The constants were derived by Pelle Evensen:
+https://mostlymangling.blogspot.com/2019/12/stronger-better-morer-moremur-better.html
+*/
+inline uint64 moremur_bit_mix(uint64 value)
+{
+	value ^= value >> 27;
+	value *= 0x3C79AC492BA7B653UL;
+	value ^= value >> 33;
+	value *= 0x1C69B3F74AC4AE35UL;
+	value ^= value >> 27;
+
+	return value;
 }
 
 }// end namespace ph::math

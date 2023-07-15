@@ -143,7 +143,7 @@ void EqualSamplingRenderer::doRender()
 				auto sampleGenerator = m_sampleGenerator->genCopied(spp);
 
 				m_suppliedFractionBits.store(
-					bitwise_cast<float, std::uint32_t>(suppliedFraction),
+					bitwise_cast<std::uint32_t>(suppliedFraction),
 					std::memory_order_relaxed);
 
 				filmEstimator.setFilmDimensions(
@@ -179,7 +179,7 @@ void EqualSamplingRenderer::doRender()
 				}
 
 				m_submittedFractionBits.store(
-					bitwise_cast<float, std::uint32_t>(submittedFraction),
+					bitwise_cast<std::uint32_t>(submittedFraction),
 					std::memory_order_relaxed);
 
 				m_totalPaths.fetch_add(renderWork.asyncGetStatistics().numSamplesTaken, std::memory_order_relaxed);
@@ -286,8 +286,8 @@ RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 	}
 
 	const std::size_t totalWork = 100000000;
-	const float suppliedFraction = bitwise_cast<std::uint32_t, float>(m_suppliedFractionBits.load(std::memory_order_relaxed));
-	const float submittedFraction = std::max(bitwise_cast<std::uint32_t, float>(m_submittedFractionBits.load(std::memory_order_relaxed)), suppliedFraction);
+	const float suppliedFraction = bitwise_cast<float>(m_suppliedFractionBits.load(std::memory_order_relaxed));
+	const float submittedFraction = std::max(bitwise_cast<float>(m_submittedFractionBits.load(std::memory_order_relaxed)), suppliedFraction);
 	const float workingFraction = submittedFraction - suppliedFraction;
 	const std::size_t workDone = static_cast<std::size_t>(totalWork * (suppliedFraction + workerProgress.getNormalizedProgress() * workingFraction));
 	RenderProgress totalProgress(totalWork, std::min(workDone, totalWork), workerProgress.getElapsedMs());

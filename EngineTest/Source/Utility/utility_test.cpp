@@ -59,20 +59,20 @@ TEST(UtilityTest, RegularAccess)
 TEST(UtilityTest, BitwiseCast)
 {
 	const std::int32_t source1 = 777;
-	const float        target1 = ph::bitwise_cast<std::int32_t, float>(source1);
-	const std::int32_t result1 = ph::bitwise_cast<float, std::int32_t>(target1);
+	const auto target1 = ph::bitwise_cast<float>(source1);
+	const auto result1 = ph::bitwise_cast<std::int32_t>(target1);
 	EXPECT_NE(source1, target1);
 	EXPECT_EQ(source1, result1);
 
-	const std::uint16_t source2 = std::numeric_limits<std::uint16_t>::max();
-	const std::int16_t  target2 = ph::bitwise_cast<std::uint16_t, std::int16_t>(source2);
-	const std::uint16_t result2 = ph::bitwise_cast<std::int16_t, std::uint16_t>(target2);
+	const auto source2 = std::numeric_limits<std::uint16_t>::max();
+	const auto target2 = ph::bitwise_cast<std::int16_t>(source2);
+	const auto result2 = ph::bitwise_cast<std::uint16_t>(target2);
 	EXPECT_NE(source2, target2);
 	EXPECT_EQ(source2, result2);
 
 	const std::int64_t source3 = 123;
-	const double       target3 = ph::bitwise_cast<std::int64_t, double>(source3);
-	const std::int64_t result3 = ph::bitwise_cast<double, std::int64_t>(target3);
+	const auto target3 = ph::bitwise_cast<double>(source3);
+	const auto result3 = ph::bitwise_cast<std::int64_t>(target3);
 	EXPECT_NE(source3, target3);
 	EXPECT_EQ(source3, result3);
 }
