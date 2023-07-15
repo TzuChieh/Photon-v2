@@ -87,6 +87,9 @@ inline TargetBits TUniformRandomBitGenerator<Derived, Bits>::generate()
 	}
 	else if constexpr(targetBitsSize == 4 && bitsSize == 8)
 	{
+		// Just to make sure `static_cast` will truncate `uint64`
+		static_assert(static_cast<uint32>(uint64(0xABCD'ABCD'0000'0000) >> 32) == 0xABCD'ABCD);
+
 		// Generate 4-byte bits by using the higher 4-byte in 8-byte bits
 		const auto full8B = bitwise_cast<uint64>(generate());
 		return bitwise_cast<TargetBits>(static_cast<uint32>(full8B >> 32));
@@ -108,13 +111,13 @@ inline TargetSample TUniformRandomBitGenerator<Derived, Bits>::generateSample()
 
 	if constexpr(std::is_same_v<TargetSample, float32>)
 	{
-		const float32 sample = generate<uint32>() / 0x1p-32f;
+		const float32 sample = generate<uint32>() * 0x1p-32f;
 		PH_ASSERT_IN_RANGE_EXCLUSIVE(sample, 0.0f, 1.0f);
 		return sample;
 	}
 	else if constexpr(std::is_same_v<TargetSample, float64>)
 	{
-		const float64 sample = generate<uint64>() / 0x1p-64;
+		const float64 sample = generate<uint64>() * 0x1p-64;
 		PH_ASSERT_IN_RANGE_EXCLUSIVE(sample, 0.0, 1.0);
 		return sample;
 	}
