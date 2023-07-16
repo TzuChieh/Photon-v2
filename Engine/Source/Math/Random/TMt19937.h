@@ -2,7 +2,6 @@
 
 #include "Math/Random/TUniformRandomBitGenerator.h"
 #include "Common/primitive_type.h"
-#include "Utility/utility.h"
 
 #include <random>
 #include <type_traits>
@@ -14,7 +13,7 @@ template<typename Bits>
 class TMt19937 final : public TUniformRandomBitGenerator<TMt19937<Bits>, Bits>
 {
 	static_assert(std::is_same_v<Bits, uint32> || std::is_same_v<Bits, uint64>,
-		"Supports only `uint32` and `uint64` bit types.");
+		"Supports only `uint32` and `uint64` bits types.");
 
 public:
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TMt19937);

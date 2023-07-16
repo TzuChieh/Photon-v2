@@ -12,12 +12,13 @@ namespace ph::math
 {
 	
 template<typename T>
-concept CUniformRandomBitGenerator = requires (T instance)
+concept CURBG = requires (T instance)
 {
 	typename T::BitsType;
 	instance.generate();
+	instance.template generate<uint64>();
 	instance.generateSample();
-	instance.template generateSample<float64>();
+	instance.template generateSample<float64, uint64>();
 	{ instance.jumpAhead(uint64{}) } -> std::same_as<void>;
 };
 
@@ -32,7 +33,10 @@ public:
 
 	Bits generate();
 
-	template<typename TargetSample = real>
+	template<typename TargetBits>
+	TargetBits generate();
+
+	template<typename TargetSample = real, typename SourceBits = Bits>
 	TargetSample generateSample();
 
 	/*!
@@ -80,6 +84,9 @@ inline TargetBits TUniformRandomBitGenerator<Derived, Bits>::generate()
 		const auto lower4B = bitwise_cast<uint64>(generate());
 		const auto higher4B = bitwise_cast<uint64>(generate()) << 32;
 		return bitwise_cast<TargetBits>(higher4B | lower4B);
+
+		// Note: combining 2 `uint32` like this may not yield as good result as using 2 separate
+		// generators (with different state and sequence).
 	}
 	else if constexpr(targetBitsSize == 4 && bitsSize == 8)
 	{
@@ -89,38 +96,47 @@ inline TargetBits TUniformRandomBitGenerator<Derived, Bits>::generate()
 		// Generate 4-byte bits by using the higher 4-byte in 8-byte bits
 		const auto full8B = bitwise_cast<uint64>(generate());
 		return bitwise_cast<TargetBits>(static_cast<uint32>(full8B >> 32));
+
+		// Note: generally higher bits may be of better quality
 	}
 	else
 	{
 		PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
 			"No existing implementation can do `Bits` -> `TargetBits`.");
+		return 0;
 	}
 }
 
 template<typename Derived, typename Bits>
-template<typename TargetSample>
+template<typename TargetSample, typename SourceBits>
 inline TargetSample TUniformRandomBitGenerator<Derived, Bits>::generateSample()
 {
+	static_assert(CHAR_BIT == 8);
+
+	// Safer for bit operations (custom types are explicitly allowed).
+	static_assert(std::is_unsigned_v<SourceBits> || std::is_class_v<SourceBits>);
+
 	// Samples must be within [0, 1], makes no sense for using integral types
 	// (custom types are explicitly allowed).
 	static_assert(std::is_floating_point_v<TargetSample> || std::is_class_v<TargetSample>);
 
-	if constexpr(std::is_same_v<TargetSample, float32>)
+	if constexpr(std::is_same_v<SourceBits, uint32>)
 	{
-		const float32 sample = generate<uint32>() * 0x1p-32f;
-		PH_ASSERT_IN_RANGE_EXCLUSIVE(sample, 0.0f, 1.0f);
+		const TargetSample sample = generate<SourceBits>() * TargetSample(0x1p-32);
+		PH_ASSERT_IN_RANGE_EXCLUSIVE(sample, TargetSample(0.0), TargetSample(1.0));
 		return sample;
 	}
-	else if constexpr(std::is_same_v<TargetSample, float64>)
+	else if constexpr(std::is_same_v<SourceBits, uint64>)
 	{
-		const float64 sample = generate<uint64>() * 0x1p-64;
-		PH_ASSERT_IN_RANGE_EXCLUSIVE(sample, 0.0, 1.0);
+		const TargetSample sample = generate<SourceBits>() * TargetSample(0x1p-64);
+		PH_ASSERT_IN_RANGE_EXCLUSIVE(sample, TargetSample(0.0), TargetSample(1.0));
 		return sample;
 	}
 	else
 	{
 		PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
-			"No existing implementation can do `Bits` -> `TargetSample`.");
+			"No existing implementation can do `SourceBits` -> `TargetSample`.");
+		return 0;
 	}
 }
 
