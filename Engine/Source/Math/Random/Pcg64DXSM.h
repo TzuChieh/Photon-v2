@@ -5,8 +5,6 @@
 #include "Math/hash.h"
 #include "Math/math.h"
 
-#include <type_traits>
-
 // This is a good reference on built-in 128-bit integer:
 // https://stackoverflow.com/questions/16088282/is-there-a-128-bit-integer-in-gcc
 // In the future, consider using `_BitInt`
@@ -29,8 +27,11 @@ public:
 	constexpr Pcg64UInt128();
 	constexpr Pcg64UInt128(uint64 high64, uint64 low64);
 
-	Pcg64UInt128 operator + (Pcg64UInt128 rhs) const;
-	Pcg64UInt128 operator * (Pcg64UInt128 rhs) const;
+	uint64 getHigh64() const;
+	uint64 getLow64() const;
+
+	Pcg64UInt128 operator + (const Pcg64UInt128& rhs) const;
+	Pcg64UInt128 operator * (const Pcg64UInt128& rhs) const;
 
 private:
 #if PH_MATH_PCG64_EMULATED_UINT128
@@ -54,7 +55,25 @@ inline constexpr Pcg64UInt128::Pcg64UInt128(const uint64 high64, const uint64 lo
 #endif
 {}
 
-inline Pcg64UInt128 Pcg64UInt128::operator + (Pcg64UInt128 rhs) const
+inline uint64 Pcg64UInt128::getHigh64() const
+{
+#if PH_MATH_PCG64_EMULATED_UINT128
+	return m_high64;
+#else
+	return static_cast<uint64>(m_128 >> 64);
+#endif
+}
+
+inline uint64 Pcg64UInt128::getLow64() const
+{
+#if PH_MATH_PCG64_EMULATED_UINT128
+	return m_low64;
+#else
+	return static_cast<uint64>(m_128);
+#endif
+}
+
+inline Pcg64UInt128 Pcg64UInt128::operator + (const Pcg64UInt128& rhs) const
 {
 	Pcg64UInt128 result;
 #if PH_MATH_PCG64_EMULATED_UINT128
@@ -66,7 +85,7 @@ inline Pcg64UInt128 Pcg64UInt128::operator + (Pcg64UInt128 rhs) const
 	return result;
 }
 
-inline Pcg64UInt128 Pcg64UInt128::operator * (Pcg64UInt128 rhs) const
+inline Pcg64UInt128 Pcg64UInt128::operator * (const Pcg64UInt128& rhs) const
 {
 	Pcg64UInt128 result;
 #if PH_MATH_PCG64_EMULATED_UINT128
@@ -121,80 +140,119 @@ class Pcg64DXSM final : public TUniformRandomBitGenerator<Pcg64DXSM, uint64>
 public:
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(Pcg64DXSM);
 
-	explicit Pcg32(uint64 initialState);
+	Pcg64DXSM(uint64 initialStateHigh64, uint64 initialStateLow64);
 
-	/*! @brief Seed the RNG. Specified in two parts.
-	@param initialState Equivalent to choosing a starting point in a stream.
-	@param initialSequence Equivalent to choosing from one of 2^63 different random number sequences.
+	/*! @brief Seed the RNG. Specified in two 128-bit parts.
+	Initial state is equivalent to choosing a starting point in a stream, while initial sequence is
+	equivalent to choosing from one of 2^127 different random number sequences (streams).
+	@param initialStateHigh64 Higher 64-bit part of the initial state.
+	@param initialStateLow64 Lower 64-bit part of the initial state.
+	@param initialSequenceHigh64 Higher 64-bit part of the initial sequence.
+	@param initialSequenceLow64 Lower 64-bit part of the initial sequence.
 	*/
-	Pcg32(uint64 initialState, uint64 initialSequence);
+	Pcg64DXSM(
+		uint64 initialStateHigh64, uint64 initialStateLow64, 
+		uint64 initialSequenceHigh64, uint64 initialSequenceLow64);
 
-	uint32 impl_generate();
+	uint64 impl_generate();
 	void impl_jumpAhead(uint64 distance);
 
 private:
-	uint32 generateUInt32();
+	using UInt128 = detail::Pcg64UInt128;
 
-	inline static constexpr uint64 DEFAULT_STATE = 0x853C49E6748FEA9BULL;
-	inline static constexpr uint64 DEFAULT_STREAM_ID = 0xDA3E39CB94B95BDBULL;
-	inline static constexpr uint64 MULTIPLIER = 0x5851F42D4C957F2DULL;
+	uint64 generateUInt64();
 
-	uint64 m_state = DEFAULT_STATE;
+	inline static constexpr auto DEFAULT_STATE = UInt128(0x979C9A98D8462005ULL, 0x7D3E9CB6CFE0549BULL);
+	inline static constexpr auto DEFAULT_STREAM_ID = UInt128(0x5851F42D4C957F2DULL, 0x14057B7EF767814FULL);
+	
+	// Cheap (half-width) multiplier
+	inline static constexpr auto MULTIPLIER_64 = 0xDA942042E4DD58B5ULL;
+
+	UInt128 m_state = DEFAULT_STATE;
 
 	/*! Controls which random number sequence (stream) is selected. Must always be odd. */
-	uint64 m_increment = DEFAULT_STREAM_ID;
+	UInt128 m_increment = DEFAULT_STREAM_ID;
 };
 
-inline Pcg32::Pcg32(const uint64 initialState)
-	: Pcg32(initialState, moremur_bit_mix(initialState))
+inline Pcg64DXSM::Pcg64DXSM(const uint64 initialStateHigh64, const uint64 initialStateLow64)
+	: Pcg64DXSM(
+		initialStateHigh64, initialStateLow64, 
+		moremur_bit_mix(initialStateHigh64), moremur_bit_mix(initialStateLow64))
 {}
 
-inline Pcg32::Pcg32(const uint64 initialState, const uint64 streamId)
-	: Pcg32()
+inline Pcg64DXSM::Pcg64DXSM(
+	const uint64 initialStateHigh64, const uint64 initialStateLow64,
+	const uint64 initialSequenceHigh64, const uint64 initialSequenceLow64)
+	: Pcg64DXSM()
 {
-	m_state = 0U;
+	m_state = UInt128(0ULL, 0ULL);
 
-	// Ensure `m_increment` is odd
-	m_increment = (streamId << 1u) | 1u;
+	// Ensure `m_increment` is odd (basically doing `(initialSequence << 1u) | 1u`)
+	uint64 incrementHigh64 = initialSequenceHigh64 << 1u;
+	incrementHigh64 |= initialSequenceLow64 >> 63u;
+	uint64 incrementLow64 = (initialSequenceLow64 << 1u) | 1u;
+	m_increment = UInt128(incrementHigh64, incrementLow64);
 
-	generateUInt32();
-	m_state += initialState;
-	generateUInt32();
+	generateUInt64();
+	m_state = m_state + UInt128(initialStateHigh64, initialStateLow64);
+	generateUInt64();
 }
 
-inline uint32 Pcg32::impl_generate()
+inline uint64 Pcg64DXSM::impl_generate()
 {
-	return generateUInt32();
+	return generateUInt64();
 }
 
-inline void Pcg32::impl_jumpAhead(const uint64 distance)
+inline void Pcg64DXSM::impl_jumpAhead(const uint64 distance)
 {
-	uint64 curMult = MULTIPLIER;
-	uint64 curPlus = m_increment;
-	uint64 accMult = 1u;
-	uint64 accPlus = 0u;
+	/* Multi-step advance functions (jump-ahead, jump-back)
+
+	The method used here is based on Brown, "Random Number Generation with Arbitrary Stride,",
+	Transactions of the American Nuclear Society (Nov. 1994). The algorithm is very similar to fast
+	exponentiation.
+
+	Even though delta is an unsigned integer, we can pass a signed integer to go backwards,
+	it just goes "the long way round".
+	*/
+
+	constexpr auto ZERO = UInt128(0, 0);
+	constexpr auto ONE = UInt128(0, 1);
+
+	auto curMult = UInt128(0, MULTIPLIER_64);
+	auto curPlus = m_increment;
+	auto accMult = ONE;
+	auto accPlus = ZERO;
 	uint64 delta = distance;
 	while(delta > 0)
 	{
 		if(delta & 1)
 		{
-			accMult *= curMult;
+			accMult = accMult * curMult;
 			accPlus = accPlus * curMult + curPlus;
 		}
-		curPlus = (curMult + 1) * curPlus;
-		curMult *= curMult;
+		curPlus = (curMult + ONE) * curPlus;
+		curMult = curMult * curMult;
 		delta /= 2;
 	}
 	m_state = accMult * m_state + accPlus;
 }
 
-inline uint32 Pcg32::generateUInt32()
+inline uint64 Pcg64DXSM::generateUInt64()
 {
-	uint64 oldstate = m_state;
-	m_state = oldstate * MULTIPLIER + m_increment;
-	uint32 xorshifted = ((oldstate >> 18u) ^ oldstate) >> 27u;
-	uint32 rot = oldstate >> 59u;
-	return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
+	// Linear congruential generator
+	const UInt128 oldState = m_state;
+	m_state = oldState * UInt128(0, MULTIPLIER_64) + m_increment;
+
+	// DXSM (double xor shift multiply) permuted output
+	uint64 hi = oldState.getHigh64();
+	uint64 lo = oldState.getLow64();
+	lo |= 1;
+	hi ^= hi >> 32;
+	hi *= MULTIPLIER_64;
+	hi ^= hi >> 48;
+	hi *= lo;
+
+	return hi;
 }
 
 }// end namespace ph::math

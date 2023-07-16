@@ -4,8 +4,6 @@
 #include "Common/primitive_type.h"
 #include "Math/hash.h"
 
-#include <type_traits>
-
 namespace ph::math
 {
 
@@ -50,8 +48,8 @@ public:
 	explicit Pcg32(uint64 initialState);
 
 	/*! @brief Seed the RNG. Specified in two parts.
-	@param initialState Equivalent to choosing a starting point in a stream.
-	@param initialSequence Equivalent to choosing from one of 2^63 different random number sequences.
+	Initial state is equivalent to choosing a starting point in a stream, while initial sequence is
+	equivalent to choosing from one of 2^63 different random number sequences (streams).
 	*/
 	Pcg32(uint64 initialState, uint64 initialSequence);
 
@@ -75,13 +73,13 @@ inline Pcg32::Pcg32(const uint64 initialState)
 	: Pcg32(initialState, moremur_bit_mix(initialState))
 {}
 
-inline Pcg32::Pcg32(const uint64 initialState, const uint64 streamId)
+inline Pcg32::Pcg32(const uint64 initialState, const uint64 initialSequence)
 	: Pcg32()
 {
 	m_state = 0U;
 
 	// Ensure `m_increment` is odd
-	m_increment = (streamId << 1u) | 1u;
+	m_increment = (initialSequence << 1u) | 1u;
 
 	generateUInt32();
 	m_state += initialState;
@@ -116,11 +114,13 @@ inline void Pcg32::impl_jumpAhead(const uint64 distance)
 
 inline uint32 Pcg32::generateUInt32()
 {
-	uint64 oldstate = m_state;
-	m_state = oldstate * MULTIPLIER + m_increment;
-	uint32 xorshifted = ((oldstate >> 18u) ^ oldstate) >> 27u;
-	uint32 rot = oldstate >> 59u;
-	return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
+	// Linear congruential generator
+	const uint64 oldState = m_state;
+	m_state = oldState * MULTIPLIER + m_increment;
+
+	uint32 xorShifted = ((oldState >> 18u) ^ oldState) >> 27u;
+	uint32 rot = oldState >> 59u;
+	return (xorShifted >> rot) | (xorShifted << ((-rot) & 31));
 }
 
 }// end namespace ph::math
