@@ -30,9 +30,10 @@ to rendering in mind.
 #include <bit>
 #include <concepts>
 
-#if defined(PH_COMPILER_IS_MSVC)
-	#include <intrin.h>
-	#pragma intrinsic(_BitScanReverse)
+#if PH_COMPILER_IS_MSVC
+#include <intrin.h>
+#pragma intrinsic(_BitScanReverse)
+#pragma intrinsic(_umul128)
 #endif
 
 namespace ph::math
@@ -157,7 +158,7 @@ inline T log2_floor(const T value)
 
 		PH_ASSERT_GT(value, T(0));
 
-#if defined(PH_COMPILER_IS_MSVC)
+#if PH_COMPILER_IS_MSVC
 
 		unsigned long first1BitFromLeftIndex = std::numeric_limits<unsigned long>::max();
 		if constexpr(sizeof(T) <= sizeof(unsigned long))
@@ -181,7 +182,7 @@ inline T log2_floor(const T value)
 
 		return static_cast<T>(first1BitFromLeftIndex);
 
-#elif defined(PH_COMPILER_IS_CLANG) || defined(PH_COMPILER_IS_GCC)
+#elif PH_COMPILER_IS_CLANG || PH_COMPILER_IS_GCC
 
 		if constexpr(sizeof(T) <= sizeof(unsigned int))
 		{
@@ -621,6 +622,59 @@ inline IntType quantize_normalized_float(const FloatType floatVal)
 			? std::round( static_cast<long double>(floatVal) * std::numeric_limits<IntType>::max())
 			: std::round(-static_cast<long double>(floatVal) * std::numeric_limits<IntType>::min()));
 	}
+}
+
+/*! @brief Multiply two unsigined 64-bit numbers and get a 128-bit result.
+@param[out] out_high64 The higher 64 bits of the 128-bit result.
+@param[out] out_low64 The lower 64 bits of the 128-bit result.
+*/
+inline void uint64_mul(const uint64 lhs, const uint64 rhs, uint64& out_high64, uint64& out_low64)
+{
+#if defined(__SIZEOF_INT128__)
+	const auto result128 = __uint128_t(lhs) + __uint128_t(rhs);
+	out_high64 = static_cast<uint64>(result128 >> 64);
+	out_low64 = static_cast<uint64>(result128);
+#elif PH_COMPILER_IS_MSVC
+	out_low64 = _umul128(lhs, rhs, &out_high64);
+#else
+	/*
+	Divide each 64-bit number into two 32-bit parts, then multiplying (or adding) any 32-bit
+	pairs cannot overflow if done using 64-bit arithmetic. If we multiply them using base 2^32 
+	arithmetic, a total of 4 products must be shifted and added to obtain the final result. 
+	Here is a simple illustration of the algorithm:
+
+	lhs = [ a ][ b ]
+	rhs = [ c ][ d ]
+
+	Treat this like performing a regular multiplication on paper. Note that the multiplication
+	is done in base 2^32:
+
+	           [ a ][ b ]
+	  x        [ c ][ d ]
+	  -------------------
+	           [a*d][b*d]
+	  +   [a*c][b*c]
+	  -------------------
+
+	  The overflowing part of each partial product is the carry (32-bit carry). This is a good reference:
+	  https://stackoverflow.com/questions/26852435/reasonably-portable-way-to-get-top-64-bits-from-64x64-bit-multiply
+	*/
+
+	const uint64 a = lhs >> 32, b = lhs & 0xFFFFFFFF;
+	const uint64 c = rhs >> 32, d = rhs & 0xFFFFFFFF;
+
+	const uint64 ac = a * c;
+	const uint64 bc = b * c;
+	const uint64 ad = a * d;
+	const uint64 bd = b * d;
+
+	// This is the middle part of the above illustration, which is a sum of three 32-bit numbers 
+	// (so it is 34-bit at most): two products b*c and a*d, and the carry from b*d
+	const uint64 mid34 = (bd >> 32) + (bc & 0xFFFFFFFF) + (ad & 0xFFFFFFFF);
+
+	out_high64 = ac + (bc >> 32) + (ad >> 32) + (mid34 >> 32);
+	out_low64 = (mid34 << 32) | (bd & 0xFFFFFFFF);
+#endif
 }
 
 }// end namespace ph::math

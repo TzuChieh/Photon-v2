@@ -71,40 +71,41 @@ inline TargetBits TUniformRandomBitGenerator<Derived, Bits>::generate()
 	// Safer for bit operations (custom types are explicitly allowed).
 	static_assert(std::is_unsigned_v<TargetBits> || std::is_class_v<TargetBits>);
 
-	constexpr auto bitsSize = sizeof(Bits);
-	constexpr auto targetBitsSize = sizeof(TargetBits);
-
-	if constexpr(targetBitsSize == bitsSize)
+	if constexpr(std::is_unsigned_v<TargetBits>)
 	{
-		return bitwise_cast<TargetBits>(generate());
-	}
-	else if constexpr(targetBitsSize == 8 && bitsSize == 4)
-	{
-		// Generate 8-byte bits by combining two 4-byte bits
-		const auto lower4B = bitwise_cast<uint64>(generate());
-		const auto higher4B = bitwise_cast<uint64>(generate()) << 32;
-		return bitwise_cast<TargetBits>(higher4B | lower4B);
+		constexpr auto bitsSize = sizeof(Bits);
+		constexpr auto targetBitsSize = sizeof(TargetBits);
 
-		// Note: combining 2 `uint32` like this may not yield as good result as using 2 separate
-		// generators (with different state and sequence).
-	}
-	else if constexpr(targetBitsSize == 4 && bitsSize == 8)
-	{
-		// Just to make sure `static_cast` will truncate `uint64`
-		static_assert(static_cast<uint32>(uint64(0xABCD'ABCD'0000'0000) >> 32) == 0xABCD'ABCD);
+		if constexpr(targetBitsSize == bitsSize)
+		{
+			return bitwise_cast<TargetBits>(generate());
+		}
+		else if constexpr(targetBitsSize == 8 && bitsSize == 4)
+		{
+			// Generate 8-byte bits by combining two 4-byte bits
+			const uint64 lower4B = bitwise_cast<uint32>(generate());
+			const uint64 higher4B = bitwise_cast<uint32>(generate()) << 32;
+			return bitwise_cast<TargetBits>(higher4B | lower4B);
 
-		// Generate 4-byte bits by using the higher 4-byte in 8-byte bits
-		const auto full8B = bitwise_cast<uint64>(generate());
-		return bitwise_cast<TargetBits>(static_cast<uint32>(full8B >> 32));
+			// Note: combining 2 `uint32` like this may not yield as good result as using 2 separate
+			// generators (with different state and sequence).
+		}
+		else if constexpr(targetBitsSize == 4 && bitsSize == 8)
+		{
+			// Just to make sure the cast will truncate `uint64`
+			static_assert(static_cast<uint32>(uint64(0xABCD'ABCD'0000'0000) >> 32) == 0xABCD'ABCD);
 
-		// Note: generally higher bits may be of better quality
+			// Generate 4-byte bits by using the higher 4-byte in 8-byte bits
+			const auto full8B = bitwise_cast<uint64>(generate());
+			return bitwise_cast<TargetBits>(static_cast<uint32>(full8B >> 32));
+
+			// Note: generally higher bits may be of better quality
+		}
 	}
-	else
-	{
-		PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
-			"No existing implementation can do `Bits` -> `TargetBits`.");
-		return 0;
-	}
+
+	PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
+		"No existing implementation can do `Bits` -> `TargetBits`.");
+	return 0;
 }
 
 template<typename Derived, typename Bits>
