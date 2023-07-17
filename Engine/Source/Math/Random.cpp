@@ -4,6 +4,7 @@
 #include "Math/Random/DeterministicSeeder.h"
 #include "Math/Random/TMt19937.h"
 #include "Math/Random/Pcg32.h"
+#include "Math/Random/Pcg64DXSM.h"
 
 #include <random>
 
@@ -15,7 +16,10 @@ real Random::genUniformReal_i0_e1()
 {
 	//static thread_local std::mt19937 generator(DeterministicSeeder::nextSeed<uint32>());
 	//static thread_local TMt19937<uint32> generator(DeterministicSeeder::nextSeed<uint32>());
-	static thread_local Pcg32 generator(DeterministicSeeder::nextSeed<uint32>());
+	//static thread_local Pcg32 generator(DeterministicSeeder::nextSeed<uint32>());
+	static thread_local Pcg64DXSM generator(
+		DeterministicSeeder::nextSeed<uint64>(),
+		DeterministicSeeder::nextSeed<uint64>());
 
 	// NOTE: we can just create a new distribution for each call
 	// (profile the code to find out which is better)

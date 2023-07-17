@@ -12,7 +12,11 @@
 /*! Define as 1 to force the use of emulated 128-bit math. */
 #define PH_MATH_PCG64_FORCE_EMULATED_UINT128 0
 
-#define PH_MATH_PCG64_EMULATED_UINT128 (!defined(__SIZEOF_INT128__) || PH_MATH_PCG64_FORCE_EMULATED_UINT128)
+#if !defined(__SIZEOF_INT128__) || PH_MATH_PCG64_FORCE_EMULATED_UINT128
+#define PH_MATH_PCG64_EMULATED_UINT128 1
+#else
+#define PH_MATH_PCG64_EMULATED_UINT128 0
+#endif
 
 namespace ph::math
 {
