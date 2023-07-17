@@ -1,6 +1,7 @@
 #include "Math/Random.h"
 #include "Math/math.h"
 #include "Common/assertion.h"
+#include "Math/Random/DeterministicSeeder.h"
 
 #include <random>
 
@@ -14,7 +15,8 @@ const int32 Random::incrementation = 17;
 real Random::genUniformReal_i0_e1()
 {
 	// TODO: check whether std::mt19937 can be used for 64-bit random number generating
-	static thread_local std::mt19937 generator(seed += incrementation);
+	//static thread_local std::mt19937 generator(seed += incrementation);
+	static thread_local std::mt19937 generator(DeterministicSeeder::nextSeed<uint32>());
 
 	// NOTE: we can just create a new distribution for each call
 	// (profile the code to find out which is better)

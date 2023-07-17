@@ -177,7 +177,7 @@ private:
 inline Pcg64DXSM::Pcg64DXSM(const uint64 initialStateHigh64, const uint64 initialStateLow64)
 	: Pcg64DXSM(
 		initialStateHigh64, initialStateLow64, 
-		moremur_bit_mix(initialStateHigh64), moremur_bit_mix(initialStateLow64))
+		moremur_bit_mix_64(initialStateHigh64), moremur_bit_mix_64(initialStateLow64))
 {}
 
 inline Pcg64DXSM::Pcg64DXSM(

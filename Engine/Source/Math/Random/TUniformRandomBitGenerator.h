@@ -105,7 +105,6 @@ inline TargetBits TUniformRandomBitGenerator<Derived, Bits>::generate()
 
 	PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
 		"No existing implementation can do `Bits` -> `TargetBits`.");
-	return 0;
 }
 
 template<typename Derived, typename Bits>
@@ -137,7 +136,6 @@ inline TargetSample TUniformRandomBitGenerator<Derived, Bits>::generateSample()
 	{
 		PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
 			"No existing implementation can do `SourceBits` -> `TargetSample`.");
-		return 0;
 	}
 }
 

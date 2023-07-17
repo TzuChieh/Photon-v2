@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Math/TVector3.h"
-#include "Common/assertion.h"
+#include "Math/math_fwd.h"
 #include "Common/primitive_type.h"
 
 #include <cstddef>
-#include <type_traits>
-#include <cmath>
+#include <concepts>
 
 namespace ph::math
 {
@@ -21,78 +19,62 @@ Reference:
 http://www.beosil.com/download/CollisionDetectionHashing_VMV03.pdf
 */
 template<typename Integer>
-inline std::size_t discrete_spatial_hash(
-	const Integer     x,
-	const Integer     y,
-	const Integer     z,
-	const std::size_t hashTableSize)
-{
-	static_assert(std::is_integral_v<Integer>);
-
-	PH_ASSERT_GT(hashTableSize, 0);
-
-	return ((static_cast<std::size_t>(x) * 73856093) ^ 
-	        (static_cast<std::size_t>(y) * 19349663) ^ 
-	        (static_cast<std::size_t>(z) * 83492791)) % hashTableSize;
-}
+std::size_t discrete_spatial_hash(
+	Integer x,
+	Integer y,
+	Integer z,
+	std::size_t hashTableSize);
 
 /*!
 Extending the original 3-D version of discrete_spatial_hash() to 2-D.
 */
 template<typename Integer>
-inline std::size_t discrete_spatial_hash(
-	const Integer     x,
-	const Integer     y,
-	const std::size_t hashTableSize)
-{
-	static_assert(std::is_integral_v<Integer>);
+std::size_t discrete_spatial_hash(
+	Integer x,
+	Integer y,
+	std::size_t hashTableSize);
 
-	PH_ASSERT_GT(hashTableSize, 0);
-
-	return ((static_cast<std::size_t>(x) * 73856093) ^
-	        (static_cast<std::size_t>(y) * 83492791)) % hashTableSize;
-}
-
-template<typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
-inline std::size_t discrete_spatial_hash(const TVector3<T>& point, const std::size_t hashTableSize)
-{
-	return discrete_spatial_hash(point.x, point.y, point.z, hashTableSize);
-}
+template<std::integral T>
+std::size_t discrete_spatial_hash(const TVector3<T>& point, std::size_t hashTableSize);
 
 /*!
 Discretized spatial hash for floating point values are done by first 
 quantizing the value to integers according to cell size.
 */
-template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
-inline std::size_t discrete_spatial_hash(
+template<std::floating_point T>
+std::size_t discrete_spatial_hash(
 	const TVector3<T>& point, 
 	const TVector3<T>& cellSize,
-	const std::size_t  hashTableSize)
-{
-	PH_ASSERT_GT(cellSize.x, 0);
-	PH_ASSERT_GT(cellSize.y, 0);
-	PH_ASSERT_GT(cellSize.z, 0);
+	std::size_t hashTableSize);
 
-	return discrete_spatial_hash(
-		static_cast<std::size_t>(std::floor(point.x / cellSize.x)), 
-		static_cast<std::size_t>(std::floor(point.y / cellSize.y)), 
-		static_cast<std::size_t>(std::floor(point.z / cellSize.z)), 
-		hashTableSize);
-}
+/*! @brief MurmurHash3's bit mixer.
+32-bit version.
+*/
+uint32 murmur3_bit_mix_32(uint32 v);
+
+/*! @brief MurmurHash3's bit mixer.
+64-bit version.
+*/
+uint64 murmur3_bit_mix_64(uint64 v);
+
+/*! @brief MurmurHash3's bit mixer.
+64-bit version.
+*/
+uint64 murmur3_v13_bit_mix_64(uint64 v);
 
 /*! @brief A MurmurHash3-style bit mixer that outperforms the original by quite some margin.
-The constants were derived by Pelle Evensen:
-https://mostlymangling.blogspot.com/2019/12/stronger-better-morer-moremur-better.html
+64-bit version.
 */
-inline uint64 moremur_bit_mix(uint64 value)
-{
-	value ^= value >> 27;
-	value *= 0x3C79AC492BA7B653ULL;
-	value ^= value >> 33;
-	value *= 0x1C69B3F74AC4AE35ULL;
-	value ^= value >> 27;
+uint64 moremur_bit_mix_64(uint64 v);
 
-	return value;
-}
+/*! @brief Generate 32-bit hash values using MurmurHash3.
+References:
+[1] Wiki: https://en.wikipedia.org/wiki/MurmurHash (`murmur3_32()`)
+[2] aappleby's smhasher: https://github.com/aappleby/smhasher/ (`MurmurHash3_x86_32()`)
+*/
+template<typename T>
+uint32 murmur3_32(const T* data, std::size_t dataSize, uint32 seed);
 
 }// end namespace ph::math
+
+#include "Math/hash.ipp"

@@ -70,7 +70,7 @@ private:
 };
 
 inline Pcg32::Pcg32(const uint64 initialState)
-	: Pcg32(initialState, moremur_bit_mix(initialState))
+	: Pcg32(initialState, moremur_bit_mix_64(initialState))
 {}
 
 inline Pcg32::Pcg32(const uint64 initialState, const uint64 initialSequence)

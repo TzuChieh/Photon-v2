@@ -12,11 +12,15 @@ namespace ph::math
 template<CURBG URBG1, CURBG URBG2 = URBG1>
 class TUrbg32x2 final : public TUniformRandomBitGenerator<TUrbg32x2<URBG1, URBG2>, uint64>
 {
-	static_assert(std::is_same_v<typename URBG1::BitsType, uint32>,
-		"URBG1 must have `uint32` bits type.");
+	static_assert(
+		std::is_same_v<typename URBG1::BitsType, uint32> || 
+		std::is_same_v<typename URBG1::BitsType, uint64>,
+		"URBG1 must have `uint32` or `uint64` bits type.");
 
-	static_assert(std::is_same_v<typename URBG2::BitsType, uint32>,
-		"URBG2 must have `uint32` bits type.");
+	static_assert(
+		std::is_same_v<typename URBG2::BitsType, uint32> ||
+		std::is_same_v<typename URBG2::BitsType, uint64>,
+		"URBG2 must have `uint32` or `uint64` bits type.");
 
 public:
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TUrbg32x2);
@@ -43,8 +47,8 @@ inline uint64 TUrbg32x2<URBG1, URBG2>::impl_generate()
 	// Generate 8-byte bits by combining two 4-byte bits
 	// (prefer `URGB1` by placing it in the higher bits, since some algorithm consider higher bits
 	// may be of better quality by default)
-	const auto higher4B = static_cast<uint64>(m_urbg1.generate()) << 32;
-	const auto lower4B = static_cast<uint64>(m_urbg2.generate());
+	const auto higher4B = uint64(m_urbg1.generate<uint32>()) << 32;
+	const auto lower4B = uint64(m_urbg2.generate<uint32>());
 	return higher4B | lower4B;
 }
 
