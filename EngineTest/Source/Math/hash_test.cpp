@@ -104,24 +104,24 @@ TEST(HashTest, MurmurHash3_32_Test)
 	test_string("The quick brown fox jumps over the lazy dog", 0x9747B28C, 0x2FA826CD);
 }
 
-//TEST(HashTest, MoremurBitMix32BitCollisionTest)
+//TEST(HashTest, MurmurHash3_32_CollisionTest)
 //{
 //	std::size_t numCollisions = 0;
 //
 //	std::vector<bool> isHashUsed(std::numeric_limits<uint32>::max(), false);
 //	for(uint32 value = 0; value < isHashUsed.size(); ++value)
 //	{
-//		const auto hash = static_cast<uint32>(moremur_bit_mix_64(value));
+//		const auto hash = static_cast<uint32>(murmur3_32(&value, 1, 42));
 //		/*ASSERT_FALSE(isHashUsed[hash]) <<
 //			"(hash collision found: value = " << value << ", hash = " << hash << ")";*/
-//
+//	
 //		if(isHashUsed[hash])
 //		{
 //			++numCollisions;
 //		}
-//
+//	
 //		isHashUsed[hash] = true;
 //	}
-//
-//	EXPECT_EQ(numCollisions, 1);
+//	
+//	EXPECT_EQ(numCollisions, 0);
 //}

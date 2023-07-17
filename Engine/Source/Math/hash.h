@@ -68,9 +68,17 @@ uint64 murmur3_v13_bit_mix_64(uint64 v);
 uint64 moremur_bit_mix_64(uint64 v);
 
 /*! @brief Generate 32-bit hash values using MurmurHash3.
-References:
-[1] Wiki: https://en.wikipedia.org/wiki/MurmurHash (`murmur3_32()`)
-[2] aappleby's smhasher: https://github.com/aappleby/smhasher/ (`MurmurHash3_x86_32()`)
+Note that there are no collisions when `T` has <= 32 bits (two distinct inputs will not result in the
+same output). In general, if there is a way to reverse a function (reversing `murmur3_32()` is possible), 
+it is guaranteed there cannot be any collisions. Otherwise, it would not be possible to revert.
+*/
+template<typename T>
+uint32 murmur3_32(T data, uint32 seed);
+
+/*! @brief Generate 32-bit hash values using MurmurHash3.
+@param data Pointer to a data array of type `T`.
+@param dataSize Number of elements in the data array.
+@param seed A value for generating the hash. Can be from a RNG or anything you prefer.
 */
 template<typename T>
 uint32 murmur3_32(const T* data, std::size_t dataSize, uint32 seed);

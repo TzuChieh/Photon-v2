@@ -114,8 +114,20 @@ inline uint64 moremur_bit_mix_64(uint64 v)
 }
 
 template<typename T>
+inline uint32 murmur3_32(const T data, const uint32 seed)
+{
+	return murmur3_32(&data, 1, seed);
+}
+
+template<typename T>
 inline uint32 murmur3_32(const T* const data, const std::size_t dataSize, const uint32 seed)
 {
+	/*
+	References:
+	[1] Wiki: https://en.wikipedia.org/wiki/MurmurHash (`murmur3_32()`)
+	[2] aappleby's smhasher: https://github.com/aappleby/smhasher/ (`MurmurHash3_x86_32()`)
+	*/
+
 	static_assert(CHAR_BIT == 8);
 	static_assert(std::is_trivially_copyable_v<T>,
 		"`T` should be trivially copyable to be able to interpret it as bytes.");
