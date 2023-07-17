@@ -34,7 +34,8 @@ namespace ph::math
  *       http://www.pcg-random.org
  */
 
-/*!
+/*! @brief PCG-32 generator.
+This is the `pcg32` generator in O'Neill's original `pcg-cpp` implementation.
 References:
 [1] https://dotat.at/@/2023-06-21-pcg64-dxsm.html
 [2] https://github.com/imneme/pcg-c-basic

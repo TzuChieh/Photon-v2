@@ -134,7 +134,8 @@ inline Pcg64UInt128 Pcg64UInt128::operator * (const Pcg64UInt128& rhs) const
  *       http://www.pcg-random.org
  */
 
-/*!
+/*! @brief PCG-64 DXSM generator.
+This is the `pcg_engines::cm_setseq_dxsm_128_64` generator in O'Neill's original `pcg-cpp` implementation.
 References:
 [1] https://dotat.at/@/2023-06-21-pcg64-dxsm.html
 [2] NumPy source code (numpy/numpy/random/src/pcg64/*), version: 308b348bb595bc1b86f9e4bc08be2e3ba5d4f18f
