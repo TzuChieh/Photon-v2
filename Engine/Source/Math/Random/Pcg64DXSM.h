@@ -140,19 +140,19 @@ class Pcg64DXSM final : public TUniformRandomBitGenerator<Pcg64DXSM, uint64>
 public:
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(Pcg64DXSM);
 
-	Pcg64DXSM(uint64 initialStateHigh64, uint64 initialStateLow64);
+	Pcg64DXSM(uint64 initialSequenceHigh64, uint64 initialSequenceLow64);
 
 	/*! @brief Seed the RNG. Specified in two 128-bit parts.
-	Initial state is equivalent to choosing a starting point in a stream, while initial sequence is
-	equivalent to choosing from one of 2^127 different random number sequences (streams).
-	@param initialStateHigh64 Higher 64-bit part of the initial state.
-	@param initialStateLow64 Lower 64-bit part of the initial state.
+	Initial sequence is equivalent to choosing from one of 2^127 different random number sequences
+	(streams), while initial state is equivalent to choosing a starting point in a stream.
 	@param initialSequenceHigh64 Higher 64-bit part of the initial sequence.
 	@param initialSequenceLow64 Lower 64-bit part of the initial sequence.
+	@param initialStateHigh64 Higher 64-bit part of the initial state.
+	@param initialStateLow64 Lower 64-bit part of the initial state.
 	*/
 	Pcg64DXSM(
-		uint64 initialStateHigh64, uint64 initialStateLow64, 
-		uint64 initialSequenceHigh64, uint64 initialSequenceLow64);
+		uint64 initialSequenceHigh64, uint64 initialSequenceLow64,
+		uint64 initialStateHigh64, uint64 initialStateLow64);
 
 	uint64 impl_generate();
 	void impl_jumpAhead(uint64 distance);
@@ -174,15 +174,15 @@ private:
 	UInt128 m_increment = DEFAULT_STREAM_ID;
 };
 
-inline Pcg64DXSM::Pcg64DXSM(const uint64 initialStateHigh64, const uint64 initialStateLow64)
+inline Pcg64DXSM::Pcg64DXSM(const uint64 initialSequenceHigh64, const uint64 initialSequenceLow64)
 	: Pcg64DXSM(
-		initialStateHigh64, initialStateLow64, 
-		moremur_bit_mix_64(initialStateHigh64), moremur_bit_mix_64(initialStateLow64))
+		initialSequenceHigh64, initialSequenceLow64,
+		moremur_bit_mix_64(initialSequenceHigh64), moremur_bit_mix_64(initialSequenceLow64))
 {}
 
 inline Pcg64DXSM::Pcg64DXSM(
-	const uint64 initialStateHigh64, const uint64 initialStateLow64,
-	const uint64 initialSequenceHigh64, const uint64 initialSequenceLow64)
+	const uint64 initialSequenceHigh64, const uint64 initialSequenceLow64,
+	const uint64 initialStateHigh64, const uint64 initialStateLow64)
 	: Pcg64DXSM()
 {
 	m_state = UInt128(0ULL, 0ULL);

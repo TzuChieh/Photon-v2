@@ -45,13 +45,13 @@ class Pcg32 final : public TUniformRandomBitGenerator<Pcg32, uint32>
 public:
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(Pcg32);
 
-	explicit Pcg32(uint64 initialState);
+	explicit Pcg32(uint64 initialSequence);
 
 	/*! @brief Seed the RNG. Specified in two parts.
-	Initial state is equivalent to choosing a starting point in a stream, while initial sequence is
-	equivalent to choosing from one of 2^63 different random number sequences (streams).
+	Initial sequence is equivalent to choosing from one of 2^63 different random number sequences
+	(streams), while initial state is equivalent to choosing a starting point in a stream.
 	*/
-	Pcg32(uint64 initialState, uint64 initialSequence);
+	Pcg32(uint64 initialSequence, uint64 initialState);
 
 	uint32 impl_generate();
 	void impl_jumpAhead(uint64 distance);
@@ -69,11 +69,11 @@ private:
 	uint64 m_increment = DEFAULT_STREAM_ID;
 };
 
-inline Pcg32::Pcg32(const uint64 initialState)
-	: Pcg32(initialState, moremur_bit_mix_64(initialState))
+inline Pcg32::Pcg32(const uint64 initialSequence)
+	: Pcg32(initialSequence, moremur_bit_mix_64(initialSequence))
 {}
 
-inline Pcg32::Pcg32(const uint64 initialState, const uint64 initialSequence)
+inline Pcg32::Pcg32(const uint64 initialSequence, const uint64 initialState)
 	: Pcg32()
 {
 	m_state = 0U;
@@ -118,9 +118,9 @@ inline uint32 Pcg32::generateUInt32()
 	const uint64 oldState = m_state;
 	m_state = oldState * MULTIPLIER + m_increment;
 
-	uint32 xorShifted = ((oldState >> 18u) ^ oldState) >> 27u;
-	uint32 rot = oldState >> 59u;
-	return (xorShifted >> rot) | (xorShifted << ((-rot) & 31));
+	uint32 xorShifted = static_cast<uint32>(((oldState >> 18u) ^ oldState) >> 27u);
+	uint32 rot = static_cast<uint32>(oldState >> 59u);
+	return (xorShifted >> rot) | (xorShifted << ((~rot + 1u) & 31));
 }
 
 }// end namespace ph::math
