@@ -102,9 +102,11 @@ inline TargetBits TUniformRandomBitGenerator<Derived, Bits>::generate()
 			// Note: generally higher bits may be of better quality
 		}
 	}
-
-	PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
-		"No existing implementation can do `Bits` -> `TargetBits`.");
+	else
+	{
+		PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
+			"No existing implementation can do `Bits` -> `TargetBits`.");
+	}
 }
 
 template<typename Derived, typename Bits>

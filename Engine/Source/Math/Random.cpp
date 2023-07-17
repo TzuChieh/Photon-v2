@@ -2,27 +2,25 @@
 #include "Math/math.h"
 #include "Common/assertion.h"
 #include "Math/Random/DeterministicSeeder.h"
+#include "Math/Random/TMt19937.h"
 
 #include <random>
 
 namespace ph::math
 {
 
-std::atomic<int32> Random::seed(37);
-const int32 Random::incrementation = 17;
-
 // NOTE: consider using __rdtsc() as seed (if film merging is desired)
 real Random::genUniformReal_i0_e1()
 {
-	// TODO: check whether std::mt19937 can be used for 64-bit random number generating
-	//static thread_local std::mt19937 generator(seed += incrementation);
-	static thread_local std::mt19937 generator(DeterministicSeeder::nextSeed<uint32>());
+	//static thread_local std::mt19937 generator(DeterministicSeeder::nextSeed<uint32>());
+	static thread_local TMt19937<uint32> generator(DeterministicSeeder::nextSeed<uint32>());
 
 	// NOTE: we can just create a new distribution for each call
 	// (profile the code to find out which is better)
-	static thread_local std::uniform_real_distribution<real> distribution(0.0_r, 1.0_r);
+	//static thread_local std::uniform_real_distribution<real> distribution(0.0_r, 1.0_r);
 
-	return distribution(generator);
+	//return distribution(generator);
+	return generator.generateSample();
 }
 
 std::size_t Random::genUniformIndex_iL_eU(const std::size_t lowerBound,
