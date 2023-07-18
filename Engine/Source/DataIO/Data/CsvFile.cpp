@@ -65,10 +65,10 @@ CsvFile& CsvFile::load(const Path& csvFile)
 		}
 
 		// Check for a trailing comma with no value after it
-		if(!rowContent && value.empty())
+		if(!rowText.empty() && rowText.ends_with(','))
 		{
 			// If there was a trailing comma then add an empty value
-			row.addValue(value);
+			row.addValue("");
 		}
 
 		addRow(row);

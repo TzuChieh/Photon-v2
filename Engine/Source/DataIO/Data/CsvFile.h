@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Utility/string_utils.h"
+
 #include <cstddef>
 #include <vector>
 #include <string>
@@ -17,12 +19,15 @@ public:
 	std::string& getValue(std::size_t index);
 	CsvFileRow& addValue(std::string value);
 
+	template<typename NumberType>
+	NumberType getValue(std::size_t index) const;
+
 private:
 	std::vector<std::string> m_values;
 };
 
 /*!
-A very basic .csv file IO utility. Empty lines are not skipped.
+A very basic .csv file IO utility. Empty rows are not skipped.
 Does not handle multiline quoted field (a quoted string value with newline characters) currently.
 */
 class CsvFile final
@@ -38,5 +43,11 @@ public:
 private:
 	std::vector<CsvFileRow> m_rows;
 };
+
+template<typename NumberType>
+inline NumberType CsvFileRow::getValue(const std::size_t index) const
+{
+	return string_utils::parse_number<NumberType>(getValue(index));
+}
 
 }// end namespace ph

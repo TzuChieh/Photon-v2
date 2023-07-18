@@ -414,7 +414,6 @@ inline void throw_from_std_errc_if_has_error(const std::errc errorCode)
 }// end namespace detail
 
 /*! @brief Returns a float by processing its string representation.
-
 Supports float, double, and long double.
 */
 template<typename T>
@@ -423,9 +422,7 @@ inline T parse_float(const std::string_view floatStr)
 	static_assert(std::is_floating_point_v<T>,
 		"parse_float() accepts only floating point type.");
 
-	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
-	// leading whitespaces while it should be able to auto skip them, we
-	// do it manually for now:
+	// `std::from_chars()` do not ignore leading whitespaces, we need to do it manually
 	const std::string_view floatStrNoLeadingWS = trim_head(floatStr);
 
 	T value;
@@ -434,43 +431,40 @@ inline T parse_float(const std::string_view floatStr)
 		floatStrNoLeadingWS.data() + floatStrNoLeadingWS.size(),
 		value);
 
-	/*T value;
-	const std::from_chars_result result = std::from_chars(
-		sdlFloatStr.data(),
-		sdlFloatStr.data() + sdlFloatStr.size(),
-		value);*/
-
 	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
 
 	return value;
 }
 
 /*! @brief Returns an integer by processing its string representation.
-
-Supports all signed and unsigned standard integer types.
+Supports the following:
+1. Supports all signed and unsigned standard integer types.
+2. Supports both base 10 (no prefix) and base 16 (0x prefix) inputs.
 */
 template<typename T>
-inline T parse_int(const std::string_view intStr)
+inline T parse_int(std::string_view intStr)
 {
 	static_assert(std::is_integral_v<T>,
 		"parse_int() accepts only integer type.");
 
-	// FIXME: looks like in VS 15.9.16 from_chars() cannot parse str with
-	// leading whitespaces while it should be able to auto skip them, we
-	// do it manually for now:
-	const std::string_view intStrNoLeadingWS = trim_head(intStr);
+	// `std::from_chars()` do not ignore leading whitespaces, we need to do it manually
+	intStr = trim_head(intStr);
+
+	int base = 10;
+	if(intStr.starts_with("0x"))
+	{
+		base = 16;
+
+		// Remove "0x" as `std::from_chars()` do not recognize base prefix
+		intStr.remove_prefix(2);
+	}
 
 	T value;
 	const std::from_chars_result result = std::from_chars(
-		intStrNoLeadingWS.data(),
-		intStrNoLeadingWS.data() + intStrNoLeadingWS.size(),
-		value);
-
-	/*T value;
-	const std::from_chars_result result = std::from_chars(
-		sdlIntegerStr.data(),
-		sdlIntegerStr.data() + sdlIntegerStr.size(),
-		value);*/
+		intStr.data(),
+		intStr.data() + intStr.size(),
+		value,
+		base);
 
 	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
 
@@ -478,7 +472,6 @@ inline T parse_int(const std::string_view intStr)
 }
 
 /*! @brief Returns a number by processing its string representation.
-
 Accepts all types supported by parse_float(std::string_view) and parse_int(std::string_view).
 */
 template<typename NumberType>
