@@ -33,6 +33,12 @@ Does not handle multiline quoted field (a quoted string value with newline chara
 class CsvFile final
 {
 public:
+	inline CsvFile() = default;
+
+	/*! @brief Loads a .csv file. Effectively calls `load()`.
+	*/
+	explicit CsvFile(const Path& csvFile);
+
 	CsvFile& load(const Path& csvFile);
 	const CsvFile& save(const Path& csvFile) const;
 	std::size_t numRows() const;

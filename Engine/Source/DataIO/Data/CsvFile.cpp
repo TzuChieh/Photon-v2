@@ -33,6 +33,12 @@ CsvFileRow& CsvFileRow::addValue(std::string value)
 	return *this;
 }
 
+CsvFile::CsvFile(const Path& csvFile)
+	: CsvFile()
+{
+	load(csvFile);
+}
+
 CsvFile& CsvFile::load(const Path& csvFile)
 {
 	// Content should not skip any characters--we need newlines to distinguish between rows
