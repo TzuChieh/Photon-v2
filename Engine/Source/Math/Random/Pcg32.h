@@ -60,9 +60,9 @@ public:
 private:
 	uint32 generateUInt32();
 
-	inline static constexpr uint64 DEFAULT_STATE = 0x853C49E6748FEA9BULL;
-	inline static constexpr uint64 DEFAULT_STREAM_ID = 0xDA3E39CB94B95BDBULL;
-	inline static constexpr uint64 MULTIPLIER = 0x5851F42D4C957F2DULL;
+	inline static constexpr uint64 DEFAULT_STATE = 0x853C49E6748FEA9Bull;
+	inline static constexpr uint64 DEFAULT_STREAM_ID = 0xDA3E39CB94B95BDBull;
+	inline static constexpr uint64 MULTIPLIER = 0x5851F42D4C957F2Dull;
 
 	uint64 m_state = DEFAULT_STATE;
 
@@ -77,7 +77,7 @@ inline Pcg32::Pcg32(const uint64 initialSequence)
 inline Pcg32::Pcg32(const uint64 initialSequence, const uint64 initialState)
 	: Pcg32()
 {
-	m_state = 0U;
+	m_state = 0u;
 
 	// Ensure `m_increment` is odd
 	m_increment = (initialSequence << 1u) | 1u;

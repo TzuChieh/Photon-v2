@@ -98,7 +98,7 @@ inline Pcg64UInt128 Pcg64UInt128::operator * (const Pcg64UInt128& rhs) const
 
 	// The rest work like `uint64_mul()` (see the doc for its impl.), except that the high bit part
 	// is discarded (it will overflow)
-	result.m_high64 += (m_high64 * rhs.m_low64) + (rhs.m_low64 * m_high64);
+	result.m_high64 += (m_high64 * rhs.m_low64) + (m_low64 * rhs.m_high64);
 #else
 	result.m_128 = m_128 * rhs.m_128;
 #endif
@@ -167,11 +167,11 @@ private:
 
 	uint64 generateUInt64();
 
-	inline static constexpr auto DEFAULT_STATE = UInt128(0x979C9A98D8462005ULL, 0x7D3E9CB6CFE0549BULL);
-	inline static constexpr auto DEFAULT_STREAM_ID = UInt128(0x5851F42D4C957F2DULL, 0x14057B7EF767814FULL);
+	inline static constexpr auto DEFAULT_STATE = UInt128(0x979C9A98D8462005ull, 0x7D3E9CB6CFE0549Bull);
+	inline static constexpr auto DEFAULT_STREAM_ID = UInt128(0x5851F42D4C957F2Dull, 0x14057B7EF767814Full);
 	
 	// Cheap (half-width) multiplier
-	inline static constexpr auto MULTIPLIER_64 = 0xDA942042E4DD58B5ULL;
+	inline static constexpr auto CHEAP_MULTIPLIER_64 = 0xDA942042E4DD58B5ull;
 
 	UInt128 m_state = DEFAULT_STATE;
 
@@ -190,7 +190,7 @@ inline Pcg64DXSM::Pcg64DXSM(
 	const uint64 initialStateHigh64, const uint64 initialStateLow64)
 	: Pcg64DXSM()
 {
-	m_state = UInt128(0ULL, 0ULL);
+	m_state = UInt128(0ull, 0ull);
 
 	// Ensure `m_increment` is odd (basically doing `(initialSequence << 1u) | 1u`)
 	uint64 incrementHigh64 = initialSequenceHigh64 << 1u;
@@ -223,7 +223,7 @@ inline void Pcg64DXSM::impl_jumpAhead(const uint64 distance)
 	constexpr auto ZERO = UInt128(0, 0);
 	constexpr auto ONE = UInt128(0, 1);
 
-	auto curMult = UInt128(0, MULTIPLIER_64);
+	auto curMult = UInt128(0, CHEAP_MULTIPLIER_64);
 	auto curPlus = m_increment;
 	auto accMult = ONE;
 	auto accPlus = ZERO;
@@ -246,14 +246,14 @@ inline uint64 Pcg64DXSM::generateUInt64()
 {
 	// Linear congruential generator
 	const UInt128 oldState = m_state;
-	m_state = oldState * UInt128(0, MULTIPLIER_64) + m_increment;
+	m_state = oldState * UInt128(0, CHEAP_MULTIPLIER_64) + m_increment;
 
 	// DXSM (double xor shift multiply) permuted output
 	uint64 hi = oldState.getHigh64();
 	uint64 lo = oldState.getLow64();
 	lo |= 1;
 	hi ^= hi >> 32;
-	hi *= MULTIPLIER_64;
+	hi *= CHEAP_MULTIPLIER_64;
 	hi ^= hi >> 48;
 	hi *= lo;
 

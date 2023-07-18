@@ -441,3 +441,78 @@ TEST(MathTest, FlagBit)
 		EXPECT_EQ((flag_bit<uint32, 31>()), 0b1000'0000'0000'0000'0000'0000'0000'0000);
 	}
 }
+
+TEST(MathTest, UInt64MulTo128)
+{
+	// Multiplying with 0
+	{
+		{
+			uint64 high64, low64;
+			uint64_mul(0, 0, high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, 0);
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(0, 12345, high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, 0);
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(56789, 0, high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, 0);
+		}
+	}
+
+	// Multiplying with 1
+	{
+		{
+			uint64 high64, low64;
+			uint64_mul(1, 1, high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, 1);
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(16, 1, high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, 16);
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(1, 65536, high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, 65536);
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(1, std::numeric_limits<uint64>::max(), high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, std::numeric_limits<uint64>::max());
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(std::numeric_limits<uint64>::max(), 1, high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, std::numeric_limits<uint64>::max());
+		}
+	}
+
+	// Multiplying with various large numbers
+	{
+		{
+			uint64 high64, low64;
+			uint64_mul(0xFFFFFFFFull, 0xFFFFFFFFull, high64, low64);
+			EXPECT_EQ(high64, 0); EXPECT_EQ(low64, 0xFFFFFFFE00000001ull);
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(0xFFFFFFFFFFull, 0xFFFFFFFFFFull, high64, low64); 
+			EXPECT_EQ(high64, 0xFFFFull); EXPECT_EQ(low64, 0xFFFFFE0000000001ull);
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(0xABCDABCDABCDull, 0xABCDABCDABCDull, high64, low64); 
+			EXPECT_EQ(high64, 0x734C68C1ull); EXPECT_EQ(low64, 0x5E356D12779D8229ull);
+		}
+		{
+			uint64 high64, low64;
+			uint64_mul(0xFFFFFFFFFFFFull, 0xAAAABBBBCCCCDDDDull, high64, low64);
+			EXPECT_EQ(high64, 0xAAAABBBBCCCCull); EXPECT_EQ(low64, 0x3332444433332223ull);
+		}
+	}
+}
