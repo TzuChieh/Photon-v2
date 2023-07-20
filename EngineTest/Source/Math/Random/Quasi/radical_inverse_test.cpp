@@ -1,13 +1,13 @@
 #include "util.h"
 
-#include <Core/SampleGenerator/Detail/halton.h>
+#include <Common/primitive_type.h>
+#include <Math/Random/Quasi/radical_inverse.h>
 
 #include <gtest/gtest.h>
 
 using namespace ph;
-using namespace ph::detail::halton;
 
-TEST(HaltonImplDetailTest, RadicalInverse)
+TEST(RadicalInverseTest, RadicalInverse)
 {
 	// Base-2 radical inverse is effectively a bit reverse plus 
 	// a power-of-two division
@@ -18,7 +18,7 @@ TEST(HaltonImplDetailTest, RadicalInverse)
 			0b00000000'00000001'11000000'00000000'11000001'00000000'01010101'10000000;
 
 		PH_EXPECT_REAL_EQ(
-			radical_inverse<2>(bits),
+			(math::radical_inverse<2, real>(bits)),
 			reversedBits / 0x1p64_r);
 	}
 
@@ -41,7 +41,7 @@ TEST(HaltonImplDetailTest, RadicalInverse)
 		}
 
 		PH_EXPECT_REAL_EQ(
-			radical_inverse<BASE>(VALUE),
+			(math::radical_inverse<BASE, real>(VALUE)),
 			nonScaledRadicalInverse * scaler);
 	}
 }

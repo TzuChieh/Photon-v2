@@ -9,6 +9,8 @@
 namespace ph::math
 {
 
+/*! @brief Standard Mersenne Twister generator.
+*/
 template<typename Bits>
 class TMt19937 final : public TUniformRandomBitGenerator<TMt19937<Bits>, Bits>
 {

@@ -9,6 +9,10 @@
 namespace ph::math
 {
 
+/*! @brief Combining two 32-bit RNGs to form a new 64-bit RNG.
+If any of the input RNG is not a 32-bit type, this generator will treat it as a 32-bit RNG
+(e.g., by converting its generated bits to 32-bit).
+*/
 template<CURBG URBG1, CURBG URBG2 = URBG1>
 class TUrbg32x2 final : public TUniformRandomBitGenerator<TUrbg32x2<URBG1, URBG2>, uint64>
 {
