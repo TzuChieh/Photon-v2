@@ -12,6 +12,7 @@
 #include "Render/Imgui/Font/IconsMaterialDesign.h"
 
 #include "ThirdParty/DearImGui.h"
+#include "ThirdParty/ImPlot.h"
 #include "ThirdParty/GLFW3.h"
 
 #include <ph_cpp_core.h>
@@ -189,6 +190,7 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+	ImPlot::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;// Enable Gamepad Controls
@@ -325,6 +327,7 @@ void ImguiRenderModule::terminateImgui()
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
+	ImPlot::DestroyContext();
     ImGui::DestroyContext();
 
     // Ensure we do not change the original context

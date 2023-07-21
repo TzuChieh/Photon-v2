@@ -79,7 +79,8 @@ ImguiEditorUI::ImguiEditorUI()
 
 	, m_shouldResetWindowLayout(false)
 	, m_shouldShowStatsMonitor(false)
-	, m_shouldShowImguiDemo(false)
+	, m_shouldShowDearImGuiDemo(false)
+	, m_shouldShowImPlotDemo(false)
 	, m_shouldShowSceneCreator(false)
 	, m_sidebarState()
 	, m_editorLog()
@@ -357,6 +358,21 @@ void ImguiEditorUI::buildMainMenuBar()
 
 			if(ImGui::MenuItem("Paste", "CTRL+V"))
 			{}
+
+			ImGui::EndMenu();
+		}
+
+		if(ImGui::BeginMenu("Tools"))
+		{
+			if(ImGui::MenuItem("DearImGui Demo"))
+			{
+				m_shouldShowDearImGuiDemo = true;
+			}
+
+			if(ImGui::MenuItem("ImPlot Demo"))
+			{
+				m_shouldShowImPlotDemo = true;
+			}
 
 			ImGui::EndMenu();
 		}
@@ -735,14 +751,14 @@ void ImguiEditorUI::buildDebugPanelWindow()
 
 void ImguiEditorUI::buildImguiDemo()
 {
-	if(ImGui::IsKeyReleased(ImGuiKey_F2))
+	if(m_shouldShowDearImGuiDemo)
 	{
-		m_shouldShowImguiDemo = !m_shouldShowImguiDemo;
+		imgui_show_demo_window(&m_shouldShowDearImGuiDemo);
 	}
 
-	if(m_shouldShowImguiDemo)
+	if(m_shouldShowImPlotDemo)
 	{
-		imgui_show_demo_window(&m_shouldShowImguiDemo);
+		implot_show_demo_window(&m_shouldShowImPlotDemo);
 	}
 }
 
