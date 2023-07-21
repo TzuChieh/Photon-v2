@@ -6,6 +6,7 @@
 #include <concepts>
 #include <type_traits>
 #include <algorithm>
+#include <climits>
 #include <limits>
 
 namespace ph::math
@@ -41,6 +42,33 @@ inline constexpr auto num_meaningful_digits(const Base base)
 	return numDigits;
 }
 
+template<std::floating_point Result, std::unsigned_integral Value>
+inline constexpr Result base_2_scaler()
+{
+	constexpr auto numBits = sizeof(Value) * CHAR_BIT;
+	if constexpr(numBits == 8)
+	{
+		return Result(0x1p-8);
+	}
+	else if constexpr(numBits == 16)
+	{
+		return Result(0x1p-16);
+	}
+	else if constexpr(numBits == 32)
+	{
+		return Result(0x1p-32);
+	}
+	else if constexpr(numBits == 64)
+	{
+		return Result(0x1p-64);
+	}
+	else
+	{
+		PH_STATIC_ASSERT_DEPENDENT_FALSE(Result, 
+			"Unexpected size of `Value`.");
+	}
+}
+
 }// end namespace radical_inverse_detail
 
 /*! @brief Compute radical inverse of a value.
@@ -54,9 +82,12 @@ inline Result radical_inverse(const Value value)
 		"`BASE` must be an integer.");
 	static_assert(BASE >= 2);
 
-	if constexpr(BASE == 2)
+	// Special case for unsigned value of base-2
+	if constexpr(BASE == 2 && std::unsigned_integral<Value>)
 	{
-		return math::reverse_bits(value) * Result(0x1p-64);
+		constexpr auto base2Scaler = radical_inverse_detail::base_2_scaler<Result, Value>();
+
+		return math::reverse_bits(value) * base2Scaler;
 	}
 	else
 	{

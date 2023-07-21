@@ -109,6 +109,9 @@ set(THIRD_PARTY_LIBS_INSTALL_DIR
     CACHE PATH 
     "Path to third-party library install directory.")
 
+# For convenience as ImGui libraries are installed under a subfolder
+set(IMGUI_LIBS_INSTALL_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/ImGui/")
+
 message(STATUS 
     "Third-party library install directory set to \"${THIRD_PARTY_LIBS_INSTALL_DIR}\"; Modify by setting \"THIRD_PARTY_LIBS_INSTALL_DIR\".")
 
@@ -353,7 +356,7 @@ load_library_via_config(${GLAD_LIB_NAME}
 # Several variables are set here to facilitate the integration process.
 
 set(IMGUI_LIB_NAME        "imgui")
-set(IMGUI_LIB_INSTALL_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${IMGUI_LIB_NAME}/")
+set(IMGUI_LIB_INSTALL_DIR "${IMGUI_LIBS_INSTALL_DIR}/${IMGUI_LIB_NAME}/")
 set(IMGUI_LIB_INCLUDE_DIRS
     "${IMGUI_LIB_INSTALL_DIR}/"
     "${IMGUI_LIB_INSTALL_DIR}/backends/")
@@ -365,6 +368,20 @@ set(IMGUI_LIB_SOURCE_FILES
     "${IMGUI_LIB_INSTALL_DIR}/imgui_widgets.cpp")
 set(IMGUI_LIB_GLFW_IMPL_FILES    "${IMGUI_LIB_INSTALL_DIR}/backends/imgui_impl_glfw.cpp")
 set(IMGUI_LIB_OPENGL3_IMPL_FILES "${IMGUI_LIB_INSTALL_DIR}/backends/imgui_impl_opengl3.cpp")
+
+#------------------------------------------------------------------------------
+# implot
+#------------------------------------------------------------------------------
+# Use the same way as imgui.
+
+set(IMPLOT_LIB_NAME        "implot")
+set(IMPLOT_LIB_INSTALL_DIR "${IMGUI_LIBS_INSTALL_DIR}/${IMPLOT_LIB_NAME}/")
+set(IMPLOT_LIB_INCLUDE_DIRS
+    "${IMPLOT_LIB_INSTALL_DIR}/")
+set(IMPLOT_LIB_SOURCE_FILES
+    "${IMPLOT_LIB_INSTALL_DIR}/implot.cpp"
+    "${IMPLOT_LIB_INSTALL_DIR}/implot_demo.cpp"
+    "${IMPLOT_LIB_INSTALL_DIR}/implot_items.cpp")
 
 #------------------------------------------------------------------------------
 # concurrentqueue
