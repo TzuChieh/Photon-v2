@@ -8,6 +8,7 @@
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
 #include "Render/Imgui/Editor/ImguiEditorTheme.h"
 #include "Render/Imgui/Editor/ImguiEditorDebugPanel.h"
+#include "Render/Imgui/Tool/ImguiSampleInspector.h"
 
 #include "ThirdParty/DearImGuiExperimental.h"
 
@@ -71,22 +72,23 @@ private:
 	void buildLogWindow();
 	void buildStatsMonitor();
 	void buildDebugPanelWindow();
-	void buildImguiDemo();
+	void buildTool();
 
 	void buildOpenSceneDialog();
 	void saveActiveScene();
 
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
+	bool m_shouldShowSceneCreator;
 	bool m_shouldShowDearImGuiDemo;
 	bool m_shouldShowImPlotDemo;
-	bool m_shouldShowSceneCreator;
 	ImguiEditorSidebarState m_sidebarState;
 	ImguiEditorLog m_editorLog;
 	ImguiEditorSceneCreator m_sceneCreator;
 	ImguiEditorSceneManager m_sceneManager;
 	ImguiEditorAssetBrowser m_assetBrowser;
 	ImguiEditorDebugPanel m_debugPanel;
+	ImguiSampleInspector m_sampleInspector;
 
 	bool m_isOpeningScene;
 	bool m_isOnDebugMode;

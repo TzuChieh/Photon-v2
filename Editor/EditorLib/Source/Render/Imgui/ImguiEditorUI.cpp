@@ -79,15 +79,16 @@ ImguiEditorUI::ImguiEditorUI()
 
 	, m_shouldResetWindowLayout(false)
 	, m_shouldShowStatsMonitor(false)
+	, m_shouldShowSceneCreator(false)
 	, m_shouldShowDearImGuiDemo(false)
 	, m_shouldShowImPlotDemo(false)
-	, m_shouldShowSceneCreator(false)
 	, m_sidebarState()
 	, m_editorLog()
 	, m_sceneCreator()
 	, m_sceneManager()
 	, m_assetBrowser()
 	, m_debugPanel()
+	, m_sampleInspector()
 
 	, m_isOpeningScene(false)
 	, m_isOnDebugMode(false)
@@ -268,30 +269,8 @@ void ImguiEditorUI::build()
 	buildEditorSettingsWindow();
 	buildLogWindow();
 	buildOpenSceneDialog();
-
-	/*ImGui::SetNextWindowDockID(m_centerDockSpaceID, ImGuiCond_FirstUseEver);
-	ImGui::Begin("whatever###TTT");
-	ImGui::Text("This is window A");
-	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	ImGui::End();*/
-
-	ImGui::Begin("Window B");
-	ImGui::Text("This is window B");
-	ImGui::End();
-
-
-	//ImGui::Image(*m_imageLibrary->get(EImguiImage::Image), {200, 200});
-	//m_imageLibrary->imguiImage(EImguiImage::Image, {200, 200});
-	static int yyy = 0;
-	if(m_imageLibrary->imguiImageButton(EImguiImage::Warning, "##test_img_btn", {128, 128}))
-	{
-		ImGui::Text("asdasdasdasdsadsadas");
-
-		PH_DEFAULT_LOG("pressed {}", ++yyy);
-	}
-
 	buildStatsMonitor();
-	buildImguiDemo();
+	buildTool();
 
 	if(m_isOnDebugMode)
 	{
@@ -364,6 +343,13 @@ void ImguiEditorUI::buildMainMenuBar()
 
 		if(ImGui::BeginMenu("Tools"))
 		{
+			if(ImGui::MenuItem("Sample Tool"))
+			{
+				m_sampleInspector.isOpening = true;
+			}
+
+			ImGui::Separator();
+
 			if(ImGui::MenuItem("DearImGui Demo"))
 			{
 				m_shouldShowDearImGuiDemo = true;
@@ -749,8 +735,15 @@ void ImguiEditorUI::buildDebugPanelWindow()
 		&m_sidebarState.showDebugPanel);
 }
 
-void ImguiEditorUI::buildImguiDemo()
+void ImguiEditorUI::buildTool()
 {
+	if(m_sampleInspector.isOpening)
+	{
+		m_sampleInspector.buildWindow(
+			"Sample Tool",
+			*this);
+	}
+
 	if(m_shouldShowDearImGuiDemo)
 	{
 		imgui_show_demo_window(&m_shouldShowDearImGuiDemo);
