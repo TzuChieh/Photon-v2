@@ -102,7 +102,8 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 	m_editorUI.build();
 
-	m_fontLibrary.useFont(m_fontLibrary.largeFont,
+	// DEBUG
+	/*m_fontLibrary.useFont(m_fontLibrary.largeFont,
 		[]()
 		{
 			ImGui::Button(ICON_MD_FOLDER_COPY " Search");
@@ -110,7 +111,7 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 	ImGui::Button(ICON_MD_FOLDER_COPY " Search");
 	ImGui::Button(ICON_MD_GRADE " Search");
-	ImGui::Button(ICON_MD_HOTEL " Search");
+	ImGui::Button(ICON_MD_HOTEL " Search");*/
 
 	// Rendering
 	ImGui::Render();

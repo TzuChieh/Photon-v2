@@ -278,7 +278,7 @@ void ImguiEditorUI::build()
 	}
 
 	// DEBUG
-	if(ImGui::Button("fs"))
+	/*if(ImGui::Button("fs"))
 	{
 		m_generalFileSystemDialog.openPopup(ImguiFileSystemDialog::OPEN_FILE_TITLE);
 	}
@@ -287,7 +287,7 @@ void ImguiEditorUI::build()
 		*this,
 		ImVec2(
 			getDimensionHints().fileDialogPreferredWidth,
-			getDimensionHints().fileDialogPreferredHeight));
+			getDimensionHints().fileDialogPreferredHeight));*/
 	//buildFileSystemDialogPopupModal(OPEN_FILE_DIALOG_POPUP_NAME, m_fsDialogExplorer);
 	//buildFileSystemDialogContent(m_fsDialogExplorer);
 }

@@ -52,12 +52,19 @@ private:
 		int getPointCount() const;
 	};
 
+	void buildControlPanelContent();
+	void buildPlotterViewContent();
 	void genRngPoints(TSpan<float> out_xBuffer, TSpan<float> out_yBuffer) const;
 	
 	std::vector<ScatterPlotData> m_scatterPlots;
+	std::vector<char> m_plotNameBuffer;
+	int m_numSamples;
+
 	int m_rngType;
 	int m_rngSeed;
 	int m_rngSequence;
+
+	bool m_isNormalizedFitRequested;
 };
 
 inline void ImguiSampleInspector::ScatterPlotData::clear()
