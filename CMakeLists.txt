@@ -87,35 +87,42 @@ option(BUILD_SHARED_LIBS
     "Build as shared libraries (if applicable)."
     OFF)
 
-set(BUILD_SDL_GEN_DEFAULT       ON)
-set(BUILD_PHOTON_CLI_DEFAULT    ON)
-set(BUILD_EDITOR_DEFAULT        ON)
-set(BUILD_TESTS_DEFAULT         ON)
-set(BUILD_EDITOR_JNI_DEFAULT    OFF)
-set(USE_FAST_MATH_DEFAULT       OFF)
+set(BUILD_SDL_GEN_DEFAULT    ON)
+set(BUILD_PHOTON_CLI_DEFAULT ON)
+set(BUILD_EDITOR_DEFAULT     ON)
+set(BUILD_TESTS_DEFAULT      ON)
+set(BUILD_EDITOR_JNI_DEFAULT OFF)
 
 if(WIN32)
     set(BUILD_EDITOR_JNI_DEFAULT ON)
 endif()
 
-option(BUILD_SDL_GEN     "Build SDL automation tool."        ${BUILD_SDL_GEN_DEFAULT})
-option(BUILD_PHOTON_CLI  "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
-option(BUILD_EDITOR      "Build editor application."         ${BUILD_EDITOR_DEFAULT})
-option(BUILD_TESTS       "Build unit tests for the project." ${BUILD_TESTS_DEFAULT})
-option(BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
+option(PH_BUILD_SDL_GEN     "Build SDL automation tool."        ${BUILD_SDL_GEN_DEFAULT})
+option(PH_BUILD_PHOTON_CLI  "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
+option(PH_BUILD_EDITOR      "Build editor application."         ${BUILD_EDITOR_DEFAULT})
+option(PH_BUILD_TESTS       "Build unit tests for the project." ${BUILD_TESTS_DEFAULT})
+option(PH_BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
 
-set(THIRD_PARTY_LIBS_INSTALL_DIR 
+set(PH_THIRD_PARTY_LIBS_INSTALL_DIR 
     "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/ThirdParty/" 
     CACHE PATH 
     "Path to third-party library install directory.")
 
+# For convenience
+set(LIBS_INSTALL_DIR "${PH_THIRD_PARTY_LIBS_INSTALL_DIR}")
+
 # For convenience as ImGui libraries are installed under a subfolder
-set(IMGUI_LIBS_INSTALL_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/ImGui/")
+set(IMGUI_LIBS_INSTALL_DIR "${LIBS_INSTALL_DIR}/ImGui/")
 
 message(STATUS 
-    "Third-party library install directory set to \"${THIRD_PARTY_LIBS_INSTALL_DIR}\"; Modify by setting \"THIRD_PARTY_LIBS_INSTALL_DIR\".")
+    "Third-party library install directory set to \"${LIBS_INSTALL_DIR}\"; Modify by setting \"PH_THIRD_PARTY_LIBS_INSTALL_DIR\".")
 
-option(USE_FAST_MATH
+set(USE_FAST_MATH_DEFAULT OFF)
+
+option(PH_ENABLE_DEBUG "Enable debug functionalities." ON)
+option(PH_DOUBLE_PRECISION_REAL "Use double precision type for real numbers." OFF)
+
+option(PH_USE_FAST_MATH
     "More room for optimization, may not preserve strict IEEE compliance." 
     ${USE_FAST_MATH_DEFAULT})
 
@@ -160,7 +167,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
 
-    if(USE_FAST_MATH)
+    if(PH_USE_FAST_MATH)
         add_compile_options(/fp:fast)
     endif()
 
@@ -170,7 +177,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     # Use C++20
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
-    if(USE_FAST_MATH)
+    if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
     endif()
 
@@ -179,7 +186,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
     # TODO: enforce C++20 if previous requests have no use
 
-    if(USE_FAST_MATH)
+    if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
     endif()
 
@@ -205,7 +212,7 @@ include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_load_library_manually.cmake")
 #------------------------------------------------------------------------------
 # googletest
 #------------------------------------------------------------------------------
-if(BUILD_TESTS)
+if(PH_BUILD_TESTS)
     # Bringing in the target "gtest" is unnecessary as "gmock" depends on "gtest" which should be
     # handled by their build system. However, adding "gtest" will result in runtime error due to
     # not calling `testing::InitGoogleTest()`, which I think is a bug in googletest.
@@ -214,23 +221,23 @@ if(BUILD_TESTS)
     set(GOOGLETEST_LIB_NAME "GTest")
     load_library_via_config(${GOOGLETEST_LIB_NAME} OPTIONAL
         TARGETS      "gmock"
-        CONFIG_DIR   "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/lib/cmake/GTest/"
-        RUNTIME_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/bin/")
+        CONFIG_DIR   "${LIBS_INSTALL_DIR}/googletest/lib/cmake/GTest/"
+        RUNTIME_DIR  "${LIBS_INSTALL_DIR}/googletest/bin/")
 
     if(NOT ${GOOGLETEST_LIB_NAME}_LOADED)
         set(GOOGLETEST_LIB_NAME "googletest")
 
         load_library_via_pkgconfig(${GOOGLETEST_LIB_NAME} OPTIONAL
             TARGETS     "gmock"
-            CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/lib/pkgconfig/"
-            RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/bin/")
+            CONFIG_DIR  "${LIBS_INSTALL_DIR}/googletest/lib/pkgconfig/"
+            RUNTIME_DIR "${LIBS_INSTALL_DIR}/googletest/bin/")
 
         # Fallback to manual loading
         load_library_manually(${GOOGLETEST_LIB_NAME}
             LIB_NAMES   "gmock"
-            LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/lib/"
-            INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/include/"
-            RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/googletest/bin/")
+            LIB_DIRS    "${LIBS_INSTALL_DIR}/googletest/lib/"
+            INC_DIRS    "${LIBS_INSTALL_DIR}/googletest/include/"
+            RUNTIME_DIR "${LIBS_INSTALL_DIR}/googletest/bin/")
     endif()
 endif()
 
@@ -240,7 +247,7 @@ endif()
 set(STB_LIB_NAME "stb")
 load_library_via_config(${STB_LIB_NAME}
     TARGETS    "stb"
-    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${STB_LIB_NAME}/share/")
+    CONFIG_DIR "${LIBS_INSTALL_DIR}/${STB_LIB_NAME}/share/")
 
 #------------------------------------------------------------------------------
 # Asio
@@ -248,7 +255,7 @@ load_library_via_config(${STB_LIB_NAME}
 set(ASIO_LIB_NAME "Asio")
 load_library_via_config(${ASIO_LIB_NAME}
     TARGETS    "Asio"
-    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/")
+    CONFIG_DIR "${LIBS_INSTALL_DIR}/${ASIO_LIB_NAME}/share/")
 
 #------------------------------------------------------------------------------
 # zlib
@@ -260,20 +267,20 @@ load_library_via_config(${ASIO_LIB_NAME}
 
 set(ZLIB_LIB_NAME "zlib")
 
-set(ZLIB_ROOT "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/")
+set(ZLIB_ROOT "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/")
 find_package(ZLIB MODULE)
 if(ZLIB_FOUND)
     load_library_manually(${ZLIB_LIB_NAME}
         TARGETS     "ZLIB::ZLIB"
-        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/")
+        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/")
 # Fallback to manual loading
 else()
     # FIXME: openexr links to ZLIB::ZLIB, manual loading does not specify that
     load_library_manually(${ZLIB_LIB_NAME}
-        INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/include/"
-        LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/lib/"
+        INC_DIRS    "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/include/"
+        LIB_DIRS    "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/lib/"
         LIB_NAMES   "zlib z"
-        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/")
+        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${ZLIB_LIB_NAME}/bin/")
 endif()
 
 #------------------------------------------------------------------------------
@@ -295,38 +302,38 @@ set(OPENEXR_LIB_NAME "OpenEXR")
 if(WIN32)
     load_library_via_config(${ILMBASE_LIB_NAME} OPTIONAL
         TARGETS     "Half" "Iex" "IexMath" "IlmThread" "Imath"
-        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
-        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+        CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${ILMBASE_LIB_NAME}/"
+        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
     load_library_via_config(${OPENEXR_LIB_NAME} OPTIONAL
         TARGETS     "IlmImf" "IlmImfUtil"
-        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
-        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+        CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/cmake/${OPENEXR_LIB_NAME}/"
+        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 else()
     load_library_via_pkgconfig(${ILMBASE_LIB_NAME} OPTIONAL
         TARGETS     "IlmBase"
-        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
-        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+        CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
+        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
     load_library_via_pkgconfig(${OPENEXR_LIB_NAME} OPTIONAL
         TARGETS     "OpenEXR"
-        CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
-        RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+        CONFIG_DIR  "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/lib/pkgconfig/"
+        RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 endif()
 
 # Fallback to manual loading
 
 load_library_manually(${ILMBASE_LIB_NAME}
     LIB_NAMES   "Half" "Iex" "IexMath" "IlmThread" "Imath"
-    LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/lib/"
-    INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/include/"
-    RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+    LIB_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/lib/"
+    INC_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/include/"
+    RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
 load_library_manually(${OPENEXR_LIB_NAME}
     LIB_NAMES   "IlmImf" "IlmImfUtil"
-    LIB_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/lib/"
-    INC_DIRS    "${THIRD_PARTY_LIBS_INSTALL_DIR}/OpenEXR/include/"
-    RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
+    LIB_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/lib/"
+    INC_DIRS    "${LIBS_INSTALL_DIR}/OpenEXR/include/"
+    RUNTIME_DIR "${LIBS_INSTALL_DIR}/${OPENEXR_LIB_NAME}/bin/")
 
 #------------------------------------------------------------------------------
 # glfw
@@ -335,9 +342,9 @@ set(GLFW_LIB_NAME "glfw")
 
 load_library_via_config(${GLFW_LIB_NAME}
     TARGETS      "glfw" NO_PREFIX_ON_TARGETS
-    CONFIG_DIR   "${THIRD_PARTY_LIBS_INSTALL_DIR}/glfw/lib/cmake/glfw3/"
+    CONFIG_DIR   "${LIBS_INSTALL_DIR}/glfw/lib/cmake/glfw3/"
     CONFIG_NAMES "glfw3"
-    RUNTIME_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/glfw/bin/")
+    RUNTIME_DIR  "${LIBS_INSTALL_DIR}/glfw/bin/")
 
 #------------------------------------------------------------------------------
 # glad
@@ -345,8 +352,8 @@ load_library_via_config(${GLFW_LIB_NAME}
 set(GLAD_LIB_NAME "glad")
 load_library_via_config(${GLAD_LIB_NAME}
     TARGETS     "glad"
-    CONFIG_DIR  "${THIRD_PARTY_LIBS_INSTALL_DIR}/${GLAD_LIB_NAME}/share/"
-    RUNTIME_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/glad/bin/")
+    CONFIG_DIR  "${LIBS_INSTALL_DIR}/${GLAD_LIB_NAME}/share/"
+    RUNTIME_DIR "${LIBS_INSTALL_DIR}/glad/bin/")
 
 #------------------------------------------------------------------------------
 # imgui
@@ -389,7 +396,7 @@ set(IMPLOT_LIB_SOURCE_FILES
 set(CONCURRENTQUEUE_LIB_NAME "concurrentqueue")
 load_library_via_config(${CONCURRENTQUEUE_LIB_NAME}
     TARGETS    "concurrentqueue"
-    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/${CONCURRENTQUEUE_LIB_NAME}/lib/cmake/${CONCURRENTQUEUE_LIB_NAME}/")
+    CONFIG_DIR "${LIBS_INSTALL_DIR}/${CONCURRENTQUEUE_LIB_NAME}/lib/cmake/${CONCURRENTQUEUE_LIB_NAME}/")
 
 #------------------------------------------------------------------------------
 # json
@@ -397,7 +404,7 @@ load_library_via_config(${CONCURRENTQUEUE_LIB_NAME}
 set(JSON_LIB_NAME "nlohmann_json")
 load_library_via_config(${JSON_LIB_NAME}
     TARGETS    "nlohmann_json"
-    CONFIG_DIR "${THIRD_PARTY_LIBS_INSTALL_DIR}/json/share/cmake/${JSON_LIB_NAME}/")
+    CONFIG_DIR "${LIBS_INSTALL_DIR}/json/share/cmake/${JSON_LIB_NAME}/")
 
 ###############################################################################
 # Add CMake Subdirectories                                                    #
@@ -405,28 +412,28 @@ load_library_via_config(${JSON_LIB_NAME}
 
 add_subdirectory("./Engine/")
 
-if(BUILD_SDL_GEN)
+if(PH_BUILD_SDL_GEN)
     add_subdirectory("./SDLGenerator/SDLGen/")
     add_subdirectory("./SDLGenerator/SDLGenCLI/")
 endif()
 
-if(BUILD_EDITOR)
+if(PH_BUILD_EDITOR)
     add_subdirectory("./Editor/EditorLib/")
     add_subdirectory("./Editor/Editor/")
 endif()
 
-if(BUILD_TESTS)
+if(PH_BUILD_TESTS)
     add_subdirectory("./EngineTest/")
 
-    if(BUILD_EDITOR)
+    if(PH_BUILD_EDITOR)
         add_subdirectory("./Editor/EditorTest/")
     endif()
 endif()
 
-if(BUILD_EDITOR_JNI)
+if(PH_BUILD_EDITOR_JNI)
     add_subdirectory("./JNI/")
 endif()
 
-if(BUILD_PHOTON_CLI)
+if(PH_BUILD_PHOTON_CLI)
     add_subdirectory("./PhotonCLI/")
 endif()

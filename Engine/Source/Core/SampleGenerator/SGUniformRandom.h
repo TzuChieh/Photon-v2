@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Common/primitive_type.h"
 
 namespace ph
 {

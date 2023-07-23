@@ -1,10 +1,5 @@
 #include "Core/SampleGenerator/SGUniformRandom.h"
-#include "Core/Filmic/Film.h"
-#include "Core/Sample.h"
 #include "Math/Random.h"
-#include "Common/assertion.h"
-
-#include <iostream>
 
 namespace ph
 {

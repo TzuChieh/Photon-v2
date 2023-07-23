@@ -235,17 +235,15 @@ void ImguiSampleInspector::genGeneratorPoints(
 	{
 		generator = std::make_unique<SGHalton>(1);
 	}
-	/*else
+	else
 	{
 		PH_DEFAULT_LOG_WARNING(
 			"Cannot generate points from sample generator: unsupported type {}",
 			m_generatorSettings.type);
 		return;
-	}*/
+	}
 
-	//PH_ASSERT(generator);
-
-	/*const auto numSamples = out_xBuffer.size();
+	const auto numSamples = out_xBuffer.size();
 	const auto handle = generator->declareStageND(2, numSamples);
 	if(!generator->prepareSampleBatch())
 	{
@@ -273,7 +271,7 @@ void ImguiSampleInspector::genGeneratorPoints(
 			out_xBuffer[i] = sample2D[0];
 			out_yBuffer[i] = sample2D[1];
 		}
-	}*/
+	}
 }
 
 }// end namespace ph::editor

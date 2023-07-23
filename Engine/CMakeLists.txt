@@ -66,27 +66,22 @@ endif()
 
 # Using MSVC
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-
 	target_compile_definitions(Engine
-		PRIVATE _CRT_SECURE_NO_WARNINGS)
+		PUBLIC _CRT_SECURE_NO_WARNINGS)
 
 	# Add `/bigobj` flag (on debug build only) so error C1128 will not occur (this is for `ph_cpp_core.cpp`)
 	target_compile_options(Engine
 		PRIVATE $<$<CONFIG:Debug>:/bigobj>)
-
 endif()
 
-option(ENABLE_DEBUG "Enable debug functionalities." ON)
-option(DOUBLE_PRECISION_REAL "Use double precision type for real numbers." OFF)
-
-if(ENABLE_DEBUG)
+if(PH_ENABLE_DEBUG)
 	target_compile_definitions(Engine
-		PRIVATE PH_CONFIG_ENABLE_DEBUG)
+		PUBLIC PH_CONFIG_ENABLE_DEBUG)
 endif()
 
-if(DOUBLE_PRECISION_REAL)
+if(PH_DOUBLE_PRECISION_REAL)
 	target_compile_definitions(Engine
-		PRIVATE PH_CONFIG_DOUBLE_PRECISION_REAL)
+		PUBLIC PH_CONFIG_DOUBLE_PRECISION_REAL)
 endif()
 
 #[[

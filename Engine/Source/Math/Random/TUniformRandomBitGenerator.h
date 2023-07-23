@@ -125,13 +125,13 @@ inline TargetSample TUniformRandomBitGenerator<Derived, Bits>::generateSample()
 	if constexpr(std::is_same_v<SourceBits, uint32>)
 	{
 		const TargetSample sample = generate<SourceBits>() * TargetSample(0x1p-32);
-		PH_ASSERT_IN_RANGE_EXCLUSIVE(sample, TargetSample(0.0), TargetSample(1.0));
+		PH_ASSERT_IN_RANGE_INCLUSIVE(sample, TargetSample(0.0), TargetSample(1.0));
 		return sample;
 	}
 	else if constexpr(std::is_same_v<SourceBits, uint64>)
 	{
 		const TargetSample sample = generate<SourceBits>() * TargetSample(0x1p-64);
-		PH_ASSERT_IN_RANGE_EXCLUSIVE(sample, TargetSample(0.0), TargetSample(1.0));
+		PH_ASSERT_IN_RANGE_INCLUSIVE(sample, TargetSample(0.0), TargetSample(1.0));
 		return sample;
 	}
 	else
