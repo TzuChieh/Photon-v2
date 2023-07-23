@@ -26,6 +26,7 @@ public:
 		ImguiEditorUIProxy editorUI);
 
 private:
+	// Update `RNG_NAMES` if modified
 	enum ERng : int
 	{
 		MT_19937 = 0,
@@ -40,6 +41,21 @@ private:
 		"PCG-64-DXSM"
 	};
 
+	// Update `GENERATOR_NAMES` if modified
+	enum EGenerator : int
+	{
+		UniformRandom = 0,
+		Stratified,
+		Halton
+	};
+
+	static constexpr const char* GENERATOR_NAMES[] =
+	{
+		"Uniform Random",
+		"Stratified",
+		"Halton"
+	};
+
 	struct ScatterPlotData
 	{
 		std::string name;
@@ -52,17 +68,30 @@ private:
 		int getPointCount() const;
 	};
 
+	struct RngSettings
+	{
+		int type = 0;
+		int seed = 0;
+		int sequence = 0;
+	};
+
+	struct GeneratorSettings
+	{
+		int type = 0;
+		bool useSampleFlow = true;
+	};
+
 	void buildControlPanelContent();
 	void buildPlotterViewContent();
 	void genRngPoints(TSpan<float> out_xBuffer, TSpan<float> out_yBuffer) const;
+	void genGeneratorPoints(TSpan<float> out_xBuffer, TSpan<float> out_yBuffer) const;
 	
 	std::vector<ScatterPlotData> m_scatterPlots;
 	std::vector<char> m_plotNameBuffer;
 	int m_numSamples;
-
-	int m_rngType;
-	int m_rngSeed;
-	int m_rngSequence;
+	int m_sampleSource;
+	RngSettings m_rngSettings;
+	GeneratorSettings m_generatorSettings;
 
 	bool m_isNormalizedFitRequested;
 };

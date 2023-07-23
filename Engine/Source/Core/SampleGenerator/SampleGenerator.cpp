@@ -9,16 +9,21 @@
 namespace ph
 {
 
-SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
-                                 const std::size_t maxCachedBatches) :
-	m_numSampleBatches(numSampleBatches),
-	m_maxCachedBatches(maxCachedBatches),
-	m_numUsedBatches  (0),
-	m_numUsedCaches   (maxCachedBatches),
-	m_numDeclaredDims (0),
-	m_totalBufferSize (0),
-	m_sampleBuffer    (),
-	m_stages          ()
+SampleGenerator::SampleGenerator(
+	const std::size_t numSampleBatches,
+	const std::size_t maxCachedBatches)
+
+	: m_numSampleBatches     (numSampleBatches)
+	, m_maxCachedBatches     (maxCachedBatches)
+	, m_numUsedBatches       (0)
+	, m_numUsedCaches        (maxCachedBatches)
+	, m_numDeclaredDims      (0)
+	, m_totalBufferSize      (0)
+	, m_sampleBuffer         ()
+	, m_stages               ()
+#if PH_DEBUG
+	, m_isSampleBatchPrepared(false)
+#endif
 {
 	PH_ASSERT_GE(numSampleBatches, 1);
 	PH_ASSERT_GE(maxCachedBatches, 1);
@@ -27,6 +32,8 @@ SampleGenerator::SampleGenerator(const std::size_t numSampleBatches,
 SampleGenerator::SampleGenerator(const std::size_t numSampleBatches) : 
 	SampleGenerator(numSampleBatches, 4)
 {}
+
+SampleGenerator::~SampleGenerator() = default;
 
 bool SampleGenerator::prepareSampleBatch()
 {
@@ -50,12 +57,18 @@ bool SampleGenerator::prepareSampleBatch()
 			m_numUsedCaches = 0;
 		}
 
+#if PH_DEBUG
+		m_isSampleBatchPrepared = true;
+#endif
 		++m_numUsedBatches;
 		++m_numUsedCaches;
 		return true;
 	}
 	else
 	{
+#if PH_DEBUG
+		m_isSampleBatchPrepared = false;
+#endif
 		return false;
 	}
 }
@@ -77,7 +90,7 @@ SamplesNDHandle SampleGenerator::declareStageND(
 		bufferIndex,
 		numSamples, 
 		{m_numDeclaredDims, m_numDeclaredDims + numDims},
-		std::move(dimSizeHints));
+		dimSizeHints);
 
 	std::size_t bufferSizeWithCache = 0;
 	if(numDims <= 2 || isSamplesGE3DSupported())
@@ -135,6 +148,9 @@ SamplesNDHandle SampleGenerator::declareStageND(
 
 SamplesNDStream SampleGenerator::getSamplesND(const SamplesNDHandle& handle)
 {
+	PH_ASSERT_MSG(m_isSampleBatchPrepared,
+		"No available sample batch. Did you forget to call `prepareSampleBatch()` or we ran out "
+		"of samples (`hasMoreBatches() == false`)?");
 	PH_ASSERT_NE(m_numUsedCaches, 0);
 	PH_ASSERT_LT(handle.getStageIndex(), m_stages.size());
 

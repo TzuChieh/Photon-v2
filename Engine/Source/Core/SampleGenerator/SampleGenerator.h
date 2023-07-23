@@ -29,7 +29,7 @@ class SampleGenerator
 public:
 	SampleGenerator(std::size_t numSampleBatches, std::size_t maxCachedBatches);
 	explicit SampleGenerator(std::size_t numSampleBatches);
-	virtual ~SampleGenerator() = default;
+	virtual ~SampleGenerator();
 
 	void genSplitted(std::size_t numSplits,
 	                 std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;
@@ -73,6 +73,10 @@ private:
 
 	virtual void reviseSampleStage(SampleStageReviser reviser);
 
+private:
+	void allocSampleBuffer();
+	void genSampleBatch(std::size_t cachedBatchIndex);
+
 	std::size_t              m_numSampleBatches;
 	std::size_t              m_maxCachedBatches;
 	std::size_t              m_numUsedBatches;
@@ -81,9 +85,9 @@ private:
 	std::size_t              m_totalBufferSize;
 	std::vector<real>        m_sampleBuffer;
 	std::vector<SampleStage> m_stages;
-
-	void allocSampleBuffer();
-	void genSampleBatch(std::size_t cachedBatchIndex);
+#if PH_DEBUG
+	bool                     m_isSampleBatchPrepared;
+#endif
 };
 
 // In-header Implementations:

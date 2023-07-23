@@ -33,6 +33,9 @@ public:
 	template<std::size_t N>
 	std::array<real, N> get(std::size_t index) const;
 
+	/*! @brief Get the i-th N-dimensional sample.
+	@return Pointer to the sample values (with N elements).
+	*/
 	const real* operator [] (std::size_t index) const;
 
 private:

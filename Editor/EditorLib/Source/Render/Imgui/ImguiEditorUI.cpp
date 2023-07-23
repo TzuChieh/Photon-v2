@@ -178,34 +178,34 @@ void ImguiEditorUI::build()
 		// docking UI, while using the dock space ID without splitting is like using the central 
 		// square icon in the docking UI.
 
-		// Creating bottom node
-		const float bottomNodeSplitRatio =
-			m_editor->dimensionHints.propertyPanelPreferredWidth * 0.6f /
+		// Creating top node (first one to create, to cover full width)
+		const float topNodeSplitRatio =
+			m_editor->dimensionHints.fontSize * 2.0f /
 			viewport->WorkSize.y;
-		ImGuiID centerDockSpaceID;
-		const ImGuiID bottomDockSpaceID = ImGui::DockBuilderSplitNode(
-			rootDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, &centerDockSpaceID);
+		ImGuiID childDockSpaceID;
+		const ImGuiID topDockSpaceID = ImGui::DockBuilderSplitNode(
+			rootDockSpaceID, ImGuiDir_Up, topNodeSplitRatio, nullptr, &childDockSpaceID);
 
-		// Creating left node (after bottom node to cover it)
+		// Creating left node 
 		const float leftNodeSplitRatio =
 			m_editor->dimensionHints.largeFontSize * 1.5f /
 			viewport->WorkSize.x;
 		const ImGuiID leftDockSpaceID = ImGui::DockBuilderSplitNode(
-			rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, nullptr);
+			childDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, &childDockSpaceID);
 
-		// Creating right node (after bottom node to cover it)
+		// Creating right node
 		const float rightNodeSplitRatio =
 			m_editor->dimensionHints.propertyPanelPreferredWidth /
-			viewport->WorkSize.x;
+			(viewport->WorkSize.x * (1.0f - leftNodeSplitRatio));
 		const ImGuiID rightDockSpaceID = ImGui::DockBuilderSplitNode(
-			rootDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, nullptr);
+			childDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, &childDockSpaceID);
 
-		// Creating top node (after left & right nodes to cover them)
-		const float topNodeSplitRatio =
-			m_editor->dimensionHints.fontSize * 2.0f /
-			viewport->WorkSize.y;
-		const ImGuiID topDockSpaceID = ImGui::DockBuilderSplitNode(
-			rootDockSpaceID, ImGuiDir_Up, topNodeSplitRatio, nullptr, nullptr);
+		// Creating bottom node (after left & right nodes to not straddle them)
+		const float bottomNodeSplitRatio =
+			m_editor->dimensionHints.propertyPanelPreferredWidth * 0.6f /
+			(viewport->WorkSize.y * (1.0f - topNodeSplitRatio));
+		const ImGuiID bottomDockSpaceID = ImGui::DockBuilderSplitNode(
+			childDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, &childDockSpaceID);
 
 		// Creating child upper-right and upper-left nodes
 		const float upperRightNodeSplitRatio = 0.4f;
@@ -217,7 +217,7 @@ void ImguiEditorUI::build()
 		ImGui::DockBuilderDockWindow(ASSET_BROWSER_WINDOW_NAME, bottomDockSpaceID);
 		ImGui::DockBuilderDockWindow(ROOT_PROPERTIES_WINDOW_NAME, lowerRightDockSpaceID);
 		ImGui::DockBuilderDockWindow(OBJECT_BROWSER_WINDOW_NAME, upperRightDockSpaceID);
-		ImGui::DockBuilderDockWindow(MAIN_VIEWPORT_WINDOW_NAME, centerDockSpaceID);
+		ImGui::DockBuilderDockWindow(MAIN_VIEWPORT_WINDOW_NAME, childDockSpaceID);
 		ImGui::DockBuilderDockWindow(SIDEBAR_WINDOW_NAME, leftDockSpaceID);
 		ImGui::DockBuilderDockWindow(TOOLBAR_WINDOW_NAME, topDockSpaceID);
 

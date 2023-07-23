@@ -9,8 +9,12 @@
 #include <Math/Random/TMt19937.h>
 #include <Math/Random/Pcg32.h>
 #include <Math/Random/Pcg64DXSM.h>
+#include <Core/SampleGenerator/SGUniformRandom.h>
+#include <Core/SampleGenerator/SGStratified.h>
+#include <Core/SampleGenerator/SGHalton.h>
 
 #include <algorithm>
+#include <memory>
 
 namespace ph::editor
 {
@@ -20,10 +24,9 @@ ImguiSampleInspector::ImguiSampleInspector()
 	, m_scatterPlots()
 	, m_plotNameBuffer(64, '\0')
 	, m_numSamples(100)
-
-	, m_rngType(0)
-	, m_rngSeed(0)
-	, m_rngSequence(0)
+	, m_sampleSource(0)
+	, m_rngSettings()
+	, m_generatorSettings()
 
 	, m_isNormalizedFitRequested(true)
 {
@@ -92,16 +95,41 @@ void ImguiSampleInspector::buildWindow(
 
 void ImguiSampleInspector::buildControlPanelContent()
 {
-	ImGui::Combo("RNG Type", &m_rngType, RNG_NAMES, IM_ARRAYSIZE(RNG_NAMES));
-	ImGui::InputInt("Seed", &m_rngSeed);
-	ImGui::InputInt("Sequence", &m_rngSequence);
+	constexpr int rngSource = 0;
+	constexpr int generatorSource = 1;
+
+	ImGui::RadioButton("RNG", &m_sampleSource, rngSource);
+	ImGui::SameLine();
+	ImGui::RadioButton("Generator", &m_sampleSource, generatorSource);
+
+	if(m_sampleSource == rngSource)
+	{
+		ImGui::Combo("Type", &m_rngSettings.type, RNG_NAMES, IM_ARRAYSIZE(RNG_NAMES));
+		ImGui::InputInt("Seed", &m_rngSettings.seed);
+		ImGui::InputInt("Sequence", &m_rngSettings.sequence);
+	}
+	else if(m_sampleSource == generatorSource)
+	{
+		ImGui::Combo("Type", &m_generatorSettings.type, GENERATOR_NAMES, IM_ARRAYSIZE(GENERATOR_NAMES));
+		ImGui::Checkbox("Use Sample Flow", &m_generatorSettings.useSampleFlow);
+	}
+	
 	ImGui::InputText("Plot Name", m_plotNameBuffer.data(), m_plotNameBuffer.size());
+
 	if(ImGui::Button("Generate"))
 	{
 		ScatterPlotData plotData;
 		plotData.name = m_plotNameBuffer.data();
+
 		plotData.resize(m_numSamples);
-		genRngPoints(plotData.xs, plotData.ys);
+		if(m_sampleSource == rngSource)
+		{
+			genRngPoints(plotData.xs, plotData.ys);
+		}
+		else if(m_sampleSource == generatorSource)
+		{
+			genGeneratorPoints(plotData.xs, plotData.ys);
+		}
 
 		m_scatterPlots.push_back(plotData);
 	}
@@ -151,41 +179,101 @@ void ImguiSampleInspector::buildPlotterViewContent()
 	}
 }
 
-void ImguiSampleInspector::genRngPoints(const TSpan<float> xBuffer, const TSpan<float> yBuffer) const
+void ImguiSampleInspector::genRngPoints(
+	const TSpan<float> out_xBuffer, 
+	const TSpan<float> out_yBuffer) const
 {
-	if(m_rngType == ERng::MT_19937)
+	if(m_rngSettings.type == ERng::MT_19937)
 	{
-		math::TMt19937<uint32> rng(m_rngSeed);
-		for(std::size_t i = 0; i < xBuffer.size(); ++i)
+		math::TMt19937<uint32> rng(m_rngSettings.seed);
+		for(std::size_t i = 0; i < out_xBuffer.size(); ++i)
 		{
-			xBuffer[i] = rng.generateSample();
-			yBuffer[i] = rng.generateSample();
+			out_xBuffer[i] = rng.generateSample();
+			out_yBuffer[i] = rng.generateSample();
 		}
 	}
-	else if(m_rngType == ERng::PCG_32)
+	else if(m_rngSettings.type == ERng::PCG_32)
 	{
-		math::Pcg32 rng(m_rngSequence, m_rngSeed);
-		for(std::size_t i = 0; i < xBuffer.size(); ++i)
+		math::Pcg32 rng(m_rngSettings.sequence, m_rngSettings.seed);
+		for(std::size_t i = 0; i < out_xBuffer.size(); ++i)
 		{
-			xBuffer[i] = rng.generateSample();
-			yBuffer[i] = rng.generateSample();
+			out_xBuffer[i] = rng.generateSample();
+			out_yBuffer[i] = rng.generateSample();
 		}
 	}
-	else if(m_rngType == ERng::PCG_64_DXSM)
+	else if(m_rngSettings.type == ERng::PCG_64_DXSM)
 	{
-		math::Pcg64DXSM rng(0, m_rngSequence, 0, m_rngSeed);
-		for(std::size_t i = 0; i < xBuffer.size(); ++i)
+		math::Pcg64DXSM rng(0, m_rngSettings.sequence, 0, m_rngSettings.seed);
+		for(std::size_t i = 0; i < out_xBuffer.size(); ++i)
 		{
-			xBuffer[i] = rng.generateSample();
-			yBuffer[i] = rng.generateSample();
+			out_xBuffer[i] = rng.generateSample();
+			out_yBuffer[i] = rng.generateSample();
 		}
 	}
 	else
 	{
 		PH_DEFAULT_LOG_WARNING(
-			"Cannot generate RNG points: invalid generator type {}",
-			m_rngType);
+			"Cannot generate points from RNG: unsupported type {}",
+			m_rngSettings.type);
 	}
+}
+
+void ImguiSampleInspector::genGeneratorPoints(
+	const TSpan<float> out_xBuffer, 
+	const TSpan<float> out_yBuffer) const
+{
+	std::unique_ptr<SampleGenerator> generator;
+	if(m_generatorSettings.type == EGenerator::UniformRandom)
+	{
+		generator = std::make_unique<SGUniformRandom>(1);
+	}
+	else if(m_generatorSettings.type == EGenerator::Stratified)
+	{
+		generator = std::make_unique<SGStratified>(1);
+	}
+	else if(m_generatorSettings.type == EGenerator::Halton)
+	{
+		generator = std::make_unique<SGHalton>(1);
+	}
+	/*else
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"Cannot generate points from sample generator: unsupported type {}",
+			m_generatorSettings.type);
+		return;
+	}*/
+
+	//PH_ASSERT(generator);
+
+	/*const auto numSamples = out_xBuffer.size();
+	const auto handle = generator->declareStageND(2, numSamples);
+	if(!generator->prepareSampleBatch())
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"Sample batch preparation failed.");
+		return;
+	}
+
+	SamplesNDStream sampleStream = generator->getSamplesND(handle);
+	if(m_generatorSettings.useSampleFlow)
+	{
+		for(std::size_t i = 0; i < out_xBuffer.size(); ++i)
+		{
+			SampleFlow sampleFlow = sampleStream.readSampleAsFlow();
+			const auto sample2D = sampleFlow.flow2D();
+			out_xBuffer[i] = sample2D[0];
+			out_yBuffer[i] = sample2D[1];
+		}
+	}
+	else
+	{
+		for(std::size_t i = 0; i < out_xBuffer.size(); ++i)
+		{
+			const auto sample2D = sampleStream.readSample<2>();
+			out_xBuffer[i] = sample2D[0];
+			out_yBuffer[i] = sample2D[1];
+		}
+	}*/
 }
 
 }// end namespace ph::editor
