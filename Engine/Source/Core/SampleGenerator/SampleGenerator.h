@@ -44,7 +44,7 @@ public:
 		std::size_t              numSamples, 
 		std::vector<std::size_t> dimSizeHints);
 
-	SamplesNDStream getSamplesND(const SamplesNDHandle& handle);
+	SamplesNDStream getSamplesND(const SamplesNDHandle& handle) const;
 
 	std::size_t numSampleBatches() const;
 	std::size_t maxCachedBatches() const;

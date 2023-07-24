@@ -739,9 +739,7 @@ void ImguiEditorUI::buildTool()
 {
 	if(m_sampleInspector.isOpening)
 	{
-		m_sampleInspector.buildWindow(
-			"Sample Tool",
-			*this);
+		m_sampleInspector.buildWindow("Sample Inspector");
 	}
 
 	if(m_shouldShowDearImGuiDemo)

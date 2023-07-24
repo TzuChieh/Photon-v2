@@ -1,5 +1,4 @@
 #include "Render/Imgui/Tool/ImguiSampleInspector.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
 
 #include "ThirdParty/ImPlot.h"
@@ -15,6 +14,8 @@
 
 #include <algorithm>
 #include <memory>
+#include <format>
+#include <utility>
 
 namespace ph::editor
 {
@@ -24,7 +25,9 @@ ImguiSampleInspector::ImguiSampleInspector()
 	, m_scatterPlots()
 	, m_plotNameBuffer(64, '\0')
 	, m_numSamples(100)
-	, m_sampleSource(0)
+	, m_sourceType(ESource::Rng)
+	, m_useParamSafeguards(true)
+	, m_paramSafeguardMessage()
 	, m_rngSettings()
 	, m_generatorSettings()
 
@@ -33,9 +36,7 @@ ImguiSampleInspector::ImguiSampleInspector()
 	imgui::copy_to(m_plotNameBuffer, "samples");
 }
 
-void ImguiSampleInspector::buildWindow(
-	const char* const title,
-	ImguiEditorUIProxy editorUI)
+void ImguiSampleInspector::buildWindow(const char* const title)
 {
 	// Auto center and determine a suitable size when first use
 	ImGuiCond windowLayoutCond = ImGuiCond_FirstUseEver;
@@ -95,46 +96,53 @@ void ImguiSampleInspector::buildWindow(
 
 void ImguiSampleInspector::buildControlPanelContent()
 {
-	constexpr int rngSource = 0;
-	constexpr int generatorSource = 1;
-
-	ImGui::RadioButton("RNG", &m_sampleSource, rngSource);
+	ImGui::RadioButton("RNG", &m_sourceType, ESource::Rng);
 	ImGui::SameLine();
-	ImGui::RadioButton("Generator", &m_sampleSource, generatorSource);
+	ImGui::RadioButton("Generator", &m_sourceType, ESource::Generator);
 
-	if(m_sampleSource == rngSource)
+	if(m_sourceType == ESource::Rng)
 	{
 		ImGui::Combo("Type", &m_rngSettings.type, RNG_NAMES, IM_ARRAYSIZE(RNG_NAMES));
 		ImGui::InputInt("Seed", &m_rngSettings.seed);
 		ImGui::InputInt("Sequence", &m_rngSettings.sequence);
 	}
-	else if(m_sampleSource == generatorSource)
+	else if(m_sourceType == ESource::Generator)
 	{
 		ImGui::Combo("Type", &m_generatorSettings.type, GENERATOR_NAMES, IM_ARRAYSIZE(GENERATOR_NAMES));
+		ImGui::PushItemWidth(ImGui::GetFontSize() * 6);
+		ImGui::InputInt("X-axis Dimension", &m_generatorSettings.xAxisDimIndex, 1, 5);
+		ImGui::InputInt("Y-axis Dimension", &m_generatorSettings.yAxisDimIndex, 1, 5);
+		ImGui::PopItemWidth();
 		ImGui::Checkbox("Use Sample Flow", &m_generatorSettings.useSampleFlow);
 	}
 	
 	ImGui::InputText("Plot Name", m_plotNameBuffer.data(), m_plotNameBuffer.size());
+	ImGui::Checkbox("Parameter Safeguards", &m_useParamSafeguards);
 
+	if(m_useParamSafeguards && !m_paramSafeguardMessage.empty())
+	{
+		ImGui::Spacing();
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.2f, 1.0f));
+		ImGui::TextWrapped(m_paramSafeguardMessage.c_str());
+		ImGui::PopStyleColor();
+		ImGui::Spacing();
+	}
+
+	bool canGenerate = false;
 	if(ImGui::Button("Generate"))
 	{
-		ScatterPlotData plotData;
-		plotData.name = m_plotNameBuffer.data();
-
-		plotData.resize(m_numSamples);
-		if(m_sampleSource == rngSource)
+		if(m_useParamSafeguards)
 		{
-			genRngPoints(plotData.xs, plotData.ys);
+			safeguardParameters();
+			canGenerate = m_paramSafeguardMessage.empty();
 		}
-		else if(m_sampleSource == generatorSource)
+		else
 		{
-			genGeneratorPoints(plotData.xs, plotData.ys);
+			canGenerate = true;
 		}
-
-		m_scatterPlots.push_back(plotData);
 	}
 	ImGui::SameLine();
-	ImGui::InputInt("##num_samples", &m_numSamples, 50);
+	ImGui::InputInt("##num_samples", &m_numSamples, 50, 100);
 
 	ImGui::Separator();
 
@@ -146,6 +154,24 @@ void ImguiSampleInspector::buildControlPanelContent()
 	if(ImGui::Button("Normalized Fit"))
 	{
 		m_isNormalizedFitRequested = true;
+	}
+
+	if(canGenerate)
+	{
+		ScatterPlotData plotData;
+		plotData.name = m_plotNameBuffer.data();
+
+		plotData.resize(m_numSamples);
+		if(m_sourceType == ESource::Rng)
+		{
+			genRngPoints(plotData.xs, plotData.ys);
+		}
+		else if(m_sourceType == ESource::Generator)
+		{
+			genGeneratorPoints(plotData.xs, plotData.ys);
+		}
+
+		m_scatterPlots.push_back(plotData);
 	}
 }
 
@@ -176,6 +202,46 @@ void ImguiSampleInspector::buildPlotterViewContent()
 		}
 
 		ImPlot::EndPlot();
+	}
+}
+
+void ImguiSampleInspector::safeguardParameters()
+{
+	m_paramSafeguardMessage.clear();
+
+	if(m_sourceType == ESource::Rng)
+	{
+		constexpr int maxSamples = 10000;
+		if(m_numSamples <= 0 || m_numSamples > maxSamples)
+		{
+			m_paramSafeguardMessage += std::format(
+				"* Number of RNG samples should be within [1, {}].\n",
+				maxSamples);
+		}
+	}
+	else if(m_sourceType == ESource::Generator)
+	{
+		constexpr int maxSamples = 2000;
+		if(m_numSamples <= 0 || m_numSamples > maxSamples)
+		{
+			m_paramSafeguardMessage += std::format(
+				"* Number of generator samples should be within [1, {}].\n",
+				maxSamples);
+		}
+
+		constexpr int maxDimIndex = 50;
+		if(m_generatorSettings.xAxisDimIndex < 0 || m_generatorSettings.xAxisDimIndex > maxDimIndex)
+		{
+			m_paramSafeguardMessage += std::format(
+				"* X-axis dimension index should be within [0, {}].\n",
+				maxDimIndex);
+		}
+		if(m_generatorSettings.yAxisDimIndex < 0 || m_generatorSettings.yAxisDimIndex > maxDimIndex)
+		{
+			m_paramSafeguardMessage += std::format(
+				"* Y-axis dimension index should be within [0, {}].\n",
+				maxDimIndex);
+		}
 	}
 }
 
@@ -244,7 +310,37 @@ void ImguiSampleInspector::genGeneratorPoints(
 	}
 
 	const auto numSamples = out_xBuffer.size();
-	const auto handle = generator->declareStageND(2, numSamples);
+	
+	const int xAxisDim = m_generatorSettings.xAxisDimIndex;
+	const int yAxisDim = m_generatorSettings.yAxisDimIndex;
+	const bool isConsecutiveDims = std::abs(xAxisDim - yAxisDim) == 1;
+	const bool isRepeatedDims = xAxisDim == yAxisDim;
+	const bool isReversedDims = xAxisDim > yAxisDim;
+
+	// Skip dimensions till the first one we use
+	{
+		const int numDimsToSkip = std::min(xAxisDim, yAxisDim);
+		if(numDimsToSkip >= 1)
+		{
+			generator->declareStageND(numDimsToSkip, 1);
+		}
+	}
+	
+	SamplesNDHandle handle1 = generator->declareStageND(
+		isConsecutiveDims ? 2 : 1, 
+		numSamples);
+
+	SamplesNDHandle handle2 = handle1;
+	if(!isConsecutiveDims && !isRepeatedDims)
+	{
+		// Skip dimensions till the second one we use
+		const int numDimsToSkip = std::abs(xAxisDim - yAxisDim) - 1;
+		PH_ASSERT_GE(numDimsToSkip, 1);
+		generator->declareStageND(numDimsToSkip, 1);
+
+		handle2 = generator->declareStageND(1, numSamples);
+	}
+
 	if(!generator->prepareSampleBatch())
 	{
 		PH_DEFAULT_LOG_WARNING(
@@ -252,24 +348,62 @@ void ImguiSampleInspector::genGeneratorPoints(
 		return;
 	}
 
-	SamplesNDStream sampleStream = generator->getSamplesND(handle);
-	if(m_generatorSettings.useSampleFlow)
+	const bool useSampleFlow = m_generatorSettings.useSampleFlow;
+
+	SamplesNDStream sampleStreams[] = {
+		generator->getSamplesND(handle1), 
+		generator->getSamplesND(handle2)};
+	TSpan<float> out_buffers[] = {
+		out_xBuffer, 
+		out_yBuffer};
+	for(std::size_t i = 0; i < out_xBuffer.size(); ++i)
 	{
-		for(std::size_t i = 0; i < out_xBuffer.size(); ++i)
+		// 2-D samples
+		if(isConsecutiveDims)
 		{
-			SampleFlow sampleFlow = sampleStream.readSampleAsFlow();
-			const auto sample2D = sampleFlow.flow2D();
-			out_xBuffer[i] = sample2D[0];
-			out_yBuffer[i] = sample2D[1];
+			if(useSampleFlow)
+			{
+				for(std::size_t di = 0; di < 2; ++di)
+				{
+					SampleFlow sampleFlow = sampleStreams[di].readSampleAsFlow();
+					const auto sample2D = sampleFlow.flow2D();
+					out_buffers[di][i] = sample2D[di];
+				}
+			}
+			else
+			{
+				for(std::size_t di = 0; di < 2; ++di)
+				{
+					const auto sample2D = sampleStreams[di].readSample<2>();
+					out_buffers[di][i] = sample2D[di];
+				}
+			}
 		}
-	}
-	else
-	{
-		for(std::size_t i = 0; i < out_xBuffer.size(); ++i)
+		// 1-D samples
+		else
 		{
-			const auto sample2D = sampleStream.readSample<2>();
-			out_xBuffer[i] = sample2D[0];
-			out_yBuffer[i] = sample2D[1];
+			if(useSampleFlow)
+			{
+				for(std::size_t di = 0; di < 2; ++di)
+				{
+					SampleFlow sampleFlow = sampleStreams[di].readSampleAsFlow();
+					const auto sample1D = sampleFlow.flow1D();
+					out_buffers[di][i] = sample1D;
+				}
+			}
+			else
+			{
+				for(std::size_t di = 0; di < 2; ++di)
+				{
+					const auto sample1D = sampleStreams[di].readSample<1>();
+					out_buffers[di][i] = sample1D[0];
+				}
+			}
+		}
+
+		if(isReversedDims)
+		{
+			std::swap(out_buffers[0][i], out_buffers[1][i]);
 		}
 	}
 }

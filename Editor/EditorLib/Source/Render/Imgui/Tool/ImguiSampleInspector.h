@@ -7,12 +7,9 @@
 #include <cstddef>
 #include <vector>
 #include <string>
-#include <string>
 
 namespace ph::editor
 {
-
-class ImguiEditorUIProxy;
 
 class ImguiSampleInspector final
 {
@@ -21,9 +18,7 @@ public:
 
 	ImguiSampleInspector();
 
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI);
+	void buildWindow(const char* title);
 
 private:
 	// Update `RNG_NAMES` if modified
@@ -56,6 +51,12 @@ private:
 		"Halton"
 	};
 
+	enum ESource : int
+	{
+		Rng = 0,
+		Generator
+	};
+
 	struct ScatterPlotData
 	{
 		std::string name;
@@ -78,18 +79,23 @@ private:
 	struct GeneratorSettings
 	{
 		int type = 0;
+		int xAxisDimIndex = 0;
+		int yAxisDimIndex = 1;
 		bool useSampleFlow = true;
 	};
 
 	void buildControlPanelContent();
 	void buildPlotterViewContent();
+	void safeguardParameters();
 	void genRngPoints(TSpan<float> out_xBuffer, TSpan<float> out_yBuffer) const;
 	void genGeneratorPoints(TSpan<float> out_xBuffer, TSpan<float> out_yBuffer) const;
 	
 	std::vector<ScatterPlotData> m_scatterPlots;
 	std::vector<char> m_plotNameBuffer;
 	int m_numSamples;
-	int m_sampleSource;
+	int m_sourceType;
+	bool m_useParamSafeguards;
+	std::string m_paramSafeguardMessage;
 	RngSettings m_rngSettings;
 	GeneratorSettings m_generatorSettings;
 

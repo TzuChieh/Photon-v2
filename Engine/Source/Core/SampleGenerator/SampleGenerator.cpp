@@ -146,7 +146,7 @@ SamplesNDHandle SampleGenerator::declareStageND(
 	return SamplesNDHandle(stageIndex, numDims);
 }
 
-SamplesNDStream SampleGenerator::getSamplesND(const SamplesNDHandle& handle)
+SamplesNDStream SampleGenerator::getSamplesND(const SamplesNDHandle& handle) const
 {
 	PH_ASSERT_MSG(m_isSampleBatchPrepared,
 		"No available sample batch. Did you forget to call `prepareSampleBatch()` or we ran out "
