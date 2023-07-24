@@ -41,14 +41,18 @@ private:
 	{
 		UniformRandom = 0,
 		Stratified,
-		Halton
+		Halton,
+		HaltonFixedScramble,
+		HaltonPerDigitScramble
 	};
 
 	static constexpr const char* GENERATOR_NAMES[] =
 	{
 		"Uniform Random",
 		"Stratified",
-		"Halton"
+		"Halton",
+		"Halton (Fixed Scramble)",
+		"Halton (Per-digit Scramble)"
 	};
 
 	enum ESource : int

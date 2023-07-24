@@ -289,20 +289,29 @@ void ImguiSampleInspector::genGeneratorPoints(
 	const TSpan<float> out_yBuffer) const
 {
 	std::unique_ptr<SampleGenerator> generator;
-	if(m_generatorSettings.type == EGenerator::UniformRandom)
+	switch(m_generatorSettings.type)
 	{
+	case EGenerator::UniformRandom:
 		generator = std::make_unique<SGUniformRandom>(1);
-	}
-	else if(m_generatorSettings.type == EGenerator::Stratified)
-	{
+		break;
+		
+	case EGenerator::Stratified:
 		generator = std::make_unique<SGStratified>(1);
-	}
-	else if(m_generatorSettings.type == EGenerator::Halton)
-	{
-		generator = std::make_unique<SGHalton>(1);
-	}
-	else
-	{
+		break;
+		
+	case EGenerator::Halton:
+		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::None);
+		break;
+
+	case EGenerator::HaltonFixedScramble:
+		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::Fixed);
+		break;
+
+	case EGenerator::HaltonPerDigitScramble:
+		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::PerDigit);
+		break;
+
+	default:
 		PH_DEFAULT_LOG_WARNING(
 			"Cannot generate points from sample generator: unsupported type {}",
 			m_generatorSettings.type);
