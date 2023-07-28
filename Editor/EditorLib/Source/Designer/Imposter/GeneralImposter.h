@@ -12,9 +12,16 @@ namespace ph::editor
 class GeneralImposter : public ImposterObject
 {
 public:
+	using Base = ImposterObject;
+
+	bool bindTarget(
+		const std::shared_ptr<ISdlResource>& resource,
+		const std::string& targetName) override;
+
+	void unbindTarget() override;
 
 private:
-	//std::string m_text;
+	std::shared_ptr<ISdlResource> m_targetResource;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GeneralImposter>)
@@ -25,10 +32,6 @@ public:
 			"An object that can represent any render description resource. This is a good fallback "
 			"if a more specific imposter type does not present.");
 		clazz.baseOn<ImposterObject>();
-
-		/*TSdlString<OwnerType> text("text", &OwnerType::m_text);
-		text.description("Notes in string.");
-		clazz.addField(text);*/
 
 		return clazz;
 	}

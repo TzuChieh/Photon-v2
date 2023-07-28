@@ -99,6 +99,7 @@ private:
 	int m_numSamples;
 	int m_sourceType;
 	bool m_useParamSafeguards;
+	bool m_autoClearOnGenerate;
 	std::string m_paramSafeguardMessage;
 	RngSettings m_rngSettings;
 	GeneratorSettings m_generatorSettings;

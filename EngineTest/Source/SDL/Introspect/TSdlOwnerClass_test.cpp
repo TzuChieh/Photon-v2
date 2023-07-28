@@ -55,7 +55,7 @@ struct TestMethodStruct2
 	}
 };
 
-}// end namespace
+}// end anonymous namespace
 
 TEST(TSdlOwnerClassTest, RequiredProperties)
 {

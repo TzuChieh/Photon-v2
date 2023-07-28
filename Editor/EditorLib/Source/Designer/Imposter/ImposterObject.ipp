@@ -5,11 +5,6 @@
 namespace ph::editor
 {
 
-inline ISdlResource* ImposterObject::getTargetResource() const
-{
-	return m_targetResource.get();
-}
-
 inline const std::string& ImposterObject::getTargetName() const
 {
 	return m_targetName;

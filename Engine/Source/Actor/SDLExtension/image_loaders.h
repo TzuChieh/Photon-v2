@@ -3,8 +3,7 @@
 #include "Math/TVector3.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Math/Color/Spectrum.h"
-#include "Actor/SDLExtension/sdl_color_space_type.h"
-#include "Actor/SDLExtension/sdl_color_usage_type.h"
+#include "Actor/SDLExtension/sdl_color_enums.h"
 
 #include <memory>
 #include <string>

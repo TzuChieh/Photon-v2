@@ -23,4 +23,17 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<math::EColorSpace>)
 	return sdlEnum;
 }
 
+PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<math::EColorUsage>)
+{
+	SdlEnumType sdlEnum("color-usage");
+	sdlEnum.description("Marks color usage information of input values.");
+
+	sdlEnum.addEntry(EnumType::Unspecified, "");
+	sdlEnum.addEntry(EnumType::RAW,         "RAW");
+	sdlEnum.addEntry(EnumType::EMR,         "EMR");
+	sdlEnum.addEntry(EnumType::ECF,         "ECF");
+
+	return sdlEnum;
+}
+
 }// end namespace ph

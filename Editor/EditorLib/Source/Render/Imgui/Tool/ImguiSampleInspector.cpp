@@ -27,6 +27,7 @@ ImguiSampleInspector::ImguiSampleInspector()
 	, m_numSamples(100)
 	, m_sourceType(ESource::Rng)
 	, m_useParamSafeguards(true)
+	, m_autoClearOnGenerate(true)
 	, m_paramSafeguardMessage()
 	, m_rngSettings()
 	, m_generatorSettings()
@@ -38,7 +39,7 @@ ImguiSampleInspector::ImguiSampleInspector()
 
 void ImguiSampleInspector::buildWindow(const char* const title)
 {
-	// Auto center and determine a suitable size when first use
+	// Auto center and determine a suitable size for first use
 	ImGuiCond windowLayoutCond = ImGuiCond_FirstUseEver;
 	const ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(
@@ -74,23 +75,6 @@ void ImguiSampleInspector::buildWindow(const char* const title)
 	buildPlotterViewContent();
 	ImGui::EndChild();
 
-
-
-	/*static float xs2[50], ys2[50];
-	for(int i = 0; i < 50; i++) {
-	xs2[i] = 0.25f + 0.2f * ((float)rand() / (float)RAND_MAX);
-	ys2[i] = 0.75f + 0.2f * ((float)rand() / (float)RAND_MAX);
-	}
-
-	if(ImPlot::BeginPlot("Scatter Plot")) {
-	ImPlot::PlotScatter("Data 1", m_pointXs.data(), m_pointYs.data(), m_pointXs.size());
-	ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
-	ImPlot::SetNextMarkerStyle(ImPlotMarker_Square, 6, ImPlot::GetColormapColor(1), IMPLOT_AUTO, ImPlot::GetColormapColor(1));
-	ImPlot::PlotScatter("Data 2", xs2, ys2, 50);
-	ImPlot::PopStyleVar();
-	ImPlot::EndPlot();
-	}*/
-
 	ImGui::End();
 }
 
@@ -118,6 +102,7 @@ void ImguiSampleInspector::buildControlPanelContent()
 	
 	ImGui::InputText("Plot Name", m_plotNameBuffer.data(), m_plotNameBuffer.size());
 	ImGui::Checkbox("Parameter Safeguards", &m_useParamSafeguards);
+	ImGui::Checkbox("Clear On Generate", &m_autoClearOnGenerate);
 
 	if(m_useParamSafeguards && !m_paramSafeguardMessage.empty())
 	{
@@ -158,6 +143,11 @@ void ImguiSampleInspector::buildControlPanelContent()
 
 	if(canGenerate)
 	{
+		if(m_autoClearOnGenerate)
+		{
+			m_scatterPlots.clear();
+		}
+
 		ScatterPlotData plotData;
 		plotData.name = m_plotNameBuffer.data();
 

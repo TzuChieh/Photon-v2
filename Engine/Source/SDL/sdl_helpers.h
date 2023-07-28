@@ -7,10 +7,7 @@ Helpers are in an additional `sdl` namespace.
 */
 
 #include "Common/primitive_type.h"
-#include "Common/assertion.h"
-#include "Math/TVector3.h"
-#include "Math/TVector2.h"
-#include "Math/TQuaternion.h"
+#include "Math/math_fwd.h"
 #include "Utility/string_utils.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "SDL/ESdlDataType.h"

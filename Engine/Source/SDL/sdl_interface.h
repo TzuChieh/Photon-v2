@@ -1,5 +1,9 @@
 #pragma once
 
+#include "SDL/ISdlResource.h"
+#include "SDL/TSdl.h"
+#include "SDL/Introspect/TSdlEnum.h"
+
 // Base types
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/Introspect/SdlStruct.h"
@@ -8,7 +12,6 @@
 
 // Enum types
 #include "SDL/Introspect/TSdlGeneralEnum.h"
-#include "SDL/Introspect/TSdlEnum.h"
 
 // Owner types
 #include "SDL/Introspect/TSdlOwnerClass.h"
@@ -33,9 +36,6 @@
 // Function types
 #include "SDL/Introspect/TSdlMethod.h"
 
-#include "SDL/ISdlResource.h"
-#include "SDL/TSdl.h"
-
 #include <type_traits>
 
 /*! @brief Define a SDL class with function-like syntax.
@@ -59,10 +59,10 @@ Available functionalities after defining the macro:
 */
 #define PH_DEFINE_SDL_CLASS(...)/* variadic args for template types that contain commas */\
 	\
-	using ClassType = __VA_ARGS__;\
-	using OwnerType = typename ClassType::OwnerType;\
+	using ClassType = std::remove_cv_t<__VA_ARGS__>;\
+	using OwnerType = std::remove_cv_t<typename ClassType::OwnerType>;\
 	\
-	/* Dummy type so we know the macro has been called. */\
+	/* A marker so we know the macro has been called. */\
 	using SdlClassDefinitionMarker = OwnerType;\
 	\
 	inline static const ClassType* getSdlClass()\
@@ -85,10 +85,10 @@ Available functionalities after defining the macro:
 
 #define PH_DEFINE_SDL_STRUCT(...)/* variadic args for template types that contain commas */\
 	\
-	using StructType = __VA_ARGS__;\
-	using OwnerType  = typename StructType::OwnerType;\
+	using StructType = std::remove_cv_t<__VA_ARGS__>;\
+	using OwnerType  = std::remove_cv_t<typename StructType::OwnerType>;\
 	\
-	/* Dummy type so we know the macro has been called. */\
+	/* A marker so we know the macro has been called. */\
 	using SdlStructDefinitionMarker = OwnerType;\
 	\
 	inline static const StructType* getSdlStruct()\
@@ -104,10 +104,10 @@ Available functionalities after defining the macro:
 
 #define PH_DEFINE_SDL_FUNCTION(...)/* variadic args for template types that contain commas */\
 	\
-	using FunctionType = __VA_ARGS__;\
-	using OwnerType    = typename FunctionType::OwnerType;\
+	using FunctionType = std::remove_cv_t<__VA_ARGS__>;\
+	using OwnerType    = std::remove_cv_t<typename FunctionType::OwnerType>;\
 	\
-	/* Dummy type so we know the macro has been called. */\
+	/* A marker so we know the macro has been called. */\
 	using SdlFunctionDefinitionMarker = OwnerType;\
 	\
 	inline static const FunctionType* getSdlFunction()\
@@ -122,24 +122,34 @@ Available functionalities after defining the macro:
 	inline static FunctionType internal_sdl_function_impl()
 
 /*! @brief Define a SDL enum with function-like syntax.
+
 One does not need to define all enum entries. It is valid to partially expose some enum entries
 and keep the others hidden from SDL. Note that it is highly encouraged to provide a valid entry
 with the value 0 as it will be used as the default.
 
+A limitation of this macro is that it must be called in the enclosing namespace of `ph` (including
+namespace `ph` itself). Note this should not cause any name collision--the enum type can still be 
+defined in an appropriate namespace. (The underlying implementation depends on explicit template
+specialization which requires the aforementioned rule. As long as a unique enum type is used for
+specializing `TSdlEnum`, the resulting type should still be unique.)
+
 For a enum `EnumType`, after the definition is done by calling this macro, you can use methods in
-`TSdlEnum<EnumType>` to access functionalities.
+`TSdlEnum<EnumType>` to access functionalities. See `TSdlEnum` for what methods are available. 
 */
 #define PH_DEFINE_SDL_ENUM(...)/* variadic args for template types that contain commas */\
 	template<>\
-	class TSdlEnum<typename __VA_ARGS__::EnumType> final\
+	class TSdlEnum<std::remove_cv_t<typename __VA_ARGS__::EnumType>> final\
 	{\
-	private:\
+	public:\
 	\
-		using SdlEnumType = __VA_ARGS__;\
-		using EnumType    = typename SdlEnumType::EnumType;\
+		using SdlEnumType = std::remove_cv_t<__VA_ARGS__>;\
+		using EnumType    = std::remove_cv_t<typename SdlEnumType::EnumType>;\
 	\
 		static_assert(std::is_enum_v<EnumType>,\
 			"EnumType must be an enum. Currently it is not.");\
+	\
+		/* A marker so we know the macro has been called. */\
+		using SdlEnumDefinitionMarker = EnumType;\
 	\
 	public:\
 		inline EnumType operator [] (const std::string_view entryName) const\
@@ -169,4 +179,4 @@ For a enum `EnumType`, after the definition is done by calling this macro, you c
 	\
 	/* In-header Implementations: */\
 	\
-	inline __VA_ARGS__ TSdlEnum<typename __VA_ARGS__::EnumType>::internal_sdl_enum_impl()
+	inline __VA_ARGS__ TSdlEnum<std::remove_cv_t<typename __VA_ARGS__::EnumType>>::internal_sdl_enum_impl()

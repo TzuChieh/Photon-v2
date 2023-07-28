@@ -18,7 +18,7 @@ class SdlField
 {
 public:
 	SdlField(std::string typeName, std::string fieldName);
-	virtual ~SdlField() = default;
+	virtual ~SdlField();
 
 	/*! @brief Direct access to the field memory of a SDL resource.
 	Note that this field may not necessarily be bound to a SDL resource type (e.g., function parameter

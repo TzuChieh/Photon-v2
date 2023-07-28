@@ -4,6 +4,8 @@
 namespace ph
 {
 
+SdlField::~SdlField() = default;
+
 std::string SdlField::genPrettyName() const
 {
 	return sdl::gen_pretty_name(this);

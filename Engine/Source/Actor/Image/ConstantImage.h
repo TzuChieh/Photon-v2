@@ -2,7 +2,7 @@
 
 #include "Actor/Image/Image.h"
 #include "Math/math_fwd.h"
-#include "Actor/SDLExtension/sdl_color_space_type.h"
+#include "Actor/SDLExtension/sdl_color_enums.h"
 #include "SDL/sdl_interface.h"
 
 #include <vector>

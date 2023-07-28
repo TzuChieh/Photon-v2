@@ -18,13 +18,13 @@ namespace ph
 /*! @brief SDL enum implementation with common features.
 Enum value and string mapping are done in a brute-force way.
 */
-template<typename EnumType_, std::size_t MAX_ENTRIES = 64>
+template<typename InEnumType, std::size_t MAX_ENTRIES = 64>
 class TSdlGeneralEnum : public SdlEnum
 {
 	// TODO: how the mapping is done should be a template param
 	// TODO: can have other kinds of enum such as TSdlFlagEnum
 public:
-	using EnumType = EnumType_;
+	using EnumType = InEnumType;
 
 	static_assert(std::is_enum_v<EnumType>,
 		"EnumType must be a C++ enum. Currently it is not.");

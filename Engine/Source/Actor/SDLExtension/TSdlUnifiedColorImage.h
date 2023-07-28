@@ -9,7 +9,7 @@
 #include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "Math/TVector3.h"
-#include "Actor/SDLExtension/sdl_color_space_type.h"
+#include "Actor/SDLExtension/sdl_color_enums.h"
 
 #include <string>
 #include <exception>

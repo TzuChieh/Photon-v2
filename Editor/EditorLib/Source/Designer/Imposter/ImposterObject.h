@@ -16,13 +16,15 @@ PH_DECLARE_LOG_GROUP(ImposterObject);
 class ImposterObject : public FlatDesignerObject
 {
 public:
-	void setTarget(std::shared_ptr<ISdlResource> resource);
-	ISdlResource* getTargetResource() const;
+	virtual bool bindTarget(
+		const std::shared_ptr<ISdlResource>& resource,
+		const std::string& targetName);
+
+	virtual void unbindTarget();
+
 	const std::string& getTargetName() const;
 
 private:
-	std::shared_ptr<ISdlResource> m_targetResource;
-
 	// SDL-binded fields:
 	std::string m_targetName;
 
