@@ -1,14 +1,10 @@
 #pragma once
 
 #include "SDL/SdlDataPacketInterface.h"
+#include "SDL/sdl_fwd.h"
 
 namespace ph
 {
-
-class SdlInputClause;
-class SdlInputClauses;
-class SdlOutputClause;
-class SdlOutputClauses;
 
 /*! @brief Supports the case where the packet command stores SDL clauses directly.
 */

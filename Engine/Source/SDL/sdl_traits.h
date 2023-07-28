@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "Utility/traits.h"
 
@@ -7,11 +8,6 @@
 
 namespace ph
 {
-
-class ISdlResource;
-
-template<typename EnumType>
-class TSdlEnum;
 
 template<typename T>
 concept CSdlResource = CDerived<T, ISdlResource>;

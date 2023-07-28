@@ -1,11 +1,10 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "DataIO/FileSystem/Path.h"
 
 #include <utility>
 #include <string>
-
-namespace ph { class SdlClass; }
 
 namespace ph
 {

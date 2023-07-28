@@ -6,6 +6,7 @@
 Helpers are in an additional `sdl` namespace.
 */
 
+#include "SDL/sdl_fwd.h"
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Utility/string_utils.h"
@@ -17,16 +18,6 @@ Helpers are in an additional `sdl` namespace.
 #include <vector>
 #include <utility>
 #include <concepts>
-
-namespace ph
-{
-
-class SdlClass;
-class SdlField;
-class SdlFunction;
-class SdlOutputClause;
-
-}// end namespace ph
 
 namespace ph::sdl
 {
@@ -141,10 +132,12 @@ template<typename T>
 constexpr ESdlDataType resource_type_of();
 
 /*! @brief Cast between SDL resource types.
-Cast the input SDL resource instance of `SrcType` to an instance of `DstType`. Each of the input types
-can possibly be `const` qualified.
+Cast the input SDL resource instance of @p SrcType to an instance of @p DstType. Each of the input types
+can possibly be `const` qualified. This is a stricter cast than standard `dynamic_cast` as both input
+and output pointer must not be null, and it will throw if the cast cannot be done.
 @param srcResource The resource to be casted.
 @return The casted resource. Never null.
+@exception SdlException If @p srcResource cannot be casted to @p DstType.
 */
 template<typename DstType, typename SrcType>
 DstType* cast_to(SrcType* srcResource);

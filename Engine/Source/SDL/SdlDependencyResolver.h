@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "Utility/TSpan.h"
 
 #include <string>
@@ -9,8 +10,6 @@
 #include <cstddef>
 #include <queue>
 #include <optional>
-
-namespace ph { class ISdlResource; }
 
 namespace ph
 {

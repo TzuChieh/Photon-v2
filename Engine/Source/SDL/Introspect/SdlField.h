@@ -1,13 +1,12 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
 #include "SDL/Introspect/SdlNativeData.h"
 
 #include <string>
 #include <utility>
-
-namespace ph { class ISdlResource; }
 
 namespace ph
 {
@@ -20,13 +19,13 @@ public:
 	SdlField(std::string typeName, std::string fieldName);
 	virtual ~SdlField();
 
-	/*! @brief Direct access to the field memory of a SDL resource.
-	Note that this field may not necessarily be bound to a SDL resource type (e.g., function parameter
-	structs). Empty native data info will be returned in cases where this field is not part of the
-	input resource. Obtaining native data requires the input resource be valid during this call and
-	any further usages of the returned native data.
+	/*! @brief Direct access to the field memory of a SDL instance.
+	Note that this field may not necessarily be bound to a SDL resource type (e.g., may bound to
+	any function parameter structs). Empty native data info will be returned in cases where this
+	field is not owned by (or being part of) the input instance. Obtaining native data requires
+	the input instance be valid during this call and any further usages of the returned native data.
 	*/
-	virtual SdlNativeData nativeData(ISdlResource& resource) const = 0;
+	virtual SdlNativeData nativeData(SdlNonConstInstance instance) const = 0;
 
 	std::string genPrettyName() const;
 	const std::string& getTypeName() const;

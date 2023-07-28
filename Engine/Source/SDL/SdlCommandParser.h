@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "SDL/SdlInputClauses.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "SDL/SdlInlinePacketInterface.h"
@@ -13,10 +14,6 @@
 
 namespace ph
 {
-
-class SdlClass;
-class SdlInputContext;
-class SdlDataPacketInterface;
 
 enum class ESdlCommandType
 {

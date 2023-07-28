@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
 
@@ -10,11 +11,6 @@ namespace ph
 {
 
 PH_DEFINE_EXTERNAL_LOG_GROUP(SdlFunction, SDL);
-
-class SdlField;
-class SdlInputContext;
-class SdlInputClauses;
-class ISdlResource;
 
 class SdlFunction
 {

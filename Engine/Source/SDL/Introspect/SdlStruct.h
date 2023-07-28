@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "Common/logging.h"
 
 #include <cstddef>
@@ -9,10 +10,6 @@ namespace ph
 {
 
 PH_DEFINE_EXTERNAL_LOG_GROUP(SdlStruct, SDL);
-
-class SdlField;
-class SdlInputClauses;
-class SdlInputContext;
 
 /*!
 SDL struct do not provide interface for initializing instances to default values such as the one

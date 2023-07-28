@@ -9,6 +9,7 @@
 #include "SDL/SdlInputClause.h"
 #include "SDL/SdlOutputClause.h"
 #include "Utility/traits.h"
+#include "SDL/TSdlAnyInstance.h"
 
 #include <utility>
 
@@ -24,23 +25,22 @@ inline TSdlOwnedField<Owner>::TSdlOwnedField(std::string typeName, std::string v
 {}
 
 template<typename Owner>
-inline SdlNativeData TSdlOwnedField<Owner>::nativeData(ISdlResource& resource) const
+inline SdlNativeData TSdlOwnedField<Owner>::nativeData(SdlNonConstInstance instance) const
 {
-	if constexpr(CDerived<Owner, ISdlResource>)
+	try
 	{
-		try
+		Owner* const owner = instance.get<Owner>();
+		if(!owner)
 		{
-			Owner* const owner = sdl::cast_to<Owner>(&resource);
-			return ownedNativeData(*owner);
-		}
-		catch(const SdlException& /* e */)
-		{
+			// Cannot get native data
 			return {};
 		}
+
+		return ownedNativeData(*owner);
 	}
-	else
+	catch(const SdlException& /* e */)
 	{
-		// Non SDL resource--cannot get native data, need to use `ownedNativeData()`
+		// Cannot get native data
 		return {};
 	}
 }

@@ -21,7 +21,26 @@ public:
 	{
 		return CATEGORY;
 	}
+
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DummySdlClass>)
+	{
+		ClassType clazz("dummy");
+		return clazz;
+	}
 };
+
+class DummySdlClass2 : public DummySdlClass
+{
+public:
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DummySdlClass2>)
+	{
+		ClassType clazz("dummy2");
+		return clazz;
+	}
+};
+
+class DummySdlClassDerived : public DummySdlClass
+{};
 
 struct DummyStruct
 {};
@@ -34,6 +53,18 @@ struct DummySdlStruct
 		return ztruct;
 	}
 };
+
+struct DummySdlStruct2 : public DummySdlStruct
+{
+	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<DummySdlStruct2>)
+	{
+		StructType ztruct("dummy2");
+		return ztruct;
+	}
+};
+
+struct DummySdlStructDerived : public DummySdlStruct
+{};
 
 struct DummyMethodStruct
 {};
@@ -48,6 +79,17 @@ struct DummySdlMethodStruct
 		return FunctionType("dummy");
 	}
 };
+
+struct DummySdlMethodStruct2 : public DummySdlMethodStruct
+{
+	PH_DEFINE_SDL_FUNCTION(TSdlMethod<DummySdlMethodStruct2, DummySdlClass>)
+	{
+		return FunctionType("dummy2");
+	}
+};
+
+struct DummySdlMethodStructDerived : public DummySdlMethodStruct
+{};
 
 enum class EDummy
 {};
@@ -71,6 +113,7 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EDummySdl>)
 TEST(SdlTraitsTest, SdlClassTraits)
 {
 	static_assert(CHasSdlClassDefinition<DummyClass> == false);
+	static_assert(CHasSdlClassDefinition<DummySdlClass> == true);
 	static_assert(CHasSdlClassDefinition<Actor> == true);
 	static_assert(CHasSdlClassDefinition<DummyStruct> == false);
 	static_assert(CHasSdlClassDefinition<DummySdlStruct> == false);
@@ -83,6 +126,7 @@ TEST(SdlTraitsTest, SdlClassTraits)
 
 	// Must also recognize const variants
 	static_assert(CHasSdlClassDefinition<const DummyClass> == false);
+	static_assert(CHasSdlClassDefinition<const DummySdlClass> == true);
 	static_assert(CHasSdlClassDefinition<const Actor> == true);
 	static_assert(CHasSdlClassDefinition<const DummyStruct> == false);
 	static_assert(CHasSdlClassDefinition<const DummySdlStruct> == false);
@@ -92,6 +136,10 @@ TEST(SdlTraitsTest, SdlClassTraits)
 	static_assert(CHasSdlClassDefinition<const TSdlEnum<EDummySdl>> == false);
 	static_assert(CHasSdlClassDefinition<const int> == false);
 	static_assert(CHasSdlClassDefinition<const float> == false);
+
+	// Must not be fooled by a derived class without SDL definition
+	static_assert(CHasSdlClassDefinition<DummySdlClassDerived> == false);
+	static_assert(CHasSdlClassDefinition<DummySdlClass2> == true);
 }
 
 TEST(SdlTraitsTest, SdlStructTraits)
@@ -99,6 +147,7 @@ TEST(SdlTraitsTest, SdlStructTraits)
 	static_assert(CHasSdlStructDefinition<DummyStruct> == false);
 	static_assert(CHasSdlStructDefinition<DummySdlStruct> == true);
 	static_assert(CHasSdlStructDefinition<DummyClass> == false);
+	static_assert(CHasSdlStructDefinition<DummySdlClass> == false);
 	static_assert(CHasSdlStructDefinition<Actor> == false);
 	static_assert(CHasSdlStructDefinition<DummyMethodStruct> == false);
 	static_assert(CHasSdlStructDefinition<DummySdlMethodStruct> == false);
@@ -111,6 +160,7 @@ TEST(SdlTraitsTest, SdlStructTraits)
 	static_assert(CHasSdlStructDefinition<const DummyStruct> == false);
 	static_assert(CHasSdlStructDefinition<const DummySdlStruct> == true);
 	static_assert(CHasSdlStructDefinition<const DummyClass> == false);
+	static_assert(CHasSdlStructDefinition<const DummySdlClass> == false);
 	static_assert(CHasSdlStructDefinition<const Actor> == false);
 	static_assert(CHasSdlStructDefinition<const DummyMethodStruct> == false);
 	static_assert(CHasSdlStructDefinition<const DummySdlMethodStruct> == false);
@@ -118,6 +168,10 @@ TEST(SdlTraitsTest, SdlStructTraits)
 	static_assert(CHasSdlStructDefinition<const TSdlEnum<EDummySdl>> == false);
 	static_assert(CHasSdlStructDefinition<const int> == false);
 	static_assert(CHasSdlStructDefinition<const float> == false);
+
+	// Must not be fooled by a derived struct without SDL definition
+	static_assert(CHasSdlStructDefinition<DummySdlStructDerived> == false);
+	static_assert(CHasSdlStructDefinition<DummySdlStruct2> == true);
 }
 
 TEST(SdlTraitsTest, SdlFunctionTraits)
@@ -125,6 +179,7 @@ TEST(SdlTraitsTest, SdlFunctionTraits)
 	static_assert(CHasSdlFunctionDefinition<DummyMethodStruct> == false);
 	static_assert(CHasSdlFunctionDefinition<DummySdlMethodStruct> == true);
 	static_assert(CHasSdlFunctionDefinition<DummyClass> == false);
+	static_assert(CHasSdlFunctionDefinition<DummySdlClass> == false);
 	static_assert(CHasSdlFunctionDefinition<Actor> == false);
 	static_assert(CHasSdlFunctionDefinition<DummyStruct> == false);
 	static_assert(CHasSdlFunctionDefinition<DummySdlStruct> == false);
@@ -137,6 +192,7 @@ TEST(SdlTraitsTest, SdlFunctionTraits)
 	static_assert(CHasSdlFunctionDefinition<const DummyMethodStruct> == false);
 	static_assert(CHasSdlFunctionDefinition<const DummySdlMethodStruct> == true);
 	static_assert(CHasSdlFunctionDefinition<const DummyClass> == false);
+	static_assert(CHasSdlFunctionDefinition<const DummySdlClass> == false);
 	static_assert(CHasSdlFunctionDefinition<const Actor> == false);
 	static_assert(CHasSdlFunctionDefinition<const DummyStruct> == false);
 	static_assert(CHasSdlFunctionDefinition<const DummySdlStruct> == false);
@@ -144,6 +200,10 @@ TEST(SdlTraitsTest, SdlFunctionTraits)
 	static_assert(CHasSdlFunctionDefinition<const TSdlEnum<EDummySdl>> == false);
 	static_assert(CHasSdlFunctionDefinition<const int> == false);
 	static_assert(CHasSdlFunctionDefinition<const float> == false);
+
+	// Must not be fooled by a derived struct without SDL definition
+	static_assert(CHasSdlFunctionDefinition<DummySdlMethodStructDerived> == false);
+	static_assert(CHasSdlFunctionDefinition<DummySdlMethodStruct2> == true);
 }
 
 TEST(SdlTraitsTest, SdlEnumTraits)
@@ -153,6 +213,7 @@ TEST(SdlTraitsTest, SdlEnumTraits)
 	static_assert(CHasSdlEnumDefinition<DummyMethodStruct> == false);
 	static_assert(CHasSdlEnumDefinition<DummySdlMethodStruct> == false);
 	static_assert(CHasSdlEnumDefinition<DummyClass> == false);
+	static_assert(CHasSdlEnumDefinition<DummySdlClass> == false);
 	static_assert(CHasSdlEnumDefinition<Actor> == false);
 	static_assert(CHasSdlEnumDefinition<DummyStruct> == false);
 	static_assert(CHasSdlEnumDefinition<DummySdlStruct> == false);
@@ -165,6 +226,7 @@ TEST(SdlTraitsTest, SdlEnumTraits)
 	static_assert(CHasSdlEnumDefinition<const DummyMethodStruct> == false);
 	static_assert(CHasSdlEnumDefinition<const DummySdlMethodStruct> == false);
 	static_assert(CHasSdlEnumDefinition<const DummyClass> == false);
+	static_assert(CHasSdlEnumDefinition<const DummySdlClass> == false);
 	static_assert(CHasSdlEnumDefinition<const Actor> == false);
 	static_assert(CHasSdlEnumDefinition<const DummyStruct> == false);
 	static_assert(CHasSdlEnumDefinition<const DummySdlStruct> == false);

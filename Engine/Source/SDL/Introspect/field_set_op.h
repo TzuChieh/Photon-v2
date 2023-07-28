@@ -1,17 +1,10 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "SDL/Introspect/EFieldImportance.h"
 
 #include <cstddef>
 #include <string>
-
-namespace ph
-{
-
-class SdlInputClauses;
-class SdlInputContext;
-
-}// end namespace ph
 
 namespace ph::field_set_op
 {

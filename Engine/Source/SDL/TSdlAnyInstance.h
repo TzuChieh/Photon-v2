@@ -1,15 +1,19 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
+
 #include <variant>
 #include <type_traits>
-
-namespace ph { class ISdlResource; }
-namespace ph { class SdlClass; }
-namespace ph { class SdlStruct; }
 
 namespace ph
 {
 
+/*! @brief References a SDL object.
+This is a lightweight utility for referencing SDL objects. Following objects are valid instances
+to be referenced by this type:
+- Objects of SDL classes
+- Objects of SDL structs
+*/
 template<bool IS_CONST>
 class TSdlAnyInstance
 {
@@ -47,9 +51,6 @@ private:
 	InstanceType m_instance;
 	MetaType m_meta;
 };
-
-using SdlConstInstance = TSdlAnyInstance<true>;
-using SdlNonConstInstance = TSdlAnyInstance<false>;
 
 }// end namespace ph
 

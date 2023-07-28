@@ -1,13 +1,8 @@
 #pragma once
 
 #include "SDL/Introspect/SdlField.h"
+#include "SDL/sdl_fwd.h"
 #include "SDL/Introspect/EFieldImportance.h"
-
-namespace ph { class ISdlResource; }
-namespace ph { class SdlInputClause; }
-namespace ph { class SdlOutputClause; }
-namespace ph { class SdlInputContext; }
-namespace ph { class SdlOutputContext; }
 
 namespace ph
 {
@@ -42,13 +37,12 @@ public:
 		std::vector<const ISdlResource*>& out_resources) const = 0;
 
 	/*! @brief Direct access to the field memory of an owner.
-	Unlike SdlField::nativeData(ISdlResource&), this variant can obtain native data for more types 
-	including non SDL resources. Short-lived owner objects such as function parameter structs must 
-	be kept alive during during this call and any further usages of the returned native data.
+	Short-lived owner objects such as function parameter structs must be kept alive during during
+	this call and any further usages of the returned native data.
 	*/
 	virtual SdlNativeData ownedNativeData(Owner& owner) const = 0;
 
-	SdlNativeData nativeData(ISdlResource& resource) const override;
+	SdlNativeData nativeData(SdlNonConstInstance instance) const override;
 
 	/*! @brief Acquire value and store in the owner's field.
 	The loading process will follow a series of preset policy. In addition,

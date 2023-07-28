@@ -1,17 +1,12 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
+
 #include <string>
 #include <string_view>
 
 namespace ph
 {
-
-class SdlClass;
-class SdlInputContext;
-class SdlOutputContext;
-class ISdlResource;
-class SdlInputClauses;
-class SdlOutputClauses;
 
 /*! @brief Parsing & generating a group of SDL clauses.
 */

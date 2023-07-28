@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL/Introspect/SdlClass.h"
+#include "SDL/sdl_fwd.h"
 #include "SDL/Introspect/TSdlOwnedField.h"
 #include "SDL/Introspect/TSdlBruteForceFieldSet.h"
 #include "Utility/TArrayAsVector.h"
@@ -13,8 +14,6 @@
 
 namespace ph
 {
-
-class SdlStructFieldStump;
 
 /*! @brief SDL binding type for a canonical SDL resource class.
 */

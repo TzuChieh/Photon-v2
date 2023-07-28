@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL/Introspect/SdlStruct.h"
+#include "SDL/sdl_fwd.h"
 #include "SDL/Introspect/TSdlBruteForceFieldSet.h"
 #include "SDL/Introspect/TSdlOwnedField.h"
 
@@ -9,8 +10,6 @@
 
 namespace ph
 {
-
-class SdlStructFieldStump;
 
 /*! @brief SDL binding type for a typical C++ struct.
 */

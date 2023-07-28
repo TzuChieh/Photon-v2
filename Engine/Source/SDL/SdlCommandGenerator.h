@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "DataIO/FileSystem/Path.h"
 #include "SDL/SdlInlinePacketInterface.h"
 #include "Utility/TSpan.h"
@@ -12,12 +13,6 @@
 namespace ph
 {
 
-class SdlClass;
-class SdlOutputContext;
-class ISdlResource;
-class SdlOutputClause;
-class SdlOutputClauses;
-class SdlDataPacketInterface;
 class SemanticVersion;
 
 class SdlCommandGenerator

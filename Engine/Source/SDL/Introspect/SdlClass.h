@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/sdl_fwd.h"
 #include "Common/logging.h"
 #include "Common/primitive_type.h"
 #include "SDL/SdlInputClauses.h"
@@ -11,12 +12,6 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-
-namespace ph { class SdlField; }
-namespace ph { class SdlFunction; }
-namespace ph { class SdlInputContext; }
-namespace ph { class SdlOutputContext; }
-namespace ph { class ISdlResource; }
 
 namespace ph
 {
