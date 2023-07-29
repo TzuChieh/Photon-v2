@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/primitive_type.h"
+
 namespace ph
 {
 
@@ -7,7 +9,7 @@ namespace ph
 Each listed data type has some form of one to one mapping to a specific runtime type. 
 Useful for code that require some determinable runtime behavior.
 */
-enum class ESdlDataType
+enum class ESdlDataType : uint8
 {
 	None = 0,
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/primitive_type.h"
+
 namespace ph
 {
 
@@ -7,27 +9,39 @@ namespace ph
 Each listed data format tells how a group of data is arranged internally as well as its meaning.
 Useful for code that require some determinable runtime behavior.
 */
-enum class ESdlDataFormat
+enum class ESdlDataFormat : uint8
 {
 	None = 0,
 
-	/*! Scalar or containing a single object only. */
+	/*! `T` types. Scalar or containing a single object only. */
 	Single,
 
-	/*! `math::TVector2<?>` types. */
+	/*! `math::TVector2<T>` types. */
 	Vector2,
 
-	/*! `math::TVector3<?>` types. */
+	/*! `math::TVector3<T>` types. */
 	Vector3,
 
-	/*! `math::TQuaternion<?>` types. */
+	/*! `math::TQuaternion<T>` types. */
 	Quaternion,
 
-	/*! An array of objects. */
-	Array,
+	/*! `std::vector<T>` types. */
+	Vector,
 
-	/*! An array of `math::TVector3<?>` objects. */
-	Vector3Array,
+	/*! `std::vector<math::TVector2<T>>` types. */
+	Vector2Vector,
+
+	/*! `std::vector<math::TVector3<T>>` types. */
+	Vector3Vector,
+
+	/*! `std::vector<math::TQuaternion<T>>` types. */
+	QuaternionVector,
+
+	/*! `std::shared_ptr<T>` types. */
+	SharedPointer,
+
+	/*! `std::unique_ptr<T>` types. */
+	UniquePointer,
 
 	SIZE
 };

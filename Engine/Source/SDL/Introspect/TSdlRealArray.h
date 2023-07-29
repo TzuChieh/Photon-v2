@@ -49,7 +49,7 @@ public:
 				vec->size());
 		}
 
-		data.format = ESdlDataFormat::Array;
+		data.format = ESdlDataFormat::Vector;
 		data.dataType = sdl::float_type_of<Element>();
 
 		return data;

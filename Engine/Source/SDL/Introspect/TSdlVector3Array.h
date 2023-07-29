@@ -51,7 +51,7 @@ public:
 				vec3Vec->size() * 3);
 		}
 		
-		data.format = ESdlDataFormat::Vector3Array;
+		data.format = ESdlDataFormat::Vector3Vector;
 		if constexpr(std::is_floating_point_v<Element>)
 		{
 			data.dataType = sdl::float_type_of<Element>();

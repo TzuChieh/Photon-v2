@@ -13,13 +13,18 @@ namespace ph
 
 template<bool IS_CONST>
 inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance()
+	: TSdlAnyInstance(nullptr)
+{}
+
+template<bool IS_CONST>
+inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(std::nullptr_t /* instance */)
 	: m_instance()
 	, m_meta()
 {}
 
 template<bool IS_CONST>
 template<typename T>
-inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const instance)
+inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const target)
 	: TSdlAnyInstance()
 {
 	static_assert(sizeof(T) == sizeof(T),
@@ -31,11 +36,11 @@ inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const instance)
 	{
 		// `T` may be const qualified; this automatically sets the right type (void pointer has
 		// lower rank in overload resolution)
-		m_instance = instance;
+		m_instance = target;
 
-		if(instance)
+		if(target)
 		{
-			m_meta = instance->getDynamicSdlClass();
+			m_meta = target->getDynamicSdlClass();
 		}
 		else if constexpr(CHasSdlClassDefinition<T>)
 		{
@@ -45,14 +50,21 @@ inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const instance)
 	else if constexpr(CHasSdlStructDefinition<T>)
 	{
 		// `T` may be const qualified; this automatically sets the right type
-		m_instance = instance;
+		m_instance = target;
 
 		m_meta = T::getSdlStruct();
+	}
+	else if constexpr(CHasSdlFunctionDefinition<T>)
+	{
+		// `T` may be const qualified; this automatically sets the right type
+		m_instance = target;
+
+		m_meta = T::getSdlFunction();
 	}
 	else
 	{
 		PH_STATIC_ASSERT_DEPENDENT_FALSE(T,
-			"Input is not a valid SDL instance type (must be a SDL class/struct).");
+			"Input is not a valid SDL target type (must be a SDL class/struct/function).");
 	}
 }
 
@@ -62,8 +74,10 @@ inline auto* TSdlAnyInstance<IS_CONST>::get() const
 {
 	using ReturnType = std::conditional_t<IS_CONST, const T, T>;
 
-	// Only one of class and struct can exist (may both be null also)
-	PH_ASSERT(!(getClass() && getStruct()));
+	// Only one of class, struct and function can exist (may all be null also)
+	PH_ASSERT_LE(
+		(getClass() != nullptr) + (getStruct() != nullptr) + (getFunction() != nullptr),
+		1);
 
 	if constexpr(CDerived<T, ISdlResource>)
 	{
@@ -90,10 +104,21 @@ inline auto* TSdlAnyInstance<IS_CONST>::get() const
 			}
 		}
 	}
-	else
+	else if constexpr(CHasSdlFunctionDefinition<T>)
 	{
-		PH_STATIC_ASSERT_DEPENDENT_FALSE(T,
-			"Input is not a valid SDL instance type (must be a SDL class/struct).");
+		if(std::holds_alternative<StructInstanceType*>(m_instance))
+		{
+			// If a struct instance is stored, meta information must be there, too
+			// (no matter the instance is null or not)
+			PH_ASSERT(std::holds_alternative<const SdlFunction*>(m_meta));
+
+			// Ensure `T` and stored instance are the same type before casting
+			if(T::getSdlFunction() == std::get<const SdlFunction*>(m_meta))
+			{
+				StructInstanceType* const instance = std::get<StructInstanceType*>(m_instance);
+				return static_cast<ReturnType*>(instance);
+			}
+		}
 	}
 
 	return static_cast<ReturnType*>(nullptr);
@@ -118,6 +143,13 @@ inline const SdlStruct* TSdlAnyInstance<IS_CONST>::getStruct() const
 {
 	return std::holds_alternative<const SdlStruct*>(m_meta)
 		? std::get<const SdlStruct*>(m_meta) : nullptr;
+}
+
+template<bool IS_CONST>
+inline const SdlFunction* TSdlAnyInstance<IS_CONST>::getFunction() const
+{
+	return std::holds_alternative<const SdlFunction*>(m_meta)
+		? std::get<const SdlFunction*>(m_meta) : nullptr;
 }
 
 template<bool IS_CONST>

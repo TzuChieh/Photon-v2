@@ -21,11 +21,25 @@ struct DummyStruct
 	}
 };
 
+struct DummyMethodStruct
+{
+	int p = 0;
+
+	void operator () (Actor& res)
+	{}
+
+	PH_DEFINE_SDL_FUNCTION(TSdlMethod<DummyMethodStruct, Actor>)
+	{
+		return FunctionType("dummy");
+	}
+};
+
 }// end anonymous namespace
 
 static_assert(CDerived<Actor, ISdlResource> == true);
 static_assert(CHasSdlClassDefinition<Actor> == true);
 static_assert(CHasSdlStructDefinition<DummyStruct> == true);
+static_assert(CHasSdlFunctionDefinition<DummyMethodStruct> == true);
 
 TEST(TSdlAnyInstanceTest, ConstructEmptyInstance)
 {
@@ -36,6 +50,16 @@ TEST(TSdlAnyInstanceTest, ConstructEmptyInstance)
 
 	{
 		SdlNonConstInstance instance;
+		EXPECT_FALSE(instance);
+	}
+
+	{
+		SdlConstInstance instance(nullptr);
+		EXPECT_FALSE(instance);
+	}
+
+	{
+		SdlNonConstInstance instance(nullptr);
 		EXPECT_FALSE(instance);
 	}
 }
@@ -133,3 +157,67 @@ TEST(TSdlAnyInstanceTest, StructInstance)
 	}
 }
 
+TEST(TSdlAnyInstanceTest, FunctionParameterStructInstance)
+{
+	{
+		const DummyMethodStruct* constStruct = nullptr;
+		SdlConstInstance instance(constStruct);
+		EXPECT_FALSE(instance);
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
+		EXPECT_FALSE(instance.get<Actor>());
+	}
+
+	{
+		DummyMethodStruct* nonConstStruct = nullptr;
+		SdlNonConstInstance instance(nonConstStruct);
+		EXPECT_FALSE(instance);
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
+		EXPECT_FALSE(instance.get<Actor>());
+	}
+
+	// Assign non-const struct to const instance
+	{
+		DummyMethodStruct* nonConstStruct = nullptr;
+		SdlConstInstance instance(nonConstStruct);
+		EXPECT_FALSE(instance);
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
+		EXPECT_FALSE(instance.get<Actor>());
+	}
+
+	// With non-null struct (as const instance)
+	{
+		DummyMethodStruct ztruct;
+		SdlConstInstance instance(&ztruct);
+		EXPECT_TRUE(instance);
+		EXPECT_TRUE(instance.get<DummyMethodStruct>());
+		EXPECT_FALSE(instance.get<Actor>());
+	}
+
+	// With non-null struct (as non-const instance)
+	{
+		DummyMethodStruct ztruct;
+		SdlNonConstInstance instance(&ztruct);
+		EXPECT_TRUE(instance);
+		EXPECT_TRUE(instance.get<DummyMethodStruct>());
+		EXPECT_FALSE(instance.get<Actor>());
+	}
+
+	// With non-null struct (value modification)
+	{
+		DummyMethodStruct ztruct;
+		SdlNonConstInstance instance(&ztruct);
+		EXPECT_TRUE(instance);
+
+		ztruct.p = 0;
+		EXPECT_EQ(instance.get<DummyMethodStruct>()->p, 0);
+
+		ztruct.p = 3;
+		EXPECT_EQ(instance.get<DummyMethodStruct>()->p, 3);
+
+		for(int i = -100; i <= 100; ++i)
+		{
+			ztruct.p = i;
+			EXPECT_EQ(instance.get<DummyMethodStruct>()->p, i);
+		}
+	}
+}

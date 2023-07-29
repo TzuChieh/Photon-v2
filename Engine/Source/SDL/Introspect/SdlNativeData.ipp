@@ -33,6 +33,19 @@ inline SdlNativeData::SdlNativeData(ElementGetterFunc func, const std::size_t nu
 	, numElements(numElements)
 {}
 
+//template<typename T>
+//inline T* SdlNativeData::directAccess() const
+//{
+//	if(m_directType == typeid(T))
+//	{
+//		return static_cast<T*>(m_directPtr);
+//	}
+//	else
+//	{
+//		return nullptr;
+//	}
+//}
+
 inline void* SdlNativeData::operator [] (const std::size_t elementIdx) const
 {
 	PH_ASSERT_LT(elementIdx, numElements);

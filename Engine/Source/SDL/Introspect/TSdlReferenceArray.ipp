@@ -139,7 +139,7 @@ inline SdlNativeData TSdlReferenceArray<T, Owner>::ownedNativeData(Owner& owner)
 		},
 		refVec->size());
 
-	data.format = ESdlDataFormat::Array;
+	data.format = ESdlDataFormat::Vector;
 	data.dataType = RES_TYPE;
 	
 	return data;

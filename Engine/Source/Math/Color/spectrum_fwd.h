@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Common/config.h"
 #include "Math/Color/color_basics.h"
 
 #include <cstddef>
@@ -25,5 +26,27 @@ using SampledSpectrum = TSampledSpectrum<
 	EColorSpace::Spectral,
 	ColorValue, 
 	DefaultSpectralSampleProps>;
+
+#if defined(PH_RENDER_MODE_LINEAR_SRGB)
+
+	using Spectrum = LinearSRGBSpectrum;
+
+#elif defined(PH_RENDER_MODE_ACES)
+
+	using Spectrum = ACESSpectrum;
+
+#elif defined(PH_RENDER_MODE_SPECTRAL)
+
+	using Spectrum = SampledSpectrum;
+
+#elif defined(PH_RENDER_MODE_FULL_SPECTRAL)
+
+	// TODO
+
+#else
+
+	using Spectrum = LinearSRGBSpectrum;
+
+#endif
 
 }// end namespace ph::math

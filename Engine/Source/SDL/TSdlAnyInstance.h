@@ -9,10 +9,11 @@ namespace ph
 {
 
 /*! @brief References a SDL object.
-This is a lightweight utility for referencing SDL objects. Following objects are valid instances
+This is a lightweight utility for referencing SDL objects. Following objects are valid targets
 to be referenced by this type:
 - Objects of SDL classes
 - Objects of SDL structs
+- Objects of SDL function parameter structs
 */
 template<bool IS_CONST>
 class TSdlAnyInstance
@@ -20,8 +21,13 @@ class TSdlAnyInstance
 public:
 	TSdlAnyInstance();
 
+	TSdlAnyInstance(std::nullptr_t target);
+
+	/*! @brief Reference to a SDL object.
+	Allows only valid SDL objects.
+	*/
 	template<typename T>
-	TSdlAnyInstance(T* instance);
+	TSdlAnyInstance(T* target);
 
 	template<typename T>
 	auto* get() const;
@@ -31,6 +37,7 @@ public:
 
 	const SdlClass* getClass() const;
 	const SdlStruct* getStruct() const;
+	const SdlFunction* getFunction() const;
 
 	operator bool() const;
 
@@ -46,7 +53,8 @@ private:
 	using MetaType = std::variant<
 		std::monostate,
 		const SdlClass*,
-		const SdlStruct*>;
+		const SdlStruct*,
+		const SdlFunction*>;
 
 	InstanceType m_instance;
 	MetaType m_meta;

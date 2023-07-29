@@ -56,6 +56,7 @@ concept CNonEmptyTrivialFunctorForm =
 	std::is_invocable_r_v<R, const std::decay_t<Func>&, Args...>;// must be const as we store its states and `operator ()` is `const`
 
 /*! @brief Lightweight callable target wrapper.
+
 This type is a thin wrapper around stateless callable targets such as free function, method,
 functor and lambda. For methods, the instance must outlive the associated `TFunction`. For functors
 and lambdas, they must be stateless (no member variable/no capture) or small enough in size. Unlike
@@ -63,14 +64,14 @@ the standard `std::function` which offers little guarantees, this type is guaran
 construct, copy, destruct and small in size (minimum: 2 pointers for `MIN_SIZE_HINT` == 16, may vary
 depending on the platform). Calling functions indirectly through this type adds almost no overhead.
 
-See the amazing post by @bitwizeshift and his github projects, from which is much of the inspiration
-derived: https://bitwizeshift.github.io/posts/2021/02/24/creating-a-fast-and-efficient-delegate-type-part-1/
-
 @tparam MIN_SIZE_HINT Hint to the minimum size of TFunction. Larger size may correspond to bigger 
 internal buffer. A size of 0 will result in the most compact TFunction possible. This is the 
 lower-bound of the size of TFunction, and the actual size cannot be guaranteed. Normally, most
 supported callable target types will be guaranteed to be storable regardless of this parameter, 
 except for non-empty functors.
+
+See the amazing post by @bitwizeshift and his github projects, from which is much of the inspiration
+derived: https://bitwizeshift.github.io/posts/2021/02/24/creating-a-fast-and-efficient-delegate-type-part-1/
 */
 template<typename R, typename... Args, std::size_t MIN_SIZE_HINT>
 class TFunction<R(Args...), MIN_SIZE_HINT> final
