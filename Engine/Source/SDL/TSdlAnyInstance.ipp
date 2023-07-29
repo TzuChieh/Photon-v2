@@ -92,12 +92,8 @@ inline auto* TSdlAnyInstance<IS_CONST>::get() const
 	{
 		if(std::holds_alternative<StructInstanceType*>(m_instance))
 		{
-			// If a struct instance is stored, meta information must be there, too
-			// (no matter the instance is null or not)
-			PH_ASSERT(std::holds_alternative<const SdlStruct*>(m_meta));
-
 			// Ensure `T` and stored instance are the same type before casting
-			if(T::getSdlStruct() == std::get<const SdlStruct*>(m_meta))
+			if(T::getSdlStruct() == getStruct())
 			{
 				StructInstanceType* const instance = std::get<StructInstanceType*>(m_instance);
 				return static_cast<ReturnType*>(instance);
@@ -108,12 +104,8 @@ inline auto* TSdlAnyInstance<IS_CONST>::get() const
 	{
 		if(std::holds_alternative<StructInstanceType*>(m_instance))
 		{
-			// If a struct instance is stored, meta information must be there, too
-			// (no matter the instance is null or not)
-			PH_ASSERT(std::holds_alternative<const SdlFunction*>(m_meta));
-
 			// Ensure `T` and stored instance are the same type before casting
-			if(T::getSdlFunction() == std::get<const SdlFunction*>(m_meta))
+			if(T::getSdlFunction() == getFunction())
 			{
 				StructInstanceType* const instance = std::get<StructInstanceType*>(m_instance);
 				return static_cast<ReturnType*>(instance);

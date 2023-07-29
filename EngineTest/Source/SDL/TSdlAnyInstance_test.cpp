@@ -72,6 +72,7 @@ TEST(TSdlAnyInstanceTest, ClassInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<Actor>());
 		EXPECT_FALSE(instance.get<DummyStruct>());
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 	}
 
 	{
@@ -80,6 +81,7 @@ TEST(TSdlAnyInstanceTest, ClassInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<Actor>());
 		EXPECT_FALSE(instance.get<DummyStruct>());
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 	}
 
 	// Assign non-const actor to const instance
@@ -89,6 +91,7 @@ TEST(TSdlAnyInstanceTest, ClassInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<Actor>());
 		EXPECT_FALSE(instance.get<DummyStruct>());
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 	}
 }
 
@@ -100,6 +103,7 @@ TEST(TSdlAnyInstanceTest, StructInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<DummyStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 	}
 
 	{
@@ -108,6 +112,7 @@ TEST(TSdlAnyInstanceTest, StructInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<DummyStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 	}
 
 	// Assign non-const struct to const instance
@@ -117,6 +122,7 @@ TEST(TSdlAnyInstanceTest, StructInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<DummyStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 	}
 
 	// With non-null struct (as const instance)
@@ -126,6 +132,7 @@ TEST(TSdlAnyInstanceTest, StructInstance)
 		EXPECT_TRUE(instance);
 		EXPECT_TRUE(instance.get<DummyStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 	}
 
 	// With non-null struct (as non-const instance)
@@ -135,6 +142,7 @@ TEST(TSdlAnyInstanceTest, StructInstance)
 		EXPECT_TRUE(instance);
 		EXPECT_TRUE(instance.get<DummyStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 	}
 
 	// With non-null struct (value modification)
@@ -165,6 +173,7 @@ TEST(TSdlAnyInstanceTest, FunctionParameterStructInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyStruct>());
 	}
 
 	{
@@ -173,6 +182,7 @@ TEST(TSdlAnyInstanceTest, FunctionParameterStructInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyStruct>());
 	}
 
 	// Assign non-const struct to const instance
@@ -182,6 +192,7 @@ TEST(TSdlAnyInstanceTest, FunctionParameterStructInstance)
 		EXPECT_FALSE(instance);
 		EXPECT_FALSE(instance.get<DummyMethodStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyStruct>());
 	}
 
 	// With non-null struct (as const instance)
@@ -191,6 +202,7 @@ TEST(TSdlAnyInstanceTest, FunctionParameterStructInstance)
 		EXPECT_TRUE(instance);
 		EXPECT_TRUE(instance.get<DummyMethodStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyStruct>());
 	}
 
 	// With non-null struct (as non-const instance)
@@ -200,6 +212,7 @@ TEST(TSdlAnyInstanceTest, FunctionParameterStructInstance)
 		EXPECT_TRUE(instance);
 		EXPECT_TRUE(instance.get<DummyMethodStruct>());
 		EXPECT_FALSE(instance.get<Actor>());
+		EXPECT_FALSE(instance.get<DummyStruct>());
 	}
 
 	// With non-null struct (value modification)

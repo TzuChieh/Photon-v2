@@ -8,6 +8,10 @@
 namespace ph
 {
 
+/*! @brief A type-safe, lightweight wrapper for any raw pointer type.
+Using `std::any` with a raw pointer type could achieve similar functionality. However, this class 
+is dedicated for raw pointers and is guaranteed to have no dynamic allocation.
+*/
 template<bool IS_CONST>
 class TAnyPtr final
 {
@@ -37,7 +41,12 @@ private:
 	std::type_index m_pointedType;
 };
 
+/*! @brief A type-safe, lightweight wrapper for any const raw pointer type.
+*/
 using AnyConstPtr = TAnyPtr<true>;
+
+/*! @brief A type-safe, lightweight wrapper for any non-const raw pointer type.
+*/
 using AnyNonConstPtr = TAnyPtr<false>;
 
 template<bool IS_CONST>
