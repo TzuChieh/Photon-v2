@@ -46,30 +46,34 @@ public:
 		if(quat)
 		{
 			data = SdlNativeData(
-				[quat](const std::size_t elementIdx) -> void*
+				[quat](std::size_t elementIdx) -> SdlNativeData::GetterVariant
 				{
 					switch(elementIdx)
 					{
-					case 0: return &(quat->x);
-					case 1: return &(quat->y);
-					case 2: return &(quat->z);
-					case 3: return &(quat->w);
-					default: return nullptr;
+					case 0: return SdlNativeData::permissiveElementToGetterVariant(&(quat->x));
+					case 1: return SdlNativeData::permissiveElementToGetterVariant(&(quat->y));
+					case 2: return SdlNativeData::permissiveElementToGetterVariant(&(quat->z));
+					case 3: return SdlNativeData::permissiveElementToGetterVariant(&(quat->w));
+					default: return std::monostate{};
 					}
 				},
-				4);
+				[quat](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				{
+					switch(elementIdx)
+					{
+					case 0: return SdlNativeData::permissiveSetterVariantToElement(input, &(quat->x));
+					case 1: return SdlNativeData::permissiveSetterVariantToElement(input, &(quat->y));
+					case 2: return SdlNativeData::permissiveSetterVariantToElement(input, &(quat->z));
+					case 3: return SdlNativeData::permissiveSetterVariantToElement(input, &(quat->w));
+					default: return false;
+					}
+				},
+				AnyNonConstPtr(quat));
 		}
-
-		data.format = ESdlDataFormat::Quaternion;
-		if constexpr(std::is_floating_point_v<Element>)
-		{
-			data.dataType = sdl::float_type_of<Element>();
-		}
-		else
-		{
-			data.dataType = sdl::int_type_of<Element>();
-		}
-
+		data.elementContainer = ESdlDataFormat::Quaternion;
+		data.elementType = sdl::number_type_of<Element>();
+		data.numElements = 4;
+		data.tupleSize = 4;
 		return data;
 	}
 

@@ -76,72 +76,27 @@ inline void TSdlReferenceArray<T, Owner>::ownedResources(
 template<typename T, typename Owner>
 inline SdlNativeData TSdlReferenceArray<T, Owner>::ownedNativeData(Owner& owner) const
 {
-	constexpr ESdlDataType RES_TYPE = sdl::resource_type_of<T>();
-
 	std::vector<std::shared_ptr<T>>* const refVec = &(owner.*m_valuePtr);
-
-	SdlNativeData data(
-		[refVec](const std::size_t elementIdx) -> void*
-		{
-			T* const originalDataPtr = (*refVec)[elementIdx].get();
-
-			// Cast to appropriate pointer type before return (casting to/from void* is only 
-			// valid if the exact same type is used)
-			if constexpr(RES_TYPE == ESdlDataType::Geometry)
-			{
-				return static_cast<Geometry*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::Material)
-			{
-				return static_cast<Material*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::Motion)
-			{
-				return static_cast<MotionSource*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::LightSource)
-			{
-				return static_cast<LightSource*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::Actor)
-			{
-				return static_cast<Actor*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::Image)
-			{
-				return static_cast<Image*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::FrameProcessor)
-			{
-				return static_cast<FrameProcessor*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::Observer)
-			{
-				return static_cast<Observer*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::SampleSource)
-			{
-				return static_cast<SampleSource*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::Visualizer)
-			{
-				return static_cast<Visualizer*>(originalDataPtr);
-			}
-			else if constexpr(RES_TYPE == ESdlDataType::Option)
-			{
-				return static_cast<Option*>(originalDataPtr);
-			}
-			else
-			{
-				PH_ASSERT_UNREACHABLE_SECTION();
-				return nullptr;
-			}
-		},
-		refVec->size());
-
-	data.format = ESdlDataFormat::Vector;
-	data.dataType = RES_TYPE;
 	
+	SdlNativeData data;
+	if(refVec)
+	{
+		std::shared_ptr<T>* const refVecData = refVec->data();
+
+		// Read-only for ordinary access to avoid accidental object slicing and other polymorphic
+		// assignment issues. User should use direct accessor for assignment.
+		data = SdlNativeData(
+			[refVecData](std::size_t elementIdx) -> SdlNativeData::GetterVariant
+			{
+				T* const originalDataPtr = refVecData[elementIdx].get();
+				return SdlNativeData::permissiveElementToGetterVariant(originalDataPtr);
+			});
+
+		data.numElements = refVec->size();
+		data.setDirectAccessor(AnyNonConstPtr(refVec));
+	}
+	data.elementContainer = ESdlDataFormat::SharedPtrVector;
+	data.elementType = sdl::resource_type_of<T>();
 	return data;
 }
 

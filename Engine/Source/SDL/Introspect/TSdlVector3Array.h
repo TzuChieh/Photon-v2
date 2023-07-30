@@ -42,25 +42,27 @@ public:
 		SdlNativeData data;
 		if(vec3Vec)
 		{
+			math::TVector3<Element>* const vec3Data = vec3Vec->data();
 			data = SdlNativeData(
-				[vec3Vec](const std::size_t elementIdx) -> void*
+				[vec3Data](std::size_t elementIdx) -> SdlNativeData::GetterVariant
 				{
 					const auto vec3Idx = elementIdx / 3;
-					return &((*vec3Vec)[vec3Idx]);
+					const auto compIdx = elementIdx - vec3Idx * 3;
+					return SdlNativeData::permissiveElementToGetterVariant(&(vec3Data[vec3Idx][compIdx]));
 				},
-				vec3Vec->size() * 3);
-		}
-		
-		data.format = ESdlDataFormat::Vector3Vector;
-		if constexpr(std::is_floating_point_v<Element>)
-		{
-			data.dataType = sdl::float_type_of<Element>();
-		}
-		else
-		{
-			data.dataType = sdl::int_type_of<Element>();
-		}
+				[vec3Data](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				{
+					const auto vec3Idx = elementIdx / 3;
+					const auto compIdx = elementIdx - vec3Idx * 3;
+					return SdlNativeData::permissiveSetterVariantToElement(input, &(vec3Data[vec3Idx][compIdx]));
+				},
+				AnyNonConstPtr(vec3Vec));
 
+			data.numElements = vec3Vec->size() * 3;
+		}
+		data.elementContainer = ESdlDataFormat::Vector3Vector;
+		data.elementType = sdl::number_type_of<Element>();
+		data.tupleSize = 3;
 		return data;
 	}
 

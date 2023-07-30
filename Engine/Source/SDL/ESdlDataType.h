@@ -58,7 +58,7 @@ enum class ESdlDataType : uint8
 	/*! The `math::Spectrum` type. */
 	Spectrum,
 
-	/*! Enum types. Specific `enum class` would require reflection from the enum name. */
+	/*! Enum types. Specific enum type would require reflection from the enum name. */
 	Enum,
 
 	/*! `The ph::Geometry` type. */

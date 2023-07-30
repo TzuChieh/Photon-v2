@@ -52,12 +52,10 @@ public:
 		SdlNativeData data;
 		if(spectrum)
 		{
-			data = SdlNativeData(spectrum);
+			data = SdlNativeData::fromSingleElement(spectrum, true, true);
 		}
-
-		data.format = ESdlDataFormat::Single;
-		data.dataType = ESdlDataType::Spectrum;
-
+		data.elementContainer = ESdlDataFormat::Single;
+		data.elementType = ESdlDataType::Spectrum;
 		return data;
 	}
 

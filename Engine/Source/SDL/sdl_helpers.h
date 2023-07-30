@@ -9,7 +9,7 @@ Helpers are in an additional `sdl` namespace.
 #include "SDL/sdl_fwd.h"
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
-#include "Utility/string_utils.h"
+#include "Utility/traits.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "SDL/ESdlDataType.h"
 
@@ -127,6 +127,9 @@ constexpr ESdlDataType int_type_of();
 
 template<std::floating_point FloatType>
 constexpr ESdlDataType float_type_of();
+
+template<CNumber NumberType>
+constexpr ESdlDataType number_type_of();
 
 template<typename T>
 constexpr ESdlDataType resource_type_of();

@@ -5,29 +5,18 @@
 #include "SDL/ESdlDataType.h"
 #include "Utility/TFunction.h"
 #include "Math/Color/spectrum_fwd.h"
+#include "SDL/TSdlAnyInstance.h"
+#include "Utility/TAnyPtr.h"
 
 #include <cstddef>
 #include <variant>
 #include <string>
 #include <typeindex>
+#include <optional>
+#include <type_traits>
 
 namespace ph
 {
-
-class Path;
-class ResourceIdentifier;
-class Geometry;
-class Material;
-class Motion;
-class LightSource;
-class Actor;
-class Image;
-class FrameProcessor;
-class Observer;
-class SampleSource;
-class Visualizer;
-class Option;
-class Object;
 
 class SdlNativeData final
 {
@@ -35,71 +24,84 @@ public:
 	using GetterVariant = std::variant<
 		std::monostate,
 		int64,
-		uint64,
 		float64,
-		const std::string*,
-		const Path*,
-		const ResourceIdentifier*,
-		const math::Spectrum*,
-		const Geometry*,
-		const Material*,
-		const Motion*,
-		const LightSource*,
-		const Actor*,
-		const Image*,
-		const FrameProcessor*,
-		const Observer*,
-		const SampleSource*,
-		const Visualizer*,
-		const Option*,
-		const Object*>;
+		SdlConstInstance,
+		AnyConstPtr>;
 
 	using SetterVariant = std::variant<
 		std::monostate,
 		int64,
-		uint64,
 		float64,
-		std::string*,
-		Path*,
-		ResourceIdentifier*,
-		math::Spectrum*,
-		Geometry*,
-		Material*,
-		Motion*,
-		LightSource*,
-		Actor*,
-		Image*,
-		FrameProcessor*,
-		Observer*,
-		SampleSource*,
-		Visualizer*,
-		Option*,
-		Object*>;
+		SdlNonConstInstance,
+		AnyNonConstPtr>;
 
-	ESdlDataFormat format = ESdlDataFormat::None;
-	ESdlDataType dataType = ESdlDataType::None;
+	template<typename Func>
+	using TElementAccessor = TFunction<Func, 32>;
+
+	using ElementGetter = TElementAccessor<GetterVariant(std::size_t elementIdx)>;
+	using ElementSetter = TElementAccessor<bool(std::size_t elementIdx, SetterVariant input)>;
+
+	ESdlDataFormat elementContainer = ESdlDataFormat::None;
+	ESdlDataType elementType = ESdlDataType::None;
 	std::size_t numElements = 0;
-	uint8 tupleSize = 0;
+	std::size_t tupleSize = 0;
 
+	/*! @brief Creates native data for a single element pointer.
+	@param canSet If true, @p elementPtr will also be used for ordinary setter.
+	@param canDirectAccess If true, @p elementPtr will also be used for direct access.
+	*/
+	template<typename ElementType>
+	static SdlNativeData fromSingleElement(
+		ElementType* elementPtr, 
+		bool canSet = false, 
+		bool canDirectAccess = false);
+
+	/*! @brief Creates empty native data.
+	*/
 	SdlNativeData();
 
-	template<typename ElementType>
-	explicit SdlNativeData(ElementType* elementPtr);
+	/*! @brief Creates read-only native data.
+	*/
+	explicit SdlNativeData(ElementGetter getter);
 
-	template<typename ElementGetterFunc>
-	SdlNativeData(ElementGetterFunc func, std::size_t numElements);
+	/*! @brief Creates native data with both read and write capabilities.
+	*/
+	SdlNativeData(ElementGetter getter, ElementSetter setter);
 
-	/*template<typename T>
-	T* directAccess() const;*/
+	/*! @brief Creates native data with custom capabilities.
+	*/
+	SdlNativeData(ElementGetter getter, ElementSetter setter, AnyNonConstPtr directPtr);
 
-	void* operator [] (std::size_t elementIdx) const;
+	template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T>
+	std::optional<T> get(std::size_t elementIdx) const;
+
+	template<typename T> requires std::is_pointer_v<T>
+	T get(std::size_t elementIdx) const;
+
+	template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T>
+	bool set(std::size_t elementIdx, T value) const;
+
+	template<typename T> requires std::is_pointer_v<T>
+	bool set(std::size_t elementIdx, T ptr) const;
+
+	template<typename T>
+	T* directAccess() const;
+
+	void setDirectAccessor(AnyNonConstPtr accessor);
 
 	operator bool() const;
 
+public:
+	template<typename ElementType>
+	static auto permissiveElementToGetterVariant(ElementType* elementPtr) -> GetterVariant;
+
+	template<typename ElementType>
+	static auto permissiveSetterVariantToElement(SetterVariant input, ElementType* out_elementPtr) -> bool;
+
 private:
-	TFunction<void* (std::size_t elementIdx)> m_elementGetter;
-	void* m_directPtr;
-	//std::type_index m_directType;
+	ElementGetter m_elementGetter;
+	ElementSetter m_elementSetter;
+	AnyNonConstPtr m_directPtr;
 };
 
 }// end namespace ph

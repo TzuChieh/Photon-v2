@@ -73,66 +73,16 @@ inline void TSdlReference<T, Owner>::ownedResources(
 template<typename T, typename Owner>
 inline SdlNativeData TSdlReference<T, Owner>::ownedNativeData(Owner& owner) const
 {
-	constexpr ESdlDataType RES_TYPE = sdl::resource_type_of<T>();
+	std::shared_ptr<T>& valueRef = owner.*m_valuePtr;
+	T* const originalDataPtr = valueRef.get();
 
-	T* const originalDataPtr = (owner.*m_valuePtr).get();
+	// Read-only for ordinary access to avoid accidental object slicing and other polymorphic
+	// assignment issues. User should use direct accessor for assignment.
+	auto data = SdlNativeData::fromSingleElement(originalDataPtr);
 
-	SdlNativeData data;
-	
-	// Cast to appropriate pointer type before assignment (casting to/from void* is only valid if the
-	// exact same type is used)
-	if constexpr(RES_TYPE == ESdlDataType::Geometry)
-	{
-		data = SdlNativeData(static_cast<Geometry*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::Material)
-	{
-		data = SdlNativeData(static_cast<Material*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::Motion)
-	{
-		data = SdlNativeData(static_cast<MotionSource*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::LightSource)
-	{
-		data = SdlNativeData(static_cast<LightSource*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::Actor)
-	{
-		data = SdlNativeData(static_cast<Actor*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::Image)
-	{
-		data = SdlNativeData(static_cast<Image*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::FrameProcessor)
-	{
-		data = SdlNativeData(static_cast<FrameProcessor*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::Observer)
-	{
-		data = SdlNativeData(static_cast<Observer*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::SampleSource)
-	{
-		data = SdlNativeData(static_cast<SampleSource*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::Visualizer)
-	{
-		data = SdlNativeData(static_cast<Visualizer*>(originalDataPtr));
-	}
-	else if constexpr(RES_TYPE == ESdlDataType::Option)
-	{
-		data = SdlNativeData(static_cast<Option*>(originalDataPtr));
-	}
-	else
-	{
-		PH_ASSERT_UNREACHABLE_SECTION();
-	}
-
-	data.format = ESdlDataFormat::Single;
-	data.dataType = RES_TYPE;
-	
+	data.setDirectAccessor(AnyNonConstPtr(&valueRef));
+	data.elementContainer = ESdlDataFormat::SharedPointer;
+	data.elementType = sdl::resource_type_of<T>();
 	return data;
 }
 

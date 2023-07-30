@@ -39,12 +39,10 @@ public:
 		SdlNativeData data;
 		if(floatPtr)
 		{
-			data = SdlNativeData(floatPtr);
+			data = SdlNativeData::fromSingleElement(floatPtr, true, true);
 		}
-
-		data.format = ESdlDataFormat::Single;
-		data.dataType = sdl::float_type_of<FloatType>();
-
+		data.elementContainer = ESdlDataFormat::Single;
+		data.elementType = sdl::float_type_of<FloatType>();
 		return data;
 	}
 

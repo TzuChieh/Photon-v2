@@ -49,12 +49,10 @@ public:
 		SdlNativeData data;
 		if(enumPtr)
 		{
-			data = SdlNativeData(enumPtr);
+			data = SdlNativeData::fromSingleElement(enumPtr, true, true);
 		}
-
-		data.format = ESdlDataFormat::Single;
-		data.dataType = ESdlDataType::Enum;
-
+		data.elementContainer = ESdlDataFormat::Single;
+		data.elementType = ESdlDataType::Enum;
 		return data;
 	}
 

@@ -41,17 +41,22 @@ public:
 		SdlNativeData data;
 		if(vec)
 		{
+			Element* const vecData = vec->data();
 			data = SdlNativeData(
-				[vec](const std::size_t elementIdx) -> void*
+				[vecData](std::size_t elementIdx) -> SdlNativeData::GetterVariant
 				{
-					return &((*vec)[elementIdx]);
+					return SdlNativeData::permissiveElementToGetterVariant(&(vecData[elementIdx]));
 				},
-				vec->size());
+				[vecData](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				{
+					return SdlNativeData::permissiveSetterVariantToElement(input, &(vecData[elementIdx]));
+				},
+				AnyNonConstPtr(vec));
+
+			data.numElements = vec->size();
 		}
-
-		data.format = ESdlDataFormat::Vector;
-		data.dataType = sdl::float_type_of<Element>();
-
+		data.elementContainer = ESdlDataFormat::Vector;
+		data.elementType = sdl::float_type_of<Element>();
 		return data;
 	}
 

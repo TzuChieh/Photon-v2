@@ -36,12 +36,10 @@ public:
 		SdlNativeData data;
 		if(boolPtr)
 		{
-			data = SdlNativeData(boolPtr);
+			data = SdlNativeData::fromSingleElement(boolPtr, true, true);
 		}
-
-		data.format = ESdlDataFormat::Single;
-		data.dataType = ESdlDataType::Bool;
-
+		data.elementContainer = ESdlDataFormat::Single;
+		data.elementType = ESdlDataType::Bool;
 		return data;
 	}
 

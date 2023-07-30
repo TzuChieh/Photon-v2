@@ -65,7 +65,13 @@ inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const target)
 	{
 		PH_STATIC_ASSERT_DEPENDENT_FALSE(T,
 			"Input is not a valid SDL target type (must be a SDL class/struct/function).");
+
+		// Make sure every invalid `T` also fail this concept
+		static_assert(!CSdlInstance<T>);
 	}
+
+	// Make sure every valid `T` also satisfy this concept
+	static_assert(CSdlInstance<T>);
 }
 
 template<bool IS_CONST>

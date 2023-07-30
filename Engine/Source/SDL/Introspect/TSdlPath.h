@@ -35,12 +35,10 @@ public:
 		SdlNativeData data;
 		if(path)
 		{
-			data = SdlNativeData(path);
+			data = SdlNativeData::fromSingleElement(path, true, true);
 		}
-
-		data.format = ESdlDataFormat::Single;
-		data.dataType = ESdlDataType::Path;
-
+		data.elementContainer = ESdlDataFormat::Single;
+		data.elementType = ESdlDataType::Path;
 		return data;
 	}
 

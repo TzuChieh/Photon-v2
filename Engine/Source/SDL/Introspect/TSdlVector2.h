@@ -44,23 +44,20 @@ public:
 		if(vec2)
 		{
 			data = SdlNativeData(
-				[vec2](const std::size_t elementIdx) -> void*
+				[vec2](std::size_t elementIdx) -> SdlNativeData::GetterVariant
 				{
-					return &((*vec2)[elementIdx]);
+					return SdlNativeData::permissiveElementToGetterVariant(&((*vec2)[elementIdx]));
 				},
-				2);
+				[vec2](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				{
+					return SdlNativeData::permissiveSetterVariantToElement(input, &((*vec2)[elementIdx]));
+				},
+				AnyNonConstPtr(vec2));
 		}
-
-		data.format = ESdlDataFormat::Vector2;
-		if constexpr(std::is_floating_point_v<Element>)
-		{
-			data.dataType = sdl::float_type_of<Element>();
-		}
-		else
-		{
-			data.dataType = sdl::int_type_of<Element>();
-		}
-
+		data.elementContainer = ESdlDataFormat::Vector2;
+		data.elementType = sdl::number_type_of<Element>();
+		data.numElements = 2;
+		data.tupleSize = 2;
 		return data;
 	}
 

@@ -151,9 +151,17 @@ public:
 	*/
 	inline TFunction() = default;
 
+	/*! @brief Creates an invalid function that cannot be called.
+	*/
+	inline TFunction(std::nullptr_t /* ptr */)
+		: TFunction()
+	{}
+
+	/*! @brief Creates a function from functors (including lambdas).
+	*/
 	template<typename Func>
 	inline TFunction(Func&& func)
-		requires !std::is_same_v<std::decay_t<Func>, TFunction>// avoid ambiguity during copy init
+		requires (!std::is_same_v<std::decay_t<Func>, TFunction>)// avoid ambiguity during copy init
 		: TFunction()
 	{
 		if constexpr(TIsEmptyFunctor<Func>::value)

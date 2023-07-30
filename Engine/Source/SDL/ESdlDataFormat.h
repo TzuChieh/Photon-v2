@@ -37,6 +37,9 @@ enum class ESdlDataFormat : uint8
 	/*! `std::vector<math::TQuaternion<T>>` types. */
 	QuaternionVector,
 
+	/*! `std::vector<std::shared_ptr<T>>` types. */
+	SharedPtrVector,
+
 	/*! `std::shared_ptr<T>` types. */
 	SharedPointer,
 

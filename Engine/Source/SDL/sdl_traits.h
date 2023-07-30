@@ -52,6 +52,12 @@ concept CHasSdlEnumDefinition =
 		std::remove_cv_t<EnumType>>;
 
 template<typename T>
+concept CSdlInstance = 
+	CSdlResource<T> ||
+	CHasSdlStructDefinition<T> ||
+	CHasSdlFunctionDefinition<T>;
+
+template<typename T>
 concept CSdlStructSupportsInitToDefault = CHasSdlStructDefinition<T> && requires (T instance)
 {
 	T::getSdlStruct()->initDefaultStruct(instance);

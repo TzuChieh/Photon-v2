@@ -33,12 +33,10 @@ public:
 		SdlNativeData data;
 		if(str)
 		{
-			data = SdlNativeData(str);
+			data = SdlNativeData::fromSingleElement(str, true, true);
 		}
-
-		data.format = ESdlDataFormat::Single;
-		data.dataType = ESdlDataType::String;
-
+		data.elementContainer = ESdlDataFormat::Single;
+		data.elementType = ESdlDataType::String;
 		return data;
 	}
 

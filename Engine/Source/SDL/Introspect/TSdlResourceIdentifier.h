@@ -47,12 +47,10 @@ public:
 		SdlNativeData data;
 		if(identifier)
 		{
-			data = SdlNativeData(identifier);
+			data = SdlNativeData::fromSingleElement(identifier, true, true);
 		}
-
-		data.format = ESdlDataFormat::Single;
-		data.dataType = ESdlDataType::ResourceIdentifier;
-
+		data.elementContainer = ESdlDataFormat::Single;
+		data.elementType = ESdlDataType::ResourceIdentifier;
 		return data;
 	}
 

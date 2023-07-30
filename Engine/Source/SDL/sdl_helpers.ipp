@@ -7,7 +7,6 @@
 #include "SDL/sdl_traits.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/ISdlResource.h"
-#include "Utility/traits.h"
 #include "Utility/string_utils.h"
 
 #include <type_traits>
@@ -302,6 +301,20 @@ inline constexpr ESdlDataType float_type_of()
 	{
 		static_assert(CSame<FloatType, float64>);
 		return ESdlDataType::Float64;
+	}
+}
+
+template<CNumber NumberType>
+inline constexpr ESdlDataType number_type_of()
+{
+	if constexpr(std::is_floating_point_v<NumberType>)
+	{
+		return sdl::float_type_of<NumberType>();
+	}
+	else
+	{
+		static_assert(std::is_integral_v<NumberType>);
+		return sdl::int_type_of<NumberType>();
 	}
 }
 
