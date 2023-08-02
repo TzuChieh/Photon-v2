@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/Introspect/ISdlInstantiable.h"
 #include "SDL/sdl_fwd.h"
 #include "Common/logging.h"
 #include "Common/primitive_type.h"
@@ -18,11 +19,10 @@ namespace ph
 
 PH_DEFINE_EXTERNAL_LOG_GROUP(SdlClass, SDL);
 
-class SdlClass
+class SdlClass : public ISdlInstantiable
 {
 public:
 	SdlClass(ESdlTypeCategory category, const std::string& typeName);
-	virtual ~SdlClass() = default;
 
 	virtual std::shared_ptr<ISdlResource> createResource() const = 0;
 
@@ -60,20 +60,23 @@ public:
 		std::vector<const ISdlResource*>& out_resources) const = 0;
 
 	/*!
-	@return Number of fields directly contained in this class.
-	Fields from any associated classes are not accounted for.
-	*/
-	virtual std::size_t numFields() const = 0;
-
-	virtual const SdlField* getField(std::size_t index) const = 0;
-
-	/*!
 	@return Number of functions directly contained in this class.
 	Functions from any associated classes are not accounted for.
 	*/
 	virtual std::size_t numFunctions() const = 0;
 
 	virtual const SdlFunction* getFunction(std::size_t index) const = 0;
+
+	/*!
+	@return Number of fields directly contained in this class.
+	Fields from any associated classes are not accounted for.
+	*/
+	std::size_t numFields() const override = 0;
+
+	const SdlField* getField(std::size_t index) const override = 0;
+
+	std::string_view getTypeName() const override;
+	std::string_view getDescription() const override;
 
 	/*! @brief Whether the class is for building other classes only.
 	A blueprint class cannot be instantiated as a SDL resource. Note that blueprint class is semantically
@@ -91,9 +94,8 @@ public:
 	std::string genPrettyName() const;
 	std::string genCategoryName() const;
 	ESdlTypeCategory getCategory() const;
-	const std::string& getTypeName() const;
-	const std::string& getDocName() const;
-	const std::string& getDescription() const;
+	
+	std::string_view getDocName() const;
 	const SdlClass* getBase() const;
 	bool isDerived() const;
 	bool hasField() const;
@@ -141,17 +143,17 @@ inline ESdlTypeCategory SdlClass::getCategory() const
 	return m_category;
 }
 
-inline const std::string& SdlClass::getTypeName() const
+inline std::string_view SdlClass::getTypeName() const
 {
 	return m_typeName;
 }
 
-inline const std::string& SdlClass::getDocName() const
+inline std::string_view SdlClass::getDocName() const
 {
 	return m_docName;
 }
 
-inline const std::string& SdlClass::getDescription() const
+inline std::string_view SdlClass::getDescription() const
 {
 	return m_description;
 }

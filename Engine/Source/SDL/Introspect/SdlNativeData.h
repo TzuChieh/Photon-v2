@@ -18,6 +18,12 @@
 namespace ph
 {
 
+/*!
+Implementation ensures there is no dynamic allocation and the size of the object should be reasonably
+small (independent of the data it is representing). This object can be cached if only getter and setter
+accessors are used. Use of direct accessor may invalidate getter and setter accessors. See corresponding
+methods for more information.
+*/
 class SdlNativeData final
 {
 public:
@@ -84,6 +90,10 @@ public:
 	template<typename T> requires std::is_pointer_v<T>
 	bool set(std::size_t elementIdx, T ptr) const;
 
+	/*! @brief Directly access the underlying data.
+	Use of direct accessor may invalidate getter and setter accessors (should reacquire native data
+	from source for subsequent getter/setter access). Direct accessor never invalidate itself.
+	*/
 	template<typename T>
 	T* directAccess() const;
 

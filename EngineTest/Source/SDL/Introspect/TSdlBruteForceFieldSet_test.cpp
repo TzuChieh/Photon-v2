@@ -47,22 +47,22 @@ TEST(TSdlBruteForceFieldSetTest, AddFields)
 			fieldSetA.addField(TSdlString<TestOwner>("nameB", &TestOwner::s));
 			fieldSetA.addField(TSdlString<TestOwner>("nameC", &TestOwner::s));
 			EXPECT_EQ(fieldSetA.numFields(), 3);
-			EXPECT_STREQ(fieldSetA[0].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetA[0].getFieldName().c_str(), "nameA");
-			EXPECT_STREQ(fieldSetA[1].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetA[1].getFieldName().c_str(), "nameB");
-			EXPECT_STREQ(fieldSetA[2].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetA[2].getFieldName().c_str(), "nameC");
+			EXPECT_EQ(fieldSetA[0].getTypeName(), "string");
+			EXPECT_EQ(fieldSetA[0].getFieldName(), "nameA");
+			EXPECT_EQ(fieldSetA[1].getTypeName(), "string");
+			EXPECT_EQ(fieldSetA[1].getFieldName(), "nameB");
+			EXPECT_EQ(fieldSetA[2].getTypeName(), "string");
+			EXPECT_EQ(fieldSetA[2].getFieldName(), "nameC");
 
 			ASSERT_TRUE(fieldSetA.getField(0) != nullptr);
-			EXPECT_STREQ(fieldSetA.getField(0)->getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetA.getField(0)->getFieldName().c_str(), "nameA");
+			EXPECT_EQ(fieldSetA.getField(0)->getTypeName(), "string");
+			EXPECT_EQ(fieldSetA.getField(0)->getFieldName(), "nameA");
 			ASSERT_TRUE(fieldSetA.getField(1) != nullptr);
-			EXPECT_STREQ(fieldSetA.getField(1)->getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetA.getField(1)->getFieldName().c_str(), "nameB");
+			EXPECT_EQ(fieldSetA.getField(1)->getTypeName(), "string");
+			EXPECT_EQ(fieldSetA.getField(1)->getFieldName(), "nameB");
 			ASSERT_TRUE(fieldSetA.getField(2) != nullptr);
-			EXPECT_STREQ(fieldSetA.getField(2)->getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetA.getField(2)->getFieldName().c_str(), "nameC");
+			EXPECT_EQ(fieldSetA.getField(2)->getTypeName(), "string");
+			EXPECT_EQ(fieldSetA.getField(2)->getFieldName(), "nameC");
 
 			// Getting non-existent fields is allowed and the result will be nullptr
 			for(std::size_t fieldIdx = 3; fieldIdx < 1024; ++fieldIdx)
@@ -77,40 +77,40 @@ TEST(TSdlBruteForceFieldSetTest, AddFields)
 
 			fieldSetB.addField(TSdlString<TestOwner>("str-in-b", &TestOwner::s));
 			EXPECT_EQ(fieldSetB.numFields(), 1);
-			EXPECT_STREQ(fieldSetB[0].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB[0].getFieldName().c_str(), "str-in-b");
+			EXPECT_EQ(fieldSetB[0].getTypeName(), "string");
+			EXPECT_EQ(fieldSetB[0].getFieldName(), "str-in-b");
 
 			ASSERT_FALSE(fieldSetB.getField(0) == nullptr);
-			EXPECT_STREQ(fieldSetB.getField(0)->getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB.getField(0)->getFieldName().c_str(), "str-in-b");
+			EXPECT_EQ(fieldSetB.getField(0)->getTypeName(), "string");
+			EXPECT_EQ(fieldSetB.getField(0)->getFieldName(), "str-in-b");
 
 			fieldSetB.addFields(std::move(fieldSetA));
 			EXPECT_EQ(fieldSetB.numFields(), 4);
-			EXPECT_STREQ(fieldSetB[1].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB[1].getFieldName().c_str(), "nameA");
-			EXPECT_STREQ(fieldSetB[2].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB[2].getFieldName().c_str(), "nameB");
-			EXPECT_STREQ(fieldSetB[3].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB[3].getFieldName().c_str(), "nameC");
+			EXPECT_EQ(fieldSetB[1].getTypeName(), "string");
+			EXPECT_EQ(fieldSetB[1].getFieldName(), "nameA");
+			EXPECT_EQ(fieldSetB[2].getTypeName(), "string");
+			EXPECT_EQ(fieldSetB[2].getFieldName(), "nameB");
+			EXPECT_EQ(fieldSetB[3].getTypeName(), "string");
+			EXPECT_EQ(fieldSetB[3].getFieldName(), "nameC");
 
 			ASSERT_TRUE(fieldSetB.getField(1) != nullptr);
-			EXPECT_STREQ(fieldSetB.getField(1)->getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB.getField(1)->getFieldName().c_str(), "nameA");
+			EXPECT_EQ(fieldSetB.getField(1)->getTypeName(), "string");
+			EXPECT_EQ(fieldSetB.getField(1)->getFieldName(), "nameA");
 			ASSERT_TRUE(fieldSetB.getField(2) != nullptr);
-			EXPECT_STREQ(fieldSetB.getField(2)->getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB.getField(2)->getFieldName().c_str(), "nameB");
+			EXPECT_EQ(fieldSetB.getField(2)->getTypeName(), "string");
+			EXPECT_EQ(fieldSetB.getField(2)->getFieldName(), "nameB");
 			ASSERT_TRUE(fieldSetB.getField(3) != nullptr);
-			EXPECT_STREQ(fieldSetB.getField(3)->getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB.getField(3)->getFieldName().c_str(), "nameC");
+			EXPECT_EQ(fieldSetB.getField(3)->getTypeName(), "string");
+			EXPECT_EQ(fieldSetB.getField(3)->getFieldName(), "nameC");
 
 			fieldSetB.addField(TSdlString<TestOwner>("str-in-b-2", &TestOwner::s));
 			EXPECT_EQ(fieldSetB.numFields(), 5);
-			EXPECT_STREQ(fieldSetB[4].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB[4].getFieldName().c_str(), "str-in-b-2");
+			EXPECT_EQ(fieldSetB[4].getTypeName(), "string");
+			EXPECT_EQ(fieldSetB[4].getFieldName(), "str-in-b-2");
 
 			ASSERT_TRUE(fieldSetB.getField(4) != nullptr);
-			EXPECT_STREQ(fieldSetB.getField(4)->getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB.getField(4)->getFieldName().c_str(), "str-in-b-2");
+			EXPECT_EQ(fieldSetB.getField(4)->getTypeName(), "string");
+			EXPECT_EQ(fieldSetB.getField(4)->getFieldName(), "str-in-b-2");
 
 			// Getting non-existent fields is allowed and the result will be nullptr
 			for(std::size_t fieldIdx = 5; fieldIdx < 1024; ++fieldIdx)
@@ -133,12 +133,12 @@ TEST(TSdlBruteForceFieldSetTest, AddPolymorphicFields)
 			fieldSetA.addField(TSdlInteger<TestOwner>("intA", &TestOwner::i));
 			fieldSetA.addField(TSdlReal<TestOwner>("realA", &TestOwner::r));
 			EXPECT_EQ(fieldSetA.numFields(), 3);
-			EXPECT_STREQ(fieldSetA[0].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetA[0].getFieldName().c_str(), "strA");
-			EXPECT_STREQ(fieldSetA[1].getTypeName().c_str(), "integer");
-			EXPECT_STREQ(fieldSetA[1].getFieldName().c_str(), "intA");
-			EXPECT_STREQ(fieldSetA[2].getTypeName().c_str(), "real");
-			EXPECT_STREQ(fieldSetA[2].getFieldName().c_str(), "realA");
+			EXPECT_EQ(fieldSetA[0].getTypeName(), "string");
+			EXPECT_EQ(fieldSetA[0].getFieldName(), "strA");
+			EXPECT_EQ(fieldSetA[1].getTypeName(), "integer");
+			EXPECT_EQ(fieldSetA[1].getFieldName(), "intA");
+			EXPECT_EQ(fieldSetA[2].getTypeName(), "real");
+			EXPECT_EQ(fieldSetA[2].getFieldName(), "realA");
 		}
 
 		TSdlBruteForceFieldSet<TSdlOwnedField<TestOwner>> fieldSetB;
@@ -147,22 +147,22 @@ TEST(TSdlBruteForceFieldSetTest, AddPolymorphicFields)
 
 			fieldSetB.addField(TSdlInteger<TestOwner>("int-in-b", &TestOwner::i));
 			EXPECT_EQ(fieldSetB.numFields(), 1);
-			EXPECT_STREQ(fieldSetB[0].getTypeName().c_str(), "integer");
-			EXPECT_STREQ(fieldSetB[0].getFieldName().c_str(), "int-in-b");
+			EXPECT_EQ(fieldSetB[0].getTypeName(), "integer");
+			EXPECT_EQ(fieldSetB[0].getFieldName(), "int-in-b");
 
 			fieldSetB.addFields(std::move(fieldSetA));
 			EXPECT_EQ(fieldSetB.numFields(), 4);
-			EXPECT_STREQ(fieldSetB[1].getTypeName().c_str(), "string");
-			EXPECT_STREQ(fieldSetB[1].getFieldName().c_str(), "strA");
-			EXPECT_STREQ(fieldSetB[2].getTypeName().c_str(), "integer");
-			EXPECT_STREQ(fieldSetB[2].getFieldName().c_str(), "intA");
-			EXPECT_STREQ(fieldSetB[3].getTypeName().c_str(), "real");
-			EXPECT_STREQ(fieldSetB[3].getFieldName().c_str(), "realA");
+			EXPECT_EQ(fieldSetB[1].getTypeName(), "string");
+			EXPECT_EQ(fieldSetB[1].getFieldName(), "strA");
+			EXPECT_EQ(fieldSetB[2].getTypeName(), "integer");
+			EXPECT_EQ(fieldSetB[2].getFieldName(), "intA");
+			EXPECT_EQ(fieldSetB[3].getTypeName(), "real");
+			EXPECT_EQ(fieldSetB[3].getFieldName(), "realA");
 
 			fieldSetB.addField(TSdlReal<TestOwner>("real-in-b", &TestOwner::r));
 			EXPECT_EQ(fieldSetB.numFields(), 5);
-			EXPECT_STREQ(fieldSetB[4].getTypeName().c_str(), "real");
-			EXPECT_STREQ(fieldSetB[4].getFieldName().c_str(), "real-in-b");
+			EXPECT_EQ(fieldSetB[4].getTypeName(), "real");
+			EXPECT_EQ(fieldSetB[4].getFieldName(), "real-in-b");
 		}
 		// Note: <fieldSetA> has been moved from
 	}

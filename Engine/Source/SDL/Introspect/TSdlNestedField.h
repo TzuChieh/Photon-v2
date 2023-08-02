@@ -60,8 +60,8 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 	const TSdlOwnedField<InnerType>* const innerObjField) :
 
 	TSdlOwnedField<OuterType>(
-		innerObjField ? innerObjField->getTypeName()  : "unavailable",
-		innerObjField ? innerObjField->getFieldName() : "unavailable"),
+		std::string(innerObjField ? innerObjField->getTypeName()  : "unavailable"),
+		std::string(innerObjField ? innerObjField->getFieldName() : "unavailable")),
 
 	m_innerObjPtr  (innerObjPtr),
 	m_innerObjField(innerObjField)
@@ -72,7 +72,7 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 	PH_ASSERT_MSG(static_cast<const SdlField*>(m_innerObjField) != this, 
 		"setting self as inner field is forbidden (will result in infinite recursive calls)");
 
-	this->setDescription(m_innerObjField->getDescription());
+	this->setDescription(std::string(m_innerObjField->getDescription()));
 	this->setEnableFallback(m_innerObjField->isFallbackEnabled());
 	this->setImportance(m_innerObjField->getImportance());
 }

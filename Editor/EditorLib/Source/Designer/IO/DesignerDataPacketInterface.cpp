@@ -21,6 +21,7 @@
 #include <DataIO/FileSystem/ResourceIdentifier.h>
 
 #include <utility>
+#include <format>
 
 namespace ph::editor
 {
@@ -128,7 +129,7 @@ void DesignerDataPacketInterface::generate(
 	}
 
 	// Filename: <target-type>_<target-name>.<ext> (ignore angle brackets)
-	const auto packetFilename = targetClass->getTypeName() + "_" + std::string(targetName) + ".pddpa";
+	const auto packetFilename = std::format("{}_{}.pddpa", targetClass->getTypeName(), targetName);
 
 	const Path packetDirectory = ctx.getWorkingDirectory() / "designer_packet";
 	packetDirectory.createDirectory();

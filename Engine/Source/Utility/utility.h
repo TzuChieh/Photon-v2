@@ -14,6 +14,7 @@
 #include <concepts>
 #include <bit>
 #include <version>
+#include <variant>
 
 /*! @brief Helper to declare special class members.
 */
@@ -194,6 +195,32 @@ inline constexpr T* mutable_cast(T* value) noexcept
 template<typename T>
 inline void mutable_cast(const T&&) = delete;
 ///@}
+
+template<typename TypeInVariant, typename VariantType, std::size_t D_INDEX = 0>
+inline constexpr std::size_t variant_index_of() noexcept
+{
+	if constexpr(D_INDEX == std::variant_size_v<VariantType>)
+	{
+		static_assert(D_INDEX < std::variant_size_v<VariantType>,
+			"`TypeInVariant` must be one of the types in variant.");
+	}
+	else if constexpr(std::is_same_v<std::variant_alternative_t<D_INDEX, VariantType>, TypeInVariant>)
+	{
+		return D_INDEX;
+	}
+	else
+	{
+		return variant_index_of<TypeInVariant, VariantType, D_INDEX + 1>();
+	}
+}
+
+template<typename TypeInVariant, typename InVariantType>
+inline constexpr std::size_t variant_index_of(const InVariantType& /* variant */) noexcept
+{
+	using VariantType = std::remove_cvref_t<InVariantType>;
+
+	return variant_index_of<TypeInVariant, VariantType>();
+}
 
 template<std::integral DstType, std::integral SrcType>
 inline DstType lossless_integer_cast(const SrcType src)

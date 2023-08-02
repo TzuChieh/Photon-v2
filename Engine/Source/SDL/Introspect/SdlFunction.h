@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/Introspect/ISdlInstantiable.h"
 #include "SDL/sdl_fwd.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
@@ -12,11 +13,10 @@ namespace ph
 
 PH_DEFINE_EXTERNAL_LOG_GROUP(SdlFunction, SDL);
 
-class SdlFunction
+class SdlFunction : public ISdlInstantiable
 {
 public:
 	explicit SdlFunction(std::string name);
-	virtual ~SdlFunction() = default;
 
 	virtual void call(
 		ISdlResource*          resource,
@@ -28,9 +28,17 @@ public:
 	virtual std::size_t numParams() const = 0;
 	virtual const SdlField* getParam(std::size_t index) const = 0;
 
+	std::size_t numFields() const override;
+	const SdlField* getField(std::size_t index) const override;
+	std::string_view getTypeName() const override;
+	std::string_view getDescription() const override;
+
+	/*!
+	@return Function name.
+	*/
+	std::string_view getName() const;
+
 	std::string genPrettyName() const;
-	const std::string& getName() const;
-	const std::string& getDescription() const;
 
 protected:
 	SdlFunction& setDescription(std::string description);
@@ -49,12 +57,27 @@ inline SdlFunction::SdlFunction(std::string name) :
 	PH_ASSERT(!m_name.empty());
 }
 
-inline const std::string& SdlFunction::getName() const
+inline std::size_t SdlFunction::numFields() const
+{
+	return numParams();
+}
+
+inline const SdlField* SdlFunction::getField(std::size_t index) const
+{
+	return getParam(index);
+}
+
+inline std::string_view SdlFunction::getTypeName() const
+{
+	return getName();
+}
+
+inline std::string_view SdlFunction::getName() const
 {
 	return m_name;
 }
 
-inline const std::string& SdlFunction::getDescription() const
+inline std::string_view SdlFunction::getDescription() const
 {
 	return m_description;
 }

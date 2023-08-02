@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL/Introspect/ISdlInstantiable.h"
 #include "SDL/sdl_fwd.h"
 #include "Common/logging.h"
 
@@ -17,20 +18,21 @@ provided by SDL class (`SdlClass::initDefaultResource()`). The rationale behind 
 struct is designed to be a simple grouped data carrier without the burden of inheritance and 
 member functions. For efficiency and ease of reuse, initializing instances to default values 
 requires a concrete type (the exact type of the struct). Implementations that wish to support this
-feature should define a method with signature `initDefaultStruct(T& instance) const` where T is
-the concrete type of the struct.
+feature should use define a method with signature `initDefaultStruct(T& instance) const` where T is
+the concrete type of the struct. 
+
+`TSdl` provides a simplified interface for initializing instances to default values.
 */
-class SdlStruct
+class SdlStruct : public ISdlInstantiable
 {
 public:
 	explicit SdlStruct(std::string typeName);
-	virtual ~SdlStruct() = default;
 
 	virtual std::size_t numFields() const = 0;
 	virtual const SdlField* getField(std::size_t index) const = 0;
 
-	const std::string& getTypeName() const;
-	const std::string& getDescription() const;
+	std::string_view getTypeName() const override;
+	std::string_view getDescription() const override;
 
 protected:
 	SdlStruct& setDescription(std::string description);
@@ -42,12 +44,12 @@ private:
 
 // In-header Implementations:
 
-inline const std::string& SdlStruct::getTypeName() const
+inline std::string_view SdlStruct::getTypeName() const
 {
 	return m_typeName;
 }
 
-inline const std::string& SdlStruct::getDescription() const
+inline std::string_view SdlStruct::getDescription() const
 {
 	return m_description;
 }

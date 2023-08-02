@@ -3,8 +3,12 @@
 #include "SDL/TSdlAnyInstance.h"
 #include "Common/assertion.h"
 #include "Utility/traits.h"
+#include "Utility/utility.h"
 #include "SDL/sdl_traits.h"
 #include "SDL/sdl_helpers.h"
+#include "SDL/Introspect/SdlClass.h"
+#include "SDL/Introspect/SdlStruct.h"
+#include "SDL/Introspect/SdlFunction.h"
 
 #include <utility>
 
@@ -151,12 +155,49 @@ inline const SdlFunction* TSdlAnyInstance<IS_CONST>::getFunction() const
 }
 
 template<bool IS_CONST>
+inline bool TSdlAnyInstance<IS_CONST>::isClass() const
+{
+	return m_meta.index() == variant_index_of<const SdlClass*>(m_meta);
+}
+
+template<bool IS_CONST>
+inline bool TSdlAnyInstance<IS_CONST>::isStruct() const
+{
+	return m_meta.index() == variant_index_of<const SdlStruct*>(m_meta);
+}
+
+template<bool IS_CONST>
+inline bool TSdlAnyInstance<IS_CONST>::isFunction() const
+{
+	return m_meta.index() == variant_index_of<const SdlFunction*>(m_meta);
+}
+
+template<bool IS_CONST>
+inline const ISdlInstantiable* TSdlAnyInstance<IS_CONST>::getInstantiable() const
+{
+	constexpr auto classIdx = variant_index_of<const SdlClass*, MetaType>();
+	constexpr auto structIdx = variant_index_of<const SdlStruct*, MetaType>();
+	constexpr auto functionIdx = variant_index_of<const SdlFunction*, MetaType>();
+
+	switch(m_meta.index())
+	{
+	case classIdx: return std::get<classIdx>(m_meta);
+	case structIdx: return std::get<structIdx>(m_meta);
+	case functionIdx: return std::get<functionIdx>(m_meta);
+	default: return nullptr;
+	}
+}
+
+template<bool IS_CONST>
 inline TSdlAnyInstance<IS_CONST>::operator bool () const
 {
+	constexpr auto classInstanceIdx = variant_index_of<ClassInstanceType*, InstanceType>();
+	constexpr auto structInstanceIdx = variant_index_of<StructInstanceType*, InstanceType>();
+
 	switch(m_instance.index())
 	{
-	case 1: return std::get<ClassInstanceType*>(m_instance) != nullptr;
-	case 2: return std::get<StructInstanceType*>(m_instance) != nullptr;
+	case classInstanceIdx: return std::get<classInstanceIdx>(m_instance) != nullptr;
+	case structInstanceIdx: return std::get<structInstanceIdx>(m_instance) != nullptr;
 	default: return false;
 	}
 }

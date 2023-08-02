@@ -39,6 +39,12 @@ public:
 	const SdlStruct* getStruct() const;
 	const SdlFunction* getFunction() const;
 
+	bool isClass() const;
+	bool isStruct() const;
+	bool isFunction() const;
+
+	const ISdlInstantiable* getInstantiable() const;
+
 	operator bool() const;
 
 private:

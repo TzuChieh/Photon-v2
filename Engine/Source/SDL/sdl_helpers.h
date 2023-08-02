@@ -145,6 +145,30 @@ and output pointer must not be null, and it will throw if the cast cannot be don
 template<typename DstType, typename SrcType>
 DstType* cast_to(SrcType* srcResource);
 
+/*!
+SDL names are commonly being lower-case and separated by dashes (also known as
+Kebab Case). These helpers transform SDL names into various forms.
+*/
+///@{
+
+/*! @brief Make a standard SDL name to canonical capitalized form.
+Make the SDL name capitalized and separated by spaces.
+Example: "some-sdl-name" will be "Some Sdl Name".
+*/
+std::string name_to_title_case(std::string_view sdlName);
+
+/*! @brief Make a standard SDL name to camel case.
+Example: "some-sdl-name" will be "someSdlName" (if @p capitalizedFront is false).
+*/
+std::string name_to_camel_case(std::string_view sdlName, bool capitalizedFront = false);
+
+/*! @brief Make a standard SDL name to snake case.
+Example: "some-sdl-name" will be "some_sdl_name".
+*/
+std::string name_to_snake_case(std::string_view sdlName);
+
+///@}
+
 }// end namespace ph::sdl
 
 #include "SDL/sdl_helpers.ipp"

@@ -196,7 +196,7 @@ namespace
 
 inline PythonClass gen_sdl_reference_class(const std::string_view categoryName)
 {
-	PythonClass clazz(sdl_name_to_camel_case(categoryName, true));
+	PythonClass clazz(sdl::name_to_camel_case(categoryName, true));
 	clazz.setInheritedClass("Reference");
 
 	PythonMethod initMethod("__init__");
@@ -237,7 +237,7 @@ inline PythonClass gen_sdl_creator_class(const SdlClass& sdlClass)
 	for(std::size_t i = 0; i < sdlClass.numFields(); ++i)
 	{
 		const SdlField& field = *sdlClass.getField(i);
-		const auto fieldName = sdl_name_to_snake_case(field.getFieldName());
+		const auto fieldName = sdl::name_to_snake_case(field.getFieldName());
 
 		PythonMethod inputMethod("set_" + fieldName);
 		inputMethod.addInput(fieldName, "", "AbstractData");
@@ -269,7 +269,7 @@ inline PythonClass gen_sdl_explicit_executor_class(const SdlFunction& sdlFunctio
 	for(std::size_t i = 0; i < sdlFunction.numParams(); ++i)
 	{
 		const SdlField& param = *sdlFunction.getParam(i);
-		const auto paramName = sdl_name_to_snake_case(param.getFieldName());
+		const auto paramName = sdl::name_to_snake_case(param.getFieldName());
 
 		PythonMethod inputMethod("set_" + paramName);
 		inputMethod.addInput(paramName, "", "AbstractData");
@@ -303,9 +303,9 @@ inline PythonClass gen_sdl_helper_explicit_executor_class(
 inline std::vector<PythonClass> gen_sdl_implicit_executor_classes(TSpanView<const SdlFunction*> sdlFunctions)
 {
 	// The goal here is to generate a Python class for each "function name". Input SDL functions may well 
-	// have duplicated names (executors with the same name may be defined by different SDL classes). To keep
-	// the spirit of implicit executor syntax, we merge their input parameters together when multiple SDL 
-	// functions have the same name. This is fine--see the "Add input methods" section below.
+	// have duplicated names (executors with the same name may be defined by different SDL classes).
+	// To keep the spirit of implicit executor syntax, we merge their input parameters together when 
+	// multiple SDL functions have the same name. This is fine--see the "Add input methods" section below.
 	//
 	std::unordered_map<std::string, PythonClass> funcNameToClass;
 
@@ -317,28 +317,30 @@ inline std::vector<PythonClass> gen_sdl_implicit_executor_classes(TSpanView<cons
 			continue;
 		}
 
+		const auto funcName = std::string(sdlFunction->getName());
+
 		// Only add a new Python class if it does not exist yet
-		if(!funcNameToClass.contains(sdlFunction->getName()))
+		if(!funcNameToClass.contains(funcName))
 		{
-			PythonClass clazz("Call" + sdl_name_to_camel_case(sdlFunction->getName(), true));
+			PythonClass clazz("Call" + sdl::name_to_camel_case(funcName, true));
 			clazz.setInheritedClass("ImplicitExecutorCommand");
 			clazz.addDefaultInit();
 
 			// Override `get_name()`
 			PythonMethod getNameMethod("get_name");
-			getNameMethod.addCodeLine("return \"{}\"", sdlFunction->getName());
+			getNameMethod.addCodeLine("return \"{}\"", funcName);
 			clazz.addMethod(getNameMethod);
 
-			funcNameToClass[sdlFunction->getName()] = std::move(clazz);
+			funcNameToClass[funcName] = std::move(clazz);
 		}
 
-		PythonClass& clazz = funcNameToClass[sdlFunction->getName()];
+		PythonClass& clazz = funcNameToClass[funcName];
 
 		// Add input methods
 		for(std::size_t i = 0; i < sdlFunction->numParams(); ++i)
 		{
 			const SdlField& param = *sdlFunction->getParam(i);
-			const auto paramName = sdl_name_to_snake_case(param.getFieldName());
+			const auto paramName = sdl::name_to_snake_case(param.getFieldName());
 
 			// Not adding the input method if it already exists. The Python input method is implemented
 			// as taking `AbstractData` as type hint, which is a type that all input parameter types are
@@ -397,8 +399,8 @@ inline PythonClass gen_sdl_version_directive_class()
 
 inline std::string gen_class_name_base(const SdlClass& sdlClass)
 {
-	const std::string typePart     = sdl_name_to_camel_case(sdlClass.getTypeName(), true);
-	const std::string categoryPart = sdl_name_to_camel_case(sdlClass.genCategoryName(), true);
+	const std::string typePart     = sdl::name_to_camel_case(sdlClass.getTypeName(), true);
+	const std::string categoryPart = sdl::name_to_camel_case(sdlClass.genCategoryName(), true);
 
 	return typePart + categoryPart;
 }
@@ -411,7 +413,7 @@ inline std::string gen_creator_class_name(const SdlClass& sdlClass)
 inline std::string gen_explicit_executor_class_name(const SdlFunction& sdlFunction, const SdlClass& parentClass)
 {
 	return gen_class_name_base(parentClass) +
-	       sdl_name_to_camel_case(sdlFunction.getName(), true);
+	       sdl::name_to_camel_case(sdlFunction.getName(), true);
 }
 
 inline std::vector<PythonClass> resolve_class_inheritances(const std::vector<PythonClass>& inUnresolvedClasses)

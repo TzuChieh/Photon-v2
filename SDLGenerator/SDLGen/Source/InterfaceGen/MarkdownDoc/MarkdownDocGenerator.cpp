@@ -8,8 +8,6 @@
 #include <SDL/sdl_helpers.h>
 #include <Common/assertion.h>
 
-#include <format>
-
 namespace ph::sdlgen
 {
 
@@ -73,12 +71,12 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 		return;
 	}
 
-	writeLine("## " + sdlClass->getDocName());
+	writeLine("## {}", sdlClass->getDocName());
 
 	writeNewLine();
 	
-	writeLine("* Category: `" + sdl_name_to_title_case(sdlClass->genCategoryName()) + "`");
-	writeLine("* Type: `" + sdl_name_to_title_case(sdlClass->getTypeName()) + "`");
+	writeLine("* Category: `" + sdl::name_to_title_case(sdlClass->genCategoryName()) + "`");
+	writeLine("* Type: `" + sdl::name_to_title_case(sdlClass->getTypeName()) + "`");
 
 	// Write notes for the SDL class
 	{
@@ -100,7 +98,7 @@ void MarkdownDocGenerator::writeClassDoc(const SdlClass* const sdlClass)
 			const SdlClass* const baseSdlClass = sdlClass->getBase();
 			PH_ASSERT(baseSdlClass);
 
-			writeString(", based on **" + baseSdlClass->getDocName() + "**");
+			writeString(", based on **{}**", baseSdlClass->getDocName());
 		}
 
 		writeNewLine();
@@ -172,7 +170,7 @@ void MarkdownDocGenerator::writeFunctionDoc(const SdlFunction* const sdlFunc, co
 	}
 	
 
-	writeLine("> Operation: `" + sdlFunc->getName() + "`, " + callableTypeName);
+	writeLine("> Operation: `{}`, {}", sdlFunc->getName(), callableTypeName);
 
 	writeNewLine();
 
@@ -190,7 +188,7 @@ void MarkdownDocGenerator::writeEnumDoc(const SdlEnum* const sdlEnum)
 		return;
 	}
 
-	writeLine("## " + sdl_name_to_title_case(sdlEnum->getName()));
+	writeLine("## " + sdl::name_to_title_case(sdlEnum->getName()));
 
 	writeNewLine();
 
@@ -258,7 +256,7 @@ void MarkdownDocGenerator::writeInputTable(const std::vector<const SdlField*>& i
 			const auto& typeName    = field->getTypeName();
 			const auto& description = field->getDescription();
 
-			writeLine("| " + fieldName + " | `" + typeName + "` | " + description + " |");
+			writeLine("| {} | `{}` | {} |", fieldName, typeName, description);
 		}
 	}
 }

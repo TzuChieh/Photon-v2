@@ -80,8 +80,8 @@ TEST(TSdlOwnerClassTest, DefaultStates)
 		EXPECT_EQ(sdlClass.numFields(), 0);
 		EXPECT_EQ(sdlClass.numFunctions(), 0);
 		EXPECT_STREQ(sdlClass.genCategoryName().c_str(), "geometry");
-		EXPECT_STREQ(sdlClass.getTypeName().c_str(), "testName");
-		EXPECT_STREQ(sdlClass.getDescription().c_str(), "");
+		EXPECT_EQ(sdlClass.getTypeName(), "testName");
+		EXPECT_EQ(sdlClass.getDescription(), "");
 
 		EXPECT_TRUE(sdlClass.getBase() == nullptr);
 		EXPECT_FALSE(sdlClass.isDerived());

@@ -6,6 +6,7 @@
 #include "SDL/Introspect/SdlNativeData.h"
 
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace ph
@@ -28,9 +29,9 @@ public:
 	virtual SdlNativeData nativeData(SdlNonConstInstance instance) const = 0;
 
 	std::string genPrettyName() const;
-	const std::string& getTypeName() const;
-	const std::string& getFieldName() const;
-	const std::string& getDescription() const;
+	std::string_view getTypeName() const;
+	std::string_view getFieldName() const;
+	std::string_view getDescription() const;
 	bool isFallbackEnabled() const;
 
 protected:
@@ -56,17 +57,17 @@ inline SdlField::SdlField(std::string typeName, std::string fieldName) :
 	PH_ASSERT(!m_fieldName.empty());
 }
 
-inline const std::string& SdlField::getTypeName() const
+inline std::string_view SdlField::getTypeName() const
 {
 	return m_typeName;
 }
 
-inline const std::string& SdlField::getFieldName() const
+inline std::string_view SdlField::getFieldName() const
 {
 	return m_fieldName;
 }
 
-inline const std::string& SdlField::getDescription() const
+inline std::string_view SdlField::getDescription() const
 {
 	return m_description;
 }

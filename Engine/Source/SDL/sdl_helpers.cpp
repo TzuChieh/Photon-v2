@@ -10,8 +10,11 @@
 #include "SDL/Introspect/SdlFunction.h"
 #include "SDL/SdlOutputClause.h"
 #include "SDL/sdl_exceptions.h"
+#include "Utility/string_utils.h"
 
 #include <exception>
+#include <cstddef>
+#include <format>
 
 namespace ph::sdl
 {
@@ -202,28 +205,30 @@ void save_field_id(const SdlField* const sdlField, SdlOutputClause& clause)
 
 std::string gen_pretty_name(const SdlClass* const clazz)
 {
-	return clazz ? 
-		"category: " + clazz->genCategoryName() + ", name: " + clazz->getTypeName() : 
-		"unavailable";
+	return clazz
+		? std::format("category: {}, name: {}", clazz->genCategoryName(), clazz->getTypeName())
+		: "unavailable";
 }
 
 std::string gen_pretty_name(const SdlFunction* const func)
 {
-	return func ?
-		"name: " + func->getName() :
-		"unavailable";
+	return func
+		? std::format("name: {}", func->getName())
+		: "unavailable";
 }
 
 std::string gen_pretty_name(const SdlField* const field)
 {
-	return field ?
-		"type: " + field->getTypeName() + ", name: " + field->getFieldName() : 
-		"unavailable";
+	return field
+		? std::format("type: {}, name: {}", field->getTypeName(), field->getFieldName())
+		: "unavailable";
 }
 
 std::string gen_pretty_name(const SdlClass* const clazz, const SdlField* const field)
 {
-	return "SDL class <" + gen_pretty_name(clazz) + ">, value <" + gen_pretty_name(field) + ">";
+	return std::format(
+		"SDL class <{}>, value <{}>",
+		gen_pretty_name(clazz), gen_pretty_name(field));
 }
 
 auto get_all_callable_functions(const SdlClass* const callableParentClass)
@@ -243,6 +248,74 @@ auto get_all_callable_functions(const SdlClass* const callableParentClass)
 	}
 
 	return results;
+}
+
+std::string name_to_title_case(const std::string_view sdlName)
+{
+	// The implementation is aware of empty inputs
+
+	auto result = std::string(sdlName);
+
+	// Capitalize first character if possible
+	if(!result.empty() && result.front() != '-')
+	{
+		result.front() = string_utils::az_to_AZ(result.front());
+	}
+
+	for(std::size_t i = 1; i < result.size(); ++i)
+	{
+		const char ch = result[i];
+
+		// Find all dashes and make it a space
+		if(ch == '-')
+		{
+			result[i] = ' ';
+
+			// Capitalize the character after space if possible
+			if(i + 1 < result.size())
+			{
+				result[i + 1] = string_utils::az_to_AZ(result[i + 1]);
+			}
+		}
+	}
+
+	return result;
+}
+
+std::string name_to_camel_case(const std::string_view sdlName, const bool capitalizedFront)
+{
+	// The implementation is aware of empty inputs
+
+	std::string camelCase = name_to_title_case(sdlName);
+	string_utils::erase_all(camelCase, ' ');
+
+	if(!capitalizedFront && !camelCase.empty())
+	{
+		camelCase.front() = string_utils::AZ_to_az(camelCase.front());
+	}
+
+	return camelCase;
+}
+
+std::string name_to_snake_case(const std::string_view sdlName)
+{
+	// The implementation is aware of empty inputs
+
+	std::string snakeCase = name_to_title_case(sdlName);
+
+	for(std::size_t i = 0; i < snakeCase.size(); ++i)
+	{
+		// Replace each space in title with dash
+		if(snakeCase[i] == ' ')
+		{
+			snakeCase[i] = '_';
+		}
+
+		// Make A~Z characters lower-case
+		snakeCase[i] = string_utils::AZ_to_az(snakeCase[i]);
+	}
+
+	return snakeCase;
 }
 
 }// end namespace ph::sdl
