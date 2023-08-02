@@ -11,8 +11,10 @@ namespace ph::editor
 class UIPropertyGroup final
 {
 public:
-	UIPropertyGroup& addProperty(UIProperty property);
+	explicit UIPropertyGroup(std::string groupName);
 
+	UIPropertyGroup& addProperty(UIProperty property, bool shouldPrepend = false);
+	UIPropertyGroup& addProperties(const UIPropertyGroup& properties, bool shouldPrepend = false);
 	const std::string& getName() const;
 
 private:

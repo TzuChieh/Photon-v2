@@ -1,4 +1,5 @@
 #include "Designer/AbstractDesignerObject.h"
+#include "Designer/UI/UIPropertyLayout.h"
 
 namespace ph::editor
 {
@@ -10,6 +11,11 @@ AbstractDesignerObject::AbstractDesignerObject(const AbstractDesignerObject& oth
 AbstractDesignerObject::AbstractDesignerObject(AbstractDesignerObject&& other) noexcept = default;
 
 AbstractDesignerObject::~AbstractDesignerObject() = default;
+
+UIPropertyLayout AbstractDesignerObject::layoutProperties()
+{
+	return UIPropertyLayout{};
+}
 
 AbstractDesignerObject& AbstractDesignerObject::operator = (const AbstractDesignerObject& rhs) = default;
 

@@ -12,6 +12,7 @@ class UIProperty final
 {
 public:
 	UIProperty(SdlNonConstInstance instance, std::string fieldName);
+	UIProperty(SdlNonConstInstance instance, const SdlField* field);
 
 	UIProperty& withDisplayName(std::string displayName);
 

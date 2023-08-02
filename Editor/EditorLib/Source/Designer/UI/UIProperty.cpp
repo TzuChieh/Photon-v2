@@ -12,8 +12,8 @@ namespace ph::editor
 UIProperty::UIProperty(SdlNonConstInstance instance, std::string fieldName)
 	: m_instance(instance)
 	, m_field(nullptr)
-	, m_fieldName(std::move(fieldName))
-	, m_displayName(sdl::name_to_title_case(fieldName))
+	, m_fieldName(fieldName)
+	, m_displayName(sdl::name_to_title_case(m_fieldName))
 {
 	const ISdlInstantiable* instantiable = instance.getInstantiable();
 	if(instantiable)
@@ -29,6 +29,13 @@ UIProperty::UIProperty(SdlNonConstInstance instance, std::string fieldName)
 		}
 	}
 }
+
+UIProperty::UIProperty(SdlNonConstInstance instance, const SdlField* field)
+	: m_instance(instance)
+	, m_field(field)
+	, m_fieldName(field ? field->getFieldName() : "")
+	, m_displayName(sdl::name_to_title_case(m_fieldName))
+{}
 
 UIProperty& UIProperty::withDisplayName(std::string displayName)
 {

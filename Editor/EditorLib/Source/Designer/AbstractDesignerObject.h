@@ -8,6 +8,8 @@
 namespace ph::editor
 {
 
+class UIPropertyLayout;
+
 class AbstractDesignerObject : public Object
 {
 public:
@@ -15,6 +17,10 @@ public:
 	AbstractDesignerObject(const AbstractDesignerObject& other);
 	AbstractDesignerObject(AbstractDesignerObject&& other) noexcept;
 	~AbstractDesignerObject() override = 0;
+
+	/*! @brief Create custom property layout.
+	*/
+	virtual UIPropertyLayout layoutProperties();
 
 	AbstractDesignerObject& operator = (const AbstractDesignerObject& rhs);
 	AbstractDesignerObject& operator = (AbstractDesignerObject&& rhs) noexcept;

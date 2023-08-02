@@ -5,9 +5,41 @@
 namespace ph::editor
 {
 
-UIPropertyGroup& UIPropertyGroup::addProperty(UIProperty property)
+UIPropertyGroup::UIPropertyGroup(std::string groupName)
+	: m_name(std::move(groupName))
+	, m_properties()
+{}
+
+UIPropertyGroup& UIPropertyGroup::addProperty(UIProperty property, const bool shouldPrepend)
 {
-	m_properties.push_back(std::move(property));
+	if(shouldPrepend)
+	{
+		m_properties.insert(m_properties.begin(), std::move(property));
+	}
+	else
+	{
+		m_properties.push_back(std::move(property));
+	}
+	
+	return *this;
+}
+
+UIPropertyGroup& UIPropertyGroup::addProperties(const UIPropertyGroup& properties, const bool shouldPrepend)
+{
+	if(shouldPrepend)
+	{
+		m_properties.insert(
+			m_properties.begin(),
+			properties.m_properties.begin(),
+			properties.m_properties.end());
+	}
+	else
+	{
+		m_properties.insert(
+			m_properties.end(), 
+			properties.m_properties.begin(), 
+			properties.m_properties.end());
+	}
 
 	return *this;
 }

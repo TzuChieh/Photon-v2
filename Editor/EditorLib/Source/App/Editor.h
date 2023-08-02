@@ -123,8 +123,8 @@ public:
 	/*! @brief Editor events.
 	Subscribe to editor event by adding listener to the corresponding dispatcher. Note that when
 	listening to events from a non-permanent resource, be sure to unsubscribe to the event before
-	the resource is cleaned up so the event will not act on a dangling resource. Unsubscribing to
-	an event can be done by removing listeners from the dispatcher, e.g., by calling 
+	the resource is cleaned up so the event system will not act on a dangling resource. 
+	Unsubscribing to an event can be done by removing listeners from the dispatcher, e.g., by calling 
 	`TEventDispatcher::removeListenerImmediately()` (calling the non-immediate overload is 
 	also acceptable).
 	*/
