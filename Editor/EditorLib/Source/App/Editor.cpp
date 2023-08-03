@@ -1,8 +1,10 @@
 #include "App/Editor.h"
+#include "ph_editor.h"
 #include "EditorCore/Thread/Threads.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/IO/DesignerSceneWriter.h"
 #include "Designer/IO/DesignerSceneReader.h"
+#include "App/Misc/EditorSettings.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -25,6 +27,11 @@ PH_DEFINE_INTERNAL_LOG_GROUP(Editor, App);
 namespace
 {
 
+inline Path get_editor_settings_file_path()
+{
+	return get_editor_data_directory() / "Settings.p2";
+}
+
 }// end anonymous namespace
 
 Editor::Editor() = default;
@@ -38,6 +45,24 @@ Editor::~Editor()
 
 void Editor::start()
 {
+	// Load editor settings or create one if no saved file was found
+	{
+		PH_ASSERT(!m_settings);
+
+		Path settingsFile = get_editor_settings_file_path();
+		if(settingsFile.hasFile())
+		{
+			loadSettings(settingsFile);
+		}
+		else
+		{
+			PH_LOG(Editor,
+				"No saved editor settings found, creating new one");
+
+			m_settings = TSdl<EditorSettings>::makeResource();
+		}
+	}
+
 	loadDefaultScene();
 }
 
@@ -117,6 +142,8 @@ void Editor::stop()
 		m_scenes.size());
 
 	// TODO: ask whether to save current scene
+
+	saveSettings(get_editor_settings_file_path());
 }
 
 std::size_t Editor::newScene()
@@ -416,6 +443,48 @@ void Editor::removeScene(const std::size_t sceneIndex)
 	PH_LOG(Editor, 
 		"removed scene \"{}\"", 
 		m_removingScenes.back().scene->getName());
+}
+
+void Editor::loadSettings(const Path& settingsFile)
+{
+	if(!settingsFile.hasFile())
+	{
+		PH_LOG_WARNING(Editor,
+			"Failed to load editor settings {} (file does not exist)",
+			settingsFile);
+		return;
+	}
+
+	PH_LOG(Editor,
+		"Loading editor settings {}",
+		settingsFile);
+
+	m_settings = TSdl<EditorSettings>::loadResource(settingsFile);
+}
+
+void Editor::saveSettings(const Path& settingsFile) const
+{
+	if(!m_settings)
+	{
+		PH_LOG_WARNING(Editor,
+			"Failed to save editor settings {} (no data present)",
+			settingsFile);
+		return;
+	}
+
+	PH_LOG(Editor,
+		"Saving editor settings {}",
+		settingsFile);
+
+	PH_ASSERT(m_settings);
+	TSdl<EditorSettings>::saveResource(m_settings, settingsFile);
+}
+
+EditorSettings& Editor::getSettings() const
+{
+	PH_ASSERT(m_settings);
+
+	return *m_settings;
 }
 
 //std::string Editor::getUniqueSceneName(const std::string& intendedName) const

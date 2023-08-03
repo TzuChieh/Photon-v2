@@ -24,7 +24,19 @@ SdlSceneFileWriter::SdlSceneFileWriter()
 {}
 
 SdlSceneFileWriter::SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory)
-	: SdlCommandGenerator(get_registered_engine_classes(), sceneWorkingDirectory)
+	: SdlSceneFileWriter(
+		get_registered_engine_classes(), 
+		std::move(sceneName),
+		sceneWorkingDirectory)
+{}
+
+SdlSceneFileWriter::SdlSceneFileWriter(
+	TSpanView<const SdlClass*> targetClasses,
+	std::string sceneName,
+	const Path& sceneWorkingDirectory)
+
+	: SdlCommandGenerator(targetClasses, sceneWorkingDirectory)
+
 	, m_sceneName(std::move(sceneName))
 	, m_resolver()
 	, m_fileStream(nullptr)

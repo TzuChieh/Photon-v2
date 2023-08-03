@@ -18,7 +18,18 @@ class SdlSceneFileWriter : public SdlCommandGenerator
 {
 public:
 	SdlSceneFileWriter();
+
+	/*! @brief Creates reader for all engine classes.
+	*/
 	SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory);
+
+	/*! @brief Creates reader for a custom set of classes.
+	*/
+	SdlSceneFileWriter(
+		TSpanView<const SdlClass*> targetClasses,
+		std::string sceneName, 
+		const Path& sceneWorkingDirectory);
+
 	~SdlSceneFileWriter() override;
 
 	/*! @brief Writes the scene to the writer-specified destination.

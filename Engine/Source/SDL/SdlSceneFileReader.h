@@ -16,7 +16,18 @@ class SdlSceneFileReader : public SdlCommandParser
 {
 public:
 	SdlSceneFileReader();
+
+	/*! @brief Creates reader for all engine classes.
+	*/
 	SdlSceneFileReader(std::string sceneName, const Path& sceneWorkingDirectory);
+
+	/*! @brief Creates reader for a custom set of classes.
+	*/
+	SdlSceneFileReader(
+		TSpanView<const SdlClass*> targetClasses, 
+		std::string sceneName, 
+		const Path& sceneWorkingDirectory);
+
 	~SdlSceneFileReader() override;
 
 	/*!

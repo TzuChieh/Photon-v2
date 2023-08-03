@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <list>
 #include <string>
+#include <memory>
 
 namespace ph { class Path; }
 
@@ -35,6 +36,7 @@ class DesignerScene;
 class MainThreadUpdateContext;
 class MainThreadRenderUpdateContext;
 class RenderThreadCaller;
+class EditorSettings;
 
 class Editor final : private INoCopyAndMove
 {
@@ -159,6 +161,14 @@ private:
 	// TODO: may require obj/entity add/remove event queue to support concurrent event 
 	// (to avoid invalidating Listener on addListener())
 // End Event System
+
+public:
+	void loadSettings(const Path& settingsFile);
+	void saveSettings(const Path& settingsFile) const;
+	EditorSettings& getSettings() const;
+
+private:
+	std::shared_ptr<EditorSettings> m_settings;
 };
 
 }// end namespace ph::editor

@@ -16,6 +16,21 @@ public:
 		bool* isOpening = nullptr);
 
 private:
+	// Update `CATEGORY_NAMES` is modified
+	enum ECategory : int
+	{
+		Startup = 0
+	};
+
+	static constexpr const char* CATEGORY_NAMES[] =
+	{
+		"Startup"
+	};
+
+	void buildCategorySelectionContent();
+	void buildSettingsContent();
+
+	int m_category;
 };
 
 }// end namespace ph::editor

@@ -74,7 +74,7 @@ void SdlInlinePacketInterface::parseSingleClause(std::string_view clauseString, 
 	// TODO: tokenize string_view
 	std::vector<std::string> tokens;
 	clauseTokenizer.tokenize(std::string(clauseString), tokens);
-	if(tokens.size() < 3)
+	if(tokens.size() < 2)
 	{
 		throw_formatted<SdlLoadError>(
 			"syntax error: incomplete clause detected, only {} tokens are specified",
@@ -103,6 +103,11 @@ void SdlInlinePacketInterface::parseSingleClause(std::string_view clauseString, 
 	// Parse the value section of a SDL clause
 	switch(tokens.size())
 	{
+	case 2:
+		// Value section omitted or being empty, e.g., ""
+		out_clause.value = "";
+		break;
+
 	case 3:
 		// "@" signifies a following reference,
 		// e.g., `@Ref`

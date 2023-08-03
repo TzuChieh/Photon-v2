@@ -24,7 +24,19 @@ SdlSceneFileReader::SdlSceneFileReader()
 {}
 
 SdlSceneFileReader::SdlSceneFileReader(std::string sceneName, const Path& sceneWorkingDirectory)
-	: SdlCommandParser(get_registered_engine_classes(), sceneWorkingDirectory)
+	: SdlSceneFileReader(
+		get_registered_engine_classes(), 
+		std::move(sceneName), 
+		sceneWorkingDirectory)
+{}
+
+SdlSceneFileReader::SdlSceneFileReader(
+	TSpanView<const SdlClass*> targetClasses,
+	std::string sceneName,
+	const Path& sceneWorkingDirectory)
+
+	: SdlCommandParser(targetClasses, sceneWorkingDirectory)
+
 	, m_sceneName(std::move(sceneName))
 	, m_scene(nullptr)
 {}

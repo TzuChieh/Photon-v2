@@ -1,11 +1,11 @@
 #pragma once
 
 #include "SDL/TSdl.h"
+#include "SDL/ISdlResource.h"
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/Introspect/SdlStruct.h"
 #include "SDL/sdl_helpers.h"
 #include "Common/assertion.h"
-
 #include "Common/logging.h"
 
 #include <utility>
@@ -89,6 +89,37 @@ inline T TSdl<T>::make(DeducedArgs&&... args)
 	}
 
 	return instance;
+}
+
+template<CSdlResource T>
+inline std::shared_ptr<T> TSdl<T>::loadResource(const Path& file)
+{
+	if constexpr(CHasSdlClassDefinition<T>)
+	{
+		auto loadedResource = detail::load_single_resource(T::getSdlClass(), file);
+#if PH_DEBUG
+		if(loadedResource)
+		{
+			PH_ASSERT(std::dynamic_pointer_cast<T>(loadedResource));
+		}
+#endif
+		
+		// Static cast is enough here as the result is guaranteed to have the specified
+		// class if non-null.
+		return std::static_pointer_cast<T>(loadedResource);
+	}
+	else
+	{
+		PH_STATIC_ASSERT_DEPENDENT_FALSE(T,
+			"Cannot load resource without SDL class definition. Did you call PH_DEFINE_SDL_CLASS() "
+			"in the body of type T?");
+	}
+}
+
+template<CSdlResource T>
+inline void TSdl<T>::saveResource(const std::shared_ptr<T>& resource, const Path& file)
+{
+	detail::save_single_resource(resource, file);
 }
 
 }// end namespace ph
