@@ -364,4 +364,24 @@ inline void DesignerScene::forEachUsableObject(PerObjectOperation op) const
 	}
 }
 
+inline std::size_t DesignerScene::numRootObjects() const
+{
+	return m_rootObjs.size();
+}
+
+inline std::size_t DesignerScene::numTickingObjects() const
+{
+	return m_tickingObjs.size();
+}
+
+inline std::size_t DesignerScene::numRenderTickingObjects() const
+{
+	return m_renderTickingObjs.size();
+}
+
+inline std::size_t DesignerScene::numAllocatedObjects() const
+{
+	return m_objStorage.size();
+}
+
 }// end namespace ph::editor

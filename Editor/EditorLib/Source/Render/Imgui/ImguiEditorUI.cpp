@@ -38,7 +38,7 @@ namespace ph::editor
 namespace
 {
 
-constexpr const char* ROOT_PROPERTIES_WINDOW_NAME = 
+constexpr const char* ROOT_PROPERTY_WINDOW_NAME = 
 	PH_IMGUI_PROPERTIES_ICON PH_IMGUI_ICON_TIGHT_PADDING "Properties";
 
 constexpr const char* MAIN_VIEWPORT_WINDOW_NAME = 
@@ -86,6 +86,9 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_editorLog()
 	, m_sceneCreator()
 	, m_sceneManager()
+	, m_editorSettings()
+	, m_sceneObjectBrowser()
+	, m_rootPropertyPanel()
 	, m_assetBrowser()
 	, m_debugPanel()
 	, m_sampleInspector()
@@ -215,7 +218,7 @@ void ImguiEditorUI::build()
 
 		// Pre-dock some persistent windows
 		ImGui::DockBuilderDockWindow(ASSET_BROWSER_WINDOW_NAME, bottomDockSpaceID);
-		ImGui::DockBuilderDockWindow(ROOT_PROPERTIES_WINDOW_NAME, lowerRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(ROOT_PROPERTY_WINDOW_NAME, lowerRightDockSpaceID);
 		ImGui::DockBuilderDockWindow(OBJECT_BROWSER_WINDOW_NAME, upperRightDockSpaceID);
 		ImGui::DockBuilderDockWindow(MAIN_VIEWPORT_WINDOW_NAME, childDockSpaceID);
 		ImGui::DockBuilderDockWindow(SIDEBAR_WINDOW_NAME, leftDockSpaceID);
@@ -259,7 +262,7 @@ void ImguiEditorUI::build()
 	//}
 
 	buildAssetBrowserWindow();
-	buildRootPropertiesWindow();
+	buildRootPropertyWindow();
 	buildObjectBrowserWindow();
 	buildMainViewportWindow();
 	buildSceneCreatorWindow();
@@ -390,54 +393,14 @@ void ImguiEditorUI::buildAssetBrowserWindow()
 	m_assetBrowser.buildWindow(ASSET_BROWSER_WINDOW_NAME, *this);
 }
 
-void ImguiEditorUI::buildRootPropertiesWindow()
+void ImguiEditorUI::buildRootPropertyWindow()
 {
-	if(!ImGui::Begin(ROOT_PROPERTIES_WINDOW_NAME))
-	{
-		ImGui::End();
-		return;
-	}
-
-	ImGui::Text("This is window A");
-	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-	ImGui::End();
+	m_rootPropertyPanel.buildWindow(ROOT_PROPERTY_WINDOW_NAME, *this);
 }
 
 void ImguiEditorUI::buildObjectBrowserWindow()
 {
-	if(!ImGui::Begin(OBJECT_BROWSER_WINDOW_NAME))
-	{
-		ImGui::End();
-		return;
-	}
-
-	if(ImGui::TreeNode("Basic"))
-	{
-		ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-		if(ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
-		{
-			if(ImGui::BeginTabItem("Avocado"))
-			{
-				ImGui::Text("This is the Avocado tab!\nblah blah blah blah blah");
-				ImGui::EndTabItem();
-			}
-			if(ImGui::BeginTabItem("Broccoli"))
-			{
-				ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
-				ImGui::EndTabItem();
-			}
-			if(ImGui::BeginTabItem("Cucumber"))
-			{
-				ImGui::Text("This is the Cucumber tab!\nblah blah blah blah blah");
-				ImGui::EndTabItem();
-			}
-			ImGui::EndTabBar();
-		}
-		ImGui::Separator();
-		ImGui::TreePop();
-	}
-
-	ImGui::End();
+	m_sceneObjectBrowser.buildWindow(OBJECT_BROWSER_WINDOW_NAME, *this);
 }
 
 void ImguiEditorUI::buildMainViewportWindow()
@@ -631,24 +594,10 @@ void ImguiEditorUI::buildEditorSettingsWindow()
 		return;
 	}
 
-	// Always center this window when appearing
-	ImGuiCond windowLayoutCond = ImGuiCond_Appearing;
-	const ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(
-		viewport->GetCenter(),
-		windowLayoutCond,
-		ImVec2(0.5f, 0.5f));
-	ImGui::SetNextWindowSize(
-		{viewport->WorkSize.x * 0.5f, viewport->WorkSize.y * 0.8f}, 
-		windowLayoutCond);
-
-	if(!ImGui::Begin(EDITOR_SETTINGS_WINDOW_NAME, &m_sidebarState.showEditorSettings))
-	{
-		ImGui::End();
-		return;
-	}
-
-	PH_DEFAULT_LOG("{}", m_sidebarState.showEditorSettings);
+	m_editorSettings.buildWindow(
+		EDITOR_SETTINGS_WINDOW_NAME, 
+		*this,
+		&m_sidebarState.showEditorSettings);
 
 	ImGui::End();
 }

@@ -4,6 +4,9 @@
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
 #include "Render/Imgui/Editor/ImguiEditorSceneCreator.h"
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
+#include "Render/Imgui/Editor/ImguiEditorSettings.h"
+#include "Render/Imgui/Editor/ImguiEditorSceneObjectBrowser.h"
+#include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
 #include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
 #include "Render/Imgui/Editor/ImguiEditorTheme.h"
@@ -60,7 +63,7 @@ private:
 private:
 	void buildMainMenuBar();
 	void buildAssetBrowserWindow();
-	void buildRootPropertiesWindow();
+	void buildRootPropertyWindow();
 	void buildObjectBrowserWindow();
 	void buildMainViewportWindow();
 	void buildSidebarWindow();
@@ -86,6 +89,9 @@ private:
 	ImguiEditorLog m_editorLog;
 	ImguiEditorSceneCreator m_sceneCreator;
 	ImguiEditorSceneManager m_sceneManager;
+	ImguiEditorSettings m_editorSettings;
+	ImguiEditorSceneObjectBrowser m_sceneObjectBrowser;
+	ImguiEditorPropertyPanel m_rootPropertyPanel;
 	ImguiEditorAssetBrowser m_assetBrowser;
 	ImguiEditorDebugPanel m_debugPanel;
 	ImguiSampleInspector m_sampleInspector;

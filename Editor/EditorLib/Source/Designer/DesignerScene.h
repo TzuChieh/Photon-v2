@@ -159,6 +159,11 @@ public:
 	void setWorkingDirectory(Path directory);
 	void setName(std::string name);
 
+	std::size_t numRootObjects() const;
+	std::size_t numTickingObjects() const;
+	std::size_t numRenderTickingObjects() const;
+	std::size_t numAllocatedObjects() const;
+
 	DesignerScene& operator = (DesignerScene&& rhs) noexcept;
 
 private:
