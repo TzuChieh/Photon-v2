@@ -1,5 +1,6 @@
 #include "Render/Imgui/ImguiEditorUI.h"
 #include "App/Editor.h"
+#include "App/Misc/EditorSettings.h"
 #include "EditorCore/Thread/Threads.h"
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
@@ -134,6 +135,9 @@ void ImguiEditorUI::build()
 	PH_ASSERT(Threads::isOnMainThread());
 	PH_ASSERT(m_editor);
 
+	const auto isDevelopmentMode = getEditor().getSettings().isDevelopmentMode;
+	m_isOnDebugMode = m_isOnDebugMode || isDevelopmentMode;
+
 	buildMainMenuBar();
 
 	// Experimental Docking API
@@ -238,29 +242,6 @@ void ImguiEditorUI::build()
 
 	ImGui::End();
 
-	/*
-	static bool hasInit = false;
-	if(!hasInit)*/
-	//{
-	//	const ImGuiID rootDockSpaceID = ImGui::DockSpaceOverViewport(
-	//		ImGui::GetMainViewport(),
-	//		ImGuiDockNodeFlags_PassthruCentralNode);
-
-	//	ImGui::DockBuilderSetNodeSize(rootDockSpaceID, ImGui::GetMainViewport()->Size);
-
-	//	const float leftNodeSplitRatio =
-	//		m_editor->dimensionHints.propertyPanelPreferredWidth /
-	//		ImGui::GetMainViewport()->Size.x;
-	//	const ImGuiID rootLeftDockSpaceID = ImGui::DockBuilderSplitNode(
-	//		rootDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, nullptr);
-
-	//	ImGui::DockBuilderDockWindow("Window A", rootLeftDockSpaceID);
-
-	//	ImGui::DockBuilderFinish(rootDockSpaceID);
-
-	//	//hasInit = true;
-	//}
-
 	buildAssetBrowserWindow();
 	buildRootPropertyWindow();
 	buildObjectBrowserWindow();
@@ -297,6 +278,7 @@ void ImguiEditorUI::build()
 
 void ImguiEditorUI::buildMainMenuBar()
 {
+	const bool isDevelopmentMode = getEditor().getSettings().isDevelopmentMode;
 	m_shouldResetWindowLayout = false;
 
 	if(ImGui::BeginMainMenuBar())
@@ -378,8 +360,9 @@ void ImguiEditorUI::buildMainMenuBar()
 
 		if(ImGui::BeginMenu("Debug"))
 		{
-			if(ImGui::MenuItem("Debug Mode", nullptr, &m_isOnDebugMode))
-			{}
+			if(isDevelopmentMode) { ImGui::BeginDisabled(); }
+			ImGui::MenuItem("Debug Mode", nullptr, &m_isOnDebugMode);
+			if(isDevelopmentMode) { ImGui::EndDisabled(); }
 
 			ImGui::EndMenu();
 		}

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Designer/IO/DesignerDataPacketInterface.h"
-
 #include <SDL/SdlCommandGenerator.h>
 #include <SDL/SdlDependencyResolver.h>
 
@@ -22,8 +20,6 @@ public:
 	DesignerSceneWriter();
 	explicit DesignerSceneWriter(const Path& sceneWorkingDirectory);
 	~DesignerSceneWriter() override;
-
-	SdlDataPacketInterface& getPacketInterface() override;
 
 	/*! @brief Writes the scene to the writer-specified destination.
 	*/
@@ -49,7 +45,6 @@ private:
 	void saveSceneToFile(const DesignerScene& scene, const Path& filePath);
 
 	SdlDependencyResolver m_resolver;
-	DesignerDataPacketInterface m_desingerPacketInterface;
 	FormattedTextOutputStream* m_fileStream;
 };
 

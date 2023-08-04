@@ -2,6 +2,7 @@
 #include "ph_editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
+#include "Designer/IO/DesignerDataPacketInterface.h"
 
 #include <SDL/Introspect/SdlInputContext.h>
 #include <Common/logging.h>
@@ -22,17 +23,13 @@ DesignerSceneReader::DesignerSceneReader()
 
 DesignerSceneReader::DesignerSceneReader(const Path& sceneWorkingDirectory)
 	: SdlCommandParser(get_registered_editor_classes(), sceneWorkingDirectory)
-	, m_designerPacketInterface()
 	, m_scene(nullptr)
 	, m_metaInfo()
-{}
+{
+	setPacketInterface(std::make_unique<DesignerDataPacketInterface>());
+}
 
 DesignerSceneReader::~DesignerSceneReader() = default;
-
-SdlDataPacketInterface& DesignerSceneReader::getPacketInterface()
-{
-	return m_designerPacketInterface;
-}
 
 void DesignerSceneReader::read(DesignerScene* const scene)
 {

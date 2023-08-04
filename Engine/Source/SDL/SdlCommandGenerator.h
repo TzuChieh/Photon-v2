@@ -2,13 +2,14 @@
 
 #include "SDL/sdl_fwd.h"
 #include "DataIO/FileSystem/Path.h"
-#include "SDL/SdlInlinePacketInterface.h"
+#include "SDL/SdlDataPacketInterface.h"
 #include "Utility/TSpan.h"
 
 #include <string_view>
 #include <string>
 #include <cstddef>
 #include <unordered_set>
+#include <memory>
 
 namespace ph
 {
@@ -25,16 +26,16 @@ public:
 	// TODO: parameters like binary form? multi-thread?
 	// TODO: command types, e.g., phantom
 
-	virtual SdlDataPacketInterface& getPacketInterface();
-
 	void generateLoadCommand(
 		const ISdlResource* resource,
 		std::string_view resourceName);
 
 	void generateVersionCommand(const SemanticVersion& version);
 
-	const Path& getSceneWorkingDirectory() const;
+	void setPacketInterface(std::unique_ptr<SdlDataPacketInterface> interface);
 	void setSceneWorkingDirectory(const Path& directory);
+	SdlDataPacketInterface& getPacketInterface();
+	const Path& getSceneWorkingDirectory() const;
 	std::size_t numGeneratedCommands() const;
 	std::size_t numGenerationErrors() const;
 	void clearStats();
@@ -77,8 +78,8 @@ private:
 
 private:
 	std::unordered_set<const SdlClass*> m_targetClasses;
+	std::unique_ptr<SdlDataPacketInterface> m_packetInterface;
 	Path m_sceneWorkingDirectory;
-	SdlInlinePacketInterface m_inlinePacketInterface;
 	std::size_t m_numGeneratedCommands;
 	std::size_t m_numGenerationErrors;
 };

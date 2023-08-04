@@ -3,6 +3,7 @@
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
 #include "Designer/IO/DesignerSceneMetaInfo.h"
+#include "Designer/IO/DesignerDataPacketInterface.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -31,16 +32,12 @@ DesignerSceneWriter::DesignerSceneWriter(const Path& sceneWorkingDirectory)
 	: SdlCommandGenerator(get_registered_editor_classes(), sceneWorkingDirectory)
 
 	, m_resolver()
-	, m_desingerPacketInterface()
 	, m_fileStream(nullptr)
-{}
+{
+	setPacketInterface(std::make_unique<DesignerDataPacketInterface>());
+}
 
 DesignerSceneWriter::~DesignerSceneWriter() = default;
-
-SdlDataPacketInterface& DesignerSceneWriter::getPacketInterface()
-{
-	return m_desingerPacketInterface;
-}
 
 bool DesignerSceneWriter::beginCommand(
 	const SdlClass* const targetClass,

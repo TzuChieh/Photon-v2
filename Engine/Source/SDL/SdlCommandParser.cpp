@@ -6,10 +6,11 @@
 #include "Utility/string_utils.h"
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/Introspect/SdlInputContext.h"
+#include "SDL/SdlInlinePacketInterface.h"
 #include "SDL/sdl_exceptions.h"
+#include "SDL/sdl_parser.h"
 #include "Common/stats.h"
 #include "Common/config.h"
-#include "SDL/sdl_parser.h"
 
 #include <cstddef>
 #include <utility>
@@ -37,8 +38,8 @@ SdlCommandParser::SdlCommandParser(
 
 	: m_commandVersion(PH_PSDL_VERSION)
 	, m_mangledNameToClass()
+	, m_packetInterface(std::make_unique<SdlInlinePacketInterface>())
 	, m_sceneWorkingDirectory(sceneWorkingDirectory)
-	, m_inlinePacketInterface()
 	, m_isInSingleLineComment(false)
 	, m_processedCommandCache()
 	, m_generatedNameCounter(0)
@@ -72,7 +73,8 @@ SdlCommandParser::~SdlCommandParser() = default;
 
 SdlDataPacketInterface& SdlCommandParser::getPacketInterface()
 {
-	return m_inlinePacketInterface;
+	PH_ASSERT(m_packetInterface);
+	return *m_packetInterface;
 }
 
 void SdlCommandParser::parse(std::string_view rawCommandSegment)
@@ -484,6 +486,11 @@ void SdlCommandParser::getClauses(
 		targetName,
 		targetInstance,
 		*out_clauses);
+}
+
+void SdlCommandParser::setPacketInterface(std::unique_ptr<SdlDataPacketInterface> interface)
+{
+	m_packetInterface = std::move(interface);
 }
 
 void SdlCommandParser::setSceneWorkingDirectory(const Path& directory)

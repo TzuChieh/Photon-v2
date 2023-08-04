@@ -1,11 +1,12 @@
 #include "SDL/TSdl.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
+#include "SDL/sdl_helpers.h"
 #include "SDL/ISdlResource.h"
 #include "SDL/SdlSceneFileReader.h"
 #include "SDL/SdlSceneFileWriter.h"
 #include "SDL/SceneDescription.h"
-#include "SDL/sdl_helpers.h"
+#include "SDL/SdlInlinePacketInterface.h"
 
 namespace ph
 {
@@ -74,6 +75,9 @@ void save_single_resource(const std::shared_ptr<ISdlResource>& resource, const P
 		targetClasses,
 		file.removeExtension().getFilename(),
 		file.getParent());
+
+	// For single-resource files, lay each clause on a separate line for ease of reading/editing
+	writer.setPacketInterface(std::make_unique<SdlInlinePacketInterface>(0, ' '));
 
 	writer.write(description);
 }

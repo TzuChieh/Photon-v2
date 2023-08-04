@@ -4,6 +4,7 @@
 #include "SDL/ISdlResource.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/SdlOutputClauses.h"
+#include "SDL/SdlInlinePacketInterface.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
 #include "Utility/SemanticVersion.h"
@@ -25,8 +26,8 @@ SdlCommandGenerator::SdlCommandGenerator(
 	const Path& sceneWorkingDirectory)
 
 	: m_targetClasses(targetClasses.begin(), targetClasses.end())
+	, m_packetInterface(std::make_unique<SdlInlinePacketInterface>())
 	, m_sceneWorkingDirectory(sceneWorkingDirectory)
-	, m_inlinePacketInterface()
 	, m_numGeneratedCommands(0)
 	, m_numGenerationErrors(0)
 {}
@@ -35,7 +36,8 @@ SdlCommandGenerator::~SdlCommandGenerator() = default;
 
 SdlDataPacketInterface& SdlCommandGenerator::getPacketInterface()
 {
-	return m_inlinePacketInterface;
+	PH_ASSERT(m_packetInterface);
+	return *m_packetInterface;
 }
 
 void SdlCommandGenerator::generateLoadCommand(
@@ -129,6 +131,11 @@ void SdlCommandGenerator::generateVersionCommand(const SemanticVersion& version)
 
 		++m_numGenerationErrors;
 	}
+}
+
+void SdlCommandGenerator::setPacketInterface(std::unique_ptr<SdlDataPacketInterface> interface)
+{
+	m_packetInterface = std::move(interface);
 }
 
 void SdlCommandGenerator::setSceneWorkingDirectory(const Path& directory)

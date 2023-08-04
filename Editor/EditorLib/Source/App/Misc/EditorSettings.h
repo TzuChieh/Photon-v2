@@ -12,6 +12,7 @@ class EditorSettings : public Option
 {
 public:
 	Path defaultSceneFile;
+	bool isDevelopmentMode;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<EditorSettings>)
@@ -24,6 +25,13 @@ public:
 		TSdlPath<OwnerType> defaultSceneFile("default-scene-file", &OwnerType::defaultSceneFile);
 		defaultSceneFile.description("Scene file that loads automatically if none was specified.");
 		clazz.addField(defaultSceneFile);
+
+		TSdlBool<OwnerType> isDevelopmentMode("development-mode", &OwnerType::isDevelopmentMode);
+		isDevelopmentMode.description(
+			"Run the editor in development mode. Additional features such as debugging functionalities "
+			"are enabled in this mode.");
+		isDevelopmentMode.defaultTo(false);
+		clazz.addField(isDevelopmentMode);
 
 		return clazz;
 	}

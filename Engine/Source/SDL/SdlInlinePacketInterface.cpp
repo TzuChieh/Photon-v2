@@ -6,16 +6,42 @@
 #include "SDL/Tokenizer.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_parser.h"
+#include "Utility/string_utils.h"
 
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 namespace ph
 {
 
 SdlInlinePacketInterface::SdlInlinePacketInterface()
-	: SdlDataPacketInterface()
+	: SdlInlinePacketInterface(-1, '\t')
 {}
+
+SdlInlinePacketInterface::SdlInlinePacketInterface(int clauseIndentAmount, char clauseIndentChar)
+	: SdlDataPacketInterface()
+	, m_clausePrefix()
+{
+	if(!string_utils::is_whitespace(clauseIndentChar))
+	{
+		throw_formatted<SdlException>(
+			"{} is not a valid whitespace for indentation.",
+			clauseIndentChar);
+	}
+
+	if(clauseIndentAmount >= 0)
+	{
+		// Always start each clause in a new line if indentation was specified
+		m_clausePrefix = '\n';
+
+		if(clauseIndentAmount > 0)
+		{
+			m_clausePrefix.resize(1 + clauseIndentAmount);
+			std::fill(m_clausePrefix.begin() + 1, m_clausePrefix.end(), clauseIndentChar);
+		}
+	}
+}
 
 void SdlInlinePacketInterface::parse(
 	std::string_view packetCommand,
@@ -36,6 +62,7 @@ void SdlInlinePacketInterface::generate(
 {
 	for(std::size_t clauseIdx = 0; clauseIdx < clauses.numClauses(); ++clauseIdx)
 	{
+		out_packetCommand += m_clausePrefix;
 		appendSingleClause(clauses[clauseIdx], out_packetCommand);
 	}
 }

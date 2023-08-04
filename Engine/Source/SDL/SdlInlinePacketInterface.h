@@ -3,6 +3,8 @@
 #include "SDL/SdlDataPacketInterface.h"
 #include "SDL/sdl_fwd.h"
 
+#include <string>
+
 namespace ph
 {
 
@@ -12,6 +14,16 @@ class SdlInlinePacketInterface : public SdlDataPacketInterface
 {
 public:
 	SdlInlinePacketInterface();
+
+	/*!
+	@param clauseIndentAmount Controls how much to indent each clause during clause generation.
+	Possible values:
+	-1 = No indentation. All clauses are on the same line.
+	0 = No indentation. Each clause will be placed on a new line.
+	>0 = Indent each clause by the specified amount of `clauseIndentChar`.
+	@param clauseIndentChar Character used for indentation during clause generation. Must be a whitespace.
+	*/
+	SdlInlinePacketInterface(int clauseIndentAmount, char clauseIndentChar);
 
 	void parse(
 		std::string_view packetCommand,
@@ -34,6 +46,8 @@ private:
 	static void appendSingleClause(
 		const SdlOutputClause& clause,
 		std::string& out_commandStr);
+
+	std::string m_clausePrefix;
 };
 
 }// end namespace ph

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Designer/IO/DesignerSceneMetaInfo.h"
-#include "Designer/IO/DesignerDataPacketInterface.h"
 
 #include <SDL/SdlCommandParser.h>
 
@@ -19,8 +18,6 @@ public:
 	DesignerSceneReader();
 	explicit DesignerSceneReader(const Path& sceneWorkingDirectory);
 	~DesignerSceneReader() override;
-
-	SdlDataPacketInterface& getPacketInterface() override;
 
 	/*!
 	The reader takes a pointer to scene and cache it since a possible use case is to treat the reader
@@ -74,7 +71,6 @@ private:
 	void readScene();
 	void readSceneMetaInfo();
 
-	DesignerDataPacketInterface m_designerPacketInterface;
 	DesignerScene* m_scene;
 	DesignerSceneMetaInfo m_metaInfo;
 };

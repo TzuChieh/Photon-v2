@@ -3,7 +3,7 @@
 #include "SDL/sdl_fwd.h"
 #include "SDL/SdlInputClauses.h"
 #include "SDL/ESdlTypeCategory.h"
-#include "SDL/SdlInlinePacketInterface.h"
+#include "SDL/SdlDataPacketInterface.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Utility/SemanticVersion.h"
 #include "Utility/TSpan.h"
@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <memory>
 
 namespace ph
 {
@@ -36,8 +37,6 @@ public:
 	// TODO: rename existing methods to enterAndWait() and flushAndWait() and add flush() and enter() once multithreading is added
 	// TODO: removeResource() callback for load error, etc.
 
-	virtual SdlDataPacketInterface& getPacketInterface();
-
 	/*! @brief Enters a string and parse it as one or more commands.
 
 	The command segment must have valid syntax. The method will potentially cache the command
@@ -56,9 +55,10 @@ public:
 	*/
 	void flush();
 
-	const Path& getSceneWorkingDirectory() const;
+	void setPacketInterface(std::unique_ptr<SdlDataPacketInterface> interface);
 	void setSceneWorkingDirectory(const Path& directory);
-
+	SdlDataPacketInterface& getPacketInterface();
+	const Path& getSceneWorkingDirectory() const;
 	const SemanticVersion& getCommandVersion() const;
 	std::size_t numParsedCommands() const;
 	std::size_t numParseErrors() const;
@@ -134,9 +134,9 @@ private:
 	SemanticVersion m_commandVersion;
 
 	std::unordered_map<std::string, const SdlClass*> m_mangledNameToClass;
+	std::unique_ptr<SdlDataPacketInterface> m_packetInterface;
 
 	Path m_sceneWorkingDirectory;
-	SdlInlinePacketInterface m_inlinePacketInterface;
 	bool m_isInSingleLineComment;
 	std::string m_processedCommandCache;
 	std::size_t m_generatedNameCounter;
