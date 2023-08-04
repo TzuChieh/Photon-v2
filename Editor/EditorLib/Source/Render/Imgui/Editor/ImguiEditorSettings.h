@@ -1,9 +1,12 @@
 #pragma once
 
+#include <vector>
+
 namespace ph::editor
 {
 
 class ImguiEditorUIProxy;
+class EditorSettings;
 
 class ImguiEditorSettings final
 {
@@ -28,10 +31,11 @@ private:
 	};
 
 	void buildCategorySelectionContent();
-	void buildSettingsContent();
-	void buildStartupCategoryContent();
+	void buildSettingsContent(ImguiEditorUIProxy editorUI);
+	void buildStartupCategoryContent(ImguiEditorUIProxy editorUI);
 
 	int m_category;
+	std::vector<char> m_stringDisplayBuffer;
 };
 
 }// end namespace ph::editor

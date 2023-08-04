@@ -8,6 +8,11 @@
 namespace ph
 {
 
+Path Path::toAbsolute() const
+{
+	return Path(std_filesystem::absolute(m_path));
+}
+
 std::string Path::toAbsoluteString() const
 {
 	return std_filesystem::absolute(m_path).string();

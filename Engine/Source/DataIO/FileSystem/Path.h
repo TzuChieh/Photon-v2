@@ -111,6 +111,8 @@ public:
 		return append(Path(pathStr));
 	}
 
+	Path toAbsolute() const;
+
 	/*! @brief Get a string representation of this path.
 	*/
 	std::string toString() const;

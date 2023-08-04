@@ -163,7 +163,9 @@ std::size_t Editor::newScene()
 
 void Editor::loadDefaultScene()
 {
-	// TODO: should be from a startup scene template (file)
+	loadScene(getSettings().defaultSceneFile);
+
+	// TODO: from a startup scene template (file) if the one from settings is invalid
 	//createScene();
 }
 

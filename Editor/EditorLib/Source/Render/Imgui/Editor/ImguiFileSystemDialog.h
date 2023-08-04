@@ -71,7 +71,7 @@ public:
 	void clearSelection();
 
 	/*!
-	@return True if the opened dialog is closed. Will not return true on subsequent calls unless 
+	@return True if the opened dialog is closed. Will not return true on subsequent calls unless
 	the dialog is opened and closed again.
 	*/
 	bool dialogClosed();
