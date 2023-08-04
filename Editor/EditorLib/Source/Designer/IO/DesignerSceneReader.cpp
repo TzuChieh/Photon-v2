@@ -25,6 +25,7 @@ DesignerSceneReader::DesignerSceneReader(const Path& sceneWorkingDirectory)
 	: SdlCommandParser(get_registered_editor_classes(), sceneWorkingDirectory)
 	, m_scene(nullptr)
 	, m_metaInfo()
+	, m_nameToNewObjs()
 {
 	setPacketInterface(std::make_unique<DesignerDataPacketInterface>());
 }
@@ -122,21 +123,30 @@ ISdlResource* DesignerSceneReader::createResource(
 	{
 		PH_LOG_WARNING(DesignerSceneReader,
 			"Designer object {} (class = {}) meta info missing, creating as root={}",
-			resourceName,
-			sdl::gen_pretty_name(resourceClass),
-			isRootObj);
+			resourceName, sdl::gen_pretty_name(resourceClass), isRootObj);
 	}
 
-	// Object created do not need to be pre-initialized in any way--they will be initialized by
-	// SDL clauses (see `initResource()`)
+	// Object created do not need to be pre-initialized in any way--their data will be populated by
+	// SDL clauses (see `initResource()`) and later initialized w.r.t. scene in bulk (see `readScene()`)
+	DesignerObject* newObj = nullptr;
 	if(isRootObj)
 	{
-		return m_scene->newRootObject(resourceClass, false, false);
+		newObj = m_scene->newRootObject(resourceClass, false, false);
 	}
 	else
 	{
-		return m_scene->newObject(resourceClass, false, false);
+		newObj = m_scene->newObject(resourceClass, false, false);
 	}
+
+	if(m_nameToNewObjs.contains(resourceName))
+	{
+		PH_LOG_WARNING(DesignerSceneReader,
+			"Duplicated designer object {} (class = {}) found, overwriting",
+			resourceName, sdl::gen_pretty_name(resourceClass));
+	}
+
+	m_nameToNewObjs[std::string(resourceName)] = newObj;
+	return newObj;
 }
 
 void DesignerSceneReader::initResource(
@@ -149,7 +159,7 @@ void DesignerSceneReader::initResource(
 	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
 	{
-		PH_LOG_WARNING(DesignerSceneReader,
+		PH_LOG_ERROR(DesignerSceneReader,
 			"Unable to initialize designer resource {} (class = {}): {}",
 			resourceName,
 			sdl::gen_pretty_name(resourceClass),
@@ -157,6 +167,7 @@ void DesignerSceneReader::initResource(
 		return;
 	}
 
+	// Load saved data into resource instance
 	resourceClass->initResource(*resource, clauses, ctx);
 }
 
@@ -227,12 +238,56 @@ void DesignerSceneReader::readScene()
 		timer.stop();
 
 		PH_LOG(DesignerSceneReader,
-			"command file PSDL version: {}", getCommandVersion().toString());
-		PH_LOG(DesignerSceneReader,
-			"command file loaded, time elapsed = {} ms", timer.getDeltaMs());
+			"command file loaded (PSDL version: {}), time elapsed = {} ms", 
+			getCommandVersion().toString(), timer.getDeltaMs());
 	}
 
-	// TODO: tick, child from meta info
+	flush();
+
+	// Initialize all newly created designer objects w.r.t. scene
+	for(auto&& [name, newObj] : m_nameToNewObjs)
+	{
+		m_scene->initObject(newObj);
+	}
+
+	// Establish object states according to stored meta info
+	for(auto&& [name, newObj] : m_nameToNewObjs)
+	{
+		auto* const objMetaInfo = m_metaInfo.getObject(name);
+		if(!objMetaInfo)
+		{
+			continue;
+		}
+
+		if(!objMetaInfo->isRoot())
+		{
+			auto findResult = m_nameToNewObjs.find(objMetaInfo->parentName);
+			if(findResult != m_nameToNewObjs.end())
+			{
+				DesignerObject* parent = findResult->second;
+				parent->addNewChild(newObj);
+			}
+			else
+			{
+				PH_LOG_WARNING(DesignerSceneReader,
+					"Designer object {} cannot find its parent {}",
+					name, objMetaInfo->parentName);
+			}
+		}
+
+		if(objMetaInfo->isTicking)
+		{
+			newObj->setTick(true);
+		}
+
+		if(objMetaInfo->isRenderTicking)
+		{
+			newObj->setRenderTick(true);
+		}
+	}
+
+	// We are done processing newly created objects
+	m_nameToNewObjs.clear();
 }
 
 void DesignerSceneReader::readSceneMetaInfo()

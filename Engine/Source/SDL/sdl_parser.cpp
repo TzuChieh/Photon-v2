@@ -1,11 +1,12 @@
 #include "SDL/sdl_parser.h"
+#include "Common/assertion.h"
 #include "Utility/string_utils.h"
 #include "SDL/sdl_exceptions.h"
 
 namespace ph::sdl_parser
 {
 
-std::string get_reference(std::string_view referenceToken)
+std::string_view get_reference(std::string_view referenceToken)
 {
 	// Remove any leading and trailing blank characters
 	auto token = string_utils::trim(referenceToken);
@@ -42,7 +43,7 @@ std::string get_reference(std::string_view referenceToken)
 			if(token.size() >= 3 && token.back() == '"')
 			{
 				// Remove the double quotes
-				return std::string(token.substr(1, token.size() - 2));
+				return token.substr(1, token.size() - 2);
 			}
 			else
 			{
@@ -56,7 +57,7 @@ std::string get_reference(std::string_view referenceToken)
 		else
 		{
 			// TODO: could contain whitespaces, this can be checked and reported
-			return std::string(token);
+			return token;
 		}
 	}
 		break;
@@ -66,6 +67,28 @@ std::string get_reference(std::string_view referenceToken)
 			"syntax error: unknown reference specifier <{}>",
 			specifier);
 	}
+}
+
+std::string_view trim_double_quotes(std::string_view str)
+{
+	// First remove any enclosing whitespaces
+	str = string_utils::trim(str);
+
+	if(str.size() >= 2 && str.starts_with('"') && str.ends_with('"'))
+	{
+		str.remove_prefix(1);
+		str.remove_suffix(1);
+	}
+
+	return str;
+}
+
+bool is_double_quoted(std::string_view str)
+{
+	// First remove any enclosing whitespaces
+	str = string_utils::trim(str);
+
+	return str.size() >= 2 && str.starts_with('"') && str.ends_with('"');
 }
 
 }// end namespace ph::sdl_parser

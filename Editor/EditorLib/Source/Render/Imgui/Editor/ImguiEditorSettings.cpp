@@ -13,7 +13,7 @@ namespace ph::editor
 {
 
 ImguiEditorSettings::ImguiEditorSettings()
-	: m_category(ECategory::Startup)
+	: m_category(ECategory::General)
 	, m_stringDisplayBuffer(512, '\0')
 {}
 
@@ -88,10 +88,21 @@ void ImguiEditorSettings::buildSettingsContent(ImguiEditorUIProxy editorUI)
 {
 	switch(m_category)
 	{
+	case ECategory::General:
+		buildGeneralCategoryContent(editorUI);
+		break;
+
 	case ECategory::Startup:
 		buildStartupCategoryContent(editorUI);
 		break;
 	}
+}
+
+void ImguiEditorSettings::buildGeneralCategoryContent(ImguiEditorUIProxy editorUI)
+{
+	EditorSettings& settings = editorUI.getEditor().getSettings();
+
+	ImGui::Checkbox("Development Mode", &settings.isDevelopmentMode);
 }
 
 void ImguiEditorSettings::buildStartupCategoryContent(ImguiEditorUIProxy editorUI)

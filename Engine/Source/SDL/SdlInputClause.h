@@ -25,7 +25,7 @@ public:
 	*/
 	bool isReference = false;
 
-	// TODO: update to string_view
+	// TODO: more efficient storage; able to reuse memory
 	// TODO: support binary data
 
 public:

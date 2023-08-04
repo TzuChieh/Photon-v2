@@ -133,9 +133,9 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 		ImGui::SameLine();
 		if(ImGui::Button("Cancel", ImVec2(120, 0)))
 		{
-			m_dialogClosedFlag = true;
+			m_dialogClosedFlag = false;
 
-			// Dialog will be closed and we are canceling--no selection is expected
+			// We are canceling--no selection is expected
 			clearSelection();
 
 			ImGui::CloseCurrentPopup();

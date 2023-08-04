@@ -17,6 +17,7 @@
 #include <SDL/Introspect/SdlOutputContext.h>
 #include <SDL/Introspect/SdlClass.h>
 #include <SDL/sdl_helpers.h>
+#include <SDL/sdl_parser.h>
 #include <DataIO/io_exceptions.h>
 #include <DataIO/FileSystem/ResourceIdentifier.h>
 
@@ -41,8 +42,7 @@ void DesignerDataPacketInterface::parse(
 
 	// Packet command is a bundled resource identifier (for the packet file), quoted.
 	// Remove quotes to obtain the identifier:
-	std::string_view identifier = string_utils::trim(packetCommand);
-	identifier = string_utils::cut_ends(identifier, "\"");
+	std::string_view identifier = sdl_parser::trim_double_quotes(packetCommand);
 
 	const Path packetFile = SdlResourceLocator(ctx).toPath(identifier);
 
@@ -125,7 +125,10 @@ void DesignerDataPacketInterface::generate(
 			valueInfoBuffer += clause.tag;
 		}
 
-		jsonObj[valueInfoBuffer] = clause.value;
+		// Clause value may be enclosed by double quotes in order to group its content. This is
+		// not necessary as a JSON string already adds double quotes. This removes any potentially
+		// redundant double quotes from the clause value.
+		jsonObj[valueInfoBuffer] = sdl_parser::trim_double_quotes(clause.value);
 	}
 
 	// Filename: <target-type>_<target-name>.<ext> (ignore angle brackets)

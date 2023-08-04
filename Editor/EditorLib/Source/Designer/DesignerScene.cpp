@@ -82,6 +82,16 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 		return;
 	}
 
+	// Tick objects
+	for(DesignerObject* obj : m_tickingObjs)
+	{
+		if(isFullyInitialized(*obj))
+		{
+			PH_ASSERT(obj->getState().has(EObjectState::Ticking));
+			obj->update(ctx);
+		}
+	}
+
 	// Process queued actions: Cache arrays can be modified in action tasks, as this is one of the 
 	// few places that we can be sure that those arrays are not in use (otherwise modifying them
 	// can invalidate their iterators)
@@ -96,21 +106,11 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 			}
 		}
 	}
-
-	// Tick objects
-	for(DesignerObject* obj : m_tickingObjs)
-	{
-		if(isFullyInitialized(*obj))
-		{
-			PH_ASSERT(obj->getState().has(EObjectState::Ticking));
-			obj->update(ctx);
-		}
-	}
 }
 
 void DesignerScene::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
-	// Tick objects
+	// Render tick objects
 	for(DesignerObject* obj : m_renderTickingObjs)
 	{
 		if(isFullyInitialized(*obj))
@@ -123,9 +123,21 @@ void DesignerScene::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 {
+	// Render tick objects
+	// (this should be placed after `renderUpdate()` without any object state change in between, as
+	// many implementations expect `renderUpdate()` and `createRenderCommands()` are in pairs)
+	for(DesignerObject* obj : m_renderTickingObjs)
+	{
+		if(isFullyInitialized(*obj))
+		{
+			PH_ASSERT(obj->getState().has(EObjectState::RenderTicking));
+			obj->createRenderCommands(caller);
+		}
+	}
+
 	// Process queued actions: Cache arrays can be modified in action tasks, as this is one of the 
 	// few places that we can be sure that those arrays are not in use (otherwise modifying them
-	// can invalidate their iterators)
+	// can invalidate their iterators).
 	for(std::size_t actionIdx = 0; actionIdx < m_numSceneActionsToProcess; ++actionIdx)
 	{
 		SceneAction& action = m_sceneActionQueue[actionIdx];
@@ -136,12 +148,6 @@ void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 				action.renderTask.unset();
 			}
 		}
-	}
-
-	// Tick objects
-	for(DesignerObject* obj : m_renderTickingObjs)
-	{
-		obj->createRenderCommands(caller);
 	}
 }
 

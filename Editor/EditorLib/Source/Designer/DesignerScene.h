@@ -59,12 +59,20 @@ public:
 	void markObjectTickState(DesignerObject* obj, bool shouldTick);
 	void markObjectRenderTickState(DesignerObject* obj, bool shouldTick);
 
+	/*! @brief Create a new (non-root) object.
+	@param shouldInit Whether the object should be initialized after creation. If false, initialization
+	can be done manually by calling `initObject()`.
+	*/
 	template<typename ObjectType>
 	[[nodiscard]]
 	ObjectType* newObject(
 		bool shouldInit = true, 
 		bool shouldSetToDefault = true);
 
+	/*! @brief Create a new root object.
+	@param shouldInit Whether the object should be initialized after creation. If false, initialization
+	can be done manually by calling `initObject()`.
+	*/
 	template<typename ObjectType>
 	ObjectType* newRootObject(
 		bool shouldInit = true,
@@ -73,6 +81,8 @@ public:
 	/*! @brief Create root object with automatic lifetime management.
 	The root object will delete itself once the `shared_ptr` free its pointer. Similar to normal objects,
 	using the object pointer after the scene is removed is an error.
+	@param shouldInit Whether the object should be initialized after creation. If false, initialization
+	can be done manually by calling `initObject()`.
 	*/
 	template<typename ObjectType>
 	std::shared_ptr<ObjectType> newSharedRootObject(

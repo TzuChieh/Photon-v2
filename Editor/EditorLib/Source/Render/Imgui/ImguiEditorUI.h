@@ -97,7 +97,7 @@ private:
 	ImguiSampleInspector m_sampleInspector;
 
 	bool m_isOpeningScene;
-	bool m_isOnDebugMode;
+	bool m_enableDebug;
 
 	ImguiFileSystemDialog m_generalFileSystemDialog;
 

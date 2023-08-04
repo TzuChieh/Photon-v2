@@ -95,7 +95,7 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_sampleInspector()
 
 	, m_isOpeningScene(false)
-	, m_isOnDebugMode(false)
+	, m_enableDebug(false)
 
 	, m_generalFileSystemDialog()
 
@@ -135,8 +135,10 @@ void ImguiEditorUI::build()
 	PH_ASSERT(Threads::isOnMainThread());
 	PH_ASSERT(m_editor);
 
-	const auto isDevelopmentMode = getEditor().getSettings().isDevelopmentMode;
-	m_isOnDebugMode = m_isOnDebugMode || isDevelopmentMode;
+	if(!getEditor().getSettings().isDevelopmentMode)
+	{
+		m_enableDebug = false;
+	}
 
 	buildMainMenuBar();
 
@@ -256,7 +258,7 @@ void ImguiEditorUI::build()
 	buildStatsMonitor();
 	buildTool();
 
-	if(m_isOnDebugMode)
+	if(m_enableDebug)
 	{
 		buildDebugPanelWindow();
 	}
@@ -360,9 +362,9 @@ void ImguiEditorUI::buildMainMenuBar()
 
 		if(ImGui::BeginMenu("Debug"))
 		{
-			if(isDevelopmentMode) { ImGui::BeginDisabled(); }
-			ImGui::MenuItem("Debug Mode", nullptr, &m_isOnDebugMode);
-			if(isDevelopmentMode) { ImGui::EndDisabled(); }
+			if(!isDevelopmentMode) { ImGui::BeginDisabled(); }
+			ImGui::MenuItem("Debug Mode", nullptr, &m_enableDebug);
+			if(!isDevelopmentMode) { ImGui::EndDisabled(); }
 
 			ImGui::EndMenu();
 		}
@@ -458,7 +460,7 @@ void ImguiEditorUI::buildSidebarWindow()
 		"Editor Settings",
 		m_sidebarState.showEditorSettings);
 
-	if(m_isOnDebugMode)
+	if(m_enableDebug)
 	{
 		ImGui::Spacing();
 

@@ -3,11 +3,16 @@
 #include "Designer/IO/DesignerSceneMetaInfo.h"
 
 #include <SDL/SdlCommandParser.h>
+#include <Utility/string_utils.h>
+
+#include <string>
+#include <unordered_map>
 
 namespace ph::editor
 {
 
 class DesignerScene;
+class DesignerObject;
 
 /*! @brief Loading utility for designer scene.
 Loads .pds (Photon Designer Scene) file.
@@ -73,6 +78,7 @@ private:
 
 	DesignerScene* m_scene;
 	DesignerSceneMetaInfo m_metaInfo;
+	string_utils::TStdUnorderedStringMap<DesignerObject*> m_nameToNewObjs;
 };
 
 }// end namespace ph

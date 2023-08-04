@@ -22,16 +22,19 @@ private:
 	// Update `CATEGORY_NAMES` is modified
 	enum ECategory : int
 	{
-		Startup = 0
+		General = 0,
+		Startup
 	};
 
 	static constexpr const char* CATEGORY_NAMES[] =
 	{
+		"General",
 		"Startup"
 	};
 
 	void buildCategorySelectionContent();
 	void buildSettingsContent(ImguiEditorUIProxy editorUI);
+	void buildGeneralCategoryContent(ImguiEditorUIProxy editorUI);
 	void buildStartupCategoryContent(ImguiEditorUIProxy editorUI);
 
 	int m_category;
