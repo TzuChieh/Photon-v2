@@ -1,7 +1,9 @@
 #include "DataIO/FileSystem/Path.h"
+#include "Common/assertion.h"
 #include "Common/logging.h"
 
 #include <cwchar>
+#include <algorithm>
 
 namespace ph
 {
@@ -62,6 +64,41 @@ Path Path::replaceExtension(std::string_view replacement) const
 Path Path::removeExtension() const
 {
 	return replaceExtension("");
+}
+
+std::size_t Path::toString(
+	TSpan<char> out_buffer,
+	std::size_t* const out_numTotalChars,
+	const bool isNullTerminated) const
+{
+	PH_ASSERT(!out_buffer.empty());
+
+	const wchar_t* wstr = m_path.native().c_str();
+	std::mbstate_t state{};
+
+	if(out_numTotalChars)
+	{
+		*out_numTotalChars = std::wcsrtombs(nullptr, &wstr, 0, &state) + isNullTerminated;
+	}
+
+	// `numCopiedChars` does not count null-terminator here
+	auto numCopiedChars = std::wcsrtombs(out_buffer.data(), &wstr, out_buffer.size(), &state);
+
+	// Possibly always make the result null-terminated
+	if(isNullTerminated)
+	{
+		if(numCopiedChars == out_buffer.size())
+		{
+			out_buffer.back() = '\0';
+		}
+		else
+		{
+			out_buffer[numCopiedChars] = '\0';
+			++numCopiedChars;
+		}
+	}
+
+	return numCopiedChars;
 }
 
 wchar_t Path::charToWchar(const char ch)

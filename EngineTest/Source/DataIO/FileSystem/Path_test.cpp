@@ -3,6 +3,8 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
+
 using namespace ph;
 
 TEST(FileSystemPathTest, PathOperation)
@@ -165,5 +167,92 @@ TEST(FileSystemPathTest, ExtensionManipulation)
 		Path path("/path/to/current/.");
 		Path result("/path/to/current/.");
 		EXPECT_STREQ(path.removeExtension().toString().c_str(), result.toString().c_str());
+	}
+}
+
+TEST(FileSystemPathTest, ToString)
+{
+	{
+		const Path relativePath("./some/path");
+
+		// Copied result includes null-terminator
+		{
+			std::array<char, 4> buffer;
+			EXPECT_EQ(relativePath.toString(buffer), 4);
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+			EXPECT_STREQ(buffer.data(), ".\\s");
+#else
+			EXPECT_STREQ(buffer.data(), "./s");
+#endif
+		}
+		
+		// Copied result includes null-terminator
+		{
+			std::array<char, 12> buffer;
+			EXPECT_EQ(relativePath.toString(buffer), 12);
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+			EXPECT_STREQ(buffer.data(), ".\\some\\path");
+#else
+			EXPECT_STREQ(buffer.data(), "./some/path");
+#endif
+		}
+
+		// Copied result includes null-terminator
+		{
+			std::array<char, 6> buffer;
+			EXPECT_EQ(relativePath.toString(buffer), 6);
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+			EXPECT_STREQ(buffer.data(), ".\\som");
+#else
+			EXPECT_STREQ(buffer.data(), "./som");
+#endif
+		}
+
+		// Copied result excludes null-terminator
+		{
+			std::array<char, 11> buffer;
+			EXPECT_EQ(relativePath.toString(buffer, nullptr, false), 11);
+
+			std::string strBuffer(buffer.begin(), buffer.end());
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+			EXPECT_STREQ(strBuffer.c_str(), ".\\some\\path");
+#else
+			EXPECT_STREQ(strBuffer.c_str(), "./some/path");
+#endif
+		}
+
+		// Copied result excludes null-terminator
+		{
+			std::array<char, 6> buffer;
+			EXPECT_EQ(relativePath.toString(buffer, nullptr, false), 6);
+
+			std::string strBuffer(buffer.begin(), buffer.end());
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+			EXPECT_STREQ(strBuffer.c_str(), ".\\some");
+#else
+			EXPECT_STREQ(strBuffer.c_str(), "./some");
+#endif
+		}
+	}
+
+	// Get total number of chars of a conversion
+	{
+		Path path("aaa/bbb/ccc/ddd/");
+
+		// Null-terminated
+		{
+			std::array<char, 1> buffer;
+			std::size_t numTotalChars;
+			path.toString(buffer, &numTotalChars);
+			EXPECT_EQ(numTotalChars, 16 + 1);
+		}
+		
+		// Not null-terminated
+		{
+			std::array<char, 1> buffer;
+			std::size_t numTotalChars;
+			path.toString(buffer, &numTotalChars, false);
+			EXPECT_EQ(numTotalChars, 16);
+		}
 	}
 }

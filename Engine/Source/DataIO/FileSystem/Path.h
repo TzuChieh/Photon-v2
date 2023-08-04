@@ -2,7 +2,9 @@
 
 #include "Common/compiler.h"
 #include "Utility/string_utils.h"
+#include "Utility/TSpan.h"
 
+#include <cstddef>
 #include <string>
 #include <utility>
 
@@ -112,6 +114,20 @@ public:
 	/*! @brief Get a string representation of this path.
 	*/
 	std::string toString() const;
+
+	/*! @brief Similar to `toString()`, except the buffer is provided.
+	This variant guarantees no dynamic allocation takes place.
+	@param out_buffer The buffer to store the string.
+	@param out_numTotalChars Total number of characters in the string representation of this path
+	(including the null terminator).
+	@param isNullTerminated Whether the resultant string should be null-terminated. If true,
+	null terminator will present even if the string is not fully copied.
+	@return Number of copied characters (including the null terminator).
+	*/
+	std::size_t toString(
+		TSpan<char> out_buffer, 
+		std::size_t* out_numTotalChars = nullptr,
+		bool isNullTerminated = true) const;
 
 	std::string toAbsoluteString() const;
 

@@ -29,6 +29,7 @@ private:
 
 	void buildCategorySelectionContent();
 	void buildSettingsContent();
+	void buildStartupCategoryContent();
 
 	int m_category;
 };

@@ -86,6 +86,16 @@ void ImguiEditorSettings::buildCategorySelectionContent()
 
 void ImguiEditorSettings::buildSettingsContent()
 {
+	switch(m_category)
+	{
+	case ECategory::Startup:
+		buildStartupCategoryContent();
+		break;
+	}
+}
+
+void ImguiEditorSettings::buildStartupCategoryContent()
+{
 
 }
 
