@@ -12,9 +12,13 @@
 #include <Common/assertion.h>
 #include <SDL/Introspect/SdlClass.h>
 
-#define PH_IMGUI_VISIBLE_ICON   ICON_MDI_EYE
-#define PH_IMGUI_INVISIBLE_ICON ICON_MDI_EYE_OFF
-#define PH_IMGUI_OBJECT_ICON    ICON_MDI_CUBE
+#include <algorithm>
+
+#define PH_IMGUI_VISIBLE_ICON       ICON_MDI_EYE
+#define PH_IMGUI_INVISIBLE_ICON     ICON_MDI_EYE_OFF
+#define PH_IMGUI_OBJECT_ICON        ICON_MDI_CUBE
+
+#define PH_IMGUI_OBJECT_ICON_PREFIX PH_IMGUI_OBJECT_ICON " "
 
 namespace ph::editor
 {
@@ -215,16 +219,23 @@ void ImguiEditorSceneObjectBrowser::buildObjectTableRowRecursive(DesignerObject&
 {
 	const bool haveChildren = obj.haveChildren();
 
+	ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_None;
+	if(obj.isSelected())
+	{
+		nodeFlags |= ImGuiTreeNodeFlags_Selected;
+	}
+
 	ImGui::TableNextRow();
 
 	if(haveChildren)
 	{
-		constexpr ImGuiTreeNodeFlags nodeFlags =
-			ImGuiTreeNodeFlags_SpanFullWidth;
+		nodeFlags |= ImGuiTreeNodeFlags_SpanFullWidth;
 
 		// Object name
 		ImGui::TableNextColumn();
-		const bool isObjOpened = ImGui::TreeNodeEx(obj.getName().c_str(), nodeFlags);
+		const bool isObjOpened = ImGui::TreeNodeEx(
+			getObjectDisplayName(obj.getName(), PH_IMGUI_OBJECT_ICON_PREFIX, 64),
+			nodeFlags);
 			
 		// Visibility toggle
 		ImGui::TableNextColumn();
@@ -245,14 +256,16 @@ void ImguiEditorSceneObjectBrowser::buildObjectTableRowRecursive(DesignerObject&
 	}
 	else
 	{
-		constexpr ImGuiTreeNodeFlags nodeFlags =
+		nodeFlags |=
 			ImGuiTreeNodeFlags_Leaf | 
 			ImGuiTreeNodeFlags_NoTreePushOnOpen | 
 			ImGuiTreeNodeFlags_SpanFullWidth;
 
 		// Object name
 		ImGui::TableNextColumn();
-		ImGui::TreeNodeEx(obj.getName().c_str(), nodeFlags);
+		ImGui::TreeNodeEx(
+			getObjectDisplayName(obj.getName(), PH_IMGUI_OBJECT_ICON_PREFIX, 64),
+			nodeFlags);
 		// Note: Do not pop leaf node, see: https://github.com/ocornut/imgui/issues/4833
 			
 		// Visibility toggle
@@ -280,18 +293,47 @@ void ImguiEditorSceneObjectBrowser::buildVisibilityToggle(DesignerObject& obj)
 	}
 }
 
-//const char* ImguiEditorSceneObjectBrowser::getObjectDisplayName(
-//	std::string_view objName,
-//	std::string_view namePrefix,
-//	const std::size_t maxChars)
-//{
-//	prepareDisplayNameBuffer(maxChars);
-//
-//	if(objName.size() + namePrefix.size() <= maxChars)
-//	{
-//
-//	}
-//}
+const char* ImguiEditorSceneObjectBrowser::getObjectDisplayName(
+	std::string_view objName,
+	std::string_view namePrefix,
+	const std::size_t maxChars)
+{
+	prepareDisplayNameBuffer(maxChars);
+
+	// All text can fit
+	if(objName.size() + namePrefix.size() <= maxChars)
+	{
+		auto newBufferBegin = std::copy(namePrefix.begin(), namePrefix.end(), m_displayNameBuffer.begin());
+		newBufferBegin = std::copy(objName.begin(), objName.end(), newBufferBegin);
+		*newBufferBegin = '\0';
+	}
+	// In the form "<prefix><name>..."
+	else
+	{
+		// Always fill the trailing "..."
+		const auto numDots = std::min(3ull, maxChars);
+		std::fill(m_displayNameBuffer.begin() + maxChars - numDots, m_displayNameBuffer.begin() + maxChars, '.');
+		*(m_displayNameBuffer.begin() + maxChars) = '\0';
+
+		// Fill the name in the remaining space
+		if(numDots < maxChars)
+		{
+			auto numRemainingChars = maxChars - numDots;
+			auto newBufferBegin = std::copy(
+				namePrefix.begin(),
+				namePrefix.begin() + std::min(namePrefix.size(), numRemainingChars),
+				m_displayNameBuffer.begin());
+
+			numRemainingChars -= std::min(namePrefix.size(), numRemainingChars);
+			std::copy(
+				objName.begin(),
+				objName.begin() + std::min(namePrefix.size() + objName.size(), numRemainingChars),
+				newBufferBegin);
+		}
+	}
+
+	return m_displayNameBuffer.data();
+}
 
 void ImguiEditorSceneObjectBrowser::prepareDisplayNameBuffer(const std::size_t maxChars)
 {
