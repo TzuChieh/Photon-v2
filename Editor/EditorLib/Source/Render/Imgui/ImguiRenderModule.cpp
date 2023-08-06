@@ -9,7 +9,8 @@
 #include "Render/RenderData.h"
 #include "Render/RendererScene.h"
 #include "Render/Imgui/imgui_common.h"
-#include "Render/Imgui/Font/IconsMaterialDesign.h"
+//#include "Render/Imgui/Font/IconsMaterialDesign.h"
+#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
 
 #include "ThirdParty/DearImGui.h"
 #include "ThirdParty/ImPlot.h"
@@ -44,8 +45,8 @@ ImguiRenderModule::ImguiRenderModule()
 	, m_imageLibrary()
 {
 	m_fontIconGlyphRanges = {
-		static_cast<ImWchar>(ICON_MIN_MD),
-		static_cast<ImWchar>(ICON_MAX_MD),
+		static_cast<ImWchar>(ICON_MIN_MDI),
+		static_cast<ImWchar>(ICON_MAX_MDI),
 		static_cast<ImWchar>(0)};
 }
 
@@ -249,7 +250,8 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	PH_LOG(DearImGui, "setting-up fonts...");
 
 	constexpr std::string_view BASE_FONT_FILENAME = "Arimo[wght].ttf";
-	constexpr std::string_view FONT_ICON_FILENAME = FONT_ICON_FILE_NAME_MD;
+	//constexpr std::string_view FONT_ICON_FILENAME = FONT_ICON_FILE_NAME_MDI;
+	constexpr std::string_view FONT_ICON_FILENAME = "materialdesignicons-webfont.ttf";
 
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -271,7 +273,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	iconFontConfig.PixelSnapH = true;
 	iconFontConfig.GlyphMinAdvanceX = iconFontSizePx;
 	iconFontConfig.GlyphOffset.x = 0.0f;
-	iconFontConfig.GlyphOffset.y = iconFontSizePx * 0.2f;
+	iconFontConfig.GlyphOffset.y = iconFontSizePx * 0.075f;
 	io.Fonts->AddFontFromFileTTF(
 		(fontDirectory / FONT_ICON_FILENAME).toString().c_str(),
 		iconFontSizePx,

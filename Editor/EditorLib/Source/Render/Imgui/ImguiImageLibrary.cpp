@@ -5,7 +5,8 @@
 #include "Render/RendererDetailedTexture.h"
 #include "Render/RenderData.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
-#include "Render/Imgui/Font/IconsMaterialDesign.h"
+//#include "Render/Imgui/Font/IconsMaterialDesign.h"
+#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
 
 #include <Frame/RegularPicture.h>
 #include <DataIO/FileSystem/Path.h>
@@ -37,7 +38,7 @@ void ImguiImageLibrary::imguiImage(
 	if(!optImTextureID.has_value())
 	{
 		// Draw a top-filled hourglass to indicate the image is unavailable for now
-		ImGui::Text(ICON_MD_HOURGLASS_TOP);
+		ImGui::Text(ICON_MDI_TIMER_SAND);
 		return;
 	}
 
@@ -61,7 +62,7 @@ bool ImguiImageLibrary::imguiImageButton(
 	if(!optImTextureID.has_value())
 	{
 		// Add a top-filled hourglass button to indicate the image is unavailable for now
-		return ImGui::Button(ICON_MD_HOURGLASS_TOP);
+		return ImGui::Button(ICON_MDI_TIMER_SAND);
 	}
 
 	return ImGui::ImageButton(

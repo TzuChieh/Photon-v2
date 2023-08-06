@@ -18,6 +18,7 @@ public:
 		bool* isOpening = nullptr);
 
 	void setLayout(UIPropertyLayout layout);
+	void clearLayout();
 
 private:
 	UIPropertyLayout m_layout;

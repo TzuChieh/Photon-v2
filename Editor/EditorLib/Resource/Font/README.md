@@ -9,3 +9,8 @@
 
 * Copied from https://github.com/google/material-design-icons
 * version: git commit hash `6de81a432fd3c751719e586ff3c7da72a0983a87`
+
+### materialdesignicons-webfont.ttf
+
+* Copied from https://github.com/Templarian/MaterialDesign-Webfont
+* version: git commit hash `de76727c7386b0fabd56a98822e69bbf877b383d`

@@ -3,6 +3,8 @@
 
 #include "ThirdParty/DearImGui.h"
 
+#include <utility>
+
 namespace ph::editor
 {
 
@@ -15,7 +17,10 @@ void ImguiEditorPropertyPanel::buildWindow(
 	ImguiEditorUIProxy editorUI,
 	bool* isOpening)
 {
-	if(!ImGui::Begin(title, isOpening))
+	constexpr ImGuiWindowFlags windowFlags =
+		ImGuiWindowFlags_AlwaysVerticalScrollbar;// so width can be fixed--no scrollbar popping
+
+	if(!ImGui::Begin(title, isOpening, windowFlags))
 	{
 		ImGui::End();
 		return;
@@ -27,6 +32,16 @@ void ImguiEditorPropertyPanel::buildWindow(
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 
 	ImGui::End();
+}
+
+void ImguiEditorPropertyPanel::setLayout(UIPropertyLayout layout)
+{
+	m_layout = std::move(layout);
+}
+
+void ImguiEditorPropertyPanel::clearLayout()
+{
+	m_layout.clear();
 }
 
 }// end namespace ph::editor

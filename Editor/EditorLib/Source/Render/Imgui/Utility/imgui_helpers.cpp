@@ -1,11 +1,18 @@
 #include "Render/Imgui/Utility/imgui_helpers.h"
 
+#include "ThirdParty/DearImGui.h"
+
 #include <Common/assertion.h>
 
 #include <algorithm>
 
 namespace ph::editor::imgui
 {
+
+void text_unformatted(std::string_view text)
+{
+	ImGui::TextUnformatted(text.data(), text.data() + text.size());
+}
 
 void copy_to(TSpan<char> dstBuffer, std::string_view srcStr)
 {

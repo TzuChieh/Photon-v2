@@ -59,6 +59,13 @@ link_thirdparty_lib(EditorLib ${GLAD_LIB_NAME}
 	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_GLAD)
 link_thirdparty_lib(EditorLib ${JSON_LIB_NAME})
 
+# Use 32-bit char type in Dear ImGui. Some font need wider range to encode properly, 
+# see https://github.com/ocornut/imgui/blob/master/docs/FONTS.md#using-colorful-glyphsemojis
+# This may be defaulted (so can be removed) in a later version of Dear ImGui, 
+# see https://github.com/ocornut/imgui/issues/6504#issuecomment-1584661452
+target_compile_definitions(EditorLib
+	PRIVATE IMGUI_USE_WCHAR32)
+
 source_group(TREE ${EDITOR_LIB_DIR} FILES ${EDITOR_LIB_HEADER_FILES})
 source_group(TREE ${EDITOR_LIB_DIR} FILES ${EDITOR_LIB_SOURCE_FILES})
 

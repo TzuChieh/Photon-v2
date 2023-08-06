@@ -12,6 +12,7 @@ class EditorSettings : public Option
 {
 public:
 	Path defaultSceneFile;
+	bool loadDefaultSceneOnStartup;
 	bool isDevelopmentMode;
 
 public:
@@ -23,8 +24,15 @@ public:
 		clazz.baseOn<Option>();
 
 		TSdlPath<OwnerType> defaultSceneFile("default-scene-file", &OwnerType::defaultSceneFile);
-		defaultSceneFile.description("Scene file that loads automatically if none was specified.");
+		defaultSceneFile.description(
+			"Scene file that loads automatically if none was specified.");
 		clazz.addField(defaultSceneFile);
+
+		TSdlBool<OwnerType> loadDefaultSceneOnStartup("load-default-scene-on-start-up", &OwnerType::loadDefaultSceneOnStartup);
+		loadDefaultSceneOnStartup.description(
+			"Load the specified default scene automatically when editor starts.");
+		loadDefaultSceneOnStartup.defaultTo(true);
+		clazz.addField(loadDefaultSceneOnStartup);
 
 		TSdlBool<OwnerType> isDevelopmentMode("development-mode", &OwnerType::isDevelopmentMode);
 		isDevelopmentMode.description(

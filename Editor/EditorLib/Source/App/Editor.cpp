@@ -63,7 +63,10 @@ void Editor::start()
 		}
 	}
 
-	loadDefaultScene();
+	if(getSettings().loadDefaultSceneOnStartup)
+	{
+		loadDefaultScene();
+	}
 }
 
 void Editor::update(const MainThreadUpdateContext& ctx)

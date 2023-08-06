@@ -21,6 +21,8 @@ public:
 	UIPropertyGroup* getGroup(std::string_view groupName);
 	UIPropertyGroup& getOrCreateGroup(std::string_view groupName, bool shouldPrepend = false);
 
+	void clear();
+
 private:
 	std::vector<UIPropertyGroup> m_groups;
 };

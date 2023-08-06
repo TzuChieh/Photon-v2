@@ -32,6 +32,16 @@ inline ChildType* DesignerObject::newChild(
 	return static_cast<ChildType*>(childObj);
 }
 
+inline bool DesignerObject::isSelected() const
+{
+	return getState().has(EObjectState::Selected);
+}
+
+inline bool DesignerObject::isVisible() const
+{
+	return getState().hasNo(EObjectState::Hidden);
+}
+
 inline auto DesignerObject::getState() const
 -> const TEnumFlags<EObjectState>&
 {

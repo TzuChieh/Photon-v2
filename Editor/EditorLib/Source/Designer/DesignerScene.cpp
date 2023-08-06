@@ -18,7 +18,7 @@ PH_DEFINE_LOG_GROUP(DesignerScene, Designer);
 namespace
 {
 
-inline std::string get_object_debug_info(DesignerObject* const obj)
+inline std::string get_object_debug_info(const DesignerObject* const obj)
 {
 	if(!obj)
 	{
@@ -40,6 +40,7 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	, m_rootObjs()
 	, m_tickingObjs()
 	, m_renderTickingObjs()
+	, m_selectedObjs()
 	, m_sceneActionQueue()
 	, m_numSceneActionsToProcess(0)
 
@@ -163,23 +164,87 @@ void DesignerScene::beforeRenderStage()
 void DesignerScene::afterRenderStage()
 {}
 
-void DesignerScene::markObjectTickState(DesignerObject* const obj, const bool shouldTick)
+bool DesignerScene::selectObject(DesignerObject* const obj)
 {
 	if(!obj)
 	{
-		return;
+		return false;
 	}
 
+	ensureOwnedByThisScene(obj);
+
+	auto& objState = obj->getState();
+	if(objState.has(EObjectState::Selected))
+	{
+		return false;
+	}
+
+	objState.turnOn({EObjectState::Selected});
+	m_selectedObjs.push_back(obj);
+	return true;
+}
+
+bool DesignerScene::deselectObject(DesignerObject* const obj)
+{
+	if(!obj)
+	{
+		return false;
+	}
+
+	ensureOwnedByThisScene(obj);
+
+	auto& objState = obj->getState();
+	if(objState.hasNo(EObjectState::Selected))
+	{
+		return false;
+	}
+
+	objState.turnOff({EObjectState::Selected});
+	const auto numErasedObjs = std::erase(m_selectedObjs, obj);
+	if(numErasedObjs != 1)
+	{
+		PH_LOG_WARNING(DesignerScene,
+			"Deselecting object {}, {} were found and deselected",
+			get_object_debug_info(obj), numErasedObjs);
+	}
+	return true;
+}
+
+void DesignerScene::clearSelection()
+{
+	// Deselect every object in LIFO order
+	while(!m_selectedObjs.empty())
+	{
+		deselectObject(m_selectedObjs.back());
+	}
+}
+
+void DesignerScene::changeObjectVisibility(DesignerObject* const obj, const bool shouldBeVisible)
+{
+	ensureOwnedByThisScene(obj);
+
+	auto& objState = obj->getState();
+	if(shouldBeVisible && objState.has(EObjectState::Hidden))
+	{
+		// TODO
+
+		objState.turnOff({EObjectState::Hidden});
+	}
+	else if(!shouldBeVisible && objState.hasNo(EObjectState::Hidden))
+	{
+		// TODO
+
+		objState.turnOn({EObjectState::Hidden});
+	}
+}
+
+void DesignerScene::changeObjectTick(DesignerObject* const obj, const bool shouldTick)
+{
 	queueObjectTickAction(obj, shouldTick);
 }
 
-void DesignerScene::markObjectRenderTickState(DesignerObject* const obj, const bool shouldTick)
+void DesignerScene::changeObjectRenderTick(DesignerObject* const obj, const bool shouldTick)
 {
-	if(!obj)
-	{
-		return;
-	}
-
 	queueObjectRenderTickAction(obj, shouldTick);
 }
 
@@ -278,8 +343,9 @@ void DesignerScene::setObjectToDefault(DesignerObject* const obj)
 		return;
 	}
 
+	ensureOwnedByThisScene(obj);
+
 	const SdlClass* const clazz = obj->getDynamicSdlClass();
-	PH_ASSERT(clazz);
 	clazz->initDefaultResource(*obj);
 }
 
@@ -303,8 +369,9 @@ void DesignerScene::deleteObject(
 
 void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
 {
-	SceneAction action;
+	ensureOwnedByThisScene(obj);
 
+	SceneAction action;
 	action.updateTask = 
 		[this, obj](const MainThreadUpdateContext& ctx)
 		-> bool
@@ -327,7 +394,6 @@ void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
 
 			return objState.has(EObjectState::HasInitialized);
 		};
-
 	action.renderTask = 
 		[this, obj](RenderThreadCaller& caller)
 		-> bool
@@ -350,8 +416,9 @@ void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
 
 void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 {
-	SceneAction action;
+	ensureOwnedByThisScene(obj);
 
+	SceneAction action;
 	action.updateTask = 
 		[this, obj](const MainThreadUpdateContext& ctx)
 		-> bool
@@ -362,14 +429,15 @@ void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 			// We always want to remove the object from cache arrays
 			std::erase(m_tickingObjs, obj);
 			std::erase(m_renderTickingObjs, obj);
+			std::erase(m_selectedObjs, obj);
 			if(objState.has(EObjectState::Root))
 			{
 				const auto numErasedObjs = std::erase(m_rootObjs, obj);
 				if(numErasedObjs != 1)
 				{
 					throw_formatted<IllegalOperationException>(
-						"object {} is identified as root but does not appear (uniquely) in the root set "
-						"({} were found)",
+						"object {} is identified as root but does not appear (uniquely) in the "
+						"root set ({} were found)",
 						get_object_debug_info(obj), numErasedObjs);
 				}
 			}
@@ -393,7 +461,6 @@ void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 
 			return objState.has(EObjectState::HasUninitialized);
 		};
-
 	action.renderTask = 
 		[this, obj](RenderThreadCaller& caller)
 		-> bool
@@ -416,6 +483,8 @@ void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 
 void DesignerScene::queueObjectTickAction(DesignerObject* const obj, const bool shouldTick)
 {
+	ensureOwnedByThisScene(obj);
+
 	SceneAction action;
 	action.updateTask = 
 		[this, obj, shouldTick](const MainThreadUpdateContext& ctx)
@@ -443,6 +512,8 @@ void DesignerScene::queueObjectTickAction(DesignerObject* const obj, const bool 
 
 void DesignerScene::queueObjectRenderTickAction(DesignerObject* const obj, const bool shouldTick)
 {
+	ensureOwnedByThisScene(obj);
+
 	SceneAction action;
 	action.updateTask =
 		[this, obj, shouldTick](const MainThreadUpdateContext& ctx)
@@ -471,7 +542,6 @@ void DesignerScene::queueObjectRenderTickAction(DesignerObject* const obj, const
 void DesignerScene::queueSceneAction(SceneAction action)
 {
 	// We still allow new actions to be queued when the scene is paused
-
 	m_sceneActionQueue.push_back(std::move(action));
 }
 
@@ -546,6 +616,16 @@ void DesignerScene::setWorkingDirectory(Path directory)
 void DesignerScene::setName(std::string name)
 {
 	m_name = std::move(name);
+}
+
+void DesignerScene::ensureOwnedByThisScene(const DesignerObject* const obj) const
+{
+	if(!obj || &(obj->getScene()) != this)
+	{
+		throw_formatted<IllegalOperationException>(
+			"Designer object {} is not from this scene ({})",
+			get_object_debug_info(obj), getName());
+	}
 }
 
 }// end namespace ph::editor

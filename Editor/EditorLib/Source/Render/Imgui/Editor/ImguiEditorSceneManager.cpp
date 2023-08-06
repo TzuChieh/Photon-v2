@@ -3,7 +3,8 @@
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
-#include "Render/Imgui/Font/IconsMaterialDesign.h"
+//#include "Render/Imgui/Font/IconsMaterialDesign.h"
+#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -11,8 +12,8 @@
 
 #include <string>
 
-#define PH_IMGUI_OPEN_FILE_ICON ICON_MD_FOLDER_OPEN
-#define PH_IMGUI_SAVE_FILE_ICON ICON_MD_SAVE
+#define PH_IMGUI_OPEN_FILE_ICON ICON_MDI_FOLDER_OPEN
+#define PH_IMGUI_SAVE_FILE_ICON ICON_MDI_CONTENT_SAVE
 
 namespace ph::editor
 {

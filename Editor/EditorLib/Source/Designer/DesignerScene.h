@@ -56,8 +56,25 @@ public:
 	void beforeRenderStage();
 	void afterRenderStage();
 
-	void markObjectTickState(DesignerObject* obj, bool shouldTick);
-	void markObjectRenderTickState(DesignerObject* obj, bool shouldTick);
+	/*!
+	@return Is the object being selected. If `obj` has already been selected prior to this call, 
+	false will be returned.
+	*/
+	bool selectObject(DesignerObject* obj);
+
+	/*!
+	@return Is the object being deselected. If `obj` has already been deselected prior to this call, 
+	false will be returned.
+	*/
+	bool deselectObject(DesignerObject* obj);
+
+	DesignerObject* getPrimarySelectedObject() const;
+	TSpanView<DesignerObject*> getSelection() const;
+	void clearSelection();
+
+	void changeObjectVisibility(DesignerObject* obj, bool shouldBeVisible);
+	void changeObjectTick(DesignerObject* obj, bool shouldTick);
+	void changeObjectRenderTick(DesignerObject* obj, bool shouldTick);
 
 	/*! @brief Create a new (non-root) object.
 	@param shouldInit Whether the object should be initialized after creation. If false, initialization
@@ -211,6 +228,8 @@ private:
 	template<typename PerObjectOperation>
 	void forEachUsableObject(PerObjectOperation op) const;
 
+	void ensureOwnedByThisScene(const DesignerObject* obj) const;
+
 	/*! 
 	Whether the object is completely initialized (both main & render parts), and no part is 
 	being uninitialized.
@@ -235,6 +254,7 @@ private:
 	std::vector<DesignerObject*> m_rootObjs;
 	std::vector<DesignerObject*> m_tickingObjs;
 	std::vector<DesignerObject*> m_renderTickingObjs;
+	std::vector<DesignerObject*> m_selectedObjs;
 	std::vector<SceneAction> m_sceneActionQueue;
 	std::size_t m_numSceneActionsToProcess;
 

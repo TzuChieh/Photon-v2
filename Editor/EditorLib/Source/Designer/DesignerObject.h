@@ -35,7 +35,9 @@ enum class EObjectState : uint32f
 	// Category
 	Root = math::flag_bit<uint32f, 4>(),
 	Ticking = math::flag_bit<uint32f, 5>(),
-	RenderTicking = math::flag_bit<uint32f, 6>()
+	RenderTicking = math::flag_bit<uint32f, 6>(),
+	Selected = math::flag_bit<uint32f, 7>(),
+	Hidden = math::flag_bit<uint32f, 8>()
 };
 
 class DesignerObject : public AbstractDesignerObject
@@ -87,6 +89,11 @@ public:
 	void deleteAllChildren();
 
 	void setName(std::string name);
+	void select();
+	void deselect();
+	bool isSelected() const;
+	void setVisibility(bool isVisible);
+	bool isVisible() const;
 	void setTick(bool shouldTick);
 	void setRenderTick(bool shouldTick);
 	bool haveChildren() const;
@@ -111,6 +118,14 @@ private:
 	*/
 	virtual bool removeChild(DesignerObject* childObj) = 0;
 
+	/*! @brief Called when this object is selected.
+	*/
+	virtual void selected();
+
+	/*! @brief Called when this object is deselected.
+	*/
+	virtual void deselected();
+
 	void setParentObject(DesignerObject* object);
 
 private:
@@ -126,7 +141,7 @@ private:
 	std::string m_name;
 
 private:
-	// For accessing some shared internal data
+	// For accessing some shared internal members
 	friend class DesignerScene;
 	friend class DesignerSceneMetaInfo;
 

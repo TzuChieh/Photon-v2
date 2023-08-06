@@ -5,7 +5,8 @@
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "Render/Imgui/ImguiImageLibrary.h"
-#include "Render/Imgui/Font/IconsMaterialDesign.h"
+//#include "Render/Imgui/Font/IconsMaterialDesign.h"
+#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
 #include "Designer/DesignerScene.h"
 #include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 
@@ -17,18 +18,18 @@
 #include <cstdio>
 #include <utility>
 
-#define PH_IMGUI_PROPERTIES_ICON       ICON_MD_TUNE
-#define PH_IMGUI_VIEWPORT_ICON         ICON_MD_CAMERA
-#define PH_IMGUI_ASSET_ICON            ICON_MD_FOLDER_OPEN
-#define PH_IMGUI_OBJECT_ICON           ICON_MD_CATEGORY
-#define PH_IMGUI_SCENE_CREATION_ICON   ICON_MD_ADD_PHOTO_ALTERNATE
-#define PH_IMGUI_SCENE_MANAGER_ICON    ICON_MD_PHOTO_LIBRARY
-#define PH_IMGUI_LOG_ICON              ICON_MD_WYSIWYG
-#define PH_IMGUI_SETTINGS_ICON         ICON_MD_SETTINGS
-#define PH_IMGUI_STATS_ICON            ICON_MD_INSIGHTS
-#define PH_IMGUI_SAVE_FILE_ICON        ICON_MD_SAVE
-#define PH_IMGUI_OPEN_FILE_ICON        ICON_MD_FOLDER_OPEN
-#define PH_IMGUI_BUG_ICON              ICON_MD_ADB
+#define PH_IMGUI_PROPERTIES_ICON       ICON_MDI_TUNE
+#define PH_IMGUI_VIEWPORT_ICON         ICON_MDI_CAMERA_IRIS
+#define PH_IMGUI_ASSET_ICON            ICON_MDI_FOLDER_OPEN
+#define PH_IMGUI_OBJECT_ICON           ICON_MDI_SHAPE_OUTLINE
+#define PH_IMGUI_SCENE_CREATION_ICON   ICON_MDI_IMAGE_PLUS_OUTLINE
+#define PH_IMGUI_SCENE_MANAGER_ICON    ICON_MDI_IMAGE_MULTIPLE_OUTLINE
+#define PH_IMGUI_LOG_ICON              ICON_MDI_CONSOLE
+#define PH_IMGUI_SETTINGS_ICON         ICON_MDI_COG_OUTLINE
+#define PH_IMGUI_STATS_ICON            ICON_MDI_CHART_TIMELINE_VARIANT_SHIMMER
+#define PH_IMGUI_SAVE_FILE_ICON        ICON_MDI_CONTENT_SAVE
+#define PH_IMGUI_OPEN_FILE_ICON        ICON_MDI_FOLDER_OPEN
+#define PH_IMGUI_BUG_ICON              ICON_MDI_LADYBUG
 
 #define PH_IMGUI_ICON_TIGHT_PADDING " "
 #define PH_IMGUI_ICON_LOOSE_PADDING "   "
@@ -280,7 +281,7 @@ void ImguiEditorUI::build()
 
 void ImguiEditorUI::buildMainMenuBar()
 {
-	const bool isDevelopmentMode = getEditor().getSettings().isDevelopmentMode;
+	EditorSettings& settings = getEditor().getSettings();
 	m_shouldResetWindowLayout = false;
 
 	if(ImGui::BeginMainMenuBar())
@@ -335,16 +336,19 @@ void ImguiEditorUI::buildMainMenuBar()
 				m_sampleInspector.isOpening = true;
 			}
 
-			ImGui::Separator();
-
-			if(ImGui::MenuItem("DearImGui Demo"))
+			if(settings.isDevelopmentMode)
 			{
-				m_shouldShowDearImGuiDemo = true;
-			}
+				ImGui::Separator();
 
-			if(ImGui::MenuItem("ImPlot Demo"))
-			{
-				m_shouldShowImPlotDemo = true;
+				if(ImGui::MenuItem("DearImGui Demo"))
+				{
+					m_shouldShowDearImGuiDemo = true;
+				}
+
+				if(ImGui::MenuItem("ImPlot Demo"))
+				{
+					m_shouldShowImPlotDemo = true;
+				}
 			}
 
 			ImGui::EndMenu();
@@ -362,9 +366,9 @@ void ImguiEditorUI::buildMainMenuBar()
 
 		if(ImGui::BeginMenu("Debug"))
 		{
-			if(!isDevelopmentMode) { ImGui::BeginDisabled(); }
+			if(!settings.isDevelopmentMode) { ImGui::BeginDisabled(); }
 			ImGui::MenuItem("Debug Mode", nullptr, &m_enableDebug);
-			if(!isDevelopmentMode) { ImGui::EndDisabled(); }
+			if(!settings.isDevelopmentMode) { ImGui::EndDisabled(); }
 
 			ImGui::EndMenu();
 		}

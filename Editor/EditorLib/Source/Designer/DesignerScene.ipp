@@ -212,6 +212,16 @@ inline const Editor& DesignerScene::getEditor() const
 	return *m_editor;
 }
 
+inline DesignerObject* DesignerScene::getPrimarySelectedObject() const
+{
+	return m_selectedObjs.empty() ? nullptr : m_selectedObjs.front();
+}
+
+inline TSpanView<DesignerObject*> DesignerScene::getSelection() const
+{
+	return m_selectedObjs;
+}
+
 inline bool DesignerScene::SceneAction::isDone() const
 {
 	return !updateTask && !renderTask;

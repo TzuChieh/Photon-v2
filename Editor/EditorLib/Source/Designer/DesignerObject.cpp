@@ -82,6 +82,12 @@ void DesignerObject::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 void DesignerObject::createRenderCommands(RenderThreadCaller& caller)
 {}
 
+void DesignerObject::selected()
+{}
+
+void DesignerObject::deselected()
+{}
+
 DesignerObject* DesignerObject::newChild(
 	const SdlClass* const clazz,
 	const bool shouldInit,
@@ -174,14 +180,35 @@ void DesignerObject::setName(std::string name)
 	m_name = std::move(name);
 }
 
+void DesignerObject::select()
+{
+	if(getScene().selectObject(this))
+	{
+		selected();
+	}
+}
+
+void DesignerObject::deselect()
+{
+	if(getScene().deselectObject(this))
+	{
+		deselected();
+	}
+}
+
+void DesignerObject::setVisibility(const bool isVisible)
+{
+	getScene().changeObjectVisibility(this, isVisible);
+}
+
 void DesignerObject::setTick(const bool shouldTick)
 {
-	getScene().markObjectTickState(this, shouldTick);
+	getScene().changeObjectTick(this, shouldTick);
 }
 
 void DesignerObject::setRenderTick(const bool shouldTick)
 {
-	getScene().markObjectRenderTickState(this, shouldTick);
+	getScene().changeObjectRenderTick(this, shouldTick);
 }
 
 DesignerScene& DesignerObject::getScene()

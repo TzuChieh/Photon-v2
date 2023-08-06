@@ -51,6 +51,8 @@ void ImguiEditorSettings::buildWindow(
 
 	ImGui::SameLine();
 
+	// TODO: use SDL description as tool tip
+
 	// Right child: settings for the category
 	ImGui::BeginChild(
 		"settings",
@@ -109,7 +111,7 @@ void ImguiEditorSettings::buildStartupCategoryContent(ImguiEditorUIProxy editorU
 {
 	EditorSettings& settings = editorUI.getEditor().getSettings();
 
-	// Default scene
+	// Setting default scene
 	{
 		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
 		if(ImGui::Button("Browse"))
@@ -123,10 +125,9 @@ void ImguiEditorSettings::buildStartupCategoryContent(ImguiEditorUIProxy editorU
 
 		if(fsDialog.dialogClosed())
 		{
-			Path sceneFile = fsDialog.getSelectedTarget();
-			if(!sceneFile.isEmpty())
+			if(fsDialog.hasSelectedItem())
 			{
-				settings.defaultSceneFile = sceneFile.toAbsolute();
+				settings.defaultSceneFile = fsDialog.getSelectedTarget().toAbsolute();
 			}
 		}
 
@@ -137,6 +138,8 @@ void ImguiEditorSettings::buildStartupCategoryContent(ImguiEditorUIProxy editorU
 			settings.defaultSceneFile.toString(m_stringDisplayBuffer),
 			ImGuiInputTextFlags_ReadOnly);
 	}
+
+	ImGui::Checkbox("Load Default Scene On Start-up", &settings.loadDefaultSceneOnStartup);
 }
 
 }// end namespace ph::editor

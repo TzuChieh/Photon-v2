@@ -146,4 +146,9 @@ UIPropertyGroup& UIPropertyLayout::getOrCreateGroup(std::string_view groupName, 
 	}
 }
 
+void UIPropertyLayout::clear()
+{
+	m_groups.clear();
+}
+
 }// end namespace ph::editor
