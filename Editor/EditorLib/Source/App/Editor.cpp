@@ -154,12 +154,15 @@ std::size_t Editor::newScene()
 	DesignerScene* scene = nullptr;
 	auto sceneIndex = nullSceneIndex();
 
+	// Create and add the scene to storage
 	{
 		auto newScene = std::make_unique<DesignerScene>(TSdl<DesignerScene>::make(this));
 
 		scene = m_scenes.add(std::move(newScene));
 		sceneIndex = m_scenes.size() - 1;
 	}
+
+	onDesignerSceneAdded.dispatch(DesignerSceneAddedEvent(scene, this));
 
 	return sceneIndex;
 }
@@ -448,6 +451,8 @@ void Editor::removeScene(const std::size_t sceneIndex)
 	PH_LOG(Editor, 
 		"removed scene \"{}\"", 
 		m_removingScenes.back().scene->getName());
+
+	onDesignerSceneRemoval.dispatch(DesignerSceneRemovalEvent(m_removingScenes.back().scene.get(), this));
 }
 
 void Editor::loadSettings(const Path& settingsFile)

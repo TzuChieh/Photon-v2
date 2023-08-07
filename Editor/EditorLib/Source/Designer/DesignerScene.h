@@ -26,6 +26,7 @@
 #include <string_view>
 #include <functional>
 #include <unordered_map>
+#include <array>
 
 namespace ph { class SdlClass; }
 

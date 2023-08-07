@@ -41,6 +41,8 @@ private:
 	template<typename DispatchFunc>
 	void dispatch(const EventType& e, DispatchFunc dispatchFunc);
 
+	void dispatch(const EventType& e);
+
 	DispatcherType m_dispatcher;
 };
 
@@ -72,6 +74,13 @@ inline void TClassEventDispatcher<EventType, ClassType>::dispatch(
 	const EventType& e, DispatchFunc dispatchFunc)
 {
 	m_dispatcher.dispatch(e, std::move(dispatchFunc));
+}
+
+template<typename EventType, typename ClassType>
+inline void TClassEventDispatcher<EventType, ClassType>::dispatch(
+	const EventType& e)
+{
+	m_dispatcher.dispatch(e);
 }
 
 }// end namespace ph

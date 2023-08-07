@@ -8,6 +8,8 @@
 #include "EditorCore/Event/DisplayClosedEvent.h"
 #include "EditorCore/Event/DisplayFocusChangedEvent.h"
 #include "EditorCore/Event/AppModuleActionEvent.h"
+#include "App/Event/DesignerSceneAddedEvent.h"
+#include "App/Event/DesignerSceneRemovalEvent.h"
 #include "App/EditorEventQueue.h"
 #include "App/HelpMenu/HelpMenu.h"
 #include "App/Misc/DimensionHints.h"
@@ -150,6 +152,8 @@ public:
 	TEditorEventDispatcher<DisplayFocusChangedEvent> onDisplayFocusChanged;
 	TEditorEventDispatcher<AppModuleActionEvent> onAppModuleAction;
 	TEditorEventDispatcher<EditContextUpdatedEvent> onEditContextUpdated;
+	TEditorEventDispatcher<DesignerSceneAddedEvent> onDesignerSceneAdded;
+	TEditorEventDispatcher<DesignerSceneRemovalEvent> onDesignerSceneRemoval;
 	///@}
 
 	/*! @brief Specify an event that is going to be dispatched by the dispatcher.

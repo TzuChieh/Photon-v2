@@ -395,7 +395,12 @@ void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
 				m_rootObjs.push_back(obj);
 			}
 
-			return objState.has(EObjectState::HasInitialized);
+			const bool hasInitialized = objState.has(EObjectState::HasInitialized);
+			if(hasInitialized)
+			{
+				onObjectAdded.dispatch(DesignerObjectAddedEvent(obj, this));
+			}
+			return hasInitialized;
 		};
 	action.renderTask = 
 		[this, obj](RenderThreadCaller& caller)
@@ -429,25 +434,31 @@ void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 			PH_ASSERT(obj);
 			auto& objState = obj->getState();
 
-			// We always want to remove the object from cache arrays
-			std::erase(m_tickingObjs, obj);
-			std::erase(m_renderTickingObjs, obj);
-			std::erase(m_selectedObjs, obj);
+			// Remove the object from cache arrays
+			if(objState.has(EObjectState::Ticking))
+			{
+				const auto numErased = std::erase(m_tickingObjs, obj);
+				PH_ASSERT_EQ(numErased, 1);
+				objState.turnOff({EObjectState::Ticking});
+			}
+			if(objState.has(EObjectState::Selected))
+			{
+				const auto numErased = std::erase(m_selectedObjs, obj);
+				PH_ASSERT_EQ(numErased, 1);
+				objState.turnOff({EObjectState::Selected});
+			}
 			if(objState.has(EObjectState::Root))
 			{
-				const auto numErasedObjs = std::erase(m_rootObjs, obj);
-				if(numErasedObjs != 1)
-				{
-					throw_formatted<IllegalOperationException>(
-						"object {} is identified as root but does not appear (uniquely) in the "
-						"root set ({} were found)",
-						get_object_debug_info(obj), numErasedObjs);
-				}
+				const auto numErased = std::erase(m_rootObjs, obj);
+				PH_ASSERT_EQ(numErased, 1);
+				objState.turnOff({EObjectState::Root});
 			}
 
 			if(objState.has(EObjectState::HasRenderUninitialized) &&
 			   objState.hasNo(EObjectState::HasUninitialized))
 			{
+				onObjectRemoval.dispatch(DesignerObjectRemovalEvent(obj, this));
+
 				obj->uninit();
 				objState.turnOn({EObjectState::HasUninitialized});
 			}
@@ -470,6 +481,14 @@ void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 		{
 			PH_ASSERT(obj);
 			auto& objState = obj->getState();
+
+			// Remove the object from cache arrays
+			if(objState.has(EObjectState::RenderTicking))
+			{
+				const auto numErased = std::erase(m_renderTickingObjs, obj);
+				PH_ASSERT_EQ(numErased, 1);
+				objState.turnOff({EObjectState::RenderTicking});
+			}
 			
 			if(objState.has(EObjectState::HasRenderInitialized) &&
 			   objState.hasNo(EObjectState::HasRenderUninitialized))

@@ -50,6 +50,8 @@ public:
 	template<typename DispatchFunc>
 	void dispatch(const EventType& e, DispatchFunc dispatchFunc);
 
+	void dispatch(const EventType& e);
+
 private:
 	TUniquePtrVector<Listener> m_listeners;
 	std::vector<Listener*> m_listenersToRemove;
@@ -117,6 +119,17 @@ inline void TEventDispatcher<EventType>::dispatch(const EventType& e, DispatchFu
 		dispatchFunc(e, *m_listeners[listenerIdx]);
 	}
 	m_isDispatching = false;
+}
+
+template<typename EventType>
+inline void TEventDispatcher<EventType>::dispatch(const EventType& e)
+{
+	dispatch(
+		e, 
+		[](const EventType& e, const Listener& listener)
+		{
+			listener(e);
+		});
 }
 
 }// end namespace ph
