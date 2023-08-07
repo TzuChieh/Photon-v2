@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EditorCore/TEventDispatcher.h"
+#include "EditorCore/TClassEventDispatcher.h"
 #include "EditorCore/Event/KeyPressedEvent.h"
 #include "EditorCore/Event/KeyReleasedEvent.h"
 #include "EditorCore/Event/DisplayFramebufferResizedEvent.h"
@@ -122,37 +122,49 @@ private:
 
 // Event System
 public:
+	template<typename EventType>
+	using TEditorEventDispatcher = TClassEventDispatcher<EventType, Editor>;
+
 	/*! @brief Editor events.
 	Subscribe to editor event by adding listener to the corresponding dispatcher. Note that when
 	listening to events from a non-permanent resource, be sure to unsubscribe to the event before
 	the resource is cleaned up so the event system will not act on a dangling resource. 
 	Unsubscribing to an event can be done by removing listeners from the dispatcher, e.g., by calling 
-	`TEventDispatcher::removeListenerImmediately()` (calling the non-immediate overload is 
+	`TEditorEventDispatcher::removeListenerImmediately()` (calling the non-immediate overload is 
 	also acceptable).
+
+	Editor events can also be submitted in a delayed manner, and with thread safety guarantee. To
+	submit event like this, use `postEvent()`. Do not reference anything that might not live across
+	frames/threads when posting event.
+	
+	Use the `dispatch()` method of event dispatchers to submit event immediately, this is useful for
+	transient events that references data with limited lifespan (keep in mind submitting events 
+	this way is not thread-safe).
 	*/
 	///@{
-	TEventDispatcher<KeyPressedEvent> onKeyPressed;
-	TEventDispatcher<KeyReleasedEvent> onKeyReleased;
-	TEventDispatcher<DisplayFramebufferResizedEvent> onDisplayFramebufferResized;
-	TEventDispatcher<SceneFramebufferResizedEvent> onSceneFramebufferResized;
-	TEventDispatcher<DisplayClosedEvent> onDisplayClosed;
-	TEventDispatcher<DisplayFocusChangedEvent> onDisplayFocusChanged;
-	TEventDispatcher<AppModuleActionEvent> onAppModuleAction;
-	TEventDispatcher<EditContextUpdatedEvent> onEditContextUpdated;
+	TEditorEventDispatcher<KeyPressedEvent> onKeyPressed;
+	TEditorEventDispatcher<KeyReleasedEvent> onKeyReleased;
+	TEditorEventDispatcher<DisplayFramebufferResizedEvent> onDisplayFramebufferResized;
+	TEditorEventDispatcher<SceneFramebufferResizedEvent> onSceneFramebufferResized;
+	TEditorEventDispatcher<DisplayClosedEvent> onDisplayClosed;
+	TEditorEventDispatcher<DisplayFocusChangedEvent> onDisplayFocusChanged;
+	TEditorEventDispatcher<AppModuleActionEvent> onAppModuleAction;
+	TEditorEventDispatcher<EditContextUpdatedEvent> onEditContextUpdated;
 	///@}
 
 	/*! @brief Specify an event that is going to be dispatched by the dispatcher.
 	The event will not be dispatched immediately--instead, it will be delayed (potentially to the next
 	multiple frames).
+	@note Thread-safe.
 	*/
 	template<typename EventType>
-	void postEvent(const EventType& e, TEventDispatcher<EventType>& eventDispatcher);
+	void postEvent(const EventType& e, TEditorEventDispatcher<EventType>& eventDispatcher);
 
 private:
 	template<typename EventType>
-	static void dispatchEventToListeners(
+	static void dispatchPostedEventToListeners(
 		const EventType& e, 
-		TEventDispatcher<EventType>& eventDispatcher);
+		TEditorEventDispatcher<EventType>& eventDispatcher);
 
 	void flushAllEvents();
 

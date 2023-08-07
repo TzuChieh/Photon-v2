@@ -2,6 +2,9 @@
 
 #include "Designer/designer_fwd.h"
 #include "Designer/ViewportCamera.h"
+#include "EditorCore/TClassEventDispatcher.h"
+#include "Designer/Event/DesignerObjectAddedEvent.h"
+#include "Designer/Event/DesignerObjectRemovalEvent.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -192,6 +195,15 @@ public:
 	std::size_t numAllocatedObjects() const;
 
 	DesignerScene& operator = (DesignerScene&& rhs) noexcept;
+
+// Begin Scene Events
+public:
+	template<typename EventType>
+	using TSceneEventDispatcher = TClassEventDispatcher<EventType, DesignerScene>;
+
+	TSceneEventDispatcher<DesignerObjectAddedEvent> onObjectAdded;
+	TSceneEventDispatcher<DesignerObjectRemovalEvent> onObjectRemoval;
+// End Scene Events
 
 private:
 	struct SceneAction

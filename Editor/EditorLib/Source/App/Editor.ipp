@@ -2,6 +2,8 @@
 
 #include "App/Editor.h"
 
+#include <type_traits>
+
 namespace ph::editor
 {
 
@@ -26,30 +28,40 @@ inline constexpr std::size_t Editor::nullSceneIndex()
 }
 
 template<typename EventType>
-inline void Editor::postEvent(const EventType& e, TEventDispatcher<EventType>& eventDispatcher)
+inline void Editor::postEvent(const EventType& e, TEditorEventDispatcher<EventType>& eventDispatcher)
 {
-	using EventPostWork = EditorEventQueue::EventUpdateWork;
+	constexpr bool hasPostTraits = requires (EventType)
+	{
+		{ EventType::canPost } -> std::same_as<bool>;
+	};
 
-	// Event should be captured by value since exceution of queued works are delayed, there is no
-	// guarantee that the original event object still lives by the time we execute the work.
+	if constexpr(hasPostTraits)
+	{
+		static_assert(EventType::canPost,
+			"Attempting to post an event that does not allow event posting.");
+	}
+
+	// Posted event should be captured by value since exceution of queued works are delayed,
+	// there is no guarantee that the original event object still lives by the time we
+	// execute the work.
 	//
-	// Work for some event `e` that is going to be posted by `eventDispatcher`. Do not reference 
-	// anything that might not live across frames when constructing post work, as `postEvent()` 
-	// can get called anywhere in a frame and the execution of post works may be delayed to 
-	// next multiple frames.
+	// Queued work is some event `e` that is going to be posted by `eventDispatcher`. Do not
+	// reference anything that might not live across frames/threads when constructing post work,
+	// as `postEvent()` can get called anywhere in a frame or from any thread and the execution
+	// of post works may be delayed to next multiple frames.
 	m_eventPostQueue.add(
 		[&eventDispatcher, e]()
 		{
-			dispatchEventToListeners(e, eventDispatcher);
+			dispatchPostedEventToListeners(e, eventDispatcher);
 		});
 }
 
 template<typename EventType>
-inline void Editor::dispatchEventToListeners(
+inline void Editor::dispatchPostedEventToListeners(
 	const EventType& e, 
-	TEventDispatcher<EventType>& eventDispatcher)
+	TEditorEventDispatcher<EventType>& eventDispatcher)
 {
-	using Listener = typename TEventDispatcher<EventType>::Listener;
+	using Listener = typename TEditorEventDispatcher<EventType>::Listener;
 
 	eventDispatcher.dispatch(
 		e, 

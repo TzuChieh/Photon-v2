@@ -41,6 +41,12 @@ public:
 	*/
 	void removeListenerImmediately(Listener* listener);
 
+	/*! @biref Submit an event to the listeners.
+	@param e The event to submit.
+	@param dispatchFunc A customizable function of the form `(EventType, Listener)` that governs how
+	the event is submitted to listeners. Generally a call to listener, e.g., `listener(e)`, is expected
+	to be run (either directly or indirectly) through `dispacthFunc`.
+	*/
 	template<typename DispatchFunc>
 	void dispatch(const EventType& e, DispatchFunc dispatchFunc);
 

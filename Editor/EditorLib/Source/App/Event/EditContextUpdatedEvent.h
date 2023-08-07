@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EditorCore/Event/Event.h"
+#include "App/Event/TEditorEvent.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -8,7 +8,6 @@
 namespace ph::editor
 {
 
-class Editor;
 class EditContext;
 
 enum class EEditContextEvent : uint8
@@ -17,37 +16,26 @@ enum class EEditContextEvent : uint8
 	ActiveSceneChanged
 };
 
-class EditContextUpdatedEvent final : public Event
+class EditContextUpdatedEvent final : public TEditorEvent<true>
 {
 public:
-	EditContextUpdatedEvent(Editor* editor, EEditContextEvent type);
+	EditContextUpdatedEvent(EEditContextEvent type, Editor* editor);
 
 	EditContext getContext() const;
-	Editor& getEditor() const;
 	EEditContextEvent getType() const;
 
 private:
-	Editor* m_editor;
 	EEditContextEvent m_type;
 };
 
 inline EditContextUpdatedEvent::EditContextUpdatedEvent(
-	Editor* const editor,
-	const EEditContextEvent type)
+	const EEditContextEvent type,
+	Editor* const editor)
 
-	: Event()
+	: TEditorEvent(editor)
 
-	, m_editor(editor)
 	, m_type(type)
-{
-	PH_ASSERT(editor);
-}
-
-inline Editor& EditContextUpdatedEvent::getEditor() const
-{
-	PH_ASSERT(m_editor);
-	return *m_editor;
-}
+{}
 
 inline EEditContextEvent EditContextUpdatedEvent::getType() const
 {

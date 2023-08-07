@@ -52,8 +52,8 @@ enum class EEventSource : uint32f
 
 /*! @brief Base of all event types.
 Derived classes should strive to keep the size of the object small, as most of the time event
-objects are passed by value for thread safety and ease of lifetime management. The type should
-also remain `trivially-copyable`.
+objects are passed by value for thread safety and ease of lifetime management, or being captured
+by functors. The type should also remain `trivially-copyable`.
 */
 class Event
 {
