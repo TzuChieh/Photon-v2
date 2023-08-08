@@ -122,13 +122,16 @@ void ImguiEditorUI::initialize(
 	ImguiFontLibrary* const fontLibrary, 
 	ImguiImageLibrary* const imageLibrary)
 {
-	PH_ASSERT(editor);
-	PH_ASSERT(fontLibrary);
-	PH_ASSERT(imageLibrary);
-
 	m_editor = editor;
 	m_fontLibrary = fontLibrary;
 	m_imageLibrary = imageLibrary;
+
+	m_sceneObjectBrowser.initialize(*this);
+}
+
+void ImguiEditorUI::terminate()
+{
+	m_sceneObjectBrowser.terminate(*this);
 }
 
 void ImguiEditorUI::build()

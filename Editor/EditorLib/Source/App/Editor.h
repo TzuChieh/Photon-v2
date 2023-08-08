@@ -10,6 +10,7 @@
 #include "EditorCore/Event/AppModuleActionEvent.h"
 #include "App/Event/DesignerSceneAddedEvent.h"
 #include "App/Event/DesignerSceneRemovalEvent.h"
+#include "App/Event/ActiveDesignerSceneChangedEvent.h"
 #include "App/EditorEventQueue.h"
 #include "App/HelpMenu/HelpMenu.h"
 #include "App/Misc/DimensionHints.h"
@@ -135,8 +136,8 @@ public:
 	`TEditorEventDispatcher::removeListenerImmediately()` (calling the non-immediate overload is 
 	also acceptable).
 
-	Editor events can also be submitted in a delayed manner, and with thread safety guarantee. To
-	submit event like this, use `postEvent()`. Do not reference anything that might not live across
+	Editor events can also be submitted in a delayed/buffered manner, and with thread safety guarantee.
+	To submit event like this, use `postEvent()`. Do not reference anything that might not live across
 	frames/threads when posting event.
 	
 	Use the `dispatch()` method of event dispatchers to submit event immediately, this is useful for
@@ -154,6 +155,7 @@ public:
 	TEditorEventDispatcher<EditContextUpdatedEvent> onEditContextUpdated;
 	TEditorEventDispatcher<DesignerSceneAddedEvent> onDesignerSceneAdded;
 	TEditorEventDispatcher<DesignerSceneRemovalEvent> onDesignerSceneRemoval;
+	TEditorEventDispatcher<ActiveDesignerSceneChangedEvent> onActiveDesignerSceneChanged;
 	///@}
 
 	/*! @brief Specify an event that is going to be dispatched by the dispatcher.

@@ -6,6 +6,7 @@
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
+#include "App/Event/ActiveDesignerSceneChangedEvent.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -51,8 +52,25 @@ inline bool visibility_toggle_button(const char* const strId, const bool isVisib
 }// end anonymous namespace
 
 ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser()
-	: m_displayNameBuffer(128, '\0')
-{}
+	: m_activeSceneChanged(nullptr)
+	, m_currentObj(nullptr)
+	, m_objViewLevel(0)
+	, m_objViewLevelName()
+	, m_displayNameBuffer(128, '\0')
+{
+	resetObjectViewLevels(nullptr);
+}
+
+void ImguiEditorSceneObjectBrowser::initialize(ImguiEditorUIProxy editorUI)
+{
+	m_activeSceneChanged = editorUI.getEditor().onActiveDesignerSceneChanged
+		.addListener<&ImguiEditorSceneObjectBrowser::onActiveSceneChanged>(this);
+}
+
+void ImguiEditorSceneObjectBrowser::terminate(ImguiEditorUIProxy editorUI)
+{
+	editorUI.getEditor().onActiveDesignerSceneChanged.removeListener(m_activeSceneChanged);
+}
 
 void ImguiEditorSceneObjectBrowser::buildWindow(
 	const char* title, 
@@ -101,8 +119,22 @@ void ImguiEditorSceneObjectBrowser::buildWindow(
 	ImGui::End();
 }
 
+void ImguiEditorSceneObjectBrowser::onActiveSceneChanged(const ActiveDesignerSceneChangedEvent& e)
+{
+	resetObjectViewLevels(e.getScene());
+}
+
+void ImguiEditorSceneObjectBrowser::resetObjectViewLevels(DesignerScene* const scene)
+{
+	m_currentObj = nullptr;
+	m_objViewLevel = 0;
+	m_objViewLevelName = scene ? "Scene: " + scene->getName() : "Scene: (no active scene)";
+}
+
 void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene& scene)
 {
+	imgui::text_unformatted(m_objViewLevelName);
+
 	constexpr ImGuiTableFlags tableFlags = 
 		ImGuiTableFlags_ScrollY |
 		ImGuiTableFlags_BordersV | 
@@ -112,6 +144,8 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene& scene)
 		ImGuiTableFlags_NoBordersInBody;
 
 	constexpr int numColumns = 3;
+
+	const bool isOnRootLevel = (m_objViewLevel == 0);
 	const float textBaseWidth = ImGui::CalcTextSize("A").x;
 
 	if(ImGui::BeginTable("obj_view_table", numColumns, tableFlags))
@@ -125,7 +159,29 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene& scene)
 		ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_WidthFixed, textBaseWidth * 18.0f);
 		ImGui::TableHeadersRow();
 
-		for(DesignerObject* rootObj : scene.getRootObjects())
+		if(isOnRootLevel)
+		{
+			for(DesignerObject* rootObj : scene.getRootObjects())
+			{
+				// Object name
+				ImGui::TableNextColumn();
+				ImGui::Text("%s %s", PH_IMGUI_OBJECT_ICON_PREFIX, rootObj->getName().c_str());
+
+				// Visibility toggle
+				ImGui::TableNextColumn();
+				buildVisibilityToggle(*rootObj);
+
+				// Object type
+				ImGui::TableNextColumn();
+				imgui::text_unformatted(rootObj->getDynamicSdlClass()->getDocName());
+			}
+		}
+		else
+		{
+			// TODO
+		}
+
+		/*for(DesignerObject* rootObj : scene.getRootObjects())
 		{
 			if(!rootObj)
 			{
@@ -133,7 +189,7 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene& scene)
 			}
 
 			buildObjectTableRowRecursive(*rootObj);
-		}
+		}*/
 
 		// Simple storage to output a dummy file-system.
 		struct MyTreeNode

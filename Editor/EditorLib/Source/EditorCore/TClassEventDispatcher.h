@@ -23,6 +23,9 @@ public:
 	*/
 	Listener* addListener(Listener listener);
 
+	template<auto MethodPtr, typename Class>
+	Listener* addListener(Class* instancePtr);
+
 	/*! @biref Same as `TEventDispatcher::removeListener()`.
 	*/
 	void removeListener(Listener* listener);
@@ -55,17 +58,26 @@ inline auto TClassEventDispatcher<EventType, ClassType>::addListener(
 }
 
 template<typename EventType, typename ClassType>
+template<auto MethodPtr, typename Class>
+inline auto TClassEventDispatcher<EventType, ClassType>::addListener(
+	Class* const instancePtr)
+-> Listener*
+{
+	return m_dispatcher.addListener(Listener{}.set<MethodPtr>(instancePtr));
+}
+
+template<typename EventType, typename ClassType>
 inline void TClassEventDispatcher<EventType, ClassType>::removeListener(
 	Listener* const listener)
 {
-	m_dispatcher.push_back(listener);
+	m_dispatcher.removeListener(listener);
 }
 
 template<typename EventType, typename ClassType>
 inline void TClassEventDispatcher<EventType, ClassType>::removeListenerImmediately(
 	Listener* const listener)
 {
-	m_dispatcher.remove(listener);
+	m_dispatcher.removeListenerImmediately(listener);
 }
 
 template<typename EventType, typename ClassType>

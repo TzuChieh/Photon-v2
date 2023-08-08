@@ -42,6 +42,7 @@ public:
 	~ImguiEditorUI();
 
 	void initialize(Editor* editor, ImguiFontLibrary* fontLibrary, ImguiImageLibrary* imageLibrary);
+	void terminate();
 	void build();
 
 	Editor& getEditor();

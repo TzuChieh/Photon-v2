@@ -398,8 +398,6 @@ void Editor::setActiveScene(const std::size_t sceneIndex)
 	if(sceneToBeActive != m_activeScene)
 	{
 		m_activeScene = sceneToBeActive;
-		postEvent(EditContextUpdatedEvent(EEditContextEvent::ActiveSceneChanged, this), onEditContextUpdated);
-	
 		if(m_activeScene)
 		{
 			PH_LOG(Editor,
@@ -411,6 +409,9 @@ void Editor::setActiveScene(const std::size_t sceneIndex)
 			PH_LOG(Editor,
 				"no scene is now active");
 		}
+
+		onActiveDesignerSceneChanged.dispatch(ActiveDesignerSceneChangedEvent(m_activeScene, this));
+		postEvent(EditContextUpdatedEvent(EEditContextEvent::ActiveSceneChanged, this), onEditContextUpdated);
 	}
 }
 
@@ -424,7 +425,7 @@ void Editor::removeScene(const std::size_t sceneIndex)
 		return;
 	}
 
-	// Reassign another scene as the active one
+	// Reassign another scene as the active one before removal
 	if(m_scenes.size() == 1)
 	{
 		// The scene to be removed is the last one, set active one to null

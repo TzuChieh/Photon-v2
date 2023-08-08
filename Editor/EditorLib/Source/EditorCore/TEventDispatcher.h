@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorCore/Event/Event.h"
+#include "EditorCore/TEventListener.h"
 
 #include <Utility/TFunction.h>
 #include <Common/primitive_type.h>
@@ -23,7 +24,7 @@ class TEventDispatcher final
 	static_assert(std::is_base_of_v<Event, EventType>);
 
 public:
-	using Listener = TFunction<void(const EventType& e)>;
+	using Listener = TEventListener<EventType>;
 
 public:
 	Listener* addListener(Listener listener);

@@ -92,6 +92,7 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 
 void ImguiRenderModule::onDetach()
 {
+	m_editorUI.terminate();
 	terminateImgui();
 }
 
