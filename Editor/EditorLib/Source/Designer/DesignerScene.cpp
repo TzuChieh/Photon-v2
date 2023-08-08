@@ -346,8 +346,6 @@ void DesignerScene::setObjectToDefault(DesignerObject* const obj)
 		return;
 	}
 
-	ensureOwnedByThisScene(obj);
-
 	const SdlClass* const clazz = obj->getDynamicSdlClass();
 	clazz->initDefaultResource(*obj);
 }
@@ -372,7 +370,9 @@ void DesignerScene::deleteObject(
 
 void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
 {
-	ensureOwnedByThisScene(obj);
+	// Note that we are not ensuring `obj` is from this scene here, as `obj` is
+	// still in its initialization process (with incomplete data) and such
+	// information cannot be reliably tested.
 
 	SceneAction action;
 	action.updateTask = 

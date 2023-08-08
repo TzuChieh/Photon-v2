@@ -139,6 +139,8 @@ public:
 	*/
 	void initObject(DesignerObject* obj);
 
+	/*! @brief Set object data to SDL-defined default values.
+	*/
 	void setObjectToDefault(DesignerObject* obj);
 
 	void deleteObject(

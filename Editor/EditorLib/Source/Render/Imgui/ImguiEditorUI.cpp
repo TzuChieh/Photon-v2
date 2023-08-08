@@ -590,8 +590,6 @@ void ImguiEditorUI::buildEditorSettingsWindow()
 		EDITOR_SETTINGS_WINDOW_NAME, 
 		*this,
 		&m_sidebarState.showEditorSettings);
-
-	ImGui::End();
 }
 
 void ImguiEditorUI::buildLogWindow()
