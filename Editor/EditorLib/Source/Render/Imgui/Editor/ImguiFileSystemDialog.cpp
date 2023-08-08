@@ -528,8 +528,12 @@ void ImguiFileSystemDialog::buildFileSystemDialogTreeNodeRecursive(
 std::string_view ImguiFileSystemDialog::getEntryItemNameWithoutDecorations(
 	const std::size_t itemIndex) const
 {
-	PH_ASSERT_LT(itemIndex, m_fsDialogEntryItemNames.size());
+	if(itemIndex == static_cast<std::size_t>(-1))
+	{
+		return "";
+	}
 
+	PH_ASSERT_LT(itemIndex, m_fsDialogEntryItemNames.size());
 	std::string_view itemName = m_fsDialogEntryItemNames[itemIndex];
 	
 	PH_ASSERT_LE(FILE_ITEM_NAME_PREFIX.size(), itemName.size());
