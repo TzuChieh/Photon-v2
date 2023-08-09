@@ -2,6 +2,8 @@
 
 #include "EditorCore/TEventListener.h"
 #include "App/Event/ActiveDesignerSceneChangedEvent.h"
+#include "Designer/Event/DesignerObjectAddedEvent.h"
+#include "Designer/Event/DesignerObjectRemovalEvent.h"
 
 #include <Common/primitive_type.h>
 
@@ -32,28 +34,40 @@ public:
 		bool* isOpening = nullptr);
 
 private:
-	void onActiveSceneChanged(const ActiveDesignerSceneChangedEvent& e);
-	void resetObjectViewLevels(DesignerScene* scene);
+	enum class ESortMode
+	{
+		None = 0,
+		AscendingName,
+		DescendingName,
+		AscendingType,
+		DescendingType
+	};
 
-	void buildObjectsContent(DesignerScene& scene);
+	void onActiveSceneChanged(const ActiveDesignerSceneChangedEvent& e);
+	void onSceneObjectChanged(const DesignerSceneEvent& e);
+	void resetObjectView(DesignerScene* scene);
+	void rebuildObjectView(DesignerScene* scene, ESortMode sortMode);
+
+	void buildObjectsContent(DesignerScene* scene);
 	void buildFiltersContent(DesignerScene& scene);
 	void buildStatsContent(DesignerScene& scene);
-
-	void buildObjectTableRowRecursive(DesignerObject& obj);
 	void buildVisibilityToggle(DesignerObject& obj);
 
-	const char* getObjectDisplayName(
-		std::string_view objName, 
-		std::string_view namePrefix,
-		std::size_t maxChars);
-
-	void prepareDisplayNameBuffer(std::size_t maxChars);
+	bool isViewingRootLevel() const;
 
 	TEventListener<ActiveDesignerSceneChangedEvent>* m_activeSceneChanged;
-	DesignerObject* m_currentObj;
+	TEventListener<DesignerObjectAddedEvent>* m_sceneObjectAdded;
+	TEventListener<DesignerObjectRemovalEvent>* m_sceneObjectRemoval;
 	std::size_t m_objViewLevel;
 	std::string m_objViewLevelName;
-	std::vector<char> m_displayNameBuffer;
+	DesignerObject* m_expandedObj;
+	std::vector<DesignerObject*> m_objs;
+	bool m_isObjsDirty;
 };
+
+inline bool ImguiEditorSceneObjectBrowser::isViewingRootLevel() const
+{
+	return m_objViewLevel == 0;
+}
 
 }// end namespace ph::editor

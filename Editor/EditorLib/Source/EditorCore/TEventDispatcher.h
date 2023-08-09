@@ -35,10 +35,14 @@ public:
 	`removeListener()` in an event is valid and will not invalidate any listeners while they are
 	still in use. If the delayed removal is not desired, use `removeListenerImmediately()` to
 	immediately remove the listener.
+	@param listener Listener to be removed. Must be one of the added listeners or be null (no-op in
+	this case).
 	*/
 	void removeListener(Listener* listener);
 
 	/*! @biref Immediately remove a listener that was added to this dispatcher.
+	@param listener Listener to remove. Must be one of the added listeners or be null (no-op in
+	this case).
 	*/
 	void removeListenerImmediately(Listener* listener);
 
@@ -69,6 +73,11 @@ inline auto TEventDispatcher<EventType>::addListener(Listener listener)
 template<typename EventType>
 inline void TEventDispatcher<EventType>::removeListener(Listener* const listener)
 {
+	if(!listener)
+	{
+		return;
+	}
+
 	// Add to the pending-to-remove queue, will actually be removed in `dispatch()`
 	m_listenersToRemove.push_back(listener);
 }
@@ -76,6 +85,11 @@ inline void TEventDispatcher<EventType>::removeListener(Listener* const listener
 template<typename EventType>
 inline void TEventDispatcher<EventType>::removeListenerImmediately(Listener* const listener)
 {
+	if(!listener)
+	{
+		return;
+	}
+
 	if(m_isDispatching)
 	{
 		throw IllegalOperationException(
@@ -98,8 +112,7 @@ inline void TEventDispatcher<EventType>::dispatch(const EventType& e, DispatchFu
 	// are respected. Calling `removeListener()` during dispatch will take effect in the next dispatch.
 	for(Listener* listener : m_listenersToRemove)
 	{
-		const auto removedListener = m_listeners.remove(listener);
-		PH_ASSERT(removedListener != nullptr);
+		removeListenerImmediately(listener);
 	}
 	m_listenersToRemove.clear();
 

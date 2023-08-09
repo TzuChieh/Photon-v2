@@ -10,6 +10,7 @@ namespace ph::editor
 class DesignerObject;
 
 /*! @brief Event for an object that is added.
+The object has been initialized when this event fires.
 */
 class DesignerObjectAddedEvent final : public DesignerSceneEvent
 {
@@ -31,7 +32,10 @@ inline DesignerObjectAddedEvent::DesignerObjectAddedEvent(
 	: DesignerSceneEvent(scene)
 
 	, m_obj(obj)
-{}
+{
+	// This is guaranteed by this event
+	PH_ASSERT(isInitialized(obj));
+}
 
 inline DesignerObject& DesignerObjectAddedEvent::getObject() const
 {

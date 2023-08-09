@@ -9,6 +9,7 @@ namespace ph::editor
 {
 
 class DesignerScene;
+class DesignerObject;
 class Editor;
 
 class DesignerSceneEvent : public Event
@@ -23,6 +24,11 @@ public:
 
 	DesignerScene& getScene() const;
 	Editor& getEditor() const;
+
+protected:
+	/*! Some event types guarantee an initialized `obj`, this is a convenient helper to check that.
+	*/
+	static bool isInitialized(DesignerObject* obj);
 
 private:
 	DesignerScene* m_scene;

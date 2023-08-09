@@ -10,6 +10,7 @@ namespace ph::editor
 class DesignerObject;
 
 /*! @brief Event for an object that is going to be removed.
+The object has not been removed yet (and still being an initialized object) when this event fires.
 */
 class DesignerObjectRemovalEvent final : public DesignerSceneEvent
 {
@@ -31,7 +32,10 @@ inline DesignerObjectRemovalEvent::DesignerObjectRemovalEvent(
 	: DesignerSceneEvent(scene)
 
 	, m_obj(obj)
-{}
+{
+	// This is guaranteed by this event
+	PH_ASSERT(isInitialized(obj));
+}
 
 inline DesignerObject& DesignerObjectRemovalEvent::getObject() const
 {

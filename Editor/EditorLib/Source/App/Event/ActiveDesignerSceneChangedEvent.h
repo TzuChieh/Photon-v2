@@ -2,6 +2,8 @@
 
 #include "App/Event/TEditorEvent.h"
 
+#include <Common/assertion.h>
+
 namespace ph::editor
 {
 
@@ -10,28 +12,47 @@ class DesignerScene;
 class ActiveDesignerSceneChangedEvent final : public TEditorEvent<false>
 {
 public:
-	ActiveDesignerSceneChangedEvent(DesignerScene* scene, Editor* editor);
+	ActiveDesignerSceneChangedEvent(
+		DesignerScene* activatedScene,
+		DesignerScene* deactivatedScene,
+		Editor* editor);
 
 	/*!
-	@return The new active scene. May be null.
+	@return The active scene. May be null.
 	*/
-	DesignerScene* getScene() const;
+	DesignerScene* getActivatedScene() const;
+
+	/*!
+	@return The previously active scene (which has been deactived). May be null.
+	*/
+	DesignerScene* getDeactivatedScene() const;
 
 private:
-	DesignerScene* m_scene;
+	DesignerScene* m_activatedScene;
+	DesignerScene* m_deactivatedScene;
 };
 
 inline ActiveDesignerSceneChangedEvent::ActiveDesignerSceneChangedEvent(
-	DesignerScene* const scene, Editor* const editor)
+	DesignerScene* const activatedScene,
+	DesignerScene* const deactivatedScene,
+	Editor* const editor)
 
 	: TEditorEvent(editor)
 
-	, m_scene(scene)
-{}
-
-inline DesignerScene* ActiveDesignerSceneChangedEvent::getScene() const
+	, m_activatedScene(activatedScene)
+	, m_deactivatedScene(deactivatedScene)
 {
-	return m_scene;
+	PH_ASSERT(activatedScene != deactivatedScene);
+}
+
+inline DesignerScene* ActiveDesignerSceneChangedEvent::getActivatedScene() const
+{
+	return m_activatedScene;
+}
+
+inline DesignerScene* ActiveDesignerSceneChangedEvent::getDeactivatedScene() const
+{
+	return m_deactivatedScene;
 }
 
 }// end namespace ph::editor

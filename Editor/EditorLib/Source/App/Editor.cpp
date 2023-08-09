@@ -144,7 +144,11 @@ void Editor::stop()
 		"{} scenes to be closed",
 		m_scenes.size());
 
-	// TODO: ask whether to save current scene
+	while(numScenes() != 0)
+	{
+		const auto sceneIdx = numScenes() - 1;
+		removeScene(sceneIdx);
+	}
 
 	saveSettings(get_editor_settings_file_path());
 }
@@ -209,26 +213,18 @@ void Editor::cleanupRemovingScenes()
 
 void Editor::renderCleanup(RenderThreadCaller& caller)
 {
-	renderCleanupRemovingScenes(caller);
+	// All live scenes should have been removed at this point
+	PH_ASSERT_EQ(numScenes(), 0);
 
-	// Also cleanup existing scenes
-	for(auto& scene : m_scenes)
-	{
-		scene->renderCleanup(caller);
-	}
+	renderCleanupRemovingScenes(caller);
 }
 
 void Editor::cleanup()
 {
+	// All live scenes should have been removed at this point
+	PH_ASSERT_EQ(numScenes(), 0);
+
 	cleanupRemovingScenes();
-
-	// Also cleanup existing scenes
-	for(auto& scene : m_scenes)
-	{
-		scene->cleanup();
-	}
-
-	m_scenes.removeAll();
 }
 
 std::size_t Editor::createScene(const Path& workingDirectory, const std::string& name)
@@ -394,10 +390,13 @@ void Editor::saveScene()
 
 void Editor::setActiveScene(const std::size_t sceneIndex)
 {
-	DesignerScene* const sceneToBeActive = getScene(sceneIndex);
+	DesignerScene* sceneToBeActive = getScene(sceneIndex);
 	if(sceneToBeActive != m_activeScene)
 	{
-		m_activeScene = sceneToBeActive;
+		DesignerScene* oldActiveScene = m_activeScene;
+		DesignerScene* newActiveScene = sceneToBeActive;
+
+		m_activeScene = newActiveScene;
 		if(m_activeScene)
 		{
 			PH_LOG(Editor,
@@ -410,8 +409,10 @@ void Editor::setActiveScene(const std::size_t sceneIndex)
 				"no scene is now active");
 		}
 
-		onActiveDesignerSceneChanged.dispatch(ActiveDesignerSceneChangedEvent(m_activeScene, this));
-		postEvent(EditContextUpdatedEvent(EEditContextEvent::ActiveSceneChanged, this), onEditContextUpdated);
+		onActiveDesignerSceneChanged.dispatch(
+			ActiveDesignerSceneChangedEvent(newActiveScene, oldActiveScene, this));
+		postEvent(
+			EditContextUpdatedEvent(EEditContextEvent::ActiveSceneChanged, this), onEditContextUpdated);
 	}
 }
 
@@ -420,10 +421,12 @@ void Editor::removeScene(const std::size_t sceneIndex)
 	if(sceneIndex >= m_scenes.size())
 	{
 		PH_LOG_WARNING(Editor,
-			"scene not removed (scene index {} is invalid, must < {})",
+			"unable to remove scene (scene index {} is invalid, must < {})",
 			sceneIndex, m_scenes.size());
 		return;
 	}
+
+	// TODO: ask whether to save current scene
 
 	// Reassign another scene as the active one before removal
 	if(m_scenes.size() == 1)

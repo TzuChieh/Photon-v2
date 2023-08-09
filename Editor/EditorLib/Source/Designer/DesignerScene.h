@@ -188,6 +188,18 @@ public:
 	template<typename ObjectType>
 	void findObjectsByType(std::vector<ObjectType*>& out_objs) const;
 
+	/*!
+	By usable, it means the object can be called/used from main thread. For an object to be "usable",
+	it must not be in any erroneous state, initialized on main thread (`isInitialized(obj) == true`),
+	and not being an orphan.
+	@param op Instance that can be invoked as `bool (DesignerObject* obj)`, where `obj` is
+	an object satisfying the "usable" requirement. The return value indicates whether
+	the iteration process should continue.
+	@note Can only be called from main thread.
+	*/
+	template<typename PerObjectOperation>
+	void forEachUsableObject(PerObjectOperation op) const;
+
 	const Path& getWorkingDirectory() const;
 	void setWorkingDirectory(Path directory);
 	void setName(std::string name);
@@ -198,6 +210,18 @@ public:
 	std::size_t numAllocatedObjects() const;
 
 	DesignerScene& operator = (DesignerScene&& rhs) noexcept;
+
+	/*!
+	Whether the object is completely initialized (both main & render parts), and no part is
+	being uninitialized.
+	*/
+	static bool isFullyInitialized(const DesignerObject& obj);
+
+	/*!
+	Whether the object is initialized (just the main part, does not care about render part), and
+	the main part is not being uninitialized.
+	*/
+	static bool isInitialized(const DesignerObject& obj);
 
 // Begin Scene Events
 public:
@@ -231,32 +255,9 @@ private:
 
 	bool removeObjectFromStorage(DesignerObject* obj);
 
-	/*!
-	By usable, it means the object can be called/used from main thread. For an object to be "usable",
-	it must not be in any erroneous state, initialized on main thread (`isInitialized(obj) == true`),
-	and not being an orphan.
-	@param op Instance that can be invoked as `bool (DesignerObject* obj)`, where `obj` is
-	an object satisfying the "usable" requirement. The return value indicates whether
-	the iteration process should continue.
-	@note Can only be called from main thread.
-	*/
-	template<typename PerObjectOperation>
-	void forEachUsableObject(PerObjectOperation op) const;
-
 	void ensureOwnedByThisScene(const DesignerObject* obj) const;
 
-	/*! 
-	Whether the object is completely initialized (both main & render parts), and no part is 
-	being uninitialized.
-	*/
-	static bool isFullyInitialized(const DesignerObject& obj);
-
-	/*!
-	Whether the object is initialized (just the main part, does not care about render part), and
-	the main part is not being uninitialized.
-	*/
-	static bool isInitialized(const DesignerObject& obj);
-
+	// TODO: rethink more specific use case other than for retargeting object parent
 	static bool isOrphan(const DesignerObject& obj);
 
 private:

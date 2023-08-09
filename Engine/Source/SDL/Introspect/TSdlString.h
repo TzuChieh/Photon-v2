@@ -47,7 +47,7 @@ protected:
 		const SdlInputContext& ctx) const override
 	{
 		// Load value directly as it is already a string
-		this->setValue(owner, std::string(clause.value));
+		this->setValue(owner, clause.value);
 	}
 
 	inline void saveToSdl(
