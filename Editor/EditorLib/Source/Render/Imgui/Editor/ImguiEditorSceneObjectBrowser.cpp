@@ -12,6 +12,7 @@
 
 #include <Common/assertion.h>
 #include <SDL/Introspect/SdlClass.h>
+#include <Utility/string_utils.h>
 
 #include <algorithm>
 
@@ -52,6 +53,30 @@ inline bool visibility_toggle_button(const char* const strId, const bool isVisib
 	return isClicked;
 }
 
+inline std::string_view get_display_type_name(const DesignerObject* obj)
+{
+	if(!obj)
+	{
+		return "(null)";
+	}
+
+	std::string_view docName = obj->getDynamicSdlClass()->getDocName();
+
+	// Remove any trailing "Object" or "Designer" as they are redundant in the editor context
+	if(docName.ends_with("Object"))
+	{
+		docName.remove_suffix(6);
+		docName = string_utils::trim_tail(docName);
+	}
+	if(docName.ends_with("Designer"))
+	{
+		docName.remove_suffix(8);
+		docName = string_utils::trim_tail(docName);
+	}
+
+	return docName;
+}
+
 }// end anonymous namespace
 
 ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser()
@@ -61,7 +86,7 @@ ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser()
 	, m_objViewLevel(0)
 	, m_objViewLevelName()
 	, m_expandedObj(nullptr)
-	, m_objs()
+	, m_objInfos()
 	, m_isObjsDirty(false)
 {
 	resetObjectView(nullptr);
@@ -181,12 +206,16 @@ void ImguiEditorSceneObjectBrowser::rebuildObjectView(
 		if(scene)
 		{
 			auto rootObjs = scene->getRootObjects();
-			m_objs.resize(rootObjs.size());
-			std::copy(rootObjs.begin(), rootObjs.end(), m_objs.begin());
+			m_objInfos.resize(rootObjs.size());
+			for(std::size_t oi = 0; oi < rootObjs.size(); ++oi)
+			{
+				m_objInfos[oi].obj = rootObjs[oi];
+				m_objInfos[oi].typeName = get_display_type_name(rootObjs[oi]);
+			}
 		}
 		else
 		{
-			m_objs.clear();
+			m_objInfos.clear();
 		}
 	}
 	else
@@ -196,45 +225,49 @@ void ImguiEditorSceneObjectBrowser::rebuildObjectView(
 		m_objViewLevelName = "Object: " + m_expandedObj->getName();
 
 		auto childObjs = m_expandedObj->getChildren();
-		m_objs.resize(childObjs.size());
-		std::copy(childObjs.begin(), childObjs.end(), m_objs.begin());
+		m_objInfos.resize(childObjs.size());
+		for(std::size_t oi = 0; oi < childObjs.size(); ++oi)
+		{
+			m_objInfos[oi].obj = childObjs[oi];
+			m_objInfos[oi].typeName = get_display_type_name(childObjs[oi]);
+		}
 	}
 
-	if(sortMode != ESortMode::None && m_objs.size() > 1)
+	if(sortMode != ESortMode::None && m_objInfos.size() > 1)
 	{
 		switch(sortMode)
 		{
 		case ESortMode::AscendingName:
-			std::sort(m_objs.begin(), m_objs.end(),
-				[](const DesignerObject* objA, const DesignerObject* objB)
+			std::sort(m_objInfos.begin(), m_objInfos.end(),
+				[](const ObjectInfo& a, const ObjectInfo& b)
 				{
-					return objA->getName() < objB->getName();
+					return a.obj->getName() < b.obj->getName();
 				});
 			break;
 
 		case ESortMode::DescendingName:
-			std::sort(m_objs.begin(), m_objs.end(),
-				[](const DesignerObject* objA, const DesignerObject* objB)
+			std::sort(m_objInfos.begin(), m_objInfos.end(),
+				[](const ObjectInfo& a, const ObjectInfo& b)
 				{
-					return objA->getName() > objB->getName();
+					return a.obj->getName() > b.obj->getName();
 				});
 			break;
 
 		// Objects can easily have identical type names, use stable sort to preserve relative order
 		case ESortMode::AscendingType:
-			std::stable_sort(m_objs.begin(), m_objs.end(),
-				[](const DesignerObject* objA, const DesignerObject* objB)
+			std::stable_sort(m_objInfos.begin(), m_objInfos.end(),
+				[](const ObjectInfo& a, const ObjectInfo& b)
 				{
-					return objA->getDynamicSdlClass()->getDocName() < objB->getDynamicSdlClass()->getDocName();
+					return a.typeName < b.typeName;
 				});
 			break;
 
 		// Objects can easily have identical type names, use stable sort to preserve relative order
 		case ESortMode::DescendingType:
-			std::stable_sort(m_objs.begin(), m_objs.end(),
-				[](const DesignerObject* objA, const DesignerObject* objB)
+			std::stable_sort(m_objInfos.begin(), m_objInfos.end(),
+				[](const ObjectInfo& a, const ObjectInfo& b)
 				{
-					return objA->getDynamicSdlClass()->getDocName() > objB->getDynamicSdlClass()->getDocName();
+					return a.typeName > b.typeName;
 				});
 			break;
 		}
@@ -346,8 +379,10 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 
 		// TODO: try PushStyleCompact
 
-		for(DesignerObject* obj : m_objs)
+		for(const ObjectInfo& objInfo : m_objInfos)
 		{
+			DesignerObject* obj = objInfo.obj;
+
 			ImGui::TableNextRow();
 
 			// Object name
@@ -383,7 +418,7 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 
 			// Object type
 			ImGui::TableNextColumn();
-			imgui::text_unformatted(obj->getDynamicSdlClass()->getDocName());
+			imgui::text_unformatted(objInfo.typeName);
 		}
 
 		ImGui::EndTable();

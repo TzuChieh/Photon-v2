@@ -3,6 +3,7 @@
 #include "Designer/DesignerObject.h"
 
 #include <SDL/sdl_interface.h>
+#include <Utility/utility.h>
 
 #include <vector>
 
@@ -12,10 +13,13 @@ namespace ph::editor
 class HierarchicalDesignerObject : public DesignerObject
 {
 public:
-	HierarchicalDesignerObject();
+	~HierarchicalDesignerObject() override = 0;
 
 	TSpanView<DesignerObject*> getChildren() const override;
 	bool canHaveChildren() const override;
+
+protected:
+	PH_DECLARE_RULE_OF_5_MEMBERS_NO_DTOR(HierarchicalDesignerObject);
 
 private:
 	DesignerObject* addChild(DesignerObject* childObj) override;

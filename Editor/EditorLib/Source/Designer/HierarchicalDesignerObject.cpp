@@ -3,10 +3,9 @@
 namespace ph::editor
 {
 
-HierarchicalDesignerObject::HierarchicalDesignerObject()
-	: DesignerObject()
-	, m_children()
-{}
+PH_DEFINE_RULE_OF_5_MEMBERS_NO_DTOR(HierarchicalDesignerObject);
+
+HierarchicalDesignerObject::~HierarchicalDesignerObject() = default;
 
 TSpanView<DesignerObject*> HierarchicalDesignerObject::getChildren() const
 {

@@ -16,35 +16,53 @@
 #include <version>
 #include <variant>
 
-/*! @brief Helper to declare special class members.
+/*! @brief Helper to declare rule of 5 special class members.
+Destructor is not included.
 */
-#define PH_DECLARE_RULE_OF_5_MEMBERS(ClassType)\
+#define PH_DECLARE_RULE_OF_5_MEMBERS_NO_DTOR(ClassType)\
 	ClassType();\
 	ClassType(const ClassType& other);\
 	ClassType(ClassType&& other) noexcept;\
 	ClassType& operator = (const ClassType& rhs);\
-	ClassType& operator = (ClassType&& rhs) noexcept;\
-	~ClassType() = default;
+	ClassType& operator = (ClassType&& rhs) noexcept
 
-/*! @brief Helper to define special class members.
+/*! @brief Helper to define defaulted rule of 5 special class members.
+Destructor is not included.
 */
-#define PH_DEFINE_RULE_OF_5_MEMBERS(ClassType)\
+#define PH_DEFINE_RULE_OF_5_MEMBERS_NO_DTOR(ClassType)\
 	ClassType::ClassType() = default;\
 	ClassType::ClassType(const ClassType& other) = default;\
 	ClassType::ClassType(ClassType&& other) noexcept = default;\
 	ClassType& ClassType::operator = (const ClassType& rhs) = default;\
-	ClassType& ClassType::operator = (ClassType&& rhs) noexcept = default;\
-	ClassType::~ClassType() = default;
+	ClassType& ClassType::operator = (ClassType&& rhs) noexcept = default
 
-/*! @brief Helper to define special class members.
+/*! @brief Helper to define defaulted rule of 5 special class members (inlined).
+Destructor is not included.
 */
-#define PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(ClassType)\
+#define PH_DEFINE_INLINE_RULE_OF_5_MEMBERS_NO_DTOR(ClassType)\
 	inline ClassType() = default;\
 	inline ClassType(const ClassType& other) = default;\
 	inline ClassType(ClassType&& other) noexcept = default;\
 	inline ClassType& operator = (const ClassType& rhs) = default;\
-	inline ClassType& operator = (ClassType&& rhs) noexcept = default;\
-	inline ~ClassType() = default;
+	inline ClassType& operator = (ClassType&& rhs) noexcept = default
+
+/*! @brief Helper to declare rule of 5 special class members.
+*/
+#define PH_DECLARE_RULE_OF_5_MEMBERS(ClassType)\
+	PH_DECLARE_RULE_OF_5_MEMBERS_NO_DTOR(ClassType);\
+	~ClassType()
+
+/*! @brief Helper to define defaulted rule of 5 special class members.
+*/
+#define PH_DEFINE_RULE_OF_5_MEMBERS(ClassType)\
+	PH_DEFINE_RULE_OF_5_MEMBERS_NO_DTOR(ClassType);\
+	ClassType::~ClassType() = default
+
+/*! @brief Helper to define defaultedrule of 5 special class members (inlined).
+*/
+#define PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(ClassType)\
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS_NO_DTOR(ClassType);\
+	inline ~ClassType() = default
 
 namespace ph
 {

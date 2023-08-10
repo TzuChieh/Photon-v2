@@ -26,10 +26,7 @@ class RenderThreadCaller;
 class DesignerObject : public AbstractDesignerObject
 {
 public:
-	DesignerObject();
-	DesignerObject(const DesignerObject& other);
-	DesignerObject(DesignerObject&& other) noexcept;
-	~DesignerObject() override;
+	~DesignerObject() override = 0;
 
 	virtual TSpanView<DesignerObject*> getChildren() const = 0;
 	virtual bool canHaveChildren() const = 0;
@@ -86,6 +83,11 @@ public:
 	const DesignerObject* getParent() const;
 	const std::string& getName() const;
 	const TEnumFlags<EObjectState>& getState() const;
+
+protected:
+	DesignerObject();
+	DesignerObject(const DesignerObject& other);
+	DesignerObject(DesignerObject&& other) noexcept;
 
 	DesignerObject& operator = (const DesignerObject& rhs);
 	DesignerObject& operator = (DesignerObject&& rhs) noexcept;

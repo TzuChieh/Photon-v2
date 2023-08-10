@@ -10,7 +10,7 @@
 namespace ph::editor
 {
 
-class NoteDesignerObject : public FlatDesignerObject
+class NoteObject : public FlatDesignerObject
 {
 public:
 
@@ -19,7 +19,7 @@ private:
 	ObjectTransform m_transform;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<NoteDesignerObject>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<NoteObject>)
 	{
 		ClassType clazz("note-dobj");
 		clazz.docName("Note Designer Object");

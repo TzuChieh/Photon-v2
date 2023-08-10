@@ -43,6 +43,12 @@ private:
 		DescendingType
 	};
 
+	struct ObjectInfo
+	{
+		DesignerObject* obj = nullptr;
+		std::string_view typeName;
+	};
+
 	void onActiveSceneChanged(const ActiveDesignerSceneChangedEvent& e);
 	void onSceneObjectChanged(const DesignerSceneEvent& e);
 	void resetObjectView(DesignerScene* scene);
@@ -61,7 +67,7 @@ private:
 	std::size_t m_objViewLevel;
 	std::string m_objViewLevelName;
 	DesignerObject* m_expandedObj;
-	std::vector<DesignerObject*> m_objs;
+	std::vector<ObjectInfo> m_objInfos;
 	bool m_isObjsDirty;
 };
 

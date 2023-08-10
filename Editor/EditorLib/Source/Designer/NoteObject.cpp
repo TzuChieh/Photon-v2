@@ -1,4 +1,4 @@
-#include "Designer/NoteDesignerObject.h"
+#include "Designer/NoteObject.h"
 
 namespace ph::editor
 {

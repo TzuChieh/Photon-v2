@@ -3,6 +3,7 @@
 #include "Designer/DesignerObject.h"
 
 #include <SDL/sdl_interface.h>
+#include <Utility/utility.h>
 
 namespace ph::editor
 {
@@ -10,8 +11,13 @@ namespace ph::editor
 class FlatDesignerObject : public DesignerObject
 {
 public:
+	~FlatDesignerObject() override = 0;
+
 	TSpanView<DesignerObject*> getChildren() const override;
 	bool canHaveChildren() const override;
+
+protected:
+	PH_DECLARE_RULE_OF_5_MEMBERS_NO_DTOR(FlatDesignerObject);
 
 private:
 	DesignerObject* addChild(DesignerObject* childObj) override;
