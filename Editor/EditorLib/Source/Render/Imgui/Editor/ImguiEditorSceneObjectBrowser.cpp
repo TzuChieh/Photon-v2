@@ -273,6 +273,7 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 	imgui::text_unformatted(m_objViewLevelName);
 
 	constexpr ImGuiTableFlags tableFlags = 
+		ImGuiTableFlags_Sortable |
 		ImGuiTableFlags_SortTristate |
 		ImGuiTableFlags_ScrollY |
 		ImGuiTableFlags_BordersV | 
@@ -294,7 +295,7 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 
 		// The first column will use the default _WidthStretch when ScrollX is Off and _WidthFixed when ScrollX is On
 		ImGui::TableSetupColumn("Name", 
-			ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_NoHide,
+			ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_NoHide,
 			0,
 			nameColumnId);
 		ImGui::TableSetupColumn("", 
@@ -315,14 +316,14 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 			if(sortSpecs->SpecsCount == 1)
 			{
 				const ImGuiTableColumnSortSpecs& spec = sortSpecs->Specs[0];
-				if(spec.ColumnUserID == nameColumnId)
+				if(spec.ColumnUserID == nameColumnId && spec.SortDirection != ImGuiSortDirection_None)
 				{
-					sortMode = spec.SortOrder == ImGuiSortDirection_Ascending
+					sortMode = spec.SortDirection == ImGuiSortDirection_Ascending
 						? ESortMode::AscendingName : ESortMode::DescendingName;
 				}
-				else if(spec.ColumnUserID == typeColumnId)
+				else if(spec.ColumnUserID == typeColumnId && spec.SortDirection != ImGuiSortDirection_None)
 				{
-					sortMode = spec.SortOrder == ImGuiSortDirection_Ascending
+					sortMode = spec.SortDirection == ImGuiSortDirection_Ascending
 						? ESortMode::AscendingType : ESortMode::DescendingType;
 				}
 			}
