@@ -91,7 +91,7 @@ void DesignerScene::update(const MainThreadUpdateContext& ctx)
 	{
 		if(isFullyInitialized(*obj))
 		{
-			PH_ASSERT(obj->getState().has(EObjectState::Ticking));
+			PH_ASSERT(obj->state().has(EObjectState::Ticking));
 			obj->update(ctx);
 		}
 	}
@@ -119,7 +119,7 @@ void DesignerScene::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 	{
 		if(isFullyInitialized(*obj))
 		{
-			PH_ASSERT(obj->getState().has(EObjectState::RenderTicking));
+			PH_ASSERT(obj->state().has(EObjectState::RenderTicking));
 			obj->renderUpdate(ctx);
 		}
 	}
@@ -134,7 +134,7 @@ void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 	{
 		if(isFullyInitialized(*obj))
 		{
-			PH_ASSERT(obj->getState().has(EObjectState::RenderTicking));
+			PH_ASSERT(obj->state().has(EObjectState::RenderTicking));
 			obj->createRenderCommands(caller);
 		}
 	}
@@ -176,7 +176,7 @@ bool DesignerScene::selectObject(DesignerObject* const obj)
 
 	ensureOwnedByThisScene(obj);
 
-	auto& objState = obj->getState();
+	auto& objState = obj->state();
 	if(objState.has(EObjectState::Selected))
 	{
 		return false;
@@ -196,7 +196,7 @@ bool DesignerScene::deselectObject(DesignerObject* const obj)
 
 	ensureOwnedByThisScene(obj);
 
-	auto& objState = obj->getState();
+	auto& objState = obj->state();
 	if(objState.hasNo(EObjectState::Selected))
 	{
 		return false;
@@ -226,7 +226,7 @@ void DesignerScene::changeObjectVisibility(DesignerObject* const obj, const bool
 {
 	ensureOwnedByThisScene(obj);
 
-	auto& objState = obj->getState();
+	auto& objState = obj->state();
 	if(shouldBeVisible && objState.has(EObjectState::Hidden))
 	{
 		// TODO
@@ -297,7 +297,7 @@ DesignerObject* DesignerScene::newRootObject(
 		return nullptr;
 	}
 
-	obj->getState().turnOn({EObjectState::Root});
+	obj->state().turnOn({EObjectState::Root});
 	obj->setParentScene(this);
 
 	return obj;
@@ -326,7 +326,7 @@ void DesignerScene::initObject(DesignerObject* const obj)
 		return;
 	}
 
-	if(obj->getState().has(EObjectState::HasInitialized))
+	if(obj->state().has(EObjectState::HasInitialized))
 	{
 		throw_formatted<IllegalOperationException>(
 			"object {} has already been initialized",
@@ -334,7 +334,7 @@ void DesignerScene::initObject(DesignerObject* const obj)
 	}
 
 	obj->init();
-	obj->getState().turnOn({EObjectState::HasInitialized});
+	obj->state().turnOn({EObjectState::HasInitialized});
 
 	queueCreateObjectAction(obj);
 }
@@ -380,7 +380,7 @@ void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
 		-> bool
 		{
 			PH_ASSERT(obj);
-			auto& objState = obj->getState();
+			auto& objState = obj->state();
 
 			if(objState.hasNo(EObjectState::HasInitialized))
 			{
@@ -407,7 +407,7 @@ void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
 		-> bool
 		{
 			PH_ASSERT(obj);
-			auto& objState = obj->getState();
+			auto& objState = obj->state();
 
 			if(objState.has(EObjectState::HasInitialized) &&
 			   objState.hasNo(EObjectState::HasRenderInitialized))
@@ -432,7 +432,7 @@ void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 		-> bool
 		{
 			PH_ASSERT(obj);
-			auto& objState = obj->getState();
+			auto& objState = obj->state();
 
 			// Remove the object from cache arrays
 			if(objState.has(EObjectState::Ticking))
@@ -480,7 +480,7 @@ void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 		-> bool
 		{
 			PH_ASSERT(obj);
-			auto& objState = obj->getState();
+			auto& objState = obj->state();
 
 			// Remove the object from cache arrays
 			if(objState.has(EObjectState::RenderTicking))
@@ -513,7 +513,7 @@ void DesignerScene::queueObjectTickAction(DesignerObject* const obj, const bool 
 		-> bool
 		{
 			PH_ASSERT(obj);
-			auto& objState = obj->getState();
+			auto& objState = obj->state();
 
 			if(shouldTick && objState.hasNo(EObjectState::Ticking))
 			{
@@ -542,7 +542,7 @@ void DesignerScene::queueObjectRenderTickAction(DesignerObject* const obj, const
 		-> bool
 		{
 			PH_ASSERT(obj);
-			auto& objState = obj->getState();
+			auto& objState = obj->state();
 
 			if(shouldTick && objState.hasNo(EObjectState::RenderTicking))
 			{
@@ -572,7 +572,7 @@ void DesignerScene::renderCleanup(RenderThreadCaller& caller)
 	// Render uninitialize all objects in the reverse order
 	for(auto& obj : std::views::reverse(m_objStorage))
 	{
-		auto& objState = obj->getState();
+		auto& objState = obj->state();
 
 		if(obj &&
 		   objState.has(EObjectState::HasRenderInitialized) &&
@@ -589,7 +589,7 @@ void DesignerScene::cleanup()
 	// Uninitialize all objects in the reverse order
 	for(auto& obj : std::views::reverse(m_objStorage))
 	{
-		auto& objState = obj->getState();
+		auto& objState = obj->state();
 
 		if(obj &&
 		   objState.has(EObjectState::HasInitialized) &&

@@ -10,7 +10,7 @@
 namespace ph::editor
 {
 
-class NoteObject : public FlatDesignerObject
+class TextualNoteObject : public FlatDesignerObject
 {
 public:
 
@@ -19,10 +19,10 @@ private:
 	ObjectTransform m_transform;
 
 public:
-	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<NoteObject>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<TextualNoteObject>)
 	{
-		ClassType clazz("note-dobj");
-		clazz.docName("Note Designer Object");
+		ClassType clazz("textual-note-dobj");
+		clazz.docName("Textual Note Designer Object");
 		clazz.description("Showing notes in text form in the scene.");
 		clazz.baseOn<FlatDesignerObject>();
 

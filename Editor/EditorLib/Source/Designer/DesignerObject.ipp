@@ -42,29 +42,6 @@ inline bool DesignerObject::isVisible() const
 	return getState().hasNo(EObjectState::Hidden);
 }
 
-inline auto DesignerObject::getState() const
--> const TEnumFlags<EObjectState>&
-{
-	return m_state;
-}
-
-inline auto DesignerObject::getState()
--> TEnumFlags<EObjectState>&
-{
-	return m_state;
-}
-
-inline uint64 DesignerObject::getSceneStorageIndex() const
-{
-	return m_sceneStorageIndex;
-}
-
-inline void DesignerObject::setSceneStorageIndex(const uint64 storageIndex)
-{
-	PH_ASSERT_NE(storageIndex, static_cast<uint64>(-1));
-	m_sceneStorageIndex = storageIndex;
-}
-
 inline void DesignerObject::setParentObject(DesignerObject* const object)
 {
 	PH_ASSERT(object != nullptr);

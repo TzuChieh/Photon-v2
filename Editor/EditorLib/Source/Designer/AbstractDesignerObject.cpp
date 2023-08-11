@@ -4,7 +4,10 @@
 namespace ph::editor
 {
 
-AbstractDesignerObject::AbstractDesignerObject() = default;
+AbstractDesignerObject::AbstractDesignerObject()
+	: m_state()
+	, m_sceneStorageIndex(static_cast<uint64>(-1))
+{}
 
 AbstractDesignerObject::AbstractDesignerObject(const AbstractDesignerObject& other) = default;
 

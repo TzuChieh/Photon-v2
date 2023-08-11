@@ -2,7 +2,7 @@
 #include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
-#include "Designer/NoteObject.h"
+#include "Designer/TextualNoteObject.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -31,7 +31,7 @@ void ImguiEditorDebugPanel::buildWindow(
 		DesignerScene* scene = editorUI.getEditor().getActiveScene();
 		if(scene)
 		{
-			DesignerObject* obj = scene->newRootObject<NoteObject>();
+			DesignerObject* obj = scene->newRootObject<TextualNoteObject>();
 			std::string objectName = m_objectNameBuffer.data();
 			obj->setName(objectName);
 		}

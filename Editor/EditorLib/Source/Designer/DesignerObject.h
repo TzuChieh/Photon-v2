@@ -3,9 +3,6 @@
 #include "Designer/AbstractDesignerObject.h"
 #include "Designer/designer_fwd.h"
 
-#include <Common/primitive_type.h>
-#include <Common/config.h>
-#include <Utility/TBitFlags.h>
 #include <Utility/TSpan.h>
 #include <SDL/sdl_interface.h>
 
@@ -82,7 +79,6 @@ public:
 	DesignerObject* getParent();
 	const DesignerObject* getParent() const;
 	const std::string& getName() const;
-	const TEnumFlags<EObjectState>& getState() const;
 
 protected:
 	DesignerObject();
@@ -93,6 +89,9 @@ protected:
 	DesignerObject& operator = (DesignerObject&& rhs) noexcept;
 
 private:
+	// For accessing `setParentScene()` when creating root objects
+	friend class DesignerScene;
+
 	/*! @brief Called when a child is initialized and is ready to be attached to their parent.
 	@return The child that had just been added.
 	*/
@@ -112,6 +111,7 @@ private:
 	virtual void deselected();
 
 	void setParentObject(DesignerObject* object);
+	void setParentScene(DesignerScene* scene);
 
 private:
 	union GeneralParent
@@ -124,19 +124,6 @@ private:
 
 	// SDL-binded fields:
 	std::string m_name;
-
-private:
-	// For accessing some shared internal members
-	friend class DesignerScene;
-	friend class DesignerSceneMetaInfo;
-
-	TEnumFlags<EObjectState> m_state;
-	uint64 m_sceneStorageIndex;
-
-	TEnumFlags<EObjectState>& getState();
-	uint64 getSceneStorageIndex() const;
-	void setParentScene(DesignerScene* scene);
-	void setSceneStorageIndex(uint64 storageIndex);
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<DesignerObject>)

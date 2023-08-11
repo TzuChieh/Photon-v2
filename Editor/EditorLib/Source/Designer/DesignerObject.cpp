@@ -26,10 +26,9 @@ inline std::string get_object_debug_info(DesignerObject* const obj)
 }// end anonymous namespace
 
 DesignerObject::DesignerObject()
-	: m_parent()
+	: AbstractDesignerObject()
+	, m_parent()
 	, m_name()
-	, m_state()
-	, m_sceneStorageIndex(static_cast<uint64>(-1))
 {
 	m_parent.u_object = nullptr;
 }
@@ -42,11 +41,11 @@ DesignerObject::~DesignerObject()
 {
 	// Initializations must happen either in pairs or not happen at all
 	PH_ASSERT(
-		(m_state.has(EObjectState::HasInitialized) && m_state.has(EObjectState::HasUninitialized)) ||
-		(m_state.hasNo(EObjectState::HasInitialized) && m_state.hasNo(EObjectState::HasUninitialized)));
+		(getState().has(EObjectState::HasInitialized) && getState().has(EObjectState::HasUninitialized)) ||
+		(getState().hasNo(EObjectState::HasInitialized) && getState().hasNo(EObjectState::HasUninitialized)));
 	PH_ASSERT(
-		(m_state.has(EObjectState::HasRenderInitialized) && m_state.has(EObjectState::HasRenderUninitialized)) ||
-		(m_state.hasNo(EObjectState::HasRenderInitialized) && m_state.hasNo(EObjectState::HasRenderUninitialized)));
+		(getState().has(EObjectState::HasRenderInitialized) && getState().has(EObjectState::HasRenderUninitialized)) ||
+		(getState().hasNo(EObjectState::HasRenderInitialized) && getState().hasNo(EObjectState::HasRenderUninitialized)));
 }
 
 DesignerObject& DesignerObject::operator = (const DesignerObject& rhs) = default;
@@ -55,22 +54,22 @@ DesignerObject& DesignerObject::operator = (DesignerObject&& rhs) noexcept = def
 
 void DesignerObject::init()
 {
-	PH_ASSERT(m_state.hasNo(EObjectState::HasInitialized));
+	PH_ASSERT(getState().hasNo(EObjectState::HasInitialized));
 }
 
 void DesignerObject::uninit()
 {
-	PH_ASSERT(m_state.hasNo(EObjectState::HasUninitialized));
+	PH_ASSERT(getState().hasNo(EObjectState::HasUninitialized));
 }
 
 void DesignerObject::renderInit(RenderThreadCaller& caller)
 {
-	PH_ASSERT(m_state.hasNo(EObjectState::HasRenderInitialized));
+	PH_ASSERT(getState().hasNo(EObjectState::HasRenderInitialized));
 }
 
 void DesignerObject::renderUninit(RenderThreadCaller& caller)
 {
-	PH_ASSERT(m_state.hasNo(EObjectState::HasRenderUninitialized));
+	PH_ASSERT(getState().hasNo(EObjectState::HasRenderUninitialized));
 }
 
 void DesignerObject::update(const MainThreadUpdateContext& ctx)
