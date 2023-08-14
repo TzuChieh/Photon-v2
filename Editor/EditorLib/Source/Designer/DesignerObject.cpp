@@ -4,6 +4,8 @@
 #include <Common/assertion.h>
 #include <Utility/utility.h>
 #include <Utility/exception.h>
+#include <Math/TVector3.h>
+#include <Math/TQuaternion.h>
 
 #include <utility>
 
@@ -80,6 +82,30 @@ void DesignerObject::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void DesignerObject::createRenderCommands(RenderThreadCaller& caller)
 {}
+
+void DesignerObject::editorTranslate(const math::Vector3R& amount)
+{
+	auto transform = getLocalToParent();
+	transform.translate(amount);
+
+	setLocalToParent(transform);
+}
+
+void DesignerObject::editorRotate(const math::QuaternionR& additionalRotation)
+{
+	auto transform = getLocalToParent();
+	transform.rotate(additionalRotation);
+
+	setLocalToParent(transform);
+}
+
+void DesignerObject::editorScale(const math::Vector3R& amount)
+{
+	auto transform = getLocalToParent();
+	transform.scale(amount);
+
+	setLocalToParent(transform);
+}
 
 void DesignerObject::selected()
 {}

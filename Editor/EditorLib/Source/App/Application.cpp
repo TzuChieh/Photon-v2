@@ -72,8 +72,8 @@ Application::~Application()
 
 void Application::run()
 {
-	// Thread ID set before starting the thread to make its memory effect visible on render thread.
-	Threads::setRenderThreadID(m_renderThread.getWorkerThreadId());
+	// Set before starting the thread to make its memory effect visible on render thread.
+	Threads::setRenderThread(&m_renderThread);
 	m_renderThread.startWorker();
 
 	initialRenderThreadUpdate();
@@ -88,7 +88,7 @@ void Application::run()
 
 	// Wait for render thread to actually stop
 	m_renderThread.waitForWorkerToStop();
-	Threads::setRenderThreadID(std::thread::id());
+	Threads::setRenderThread(nullptr);
 }
 
 void Application::close()

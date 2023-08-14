@@ -61,7 +61,7 @@ public:
 	bool hasJoined() const;
 
 	/*! @brief Get ID of the underlying thread.
-	@return Thread ID. Will be empty (`std::thread::id()`) if this class is constructed a functor.
+	@return Thread ID. Will be empty (`std::thread::id()`) if this class is default constructed.
 	*/
 	std::thread::id getId() const;
 

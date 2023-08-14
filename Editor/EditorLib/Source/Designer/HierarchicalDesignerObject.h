@@ -15,6 +15,9 @@ class HierarchicalDesignerObject : public DesignerObject
 public:
 	~HierarchicalDesignerObject() override = 0;
 
+	math::TDecomposedTransform<real> getLocalToParent() const override = 0;
+	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override = 0;
+
 	TSpanView<DesignerObject*> getChildren() const override;
 	bool canHaveChildren() const override;
 

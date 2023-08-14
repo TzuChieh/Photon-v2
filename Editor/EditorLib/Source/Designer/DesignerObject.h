@@ -3,8 +3,11 @@
 #include "Designer/AbstractDesignerObject.h"
 #include "Designer/designer_fwd.h"
 
+#include <Common/primitive_type.h>
 #include <Utility/TSpan.h>
 #include <SDL/sdl_interface.h>
+#include <Math/math_fwd.h>
+#include <Math/Transform/TDecomposedTransform.h>
 
 #include <string>
 #include <memory>
@@ -27,6 +30,8 @@ public:
 
 	virtual TSpanView<DesignerObject*> getChildren() const = 0;
 	virtual bool canHaveChildren() const = 0;
+	virtual math::TDecomposedTransform<real> getLocalToParent() const = 0;
+	virtual void setLocalToParent(const math::TDecomposedTransform<real>& transform) = 0;
 
 	virtual void init();
 	virtual void uninit();
@@ -35,6 +40,10 @@ public:
 	virtual void update(const MainThreadUpdateContext& ctx);
 	virtual void renderUpdate(const MainThreadRenderUpdateContext& ctx);
 	virtual void createRenderCommands(RenderThreadCaller& caller);
+
+	virtual void editorTranslate(const math::Vector3R& amount);
+	virtual void editorRotate(const math::QuaternionR& additionalRotation);
+	virtual void editorScale(const math::Vector3R& amount);
 
 	/*! @brief Create and add the new object as a child.
 	@param shouldInit Whether to initialize the new child.

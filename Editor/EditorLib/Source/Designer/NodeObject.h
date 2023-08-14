@@ -13,9 +13,11 @@ namespace ph::editor
 class NodeObject : public HierarchicalDesignerObject
 {
 public:
+	/*math::TDecomposedTransform<real> getLocalToParent() const override;
+	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override;*/
 
 private:
-	ObjectTransform m_transform;
+	ObjectTransform m_nodeTransform;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<NodeObject>)
@@ -25,7 +27,7 @@ public:
 		clazz.description("Node that connects objects to form a hierarchy.");
 		clazz.baseOn<HierarchicalDesignerObject>();
 
-		clazz.addStruct(&OwnerType::m_transform);
+		clazz.addStruct(&OwnerType::m_nodeTransform);
 
 		return clazz;
 	}

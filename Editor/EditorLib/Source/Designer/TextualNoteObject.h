@@ -13,10 +13,12 @@ namespace ph::editor
 class TextualNoteObject : public FlatDesignerObject
 {
 public:
+	math::TDecomposedTransform<real> getLocalToParent() const override;
+	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override;
 
 private:
 	std::string m_text;
-	ObjectTransform m_transform;
+	ObjectTransform m_textTransform;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<TextualNoteObject>)
@@ -30,7 +32,7 @@ public:
 		text.description("Notes in string.");
 		clazz.addField(text);
 
-		clazz.addStruct(&OwnerType::m_transform);
+		clazz.addStruct(&OwnerType::m_textTransform);
 
 		return clazz;
 	}
