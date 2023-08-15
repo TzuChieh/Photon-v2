@@ -2,6 +2,7 @@
 #include "App/Editor.h"
 #include "Designer/DesignerObject.h"
 #include "EditorCore/Thread/Threads.h"
+#include "Render/RenderThreadCaller.h"
 
 #include <Utility/exception.h>
 #include <SDL/Introspect/SdlClass.h>
@@ -45,6 +46,7 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	, m_renderTickingObjs()
 	, m_selectedObjs()
 	, m_sceneActionQueue()
+	, m_renderWorkQueue()
 	, m_numSceneActionsToProcess(0)
 
 	, m_editor(fromEditor)
@@ -128,8 +130,8 @@ void DesignerScene::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 {
 	// Render tick objects
-	// (this should be placed after `renderUpdate()` without any object state change in between, as
-	// many implementations expect `renderUpdate()` and `createRenderCommands()` are in pairs)
+	// (this should idealy be placed after `renderUpdate()` without any object state change in between,
+	// as many implementations expect `renderUpdate()` and `createRenderCommands()` are in pairs)
 	for(DesignerObject* obj : m_renderTickingObjs)
 	{
 		if(isFullyInitialized(*obj))
@@ -138,6 +140,26 @@ void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 			obj->createRenderCommands(caller);
 		}
 	}
+
+	// Submit additionally added render works
+	for(RenderWork& renderWork : m_renderWorkQueue)
+	{
+		const bool isObjUsable = renderWork.obj && isInitialized(*renderWork.obj);
+		if(isObjUsable)
+		{
+			caller.add(std::move(renderWork.work));
+		}
+		else
+		{
+			PH_LOG_WARNING(DesignerScene,
+				"One render work canceled (from object {}, init: {}, fully init: {}), please "
+				"make sure to not enqueue render work outside of usable object lifetime.",
+				get_object_debug_info(renderWork.obj), 
+				renderWork.obj ? isInitialized(*renderWork.obj) : false,
+				renderWork.obj ? isFullyInitialized(*renderWork.obj) : false);
+		}
+	}
+	m_renderWorkQueue.clear();
 
 	// Process queued actions: Cache arrays can be modified in action tasks, as this is one of the 
 	// few places that we can be sure that those arrays are not in use (otherwise modifying them
@@ -243,12 +265,12 @@ void DesignerScene::changeObjectVisibility(DesignerObject* const obj, const bool
 
 void DesignerScene::changeObjectTick(DesignerObject* const obj, const bool shouldTick)
 {
-	queueObjectTickAction(obj, shouldTick);
+	enqueueObjectTickAction(obj, shouldTick);
 }
 
 void DesignerScene::changeObjectRenderTick(DesignerObject* const obj, const bool shouldTick)
 {
-	queueObjectRenderTickAction(obj, shouldTick);
+	enqueueObjectRenderTickAction(obj, shouldTick);
 }
 
 DesignerObject* DesignerScene::newObject(
@@ -336,7 +358,7 @@ void DesignerScene::initObject(DesignerObject* const obj)
 	obj->init();
 	obj->state().turnOn({EObjectState::HasInitialized});
 
-	queueCreateObjectAction(obj);
+	enqueueCreateObjectAction(obj);
 }
 
 void DesignerScene::setObjectToDefault(DesignerObject* const obj)
@@ -365,10 +387,10 @@ void DesignerScene::deleteObject(
 		obj->deleteAllChildren();
 	}
 
-	queueRemoveObjectAction(obj);
+	enqueueRemoveObjectAction(obj);
 }
 
-void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
+void DesignerScene::enqueueCreateObjectAction(DesignerObject* const obj)
 {
 	// Note that we are not ensuring `obj` is from this scene here, as `obj` is
 	// still in its initialization process (with incomplete data) and such
@@ -419,10 +441,10 @@ void DesignerScene::queueCreateObjectAction(DesignerObject* const obj)
 			return objState.has(EObjectState::HasRenderInitialized);
 		};
 
-	queueSceneAction(std::move(action));
+	enqueueSceneAction(std::move(action));
 }
 
-void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
+void DesignerScene::enqueueRemoveObjectAction(DesignerObject* const obj)
 {
 	ensureOwnedByThisScene(obj);
 
@@ -500,10 +522,10 @@ void DesignerScene::queueRemoveObjectAction(DesignerObject* const obj)
 			return objState.has(EObjectState::HasRenderUninitialized);
 		};
 
-	queueSceneAction(std::move(action));
+	enqueueSceneAction(std::move(action));
 }
 
-void DesignerScene::queueObjectTickAction(DesignerObject* const obj, const bool shouldTick)
+void DesignerScene::enqueueObjectTickAction(DesignerObject* const obj, const bool shouldTick)
 {
 	ensureOwnedByThisScene(obj);
 
@@ -529,10 +551,10 @@ void DesignerScene::queueObjectTickAction(DesignerObject* const obj, const bool 
 			return true;
 		};
 
-	queueSceneAction(std::move(action));
+	enqueueSceneAction(std::move(action));
 }
 
-void DesignerScene::queueObjectRenderTickAction(DesignerObject* const obj, const bool shouldTick)
+void DesignerScene::enqueueObjectRenderTickAction(DesignerObject* const obj, const bool shouldTick)
 {
 	ensureOwnedByThisScene(obj);
 
@@ -558,10 +580,10 @@ void DesignerScene::queueObjectRenderTickAction(DesignerObject* const obj, const
 			return true;
 		};
 
-	queueSceneAction(std::move(action));
+	enqueueSceneAction(std::move(action));
 }
 
-void DesignerScene::queueSceneAction(SceneAction action)
+void DesignerScene::enqueueSceneAction(SceneAction action)
 {
 	// We still allow new actions to be queued when the scene is paused
 	m_sceneActionQueue.push_back(std::move(action));
@@ -582,6 +604,13 @@ void DesignerScene::renderCleanup(RenderThreadCaller& caller)
 			objState.turnOn({EObjectState::HasRenderUninitialized});
 		}
 	}
+}
+
+void DesignerScene::enqueueObjectRenderWork(DesignerObject* const obj, RenderWorkType work)
+{
+	ensureOwnedByThisScene(obj);
+
+	m_renderWorkQueue.push_back({std::move(work), obj});
 }
 
 void DesignerScene::cleanup()

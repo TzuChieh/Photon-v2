@@ -8,6 +8,7 @@
 #include <SDL/sdl_interface.h>
 #include <Math/math_fwd.h>
 #include <Math/Transform/TDecomposedTransform.h>
+#include "Utility/TFunction.h"
 
 #include <string>
 #include <memory>
@@ -22,9 +23,14 @@ class RenderThreadCaller;
 class MainThreadUpdateContext;
 class MainThreadRenderUpdateContext;
 class RenderThreadCaller;
+class RenderData;
 
 class DesignerObject : public AbstractDesignerObject
 {
+public:
+	// Work type should be kept in sync with `RenderThread::Work`
+	using RenderWorkType = TFunction<void(RenderData&)>;
+
 public:
 	~DesignerObject() override = 0;
 
@@ -73,6 +79,13 @@ public:
 	/*! @brief Remove, uninitialize and destruct all children.
 	*/
 	void deleteAllChildren();
+
+	/*! @brief Add a render thread work for this object.
+	This method is intended for piecemeal (better to be independent & atomic) render data update.
+	If the object is already ticking or such render data update is systematic/periodic, consider
+	updating via `createRenderCommands()` or other means as they can have slightly lower overhead.
+	*/
+	void enqueueRenderWork(RenderWorkType work);
 
 	void setName(std::string name);
 	void select();

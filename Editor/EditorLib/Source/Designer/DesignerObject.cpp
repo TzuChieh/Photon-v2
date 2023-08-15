@@ -199,6 +199,11 @@ void DesignerObject::deleteAllChildren()
 	}
 }
 
+void DesignerObject::enqueueRenderWork(RenderWorkType work)
+{
+	getScene().enqueueObjectRenderWork(this, std::move(work));
+}
+
 void DesignerObject::setName(std::string name)
 {
 	// TODO: ensure unique name in scene

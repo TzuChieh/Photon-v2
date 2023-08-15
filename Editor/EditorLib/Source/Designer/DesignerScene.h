@@ -37,6 +37,7 @@ class Editor;
 class MainThreadUpdateContext;
 class MainThreadRenderUpdateContext;
 class RenderThreadCaller;
+class RenderData;
 
 PH_DECLARE_LOG_GROUP(DesignerScene);
 
@@ -45,6 +46,9 @@ class DesignerScene final
 	, private IMoveOnly
 {
 public:
+	// Work type should be kept in sync with `RenderThread::Work`
+	using RenderWorkType = TFunction<void(RenderData&)>;
+
 	static const char* defaultSceneName();
 
 public:
@@ -200,6 +204,8 @@ public:
 	template<typename PerObjectOperation>
 	void forEachUsableObject(PerObjectOperation op) const;
 
+	void enqueueObjectRenderWork(DesignerObject* obj, RenderWorkType work);
+
 	const Path& getWorkingDirectory() const;
 	void setWorkingDirectory(Path directory);
 	void setName(std::string name);
@@ -244,11 +250,17 @@ private:
 		bool isDone() const;
 	};
 
-	void queueCreateObjectAction(DesignerObject* obj);
-	void queueRemoveObjectAction(DesignerObject* obj);
-	void queueObjectTickAction(DesignerObject* obj, bool shouldTick);
-	void queueObjectRenderTickAction(DesignerObject* obj, bool shouldTick);
-	void queueSceneAction(SceneAction action);
+	struct RenderWork
+	{
+		RenderWorkType work;
+		DesignerObject* obj = nullptr;
+	};
+
+	void enqueueCreateObjectAction(DesignerObject* obj);
+	void enqueueRemoveObjectAction(DesignerObject* obj);
+	void enqueueObjectTickAction(DesignerObject* obj, bool shouldTick);
+	void enqueueObjectRenderTickAction(DesignerObject* obj, bool shouldTick);
+	void enqueueSceneAction(SceneAction action);
 
 	template<typename ObjectType, typename... DeducedArgs>
 	ObjectType* makeObjectFromStorage(DeducedArgs&&... args);
@@ -272,6 +284,7 @@ private:
 	std::vector<DesignerObject*> m_renderTickingObjs;
 	std::vector<DesignerObject*> m_selectedObjs;
 	std::vector<SceneAction> m_sceneActionQueue;
+	std::vector<RenderWork> m_renderWorkQueue;
 	std::size_t m_numSceneActionsToProcess;
 
 	Editor* m_editor;
