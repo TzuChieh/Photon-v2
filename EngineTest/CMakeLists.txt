@@ -29,12 +29,12 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 		
 	# In Visual Studio, Google Test Adapter may need a <filename>.is_google_test 
 	# file to automatically detect test cases (when googletest is built as .dll)
-	set(ENGINE_TEST_MARKER_FILE_DIR  "${BUILD_OUTPUT_DIR}/")
-	set(ENGINE_TEST_MARKER_FILE_PATH "${ENGINE_TEST_MARKER_FILE_DIR}/EngineTest.exe.is_google_test")
-	if(NOT EXISTS "${ENGINE_TEST_MARKER_FILE_PATH}")
-		file(MAKE_DIRECTORY "${ENGINE_TEST_MARKER_FILE_DIR}")
-		file(TOUCH          "${ENGINE_TEST_MARKER_FILE_PATH}")
-	endif()
+	foreach(FILE_DIR ${BUILD_OUTPUT_DIRS})
+		set(MARKER_FILE_PATH "${FILE_DIR}/EngineTest.exe.is_google_test")
+
+		file(MAKE_DIRECTORY ${FILE_DIR})
+		file(TOUCH          ${MARKER_FILE_PATH})
+	endforeach()
 endif()
 
 #add_custom_command(TARGET EngineTest

@@ -172,7 +172,8 @@ version in the following way (providing the caller object is actually non-`const
 ```C++
 const T& f() const
 {
-	return something_complicated();
+	// ... complex logics ...
+	return ...;
 }
 
 decltype(auto) f()
