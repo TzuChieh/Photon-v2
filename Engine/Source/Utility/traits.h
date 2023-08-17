@@ -88,4 +88,10 @@ The result is also `true` if both types are the same; `false` if one of them is 
 template<typename DerivedType, typename BaseType>
 concept CDerived = std::derived_from<DerivedType, BaseType>;
 
+/*! @brief Checks whether @p BaseType is a base of @p DerivedType.
+The result is also `true` if both types are the same; `false` if one of them is a primitive type.
+*/
+template<typename BaseType, typename DerivedType>
+concept CBase = std::derived_from<DerivedType, BaseType>;
+
 }// end namespace ph

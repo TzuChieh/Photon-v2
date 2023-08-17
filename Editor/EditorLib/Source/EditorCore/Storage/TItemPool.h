@@ -4,11 +4,14 @@
 
 #include <Common/assertion.h>
 #include <Utility/exception.h>
+#include <Utility/utility.h>
 
 #include <cstddef>
 #include <vector>
 #include <utility>
 #include <memory>
+#include <iterator>
+#include <type_traits>
 
 namespace ph::editor
 {
@@ -17,7 +20,106 @@ template<typename Item, typename Index = std::size_t, typename Generation = Inde
 class TItemPool final
 {
 public:
-	using HandleType = TWeakHandle<Item, Index, Generation>;
+	/*! If `Item` is a polymorphic type, then `Item` itself along with all its bases can form a
+	valid handle type. These compatible handles can be used for accessing items stored in the pool
+	(items obtained have the same item type indicated by the handle, for type safety).
+	*/
+	template<typename ItemType> requires std::is_scalar_v<Item> || CBase<ItemType, Item>
+	using TCompatibleHandleType = TWeakHandle<ItemType, Index, Generation>;
+
+	using HandleType = TCompatibleHandleType<Item>;
+
+public:
+	template<bool IS_CONST>
+	class TIterator
+	{
+	public:
+		using ItemType = std::conditional_t<IS_CONST, const Item, Item>;
+		using PoolType = std::conditional_t<IS_CONST, const TItemPool, TItemPool>;
+
+		// Standard iterator traits
+		using iterator_category = std::bidirectional_iterator_tag;
+		using value_type = ItemType;
+		using difference_type = std::ptrdiff_t;
+		using pointer = ItemType*;
+		using reference = ItemType&;
+
+		// Default constructible
+		inline TIterator() = default;
+
+		inline TIterator(PoolType* const pool, Index currentIdx)
+			: m_pool(pool)
+			, m_currentIdx(currentIdx)
+		{}
+
+		// Dereferenceable
+		inline reference operator * () const
+		{
+			PH_ASSERT(m_pool);
+			PH_ASSERT_LT(m_currentIdx, m_pool->m_storage.size());
+			PH_ASSERT(!m_pool->m_storageStates[m_currentIdx].isFreed);
+
+			return m_pool->m_storage[m_currentIdx];
+		}
+
+		// Pre-incrementable
+		inline TIterator& operator ++ ()
+		{
+			PH_ASSERT(m_pool);
+
+			++m_currentIdx;
+			m_currentIdx = m_pool->nextItemBeginIndex(m_currentIdx);
+			return *this;
+		}
+
+		// Post-incrementable
+		inline TIterator operator ++ (int)
+		{
+			TIterator current = *this;
+			++(*this);
+			return current;
+		}
+
+		// Pre-decrementable
+		inline TIterator& operator -- ()
+		{
+			PH_ASSERT(m_pool);
+
+			// Using current index as end index is equivalent to decrement by 1
+			m_currentIdx = m_pool->previousItemEndIndex(m_currentIdx);
+			PH_ASSERT_GT(m_currentIdx, 0);// If this method can be called, there must exist a previous
+			--m_currentIdx;               // item and `m_currentIdx` is impossible to reach 0 since
+			return *this;                 // it is used as an (exclusive) end index here.
+		}
+
+		// Post-decrementable
+		inline TIterator operator -- (int)
+		{
+			TIterator current = *this;
+			--(*this);
+			return current;
+		}
+
+		// Equality
+		inline bool operator == (const TIterator& rhs)
+		{
+			return m_currentIdx == rhs.m_currentIdx && m_pool == rhs.m_pool;
+		}
+
+		// Inequality
+		inline bool operator != (const TIterator& rhs)
+		{
+			return !(*this == rhs);
+		}
+
+	private:
+		PoolType* m_pool = nullptr;
+		Index m_currentIdx = HandleType::INVALID_INDEX;
+	};
+
+public:
+	using IteratorType = TIterator<false>;
+	using ConstIteratorType = TIterator<false>;
 
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
@@ -57,7 +159,8 @@ public:
 	/*!
 	Complexity: O(1).
 	*/
-	inline void remove(const HandleType& handle)
+	template<typename ItemType>
+	inline void remove(const TCompatibleHandleType<ItemType>& handle)
 	{
 		if(!isFresh(handle))
 		{
@@ -83,7 +186,8 @@ public:
 	/*!
 	Complexity: O(1).
 	*/
-	inline Item* get(const HandleType& handle)
+	template<typename ItemType>
+	inline ItemType* get(const TCompatibleHandleType<ItemType>& handle)
 	{
 		return isFresh(handle) ? &(m_storage[handle.getIndex()]) : nullptr;
 	}
@@ -91,7 +195,8 @@ public:
 	/*!
 	Complexity: O(1).
 	*/
-	inline const Item* get(const HandleType& handle) const
+	template<typename ItemType>
+	inline const ItemType* get(const TCompatibleHandleType<ItemType>& handle) const
 	{
 		return isFresh(handle) ? &(m_storage[handle.getIndex()]) : nullptr;
 	}
@@ -117,10 +222,72 @@ public:
 		return numFreeSpace() > 0;
 	}
 
-	inline bool isFresh(const HandleType& handle) const
+	template<typename ItemType>
+	inline bool isFresh(const TCompatibleHandleType<ItemType>& handle) const
 	{
 		return handle.getIndex() < m_storageStates.size() &&
 		       handle.getGeneration() == m_storageStates[handle.getIndex()].generation;
+	}
+
+	inline IteratorType begin()
+	{
+		return IteratorType(this, nextItemBeginIndex(0));
+	}
+
+	inline IteratorType end()
+	{
+		return IteratorType(this, m_storage.size());
+	}
+
+	inline ConstIteratorType cbegin()
+	{
+		return IteratorType(this, nextItemBeginIndex(0));
+	}
+
+	inline ConstIteratorType cend()
+	{
+		return IteratorType(this, m_storage.size());
+	}
+
+private:
+	inline Index nextItemBeginIndex(const Index beginIdx) const
+	{
+		// If failed, most likely be using an out-of-range iterator
+		PH_ASSERT_IN_RANGE_INCLUSIVE(beginIdx, 0, m_storage.size());
+
+		Index itemBeginIdx = beginIdx;
+		while(itemBeginIdx < m_storage.size())
+		{
+			if(m_storageStates[itemBeginIdx].isFreed)
+			{
+				++itemBeginIdx;
+			}
+			else
+			{
+				break;
+			}
+		}
+		return itemBeginIdx;
+	}
+
+	inline Index previousItemEndIndex(const Index endIdx) const
+	{
+		// If failed, most likely be using an out-of-range iterator
+		PH_ASSERT_IN_RANGE_INCLUSIVE(endIdx, 0, m_storage.size());
+
+		Index itemEndIdx = endIdx;
+		while(itemEndIdx > 0)
+		{
+			if(m_storageStates[itemEndIdx - 1].isFreed)
+			{
+				--itemEndIdx;
+			}
+			else
+			{
+				break;
+			}
+		}
+		return itemEndIdx;
 	}
 
 private:
