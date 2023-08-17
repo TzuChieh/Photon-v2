@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <vector>
 #include <utility>
+#include <memory>
 
 namespace ph::editor
 {
@@ -23,8 +24,33 @@ public:
 	*/
 	inline HandleType add(Item item)
 	{
-		const Index freeIdx = popFreeSpace();
-		m_storage[freeIdx].u_item = std::move(item);
+		PH_ASSERT_EQ(m_storage.size(), m_storageStates.size());
+
+		Index freeIdx = HandleType::INVALID_INDEX;
+
+		// Create new storage space
+		if(m_freeIndices.empty())
+		{
+			m_storage.push_back(std::move(item));
+			m_storageStates.push_back({.isFreed = false});
+			freeIdx = m_storage.size() - 1;
+		}
+		// Existing space available, get it and update free list head
+		else
+		{
+			freeIdx = m_freeIndices.back();
+			m_freeIndices.pop_back();
+			PH_ASSERT_LT(freeIdx, m_storage.size());
+
+			// `Item` was manually destroyed. No need for storing the returned pointer nor using
+			// `std::launder()` on each use (same object type with exactly the same storage location), 
+			// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
+			std::construct_at(&m_storage[freeIdx], std::move(item));
+
+			PH_ASSERT(m_storageStates[freeIdx].isFreed);
+			m_storageStates[freeIdx].isFreed = false;
+		}
+
 		return HandleType(freeIdx, m_storageStates[freeIdx].generation);
 	}
 
@@ -40,7 +66,18 @@ public:
 				handle.toString());
 		}
 
-		pushFreeSpace(handle.getIndex());
+		const Index freeIdx = handle.getIndex();
+		PH_ASSERT_LT(freeIdx, m_storage.size());
+
+		std::destroy_at(&m_storage[freeIdx]);
+
+		// Generally should not happen: the generation counter increases on each item removal, using
+		// the same handle to call this method again will result in `isFresh()` being false which
+		// will throw. If this fails, could be generation collision or bad handles (from wrong pool).
+		PH_ASSERT(!m_storageStates[freeIdx].isFreed);
+		m_storageStates[freeIdx].isFreed = true;
+		++m_storageStates[freeIdx].generation;
+		m_freeIndices.push_back(freeIdx);
 	}
 
 	/*!
@@ -48,7 +85,7 @@ public:
 	*/
 	inline Item* get(const HandleType& handle)
 	{
-		return isFresh(handle) ? &(m_storage[handle.getIndex()].u_item) : nullptr;
+		return isFresh(handle) ? &(m_storage[handle.getIndex()]) : nullptr;
 	}
 
 	/*!
@@ -56,7 +93,7 @@ public:
 	*/
 	inline const Item* get(const HandleType& handle) const
 	{
-		return isFresh(handle) ? &(m_storage[handle.getIndex()].u_item) : nullptr;
+		return isFresh(handle) ? &(m_storage[handle.getIndex()]) : nullptr;
 	}
 
 	inline Index numItems() const
@@ -67,7 +104,7 @@ public:
 
 	inline Index numFreeSpace() const
 	{
-		return m_numFreeIndices;
+		return m_freeIndices.size();
 	}
 
 	inline bool isEmpty() const
@@ -87,80 +124,15 @@ public:
 	}
 
 private:
-	inline Index popFreeSpace()
-	{
-		PH_ASSERT_EQ(m_storage.size(), m_storageStates.size());
-
-		// Existing space available, get it and update free list head
-		if(m_nextFreeIdx != HandleType::INVALID_INDEX)
-		{
-			PH_ASSERT_GT(m_numFreeIndices, 0);
-			const Index freeIdx = m_nextFreeIdx;
-			--m_numFreeIndices;
-
-			PH_ASSERT_LT(freeIdx, m_storage.size());
-			m_nextFreeIdx = m_storage[freeIdx].u_freedItem.nextFreeIdx;
-			m_storageStates[freeIdx].isFreed = false;
-			return freeIdx;
-		}
-		// Create new storage space
-		else
-		{
-			PH_ASSERT_EQ(m_numFreeIndices, 0);
-			PH_ASSERT_EQ(m_nextFreeIdx, HandleType::INVALID_INDEX);
-
-			StoredItem storedItem;
-			storedItem.u_freedItem = FreeListItem::makeInvalid();
-
-			m_storage.push_back(storedItem);
-			m_storageStates.push_back(StorageState{});
-			return m_storage.size() - 1;
-		}
-	}
-
-	inline void pushFreeSpace(const Index freeIdx)
-	{
-		PH_ASSERT_LT(freeIdx, m_storage.size());
-
-		FreeListItem freedItem;
-		freedItem.nextFreeIdx = m_nextFreeIdx;
-
-		m_storage[freeIdx].u_freedItem = freedItem;
-		++m_storageStates[freeIdx].generation;
-		m_storageStates[freeIdx].isFreed = true;
-		m_nextFreeIdx = freeIdx;
-		++m_numFreeIndices;
-	}
-
-private:
-	struct FreeListItem
-	{
-		Index nextFreeIdx;
-
-		inline static FreeListItem makeInvalid()
-		{
-			FreeListItem freedItem;
-			freedItem.nextFreeIdx = HandleType::INVALID_INDEX;
-			return freedItem;
-		}
-	};
-
-	union StoredItem
-	{
-		FreeListItem u_freedItem;
-		Item u_item;
-	};
-
 	struct StorageState
 	{
 		Index generation = 0;
 		bool isFreed = true;
 	};
 
-	std::vector<StoredItem> m_storage;
+	std::vector<Item> m_storage;
 	std::vector<StorageState> m_storageStates;
-	Index m_nextFreeIdx = HandleType::INVALID_INDEX;
-	Index m_numFreeIndices = 0;
+	std::vector<Index> m_freeIndices;
 };
 
 }// end namespace ph::editor
