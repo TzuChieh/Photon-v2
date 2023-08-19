@@ -237,5 +237,66 @@ TEST(TItemPoolTest, AddingAndRemovingItems)
 
 TEST(TItemPoolTest, RangedFor)
 {
-	// TODO
+	// Basic read-only looping
+	{
+		using Pool = TItemPool<std::unique_ptr<double>>;
+		using Handle = Pool::HandleType;
+
+		constexpr int numItems = 1000;
+
+		Pool pool;
+		for(int i = 0; i < numItems; ++i)
+		{
+			auto value = static_cast<double>(i);
+			pool.add(std::make_unique<double>(value));
+		}
+		ASSERT_EQ(pool.numItems(), numItems);
+
+		// Forward looping
+		{
+			int i = 0;
+			for(std::unique_ptr<double>& item : pool)
+			{
+				auto value = static_cast<double>(i);
+				EXPECT_EQ(*item, value);
+				++i;
+			}
+		}
+
+		// Backward looping
+		{
+			auto iter = pool.end();
+			int i = numItems - 1;
+			while(iter != pool.begin())
+			{
+				--iter;
+				auto value = static_cast<double>(i);
+				EXPECT_EQ(**iter, value);
+				--i;
+			}
+		}
+
+		// Mixed forward & backward advancements
+		{
+			auto iter = pool.begin();
+			std::advance(iter, 3);// at 3
+			EXPECT_EQ(**iter, 3.0);
+			std::advance(iter, -3);// at 0
+			EXPECT_EQ(**iter, 0.0);
+			std::advance(iter, 123);// at 123
+			EXPECT_EQ(**iter, 123.0);
+			std::advance(iter, -50);// at 73
+			EXPECT_EQ(**iter, 73.0);
+			std::advance(iter, -50);// at 23
+			EXPECT_EQ(**iter, 23.0);
+			std::advance(iter, 500);// at 523
+			EXPECT_EQ(**iter, 523.0);
+			std::advance(iter, -523);// at 0
+			EXPECT_EQ(**iter, 0.0);
+			std::advance(iter, 999);// at 999
+			EXPECT_EQ(**iter, 999.0);
+			std::advance(iter, 1);// at 1000 (end)
+			EXPECT_TRUE(iter == pool.end());
+		}
+	}
 }
