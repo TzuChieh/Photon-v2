@@ -23,11 +23,12 @@ public:
 	MemoryArena();
 
 	/*!
-	@param blockSizeInBytes Size of each memory block in the arena. This imposed a limit 
-	on the maximum size of a single allocation.
+	@param blockSizeHintInBytes Size of each memory block in the arena. This imposed a limit
+	on the maximum size of a single allocation. The parameter is only a hint, actual size may be
+	larger for performance reasons.
 	@param numDefaultBlocks Number of pre-allocated blocks.
 	*/
-	MemoryArena(std::size_t blockSizeInBytes, std::size_t numDefaultBlocks);
+	MemoryArena(std::size_t blockSizeHintInBytes, std::size_t numDefaultBlocks);
 	
 	inline MemoryArena(MemoryArena&& other) = default;
 

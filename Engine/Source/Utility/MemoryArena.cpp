@@ -13,10 +13,10 @@ namespace ph
 namespace
 {
 
-inline std::size_t determine_block_size(const std::size_t blockSizeInBytes)
+inline std::size_t determine_block_size(const std::size_t blockSizeHintInBytes)
 {
 	return math::next_power_of_2_multiple(
-		blockSizeInBytes, 
+		blockSizeHintInBytes,
 		os::get_L1_cache_line_size_in_bytes());
 }
 
@@ -44,9 +44,9 @@ MemoryArena::MemoryArena()
 	: MemoryArena(PH_MEMORY_ARENA_DEFAULT_BLOCK_SIZE_IN_BYTES, 0)
 {}
 
-MemoryArena::MemoryArena(const std::size_t blockSizeInBytes, const std::size_t numDefaultBlocks)
+MemoryArena::MemoryArena(const std::size_t blockSizeHintInBytes, const std::size_t numDefaultBlocks)
 	: m_blocks               (numDefaultBlocks)
-	, m_blockSizeInBytes     (determine_block_size(blockSizeInBytes))
+	, m_blockSizeInBytes     (determine_block_size(blockSizeHintInBytes))
 	, m_currentBlockIdx      (static_cast<std::size_t>(-1))
 	, m_blockPtr             (nullptr)
 	, m_remainingBytesInBlock(0)

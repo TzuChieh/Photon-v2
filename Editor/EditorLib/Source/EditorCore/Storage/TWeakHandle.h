@@ -20,6 +20,7 @@ public:
 	using GenerationType = Generation;
 
 	inline static constexpr auto INVALID_INDEX = std::numeric_limits<Index>::max();
+	inline static constexpr auto INVALID_GENERATION = 0;
 
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TWeakHandle);
 
@@ -52,7 +53,7 @@ public:
 	*/
 	inline bool isEmpty() const
 	{
-		return m_itemIdx == INVALID_INDEX;
+		return m_itemIdx == INVALID_INDEX || m_itemGeneration == INVALID_GENERATION;
 	}
 
 	inline std::string toString() const
@@ -72,7 +73,7 @@ public:
 
 private:
 	Index m_itemIdx = INVALID_INDEX;
-	Generation m_itemGeneration = 0;
+	Generation m_itemGeneration = INVALID_GENERATION;
 };
 
 }// end namespace ph::editor

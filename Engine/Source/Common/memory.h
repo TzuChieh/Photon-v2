@@ -18,6 +18,7 @@
 #include <cstddef>
 #include <bit>
 #include <memory>
+#include <type_traits>
 
 namespace ph
 {
@@ -103,8 +104,11 @@ static_assert(sizeof(TAlignedMemoryUniquePtr<void>) == sizeof(void*));
 
 /*! @brief Create an aligned memory resource.
 
-The returned memory resource will follow the life time of `std::unique_ptr`.
+The returned memory resource will follow the life time of `std::unique_ptr`. Note that the memory
+allocated by this function is raw memory--placement new is required before any use of the memory
+content, otherwise it is UB by C++ standard.
 
+@tparam T The type to create memory for. `alignmentInBytes` should be compatible with the type.
 @param numBytes Number of bytes to allocate. Must be an integer multiple of @p alignmentInBytes.
 @param alignmentInBytes How many bytes to align (so the returned pointer is an integer multiple
 of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof(void*)`.
@@ -115,6 +119,11 @@ template<typename T = void>
 inline auto make_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
 	-> TAlignedMemoryUniquePtr<T>
 {
+	if constexpr(!std::is_same_v<T, void>)
+	{
+		PH_ASSERT_EQ(alignmentInBytes % alignof(T), 0);
+	}
+
 	void* const ptr = detail::allocate_aligned_memory(numBytes, alignmentInBytes);
 
 	return ptr != nullptr

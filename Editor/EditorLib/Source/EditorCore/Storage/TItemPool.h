@@ -3,6 +3,9 @@
 #include "EditorCore/Storage/TWeakHandle.h"
 
 #include <Common/assertion.h>
+#include <Common/memory.h>
+#include <Common/os.h>
+#include <Common/math_basics.h>
 #include <Utility/exception.h>
 #include <Utility/utility.h>
 
@@ -12,6 +15,10 @@
 #include <memory>
 #include <iterator>
 #include <type_traits>
+#include <concepts>
+#include <new>
+#include <limits>
+#include <numeric>
 
 namespace ph::editor
 {
@@ -19,6 +26,8 @@ namespace ph::editor
 template<typename Item, typename Index = std::size_t, typename Generation = Index>
 class TItemPool final
 {
+	static_assert(std::move_constructible<Item>);
+
 public:
 	/*! If `Item` is a polymorphic type, then `Item` itself along with all its bases can form a
 	valid handle type. These compatible handles can be used for accessing items stored in the pool
@@ -56,10 +65,10 @@ public:
 		inline reference operator * () const
 		{
 			PH_ASSERT(m_pool);
-			PH_ASSERT_LT(m_currentIdx, m_pool->m_storage.size());
+			PH_ASSERT_LT(m_currentIdx, m_pool->m_storageStates.size());
 			PH_ASSERT(!m_pool->m_storageStates[m_currentIdx].isFreed);
 
-			return m_pool->m_storage[m_currentIdx];
+			return m_pool->m_storageMemory.get()[m_currentIdx];
 		}
 
 		// Pre-incrementable
@@ -121,37 +130,72 @@ public:
 	using IteratorType = TIterator<false>;
 	using ConstIteratorType = TIterator<false>;
 
+	inline TItemPool() = default;
+
+	inline TItemPool(const TItemPool& other) requires std::copy_constructible<Item>
+		: m_storageMemory()
+		, m_storageStates(other.m_storageStates)
+		, m_freeIndices(other.m_freeIndices)
+	{
+		grow(other.capacity());
+
+		other.forEachItem(
+			[items = m_storageMemory.get()](Item* otherItem, Index idx)
+			{
+				std::construct_at(items + idx, *otherItem);
+			});
+	}
+
+	inline TItemPool(TItemPool&& other) noexcept = default;
+
+	inline TItemPool& operator = (TItemPool rhs)
+	{
+		using std::swap;
+
+		swap(*this, rhs);
+
+		return *this;
+	}
+
+	inline ~TItemPool()
+	{
+		clear();
+
+		// All storage spaces should be freed at the end
+		PH_ASSERT_EQ(m_freeIndices.size(), m_storageStates.size());
+	}
+
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
 	*/
 	inline HandleType add(Item item)
 	{
-		PH_ASSERT_EQ(m_storage.size(), m_storageStates.size());
-
-		Index freeIdx = HandleType::INVALID_INDEX;
-
 		// Create new storage space
 		if(m_freeIndices.empty())
 		{
-			m_storage.push_back(std::move(item));
-			m_storageStates.push_back({.isFreed = false});
-			freeIdx = m_storage.size() - 1;
-		}
-		// Existing space available, get it and update free list head
-		else
-		{
-			freeIdx = m_freeIndices.back();
-			m_freeIndices.pop_back();
-			PH_ASSERT_LT(freeIdx, m_storage.size());
+			if(capacity() == maxCapacity())
+			{
+				throw_formatted<OverflowException>(
+					"Storage size will exceed the maximum amount Index type can hold (max={})",
+					std::numeric_limits<Index>::max());
+			}
 
-			// `Item` was manually destroyed. No need for storing the returned pointer nor using
-			// `std::launder()` on each use (same object type with exactly the same storage location), 
-			// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
-			std::construct_at(&m_storage[freeIdx], std::move(item));
-
-			PH_ASSERT(m_storageStates[freeIdx].isFreed);
-			m_storageStates[freeIdx].isFreed = false;
+			grow(nextCapacity(capacity()));
 		}
+
+		PH_ASSERT_GT(m_freeIndices.size(), 0);
+
+		const Index freeIdx = m_freeIndices.back();
+		PH_ASSERT_LT(freeIdx, m_storageStates.size());
+		PH_ASSERT(m_storageStates[freeIdx].isFreed);
+
+		// `Item` was manually destroyed. No need for storing the returned pointer nor using
+		// `std::launder()` on each use (same object type with exactly the same storage location), 
+		// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
+		std::construct_at(m_storageMemory.get() + freeIdx, std::move(item));
+
+		m_freeIndices.pop_back();
+		m_storageStates[freeIdx].isFreed = false;
 
 		return HandleType(freeIdx, m_storageStates[freeIdx].generation);
 	}
@@ -169,18 +213,28 @@ public:
 				handle.toString());
 		}
 
-		const Index freeIdx = handle.getIndex();
-		PH_ASSERT_LT(freeIdx, m_storage.size());
-
-		std::destroy_at(&m_storage[freeIdx]);
+		const Index itemIdx = handle.getIndex();
 
 		// Generally should not happen: the generation counter increases on each item removal, using
 		// the same handle to call this method again will result in `isFresh()` being false which
 		// will throw. If this fails, could be generation collision or bad handles (from wrong pool).
-		PH_ASSERT(!m_storageStates[freeIdx].isFreed);
-		m_storageStates[freeIdx].isFreed = true;
-		++m_storageStates[freeIdx].generation;
-		m_freeIndices.push_back(freeIdx);
+		PH_ASSERT(!m_storageStates[itemIdx].isFreed);
+
+		removeItemAt(itemIdx);
+	}
+
+	inline void clear()
+	{
+		if(isEmpty())
+		{
+			return;
+		}
+
+		forEachItem(
+			[this](Item* /* item */, Index idx)
+			{
+				removeItemAt(idx);
+			});
 	}
 
 	/*!
@@ -189,7 +243,7 @@ public:
 	template<typename ItemType>
 	inline ItemType* get(const TCompatibleHandleType<ItemType>& handle)
 	{
-		return isFresh(handle) ? &(m_storage[handle.getIndex()]) : nullptr;
+		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
 
 	/*!
@@ -198,13 +252,13 @@ public:
 	template<typename ItemType>
 	inline const ItemType* get(const TCompatibleHandleType<ItemType>& handle) const
 	{
-		return isFresh(handle) ? &(m_storage[handle.getIndex()]) : nullptr;
+		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
 
 	inline Index numItems() const
 	{
-		PH_ASSERT_LE(numFreeSpace(), m_storage.size());
-		return m_storage.size() - numFreeSpace();
+		PH_ASSERT_LE(numFreeSpace(), capacity());
+		return capacity() - numFreeSpace();
 	}
 
 	inline Index numFreeSpace() const
@@ -212,6 +266,15 @@ public:
 		return m_freeIndices.size();
 	}
 
+	inline Index capacity() const
+	{
+		PH_ASSERT_LE(m_storageStates.size(), maxCapacity());
+		return static_cast<Index>(m_storageStates.size());
+	}
+
+	/*!
+	@return Wether this pool contains any item.
+	*/
 	inline bool isEmpty() const
 	{
 		return numItems() == 0;
@@ -236,7 +299,7 @@ public:
 
 	inline IteratorType end()
 	{
-		return IteratorType(this, m_storage.size());
+		return IteratorType(this, capacity());
 	}
 
 	inline ConstIteratorType cbegin()
@@ -246,17 +309,100 @@ public:
 
 	inline ConstIteratorType cend()
 	{
-		return IteratorType(this, m_storage.size());
+		return IteratorType(this, capacity());
+	}
+
+	inline static constexpr Index maxCapacity()
+	{
+		return std::numeric_limits<Index>::max();
 	}
 
 private:
+	inline void removeItemAt(const Index itemIdx)
+	{
+		PH_ASSERT_LT(itemIdx, capacity());
+		PH_ASSERT(!m_storageStates[itemIdx].isFreed);
+
+		std::destroy_at(m_storageMemory.get() + itemIdx);
+		
+		m_storageStates[itemIdx].isFreed = true;
+		m_storageStates[itemIdx].generation = nextGeneration(m_storageStates[itemIdx].generation);
+		m_freeIndices.push_back(itemIdx);
+	}
+
+	inline void grow(const Index newCapacity)
+	{
+		const Index oldCapacity = capacity();
+		PH_ASSERT_GT(newCapacity, oldCapacity);
+
+		const auto requiredMemorySize = newCapacity * sizeof(Item);
+		const auto alignmentSize = std::lcm(alignof(Item), os::get_L1_cache_line_size_in_bytes());
+		const auto totalMemorySize = math::next_multiple(requiredMemorySize, alignmentSize);
+
+		// Create new item storage and move item over
+
+		TAlignedMemoryUniquePtr<Item> newStorageMemory = 
+			make_aligned_memory<Item>(totalMemorySize, alignmentSize);
+		if(!newStorageMemory)
+		{
+			throw std::bad_alloc();
+		}
+
+		forEachItem(
+			[newItems = newStorageMemory.get()](Item* oldItem, Index idx)
+			{
+				std::construct_at(newItems + idx, std::move(*oldItem));
+				std::destroy_at(oldItem);
+			});
+
+		// Extend storage states to cover new storage spaces
+		m_storageStates.resize(newCapacity, StorageState{});
+
+		// All new storage spaces are free. Indices are added backwards as free spaces are reused in
+		// LIFO order, we want to use spaces closer to other items first.
+		std::vector<Index> newFreeIndices;
+		newFreeIndices.reserve(newCapacity - oldCapacity);
+		for(Index n = newCapacity; n > oldCapacity; --n)
+		{
+			const Index newFreeIdx = n - 1;
+			newFreeIndices.push_back(newFreeIdx);
+		}
+		m_freeIndices.insert(m_freeIndices.begin(), newFreeIndices.begin(), newFreeIndices.end());
+
+		// Finally, get rid of the old item storage
+		m_storageMemory = std::move(newStorageMemory);
+	}
+
+	template<typename PerItemStorageOp>
+	inline void forEachItemStorage(PerItemStorageOp op)
+	{
+		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
+		{
+			op(m_storageMemory.get() + itemIdx, itemIdx);
+		}
+	}
+
+	template<typename PerItemOp>
+	inline void forEachItem(PerItemOp op)
+	{
+		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
+		{
+			if(m_storageStates[itemIdx].isFreed)
+			{
+				continue;
+			}
+
+			op(m_storageMemory.get() + itemIdx, itemIdx);
+		}
+	}
+
 	inline Index nextItemBeginIndex(const Index beginIdx) const
 	{
 		// If failed, most likely be using an out-of-range iterator
-		PH_ASSERT_IN_RANGE_INCLUSIVE(beginIdx, 0, m_storage.size());
+		PH_ASSERT_IN_RANGE_INCLUSIVE(beginIdx, 0, capacity());
 
 		Index itemBeginIdx = beginIdx;
-		while(itemBeginIdx < m_storage.size())
+		while(itemBeginIdx < capacity())
 		{
 			if(m_storageStates[itemBeginIdx].isFreed)
 			{
@@ -273,7 +419,7 @@ private:
 	inline Index previousItemEndIndex(const Index endIdx) const
 	{
 		// If failed, most likely be using an out-of-range iterator
-		PH_ASSERT_IN_RANGE_INCLUSIVE(endIdx, 0, m_storage.size());
+		PH_ASSERT_IN_RANGE_INCLUSIVE(endIdx, 0, capacity());
 
 		Index itemEndIdx = endIdx;
 		while(itemEndIdx > 0)
@@ -290,14 +436,34 @@ private:
 		return itemEndIdx;
 	}
 
+	inline static constexpr Index nextGeneration(const Index currentGeneration)
+	{
+		Index nextGen = currentGeneration + 1;
+		if(nextGen == HandleType::INVALID_GENERATION)
+		{
+			++nextGen;
+		}
+		return nextGen;
+	}
+
+	inline static constexpr Index nextCapacity(const Index currentCapacity)
+	{
+		// Effective growth rate k = 1.5
+		const Index oldCapacity = currentCapacity;
+		const Index additionalCapacity = oldCapacity / 2 + 1;
+		const Index newCapacity = (maxCapacity() - oldCapacity >= additionalCapacity)
+			? oldCapacity + additionalCapacity : maxCapacity();
+		return newCapacity;
+	}
+
 private:
 	struct StorageState
 	{
-		Index generation = 0;
+		Index generation = nextGeneration(HandleType::INVALID_GENERATION);
 		bool isFreed = true;
 	};
 
-	std::vector<Item> m_storage;
+	TAlignedMemoryUniquePtr<Item> m_storageMemory;
 	std::vector<StorageState> m_storageStates;
 	std::vector<Index> m_freeIndices;
 };
