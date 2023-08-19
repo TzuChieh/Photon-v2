@@ -240,8 +240,6 @@ TEST(TItemPoolTest, RangedFor)
 	// Basic read-only looping
 	{
 		using Pool = TItemPool<std::unique_ptr<double>>;
-		using Handle = Pool::HandleType;
-
 		constexpr int numItems = 1000;
 
 		Pool pool;
@@ -297,6 +295,61 @@ TEST(TItemPoolTest, RangedFor)
 			EXPECT_EQ(**iter, 999.0);
 			std::advance(iter, 1);// at 1000 (end)
 			EXPECT_TRUE(iter == pool.end());
+		}
+	}
+}
+
+TEST(TItemPoolTest, CopyAndMove)
+{
+	// Trivial item type
+	{
+		using Pool = TItemPool<int>;
+		constexpr int numItems = 1000;
+
+		Pool pool;
+		for(int i = 0; i < numItems; ++i)
+		{
+			pool.add(i);
+		}
+		EXPECT_EQ(pool.numItems(), numItems);
+
+		// Copy
+		{
+			Pool copiedPool = pool;
+			EXPECT_EQ(copiedPool.numItems(), numItems);
+
+			int i = 0;
+			for(int value : copiedPool)
+			{
+				EXPECT_EQ(value, i);
+				++i;
+			}
+			EXPECT_EQ(i, numItems);
+		}
+
+		// Move
+		{
+			Pool movedPool;
+			{
+				Pool movedFromPool = pool;
+				movedPool = std::move(movedFromPool);
+
+				// Empty after being moved from
+				EXPECT_EQ(movedFromPool.numItems(), 0);
+
+				// `movedPool` was empty, `movedFromPool` should give all its free space to `movedPool`
+				// and now has no free space
+				EXPECT_EQ(movedFromPool.numFreeSpace(), 0);
+			}
+			EXPECT_EQ(movedPool.numItems(), numItems);
+
+			int i = 0;
+			for(int value : movedPool)
+			{
+				EXPECT_EQ(value, i);
+				++i;
+			}
+			EXPECT_EQ(i, numItems);
 		}
 	}
 }

@@ -132,17 +132,18 @@ public:
 
 	inline TItemPool() = default;
 
+	/*! @brief Copy items stored in `other` into this pool.
+	Handles that were originally valid for `other` will no longer valid for this pool.
+	*/
 	inline TItemPool(const TItemPool& other) requires std::copy_constructible<Item>
-		: m_storageMemory()
-		, m_storageStates(other.m_storageStates)
-		, m_freeIndices(other.m_freeIndices)
+		: TItemPool()
 	{
 		grow(other.capacity());
 
 		other.forEachItem(
-			[items = m_storageMemory.get()](Item* otherItem, Index idx)
+			[this](const Item* otherItem, Index /* idx */)
 			{
-				std::construct_at(items + idx, *otherItem);
+				add(*otherItem);
 			});
 	}
 
@@ -317,6 +318,16 @@ public:
 		return std::numeric_limits<Index>::max();
 	}
 
+	inline friend void swap(TItemPool& first, TItemPool& second)
+	{
+		// Enable ADL
+		using std::swap;
+
+		swap(first.m_storageMemory, second.m_storageMemory);
+		swap(first.m_storageStates, second.m_storageStates);
+		swap(first.m_freeIndices, second.m_freeIndices);
+	}
+
 private:
 	inline void removeItemAt(const Index itemIdx)
 	{
@@ -378,22 +389,49 @@ private:
 	{
 		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
 		{
-			op(m_storageMemory.get() + itemIdx, itemIdx);
+			Item* item = m_storageMemory.get() + itemIdx;
+			op(item, itemIdx);
+		}
+	}
+
+	template<typename PerItemStorageOp>
+	inline void forEachItemStorage(PerItemStorageOp op) const
+	{
+		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
+		{
+			const Item* item = m_storageMemory.get() + itemIdx;
+			op(item, itemIdx);
 		}
 	}
 
 	template<typename PerItemOp>
 	inline void forEachItem(PerItemOp op)
 	{
-		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
-		{
-			if(m_storageStates[itemIdx].isFreed)
+		forEachItemStorage(
+			[op, this](Item* item, Index idx)
 			{
-				continue;
-			}
+				if(m_storageStates[idx].isFreed)
+				{
+					return;
+				}
 
-			op(m_storageMemory.get() + itemIdx, itemIdx);
-		}
+				op(item, idx);
+			});
+	}
+
+	template<typename PerItemOp>
+	inline void forEachItem(PerItemOp op) const
+	{
+		forEachItemStorage(
+			[op, this](const Item* item, Index idx)
+			{
+				if(m_storageStates[idx].isFreed)
+				{
+					return;
+				}
+
+				op(item, idx);
+			});
 	}
 
 	inline Index nextItemBeginIndex(const Index beginIdx) const
