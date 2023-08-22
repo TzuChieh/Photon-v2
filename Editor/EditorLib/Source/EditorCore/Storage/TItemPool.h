@@ -2,6 +2,7 @@
 
 #include "EditorCore/Storage/TItemPoolInterface.h"
 #include "EditorCore/Storage/TWeakHandle.h"
+#include "EditorCore/Storage/TStrongHandle.h"
 
 #include <Common/assertion.h>
 #include <Common/memory.h>
@@ -24,18 +25,14 @@
 namespace ph::editor
 {
 
-template<
-	typename Item, 
-	typename Index = std::size_t, 
-	typename Generation = Index, 
-	typename ItemAccessor = Item*,
-	typename ItemViewer = const Item*>
-class TItemPool
-	: public TItemPoolInterface<ItemAccessor, ItemViewer, TWeakHandle<Item, Index, Generation>>
+template<typename Item, CWeakHandle Handle = TWeakHandle<Item>, typename ItemInterface = Item>
+class TItemPool : public TItemPoolInterface<ItemInterface, Handle>
 {
 	static_assert(std::move_constructible<Item>);
 
-	using Base = TItemPoolInterface<ItemAccessor, ItemViewer, TWeakHandle<Item, Index, Generation>>;
+	using Base = TItemPoolInterface<ItemInterface, Handle>;
+	using Index = typename Handle::IndexType;
+	using Generation = typename Handle::GenerationType;
 
 public:
 	/*! If `Item` is a polymorphic type, then `Item` itself along with all its bases can form a
@@ -45,9 +42,7 @@ public:
 	template<typename ItemType> requires std::is_scalar_v<Item> || CBase<ItemType, Item>
 	using TCompatibleHandleType = TWeakHandle<ItemType, Index, Generation>;
 
-	using HandleType = typename Base::HandleType;
-
-	static_assert(std::is_same_v<HandleType, TCompatibleHandleType<Item>>,
+	static_assert(std::is_same_v<typename Base::HandleType, TCompatibleHandleType<Item>>,
 		"TItemPoolInterface is not using a compatible HandleType.");
 
 public:
@@ -135,7 +130,7 @@ public:
 
 	private:
 		PoolType* m_pool = nullptr;
-		Index m_currentIdx = HandleType::INVALID_INDEX;
+		Index m_currentIdx = Handle::INVALID_INDEX;
 	};
 
 public:
@@ -178,20 +173,20 @@ public:
 		PH_ASSERT_EQ(m_freeIndices.size(), m_storageStates.size());
 	}
 
-	inline ItemAccessor accessItem(const HandleType& handle) override
+	inline ItemInterface* accessItem(const Handle& handle) override
 	{
-		return ItemAccessor{get(handle)};
+		return get(handle);
 	}
 
-	inline ItemViewer viewItem(const HandleType& handle) const override
+	inline const ItemInterface* viewItem(const Handle& handle) const override
 	{
-		return ItemViewer{get(handle)};
+		return get(handle);
 	}
 
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
 	*/
-	inline HandleType add(Item item)
+	inline Handle add(Item item)
 	{
 		// Potentially create new storage space
 		if(!hasFreeSpace())
@@ -220,7 +215,7 @@ public:
 		m_freeIndices.pop_back();
 		m_storageStates[freeIdx].isFreed = false;
 
-		return HandleType(freeIdx, m_storageStates[freeIdx].generation);
+		return Handle(freeIdx, m_storageStates[freeIdx].generation);
 	}
 
 	/*!
@@ -276,6 +271,19 @@ public:
 	inline const ItemType* get(const TCompatibleHandleType<ItemType>& handle) const
 	{
 		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
+	}
+
+	template<typename ItemType>
+	inline auto getStrong(const TCompatibleHandleType<ItemType>& handle)
+	-> TStrongHandle<ItemInterface, Index, Generation>
+	{
+		using StrongHandle = TStrongHandle<ItemInterface, Index, Generation>;
+		using EmbeddedWeakHandle = typename StrongHandle::WeakHandleType;
+
+		static_assert(std::convertible_to<decltype(handle), EmbeddedWeakHandle>,
+			"Input handle type cannot be converted to a strong handle.");
+
+		return StrongHandle(EmbeddedWeakHandle(handle), this);
 	}
 
 	inline Index numItems() const
@@ -499,7 +507,7 @@ private:
 	inline static constexpr Index nextGeneration(const Index currentGeneration)
 	{
 		Index nextGen = currentGeneration + 1;
-		if(nextGen == HandleType::INVALID_GENERATION)
+		if(nextGen == Handle::INVALID_GENERATION)
 		{
 			++nextGen;
 		}
@@ -519,7 +527,7 @@ private:
 private:
 	struct StorageState
 	{
-		Index generation = nextGeneration(HandleType::INVALID_GENERATION);
+		Index generation = nextGeneration(Handle::INVALID_GENERATION);
 		bool isFreed = true;
 	};
 

@@ -1,5 +1,6 @@
 #include <EditorCore/Storage/TItemPool.h>
 #include <EditorCore/Storage/TWeakHandle.h>
+#include <EditorCore/Storage/TStrongHandle.h>
 
 #include <gtest/gtest.h>
 
@@ -350,6 +351,83 @@ TEST(TItemPoolTest, CopyAndMove)
 				++i;
 			}
 			EXPECT_EQ(i, numItems);
+		}
+	}
+}
+
+TEST(TItemPoolTest, StrongHandleAccess)
+{
+	// Basic read only
+	{
+		using Pool = TItemPool<int>;
+		using Handle = TStrongHandle<int>;
+
+		constexpr int numItems = 1000;
+
+		std::vector<Handle> handles;
+		Pool pool;
+		for(int i = 0; i < numItems; ++i)
+		{
+			auto weakHandle = pool.add(i);
+			auto strongHandle = pool.getStrong(weakHandle);
+
+			EXPECT_TRUE(strongHandle);
+			handles.push_back(strongHandle);
+		}
+
+		for(int i = 0; i < numItems; ++i)
+		{
+			ASSERT_TRUE(handles[i].viewItem());
+			EXPECT_EQ(*(handles[i].viewItem()), i);
+		}
+	}
+
+	// Basic write & changing pool items
+	{
+		using Pool = TItemPool<int>;
+		using Handle = TStrongHandle<int>;
+
+		constexpr int numItems = 1000;
+
+		std::vector<Handle> handles;
+		Pool pool;
+		for(int i = 0; i < numItems; ++i)
+		{
+			auto weakHandle = pool.add(i);
+			auto strongHandle = pool.getStrong(weakHandle);
+
+			EXPECT_TRUE(strongHandle);
+			handles.push_back(strongHandle);
+		}
+
+		// Make all items 2x
+		for(int i = 0; i < numItems; ++i)
+		{
+			ASSERT_TRUE(handles[i].accessItem());
+			EXPECT_EQ(*(handles[i].accessItem()), i);
+
+			*(handles[i].accessItem()) = i * 2;
+		}
+
+		for(int i = 0; i < numItems; ++i)
+		{
+			ASSERT_TRUE(handles[i].accessItem());
+			EXPECT_EQ(*(handles[i].accessItem()), i * 2);
+		}
+
+		// Remove the first item
+		pool.remove(handles.front().getWeak());
+		EXPECT_EQ(pool.numItems(), numItems - 1);
+		EXPECT_TRUE(handles.front());
+		EXPECT_FALSE(handles.front().viewItem());
+		EXPECT_FALSE(handles.front().accessItem());
+
+		// Remove all remaining items
+		pool.clear();
+		for(int i = 0; i < numItems; ++i)
+		{
+			EXPECT_FALSE(handles[i].viewItem());
+			EXPECT_FALSE(handles[i].accessItem());
 		}
 	}
 }

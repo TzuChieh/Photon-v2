@@ -1,20 +1,21 @@
 #pragma once
 
+#include "EditorCore/Storage/fwd.h"
+
 namespace ph::editor
 {
 
-template<typename ItemAccessor, typename ItemViewer, typename Handle>
+template<typename ItemInterface, CWeakHandle Handle>
 class TItemPoolInterface
 {
 public:
-	using ItemAccessType = ItemAccessor;
-	using ItemViewType = ItemViewer;
+	using ItemInterfaceType = ItemInterface;
 	using HandleType = Handle;
 
 	inline virtual ~TItemPoolInterface() = default;
 
-	virtual ItemAccessor accessItem(const Handle& handle) = 0;
-	virtual ItemViewer viewItem(const Handle& handle) const = 0;
+	virtual ItemInterface* accessItem(const Handle& handle) = 0;
+	virtual const ItemInterface* viewItem(const Handle& handle) const = 0;
 };
 
 }// end namespace ph::editor

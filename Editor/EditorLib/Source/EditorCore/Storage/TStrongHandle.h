@@ -1,47 +1,35 @@
 #pragma once
 
+#include "EditorCore/Storage/fwd.h"
 #include "EditorCore/Storage/TWeakHandle.h"
 
-#include <Utility/traits.h>
-#include <Utility/utility.h>
+#include <Common/assertion.h>
 
 #include <cstddef>
-#include <limits>
-#include <string>
 
 namespace ph::editor
 {
 
-template<typename Item, typename Index = std::size_t, typename Generation = Index>
+template<typename ItemInterface, typename Index = std::size_t, typename Generation = Index>
 class TStrongHandle final
 {
 public:
-	using WeakHandleType = TWeakHandle<Item, Index, Generation>;
+	using WeakHandleType = TWeakHandle<ItemInterface, Index, Generation>;
+	using PoolType = TItemPoolInterface<ItemInterface, WeakHandleType>;
 
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TStrongHandle);
 
-	inline TStrongHandle(Index itemIdx, Generation itemGeneration)
-		: m_itemIdx(itemIdx)
-		, m_itemGeneration(itemGeneration)
+	inline TStrongHandle(const WeakHandleType& weakHandle, PoolType* const pool)
+		: m_pool(pool)
+		, m_weakHandle(weakHandle)
 	{}
 
 	/*!
-	Implicit conversion from a derived item type to base item type is allowed. Modeling the same
-	behavior as pointers.
+	@return The underlying weak handle.
 	*/
-	template<CDerived<Item> DerivedItem>
-	inline TWeakHandle(const TWeakHandle<DerivedItem, Index, Generation>& otherHandle)
-		: TWeakHandle(otherHandle.getIndex(), otherHandle.getGeneration())
-	{}
-
-	inline Index getIndex() const
+	inline const WeakHandleType& getWeak() const
 	{
-		return m_itemIdx;
-	}
-
-	inline Generation getGeneration() const
-	{
-		return m_itemGeneration;
+		return m_weakHandle;
 	}
 
 	/*!
@@ -49,12 +37,20 @@ public:
 	*/
 	inline bool isEmpty() const
 	{
-		return m_itemIdx == INVALID_INDEX || m_itemGeneration == INVALID_GENERATION;
+		return !m_pool || m_weakHandle.isEmpty();
 	}
 
-	inline std::string toString() const
+	ItemInterface* accessItem();
+	const ItemInterface* viewItem() const;
+
+	inline ItemInterface* operator -> ()
 	{
-		return "index=" + std::to_string(m_itemIdx) + ", generation=" + std::to_string(m_itemGeneration);
+		return accessItem();
+	}
+
+	inline const ItemInterface* operator -> () const
+	{
+		return viewItem();
 	}
 
 	/*!
@@ -65,11 +61,32 @@ public:
 		return !isEmpty();
 	}
 
-	inline bool operator == (const TWeakHandle& rhs) const = default;
+	inline bool operator == (const TStrongHandle& rhs) const = default;
 
 private:
+	PoolType* m_pool = nullptr;
 	WeakHandleType m_weakHandle;
-	Generation m_itemGeneration = INVALID_GENERATION;
 };
+
+}// end namespace ph::editor
+
+#include "EditorCore/Storage/TItemPoolInterface.h"
+
+namespace ph::editor
+{
+
+template<typename ItemInterface, typename Index, typename Generation>
+inline ItemInterface* TStrongHandle<ItemInterface, Index, Generation>::accessItem()
+{
+	PH_ASSERT(!isEmpty());
+	return m_pool->accessItem(m_weakHandle);
+}
+
+template<typename ItemInterface, typename Index, typename Generation>
+inline const ItemInterface* TStrongHandle<ItemInterface, Index, Generation>::viewItem() const
+{
+	PH_ASSERT(!isEmpty());
+	return m_pool->viewItem(m_weakHandle);
+}
 
 }// end namespace ph::editor

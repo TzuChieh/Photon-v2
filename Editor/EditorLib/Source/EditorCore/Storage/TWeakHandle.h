@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EditorCore/Storage/fwd.h"
+
 #include <Utility/traits.h>
 #include <Utility/utility.h>
 
@@ -14,6 +16,7 @@ template<typename Item, typename Index = std::size_t, typename Generation = Inde
 class TWeakHandle final
 {
 public:
+	using WeakHandleTag = void;
 	using ItemType = Item;
 	using IndexType = Index;
 	using GenerationType = Generation;
