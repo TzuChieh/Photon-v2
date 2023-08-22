@@ -17,7 +17,7 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 
 * [**Project Website**](https://tzuchieh.github.io/photon_v2_what_is_photon.html)
 * [**Features**](https://tzuchieh.github.io/photon_v2_features.html)
-* [**Discord**](https://discord.gg/tqkdSDt) (you can discuss Photon and rendering related topics with me here ^_^)
+* [**Discord**](https://discord.gg/tqkdSDt) (you can discuss graphics with me here ^_^)
 
 ## Contributing
 
