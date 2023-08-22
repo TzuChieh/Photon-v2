@@ -30,7 +30,15 @@ public:
 	*/
 	MemoryArena(std::size_t blockSizeHintInBytes, std::size_t numDefaultBlocks);
 	
+	/*! @beif Move another arena into this one.
+	The moved-from arena cannot be used unless:
+	1. yet another arena has moved into it
+	2. `clear()` has been called.
+	*/
+	///@{
 	inline MemoryArena(MemoryArena&& other) = default;
+	inline MemoryArena& operator = (MemoryArena&& rhs) = default;
+	///@}
 
 	~MemoryArena();
 
@@ -55,8 +63,6 @@ public:
 	std::size_t numAllocatedBytes() const;
 	std::size_t getBlockSizeInBytes() const;
 	std::size_t numAllocatedBlocks() const;
-
-	inline MemoryArena& operator = (MemoryArena&& rhs) = default;
 
 	/*! @brief Allocate raw memory for type @p T.
 	Convenient method for allocating raw memory for object of type @p T. Alignment is handled

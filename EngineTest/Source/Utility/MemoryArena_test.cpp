@@ -10,6 +10,7 @@ using namespace ph;
 
 TEST(MemoryArenaTest, ConstructAndMove)
 {
+	// Basic construction
 	{
 		MemoryArena arena;
 		EXPECT_EQ(arena.numAllocatedBlocks(), 0);
@@ -17,6 +18,7 @@ TEST(MemoryArenaTest, ConstructAndMove)
 		EXPECT_EQ(arena.numUsedBytes(), 0);
 	}
 
+	// Basic construction with move
 	{
 		MemoryArena arena(1024 * 16, 3);
 		EXPECT_EQ(arena.numAllocatedBlocks(), 3);

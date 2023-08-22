@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EditorCore/Storage/TItemPoolInterface.h"
 #include "EditorCore/Storage/TWeakHandle.h"
 
 #include <Common/assertion.h>
@@ -23,10 +24,18 @@
 namespace ph::editor
 {
 
-template<typename Item, typename Index = std::size_t, typename Generation = Index>
-class TItemPool final
+template<
+	typename Item, 
+	typename Index = std::size_t, 
+	typename Generation = Index, 
+	typename ItemAccessor = Item*,
+	typename ItemViewer = const Item*>
+class TItemPool
+	: public TItemPoolInterface<ItemAccessor, ItemViewer, TWeakHandle<Item, Index, Generation>>
 {
 	static_assert(std::move_constructible<Item>);
+
+	using Base = TItemPoolInterface<ItemAccessor, ItemViewer, TWeakHandle<Item, Index, Generation>>;
 
 public:
 	/*! If `Item` is a polymorphic type, then `Item` itself along with all its bases can form a
@@ -36,7 +45,10 @@ public:
 	template<typename ItemType> requires std::is_scalar_v<Item> || CBase<ItemType, Item>
 	using TCompatibleHandleType = TWeakHandle<ItemType, Index, Generation>;
 
-	using HandleType = TCompatibleHandleType<Item>;
+	using HandleType = typename Base::HandleType;
+
+	static_assert(std::is_same_v<HandleType, TCompatibleHandleType<Item>>,
+		"TItemPoolInterface is not using a compatible HandleType.");
 
 public:
 	template<bool IS_CONST>
@@ -158,7 +170,7 @@ public:
 		return *this;
 	}
 
-	inline ~TItemPool()
+	inline ~TItemPool() override
 	{
 		clear();
 
@@ -166,13 +178,23 @@ public:
 		PH_ASSERT_EQ(m_freeIndices.size(), m_storageStates.size());
 	}
 
+	inline ItemAccessor accessItem(const HandleType& handle) override
+	{
+		return ItemAccessor{get(handle)};
+	}
+
+	inline ItemViewer viewItem(const HandleType& handle) const override
+	{
+		return ItemViewer{get(handle)};
+	}
+
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
 	*/
 	inline HandleType add(Item item)
 	{
-		// Create new storage space
-		if(m_freeIndices.empty())
+		// Potentially create new storage space
+		if(!hasFreeSpace())
 		{
 			if(capacity() == maxCapacity())
 			{

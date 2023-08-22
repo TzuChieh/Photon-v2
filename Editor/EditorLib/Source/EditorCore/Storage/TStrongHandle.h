@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EditorCore/Storage/TWeakHandle.h"
+
 #include <Utility/traits.h>
 #include <Utility/utility.h>
 
@@ -11,19 +13,14 @@ namespace ph::editor
 {
 
 template<typename Item, typename Index = std::size_t, typename Generation = Index>
-class TWeakHandle final
+class TStrongHandle final
 {
 public:
-	using ItemType = Item;
-	using IndexType = Index;
-	using GenerationType = Generation;
+	using WeakHandleType = TWeakHandle<Item, Index, Generation>;
 
-	inline static constexpr auto INVALID_INDEX = std::numeric_limits<Index>::max();
-	inline static constexpr auto INVALID_GENERATION = 0;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TStrongHandle);
 
-	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TWeakHandle);
-
-	inline TWeakHandle(Index itemIdx, Generation itemGeneration)
+	inline TStrongHandle(Index itemIdx, Generation itemGeneration)
 		: m_itemIdx(itemIdx)
 		, m_itemGeneration(itemGeneration)
 	{}
@@ -71,7 +68,7 @@ public:
 	inline bool operator == (const TWeakHandle& rhs) const = default;
 
 private:
-	Index m_itemIdx = INVALID_INDEX;
+	WeakHandleType m_weakHandle;
 	Generation m_itemGeneration = INVALID_GENERATION;
 };
 
