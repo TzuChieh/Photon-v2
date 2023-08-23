@@ -7,11 +7,7 @@
 
 Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both simulated by a computer. This project is actively being developed and more features are expected to come.
 
-**Supported Platforms**: Windows, Linux, macOS
-
-|| Master branch | Develop branch |
-| ------------- | -----------------------|-----------------------|
-| **CI Status**     | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=master)](https://travis-ci.org/TzuChieh/Photon-v2) | [![Build Status](https://travis-ci.org/TzuChieh/Photon-v2.svg?branch=develop)](https://travis-ci.org/TzuChieh/Photon-v2) |
+**Supported Platforms**: Windows, Linux, macOS *(currently Linux & macOS are not thoroughly tested)*
 
 ## Useful Links
 
@@ -26,6 +22,25 @@ Photon-v2 is a rendering engine made out of my personal interest in computer gra
 * [**Documentation**](https://tzuchieh.github.io/engine_docs/v2.0.0-beta/index.html)
 
 If you want to get involved and is looking for a place to start, the [issues](https://github.com/TzuChieh/Photon-v2/issues) page might be of interest to you. I am glad to provide detailed guidance on any of them.
+
+## Technical Showreel
+
+Please click the following image to watch the [technical showreel for Photon Renderer](https://www.youtube.com/watch?v=yieawWJ31pw) on YouTube:
+
+[![showreel thumbnail](https://tzuchieh.github.io/images/gallery/showreel_thumbnail.jpg)](https://www.youtube.com/watch?v=yieawWJ31pw)
+
+## Images
+
+A couple of still images rendered by Photon:
+
+<a href="https://tzuchieh.github.io/images/gallery/bathroom_(based%20on%20Salle%20de%20bain%20by%20nacimus).jpg"><img src="https://tzuchieh.github.io/images/gallery/bathroom_(based%20on%20Salle%20de%20bain%20by%20nacimus).jpg"></a><br />
+<p align="center"> <i>Cozy Bathroom (based on "Salle de bain" by nacimus)</i> </p>
+
+<a href="https://tzuchieh.github.io/images/gallery/054_chess%20(based%20on%20_Transparent%20Chess%20For%20Cycle_%20by%20yayel59).jpg"><img src="https://tzuchieh.github.io/images/gallery/054_chess%20(based%20on%20_Transparent%20Chess%20For%20Cycle_%20by%20yayel59).jpg"></a><br />
+<p align="center"> <i>Metallic Chess (based on "Transparent Chess For Cycle" by yayel59)</i> </p>
+
+<a href="https://tzuchieh.github.io/images/gallery/048_Arc%20Reactor%20(Iron%20Man)%20by%20kuhn0362%208000spp.jpg"><img src="https://tzuchieh.github.io/images/gallery/048_Arc%20Reactor%20(Iron%20Man)%20by%20kuhn0362%208000spp.jpg"></a><br />
+<p align="center"> <i>Arc Reactor (based on "Arc Reactor (Iron Man)" by kuhn0362)</i> </p>
 
 ## Scene Description Language
 
