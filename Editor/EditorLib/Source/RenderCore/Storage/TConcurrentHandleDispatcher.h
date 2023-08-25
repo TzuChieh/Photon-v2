@@ -4,15 +4,17 @@
 #include "EditorCore/Storage/TWeakHandle.h"
 
 #include <Utility/Concurrent/TAtomicQueue.h>
+#include <Utility/IMoveOnly.h>
 #include <Common/assertion.h>
 
 #include <atomic>
+#include <utility>
 
 namespace ph::editor
 {
 
 template<CWeakHandle Handle>
-class TConcurrentHandleDispatcher final
+class TConcurrentHandleDispatcher final : private IMoveOnly
 {
 	using Index = typename Handle::IndexType;
 	using Generation = typename Handle::GenerationType;
@@ -24,6 +26,18 @@ public:
 		: m_handles()
 		, m_nextNewIdx(0)
 	{}
+
+	inline TConcurrentHandleDispatcher(TConcurrentHandleDispatcher&& other) noexcept
+		: TConcurrentHandleDispatcher()
+	{
+		*this = std::move(other);
+	}
+
+	inline TConcurrentHandleDispatcher& operator = (TConcurrentHandleDispatcher&& rhs) noexcept
+	{
+		m_handles = std::move(rhs.m_handles);
+		m_nextNewIdx = rhs.m_nextNewIdx.load();
+	}
 
 	/*! @brief Get one handle.
 	@note Thread-safe.
@@ -37,9 +51,9 @@ public:
 		}
 
 		// Create new handle if we cannot obtain an existing one
+		constexpr auto initialGeneration = Handle::nextGeneration(Handle::INVALID_GENERATION);
 		const Index newIdx = m_nextNewIdx.fetch_add(1, std::memory_order_relaxed);
-		const Generation newGeneration = Handle::nextGeneration(Handle::INVALID_GENERATION);
-		return Handle(newIdx, newGeneration);
+		return Handle(newIdx, initialGeneration);
 	}
 
 	/*! @brief Recycle one handle.

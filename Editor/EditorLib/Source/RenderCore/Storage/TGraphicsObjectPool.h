@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EditorCore/Storage/TItemPoolInterface.h"
-#include "EditorCore/Storage/TWeakHandle.h"
+#include "RenderCore/Storage/fwd.h"
 
 #include <Common/assertion.h>
 #include <Common/memory.h>
@@ -23,26 +23,34 @@ namespace ph::editor
 
 /*! @brief Graphics object pool.
 */
-template<typename Object, CWeakHandle Handle = TWeakHandle<Object>>
-class TGraphicsObjectPool : public TItemPoolInterface<Object, Handle>
+template<typename Object, CHandleDispatcher Dispatcher>
+class TGraphicsObjectPool : public TItemPoolInterface<Object, typename Dispatcher::HandleType>
 {
 	static_assert(std::is_default_constructible_v<Object>,
 		"A graphics object must be default constructible.");
 	static_assert(std::is_trivially_copyable_v<Object>,
 		"A graphics object must be trivially copyable.");
 
-	using Index = typename Handle::IndexType;
-	using Generation = typename Handle::GenerationType;
+public:
+	using HandleType = typename Dispatcher::HandleType;
+
+private:
+	using Index = typename HandleType::IndexType;
+	using Generation = typename HandleType::GenerationType;
 
 public:
 	inline TGraphicsObjectPool()
 		: m_storageMemory()
 		, m_generations()
+		, m_dispatcher()
 		, m_numObjs(0)
 	{}
 
-	inline TGraphicsObjectPool(const TGraphicsObjectPool& other)
-		: TGraphicsObjectPool()
+	inline TGraphicsObjectPool(const TGraphicsObjectPool& other) requires std::is_copy_constructible_v<Dispatcher>
+		: m_storageMemory()// copied in ctor body
+		, m_generations()// copied in ctor body
+		, m_dispatcher(other.m_dispatcher)
+		, m_numObjs(other.m_numObjs)
 	{
 		grow(other.capacity());
 
@@ -53,8 +61,8 @@ public:
 			other.m_storageMemory.get() + other.capacity(),
 			m_storageMemory.get());
 
+		// Copied after storage as capacity is determined from `m_generations`
 		m_generations = other.m_generations;
-		m_numObjs = other.m_numObjs;
 	}
 
 	inline TGraphicsObjectPool(TGraphicsObjectPool&& other) noexcept = default;
@@ -76,26 +84,50 @@ public:
 		PH_ASSERT_EQ(m_numObjs, 0);
 	}
 
-	inline Object* accessItem(const Handle& handle) override
+	inline Object* accessItem(const HandleType& handle) override
 	{
 		return get(handle);
 	}
 
-	inline const Object* viewItem(const Handle& handle) const override
+	inline const Object* viewItem(const HandleType& handle) const override
 	{
 		return get(handle);
+	}
+
+	/*!
+	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
+	@return The handle of the added `obj`.
+	*/
+	inline HandleType add(Object obj)
+	{
+		return createAt(dispatchOneHandle(), std::move(obj));
+	}
+
+	/*! @brief Remove the object at the storage slot indicated by `handle`.
+	Complexity: O(1).
+	*/
+	inline void remove(const HandleType& handle)
+	{
+		returnOneHandle(removeAt(handle));
 	}
 
 	/*! @brief Place `obj` at the storage slot indicated by `handle`.
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
-	@return The handle `obj` was created on. Same as the input `handle`.
+	@return The handle of the created `obj`. Same as the input `handle`.
 	*/
-	inline Handle createAt(const Handle& handle, Object obj)
+	inline HandleType createAt(const HandleType& handle, Object obj)
 	{
-		if(!isFresh(handle))
+		// TODO: dispatched but not created slots should remain invalid until createAt() is called
+
+		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);
+
+		const bool isEmpty = handle.isEmpty();
+		const bool isInvalidOutOfBound = handle.getIndex() >= capacity() && handle.getGeneration() != initialGeneration;
+		const bool isStale = handle.getIndex() < capacity() && !isFresh(handle);
+		if(isEmpty || isInvalidOutOfBound || isStale)
 		{
 			throw_formatted<IllegalOperationException>(
-				"creating object with stale handle ({})",
+				"creating object with bad handle ({})",
 				handle.toString());
 		}
 
@@ -110,21 +142,21 @@ public:
 					maxCapacity());
 			}
 
-			grow(nextCapacity(capacity()));
+			PH_ASSERT_LT(objIdx, maxCapacity());
+			const Index newCapacity = std::max(nextCapacity(capacity()), objIdx + 1);
+			grow(newCapacity);
 		}
 
+		// At this point, storage size must have been grown to cover `objIdx`
 		PH_ASSERT_LT(objIdx, m_generations.size());
+		PH_ASSERT(isFresh(handle));
 
 		// `Object` was manually destroyed. No need for storing the returned pointer nor using
 		// `std::launder()` on each use (same object type with exactly the same storage location), 
 		// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
 		std::construct_at(m_storageMemory.get() + objIdx, std::move(obj));
 
-		PH_ASSERT_NE(m_generations[objIdx], handle.getGeneration());
-		m_generations[objIdx] = handle.getGeneration();
-
 		++m_numObjs;
-
 		return handle;
 	}
 
@@ -135,7 +167,7 @@ public:
 	for a free storage slot.
 	*/
 	[[nodiscard]]
-	inline Handle removeAt(const Handle& handle)
+	inline HandleType removeAt(const HandleType& handle)
 	{
 		if(!isFresh(handle))
 		{
@@ -151,11 +183,24 @@ public:
 		// just to be safe and consistent
 		std::destroy_at(m_storageMemory.get() + objIdx);
 
-		const Generation newGeneration = Handle::nextGeneration(handle.getGeneration());
+		const Generation newGeneration = HandleType::nextGeneration(handle.getGeneration());
 		m_generations[objIdx] = newGeneration;
 		--m_numObjs;
+		return HandleType(handle.getIndex(), newGeneration);
+	}
 
-		return Handle(handle.getIndex(), newGeneration);
+	inline HandleType dispatchOneHandle()
+	{
+		// Note: directly call the dispatcher, as this method may be called with a different policy
+		// (e.g., from a different thread, depending on the dispatcher used)
+		return m_dispatcher.dispatchOne();
+	}
+
+	inline void returnOneHandle(const HandleType& handle)
+	{
+		// Note: directly call the dispatcher, as this method may be called with a different policy
+		// (e.g., from a different thread, depending on the dispatcher used)
+		m_dispatcher.returnOne(handle);
 	}
 
 	inline void clear()
@@ -168,7 +213,7 @@ public:
 	/*!
 	Complexity: O(1).
 	*/
-	inline Object* get(const Handle& handle)
+	inline Object* get(const HandleType& handle)
 	{
 		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
@@ -176,7 +221,7 @@ public:
 	/*!
 	Complexity: O(1).
 	*/
-	inline const Object* get(const Handle& handle) const
+	inline const Object* get(const HandleType& handle) const
 	{
 		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
@@ -207,7 +252,7 @@ public:
 		return numObjects() == 0;
 	}
 
-	inline bool isFresh(const Handle& handle) const
+	inline bool isFresh(const HandleType& handle) const
 	{
 		return handle.getIndex() < m_generations.size() &&
 		       handle.getGeneration() == m_generations[handle.getIndex()];
@@ -255,7 +300,8 @@ private:
 			newStorageMemory.get());
 
 		// Extend generation records to cover new storage spaces
-		m_generations.resize(newCapacity, Handle::nextGeneration(Handle::INVALID_GENERATION));
+		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);
+		m_generations.resize(newCapacity, initialGeneration);
 
 		// Finally, get rid of the old item storage
 		m_storageMemory = std::move(newStorageMemory);
@@ -274,6 +320,7 @@ private:
 private:
 	TAlignedMemoryUniquePtr<Object> m_storageMemory;
 	std::vector<Generation> m_generations;
+	Dispatcher m_dispatcher;
 	Index m_numObjs;
 };
 

@@ -188,6 +188,7 @@ public:
 
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
+	@return The handle of the added `obj`.
 	*/
 	inline Handle add(Item item)
 	{
@@ -221,7 +222,7 @@ public:
 		return Handle(freeIdx, m_storageStates[freeIdx].generation);
 	}
 
-	/*!
+	/*! @brief Remove the item at the storage slot indicated by `handle`.
 	Complexity: O(1).
 	*/
 	template<typename ItemType>
