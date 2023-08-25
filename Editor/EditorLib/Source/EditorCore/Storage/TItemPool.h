@@ -25,6 +25,9 @@
 namespace ph::editor
 {
 
+/*! @brief A general item pool.
+@tparam Item Type of the stored datum. Can be any class or primitive type. Must be move constructible.
+*/
 template<typename Item, CWeakHandle Handle = TWeakHandle<Item>, typename ItemInterface = Item>
 class TItemPool : public TItemPoolInterface<ItemInterface, Handle>
 {
@@ -195,7 +198,7 @@ public:
 			{
 				throw_formatted<OverflowException>(
 					"Storage size will exceed the maximum amount Index type can hold (max={})",
-					std::numeric_limits<Index>::max());
+					maxCapacity());
 			}
 
 			grow(nextCapacity(capacity()));
@@ -367,7 +370,7 @@ private:
 		std::destroy_at(m_storageMemory.get() + itemIdx);
 		
 		m_storageStates[itemIdx].isFreed = true;
-		m_storageStates[itemIdx].generation = nextGeneration(m_storageStates[itemIdx].generation);
+		m_storageStates[itemIdx].generation = Handle::nextGeneration(m_storageStates[itemIdx].generation);
 		m_freeIndices.push_back(itemIdx);
 	}
 
@@ -504,16 +507,6 @@ private:
 		return itemEndIdx;
 	}
 
-	inline static constexpr Index nextGeneration(const Index currentGeneration)
-	{
-		Index nextGen = currentGeneration + 1;
-		if(nextGen == Handle::INVALID_GENERATION)
-		{
-			++nextGen;
-		}
-		return nextGen;
-	}
-
 	inline static constexpr Index nextCapacity(const Index currentCapacity)
 	{
 		// Effective growth rate k = 1.5
@@ -527,7 +520,7 @@ private:
 private:
 	struct StorageState
 	{
-		Index generation = nextGeneration(Handle::INVALID_GENERATION);
+		Generation generation = Handle::nextGeneration(Handle::INVALID_GENERATION);
 		bool isFreed = true;
 	};
 

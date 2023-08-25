@@ -6,6 +6,10 @@
 #include <chrono>
 #include <thread>
 
+#if !GTEST_IS_THREADSAFE 
+	#error "InitiallyPausedThreadTest requires googletest to be thread safe."
+#endif
+
 using namespace ph;
 
 TEST(InitiallyPausedThreadTest, ConstructWithoutRunning)

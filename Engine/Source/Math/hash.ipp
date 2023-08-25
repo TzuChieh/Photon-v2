@@ -114,7 +114,7 @@ inline uint64 moremur_bit_mix_64(uint64 v)
 }
 
 template<typename T>
-inline uint32 murmur3_32(const T data, const uint32 seed)
+inline uint32 murmur3_32(const T& data, const uint32 seed)
 {
 	return murmur3_32(&data, 1, seed);
 }

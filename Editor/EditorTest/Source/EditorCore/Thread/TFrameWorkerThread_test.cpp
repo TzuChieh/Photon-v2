@@ -8,6 +8,10 @@
 #include <algorithm>
 #include <thread>
 
+#if !GTEST_IS_THREADSAFE 
+	#error "TFrameWorkerThreadTest requires googletest to be thread safe."
+#endif
+
 using namespace ph::editor;
 
 using testing::Between;

@@ -4,10 +4,12 @@
 
 #include <Utility/traits.h>
 #include <Utility/utility.h>
+#include <Math/hash.h>
 
 #include <cstddef>
 #include <limits>
 #include <string>
+#include <functional>
 
 namespace ph::editor
 {
@@ -73,9 +75,39 @@ public:
 
 	inline bool operator == (const TWeakHandle& rhs) const = default;
 
+	/*! @brief Get the next generation given a current generation.
+	@note We do not provide a method to directly "tick" a handle's generation since that would
+	partially defeat the purpose of using a generation counter--that may encourage the user to
+	tick a handle's generation until it is valid. Getting the next generation, however, is useful
+	for many library routines so we provide a static method here.
+	*/
+	inline static constexpr Generation nextGeneration(const Generation currentGeneration)
+	{
+		Index nextGen = currentGeneration + 1;
+		if(nextGen == INVALID_GENERATION)
+		{
+			++nextGen;
+		}
+		return nextGen;
+	}
+
 private:
 	Index m_itemIdx = INVALID_INDEX;
 	Generation m_itemGeneration = INVALID_GENERATION;
 };
 
 }// end namespace ph::editor
+
+namespace std
+{
+
+template<ph::editor::CWeakHandle Handle>
+struct hash<Handle>
+{
+	inline std::size_t operator () (const Handle& handle) const
+	{
+		return ph::math::murmur3_32(handle, 0);
+	}
+};
+
+}// end namespace std

@@ -7,6 +7,10 @@
 #include <memory>
 #include <algorithm>
 
+#if !GTEST_IS_THREADSAFE 
+	#error "TUnbufferedFrameWorkerThreadTest requires googletest to be thread safe."
+#endif
+
 using namespace ph::editor;
 
 namespace

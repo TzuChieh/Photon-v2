@@ -1,5 +1,7 @@
 #pragma once
 
+#include <concepts>
+
 namespace ph::editor
 {
 
@@ -12,6 +14,7 @@ concept CWeakHandle = requires
 	typename T::GenerationType;
 	T::INVALID_INDEX;
 	T::INVALID_GENERATION;
+	{ T::nextGeneration(typename T::GenerationType{}) } -> std::same_as<typename T::GenerationType>;
 };
 
 template<typename ItemInterface, CWeakHandle Handle>

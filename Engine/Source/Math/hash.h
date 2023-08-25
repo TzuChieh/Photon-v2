@@ -73,7 +73,7 @@ same output). In general, if there is a way to reverse a function (reversing `mu
 it is guaranteed there cannot be any collisions. Otherwise, it would not be possible to revert.
 */
 template<typename T>
-uint32 murmur3_32(T data, uint32 seed);
+uint32 murmur3_32(const T& data, uint32 seed);
 
 /*! @brief Generate 32-bit hash values using MurmurHash3.
 @param data Pointer to a data array of type `T`.
