@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EditorCore/Storage/TItemPoolInterface.h"
-#include "RenderCore/Storage/fwd.h"
+#include "EditorCore/Storage/fwd.h"
 
 #include <Common/assertion.h>
 #include <Common/memory.h>
@@ -21,15 +21,15 @@
 namespace ph::editor
 {
 
-/*! @brief Graphics object pool.
+/*! @brief Item pool for trivially-copyable types.
 */
-template<typename Object, CHandleDispatcher Dispatcher>
-class TGraphicsObjectPool : public TItemPoolInterface<Object, typename Dispatcher::HandleType>
+template<typename Item, CHandleDispatcher Dispatcher>
+class TTrivialItemPool : public TItemPoolInterface<Item, typename Dispatcher::HandleType>
 {
-	static_assert(std::is_default_constructible_v<Object>,
-		"A graphics object must be default constructible.");
-	static_assert(std::is_trivially_copyable_v<Object>,
-		"A graphics object must be trivially copyable.");
+	static_assert(std::is_default_constructible_v<Item>,
+		"A trivial item must be default constructible.");
+	static_assert(std::is_trivially_copyable_v<Item>,
+		"A trivial item must be trivially copyable.");
 
 public:
 	using HandleType = typename Dispatcher::HandleType;
@@ -39,18 +39,18 @@ private:
 	using Generation = typename HandleType::GenerationType;
 
 public:
-	inline TGraphicsObjectPool()
+	inline TTrivialItemPool()
 		: m_storageMemory()
 		, m_generations()
 		, m_dispatcher()
-		, m_numObjs(0)
+		, m_numItems(0)
 	{}
 
-	inline TGraphicsObjectPool(const TGraphicsObjectPool& other) requires std::is_copy_constructible_v<Dispatcher>
+	inline TTrivialItemPool(const TTrivialItemPool& other) requires std::is_copy_constructible_v<Dispatcher>
 		: m_storageMemory()// copied in ctor body
 		, m_generations()// copied in ctor body
 		, m_dispatcher(other.m_dispatcher)
-		, m_numObjs(other.m_numObjs)
+		, m_numItems(other.m_numItems)
 	{
 		grow(other.capacity());
 
@@ -65,9 +65,9 @@ public:
 		m_generations = other.m_generations;
 	}
 
-	inline TGraphicsObjectPool(TGraphicsObjectPool&& other) noexcept = default;
+	inline TTrivialItemPool(TTrivialItemPool&& other) noexcept = default;
 
-	inline TGraphicsObjectPool& operator = (TGraphicsObjectPool rhs)
+	inline TTrivialItemPool& operator = (TTrivialItemPool rhs)
 	{
 		using std::swap;
 
@@ -76,34 +76,34 @@ public:
 		return *this;
 	}
 
-	inline ~TGraphicsObjectPool() override
+	inline ~TTrivialItemPool() override
 	{
 		clear();
 
-		// All objects should be removed at the end
-		PH_ASSERT_EQ(m_numObjs, 0);
+		// All items should be removed at the end
+		PH_ASSERT_EQ(m_numItems, 0);
 	}
 
-	inline Object* accessItem(const HandleType& handle) override
+	inline Item* accessItem(const HandleType& handle) override
 	{
 		return get(handle);
 	}
 
-	inline const Object* viewItem(const HandleType& handle) const override
+	inline const Item* viewItem(const HandleType& handle) const override
 	{
 		return get(handle);
 	}
 
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
-	@return The handle of the added `obj`.
+	@return The handle of the added `item`.
 	*/
-	inline HandleType add(Object obj)
+	inline HandleType add(Item item)
 	{
-		return createAt(dispatchOneHandle(), std::move(obj));
+		return createAt(dispatchOneHandle(), std::move(item));
 	}
 
-	/*! @brief Remove the object at the storage slot indicated by `handle`.
+	/*! @brief Remove the item at the storage slot indicated by `handle`.
 	Complexity: O(1).
 	*/
 	inline void remove(const HandleType& handle)
@@ -111,14 +111,12 @@ public:
 		returnOneHandle(removeAt(handle));
 	}
 
-	/*! @brief Place `obj` at the storage slot indicated by `handle`.
+	/*! @brief Place `item` at the storage slot indicated by `handle`.
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
-	@return The handle of the created `obj`. Same as the input `handle`.
+	@return The handle of the created `item`. Same as the input `handle`.
 	*/
-	inline HandleType createAt(const HandleType& handle, Object obj)
+	inline HandleType createAt(const HandleType& handle, Item item)
 	{
-		// TODO: dispatched but not created slots should remain invalid until createAt() is called
-
 		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);
 
 		const bool isEmpty = handle.isEmpty();
@@ -127,13 +125,13 @@ public:
 		if(isEmpty || isInvalidOutOfBound || isStale)
 		{
 			throw_formatted<IllegalOperationException>(
-				"creating object with bad handle ({})",
+				"creating trivial item with bad handle ({})",
 				handle.toString());
 		}
 
 		// Potentially create new storage space
-		const Index objIdx = handle.getIndex();
-		if(objIdx >= capacity())
+		const Index itemIdx = handle.getIndex();
+		if(itemIdx >= capacity())
 		{
 			if(capacity() == maxCapacity())
 			{
@@ -142,27 +140,27 @@ public:
 					maxCapacity());
 			}
 
-			PH_ASSERT_LT(objIdx, maxCapacity());
-			const Index newCapacity = std::max(nextCapacity(capacity()), objIdx + 1);
+			PH_ASSERT_LT(itemIdx, maxCapacity());
+			const Index newCapacity = std::max(nextCapacity(capacity()), itemIdx + 1);
 			grow(newCapacity);
 		}
 
-		// At this point, storage size must have been grown to cover `objIdx`
-		PH_ASSERT_LT(objIdx, m_generations.size());
+		// At this point, storage size must have been grown to cover `itemIdx`
+		PH_ASSERT_LT(itemIdx, m_generations.size());
 		PH_ASSERT(isFresh(handle));
 
-		// `Object` was manually destroyed. No need for storing the returned pointer nor using
+		// `Item` was manually destroyed. No need for storing the returned pointer nor using
 		// `std::launder()` on each use (same object type with exactly the same storage location), 
 		// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
-		std::construct_at(m_storageMemory.get() + objIdx, std::move(obj));
+		std::construct_at(m_storageMemory.get() + itemIdx, std::move(item));
 
-		++m_numObjs;
+		++m_numItems;
 		return handle;
 	}
 
-	/*! @brief Remove the object at the storage slot indicated by `handle`.
+	/*! @brief Remove the item at the storage slot indicated by `handle`.
 	Complexity: O(1).
-	@return The handle for creating a new object on the storage slot that was indicated by `handle`.
+	@return The handle for creating a new item on the storage slot that was indicated by `handle`.
 	The returned handle must not be discarded as there are no defined means to retrieve the handle
 	for a free storage slot.
 	*/
@@ -172,19 +170,19 @@ public:
 		if(!isFresh(handle))
 		{
 			throw_formatted<IllegalOperationException>(
-				"removing object with stale handle ({})",
+				"removing trivial item with stale handle ({})",
 				handle.toString());
 		}
 
-		const Index objIdx = handle.getIndex();
-		PH_ASSERT_LT(objIdx, capacity());
+		const Index itemIdx = handle.getIndex();
+		PH_ASSERT_LT(itemIdx, capacity());
 
 		// This is not necessary as we are dealing with trivially destructible objects,
 		// just to be safe and consistent
-		std::destroy_at(m_storageMemory.get() + objIdx);
+		std::destroy_at(m_storageMemory.get() + itemIdx);
 
 		const Generation newGeneration = HandleType::nextGeneration(handle.getGeneration());
-		m_generations[objIdx] = newGeneration;
+		m_generations[itemIdx] = newGeneration;
 		--m_numObjs;
 		return HandleType(handle.getIndex(), newGeneration);
 	}
@@ -207,13 +205,13 @@ public:
 	{
 		// We are not tracking slot validity, no chance & no need to destruct objects manually as
 		// we are dealing with trivially destructible objects
-		m_numObjs = 0;
+		m_numItems = 0;
 	}
 
 	/*!
 	Complexity: O(1).
 	*/
-	inline Object* get(const HandleType& handle)
+	inline Item* get(const HandleType& handle)
 	{
 		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
@@ -221,21 +219,21 @@ public:
 	/*!
 	Complexity: O(1).
 	*/
-	inline const Object* get(const HandleType& handle) const
+	inline const Item* get(const HandleType& handle) const
 	{
 		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
 
-	inline Index numObjects() const
+	inline Index numItems() const
 	{
-		PH_ASSERT_LE(m_numObjs, capacity());
-		return m_numObjs;
+		PH_ASSERT_LE(m_numItems, capacity());
+		return m_numItems;
 	}
 
 	inline Index numFreeSpace() const
 	{
-		PH_ASSERT_LE(numObjects(), capacity());
-		return capacity() - numObjects();
+		PH_ASSERT_LE(numItems(), capacity());
+		return capacity() - numItems();
 	}
 
 	inline Index capacity() const
@@ -245,11 +243,11 @@ public:
 	}
 
 	/*!
-	@return Wether this pool contains any object.
+	@return Wether this pool contains any item.
 	*/
 	inline bool isEmpty() const
 	{
-		return numObjects() == 0;
+		return numItems() == 0;
 	}
 
 	inline bool isFresh(const HandleType& handle) const
@@ -263,14 +261,15 @@ public:
 		return std::numeric_limits<Index>::max();
 	}
 
-	inline friend void swap(TGraphicsObjectPool& first, TGraphicsObjectPool& second)
+	inline friend void swap(TTrivialItemPool& first, TTrivialItemPool& second)
 	{
 		// Enable ADL
 		using std::swap;
 
 		swap(first.m_storageMemory, second.m_storageMemory);
 		swap(first.m_generations, second.m_generations);
-		swap(first.m_numObjs, second.m_numObjs);
+		swap(first.m_dispatcher, second.m_dispatcher);
+		swap(first.m_numItems, second.m_numItems);
 	}
 
 private:
@@ -279,14 +278,14 @@ private:
 		const Index oldCapacity = capacity();
 		PH_ASSERT_GT(newCapacity, oldCapacity);
 
-		const auto requiredMemorySize = newCapacity * sizeof(Object);
-		const auto alignmentSize = std::lcm(alignof(Object), os::get_L1_cache_line_size_in_bytes());
+		const auto requiredMemorySize = newCapacity * sizeof(Item);
+		const auto alignmentSize = std::lcm(alignof(Item), os::get_L1_cache_line_size_in_bytes());
 		const auto totalMemorySize = math::next_multiple(requiredMemorySize, alignmentSize);
 
-		// Create new item storage and move item over
+		// Create new item storage and move items over
 
-		TAlignedMemoryUniquePtr<Object> newStorageMemory = 
-			make_aligned_memory<Object>(totalMemorySize, alignmentSize);
+		TAlignedMemoryUniquePtr<Item> newStorageMemory = 
+			make_aligned_memory<Item>(totalMemorySize, alignmentSize);
 		if(!newStorageMemory)
 		{
 			throw std::bad_alloc();
@@ -318,10 +317,10 @@ private:
 	}
 
 private:
-	TAlignedMemoryUniquePtr<Object> m_storageMemory;
+	TAlignedMemoryUniquePtr<Item> m_storageMemory;
 	std::vector<Generation> m_generations;
 	Dispatcher m_dispatcher;
-	Index m_numObjs;
+	Index m_numItems;
 };
 
 }// end namespace ph::editor

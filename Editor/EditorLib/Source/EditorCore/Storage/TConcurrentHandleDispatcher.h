@@ -1,7 +1,6 @@
 #pragma once
 
-#include "RenderCore/Storage/fwd.h"
-#include "EditorCore/Storage/TWeakHandle.h"
+#include "EditorCore/Storage/fwd.h"
 
 #include <Utility/Concurrent/TAtomicQueue.h>
 #include <Utility/IMoveOnly.h>

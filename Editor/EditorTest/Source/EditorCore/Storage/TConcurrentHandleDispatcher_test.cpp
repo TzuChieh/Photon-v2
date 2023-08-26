@@ -1,4 +1,4 @@
-#include <RenderCore/Storage/TConcurrentHandleDispatcher.h>
+#include <EditorCore/Storage/TConcurrentHandleDispatcher.h>
 
 #include <gtest/gtest.h>
 
