@@ -2,6 +2,8 @@
 
 #include "EditorCore/Storage/TItemPoolInterface.h"
 #include "EditorCore/Storage/fwd.h"
+#include "EditorCore/Storage/THandleDispatcher.h"
+#include "EditorCore/Storage/TWeakHandle.h"
 
 #include <Common/assertion.h>
 #include <Common/memory.h>
@@ -23,7 +25,7 @@ namespace ph::editor
 
 /*! @brief Item pool for trivially-copyable types.
 */
-template<typename Item, CHandleDispatcher Dispatcher>
+template<typename Item, CHandleDispatcher Dispatcher = THandleDispatcher<TWeakHandle<Item>>>
 class TTrivialItemPool : public TItemPoolInterface<Item, typename Dispatcher::HandleType>
 {
 	static_assert(std::is_default_constructible_v<Item>,
@@ -46,9 +48,11 @@ public:
 		, m_numItems(0)
 	{}
 
-	inline TTrivialItemPool(const TTrivialItemPool& other) requires std::is_copy_constructible_v<Dispatcher>
-		: m_storageMemory()// copied in ctor body
-		, m_generations()// copied in ctor body
+	inline TTrivialItemPool(const TTrivialItemPool& other)
+		requires std::is_copy_constructible_v<Dispatcher>
+
+		: m_storageMemory()
+		, m_generations()
 		, m_dispatcher(other.m_dispatcher)
 		, m_numItems(other.m_numItems)
 	{
@@ -65,12 +69,14 @@ public:
 		m_generations = other.m_generations;
 	}
 
-	inline TTrivialItemPool(TTrivialItemPool&& other) noexcept = default;
+	inline TTrivialItemPool(TTrivialItemPool&& other) noexcept
+		: TTrivialItemPool()
+	{
+		swap(*this, other);
+	}
 
 	inline TTrivialItemPool& operator = (TTrivialItemPool rhs)
 	{
-		using std::swap;
-
 		swap(*this, rhs);
 
 		return *this;
@@ -96,7 +102,7 @@ public:
 
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
-	@return The handle of the added `item`.
+	@return Handle of the added `item`.
 	*/
 	inline HandleType add(Item item)
 	{
@@ -113,7 +119,7 @@ public:
 
 	/*! @brief Place `item` at the storage slot indicated by `handle`.
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
-	@return The handle of the created `item`. Same as the input `handle`.
+	@return Handle of the created `item`. Same as the input `handle`.
 	*/
 	inline HandleType createAt(const HandleType& handle, Item item)
 	{
@@ -161,8 +167,8 @@ public:
 	/*! @brief Remove the item at the storage slot indicated by `handle`.
 	Complexity: O(1).
 	@return The handle for creating a new item on the storage slot that was indicated by `handle`.
-	The returned handle must not be discarded as there are no defined means to retrieve the handle
-	for a free storage slot.
+	The returned handle should not be discarded and is expected to be returned to the pool later by
+	calling `returnOneHandle()`.
 	*/
 	[[nodiscard]]
 	inline HandleType removeAt(const HandleType& handle)
@@ -183,21 +189,21 @@ public:
 
 		const Generation newGeneration = HandleType::nextGeneration(handle.getGeneration());
 		m_generations[itemIdx] = newGeneration;
-		--m_numObjs;
+		--m_numItems;
 		return HandleType(handle.getIndex(), newGeneration);
 	}
 
 	inline HandleType dispatchOneHandle()
 	{
-		// Note: directly call the dispatcher, as this method may be called with a different policy
-		// (e.g., from a different thread, depending on the dispatcher used)
+		// Note: call the dispatcher without touching internal states, as this method may be called
+		// with a different policy (e.g., from a different thread, depending on the dispatcher used)
 		return m_dispatcher.dispatchOne();
 	}
 
 	inline void returnOneHandle(const HandleType& handle)
 	{
-		// Note: directly call the dispatcher, as this method may be called with a different policy
-		// (e.g., from a different thread, depending on the dispatcher used)
+		// Note: call the dispatcher without touching internal states, as this method may be called
+		// with a different policy (e.g., from a different thread, depending on the dispatcher used)
 		m_dispatcher.returnOne(handle);
 	}
 
@@ -232,8 +238,8 @@ public:
 
 	inline Index numFreeSpace() const
 	{
-		PH_ASSERT_LE(numItems(), capacity());
-		return capacity() - numItems();
+		PH_ASSERT_LE(m_numItems, capacity());
+		return capacity() - m_numItems;
 	}
 
 	inline Index capacity() const
@@ -261,7 +267,7 @@ public:
 		return std::numeric_limits<Index>::max();
 	}
 
-	inline friend void swap(TTrivialItemPool& first, TTrivialItemPool& second)
+	inline friend void swap(TTrivialItemPool& first, TTrivialItemPool& second) noexcept
 	{
 		// Enable ADL
 		using std::swap;

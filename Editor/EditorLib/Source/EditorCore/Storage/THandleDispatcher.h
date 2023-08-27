@@ -3,17 +3,18 @@
 #include "EditorCore/Storage/fwd.h"
 
 #include <Utility/Concurrent/TAtomicQueue.h>
-#include <Utility/IMoveOnly.h>
 #include <Common/assertion.h>
 
-#include <atomic>
+#include <queue>
 #include <utility>
 
 namespace ph::editor
 {
 
+/*! @brief Sequential handle dispatcher meant for single-threaded use.
+*/
 template<CWeakHandle Handle>
-class TConcurrentHandleDispatcher final : private IMoveOnly
+class THandleDispatcher final
 {
 	using Index = typename Handle::IndexType;
 	using Generation = typename Handle::GenerationType;
@@ -21,18 +22,23 @@ class TConcurrentHandleDispatcher final : private IMoveOnly
 public:
 	using HandleType = Handle;
 
-	inline TConcurrentHandleDispatcher()
+	inline THandleDispatcher()
 		: m_handles()
 		, m_nextNewIdx(0)
 	{}
 
-	inline TConcurrentHandleDispatcher(TConcurrentHandleDispatcher&& other) noexcept
-		: TConcurrentHandleDispatcher()
+	inline THandleDispatcher(const THandleDispatcher& other)
+		: m_handles(other.m_handles)
+		, m_nextNewIdx(other.m_nextNewIdx)
+	{}
+
+	inline THandleDispatcher(THandleDispatcher&& other) noexcept
+		: THandleDispatcher()
 	{
 		swap(*this, other);
 	}
 
-	inline TConcurrentHandleDispatcher& operator = (TConcurrentHandleDispatcher&& rhs) noexcept
+	inline THandleDispatcher& operator = (THandleDispatcher rhs)
 	{
 		swap(*this, rhs);
 
@@ -40,45 +46,42 @@ public:
 	}
 
 	/*! @brief Get one handle.
-	@note Thread-safe.
 	*/
 	inline Handle dispatchOne()
 	{
-		Handle handle;
-		if(m_handles.tryDequeue(&handle))
+		if(!m_handles.empty())
 		{
+			Handle handle = m_handles.front();
+			m_handles.pop();
 			return handle;
 		}
 
 		// Create new handle if we cannot obtain an existing one
 		constexpr auto initialGeneration = Handle::nextGeneration(Handle::INVALID_GENERATION);
-		const Index newIdx = m_nextNewIdx.fetch_add(1, std::memory_order_relaxed);
+		const Index newIdx = m_nextNewIdx++;
 		return Handle(newIdx, initialGeneration);
 	}
 
 	/*! @brief Recycle one handle.
-	@note Thread-safe.
 	*/
 	inline void returnOne(const Handle& handle)
 	{
 		PH_ASSERT(handle);
-		m_handles.enqueue(handle);
+		m_handles.push(handle);
 	}
 
-	inline friend void swap(TConcurrentHandleDispatcher& first, TConcurrentHandleDispatcher& second) noexcept
+	inline friend void swap(THandleDispatcher& first, THandleDispatcher& second) noexcept
 	{
 		// Enable ADL
 		using std::swap;
 
 		swap(first.m_handles, second.m_handles);
-
-		Index firstIdx = first.m_nextNewIdx.exchange(second.m_nextNewIdx.load());
-		second.m_nextNewIdx.store(firstIdx);
+		swap(first.m_nextNewIdx, second.m_nextNewIdx);
 	}
 
 private:
-	TAtomicQueue<Handle> m_handles;
-	std::atomic<Index> m_nextNewIdx;
+	std::queue<Handle> m_handles;
+	Index m_nextNewIdx;
 };
 
 }// end namespace ph::editor

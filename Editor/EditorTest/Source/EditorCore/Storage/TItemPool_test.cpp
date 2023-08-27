@@ -33,9 +33,9 @@ TEST(TItemPoolTest, BasicRequirements)
 {
 	// Accessing derived object using base handle is valid
 	{
-		using Pool = TItemPool<Derived>;
 		using BaseHandle = TWeakHandle<Base>;
 		using DerivedHandle = TWeakHandle<Derived>;
+		using Pool = TItemPool<Derived>;
 
 		static_assert(CValidHandleForPool<Pool, BaseHandle> == true);
 		static_assert(CValidHandleForPool<Pool, DerivedHandle> == true);
@@ -43,9 +43,9 @@ TEST(TItemPoolTest, BasicRequirements)
 	
 	// Accessing base object using derived handle is **invalid**
 	{
-		using Pool = TItemPool<Base>;
 		using BaseHandle = TWeakHandle<Base>;
 		using DerivedHandle = TWeakHandle<Derived>;
+		using Pool = TItemPool<Base>;
 
 		static_assert(CValidHandleForPool<Pool, BaseHandle> == true);
 		static_assert(CValidHandleForPool<Pool, DerivedHandle> == false);

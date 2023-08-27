@@ -1,5 +1,6 @@
 #include <EditorCore/Storage/TTrivialItemPool.h>
 #include <EditorCore/Storage/TConcurrentHandleDispatcher.h>
+#include <EditorCore/Storage/TWeakHandle.h>
 
 #include <gtest/gtest.h>
 

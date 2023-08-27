@@ -22,7 +22,6 @@ template<typename T>
 concept CHandleDispatcher = 
 	std::is_default_constructible_v<T> &&
 	std::is_nothrow_move_constructible_v<T> &&
-	std::is_nothrow_move_assignable_v<T> &&
 	requires (T t)
 	{
 		typename T::HandleType;

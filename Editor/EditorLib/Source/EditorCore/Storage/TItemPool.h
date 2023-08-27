@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorCore/Storage/TItemPoolInterface.h"
+#include "EditorCore/Storage/THandleDispatcher.h"
 #include "EditorCore/Storage/TWeakHandle.h"
 #include "EditorCore/Storage/TStrongHandle.h"
 
@@ -28,14 +29,22 @@ namespace ph::editor
 /*! @brief A general item pool.
 @tparam Item Type of the stored datum. Can be any class or primitive type. Must be move constructible.
 */
-template<typename Item, CWeakHandle Handle = TWeakHandle<Item>, typename ItemInterface = Item>
-class TItemPool : public TItemPoolInterface<ItemInterface, Handle>
+template<
+	typename Item, 
+	CHandleDispatcher Dispatcher = THandleDispatcher<TWeakHandle<Item>>, 
+	typename ItemInterface = Item>
+class TItemPool : public TItemPoolInterface<ItemInterface, typename Dispatcher::HandleType>
 {
-	static_assert(std::move_constructible<Item>);
+	static_assert(std::move_constructible<Item>,
+		"An item must be move constructible.");
 
-	using Base = TItemPoolInterface<ItemInterface, Handle>;
-	using Index = typename Handle::IndexType;
-	using Generation = typename Handle::GenerationType;
+public:
+	using HandleType = typename Dispatcher::HandleType;
+
+private:
+	using Base = TItemPoolInterface<ItemInterface, HandleType>;
+	using Index = typename HandleType::IndexType;
+	using Generation = typename HandleType::GenerationType;
 
 public:
 	/*! If `Item` is a polymorphic type, then `Item` itself along with all its bases can form a
@@ -133,36 +142,57 @@ public:
 
 	private:
 		PoolType* m_pool = nullptr;
-		Index m_currentIdx = Handle::INVALID_INDEX;
+		Index m_currentIdx = HandleType::INVALID_INDEX;
 	};
 
 public:
 	using IteratorType = TIterator<false>;
 	using ConstIteratorType = TIterator<false>;
 
-	inline TItemPool() = default;
+	inline TItemPool()
+		: m_storageMemory()
+		, m_storageStates()
+		, m_dispatcher()
+		, m_numItems(0)
+	{}
 
 	/*! @brief Copy items stored in `other` into this pool.
-	Handles that were originally valid for `other` will no longer valid for this pool.
+	Handles that were originally valid for `other` will also be valid for this pool.
 	*/
-	inline TItemPool(const TItemPool& other) requires std::copy_constructible<Item>
-		: TItemPool()
+	inline TItemPool(const TItemPool& other)
+		requires std::is_copy_constructible_v<Item> &&
+		         std::is_copy_constructible_v<Dispatcher>
+
+		: m_storageMemory()
+		, m_storageStates()
+		, m_dispatcher(other.m_dispatcher)
+		, m_numItems(0)
 	{
 		grow(other.capacity());
 
-		other.forEachItem(
-			[this](const Item* otherItem, Index /* idx */)
+		other.forEachItemStorage(
+			[this, &other](const Item* otherItem, Index idx)
 			{
-				add(*otherItem);
+				// Copy generation state, so handles from `other` will also work here
+				m_storageStates[idx].generation = other.m_storageStates[idx].generation;
+
+				if(!other.m_storageStates[idx].isFreed)
+				{
+					createItemAtIndex(idx, *otherItem);
+				}
 			});
+
+		PH_ASSERT_EQ(m_numItems, other.m_numItems);
 	}
 
-	inline TItemPool(TItemPool&& other) noexcept = default;
+	inline TItemPool(TItemPool&& other) noexcept
+		: TItemPool()
+	{
+		swap(*this, other);
+	}
 
 	inline TItemPool& operator = (TItemPool rhs)
 	{
-		using std::swap;
-
 		swap(*this, rhs);
 
 		return *this;
@@ -172,27 +202,59 @@ public:
 	{
 		clear();
 
-		// All storage spaces should be freed at the end
-		PH_ASSERT_EQ(m_freeIndices.size(), m_storageStates.size());
+		// All items should be removed at the end
+		PH_ASSERT_EQ(m_numItems, 0);
 	}
 
-	inline ItemInterface* accessItem(const Handle& handle) override
+	inline ItemInterface* accessItem(const HandleType& handle) override
 	{
 		return get(handle);
 	}
 
-	inline const ItemInterface* viewItem(const Handle& handle) const override
+	inline const ItemInterface* viewItem(const HandleType& handle) const override
 	{
 		return get(handle);
 	}
 
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
-	@return The handle of the added `obj`.
+	@return Handle of the added `item`.
 	*/
-	inline Handle add(Item item)
+	inline HandleType add(Item item)
 	{
+		return createAt(dispatchOneHandle(), std::move(item));
+	}
+
+	/*! @brief Remove the item at the storage slot indicated by `handle`.
+	Complexity: O(1).
+	*/
+	template<typename ItemType>
+	inline void remove(const TCompatibleHandleType<ItemType>& handle)
+	{
+		returnOneHandle(removeAt(handle));
+	}
+
+	/*! @brief Place `item` at the storage slot indicated by `handle`.
+	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
+	@return Handle of the created `item`. Equivalent to the input `handle`.
+	*/
+	template<typename ItemType>
+	inline HandleType createAt(const TCompatibleHandleType<ItemType>& handle, Item item)
+	{
+		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);
+
+		const bool isEmpty = handle.isEmpty();
+		const bool isInvalidOutOfBound = handle.getIndex() >= capacity() && handle.getGeneration() != initialGeneration;
+		const bool isStale = handle.getIndex() < capacity() && !isFresh(handle);
+		if(isEmpty || isInvalidOutOfBound || isStale)
+		{
+			throw_formatted<IllegalOperationException>(
+				"creating item with bad handle ({})",
+				handle.toString());
+		}
+
 		// Potentially create new storage space
+		const Index itemIdx = handle.getIndex();
 		if(!hasFreeSpace())
 		{
 			if(capacity() == maxCapacity())
@@ -202,31 +264,28 @@ public:
 					maxCapacity());
 			}
 
-			grow(nextCapacity(capacity()));
+			PH_ASSERT_LT(itemIdx, maxCapacity());
+			const Index newCapacity = std::max(nextCapacity(capacity()), itemIdx + 1);
+			grow(newCapacity);
 		}
 
-		PH_ASSERT_GT(m_freeIndices.size(), 0);
+		// At this point, storage size must have been grown to cover `itemIdx`
+		PH_ASSERT_LT(itemIdx, m_storageStates.size());
+		PH_ASSERT(isFresh(handle));
 
-		const Index freeIdx = m_freeIndices.back();
-		PH_ASSERT_LT(freeIdx, m_storageStates.size());
-		PH_ASSERT(m_storageStates[freeIdx].isFreed);
-
-		// `Item` was manually destroyed. No need for storing the returned pointer nor using
-		// `std::launder()` on each use (same object type with exactly the same storage location), 
-		// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
-		std::construct_at(m_storageMemory.get() + freeIdx, std::move(item));
-
-		m_freeIndices.pop_back();
-		m_storageStates[freeIdx].isFreed = false;
-
-		return Handle(freeIdx, m_storageStates[freeIdx].generation);
+		createItemAtIndex(itemIdx, std::move(item));
+		return getHandleByIndex(itemIdx);
 	}
 
 	/*! @brief Remove the item at the storage slot indicated by `handle`.
 	Complexity: O(1).
+	@return The handle for creating a new item on the storage slot that was indicated by `handle`.
+	The returned handle should not be discarded and is expected to be returned to the pool later by
+	calling `returnOneHandle()`.
 	*/
 	template<typename ItemType>
-	inline void remove(const TCompatibleHandleType<ItemType>& handle)
+	[[nodiscard]]
+	inline HandleType removeAt(const TCompatibleHandleType<ItemType>& handle)
 	{
 		if(!isFresh(handle))
 		{
@@ -242,7 +301,25 @@ public:
 		// will throw. If this fails, could be generation collision or bad handles (from wrong pool).
 		PH_ASSERT(!m_storageStates[itemIdx].isFreed);
 
-		removeItemAt(itemIdx);
+		removeItemAtIndex(itemIdx);
+		return getHandleByIndex(itemIdx);
+	}
+
+	inline HandleType dispatchOneHandle()
+	{
+		// Note: call the dispatcher without touching internal states, as this method may be called
+		// with a different policy (e.g., from a different thread, depending on the dispatcher used)
+		return m_dispatcher.dispatchOne();
+	}
+
+	template<typename ItemType>
+	inline void returnOneHandle(const TCompatibleHandleType<ItemType>& handle)
+	{
+		HandleType nativeHandle(handle.getIndex(), handle.getGeneration());
+
+		// Note: call the dispatcher without touching internal states, as this method may be called
+		// with a different policy (e.g., from a different thread, depending on the dispatcher used)
+		m_dispatcher.returnOne(nativeHandle);
 	}
 
 	inline void clear()
@@ -255,7 +332,7 @@ public:
 		forEachItem(
 			[this](Item* /* item */, Index idx)
 			{
-				removeItemAt(idx);
+				removeItemAtIndex(idx);
 			});
 	}
 
@@ -292,13 +369,14 @@ public:
 
 	inline Index numItems() const
 	{
-		PH_ASSERT_LE(numFreeSpace(), capacity());
-		return capacity() - numFreeSpace();
+		PH_ASSERT_LE(m_numItems, capacity());
+		return m_numItems;
 	}
 
 	inline Index numFreeSpace() const
 	{
-		return m_freeIndices.size();
+		PH_ASSERT_LE(m_numItems, capacity());
+		return capacity() - m_numItems;
 	}
 
 	inline Index capacity() const
@@ -352,18 +430,33 @@ public:
 		return std::numeric_limits<Index>::max();
 	}
 
-	inline friend void swap(TItemPool& first, TItemPool& second)
+	inline friend void swap(TItemPool& first, TItemPool& second) noexcept
 	{
 		// Enable ADL
 		using std::swap;
 
 		swap(first.m_storageMemory, second.m_storageMemory);
 		swap(first.m_storageStates, second.m_storageStates);
-		swap(first.m_freeIndices, second.m_freeIndices);
+		swap(first.m_dispatcher, second.m_dispatcher);
+		swap(first.m_numItems, second.m_numItems);
 	}
 
 private:
-	inline void removeItemAt(const Index itemIdx)
+	inline void createItemAtIndex(const Index itemIdx, Item item)
+	{
+		PH_ASSERT_LT(itemIdx, m_storageStates.size());
+		PH_ASSERT(m_storageStates[itemIdx].isFreed);
+
+		// `Item` was manually destroyed. No need for storing the returned pointer nor using
+		// `std::launder()` on each use (same object type with exactly the same storage location), 
+		// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
+		std::construct_at(m_storageMemory.get() + itemIdx, std::move(item));
+
+		m_storageStates[itemIdx].isFreed = false;
+		++m_numItems;
+	}
+
+	inline void removeItemAtIndex(const Index itemIdx)
 	{
 		PH_ASSERT_LT(itemIdx, capacity());
 		PH_ASSERT(!m_storageStates[itemIdx].isFreed);
@@ -371,8 +464,13 @@ private:
 		std::destroy_at(m_storageMemory.get() + itemIdx);
 		
 		m_storageStates[itemIdx].isFreed = true;
-		m_storageStates[itemIdx].generation = Handle::nextGeneration(m_storageStates[itemIdx].generation);
-		m_freeIndices.push_back(itemIdx);
+		m_storageStates[itemIdx].generation = HandleType::nextGeneration(m_storageStates[itemIdx].generation);
+		--m_numItems;
+	}
+
+	inline HandleType getHandleByIndex(const Index itemIdx) const
+	{
+		return HandleType(itemIdx, m_storageStates[itemIdx].generation);
 	}
 
 	inline void grow(const Index newCapacity)
@@ -402,17 +500,6 @@ private:
 
 		// Extend storage states to cover new storage spaces
 		m_storageStates.resize(newCapacity, StorageState{});
-
-		// All new storage spaces are free. Indices are added backwards as free spaces are reused in
-		// LIFO order, we want to use spaces closer to other items first.
-		std::vector<Index> newFreeIndices;
-		newFreeIndices.reserve(newCapacity - oldCapacity);
-		for(Index n = newCapacity; n > oldCapacity; --n)
-		{
-			const Index newFreeIdx = n - 1;
-			newFreeIndices.push_back(newFreeIdx);
-		}
-		m_freeIndices.insert(m_freeIndices.begin(), newFreeIndices.begin(), newFreeIndices.end());
 
 		// Finally, get rid of the old item storage
 		m_storageMemory = std::move(newStorageMemory);
@@ -521,13 +608,14 @@ private:
 private:
 	struct StorageState
 	{
-		Generation generation = Handle::nextGeneration(Handle::INVALID_GENERATION);
+		Generation generation = HandleType::nextGeneration(HandleType::INVALID_GENERATION);
 		bool isFreed = true;
 	};
 
 	TAlignedMemoryUniquePtr<Item> m_storageMemory;
 	std::vector<StorageState> m_storageStates;
-	std::vector<Index> m_freeIndices;
+	Dispatcher m_dispatcher;
+	Index m_numItems;
 };
 
 }// end namespace ph::editor
