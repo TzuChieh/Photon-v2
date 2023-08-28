@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <algorithm>
 #include <type_traits>
+#include <bit>
 
 namespace ph
 {

@@ -71,6 +71,11 @@ public:
 
 	virtual void swapBuffers() = 0;
 
+	/*virtual void uploadPixelData(
+		GHITextureHandle texture,
+		TSpanView<std::byte> pixelData,
+		EGHIPixelComponent componentType) = 0;*/
+
 	virtual std::shared_ptr<GHITexture2D> createTexture2D(
 		const GHIInfoTextureFormat& format,
 		const math::Vector2UI& sizePx) = 0;

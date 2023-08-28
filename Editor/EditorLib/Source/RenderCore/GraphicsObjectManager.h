@@ -15,48 +15,100 @@
 namespace ph::editor
 {
 
+/*! @brief Manages the creation and deletion of graphics-related resource objects.
+All `create<XXX>()` and `delete<XXX>()` methods are thread safe, as long as they are called within
+the lifetime of current graphics context.
+*/
 class GraphicsObjectManager
 {
 public:
 	virtual ~GraphicsObjectManager();
 
+	/*!
+	@note Thread safe.
+	*/
 	virtual GHITextureHandle createTexture(
 		const GHIInfoTextureFormat& format,
 		const math::Vector3UI& sizePx) = 0;
 
+	/*!
+	@note Thread safe.
+	*/
 	virtual GHIFramebufferHandle createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) = 0;
 
+	/*!
+	@note Thread safe.
+	*/
 	virtual GHIShaderHandle createShader(
 		std::string name,
 		EGHIShadingStage shadingStage,
 		std::string shaderSource) = 0;
 
+	/*!
+	@note Thread safe.
+	*/
 	virtual GHIShaderProgramHandle createShaderProgram(
 		std::string name,
 		const GHIInfoShaderSet& shaders) = 0;
 
+	/*!
+	@note Thread safe.
+	*/
 	virtual GHIVertexStorageHandle createVertexStorage(
 		const GHIInfoVertexGroupFormat& format,
 		std::size_t numVertices,
 		EGHIStorageUsage usage) = 0;
 
+	/*!
+	@note Thread safe.
+	*/
 	virtual GHIIndexStorageHandle createIndexStorage(
 		EGHIStorageElement indexType,
 		std::size_t numIndices,
 		EGHIStorageUsage usage) = 0;
 
+	/*!
+	@note Thread safe.
+	*/
 	virtual GHIMeshHandle createMesh(
 		const GHIInfoMeshVertexLayout& layout,
 		TSpanView<GHIVertexStorageHandle> vertexStorages,
 		GHIIndexStorageHandle indexStorage) = 0;
 
+	/*!
+	@note Thread safe.
+	*/
 	virtual void deleteTexture(GHITextureHandle texture) = 0;
+
+	/*!
+	@note Thread safe.
+	*/
 	virtual void deleteFramebuffer(GHIFramebufferHandle framebuffer) = 0;
+
+	/*!
+	@note Thread safe.
+	*/
 	virtual void deleteShader(GHIShaderHandle shader) = 0;
+
+	/*!
+	@note Thread safe.
+	*/
 	virtual void deleteShaderProgram(GHIShaderProgramHandle shaderProgram) = 0;
+
+	/*!
+	@note Thread safe.
+	*/
 	virtual void deleteVertexStorage(GHIVertexStorageHandle vertexStorage) = 0;
+
+	/*!
+	@note Thread safe.
+	*/
 	virtual void deleteIndexStorage(GHIIndexStorageHandle indexStorage) = 0;
+
+	/*!
+	@note Thread safe.
+	*/
 	virtual void deleteMesh(GHIMeshHandle mesh) = 0;
 
 public:
