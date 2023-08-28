@@ -1,5 +1,6 @@
 #include "Render/RendererFramebuffer.h"
 #include "RenderCore/GHIThreadCaller.h"
+#include "RenderCore/GraphicsContext.h"
 #include "RenderCore/GHI.h"
 
 #include <utility>
@@ -25,11 +26,11 @@ RendererFramebuffer::~RendererFramebuffer()
 void RendererFramebuffer::setupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
-		[this](GHI& ghi)
+		[this](GraphicsContext& ctx)
 		{
 			PH_ASSERT(!m_ghiFramebuffer);
 
-			m_ghiFramebuffer = ghi.createFramebuffer(m_attachments);
+			m_ghiFramebuffer = ctx.getGHI().createFramebuffer(m_attachments);
 
 			// TODO: pre clear?
 		});
@@ -38,7 +39,7 @@ void RendererFramebuffer::setupGHI(GHIThreadCaller& caller)
 void RendererFramebuffer::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
-		[this](GHI& ghi)
+		[this](GraphicsContext& /* ctx */)
 		{
 			if(m_ghiFramebuffer)
 			{

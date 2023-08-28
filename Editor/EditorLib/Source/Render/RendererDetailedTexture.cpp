@@ -25,7 +25,7 @@ void RendererDetailedTexture::setupGHI(GHIThreadCaller& caller)
 	}
 
 	caller.add(
-		[this](GHI& /* ghi */)
+		[this](GraphicsContext& /* ctx */)
 		{
 			GHITexture* const ghiTexture = getGHITexture();
 
@@ -41,7 +41,7 @@ void RendererDetailedTexture::setupGHI(GHIThreadCaller& caller)
 void RendererDetailedTexture::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
-		[this](GHI& /* ghi */)
+		[this](GraphicsContext& /* ctx */)
 		{
 			m_sharedNativeHandle.relaxedWrite(std::nullopt);
 		});

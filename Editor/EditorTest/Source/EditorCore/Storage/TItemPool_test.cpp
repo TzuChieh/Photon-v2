@@ -302,7 +302,7 @@ TEST(TItemPoolTest, RangedFor)
 
 TEST(TItemPoolTest, CopyAndMove)
 {
-	// Trivial item type
+	// Copy and move with trivial item type
 	{
 		using Pool = TItemPool<int>;
 		constexpr int numItems = 1000;
@@ -351,6 +351,53 @@ TEST(TItemPoolTest, CopyAndMove)
 				++i;
 			}
 			EXPECT_EQ(i, numItems);
+		}
+	}
+
+	// Move from a pool and continue to dispatch (trivial item type)
+	{
+		using Pool = TItemPool<int>;
+		using Handle = typename Pool::HandleType;
+
+		constexpr int numItems = 1000;
+
+		Pool pool;
+		std::vector<Handle> handles(numItems * 2);
+		for(int i = 0; i < numItems; ++i)
+		{
+			auto handle = pool.add(i);
+			handles[i] = handle;
+		}
+		EXPECT_EQ(pool.numItems(), numItems);
+
+		Pool movedPool = std::move(pool);
+		EXPECT_EQ(movedPool.numItems(), numItems);
+
+		// Original handles should still be usable
+		for(int i = 0; i < numItems; ++i)
+		{
+			EXPECT_TRUE(handles[i]);
+
+			int* ptr = movedPool.get(handles[i]);
+			ASSERT_TRUE(ptr);
+			EXPECT_EQ(*ptr, i);
+		}
+
+		// Continue to add another batch of `numItems` items
+		for(int i = numItems; i < numItems * 2; ++i)
+		{
+			auto handle = movedPool.add(i);
+			handles[i] = handle;
+		}
+
+		// Check all handles are valid
+		for(int i = 0; i < numItems * 2; ++i)
+		{
+			EXPECT_TRUE(handles[i]);
+
+			int* ptr = movedPool.get(handles[i]);
+			ASSERT_TRUE(ptr);
+			EXPECT_EQ(*ptr, i);
 		}
 	}
 }

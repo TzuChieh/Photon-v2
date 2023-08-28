@@ -1,5 +1,6 @@
 #include "Render/RendererTexture2D.h"
 #include "RenderCore/GHIThreadCaller.h"
+#include "RenderCore/GraphicsContext.h"
 #include "RenderCore/GHI.h"
 
 #include <Frame/PictureData.h>
@@ -40,11 +41,11 @@ void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 	}
 
 	caller.add(
-		[this](GHI& ghi)
+		[this](GraphicsContext& ctx)
 		{
 			PH_ASSERT(!m_ghiTexture);
 
-			m_ghiTexture = ghi.createTexture2D(m_format, m_sizePx);
+			m_ghiTexture = ctx.getGHI().createTexture2D(m_format, m_sizePx);
 
 			m_ghiTexture->upload(
 				m_textureData->getData(),
@@ -58,7 +59,7 @@ void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 void RendererTexture2D::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
-		[this](GHI& ghi)
+		[this](GraphicsContext& /* ctx */)
 		{
 			if(m_ghiTexture)
 			{

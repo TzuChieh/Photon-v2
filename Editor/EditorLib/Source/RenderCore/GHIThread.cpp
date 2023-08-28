@@ -1,5 +1,6 @@
 #include "RenderCore/GHIThread.h"
-#include "RenderCore/NullGHI.h"
+#include "RenderCore/GraphicsContext.h"
+#include "RenderCore/Null/NullContext.h"
 
 #include <Common/logging.h>
 
@@ -10,8 +11,8 @@ PH_DEFINE_INTERNAL_LOG_GROUP(GHIThread, RenderCore);
 
 GHIThread::GHIThread()
 	: Base()
-	, m_GHI(nullptr)
-	, m_nullGHI(std::make_unique<NullGHI>())
+	, m_ctx(nullptr)
+	, m_nullCtx(std::make_unique<NullContext>())
 	, m_frameTimer()
 	, m_frameTimeMs(0)
 {}
@@ -19,34 +20,34 @@ GHIThread::GHIThread()
 GHIThread::~GHIThread()
 {
 	// Should already been unset
-	PH_ASSERT(!m_GHI);
+	PH_ASSERT(!m_ctx);
 }
 
 void GHIThread::onAsyncWorkerStart()
 {
 	PH_LOG(GHIThread, "thread started");
 
-	setGHI(m_nullGHI.get());
+	setContext(m_nullCtx.get());
 }
 
 void GHIThread::onAsyncWorkerStop()
 {
-	setGHI(nullptr);
+	setContext(nullptr);
 
 	PH_LOG(GHIThread, "thread stopped");
 }
 
 void GHIThread::onAsyncProcessWork(const Work& work)
 {
-	PH_ASSERT(m_GHI);
+	PH_ASSERT(m_ctx);
 
-	work(*m_GHI);
+	work(*m_ctx);
 }
 
 void GHIThread::onBeginFrame()
 {
 	addWork(
-		[this](GHI& /* ghi */)
+		[this](GraphicsContext& /* ctx */)
 		{
 			m_frameTimer.start();
 		});
@@ -56,46 +57,46 @@ void GHIThread::onEndFrame()
 {
 	// Swap buffer at the end of end frame
 	addWork(
-		[](GHI& ghi)
+		[](GraphicsContext& ctx)
 		{
-			ghi.swapBuffers();
+			ctx.getGHI().swapBuffers();
 		});
 
 	addWork(
-		[this](GHI& /* ghi */)
+		[this](GraphicsContext& /* ctx */)
 		{
 			m_frameTimer.stop();
 			m_frameTimeMs.store(m_frameTimer.getDeltaMs<float32>(), std::memory_order_relaxed);
 		});
 }
 
-void GHIThread::addSetGHIWork(GHI* const inGHI)
+void GHIThread::addSetContextWork(GraphicsContext* const inCtx)
 {
 	addWork(
-		[this, inGHI](GHI& /* ghi */)
+		[this, inCtx](GraphicsContext& /* ctx */)
 		{
-			setGHI(inGHI);
+			setContext(inCtx);
 		});
 }
 
-void GHIThread::setGHI(GHI* const inGHI)
+void GHIThread::setContext(GraphicsContext* const inCtx)
 {
-	// Nothing to do if the GHIs are the same
-	if(m_GHI == inGHI)
+	// Nothing to do if the contexts are the same
+	if(m_ctx == inCtx)
 	{
 		return;
 	}
 
-	if(m_GHI)
+	if(m_ctx)
 	{
-		m_GHI->unload();
+		m_ctx->getGHI().unload();
 	}
 	
-	m_GHI = inGHI;
+	m_ctx = inCtx;
 
-	if(m_GHI)
+	if(m_ctx)
 	{
-		m_GHI->load();
+		m_ctx->getGHI().load();
 	}
 }
 

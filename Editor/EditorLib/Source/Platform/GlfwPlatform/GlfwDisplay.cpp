@@ -1,5 +1,5 @@
 #include "Platform/GlfwPlatform/GlfwDisplay.h"
-#include "RenderCore/OpenGL/OpenglGHI.h"
+#include "RenderCore/OpenGL/OpenglContext.h"
 #include "Platform/Platform.h"
 #include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
@@ -20,7 +20,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(GlfwDisplay, EditorPlatform);
 GlfwDisplay::GlfwDisplay()
 	: PlatformDisplay()
 	, m_glfwWindow(nullptr)
-	, m_ghi(nullptr)
+	, m_graphicsCtx(nullptr)
 	, m_apiType(EGraphicsAPI::Unknown)
 	, m_sizePx(0, 0)
 {}
@@ -111,10 +111,10 @@ void GlfwDisplay::initialize(
 			editor.postEvent(e, editor.onDisplayFocusChanged);
 		});
 
-	PH_ASSERT(!m_ghi);
+	PH_ASSERT(!m_graphicsCtx);
 	if(graphicsApi == EGraphicsAPI::OpenGL)
 	{
-		m_ghi = std::make_unique<OpenglGHI>(m_glfwWindow, useDebugModeGHI);
+		m_graphicsCtx = std::make_unique<OpenglContext>(m_glfwWindow, useDebugModeGHI);
 	}
 	
 	m_apiType = graphicsApi;
@@ -130,7 +130,7 @@ void GlfwDisplay::terminate()
 
 	glfwSetFramebufferSizeCallback(m_glfwWindow, nullptr);
 
-	PH_ASSERT(m_ghi);
+	PH_ASSERT(m_graphicsCtx);
 	
 	// If this fails, most likely GHI was not unloaded; otherwise, the context must be set incorrectly 
 	// by someone. 
@@ -142,10 +142,10 @@ void GlfwDisplay::terminate()
 	glfwDestroyWindow(m_glfwWindow);
 }
 
-GHI* GlfwDisplay::getGHI() const
+GraphicsContext* GlfwDisplay::getGraphicsContext() const
 {
-	PH_ASSERT(m_ghi);
-	return m_ghi.get();
+	PH_ASSERT(m_graphicsCtx);
+	return m_graphicsCtx.get();
 }
 
 EGraphicsAPI GlfwDisplay::getGraphicsApiType() const

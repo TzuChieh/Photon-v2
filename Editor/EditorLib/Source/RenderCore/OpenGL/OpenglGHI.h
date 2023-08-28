@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHI.h"
+
 #include "ThirdParty/GLFW3_fwd.h"
 
 #include <Common/config.h>

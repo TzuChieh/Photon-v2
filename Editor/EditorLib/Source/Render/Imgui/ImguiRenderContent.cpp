@@ -2,6 +2,7 @@
 #include "Render/RenderThreadUpdateContext.h"
 #include "EditorCore/Thread/Threads.h"
 #include "RenderCore/GHIThreadCaller.h"
+#include "RenderCore/GraphicsContext.h"
 #include "RenderCore/GHI.h"
 
 #include "ThirdParty/glad2.h"
@@ -28,9 +29,9 @@ void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 {
 	caller.add(
-		[](GHI& ghi)
+		[](GraphicsContext& ctx)
 		{
-			ghi.rawCommand<EGraphicsAPI::OpenGL>(
+			ctx.getGHI().rawCommand<EGraphicsAPI::OpenGL>(
 				[]()
 				{
 					ImGui_ImplOpenGL3_NewFrame();
@@ -47,7 +48,7 @@ void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 	if(m_numAvailableRenderData > 0)
 	{
 		caller.add(
-			[this](GHI& ghi)
+			[this](GraphicsContext& /* ctx */)
 			{
 				// We never want to block GHI thread. If so, consider increase the size of shared data.
 				PH_ASSERT(m_sharedRenderData.mayWaitToConsume() == false);

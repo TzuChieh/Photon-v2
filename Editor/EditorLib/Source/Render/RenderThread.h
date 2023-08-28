@@ -15,7 +15,7 @@ namespace ph::editor
 {
 
 class GHIThread;
-class GHI;
+class GraphicsContext;
 
 class RenderThread : 
 	public TFrameWorkerThread<
@@ -36,7 +36,7 @@ public:
 	void onBeginFrame() override;
 	void onEndFrame() override;
 
-	void addGHIUpdateWork(GHI* updatedGHI);
+	void addGraphicsContextUpdateWork(GraphicsContext* inCtx);
 
 	/*!
 	@note Thread-safe.
@@ -54,7 +54,7 @@ private:
 
 	std::optional<RenderData> m_renderData;
 	GHIThread                 m_ghiThread;
-	GHI*                      m_updatedGHI;
+	GraphicsContext*          m_updatedGraphicsCtx;
 	Timer                     m_frameTimer;
 	std::atomic<float32>      m_frameTimeMs;
 };

@@ -89,7 +89,7 @@ void RendererRenderTarget::setupGHI(GHIThreadCaller& caller)
 		const GHIInfoFramebufferAttachment& attachments = m_framebufferResource->getAttachments();
 
 		caller.add(
-			[this](GHI& ghi)
+			[this](GraphicsContext& /* ctx */)
 			{
 				m_ghiFramebuffer = m_framebufferResource->getGHIFramebufferResource();
 
@@ -118,7 +118,7 @@ void RendererRenderTarget::setupGHI(GHIThreadCaller& caller)
 void RendererRenderTarget::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
-		[this](GHI& ghi)
+		[this](GraphicsContext& /* ctx */)
 		{
 			m_ghiTexture = nullptr;
 			m_ghiFramebuffer = nullptr;

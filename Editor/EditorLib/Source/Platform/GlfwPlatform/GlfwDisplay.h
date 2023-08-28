@@ -2,6 +2,7 @@
 
 #include "Platform/PlatformDisplay.h"
 #include "RenderCore/EGraphicsAPI.h"
+
 #include "ThirdParty/GLFW3_fwd.h"
 
 #include <string>
@@ -18,7 +19,7 @@ public:
 	GlfwDisplay();
 	~GlfwDisplay() override;
 
-	GHI* getGHI() const override;
+	GraphicsContext* getGraphicsContext() const override;
 	math::Vector2S getSizePx() const override;
 	math::Vector2S getFramebufferSizePx() const override;
 	NativeWindow getNativeWindow() const override;
@@ -37,10 +38,10 @@ public:
 	GLFWwindow* getGlfwWindow() const;
 
 private:
-	GLFWwindow*          m_glfwWindow; 
-	std::unique_ptr<GHI> m_ghi;
-	EGraphicsAPI         m_apiType;
-	math::Vector2S       m_sizePx;
+	GLFWwindow*                      m_glfwWindow; 
+	std::unique_ptr<GraphicsContext> m_graphicsCtx;
+	EGraphicsAPI                     m_apiType;
+	math::Vector2S                   m_sizePx;
 };
 
 inline math::Vector2S GlfwDisplay::getSizePx() const

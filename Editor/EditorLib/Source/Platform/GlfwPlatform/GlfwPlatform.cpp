@@ -99,10 +99,10 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 
 	m_input.initialize(getEditor(), m_display.getGlfwWindow());
 
-	if(!m_display.getGHI())
+	if(!m_display.getGraphicsContext())
 	{
 		PH_LOG_ERROR(GlfwPlatform,
-			"no GHI present, editor will likely crash");
+			"no graphics context present, editor will likely crash");
 	}
 }
 

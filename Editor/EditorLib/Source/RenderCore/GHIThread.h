@@ -11,12 +11,12 @@
 namespace ph::editor
 {
 
-class GHI;
+class GraphicsContext;
 
-class GHIThread final : public TUnbufferedFrameWorkerThread<void(GHI&)>
+class GHIThread final : public TUnbufferedFrameWorkerThread<void(GraphicsContext&)>
 {
 public:
-	using Base = TUnbufferedFrameWorkerThread<void(GHI&)>;
+	using Base = TUnbufferedFrameWorkerThread<void(GraphicsContext&)>;
 
 	GHIThread();
 	~GHIThread() override;
@@ -27,7 +27,7 @@ public:
 	void onBeginFrame() override;
 	void onEndFrame() override;
 
-	void addSetGHIWork(GHI* inGHI);
+	void addSetContextWork(GraphicsContext* inCtx);
 
 	/*!
 	@note Thread-safe.
@@ -35,11 +35,11 @@ public:
 	float32 getFrameTimeMs() const;
 
 private:
-	void setGHI(GHI* inGHI);
+	void setContext(GraphicsContext* inCtx);
 
-	GHI*                 m_GHI;
-	std::unique_ptr<GHI> m_nullGHI;
-	Timer                m_frameTimer;
+	GraphicsContext* m_ctx;
+	std::unique_ptr<GraphicsContext> m_nullCtx;
+	Timer m_frameTimer;
 	std::atomic<float32> m_frameTimeMs;
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/EGraphicsAPI.h"
+
 #include "ThirdParty/GLFW3_fwd.h"
 
 #include <Utility/INoCopyAndMove.h>
@@ -12,7 +13,7 @@
 namespace ph::editor
 {
 
-class GHI;
+class GraphicsContext;
 
 /*! @brief Platform display abstraction.
 @exception PlatformException When error occurred and the platform must terminate its operations.
@@ -27,7 +28,7 @@ protected:
 	virtual ~PlatformDisplay();
 
 public:
-	virtual GHI* getGHI() const = 0;
+	virtual GraphicsContext* getGraphicsContext() const = 0;
 	virtual math::Vector2S getSizePx() const = 0;
 	virtual math::Vector2S getFramebufferSizePx() const = 0;
 	virtual EGraphicsAPI getGraphicsApiType() const = 0;
