@@ -259,7 +259,7 @@ void OpenglGHI::setClearColor(const math::Vector4F& color)
 		lossless_cast<GLclampf>(color.a()));
 }
 
-void OpenglGHI::draw(GHIMesh& mesh, const EGHIInfoMeshDrawMode drawMode)
+void OpenglGHI::draw(GHIMesh& mesh, const EGHIMeshDrawMode drawMode)
 {
 	mesh.bind();
 
@@ -309,7 +309,7 @@ std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer(
 
 std::shared_ptr<GHIShader> OpenglGHI::createShader(
 	std::string name,
-	const EGHIInfoShadingStage shadingStage,
+	const EGHIShadingStage shadingStage,
 	std::string shaderSource)
 {
 	return std::make_shared<OpenglShader>(
@@ -340,7 +340,7 @@ std::shared_ptr<GHIShaderProgram> OpenglGHI::createShaderProgram(
 std::shared_ptr<GHIVertexStorage> OpenglGHI::createVertexStorage(
 	const GHIInfoVertexGroupFormat& format,
 	const std::size_t numVertices,
-	const EGHIInfoStorageUsage usage)
+	const EGHIStorageUsage usage)
 {
 	return std::make_shared<OpenglVertexStorage>(
 		format,
@@ -349,9 +349,9 @@ std::shared_ptr<GHIVertexStorage> OpenglGHI::createVertexStorage(
 }
 
 std::shared_ptr<GHIIndexStorage> OpenglGHI::createIndexStorage(
-	const EGHIInfoStorageElement indexType,
+	const EGHIStorageElement indexType,
 	const std::size_t numIndices,
-	const EGHIInfoStorageUsage usage)
+	const EGHIStorageUsage usage)
 {
 	return std::make_shared<OpenglIndexStorage>(
 		indexType, 

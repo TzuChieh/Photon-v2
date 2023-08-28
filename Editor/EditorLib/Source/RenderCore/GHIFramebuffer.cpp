@@ -4,25 +4,6 @@
 namespace ph::editor
 {
 
-GHIInfoFramebufferFormat::GHIInfoFramebufferFormat()
-	: pixelFormat(EGHIInfoPixelFormat::Empty)
-	, sampleState()
-{}
-
-bool GHIInfoFramebufferFormat::toTextureFormat(GHIInfoTextureFormat& out_textureFormat) const
-{
-	out_textureFormat.pixelFormat = pixelFormat;
-	out_textureFormat.sampleState = sampleState;
-	return true;
-}
-
-GHIInfoFramebufferAttachment::GHIInfoFramebufferAttachment()
-	: sizePx(0, 0)
-	, colorFormats()
-	, depthStencilFormat()
-	, numSamples(1)
-{}
-
 GHIFramebuffer::GHIFramebuffer(const GHIInfoFramebufferAttachment& attachments)
 	: m_attachments(attachments)
 {}

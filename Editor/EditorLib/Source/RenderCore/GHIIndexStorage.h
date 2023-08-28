@@ -10,7 +10,7 @@ namespace ph::editor
 class GHIIndexStorage : public GHIStorage
 {
 public:
-	GHIIndexStorage(EGHIInfoStorageElement indexType, EGHIInfoStorageUsage usage);
+	GHIIndexStorage(EGHIStorageElement indexType, EGHIStorageUsage usage);
 	~GHIIndexStorage() override;
 
 	virtual std::size_t numIndices() const = 0;
@@ -19,16 +19,16 @@ public:
 		const std::byte* rawVertexData,
 		std::size_t numBytes) override = 0;
 
-	EGHIInfoStorageElement getIndexType() const;
+	EGHIStorageElement getIndexType() const;
 
 protected:
 	bool isIntegerIndexType() const;
 
 private:
-	EGHIInfoStorageElement m_indexType;
+	EGHIStorageElement m_indexType;
 };
 
-inline EGHIInfoStorageElement GHIIndexStorage::getIndexType() const
+inline EGHIStorageElement GHIIndexStorage::getIndexType() const
 {
 	return m_indexType;
 }

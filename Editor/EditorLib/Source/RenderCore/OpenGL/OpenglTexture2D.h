@@ -33,7 +33,7 @@ public:
 	void upload(
 		const std::byte* pixelData,
 		std::size_t numBytes,
-		EGHIInfoPixelComponent componentType) override;
+		EGHIPixelComponent componentType) override;
 
 	void bind(uint32 slotIndex) override;
 	MemoryInfo getMemoryInfo() const override;

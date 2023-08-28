@@ -1,49 +1,17 @@
 #pragma once
 
-#include "RenderCore/ghi_enums.h"
-#include "RenderCore/ghi_states.h"
+#include "RenderCore/ghi_infos.h"
 
 #include <Common/primitive_type.h>
-#include <Math/TVector2.h>
 #include <Math/TVector4.h>
 
 #include <cstddef>
-#include <array>
 #include <memory>
 
 namespace ph::editor
 {
 
 class GHITexture2D;
-class GHIInfoTextureFormat;
-
-class GHIInfoFramebufferFormat final
-{
-public:
-	EGHIInfoPixelFormat pixelFormat;
-	GHIInfoSampleState sampleState;
-
-	GHIInfoFramebufferFormat();
-
-	/*!
-	@return `true` if the conversion is an exact match.
-	*/
-	bool toTextureFormat(GHIInfoTextureFormat& out_textureFormat) const;
-};
-
-class GHIInfoFramebufferAttachment final
-{
-public:
-	inline constexpr static uint8 MAX_COLOR_ATTACHMENTS = 8;
-
-public:
-	math::TVector2<uint32> sizePx;
-	std::array<GHIInfoFramebufferFormat, MAX_COLOR_ATTACHMENTS> colorFormats;
-	GHIInfoFramebufferFormat depthStencilFormat;
-	uint8 numSamples;
-
-	GHIInfoFramebufferAttachment();
-};
 
 class GHIFramebuffer : public std::enable_shared_from_this<GHIFramebuffer>
 {

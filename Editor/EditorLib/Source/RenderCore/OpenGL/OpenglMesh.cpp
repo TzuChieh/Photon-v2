@@ -66,9 +66,9 @@ OpenglMesh::OpenglMesh(
 		GHIIndexStorage& indexStorage = getIndexStorage();
 
 		// For drawing purposes, OpenGL supports only these types
-		if(!(indexStorage.getIndexType() == EGHIInfoStorageElement::UInt8 ||
-		     indexStorage.getIndexType() == EGHIInfoStorageElement::UInt16 ||
-		     indexStorage.getIndexType() == EGHIInfoStorageElement::UInt32))
+		if(!(indexStorage.getIndexType() == EGHIStorageElement::UInt8 ||
+		     indexStorage.getIndexType() == EGHIStorageElement::UInt16 ||
+		     indexStorage.getIndexType() == EGHIStorageElement::UInt32))
 		{
 			PH_DEFAULT_LOG_ERROR(
 				"[OpenglMesh] using index storage with unsupported index type for drawing");

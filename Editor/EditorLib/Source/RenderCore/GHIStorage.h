@@ -17,7 +17,7 @@ public:
 		std::monostate,
 		uint64>;
 
-	explicit GHIStorage(EGHIInfoStorageUsage usage);
+	explicit GHIStorage(EGHIStorageUsage usage);
 	virtual ~GHIStorage();
 
 	virtual void upload(
@@ -26,10 +26,10 @@ public:
 
 	virtual NativeHandle getNativeHandle();
 
-	EGHIInfoStorageUsage getUsage() const;
+	EGHIStorageUsage getUsage() const;
 
 private:
-	EGHIInfoStorageUsage m_usage;
+	EGHIStorageUsage m_usage;
 };
 
 inline auto GHIStorage::getNativeHandle()
@@ -38,7 +38,7 @@ inline auto GHIStorage::getNativeHandle()
 	return std::monostate();
 }
 
-inline EGHIInfoStorageUsage GHIStorage::getUsage() const
+inline EGHIStorageUsage GHIStorage::getUsage() const
 {
 	return m_usage;
 }

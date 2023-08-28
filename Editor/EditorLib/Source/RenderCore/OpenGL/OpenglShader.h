@@ -13,7 +13,7 @@ class OpenglShader : public GHIShader
 public:
 	OpenglShader(
 		std::string name, 
-		EGHIInfoShadingStage shadingStage,
+		EGHIShadingStage shadingStage,
 		std::string shaderSource);
 
 	~OpenglShader() override;

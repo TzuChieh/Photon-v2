@@ -12,9 +12,9 @@ class OpenglIndexStorage : public GHIIndexStorage
 {
 public:
 	OpenglIndexStorage(
-		EGHIInfoStorageElement indexType,
+		EGHIStorageElement indexType,
 		std::size_t numIndices,
-		EGHIInfoStorageUsage usage);
+		EGHIStorageUsage usage);
 
 	~OpenglIndexStorage() override;
 

@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-GHIShader::GHIShader(std::string name, const EGHIInfoShadingStage shadingStage)
+GHIShader::GHIShader(std::string name, const EGHIShadingStage shadingStage)
 	: m_name(std::move(name))
 	, m_shadingStage(shadingStage)
 {}

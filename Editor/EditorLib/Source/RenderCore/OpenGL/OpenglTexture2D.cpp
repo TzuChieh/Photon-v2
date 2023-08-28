@@ -60,7 +60,7 @@ OpenglTexture2D::~OpenglTexture2D()
 void OpenglTexture2D::upload(
 	const std::byte* const rawPixelData,
 	const std::size_t numBytes,
-	const EGHIInfoPixelComponent componentType)
+	const EGHIPixelComponent componentType)
 {
 	PH_ASSERT(rawPixelData);
 

@@ -5,18 +5,18 @@
 namespace ph::editor::opengl
 {
 
-GLenum to_internal_format(const EGHIInfoPixelFormat format)
+GLenum to_internal_format(const EGHIPixelFormat format)
 {
 	switch(format)
 	{
-	case EGHIInfoPixelFormat::Empty: return GL_NONE;
-	case EGHIInfoPixelFormat::RGB_8: return GL_RGB8;
-	case EGHIInfoPixelFormat::RGBA_8: return GL_RGBA8;
-	case EGHIInfoPixelFormat::RGB_16F: return GL_RGB16F;
-	case EGHIInfoPixelFormat::RGBA_16F: return GL_RGBA16F;
-	case EGHIInfoPixelFormat::RGB_32F: return GL_RGB32F;
-	case EGHIInfoPixelFormat::RGBA_32F: return GL_RGBA32F;
-	case EGHIInfoPixelFormat::Depth_24_Stencil_8: return GL_DEPTH24_STENCIL8;
+	case EGHIPixelFormat::Empty: return GL_NONE;
+	case EGHIPixelFormat::RGB_8: return GL_RGB8;
+	case EGHIPixelFormat::RGBA_8: return GL_RGBA8;
+	case EGHIPixelFormat::RGB_16F: return GL_RGB16F;
+	case EGHIPixelFormat::RGBA_16F: return GL_RGBA16F;
+	case EGHIPixelFormat::RGB_32F: return GL_RGB32F;
+	case EGHIPixelFormat::RGBA_32F: return GL_RGBA32F;
+	case EGHIPixelFormat::Depth_24_Stencil_8: return GL_DEPTH24_STENCIL8;
 	default: PH_ASSERT_UNREACHABLE_SECTION(); return GL_NONE;
 	}
 }
@@ -144,40 +144,40 @@ bool is_color_format(const GLenum internalFormat)
 	}
 }
 
-GLenum translate(const EGHIInfoPixelComponent componentType)
+GLenum translate(const EGHIPixelComponent componentType)
 {
 	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
 
 	switch(componentType)
 	{
-	case EGHIInfoPixelComponent::Empty:
+	case EGHIPixelComponent::Empty:
 		return GL_NONE;
 
-	case EGHIInfoPixelComponent::Int8:
+	case EGHIPixelComponent::Int8:
 		return GL_BYTE;
 
-	case EGHIInfoPixelComponent::UInt8:
+	case EGHIPixelComponent::UInt8:
 		return GL_UNSIGNED_BYTE;
 
-	case EGHIInfoPixelComponent::Int16:
+	case EGHIPixelComponent::Int16:
 		return GL_SHORT;
 
-	case EGHIInfoPixelComponent::UInt16:
+	case EGHIPixelComponent::UInt16:
 		return GL_UNSIGNED_SHORT;
 
-	case EGHIInfoPixelComponent::Int32:
+	case EGHIPixelComponent::Int32:
 		return GL_INT;
 
-	case EGHIInfoPixelComponent::UInt32:
+	case EGHIPixelComponent::UInt32:
 		return GL_UNSIGNED_INT;
 
-	case EGHIInfoPixelComponent::Float16:
+	case EGHIPixelComponent::Float16:
 		return GL_HALF_FLOAT;
 
-	case EGHIInfoPixelComponent::Float32:
+	case EGHIPixelComponent::Float32:
 		return GL_FLOAT;
 
-	case EGHIInfoPixelComponent::Float64:
+	case EGHIPixelComponent::Float64:
 		return GL_DOUBLE;
 
 	default:
@@ -186,40 +186,40 @@ GLenum translate(const EGHIInfoPixelComponent componentType)
 	}
 }
 
-GLenum translate(const EGHIInfoStorageElement elementType)
+GLenum translate(const EGHIStorageElement elementType)
 {
 	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
 
 	switch(elementType)
 	{
-	case EGHIInfoStorageElement::Empty:
+	case EGHIStorageElement::Empty:
 		return GL_NONE;
 
-	case EGHIInfoStorageElement::Int8:
+	case EGHIStorageElement::Int8:
 		return GL_BYTE;
 
-	case EGHIInfoStorageElement::UInt8:
+	case EGHIStorageElement::UInt8:
 		return GL_UNSIGNED_BYTE;
 
-	case EGHIInfoStorageElement::Int16:
+	case EGHIStorageElement::Int16:
 		return GL_SHORT;
 
-	case EGHIInfoStorageElement::UInt16:
+	case EGHIStorageElement::UInt16:
 		return GL_UNSIGNED_SHORT;
 
-	case EGHIInfoStorageElement::Int32:
+	case EGHIStorageElement::Int32:
 		return GL_INT;
 
-	case EGHIInfoStorageElement::UInt32:
+	case EGHIStorageElement::UInt32:
 		return GL_UNSIGNED_INT;
 
-	case EGHIInfoStorageElement::Float16:
+	case EGHIStorageElement::Float16:
 		return GL_HALF_FLOAT;
 
-	case EGHIInfoStorageElement::Float32:
+	case EGHIStorageElement::Float32:
 		return GL_FLOAT;
 
-	case EGHIInfoStorageElement::Float64:
+	case EGHIStorageElement::Float64:
 		return GL_DOUBLE;
 
 	default:
@@ -228,29 +228,29 @@ GLenum translate(const EGHIInfoStorageElement elementType)
 	}
 }
 
-GLenum translate(const EGHIInfoMeshDrawMode drawMode)
+GLenum translate(const EGHIMeshDrawMode drawMode)
 {
 	switch(drawMode)
 	{
-	case EGHIInfoMeshDrawMode::Points:
+	case EGHIMeshDrawMode::Points:
 		return GL_POINTS;
 
-	case EGHIInfoMeshDrawMode::LineSegments:
+	case EGHIMeshDrawMode::LineSegments:
 		return GL_LINES;
 
-	case EGHIInfoMeshDrawMode::LineCurveOpened:
+	case EGHIMeshDrawMode::LineCurveOpened:
 		return GL_LINE_STRIP;
 
-	case EGHIInfoMeshDrawMode::LineCurveClosed:
+	case EGHIMeshDrawMode::LineCurveClosed:
 		return GL_LINE_LOOP;
 
-	case EGHIInfoMeshDrawMode::TriangleStrip:
+	case EGHIMeshDrawMode::TriangleStrip:
 		return GL_TRIANGLE_STRIP;
 
-	case EGHIInfoMeshDrawMode::TriangleFan:
+	case EGHIMeshDrawMode::TriangleFan:
 		return GL_TRIANGLE_FAN;
 
-	case EGHIInfoMeshDrawMode::Triangles:
+	case EGHIMeshDrawMode::Triangles:
 		return GL_TRIANGLES;
 
 	default:
@@ -259,17 +259,17 @@ GLenum translate(const EGHIInfoMeshDrawMode drawMode)
 	}
 }
 
-GLenum translate(const EGHIInfoShadingStage shadingStage)
+GLenum translate(const EGHIShadingStage shadingStage)
 {
 	switch(shadingStage)
 	{
-	case EGHIInfoShadingStage::Vertex:
+	case EGHIShadingStage::Vertex:
 		return GL_VERTEX_SHADER;
 
-	case EGHIInfoShadingStage::Fragment:
+	case EGHIShadingStage::Fragment:
 		return GL_FRAGMENT_SHADER;
 
-	case EGHIInfoShadingStage::Compute:
+	case EGHIShadingStage::Compute:
 		return GL_COMPUTE_SHADER;
 
 	default:

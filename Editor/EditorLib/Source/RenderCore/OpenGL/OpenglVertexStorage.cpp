@@ -41,7 +41,7 @@ namespace ph::editor
 OpenglVertexStorage::OpenglVertexStorage(
 	const GHIInfoVertexGroupFormat& format,
 	const std::size_t numVertices,
-	const EGHIInfoStorageUsage usage)
+	const EGHIStorageUsage usage)
 
 	: GHIVertexStorage(format, usage)
 
@@ -66,7 +66,7 @@ void OpenglVertexStorage::upload(
 	// The input data must be for the entire vertex buffer--same number of total bytes
 	PH_ASSERT_EQ(numBytes(), inNumBytes);
 
-	if(getUsage() == EGHIInfoStorageUsage::Static)
+	if(getUsage() == EGHIStorageUsage::Static)
 	{
 		glNamedBufferStorage(
 			m_vboID,

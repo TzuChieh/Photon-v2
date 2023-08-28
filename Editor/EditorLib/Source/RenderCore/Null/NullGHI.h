@@ -29,7 +29,7 @@ public:
 	inline void setClearColor(const math::Vector4F& color) override
 	{}
 
-	inline void draw(GHIMesh& mesh, EGHIInfoMeshDrawMode drawMode) override
+	inline void draw(GHIMesh& mesh, EGHIMeshDrawMode drawMode) override
 	{}
 
 	inline void swapBuffers() override
@@ -50,7 +50,7 @@ public:
 
 	inline std::shared_ptr<GHIShader> createShader(
 		std::string name,
-		EGHIInfoShadingStage shadingStage,
+		EGHIShadingStage shadingStage,
 		std::string shaderSource) override
 	{
 		return nullptr;
@@ -66,15 +66,15 @@ public:
 	inline std::shared_ptr<GHIVertexStorage> createVertexStorage(
 		const GHIInfoVertexGroupFormat& format,
 		std::size_t numVertices,
-		EGHIInfoStorageUsage usage) override
+		EGHIStorageUsage usage) override
 	{
 		return nullptr;
 	}
 
 	inline std::shared_ptr<GHIIndexStorage> createIndexStorage(
-		EGHIInfoStorageElement indexType,
+		EGHIStorageElement indexType,
 		std::size_t numIndices,
-		EGHIInfoStorageUsage usage) override
+		EGHIStorageUsage usage) override
 	{
 		return nullptr;
 	}

@@ -3,7 +3,7 @@
 namespace ph::editor
 {
 
-GHIStorage::GHIStorage(const EGHIInfoStorageUsage usage)
+GHIStorage::GHIStorage(const EGHIStorageUsage usage)
 	: m_usage(usage)
 {}
 

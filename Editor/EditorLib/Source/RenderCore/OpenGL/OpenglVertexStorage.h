@@ -14,7 +14,7 @@ public:
 	OpenglVertexStorage(
 		const GHIInfoVertexGroupFormat& format, 
 		std::size_t numVertices,
-		EGHIInfoStorageUsage usage);
+		EGHIStorageUsage usage);
 
 	~OpenglVertexStorage() override;
 

@@ -3,7 +3,7 @@
 namespace ph::editor
 {
 
-GHIIndexStorage::GHIIndexStorage(const EGHIInfoStorageElement indexType, const EGHIInfoStorageUsage usage)
+GHIIndexStorage::GHIIndexStorage(const EGHIStorageElement indexType, const EGHIStorageUsage usage)
 	: GHIStorage(usage)
 	, m_indexType(indexType)
 {}
@@ -13,14 +13,14 @@ GHIIndexStorage::~GHIIndexStorage() = default;
 bool GHIIndexStorage::isIntegerIndexType() const
 {
 	return 
-		m_indexType == EGHIInfoStorageElement::Int8 ||
-		m_indexType == EGHIInfoStorageElement::UInt8 ||
-		m_indexType == EGHIInfoStorageElement::Int16 ||
-		m_indexType == EGHIInfoStorageElement::UInt16 ||
-		m_indexType == EGHIInfoStorageElement::Int32 ||
-		m_indexType == EGHIInfoStorageElement::UInt32 ||
-		m_indexType == EGHIInfoStorageElement::Int64 ||
-		m_indexType == EGHIInfoStorageElement::UInt64;
+		m_indexType == EGHIStorageElement::Int8 ||
+		m_indexType == EGHIStorageElement::UInt8 ||
+		m_indexType == EGHIStorageElement::Int16 ||
+		m_indexType == EGHIStorageElement::UInt16 ||
+		m_indexType == EGHIStorageElement::Int32 ||
+		m_indexType == EGHIStorageElement::UInt32 ||
+		m_indexType == EGHIStorageElement::Int64 ||
+		m_indexType == EGHIStorageElement::UInt64;
 }
 
 }// end namespace ph::editor

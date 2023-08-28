@@ -6,9 +6,9 @@ namespace ph::editor
 {
 
 OpenglIndexStorage::OpenglIndexStorage(
-	const EGHIInfoStorageElement indexType,
+	const EGHIStorageElement indexType,
 	const std::size_t numIndices,
-	const EGHIInfoStorageUsage usage)
+	const EGHIStorageUsage usage)
 
 	: GHIIndexStorage(indexType, usage)
 
@@ -37,7 +37,7 @@ void OpenglIndexStorage::upload(
 	// The input data must be for the entire index buffer--same number of total bytes
 	PH_ASSERT_EQ(numBytes(), inNumBytes);
 
-	if(getUsage() == EGHIInfoStorageUsage::Static)
+	if(getUsage() == EGHIStorageUsage::Static)
 	{
 		glNamedBufferStorage(
 			m_iboID,

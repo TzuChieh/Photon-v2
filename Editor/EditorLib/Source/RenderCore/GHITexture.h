@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RenderCore/ghi_enums.h"
-#include "RenderCore/ghi_states.h"
+#include "RenderCore/ghi_infos.h"
 
 #include <Math/TVector3.h>
 #include <Common/primitive_type.h>
@@ -12,21 +12,7 @@
 namespace ph::editor
 {
 
-class GHIInfoFramebufferFormat;
-
-class GHIInfoTextureFormat final
-{
-public:
-	EGHIInfoPixelFormat pixelFormat;
-	GHIInfoSampleState sampleState;
-
-	GHIInfoTextureFormat();
-
-	/*!
-	@return `true` if the conversion is an exact match.
-	*/
-	bool toFramebufferFormat(GHIInfoFramebufferFormat& framebufferFormat) const;
-};
+class GHIInfoTextureFormat;
 
 class GHITexture
 {
@@ -48,7 +34,7 @@ public:
 	virtual void upload(
 		const std::byte* pixelData, 
 		std::size_t numBytes, 
-		EGHIInfoPixelComponent componentType) = 0;
+		EGHIPixelComponent componentType) = 0;
 
 	virtual void bind(uint32 slotIndex) = 0;
 

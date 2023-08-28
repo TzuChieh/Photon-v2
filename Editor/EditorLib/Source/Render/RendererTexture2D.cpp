@@ -50,7 +50,7 @@ void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 			m_ghiTexture->upload(
 				m_textureData->getData(),
 				m_textureData->numBytesInData(),
-				translate_to<EGHIInfoPixelComponent>(m_textureData->getComponentType()));
+				translate_to<EGHIPixelComponent>(m_textureData->getComponentType()));
 			
 			m_textureData = nullptr;
 		});

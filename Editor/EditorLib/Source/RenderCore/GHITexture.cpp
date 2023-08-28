@@ -4,18 +4,6 @@
 namespace ph::editor
 {
 
-GHIInfoTextureFormat::GHIInfoTextureFormat()
-	: pixelFormat(EGHIInfoPixelFormat::Empty)
-	, sampleState()
-{}
-
-bool GHIInfoTextureFormat::toFramebufferFormat(GHIInfoFramebufferFormat& framebufferFormat) const
-{
-	framebufferFormat.pixelFormat = pixelFormat;
-	framebufferFormat.sampleState = sampleState;
-	return true;
-}
-
 GHITexture::~GHITexture() = default;
 
 GHITexture::GHITexture(const GHIInfoTextureFormat& format)

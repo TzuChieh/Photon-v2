@@ -12,7 +12,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(OpenglShader, GHI);
 
 OpenglShader::OpenglShader(
 	std::string name, 
-	const EGHIInfoShadingStage shadingStage,
+	const EGHIShadingStage shadingStage,
 	std::string shaderSource)
 
 	: GHIShader(std::move(name), shadingStage)

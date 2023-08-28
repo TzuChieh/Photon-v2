@@ -1,7 +1,7 @@
 #pragma once
 
+#include "RenderCore/ghi_fwd.h"
 #include "RenderCore/ghi_enums.h"
-#include "RenderCore/ghi_states.h"
 #include "RenderCore/GHITexture2D.h"
 #include "RenderCore/GHIFramebuffer.h"
 #include "RenderCore/GHIShader.h"
@@ -67,7 +67,7 @@ public:
 
 	virtual void setClearColor(const math::Vector4F& color) = 0;
 
-	virtual void draw(GHIMesh& mesh, EGHIInfoMeshDrawMode drawMode) = 0;
+	virtual void draw(GHIMesh& mesh, EGHIMeshDrawMode drawMode) = 0;
 
 	virtual void swapBuffers() = 0;
 
@@ -80,7 +80,7 @@ public:
 
 	virtual std::shared_ptr<GHIShader> createShader(
 		std::string name, 
-		EGHIInfoShadingStage shadingStage,
+		EGHIShadingStage shadingStage,
 		std::string shaderSource) = 0;
 
 	virtual std::shared_ptr<GHIShaderProgram> createShaderProgram(
@@ -90,12 +90,12 @@ public:
 	virtual std::shared_ptr<GHIVertexStorage> createVertexStorage(
 		const GHIInfoVertexGroupFormat& format,
 		std::size_t numVertices,
-		EGHIInfoStorageUsage usage) = 0;
+		EGHIStorageUsage usage) = 0;
 
 	virtual std::shared_ptr<GHIIndexStorage> createIndexStorage(
-		EGHIInfoStorageElement indexType,
+		EGHIStorageElement indexType,
 		std::size_t numIndices,
-		EGHIInfoStorageUsage usage) = 0;
+		EGHIStorageUsage usage) = 0;
 
 	virtual std::shared_ptr<GHIMesh> createMesh(
 		const GHIInfoMeshVertexLayout& layout,

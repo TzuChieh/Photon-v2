@@ -23,7 +23,7 @@ public:
 	void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override;
 	void clearBuffer(EClearTarget targets) override;
 	void setClearColor(const math::Vector4F& color) override;
-	void draw(GHIMesh& mesh, EGHIInfoMeshDrawMode drawMode) override;
+	void draw(GHIMesh& mesh, EGHIMeshDrawMode drawMode) override;
 	void swapBuffers() override;
 
 	std::shared_ptr<GHITexture2D> createTexture2D(
@@ -35,7 +35,7 @@ public:
 
 	std::shared_ptr<GHIShader> createShader(
 		std::string name,
-		EGHIInfoShadingStage shadingStage,
+		EGHIShadingStage shadingStage,
 		std::string shaderSource) override;
 
 	std::shared_ptr<GHIShaderProgram> createShaderProgram(
@@ -45,12 +45,12 @@ public:
 	std::shared_ptr<GHIVertexStorage> createVertexStorage(
 		const GHIInfoVertexGroupFormat& format,
 		std::size_t numVertices,
-		EGHIInfoStorageUsage usage) override;
+		EGHIStorageUsage usage) override;
 
 	std::shared_ptr<GHIIndexStorage> createIndexStorage(
-		EGHIInfoStorageElement indexType,
+		EGHIStorageElement indexType,
 		std::size_t numIndices,
-		EGHIInfoStorageUsage usage) override;
+		EGHIStorageUsage usage) override;
 
 	std::shared_ptr<GHIMesh> createMesh(
 		const GHIInfoMeshVertexLayout& layout,

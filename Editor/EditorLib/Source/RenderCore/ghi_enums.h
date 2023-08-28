@@ -15,7 +15,7 @@ namespace ph::editor
 Unless stated explicitly, the characters RGB does not mean the pixel is in RGB color space. 
 It simply represents pixel components, using R, G, B as placeholders.
 */
-enum class EGHIInfoPixelFormat : uint8
+enum class EGHIPixelFormat : uint8
 {
 	Empty = 0,
 	RGB_8,
@@ -27,7 +27,7 @@ enum class EGHIInfoPixelFormat : uint8
 	Depth_24_Stencil_8
 };
 
-enum class EGHIInfoPixelComponent : uint8
+enum class EGHIPixelComponent : uint8
 {
 	Empty = 0,
 	Int8,
@@ -43,19 +43,19 @@ enum class EGHIInfoPixelComponent : uint8
 	Float64
 };
 
-enum class EGHIInfoFilterMode : uint8
+enum class EGHIFilterMode : uint8
 {
 	Point,
 	Linear
 };
 
-enum class EGHIInfoWrapMode : uint8
+enum class EGHIWrapMode : uint8
 {
 	ClampToEdge,
 	Repeat
 };
 
-enum class EGHIInfoStorageElement : uint8
+enum class EGHIStorageElement : uint8
 {
 	Empty = 0,
 	Int8,
@@ -71,14 +71,14 @@ enum class EGHIInfoStorageElement : uint8
 	Float64
 };
 
-enum class EGHIInfoStorageUsage : uint8
+enum class EGHIStorageUsage : uint8
 {
 	Unspecified = 0,
 	Static,
 	Dynamic
 };
 
-enum class EGHIInfoMeshDrawMode : uint8
+enum class EGHIMeshDrawMode : uint8
 {
 	Points,
 	LineSegments,
@@ -89,7 +89,7 @@ enum class EGHIInfoMeshDrawMode : uint8
 	Triangles
 };
 
-enum class EGHIInfoShadingStage : uint8
+enum class EGHIShadingStage : uint8
 {
 	Unspecified = 0,
 	Vertex,
@@ -97,9 +97,9 @@ enum class EGHIInfoShadingStage : uint8
 	Compute
 };
 
-std::size_t num_bytes(EGHIInfoPixelFormat format);
-std::size_t num_bytes(EGHIInfoPixelComponent component);
-std::size_t num_bytes(EGHIInfoStorageElement element);
+std::size_t num_bytes(EGHIPixelFormat format);
+std::size_t num_bytes(EGHIPixelComponent component);
+std::size_t num_bytes(EGHIStorageElement element);
 
 template<CEnum DstEnumType>
 DstEnumType translate_to(EPicturePixelComponent pictureComponent);

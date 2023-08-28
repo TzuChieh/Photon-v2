@@ -1,11 +1,11 @@
 #pragma once
 
+#include "RenderCore/ghi_fwd.h"
+
 #include "ThirdParty/glad2.h"
 
 namespace ph::editor
 {
-
-class GHIInfoSampleState;
 
 class OpenglSampleState final
 {

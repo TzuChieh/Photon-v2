@@ -19,17 +19,17 @@ public:
 		std::monostate,
 		uint64>;
 
-	GHIShader(std::string name, EGHIInfoShadingStage shadingStage);
+	GHIShader(std::string name, EGHIShadingStage shadingStage);
 	virtual ~GHIShader();
 
 	virtual NativeHandle getNativeHandle();
 
 	std::string_view getName() const;
-	EGHIInfoShadingStage getShadingStage() const;
+	EGHIShadingStage getShadingStage() const;
 
 private:
 	std::string m_name;
-	EGHIInfoShadingStage m_shadingStage;
+	EGHIShadingStage m_shadingStage;
 };
 
 inline auto GHIShader::getNativeHandle()
@@ -43,13 +43,13 @@ inline std::string_view GHIShader::getName() const
 	return m_name;
 }
 
-inline EGHIInfoShadingStage GHIShader::getShadingStage() const
+inline EGHIShadingStage GHIShader::getShadingStage() const
 {
 	return m_shadingStage;
 }
 
 /*!
-Basically stores a shader reference for each `EGHIInfoShadingStage` entry.
+Basically stores a shader reference for each `EGHIShadingStage` entry.
 */
 class GHIShaderSet final
 {

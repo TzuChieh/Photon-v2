@@ -125,7 +125,7 @@ void ImguiImageLibrary::addTextures(RenderThreadCaller& caller)
 		}
 
 		GHIInfoTextureFormat textureFormat;
-		textureFormat.pixelFormat = EGHIInfoPixelFormat::RGBA_8;
+		textureFormat.pixelFormat = EGHIPixelFormat::RGBA_8;
 
 		auto textureData = std::make_unique<PictureData>(
 			std::move(entry.sourcePicture->getPixels()));

@@ -54,7 +54,7 @@ OpenglFramebufferBackedTexture2D::~OpenglFramebufferBackedTexture2D()
 void OpenglFramebufferBackedTexture2D::upload(
 	const std::byte* const pixelData,
 	const std::size_t numBytes,
-	const EGHIInfoPixelComponent componentType)
+	const EGHIPixelComponent componentType)
 {
 	// TODO
 	PH_ASSERT_UNREACHABLE_SECTION();
