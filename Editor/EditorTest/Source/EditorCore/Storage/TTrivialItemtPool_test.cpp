@@ -19,7 +19,16 @@ public:
 	double z = 0.0;
 };
 
+class SimpleClass2
+{
+public:
+	int x = -777;
+	float y = 2.0f;
+	double z = 3.0;
+};
+
 static_assert(std::is_trivially_copyable_v<SimpleClass>);
+static_assert(std::is_trivially_copyable_v<SimpleClass2>);
 
 }
 
@@ -149,5 +158,68 @@ TEST(TTrivialItemPoolTest, AddingAndRemovingItems)
 			EXPECT_TRUE(pool.isFresh(handles[i]));
 		}
 		EXPECT_EQ(pool.numItems(), 0);
+	}
+}
+
+TEST(TTrivialItemPoolTest, RemovedItemHasDefaultValue)
+{
+	// Using `SimpleClass2`, which has non-zero default values
+	using Pool = TTrivialItemPool<SimpleClass2>;
+	using Handle = Pool::HandleType;
+	using HandleDispatcher = TConcurrentHandleDispatcher<Handle>;
+
+	constexpr int numItems = 1000;
+
+	Pool pool;
+
+	// Create dummy items
+	std::vector<Handle> handles;
+	for(int i = 0; i < numItems; ++i)
+	{
+		// Make unique internal state, actual value doesn't matter,
+		// just need to be different than default ones
+		SimpleClass2 obj;
+		obj.x = i * 3;
+		obj.y = i * 4.0f;
+		obj.z = i * -123.0;
+
+		handles.push_back(pool.add(obj));
+	}
+
+	const SimpleClass2 defaultObj;
+
+	// Case 1: removing one by one
+	{
+		Pool copiedPool = pool;
+		for(int i = 0; i < numItems; ++i)
+		{
+			Handle newHandle = copiedPool.removeAt(handles[i]);
+			SimpleClass2* obj = copiedPool.get(newHandle);
+			ASSERT_TRUE(obj);
+
+			EXPECT_EQ(obj->x, defaultObj.x);
+			EXPECT_EQ(obj->y, defaultObj.y);
+			EXPECT_EQ(obj->z, defaultObj.z);
+		}
+	}
+
+	// Case 2: implicitly removed (non-initialized items)
+	{
+		Pool copiedPool = pool;
+
+		// Make sure capacity grows larger than `numItems` so we can test whether non-initialized
+		// items also have default values. If failed, try to make this condition true again.
+		EXPECT_GT(copiedPool.capacity(), numItems);
+
+		for(int i = numItems; i < copiedPool.capacity(); ++i)
+		{
+			Handle newHandle = copiedPool.dispatchOneHandle();
+			SimpleClass2* obj = copiedPool.get(newHandle);
+			ASSERT_TRUE(obj);
+
+			EXPECT_EQ(obj->x, defaultObj.x);
+			EXPECT_EQ(obj->y, defaultObj.y);
+			EXPECT_EQ(obj->z, defaultObj.z);
+		}
 	}
 }

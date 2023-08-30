@@ -35,8 +35,8 @@ template<
 	typename ItemInterface = Item>
 class TItemPool : public TItemPoolInterface<ItemInterface, typename Dispatcher::HandleType>
 {
-	static_assert(std::move_constructible<Item>,
-		"An item must be move constructible.");
+	static_assert(std::is_move_constructible_v<Item>,
+		"Item must be move constructible.");
 
 public:
 	using HandleType = typename Dispatcher::HandleType;
@@ -235,7 +235,7 @@ public:
 	}
 
 	/*! @brief Place `item` at the storage slot indicated by `handle`.
-	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
+	Manual handle management API. Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
 	@return Handle of the created `item`. Equivalent to the input `handle`.
 	*/
 	template<typename ItemType>
@@ -278,7 +278,7 @@ public:
 	}
 
 	/*! @brief Remove the item at the storage slot indicated by `handle`.
-	Complexity: O(1).
+	Manual handle management API. Complexity: O(1).
 	@return The handle for creating a new item on the storage slot that was indicated by `handle`.
 	The returned handle should not be discarded and is expected to be returned to the pool later by
 	calling `returnOneHandle()`.
@@ -298,13 +298,17 @@ public:
 
 		// Generally should not happen: the generation counter increases on each item removal, using
 		// the same handle to call this method again will result in `isFresh()` being false which
-		// will throw. If this fails, could be generation collision or bad handles (from wrong pool).
+		// will throw. If this fails, could be generation collision, use after removal, or bad handles
+		// (from wrong pool).
 		PH_ASSERT(!m_storageStates[itemIdx].isFreed);
 
 		removeItemAtIndex(itemIdx);
 		return getHandleByIndex(itemIdx);
 	}
 
+	/*!
+	Manual handle management API.
+	*/
 	inline HandleType dispatchOneHandle()
 	{
 		// Note: call the dispatcher without touching internal states, as this method may be called
@@ -312,6 +316,9 @@ public:
 		return m_dispatcher.dispatchOne();
 	}
 
+	/*!
+	Manual handle management API.
+	*/
 	template<typename ItemType>
 	inline void returnOneHandle(const TCompatibleHandleType<ItemType>& handle)
 	{
@@ -336,21 +343,43 @@ public:
 			});
 	}
 
-	/*!
+	/*! @brief Get item by handle.
+	It is an error to access items (with allocated storage space) before construction.
 	Complexity: O(1).
+	@return Pointer to the item. Null if item does not exist.
 	*/
 	template<typename ItemType>
 	inline ItemType* get(const TCompatibleHandleType<ItemType>& handle)
 	{
+#if PH_DEBUG
+		if(isFresh(handle))
+		{
+			PH_ASSERT_MSG(!m_storageStates[handle.getIndex()].isFreed,
+				"Using item without initialization. "
+				"Please make sure item is constructed before calling `get()`.");
+		}
+#endif
+
 		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
 
-	/*!
+	/*! @brief Get item by handle.
+	It is an error to access items (with allocated storage space) before construction.
 	Complexity: O(1).
+	@return Pointer to the item. Null if item does not exist.
 	*/
 	template<typename ItemType>
 	inline const ItemType* get(const TCompatibleHandleType<ItemType>& handle) const
 	{
+#if PH_DEBUG
+		if(isFresh(handle))
+		{
+			PH_ASSERT_MSG(!m_storageStates[handle.getIndex()].isFreed,
+				"Using item without initialization. "
+				"Please make sure item is constructed before calling `get()`.");
+		}
+#endif
+
 		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
 

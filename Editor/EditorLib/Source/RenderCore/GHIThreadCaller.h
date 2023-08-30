@@ -16,7 +16,7 @@ public:
 	explicit GHIThreadCaller(GHIThread& ghiThread);
 
 	/*!
-	Work signature: callable as `void(GHI&)`, can be wrapped as a `TFunction`.
+	Work signature: callable as `void(GraphicsContext&)`, can be wrapped as a `TFunction`.
 	*/
 	template<typename WorkType>
 	inline void add(WorkType&& work)

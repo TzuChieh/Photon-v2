@@ -24,14 +24,28 @@ namespace ph::editor
 {
 
 /*! @brief Item pool for trivially-copyable types.
+This item pool is designed to minimize execution time and memory footprint. As a result, some
+operations are not possible compare to `TItemPool`, e.g., iteration on items, clear, etc. User is
+expected to keep track of the handles and use them to iterate the container the way they prefer.
+When using manual handle management APIs, lost handles cannot be retrieved and those storage slots
+are effectively leaked (pool dtor will still correctly free the memory though).
+
+Note on the lack of `clear()` method: We are not tracking slot validity, so no chance to iterate
+through valid/constructed items and remove them one by one. Simply clearing the whole pool and
+return all handles to the dispatcher will face stale handle issues sooner or later, as pre-existing
+valid handles (either the ones in the dispatcher or the ones tracked manually by the user) will
+suddenly become invalid. A more complex API/policy may solve the problem, but the increased
+complexity might not worth it, and such feature is not needed currently.
 */
 template<typename Item, CHandleDispatcher Dispatcher = THandleDispatcher<TWeakHandle<Item>>>
 class TTrivialItemPool : public TItemPoolInterface<Item, typename Dispatcher::HandleType>
 {
 	static_assert(std::is_default_constructible_v<Item>,
-		"A trivial item must be default constructible.");
+		"Item must be default constructible.");
+	static_assert(std::is_move_constructible_v<Item>,
+		"Item must be move constructible.");
 	static_assert(std::is_trivially_copyable_v<Item>,
-		"A trivial item must be trivially copyable.");
+		"Item must be trivially copyable.");
 
 public:
 	using HandleType = typename Dispatcher::HandleType;
@@ -82,13 +96,7 @@ public:
 		return *this;
 	}
 
-	inline ~TTrivialItemPool() override
-	{
-		clear();
-
-		// All items should be removed at the end
-		PH_ASSERT_EQ(m_numItems, 0);
-	}
+	inline ~TTrivialItemPool() override = default;
 
 	inline Item* accessItem(const HandleType& handle) override
 	{
@@ -118,7 +126,7 @@ public:
 	}
 
 	/*! @brief Place `item` at the storage slot indicated by `handle`.
-	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
+	Manual handle management API. Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
 	@return Handle of the created `item`. Same as the input `handle`.
 	*/
 	inline HandleType createAt(const HandleType& handle, Item item)
@@ -165,7 +173,7 @@ public:
 	}
 
 	/*! @brief Remove the item at the storage slot indicated by `handle`.
-	Complexity: O(1).
+	Manual handle management API. Complexity: O(1).
 	@return The handle for creating a new item on the storage slot that was indicated by `handle`.
 	The returned handle should not be discarded and is expected to be returned to the pool later by
 	calling `returnOneHandle()`.
@@ -183,9 +191,11 @@ public:
 		const Index itemIdx = handle.getIndex();
 		PH_ASSERT_LT(itemIdx, capacity());
 
-		// This is not necessary as we are dealing with trivially destructible objects,
-		// just to be safe and consistent
-		std::destroy_at(m_storageMemory.get() + itemIdx);
+		// Calling dtor is not necessary as we are dealing with trivially destructible objects
+		static_assert(std::is_trivially_destructible_v<Item>);
+
+		// Instead, we clear it by default constructing a new instance
+		std::construct_at(m_storageMemory.get() + itemIdx, Item{});
 
 		const Generation newGeneration = HandleType::nextGeneration(handle.getGeneration());
 		m_generations[itemIdx] = newGeneration;
@@ -193,6 +203,9 @@ public:
 		return HandleType(handle.getIndex(), newGeneration);
 	}
 
+	/*!
+	Manual handle management API.
+	*/
 	inline HandleType dispatchOneHandle()
 	{
 		// Note: call the dispatcher without touching internal states, as this method may be called
@@ -200,6 +213,9 @@ public:
 		return m_dispatcher.dispatchOne();
 	}
 
+	/*!
+	Manual handle management API.
+	*/
 	inline void returnOneHandle(const HandleType& handle)
 	{
 		// Note: call the dispatcher without touching internal states, as this method may be called
@@ -207,23 +223,22 @@ public:
 		m_dispatcher.returnOne(handle);
 	}
 
-	inline void clear()
-	{
-		// We are not tracking slot validity, no chance & no need to destruct objects manually as
-		// we are dealing with trivially destructible objects
-		m_numItems = 0;
-	}
-
-	/*!
+	/*! @brief Get item by handle.
+	Note that accessing items before construction is also allowed. If storage space is allocated for
+	the target item, it will be initialized to the same value as a default-constructed item.
 	Complexity: O(1).
+	@return Pointer to the item. Null if item does not exist.
 	*/
 	inline Item* get(const HandleType& handle)
 	{
 		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
 	}
 
-	/*!
+	/*! @brief Get item by handle.
+	Note that accessing items before construction is also allowed. If storage space is allocated for
+	the target item, it will be initialized to the same value as a default-constructed item.
 	Complexity: O(1).
+	@return Pointer to the item. Null if item does not exist.
 	*/
 	inline const Item* get(const HandleType& handle) const
 	{
@@ -297,12 +312,13 @@ private:
 			throw std::bad_alloc();
 		}
 
-		// Copying the memory starts new object lifetime. Behavior is finally defined since C++20
+		// Copying the memory also starts new object lifetime. Behavior is finally defined since C++20
 		// (see C++20's Implicit Object Creation)
-		std::copy(
-			m_storageMemory.get(), 
-			m_storageMemory.get() + oldCapacity,
-			newStorageMemory.get());
+		std::copy_n(m_storageMemory.get(), oldCapacity, newStorageMemory.get());
+
+		// Set newly created storage space to default values, since accessing items before their
+		// construction is explicitly stated to behave like they are default-constructed.
+		std::fill_n(newStorageMemory.get() + oldCapacity, newCapacity - oldCapacity, Item{});
 
 		// Extend generation records to cover new storage spaces
 		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);

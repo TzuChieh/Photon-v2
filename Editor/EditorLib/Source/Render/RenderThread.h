@@ -48,6 +48,11 @@ public:
 	*/
 	float32 getGHIFrameTimeMs() const;
 
+	/*!
+	@note Thread-safe.
+	*/
+	std::thread::id getGHIWorkerThreadId() const;
+
 private:
 	void beginProcessFrame();
 	void endProcessFrame();
@@ -67,6 +72,11 @@ inline float32 RenderThread::getFrameTimeMs() const
 inline float32 RenderThread::getGHIFrameTimeMs() const
 {
 	return m_ghiThread.getFrameTimeMs();
+}
+
+inline std::thread::id RenderThread::getGHIWorkerThreadId() const
+{
+	return m_ghiThread.getWorkerThreadId();
 }
 
 }// end namespace ph::editor

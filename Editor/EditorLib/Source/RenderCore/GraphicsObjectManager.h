@@ -8,12 +8,16 @@
 #include <Math/TVector2.h>
 #include <Math/TVector3.h>
 #include <Utility/TSpan.h>
+#include <Utility/TFunction.h>
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 namespace ph::editor
 {
+
+class GHIThread;
 
 /*! @brief Manages the creation and deletion of graphics-related resource objects.
 All `create<XXX>()` and `delete<XXX>()` methods are thread safe, as long as they are called within
@@ -112,17 +116,31 @@ public:
 	virtual void deleteMesh(GHIMeshHandle mesh) = 0;
 
 public:
+	/*!
+	@note Thread safe.
+	*/
 	GHITextureHandle createTexture1D(
 		const GHIInfoTextureFormat& format,
 		uint32 lengthPx);
 
+	/*!
+	@note Thread safe.
+	*/
 	GHITextureHandle createTexture2D(
 		const GHIInfoTextureFormat& format,
 		const math::Vector2UI& sizePx);
 
+	/*!
+	@note Thread safe.
+	*/
 	GHITextureHandle createTexture3D(
 		const GHIInfoTextureFormat& format,
 		const math::Vector3UI& sizePx);
+
+	//void setGHIThread(GHIThread* thread);
+
+private:
+	//GHIThread* m_ghiThread;
 };
 
 inline GHITextureHandle GraphicsObjectManager::createTexture1D(
