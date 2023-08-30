@@ -340,6 +340,7 @@ public:
 			[this](Item* /* item */, Index idx)
 			{
 				removeItemAtIndex(idx);
+				returnOneHandle(getHandleByIndex(idx));
 			});
 	}
 

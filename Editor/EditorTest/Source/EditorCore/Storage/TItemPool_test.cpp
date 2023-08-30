@@ -478,3 +478,53 @@ TEST(TItemPoolTest, StrongHandleAccess)
 		}
 	}
 }
+
+TEST(TItemPoolTest, StorageSpaceReuse)
+{
+	// Trivial item
+	{
+		using Pool = TItemPool<int>;
+		using Handle = Pool::HandleType;
+
+		constexpr int numItems = 1000;
+
+		Pool pool;
+		std::vector<Handle> handles;
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles.push_back(pool.add(i));
+		}
+		ASSERT_EQ(pool.numItems(), handles.size());
+		EXPECT_EQ(pool.numItems(), numItems);
+		EXPECT_GE(pool.capacity(), numItems);
+
+		const auto oldCapacity = pool.capacity();
+
+		// Remove every item one by one
+		for(int i = 0; i < numItems; ++i)
+		{
+			pool.remove(handles[i]);
+		}
+		EXPECT_EQ(pool.numItems(), 0);
+
+		// Add all of them back again, capacity should not change
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles[i] = pool.add(i);
+		}
+		EXPECT_EQ(pool.numItems(), numItems);
+		EXPECT_EQ(pool.capacity(), oldCapacity);
+
+		// Remove every item by clear
+		pool.clear();
+		EXPECT_EQ(pool.numItems(), 0);
+
+		// Add all of them back again, capacity should not change
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles[i] = pool.add(i);
+		}
+		EXPECT_EQ(pool.numItems(), numItems);
+		EXPECT_EQ(pool.capacity(), oldCapacity);
+	}
+}
