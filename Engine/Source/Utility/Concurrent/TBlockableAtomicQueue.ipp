@@ -29,6 +29,17 @@ inline void TBlockableAtomicQueue<T>::enqueue(U&& item)
 }
 
 template<typename T>
+template<std::input_iterator Iterator>
+inline void TBlockableAtomicQueue<T>::enqueueBulk(Iterator firstItem, const std::size_t numItems)
+{
+	if(!m_queue.enqueue_bulk(firstItem, numItems))
+	{
+		throw std::runtime_error(
+			"Cannot enqueue an item to TBlockableAtomicQueue. Max subqueue size reached.");
+	}
+}
+
+template<typename T>
 template<typename U>
 inline bool TBlockableAtomicQueue<T>::tryEnqueue(U&& item)
 {

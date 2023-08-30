@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHIVertexStorage.h"
+
 #include "ThirdParty/glad2.h"
 
 #include <cstddef>

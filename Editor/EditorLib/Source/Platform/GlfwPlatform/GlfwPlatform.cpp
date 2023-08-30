@@ -1,5 +1,6 @@
 #include "Platform/GlfwPlatform/GlfwPlatform.h"
 #include "App/AppSettings.h"
+
 #include "ThirdParty/GLFW3.h"
 
 #include <Common/logging.h>

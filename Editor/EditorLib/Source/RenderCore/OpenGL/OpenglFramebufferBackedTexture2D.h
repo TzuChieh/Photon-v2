@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHITexture2D.h"
+
 #include "ThirdParty/glad2.h"
 
 #include <Common/primitive_type.h>

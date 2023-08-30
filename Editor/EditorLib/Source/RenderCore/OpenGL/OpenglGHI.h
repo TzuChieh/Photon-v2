@@ -12,10 +12,12 @@
 namespace ph::editor
 {
 
-class OpenglGHI : public GHI
+class OpenglContext;
+
+class OpenglGHI final : public GHI
 {
 public:
-	OpenglGHI(GLFWwindow* glfwWindow, bool hasDebugContext);
+	OpenglGHI(OpenglContext& ctx, GLFWwindow* glfwWindow, bool hasDebugContext);
 	~OpenglGHI() override;
 
 	void load() override;
@@ -64,6 +66,7 @@ private:
 	void endRawCommand() override;
 
 private:
+	OpenglContext& m_ctx;
 	GLFWwindow* m_glfwWindow;
 	bool m_hasDebugContext;
 	bool m_isLoaded;

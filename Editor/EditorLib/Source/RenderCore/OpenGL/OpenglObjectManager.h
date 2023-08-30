@@ -1,87 +1,60 @@
 #pragma once
 
 #include "RenderCore/GraphicsObjectManager.h"
+#include "EditorCore/Storage/TTrivialItemPool.h"
 
 namespace ph::editor
 {
 
-class OpenglObjectManager : public GraphicsObjectManager
+class OpenglContext;
+
+class OpenglObjectManager final : public GraphicsObjectManager
 {
 public:
+	explicit OpenglObjectManager(OpenglContext& ctx);
 	~OpenglObjectManager() override;
 
-	inline GHITextureHandle createTexture(
+	GHITextureHandle createTexture(
 		const GHIInfoTextureFormat& format,
-		const math::Vector3UI& sizePx) override
-	{
-		return GHITextureHandle{};
-	}
+		const math::Vector3UI& sizePx) override;
 
-	inline GHIFramebufferHandle createFramebuffer(
-		const GHIInfoFramebufferAttachment& attachments) override
-	{
-		return GHIFramebufferHandle{};
-	}
+	GHIFramebufferHandle createFramebuffer(
+		const GHIInfoFramebufferAttachment& attachments) override;
 
-	inline GHIShaderHandle createShader(
+	GHIShaderHandle createShader(
 		std::string name,
 		EGHIShadingStage shadingStage,
-		std::string shaderSource) override
-	{
-		return GHIShaderHandle{};
-	}
+		std::string shaderSource) override;
 
-	inline GHIShaderProgramHandle createShaderProgram(
+	GHIShaderProgramHandle createShaderProgram(
 		std::string name,
-		const GHIInfoShaderSet& shaders) override
-	{
-		return GHIShaderProgramHandle{};
-	}
+		const GHIInfoShaderSet& shaders) override;
 
-	inline GHIVertexStorageHandle createVertexStorage(
+	GHIVertexStorageHandle createVertexStorage(
 		const GHIInfoVertexGroupFormat& format,
 		std::size_t numVertices,
-		EGHIStorageUsage usage) override
-	{
-		return GHIVertexStorageHandle{};
-	}
+		EGHIStorageUsage usage) override;
 
-	inline GHIIndexStorageHandle createIndexStorage(
+	GHIIndexStorageHandle createIndexStorage(
 		EGHIStorageElement indexType,
 		std::size_t numIndices,
-		EGHIStorageUsage usage) override
-	{
-		return GHIIndexStorageHandle{};
-	}
+		EGHIStorageUsage usage) override;
 
-	inline GHIMeshHandle createMesh(
+	GHIMeshHandle createMesh(
 		const GHIInfoMeshVertexLayout& layout,
 		TSpanView<GHIVertexStorageHandle> vertexStorages,
-		GHIIndexStorageHandle indexStorage) override
-	{
-		return GHIMeshHandle{};
-	}
+		GHIIndexStorageHandle indexStorage) override;
 
-	inline void deleteTexture(GHITextureHandle texture) override
-	{}
+	void deleteTexture(GHITextureHandle texture) override;
+	void deleteFramebuffer(GHIFramebufferHandle framebuffer) override;
+	void deleteShader(GHIShaderHandle shader) override;
+	void deleteShaderProgram(GHIShaderProgramHandle shaderProgram) override;
+	void deleteVertexStorage(GHIVertexStorageHandle vertexStorage) override;
+	void deleteIndexStorage(GHIIndexStorageHandle indexStorage) override;
+	void deleteMesh(GHIMeshHandle mesh) override;
 
-	inline void deleteFramebuffer(GHIFramebufferHandle framebuffer) override
-	{}
-
-	inline void deleteShader(GHIShaderHandle shader) override
-	{}
-
-	inline void deleteShaderProgram(GHIShaderProgramHandle shaderProgram) override
-	{}
-
-	inline void deleteVertexStorage(GHIVertexStorageHandle vertexStorage) override
-	{}
-
-	inline void deleteIndexStorage(GHIIndexStorageHandle indexStorage) override
-	{}
-
-	inline void deleteMesh(GHIMeshHandle mesh) override
-	{}
+private:
+	OpenglContext& m_ctx;
 };
 
 }// end namespace ph::editor

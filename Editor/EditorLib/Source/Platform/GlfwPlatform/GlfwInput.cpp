@@ -1,9 +1,10 @@
 #include "Platform/GlfwPlatform/GlfwInput.h"
 #include "Platform/Platform.h"
-#include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
 #include "EditorCore/Event/KeyPressedEvent.h"
 #include "EditorCore/Event/KeyReleasedEvent.h"
+
+#include "ThirdParty/GLFW3.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>

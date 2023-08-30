@@ -5,6 +5,7 @@
 #include <moodycamel/concurrentqueue.h>
 
 #include <cstddef>
+#include <concepts>
 
 namespace ph
 {
@@ -33,6 +34,12 @@ public:
 	*/
 	template<typename U>
 	void enqueue(U&& item);
+
+	/*! @brief Enqueue multiple items at once. Similar to `enqueue(1)`.
+	Use `std::make_move_iterator` if the items should be moved instead of copied.
+	*/
+	template<std::input_iterator Iterator>
+	void enqueueBulk(Iterator firstItem, std::size_t numItems);
 
 	/*! @brief Try to enqueue an item. Never allocate memory.
 	@return `true` if the item is enqueued. `false` otherwise.

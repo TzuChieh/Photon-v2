@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHIShaderProgram.h"
+
 #include "ThirdParty/glad2.h"
 
 #include <Utility/utility.h>

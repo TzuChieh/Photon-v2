@@ -9,7 +9,7 @@
 namespace ph::editor
 {
 
-class OpenglContext : public GraphicsContext
+class OpenglContext final : public GraphicsContext
 {
 public:
 	OpenglContext(GLFWwindow* glfwWindow, bool hasDebugContext);

@@ -7,8 +7,8 @@ OpenglContext::OpenglContext(GLFWwindow* const glfwWindow, const bool hasDebugCo
 
 	: GraphicsContext()
 
-	, m_ghi(glfwWindow, hasDebugContext)
-	, m_objManager()
+	, m_ghi(*this, glfwWindow, hasDebugContext)
+	, m_objManager(*this)
 {}
 
 OpenglContext::~OpenglContext() = default;

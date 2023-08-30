@@ -9,15 +9,45 @@
 #include <Math/TVector3.h>
 #include <Utility/TSpan.h>
 #include <Utility/TFunction.h>
+#include <Utility/Concurrent/TAtomicQueue.h>
 
 #include <cstddef>
 #include <string>
-#include <vector>
 
 namespace ph::editor
 {
 
 class GHIThread;
+
+struct GraphicsObjectCreater
+{
+	using CreateOperation = TFunction<void(), 32>;
+
+	CreateOperation op;
+
+	/*! @brief Run the create operation.
+	*/
+	inline void create() const
+	{
+		op();
+	}
+};
+
+struct GraphicsObjectDeleter
+{
+	using DeleteOperation = TFunction<bool(), 32>;
+
+	DeleteOperation op;
+
+	/*! @brief Run the delete operation.
+	@return True if the operation is done and the target object has been cleaned up. False if the
+	operation cannot run now and should be retried in a later time.
+	*/
+	inline bool tryDelete() const
+	{
+		return op();
+	}
+};
 
 /*! @brief Manages the creation and deletion of graphics-related resource objects.
 All `create<XXX>()` and `delete<XXX>()` methods are thread safe, as long as they are called within
@@ -137,10 +167,22 @@ public:
 		const GHIInfoTextureFormat& format,
 		const math::Vector3UI& sizePx);
 
-	//void setGHIThread(GHIThread* thread);
+	/*!
+	@note Thread safe.
+	*/
+	TAtomicQueue<GraphicsObjectCreater>& getCreateQueue();
+
+	/*!
+	@note Thread safe.
+	*/
+	TAtomicQueue<GraphicsObjectDeleter>& getDeleteQueue();
+
+	void setGHIThread(GHIThread* thread);
 
 private:
-	//GHIThread* m_ghiThread;
+	GHIThread* m_ghiThread = nullptr;
+	TAtomicQueue<GraphicsObjectCreater> m_createQueue;
+	TAtomicQueue<GraphicsObjectDeleter> m_deleteQueue;
 };
 
 inline GHITextureHandle GraphicsObjectManager::createTexture1D(
@@ -162,6 +204,16 @@ inline GHITextureHandle GraphicsObjectManager::createTexture3D(
 	const math::Vector3UI& sizePx)
 {
 	return createTexture(format, sizePx);
+}
+
+inline TAtomicQueue<GraphicsObjectCreater>& GraphicsObjectManager::getCreateQueue()
+{
+	return m_createQueue;
+}
+
+inline TAtomicQueue<GraphicsObjectDeleter>& GraphicsObjectManager::getDeleteQueue()
+{
+	return m_deleteQueue;
 }
 
 }// end namespace ph::editor

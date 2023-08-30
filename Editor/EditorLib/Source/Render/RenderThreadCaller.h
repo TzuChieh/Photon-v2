@@ -10,7 +10,8 @@ namespace ph::editor
 class RenderData;
 
 /*! @brief Thin wrapper around RenderThread specifically for adding render works.
-This class can only be used between RenderThread::beginFrame() and RenderThread::endFrame().
+Mainly to hide unrelated interface in `RenderThread` except for work adding. Can only be used between
+`RenderThread::beginFrame()` and `RenderThread::endFrame()`.
 */
 class RenderThreadCaller final
 {

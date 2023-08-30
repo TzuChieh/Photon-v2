@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/GHIMesh.h"
+
 #include "ThirdParty/glad2.h"
 
 #include <Utility/TSpan.h>

@@ -7,8 +7,9 @@
 namespace ph::editor
 {
 
-/*! @brief Thin wrapper around GHIThread specifically for adding GHI works.
-This class can only be used between GHIThread::beginFrame() and GHIThread::endFrame().
+/*! @brief Thin wrapper around `GHIThread` specifically for adding GHI works.
+Mainly to hide unrelated interface in `GHIThread` except for work adding. Can only be used between
+`GHIThread::beginFrame()` and `GHIThread::endFrame()`.
 */
 class GHIThreadCaller final
 {

@@ -1,6 +1,6 @@
 #include "RenderCore/OpenGL/OpenglGHI.h"
-#include "ThirdParty/glad2_with_GLFW3.h"
 #include "Platform/Platform.h"
+#include "RenderCore/OpenGL/OpenglContext.h"
 #include "RenderCore/OpenGL/opengl_enums.h"
 #include "RenderCore/OpenGL/OpenglTexture2D.h"
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
@@ -11,6 +11,8 @@
 #include "RenderCore/OpenGL/OpenglVertexStorage.h"
 #include "RenderCore/OpenGL/OpenglShader.h"
 #include "RenderCore/OpenGL/OpenglShaderProgram.h"
+
+#include "ThirdParty/glad2_with_GLFW3.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -143,8 +145,11 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
 namespace ph::editor
 {
 
-OpenglGHI::OpenglGHI(GLFWwindow* const glfwWindow, const bool hasDebugContext)
+OpenglGHI::OpenglGHI(OpenglContext& ctx, GLFWwindow* const glfwWindow, const bool hasDebugContext)
+
 	: GHI(EGraphicsAPI::OpenGL)
+
+	, m_ctx            (ctx)
 	, m_glfwWindow     (glfwWindow)
 	, m_hasDebugContext(hasDebugContext)
 	, m_isLoaded       (false)

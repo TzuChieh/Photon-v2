@@ -1,12 +1,13 @@
 #include "Platform/GlfwPlatform/GlfwDisplay.h"
 #include "RenderCore/OpenGL/OpenglContext.h"
 #include "Platform/Platform.h"
-#include "ThirdParty/GLFW3.h"
 #include "App/Editor.h"
 #include "EditorCore/Event/DisplayFramebufferResizedEvent.h"
 #include "EditorCore/Event/DisplayClosedEvent.h"
 #include "EditorCore/Event/DisplayFocusChangedEvent.h"
 #include "EditorCore/Thread/Threads.h"
+
+#include "ThirdParty/GLFW3.h"
 
 #include <Common/logging.h>
 #include <Common/assertion.h>

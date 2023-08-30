@@ -1,8 +1,9 @@
 #pragma once
 
 #include "RenderCore/GHITexture2D.h"
-#include "ThirdParty/glad2.h"
 #include "RenderCore/OpenGL/opengl_states.h"
+
+#include "ThirdParty/glad2.h"
 
 #include <Common/primitive_type.h>
 #include <Math/math_fwd.h>

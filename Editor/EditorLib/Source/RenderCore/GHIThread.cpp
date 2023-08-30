@@ -1,6 +1,7 @@
 #include "RenderCore/GHIThread.h"
 #include "RenderCore/GraphicsContext.h"
 #include "RenderCore/Null/NullContext.h"
+#include "RenderCore/GraphicsObjectManager.h"
 
 #include <Common/logging.h>
 
@@ -89,6 +90,7 @@ void GHIThread::setContext(GraphicsContext* const inCtx)
 
 	if(m_ctx)
 	{
+		m_ctx->getObjectManager().setGHIThread(nullptr);
 		m_ctx->getGHI().unload();
 	}
 	
@@ -97,6 +99,7 @@ void GHIThread::setContext(GraphicsContext* const inCtx)
 	if(m_ctx)
 	{
 		m_ctx->getGHI().load();
+		m_ctx->getObjectManager().setGHIThread(this);
 	}
 }
 

@@ -3,6 +3,7 @@
 #include "Platform/Platform.h"
 #include "Platform/GlfwPlatform/GlfwInput.h"
 #include "Platform/GlfwPlatform/GlfwDisplay.h"
+
 #include "ThirdParty/GLFW3_fwd.h"
 
 #include <memory>

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ThirdParty/glad2.h"
 #include "RenderCore/ghi_enums.h"
+
+#include "ThirdParty/glad2.h"
 
 #include <Common/primitive_type.h>
 

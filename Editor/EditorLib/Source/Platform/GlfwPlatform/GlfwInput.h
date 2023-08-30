@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Platform/PlatformInput.h"
+
 #include "ThirdParty/GLFW3.h"
 
 #include <array>
