@@ -5,17 +5,34 @@ namespace ph::editor
 {
 
 OpenglObjectManager::OpenglObjectManager(OpenglContext& ctx)
+
 	: GraphicsObjectManager()
+
 	, m_ctx(ctx)
+
+	, m_textures()
+
+	, m_creationQueue()
+	, m_deletionQueue()
+	, m_failedDeleterCache()
 {}
 
 OpenglObjectManager::~OpenglObjectManager() = default;
 
-GHITextureHandle OpenglObjectManager::createTexture(
-	const GHIInfoTextureFormat& format,
-	const math::Vector3UI& sizePx)
+GHITextureHandle OpenglObjectManager::createTexture(const GHIInfoTextureDesc& desc)
 {
-	return GHITextureHandle{};
+	GHITextureHandle handle = m_textures.dispatchOneHandle();
+
+	OpenglObjectCreator creator;
+	creator.op = [&textures = m_textures, desc, handle]()
+	{
+		OpenglTexture texture;
+		texture.createImmutableStorage(desc);
+		textures.createAt(handle, texture);
+	};
+	m_creationQueue.enqueue(creator);
+
+	return handle;
 }
 
 GHIFramebufferHandle OpenglObjectManager::createFramebuffer(
@@ -40,48 +57,94 @@ GHIShaderProgramHandle OpenglObjectManager::createShaderProgram(
 }
 
 GHIVertexStorageHandle OpenglObjectManager::createVertexStorage(
-	const GHIInfoVertexGroupFormat& format,
 	std::size_t numVertices,
+	const GHIInfoVertexGroupFormat& format,
 	EGHIStorageUsage usage)
 {
 	return GHIVertexStorageHandle{};
 }
 
 GHIIndexStorageHandle OpenglObjectManager::createIndexStorage(
-	EGHIStorageElement indexType,
 	std::size_t numIndices,
+	EGHIStorageElement indexType,
 	EGHIStorageUsage usage)
 {
 	return GHIIndexStorageHandle{};
 }
 
 GHIMeshHandle OpenglObjectManager::createMesh(
-	const GHIInfoMeshVertexLayout& layout,
 	TSpanView<GHIVertexStorageHandle> vertexStorages,
+	const GHIInfoMeshVertexLayout& layout,
 	GHIIndexStorageHandle indexStorage)
 {
 	return GHIMeshHandle{};
 }
 
-void OpenglObjectManager::deleteTexture(GHITextureHandle texture)
+void OpenglObjectManager::deleteTexture(const GHITextureHandle handle)
+{
+	if(!handle)
+	{
+		return;
+	}
+
+	OpenglObjectDeleter deleter;
+	deleter.op = [&textures = m_textures, handle]() -> bool
+	{
+		OpenglTexture* texture = textures.get(handle);
+		if(!texture || !texture->hasResource())
+		{
+			return false;
+		}
+
+		texture->destroy();
+		textures.remove(handle);
+		return true;
+	};
+	m_deletionQueue.enqueue(deleter);
+}
+
+void OpenglObjectManager::deleteFramebuffer(GHIFramebufferHandle handle)
 {}
 
-void OpenglObjectManager::deleteFramebuffer(GHIFramebufferHandle framebuffer)
+void OpenglObjectManager::deleteShader(GHIShaderHandle handle)
 {}
 
-void OpenglObjectManager::deleteShader(GHIShaderHandle shader)
+void OpenglObjectManager::deleteShaderProgram(GHIShaderProgramHandle handle)
 {}
 
-void OpenglObjectManager::deleteShaderProgram(GHIShaderProgramHandle shaderProgram)
+void OpenglObjectManager::deleteVertexStorage(GHIVertexStorageHandle handle)
 {}
 
-void OpenglObjectManager::deleteVertexStorage(GHIVertexStorageHandle vertexStorage)
+void OpenglObjectManager::deleteIndexStorage(GHIIndexStorageHandle handle)
 {}
 
-void OpenglObjectManager::deleteIndexStorage(GHIIndexStorageHandle indexStorage)
+void OpenglObjectManager::deleteMesh(GHIMeshHandle handle)
 {}
 
-void OpenglObjectManager::deleteMesh(GHIMeshHandle mesh)
-{}
+void OpenglObjectManager::beginFrameUpdate()
+{
+	OpenglObjectCreator creator;
+	while(m_creationQueue.tryDequeue(&creator))
+	{
+		creator.create();
+	}
+}
+
+void OpenglObjectManager::endFrameUpdate()
+{
+	OpenglObjectDeleter deleter;
+	while(m_deletionQueue.tryDequeue(&deleter))
+	{
+		// Failed attempts need to be retried later
+		if(!deleter.tryDelete())
+		{
+			m_failedDeleterCache.push_back(deleter);
+		}
+	}
+
+	// Enqueue failed attempts while preserving their original queue order
+	m_deletionQueue.enqueueBulk(m_failedDeleterCache.begin(), m_failedDeleterCache.size());
+	m_failedDeleterCache.clear();
+}
 
 }// end namespace ph::editor

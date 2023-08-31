@@ -1,5 +1,5 @@
 #include "RenderCore/GHI.h"
-#include "RenderCore/GHIInfoDeviceCapability.h"
+#include "RenderCore/ghi_infos.h"
 
 namespace ph::editor
 {
@@ -27,7 +27,7 @@ GHI::~GHI() = default;
 
 GHIInfoDeviceCapability GHI::getDeviceCapabilities()
 {
-	return GHIInfoDeviceCapability();
+	return GHIInfoDeviceCapability{};
 }
 
 }// end namespace ph::editor

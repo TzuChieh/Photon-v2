@@ -35,11 +35,15 @@ public:
 	inline void swapBuffers() override
 	{}
 
-	inline std::shared_ptr<GHITexture2D> createTexture2D(
-		const GHIInfoTextureFormat& format,
-		const math::Vector2UI& sizePx) override
+	inline void uploadPixelData(
+		GHITextureHandle handle,
+		TSpanView<std::byte> pixelData,
+		EGHIPixelComponent componentType) override
+	{}
+
+	inline GHITextureNativeHandle getTextureNativeHandle(GHITextureHandle handle) override
 	{
-		return nullptr;
+		return {};
 	}
 
 	inline std::shared_ptr<GHIFramebuffer> createFramebuffer(

@@ -10,9 +10,7 @@ class NullObjectManager : public GraphicsObjectManager
 public:
 	inline ~NullObjectManager() override = default;
 
-	inline GHITextureHandle createTexture(
-		const GHIInfoTextureFormat& format,
-		const math::Vector3UI& sizePx) override
+	inline GHITextureHandle createTexture(const GHIInfoTextureDesc& desc) override
 	{
 		return GHITextureHandle{};
 	}
@@ -39,48 +37,54 @@ public:
 	}
 
 	inline GHIVertexStorageHandle createVertexStorage(
-		const GHIInfoVertexGroupFormat& format,
 		std::size_t numVertices,
+		const GHIInfoVertexGroupFormat& format,
 		EGHIStorageUsage usage) override
 	{
 		return GHIVertexStorageHandle{};
 	}
 
 	inline GHIIndexStorageHandle createIndexStorage(
-		EGHIStorageElement indexType,
 		std::size_t numIndices,
+		EGHIStorageElement indexType,
 		EGHIStorageUsage usage) override
 	{
 		return GHIIndexStorageHandle{};
 	}
 
 	inline GHIMeshHandle createMesh(
-		const GHIInfoMeshVertexLayout& layout,
 		TSpanView<GHIVertexStorageHandle> vertexStorages,
+		const GHIInfoMeshVertexLayout& layout,
 		GHIIndexStorageHandle indexStorage) override
 	{
 		return GHIMeshHandle{};
 	}
 
-	inline void deleteTexture(GHITextureHandle texture) override
+	inline void deleteTexture(GHITextureHandle handle) override
 	{}
 
-	inline void deleteFramebuffer(GHIFramebufferHandle framebuffer) override
+	inline void deleteFramebuffer(GHIFramebufferHandle handle) override
 	{}
 
-	inline void deleteShader(GHIShaderHandle shader) override
+	inline void deleteShader(GHIShaderHandle handle) override
 	{}
 
-	inline void deleteShaderProgram(GHIShaderProgramHandle shaderProgram) override
+	inline void deleteShaderProgram(GHIShaderProgramHandle handle) override
 	{}
 
-	inline void deleteVertexStorage(GHIVertexStorageHandle vertexStorage) override
+	inline void deleteVertexStorage(GHIVertexStorageHandle handle) override
 	{}
 
-	inline void deleteIndexStorage(GHIIndexStorageHandle indexStorage) override
+	inline void deleteIndexStorage(GHIIndexStorageHandle handle) override
 	{}
 
-	inline void deleteMesh(GHIMeshHandle mesh) override
+	inline void deleteMesh(GHIMeshHandle handle) override
+	{}
+
+	inline void beginFrameUpdate() override
+	{}
+
+	inline void endFrameUpdate() override
 	{}
 };
 

@@ -21,7 +21,7 @@ namespace ph::editor
 ImguiImageLibrary::~ImguiImageLibrary() = default;
 
 ImguiImageLibrary::ImageEntry::ImageEntry()
-	: nativeHandle(std::monostate{})
+	: nativeHandle()
 	, resource(nullptr)
 	, sourcePicture(nullptr)
 {}

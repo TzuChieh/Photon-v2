@@ -1,6 +1,7 @@
 #include "Render/RendererTexture2D.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GraphicsContext.h"
+#include "RenderCore/GraphicsObjectManager.h"
 #include "RenderCore/GHI.h"
 
 #include <Frame/PictureData.h>
@@ -18,7 +19,7 @@ RendererTexture2D::RendererTexture2D(
 
 	, m_sizePx(0)
 	, m_format(format)
-	, m_ghiTexture(nullptr)
+	, m_textureHandle()
 	, m_textureData(std::move(textureData))
 {
 	if(m_textureData)
@@ -28,10 +29,7 @@ RendererTexture2D::RendererTexture2D(
 }
 
 RendererTexture2D::~RendererTexture2D()
-{
-	// Must have been released by GHI thread
-	PH_ASSERT(!m_ghiTexture);
-}
+{}
 
 void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 {
@@ -43,15 +41,17 @@ void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 	caller.add(
 		[this](GraphicsContext& ctx)
 		{
-			PH_ASSERT(!m_ghiTexture);
+			PH_ASSERT(!m_textureHandle);
 
-			m_ghiTexture = ctx.getGHI().createTexture2D(m_format, m_sizePx);
+			GHIInfoTextureDesc desc;
+			desc.format = m_format;
+			desc.setSize2D(m_sizePx);
+			m_textureHandle = ctx.getObjectManager().createTexture(desc);
 
-			m_ghiTexture->upload(
-				m_textureData->getData(),
-				m_textureData->numBytesInData(),
+			ctx.getGHI().uploadPixelData(
+				m_textureHandle, 
+				m_textureData->getBytes(),
 				translate_to<EGHIPixelComponent>(m_textureData->getComponentType()));
-			
 			m_textureData = nullptr;
 		});
 }
@@ -59,14 +59,12 @@ void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 void RendererTexture2D::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
-		[this](GraphicsContext& /* ctx */)
+		[this](GraphicsContext& ctx)
 		{
-			if(m_ghiTexture)
-			{
-				// Note: Always decrement reference count on GHI thread--one of this call will free 
-				// the GHI resource, and it must be done on GHI thread
-				m_ghiTexture = nullptr;
-			}
+			// Note: Always decrement reference count on GHI thread--one of this call will free 
+			// the GHI resource, and it must be done on GHI thread
+			ctx.getObjectManager().deleteTexture(m_textureHandle);
+			m_textureHandle = GHITextureHandle{};
 		});
 }
 

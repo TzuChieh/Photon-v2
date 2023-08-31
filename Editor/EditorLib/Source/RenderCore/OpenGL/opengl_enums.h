@@ -19,5 +19,7 @@ GLenum translate(EGHIPixelComponent componentType);
 GLenum translate(EGHIStorageElement elementType);
 GLenum translate(EGHIMeshDrawMode drawMode);
 GLenum translate(EGHIShadingStage shadingStage);
+GLenum translate(EGHIFilterMode filterMode);
+GLenum translate(EGHIWrapMode wrapMode);
 
 }// end namespace ph::editor::opengl

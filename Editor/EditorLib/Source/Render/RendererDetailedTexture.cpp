@@ -1,5 +1,8 @@
 #include "Render/RendererDetailedTexture.h"
+#include "RenderCore/ghi_infos.h"
 #include "RenderCore/GHIThreadCaller.h"
+#include "RenderCore/GraphicsContext.h"
+#include "RenderCore/GHI.h"
 
 #include <Frame/PictureData.h>
 
@@ -14,7 +17,7 @@ RendererDetailedTexture::RendererDetailedTexture(
 	: RendererTexture()
 
 	, m_resource(std::move(resource))
-	, m_sharedNativeHandle(std::nullopt)
+	, m_sharedNativeHandle()
 {}
 
 void RendererDetailedTexture::setupGHI(GHIThreadCaller& caller)
@@ -25,15 +28,16 @@ void RendererDetailedTexture::setupGHI(GHIThreadCaller& caller)
 	}
 
 	caller.add(
-		[this](GraphicsContext& /* ctx */)
+		[this](GraphicsContext& ctx)
 		{
-			GHITexture* const ghiTexture = getGHITexture();
+			GHITextureHandle handle = getGHITextureHandle();
 
 			// Generally this should be true since the call is issued after base resource GHI 
 			// creation (unless base resource is empty)
-			if(ghiTexture)
+			if(handle)
 			{
-				m_sharedNativeHandle.relaxedWrite(ghiTexture->getNativeHandle());
+				GHITextureNativeHandle nativeHandle = ctx.getGHI().getTextureNativeHandle(handle);
+				m_sharedNativeHandle.relaxedWrite(nativeHandle);
 			}
 		});
 }
@@ -43,7 +47,7 @@ void RendererDetailedTexture::cleanupGHI(GHIThreadCaller& caller)
 	caller.add(
 		[this](GraphicsContext& /* ctx */)
 		{
-			m_sharedNativeHandle.relaxedWrite(std::nullopt);
+			m_sharedNativeHandle.relaxedWrite(GHITextureNativeHandle{});
 		});
 
 	if(m_resource)
@@ -52,19 +56,9 @@ void RendererDetailedTexture::cleanupGHI(GHIThreadCaller& caller)
 	}
 }
 
-std::optional<GHITexture::NativeHandle> RendererDetailedTexture::tryGetNativeHandle() const
+std::optional<GHITextureNativeHandle> RendererDetailedTexture::tryGetNativeHandle() const
 {
 	return m_sharedNativeHandle.relaxedRead();
-}
-
-GHITexture* RendererDetailedTexture::getGHITexture() const
-{
-	return m_resource ? m_resource->getGHITexture() : nullptr;
-}
-
-std::shared_ptr<GHITexture> RendererDetailedTexture::getGHITextureResource() const
-{
-	return m_resource ? m_resource->getGHITextureResource() : nullptr;
 }
 
 std::size_t RendererDetailedTexture::getWidthPx() const
@@ -80,6 +74,11 @@ std::size_t RendererDetailedTexture::getHeightPx() const
 std::size_t RendererDetailedTexture::numLayers() const
 {
 	return m_resource ? m_resource->numLayers() : 0;
+}
+
+GHITextureHandle RendererDetailedTexture::getGHITextureHandle() const
+{
+	return m_resource ? m_resource->getGHITextureHandle() : GHITextureHandle{};
 }
 
 }// end namespace ph::editor

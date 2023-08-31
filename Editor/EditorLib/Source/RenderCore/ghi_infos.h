@@ -6,6 +6,7 @@
 
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>
+#include <Math/TVector3.h>
 
 #include <cstddef>
 #include <array>
@@ -23,8 +24,8 @@ public:
 class GHIInfoTextureFormat final
 {
 public:
-	EGHIPixelFormat pixelFormat = EGHIPixelFormat::Empty;
 	GHIInfoSampleState sampleState;
+	EGHIPixelFormat pixelFormat = EGHIPixelFormat::Empty;
 
 	/*!
 	@return `true` if the conversion is an exact match.
@@ -35,8 +36,8 @@ public:
 class GHIInfoFramebufferFormat final
 {
 public:
-	EGHIPixelFormat pixelFormat = EGHIPixelFormat::Empty;
 	GHIInfoSampleState sampleState;
+	EGHIPixelFormat pixelFormat = EGHIPixelFormat::Empty;
 
 	/*!
 	@return `true` if the conversion is an exact match.
@@ -99,6 +100,42 @@ public:
 	std::array<GHIInfoVertexAttributeLocator, MAX_ATTRIBUTES> attributes;
 
 	std::size_t numGroupBytes() const;
+};
+
+class GHIInfoDeviceCapability final
+{
+public:
+	uint8 maxTextureUnitsForVertexShadingStage : 6 = 0;
+	uint8 maxTextureUnitsForFragmentShadingStage : 6 = 0;
+
+	/*!  
+	Note that the maximum number of elements/components of a single attribute is generally 4.
+	A 4x4 matrix would normally occupy 4 attributes.
+	*/
+	uint8 maxVertexAttributes : 5 = 0;
+};
+
+class GHIInfoTextureDesc final
+{
+public:
+	math::Vector3UI sizePx = {0, 0, 0};
+	GHIInfoTextureFormat format;
+
+	inline GHIInfoTextureDesc& setSize1D(const uint32 lengthPx)
+	{
+		sizePx.x() = lengthPx;
+		sizePx.y() = 1;
+		sizePx.z() = 1;
+		return *this;
+	}
+
+	inline GHIInfoTextureDesc& setSize2D(const math::Vector2UI& widthAndHeightPx)
+	{
+		sizePx.x() = widthAndHeightPx.x();
+		sizePx.y() = widthAndHeightPx.y();
+		sizePx.z() = 1;
+		return *this;
+	}
 };
 
 }// end namespace ph::editor

@@ -22,7 +22,7 @@ RendererRenderTarget::RendererRenderTarget(
 	, m_attachmentIndex(0)
 	, m_isDepthStencilAttachment(false)
 
-	, m_ghiTexture(nullptr)
+	, m_textureHandle()
 	, m_ghiFramebuffer(nullptr)
 	, m_framebufferResource(nullptr)
 {}
@@ -39,7 +39,7 @@ RendererRenderTarget::RendererRenderTarget(
 	, m_attachmentIndex(attachmentIndex)
 	, m_isDepthStencilAttachment(isDepthStencilAttachment)
 
-	, m_ghiTexture(nullptr)
+	, m_textureHandle()
 	, m_ghiFramebuffer(nullptr)
 	, m_framebufferResource(framebufferResource)
 {
@@ -77,7 +77,6 @@ RendererRenderTarget::RendererRenderTarget(
 RendererRenderTarget::~RendererRenderTarget()
 {
 	// Must have been released by GHI thread
-	PH_ASSERT(!m_ghiTexture);
 	PH_ASSERT(!m_ghiFramebuffer);
 }
 
@@ -88,24 +87,24 @@ void RendererRenderTarget::setupGHI(GHIThreadCaller& caller)
 	{
 		const GHIInfoFramebufferAttachment& attachments = m_framebufferResource->getAttachments();
 
-		caller.add(
-			[this](GraphicsContext& /* ctx */)
-			{
-				m_ghiFramebuffer = m_framebufferResource->getGHIFramebufferResource();
+		//caller.add(
+		//	[this](GraphicsContext& /* ctx */)
+		//	{
+		//		m_ghiFramebuffer = m_framebufferResource->getGHIFramebufferResource();
 
-				GHIFramebuffer* const ghiFramebuffer = m_framebufferResource->getGHIFramebuffer();
-				if(!m_isDepthStencilAttachment)
-				{
-					m_ghiTexture = ghiFramebuffer->createTextureFromColor(m_attachmentIndex);
-				}
-				else
-				{
-					m_ghiTexture = ghiFramebuffer->createTextureFromDepthStencil();
-				}
+		//		GHIFramebuffer* const ghiFramebuffer = m_framebufferResource->getGHIFramebuffer();
+		//		if(!m_isDepthStencilAttachment)
+		//		{
+		//			m_ghiTexture = ghiFramebuffer->createTextureFromColor(m_attachmentIndex);
+		//		}
+		//		else
+		//		{
+		//			m_ghiTexture = ghiFramebuffer->createTextureFromDepthStencil();
+		//		}
 
-				// Indicate we are done using it
-				m_framebufferResource = nullptr;
-			});
+		//		// Indicate we are done using it
+		//		m_framebufferResource = nullptr;
+		//	});
 	}
 	// Create our own GHI resource
 	else
@@ -117,12 +116,12 @@ void RendererRenderTarget::setupGHI(GHIThreadCaller& caller)
 
 void RendererRenderTarget::cleanupGHI(GHIThreadCaller& caller)
 {
-	caller.add(
-		[this](GraphicsContext& /* ctx */)
-		{
-			m_ghiTexture = nullptr;
-			m_ghiFramebuffer = nullptr;
-		});
+	//caller.add(
+	//	[this](GraphicsContext& /* ctx */)
+	//	{
+	//		m_ghiTexture = nullptr;
+	//		m_ghiFramebuffer = nullptr;
+	//	});
 }
 
 }// end namespace ph::editor

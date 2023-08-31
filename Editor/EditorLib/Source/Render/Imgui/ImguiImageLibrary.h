@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/GHITexture.h"
+#include "RenderCore/ghi_infos.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -73,7 +73,7 @@ public:
 private:
 	struct ImageEntry final
 	{
-		mutable GHITexture::NativeHandle nativeHandle;
+		mutable GHITextureNativeHandle nativeHandle;
 		RendererDetailedTexture* resource;
 		std::unique_ptr<RegularPicture> sourcePicture;
 

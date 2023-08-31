@@ -4,6 +4,8 @@
 
 #include <Common/primitive_type.h>
 
+#include <variant>
+
 namespace ph::editor
 {
 
@@ -41,6 +43,11 @@ using GHIShaderHandle = TWeakHandle<GHIShaderObject, uint32, uint32>;
 using GHIShaderProgramHandle = TWeakHandle<GHIShaderProgramObject, uint32, uint32>;
 using GHIFramebufferHandle = TWeakHandle<GHIFramebufferObject, uint32, uint32>;
 
+// Native handle types
+using GHITextureNativeHandle = std::variant<
+	std::monostate,
+	uint64>;
+
 // Info types
 class GHIInfoSampleState;
 class GHIInfoTextureFormat;
@@ -50,5 +57,8 @@ class GHIInfoShaderSet;
 class GHIInfoVertexAttributeLocator;
 class GHIInfoVertexGroupFormat;
 class GHIInfoMeshVertexLayout;
+class GHIInfoDeviceCapability;
+
+class GHIInfoTextureDesc;
 
 }// end namespace ph::editor

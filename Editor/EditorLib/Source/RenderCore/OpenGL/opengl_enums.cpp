@@ -278,4 +278,36 @@ GLenum translate(const EGHIShadingStage shadingStage)
 	}
 }
 
+GLenum translate(const EGHIFilterMode filterMode)
+{
+	switch(filterMode)
+	{
+	case EGHIFilterMode::Point:
+		return GL_NEAREST;
+
+	case EGHIFilterMode::Linear:
+		return GL_LINEAR;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
+GLenum translate(const EGHIWrapMode wrapMode)
+{
+	switch(wrapMode)
+	{
+	case EGHIWrapMode::ClampToEdge:
+		return GL_CLAMP_TO_EDGE;
+
+	case EGHIWrapMode::Repeat:
+		return GL_REPEAT;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
 }// end namespace ph::editor::opengl

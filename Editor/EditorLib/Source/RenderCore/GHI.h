@@ -17,18 +17,17 @@
 #include <Math/TVector4.h>
 #include <Utility/TSpan.h>
 
-#include <source_location>
+#include <cstddef>
 #include <type_traits>
+#include <source_location>
 #include <string>
 #include <memory>
-#include <cstddef>
 
 namespace ph::editor
 {
 
 PH_DECLARE_LOG_GROUP(GHI);
 
-class GHIInfoDeviceCapability;
 class GHIMesh;
 
 /*! @brief Graphics API abstraction.
@@ -71,14 +70,12 @@ public:
 
 	virtual void swapBuffers() = 0;
 
-	/*virtual void uploadPixelData(
-		GHITextureHandle texture,
+	virtual void uploadPixelData(
+		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelComponent componentType) = 0;*/
+		EGHIPixelComponent componentType) = 0;
 
-	virtual std::shared_ptr<GHITexture2D> createTexture2D(
-		const GHIInfoTextureFormat& format,
-		const math::Vector2UI& sizePx) = 0;
+	virtual GHITextureNativeHandle getTextureNativeHandle(GHITextureHandle handle) = 0;
 
 	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) = 0;

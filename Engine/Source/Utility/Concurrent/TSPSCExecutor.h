@@ -17,10 +17,9 @@ namespace ph
 
 /*! @brief A single-producer, single-consumer worker thread.
 Ctor and dtor are not thread safe. Most of the methods are either producer thread only, or thread-safe.
-start() must be called before adding work since it also serves as a mean to determine the producer thread.
-Setters for function callbacks can only be called before start(). Note that if work processor is not set 
-from ctor, setWorkProcessor() must be called with a valid processor
-function.
+`start()` must be called before adding work since it also serves as a mean to determine the producer
+thread. Setters for function callbacks can only be called before `start()`. Note that if work processor
+is not set from ctor, `setWorkProcessor()` must be called with a valid processor function.
 @tparam Work Type of the work to be processed.
 */
 template<typename Work>
@@ -77,6 +76,7 @@ public:
 	Basic aquire-release semantics are guaranteed. This ensures that all the effects of work done 
 	by the producer thread before it enqueues a work will be visible on the consumer thread after it 
 	dequeues that work.
+	@note Producer thread only.
 	*/
 	template<typename DeducedWork>
 	void addWork(DeducedWork&& work);
@@ -115,12 +115,12 @@ public:
 
 private:
 	/*! @brief Start the execution of the consumer thread.
-	@note Producer thread only.
+	@note Consumer thread only.
 	*/
 	void asyncExecute();
 
 	/*! @brief Start processing works.
-	@note Producer thread only.
+	@note Consumer thread only.
 	*/
 	void asyncProcessWorks();
 

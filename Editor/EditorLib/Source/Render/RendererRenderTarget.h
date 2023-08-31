@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Render/RendererTexture.h"
-#include "RenderCore/GHITexture.h"
 #include "RenderCore/GHIFramebuffer.h"
+#include "RenderCore/ghi_infos.h"
 
 #include <Common/primitive_type.h>
 #include <Math/TVector3.h>
@@ -38,10 +38,9 @@ public:
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
 	std::size_t numLayers() const override;
+	GHITextureHandle getGHITextureHandle() const override;
 	const GHIInfoTextureFormat& getFormat() const;
 
-	GHITexture* getGHITexture() const override;
-	std::shared_ptr<GHITexture> getGHITextureResource() const override;
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
 
@@ -54,7 +53,7 @@ private:
 	uint32 m_attachmentIndex;
 	bool m_isDepthStencilAttachment;
 
-	std::shared_ptr<GHITexture> m_ghiTexture;
+	GHITextureHandle m_textureHandle;
 	std::shared_ptr<GHIFramebuffer> m_ghiFramebuffer;
 	RendererFramebuffer* m_framebufferResource;
 };
@@ -79,14 +78,9 @@ inline const GHIInfoTextureFormat& RendererRenderTarget::getFormat() const
 	return m_format;
 }
 
-inline GHITexture* RendererRenderTarget::getGHITexture() const
+inline GHITextureHandle RendererRenderTarget::getGHITextureHandle() const
 {
-	return m_ghiTexture.get();
-}
-
-inline std::shared_ptr<GHITexture> RendererRenderTarget::getGHITextureResource() const
-{
-	return m_ghiTexture;
+	return m_textureHandle;
 }
 
 inline GHIFramebuffer* RendererRenderTarget::getGHIFramebuffer() const

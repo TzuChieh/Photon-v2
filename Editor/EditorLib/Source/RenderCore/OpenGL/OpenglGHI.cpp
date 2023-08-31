@@ -1,10 +1,10 @@
 #include "RenderCore/OpenGL/OpenglGHI.h"
 #include "Platform/Platform.h"
+#include "RenderCore/ghi_infos.h"
 #include "RenderCore/OpenGL/OpenglContext.h"
 #include "RenderCore/OpenGL/opengl_enums.h"
-#include "RenderCore/OpenGL/OpenglTexture2D.h"
+#include "RenderCore/OpenGL/OpenglTexture.h"
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
-#include "RenderCore/GHIInfoDeviceCapability.h"
 #include "RenderCore/OpenGL/Opengl.h"
 #include "RenderCore/OpenGL/OpenglMesh.h"
 #include "RenderCore/OpenGL/OpenglIndexStorage.h"
@@ -298,12 +298,34 @@ void OpenglGHI::swapBuffers()
 	glfwSwapBuffers(m_glfwWindow);
 }
 
-std::shared_ptr<GHITexture2D> OpenglGHI::createTexture2D(
-	const GHIInfoTextureFormat& format,
-	const math::Vector2UI& sizePx)
+void OpenglGHI::uploadPixelData(
+	const GHITextureHandle handle,
+	TSpanView<std::byte> pixelData,
+	const EGHIPixelComponent componentType)
 {
-	return std::make_shared<OpenglTexture2D>(
-		format, sizePx);
+	OpenglTexture* texture = m_ctx.getObjectManager().getTexture(handle);
+	if(!texture || !texture->hasResource())
+	{
+		PH_LOG_ERROR(OpenglGHI,
+			"Cannot upload pixel data for texture; object: {}, resource: {}, handle: <{}>",
+			static_cast<void*>(texture), 
+			texture ? texture->hasResource() : false,
+			handle.toString());
+		return;
+	}
+
+	texture->uploadPixelData(pixelData, componentType);
+}
+
+GHITextureNativeHandle OpenglGHI::getTextureNativeHandle(const GHITextureHandle handle)
+{
+	OpenglTexture* texture = m_ctx.getObjectManager().getTexture(handle);
+	if(!texture || texture->textureID == OpenglTexture::DEFAULT_ID)
+	{
+		return {};
+	}
+
+	return static_cast<uint64>(texture->textureID);
 }
 
 std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer(

@@ -48,24 +48,24 @@ void GHIThread::onAsyncProcessWork(const Work& work)
 void GHIThread::onBeginFrame()
 {
 	addWork(
-		[this](GraphicsContext& /* ctx */)
+		[this](GraphicsContext& ctx)
 		{
 			m_frameTimer.start();
+
+			ctx.getObjectManager().beginFrameUpdate();
 		});
 }
 
 void GHIThread::onEndFrame()
 {
-	// Swap buffer at the end of end frame
 	addWork(
-		[](GraphicsContext& ctx)
+		[this](GraphicsContext& ctx)
 		{
-			ctx.getGHI().swapBuffers();
-		});
+			ctx.getObjectManager().endFrameUpdate();
 
-	addWork(
-		[this](GraphicsContext& /* ctx */)
-		{
+			// Swap buffer at the end of end frame
+			ctx.getGHI().swapBuffers();
+
 			m_frameTimer.stop();
 			m_frameTimeMs.store(m_frameTimer.getDeltaMs<float32>(), std::memory_order_relaxed);
 		});
@@ -90,7 +90,6 @@ void GHIThread::setContext(GraphicsContext* const inCtx)
 
 	if(m_ctx)
 	{
-		m_ctx->getObjectManager().setGHIThread(nullptr);
 		m_ctx->getGHI().unload();
 	}
 	
@@ -99,7 +98,6 @@ void GHIThread::setContext(GraphicsContext* const inCtx)
 	if(m_ctx)
 	{
 		m_ctx->getGHI().load();
-		m_ctx->getObjectManager().setGHIThread(this);
 	}
 }
 

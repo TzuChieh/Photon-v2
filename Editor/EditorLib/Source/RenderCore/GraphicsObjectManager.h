@@ -8,8 +8,6 @@
 #include <Math/TVector2.h>
 #include <Math/TVector3.h>
 #include <Utility/TSpan.h>
-#include <Utility/TFunction.h>
-#include <Utility/Concurrent/TAtomicQueue.h>
 
 #include <cstddef>
 #include <string>
@@ -19,39 +17,9 @@ namespace ph::editor
 
 class GHIThread;
 
-struct GraphicsObjectCreater
-{
-	using CreateOperation = TFunction<void(), 32>;
-
-	CreateOperation op;
-
-	/*! @brief Run the create operation.
-	*/
-	inline void create() const
-	{
-		op();
-	}
-};
-
-struct GraphicsObjectDeleter
-{
-	using DeleteOperation = TFunction<bool(), 32>;
-
-	DeleteOperation op;
-
-	/*! @brief Run the delete operation.
-	@return True if the operation is done and the target object has been cleaned up. False if the
-	operation cannot run now and should be retried in a later time.
-	*/
-	inline bool tryDelete() const
-	{
-		return op();
-	}
-};
-
 /*! @brief Manages the creation and deletion of graphics-related resource objects.
-All `create<XXX>()` and `delete<XXX>()` methods are thread safe, as long as they are called within
-the lifetime of current graphics context.
+All `create<XXX>()` and `delete<XXX>()` methods are thread safe as long as they are called within
+the lifetime of current graphics context, and implementations must follow these contracts strictly.
 */
 class GraphicsObjectManager
 {
@@ -61,9 +29,7 @@ public:
 	/*!
 	@note Thread safe.
 	*/
-	virtual GHITextureHandle createTexture(
-		const GHIInfoTextureFormat& format,
-		const math::Vector3UI& sizePx) = 0;
+	virtual GHITextureHandle createTexture(const GHIInfoTextureDesc& desc) = 0;
 
 	/*!
 	@note Thread safe.
@@ -90,130 +56,68 @@ public:
 	@note Thread safe.
 	*/
 	virtual GHIVertexStorageHandle createVertexStorage(
-		const GHIInfoVertexGroupFormat& format,
 		std::size_t numVertices,
+		const GHIInfoVertexGroupFormat& format,
 		EGHIStorageUsage usage) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	virtual GHIIndexStorageHandle createIndexStorage(
-		EGHIStorageElement indexType,
 		std::size_t numIndices,
+		EGHIStorageElement indexType,
 		EGHIStorageUsage usage) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	virtual GHIMeshHandle createMesh(
-		const GHIInfoMeshVertexLayout& layout,
 		TSpanView<GHIVertexStorageHandle> vertexStorages,
+		const GHIInfoMeshVertexLayout& layout,
 		GHIIndexStorageHandle indexStorage) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void deleteTexture(GHITextureHandle texture) = 0;
+	virtual void deleteTexture(GHITextureHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void deleteFramebuffer(GHIFramebufferHandle framebuffer) = 0;
+	virtual void deleteFramebuffer(GHIFramebufferHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void deleteShader(GHIShaderHandle shader) = 0;
+	virtual void deleteShader(GHIShaderHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void deleteShaderProgram(GHIShaderProgramHandle shaderProgram) = 0;
+	virtual void deleteShaderProgram(GHIShaderProgramHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void deleteVertexStorage(GHIVertexStorageHandle vertexStorage) = 0;
+	virtual void deleteVertexStorage(GHIVertexStorageHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void deleteIndexStorage(GHIIndexStorageHandle indexStorage) = 0;
+	virtual void deleteIndexStorage(GHIIndexStorageHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void deleteMesh(GHIMeshHandle mesh) = 0;
+	virtual void deleteMesh(GHIMeshHandle handle) = 0;
 
-public:
-	/*!
-	@note Thread safe.
+	/*! @brief Called on GHI thread when a frame begins.
 	*/
-	GHITextureHandle createTexture1D(
-		const GHIInfoTextureFormat& format,
-		uint32 lengthPx);
+	virtual void beginFrameUpdate() = 0;
 
-	/*!
-	@note Thread safe.
+	/*! @brief Called on GHI thread when a frame ends.
 	*/
-	GHITextureHandle createTexture2D(
-		const GHIInfoTextureFormat& format,
-		const math::Vector2UI& sizePx);
-
-	/*!
-	@note Thread safe.
-	*/
-	GHITextureHandle createTexture3D(
-		const GHIInfoTextureFormat& format,
-		const math::Vector3UI& sizePx);
-
-	/*!
-	@note Thread safe.
-	*/
-	TAtomicQueue<GraphicsObjectCreater>& getCreateQueue();
-
-	/*!
-	@note Thread safe.
-	*/
-	TAtomicQueue<GraphicsObjectDeleter>& getDeleteQueue();
-
-	void setGHIThread(GHIThread* thread);
-
-private:
-	GHIThread* m_ghiThread = nullptr;
-	TAtomicQueue<GraphicsObjectCreater> m_createQueue;
-	TAtomicQueue<GraphicsObjectDeleter> m_deleteQueue;
+	virtual void endFrameUpdate() = 0;
 };
-
-inline GHITextureHandle GraphicsObjectManager::createTexture1D(
-	const GHIInfoTextureFormat& format,
-	const uint32 lengthPx)
-{
-	return createTexture(format, {1, 1, 1});
-}
-
-inline GHITextureHandle GraphicsObjectManager::createTexture2D(
-	const GHIInfoTextureFormat& format,
-	const math::Vector2UI& sizePx)
-{
-	return createTexture(format, {sizePx.x(), sizePx.y(), 1});
-}
-
-inline GHITextureHandle GraphicsObjectManager::createTexture3D(
-	const GHIInfoTextureFormat& format,
-	const math::Vector3UI& sizePx)
-{
-	return createTexture(format, sizePx);
-}
-
-inline TAtomicQueue<GraphicsObjectCreater>& GraphicsObjectManager::getCreateQueue()
-{
-	return m_createQueue;
-}
-
-inline TAtomicQueue<GraphicsObjectDeleter>& GraphicsObjectManager::getDeleteQueue()
-{
-	return m_deleteQueue;
-}
 
 }// end namespace ph::editor

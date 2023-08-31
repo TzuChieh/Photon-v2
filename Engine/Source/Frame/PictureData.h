@@ -4,6 +4,7 @@
 #include "Math/TVector2.h"
 #include "Common/primitive_type.h"
 #include "Frame/frame_fwd.h"
+#include "Utility/TSpan.h"
 
 #include <cstddef>
 #include <memory>
@@ -47,9 +48,8 @@ public:
 	std::size_t getHeightPx() const;
 	std::size_t numComponents() const;
 	EPicturePixelComponent getComponentType() const;
-	std::byte* getData();
-	const std::byte* getData() const;
-	std::size_t numBytesInData() const;
+	TSpan<std::byte> getBytes();
+	TSpanView<std::byte> getBytes() const;
 	bool isEmpty() const;
 
 	template<typename PixelData>

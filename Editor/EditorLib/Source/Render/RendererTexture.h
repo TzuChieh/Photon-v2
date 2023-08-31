@@ -1,14 +1,13 @@
 #pragma once
 
 #include "Render/RendererResource.h"
+#include "RenderCore/ghi_fwd.h"
 
 #include <memory>
 #include <cstddef>
 
 namespace ph::editor
 {
-
-class GHITexture;
 
 class RendererTexture : public RendererResource
 {
@@ -20,9 +19,7 @@ public:
 	virtual std::size_t getWidthPx() const;
 	virtual std::size_t getHeightPx() const;
 	virtual std::size_t numLayers() const;
-
-	virtual GHITexture* getGHITexture() const = 0;
-	virtual std::shared_ptr<GHITexture> getGHITextureResource() const = 0;
+	virtual GHITextureHandle getGHITextureHandle() const = 0;
 
 	void setupGHI(GHIThreadCaller& caller) override = 0;
 	void cleanupGHI(GHIThreadCaller& caller) override = 0;

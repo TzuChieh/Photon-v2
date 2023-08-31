@@ -80,19 +80,14 @@ inline EPicturePixelComponent PictureData::getComponentType() const
 	return m_componentType;
 }
 
-inline std::byte* PictureData::getData()
+inline TSpan<std::byte> PictureData::getBytes()
 {
-	return m_data.get();
+	return {m_data.get(), m_numBytesInData};
 }
 
-inline const std::byte* PictureData::getData() const
+inline TSpanView<std::byte> PictureData::getBytes() const
 {
-	return m_data.get();
-}
-
-inline std::size_t PictureData::numBytesInData() const
-{
-	return m_numBytesInData;
+	return {m_data.get(), m_numBytesInData};
 }
 
 template<typename PixelData>

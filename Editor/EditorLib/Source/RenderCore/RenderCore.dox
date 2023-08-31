@@ -5,9 +5,11 @@ GHI (Graphics Hardware Interface) related functionalities may need to be execute
 (never assume main thread or render thread is where they can be executed), with some exceptions:
 
 * GHI enum types
+* GHI handle types
+* GHI description types
 * Classes prefixed with "GHIInfo"
 
-These GHI types are for passing information around and is safe to be stored and used everywhere.
+These GHI types are for passing/storing information and is safe to be stored and used everywhere.
 Some other GHI functionalities can be used concurrently, and will be specifically documented if that is
 the case. Assume the type can only be accessed from the GHI thread if there is no documentation or
 existing documentation is not clear about it.
