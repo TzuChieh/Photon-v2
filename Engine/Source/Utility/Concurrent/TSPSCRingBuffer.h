@@ -178,15 +178,18 @@ public:
 	///@}
 
 	/*! @brief Get buffer directly without any thread safety guarantee.
+	These unsafe getters break the thread safety guarantee unlike most of the `TSPSCRingBuffer` methods
+	and should be used with caution. These unsafe getters can be useful for, e.g., the caller can
+	guarantee that directly accessing the buffer will not result in any contention.
 	*/
 	///@{
-	inline T& getBufferDirectly(const std::size_t index)
+	inline T& unsafeRawBufferReference(const std::size_t index)
 	{
 		PH_ASSERT_LT(index, N);
 		return m_items[index].storedItem;
 	}
 
-	inline const T& getBufferDirectly(const std::size_t index) const
+	inline const T& unsafeRawBufferReference(const std::size_t index) const
 	{
 		PH_ASSERT_LT(index, N);
 		return m_items[index].storedItem;

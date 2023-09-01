@@ -9,11 +9,11 @@
 #include <Common/logging.h>
 #include <Utility/Concurrent/InitiallyPausedThread.h>
 #include <Utility/Concurrent/TSPSCRingBuffer.h>
+#include <Utility/Concurrent/TSynchronized.h>
 
 #include <cstddef>
 #include <thread>
 #include <atomic>
-#include <mutex>
 #include <utility>
 #include <type_traits>
 #include <vector>
@@ -82,19 +82,17 @@ private:
 
 	struct Frame final
 	{
-		std::vector<Work>       parentThreadWorkQueue;
-		TAtomicQuasiQueue<Work> anyThreadWorkQueue;
-		MemoryArena             workQueueMemory;
-		mutable std::mutex      memoryMutex;
+		std::vector<Work>          parentThreadWorkQueue;
+		TAtomicQuasiQueue<Work>    anyThreadWorkQueue;
+		TSynchronized<MemoryArena> workQueueMemory;
 #if PH_DEBUG
-		std::atomic_int32_t     numAnyThreadWorks;
+		std::atomic_int32_t        numAnyThreadWorks;
 #endif
 
 		inline Frame()
 			: parentThreadWorkQueue()
 			, anyThreadWorkQueue   ()
 			, workQueueMemory      ()
-			, memoryMutex          ()
 #if PH_DEBUG
 			, numAnyThreadWorks    (0)
 #endif
@@ -405,12 +403,7 @@ public:
 			info.detail.numEstimatedAnyThreadWorks  = currentFrame.anyThreadWorkQueue.estimatedSize();
 			info.detail.numEstimatedTotalWorks      = info.numParentWorks + info.detail.numEstimatedAnyThreadWorks;
 			info.detail.estimatedLocalBytesForWorks = info.detail.numEstimatedTotalWorks * sizeof(Work);
-
-			{
-				std::lock_guard<std::mutex> lock(currentFrame.memoryMutex);
-
-				info.detail.extraBytesAllocatedForWorks = currentFrame.workQueueMemory.numAllocatedBytes();
-			}
+			info.detail.extraBytesAllocatedForWorks = currentFrame.workQueueMemory->numAllocatedBytes();
 
 			info.hasDetail = true;
 		}
@@ -457,7 +450,7 @@ private:
 		for(std::size_t i = 0; i < numRemainingFrames; ++i)
 		{
 			const auto consumerHead = m_frames.nextProducerConsumerHead(m_frames.getConsumeHead(), i);
-			Frame& remainingFrame = m_frames.getBufferDirectly(consumerHead);
+			Frame& remainingFrame = m_frames.unsafeRawBufferReference(consumerHead);
 
 			// Process all remaining works
 			if(m_shouldFlushBufferBeforeStop)
@@ -472,7 +465,7 @@ private:
 #if PH_DEBUG
 				remainingFrame.numAnyThreadWorks.store(0, std::memory_order_relaxed);
 #endif
-				remainingFrame.workQueueMemory.clear();
+				remainingFrame.workQueueMemory.unsafeRawReference().clear();
 			}
 		}
 
@@ -521,9 +514,9 @@ private:
 		// It is worker's job to cleanup this frame for producer (for performance reasons; 
 		// also, some code is only meant to be called on the worker thread, this includes
 		// non-trivial destructors).
-		// No need to lock `memoryMutex` here as `isSealedForProcessing` already established
+		// No need to lock the arena here as `isSealedForProcessing` already established
 		// proper ordering for the memory effects to be visible.
-		frame.workQueueMemory.clear();
+		frame.workQueueMemory.unsafeRawReference().clear();
 	}
 
 	/*! @brief Check if this thread is worker thread.
@@ -563,11 +556,10 @@ private:
 		PH_ASSERT(!isWorkerThread());
 
 		// Since it is possible that multiple threads are concurrently storing oversized functor,
-		// we simply lock the arena since such operation is thread-unsafe
-		std::lock_guard<std::mutex> lock(m_frames.getBufferForProducer().memoryMutex);
+		// we simply lock the arena on allocation to avoid contention
 
-		MemoryArena& currentArena = m_frames.getBufferForProducer().workQueueMemory;
-		return currentArena.make<std::remove_reference_t<Func>>(std::forward<Func>(workFunc));
+		TSynchronized<MemoryArena>& currentArena = m_frames.getBufferForProducer().workQueueMemory;
+		return currentArena->make<std::remove_reference_t<Func>>(std::forward<Func>(workFunc));
 	}
 
 	/*!

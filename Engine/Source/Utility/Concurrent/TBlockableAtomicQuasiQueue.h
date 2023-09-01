@@ -7,7 +7,7 @@
 namespace ph
 {
 
-/*! @brief A multi-producer, multi-consumer, blockable version of the lock-free concurrent queue.
+/*! @brief Blockable version of the `TAtomicQuasiQueue`.
 For single-thread uses, it is a FIFO queue. For multi-thread uses, it is *mostly* a FIFO queue.
 Specifically, items put in by a given producer will all come out in the same order (FIFO). But
 there is no coordination between items from other producers--two items put in by two different

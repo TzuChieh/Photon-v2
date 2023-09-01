@@ -178,6 +178,7 @@ public:
 	}
 
 	/*! @brief Get a copy of the wrapped value.
+	With automatic locking/unlocking.
 	*/
 	T makeCopy() const
 	{
@@ -185,6 +186,27 @@ public:
 		return *lockedPtr;
 	}
 
+	/*! @brief Unsafe, direct access to the wrapped value.
+	Provides access to the wrapped value without any lock protection. These unsafe getters break the
+	thread safety guarantee unlike most of the `TSynchronized` methods and should be used with
+	caution. These unsafe getters can be useful for, e.g., the caller can guarantee that directly
+	accessing the value will not result in any contention.
+	*/
+	///@{
+	T& unsafeRawReference()
+	{
+		return m_value;
+	}
+
+	const T& unsafeRawReference() const
+	{
+		return m_value;
+	}
+	///@}
+
+	/*!
+	With automatic locking/unlocking.
+	*/
 	TSynchronized& operator = (const T& rhsValue)
 	{
 		PH_ASSERT(&m_value != &rhsValue);
@@ -195,6 +217,9 @@ public:
 		return *this;
 	}
 
+	/*!
+	With automatic locking/unlocking.
+	*/
 	TSynchronized& operator = (T&& rhsValue)
 	{
 		PH_ASSERT(&m_value != &rhsValue);
