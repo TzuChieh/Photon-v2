@@ -15,6 +15,8 @@
 namespace ph
 {
 
+/*! @brief A general purpose bump allocator.
+*/
 class MemoryArena final : private IMoveOnly
 {
 public:

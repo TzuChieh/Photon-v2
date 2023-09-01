@@ -17,11 +17,11 @@ It is possible some items will starve in the queue if more items are enqueued th
 Guarantees aquire-release semantics for items that are enqueued/dequeued.
 */
 template<typename T>
-class TBlockableAtomicQueue final
+class TBlockableAtomicQuasiQueue final
 {
 public:
-	TBlockableAtomicQueue();
-	explicit TBlockableAtomicQueue(std::size_t initialCapacity);
+	TBlockableAtomicQuasiQueue();
+	explicit TBlockableAtomicQuasiQueue(std::size_t initialCapacity);
 
 	/*! @brief Enqueue an item. Allocate memory if required.
 	Basic aquire-release semantics are guaranteed. This ensures that all the effects of work done 
@@ -69,7 +69,7 @@ public:
 
 private:
 	/*
-	For more information about the queue, please see the documentation of `TAtomicQueue::m_queue` as they
+	For more information about the queue, please see the documentation of `TAtomicQuasiQueue::m_queue` as they
 	share similar properties.
 	*/
 	moodycamel::BlockingConcurrentQueue<T> m_queue;
@@ -77,4 +77,4 @@ private:
 
 }// end namespace ph
 
-#include "Utility/Concurrent/TBlockableAtomicQueue.ipp"
+#include "Utility/Concurrent/TBlockableAtomicQuasiQueue.ipp"

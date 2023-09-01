@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/Concurrent/TBlockableAtomicQueue.h"
+#include "Utility/Concurrent/TBlockableAtomicQuasiQueue.h"
 #include "Utility/Concurrent/InitiallyPausedThread.h"
 #include "Common/primitive_type.h"
 #include "Utility/TFunction.h"
@@ -155,7 +155,7 @@ private:
 	// NOTE: moodycamel has faster SPSC queue, consider using it
 
 	InitiallyPausedThread                 m_thread;
-	TBlockableAtomicQueue<Workload>       m_workloadQueue;
+	TBlockableAtomicQuasiQueue<Workload>  m_workloadQueue;
 	std::atomic_flag                      m_isTerminationRequested;
 	std::atomic_flag                      m_isTerminated;
 	std::thread::id                       m_producerThreadId;

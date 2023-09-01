@@ -2,7 +2,7 @@
 
 #include "EditorCore/Thread/Threads.h"
 
-#include <Utility/Concurrent/TAtomicQueue.h>
+#include <Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Utility/TFunction.h>
 
 #include <cstddef>
@@ -41,7 +41,7 @@ private:
 	void updateAnyThreadEvents();
 
 	std::vector<EventUpdateWork> m_mainThreadWorks;
-	TAtomicQueue<EventUpdateWork> m_anyThreadWorks;
+	TAtomicQuasiQueue<EventUpdateWork> m_anyThreadWorks;
 };
 
 inline void EditorEventQueue::add(EventUpdateWork work)

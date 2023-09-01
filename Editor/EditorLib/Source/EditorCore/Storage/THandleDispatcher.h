@@ -2,7 +2,7 @@
 
 #include "EditorCore/Storage/fwd.h"
 
-#include <Utility/Concurrent/TAtomicQueue.h>
+#include <Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Common/assertion.h>
 
 #include <queue>

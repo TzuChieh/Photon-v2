@@ -6,7 +6,7 @@
 #include "EditorCore/Storage/TWeakHandle.h"
 #include "RenderCore/OpenGL/OpenglTexture.h"
 
-#include <Utility/Concurrent/TAtomicQueue.h>
+#include <Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Utility/TFunction.h>
 
 #include <vector>
@@ -105,8 +105,8 @@ private:
 
 	TPool<OpenglTexture, GHITextureHandle> m_textures;
 
-	TAtomicQueue<OpenglObjectCreator> m_creationQueue;
-	TAtomicQueue<OpenglObjectDeleter> m_deletionQueue;
+	TAtomicQuasiQueue<OpenglObjectCreator> m_creationQueue;
+	TAtomicQuasiQueue<OpenglObjectDeleter> m_deletionQueue;
 	std::vector<OpenglObjectDeleter> m_failedDeleterCache;
 };
 

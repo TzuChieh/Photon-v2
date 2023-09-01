@@ -1,4 +1,4 @@
-#include <Utility/Concurrent/TAtomicQueue.h>
+#include <Utility/Concurrent/TAtomicQuasiQueue.h>
 
 #include <gtest/gtest.h>
 
@@ -7,10 +7,10 @@
 
 using namespace ph;
 
-TEST(TAtomicQueueTest, Creation)
+TEST(TAtomicQuasiQueueTest, Creation)
 {
 	{
-		TAtomicQueue<int> queue;
+		TAtomicQuasiQueue<int> queue;
 		EXPECT_EQ(queue.estimatedSize(), 0);
 	}
 
@@ -21,15 +21,15 @@ TEST(TAtomicQueueTest, Creation)
 			float y;
 		};
 
-		TAtomicQueue<TestStruct> queue(123);
+		TAtomicQuasiQueue<TestStruct> queue(123);
 		EXPECT_EQ(queue.estimatedSize(), 0);
 	}
 }
 
-TEST(TAtomicQueue, SingleThreadedEnqueueAndDequeue)
+TEST(TAtomicQuasiQueue, SingleThreadedEnqueueAndDequeue)
 {
 	{
-		TAtomicQueue<int> queue;
+		TAtomicQuasiQueue<int> queue;
 
 		for(int i = 0; i < 64; ++i)
 		{
@@ -51,11 +51,11 @@ TEST(TAtomicQueue, SingleThreadedEnqueueAndDequeue)
 	}
 }
 
-TEST(TAtomicQueue, MultiThreadedEnqueueAndDequeue)
+TEST(TAtomicQuasiQueue, MultiThreadedEnqueueAndDequeue)
 {
 	// Based on the sample code from https://github.com/cameron314/concurrentqueue/blob/master/samples.md
 	{
-		TAtomicQueue<int> q;
+		TAtomicQuasiQueue<int> q;
 		int dequeued[1000] = {0};
 		std::thread threads[20];
 

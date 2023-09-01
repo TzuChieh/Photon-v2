@@ -5,7 +5,7 @@
 #include "ThirdParty/DearImGui.h"
 
 #include <Common/assertion.h>
-#include <Utility/Concurrent/TAtomicQueue.h>
+#include <Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Utility/utility.h>
 #include <Common/Log/ELogLevel.h>
 
@@ -26,8 +26,8 @@ struct QueuedLog
 
 struct LogStorage
 {
-	TAtomicQueue<QueuedLog> logs;
-	TAtomicQueue<QueuedLog> freeLogs;
+	TAtomicQuasiQueue<QueuedLog> logs;
+	TAtomicQuasiQueue<QueuedLog> freeLogs;
 };
 
 inline LogStorage& LOG_STORAGE()

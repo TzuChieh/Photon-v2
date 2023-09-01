@@ -2,7 +2,7 @@
 
 #include "EditorCore/Storage/fwd.h"
 
-#include <Utility/Concurrent/TAtomicQueue.h>
+#include <Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Utility/IMoveOnly.h>
 #include <Common/assertion.h>
 
@@ -77,7 +77,7 @@ public:
 	}
 
 private:
-	TAtomicQueue<Handle> m_handles;
+	TAtomicQuasiQueue<Handle> m_handles;
 	std::atomic<Index> m_nextNewIdx;
 };
 

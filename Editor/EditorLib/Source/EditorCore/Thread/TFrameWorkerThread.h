@@ -3,7 +3,7 @@
 #include <Utility/INoCopyAndMove.h>
 #include <Utility/MemoryArena.h>
 #include <Utility/TFunction.h>
-#include <Utility/Concurrent/TAtomicQueue.h>
+#include <Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Common/config.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -82,12 +82,12 @@ private:
 
 	struct Frame final
 	{
-		std::vector<Work>   parentThreadWorkQueue;
-		TAtomicQueue<Work>  anyThreadWorkQueue;
-		MemoryArena         workQueueMemory;
-		mutable std::mutex  memoryMutex;
+		std::vector<Work>       parentThreadWorkQueue;
+		TAtomicQuasiQueue<Work> anyThreadWorkQueue;
+		MemoryArena             workQueueMemory;
+		mutable std::mutex      memoryMutex;
 #if PH_DEBUG
-		std::atomic_int32_t numAnyThreadWorks;
+		std::atomic_int32_t     numAnyThreadWorks;
 #endif
 
 		inline Frame()
@@ -132,6 +132,8 @@ public:
 
 	/*!
 	Does not start the worker thread. Worker thread can be started by calling `startWorker()`.
+	@param shouldFlushBufferBeforeStop Whether all submitted works in the remaining frames should be
+	processed before actually stopping the worker.
 	*/
 	inline TFrameWorkerThread(bool shouldFlushBufferBeforeStop)
 		: m_thread()
@@ -359,8 +361,8 @@ public:
 		PH_ASSERT(isStopRequested());
 		PH_ASSERT(hasWorkerStarted());
 
-		// Ensures that `endFrame()` is called at least once before requesting stop, so worker can process 
-		// at least one frame and see the stop request (rather than block forever).
+		// Ensures that `endFrame()` is called at least once before requesting stop, so worker can
+		// process at least one frame and see the stop request (rather than block forever).
 		PH_ASSERT_GE(getFrameNumber(), 1);
 
 		m_thread.join();
@@ -466,7 +468,7 @@ private:
 			else
 			{
 				remainingFrame.parentThreadWorkQueue.clear();
-				remainingFrame.anyThreadWorkQueue = TAtomicQueue<Work>();
+				remainingFrame.anyThreadWorkQueue = TAtomicQuasiQueue<Work>{};
 #if PH_DEBUG
 				remainingFrame.numAnyThreadWorks.store(0, std::memory_order_relaxed);
 #endif

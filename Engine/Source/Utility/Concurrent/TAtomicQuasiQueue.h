@@ -20,11 +20,11 @@ It is possible some items will starve in the queue if more items are enqueued th
 Guarantees aquire-release semantics for items that are enqueued/dequeued.
 */
 template<typename T>
-class TAtomicQueue final
+class TAtomicQuasiQueue final
 {
 public:
-	TAtomicQueue();
-	explicit TAtomicQueue(std::size_t initialCapacity);
+	TAtomicQuasiQueue();
+	explicit TAtomicQuasiQueue(std::size_t initialCapacity);
 
 	/*! @brief Enqueue an item. Allocate memory if required.
 	Basic aquire-release semantics are guaranteed. This ensures that all the effects of work done 
@@ -110,4 +110,4 @@ private:
 
 }// end namespace ph
 
-#include "Utility/Concurrent/TAtomicQueue.ipp"
+#include "Utility/Concurrent/TAtomicQuasiQueue.ipp"
