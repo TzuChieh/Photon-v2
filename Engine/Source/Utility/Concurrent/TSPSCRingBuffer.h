@@ -177,26 +177,7 @@ public:
 	}
 	///@}
 
-	/*! @brief Get buffer directly without any thread safety guarantee.
-	These unsafe getters break the thread safety guarantee unlike most of the `TSPSCRingBuffer` methods
-	and should be used with caution. These unsafe getters can be useful for, e.g., the caller can
-	guarantee that directly accessing the buffer will not result in any contention.
-	*/
-	///@{
-	inline T& unsafeRawBufferReference(const std::size_t index)
-	{
-		PH_ASSERT_LT(index, N);
-		return m_items[index].storedItem;
-	}
-
-	inline const T& unsafeRawBufferReference(const std::size_t index) const
-	{
-		PH_ASSERT_LT(index, N);
-		return m_items[index].storedItem;
-	}
-	///@}
-
-	/*! @brief Get the distance between produce and consume heads without limited thread safety guarantee.
+	/*! @brief Get the distance between produce and consume heads with limited thread safety guarantee.
 	This method is thread safe, however note that when called during producing/consuming operations the
 	result is an approximation to the actual distance. The distance is only exact if the buffer is
 	synchronized externally and no one is currently producing/consuming the buffer.
@@ -283,6 +264,35 @@ public:
 		PH_ASSERT(isConsumerThread());
 		return getCurrentConsumerItem().isBetweenConsumeBeginAndEnd;
 	}
+
+	/*! @brief Access the buffer directly without any thread safety guarantee.
+	These unsafe getters break the thread safety guarantee unlike most of the `TSPSCRingBuffer` methods
+	and should be used with caution. These unsafe getters can be useful for, e.g., the caller can
+	guarantee that directly accessing the buffer will not result in any contention.
+	*/
+	///@{
+	inline std::size_t unsafeGetProduceHead() const
+	{
+		return m_produceHead;
+	}
+
+	inline std::size_t unsafeGetConsumeHead() const
+	{
+		return m_consumeHead;
+	}
+
+	inline T& unsafeGetBufferReference(const std::size_t index)
+	{
+		PH_ASSERT_LT(index, N);
+		return m_items[index].storedItem;
+	}
+
+	inline const T& unsafeGetBufferReference(const std::size_t index) const
+	{
+		PH_ASSERT_LT(index, N);
+		return m_items[index].storedItem;
+	}
+	///@}
 
 public:
 	class ProducerGuard final : private INoCopyAndMove

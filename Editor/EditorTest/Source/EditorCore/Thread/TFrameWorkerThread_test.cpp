@@ -7,6 +7,9 @@
 #include <memory>
 #include <algorithm>
 #include <thread>
+#include <vector>
+#include <atomic>
+#include <type_traits>
 
 #if !GTEST_IS_THREADSAFE 
 	#error "TFrameWorkerThreadTest requires googletest to be thread safe."
@@ -22,6 +25,7 @@ namespace
 template<std::size_t NUM_BUFFERS, typename WorkSignature>
 class TMockFrameWorker : public TFrameWorkerThread<NUM_BUFFERS, WorkSignature>
 {
+public:
 	using Base = TFrameWorkerThread<NUM_BUFFERS, WorkSignature>;
 	using Work = Base::Work;
 
@@ -31,6 +35,22 @@ public:
 	MOCK_METHOD(void, onAsyncProcessWork, (const Work& work), (override));
 	MOCK_METHOD(void, onBeginFrame, (), (override));
 	MOCK_METHOD(void, onEndFrame, (), (override));
+};
+
+template<std::size_t NUM_BUFFERS>
+class TSimpleFrameWorker : public TFrameWorkerThread<NUM_BUFFERS, void()>
+{
+public:
+	using Base = TFrameWorkerThread<NUM_BUFFERS, void()>;
+	using Work = Base::Work;
+
+public:
+	using Base::Base;
+
+	inline void onAsyncProcessWork(const Work& work) override
+	{
+		work();
+	}
 };
 
 }
@@ -172,7 +192,7 @@ namespace
 {
 
 template<std::size_t NUM_BUFFERS>
-inline void run_multiple_frames_buffered_test(const bool shouldFlushBufferBeforeStop)
+inline void run_multiple_frames_test(const bool shouldFlushBufferBeforeStop)
 {
 	constexpr std::size_t MAX_FRAMES = 20;
 
@@ -256,14 +276,14 @@ inline void run_multiple_frames_buffered_test(const bool shouldFlushBufferBefore
 TEST(TFrameWorkerThreadTest, RunMultipleFramesBuffered)
 {
 	// Flush buffer before stop
-	run_multiple_frames_buffered_test<2>(true);
-	run_multiple_frames_buffered_test<3>(true);
-	run_multiple_frames_buffered_test<4>(true);
+	run_multiple_frames_test<2>(true);
+	run_multiple_frames_test<3>(true);
+	run_multiple_frames_test<4>(true);
 
 	// Not flushing buffer before stop
-	run_multiple_frames_buffered_test<2>(false);
-	run_multiple_frames_buffered_test<3>(false);
-	run_multiple_frames_buffered_test<4>(false);
+	run_multiple_frames_test<2>(false);
+	run_multiple_frames_test<3>(false);
+	run_multiple_frames_test<4>(false);
 }
 
 TEST(TFrameWorkerThreadTest, RunSmartPtrCaptureWork)
@@ -347,7 +367,7 @@ TEST(TFrameWorkerThreadTest, WorkObjectDestruct)
 			const int numAdditionalWorks = i;
 
 			// Note: this is a buffered worker
-			TMockFrameWorker<3, void(void)> worker(shouldFlushBufferBeforeStop);
+			TSimpleFrameWorker<3> worker(shouldFlushBufferBeforeStop);
 			worker.startWorker();
 
 			int deleteCount = 0;
@@ -421,4 +441,98 @@ TEST(TFrameWorkerThreadTest, WorkObjectDestruct)
 
 	// Not flushing buffer before stop
 	testFunc(false);
+}
+
+namespace
+{
+
+template<std::size_t NUM_BUFFERS>
+inline void multiple_small_work_producers_test(
+	const std::size_t numProducers, 
+	const std::size_t numWorksPerProducer,
+	const std::size_t numFramesToRun)
+{
+	std::atomic_uint32_t counter = 0;
+
+	using Worker = TSimpleFrameWorker<NUM_BUFFERS>;
+	Worker worker;
+
+	worker.startWorker();
+	for(int fi = 0; fi < numFramesToRun; ++fi)
+	{
+		worker.beginFrame();
+
+		std::vector<std::thread> producers(numProducers);
+		for(int pi = 0; pi < numProducers; ++pi)
+		{
+			producers[pi] = std::thread([&worker, &counter, numWorksPerProducer]()
+			{
+				for(int wi = 0; wi < numWorksPerProducer; ++wi)
+				{
+					// Explicitly instantiate a worker's work type to ensure storing `smallWork`
+					// does not involve the use of arena
+					typename Worker::Work smallWork = 
+						[&counter]()
+						{
+							counter.fetch_add(1, std::memory_order_relaxed);
+						};
+
+					worker.addWork(smallWork);
+				}
+			});
+		}
+
+		for(auto& producer : producers)
+		{
+			producer.join();
+		}
+
+		// Request stop on last frame
+		if(fi == numFramesToRun - 1)
+		{
+			worker.requestWorkerStop();
+		}
+		
+		worker.endFrame();
+	}
+
+	worker.waitForWorkerToStop();
+	EXPECT_EQ(
+		counter.load(std::memory_order_relaxed), 
+		numProducers * numWorksPerProducer * numFramesToRun);
+}
+
+}
+
+TEST(TFrameWorkerThreadTest, MultipleSmallWorkProducers)
+{
+	// Baseline: unbuffered, 1 producer, 10 works/producer, 10 frames
+	multiple_small_work_producers_test<1>(1, 10, 10);
+
+	// Baseline: unbuffered, 2 producers, 10 works/producer, 10 frames
+	multiple_small_work_producers_test<1>(2, 10, 10);
+
+	// Baseline: unbuffered, 4 producers, 10 works/producer, 10 frames
+	multiple_small_work_producers_test<1>(4, 10, 10);
+
+	// Small work set: double buffered, 4 producers, 100 works/producer, 20 frames
+	multiple_small_work_producers_test<2>(4, 100, 20);
+
+	// Medium work set: double buffered, 8 producers, 100 works/producer, 21 frames
+	multiple_small_work_producers_test<2>(8, 100, 21);
+
+	// Medium work set: triple buffered, 8 producers, 100 works/producer, 22 frames
+	multiple_small_work_producers_test<3>(8, 100, 22);
+
+	// Medium work set: quintuple buffered, 8 producers, 100 works/producer, 23 frames
+	multiple_small_work_producers_test<5>(8, 100, 23);
+
+	// Larger work set: triple buffered, 8 producers, 1000 works/producer, 50 frames
+	multiple_small_work_producers_test<3>(8, 1000, 50);
+
+	// Larger work set: triple buffered, 16 producers, 1000 works/producer, 51 frames
+	multiple_small_work_producers_test<3>(16, 1000, 51);
+
+	// Larger work set: quintuple buffered, 20 producers, 1000 works/producer, 123 frames
+	multiple_small_work_producers_test<5>(20, 1000, 123);
 }

@@ -35,15 +35,16 @@ class TFrameWorkerThread
 /*!
 A worker thread that helps to develop the concept of frame-to-frame work which is executed on
 another thread. For unbuffered frames, you can specify `NUM_BUFFERS = 1`, though one might consider
-to use TUnbufferedFrameWorkerThread for this as it is specialized for this case and can offer better
-performance. Note that in TFrameWorkerThread, works will not be processed until endFrame() is called, 
-while in TUnbufferedFrameWorkerThread works will start being processed right after beginFrame().
+to use `TUnbufferedFrameWorkerThread` for this as it is specialized for this case and can offer better
+performance. Note that in `TFrameWorkerThread`, works will not be processed until `endFrame()` is called, 
+while in `TUnbufferedFrameWorkerThread` works will start being processed right after `beginFrame()`.
 
 Regarding thread safety notes:
 
-* Producer Thread: Thread that adds/produces work, can be one or more.
-* Worker Thread: Thread that processes/consumes work, only one worker thread will be spawned.
 * Parent Thread: Thread that starts the worker thread (by calling `startWorker()`).
+* Worker Thread: Thread that processes/consumes work, only one worker thread will be spawned.
+* Producer Thread: Thread that adds/produces work, can be one or more. For a non-parent producer thread,
+it must synchronize with `beginFrame()` and `endFrame()`.
 * Thread Safe: Can be used on any thread.
 * Anything that has no thread safety notes: It is **NOT** thread safe.
 
@@ -142,6 +143,7 @@ public:
 		, m_shouldFlushBufferBeforeStop(shouldFlushBufferBeforeStop)
 		, m_parentThreadId()
 #if PH_DEBUG
+		, m_isBetweenFrameBeginAndEnd(false)
 		, m_isStopped(false)
 #endif
 	{
@@ -230,6 +232,10 @@ public:
 		// vvvvv   Works can now be added after the begin produce call  vvvvv //
 		//--------------------------------------------------------------------//
 		
+#if PH_DEBUG
+		m_isBetweenFrameBeginAndEnd = true;
+#endif
+
 		// Must be empty (already cleared by worker)
 		PH_ASSERT_EQ(currentFrame.numAnyThreadWorks.load(std::memory_order_relaxed), 0);
 
@@ -246,6 +252,10 @@ public:
 		PH_ASSERT(hasWorkerStarted());
 
 		onEndFrame();
+
+#if PH_DEBUG
+		m_isBetweenFrameBeginAndEnd = false;
+#endif
 
 		// Mark that current frame is now filled and is ready for processing
 		m_frames.endProduce();
@@ -302,9 +312,10 @@ public:
 	inline void addWork(Work work)
 	{
 		PH_ASSERT(work.isValid());
-		PH_ASSERT(m_frames.isProducing());
+		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
 
-		Frame& currentFrame = m_frames.getBufferForProducer();
+		// Unsafe buffer reference is okay--producer threads should synchronize with frame begin/end
+		Frame& currentFrame = m_frames.unsafeGetBufferReference(m_frames.unsafeGetProduceHead());
 		if(isParentThread())
 		{
 			currentFrame.parentThreadWorkQueue.push_back(std::move(work));
@@ -389,9 +400,10 @@ public:
 	{
 		// For all producer threads, it is only safe to access between being/end frame.
 		PH_ASSERT(!isWorkerThread());
-		PH_ASSERT(m_frames.isProducing());
+		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
 
-		const Frame& currentFrame = m_frames.getBufferForProducer();
+		// Unsafe buffer reference is okay--producer threads should synchronize with frame begin/end
+		const Frame& currentFrame = m_frames.unsafeGetBufferReference(m_frames.unsafeGetProduceHead());
 
 		FrameInfo info;
 		info.frameNumber     = getFrameNumber();
@@ -450,7 +462,7 @@ private:
 		for(std::size_t i = 0; i < numRemainingFrames; ++i)
 		{
 			const auto consumerHead = m_frames.nextProducerConsumerHead(m_frames.getConsumeHead(), i);
-			Frame& remainingFrame = m_frames.unsafeRawBufferReference(consumerHead);
+			Frame& remainingFrame = m_frames.unsafeGetBufferReference(consumerHead);
 
 			// Process all remaining works
 			if(m_shouldFlushBufferBeforeStop)
@@ -465,7 +477,7 @@ private:
 #if PH_DEBUG
 				remainingFrame.numAnyThreadWorks.store(0, std::memory_order_relaxed);
 #endif
-				remainingFrame.workQueueMemory.unsafeRawReference().clear();
+				remainingFrame.workQueueMemory.unsafeGetReference().clear();
 			}
 		}
 
@@ -516,7 +528,7 @@ private:
 		// non-trivial destructors).
 		// No need to lock the arena here as `isSealedForProcessing` already established
 		// proper ordering for the memory effects to be visible.
-		frame.workQueueMemory.unsafeRawReference().clear();
+		frame.workQueueMemory.unsafeGetReference().clear();
 	}
 
 	/*! @brief Check if this thread is worker thread.
@@ -554,11 +566,14 @@ private:
 	inline std::remove_reference_t<Func>* storeFuncInMemoryArena(Func&& workFunc)
 	{
 		PH_ASSERT(!isWorkerThread());
+		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
+
+		// Unsafe buffer reference is okay--producer threads should synchronize with frame begin/end
+		TSynchronized<MemoryArena>& currentArena = 
+			m_frames.unsafeGetBufferReference(m_frames.unsafeGetProduceHead()).workQueueMemory;
 
 		// Since it is possible that multiple threads are concurrently storing oversized functor,
 		// we simply lock the arena on allocation to avoid contention
-
-		TSynchronized<MemoryArena>& currentArena = m_frames.getBufferForProducer().workQueueMemory;
 		return currentArena->make<std::remove_reference_t<Func>>(std::forward<Func>(workFunc));
 	}
 
@@ -570,7 +585,7 @@ private:
 		// For all producer threads, it is only safe to access between being/end frame.
 		// If it is parent thread, it is safe to access anytime.
 		PH_ASSERT(
-			(!isWorkerThread() && m_frames.isProducing()) ||
+			(!isWorkerThread() && m_isBetweenFrameBeginAndEnd) ||
 			(isParentThread()));
 
 		return m_frameNumber;
@@ -585,6 +600,7 @@ private:
 	bool                  m_shouldFlushBufferBeforeStop;
 	std::thread::id       m_parentThreadId;
 #if PH_DEBUG
+	bool                  m_isBetweenFrameBeginAndEnd;
 	bool                  m_isStopped;
 #endif
 };

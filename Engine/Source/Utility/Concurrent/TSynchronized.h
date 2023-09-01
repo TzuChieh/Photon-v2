@@ -193,12 +193,12 @@ public:
 	accessing the value will not result in any contention.
 	*/
 	///@{
-	T& unsafeRawReference()
+	T& unsafeGetReference()
 	{
 		return m_value;
 	}
 
-	const T& unsafeRawReference() const
+	const T& unsafeGetReference() const
 	{
 		return m_value;
 	}
