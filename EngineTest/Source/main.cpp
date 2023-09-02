@@ -1,4 +1,4 @@
-#include <ph_core.h>
+#include <ph_cpp_core.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[])
 {
-	if(!phInit())
+	if(!ph::init_render_engine(ph::EngineInitSettings{}))
 	{
 		std::cerr << "Photon initialization failed" << std::endl;
 		return EXIT_FAILURE;
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	testing::InitGoogleMock(&argc, argv);
 	const int testReturnValue = RUN_ALL_TESTS();
 
-	if(!phExit())
+	if(!ph::exit_render_engine())
 	{
 		std::cerr << "Photon exiting failed" << std::endl;
 		return EXIT_FAILURE;
