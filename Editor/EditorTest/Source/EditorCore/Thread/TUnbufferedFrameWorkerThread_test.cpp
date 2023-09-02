@@ -28,6 +28,21 @@ public:
 	MOCK_METHOD(void, onEndFrame, (), (override));
 };
 
+class SimpleUnbufferedFrameWorker : public TUnbufferedFrameWorkerThread<void()>
+{
+public:
+	using Base = TUnbufferedFrameWorkerThread<void()>;
+	using Work = Base::Work;
+
+public:
+	using Base::Base;
+
+	inline void onAsyncProcessWork(const Work& work) override
+	{
+		work();
+	}
+};
+
 }
 
 TEST(TUnbufferedFrameWorkerThreadTest, RunSingleFrame)
@@ -309,8 +324,7 @@ TEST(TUnbufferedFrameWorkerThreadTest, WorkObjectDestruct)
 			const int numFramesToRun = i;
 			const int numAdditionalWorks = i;
 
-			// Note: this is a buffered worker
-			TMockUnbufferedFrameWorker<void(void)> worker;
+			SimpleUnbufferedFrameWorker worker;
 			worker.startWorker();
 
 			int deleteCount = 0;
