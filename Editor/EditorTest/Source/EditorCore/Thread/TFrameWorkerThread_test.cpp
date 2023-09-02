@@ -536,3 +536,95 @@ TEST(TFrameWorkerThreadTest, MultipleSmallWorkProducers)
 	// Larger work set: quintuple buffered, 20 producers, 1000 works/producer, 123 frames
 	multiple_small_work_producers_test<5>(20, 1000, 123);
 }
+
+namespace
+{
+
+template<std::size_t NUM_BUFFERS>
+inline void multiple_large_work_producers_test(
+	const std::size_t numProducers, 
+	const std::size_t numWorksPerProducer,
+	const std::size_t numFramesToRun)
+{
+	std::atomic_uint32_t counter = 0;
+
+	using Worker = TSimpleFrameWorker<NUM_BUFFERS>;
+	Worker worker;
+
+	worker.startWorker();
+	for(int fi = 0; fi < numFramesToRun; ++fi)
+	{
+		worker.beginFrame();
+
+		std::vector<std::thread> producers(numProducers);
+		for(int pi = 0; pi < numProducers; ++pi)
+		{
+			producers[pi] = std::thread([&worker, &counter, numWorksPerProducer]()
+			{
+				for(int wi = 0; wi < numWorksPerProducer; ++wi)
+				{
+					worker.addWork(
+						[&counter, 
+						 nonTrivial = std::make_unique<double>(wi), 
+						 largeObj = std::array<int, 128>{}]()
+						{
+							counter.fetch_add(1, std::memory_order_relaxed);
+						});
+				}
+			});
+		}
+
+		for(auto& producer : producers)
+		{
+			producer.join();
+		}
+
+		// Request stop on last frame
+		if(fi == numFramesToRun - 1)
+		{
+			worker.requestWorkerStop();
+		}
+		
+		worker.endFrame();
+	}
+
+	worker.waitForWorkerToStop();
+	EXPECT_EQ(
+		counter.load(std::memory_order_relaxed), 
+		numProducers * numWorksPerProducer * numFramesToRun);
+}
+
+}
+
+TEST(TFrameWorkerThreadTest, MultipleLargeWorkProducers)
+{
+	// Baseline: unbuffered, 1 producer, 10 works/producer, 10 frames
+	multiple_large_work_producers_test<1>(1, 10, 10);
+
+	// Baseline: unbuffered, 2 producers, 10 works/producer, 10 frames
+	multiple_large_work_producers_test<1>(2, 10, 10);
+
+	// Baseline: unbuffered, 4 producers, 10 works/producer, 10 frames
+	multiple_large_work_producers_test<1>(4, 10, 10);
+
+	// Small work set: double buffered, 4 producers, 100 works/producer, 20 frames
+	multiple_large_work_producers_test<2>(4, 100, 20);
+
+	// Medium work set: double buffered, 8 producers, 100 works/producer, 21 frames
+	multiple_large_work_producers_test<2>(8, 100, 21);
+
+	// Medium work set: triple buffered, 8 producers, 100 works/producer, 22 frames
+	multiple_large_work_producers_test<3>(8, 100, 22);
+
+	// Medium work set: quintuple buffered, 8 producers, 100 works/producer, 23 frames
+	multiple_large_work_producers_test<5>(8, 100, 23);
+
+	// Larger work set: triple buffered, 8 producers, 1000 works/producer, 50 frames
+	multiple_large_work_producers_test<3>(8, 1000, 50);
+
+	// Larger work set: triple buffered, 16 producers, 1000 works/producer, 51 frames
+	multiple_large_work_producers_test<3>(16, 1000, 51);
+
+	// Larger work set: quintuple buffered, 20 producers, 1000 works/producer, 123 frames
+	multiple_large_work_producers_test<5>(20, 1000, 123);
+}

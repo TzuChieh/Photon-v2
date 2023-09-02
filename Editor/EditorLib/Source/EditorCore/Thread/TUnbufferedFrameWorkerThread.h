@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Utility/INoCopyAndMove.h>
+#include <Common/assertion.h>
 #include <Utility/Concurrent/TSPSCExecutor.h>
 #include <Utility/TFunction.h>
 #include <Utility/MemoryArena.h>
-#include <Common/assertion.h>
 
 #include <utility>
 #include <type_traits>
@@ -15,6 +15,14 @@
 
 namespace ph::editor
 {
+
+struct UnbufferedFrameInfo final
+{
+	std::size_t frameNumber                 = 0;
+	std::size_t numParentWorks              = 0;
+	std::size_t sizeofWorkerThread          = 0;
+	std::size_t extraBytesAllocatedForWorks = 0;
+};
 
 template<typename T>
 class TUnbufferedFrameWorkerThread
@@ -27,13 +35,13 @@ class TUnbufferedFrameWorkerThread
 
 /*!
 A worker thread that helps to develop the concept of frame-to-frame work which is executed on 
-another thread. Unlike its variant, TFrameWorkerThread, this class has no buffer and works added
+another thread. Unlike its variant, `TFrameWorkerThread`, this class has no buffer and works added
 will be processed as soon as possible (no need to wait for the call to endFrame()).
 
 Regarding thread safety notes:
 
-* Worker Thread: Thread that processes/consumes work, only one worker thread will be spawned.
 * Parent Thread: Thread that starts the worker thread (by calling `startWorker()`).
+* Worker Thread: Thread that processes/consumes work, only one worker thread will be spawned.
 * Thread Safe: Can be used on any thread.
 * Anything that has no thread safety notes: It is **NOT** thread safe.
 
@@ -71,14 +79,7 @@ private:
 		std::monostate,
 		Work,
 		InternalWork>;
-
-public:
-	struct FrameInfo final
-	{
-		std::size_t frameNumber                 = 0;
-		std::size_t numParentWorks              = 0;
-		std::size_t extraBytesAllocatedForWorks = 0;
-	};
+	
 
 public:
 	/*!
@@ -248,7 +249,8 @@ public:
 
 	/*!
 	Similar to addWork(Work). This variant supports general functors. Larger functors or non-trivial
-	functors may induce additional overhead on creating and processing of the work.
+	functors will induce additional overhead on creating and processing of the work. If you want to 
+	ensure minimal overhead, adhere to the binding requirements imposed by `TFunction`.
 	@note Parent thread only. Work objects will be destructed (if required) on worker thread.
 	*/
 	template<typename Func>
@@ -346,18 +348,20 @@ public:
 	}
 
 	/*!
+	Get information about current frame. Can only be called between `beginFrame()` and `endFrame()`.
 	@note Parent thread only.
 	*/
-	inline FrameInfo getFrameInfo() const
+	inline UnbufferedFrameInfo getFrameInfo() const
 	{
 		PH_ASSERT(isParentThread());
 
 		// Safe to access anywhere between being/end frame. Here just to be consistent with others
 		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
 
-		FrameInfo info;
+		UnbufferedFrameInfo info;
 		info.frameNumber                 = getFrameNumber();
 		info.numParentWorks              = m_numParentWorks;
+		info.sizeofWorkerThread          = sizeof(*this);
 		info.extraBytesAllocatedForWorks = m_workQueueMemory.numAllocatedBytes();
 
 		return info;
@@ -432,15 +436,15 @@ private:
 		return m_frameNumber;
 	}
 
-	TSPSCExecutor<Workload> m_thread;
-	MemoryArena             m_workQueueMemory;
-	std::thread::id         m_parentThreadId;
-	std::atomic_bool        m_isStopRequested;
-	std::size_t             m_frameNumber;
-	std::size_t             m_numParentWorks;
+	TSPSCExecutor<Workload>    m_thread;
+	MemoryArena                m_workQueueMemory;
+	std::thread::id            m_parentThreadId;
+	std::atomic_bool           m_isStopRequested;
+	std::size_t                m_frameNumber;
+	std::size_t                m_numParentWorks;
 #if PH_DEBUG
-	bool                    m_isBetweenFrameBeginAndEnd;
-	bool                    m_isStopped;
+	bool                       m_isBetweenFrameBeginAndEnd;
+	bool                       m_isStopped;
 #endif
 };
 

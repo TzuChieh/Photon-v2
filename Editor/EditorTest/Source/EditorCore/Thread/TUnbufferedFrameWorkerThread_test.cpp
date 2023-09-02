@@ -6,6 +6,7 @@
 #include <array>
 #include <memory>
 #include <algorithm>
+#include <atomic>
 
 #if !GTEST_IS_THREADSAFE 
 	#error "TUnbufferedFrameWorkerThreadTest requires googletest to be thread safe."
@@ -392,4 +393,152 @@ TEST(TUnbufferedFrameWorkerThreadTest, WorkObjectDestruct)
 			EXPECT_EQ(deleteCount, numTotalWorks);
 		}
 	}
+}
+
+namespace
+{
+
+inline void run_small_works_test(
+	const std::size_t numWorks,
+	const std::size_t numFramesToRun)
+{
+	std::atomic_uint32_t counter = 0;
+
+	SimpleUnbufferedFrameWorker worker;
+	worker.startWorker();
+	for(int fi = 0; fi < numFramesToRun; ++fi)
+	{
+		worker.beginFrame();
+
+		for(int wi = 0; wi < numWorks; ++wi)
+		{
+			// Explicitly instantiate a worker's work type to ensure storing `smallWork`
+			// does not involve the use of arena
+			typename SimpleUnbufferedFrameWorker::Work smallWork =
+				[&counter]()
+				{
+					counter.fetch_add(1, std::memory_order_relaxed);
+				};
+
+			worker.addWork(smallWork);
+		}
+
+		// Request stop on last frame
+		if(fi == numFramesToRun - 1)
+		{
+			worker.requestWorkerStop();
+		}
+		
+		worker.endFrame();
+	}
+
+	worker.waitForWorkerToStop();
+	EXPECT_EQ(
+		counter.load(std::memory_order_relaxed), 
+		numWorks * numFramesToRun);
+}
+
+}
+
+TEST(TUnbufferedFrameWorkerThreadTest, RunSmallWorks)
+{
+	// Baseline: 1 work, 1 frame
+	run_small_works_test(1, 1);
+
+	// Baseline: 10 works, 1 frame
+	run_small_works_test(10, 1);
+
+	// Small work set: 10 works, 10 frame
+	run_small_works_test(10, 10);
+
+	// Medium work set: 100 works, 21 frames
+	run_small_works_test(100, 21);
+
+	// Medium work set: 100 works, 22 frames
+	run_small_works_test(100, 22);
+
+	// Medium work set: 100 works, 23 frames
+	run_small_works_test(100, 23);
+
+	// Larger work set: 1000 works, 50 frames
+	run_small_works_test(1000, 50);
+
+	// Larger work set: 1000 works, 51 frames
+	run_small_works_test(1000, 51);
+
+	// Larger work set: 1000 works, 123 frames
+	run_small_works_test(1000, 123);
+}
+
+namespace
+{
+
+inline void run_large_works_test(
+	const std::size_t numWorks,
+	const std::size_t numFramesToRun)
+{
+	std::atomic_uint32_t counter = 0;
+
+	SimpleUnbufferedFrameWorker worker;
+	worker.startWorker();
+	for(int fi = 0; fi < numFramesToRun; ++fi)
+	{
+		worker.beginFrame();
+
+		for(int wi = 0; wi < numWorks; ++wi)
+		{
+			worker.addWork(
+				[&counter, 
+				 nonTrivial = std::make_unique<double>(wi), 
+				 largeObj = std::array<int, 128>{}]()
+				{
+					counter.fetch_add(1, std::memory_order_relaxed);
+				});
+		}
+
+		// Request stop on last frame
+		if(fi == numFramesToRun - 1)
+		{
+			worker.requestWorkerStop();
+		}
+		
+		worker.endFrame();
+	}
+
+	worker.waitForWorkerToStop();
+	EXPECT_EQ(
+		counter.load(std::memory_order_relaxed), 
+		numWorks * numFramesToRun);
+}
+
+}
+
+TEST(TUnbufferedFrameWorkerThreadTest, RunLargeWorks)
+{
+	// Baseline: 1 work, 1 frame
+	run_large_works_test(1, 1);
+
+	// Baseline: 10 works, 1 frame
+	run_large_works_test(10, 1);
+
+	// Small work set: 10 works, 10 frame
+	run_large_works_test(10, 10);
+
+	// Medium work set: 100 works, 21 frames
+	run_large_works_test(100, 21);
+
+	// Medium work set: 100 works, 22 frames
+	run_large_works_test(100, 22);
+
+	// Medium work set: 100 works, 23 frames
+	run_large_works_test(100, 23);
+
+	// Larger work set: 1000 works, 50 frames
+	run_large_works_test(1000, 50);
+
+	// Larger work set: 1000 works, 51 frames
+	run_large_works_test(1000, 51);
+
+	// Larger work set: 1000 works, 123 frames
+	run_large_works_test(1000, 123);
 }

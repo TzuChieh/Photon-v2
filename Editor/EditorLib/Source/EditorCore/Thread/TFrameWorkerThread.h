@@ -23,6 +23,32 @@ namespace ph::editor
 
 PH_DEFINE_EXTERNAL_LOG_GROUP(TFrameWorkerThread, EditorCore);
 
+struct BufferedFrameInfo final
+{
+	std::size_t frameNumber        = 0;
+	std::size_t frameCycleIndex    = 0;
+	std::size_t numParentWorks     = 0;
+	std::size_t sizeofWorkerThread = 0;
+
+	struct Detail final
+	{
+		std::size_t numEstimatedAnyThreadWorks  = 0;
+		std::size_t numEstimatedTotalWorks      = 0;
+		std::size_t estimatedLocalBytesForWorks = 0;
+		std::size_t extraBytesAllocatedForWorks = 0;
+	};
+
+	Detail detail;
+	bool hasDetail = false;
+
+	inline std::size_t estimatedTotalBytesUsed() const
+	{
+		return detail.estimatedLocalBytesForWorks + 
+		       detail.extraBytesAllocatedForWorks + 
+		       sizeofWorkerThread;
+	}
+};
+
 template<std::size_t NUM_BUFFERS, typename T>
 class TFrameWorkerThread
 {
@@ -98,30 +124,6 @@ private:
 			, numAnyThreadWorks    (0)
 #endif
 		{}
-	};
-
-public:
-	struct FrameInfo final
-	{
-		std::size_t frameNumber     = 0;
-		std::size_t frameCycleIndex = 0;
-		std::size_t numParentWorks  = 0;
-
-		struct Detail final
-		{
-			std::size_t numEstimatedAnyThreadWorks  = 0;
-			std::size_t numEstimatedTotalWorks      = 0;
-			std::size_t estimatedLocalBytesForWorks = 0;
-			std::size_t extraBytesAllocatedForWorks = 0;
-
-			inline std::size_t estimatedTotalBytesUsed() const
-			{
-				return estimatedLocalBytesForWorks + extraBytesAllocatedForWorks + sizeof(TFrameWorkerThread);
-			}
-		};
-
-		Detail detail;
-		bool hasDetail = false;
 	};
 
 public:
@@ -276,7 +278,7 @@ public:
 
 	/*!
 	Similar to addWork(Work). This variant supports general functors. Larger functors or non-trivial
-	functors may induce additional overhead on creating and processing of the work. If you want to 
+	functors will induce additional overhead on creating and processing of the work. If you want to 
 	ensure minimal overhead, adhere to the binding requirements imposed by `TFunction`.
 	@note Producer threads only. Work objects will be destructed (if required) on worker thread.
 	*/
@@ -394,9 +396,11 @@ public:
 
 	/*!
 	Get information about current frame. Can only be called between `beginFrame()` and `endFrame()`.
+	@param shouldIncludeDetails Flag for filling the detailed frame information, which incurs 
+	non-negligible overhead comparing to not filling.
 	@note Producer threads only.
 	*/
-	inline FrameInfo getFrameInfo(const bool shouldIncludeDetails = false) const
+	inline BufferedFrameInfo getFrameInfo(const bool shouldIncludeDetails = false) const
 	{
 		// For all producer threads, it is only safe to access between being/end frame.
 		PH_ASSERT(!isWorkerThread());
@@ -405,10 +409,11 @@ public:
 		// Unsafe buffer reference is okay--producer threads should synchronize with frame begin/end
 		const Frame& currentFrame = m_frames.unsafeGetBufferReference(m_frames.unsafeGetProduceHead());
 
-		FrameInfo info;
-		info.frameNumber     = getFrameNumber();
-		info.frameCycleIndex = m_frames.getProduceHead();
-		info.numParentWorks  = currentFrame.parentThreadWorkQueue.size();
+		BufferedFrameInfo info;
+		info.frameNumber        = getFrameNumber();
+		info.frameCycleIndex    = m_frames.getProduceHead();
+		info.numParentWorks     = currentFrame.parentThreadWorkQueue.size();
+		info.sizeofWorkerThread = sizeof(*this);
 
 		if(shouldIncludeDetails)
 		{
