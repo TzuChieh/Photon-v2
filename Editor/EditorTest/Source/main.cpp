@@ -1,3 +1,5 @@
+#include <ph_cpp_core.h>
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -5,11 +7,11 @@
 
 int main(int argc, char* argv[])
 {
-	// if(!phInit())
-	// {
-	// 	std::cerr << "Photon initialization failed" << std::endl;
-	// 	return EXIT_FAILURE;
-	// }
+	if(!ph::init_render_engine(ph::EngineInitSettings{}))
+	{
+		std::cerr << "Photon initialization failed" << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	// Since Google Mock depends on Google Test, InitGoogleMock() is
 	// also responsible for initializing Google Test. Therefore there's
@@ -17,11 +19,11 @@ int main(int argc, char* argv[])
 	testing::InitGoogleMock(&argc, argv);
 	const int testReturnValue = RUN_ALL_TESTS();
 
-	// if(!phExit())
-	// {
-	// 	std::cerr << "Photon exiting failed" << std::endl;
-	// 	return EXIT_FAILURE;
-	// }
+	if(!ph::exit_render_engine())
+	{
+		std::cerr << "Photon exiting failed" << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	return testReturnValue;
 }
