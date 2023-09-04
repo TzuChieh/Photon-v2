@@ -17,7 +17,8 @@ namespace detail
 @param alignmentInBytes How many bytes to align (so the returned pointer is an integer multiple
 of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof(void*)`.
 @return Pointer to the beginning of newly allocated memory. `nullptr` on failure.
-@note Call free_aligned_memory(void*) to deallocate the memory. This function is thread safe.
+@note Call free_aligned_memory(void*) to deallocate the memory. The implementation is based on
+`malloc()`, and object lifetime can be reasoned w.r.t. `malloc()`. This function is thread safe.
 */
 [[nodiscard]]
 void* allocate_aligned_memory(std::size_t numBytes, std::size_t alignmentInBytes);
@@ -54,7 +55,8 @@ static_assert(sizeof(TAlignedMemoryUniquePtr<void>) == sizeof(void*));
 
 The returned memory resource will follow the life time of `std::unique_ptr`. Note that the memory
 allocated by this function is raw memory--placement new is required before any use of the memory
-content, otherwise it is UB by C++ standard.
+content, otherwise it is UB by C++ standard (for non-implicit-lifetime types). For implicit-lifetime
+types, accessing the raw memory without placement new has defined behavior after C++20.
 
 @tparam T The type to create memory for. `alignmentInBytes` should be compatible with the type.
 @param numBytes Number of bytes to allocate. Must be an integer multiple of @p alignmentInBytes.
@@ -74,9 +76,10 @@ inline auto make_aligned_memory(const std::size_t numBytes, const std::size_t al
 
 	void* const ptr = detail::allocate_aligned_memory(numBytes, alignmentInBytes);
 
-	return ptr != nullptr
-		? TAlignedMemoryUniquePtr<T>(static_cast<T*>(ptr))
-		: nullptr;
+	// `static_cast` to `T*` is fine here: array types have implicit-lifetime, and now `ptr` points
+	// to an array of `T` and pointer arithmetic is valid. Note that every element in `T*` still has
+	// not started their lifetime if `T` is not an implicit-lifetime type.
+	return TAlignedMemoryUniquePtr<T>(static_cast<T*>(ptr));
 }
 
 template<typename T>

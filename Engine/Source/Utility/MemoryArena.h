@@ -70,6 +70,7 @@ public:
 	Convenient method for allocating raw memory for object of type @p T. Alignment is handled
 	automatically. See allocRaw(std::size_t, std::size_t) for details.
 	@tparam T Type for the raw memory allocated.
+	@note Placement new is required before any use of the memory content.
 	*/
 	template<typename T>
 	inline T* alloc()
@@ -82,6 +83,7 @@ public:
 	Convenient method for allocating raw memory for array of type @p T. Alignment is handled
 	automatically. See allocRaw(std::size_t, std::size_t) for details.
 	@tparam T Type for the raw array memory allocated.
+	@note Placement new is required before any use of the memory content.
 	*/
 	template<typename T>
 	inline TSpan<T> allocArray(const std::size_t arraySize)

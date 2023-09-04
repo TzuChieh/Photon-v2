@@ -191,7 +191,7 @@ public:
 		swap(*this, other);
 	}
 
-	inline TItemPool& operator = (TItemPool rhs)
+	inline TItemPool& operator = (TItemPool rhs) noexcept
 	{
 		swap(*this, rhs);
 

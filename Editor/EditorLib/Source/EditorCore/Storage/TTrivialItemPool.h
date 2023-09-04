@@ -23,7 +23,7 @@
 namespace ph::editor
 {
 
-/*! @brief Item pool for trivially-copyable types.
+/*! @brief Item pool for simple types.
 This item pool is designed to minimize execution time and memory footprint. As a result, some
 operations are not possible compare to `TItemPool`, e.g., iteration on items, clear, etc. User is
 expected to keep track of the handles and use them to iterate the container the way they prefer.
@@ -40,12 +40,19 @@ complexity might not worth it, and such feature is not needed currently.
 template<typename Item, CHandleDispatcher Dispatcher = THandleDispatcher<TWeakHandle<Item>>>
 class TTrivialItemPool : public TItemPoolInterface<Item, typename Dispatcher::HandleType>
 {
+	// For us to omit item validity tracking--we always start item lifetime after allocation
 	static_assert(std::is_default_constructible_v<Item>,
 		"Item must be default constructible.");
+
+	// For us to grow the pool
 	static_assert(std::is_move_constructible_v<Item>,
 		"Item must be move constructible.");
-	static_assert(std::is_trivially_copyable_v<Item>,
-		"Item must be trivially copyable.");
+
+	// For us to omit destruction
+	static_assert(std::is_trivially_destructible_v<Item>,
+		"Item must be trivially destructible.");
+
+	// TODO: optimize item copy when we have `std::is_implicit_lifetime`
 
 public:
 	using HandleType = typename Dispatcher::HandleType;
@@ -63,7 +70,8 @@ public:
 	{}
 
 	inline TTrivialItemPool(const TTrivialItemPool& other)
-		requires std::is_copy_constructible_v<Dispatcher>
+		requires std::is_copy_constructible_v<Item> && 
+	             std::is_copy_constructible_v<Dispatcher>
 
 		: m_storageMemory()
 		, m_generations()
@@ -72,14 +80,15 @@ public:
 	{
 		grow(other.capacity());
 
-		// Copying the memory starts new object lifetime. Behavior is finally defined since C++20
-		// (see C++20's Implicit Object Creation)
-		std::copy(
-			other.m_storageMemory.get(),
-			other.m_storageMemory.get() + other.capacity(),
-			m_storageMemory.get());
+		// Copy all items (they are either created by user or default-constructed)
+		for(std::size_t i = 0; i < other.capacity(); ++i)
+		{
+			std::construct_at(
+				m_storageMemory.get() + i, 
+				*(other.m_storageMemory.get() + i));
+		}
 
-		// Copied after storage as capacity is determined from `m_generations`
+		// Copied after storage, since capacity is determined from `m_generations`
 		m_generations = other.m_generations;
 	}
 
@@ -89,7 +98,7 @@ public:
 		swap(*this, other);
 	}
 
-	inline TTrivialItemPool& operator = (TTrivialItemPool rhs)
+	inline TTrivialItemPool& operator = (TTrivialItemPool rhs) noexcept
 	{
 		swap(*this, rhs);
 
@@ -163,9 +172,9 @@ public:
 		PH_ASSERT_LT(itemIdx, m_generations.size());
 		PH_ASSERT(isFresh(handle));
 
-		// `Item` was manually destroyed. No need for storing the returned pointer nor using
-		// `std::launder()` on each use (same object type with exactly the same storage location), 
-		// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
+		// No need for storing the returned pointer nor using `std::launder()` on each use (same object
+		// type with exactly the same storage location), see C++ standard [basic.life] section 8
+		// (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
 		std::construct_at(m_storageMemory.get() + itemIdx, std::move(item));
 
 		++m_numItems;
@@ -312,13 +321,24 @@ private:
 			throw std::bad_alloc();
 		}
 
-		// Copying the memory also starts new object lifetime. Behavior is finally defined since C++20
-		// (see C++20's Implicit Object Creation)
-		std::copy_n(m_storageMemory.get(), oldCapacity, newStorageMemory.get());
+		// Copying/moving all items to new storage. No need (and no means) to check items from the
+		// old storage are valid--they are either created by user or default-constructed when their
+		// storage was first allocated.
+		for(std::size_t i = 0; i < oldCapacity; ++i)
+		{
+			std::construct_at(
+				newStorageMemory.get() + i, 
+				std::move(*(m_storageMemory.get() + i)));
+		}
 
 		// Set newly created storage space to default values, since accessing items before their
-		// construction is explicitly stated to behave like they are default-constructed.
-		std::fill_n(newStorageMemory.get() + oldCapacity, newCapacity - oldCapacity, Item{});
+		// construction is explicitly stated to behave like they are default-constructed. Another reason
+		// is that `Item` may not be an implicit-lifetime class, so C++20's Implicit Object Creation
+		// cannot be relied upon (item lifetime may not begin unless placement new is used).
+		for(std::size_t i = oldCapacity; i < newCapacity; ++i)
+		{
+			std::construct_at(newStorageMemory.get() + i, Item{});
+		}
 
 		// Extend generation records to cover new storage spaces
 		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);

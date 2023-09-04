@@ -82,6 +82,8 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 	// This is standard behavior, just to be safe:
 	static_assert(static_cast<std::size_t>(-1) + 1 == 0);
 
+	PH_ASSERT(math::is_power_of_2(alignmentInBytes));
+
 	// It is impossible to allocate memory larger than the fixed block size
 	if(numBytes > m_blockSizeInBytes) [[unlikely]]
 	{
@@ -90,9 +92,6 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 
 	// NOTE: A better strategy would be keeping a record of remaining space in each block, then pick the
 	// most suitable one to allocate. Here we just use the next block to allocate, trading space for speed. 
-
-	// Alignment must be an integer power of 2.
-	PH_ASSERT(math::is_power_of_2(alignmentInBytes));
 
 	void* blockPtr = m_blockPtr;
 	std::size_t bytesInBlock = m_remainingBytesInBlock;
