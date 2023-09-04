@@ -57,16 +57,60 @@ inline GraphicsFrameArena& GraphicsFrameArena::operator = (GraphicsFrameArena&& 
 	return *this;
 }
 
+
+inline std::size_t GraphicsFrameArena::numAllocatedBytes() const
+{
+	return m_blockSizeInBytes;
+}
+
+inline std::size_t GraphicsFrameArena::numUsedBytes() const
+{
+	PH_ASSERT_GE(m_blockSizeInBytes, m_remainingBytesInBlock);
+	return m_blockSizeInBytes - m_remainingBytesInBlock;
+}
+
+inline std::size_t GraphicsFrameArena::numRemainingBytes() const
+{
+	return m_remainingBytesInBlock;
+}
+
+inline void GraphicsFrameArena::clear()
+{
+	m_ptrInBlock = m_memoryBlock.get();
+	m_remainingBytesInBlock = m_blockSizeInBytes;
+}
+
 template<typename T, typename... Args>
 inline T* GraphicsFrameArena::make(Args&&... args)
 {
 	static_assert(std::is_trivially_destructible_v<T>);
+
+	T* const storage = reinterpret_cast<T*>(allocRaw(sizeof(T), alignof(T)));
+	if(!storage)
+	{
+		return nullptr;
+	}
+
+	return std::construct_at(storage, std::forward<Args>(args)...);
 }
 
 template<typename T>
-inline TSpan<T> GraphicsFrameArena::makeArray()
+inline TSpan<T> GraphicsFrameArena::makeArray(const std::size_t arraySize)
 {
+	static_assert(std::is_default_constructible_v<T>);
+	static_assert(std::is_trivially_destructible_v<T>);
 
+	T* const storage = reinterpret_cast<T*>(allocRaw(sizeof(T) * arraySize, alignof(T)));
+	if(!storage)
+	{
+		return {};
+	}
+
+	for(std::size_t i = 0; i < arraySize; ++i)
+	{
+		std::construct_at(storage + i, T{});
+	}
+	return TSpan<T>(storage, arraySize);
 }
 
 inline std::byte* GraphicsFrameArena::allocRaw(
