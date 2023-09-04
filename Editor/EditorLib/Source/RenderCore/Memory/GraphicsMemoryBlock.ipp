@@ -1,13 +1,10 @@
 #pragma once
 
-#include "RenderCore/Memory/GraphicsFrameArena.h"
+#include "RenderCore/Memory/GraphicsMemoryBlock.h"
 
-#include <Common/os.h>
-#include <Common/math_basics.h>
 #include <Common/assertion.h>
+#include <Common/math_basics.h>
 
-#include <numeric>
-#include <new>
 #include <utility>
 #include <memory>
 #include <type_traits>
@@ -15,73 +12,30 @@
 namespace ph::editor
 {
 
-inline GraphicsFrameArena::GraphicsFrameArena()
-	: m_memoryBlock()
-	, m_ptrInBlock(nullptr)
-	, m_blockSizeInBytes(0)
-	, m_remainingBytesInBlock(0)
-{}
-
-inline GraphicsFrameArena::GraphicsFrameArena(const std::size_t blockSizeHintInBytes)
-	: GraphicsFrameArena()
-{
-	const auto alignmentSize = std::lcm(alignof(std::max_align_t), os::get_L1_cache_line_size_in_bytes());
-	const auto blockSize = math::next_multiple(blockSizeHintInBytes, alignmentSize);
-
-	m_memoryBlock = make_aligned_memory<std::byte>(blockSize, alignmentSize);
-	if(!m_memoryBlock)
-	{
-		throw std::bad_alloc();
-	}
-
-	m_ptrInBlock = m_memoryBlock.get();
-	m_blockSizeInBytes = blockSize;
-	m_remainingBytesInBlock = blockSize;
-}
-
-inline GraphicsFrameArena::GraphicsFrameArena(GraphicsFrameArena&& other) noexcept
-	: GraphicsFrameArena()
-{
-	*this = std::move(other);
-}
-
-inline GraphicsFrameArena& GraphicsFrameArena::operator = (GraphicsFrameArena&& rhs) noexcept
-{
-	using std::swap;
-
-	swap(m_memoryBlock, rhs.m_memoryBlock);
-	swap(m_ptrInBlock, rhs.m_ptrInBlock);
-	swap(m_blockSizeInBytes, rhs.m_blockSizeInBytes);
-	swap(m_remainingBytesInBlock, rhs.m_remainingBytesInBlock);
-
-	return *this;
-}
-
-
-inline std::size_t GraphicsFrameArena::numAllocatedBytes() const
+inline std::size_t GraphicsMemoryBlock::numAllocatedBytes() const
 {
 	return m_blockSizeInBytes;
 }
 
-inline std::size_t GraphicsFrameArena::numUsedBytes() const
+inline std::size_t GraphicsMemoryBlock::numUsedBytes() const
 {
 	PH_ASSERT_GE(m_blockSizeInBytes, m_remainingBytesInBlock);
 	return m_blockSizeInBytes - m_remainingBytesInBlock;
 }
 
-inline std::size_t GraphicsFrameArena::numRemainingBytes() const
+inline std::size_t GraphicsMemoryBlock::numRemainingBytes() const
 {
 	return m_remainingBytesInBlock;
 }
 
-inline void GraphicsFrameArena::clear()
+inline void GraphicsMemoryBlock::clear()
 {
-	m_ptrInBlock = m_memoryBlock.get();
+	m_ptrInBlock = m_blockSource;
 	m_remainingBytesInBlock = m_blockSizeInBytes;
 }
 
 template<typename T, typename... Args>
-inline T* GraphicsFrameArena::make(Args&&... args)
+inline T* GraphicsMemoryBlock::make(Args&&... args)
 {
 	static_assert(std::is_trivially_destructible_v<T>);
 
@@ -95,7 +49,7 @@ inline T* GraphicsFrameArena::make(Args&&... args)
 }
 
 template<typename T>
-inline TSpan<T> GraphicsFrameArena::makeArray(const std::size_t arraySize)
+inline TSpan<T> GraphicsMemoryBlock::makeArray(const std::size_t arraySize)
 {
 	static_assert(std::is_default_constructible_v<T>);
 	static_assert(std::is_trivially_destructible_v<T>);
@@ -113,11 +67,11 @@ inline TSpan<T> GraphicsFrameArena::makeArray(const std::size_t arraySize)
 	return TSpan<T>(storage, arraySize);
 }
 
-inline std::byte* GraphicsFrameArena::allocRaw(
+inline std::byte* GraphicsMemoryBlock::allocRaw(
 	const std::size_t numBytes, 
 	const std::size_t alignmentInBytes)
 {
-	PH_ASSERT(m_ptrInBlock);
+	PH_ASSERT(m_blockSource);
 	PH_ASSERT(math::is_power_of_2(alignmentInBytes));
 
 	void* ptr = m_ptrInBlock;

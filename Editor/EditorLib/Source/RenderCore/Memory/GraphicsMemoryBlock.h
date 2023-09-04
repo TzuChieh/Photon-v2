@@ -9,20 +9,19 @@
 namespace ph::editor
 {
 
-class GraphicsFrameArena final : private IMoveOnly
+class GraphicsMemoryBlock : private IMoveOnly
 {
+protected:
+	GraphicsMemoryBlock();
+	GraphicsMemoryBlock(GraphicsMemoryBlock&& other) noexcept;
+	GraphicsMemoryBlock& operator = (GraphicsMemoryBlock&& rhs) noexcept;
+
+	void setBlockSource(std::byte* source, std::size_t blockSizeInBytes);
+
+	friend void swap(GraphicsMemoryBlock& first, GraphicsMemoryBlock& second) noexcept;
+
 public:
-	GraphicsFrameArena();
-
-	/*!
-	@param blockSizeHintInBytes Size of the memory block in the arena. This imposed a limit
-	on the maximum size of a single allocation. The parameter is only a hint, actual size may be
-	larger for performance reasons.
-	*/
-	explicit GraphicsFrameArena(std::size_t blockSizeHintInBytes);
-
-	GraphicsFrameArena(GraphicsFrameArena&& other) noexcept;
-	GraphicsFrameArena& operator = (GraphicsFrameArena&& rhs) noexcept;
+	virtual ~GraphicsMemoryBlock();
 
 	std::size_t numAllocatedBytes() const;
 	std::size_t numUsedBytes() const;
@@ -52,12 +51,12 @@ public:
 private:
 	std::byte* allocRaw(std::size_t numBytes, std::size_t alignmentInBytes);
 
-	TAlignedMemoryUniquePtr<std::byte> m_memoryBlock;
-	std::byte* m_ptrInBlock;
+	std::byte* m_blockSource;
 	std::size_t m_blockSizeInBytes;
+	std::byte* m_ptrInBlock;
 	std::size_t m_remainingBytesInBlock;
 };
 
 }// end namespace ph::editor
 
-#include "RenderCore/Memory/GraphicsFrameArena.ipp"
+#include "RenderCore/Memory/GraphicsMemoryBlock.ipp"
