@@ -9,6 +9,7 @@ OpenglContext::OpenglContext(GLFWwindow* const glfwWindow, const bool hasDebugCo
 
 	, m_ghi(*this, glfwWindow, hasDebugContext)
 	, m_objManager(*this)
+	, m_memManager(*this)
 {}
 
 OpenglContext::~OpenglContext() = default;
@@ -21,6 +22,11 @@ OpenglGHI& OpenglContext::getGHI()
 OpenglObjectManager& OpenglContext::getObjectManager()
 {
 	return m_objManager;
+}
+
+OpenglMemoryManager& OpenglContext::getMemoryManager()
+{
+	return m_memManager;
 }
 
 }// end namespace ph::editor

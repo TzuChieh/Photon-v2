@@ -121,7 +121,7 @@ void OpenglObjectManager::deleteIndexStorage(GHIIndexStorageHandle handle)
 void OpenglObjectManager::deleteMesh(GHIMeshHandle handle)
 {}
 
-void OpenglObjectManager::beginFrameUpdate()
+void OpenglObjectManager::beginFrameUpdate(const GHIThreadUpdateContext& ctx)
 {
 	OpenglObjectCreator creator;
 	while(m_creationQueue.tryDequeue(&creator))
@@ -130,7 +130,7 @@ void OpenglObjectManager::beginFrameUpdate()
 	}
 }
 
-void OpenglObjectManager::endFrameUpdate()
+void OpenglObjectManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 {
 	OpenglObjectDeleter deleter;
 	while(m_deletionQueue.tryDequeue(&deleter))

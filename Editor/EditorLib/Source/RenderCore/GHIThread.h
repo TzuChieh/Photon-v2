@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorCore/Thread/TUnbufferedFrameWorkerThread.h"
+#include "RenderCore/GHIThreadUpdateContext.h"
 
 #include <Common/primitive_type.h>
 #include <Utility/Timer.h>
@@ -39,6 +40,7 @@ private:
 
 	GraphicsContext* m_ctx;
 	std::unique_ptr<GraphicsContext> m_nullCtx;
+	GHIThreadUpdateContext m_updateCtx;
 	Timer m_frameTimer;
 	std::atomic<float32> m_frameTimeMs;
 };

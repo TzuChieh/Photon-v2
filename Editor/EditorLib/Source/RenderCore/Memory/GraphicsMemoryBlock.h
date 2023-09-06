@@ -48,6 +48,8 @@ public:
 	template<typename T>
 	TSpan<T> makeArray(std::size_t arraySize);
 
+	bool hasBlockSource() const;
+
 private:
 	std::byte* allocRaw(std::size_t numBytes, std::size_t alignmentInBytes);
 

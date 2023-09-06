@@ -1,4 +1,5 @@
 #include "RenderCore/Memory/GraphicsMemoryBlock.h"
+#include "RenderCore/ghi_exceptions.h"
 
 #include <Common/assertion.h>
 
@@ -34,13 +35,18 @@ void GraphicsMemoryBlock::setBlockSource(std::byte* const source, const std::siz
 {
 	if(!source || blockSizeInBytes == 0)
 	{
-		throw std::bad_alloc();
+		throw GHIBadAllocation{};
 	}
 
 	m_blockSource = source;
 	m_blockSizeInBytes = blockSizeInBytes;
 
 	clear();
+}
+
+bool GraphicsMemoryBlock::hasBlockSource() const
+{
+	return m_blockSource != nullptr;
 }
 
 void swap(GraphicsMemoryBlock& first, GraphicsMemoryBlock& second) noexcept

@@ -10,6 +10,8 @@
 namespace ph::editor
 {
 
+/*! @brief A chunk of cache aligned main memory.
+*/
 class HostMemoryBlock : public GraphicsMemoryBlock
 {
 public:

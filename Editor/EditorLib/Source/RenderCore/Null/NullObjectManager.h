@@ -81,10 +81,10 @@ public:
 	inline void deleteMesh(GHIMeshHandle handle) override
 	{}
 
-	inline void beginFrameUpdate() override
+	inline void beginFrameUpdate(const GHIThreadUpdateContext& ctx) override
 	{}
 
-	inline void endFrameUpdate() override
+	inline void endFrameUpdate(const GHIThreadUpdateContext& ctx) override
 	{}
 };
 

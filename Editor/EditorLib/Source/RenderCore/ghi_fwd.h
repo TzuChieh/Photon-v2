@@ -32,6 +32,9 @@ class GHIShaderProgramObject
 
 class GHIFramebufferObject
 {};
+
+class GHIMemoryObject
+{};
 ///@}
 
 // Handle types
@@ -42,13 +45,14 @@ using GHIMeshHandle = TWeakHandle<GHIMeshObject, uint32, uint32>;
 using GHIShaderHandle = TWeakHandle<GHIShaderObject, uint32, uint32>;
 using GHIShaderProgramHandle = TWeakHandle<GHIShaderProgramObject, uint32, uint32>;
 using GHIFramebufferHandle = TWeakHandle<GHIFramebufferObject, uint32, uint32>;
+using GHIMemoryHandle = TWeakHandle<GHIMemoryObject, uint32, uint32>;
 
 // Native handle types
 using GHITextureNativeHandle = std::variant<
 	std::monostate,
 	uint64>;
 
-// Info types
+// Basic info types
 class GHIInfoSampleState;
 class GHIInfoTextureFormat;
 class GHIInfoFramebufferFormat;
@@ -59,6 +63,7 @@ class GHIInfoVertexGroupFormat;
 class GHIInfoMeshVertexLayout;
 class GHIInfoDeviceCapability;
 
+// Description info types
 class GHIInfoTextureDesc;
 
 }// end namespace ph::editor

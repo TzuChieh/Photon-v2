@@ -12,7 +12,7 @@ class MainThreadUpdateContext final
 public:
 	/*! @brief Current frame number on the main thread.
 	*/
-	std::size_t frameNumber = 0;
+	uint64 frameNumber = 0;
 
 	/*! @brief Time elapsed since last update in seconds.
 	*/

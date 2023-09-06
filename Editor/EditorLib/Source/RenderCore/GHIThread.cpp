@@ -2,6 +2,7 @@
 #include "RenderCore/GraphicsContext.h"
 #include "RenderCore/Null/NullContext.h"
 #include "RenderCore/GraphicsObjectManager.h"
+#include "RenderCore/GraphicsMemoryManager.h"
 
 #include <Common/logging.h>
 
@@ -14,6 +15,7 @@ GHIThread::GHIThread()
 	: Base()
 	, m_ctx(nullptr)
 	, m_nullCtx(std::make_unique<NullContext>())
+	, m_updateCtx()
 	, m_frameTimer()
 	, m_frameTimeMs(0)
 {}
@@ -47,12 +49,18 @@ void GHIThread::onAsyncProcessWork(const Work& work)
 
 void GHIThread::onBeginFrame()
 {
+	const auto frameInfo = getFrameInfo();
+	m_updateCtx.frameNumber = frameInfo.frameNumber;
+
 	addWork(
 		[this](GraphicsContext& ctx)
 		{
 			m_frameTimer.start();
 
-			ctx.getObjectManager().beginFrameUpdate();
+			// Begin update before object manager
+			ctx.getMemoryManager().beginFrameUpdate(m_updateCtx);
+
+			ctx.getObjectManager().beginFrameUpdate(m_updateCtx);
 		});
 }
 
@@ -61,7 +69,10 @@ void GHIThread::onEndFrame()
 	addWork(
 		[this](GraphicsContext& ctx)
 		{
-			ctx.getObjectManager().endFrameUpdate();
+			ctx.getObjectManager().endFrameUpdate(m_updateCtx);
+
+			// End update after object manager
+			ctx.getMemoryManager().endFrameUpdate(m_updateCtx);
 
 			// Swap buffer at the end of end frame
 			ctx.getGHI().swapBuffers();

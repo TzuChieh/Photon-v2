@@ -2,6 +2,7 @@
 
 #include <Utility/INoCopyAndMove.h>
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
 #include <Utility/Concurrent/TSPSCExecutor.h>
 #include <Utility/TFunction.h>
 #include <Utility/MemoryArena.h>
@@ -18,7 +19,7 @@ namespace ph::editor
 
 struct UnbufferedFrameInfo final
 {
-	std::size_t frameNumber                 = 0;
+	uint64      frameNumber                 = 0;
 	std::size_t numParentWorks              = 0;
 	std::size_t sizeofWorkerThread          = 0;
 	std::size_t extraBytesAllocatedForWorks = 0;
@@ -429,7 +430,7 @@ private:
 	/*!
 	@note Parent thread only.
 	*/
-	inline std::size_t getFrameNumber() const
+	inline uint64 getFrameNumber() const
 	{
 		PH_ASSERT(isParentThread());
 
@@ -440,7 +441,7 @@ private:
 	MemoryArena                m_workQueueMemory;
 	std::thread::id            m_parentThreadId;
 	std::atomic_bool           m_isStopRequested;
-	std::size_t                m_frameNumber;
+	uint64                     m_frameNumber;
 	std::size_t                m_numParentWorks;
 #if PH_DEBUG
 	bool                       m_isBetweenFrameBeginAndEnd;

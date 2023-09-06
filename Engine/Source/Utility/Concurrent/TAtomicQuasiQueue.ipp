@@ -30,7 +30,7 @@ inline void TAtomicQuasiQueue<T>::enqueue(U&& item)
 
 template<typename T>
 template<std::input_iterator Iterator>
-inline void TAtomicQuasiQueue<T>::enqueueBulk(Iterator firstItem, const std::size_t numItems)
+inline void TAtomicQuasiQueue<T>::enqueueBulk(Iterator firstItem, std::size_t numItems)
 {
 	if(!m_queue.enqueue_bulk(firstItem, numItems))
 	{
@@ -51,6 +51,13 @@ inline bool TAtomicQuasiQueue<T>::tryDequeue(T* const out_item)
 {
 	PH_ASSERT(out_item);
 	return m_queue.try_dequeue(*out_item);
+}
+
+template<typename T>
+template<std::output_iterator Iterator>
+inline std::size_t TAtomicQuasiQueue<T>::tryDequeueBulk(Iterator firstItem, std::size_t numItems)
+{
+	return m_queue.try_dequeue_bulk(firstItem, numItems);
 }
 
 template<typename T>

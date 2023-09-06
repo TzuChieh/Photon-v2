@@ -89,8 +89,8 @@ public:
 	void deleteIndexStorage(GHIIndexStorageHandle handle) override;
 	void deleteMesh(GHIMeshHandle handle) override;
 
-	void beginFrameUpdate() override;
-	void endFrameUpdate() override;
+	void beginFrameUpdate(const GHIThreadUpdateContext& ctx) override;
+	void endFrameUpdate(const GHIThreadUpdateContext& ctx) override;
 
 private:
 	friend class OpenglGHI;

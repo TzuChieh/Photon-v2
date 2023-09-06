@@ -7,6 +7,7 @@
 #include <Common/config.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/primitive_type.h>
 #include <Utility/Concurrent/InitiallyPausedThread.h>
 #include <Utility/Concurrent/TSPSCRingBuffer.h>
 #include <Utility/Concurrent/TSynchronized.h>
@@ -25,8 +26,8 @@ PH_DEFINE_EXTERNAL_LOG_GROUP(TFrameWorkerThread, EditorCore);
 
 struct BufferedFrameInfo final
 {
-	std::size_t frameNumber        = 0;
-	std::size_t frameCycleIndex    = 0;
+	uint64      frameNumber        = 0;
+	uint32      frameCycleIndex    = 0;
 	std::size_t numParentWorks     = 0;
 	std::size_t sizeofWorkerThread = 0;
 
@@ -411,7 +412,7 @@ public:
 
 		BufferedFrameInfo info;
 		info.frameNumber        = getFrameNumber();
-		info.frameCycleIndex    = m_frames.getProduceHead();
+		info.frameCycleIndex    = static_cast<uint32>(m_frames.getProduceHead());
 		info.numParentWorks     = currentFrame.parentThreadWorkQueue.size();
 		info.sizeofWorkerThread = sizeof(*this);
 
@@ -585,7 +586,7 @@ private:
 	/*!
 	@note Producer threads only.
 	*/
-	inline std::size_t getFrameNumber() const
+	inline uint64 getFrameNumber() const
 	{
 		// For all producer threads, it is only safe to access between being/end frame.
 		// If it is parent thread, it is safe to access anytime.
@@ -601,7 +602,7 @@ private:
 	InitiallyPausedThread m_thread;
 	std::atomic_flag      m_isStopRequested;
 	std::atomic_flag      m_hasFinalFrameEnded;
-	std::size_t           m_frameNumber;
+	uint64                m_frameNumber;
 	bool                  m_shouldFlushBufferBeforeStop;
 	std::thread::id       m_parentThreadId;
 #if PH_DEBUG

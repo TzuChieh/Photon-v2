@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderCore/Memory/HostMemoryBlock.h"
+#include "RenderCore/ghi_exceptions.h"
 
 #include <Common/os.h>
 #include <Common/math_basics.h>
@@ -26,7 +27,7 @@ inline HostMemoryBlock::HostMemoryBlock(const std::size_t blockSizeHintInBytes)
 	m_memoryBlock = make_aligned_memory<std::byte>(blockSize, alignmentSize);
 	if(!m_memoryBlock)
 	{
-		throw std::bad_alloc();
+		throw GHIOutOfHostMemory{};
 	}
 
 	setBlockSource(m_memoryBlock.get(), blockSize);

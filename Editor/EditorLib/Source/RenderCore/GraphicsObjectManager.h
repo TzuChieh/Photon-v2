@@ -15,7 +15,7 @@
 namespace ph::editor
 {
 
-class GHIThread;
+class GHIThreadUpdateContext;
 
 /*! @brief Manages the creation and deletion of graphics-related resource objects.
 All `create<XXX>()` and `delete<XXX>()` methods are thread safe as long as they are called within
@@ -111,13 +111,13 @@ public:
 	*/
 	virtual void deleteMesh(GHIMeshHandle handle) = 0;
 
-	/*! @brief Called on GHI thread when a frame begins.
+	/*! @brief Called by GHI thread when a frame begins.
 	*/
-	virtual void beginFrameUpdate() = 0;
+	virtual void beginFrameUpdate(const GHIThreadUpdateContext& ctx) = 0;
 
-	/*! @brief Called on GHI thread when a frame ends.
+	/*! @brief Called by GHI thread when a frame ends.
 	*/
-	virtual void endFrameUpdate() = 0;
+	virtual void endFrameUpdate(const GHIThreadUpdateContext& ctx) = 0;
 };
 
 }// end namespace ph::editor
