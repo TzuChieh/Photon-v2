@@ -1,8 +1,12 @@
 #include "RenderCore/OpenGL/OpenglObjectManager.h"
 #include "RenderCore/OpenGL/OpenglContext.h"
 
+#include <Common/logging.h>
+
 namespace ph::editor
 {
+
+PH_DEFINE_INTERNAL_LOG_GROUP(OpenglObjectManager, GHI);
 
 OpenglObjectManager::OpenglObjectManager(OpenglContext& ctx)
 
@@ -78,6 +82,30 @@ GHIMeshHandle OpenglObjectManager::createMesh(
 	GHIIndexStorageHandle indexStorage)
 {
 	return GHIMeshHandle{};
+}
+
+void OpenglObjectManager::uploadPixelData(
+	GHITextureHandle handle,
+	TSpanView<std::byte> pixelData,
+	EGHIPixelComponent componentType)
+{
+	OpenglObjectCreator creator;
+	creator.op = [&textures = m_textures, pixelData, handle, componentType]()
+	{
+		OpenglTexture* texture = textures.get(handle);
+		if(!texture || !texture->hasResource())
+		{
+			PH_LOG_ERROR(OpenglObjectManager,
+				"Cannot upload pixel data for texture; object: {}, resource: {}, handle: <{}>",
+				static_cast<void*>(texture),
+				texture ? texture->hasResource() : false,
+				handle.toString());
+			return;
+		}
+
+		texture->uploadPixelData(pixelData, componentType);
+	};
+	m_creationQueue.enqueue(creator);
 }
 
 void OpenglObjectManager::deleteTexture(const GHITextureHandle handle)

@@ -34,7 +34,11 @@ BasicGraphicsMemoryManager::BasicGraphicsMemoryManager(
 	m_maxHostBlocks = m_maxHostBlocks < minBlocks ? minBlocks : m_maxHostBlocks;
 
 	m_hostBlocks = std::make_unique<HostBlock[]>(m_maxHostBlocks);
-	m_freeHostBlocks.enqueueBulk(m_hostBlocks.get(), m_maxHostBlocks);
+	for(std::size_t bi = 0; bi < m_maxHostBlocks; ++bi)
+	{
+		m_freeHostBlocks.enqueue(&m_hostBlocks[bi]);
+	}
+	
 	m_hostBlockCache = std::make_unique<HostBlock*[]>(m_maxHostBlocks);
 }
 
@@ -53,7 +57,7 @@ GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocHostBlock(uint32 numFrames
 			hostBlock->numFramesLeft = numFramesToLive;
 		}
 
-		m_activeHostBlocks.enqueue(&hostBlock->block);
+		m_activeHostBlocks.enqueue(hostBlock);
 		return &hostBlock->block;
 	}
 	else
@@ -74,7 +78,8 @@ void BasicGraphicsMemoryManager::beginFrameUpdate(const GHIThreadUpdateContext& 
 void BasicGraphicsMemoryManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 {
 	// A failed dequeue is fine--just those blocks get lucky and get to live an extra frame
-	auto numDequeued = m_activeHostBlocks.tryDequeueBulk(m_hostBlockCache.get(), m_maxHostBlocks);
+	//auto numDequeued = m_activeHostBlocks.tryDequeueBulk(m_hostBlockCache.get(), m_maxHostBlocks);
+	std::size_t numDequeued = 0;
 
 	std::size_t numStillActive = 0;
 	for(std::size_t bi = 0; bi < numDequeued; ++bi)

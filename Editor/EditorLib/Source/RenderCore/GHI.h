@@ -70,12 +70,12 @@ public:
 
 	virtual void swapBuffers() = 0;
 
-	virtual void uploadPixelData(
+	virtual bool tryUploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
 		EGHIPixelComponent componentType) = 0;
 
-	virtual GHITextureNativeHandle getTextureNativeHandle(GHITextureHandle handle) = 0;
+	virtual GHITextureNativeHandle tryGetTextureNativeHandle(GHITextureHandle handle) = 0;
 
 	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) = 0;

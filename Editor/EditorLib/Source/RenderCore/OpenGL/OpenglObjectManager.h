@@ -81,6 +81,11 @@ public:
 		const GHIInfoMeshVertexLayout& layout,
 		GHIIndexStorageHandle indexStorage) override;
 
+	void uploadPixelData(
+		GHITextureHandle handle,
+		TSpanView<std::byte> pixelData,
+		EGHIPixelComponent componentType) override;
+
 	void deleteTexture(GHITextureHandle handle) override;
 	void deleteFramebuffer(GHIFramebufferHandle handle) override;
 	void deleteShader(GHIShaderHandle handle) override;

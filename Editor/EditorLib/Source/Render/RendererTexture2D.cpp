@@ -48,7 +48,7 @@ void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 			desc.setSize2D(m_sizePx);
 			m_textureHandle = ctx.getObjectManager().createTexture(desc);
 
-			ctx.getGHI().uploadPixelData(
+			ctx.getObjectManager().uploadPixelData(
 				m_textureHandle, 
 				m_textureData->getBytes(),
 				translate_to<EGHIPixelComponent>(m_textureData->getComponentType()));

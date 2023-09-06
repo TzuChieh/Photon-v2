@@ -36,7 +36,7 @@ void RendererDetailedTexture::setupGHI(GHIThreadCaller& caller)
 			// creation (unless base resource is empty)
 			if(handle)
 			{
-				GHITextureNativeHandle nativeHandle = ctx.getGHI().getTextureNativeHandle(handle);
+				GHITextureNativeHandle nativeHandle = ctx.getGHI().tryGetTextureNativeHandle(handle);
 				m_sharedNativeHandle.relaxedWrite(nativeHandle);
 			}
 		});

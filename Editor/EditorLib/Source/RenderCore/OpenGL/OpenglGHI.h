@@ -28,12 +28,12 @@ public:
 	void draw(GHIMesh& mesh, EGHIMeshDrawMode drawMode) override;
 	void swapBuffers() override;
 
-	void uploadPixelData(
+	bool tryUploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
 		EGHIPixelComponent componentType) override;
 
-	GHITextureNativeHandle getTextureNativeHandle(GHITextureHandle handle) override;
+	GHITextureNativeHandle tryGetTextureNativeHandle(GHITextureHandle handle) override;
 
 	std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) override;

@@ -79,6 +79,14 @@ public:
 	/*!
 	@note Thread safe.
 	*/
+	virtual void uploadPixelData(
+		GHITextureHandle handle,
+		TSpanView<std::byte> pixelData,
+		EGHIPixelComponent componentType) = 0;
+
+	/*!
+	@note Thread safe.
+	*/
 	virtual void deleteTexture(GHITextureHandle handle) = 0;
 
 	/*!

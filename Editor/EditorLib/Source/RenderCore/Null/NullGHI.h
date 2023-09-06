@@ -8,51 +8,53 @@ namespace ph::editor
 class NullGHI : public GHI
 {
 public:
-	inline NullGHI()
+	NullGHI()
 		: GHI(EGraphicsAPI::Unknown)
 	{}
 
-	inline ~NullGHI() override = default;
+	~NullGHI() override = default;
 
-	inline void load() override
+	void load() override
 	{}
 
-	inline void unload() override
+	void unload() override
 	{}
 
-	inline void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override
+	void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override
 	{}
 
-	inline void clearBuffer(EClearTarget targets) override
+	void clearBuffer(EClearTarget targets) override
 	{}
 
-	inline void setClearColor(const math::Vector4F& color) override
+	void setClearColor(const math::Vector4F& color) override
 	{}
 
-	inline void draw(GHIMesh& mesh, EGHIMeshDrawMode drawMode) override
+	void draw(GHIMesh& mesh, EGHIMeshDrawMode drawMode) override
 	{}
 
-	inline void swapBuffers() override
+	void swapBuffers() override
 	{}
 
-	inline void uploadPixelData(
+	bool tryUploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
 		EGHIPixelComponent componentType) override
-	{}
+	{
+		return false;
+	}
 
-	inline GHITextureNativeHandle getTextureNativeHandle(GHITextureHandle handle) override
+	GHITextureNativeHandle tryGetTextureNativeHandle(GHITextureHandle handle) override
 	{
 		return {};
 	}
 
-	inline std::shared_ptr<GHIFramebuffer> createFramebuffer(
+	std::shared_ptr<GHIFramebuffer> createFramebuffer(
 		const GHIInfoFramebufferAttachment& attachments) override
 	{
 		return nullptr;
 	}
 
-	inline std::shared_ptr<GHIShader> createShader(
+	std::shared_ptr<GHIShader> createShader(
 		std::string name,
 		EGHIShadingStage shadingStage,
 		std::string shaderSource) override
@@ -60,14 +62,14 @@ public:
 		return nullptr;
 	}
 
-	inline std::shared_ptr<GHIShaderProgram> createShaderProgram(
+	std::shared_ptr<GHIShaderProgram> createShaderProgram(
 		std::string name,
 		const GHIShaderSet& shaders) override
 	{
 		return nullptr;
 	}
 
-	inline std::shared_ptr<GHIVertexStorage> createVertexStorage(
+	std::shared_ptr<GHIVertexStorage> createVertexStorage(
 		const GHIInfoVertexGroupFormat& format,
 		std::size_t numVertices,
 		EGHIStorageUsage usage) override
@@ -75,7 +77,7 @@ public:
 		return nullptr;
 	}
 
-	inline std::shared_ptr<GHIIndexStorage> createIndexStorage(
+	std::shared_ptr<GHIIndexStorage> createIndexStorage(
 		EGHIStorageElement indexType,
 		std::size_t numIndices,
 		EGHIStorageUsage usage) override
@@ -83,7 +85,7 @@ public:
 		return nullptr;
 	}
 
-	inline std::shared_ptr<GHIMesh> createMesh(
+	std::shared_ptr<GHIMesh> createMesh(
 		const GHIInfoMeshVertexLayout& layout,
 		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
 		const std::shared_ptr<GHIIndexStorage>& indexStorage) override
@@ -92,10 +94,10 @@ public:
 	}
 
 private:
-	inline void beginRawCommand() override
+	void beginRawCommand() override
 	{}
 
-	inline void endRawCommand() override
+	void endRawCommand() override
 	{}
 };
 

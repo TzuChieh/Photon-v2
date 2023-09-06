@@ -298,26 +298,22 @@ void OpenglGHI::swapBuffers()
 	glfwSwapBuffers(m_glfwWindow);
 }
 
-void OpenglGHI::uploadPixelData(
-	const GHITextureHandle handle,
+bool OpenglGHI::tryUploadPixelData(
+	GHITextureHandle handle,
 	TSpanView<std::byte> pixelData,
-	const EGHIPixelComponent componentType)
+	EGHIPixelComponent componentType)
 {
 	OpenglTexture* texture = m_ctx.getObjectManager().getTexture(handle);
 	if(!texture || !texture->hasResource())
 	{
-		PH_LOG_ERROR(OpenglGHI,
-			"Cannot upload pixel data for texture; object: {}, resource: {}, handle: <{}>",
-			static_cast<void*>(texture), 
-			texture ? texture->hasResource() : false,
-			handle.toString());
-		return;
+		return false;
 	}
 
 	texture->uploadPixelData(pixelData, componentType);
+	return true;
 }
 
-GHITextureNativeHandle OpenglGHI::getTextureNativeHandle(const GHITextureHandle handle)
+GHITextureNativeHandle OpenglGHI::tryGetTextureNativeHandle(const GHITextureHandle handle)
 {
 	OpenglTexture* texture = m_ctx.getObjectManager().getTexture(handle);
 	if(!texture || texture->textureID == OpenglTexture::DEFAULT_ID)

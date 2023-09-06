@@ -11,19 +11,19 @@ namespace ph::editor
 class NullContext : public GraphicsContext
 {
 public:
-	inline ~NullContext() override = default;
+	~NullContext() override = default;
 
-	inline NullGHI& getGHI() override
+	NullGHI& getGHI() override
 	{
 		return m_ghi;
 	}
 
-	inline NullObjectManager& getObjectManager() override
+	NullObjectManager& getObjectManager() override
 	{
 		return m_objManager;
 	}
 
-	inline NullMemoryManager& getMemoryManager() override
+	NullMemoryManager& getMemoryManager() override
 	{
 		return m_memManager;
 	}
