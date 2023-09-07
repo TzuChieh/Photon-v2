@@ -51,8 +51,8 @@ concept CNonEmptyTrivialFunctorForm =
 	!std::is_empty_v<std::decay_t<Func>> &&// to disambiguate from the empty form
 	!std::is_function_v<std::remove_pointer_t<std::decay_t<Func>>> &&// to disambiguate from the free function form
 	std::is_constructible_v<std::decay_t<Func>, Func> &&// we placement new using existing instance
-	std::is_trivially_copyable_v<std::decay_t<Func>> &&// so copying the underlying buffer is legal
-	std::is_trivially_destructible_v<std::decay_t<Func>> &&// somewhat redundant as we have `is_trivially_copyable`, but nice to be explicit
+	std::is_trivially_copyable_v<std::decay_t<Func>> &&// so copying to a byte buffer is legal
+	std::is_trivially_destructible_v<std::decay_t<Func>> &&// we are neither storing dtor nor calling it
 	std::is_invocable_r_v<R, const std::decay_t<Func>&, Args...>;// must be const as we store its states and `operator ()` is `const`
 
 /*! @brief Lightweight callable target wrapper.
@@ -94,6 +94,8 @@ public:
 	using TCanFitBuffer = std::bool_constant<
 		sizeof(std::decay_t<Func>) <= BUFFER_SIZE &&
 		alignof(std::decay_t<Func>) <= BUFFER_ALIGNMENT>;
+	// FIXME: ^^^ alignment requirement not needed for std::is_implicit_lifetime_v == false,
+	// condition can be updated in C++23
 
 	/*! @brief Main callable target traits.
 	Test whether the target is of specific form and is invocable using @p Args and returns @p R.
@@ -180,9 +182,9 @@ public:
 	}
 
 	inline TFunction(const TFunction& other) = default;
-	inline TFunction(TFunction&& other) = default;
+	inline TFunction(TFunction&& other) noexcept = default;
 	inline TFunction& operator = (const TFunction& rhs) = default;
-	inline TFunction& operator = (TFunction&& rhs) = default;
+	inline TFunction& operator = (TFunction&& rhs) noexcept = default;
 	inline ~TFunction() = default;
 
 	/*! @brief Call the stored function.
@@ -335,6 +337,9 @@ private:
 		const auto& func = *std::launder(reinterpret_cast<const Func*>(self->m_data.u_buffer));
 
 		return func(std::forward<Args>(args)...);
+
+		// FIXME: currently this is UB for non implicit lifetime types--we need to init an instance
+		// and copy into it for types with std::is_implicit_lifetime_v == false, which requires C++23
 	}
 
 	[[noreturn]]
