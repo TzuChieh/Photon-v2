@@ -11,6 +11,15 @@ class GraphicsMemoryBlock;
 class GHIThreadUpdateContext;
 class GraphicsArena;
 
+/*! @brief Manages memory for graphics.
+
+A lower level graphics abstraction that can act as one of the foundations of other higher level
+abstractions (such as `GraphicsObjectManger`).
+
+During the lifetime of the current graphics context, the `GHI` abstraction may be loaded/unloaded
+and thread safe methods are allowed to fail gently (not crash or causing any data corruption)
+during the unloaded period.
+*/
 class GraphicsMemoryManager
 {
 public:
@@ -23,6 +32,14 @@ public:
 	@note Thread safe.
 	*/
 	virtual GraphicsMemoryBlock* allocHostBlock(uint32 numFramesToLive) = 0;
+
+	/*! @brief Called by GHI thread after GHI is loaded.
+	*/
+	virtual void onGHILoad() = 0;
+
+	/*! @brief Called by GHI thread before GHI is unloaded.
+	*/
+	virtual void onGHIUnload() = 0;
 
 	/*! @brief Called by GHI thread when a frame begins.
 	*/

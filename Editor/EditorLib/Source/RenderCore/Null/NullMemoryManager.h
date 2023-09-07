@@ -13,6 +13,12 @@ public:
 		return nullptr;
 	}
 
+	void onGHILoad() override
+	{}
+
+	void onGHIUnload() override
+	{}
+
 	void beginFrameUpdate(const GHIThreadUpdateContext& ctx) override
 	{}
 

@@ -87,6 +87,12 @@ public:
 	void deleteMesh(GHIMeshHandle handle) override
 	{}
 
+	void onGHILoad() override
+	{}
+
+	void onGHIUnload() override
+	{}
+
 	void beginFrameUpdate(const GHIThreadUpdateContext& ctx) override
 	{}
 

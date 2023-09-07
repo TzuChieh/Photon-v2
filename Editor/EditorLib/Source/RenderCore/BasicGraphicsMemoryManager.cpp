@@ -72,6 +72,16 @@ GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocHostBlock(uint32 numFrames
 	}
 }
 
+void BasicGraphicsMemoryManager::onGHILoad()
+{
+	// TODO
+}
+
+void BasicGraphicsMemoryManager::onGHIUnload()
+{
+	// TODO
+}
+
 void BasicGraphicsMemoryManager::beginFrameUpdate(const GHIThreadUpdateContext& ctx)
 {}
 

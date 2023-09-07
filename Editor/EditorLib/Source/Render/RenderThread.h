@@ -36,7 +36,7 @@ public:
 	void onBeginFrame() override;
 	void onEndFrame() override;
 
-	void addGraphicsContextUpdateWork(GraphicsContext* inCtx);
+	void addGraphicsContextSwitchWork(GraphicsContext* newCtx);
 
 	/*!
 	@note Thread-safe.
@@ -59,7 +59,7 @@ private:
 
 	std::optional<RenderData> m_renderData;
 	GHIThread                 m_ghiThread;
-	GraphicsContext*          m_updatedGraphicsCtx;
+	GraphicsContext*          m_newGraphicsCtx;
 	Timer                     m_frameTimer;
 	std::atomic<float32>      m_frameTimeMs;
 };

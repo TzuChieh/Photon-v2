@@ -28,7 +28,7 @@ public:
 	void onBeginFrame() override;
 	void onEndFrame() override;
 
-	void addSetContextWork(GraphicsContext* inCtx);
+	void addContextSwitchWork(GraphicsContext* newCtx);
 
 	/*!
 	@note Thread-safe.
@@ -36,7 +36,7 @@ public:
 	float32 getFrameTimeMs() const;
 
 private:
-	void setContext(GraphicsContext* inCtx);
+	void switchContext(GraphicsContext* newCtx);
 
 	GraphicsContext* m_ctx;
 	std::unique_ptr<GraphicsContext> m_nullCtx;

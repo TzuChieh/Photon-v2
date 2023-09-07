@@ -3,6 +3,8 @@
 
 #include <Common/logging.h>
 
+#include <cstddef>
+
 namespace ph::editor
 {
 
@@ -149,6 +151,59 @@ void OpenglObjectManager::deleteIndexStorage(GHIIndexStorageHandle handle)
 void OpenglObjectManager::deleteMesh(GHIMeshHandle handle)
 {}
 
+void OpenglObjectManager::deleteAllObjects()
+{
+	deleteAllTextures();
+}
+
+void OpenglObjectManager::deleteAllTextures()
+{
+	std::size_t numDeleted = 0;
+	for(std::size_t i = 0; i < m_textures.capacity(); ++i)
+	{
+		if(m_textures[i].hasResource())
+		{
+			m_textures[i].destroy();
+			++numDeleted;
+		}
+	}
+
+	PH_LOG(OpenglObjectManager,
+		"Deleted {} textures. Storage capacity = {}.",
+		numDeleted, m_textures.capacity());
+}
+
+void OpenglObjectManager::onGHILoad()
+{}
+
+void OpenglObjectManager::onGHIUnload()
+{
+	// Perform pending deletes
+	OpenglObjectDeleter deleter;
+	std::size_t numAttempts = 0;
+	std::size_t numFailedAttempts = 0;
+	while(m_deletionQueue.tryDequeue(&deleter))
+	{
+		++numAttempts;
+		if(!deleter.tryDelete())
+		{
+			++numFailedAttempts;
+		}
+	}
+
+	PH_LOG(OpenglObjectManager,
+		"Performed {} pending deletes, {} were successful.",
+		numAttempts, numAttempts - numFailedAttempts);
+	if(numFailedAttempts != 0)
+	{
+		PH_LOG_ERROR(OpenglObjectManager,
+			"{} out of {} deletes were unsuccessful. Please ensure correct object lifecycle.",
+			numFailedAttempts, numAttempts);
+	}
+
+	deleteAllObjects();
+}
+
 void OpenglObjectManager::beginFrameUpdate(const GHIThreadUpdateContext& ctx)
 {
 	OpenglObjectCreator creator;
@@ -170,7 +225,7 @@ void OpenglObjectManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 		}
 	}
 
-	// Enqueue failed attempts while preserving their original queue order
+	// Retry failed attempts on next frame while preserving their original order
 	m_deletionQueue.enqueueBulk(m_failedDeleterCache.begin(), m_failedDeleterCache.size());
 	m_failedDeleterCache.clear();
 }

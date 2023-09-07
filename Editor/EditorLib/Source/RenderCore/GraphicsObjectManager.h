@@ -19,7 +19,9 @@ class GHIThreadUpdateContext;
 
 /*! @brief Manages the creation and deletion of graphics-related resource objects.
 All `create<XXX>()` and `delete<XXX>()` methods are thread safe as long as they are called within
-the lifetime of current graphics context, and implementations must follow these contracts strictly.
+the lifetime of current graphics context. During the lifetime of the current graphics context,
+the `GHI` abstraction may be loaded/unloaded and thread safe methods are allowed to fail gently
+(not crash or causing any data corruption) during the unloaded period.
 */
 class GraphicsObjectManager
 {
@@ -118,6 +120,14 @@ public:
 	@note Thread safe.
 	*/
 	virtual void deleteMesh(GHIMeshHandle handle) = 0;
+
+	/*! @brief Called by GHI thread after GHI is loaded.
+	*/
+	virtual void onGHILoad() = 0;
+
+	/*! @brief Called by GHI thread before GHI is unloaded.
+	*/
+	virtual void onGHIUnload() = 0;
 
 	/*! @brief Called by GHI thread when a frame begins.
 	*/

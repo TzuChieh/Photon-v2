@@ -26,6 +26,9 @@ public:
 		std::size_t maxHostBlocks);
 
 	GraphicsMemoryBlock* allocHostBlock(uint32 numFramesToLive) override;
+
+	void onGHILoad() override;
+	void onGHIUnload() override;
 	void beginFrameUpdate(const GHIThreadUpdateContext& ctx) override;
 	void endFrameUpdate(const GHIThreadUpdateContext& ctx) override;
 

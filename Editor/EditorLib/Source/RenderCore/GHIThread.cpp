@@ -3,7 +3,9 @@
 #include "RenderCore/Null/NullContext.h"
 #include "RenderCore/GraphicsObjectManager.h"
 #include "RenderCore/GraphicsMemoryManager.h"
+#include "EditorCore/Thread/Threads.h"
 
+#include <Common/assertion.h>
 #include <Common/logging.h>
 
 namespace ph::editor
@@ -30,12 +32,12 @@ void GHIThread::onAsyncWorkerStart()
 {
 	PH_LOG(GHIThread, "thread started");
 
-	setContext(m_nullCtx.get());
+	switchContext(m_nullCtx.get());
 }
 
 void GHIThread::onAsyncWorkerStop()
 {
-	setContext(nullptr);
+	switchContext(nullptr);
 
 	PH_LOG(GHIThread, "thread stopped");
 }
@@ -57,10 +59,7 @@ void GHIThread::onBeginFrame()
 		{
 			m_frameTimer.start();
 
-			// Begin update before object manager
-			ctx.getMemoryManager().beginFrameUpdate(m_updateCtx);
-
-			ctx.getObjectManager().beginFrameUpdate(m_updateCtx);
+			ctx.beginFrameUpdate(m_updateCtx);
 		});
 }
 
@@ -69,10 +68,7 @@ void GHIThread::onEndFrame()
 	addWork(
 		[this](GraphicsContext& ctx)
 		{
-			ctx.getObjectManager().endFrameUpdate(m_updateCtx);
-
-			// End update after object manager
-			ctx.getMemoryManager().endFrameUpdate(m_updateCtx);
+			ctx.endFrameUpdate(m_updateCtx);
 
 			// Swap buffer at the end of end frame
 			ctx.getGHI().swapBuffers();
@@ -82,33 +78,44 @@ void GHIThread::onEndFrame()
 		});
 }
 
-void GHIThread::addSetContextWork(GraphicsContext* const inCtx)
+void GHIThread::addContextSwitchWork(GraphicsContext* const newCtx)
 {
 	addWork(
-		[this, inCtx](GraphicsContext& /* ctx */)
+		[this, newCtx](GraphicsContext& /* ctx */)
 		{
-			setContext(inCtx);
+			switchContext(newCtx);
 		});
 }
 
-void GHIThread::setContext(GraphicsContext* const inCtx)
+void GHIThread::switchContext(GraphicsContext* const newCtx)
 {
+	PH_ASSERT(Threads::isOnGHIThread());
+
 	// Nothing to do if the contexts are the same
-	if(m_ctx == inCtx)
+	if(m_ctx == newCtx)
 	{
 		return;
 	}
 
 	if(m_ctx)
 	{
-		m_ctx->getGHI().unload();
+		// Keep begin/end updates in pair for the old context
+		m_ctx->endFrameUpdate(m_updateCtx);
+
+		// Swap buffers the last time before GHI unload
+		m_ctx->getGHI().swapBuffers();
+
+		m_ctx->unload();
 	}
 	
-	m_ctx = inCtx;
+	m_ctx = newCtx;
 
-	if(m_ctx)
+	if(newCtx)
 	{
-		m_ctx->getGHI().load();
+		newCtx->load();
+
+		// Keep begin/end updates in pair for the new context
+		newCtx->beginFrameUpdate(m_updateCtx);
 	}
 }
 

@@ -25,8 +25,8 @@ namespace ph::editor
 
 /*! @brief Item pool for simple types.
 This item pool is designed to minimize execution time and memory footprint. As a result, some
-operations are not possible compare to `TItemPool`, e.g., iteration on items, clear, etc. User is
-expected to keep track of the handles and use them to iterate the container the way they prefer.
+operations are not possible compare to `TItemPool`, e.g., iterating over created items, clear, etc.
+User is expected to keep track of the handles and use them to iterate the container the way they prefer.
 When using manual handle management APIs, lost handles cannot be retrieved and those storage slots
 are effectively leaked (pool dtor will still correctly free the memory though).
 
@@ -285,6 +285,24 @@ public:
 		return handle.getIndex() < m_generations.size() &&
 		       handle.getGeneration() == m_generations[handle.getIndex()];
 	}
+
+	/*! @brief Access item by index.
+	@param index Index of the item. Valid in [0, `capacity()`).
+	@return The item at `index`. Default constructed if it is not created already.
+	*/
+	///@{
+	inline Item& operator [] (const std::size_t index)
+	{
+		PH_ASSERT_LT(index, m_generations.size());
+		return *(m_storageMemory.get() + index);
+	}
+
+	inline const Item& operator [] (const std::size_t index) const
+	{
+		PH_ASSERT_LT(index, m_generations.size());
+		return *(m_storageMemory.get() + index);
+	}
+	///@}
 
 	inline static constexpr Index maxCapacity()
 	{

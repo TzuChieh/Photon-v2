@@ -117,7 +117,7 @@ void Application::initialRenderThreadUpdate()
 {
 	m_renderThread.beginFrame();
 
-	m_renderThread.addGraphicsContextUpdateWork(m_platform->getDisplay().getGraphicsContext());
+	m_renderThread.addGraphicsContextSwitchWork(m_platform->getDisplay().getGraphicsContext());
 
 	for(RenderModule* const renderModule : m_renderModules)
 	{

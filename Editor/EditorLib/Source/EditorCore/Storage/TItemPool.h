@@ -147,7 +147,7 @@ public:
 
 public:
 	using IteratorType = TIterator<false>;
-	using ConstIteratorType = TIterator<false>;
+	using ConstIteratorType = TIterator<true>;
 
 	inline TItemPool()
 		: m_storageMemory()
@@ -435,6 +435,9 @@ public:
 		       handle.getGeneration() == m_storageStates[handle.getIndex()].generation;
 	}
 
+	/*! @brief Iterators for all created items in the pool.
+	*/
+	///@{
 	inline IteratorType begin()
 	{
 		return IteratorType(this, nextItemBeginIndex(0));
@@ -454,6 +457,7 @@ public:
 	{
 		return IteratorType(this, capacity());
 	}
+	///@}
 
 	inline static constexpr Index maxCapacity()
 	{

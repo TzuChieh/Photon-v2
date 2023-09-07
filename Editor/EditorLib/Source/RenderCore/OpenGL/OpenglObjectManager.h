@@ -94,6 +94,8 @@ public:
 	void deleteIndexStorage(GHIIndexStorageHandle handle) override;
 	void deleteMesh(GHIMeshHandle handle) override;
 
+	void onGHILoad() override;
+	void onGHIUnload() override;
 	void beginFrameUpdate(const GHIThreadUpdateContext& ctx) override;
 	void endFrameUpdate(const GHIThreadUpdateContext& ctx) override;
 
@@ -103,6 +105,9 @@ private:
 	OpenglTexture* getTexture(GHITextureHandle handle);
 
 private:
+	void deleteAllObjects();
+	void deleteAllTextures();
+
 	OpenglContext& m_ctx;
 
 	template<typename OpenglObjType, CWeakHandle HandleType>

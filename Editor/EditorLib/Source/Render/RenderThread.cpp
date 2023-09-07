@@ -16,7 +16,7 @@ RenderThread::RenderThread()
 	: Base()
 	, m_renderData(std::nullopt)
 	, m_ghiThread()
-	, m_updatedGraphicsCtx(nullptr)
+	, m_newGraphicsCtx(nullptr)
 	, m_frameTimer()
 	, m_frameTimeMs(0)
 {}
@@ -120,11 +120,11 @@ void RenderThread::onEndFrame()
 				scene->destroyPendingResources();
 			}
 
-			// If it is non-null, a graphics context update is pending
-			if(m_updatedGraphicsCtx)
+			// If non-null, a graphics context switch is pending
+			if(m_newGraphicsCtx)
 			{
-				m_ghiThread.addSetContextWork(m_updatedGraphicsCtx);
-				m_updatedGraphicsCtx = nullptr;
+				m_ghiThread.addContextSwitchWork(m_newGraphicsCtx);
+				m_newGraphicsCtx = nullptr;
 			}
 
 			GHIThreadCaller caller(m_ghiThread);
@@ -153,12 +153,12 @@ void RenderThread::onEndFrame()
 		});
 }
 
-void RenderThread::addGraphicsContextUpdateWork(GraphicsContext* const inCtx)
+void RenderThread::addGraphicsContextSwitchWork(GraphicsContext* const newCtx)
 {
 	addWork(
-		[this, inCtx](RenderData& /* renderData */)
+		[this, newCtx](RenderData& /* renderData */)
 		{
-			m_updatedGraphicsCtx = inCtx;
+			m_newGraphicsCtx = newCtx;
 		});
 }
 
