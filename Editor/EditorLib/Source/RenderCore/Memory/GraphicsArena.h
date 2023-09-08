@@ -26,19 +26,22 @@ public:
 	/*! @brief Make an object of type `T` as if by calling its constructor with `Args`.
 	@tparam T Type for the object created. Must be trivially destructible.
 	@param args Arguments for calling the constructor of @p T.
-	@return Pointer to the created object. Never null.
+	@return Pointer to the created object. Null if not enough storage is left.
 	*/
 	template<typename T, typename... Args>
 	T* make(Args&&... args);
 
 	/*! @brief Make an array of default constructed objects of type `T`.
 	@tparam T Type for the objects created. Must be default constructible and trivially destructible.
-	@return Span of the created objects. Never empty unless the array size is 0.
+	@return Span of the created objects. Empty if not enough storage is left.
 	*/
 	template<typename T>
 	TSpan<T> makeArray(std::size_t arraySize);
 
 private:
+	/*!
+	@return Pointer to the newly allocated block. Never null.
+	*/
 	GraphicsMemoryBlock* allocNextBlock();
 
 	GraphicsMemoryManager* m_manager;

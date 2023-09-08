@@ -52,7 +52,8 @@ class TTrivialItemPool : public TItemPoolInterface<Item, typename Dispatcher::Ha
 	static_assert(std::is_trivially_destructible_v<Item>,
 		"Item must be trivially destructible.");
 
-	// TODO: optimize item copy when we have `std::is_implicit_lifetime`
+	// TODO: possibly utilize std::uninitialized_copy
+	// TODO: optimize item copy when we have std::is_implicit_lifetime
 
 public:
 	using HandleType = typename Dispatcher::HandleType;

@@ -88,8 +88,7 @@ void BasicGraphicsMemoryManager::beginFrameUpdate(const GHIThreadUpdateContext& 
 void BasicGraphicsMemoryManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 {
 	// A failed dequeue is fine--just those blocks get lucky and get to live an extra frame
-	//auto numDequeued = m_activeHostBlocks.tryDequeueBulk(m_hostBlockCache.get(), m_maxHostBlocks);
-	std::size_t numDequeued = 0;
+	auto numDequeued = m_activeHostBlocks.tryDequeueBulk(m_hostBlockCache.get(), m_maxHostBlocks);
 
 	std::size_t numStillActive = 0;
 	for(std::size_t bi = 0; bi < numDequeued; ++bi)

@@ -61,8 +61,8 @@ public:
 	*/
 	void waitDequeue(T* out_item);
 
-	template<std::output_iterator Iterator>
-	std::size_t waitDequeueBulk(Iterator firstItem, std::size_t numItems);
+	template<std::output_iterator<T> Iterator>
+	std::size_t waitDequeueBulk(Iterator out_firstItem, std::size_t numItems);
 
 	/*! @brief Approximated size of the queue.
 	@return Number of items in the queue. The esimation is only accurate if all memory writes to the queue

@@ -178,6 +178,9 @@ void OpenglObjectManager::onGHILoad()
 
 void OpenglObjectManager::onGHIUnload()
 {
+	PH_LOG(OpenglObjectManager,
+		"Start cleaning up resource objects...");
+
 	// Perform pending deletes
 	OpenglObjectDeleter deleter;
 	std::size_t numAttempts = 0;
@@ -192,7 +195,7 @@ void OpenglObjectManager::onGHIUnload()
 	}
 
 	PH_LOG(OpenglObjectManager,
-		"Performed {} pending deletes, {} were successful.",
+		"performed {} pending deletes, {} were successful.",
 		numAttempts, numAttempts - numFailedAttempts);
 	if(numFailedAttempts != 0)
 	{

@@ -54,10 +54,10 @@ inline bool TAtomicQuasiQueue<T>::tryDequeue(T* const out_item)
 }
 
 template<typename T>
-template<std::output_iterator Iterator>
-inline std::size_t TAtomicQuasiQueue<T>::tryDequeueBulk(Iterator firstItem, std::size_t numItems)
+template<std::output_iterator<T> Iterator>
+inline std::size_t TAtomicQuasiQueue<T>::tryDequeueBulk(Iterator out_firstItem, std::size_t numItems)
 {
-	return m_queue.try_dequeue_bulk(firstItem, numItems);
+	return m_queue.try_dequeue_bulk(out_firstItem, numItems);
 }
 
 template<typename T>

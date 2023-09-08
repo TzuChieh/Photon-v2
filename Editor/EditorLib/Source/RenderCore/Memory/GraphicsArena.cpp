@@ -17,6 +17,9 @@ GraphicsArena::GraphicsArena(GraphicsMemoryManager* manager, EType type)
 	{
 		throw GHIBadAllocation{};
 	}
+
+	PH_ASSERT(!m_memoryBlock);
+	m_memoryBlock = allocNextBlock();
 }
 
 GraphicsMemoryBlock* GraphicsArena::allocNextBlock()

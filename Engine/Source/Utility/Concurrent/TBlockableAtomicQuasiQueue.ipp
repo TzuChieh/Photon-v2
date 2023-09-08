@@ -61,10 +61,10 @@ inline void TBlockableAtomicQuasiQueue<T>::waitDequeue(T* const out_item)
 }
 
 template<typename T>
-template<std::output_iterator Iterator>
-inline std::size_t TBlockableAtomicQuasiQueue<T>::waitDequeueBulk(Iterator firstItem, std::size_t numItems)
+template<std::output_iterator<T> Iterator>
+inline std::size_t TBlockableAtomicQuasiQueue<T>::waitDequeueBulk(Iterator out_firstItem, std::size_t numItems)
 {
-	return m_queue.wait_dequeue_bulk(firstItem, numItems);
+	return m_queue.wait_dequeue_bulk(out_firstItem, numItems);
 }
 
 template<typename T>
