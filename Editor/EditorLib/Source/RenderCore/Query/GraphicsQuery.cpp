@@ -1,6 +1,8 @@
 #include "RenderCore/Query/GraphicsQuery.h"
 #include "RenderCore/Query/GHIQuery.h"
 
+#include <Common/logging.h>
+
 namespace ph::editor
 {
 
@@ -31,8 +33,12 @@ bool GraphicsQuery::run(GraphicsContext& ctx)
 		break;
 
 	case EGHIQuery::AutoRetry:
-		if(m_numRetries < maxRetries)
+		if(m_numRetries >= maxRetries)
 		{
+			PH_DEFAULT_LOG_WARNING(
+				"Detected hanging graphics query ({} retries), canceling",
+				m_numRetries);
+
 			isDone = true;
 		}
 		break;
