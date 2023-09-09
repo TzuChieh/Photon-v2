@@ -1,10 +1,8 @@
 #pragma once
 
-#include "RenderCore/Query/GraphicsQuery.h"
+#include "RenderCore/Query/query_basics.h"
+#include "EditorCore/Query/TConcurrentQueryManager.h"
 
-#include <Utility/Concurrent/TAtomicQuasiQueue.h>
-
-#include <vector>
 #include <utility>
 
 namespace ph::editor
@@ -40,18 +38,15 @@ public:
 	*/
 	void endFrameUpdate(const GHIThreadUpdateContext& updateCtx);
 
-	void addQuery(GraphicsQuery query);
+	void addQuery(ghi::Query query);
 
 private:
-	void processQueries();
-
-	TAtomicQuasiQueue<GraphicsQuery> m_queries;
-	std::vector<GraphicsQuery> m_queryCache;
+	TConcurrentQueryManager<GraphicsContext> m_queryManager;
 };
 
-inline void GraphicsContext::addQuery(GraphicsQuery query)
+inline void GraphicsContext::addQuery(ghi::Query query)
 {
-	m_queries.enqueue(std::move(query));
+	m_queryManager.addQuery(std::move(query));
 }
 
 }// end namespace ph::editor

@@ -8,25 +8,35 @@
 //#include "Render/Imgui/Font/IconsMaterialDesign.h"
 #include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
 
+#include <Common/assertion.h>
 #include <Frame/RegularPicture.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/io_utils.h>
-#include <Common/assertion.h>
 
 #include <algorithm>
 
 namespace ph::editor
 {
 
-ImguiImageLibrary::~ImguiImageLibrary() = default;
-
-ImguiImageLibrary::ImageEntry::ImageEntry()
-	: nativeHandle()
-	, resource(nullptr)
-	, sourcePicture(nullptr)
+ImguiImageLibrary::ImguiImageLibrary()
+	: m_editor(nullptr)
+	, m_builtinEntries()
 {}
 
+ImguiImageLibrary::~ImguiImageLibrary() = default;
+
+ImguiImageLibrary::ImageEntry::ImageEntry() = default;
+
 ImguiImageLibrary::ImageEntry::~ImageEntry() = default;
+
+void ImguiImageLibrary::initialize(Editor* editor)
+{
+	PH_ASSERT(editor);
+	m_editor = editor;
+}
+
+void ImguiImageLibrary::terminate()
+{}
 
 void ImguiImageLibrary::imguiImage(
 	const EImguiImage targetImage,
@@ -115,9 +125,9 @@ void ImguiImageLibrary::loadImageFile(const EImguiImage targetImage, const Path&
 	entry.sourcePicture = std::make_unique<RegularPicture>(io_utils::load_LDR_picture(filePath));
 }
 
-void ImguiImageLibrary::addTextures(RenderThreadCaller& caller)
+void ImguiImageLibrary::createTextures(RenderThreadCaller& caller)
 {
-	for(ImageEntry& entry : m_imageEntries)
+	for(ImageEntry& entry : m_builtinEntries)
 	{
 		if(!entry.sourcePicture)
 		{
@@ -146,7 +156,7 @@ void ImguiImageLibrary::addTextures(RenderThreadCaller& caller)
 
 void ImguiImageLibrary::removeTextures(RenderThreadCaller& caller)
 {
-	for(ImageEntry& entry : m_imageEntries)
+	for(ImageEntry& entry : m_builtinEntries)
 	{
 		if(!entry.resource)
 		{
@@ -166,15 +176,15 @@ void ImguiImageLibrary::removeTextures(RenderThreadCaller& caller)
 auto ImguiImageLibrary::getImageEntry(const EImguiImage targetImage)
 -> ImageEntry&
 {
-	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_imageEntries.size());
-	return m_imageEntries[static_cast<std::size_t>(targetImage)];
+	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_builtinEntries.size());
+	return m_builtinEntries[static_cast<std::size_t>(targetImage)];
 }
 
 auto ImguiImageLibrary::getImageEntry(const EImguiImage targetImage) const
 -> const ImageEntry&
 {
-	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_imageEntries.size());
-	return m_imageEntries[static_cast<std::size_t>(targetImage)];
+	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_builtinEntries.size());
+	return m_builtinEntries[static_cast<std::size_t>(targetImage)];
 }
 
 }// end namespace ph::editor

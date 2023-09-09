@@ -1,12 +1,12 @@
 #pragma once
 
-#include "RenderCore/Query/GHIQuery.h"
+#include "RenderCore/Query/query_basics.h"
 #include "RenderCore/ghi_infos.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class GHITextureNativeHandleQuery : public GHIQuery
+class GetTextureNativeHandle : public QueryPerformer
 {
 public:
 	bool performQuery(GraphicsContext& ctx) override;
@@ -18,9 +18,9 @@ private:
 	GHITextureNativeHandle m_nativeHandle;
 };
 
-inline GHITextureNativeHandle GHITextureNativeHandleQuery::getNativeHandle() const
+inline GHITextureNativeHandle GetTextureNativeHandle::getNativeHandle() const
 {
 	return m_nativeHandle;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

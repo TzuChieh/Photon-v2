@@ -1,9 +1,12 @@
 #pragma once
 
 #include "RenderCore/ghi_infos.h"
+#include "RenderCore/Query/query_basics.h"
 
 #include "ThirdParty/DearImGui.h"
 
+#include <Common/assertion.h>
+#include <Utility/utility.h>
 #include <Math/TVector2.h>
 #include <Math/TVector4.h>
 
@@ -19,9 +22,12 @@ namespace ph { class Path; }
 namespace ph::editor
 {
 
+class Editor;
 class RenderThreadCaller;
 class RendererDetailedTexture;
 
+/*! @brief Built-in images.
+*/
 enum class EImguiImage
 {
 	Warning = 0,
@@ -30,7 +36,7 @@ enum class EImguiImage
 	Image,
 
 	/*! Number of enum entries. Must follow the last usable entry. */
-	NUM
+	SIZE
 };
 
 /*!
@@ -40,7 +46,11 @@ here for imgui. Utilities that can adapt to missing images are provided.
 class ImguiImageLibrary final
 {
 public:
+	ImguiImageLibrary();
 	~ImguiImageLibrary();
+
+	void initialize(Editor* editor);
+	void terminate();
 
 	void imguiImage(
 		EImguiImage targetImage,
@@ -65,8 +75,10 @@ public:
 		const math::Vector4F& borderColorRGBA = math::Vector4F(0, 0, 0, 0));*/
 
 	void loadImageFile(EImguiImage targetImage, const Path& filePath);
-	void addTextures(RenderThreadCaller& caller);
+	void createTextures(RenderThreadCaller& caller);
 	void removeTextures(RenderThreadCaller& caller);
+
+	Editor& getEditor();
 
 	// TODO: adapter for image & image drawing (with button?)
 
@@ -74,8 +86,12 @@ private:
 	struct ImageEntry final
 	{
 		mutable GHITextureNativeHandle nativeHandle;
-		RendererDetailedTexture* resource;
+		GHITextureHandle textureHandle;
+		ghi::Query nativeHandleQuery;
 		std::unique_ptr<RegularPicture> sourcePicture;
+
+		// TODO: remove
+		RendererDetailedTexture* resource = nullptr;
 
 		ImageEntry();
 		~ImageEntry();
@@ -84,7 +100,14 @@ private:
 	ImageEntry& getImageEntry(EImguiImage targetImage);
 	const ImageEntry& getImageEntry(EImguiImage targetImage) const;
 
-	std::array<ImageEntry, static_cast<std::size_t>(EImguiImage::NUM)> m_imageEntries;
+	Editor* m_editor;
+	std::array<ImageEntry, enum_size<EImguiImage>()> m_builtinEntries;
 };
+
+inline Editor& ImguiImageLibrary::getEditor()
+{
+	PH_ASSERT(m_editor);
+	return *m_editor;
+}
 
 }// end namespace ph::editor

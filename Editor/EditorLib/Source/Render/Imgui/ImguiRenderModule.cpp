@@ -135,7 +135,7 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 {
-	m_imageLibrary.addTextures(caller);
+	m_imageLibrary.createTextures(caller);
 
 	// Create and add the IMGUI render content to render thread
 

@@ -1,38 +1,43 @@
-#include "RenderCore/Query/GraphicsQuery.h"
-#include "RenderCore/Query/GHIQuery.h"
+#pragma once
+
+#include "EditorCore/Query/TQuery.h"
+#include "EditorCore/Query/TQueryPerformer.h"
 
 #include <Common/logging.h>
 
 namespace ph::editor
 {
 
-GraphicsQuery::GraphicsQuery(std::shared_ptr<GHIQuery> query, EGHIQuery mode)
-	: m_query(std::move(query))
+template<typename Target>
+inline TQuery<Target>::TQuery(std::shared_ptr<Performer> performer, EQuery mode)
+	: m_performer(std::move(performer))
 	, m_numRetries(0)
 	, m_mode(mode)
 {
-	PH_ASSERT(m_query);
+	PH_ASSERT(m_performer);
 }
 
-GraphicsQuery::~GraphicsQuery() = default;
+template<typename Target>
+inline TQuery<Target>::~TQuery() = default;
 
-bool GraphicsQuery::run(GraphicsContext& ctx)
+template<typename Target>
+inline bool TQuery<Target>::run(Target& target)
 {
-	PH_ASSERT(m_query);
+	PH_ASSERT(m_performer);
 
 	// A limit that will be reached in 10 minutes, assuming 60 FPS and one try per frame
 	constexpr uint32 maxRetries = 60 * 60 * 10;
 
-	bool isDone = m_query->performQuery(ctx);
+	bool isDone = m_performer->performQuery(target);
 
 	// Modify the done flag according to query mode
 	switch(m_mode)
 	{
-	case EGHIQuery::Once:
+	case EQuery::Once:
 		isDone = true;
 		break;
 
-	case EGHIQuery::AutoRetry:
+	case EQuery::AutoRetry:
 		if(m_numRetries >= maxRetries)
 		{
 			PH_DEFAULT_LOG_WARNING(
@@ -46,7 +51,7 @@ bool GraphicsQuery::run(GraphicsContext& ctx)
 
 	if(isDone)
 	{
-		m_query->queryDone();
+		m_performer->queryDone();
 	}
 
 	++m_numRetries;
