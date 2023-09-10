@@ -25,15 +25,14 @@ Path::Path(const char* path)
 {}
 
 Path::Path(std::filesystem::path path)
-	: Path(path.generic_string())
+	: m_path(std::move(path))
 {}
 
 Path Path::append(const Path& other) const
 {
-	Path newPath = this->removeTrailingSeparator();
-	newPath.m_path += '/';
-	newPath.m_path += other.removeLeadingSeparator().m_path;
-	return newPath;
+	Path thisPath = this->removeTrailingSeparator();
+	Path otherPath = other.removeLeadingSeparator();
+	return Path(thisPath.m_path / otherPath.m_path);
 }
 
 Path Path::append(std::string_view pathStr) const
@@ -73,13 +72,13 @@ bool Path::operator == (const Path& other) const
 
 Path Path::removeLeadingSeparator() const
 {
-	std::string pathStr = m_path.string();
+	std::string pathStr = m_path.generic_string();
 	while(!pathStr.empty())
 	{
 		//if(charToWchar(pathStr.front()) == m_path.preferred_separator)
 		if(pathStr.front() == '/')
 		{
-			pathStr.erase(0, 1);
+			pathStr.erase(pathStr.begin());
 		}
 		else
 		{
@@ -92,7 +91,7 @@ Path Path::removeLeadingSeparator() const
 
 Path Path::removeTrailingSeparator() const
 {
-	std::string pathStr = m_path.string();
+	std::string pathStr = m_path.generic_string();
 	while(!pathStr.empty())
 	{
 		//if(charToWchar(pathStr.back()) == m_path.preferred_separator)

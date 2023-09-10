@@ -70,16 +70,8 @@ public:
 
 	explicit Path(std::filesystem::path path);
 
-	inline bool isRelative() const
-	{
-		return m_path.is_relative();
-	}
-
-	inline bool isAbsolute() const
-	{
-		return m_path.is_absolute();
-	}
-
+	bool isRelative() const;
+	bool isAbsolute() const;
 	bool isEmpty() const;
 	void clear();
 	
@@ -176,6 +168,16 @@ private:
 
 	static wchar_t charToWchar(const char ch);
 };
+
+inline bool Path::isRelative() const
+{
+	return m_path.is_relative();
+}
+
+inline bool Path::isAbsolute() const
+{
+	return m_path.is_absolute();
+}
 
 inline bool Path::isEmpty() const
 {
