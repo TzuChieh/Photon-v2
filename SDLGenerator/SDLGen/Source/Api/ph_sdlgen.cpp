@@ -4,6 +4,7 @@
 #include <Common/logging.h>
 #include <Utility/utility.h>
 #include <DataIO/FileSystem/Path.h>
+#include <DataIO/FileSystem/Filesystem.h>
 #include <ph_cpp_core.h>
 
 #include <string>
@@ -16,9 +17,9 @@ PH_DEFINE_INTERNAL_LOG_GROUP(SdlGenApi, SDLGen);
 void generate_sdl_interface(const EInterfaceGenerator type, const std::string_view outputDirectoryStr)
 {
 	auto outputDirectory = Path(std::string(outputDirectoryStr));
-	outputDirectory.createDirectory();
+	Filesystem::createDirectories(outputDirectory);
 
-	if(!outputDirectory.hasDirectory())
+	if(!Filesystem::hasDirectory(outputDirectory))
 	{
 		PH_LOG_WARNING(SdlGenApi, "cannot create output directory <{}>",
 			outputDirectory.toAbsoluteString());

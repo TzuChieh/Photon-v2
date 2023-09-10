@@ -63,7 +63,7 @@ void RendererTexture2D::cleanupGHI(GHIThreadCaller& caller)
 		{
 			// Note: Always decrement reference count on GHI thread--one of this call will free 
 			// the GHI resource, and it must be done on GHI thread
-			ctx.getObjectManager().deleteTexture(m_textureHandle);
+			ctx.getObjectManager().removeTexture(m_textureHandle);
 			m_textureHandle = GHITextureHandle{};
 		});
 }

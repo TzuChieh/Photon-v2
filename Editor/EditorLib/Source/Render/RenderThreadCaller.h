@@ -9,9 +9,8 @@ namespace ph::editor
 
 class RenderData;
 
-/*! @brief Thin wrapper around RenderThread specifically for adding render works.
-Mainly to hide unrelated interface in `RenderThread` except for work adding. Can only be used between
-`RenderThread::beginFrame()` and `RenderThread::endFrame()`.
+/*! @brief Thin `RenderThread` wrapper for interactions from another thread.
+Mainly to hide unrelated interface in `RenderThread` except for commonly used, cross-thread operations.
 */
 class RenderThreadCaller final
 {
@@ -20,6 +19,7 @@ public:
 
 	/*!
 	Work signature: callable as `void(RenderData&)`, can be wrapped as a `TFunction`.
+	Can only be called between `RenderThread::beginFrame()` and `RenderThread::endFrame()`.
 	*/
 	template<typename WorkType>
 	inline void add(WorkType&& work)

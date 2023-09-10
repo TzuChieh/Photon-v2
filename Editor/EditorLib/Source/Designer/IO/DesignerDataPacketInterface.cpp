@@ -3,6 +3,7 @@
 #include "ThirdParty/NLohmannJSON.h"
 
 #include <DataIO/FileSystem/Path.h>
+#include <DataIO/FileSystem/Filesystem.h>
 #include <DataIO/Stream/BinaryFileInputStream.h>
 #include <DataIO/Stream/BinaryFileOutputStream.h>
 #include <DataIO/Stream/FormattedTextInputStream.h>
@@ -135,7 +136,7 @@ void DesignerDataPacketInterface::generate(
 	const auto packetFilename = std::format("{}_{}.pddpa", targetClass->getTypeName(), targetName);
 
 	const Path packetDirectory = ctx.getWorkingDirectory() / "designer_packet";
-	packetDirectory.createDirectory();
+	Filesystem::createDirectories(packetDirectory);
 
 	const Path packetFile = packetDirectory / packetFilename;
 

@@ -2,7 +2,6 @@
 
 #include "RenderCore/ghi_fwd.h"
 #include "RenderCore/ghi_enums.h"
-#include "EditorCore/Storage/TWeakHandle.h"
 
 #include <Common/primitive_type.h>
 #include <Math/TVector2.h>

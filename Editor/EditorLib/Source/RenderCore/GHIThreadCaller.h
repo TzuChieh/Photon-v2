@@ -7,9 +7,8 @@
 namespace ph::editor
 {
 
-/*! @brief Thin wrapper around `GHIThread` specifically for adding GHI works.
-Mainly to hide unrelated interface in `GHIThread` except for work adding. Can only be used between
-`GHIThread::beginFrame()` and `GHIThread::endFrame()`.
+/*! @brief Thin `GHIThread` wrapper for interactions from another thread.
+Mainly to hide unrelated interface in `GHIThread` except for commonly used, cross-thread operations.
 */
 class GHIThreadCaller final
 {
@@ -18,6 +17,7 @@ public:
 
 	/*!
 	Work signature: callable as `void(GraphicsContext&)`, can be wrapped as a `TFunction`.
+	Can only be used between `GHIThread::beginFrame()` and `GHIThread::endFrame()`.
 	*/
 	template<typename WorkType>
 	inline void add(WorkType&& work)

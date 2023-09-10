@@ -36,48 +36,39 @@
 namespace ph
 {
 
+/*! @brief General path representation.
+Does not check whether the target actually exists (e.g., on a filesystem). To check target existence,
+use `Filesystem`.
+*/
 class Path final
 {
 public:
 	/*! @brief Creates empty path.
 	*/
-	inline Path() : 
-		m_path()
-	{}
+	Path();
 	
 	/*!
 	Constructs a path from some string representation of the path. The string can be either 
-	a relative or absolute path, or even a path fragment. The constructed path substitutes 
-	all separators to a system specific (preferred) one.
+	a relative or absolute path, or even a path fragment. The input format of `path` should be in
+	a general, "mostly" OS neutral form [1] which often referred as "generic format" in many libraries.
+	
+	References:
+	[1] https://www.boost.org/doc/libs/1_83_0/libs/filesystem/doc/reference.html
 	*/
-	inline explicit Path(std::string path) : 
-		m_path(std_filesystem::path(std::move(path)))
-	{
-		m_path.make_preferred();
-	}
+	explicit Path(std::string path);
 
 	/*!
-	A std::string_view variant of Path(std::string).
+	A `std::string_view` variant of Path(std::string).
 	*/
-	inline explicit Path(const std::string_view path) :
-		m_path(std_filesystem::path(path))
-	{
-		m_path.make_preferred();
-	}
+	explicit Path(std::string_view path);
 
 	/*!
-	Similar to Path(std::string), except the string is a null-terminated character sequence pointed to
-	by @p path.
+	Similar to Path(std::string), except the string is a null-terminated character sequence pointed
+	to by `path`.
 	*/
-	inline explicit Path(const char* const path) :
-		Path(std::string_view(path))
-	{}
+	explicit Path(const char* path);
 
-	inline explicit Path(std_filesystem::path path) :
-		m_path(std::move(path))
-	{
-		m_path.make_preferred();
-	}
+	explicit Path(std::filesystem::path path);
 
 	inline bool isRelative() const
 	{
@@ -96,28 +87,24 @@ public:
 	Appending one path to another. System specific directory separators are added in 
 	between two path objects.
 	*/
-	inline Path append(const Path& other) const
-	{
-		auto thisPath = this->removeTrailingSeparator();
-		auto otherPath = other.removeLeadingSeparator();
-		return Path(thisPath.m_path / otherPath.m_path);
+	Path append(const Path& other) const;
 
-		// FIXME: strangely this fails unit test; windows with slash prefix = root?
-		//return Path(this->m_path / other.m_path);
-	}
-
-	inline Path append(std::string_view pathStr) const
-	{
-		return append(Path(pathStr));
-	}
+	Path append(std::string_view pathStr) const;
 
 	Path toAbsolute() const;
 
-	/*! @brief Get a string representation of this path.
+	/*! @brief Get a string representation of this path in generic format.
 	*/
 	std::string toString() const;
 
-	/*! @brief Similar to `toString()`, except the buffer is provided.
+	std::string toAbsoluteString() const;
+
+	/*! @brief Get a string representation of this path in native format.
+	@return A string that can be passed to the native OS for identifying a target.
+	*/
+	std::string toNativeString() const;
+
+	/*! @brief Similar to `toNativeString()`, except the buffer is provided.
 	This variant guarantees no dynamic allocation takes place.
 	@param out_buffer The buffer to store the string.
 	@param out_numTotalChars Total number of characters in the string representation of this path
@@ -126,52 +113,18 @@ public:
 	null terminator will present even if the string is not fully copied.
 	@return Number of copied characters (including the null terminator).
 	*/
-	std::size_t toString(
+	std::size_t toNativeString(
 		TSpan<char> out_buffer, 
 		std::size_t* out_numTotalChars = nullptr,
 		bool isNullTerminated = true) const;
 
-	std::string toAbsoluteString() const;
-
 	/*! @brief Get a standard path representation of this path.
 	*/
-	std_filesystem::path toStdPath() const;
+	std::filesystem::path toStdPath() const;
 
-	inline Path removeLeadingSeparator() const
-	{
-		std::string pathStr = m_path.string();
-		while(!pathStr.empty())
-		{
-			if(charToWchar(pathStr.front()) == m_path.preferred_separator)
-			{
-				pathStr.erase(0, 1);
-			}
-			else
-			{
-				break;
-			}
-		}
+	Path removeLeadingSeparator() const;
 
-		return Path(pathStr);
-	}
-
-	inline Path removeTrailingSeparator() const
-	{
-		std::string pathStr = m_path.string();
-		while(!pathStr.empty())
-		{
-			if(charToWchar(pathStr.back()) == m_path.preferred_separator)
-			{
-				pathStr.pop_back();
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return Path(pathStr);
-	}
+	Path removeTrailingSeparator() const;
 
 	/*! @brief Returns the filename if present.
 	@return Filename including the extension part. Empty if not present.
@@ -183,23 +136,6 @@ public:
 	contains no extension, then an empty string is returned.
 	*/
 	std::string getExtension() const;
-
-	/*! @brief Check if the path points to an existing directory.
-	*/
-	bool hasDirectory() const;
-
-	/*! @brief Check if the path points to an existing file.
-	*/
-	bool hasFile() const;
-
-	// TODO: isDirectory() and isFile(), they should only analyze the path string, 
-	// not checking if actual resource exist
-
-	/*! @brief Create a directory as specified by the path.
-	Treat the path as a directory representation and create all missing folders
-	if any of them does not already exist.
-	*/
-	void createDirectory() const;
 
 	/*!
 	If the path starts with a root directory specifier, it will be returned. Example: for the path 
@@ -236,7 +172,7 @@ public:
 	bool operator == (const Path& other) const;
 
 private:
-	std_filesystem::path m_path;
+	std::filesystem::path m_path;
 
 	static wchar_t charToWchar(const char ch);
 };
@@ -251,37 +187,7 @@ inline void Path::clear()
 	m_path.clear();
 }
 
-inline std::string Path::getFilename() const
-{
-	return m_path.filename().string();
-}
-
-inline std::string Path::getExtension() const
-{
-	return m_path.extension().string();
-}
-
-inline bool Path::hasDirectory() const
-{
-	return std::filesystem::is_directory(m_path);
-}
-
-inline bool Path::hasFile() const
-{
-	return std::filesystem::is_regular_file(m_path);
-}
-
-inline void Path::createDirectory() const
-{
-	std::filesystem::create_directories(m_path);
-}
-
-inline std::string Path::toString() const
-{
-	return m_path.string();
-}
-
-inline std_filesystem::path Path::toStdPath() const
+inline std::filesystem::path Path::toStdPath() const
 {
 	return m_path;
 }

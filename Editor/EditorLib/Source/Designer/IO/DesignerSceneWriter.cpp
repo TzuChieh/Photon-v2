@@ -8,6 +8,7 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <DataIO/FileSystem/Path.h>
+#include <DataIO/FileSystem/Filesystem.h>
 #include <DataIO/Stream/FormattedTextOutputStream.h>
 #include <SDL/sdl_helpers.h>
 #include <SDL/Introspect/SdlOutputContext.h>
@@ -96,7 +97,7 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 	// Expected be set, too late to determine a good link here
 	PH_ASSERT(scene.getRenderDescriptionLink().hasIdentifier());
 
-	getSceneWorkingDirectory().createDirectory();
+	Filesystem::createDirectories(getSceneWorkingDirectory());
 
 	// Save scene meta info
 	{

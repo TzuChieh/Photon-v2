@@ -1,14 +1,14 @@
 #include "SDL/SdlResourceLocator.h"
 #include "SDL/sdl_helpers.h"
 #include "DataIO/FileSystem/Path.h"
+#include "DataIO/FileSystem/Filesystem.h"
+#include "DataIO/FileSystem/ResourceIdentifier.h"
 #include "Utility/string_utils.h"
 #include "Common/assertion.h"
 #include "SDL/Introspect/SdlIOContext.h"
 #include "SDL/sdl_exceptions.h"
-#include "DataIO/FileSystem/ResourceIdentifier.h"
 
 #include <utility>
-#include <filesystem>
 
 namespace ph
 {
@@ -101,11 +101,11 @@ std::string SdlResourceLocator::toBundleSRI(std::string_view sri) const
 
 	case ESriType::External:
 	{
-		std::filesystem::path resourceRelPath = std::filesystem::relative(
-			external_SRI_to_path(sri).toStdPath(),
-			m_ctx.getWorkingDirectory().toStdPath());
+		Path resourceRelPath = Filesystem::makeRelative(
+			external_SRI_to_path(sri), 
+			m_ctx.getWorkingDirectory());
 
-		if(resourceRelPath.empty())
+		if(resourceRelPath.isEmpty())
 		{
 			throw_formatted<SdlException>(
 				"failed to generate bundle identifier for <{}> (with bundle directory {})",
@@ -118,7 +118,7 @@ std::string SdlResourceLocator::toBundleSRI(std::string_view sri) const
 		// or even with various OS links). 
 		// Some easy-to-check cases can be implemented in the future though.
 
-		return ":" + resourceRelPath.string();
+		return ":" + resourceRelPath.toString();
 	}
 	}
 

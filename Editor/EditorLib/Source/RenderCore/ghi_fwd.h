@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorCore/Storage/fwd.h"
+#include "EditorCore/Storage/TWeakHandle.h"
 
 #include <Common/primitive_type.h>
 

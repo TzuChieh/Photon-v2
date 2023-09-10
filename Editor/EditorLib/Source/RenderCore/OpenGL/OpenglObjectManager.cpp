@@ -110,7 +110,7 @@ void OpenglObjectManager::uploadPixelData(
 	m_creationQueue.enqueue(creator);
 }
 
-void OpenglObjectManager::deleteTexture(const GHITextureHandle handle)
+void OpenglObjectManager::removeTexture(const GHITextureHandle handle)
 {
 	if(!handle)
 	{
@@ -133,22 +133,22 @@ void OpenglObjectManager::deleteTexture(const GHITextureHandle handle)
 	m_deletionQueue.enqueue(deleter);
 }
 
-void OpenglObjectManager::deleteFramebuffer(GHIFramebufferHandle handle)
+void OpenglObjectManager::removeFramebuffer(GHIFramebufferHandle handle)
 {}
 
-void OpenglObjectManager::deleteShader(GHIShaderHandle handle)
+void OpenglObjectManager::removeShader(GHIShaderHandle handle)
 {}
 
-void OpenglObjectManager::deleteShaderProgram(GHIShaderProgramHandle handle)
+void OpenglObjectManager::removeShaderProgram(GHIShaderProgramHandle handle)
 {}
 
-void OpenglObjectManager::deleteVertexStorage(GHIVertexStorageHandle handle)
+void OpenglObjectManager::removeVertexStorage(GHIVertexStorageHandle handle)
 {}
 
-void OpenglObjectManager::deleteIndexStorage(GHIIndexStorageHandle handle)
+void OpenglObjectManager::removeIndexStorage(GHIIndexStorageHandle handle)
 {}
 
-void OpenglObjectManager::deleteMesh(GHIMeshHandle handle)
+void OpenglObjectManager::removeMesh(GHIMeshHandle handle)
 {}
 
 void OpenglObjectManager::deleteAllObjects()

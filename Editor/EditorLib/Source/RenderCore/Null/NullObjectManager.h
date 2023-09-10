@@ -66,25 +66,25 @@ public:
 		EGHIPixelComponent componentType) override
 	{}
 
-	void deleteTexture(GHITextureHandle handle) override
+	void removeTexture(GHITextureHandle handle) override
 	{}
 
-	void deleteFramebuffer(GHIFramebufferHandle handle) override
+	void removeFramebuffer(GHIFramebufferHandle handle) override
 	{}
 
-	void deleteShader(GHIShaderHandle handle) override
+	void removeShader(GHIShaderHandle handle) override
 	{}
 
-	void deleteShaderProgram(GHIShaderProgramHandle handle) override
+	void removeShaderProgram(GHIShaderProgramHandle handle) override
 	{}
 
-	void deleteVertexStorage(GHIVertexStorageHandle handle) override
+	void removeVertexStorage(GHIVertexStorageHandle handle) override
 	{}
 
-	void deleteIndexStorage(GHIIndexStorageHandle handle) override
+	void removeIndexStorage(GHIIndexStorageHandle handle) override
 	{}
 
-	void deleteMesh(GHIMeshHandle handle) override
+	void removeMesh(GHIMeshHandle handle) override
 	{}
 
 	void onGHILoad() override

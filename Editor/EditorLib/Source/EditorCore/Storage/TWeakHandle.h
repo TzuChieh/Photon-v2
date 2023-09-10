@@ -14,6 +14,9 @@
 namespace ph::editor
 {
 
+/*! @brief Handle with weak reference semantics.
+Default constructor creates empty handle.
+*/
 template<typename Item, typename Index = std::size_t, typename Generation = Index>
 class TWeakHandle final
 {

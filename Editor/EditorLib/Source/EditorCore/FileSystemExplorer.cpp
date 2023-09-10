@@ -2,6 +2,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <DataIO/FileSystem/Filesystem.h>
 
 #include <utility>
 #include <filesystem>
@@ -68,7 +69,7 @@ void FileSystemDirectoryEntry::populateChildren()
 	{
 		// Skip any non-directory item
 		const Path childPath(stdPath);
-		if(!childPath.hasDirectory())
+		if(!Filesystem::hasDirectory(childPath))
 		{
 			continue;
 		}
@@ -105,7 +106,7 @@ std::optional<std::size_t> FileSystemExplorer::addRootPath(const Path& path)
 		return std::nullopt;
 	}
 
-	if(!path.hasDirectory())
+	if(!Filesystem::hasDirectory(path))
 	{
 		PH_LOG_WARNING(FileSystemExplorer,
 			"cannot add non-directory root path {}", path);
@@ -155,7 +156,7 @@ std::vector<Path> FileSystemExplorer::makeItemListing(
 		const Path itemPath(stdPath);
 
 		// Potentially skip directory item
-		if(!withDirectories && itemPath.hasDirectory())
+		if(!withDirectories && Filesystem::hasDirectory(itemPath))
 		{
 			continue;
 		}

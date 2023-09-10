@@ -10,6 +10,7 @@
 #include <Common/logging.h>
 #include <Utility/Timer.h>
 #include <DataIO/FileSystem/Path.h>
+#include <DataIO/FileSystem/Filesystem.h>
 #include <SDL/TSdl.h>
 #include <SDL/SdlSceneFileWriter.h>
 #include <SDL/SdlSceneFileReader.h>
@@ -50,7 +51,7 @@ void Editor::start()
 		PH_ASSERT(!m_settings);
 
 		Path settingsFile = get_editor_settings_file_path();
-		if(settingsFile.hasFile())
+		if(Filesystem::hasFile(settingsFile))
 		{
 			loadSettings(settingsFile);
 		}
@@ -284,7 +285,7 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 		return nullSceneIndex();
 	}
 	
-	if(!sceneFile.hasFile())
+	if(!Filesystem::hasFile(sceneFile))
 	{
 		PH_LOG_ERROR(Editor,
 			"cannot load designer scene {}: file does not exist",
@@ -461,7 +462,7 @@ void Editor::removeScene(const std::size_t sceneIndex)
 
 void Editor::loadSettings(const Path& settingsFile)
 {
-	if(!settingsFile.hasFile())
+	if(!Filesystem::hasFile(settingsFile))
 	{
 		PH_LOG_WARNING(Editor,
 			"Failed to load editor settings {} (file does not exist)",

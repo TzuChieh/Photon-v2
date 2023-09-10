@@ -9,34 +9,62 @@ using namespace ph;
 
 TEST(FileSystemPathTest, PathOperation)
 {
-	const Path relativePath("./some/path");
-	EXPECT_TRUE(relativePath.isRelative());
-	EXPECT_FALSE(relativePath.isAbsolute());
+	{
+		Path relativePath("./some/path");
+		EXPECT_TRUE(relativePath.isRelative());
+		EXPECT_FALSE(relativePath.isAbsolute());
+	}
 
+	{
 #if PH_OPERATING_SYSTEM_IS_WINDOWS
-	const Path absolutePath("D:/some/path");
+		Path absolutePath("D:/some/path");
 #else
-	const Path absolutePath("/some/path");
+		Path absolutePath("/some/path");
 #endif
-	EXPECT_FALSE(absolutePath.isRelative());
-	EXPECT_TRUE(absolutePath.isAbsolute());
+		EXPECT_FALSE(absolutePath.isRelative());
+		EXPECT_TRUE(absolutePath.isAbsolute());
+	}
 
-	const Path leadingSeparatorPath("/some/path/");
-	EXPECT_STREQ(
-		leadingSeparatorPath.removeLeadingSeparator().toString().c_str(), 
-		Path("some/path/").toString().c_str());
+	// Remove single leading separator
+	{
+		const Path leadingSeparatorPath("/some/path/");
+		EXPECT_STREQ(
+			leadingSeparatorPath.removeLeadingSeparator().toString().c_str(),
+			Path("some/path/").toString().c_str());
+	}
+	
+	// Remove single trailing separator
+	{
+		const Path trailingSeparatorPath("/some/path/");
+		EXPECT_STREQ(
+			trailingSeparatorPath.removeTrailingSeparator().toString().c_str(),
+			Path("/some/path").toString().c_str());
+	}
 
-	const Path trailingSeparatorPath("/some/path/");
-	EXPECT_STREQ(
-		trailingSeparatorPath.removeTrailingSeparator().toString().c_str(), 
-		Path("/some/path").toString().c_str());
+	// Remove multiple leading separators
+	{
+		const Path leadingSeparatorPath("/////sunny/day/");
+		EXPECT_STREQ(
+			leadingSeparatorPath.removeLeadingSeparator().toString().c_str(),
+			Path("sunny/day/").toString().c_str());
+	}
 
-	const Path firstPath("C:/first/second/");
-	const Path secondPath("/third/fourth/");
-	const Path fullPath = firstPath.append(secondPath);
-	EXPECT_STREQ(
-		fullPath.toString().c_str(),
-		Path("C:/first/second/third/fourth/").toString().c_str());
+	// Remove multiple trailing separators
+	{
+		const Path trailingSeparatorPath("/snowy/winter/night/////");
+		EXPECT_STREQ(
+			trailingSeparatorPath.removeTrailingSeparator().toString().c_str(),
+			Path("/snowy/winter/night").toString().c_str());
+	}
+
+	{
+		const Path firstPath("C:/first/second/");
+		const Path secondPath("/third/fourth/");
+		const Path fullPath = firstPath.append(secondPath);
+		EXPECT_STREQ(
+			fullPath.toString().c_str(),
+			Path("C:/first/second/third/fourth/").toString().c_str());
+	}
 }
 
 TEST(FileSystemPathTest, FileExtension)
@@ -59,11 +87,7 @@ TEST(FileSystemPathTest, LeadingAndTrailingElement)
 		EXPECT_STREQ(path2.getLeadingElement().toString().c_str(), "..");
 
 		Path path3("/abc/def/");
-#if PH_OPERATING_SYSTEM_IS_WINDOWS
-		EXPECT_STREQ(path3.getLeadingElement().toString().c_str(), "\\");
-#else
 		EXPECT_STREQ(path3.getLeadingElement().toString().c_str(), "/");
-#endif
 
 		Path path4("aaa/bbb/ccc/ddd/eee");
 		EXPECT_STREQ(path4.getLeadingElement().toString().c_str(), "aaa");
@@ -170,7 +194,7 @@ TEST(FileSystemPathTest, ExtensionManipulation)
 	}
 }
 
-TEST(FileSystemPathTest, ToString)
+TEST(FileSystemPathTest, ToNativeString)
 {
 	{
 		const Path relativePath("./some/path");
@@ -178,60 +202,40 @@ TEST(FileSystemPathTest, ToString)
 		// Copied result includes null-terminator
 		{
 			std::array<char, 4> buffer;
-			EXPECT_EQ(relativePath.toString(buffer), 4);
-#if PH_OPERATING_SYSTEM_IS_WINDOWS
-			EXPECT_STREQ(buffer.data(), ".\\s");
-#else
+			EXPECT_EQ(relativePath.toNativeString(buffer), 4);
 			EXPECT_STREQ(buffer.data(), "./s");
-#endif
 		}
 		
 		// Copied result includes null-terminator
 		{
 			std::array<char, 12> buffer;
-			EXPECT_EQ(relativePath.toString(buffer), 12);
-#if PH_OPERATING_SYSTEM_IS_WINDOWS
-			EXPECT_STREQ(buffer.data(), ".\\some\\path");
-#else
+			EXPECT_EQ(relativePath.toNativeString(buffer), 12);
 			EXPECT_STREQ(buffer.data(), "./some/path");
-#endif
 		}
 
 		// Copied result includes null-terminator
 		{
 			std::array<char, 6> buffer;
-			EXPECT_EQ(relativePath.toString(buffer), 6);
-#if PH_OPERATING_SYSTEM_IS_WINDOWS
-			EXPECT_STREQ(buffer.data(), ".\\som");
-#else
+			EXPECT_EQ(relativePath.toNativeString(buffer), 6);
 			EXPECT_STREQ(buffer.data(), "./som");
-#endif
 		}
 
 		// Copied result excludes null-terminator
 		{
 			std::array<char, 11> buffer;
-			EXPECT_EQ(relativePath.toString(buffer, nullptr, false), 11);
+			EXPECT_EQ(relativePath.toNativeString(buffer, nullptr, false), 11);
 
 			std::string strBuffer(buffer.begin(), buffer.end());
-#if PH_OPERATING_SYSTEM_IS_WINDOWS
-			EXPECT_STREQ(strBuffer.c_str(), ".\\some\\path");
-#else
 			EXPECT_STREQ(strBuffer.c_str(), "./some/path");
-#endif
 		}
 
 		// Copied result excludes null-terminator
 		{
 			std::array<char, 6> buffer;
-			EXPECT_EQ(relativePath.toString(buffer, nullptr, false), 6);
+			EXPECT_EQ(relativePath.toNativeString(buffer, nullptr, false), 6);
 
 			std::string strBuffer(buffer.begin(), buffer.end());
-#if PH_OPERATING_SYSTEM_IS_WINDOWS
-			EXPECT_STREQ(strBuffer.c_str(), ".\\some");
-#else
 			EXPECT_STREQ(strBuffer.c_str(), "./some");
-#endif
 		}
 	}
 
@@ -243,7 +247,7 @@ TEST(FileSystemPathTest, ToString)
 		{
 			std::array<char, 1> buffer;
 			std::size_t numTotalChars;
-			path.toString(buffer, &numTotalChars);
+			path.toNativeString(buffer, &numTotalChars);
 			EXPECT_EQ(numTotalChars, 16 + 1);
 		}
 		
@@ -251,7 +255,7 @@ TEST(FileSystemPathTest, ToString)
 		{
 			std::array<char, 1> buffer;
 			std::size_t numTotalChars;
-			path.toString(buffer, &numTotalChars, false);
+			path.toNativeString(buffer, &numTotalChars, false);
 			EXPECT_EQ(numTotalChars, 16);
 		}
 	}

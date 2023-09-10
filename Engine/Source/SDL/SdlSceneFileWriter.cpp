@@ -7,6 +7,7 @@
 #include "SDL/Introspect/SdlOutputContext.h"
 #include "SDL/Introspect/SdlClass.h"
 #include "DataIO/FileSystem/Path.h"
+#include "DataIO/FileSystem/Filesystem.h"
 #include "ph_cpp_core.h"
 #include "SDL/SceneDescription.h"
 #include "Utility/SemanticVersion.h"
@@ -91,7 +92,7 @@ void SdlSceneFileWriter::write(const SceneDescription& scene)
 	// TODO: currently will overwrite existing file; should provide options for whether to append
 
 	// Scene file must reside in the scene working directory as it may be accompanied with data files
-	getSceneWorkingDirectory().createDirectory();
+	Filesystem::createDirectories(getSceneWorkingDirectory());
 	Path sceneFile = getSceneWorkingDirectory().append(m_sceneName + ".p2");
 
 	PH_LOG(SdlSceneFileWriter, "generating scene file: {}", sceneFile);

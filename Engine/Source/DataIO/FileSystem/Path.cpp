@@ -8,14 +8,52 @@
 namespace ph
 {
 
+Path::Path()
+	: m_path()
+{}
+
+Path::Path(std::string path)
+	: m_path(std::move(path), std::filesystem::path::generic_format)
+{}
+
+Path::Path(std::string_view path)
+	: m_path(path, std::filesystem::path::generic_format)
+{}
+
+Path::Path(const char* path)
+	: m_path(path, std::filesystem::path::generic_format)
+{}
+
+Path::Path(std::filesystem::path path)
+	: Path(path.generic_string())
+{}
+
+Path Path::append(const Path& other) const
+{
+	Path newPath = this->removeTrailingSeparator();
+	newPath.m_path += '/';
+	newPath.m_path += other.removeLeadingSeparator().m_path;
+	return newPath;
+}
+
+Path Path::append(std::string_view pathStr) const
+{
+	return append(Path(pathStr));
+}
+
 Path Path::toAbsolute() const
 {
-	return Path(std_filesystem::absolute(m_path));
+	return Path(std::filesystem::absolute(m_path));
+}
+
+std::string Path::toString() const
+{
+	return m_path.generic_string();
 }
 
 std::string Path::toAbsoluteString() const
 {
-	return std_filesystem::absolute(m_path).string();
+	return std::filesystem::absolute(m_path).generic_string();
 }
 
 Path Path::operator / (const Path& other) const
@@ -31,6 +69,54 @@ Path Path::operator / (std::string_view pathStr) const
 bool Path::operator == (const Path& other) const
 {
 	return m_path == other.m_path;
+}
+
+Path Path::removeLeadingSeparator() const
+{
+	std::string pathStr = m_path.string();
+	while(!pathStr.empty())
+	{
+		//if(charToWchar(pathStr.front()) == m_path.preferred_separator)
+		if(pathStr.front() == '/')
+		{
+			pathStr.erase(0, 1);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return Path(pathStr);
+}
+
+Path Path::removeTrailingSeparator() const
+{
+	std::string pathStr = m_path.string();
+	while(!pathStr.empty())
+	{
+		//if(charToWchar(pathStr.back()) == m_path.preferred_separator)
+		if(pathStr.back() == '/')
+		{
+			pathStr.pop_back();
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return Path(pathStr);
+}
+
+std::string Path::getFilename() const
+{
+	return m_path.filename().generic_string();
+}
+
+std::string Path::getExtension() const
+{
+	return m_path.extension().generic_string();
 }
 
 Path Path::getLeadingElement() const
@@ -63,7 +149,7 @@ Path Path::getParent() const
 
 Path Path::replaceExtension(std::string_view replacement) const
 {
-	return Path(std_filesystem::path(m_path).replace_extension(replacement));
+	return Path(std::filesystem::path(m_path).replace_extension(replacement));
 }
 
 Path Path::removeExtension() const
@@ -71,7 +157,12 @@ Path Path::removeExtension() const
 	return replaceExtension("");
 }
 
-std::size_t Path::toString(
+std::string Path::toNativeString() const
+{
+	return m_path.string();
+}
+
+std::size_t Path::toNativeString(
 	TSpan<char> out_buffer,
 	std::size_t* const out_numTotalChars,
 	const bool isNullTerminated) const

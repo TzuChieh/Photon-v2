@@ -135,7 +135,7 @@ void ImguiEditorSettings::buildStartupCategoryContent(ImguiEditorUIProxy editorU
 		ImGui::InputText(
 			"Default Scene", 
 			m_stringDisplayBuffer.data(), 
-			settings.defaultSceneFile.toString(m_stringDisplayBuffer),
+			settings.defaultSceneFile.toNativeString(m_stringDisplayBuffer),
 			ImGuiInputTextFlags_ReadOnly);
 	}
 

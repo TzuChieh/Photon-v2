@@ -6,6 +6,7 @@
 
 #include <Common/logging.h>
 #include <DataIO/FileSystem/Path.h>
+#include <DataIO/FileSystem/Filesystem.h>
 #include <DataIO/Stream/FormattedTextInputStream.h>
 #include <DataIO/Stream/FormattedTextOutputStream.h>
 #include <SDL/sdl_exceptions.h>
@@ -99,7 +100,7 @@ void DesignerSceneMetaInfo::save(const Path& directory, std::string_view infoNam
 
 	try
 	{
-		directory.createDirectory();
+		Filesystem::createDirectories(directory);
 
 		FormattedTextOutputStream stream(file);
 		//stream.writeString(nlohmann::to_string(jsonObj));

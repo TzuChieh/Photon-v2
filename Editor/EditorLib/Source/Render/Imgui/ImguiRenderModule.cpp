@@ -18,6 +18,7 @@
 
 #include <ph_cpp_core.h>
 #include <DataIO/FileSystem/Path.h>
+#include <DataIO/FileSystem/Filesystem.h>
 
 #include <variant>
 #include <string_view>
@@ -83,7 +84,7 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 
 	// Make sure config directory exist so config file can be saved
 	const Path configDirectory = get_imgui_data_directory();
-	configDirectory.createDirectory();
+	Filesystem::createDirectories(configDirectory);
 	m_configFilePath = (configDirectory / "imgui.ini").toAbsoluteString();
 
 	initializeImgui(*info.editor);

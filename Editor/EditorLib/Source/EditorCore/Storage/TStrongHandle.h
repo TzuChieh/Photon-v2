@@ -10,6 +10,9 @@
 namespace ph::editor
 {
 
+/*! @brief Handle with strong reference semantics.
+Default constructor creates empty handle.
+*/
 template<typename ItemInterface, typename Index = std::size_t, typename Generation = Index>
 class TStrongHandle final
 {

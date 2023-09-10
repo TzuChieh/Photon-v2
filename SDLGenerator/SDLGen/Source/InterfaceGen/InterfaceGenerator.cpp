@@ -3,6 +3,7 @@
 #include "InterfaceGen/Python/PythonGenerator.h"
 
 #include <Common/assertion.h>
+#include <DataIO/FileSystem/Filesystem.h>
 
 #include <utility>
 
@@ -30,7 +31,7 @@ InterfaceGenerator::InterfaceGenerator(std::string generatorName, Path outputDir
 	m_generatorName  (std::move(generatorName)),
 	m_outputDirectory(std::move(outputDirectory))
 {
-	PH_ASSERT(m_outputDirectory.hasDirectory());
+	PH_ASSERT(Filesystem::hasDirectory(m_outputDirectory));
 }
 
 Path InterfaceGenerator::makeOutputFilePath(const std::string& fileSubPath) const
