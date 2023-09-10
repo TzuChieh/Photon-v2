@@ -4,8 +4,46 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <filesystem>
 
 using namespace ph;
+
+TEST(FileSystemPathTest, ToStringHasGenericForm)
+{
+	namespace fs = std::filesystem;
+
+	// Input path is already in generic form
+	{
+		Path path("hello/path");
+		EXPECT_STREQ(path.toString().c_str(), "hello/path");
+	}
+
+	// Take a STL path in generic form
+	{
+		Path path(fs::path("hello/path/again", fs::path::generic_format));
+		EXPECT_STREQ(path.toString().c_str(), "hello/path/again");
+	}
+
+	// Take a STL path in native form
+	{
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+		Path path(fs::path("some\\native\\path.tt", fs::path::native_format));
+#else
+		Path path(fs::path("some/native/path.tt", fs::path::native_format));
+#endif
+		EXPECT_STREQ(path.toString().c_str(), "some/native/path.tt");
+	}
+
+	// Take a STL path in auto (default) form
+	{
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+		Path path(fs::path("hello\\more\\path\\abc.def"));
+#else
+		Path path(fs::path("hello/more/path"));
+#endif
+		EXPECT_STREQ(path.toString().c_str(), "hello/more/path/abc.def");
+	}
+}
 
 TEST(FileSystemPathTest, PathOperation)
 {
