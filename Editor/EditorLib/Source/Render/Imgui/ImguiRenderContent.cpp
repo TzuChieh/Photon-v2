@@ -1,5 +1,5 @@
 #include "Render/Imgui/ImguiRenderContent.h"
-#include "Render/RenderThreadUpdateContext.h"
+#include "Render/UpdateContext.h"
 #include "EditorCore/Thread/Threads.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GraphicsContext.h"
@@ -12,16 +12,18 @@
 
 #include <algorithm>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
 ImguiRenderContent::ImguiRenderContent()
-	: CustomRenderContent(ERenderTiming::AfterMainScene)
+
+	: CustomContent(ERenderTiming::AfterMainScene)
+
 	, m_sharedRenderData()
 	, m_numAvailableRenderData(0)
 {}
 
-void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
+void ImguiRenderContent::update(const UpdateContext& ctx)
 {
 	// TODO: properly get current viewport size (is it necessary or imgui handles it?)
 }
@@ -158,4 +160,4 @@ void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData
 	}
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

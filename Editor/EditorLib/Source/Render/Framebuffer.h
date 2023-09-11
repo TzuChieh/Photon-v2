@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RendererResource.h"
+#include "Render/TextureResource.h"
 #include "RenderCore/GHIFramebuffer.h"
 
 #include <Math/TVector2.h>
@@ -9,14 +9,14 @@
 
 namespace ph { class PictureData; }
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-class RendererFramebuffer : public RendererResource
+class Framebuffer : public TextureResource
 {
 public:
-	explicit RendererFramebuffer(const GHIInfoFramebufferAttachment& attachments);
-	~RendererFramebuffer() override;
+	explicit Framebuffer(const GHIInfoFramebufferAttachment& attachments);
+	~Framebuffer() override;
 
 	const GHIInfoFramebufferAttachment& getAttachments() const;
 
@@ -32,19 +32,19 @@ private:
 	std::shared_ptr<GHIFramebuffer> m_ghiFramebuffer;
 };
 
-inline const GHIInfoFramebufferAttachment& RendererFramebuffer::getAttachments() const
+inline const GHIInfoFramebufferAttachment& Framebuffer::getAttachments() const
 {
 	return m_attachments;
 }
 
-inline GHIFramebuffer* RendererFramebuffer::getGHIFramebuffer() const
+inline GHIFramebuffer* Framebuffer::getGHIFramebuffer() const
 {
 	return m_ghiFramebuffer.get();
 }
 
-inline std::shared_ptr<GHIFramebuffer> RendererFramebuffer::getGHIFramebufferResource() const
+inline std::shared_ptr<GHIFramebuffer> Framebuffer::getGHIFramebufferResource() const
 {
 	return m_ghiFramebuffer;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

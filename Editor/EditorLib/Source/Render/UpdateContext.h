@@ -4,10 +4,10 @@
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-class RenderThreadUpdateContext final
+class UpdateContext final
 {
 public:
 	/*! @brief Current frame number on the render thread.
@@ -19,4 +19,4 @@ public:
 	uint32 frameCycleIndex = 0;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

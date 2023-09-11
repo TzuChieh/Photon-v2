@@ -1,4 +1,4 @@
-#include "Render/RendererDetailedTexture.h"
+#include "Render/DetailedTexture.h"
 #include "RenderCore/ghi_infos.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GraphicsContext.h"
@@ -8,19 +8,19 @@
 
 #include <utility>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-RendererDetailedTexture::RendererDetailedTexture(
-	std::unique_ptr<RendererTexture> resource)
+DetailedTexture::DetailedTexture(
+	std::unique_ptr<TextureResource> resource)
 
-	: RendererTexture()
+	: TextureResource()
 
 	, m_resource(std::move(resource))
 	, m_sharedNativeHandle()
 {}
 
-void RendererDetailedTexture::setupGHI(GHIThreadCaller& caller)
+void DetailedTexture::setupGHI(GHIThreadCaller& caller)
 {
 	if(m_resource)
 	{
@@ -42,7 +42,7 @@ void RendererDetailedTexture::setupGHI(GHIThreadCaller& caller)
 		});
 }
 
-void RendererDetailedTexture::cleanupGHI(GHIThreadCaller& caller)
+void DetailedTexture::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GraphicsContext& /* ctx */)
@@ -56,29 +56,29 @@ void RendererDetailedTexture::cleanupGHI(GHIThreadCaller& caller)
 	}
 }
 
-std::optional<GHITextureNativeHandle> RendererDetailedTexture::tryGetNativeHandle() const
+std::optional<GHITextureNativeHandle> DetailedTexture::tryGetNativeHandle() const
 {
 	return m_sharedNativeHandle.relaxedRead();
 }
 
-std::size_t RendererDetailedTexture::getWidthPx() const
+std::size_t DetailedTexture::getWidthPx() const
 {
 	return m_resource ? m_resource->getWidthPx() : 0;
 }
 
-std::size_t RendererDetailedTexture::getHeightPx() const
+std::size_t DetailedTexture::getHeightPx() const
 {
 	return m_resource ? m_resource->getHeightPx() : 0;
 }
 
-std::size_t RendererDetailedTexture::numLayers() const
+std::size_t DetailedTexture::numLayers() const
 {
 	return m_resource ? m_resource->numLayers() : 0;
 }
 
-GHITextureHandle RendererDetailedTexture::getGHITextureHandle() const
+GHITextureHandle DetailedTexture::getGHITextureHandle() const
 {
 	return m_resource ? m_resource->getGHITextureHandle() : GHITextureHandle{};
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

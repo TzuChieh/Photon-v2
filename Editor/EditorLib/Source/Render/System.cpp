@@ -45,7 +45,7 @@ System::System()
 		});
 	m_fileReadingThread.start();
 
-	m_mainScene = scenes.add(std::make_unique<RendererScene>(*this));
+	m_mainScene = scenes.add(std::make_unique<Scene>(*this));
 }
 
 System::~System() = default;

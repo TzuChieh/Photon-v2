@@ -1,20 +1,20 @@
 #pragma once
 
-#include "Render/RendererResource.h"
+#include "Render/SceneResource.h"
 
 #include <memory>
 
-namespace ph::editor
+namespace ph::editor { class GHIShaderProgram; }
+
+namespace ph::editor::render
 {
 
-class GHIShaderProgram;
-
-class RendererShader : public RendererResource
+class Shader : public SceneResource
 {
 public:
-	RendererShader();
+	Shader();
 
-	~RendererShader() override;
+	~Shader() override;
 
 	virtual GHIShaderProgram* getGHIShader() const = 0;
 	virtual std::shared_ptr<GHIShaderProgram> getGHIShaderResource() const = 0;
@@ -23,4 +23,4 @@ public:
 	void cleanupGHI(GHIThreadCaller& caller) override = 0;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

@@ -1,4 +1,4 @@
-#include "Render/RendererTexture2D.h"
+#include "Render/Texture2D.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GraphicsContext.h"
 #include "RenderCore/GraphicsObjectManager.h"
@@ -8,14 +8,14 @@
 
 #include <utility>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-RendererTexture2D::RendererTexture2D(
+Texture2D::Texture2D(
 	const GHIInfoTextureFormat& format,
 	std::unique_ptr<PictureData> textureData)
 
-	: RendererTexture()
+	: TextureResource()
 
 	, m_sizePx(0)
 	, m_format(format)
@@ -28,10 +28,10 @@ RendererTexture2D::RendererTexture2D(
 	}
 }
 
-RendererTexture2D::~RendererTexture2D()
+Texture2D::~Texture2D()
 {}
 
-void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
+void Texture2D::setupGHI(GHIThreadCaller& caller)
 {
 	if(!m_textureData)
 	{
@@ -56,7 +56,7 @@ void RendererTexture2D::setupGHI(GHIThreadCaller& caller)
 		});
 }
 
-void RendererTexture2D::cleanupGHI(GHIThreadCaller& caller)
+void Texture2D::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GraphicsContext& ctx)
@@ -68,4 +68,4 @@ void RendererTexture2D::cleanupGHI(GHIThreadCaller& caller)
 		});
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

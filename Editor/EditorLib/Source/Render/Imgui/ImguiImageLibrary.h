@@ -18,13 +18,13 @@
 
 namespace ph { class RegularPicture; }
 namespace ph { class Path; }
+namespace ph::editor::render { class DetailedTexture; }
 
 namespace ph::editor
 {
 
 class Editor;
 class RenderThreadCaller;
-class RendererDetailedTexture;
 
 /*! @brief Built-in images.
 */
@@ -91,7 +91,7 @@ private:
 		std::unique_ptr<RegularPicture> sourcePicture;
 
 		// TODO: remove
-		RendererDetailedTexture* resource = nullptr;
+		render::DetailedTexture* resource = nullptr;
 
 		ImageEntry();
 		~ImageEntry();

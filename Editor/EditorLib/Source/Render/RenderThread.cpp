@@ -1,5 +1,5 @@
 #include "Render/RenderThread.h"
-#include "Render/RenderThreadUpdateContext.h"
+#include "Render/UpdateContext.h"
 #include "EditorCore/Thread/Threads.h"
 #include "Render/System.h"
 #include "RenderCore/GHIThreadCaller.h"
@@ -80,7 +80,7 @@ void RenderThread::onBeginFrame()
 
 	const auto frameInfo = getFrameInfo();
 
-	RenderThreadUpdateContext updateCtx;
+	render::UpdateContext updateCtx;
 	updateCtx.frameNumber = frameInfo.frameNumber;
 	updateCtx.frameCycleIndex = frameInfo.frameCycleIndex;
 

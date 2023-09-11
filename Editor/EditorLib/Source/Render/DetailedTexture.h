@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RendererTexture.h"
+#include "Render/TextureResource.h"
 #include "RenderCore/ghi_fwd.h"
 
 #include <Utility/Concurrent/TRelaxedAtomic.h>
@@ -8,16 +8,16 @@
 #include <memory>
 #include <optional>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-class RendererDetailedTexture : public RendererTexture
+class DetailedTexture : public TextureResource
 {
 public:
-	using Base = RendererTexture;
+	using Base = TextureResource;
 
 public:
-	explicit RendererDetailedTexture(std::unique_ptr<RendererTexture> resource);
+	explicit DetailedTexture(std::unique_ptr<TextureResource> resource);
 
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
@@ -29,8 +29,8 @@ public:
 	std::optional<GHITextureNativeHandle> tryGetNativeHandle() const;
 
 private:
-	std::unique_ptr<RendererTexture> m_resource;
+	std::unique_ptr<TextureResource> m_resource;
 	TRelaxedAtomic<std::optional<GHITextureNativeHandle>> m_sharedNativeHandle;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

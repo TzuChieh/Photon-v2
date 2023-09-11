@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RendererTexture.h"
+#include "Render/TextureResource.h"
 #include "RenderCore/ghi_infos.h"
 
 #include <Math/TVector2.h>
@@ -10,17 +10,17 @@
 
 namespace ph { class PictureData; }
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-class RendererTexture2D : public RendererTexture
+class Texture2D : public TextureResource
 {
 public:
-	RendererTexture2D(
+	Texture2D(
 		const GHIInfoTextureFormat& format, 
 		std::unique_ptr<PictureData> textureData);
 
-	~RendererTexture2D() override;
+	~Texture2D() override;
 
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
@@ -38,24 +38,24 @@ private:
 	std::unique_ptr<PictureData> m_textureData;
 };
 
-inline std::size_t RendererTexture2D::getWidthPx() const
+inline std::size_t Texture2D::getWidthPx() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.x());
 }
 
-inline std::size_t RendererTexture2D::getHeightPx() const
+inline std::size_t Texture2D::getHeightPx() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.y());
 }
 
-inline GHITextureHandle RendererTexture2D::getGHITextureHandle() const
+inline GHITextureHandle Texture2D::getGHITextureHandle() const
 {
 	return m_textureHandle;
 }
 
-inline const GHIInfoTextureFormat& RendererTexture2D::getFormat() const
+inline const GHIInfoTextureFormat& Texture2D::getFormat() const
 {
 	return m_format;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

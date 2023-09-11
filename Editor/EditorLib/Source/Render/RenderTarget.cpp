@@ -1,21 +1,21 @@
-#include "Render/RendererRenderTarget.h"
-#include "Render/RendererFramebuffer.h"
+#include "Render/RenderTarget.h"
+#include "Render/Framebuffer.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GHITexture2D.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(RenderTarget, RendererResource);
+PH_DEFINE_INTERNAL_LOG_GROUP(RenderTarget, Render);
 
-RendererRenderTarget::RendererRenderTarget(
+RenderTarget::RenderTarget(
 	const GHIInfoTextureFormat& format,
 	const math::Vector2S& sizePx)
 
-	: RendererTexture()
+	: TextureResource()
 
 	, m_sizePx(lossless_integer_cast<uint32f>(sizePx.x()), lossless_integer_cast<uint32f>(sizePx.y()), 0)
 	, m_format(format)
@@ -27,12 +27,12 @@ RendererRenderTarget::RendererRenderTarget(
 	, m_framebufferResource(nullptr)
 {}
 	
-RendererRenderTarget::RendererRenderTarget(
-	RendererFramebuffer* const framebufferResource,
+RenderTarget::RenderTarget(
+	Framebuffer* const framebufferResource,
 	const uint32 attachmentIndex,
 	const bool isDepthStencilAttachment)
 
-	: RendererTexture()
+	: TextureResource()
 
 	, m_sizePx(0)
 	, m_format()
@@ -74,13 +74,13 @@ RendererRenderTarget::RendererRenderTarget(
 	}
 }
 
-RendererRenderTarget::~RendererRenderTarget()
+RenderTarget::~RenderTarget()
 {
 	// Must have been released by GHI thread
 	PH_ASSERT(!m_ghiFramebuffer);
 }
 
-void RendererRenderTarget::setupGHI(GHIThreadCaller& caller)
+void RenderTarget::setupGHI(GHIThreadCaller& caller)
 {
 	// Render target backed by existing framebuffer resource, copy the underlying GHI for our use
 	if(m_framebufferResource)
@@ -114,7 +114,7 @@ void RendererRenderTarget::setupGHI(GHIThreadCaller& caller)
 	}
 }
 
-void RendererRenderTarget::cleanupGHI(GHIThreadCaller& caller)
+void RenderTarget::cleanupGHI(GHIThreadCaller& caller)
 {
 	//caller.add(
 	//	[this](GraphicsContext& /* ctx */)
@@ -124,4 +124,4 @@ void RendererRenderTarget::cleanupGHI(GHIThreadCaller& caller)
 	//	});
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

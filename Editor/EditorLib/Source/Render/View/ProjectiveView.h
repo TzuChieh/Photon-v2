@@ -3,7 +3,7 @@
 #include <Math/TMatrix4.h>
 #include <Math/TVector3.h>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
 class ProjectiveView final
@@ -14,4 +14,4 @@ public:
 	math::Vector3R viewPosition = math::Vector3R(0, 0, 0);
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

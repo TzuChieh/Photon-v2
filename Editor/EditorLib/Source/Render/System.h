@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Render/RendererScene.h"
-#include "Render/RenderThreadUpdateContext.h"
+#include "Render/Scene.h"
+#include "Render/UpdateContext.h"
 
 #include <Common/assertion.h>
 #include <Utility/INoCopyAndMove.h>
@@ -20,13 +20,13 @@ class System final : private INoCopyAndMove
 public:
 	using FileReadingWork = std::function<void(void)>;
 
-	RenderThreadUpdateContext updateCtx;
-	TUniquePtrVector<RendererScene> scenes;
+	UpdateContext updateCtx;
+	TUniquePtrVector<Scene> scenes;
 
 	System();
 	~System();
 
-	RendererScene& getMainScene();
+	Scene& getMainScene();
 
 	void addFileReadingWork(FileReadingWork work);
 	void waitAllFileReadingWorks();
@@ -35,13 +35,13 @@ public:
 	GraphicsContext& getGraphicsContext();
 
 private:
-	RendererScene* m_mainScene;
+	Scene* m_mainScene;
 	GraphicsContext* m_graphicsCtx;
 
 	TSPSCExecutor<FileReadingWork> m_fileReadingThread;
 };
 
-inline RendererScene& System::getMainScene()
+inline Scene& System::getMainScene()
 {
 	PH_ASSERT(m_mainScene);
 	return *m_mainScene;

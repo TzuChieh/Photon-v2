@@ -1,20 +1,20 @@
 #pragma once
 
-#include "Render/RendererResource.h"
+#include "Render/SceneResource.h"
 #include "RenderCore/ghi_fwd.h"
 
 #include <memory>
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-class RendererTexture : public RendererResource
+class TextureResource : public SceneResource
 {
 public:
-	RendererTexture();
+	TextureResource();
 
-	~RendererTexture() override;
+	~TextureResource() override;
 
 	virtual std::size_t getWidthPx() const;
 	virtual std::size_t getHeightPx() const;
@@ -25,19 +25,19 @@ public:
 	void cleanupGHI(GHIThreadCaller& caller) override = 0;
 };
 
-inline std::size_t RendererTexture::getWidthPx() const
+inline std::size_t TextureResource::getWidthPx() const
 {
 	return 0;
 }
 
-inline std::size_t RendererTexture::getHeightPx() const
+inline std::size_t TextureResource::getHeightPx() const
 {
 	return 0;
 }
 
-inline std::size_t RendererTexture::numLayers() const
+inline std::size_t TextureResource::numLayers() const
 {
 	return 0;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

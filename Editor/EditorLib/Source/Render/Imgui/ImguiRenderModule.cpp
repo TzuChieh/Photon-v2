@@ -7,7 +7,7 @@
 #include "Render/Imgui/ImguiRenderContent.h"
 #include "Render/RenderThreadCaller.h"
 #include "Render/System.h"
-#include "Render/RendererScene.h"
+#include "Render/Scene.h"
 #include "Render/Imgui/imgui_common.h"
 //#include "Render/Imgui/Font/IconsMaterialDesign.h"
 #include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
@@ -128,7 +128,7 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 	// Copy draw data to a buffer shared with GHI thread
 	m_renderContent->getSharedRenderData().guardedProduce(
-		[mainThreadDrawData](ImguiRenderContent::ImguiRenderData& renderData)
+		[mainThreadDrawData](render::ImguiRenderContent::ImguiRenderData& renderData)
 		{
 			renderData.copyFrom(*mainThreadDrawData);
 		});
@@ -141,7 +141,7 @@ void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 	// Create and add the IMGUI render content to render thread
 
 	PH_ASSERT(!m_renderContent);
-	auto renderContent = std::make_unique<ImguiRenderContent>();
+	auto renderContent = std::make_unique<render::ImguiRenderContent>();
 	m_renderContent = renderContent.get();
 
 	caller.add(

@@ -13,11 +13,12 @@
 #include <array>
 #include <string>
 
+namespace ph::editor::render { class ImguiRenderContent; }
+
 namespace ph::editor
 {
 
 class Editor;
-class ImguiRenderContent;
 
 class ImguiRenderModule : public RenderModule
 {
@@ -41,7 +42,7 @@ private:
 	void setDisplayFramebufferSizePx(const math::Vector2S& sizePx);
 
 	GLFWwindow* m_glfwWindow;
-	ImguiRenderContent* m_renderContent;
+	render::ImguiRenderContent* m_renderContent;
 	std::string m_configFilePath;
 	math::TVector2<uint32> m_displayFramebufferSizePx;
 	bool m_isRenderContentAdded;

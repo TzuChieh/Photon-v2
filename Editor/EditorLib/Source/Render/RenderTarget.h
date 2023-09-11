@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RendererTexture.h"
+#include "Render/TextureResource.h"
 #include "RenderCore/GHIFramebuffer.h"
 #include "RenderCore/ghi_infos.h"
 
@@ -12,28 +12,28 @@
 
 namespace ph { class PictureData; }
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-class RendererFramebuffer;
+class Framebuffer;
 
-class RendererRenderTarget : public RendererTexture
+class RenderTarget : public TextureResource
 {
 public:
 	/*! @brief A texture render target with custom format.
 	*/
-	RendererRenderTarget(
+	RenderTarget(
 		const GHIInfoTextureFormat& format,
 		const math::Vector2S& sizePx);
 
 	/*! @brief A texture render target backed by a framebuffer.
 	*/
-	RendererRenderTarget(
-		RendererFramebuffer* framebufferResource,
+	RenderTarget(
+		Framebuffer* framebufferResource,
 		uint32 attachmentIndex,
 		bool isDepthStencilAttachment = false);
 
-	~RendererRenderTarget() override;
+	~RenderTarget() override;
 
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
@@ -55,42 +55,42 @@ private:
 
 	GHITextureHandle m_textureHandle;
 	std::shared_ptr<GHIFramebuffer> m_ghiFramebuffer;
-	RendererFramebuffer* m_framebufferResource;
+	Framebuffer* m_framebufferResource;
 };
 
-inline std::size_t RendererRenderTarget::getWidthPx() const
+inline std::size_t RenderTarget::getWidthPx() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.x());
 }
 
-inline std::size_t RendererRenderTarget::getHeightPx() const
+inline std::size_t RenderTarget::getHeightPx() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.y());
 }
 
-inline std::size_t RendererRenderTarget::numLayers() const
+inline std::size_t RenderTarget::numLayers() const
 {
 	return lossless_integer_cast<std::size_t>(m_sizePx.z());
 }
 
-inline const GHIInfoTextureFormat& RendererRenderTarget::getFormat() const
+inline const GHIInfoTextureFormat& RenderTarget::getFormat() const
 {
 	return m_format;
 }
 
-inline GHITextureHandle RendererRenderTarget::getGHITextureHandle() const
+inline GHITextureHandle RenderTarget::getGHITextureHandle() const
 {
 	return m_textureHandle;
 }
 
-inline GHIFramebuffer* RendererRenderTarget::getGHIFramebuffer() const
+inline GHIFramebuffer* RenderTarget::getGHIFramebuffer() const
 {
 	return m_ghiFramebuffer.get();
 }
 
-inline std::shared_ptr<GHIFramebuffer> RendererRenderTarget::getGHIFramebufferResource() const
+inline std::shared_ptr<GHIFramebuffer> RenderTarget::getGHIFramebufferResource() const
 {
 	return m_ghiFramebuffer;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

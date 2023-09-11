@@ -1,29 +1,29 @@
-#include "Render/RendererFramebuffer.h"
+#include "Render/Framebuffer.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GraphicsContext.h"
 #include "RenderCore/GHI.h"
 
 #include <utility>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-RendererFramebuffer::RendererFramebuffer(
+Framebuffer::Framebuffer(
 	const GHIInfoFramebufferAttachment& attachments)
 
-	: RendererResource()
+	: TextureResource()
 
 	, m_attachments(attachments)
 	, m_ghiFramebuffer(nullptr)
 {}
 
-RendererFramebuffer::~RendererFramebuffer()
+Framebuffer::~Framebuffer()
 {
 	// Must have been released by GHI thread
 	PH_ASSERT(!m_ghiFramebuffer);
 }
 
-void RendererFramebuffer::setupGHI(GHIThreadCaller& caller)
+void Framebuffer::setupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GraphicsContext& ctx)
@@ -36,7 +36,7 @@ void RendererFramebuffer::setupGHI(GHIThreadCaller& caller)
 		});
 }
 
-void RendererFramebuffer::cleanupGHI(GHIThreadCaller& caller)
+void Framebuffer::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
 		[this](GraphicsContext& /* ctx */)
@@ -50,4 +50,4 @@ void RendererFramebuffer::cleanupGHI(GHIThreadCaller& caller)
 		});
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render

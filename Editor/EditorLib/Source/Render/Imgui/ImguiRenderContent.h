@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/CustomRenderContent.h"
+#include "Render/CustomContent.h"
 #include "editor_lib_config.h"
 
 #include "ThirdParty/DearImGui.h"
@@ -11,10 +11,10 @@
 #include <cstddef>
 #include <vector>
 
-namespace ph::editor
+namespace ph::editor::render
 {
 
-class ImguiRenderContent : public CustomRenderContent
+class ImguiRenderContent : public CustomContent
 {
 public:
 	// All data required by IMGUI to render a frame.
@@ -43,7 +43,7 @@ public:
 public:
 	ImguiRenderContent();
 
-	void update(const RenderThreadUpdateContext& ctx) override;
+	void update(const UpdateContext& ctx) override;
 	void createGHICommands(GHIThreadCaller& caller) override;
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
@@ -75,4 +75,4 @@ private:
 	int m_numAvailableRenderData;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::render
