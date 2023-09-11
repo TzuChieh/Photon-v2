@@ -1,19 +1,39 @@
 #include "Render/RendererScene.h"
 #include "Render/RenderThreadUpdateContext.h"
+#include "Render/System.h"
+#include "RenderCore/GraphicsContext.h"
+#include "RenderCore/GraphicsObjectManager.h"
+#include "RenderCore/GraphicsMemoryManager.h"
+#include "RenderCore/Memory/GraphicsArena.h"
+#include "RenderCore/ghi_enums.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <DataIO/io_utils.h>
+#include <DataIO/FileSystem/Path.h>
+#include <Frame/RegularPicture.h>
 
 #include <utility>
+#include <algorithm>
 
 namespace ph::editor
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(RendererScene, Render);
 
-RendererScene::RendererScene() = default;
+RendererScene::RendererScene(render::System& sys)
+	: mainView()
 
-RendererScene::RendererScene(RendererScene&& other) = default;
+	, m_sys(sys)
+
+	, m_textures()
+
+	, m_resources()
+	, m_resourcesPendingSetup()
+	, m_resourcesPendingCleanup()
+	, m_resourcesPendingDestroy()
+	, m_customRenderContents()
+{}
 
 RendererScene::~RendererScene()
 {
@@ -42,6 +62,56 @@ RendererScene::~RendererScene()
 
 		reportResourceStates();
 	}
+}
+
+render::TextureHandle RendererScene::declareTexture()
+{
+	return m_textures.dispatchOneHandle();
+}
+
+void RendererScene::createTexture(render::TextureHandle handle, render::Texture texture)
+{
+	m_textures.createAt(handle, std::move(texture));
+}
+
+void RendererScene::removeTexture(render::TextureHandle handle)
+{
+	m_textures.remove(handle);
+}
+
+void RendererScene::loadPicture(render::TextureHandle handle, const Path& pictureFile)
+{
+	render::Texture* texture = m_textures.get(handle);
+	if(!texture)
+	{
+		PH_LOG_WARNING(RendererScene,
+			"Cannot load picture <{}> with invalid handle ({})",
+			pictureFile, handle.toString());
+		return;
+	}
+	
+	if(!texture->handle)
+	{
+		texture->handle = m_sys.getGraphicsContext().getObjectManager().createTexture(texture->desc);
+	}
+
+	m_sys.addFileReadingWork([
+		&gCtx = m_sys.getGraphicsContext(),
+		gHandle = texture->handle,
+		pictureFile]()
+		{
+			RegularPicture picture = io_utils::load_LDR_picture(pictureFile);
+			auto pictureBytes = picture.getPixels().getBytes();
+
+			GraphicsArena arena = gCtx.getMemoryManager().getRendererHostArena();
+			auto gBytes = arena.makeArray<std::byte>(pictureBytes.size());
+			std::copy_n(pictureBytes.data(), pictureBytes.size(), gBytes.data());
+
+			gCtx.getObjectManager().uploadPixelData(
+				gHandle,
+				gBytes,
+				translate_to<EGHIPixelComponent>(picture.getComponentType()));
+		});
 }
 
 void RendererScene::addResource(std::unique_ptr<RendererResource> resource)
@@ -168,7 +238,5 @@ void RendererScene::reportResourceStates()
 		m_resourcesPendingCleanup.size(),
 		m_resourcesPendingDestroy.size());
 }
-
-RendererScene& RendererScene::operator = (RendererScene&& rhs) = default;
 
 }// end namespace ph::editor

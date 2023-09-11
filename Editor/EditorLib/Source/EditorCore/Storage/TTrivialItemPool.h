@@ -120,8 +120,10 @@ public:
 
 	/*!
 	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
-	@return Handle of the added `item`.
+	@return Handle of the added `item`. Cannot be discarded as the pool does not track item validity,
+	hence lost handles cannot be recycled automatically.
 	*/
+	[[nodiscard]]
 	inline HandleType add(Item item)
 	{
 		return createAt(dispatchOneHandle(), std::move(item));
@@ -216,6 +218,7 @@ public:
 	/*!
 	Manual handle management API.
 	*/
+	[[nodiscard]]
 	inline HandleType dispatchOneHandle()
 	{
 		// Note: call the dispatcher without touching internal states, as this method may be called

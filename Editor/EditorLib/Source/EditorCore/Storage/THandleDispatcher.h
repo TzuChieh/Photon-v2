@@ -47,6 +47,7 @@ public:
 
 	/*! @brief Get one handle.
 	*/
+	[[nodiscard]]
 	inline Handle dispatchOne()
 	{
 		if(!m_handles.empty())

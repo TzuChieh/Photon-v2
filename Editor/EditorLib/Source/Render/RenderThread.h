@@ -2,14 +2,15 @@
 
 #include "EditorCore/Thread/TFrameWorkerThread.h"
 #include "editor_lib_config.h"
-#include "Render/RenderData.h"
 #include "RenderCore/GHIThread.h"
 
 #include <Common/primitive_type.h>
 #include <Utility/Timer.h>
 
-#include <optional>
+#include <memory>
 #include <atomic>
+
+namespace ph::editor::render { class System; }
 
 namespace ph::editor
 {
@@ -20,12 +21,12 @@ class GraphicsContext;
 class RenderThread : 
 	public TFrameWorkerThread<
 		config::NUM_RENDER_THREAD_BUFFERED_FRAMES, 
-		void(RenderData&)>
+		void(render::System&)>
 {
 public:
 	using Base = TFrameWorkerThread<
 		config::NUM_RENDER_THREAD_BUFFERED_FRAMES,
-		void(RenderData&)>;
+		void(render::System&)>;
 
 	RenderThread();
 	~RenderThread() override;
@@ -54,14 +55,19 @@ public:
 	std::thread::id getGHIWorkerThreadId() const;
 
 private:
-	void beginProcessFrame();
-	void endProcessFrame();
+	/*! @brief Called on render thread before the first submitted render work from main thread.
+	*/
+	void beforeFirstRenderWorkSubmission();
 
-	std::optional<RenderData> m_renderData;
-	GHIThread                 m_ghiThread;
-	GraphicsContext*          m_newGraphicsCtx;
-	Timer                     m_frameTimer;
-	std::atomic<float32>      m_frameTimeMs;
+	/*! @brief Called on render thread after the last submitted render work from main thread.
+	*/
+	void afterLastRenderWorkSubmission();
+
+	std::unique_ptr<render::System> m_system;
+	GHIThread                       m_ghiThread;
+	GraphicsContext*                m_newGraphicsCtx;
+	Timer                           m_frameTimer;
+	std::atomic<float32>            m_frameTimeMs;
 };
 
 inline float32 RenderThread::getFrameTimeMs() const

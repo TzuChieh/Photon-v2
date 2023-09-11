@@ -42,6 +42,7 @@ public:
 	/*! @brief Get one handle.
 	@note Thread-safe.
 	*/
+	[[nodiscard]]
 	inline Handle dispatchOne()
 	{
 		Handle handle;

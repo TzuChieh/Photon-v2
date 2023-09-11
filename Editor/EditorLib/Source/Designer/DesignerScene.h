@@ -29,6 +29,7 @@
 #include <array>
 
 namespace ph { class SdlClass; }
+namespace ph::editor::render { class System; }
 
 namespace ph::editor
 {
@@ -37,7 +38,6 @@ class Editor;
 class MainThreadUpdateContext;
 class MainThreadRenderUpdateContext;
 class RenderThreadCaller;
-class RenderData;
 
 PH_DECLARE_LOG_GROUP(DesignerScene);
 
@@ -47,7 +47,7 @@ class DesignerScene final
 {
 public:
 	// Work type should be kept in sync with `RenderThread::Work`
-	using RenderWorkType = TFunction<void(RenderData&)>;
+	using RenderWorkType = TFunction<void(render::System&)>;
 
 	static const char* defaultSceneName();
 

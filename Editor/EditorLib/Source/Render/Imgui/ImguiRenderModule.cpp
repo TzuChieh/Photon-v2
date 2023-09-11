@@ -6,7 +6,7 @@
 #include "Platform/PlatformDisplay.h"
 #include "Render/Imgui/ImguiRenderContent.h"
 #include "Render/RenderThreadCaller.h"
-#include "Render/RenderData.h"
+#include "Render/System.h"
 #include "Render/RendererScene.h"
 #include "Render/Imgui/imgui_common.h"
 //#include "Render/Imgui/Font/IconsMaterialDesign.h"
@@ -145,9 +145,9 @@ void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 	m_renderContent = renderContent.get();
 
 	caller.add(
-		[renderContent = std::move(renderContent)](RenderData& renderData) mutable
+		[renderContent = std::move(renderContent)](render::System& sys) mutable
 		{
-			renderData.getPersistentScene().addCustomRenderContent(std::move(renderContent));
+			sys.getMainScene().addCustomRenderContent(std::move(renderContent));
 		});
 }
 
@@ -157,7 +157,7 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 
 	// Need to notify render thread that there is new render data for GHI
 	caller.add(
-		[renderContent = m_renderContent](RenderData& renderData)
+		[renderContent = m_renderContent](render::System& sys)
 		{
 			renderContent->signifyNewRenderDataIsAvailable();
 		});
@@ -167,9 +167,9 @@ void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 {
 	PH_ASSERT(m_renderContent);
 	caller.add(
-		[renderContent = m_renderContent](RenderData& renderData) mutable
+		[renderContent = m_renderContent](render::System& sys) mutable
 		{
-			renderData.getPersistentScene().removeCustomRenderContent(renderContent);
+			sys.getMainScene().removeCustomRenderContent(renderContent);
 		});
 
 	m_imageLibrary.removeTextures(caller);

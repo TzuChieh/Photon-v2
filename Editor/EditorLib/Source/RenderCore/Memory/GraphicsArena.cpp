@@ -46,6 +46,10 @@ GraphicsMemoryBlock* GraphicsArena::allocNextBlock()
 		// recycled until next renderer frame.
 		newBlock = m_manager->allocHostBlock(1);
 		break;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		break;
 	}
 	
 	if(!newBlock)

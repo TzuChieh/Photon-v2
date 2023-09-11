@@ -3,7 +3,7 @@
 #include "Render/RenderThreadCaller.h"
 #include "Render/RendererTexture2D.h"
 #include "Render/RendererDetailedTexture.h"
-#include "Render/RenderData.h"
+#include "Render/System.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 //#include "Render/Imgui/Font/IconsMaterialDesign.h"
 #include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
@@ -147,9 +147,9 @@ void ImguiImageLibrary::createTextures(RenderThreadCaller& caller)
 		entry.sourcePicture = nullptr;
 
 		caller.add(
-			[textureResource = std::move(textureResource)](RenderData& renderData) mutable
+			[textureResource = std::move(textureResource)](render::System& sys) mutable
 			{
-				renderData.getPersistentScene().addResource(std::move(textureResource));
+				sys.getMainScene().addResource(std::move(textureResource));
 			});
 	}
 }
@@ -164,9 +164,9 @@ void ImguiImageLibrary::removeTextures(RenderThreadCaller& caller)
 		}
 
 		caller.add(
-			[textureResource = entry.resource](RenderData& renderData)
+			[textureResource = entry.resource](render::System& sys)
 			{
-				renderData.getPersistentScene().removeResource(textureResource);
+				sys.getMainScene().removeResource(textureResource);
 			});
 
 		entry.resource = nullptr;

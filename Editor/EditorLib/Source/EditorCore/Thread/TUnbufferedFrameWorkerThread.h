@@ -80,7 +80,6 @@ private:
 		std::monostate,
 		Work,
 		InternalWork>;
-	
 
 public:
 	/*!

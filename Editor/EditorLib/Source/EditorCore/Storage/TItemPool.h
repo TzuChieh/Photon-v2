@@ -273,6 +273,13 @@ public:
 		PH_ASSERT_LT(itemIdx, m_storageStates.size());
 		PH_ASSERT(isFresh(handle));
 
+		if(!m_storageStates[itemIdx].isFreed)
+		{
+			throw_formatted<IllegalOperationException>(
+				"attempting to create item at an occupied slot (handle: {})",
+				handle.toString());
+		}
+
 		createItemAtIndex(itemIdx, std::move(item));
 		return getHandleByIndex(itemIdx);
 	}
@@ -298,9 +305,14 @@ public:
 
 		// Generally should not happen: the generation counter increases on each item removal, using
 		// the same handle to call this method again will result in `isFresh()` being false which
-		// will throw. If this fails, could be generation collision, use after removal, or bad handles
-		// (from wrong pool).
-		PH_ASSERT(!m_storageStates[itemIdx].isFreed);
+		// will throw. If this fails, could be generation collision, use after removal, remove before
+		// creation, or bad handles (from wrong pool).
+		if(m_storageStates[itemIdx].isFreed)
+		{
+			throw_formatted<IllegalOperationException>(
+				"attempting to remove item at an emptied slot (handle: {})",
+				handle.toString());
+		}
 
 		removeItemAtIndex(itemIdx);
 		return getHandleByIndex(itemIdx);
@@ -309,6 +321,7 @@ public:
 	/*!
 	Manual handle management API.
 	*/
+	[[nodiscard]]
 	inline HandleType dispatchOneHandle()
 	{
 		// Note: call the dispatcher without touching internal states, as this method may be called
@@ -345,7 +358,7 @@ public:
 	}
 
 	/*! @brief Get item by handle.
-	It is an error to access items (with allocated storage space) before construction.
+	It is an error to access an item before it is constructed.
 	Complexity: O(1).
 	@return Pointer to the item. Null if item does not exist.
 	*/
@@ -365,7 +378,7 @@ public:
 	}
 
 	/*! @brief Get item by handle.
-	It is an error to access items (with allocated storage space) before construction.
+	It is an error to access an item before it is constructed.
 	Complexity: O(1).
 	@return Pointer to the item. Null if item does not exist.
 	*/

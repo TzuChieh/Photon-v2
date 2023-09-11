@@ -16,6 +16,8 @@
 #include <vector>
 #include <type_traits>
 
+namespace ph::editor::render { class System; }
+
 namespace ph::editor
 {
 
@@ -29,7 +31,7 @@ class DesignerObject : public AbstractDesignerObject
 {
 public:
 	// Work type should be kept in sync with `RenderThread::Work`
-	using RenderWorkType = TFunction<void(RenderData&)>;
+	using RenderWorkType = TFunction<void(render::System&)>;
 
 public:
 	~DesignerObject() override = 0;

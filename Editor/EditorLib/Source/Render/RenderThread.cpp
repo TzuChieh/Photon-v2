@@ -1,9 +1,11 @@
 #include "Render/RenderThread.h"
 #include "Render/RenderThreadUpdateContext.h"
+#include "EditorCore/Thread/Threads.h"
+#include "Render/System.h"
 #include "RenderCore/GHIThreadCaller.h"
 
-#include <Common/logging.h>
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <utility>
 
@@ -13,8 +15,10 @@ namespace ph::editor
 PH_DEFINE_INTERNAL_LOG_GROUP(RenderThread, Render);
 
 RenderThread::RenderThread()
+
 	: Base()
-	, m_renderData(std::nullopt)
+
+	, m_system(nullptr)
 	, m_ghiThread()
 	, m_newGraphicsCtx(nullptr)
 	, m_frameTimer()
@@ -26,16 +30,16 @@ RenderThread::~RenderThread()
 
 void RenderThread::onAsyncProcessWork(const Work& work)
 {
-	PH_ASSERT(m_renderData.has_value());
+	PH_ASSERT(m_system);
 
-	work(*m_renderData);
+	work(*m_system);
 }
 
 void RenderThread::onAsyncWorkerStart()
 {
 	PH_LOG(RenderThread, "thread started");
 
-	m_renderData = RenderData();
+	m_system = std::make_unique<render::System>();
 
 	// Must start here--render thread should be the parent thread of GHI thread
 	m_ghiThread.startWorker();
@@ -43,13 +47,13 @@ void RenderThread::onAsyncWorkerStart()
 
 void RenderThread::onAsyncWorkerStop()
 {
-	PH_ASSERT(m_renderData.has_value());
+	PH_ASSERT(m_system);
 
 	// Waits for all previous GHI works to finish
 	m_ghiThread.beginFrame();
 
 	// Destroy resources just like how we did in `onEndFrame()`
-	for(auto& scene : m_renderData->scenes)
+	for(auto& scene : m_system->scenes)
 	{
 		scene->destroyPendingResources();
 	}
@@ -59,7 +63,7 @@ void RenderThread::onAsyncWorkerStop()
 
 	m_ghiThread.waitForWorkerToStop();
 
-	m_renderData = std::nullopt;
+	m_system = nullptr;
 
 	PH_LOG(RenderThread, "thread stopped");
 }
@@ -67,7 +71,7 @@ void RenderThread::onAsyncWorkerStop()
 void RenderThread::onBeginFrame()
 {
 	addWork(
-		[this](RenderData& /* renderData */)
+		[this](render::System& /* sys */)
 		{
 			m_frameTimer.start();
 		});
@@ -81,41 +85,45 @@ void RenderThread::onBeginFrame()
 	updateCtx.frameCycleIndex = frameInfo.frameCycleIndex;
 
 	addWork(
-		[updateCtx](RenderData& renderData)
+		[updateCtx](render::System& sys)
 		{
-			renderData.updateCtx = updateCtx;
+			sys.updateCtx = updateCtx;
 		});
 
 	addWork(
-		[this](RenderData& /* renderData */)
+		[this](render::System& /* sys */)
 		{
-			beginProcessFrame();
+			beforeFirstRenderWorkSubmission();
 		});
-
-	// TODO
 }
 
 void RenderThread::onEndFrame()
 {
 	addWork(
-		[](RenderData& renderData)
+		[this](render::System& /* sys */)
 		{
-			for(auto& scene : renderData.scenes)
+			afterLastRenderWorkSubmission();
+		});
+
+	addWork(
+		[](render::System& sys)
+		{
+			for(auto& scene : sys.scenes)
 			{
-				scene->updateCustomRenderContents(renderData.updateCtx);
+				scene->updateCustomRenderContents(sys.updateCtx);
 			}
 		});
 
 	// GHI work submission
 	addWork(
-		[this](RenderData& renderData)
+		[this](render::System& sys)
 		{
 			// Placement of GHI begin frame is important--it waits for all previous GHI works to finish
 			m_ghiThread.beginFrame();
 
 			// Destory resources once we are sure the GHI thread is done accessing them
 			// (with memory effects on GHI thread made visible)
-			for(auto& scene : renderData.scenes)
+			for(auto& scene : sys.scenes)
 			{
 				scene->destroyPendingResources();
 			}
@@ -124,12 +132,14 @@ void RenderThread::onEndFrame()
 			if(m_newGraphicsCtx)
 			{
 				m_ghiThread.addContextSwitchWork(m_newGraphicsCtx);
+				sys.setGraphicsContext(m_newGraphicsCtx);
+
 				m_newGraphicsCtx = nullptr;
 			}
 
 			GHIThreadCaller caller(m_ghiThread);
 
-			for(auto& scene : renderData.scenes)
+			for(auto& scene : sys.scenes)
 			{
 				scene->setupGHIForPendingResources(caller);
 				scene->createGHICommandsForCustomRenderContents(caller);
@@ -140,13 +150,7 @@ void RenderThread::onEndFrame()
 		});
 
 	addWork(
-		[this](RenderData& /* renderData */)
-		{
-			endProcessFrame();
-		});
-
-	addWork(
-		[this](RenderData& /* renderData */)
+		[this](render::System& /* sys */)
 		{
 			m_frameTimer.stop();
 			m_frameTimeMs.store(m_frameTimer.getDeltaMs<float32>(), std::memory_order_relaxed);
@@ -156,20 +160,25 @@ void RenderThread::onEndFrame()
 void RenderThread::addGraphicsContextSwitchWork(GraphicsContext* const newCtx)
 {
 	addWork(
-		[this, newCtx](RenderData& /* renderData */)
+		[this, newCtx](render::System& /* sys */)
 		{
 			m_newGraphicsCtx = newCtx;
 		});
 }
 
-void RenderThread::beginProcessFrame()
+void RenderThread::beforeFirstRenderWorkSubmission()
 {
+	PH_ASSERT(Threads::isOnRenderThread());
+
+	
 	// TODO
 }
 
-void RenderThread::endProcessFrame()
+void RenderThread::afterLastRenderWorkSubmission()
 {
-	// TODO
+	PH_ASSERT(Threads::isOnRenderThread());
+
+	m_system->waitAllFileReadingWorks();
 }
 
 }// end namespace ph::editor
