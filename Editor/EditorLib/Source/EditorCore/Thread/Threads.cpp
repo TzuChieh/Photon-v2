@@ -8,7 +8,6 @@ namespace ph::editor
 
 std::thread::id Threads::mainThreadID;
 std::thread::id Threads::renderThreadID;
-std::thread::id Threads::ghiThreadID;
 RenderThread* Threads::renderThread = nullptr;
 
 void Threads::setMainThreadID(const std::thread::id threadID)
@@ -34,7 +33,6 @@ void Threads::setRenderThread(RenderThread* const thread)
 	}
 
 	renderThreadID = thread ? thread->getWorkerThreadId() : std::thread::id{};
-	ghiThreadID = thread ? thread->getGHIWorkerThreadId() : std::thread::id{};
 	renderThread = thread;
 }
 

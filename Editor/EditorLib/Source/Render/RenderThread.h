@@ -37,8 +37,6 @@ public:
 	void onBeginFrame() override;
 	void onEndFrame() override;
 
-	void addGraphicsContextSwitchWork(GraphicsContext* newCtx);
-
 	/*!
 	@note Thread-safe.
 	*/
@@ -54,18 +52,23 @@ public:
 	*/
 	std::thread::id getGHIWorkerThreadId() const;
 
+	/*! @brief Set a graphics context which is persistent throughout the worker thread's lifespan.
+	Must be set before the thread starts.
+	*/
+	void setGraphicsContext(GraphicsContext* graphicsCtx);
+
 private:
 	/*! @brief Called on render thread before the first submitted render work from main thread.
 	*/
-	void beforeFirstRenderWorkSubmission();
+	void beforeFirstRenderWorkInFrame();
 
 	/*! @brief Called on render thread after the last submitted render work from main thread.
 	*/
-	void afterLastRenderWorkSubmission();
+	void afterLastRenderWorkInFrame();
 
 	std::unique_ptr<render::System> m_system;
 	GHIThread                       m_ghiThread;
-	GraphicsContext*                m_newGraphicsCtx;
+	GraphicsContext*                m_graphicsCtx;
 	Timer                           m_frameTimer;
 	std::atomic<float32>            m_frameTimeMs;
 };

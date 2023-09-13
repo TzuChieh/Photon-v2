@@ -36,6 +36,7 @@ ImguiRenderModule::ImguiRenderModule()
 	: RenderModule()
 	, m_glfwWindow(nullptr)
 	, m_renderContent(nullptr)
+	, m_rendererScene(nullptr)
 	, m_configFilePath()
 	, m_displayFramebufferSizePx(0)
 	, m_isRenderContentAdded(false)
@@ -136,19 +137,34 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 {
-	m_imageLibrary.createTextures(caller);
+	// Create the renderer scene if not already present. Must be the first thing to do, so subsequent
+	// operations can access the renderer scene.
+	if(!m_rendererScene)
+	{
+		auto rendererScene = std::make_unique<render::Scene>("ImGui Scene");
+		m_rendererScene = rendererScene.get();
+
+		caller.add(
+			[scene = std::move(rendererScene)](render::System& sys) mutable
+			{
+				sys.addScene(std::move(scene));
+			});
+	}
+
+	m_imageLibrary.createTextures(caller, *m_rendererScene);
 
 	// Create and add the IMGUI render content to render thread
+	if(!m_renderContent)
+	{
+		auto renderContent = std::make_unique<render::ImguiRenderContent>();
+		m_renderContent = renderContent.get();
 
-	PH_ASSERT(!m_renderContent);
-	auto renderContent = std::make_unique<render::ImguiRenderContent>();
-	m_renderContent = renderContent.get();
-
-	caller.add(
-		[renderContent = std::move(renderContent)](render::System& sys) mutable
-		{
-			sys.getMainScene().addCustomRenderContent(std::move(renderContent));
-		});
+		caller.add(
+			[renderContent = std::move(renderContent), scene = m_rendererScene](render::System& sys) mutable
+			{
+				scene->addCustomRenderContent(std::move(renderContent));
+			});
+	}
 }
 
 void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
@@ -165,14 +181,29 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 
 void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 {
-	PH_ASSERT(m_renderContent);
-	caller.add(
-		[renderContent = m_renderContent](render::System& sys) mutable
-		{
-			sys.getMainScene().removeCustomRenderContent(renderContent);
-		});
+	if(m_renderContent)
+	{
+		PH_ASSERT(m_rendererScene);
+		caller.add(
+			[renderContent = m_renderContent, scene = m_rendererScene](render::System& sys) mutable
+			{
+				scene->removeCustomRenderContent(renderContent);
+			});
+	}
 
-	m_imageLibrary.removeTextures(caller);
+	m_imageLibrary.removeTextures(caller, *m_rendererScene);
+
+	// Remove the renderer scene in the end, after all other operations are done with it.
+	if(m_rendererScene)
+	{
+		caller.add(
+			[scene = m_rendererScene](render::System& sys)
+			{
+				sys.removeScene(scene);
+			});
+
+		m_rendererScene = nullptr;
+	}
 }
 
 void ImguiRenderModule::setDisplayFramebufferSizePx(const math::Vector2S& sizePx)

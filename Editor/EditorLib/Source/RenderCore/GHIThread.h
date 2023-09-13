@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <atomic>
+#include <thread>
 
 namespace ph::editor
 {
@@ -35,6 +36,11 @@ public:
 	*/
 	float32 getFrameTimeMs() const;
 
+	/*!
+	@note Thread-safe.
+	*/
+	bool isOnGHIThread() const;
+
 private:
 	void switchContext(GraphicsContext* newCtx);
 
@@ -48,6 +54,11 @@ private:
 inline float32 GHIThread::getFrameTimeMs() const
 {
 	return m_frameTimeMs.load(std::memory_order_relaxed);
+}
+
+inline bool GHIThread::isOnGHIThread() const
+{
+	return std::this_thread::get_id() == getWorkerThreadId();
 }
 
 }// end namespace ph::editor

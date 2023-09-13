@@ -14,6 +14,7 @@
 #include <string>
 
 namespace ph::editor::render { class ImguiRenderContent; }
+namespace ph::editor::render { class Scene; }
 
 namespace ph::editor
 {
@@ -43,6 +44,7 @@ private:
 
 	GLFWwindow* m_glfwWindow;
 	render::ImguiRenderContent* m_renderContent;
+	render::Scene* m_rendererScene;
 	std::string m_configFilePath;
 	math::TVector2<uint32> m_displayFramebufferSizePx;
 	bool m_isRenderContentAdded;

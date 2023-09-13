@@ -81,6 +81,8 @@ public:
 	template<typename DeducedWork>
 	void addWork(DeducedWork&& work);
 
+	// TODO: bulk work addition
+
 	/*! @brief Wait for all queued works to finish.
 	Memory effects on consumer thread are made visible to the producer thread.
 	@note Producer thread only.

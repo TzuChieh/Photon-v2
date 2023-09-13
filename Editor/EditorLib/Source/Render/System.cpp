@@ -1,10 +1,8 @@
 #include "Render/System.h"
 #include "editor_lib_config.h"
+#include "EditorCore/Thread/Threads.h"
 
 #include <Common/logging.h>
-
-#include <utility>
-#include <memory>
 
 namespace ph::editor::render
 {
@@ -29,26 +27,68 @@ inline void run_single_file_reading_work(const System::FileReadingWork& work)
 
 }// end anonymous namespace
 
-System::System()
+System::System(GraphicsContext& graphicsCtx)
 	: updateCtx()
-	, scenes()
 
-	, m_mainScene(nullptr)
-	, m_graphicsCtx(nullptr)
+	, m_graphicsCtx(graphicsCtx)
+
+	, m_sceneStorage()
+	, m_scenes()
+	, m_removedScenes()
+	, m_removedSceneStorage()
 
 	, m_fileReadingThread()
+	, m_queryManager()
 {
+	// This is a pure render thread resident that needs to live/die on render thread
+	PH_ASSERT(Threads::isOnRenderThread());
+
 	m_fileReadingThread.setWorkProcessor(
 		[](const FileReadingWork& work)
 		{
 			run_single_file_reading_work(work);
 		});
 	m_fileReadingThread.start();
-
-	m_mainScene = scenes.add(std::make_unique<Scene>(*this));
 }
 
-System::~System() = default;
+System::~System()
+{
+	// This is a pure render thread resident that needs to live/die on render thread
+	PH_ASSERT(Threads::isOnRenderThread());
+}
+
+void System::addScene(std::unique_ptr<Scene> scene)
+{
+	if(!scene)
+	{
+		PH_LOG_WARNING(System,
+			"Adding null scene, ignoring");
+		return;
+	}
+
+	scene->setSystem(this);
+	m_scenes.push_back(scene.get());
+	m_sceneStorage.add(std::move(scene));
+}
+
+void System::removeScene(Scene* scene)
+{
+	std::unique_ptr<Scene> removedScene = m_sceneStorage.remove(scene);
+	if(!removedScene)
+	{
+		PH_LOG_WARNING(System,
+			"Cannot find the scene to remove");
+		return;
+	}
+
+	std::erase(m_scenes, removedScene.get());
+
+	// TODO: cleanup scene
+
+	m_removedScenes.push_back(removedScene.get());
+	m_removedSceneStorage.push_back({
+		.scene = std::move(removedScene)});
+}
 
 void System::addFileReadingWork(FileReadingWork work)
 {
@@ -70,17 +110,15 @@ void System::waitAllFileReadingWorks()
 	}
 }
 
-void System::setGraphicsContext(GraphicsContext* ctx)
+void System::processQueries()
 {
-	if(m_graphicsCtx == ctx)
-	{
-		return;
-	}
+	m_queryManager.processQueries(*this);
+}
 
-	// Must wait all concurrent works to finish, they may be using the context
-	waitAllFileReadingWorks();
-
-	m_graphicsCtx = ctx;
+void System::clearRemovedScenes()
+{
+	m_removedScenes.clear();
+	m_removedSceneStorage.clear();
 }
 
 }// end namespace ph::editor::render

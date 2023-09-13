@@ -85,7 +85,7 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 	PH_ASSERT(math::is_power_of_2(alignmentInBytes));
 
 	// It is impossible to allocate memory larger than the fixed block size
-	if(numBytes > m_blockSizeInBytes) [[unlikely]]
+	if(numBytes > m_blockSizeInBytes)
 	{
 		throw std::bad_alloc();
 	}
@@ -113,7 +113,7 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 
 		// It is possible that the alignment requirement is impossible to met due to insufficient bytes
 		// remaining in the block
-		if(!alignedPtr) [[unlikely]]
+		if(!alignedPtr)
 		{
 			throw std::bad_alloc();
 		}
@@ -139,7 +139,7 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 
 void MemoryArena::clear()
 {
-	if(!m_blocks.empty()) [[likely]]
+	if(!m_blocks.empty())
 	{
 		// Call all destructors in reverse order
 		for(auto dtorCallerIt = m_dtorCallers.crbegin(); 

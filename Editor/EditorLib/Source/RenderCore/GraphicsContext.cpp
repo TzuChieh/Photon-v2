@@ -4,8 +4,6 @@
 #include "RenderCore/GraphicsMemoryManager.h"
 #include "EditorCore/Thread/Threads.h"
 
-#include <Common/assertion.h>
-
 #include <iterator>
 
 namespace ph::editor
@@ -15,7 +13,10 @@ GraphicsContext::~GraphicsContext() = default;
 
 void GraphicsContext::load()
 {
-	PH_ASSERT(Threads::isOnGHIThread());
+#if PH_DEBUG
+	m_ctxThreadId = std::this_thread::get_id();
+	PH_ASSERT(isOnContextThread());
+#endif
 
 	getGHI().load();
 
@@ -27,7 +28,10 @@ void GraphicsContext::load()
 
 void GraphicsContext::unload()
 {
-	PH_ASSERT(Threads::isOnGHIThread());
+#if PH_DEBUG
+	PH_ASSERT(isOnContextThread());
+	m_ctxThreadId = std::thread::id{};
+#endif
 
 	getObjectManager().onGHIUnload();
 
@@ -39,7 +43,7 @@ void GraphicsContext::unload()
 
 void GraphicsContext::beginFrameUpdate(const GHIThreadUpdateContext& updateCtx)
 {
-	PH_ASSERT(Threads::isOnGHIThread());
+	PH_ASSERT(isOnContextThread());
 
 	// Begin update before object manager
 	getMemoryManager().beginFrameUpdate(updateCtx);
@@ -49,7 +53,7 @@ void GraphicsContext::beginFrameUpdate(const GHIThreadUpdateContext& updateCtx)
 
 void GraphicsContext::endFrameUpdate(const GHIThreadUpdateContext& updateCtx)
 {
-	PH_ASSERT(Threads::isOnGHIThread());
+	PH_ASSERT(isOnContextThread());
 
 	// Processing queries on frame end, this will give some queries higher chance to finish
 	// within a single frame

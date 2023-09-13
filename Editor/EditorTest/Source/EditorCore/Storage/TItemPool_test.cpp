@@ -528,3 +528,30 @@ TEST(TItemPoolTest, StorageSpaceReuse)
 		EXPECT_EQ(pool.capacity(), oldCapacity);
 	}
 }
+
+TEST(TItemPoolTest, RecognizeUninitializedItem)
+{
+	// Trivial item (single one)
+	{
+		using Pool = TItemPool<int>;
+		using Handle = Pool::HandleType;
+
+		Pool pool;
+
+		// Manual handle management
+		Handle handle = pool.dispatchOneHandle();
+
+		// The item is not created yet, cannot access it
+		EXPECT_FALSE(pool.get(handle));
+
+		pool.createAt(handle, 123);
+
+		// Now should be accessible
+		ASSERT_TRUE(pool.get(handle));
+		EXPECT_EQ(*(pool.get(handle)), 123);
+
+		pool.remove(handle);
+
+		EXPECT_FALSE(pool.get(handle));
+	}
+}

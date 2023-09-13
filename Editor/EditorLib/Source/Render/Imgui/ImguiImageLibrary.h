@@ -19,6 +19,7 @@
 namespace ph { class RegularPicture; }
 namespace ph { class Path; }
 namespace ph::editor::render { class DetailedTexture; }
+namespace ph::editor::render { class Scene; }
 
 namespace ph::editor
 {
@@ -75,8 +76,8 @@ public:
 		const math::Vector4F& borderColorRGBA = math::Vector4F(0, 0, 0, 0));*/
 
 	void loadImageFile(EImguiImage targetImage, const Path& filePath);
-	void createTextures(RenderThreadCaller& caller);
-	void removeTextures(RenderThreadCaller& caller);
+	void createTextures(RenderThreadCaller& caller, render::Scene& scene);
+	void removeTextures(RenderThreadCaller& caller, render::Scene& scene);
 
 	Editor& getEditor();
 

@@ -89,7 +89,7 @@ void GHIThread::addContextSwitchWork(GraphicsContext* const newCtx)
 
 void GHIThread::switchContext(GraphicsContext* const newCtx)
 {
-	PH_ASSERT(Threads::isOnGHIThread());
+	PH_ASSERT(isOnGHIThread());
 
 	// Nothing to do if the contexts are the same
 	if(m_ctx == newCtx)

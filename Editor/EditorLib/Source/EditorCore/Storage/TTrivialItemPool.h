@@ -284,6 +284,10 @@ public:
 		return numItems() == 0;
 	}
 
+	/*!
+	@return Whether the handle is an up-to-date one for the underlying storage. Does not check for
+	item validity.
+	*/
 	inline bool isFresh(const HandleType& handle) const
 	{
 		return handle.getIndex() < m_generations.size() &&

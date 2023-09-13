@@ -39,7 +39,6 @@ GraphicsMemoryBlock* GraphicsArena::allocNextBlock()
 	case EType::RendererHost:
 		// Can only be requested on renderer producer threads.
 		PH_ASSERT(!Threads::isOnMainThread());
-		PH_ASSERT(!Threads::isOnGHIThread());
 
 		// For renderer producer threads: GHI frame may end before renderer frame but can never
 		// restart until next renderer frame. Live at least 1 GHI frame so the arena will not be

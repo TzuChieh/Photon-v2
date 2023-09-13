@@ -212,6 +212,22 @@ inline const Editor& DesignerScene::getEditor() const
 	return *m_editor;
 }
 
+inline render::Scene& DesignerScene::getRendererScene()
+{
+	PH_ASSERT_MSG(m_rendererScene,
+		"Please make sure you are calling from render command generating methods.");
+
+	return *m_rendererScene;
+}
+
+inline const render::Scene& DesignerScene::getRendererScene() const
+{
+	PH_ASSERT_MSG(m_rendererScene,
+		"Please make sure you are calling from render command generating methods.");
+
+	return *m_rendererScene;
+}
+
 inline DesignerObject* DesignerScene::getPrimarySelectedObject() const
 {
 	return m_selectedObjs.empty() ? nullptr : m_selectedObjs.front();

@@ -74,6 +74,8 @@ void Application::run()
 {
 	// Set before starting the thread to make its memory effect visible on render thread.
 	Threads::setRenderThread(&m_renderThread);
+
+	m_renderThread.setGraphicsContext(m_platform->getDisplay().getGraphicsContext());
 	m_renderThread.startWorker();
 
 	initialRenderThreadUpdate();
@@ -116,8 +118,6 @@ void Application::close()
 void Application::initialRenderThreadUpdate()
 {
 	m_renderThread.beginFrame();
-
-	m_renderThread.addGraphicsContextSwitchWork(m_platform->getDisplay().getGraphicsContext());
 
 	for(RenderModule* const renderModule : m_renderModules)
 	{

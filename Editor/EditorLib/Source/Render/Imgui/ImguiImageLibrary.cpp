@@ -125,7 +125,7 @@ void ImguiImageLibrary::loadImageFile(const EImguiImage targetImage, const Path&
 	entry.sourcePicture = std::make_unique<RegularPicture>(io_utils::load_LDR_picture(filePath));
 }
 
-void ImguiImageLibrary::createTextures(RenderThreadCaller& caller)
+void ImguiImageLibrary::createTextures(RenderThreadCaller& caller, render::Scene& scene)
 {
 	for(ImageEntry& entry : m_builtinEntries)
 	{
@@ -147,14 +147,14 @@ void ImguiImageLibrary::createTextures(RenderThreadCaller& caller)
 		entry.sourcePicture = nullptr;
 
 		caller.add(
-			[textureResource = std::move(textureResource)](render::System& sys) mutable
+			[textureResource = std::move(textureResource), &scene](render::System& /* sys */) mutable
 			{
-				sys.getMainScene().addResource(std::move(textureResource));
+				scene.addResource(std::move(textureResource));
 			});
 	}
 }
 
-void ImguiImageLibrary::removeTextures(RenderThreadCaller& caller)
+void ImguiImageLibrary::removeTextures(RenderThreadCaller& caller, render::Scene& scene)
 {
 	for(ImageEntry& entry : m_builtinEntries)
 	{
@@ -164,9 +164,9 @@ void ImguiImageLibrary::removeTextures(RenderThreadCaller& caller)
 		}
 
 		caller.add(
-			[textureResource = entry.resource](render::System& sys)
+			[textureResource = entry.resource, &scene](render::System& /* sys */)
 			{
-				sys.getMainScene().removeResource(textureResource);
+				scene.removeResource(textureResource);
 			});
 
 		entry.resource = nullptr;

@@ -23,11 +23,6 @@ public:
 	*/
 	static bool isOnRenderThread();
 
-	/*! @brief Whether current thread is the GHI thread.
-	@note Thread-safe in application main loop.
-	*/
-	static bool isOnGHIThread();
-
 	/*! @brief Get the rendering thread.
 	It is an error to call this method when the application is not running.
 	@note Thread-safe in application main loop.
@@ -43,7 +38,6 @@ private:
 
 	static std::thread::id mainThreadID;
 	static std::thread::id renderThreadID;
-	static std::thread::id ghiThreadID;
 	static RenderThread* renderThread;
 
 // Global 
@@ -66,16 +60,6 @@ inline bool Threads::isOnRenderThread()
 	PH_ASSERT(renderThreadID != std::thread::id{});
 
 	return std::this_thread::get_id() == renderThreadID;
-}
-
-inline bool Threads::isOnGHIThread()
-{
-	// May fail if called before the GHI thread has been properly initialized.
-	// This can happen if some routine is attempting to use GHI functionalities before
-	// the application starts running.
-	PH_ASSERT(ghiThreadID != std::thread::id{});
-
-	return std::this_thread::get_id() == ghiThreadID;
 }
 
 inline RenderThread& Threads::getRenderThread()

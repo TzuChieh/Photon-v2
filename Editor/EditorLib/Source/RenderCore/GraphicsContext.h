@@ -3,7 +3,13 @@
 #include "RenderCore/Query/query_basics.h"
 #include "EditorCore/Query/TConcurrentQueryManager.h"
 
+#include <Common/assertion.h>
+
 #include <utility>
+
+#if PH_DEBUG
+#include <thread>
+#endif
 
 namespace ph::editor
 {
@@ -42,6 +48,16 @@ public:
 
 private:
 	TConcurrentQueryManager<GraphicsContext> m_queryManager;
+
+#if PH_DEBUG
+private:
+	bool isOnContextThread() const
+	{
+		return std::this_thread::get_id() == m_ctxThreadId;
+	}
+
+	std::thread::id m_ctxThreadId;
+#endif
 };
 
 inline void GraphicsContext::addQuery(ghi::Query query)

@@ -120,8 +120,8 @@ private:
 	std::size_t newScene();
 
 	void loadDefaultScene();
-	void renderCleanupRemovingScenes(RenderThreadCaller& caller);
 	void cleanupRemovingScenes();
+	void renderCleanupRemovingScenes(RenderThreadCaller& caller);
 
 // Event System
 public:

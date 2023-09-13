@@ -3,6 +3,8 @@
 #include "Designer/DesignerObject.h"
 #include "EditorCore/Thread/Threads.h"
 #include "Render/RenderThreadCaller.h"
+#include "Render/Scene.h"
+#include "Render/System.h"
 
 #include <Utility/exception.h>
 #include <SDL/Introspect/SdlClass.h>
@@ -50,6 +52,7 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 	, m_numSceneActionsToProcess(0)
 
 	, m_editor(fromEditor)
+	, m_rendererScene(nullptr)
 	, m_renderDescription()
 	, m_mainCamera()
 	, m_isPaused(false)
@@ -129,6 +132,21 @@ void DesignerScene::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 {
+	// Create the renderer scene if not already present. Must be the first thing to do, so subsequent
+	// operations can access the renderer scene.
+	if(!m_rendererScene)
+	{
+		auto debugName = "DesignerScene " + m_name + " (initial name)";
+		auto rendererScene = std::make_unique<render::Scene>(debugName);
+		m_rendererScene = rendererScene.get();
+
+		caller.add(
+			[scene = std::move(rendererScene)](render::System& sys) mutable
+			{
+				sys.addScene(std::move(scene));
+			});
+	}
+
 	// Render tick objects
 	// (this should idealy be placed after `renderUpdate()` without any object state change in between,
 	// as many implementations expect `renderUpdate()` and `createRenderCommands()` are in pairs)
@@ -603,6 +621,18 @@ void DesignerScene::renderCleanup(RenderThreadCaller& caller)
 			obj->renderUninit(caller);
 			objState.turnOn({EObjectState::HasRenderUninitialized});
 		}
+	}
+
+	// Remove the renderer scene in the end, after all other operations are done with it.
+	if(m_rendererScene)
+	{
+		caller.add(
+			[scene = m_rendererScene](render::System& sys)
+			{
+				sys.removeScene(scene);
+			});
+
+		m_rendererScene = nullptr;
 	}
 }
 

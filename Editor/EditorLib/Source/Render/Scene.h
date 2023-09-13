@@ -8,11 +8,13 @@
 #include "EditorCore/Storage/TWeakHandle.h"
 #include "Render/Content/Texture.h"
 
+#include <Common/assertion.h>
 #include <Utility/TUniquePtrVector.h>
 #include <Utility/INoCopyAndMove.h>
 
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace ph { class Path; }
 namespace ph::editor { class GHIThreadCaller; }
@@ -28,7 +30,8 @@ class System;
 class Scene final : private INoCopyAndMove
 {
 public:
-	explicit Scene(System& sys);
+	Scene();
+	explicit Scene(std::string debugName);
 	~Scene();
 
 	/*!
@@ -38,6 +41,7 @@ public:
 	TextureHandle declareTexture();
 
 	void createTexture(TextureHandle handle, Texture texture);
+	Texture* getTexture(TextureHandle handle);
 	void removeTexture(TextureHandle handle);
 	void loadPicture(TextureHandle handle, const Path& pictureFile);
 
@@ -53,12 +57,16 @@ public:
 	void removeCustomRenderContent(CustomContent* content);
 
 	void reportResourceStates();
+	System& getSystem();
+
+	void setSystem(System* sys);
 
 public:
 	ProjectiveView mainView;
 
 private:
-	System& m_sys;
+	System* m_sys;
+	std::string m_debugName;
 
 	template<typename Content, CWeakHandle Handle>
 	using TContentPool = TItemPool<Content, TConcurrentHandleDispatcher<Handle>>;
@@ -71,5 +79,11 @@ private:
 	std::vector<SceneResource*> m_resourcesPendingDestroy;
 	std::vector<CustomContent*> m_customRenderContents;
 };
+
+inline System& Scene::getSystem()
+{
+	PH_ASSERT(m_sys);
+	return *m_sys;
+}
 
 }// end namespace ph::editor::render

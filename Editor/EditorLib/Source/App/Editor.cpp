@@ -145,6 +145,7 @@ void Editor::stop()
 		"{} scenes to be closed",
 		m_scenes.size());
 
+	// Remove all scenes from back to front
 	while(numScenes() != 0)
 	{
 		const auto sceneIdx = numScenes() - 1;
@@ -180,36 +181,44 @@ void Editor::loadDefaultScene()
 	//createScene();
 }
 
-void Editor::renderCleanupRemovingScenes(RenderThreadCaller& caller)
+void Editor::cleanupRemovingScenes()
 {
-	for(auto& removingScene : m_removingScenes)
+	auto removingScene = m_removingScenes.begin();
+	while(removingScene != m_removingScenes.end())
 	{
-		if(!removingScene.hasRenderCleanupDone)
+		// Perform cleanup
+		if(removingScene->hasRenderCleanupDone && !removingScene->hasCleanupDone)
 		{
-			PH_ASSERT(!removingScene.hasCleanupDone);
-			removingScene.scene->renderCleanup(caller);
-			removingScene.hasRenderCleanupDone = true;
+			removingScene->scene->cleanup();
+			removingScene->hasCleanupDone = true;
+		}
+
+		// Remove from removing list if fully cleaned up
+		if(removingScene->hasRenderCleanupDone && removingScene->hasCleanupDone)
+		{
+			removingScene = m_removingScenes.erase(removingScene);
+		}
+		else
+		{
+			++removingScene;
 		}
 	}
 }
 
-void Editor::cleanupRemovingScenes()
+void Editor::renderCleanupRemovingScenes(RenderThreadCaller& caller)
 {
-	for(auto& removingScene : m_removingScenes)
+	auto removingScene = m_removingScenes.begin();
+	while(removingScene != m_removingScenes.end())
 	{
-		if(removingScene.hasRenderCleanupDone && !removingScene.hasCleanupDone)
+		if(!removingScene->hasRenderCleanupDone)
 		{
-			removingScene.scene->cleanup();
-			removingScene.hasCleanupDone = true;
+			PH_ASSERT(!removingScene->hasCleanupDone);
+			removingScene->scene->renderCleanup(caller);
+			removingScene->hasRenderCleanupDone = true;
 		}
-	}
 
-	std::erase_if(
-		m_removingScenes,
-		[](const PendingRemovalScene& removingScene)
-		{
-			return removingScene.hasRenderCleanupDone && removingScene.hasCleanupDone;
-		});
+		++removingScene;
+	}
 }
 
 void Editor::renderCleanup(RenderThreadCaller& caller)

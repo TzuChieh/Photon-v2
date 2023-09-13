@@ -6,6 +6,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Utility/exception.h>
 
 #include <utility>
 
@@ -20,7 +21,7 @@ RenderThread::RenderThread()
 
 	, m_system(nullptr)
 	, m_ghiThread()
-	, m_newGraphicsCtx(nullptr)
+	, m_graphicsCtx(nullptr)
 	, m_frameTimer()
 	, m_frameTimeMs(0)
 {}
@@ -39,24 +40,57 @@ void RenderThread::onAsyncWorkerStart()
 {
 	PH_LOG(RenderThread, "thread started");
 
-	m_system = std::make_unique<render::System>();
+	if(!m_graphicsCtx)
+	{
+		throw IllegalOperationException(
+			"Render thread starting without valid graphics context.");
+	}
 
 	// Must start here--render thread should be the parent thread of GHI thread
 	m_ghiThread.startWorker();
+
+	m_ghiThread.beginFrame();
+
+	// Switch to our target graphics context. Render thread does not allow changing graphics context
+	// during frame updates later, so all graphics initialization work can be done here.
+	PH_ASSERT(m_graphicsCtx);
+	m_ghiThread.addContextSwitchWork(m_graphicsCtx);
+
+	// Make sure graphics initialization works are done
+	m_ghiThread.waitAllWorks();
+
+	m_ghiThread.endFrame();
+
+	// Initialize the rendering system after we got a functional graphics context
+	m_system = std::make_unique<render::System>(*m_graphicsCtx);
 }
 
 void RenderThread::onAsyncWorkerStop()
 {
 	PH_ASSERT(m_system);
 
-	// Waits for all previous GHI works to finish
+	// Remove all scenes (note that we are iterating while removing)
+	while(!m_system->getScenes().empty())
+	{
+		m_system->removeScene(m_system->getScenes().back());
+	}
+
+	// Wait for all previous GHI works to finish
 	m_ghiThread.beginFrame();
 
-	// Destroy resources just like how we did in `onEndFrame()`
-	for(auto& scene : m_system->scenes)
+	// Cleanup removed scenes just like how we did in `onEndFrame()`
 	{
-		scene->destroyPendingResources();
+		for(render::Scene* scene : m_system->getRemovedScenes())
+		{
+			GHIThreadCaller caller(m_ghiThread);
+			scene->cleanupGHIForPendingResources(caller);
+			scene->destroyPendingResources();
+		}
+
+		render::SystemController(*m_system).clearRemovedScenes();
 	}
+
+	// TODO: cleanup scene
 
 	m_ghiThread.requestWorkerStop();
 	m_ghiThread.endFrame();
@@ -93,7 +127,7 @@ void RenderThread::onBeginFrame()
 	addWork(
 		[this](render::System& /* sys */)
 		{
-			beforeFirstRenderWorkSubmission();
+			beforeFirstRenderWorkInFrame();
 		});
 }
 
@@ -102,13 +136,13 @@ void RenderThread::onEndFrame()
 	addWork(
 		[this](render::System& /* sys */)
 		{
-			afterLastRenderWorkSubmission();
+			afterLastRenderWorkInFrame();
 		});
 
 	addWork(
 		[](render::System& sys)
 		{
-			for(auto& scene : sys.scenes)
+			for(render::Scene* scene : sys.getScenes())
 			{
 				scene->updateCustomRenderContents(sys.updateCtx);
 			}
@@ -123,24 +157,28 @@ void RenderThread::onEndFrame()
 
 			// Destory resources once we are sure the GHI thread is done accessing them
 			// (with memory effects on GHI thread made visible)
-			for(auto& scene : sys.scenes)
 			{
-				scene->destroyPendingResources();
+				for(render::Scene* scene : sys.getScenes())
+				{
+					scene->destroyPendingResources();
+				}
 			}
 
-			// If non-null, a graphics context switch is pending
-			if(m_newGraphicsCtx)
+			// Cleanup removed scenes
 			{
-				m_ghiThread.addContextSwitchWork(m_newGraphicsCtx);
-				sys.setGraphicsContext(m_newGraphicsCtx);
+				for(render::Scene* scene : sys.getRemovedScenes())
+				{
+					GHIThreadCaller caller(m_ghiThread);
+					scene->cleanupGHIForPendingResources(caller);
+					scene->destroyPendingResources();
+				}
 
-				m_newGraphicsCtx = nullptr;
+				render::SystemController(sys).clearRemovedScenes();
 			}
 
-			GHIThreadCaller caller(m_ghiThread);
-
-			for(auto& scene : sys.scenes)
+			for(render::Scene* scene : sys.getScenes())
 			{
+				GHIThreadCaller caller(m_ghiThread);
 				scene->setupGHIForPendingResources(caller);
 				scene->createGHICommandsForCustomRenderContents(caller);
 				scene->cleanupGHIForPendingResources(caller);
@@ -157,28 +195,32 @@ void RenderThread::onEndFrame()
 		});
 }
 
-void RenderThread::addGraphicsContextSwitchWork(GraphicsContext* const newCtx)
-{
-	addWork(
-		[this, newCtx](render::System& /* sys */)
-		{
-			m_newGraphicsCtx = newCtx;
-		});
-}
-
-void RenderThread::beforeFirstRenderWorkSubmission()
+void RenderThread::beforeFirstRenderWorkInFrame()
 {
 	PH_ASSERT(Threads::isOnRenderThread());
 
-	
 	// TODO
 }
 
-void RenderThread::afterLastRenderWorkSubmission()
+void RenderThread::afterLastRenderWorkInFrame()
 {
 	PH_ASSERT(Threads::isOnRenderThread());
 
-	m_system->waitAllFileReadingWorks();
+	render::SystemController sys(*m_system);
+
+	sys.waitAllFileReadingWorks();
+	sys.processQueries();
+}
+
+void RenderThread::setGraphicsContext(GraphicsContext* graphicsCtx)
+{
+	if(!graphicsCtx || m_graphicsCtx)
+	{
+		throw IllegalOperationException(
+			"Attempting to reset graphics context. Context can only be set once.");
+	}
+
+	m_graphicsCtx = graphicsCtx;
 }
 
 }// end namespace ph::editor

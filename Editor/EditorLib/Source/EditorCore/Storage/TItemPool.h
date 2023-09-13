@@ -358,43 +358,29 @@ public:
 	}
 
 	/*! @brief Get item by handle.
-	It is an error to access an item before it is constructed.
 	Complexity: O(1).
-	@return Pointer to the item. Null if item does not exist.
+	@return Pointer to the item. Null if item does not exist. For a valid, dispatched handle with
+	uninitialized item (not yet created), null will also be returned.
 	*/
 	template<typename ItemType>
 	inline ItemType* get(const TCompatibleHandleType<ItemType>& handle)
 	{
-#if PH_DEBUG
-		if(isFresh(handle))
-		{
-			PH_ASSERT_MSG(!m_storageStates[handle.getIndex()].isFreed,
-				"Using item without initialization. "
-				"Please make sure item is constructed before calling `get()`.");
-		}
-#endif
-
-		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
+		return isFresh(handle) && !m_storageStates[handle.getIndex()].isFreed
+			? (m_storageMemory.get() + handle.getIndex())
+			: nullptr;
 	}
 
 	/*! @brief Get item by handle.
-	It is an error to access an item before it is constructed.
 	Complexity: O(1).
-	@return Pointer to the item. Null if item does not exist.
+	@return Pointer to the item. Null if item does not exist. For a valid, dispatched handle with
+	uninitialized item (not yet created), null will also be returned.
 	*/
 	template<typename ItemType>
 	inline const ItemType* get(const TCompatibleHandleType<ItemType>& handle) const
 	{
-#if PH_DEBUG
-		if(isFresh(handle))
-		{
-			PH_ASSERT_MSG(!m_storageStates[handle.getIndex()].isFreed,
-				"Using item without initialization. "
-				"Please make sure item is constructed before calling `get()`.");
-		}
-#endif
-
-		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
+		return isFresh(handle) && !m_storageStates[handle.getIndex()].isFreed
+			? (m_storageMemory.get() + handle.getIndex())
+			: nullptr;
 	}
 
 	template<typename ItemType>
@@ -441,6 +427,10 @@ public:
 		return numFreeSpace() > 0;
 	}
 
+	/*!
+	@return Whether the handle is an up-to-date one for the underlying storage. Does not check for
+	item validity.
+	*/
 	template<typename ItemType>
 	inline bool isFresh(const TCompatibleHandleType<ItemType>& handle) const
 	{

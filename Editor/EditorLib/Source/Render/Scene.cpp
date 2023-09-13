@@ -7,7 +7,6 @@
 #include "RenderCore/Memory/GraphicsArena.h"
 #include "RenderCore/ghi_enums.h"
 
-#include <Common/assertion.h>
 #include <Common/logging.h>
 #include <DataIO/io_utils.h>
 #include <DataIO/FileSystem/Path.h>
@@ -21,10 +20,15 @@ namespace ph::editor::render
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Scene, Render);
 
-Scene::Scene(System& sys)
+Scene::Scene()
+	: Scene("")
+{}
+
+Scene::Scene(std::string debugName)
 	: mainView()
 
-	, m_sys(sys)
+	, m_sys(nullptr)
+	, m_debugName(std::move(debugName))
 
 	, m_textures()
 
@@ -58,7 +62,8 @@ Scene::~Scene()
 	if(hasRemainedResources)
 	{
 		PH_LOG_WARNING(Scene,
-			"remained resources detected on scene destruction");
+			"remained resources detected on scene (name: {}) destruction",
+			m_debugName);
 
 		reportResourceStates();
 	}
@@ -74,8 +79,15 @@ void Scene::createTexture(TextureHandle handle, Texture texture)
 	m_textures.createAt(handle, std::move(texture));
 }
 
+Texture* Scene::getTexture(TextureHandle handle)
+{
+	return m_textures.get(handle);
+}
+
 void Scene::removeTexture(TextureHandle handle)
 {
+	// TODO: remove ghi handle
+
 	m_textures.remove(handle);
 }
 
@@ -92,11 +104,11 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 	
 	if(!texture->handle)
 	{
-		texture->handle = m_sys.getGraphicsContext().getObjectManager().createTexture(texture->desc);
+		texture->handle = getSystem().getGraphicsContext().getObjectManager().createTexture(texture->desc);
 	}
 
-	m_sys.addFileReadingWork([
-		&gCtx = m_sys.getGraphicsContext(),
+	getSystem().addFileReadingWork([
+		&gCtx = getSystem().getGraphicsContext(),
 		gHandle = texture->handle,
 		pictureFile]()
 		{
@@ -237,6 +249,12 @@ void Scene::reportResourceStates()
 		m_resourcesPendingSetup.size(),
 		m_resourcesPendingCleanup.size(),
 		m_resourcesPendingDestroy.size());
+}
+
+void Scene::setSystem(System* sys)
+{
+	PH_ASSERT(sys);
+	m_sys = sys;
 }
 
 }// end namespace ph::editor::render

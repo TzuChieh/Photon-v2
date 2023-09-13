@@ -292,6 +292,20 @@ public:
 		++m_numParentWorks;
 	}
 
+	/*! @brief Wait for all added works to finish.
+	Can only be called after the frame begins and before the frame ends, i.e., between calls to
+	`beginFrame()` and `endFrame()`. Additionally, calling from frame callbacks such as `onBeginFrame()`
+	and `onEndFrame()` is also allowed. Memory effects on worker thread are made visible to the parent thread.
+	@note Parent thread only.
+	*/
+	inline void waitAllWorks()
+	{
+		PH_ASSERT(isParentThread());
+		PH_ASSERT(m_isBetweenFrameBeginAndEnd);
+
+		m_thread.waitAllWorks();
+	}
+
 	/*! @brief Ask the worker thread to stop.
 	The worker thread will stop as soon as possible. Currently processing frame will still complete
 	before the worker stop. Can only be called between `beginFrame()` and `endFrame()`. Works can
