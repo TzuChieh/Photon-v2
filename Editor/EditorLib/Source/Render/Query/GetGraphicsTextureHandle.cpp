@@ -20,11 +20,11 @@ bool GetGraphicsTextureHandle::performQuery(System& sys)
 	Texture* texture = m_scene ? m_scene->getTexture(m_handle) : nullptr;
 	if(!texture)
 	{
-		return true;
+		return false;
 	}
 
 	m_gHandle = texture->handle;
-	return true;
+	return !m_gHandle.isEmpty();
 }
 
 }// end namespace ph::editor::render

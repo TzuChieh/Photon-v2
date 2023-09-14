@@ -7,8 +7,10 @@
 #include "Render/Imgui/ImguiFontLibrary.h"
 //#include "Render/Imgui/Font/IconsMaterialDesign.h"
 #include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
+#include "RenderCore/GraphicsContext.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 #include <Frame/RegularPicture.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/io_utils.h>
@@ -20,14 +22,12 @@ namespace ph::editor
 
 ImguiImageLibrary::ImguiImageLibrary()
 	: m_editor(nullptr)
+	, m_loaders()
+	, m_namedEntries()
 	, m_builtinEntries()
 {}
 
 ImguiImageLibrary::~ImguiImageLibrary() = default;
-
-ImguiImageLibrary::ImageEntry::ImageEntry() = default;
-
-ImguiImageLibrary::ImageEntry::~ImageEntry() = default;
 
 void ImguiImageLibrary::initialize(Editor* editor)
 {
@@ -44,8 +44,8 @@ void ImguiImageLibrary::imguiImage(
 	const math::Vector4F& tintColorRGBA,
 	const math::Vector4F& borderColorRGBA) const
 {
-	const auto optImTextureID = get(targetImage);
-	if(!optImTextureID.has_value())
+	auto textureID = get(targetImage);
+	if(!textureID)
 	{
 		// Draw a top-filled hourglass to indicate the image is unavailable for now
 		ImGui::Text(ICON_MDI_TIMER_SAND);
@@ -53,7 +53,7 @@ void ImguiImageLibrary::imguiImage(
 	}
 
 	ImGui::Image(
-		*optImTextureID,
+		textureID,
 		ImVec2(sizePx.x(), sizePx.y()),
 		ImVec2(0, 1),// `uv0` is at upper-left corner
 		ImVec2(1, 0),// `uv1` is at lower-right corner
@@ -68,8 +68,8 @@ bool ImguiImageLibrary::imguiImageButton(
 	const math::Vector4F& backgroundColorRGBA,
 	const math::Vector4F& tintColorRGBA)
 {
-	const auto optImTextureID = get(targetImage);
-	if(!optImTextureID.has_value())
+	auto textureID = get(targetImage);
+	if(!textureID)
 	{
 		// Add a top-filled hourglass button to indicate the image is unavailable for now
 		return ImGui::Button(ICON_MDI_TIMER_SAND);
@@ -77,7 +77,7 @@ bool ImguiImageLibrary::imguiImageButton(
 
 	return ImGui::ImageButton(
 		strId,
-		*optImTextureID,
+		textureID,
 		ImVec2(sizePx.x(), sizePx.y()),
 		ImVec2(0, 1),// `uv0` is at upper-left corner
 		ImVec2(1, 0),// `uv1` is at lower-right corner
@@ -85,23 +85,139 @@ bool ImguiImageLibrary::imguiImageButton(
 		ImVec4(tintColorRGBA.r(), tintColorRGBA.g(), tintColorRGBA.b(), tintColorRGBA.a()));
 }
 
-std::optional<ImTextureID> ImguiImageLibrary::get(const EImguiImage targetImage) const
+void ImguiImageLibrary::loadImage(EImguiImage targetImage, const Path& filePath)
 {
-	const ImageEntry& entry = getImageEntry(targetImage);
+	PH_ASSERT(!filePath.isEmpty());
 
-	// Load the handle if it is not already cached locally
-	if(std::holds_alternative<std::monostate>(entry.nativeHandle) && entry.resource)
+	m_loaders.push_back({
+		.entryIdx = static_cast<int>(targetImage),
+		.fileToLoad = filePath});
+}
+
+void ImguiImageLibrary::loadImage(const std::string& imageName, const Path& filePath)
+{
+	PH_ASSERT(!filePath.isEmpty());
+
+	m_loaders.push_back({
+		.entryName = imageName,
+		.fileToLoad = filePath});
+}
+
+void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render::Scene& scene)
+{
+	for(Loader& loader : m_loaders)
 	{
-		auto optNativeHandle = entry.resource->tryGetNativeHandle();
-		if(optNativeHandle.has_value())
+		if(!loader.fileToLoad.isEmpty())
 		{
-			entry.nativeHandle = *optNativeHandle;
+			math::Vector2S sizePx;
+			if(!io_utils::load_picture_meta(loader.fileToLoad, &sizePx))
+			{
+				PH_LOG_WARNING(DearImGui,
+					"Cannot load image <{}> for size info. Please make sure the file exists.",
+					loader.fileToLoad);
+				loader.isFinished = true;
+				continue;
+			}
+
+			GHIInfoTextureDesc desc;
+			desc.setSize2D(math::Vector2UI(sizePx));
+			desc.format.pixelFormat = EGHISizedPixelFormat::RGB_8;
+
+			render::TextureHandle handle = scene.declareTexture();
+			if(!loader.entryName.empty())
+			{
+				m_namedEntries[loader.entryName].handle = handle;
+			}
+			else
+			{
+				m_builtinEntries[loader.entryIdx].handle = handle;
+			}
+
+			caller.add(
+				[fileToLoad = loader.fileToLoad, handle, desc, &scene](render::System& /* sys */)
+				{
+					scene.createTexture(handle, render::Texture{.desc = desc});
+					scene.loadPicture(handle, fileToLoad);
+				});
+
+			loader.fileToLoad.clear();
+
+			PH_ASSERT(loader.gHandleQuery.isEmpty());
+			loader.gHandleQuery = render::Query::autoRetry<render::GetGraphicsTextureHandle>(
+				handle, &scene);
+
+			caller.add(
+				[query = loader.gHandleQuery](render::System& sys)
+				{
+					sys.addQuery(query);
+				});
+		}
+
+		if(!loader.gHandleQuery.isEmpty() && loader.gHandleQuery->isReady())
+		{
+			PH_ASSERT(loader.nHandleQuery.isEmpty());
+			loader.nHandleQuery = ghi::Query::autoRetry<ghi::GetTextureNativeHandle>(
+				loader.gHandleQuery->getGraphicsTextureHandle());
+
+			caller.add(
+				[query = loader.nHandleQuery](render::System& sys)
+				{
+					sys.getGraphicsContext().addQuery(query);
+				});
+
+			loader.gHandleQuery.clear();
+		}
+
+		if(!loader.nHandleQuery.isEmpty() && loader.nHandleQuery->isReady())
+		{
+			GHITextureNativeHandle nativeHandle = loader.nHandleQuery->getNativeHandle();
+			ImTextureID textureID = getTextureIDFromNativeHandle(nativeHandle);
+			if(!loader.entryName.empty())
+			{
+				m_namedEntries[loader.entryName].textureID = textureID;
+			}
+			else
+			{
+				m_builtinEntries[loader.entryIdx].textureID = textureID;
+			}
+
+			loader.nHandleQuery.clear();
+			loader.isFinished = true;
 		}
 	}
 
-	if(std::holds_alternative<uint64>(entry.nativeHandle))
+	// Remove all finished loaders
+	std::erase_if(m_loaders,
+		[](const Loader& loader)
+		{
+			return loader.isFinished;
+		});
+}
+
+void ImguiImageLibrary::cleanupTextures(RenderThreadCaller& caller, render::Scene& scene)
+{
+	// TODO: loader
+
+	for(Entry& entry : m_builtinEntries)
 	{
-		const uint64 handle = std::get<uint64>(entry.nativeHandle);
+		if(!entry.handle)
+		{
+			continue;
+		}
+
+		caller.add(
+			[handle = entry.handle, &scene](render::System& /* sys */)
+			{
+				scene.removeTexture(handle);
+			});
+	}
+}
+
+ImTextureID ImguiImageLibrary::getTextureIDFromNativeHandle(GHITextureNativeHandle nativeHandle)
+{
+	if(std::holds_alternative<uint64>(nativeHandle))
+	{
+		const uint64 handle = std::get<uint64>(nativeHandle);
 
 		static_assert(sizeof(ImTextureID) == sizeof(uint64));
 
@@ -115,76 +231,8 @@ std::optional<ImTextureID> ImguiImageLibrary::get(const EImguiImage targetImage)
 	}
 	else
 	{
-		return std::nullopt;
+		return nullptr;
 	}
-}
-
-void ImguiImageLibrary::loadImageFile(const EImguiImage targetImage, const Path& filePath)
-{
-	ImageEntry& entry = getImageEntry(targetImage);
-	entry.sourcePicture = std::make_unique<RegularPicture>(io_utils::load_LDR_picture(filePath));
-}
-
-void ImguiImageLibrary::createTextures(RenderThreadCaller& caller, render::Scene& scene)
-{
-	for(ImageEntry& entry : m_builtinEntries)
-	{
-		if(!entry.sourcePicture)
-		{
-			continue;
-		}
-
-		GHIInfoTextureFormat textureFormat;
-		textureFormat.pixelFormat = EGHIPixelFormat::RGBA_8;
-
-		auto textureData = std::make_unique<PictureData>(
-			std::move(entry.sourcePicture->getPixels()));
-
-		auto textureResource = std::make_unique<render::DetailedTexture>(
-			std::make_unique<render::Texture2D>(textureFormat, std::move(textureData)));
-
-		entry.resource = textureResource.get();
-		entry.sourcePicture = nullptr;
-
-		caller.add(
-			[textureResource = std::move(textureResource), &scene](render::System& /* sys */) mutable
-			{
-				scene.addResource(std::move(textureResource));
-			});
-	}
-}
-
-void ImguiImageLibrary::removeTextures(RenderThreadCaller& caller, render::Scene& scene)
-{
-	for(ImageEntry& entry : m_builtinEntries)
-	{
-		if(!entry.resource)
-		{
-			continue;
-		}
-
-		caller.add(
-			[textureResource = entry.resource, &scene](render::System& /* sys */)
-			{
-				scene.removeResource(textureResource);
-			});
-
-		entry.resource = nullptr;
-	}
-}
-
-auto ImguiImageLibrary::getImageEntry(const EImguiImage targetImage)
--> ImageEntry&
-{
-	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_builtinEntries.size());
-	return m_builtinEntries[static_cast<std::size_t>(targetImage)];
-}
-
-auto ImguiImageLibrary::getImageEntry(const EImguiImage targetImage) const
--> const ImageEntry&
-{
-	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_builtinEntries.size());
-	return m_builtinEntries[static_cast<std::size_t>(targetImage)];
 }
 
 }// end namespace ph::editor

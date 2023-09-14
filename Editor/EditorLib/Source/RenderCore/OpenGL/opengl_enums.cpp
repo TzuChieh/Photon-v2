@@ -5,23 +5,38 @@
 namespace ph::editor::opengl
 {
 
-GLenum to_internal_format(const EGHIPixelFormat format)
+GLenum to_internal_format(EGHISizedPixelFormat sizedFormat)
 {
-	switch(format)
+	switch(sizedFormat)
 	{
-	case EGHIPixelFormat::Empty: return GL_NONE;
-	case EGHIPixelFormat::RGB_8: return GL_RGB8;
-	case EGHIPixelFormat::RGBA_8: return GL_RGBA8;
-	case EGHIPixelFormat::RGB_16F: return GL_RGB16F;
-	case EGHIPixelFormat::RGBA_16F: return GL_RGBA16F;
-	case EGHIPixelFormat::RGB_32F: return GL_RGB32F;
-	case EGHIPixelFormat::RGBA_32F: return GL_RGBA32F;
-	case EGHIPixelFormat::Depth_24_Stencil_8: return GL_DEPTH24_STENCIL8;
+	case EGHISizedPixelFormat::Empty: return GL_NONE;
+	case EGHISizedPixelFormat::RGB_8: return GL_RGB8;
+	case EGHISizedPixelFormat::RGBA_8: return GL_RGBA8;
+	case EGHISizedPixelFormat::RGB_16F: return GL_RGB16F;
+	case EGHISizedPixelFormat::RGBA_16F: return GL_RGBA16F;
+	case EGHISizedPixelFormat::RGB_32F: return GL_RGB32F;
+	case EGHISizedPixelFormat::RGBA_32F: return GL_RGBA32F;
+	case EGHISizedPixelFormat::Depth_24_Stencil_8: return GL_DEPTH24_STENCIL8;
 	default: PH_ASSERT_UNREACHABLE_SECTION(); return GL_NONE;
 	}
 }
 
-GLenum to_color_attachment(const uint32 slotIndex)
+GLenum to_internal_format(EGHIPixelFormat unsizedFormat)
+{
+	switch(unsizedFormat)
+	{
+	case EGHIPixelFormat::Empty: return GL_NONE;
+	case EGHIPixelFormat::R: return GL_RED;
+	case EGHIPixelFormat::RG: return GL_RG;
+	case EGHIPixelFormat::RGB: return GL_RGB;
+	case EGHIPixelFormat::RGBA: return GL_RGBA;
+	case EGHIPixelFormat::Depth: return GL_DEPTH_COMPONENT;
+	case EGHIPixelFormat::Stencil: return GL_STENCIL_INDEX;
+	default: PH_ASSERT_UNREACHABLE_SECTION(); return GL_NONE;
+	}
+}
+
+GLenum to_color_attachment(uint32 slotIndex)
 {
 	switch(slotIndex)
 	{
@@ -38,7 +53,7 @@ GLenum to_color_attachment(const uint32 slotIndex)
 	}
 }
 
-GLenum to_base_format(const GLenum internalFormat)
+GLenum to_base_format(GLenum internalFormat)
 {
 	// See the explanation on the `format` argument:
 	// https://registry.khronos.org/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
@@ -78,7 +93,7 @@ GLenum to_base_format(const GLenum internalFormat)
 	}
 }
 
-uint32 num_pixel_components(const GLenum internalFormat)
+uint32 num_pixel_components(GLenum internalFormat)
 {
 	switch(internalFormat)
 	{
@@ -115,7 +130,7 @@ uint32 num_pixel_components(const GLenum internalFormat)
 	}
 }
 
-bool is_color_format(const GLenum internalFormat)
+bool is_color_format(GLenum internalFormat)
 {
 	switch(internalFormat)
 	{
@@ -144,7 +159,7 @@ bool is_color_format(const GLenum internalFormat)
 	}
 }
 
-GLenum translate(const EGHIPixelComponent componentType)
+GLenum translate(EGHIPixelComponent componentType)
 {
 	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
 
@@ -186,7 +201,7 @@ GLenum translate(const EGHIPixelComponent componentType)
 	}
 }
 
-GLenum translate(const EGHIStorageElement elementType)
+GLenum translate(EGHIStorageElement elementType)
 {
 	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
 
@@ -228,7 +243,7 @@ GLenum translate(const EGHIStorageElement elementType)
 	}
 }
 
-GLenum translate(const EGHIMeshDrawMode drawMode)
+GLenum translate(EGHIMeshDrawMode drawMode)
 {
 	switch(drawMode)
 	{
@@ -259,7 +274,7 @@ GLenum translate(const EGHIMeshDrawMode drawMode)
 	}
 }
 
-GLenum translate(const EGHIShadingStage shadingStage)
+GLenum translate(EGHIShadingStage shadingStage)
 {
 	switch(shadingStage)
 	{
@@ -278,7 +293,7 @@ GLenum translate(const EGHIShadingStage shadingStage)
 	}
 }
 
-GLenum translate(const EGHIFilterMode filterMode)
+GLenum translate(EGHIFilterMode filterMode)
 {
 	switch(filterMode)
 	{
@@ -294,7 +309,7 @@ GLenum translate(const EGHIFilterMode filterMode)
 	}
 }
 
-GLenum translate(const EGHIWrapMode wrapMode)
+GLenum translate(EGHIWrapMode wrapMode)
 {
 	switch(wrapMode)
 	{

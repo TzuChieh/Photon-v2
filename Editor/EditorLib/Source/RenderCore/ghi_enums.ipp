@@ -9,23 +9,23 @@
 namespace ph::editor
 {
 
-inline std::size_t num_bytes(const EGHIPixelFormat format)
+inline std::size_t num_bytes(EGHISizedPixelFormat sizedFormat)
 {
-	switch(format)
+	switch(sizedFormat)
 	{
-	case EGHIPixelFormat::Empty: return 0;
-	case EGHIPixelFormat::RGB_8: return 3 * 1;
-	case EGHIPixelFormat::RGBA_8: return 4 * 1;
-	case EGHIPixelFormat::RGB_16F: return 3 * 2;
-	case EGHIPixelFormat::RGBA_16F: return 4 * 2;
-	case EGHIPixelFormat::RGB_32F: return 3 * 4;
-	case EGHIPixelFormat::RGBA_32F: return 4 * 4;
-	case EGHIPixelFormat::Depth_24_Stencil_8: return 3 + 1;
+	case EGHISizedPixelFormat::Empty: return 0;
+	case EGHISizedPixelFormat::RGB_8: return 3 * 1;
+	case EGHISizedPixelFormat::RGBA_8: return 4 * 1;
+	case EGHISizedPixelFormat::RGB_16F: return 3 * 2;
+	case EGHISizedPixelFormat::RGBA_16F: return 4 * 2;
+	case EGHISizedPixelFormat::RGB_32F: return 3 * 4;
+	case EGHISizedPixelFormat::RGBA_32F: return 4 * 4;
+	case EGHISizedPixelFormat::Depth_24_Stencil_8: return 3 + 1;
 	default: PH_ASSERT_UNREACHABLE_SECTION(); return 0;
 	}
 }
 
-inline std::size_t num_bytes(const EGHIPixelComponent component)
+inline std::size_t num_bytes(EGHIPixelComponent component)
 {
 	switch(component)
 	{
@@ -45,7 +45,7 @@ inline std::size_t num_bytes(const EGHIPixelComponent component)
 	}
 }
 
-inline std::size_t num_bytes(const EGHIStorageElement element)
+inline std::size_t num_bytes(EGHIStorageElement element)
 {
 	switch(element)
 	{
@@ -66,7 +66,7 @@ inline std::size_t num_bytes(const EGHIStorageElement element)
 }
 
 template<CEnum DstEnumType>
-DstEnumType translate_to(const EPicturePixelComponent pictureComponent)
+DstEnumType translate_to(EPicturePixelComponent pictureComponent)
 {
 	if constexpr(std::is_same_v<DstEnumType, EGHIPixelComponent>)
 	{

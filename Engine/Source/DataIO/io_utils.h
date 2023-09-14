@@ -7,12 +7,14 @@
 
 #include "Common/primitive_type.h"
 #include "Frame/frame_fwd.h"
+#include "Math/math_fwd.h"
 
 #include <string_view>
 #include <string>
 
-namespace ph { class RegularPicture; }
 namespace ph { class Path; }
+namespace ph { class RegularPicture; }
+namespace ph { class RegularPictureFormat; }
 
 namespace ph::io_utils
 {
@@ -50,6 +52,12 @@ RegularPicture load_picture(const Path& picturePath);
 RegularPicture load_LDR_picture(const Path& picturePath);
 RegularPicture load_HDR_picture(const Path& picturePath);
 ///@}
+
+bool load_picture_meta(
+	const Path& picturePath, 
+	math::Vector2S* out_sizePx,
+	std::size_t* out_numComponents = nullptr,
+	RegularPictureFormat* out_format = nullptr);
 
 void save(const LdrRgbFrame& frame, const Path& picturePath);
 

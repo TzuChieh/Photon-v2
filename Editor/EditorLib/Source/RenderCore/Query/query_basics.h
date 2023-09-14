@@ -14,4 +14,7 @@ namespace ph::editor::ghi
 using QueryPerformer = TQueryPerformer<GraphicsContext>;
 using Query = TQuery<GraphicsContext>;
 
+template<typename Performer>
+using TQueryOf = TQuery<GraphicsContext, Performer>;
+
 }// end namespace ph::editor::ghi

@@ -12,7 +12,7 @@ enum EQuery
 template<typename Target>
 class TQueryPerformer;
 
-template<typename Target>
+template<typename Target, typename Performer>
 class TQuery;
 
 }// end namespace ph::editor

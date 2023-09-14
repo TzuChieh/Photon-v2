@@ -30,6 +30,20 @@ struct OpenglObjectCreator
 	}
 };
 
+struct OpenglObjectManipulator
+{
+	using ManipulateOperation = TFunction<void(), 64>;
+
+	ManipulateOperation op;
+
+	/*! @brief Run the manipulate operation.
+	*/
+	inline void manipulate() const
+	{
+		op();
+	}
+};
+
 struct OpenglObjectDeleter
 {
 	using DeleteOperation = TFunction<bool(), 32>;
@@ -84,7 +98,8 @@ public:
 	void uploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelComponent componentType) override;
+		EGHIPixelFormat pixelFormat,
+		EGHIPixelComponent pixelComponent) override;
 
 	void removeTexture(GHITextureHandle handle) override;
 	void removeFramebuffer(GHIFramebufferHandle handle) override;
@@ -116,6 +131,7 @@ private:
 	TPool<OpenglTexture, GHITextureHandle> m_textures;
 
 	TAtomicQuasiQueue<OpenglObjectCreator> m_creationQueue;
+	TAtomicQuasiQueue<OpenglObjectManipulator> m_manipulationQueue;
 	TAtomicQuasiQueue<OpenglObjectDeleter> m_deletionQueue;
 	std::vector<OpenglObjectDeleter> m_failedDeleterCache;
 };

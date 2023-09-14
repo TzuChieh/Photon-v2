@@ -63,7 +63,8 @@ public:
 	void uploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelComponent componentType) override
+		EGHIPixelFormat pixelFormat,
+		EGHIPixelComponent pixelComponent) override
 	{}
 
 	void removeTexture(GHITextureHandle handle) override

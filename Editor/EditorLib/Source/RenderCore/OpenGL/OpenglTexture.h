@@ -41,7 +41,8 @@ public:
 
 	void uploadPixelData(
 		TSpanView<std::byte> pixelData,
-		EGHIPixelComponent componentType);
+		EGHIPixelFormat pixelFormat,
+		EGHIPixelComponent pixelComponent);
 
 	void bind(uint32 slotIndex) const;
 

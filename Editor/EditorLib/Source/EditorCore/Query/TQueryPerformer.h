@@ -27,7 +27,7 @@ public:
 	bool isReady() const;
 
 private:
-	friend TQuery<Target>;
+	friend TQuery<Target, TQueryPerformer>;
 
 	/*! @brief Signify the query was finished and mark it as ready.
 	Memory effects of `performQuery()` are made visible to whichever thread that sees

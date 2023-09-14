@@ -38,7 +38,8 @@ public:
 	bool tryUploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelComponent componentType) override
+		EGHIPixelFormat pixelFormat,
+		EGHIPixelComponent pixelComponent) override
 	{
 		return false;
 	}

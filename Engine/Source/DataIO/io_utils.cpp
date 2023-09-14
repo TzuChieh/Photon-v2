@@ -8,6 +8,7 @@
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/ExrFileWriter.h"
 #include "DataIO/PfmFileWriter.h"
+#include "Math/TVector2.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -361,6 +362,60 @@ bool has_HDR_support(const std::string_view filenameExt)
 	return
 		filenameExt == ".exr" || filenameExt == ".EXR" ||
 		filenameExt == ".hdr" || filenameExt == ".HDR";
+}
+
+bool load_picture_meta(
+	const Path& picturePath,
+	math::Vector2S* out_sizePx,
+	std::size_t* out_numComponents,
+	RegularPictureFormat* out_format)
+{
+	// Variables to retrieve image info from stbi_load()
+	int widthPx;
+	int heightPx;
+	int numComponents;
+
+	if(!stbi_info(picturePath.toAbsoluteString().c_str(), &widthPx, &heightPx, &numComponents))
+	{
+		return false;
+	}
+
+	if(out_sizePx)
+	{
+		out_sizePx->x() = widthPx;
+		out_sizePx->y() = heightPx;
+	}
+
+	if(out_numComponents)
+	{
+		*out_numComponents = numComponents;
+	}
+
+	if(out_format)
+	{
+		*out_format = RegularPictureFormat{};
+
+		// For color space, for currently supported formats we can only make an educated guess
+		const std::string& ext = picturePath.getExtension();
+		if(has_HDR_support(ext))
+		{
+			out_format->setColorSpace(math::EColorSpace::Linear_sRGB);
+		}
+
+		// Same goes for component info
+		if(numComponents == 1)
+		{
+			out_format->setIsGrayscale(true);
+		}
+		else if(numComponents == 3)
+		{
+			out_format->setIsGrayscale(false);
+		}
+		else if(numComponents == 4)
+		{
+			out_format->setHasAlpha(true);
+		}
+	}
 }
 
 void save(const LdrRgbFrame& frame, const Path& picturePath)

@@ -19,6 +19,7 @@ OpenglObjectManager::OpenglObjectManager(OpenglContext& ctx)
 	, m_textures()
 
 	, m_creationQueue()
+	, m_manipulationQueue()
 	, m_deletionQueue()
 	, m_failedDeleterCache()
 {}
@@ -89,10 +90,11 @@ GHIMeshHandle OpenglObjectManager::createMesh(
 void OpenglObjectManager::uploadPixelData(
 	GHITextureHandle handle,
 	TSpanView<std::byte> pixelData,
-	EGHIPixelComponent componentType)
+	EGHIPixelFormat pixelFormat,
+	EGHIPixelComponent pixelComponent)
 {
-	OpenglObjectCreator creator;
-	creator.op = [&textures = m_textures, pixelData, handle, componentType]()
+	OpenglObjectManipulator manipulator;
+	manipulator.op = [&textures = m_textures, pixelData, handle, pixelFormat, pixelComponent]()
 	{
 		OpenglTexture* texture = textures.get(handle);
 		if(!texture || !texture->hasResource())
@@ -105,9 +107,9 @@ void OpenglObjectManager::uploadPixelData(
 			return;
 		}
 
-		texture->uploadPixelData(pixelData, componentType);
+		texture->uploadPixelData(pixelData, pixelFormat, pixelComponent);
 	};
-	m_creationQueue.enqueue(creator);
+	m_manipulationQueue.enqueue(manipulator);
 }
 
 void OpenglObjectManager::removeTexture(const GHITextureHandle handle)
@@ -213,6 +215,13 @@ void OpenglObjectManager::beginFrameUpdate(const GHIThreadUpdateContext& ctx)
 	while(m_creationQueue.tryDequeue(&creator))
 	{
 		creator.create();
+	}
+
+	// Manipulate objects between creation & deletion
+	OpenglObjectManipulator manipulator;
+	while(m_manipulationQueue.tryDequeue(&manipulator))
+	{
+		manipulator.manipulate();
 	}
 }
 

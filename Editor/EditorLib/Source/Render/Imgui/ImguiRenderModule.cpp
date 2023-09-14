@@ -151,8 +151,6 @@ void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 			});
 	}
 
-	m_imageLibrary.createTextures(caller, *m_rendererScene);
-
 	// Create and add the IMGUI render content to render thread
 	if(!m_renderContent)
 	{
@@ -169,12 +167,14 @@ void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 
 void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 {
-	PH_ASSERT(m_renderContent);
+	PH_ASSERT(m_rendererScene);
+	m_imageLibrary.createRenderCommands(caller, *m_rendererScene);
 
 	// Need to notify render thread that there is new render data for GHI
 	caller.add(
 		[renderContent = m_renderContent](render::System& sys)
 		{
+			PH_ASSERT(renderContent);
 			renderContent->signifyNewRenderDataIsAvailable();
 		});
 }
@@ -183,15 +183,18 @@ void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 {
 	if(m_renderContent)
 	{
-		PH_ASSERT(m_rendererScene);
 		caller.add(
 			[renderContent = m_renderContent, scene = m_rendererScene](render::System& sys) mutable
 			{
+				PH_ASSERT(scene);
 				scene->removeCustomRenderContent(renderContent);
 			});
 	}
 
-	m_imageLibrary.removeTextures(caller, *m_rendererScene);
+	if(m_rendererScene)
+	{
+		m_imageLibrary.cleanupTextures(caller, *m_rendererScene);
+	}
 
 	// Remove the renderer scene in the end, after all other operations are done with it.
 	if(m_rendererScene)
@@ -345,10 +348,10 @@ void ImguiRenderModule::initializeImguiImages(Editor& editor)
 
 	const Path imageDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Image";
 
-	m_imageLibrary.loadImageFile(EImguiImage::Warning, imageDirectory / "hazard-sign.png");
-	m_imageLibrary.loadImageFile(EImguiImage::Folder, imageDirectory / "open-folder.png");
-	m_imageLibrary.loadImageFile(EImguiImage::File, imageDirectory / "database.png");
-	m_imageLibrary.loadImageFile(EImguiImage::Image, imageDirectory / "mona-lisa.png");
+	m_imageLibrary.loadImage(EImguiImage::Warning, imageDirectory / "hazard-sign.png");
+	m_imageLibrary.loadImage(EImguiImage::Folder, imageDirectory / "open-folder.png");
+	m_imageLibrary.loadImage(EImguiImage::File, imageDirectory / "database.png");
+	m_imageLibrary.loadImage(EImguiImage::Image, imageDirectory / "mona-lisa.png");
 }
 
 void ImguiRenderModule::terminateImgui()

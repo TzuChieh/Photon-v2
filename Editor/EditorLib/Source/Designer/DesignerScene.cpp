@@ -75,8 +75,7 @@ DesignerScene& DesignerScene::operator = (DesignerScene&& rhs) noexcept = defaul
 void DesignerScene::update(const MainThreadUpdateContext& ctx)
 {
 	// Remove all done actions
-	std::erase_if(
-		m_sceneActionQueue,
+	std::erase_if(m_sceneActionQueue,
 		[](const SceneAction& action)
 		{
 			return action.isDone();

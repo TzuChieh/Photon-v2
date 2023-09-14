@@ -38,7 +38,7 @@ void Texture2D::setupGHI(GHIThreadCaller& caller)
 		return;
 	}
 
-	caller.add(
+	/*caller.add(
 		[this](GraphicsContext& ctx)
 		{
 			PH_ASSERT(!m_textureHandle);
@@ -53,7 +53,7 @@ void Texture2D::setupGHI(GHIThreadCaller& caller)
 				m_textureData->getBytes(),
 				translate_to<EGHIPixelComponent>(m_textureData->getComponentType()));
 			m_textureData = nullptr;
-		});
+		});*/
 }
 
 void Texture2D::cleanupGHI(GHIThreadCaller& caller)

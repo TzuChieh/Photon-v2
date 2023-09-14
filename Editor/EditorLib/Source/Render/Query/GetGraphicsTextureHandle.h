@@ -18,6 +18,11 @@ public:
 
 	bool performQuery(System& sys) override;
 
+	/*!
+	@return The input texture handle. This is part of the query input and can be accessed anytime.
+	*/
+	TextureHandle getTextureHandle() const;
+
 	GHITextureHandle getGraphicsTextureHandle() const;
 
 private:
@@ -25,6 +30,11 @@ private:
 	TextureHandle m_handle;
 	GHITextureHandle m_gHandle;
 };
+
+inline TextureHandle GetGraphicsTextureHandle::getTextureHandle() const
+{
+	return m_handle;
+}
 
 inline GHITextureHandle GetGraphicsTextureHandle::getGraphicsTextureHandle() const
 {

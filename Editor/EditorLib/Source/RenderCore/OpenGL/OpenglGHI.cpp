@@ -301,7 +301,8 @@ void OpenglGHI::swapBuffers()
 bool OpenglGHI::tryUploadPixelData(
 	GHITextureHandle handle,
 	TSpanView<std::byte> pixelData,
-	EGHIPixelComponent componentType)
+	EGHIPixelFormat pixelFormat,
+	EGHIPixelComponent pixelComponent)
 {
 	OpenglTexture* texture = m_ctx.getObjectManager().getTexture(handle);
 	if(!texture || !texture->hasResource())
@@ -309,7 +310,7 @@ bool OpenglGHI::tryUploadPixelData(
 		return false;
 	}
 
-	texture->uploadPixelData(pixelData, componentType);
+	texture->uploadPixelData(pixelData, pixelFormat, pixelComponent);
 	return true;
 }
 

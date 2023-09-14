@@ -90,7 +90,8 @@ public:
 	virtual void uploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelComponent componentType) = 0;
+		EGHIPixelFormat pixelFormat,
+		EGHIPixelComponent pixelComponent) = 0;
 
 	/*!
 	@note Thread safe.

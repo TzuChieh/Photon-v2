@@ -86,7 +86,19 @@ Texture* Scene::getTexture(TextureHandle handle)
 
 void Scene::removeTexture(TextureHandle handle)
 {
-	// TODO: remove ghi handle
+	Texture* texture = m_textures.get(handle);
+	if(!texture)
+	{
+		PH_LOG_WARNING(Scene,
+			"Cannot remove texture with invalid handle ({})",
+			handle.toString());
+		return;
+	}
+
+	if(texture->handle)
+	{
+		getSystem().getGraphicsContext().getObjectManager().removeTexture(texture->handle);
+	}
 
 	m_textures.remove(handle);
 }
@@ -102,26 +114,38 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 		return;
 	}
 	
+	GraphicsContext& gCtx = getSystem().getGraphicsContext();
 	if(!texture->handle)
 	{
-		texture->handle = getSystem().getGraphicsContext().getObjectManager().createTexture(texture->desc);
+		texture->handle = gCtx.getObjectManager().createTexture(texture->desc);
 	}
 
-	getSystem().addFileReadingWork([
-		&gCtx = getSystem().getGraphicsContext(),
-		gHandle = texture->handle,
-		pictureFile]()
+	getSystem().addFileReadingWork(
+		[&gCtx, gHandle = texture->handle, pictureFile]()
 		{
+			// TODO: exception
+
 			RegularPicture picture = io_utils::load_LDR_picture(pictureFile);
 			auto pictureBytes = picture.getPixels().getBytes();
 
 			GraphicsArena arena = gCtx.getMemoryManager().getRendererHostArena();
-			auto gBytes = arena.makeArray<std::byte>(pictureBytes.size());
-			std::copy_n(pictureBytes.data(), pictureBytes.size(), gBytes.data());
+			auto pixelData = arena.makeArray<std::byte>(pictureBytes.size());
+			std::copy_n(pictureBytes.data(), pictureBytes.size(), pixelData.data());
+
+			EGHIPixelFormat pixelFormat;
+			switch(picture.numComponents())
+			{
+			case 1: pixelFormat = EGHIPixelFormat::R; break;
+			case 2: pixelFormat = EGHIPixelFormat::RG; break;
+			case 3: pixelFormat = EGHIPixelFormat::RGB; break;
+			case 4: pixelFormat = EGHIPixelFormat::RGBA; break;
+			default: PH_ASSERT_UNREACHABLE_SECTION(); break;
+			}
 
 			gCtx.getObjectManager().uploadPixelData(
 				gHandle,
-				gBytes,
+				pixelData,
+				pixelFormat,
 				translate_to<EGHIPixelComponent>(picture.getComponentType()));
 		});
 }

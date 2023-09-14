@@ -31,7 +31,8 @@ public:
 	bool tryUploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelComponent componentType) override;
+		EGHIPixelFormat pixelFormat,
+		EGHIPixelComponent pixelComponent) override;
 
 	GHITextureNativeHandle tryGetTextureNativeHandle(GHITextureHandle handle) override;
 

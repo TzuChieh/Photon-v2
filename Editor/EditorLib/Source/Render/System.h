@@ -38,9 +38,13 @@ public:
 	TSpan<Scene*> getScenes();
 	TSpan<Scene*> getRemovedScenes();
 
+	/*! @brief Add a file reading work, which may run on another thread.
+	Behavior controlled by `config::ENABLE_RENDER_SYSTEM_ASYNC_FILE_READING`.
+	*/
 	void addFileReadingWork(FileReadingWork work);
-	GraphicsContext& getGraphicsContext();
+
 	void addQuery(Query query);
+	GraphicsContext& getGraphicsContext();
 
 private:
 	friend class SystemController;
@@ -76,14 +80,14 @@ inline TSpan<Scene*> System::getRemovedScenes()
 	return m_removedScenes;
 }
 
-inline GraphicsContext& System::getGraphicsContext()
-{
-	return m_graphicsCtx;
-}
-
 inline void System::addQuery(Query query)
 {
 	m_queryManager.addQuery(std::move(query));
+}
+
+inline GraphicsContext& System::getGraphicsContext()
+{
+	return m_graphicsCtx;
 }
 
 class SystemController final : private INoCopyAndMove

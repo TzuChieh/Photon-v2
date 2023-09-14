@@ -8,8 +8,8 @@
 namespace ph::editor
 {
 
-template<typename Target>
-inline TQuery<Target>::TQuery(std::shared_ptr<Performer> performer, EQuery mode)
+template<typename Target, typename Performer>
+inline TQuery<Target, Performer>::TQuery(std::shared_ptr<Performer> performer, EQuery mode)
 	: m_performer(std::move(performer))
 	, m_numRetries(0)
 	, m_mode(mode)
@@ -17,16 +17,33 @@ inline TQuery<Target>::TQuery(std::shared_ptr<Performer> performer, EQuery mode)
 	PH_ASSERT(m_performer);
 }
 
-template<typename Target>
-inline TQuery<Target>::~TQuery() = default;
+template<typename Target, typename Performer>
+template<CDerived<Performer> DerivedPerformer>
+inline TQuery<Target, Performer>::TQuery(const TQuery<Target, DerivedPerformer>& derivedQuery)
+	: m_performer(derivedQuery.m_performer)
+	, m_numRetries(derivedQuery.m_numRetries)
+	, m_mode(derivedQuery.m_mode)
+{}
 
-template<typename Target>
-inline bool TQuery<Target>::run(Target& target)
+template<typename Target, typename Performer>
+template<CDerived<Performer> DerivedPerformer>
+inline TQuery<Target, Performer>::TQuery(TQuery<Target, DerivedPerformer>&& derivedQuery)
+	: m_performer(std::move(derivedQuery.m_performer))
+	, m_numRetries(derivedQuery.m_numRetries)
+	, m_mode(derivedQuery.m_mode)
+{}
+
+template<typename Target, typename Performer>
+inline TQuery<Target, Performer>::~TQuery() = default;
+
+template<typename Target, typename Performer>
+inline bool TQuery<Target, Performer>::run(Target& target)
 {
 	PH_ASSERT(m_performer);
+	PH_ASSERT(!m_performer->isReady());
 
-	// A limit that will be reached in 10 minutes, assuming 60 FPS and one try per frame
-	constexpr uint32 maxRetries = 60 * 60 * 10;
+	// A limit that will be reached in 1 minute, assuming 60 FPS and one try per frame
+	constexpr uint32 maxRetries = 60 * 60;
 
 	bool isDone = m_performer->performQuery(target);
 

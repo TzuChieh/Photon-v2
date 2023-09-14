@@ -24,7 +24,7 @@ class GHIInfoTextureFormat final
 {
 public:
 	GHIInfoSampleState sampleState;
-	EGHIPixelFormat pixelFormat = EGHIPixelFormat::Empty;
+	EGHISizedPixelFormat pixelFormat = EGHISizedPixelFormat::Empty;
 
 	/*!
 	@return `true` if the conversion is an exact match.
@@ -36,7 +36,7 @@ class GHIInfoFramebufferFormat final
 {
 public:
 	GHIInfoSampleState sampleState;
-	EGHIPixelFormat pixelFormat = EGHIPixelFormat::Empty;
+	EGHISizedPixelFormat pixelFormat = EGHISizedPixelFormat::Empty;
 
 	/*!
 	@return `true` if the conversion is an exact match.

@@ -73,7 +73,8 @@ public:
 	virtual bool tryUploadPixelData(
 		GHITextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelComponent componentType) = 0;
+		EGHIPixelFormat pixelFormat,
+		EGHIPixelComponent pixelComponent) = 0;
 
 	virtual GHITextureNativeHandle tryGetTextureNativeHandle(GHITextureHandle handle) = 0;
 

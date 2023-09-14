@@ -61,18 +61,14 @@ void OpenglTexture::createImmutableStorage(const GHIInfoTextureDesc& desc)
 
 void OpenglTexture::uploadPixelData(
 	TSpanView<std::byte> pixelData,
-	const EGHIPixelComponent componentType)
+	EGHIPixelFormat pixelFormat,
+	EGHIPixelComponent pixelComponent)
 {
 	PH_ASSERT(hasResource());
 	PH_ASSERT(pixelData.data());
 
-	// The input pixel data must be for the entire texture--same number of total pixel components
-	PH_ASSERT_EQ(
-		numPixels() * numPixelComponents, 
-		pixelData.size() / num_bytes(componentType));
-
-	// Format of input pixel data must be compatible to the internal format
-	const GLenum pixelDataFormat = opengl::to_base_format(internalFormat);
+	// TODO: format of input pixel data should be compatible to the internal format
+	GLenum unsizedFormat = opengl::to_internal_format(pixelFormat);
 
 	glTextureSubImage2D(
 		textureID, 
@@ -81,8 +77,8 @@ void OpenglTexture::uploadPixelData(
 		0, 
 		widthPx, 
 		heightPx, 
-		pixelDataFormat, 
-		opengl::translate(componentType),// type of each pixel component in the raw pixel data input
+		unsizedFormat,// meaning of each pixel component in `pixelData`
+		opengl::translate(pixelComponent),// type of each pixel component in `pixelData`
 		pixelData.data());
 }
 
