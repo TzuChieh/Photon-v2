@@ -1,8 +1,7 @@
 #pragma once
 
-#include "SDL/Option.h"
-#include "SDL/sdl_interface.h"
-
+#include <SDL/Option.h>
+#include <SDL/sdl_interface.h>
 #include <DataIO/FileSystem/Path.h>
 
 namespace ph::editor

@@ -122,6 +122,10 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
 	{
 	// Anything that isn't an error or performance issue
 	case GL_DEBUG_SEVERITY_NOTIFICATION:
+		// You can uncomment this to enable trace level info logging
+		//PH_LOG(OpenglGHI, "{}", debugStr);
+		break;
+
 	// Redundant state change performance warning, or unimportant undefined behavior
 	case GL_DEBUG_SEVERITY_LOW:
 		PH_LOG(OpenglGHI, "{}", debugStr);

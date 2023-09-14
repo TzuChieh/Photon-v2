@@ -127,7 +127,7 @@ One does not need to define all enum entries. It is valid to partially expose so
 and keep the others hidden from SDL. Note that it is highly encouraged to provide a valid entry
 with the value 0 as it will be used as the default.
 
-A limitation of this macro is that it must be called in the enclosing namespace of `ph` (including
+A limitation of this macro is that it must be called in the enclosing namespace of `ph` (within
 namespace `ph` itself). Note this should not cause any name collision--the enum type can still be 
 defined in an appropriate namespace. (The underlying implementation depends on explicit template
 specialization which requires the aforementioned rule. As long as a unique enum type is used for

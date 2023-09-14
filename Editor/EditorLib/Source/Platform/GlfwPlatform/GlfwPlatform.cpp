@@ -52,13 +52,13 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 			"error occurred on initializing GLFW");
 	}
 
-	EGraphicsAPI requestedGraphicsApi = settings.graphicsApi;
-	if(settings.graphicsApi == EGraphicsAPI::Unknown)
+	EGraphicsAPI requestedGraphicsAPI = settings.graphicsAPI;
+	if(settings.graphicsAPI == EGraphicsAPI::Unknown)
 	{
 		PH_LOG(GlfwPlatform, 
 			"graphics API defaults to OpenGL");
 
-		requestedGraphicsApi = EGraphicsAPI::OpenGL;
+		requestedGraphicsAPI = EGraphicsAPI::OpenGL;
 	}
 
 	math::Vector2S requestedDisplaySizePx = settings.displaySizePx;
@@ -95,7 +95,7 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 		getEditor(), 
 		settings.title, 
 		requestedDisplaySizePx, 
-		requestedGraphicsApi,
+		requestedGraphicsAPI,
 		settings.useDebugModeGHI);
 
 	m_input.initialize(getEditor(), m_display.getGlfwWindow());

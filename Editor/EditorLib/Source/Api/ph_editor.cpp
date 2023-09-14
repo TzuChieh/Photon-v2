@@ -109,10 +109,10 @@ int application_entry_point(int argc, char* argv[])
 
 	Program::programStart();
 
-	// App should not outlive program
+	// App should not outlive program (specifically, within `Program` start & exit)
 	try
 	{
-		Application app(AppSettings(argc, argv));
+		Application app(argc, argv);
 
 		TestProcedureModule testModule;
 		ImguiRenderModule imguiModule;

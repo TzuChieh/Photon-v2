@@ -1,6 +1,5 @@
 #pragma once
 
-#include "App/AppSettings.h"
 #include "App/Editor.h"
 #include "Render/RenderThread.h"
 
@@ -11,9 +10,12 @@
 #include <memory>
 #include <vector>
 
+namespace ph { class Path; }
+
 namespace ph::editor
 {
 
+class AppSettings;
 class Platform;
 class ProcedureModule;
 class RenderModule;
@@ -24,8 +26,7 @@ class AppModule;
 class Application final
 {
 public:
-	// TODO: CommandLineArguments for override or core settings?
-	explicit Application(AppSettings settings);
+	Application(int argc, char* argv[]);
 	~Application();
 
 	/*! @brief Run the application.
@@ -67,7 +68,9 @@ private:
 	/*void postModuleAttachedEvent(AppModule* targetModule);
 	void postModuleDetachedEvent(AppModule* targetModule);*/
 
-	AppSettings                   m_settings;
+	static Path getCoreSettingsFile();
+
+	std::shared_ptr<AppSettings>  m_settings;
 	Editor                        m_editor;
 	RenderThread                  m_renderThread;
 	std::unique_ptr<Platform>     m_platform;

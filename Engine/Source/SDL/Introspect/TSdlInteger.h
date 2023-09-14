@@ -88,13 +88,13 @@ template<typename Owner>
 using TSdlInt32 = TSdlInteger<Owner, int32>;
 
 template<typename Owner>
-using TSdlUint32 = TSdlInteger<Owner, uint32>;
+using TSdlUInt32 = TSdlInteger<Owner, uint32>;
 
 template<typename Owner>
 using TSdlInt64 = TSdlInteger<Owner, int64>;
 
 template<typename Owner>
-using TSdlUint64 = TSdlInteger<Owner, uint64>;
+using TSdlUInt64 = TSdlInteger<Owner, uint64>;
 
 template<typename Owner>
 using TSdlSize = TSdlInteger<Owner, std::size_t>;

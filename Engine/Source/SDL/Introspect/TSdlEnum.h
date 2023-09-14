@@ -38,6 +38,7 @@ public:
 template<typename EnumType>
 inline EnumType TSdlEnum<EnumType>::operator [] (const std::string_view entryName) const
 {
+	// Please make sure you provide a specialization of `TSdlEnum` for your enum type.
 	PH_ASSERT_UNREACHABLE_SECTION();
 
 	return static_cast<EnumType>(0);
@@ -46,6 +47,7 @@ inline EnumType TSdlEnum<EnumType>::operator [] (const std::string_view entryNam
 template<typename EnumType>
 inline std::string_view TSdlEnum<EnumType>::operator [] (const EnumType enumValue) const
 {
+	// Please make sure you provide a specialization of `TSdlEnum` for your enum type.
 	PH_ASSERT_UNREACHABLE_SECTION();
 
 	return "";

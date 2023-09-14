@@ -1,4 +1,6 @@
 #include "App/Application.h"
+#include "App/AppSettings.h"
+#include "ph_editor.h"
 #include "Platform/GlfwPlatform/GlfwPlatform.h"
 #include "EditorCore/Thread/Threads.h"
 #include "App/Module/ProcedureModule.h"
@@ -9,8 +11,11 @@
 #include "Render/RenderThreadCaller.h"
 
 #include <Common/assertion.h>
-#include <Utility/Timer.h>
 #include <Common/logging.h>
+#include <Utility/Timer.h>
+#include <DataIO/FileSystem/Path.h>
+#include <DataIO/FileSystem/Filesystem.h>
+#include <SDL/TSdl.h>
 
 #include <utility>
 #include <chrono>
@@ -24,8 +29,8 @@ namespace ph::editor
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Application, App);
 
-Application::Application(AppSettings settings)
-	: m_settings(std::move(settings))
+Application::Application(int argc, char* argv[])
+	: m_settings(nullptr)
 	, m_editor()
 	, m_renderThread()
 	, m_platform()
@@ -36,7 +41,20 @@ Application::Application(AppSettings settings)
 	, m_shouldBreakMainLoop(false)
 	, m_isClosing(false)
 {
-	m_platform = std::make_unique<GlfwPlatform>(m_settings, m_editor);
+	// Load saved app settings. Create new one if not already present.
+	{
+		Path settingsFile = getCoreSettingsFile();
+		if(Filesystem::hasFile(settingsFile))
+		{
+			m_settings = TSdl<AppSettings>::loadResource(settingsFile);
+		}
+		else
+		{
+			m_settings = TSdl<AppSettings>::makeResource();
+		}
+	}
+
+	m_platform = std::make_unique<GlfwPlatform>(*m_settings, m_editor);
 	
 	m_editor.onDisplayClosed.addListener(
 		[this](const DisplayClosedEvent& /* e */)
@@ -68,6 +86,12 @@ Application::Application(AppSettings settings)
 Application::~Application()
 {
 	close();
+
+	// Save app settings.
+	if(m_settings)
+	{
+		TSdl<AppSettings>::saveResource(m_settings, getCoreSettingsFile());
+	}
 }
 
 void Application::run()
@@ -159,8 +183,8 @@ void Application::runMainLoop()
 
 	using TimeUnit = std::chrono::nanoseconds;
 
-	PH_ASSERT_NE(m_settings.maxFPS, 0);
-	const auto frameTime = TimeUnit(std::chrono::seconds(1)) / m_settings.maxFPS;
+	PH_ASSERT_NE(m_settings->maxFPS, 0);
+	const auto frameTime = TimeUnit(std::chrono::seconds(1)) / m_settings->maxFPS;
 
 	auto unprocessedTime = TimeUnit::zero();
 
@@ -493,5 +517,10 @@ bool Application::detachModule(AppModule* const targetModule)
 //		"{} module detached",
 //		targetModule->getName());
 //}
+
+Path Application::getCoreSettingsFile()
+{
+	return get_editor_data_directory() / "AppCoreSettings.p2";
+}
 
 }// end namespace ph::editor

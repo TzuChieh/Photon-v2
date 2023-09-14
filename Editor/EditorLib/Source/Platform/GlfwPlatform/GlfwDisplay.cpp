@@ -32,7 +32,7 @@ void GlfwDisplay::initialize(
 	Editor&            editor,
 	const std::string& windowTitle,
 	math::Vector2S     sizePx,
-	EGraphicsAPI       graphicsApi,
+	EGraphicsAPI       graphicsAPI,
 	const bool         useDebugModeGHI)
 {
 	if(m_glfwWindow)
@@ -43,7 +43,7 @@ void GlfwDisplay::initialize(
 
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-	if(graphicsApi == EGraphicsAPI::OpenGL)
+	if(graphicsAPI == EGraphicsAPI::OpenGL)
 	{
 		PH_LOG(GlfwDisplay, "target graphics API: OpenGL, requesting version 4.6");
 
@@ -113,12 +113,12 @@ void GlfwDisplay::initialize(
 		});
 
 	PH_ASSERT(!m_graphicsCtx);
-	if(graphicsApi == EGraphicsAPI::OpenGL)
+	if(graphicsAPI == EGraphicsAPI::OpenGL)
 	{
 		m_graphicsCtx = std::make_unique<OpenglContext>(m_glfwWindow, useDebugModeGHI);
 	}
 	
-	m_apiType = graphicsApi;
+	m_apiType = graphicsAPI;
 	m_sizePx = sizePx;
 }
 

@@ -55,7 +55,7 @@ public:
 		sessionName.optional();
 		clazz.addField(sessionName);
 
-		TSdlUint32<OwnerType> numWorkers("num-workers", &OwnerType::m_numWorkers);
+		TSdlUInt32<OwnerType> numWorkers("num-workers", &OwnerType::m_numWorkers);
 		numWorkers.description("Number of worker threads for the rendering operation.");
 		numWorkers.defaultTo(1);
 		numWorkers.optional();

@@ -3,8 +3,14 @@
 namespace ph::editor
 {
 
-AppSettings::AppSettings(int argc, char* argv[])
-	: cmdArgs(argv, argc)
-{}
+TSpanView<const char*> AppSettings::getCmdArgs()
+{
+	return m_cmdArgs;
+}
+
+void AppSettings::setCmdArgs(int argc, char* argv[])
+{
+	m_cmdArgs = TSpanView<const char*>(argv, argc);
+}
 
 }// end namespace ph::editor
