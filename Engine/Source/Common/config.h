@@ -24,6 +24,12 @@ Assertions will be enabled on debug mode.
 	#define PH_DEBUG 0
 #endif
 
+#ifdef PH_CONFIG_ENABLE_PROFILING
+#define PH_PROFILING 1
+#else
+#define PH_PROFILING 0
+#endif
+
 /*! @brief Abort the engine on assertion fail.
 */
 #define PH_ABORT_ON_ASSERTION_FAILED 1

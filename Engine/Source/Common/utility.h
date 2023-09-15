@@ -30,4 +30,8 @@ void output_not_implemented_warning(
 			std::to_string(__LINE__));\
 	} while(0)
 
+/*! @brief Places an expression that does nothing.
+Useful in situations where the macro expansion is intended to mimic a function scope expression
+while doing nothing.
+*/
 #define PH_NO_OP() ((void)0)

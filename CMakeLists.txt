@@ -70,7 +70,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${DEBUG_BUILD_OUTPUT_DIR}")
 if(WIN32)
     find_program(PKG_CONFIG_EXECUTABLE
         NAMES "pkg-config"
-        PATHS "${THIRDPARTY_DIR}/pkg-config-lite/bin/"
+        PATHS "${THIRDPARTY_DIR}/Program/pkg-config-lite/bin/"
         NO_DEFAULT_PATH)
 
     if(PKG_CONFIG_EXECUTABLE)
@@ -124,6 +124,7 @@ message(STATUS
 set(USE_FAST_MATH_DEFAULT OFF)
 
 option(PH_ENABLE_DEBUG "Enable debug functionalities." ON)
+option(PH_ENABLE_PROFILING "Enable profiling functionalities." ON)
 option(PH_DOUBLE_PRECISION_REAL "Use double precision type for real numbers." OFF)
 
 option(PH_USE_FAST_MATH
@@ -410,6 +411,22 @@ load_library_via_config(${JSON_LIB_NAME}
     TARGETS    "nlohmann_json"
     CONFIG_DIR "${LIBS_INSTALL_DIR}/json/share/cmake/${JSON_LIB_NAME}/")
 
+#------------------------------------------------------------------------------
+# tracy
+#------------------------------------------------------------------------------
+set(TRACY_LIB_NAME "Tracy")
+if(PH_ENABLE_PROFILING)
+    load_library_via_config(${TRACY_LIB_NAME} OPTIONAL
+        TARGETS      "TracyClient"
+        CONFIG_DIR   "${LIBS_INSTALL_DIR}/tracy/share/${TRACY_LIB_NAME}/"
+        RUNTIME_DIR  "${LIBS_INSTALL_DIR}/tracy/bin/")
+
+    if(NOT ${TRACY_LIB_NAME}_LOADED)
+        message(STATUS
+            "Tracy not loaded. Tracy-related functionalities will not be available.")
+    endif()
+endif()
+    
 ###############################################################################
 # Add CMake Subdirectories                                                    #
 ###############################################################################

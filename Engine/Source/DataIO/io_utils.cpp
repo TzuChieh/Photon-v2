@@ -416,6 +416,8 @@ bool load_picture_meta(
 			out_format->setHasAlpha(true);
 		}
 	}
+
+	return true;
 }
 
 void save(const LdrRgbFrame& frame, const Path& picturePath)

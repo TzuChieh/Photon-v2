@@ -51,7 +51,8 @@ link_thirdparty_lib(Engine ${ZLIB_LIB_NAME})
 link_thirdparty_lib(Engine ${ILMBASE_LIB_NAME})
 link_thirdparty_lib(Engine ${OPENEXR_LIB_NAME})
 link_thirdparty_lib(Engine ${CONCURRENTQUEUE_LIB_NAME} PUBLIC)
-link_thirdparty_lib(Engine ${JSON_LIB_NAME})
+link_thirdparty_lib(Engine ${TRACY_LIB_NAME} PUBLIC OPTIONAL
+	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_TRACY)
 
 # Non-Windows platforms do not link to threading and filesystem libraries by default
 if(NOT WIN32)
@@ -77,6 +78,11 @@ endif()
 if(PH_ENABLE_DEBUG)
 	target_compile_definitions(Engine
 		PUBLIC PH_CONFIG_ENABLE_DEBUG)
+endif()
+
+if(PH_ENABLE_PROFILING)
+	target_compile_definitions(Engine
+		PUBLIC PH_CONFIG_ENABLE_PROFILING)
 endif()
 
 if(PH_DOUBLE_PRECISION_REAL)

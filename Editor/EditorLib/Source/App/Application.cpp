@@ -12,6 +12,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 #include <Utility/Timer.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/Filesystem.h>
@@ -28,6 +29,7 @@ namespace ph::editor
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Application, App);
+PH_DEFINE_PROFILE_UNIT_NAME(MainLoop);
 
 Application::Application(int argc, char* argv[])
 	: m_settings(nullptr)
@@ -279,6 +281,8 @@ void Application::runMainLoop()
 				loopCv.wait_for(loopLock, timeTillNextFrame);// TODO: check return type and possibly sleep more
 			}
 		}
+
+		PH_PROFILE_LOOP_MARK(MainLoop);
 	}// end while `!m_shouldBreakMainLoop`
 
 	appStop();

@@ -3,7 +3,8 @@
 #
 # The `CONFIG_NAMES` option can be supplied to override the name used for config file searching
 # (each supplied name will be tried for searching config file; default behavior is to use
-# `libName` only).
+# `libName` only). Generally, the name supplied will be used for searching for the file named
+# "<name>Config.cmake" or "<lower-case-name>-config.cmake".
 #
 # A CMake convention is to use double colon to prefix target name with package name,
 # e.g., myPkg::myTarget. However, not all libraries define their target names this way.

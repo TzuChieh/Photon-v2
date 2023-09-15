@@ -74,7 +74,7 @@ function(link_thirdparty_lib targetName libName)
             "${${libName}_RUNTIME_DIR}/"
             DESTINATION ${BUILD_OUTPUT_DIR})
 
-        # TODO: better if we can just copy what debug build needs
+        # TODO: better if we can just copy what debug build needs (e.g., reading target property for dll location)
         file(COPY
             "${${libName}_RUNTIME_DIR}/"
             DESTINATION ${DEBUG_BUILD_OUTPUT_DIR})   
