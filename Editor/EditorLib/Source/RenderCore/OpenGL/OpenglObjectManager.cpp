@@ -2,6 +2,7 @@
 #include "RenderCore/OpenGL/OpenglContext.h"
 
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 #include <cstddef>
 
@@ -28,6 +29,8 @@ OpenglObjectManager::~OpenglObjectManager() = default;
 
 GHITextureHandle OpenglObjectManager::createTexture(const GHIInfoTextureDesc& desc)
 {
+	PH_PROFILE_SCOPE();
+
 	GHITextureHandle handle = m_textures.dispatchOneHandle();
 
 	OpenglObjectCreator creator;
@@ -93,6 +96,8 @@ void OpenglObjectManager::uploadPixelData(
 	EGHIPixelFormat pixelFormat,
 	EGHIPixelComponent pixelComponent)
 {
+	PH_PROFILE_SCOPE();
+
 	OpenglObjectManipulator manipulator;
 	manipulator.op = [&textures = m_textures, pixelData, handle, pixelFormat, pixelComponent]()
 	{
@@ -114,6 +119,8 @@ void OpenglObjectManager::uploadPixelData(
 
 void OpenglObjectManager::removeTexture(const GHITextureHandle handle)
 {
+	PH_PROFILE_SCOPE();
+
 	if(!handle)
 	{
 		return;
@@ -211,6 +218,8 @@ void OpenglObjectManager::onGHIUnload()
 
 void OpenglObjectManager::beginFrameUpdate(const GHIThreadUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	OpenglObjectCreator creator;
 	while(m_creationQueue.tryDequeue(&creator))
 	{
@@ -227,6 +236,8 @@ void OpenglObjectManager::beginFrameUpdate(const GHIThreadUpdateContext& ctx)
 
 void OpenglObjectManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	OpenglObjectDeleter deleter;
 	while(m_deletionQueue.tryDequeue(&deleter))
 	{

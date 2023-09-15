@@ -4,6 +4,8 @@
 #include "RenderCore/GraphicsMemoryManager.h"
 #include "EditorCore/Thread/Threads.h"
 
+#include <Common/profiling.h>
+
 #include <iterator>
 
 namespace ph::editor
@@ -13,6 +15,8 @@ GraphicsContext::~GraphicsContext() = default;
 
 void GraphicsContext::load()
 {
+	PH_PROFILE_SCOPE();
+
 #if PH_DEBUG
 	m_ctxThreadId = std::this_thread::get_id();
 	PH_ASSERT(isOnContextThread());
@@ -28,6 +32,8 @@ void GraphicsContext::load()
 
 void GraphicsContext::unload()
 {
+	PH_PROFILE_SCOPE();
+
 #if PH_DEBUG
 	PH_ASSERT(isOnContextThread());
 	m_ctxThreadId = std::thread::id{};
@@ -43,6 +49,7 @@ void GraphicsContext::unload()
 
 void GraphicsContext::beginFrameUpdate(const GHIThreadUpdateContext& updateCtx)
 {
+	PH_PROFILE_SCOPE();
 	PH_ASSERT(isOnContextThread());
 
 	// Begin update before object manager
@@ -53,6 +60,7 @@ void GraphicsContext::beginFrameUpdate(const GHIThreadUpdateContext& updateCtx)
 
 void GraphicsContext::endFrameUpdate(const GHIThreadUpdateContext& updateCtx)
 {
+	PH_PROFILE_SCOPE();
 	PH_ASSERT(isOnContextThread());
 
 	// Processing queries on frame end, this will give some queries higher chance to finish

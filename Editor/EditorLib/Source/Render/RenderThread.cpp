@@ -6,6 +6,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 #include <Utility/exception.h>
 
 #include <utility>
@@ -14,6 +15,7 @@ namespace ph::editor
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(RenderThread, Render);
+PH_DEFINE_PROFILE_UNIT_NAME(RenderFrame);
 
 RenderThread::RenderThread()
 
@@ -38,6 +40,7 @@ void RenderThread::onAsyncProcessWork(const Work& work)
 
 void RenderThread::onAsyncWorkerStart()
 {
+	PH_PROFILE_NAME_THIS_THREAD("Render thread");
 	PH_LOG(RenderThread, "thread started");
 
 	if(!m_graphicsCtx)
@@ -104,6 +107,16 @@ void RenderThread::onAsyncWorkerStop()
 
 void RenderThread::onBeginFrame()
 {
+	PH_PROFILE_SCOPE();
+
+#if PH_PROFILING
+	addWork(
+		[](render::System& /* sys */)
+		{
+			PH_PROFILE_LOOP_BEGIN(RenderFrame);
+		});
+#endif
+
 	addWork(
 		[this](render::System& /* sys */)
 		{
@@ -133,6 +146,8 @@ void RenderThread::onBeginFrame()
 
 void RenderThread::onEndFrame()
 {
+	PH_PROFILE_SCOPE();
+
 	addWork(
 		[this](render::System& /* sys */)
 		{
@@ -193,10 +208,19 @@ void RenderThread::onEndFrame()
 			m_frameTimer.stop();
 			m_frameTimeMs.store(m_frameTimer.getDeltaMs<float32>(), std::memory_order_relaxed);
 		});
+
+#if PH_PROFILING
+	addWork(
+		[](render::System& /* sys */)
+		{
+			PH_PROFILE_LOOP_END(RenderFrame);
+		});
+#endif
 }
 
 void RenderThread::beforeFirstRenderWorkInFrame()
 {
+	PH_PROFILE_SCOPE();
 	PH_ASSERT(Threads::isOnRenderThread());
 
 	// TODO
@@ -204,6 +228,7 @@ void RenderThread::beforeFirstRenderWorkInFrame()
 
 void RenderThread::afterLastRenderWorkInFrame()
 {
+	PH_PROFILE_SCOPE();
 	PH_ASSERT(Threads::isOnRenderThread());
 
 	render::SystemController sys(*m_system);

@@ -21,15 +21,32 @@
 
 #if PH_PROFILING && PH_THIRD_PARTY_HAS_TRACY
 
-/*!
-Tracy requires the named frame mark to have unique string pointer, see Tracy manual 3.1.2: Unique pointers.
-`PH_DEFINE_PROFILE_UNIT_NAME()` meet the requirements.
+/*
+Note on names used by Tracy: Tracy requires unique names to have unique pointer, see Tracy manual 3.1.2
+"Unique pointers". `PH_DEFINE_PROFILE_UNIT_NAME()` meet the requirement.
 */
+
 #define PH_PROFILE_LOOP_MARK(unitName)\
 	FrameMarkNamed(internal_impl_profile_unit_name_##unitName)
+
+#define PH_PROFILE_LOOP_BEGIN(unitName)\
+	FrameMarkStart(internal_impl_profile_unit_name_##unitName)
+
+#define PH_PROFILE_LOOP_END(unitName)\
+	FrameMarkEnd(internal_impl_profile_unit_name_##unitName)
+
+#define PH_PROFILE_SCOPE()\
+	ZoneScoped
+
+#define PH_PROFILE_NAME_THIS_THREAD(threadName)\
+	tracy::SetThreadName(threadName)
 
 #else
 
 #define PH_PROFILE_LOOP_MARK(unitName) PH_NO_OP()
+#define PH_PROFILE_LOOP_BEGIN(unitName) PH_NO_OP()
+#define PH_PROFILE_LOOP_END(unitName) PH_NO_OP()
+#define PH_PROFILE_SCOPE() PH_NO_OP()
+#define PH_PROFILE_NAME_THIS_THREAD(threadName) PH_NO_OP()
 
 #endif

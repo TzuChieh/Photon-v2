@@ -204,7 +204,7 @@ void Application::runMainLoop()
 		unprocessedTime += passedTime;
 
 		// Update
-		while(unprocessedTime > frameTime)
+		while(unprocessedTime >= frameTime)
 		{
 			// Call only once in each main loop
 			if(!hasUpdated)
@@ -272,13 +272,24 @@ void Application::runMainLoop()
 			{
 				std::this_thread::yield();
 			}
-			// Otherwise, sleep until a frame of unprocessed time is available
+			// Otherwise, sleep until a frame of unprocessed time is accumulated
 			else
 			{
 				const auto timeTillNextFrame = frameTime - currentUnprocessedTime;
 
 				std::unique_lock<std::mutex> loopLock(loopMutex);
-				loopCv.wait_for(loopLock, timeTillNextFrame);// TODO: check return type and possibly sleep more
+
+				// The thread may unwait spuriously, in such case the current unprocessed
+				// time is checked again
+				loopCv.wait_for(
+					loopLock, 
+					timeTillNextFrame,
+					[&loopTimer, &unprocessedTime, &frameTime]()
+					{
+						const auto currentLapTime = TimeUnit(loopTimer.peekLap());
+						const auto currentUnprocessedTime = unprocessedTime + currentLapTime;
+						return currentUnprocessedTime >= frameTime;
+					});
 			}
 		}
 
@@ -295,6 +306,8 @@ void Application::appStart()
 
 void Application::appUpdate(const MainThreadUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	m_editor.update(ctx);
 
 	for(auto& procedureModule : m_procedureModules)
@@ -307,6 +320,8 @@ void Application::appUpdate(const MainThreadUpdateContext& ctx)
 
 void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	m_editor.renderUpdate(ctx);
 
 	for(auto& renderModule : m_renderModules)
@@ -317,6 +332,8 @@ void Application::appRenderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void Application::appCreateRenderCommands()
 {
+	PH_PROFILE_SCOPE();
+
 	{
 		RenderThreadCaller caller(m_renderThread);
 		m_editor.createRenderCommands(caller);

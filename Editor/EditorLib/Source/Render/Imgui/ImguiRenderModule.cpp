@@ -17,6 +17,7 @@
 #include "ThirdParty/GLFW3.h"
 
 #include <ph_cpp_core.h>
+#include <Common/profiling.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/Filesystem.h>
 
@@ -100,6 +101,8 @@ void ImguiRenderModule::onDetach()
 
 void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	// Start the Dear ImGui frame
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -137,6 +140,8 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 {
+	PH_PROFILE_SCOPE();
+
 	// Create the renderer scene if not already present. Must be the first thing to do, so subsequent
 	// operations can access the renderer scene.
 	if(!m_rendererScene)
@@ -167,6 +172,8 @@ void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 
 void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 {
+	PH_PROFILE_SCOPE();
+
 	PH_ASSERT(m_rendererScene);
 	m_imageLibrary.createRenderCommands(caller, *m_rendererScene);
 
@@ -181,6 +188,8 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 
 void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 {
+	PH_PROFILE_SCOPE();
+
 	if(m_renderContent)
 	{
 		caller.add(

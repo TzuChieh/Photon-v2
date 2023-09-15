@@ -7,6 +7,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 namespace ph::editor
 {
@@ -30,6 +31,7 @@ GHIThread::~GHIThread()
 
 void GHIThread::onAsyncWorkerStart()
 {
+	PH_PROFILE_NAME_THIS_THREAD("GHI thread");
 	PH_LOG(GHIThread, "thread started");
 
 	switchContext(m_nullCtx.get());
@@ -51,6 +53,8 @@ void GHIThread::onAsyncProcessWork(const Work& work)
 
 void GHIThread::onBeginFrame()
 {
+	PH_PROFILE_SCOPE();
+
 	const auto frameInfo = getFrameInfo();
 	m_updateCtx.frameNumber = frameInfo.frameNumber;
 
@@ -65,6 +69,8 @@ void GHIThread::onBeginFrame()
 
 void GHIThread::onEndFrame()
 {
+	PH_PROFILE_SCOPE();
+
 	addWork(
 		[this](GraphicsContext& ctx)
 		{

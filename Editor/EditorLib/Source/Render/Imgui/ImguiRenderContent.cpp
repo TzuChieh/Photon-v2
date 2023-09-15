@@ -8,6 +8,7 @@
 #include "ThirdParty/glad2.h"
 
 #include <Common/assertion.h>
+#include <Common/profiling.h>
 #include <Utility/utility.h>
 
 #include <algorithm>
@@ -30,6 +31,8 @@ void ImguiRenderContent::update(const UpdateContext& ctx)
 
 void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 {
+	PH_PROFILE_SCOPE();
+
 	caller.add(
 		[](GraphicsContext& ctx)
 		{
@@ -89,6 +92,8 @@ void ImguiRenderContent::signifyNewRenderDataIsAvailable()
 
 void ImguiRenderContent::ImguiRenderData::copyFrom(const ImDrawData& srcDrawData)
 {
+	PH_PROFILE_SCOPE();
+
 	// We deep copy `ImDrawList` here, as the comment for `ImDrawData::CmdLists` says that the 
 	// draw lists are owned by `ImGuiContext`, simply swap them with our buffer (which is a 
 	// modification) might broke some assumptions from IMGUI framework.

@@ -4,6 +4,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 #include <Math/constant.h>
 
 #include <utility>
@@ -44,6 +45,8 @@ BasicGraphicsMemoryManager::BasicGraphicsMemoryManager(
 
 GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocHostBlock(uint32 numFramesToLive)
 {
+	PH_PROFILE_SCOPE();
+
 	// Note: this method can be called concurrently
 
 	HostBlock* hostBlock;
@@ -79,10 +82,14 @@ void BasicGraphicsMemoryManager::onGHIUnload()
 {}
 
 void BasicGraphicsMemoryManager::beginFrameUpdate(const GHIThreadUpdateContext& ctx)
-{}
+{
+	PH_PROFILE_SCOPE();
+}
 
 void BasicGraphicsMemoryManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	// A failed dequeue is fine--just those blocks get lucky and get to live an extra frame
 	auto numDequeued = m_activeHostBlocks.tryDequeueBulk(m_hostBlockCache.get(), m_maxHostBlocks);
 
