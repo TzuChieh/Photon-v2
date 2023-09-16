@@ -3,6 +3,7 @@
 #include "EditorCore/Thread/Threads.h"
 
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 namespace ph::editor::render
 {
@@ -42,6 +43,14 @@ System::System(GraphicsContext& graphicsCtx)
 {
 	// This is a pure render thread resident that needs to live/die on render thread
 	PH_ASSERT(Threads::isOnRenderThread());
+
+#if PH_PROFILING
+	m_fileReadingThread.setOnConsumerStart(
+		[]()
+		{
+			PH_PROFILE_NAME_THIS_THREAD("render::System File Reading thread");
+		});
+#endif
 
 	m_fileReadingThread.setWorkProcessor(
 		[](const FileReadingWork& work)

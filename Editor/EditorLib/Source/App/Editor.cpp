@@ -8,6 +8,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 #include <Utility/Timer.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/Filesystem.h>
@@ -72,6 +73,8 @@ void Editor::start()
 
 void Editor::update(const MainThreadUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	// Process events
 	{
 		auto eventFlushTimer = Timer().start();
@@ -91,6 +94,8 @@ void Editor::update(const MainThreadUpdateContext& ctx)
 
 void Editor::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	for(auto& scene : m_scenes)
 	{
 		scene->renderUpdate(ctx);
@@ -99,6 +104,8 @@ void Editor::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 
 void Editor::createRenderCommands(RenderThreadCaller& caller)
 {
+	PH_PROFILE_SCOPE();
+
 	for(auto& scene : m_scenes)
 	{
 		scene->createRenderCommands(caller);
@@ -109,6 +116,8 @@ void Editor::createRenderCommands(RenderThreadCaller& caller)
 
 void Editor::beforeUpdateStage()
 {
+	PH_PROFILE_SCOPE();
+
 	for(auto& scene : m_scenes)
 	{
 		scene->beforeUpdateStage();
@@ -117,6 +126,8 @@ void Editor::beforeUpdateStage()
 
 void Editor::afterUpdateStage()
 {
+	PH_PROFILE_SCOPE();
+
 	for(auto& scene : m_scenes)
 	{
 		scene->afterUpdateStage();
@@ -125,6 +136,8 @@ void Editor::afterUpdateStage()
 
 void Editor::beforeRenderStage()
 {
+	PH_PROFILE_SCOPE();
+
 	for(auto& scene : m_scenes)
 	{
 		scene->beforeRenderStage();
@@ -133,6 +146,8 @@ void Editor::beforeRenderStage()
 
 void Editor::afterRenderStage()
 {
+	PH_PROFILE_SCOPE();
+
 	for(auto& scene : m_scenes)
 	{
 		scene->afterRenderStage();

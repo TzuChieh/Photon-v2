@@ -143,6 +143,8 @@ void Application::close()
 
 void Application::initialRenderThreadUpdate()
 {
+	PH_PROFILE_SCOPE();
+
 	m_renderThread.beginFrame();
 
 	for(RenderModule* const renderModule : m_renderModules)
@@ -156,6 +158,8 @@ void Application::initialRenderThreadUpdate()
 
 void Application::finalRenderThreadUpdate()
 {
+	PH_PROFILE_SCOPE();
+
 	m_renderThread.beginFrame();
 
 	for(RenderModule* const renderModule : m_renderModules)
@@ -301,6 +305,8 @@ void Application::runMainLoop()
 
 void Application::appStart()
 {
+	PH_PROFILE_SCOPE();
+
 	m_editor.start();
 }
 
@@ -348,31 +354,43 @@ void Application::appCreateRenderCommands()
 
 void Application::appBeforeUpdateStage()
 {
+	PH_PROFILE_SCOPE();
+
 	m_editor.beforeUpdateStage();
 }
 
 void Application::appAfterUpdateStage()
 {
+	PH_PROFILE_SCOPE();
+
 	m_editor.afterUpdateStage();
 }
 
 void Application::appBeforeRenderStage()
 {
+	PH_PROFILE_SCOPE();
+
 	m_editor.beforeRenderStage();
 }
 
 void Application::appAfterRenderStage()
 {
+	PH_PROFILE_SCOPE();
+
 	m_editor.afterRenderStage();
 }
 
 void Application::appStop()
 {
+	PH_PROFILE_SCOPE();
+
 	m_editor.stop();
 }
 
 bool Application::attachProcedureModule(ProcedureModule* const inModule)
 {
+	PH_PROFILE_SCOPE();
+
 	if(!attachModule(inModule))
 	{
 		return false;
@@ -384,6 +402,8 @@ bool Application::attachProcedureModule(ProcedureModule* const inModule)
 
 bool Application::attachRenderModule(RenderModule* const inModule)
 {
+	PH_PROFILE_SCOPE();
+
 	if(!attachModule(inModule))
 	{
 		return false;
@@ -395,6 +415,8 @@ bool Application::attachRenderModule(RenderModule* const inModule)
 
 bool Application::detachProcedureModule(ProcedureModule* const inModule)
 {
+	PH_PROFILE_SCOPE();
+
 	const auto numErasedModules = std::erase(m_procedureModules, inModule);
 	if(numErasedModules == 0)
 	{
@@ -409,6 +431,8 @@ bool Application::detachProcedureModule(ProcedureModule* const inModule)
 
 bool Application::detachRenderModule(RenderModule* const inModule)
 {
+	PH_PROFILE_SCOPE();
+
 	const auto numErasedModules = std::erase(m_renderModules, inModule);
 	if(numErasedModules == 0)
 	{
@@ -423,6 +447,8 @@ bool Application::detachRenderModule(RenderModule* const inModule)
 
 bool Application::attachModule(AppModule* const targetModule)
 {
+	PH_PROFILE_SCOPE();
+
 	if(!targetModule)
 	{
 		PH_LOG_WARNING(Application,
@@ -472,6 +498,8 @@ bool Application::attachModule(AppModule* const targetModule)
 
 bool Application::detachModule(AppModule* const targetModule)
 {
+	PH_PROFILE_SCOPE();
+
 	if(!targetModule)
 	{
 		PH_LOG_WARNING(Application,

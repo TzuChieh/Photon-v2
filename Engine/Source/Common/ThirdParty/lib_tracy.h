@@ -6,9 +6,9 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-// This is generally done by the build script. Just a failsafe here.
+// This should be done by the build script.
 #ifndef TRACY_ENABLE
-#define TRACY_ENABLE 1
+#error "Tracy profiler is not enabled. Please make sure `TRACY_ENABLE` is defined globally by the build script."
 #endif
 
 #include <tracy/Tracy.hpp>

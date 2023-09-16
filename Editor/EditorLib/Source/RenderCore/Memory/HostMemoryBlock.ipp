@@ -15,7 +15,7 @@ namespace ph::editor
 
 inline HostMemoryBlock::HostMemoryBlock()
 	: GraphicsMemoryBlock()
-	, m_memoryBlock()
+	, m_memoryBlock(nullptr)
 {}
 
 inline HostMemoryBlock::HostMemoryBlock(const std::size_t blockSizeHintInBytes)

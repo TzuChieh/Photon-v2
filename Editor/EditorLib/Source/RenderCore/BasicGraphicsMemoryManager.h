@@ -26,6 +26,7 @@ public:
 		std::size_t maxHostBlocks);
 
 	GraphicsMemoryBlock* allocHostBlock(uint32 numFramesToLive) override;
+	GraphicsMemoryBlock* allocCustomHostBlock(uint32 numFramesToLive, std::size_t blockSize) override;
 
 	void onGHILoad() override;
 	void onGHIUnload() override;
@@ -36,7 +37,7 @@ private:
 	struct HostBlock
 	{
 		HostMemoryBlock block;
-		uint32 numFramesLeft;
+		uint32 numFramesLeft = 0;
 	};
 
 	std::unique_ptr<HostBlock[]> m_hostBlocks;

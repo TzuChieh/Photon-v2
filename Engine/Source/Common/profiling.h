@@ -22,8 +22,8 @@
 #if PH_PROFILING && PH_THIRD_PARTY_HAS_TRACY
 
 /*
-Note on names used by Tracy: Tracy requires unique names to have unique pointer, see Tracy manual 3.1.2
-"Unique pointers". `PH_DEFINE_PROFILE_UNIT_NAME()` meet the requirement.
+Note on names used by Tracy: Some Tracy macros require unique names to have unique pointer, see
+Tracy manual 3.1.2 "Unique pointers". `PH_DEFINE_PROFILE_UNIT_NAME()` meet the requirement.
 */
 
 #define PH_PROFILE_LOOP_MARK(unitName)\

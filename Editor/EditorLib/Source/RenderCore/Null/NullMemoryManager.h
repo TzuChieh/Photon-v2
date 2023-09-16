@@ -13,6 +13,11 @@ public:
 		return nullptr;
 	}
 
+	GraphicsMemoryBlock* allocCustomHostBlock(uint32 numFramesToLive, std::size_t blockSize) override
+	{
+		return nullptr;
+	}
+
 	void onGHILoad() override
 	{}
 

@@ -15,7 +15,7 @@ namespace ph::editor
 {
 
 BasicGraphicsMemoryManager::BasicGraphicsMemoryManager()
-	: BasicGraphicsMemoryManager(math::constant::MiB * 16, 128)// 2 GiB in total
+	: BasicGraphicsMemoryManager(math::constant::MiB * 16, 2048)// 32 GiB in total
 {}
 
 BasicGraphicsMemoryManager::BasicGraphicsMemoryManager(
@@ -53,7 +53,6 @@ GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocHostBlock(uint32 numFrames
 	if(m_freeHostBlocks.tryDequeue(&hostBlock))
 	{
 		PH_ASSERT(hostBlock);
-
 		if(!hostBlock->block.hasBlockSource())
 		{
 			hostBlock->block = HostMemoryBlock(m_hostBlockSize);
@@ -73,6 +72,13 @@ GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocHostBlock(uint32 numFrames
 
 		throw GHIOutOfHostMemory{};
 	}
+}
+
+GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocCustomHostBlock(
+	uint32 numFramesToLive, 
+	std::size_t blockSize)
+{
+	// TODO
 }
 
 void BasicGraphicsMemoryManager::onGHILoad()
