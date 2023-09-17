@@ -11,6 +11,7 @@
 #include <DataIO/io_utils.h>
 #include <DataIO/FileSystem/Path.h>
 #include <Frame/RegularPicture.h>
+#include <DataIO/io_exceptions.h>
 
 #include <utility>
 #include <algorithm>
@@ -89,7 +90,7 @@ void Scene::removeTexture(TextureHandle handle)
 	Texture* texture = m_textures.get(handle);
 	if(!texture)
 	{
-		PH_LOG_WARNING(Scene,
+		PH_LOG_ERROR(Scene,
 			"Cannot remove texture with invalid handle ({})",
 			handle.toString());
 		return;
@@ -108,7 +109,7 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 	Texture* texture = m_textures.get(handle);
 	if(!texture)
 	{
-		PH_LOG_WARNING(Scene,
+		PH_LOG_ERROR(Scene,
 			"Cannot load picture <{}> with invalid handle ({})",
 			pictureFile, handle.toString());
 		return;
@@ -123,16 +124,23 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 	getSystem().addFileReadingWork(
 		[&gCtx, gHandle = texture->handle, pictureFile]()
 		{
-			// TODO: exception
+			RegularPicture picture;
+			try
+			{
+				picture = io_utils::load_LDR_picture(pictureFile);
+			}
+			catch(const FileIOError& e)
+			{
+				PH_LOG_ERROR(Scene,
+					"Cannot load picture: {}", e.whatStr());
+			}
 
-			RegularPicture picture = io_utils::load_LDR_picture(pictureFile);
 			auto pictureBytes = picture.getPixels().getBytes();
-
 			GraphicsArena arena = gCtx.getMemoryManager().newRenderProducerHostArena();
 			auto pixelData = arena.makeArray<std::byte>(pictureBytes.size());
 			std::copy_n(pictureBytes.data(), pictureBytes.size(), pixelData.data());
 
-			EGHIPixelFormat pixelFormat;
+			auto pixelFormat = EGHIPixelFormat::RGB;
 			switch(picture.numComponents())
 			{
 			case 1: pixelFormat = EGHIPixelFormat::R; break;

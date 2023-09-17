@@ -244,6 +244,18 @@ void OpenglObjectManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 		// Failed attempts need to be retried later
 		if(!deleter.tryDelete())
 		{
+			// A limit that will be reached in 1 minute, assuming 60 FPS and one try per frame
+			constexpr uint32 maxRetries = 60 * 60;
+
+			++deleter.numRetries;
+			if(deleter.numRetries >= maxRetries)
+			{
+				PH_LOG_WARNING(OpenglObjectManager,
+					"Detected hanging object deleter ({} retries), canceling",
+					deleter.numRetries);
+				continue;
+			}
+			
 			m_failedDeleterCache.push_back(deleter);
 		}
 	}

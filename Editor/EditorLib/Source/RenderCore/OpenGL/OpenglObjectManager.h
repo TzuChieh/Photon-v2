@@ -8,6 +8,7 @@
 
 #include <Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Utility/TFunction.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 
@@ -49,6 +50,7 @@ struct OpenglObjectDeleter
 	using DeleteOperation = TFunction<bool(), 32>;
 
 	DeleteOperation op;
+	uint32 numRetries = 0;
 
 	/*! @brief Run the delete operation.
 	@return True if the operation is done and the target object has been cleaned up. False if the

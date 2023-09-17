@@ -121,7 +121,7 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 
 			GHIInfoTextureDesc desc;
 			desc.setSize2D(math::Vector2UI(sizePx));
-			desc.format.pixelFormat = EGHISizedPixelFormat::RGB_8;
+			desc.format.pixelFormat = EGHISizedPixelFormat::RGBA_8;
 
 			render::TextureHandle handle = scene.declareTexture();
 			if(!loader.entryName.empty())
