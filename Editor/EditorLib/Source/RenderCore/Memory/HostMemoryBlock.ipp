@@ -18,10 +18,13 @@ inline HostMemoryBlock::HostMemoryBlock()
 	, m_memoryBlock(nullptr)
 {}
 
-inline HostMemoryBlock::HostMemoryBlock(const std::size_t blockSizeHintInBytes)
-	: HostMemoryBlock()
+inline HostMemoryBlock::HostMemoryBlock(std::size_t blockSizeHintInBytes)
+	: HostMemoryBlock(blockSizeHintInBytes, os::get_L1_cache_line_size_in_bytes())
+{}
+
+inline HostMemoryBlock::HostMemoryBlock(std::size_t blockSizeHintInBytes, std::size_t alignmentInBytes)
 {
-	const auto alignmentSize = std::lcm(alignof(std::max_align_t), os::get_L1_cache_line_size_in_bytes());
+	const auto alignmentSize = std::lcm(alignof(std::max_align_t), alignmentInBytes);
 	const auto blockSize = math::next_multiple(blockSizeHintInBytes, alignmentSize);
 
 	m_memoryBlock = make_aligned_memory<std::byte>(blockSize, alignmentSize);

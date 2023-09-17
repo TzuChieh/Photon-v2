@@ -40,11 +40,14 @@ public:
 	This variant of host block is generally not pooled, and much higher performance hit is expected.
 	The block size can be determined by the user, which is useful in situations where large block is
 	required or for one-off allocations.
-	@param numFramesToLive See `allocHostBlock()`.
+	@param numFramesToLive See `newHostBlock()`.
 	@param blockSize Size of the memory block in bytes.
 	@note Thread safe.
 	*/
-	virtual GraphicsMemoryBlock* allocCustomHostBlock(uint32 numFramesToLive, std::size_t blockSize) = 0;
+	virtual GraphicsMemoryBlock* allocCustomHostBlock(
+		uint32 numFramesToLive, 
+		std::size_t blockSize,
+		std::size_t blockAlignment) = 0;
 
 	/*! @brief Called by GHI thread after GHI is loaded.
 	*/
@@ -62,18 +65,19 @@ public:
 	*/
 	virtual void endFrameUpdate(const GHIThreadUpdateContext& ctx) = 0;
 
-	GraphicsArena getHostArena();
-	GraphicsArena getRendererHostArena();
+	// TODO: arena should guarantee always succeed (custom alloc if cannot fit)
+	GraphicsArena newHostArena();
+	GraphicsArena newRenderProducerHostArena();
 
 public:
-	static uint32 equivalentRenderThreadLifetime(uint32 numRenderThreadFramesToLive)
+	static uint32 equivalentRenderFrameLifetime(uint32 numRenderFramesToLive)
 	{
 		/* GHI frame may end before render frame ends but can never restart until next render frame
 		begins, so we need to increase the number of frames to live to cover for the case that GHI
 		frame may end earlier than render frame. Adding 1 frame will suffice for this case, as that
 		means the lifetime won't end until next render frame.
 		*/
-		return numRenderThreadFramesToLive + 1;
+		return numRenderFramesToLive + 1;
 	}
 };
 

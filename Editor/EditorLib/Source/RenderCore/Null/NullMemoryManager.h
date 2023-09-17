@@ -13,7 +13,10 @@ public:
 		return nullptr;
 	}
 
-	GraphicsMemoryBlock* allocCustomHostBlock(uint32 numFramesToLive, std::size_t blockSize) override
+	GraphicsMemoryBlock* allocCustomHostBlock(
+		uint32 numFramesToLive,
+		std::size_t blockSize,
+		std::size_t blockAlignment) override
 	{
 		return nullptr;
 	}

@@ -34,7 +34,7 @@ void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alig
 	// Alignment must be a multiple of `sizeof(void*)`.
 	PH_ASSERT_EQ(alignmentInBytes % sizeof(void*), 0);
 
-	// Allocation size must be an integer multiple of alignment.
+	// Allocation size must be an integer multiple of alignment (`std::aligned_alloc` requirement).
 	// (here `alignmentInBytes` is guaranteed to be > 0 by the previous assertion)
 	PH_ASSERT(numBytes % alignmentInBytes == 0);
 

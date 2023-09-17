@@ -8,6 +8,24 @@
 namespace ph::editor
 {
 
+namespace
+{
+
+// For GHI producer threads: can be recycled at the end of frame
+inline uint32 single_frame_lifetime()
+{
+	return 0;
+}
+
+// For render producer threads: live for the current render frame and won't be recycled until
+// render frame ends (this is 0 render frame).
+inline uint32 single_render_frame_lifetime()
+{
+	return GraphicsMemoryManager::equivalentRenderFrameLifetime(0);
+}
+
+}// end anonymous namespace
+
 GraphicsArena::GraphicsArena(GraphicsMemoryManager* manager, EType type)
 	: m_manager(manager)
 	, m_memoryBlock(nullptr)
@@ -17,9 +35,6 @@ GraphicsArena::GraphicsArena(GraphicsMemoryManager* manager, EType type)
 	{
 		throw GHIBadAllocation{};
 	}
-
-	PH_ASSERT(!m_memoryBlock);
-	m_memoryBlock = allocNextBlock();
 }
 
 GraphicsMemoryBlock* GraphicsArena::allocNextBlock()
@@ -32,18 +47,53 @@ GraphicsMemoryBlock* GraphicsArena::allocNextBlock()
 		PH_ASSERT(!Threads::isOnMainThread());
 		PH_ASSERT(!Threads::isOnRenderThread());
 
-		// For GHI producer threads: can be recycled at the end of frame
-		newBlock = m_manager->allocHostBlock(0);
+		newBlock = m_manager->allocHostBlock(single_frame_lifetime());
 		break;
 
-	case EType::RendererHost:
+	case EType::RenderProducerHost:
 		// Can only be requested on renderer producer threads.
 		PH_ASSERT(!Threads::isOnMainThread());
 
-		// For renderer producer threads: GHI frame may end before renderer frame but can never
-		// restart until next renderer frame. Live at least 1 GHI frame so the arena will not be
-		// recycled until next renderer frame.
-		newBlock = m_manager->allocHostBlock(1);
+		newBlock = m_manager->allocHostBlock(single_render_frame_lifetime());
+		break;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		break;
+	}
+	
+	if(!newBlock)
+	{
+		throw GHIBadAllocation{};
+	}
+
+	return newBlock;
+}
+
+GraphicsMemoryBlock* GraphicsArena::allocCustomBlock(std::size_t blockSize, std::size_t blockAlignment)
+{
+	GraphicsMemoryBlock* newBlock = nullptr;
+	switch(m_type)
+	{
+	case EType::Host:
+		// Can only be requested on GHI producer threads.
+		PH_ASSERT(!Threads::isOnMainThread());
+		PH_ASSERT(!Threads::isOnRenderThread());
+
+		newBlock = m_manager->allocCustomHostBlock(
+			single_frame_lifetime(), 
+			blockSize, 
+			blockAlignment);
+		break;
+
+	case EType::RenderProducerHost:
+		// Can only be requested on renderer producer threads.
+		PH_ASSERT(!Threads::isOnMainThread());
+
+		newBlock = m_manager->allocCustomHostBlock(
+			single_render_frame_lifetime(),
+			blockSize,
+			blockAlignment);
 		break;
 
 	default:

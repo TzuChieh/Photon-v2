@@ -14,6 +14,12 @@ namespace ph::editor
 template<typename T, typename... Args>
 inline T* GraphicsArena::make(Args&&... args)
 {
+	if(!m_memoryBlock)
+	{
+		m_memoryBlock = allocNextBlock();
+	}
+
+	// Get next block if failed
 	T* ptr = m_memoryBlock->make<T>(std::forward<Args>(args)...);
 	if(!ptr)
 	{
@@ -21,28 +27,47 @@ inline T* GraphicsArena::make(Args&&... args)
 		ptr = m_memoryBlock->make<T>(std::forward<Args>(args)...);
 	}
 
-	// Generally should not be null. If so, consider to increase the capacity of memory block.
+	// Generally should not be null. If so, consider to increase the size of default memory block.
 	PH_ASSERT(ptr);
-
 	return ptr;
 }
 
 template<typename T>
-inline TSpan<T> GraphicsArena::makeArray(const std::size_t arraySize)
+inline TSpan<T> GraphicsArena::makeArray(std::size_t arraySize)
 {
-	TSpan<T> arr = m_memoryBlock->makeArray<T>(arraySize);
+	PH_ASSERT_GT(arraySize, 0);
 
-	// It is important to also check whether the array can possibly fit in a block--otherwise we
-	// are just wasting what's left of the current block
-	if(!arr.data() &&
-	   m_memoryBlock->numUsedBytes() > 0 &&
-	   arraySize > 0 &&
-	   sizeof(T) * arraySize <= m_memoryBlock->numAllocatedBytes())
+	if(!m_memoryBlock)
 	{
 		m_memoryBlock = allocNextBlock();
-		arr = m_memoryBlock->makeArray<T>(arraySize);
 	}
 
+	// Alignment not checked--the allocation generally will align to `std::max_align_t` at least.
+	// If the user specifies custom alignment, there may be extra cost to satisfy the request
+	// (e.g., wasting a new default block then allocating a custom block).
+	bool mayFitDefaultBlock = sizeof(T) * arraySize <= m_memoryBlock->numAllocatedBytes();
+
+	TSpan<T> arr;
+	if(mayFitDefaultBlock)
+	{
+		// Only retry if current block is not a new one
+		arr = m_memoryBlock->makeArray<T>(arraySize);
+		if(!arr.data() && m_memoryBlock->numUsedBytes() > 0)
+		{
+			m_memoryBlock = allocNextBlock();
+			arr = m_memoryBlock->makeArray<T>(arraySize);
+		}
+	}
+
+	// If we cannot make the array with default block, then use a custom block with performance hit
+	if(!arr.data())
+	{
+		GraphicsMemoryBlock* customBlock = allocCustomBlock(sizeof(T) * arraySize, alignof(T));
+		arr = customBlock->makeArray<T>(arraySize);
+	}
+
+	// Cannot be null as we can fallback to custom block.
+	PH_ASSERT(arr.data());
 	return arr;
 }
 

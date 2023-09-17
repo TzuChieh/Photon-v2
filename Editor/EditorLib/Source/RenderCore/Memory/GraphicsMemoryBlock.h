@@ -27,8 +27,8 @@ public:
 	std::size_t numUsedBytes() const;
 	std::size_t numRemainingBytes() const;
 
-	/*! @brief Reset the usage of the arena.
-	All memory handed out are effectively deallocated/deleted after this call. The arena
+	/*! @brief Reset the usage of the block.
+	All memory handed out are effectively deallocated/deleted after this call. The block
 	then transitions to its initial state and is ready for allocation again.
 	*/
 	void clear();

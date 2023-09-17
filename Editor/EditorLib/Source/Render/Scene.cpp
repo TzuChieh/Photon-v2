@@ -128,7 +128,7 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 			RegularPicture picture = io_utils::load_LDR_picture(pictureFile);
 			auto pictureBytes = picture.getPixels().getBytes();
 
-			GraphicsArena arena = gCtx.getMemoryManager().getRendererHostArena();
+			GraphicsArena arena = gCtx.getMemoryManager().newRenderProducerHostArena();
 			auto pixelData = arena.makeArray<std::byte>(pictureBytes.size());
 			std::copy_n(pictureBytes.data(), pictureBytes.size(), pixelData.data());
 

@@ -6,14 +6,14 @@ namespace ph::editor
 
 GraphicsMemoryManager::~GraphicsMemoryManager() = default;
 
-GraphicsArena GraphicsMemoryManager::getHostArena()
+GraphicsArena GraphicsMemoryManager::newHostArena()
 {
 	return GraphicsArena(this, GraphicsArena::EType::Host);
 }
 
-GraphicsArena GraphicsMemoryManager::getRendererHostArena()
+GraphicsArena GraphicsMemoryManager::newRenderProducerHostArena()
 {
-	return GraphicsArena(this, GraphicsArena::EType::RendererHost);
+	return GraphicsArena(this, GraphicsArena::EType::RenderProducerHost);
 }
 
 }// end namespace ph::editor

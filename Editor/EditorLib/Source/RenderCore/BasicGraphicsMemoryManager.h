@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <vector>
 
 namespace ph::editor
 {
@@ -22,11 +23,15 @@ public:
 	BasicGraphicsMemoryManager();
 
 	BasicGraphicsMemoryManager(
-		std::size_t hostBlockSize,
-		std::size_t maxHostBlocks);
+		std::size_t pooledHostBlockSize,
+		std::size_t maxPooledHostBlocks);
 
 	GraphicsMemoryBlock* allocHostBlock(uint32 numFramesToLive) override;
-	GraphicsMemoryBlock* allocCustomHostBlock(uint32 numFramesToLive, std::size_t blockSize) override;
+
+	GraphicsMemoryBlock* allocCustomHostBlock(
+		uint32 numFramesToLive,
+		std::size_t blockSize,
+		std::size_t blockAlignment) override;
 
 	void onGHILoad() override;
 	void onGHIUnload() override;
@@ -34,18 +39,28 @@ public:
 	void endFrameUpdate(const GHIThreadUpdateContext& ctx) override;
 
 private:
-	struct HostBlock
+	struct PooledHostBlock
 	{
 		HostMemoryBlock block;
 		uint32 numFramesLeft = 0;
 	};
 
-	std::unique_ptr<HostBlock[]> m_hostBlocks;
-	TAtomicQuasiQueue<HostBlock*> m_freeHostBlocks;
-	TAtomicQuasiQueue<HostBlock*> m_activeHostBlocks;
-	std::unique_ptr<HostBlock*[]> m_hostBlockCache;
-	std::size_t m_maxHostBlocks;
-	std::size_t m_hostBlockSize;
+	struct CustomHostBlock
+	{
+		std::unique_ptr<HostMemoryBlock> block;
+		uint32 numFramesLeft = 0;
+	};
+
+	std::unique_ptr<PooledHostBlock[]> m_hostBlocks;
+	TAtomicQuasiQueue<PooledHostBlock*> m_freeHostBlocks;
+	TAtomicQuasiQueue<PooledHostBlock*> m_activeHostBlocks;
+	std::unique_ptr<PooledHostBlock*[]> m_hostBlockCache;
+	std::size_t m_maxPooledHostBlocks;
+	std::size_t m_pooledHostBlockSize;
+
+	TAtomicQuasiQueue<CustomHostBlock> m_freeCustomHostBlocks;
+	TAtomicQuasiQueue<CustomHostBlock> m_activeCustomHostBlocks;
+	std::vector<CustomHostBlock> m_customHostBlockCache;
 };
 
 }// end namespace ph::editor
