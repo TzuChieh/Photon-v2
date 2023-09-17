@@ -2,7 +2,6 @@
 #include "Render/Imgui/imgui_common.h"
 #include "Render/RenderThreadCaller.h"
 #include "Render/Texture2D.h"
-#include "Render/DetailedTexture.h"
 #include "Render/System.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 //#include "Render/Imgui/Font/IconsMaterialDesign.h"

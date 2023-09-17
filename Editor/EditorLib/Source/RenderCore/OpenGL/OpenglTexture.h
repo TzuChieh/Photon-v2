@@ -15,7 +15,7 @@
 namespace ph::editor
 {
 
-class OpenglTexture
+class OpenglTexture final
 {
 public:
 	inline static constexpr GLuint DEFAULT_ID = 0;
@@ -28,14 +28,6 @@ public:
 	GLenum wrapType = GL_REPEAT;
 	uint32 numPixelComponents : 3 = 0;
 	uint32 isImmutableStorage : 1 = false;
-
-
-	/*void upload(
-		const std::byte* pixelData,
-		std::size_t numBytes,
-		EGHIPixelComponent componentType) override;
-
-	NativeHandle getNativeHandle() override;*/
 
 	void createImmutableStorage(const GHIInfoTextureDesc& desc);
 

@@ -14,24 +14,6 @@ Using DSA functions--no need to bind for most situations.
 https://www.khronos.org/opengl/wiki/Direct_State_Access
 */
 
-
-
-//
-//
-//auto OpenglTexture2D::getNativeHandle()
-//-> NativeHandle
-//{
-//	if(m_textureID != 0)
-//	{
-//		return static_cast<uint64>(m_textureID);
-//	}
-//	else
-//	{
-//		return std::monostate{};
-//	}
-//}
-//
-
 void OpenglTexture::createImmutableStorage(const GHIInfoTextureDesc& desc)
 {
 	PH_ASSERT(!hasResource());
