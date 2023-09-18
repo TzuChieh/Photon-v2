@@ -53,7 +53,7 @@ OpenglMesh::OpenglMesh(
 			m_vaoID,
 			attributeIdx,
 			lossless_cast<GLuint>(attrLocator.numElements),
-			opengl::translate(attrLocator.elementType),
+			opengl::to_data_type(attrLocator.elementType),
 			attrLocator.shouldNormalize ? GL_TRUE : GL_FALSE,
 			0);
 

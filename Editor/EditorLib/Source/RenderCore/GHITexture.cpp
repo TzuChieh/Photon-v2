@@ -1,5 +1,4 @@
 #include "RenderCore/GHITexture.h"
-#include "RenderCore/GHIFramebuffer.h"
 
 namespace ph::editor
 {

@@ -64,6 +64,11 @@ System::~System()
 {
 	// This is a pure render thread resident that needs to live/die on render thread
 	PH_ASSERT(Threads::isOnRenderThread());
+
+	PH_ASSERT_EQ(m_scenes.size(), 0);
+	PH_ASSERT_EQ(m_removedScenes.size(), 0);
+	PH_ASSERT_EQ(m_sceneStorage.size(), 0);
+	PH_ASSERT_EQ(m_removedSceneStorage.size(), 0);
 }
 
 void System::addScene(std::unique_ptr<Scene> scene)
@@ -92,7 +97,7 @@ void System::removeScene(Scene* scene)
 
 	std::erase(m_scenes, removedScene.get());
 
-	// TODO: cleanup scene
+	removedScene->removeAllContents();
 
 	m_removedScenes.push_back(removedScene.get());
 	m_removedSceneStorage.push_back({

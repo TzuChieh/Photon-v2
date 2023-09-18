@@ -1,115 +1,222 @@
 #include "RenderCore/OpenGL/OpenglFramebuffer.h"
-#include "RenderCore/OpenGL/OpenglFramebufferBackedTexture2D.h"
+#include "RenderCore/ghi_infos.h"
+#include "RenderCore/OpenGL/OpenglTexture.h"
+#include "RenderCore/OpenGL/opengl_config.h"
 
 #include <Utility/utility.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
+
+
 namespace ph::editor
 {
 
-OpenglFramebufferFormat::OpenglFramebufferFormat()
-	: internalFormat(GL_NONE)
-	, sampleState()
-{}
+//OpenglFramebuffer::OpenglFramebuffer(const GHIInfoFramebufferAttachment& attachments)
+//
+//	: GHIFramebuffer(attachments)
+//
+//	, m_attachments(attachments)
+//	, m_colorTextureIDs{}
+//	, m_depthStencilTextureID(0)
+//	, m_framebufferID(0)
+//{
+//	glCreateFramebuffers(1, &m_framebufferID);
+//
+//	for(uint32 attachmentIdx = 0; attachmentIdx < m_attachments.colorFormats.size(); ++attachmentIdx)
+//	{
+//		createDeviceColorTexture(attachmentIdx);
+//	}
+//	createDeviceDepthStencilTexture();
+//
+//	if(glCheckNamedFramebufferStatus(m_framebufferID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+//	{
+//		PH_DEFAULT_LOG_ERROR("[OpenglFramebuffer] {}", getFramebufferStatusInfo(m_framebufferID));
+//	}
+//}
 
-OpenglFramebufferFormat::OpenglFramebufferFormat(const GHIInfoFramebufferFormat& format)
-	: OpenglFramebufferFormat()
+void OpenglFramebuffer::createBuffer(const GHIInfoFramebufferDesc& desc)
 {
-	internalFormat = opengl::to_internal_format(format.pixelFormat);
-	sampleState = OpenglSampleState(format.sampleState);
-}
+	PH_ASSERT(!hasResource());
 
-OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo()
-	: widthPx(0)
-	, heightPx(0)
-	, numSamples(1)
-	, colorFormats()
-	, depthStencilFormat()
-	, depthStencilAttachment(0)
-{}
+	widthPx = lossless_cast<GLsizei>(desc.sizePx.x());
+	heightPx = lossless_cast<GLsizei>(desc.sizePx.y());
+	numSamples = lossless_cast<GLsizei>(desc.numSamples);
 
-OpenglFramebufferAttachmentInfo::OpenglFramebufferAttachmentInfo(const GHIInfoFramebufferAttachment& attachments)
-	: OpenglFramebufferAttachmentInfo()
-{
-	widthPx = lossless_cast<GLsizei>(attachments.sizePx.x());
-	heightPx = lossless_cast<GLsizei>(attachments.sizePx.y());
-	numSamples = lossless_cast<GLsizei>(attachments.numSamples);
-
-	for(std::size_t i = 0; i < attachments.colorFormats.size(); ++i)
+	for(int fi = 0; fi < desc.colorFormats.size(); ++fi)
 	{
-		colorFormats[i] = OpenglFramebufferFormat(attachments.colorFormats[i]);
+		if(fi >= colorAttachments.size() && !desc.colorFormats[fi].isEmpty())
+		{
+			PH_DEFAULT_LOG_ERROR(
+				"Too many color attachments, max = {}, ignoring the rest.", MAX_COLOR_ATTACHMENTS);
+			break;
+		}
+
+		colorAttachments[fi].internalFormat = opengl::to_internal_format(desc.colorFormats[fi].pixelFormat);
 	}
 
-	depthStencilFormat = OpenglFramebufferFormat(attachments.depthStencilFormat);
-
-	if(!depthStencilFormat.isEmpty())
+	depthStencilAttachment.internalFormat = opengl::to_internal_format(desc.depthStencilFormat.pixelFormat);
+	if(depthStencilAttachment.internalFormat != GL_NONE)
 	{
-		switch(depthStencilFormat.internalFormat)
+		switch(depthStencilAttachment.internalFormat)
 		{
 		case GL_DEPTH_COMPONENT32F:
 		case GL_DEPTH_COMPONENT24:
 		case GL_DEPTH_COMPONENT16:
-			depthStencilAttachment = GL_DEPTH_ATTACHMENT;
+			depthStencilAttachment.attachmentType = GL_DEPTH_ATTACHMENT;
 			break;
-
+		
 		case GL_DEPTH24_STENCIL8:
 		case GL_DEPTH32F_STENCIL8:
-			depthStencilAttachment = GL_DEPTH_STENCIL_ATTACHMENT;
+			depthStencilAttachment.attachmentType = GL_DEPTH_STENCIL_ATTACHMENT;
 			break;
-
+		
 		// Other stencil bitdepths are strongly unrecommended, see
 		// https://www.khronos.org/opengl/wiki/Image_Format#Stencil_only
 		case GL_STENCIL_INDEX8:
-			depthStencilAttachment = GL_STENCIL_ATTACHMENT;
+			depthStencilAttachment.attachmentType = GL_STENCIL_ATTACHMENT;
 			break;
-
+		
 		default:
 			PH_ASSERT_UNREACHABLE_SECTION();
 			break;
 		}
 	}
+
+	glCreateFramebuffers(1, &framebufferID);
+	
+	// Make the empty framebuffer valid for use. None of the fragment shader outputs will be written
+	// to anywhere in this case as nothing is attached to the framebuffer yet, but rendering can still
+	// proceed without problems. These parameters are ignored if textures are attached later.
+	glNamedFramebufferParameteri(framebufferID, GL_FRAMEBUFFER_DEFAULT_WIDTH, widthPx);
+	glNamedFramebufferParameteri(framebufferID, GL_FRAMEBUFFER_DEFAULT_HEIGHT, heightPx);
+
+#if PH_DEBUG_OPENGL
+	checkCompleteness();
+#endif
 }
 
-OpenglFramebuffer::OpenglFramebuffer(const GHIInfoFramebufferAttachment& attachments)
-
-	: GHIFramebuffer(attachments)
-
-	, m_attachments(attachments)
-	, m_colorTextureIDs{}
-	, m_depthStencilTextureID(0)
-	, m_framebufferID(0)
+void OpenglFramebuffer::attachColor(
+	uint32 attachmentIdx,
+	const OpenglTexture& colorTexture,
+	GHITextureHandle handle)
 {
-	glCreateFramebuffers(1, &m_framebufferID);
+	PH_ASSERT(hasResource());
 
-	for(uint32 attachmentIdx = 0; attachmentIdx < m_attachments.colorFormats.size(); ++attachmentIdx)
+	if(attachmentIdx >= colorAttachments.size() ||
+	   colorAttachments[attachmentIdx].internalFormat == GL_NONE)
 	{
-		createDeviceColorTexture(attachmentIdx);
+		PH_DEFAULT_LOG_ERROR(
+			"Too many color attachments (index = {}, empty = {}, max = {}), ignoring.",
+			attachmentIdx,
+			attachmentIdx >= colorAttachments.size() ? true : colorAttachments[attachmentIdx].internalFormat == GL_NONE,
+			MAX_COLOR_ATTACHMENTS);
+		return;
 	}
-	createDeviceDepthStencilTexture();
 
-	if(glCheckNamedFramebufferStatus(m_framebufferID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	if(!colorTexture.hasResource() || !handle)
 	{
-		PH_DEFAULT_LOG_ERROR("[OpenglFramebuffer] {}", getFramebufferStatusInfo(m_framebufferID));
+		PH_DEFAULT_LOG(
+			"Nullifying color attachment {}.", attachmentIdx);
+
+		// Attach empty texture to framebuffer (DSA)
+		glNamedFramebufferTexture(
+			framebufferID,
+			opengl::to_color_attachment(attachmentIdx),
+			0,
+			0);
+		return;
 	}
+
+	if(!colorTexture.isColor())
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"Texture for color attachment {} is not a color format.", attachmentIdx);
+	}
+
+	if(widthPx != colorTexture.widthPx ||
+	   heightPx != colorTexture.heightPx ||
+	   numSamples != colorTexture.numSamples ||
+	   colorAttachments[attachmentIdx].internalFormat != colorTexture.internalFormat)
+	{
+		PH_DEFAULT_LOG(
+			"Using heterogeneous color attachment on {}.", attachmentIdx);
+	}
+
+	colorAttachments[attachmentIdx].handle = handle;
+
+	// Attach texture to framebuffer (DSA)
+	glNamedFramebufferTexture(
+		framebufferID,
+		opengl::to_color_attachment(attachmentIdx),
+		colorTexture.textureID,
+		0);
+
+#if PH_DEBUG_OPENGL
+	checkCompleteness();
+#endif
 }
 
-OpenglFramebuffer::~OpenglFramebuffer()
+void OpenglFramebuffer::attachDepthStencil(
+	const OpenglTexture& depthStencilTexture,
+	GHITextureHandle handle)
 {
-	for(const GLuint colorTextureID : m_colorTextureIDs)
+	PH_ASSERT(hasResource());
+
+	if(depthStencilAttachment.internalFormat == GL_NONE)
 	{
-		glDeleteTextures(1, &colorTextureID);
+		PH_DEFAULT_LOG_ERROR(
+			"The buffer did not declare a depth stencil attachment, ignoring.");
+		return;
 	}
 
-	glDeleteTextures(1, &m_depthStencilTextureID);
+	if(!depthStencilTexture.hasResource() || !handle)
+	{
+		PH_DEFAULT_LOG(
+			"Nullifying depth stencil attachment.");
 
-	glDeleteFramebuffers(1, &m_framebufferID);
+		// Attach empty texture to framebuffer (DSA)
+		glNamedFramebufferTexture(
+			framebufferID,
+			depthStencilAttachment.attachmentType,
+			0,
+			0);
+		return;
+	}
+
+	if(depthStencilTexture.isColor())
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"Texture for depth stencil attachment is a color format.");
+	}
+
+	if(widthPx != depthStencilTexture.widthPx ||
+	   heightPx != depthStencilTexture.heightPx ||
+	   numSamples != depthStencilTexture.numSamples ||
+	   depthStencilAttachment.internalFormat != depthStencilTexture.internalFormat)
+	{
+		PH_DEFAULT_LOG(
+			"Using heterogeneous depth stencil attachment.");
+	}
+
+	depthStencilAttachment.handle = handle;
+
+	// Attach texture to framebuffer (DSA)
+	glNamedFramebufferTexture(
+		framebufferID,
+		depthStencilAttachment.attachmentType,
+		depthStencilTexture.textureID,
+		0);
+
+#if PH_DEBUG_OPENGL
+	checkCompleteness();
+#endif
 }
 
 void OpenglFramebuffer::bind()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferID);
-	glViewport(0, 0, m_attachments.widthPx, m_attachments.heightPx);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
+	glViewport(0, 0, widthPx, heightPx);
 }
 
 void OpenglFramebuffer::unbind()
@@ -117,9 +224,10 @@ void OpenglFramebuffer::unbind()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenglFramebuffer::clearColor(const uint32 attachmentIndex, const math::Vector4F& color)
+void OpenglFramebuffer::clearColor(const uint32 attachmentIdx, const math::Vector4F& color)
 {
-	PH_ASSERT(!m_attachments.colorFormats[attachmentIndex].isEmpty());
+	PH_ASSERT_LT(attachmentIdx, colorAttachments.size());
+	PH_ASSERT(colorAttachments[attachmentIdx].isAttached());
 
 	const std::array<GLfloat, 4> values = {
 		lossless_cast<GLfloat>(color.r()),
@@ -128,33 +236,33 @@ void OpenglFramebuffer::clearColor(const uint32 attachmentIndex, const math::Vec
 		lossless_cast<GLfloat>(color.a())};
 
 	glClearNamedFramebufferfv(
-		m_framebufferID, 
+		framebufferID, 
 		GL_COLOR, 
-		lossless_cast<GLint>(attachmentIndex),
+		lossless_cast<GLint>(attachmentIdx),
 		values.data());
 }
 
 void OpenglFramebuffer::clearDepthStencil(const float32 depth, const uint8 stencil)
 {
-	// Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClearBuffer.xhtml
+	PH_ASSERT(depthStencilAttachment.isAttached());
 
-	PH_ASSERT(!m_attachments.depthStencilFormat.isEmpty());
+	// Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glClearBuffer.xhtml
 
 	const auto depthValue = lossless_cast<GLfloat>(depth);
 	const auto stencilValue = lossless_cast<GLint>(stencil);
 
-	if(m_attachments.depthStencilAttachment == GL_DEPTH_ATTACHMENT)
+	if(depthStencilAttachment.attachmentType == GL_DEPTH_ATTACHMENT)
 	{
 		glClearNamedFramebufferfv(
-			m_framebufferID,
+			framebufferID,
 			GL_DEPTH,
 			0,
 			&depthValue);
 	}
-	else if(m_attachments.depthStencilAttachment == GL_DEPTH_STENCIL_ATTACHMENT)
+	else if(depthStencilAttachment.attachmentType == GL_DEPTH_STENCIL_ATTACHMENT)
 	{
 		glClearNamedFramebufferfi(
-			m_framebufferID,
+			framebufferID,
 			GL_DEPTH_STENCIL,
 			0,
 			depthValue,
@@ -162,174 +270,44 @@ void OpenglFramebuffer::clearDepthStencil(const float32 depth, const uint8 stenc
 	}
 	else
 	{
-		PH_ASSERT_EQ(m_attachments.depthStencilAttachment, GL_STENCIL_ATTACHMENT);
+		PH_ASSERT_EQ(depthStencilAttachment.attachmentType, GL_STENCIL_ATTACHMENT);
 
 		glClearNamedFramebufferiv(
-			m_framebufferID,
+			framebufferID,
 			GL_STENCIL,
 			0,
 			&stencilValue);
 	}
 }
 
-std::shared_ptr<GHITexture2D> OpenglFramebuffer::createTextureFromColor(const uint32 attachmentIndex)
+void OpenglFramebuffer::destroy()
 {
-	PH_ASSERT_LT(attachmentIndex, m_colorTextureIDs.size());
+	glDeleteFramebuffers(1, &framebufferID);
+	framebufferID = 0;
 
-	// The texture holds a reference to `this`--this will ensure that the OpenGL texture will not 
-	// be deleted until the texture is released. Relied on `this` being RAII.
-	return std::make_shared<OpenglFramebufferBackedTexture2D>(
-		std::static_pointer_cast<OpenglFramebuffer>(getSharedPtrFromThis()),
-		m_colorTextureIDs[attachmentIndex],
-		attachmentIndex,
-		false);
+	// Note: We are not deleting attached textures here, as those should be managed (deleted) by their
+	// corresponding owner. In OpenGL, deleting a texture while a framebuffer is still in use is fine,
+	// texture storage will still exist until the framebuffer is deleted. However, the texture ID may
+	// be reused once it is deleted and should not be relied upon.
 }
 
-void OpenglFramebuffer::createDeviceColorTexture(const uint32 attachmentIndex)
+bool OpenglFramebuffer::checkCompleteness()
 {
-	// Must have valid framebuffer
-	PH_ASSERT_NE(m_framebufferID, 0);
-
-	const OpenglFramebufferFormat& format = m_attachments.colorFormats[attachmentIndex];
-	if(format.isEmpty())
+	if(glCheckNamedFramebufferStatus(framebufferID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		// No need to create texture for an empty attachment
-		return;
+		PH_DEFAULT_LOG_ERROR(
+			"Framebuffer incomplete: {}", getFramebufferStatusInfo(framebufferID));
+		return false;
 	}
-	PH_ASSERT(opengl::is_color_format(format.internalFormat));
-
-	// Create new texture and attach it
-	
-	// Must not already created
-	PH_ASSERT_EQ(m_colorTextureIDs[attachmentIndex], 0);
-
-	// Create texture
-	GLuint& textureID = m_colorTextureIDs[attachmentIndex];
-	glCreateTextures(GL_TEXTURE_2D, 1, &textureID);
-
-	// Update texture parameters
-	
-	PH_ASSERT_NE(textureID, 0);
-
-	// Ordinary texture
-	if(m_attachments.numSamples == 1)
-	{
-		// Need bind since we are using non-DSA calls here (for mutable textures)
-		glBindTexture(GL_TEXTURE_2D, textureID);
-
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0, 
-			format.internalFormat,
-			m_attachments.widthPx,
-			m_attachments.heightPx,
-			0,
-			GL_RED,  //
-			GL_FLOAT,// Just some dummy values, we are not specifying any input data
-			nullptr);//
-
-		glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, format.sampleState.filterType);
-		glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, format.sampleState.filterType);
-
-		glTextureParameteri(textureID, GL_TEXTURE_WRAP_S, format.sampleState.wrapType);
-		glTextureParameteri(textureID, GL_TEXTURE_WRAP_T, format.sampleState.wrapType);
-	}
-	// Multi-sampled texture
 	else
 	{
-		PH_ASSERT_GT(m_attachments.numSamples, 1);
-
-		// Need bind since we are using non-DSA calls here (for mutable textures)
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureID);
-
-		glTexImage2DMultisample(
-			GL_TEXTURE_2D_MULTISAMPLE, 
-			m_attachments.numSamples,
-			format.internalFormat,
-			m_attachments.widthPx,
-			m_attachments.heightPx,
-			GL_FALSE);
+		return true;
 	}
-
-	// Attach texture to framebuffer (DSA)
-	glNamedFramebufferTexture(
-		m_framebufferID,
-		opengl::to_color_attachment(attachmentIndex),
-		textureID,
-		0);
 }
 
-void OpenglFramebuffer::createDeviceDepthStencilTexture()
+bool OpenglFramebuffer::hasResource() const
 {
-	// Must have valid framebuffer
-	PH_ASSERT_NE(m_framebufferID, 0);
-
-	const OpenglFramebufferFormat& format = m_attachments.depthStencilFormat;
-	if(format.isEmpty())
-	{
-		// No need to create texture for an empty attachment
-		return;
-	}
-	PH_ASSERT(!opengl::is_color_format(format.internalFormat));
-
-	// Create new texture and attach it
-
-	// Must not already created
-	PH_ASSERT_EQ(m_depthStencilTextureID, 0);
-
-	// Create texture
-	glCreateTextures(GL_TEXTURE_2D, 1, &m_depthStencilTextureID);
-
-	// Update texture parameters
-
-	PH_ASSERT_NE(m_depthStencilTextureID, 0);
-
-	// Ordinary texture
-	if(m_attachments.numSamples == 1)
-	{
-		// Need bind since we are using non-DSA calls here (for mutable textures)
-		glBindTexture(GL_TEXTURE_2D, m_depthStencilTextureID);
-
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			format.internalFormat,
-			m_attachments.widthPx,
-			m_attachments.heightPx,
-			0,
-			GL_RED,  //
-			GL_FLOAT,// Just some dummy values, we are not specifying any input data
-			nullptr);//
-
-		glTextureParameteri(m_depthStencilTextureID, GL_TEXTURE_MIN_FILTER, format.sampleState.filterType);
-		glTextureParameteri(m_depthStencilTextureID, GL_TEXTURE_MAG_FILTER, format.sampleState.filterType);
-
-		glTextureParameteri(m_depthStencilTextureID, GL_TEXTURE_WRAP_S, format.sampleState.wrapType);
-		glTextureParameteri(m_depthStencilTextureID, GL_TEXTURE_WRAP_T, format.sampleState.wrapType);
-	}
-	// Multi-sampled texture
-	else
-	{
-		PH_ASSERT_GT(m_attachments.numSamples, 1);
-
-		// Need bind since we are using non-DSA calls here (for mutable textures)
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_depthStencilTextureID);
-
-		glTexImage2DMultisample(
-			GL_TEXTURE_2D_MULTISAMPLE,
-			m_attachments.numSamples,
-			format.internalFormat,
-			m_attachments.widthPx,
-			m_attachments.heightPx,
-			GL_FALSE);
-	}
-
-	// Attach texture to framebuffer (DSA)
-	glNamedFramebufferTexture(
-		m_framebufferID,
-		m_attachments.depthStencilAttachment,
-		m_depthStencilTextureID,
-		0);
+	return framebufferID != 0;
 }
 
 std::string OpenglFramebuffer::getFramebufferStatusInfo(const GLuint framebufferID)

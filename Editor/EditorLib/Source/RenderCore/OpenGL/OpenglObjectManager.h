@@ -5,6 +5,7 @@
 #include "EditorCore/Storage/TConcurrentHandleDispatcher.h"
 #include "EditorCore/Storage/TWeakHandle.h"
 #include "RenderCore/OpenGL/OpenglTexture.h"
+#include "RenderCore/OpenGL/OpenglFramebuffer.h"
 
 #include <Utility/Concurrent/TAtomicQuasiQueue.h>
 #include <Utility/TFunction.h>
@@ -71,7 +72,7 @@ public:
 	GHITextureHandle createTexture(const GHIInfoTextureDesc& desc) override;
 
 	GHIFramebufferHandle createFramebuffer(
-		const GHIInfoFramebufferAttachment& attachments) override;
+		const GHIInfoFramebufferDesc& desc) override;
 
 	GHIShaderHandle createShader(
 		std::string name,
@@ -116,31 +117,22 @@ public:
 	void beginFrameUpdate(const GHIThreadUpdateContext& ctx) override;
 	void endFrameUpdate(const GHIThreadUpdateContext& ctx) override;
 
-private:
-	friend class OpenglGHI;
+public:
+	template<typename OpenglObjType, CWeakHandle HandleType>
+	using TPool = TTrivialItemPool<OpenglObjType, TConcurrentHandleDispatcher<HandleType>>;
 
-	OpenglTexture* getTexture(GHITextureHandle handle);
+	TPool<OpenglTexture, GHITextureHandle> textures;
+	TPool<OpenglFramebuffer, GHIFramebufferHandle> framebuffers;
 
 private:
 	void deleteAllObjects();
 	void deleteAllTextures();
 
 	OpenglContext& m_ctx;
-
-	template<typename OpenglObjType, CWeakHandle HandleType>
-	using TPool = TTrivialItemPool<OpenglObjType, TConcurrentHandleDispatcher<HandleType>>;
-
-	TPool<OpenglTexture, GHITextureHandle> m_textures;
-
 	TAtomicQuasiQueue<OpenglObjectCreator> m_creationQueue;
 	TAtomicQuasiQueue<OpenglObjectManipulator> m_manipulationQueue;
 	TAtomicQuasiQueue<OpenglObjectDeleter> m_deletionQueue;
 	std::vector<OpenglObjectDeleter> m_failedDeleterCache;
 };
-
-inline OpenglTexture* OpenglObjectManager::getTexture(const GHITextureHandle handle)
-{
-	return m_textures.get(handle);
-}
 
 }// end namespace ph::editor

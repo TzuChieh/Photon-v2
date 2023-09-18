@@ -73,15 +73,15 @@ public:
 		using reference = ItemType&;
 
 		// Default constructible
-		inline TIterator() = default;
+		TIterator() = default;
 
-		inline TIterator(PoolType* const pool, Index currentIdx)
+		TIterator(PoolType* const pool, Index currentIdx)
 			: m_pool(pool)
 			, m_currentIdx(currentIdx)
 		{}
 
 		// Dereferenceable
-		inline reference operator * () const
+		reference operator * () const
 		{
 			PH_ASSERT(m_pool);
 			PH_ASSERT_LT(m_currentIdx, m_pool->m_storageStates.size());
@@ -91,7 +91,7 @@ public:
 		}
 
 		// Pre-incrementable
-		inline TIterator& operator ++ ()
+		TIterator& operator ++ ()
 		{
 			PH_ASSERT(m_pool);
 
@@ -101,7 +101,7 @@ public:
 		}
 
 		// Post-incrementable
-		inline TIterator operator ++ (int)
+		TIterator operator ++ (int)
 		{
 			TIterator current = *this;
 			++(*this);
@@ -109,7 +109,7 @@ public:
 		}
 
 		// Pre-decrementable
-		inline TIterator& operator -- ()
+		TIterator& operator -- ()
 		{
 			PH_ASSERT(m_pool);
 
@@ -121,7 +121,7 @@ public:
 		}
 
 		// Post-decrementable
-		inline TIterator operator -- (int)
+		TIterator operator -- (int)
 		{
 			TIterator current = *this;
 			--(*this);
@@ -129,19 +129,33 @@ public:
 		}
 
 		// Equality
-		inline bool operator == (const TIterator& rhs)
+		bool operator == (const TIterator& rhs) const
 		{
 			return m_currentIdx == rhs.m_currentIdx && m_pool == rhs.m_pool;
 		}
 
 		// Inequality
-		inline bool operator != (const TIterator& rhs)
+		bool operator != (const TIterator& rhs) const
 		{
 			return !(*this == rhs);
 		}
 
+		/*!
+		@return Fresh handle of the current valid item.
+		*/
+		HandleType getHandle() const
+		{
+			PH_ASSERT(m_pool);
+			PH_ASSERT(!m_pool->m_storageStates[m_currentIdx].isFreed);
+
+			return m_pool->getHandleByIndex(m_currentIdx);
+		}
+
 	private:
 		PoolType* m_pool = nullptr;
+
+		// No hard referencing on the current item, so modification to the pool will not invalidate
+		// this iterator.
 		Index m_currentIdx = HandleType::INVALID_INDEX;
 	};
 
@@ -217,7 +231,7 @@ public:
 	}
 
 	/*!
-	Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
+	Will not invalidate iterators. Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
 	@return Handle of the added `item`.
 	*/
 	inline HandleType add(Item item)
@@ -226,7 +240,7 @@ public:
 	}
 
 	/*! @brief Remove the item at the storage slot indicated by `handle`.
-	Complexity: O(1).
+	Will not invalidate iterators. Complexity: O(1).
 	*/
 	template<typename ItemType>
 	inline void remove(const TCompatibleHandleType<ItemType>& handle)
@@ -235,7 +249,8 @@ public:
 	}
 
 	/*! @brief Place `item` at the storage slot indicated by `handle`.
-	Manual handle management API. Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
+	Manual handle management API. Will not invalidate iterators. Complexity: Amortized O(1).
+	O(1) if `hasFreeSpace()` returns true.
 	@return Handle of the created `item`. Equivalent to the input `handle`.
 	*/
 	template<typename ItemType>
@@ -285,7 +300,7 @@ public:
 	}
 
 	/*! @brief Remove the item at the storage slot indicated by `handle`.
-	Manual handle management API. Complexity: O(1).
+	Manual handle management API. Will not invalidate iterators. Complexity: O(1).
 	@return The handle for creating a new item on the storage slot that was indicated by `handle`.
 	The returned handle should not be discarded and is expected to be returned to the pool later by
 	calling `returnOneHandle()`.

@@ -16,7 +16,7 @@ public:
 	}
 
 	GHIFramebufferHandle createFramebuffer(
-		const GHIInfoFramebufferAttachment& attachments) override
+		const GHIInfoFramebufferDesc& desc) override
 	{
 		return GHIFramebufferHandle{};
 	}

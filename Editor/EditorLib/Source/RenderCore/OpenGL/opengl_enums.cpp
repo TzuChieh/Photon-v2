@@ -53,6 +53,172 @@ GLenum to_color_attachment(uint32 slotIndex)
 	}
 }
 
+GLenum to_data_type(EGHIPixelComponent componentType)
+{
+	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
+
+	switch(componentType)
+	{
+	case EGHIPixelComponent::Empty:
+		return GL_NONE;
+
+	case EGHIPixelComponent::Int8:
+		return GL_BYTE;
+
+	case EGHIPixelComponent::UInt8:
+		return GL_UNSIGNED_BYTE;
+
+	case EGHIPixelComponent::Int16:
+		return GL_SHORT;
+
+	case EGHIPixelComponent::UInt16:
+		return GL_UNSIGNED_SHORT;
+
+	case EGHIPixelComponent::Int32:
+		return GL_INT;
+
+	case EGHIPixelComponent::UInt32:
+		return GL_UNSIGNED_INT;
+
+	case EGHIPixelComponent::Float16:
+		return GL_HALF_FLOAT;
+
+	case EGHIPixelComponent::Float32:
+		return GL_FLOAT;
+
+	case EGHIPixelComponent::Float64:
+		return GL_DOUBLE;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
+GLenum to_data_type(EGHIStorageElement elementType)
+{
+	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
+
+	switch(elementType)
+	{
+	case EGHIStorageElement::Empty:
+		return GL_NONE;
+
+	case EGHIStorageElement::Int8:
+		return GL_BYTE;
+
+	case EGHIStorageElement::UInt8:
+		return GL_UNSIGNED_BYTE;
+
+	case EGHIStorageElement::Int16:
+		return GL_SHORT;
+
+	case EGHIStorageElement::UInt16:
+		return GL_UNSIGNED_SHORT;
+
+	case EGHIStorageElement::Int32:
+		return GL_INT;
+
+	case EGHIStorageElement::UInt32:
+		return GL_UNSIGNED_INT;
+
+	case EGHIStorageElement::Float16:
+		return GL_HALF_FLOAT;
+
+	case EGHIStorageElement::Float32:
+		return GL_FLOAT;
+
+	case EGHIStorageElement::Float64:
+		return GL_DOUBLE;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
+GLenum to_primitive_type(EGHIMeshDrawMode drawMode)
+{
+	switch(drawMode)
+	{
+	case EGHIMeshDrawMode::Points:
+		return GL_POINTS;
+
+	case EGHIMeshDrawMode::LineSegments:
+		return GL_LINES;
+
+	case EGHIMeshDrawMode::LineCurveOpened:
+		return GL_LINE_STRIP;
+
+	case EGHIMeshDrawMode::LineCurveClosed:
+		return GL_LINE_LOOP;
+
+	case EGHIMeshDrawMode::TriangleStrip:
+		return GL_TRIANGLE_STRIP;
+
+	case EGHIMeshDrawMode::TriangleFan:
+		return GL_TRIANGLE_FAN;
+
+	case EGHIMeshDrawMode::Triangles:
+		return GL_TRIANGLES;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
+GLenum to_shader_type(EGHIShadingStage shadingStage)
+{
+	switch(shadingStage)
+	{
+	case EGHIShadingStage::Vertex:
+		return GL_VERTEX_SHADER;
+
+	case EGHIShadingStage::Fragment:
+		return GL_FRAGMENT_SHADER;
+
+	case EGHIShadingStage::Compute:
+		return GL_COMPUTE_SHADER;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
+GLenum to_filter_type(EGHIFilterMode filterMode)
+{
+	switch(filterMode)
+	{
+	case EGHIFilterMode::Point:
+		return GL_NEAREST;
+
+	case EGHIFilterMode::Linear:
+		return GL_LINEAR;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
+GLenum to_wrap_type(EGHIWrapMode wrapMode)
+{
+	switch(wrapMode)
+	{
+	case EGHIWrapMode::ClampToEdge:
+		return GL_CLAMP_TO_EDGE;
+
+	case EGHIWrapMode::Repeat:
+		return GL_REPEAT;
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return GL_NONE;
+	}
+}
+
 GLenum to_base_format(GLenum internalFormat)
 {
 	// See the explanation on the `format` argument:
@@ -156,172 +322,6 @@ bool is_color_format(GLenum internalFormat)
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
-	}
-}
-
-GLenum translate(EGHIPixelComponent componentType)
-{
-	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
-
-	switch(componentType)
-	{
-	case EGHIPixelComponent::Empty:
-		return GL_NONE;
-
-	case EGHIPixelComponent::Int8:
-		return GL_BYTE;
-
-	case EGHIPixelComponent::UInt8:
-		return GL_UNSIGNED_BYTE;
-
-	case EGHIPixelComponent::Int16:
-		return GL_SHORT;
-
-	case EGHIPixelComponent::UInt16:
-		return GL_UNSIGNED_SHORT;
-
-	case EGHIPixelComponent::Int32:
-		return GL_INT;
-
-	case EGHIPixelComponent::UInt32:
-		return GL_UNSIGNED_INT;
-
-	case EGHIPixelComponent::Float16:
-		return GL_HALF_FLOAT;
-
-	case EGHIPixelComponent::Float32:
-		return GL_FLOAT;
-
-	case EGHIPixelComponent::Float64:
-		return GL_DOUBLE;
-
-	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return GL_NONE;
-	}
-}
-
-GLenum translate(EGHIStorageElement elementType)
-{
-	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
-
-	switch(elementType)
-	{
-	case EGHIStorageElement::Empty:
-		return GL_NONE;
-
-	case EGHIStorageElement::Int8:
-		return GL_BYTE;
-
-	case EGHIStorageElement::UInt8:
-		return GL_UNSIGNED_BYTE;
-
-	case EGHIStorageElement::Int16:
-		return GL_SHORT;
-
-	case EGHIStorageElement::UInt16:
-		return GL_UNSIGNED_SHORT;
-
-	case EGHIStorageElement::Int32:
-		return GL_INT;
-
-	case EGHIStorageElement::UInt32:
-		return GL_UNSIGNED_INT;
-
-	case EGHIStorageElement::Float16:
-		return GL_HALF_FLOAT;
-
-	case EGHIStorageElement::Float32:
-		return GL_FLOAT;
-
-	case EGHIStorageElement::Float64:
-		return GL_DOUBLE;
-
-	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return GL_NONE;
-	}
-}
-
-GLenum translate(EGHIMeshDrawMode drawMode)
-{
-	switch(drawMode)
-	{
-	case EGHIMeshDrawMode::Points:
-		return GL_POINTS;
-
-	case EGHIMeshDrawMode::LineSegments:
-		return GL_LINES;
-
-	case EGHIMeshDrawMode::LineCurveOpened:
-		return GL_LINE_STRIP;
-
-	case EGHIMeshDrawMode::LineCurveClosed:
-		return GL_LINE_LOOP;
-
-	case EGHIMeshDrawMode::TriangleStrip:
-		return GL_TRIANGLE_STRIP;
-
-	case EGHIMeshDrawMode::TriangleFan:
-		return GL_TRIANGLE_FAN;
-
-	case EGHIMeshDrawMode::Triangles:
-		return GL_TRIANGLES;
-
-	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return GL_NONE;
-	}
-}
-
-GLenum translate(EGHIShadingStage shadingStage)
-{
-	switch(shadingStage)
-	{
-	case EGHIShadingStage::Vertex:
-		return GL_VERTEX_SHADER;
-
-	case EGHIShadingStage::Fragment:
-		return GL_FRAGMENT_SHADER;
-
-	case EGHIShadingStage::Compute:
-		return GL_COMPUTE_SHADER;
-
-	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return GL_NONE;
-	}
-}
-
-GLenum translate(EGHIFilterMode filterMode)
-{
-	switch(filterMode)
-	{
-	case EGHIFilterMode::Point:
-		return GL_NEAREST;
-
-	case EGHIFilterMode::Linear:
-		return GL_LINEAR;
-
-	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return GL_NONE;
-	}
-}
-
-GLenum translate(EGHIWrapMode wrapMode)
-{
-	switch(wrapMode)
-	{
-	case EGHIWrapMode::ClampToEdge:
-		return GL_CLAMP_TO_EDGE;
-
-	case EGHIWrapMode::Repeat:
-		return GL_REPEAT;
-
-	default:
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return GL_NONE;
 	}
 }
 

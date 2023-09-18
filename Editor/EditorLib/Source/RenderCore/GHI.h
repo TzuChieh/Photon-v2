@@ -3,7 +3,6 @@
 #include "RenderCore/ghi_fwd.h"
 #include "RenderCore/ghi_enums.h"
 #include "RenderCore/GHITexture2D.h"
-#include "RenderCore/GHIFramebuffer.h"
 #include "RenderCore/GHIShader.h"
 #include "RenderCore/GHIShaderProgram.h"
 #include "RenderCore/GHIVertexStorage.h"
@@ -78,8 +77,10 @@ public:
 
 	virtual GHITextureNativeHandle tryGetTextureNativeHandle(GHITextureHandle handle) = 0;
 
-	virtual std::shared_ptr<GHIFramebuffer> createFramebuffer(
-		const GHIInfoFramebufferAttachment& attachments) = 0;
+	virtual void attachTextureToFramebuffer(
+		uint32 attachmentIdx,
+		GHITextureHandle textureHandle,
+		GHIFramebufferHandle framebufferHandle) = 0;
 
 	virtual std::shared_ptr<GHIShader> createShader(
 		std::string name, 

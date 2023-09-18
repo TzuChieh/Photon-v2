@@ -25,35 +25,18 @@ class GHIInfoTextureFormat final
 public:
 	GHIInfoSampleState sampleState;
 	EGHISizedPixelFormat pixelFormat = EGHISizedPixelFormat::Empty;
-
-	/*!
-	@return `true` if the conversion is an exact match.
-	*/
-	bool toFramebufferFormat(GHIInfoFramebufferFormat& framebufferFormat) const;
+	uint8 numSamples : 4 = 1;
 };
 
 class GHIInfoFramebufferFormat final
 {
 public:
-	GHIInfoSampleState sampleState;
 	EGHISizedPixelFormat pixelFormat = EGHISizedPixelFormat::Empty;
 
-	/*!
-	@return `true` if the conversion is an exact match.
-	*/
-	bool toTextureFormat(GHIInfoTextureFormat& out_textureFormat) const;
-};
-
-class GHIInfoFramebufferAttachment final
-{
-public:
-	inline constexpr static uint8 MAX_COLOR_ATTACHMENTS = 8;
-
-public:
-	math::Vector2UI sizePx = {0, 0};
-	std::array<GHIInfoFramebufferFormat, MAX_COLOR_ATTACHMENTS> colorFormats;
-	GHIInfoFramebufferFormat depthStencilFormat;
-	uint8 numSamples = 1;
+	bool isEmpty() const
+	{
+		return pixelFormat == EGHISizedPixelFormat::Empty;
+	}
 };
 
 /*!
@@ -120,7 +103,7 @@ public:
 	math::Vector3UI sizePx = {0, 0, 0};
 	GHIInfoTextureFormat format;
 
-	inline GHIInfoTextureDesc& setSize1D(const uint32 lengthPx)
+	GHIInfoTextureDesc& setSize1D(const uint32 lengthPx)
 	{
 		sizePx.x() = lengthPx;
 		sizePx.y() = 1;
@@ -128,13 +111,25 @@ public:
 		return *this;
 	}
 
-	inline GHIInfoTextureDesc& setSize2D(const math::Vector2UI& widthAndHeightPx)
+	GHIInfoTextureDesc& setSize2D(const math::Vector2UI& widthAndHeightPx)
 	{
 		sizePx.x() = widthAndHeightPx.x();
 		sizePx.y() = widthAndHeightPx.y();
 		sizePx.z() = 1;
 		return *this;
 	}
+};
+
+class GHIInfoFramebufferDesc final
+{
+public:
+	inline constexpr static uint8 MAX_COLOR_ATTACHMENTS = 8;
+
+public:
+	math::Vector2UI sizePx = {0, 0};
+	std::array<GHIInfoFramebufferFormat, MAX_COLOR_ATTACHMENTS> colorFormats;
+	GHIInfoFramebufferFormat depthStencilFormat;
+	uint8 numSamples : 4 = 1;
 };
 
 }// end namespace ph::editor

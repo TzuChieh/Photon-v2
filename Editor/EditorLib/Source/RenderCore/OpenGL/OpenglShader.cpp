@@ -19,7 +19,7 @@ OpenglShader::OpenglShader(
 
 	, m_shaderID(0)
 {
-	m_shaderID = glCreateShader(opengl::translate(shadingStage));
+	m_shaderID = glCreateShader(opengl::to_shader_type(shadingStage));
 
 	const GLchar* const shaderSourceCstr = shaderSource.c_str();
 	glShaderSource(

@@ -277,15 +277,15 @@ void OpenglGHI::draw(GHIMesh& mesh, const EGHIMeshDrawMode drawMode)
 		const GHIIndexStorage& indexStorage = mesh.getIndexStorage();
 
 		glDrawElements(
-			opengl::translate(drawMode), 
+			opengl::to_primitive_type(drawMode), 
 			lossless_cast<GLsizei>(indexStorage.numIndices()),
-			opengl::translate(indexStorage.getIndexType()),
+			opengl::to_data_type(indexStorage.getIndexType()),
 			reinterpret_cast<GLbyte*>(0));
 	}
 	else if(mesh.numVertexStorages() > 0)
 	{
 		glDrawArrays(
-			opengl::translate(drawMode),
+			opengl::to_primitive_type(drawMode),
 			0,
 			lossless_cast<GLsizei>(mesh.getVertexStorage(0).numVertices()));
 	}
@@ -308,8 +308,8 @@ bool OpenglGHI::tryUploadPixelData(
 	EGHIPixelFormat pixelFormat,
 	EGHIPixelComponent pixelComponent)
 {
-	OpenglTexture* texture = m_ctx.getObjectManager().getTexture(handle);
-	if(!texture || !texture->hasResource())
+	OpenglTexture* texture = m_ctx.getObjectManager().textures.get(handle);
+	if(!texture)
 	{
 		return false;
 	}
@@ -320,8 +320,8 @@ bool OpenglGHI::tryUploadPixelData(
 
 GHITextureNativeHandle OpenglGHI::tryGetTextureNativeHandle(const GHITextureHandle handle)
 {
-	OpenglTexture* texture = m_ctx.getObjectManager().getTexture(handle);
-	if(!texture || texture->textureID == OpenglTexture::DEFAULT_ID)
+	OpenglTexture* texture = m_ctx.getObjectManager().textures.get(handle);
+	if(!texture || texture->textureID == 0)
 	{
 		return {};
 	}
@@ -329,10 +329,33 @@ GHITextureNativeHandle OpenglGHI::tryGetTextureNativeHandle(const GHITextureHand
 	return static_cast<uint64>(texture->textureID);
 }
 
-std::shared_ptr<GHIFramebuffer> OpenglGHI::createFramebuffer(
-	const GHIInfoFramebufferAttachment& attachments)
+void OpenglGHI::attachTextureToFramebuffer(
+	uint32 attachmentIdx,
+	GHITextureHandle textureHandle,
+	GHIFramebufferHandle framebufferHandle)
 {
-	return std::make_shared<OpenglFramebuffer>(attachments);
+	OpenglTexture* texture = m_ctx.getObjectManager().textures.get(textureHandle);
+	OpenglFramebuffer* framebuffer = m_ctx.getObjectManager().framebuffers.get(framebufferHandle);
+	if(!texture || !framebuffer)
+	{
+		return;
+	}
+
+	if(texture->isColor())
+	{
+		framebuffer->attachColor(attachmentIdx, *texture, textureHandle);
+	}
+	else
+	{
+		if(attachmentIdx != 0)
+		{
+			PH_LOG_WARNING(OpenglGHI,
+				"Attempting to attach depth stencil texture to invalid attachment point {}.",
+				attachmentIdx);
+		}
+
+		framebuffer->attachDepthStencil(*texture, textureHandle);
+	}
 }
 
 std::shared_ptr<GHIShader> OpenglGHI::createShader(

@@ -42,30 +42,40 @@ Scene::Scene(std::string debugName)
 
 Scene::~Scene()
 {
-	bool hasRemainedResources = false;
+	std::size_t numLeftoverContents = m_textures.numItems();
+	if(numLeftoverContents != 0)
+	{
+		PH_LOG_ERROR(Scene,
+			"{} render contents are still present on scene destruction; remove the contents when "
+			"you are done with them.", numLeftoverContents);
+
+		PH_LOG(Scene,
+			"Trying to cleanup leftover contents...");
+		removeAllContents();
+	}
+
+	bool hasLeakedResources = false;
 
 	if(!m_resources.isEmpty())
 	{
-		hasRemainedResources = true;
-
 		PH_LOG_ERROR(Scene,
 			"{} resources are leaked; remove the resource when you are done with it", 
 			m_resources.size());
+		hasLeakedResources = true;
 	}
 
 	if(!m_resourcesPendingSetup.empty() ||
        !m_resourcesPendingCleanup.empty() ||
        !m_resourcesPendingDestroy.empty())
 	{
-		hasRemainedResources = true;
+		hasLeakedResources = true;
 	}
 
-	if(hasRemainedResources)
+	if(hasLeakedResources)
 	{
 		PH_LOG_WARNING(Scene,
 			"remained resources detected on scene (name: {}) destruction",
 			m_debugName);
-
 		reportResourceStates();
 	}
 }
@@ -287,6 +297,19 @@ void Scene::setSystem(System* sys)
 {
 	PH_ASSERT(sys);
 	m_sys = sys;
+}
+
+void Scene::removeAllContents()
+{
+	// Remove textures
+	{
+		auto textureIter = m_textures.begin();
+		while(textureIter != m_textures.end())
+		{
+			removeTexture(textureIter.getHandle());
+			++textureIter;
+		}
+	}
 }
 
 }// end namespace ph::editor::render

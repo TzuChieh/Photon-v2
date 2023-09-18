@@ -57,7 +57,6 @@ using GHITextureNativeHandle = std::variant<
 class GHIInfoSampleState;
 class GHIInfoTextureFormat;
 class GHIInfoFramebufferFormat;
-class GHIInfoFramebufferAttachment;
 class GHIInfoShaderSet;
 class GHIInfoVertexAttributeLocator;
 class GHIInfoVertexGroupFormat;
@@ -66,5 +65,6 @@ class GHIInfoDeviceCapability;
 
 // Description info types
 class GHIInfoTextureDesc;
+class GHIInfoFramebufferDesc;
 
 }// end namespace ph::editor

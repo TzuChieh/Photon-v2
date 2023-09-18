@@ -38,7 +38,7 @@ public:
 	*/
 	[[nodiscard]]
 	virtual GHIFramebufferHandle createFramebuffer(
-		const GHIInfoFramebufferAttachment& attachments) = 0;
+		const GHIInfoFramebufferDesc& desc) = 0;
 
 	/*!
 	@note Thread safe.

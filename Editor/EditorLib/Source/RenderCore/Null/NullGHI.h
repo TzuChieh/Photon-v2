@@ -49,11 +49,11 @@ public:
 		return {};
 	}
 
-	std::shared_ptr<GHIFramebuffer> createFramebuffer(
-		const GHIInfoFramebufferAttachment& attachments) override
-	{
-		return nullptr;
-	}
+	void attachTextureToFramebuffer(
+		uint32 attachmentIdx,
+		GHITextureHandle textureHandle,
+		GHIFramebufferHandle framebufferHandle) override
+	{}
 
 	std::shared_ptr<GHIShader> createShader(
 		std::string name,

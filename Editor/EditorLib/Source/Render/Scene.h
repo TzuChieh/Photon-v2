@@ -60,6 +60,7 @@ public:
 	System& getSystem();
 
 	void setSystem(System* sys);
+	void removeAllContents();
 
 public:
 	ProjectiveView mainView;

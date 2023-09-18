@@ -15,10 +15,10 @@ OpenglObjectManager::OpenglObjectManager(OpenglContext& ctx)
 
 	: GraphicsObjectManager()
 
+	, textures()
+	, framebuffers()
+
 	, m_ctx(ctx)
-
-	, m_textures()
-
 	, m_creationQueue()
 	, m_manipulationQueue()
 	, m_deletionQueue()
@@ -31,13 +31,13 @@ GHITextureHandle OpenglObjectManager::createTexture(const GHIInfoTextureDesc& de
 {
 	PH_PROFILE_SCOPE();
 
-	GHITextureHandle handle = m_textures.dispatchOneHandle();
+	GHITextureHandle handle = textures.dispatchOneHandle();
 
 	OpenglObjectCreator creator;
-	creator.op = [&textures = m_textures, desc, handle]()
+	creator.op = [&textures = textures, desc, handle]()
 	{
 		OpenglTexture texture;
-		texture.createImmutableStorage(desc);
+		texture.create(desc);
 		textures.createAt(handle, texture);
 	};
 	m_creationQueue.enqueue(creator);
@@ -46,7 +46,7 @@ GHITextureHandle OpenglObjectManager::createTexture(const GHIInfoTextureDesc& de
 }
 
 GHIFramebufferHandle OpenglObjectManager::createFramebuffer(
-	const GHIInfoFramebufferAttachment& attachments)
+	const GHIInfoFramebufferDesc& desc)
 {
 	return GHIFramebufferHandle{};
 }
@@ -99,7 +99,7 @@ void OpenglObjectManager::uploadPixelData(
 	PH_PROFILE_SCOPE();
 
 	OpenglObjectManipulator manipulator;
-	manipulator.op = [&textures = m_textures, pixelData, handle, pixelFormat, pixelComponent]()
+	manipulator.op = [&textures = textures, pixelData, handle, pixelFormat, pixelComponent]()
 	{
 		OpenglTexture* texture = textures.get(handle);
 		if(!texture || !texture->hasResource())
@@ -127,7 +127,7 @@ void OpenglObjectManager::removeTexture(const GHITextureHandle handle)
 	}
 
 	OpenglObjectDeleter deleter;
-	deleter.op = [&textures = m_textures, handle]() -> bool
+	deleter.op = [&textures = textures, handle]() -> bool
 	{
 		OpenglTexture* texture = textures.get(handle);
 		if(!texture || !texture->hasResource())
@@ -168,18 +168,18 @@ void OpenglObjectManager::deleteAllObjects()
 void OpenglObjectManager::deleteAllTextures()
 {
 	std::size_t numDeleted = 0;
-	for(std::size_t i = 0; i < m_textures.capacity(); ++i)
+	for(std::size_t i = 0; i < textures.capacity(); ++i)
 	{
-		if(m_textures[i].hasResource())
+		if(textures[i].hasResource())
 		{
-			m_textures[i].destroy();
+			textures[i].destroy();
 			++numDeleted;
 		}
 	}
 
 	PH_LOG(OpenglObjectManager,
 		"Deleted {} textures. Storage capacity = {}.",
-		numDeleted, m_textures.capacity());
+		numDeleted, textures.capacity());
 }
 
 void OpenglObjectManager::onGHILoad()
