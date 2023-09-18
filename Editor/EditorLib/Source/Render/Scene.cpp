@@ -301,6 +301,9 @@ void Scene::setSystem(System* sys)
 
 void Scene::removeAllContents()
 {
+	PH_LOG(Scene,
+		"Removing all contents in {}.", getDebugName());
+
 	// Remove textures
 	{
 		auto textureIter = m_textures.begin();

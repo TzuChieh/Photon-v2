@@ -35,8 +35,8 @@ System::System(GraphicsContext& graphicsCtx)
 
 	, m_sceneStorage()
 	, m_scenes()
+	, m_removingScenes()
 	, m_removedScenes()
-	, m_removedSceneStorage()
 
 	, m_fileReadingThread()
 	, m_queryManager()
@@ -65,18 +65,16 @@ System::~System()
 	// This is a pure render thread resident that needs to live/die on render thread
 	PH_ASSERT(Threads::isOnRenderThread());
 
-	PH_ASSERT_EQ(m_scenes.size(), 0);
-	PH_ASSERT_EQ(m_removedScenes.size(), 0);
 	PH_ASSERT_EQ(m_sceneStorage.size(), 0);
-	PH_ASSERT_EQ(m_removedSceneStorage.size(), 0);
+	PH_ASSERT_EQ(m_scenes.size(), 0);
+	PH_ASSERT_EQ(m_removingScenes.size(), 0);
+	PH_ASSERT_EQ(m_removedScenes.size(), 0);
 }
 
 void System::addScene(std::unique_ptr<Scene> scene)
 {
 	if(!scene)
 	{
-		PH_LOG_WARNING(System,
-			"Adding null scene, ignoring");
 		return;
 	}
 
@@ -87,21 +85,13 @@ void System::addScene(std::unique_ptr<Scene> scene)
 
 void System::removeScene(Scene* scene)
 {
-	std::unique_ptr<Scene> removedScene = m_sceneStorage.remove(scene);
-	if(!removedScene)
+	if(!scene)
 	{
-		PH_LOG_WARNING(System,
-			"Cannot find the scene to remove");
 		return;
 	}
 
-	std::erase(m_scenes, removedScene.get());
-
-	removedScene->removeAllContents();
-
-	m_removedScenes.push_back(removedScene.get());
-	m_removedSceneStorage.push_back({
-		.scene = std::move(removedScene)});
+	std::erase(m_scenes, scene);
+	m_removingScenes.push_back(scene);
 }
 
 void System::addFileReadingWork(FileReadingWork work)
@@ -129,10 +119,25 @@ void System::processQueries()
 	m_queryManager.processQueries(*this);
 }
 
+void System::clearRemovingScenes()
+{
+	m_removedScenes.insert(m_removedScenes.end(), m_removingScenes.begin(), m_removingScenes.end());
+	m_removingScenes.clear();
+}
+
 void System::clearRemovedScenes()
 {
+	for(Scene* scene : m_removedScenes)
+	{
+		std::unique_ptr<Scene> removedScene = m_sceneStorage.remove(scene);
+		if(!removedScene)
+		{
+			PH_LOG_ERROR(System,
+				"Removed scene {} was not in the system storage. Please make sure to transfer scene "
+				"ownership to the system after construction.", scene->getDebugName());
+		}
+	}
 	m_removedScenes.clear();
-	m_removedSceneStorage.clear();
 }
 
 }// end namespace ph::editor::render

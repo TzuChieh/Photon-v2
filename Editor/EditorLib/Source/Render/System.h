@@ -16,7 +16,6 @@
 #include <functional>
 #include <memory>
 #include <vector>
-#include <list>
 
 namespace ph::editor { class GraphicsContext; }
 
@@ -36,6 +35,7 @@ public:
 	void addScene(std::unique_ptr<Scene> scene);
 	void removeScene(Scene* scene);
 	TSpan<Scene*> getScenes();
+	TSpan<Scene*> getRemovingScenes();
 	TSpan<Scene*> getRemovedScenes();
 
 	/*! @brief Add a file reading work, which may run on another thread.
@@ -51,20 +51,16 @@ private:
 
 	void waitAllFileReadingWorks();
 	void processQueries();
+	void clearRemovingScenes();
 	void clearRemovedScenes();
 
 private:
-	struct RemovedScene
-	{
-		std::unique_ptr<Scene> scene;
-	};
-
 	GraphicsContext& m_graphicsCtx;
 
 	TUniquePtrVector<Scene> m_sceneStorage;
 	std::vector<Scene*> m_scenes;
+	std::vector<Scene*> m_removingScenes;
 	std::vector<Scene*> m_removedScenes;
-	std::list<RemovedScene> m_removedSceneStorage;
 
 	TSPSCExecutor<FileReadingWork> m_fileReadingThread;
 	TConcurrentQueryManager<System> m_queryManager;
@@ -73,6 +69,11 @@ private:
 inline TSpan<Scene*> System::getScenes()
 {
 	return m_scenes;
+}
+
+inline TSpan<Scene*> System::getRemovingScenes()
+{
+	return m_removingScenes;
 }
 
 inline TSpan<Scene*> System::getRemovedScenes()
@@ -105,6 +106,11 @@ public:
 	void processQueries()
 	{
 		m_sys.processQueries();
+	}
+
+	void clearRemovingScenes()
+	{
+		m_sys.clearRemovingScenes();
 	}
 
 	void clearRemovedScenes()

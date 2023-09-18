@@ -81,19 +81,27 @@ void RenderThread::onAsyncWorkerStop()
 	// Wait for all previous GHI works to finish
 	m_ghiThread.beginFrame();
 
-	// Cleanup removed scenes just like how we did in `onEndFrame()`
+	// Process scene removal just like how we did in `onBeginFrame()` & `onEndFrame()`
 	{
-		for(render::Scene* scene : m_system->getRemovedScenes())
+		for(render::Scene* scene : m_system->getRemovingScenes())
 		{
+			scene->removeAllContents();
+
 			GHIThreadCaller caller(m_ghiThread);
 			scene->cleanupGHIForPendingResources(caller);
+		}
+		render::SystemController(*m_system).clearRemovingScenes();
+
+		m_ghiThread.waitAllWorks();
+
+		// We can only destory resources once we are sure the GHI thread is done accessing them
+		// (with memory effects on GHI thread made visible).
+		for(render::Scene* scene : m_system->getRemovedScenes())
+		{
 			scene->destroyPendingResources();
 		}
-
 		render::SystemController(*m_system).clearRemovedScenes();
 	}
-
-	// TODO: cleanup scene
 
 	m_ghiThread.requestWorkerStop();
 	m_ghiThread.endFrame();
@@ -137,6 +145,34 @@ void RenderThread::onBeginFrame()
 			sys.updateCtx = updateCtx;
 		});
 
+	// Begin of GHI work submission
+	addWork(
+		[this](render::System& sys)
+		{
+			// Placement of other expressions relative to GHI begin frame is important--
+			// this waits for all previous GHI works to finish.
+			m_ghiThread.beginFrame();
+
+			// Destory resources once we are sure the GHI thread is done accessing them
+			// (with memory effects on GHI thread made visible).
+			{
+				for(render::Scene* scene : sys.getScenes())
+				{
+					scene->destroyPendingResources();
+				}
+			}
+
+			// Process all removed scenes similarly.
+			{
+				for(render::Scene* scene : sys.getRemovedScenes())
+				{
+					scene->destroyPendingResources();
+				}
+
+				render::SystemController(sys).clearRemovedScenes();
+			}
+		});
+
 	addWork(
 		[this](render::System& /* sys */)
 		{
@@ -155,48 +191,39 @@ void RenderThread::onEndFrame()
 		});
 
 	addWork(
-		[](render::System& sys)
+		[this](render::System& sys)
 		{
 			for(render::Scene* scene : sys.getScenes())
 			{
 				scene->updateCustomRenderContents(sys.updateCtx);
+
+				GHIThreadCaller caller(m_ghiThread);
+				scene->createGHICommandsForCustomRenderContents(caller);
 			}
 		});
 
-	// GHI work submission
+	// End of GHI work submission
 	addWork(
 		[this](render::System& sys)
 		{
-			// Placement of GHI begin frame is important--it waits for all previous GHI works to finish
-			m_ghiThread.beginFrame();
-
-			// Destory resources once we are sure the GHI thread is done accessing them
-			// (with memory effects on GHI thread made visible)
-			{
-				for(render::Scene* scene : sys.getScenes())
-				{
-					scene->destroyPendingResources();
-				}
-			}
-
-			// Cleanup removed scenes
-			{
-				for(render::Scene* scene : sys.getRemovedScenes())
-				{
-					GHIThreadCaller caller(m_ghiThread);
-					scene->cleanupGHIForPendingResources(caller);
-					scene->destroyPendingResources();
-				}
-
-				render::SystemController(sys).clearRemovedScenes();
-			}
-
 			for(render::Scene* scene : sys.getScenes())
 			{
 				GHIThreadCaller caller(m_ghiThread);
 				scene->setupGHIForPendingResources(caller);
-				scene->createGHICommandsForCustomRenderContents(caller);
 				scene->cleanupGHIForPendingResources(caller);
+			}
+
+			// Process scenes marked as removing. Only then we can mark them as removed.
+			{
+				for(render::Scene* scene : sys.getRemovingScenes())
+				{
+					scene->removeAllContents();
+
+					GHIThreadCaller caller(m_ghiThread);
+					scene->cleanupGHIForPendingResources(caller);
+				}
+
+				render::SystemController(sys).clearRemovingScenes();
 			}
 
 			m_ghiThread.endFrame();

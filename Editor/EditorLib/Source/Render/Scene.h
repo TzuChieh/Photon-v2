@@ -58,6 +58,7 @@ public:
 
 	void reportResourceStates();
 	System& getSystem();
+	const std::string& getDebugName() const;
 
 	void setSystem(System* sys);
 	void removeAllContents();
@@ -85,6 +86,11 @@ inline System& Scene::getSystem()
 {
 	PH_ASSERT(m_sys);
 	return *m_sys;
+}
+
+inline const std::string& Scene::getDebugName() const
+{
+	return m_debugName;
 }
 
 }// end namespace ph::editor::render

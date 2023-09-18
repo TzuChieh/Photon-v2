@@ -82,7 +82,7 @@ A typical call sequence of the class would be like:
 * one or more calls to:
   - `beginFrame()`
   - any number of calls to `addWork()`
-  - possibly call `requestWorkerStop()`
+  - possibly call `requestWorkerStop()` or `waitAllWorks()`
   - `endFrame()`
 * `waitForWorkerToStop()`
 * dtor call
