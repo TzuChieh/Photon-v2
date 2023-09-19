@@ -18,7 +18,7 @@ namespace ph::editor::render
 
 ImguiRenderContent::ImguiRenderContent()
 
-	: CustomContent(ERenderTiming::AfterMainScene)
+	: IDynamicSceneResource()
 
 	, m_sharedRenderData()
 	, m_numAvailableRenderData(0)

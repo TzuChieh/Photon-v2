@@ -4,7 +4,7 @@ namespace ph::editor::render
 {
 
 TextureResource::TextureResource()
-	: SceneResource()
+	: ISceneResource()
 {}
 
 TextureResource::~TextureResource() = default;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/SceneResource.h"
+#include "Render/ISceneResource.h"
 
 #include <memory>
 
@@ -9,7 +9,7 @@ namespace ph::editor { class GHIShaderProgram; }
 namespace ph::editor::render
 {
 
-class Shader : public SceneResource
+class Shader : public ISceneResource
 {
 public:
 	Shader();

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Render/CustomContent.h"
-#include "Render/SceneResource.h"
+#include "Render/ISceneResource.h"
+#include "Render/IDynamicSceneResource.h"
 #include "Render/View/ProjectiveView.h"
 #include "EditorCore/Storage/TItemPool.h"
 #include "EditorCore/Storage/TConcurrentHandleDispatcher.h"
@@ -11,6 +11,8 @@
 #include <Common/assertion.h>
 #include <Utility/TUniquePtrVector.h>
 #include <Utility/INoCopyAndMove.h>
+#include <Utility/TSortedVector.h>
+#include <Utility/TFunction.h>
 
 #include <memory>
 #include <vector>
@@ -45,22 +47,20 @@ public:
 	void removeTexture(TextureHandle handle);
 	void loadPicture(TextureHandle handle, const Path& pictureFile);
 
-	void addResource(std::unique_ptr<SceneResource> resource);
-	void setupGHIForPendingResources(GHIThreadCaller& caller);
-	void cleanupGHIForPendingResources(GHIThreadCaller& caller);
-	void destroyPendingResources();
-	void removeResource(SceneResource* resourcePtr);
+	void runPendingSetups(GHIThreadCaller& caller);
+	void runPendingCleanups(GHIThreadCaller& caller);
 
-	void addCustomRenderContent(std::unique_ptr<CustomContent> content);
-	void updateCustomRenderContents(const UpdateContext& ctx);
-	void createGHICommandsForCustomRenderContents(GHIThreadCaller& caller);
-	void removeCustomRenderContent(CustomContent* content);
+	void addResource(std::unique_ptr<ISceneResource> resource);
+	void addDynamicResource(std::unique_ptr<IDynamicSceneResource> resource);
+	void removeResource(ISceneResource* resource);
+	void destroyRemovedResources();
+	void updateDynamicResources(const UpdateContext& ctx);
+	void createGHICommandsForDynamicResources(GHIThreadCaller& caller);
 
-	void reportResourceStates();
 	System& getSystem();
 	const std::string& getDebugName() const;
-
 	void setSystem(System* sys);
+
 	void removeAllContents();
 
 public:
@@ -75,11 +75,20 @@ private:
 
 	TContentPool<Texture, TextureHandle> m_textures;
 
-	TUniquePtrVector<SceneResource> m_resources;
-	std::vector<SceneResource*> m_resourcesPendingSetup;
-	std::vector<SceneResource*> m_resourcesPendingCleanup;
-	std::vector<SceneResource*> m_resourcesPendingDestroy;
-	std::vector<CustomContent*> m_customRenderContents;
+	std::vector<TFunction<void(GHIThreadCaller& caller)>> m_pendingSetups;
+	std::vector<TFunction<void(GHIThreadCaller& caller)>> m_pendingCleanups;
+
+	struct DynamicResourceOrderer
+	{
+		bool operator () (const IDynamicSceneResource* a, const IDynamicSceneResource* b) const
+		{
+			return a->getProcessOrder() < b->getProcessOrder();
+		}
+	};
+
+	TUniquePtrVector<ISceneResource> m_resources;
+	std::vector<ISceneResource*> m_resourcesPendingDestroy;
+	TSortedVector<IDynamicSceneResource*, DynamicResourceOrderer> m_dynamicResources;
 };
 
 inline System& Scene::getSystem()

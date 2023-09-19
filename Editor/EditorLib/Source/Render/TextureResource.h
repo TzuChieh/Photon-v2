@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/SceneResource.h"
+#include "Render/ISceneResource.h"
 #include "RenderCore/ghi_fwd.h"
 
 #include <memory>
@@ -9,7 +9,7 @@
 namespace ph::editor::render
 {
 
-class TextureResource : public SceneResource
+class TextureResource : public ISceneResource
 {
 public:
 	TextureResource();

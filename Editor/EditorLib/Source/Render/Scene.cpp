@@ -33,11 +33,12 @@ Scene::Scene(std::string debugName)
 
 	, m_textures()
 
+	, m_pendingSetups()
+	, m_pendingCleanups()
+
 	, m_resources()
-	, m_resourcesPendingSetup()
-	, m_resourcesPendingCleanup()
 	, m_resourcesPendingDestroy()
-	, m_customRenderContents()
+	, m_dynamicResources()
 {}
 
 Scene::~Scene()
@@ -54,29 +55,18 @@ Scene::~Scene()
 		removeAllContents();
 	}
 
-	bool hasLeakedResources = false;
+	if(!m_pendingCleanups.empty())
+	{
+		PH_LOG_ERROR(Scene,
+			"{} pending GHI cleanups are not executed", m_pendingCleanups.size());
+	}
 
 	if(!m_resources.isEmpty())
 	{
 		PH_LOG_ERROR(Scene,
-			"{} resources are leaked; remove the resource when you are done with it", 
-			m_resources.size());
-		hasLeakedResources = true;
-	}
-
-	if(!m_resourcesPendingSetup.empty() ||
-       !m_resourcesPendingCleanup.empty() ||
-       !m_resourcesPendingDestroy.empty())
-	{
-		hasLeakedResources = true;
-	}
-
-	if(hasLeakedResources)
-	{
-		PH_LOG_WARNING(Scene,
-			"remained resources detected on scene (name: {}) destruction",
-			m_debugName);
-		reportResourceStates();
+			"{} resources are still present; manual resource removal before scene destruction is "
+			"mandatory as we cannot foreseen any potential side effects such as dependency between "
+			"resources.", m_resources.size());
 	}
 }
 
@@ -168,129 +158,99 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 		});
 }
 
-void Scene::addResource(std::unique_ptr<SceneResource> resource)
+void Scene::runPendingSetups(GHIThreadCaller& caller)
+{
+	for(auto& pendingSetup : m_pendingSetups)
+	{
+		pendingSetup(caller);
+	}
+	m_pendingSetups.clear();
+}
+
+void Scene::runPendingCleanups(GHIThreadCaller& caller)
+{
+	for(auto& pendingCleanup : m_pendingCleanups)
+	{
+		pendingCleanup(caller);
+	}
+	m_pendingCleanups.clear();
+}
+
+void Scene::addResource(std::unique_ptr<ISceneResource> resource)
 {
 	if(!resource)
 	{
-		PH_LOG_WARNING(Scene,
-			"resource not added since it is empty");
 		return;
 	}
 
-	SceneResource* const resourcePtr = resource.get();
+	m_pendingSetups.push_back(
+		[resource = resource.get()](GHIThreadCaller& caller)
+		{
+			resource->setupGHI(caller);
+		});
 	m_resources.add(std::move(resource));
-	m_resourcesPendingSetup.push_back(resourcePtr);
 }
 
-void Scene::setupGHIForPendingResources(GHIThreadCaller& caller)
+void Scene::addDynamicResource(std::unique_ptr<IDynamicSceneResource> resource)
 {
-	for(SceneResource* const resource : m_resourcesPendingSetup)
+	if(!resource)
 	{
-		resource->setupGHI(caller);
-	}
-	m_resourcesPendingSetup.clear();
-}
-
-void Scene::cleanupGHIForPendingResources(GHIThreadCaller& caller)
-{
-	for(SceneResource* const resource : m_resourcesPendingCleanup)
-	{
-		resource->cleanupGHI(caller);
+		return;
 	}
 
-	// Add all cleaned-up resources for destroy before clearing the clean-up list
-	m_resourcesPendingDestroy.insert(
-		m_resourcesPendingDestroy.end(),
-		m_resourcesPendingCleanup.begin(),
-		m_resourcesPendingCleanup.end());
-
-	m_resourcesPendingCleanup.clear();
+	m_pendingSetups.push_back(
+		[this, resource = resource.get()](GHIThreadCaller& caller)
+		{
+			resource->setupGHI(caller);
+			m_dynamicResources.addValue(resource);
+			
+		});
+	m_resources.add(std::move(resource));
 }
 
-void Scene::destroyPendingResources()
+void Scene::removeResource(ISceneResource* resource)
 {
-	for(SceneResource* const resourcePtr : m_resourcesPendingDestroy)
+	if(!resource)
+	{
+		return;
+	}
+
+	m_pendingCleanups.push_back(
+		[this, resource](GHIThreadCaller& caller)
+		{
+			resource->cleanupGHI(caller);
+			m_resourcesPendingDestroy.push_back(resource);
+		});
+}
+
+void Scene::destroyRemovedResources()
+{
+	for(ISceneResource* resourcePtr : m_resourcesPendingDestroy)
 	{
 		auto resource = m_resources.remove(resourcePtr);
 		if(!resource)
 		{
 			PH_LOG_WARNING(Scene,
-				"on resource destruction: did not find specified resource, one resource not destroyed");
+				"Did not find the specified resource, one resource not destroyed.");
 		}
 	}
 	m_resourcesPendingDestroy.clear();
 }
 
-void Scene::removeResource(SceneResource* const resourcePtr)
+void Scene::updateDynamicResources(const UpdateContext& ctx)
 {
-	if(!resourcePtr)
+	for(IDynamicSceneResource* resource : m_dynamicResources)
 	{
-		PH_LOG_WARNING(Scene,
-			"resource removal ignored since it is empty");
-		return;
-	}
-	
-	m_resourcesPendingCleanup.push_back(resourcePtr);
-}
-
-void Scene::addCustomRenderContent(std::unique_ptr<CustomContent> content)
-{
-	if(!content)
-	{
-		PH_LOG_WARNING(Scene,
-			"custom render content ignored since it is empty");
-		return;
-	}
-
-	m_customRenderContents.push_back(content.get());
-	addResource(std::move(content));
-}
-
-void Scene::updateCustomRenderContents(const UpdateContext& ctx)
-{
-	for(CustomContent* const content : m_customRenderContents)
-	{
-		content->update(ctx);
+		resource->update(ctx);
 	}
 }
 
-void Scene::createGHICommandsForCustomRenderContents(GHIThreadCaller& caller)
+void Scene::createGHICommandsForDynamicResources(GHIThreadCaller& caller)
 {
-	for(CustomContent* const content : m_customRenderContents)
+	for(IDynamicSceneResource* resource : m_dynamicResources)
 	{
-		content->createGHICommands(caller);
+		resource->createGHICommands(caller);
 	}
-}
-
-void Scene::removeCustomRenderContent(CustomContent* const content)
-{
-	for(CustomContent*& content : m_customRenderContents)
-	{
-		removeResource(content);
-		content = nullptr;
-	}
-
-	const auto numErasedContents = std::erase(m_customRenderContents, nullptr);
-	if(numErasedContents != 1)
-	{
-		PH_LOG_WARNING(Scene,
-			"on custom render content removal: {}",
-			numErasedContents == 0 ? "content not found" : "duplicates found and removed");
-	}
-}
-
-void Scene::reportResourceStates()
-{
-	PH_LOG(Scene,
-		"stats on resources:\n"
-		"# resources: {}\n"
-		"# pending setup: {}\n"
-		"# pending cleanup: {}\n"
-		"# pending destroy: {}",
-		m_resources.size(),
-		m_resourcesPendingSetup.size(),
-		m_resourcesPendingCleanup.size(),
-		m_resourcesPendingDestroy.size());
 }
 
 void Scene::setSystem(System* sys)

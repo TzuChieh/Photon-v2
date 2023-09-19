@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/CustomContent.h"
+#include "Render/IDynamicSceneResource.h"
 #include "editor_lib_config.h"
 
 #include "ThirdParty/DearImGui.h"
@@ -14,7 +14,7 @@
 namespace ph::editor::render
 {
 
-class ImguiRenderContent : public CustomContent
+class ImguiRenderContent : public IDynamicSceneResource
 {
 public:
 	// All data required by IMGUI to render a frame.
@@ -47,6 +47,7 @@ public:
 	void createGHICommands(GHIThreadCaller& caller) override;
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
+	EProcessOrder getProcessOrder() const override;
 
 	/*
 	Can only be called during render update and command generation (on main thread).
@@ -74,5 +75,10 @@ private:
 
 	int m_numAvailableRenderData;
 };
+
+inline EProcessOrder ImguiRenderContent::getProcessOrder() const
+{
+	return EProcessOrder::Overlay;
+}
 
 }// end namespace ph::editor::render

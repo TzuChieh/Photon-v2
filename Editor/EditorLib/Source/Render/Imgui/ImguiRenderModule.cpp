@@ -165,7 +165,7 @@ void ImguiRenderModule::createSetupRenderCommands(RenderThreadCaller& caller)
 		caller.add(
 			[renderContent = std::move(renderContent), scene = m_rendererScene](render::System& sys) mutable
 			{
-				scene->addCustomRenderContent(std::move(renderContent));
+				scene->addDynamicResource(std::move(renderContent));
 			});
 	}
 }
@@ -196,7 +196,7 @@ void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 			[renderContent = m_renderContent, scene = m_rendererScene](render::System& sys) mutable
 			{
 				PH_ASSERT(scene);
-				scene->removeCustomRenderContent(renderContent);
+				scene->removeResource(renderContent);
 			});
 	}
 
