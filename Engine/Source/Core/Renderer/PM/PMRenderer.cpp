@@ -440,13 +440,13 @@ ObservableRenderData PMRenderer::getObservableData() const
 	return data;
 }
 
-RenderState PMRenderer::asyncQueryRenderState()
+RenderStats PMRenderer::asyncQueryRenderStats()
 {
-	RenderState state;
-	state.setIntegerState(0, m_statistics.asyncGetNumIterations());
-	state.setIntegerState(1, m_statistics.asyncGetNumTracedPhotons());
-	state.setIntegerState(2, static_cast<RenderState::IntegerState>(m_photonsPerSecond.load(std::memory_order_relaxed)));
-	return state;
+	RenderStats stats;
+	stats.setInteger(0, m_statistics.asyncGetNumIterations());
+	stats.setInteger(1, m_statistics.asyncGetNumTracedPhotons());
+	stats.setInteger(2, static_cast<RenderStats::IntegerType>(m_photonsPerSecond.load(std::memory_order_relaxed)));
+	return stats;
 }
 
 void PMRenderer::asyncMergeFilm(const HdrRgbFilm& srcFilm)

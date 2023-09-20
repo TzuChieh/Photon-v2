@@ -213,7 +213,6 @@ void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 			{
 				sys.removeScene(scene);
 			});
-
 		m_rendererScene = nullptr;
 	}
 }

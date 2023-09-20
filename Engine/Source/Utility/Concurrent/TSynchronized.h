@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utility/INoCopyAndMove.h"
+#include "Utility/exception.h"
 #include "Common/assertion.h"
 
 #include <shared_mutex>
@@ -109,6 +110,116 @@ private:
 		const TSynchronized& m_parent;
 	};
 
+	/*! @brief Try to lock the wrapped value for the duration of this instance's lifetime.
+	*/
+	class AutoTryLockingPtr final : private INoCopyAndMove
+	{
+	public:
+		explicit AutoTryLockingPtr(TSynchronized& parent)
+			: m_parent(parent)
+			, m_isLocked(false)
+		{
+			m_isLocked = m_parent.m_mutex.try_lock();
+		}
+
+		~AutoTryLockingPtr()
+		{
+			if(m_isLocked)
+			{
+				m_parent.m_mutex.unlock();
+			}
+		}
+
+		T* operator -> ()
+		{
+			if(m_isLocked)
+			{
+				return std::addressof(m_parent.m_value);
+			}
+			else
+			{
+				return nullptr;
+			}
+		}
+
+		T& operator * ()
+		{
+			if(m_isLocked)
+			{
+				return m_parent.m_value;
+			}
+			else
+			{
+				throw IllegalOperationException(
+					"Accessing value without successful non-const locking.");
+			}
+		}
+
+		operator bool () const
+		{
+			return m_isLocked;
+		}
+
+	private:
+		TSynchronized& m_parent;
+		bool m_isLocked;
+	};
+
+	/*! @brief Try to lock the wrapped value for the duration of this instance's lifetime.
+	*/
+	class AutoTryConstLockingPtr final : private INoCopyAndMove
+	{
+	public:
+		explicit AutoTryConstLockingPtr(const TSynchronized& parent)
+			: m_parent(parent)
+			, m_isLocked(false)
+		{
+			m_isLocked = m_parent.m_mutex.try_lock_shared();
+		}
+
+		~AutoTryConstLockingPtr()
+		{
+			if(m_isLocked)
+			{
+				m_parent.m_mutex.unlock();
+			}
+		}
+
+		const T* operator -> () const
+		{
+			if(m_isLocked)
+			{
+				return std::addressof(m_parent.m_value);
+			}
+			else
+			{
+				return nullptr;
+			}
+		}
+
+		const T& operator * () const
+		{
+			if(m_isLocked)
+			{
+				return m_parent.m_value;
+			}
+			else
+			{
+				throw IllegalOperationException(
+					"Accessing value without successful const locking.");
+			}
+		}
+
+		operator bool () const
+		{
+			return m_isLocked;
+		}
+
+	private:
+		const TSynchronized& m_parent;
+		bool m_isLocked;
+	};
+
 public:
 	TSynchronized() = default;
 
@@ -175,6 +286,18 @@ public:
 
 		AutoConstLockingPtr lockedPtr(*this);
 		func(*lockedPtr);
+	}
+
+	AutoTryLockingPtr tryLock()
+	{
+		// Relied on mandatory copy elision
+		return AutoTryLockingPtr(*this);
+	}
+
+	AutoTryConstLockingPtr tryConstLock() const
+	{
+		// Relied on mandatory copy elision
+		return AutoTryConstLockingPtr(*this);
 	}
 
 	/*! @brief Get a copy of the wrapped value.

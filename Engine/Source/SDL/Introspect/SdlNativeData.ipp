@@ -162,7 +162,7 @@ inline void SdlNativeData::setDirectAccessor(AnyNonConstPtr accessor)
 	m_directPtr = accessor;
 }
 
-inline SdlNativeData::operator bool() const
+inline SdlNativeData::operator bool () const
 {
 	return numElements > 0;
 }

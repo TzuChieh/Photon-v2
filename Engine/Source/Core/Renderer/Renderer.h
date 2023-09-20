@@ -9,7 +9,7 @@
 #include "Core/Renderer/Statistics.h"
 #include "Frame/frame_fwd.h"
 #include "Core/Renderer/AttributeTags.h"
-#include "Core/Renderer/RenderState.h"
+#include "Core/Renderer/RenderStats.h"
 #include "Core/Scheduler/Region.h"
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
@@ -52,8 +52,8 @@ public:
 	// TODO: allow polling unioned regions seems like a good idea
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
 	
-	// Returns information regarding the rendering process.
-	virtual RenderState asyncQueryRenderState() = 0;
+	// Returns information regarding the ongoing rendering process.
+	virtual RenderStats asyncQueryRenderStats() = 0;
 
 	// TODO: remove this method
 	virtual RenderProgress asyncQueryRenderProgress() = 0;

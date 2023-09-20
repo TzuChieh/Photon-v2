@@ -393,15 +393,15 @@ void phAsyncGetRendererState(
 	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	if(engine)
 	{
-		const RenderState state = engine->getRenderer()->asyncQueryRenderState();
+		const RenderStats state = engine->getRenderer()->asyncQueryRenderStats();
 
 		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)
 		{
-			out_state->integers[i] = static_cast<PHint64>(state.getIntegerState(i));
+			out_state->integers[i] = static_cast<PHint64>(state.getInteger(i));
 		}
 		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
 		{
-			out_state->reals[i] = static_cast<PHfloat32>(state.getRealState(i));
+			out_state->reals[i] = static_cast<PHfloat32>(state.getReal(i));
 		}
 	}
 }

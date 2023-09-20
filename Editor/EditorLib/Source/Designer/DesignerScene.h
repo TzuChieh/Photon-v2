@@ -31,6 +31,8 @@
 namespace ph { class SdlClass; }
 namespace ph::editor::render { class System; }
 namespace ph::editor::render { class Scene; }
+namespace ph::editor::render { class RealtimeRenderer; }
+namespace ph::editor::render { class OfflineRenderer; }
 
 namespace ph::editor
 {
@@ -159,6 +161,12 @@ public:
 	const Editor& getEditor() const;
 	render::Scene& getRendererScene();
 	const render::Scene& getRendererScene() const;
+	void hookRealtimeRenderer(render::RealtimeRenderer* renderer);
+	void unhookRealtimeRenderer(render::RealtimeRenderer* renderer);
+	void hookOfflineRenderer(render::OfflineRenderer* renderer);
+	void unhookOfflineRenderer(render::OfflineRenderer* renderer);
+	TSpanView<render::RealtimeRenderer*> getRealtimeRenderers() const;
+	TSpanView<render::OfflineRenderer*> getOfflineRenderers() const;
 	const std::string& getName() const;
 	SceneDescription& getRenderDescription();
 	const SceneDescription& getRenderDescription() const;
@@ -292,6 +300,8 @@ private:
 
 	Editor* m_editor;
 	render::Scene* m_rendererScene;
+	std::vector<render::RealtimeRenderer*> m_realtimeRenderers;
+	std::vector<render::OfflineRenderer*> m_offlineRenderers;
 	SceneDescription m_renderDescription;
 	ViewportCamera m_mainCamera;
 	uint32 m_isPaused : 1;

@@ -228,9 +228,9 @@ void Engine::asyncQueryStatistics(
 	PH_ASSERT(renderer);
 
 	RenderProgress progress = renderer->asyncQueryRenderProgress();
-	RenderState state = renderer->asyncQueryRenderState();
+	RenderStats stats = renderer->asyncQueryRenderStats();
 	*out_percentageProgress = progress.getPercentageProgress();
-	*out_samplesPerSecond = state.getRealState(0);
+	*out_samplesPerSecond = stats.getReal(0);
 }
 
 void Engine::setWorkingDirectory(const Path& path)

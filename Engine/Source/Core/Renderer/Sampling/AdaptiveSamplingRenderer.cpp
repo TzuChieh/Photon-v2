@@ -280,7 +280,7 @@ void AdaptiveSamplingRenderer::addUpdatedRegion(const Region& region, const bool
 	m_updatedRegions.push_back(UpdatedRegion{region, !isUpdating});
 }
 
-RenderState AdaptiveSamplingRenderer::asyncQueryRenderState()
+RenderStats AdaptiveSamplingRenderer::asyncQueryRenderStats()
 {
 	uint64 totalElapsedMs = 0;
 	uint64 totalNumSamples = 0;
@@ -294,11 +294,11 @@ RenderState AdaptiveSamplingRenderer::asyncQueryRenderState()
 	const float32 samplesPerMs = totalElapsedMs != 0 ?
 		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
-	RenderState state;
-	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().getArea()));
-	state.setIntegerState(1, m_numNoisyRegions.load(std::memory_order_relaxed));
-	state.setRealState(0, samplesPerMs * 1000);
-	return state;
+	RenderStats stats;
+	stats.setInteger(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().getArea()));
+	stats.setInteger(1, m_numNoisyRegions.load(std::memory_order_relaxed));
+	stats.setReal(0, samplesPerMs * 1000);
+	return stats;
 }
 
 RenderProgress AdaptiveSamplingRenderer::asyncQueryRenderProgress()

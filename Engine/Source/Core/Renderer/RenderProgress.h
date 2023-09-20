@@ -8,7 +8,7 @@
 namespace ph
 {
 
-class RenderProgress
+class RenderProgress final
 {
 public:
 	// Represents no progress.

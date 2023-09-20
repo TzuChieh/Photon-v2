@@ -97,7 +97,7 @@ void Renderer::setNumWorkers(uint32 numWorkers)
 //		static_cast<float32>(totalWorkDone) / static_cast<float32>(totalWork) * 100.0f : 0.0f;
 //
 //	// HACK
-//	const auto states = asyncQueryRenderStates();
+//	const auto states = asyncQueryRenderStats();
 //	*out_samplesPerSecond = static_cast<float32>(states.fltStates[0]) * 1000.0f;
 //}
 

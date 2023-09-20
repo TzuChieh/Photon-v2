@@ -18,6 +18,9 @@
 #include "Designer/TextualNoteObject.h"
 #include "Designer/NodeObject.h"
 
+// Rendering
+#include "Designer/Render/OfflineRenderAgent.h"
+
 // Imposters
 #include "Designer/Imposter/ImposterObject.h"
 #include "Designer/Imposter/GeneralImposter.h"
@@ -77,6 +80,9 @@ inline std::vector<const SdlClass*> register_editor_classes()
 		register_editor_sdl_class<HierarchicalDesignerObject>(),
 		register_editor_sdl_class<TextualNoteObject>(),
 		register_editor_sdl_class<NodeObject>(),
+
+		// Rendering
+		register_editor_sdl_class<OfflineRenderAgent>(),
 
 		// Imposters
 		register_editor_sdl_class<ImposterObject>(),

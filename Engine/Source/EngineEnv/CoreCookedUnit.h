@@ -18,6 +18,7 @@ class CoreCookedUnit final : private IMoveOnly
 {
 public:
 	CoreCookedUnit();
+	~CoreCookedUnit();
 
 	/*bool gatherFromRaw(const SceneDescription& scene);
 	bool gatherFromCooked(const VisualWorld& world);*/

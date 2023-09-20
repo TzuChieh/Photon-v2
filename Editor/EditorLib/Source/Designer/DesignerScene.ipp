@@ -248,6 +248,16 @@ inline const Path& DesignerScene::getWorkingDirectory() const
 	return m_workingDirectory;
 }
 
+inline TSpanView<render::RealtimeRenderer*> DesignerScene::getRealtimeRenderers() const
+{
+	return m_realtimeRenderers;
+}
+
+inline TSpanView<render::OfflineRenderer*> DesignerScene::getOfflineRenderers() const
+{
+	return m_offlineRenderers;
+}
+
 inline const std::string& DesignerScene::getName() const
 {
 	return m_name;

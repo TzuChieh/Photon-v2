@@ -65,3 +65,5 @@ TEST(TSynchronizedTest, MultiThreadUsage)
 		EXPECT_EQ(sInt.makeCopy(), numThreads * numIncrementsPerThread);
 	}
 }
+
+// TODO: try lock & try const lock

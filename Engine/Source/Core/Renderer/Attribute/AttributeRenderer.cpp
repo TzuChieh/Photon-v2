@@ -137,9 +137,9 @@ void AttributeRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame&
 	asyncPeekFrame(layerIndex, getCropWindowPx(), out_frame);
 }
 
-RenderState AttributeRenderer::asyncQueryRenderState()
+RenderStats AttributeRenderer::asyncQueryRenderStats()
 {
-	return RenderState();
+	return RenderStats();
 }
 
 RenderProgress AttributeRenderer::asyncQueryRenderProgress()

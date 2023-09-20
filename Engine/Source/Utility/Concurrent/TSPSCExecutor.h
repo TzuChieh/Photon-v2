@@ -68,7 +68,7 @@ public:
 	/*! @brief Start the execution of the consumer (worker thread).
 	Whichever thread calls this method will be the producer thread. Can only be called once in the
 	lifetime of the executor.
-	@note Thread-safe.
+	@note The thread that calls this method is considered the producer thread.
 	*/
 	void start();
 
@@ -111,7 +111,7 @@ public:
 	std::thread::id getId() const;
 
 	/*! @brief Whether the executor has started processing works.
-	@note Thread-safe.
+	@note Producer and consumer thread only.
 	*/
 	bool hasStarted() const;
 

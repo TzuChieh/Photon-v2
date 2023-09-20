@@ -5,8 +5,6 @@ namespace ph::editor { class GHIThreadCaller; }
 namespace ph::editor::render
 {
 
-class UpdateContext;
-
 class ISceneResource
 {
 public:

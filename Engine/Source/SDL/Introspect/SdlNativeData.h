@@ -99,7 +99,7 @@ public:
 
 	void setDirectAccessor(AnyNonConstPtr accessor);
 
-	operator bool() const;
+	operator bool () const;
 
 public:
 	template<typename ElementType>

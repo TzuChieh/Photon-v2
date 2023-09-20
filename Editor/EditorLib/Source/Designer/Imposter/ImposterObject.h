@@ -25,7 +25,7 @@ public:
 	const std::string& getTargetName() const;
 
 private:
-	// SDL-binded fields:
+	// SDL-binded fields
 	std::string m_targetName;
 
 public:

@@ -402,7 +402,6 @@ private:
 
 #if PH_DEBUG
 	/*! @brief Check whether the worker thread has started.
-	@note Thread-safe.
 	*/
 	inline bool hasWorkerStarted() const
 	{

@@ -185,7 +185,7 @@ public:
 
 	bool isFixedSizeList() const;
 	std::size_t fixedListSize() const;
-	operator bool() const;
+	operator bool () const;
 
 private:
 	PlyPropertyListValues();

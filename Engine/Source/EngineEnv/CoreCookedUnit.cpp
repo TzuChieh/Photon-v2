@@ -20,6 +20,8 @@ CoreCookedUnit::CoreCookedUnit() :
 	m_sampleGenerator(nullptr)
 {}
 
+CoreCookedUnit::~CoreCookedUnit() = default;
+
 //bool CoreCookedUnit::gatherFromRaw(const SceneDescription& scene)
 //{
 //	// Get settings for engine

@@ -29,7 +29,7 @@ public:
 	void readString(std::string* out_string, char delimiter) override;
 	void seekGet(std::size_t pos) override;
 	std::optional<std::size_t> tellGet() override;
-	operator bool() const override;
+	operator bool () const override;
 	std::size_t readSome(std::size_t numBytes, std::byte* out_bytes) override;
 
 	template<typename T>
@@ -198,7 +198,7 @@ inline bool ByteBufferInputStream::canRead() const
 	return m_readHead < numBufferBytes();
 }
 
-inline ByteBufferInputStream::operator bool() const
+inline ByteBufferInputStream::operator bool () const
 {
 	return canRead();
 }

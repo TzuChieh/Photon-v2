@@ -29,7 +29,7 @@ public:
 	template<typename T>
 	const T* getConst() const;
 
-	operator bool() const;
+	operator bool () const;
 
 	template<typename T>
 	operator T* () const;

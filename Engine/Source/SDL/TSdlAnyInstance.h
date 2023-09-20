@@ -45,7 +45,7 @@ public:
 
 	const ISdlInstantiable* getInstantiable() const;
 
-	operator bool() const;
+	operator bool () const;
 
 private:
 	using ClassInstanceType = std::conditional_t<IS_CONST, const ISdlResource, ISdlResource>;

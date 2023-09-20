@@ -255,7 +255,7 @@ void EqualSamplingRenderer::addUpdatedRegion(const Region& region, const bool is
 	m_updatedRegions.push_back(UpdatedRegion{region, !isUpdating});
 }
 
-RenderState EqualSamplingRenderer::asyncQueryRenderState()
+RenderStats EqualSamplingRenderer::asyncQueryRenderStats()
 {
 	uint64 totalElapsedMs  = 0;
 	uint64 totalNumSamples = 0;
@@ -269,10 +269,10 @@ RenderState EqualSamplingRenderer::asyncQueryRenderState()
 	const float32 samplesPerMs = totalElapsedMs != 0 ?
 		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
-	RenderState state;
-	state.setIntegerState(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().getArea()));
-	state.setRealState(0, samplesPerMs * 1000);
-	return state;
+	RenderStats stats;
+	stats.setInteger(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().getArea()));
+	stats.setReal(0, samplesPerMs * 1000);
+	return stats;
 }
 
 RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()

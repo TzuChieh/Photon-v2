@@ -554,7 +554,7 @@ std::size_t PlyPropertyValues::size() const
 	return m_numElements;
 }
 
-PlyPropertyValues::operator bool() const
+PlyPropertyValues::operator bool () const
 {
 	return m_rawBuffer != nullptr;
 }
@@ -644,7 +644,7 @@ std::size_t PlyPropertyListValues::fixedListSize() const
 	return m_fixedListSize;
 }
 
-PlyPropertyListValues::operator bool() const
+PlyPropertyListValues::operator bool () const
 {
 	return m_rawBuffer != nullptr;
 }

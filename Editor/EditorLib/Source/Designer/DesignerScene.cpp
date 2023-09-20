@@ -53,6 +53,8 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 
 	, m_editor(fromEditor)
 	, m_rendererScene(nullptr)
+	, m_realtimeRenderers()
+	, m_offlineRenderers()
 	, m_renderDescription()
 	, m_mainCamera()
 	, m_isPaused(false)
@@ -630,7 +632,6 @@ void DesignerScene::renderCleanup(RenderThreadCaller& caller)
 			{
 				sys.removeScene(scene);
 			});
-
 		m_rendererScene = nullptr;
 	}
 }
@@ -676,6 +677,38 @@ void DesignerScene::cleanup()
 	}
 
 	m_freeObjStorageIndices.clear();
+}
+
+void DesignerScene::hookRealtimeRenderer(render::RealtimeRenderer* renderer)
+{
+	if(!renderer)
+	{
+		return;
+	}
+
+	m_realtimeRenderers.push_back(renderer);
+}
+
+void DesignerScene::unhookRealtimeRenderer(render::RealtimeRenderer* renderer)
+{
+	auto numRemoved = std::erase(m_realtimeRenderers, renderer);
+	PH_ASSERT_LE(numRemoved, 1);
+}
+
+void DesignerScene::hookOfflineRenderer(render::OfflineRenderer* renderer)
+{
+	if(!renderer)
+	{
+		return;
+	}
+
+	m_offlineRenderers.push_back(renderer);
+}
+
+void DesignerScene::unhookOfflineRenderer(render::OfflineRenderer* renderer)
+{
+	auto numRemoved = std::erase(m_offlineRenderers, renderer);
+	PH_ASSERT_LE(numRemoved, 1);
 }
 
 void DesignerScene::pause()
