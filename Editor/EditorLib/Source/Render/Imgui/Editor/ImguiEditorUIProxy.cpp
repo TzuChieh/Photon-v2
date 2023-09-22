@@ -28,6 +28,11 @@ ImguiFileSystemDialog& ImguiEditorUIProxy::getGeneralFileSystemDialog()
 	return m_editorUI.getGeneralFileSystemDialog();
 }
 
+ImguiEditorObjectTypeMenu& ImguiEditorUIProxy::getObjectTypeMenu()
+{
+	return m_editorUI.getObjectTypeMenu();
+}
+
 const ImguiEditorTheme& ImguiEditorUIProxy::getTheme()
 {
 	return m_editorUI.getTheme();

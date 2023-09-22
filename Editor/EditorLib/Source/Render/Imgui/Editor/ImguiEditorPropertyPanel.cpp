@@ -1,5 +1,7 @@
 #include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
 #include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
+#include "Render/Imgui/Editor/ImguiEditorObjectTypeMenu.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -27,6 +29,12 @@ void ImguiEditorPropertyPanel::buildWindow(
 	}
 
 	Editor& editor = editorUI.getEditor();
+
+	// TODO: disable this button if object is flat
+	const SdlClass* selectedClass = nullptr;
+	editorUI.getObjectTypeMenu().buildMenuButton(
+		PH_IMGUI_PLUS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Child Object ", 
+		selectedClass);
 
 	ImGui::Text("This is window A");
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");

@@ -30,7 +30,8 @@ TEST(TSdlIntegerTest, ReadFromSdl)
 		TSdlInteger<IntegerOwner, integer> sdlInt("number", &IntegerOwner::value);
 
 		// Zero initialization performed on default value by default
-		EXPECT_EQ(sdlInt.defaultValue(), 0);
+		ASSERT_TRUE(sdlInt.getDefaultValue());
+		EXPECT_EQ(*sdlInt.getDefaultValue(), 0);
 
 		IntegerOwner owner;
 		owner.value = 666;

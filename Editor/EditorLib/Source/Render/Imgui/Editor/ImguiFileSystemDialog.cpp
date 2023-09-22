@@ -1,8 +1,7 @@
 #include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
 #include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "EditorCore/FileSystemExplorer.h"
-//#include "Render/Imgui/Font/IconsMaterialDesign.h"
-#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "App/Editor.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
@@ -12,11 +11,6 @@
 
 #include <cstdio>
 #include <algorithm>
-
-#define PH_IMGUI_OPEN_FILE_ICON    ICON_MDI_FOLDER_OPEN
-#define PH_IMGUI_SAVE_FILE_ICON    ICON_MDI_CONTENT_SAVE
-#define PH_IMGUI_GENERAL_FILE_ICON ICON_MDI_FILE_DOCUMENT_OUTLINE
-#define PH_IMGUI_NOTIFICATION_ICON ICON_MDI_MESSAGE_ALERT
 
 namespace ph::editor
 {

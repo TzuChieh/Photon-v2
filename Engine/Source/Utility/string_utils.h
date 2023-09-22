@@ -444,6 +444,8 @@ Supports the following:
 template<typename T>
 inline T parse_int(std::string_view intStr)
 {
+	// TODO: option to handle base prefix (e.g., 0x)
+
 	static_assert(std::is_integral_v<T>,
 		"parse_int() accepts only integer type.");
 
@@ -492,15 +494,17 @@ inline NumberType parse_number(const std::string_view numberStr)
 /*! @brief Converts a float to string.
 
 Supports float, double, and long double. The function expects a large enough 
-@p bufferSize determined by the caller.
+@p bufferSize determined by the caller. The written string is not null terminated.
 
 @param out_buffer The buffer for storing the string.
 @param bufferSize Size of @p out_buffer.
-@return Size of the string written to @p out_buffer.
+@return Number of characters written to @p out_buffer.
 */
 template<typename T>
 inline std::size_t stringify_float(const T value, char* const out_buffer, const std::size_t bufferSize)
 {
+	// TODO: option to handle base prefix (e.g., 0x)
+
 	static_assert(std::is_floating_point_v<T>,
 		"stringify_float() accepts only floating point type.");
 
@@ -522,25 +526,31 @@ inline std::size_t stringify_float(const T value, char* const out_buffer, const 
 /*! @brief Converts an integer to string.
 
 Supports all signed and unsigned standard integer types. The function expects a large enough
-@p bufferSize determined by the caller.
+@p bufferSize determined by the caller. The written string is not null terminated.
 
 @param out_buffer The buffer for storing the string.
 @param bufferSize Size of @p out_buffer.
-@return Size of the string written to @p out_buffer.
+@return Number of characters written to @p out_buffer.
 */
 template<typename T>
-inline std::size_t stringify_int(const T value, char* const out_buffer, const std::size_t bufferSize)
+inline std::size_t stringify_int(
+	const T value, 
+	char* const out_buffer, 
+	const std::size_t bufferSize,
+	const int base = 10)
 {
 	static_assert(std::is_integral_v<T>,
 		"stringify_int() accepts only integer type.");
 
 	PH_ASSERT(out_buffer);
 	PH_ASSERT_GE(bufferSize, 1);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(base, 2, 36);
 
 	const std::to_chars_result result = std::to_chars(
 		out_buffer,
 		out_buffer + bufferSize,
-		value);
+		value,
+		base);
 
 	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
 
@@ -550,8 +560,8 @@ inline std::size_t stringify_int(const T value, char* const out_buffer, const st
 }
 
 /*! @brief Converts a number to string.
-
-Accepts all types supported by stringify_float(T, char*, std::size_t) and stringify_int(T, char*, std::size_t).
+Accepts all types supported by stringify_float(T, char*, std::size_t) and
+stringify_int(T, char*, std::size_t). The written string is not null terminated.
 */
 template<typename NumberType>
 inline std::size_t stringify_number(const NumberType value, char* const out_buffer, const std::size_t bufferSize)

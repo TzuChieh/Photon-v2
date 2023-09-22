@@ -10,7 +10,7 @@
 // Designer Scenes
 #include "Designer/DesignerScene.h"
 
-// Designer Objects
+// General Designer Objects
 #include "Designer/DesignerObject.h"
 #include "Designer/AbstractDesignerObject.h"
 #include "Designer/FlatDesignerObject.h"
@@ -73,7 +73,7 @@ inline std::vector<const SdlClass*> register_editor_classes()
 		// Designer Scenes
 		register_editor_sdl_class<DesignerScene>(),
 
-		// Designer Objects
+		// General Designer Objects
 		register_editor_sdl_class<AbstractDesignerObject>(),
 		register_editor_sdl_class<DesignerObject>(),
 		register_editor_sdl_class<FlatDesignerObject>(),

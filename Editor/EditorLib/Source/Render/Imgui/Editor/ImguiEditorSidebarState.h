@@ -7,6 +7,7 @@ class ImguiEditorSidebarState final
 {
 public:
 	bool showSceneManager = false;
+	bool showOfflineTaskManager = false;
 	bool showLog = false;
 	bool showEditorSettings = false;
 	bool showDebugPanel = false;

@@ -32,7 +32,8 @@ TEST(TSdlReadTest, ReadFromSdl)
 		TSdlReal<RealOwner, real> sdlReal("number", &RealOwner::value);
 
 		// Zero initialization performed on default value by default
-		PH_EXPECT_REAL_EQ(sdlReal.defaultValue(), 0.0_r);
+		ASSERT_TRUE(sdlReal.getDefaultValue());
+		PH_EXPECT_REAL_EQ(*sdlReal.getDefaultValue(), 0.0_r);
 
 		RealOwner owner;
 		owner.value = 3;

@@ -133,10 +133,10 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 			}
 
 			caller.add(
-				[fileToLoad = loader.fileToLoad, handle, desc, &scene](render::System& /* sys */)
+				[fileToLoad = loader.fileToLoad, scene = &scene, handle, desc](render::System& /* sys */)
 				{
-					scene.createTexture(handle, render::Texture{.desc = desc});
-					scene.loadPicture(handle, fileToLoad);
+					scene->createTexture(handle, render::Texture{.desc = desc});
+					scene->loadPicture(handle, fileToLoad);
 				});
 
 			loader.fileToLoad.clear();
@@ -205,9 +205,9 @@ void ImguiImageLibrary::cleanupTextures(RenderThreadCaller& caller, render::Scen
 		}
 
 		caller.add(
-			[handle = entry.handle, &scene](render::System& /* sys */)
+			[handle = entry.handle, scene = &scene](render::System& /* sys */)
 			{
-				scene.removeTexture(handle);
+				scene->removeTexture(handle);
 			});
 	}
 }

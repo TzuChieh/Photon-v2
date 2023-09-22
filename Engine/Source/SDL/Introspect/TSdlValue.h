@@ -4,14 +4,17 @@
 #include "Common/assertion.h"
 
 #include <string_view>
+#include <optional>
 
 namespace ph
 {
 
 /*! @brief Abstractions for a SDL value type.
+
 A default value can be specified for instances of this type. If the default value is
 not explicitly provided (by `defaultTo()` or other means), default value will be the
 `value initialization` of the type `T` (basically a mix of default and zero initialization).
+If default value is not wanted, use `noDefault()`.
 
 * `value initialization`:
   https://en.cppreference.com/w/cpp/language/value_initialization
@@ -33,8 +36,10 @@ public:
 	const T* getConstValue(const Owner& owner) const override;
 	void setValueToDefault(Owner& owner) const override;
 
+	const T* getDefaultValue() const;
+
 	TSdlValue& defaultTo(T defaultValue);
-	const T& defaultValue() const;
+	TSdlValue& noDefault();
 	TSdlValue& withImportance(EFieldImportance importance);
 	TSdlValue& description(std::string descriptionStr);
 	TSdlValue& optional();
@@ -55,7 +60,7 @@ protected:
 
 private:
 	T Owner::* m_valuePtr;
-	T          m_defaultValue;
+	std::optional<T> m_defaultValue;
 };
 
 }// end namespace ph

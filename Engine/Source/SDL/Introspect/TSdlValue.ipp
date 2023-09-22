@@ -16,7 +16,7 @@ inline TSdlValue<T, Owner>::TSdlValue(
 	TSdlAbstractValue<T, Owner>(std::move(typeName), std::move(valueName)),
 
 	m_valuePtr    (valuePtr),
-	m_defaultValue()
+	m_defaultValue(T{})
 {
 	PH_ASSERT(m_valuePtr);
 }
@@ -42,7 +42,16 @@ inline const T* TSdlValue<T, Owner>::getConstValue(const Owner& owner) const
 template<typename T, typename Owner>
 inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner) const
 {
-	setValue(owner, m_defaultValue);
+	if(m_defaultValue.has_value())
+	{
+		setValue(owner, *m_defaultValue);
+	}
+}
+
+template<typename T, typename Owner>
+inline const T* TSdlValue<T, Owner>::getDefaultValue() const
+{
+	return m_defaultValue.has_value() ? &(*m_defaultValue) : nullptr;
 }
 
 template<typename T, typename Owner>
@@ -54,9 +63,11 @@ inline auto TSdlValue<T, Owner>::defaultTo(T defaultValue)
 }
 
 template<typename T, typename Owner>
-inline const T& TSdlValue<T, Owner>::defaultValue() const
+inline auto TSdlValue<T, Owner>::noDefault()
+-> TSdlValue&
 {
-	return m_defaultValue;
+	m_defaultValue = std::nullopt;
+	return *this;
 }
 
 template<typename T, typename Owner>

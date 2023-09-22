@@ -54,7 +54,7 @@ private:
 	void resetObjectView(DesignerScene* scene);
 	void rebuildObjectView(DesignerScene* scene, ESortMode sortMode);
 
-	void buildObjectsContent(DesignerScene* scene);
+	void buildObjectsContent(ImguiEditorUIProxy editorUI, DesignerScene* scene);
 	void buildFiltersContent(DesignerScene& scene);
 	void buildStatsContent(DesignerScene& scene);
 	void buildVisibilityToggle(DesignerObject& obj);

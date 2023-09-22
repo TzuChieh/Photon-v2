@@ -8,6 +8,17 @@
 namespace ph::editor::render
 {
 
+enum class EOfflineRenderStage
+{
+	Standby = 0,
+	CopyingScene,
+	LoadingScene,
+	Updating,
+	Rendering,
+	Developing,
+	Finished
+};
+
 class OfflineRenderStats final
 {
 public:

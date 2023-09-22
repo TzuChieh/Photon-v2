@@ -17,11 +17,8 @@ namespace ph
 {
 
 template<typename Owner>
-inline TSdlOwnedField<Owner>::TSdlOwnedField(std::string typeName, std::string valueName) :
-
-	SdlField(std::move(typeName), std::move(valueName)),
-
-	m_importance(EFieldImportance::NiceToHave)
+inline TSdlOwnedField<Owner>::TSdlOwnedField(std::string typeName, std::string valueName)
+	: SdlField(std::move(typeName), std::move(valueName))
 {}
 
 template<typename Owner>
@@ -100,20 +97,6 @@ inline void TSdlOwnedField<Owner>::toSdl(
 			"save error from " + sdl::gen_pretty_name(ctx.getSrcClass(), this) +
 			" -> " + e.whatStr());
 	}
-}
-
-template<typename Owner>
-inline TSdlOwnedField<Owner>& TSdlOwnedField<Owner>::setImportance(const EFieldImportance importance)
-{
-	m_importance = importance;
-
-	return *this;
-}
-
-template<typename Owner>
-inline EFieldImportance TSdlOwnedField<Owner>::getImportance() const
-{
-	return m_importance;
 }
 
 }// end namespace ph

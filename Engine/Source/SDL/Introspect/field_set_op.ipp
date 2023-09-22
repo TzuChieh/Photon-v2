@@ -71,14 +71,13 @@ inline void load_fields_from_sdl(
 		if(!isFieldTouched[fieldIdx])
 		{
 			const auto& field = fieldSet[fieldIdx];
+			const auto importance = field.getImportance();
 			if(field.isFallbackEnabled())
 			{
 				field.setValueToDefault(owner);
 
 				// Only optional field will be silently set to default
 				// (emit notice for other importance levels)
-				//
-				const auto importance = field.getImportance();
 				if(importance != EFieldImportance::Optional)
 				{
 					noticeReceiver(
@@ -89,8 +88,12 @@ inline void load_fields_from_sdl(
 			}
 			else
 			{
-				throw SdlLoadError(
-					"a clause for value <" + field.genPrettyName() + "> is required");
+				// For importance levels other than optional, uninitialized field is an error
+				if(importance != EFieldImportance::Optional)
+				{
+					throw SdlLoadError(
+						"a clause for value <" + field.genPrettyName() + "> is required");
+				}
 			}
 
 			// TODO: util for generating class + field info string

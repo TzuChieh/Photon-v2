@@ -6,7 +6,6 @@
 #include "Designer/Event/DesignerObjectAddedEvent.h"
 #include "Designer/Event/DesignerObjectRemovalEvent.h"
 
-#include <Common/assertion.h>
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
 #include <Utility/TUniquePtrVector.h>
@@ -43,6 +42,14 @@ class MainThreadRenderUpdateContext;
 class RenderThreadCaller;
 
 PH_DECLARE_LOG_GROUP(DesignerScene);
+
+class DesignerRendererBinding final
+{
+public:
+	DesignerObject* ownerObj = nullptr;
+	render::RealtimeRenderer* realtimeRenderer = nullptr;
+	render::OfflineRenderer* offlineRenderer = nullptr;
+};
 
 class DesignerScene final 
 	: public Object
@@ -161,18 +168,16 @@ public:
 	const Editor& getEditor() const;
 	render::Scene& getRendererScene();
 	const render::Scene& getRendererScene() const;
-	void hookRealtimeRenderer(render::RealtimeRenderer* renderer);
-	void unhookRealtimeRenderer(render::RealtimeRenderer* renderer);
-	void hookOfflineRenderer(render::OfflineRenderer* renderer);
-	void unhookOfflineRenderer(render::OfflineRenderer* renderer);
-	TSpanView<render::RealtimeRenderer*> getRealtimeRenderers() const;
-	TSpanView<render::OfflineRenderer*> getOfflineRenderers() const;
+	void addRendererBinding(DesignerRendererBinding binding);
+	void removeRendererBinding(DesignerObject* ownerObj);
+	TSpanView<DesignerRendererBinding> getRendererBindings() const;
 	const std::string& getName() const;
 	SceneDescription& getRenderDescription();
 	const SceneDescription& getRenderDescription() const;
 	const ResourceIdentifier& getRenderDescriptionLink() const;
 	void setRenderDescriptionLink(ResourceIdentifier link);
 	TSpanView<DesignerObject*> getRootObjects() const;
+	std::string getUniqueObjectName(const std::string& intendedName);
 
 	/*! @brief Temporarily stop the update of scene.
 	When paused, most scene states should not be changed, including all contained objects. 
@@ -300,8 +305,7 @@ private:
 
 	Editor* m_editor;
 	render::Scene* m_rendererScene;
-	std::vector<render::RealtimeRenderer*> m_realtimeRenderers;
-	std::vector<render::OfflineRenderer*> m_offlineRenderers;
+	std::vector<DesignerRendererBinding> m_rendererBindings;
 	SceneDescription m_renderDescription;
 	ViewportCamera m_mainCamera;
 	uint32 m_isPaused : 1;
@@ -320,6 +324,8 @@ private:
 public:
 	template<typename ObjectType>
 	static void registerObjectType();
+
+	static std::vector<const SdlClass*> getAllObjectClasses();
 ///@}
 
 public:

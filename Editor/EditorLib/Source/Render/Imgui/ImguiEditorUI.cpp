@@ -5,8 +5,7 @@
 #include "Render/Imgui/imgui_common.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "Render/Imgui/ImguiImageLibrary.h"
-//#include "Render/Imgui/Font/IconsMaterialDesign.h"
-#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 #include "Designer/DesignerScene.h"
 #include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 
@@ -18,21 +17,7 @@
 #include <cstdio>
 #include <utility>
 
-#define PH_IMGUI_PROPERTIES_ICON       ICON_MDI_TUNE
-#define PH_IMGUI_VIEWPORT_ICON         ICON_MDI_CAMERA_IRIS
-#define PH_IMGUI_ASSET_ICON            ICON_MDI_FOLDER_OPEN
-#define PH_IMGUI_OBJECT_ICON           ICON_MDI_SHAPE_OUTLINE
-#define PH_IMGUI_SCENE_CREATION_ICON   ICON_MDI_IMAGE_PLUS_OUTLINE
-#define PH_IMGUI_SCENE_MANAGER_ICON    ICON_MDI_IMAGE_MULTIPLE_OUTLINE
-#define PH_IMGUI_LOG_ICON              ICON_MDI_CONSOLE
-#define PH_IMGUI_SETTINGS_ICON         ICON_MDI_COG_OUTLINE
-#define PH_IMGUI_STATS_ICON            ICON_MDI_CHART_TIMELINE_VARIANT_SHIMMER
-#define PH_IMGUI_SAVE_FILE_ICON        ICON_MDI_CONTENT_SAVE
-#define PH_IMGUI_OPEN_FILE_ICON        ICON_MDI_FOLDER_OPEN
-#define PH_IMGUI_BUG_ICON              ICON_MDI_LADYBUG
 
-#define PH_IMGUI_ICON_TIGHT_PADDING " "
-#define PH_IMGUI_ICON_LOOSE_PADDING "   "
 
 namespace ph::editor
 {
@@ -50,7 +35,7 @@ constexpr const char* ASSET_BROWSER_WINDOW_NAME =
 	PH_IMGUI_ASSET_ICON PH_IMGUI_ICON_TIGHT_PADDING "Asset Browser";
 
 constexpr const char* OBJECT_BROWSER_WINDOW_NAME = 
-	PH_IMGUI_OBJECT_ICON PH_IMGUI_ICON_TIGHT_PADDING "Object Browser";
+	PH_IMGUI_OBJECTS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Object Browser";
 
 constexpr const char* SIDEBAR_WINDOW_NAME = "##sidebar_window";
 constexpr const char* TOOLBAR_WINDOW_NAME = "##toolbar_window";
@@ -60,6 +45,9 @@ constexpr const char* SCENE_CREATOR_WINDOW_NAME =
 
 constexpr const char* SCENE_MANAGER_WINDOW_NAME = 
 	PH_IMGUI_SCENE_MANAGER_ICON PH_IMGUI_ICON_TIGHT_PADDING "Scene Manager";
+
+constexpr const char* OFFLINE_TASK_MANAGER_WINDOW_NAME =
+	PH_IMGUI_TASK_MANAGER_ICON PH_IMGUI_ICON_TIGHT_PADDING "Offline Task Manager";
 
 constexpr const char* LOG_WINDOW_NAME = 
 	PH_IMGUI_LOG_ICON PH_IMGUI_ICON_TIGHT_PADDING "Log";
@@ -88,6 +76,7 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_editorLog()
 	, m_sceneCreator()
 	, m_sceneManager()
+	, m_offlineTaskManager()
 	, m_editorSettings()
 	, m_sceneObjectBrowser()
 	, m_rootPropertyPanel()
@@ -99,7 +88,7 @@ ImguiEditorUI::ImguiEditorUI()
 	, m_enableDebug(false)
 
 	, m_generalFileSystemDialog()
-
+	, m_objectTypeMenu()
 	, m_theme()
 {
 	// If no main editor was specified, the first editor created after is the main one
@@ -236,6 +225,7 @@ void ImguiEditorUI::build()
 
 		// Pre-dock other windows
 		ImGui::DockBuilderDockWindow(SCENE_MANAGER_WINDOW_NAME, upperRightDockSpaceID);
+		ImGui::DockBuilderDockWindow(OFFLINE_TASK_MANAGER_WINDOW_NAME, bottomDockSpaceID);
 		ImGui::DockBuilderDockWindow(LOG_WINDOW_NAME, bottomDockSpaceID);
 
 		ImGui::DockBuilderFinish(rootDockSpaceID);
@@ -254,6 +244,7 @@ void ImguiEditorUI::build()
 	buildMainViewportWindow();
 	buildSceneCreatorWindow();
 	buildSceneManagerWindow();
+	buildOfflineTaskManagerWindow();
 	buildSidebarWindow();
 	buildToolbarWindow();
 	buildEditorSettingsWindow();
@@ -457,6 +448,13 @@ void ImguiEditorUI::buildSidebarWindow()
 	ImGui::Spacing();
 
 	buildSidebarButton(
+		PH_IMGUI_TASK_MANAGER_ICON,
+		"Offline Task Manager",
+		m_sidebarState.showOfflineTaskManager);
+
+	ImGui::Spacing();
+
+	buildSidebarButton(
 		PH_IMGUI_LOG_ICON,
 		"Log",
 		m_sidebarState.showLog);
@@ -578,6 +576,19 @@ void ImguiEditorUI::buildSceneManagerWindow()
 		SCENE_MANAGER_WINDOW_NAME,
 		*this,
 		&m_sidebarState.showSceneManager);
+}
+
+void ImguiEditorUI::buildOfflineTaskManagerWindow()
+{
+	if(!m_sidebarState.showOfflineTaskManager)
+	{
+		return;
+	}
+
+	m_offlineTaskManager.buildWindow(
+		OFFLINE_TASK_MANAGER_WINDOW_NAME,
+		*this,
+		&m_sidebarState.showOfflineTaskManager);
 }
 
 void ImguiEditorUI::buildEditorSettingsWindow()
@@ -750,11 +761,6 @@ bool ImguiEditorUI::isMainEditor() const
 {
 	PH_ASSERT(mainEditor);
 	return mainEditor == this;
-}
-
-ImguiFileSystemDialog& ImguiEditorUI::getGeneralFileSystemDialog()
-{
-	return m_generalFileSystemDialog;
 }
 
 }// end namespace ph::editor

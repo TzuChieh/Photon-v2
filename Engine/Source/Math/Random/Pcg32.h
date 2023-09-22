@@ -12,9 +12,7 @@ namespace ph::math
  * are left as-is the original reference implementation by Melissa O'Neill and other sources (listed
  * in the documentation of `Pcg32` class).
  * 
- * PCG Random Number Generation for C.
- *
- * Copyright 2014 Melissa O'Neill <oneill@pcg-random.org>
+ * The PCG Random Number Generator was developed by Melissa O'Neill <oneill@pcg-random.org>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

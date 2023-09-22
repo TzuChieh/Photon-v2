@@ -20,6 +20,7 @@ OfflineRenderer::OfflineRenderer()
 	: SceneRenderer()
 
 	, m_engineThread()
+	, m_renderStage(EOfflineRenderStage::Standby)
 	, m_syncedRenderStats()
 	, m_requestRenderStats()
 {}
@@ -29,6 +30,8 @@ OfflineRenderer::~OfflineRenderer()
 
 void OfflineRenderer::render(const OfflineRenderConfig& config)
 {
+	m_renderStage.relaxedWrite(EOfflineRenderStage::Standby);
+
 	if(!m_engineThread.hasStarted())
 	{
 		m_engineThread.start();
@@ -65,9 +68,21 @@ bool OfflineRenderer::tryGetRenderStats(OfflineRenderStats* stats)
 
 void OfflineRenderer::renderSingleStaticImageOnEngineThread(const OfflineRenderConfig& config)
 {
+	if(config.useCopiedScene)
+	{
+		m_renderStage.relaxedWrite(EOfflineRenderStage::CopyingScene);
+
+		// TODO: copy scene
+	}
+
+	m_renderStage.relaxedWrite(EOfflineRenderStage::LoadingScene);
+
 	auto renderEngine = std::make_unique<Engine>();
 	renderEngine->setWorkingDirectory(config.sceneWorkingDirectory);
 	renderEngine->loadCommands(config.sceneFile);
+
+	m_renderStage.relaxedWrite(EOfflineRenderStage::Updating);
+
 	renderEngine->update();
 
 	Renderer* renderer = renderEngine->getRenderer();
@@ -141,6 +156,8 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const OfflineRenderC
 
 	// TODO: respond to peek frame request
 
+	m_renderStage.relaxedWrite(EOfflineRenderStage::Rendering);
+
 	renderEngine->render();
 
 	if(statsRequestThread.joinable())
@@ -151,7 +168,11 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const OfflineRenderC
 
 	// TODO: stop the peek frame request
 
+	m_renderStage.relaxedWrite(EOfflineRenderStage::Developing);
+
 	// TODO: get final frame or save file
+
+	m_renderStage.relaxedWrite(EOfflineRenderStage::Finished);
 }
 
 void OfflineRenderer::setupGHI(GHIThreadCaller& caller)

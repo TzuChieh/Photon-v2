@@ -3,7 +3,9 @@
 #include "Render/Imgui/Editor/ImguiEditorSidebarState.h"
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
 #include "Render/Imgui/Editor/ImguiEditorSceneCreator.h"
+#include "Render/Imgui/Editor/ImguiEditorObjectTypeMenu.h"
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
+#include "Render/Imgui/Editor/ImguiEditorOfflineTaskManager.h"
 #include "Render/Imgui/Editor/ImguiEditorSettings.h"
 #include "Render/Imgui/Editor/ImguiEditorSceneObjectBrowser.h"
 #include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
@@ -51,7 +53,7 @@ public:
 	DimensionHints& getDimensionHints();
 	bool isMainEditor() const;
 	ImguiFileSystemDialog& getGeneralFileSystemDialog();
-
+	ImguiEditorObjectTypeMenu& getObjectTypeMenu();
 	const ImguiEditorTheme& getTheme();
 
 private:
@@ -72,6 +74,7 @@ private:
 
 	void buildSceneCreatorWindow();
 	void buildSceneManagerWindow();
+	void buildOfflineTaskManagerWindow();
 	void buildEditorSettingsWindow();
 	void buildLogWindow();
 	void buildStatsMonitor();
@@ -90,6 +93,7 @@ private:
 	ImguiEditorLog m_editorLog;
 	ImguiEditorSceneCreator m_sceneCreator;
 	ImguiEditorSceneManager m_sceneManager;
+	ImguiEditorOfflineTaskManager m_offlineTaskManager;
 	ImguiEditorSettings m_editorSettings;
 	ImguiEditorSceneObjectBrowser m_sceneObjectBrowser;
 	ImguiEditorPropertyPanel m_rootPropertyPanel;
@@ -101,9 +105,19 @@ private:
 	bool m_enableDebug;
 
 	ImguiFileSystemDialog m_generalFileSystemDialog;
-
+	ImguiEditorObjectTypeMenu m_objectTypeMenu;
 	ImguiEditorTheme m_theme;
 };
+
+inline ImguiFileSystemDialog& ImguiEditorUI::getGeneralFileSystemDialog()
+{
+	return m_generalFileSystemDialog;
+}
+
+inline ImguiEditorObjectTypeMenu& ImguiEditorUI::getObjectTypeMenu()
+{
+	return m_objectTypeMenu;
+}
 
 inline const ImguiEditorTheme& ImguiEditorUI::getTheme()
 {

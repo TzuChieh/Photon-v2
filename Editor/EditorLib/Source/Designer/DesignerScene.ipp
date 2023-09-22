@@ -214,6 +214,7 @@ inline const Editor& DesignerScene::getEditor() const
 
 inline render::Scene& DesignerScene::getRendererScene()
 {
+	PH_ASSERT(Threads::isOnMainThread());// do not let the word "render" fool you
 	PH_ASSERT_MSG(m_rendererScene,
 		"Please make sure you are calling from render command generating methods.");
 
@@ -222,6 +223,7 @@ inline render::Scene& DesignerScene::getRendererScene()
 
 inline const render::Scene& DesignerScene::getRendererScene() const
 {
+	PH_ASSERT(Threads::isOnMainThread());// do not let the word "render" fool you
 	PH_ASSERT_MSG(m_rendererScene,
 		"Please make sure you are calling from render command generating methods.");
 
@@ -248,14 +250,9 @@ inline const Path& DesignerScene::getWorkingDirectory() const
 	return m_workingDirectory;
 }
 
-inline TSpanView<render::RealtimeRenderer*> DesignerScene::getRealtimeRenderers() const
+inline TSpanView<DesignerRendererBinding> DesignerScene::getRendererBindings() const
 {
-	return m_realtimeRenderers;
-}
-
-inline TSpanView<render::OfflineRenderer*> DesignerScene::getOfflineRenderers() const
-{
-	return m_offlineRenderers;
+	return m_rendererBindings;
 }
 
 inline const std::string& DesignerScene::getName() const

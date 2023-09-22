@@ -526,38 +526,6 @@ EditorSettings& Editor::getSettings() const
 	return *m_settings;
 }
 
-//std::string Editor::getUniqueSceneName(const std::string& intendedName) const
-//{
-//	int suffixNumber = 1;
-//	while(true)
-//	{
-//		// Generating a name sequence like "name", "name (2)", "name (3)", etc.
-//		const std::string generatedName = 
-//			intendedName +
-//			(suffixNumber == 1 ? "" : " (" + std::to_string(suffixNumber) + ")");
-//
-//		bool foundDuplicatedName = false;
-//		for(const auto& scene : m_scenes)
-//		{
-//			if(generatedName == scene->getName())
-//			{
-//				foundDuplicatedName = true;
-//				break;
-//			}
-//		}
-//
-//		if(!foundDuplicatedName)
-//		{
-//			return generatedName;
-//		}
-//
-//		++suffixNumber;
-//	}
-//
-//	PH_ASSERT_UNREACHABLE_SECTION();
-//	return "";
-//}
-
 void Editor::flushAllEvents()
 {
 	PH_ASSERT(Threads::isOnMainThread());

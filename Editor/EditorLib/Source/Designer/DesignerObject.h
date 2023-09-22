@@ -33,6 +33,12 @@ public:
 	// Work type should be kept in sync with `RenderThread::Work`
 	using RenderWorkType = TFunction<void(render::System&)>;
 
+	/*!
+	@return A name that is unique within the current scene. The name is also unique if the scene
+	is loaded.
+	*/
+	static std::string generateObjectName();
+
 public:
 	~DesignerObject() override = 0;
 
@@ -163,6 +169,7 @@ public:
 
 		TSdlString<OwnerType> name("name", &OwnerType::m_name);
 		name.description("Name of the designer object.");
+		name.noDefault();// we are supplying custom default name in ctor
 		clazz.addField(name);
 
 		return clazz;

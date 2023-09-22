@@ -2,7 +2,6 @@
 
 #include "SDL/Introspect/SdlField.h"
 #include "SDL/sdl_fwd.h"
-#include "SDL/Introspect/EFieldImportance.h"
 
 namespace ph
 {
@@ -58,8 +57,6 @@ public:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const;
 
-	EFieldImportance getImportance() const;
-
 protected:
 	/*! @brief Load SDL value to actual value and store it in the owner's field.
 	Implementations are highly encouraged to throw SdlLoadError if the loading
@@ -83,15 +80,7 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const = 0;
 
-	/*! @brief Sets the importance of the field.
-	Different importance affect the underlying policy used during the import
-	and export of the field, e.g., whether warnings are emitted.
-	*/
-	TSdlOwnedField& setImportance(EFieldImportance importance);
-
 private:
-	EFieldImportance m_importance;
-
 	// Nested field need the ability to wrap calls including non-public ones
 	// Note that friend with partial specializations is not supported
 	// in C++17. We resort to making more friend classes than needed.

@@ -1,15 +1,11 @@
 #include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
 #include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
-//#include "Render/Imgui/Font/IconsMaterialDesign.h"
-#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 #include "App/Editor.h"
 
 #include "ThirdParty/DearImGui.h"
 
 #include <algorithm>
-
-#define PH_IMGUI_VISIBLE_ICON   ICON_MDI_EYE
-#define PH_IMGUI_INVISIBLE_ICON ICON_MDI_EYE_OFF
 
 namespace ph::editor
 {

@@ -1,5 +1,6 @@
 #include "DesignerObject.h"
 #include "Designer/DesignerScene.h"
+#include "EditorCore/IDGenerator.h"
 
 #include <Common/assertion.h>
 #include <Utility/utility.h>
@@ -27,10 +28,25 @@ inline std::string get_object_debug_info(DesignerObject* const obj)
 
 }// end anonymous namespace
 
+std::string DesignerObject::generateObjectName()
+{
+	// Many parts of the editor need the object to have unique name within the same scene. To satisfy
+	// the assumption, we generate one as the default name here. For the name to be unique across
+	// different editor program sessions, we use timestamped counter + a random number as the unique ID.
+	// The chance of collision should be quite low.
+
+	auto baseName = IDGenerator::toString(
+		IDGenerator::nextTimestampedCount(), 
+		IDGenerator::nextRandomNumber(),
+		36);
+
+	return "untitled object " + baseName;
+}
+
 DesignerObject::DesignerObject()
 	: AbstractDesignerObject()
 	, m_parent()
-	, m_name()
+	, m_name(generateObjectName())
 {
 	m_parent.u_object = nullptr;
 }

@@ -1,7 +1,7 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneObjectBrowser.h"
 #include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
-//#include "Render/Imgui/Font/IconsMaterialDesign.h"
-#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
+#include "Render/Imgui/Editor/ImguiEditorObjectTypeMenu.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
@@ -15,13 +15,6 @@
 #include <Utility/string_utils.h>
 
 #include <algorithm>
-
-#define PH_IMGUI_VISIBLE_ICON       ICON_MDI_EYE
-#define PH_IMGUI_INVISIBLE_ICON     ICON_MDI_EYE_OFF
-#define PH_IMGUI_OBJECT_ICON        ICON_MDI_CUBE
-#define PH_IMGUI_ARROW_LEFT_ICON    ICON_MDI_ARROW_LEFT_THICK
-#define PH_IMGUI_ARROW_RIGHT_ICON   ICON_MDI_ARROW_RIGHT_THICK
-#define PH_IMGUI_EXPAND_ICON        ICON_MDI_PLUS_BOX_OUTLINE
 
 #define PH_IMGUI_OBJECT_ICON_PREFIX PH_IMGUI_OBJECT_ICON " "
 
@@ -136,12 +129,13 @@ void ImguiEditorSceneObjectBrowser::buildWindow(
 		return;
 	}
 
-	ImGuiTabBarFlags tabBarFlags = ImGuiTabBarFlags_None;
+	constexpr ImGuiTabBarFlags tabBarFlags = 
+		ImGuiTabBarFlags_FittingPolicyResizeDown;
 	if(ImGui::BeginTabBar("options_tab_bar", tabBarFlags))
 	{
 		if(ImGui::BeginTabItem("Objects"))
 		{
-			buildObjectsContent(scene);
+			buildObjectsContent(editorUI, scene);
 			ImGui::EndTabItem();
 		}
 		if(ImGui::BeginTabItem("Filters"))
@@ -274,7 +268,9 @@ void ImguiEditorSceneObjectBrowser::rebuildObjectView(
 	}
 }
 
-void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
+void ImguiEditorSceneObjectBrowser::buildObjectsContent(
+	ImguiEditorUIProxy editorUI, 
+	DesignerScene* scene)
 {
 	ImGuiStyle& style = ImGui::GetStyle();
 
@@ -302,6 +298,19 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 	if(!canExpand) { ImGui::EndDisabled(); }
 
 	ImGui::PopStyleVar();
+
+	ImGui::SameLine();
+
+	if(!scene) { ImGui::BeginDisabled(); }
+	const SdlClass* selectedClass = nullptr;
+	editorUI.getObjectTypeMenu().buildMenuButton(
+		PH_IMGUI_PLUS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Root Object ",
+		selectedClass);
+	if(!scene) { ImGui::EndDisabled(); }
+	if(scene && selectedClass)
+	{
+		scene->newRootObject(selectedClass);
+	}
 
 	imgui::text_unformatted(m_objViewLevelName);
 

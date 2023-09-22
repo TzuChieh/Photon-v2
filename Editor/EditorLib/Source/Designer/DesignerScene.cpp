@@ -6,9 +6,10 @@
 #include "Render/Scene.h"
 #include "Render/System.h"
 
+#include <Common/assertion.h>
+#include <Common/profiling.h>
 #include <Utility/exception.h>
 #include <SDL/Introspect/SdlClass.h>
-#include <Common/assertion.h>
 
 #include <utility>
 #include <ranges>
@@ -53,8 +54,7 @@ DesignerScene::DesignerScene(Editor* const fromEditor)
 
 	, m_editor(fromEditor)
 	, m_rendererScene(nullptr)
-	, m_realtimeRenderers()
-	, m_offlineRenderers()
+	, m_rendererBindings()
 	, m_renderDescription()
 	, m_mainCamera()
 	, m_isPaused(false)
@@ -679,36 +679,58 @@ void DesignerScene::cleanup()
 	m_freeObjStorageIndices.clear();
 }
 
-void DesignerScene::hookRealtimeRenderer(render::RealtimeRenderer* renderer)
+void DesignerScene::addRendererBinding(DesignerRendererBinding binding)
 {
-	if(!renderer)
+	if(!binding.ownerObj)
 	{
 		return;
 	}
 
-	m_realtimeRenderers.push_back(renderer);
+	m_rendererBindings.push_back(std::move(binding));
 }
 
-void DesignerScene::unhookRealtimeRenderer(render::RealtimeRenderer* renderer)
+void DesignerScene::removeRendererBinding(DesignerObject* ownerObj)
 {
-	auto numRemoved = std::erase(m_realtimeRenderers, renderer);
+	auto numRemoved = std::erase_if(m_rendererBindings, 
+		[ownerObj](const DesignerRendererBinding& binding)
+		{
+			return binding.ownerObj == ownerObj;
+		});
 	PH_ASSERT_LE(numRemoved, 1);
 }
 
-void DesignerScene::hookOfflineRenderer(render::OfflineRenderer* renderer)
+std::string DesignerScene::getUniqueObjectName(const std::string& intendedName)
 {
-	if(!renderer)
+	PH_PROFILE_SCOPE();
+
+	int suffixNumber = 1;
+	while(true)
 	{
-		return;
+		// Generating a name sequence like "name", "name (2)", "name (3)", etc.
+		const std::string generatedName = 
+			intendedName +
+			(suffixNumber == 1 ? "" : " (" + std::to_string(suffixNumber) + ")");
+
+		bool foundDuplicatedName = false;
+		for(auto& objRes : m_objStorage)
+		{
+			if(generatedName == objRes->getName())
+			{
+				foundDuplicatedName = true;
+				break;
+			}
+		}
+
+		if(!foundDuplicatedName)
+		{
+			return generatedName;
+		}
+
+		++suffixNumber;
 	}
 
-	m_offlineRenderers.push_back(renderer);
-}
-
-void DesignerScene::unhookOfflineRenderer(render::OfflineRenderer* renderer)
-{
-	auto numRemoved = std::erase(m_offlineRenderers, renderer);
-	PH_ASSERT_LE(numRemoved, 1);
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return "";
 }
 
 void DesignerScene::pause()
@@ -739,6 +761,16 @@ void DesignerScene::ensureOwnedByThisScene(const DesignerObject* const obj) cons
 			"Designer object {} is not from this scene ({})",
 			get_object_debug_info(obj), getName());
 	}
+}
+
+std::vector<const SdlClass*> DesignerScene::getAllObjectClasses()
+{
+	std::vector<const SdlClass*> classes;
+	for(const auto& [clazz, maker] : classToObjMaker)
+	{
+		classes.push_back(clazz);
+	}
+	return classes;
 }
 
 }// end namespace ph::editor
