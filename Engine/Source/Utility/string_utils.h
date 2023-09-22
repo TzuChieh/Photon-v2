@@ -2,6 +2,7 @@
 
 #include "Common/assertion.h"
 #include "Utility/string_utils_table.h"
+#include "Utility/exception.h"
 
 #include <cstddef>
 #include <string>
@@ -10,11 +11,13 @@
 #include <stdexcept>
 #include <charconv>
 #include <limits>
+#include <climits>
 #include <type_traits>
 #include <format>
 #include <concepts>
 #include <unordered_map>
 #include <functional>
+#include <array>
 
 namespace ph::string_utils
 {
@@ -396,22 +399,25 @@ inline void throw_from_std_errc_if_has_error(const std::errc errorCode)
 		return;
 
 	case std::errc::invalid_argument:
-		throw std::invalid_argument("input cannot be interpreted as a numeric value");
+		throw InvalidArgumentException(
+			"input cannot be interpreted as a numeric value");
 
 	case std::errc::result_out_of_range:
-		throw std::overflow_error("result will overflow the arithmetic type");
+		throw OverflowException(
+			"result will overflow the arithmetic type");
 
 	case std::errc::value_too_large:
-		throw std::out_of_range("result cannot fit in the output buffer");
+		throw OutOfRangeException(
+			"result cannot fit in the output buffer");
 
 	default:
-		throw std::runtime_error(
+		throw RuntimeException(
 			"unknown error: std::errc = " + std::to_string(
 			static_cast<std::underlying_type_t<std::errc>>(errorCode)));
 	}
 }
 
-}// end namespace detail
+}// end namespace detail_from_to_char
 
 /*! @brief Returns a float by processing its string representation.
 Supports float, double, and long double.
@@ -523,6 +529,72 @@ inline std::size_t stringify_float(const T value, char* const out_buffer, const 
 	return static_cast<std::size_t>(result.ptr - out_buffer);
 }
 
+/*! @brief Converts an integer to base [2, 62] string.
+
+Supports all signed and unsigned standard integer types. The function expects a large enough
+@p bufferSize determined by the caller. The written string is not null terminated.
+
+@param out_buffer The buffer for storing the string.
+@param bufferSize Size of @p out_buffer.
+@return Number of characters written to @p out_buffer.
+*/
+template<std::integral T>
+inline std::size_t stringify_int_alphabetic(
+	T value, 
+	char* const out_buffer, 
+	const std::size_t bufferSize,
+	const int base)
+{
+	PH_ASSERT(out_buffer);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(base, 2, 62);
+
+	std::size_t numCharsWritten = 0;
+
+	// Write sign
+	if constexpr(std::is_signed_v<T>)
+	{
+		if(value < 0)
+		{
+			if(bufferSize == 0)
+			{
+				throw OutOfRangeException(
+					"result cannot fit in the output buffer: 0 buffer size, cannot hold the negative sign");
+			}
+
+			out_buffer[0] = '-';
+			++numCharsWritten;
+
+			value = -value;
+		}
+	}
+
+	// Use a temporary buffer, enough to hold base 2 output
+	std::array<unsigned char, sizeof(T) * CHAR_BIT> tmpBuffer;
+	auto tmpBufferEnd = tmpBuffer.end();
+
+	PH_ASSERT_GE(value, 0);
+	do
+	{
+		*(--tmpBufferEnd) = table::BASE62_DIGITS[value % base];
+		value /= base;
+	} while(value > 0);
+	
+	auto numDigits = tmpBuffer.end() - tmpBufferEnd;
+	if(numCharsWritten + numDigits > bufferSize)
+	{
+		throw_formatted<OutOfRangeException>(
+			"result cannot fit in the output buffer: need={}, given={}",
+			numCharsWritten + numDigits, bufferSize);
+	}
+	else
+	{
+		std::copy(tmpBufferEnd, tmpBuffer.end(), out_buffer + numCharsWritten);
+		numCharsWritten += numDigits;
+	}
+
+	return numCharsWritten;
+}
+
 /*! @brief Converts an integer to string.
 
 Supports all signed and unsigned standard integer types. The function expects a large enough
@@ -532,31 +604,37 @@ Supports all signed and unsigned standard integer types. The function expects a 
 @param bufferSize Size of @p out_buffer.
 @return Number of characters written to @p out_buffer.
 */
-template<typename T>
+template<std::integral T>
 inline std::size_t stringify_int(
-	const T value, 
-	char* const out_buffer, 
-	const std::size_t bufferSize,
-	const int base = 10)
+	T value, 
+	char* out_buffer, 
+	std::size_t bufferSize,
+	int base = 10)
 {
-	static_assert(std::is_integral_v<T>,
-		"stringify_int() accepts only integer type.");
+	PH_ASSERT_IN_RANGE_INCLUSIVE(base, 2, 62);
 
-	PH_ASSERT(out_buffer);
-	PH_ASSERT_GE(bufferSize, 1);
-	PH_ASSERT_IN_RANGE_INCLUSIVE(base, 2, 36);
+	// Base in [2, 36] is supported by STL via `to_chars()`
+	if(2 <= base && base <= 36)
+	{
+		PH_ASSERT(out_buffer);
+		PH_ASSERT_GE(bufferSize, 1);
 
-	const std::to_chars_result result = std::to_chars(
-		out_buffer,
-		out_buffer + bufferSize,
-		value,
-		base);
+		std::to_chars_result result = std::to_chars(
+			out_buffer,
+			out_buffer + bufferSize,
+			value,
+			base);
 
-	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
+		detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
 
-	// Must written at least a char, and must not exceed bufferSize
-	PH_ASSERT(out_buffer < result.ptr && result.ptr <= out_buffer + bufferSize);
-	return static_cast<std::size_t>(result.ptr - out_buffer);
+		// Must written at least a char, and must not exceed bufferSize
+		PH_ASSERT(out_buffer < result.ptr && result.ptr <= out_buffer + bufferSize);
+		return static_cast<std::size_t>(result.ptr - out_buffer);
+	}
+	else
+	{
+		return stringify_int_alphabetic(value, out_buffer, bufferSize, base);
+	}
 }
 
 /*! @brief Converts a number to string.
@@ -579,7 +657,7 @@ inline std::size_t stringify_number(const NumberType value, char* const out_buff
 }
 
 template<typename NumberType>
-inline void stringify_number(const NumberType value, std::string* const out_str, const std::size_t maxChars = 32)
+inline void stringify_number(const NumberType value, std::string* const out_str, const std::size_t maxChars = 64)
 {
 	PH_ASSERT(out_str);
 

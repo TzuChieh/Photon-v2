@@ -69,6 +69,12 @@ public:
 	using LogicalException::LogicalException;
 };
 
+class OutOfRangeException : public LogicalException
+{
+public:
+	using LogicalException::LogicalException;
+};
+
 template<typename T>
 concept CPhotonException = 
 	std::is_base_of_v<RuntimeException, T> ||

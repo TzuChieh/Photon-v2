@@ -2,6 +2,9 @@
 
 #include <gtest/gtest.h>
 
+#include <charconv>
+#include <string>
+
 using namespace ph;
 using namespace ph::string_utils;
 
@@ -46,4 +49,31 @@ TEST(StringUtilsTest, NextToken)
 		EXPECT_TRUE(next_token(remainingStr, &remainingStr, sep) == "");
 		EXPECT_TRUE(next_token(remainingStr, &remainingStr, sep) == "");
 	}
+}
+
+TEST(StringUtilsTest, StringifyIntAlphabetic)
+{
+	// Base 2 to 36, use `std::to_char()` to verify
+	{
+		std::string strResult;
+		std::string strExpected;
+		for(int base = 2; base < 36; ++base)
+		{
+			for(int value = -1000; value <= 1000; ++value)
+			{
+				strResult.resize(64);
+				strResult.resize(stringify_int_alphabetic(
+					value, strResult.data(), strResult.size(), base));
+			
+				strExpected.resize(64);
+				std::to_chars_result result = std::to_chars(
+					strExpected.data(), strExpected.data() + strExpected.size(), value, base);
+				strExpected.resize(result.ptr - strExpected.data());
+
+				EXPECT_STREQ(strResult.c_str(), strExpected.c_str());
+			}
+		}
+	}
+
+	// TODO: base 37 to 62
 }

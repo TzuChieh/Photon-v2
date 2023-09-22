@@ -35,10 +35,11 @@ std::string DesignerObject::generateObjectName()
 	// different editor program sessions, we use timestamped counter + a random number as the unique ID.
 	// The chance of collision should be quite low.
 
+	// Use base 62 numbers to make name shorter and to not include invalid characters in file path
 	auto baseName = IDGenerator::toString(
 		IDGenerator::nextTimestampedCount(), 
 		IDGenerator::nextRandomNumber(),
-		36);
+		62);
 
 	return "untitled object " + baseName;
 }

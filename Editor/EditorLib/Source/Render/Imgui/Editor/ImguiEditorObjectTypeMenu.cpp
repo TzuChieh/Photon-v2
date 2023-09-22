@@ -8,6 +8,7 @@
 #include "ThirdParty/DearImGui.h"
 
 #include <string_view>
+#include <algorithm>
 
 namespace ph::editor
 {
@@ -83,6 +84,14 @@ auto ImguiEditorObjectTypeMenu::gatherObjectTypes()
 			.clazz = clazz,
 			.displayName = std::string(docName)});
 	}
+
+	// Make sure we have same order every time (according to display name)
+	std::sort(types.begin(), types.end(),
+		[](const ObjectType& a, const ObjectType& b)
+		{
+			return a.displayName < b.displayName;
+		});
+
 	return types;
 }
 
