@@ -1,21 +1,21 @@
 #pragma once
 
-#include "RenderCore/GHIIndexStorage.h"
+#include "RenderCore/IndexStorage.h"
 
 #include "ThirdParty/glad2.h"
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class OpenglIndexStorage : public GHIIndexStorage
+class OpenglIndexStorage : public IndexStorage
 {
 public:
 	OpenglIndexStorage(
-		EGHIStorageElement indexType,
+		EStorageElement indexType,
 		std::size_t numIndices,
-		EGHIStorageUsage usage);
+		EStorageUsage usage);
 
 	~OpenglIndexStorage() override;
 
@@ -39,4 +39,4 @@ inline std::size_t OpenglIndexStorage::numIndices() const
 	return m_numIndices;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

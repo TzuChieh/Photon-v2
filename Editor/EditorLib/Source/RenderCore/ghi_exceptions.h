@@ -2,12 +2,12 @@
 
 #include <new>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 /*! @brief General exception thrown on bad GHI allocation.
 */
-class GHIBadAllocation : public std::bad_alloc
+class BadAllocation : public std::bad_alloc
 {
 public:
 	const char* what() const noexcept override
@@ -16,7 +16,7 @@ public:
 	}
 };
 
-class GHIOutOfHostMemory : public GHIBadAllocation
+class OutOfHostMemory : public BadAllocation
 {
 public:
 	const char* what() const noexcept override
@@ -25,7 +25,7 @@ public:
 	}
 };
 
-class GHIOutOfDeviceMemory : public GHIBadAllocation
+class OutOfDeviceMemory : public BadAllocation
 {
 public:
 	const char* what() const noexcept override
@@ -34,4 +34,4 @@ public:
 	}
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Render/Scene.h"
-#include "Render/UpdateContext.h"
+#include "Render/RenderThreadUpdateContext.h"
 #include "EditorCore/Query/TConcurrentQueryManager.h"
 #include "Render/Query/query_basics.h"
 
@@ -17,7 +17,7 @@
 #include <memory>
 #include <vector>
 
-namespace ph::editor { class GraphicsContext; }
+namespace ph::editor::ghi { class GraphicsContext; }
 
 namespace ph::editor::render
 {
@@ -27,9 +27,9 @@ class System final : private INoCopyAndMove
 public:
 	using FileReadingWork = std::function<void(void)>;
 
-	UpdateContext updateCtx;
+	RenderThreadUpdateContext updateCtx;
 
-	explicit System(GraphicsContext& graphicsCtx);
+	explicit System(ghi::GraphicsContext& graphicsCtx);
 	~System();
 
 	void addScene(std::unique_ptr<Scene> scene);
@@ -44,7 +44,7 @@ public:
 	void addFileReadingWork(FileReadingWork work);
 
 	void addQuery(Query query);
-	GraphicsContext& getGraphicsContext();
+	ghi::GraphicsContext& getGraphicsContext();
 
 private:
 	friend class SystemController;
@@ -55,7 +55,7 @@ private:
 	void clearRemovedScenes();
 
 private:
-	GraphicsContext& m_graphicsCtx;
+	ghi::GraphicsContext& m_graphicsCtx;
 
 	TUniquePtrVector<Scene> m_sceneStorage;
 	std::vector<Scene*> m_scenes;
@@ -86,7 +86,7 @@ inline void System::addQuery(Query query)
 	m_queryManager.addQuery(std::move(query));
 }
 
-inline GraphicsContext& System::getGraphicsContext()
+inline ghi::GraphicsContext& System::getGraphicsContext()
 {
 	return m_graphicsCtx;
 }

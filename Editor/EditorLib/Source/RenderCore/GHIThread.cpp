@@ -17,7 +17,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(GHIThread, RenderCore);
 GHIThread::GHIThread()
 	: Base()
 	, m_ctx(nullptr)
-	, m_nullCtx(std::make_unique<NullContext>())
+	, m_nullCtx(std::make_unique<ghi::NullContext>())
 	, m_updateCtx()
 	, m_frameTimer()
 	, m_frameTimeMs(0)
@@ -59,7 +59,7 @@ void GHIThread::onBeginFrame()
 	m_updateCtx.frameNumber = frameInfo.frameNumber;
 
 	addWork(
-		[this](GraphicsContext& ctx)
+		[this](ghi::GraphicsContext& ctx)
 		{
 			m_frameTimer.start();
 
@@ -72,7 +72,7 @@ void GHIThread::onEndFrame()
 	PH_PROFILE_SCOPE();
 
 	addWork(
-		[this](GraphicsContext& ctx)
+		[this](ghi::GraphicsContext& ctx)
 		{
 			ctx.endFrameUpdate(m_updateCtx);
 
@@ -84,16 +84,16 @@ void GHIThread::onEndFrame()
 		});
 }
 
-void GHIThread::addContextSwitchWork(GraphicsContext* const newCtx)
+void GHIThread::addContextSwitchWork(ghi::GraphicsContext* const newCtx)
 {
 	addWork(
-		[this, newCtx](GraphicsContext& /* ctx */)
+		[this, newCtx](ghi::GraphicsContext& /* ctx */)
 		{
 			switchContext(newCtx);
 		});
 }
 
-void GHIThread::switchContext(GraphicsContext* const newCtx)
+void GHIThread::switchContext(ghi::GraphicsContext* const newCtx)
 {
 	PH_ASSERT(isOnGHIThread());
 

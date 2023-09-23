@@ -1,20 +1,20 @@
 #pragma once
 
-#include "RenderCore/GHIShader.h"
+#include "RenderCore/Shader.h"
 
 #include "ThirdParty/glad2.h"
 
 #include <string>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class OpenglShader : public GHIShader
+class OpenglShader : public Shader
 {
 public:
 	OpenglShader(
 		std::string name, 
-		EGHIShadingStage shadingStage,
+		EShadingStage shadingStage,
 		std::string shaderSource);
 
 	~OpenglShader() override;
@@ -27,4 +27,4 @@ private:
 	GLuint m_shaderID;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

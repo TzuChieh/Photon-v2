@@ -2,7 +2,7 @@
 
 #include "RenderCore/BasicGraphicsMemoryManager.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class OpenglContext;
@@ -16,4 +16,4 @@ private:
 	OpenglContext& m_ctx;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

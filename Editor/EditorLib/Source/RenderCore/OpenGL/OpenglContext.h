@@ -7,7 +7,7 @@
 
 #include "ThirdParty/GLFW3_fwd.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class OpenglContext final : public GraphicsContext
@@ -26,4 +26,4 @@ private:
 	OpenglMemoryManager m_memManager;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

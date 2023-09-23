@@ -2,7 +2,7 @@
 
 #include "RenderCore/GraphicsObjectManager.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class NullObjectManager : public GraphicsObjectManager
@@ -10,82 +10,82 @@ class NullObjectManager : public GraphicsObjectManager
 public:
 	~NullObjectManager() override = default;
 
-	GHITextureHandle createTexture(const GHIInfoTextureDesc& desc) override
+	TextureHandle createTexture(const TextureDesc& desc) override
 	{
-		return GHITextureHandle{};
+		return TextureHandle{};
 	}
 
-	GHIFramebufferHandle createFramebuffer(
-		const GHIInfoFramebufferDesc& desc) override
+	FramebufferHandle createFramebuffer(
+		const FramebufferDesc& desc) override
 	{
-		return GHIFramebufferHandle{};
+		return FramebufferHandle{};
 	}
 
-	GHIShaderHandle createShader(
+	ShaderHandle createShader(
 		std::string name,
-		EGHIShadingStage shadingStage,
+		EShadingStage shadingStage,
 		std::string shaderSource) override
 	{
-		return GHIShaderHandle{};
+		return ShaderHandle{};
 	}
 
-	GHIShaderProgramHandle createShaderProgram(
+	ShaderProgramHandle createShaderProgram(
 		std::string name,
-		const GHIInfoShaderSet& shaders) override
+		const ShaderSetInfo& shaders) override
 	{
-		return GHIShaderProgramHandle{};
+		return ShaderProgramHandle{};
 	}
 
-	GHIVertexStorageHandle createVertexStorage(
+	VertexStorageHandle createVertexStorage(
 		std::size_t numVertices,
-		const GHIInfoVertexGroupFormat& format,
-		EGHIStorageUsage usage) override
+		const VertexGroupFormatInfo& format,
+		EStorageUsage usage) override
 	{
-		return GHIVertexStorageHandle{};
+		return VertexStorageHandle{};
 	}
 
-	GHIIndexStorageHandle createIndexStorage(
+	IndexStorageHandle createIndexStorage(
 		std::size_t numIndices,
-		EGHIStorageElement indexType,
-		EGHIStorageUsage usage) override
+		EStorageElement indexType,
+		EStorageUsage usage) override
 	{
-		return GHIIndexStorageHandle{};
+		return IndexStorageHandle{};
 	}
 
-	GHIMeshHandle createMesh(
-		TSpanView<GHIVertexStorageHandle> vertexStorages,
-		const GHIInfoMeshVertexLayout& layout,
-		GHIIndexStorageHandle indexStorage) override
+	MeshHandle createMesh(
+		TSpanView<VertexStorageHandle> vertexStorages,
+		const MeshVertexLayoutInfo& layout,
+		IndexStorageHandle indexStorage) override
 	{
-		return GHIMeshHandle{};
+		return MeshHandle{};
 	}
 
 	void uploadPixelData(
-		GHITextureHandle handle,
+		TextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelFormat pixelFormat,
-		EGHIPixelComponent pixelComponent) override
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent) override
 	{}
 
-	void removeTexture(GHITextureHandle handle) override
+	void removeTexture(TextureHandle handle) override
 	{}
 
-	void removeFramebuffer(GHIFramebufferHandle handle) override
+	void removeFramebuffer(FramebufferHandle handle) override
 	{}
 
-	void removeShader(GHIShaderHandle handle) override
+	void removeShader(ShaderHandle handle) override
 	{}
 
-	void removeShaderProgram(GHIShaderProgramHandle handle) override
+	void removeShaderProgram(ShaderProgramHandle handle) override
 	{}
 
-	void removeVertexStorage(GHIVertexStorageHandle handle) override
+	void removeVertexStorage(VertexStorageHandle handle) override
 	{}
 
-	void removeIndexStorage(GHIIndexStorageHandle handle) override
+	void removeIndexStorage(IndexStorageHandle handle) override
 	{}
 
-	void removeMesh(GHIMeshHandle handle) override
+	void removeMesh(MeshHandle handle) override
 	{}
 
 	void onGHILoad() override
@@ -101,4 +101,4 @@ public:
 	{}
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

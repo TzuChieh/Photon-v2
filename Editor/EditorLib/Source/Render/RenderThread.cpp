@@ -1,5 +1,5 @@
 #include "Render/RenderThread.h"
-#include "Render/UpdateContext.h"
+#include "Render/RenderThreadUpdateContext.h"
 #include "EditorCore/Thread/Threads.h"
 #include "Render/System.h"
 #include "RenderCore/GHIThreadCaller.h"
@@ -135,7 +135,7 @@ void RenderThread::onBeginFrame()
 
 	const auto frameInfo = getFrameInfo();
 
-	render::UpdateContext updateCtx;
+	RenderThreadUpdateContext updateCtx;
 	updateCtx.frameNumber = frameInfo.frameNumber;
 	updateCtx.frameCycleIndex = frameInfo.frameCycleIndex;
 
@@ -256,7 +256,7 @@ void RenderThread::afterLastRenderWorkInFrame()
 	sys.processQueries();
 }
 
-void RenderThread::setGraphicsContext(GraphicsContext* graphicsCtx)
+void RenderThread::setGraphicsContext(ghi::GraphicsContext* graphicsCtx)
 {
 	if(!graphicsCtx || m_graphicsCtx)
 	{

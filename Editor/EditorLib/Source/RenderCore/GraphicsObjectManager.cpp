@@ -1,8 +1,8 @@
 #include "RenderCore/GraphicsObjectManager.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 GraphicsObjectManager::~GraphicsObjectManager() = default;
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

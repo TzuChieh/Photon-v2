@@ -1,5 +1,5 @@
 #include "RenderCore/OpenGL/OpenglShaderProgram.h"
-#include "RenderCore/GHIShader.h"
+#include "RenderCore/Shader.h"
 
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
@@ -9,17 +9,17 @@
 
 #include <utility>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(OpenglShaderProgram, GHI);
 
 OpenglShaderProgram::OpenglShaderProgram(
 	std::string name,
-	const std::shared_ptr<GHIShader>& vertexShader,
-	const std::shared_ptr<GHIShader>& fragmentShader)
+	const std::shared_ptr<Shader>& vertexShader,
+	const std::shared_ptr<Shader>& fragmentShader)
 
-	: GHIShaderProgram(std::move(name))
+	: ShaderProgram(std::move(name))
 
 	, m_programID(0)
 	, m_nameToUniform()
@@ -103,7 +103,7 @@ void OpenglShaderProgram::setMatrix4F(std::string_view name, const math::Matrix4
 	PH_ASSERT_UNREACHABLE_SECTION();
 }
 
-GLuint OpenglShaderProgram::getOpenglHandle(GHIShader& shader)
+GLuint OpenglShaderProgram::getOpenglHandle(Shader& shader)
 {
 	const auto nativeHandle = shader.getNativeHandle();
 
@@ -111,7 +111,7 @@ GLuint OpenglShaderProgram::getOpenglHandle(GHIShader& shader)
 	return lossless_cast<GLuint>(std::get<uint64>(nativeHandle));
 }
 
-void OpenglShaderProgram::checkLinkStatus(const GHIShader& vertexShader, const GHIShader& fragmentShader) const
+void OpenglShaderProgram::checkLinkStatus(const Shader& vertexShader, const Shader& fragmentShader) const
 {
 	GLint isLinked = GL_FALSE;
 	glGetProgramiv(m_programID, GL_LINK_STATUS, &isLinked);
@@ -123,7 +123,7 @@ void OpenglShaderProgram::checkLinkStatus(const GHIShader& vertexShader, const G
 	}
 }
 
-void OpenglShaderProgram::validateProgram(const GHIShader& vertexShader, const GHIShader& fragmentShader) const
+void OpenglShaderProgram::validateProgram(const Shader& vertexShader, const Shader& fragmentShader) const
 {
 	glValidateProgram(m_programID);
 
@@ -206,4 +206,4 @@ void OpenglShaderProgram::warnUniformNotFound(
 	}
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

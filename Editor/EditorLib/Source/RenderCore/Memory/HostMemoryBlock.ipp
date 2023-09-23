@@ -10,7 +10,7 @@
 #include <new>
 #include <utility>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 inline HostMemoryBlock::HostMemoryBlock()
@@ -30,7 +30,7 @@ inline HostMemoryBlock::HostMemoryBlock(std::size_t blockSizeHintInBytes, std::s
 	m_memoryBlock = make_aligned_memory<std::byte>(blockSize, alignmentSize);
 	if(!m_memoryBlock)
 	{
-		throw GHIOutOfHostMemory{};
+		throw OutOfHostMemory{};
 	}
 
 	setBlockSource(m_memoryBlock.get(), blockSize);
@@ -57,4 +57,4 @@ inline void swap(HostMemoryBlock& first, HostMemoryBlock& second) noexcept
 	swap(first.m_memoryBlock, second.m_memoryBlock);
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -8,7 +8,7 @@
 
 #include <utility>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 template<typename T, typename... Args>
@@ -71,4 +71,4 @@ inline TSpan<T> GraphicsArena::makeArray(std::size_t arraySize)
 	return arr;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

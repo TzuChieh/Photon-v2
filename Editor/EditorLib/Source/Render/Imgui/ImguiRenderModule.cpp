@@ -67,7 +67,7 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 	m_glfwWindow = std::get<GLFWwindow*>(nativeWindow);
 	PH_ASSERT(m_glfwWindow);
 
-	if(info.platform->getDisplay().getGraphicsApiType() != EGraphicsAPI::OpenGL)
+	if(info.platform->getDisplay().getGraphicsApiType() != ghi::EGraphicsAPI::OpenGL)
 	{
 		throw_formatted<ModuleException>(
 			"no OpenGL support; currently imgui module requires OpenGL");

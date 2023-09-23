@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <iterator>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 BasicGraphicsMemoryManager::BasicGraphicsMemoryManager()
@@ -75,7 +75,7 @@ GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocHostBlock(uint32 numFrames
 			"Out of pooled host memory block (max={} blocks, {} MiB each)",
 			m_maxPooledHostBlocks, m_pooledHostBlockSize / math::constant::MiB);
 
-		throw GHIOutOfHostMemory{};
+		throw OutOfHostMemory{};
 	}
 }
 
@@ -190,4 +190,4 @@ void BasicGraphicsMemoryManager::endFrameUpdate(const GHIThreadUpdateContext& ct
 	}
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

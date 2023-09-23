@@ -5,17 +5,17 @@
 
 #include <utility>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(OpenglShader, GHI);
 
 OpenglShader::OpenglShader(
 	std::string name, 
-	const EGHIShadingStage shadingStage,
+	const EShadingStage shadingStage,
 	std::string shaderSource)
 
-	: GHIShader(std::move(name), shadingStage)
+	: Shader(std::move(name), shadingStage)
 
 	, m_shaderID(0)
 {
@@ -79,4 +79,4 @@ std::string OpenglShader::getInfoLog() const
 	return infoLog;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

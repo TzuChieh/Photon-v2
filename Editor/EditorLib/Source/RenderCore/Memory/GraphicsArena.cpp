@@ -5,7 +5,7 @@
 
 #include <Common/assertion.h>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 namespace
@@ -33,7 +33,7 @@ GraphicsArena::GraphicsArena(GraphicsMemoryManager* manager, EType type)
 {
 	if(!m_manager)
 	{
-		throw GHIBadAllocation{};
+		throw BadAllocation{};
 	}
 }
 
@@ -64,7 +64,7 @@ GraphicsMemoryBlock* GraphicsArena::allocNextBlock()
 	
 	if(!newBlock)
 	{
-		throw GHIBadAllocation{};
+		throw BadAllocation{};
 	}
 
 	return newBlock;
@@ -103,10 +103,10 @@ GraphicsMemoryBlock* GraphicsArena::allocCustomBlock(std::size_t blockSize, std:
 	
 	if(!newBlock)
 	{
-		throw GHIBadAllocation{};
+		throw BadAllocation{};
 	}
 
 	return newBlock;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

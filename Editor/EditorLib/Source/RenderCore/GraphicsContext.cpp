@@ -8,7 +8,7 @@
 
 #include <iterator>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 GraphicsContext::~GraphicsContext() = default;
@@ -73,4 +73,4 @@ void GraphicsContext::endFrameUpdate(const GHIThreadUpdateContext& updateCtx)
 	getMemoryManager().endFrameUpdate(updateCtx);
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

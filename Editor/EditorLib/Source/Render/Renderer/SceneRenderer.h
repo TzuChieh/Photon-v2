@@ -12,7 +12,7 @@ class SceneRenderer : public IDynamicSceneResource
 public:
 	void setupGHI(GHIThreadCaller& caller) override = 0;
 	void cleanupGHI(GHIThreadCaller& caller) override = 0;
-	void update(const UpdateContext& ctx) override = 0;
+	void update(const RenderThreadUpdateContext& ctx) override = 0;
 	void createGHICommands(GHIThreadCaller& caller) override = 0;
 
 	EProcessOrder getProcessOrder() const override;

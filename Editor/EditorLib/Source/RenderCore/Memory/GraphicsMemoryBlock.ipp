@@ -9,7 +9,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 inline std::size_t GraphicsMemoryBlock::numAllocatedBytes() const
@@ -98,4 +98,4 @@ inline std::byte* GraphicsMemoryBlock::allocRaw(
 	return static_cast<std::byte*>(alignedPtr);
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

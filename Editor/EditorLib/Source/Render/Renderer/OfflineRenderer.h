@@ -46,7 +46,7 @@ public:
 
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
-	void update(const UpdateContext& ctx) override;
+	void update(const RenderThreadUpdateContext& ctx) override;
 	void createGHICommands(GHIThreadCaller& caller) override;
 
 private:

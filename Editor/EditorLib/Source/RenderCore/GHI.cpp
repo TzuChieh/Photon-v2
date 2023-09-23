@@ -1,7 +1,7 @@
 #include "RenderCore/GHI.h"
 #include "RenderCore/ghi_infos.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 PH_DEFINE_LOG_GROUP(GHI, GHI);
@@ -25,9 +25,9 @@ GHI::GHI(const EGraphicsAPI apiType)
 
 GHI::~GHI() = default;
 
-GHIInfoDeviceCapability GHI::getDeviceCapabilities()
+DeviceCapabilityInfo GHI::getDeviceCapabilities()
 {
-	return GHIInfoDeviceCapability{};
+	return DeviceCapabilityInfo{};
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

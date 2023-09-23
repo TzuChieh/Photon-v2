@@ -1,6 +1,6 @@
 #include "RenderCore/OpenGL/OpenglContext.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 OpenglContext::OpenglContext(GLFWwindow* const glfwWindow, const bool hasDebugContext)
@@ -29,4 +29,4 @@ OpenglMemoryManager& OpenglContext::getMemoryManager()
 	return m_memManager;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

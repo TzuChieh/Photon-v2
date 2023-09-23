@@ -8,7 +8,7 @@
 #include <vector>
 
 using namespace ph;
-using namespace ph::editor;
+using namespace ph::editor::ghi;
 
 TEST(HostMemoryBlockTest, ConstructAndMove)
 {

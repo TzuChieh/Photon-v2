@@ -23,7 +23,7 @@
 #include <cstddef>
 #include <format>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(OpenglGHI, GHI);
@@ -96,7 +96,7 @@ inline std::string_view debug_type_GLenum_to_sv(const GLenum dbgType)
 
 }// end anonymous namespace
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi
 
 extern "C"
 {
@@ -110,7 +110,7 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
     const GLchar* const message,
     const void* const   userParam)
 {
-	using namespace ph::editor;
+	using namespace ph::editor::ghi;
 
 	auto debugStr = std::format("{} (source: {}, type: {}, id: {})",
 		std::string_view(reinterpret_cast<const char*>(message), length),
@@ -146,7 +146,7 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
 
 }// end extern "C"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 OpenglGHI::OpenglGHI(OpenglContext& ctx, GLFWwindow* const glfwWindow, const bool hasDebugContext)
@@ -268,13 +268,13 @@ void OpenglGHI::setClearColor(const math::Vector4F& color)
 		lossless_cast<GLclampf>(color.a()));
 }
 
-void OpenglGHI::draw(GHIMesh& mesh, const EGHIMeshDrawMode drawMode)
+void OpenglGHI::draw(Mesh& mesh, const EMeshDrawMode drawMode)
 {
 	mesh.bind();
 
 	if(mesh.hasIndexStorage())
 	{
-		const GHIIndexStorage& indexStorage = mesh.getIndexStorage();
+		const IndexStorage& indexStorage = mesh.getIndexStorage();
 
 		glDrawElements(
 			opengl::to_primitive_type(drawMode), 
@@ -303,10 +303,10 @@ void OpenglGHI::swapBuffers()
 }
 
 bool OpenglGHI::tryUploadPixelData(
-	GHITextureHandle handle,
+	TextureHandle handle,
 	TSpanView<std::byte> pixelData,
-	EGHIPixelFormat pixelFormat,
-	EGHIPixelComponent pixelComponent)
+	EPixelFormat pixelFormat,
+	EPixelComponent pixelComponent)
 {
 	OpenglTexture* texture = m_ctx.getObjectManager().textures.get(handle);
 	if(!texture)
@@ -318,7 +318,7 @@ bool OpenglGHI::tryUploadPixelData(
 	return true;
 }
 
-GHITextureNativeHandle OpenglGHI::tryGetTextureNativeHandle(const GHITextureHandle handle)
+TextureNativeHandle OpenglGHI::tryGetTextureNativeHandle(const TextureHandle handle)
 {
 	OpenglTexture* texture = m_ctx.getObjectManager().textures.get(handle);
 	if(!texture || texture->textureID == 0)
@@ -331,8 +331,8 @@ GHITextureNativeHandle OpenglGHI::tryGetTextureNativeHandle(const GHITextureHand
 
 void OpenglGHI::attachTextureToFramebuffer(
 	uint32 attachmentIdx,
-	GHITextureHandle textureHandle,
-	GHIFramebufferHandle framebufferHandle)
+	TextureHandle textureHandle,
+	FramebufferHandle framebufferHandle)
 {
 	OpenglTexture* texture = m_ctx.getObjectManager().textures.get(textureHandle);
 	OpenglFramebuffer* framebuffer = m_ctx.getObjectManager().framebuffers.get(framebufferHandle);
@@ -358,9 +358,9 @@ void OpenglGHI::attachTextureToFramebuffer(
 	}
 }
 
-std::shared_ptr<GHIShader> OpenglGHI::createShader(
+std::shared_ptr<Shader> OpenglGHI::createShader(
 	std::string name,
-	const EGHIShadingStage shadingStage,
+	const EShadingStage shadingStage,
 	std::string shaderSource)
 {
 	return std::make_shared<OpenglShader>(
@@ -369,11 +369,11 @@ std::shared_ptr<GHIShader> OpenglGHI::createShader(
 		std::move(shaderSource));
 }
 
-std::shared_ptr<GHIShaderProgram> OpenglGHI::createShaderProgram(
+std::shared_ptr<ShaderProgram> OpenglGHI::createShaderProgram(
 	std::string name,
-	const GHIShaderSet& shaders)
+	const ShaderSetInfo& shaders)
 {
-	if(shaders.vertexShader && shaders.fragmentShader)
+	/*if(shaders.vertexShader && shaders.fragmentShader)
 	{
 		return std::make_shared<OpenglShaderProgram>(
 			std::move(name),
@@ -385,13 +385,14 @@ std::shared_ptr<GHIShaderProgram> OpenglGHI::createShaderProgram(
 		PH_LOG_ERROR(OpenglGHI,
 			"cannot create shader program (some shaders are missing)");
 		return nullptr;
-	}
+	}*/
+	return nullptr;
 }
 
-std::shared_ptr<GHIVertexStorage> OpenglGHI::createVertexStorage(
-	const GHIInfoVertexGroupFormat& format,
+std::shared_ptr<VertexStorage> OpenglGHI::createVertexStorage(
+	const VertexGroupFormatInfo& format,
 	const std::size_t numVertices,
-	const EGHIStorageUsage usage)
+	const EStorageUsage usage)
 {
 	return std::make_shared<OpenglVertexStorage>(
 		format,
@@ -399,10 +400,10 @@ std::shared_ptr<GHIVertexStorage> OpenglGHI::createVertexStorage(
 		usage);
 }
 
-std::shared_ptr<GHIIndexStorage> OpenglGHI::createIndexStorage(
-	const EGHIStorageElement indexType,
+std::shared_ptr<IndexStorage> OpenglGHI::createIndexStorage(
+	const EStorageElement indexType,
 	const std::size_t numIndices,
-	const EGHIStorageUsage usage)
+	const EStorageUsage usage)
 {
 	return std::make_shared<OpenglIndexStorage>(
 		indexType, 
@@ -410,10 +411,10 @@ std::shared_ptr<GHIIndexStorage> OpenglGHI::createIndexStorage(
 		usage);
 }
 
-std::shared_ptr<GHIMesh> OpenglGHI::createMesh(
-	const GHIInfoMeshVertexLayout& layout,
-	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
-	const std::shared_ptr<GHIIndexStorage>& indexStorage)
+std::shared_ptr<Mesh> OpenglGHI::createMesh(
+	const MeshVertexLayoutInfo& layout,
+	TSpanView<std::shared_ptr<VertexStorage>> vertexStorages,
+	const std::shared_ptr<IndexStorage>& indexStorage)
 {
 	return std::make_shared<OpenglMesh>(
 		layout,
@@ -421,7 +422,7 @@ std::shared_ptr<GHIMesh> OpenglGHI::createMesh(
 		indexStorage);
 }
 
-GHIInfoDeviceCapability OpenglGHI::getDeviceCapabilities()
+DeviceCapabilityInfo OpenglGHI::getDeviceCapabilities()
 {
 	if(m_deviceCapability != nullptr)
 	{
@@ -430,9 +431,9 @@ GHIInfoDeviceCapability OpenglGHI::getDeviceCapabilities()
 
 	// Reference: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glGet.xhtml
 
-	m_deviceCapability = std::make_unique<GHIInfoDeviceCapability>();
+	m_deviceCapability = std::make_unique<DeviceCapabilityInfo>();
 
-	GHIInfoDeviceCapability& c = *m_deviceCapability;
+	DeviceCapabilityInfo& c = *m_deviceCapability;
 	c.maxTextureUnitsForVertexShadingStage = Opengl::getInteger<uint8>(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS);
 	c.maxTextureUnitsForFragmentShadingStage = Opengl::getInteger<uint8>(GL_MAX_TEXTURE_IMAGE_UNITS);
 	
@@ -452,4 +453,4 @@ void OpenglGHI::endRawCommand()
 	// TODO: currently no state yet
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

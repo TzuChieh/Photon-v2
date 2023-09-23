@@ -94,7 +94,7 @@ void ImguiImageLibrary::loadImage(EImguiImage targetImage, const Path& filePath)
 	m_loaders.push_back({
 		.entryIdx = static_cast<int>(targetImage),
 		.fileToLoad = filePath,
-		.format = EGHISizedPixelFormat::RGBA_8});
+		.format = ghi::ESizedPixelFormat::RGBA_8});
 }
 
 void ImguiImageLibrary::loadImage(const std::string& imageName, const Path& filePath)
@@ -113,7 +113,7 @@ void ImguiImageLibrary::loadImage(
 	const std::string& imageName,
 	const Path& filePath,
 	math::Vector2UI sizePx,
-	EGHISizedPixelFormat format)
+	ghi::ESizedPixelFormat format)
 {
 	if(filePath.isEmpty())
 	{
@@ -130,7 +130,7 @@ void ImguiImageLibrary::loadImage(
 void ImguiImageLibrary::loadImage(
 	const std::string& imageName,
 	math::Vector2UI sizePx,
-	EGHISizedPixelFormat format)
+	ghi::ESizedPixelFormat format)
 {
 	m_loaders.push_back({
 		.entryName = imageName,
@@ -159,12 +159,12 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 				continue;
 			}
 
-			GHIInfoTextureDesc desc;
+			ghi::TextureDesc desc;
 			sizePx.x() = loader.sizePx.x() != 0 ? loader.sizePx.x() : sizePx.x();
 			sizePx.y() = loader.sizePx.y() != 0 ? loader.sizePx.y() : sizePx.y();
 			desc.setSize2D(math::Vector2UI(sizePx));
-			desc.format.pixelFormat = loader.format == EGHISizedPixelFormat::Empty
-				? EGHISizedPixelFormat::RGBA_8 : loader.format;
+			desc.format.pixelFormat = loader.format == ghi::ESizedPixelFormat::Empty
+				? ghi::ESizedPixelFormat::RGBA_8 : loader.format;
 
 			handle = scene.declareTexture();
 			caller.add(
@@ -188,10 +188,10 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 				loader.sizePx = defaultSize;
 			}
 
-			GHIInfoTextureDesc desc;
+			ghi::TextureDesc desc;
 			desc.setSize2D(loader.sizePx);
-			desc.format.pixelFormat = loader.format == EGHISizedPixelFormat::Empty
-				? EGHISizedPixelFormat::RGB_8 : loader.format;
+			desc.format.pixelFormat = loader.format == ghi::ESizedPixelFormat::Empty
+				? ghi::ESizedPixelFormat::RGB_8 : loader.format;
 
 			handle = scene.declareTexture();
 			caller.add(
@@ -258,7 +258,7 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 
 		if(!r.nHandleQuery.isEmpty() && r.nHandleQuery->isReady())
 		{
-			GHITextureNativeHandle nativeHandle = r.nHandleQuery->getNativeHandle();
+			ghi::TextureNativeHandle nativeHandle = r.nHandleQuery->getNativeHandle();
 			ImTextureID textureID = getTextureIDFromNativeHandle(nativeHandle);
 			if(!r.entryName.empty())
 			{
@@ -313,7 +313,7 @@ void ImguiImageLibrary::cleanupTextures(RenderThreadCaller& caller, render::Scen
 	}
 }
 
-ImTextureID ImguiImageLibrary::getTextureIDFromNativeHandle(GHITextureNativeHandle nativeHandle)
+ImTextureID ImguiImageLibrary::getTextureIDFromNativeHandle(ghi::TextureNativeHandle nativeHandle)
 {
 	if(std::holds_alternative<uint64>(nativeHandle))
 	{

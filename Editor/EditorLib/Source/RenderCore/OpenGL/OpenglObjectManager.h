@@ -13,7 +13,7 @@
 
 #include <vector>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class OpenglContext;
@@ -69,48 +69,48 @@ public:
 	explicit OpenglObjectManager(OpenglContext& ctx);
 	~OpenglObjectManager() override;
 
-	GHITextureHandle createTexture(const GHIInfoTextureDesc& desc) override;
+	TextureHandle createTexture(const TextureDesc& desc) override;
 
-	GHIFramebufferHandle createFramebuffer(
-		const GHIInfoFramebufferDesc& desc) override;
+	FramebufferHandle createFramebuffer(
+		const FramebufferDesc& desc) override;
 
-	GHIShaderHandle createShader(
+	ShaderHandle createShader(
 		std::string name,
-		EGHIShadingStage shadingStage,
+		EShadingStage shadingStage,
 		std::string shaderSource) override;
 
-	GHIShaderProgramHandle createShaderProgram(
+	ShaderProgramHandle createShaderProgram(
 		std::string name,
-		const GHIInfoShaderSet& shaders) override;
+		const ShaderSetInfo& shaders) override;
 
-	GHIVertexStorageHandle createVertexStorage(
+	VertexStorageHandle createVertexStorage(
 		std::size_t numVertices,
-		const GHIInfoVertexGroupFormat& format,
-		EGHIStorageUsage usage) override;
+		const VertexGroupFormatInfo& format,
+		EStorageUsage usage) override;
 
-	GHIIndexStorageHandle createIndexStorage(
+	IndexStorageHandle createIndexStorage(
 		std::size_t numIndices,
-		EGHIStorageElement indexType,
-		EGHIStorageUsage usage) override;
+		EStorageElement indexType,
+		EStorageUsage usage) override;
 
-	GHIMeshHandle createMesh(
-		TSpanView<GHIVertexStorageHandle> vertexStorages,
-		const GHIInfoMeshVertexLayout& layout,
-		GHIIndexStorageHandle indexStorage) override;
+	MeshHandle createMesh(
+		TSpanView<VertexStorageHandle> vertexStorages,
+		const MeshVertexLayoutInfo& layout,
+		IndexStorageHandle indexStorage) override;
 
 	void uploadPixelData(
-		GHITextureHandle handle,
+		TextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelFormat pixelFormat,
-		EGHIPixelComponent pixelComponent) override;
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent) override;
 
-	void removeTexture(GHITextureHandle handle) override;
-	void removeFramebuffer(GHIFramebufferHandle handle) override;
-	void removeShader(GHIShaderHandle handle) override;
-	void removeShaderProgram(GHIShaderProgramHandle handle) override;
-	void removeVertexStorage(GHIVertexStorageHandle handle) override;
-	void removeIndexStorage(GHIIndexStorageHandle handle) override;
-	void removeMesh(GHIMeshHandle handle) override;
+	void removeTexture(TextureHandle handle) override;
+	void removeFramebuffer(FramebufferHandle handle) override;
+	void removeShader(ShaderHandle handle) override;
+	void removeShaderProgram(ShaderProgramHandle handle) override;
+	void removeVertexStorage(VertexStorageHandle handle) override;
+	void removeIndexStorage(IndexStorageHandle handle) override;
+	void removeMesh(MeshHandle handle) override;
 
 	void onGHILoad() override;
 	void onGHIUnload() override;
@@ -121,8 +121,8 @@ public:
 	template<typename OpenglObjType, CWeakHandle HandleType>
 	using TPool = TTrivialItemPool<OpenglObjType, TConcurrentHandleDispatcher<HandleType>>;
 
-	TPool<OpenglTexture, GHITextureHandle> textures;
-	TPool<OpenglFramebuffer, GHIFramebufferHandle> framebuffers;
+	TPool<OpenglTexture, TextureHandle> textures;
+	TPool<OpenglFramebuffer, FramebufferHandle> framebuffers;
 
 private:
 	void deleteAllObjects();
@@ -135,4 +135,4 @@ private:
 	std::vector<OpenglObjectDeleter> m_failedDeleterCache;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

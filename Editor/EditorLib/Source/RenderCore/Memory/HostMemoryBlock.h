@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 /*! @brief A chunk of cache aligned main memory.
@@ -41,6 +41,6 @@ private:
 	TAlignedMemoryUniquePtr<std::byte> m_memoryBlock;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi
 
 #include "RenderCore/Memory/HostMemoryBlock.ipp"

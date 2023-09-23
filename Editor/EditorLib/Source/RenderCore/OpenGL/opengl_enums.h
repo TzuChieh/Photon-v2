@@ -6,21 +6,21 @@
 
 #include <Common/primitive_type.h>
 
-namespace ph::editor::opengl
+namespace ph::editor::ghi::opengl
 {
 
-GLenum to_internal_format(EGHISizedPixelFormat sizedFormat);
-GLenum to_internal_format(EGHIPixelFormat unsizedFormat);
+GLenum to_internal_format(ESizedPixelFormat sizedFormat);
+GLenum to_internal_format(EPixelFormat unsizedFormat);
 GLenum to_color_attachment(uint32 slotIndex);
-GLenum to_data_type(EGHIPixelComponent componentType);
-GLenum to_data_type(EGHIStorageElement elementType);
-GLenum to_primitive_type(EGHIMeshDrawMode drawMode);
-GLenum to_shader_type(EGHIShadingStage shadingStage);
-GLenum to_filter_type(EGHIFilterMode filterMode);
-GLenum to_wrap_type(EGHIWrapMode wrapMode);
+GLenum to_data_type(EPixelComponent componentType);
+GLenum to_data_type(EStorageElement elementType);
+GLenum to_primitive_type(EMeshDrawMode drawMode);
+GLenum to_shader_type(EShadingStage shadingStage);
+GLenum to_filter_type(EFilterMode filterMode);
+GLenum to_wrap_type(EWrapMode wrapMode);
 
 GLenum to_base_format(GLenum internalFormat);
 uint32 num_pixel_components(GLenum internalFormat);
 bool is_color_format(GLenum internalFormat);
 
-}// end namespace ph::editor::opengl
+}// end namespace ph::editor::ghi::opengl

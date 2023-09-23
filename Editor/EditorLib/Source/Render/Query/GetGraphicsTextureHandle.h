@@ -23,12 +23,12 @@ public:
 	*/
 	TextureHandle getTextureHandle() const;
 
-	GHITextureHandle getGraphicsTextureHandle() const;
+	ghi::TextureHandle getGraphicsTextureHandle() const;
 
 private:
 	Scene* m_scene;
 	TextureHandle m_handle;
-	GHITextureHandle m_gHandle;
+	ghi::TextureHandle m_gHandle;
 };
 
 inline TextureHandle GetGraphicsTextureHandle::getTextureHandle() const
@@ -36,7 +36,7 @@ inline TextureHandle GetGraphicsTextureHandle::getTextureHandle() const
 	return m_handle;
 }
 
-inline GHITextureHandle GetGraphicsTextureHandle::getGraphicsTextureHandle() const
+inline ghi::TextureHandle GetGraphicsTextureHandle::getGraphicsTextureHandle() const
 {
 	return m_gHandle;
 }

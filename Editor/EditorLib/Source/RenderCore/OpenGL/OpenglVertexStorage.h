@@ -1,21 +1,21 @@
 #pragma once
 
-#include "RenderCore/GHIVertexStorage.h"
+#include "RenderCore/VertexStorage.h"
 
 #include "ThirdParty/glad2.h"
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class OpenglVertexStorage : public GHIVertexStorage
+class OpenglVertexStorage : public VertexStorage
 {
 public:
 	OpenglVertexStorage(
-		const GHIInfoVertexGroupFormat& format, 
+		const VertexGroupFormatInfo& format, 
 		std::size_t numVertices,
-		EGHIStorageUsage usage);
+		EStorageUsage usage);
 
 	~OpenglVertexStorage() override;
 
@@ -39,4 +39,4 @@ inline std::size_t OpenglVertexStorage::numVertices() const
 	return m_numVertices;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

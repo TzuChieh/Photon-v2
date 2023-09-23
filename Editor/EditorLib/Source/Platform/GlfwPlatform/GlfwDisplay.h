@@ -19,18 +19,18 @@ public:
 	GlfwDisplay();
 	~GlfwDisplay() override;
 
-	GraphicsContext* getGraphicsContext() const override;
+	ghi::GraphicsContext* getGraphicsContext() const override;
 	math::Vector2S getSizePx() const override;
 	math::Vector2S getFramebufferSizePx() const override;
 	NativeWindow getNativeWindow() const override;
-	EGraphicsAPI getGraphicsApiType() const override;
+	ghi::EGraphicsAPI getGraphicsApiType() const override;
 	float32 getDpiScale() const override;
 
 	void initialize(
 		Editor&            editor,
 		const std::string& windowTitle,
 		math::Vector2S     sizePx,
-		EGraphicsAPI       graphicsApi,
+		ghi::EGraphicsAPI  graphicsApi,
 		bool               useDebugModeGHI);
 
 	void terminate();
@@ -38,10 +38,10 @@ public:
 	GLFWwindow* getGlfwWindow() const;
 
 private:
-	GLFWwindow*                      m_glfwWindow; 
-	std::unique_ptr<GraphicsContext> m_graphicsCtx;
-	EGraphicsAPI                     m_apiType;
-	math::Vector2S                   m_sizePx;
+	GLFWwindow*                           m_glfwWindow; 
+	std::unique_ptr<ghi::GraphicsContext> m_graphicsCtx;
+	ghi::EGraphicsAPI                     m_apiType;
+	math::Vector2S                        m_sizePx;
 };
 
 inline math::Vector2S GlfwDisplay::getSizePx() const

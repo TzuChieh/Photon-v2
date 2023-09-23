@@ -2,11 +2,11 @@
 
 #include "RenderCore/ghi_fwd.h"
 #include "RenderCore/ghi_enums.h"
-#include "RenderCore/GHIShader.h"
-#include "RenderCore/GHIShaderProgram.h"
-#include "RenderCore/GHIVertexStorage.h"
-#include "RenderCore/GHIIndexStorage.h"
-#include "RenderCore/GHIMesh.h"
+#include "RenderCore/Shader.h"
+#include "RenderCore/ShaderProgram.h"
+#include "RenderCore/VertexStorage.h"
+#include "RenderCore/IndexStorage.h"
+#include "RenderCore/Mesh.h"
 
 #include <Utility/INoCopyAndMove.h>
 #include <Common/logging.h>
@@ -21,12 +21,12 @@
 #include <string>
 #include <memory>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 PH_DECLARE_LOG_GROUP(GHI);
 
-class GHIMesh;
+class Mesh;
 
 /*! @brief Graphics API abstraction.
 @exception PlatformException When error occurred and the platform must terminate its operations.
@@ -64,48 +64,48 @@ public:
 
 	virtual void setClearColor(const math::Vector4F& color) = 0;
 
-	virtual void draw(GHIMesh& mesh, EGHIMeshDrawMode drawMode) = 0;
+	virtual void draw(Mesh& mesh, EMeshDrawMode drawMode) = 0;
 
 	virtual void swapBuffers() = 0;
 
 	virtual bool tryUploadPixelData(
-		GHITextureHandle handle,
+		TextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelFormat pixelFormat,
-		EGHIPixelComponent pixelComponent) = 0;
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent) = 0;
 
-	virtual GHITextureNativeHandle tryGetTextureNativeHandle(GHITextureHandle handle) = 0;
+	virtual TextureNativeHandle tryGetTextureNativeHandle(TextureHandle handle) = 0;
 
 	virtual void attachTextureToFramebuffer(
 		uint32 attachmentIdx,
-		GHITextureHandle textureHandle,
-		GHIFramebufferHandle framebufferHandle) = 0;
+		TextureHandle textureHandle,
+		FramebufferHandle framebufferHandle) = 0;
 
-	virtual std::shared_ptr<GHIShader> createShader(
+	virtual std::shared_ptr<Shader> createShader(
 		std::string name, 
-		EGHIShadingStage shadingStage,
+		EShadingStage shadingStage,
 		std::string shaderSource) = 0;
 
-	virtual std::shared_ptr<GHIShaderProgram> createShaderProgram(
+	virtual std::shared_ptr<ShaderProgram> createShaderProgram(
 		std::string name,
-		const GHIShaderSet& shaders) = 0;
+		const ShaderSetInfo& shaders) = 0;
 
-	virtual std::shared_ptr<GHIVertexStorage> createVertexStorage(
-		const GHIInfoVertexGroupFormat& format,
+	virtual std::shared_ptr<VertexStorage> createVertexStorage(
+		const VertexGroupFormatInfo& format,
 		std::size_t numVertices,
-		EGHIStorageUsage usage) = 0;
+		EStorageUsage usage) = 0;
 
-	virtual std::shared_ptr<GHIIndexStorage> createIndexStorage(
-		EGHIStorageElement indexType,
+	virtual std::shared_ptr<IndexStorage> createIndexStorage(
+		EStorageElement indexType,
 		std::size_t numIndices,
-		EGHIStorageUsage usage) = 0;
+		EStorageUsage usage) = 0;
 
-	virtual std::shared_ptr<GHIMesh> createMesh(
-		const GHIInfoMeshVertexLayout& layout,
-		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
-		const std::shared_ptr<GHIIndexStorage>& indexStorage) = 0;
+	virtual std::shared_ptr<Mesh> createMesh(
+		const MeshVertexLayoutInfo& layout,
+		TSpanView<std::shared_ptr<VertexStorage>> vertexStorages,
+		const std::shared_ptr<IndexStorage>& indexStorage) = 0;
 
-	virtual GHIInfoDeviceCapability getDeviceCapabilities();
+	virtual DeviceCapabilityInfo getDeviceCapabilities();
 
 	template<EGraphicsAPI API_TYPE, typename CommandCallingFunctor>
 	void rawCommand(
@@ -148,4 +148,4 @@ inline void GHI::rawCommand(
 	endRawCommand();
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

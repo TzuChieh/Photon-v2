@@ -4,7 +4,7 @@
 #include <Math/math.h>
 #include <Utility/TBitFlags.h>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 enum class EClearTarget : uint32f
@@ -17,4 +17,4 @@ enum class EClearTarget : uint32f
 
 PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(EClearTarget);
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

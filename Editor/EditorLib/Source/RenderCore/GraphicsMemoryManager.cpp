@@ -1,7 +1,7 @@
 #include "RenderCore/GraphicsMemoryManager.h"
 #include "RenderCore/Memory/GraphicsArena.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 GraphicsMemoryManager::~GraphicsMemoryManager() = default;
@@ -16,4 +16,4 @@ GraphicsArena GraphicsMemoryManager::newRenderProducerHostArena()
 	return GraphicsArena(this, GraphicsArena::EType::RenderProducerHost);
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

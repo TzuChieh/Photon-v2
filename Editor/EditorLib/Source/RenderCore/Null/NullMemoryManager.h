@@ -2,7 +2,7 @@
 
 #include "RenderCore/GraphicsMemoryManager.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class NullMemoryManager : public GraphicsMemoryManager
@@ -34,4 +34,4 @@ public:
 	{}
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

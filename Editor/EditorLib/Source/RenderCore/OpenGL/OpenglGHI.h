@@ -9,7 +9,7 @@
 #include <thread>
 #include <memory>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class OpenglContext;
@@ -25,47 +25,47 @@ public:
 	void setViewport(uint32 xPx, uint32 yPx, uint32 widthPx, uint32 heightPx) override;
 	void clearBuffer(EClearTarget targets) override;
 	void setClearColor(const math::Vector4F& color) override;
-	void draw(GHIMesh& mesh, EGHIMeshDrawMode drawMode) override;
+	void draw(Mesh& mesh, EMeshDrawMode drawMode) override;
 	void swapBuffers() override;
 
 	bool tryUploadPixelData(
-		GHITextureHandle handle,
+		TextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelFormat pixelFormat,
-		EGHIPixelComponent pixelComponent) override;
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent) override;
 
-	GHITextureNativeHandle tryGetTextureNativeHandle(GHITextureHandle handle) override;
+	TextureNativeHandle tryGetTextureNativeHandle(TextureHandle handle) override;
 
 	void attachTextureToFramebuffer(
 		uint32 attachmentIdx,
-		GHITextureHandle textureHandle,
-		GHIFramebufferHandle framebufferHandle) override;
+		TextureHandle textureHandle,
+		FramebufferHandle framebufferHandle) override;
 
-	std::shared_ptr<GHIShader> createShader(
+	std::shared_ptr<Shader> createShader(
 		std::string name,
-		EGHIShadingStage shadingStage,
+		EShadingStage shadingStage,
 		std::string shaderSource) override;
 
-	std::shared_ptr<GHIShaderProgram> createShaderProgram(
+	std::shared_ptr<ShaderProgram> createShaderProgram(
 		std::string name,
-		const GHIShaderSet& shaders) override;
+		const ShaderSetInfo& shaders) override;
 
-	std::shared_ptr<GHIVertexStorage> createVertexStorage(
-		const GHIInfoVertexGroupFormat& format,
+	std::shared_ptr<VertexStorage> createVertexStorage(
+		const VertexGroupFormatInfo& format,
 		std::size_t numVertices,
-		EGHIStorageUsage usage) override;
+		EStorageUsage usage) override;
 
-	std::shared_ptr<GHIIndexStorage> createIndexStorage(
-		EGHIStorageElement indexType,
+	std::shared_ptr<IndexStorage> createIndexStorage(
+		EStorageElement indexType,
 		std::size_t numIndices,
-		EGHIStorageUsage usage) override;
+		EStorageUsage usage) override;
 
-	std::shared_ptr<GHIMesh> createMesh(
-		const GHIInfoMeshVertexLayout& layout,
-		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
-		const std::shared_ptr<GHIIndexStorage>& indexStorage) override;
+	std::shared_ptr<Mesh> createMesh(
+		const MeshVertexLayoutInfo& layout,
+		TSpanView<std::shared_ptr<VertexStorage>> vertexStorages,
+		const std::shared_ptr<IndexStorage>& indexStorage) override;
 
-	GHIInfoDeviceCapability getDeviceCapabilities() override;
+	DeviceCapabilityInfo getDeviceCapabilities() override;
 
 private:
 	void beginRawCommand() override;
@@ -79,7 +79,7 @@ private:
 #if PH_DEBUG
 	std::thread::id m_loadThreadId;
 #endif
-	std::unique_ptr<GHIInfoDeviceCapability> m_deviceCapability;
+	std::unique_ptr<DeviceCapabilityInfo> m_deviceCapability;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

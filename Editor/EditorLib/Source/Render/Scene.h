@@ -20,11 +20,11 @@
 
 namespace ph { class Path; }
 namespace ph::editor { class GHIThreadCaller; }
+namespace ph::editor { class RenderThreadUpdateContext; }
 
 namespace ph::editor::render
 {
 
-class UpdateContext;
 class System;
 
 /*! @brief A scene for the editor renderer only.
@@ -54,7 +54,7 @@ public:
 	void addDynamicResource(std::unique_ptr<IDynamicSceneResource> resource);
 	void removeResource(ISceneResource* resource);
 	void destroyRemovedResources();
-	void updateDynamicResources(const UpdateContext& ctx);
+	void updateDynamicResources(const RenderThreadUpdateContext& ctx);
 	void createGHICommandsForDynamicResources(GHIThreadCaller& caller);
 
 	System& getSystem();

@@ -7,7 +7,7 @@
 #include <Common/logging.h>
 #include <Math/TVector3.h>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 /*
@@ -15,7 +15,7 @@ Using DSA functions--no need to bind for most situations.
 https://www.khronos.org/opengl/wiki/Direct_State_Access
 */
 
-void OpenglTexture::create(const GHIInfoTextureDesc& desc)
+void OpenglTexture::create(const TextureDesc& desc)
 {
 	if(desc.format.numSamples != 1)
 	{
@@ -27,7 +27,7 @@ void OpenglTexture::create(const GHIInfoTextureDesc& desc)
 	}
 }
 
-void OpenglTexture::createImmutableStorage(const GHIInfoTextureDesc& desc)
+void OpenglTexture::createImmutableStorage(const TextureDesc& desc)
 {
 	PH_ASSERT(!hasResource());
 	PH_ASSERT_EQ(desc.format.numSamples, 1);
@@ -55,7 +55,7 @@ void OpenglTexture::createImmutableStorage(const GHIInfoTextureDesc& desc)
 	glTextureParameteri(textureID, GL_TEXTURE_WRAP_T, wrapType);
 }
 
-void OpenglTexture::createMultiSampled(const GHIInfoTextureDesc& desc)
+void OpenglTexture::createMultiSampled(const TextureDesc& desc)
 {
 	PH_ASSERT(!hasResource());
 	PH_ASSERT_GT(desc.format.numSamples, 1);
@@ -83,8 +83,8 @@ void OpenglTexture::createMultiSampled(const GHIInfoTextureDesc& desc)
 
 void OpenglTexture::uploadPixelData(
 	TSpanView<std::byte> pixelData,
-	EGHIPixelFormat pixelFormat,
-	EGHIPixelComponent pixelComponent)
+	EPixelFormat pixelFormat,
+	EPixelComponent pixelComponent)
 {
 	PH_ASSERT(hasResource());
 	PH_ASSERT(pixelData.data());
@@ -114,8 +114,8 @@ void OpenglTexture::uploadPixelData(
 void OpenglTexture::uploadPixelData(
 	const math::Vector3UI& newTextureSizePx,
 	TSpanView<std::byte> pixelData,
-	EGHIPixelFormat pixelFormat,
-	EGHIPixelComponent pixelComponent)
+	EPixelFormat pixelFormat,
+	EPixelComponent pixelComponent)
 {
 	PH_ASSERT(hasResource());
 	PH_ASSERT(pixelData.data());
@@ -173,4 +173,4 @@ bool OpenglTexture::isColor() const
 	return opengl::is_color_format(internalFormat);
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

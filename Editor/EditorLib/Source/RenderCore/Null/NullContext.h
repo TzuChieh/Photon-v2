@@ -5,7 +5,7 @@
 #include "RenderCore/Null/NullObjectManager.h"
 #include "RenderCore/Null/NullMemoryManager.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class NullContext : public GraphicsContext
@@ -34,4 +34,4 @@ private:
 	NullMemoryManager m_memManager;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

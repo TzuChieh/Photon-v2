@@ -22,7 +22,7 @@ GlfwDisplay::GlfwDisplay()
 	: PlatformDisplay()
 	, m_glfwWindow(nullptr)
 	, m_graphicsCtx(nullptr)
-	, m_apiType(EGraphicsAPI::Unknown)
+	, m_apiType(ghi::EGraphicsAPI::Unknown)
 	, m_sizePx(0, 0)
 {}
 
@@ -32,7 +32,7 @@ void GlfwDisplay::initialize(
 	Editor&            editor,
 	const std::string& windowTitle,
 	math::Vector2S     sizePx,
-	EGraphicsAPI       graphicsAPI,
+	ghi::EGraphicsAPI  graphicsAPI,
 	const bool         useDebugModeGHI)
 {
 	if(m_glfwWindow)
@@ -43,7 +43,7 @@ void GlfwDisplay::initialize(
 
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-	if(graphicsAPI == EGraphicsAPI::OpenGL)
+	if(graphicsAPI == ghi::EGraphicsAPI::OpenGL)
 	{
 		PH_LOG(GlfwDisplay, "target graphics API: OpenGL, requesting version 4.6");
 
@@ -113,9 +113,9 @@ void GlfwDisplay::initialize(
 		});
 
 	PH_ASSERT(!m_graphicsCtx);
-	if(graphicsAPI == EGraphicsAPI::OpenGL)
+	if(graphicsAPI == ghi::EGraphicsAPI::OpenGL)
 	{
-		m_graphicsCtx = std::make_unique<OpenglContext>(m_glfwWindow, useDebugModeGHI);
+		m_graphicsCtx = std::make_unique<ghi::OpenglContext>(m_glfwWindow, useDebugModeGHI);
 	}
 	
 	m_apiType = graphicsAPI;
@@ -143,15 +143,15 @@ void GlfwDisplay::terminate()
 	glfwDestroyWindow(m_glfwWindow);
 }
 
-GraphicsContext* GlfwDisplay::getGraphicsContext() const
+ghi::GraphicsContext* GlfwDisplay::getGraphicsContext() const
 {
 	PH_ASSERT(m_graphicsCtx);
 	return m_graphicsCtx.get();
 }
 
-EGraphicsAPI GlfwDisplay::getGraphicsApiType() const
+ghi::EGraphicsAPI GlfwDisplay::getGraphicsApiType() const
 {
-	PH_ASSERT(m_apiType != EGraphicsAPI::Unknown);
+	PH_ASSERT(m_apiType != ghi::EGraphicsAPI::Unknown);
 	return m_apiType;
 }
 

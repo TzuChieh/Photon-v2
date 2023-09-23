@@ -1,6 +1,6 @@
 #include "RenderCore/OpenGL/OpenglMemoryManager.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 OpenglMemoryManager::OpenglMemoryManager(OpenglContext& ctx)
@@ -8,4 +8,4 @@ OpenglMemoryManager::OpenglMemoryManager(OpenglContext& ctx)
 	, m_ctx(ctx)
 {}
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

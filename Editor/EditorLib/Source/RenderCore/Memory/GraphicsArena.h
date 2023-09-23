@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class GraphicsMemoryManager;
@@ -57,6 +57,6 @@ private:
 	EType m_type;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi
 
 #include "RenderCore/Memory/GraphicsArena.ipp"

@@ -6,7 +6,7 @@
 #include <new>
 #include <utility>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 GraphicsMemoryBlock::GraphicsMemoryBlock()
@@ -35,7 +35,7 @@ void GraphicsMemoryBlock::setBlockSource(std::byte* const source, const std::siz
 {
 	if(!source || blockSizeInBytes == 0)
 	{
-		throw GHIBadAllocation{};
+		throw BadAllocation{};
 	}
 
 	m_blockSource = source;
@@ -59,4 +59,4 @@ void swap(GraphicsMemoryBlock& first, GraphicsMemoryBlock& second) noexcept
 	swap(first.m_remainingBytesInBlock, second.m_remainingBytesInBlock);
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -11,10 +11,10 @@
 #include <cstddef>
 #include <string>
 
-namespace ph::editor
-{
+namespace ph::editor { class GHIThreadUpdateContext; }
 
-class GHIThreadUpdateContext;
+namespace ph::editor::ghi
+{
 
 /*! @brief Manages the creation and deletion of graphics-related resource objects.
 All `create<XXX>()` and `delete<XXX>()` along with some data manipulation methods are thread safe
@@ -31,102 +31,102 @@ public:
 	@note Thread safe.
 	*/
 	[[nodiscard]]
-	virtual GHITextureHandle createTexture(const GHIInfoTextureDesc& desc) = 0;
+	virtual TextureHandle createTexture(const TextureDesc& desc) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	[[nodiscard]]
-	virtual GHIFramebufferHandle createFramebuffer(
-		const GHIInfoFramebufferDesc& desc) = 0;
+	virtual FramebufferHandle createFramebuffer(
+		const FramebufferDesc& desc) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	[[nodiscard]]
-	virtual GHIShaderHandle createShader(
+	virtual ShaderHandle createShader(
 		std::string name,
-		EGHIShadingStage shadingStage,
+		EShadingStage shadingStage,
 		std::string shaderSource) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	[[nodiscard]]
-	virtual GHIShaderProgramHandle createShaderProgram(
+	virtual ShaderProgramHandle createShaderProgram(
 		std::string name,
-		const GHIInfoShaderSet& shaders) = 0;
+		const ShaderSetInfo& shaders) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	[[nodiscard]]
-	virtual GHIVertexStorageHandle createVertexStorage(
+	virtual VertexStorageHandle createVertexStorage(
 		std::size_t numVertices,
-		const GHIInfoVertexGroupFormat& format,
-		EGHIStorageUsage usage) = 0;
+		const VertexGroupFormatInfo& format,
+		EStorageUsage usage) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	[[nodiscard]]
-	virtual GHIIndexStorageHandle createIndexStorage(
+	virtual IndexStorageHandle createIndexStorage(
 		std::size_t numIndices,
-		EGHIStorageElement indexType,
-		EGHIStorageUsage usage) = 0;
+		EStorageElement indexType,
+		EStorageUsage usage) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	[[nodiscard]]
-	virtual GHIMeshHandle createMesh(
-		TSpanView<GHIVertexStorageHandle> vertexStorages,
-		const GHIInfoMeshVertexLayout& layout,
-		GHIIndexStorageHandle indexStorage) = 0;
+	virtual MeshHandle createMesh(
+		TSpanView<VertexStorageHandle> vertexStorages,
+		const MeshVertexLayoutInfo& layout,
+		IndexStorageHandle indexStorage) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
 	virtual void uploadPixelData(
-		GHITextureHandle handle,
+		TextureHandle handle,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelFormat pixelFormat,
-		EGHIPixelComponent pixelComponent) = 0;
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void removeTexture(GHITextureHandle handle) = 0;
+	virtual void removeTexture(TextureHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void removeFramebuffer(GHIFramebufferHandle handle) = 0;
+	virtual void removeFramebuffer(FramebufferHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void removeShader(GHIShaderHandle handle) = 0;
+	virtual void removeShader(ShaderHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void removeShaderProgram(GHIShaderProgramHandle handle) = 0;
+	virtual void removeShaderProgram(ShaderProgramHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void removeVertexStorage(GHIVertexStorageHandle handle) = 0;
+	virtual void removeVertexStorage(VertexStorageHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void removeIndexStorage(GHIIndexStorageHandle handle) = 0;
+	virtual void removeIndexStorage(IndexStorageHandle handle) = 0;
 
 	/*!
 	@note Thread safe.
 	*/
-	virtual void removeMesh(GHIMeshHandle handle) = 0;
+	virtual void removeMesh(MeshHandle handle) = 0;
 
 	/*! @brief Called by GHI thread after GHI is loaded.
 	*/
@@ -145,4 +145,4 @@ public:
 	virtual void endFrameUpdate(const GHIThreadUpdateContext& ctx) = 0;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -21,7 +21,7 @@ void RealtimeRenderer::cleanupGHI(GHIThreadCaller& caller)
 	// TODO
 }
 
-void RealtimeRenderer::update(const UpdateContext& ctx)
+void RealtimeRenderer::update(const RenderThreadUpdateContext& ctx)
 {
 	// TODO
 }

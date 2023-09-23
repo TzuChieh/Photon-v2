@@ -28,7 +28,7 @@ inline void run_single_file_reading_work(const System::FileReadingWork& work)
 
 }// end anonymous namespace
 
-System::System(GraphicsContext& graphicsCtx)
+System::System(ghi::GraphicsContext& graphicsCtx)
 	: updateCtx()
 
 	, m_graphicsCtx(graphicsCtx)

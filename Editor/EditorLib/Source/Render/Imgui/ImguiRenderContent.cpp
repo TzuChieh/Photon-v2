@@ -1,5 +1,5 @@
 #include "Render/Imgui/ImguiRenderContent.h"
-#include "Render/UpdateContext.h"
+#include "Render/RenderThreadUpdateContext.h"
 #include "EditorCore/Thread/Threads.h"
 #include "RenderCore/GHIThreadCaller.h"
 #include "RenderCore/GraphicsContext.h"
@@ -24,7 +24,7 @@ ImguiRenderContent::ImguiRenderContent()
 	, m_numAvailableRenderData(0)
 {}
 
-void ImguiRenderContent::update(const UpdateContext& ctx)
+void ImguiRenderContent::update(const RenderThreadUpdateContext& ctx)
 {
 	// TODO: properly get current viewport size (is it necessary or imgui handles it?)
 }
@@ -34,9 +34,9 @@ void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 	PH_PROFILE_SCOPE();
 
 	caller.add(
-		[](GraphicsContext& ctx)
+		[](ghi::GraphicsContext& ctx)
 		{
-			ctx.getGHI().rawCommand<EGraphicsAPI::OpenGL>(
+			ctx.getGHI().rawCommand<ghi::EGraphicsAPI::OpenGL>(
 				[]()
 				{
 					ImGui_ImplOpenGL3_NewFrame();
@@ -53,7 +53,7 @@ void ImguiRenderContent::createGHICommands(GHIThreadCaller& caller)
 	if(m_numAvailableRenderData > 0)
 	{
 		caller.add(
-			[this](GraphicsContext& /* ctx */)
+			[this](ghi::GraphicsContext& /* ctx */)
 			{
 				// We never want to block GHI thread. If so, consider increase the size of shared data.
 				PH_ASSERT(m_sharedRenderData.mayWaitToConsume() == false);

@@ -2,15 +2,15 @@
 
 #include <Common/logging.h>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 OpenglIndexStorage::OpenglIndexStorage(
-	const EGHIStorageElement indexType,
+	const EStorageElement indexType,
 	const std::size_t numIndices,
-	const EGHIStorageUsage usage)
+	const EStorageUsage usage)
 
-	: GHIIndexStorage(indexType, usage)
+	: IndexStorage(indexType, usage)
 
 	, m_iboID(0)
 	, m_numIndices(numIndices)
@@ -37,7 +37,7 @@ void OpenglIndexStorage::upload(
 	// The input data must be for the entire index buffer--same number of total bytes
 	PH_ASSERT_EQ(numBytes(), inNumBytes);
 
-	if(getUsage() == EGHIStorageUsage::Static)
+	if(getUsage() == EStorageUsage::Static)
 	{
 		glNamedBufferStorage(
 			m_iboID,
@@ -73,4 +73,4 @@ std::size_t OpenglIndexStorage::numBytes() const
 	return num_bytes(getIndexType()) * m_numIndices;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -17,24 +17,24 @@ class Texture2D : public TextureResource
 {
 public:
 	Texture2D(
-		const GHIInfoTextureFormat& format, 
+		const ghi::TextureFormatInfo& format,
 		std::unique_ptr<PictureData> textureData);
 
 	~Texture2D() override;
 
 	std::size_t getWidthPx() const override;
 	std::size_t getHeightPx() const override;
-	GHITextureHandle getGHITextureHandle() const override;
-	const GHIInfoTextureFormat& getFormat() const;
+	ghi::TextureHandle getGHITextureHandle() const override;
+	const ghi::TextureFormatInfo& getFormat() const;
 
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
 
 private:
 	math::Vector2UI m_sizePx;
-	GHIInfoTextureFormat m_format;
+	ghi::TextureFormatInfo m_format;
 
-	GHITextureHandle m_textureHandle;
+	ghi::TextureHandle m_textureHandle;
 	std::unique_ptr<PictureData> m_textureData;
 };
 
@@ -48,12 +48,12 @@ inline std::size_t Texture2D::getHeightPx() const
 	return lossless_integer_cast<std::size_t>(m_sizePx.y());
 }
 
-inline GHITextureHandle Texture2D::getGHITextureHandle() const
+inline ghi::TextureHandle Texture2D::getGHITextureHandle() const
 {
 	return m_textureHandle;
 }
 
-inline const GHIInfoTextureFormat& Texture2D::getFormat() const
+inline const ghi::TextureFormatInfo& Texture2D::getFormat() const
 {
 	return m_format;
 }

@@ -8,14 +8,14 @@
 #include <string_view>
 #include <type_traits>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class GHIShaderProgram
+class ShaderProgram
 {
 public:
-	explicit GHIShaderProgram(std::string name);
-	virtual ~GHIShaderProgram();
+	explicit ShaderProgram(std::string name);
+	virtual ~ShaderProgram();
 
 	virtual void bind() = 0;
 
@@ -34,13 +34,13 @@ private:
 	std::string m_name;
 };
 
-inline std::string_view GHIShaderProgram::getName() const
+inline std::string_view ShaderProgram::getName() const
 {
 	return m_name;
 }
 
 template<typename T>
-inline void GHIShaderProgram::setUniform(std::string_view name, const T& value)
+inline void ShaderProgram::setUniform(std::string_view name, const T& value)
 {
 	if constexpr(std::is_same_v<T, int32>)
 	{
@@ -68,4 +68,4 @@ inline void GHIShaderProgram::setUniform(std::string_view name, const T& value)
 	}
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

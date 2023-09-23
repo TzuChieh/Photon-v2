@@ -7,18 +7,18 @@
 #include <cstddef>
 #include <variant>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class GHIStorage
+class Storage
 {
 public:
 	using NativeHandle = std::variant<
 		std::monostate,
 		uint64>;
 
-	explicit GHIStorage(EGHIStorageUsage usage);
-	virtual ~GHIStorage();
+	explicit Storage(EStorageUsage usage);
+	virtual ~Storage();
 
 	virtual void upload(
 		const std::byte* rawData,
@@ -26,21 +26,21 @@ public:
 
 	virtual NativeHandle getNativeHandle();
 
-	EGHIStorageUsage getUsage() const;
+	EStorageUsage getUsage() const;
 
 private:
-	EGHIStorageUsage m_usage;
+	EStorageUsage m_usage;
 };
 
-inline auto GHIStorage::getNativeHandle()
+inline auto Storage::getNativeHandle()
 -> NativeHandle
 {
 	return std::monostate();
 }
 
-inline EGHIStorageUsage GHIStorage::getUsage() const
+inline EStorageUsage Storage::getUsage() const
 {
 	return m_usage;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(OpenglObjectManager, GHI);
@@ -27,11 +27,11 @@ OpenglObjectManager::OpenglObjectManager(OpenglContext& ctx)
 
 OpenglObjectManager::~OpenglObjectManager() = default;
 
-GHITextureHandle OpenglObjectManager::createTexture(const GHIInfoTextureDesc& desc)
+TextureHandle OpenglObjectManager::createTexture(const TextureDesc& desc)
 {
 	PH_PROFILE_SCOPE();
 
-	GHITextureHandle handle = textures.dispatchOneHandle();
+	TextureHandle handle = textures.dispatchOneHandle();
 
 	OpenglObjectCreator creator;
 	creator.op = [&textures = textures, desc, handle]()
@@ -45,56 +45,56 @@ GHITextureHandle OpenglObjectManager::createTexture(const GHIInfoTextureDesc& de
 	return handle;
 }
 
-GHIFramebufferHandle OpenglObjectManager::createFramebuffer(
-	const GHIInfoFramebufferDesc& desc)
+FramebufferHandle OpenglObjectManager::createFramebuffer(
+	const FramebufferDesc& desc)
 {
-	return GHIFramebufferHandle{};
+	return FramebufferHandle{};
 }
 
-GHIShaderHandle OpenglObjectManager::createShader(
+ShaderHandle OpenglObjectManager::createShader(
 	std::string name,
-	EGHIShadingStage shadingStage,
+	EShadingStage shadingStage,
 	std::string shaderSource)
 {
-	return GHIShaderHandle{};
+	return ShaderHandle{};
 }
 
-GHIShaderProgramHandle OpenglObjectManager::createShaderProgram(
+ShaderProgramHandle OpenglObjectManager::createShaderProgram(
 	std::string name,
-	const GHIInfoShaderSet& shaders)
+	const ShaderSetInfo& shaders)
 {
-	return GHIShaderProgramHandle{};
+	return ShaderProgramHandle{};
 }
 
-GHIVertexStorageHandle OpenglObjectManager::createVertexStorage(
+VertexStorageHandle OpenglObjectManager::createVertexStorage(
 	std::size_t numVertices,
-	const GHIInfoVertexGroupFormat& format,
-	EGHIStorageUsage usage)
+	const VertexGroupFormatInfo& format,
+	EStorageUsage usage)
 {
-	return GHIVertexStorageHandle{};
+	return VertexStorageHandle{};
 }
 
-GHIIndexStorageHandle OpenglObjectManager::createIndexStorage(
+IndexStorageHandle OpenglObjectManager::createIndexStorage(
 	std::size_t numIndices,
-	EGHIStorageElement indexType,
-	EGHIStorageUsage usage)
+	EStorageElement indexType,
+	EStorageUsage usage)
 {
-	return GHIIndexStorageHandle{};
+	return IndexStorageHandle{};
 }
 
-GHIMeshHandle OpenglObjectManager::createMesh(
-	TSpanView<GHIVertexStorageHandle> vertexStorages,
-	const GHIInfoMeshVertexLayout& layout,
-	GHIIndexStorageHandle indexStorage)
+MeshHandle OpenglObjectManager::createMesh(
+	TSpanView<VertexStorageHandle> vertexStorages,
+	const MeshVertexLayoutInfo& layout,
+	IndexStorageHandle indexStorage)
 {
-	return GHIMeshHandle{};
+	return MeshHandle{};
 }
 
 void OpenglObjectManager::uploadPixelData(
-	GHITextureHandle handle,
+	TextureHandle handle,
 	TSpanView<std::byte> pixelData,
-	EGHIPixelFormat pixelFormat,
-	EGHIPixelComponent pixelComponent)
+	EPixelFormat pixelFormat,
+	EPixelComponent pixelComponent)
 {
 	PH_PROFILE_SCOPE();
 
@@ -115,7 +115,7 @@ void OpenglObjectManager::uploadPixelData(
 	m_manipulationQueue.enqueue(manipulator);
 }
 
-void OpenglObjectManager::removeTexture(const GHITextureHandle handle)
+void OpenglObjectManager::removeTexture(const TextureHandle handle)
 {
 	PH_PROFILE_SCOPE();
 
@@ -140,22 +140,22 @@ void OpenglObjectManager::removeTexture(const GHITextureHandle handle)
 	m_deletionQueue.enqueue(deleter);
 }
 
-void OpenglObjectManager::removeFramebuffer(GHIFramebufferHandle handle)
+void OpenglObjectManager::removeFramebuffer(FramebufferHandle handle)
 {}
 
-void OpenglObjectManager::removeShader(GHIShaderHandle handle)
+void OpenglObjectManager::removeShader(ShaderHandle handle)
 {}
 
-void OpenglObjectManager::removeShaderProgram(GHIShaderProgramHandle handle)
+void OpenglObjectManager::removeShaderProgram(ShaderProgramHandle handle)
 {}
 
-void OpenglObjectManager::removeVertexStorage(GHIVertexStorageHandle handle)
+void OpenglObjectManager::removeVertexStorage(VertexStorageHandle handle)
 {}
 
-void OpenglObjectManager::removeIndexStorage(GHIIndexStorageHandle handle)
+void OpenglObjectManager::removeIndexStorage(IndexStorageHandle handle)
 {}
 
-void OpenglObjectManager::removeMesh(GHIMeshHandle handle)
+void OpenglObjectManager::removeMesh(MeshHandle handle)
 {}
 
 void OpenglObjectManager::deleteAllObjects()
@@ -263,4 +263,4 @@ void OpenglObjectManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 	m_failedDeleterCache.clear();
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

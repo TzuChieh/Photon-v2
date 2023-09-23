@@ -2,8 +2,8 @@
 
 #include <Common/assertion.h>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

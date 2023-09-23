@@ -1,36 +1,36 @@
 #pragma once
 
-#include "RenderCore/GHIMesh.h"
+#include "RenderCore/Mesh.h"
 
 #include "ThirdParty/glad2.h"
 
 #include <Utility/TSpan.h>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class GHIStorage;
+class Storage;
 
-class OpenglMesh : public GHIMesh
+class OpenglMesh : public Mesh
 {
 public:
 	OpenglMesh(
-		const GHIInfoMeshVertexLayout& layout,
-		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages);
+		const MeshVertexLayoutInfo& layout,
+		TSpanView<std::shared_ptr<VertexStorage>> vertexStorages);
 
 	OpenglMesh(
-		const GHIInfoMeshVertexLayout& layout,
-		TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
-		const std::shared_ptr<GHIIndexStorage>& indexStorage);
+		const MeshVertexLayoutInfo& layout,
+		TSpanView<std::shared_ptr<VertexStorage>> vertexStorages,
+		const std::shared_ptr<IndexStorage>& indexStorage);
 
 	~OpenglMesh() override;
 
 	void bind() override;
 
 private:
-	static GLuint getOpenglHandle(GHIStorage& storage);
+	static GLuint getOpenglHandle(Storage& storage);
 
 	GLuint m_vaoID;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -2,36 +2,36 @@
 
 #include <Common/assertion.h>
 
-namespace ph::editor::opengl
+namespace ph::editor::ghi::opengl
 {
 
-GLenum to_internal_format(EGHISizedPixelFormat sizedFormat)
+GLenum to_internal_format(ESizedPixelFormat sizedFormat)
 {
 	switch(sizedFormat)
 	{
-	case EGHISizedPixelFormat::Empty: return GL_NONE;
-	case EGHISizedPixelFormat::RGB_8: return GL_RGB8;
-	case EGHISizedPixelFormat::RGBA_8: return GL_RGBA8;
-	case EGHISizedPixelFormat::RGB_16F: return GL_RGB16F;
-	case EGHISizedPixelFormat::RGBA_16F: return GL_RGBA16F;
-	case EGHISizedPixelFormat::RGB_32F: return GL_RGB32F;
-	case EGHISizedPixelFormat::RGBA_32F: return GL_RGBA32F;
-	case EGHISizedPixelFormat::Depth_24_Stencil_8: return GL_DEPTH24_STENCIL8;
+	case ESizedPixelFormat::Empty: return GL_NONE;
+	case ESizedPixelFormat::RGB_8: return GL_RGB8;
+	case ESizedPixelFormat::RGBA_8: return GL_RGBA8;
+	case ESizedPixelFormat::RGB_16F: return GL_RGB16F;
+	case ESizedPixelFormat::RGBA_16F: return GL_RGBA16F;
+	case ESizedPixelFormat::RGB_32F: return GL_RGB32F;
+	case ESizedPixelFormat::RGBA_32F: return GL_RGBA32F;
+	case ESizedPixelFormat::Depth_24_Stencil_8: return GL_DEPTH24_STENCIL8;
 	default: PH_ASSERT_UNREACHABLE_SECTION(); return GL_NONE;
 	}
 }
 
-GLenum to_internal_format(EGHIPixelFormat unsizedFormat)
+GLenum to_internal_format(EPixelFormat unsizedFormat)
 {
 	switch(unsizedFormat)
 	{
-	case EGHIPixelFormat::Empty: return GL_NONE;
-	case EGHIPixelFormat::R: return GL_RED;
-	case EGHIPixelFormat::RG: return GL_RG;
-	case EGHIPixelFormat::RGB: return GL_RGB;
-	case EGHIPixelFormat::RGBA: return GL_RGBA;
-	case EGHIPixelFormat::Depth: return GL_DEPTH_COMPONENT;
-	case EGHIPixelFormat::Stencil: return GL_STENCIL_INDEX;
+	case EPixelFormat::Empty: return GL_NONE;
+	case EPixelFormat::R: return GL_RED;
+	case EPixelFormat::RG: return GL_RG;
+	case EPixelFormat::RGB: return GL_RGB;
+	case EPixelFormat::RGBA: return GL_RGBA;
+	case EPixelFormat::Depth: return GL_DEPTH_COMPONENT;
+	case EPixelFormat::Stencil: return GL_STENCIL_INDEX;
 	default: PH_ASSERT_UNREACHABLE_SECTION(); return GL_NONE;
 	}
 }
@@ -53,40 +53,40 @@ GLenum to_color_attachment(uint32 slotIndex)
 	}
 }
 
-GLenum to_data_type(EGHIPixelComponent componentType)
+GLenum to_data_type(EPixelComponent componentType)
 {
 	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
 
 	switch(componentType)
 	{
-	case EGHIPixelComponent::Empty:
+	case EPixelComponent::Empty:
 		return GL_NONE;
 
-	case EGHIPixelComponent::Int8:
+	case EPixelComponent::Int8:
 		return GL_BYTE;
 
-	case EGHIPixelComponent::UInt8:
+	case EPixelComponent::UInt8:
 		return GL_UNSIGNED_BYTE;
 
-	case EGHIPixelComponent::Int16:
+	case EPixelComponent::Int16:
 		return GL_SHORT;
 
-	case EGHIPixelComponent::UInt16:
+	case EPixelComponent::UInt16:
 		return GL_UNSIGNED_SHORT;
 
-	case EGHIPixelComponent::Int32:
+	case EPixelComponent::Int32:
 		return GL_INT;
 
-	case EGHIPixelComponent::UInt32:
+	case EPixelComponent::UInt32:
 		return GL_UNSIGNED_INT;
 
-	case EGHIPixelComponent::Float16:
+	case EPixelComponent::Float16:
 		return GL_HALF_FLOAT;
 
-	case EGHIPixelComponent::Float32:
+	case EPixelComponent::Float32:
 		return GL_FLOAT;
 
-	case EGHIPixelComponent::Float64:
+	case EPixelComponent::Float64:
 		return GL_DOUBLE;
 
 	default:
@@ -95,40 +95,40 @@ GLenum to_data_type(EGHIPixelComponent componentType)
 	}
 }
 
-GLenum to_data_type(EGHIStorageElement elementType)
+GLenum to_data_type(EStorageElement elementType)
 {
 	// Reference: https://www.khronos.org/opengl/wiki/OpenGL_Type
 
 	switch(elementType)
 	{
-	case EGHIStorageElement::Empty:
+	case EStorageElement::Empty:
 		return GL_NONE;
 
-	case EGHIStorageElement::Int8:
+	case EStorageElement::Int8:
 		return GL_BYTE;
 
-	case EGHIStorageElement::UInt8:
+	case EStorageElement::UInt8:
 		return GL_UNSIGNED_BYTE;
 
-	case EGHIStorageElement::Int16:
+	case EStorageElement::Int16:
 		return GL_SHORT;
 
-	case EGHIStorageElement::UInt16:
+	case EStorageElement::UInt16:
 		return GL_UNSIGNED_SHORT;
 
-	case EGHIStorageElement::Int32:
+	case EStorageElement::Int32:
 		return GL_INT;
 
-	case EGHIStorageElement::UInt32:
+	case EStorageElement::UInt32:
 		return GL_UNSIGNED_INT;
 
-	case EGHIStorageElement::Float16:
+	case EStorageElement::Float16:
 		return GL_HALF_FLOAT;
 
-	case EGHIStorageElement::Float32:
+	case EStorageElement::Float32:
 		return GL_FLOAT;
 
-	case EGHIStorageElement::Float64:
+	case EStorageElement::Float64:
 		return GL_DOUBLE;
 
 	default:
@@ -137,29 +137,29 @@ GLenum to_data_type(EGHIStorageElement elementType)
 	}
 }
 
-GLenum to_primitive_type(EGHIMeshDrawMode drawMode)
+GLenum to_primitive_type(EMeshDrawMode drawMode)
 {
 	switch(drawMode)
 	{
-	case EGHIMeshDrawMode::Points:
+	case EMeshDrawMode::Points:
 		return GL_POINTS;
 
-	case EGHIMeshDrawMode::LineSegments:
+	case EMeshDrawMode::LineSegments:
 		return GL_LINES;
 
-	case EGHIMeshDrawMode::LineCurveOpened:
+	case EMeshDrawMode::LineCurveOpened:
 		return GL_LINE_STRIP;
 
-	case EGHIMeshDrawMode::LineCurveClosed:
+	case EMeshDrawMode::LineCurveClosed:
 		return GL_LINE_LOOP;
 
-	case EGHIMeshDrawMode::TriangleStrip:
+	case EMeshDrawMode::TriangleStrip:
 		return GL_TRIANGLE_STRIP;
 
-	case EGHIMeshDrawMode::TriangleFan:
+	case EMeshDrawMode::TriangleFan:
 		return GL_TRIANGLE_FAN;
 
-	case EGHIMeshDrawMode::Triangles:
+	case EMeshDrawMode::Triangles:
 		return GL_TRIANGLES;
 
 	default:
@@ -168,17 +168,17 @@ GLenum to_primitive_type(EGHIMeshDrawMode drawMode)
 	}
 }
 
-GLenum to_shader_type(EGHIShadingStage shadingStage)
+GLenum to_shader_type(EShadingStage shadingStage)
 {
 	switch(shadingStage)
 	{
-	case EGHIShadingStage::Vertex:
+	case EShadingStage::Vertex:
 		return GL_VERTEX_SHADER;
 
-	case EGHIShadingStage::Fragment:
+	case EShadingStage::Fragment:
 		return GL_FRAGMENT_SHADER;
 
-	case EGHIShadingStage::Compute:
+	case EShadingStage::Compute:
 		return GL_COMPUTE_SHADER;
 
 	default:
@@ -187,14 +187,14 @@ GLenum to_shader_type(EGHIShadingStage shadingStage)
 	}
 }
 
-GLenum to_filter_type(EGHIFilterMode filterMode)
+GLenum to_filter_type(EFilterMode filterMode)
 {
 	switch(filterMode)
 	{
-	case EGHIFilterMode::Point:
+	case EFilterMode::Point:
 		return GL_NEAREST;
 
-	case EGHIFilterMode::Linear:
+	case EFilterMode::Linear:
 		return GL_LINEAR;
 
 	default:
@@ -203,14 +203,14 @@ GLenum to_filter_type(EGHIFilterMode filterMode)
 	}
 }
 
-GLenum to_wrap_type(EGHIWrapMode wrapMode)
+GLenum to_wrap_type(EWrapMode wrapMode)
 {
 	switch(wrapMode)
 	{
-	case EGHIWrapMode::ClampToEdge:
+	case EWrapMode::ClampToEdge:
 		return GL_CLAMP_TO_EDGE;
 
-	case EGHIWrapMode::Repeat:
+	case EWrapMode::Repeat:
 		return GL_REPEAT;
 
 	default:
@@ -325,4 +325,4 @@ bool is_color_format(GLenum internalFormat)
 	}
 }
 
-}// end namespace ph::editor::opengl
+}// end namespace ph::editor::ghi::opengl

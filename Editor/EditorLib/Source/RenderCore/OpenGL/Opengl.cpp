@@ -1,6 +1,6 @@
 #include "RenderCore/OpenGL/Opengl.h"
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 GLboolean Opengl::getBooleanv(const GLenum pname)
@@ -24,4 +24,4 @@ GLint Opengl::getIntegerv(const GLenum pname)
 	return intValue;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

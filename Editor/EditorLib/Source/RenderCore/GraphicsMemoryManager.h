@@ -5,11 +5,12 @@
 #include <cstddef>
 #include <limits>
 
-namespace ph::editor
+namespace ph::editor { class GHIThreadUpdateContext; }
+
+namespace ph::editor::ghi
 {
 
 class GraphicsMemoryBlock;
-class GHIThreadUpdateContext;
 class GraphicsArena;
 
 /*! @brief Manages memory for graphics.
@@ -81,4 +82,4 @@ public:
 	}
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

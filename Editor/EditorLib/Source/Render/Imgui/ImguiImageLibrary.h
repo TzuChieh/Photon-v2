@@ -87,12 +87,12 @@ public:
 		const std::string& imageName, 
 		const Path& filePath,
 		math::Vector2UI sizePx,
-		EGHISizedPixelFormat format);
+		ghi::ESizedPixelFormat format);
 
 	void loadImage(
 		const std::string& imageName,
 		math::Vector2UI sizePx, 
-		EGHISizedPixelFormat format);
+		ghi::ESizedPixelFormat format);
 
 	void createRenderCommands(RenderThreadCaller& caller, render::Scene& scene);
 	void cleanupTextures(RenderThreadCaller& caller, render::Scene& scene);
@@ -114,7 +114,7 @@ private:
 		int entryIdx = -1;
 		Path fileToLoad;
 		math::Vector2UI sizePx = {0, 0};
-		EGHISizedPixelFormat format = EGHISizedPixelFormat::Empty;
+		ghi::ESizedPixelFormat format = ghi::ESizedPixelFormat::Empty;
 		bool isProcessed = false;
 	};
 
@@ -127,7 +127,7 @@ private:
 		bool isFinished = false;
 	};
 
-	static ImTextureID getTextureIDFromNativeHandle(GHITextureNativeHandle nativeHandle);
+	static ImTextureID getTextureIDFromNativeHandle(ghi::TextureNativeHandle nativeHandle);
 
 	Editor* m_editor;
 	std::vector<Loader> m_loaders;

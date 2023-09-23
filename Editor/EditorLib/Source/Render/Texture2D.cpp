@@ -12,7 +12,7 @@ namespace ph::editor::render
 {
 
 Texture2D::Texture2D(
-	const GHIInfoTextureFormat& format,
+	const ghi::TextureFormatInfo& format,
 	std::unique_ptr<PictureData> textureData)
 
 	: TextureResource()
@@ -59,12 +59,12 @@ void Texture2D::setupGHI(GHIThreadCaller& caller)
 void Texture2D::cleanupGHI(GHIThreadCaller& caller)
 {
 	caller.add(
-		[this](GraphicsContext& ctx)
+		[this](ghi::GraphicsContext& ctx)
 		{
 			// Note: Always decrement reference count on GHI thread--one of this call will free 
 			// the GHI resource, and it must be done on GHI thread
 			ctx.getObjectManager().removeTexture(m_textureHandle);
-			m_textureHandle = GHITextureHandle{};
+			m_textureHandle = ghi::TextureHandle{};
 		});
 }
 

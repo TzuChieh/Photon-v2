@@ -10,15 +10,15 @@
 #include <atomic>
 #include <thread>
 
+namespace ph::editor::ghi { class GraphicsContext; }
+
 namespace ph::editor
 {
 
-class GraphicsContext;
-
-class GHIThread final : public TUnbufferedFrameWorkerThread<void(GraphicsContext&)>
+class GHIThread final : public TUnbufferedFrameWorkerThread<void(ghi::GraphicsContext&)>
 {
 public:
-	using Base = TUnbufferedFrameWorkerThread<void(GraphicsContext&)>;
+	using Base = TUnbufferedFrameWorkerThread<void(ghi::GraphicsContext&)>;
 
 	GHIThread();
 	~GHIThread() override;
@@ -29,7 +29,7 @@ public:
 	void onBeginFrame() override;
 	void onEndFrame() override;
 
-	void addContextSwitchWork(GraphicsContext* newCtx);
+	void addContextSwitchWork(ghi::GraphicsContext* newCtx);
 
 	/*!
 	@note Thread-safe.
@@ -42,10 +42,10 @@ public:
 	bool isOnGHIThread() const;
 
 private:
-	void switchContext(GraphicsContext* newCtx);
+	void switchContext(ghi::GraphicsContext* newCtx);
 
-	GraphicsContext* m_ctx;
-	std::unique_ptr<GraphicsContext> m_nullCtx;
+	ghi::GraphicsContext* m_ctx;
+	std::unique_ptr<ghi::GraphicsContext> m_nullCtx;
 	GHIThreadUpdateContext m_updateCtx;
 	Timer m_frameTimer;
 	std::atomic<float32> m_frameTimeMs;

@@ -9,24 +9,24 @@ namespace ph::editor::ghi
 class GetTextureNativeHandle : public QueryPerformer
 {
 public:
-	explicit GetTextureNativeHandle(GHITextureHandle handle);
+	explicit GetTextureNativeHandle(TextureHandle handle);
 
 	bool performQuery(GraphicsContext& ctx) override;
 
-	GHITextureNativeHandle getNativeHandle() const;
+	TextureNativeHandle getNativeHandle() const;
 
 private:
-	GHITextureHandle m_handle;
-	GHITextureNativeHandle m_nHandle;
+	TextureHandle m_handle;
+	TextureNativeHandle m_nHandle;
 };
 
-inline GetTextureNativeHandle::GetTextureNativeHandle(GHITextureHandle handle)
+inline GetTextureNativeHandle::GetTextureNativeHandle(TextureHandle handle)
 	: QueryPerformer()
 	, m_handle(handle)
 	, m_nHandle()
 {}
 
-inline GHITextureNativeHandle GetTextureNativeHandle::getNativeHandle() const
+inline TextureNativeHandle GetTextureNativeHandle::getNativeHandle() const
 {
 	return m_nHandle;
 }

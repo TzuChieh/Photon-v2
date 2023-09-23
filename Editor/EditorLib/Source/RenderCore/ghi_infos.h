@@ -10,47 +10,47 @@
 #include <cstddef>
 #include <array>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class GHIInfoSampleState final
+class SampleStateInfo final
 {
 public:
-	EGHIFilterMode filterMode = EGHIFilterMode::Linear;
-	EGHIWrapMode wrapMode = EGHIWrapMode::Repeat;
+	EFilterMode filterMode = EFilterMode::Linear;
+	EWrapMode wrapMode = EWrapMode::Repeat;
 };
 
-class GHIInfoTextureFormat final
+class TextureFormatInfo final
 {
 public:
-	GHIInfoSampleState sampleState;
-	EGHISizedPixelFormat pixelFormat = EGHISizedPixelFormat::Empty;
+	SampleStateInfo sampleState;
+	ESizedPixelFormat pixelFormat = ESizedPixelFormat::Empty;
 	uint8 numSamples : 4 = 1;
 };
 
-class GHIInfoFramebufferFormat final
+class FramebufferFormatInfo final
 {
 public:
-	EGHISizedPixelFormat pixelFormat = EGHISizedPixelFormat::Empty;
+	ESizedPixelFormat pixelFormat = ESizedPixelFormat::Empty;
 
 	bool isEmpty() const
 	{
-		return pixelFormat == EGHISizedPixelFormat::Empty;
+		return pixelFormat == ESizedPixelFormat::Empty;
 	}
 };
 
 /*!
 Basically stores a shader reference for each `EGHIShadingStage` entry.
 */
-class GHIInfoShaderSet final
+class ShaderSetInfo final
 {
 public:
-	GHIShaderHandle vertexShader;
-	GHIShaderHandle fragmentShader;
-	GHIShaderHandle computeShader;
+	ShaderHandle vertexShader;
+	ShaderHandle fragmentShader;
+	ShaderHandle computeShader;
 };
 
-class GHIInfoVertexAttributeLocator final
+class VertexAttributeLocatorInfo final
 {
 public:
 	/*! Number of bytes to offset from the start of the vertex data. */
@@ -64,27 +64,27 @@ public:
 	uint16 numElements : 2 = 0;
 	uint16 shouldNormalize : 1 = false;
 
-	EGHIStorageElement elementType = EGHIStorageElement::Empty;
+	EStorageElement elementType = EStorageElement::Empty;
 
 	/*! @brief Empty attribute.
 	*/
-	inline GHIInfoVertexAttributeLocator() = default;
+	inline VertexAttributeLocatorInfo() = default;
 
 	bool isEmpty() const;
 	std::size_t numAttributeBytes() const;
 };
 
-class GHIInfoVertexGroupFormat final
+class VertexGroupFormatInfo final
 {
 public:
 	inline constexpr static uint8 MAX_ATTRIBUTES = 8;
 
-	std::array<GHIInfoVertexAttributeLocator, MAX_ATTRIBUTES> attributes;
+	std::array<VertexAttributeLocatorInfo, MAX_ATTRIBUTES> attributes;
 
 	std::size_t numGroupBytes() const;
 };
 
-class GHIInfoDeviceCapability final
+class DeviceCapabilityInfo final
 {
 public:
 	uint8 maxTextureUnitsForVertexShadingStage : 6 = 0;
@@ -97,13 +97,13 @@ public:
 	uint8 maxVertexAttributes : 5 = 0;
 };
 
-class GHIInfoTextureDesc final
+class TextureDesc final
 {
 public:
 	math::Vector3UI sizePx = {0, 0, 0};
-	GHIInfoTextureFormat format;
+	TextureFormatInfo format;
 
-	GHIInfoTextureDesc& setSize1D(const uint32 lengthPx)
+	TextureDesc& setSize1D(const uint32 lengthPx)
 	{
 		sizePx.x() = lengthPx;
 		sizePx.y() = 1;
@@ -111,7 +111,7 @@ public:
 		return *this;
 	}
 
-	GHIInfoTextureDesc& setSize2D(const math::Vector2UI& widthAndHeightPx)
+	TextureDesc& setSize2D(const math::Vector2UI& widthAndHeightPx)
 	{
 		sizePx.x() = widthAndHeightPx.x();
 		sizePx.y() = widthAndHeightPx.y();
@@ -120,16 +120,16 @@ public:
 	}
 };
 
-class GHIInfoFramebufferDesc final
+class FramebufferDesc final
 {
 public:
 	inline constexpr static uint8 MAX_COLOR_ATTACHMENTS = 8;
 
 public:
 	math::Vector2UI sizePx = {0, 0};
-	std::array<GHIInfoFramebufferFormat, MAX_COLOR_ATTACHMENTS> colorFormats;
-	GHIInfoFramebufferFormat depthStencilFormat;
+	std::array<FramebufferFormatInfo, MAX_COLOR_ATTACHMENTS> colorFormats;
+	FramebufferFormatInfo depthStencilFormat;
 	uint8 numSamples : 4 = 1;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

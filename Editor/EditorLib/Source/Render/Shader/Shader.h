@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace ph::editor { class GHIShaderProgram; }
+namespace ph::editor::ghi { class ShaderProgram; }
 
 namespace ph::editor::render
 {
@@ -16,8 +16,8 @@ public:
 
 	~Shader() override;
 
-	virtual GHIShaderProgram* getGHIShader() const = 0;
-	virtual std::shared_ptr<GHIShaderProgram> getGHIShaderResource() const = 0;
+	virtual ghi::ShaderProgram* getGHIShader() const = 0;
+	virtual std::shared_ptr<ghi::ShaderProgram> getGHIShaderResource() const = 0;
 
 	void setupGHI(GHIThreadCaller& caller) override = 0;
 	void cleanupGHI(GHIThreadCaller& caller) override = 0;

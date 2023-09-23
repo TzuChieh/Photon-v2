@@ -12,7 +12,7 @@
 #include <array>
 #include <string>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class OpenglTexture;
@@ -21,7 +21,7 @@ class OpenglColorAttachment final
 {
 public:
 	GLenum internalFormat = GL_NONE;
-	GHITextureHandle handle;
+	TextureHandle handle;
 
 	bool isAttached() const
 	{
@@ -34,7 +34,7 @@ class OpenglDepthStencilAttachment final
 public:
 	GLenum internalFormat = GL_NONE;
 	GLenum attachmentType = GL_NONE;
-	GHITextureHandle handle;
+	TextureHandle handle;
 
 	bool isAttached() const
 	{
@@ -55,16 +55,16 @@ public:
 	std::array<OpenglColorAttachment, MAX_COLOR_ATTACHMENTS> colorAttachments;
 	OpenglDepthStencilAttachment depthStencilAttachment;
 
-	void createBuffer(const GHIInfoFramebufferDesc& desc);
+	void createBuffer(const FramebufferDesc& desc);
 
 	void attachColor(
 		uint32 attachmentIdx,
 		const OpenglTexture& colorTexture, 
-		GHITextureHandle handle);
+		TextureHandle handle);
 
 	void attachDepthStencil(
 		const OpenglTexture& depthStencilTexture,
-		GHITextureHandle handle);
+		TextureHandle handle);
 	
 	void bind();
 	void unbind();
@@ -81,4 +81,4 @@ private:
 	static std::string getFramebufferStatusInfo(GLuint framebufferID);
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

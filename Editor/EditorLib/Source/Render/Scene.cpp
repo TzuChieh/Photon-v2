@@ -1,5 +1,5 @@
 #include "Render/Scene.h"
-#include "Render/UpdateContext.h"
+#include "Render/RenderThreadUpdateContext.h"
 #include "Render/System.h"
 #include "RenderCore/GraphicsContext.h"
 #include "RenderCore/GraphicsObjectManager.h"
@@ -134,17 +134,17 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 			}
 
 			auto pictureBytes = picture.getPixels().getBytes();
-			GraphicsArena arena = gCtx.getMemoryManager().newRenderProducerHostArena();
+			ghi::GraphicsArena arena = gCtx.getMemoryManager().newRenderProducerHostArena();
 			auto pixelData = arena.makeArray<std::byte>(pictureBytes.size());
 			std::copy_n(pictureBytes.data(), pictureBytes.size(), pixelData.data());
 
-			auto pixelFormat = EGHIPixelFormat::RGB;
+			auto pixelFormat = ghi::EPixelFormat::RGB;
 			switch(picture.numComponents())
 			{
-			case 1: pixelFormat = EGHIPixelFormat::R; break;
-			case 2: pixelFormat = EGHIPixelFormat::RG; break;
-			case 3: pixelFormat = EGHIPixelFormat::RGB; break;
-			case 4: pixelFormat = EGHIPixelFormat::RGBA; break;
+			case 1: pixelFormat = ghi::EPixelFormat::R; break;
+			case 2: pixelFormat = ghi::EPixelFormat::RG; break;
+			case 3: pixelFormat = ghi::EPixelFormat::RGB; break;
+			case 4: pixelFormat = ghi::EPixelFormat::RGBA; break;
 			default: PH_ASSERT_UNREACHABLE_SECTION(); break;
 			}
 
@@ -152,7 +152,7 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 				gHandle,
 				pixelData,
 				pixelFormat,
-				translate_to<EGHIPixelComponent>(picture.getComponentType()));
+				ghi::translate_to<ghi::EPixelComponent>(picture.getComponentType()));
 		});
 }
 
@@ -235,7 +235,7 @@ void Scene::destroyRemovedResources()
 	m_resourcesPendingDestroy.clear();
 }
 
-void Scene::updateDynamicResources(const UpdateContext& ctx)
+void Scene::updateDynamicResources(const RenderThreadUpdateContext& ctx)
 {
 	for(IDynamicSceneResource* resource : m_dynamicResources)
 	{

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 enum class EGraphicsAPI
@@ -13,4 +13,4 @@ enum class EGraphicsAPI
 	// Vulkan,
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

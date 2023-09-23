@@ -11,12 +11,12 @@
 #include <atomic>
 
 namespace ph::editor::render { class System; }
+namespace ph::editor::ghi { class GraphicsContext; }
 
 namespace ph::editor
 {
 
 class GHIThread;
-class GraphicsContext;
 
 class RenderThread : 
 	public TFrameWorkerThread<
@@ -55,7 +55,7 @@ public:
 	/*! @brief Set a graphics context which is persistent throughout the worker thread's lifespan.
 	Must be set before the thread starts.
 	*/
-	void setGraphicsContext(GraphicsContext* graphicsCtx);
+	void setGraphicsContext(ghi::GraphicsContext* graphicsCtx);
 
 private:
 	/*! @brief Called on render thread before the first submitted render work from main thread.
@@ -68,7 +68,7 @@ private:
 
 	std::unique_ptr<render::System> m_system;
 	GHIThread                       m_ghiThread;
-	GraphicsContext*                m_graphicsCtx;
+	ghi::GraphicsContext*           m_graphicsCtx;
 	Timer                           m_frameTimer;
 	std::atomic<float32>            m_frameTimeMs;
 };

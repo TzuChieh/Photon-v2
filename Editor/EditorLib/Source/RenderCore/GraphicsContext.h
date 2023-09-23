@@ -11,13 +11,14 @@
 #include <thread>
 #endif
 
-namespace ph::editor
+namespace ph::editor { class GHIThreadUpdateContext; }
+
+namespace ph::editor::ghi
 {
 
 class GHI;
 class GraphicsObjectManager;
 class GraphicsMemoryManager;
-class GHIThreadUpdateContext;
 
 class GraphicsContext
 {
@@ -65,4 +66,4 @@ inline void GraphicsContext::addQuery(ghi::Query query)
 	m_queryManager.addQuery(std::move(query));
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -8,14 +8,14 @@
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 /*! @brief Combined pixel layout and component type information.
 Unless stated explicitly, the characters RGB does not mean the pixel is in RGB color space. 
 It simply represents pixel components, using R, G, B as placeholders.
 */
-enum class EGHISizedPixelFormat : uint8
+enum class ESizedPixelFormat : uint8
 {
 	Empty = 0,
 	RGB_8,
@@ -27,7 +27,7 @@ enum class EGHISizedPixelFormat : uint8
 	Depth_24_Stencil_8
 };
 
-enum class EGHIPixelFormat : uint8
+enum class EPixelFormat : uint8
 {
 	Empty = 0,
 	R,
@@ -38,7 +38,7 @@ enum class EGHIPixelFormat : uint8
 	Stencil
 };
 
-enum class EGHIPixelComponent : uint8
+enum class EPixelComponent : uint8
 {
 	Empty = 0,
 	Int8,
@@ -54,19 +54,19 @@ enum class EGHIPixelComponent : uint8
 	Float64
 };
 
-enum class EGHIFilterMode : uint8
+enum class EFilterMode : uint8
 {
 	Point,
 	Linear
 };
 
-enum class EGHIWrapMode : uint8
+enum class EWrapMode : uint8
 {
 	ClampToEdge,
 	Repeat
 };
 
-enum class EGHIStorageElement : uint8
+enum class EStorageElement : uint8
 {
 	Empty = 0,
 	Int8,
@@ -82,14 +82,14 @@ enum class EGHIStorageElement : uint8
 	Float64
 };
 
-enum class EGHIStorageUsage : uint8
+enum class EStorageUsage : uint8
 {
 	Unspecified = 0,
 	Static,
 	Dynamic
 };
 
-enum class EGHIMeshDrawMode : uint8
+enum class EMeshDrawMode : uint8
 {
 	Points,
 	LineSegments,
@@ -100,7 +100,7 @@ enum class EGHIMeshDrawMode : uint8
 	Triangles
 };
 
-enum class EGHIShadingStage : uint8
+enum class EShadingStage : uint8
 {
 	Unspecified = 0,
 	Vertex,
@@ -108,13 +108,13 @@ enum class EGHIShadingStage : uint8
 	Compute
 };
 
-std::size_t num_bytes(EGHISizedPixelFormat sizedFormat);
-std::size_t num_bytes(EGHIPixelComponent component);
-std::size_t num_bytes(EGHIStorageElement element);
+std::size_t num_bytes(ESizedPixelFormat sizedFormat);
+std::size_t num_bytes(EPixelComponent component);
+std::size_t num_bytes(EStorageElement element);
 
 template<CEnum DstEnumType>
 DstEnumType translate_to(EPicturePixelComponent pictureComponent);
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi
 
 #include "RenderCore/ghi_enums.ipp"

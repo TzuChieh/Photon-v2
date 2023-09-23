@@ -10,8 +10,8 @@ namespace ph::editor::render
 class Texture final
 {
 public:
-	GHITextureHandle handle;
-	GHIInfoTextureDesc desc;
+	ghi::TextureHandle handle;
+	ghi::TextureDesc desc;
 };
 
 }// end namespace ph::editor::render

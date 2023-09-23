@@ -19,7 +19,7 @@ public:
 	std::string title;
 	math::Vector2S displaySizePx;
 	uint32 maxFPS;
-	EGraphicsAPI graphicsAPI;
+	ghi::EGraphicsAPI graphicsAPI;
 	bool useDebugModeGHI;
 
 	/*! @brief Additional arguments passed from command line.
@@ -60,10 +60,10 @@ public:
 		maxFPS.defaultTo(60);
 		clazz.addField(maxFPS);
 
-		TSdlEnumField<OwnerType, EGraphicsAPI> graphicsAPI("graphics-api", &OwnerType::graphicsAPI);
+		TSdlEnumField<OwnerType, ghi::EGraphicsAPI> graphicsAPI("graphics-api", &OwnerType::graphicsAPI);
 		graphicsAPI.description(
 			"The hardware rendering API to use when displaying content.");
-		graphicsAPI.defaultTo(EGraphicsAPI::OpenGL);
+		graphicsAPI.defaultTo(ghi::EGraphicsAPI::OpenGL);
 		clazz.addField(graphicsAPI);
 
 		TSdlBool<OwnerType> useDebugModeGHI("use-debug-mode-ghi", &OwnerType::useDebugModeGHI);

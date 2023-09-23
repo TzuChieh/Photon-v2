@@ -9,7 +9,7 @@
 
 
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 //OpenglFramebuffer::OpenglFramebuffer(const GHIInfoFramebufferAttachment& attachments)
@@ -35,7 +35,7 @@ namespace ph::editor
 //	}
 //}
 
-void OpenglFramebuffer::createBuffer(const GHIInfoFramebufferDesc& desc)
+void OpenglFramebuffer::createBuffer(const FramebufferDesc& desc)
 {
 	PH_ASSERT(!hasResource());
 
@@ -99,7 +99,7 @@ void OpenglFramebuffer::createBuffer(const GHIInfoFramebufferDesc& desc)
 void OpenglFramebuffer::attachColor(
 	uint32 attachmentIdx,
 	const OpenglTexture& colorTexture,
-	GHITextureHandle handle)
+	TextureHandle handle)
 {
 	PH_ASSERT(hasResource());
 
@@ -159,7 +159,7 @@ void OpenglFramebuffer::attachColor(
 
 void OpenglFramebuffer::attachDepthStencil(
 	const OpenglTexture& depthStencilTexture,
-	GHITextureHandle handle)
+	TextureHandle handle)
 {
 	PH_ASSERT(hasResource());
 
@@ -375,4 +375,4 @@ std::string OpenglFramebuffer::getFramebufferStatusInfo(const GLuint framebuffer
 	return messagePrefix + message;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

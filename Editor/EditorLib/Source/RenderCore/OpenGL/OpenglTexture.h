@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class OpenglTexture final
@@ -27,20 +27,20 @@ public:
 	uint32 numPixelComponents : 3 = 0;
 	uint32 isImmutableStorage : 1 = false;
 
-	void create(const GHIInfoTextureDesc& desc);
-	void createImmutableStorage(const GHIInfoTextureDesc& desc);
-	void createMultiSampled(const GHIInfoTextureDesc& desc);
+	void create(const TextureDesc& desc);
+	void createImmutableStorage(const TextureDesc& desc);
+	void createMultiSampled(const TextureDesc& desc);
 
 	void uploadPixelData(
 		TSpanView<std::byte> pixelData,
-		EGHIPixelFormat pixelFormat,
-		EGHIPixelComponent pixelComponent);
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent);
 
 	void uploadPixelData(
 		const math::Vector3UI& newTextureSizePx,
 		TSpanView<std::byte> pixelData,
-		EGHIPixelFormat pixelFormat,
-		EGHIPixelComponent pixelComponent);
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent);
 
 	void bindNonDSATexture() const;
 	void bindSlot(uint32 slotIndex) const;
@@ -63,4 +63,4 @@ public:
 	}
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

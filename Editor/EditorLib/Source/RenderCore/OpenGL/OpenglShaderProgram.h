@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderCore/GHIShaderProgram.h"
+#include "RenderCore/ShaderProgram.h"
 
 #include "ThirdParty/glad2.h"
 
@@ -10,18 +10,18 @@
 #include <memory>
 #include <string>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
-class GHIShader;
+class Shader;
 
-class OpenglShaderProgram : public GHIShaderProgram
+class OpenglShaderProgram : public ShaderProgram
 {
 public:
 	OpenglShaderProgram(
 		std::string name,
-		const std::shared_ptr<GHIShader>& vertexShader,
-		const std::shared_ptr<GHIShader>& fragmentShader);
+		const std::shared_ptr<Shader>& vertexShader,
+		const std::shared_ptr<Shader>& fragmentShader);
 
 	~OpenglShaderProgram() override;
 
@@ -41,9 +41,9 @@ private:
 		GLenum type = GL_NONE;
 	};
 
-	static GLuint getOpenglHandle(GHIShader& shader);
-	void checkLinkStatus(const GHIShader& vertexShader, const GHIShader& fragmentShader) const;
-	void validateProgram(const GHIShader& vertexShader, const GHIShader& fragmentShader) const;
+	static GLuint getOpenglHandle(Shader& shader);
+	void checkLinkStatus(const Shader& vertexShader, const Shader& fragmentShader) const;
+	void validateProgram(const Shader& vertexShader, const Shader& fragmentShader) const;
 	void collectProgramUniforms();
 	const Uniform* getUniform(GLenum type, std::string_view name) const;
 	void warnUniformNotFound(const Uniform* uniform, GLenum intendedType, std::string_view intendedName) const;
@@ -71,4 +71,4 @@ inline auto OpenglShaderProgram::getUniform(const GLenum type, std::string_view 
 	return uniform;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class GraphicsMemoryBlock;
@@ -63,4 +63,4 @@ private:
 	std::vector<CustomHostBlock> m_customHostBlockCache;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

@@ -7,7 +7,7 @@
 
 #include <concepts>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class Opengl final : private IUninstantiable
@@ -57,4 +57,4 @@ T Opengl::getInteger(const GLenum pname)
 	return lossless_integer_cast<T>(getIntegerv(pname));
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

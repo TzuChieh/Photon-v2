@@ -4,7 +4,7 @@
 #include <Common/logging.h>
 #include <Common/assertion.h>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 //OpenglVertexAttributeLocator::OpenglVertexAttributeLocator()
@@ -39,11 +39,11 @@ namespace ph::editor
 //}
 
 OpenglVertexStorage::OpenglVertexStorage(
-	const GHIInfoVertexGroupFormat& format,
+	const VertexGroupFormatInfo& format,
 	const std::size_t numVertices,
-	const EGHIStorageUsage usage)
+	const EStorageUsage usage)
 
-	: GHIVertexStorage(format, usage)
+	: VertexStorage(format, usage)
 
 	, m_vboID(0)
 	, m_numVertices(numVertices)
@@ -66,7 +66,7 @@ void OpenglVertexStorage::upload(
 	// The input data must be for the entire vertex buffer--same number of total bytes
 	PH_ASSERT_EQ(numBytes(), inNumBytes);
 
-	if(getUsage() == EGHIStorageUsage::Static)
+	if(getUsage() == EStorageUsage::Static)
 	{
 		glNamedBufferStorage(
 			m_vboID,
@@ -102,4 +102,4 @@ std::size_t OpenglVertexStorage::numBytes() const
 	return getFormat().numGroupBytes() * m_numVertices;
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

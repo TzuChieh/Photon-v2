@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 class GraphicsMemoryBlock : private IMoveOnly
@@ -59,6 +59,6 @@ private:
 	std::size_t m_remainingBytesInBlock;
 };
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi
 
 #include "RenderCore/Memory/GraphicsMemoryBlock.ipp"

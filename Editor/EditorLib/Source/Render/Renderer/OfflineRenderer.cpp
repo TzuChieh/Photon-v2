@@ -185,7 +185,7 @@ void OfflineRenderer::cleanupGHI(GHIThreadCaller& caller)
 	// TODO
 }
 
-void OfflineRenderer::update(const UpdateContext& ctx)
+void OfflineRenderer::update(const RenderThreadUpdateContext& ctx)
 {
 	// TODO
 }

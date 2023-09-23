@@ -7,64 +7,64 @@
 
 #include <variant>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 /*! Dummy graphics object types for resource management.
 */
 ///@{
-class GHITextureObject
+class TextureObject
 {};
 
-class GHIVertexStorageObject
+class VertexStorageObject
 {};
 
-class GHIIndexStorageObject
+class IndexStorageObject
 {};
 
-class GHIMeshObject
+class MeshObject
 {};
 
-class GHIShaderObject
+class ShaderObject
 {};
 
-class GHIShaderProgramObject
+class ShaderProgramObject
 {};
 
-class GHIFramebufferObject
+class FramebufferObject
 {};
 
-class GHIMemoryObject
+class MemoryObject
 {};
 ///@}
 
 // Handle types
-using GHITextureHandle = TWeakHandle<GHITextureObject, uint32, uint32>;
-using GHIVertexStorageHandle = TWeakHandle<GHIVertexStorageObject, uint32, uint32>;
-using GHIIndexStorageHandle = TWeakHandle<GHIIndexStorageObject, uint32, uint32>;
-using GHIMeshHandle = TWeakHandle<GHIMeshObject, uint32, uint32>;
-using GHIShaderHandle = TWeakHandle<GHIShaderObject, uint32, uint32>;
-using GHIShaderProgramHandle = TWeakHandle<GHIShaderProgramObject, uint32, uint32>;
-using GHIFramebufferHandle = TWeakHandle<GHIFramebufferObject, uint32, uint32>;
-using GHIMemoryHandle = TWeakHandle<GHIMemoryObject, uint32, uint32>;
+using TextureHandle = TWeakHandle<TextureObject, uint32, uint32>;
+using VertexStorageHandle = TWeakHandle<VertexStorageObject, uint32, uint32>;
+using IndexStorageHandle = TWeakHandle<IndexStorageObject, uint32, uint32>;
+using MeshHandle = TWeakHandle<MeshObject, uint32, uint32>;
+using ShaderHandle = TWeakHandle<ShaderObject, uint32, uint32>;
+using ShaderProgramHandle = TWeakHandle<ShaderProgramObject, uint32, uint32>;
+using FramebufferHandle = TWeakHandle<FramebufferObject, uint32, uint32>;
+using MemoryHandle = TWeakHandle<MemoryObject, uint32, uint32>;
 
 // Native handle types
-using GHITextureNativeHandle = std::variant<
+using TextureNativeHandle = std::variant<
 	std::monostate,
 	uint64>;
 
 // Basic info types
-class GHIInfoSampleState;
-class GHIInfoTextureFormat;
-class GHIInfoFramebufferFormat;
-class GHIInfoShaderSet;
-class GHIInfoVertexAttributeLocator;
-class GHIInfoVertexGroupFormat;
-class GHIInfoMeshVertexLayout;
-class GHIInfoDeviceCapability;
+class SampleStateInfo;
+class TextureFormatInfo;
+class FramebufferFormatInfo;
+class ShaderSetInfo;
+class VertexAttributeLocatorInfo;
+class VertexGroupFormatInfo;
+class MeshVertexLayoutInfo;
+class DeviceCapabilityInfo;
 
 // Description info types
-class GHIInfoTextureDesc;
-class GHIInfoFramebufferDesc;
+class TextureDesc;
+class FramebufferDesc;
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

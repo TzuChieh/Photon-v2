@@ -6,8 +6,8 @@ GHI (Graphics Hardware Interface) related functionalities may need to be execute
 
 * GHI enum types
 * GHI handle types
-* GHI description types
-* Classes prefixed with "GHIInfo"
+* GHI info types (info suffix)
+* GHI description types (desc suffix)
 
 These GHI types are for passing/storing information and is safe to be stored and used everywhere.
 Some other GHI functionalities can be used concurrently, and will be specifically documented if that is

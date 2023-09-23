@@ -1,28 +1,28 @@
 #include "RenderCore/OpenGL/OpenglMesh.h"
-#include "RenderCore/GHIVertexStorage.h"
-#include "RenderCore/GHIIndexStorage.h"
+#include "RenderCore/VertexStorage.h"
+#include "RenderCore/IndexStorage.h"
 #include "RenderCore/OpenGL/opengl_enums.h"
 
 #include <Common/assertion.h>
 #include <Utility/utility.h>
 #include <Common/logging.h>
 
-namespace ph::editor
+namespace ph::editor::ghi
 {
 
 OpenglMesh::OpenglMesh(
-	const GHIInfoMeshVertexLayout& layout,
-	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages)
+	const MeshVertexLayoutInfo& layout,
+	TSpanView<std::shared_ptr<VertexStorage>> vertexStorages)
 	
 	: OpenglMesh(layout, vertexStorages, nullptr)
 {}
 
 OpenglMesh::OpenglMesh(
-	const GHIInfoMeshVertexLayout& layout,
-	TSpanView<std::shared_ptr<GHIVertexStorage>> vertexStorages,
-	const std::shared_ptr<GHIIndexStorage>& indexStorage)
+	const MeshVertexLayoutInfo& layout,
+	TSpanView<std::shared_ptr<VertexStorage>> vertexStorages,
+	const std::shared_ptr<IndexStorage>& indexStorage)
 
-	: GHIMesh(layout, vertexStorages, indexStorage)
+	: Mesh(layout, vertexStorages, indexStorage)
 
 	, m_vaoID(0)
 {
@@ -32,8 +32,8 @@ OpenglMesh::OpenglMesh(
 	for(std::size_t attrIdx = 0; attrIdx < layout.numAttributes; ++attrIdx)
 	{
 		const auto& binding = layout.attributeBindings[attrIdx];
-		GHIVertexStorage& storage = getVertexStorage(binding.storageIndex);
-		const GHIInfoVertexAttributeLocator& attrLocator = storage.getFormat().attributes[binding.attributeIndex];
+		VertexStorage& storage = getVertexStorage(binding.storageIndex);
+		const VertexAttributeLocatorInfo& attrLocator = storage.getFormat().attributes[binding.attributeIndex];
 
 		const auto attributeIdx = lossless_cast<GLuint>(attrIdx);
 		const auto vboBindingPointIdx = lossless_cast<GLuint>(attrIdx);
@@ -63,12 +63,12 @@ OpenglMesh::OpenglMesh(
 	// Potentially bind an IBO
 	if(hasIndexStorage())
 	{
-		GHIIndexStorage& indexStorage = getIndexStorage();
+		IndexStorage& indexStorage = getIndexStorage();
 
 		// For drawing purposes, OpenGL supports only these types
-		if(!(indexStorage.getIndexType() == EGHIStorageElement::UInt8 ||
-		     indexStorage.getIndexType() == EGHIStorageElement::UInt16 ||
-		     indexStorage.getIndexType() == EGHIStorageElement::UInt32))
+		if(!(indexStorage.getIndexType() == EStorageElement::UInt8 ||
+		     indexStorage.getIndexType() == EStorageElement::UInt16 ||
+		     indexStorage.getIndexType() == EStorageElement::UInt32))
 		{
 			PH_DEFAULT_LOG_ERROR(
 				"[OpenglMesh] using index storage with unsupported index type for drawing");
@@ -90,7 +90,7 @@ void OpenglMesh::bind()
 	glBindVertexArray(m_vaoID);
 }
 
-GLuint OpenglMesh::getOpenglHandle(GHIStorage& storage)
+GLuint OpenglMesh::getOpenglHandle(Storage& storage)
 {
 	const auto nativeHandle = storage.getNativeHandle();
 
@@ -98,4 +98,4 @@ GLuint OpenglMesh::getOpenglHandle(GHIStorage& storage)
 	return lossless_cast<GLuint>(std::get<uint64>(nativeHandle));
 }
 
-}// end namespace ph::editor
+}// end namespace ph::editor::ghi

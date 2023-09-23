@@ -2,10 +2,10 @@
 
 #include "Render/ISceneResource.h"
 
+namespace ph::editor { class RenderThreadUpdateContext; }
+
 namespace ph::editor::render
 {
-
-class UpdateContext;
 
 enum class EProcessOrder
 {
@@ -22,7 +22,7 @@ public:
 	IDynamicSceneResource();
 	~IDynamicSceneResource() override;
 
-	virtual void update(const UpdateContext& ctx) = 0;
+	virtual void update(const RenderThreadUpdateContext& ctx) = 0;
 	virtual void createGHICommands(GHIThreadCaller& caller) = 0;
 	virtual EProcessOrder getProcessOrder() const;
 
