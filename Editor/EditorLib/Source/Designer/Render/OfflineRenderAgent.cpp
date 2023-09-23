@@ -27,9 +27,9 @@ void OfflineRenderAgent::renderInit(RenderThreadCaller& caller)
 	auto renderer = std::make_unique<render::OfflineRenderer>();
 	m_renderer = renderer.get();
 	caller.add(
-		[scene = &getScene().getRendererScene(), renderer = std::move(renderer)](render::System& /* sys */) mutable
+		[&scene = getScene().getRendererScene(), renderer = std::move(renderer)](render::System& /* sys */) mutable
 		{
-			scene->addDynamicResource(std::move(renderer));
+			scene.addDynamicResource(std::move(renderer));
 		});
 
 	getScene().addRendererBinding({
@@ -42,9 +42,9 @@ void OfflineRenderAgent::renderUninit(RenderThreadCaller& caller)
 	getScene().removeRendererBinding(this);
 
 	caller.add(
-		[scene = &getScene().getRendererScene(), renderer = m_renderer](render::System& /* sys */)
+		[&scene = getScene().getRendererScene(), renderer = m_renderer](render::System& /* sys */)
 		{
-			scene->removeResource(renderer);
+			scene.removeResource(renderer);
 		});
 	m_renderer = nullptr;
 

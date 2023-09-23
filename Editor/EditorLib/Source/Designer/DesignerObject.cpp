@@ -223,8 +223,7 @@ void DesignerObject::enqueueRenderWork(RenderWorkType work)
 
 void DesignerObject::setName(std::string name)
 {
-	// TODO: ensure unique name in scene
-	m_name = std::move(name);
+	m_name = getScene().getUniqueObjectName(name);
 }
 
 void DesignerObject::select()

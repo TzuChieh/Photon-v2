@@ -4,6 +4,7 @@
 
 #include <Utility/traits.h>
 #include <Utility/utility.h>
+#include <Utility/string_utils.h>
 #include <Math/hash.h>
 
 #include <cstddef>
@@ -65,7 +66,11 @@ public:
 
 	inline std::string toString() const
 	{
-		return "index=" + std::to_string(m_itemIdx) + ", generation=" + std::to_string(m_itemGeneration);
+		std::string indexStr = m_itemIdx != INVALID_INDEX
+			? std::to_string(m_itemIdx) : "invalid";
+		std::string generationStr = m_itemGeneration != INVALID_GENERATION
+			? std::to_string(m_itemGeneration) : "invalid";
+		return "[index=" + indexStr + ", generation=" + generationStr + "]";
 	}
 
 	/*!
@@ -100,6 +105,9 @@ private:
 };
 
 }// end namespace ph::editor
+
+template<typename Item, typename Index, typename Generation>
+PH_DEFINE_INLINE_TO_STRING_FORMATTER_TEMPLATE(ph::editor::TWeakHandle<Item, Index, Generation>);
 
 namespace std
 {

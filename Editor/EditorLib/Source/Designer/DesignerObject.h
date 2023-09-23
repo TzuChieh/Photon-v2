@@ -95,7 +95,12 @@ public:
 	*/
 	void enqueueRenderWork(RenderWorkType work);
 
+	/*! @brief Set name of the object.
+	`name` should be unique in the scene. If not, the name will be modified automatically such that
+	it is unique in the scene.
+	*/
 	void setName(std::string name);
+
 	void select();
 	void deselect();
 	bool isSelected() const;

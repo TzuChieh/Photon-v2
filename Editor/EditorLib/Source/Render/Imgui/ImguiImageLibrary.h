@@ -70,6 +70,7 @@ public:
 		const math::Vector4F& backgroundColorRGBA = math::Vector4F(0, 0, 0, 0),
 		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1));
 
+	ImTextureID get(std::string_view name) const;
 	ImTextureID get(EImguiImage targetImage) const;
 
 	/*void imguiDrawImageButton(
@@ -81,12 +82,24 @@ public:
 
 	void loadImage(EImguiImage targetImage, const Path& filePath);
 	void loadImage(const std::string& imageName, const Path& filePath);
+
+	void loadImage(
+		const std::string& imageName, 
+		const Path& filePath,
+		math::Vector2UI sizePx,
+		EGHISizedPixelFormat format);
+
+	void loadImage(
+		const std::string& imageName,
+		math::Vector2UI sizePx, 
+		EGHISizedPixelFormat format);
+
 	void createRenderCommands(RenderThreadCaller& caller, render::Scene& scene);
 	void cleanupTextures(RenderThreadCaller& caller, render::Scene& scene);
 
 	Editor& getEditor();
 
-	// TODO: adapter for image & image drawing (with button?)
+	// TODO: wrapper for image & image drawing (with button?)
 
 private:
 	struct Entry
@@ -100,18 +113,25 @@ private:
 		std::string entryName;
 		int entryIdx = -1;
 		Path fileToLoad;
+		math::Vector2UI sizePx = {0, 0};
+		EGHISizedPixelFormat format = EGHISizedPixelFormat::Empty;
+		bool isProcessed = false;
+	};
+
+	struct NativeHandleRetriever
+	{
+		std::string entryName;
+		int entryIdx = -1;
 		render::TQueryOf<render::GetGraphicsTextureHandle> gHandleQuery;
 		ghi::TQueryOf<ghi::GetTextureNativeHandle> nHandleQuery;
 		bool isFinished = false;
 	};
 
-	Entry& getEntry(EImguiImage targetImage);
-	const Entry& getEntry(EImguiImage targetImage) const;
-
 	static ImTextureID getTextureIDFromNativeHandle(GHITextureNativeHandle nativeHandle);
 
 	Editor* m_editor;
 	std::vector<Loader> m_loaders;
+	std::vector<NativeHandleRetriever> m_retrievers;
 	string_utils::TStdUnorderedStringMap<Entry> m_namedEntries;
 	std::array<Entry, enum_size<EImguiImage>()> m_builtinEntries;
 };
@@ -122,23 +142,16 @@ inline Editor& ImguiImageLibrary::getEditor()
 	return *m_editor;
 }
 
+inline ImTextureID ImguiImageLibrary::get(std::string_view name) const
+{
+	auto iter = m_namedEntries.find(name);
+	return iter != m_namedEntries.end() ? iter->second.textureID : nullptr;
+}
+
 inline ImTextureID ImguiImageLibrary::get(EImguiImage targetImage) const
 {
-	return getEntry(targetImage).textureID;
-}
-
-inline auto ImguiImageLibrary::getEntry(EImguiImage targetImage)
--> Entry&
-{
 	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_builtinEntries.size());
-	return m_builtinEntries[static_cast<std::size_t>(targetImage)];
-}
-
-inline auto ImguiImageLibrary::getEntry(EImguiImage targetImage) const
--> const Entry&
-{
-	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_builtinEntries.size());
-	return m_builtinEntries[static_cast<std::size_t>(targetImage)];
+	return m_builtinEntries[static_cast<std::size_t>(targetImage)].textureID;
 }
 
 }// end namespace ph::editor

@@ -151,8 +151,7 @@ public:
 		if(isEmpty || isInvalidOutOfBound || isStale)
 		{
 			throw_formatted<IllegalOperationException>(
-				"creating trivial item with bad handle ({})",
-				handle.toString());
+				"creating trivial item with bad handle {}", handle);
 		}
 
 		// Potentially create new storage space
@@ -196,8 +195,7 @@ public:
 		if(!isFresh(handle))
 		{
 			throw_formatted<IllegalOperationException>(
-				"removing trivial item with stale handle ({})",
-				handle.toString());
+				"removing trivial item with stale handle {}", handle);
 		}
 
 		const Index itemIdx = handle.getIndex();

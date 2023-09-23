@@ -42,7 +42,7 @@ public:
 	[[nodiscard]]
 	TextureHandle declareTexture();
 
-	void createTexture(TextureHandle handle, Texture texture);
+	void createTexture(TextureHandle handle, Texture inTexture);
 	Texture* getTexture(TextureHandle handle);
 	void removeTexture(TextureHandle handle);
 	void loadPicture(TextureHandle handle, const Path& pictureFile);

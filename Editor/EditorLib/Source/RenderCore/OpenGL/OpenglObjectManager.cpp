@@ -105,10 +105,8 @@ void OpenglObjectManager::uploadPixelData(
 		if(!texture || !texture->hasResource())
 		{
 			PH_LOG_ERROR(OpenglObjectManager,
-				"Cannot upload pixel data for texture; object: {}, resource: {}, handle: <{}>",
-				static_cast<void*>(texture),
-				texture ? texture->hasResource() : false,
-				handle.toString());
+				"Cannot upload pixel data for texture; object: {}, resource: {}, handle: {}",
+				static_cast<void*>(texture), texture ? texture->hasResource() : false, handle);
 			return;
 		}
 

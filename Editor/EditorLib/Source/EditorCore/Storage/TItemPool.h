@@ -264,8 +264,7 @@ public:
 		if(isEmpty || isInvalidOutOfBound || isStale)
 		{
 			throw_formatted<IllegalOperationException>(
-				"creating item with bad handle ({})",
-				handle.toString());
+				"creating item with bad handle {}", handle);
 		}
 
 		// Potentially create new storage space
@@ -291,8 +290,7 @@ public:
 		if(!m_storageStates[itemIdx].isFreed)
 		{
 			throw_formatted<IllegalOperationException>(
-				"attempting to create item at an occupied slot (handle: {})",
-				handle.toString());
+				"attempting to create item at an occupied slot (handle: {})", handle);
 		}
 
 		createItemAtIndex(itemIdx, std::move(item));
@@ -312,8 +310,7 @@ public:
 		if(!isFresh(handle))
 		{
 			throw_formatted<IllegalOperationException>(
-				"removing item with stale handle ({})",
-				handle.toString());
+				"removing item with stale handle {}", handle);
 		}
 
 		const Index itemIdx = handle.getIndex();
@@ -325,8 +322,7 @@ public:
 		if(m_storageStates[itemIdx].isFreed)
 		{
 			throw_formatted<IllegalOperationException>(
-				"attempting to remove item at an emptied slot (handle: {})",
-				handle.toString());
+				"attempting to remove item at an emptied slot (handle: {})", handle);
 		}
 
 		removeItemAtIndex(itemIdx);

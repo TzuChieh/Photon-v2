@@ -75,9 +75,14 @@ TextureHandle Scene::declareTexture()
 	return m_textures.dispatchOneHandle();
 }
 
-void Scene::createTexture(TextureHandle handle, Texture texture)
+void Scene::createTexture(TextureHandle handle, Texture inTexture)
 {
-	m_textures.createAt(handle, std::move(texture));
+	m_textures.createAt(handle, std::move(inTexture));
+
+	Texture* texture = m_textures.get(handle);
+	PH_ASSERT(texture);
+	PH_ASSERT(!texture->handle);
+	texture->handle = getSystem().getGraphicsContext().getObjectManager().createTexture(texture->desc);
 }
 
 Texture* Scene::getTexture(TextureHandle handle)
@@ -91,8 +96,7 @@ void Scene::removeTexture(TextureHandle handle)
 	if(!texture)
 	{
 		PH_LOG_ERROR(Scene,
-			"Cannot remove texture with invalid handle ({})",
-			handle.toString());
+			"Cannot remove texture with invalid handle {}", handle);
 		return;
 	}
 
@@ -107,22 +111,16 @@ void Scene::removeTexture(TextureHandle handle)
 void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 {
 	Texture* texture = m_textures.get(handle);
-	if(!texture)
+	if(!texture || !texture->handle)
 	{
 		PH_LOG_ERROR(Scene,
-			"Cannot load picture <{}> with invalid handle ({})",
-			pictureFile, handle.toString());
+			"Cannot load picture <{}>: texture={}, graphics handle={}",
+			pictureFile, static_cast<void*>(texture), handle);
 		return;
 	}
 	
-	GraphicsContext& gCtx = getSystem().getGraphicsContext();
-	if(!texture->handle)
-	{
-		texture->handle = gCtx.getObjectManager().createTexture(texture->desc);
-	}
-
 	getSystem().addFileReadingWork(
-		[&gCtx, gHandle = texture->handle, pictureFile]()
+		[&gCtx = getSystem().getGraphicsContext(), gHandle = texture->handle, pictureFile]()
 		{
 			RegularPicture picture;
 			try

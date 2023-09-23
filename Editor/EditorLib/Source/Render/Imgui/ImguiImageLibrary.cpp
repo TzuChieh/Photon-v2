@@ -4,8 +4,7 @@
 #include "Render/Texture2D.h"
 #include "Render/System.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
-//#include "Render/Imgui/Font/IconsMaterialDesign.h"
-#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 #include "RenderCore/GraphicsContext.h"
 
 #include <Common/assertion.h>
@@ -22,6 +21,7 @@ namespace ph::editor
 ImguiImageLibrary::ImguiImageLibrary()
 	: m_editor(nullptr)
 	, m_loaders()
+	, m_retrievers()
 	, m_namedEntries()
 	, m_builtinEntries()
 {}
@@ -46,8 +46,8 @@ void ImguiImageLibrary::imguiImage(
 	auto textureID = get(targetImage);
 	if(!textureID)
 	{
-		// Draw a top-filled hourglass to indicate the image is unavailable for now
-		ImGui::Text(ICON_MDI_TIMER_SAND);
+		// Indicate the image is unavailable for now
+		ImGui::TextUnformatted(PH_IMGUI_LOADING_ICON " Loading...");
 		return;
 	}
 
@@ -70,8 +70,8 @@ bool ImguiImageLibrary::imguiImageButton(
 	auto textureID = get(targetImage);
 	if(!textureID)
 	{
-		// Add a top-filled hourglass button to indicate the image is unavailable for now
-		return ImGui::Button(ICON_MDI_TIMER_SAND);
+		// Indicate the image is unavailable for now
+		ImGui::TextUnformatted(PH_IMGUI_LOADING_ICON " Loading...");
 	}
 
 	return ImGui::ImageButton(
@@ -86,26 +86,67 @@ bool ImguiImageLibrary::imguiImageButton(
 
 void ImguiImageLibrary::loadImage(EImguiImage targetImage, const Path& filePath)
 {
-	PH_ASSERT(!filePath.isEmpty());
+	if(filePath.isEmpty())
+	{
+		return;
+	}
 
 	m_loaders.push_back({
 		.entryIdx = static_cast<int>(targetImage),
-		.fileToLoad = filePath});
+		.fileToLoad = filePath,
+		.format = EGHISizedPixelFormat::RGBA_8});
 }
 
 void ImguiImageLibrary::loadImage(const std::string& imageName, const Path& filePath)
 {
-	PH_ASSERT(!filePath.isEmpty());
+	if(filePath.isEmpty())
+	{
+		return;
+	}
 
 	m_loaders.push_back({
 		.entryName = imageName,
 		.fileToLoad = filePath});
 }
 
+void ImguiImageLibrary::loadImage(
+	const std::string& imageName,
+	const Path& filePath,
+	math::Vector2UI sizePx,
+	EGHISizedPixelFormat format)
+{
+	if(filePath.isEmpty())
+	{
+		return;
+	}
+
+	m_loaders.push_back({
+		.entryName = imageName,
+		.fileToLoad = filePath,
+		.sizePx = sizePx,
+		.format = format});
+}
+
+void ImguiImageLibrary::loadImage(
+	const std::string& imageName,
+	math::Vector2UI sizePx,
+	EGHISizedPixelFormat format)
+{
+	m_loaders.push_back({
+		.entryName = imageName,
+		.sizePx = sizePx,
+		.format = format});
+}
+
 void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render::Scene& scene)
 {
 	for(Loader& loader : m_loaders)
 	{
+		PH_ASSERT(!loader.isProcessed);
+
+		render::TextureHandle handle;
+
+		// Load image file
 		if(!loader.fileToLoad.isEmpty())
 		{
 			math::Vector2S sizePx;
@@ -114,15 +155,55 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 				PH_LOG_WARNING(DearImGui,
 					"Cannot load image <{}> for size info. Please make sure the file exists.",
 					loader.fileToLoad);
-				loader.isFinished = true;
+				loader.isProcessed = true;
 				continue;
 			}
 
 			GHIInfoTextureDesc desc;
+			sizePx.x() = loader.sizePx.x() != 0 ? loader.sizePx.x() : sizePx.x();
+			sizePx.y() = loader.sizePx.y() != 0 ? loader.sizePx.y() : sizePx.y();
 			desc.setSize2D(math::Vector2UI(sizePx));
-			desc.format.pixelFormat = EGHISizedPixelFormat::RGBA_8;
+			desc.format.pixelFormat = loader.format == EGHISizedPixelFormat::Empty
+				? EGHISizedPixelFormat::RGBA_8 : loader.format;
 
-			render::TextureHandle handle = scene.declareTexture();
+			handle = scene.declareTexture();
+			caller.add(
+				[fileToLoad = loader.fileToLoad, &scene = scene, handle, desc](render::System& /* sys */)
+				{
+					scene.createTexture(handle, render::Texture{.desc = desc});
+					scene.loadPicture(handle, fileToLoad);
+				});
+		}
+		// Load empty image buffer
+		else if(!loader.entryName.empty())
+		{
+			if(loader.sizePx.x() == 0 || loader.sizePx.y() == 0)
+			{
+				const math::Vector2UI defaultSize(128, 128);
+
+				PH_LOG_WARNING(DearImGui,
+					"Image buffer <{}> has invalid size {}. Resetting to {}.",
+					loader.entryName, loader.sizePx, defaultSize);
+
+				loader.sizePx = defaultSize;
+			}
+
+			GHIInfoTextureDesc desc;
+			desc.setSize2D(loader.sizePx);
+			desc.format.pixelFormat = loader.format == EGHISizedPixelFormat::Empty
+				? EGHISizedPixelFormat::RGB_8 : loader.format;
+
+			handle = scene.declareTexture();
+			caller.add(
+				[&scene = scene, handle, desc](render::System& /* sys */)
+				{
+					scene.createTexture(handle, render::Texture{.desc = desc});
+				});
+		}
+
+		// Register texture handle to the entry
+		if(handle)
+		{
 			if(!loader.entryName.empty())
 			{
 				m_namedEntries[loader.entryName].handle = handle;
@@ -131,71 +212,91 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 			{
 				m_builtinEntries[loader.entryIdx].handle = handle;
 			}
+		}
 
+		// Start querying native handle
+		if(handle)
+		{
+			auto query = render::Query::autoRetry<render::GetGraphicsTextureHandle>(handle, &scene);
 			caller.add(
-				[fileToLoad = loader.fileToLoad, scene = &scene, handle, desc](render::System& /* sys */)
-				{
-					scene->createTexture(handle, render::Texture{.desc = desc});
-					scene->loadPicture(handle, fileToLoad);
-				});
-
-			loader.fileToLoad.clear();
-
-			PH_ASSERT(loader.gHandleQuery.isEmpty());
-			loader.gHandleQuery = render::Query::autoRetry<render::GetGraphicsTextureHandle>(
-				handle, &scene);
-
-			caller.add(
-				[query = loader.gHandleQuery](render::System& sys)
+				[query](render::System& sys)
 				{
 					sys.addQuery(query);
 				});
+			m_retrievers.push_back({
+				.entryName = std::move(loader.entryName),
+				.entryIdx = loader.entryIdx,
+				.gHandleQuery = std::move(query)});
 		}
 
-		if(!loader.gHandleQuery.isEmpty() && loader.gHandleQuery->isReady())
+		loader.isProcessed = true;
+	}
+
+	// Remove all processed loaders
+	std::erase_if(m_loaders,
+		[](const Loader& loader)
 		{
-			PH_ASSERT(loader.nHandleQuery.isEmpty());
-			loader.nHandleQuery = ghi::Query::autoRetry<ghi::GetTextureNativeHandle>(
-				loader.gHandleQuery->getGraphicsTextureHandle());
+			return loader.isProcessed;
+		});
+
+	for(NativeHandleRetriever& r : m_retrievers)
+	{
+		if(!r.gHandleQuery.isEmpty() && r.gHandleQuery->isReady())
+		{
+			PH_ASSERT(r.nHandleQuery.isEmpty());
+			r.nHandleQuery = ghi::Query::autoRetry<ghi::GetTextureNativeHandle>(
+				r.gHandleQuery->getGraphicsTextureHandle());
 
 			caller.add(
-				[query = loader.nHandleQuery](render::System& sys)
+				[query = r.nHandleQuery](render::System& sys)
 				{
 					sys.getGraphicsContext().addQuery(query);
 				});
 
-			loader.gHandleQuery.clear();
+			r.gHandleQuery.clear();
 		}
 
-		if(!loader.nHandleQuery.isEmpty() && loader.nHandleQuery->isReady())
+		if(!r.nHandleQuery.isEmpty() && r.nHandleQuery->isReady())
 		{
-			GHITextureNativeHandle nativeHandle = loader.nHandleQuery->getNativeHandle();
+			GHITextureNativeHandle nativeHandle = r.nHandleQuery->getNativeHandle();
 			ImTextureID textureID = getTextureIDFromNativeHandle(nativeHandle);
-			if(!loader.entryName.empty())
+			if(!r.entryName.empty())
 			{
-				m_namedEntries[loader.entryName].textureID = textureID;
+				m_namedEntries[r.entryName].textureID = textureID;
 			}
 			else
 			{
-				m_builtinEntries[loader.entryIdx].textureID = textureID;
+				m_builtinEntries[r.entryIdx].textureID = textureID;
 			}
 
-			loader.nHandleQuery.clear();
-			loader.isFinished = true;
+			r.nHandleQuery.clear();
+			r.isFinished = true;
 		}
 	}
 
-	// Remove all finished loaders
-	std::erase_if(m_loaders,
-		[](const Loader& loader)
+	// Remove all finished retrievers
+	std::erase_if(m_retrievers,
+		[](const NativeHandleRetriever& r)
 		{
-			return loader.isFinished;
+			return r.isFinished;
 		});
 }
 
 void ImguiImageLibrary::cleanupTextures(RenderThreadCaller& caller, render::Scene& scene)
 {
-	// TODO: loader
+	for(auto& [name, entry] : m_namedEntries)
+	{
+		if(!entry.handle)
+		{
+			continue;
+		}
+
+		caller.add(
+			[handle = entry.handle, &scene = scene](render::System& /* sys */)
+			{
+				scene.removeTexture(handle);
+			});
+	}
 
 	for(Entry& entry : m_builtinEntries)
 	{
@@ -205,9 +306,9 @@ void ImguiImageLibrary::cleanupTextures(RenderThreadCaller& caller, render::Scen
 		}
 
 		caller.add(
-			[handle = entry.handle, scene = &scene](render::System& /* sys */)
+			[handle = entry.handle, &scene = scene](render::System& /* sys */)
 			{
-				scene->removeTexture(handle);
+				scene.removeTexture(handle);
 			});
 	}
 }

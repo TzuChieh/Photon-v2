@@ -84,6 +84,9 @@ void ImguiEditorSceneManager::buildWindow(
 	{
 		for(std::size_t sceneIdx = 0; sceneIdx < editor.numScenes(); ++sceneIdx)
 		{
+			// Scene name may not be unique
+			ImGui::PushID(static_cast<int>(sceneIdx));
+
 			const bool isSelected = (sceneIdx == m_selectedSceneIdx);
 			if(ImGui::Selectable(editor.getScene(sceneIdx)->getName().c_str(), isSelected))
 			{
@@ -95,6 +98,8 @@ void ImguiEditorSceneManager::buildWindow(
 			{
 				ImGui::SetItemDefaultFocus();
 			}
+
+			ImGui::PopID();
 		}
 		ImGui::EndListBox();
 	}
