@@ -21,6 +21,7 @@
 namespace ph { class Path; }
 namespace ph::editor { class GHIThreadCaller; }
 namespace ph::editor { class RenderThreadUpdateContext; }
+namespace ph::editor::ghi { class TextureDesc; }
 
 namespace ph::editor::render
 {
@@ -42,7 +43,7 @@ public:
 	[[nodiscard]]
 	TextureHandle declareTexture();
 
-	void createTexture(TextureHandle handle, Texture inTexture);
+	void createTexture(TextureHandle handle, const ghi::TextureDesc& desc);
 	Texture* getTexture(TextureHandle handle);
 	void removeTexture(TextureHandle handle);
 	void loadPicture(TextureHandle handle, const Path& pictureFile);

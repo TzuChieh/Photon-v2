@@ -170,7 +170,7 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 			caller.add(
 				[fileToLoad = loader.fileToLoad, &scene = scene, handle, desc](render::System& /* sys */)
 				{
-					scene.createTexture(handle, render::Texture{.desc = desc});
+					scene.createTexture(handle, desc);
 					scene.loadPicture(handle, fileToLoad);
 				});
 		}
@@ -197,7 +197,7 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 			caller.add(
 				[&scene = scene, handle, desc](render::System& /* sys */)
 				{
-					scene.createTexture(handle, render::Texture{.desc = desc});
+					scene.createTexture(handle, desc);
 				});
 		}
 

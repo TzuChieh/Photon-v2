@@ -75,14 +75,14 @@ TextureHandle Scene::declareTexture()
 	return m_textures.dispatchOneHandle();
 }
 
-void Scene::createTexture(TextureHandle handle, Texture inTexture)
+void Scene::createTexture(TextureHandle handle, const ghi::TextureDesc& desc)
 {
-	m_textures.createAt(handle, std::move(inTexture));
+	m_textures.createAt(handle, {.desc = desc});
 
 	Texture* texture = m_textures.get(handle);
 	PH_ASSERT(texture);
 	PH_ASSERT(!texture->handle);
-	texture->handle = getSystem().getGraphicsContext().getObjectManager().createTexture(texture->desc);
+	texture->handle = getSystem().getGraphicsContext().getObjectManager().createTexture(desc);
 }
 
 Texture* Scene::getTexture(TextureHandle handle)
