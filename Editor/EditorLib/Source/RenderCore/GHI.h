@@ -2,7 +2,6 @@
 
 #include "RenderCore/ghi_fwd.h"
 #include "RenderCore/ghi_enums.h"
-#include "RenderCore/GHITexture2D.h"
 #include "RenderCore/GHIShader.h"
 #include "RenderCore/GHIShaderProgram.h"
 #include "RenderCore/GHIVertexStorage.h"
