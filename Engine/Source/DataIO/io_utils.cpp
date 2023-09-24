@@ -207,7 +207,7 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 std::string load_text(const Path& filePath)
 {
 	std::ifstream textFile;
-	textFile.open(filePath.toAbsoluteString());
+	textFile.open(filePath.toNativeString());
 	if(!textFile.is_open())
 	{
 		throw FileIOError("cannot open text file <" + filePath.toAbsoluteString() + ">");
@@ -272,7 +272,7 @@ RegularPicture load_LDR_picture(const Path& picturePath)
 	   ext == ".ppm"  || ext == ".PPM"  ||
 	   ext == ".pgm"  || ext == ".PGM")
 	{
-		return load_LDR_via_stb(picturePath.toAbsoluteString());
+		return load_LDR_via_stb(picturePath.toNativeString());
 	}
 	else
 	{
@@ -334,7 +334,7 @@ RegularPicture load_HDR_picture(const Path& picturePath)
 	}
 	else if(ext == ".hdr" || ext == ".HDR")
 	{
-		return load_HDR_via_stb(picturePath.toAbsoluteString());
+		return load_HDR_via_stb(picturePath.toNativeString());
 	}
 	else
 	{
@@ -375,7 +375,7 @@ bool load_picture_meta(
 	int heightPx;
 	int numComponents;
 
-	if(!stbi_info(picturePath.toAbsoluteString().c_str(), &widthPx, &heightPx, &numComponents))
+	if(!stbi_info(picturePath.toNativeString().c_str(), &widthPx, &heightPx, &numComponents))
 	{
 		return false;
 	}

@@ -11,7 +11,7 @@ namespace ph
 FormattedTextOutputStream::FormattedTextOutputStream(const Path& filePath)
 	: StdOutputStream(
 		std::make_unique<std::ofstream>(
-			filePath.toAbsoluteString().c_str(),
+			filePath.toNativeString().c_str(),
 			std::ios_base::out))
 
 	, m_streamName(filePath.toAbsoluteString())

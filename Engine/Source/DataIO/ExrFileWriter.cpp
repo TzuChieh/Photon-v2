@@ -72,7 +72,7 @@ bool saveStandaloneRgbData(const Path& filePath, const HdrRgbFrame& frame)
 	header.channels().insert("G", Imf::Channel(PIXEL_TYPE));
 	header.channels().insert("B", Imf::Channel(PIXEL_TYPE));
 
-	Imf::OutputFile file(filePath.toAbsoluteString().c_str(), header);
+	Imf::OutputFile file(filePath.toNativeString().c_str(), header);
 
 	struct RgbPixel
 	{

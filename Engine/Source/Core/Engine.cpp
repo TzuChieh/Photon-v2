@@ -69,8 +69,7 @@ bool Engine::loadCommands(const Path& filePath)
 	catch(const Exception& e)
 	{
 		PH_LOG(Engine,
-			"error loading scene file {}: {}",
-			filePath.toAbsoluteString(), e.what());
+			"error loading scene file {}: {}", filePath.toAbsoluteString(), e.what());
 		return false;
 	}
 	

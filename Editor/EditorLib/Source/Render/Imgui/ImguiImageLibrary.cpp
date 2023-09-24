@@ -44,7 +44,44 @@ void ImguiImageLibrary::imguiImage(
 	const math::Vector4F& tintColorRGBA,
 	const math::Vector4F& borderColorRGBA) const
 {
-	auto textureID = get(targetImage);
+	imguiImage(get(targetImage), sizePx, tintColorRGBA, borderColorRGBA);
+}
+
+void ImguiImageLibrary::imguiImage(
+	std::string_view imageName,
+	const math::Vector2F& sizePx,
+	const math::Vector4F& tintColorRGBA,
+	const math::Vector4F& borderColorRGBA) const
+{
+	imguiImage(get(imageName), sizePx, tintColorRGBA, borderColorRGBA);
+}
+
+bool ImguiImageLibrary::imguiImageButton(
+	const EImguiImage targetImage,
+	const char* const strId,
+	const math::Vector2F& sizePx,
+	const math::Vector4F& backgroundColorRGBA,
+	const math::Vector4F& tintColorRGBA)
+{
+	return imguiImageButton(get(targetImage), strId, sizePx, backgroundColorRGBA, tintColorRGBA);
+}
+
+bool ImguiImageLibrary::imguiImageButton(
+	std::string_view imageName,
+	const char* strId,
+	const math::Vector2F& sizePx,
+	const math::Vector4F& backgroundColorRGBA,
+	const math::Vector4F& tintColorRGBA)
+{
+	return imguiImageButton(get(imageName), strId, sizePx, backgroundColorRGBA, tintColorRGBA);
+}
+
+void ImguiImageLibrary::imguiImage(
+	ImTextureID textureID,
+	const math::Vector2F& sizePx,
+	const math::Vector4F& tintColorRGBA,
+	const math::Vector4F& borderColorRGBA) const
+{
 	if(!textureID)
 	{
 		// Indicate the image is unavailable for now
@@ -62,16 +99,16 @@ void ImguiImageLibrary::imguiImage(
 }
 
 bool ImguiImageLibrary::imguiImageButton(
-	const EImguiImage targetImage,
-	const char* const strId,
+	ImTextureID textureID,
+	const char* strId,
 	const math::Vector2F& sizePx,
 	const math::Vector4F& backgroundColorRGBA,
 	const math::Vector4F& tintColorRGBA)
 {
-	auto textureID = get(targetImage);
 	if(!textureID)
 	{
 		// Indicate the image is unavailable for now
+		// FIXME: draw square button with text as large as image button size
 		ImGui::TextUnformatted(PH_IMGUI_LOADING_ICON " Loading...");
 	}
 
@@ -211,8 +248,8 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 			if(!io_utils::load_picture_meta(loader.fileToLoad, &sizePx))
 			{
 				PH_LOG_WARNING(DearImGui,
-					"Cannot load image <{}> for size info. Please make sure the file exists.",
-					loader.fileToLoad);
+					"Cannot load image <{}> for size info. Please make sure the file exists or is a "
+					"valid image file.", loader.fileToLoad);
 				continue;
 			}
 

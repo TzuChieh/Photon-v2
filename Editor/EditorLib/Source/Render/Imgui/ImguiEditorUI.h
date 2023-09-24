@@ -5,7 +5,6 @@
 #include "Render/Imgui/Tool/ImguiFileSystemDialog.h"
 #include "Render/Imgui/Tool/ImguiEditorObjectTypeMenu.h"
 #include "Render/Imgui/Tool/ImguiSampleInspector.h"
-#include "Render/Imgui/Editor/ImguiEditorImageViewer.h"
 #include "Render/Imgui/Editor/ImguiEditorToolState.h"
 
 #include "ThirdParty/DearImGuiExperimental.h"
@@ -28,6 +27,7 @@ class ImguiFontLibrary;
 class ImguiImageLibrary;
 class FileSystemExplorer;
 class ImguiEditorSceneCreator;
+class ImguiEditorImageViewer;
 class ImguiEditorDebugPanel;
 
 class ImguiEditorUI final 
@@ -90,8 +90,8 @@ private:
 	TUniquePtrVector<ImguiEditorPanel> m_panels;
 	std::vector<PanelEntry> m_panelEntries;
 	ImguiEditorSceneCreator* m_sceneCreator;
+	ImguiEditorImageViewer* m_imageViewer;
 	ImguiEditorDebugPanel* m_debugPanel;
-	//ImguiEditorImageViewer m_imageViewers;
 	
 	ImguiSampleInspector m_sampleInspector;
 	ImguiFileSystemDialog m_generalFileSystemDialog;

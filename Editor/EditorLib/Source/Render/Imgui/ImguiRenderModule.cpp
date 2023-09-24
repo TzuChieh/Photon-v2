@@ -87,7 +87,7 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 	// Make sure config directory exist so config file can be saved
 	const Path configDirectory = get_imgui_data_directory();
 	Filesystem::createDirectories(configDirectory);
-	m_configFilePath = (configDirectory / "imgui.ini").toAbsoluteString();
+	m_configFilePath = (configDirectory / "imgui.ini").toNativeString();
 
 	initializeImgui(*info.editor);
 	

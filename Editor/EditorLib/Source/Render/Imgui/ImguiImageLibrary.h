@@ -63,6 +63,12 @@ public:
 		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1),
 		const math::Vector4F& borderColorRGBA = math::Vector4F(0, 0, 0, 0)) const;
 
+	void imguiImage(
+		std::string_view imageName,
+		const math::Vector2F& sizePx,
+		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1),
+		const math::Vector4F& borderColorRGBA = math::Vector4F(0, 0, 0, 0)) const;
+
 	bool imguiImageButton(
 		EImguiImage targetImage, 
 		const char* strId,
@@ -70,8 +76,21 @@ public:
 		const math::Vector4F& backgroundColorRGBA = math::Vector4F(0, 0, 0, 0),
 		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1));
 
+	bool imguiImageButton(
+		std::string_view imageName,
+		const char* strId,
+		const math::Vector2F& sizePx,
+		const math::Vector4F& backgroundColorRGBA = math::Vector4F(0, 0, 0, 0),
+		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1));
+
 	ImTextureID get(std::string_view imageName) const;
 	ImTextureID get(EImguiImage targetImage) const;
+
+	/*! @brief Whether the library has the image.
+	If `true` is returned, does not mean `get(imageName)` will necessary return a valid ID. The image
+	may still being loaded and an invalid ID (0) may be returned.
+	*/
+	bool has(std::string_view imageName) const;
 
 	/*! @brief Get information of a named image.
 	*/
@@ -141,6 +160,19 @@ private:
 
 	auto getEntry(std::string_view name) const -> const Entry*;
 
+	void imguiImage(
+		ImTextureID textureID,
+		const math::Vector2F& sizePx,
+		const math::Vector4F& tintColorRGBA,
+		const math::Vector4F& borderColorRGBA) const;
+
+	bool imguiImageButton(
+		ImTextureID textureID,
+		const char* strId,
+		const math::Vector2F& sizePx,
+		const math::Vector4F& backgroundColorRGBA,
+		const math::Vector4F& tintColorRGBA);
+
 	static ImTextureID getTextureIDFromNativeHandle(ghi::TextureNativeHandle nativeHandle);
 
 	Editor* m_editor;
@@ -179,6 +211,11 @@ inline ImTextureID ImguiImageLibrary::get(EImguiImage targetImage) const
 {
 	PH_ASSERT_LT(static_cast<std::size_t>(targetImage), m_builtinEntries.size());
 	return m_builtinEntries[static_cast<std::size_t>(targetImage)].textureID;
+}
+
+inline bool ImguiImageLibrary::has(std::string_view imageName) const
+{
+	return getEntry(imageName) != nullptr;
 }
 
 inline auto ImguiImageLibrary::getEntry(std::string_view imageName) const

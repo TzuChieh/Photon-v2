@@ -45,7 +45,7 @@ bool ExrFileReader::load(HdrRgbFrame* const out_frame)
 
 bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
 {
-	const std::string filePath = m_filePath.toAbsoluteString();
+	const std::string filePath = m_filePath.toNativeString();
 	
 	PH_LOG(ExrFileReader, "loading standalone RGB: {}", filePath);
 	
@@ -96,7 +96,7 @@ bool ExrFileReader::loadStandaloneRgb(HdrRgbFrame* const out_frame)
 
 std::string ExrFileReader::listAllLayersAndChannels()
 {
-	Imf::InputFile file(m_filePath.toAbsoluteString().c_str());
+	Imf::InputFile file(m_filePath.toNativeString().c_str());
 
 	const Imf::ChannelList& channels = file.header().channels();
 

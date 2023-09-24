@@ -213,15 +213,13 @@ void DesignerSceneReader::readScene()
 	if(!commandFile)
 	{
 		PH_LOG_WARNING(DesignerSceneReader,
-			"command file <{}> opening failed", 
-			filePath.toAbsoluteString());
+			"command file <{}> opening failed", filePath.toAbsoluteString());
 		return;
 	}
 	else
 	{
 		PH_LOG(DesignerSceneReader,
-			"loading command file <{}>", 
-			filePath.toAbsoluteString());
+			"loading command file <{}>", filePath.toAbsoluteString());
 
 		Timer timer;
 		timer.start();

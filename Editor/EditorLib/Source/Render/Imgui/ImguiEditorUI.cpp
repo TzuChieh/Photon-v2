@@ -14,6 +14,7 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneObjectBrowser.h"
 #include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
 #include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
+#include "Render/Imgui/Editor/ImguiEditorImageViewer.h"
 #include "Render/Imgui/Editor/ImguiEditorDebugPanel.h"
 #include "Designer/DesignerScene.h"
 #include "Render/Imgui/ImguiEditorUIProxy.h"
@@ -87,6 +88,7 @@ ImguiEditorUI::ImguiEditorUI(
 	, m_panels()
 	, m_panelEntries()
 	, m_sceneCreator(nullptr)
+	, m_imageViewer(nullptr)
 	, m_debugPanel(nullptr)
 
 	, m_sampleInspector()
@@ -101,6 +103,7 @@ ImguiEditorUI::ImguiEditorUI(
 	}
 
 	m_panels.add(std::make_unique<ImguiEditorSceneManager>(*this));
+	m_imageViewer = m_panels.add(std::make_unique<ImguiEditorImageViewer>(*this));
 	m_panels.add(std::make_unique<ImguiEditorLog>(*this));
 	m_sceneCreator = m_panels.add(std::make_unique<ImguiEditorSceneCreator>(*this));
 	m_panels.add(std::make_unique<ImguiEditorOfflineTaskManager>(*this));

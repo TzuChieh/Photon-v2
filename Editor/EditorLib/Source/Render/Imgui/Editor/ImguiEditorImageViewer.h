@@ -2,6 +2,7 @@
 
 #include "Render/Imgui/ImguiEditorPanel.h"
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -19,6 +20,7 @@ public:
 
 private:
 	std::vector<std::string> m_imageNames;
+	std::size_t m_currentImageNameIdx;
 };
 
 }// end namespace ph::editor

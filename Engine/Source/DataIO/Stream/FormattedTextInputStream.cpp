@@ -20,7 +20,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(FormattedTextInputStream, DataIO);
 FormattedTextInputStream::FormattedTextInputStream(const Path& textFilePath)
 	: FormattedTextInputStream(
 		std::make_unique<std::ifstream>(
-			textFilePath.toAbsoluteString().c_str(),
+			textFilePath.toNativeString().c_str(),
 			std::ios_base::in),
 		textFilePath.toAbsoluteString())
 {}

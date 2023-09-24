@@ -19,7 +19,7 @@ IesFile::IesFile(const Path& iesFilePath) :
 
 bool IesFile::load()
 {
-	const std::string filePathStr = m_path.toAbsoluteString();
+	const std::string filePathStr = m_path.toNativeString();
 
 	// In an IES file, all lines shall be terminated with a <CR><LF> pair;
 	// it is necessary to read the file in binary mode in order to detect
