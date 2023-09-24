@@ -75,4 +75,20 @@ inline bool TQuery<Target, Performer>::run(Target& target)
 	return isDone;
 }
 
+template<typename Target, typename Performer>
+inline void TQuery<Target, Performer>::cancel()
+{
+	if(m_performer)
+	{
+		m_performer->cancel();
+	}
+}
+
+template<typename Target, typename Performer>
+inline bool TQuery<Target, Performer>::isCanceled() const
+{
+	PH_ASSERT(m_performer);
+	return m_performer->isCanceled();
+}
+
 }// end namespace ph::editor

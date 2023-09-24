@@ -19,7 +19,7 @@ The basic release-acquire synchronization helper methods provided by query perfo
 guarantee fully thread-safe behavior. Specifically, whether the data carried by the query object (
 including the performer) is visible after passing to another thread is entirely depending on the
 external synchronization done by the user. `TQuery` and `TQueryPerformer` simply provide helper
-methods to "publish" query resultacross threads (in a thread-safe way).
+methods to "publish" query result across threads (in a thread-safe way).
 
 `TConcurrentQueryManager` is another helper for dealing with the synchronization required when passing
 query object across threads. It is fully thread-safe.
@@ -55,6 +55,15 @@ public:
 	void clear();
 
 	bool isEmpty() const;
+
+	/*! @brief Cancel the query.
+	Does nothing if `isEmpty()` is true.
+	*/
+	void cancel();
+
+	/*! @brief Whether the query is canceled.
+	*/
+	bool isCanceled() const;
 
 	Performer& get();
 	const Performer& get() const;

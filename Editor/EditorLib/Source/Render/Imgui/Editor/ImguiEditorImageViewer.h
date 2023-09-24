@@ -2,6 +2,9 @@
 
 #include "Render/Imgui/ImguiEditorPanel.h"
 
+#include <string>
+#include <vector>
+
 namespace ph::editor
 {
 
@@ -15,6 +18,7 @@ public:
 	auto getAttributes() const -> Attributes override;
 
 private:
+	std::vector<std::string> m_imageNames;
 };
 
 }// end namespace ph::editor

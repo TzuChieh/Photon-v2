@@ -22,6 +22,7 @@ ImguiImageLibrary::ImguiImageLibrary()
 	: m_editor(nullptr)
 	, m_loaders()
 	, m_retrievers()
+	, m_unloadingTextures()
 	, m_namedEntries()
 	, m_builtinEntries()
 {}
@@ -86,10 +87,8 @@ bool ImguiImageLibrary::imguiImageButton(
 
 void ImguiImageLibrary::loadImage(EImguiImage targetImage, const Path& filePath)
 {
-	if(filePath.isEmpty())
-	{
-		return;
-	}
+	PH_ASSERT(!filePath.isEmpty());
+	PH_ASSERT(!m_builtinEntries[static_cast<int>(targetImage)].handle);
 
 	m_loaders.push_back({
 		.entryIdx = static_cast<int>(targetImage),
@@ -97,54 +96,113 @@ void ImguiImageLibrary::loadImage(EImguiImage targetImage, const Path& filePath)
 		.format = ghi::ESizedPixelFormat::RGBA_8});
 }
 
-void ImguiImageLibrary::loadImage(const std::string& imageName, const Path& filePath)
-{
-	if(filePath.isEmpty())
-	{
-		return;
-	}
-
-	m_loaders.push_back({
-		.entryName = imageName,
-		.fileToLoad = filePath});
-}
-
 void ImguiImageLibrary::loadImage(
-	const std::string& imageName,
+	std::string_view imageName,
 	const Path& filePath,
 	math::Vector2UI sizePx,
 	ghi::ESizedPixelFormat format)
 {
-	if(filePath.isEmpty())
+	if(imageName.empty() || filePath.isEmpty())
 	{
+		PH_LOG_WARNING(DearImGui,
+			"Cannot load image file with incomplete info: name={}, path={}.", imageName, filePath);
 		return;
 	}
 
+	if(getEntry(imageName))
+	{
+		PH_LOG(DearImGui,
+			"Overwriting image {}.", imageName);
+		unloadImage(imageName);
+	}
+
+	PH_ASSERT(!m_namedEntries.contains(imageName));
+	m_namedEntries[std::string(imageName)] = Entry{};
+
 	m_loaders.push_back({
-		.entryName = imageName,
+		.entryName = std::string(imageName),
 		.fileToLoad = filePath,
 		.sizePx = sizePx,
 		.format = format});
 }
 
 void ImguiImageLibrary::loadImage(
-	const std::string& imageName,
+	std::string_view imageName,
 	math::Vector2UI sizePx,
 	ghi::ESizedPixelFormat format)
 {
+	if(imageName.empty())
+	{
+		PH_LOG_WARNING(DearImGui,
+			"Cannot load image buffer with empty name.", imageName);
+		return;
+	}
+
+	if(getEntry(imageName))
+	{
+		PH_LOG(DearImGui,
+			"Overwriting image {}.", imageName);
+		unloadImage(imageName);
+	}
+
+	PH_ASSERT(!m_namedEntries.contains(imageName));
+	m_namedEntries[std::string(imageName)] = Entry{};
+
 	m_loaders.push_back({
-		.entryName = imageName,
+		.entryName = std::string(imageName),
 		.sizePx = sizePx,
 		.format = format});
+}
+
+void ImguiImageLibrary::unloadImage(std::string_view imageName)
+{
+	if(imageName.empty())
+	{
+		return;
+	}
+
+	auto entryIter = m_namedEntries.find(imageName);
+	if(entryIter != m_namedEntries.end())
+	{
+		Entry& entry = entryIter->second;
+		if(entry.handle)
+		{
+			m_unloadingTextures.push_back(entry.handle);
+		}
+
+		m_namedEntries.erase(entryIter);
+	}
+
+	auto loaderIter = std::find_if(m_loaders.begin(), m_loaders.end(),
+		[imageName](const Loader& loader)
+		{
+			return loader.entryName == imageName;
+		});
+	if(loaderIter != m_loaders.end())
+	{
+		m_loaders.erase(loaderIter);
+	}
+
+	auto retrieverIter = std::find_if(m_retrievers.begin(), m_retrievers.end(), 
+		[imageName](const NativeHandleRetriever& r)
+		{
+			return r.entryName == imageName;
+		});
+	if(retrieverIter != m_retrievers.end())
+	{
+		retrieverIter->gHandleQuery->cancel();
+		retrieverIter->nHandleQuery->cancel();
+		m_retrievers.erase(retrieverIter);
+	}
 }
 
 void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render::Scene& scene)
 {
 	for(Loader& loader : m_loaders)
 	{
-		PH_ASSERT(!loader.isProcessed);
-
 		render::TextureHandle handle;
+		auto finalSizePx = math::Vector2UI{0, 0};
+		auto finalFormat = ghi::ESizedPixelFormat::Empty;
 
 		// Load image file
 		if(!loader.fileToLoad.isEmpty())
@@ -155,16 +213,21 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 				PH_LOG_WARNING(DearImGui,
 					"Cannot load image <{}> for size info. Please make sure the file exists.",
 					loader.fileToLoad);
-				loader.isProcessed = true;
 				continue;
 			}
 
+			// Use loader's size (user specified) if it is valid
+			finalSizePx.x() = loader.sizePx.x() != 0 ? loader.sizePx.x() : static_cast<uint32>(sizePx.x());
+			finalSizePx.y() = loader.sizePx.y() != 0 ? loader.sizePx.y() : static_cast<uint32>(sizePx.y());
+			
+			// Use loader's format (user specified) if it is valid, otherwise use LDR RGBA
+			// (commonly we want to view all channels from a LDR file format)
+			finalFormat = loader.format != ghi::ESizedPixelFormat::Empty
+				? loader.format : ghi::ESizedPixelFormat::RGBA_8;
+
 			ghi::TextureDesc desc;
-			sizePx.x() = loader.sizePx.x() != 0 ? loader.sizePx.x() : sizePx.x();
-			sizePx.y() = loader.sizePx.y() != 0 ? loader.sizePx.y() : sizePx.y();
-			desc.setSize2D(math::Vector2UI(sizePx));
-			desc.format.pixelFormat = loader.format == ghi::ESizedPixelFormat::Empty
-				? ghi::ESizedPixelFormat::RGBA_8 : loader.format;
+			desc.setSize2D(finalSizePx);
+			desc.format.pixelFormat = finalFormat;
 
 			handle = scene.declareTexture();
 			caller.add(
@@ -177,6 +240,8 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 		// Load empty image buffer
 		else if(!loader.entryName.empty())
 		{
+			// Use loader's size (user specified) if it is valid
+			finalSizePx = loader.sizePx;
 			if(loader.sizePx.x() == 0 || loader.sizePx.y() == 0)
 			{
 				const math::Vector2UI defaultSize(128, 128);
@@ -185,11 +250,16 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 					"Image buffer <{}> has invalid size {}. Resetting to {}.",
 					loader.entryName, loader.sizePx, defaultSize);
 
-				loader.sizePx = defaultSize;
+				finalSizePx = defaultSize;
 			}
 
+			// Use loader's format (user specified) if it is valid, otherwise use LDR RGB
+			// (for buffers we cannot have good default, at least make it colorful)
+			finalFormat = loader.format != ghi::ESizedPixelFormat::Empty
+				? loader.format : ghi::ESizedPixelFormat::RGB_8;
+
 			ghi::TextureDesc desc;
-			desc.setSize2D(loader.sizePx);
+			desc.setSize2D(finalSizePx);
 			desc.format.pixelFormat = loader.format == ghi::ESizedPixelFormat::Empty
 				? ghi::ESizedPixelFormat::RGB_8 : loader.format;
 
@@ -204,14 +274,16 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 		// Register texture handle to the entry
 		if(handle)
 		{
-			if(!loader.entryName.empty())
-			{
-				m_namedEntries[loader.entryName].handle = handle;
-			}
-			else
-			{
-				m_builtinEntries[loader.entryIdx].handle = handle;
-			}
+			Entry& entry = !loader.entryName.empty()
+				? m_namedEntries[loader.entryName]
+				: m_builtinEntries[loader.entryIdx];
+
+			// Cannot fail with proper resource management (load/unload)
+			PH_ASSERT(!entry.handle);
+
+			entry.handle = handle;
+			entry.sizePx = finalSizePx;
+			entry.format = finalFormat;
 		}
 
 		// Start querying native handle
@@ -228,16 +300,20 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 				.entryIdx = loader.entryIdx,
 				.gHandleQuery = std::move(query)});
 		}
-
-		loader.isProcessed = true;
 	}
+	m_loaders.clear();
 
-	// Remove all processed loaders
-	std::erase_if(m_loaders,
-		[](const Loader& loader)
-		{
-			return loader.isProcessed;
-		});
+	for(render::TextureHandle& unloadingTexture : m_unloadingTextures)
+	{
+		PH_ASSERT(unloadingTexture);
+
+		caller.add(
+			[handle = unloadingTexture, &scene = scene](render::System& /* sys */)
+			{
+				scene.removeTexture(handle);
+			});
+	}
+	m_unloadingTextures.clear();
 
 	for(NativeHandleRetriever& r : m_retrievers)
 	{
@@ -297,6 +373,7 @@ void ImguiImageLibrary::cleanupTextures(RenderThreadCaller& caller, render::Scen
 				scene.removeTexture(handle);
 			});
 	}
+	m_namedEntries.clear();
 
 	for(Entry& entry : m_builtinEntries)
 	{
@@ -310,6 +387,7 @@ void ImguiImageLibrary::cleanupTextures(RenderThreadCaller& caller, render::Scen
 			{
 				scene.removeTexture(handle);
 			});
+		entry = Entry{};
 	}
 }
 

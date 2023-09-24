@@ -287,7 +287,6 @@ void ImguiEditorUI::build()
 			entry.attributes.isCloseable ? &entry.isOpening : nullptr);
 	}
 
-	
 	// DEBUG
 	getImageLibrary().imguiImage(EImguiImage::Folder, {200, 200});
 	/*if(ImGui::Button("fs"))

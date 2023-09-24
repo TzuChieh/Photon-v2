@@ -59,6 +59,12 @@ inline void TConcurrentQueryManager<Target>::processQueries(Target& target)
 	TQuery<Target> query;
 	while(m_queries.tryDequeue(&query))
 	{
+		// The query can simply be skipped if canceled
+		if(query.isCanceled())
+		{
+			continue;
+		}
+
 		if(!query.run(target))
 		{
 			m_queryCache.push_back(std::move(query));

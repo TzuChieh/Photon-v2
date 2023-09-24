@@ -26,6 +26,8 @@ public:
 	*/
 	bool isReady() const;
 
+	void cancel();
+
 private:
 	friend TQuery<Target, TQueryPerformer>;
 
@@ -35,7 +37,10 @@ private:
 	*/
 	void queryDone();
 
+	bool isCanceled() const;
+
 	std::atomic_flag m_readyFlag;
+	std::atomic_flag m_cancelFlag;
 };
 
 }// end namespace ph::editor
