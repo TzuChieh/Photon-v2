@@ -1,6 +1,6 @@
 #include "Render/Imgui/Editor/ImguiEditorLog.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
-#include "Render/Imgui/Editor/ImguiEditorTheme.h"
+#include "Render/Imgui/ImguiEditorTheme.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -38,8 +38,11 @@ inline LogStorage& LOG_STORAGE()
 
 }// end anonymous namespace
 
-ImguiEditorLog::ImguiEditorLog()
-	: m_logBuffer()
+ImguiEditorLog::ImguiEditorLog(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+
+	, m_logBuffer()
 	, m_numLogs(0)
 	, m_numClearedLogs(0)
 	, isAutoScrollEnabled(true)
@@ -54,13 +57,18 @@ ImguiEditorLog::ImguiEditorLog()
 	}
 }
 
-void ImguiEditorLog::buildWindow(
-	const char* title, 
-	ImguiEditorUIProxy editorUI,
-	bool* const isOpening)
+void ImguiEditorLog::buildWindow(const char* windowIdName, bool* isOpening)
 {
-	if(!ImGui::Begin(title, isOpening))
+	if(!ImGui::Begin(windowIdName, isOpening))
 	{
+		ImGui::End();
+		return;
+	}
+
+	// Only the main editor can retrieve logs
+	if(!getEditorUI().isMain())
+	{
+		ImGui::TextUnformatted("Editor log disabled for non-main editing space.");
 		ImGui::End();
 		return;
 	}
@@ -95,9 +103,9 @@ void ImguiEditorLog::buildWindow(
 			case ELogLevel::Debug: 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.2f, 1.0f, 1.0f)); break;
 			case ELogLevel::Warning:
-				ImGui::PushStyleColor(ImGuiCol_Text, editorUI.getTheme().warningColor); break;
+				ImGui::PushStyleColor(ImGuiCol_Text, getEditorUI().getTheme().warningColor); break;
 			case ELogLevel::Error:
-				ImGui::PushStyleColor(ImGuiCol_Text, editorUI.getTheme().errorColor); break;
+				ImGui::PushStyleColor(ImGuiCol_Text, getEditorUI().getTheme().errorColor); break;
 			default: 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.95f, 0.95f, 1.0f)); break;
 			}
@@ -117,6 +125,17 @@ void ImguiEditorLog::buildWindow(
 	ImGui::End();
 }
 
+auto ImguiEditorLog::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Log",
+		.icon = PH_IMGUI_LOG_ICON,
+		.tooltip = "Log",
+		.preferredDockingLot = EImguiPanelDockingLot::Bottom,
+		.useSidebar = true};
+}
+
 void ImguiEditorLog::retrieveNewLogs()
 {
 	while(true)
@@ -125,7 +144,7 @@ void ImguiEditorLog::retrieveNewLogs()
 		PH_ASSERT_LE(m_numLogs, m_logBuffer.size());
 		if(m_numLogs == m_logBuffer.size())
 		{
-			m_logBuffer.push_back(LogMessage());
+			m_logBuffer.push_back(LogMessage{});
 		}
 
 		PH_ASSERT_LT(m_numLogs, m_logBuffer.size());

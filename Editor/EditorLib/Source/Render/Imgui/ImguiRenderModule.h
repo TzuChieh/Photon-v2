@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <array>
 #include <string>
+#include <memory>
 
 namespace ph::editor::render { class ImguiRenderContent; }
 namespace ph::editor::render { class Scene; }
@@ -50,9 +51,9 @@ private:
 	bool m_isRenderContentAdded;
 	std::array<ImWchar, 3> m_fontIconGlyphRanges;
 
-	ImguiEditorUI m_editorUI;
-	ImguiFontLibrary m_fontLibrary;
-	ImguiImageLibrary m_imageLibrary;
+	std::unique_ptr<ImguiEditorUI> m_editorUI;
+	std::unique_ptr<ImguiFontLibrary> m_fontLibrary;
+	std::unique_ptr<ImguiImageLibrary> m_imageLibrary;
 };
 
 inline std::string ImguiRenderModule::getName() const

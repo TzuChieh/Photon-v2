@@ -1,19 +1,17 @@
 #pragma once
 
+#include "Render/Imgui/ImguiEditorPanel.h"
+
 namespace ph::editor
 {
 
-class ImguiEditorUIProxy;
-
-class ImguiEditorAssetBrowser final
+class ImguiEditorAssetBrowser : public ImguiEditorPanel
 {
 public:
-	ImguiEditorAssetBrowser();
+	explicit ImguiEditorAssetBrowser(ImguiEditorUIProxy editorUI);
 
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI,
-		bool* isOpening = nullptr);
+	void buildWindow(const char* windowIdName, bool* isOpening) override;
+	auto getAttributes() const -> Attributes override;
 
 private:
 	void buildControlPanelContent();

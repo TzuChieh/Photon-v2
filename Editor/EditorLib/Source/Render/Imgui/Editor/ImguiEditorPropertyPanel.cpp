@@ -1,6 +1,5 @@
 #include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
-#include "Render/Imgui/Editor/ImguiEditorObjectTypeMenu.h"
+#include "Render/Imgui/Tool/ImguiEditorObjectTypeMenu.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 
 #include "ThirdParty/DearImGui.h"
@@ -10,29 +9,29 @@
 namespace ph::editor
 {
 
-ImguiEditorPropertyPanel::ImguiEditorPropertyPanel()
-	: m_layout()
+ImguiEditorPropertyPanel::ImguiEditorPropertyPanel(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+
+	, m_layout()
 {}
 
-void ImguiEditorPropertyPanel::buildWindow(
-	const char* title, 
-	ImguiEditorUIProxy editorUI,
-	bool* isOpening)
+void ImguiEditorPropertyPanel::buildWindow(const char* windowIdName, bool* isOpening)
 {
 	constexpr ImGuiWindowFlags windowFlags =
 		ImGuiWindowFlags_AlwaysVerticalScrollbar;// so width can be fixed--no scrollbar popping
 
-	if(!ImGui::Begin(title, isOpening, windowFlags))
+	if(!ImGui::Begin(windowIdName, isOpening, windowFlags))
 	{
 		ImGui::End();
 		return;
 	}
 
-	Editor& editor = editorUI.getEditor();
+	Editor& editor = getEditorUI().getEditor();
 
 	// TODO: disable this button if object is flat
 	const SdlClass* selectedClass = nullptr;
-	editorUI.getObjectTypeMenu().buildMenuButton(
+	getEditorUI().getObjectTypeMenu().buildMenuButton(
 		PH_IMGUI_PLUS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Child Object ", 
 		selectedClass);
 
@@ -40,6 +39,18 @@ void ImguiEditorPropertyPanel::buildWindow(
 	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 
 	ImGui::End();
+}
+
+auto ImguiEditorPropertyPanel::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Properties",
+		.icon = PH_IMGUI_PROPERTIES_ICON,
+		.tooltip = "Properties",
+		.preferredDockingLot = EImguiPanelDockingLot::LowerRight,
+		.isOpenedByDefault = true,
+		.isCloseable = false};
 }
 
 void ImguiEditorPropertyPanel::setLayout(UIPropertyLayout layout)

@@ -1,8 +1,8 @@
 #include "Render/Imgui/Editor/ImguiEditorDebugPanel.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/TextualNoteObject.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -11,16 +11,16 @@
 namespace ph::editor
 {
 
-ImguiEditorDebugPanel::ImguiEditorDebugPanel()
-	: m_objectNameBuffer(128, '\0')
+ImguiEditorDebugPanel::ImguiEditorDebugPanel(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+
+	, m_objectNameBuffer(128, '\0')
 {}
 
-void ImguiEditorDebugPanel::buildWindow(
-	const char* title, 
-	ImguiEditorUIProxy editorUI,
-	bool* const isOpening)
+void ImguiEditorDebugPanel::buildWindow(const char* windowIdName, bool* isOpening)
 {
-	if(!ImGui::Begin(title, isOpening))
+	if(!ImGui::Begin(windowIdName, isOpening))
 	{
 		ImGui::End();
 		return;
@@ -28,7 +28,7 @@ void ImguiEditorDebugPanel::buildWindow(
 
 	if(ImGui::Button("Add Note Object"))
 	{
-		DesignerScene* scene = editorUI.getEditor().getActiveScene();
+		DesignerScene* scene = getEditorUI().getEditor().getActiveScene();
 		if(scene)
 		{
 			DesignerObject* obj = scene->newRootObject<TextualNoteObject>();
@@ -45,6 +45,16 @@ void ImguiEditorDebugPanel::buildWindow(
 	}
 
 	ImGui::End();
+}
+
+auto ImguiEditorDebugPanel::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Debug Mode",
+		.icon = PH_IMGUI_BUG_ICON,
+		.useMenubar = false,
+		.useSidebar = false};
 }
 
 }// end namespace ph::editor

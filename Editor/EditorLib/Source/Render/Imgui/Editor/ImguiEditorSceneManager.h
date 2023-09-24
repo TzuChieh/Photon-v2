@@ -1,21 +1,19 @@
 #pragma once
 
+#include "Render/Imgui/ImguiEditorPanel.h"
+
 #include <cstddef>
 
 namespace ph::editor
 {
 
-class ImguiEditorUIProxy;
-
-class ImguiEditorSceneManager final
+class ImguiEditorSceneManager : public ImguiEditorPanel
 {
 public:
-	ImguiEditorSceneManager();
+	explicit ImguiEditorSceneManager(ImguiEditorUIProxy editorUI);
 
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI,
-		bool* isOpening = nullptr);
+	void buildWindow(const char* windowIdName, bool* isOpening) override;
+	auto getAttributes() const -> Attributes override;
 
 private:
 	std::size_t m_selectedSceneIdx;

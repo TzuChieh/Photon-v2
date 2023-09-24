@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Render/Renderer/OfflineRenderStats.h"
+#include "Render/Imgui/ImguiEditorPanel.h"
 
 #include <cstddef>
 #include <vector>
@@ -15,15 +16,13 @@ class ImguiEditorUIProxy;
 class DesignerScene;
 class DesignerObject;
 
-class ImguiEditorOfflineTaskManager final
+class ImguiEditorOfflineTaskManager : public ImguiEditorPanel
 {
 public:
-	ImguiEditorOfflineTaskManager();
+	explicit ImguiEditorOfflineTaskManager(ImguiEditorUIProxy editorUI);
 
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI,
-		bool* isOpening = nullptr);
+	void buildWindow(const char* windowIdName, bool* isOpening) override;
+	auto getAttributes() const -> Attributes override;
 
 private:
 	void buildTaskInfoContent(DesignerScene* scene);

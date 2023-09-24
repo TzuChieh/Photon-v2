@@ -1,6 +1,5 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneObjectBrowser.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
-#include "Render/Imgui/Editor/ImguiEditorObjectTypeMenu.h"
+#include "Render/Imgui/Tool/ImguiEditorObjectTypeMenu.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
@@ -72,8 +71,11 @@ inline std::string_view get_display_type_name(const DesignerObject* obj)
 
 }// end anonymous namespace
 
-ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser()
-	: m_activeSceneChanged(nullptr)
+ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+
+	, m_activeSceneChanged(nullptr)
 	, m_sceneObjectAdded(nullptr)
 	, m_sceneObjectRemoval(nullptr)
 	, m_objViewLevel(0)
@@ -83,20 +85,17 @@ ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser()
 	, m_isObjsDirty(false)
 {
 	resetObjectView(nullptr);
-}
 
-void ImguiEditorSceneObjectBrowser::initialize(ImguiEditorUIProxy editorUI)
-{
 	m_activeSceneChanged = editorUI.getEditor().onActiveDesignerSceneChanged
 		.addListener<&ImguiEditorSceneObjectBrowser::onActiveSceneChanged>(this);
 }
 
-void ImguiEditorSceneObjectBrowser::terminate(ImguiEditorUIProxy editorUI)
+ImguiEditorSceneObjectBrowser::~ImguiEditorSceneObjectBrowser()
 {
-	editorUI.getEditor().onActiveDesignerSceneChanged.removeListener(m_activeSceneChanged);
+	getEditorUI().getEditor().onActiveDesignerSceneChanged.removeListener(m_activeSceneChanged);
 	m_activeSceneChanged = nullptr;
 
-	DesignerScene* activeScene = editorUI.getEditor().getActiveScene();
+	DesignerScene* activeScene = getEditorUI().getEditor().getActiveScene();
 	if(activeScene)
 	{
 		activeScene->onObjectAdded.removeListener(m_sceneObjectAdded);
@@ -106,21 +105,18 @@ void ImguiEditorSceneObjectBrowser::terminate(ImguiEditorUIProxy editorUI)
 	}
 }
 
-void ImguiEditorSceneObjectBrowser::buildWindow(
-	const char* title, 
-	ImguiEditorUIProxy editorUI,
-	bool* isOpening)
+void ImguiEditorSceneObjectBrowser::buildWindow(const char* windowIdName, bool* isOpening)
 {
 	constexpr ImGuiWindowFlags windowFlags = 
 		ImGuiWindowFlags_None;
 
-	if(!ImGui::Begin(title, isOpening, windowFlags))
+	if(!ImGui::Begin(windowIdName, isOpening, windowFlags))
 	{
 		ImGui::End();
 		return;
 	}
 
-	Editor& editor = editorUI.getEditor();
+	Editor& editor = getEditorUI().getEditor();
 	DesignerScene* scene = editor.getActiveScene();
 	if(!scene)
 	{
@@ -135,7 +131,7 @@ void ImguiEditorSceneObjectBrowser::buildWindow(
 	{
 		if(ImGui::BeginTabItem("Objects"))
 		{
-			buildObjectsContent(editorUI, scene);
+			buildObjectsContent(scene);
 			ImGui::EndTabItem();
 		}
 		if(ImGui::BeginTabItem("Filters"))
@@ -152,6 +148,17 @@ void ImguiEditorSceneObjectBrowser::buildWindow(
 	}
 
 	ImGui::End();
+}
+
+auto ImguiEditorSceneObjectBrowser::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Object Browser",
+		.icon = PH_IMGUI_OBJECTS_ICON,
+		.preferredDockingLot = EImguiPanelDockingLot::UpperRight,
+		.isOpenedByDefault = true,
+		.isCloseable = false};
 }
 
 void ImguiEditorSceneObjectBrowser::onActiveSceneChanged(const ActiveDesignerSceneChangedEvent& e)
@@ -268,9 +275,7 @@ void ImguiEditorSceneObjectBrowser::rebuildObjectView(
 	}
 }
 
-void ImguiEditorSceneObjectBrowser::buildObjectsContent(
-	ImguiEditorUIProxy editorUI, 
-	DesignerScene* scene)
+void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 {
 	ImGuiStyle& style = ImGui::GetStyle();
 
@@ -303,7 +308,7 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(
 
 	if(!scene) { ImGui::BeginDisabled(); }
 	const SdlClass* selectedClass = nullptr;
-	editorUI.getObjectTypeMenu().buildMenuButton(
+	getEditorUI().getObjectTypeMenu().buildMenuButton(
 		PH_IMGUI_PLUS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Root Object ",
 		selectedClass);
 	if(!scene) { ImGui::EndDisabled(); }

@@ -1,6 +1,5 @@
 #include "Render/Imgui/Editor/ImguiEditorOfflineTaskManager.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
-#include "Render/Imgui/Font/IconsMaterialDesignIcons.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
@@ -10,24 +9,24 @@
 namespace ph::editor
 {
 
-ImguiEditorOfflineTaskManager::ImguiEditorOfflineTaskManager()
-	: m_taskInfos()
+ImguiEditorOfflineTaskManager::ImguiEditorOfflineTaskManager(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+	
+	, m_taskInfos()
 	, m_numValidTaskInfos(0)
 	, m_selectedTaskInfoIdx(static_cast<std::size_t>(-1))
 {}
 
-void ImguiEditorOfflineTaskManager::buildWindow(
-	const char* const title, 
-	ImguiEditorUIProxy editorUI,
-	bool* const isOpening)
+void ImguiEditorOfflineTaskManager::buildWindow(const char* windowIdName, bool* isOpening)
 {
-	if(!ImGui::Begin(title, isOpening))
+	if(!ImGui::Begin(windowIdName, isOpening))
 	{
 		ImGui::End();
 		return;
 	}
 
-	Editor& editor = editorUI.getEditor();
+	Editor& editor = getEditorUI().getEditor();
 
 	// Left child: Task infos
 	ImGui::BeginChild(
@@ -51,6 +50,17 @@ void ImguiEditorOfflineTaskManager::buildWindow(
 	ImGui::EndChild();
 
 	ImGui::End();
+}
+
+auto ImguiEditorOfflineTaskManager::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Offline Task Manager",
+		.icon = PH_IMGUI_TASK_MANAGER_ICON,
+		.tooltip = "Offline Task Manager",
+		.preferredDockingLot = EImguiPanelDockingLot::Bottom,
+		.useSidebar = true};
 }
 
 void ImguiEditorOfflineTaskManager::buildTaskInfoContent(DesignerScene* scene)

@@ -14,11 +14,9 @@ namespace ph::editor
 class ImguiSampleInspector final
 {
 public:
-	bool isOpening;
-
 	ImguiSampleInspector();
 
-	void buildWindow(const char* title);
+	void buildWindow(const char* title, bool* isOpening);
 
 private:
 	// Update `RNG_NAMES` if modified

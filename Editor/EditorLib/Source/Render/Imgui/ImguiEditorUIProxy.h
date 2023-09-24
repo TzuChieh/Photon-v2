@@ -25,6 +25,7 @@ public:
 	ImguiFileSystemDialog& getGeneralFileSystemDialog();
 	ImguiEditorObjectTypeMenu& getObjectTypeMenu();
 	const ImguiEditorTheme& getTheme();
+	bool isMain() const;
 
 private:
 	ImguiEditorUI& m_editorUI;

@@ -1,5 +1,5 @@
-#include "Render/Imgui/Editor/ImguiEditorObjectTypeMenu.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
+#include "Render/Imgui/Tool/ImguiEditorObjectTypeMenu.h"
+#include "Render/Imgui/ImguiEditorUIProxy.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 #include "App/Editor.h"
 #include "ph_editor.h"

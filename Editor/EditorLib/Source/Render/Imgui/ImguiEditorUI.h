@@ -1,25 +1,19 @@
 #pragma once
 
-#include "Render/Imgui/Editor/ImguiEditorSidebarState.h"
-#include "Render/Imgui/Editor/ImguiEditorLog.h"
-#include "Render/Imgui/Editor/ImguiEditorSceneCreator.h"
-#include "Render/Imgui/Editor/ImguiEditorObjectTypeMenu.h"
-#include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
-#include "Render/Imgui/Editor/ImguiEditorOfflineTaskManager.h"
-#include "Render/Imgui/Editor/ImguiEditorSettings.h"
-#include "Render/Imgui/Editor/ImguiEditorSceneObjectBrowser.h"
-#include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
-#include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
-#include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
-#include "Render/Imgui/Editor/ImguiEditorTheme.h"
-#include "Render/Imgui/Editor/ImguiEditorDebugPanel.h"
+#include "Render/Imgui/ImguiEditorPanel.h"
+#include "Render/Imgui/ImguiEditorTheme.h"
+#include "Render/Imgui/Tool/ImguiFileSystemDialog.h"
+#include "Render/Imgui/Tool/ImguiEditorObjectTypeMenu.h"
 #include "Render/Imgui/Tool/ImguiSampleInspector.h"
+#include "Render/Imgui/Editor/ImguiEditorImageViewer.h"
+#include "Render/Imgui/Editor/ImguiEditorToolState.h"
 
 #include "ThirdParty/DearImGuiExperimental.h"
 
 #include <Common/primitive_type.h>
 #include <DataIO/FileSystem/Path.h>
 #include <Utility/INoCopyAndMove.h>
+#include <Utility/TUniquePtrVector.h>
 
 #include <vector>
 #include <cstddef>
@@ -33,6 +27,8 @@ class DimensionHints;
 class ImguiFontLibrary;
 class ImguiImageLibrary;
 class FileSystemExplorer;
+class ImguiEditorSceneCreator;
+class ImguiEditorDebugPanel;
 
 class ImguiEditorUI final 
 	// Copy makes no sense as almost all fields are unique to this instance and should not 
@@ -40,74 +36,83 @@ class ImguiEditorUI final
 	: private INoCopyAndMove
 {
 public:
-	ImguiEditorUI();
+	ImguiEditorUI(
+		Editor& editor, 
+		ImguiFontLibrary& fontLibrary, 
+		ImguiImageLibrary& imageLibrary);
+
 	~ImguiEditorUI();
 
-	void initialize(Editor* editor, ImguiFontLibrary* fontLibrary, ImguiImageLibrary* imageLibrary);
-	void terminate();
 	void build();
 
 	Editor& getEditor();
 	ImguiFontLibrary& getFontLibrary();
 	ImguiImageLibrary& getImageLibrary();
 	DimensionHints& getDimensionHints();
-	bool isMainEditor() const;
+	bool isMain() const;
 	ImguiFileSystemDialog& getGeneralFileSystemDialog();
 	ImguiEditorObjectTypeMenu& getObjectTypeMenu();
 	const ImguiEditorTheme& getTheme();
 
 private:
-	Editor* m_editor;
-	ImguiFontLibrary* m_fontLibrary;
-	ImguiImageLibrary* m_imageLibrary;
+	Editor& m_editor;
+	ImguiFontLibrary& m_fontLibrary;
+	ImguiImageLibrary& m_imageLibrary;
 
-	static const ImguiEditorUI* mainEditor;
+	static const ImguiEditorUI* mainEditorUI;
 
 private:
+	struct PanelEntry
+	{
+		ImguiEditorPanel* panel = nullptr;
+		ImguiEditorPanel::Attributes attributes;
+		std::string windowIdName;
+		bool isOpening = false;
+	};
+
+	auto getPanelEntry(ImguiEditorPanel* panel) -> PanelEntry*;
+
 	void buildMainMenuBar();
-	void buildAssetBrowserWindow();
-	void buildRootPropertyWindow();
-	void buildObjectBrowserWindow();
 	void buildMainViewportWindow();
 	void buildSidebarWindow();
 	void buildToolbarWindow();
-
-	void buildSceneCreatorWindow();
-	void buildSceneManagerWindow();
-	void buildOfflineTaskManagerWindow();
-	void buildEditorSettingsWindow();
-	void buildLogWindow();
-	void buildStatsMonitor();
-	void buildDebugPanelWindow();
 	void buildTool();
-
 	void buildOpenSceneDialog();
+	void buildStatsMonitor();
 	void saveActiveScene();
 
 	bool m_shouldResetWindowLayout;
 	bool m_shouldShowStatsMonitor;
-	bool m_shouldShowSceneCreator;
-	bool m_shouldShowDearImGuiDemo;
-	bool m_shouldShowImPlotDemo;
-	ImguiEditorSidebarState m_sidebarState;
-	ImguiEditorLog m_editorLog;
-	ImguiEditorSceneCreator m_sceneCreator;
-	ImguiEditorSceneManager m_sceneManager;
-	ImguiEditorOfflineTaskManager m_offlineTaskManager;
-	ImguiEditorSettings m_editorSettings;
-	ImguiEditorSceneObjectBrowser m_sceneObjectBrowser;
-	ImguiEditorPropertyPanel m_rootPropertyPanel;
-	ImguiEditorAssetBrowser m_assetBrowser;
-	ImguiEditorDebugPanel m_debugPanel;
-	ImguiSampleInspector m_sampleInspector;
-
 	bool m_isOpeningScene;
 	bool m_enableDebug;
+	ImguiEditorToolState m_toolState;
 
+	TUniquePtrVector<ImguiEditorPanel> m_panels;
+	std::vector<PanelEntry> m_panelEntries;
+	ImguiEditorSceneCreator* m_sceneCreator;
+	ImguiEditorDebugPanel* m_debugPanel;
+	//ImguiEditorImageViewer m_imageViewers;
+	
+	ImguiSampleInspector m_sampleInspector;
 	ImguiFileSystemDialog m_generalFileSystemDialog;
 	ImguiEditorObjectTypeMenu m_objectTypeMenu;
 	ImguiEditorTheme m_theme;
 };
+
+inline Editor& ImguiEditorUI::getEditor()
+{
+	return m_editor;
+}
+
+inline ImguiFontLibrary& ImguiEditorUI::getFontLibrary()
+{
+	return m_fontLibrary;
+}
+
+inline ImguiImageLibrary& ImguiEditorUI::getImageLibrary()
+{
+	return m_imageLibrary;
+}
 
 inline ImguiFileSystemDialog& ImguiEditorUI::getGeneralFileSystemDialog()
 {

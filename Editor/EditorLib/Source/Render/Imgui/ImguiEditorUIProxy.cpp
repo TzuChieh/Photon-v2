@@ -1,4 +1,4 @@
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
+#include "Render/Imgui/ImguiEditorUIProxy.h"
 #include "Render/Imgui/ImguiEditorUI.h"
 
 namespace ph::editor
@@ -36,6 +36,11 @@ ImguiEditorObjectTypeMenu& ImguiEditorUIProxy::getObjectTypeMenu()
 const ImguiEditorTheme& ImguiEditorUIProxy::getTheme()
 {
 	return m_editorUI.getTheme();
+}
+
+bool ImguiEditorUIProxy::isMain() const
+{
+	return m_editorUI.isMain();
 }
 
 }// end namespace ph::editor

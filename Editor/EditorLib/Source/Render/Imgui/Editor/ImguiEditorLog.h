@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/Imgui/ImguiEditorPanel.h"
+
 #include <Common/Log/logger_fwd.h>
 #include <Common/primitive_type.h>
 
@@ -10,17 +12,13 @@
 namespace ph::editor
 {
 
-class ImguiEditorUIProxy;
-
-class ImguiEditorLog final
+class ImguiEditorLog : public ImguiEditorPanel
 {
 public:
-	ImguiEditorLog();
+	explicit ImguiEditorLog(ImguiEditorUIProxy editorUI);
 
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI,
-		bool* isOpening = nullptr);
+	void buildWindow(const char* windowIdName, bool* isOpening) override;
+	auto getAttributes() const -> Attributes override;
 
 	static void engineLogHook(ELogLevel logLevel, std::string_view logString);
 

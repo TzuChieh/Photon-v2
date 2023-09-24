@@ -1,21 +1,19 @@
 #pragma once
 
+#include "Render/Imgui/ImguiEditorPanel.h"
+
 #include <vector>
 
 namespace ph::editor
 {
 
-class ImguiEditorUIProxy;
-
-class ImguiEditorDebugPanel final
+class ImguiEditorDebugPanel : public ImguiEditorPanel
 {
 public:
-	ImguiEditorDebugPanel();
+	explicit ImguiEditorDebugPanel(ImguiEditorUIProxy editorUI);
 
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI,
-		bool* isOpening = nullptr);
+	void buildWindow(const char* windowIdName, bool* isOpening) override;
+	auto getAttributes() const -> Attributes override;
 
 private:
 	std::vector<char> m_objectNameBuffer;

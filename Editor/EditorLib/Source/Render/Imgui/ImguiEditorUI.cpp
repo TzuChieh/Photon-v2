@@ -3,11 +3,20 @@
 #include "App/Misc/EditorSettings.h"
 #include "EditorCore/Thread/Threads.h"
 #include "Render/Imgui/imgui_common.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "Render/Imgui/ImguiImageLibrary.h"
-#include "Render/Imgui/Font/imgui_icons.h"
+#include "Render/Imgui/Editor/ImguiEditorLog.h"
+#include "Render/Imgui/Editor/ImguiEditorSceneCreator.h"
+#include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
+#include "Render/Imgui/Editor/ImguiEditorOfflineTaskManager.h"
+#include "Render/Imgui/Editor/ImguiEditorSettings.h"
+#include "Render/Imgui/Editor/ImguiEditorSceneObjectBrowser.h"
+#include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
+#include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
+#include "Render/Imgui/Editor/ImguiEditorDebugPanel.h"
 #include "Designer/DesignerScene.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
+#include "Render/Imgui/ImguiEditorUIProxy.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -16,8 +25,6 @@
 #include <string_view>
 #include <cstdio>
 #include <utility>
-
-
 
 namespace ph::editor
 {
@@ -60,73 +67,82 @@ constexpr const char* DEBUG_MODE_TITLE = PH_IMGUI_BUG_ICON " Debug Mode";
 
 }// end anonymous namespace
 
-const ImguiEditorUI* ImguiEditorUI::mainEditor = nullptr;
+const ImguiEditorUI* ImguiEditorUI::mainEditorUI = nullptr;
 
-ImguiEditorUI::ImguiEditorUI()
-	: m_editor(nullptr)
-	, m_fontLibrary(nullptr)
-	, m_imageLibrary(nullptr)
+ImguiEditorUI::ImguiEditorUI(
+	Editor& editor,
+	ImguiFontLibrary& fontLibrary,
+	ImguiImageLibrary& imageLibrary)
+
+	: m_editor(editor)
+	, m_fontLibrary(fontLibrary)
+	, m_imageLibrary(imageLibrary)
 
 	, m_shouldResetWindowLayout(false)
 	, m_shouldShowStatsMonitor(false)
-	, m_shouldShowSceneCreator(false)
-	, m_shouldShowDearImGuiDemo(false)
-	, m_shouldShowImPlotDemo(false)
-	, m_sidebarState()
-	, m_editorLog()
-	, m_sceneCreator()
-	, m_sceneManager()
-	, m_offlineTaskManager()
-	, m_editorSettings()
-	, m_sceneObjectBrowser()
-	, m_rootPropertyPanel()
-	, m_assetBrowser()
-	, m_debugPanel()
-	, m_sampleInspector()
-
 	, m_isOpeningScene(false)
 	, m_enableDebug(false)
+	, m_toolState()
 
+	, m_panels()
+	, m_panelEntries()
+	, m_sceneCreator(nullptr)
+	, m_debugPanel(nullptr)
+
+	, m_sampleInspector()
 	, m_generalFileSystemDialog()
 	, m_objectTypeMenu()
 	, m_theme()
 {
 	// If no main editor was specified, the first editor created after is the main one
-	if(!mainEditor)
+	if(!mainEditorUI)
 	{
-		mainEditor = this;
+		mainEditorUI = this;
+	}
+
+	m_panels.add(std::make_unique<ImguiEditorSceneManager>(*this));
+	m_panels.add(std::make_unique<ImguiEditorLog>(*this));
+	m_sceneCreator = m_panels.add(std::make_unique<ImguiEditorSceneCreator>(*this));
+	m_panels.add(std::make_unique<ImguiEditorOfflineTaskManager>(*this));
+	m_panels.add(std::make_unique<ImguiEditorSettings>(*this));
+	m_panels.add(std::make_unique<ImguiEditorSceneObjectBrowser>(*this));
+	m_panels.add(std::make_unique<ImguiEditorPropertyPanel>(*this));
+	m_panels.add(std::make_unique<ImguiEditorAssetBrowser>(*this));
+	m_debugPanel = m_panels.add(std::make_unique<ImguiEditorDebugPanel>(*this));
+
+	for(const auto& panel : m_panels)
+	{
+		auto attributes = panel->getAttributes();
+
+		// Append an invisible counter to window name to avoid ID collision
+		auto windowIdName = 
+			attributes.icon + 
+			PH_IMGUI_ICON_TIGHT_PADDING + 
+			attributes.title + 
+			"##" + std::to_string(m_panelEntries.size());
+
+		m_panelEntries.push_back({
+			.panel = panel.get(),
+			.attributes = attributes,
+			.windowIdName = windowIdName,
+			.isOpening = attributes.isOpenedByDefault});
 	}
 }
 
 ImguiEditorUI::~ImguiEditorUI()
 {
-	if(mainEditor == this)
+	// Remove panels first as they may depend on some fundamental members of editor UI
+	m_panels.removeAll();
+
+	if(mainEditorUI == this)
 	{
-		mainEditor = nullptr;
+		mainEditorUI = nullptr;
 	}
-}
-
-void ImguiEditorUI::initialize(
-	Editor* const editor, 
-	ImguiFontLibrary* const fontLibrary, 
-	ImguiImageLibrary* const imageLibrary)
-{
-	m_editor = editor;
-	m_fontLibrary = fontLibrary;
-	m_imageLibrary = imageLibrary;
-
-	m_sceneObjectBrowser.initialize(*this);
-}
-
-void ImguiEditorUI::terminate()
-{
-	m_sceneObjectBrowser.terminate(*this);
 }
 
 void ImguiEditorUI::build()
 {
 	PH_ASSERT(Threads::isOnMainThread());
-	PH_ASSERT(m_editor);
 
 	if(!getEditor().getSettings().isDevelopmentMode)
 	{
@@ -182,7 +198,7 @@ void ImguiEditorUI::build()
 
 		// Creating top node (first one to create, to cover full width)
 		const float topNodeSplitRatio =
-			m_editor->dimensionHints.fontSize * 2.0f /
+			getEditor().dimensionHints.fontSize * 2.0f /
 			viewport->WorkSize.y;
 		ImGuiID childDockSpaceID;
 		const ImGuiID topDockSpaceID = ImGui::DockBuilderSplitNode(
@@ -190,21 +206,21 @@ void ImguiEditorUI::build()
 
 		// Creating left node 
 		const float leftNodeSplitRatio =
-			m_editor->dimensionHints.largeFontSize * 1.5f /
+			getEditor().dimensionHints.largeFontSize * 1.5f /
 			viewport->WorkSize.x;
 		const ImGuiID leftDockSpaceID = ImGui::DockBuilderSplitNode(
 			childDockSpaceID, ImGuiDir_Left, leftNodeSplitRatio, nullptr, &childDockSpaceID);
 
 		// Creating right node
 		const float rightNodeSplitRatio =
-			m_editor->dimensionHints.propertyPanelPreferredWidth /
+			getEditor().dimensionHints.propertyPanelPreferredWidth /
 			(viewport->WorkSize.x * (1.0f - leftNodeSplitRatio));
 		const ImGuiID rightDockSpaceID = ImGui::DockBuilderSplitNode(
 			childDockSpaceID, ImGuiDir_Right, rightNodeSplitRatio, nullptr, &childDockSpaceID);
 
 		// Creating bottom node (after left & right nodes to not straddle them)
 		const float bottomNodeSplitRatio =
-			m_editor->dimensionHints.propertyPanelPreferredWidth * 0.6f /
+			getEditor().dimensionHints.propertyPanelPreferredWidth * 0.6f /
 			(viewport->WorkSize.y * (1.0f - topNodeSplitRatio));
 		const ImGuiID bottomDockSpaceID = ImGui::DockBuilderSplitNode(
 			childDockSpaceID, ImGuiDir_Down, bottomNodeSplitRatio, nullptr, &childDockSpaceID);
@@ -216,17 +232,30 @@ void ImguiEditorUI::build()
 			rightDockSpaceID, ImGuiDir_Up, upperRightNodeSplitRatio, &upperRightDockSpaceID, &lowerRightDockSpaceID);
 
 		// Pre-dock some persistent windows
-		ImGui::DockBuilderDockWindow(ASSET_BROWSER_WINDOW_NAME, bottomDockSpaceID);
-		ImGui::DockBuilderDockWindow(ROOT_PROPERTY_WINDOW_NAME, lowerRightDockSpaceID);
-		ImGui::DockBuilderDockWindow(OBJECT_BROWSER_WINDOW_NAME, upperRightDockSpaceID);
 		ImGui::DockBuilderDockWindow(MAIN_VIEWPORT_WINDOW_NAME, childDockSpaceID);
+
+		// Pre-dock other windows
 		ImGui::DockBuilderDockWindow(SIDEBAR_WINDOW_NAME, leftDockSpaceID);
 		ImGui::DockBuilderDockWindow(TOOLBAR_WINDOW_NAME, topDockSpaceID);
 
-		// Pre-dock other windows
-		ImGui::DockBuilderDockWindow(SCENE_MANAGER_WINDOW_NAME, upperRightDockSpaceID);
-		ImGui::DockBuilderDockWindow(OFFLINE_TASK_MANAGER_WINDOW_NAME, bottomDockSpaceID);
-		ImGui::DockBuilderDockWindow(LOG_WINDOW_NAME, bottomDockSpaceID);
+		// Pre-dock panel window if requested
+		for(PanelEntry& entry : m_panelEntries)
+		{
+			ImGuiID dockSpaceID = 0;
+			switch(entry.attributes.preferredDockingLot)
+			{
+			case EImguiPanelDockingLot::None: dockSpaceID = 0; break;
+			case EImguiPanelDockingLot::Center: dockSpaceID = childDockSpaceID; break;
+			case EImguiPanelDockingLot::Bottom: dockSpaceID = bottomDockSpaceID; break;
+			case EImguiPanelDockingLot::UpperRight: dockSpaceID = upperRightDockSpaceID; break;
+			case EImguiPanelDockingLot::LowerRight: dockSpaceID = lowerRightDockSpaceID; break;
+			}
+
+			if(dockSpaceID != 0)
+			{
+				ImGui::DockBuilderDockWindow(entry.windowIdName.c_str(), dockSpaceID);
+			}
+		}
 
 		ImGui::DockBuilderFinish(rootDockSpaceID);
 	}
@@ -238,26 +267,27 @@ void ImguiEditorUI::build()
 
 	ImGui::End();
 
-	buildAssetBrowserWindow();
-	buildRootPropertyWindow();
-	buildObjectBrowserWindow();
-	buildMainViewportWindow();
-	buildSceneCreatorWindow();
-	buildSceneManagerWindow();
-	buildOfflineTaskManagerWindow();
 	buildSidebarWindow();
 	buildToolbarWindow();
-	buildEditorSettingsWindow();
-	buildLogWindow();
+	buildMainViewportWindow();
 	buildOpenSceneDialog();
 	buildStatsMonitor();
 	buildTool();
 
-	if(m_enableDebug)
+	// Build panel window if it is opening
+	for(PanelEntry& entry : m_panelEntries)
 	{
-		buildDebugPanelWindow();
+		if(!entry.isOpening || !entry.panel)
+		{
+			continue;
+		}
+
+		entry.panel->buildWindow(
+			entry.windowIdName.c_str(), 
+			entry.attributes.isCloseable ? &entry.isOpening : nullptr);
 	}
 
+	
 	// DEBUG
 	getImageLibrary().imguiImage(EImguiImage::Folder, {200, 200});
 	/*if(ImGui::Button("fs"))
@@ -274,6 +304,19 @@ void ImguiEditorUI::build()
 	//buildFileSystemDialogContent(m_fsDialogExplorer);
 }
 
+auto ImguiEditorUI::getPanelEntry(ImguiEditorPanel* panel)
+-> PanelEntry*
+{
+	for(PanelEntry& entry : m_panelEntries)
+	{
+		if(entry.panel == panel)
+		{
+			return &entry;
+		}
+	}
+	return nullptr;
+}
+
 void ImguiEditorUI::buildMainMenuBar()
 {
 	EditorSettings& settings = getEditor().getSettings();
@@ -283,11 +326,6 @@ void ImguiEditorUI::buildMainMenuBar()
 	{
 		if(ImGui::BeginMenu("File"))
 		{
-			if(ImGui::MenuItem("New Scene"))
-			{
-				m_shouldShowSceneCreator = true;
-			}
-
 			if(ImGui::MenuItem("Open Scene"))
 			{
 				m_isOpeningScene = true;
@@ -296,6 +334,22 @@ void ImguiEditorUI::buildMainMenuBar()
 			if(ImGui::MenuItem("Save Active Scene"))
 			{
 				saveActiveScene();
+			}
+
+			// Menu item from panels
+			ImGui::Separator();
+			for(PanelEntry& entry : m_panelEntries)
+			{
+				if(!entry.attributes.useMenubar ||
+				   entry.attributes.category != EImguiPanelCategory::File)
+				{
+					continue;
+				}
+
+				if(ImGui::MenuItem(entry.attributes.title.c_str()))
+				{
+					entry.isOpening = true;
+				}
 			}
 
 			ImGui::EndMenu();
@@ -321,6 +375,22 @@ void ImguiEditorUI::buildMainMenuBar()
 			if(ImGui::MenuItem("Paste", "CTRL+V"))
 			{}
 
+			// Menu item from panels
+			ImGui::Separator();
+			for(PanelEntry& entry : m_panelEntries)
+			{
+				if(!entry.attributes.useMenubar ||
+				   entry.attributes.category != EImguiPanelCategory::Edit)
+				{
+					continue;
+				}
+
+				if(ImGui::MenuItem(entry.attributes.title.c_str()))
+				{
+					entry.isOpening = true;
+				}
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -328,7 +398,7 @@ void ImguiEditorUI::buildMainMenuBar()
 		{
 			if(ImGui::MenuItem("Sample Tool"))
 			{
-				m_sampleInspector.isOpening = true;
+				m_toolState.showSampleTool = true;
 			}
 
 			if(settings.isDevelopmentMode)
@@ -337,12 +407,28 @@ void ImguiEditorUI::buildMainMenuBar()
 
 				if(ImGui::MenuItem("DearImGui Demo"))
 				{
-					m_shouldShowDearImGuiDemo = true;
+					m_toolState.showDearImGuiDemo = true;
 				}
 
 				if(ImGui::MenuItem("ImPlot Demo"))
 				{
-					m_shouldShowImPlotDemo = true;
+					m_toolState.showImPlotDemo = true;
+				}
+			}
+
+			// Menu item from panels
+			ImGui::Separator();
+			for(PanelEntry& entry : m_panelEntries)
+			{
+				if(!entry.attributes.useMenubar ||
+				   entry.attributes.category != EImguiPanelCategory::Tools)
+				{
+					continue;
+				}
+
+				if(ImGui::MenuItem(entry.attributes.title.c_str()))
+				{
+					entry.isOpening = true;
 				}
 			}
 
@@ -356,6 +442,22 @@ void ImguiEditorUI::buildMainMenuBar()
 				m_shouldResetWindowLayout = true;
 			}
 
+			// Menu item from panels
+			ImGui::Separator();
+			for(PanelEntry& entry : m_panelEntries)
+			{
+				if(!entry.attributes.useMenubar ||
+				   entry.attributes.category != EImguiPanelCategory::Window)
+				{
+					continue;
+				}
+
+				if(ImGui::MenuItem(entry.attributes.title.c_str()))
+				{
+					entry.isOpening = true;
+				}
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -365,26 +467,27 @@ void ImguiEditorUI::buildMainMenuBar()
 			ImGui::MenuItem("Debug Mode", nullptr, &m_enableDebug);
 			if(!settings.isDevelopmentMode) { ImGui::EndDisabled(); }
 
+			// Menu item from panels
+			ImGui::Separator();
+			for(PanelEntry& entry : m_panelEntries)
+			{
+				if(!entry.attributes.useMenubar ||
+				   entry.attributes.category != EImguiPanelCategory::Debug)
+				{
+					continue;
+				}
+
+				if(ImGui::MenuItem(entry.attributes.title.c_str()))
+				{
+					entry.isOpening = true;
+				}
+			}
+
 			ImGui::EndMenu();
 		}
 
 		ImGui::EndMainMenuBar();
 	}
-}
-
-void ImguiEditorUI::buildAssetBrowserWindow()
-{
-	m_assetBrowser.buildWindow(ASSET_BROWSER_WINDOW_NAME, *this);
-}
-
-void ImguiEditorUI::buildRootPropertyWindow()
-{
-	m_rootPropertyPanel.buildWindow(ROOT_PROPERTY_WINDOW_NAME, *this);
-}
-
-void ImguiEditorUI::buildObjectBrowserWindow()
-{
-	m_sceneObjectBrowser.buildWindow(OBJECT_BROWSER_WINDOW_NAME, *this);
 }
 
 void ImguiEditorUI::buildMainViewportWindow()
@@ -438,42 +541,33 @@ void ImguiEditorUI::buildSidebarWindow()
 			ImGui::PopFont();
 		};
 
-	ImGui::Spacing();
+	// Sidebar from panels
+	for(PanelEntry& entry : m_panelEntries)
+	{
+		if(!entry.attributes.useSidebar)
+		{
+			continue;
+		}
 
-	buildSidebarButton(
-		PH_IMGUI_SCENE_MANAGER_ICON,
-		"Scene Manager",
-		m_sidebarState.showSceneManager);
+		ImGui::Spacing();
 
-	ImGui::Spacing();
-
-	buildSidebarButton(
-		PH_IMGUI_TASK_MANAGER_ICON,
-		"Offline Task Manager",
-		m_sidebarState.showOfflineTaskManager);
-
-	ImGui::Spacing();
-
-	buildSidebarButton(
-		PH_IMGUI_LOG_ICON,
-		"Log",
-		m_sidebarState.showLog);
-
-	ImGui::Spacing();
-
-	buildSidebarButton(
-		PH_IMGUI_SETTINGS_ICON,
-		"Editor Settings",
-		m_sidebarState.showEditorSettings);
+		buildSidebarButton(
+			entry.attributes.icon.c_str(),
+			entry.attributes.tooltip.c_str(),
+			entry.isOpening);
+	}
 
 	if(m_enableDebug)
 	{
 		ImGui::Spacing();
 
-		buildSidebarButton(
-			PH_IMGUI_BUG_ICON,
-			"Debug Panel",
-			m_sidebarState.showDebugPanel);
+		if(PanelEntry* entry = getPanelEntry(m_debugPanel))
+		{
+			buildSidebarButton(
+				entry->attributes.icon.c_str(),
+				entry->attributes.tooltip.c_str(),
+				entry->isOpening);
+		}
 	}
 
 	ImGui::PopStyleColor();
@@ -529,7 +623,10 @@ void ImguiEditorUI::buildToolbarWindow()
 
 	if(toolbarButton(PH_IMGUI_SCENE_CREATION_ICON, "New Scene"))
 	{
-		m_shouldShowSceneCreator = true;
+		if(PanelEntry* entry = getPanelEntry(m_sceneCreator))
+		{
+			entry->isOpening = true;
+		}
 	}
 
 	ImGui::SameLine();
@@ -552,81 +649,8 @@ void ImguiEditorUI::buildToolbarWindow()
 	ImGui::End();
 }
 
-void ImguiEditorUI::buildSceneCreatorWindow()
-{
-	if(!m_shouldShowSceneCreator)
-	{
-		return;
-	}
-
-	m_sceneCreator.buildWindow(
-		SCENE_CREATOR_WINDOW_NAME,
-		*this,
-		&m_shouldShowSceneCreator);
-}
-
-void ImguiEditorUI::buildSceneManagerWindow()
-{
-	if(!m_sidebarState.showSceneManager)
-	{
-		return;
-	}
-	
-	m_sceneManager.buildWindow(
-		SCENE_MANAGER_WINDOW_NAME,
-		*this,
-		&m_sidebarState.showSceneManager);
-}
-
-void ImguiEditorUI::buildOfflineTaskManagerWindow()
-{
-	if(!m_sidebarState.showOfflineTaskManager)
-	{
-		return;
-	}
-
-	m_offlineTaskManager.buildWindow(
-		OFFLINE_TASK_MANAGER_WINDOW_NAME,
-		*this,
-		&m_sidebarState.showOfflineTaskManager);
-}
-
-void ImguiEditorUI::buildEditorSettingsWindow()
-{
-	if(!m_sidebarState.showEditorSettings)
-	{
-		return;
-	}
-
-	m_editorSettings.buildWindow(
-		EDITOR_SETTINGS_WINDOW_NAME, 
-		*this,
-		&m_sidebarState.showEditorSettings);
-}
-
-void ImguiEditorUI::buildLogWindow()
-{
-	// Only the main editor can have log window
-	if(!isMainEditor())
-	{
-		return;
-	}
-
-	if(!m_sidebarState.showLog)
-	{
-		return;
-	}
-
-	m_editorLog.buildWindow(
-		LOG_WINDOW_NAME, 
-		*this, 
-		&m_sidebarState.showLog);
-}
-
 void ImguiEditorUI::buildStatsMonitor()
 {
-	PH_ASSERT(m_editor);
-
 	if(ImGui::IsKeyReleased(ImGuiKey_F1))
 	{
 		m_shouldShowStatsMonitor = !m_shouldShowStatsMonitor;
@@ -655,52 +679,39 @@ void ImguiEditorUI::buildStatsMonitor()
 	}
 
 	ImGui::Text("Main Thread:");
-	ImGui::Text("Update: %f ms", m_editor->editorStats.mainThreadUpdateMs);
-	ImGui::Text("Render: %f ms", m_editor->editorStats.mainThreadRenderMs);
-	ImGui::Text("Event Flush: %f ms", m_editor->editorStats.mainThreadEventFlushMs);
-	ImGui::Text("Frame: %f ms", m_editor->editorStats.mainThreadFrameMs);
+	ImGui::Text("Update: %f ms", getEditor().editorStats.mainThreadUpdateMs);
+	ImGui::Text("Render: %f ms", getEditor().editorStats.mainThreadRenderMs);
+	ImGui::Text("Event Flush: %f ms", getEditor().editorStats.mainThreadEventFlushMs);
+	ImGui::Text("Frame: %f ms", getEditor().editorStats.mainThreadFrameMs);
 
 	ImGui::Separator();
 
 	ImGui::Text("Render Thread:");
-	ImGui::Text("Frame: %f ms", m_editor->editorStats.renderThreadFrameMs);
+	ImGui::Text("Frame: %f ms", getEditor().editorStats.renderThreadFrameMs);
 
 	ImGui::Separator();
 
 	ImGui::Text("GHI Thread:");
-	ImGui::Text("Frame: %f ms", m_editor->editorStats.ghiThreadFrameMs);
+	ImGui::Text("Frame: %f ms", getEditor().editorStats.ghiThreadFrameMs);
 
 	ImGui::End();
 }
 
-void ImguiEditorUI::buildDebugPanelWindow()
-{
-	if(!m_sidebarState.showDebugPanel)
-	{
-		return;
-	}
-
-	m_debugPanel.buildWindow(
-		DEBUG_MODE_TITLE,
-		*this,
-		&m_sidebarState.showDebugPanel);
-}
-
 void ImguiEditorUI::buildTool()
 {
-	if(m_sampleInspector.isOpening)
+	if(m_toolState.showSampleTool)
 	{
-		m_sampleInspector.buildWindow("Sample Inspector");
+		m_sampleInspector.buildWindow("Sample Inspector", &m_toolState.showSampleTool);
 	}
 
-	if(m_shouldShowDearImGuiDemo)
+	if(m_toolState.showDearImGuiDemo)
 	{
-		imgui_show_demo_window(&m_shouldShowDearImGuiDemo);
+		imgui_show_demo_window(&m_toolState.showDearImGuiDemo);
 	}
 
-	if(m_shouldShowImPlotDemo)
+	if(m_toolState.showImPlotDemo)
 	{
-		implot_show_demo_window(&m_shouldShowImPlotDemo);
+		implot_show_demo_window(&m_toolState.showImPlotDemo);
 	}
 }
 
@@ -734,33 +745,15 @@ void ImguiEditorUI::saveActiveScene()
 	getEditor().saveScene();
 }
 
-Editor& ImguiEditorUI::getEditor()
-{
-	PH_ASSERT(m_editor);
-	return *m_editor;
-}
-
-ImguiFontLibrary& ImguiEditorUI::getFontLibrary()
-{
-	PH_ASSERT(m_fontLibrary);
-	return *m_fontLibrary;
-}
-
-ImguiImageLibrary& ImguiEditorUI::getImageLibrary()
-{
-	PH_ASSERT(m_imageLibrary);
-	return *m_imageLibrary;
-}
-
 DimensionHints& ImguiEditorUI::getDimensionHints()
 {
 	return getEditor().dimensionHints;
 }
 
-bool ImguiEditorUI::isMainEditor() const
+bool ImguiEditorUI::isMain() const
 {
-	PH_ASSERT(mainEditor);
-	return mainEditor == this;
+	PH_ASSERT(mainEditorUI);
+	return mainEditorUI == this;
 }
 
 }// end namespace ph::editor

@@ -1,5 +1,4 @@
 #include "Render/Imgui/Editor/ImguiEditorAssetBrowser.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 #include "App/Editor.h"
 
@@ -36,8 +35,11 @@ inline void build_visibility_toggle_widget(const char* const label, bool& visibi
 
 }// end anonymous namespace
 
-ImguiEditorAssetBrowser::ImguiEditorAssetBrowser()
-	: m_filterState(ORDINARY_ASSET_ONLY)
+ImguiEditorAssetBrowser::ImguiEditorAssetBrowser(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+
+	, m_filterState(ORDINARY_ASSET_ONLY)
 
 	, m_geometryVisibility(true)
 	, m_materialVisibility(true)
@@ -50,18 +52,15 @@ ImguiEditorAssetBrowser::ImguiEditorAssetBrowser()
 	, m_optionVisibility(true)
 {}
 
-void ImguiEditorAssetBrowser::buildWindow(
-	const char* const title, 
-	ImguiEditorUIProxy editorUI,
-	bool* const isOpening)
+void ImguiEditorAssetBrowser::buildWindow(const char* windowIdName, bool* isOpening)
 {
-	if(!ImGui::Begin(title, isOpening))
+	if(!ImGui::Begin(windowIdName, isOpening))
 	{
 		ImGui::End();
 		return;
 	}
 
-	Editor& editor = editorUI.getEditor();
+	Editor& editor = getEditorUI().getEditor();
 
 	// Left child: asset visibility control & filter
 	ImGui::BeginChild(
@@ -85,6 +84,17 @@ void ImguiEditorAssetBrowser::buildWindow(
 	ImGui::EndChild();
 
 	ImGui::End();
+}
+
+auto ImguiEditorAssetBrowser::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Asset Browser",
+		.icon = PH_IMGUI_ASSET_ICON,
+		.preferredDockingLot = EImguiPanelDockingLot::Bottom,
+		.isOpenedByDefault = true,
+		.isCloseable = false};
 }
 
 void ImguiEditorAssetBrowser::buildControlPanelContent()

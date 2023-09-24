@@ -1,10 +1,10 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneCreator.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
-#include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
-#include "Render/Imgui/Editor/ImguiEditorTheme.h"
+#include "Render/Imgui/Tool/ImguiFileSystemDialog.h"
+#include "Render/Imgui/ImguiEditorTheme.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -15,8 +15,11 @@
 namespace ph::editor
 {
 
-ImguiEditorSceneCreator::ImguiEditorSceneCreator()
-	: m_sceneNameBuffer(128, '\0')
+ImguiEditorSceneCreator::ImguiEditorSceneCreator(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+
+	, m_sceneNameBuffer(128, '\0')
 	, m_baseWorkingDirectory()
 	, m_composedWorkingDirectory()
 	, m_workingDirectoryPreview()
@@ -28,22 +31,19 @@ ImguiEditorSceneCreator::ImguiEditorSceneCreator()
 	composeSceneWorkingDirectory();
 }
 
-void ImguiEditorSceneCreator::buildWindow(
-	const char* const title, 
-	ImguiEditorUIProxy editorUI,
-	bool* const isOpening)
+void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpening)
 {
 	// Always center this window when appearing
 	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-	if(!ImGui::Begin(title, isOpening, ImGuiWindowFlags_AlwaysAutoResize))
+	if(!ImGui::Begin(windowIdName, isOpening, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		ImGui::End();
 		return;
 	}
 
-	Editor& editor = editorUI.getEditor();
+	Editor& editor = getEditorUI().getEditor();
 
 	if(ImGui::InputText("Scene Name", m_sceneNameBuffer.data(), m_sceneNameBuffer.size()))
 	{
@@ -51,7 +51,7 @@ void ImguiEditorSceneCreator::buildWindow(
 	}
 
 	{
-		ImguiFileSystemDialog& selectBaseWorkingDirectory = editorUI.getGeneralFileSystemDialog();
+		ImguiFileSystemDialog& selectBaseWorkingDirectory = getEditorUI().getGeneralFileSystemDialog();
 		if(ImGui::Button("Select Scene Working Directory"))
 		{
 			m_baseWorkingDirectory.clear();
@@ -63,7 +63,7 @@ void ImguiEditorSceneCreator::buildWindow(
 
 		selectBaseWorkingDirectory.buildFileSystemDialogPopupModal(
 			ImguiFileSystemDialog::OPEN_FOLDER_TITLE,
-			editorUI,
+			getEditorUI(),
 			{.canSelectItem = false, .canSelectDirectory = true, .requiresDirectorySelection = true});
 
 		if(ImGui::Checkbox("With Containing Folder", &m_withContainingFolder))
@@ -91,7 +91,7 @@ void ImguiEditorSceneCreator::buildWindow(
 	if(!m_unsatisfactionMessage.empty())
 	{
 		ImGui::Spacing();
-		ImGui::TextColored(editorUI.getTheme().warningColor, m_unsatisfactionMessage.c_str());
+		ImGui::TextColored(getEditorUI().getTheme().warningColor, m_unsatisfactionMessage.c_str());
 		ImGui::Spacing();
 	}
 
@@ -134,6 +134,16 @@ void ImguiEditorSceneCreator::buildWindow(
 	}
 
 	ImGui::End();
+}
+
+auto ImguiEditorSceneCreator::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Scene Creator",
+		.icon = PH_IMGUI_SCENE_CREATION_ICON,
+		.tooltip = "Create New Scene",
+		.category = EImguiPanelCategory::File};
 }
 
 void ImguiEditorSceneCreator::composeSceneWorkingDirectory()

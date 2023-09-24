@@ -4,6 +4,7 @@
 #include "App/Event/ActiveDesignerSceneChangedEvent.h"
 #include "Designer/Event/DesignerObjectAddedEvent.h"
 #include "Designer/Event/DesignerObjectRemovalEvent.h"
+#include "Render/Imgui/ImguiEditorPanel.h"
 
 #include <Common/primitive_type.h>
 
@@ -20,18 +21,14 @@ class DesignerScene;
 class DesignerObject;
 class ActiveDesignerSceneChangedEvent;
 
-class ImguiEditorSceneObjectBrowser final
+class ImguiEditorSceneObjectBrowser : public ImguiEditorPanel
 {
 public:
-	ImguiEditorSceneObjectBrowser();
+	explicit ImguiEditorSceneObjectBrowser(ImguiEditorUIProxy editorUI);
+	~ImguiEditorSceneObjectBrowser();
 
-	void initialize(ImguiEditorUIProxy editorUI);
-	void terminate(ImguiEditorUIProxy editorUI);
-
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI,
-		bool* isOpening = nullptr);
+	void buildWindow(const char* windowIdName, bool* isOpening) override;
+	auto getAttributes() const -> Attributes override;
 
 private:
 	enum class ESortMode
@@ -54,7 +51,7 @@ private:
 	void resetObjectView(DesignerScene* scene);
 	void rebuildObjectView(DesignerScene* scene, ESortMode sortMode);
 
-	void buildObjectsContent(ImguiEditorUIProxy editorUI, DesignerScene* scene);
+	void buildObjectsContent(DesignerScene* scene);
 	void buildFiltersContent(DesignerScene& scene);
 	void buildStatsContent(DesignerScene& scene);
 	void buildVisibilityToggle(DesignerObject& obj);

@@ -1,5 +1,5 @@
-#include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
+#include "Render/Imgui/Tool/ImguiFileSystemDialog.h"
+#include "Render/Imgui/ImguiEditorUIProxy.h"
 #include "EditorCore/FileSystemExplorer.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 #include "Render/Imgui/ImguiFontLibrary.h"

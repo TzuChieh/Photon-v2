@@ -1,8 +1,7 @@
 #include "Render/Imgui/Editor/ImguiEditorSceneManager.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
-#include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
+#include "Render/Imgui/Tool/ImguiFileSystemDialog.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 
 #include "ThirdParty/DearImGui.h"
@@ -44,22 +43,22 @@ inline void save_scene(
 
 }// end anonymous namespace
 
-ImguiEditorSceneManager::ImguiEditorSceneManager()
-	: m_selectedSceneIdx(static_cast<std::size_t>(-1))
+ImguiEditorSceneManager::ImguiEditorSceneManager(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+	
+	, m_selectedSceneIdx(static_cast<std::size_t>(-1))
 {}
 
-void ImguiEditorSceneManager::buildWindow(
-	const char* title, 
-	ImguiEditorUIProxy editorUI,
-	bool* isOpening)
+void ImguiEditorSceneManager::buildWindow(const char* windowIdName, bool* isOpening)
 {
-	if(!ImGui::Begin(title, isOpening))
+	if(!ImGui::Begin(windowIdName, isOpening))
 	{
 		ImGui::End();
 		return;
 	}
 
-	Editor& editor = editorUI.getEditor();
+	Editor& editor = getEditorUI().getEditor();
 
 	{
 		if(ImGui::Button("Make Selection Active"))
@@ -105,7 +104,7 @@ void ImguiEditorSceneManager::buildWindow(
 	}
 
 	{
-		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
+		ImguiFileSystemDialog& fsDialog = getEditorUI().getGeneralFileSystemDialog();
 		if(ImGui::Button("Open"))
 		{
 			fsDialog.openPopup(OPEN_SCENE_TITLE);
@@ -113,7 +112,7 @@ void ImguiEditorSceneManager::buildWindow(
 
 		fsDialog.buildFileSystemDialogPopupModal(
 			OPEN_SCENE_TITLE, 
-			editorUI);
+			getEditorUI());
 
 		if(fsDialog.dialogClosed())
 		{
@@ -128,7 +127,7 @@ void ImguiEditorSceneManager::buildWindow(
 	}
 
 	{
-		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
+		ImguiFileSystemDialog& fsDialog = getEditorUI().getGeneralFileSystemDialog();
 		if(ImGui::Button("Save"))
 		{
 			fsDialog.openPopup(SAVE_SCENE_TITLE);
@@ -136,7 +135,7 @@ void ImguiEditorSceneManager::buildWindow(
 
 		fsDialog.buildFileSystemDialogPopupModal(
 			SAVE_SCENE_TITLE, 
-			editorUI,
+			getEditorUI(),
 			{.canSelectItem = false, .canSelectDirectory = true, .requiresDirectorySelection = true});
 
 		if(fsDialog.dialogClosed())
@@ -146,6 +145,17 @@ void ImguiEditorSceneManager::buildWindow(
 	}
 
 	ImGui::End();
+}
+
+auto ImguiEditorSceneManager::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Scene Manager",
+		.icon = PH_IMGUI_SCENE_MANAGER_ICON,
+		.tooltip = "Scene Manager",
+		.preferredDockingLot = EImguiPanelDockingLot::UpperRight,
+		.useSidebar = true};
 }
 
 }// end namespace ph::editor

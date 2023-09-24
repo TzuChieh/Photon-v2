@@ -1,22 +1,21 @@
 #pragma once
 
+#include "Render/Imgui/ImguiEditorPanel.h"
+
 #include <vector>
 
 namespace ph::editor
 {
 
-class ImguiEditorUIProxy;
 class EditorSettings;
 
-class ImguiEditorSettings final
+class ImguiEditorSettings : public ImguiEditorPanel
 {
 public:
-	ImguiEditorSettings();
+	explicit ImguiEditorSettings(ImguiEditorUIProxy editorUI);
 
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI,
-		bool* isOpening = nullptr);
+	void buildWindow(const char* windowIdName, bool* isOpening) override;
+	auto getAttributes() const -> Attributes override;
 
 private:
 	// Update `CATEGORY_NAMES` is modified
@@ -33,9 +32,9 @@ private:
 	};
 
 	void buildCategorySelectionContent();
-	void buildSettingsContent(ImguiEditorUIProxy editorUI);
-	void buildGeneralCategoryContent(ImguiEditorUIProxy editorUI);
-	void buildStartupCategoryContent(ImguiEditorUIProxy editorUI);
+	void buildSettingsContent();
+	void buildGeneralCategoryContent();
+	void buildStartupCategoryContent();
 
 	int m_category;
 	std::vector<char> m_stringDisplayBuffer;

@@ -90,12 +90,19 @@ void ImguiRenderModule::onAttach(const ModuleAttachmentInfo& info)
 	m_configFilePath = (configDirectory / "imgui.ini").toAbsoluteString();
 
 	initializeImgui(*info.editor);
-	m_editorUI.initialize(info.editor, &m_fontLibrary, &m_imageLibrary);
+	
+	m_editorUI = std::make_unique<ImguiEditorUI>(
+		*info.editor, 
+		*m_fontLibrary, 
+		*m_imageLibrary);
 }
 
 void ImguiRenderModule::onDetach()
 {
-	m_editorUI.terminate();
+	m_editorUI = nullptr;
+	m_imageLibrary = nullptr;
+	m_fontLibrary = nullptr;
+
 	terminateImgui();
 }
 
@@ -107,7 +114,7 @@ void ImguiRenderModule::renderUpdate(const MainThreadRenderUpdateContext& ctx)
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	m_editorUI.build();
+	m_editorUI->build();
 
 	// DEBUG
 	/*m_fontLibrary.useFont(m_fontLibrary.largeFont,
@@ -175,7 +182,7 @@ void ImguiRenderModule::createRenderCommands(RenderThreadCaller& caller)
 	PH_PROFILE_SCOPE();
 
 	PH_ASSERT(m_rendererScene);
-	m_imageLibrary.createRenderCommands(caller, *m_rendererScene);
+	m_imageLibrary->createRenderCommands(caller, *m_rendererScene);
 
 	// Need to notify render thread that there is new render data for GHI
 	caller.add(
@@ -202,7 +209,7 @@ void ImguiRenderModule::createCleanupRenderCommands(RenderThreadCaller& caller)
 
 	if(m_rendererScene)
 	{
-		m_imageLibrary.cleanupTextures(caller, *m_rendererScene);
+		m_imageLibrary->cleanupTextures(caller, *m_rendererScene);
 	}
 
 	// Remove the renderer scene in the end, after all other operations are done with it.
@@ -297,6 +304,8 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 	//constexpr std::string_view FONT_ICON_FILENAME = FONT_ICON_FILE_NAME_MDI;
 	constexpr std::string_view FONT_ICON_FILENAME = "materialdesignicons-webfont.ttf";
 
+	m_fontLibrary = std::make_unique<ImguiFontLibrary>();
+
 	ImGuiIO& io = ImGui::GetIO();
 
 	const Path fontDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Font";
@@ -306,10 +315,10 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 
 	// Loading default font
 	//io.Fonts->AddFontDefault();
-	m_fontLibrary.defaultFont = io.Fonts->AddFontFromFileTTF(
+	m_fontLibrary->defaultFont = io.Fonts->AddFontFromFileTTF(
 		(fontDirectory / BASE_FONT_FILENAME).toString().c_str(),
 		fontSizePx);
-	io.FontDefault = m_fontLibrary.defaultFont;
+	io.FontDefault = m_fontLibrary->defaultFont;
 
 	// Loading icon font--merge with default font
 	ImFontConfig iconFontConfig;
@@ -325,7 +334,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 		m_fontIconGlyphRanges.data());
 
 	// Loading large default font
-	m_fontLibrary.largeFont = io.Fonts->AddFontFromFileTTF(
+	m_fontLibrary->largeFont = io.Fonts->AddFontFromFileTTF(
 		(fontDirectory / BASE_FONT_FILENAME).toString().c_str(),
 		fontSizePx * largeFontRatio);
 
@@ -342,11 +351,11 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 		&largeIconFontConfig,
 		m_fontIconGlyphRanges.data());
 
-	if(!m_fontLibrary.defaultFont || !m_fontLibrary.largeFont)
+	if(!m_fontLibrary->defaultFont || !m_fontLibrary->largeFont)
 	{
 		PH_LOG_ERROR(DearImGui,
 			"font initialization failed (default font valid: {}, large font valid: {})",
-			m_fontLibrary.defaultFont != nullptr, m_fontLibrary.largeFont != nullptr);
+			m_fontLibrary->defaultFont != nullptr, m_fontLibrary->largeFont != nullptr);
 	}
 }
 
@@ -354,12 +363,13 @@ void ImguiRenderModule::initializeImguiImages(Editor& editor)
 {
 	PH_LOG(DearImGui, "setting-up images...");
 
-	const Path imageDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Image";
+	m_imageLibrary = std::make_unique<ImguiImageLibrary>();
+	Path imageDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Image";
 
-	m_imageLibrary.loadImage(EImguiImage::Warning, imageDirectory / "hazard-sign.png");
-	m_imageLibrary.loadImage(EImguiImage::Folder, imageDirectory / "open-folder.png");
-	m_imageLibrary.loadImage(EImguiImage::File, imageDirectory / "database.png");
-	m_imageLibrary.loadImage(EImguiImage::Image, imageDirectory / "mona-lisa.png");
+	m_imageLibrary->loadImage(EImguiImage::Warning, imageDirectory / "hazard-sign.png");
+	m_imageLibrary->loadImage(EImguiImage::Folder, imageDirectory / "open-folder.png");
+	m_imageLibrary->loadImage(EImguiImage::File, imageDirectory / "database.png");
+	m_imageLibrary->loadImage(EImguiImage::Image, imageDirectory / "mona-lisa.png");
 }
 
 void ImguiRenderModule::terminateImgui()

@@ -1,9 +1,9 @@
 #include "Render/Imgui/Editor/ImguiEditorSettings.h"
-#include "Render/Imgui/Editor/ImguiEditorUIProxy.h"
+#include "Render/Imgui/Font/imgui_icons.h"
 #include "App/Editor.h"
 #include "App/Misc/EditorSettings.h"
 #include "Designer/DesignerScene.h"
-#include "Render/Imgui/Editor/ImguiFileSystemDialog.h"
+#include "Render/Imgui/Tool/ImguiFileSystemDialog.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -12,15 +12,15 @@
 namespace ph::editor
 {
 
-ImguiEditorSettings::ImguiEditorSettings()
-	: m_category(ECategory::General)
+ImguiEditorSettings::ImguiEditorSettings(ImguiEditorUIProxy editorUI)
+
+	: ImguiEditorPanel(editorUI)
+	
+	, m_category(ECategory::General)
 	, m_stringDisplayBuffer(512, '\0')
 {}
 
-void ImguiEditorSettings::buildWindow(
-	const char* title, 
-	ImguiEditorUIProxy editorUI,
-	bool* isOpening)
+void ImguiEditorSettings::buildWindow(const char* windowIdName, bool* isOpening)
 {
 	// Center this window on the first time it is used
 	ImGuiCond windowLayoutCond = ImGuiCond_FirstUseEver;
@@ -33,7 +33,7 @@ void ImguiEditorSettings::buildWindow(
 		{viewport->WorkSize.x * 0.5f, viewport->WorkSize.y * 0.8f},
 		windowLayoutCond);
 
-	if(!ImGui::Begin(title, isOpening))
+	if(!ImGui::Begin(windowIdName, isOpening))
 	{
 		ImGui::End();
 		return;
@@ -58,10 +58,20 @@ void ImguiEditorSettings::buildWindow(
 		"settings",
 		ImVec2(0, 0),
 		true);
-	buildSettingsContent(editorUI);
+	buildSettingsContent();
 	ImGui::EndChild();
 
 	ImGui::End();
+}
+
+auto ImguiEditorSettings::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Editor Settings",
+		.icon = PH_IMGUI_SETTINGS_ICON,
+		.tooltip = "Editor Settings",
+		.useSidebar = true};
 }
 
 void ImguiEditorSettings::buildCategorySelectionContent()
@@ -86,34 +96,34 @@ void ImguiEditorSettings::buildCategorySelectionContent()
 	}
 }
 
-void ImguiEditorSettings::buildSettingsContent(ImguiEditorUIProxy editorUI)
+void ImguiEditorSettings::buildSettingsContent()
 {
 	switch(m_category)
 	{
 	case ECategory::General:
-		buildGeneralCategoryContent(editorUI);
+		buildGeneralCategoryContent();
 		break;
 
 	case ECategory::Startup:
-		buildStartupCategoryContent(editorUI);
+		buildStartupCategoryContent();
 		break;
 	}
 }
 
-void ImguiEditorSettings::buildGeneralCategoryContent(ImguiEditorUIProxy editorUI)
+void ImguiEditorSettings::buildGeneralCategoryContent()
 {
-	EditorSettings& settings = editorUI.getEditor().getSettings();
+	EditorSettings& settings = getEditorUI().getEditor().getSettings();
 
 	ImGui::Checkbox("Development Mode", &settings.isDevelopmentMode);
 }
 
-void ImguiEditorSettings::buildStartupCategoryContent(ImguiEditorUIProxy editorUI)
+void ImguiEditorSettings::buildStartupCategoryContent()
 {
-	EditorSettings& settings = editorUI.getEditor().getSettings();
+	EditorSettings& settings = getEditorUI().getEditor().getSettings();
 
 	// Setting default scene
 	{
-		ImguiFileSystemDialog& fsDialog = editorUI.getGeneralFileSystemDialog();
+		ImguiFileSystemDialog& fsDialog = getEditorUI().getGeneralFileSystemDialog();
 		if(ImGui::Button("Browse"))
 		{
 			fsDialog.openPopup("Select Default Scene");
@@ -121,7 +131,7 @@ void ImguiEditorSettings::buildStartupCategoryContent(ImguiEditorUIProxy editorU
 
 		fsDialog.buildFileSystemDialogPopupModal(
 			"Select Default Scene",
-			editorUI);
+			getEditorUI());
 
 		if(fsDialog.dialogClosed())
 		{

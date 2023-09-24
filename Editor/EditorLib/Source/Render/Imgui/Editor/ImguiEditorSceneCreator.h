@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/Imgui/ImguiEditorPanel.h"
+
 #include <DataIO/FileSystem/Path.h>
 
 #include <string>
@@ -11,15 +13,13 @@ namespace ph::editor
 
 class ImguiEditorUIProxy;
 
-class ImguiEditorSceneCreator final
+class ImguiEditorSceneCreator : public ImguiEditorPanel
 {
 public:
-	ImguiEditorSceneCreator();
+	explicit ImguiEditorSceneCreator(ImguiEditorUIProxy editorUI);
 
-	void buildWindow(
-		const char* title, 
-		ImguiEditorUIProxy editorUI,
-		bool* isOpening = nullptr);
+	void buildWindow(const char* windowIdName, bool* isOpening) override;
+	auto getAttributes() const -> Attributes override;
 
 private:
 	void composeSceneWorkingDirectory();

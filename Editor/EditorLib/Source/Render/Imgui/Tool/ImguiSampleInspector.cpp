@@ -21,8 +21,7 @@ namespace ph::editor
 {
 
 ImguiSampleInspector::ImguiSampleInspector()
-	: isOpening(false)
-	, m_scatterPlots()
+	: m_scatterPlots()
 	, m_plotNameBuffer(64, '\0')
 	, m_numSamples(100)
 	, m_sourceType(ESource::Rng)
@@ -37,7 +36,7 @@ ImguiSampleInspector::ImguiSampleInspector()
 	imgui::copy_to(m_plotNameBuffer, "samples");
 }
 
-void ImguiSampleInspector::buildWindow(const char* const title)
+void ImguiSampleInspector::buildWindow(const char* title, bool* isOpening)
 {
 	// Auto center and determine a suitable size for first use
 	ImGuiCond windowLayoutCond = ImGuiCond_FirstUseEver;
@@ -49,7 +48,7 @@ void ImguiSampleInspector::buildWindow(const char* const title)
 	ImGui::SetNextWindowSize(
 		{viewport->WorkSize.x * 0.7f, viewport->WorkSize.y * 0.9f},
 		windowLayoutCond);
-	if(!ImGui::Begin(title, &isOpening))
+	if(!ImGui::Begin(title, isOpening))
 	{
 		ImGui::End();
 		return;
