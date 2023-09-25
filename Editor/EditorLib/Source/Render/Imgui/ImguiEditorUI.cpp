@@ -520,7 +520,7 @@ void ImguiEditorUI::buildSidebarWindow()
 	ImGui::PushFont(getFontLibrary().largeFont);
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
 
-	ImGuiStyle& style = ImGui::GetStyle();
+	const ImGuiStyle& style = ImGui::GetStyle();
 	const float buttonItemWidth = ImGui::GetFontSize() + style.FramePadding.x * 2.0f;
 	const float posToCenter = (ImGui::GetWindowContentRegionMax().x - buttonItemWidth) * 0.5f;
 
@@ -597,7 +597,7 @@ void ImguiEditorUI::buildToolbarWindow()
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
 
-	ImGuiStyle& style = ImGui::GetStyle();
+	const ImGuiStyle& style = ImGui::GetStyle();
 	const float buttonItemHeight = ImGui::GetFontSize() + style.FramePadding.y * 2.0f;
 	float posToCenter = (ImGui::GetWindowContentRegionMax().y - buttonItemHeight) * 0.5f;
 

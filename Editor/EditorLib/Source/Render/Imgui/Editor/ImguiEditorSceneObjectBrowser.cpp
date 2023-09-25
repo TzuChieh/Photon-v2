@@ -277,7 +277,7 @@ void ImguiEditorSceneObjectBrowser::rebuildObjectView(
 
 void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 {
-	ImGuiStyle& style = ImGui::GetStyle();
+	const ImGuiStyle& style = ImGui::GetStyle();
 
 	// Top bar widgets (search, filter, etc.)
 

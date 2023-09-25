@@ -19,6 +19,8 @@ public:
 	auto getAttributes() const -> Attributes override;
 
 private:
+	void buildTopToolbar();
+
 	std::vector<std::string> m_imageNames;
 	std::size_t m_currentImageNameIdx;
 };

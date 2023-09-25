@@ -6,6 +6,8 @@
 
 #include "ThirdParty/DearImGui.h"
 
+#include <algorithm>
+
 namespace ph::editor
 {
 
@@ -28,20 +30,74 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 		return;
 	}
 
-	ImVec2 imageDisplayAreaMin = ImGui::GetWindowContentRegionMin();
-	ImVec2 imageDisplayAreaMax = ImGui::GetWindowContentRegionMax();
-
+	const ImGuiStyle& style = ImGui::GetStyle();
 	ImguiImageLibrary& imageLib = getEditorUI().getImageLibrary();
-	ImguiFileSystemDialog& fsDialog = getEditorUI().getGeneralFileSystemDialog();
+
+	// Draw image on the entire content region, without padding
+	ImVec2 imageAreaMin = ImGui::GetWindowContentRegionMin();
+	imageAreaMin.x -= style.WindowPadding.x * 0.5f;
+	imageAreaMin.y -= style.WindowPadding.y * 0.5f;
+	ImGui::SetCursorPos(imageAreaMin);
 
 	if(m_currentImageNameIdx < m_imageNames.size())
 	{
 		imageLib.imguiImage(m_imageNames[m_currentImageNameIdx].c_str(), {300, 300});
 	}
 
+	
+	buildTopToolbar();
+	
+
+	ImGui::End();
+}
+
+auto ImguiEditorImageViewer::getAttributes() const
+-> Attributes
+{
+	return {
+		.title = "Image Viewer",
+		.icon = PH_IMGUI_IMAGE_ICON,
+		.tooltip = "Image Viewer",
+		.preferredDockingLot = EImguiPanelDockingLot::Center,
+		.useSidebar = true};
+}
+
+void ImguiEditorImageViewer::buildTopToolbar()
+{
+	const ImGuiStyle& style = ImGui::GetStyle();
+	ImguiFileSystemDialog& fsDialog = getEditorUI().getGeneralFileSystemDialog();
+	ImguiImageLibrary& imageLib = getEditorUI().getImageLibrary();
+
+	constexpr float moreAlpha = 0.3f;
+
+	auto frameBgColor = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+	frameBgColor.w = std::min(frameBgColor.w + moreAlpha, 1.0f);
+	auto frameBgHoveredColor = ImGui::GetStyleColorVec4(ImGuiCol_FrameBgHovered);
+	frameBgHoveredColor.w = std::min(frameBgHoveredColor.w + moreAlpha, 1.0f);
+	auto buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+	buttonColor.x *= 0.5f;
+	buttonColor.y *= 0.5f;
+	buttonColor.z *= 0.5f;
+	buttonColor.w = std::min(buttonColor.w + moreAlpha, 1.0f);
+
+	// Reset to start position so we can draw on top of the image
+	ImGui::SetCursorPos(ImGui::GetCursorStartPos());
+
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(3, 1));
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+	ImGui::PushStyleColor(ImGuiCol_FrameBg, frameBgColor);
+	ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, frameBgHoveredColor);
+	ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+	ImGui::PushStyleColor(ImGuiCol_Border, {0, 0, 0, 1});
+	
+	constexpr const char* defaultName = "(no loaded image)";
+	const auto defaultNameSize = ImGui::CalcTextSize(defaultName);
+
+	ImGui::SetNextItemWidth(defaultNameSize.x * 2 + style.FramePadding.x * 2);
 	if(ImGui::BeginCombo(
 		"##image_names_combo", 
-		m_currentImageNameIdx < m_imageNames.size() ? m_imageNames[m_currentImageNameIdx].c_str() : "(no loaded image)"))
+		m_currentImageNameIdx < m_imageNames.size() ? m_imageNames[m_currentImageNameIdx].c_str() : defaultName))
 	{
 		for(std::size_t ni = 0; ni < m_imageNames.size(); ++ni)
 		{
@@ -74,33 +130,27 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 		// TODO
 	}
 
+	ImGui::PopStyleColor(4);
+	ImGui::PopStyleVar(3);
+	
+
 	fsDialog.buildFileSystemDialogPopupModal(
 		ImguiFileSystemDialog::OPEN_FILE_TITLE,
 		getEditorUI());
 
 	if(fsDialog.dialogClosed())
 	{
-		Path imageFile = fsDialog.getSelectedTarget();
-		auto imageName = imageFile.toAbsoluteString();
-		if(!imageFile.isEmpty() && !imageLib.has(imageName))
+		if(!fsDialog.getSelectedItem().isEmpty())
 		{
-			imageLib.loadImage(imageName, imageFile);
-			m_imageNames.push_back(imageName);
+			Path imageFile = fsDialog.getSelectedTarget();
+			auto imageName = imageFile.toAbsoluteString();
+			if(!imageFile.isEmpty() && !imageLib.has(imageName))
+			{
+				imageLib.loadImage(imageName, imageFile);
+				m_imageNames.push_back(imageName);
+			}
 		}
 	}
-
-	ImGui::End();
-}
-
-auto ImguiEditorImageViewer::getAttributes() const
--> Attributes
-{
-	return {
-		.title = "Image Viewer",
-		.icon = PH_IMGUI_IMAGE_ICON,
-		.tooltip = "Image Viewer",
-		.preferredDockingLot = EImguiPanelDockingLot::Center,
-		.useSidebar = true};
 }
 
 }// end namespace ph::editor
