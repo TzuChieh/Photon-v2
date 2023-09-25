@@ -83,7 +83,7 @@ void ImguiEditorOfflineTaskManager::buildTaskInfoContent(DesignerScene* scene)
 		}
 	}
 
-	// List box for all opened scenes
+	// List box for all offline tasks gathered
 	// Custom size: use all available width & height
 	if(ImGui::BeginListBox("##scenes_listbox", ImVec2(-FLT_MIN, -FLT_MIN)))
 	{

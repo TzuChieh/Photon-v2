@@ -87,7 +87,7 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 
 		// Mouse just stopped dragging
 		if(!ImGui::IsMouseDragging(ImGuiMouseButton_Right) &&
-		   m_lastMouseDragDelta.x() != 0 && m_lastMouseDragDelta.y() != 0)
+		   (m_lastMouseDragDelta.x() != 0 || m_lastMouseDragDelta.y() != 0))
 		{
 			// Apply the dragged amount to current image
 			state.minPosInWindow += m_lastMouseDragDelta;
