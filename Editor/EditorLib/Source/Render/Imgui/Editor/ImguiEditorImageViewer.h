@@ -32,17 +32,26 @@ private:
 		math::Vector2F actualSize = {0, 0};
 		math::Vector2F minPosInWindow = {0, 0};
 		math::Vector2F sizeInWindow = {0, 0};
+		math::Vector2F pointedPixelPos = {0, 0};
 	};
 
 	void buildTopToolbar();
 	void buildBottomToolbar();
 	void pushToolbarStyleAndColor();
 	void popToolbarStyleAndColor();
+	bool hasSelectedImage() const;
 
 	std::vector<ImageState> m_imageStates;
 	std::size_t m_currentImageIdx;
 	std::string m_imageInfoBuffer;
 	math::Vector2F m_lastMouseDragDelta;
+	math::Vector2F m_viewAreaMin;
+	math::Vector2F m_viewAreaSize;
 };
+
+inline bool ImguiEditorImageViewer::hasSelectedImage() const
+{
+	return m_currentImageIdx < m_imageStates.size();
+}
 
 }// end namespace ph::editor
