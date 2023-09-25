@@ -17,6 +17,7 @@ ImguiEditorImageViewer::ImguiEditorImageViewer(ImguiEditorUIProxy editorUI)
 	, m_imageStates()
 	, m_currentImageIdx(static_cast<std::size_t>(-1))
 	, m_imageInfoBuffer(256, '\0')
+	, m_lastMouseDragDelta(0, 0)
 {}
 
 ImguiEditorImageViewer::~ImguiEditorImageViewer()
@@ -45,9 +46,9 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 	imageAreaMin -= style.WindowPadding.x * 0.5f;
 	imageAreaMax += style.WindowPadding.y * 0.5f;
 
-	// Populate image states for newly loaded image
 	if(m_currentImageIdx < m_imageStates.size())
 	{
+		// Populate image states for newly loaded image
 		ImageState& state = m_imageStates[m_currentImageIdx];
 		if(!state.textureID)
 		{
@@ -65,7 +66,24 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 			}
 		}
 
-		ImGui::SetCursorPos({state.minPosInWindow.x(), state.minPosInWindow.y()});
+		// Mouse just stopped dragging
+		if(!ImGui::IsMouseDragging(ImGuiMouseButton_Right) &&
+		   m_lastMouseDragDelta.x() != 0 && m_lastMouseDragDelta.y() != 0)
+		{
+			// Apply the dragged amount to current image
+			state.minPosInWindow += m_lastMouseDragDelta;
+			m_lastMouseDragDelta = {0, 0};
+		}
+		else
+		{
+			const ImVec2 mouseDragDelta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
+			m_lastMouseDragDelta = {mouseDragDelta.x, mouseDragDelta.y};
+		}
+
+		math::Vector2F drawPosInWindow = state.minPosInWindow;
+		drawPosInWindow += m_lastMouseDragDelta;
+
+		ImGui::SetCursorPos({drawPosInWindow.x(), drawPosInWindow.y()});
 		imgui::image_with_fallback(
 			state.textureID,
 			{state.sizeInWindow.x(), state.sizeInWindow.y()});
@@ -74,7 +92,6 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 	buildTopToolbar();
 	buildBottomToolbar();
 	
-
 	ImGui::End();
 }
 

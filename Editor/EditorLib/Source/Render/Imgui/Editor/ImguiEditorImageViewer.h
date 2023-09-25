@@ -42,6 +42,7 @@ private:
 	std::vector<ImageState> m_imageStates;
 	std::size_t m_currentImageIdx;
 	std::string m_imageInfoBuffer;
+	math::Vector2F m_lastMouseDragDelta;
 };
 
 }// end namespace ph::editor
