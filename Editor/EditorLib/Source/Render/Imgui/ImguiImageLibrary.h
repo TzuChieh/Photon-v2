@@ -70,15 +70,15 @@ public:
 		const math::Vector4F& borderColorRGBA = math::Vector4F(0, 0, 0, 0)) const;
 
 	bool imguiImageButton(
-		EImguiImage targetImage, 
 		const char* strId,
+		EImguiImage targetImage, 
 		const math::Vector2F& sizePx, 
 		const math::Vector4F& backgroundColorRGBA = math::Vector4F(0, 0, 0, 0),
 		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1));
 
 	bool imguiImageButton(
-		std::string_view imageName,
 		const char* strId,
+		std::string_view imageName,
 		const math::Vector2F& sizePx,
 		const math::Vector4F& backgroundColorRGBA = math::Vector4F(0, 0, 0, 0),
 		const math::Vector4F& tintColorRGBA = math::Vector4F(1, 1, 1, 1));
@@ -159,19 +159,6 @@ private:
 	};
 
 	auto getEntry(std::string_view name) const -> const Entry*;
-
-	void imguiImage(
-		ImTextureID textureID,
-		const math::Vector2F& sizePx,
-		const math::Vector4F& tintColorRGBA,
-		const math::Vector4F& borderColorRGBA) const;
-
-	bool imguiImageButton(
-		ImTextureID textureID,
-		const char* strId,
-		const math::Vector2F& sizePx,
-		const math::Vector4F& backgroundColorRGBA,
-		const math::Vector4F& tintColorRGBA);
 
 	static ImTextureID getTextureIDFromNativeHandle(ghi::TextureNativeHandle nativeHandle);
 

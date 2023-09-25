@@ -1,6 +1,11 @@
 #pragma once
 
 #include "Render/Imgui/ImguiEditorPanel.h"
+#include "RenderCore/ghi_infos.h"
+
+#include "ThirdParty/DearImGui.h"
+
+#include <Math/TVector2.h>
 
 #include <cstddef>
 #include <string>
@@ -19,10 +24,24 @@ public:
 	auto getAttributes() const -> Attributes override;
 
 private:
-	void buildTopToolbar();
+	struct ImageState
+	{
+		std::string name;
+		ImTextureID textureID = nullptr;
+		ghi::ESizedPixelFormat textureFormat = ghi::ESizedPixelFormat::Empty;
+		math::Vector2F actualSize = {0, 0};
+		math::Vector2F minPosInWindow = {0, 0};
+		math::Vector2F sizeInWindow = {0, 0};
+	};
 
-	std::vector<std::string> m_imageNames;
-	std::size_t m_currentImageNameIdx;
+	void buildTopToolbar();
+	void buildBottomToolbar();
+	void pushToolbarStyleAndColor();
+	void popToolbarStyleAndColor();
+
+	std::vector<ImageState> m_imageStates;
+	std::size_t m_currentImageIdx;
+	std::string m_imageInfoBuffer;
 };
 
 }// end namespace ph::editor

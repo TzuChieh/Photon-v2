@@ -6,6 +6,7 @@
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 #include "RenderCore/GraphicsContext.h"
+#include "Render/Imgui/Utility/imgui_helpers.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -44,7 +45,8 @@ void ImguiImageLibrary::imguiImage(
 	const math::Vector4F& tintColorRGBA,
 	const math::Vector4F& borderColorRGBA) const
 {
-	imguiImage(get(targetImage), sizePx, tintColorRGBA, borderColorRGBA);
+	imgui::image_with_fallback(
+		get(targetImage), sizePx, tintColorRGBA, borderColorRGBA);
 }
 
 void ImguiImageLibrary::imguiImage(
@@ -53,73 +55,30 @@ void ImguiImageLibrary::imguiImage(
 	const math::Vector4F& tintColorRGBA,
 	const math::Vector4F& borderColorRGBA) const
 {
-	imguiImage(get(imageName), sizePx, tintColorRGBA, borderColorRGBA);
+	imgui::image_with_fallback(
+		get(imageName), sizePx, tintColorRGBA, borderColorRGBA);
 }
 
 bool ImguiImageLibrary::imguiImageButton(
-	const EImguiImage targetImage,
 	const char* const strId,
+	const EImguiImage targetImage,
 	const math::Vector2F& sizePx,
 	const math::Vector4F& backgroundColorRGBA,
 	const math::Vector4F& tintColorRGBA)
 {
-	return imguiImageButton(get(targetImage), strId, sizePx, backgroundColorRGBA, tintColorRGBA);
+	return imgui::image_button_with_fallback(
+		strId, get(targetImage), sizePx, backgroundColorRGBA, tintColorRGBA);
 }
 
 bool ImguiImageLibrary::imguiImageButton(
+	const char* strId,
 	std::string_view imageName,
-	const char* strId,
 	const math::Vector2F& sizePx,
 	const math::Vector4F& backgroundColorRGBA,
 	const math::Vector4F& tintColorRGBA)
 {
-	return imguiImageButton(get(imageName), strId, sizePx, backgroundColorRGBA, tintColorRGBA);
-}
-
-void ImguiImageLibrary::imguiImage(
-	ImTextureID textureID,
-	const math::Vector2F& sizePx,
-	const math::Vector4F& tintColorRGBA,
-	const math::Vector4F& borderColorRGBA) const
-{
-	if(!textureID)
-	{
-		// Indicate the image is unavailable for now
-		ImGui::TextUnformatted(PH_IMGUI_LOADING_ICON " Loading...");
-		return;
-	}
-
-	ImGui::Image(
-		textureID,
-		ImVec2(sizePx.x(), sizePx.y()),
-		ImVec2(0, 1),// `uv0` is at upper-left corner
-		ImVec2(1, 0),// `uv1` is at lower-right corner
-		ImVec4(tintColorRGBA.r(), tintColorRGBA.g(), tintColorRGBA.b(), tintColorRGBA.a()),
-		ImVec4(borderColorRGBA.r(), borderColorRGBA.g(), borderColorRGBA.b(), borderColorRGBA.a()));
-}
-
-bool ImguiImageLibrary::imguiImageButton(
-	ImTextureID textureID,
-	const char* strId,
-	const math::Vector2F& sizePx,
-	const math::Vector4F& backgroundColorRGBA,
-	const math::Vector4F& tintColorRGBA)
-{
-	if(!textureID)
-	{
-		// Indicate the image is unavailable for now
-		// FIXME: draw square button with text as large as image button size
-		ImGui::TextUnformatted(PH_IMGUI_LOADING_ICON " Loading...");
-	}
-
-	return ImGui::ImageButton(
-		strId,
-		textureID,
-		ImVec2(sizePx.x(), sizePx.y()),
-		ImVec2(0, 1),// `uv0` is at upper-left corner
-		ImVec2(1, 0),// `uv1` is at lower-right corner
-		ImVec4(backgroundColorRGBA.r(), backgroundColorRGBA.g(), backgroundColorRGBA.b(), backgroundColorRGBA.a()),
-		ImVec4(tintColorRGBA.r(), tintColorRGBA.g(), tintColorRGBA.b(), tintColorRGBA.a()));
+	return imgui::image_button_with_fallback(
+		strId, get(imageName), sizePx, backgroundColorRGBA, tintColorRGBA);
 }
 
 void ImguiImageLibrary::loadImage(EImguiImage targetImage, const Path& filePath)
