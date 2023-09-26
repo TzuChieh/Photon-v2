@@ -1,6 +1,7 @@
 #include "Render/Imgui/Editor/ImguiEditorImageViewer.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 #include "App/Editor.h"
+#include "App/Misc/EditorSettings.h"
 #include "Render/Imgui/ImguiImageLibrary.h"
 #include "Render/Imgui/Tool/ImguiFileSystemDialog.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
@@ -57,7 +58,7 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 	if(hasSelectedImage())
 	{
 		// Populate image states for newly loaded image
-		ImageState& state = m_imageStates[m_currentImageIdx];
+		ImageState& state = getSelectedImageState();
 		if(!state.textureID)
 		{
 			const ImTextureID textureID = imageLib.get(state.name);
@@ -74,42 +75,39 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 			}
 		}
 
-		const ImVec2 windowAbsPos = ImGui::GetWindowPos();
-		const ImVec2 mouseAbsPos = ImGui::GetMousePos();
-		const auto mousePosInWindow = math::Vector2F{mouseAbsPos.x - windowAbsPos.x, mouseAbsPos.y - windowAbsPos.y};
-
-		// Update currently hovered pixel coordinates
-		if(ImGui::IsWindowHovered() && state.sizeInWindow.x() > 0 && state.sizeInWindow.y() > 0)
+		if(ImGui::IsWindowFocused())
 		{
-			state.pointedPixelPos = 
-				(mousePosInWindow - state.minPosInWindow) / state.sizeInWindow * state.actualSize;
-		}
+			const ImVec2 windowAbsPos = ImGui::GetWindowPos();
+			const ImVec2 mouseAbsPos = ImGui::GetMousePos();
+			const auto mousePosInWindow = math::Vector2F{
+				mouseAbsPos.x - windowAbsPos.x, mouseAbsPos.y - windowAbsPos.y};
 
-		// Mouse just stopped dragging
-		if(!ImGui::IsMouseDragging(ImGuiMouseButton_Right) &&
-		   (m_lastMouseDragDelta.x() != 0 || m_lastMouseDragDelta.y() != 0))
-		{
-			// Apply the dragged amount to current image
-			state.minPosInWindow += m_lastMouseDragDelta;
-			m_lastMouseDragDelta = {0, 0};
-		}
-		else
-		{
-			const ImVec2 mouseDragDelta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
-			m_lastMouseDragDelta = {mouseDragDelta.x, mouseDragDelta.y};
-		}
+			// Update currently hovered pixel coordinates
+			if(ImGui::IsWindowHovered() && state.sizeInWindow.x() > 0 && state.sizeInWindow.y() > 0)
+			{
+				state.pointedPixelPos = 
+					(mousePosInWindow - state.minPosInWindow) / state.sizeInWindow * state.actualSize;
+			}
 
-		// Mouse wheel zooming
-		if(io.MouseWheel != 0 && state.sizeInWindow.x() > 0 && state.sizeInWindow.y() > 0)
-		{
-			const float additionalScale = 0.01f * io.MouseWheel;
-			const auto additionalSize = state.sizeInWindow * additionalScale;
+			// Mouse just stopped dragging
+			if(!ImGui::IsMouseDragging(ImGuiMouseButton_Right) &&
+			   (m_lastMouseDragDelta.x() != 0 || m_lastMouseDragDelta.y() != 0))
+			{
+				// Apply the dragged amount to current image
+				state.minPosInWindow += m_lastMouseDragDelta;
+				m_lastMouseDragDelta = {0, 0};
+			}
+			else
+			{
+				const ImVec2 mouseDragDelta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
+				m_lastMouseDragDelta = {mouseDragDelta.x, mouseDragDelta.y};
+			}
 
-			// Distribute additional scale proportionally to the offset to min/max vertices, so the
-			// scaling process will appear to be centered around mouse cursor
-			state.minPosInWindow -= 
-				(mousePosInWindow - state.minPosInWindow) / state.sizeInWindow * additionalSize;
-			state.sizeInWindow += additionalSize;
+			// Mouse wheel zooming
+			if(ImGui::IsWindowHovered() && io.MouseWheel != 0)
+			{
+				applyZoomTo(state, io.MouseWheel, mousePosInWindow);
+			}
 		}
 
 		math::Vector2F drawPosInWindow = state.minPosInWindow;
@@ -147,7 +145,7 @@ void ImguiEditorImageViewer::buildTopToolbar()
 	// Reset to start position so we can draw on top of the image
 	ImGui::SetCursorPos(ImGui::GetCursorStartPos());
 	
-	constexpr const char* defaultName = "(no loaded image)";
+	constexpr const char* defaultName = "(no selected image)";
 	const auto defaultNameSize = ImGui::CalcTextSize(defaultName);
 
 	pushToolbarStyleAndColor();
@@ -155,7 +153,7 @@ void ImguiEditorImageViewer::buildTopToolbar()
 	ImGui::SetNextItemWidth(defaultNameSize.x * 2 + style.FramePadding.x * 2);
 	if(ImGui::BeginCombo(
 		"##image_names_combo", 
-		hasSelectedImage() ? m_imageStates[m_currentImageIdx].name.c_str() : defaultName))
+		hasSelectedImage() ? getSelectedImageState().name.c_str() : defaultName))
 	{
 		for(std::size_t ni = 0; ni < m_imageStates.size(); ++ni)
 		{
@@ -175,32 +173,34 @@ void ImguiEditorImageViewer::buildTopToolbar()
 	}
 
 	ImGui::SameLine();
-
 	if(ImGui::Button(PH_IMGUI_OPEN_FILE_ICON))
 	{
 		fsDialog.openPopup(ImguiFileSystemDialog::OPEN_FILE_TITLE);
 	}
 
 	ImGui::SameLine();
-
-	if(ImGui::Button(PH_IMGUI_CROSS_ICON))
+	if(ImGui::Button(PH_IMGUI_CROSS_ICON) && hasSelectedImage())
 	{
-		// TODO
+		std::string imageName = getSelectedImageState().name;
+		std::erase_if(m_imageStates,
+			[&imageName](const ImageState& state)
+			{
+				return state.name == imageName;
+			});
+		imageLib.unloadImage(imageName);
 	}
 
 	ImGui::SameLine();
-
 	if(ImGui::Button("100%") && hasSelectedImage())
 	{
 		// Make the image 1:1 size by using its resolution as size in window
-		m_imageStates[m_currentImageIdx].sizeInWindow = m_imageStates[m_currentImageIdx].actualSize;
+		getSelectedImageState().sizeInWindow = getSelectedImageState().actualSize;
 	}
 
 	ImGui::SameLine();
-
 	if(ImGui::Button(PH_IMGUI_FOCUS_ICON) && hasSelectedImage())
 	{
-		ImageState& state = m_imageStates[m_currentImageIdx];
+		ImageState& state = getSelectedImageState();
 
 		const auto viewAreaAspectRatio = m_viewAreaSize.y() > 0
 			? m_viewAreaSize.x() / m_viewAreaSize.y() : 1.0f;
@@ -219,6 +219,20 @@ void ImguiEditorImageViewer::buildTopToolbar()
 
 		// Also centering it
 		state.minPosInWindow = m_viewAreaMin + (m_viewAreaSize - state.sizeInWindow) * 0.5f;
+	}
+
+	ImGui::SameLine();
+	if(ImGui::Button(PH_IMGUI_ZOOM_IN_ICON) && hasSelectedImage())
+	{
+		const ImVec2 windowSize = ImGui::GetWindowSize();
+		applyZoomTo(getSelectedImageState(), 1.0f, {windowSize.x * 0.5f, windowSize.y * 0.5f});
+	}
+
+	ImGui::SameLine();
+	if(ImGui::Button(PH_IMGUI_ZOOM_OUT_ICON) && hasSelectedImage())
+	{
+		const ImVec2 windowSize = ImGui::GetWindowSize();
+		applyZoomTo(getSelectedImageState(), -1.0f, {windowSize.x * 0.5f, windowSize.y * 0.5f});
 	}
 
 	popToolbarStyleAndColor();
@@ -267,7 +281,7 @@ void ImguiEditorImageViewer::buildBottomToolbar()
 
 	if(hasSelectedImage())
 	{
-		ImageState& state = m_imageStates[m_currentImageIdx];
+		ImageState& state = getSelectedImageState();
 		size = state.actualSize;
 		format = state.textureFormat;
 		scale = state.actualSize.x() > 0 ? state.sizeInWindow.x() / state.actualSize.x() : 1;
@@ -334,6 +348,27 @@ void ImguiEditorImageViewer::popToolbarStyleAndColor()
 
 	ImGui::PopStyleColor(4);
 	ImGui::PopStyleVar(3);
+}
+
+void ImguiEditorImageViewer::applyZoomTo(
+	ImageState& state,
+	const float zoomSteps,
+	const math::Vector2F& zoomCenterInWindow)
+{
+	if(state.sizeInWindow.x() <= 0 || state.sizeInWindow.y() <= 0)
+	{
+		return;
+	}
+
+	const auto sensitivity = getEditorUI().getEditor().getSettings().imageZoomSensitivity;
+	const auto additionalScale = 0.05f * zoomSteps * sensitivity;
+	const auto additionalSize = state.sizeInWindow * additionalScale;
+
+	// Distribute additional scale proportionally to the offset to min/max vertices, so the scaling
+	// process will appear to be centered around the specified zoom center (e.g., mouse cursor)
+	state.minPosInWindow -= 
+		(zoomCenterInWindow - state.minPosInWindow) / state.sizeInWindow * additionalSize;
+	state.sizeInWindow += additionalSize;
 }
 
 }// end namespace ph::editor

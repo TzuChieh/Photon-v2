@@ -5,6 +5,7 @@
 
 #include "ThirdParty/DearImGui.h"
 
+#include <Common/assertion.h>
 #include <Math/TVector2.h>
 
 #include <cstddef>
@@ -40,6 +41,12 @@ private:
 	void pushToolbarStyleAndColor();
 	void popToolbarStyleAndColor();
 	bool hasSelectedImage() const;
+	auto getSelectedImageState() -> ImageState&;
+
+	void applyZoomTo(
+		ImageState& state, 
+		float zoomSteps, 
+		const math::Vector2F& zoomCenterInWindow);
 
 	std::vector<ImageState> m_imageStates;
 	std::size_t m_currentImageIdx;
@@ -52,6 +59,13 @@ private:
 inline bool ImguiEditorImageViewer::hasSelectedImage() const
 {
 	return m_currentImageIdx < m_imageStates.size();
+}
+
+inline auto ImguiEditorImageViewer::getSelectedImageState()
+-> ImageState&
+{
+	PH_ASSERT_LT(m_currentImageIdx, m_imageStates.size());
+	return m_imageStates[m_currentImageIdx];
 }
 
 }// end namespace ph::editor

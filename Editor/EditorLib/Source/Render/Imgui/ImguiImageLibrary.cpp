@@ -152,11 +152,6 @@ void ImguiImageLibrary::loadImage(
 
 void ImguiImageLibrary::unloadImage(std::string_view imageName)
 {
-	if(imageName.empty())
-	{
-		return;
-	}
-
 	auto entryIter = m_namedEntries.find(imageName);
 	if(entryIter != m_namedEntries.end())
 	{

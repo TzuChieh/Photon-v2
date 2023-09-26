@@ -107,6 +107,10 @@ void ImguiEditorSettings::buildSettingsContent()
 	case ECategory::Startup:
 		buildStartupCategoryContent();
 		break;
+
+	case ECategory::Control:
+		buildControlCategoryContent();
+		break;
 	}
 }
 
@@ -150,6 +154,13 @@ void ImguiEditorSettings::buildStartupCategoryContent()
 	}
 
 	ImGui::Checkbox("Load Default Scene On Start-up", &settings.loadDefaultSceneOnStartup);
+}
+
+void ImguiEditorSettings::buildControlCategoryContent()
+{
+	EditorSettings& settings = getEditorUI().getEditor().getSettings();
+
+	ImGui::SliderFloat("Image Zoom Sensitivity", &settings.imageZoomSensitivity, 0.1f, 10.0f);
 }
 
 }// end namespace ph::editor

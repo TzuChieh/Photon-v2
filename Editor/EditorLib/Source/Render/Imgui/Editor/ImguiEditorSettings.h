@@ -22,19 +22,22 @@ private:
 	enum ECategory : int
 	{
 		General = 0,
-		Startup
+		Startup,
+		Control
 	};
 
 	static constexpr const char* CATEGORY_NAMES[] =
 	{
 		"General",
-		"Startup"
+		"Startup",
+		"Control"
 	};
 
 	void buildCategorySelectionContent();
 	void buildSettingsContent();
 	void buildGeneralCategoryContent();
 	void buildStartupCategoryContent();
+	void buildControlCategoryContent();
 
 	int m_category;
 	std::vector<char> m_stringDisplayBuffer;
