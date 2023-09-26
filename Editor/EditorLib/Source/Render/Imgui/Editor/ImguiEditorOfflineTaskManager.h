@@ -14,7 +14,7 @@ namespace ph::editor
 
 class ImguiEditorUIProxy;
 class DesignerScene;
-class DesignerObject;
+class RenderAgent;
 
 class ImguiEditorOfflineTaskManager : public ImguiEditorPanel
 {
@@ -30,7 +30,7 @@ private:
 
 	struct TaskInfo
 	{
-		DesignerObject* ownerObj = nullptr;
+		RenderAgent* agent = nullptr;
 		render::OfflineRenderer* renderer = nullptr;
 		render::EOfflineRenderStage stage = render::EOfflineRenderStage::Standby;
 		render::OfflineRenderStats stats;
@@ -39,6 +39,7 @@ private:
 	std::vector<TaskInfo> m_taskInfos;
 	std::size_t m_numValidTaskInfos;
 	std::size_t m_selectedTaskInfoIdx;
+	bool m_enableStopRender;
 };
 
 }// end namespace ph::editor

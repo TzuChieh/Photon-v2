@@ -19,6 +19,7 @@
 #include "Designer/NodeObject.h"
 
 // Rendering
+#include "Designer/Render/RenderAgent.h"
 #include "Designer/Render/OfflineRenderAgent.h"
 
 // Imposters
@@ -82,6 +83,7 @@ inline std::vector<const SdlClass*> register_editor_classes()
 		register_editor_sdl_class<NodeObject>(),
 
 		// Rendering
+		register_editor_sdl_class<RenderAgent>(),
 		register_editor_sdl_class<OfflineRenderAgent>(),
 
 		// Imposters

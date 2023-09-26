@@ -41,7 +41,7 @@ private:
 	std::vector<LogMessage> m_logBuffer;
 	std::size_t m_numLogs;
 	std::size_t m_numClearedLogs;
-	bool isAutoScrollEnabled;
+	bool m_isAutoScrollEnabled;
 };
 
 }// end namespace ph::editor

@@ -304,16 +304,14 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 	if(filenameExt != ".pds")
 	{
 		PH_LOG_ERROR(Editor,
-			"cannot load designer scene {}: unsupported file type",
-			sceneFile);
+			"cannot load designer scene {}: unsupported file type", sceneFile);
 		return nullSceneIndex();
 	}
 	
 	if(!Filesystem::hasFile(sceneFile))
 	{
 		PH_LOG_ERROR(Editor,
-			"cannot load designer scene {}: file does not exist",
-			sceneFile);
+			"cannot load designer scene {}: file does not exist", sceneFile);
 		return nullSceneIndex();
 	}
 

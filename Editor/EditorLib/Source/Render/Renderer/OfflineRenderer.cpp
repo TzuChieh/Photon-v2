@@ -1,4 +1,5 @@
 #include "Render/Renderer/OfflineRenderer.h"
+#include "Designer/Render/RenderConfig.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -20,7 +21,7 @@ OfflineRenderer::OfflineRenderer()
 	: SceneRenderer()
 
 	, m_engineThread()
-	, m_renderStage(EOfflineRenderStage::Standby)
+	, m_renderStage(EOfflineRenderStage::Finished)
 	, m_syncedRenderStats()
 	, m_requestRenderStats()
 {}
@@ -28,12 +29,18 @@ OfflineRenderer::OfflineRenderer()
 OfflineRenderer::~OfflineRenderer()
 {}
 
-void OfflineRenderer::render(const OfflineRenderConfig& config)
+void OfflineRenderer::render(const RenderConfig& config)
 {
 	m_renderStage.relaxedWrite(EOfflineRenderStage::Standby);
 
 	if(!m_engineThread.hasStarted())
 	{
+		m_engineThread.setWorkProcessor(
+			[](const EngineWork& work)
+			{
+				work();
+			});
+
 		m_engineThread.start();
 	}
 
@@ -66,7 +73,7 @@ bool OfflineRenderer::tryGetRenderStats(OfflineRenderStats* stats)
 	}
 }
 
-void OfflineRenderer::renderSingleStaticImageOnEngineThread(const OfflineRenderConfig& config)
+void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& config)
 {
 	if(config.useCopiedScene)
 	{

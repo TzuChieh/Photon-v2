@@ -1,24 +1,20 @@
 #pragma once
 
-#include "Designer/FlatDesignerObject.h"
-#include "Designer/Basic/ObjectTransform.h"
+#include "Designer/Render/RenderAgent.h"
 
 #include <SDL/sdl_interface.h>
-
-#include <string>
 
 namespace ph::editor::render { class OfflineRenderer; }
 
 namespace ph::editor
 {
 
-class OfflineRenderAgent : public FlatDesignerObject
+class OfflineRenderAgent : public RenderAgent
 {
 public:
-	using Base = FlatDesignerObject;
+	using Base = RenderAgent;
 
-	math::TDecomposedTransform<real> getLocalToParent() const override;
-	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override;
+	RenderConfig getRenderConfig() const override;
 
 	void renderInit(RenderThreadCaller& caller);
 	void renderUninit(RenderThreadCaller& caller);
@@ -29,7 +25,9 @@ private:
 	render::OfflineRenderer* m_renderer = nullptr;
 
 	// SDL-binded fields
-	ObjectTransform m_agentTransform;
+	bool m_useCopiedScene;
+	bool m_enableStatsRequest;
+	bool m_enablePeekingFrame;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<OfflineRenderAgent>)
@@ -37,9 +35,25 @@ public:
 		ClassType clazz("offline-render-agent");
 		clazz.docName("Offline Render Agent");
 		clazz.description("Controls offline rendering.");
-		clazz.baseOn<FlatDesignerObject>();
+		clazz.baseOn<RenderAgent>();
 
-		clazz.addStruct(&OwnerType::m_agentTransform);
+		TSdlBool<OwnerType> useCopiedScene("use-copied-scene", &OwnerType::m_useCopiedScene);
+		useCopiedScene.description(
+			"Whether to use a copied scene for rendering.");
+		useCopiedScene.defaultTo(true);
+		clazz.addField(useCopiedScene);
+
+		TSdlBool<OwnerType> enableStatsRequest("enable-stats-request", &OwnerType::m_enableStatsRequest);
+		enableStatsRequest.description(
+			"Whether to enable the retrieval of rendering statistics.");
+		enableStatsRequest.defaultTo(true);
+		clazz.addField(enableStatsRequest);
+
+		TSdlBool<OwnerType> enablePeekingFrame("enable-peeking-frame", &OwnerType::m_enablePeekingFrame);
+		enablePeekingFrame.description(
+			"Whether to enable the retrieval of intermediate rendering result.");
+		enablePeekingFrame.defaultTo(true);
+		clazz.addField(enablePeekingFrame);
 
 		return clazz;
 	}

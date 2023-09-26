@@ -45,7 +45,7 @@ ImguiEditorLog::ImguiEditorLog(ImguiEditorUIProxy editorUI)
 	, m_logBuffer()
 	, m_numLogs(0)
 	, m_numClearedLogs(0)
-	, isAutoScrollEnabled(true)
+	, m_isAutoScrollEnabled(true)
 {
 	constexpr std::size_t numReservedLogs = 128;
 	constexpr std::size_t numEstimatedLogsPerLine = 128;
@@ -78,7 +78,7 @@ void ImguiEditorLog::buildWindow(const char* windowIdName, bool* isOpening)
 		clearLogs();
 	}
 	ImGui::SameLine();
-	ImGui::Checkbox("Auto-scroll", &isAutoScrollEnabled);
+	ImGui::Checkbox("Auto-scroll", &m_isAutoScrollEnabled);
 	ImGui::SameLine();
 	const auto numLogs = lossless_cast<int>(m_numLogs);
 	const auto numTotalLogs = lossless_cast<int>(m_numLogs + m_numClearedLogs);
@@ -116,7 +116,7 @@ void ImguiEditorLog::buildWindow(const char* windowIdName, bool* isOpening)
 	clipper.End();
 	ImGui::PopStyleVar();
 
-	if(isAutoScrollEnabled && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+	if(m_isAutoScrollEnabled && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
 	{
 		ImGui::SetScrollHereY(1.0f);
 	}

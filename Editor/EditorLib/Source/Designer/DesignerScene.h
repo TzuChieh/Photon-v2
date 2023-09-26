@@ -40,13 +40,14 @@ class Editor;
 class MainThreadUpdateContext;
 class MainThreadRenderUpdateContext;
 class RenderThreadCaller;
+class RenderAgent;
 
 PH_DECLARE_LOG_GROUP(DesignerScene);
 
 class DesignerRendererBinding final
 {
 public:
-	DesignerObject* ownerObj = nullptr;
+	RenderAgent* agent = nullptr;
 	render::RealtimeRenderer* realtimeRenderer = nullptr;
 	render::OfflineRenderer* offlineRenderer = nullptr;
 };
@@ -169,12 +170,29 @@ public:
 	render::Scene& getRendererScene();
 	const render::Scene& getRendererScene() const;
 	void addRendererBinding(DesignerRendererBinding binding);
-	void removeRendererBinding(DesignerObject* ownerObj);
+	void removeRendererBinding(RenderAgent* agent);
 	TSpanView<DesignerRendererBinding> getRendererBindings() const;
+
+	/*!
+	@return Name of this designer scene.
+	*/
 	const std::string& getName() const;
+
+	/*!
+	@return The associated scene description.
+	*/
 	SceneDescription& getRenderDescription();
+
+	/*!
+	@return The associated scene description.
+	*/
 	const SceneDescription& getRenderDescription() const;
+
+	/*!
+	@return Storage location of the associated scene description.
+	*/
 	const ResourceIdentifier& getRenderDescriptionLink() const;
+
 	void setRenderDescriptionLink(ResourceIdentifier link);
 	TSpanView<DesignerObject*> getRootObjects() const;
 	std::string getUniqueObjectName(const std::string& intendedName);
@@ -346,7 +364,7 @@ public:
 		clazz.addField(name);
 
 		TSdlResourceIdentifier<OwnerType> renderDescriptionLink("render-description-link", &OwnerType::m_renderDescriptionLink);
-		renderDescriptionLink.description("Path to the associated scene description.");
+		renderDescriptionLink.description("Storage location of the associated scene description.");
 		renderDescriptionLink.defaultTo(ResourceIdentifier());
 		clazz.addField(renderDescriptionLink);
 

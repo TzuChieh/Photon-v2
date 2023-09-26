@@ -1,8 +1,11 @@
 #include "Designer/Render/OfflineRenderAgent.h"
 #include "Designer/DesignerScene.h"
+#include "Designer/Render/RenderConfig.h"
 #include "Render/RenderThreadCaller.h"
 #include "Render/Renderer/OfflineRenderer.h"
 #include "Render/Scene.h"
+
+#include <SDL/SceneDescription.h>
 
 #include <utility>
 #include <memory>
@@ -10,14 +13,17 @@
 namespace ph::editor
 {
 
-math::TDecomposedTransform<real> OfflineRenderAgent::getLocalToParent() const
+RenderConfig OfflineRenderAgent::getRenderConfig() const
 {
-	return m_agentTransform.getDecomposed();
-}
+	const ResourceIdentifier& descLink = getScene().getRenderDescriptionLink();
+	const SceneDescription& desc = getScene().getRenderDescription();
 
-void OfflineRenderAgent::setLocalToParent(const math::TDecomposedTransform<real>& transform)
-{
-	m_agentTransform.set(transform);
+	return {
+		.sceneFile = descLink.getPath(),
+		.sceneWorkingDirectory = desc.getWorkingDirectory(),
+		.useCopiedScene = m_useCopiedScene,
+		.enableStatsRequest = m_enableStatsRequest,
+		.enablePeekingFrame = m_enablePeekingFrame};
 }
 
 void OfflineRenderAgent::renderInit(RenderThreadCaller& caller)
@@ -33,7 +39,7 @@ void OfflineRenderAgent::renderInit(RenderThreadCaller& caller)
 		});
 
 	getScene().addRendererBinding({
-		.ownerObj = this,
+		.agent = this,
 		.offlineRenderer = m_renderer});
 }
 

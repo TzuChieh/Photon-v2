@@ -12,19 +12,10 @@
 #include <atomic>
 
 namespace ph { class Engine; }
+namespace ph::editor { class RenderConfig; }
 
 namespace ph::editor::render
 {
-
-class OfflineRenderConfig final
-{
-public:
-	Path sceneFile;
-	Path sceneWorkingDirectory;
-	bool useCopiedScene = true;
-	bool enableStatsRequest = true;
-	bool enablePeekingFrame = true;
-};
 
 class OfflineRenderer : public SceneRenderer
 {
@@ -32,7 +23,7 @@ public:
 	OfflineRenderer();
 	~OfflineRenderer() override;
 
-	void render(const OfflineRenderConfig& config);
+	void render(const RenderConfig& config);
 
 	/*!
 	@note Thread safe.
@@ -50,9 +41,11 @@ public:
 	void createGHICommands(GHIThreadCaller& caller) override;
 
 private:
-	void renderSingleStaticImageOnEngineThread(const OfflineRenderConfig& config);
+	void renderSingleStaticImageOnEngineThread(const RenderConfig& config);
 
-	TSPSCExecutor<std::function<void(void)>> m_engineThread;
+	using EngineWork = std::function<void(void)>;
+
+	TSPSCExecutor<EngineWork> m_engineThread;
 	TRelaxedAtomic<EOfflineRenderStage> m_renderStage;
 	TSynchronized<OfflineRenderStats> m_syncedRenderStats;
 	std::atomic_flag m_requestRenderStats;

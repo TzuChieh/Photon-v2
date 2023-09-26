@@ -681,7 +681,7 @@ void DesignerScene::cleanup()
 
 void DesignerScene::addRendererBinding(DesignerRendererBinding binding)
 {
-	if(!binding.ownerObj)
+	if(!binding.agent)
 	{
 		return;
 	}
@@ -689,12 +689,12 @@ void DesignerScene::addRendererBinding(DesignerRendererBinding binding)
 	m_rendererBindings.push_back(std::move(binding));
 }
 
-void DesignerScene::removeRendererBinding(DesignerObject* ownerObj)
+void DesignerScene::removeRendererBinding(RenderAgent* agent)
 {
 	auto numRemoved = std::erase_if(m_rendererBindings, 
-		[ownerObj](const DesignerRendererBinding& binding)
+		[agent](const DesignerRendererBinding& binding)
 		{
-			return binding.ownerObj == ownerObj;
+			return binding.agent == agent;
 		});
 	PH_ASSERT_LE(numRemoved, 1);
 }
