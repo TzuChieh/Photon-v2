@@ -49,7 +49,16 @@ public:
 
 	ESdlDataFormat elementContainer = ESdlDataFormat::None;
 	ESdlDataType elementType = ESdlDataType::None;
+
+	/*! @brief Number of elements in this block of native data.
+	For example, `numElements` would be 12 for an array of 12 `int`s; and 24 for an array of 12 `vec2`s.
+	*/
 	std::size_t numElements = 0;
+
+	/*! @brief Hint for number of elements that form a natural group.
+	For an array of 10 `vec3`s, `tupleSize` may have a value of 3 to indicate that for those 30 elements
+	in the array every 3 elements can form a group. This information is not always provided.
+	*/
 	std::size_t tupleSize = 0;
 
 	/*! @brief Creates native data for a single element pointer.
@@ -98,6 +107,9 @@ public:
 	T* directAccess() const;
 
 	void setDirectAccessor(AnyNonConstPtr accessor);
+
+	bool isIntegerElement() const;
+	bool isFloatingPointElement() const;
 
 	operator bool () const;
 

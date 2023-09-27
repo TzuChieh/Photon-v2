@@ -162,6 +162,40 @@ inline void SdlNativeData::setDirectAccessor(AnyNonConstPtr accessor)
 	m_directPtr = accessor;
 }
 
+inline bool SdlNativeData::isIntegerElement() const
+{
+	switch(elementType)
+	{
+	case ESdlDataType::Int8:
+	case ESdlDataType::UInt8:
+	case ESdlDataType::Int16:
+	case ESdlDataType::UInt16:
+	case ESdlDataType::Int32:
+	case ESdlDataType::UInt32:
+	case ESdlDataType::Int64:
+	case ESdlDataType::UInt64:
+	case ESdlDataType::Bool:
+	case ESdlDataType::Enum:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
+inline bool SdlNativeData::isFloatingPointElement() const
+{
+	switch(elementType)
+	{
+	case ESdlDataType::Float32:
+	case ESdlDataType::Float64:
+		return true;
+
+	default:
+		return false;
+	}
+}
+
 inline SdlNativeData::operator bool () const
 {
 	return numElements > 0;

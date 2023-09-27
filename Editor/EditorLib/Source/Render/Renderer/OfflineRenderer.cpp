@@ -31,7 +31,14 @@ OfflineRenderer::~OfflineRenderer()
 
 void OfflineRenderer::render(const RenderConfig& config)
 {
-	m_renderStage.relaxedWrite(EOfflineRenderStage::Standby);
+	if(getRenderStage() != EOfflineRenderStage::Finished)
+	{
+		PH_LOG_WARNING(OfflineRenderer,
+			"Please wait until current rendering task is finished before starting another render.");
+		return;
+	}
+
+	setRenderStage(EOfflineRenderStage::Standby);
 
 	if(!m_engineThread.hasStarted())
 	{
@@ -48,6 +55,7 @@ void OfflineRenderer::render(const RenderConfig& config)
 		[this, config]()
 		{
 			renderSingleStaticImageOnEngineThread(config);
+			setRenderStage(EOfflineRenderStage::Finished);
 		});
 }
 
@@ -77,18 +85,18 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 {
 	if(config.useCopiedScene)
 	{
-		m_renderStage.relaxedWrite(EOfflineRenderStage::CopyingScene);
+		setRenderStage(EOfflineRenderStage::CopyingScene);
 
 		// TODO: copy scene
 	}
 
-	m_renderStage.relaxedWrite(EOfflineRenderStage::LoadingScene);
+	setRenderStage(EOfflineRenderStage::LoadingScene);
 
 	auto renderEngine = std::make_unique<Engine>();
 	renderEngine->setWorkingDirectory(config.sceneWorkingDirectory);
 	renderEngine->loadCommands(config.sceneFile);
 
-	m_renderStage.relaxedWrite(EOfflineRenderStage::Updating);
+	setRenderStage(EOfflineRenderStage::Updating);
 
 	renderEngine->update();
 
@@ -163,7 +171,7 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 
 	// TODO: respond to peek frame request
 
-	m_renderStage.relaxedWrite(EOfflineRenderStage::Rendering);
+	setRenderStage(EOfflineRenderStage::Rendering);
 
 	renderEngine->render();
 
@@ -175,11 +183,9 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 
 	// TODO: stop the peek frame request
 
-	m_renderStage.relaxedWrite(EOfflineRenderStage::Developing);
+	setRenderStage(EOfflineRenderStage::Developing);
 
 	// TODO: get final frame or save file
-
-	m_renderStage.relaxedWrite(EOfflineRenderStage::Finished);
 }
 
 void OfflineRenderer::setupGHI(GHIThreadCaller& caller)

@@ -43,6 +43,11 @@ public:
 private:
 	void renderSingleStaticImageOnEngineThread(const RenderConfig& config);
 
+	/*!
+	@note Thread safe.
+	*/
+	void setRenderStage(EOfflineRenderStage stage);
+
 	using EngineWork = std::function<void(void)>;
 
 	TSPSCExecutor<EngineWork> m_engineThread;
@@ -54,6 +59,11 @@ private:
 inline EOfflineRenderStage OfflineRenderer::getRenderStage() const
 {
 	return m_renderStage.relaxedRead();
+}
+
+inline void OfflineRenderer::setRenderStage(EOfflineRenderStage stage)
+{
+	m_renderStage.relaxedWrite(stage);
 }
 
 }// end namespace ph::editor::render

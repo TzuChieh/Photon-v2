@@ -3,8 +3,13 @@
 #include "Render/Imgui/ImguiEditorPanel.h"
 #include "Designer/UI/UIPropertyLayout.h"
 
+#include <SDL/SdlResourceId.h>
+
 namespace ph::editor
 {
+
+class DesignerScene;
+class DesignerObject;
 
 class ImguiEditorPropertyPanel : public ImguiEditorPanel
 {
@@ -14,11 +19,12 @@ public:
 	void buildWindow(const char* windowIdName, bool* isOpening) override;
 	auto getAttributes() const -> Attributes override;
 
-	void setLayout(UIPropertyLayout layout);
-	void clearLayout();
-
 private:
-	UIPropertyLayout m_layout;
+	void buildPropertyEditor(DesignerObject& obj);
+	void buildPropertiesInGroup(const UIPropertyGroup& group);
+
+	SdlResourceId m_layoutObjID;
+	UIPropertyLayout m_propertyLayout;
 };
 
 }// end namespace ph::editor
