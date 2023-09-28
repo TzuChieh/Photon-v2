@@ -9,8 +9,8 @@
 
 #include <cstddef>
 #include <utility>
-#include <string>
 #include <array>
+#include <string>
 
 namespace ph::editor
 {
@@ -60,6 +60,12 @@ void ImguiEditorPropertyPanel::buildWindow(const char* windowIdName, bool* isOpe
 		ImGui::SameLine();
 		ImGui::TextUnformatted(primaryObj->getName().c_str());
 
+		// Pop out full object name in case there was not enough space for it
+		if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+		{
+			ImGui::SetTooltip(primaryObj->getName().c_str());
+		}
+
 		const std::size_t numSelectedObjs = activeScene ? activeScene->getSelection().size() : 0;
 		if(numSelectedObjs > 1)
 		{
@@ -101,8 +107,12 @@ void ImguiEditorPropertyPanel::buildPropertyEditor(DesignerObject& obj)
 
 		if(ImGui::CollapsingHeader(group.getName().c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{
+			constexpr ImGuiTableFlags tableFlags =
+				ImGuiTableFlags_BordersOuter |
+				ImGuiTableFlags_Resizable;
+
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
-			if(ImGui::BeginTable(group.getName().c_str(), 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
+			if(ImGui::BeginTable(group.getName().c_str(), 2, tableFlags))
 			{
 				buildPropertiesInGroup(group);
 				ImGui::EndTable();
@@ -130,7 +140,13 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 		// Text and tree nodes are less high than framed widgets, using `AlignTextToFramePadding()` we
 		// add vertical spacing to make the tree lines equal high.
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted( prop.getDisplayName().c_str());
+		ImGui::TextUnformatted(prop.getDisplayName().c_str());
+
+		// Pop out full property name in case there was not enough space for it
+		if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
+		{
+			ImGui::SetTooltip(prop.getDisplayName().c_str());
+		}
 
 		ImGui::TableSetColumnIndex(1);
 
@@ -151,10 +167,87 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 				break;
 			}
 
+			case ESdlDataType::Int8:
+			case ESdlDataType::UInt8:
+			case ESdlDataType::Int16:
+			case ESdlDataType::UInt16:
+			case ESdlDataType::Int32:
+			case ESdlDataType::UInt32:
+			case ESdlDataType::Int64:
+			case ESdlDataType::UInt64:
+			case ESdlDataType::Float32:
+			case ESdlDataType::Float64:
+			{
+				if(nativeData.isIntegerElement())
+				{
+					auto value = *nativeData.get<int64>(0);
+
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					const bool isValueChanged = ImGui::InputScalar(
+						"##prop",
+						ImGuiDataType_S64,
+						&value);
+
+					if(isValueChanged)
+					{
+						nativeData.set(0, value);
+					}
+				}
+				else if(nativeData.isFloatingPointElement())
+				{
+					auto value = *nativeData.get<float64>(0);
+
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					const bool isValueChanged = ImGui::InputScalar(
+						"##prop",
+						ImGuiDataType_Double,
+						&value);
+
+					if(isValueChanged)
+					{
+						nativeData.set(0, value);
+					}
+				}
+				else
+				{
+					ImGui::TextUnformatted("(data unavailable)");
+				}
+				break;
+			}
+
 			case ESdlDataType::String:
 			{
-				auto str = nativeData.directAccess<std::string>();
-				ImGui::TextUnformatted(str ? str->c_str() : "(string unavailable)");
+				auto string = nativeData.directAccess<std::string>();
+				if(string)
+				{
+					auto resizeCallback = [](ImGuiInputTextCallbackData* data) -> int
+					{
+						if(data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+						{
+							auto stdString = reinterpret_cast<std::string*>(data->UserData);
+							PH_ASSERT(stdString->data() == data->Buf);
+
+							// On resizing calls, generally `data->BufSize == data->BufTextLen + 1`
+							stdString->resize(data->BufSize);
+
+							data->Buf = stdString->data();
+						}
+						return 0;
+					};
+
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					ImGui::InputText(
+						"##prop", 
+						string->data(), 
+						string->size() + 1,// `data()[size()]` is valid (must be `\0`, since C++11)
+						ImGuiInputTextFlags_CallbackResize,
+						resizeCallback,
+						string);
+				}
+				else
+				{
+					ImGui::TextUnformatted("(string unavailable)");
+				}
 				break;
 			}
 
@@ -248,7 +341,6 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 					ImGui::PopStyleVar(3);
 					ImGui::EndTable();
 				}
-
 				break;
 			}
 
