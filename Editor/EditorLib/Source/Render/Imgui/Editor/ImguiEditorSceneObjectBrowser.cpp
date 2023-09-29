@@ -4,6 +4,7 @@
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
+#include "Designer/Imposter/SpecializedImposterBinder.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
 #include "App/Event/ActiveDesignerSceneChangedEvent.h"
 
@@ -308,14 +309,24 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 
 	if(!scene) { ImGui::BeginDisabled(); }
 	const SdlClass* selectedClass = nullptr;
-	getEditorUI().getObjectTypeMenu().buildMenuButton(
+	bool hasSelectedImposter = false;
+	if(getEditorUI().getObjectTypeMenu().menuButton(
 		PH_IMGUI_PLUS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Root Object ",
-		selectedClass);
-	if(!scene) { ImGui::EndDisabled(); }
-	if(scene && selectedClass)
+		selectedClass,
+		true,
+		&hasSelectedImposter))
 	{
-		scene->newRootObject(selectedClass);
+		if(hasSelectedImposter)
+		{
+			SpecializedImposterBinder binder(*scene);
+			binder.newImposter(selectedClass);
+		}
+		else
+		{
+			scene->newRootObject(selectedClass);
+		}
 	}
+	if(!scene) { ImGui::EndDisabled(); }
 
 	imgui::text_unformatted(m_objViewLevelName);
 

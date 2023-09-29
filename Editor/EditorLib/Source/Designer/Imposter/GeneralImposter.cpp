@@ -1,26 +1,38 @@
 #include "Designer/Imposter/GeneralImposter.h"
 
+#include <Math/Transform/TDecomposedTransform.h>
+
 namespace ph::editor
 {
 
-bool GeneralImposter::bindTarget(
-	const std::shared_ptr<ISdlResource>& resource,
-	const std::string& targetName)
+bool GeneralImposter::bindDescription(
+	const std::shared_ptr<ISdlResource>& descResource,
+	const std::string& descName)
 {
-	if(!Base::bindTarget(resource, targetName))
+	if(!Base::bindDescription(descResource, descName))
 	{
 		return false;
 	}
 
-	m_targetResource = resource;
+	m_descResource = descResource;
 	return true;
 }
 
-void GeneralImposter::unbindTarget()
+void GeneralImposter::unbindDescription()
 {
-	m_targetResource = nullptr;
+	m_descResource = nullptr;
 
-	Base::unbindTarget();
+	Base::unbindDescription();
+}
+
+math::TDecomposedTransform<real> GeneralImposter::getLocalToParent() const
+{
+	return m_imposterTransform.getDecomposed();
+}
+
+void GeneralImposter::setLocalToParent(const math::TDecomposedTransform<real>& transform)
+{
+	m_imposterTransform.set(transform);
 }
 
 }// end namespace ph::editor

@@ -16,17 +16,17 @@ PH_DECLARE_LOG_GROUP(ImposterObject);
 class ImposterObject : public FlatDesignerObject
 {
 public:
-	virtual bool bindTarget(
-		const std::shared_ptr<ISdlResource>& resource,
+	virtual bool bindDescription(
+		const std::shared_ptr<ISdlResource>& descResource,
 		const std::string& targetName);
 
-	virtual void unbindTarget();
+	virtual void unbindDescription();
 
-	const std::string& getTargetName() const;
+	const std::string& getDescriptionName() const;
 
 private:
 	// SDL-binded fields
-	std::string m_targetName;
+	std::string m_descName;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ImposterObject>)
@@ -38,9 +38,9 @@ public:
 			"description resource.");
 		clazz.baseOn<FlatDesignerObject>();
 
-		TSdlString<OwnerType> targetName("target-name", &OwnerType::m_targetName);
-		targetName.description("Name of the render description resource this object is representing.");
-		clazz.addField(targetName);
+		TSdlString<OwnerType> descName("desc-name", &OwnerType::m_descName);
+		descName.description("Name of the render description resource this object is representing.");
+		clazz.addField(descName);
 
 		return clazz;
 	}

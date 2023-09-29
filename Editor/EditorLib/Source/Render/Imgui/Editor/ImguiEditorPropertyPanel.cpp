@@ -41,12 +41,13 @@ void ImguiEditorPropertyPanel::buildWindow(const char* windowIdName, bool* isOpe
 
 	if(!canAddChildObj) { ImGui::BeginDisabled(); }
 	const SdlClass* selectedClass = nullptr;
-	getEditorUI().getObjectTypeMenu().buildMenuButton(
-		PH_IMGUI_PLUS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Child Object ", 
-		selectedClass);
+	if(getEditorUI().getObjectTypeMenu().menuButton(
+		PH_IMGUI_PLUS_ICON PH_IMGUI_ICON_TIGHT_PADDING "Child Object ",
+		selectedClass))
+	{
+		// TODO: add child
+	}
 	if(!canAddChildObj) { ImGui::EndDisabled(); }
-
-	// TODO: add child
 
 	if(!primaryObj)
 	{

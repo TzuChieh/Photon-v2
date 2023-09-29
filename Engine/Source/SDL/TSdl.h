@@ -17,6 +17,7 @@ namespace ph
 
 class Path;
 class ISdlResource;
+class SdlClass;
 
 namespace detail
 {
@@ -26,8 +27,25 @@ void save_single_resource(const std::shared_ptr<ISdlResource>& resource, const P
 
 }// end namespace detail
 
-template<CSdlResource T>
+template<typename StaticT = void>
 class TSdl final
+{};
+
+template<>
+class TSdl<void> final
+{
+	/*static_assert(std::is_same_v<StaticT, void>,
+		"Dynamic-typed TSdl accepts only StaticT = void.");*/
+
+public:
+	/*! @brief Creates a sharable resource filled with default values.
+	Default values are determined by SDL class definition.
+	*/
+	static std::shared_ptr<ISdlResource> makeResource(const SdlClass* clazz);
+};
+
+template<CSdlResource T>
+class TSdl<T> final
 {
 public:
 	/*! @brief Statically gets the category of @p T.

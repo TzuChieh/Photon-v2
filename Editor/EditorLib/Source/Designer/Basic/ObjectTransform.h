@@ -15,8 +15,6 @@ namespace ph::editor
 class ObjectTransform final
 {
 public:
-	inline ObjectTransform() = default;
-
 	ObjectTransform& setPosition(real x, real y, real z);
 	ObjectTransform& setPosition(const math::Vector3R& position);
 	ObjectTransform& setRotation(const math::Vector3R& axis, real degrees);

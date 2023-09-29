@@ -7,6 +7,8 @@
 
 #include "ThirdParty/DearImGui.h"
 
+#include <ph_cpp_core.h>
+
 #include <string_view>
 #include <algorithm>
 
@@ -16,23 +18,46 @@ namespace ph::editor
 ImguiEditorObjectTypeMenu::ImguiEditorObjectTypeMenu()
 {}
 
-void ImguiEditorObjectTypeMenu::buildMenuButton(
+bool ImguiEditorObjectTypeMenu::menuButton(
 	const char* name,
-	const SdlClass*& out_selectedClass)
+	const SdlClass*& out_selectedClass,
+	bool showImposters,
+	bool* out_hasSelectedImposter)
 {
-	out_selectedClass = nullptr;
+	const SdlClass* selectedClass = nullptr;
+	bool hasSelectedImposter = false;
 
 	if(ImGui::BeginPopup(name))
 	{
 		ImGui::MenuItem(PH_IMGUI_OBJECTS_ICON " Object Types", nullptr, false, false);
+
+		if(showImposters)
+		{
+			ImGui::Separator();
+			if(ImGui::BeginMenu("Imposters"))
+			{
+				for(const ObjectType& type : getImposterObjectTypes())
+				{
+					if(ImGui::MenuItem(type.displayName.c_str()))
+					{
+						selectedClass = type.clazz;
+						hasSelectedImposter = true;
+					}
+				}
+				ImGui::EndMenu();
+			}
+		}
+
 		ImGui::Separator();
-		for(const ObjectType& type : getObjectTypes())
+		for(const ObjectType& type : getGeneralObjectTypes())
 		{
 			if(ImGui::MenuItem(type.displayName.c_str()))
 			{
-				out_selectedClass = type.clazz;
+				selectedClass = type.clazz;
+				hasSelectedImposter = false;
 			}
 		}
+
 		ImGui::EndPopup();
 	}
 
@@ -53,9 +78,17 @@ void ImguiEditorObjectTypeMenu::buildMenuButton(
 	{
 		ImGui::OpenPopup(name);
 	}
+
+	out_selectedClass = selectedClass;
+	if(out_hasSelectedImposter)
+	{
+		*out_hasSelectedImposter = hasSelectedImposter;
+	}
+
+	return selectedClass != nullptr;
 }
 
-auto ImguiEditorObjectTypeMenu::gatherObjectTypes()
+auto ImguiEditorObjectTypeMenu::gatherGeneralObjectTypes()
 -> std::vector<ObjectType>
 {
 	std::vector<ObjectType> types;
@@ -95,10 +128,45 @@ auto ImguiEditorObjectTypeMenu::gatherObjectTypes()
 	return types;
 }
 
-auto ImguiEditorObjectTypeMenu::getObjectTypes()
+auto ImguiEditorObjectTypeMenu::gatherImposterObjectTypes()
+-> std::vector<ObjectType>
+{
+	std::vector<ObjectType> types;
+	for(const SdlClass* clazz : get_registered_engine_classes())
+	{
+		if(clazz->isBlueprint())
+		{
+			continue;
+		}
+
+		std::string_view docName = clazz->getDocName();
+
+		types.push_back({
+			.clazz = clazz,
+			.displayName = std::string(docName)});
+	}
+
+	// Make sure we have same order every time (according to display name)
+	std::sort(types.begin(), types.end(),
+		[](const ObjectType& a, const ObjectType& b)
+		{
+			return a.displayName < b.displayName;
+		});
+
+	return types;
+}
+
+auto ImguiEditorObjectTypeMenu::getGeneralObjectTypes()
 -> TSpanView<ObjectType>
 {
-	static std::vector<ObjectType> types = gatherObjectTypes();
+	static std::vector<ObjectType> types = gatherGeneralObjectTypes();
+	return types;
+}
+
+auto ImguiEditorObjectTypeMenu::getImposterObjectTypes()
+-> TSpanView<ObjectType>
+{
+	static std::vector<ObjectType> types = gatherImposterObjectTypes();
 	return types;
 }
 

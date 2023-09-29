@@ -15,8 +15,6 @@ namespace ph
 class TransformInfo final
 {
 public:
-	inline TransformInfo() = default;
-
 	TransformInfo& setPosition(real x, real y, real z);
 	TransformInfo& setPosition(const math::Vector3R& position);
 	TransformInfo& setRotation(const math::Vector3R& axis, real degrees);

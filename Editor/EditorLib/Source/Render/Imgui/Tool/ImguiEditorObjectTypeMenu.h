@@ -17,9 +17,11 @@ class ImguiEditorObjectTypeMenu final
 public:
 	ImguiEditorObjectTypeMenu();
 
-	void buildMenuButton(
+	bool menuButton(
 		const char* name,
-		const SdlClass*& out_selectedClass);
+		const SdlClass*& out_selectedClass,
+		bool showImposters = false,
+		bool* out_hasSelectedImposter = nullptr);
 
 private:
 	struct ObjectType
@@ -28,8 +30,10 @@ private:
 		std::string displayName;
 	};
 
-	static std::vector<ObjectType> gatherObjectTypes();
-	static TSpanView<ObjectType> getObjectTypes();
+	static std::vector<ObjectType> gatherGeneralObjectTypes();
+	static std::vector<ObjectType> gatherImposterObjectTypes();
+	static TSpanView<ObjectType> getGeneralObjectTypes();
+	static TSpanView<ObjectType> getImposterObjectTypes();
 };
 
 }// end namespace ph::editor

@@ -13,6 +13,29 @@
 namespace ph
 {
 
+inline std::shared_ptr<ISdlResource> TSdl<void>::makeResource(const SdlClass* clazz)
+{
+	if(!clazz)
+	{
+		return nullptr;
+	}
+
+	// Creates an uninitialized resource
+	std::shared_ptr<ISdlResource> resource = clazz->createResource();
+
+	// Could be empty due to `T` being abstract or being defined to be uninstantiable
+	if(!resource)
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"default resource creation failed, {} could be abstract or defined to be uninstantiable",
+			clazz->genPrettyName());
+		return nullptr;
+	}
+
+	clazz->initDefaultResource(*resource);
+	return resource;
+}
+
 template<CSdlResource T>
 inline constexpr ESdlTypeCategory TSdl<T>::getCategory()
 {
@@ -28,20 +51,11 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 	const SdlClass* clazz = T::getSdlClass();
 	PH_ASSERT(clazz);
 
-	// Creates an uninitialized resource
-	std::shared_ptr<ISdlResource> resource = clazz->createResource();
-
-	// Could be empty due to `T` being abstract or being defined to be uninstantiable
+	std::shared_ptr<ISdlResource> resource = TSdl<>::makeResource(clazz);
 	if(!resource)
 	{
-		PH_DEFAULT_LOG_WARNING(
-			"default resource creation failed, {} could be abstract or defined to be uninstantiable",
-			clazz->genPrettyName());
-
 		return nullptr;
 	}
-
-	clazz->initDefaultResource(*resource);
 
 	// Obtain typed resource. This dynamic cast also guard against the case where
 	// `T` might not actually have SDL class defined locally but inherited (i.e., the resource
