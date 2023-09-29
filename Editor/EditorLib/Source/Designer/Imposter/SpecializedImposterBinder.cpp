@@ -2,6 +2,7 @@
 #include "Designer/Imposter/GeneralImposter.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
+#include "Designer/Imposter/ImposterObject.h"
 
 #include <ph_cpp_core.h>
 #include <Common/assertion.h>
@@ -17,7 +18,7 @@ SpecializedImposterBinder::SpecializedImposterBinder(DesignerScene& scene)
 	: m_scene(scene)
 {}
 
-DesignerObject* SpecializedImposterBinder::newImposter(
+ImposterObject* SpecializedImposterBinder::newImposter(
 	const std::shared_ptr<ISdlResource>& descResource,
 	const std::string& descName)
 {
@@ -29,10 +30,32 @@ DesignerObject* SpecializedImposterBinder::newImposter(
 	}
 
 	const SdlClass* imposterClass = getImposterClass(descResource->getDynamicSdlClass());
-	return imposterClass ? m_scene.newRootObject(imposterClass) : nullptr;
+	if(!imposterClass)
+	{
+		PH_ASSERT_MSG(false,
+			"No valid imposter class specified for class <" + 
+			descResource->getDynamicSdlClass()->genPrettyName() + ">.");
+		return nullptr;
+	}
+
+	DesignerObject* obj = m_scene.newRootObject(imposterClass);
+	ImposterObject* imposterObj = static_cast<ImposterObject*>(obj);
+	PH_ASSERT(dynamic_cast<ImposterObject*>(obj));
+	PH_ASSERT(imposterObj);
+
+	if(imposterObj->bindDescription(descResource, descName))
+	{
+		m_scene.getRenderDescription().getResources().add(descResource, descName);
+		return imposterObj;
+	}
+	else
+	{
+		m_scene.deleteObject(imposterObj);
+		return nullptr;
+	}
 }
 
-DesignerObject* SpecializedImposterBinder::newImposter(const SdlClass* descClass)
+ImposterObject* SpecializedImposterBinder::newImposter(const SdlClass* descClass)
 {
 	return newImposter(
 		TSdl<>::makeResource(descClass),

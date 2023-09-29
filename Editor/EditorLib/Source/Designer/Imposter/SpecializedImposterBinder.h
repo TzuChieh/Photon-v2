@@ -11,6 +11,7 @@ namespace ph::editor
 
 class DesignerScene;
 class DesignerObject;
+class ImposterObject;
 
 class SpecializedImposterBinder final
 {
@@ -19,14 +20,14 @@ public:
 
 	/*! @brief Given a description resource and its name, create an imposter object for it.
 	*/
-	DesignerObject* newImposter(
+	ImposterObject* newImposter(
 		const std::shared_ptr<ISdlResource>& descResource,
 		const std::string& descName);
 
 	/*! @brief Given a description resource type, create an imposter object for it.
 	The binded description resource will be created automatically.
 	*/
-	DesignerObject* newImposter(const SdlClass* descClass);
+	ImposterObject* newImposter(const SdlClass* descClass);
 
 private:
 	static bool isDescriptionClass(const SdlClass* clazz);

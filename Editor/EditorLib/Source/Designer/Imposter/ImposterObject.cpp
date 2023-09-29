@@ -9,16 +9,16 @@ PH_DEFINE_LOG_GROUP(ImposterObject, Designer);
 
 bool ImposterObject::bindDescription(
 	const std::shared_ptr<ISdlResource>& descResource,
-	const std::string& targetName)
+	const std::string& descName)
 {
 	if(!descResource)
 	{
 		PH_LOG_WARNING(ImposterObject,
-			"ignoring incomplete input target: resource is null");
+			"Ignoring incomplete input description: resource is null.");
 		return false;
 	}
 
-	m_descName = targetName;
+	m_descName = descName;
 	return true;
 }
 

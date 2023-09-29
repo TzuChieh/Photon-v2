@@ -18,7 +18,7 @@ class ImposterObject : public FlatDesignerObject
 public:
 	virtual bool bindDescription(
 		const std::shared_ptr<ISdlResource>& descResource,
-		const std::string& targetName);
+		const std::string& descName);
 
 	virtual void unbindDescription();
 
