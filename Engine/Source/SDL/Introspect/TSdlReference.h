@@ -24,7 +24,7 @@ public:
 
 	/*! @brief By default, default value of a SDL reference is empty.
 	*/
-	void setValueToDefault(Owner& owner) const override;
+	void ownedValueToDefault(Owner& owner) const override;
 
 	std::string valueToString(const Owner& owner) const override;
 

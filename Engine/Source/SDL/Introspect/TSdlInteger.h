@@ -35,15 +35,41 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		IntType* const intPtr = this->getValue(owner);
-
-		SdlNativeData data;
-		if(intPtr)
+		if constexpr(std::is_base_of_v<TSdlOptionalValue<IntType, Owner>, SdlValueType>)
 		{
-			data = SdlNativeData::fromSingleElement(intPtr, true, true);
+			auto data = SdlNativeData(
+				[&optInt = this->valueRef(owner)](std::size_t /* elementIdx */) -> SdlGetterVariant
+				{
+					return optInt
+						? SdlNativeData::permissiveElementGetter(&(*optInt))
+						: std::monostate{};
+				},
+				[&optInt = this->valueRef(owner)](std::size_t /* elementIdx */, SdlSetterVariant input) -> bool
+				{
+					if(input.isEmpty())
+					{
+						optInt = std::nullopt;
+						return true;
+					}
+					else
+					{
+						optInt = IntType{};
+						return SdlNativeData::permissiveElementSetter(input, &(*optInt));
+					}
+				},
+				AnyNonConstPtr(intPtr));
+
+			data.numElements = 1;
+			data.elementContainer = ESdlDataFormat::Single;
+			data.elementType = sdl::int_type_of<IntType>();
+			data.isNullClearable = true;
+			return data;
 		}
-		data.elementContainer = ESdlDataFormat::Single;
-		data.elementType = sdl::int_type_of<IntType>();
-		return data;
+		else
+		{
+			return SdlNativeData::fromSingleElement(
+				intPtr, ESdlDataFormat::Single, sdl::int_type_of<IntType>(), true, true);
+		}
 	}
 
 protected:

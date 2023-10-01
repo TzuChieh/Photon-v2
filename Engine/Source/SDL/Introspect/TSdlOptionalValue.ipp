@@ -51,9 +51,15 @@ inline const T* TSdlOptionalValue<T, Owner>::getConstValue(const Owner& owner) c
 }
 
 template<typename T, typename Owner>
-inline void TSdlOptionalValue<T, Owner>::setValueToDefault(Owner& owner) const
+inline void TSdlOptionalValue<T, Owner>::ownedValueToDefault(Owner& owner) const
 {
 	owner.*m_valuePtr = std::nullopt;
+}
+
+template<typename T, typename Owner>
+inline std::optional<T>& TSdlOptionalValue<T, Owner>::valueRef(Owner& owner) const
+{
+	return owner.*m_valuePtr;
 }
 
 }// end namespace ph

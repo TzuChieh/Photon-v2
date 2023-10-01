@@ -44,7 +44,7 @@ inline TSdlReference<T, Owner>::TSdlReference(
 }
 
 template<typename T, typename Owner>
-inline void TSdlReference<T, Owner>::setValueToDefault(Owner& owner) const
+inline void TSdlReference<T, Owner>::ownedValueToDefault(Owner& owner) const
 {
 	// Default value for a SDL resource defined as nullptr
 	setValueRef(owner, nullptr);
@@ -78,8 +78,13 @@ inline SdlNativeData TSdlReference<T, Owner>::ownedNativeData(Owner& owner) cons
 
 	// Read-only for ordinary access to avoid accidental object slicing and other polymorphic
 	// assignment issues. User should use direct accessor for assignment.
-	auto data = SdlNativeData::fromSingleElement(originalDataPtr);
-
+	SdlNativeData data = SdlNativeData(
+		[originalDataPtr](std::size_t elementIdx) -> SdlGetterVariant
+		{
+			return originalDataPtr
+				? SdlNativeData::permissiveElementGetter(originalDataPtr)
+				: SdlConstInstance{};
+		});
 	data.setDirectAccessor(AnyNonConstPtr(&valueRef));
 	data.elementContainer = ESdlDataFormat::SharedPointer;
 	data.elementType = sdl::resource_type_of<T>();

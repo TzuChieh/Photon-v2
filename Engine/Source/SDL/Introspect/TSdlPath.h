@@ -31,15 +31,8 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		Path* const path = this->getValue(owner);
-
-		SdlNativeData data;
-		if(path)
-		{
-			data = SdlNativeData::fromSingleElement(path, true, true);
-		}
-		data.elementContainer = ESdlDataFormat::Single;
-		data.elementType = ESdlDataType::Path;
-		return data;
+		return SdlNativeData::fromSingleElement(
+			path, ESdlDataFormat::Single, ESdlDataType::Path, true, true);
 	}
 
 protected:

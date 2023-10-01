@@ -45,7 +45,7 @@ inline TSdlReferenceArray<T, Owner>::TSdlReferenceArray(
 }
 
 template<typename T, typename Owner>
-inline void TSdlReferenceArray<T, Owner>::setValueToDefault(Owner& owner) const
+inline void TSdlReferenceArray<T, Owner>::ownedValueToDefault(Owner& owner) const
 {
 	// Default value for an array is empty
 	owner.*m_valuePtr = std::vector<std::shared_ptr<T>>{};\
@@ -86,10 +86,12 @@ inline SdlNativeData TSdlReferenceArray<T, Owner>::ownedNativeData(Owner& owner)
 		// Read-only for ordinary access to avoid accidental object slicing and other polymorphic
 		// assignment issues. User should use direct accessor for assignment.
 		data = SdlNativeData(
-			[refVecData](std::size_t elementIdx) -> SdlNativeData::GetterVariant
+			[refVecData](std::size_t elementIdx) -> SdlGetterVariant
 			{
 				T* const originalDataPtr = refVecData[elementIdx].get();
-				return SdlNativeData::permissiveElementToGetterVariant(originalDataPtr);
+				return originalDataPtr
+					? SdlNativeData::permissiveElementGetter(originalDataPtr)
+					: SdlConstInstance{};
 			});
 
 		data.numElements = refVec->size();

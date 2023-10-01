@@ -21,6 +21,7 @@ public:
 
 	void unbindDescription() override;
 
+	UIPropertyLayout layoutProperties() override;
 	math::TDecomposedTransform<real> getLocalToParent() const override;
 	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override;
 

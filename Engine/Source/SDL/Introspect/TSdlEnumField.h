@@ -45,15 +45,41 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		EnumType* const enumPtr = this->getValue(owner);
-
-		SdlNativeData data;
-		if(enumPtr)
+		if constexpr(std::is_base_of_v<TSdlOptionalValue<EnumType, Owner>, SdlValueType>)
 		{
-			data = SdlNativeData::fromSingleElement(enumPtr, true, true);
+			auto data = SdlNativeData(
+				[&optEnum = this->valueRef(owner)](std::size_t /* elementIdx */) -> SdlGetterVariant
+				{
+					return optEnum
+						? SdlNativeData::permissiveElementGetter(&(*optEnum))
+						: std::monostate{};
+				},
+				[&optEnum = this->valueRef(owner)](std::size_t /* elementIdx */, SdlSetterVariant input) -> bool
+				{
+					if(input.isEmpty())
+					{
+						optEnum = std::nullopt;
+						return true;
+					}
+					else
+					{
+						optEnum = EnumType{};
+						return SdlNativeData::permissiveElementSetter(input, &(*optEnum));
+					}
+				},
+				AnyNonConstPtr(enumPtr));
+
+			data.numElements = 1;
+			data.elementContainer = ESdlDataFormat::Single;
+			data.elementType = ESdlDataType::Enum;
+			data.isNullClearable = true;
+			return data;
 		}
-		data.elementContainer = ESdlDataFormat::Single;
-		data.elementType = ESdlDataType::Enum;
-		return data;
+		else
+		{
+			return SdlNativeData::fromSingleElement(
+				enumPtr, ESdlDataFormat::Single, ESdlDataType::Enum, true, true);
+		}
 	}
 
 protected:

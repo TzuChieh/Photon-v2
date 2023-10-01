@@ -1,4 +1,5 @@
 #include "Designer/Imposter/GeneralImposter.h"
+#include "Designer/UI/UIPropertyLayout.h"
 
 #include <Math/Transform/TDecomposedTransform.h>
 
@@ -23,6 +24,17 @@ void GeneralImposter::unbindDescription()
 	m_descResource = nullptr;
 
 	Base::unbindDescription();
+}
+
+UIPropertyLayout GeneralImposter::layoutProperties()
+{
+	UIPropertyLayout layout = Base::layoutProperties();
+	if(m_descResource)
+	{
+		layout.addGroups(UIPropertyLayout::makeLinearListing(
+			m_descResource.get(), "Description"));
+	}
+	return layout;
 }
 
 math::TDecomposedTransform<real> GeneralImposter::getLocalToParent() const

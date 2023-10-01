@@ -43,13 +43,13 @@ public:
 		{
 			Element* const vecData = vec->data();
 			data = SdlNativeData(
-				[vecData](std::size_t elementIdx) -> SdlNativeData::GetterVariant
+				[vecData](std::size_t elementIdx) -> SdlGetterVariant
 				{
-					return SdlNativeData::permissiveElementToGetterVariant(&(vecData[elementIdx]));
+					return SdlNativeData::permissiveElementGetter(&(vecData[elementIdx]));
 				},
-				[vecData](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				[vecData](std::size_t elementIdx, SdlSetterVariant input) -> bool
 				{
-					return SdlNativeData::permissiveSetterVariantToElement(input, &(vecData[elementIdx]));
+					return SdlNativeData::permissiveElementSetter(input, &(vecData[elementIdx]));
 				},
 				AnyNonConstPtr(vec));
 

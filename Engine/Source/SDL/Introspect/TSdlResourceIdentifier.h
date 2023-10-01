@@ -43,15 +43,8 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		ResourceIdentifier* const identifier = this->getValue(owner);
-
-		SdlNativeData data;
-		if(identifier)
-		{
-			data = SdlNativeData::fromSingleElement(identifier, true, true);
-		}
-		data.elementContainer = ESdlDataFormat::Single;
-		data.elementType = ESdlDataType::ResourceIdentifier;
-		return data;
+		return SdlNativeData::fromSingleElement(
+			identifier, ESdlDataFormat::Single, ESdlDataType::ResourceIdentifier, true, true);
 	}
 
 protected:

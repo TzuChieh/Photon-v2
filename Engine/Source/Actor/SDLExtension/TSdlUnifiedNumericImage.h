@@ -38,7 +38,7 @@ public:
 		std::string valueName, 
 		std::shared_ptr<UnifiedNumericImage> Owner::* imagePtr);
 
-	void setValueToDefault(Owner& owner) const override;
+	void ownedValueToDefault(Owner& owner) const override;
 
 	/*! @brief No default data.
 	*/
@@ -120,7 +120,7 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 }
 
 template<typename Owner>
-inline void TSdlUnifiedNumericImage<Owner>::setValueToDefault(Owner& owner) const
+inline void TSdlUnifiedNumericImage<Owner>::ownedValueToDefault(Owner& owner) const
 {
 	// Default image is copied so that modification done by the owner will not affect
 	// other owners that also use the same default.

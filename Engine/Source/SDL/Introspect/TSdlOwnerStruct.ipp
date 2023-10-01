@@ -110,7 +110,7 @@ inline void TSdlOwnerStruct<StructType>::setFieldsToDefaults(StructType& structO
 		const auto& field = m_fields[fieldIdx];
 
 		// Set field to default value regardless of its importance (field importance is for import/export)
-		field.setValueToDefault(structObj);
+		field.ownedValueToDefault(structObj);
 	}
 }
 

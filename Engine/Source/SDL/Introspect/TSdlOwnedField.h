@@ -20,7 +20,7 @@ public:
 	Since the field class is templatized by `Owner` type, we are able to define default value on
 	a per owner type basis.
 	*/
-	virtual void setValueToDefault(Owner& owner) const = 0;
+	virtual void ownedValueToDefault(Owner& owner) const = 0;
 
 	/*! @brief Convert the value of the field to human-readable string.
 	*/

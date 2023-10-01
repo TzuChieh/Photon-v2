@@ -56,7 +56,7 @@ inline void TSdlOwnedField<Owner>::fromSdl(
 	{
 		if(isFallbackEnabled())
 		{
-			setValueToDefault(owner);
+			ownedValueToDefault(owner);
 
 			// Always log for recovered failed loading attempt
 			// (as the user provided a SDL value string for the field, 

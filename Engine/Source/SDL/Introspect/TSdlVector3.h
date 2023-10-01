@@ -45,26 +45,59 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		math::TVector3<Element>* const vec3 = this->getValue(owner);
-
-		SdlNativeData data;
-		if(vec3)
+		if constexpr(std::is_base_of_v<TSdlOptionalValue<math::TVector3<Element>, Owner>, SdlValueType>)
 		{
-			data = SdlNativeData(
-				[vec3](std::size_t elementIdx) -> SdlNativeData::GetterVariant
+			auto data = SdlNativeData(
+				[&optVec3 = this->valueRef(owner)](std::size_t elementIdx) -> SdlGetterVariant
 				{
-					return SdlNativeData::permissiveElementToGetterVariant(&((*vec3)[elementIdx]));
+					return optVec3
+						? SdlNativeData::permissiveElementGetter(&((*optVec3)[elementIdx]))
+						: std::monostate{};
 				},
-				[vec3](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				[&optVec3 = this->valueRef(owner)](std::size_t elementIdx, SdlSetterVariant input) -> bool
 				{
-					return SdlNativeData::permissiveSetterVariantToElement(input, &((*vec3)[elementIdx]));
+					if(input.isEmpty())
+					{
+						optVec3 = std::nullopt;
+						return true;
+					}
+					else
+					{
+						optVec3 = math::TVector3<Element>{};
+						return SdlNativeData::permissiveElementSetter(input, &((*optVec3)[elementIdx]));
+					}
 				},
 				AnyNonConstPtr(vec3));
+
+			data.elementContainer = ESdlDataFormat::Vector3;
+			data.elementType = sdl::number_type_of<Element>();
+			data.numElements = 3;
+			data.tupleSize = 3;
+			data.isNullClearable = true;
+			return data;
 		}
-		data.elementContainer = ESdlDataFormat::Vector3;
-		data.elementType = sdl::number_type_of<Element>();
-		data.numElements = 3;
-		data.tupleSize = 3;
-		return data;
+		else
+		{
+			SdlNativeData data;
+			if(vec3)
+			{
+				data = SdlNativeData(
+					[vec3](std::size_t elementIdx) -> SdlGetterVariant
+					{
+						return SdlNativeData::permissiveElementGetter(&((*vec3)[elementIdx]));
+					},
+					[vec3](std::size_t elementIdx, SdlSetterVariant input) -> bool
+					{
+						return SdlNativeData::permissiveElementSetter(input, &((*vec3)[elementIdx]));
+					},
+					AnyNonConstPtr(vec3));
+			}
+			data.elementContainer = ESdlDataFormat::Vector3;
+			data.elementType = sdl::number_type_of<Element>();
+			data.numElements = 3;
+			data.tupleSize = 3;
+			return data;
+		}
 	}
 
 protected:

@@ -39,26 +39,59 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		math::TVector2<Element>* const vec2 = this->getValue(owner);
-
-		SdlNativeData data;
-		if(vec2)
+		if constexpr(std::is_base_of_v<TSdlOptionalValue<math::TVector2<Element>, Owner>, SdlValueType>)
 		{
-			data = SdlNativeData(
-				[vec2](std::size_t elementIdx) -> SdlNativeData::GetterVariant
+			auto data = SdlNativeData(
+				[&optVec2 = this->valueRef(owner)](std::size_t elementIdx) -> SdlGetterVariant
 				{
-					return SdlNativeData::permissiveElementToGetterVariant(&((*vec2)[elementIdx]));
+					return optVec2
+						? SdlNativeData::permissiveElementGetter(&((*optVec2)[elementIdx]))
+						: std::monostate{};
 				},
-				[vec2](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				[&optVec2 = this->valueRef(owner)](std::size_t elementIdx, SdlSetterVariant input) -> bool
 				{
-					return SdlNativeData::permissiveSetterVariantToElement(input, &((*vec2)[elementIdx]));
+					if(input.isEmpty())
+					{
+						optVec2 = std::nullopt;
+						return true;
+					}
+					else
+					{
+						optVec2 = math::TVector2<Element>{};
+						return SdlNativeData::permissiveElementSetter(input, &((*optVec2)[elementIdx]));
+					}
 				},
 				AnyNonConstPtr(vec2));
+
+			data.elementContainer = ESdlDataFormat::Vector2;
+			data.elementType = sdl::number_type_of<Element>();
+			data.numElements = 2;
+			data.tupleSize = 2;
+			data.isNullClearable = true;
+			return data;
 		}
-		data.elementContainer = ESdlDataFormat::Vector2;
-		data.elementType = sdl::number_type_of<Element>();
-		data.numElements = 2;
-		data.tupleSize = 2;
-		return data;
+		else
+		{
+			SdlNativeData data;
+			if(vec2)
+			{
+				data = SdlNativeData(
+					[vec2](std::size_t elementIdx) -> SdlGetterVariant
+					{
+						return SdlNativeData::permissiveElementGetter(&((*vec2)[elementIdx]));
+					},
+					[vec2](std::size_t elementIdx, SdlSetterVariant input) -> bool
+					{
+						return SdlNativeData::permissiveElementSetter(input, &((*vec2)[elementIdx]));
+					},
+					AnyNonConstPtr(vec2));
+			}
+			data.elementContainer = ESdlDataFormat::Vector2;
+			data.elementType = sdl::number_type_of<Element>();
+			data.numElements = 2;
+			data.tupleSize = 2;
+			return data;
+		}
 	}
 
 protected:

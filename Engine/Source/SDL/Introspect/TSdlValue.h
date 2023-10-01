@@ -34,7 +34,7 @@ public:
 	void setValue(Owner& owner, T value) const override;
 	T* getValue(Owner& owner) const override;
 	const T* getConstValue(const Owner& owner) const override;
-	void setValueToDefault(Owner& owner) const override;
+	void ownedValueToDefault(Owner& owner) const override;
 
 	const T* getDefaultValue() const;
 
@@ -57,6 +57,8 @@ protected:
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override = 0;
+
+	T& valueRef(Owner& owner) const;
 
 private:
 	T Owner::* m_valuePtr;

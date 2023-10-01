@@ -48,15 +48,41 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		math::Spectrum* const spectrum = this->getValue(owner);
-
-		SdlNativeData data;
-		if(spectrum)
+		if constexpr(std::is_base_of_v<TSdlOptionalValue<math::Spectrum, Owner>, SdlValueType>)
 		{
-			data = SdlNativeData::fromSingleElement(spectrum, true, true);
+			auto data = SdlNativeData(
+				[&optSpectrum = this->valueRef(owner)](std::size_t /* elementIdx */) -> SdlGetterVariant
+				{
+					return optSpectrum
+						? SdlNativeData::permissiveElementGetter(&(*optSpectrum))
+						: std::monostate{};
+				},
+				[&optSpectrum = this->valueRef(owner)](std::size_t /* elementIdx */, SdlSetterVariant input) -> bool
+				{
+					if(input.isEmpty())
+					{
+						optSpectrum = std::nullopt;
+						return true;
+					}
+					else
+					{
+						*optSpectrum = math::Spectrum{};
+						return SdlNativeData::permissiveElementSetter(input, &(*optSpectrum));
+					}
+				},
+				AnyNonConstPtr(spectrum));
+
+			data.numElements = 1;
+			data.elementContainer = ESdlDataFormat::Single;
+			data.elementType = ESdlDataType::Spectrum;
+			data.isNullClearable = true;
+			return data;
 		}
-		data.elementContainer = ESdlDataFormat::Single;
-		data.elementType = ESdlDataType::Spectrum;
-		return data;
+		else
+		{
+			return SdlNativeData::fromSingleElement(
+				spectrum, ESdlDataFormat::Single, ESdlDataType::Spectrum, true, true);
+		}
 	}
 
 protected:

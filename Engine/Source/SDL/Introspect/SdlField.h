@@ -38,7 +38,7 @@ public:
 
 	/*! @brief Whether the field want to use built-in mechanism to handle I/O problems.
 	An example of this is default field value. With fallback enabled, the field may set itself to
-	the default value supplied on error (if available). By default, fallback is enabled.
+	the default value supplied (if available) on error. By default, fallback is enabled.
 	*/
 	bool isFallbackEnabled() const;
 

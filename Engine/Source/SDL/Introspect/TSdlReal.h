@@ -34,16 +34,42 @@ public:
 
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
-		FloatType* const floatPtr = this->getValue(owner);
-
-		SdlNativeData data;
-		if(floatPtr)
+		FloatType* const realPtr = this->getValue(owner);
+		if constexpr(std::is_base_of_v<TSdlOptionalValue<FloatType, Owner>, SdlValueType>)
 		{
-			data = SdlNativeData::fromSingleElement(floatPtr, true, true);
+			auto data = SdlNativeData(
+				[&optReal = this->valueRef(owner)](std::size_t /* elementIdx */) -> SdlGetterVariant
+				{
+					return optReal
+						? SdlNativeData::permissiveElementGetter(&(*optReal))
+						: std::monostate{};
+				},
+				[&optReal = this->valueRef(owner)](std::size_t /* elementIdx */, SdlSetterVariant input) -> bool
+				{
+					if(input.isEmpty())
+					{
+						optReal = std::nullopt;
+						return true;
+					}
+					else
+					{
+						optReal = FloatType{};
+						return SdlNativeData::permissiveElementSetter(input, &(*optReal));
+					}
+				},
+				AnyNonConstPtr(realPtr));
+
+			data.numElements = 1;
+			data.elementContainer = ESdlDataFormat::Single;
+			data.elementType = sdl::float_type_of<FloatType>();
+			data.isNullClearable = true;
+			return data;
 		}
-		data.elementContainer = ESdlDataFormat::Single;
-		data.elementType = sdl::float_type_of<FloatType>();
-		return data;
+		else
+		{
+			return SdlNativeData::fromSingleElement(
+				realPtr, ESdlDataFormat::Single, sdl::float_type_of<FloatType>(), true, true);
+		}
 	}
 
 protected:

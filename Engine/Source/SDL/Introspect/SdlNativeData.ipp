@@ -9,29 +9,126 @@
 namespace ph
 {
 
+template<typename Variant>
+inline TSdlAccessorVariant<Variant>::TSdlAccessorVariant()
+	: m_variant(std::monostate{})
+{}
+
+template<typename Variant>
+template<typename T>
+inline TSdlAccessorVariant<Variant>::TSdlAccessorVariant(T value)
+	: m_variant(std::move(value))
+{}
+
+template<typename Variant>
+inline TSdlAccessorVariant<Variant>::TSdlAccessorVariant(VariantType variant)
+	: m_variant(std::move(variant))
+{}
+
+template<typename Variant>
+template<typename T>
+inline bool TSdlAccessorVariant<Variant>::has() const
+{
+	return std::holds_alternative<T>(m_variant);
+}
+
+template<typename Variant>
+template<typename T>
+inline T& TSdlAccessorVariant<Variant>::get()
+{
+	PH_ASSERT(has<T>());
+	return std::get<T>(m_variant);
+}
+
+template<typename Variant>
+template<typename T>
+inline const T& TSdlAccessorVariant<Variant>::get() const
+{
+	PH_ASSERT(has<T>());
+	return std::get<T>(m_variant);
+}
+
+template<typename Variant>
+template<typename T>
+inline void TSdlAccessorVariant<Variant>::set(T value)
+{
+	std::get<T>(m_variant) = std::move(value);
+}
+
+template<typename Variant>
+inline std::size_t TSdlAccessorVariant<Variant>::index() const
+{
+	return m_variant.index();
+}
+
+template<typename Variant>
+inline bool TSdlAccessorVariant<Variant>::isEmpty() const
+{
+	return has<std::monostate>();
+}
+
+template<typename Variant>
+inline auto TSdlAccessorVariant<Variant>::getVariant()
+-> VariantType&
+{
+	return m_variant;
+}
+
+template<typename Variant>
+inline auto TSdlAccessorVariant<Variant>::getVariant() const
+-> const VariantType&
+{
+	return m_variant;
+}
+
 template<typename ElementType>
 inline SdlNativeData SdlNativeData::fromSingleElement(
 	ElementType* const elementPtr,
+	ESdlDataFormat elementContainer,
+	ESdlDataType elementType,
 	const bool canSet,
 	const bool canDirectAccess)
 {
-	PH_ASSERT(elementPtr);
-
 	SdlNativeData nativeData;
 
-	// Note that do not capture element value directly to save memory--value needs to be obtained
-	// from pointer, so any data modifications can be observed
-	nativeData.m_elementGetter = [elementPtr](std::size_t /* elementIdx */) -> GetterVariant
-	{
-		return permissiveElementToGetterVariant(elementPtr);
-	};
+	// We do not capture element value directly to save memory--value needs to be obtained from
+	// pointer, so any data modifications can be observed.
 
+	if(elementPtr)
+	{
+		nativeData.m_elementGetter =
+			[elementPtr](std::size_t /* elementIdx */) -> SdlGetterVariant
+			{
+				return permissiveElementGetter(elementPtr);
+			};
+	}
+	else
+	{
+		nativeData.m_elementGetter =
+			[elementPtr](std::size_t /* elementIdx */) -> SdlGetterVariant
+			{
+				return std::monostate{};
+			};
+	}
+	
 	if(canSet)
 	{
-		nativeData.m_elementSetter = [elementPtr](std::size_t /* elementIdx */, SetterVariant input) -> bool
+		if(elementPtr)
 		{
-			return permissiveSetterVariantToElement(input, elementPtr);
-		};
+			nativeData.m_elementSetter =
+				[elementPtr](std::size_t /* elementIdx */, SdlSetterVariant input) -> bool
+				{
+					return permissiveElementSetter(input, elementPtr);
+				};
+		}
+		else
+		{
+			nativeData.m_elementSetter =
+				[elementPtr](std::size_t /* elementIdx */, SdlSetterVariant input) -> bool
+				{
+					return false;
+				};
+		}
 	}
 
 	if(canDirectAccess)
@@ -39,13 +136,15 @@ inline SdlNativeData SdlNativeData::fromSingleElement(
 		nativeData.m_directPtr = elementPtr;
 	}
 
-	nativeData.numElements = 1;
+	nativeData.numElements = elementPtr ? 1 : 0;
+	nativeData.elementContainer = elementContainer;
+	nativeData.elementType = elementType;
 	return nativeData;
 }
 
 inline SdlNativeData::SdlNativeData()
 	: SdlNativeData(
-		[](std::size_t /* elementIdx */) -> GetterVariant
+		[](std::size_t /* elementIdx */) -> SdlGetterVariant
 		{
 			return std::monostate{};
 		})
@@ -54,7 +153,7 @@ inline SdlNativeData::SdlNativeData()
 inline SdlNativeData::SdlNativeData(ElementGetter getter)
 	: SdlNativeData(
 		std::move(getter),
-		[](std::size_t /* elementIdx */, SetterVariant /* input */) -> bool
+		[](std::size_t /* elementIdx */, SdlSetterVariant /* input */) -> bool
 		{
 			return false;
 		})
@@ -83,11 +182,11 @@ inline std::optional<T> SdlNativeData::get(const std::size_t elementIdx) const
 	PH_ASSERT_LT(elementIdx, numElements);
 	PH_ASSERT(m_elementGetter);
 
-	GetterVariant output = m_elementGetter(elementIdx);
+	SdlGetterVariant output = m_elementGetter(elementIdx);
 	switch(output.index())
 	{
-	case 1: return static_cast<T>(std::get<int64>(output));
-	case 2: return static_cast<T>(std::get<float64>(output));
+	case 1: return static_cast<T>(output.get<int64>());
+	case 2: return static_cast<T>(output.get<float64>());
 	default: return std::nullopt;
 	}
 }
@@ -100,16 +199,16 @@ inline T SdlNativeData::get(const std::size_t elementIdx) const
 
 	using PtrRemovedT = std::remove_pointer_t<T>;
 
-	GetterVariant output = m_elementGetter(elementIdx);
+	SdlGetterVariant output = m_elementGetter(elementIdx);
 	if constexpr(CSdlInstance<PtrRemovedT>)
 	{
-		return std::holds_alternative<SdlConstInstance>(output)
-			? std::get<SdlConstInstance>(output).get<PtrRemovedT>() : nullptr;
+		return output.has<SdlConstInstance>()
+			? output.get<SdlConstInstance>().get<PtrRemovedT>() : nullptr;
 	}
 	else
 	{
-		return std::holds_alternative<AnyConstPtr>(output)
-			? std::get<AnyConstPtr>(output).get<PtrRemovedT>() : nullptr;
+		return output.has<AnyConstPtr>()
+			? output.get<AnyConstPtr>().get<PtrRemovedT>() : nullptr;
 	}
 }
 
@@ -202,8 +301,8 @@ inline SdlNativeData::operator bool () const
 }
 
 template<typename ElementType>
-inline auto SdlNativeData::permissiveElementToGetterVariant(ElementType* const elementPtr)
--> GetterVariant
+inline auto SdlNativeData::permissiveElementGetter(ElementType* const elementPtr)
+-> SdlGetterVariant
 {
 	PH_ASSERT(elementPtr);
 
@@ -239,7 +338,7 @@ inline auto SdlNativeData::permissiveElementToGetterVariant(ElementType* const e
 }
 
 template<typename ElementType>
-inline auto SdlNativeData::permissiveSetterVariantToElement(SetterVariant input, ElementType* const out_elementPtr)
+inline auto SdlNativeData::permissiveElementSetter(SdlSetterVariant input, ElementType* const out_elementPtr)
 -> bool
 {
 	PH_ASSERT(out_elementPtr);
@@ -252,11 +351,11 @@ inline auto SdlNativeData::permissiveSetterVariantToElement(SetterVariant input,
 		switch(input.index())
 		{
 		case 1: 
-			*out_elementPtr = static_cast<ElementType>(std::get<int64>(input));
+			*out_elementPtr = static_cast<ElementType>(input.get<int64>());
 			return true;
 
 		case 2: 
-			*out_elementPtr = static_cast<ElementType>(std::get<float64>(input));
+			*out_elementPtr = static_cast<ElementType>(input.get<float64>());
 			return true;
 
 		default:
@@ -265,8 +364,8 @@ inline auto SdlNativeData::permissiveSetterVariantToElement(SetterVariant input,
 	}
 	else if constexpr(CSdlInstance<ElementType>)
 	{
-		ElementType* const inputPtr = std::holds_alternative<SdlNonConstInstance>(input)
-			? std::get<SdlNonConstInstance>(input).get<ElementType>() : nullptr;
+		ElementType* const inputPtr = input.has<SdlNonConstInstance>()
+			? input.get<SdlNonConstInstance>().get<ElementType>() : nullptr;
 		if(inputPtr)
 		{
 			*out_elementPtr = *inputPtr;
@@ -279,8 +378,8 @@ inline auto SdlNativeData::permissiveSetterVariantToElement(SetterVariant input,
 	}
 	else
 	{
-		ElementType* const inputPtr = std::holds_alternative<AnyNonConstPtr>(input)
-			? std::get<AnyNonConstPtr>(input).get<ElementType>() : nullptr;
+		ElementType* const inputPtr = input.has<AnyNonConstPtr>()
+			? input.get<AnyNonConstPtr>().get<ElementType>() : nullptr;
 		if(inputPtr)
 		{
 			*out_elementPtr = *inputPtr;

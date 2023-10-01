@@ -27,7 +27,7 @@ public:
 		InnerType OuterType::*           innerObjPtr, 
 		const TSdlOwnedField<InnerType>* innerObjField);
 
-	void setValueToDefault(OuterType& outerObj) const override;
+	void ownedValueToDefault(OuterType& outerObj) const override;
 	std::string valueToString(const OuterType& outerObj) const override;
 
 	void ownedResources(
@@ -78,9 +78,9 @@ inline TSdlNestedField<OuterType, InnerType>::TSdlNestedField(
 }
 
 template<typename OuterType, typename InnerType>
-inline void TSdlNestedField<OuterType, InnerType>::setValueToDefault(OuterType& outerObj) const
+inline void TSdlNestedField<OuterType, InnerType>::ownedValueToDefault(OuterType& outerObj) const
 {
-	m_innerObjField->setValueToDefault(outerObj.*m_innerObjPtr);
+	m_innerObjField->ownedValueToDefault(outerObj.*m_innerObjPtr);
 }
 
 template<typename OuterType, typename InnerType>

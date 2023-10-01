@@ -31,7 +31,7 @@ public:
 	void setValue(Owner& owner, T value) const override;
 	T* getValue(Owner& owner) const override;
 	const T* getConstValue(const Owner& owner) const override;
-	void setValueToDefault(Owner& owner) const override;
+	void ownedValueToDefault(Owner& owner) const override;
 
 	TSdlOptionalValue& description(std::string descriptionStr);
 
@@ -45,6 +45,8 @@ protected:
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override = 0;
+
+	std::optional<T>& valueRef(Owner& owner) const;
 
 private:
 	std::optional<T> Owner::* m_valuePtr;

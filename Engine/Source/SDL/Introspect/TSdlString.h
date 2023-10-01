@@ -29,15 +29,8 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		std::string* const str = this->getValue(owner);
-
-		SdlNativeData data;
-		if(str)
-		{
-			data = SdlNativeData::fromSingleElement(str, true, true);
-		}
-		data.elementContainer = ESdlDataFormat::Single;
-		data.elementType = ESdlDataType::String;
-		return data;
+		return SdlNativeData::fromSingleElement(
+			str, ESdlDataFormat::Single, ESdlDataType::String, true, true);
 	}
 
 protected:

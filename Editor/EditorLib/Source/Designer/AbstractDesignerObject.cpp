@@ -17,7 +17,7 @@ AbstractDesignerObject::~AbstractDesignerObject() = default;
 
 UIPropertyLayout AbstractDesignerObject::layoutProperties()
 {
-	return UIPropertyLayout::makeLinearListing(this, "SDL Properties");
+	return UIPropertyLayout::makeLinearListing(this, "Designer");
 }
 
 AbstractDesignerObject& AbstractDesignerObject::operator = (const AbstractDesignerObject& rhs) = default;

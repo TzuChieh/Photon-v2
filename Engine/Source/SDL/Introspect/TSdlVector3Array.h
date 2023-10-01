@@ -44,17 +44,17 @@ public:
 		{
 			math::TVector3<Element>* const vec3Data = vec3Vec->data();
 			data = SdlNativeData(
-				[vec3Data](std::size_t elementIdx) -> SdlNativeData::GetterVariant
+				[vec3Data](std::size_t elementIdx) -> SdlGetterVariant
 				{
 					const auto vec3Idx = elementIdx / 3;
 					const auto compIdx = elementIdx - vec3Idx * 3;
-					return SdlNativeData::permissiveElementToGetterVariant(&(vec3Data[vec3Idx][compIdx]));
+					return SdlNativeData::permissiveElementGetter(&(vec3Data[vec3Idx][compIdx]));
 				},
-				[vec3Data](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				[vec3Data](std::size_t elementIdx, SdlSetterVariant input) -> bool
 				{
 					const auto vec3Idx = elementIdx / 3;
 					const auto compIdx = elementIdx - vec3Idx * 3;
-					return SdlNativeData::permissiveSetterVariantToElement(input, &(vec3Data[vec3Idx][compIdx]));
+					return SdlNativeData::permissiveElementSetter(input, &(vec3Data[vec3Idx][compIdx]));
 				},
 				AnyNonConstPtr(vec3Vec));
 

@@ -32,15 +32,41 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		bool* const boolPtr = this->getValue(owner);
-
-		SdlNativeData data;
-		if(boolPtr)
+		if constexpr(std::is_base_of_v<TSdlOptionalValue<bool, Owner>, SdlValueType>)
 		{
-			data = SdlNativeData::fromSingleElement(boolPtr, true, true);
+			auto data = SdlNativeData(
+				[&optBool = this->valueRef(owner)](std::size_t /* elementIdx */) -> SdlGetterVariant
+				{
+					return optBool
+						? SdlNativeData::permissiveElementGetter(&(*optBool))
+						: std::monostate{};
+				},
+				[&optBool = this->valueRef(owner)](std::size_t /* elementIdx */, SdlSetterVariant input) -> bool
+				{
+					if(input.isEmpty())
+					{
+						optBool = std::nullopt;
+						return true;
+					}
+					else
+					{
+						optBool = bool{};
+						return SdlNativeData::permissiveElementSetter(input, &(*optBool));
+					}
+				},
+				AnyNonConstPtr(boolPtr));
+
+			data.numElements = 1;
+			data.elementContainer = ESdlDataFormat::Single;
+			data.elementType = ESdlDataType::Bool;
+			data.isNullClearable = true;
+			return data;
 		}
-		data.elementContainer = ESdlDataFormat::Single;
-		data.elementType = ESdlDataType::Bool;
-		return data;
+		else
+		{
+			return SdlNativeData::fromSingleElement(
+				boolPtr, ESdlDataFormat::Single, ESdlDataType::Bool, true, true);
+		}
 	}
 
 protected:

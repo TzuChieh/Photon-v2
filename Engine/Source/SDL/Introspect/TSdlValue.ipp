@@ -40,7 +40,7 @@ inline const T* TSdlValue<T, Owner>::getConstValue(const Owner& owner) const
 }
 
 template<typename T, typename Owner>
-inline void TSdlValue<T, Owner>::setValueToDefault(Owner& owner) const
+inline void TSdlValue<T, Owner>::ownedValueToDefault(Owner& owner) const
 {
 	if(m_defaultValue.has_value())
 	{
@@ -113,6 +113,12 @@ inline auto TSdlValue<T, Owner>::enableFallback(const bool isFallbackEnabled)
 {
 	this->setEnableFallback(isFallbackEnabled);
 	return *this;
+}
+
+template<typename T, typename Owner>
+inline T& TSdlValue<T, Owner>::valueRef(Owner& owner) const
+{
+	return owner.*m_valuePtr;
 }
 
 }// end namespace ph

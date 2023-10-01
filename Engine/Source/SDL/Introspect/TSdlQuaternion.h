@@ -41,40 +41,92 @@ public:
 	inline SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		math::TQuaternion<Element>* const quat = this->getValue(owner);
-
-		SdlNativeData data;
-		if(quat)
+		if constexpr(std::is_base_of_v<TSdlOptionalValue<math::TQuaternion<Element>, Owner>, SdlValueType>)
 		{
-			data = SdlNativeData(
-				[quat](std::size_t elementIdx) -> SdlNativeData::GetterVariant
+			auto data = SdlNativeData(
+				[&optQuat = this->valueRef(owner)](std::size_t elementIdx) -> SdlGetterVariant
 				{
-					switch(elementIdx)
+					if(optQuat)
 					{
-					case 0: return SdlNativeData::permissiveElementToGetterVariant(&(quat->x));
-					case 1: return SdlNativeData::permissiveElementToGetterVariant(&(quat->y));
-					case 2: return SdlNativeData::permissiveElementToGetterVariant(&(quat->z));
-					case 3: return SdlNativeData::permissiveElementToGetterVariant(&(quat->w));
-					default: return std::monostate{};
+						switch(elementIdx)
+						{
+						case 0: return SdlNativeData::permissiveElementGetter(&(optQuat->x));
+						case 1: return SdlNativeData::permissiveElementGetter(&(optQuat->y));
+						case 2: return SdlNativeData::permissiveElementGetter(&(optQuat->z));
+						case 3: return SdlNativeData::permissiveElementGetter(&(optQuat->w));
+						default: return std::monostate{};
+						}
+					}
+					else
+					{
+						return std::monostate{};
 					}
 				},
-				[quat](std::size_t elementIdx, SdlNativeData::SetterVariant input) -> bool
+				[&optQuat = this->valueRef(owner)](std::size_t elementIdx, SdlSetterVariant input) -> bool
 				{
-					switch(elementIdx)
+					if(input.isEmpty())
 					{
-					case 0: return SdlNativeData::permissiveSetterVariantToElement(input, &(quat->x));
-					case 1: return SdlNativeData::permissiveSetterVariantToElement(input, &(quat->y));
-					case 2: return SdlNativeData::permissiveSetterVariantToElement(input, &(quat->z));
-					case 3: return SdlNativeData::permissiveSetterVariantToElement(input, &(quat->w));
-					default: return false;
+						optQuat = std::nullopt;
+						return true;
+					}
+					else
+					{
+						optQuat = math::TQuaternion<Element>{};
+						switch(elementIdx)
+						{
+						case 0: return SdlNativeData::permissiveElementSetter(input, &(optQuat->x));
+						case 1: return SdlNativeData::permissiveElementSetter(input, &(optQuat->y));
+						case 2: return SdlNativeData::permissiveElementSetter(input, &(optQuat->z));
+						case 3: return SdlNativeData::permissiveElementSetter(input, &(optQuat->w));
+						default: return false;
+						}
 					}
 				},
 				AnyNonConstPtr(quat));
+
+			data.elementContainer = ESdlDataFormat::Quaternion;
+			data.elementType = sdl::number_type_of<Element>();
+			data.numElements = 4;
+			data.tupleSize = 4;
+			data.isNullClearable = true;
+			return data;
 		}
-		data.elementContainer = ESdlDataFormat::Quaternion;
-		data.elementType = sdl::number_type_of<Element>();
-		data.numElements = 4;
-		data.tupleSize = 4;
-		return data;
+		else
+		{
+			SdlNativeData data;
+			if(quat)
+			{
+				data = SdlNativeData(
+					[quat](std::size_t elementIdx) -> SdlGetterVariant
+					{
+						switch(elementIdx)
+						{
+						case 0: return SdlNativeData::permissiveElementGetter(&(quat->x));
+						case 1: return SdlNativeData::permissiveElementGetter(&(quat->y));
+						case 2: return SdlNativeData::permissiveElementGetter(&(quat->z));
+						case 3: return SdlNativeData::permissiveElementGetter(&(quat->w));
+						default: return std::monostate{};
+						}
+					},
+					[quat](std::size_t elementIdx, SdlSetterVariant input) -> bool
+					{
+						switch(elementIdx)
+						{
+						case 0: return SdlNativeData::permissiveElementSetter(input, &(quat->x));
+						case 1: return SdlNativeData::permissiveElementSetter(input, &(quat->y));
+						case 2: return SdlNativeData::permissiveElementSetter(input, &(quat->z));
+						case 3: return SdlNativeData::permissiveElementSetter(input, &(quat->w));
+						default: return false;
+						}
+					},
+					AnyNonConstPtr(quat));
+			}
+			data.elementContainer = ESdlDataFormat::Quaternion;
+			data.elementType = sdl::number_type_of<Element>();
+			data.numElements = 4;
+			data.tupleSize = 4;
+			return data;
+		}
 	}
 
 protected:

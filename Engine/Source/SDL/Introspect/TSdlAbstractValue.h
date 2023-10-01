@@ -37,7 +37,7 @@ public:
 	*/
 	virtual const T* getConstValue(const Owner& owner) const = 0;
 
-	void setValueToDefault(Owner& owner) const override = 0;
+	void ownedValueToDefault(Owner& owner) const override = 0;
 
 	SdlNativeData ownedNativeData(Owner& owner) const override = 0;
 

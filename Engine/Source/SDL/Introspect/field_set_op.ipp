@@ -74,7 +74,7 @@ inline void load_fields_from_sdl(
 			const auto importance = field.getImportance();
 			if(field.isFallbackEnabled())
 			{
-				field.setValueToDefault(owner);
+				field.ownedValueToDefault(owner);
 
 				// Only optional field will be silently set to default
 				// (emit notice for other importance levels)
