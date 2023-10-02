@@ -22,7 +22,10 @@ DesignerSceneReader::DesignerSceneReader()
 {}
 
 DesignerSceneReader::DesignerSceneReader(const Path& sceneWorkingDirectory)
+
 	: SdlCommandParser(get_registered_editor_classes(), sceneWorkingDirectory)
+	
+	, m_sceneName()
 	, m_scene(nullptr)
 	, m_metaInfo()
 	, m_nameToNewObjs()
@@ -32,23 +35,17 @@ DesignerSceneReader::DesignerSceneReader(const Path& sceneWorkingDirectory)
 
 DesignerSceneReader::~DesignerSceneReader() = default;
 
-void DesignerSceneReader::read(DesignerScene* const scene)
+void DesignerSceneReader::read()
 {
-	// Only update current scene if `scene` is not null
-	if(scene)
-	{
-		setScene(scene);
-	}
-
-	if(m_scene)
+	if(!m_sceneName.empty() && m_scene)
 	{
 		m_scene->setWorkingDirectory(getSceneWorkingDirectory());
 	}
 	else
 	{
 		PH_LOG_WARNING(DesignerSceneReader,
-			"Unable to read designer scene from {}: no target designer scene was set",
-			getSceneWorkingDirectory());
+			"Unable to read designer scene from {}: target designer scene info incomplete "
+			"(name={}, storage={})", getSceneWorkingDirectory(), m_sceneName, static_cast<void*>(m_scene));
 		return;
 	}
 
@@ -58,14 +55,15 @@ void DesignerSceneReader::read(DesignerScene* const scene)
 	readScene();
 }
 
-void DesignerSceneReader::setScene(DesignerScene* const scene)
+void DesignerSceneReader::setSceneInfo(std::string sceneName, DesignerScene* scene)
 {
-	if(m_scene != scene)
+	if(m_sceneName != sceneName || m_scene != scene)
 	{
 		// Also clear meta info if scene changed
-		m_metaInfo = DesignerSceneMetaInfo();
+		m_metaInfo = DesignerSceneMetaInfo{};
 	}
 
+	m_sceneName = sceneName;
 	m_scene = scene;
 }
 
@@ -207,19 +205,19 @@ void DesignerSceneReader::readScene()
 	PH_ASSERT(m_scene);
 
 	// Scene file must reside in the scene working directory as it may be accompanied with data files
-	Path filePath = getSceneWorkingDirectory().append(m_scene->getName() + ".pds");
+	Path filePath = getSceneWorkingDirectory().append(m_sceneName + ".pds");
 
 	FormattedTextInputStream commandFile(filePath);
 	if(!commandFile)
 	{
 		PH_LOG_WARNING(DesignerSceneReader,
-			"command file <{}> opening failed", filePath.toAbsoluteString());
+			"Command file <{}> opening failed.", filePath.toAbsoluteString());
 		return;
 	}
 	else
 	{
 		PH_LOG(DesignerSceneReader,
-			"loading command file <{}>", filePath.toAbsoluteString());
+			"Loading command file <{}>...", filePath.toAbsoluteString());
 
 		Timer timer;
 		timer.start();
@@ -236,7 +234,7 @@ void DesignerSceneReader::readScene()
 		timer.stop();
 
 		PH_LOG(DesignerSceneReader,
-			"command file loaded (PSDL version: {}), time elapsed = {} ms", 
+			"Command file loaded (PSDL version: {}), time elapsed = {} ms.", 
 			getCommandVersion().toString(), timer.getDeltaMs());
 	}
 
@@ -290,9 +288,7 @@ void DesignerSceneReader::readScene()
 
 void DesignerSceneReader::readSceneMetaInfo()
 {
-	PH_ASSERT(m_scene);
-
-	m_metaInfo.load(getSceneWorkingDirectory(), m_scene->getName());
+	m_metaInfo.load(getSceneWorkingDirectory(), m_sceneName);
 }
 
 }// end namespace ph::editor

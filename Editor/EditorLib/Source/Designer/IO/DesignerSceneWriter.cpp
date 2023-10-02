@@ -90,8 +90,7 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 	{
 		PH_LOG_WARNING(DesignerSceneWriter,
 			"Designer scene {} should be paused before writing started. If not, its internal states "
-			"might change and cause corruption in the saved data.",
-			scene.getName());
+			"might change and cause corruption in the saved data.", scene.getName());
 	}
 
 	// Expected be set, too late to determine a good link here

@@ -321,20 +321,19 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 		return nullSceneIndex();
 	}
 
-	// Make new scene and load data into it
-
+	// Make new scene then load data into it
 	auto sceneIdx = newScene();
 	DesignerScene* scene = getScene(sceneIdx);
-
-	setActiveScene(sceneIdx);
 
 	// Read designer scene
 	try
 	{
 		const Path& workingDirectory = sceneFile.getParent();
+		const std::string& sceneName = sceneFile.removeExtension().getFilename();
 
 		DesignerSceneReader reader(workingDirectory);
-		reader.read(scene);
+		reader.setSceneInfo(sceneName, scene);
+		reader.read();
 	}
 	catch(const Exception& e)
 	{
@@ -368,6 +367,7 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 			"Scene description loading failed: {}", e.what());
 	}
 
+	setActiveScene(sceneIdx);
 	return sceneIdx;
 }
 

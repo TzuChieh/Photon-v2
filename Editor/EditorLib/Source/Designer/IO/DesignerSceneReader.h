@@ -24,18 +24,21 @@ public:
 	explicit DesignerSceneReader(const Path& sceneWorkingDirectory);
 	~DesignerSceneReader() override;
 
-	/*!
-	The reader takes a pointer to scene and cache it since a possible use case is to treat the reader
-	as a command interpreter. Not specifying a scene on each method call makes a cleaner interface.
-	@param[in, out] scene The target for parsed results. Effectively set current scene to @p scene
-	then start reading. If @p scene was null, read to the current scene instead.
+	/*! @brief Read the entire designer scene.
+	Scene information must be provided via `setSceneInfo()` prior to calling this method.
 	*/
-	void read(DesignerScene* scene = nullptr);
+	void read();
 
 	/*!
+	The reader takes a name and pointer to scene and cache them since a possible use case is to treat
+	the reader as a command interpreter. Not specifying additional attributes on each method call makes
+	a cleaner interface.
+	@param sceneName Name of the scene. Note that while `DesignerScene` contains scene name, this
+	parameter is still required as some scene information must be acquired with scene name and
+	`scene` may not have this information yet (or stale, since the reading process has not started).
 	@param[in, out] scene The target for parsed results. @p scene will be the current scene.
 	*/
-	void setScene(DesignerScene* scene);
+	void setSceneInfo(std::string sceneName, DesignerScene* scene);
 
 protected:
 	bool beginCommand(
@@ -76,6 +79,7 @@ private:
 	void readScene();
 	void readSceneMetaInfo();
 
+	std::string m_sceneName;
 	DesignerScene* m_scene;
 	DesignerSceneMetaInfo m_metaInfo;
 	string_utils::TStdUnorderedStringMap<DesignerObject*> m_nameToNewObjs;
