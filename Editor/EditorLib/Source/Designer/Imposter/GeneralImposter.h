@@ -26,8 +26,6 @@ public:
 	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override;
 
 private:
-	std::shared_ptr<ISdlResource> m_descResource;
-
 	// SDL-binded fields:
 	ObjectTransform m_imposterTransform;
 

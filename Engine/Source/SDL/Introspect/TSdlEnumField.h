@@ -69,7 +69,7 @@ public:
 				},
 				AnyNonConstPtr(enumPtr));
 
-			data.numElements = 1;
+			data.numElements = enumPtr ? 1 : 0;
 			data.elementContainer = ESdlDataFormat::Single;
 			data.elementType = ESdlDataType::Enum;
 			data.isNullClearable = true;

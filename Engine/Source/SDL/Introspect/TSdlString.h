@@ -48,11 +48,16 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const std::string* const str = this->getConstValue(owner); str)
+		// Not testing whether the string contains whitespaces--just add double quotes
+		out_clause.value = '"';
+
+		if(const std::string* str = this->getConstValue(owner); str)
 		{
-			// Save value directly as it is already a string
-			out_clause.value = *str;
+			// Append value directly as it is already a string
+			out_clause.value += *str;
 		}
+
+		out_clause.value += '"';
 	}
 };
 

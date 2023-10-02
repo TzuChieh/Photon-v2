@@ -16,7 +16,12 @@ class SdlInputClause final
 public:
 	std::string type;
 	std::string name;
+
+	/*! @brief Loaded stringified data of a clause.
+	All potential SDL value prefixes or suffixes (e.g., "" or {}) are already removed for convenience.
+	*/
 	std::string value;
+
 	std::string tag;
 
 	/*! @brief If the carried value is a SDL reference.

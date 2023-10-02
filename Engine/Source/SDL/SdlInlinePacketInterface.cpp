@@ -198,11 +198,9 @@ void SdlInlinePacketInterface::appendSingleClause(
 		out_commandStr += '@';
 	}
 
-	// We are not testing whether the value contains whitespaces; 
-	// hence, value is always double-quoted (TODO: could be improved)
-	out_commandStr += '"';
+	// Clause values know how to group its content properly (e.g., by double quotes), 
+	// and we should not add any prefix or suffix here.
 	out_commandStr += clause.value;
-	out_commandStr += '"';
 
 	out_commandStr += ']';
 }

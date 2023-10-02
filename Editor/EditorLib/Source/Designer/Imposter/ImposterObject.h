@@ -23,8 +23,11 @@ public:
 	virtual void unbindDescription();
 
 	const std::string& getDescriptionName() const;
+	ISdlResource* getDescriptionResource() const;
 
 private:
+	std::shared_ptr<ISdlResource> m_descResource;
+
 	// SDL-binded fields
 	std::string m_descName;
 

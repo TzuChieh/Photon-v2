@@ -5,6 +5,7 @@
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
 #include "Designer/Imposter/SpecializedImposterBinder.h"
+#include "Designer/Imposter/ImposterObject.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
 #include "App/Event/ActiveDesignerSceneChangedEvent.h"
 
@@ -46,30 +47,6 @@ inline bool visibility_toggle_button(const char* const strId, const bool isVisib
 	return isClicked;
 }
 
-inline std::string_view get_display_type_name(const DesignerObject* obj)
-{
-	if(!obj)
-	{
-		return "(null)";
-	}
-
-	std::string_view docName = obj->getDynamicSdlClass()->getDocName();
-
-	// Remove any trailing "Object" or "Designer" as they are redundant in the editor context
-	if(docName.ends_with("Object"))
-	{
-		docName.remove_suffix(6);
-		docName = string_utils::trim_tail(docName);
-	}
-	if(docName.ends_with("Designer"))
-	{
-		docName.remove_suffix(8);
-		docName = string_utils::trim_tail(docName);
-	}
-
-	return docName;
-}
-
 }// end anonymous namespace
 
 ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser(ImguiEditorUIProxy editorUI)
@@ -84,6 +61,7 @@ ImguiEditorSceneObjectBrowser::ImguiEditorSceneObjectBrowser(ImguiEditorUIProxy 
 	, m_expandedObj(nullptr)
 	, m_objInfos()
 	, m_isObjsDirty(false)
+	, m_useDescTypeForObjType(true)
 {
 	resetObjectView(nullptr);
 
@@ -212,7 +190,7 @@ void ImguiEditorSceneObjectBrowser::rebuildObjectView(
 			for(std::size_t oi = 0; oi < rootObjs.size(); ++oi)
 			{
 				m_objInfos[oi].obj = rootObjs[oi];
-				m_objInfos[oi].typeName = get_display_type_name(rootObjs[oi]);
+				m_objInfos[oi].typeName = getDisplayTypeName(rootObjs[oi]);
 			}
 		}
 		else
@@ -231,7 +209,7 @@ void ImguiEditorSceneObjectBrowser::rebuildObjectView(
 		for(std::size_t oi = 0; oi < childObjs.size(); ++oi)
 		{
 			m_objInfos[oi].obj = childObjs[oi];
-			m_objInfos[oi].typeName = get_display_type_name(childObjs[oi]);
+			m_objInfos[oi].typeName = getDisplayTypeName(childObjs[oi]);
 		}
 	}
 
@@ -327,6 +305,12 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 		}
 	}
 	if(!scene) { ImGui::EndDisabled(); }
+
+	ImGui::SameLine();
+	if(ImGui::Checkbox("Show Description Type", &m_useDescTypeForObjType))
+	{
+		m_isObjsDirty = true;
+	}
 
 	imgui::text_unformatted(m_objViewLevelName);
 
@@ -487,6 +471,44 @@ void ImguiEditorSceneObjectBrowser::buildVisibilityToggle(DesignerObject& obj)
 			obj.setVisibility(true);
 		}
 	}
+}
+
+std::string_view ImguiEditorSceneObjectBrowser::getDisplayTypeName(const DesignerObject* obj) const
+{
+	if(!obj)
+	{
+		return "(null)";
+	}
+
+	std::string_view name;
+	if(m_useDescTypeForObjType)
+	{
+		auto imposterObj = dynamic_cast<const ImposterObject*>(obj);
+		if(imposterObj && imposterObj->getDescriptionResource())
+		{
+			name = imposterObj->getDescriptionResource()->getDynamicSdlClass()->getDocName();
+		}
+	}
+
+	// Directly use the object's doc name if nothing is gathered
+	if(name.empty())
+	{
+		name = obj->getDynamicSdlClass()->getDocName();
+	}
+
+	// Remove any trailing "Object" or "Designer" as they are redundant in the editor context
+	if(name.ends_with("Object"))
+	{
+		name.remove_suffix(6);
+		name = string_utils::trim_tail(name);
+	}
+	if(name.ends_with("Designer"))
+	{
+		name.remove_suffix(8);
+		name = string_utils::trim_tail(name);
+	}
+
+	return name;
 }
 
 }// end namespace ph::editor

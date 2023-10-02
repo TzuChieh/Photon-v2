@@ -56,7 +56,7 @@ public:
 				},
 				AnyNonConstPtr(boolPtr));
 
-			data.numElements = 1;
+			data.numElements = boolPtr ? 1 : 0;
 			data.elementContainer = ESdlDataFormat::Single;
 			data.elementType = ESdlDataType::Bool;
 			data.isNullClearable = true;

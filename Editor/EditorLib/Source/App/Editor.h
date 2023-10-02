@@ -83,6 +83,7 @@ public:
 		const std::string& name = "");
 
 	/*! @brief Load a scene. The scene will be made active automatically.
+	@param sceneFile Path to the scene file. Must points to a valid scene file.
 	*/
 	std::size_t loadScene(const Path& sceneFile);
 

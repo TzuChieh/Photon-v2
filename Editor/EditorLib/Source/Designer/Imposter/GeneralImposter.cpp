@@ -15,24 +15,21 @@ bool GeneralImposter::bindDescription(
 		return false;
 	}
 
-	m_descResource = descResource;
 	return true;
 }
 
 void GeneralImposter::unbindDescription()
 {
-	m_descResource = nullptr;
-
 	Base::unbindDescription();
 }
 
 UIPropertyLayout GeneralImposter::layoutProperties()
 {
 	UIPropertyLayout layout = Base::layoutProperties();
-	if(m_descResource)
+	if(getDescriptionResource())
 	{
 		layout.addGroups(UIPropertyLayout::makeLinearListing(
-			m_descResource.get(), "Description"));
+			getDescriptionResource(), "Description"));
 	}
 	return layout;
 }

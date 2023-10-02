@@ -69,12 +69,19 @@ using SdlSetterVariant = TSdlAccessorVariant<std::variant<
 
 /*!
 All public fields are only hints and may not always be available. They provide additional information
-for the underlying data, which can help to better interpret them.
+for the underlying data, which can help to better interpret them. Implementation ensures there is no
+dynamic allocation and the size of the object should be reasonably small (independent of the data it
+is representing). This object can be cached if only getter and setter accessors are used.
 
-Implementation ensures there is no dynamic allocation and the size of the object should be reasonably
-small (independent of the data it is representing). This object can be cached if only getter and setter
-accessors are used. Use of direct accessor may invalidate getter and setter accessors. See corresponding
+Note on the implementation of getter & setter accessors:
+Implementation should guarantee that any calls to getter & setter accessors will not cause the
+accessors to be invalid (invalidated) in any way, so an instance of `SdlNativeData` can be reused
+many times. Use of direct accessor may invalidate getter and setter accessors. See corresponding
 methods for more information.
+
+Note on getting hints for interpreting native data:
+If the operation done on the native data would potentially alter the underlying data structure, it is
+advisable to retrieve a new instance of `SdlNativeData` to see the updated hint.
 */
 class SdlNativeData final
 {

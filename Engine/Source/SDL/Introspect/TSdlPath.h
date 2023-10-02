@@ -49,10 +49,15 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const Path* const path = this->getConstValue(owner); path)
+		// Paths are always enclosed in double quotes, they have high chance to contain whitespaces
+		out_clause.value = '"';
+
+		if(const Path* path = this->getConstValue(owner); path)
 		{
-			out_clause.value = path->toString();
+			out_clause.value += path->toString();
 		}
+
+		out_clause.value += '"';
 	}
 };
 

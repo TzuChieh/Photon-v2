@@ -5,7 +5,7 @@
 namespace ph::editor
 {
 
-PH_DEFINE_LOG_GROUP(ImposterObject, Designer);
+PH_DEFINE_LOG_GROUP(Imposter, Designer);
 
 bool ImposterObject::bindDescription(
 	const std::shared_ptr<ISdlResource>& descResource,
@@ -13,18 +13,20 @@ bool ImposterObject::bindDescription(
 {
 	if(!descResource)
 	{
-		PH_LOG_WARNING(ImposterObject,
+		PH_LOG_WARNING(Imposter,
 			"Ignoring incomplete input description: resource is null.");
 		return false;
 	}
 
 	m_descName = descName;
+	m_descResource = descResource;
 	return true;
 }
 
 void ImposterObject::unbindDescription()
 {
 	m_descName.clear();
+	m_descResource = nullptr;
 }
 
 }// end namespace ph::editor

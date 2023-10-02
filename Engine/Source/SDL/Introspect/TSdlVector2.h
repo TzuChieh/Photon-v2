@@ -57,7 +57,11 @@ public:
 					}
 					else
 					{
-						optVec2 = math::TVector2<Element>{};
+						if(!optVec2)
+						{
+							optVec2 = math::TVector2<Element>{};
+						}
+						
 						return SdlNativeData::permissiveElementSetter(input, &((*optVec2)[elementIdx]));
 					}
 				},
@@ -65,7 +69,7 @@ public:
 
 			data.elementContainer = ESdlDataFormat::Vector2;
 			data.elementType = sdl::number_type_of<Element>();
-			data.numElements = 2;
+			data.numElements = vec2 ? 2 : 0;
 			data.tupleSize = 2;
 			data.isNullClearable = true;
 			return data;
@@ -88,7 +92,7 @@ public:
 			}
 			data.elementContainer = ESdlDataFormat::Vector2;
 			data.elementType = sdl::number_type_of<Element>();
-			data.numElements = 2;
+			data.numElements = vec2 ? 2 : 0;
 			data.tupleSize = 2;
 			return data;
 		}

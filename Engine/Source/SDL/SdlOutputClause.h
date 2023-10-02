@@ -15,7 +15,15 @@ class SdlOutputClause final
 public:
 	std::string type;
 	std::string name;
+
+	/*! @brief Stores stringified data of a clause.
+	As the output clause generator knows best how its data look like, additional prefixes
+	or suffixes may need to be added to ensure data integrity. For example, if a string
+	contains whitespaces, double quotes should be used (e.g., " many spaces  in data ");
+	for an array of quoted elements, curly braces can be used (e.g, {"a", "b", "c"}).
+	*/
 	std::string value;
+
 	std::string tag;
 	
 	/*! @brief If the carried value is a SDL reference.

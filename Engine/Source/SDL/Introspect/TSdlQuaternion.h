@@ -71,7 +71,11 @@ public:
 					}
 					else
 					{
-						optQuat = math::TQuaternion<Element>{};
+						if(!optQuat)
+						{
+							optQuat = math::TQuaternion<Element>{};
+						}
+						
 						switch(elementIdx)
 						{
 						case 0: return SdlNativeData::permissiveElementSetter(input, &(optQuat->x));
@@ -86,7 +90,7 @@ public:
 
 			data.elementContainer = ESdlDataFormat::Quaternion;
 			data.elementType = sdl::number_type_of<Element>();
-			data.numElements = 4;
+			data.numElements = quat ? 4 : 0;
 			data.tupleSize = 4;
 			data.isNullClearable = true;
 			return data;
@@ -123,7 +127,7 @@ public:
 			}
 			data.elementContainer = ESdlDataFormat::Quaternion;
 			data.elementType = sdl::number_type_of<Element>();
-			data.numElements = 4;
+			data.numElements = quat ? 4 : 0;
 			data.tupleSize = 4;
 			return data;
 		}

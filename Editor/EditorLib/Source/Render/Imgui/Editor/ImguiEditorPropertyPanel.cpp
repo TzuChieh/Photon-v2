@@ -320,6 +320,29 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 			case ESdlDataFormat::Vector3:
 			case ESdlDataFormat::Quaternion:
 			{
+				const auto numElements = static_cast<int>(nativeData.numElements);
+				if(nativeData.isNullClearable)
+				{
+					if(ImGui::Button(PH_IMGUI_CROSS_ICON))
+					{
+						nativeData.set(0, nullptr);
+					}
+
+					// For the element tweaker table (exists only if there is any element)
+					if(numElements > 0)
+					{
+						ImGui::SameLine();
+					}
+				}
+				else
+				{
+					if(numElements == 0 && ImGui::Button(PH_IMGUI_PLUS_ICON " Add Values "))
+					{
+						// Trigger value creation by assigning to any slot
+						nativeData.set(0, 0);
+					}
+				}
+
 				constexpr ImVec2 cellPadding = {2, 0};
 				constexpr float frameRounding = 3.0f;
 				constexpr float frameBorderSize = 1.5;
@@ -333,56 +356,46 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 				ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, frameRounding);
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, frameBorderSize);
-				if(ImGui::BeginTable("##prop", static_cast<int>(nativeData.numElements)))
+				if(numElements > 0 && ImGui::BeginTable("##prop", numElements))
 				{
 					ImGui::TableNextRow();
 					if(nativeData.isIntegerElement())
 					{
-						for(std::size_t ei = 0; ei < nativeData.numElements; ++ei)
+						for(int ei = 0; ei < nativeData.numElements; ++ei)
 						{
-							ImGui::PushID(static_cast<int>(ei));
-
-							auto value = *nativeData.get<int64>(ei);
-
+							ImGui::PushID(ei);
 							ImGui::PushStyleColor(ImGuiCol_Border, borderColors[ei]);
-							ImGui::TableSetColumnIndex(static_cast<int>(ei));
+							ImGui::TableSetColumnIndex(ei);
 							ImGui::SetNextItemWidth(-FLT_MIN);
-							const bool isValueChanged = ImGui::InputScalar(
+							std::optional<int64> optValue = nativeData.get<int64>(ei);
+							if(optValue && ImGui::InputScalar(
 								"##prop",
 								ImGuiDataType_S64,
-								&value);
-							ImGui::PopStyleColor();
-
-							if(isValueChanged)
+								&(*optValue)))
 							{
-								nativeData.set(ei, value);
+								nativeData.set(ei, *optValue);
 							}
-
+							ImGui::PopStyleColor();
 							ImGui::PopID();
 						}
 					}
 					else if(nativeData.isFloatingPointElement())
 					{
-						for(std::size_t ei = 0; ei < nativeData.numElements; ++ei)
+						for(int ei = 0; ei < nativeData.numElements; ++ei)
 						{
-							ImGui::PushID(static_cast<int>(ei));
-
-							auto value = *nativeData.get<float64>(ei);
-
+							ImGui::PushID(ei);
 							ImGui::PushStyleColor(ImGuiCol_Border, borderColors[ei]);
-							ImGui::TableSetColumnIndex(static_cast<int>(ei));
+							ImGui::TableSetColumnIndex(ei);
 							ImGui::SetNextItemWidth(-FLT_MIN);
-							const bool isValueChanged = ImGui::InputScalar(
+							std::optional<float64> optValue = nativeData.get<float64>(ei);
+							if(optValue && ImGui::InputScalar(
 								"##prop",
 								ImGuiDataType_Double,
-								&value);
-							ImGui::PopStyleColor();
-
-							if(isValueChanged)
+								&(*optValue)))
 							{
-								nativeData.set(ei, value);
+								nativeData.set(ei, *optValue);
 							}
-
+							ImGui::PopStyleColor();
 							ImGui::PopID();
 						}
 					}
@@ -391,9 +404,9 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 						ImGui::TableSetColumnIndex(0);
 						ImGui::TextUnformatted("(data unavailable)");
 					}
-					ImGui::PopStyleVar(3);
 					ImGui::EndTable();
 				}
+				ImGui::PopStyleVar(3);
 				break;
 			}
 

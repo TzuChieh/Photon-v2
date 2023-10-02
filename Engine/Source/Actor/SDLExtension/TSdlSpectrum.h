@@ -72,7 +72,7 @@ public:
 				},
 				AnyNonConstPtr(spectrum));
 
-			data.numElements = 1;
+			data.numElements = spectrum ? 1 : 0;
 			data.elementContainer = ESdlDataFormat::Single;
 			data.elementType = ESdlDataType::Spectrum;
 			data.isNullClearable = true;

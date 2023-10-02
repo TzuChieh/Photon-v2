@@ -164,7 +164,7 @@ std::string StdInputStream::getReasonForError() const
 		name = "(unavailable)";
 	}
 
-	return errorMsg + " Stream name: " + name;
+	return errorMsg + "; Stream name: " + name;
 }
 
 }// end namespace ph

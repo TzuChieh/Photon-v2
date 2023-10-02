@@ -59,7 +59,7 @@ public:
 				},
 				AnyNonConstPtr(intPtr));
 
-			data.numElements = 1;
+			data.numElements = intPtr ? 1 : 0;
 			data.elementContainer = ESdlDataFormat::Single;
 			data.elementType = sdl::int_type_of<IntType>();
 			data.isNullClearable = true;

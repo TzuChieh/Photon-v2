@@ -17,6 +17,7 @@
 #include <SDL/SdlSceneFileReader.h>
 #include <SDL/Introspect/SdlOutputContext.h>
 #include <SDL/SdlResourceLocator.h>
+#include <SDL/sdl_exceptions.h>
 
 #include <memory>
 #include <utility>
@@ -190,10 +191,15 @@ std::size_t Editor::newScene()
 
 void Editor::loadDefaultScene()
 {
-	loadScene(getSettings().defaultSceneFile);
-
-	// TODO: from a startup scene template (file) if the one from settings is invalid
-	//createScene();
+	if(!getSettings().defaultSceneFile.isEmpty())
+	{
+		loadScene(getSettings().defaultSceneFile);
+	}
+	else
+	{
+		// TODO: from a startup scene template (file) if the one from settings is invalid
+		//createScene();
+	}
 }
 
 void Editor::cleanupRemovingScenes()
@@ -304,14 +310,14 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 	if(filenameExt != ".pds")
 	{
 		PH_LOG_ERROR(Editor,
-			"cannot load designer scene {}: unsupported file type", sceneFile);
+			"Cannot load designer scene {}: unsupported file type.", sceneFile);
 		return nullSceneIndex();
 	}
 	
 	if(!Filesystem::hasFile(sceneFile))
 	{
 		PH_LOG_ERROR(Editor,
-			"cannot load designer scene {}: file does not exist", sceneFile);
+			"Cannot load designer scene {}: file does not exist.", sceneFile);
 		return nullSceneIndex();
 	}
 
@@ -323,14 +329,21 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 	setActiveScene(sceneIdx);
 
 	// Read designer scene
+	try
 	{
 		const Path& workingDirectory = sceneFile.getParent();
 
 		DesignerSceneReader reader(workingDirectory);
 		reader.read(scene);
 	}
+	catch(const Exception& e)
+	{
+		PH_LOG_ERROR(Editor,
+			"Designer scene loading failed: {}", e.what());
+	}
 	
 	// Read render description
+	try
 	{
 		if(scene->getRenderDescriptionLink().isResolved())
 		{
@@ -343,11 +356,16 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 		}
 		else
 		{
-			PH_LOG_ERROR(Editor,
-				"cannot load render description of designer scene {}: "
-				"description link ({}) is unresolved",
+			throw_formatted<SdlLoadError>(
+				"Cannot load render description of designer scene {}: "
+				"description link ({}) is unresolved.",
 				scene->getName(), scene->getRenderDescriptionLink());
 		}
+	}
+	catch(const Exception& e)
+	{
+		PH_LOG_ERROR(Editor,
+			"Scene description loading failed: {}", e.what());
 	}
 
 	return sceneIdx;
@@ -358,19 +376,20 @@ void Editor::saveScene()
 	if(!m_activeScene)
 	{
 		PH_LOG_WARNING(Editor,
-			"cannot save scene--current active scene is null");
+			"Cannot save scene--current active scene is null.");
 		return;
 	}
 
 	m_activeScene->pause();
 
 	// Save designer scene
+	try
 	{
 		DesignerSceneWriter writer;
 		if(m_activeScene->getWorkingDirectory().isEmpty())
 		{
 			PH_LOG_WARNING(Editor,
-				"designer scene has no working directory specified, using writer's: {}",
+				"Designer scene has no working directory specified, using writer's: {}",
 				writer.getSceneWorkingDirectory());
 		}
 		else
@@ -381,8 +400,14 @@ void Editor::saveScene()
 
 		writer.write(*m_activeScene);
 	}
+	catch(const Exception& e)
+	{
+		PH_LOG_ERROR(Editor,
+			"Designer scene saving failed: {}", e.what());
+	}
 
 	// Save render description
+	try
 	{
 		const SceneDescription& description = m_activeScene->getRenderDescription();
 
@@ -390,7 +415,7 @@ void Editor::saveScene()
 		if(description.getWorkingDirectory().isEmpty())
 		{
 			PH_LOG_WARNING(Editor,
-				"render description has no working directory specified, using writer's: {}",
+				"Render description has no working directory specified, using writer's: {}",
 				writer.getSceneWorkingDirectory());
 		}
 		else
@@ -406,6 +431,11 @@ void Editor::saveScene()
 		writer.setSceneName(descName);
 
 		writer.write(m_activeScene->getRenderDescription());
+	}
+	catch(const Exception& e)
+	{
+		PH_LOG_ERROR(Editor,
+			"Scene description saving failed: {}", e.what());
 	}
 	
 	m_activeScene->resume();

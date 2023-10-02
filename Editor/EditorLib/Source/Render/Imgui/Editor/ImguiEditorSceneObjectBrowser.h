@@ -57,6 +57,7 @@ private:
 	void buildVisibilityToggle(DesignerObject& obj);
 
 	bool isViewingRootLevel() const;
+	std::string_view getDisplayTypeName(const DesignerObject* obj) const;
 
 	TEventListener<ActiveDesignerSceneChangedEvent>* m_activeSceneChanged;
 	TEventListener<DesignerObjectAddedEvent>* m_sceneObjectAdded;
@@ -66,6 +67,7 @@ private:
 	DesignerObject* m_expandedObj;
 	std::vector<ObjectInfo> m_objInfos;
 	bool m_isObjsDirty;
+	bool m_useDescTypeForObjType;
 };
 
 inline bool ImguiEditorSceneObjectBrowser::isViewingRootLevel() const
