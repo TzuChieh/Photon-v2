@@ -152,6 +152,9 @@ public:
 	template<typename T> requires std::is_pointer_v<T>
 	bool set(std::size_t elementIdx, T ptr) const;
 
+	template<typename T> requires std::is_null_pointer_v<T>
+	bool set(std::size_t elementIdx, T nullPtr) const;
+
 	/*! @brief Directly access the underlying data.
 	Use of direct accessor may invalidate getter and setter accessors (should reacquire native data
 	from source for subsequent getter/setter access). Direct accessor never invalidate itself.

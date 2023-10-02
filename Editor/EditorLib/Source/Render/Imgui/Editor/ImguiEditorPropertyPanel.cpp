@@ -152,7 +152,8 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 		ImGui::TableSetColumnIndex(1);
 
 		SdlNativeData nativeData = prop.getData();
-		if(nativeData.elementContainer == ESdlDataFormat::None)
+		if(nativeData.elementContainer == ESdlDataFormat::None || 
+		   nativeData.elementType == ESdlDataType::None)
 		{
 			ImGui::TextUnformatted("(data unavailable)");
 			continue;
@@ -164,7 +165,26 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 			{
 			case ESdlDataType::Bool:
 			{
-				ImGui::Checkbox("##prop", nativeData.directAccess<bool>());
+				bool* boolPtr = nativeData.directAccess<bool>();
+				if(boolPtr)
+				{
+					if(nativeData.isNullClearable)
+					{
+						if(ImGui::Button(PH_IMGUI_CROSS_ICON))
+						{
+							nativeData.set(0, nullptr);
+						}
+						ImGui::SameLine();
+					}
+					ImGui::Checkbox("##prop", boolPtr);
+				}
+				else
+				{
+					if(ImGui::Button(PH_IMGUI_PLUS_ICON " Add Boolean "))
+					{
+						nativeData.set(0, false);
+					}
+				}
 				break;
 			}
 
@@ -181,32 +201,64 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 			{
 				if(nativeData.isIntegerElement())
 				{
-					auto value = *nativeData.get<int64>(0);
-
-					ImGui::SetNextItemWidth(-FLT_MIN);
-					const bool isValueChanged = ImGui::InputScalar(
-						"##prop",
-						ImGuiDataType_S64,
-						&value);
-
-					if(isValueChanged)
+					std::optional<int64> optValue = nativeData.get<int64>(0);
+					if(optValue)
 					{
-						nativeData.set(0, value);
+						if(nativeData.isNullClearable)
+						{
+							if(ImGui::Button(PH_IMGUI_CROSS_ICON))
+							{
+								nativeData.set(0, nullptr);
+							}
+							ImGui::SameLine();
+						}
+						ImGui::SetNextItemWidth(-FLT_MIN);
+						const bool isValueChanged = ImGui::InputScalar(
+							"##prop",
+							ImGuiDataType_S64,
+							&(*optValue));
+						if(isValueChanged)
+						{
+							nativeData.set(0, *optValue);
+						}
+					}
+					else
+					{
+						if(ImGui::Button(PH_IMGUI_PLUS_ICON " Add Value "))
+						{
+							nativeData.set(0, 0);
+						}
 					}
 				}
 				else if(nativeData.isFloatingPointElement())
 				{
-					auto value = *nativeData.get<float64>(0);
-
-					ImGui::SetNextItemWidth(-FLT_MIN);
-					const bool isValueChanged = ImGui::InputScalar(
-						"##prop",
-						ImGuiDataType_Double,
-						&value);
-
-					if(isValueChanged)
+					std::optional<float64> optValue = nativeData.get<float64>(0);
+					if(optValue)
 					{
-						nativeData.set(0, value);
+						if(nativeData.isNullClearable)
+						{
+							if(ImGui::Button(PH_IMGUI_CROSS_ICON))
+							{
+								nativeData.set(0, nullptr);
+							}
+							ImGui::SameLine();
+						}
+						ImGui::SetNextItemWidth(-FLT_MIN);
+						const bool isValueChanged = ImGui::InputScalar(
+							"##prop",
+							ImGuiDataType_Double,
+							&(*optValue));
+						if(isValueChanged)
+						{
+							nativeData.set(0, *optValue);
+						}
+					}
+					else
+					{
+						if(ImGui::Button(PH_IMGUI_PLUS_ICON " Add Value "))
+						{
+							nativeData.set(0, 0.0);
+						}
 					}
 				}
 				else

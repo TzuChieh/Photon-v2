@@ -250,6 +250,12 @@ inline bool SdlNativeData::set(const std::size_t elementIdx, T const ptr) const
 	}
 }
 
+template<typename T> requires std::is_null_pointer_v<T>
+inline bool SdlNativeData::set(std::size_t elementIdx, T /* nullPtr */) const
+{
+	return m_elementSetter(elementIdx, std::monostate{});
+}
+
 template<typename T>
 inline T* SdlNativeData::directAccess() const
 {
