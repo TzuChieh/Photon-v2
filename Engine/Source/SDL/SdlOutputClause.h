@@ -26,6 +26,10 @@ public:
 
 	std::string tag;
 	
+	/*! @brief If the clause carries no data and does not need to be written.
+	*/
+	bool isEmpty = false;
+
 	/*! @brief If the carried value is a SDL reference.
 	Identify the format of the string only. Does not test whether the reference actually
 	points to a valid target or not.
@@ -50,6 +54,7 @@ inline void SdlOutputClause::clear()
 	value.clear();
 	tag.clear();
 
+	isEmpty = false;
 	isReference = false;
 }
 

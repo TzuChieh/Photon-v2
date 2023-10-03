@@ -86,9 +86,13 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const FloatType* const value = this->getConstValue(owner); value)
+		if(const FloatType* value = this->getConstValue(owner); value)
 		{
 			sdl::save_float<FloatType>(*value, &out_clause.value);
+		}
+		else
+		{
+			out_clause.isEmpty = true;
 		}
 	}
 };

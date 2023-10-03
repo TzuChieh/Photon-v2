@@ -104,6 +104,10 @@ void DesignerDataPacketInterface::generate(
 	for(std::size_t clauseIdx = 0; clauseIdx < clauses.numClauses(); ++clauseIdx)
 	{
 		const SdlOutputClause& clause = clauses[clauseIdx];
+		if(clause.isEmpty)
+		{
+			continue;
+		}
 
 		// Designer does not support saving SDL reference. This need to be reported and fail early, 
 		// otherwise saved data may be corrupted or cumbersome to recover. A better way to prevent 

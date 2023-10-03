@@ -90,9 +90,13 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const bool* const value = this->getConstValue(owner); value)
+		if(const bool* value = this->getConstValue(owner); value)
 		{
 			out_clause.value = *value ? "true" : "false";
+		}
+		else
+		{
+			out_clause.isEmpty = true;
 		}
 	}
 };

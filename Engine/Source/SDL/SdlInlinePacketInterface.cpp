@@ -62,6 +62,11 @@ void SdlInlinePacketInterface::generate(
 {
 	for(std::size_t clauseIdx = 0; clauseIdx < clauses.numClauses(); ++clauseIdx)
 	{
+		if(clauses[clauseIdx].isEmpty)
+		{
+			continue;
+		}
+
 		out_packetCommand += m_clausePrefix;
 		appendSingleClause(clauses[clauseIdx], out_packetCommand);
 	}

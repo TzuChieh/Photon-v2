@@ -1,6 +1,7 @@
 #include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
 #include "Render/Imgui/Tool/ImguiEditorObjectTypeMenu.h"
 #include "Render/Imgui/Font/imgui_icons.h"
+#include "Render/Imgui/Utility/imgui_helpers.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
@@ -21,6 +22,7 @@ ImguiEditorPropertyPanel::ImguiEditorPropertyPanel(ImguiEditorUIProxy editorUI)
 
 	, m_layoutObjID(EMPTY_SDL_RESOURCE_ID)
 	, m_propertyLayout()
+	, m_stringEditCache(256, '\0')
 {}
 
 void ImguiEditorPropertyPanel::buildWindow(const char* windowIdName, bool* isOpening)
@@ -270,32 +272,42 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 
 			case ESdlDataType::String:
 			{
-				auto string = nativeData.directAccess<std::string>();
-				if(string)
+				auto strPtr = nativeData.directAccess<std::string>();
+				if(strPtr)
 				{
-					auto resizeCallback = [](ImGuiInputTextCallbackData* data) -> int
+					auto resizeCallback = [](ImGuiInputTextCallbackData* cbData) -> int
 					{
-						if(data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+						if(cbData->EventFlag == ImGuiInputTextFlags_CallbackResize)
 						{
-							auto stdString = reinterpret_cast<std::string*>(data->UserData);
-							PH_ASSERT(stdString->data() == data->Buf);
+							auto stdVec = reinterpret_cast<std::vector<char>*>(cbData->UserData);
+							PH_ASSERT(stdVec->data() == cbData->Buf);
 
-							// On resizing calls, generally `data->BufSize == data->BufTextLen + 1`
-							stdString->resize(data->BufSize);
+							// On resizing calls, generally `cbData->BufSize == cbData->BufTextLen + 1`
+							stdVec->resize(cbData->BufSize);
 
-							data->Buf = stdString->data();
+							cbData->Buf = stdVec->data();
 						}
 						return 0;
 					};
 
+					// Copy string into edit cache to display on UI (+1 for null terminator)
+					if(strPtr->size() + 1 > m_stringEditCache.size())
+					{
+						m_stringEditCache.resize(strPtr->size() + 1);
+					}
+					imgui::copy_to(m_stringEditCache, *strPtr);
+
 					ImGui::SetNextItemWidth(-FLT_MIN);
-					ImGui::InputText(
-						"##prop", 
-						string->data(), 
-						string->size() + 1,// `data()[size()]` is valid (must be `\0`, since C++11)
+					if(ImGui::InputText(
+						"##prop",
+						m_stringEditCache.data(),
+						m_stringEditCache.size(),
 						ImGuiInputTextFlags_CallbackResize,
 						resizeCallback,
-						string);
+						&m_stringEditCache))
+					{
+						strPtr->assign(m_stringEditCache.data());
+					}
 				}
 				else
 				{

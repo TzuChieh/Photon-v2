@@ -5,6 +5,8 @@
 
 #include <SDL/SdlResourceId.h>
 
+#include <vector>
+
 namespace ph::editor
 {
 
@@ -25,6 +27,7 @@ private:
 
 	SdlResourceId m_layoutObjID;
 	UIPropertyLayout m_propertyLayout;
+	std::vector<char> m_stringEditCache;
 };
 
 }// end namespace ph::editor

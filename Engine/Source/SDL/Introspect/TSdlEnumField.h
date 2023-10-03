@@ -96,9 +96,13 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const EnumType* const enumValue = this->getConstValue(owner); enumValue)
+		if(const EnumType* enumValue = this->getConstValue(owner); enumValue)
 		{
 			out_clause.value = TSdlEnum<EnumType>()[*enumValue];
+		}
+		else
+		{
+			out_clause.isEmpty = true;
 		}
 	}
 };

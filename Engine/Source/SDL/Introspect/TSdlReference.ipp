@@ -130,6 +130,7 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 	const auto& resource = getValueRef(owner);
 	if(!resource)
 	{
+		out_clause.isEmpty = true;
 		return;
 	}
 

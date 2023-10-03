@@ -113,9 +113,13 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const math::TVector2<Element>* const vec2 = this->getConstValue(owner); vec2)
+		if(const math::TVector2<Element>* vec2 = this->getConstValue(owner); vec2)
 		{
 			sdl::save_vector2<Element>(*vec2, &out_clause.value);
+		}
+		else
+		{
+			out_clause.isEmpty = true;
 		}
 	}
 };

@@ -86,9 +86,13 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const IntType* const value = this->getConstValue(owner); value)
+		if(const IntType* value = this->getConstValue(owner); value)
 		{
 			sdl::save_int<IntType>(*value, &out_clause.value);
+		}
+		else
+		{
+			out_clause.isEmpty = true;
 		}
 	}
 };

@@ -147,9 +147,13 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		if(const math::TQuaternion<Element>* const quat = this->getConstValue(owner); quat)
+		if(const math::TQuaternion<Element>* quat = this->getConstValue(owner); quat)
 		{
 			sdl::save_quaternion(*quat, &out_clause.value);
+		}
+		else
+		{
+			out_clause.isEmpty = true;
 		}
 	}
 };
