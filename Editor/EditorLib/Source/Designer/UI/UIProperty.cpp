@@ -15,6 +15,7 @@ UIProperty::UIProperty(SdlNonConstInstance instance, std::string fieldName)
 	, m_fieldName(fieldName)
 	, m_displayName(sdl::name_to_title_case(m_fieldName))
 	, m_helpMessage()
+	, m_isReadOnly(false)
 {
 	const ISdlInstantiable* instantiable = instance.getInstantiable();
 	if(instantiable)
@@ -38,6 +39,7 @@ UIProperty::UIProperty(SdlNonConstInstance instance, const SdlField* field)
 	, m_fieldName(field ? field->getFieldName() : "")
 	, m_displayName(sdl::name_to_title_case(m_fieldName))
 	, m_helpMessage(getHelpMessage(field))
+	, m_isReadOnly(false)
 {}
 
 UIProperty& UIProperty::withDisplayName(std::string displayName)
@@ -63,6 +65,13 @@ SdlNativeData UIProperty::getData() const
 	}
 
 	return m_field->nativeData(m_instance);
+}
+
+UIProperty& UIProperty::setReadOnly(bool inIsReadOnly)
+{
+	m_isReadOnly = inIsReadOnly;
+
+	return *this;
 }
 
 std::string UIProperty::getHelpMessage(const SdlField* field)

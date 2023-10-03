@@ -172,6 +172,11 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 			continue;
 		}
 
+		if(prop.isReadOnly())
+		{
+			ImGui::BeginDisabled();
+		}
+
 		if(nativeData.elementContainer == ESdlDataFormat::Single)
 		{
 			switch(nativeData.elementType)
@@ -440,8 +445,13 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 			}
 		}
 
+		if(prop.isReadOnly())
+		{
+			ImGui::EndDisabled();
+		}
+
 		ImGui::PopID();
-	}
+	}// end for each UI property
 
 	//ImGui::PopStyleVar();
 }

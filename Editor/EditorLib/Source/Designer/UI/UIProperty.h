@@ -24,8 +24,11 @@ public:
 
 	const SdlField* getField() const;
 	SdlNativeData getData() const;
+	const std::string& getFieldName() const;
 	const std::string& getDisplayName() const;
 	const std::string& getHelpMessage() const;
+	UIProperty& setReadOnly(bool inIsReadOnly);
+	bool isReadOnly() const;
 
 private:
 	static std::string getHelpMessage(const SdlField* field);
@@ -35,11 +38,17 @@ private:
 	std::string m_fieldName;
 	std::string m_displayName;
 	std::string m_helpMessage;
+	bool m_isReadOnly;
 };
 
 inline const SdlField* UIProperty::getField() const
 {
 	return m_field;
+}
+
+inline const std::string& UIProperty::getFieldName() const
+{
+	return m_fieldName;
 }
 
 inline const std::string& UIProperty::getDisplayName() const
@@ -50,6 +59,11 @@ inline const std::string& UIProperty::getDisplayName() const
 inline const std::string& UIProperty::getHelpMessage() const
 {
 	return m_helpMessage;
+}
+
+inline bool UIProperty::isReadOnly() const
+{
+	return m_isReadOnly;
 }
 
 }// end namespace ph::editor

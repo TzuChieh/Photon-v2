@@ -112,7 +112,7 @@ UIPropertyLayout& UIPropertyLayout::addGroups(const UIPropertyLayout& groups, co
 	return *this;
 }
 
-UIPropertyGroup* UIPropertyLayout::getGroup(std::string_view groupName)
+UIPropertyGroup* UIPropertyLayout::findGroup(std::string_view groupName)
 {
 	for(UIPropertyGroup& group : m_groups)
 	{
@@ -124,9 +124,9 @@ UIPropertyGroup* UIPropertyLayout::getGroup(std::string_view groupName)
 	return nullptr;
 }
 
-UIPropertyGroup& UIPropertyLayout::getOrCreateGroup(std::string_view groupName, const bool shouldPrepend)
+UIPropertyGroup& UIPropertyLayout::findOrCreateGroup(std::string_view groupName, const bool shouldPrepend)
 {
-	UIPropertyGroup* existingGroup = getGroup(groupName);
+	UIPropertyGroup* existingGroup = findGroup(groupName);
 	if(existingGroup)
 	{
 		return *existingGroup;
@@ -144,6 +144,15 @@ UIPropertyGroup& UIPropertyLayout::getOrCreateGroup(std::string_view groupName, 
 			return m_groups.back();
 		}
 	}
+}
+
+UIProperty* UIPropertyLayout::findPropertyInGroup(std::string_view groupName, std::string_view propName)
+{
+	if(UIPropertyGroup* group = findGroup(groupName); group)
+	{
+		return group->findProperty(propName);
+	}
+	return nullptr;
 }
 
 void UIPropertyLayout::clear()

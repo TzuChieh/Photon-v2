@@ -1,6 +1,7 @@
 #include "DesignerObject.h"
 #include "Designer/DesignerScene.h"
 #include "EditorCore/IDGenerator.h"
+#include "Designer/UI/UIPropertyLayout.h"
 
 #include <Common/assertion.h>
 #include <Utility/utility.h>
@@ -122,6 +123,19 @@ void DesignerObject::editorScale(const math::Vector3R& amount)
 	transform.scale(amount);
 
 	setLocalToParent(transform);
+}
+
+UIPropertyLayout DesignerObject::layoutProperties()
+{
+	UIPropertyLayout layout = Base::layoutProperties();
+
+	// Object name cannot be set directly as it requires additional logic to ensure uniqueness in scene
+	if(UIProperty* prop = layout.findPropertyInGroup("Designer", "name"); prop)
+	{
+		prop->setReadOnly(true);
+	}
+
+	return layout;
 }
 
 void DesignerObject::selected()

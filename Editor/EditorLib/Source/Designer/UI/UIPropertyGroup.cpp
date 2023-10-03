@@ -44,4 +44,16 @@ UIPropertyGroup& UIPropertyGroup::addProperties(const UIPropertyGroup& propertie
 	return *this;
 }
 
+UIProperty* UIPropertyGroup::findProperty(std::string_view fieldName)
+{
+	for(UIProperty& prop : m_properties)
+	{
+		if(prop.getFieldName() == fieldName)
+		{
+			return &prop;
+		}
+	}
+	return nullptr;
+}
+
 }// end namespace ph::editor

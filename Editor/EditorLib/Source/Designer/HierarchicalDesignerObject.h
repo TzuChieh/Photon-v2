@@ -13,7 +13,7 @@ namespace ph::editor
 class HierarchicalDesignerObject : public DesignerObject
 {
 public:
-	~HierarchicalDesignerObject() override = 0;
+	~HierarchicalDesignerObject() override;
 
 	math::TDecomposedTransform<real> getLocalToParent() const override = 0;
 	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override = 0;

@@ -11,7 +11,7 @@ namespace ph::editor
 class FlatDesignerObject : public DesignerObject
 {
 public:
-	~FlatDesignerObject() override = 0;
+	~FlatDesignerObject() override;
 
 	math::TDecomposedTransform<real> getLocalToParent() const override = 0;
 	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override = 0;

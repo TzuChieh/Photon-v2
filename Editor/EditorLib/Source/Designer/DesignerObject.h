@@ -29,6 +29,8 @@ class RenderData;
 
 class DesignerObject : public AbstractDesignerObject
 {
+	using Base = AbstractDesignerObject;
+
 public:
 	// Work type should be kept in sync with `RenderThread::Work`
 	using RenderWorkType = TFunction<void(render::System&)>;
@@ -40,7 +42,7 @@ public:
 	static std::string generateObjectName();
 
 public:
-	~DesignerObject() override = 0;
+	~DesignerObject() override;
 
 	virtual TSpanView<DesignerObject*> getChildren() const = 0;
 	virtual bool canHaveChildren() const = 0;
@@ -58,6 +60,8 @@ public:
 	virtual void editorTranslate(const math::Vector3R& amount);
 	virtual void editorRotate(const math::QuaternionR& additionalRotation);
 	virtual void editorScale(const math::Vector3R& amount);
+
+	UIPropertyLayout layoutProperties() override;
 
 	/*! @brief Create and add the new object as a child.
 	@param shouldInit Whether to initialize the new child.

@@ -11,6 +11,8 @@
 namespace ph::editor
 {
 
+class UIProperty;
+
 class UIPropertyLayout final
 {
 public:
@@ -18,8 +20,9 @@ public:
 
 	UIPropertyLayout& addGroup(UIPropertyGroup group, bool shouldPrepend = false);
 	UIPropertyLayout& addGroups(const UIPropertyLayout& groups, bool shouldPrepend = false);
-	UIPropertyGroup* getGroup(std::string_view groupName);
-	UIPropertyGroup& getOrCreateGroup(std::string_view groupName, bool shouldPrepend = false);
+	UIPropertyGroup* findGroup(std::string_view groupName);
+	UIPropertyGroup& findOrCreateGroup(std::string_view groupName, bool shouldPrepend = false);
+	UIProperty* findPropertyInGroup(std::string_view groupName, std::string_view propName);
 	void clear();
 
 	auto begin() noexcept -> typename std::vector<UIPropertyGroup>::iterator;

@@ -26,11 +26,20 @@ void GeneralImposter::unbindDescription()
 UIPropertyLayout GeneralImposter::layoutProperties()
 {
 	UIPropertyLayout layout = Base::layoutProperties();
+
+	// Description name cannot be set directly as it requires additional logic to ensure the binding
+	// to imposter is valid
+	if(UIProperty* prop = layout.findPropertyInGroup("Designer", "desc-name"); prop)
+	{
+		prop->setReadOnly(true);
+	}
+
 	if(getDescriptionResource())
 	{
 		layout.addGroups(UIPropertyLayout::makeLinearListing(
 			getDescriptionResource(), "Description"));
 	}
+
 	return layout;
 }
 

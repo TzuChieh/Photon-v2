@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <string_view>
 
 namespace ph::editor
 {
@@ -15,6 +16,14 @@ public:
 
 	UIPropertyGroup& addProperty(UIProperty property, bool shouldPrepend = false);
 	UIPropertyGroup& addProperties(const UIPropertyGroup& properties, bool shouldPrepend = false);
+
+	/*! @brief Find a property in group by its unique name.
+	Properties in the same group should have unique field names.
+	@param fieldName The SDL field name of the property.
+	@return The property with `fieldName`. Null if not found.
+	*/
+	UIProperty* findProperty(std::string_view fieldName);
+
 	const std::string& getName() const;
 
 	auto begin() noexcept -> typename std::vector<UIProperty>::iterator;
