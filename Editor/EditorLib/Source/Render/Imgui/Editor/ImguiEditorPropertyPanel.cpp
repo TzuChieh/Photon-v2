@@ -145,10 +145,21 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(prop.getDisplayName().c_str());
 
-		// Pop out full property name in case there was not enough space for it
+		// Pop out additional information such as documentation when hovered
 		if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayNormal))
 		{
-			ImGui::SetTooltip(prop.getDisplayName().c_str());
+			ImGui::SetNextWindowSize({ImGui::GetFontSize() * 20.0f, 0.0f});
+			if(ImGui::BeginTooltip())
+			{
+				// Show full property name in case there was not enough space for it
+				ImGui::TextUnformatted(prop.getDisplayName().c_str());
+				if(!prop.getHelpMessage().empty())
+				{
+					ImGui::Separator();
+					ImGui::TextWrapped(prop.getHelpMessage().c_str());
+				}
+				ImGui::EndTooltip();
+			}
 		}
 
 		ImGui::TableSetColumnIndex(1);
