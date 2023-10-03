@@ -179,7 +179,6 @@ inline SdlNativeData::SdlNativeData(
 template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T>
 inline std::optional<T> SdlNativeData::get(const std::size_t elementIdx) const
 {
-	PH_ASSERT_LT(elementIdx, numElements);
 	PH_ASSERT(m_elementGetter);
 
 	SdlGetterVariant output = m_elementGetter(elementIdx);
@@ -194,7 +193,6 @@ inline std::optional<T> SdlNativeData::get(const std::size_t elementIdx) const
 template<typename T> requires std::is_pointer_v<T>
 inline T SdlNativeData::get(const std::size_t elementIdx) const
 {
-	PH_ASSERT_LT(elementIdx, numElements);
 	PH_ASSERT(m_elementGetter);
 
 	using PtrRemovedT = std::remove_pointer_t<T>;
@@ -215,7 +213,6 @@ inline T SdlNativeData::get(const std::size_t elementIdx) const
 template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T>
 inline bool SdlNativeData::set(const std::size_t elementIdx, const T value) const
 {
-	PH_ASSERT_LT(elementIdx, numElements);
 	PH_ASSERT(m_elementSetter);
 
 	if constexpr(std::is_integral_v<T> || std::is_enum_v<T>)
@@ -235,7 +232,6 @@ inline bool SdlNativeData::set(const std::size_t elementIdx, const T value) cons
 template<typename T> requires std::is_pointer_v<T>
 inline bool SdlNativeData::set(const std::size_t elementIdx, T const ptr) const
 {
-	PH_ASSERT_LT(elementIdx, numElements);
 	PH_ASSERT(m_elementSetter);
 
 	using PtrRemovedT = std::remove_pointer_t<T>;

@@ -321,16 +321,17 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 			case ESdlDataFormat::Quaternion:
 			{
 				const auto numElements = static_cast<int>(nativeData.numElements);
-				if(nativeData.isNullClearable)
+				if(numElements > 0)
 				{
-					if(ImGui::Button(PH_IMGUI_CROSS_ICON))
+					if(nativeData.isNullClearable)
 					{
-						nativeData.set(0, nullptr);
-					}
+						if(ImGui::Button(PH_IMGUI_CROSS_ICON))
+						{
+							nativeData.set(0, nullptr);
+						}
 
-					// For the element tweaker table (exists only if there is any element)
-					if(numElements > 0)
-					{
+						// For the element tweaker table (exists only if there is any element)
+						PH_ASSERT_GT(numElements, 0);
 						ImGui::SameLine();
 					}
 				}

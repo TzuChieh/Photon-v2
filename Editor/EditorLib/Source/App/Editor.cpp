@@ -4,6 +4,7 @@
 #include "Designer/DesignerScene.h"
 #include "Designer/IO/DesignerSceneWriter.h"
 #include "Designer/IO/DesignerSceneReader.h"
+#include "Designer/Imposter/ImposterObject.h"
 #include "App/Misc/EditorSettings.h"
 
 #include <Common/assertion.h>
@@ -18,9 +19,11 @@
 #include <SDL/Introspect/SdlOutputContext.h>
 #include <SDL/SdlResourceLocator.h>
 #include <SDL/sdl_exceptions.h>
+#include <SDL/SceneDescription.h>
 
-#include <memory>
 #include <utility>
+#include <memory>
+#include <vector>
 
 namespace ph::editor
 {
@@ -310,14 +313,14 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 	if(filenameExt != ".pds")
 	{
 		PH_LOG_ERROR(Editor,
-			"Cannot load designer scene {}: unsupported file type.", sceneFile);
+			"Cannot load designer scene \"{}\": unsupported file type.", sceneFile);
 		return nullSceneIndex();
 	}
 	
 	if(!Filesystem::hasFile(sceneFile))
 	{
 		PH_LOG_ERROR(Editor,
-			"Cannot load designer scene {}: file does not exist.", sceneFile);
+			"Cannot load designer scene \"{}\": file does not exist.", sceneFile);
 		return nullSceneIndex();
 	}
 
@@ -356,7 +359,7 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 		else
 		{
 			throw_formatted<SdlLoadError>(
-				"Cannot load render description of designer scene {}: "
+				"Cannot load render description of designer scene \"{}\": "
 				"description link ({}) is unresolved.",
 				scene->getName(), scene->getRenderDescriptionLink());
 		}
@@ -365,6 +368,24 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 	{
 		PH_LOG_ERROR(Editor,
 			"Scene description loading failed: {}", e.what());
+	}
+
+	// Bind descriptions for all imposters once designer scene & description are both loaded
+	// (so we have enough information to bind them)
+	{
+		SceneDescription& desc = scene->getRenderDescription();
+
+		std::vector<ImposterObject*> imposters;
+		scene->findObjectsByType(imposters);
+
+		for(ImposterObject* imposter : imposters)
+		{
+			const auto& descName = imposter->getDescriptionName();
+			imposter->bindDescription(desc.get(descName), descName);
+		}
+
+		PH_LOG(Editor,
+			"Processed {} imposter bindings in scene \"{}\"", imposters.size(), scene->getName());
 	}
 
 	setActiveScene(sceneIdx);

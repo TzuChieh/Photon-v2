@@ -14,7 +14,7 @@ bool ImposterObject::bindDescription(
 	if(!descResource)
 	{
 		PH_LOG_WARNING(Imposter,
-			"Ignoring incomplete input description: resource is null.");
+			"Ignoring incomplete description binding: resource is null.");
 		return false;
 	}
 
