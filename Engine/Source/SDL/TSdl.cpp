@@ -31,7 +31,7 @@ std::shared_ptr<ISdlResource> load_single_resource(const SdlClass* resourceClass
 		reader.read(&description);
 	}
 	
-	auto allResources = description.getResources().getAll<ISdlResource>();
+	auto allResources = description.getResources().getAllOfType<ISdlResource>();
 	if(allResources.size() != 1)
 	{
 		PH_DEFAULT_LOG_WARNING(

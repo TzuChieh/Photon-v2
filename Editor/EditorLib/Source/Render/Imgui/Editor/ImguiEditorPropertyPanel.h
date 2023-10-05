@@ -30,6 +30,7 @@ private:
 	SdlResourceId m_layoutObjID;
 	UIPropertyLayout m_propertyLayout;
 	imgui::StringCache m_stringEditCache;
+	imgui::StringCache m_popupNameEditCache;
 };
 
 }// end namespace ph::editor

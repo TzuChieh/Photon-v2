@@ -35,19 +35,70 @@ void RawResourceCollection::add(
 	m_nameToResource[std::string(resourceName)] = std::move(resource);
 }
 
-void RawResourceCollection::listAll(
-	std::vector<const ISdlResource*>& out_resources,
+std::shared_ptr<ISdlResource> RawResourceCollection::remove(std::string_view resourceName)
+{
+	auto iter = m_nameToResource.find(resourceName);
+	if(iter == m_nameToResource.end())
+	{
+		return nullptr;
+	}
+
+	std::shared_ptr<ISdlResource> removedResource = iter->second;
+	m_nameToResource.erase(iter);
+	return removedResource;
+}
+
+std::string RawResourceCollection::rename(std::string_view resourceName, std::string_view newResourceName)
+{
+	std::shared_ptr<ISdlResource> resource = remove(resourceName);
+	if(!resource)
+	{
+		throw_formatted<SdlLoadError>(
+			"failed to rename SDL resource \"{}\": resource not found", resourceName);
+	}
+
+	std::string finalName = makeResourceName(newResourceName);
+	add(std::move(resource), finalName);
+
+	return finalName;
+}
+
+std::string RawResourceCollection::makeResourceName(std::string_view intendedName)
+{
+	int suffixNumber = 1;
+	while(true)
+	{
+		// Generating a name sequence like "name", "name (2)", "name (3)", etc.
+		std::string generatedName = 
+			std::string(intendedName) +
+			(suffixNumber == 1 ? "" : " (" + std::to_string(suffixNumber) + ")");
+
+		if(!has(generatedName))
+		{
+			return generatedName;
+		}
+
+		++suffixNumber;
+	}
+
+	PH_ASSERT_UNREACHABLE_SECTION();
+	return "";
+}
+
+std::vector<const ISdlResource*> RawResourceCollection::listAll(
 	std::vector<std::string>* const out_resourceNames) const
 {
-	for(const auto& keyValPair : m_nameToResource)
+	std::vector<const ISdlResource*> resources;
+	for(const auto& [name, resource] : m_nameToResource)
 	{
-		out_resources.push_back(keyValPair.second.get());
+		resources.push_back(resource.get());
 
 		if(out_resourceNames)
 		{
-			out_resourceNames->push_back(keyValPair.first);
+			out_resourceNames->push_back(name);
 		}
 	}
+	return resources;
 }
 
 }// end namespace ph

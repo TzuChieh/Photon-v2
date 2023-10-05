@@ -4,13 +4,17 @@
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
+#include "Designer/Imposter/ImposterObject.h"
 
 #include "ThirdParty/DearImGui.h"
+
+#include <SDL/SceneDescription.h>
 
 #include <cstddef>
 #include <utility>
 #include <array>
 #include <string>
+#include <algorithm>
 
 namespace ph::editor
 {
@@ -22,6 +26,7 @@ ImguiEditorPropertyPanel::ImguiEditorPropertyPanel(ImguiEditorUIProxy editorUI)
 	, m_layoutObjID(EMPTY_SDL_RESOURCE_ID)
 	, m_propertyLayout()
 	, m_stringEditCache(256)
+	, m_popupNameEditCache(256)
 {}
 
 void ImguiEditorPropertyPanel::buildWindow(const char* windowIdName, bool* isOpening)
@@ -97,7 +102,73 @@ void ImguiEditorPropertyPanel::buildGeneralSettings(DesignerObject& obj)
 {
 	if(ImGui::CollapsingHeader("General##top_pinned", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		
+		const auto nameInputtWidth = std::max(
+			ImGui::GetFontSize() * 10.0f,
+			ImGui::GetContentRegionAvail().x * 0.5f);
+
+		if(ImGui::Button("Change##obj_name"))
+		{
+			m_popupNameEditCache.resizableCopy(obj.getName());
+		}
+
+		if(ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonLeft))
+		{
+			m_popupNameEditCache.inputText("New Object Name");
+			ImGui::Separator();
+			if(ImGui::Button("OK"))
+			{
+				obj.setName(m_popupNameEditCache.getContent());
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if(ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(nameInputtWidth);
+		m_stringEditCache.inputText("Name", obj.getName(), ImGuiInputTextFlags_ReadOnly);
+
+		auto imposterObj = dynamic_cast<ImposterObject*>(&obj);
+		if(imposterObj)
+		{
+			if(ImGui::Button("Change##desc_name"))
+			{
+				m_popupNameEditCache.resizableCopy(imposterObj->getDescriptionName());
+			}
+
+			if(ImGui::BeginPopupContextItem(nullptr, ImGuiPopupFlags_MouseButtonLeft))
+			{
+				m_popupNameEditCache.inputText("New Description Name");
+				ImGui::Separator();
+				if(ImGui::Button("OK"))
+				{
+					// First rename the description resource
+					SceneDescription& sceneDesc = obj.getScene().getRenderDescription();
+					std::string newDescName = sceneDesc.getResources().rename(
+						imposterObj->getDescriptionName(),
+						m_popupNameEditCache.getContent());
+
+					// Then update imposter binding
+					imposterObj->bindDescription(sceneDesc.get(newDescName), newDescName);
+
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::SameLine();
+				if(ImGui::Button("Cancel"))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(nameInputtWidth);
+			m_stringEditCache.inputText("Description Name", imposterObj->getDescriptionName(), ImGuiInputTextFlags_ReadOnly);
+		}
 	}
 }
 

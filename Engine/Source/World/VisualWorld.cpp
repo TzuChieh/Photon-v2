@@ -70,11 +70,11 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	m_cache = std::make_unique<TransientResourceCache>();
 
 	std::vector<SceneActor> sceneActors;
-	for(auto actor : rawScene.getResources().getAll<Actor>())
+	for(auto actor : rawScene.getResources().getAllOfType<Actor>())
 	{
 		sceneActors.push_back({.actor = actor, .isPhantom = false});
 	}
-	for(auto phantomActor : rawScene.getPhantoms().getAll<Actor>())
+	for(auto phantomActor : rawScene.getPhantoms().getAllOfType<Actor>())
 	{
 		sceneActors.push_back({.actor = phantomActor, .isPhantom = true});
 	}

@@ -707,7 +707,7 @@ std::string DesignerScene::getUniqueObjectName(const std::string& intendedName)
 	while(true)
 	{
 		// Generating a name sequence like "name", "name (2)", "name (3)", etc.
-		const std::string generatedName = 
+		std::string generatedName = 
 			intendedName +
 			(suffixNumber == 1 ? "" : " (" + std::to_string(suffixNumber) + ")");
 
