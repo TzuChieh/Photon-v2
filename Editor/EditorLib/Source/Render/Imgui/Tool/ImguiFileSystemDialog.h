@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorCore/FileSystemExplorer.h"
+#include "Render/Imgui/Utility/imgui_helpers.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -133,10 +134,8 @@ private:
 	FileSystemDirectoryEntry* m_selectedEntry;
 	bool m_dialogClosedFlag;
 
-	// `std::vector` of chars since input text seems to cache buffer size internally (cannot alter 
-	// input text buffer size without closing then repoening the dialog window)
-	std::vector<char> m_fsDialogEntryPreviewBuffer;
-	std::vector<char> m_fsDialogItemPreviewBuffer;
+	imgui::StringCache m_fsDialogEntryPreviewBuffer;
+	imgui::StringCache m_fsDialogItemPreviewBuffer;
 	bool m_isEditingEntry;
 	bool m_isEditingItem;
 

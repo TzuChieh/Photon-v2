@@ -1,8 +1,6 @@
 #include "Render/Imgui/Utility/imgui_helpers.h"
 #include "Render/Imgui/Font/imgui_icons.h"
 
-#include <Common/assertion.h>
-
 #include <algorithm>
 
 namespace ph::editor::imgui
@@ -76,6 +74,72 @@ void copy_to(TSpan<char> dstBuffer, std::string_view srcStr)
 	{
 		dstBuffer.back() = '\0';
 	}
+}
+
+StringCache::StringCache()
+	: StringCache(1)// single null terminator
+{}
+
+StringCache::StringCache(std::size_t cacheSize)
+	: m_cache(cacheSize > 0 ? cacheSize : 1, '\0')
+{}
+
+void StringCache::fixedCopy(TSpanView<char> inputContent)
+{
+	copy_to(m_cache, {inputContent.begin(), inputContent.end()});
+}
+
+void StringCache::resizableCopy(TSpanView<char> inputContent)
+{
+	// Resize if cannot fit (+1 for null terminator)
+	if(inputContent.size() + 1 > m_cache.size())
+	{
+		m_cache.resize(inputContent.size() + 1);
+	}
+
+	fixedCopy(inputContent);
+}
+
+bool StringCache::inputText(
+	const char* idName,
+	ImGuiInputTextFlags flags)
+{
+	auto resizeCallback = [](ImGuiInputTextCallbackData* cbData) -> int
+	{
+		if(cbData->EventFlag == ImGuiInputTextFlags_CallbackResize)
+		{
+			auto stdVec = reinterpret_cast<std::vector<char>*>(cbData->UserData);
+			PH_ASSERT(stdVec->data() == cbData->Buf);
+
+			// On resizing calls, generally `cbData->BufSize == cbData->BufTextLen + 1`
+			stdVec->resize(cbData->BufSize);
+
+			cbData->Buf = stdVec->data();
+		}
+		return 0;
+	};
+
+	return ImGui::InputText(
+		idName,
+		m_cache.data(),
+		m_cache.size(),
+		flags | ImGuiInputTextFlags_CallbackResize,
+		resizeCallback,
+		&m_cache);
+
+	// A sidenote: Input text seems to cache buffer size internally (cannot alter input text buffer
+	// size without closing then repoening the dialog window). Specifying resize callback works fine.
+}
+
+bool StringCache::inputText(
+	const char* idName,
+	TSpanView<char> inputContent,
+	ImGuiInputTextFlags flags)
+{
+	// Copy input content into cache to display on UI
+	resizableCopy(inputContent);
+
+	return inputText(idName, flags);
 }
 
 }// end ph::editor::imgui

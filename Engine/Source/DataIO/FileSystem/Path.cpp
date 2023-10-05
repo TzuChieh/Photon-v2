@@ -20,6 +20,10 @@ Path::Path(std::string_view path)
 	: m_path(path, std::filesystem::path::generic_format)
 {}
 
+Path::Path(TSpanView<char> path)
+	: m_path(path.begin(), path.end(), std::filesystem::path::generic_format)
+{}
+
 Path::Path(const char* path)
 	: m_path(path, std::filesystem::path::generic_format)
 {}

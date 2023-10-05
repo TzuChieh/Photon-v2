@@ -1,7 +1,6 @@
 #include "Render/Imgui/Editor/ImguiEditorPropertyPanel.h"
 #include "Render/Imgui/Tool/ImguiEditorObjectTypeMenu.h"
 #include "Render/Imgui/Font/imgui_icons.h"
-#include "Render/Imgui/Utility/imgui_helpers.h"
 #include "App/Editor.h"
 #include "Designer/DesignerScene.h"
 #include "Designer/DesignerObject.h"
@@ -22,7 +21,7 @@ ImguiEditorPropertyPanel::ImguiEditorPropertyPanel(ImguiEditorUIProxy editorUI)
 
 	, m_layoutObjID(EMPTY_SDL_RESOURCE_ID)
 	, m_propertyLayout()
-	, m_stringEditCache(256, '\0')
+	, m_stringEditCache(256)
 {}
 
 void ImguiEditorPropertyPanel::buildWindow(const char* windowIdName, bool* isOpening)
@@ -75,6 +74,7 @@ void ImguiEditorPropertyPanel::buildWindow(const char* windowIdName, bool* isOpe
 			ImGui::Text("%d objects were selected. Showing primary.", static_cast<int>(numSelectedObjs));
 		}
 
+		buildGeneralSettings(*primaryObj);
 		buildPropertyEditor(*primaryObj);
 	}
 
@@ -93,8 +93,17 @@ auto ImguiEditorPropertyPanel::getAttributes() const
 		.isCloseable = false};
 }
 
+void ImguiEditorPropertyPanel::buildGeneralSettings(DesignerObject& obj)
+{
+	if(ImGui::CollapsingHeader("General##top_pinned", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		
+	}
+}
+
 void ImguiEditorPropertyPanel::buildPropertyEditor(DesignerObject& obj)
 {
+	// Update property layout only if object changed (layout properties is a heavy operation)
 	if(obj.getId() != m_layoutObjID)
 	{
 		m_propertyLayout.clear();
@@ -291,38 +300,11 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 				auto strPtr = nativeData.directAccess<std::string>();
 				if(strPtr)
 				{
-					auto resizeCallback = [](ImGuiInputTextCallbackData* cbData) -> int
-					{
-						if(cbData->EventFlag == ImGuiInputTextFlags_CallbackResize)
-						{
-							auto stdVec = reinterpret_cast<std::vector<char>*>(cbData->UserData);
-							PH_ASSERT(stdVec->data() == cbData->Buf);
-
-							// On resizing calls, generally `cbData->BufSize == cbData->BufTextLen + 1`
-							stdVec->resize(cbData->BufSize);
-
-							cbData->Buf = stdVec->data();
-						}
-						return 0;
-					};
-
-					// Copy string into edit cache to display on UI (+1 for null terminator)
-					if(strPtr->size() + 1 > m_stringEditCache.size())
-					{
-						m_stringEditCache.resize(strPtr->size() + 1);
-					}
-					imgui::copy_to(m_stringEditCache, *strPtr);
-
 					ImGui::SetNextItemWidth(-FLT_MIN);
-					if(ImGui::InputText(
-						"##prop",
-						m_stringEditCache.data(),
-						m_stringEditCache.size(),
-						ImGuiInputTextFlags_CallbackResize,
-						resizeCallback,
-						&m_stringEditCache))
+					if(m_stringEditCache.inputText(
+						"##prop", *strPtr))
 					{
-						strPtr->assign(m_stringEditCache.data());
+						strPtr->assign(m_stringEditCache.getContent());
 					}
 				}
 				else

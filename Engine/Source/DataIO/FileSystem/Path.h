@@ -63,6 +63,11 @@ public:
 	explicit Path(std::string_view path);
 
 	/*!
+	A span variant of Path(std::string).
+	*/
+	explicit Path(TSpanView<char> path);
+
+	/*!
 	Similar to Path(std::string), except the string is a null-terminated character sequence pointed
 	to by `path`.
 	*/

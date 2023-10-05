@@ -4,7 +4,6 @@
 #include "Render/Imgui/Font/imgui_icons.h"
 #include "Render/Imgui/ImguiFontLibrary.h"
 #include "App/Editor.h"
-#include "Render/Imgui/Utility/imgui_helpers.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -34,8 +33,8 @@ ImguiFileSystemDialog::ImguiFileSystemDialog()
 	, m_selectedEntry(nullptr)
 	, m_dialogClosedFlag(false)
 
-	, m_fsDialogEntryPreviewBuffer(512, '\0')
-	, m_fsDialogItemPreviewBuffer(256, '\0')
+	, m_fsDialogEntryPreviewBuffer(512)
+	, m_fsDialogItemPreviewBuffer(256)
 	, m_isEditingEntry(false)
 	, m_isEditingItem(false)
 
@@ -166,8 +165,8 @@ void ImguiFileSystemDialog::clearSelection()
 
 	m_isEditingEntry = false;
 	m_isEditingItem = false;
-	imgui::copy_to(m_fsDialogEntryPreviewBuffer, "");
-	imgui::copy_to(m_fsDialogItemPreviewBuffer, "");
+	m_fsDialogEntryPreviewBuffer.clear();
+	m_fsDialogItemPreviewBuffer.clear();
 }
 
 bool ImguiFileSystemDialog::dialogClosed()
@@ -186,10 +185,9 @@ Path ImguiFileSystemDialog::getSelectedDirectory() const
 	// If is editing, the preview buffer contains an edited path
 	if(m_isEditingEntry)
 	{
-		PH_ASSERT(!m_fsDialogEntryPreviewBuffer.empty());
-		if(m_fsDialogEntryPreviewBuffer.front() != '\0')
+		if(!m_fsDialogEntryPreviewBuffer.isEmpty())
 		{
-			return Path(m_fsDialogEntryPreviewBuffer.data());
+			return Path(m_fsDialogEntryPreviewBuffer.getContent());
 		}
 		else
 		{
@@ -210,10 +208,9 @@ Path ImguiFileSystemDialog::getSelectedItem() const
 	// If is editing, the preview buffer contains an edited item
 	if(m_isEditingItem)
 	{
-		PH_ASSERT(!m_fsDialogItemPreviewBuffer.empty());
-		if(m_fsDialogItemPreviewBuffer.front() != '\0')
+		if(!m_fsDialogItemPreviewBuffer.isEmpty())
 		{
-			return Path(m_fsDialogItemPreviewBuffer.data());
+			return Path(m_fsDialogItemPreviewBuffer.getContent());
 		}
 		else
 		{
@@ -281,8 +278,7 @@ bool ImguiFileSystemDialog::hasSelectedDirectory() const
 	// If is editing, the preview buffer contains an edited path
 	if(m_isEditingEntry)
 	{
-		PH_ASSERT(!m_fsDialogEntryPreviewBuffer.empty());
-		return m_fsDialogEntryPreviewBuffer.front() != '\0';
+		return !m_fsDialogEntryPreviewBuffer.isEmpty();
 	}
 
 	return m_selectedEntry;
@@ -293,8 +289,7 @@ bool ImguiFileSystemDialog::hasSelectedItem() const
 	// If is editing, the preview buffer contains an edited item
 	if(m_isEditingItem)
 	{
-		PH_ASSERT(!m_fsDialogItemPreviewBuffer.empty());
-		return m_fsDialogItemPreviewBuffer.front() != '\0';
+		return !m_fsDialogItemPreviewBuffer.isEmpty();
 	}
 
 	return m_fsDialogSelectedEntryItemIdx != static_cast<std::size_t>(-1);
@@ -395,19 +390,16 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 		{
 			if(m_selectedEntry)
 			{
-				imgui::copy_to(m_fsDialogEntryPreviewBuffer, m_fsDialogEntryPathName);
+				m_fsDialogEntryPreviewBuffer.resizableCopy(m_fsDialogEntryPathName);
 			}
 			else
 			{
-				imgui::copy_to(m_fsDialogEntryPreviewBuffer, "(no directory selected)");
+				m_fsDialogEntryPreviewBuffer.resizableCopy("(no directory selected)");
 			}
 		}
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		ImGui::InputText(
-			"##entry_preview",
-			m_fsDialogEntryPreviewBuffer.data(),
-			m_fsDialogEntryPreviewBuffer.size());
+		m_fsDialogEntryPreviewBuffer.inputText("##entry_preview");
 
 		// We are editing if the entry text is clicked
 		if(ImGui::IsItemClicked())
@@ -424,29 +416,24 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 		{
 			if(m_fsDialogNumSelectedItems == 0)
 			{
-				imgui::copy_to(m_fsDialogItemPreviewBuffer, "(no item selected)");
+				m_fsDialogItemPreviewBuffer.resizableCopy("(no item selected)");
 			}
 			else if(m_fsDialogNumSelectedItems == 1)
 			{
-				imgui::copy_to(
-					m_fsDialogItemPreviewBuffer,
-					getEntryItemNameWithoutDecorations(m_fsDialogSelectedEntryItemIdx));
+				m_fsDialogItemPreviewBuffer.resizableCopy(getEntryItemNameWithoutDecorations(m_fsDialogSelectedEntryItemIdx));
 			}
 			else
 			{
 				std::snprintf(
-					m_fsDialogItemPreviewBuffer.data(),
-					m_fsDialogItemPreviewBuffer.size(),
+					m_fsDialogItemPreviewBuffer.getData().data(),
+					m_fsDialogItemPreviewBuffer.getData().size(),
 					"(%d items selected)", 
 					static_cast<int>(m_fsDialogNumSelectedItems));
 			}
 		}
 
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		ImGui::InputText(
-			"##item_preview",
-			m_fsDialogItemPreviewBuffer.data(),
-			m_fsDialogItemPreviewBuffer.size());
+		m_fsDialogItemPreviewBuffer.inputText("##item_preview");
 
 		// We are editing if the item input text is clicked
 		if(ImGui::IsItemClicked())

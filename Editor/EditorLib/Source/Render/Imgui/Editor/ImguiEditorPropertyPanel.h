@@ -2,6 +2,7 @@
 
 #include "Render/Imgui/ImguiEditorPanel.h"
 #include "Designer/UI/UIPropertyLayout.h"
+#include "Render/Imgui/Utility/imgui_helpers.h"
 
 #include <SDL/SdlResourceId.h>
 
@@ -22,12 +23,13 @@ public:
 	auto getAttributes() const -> Attributes override;
 
 private:
+	void buildGeneralSettings(DesignerObject& obj);
 	void buildPropertyEditor(DesignerObject& obj);
 	void buildPropertiesInGroup(const UIPropertyGroup& group);
 
 	SdlResourceId m_layoutObjID;
 	UIPropertyLayout m_propertyLayout;
-	std::vector<char> m_stringEditCache;
+	imgui::StringCache m_stringEditCache;
 };
 
 }// end namespace ph::editor
