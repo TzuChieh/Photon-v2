@@ -28,13 +28,19 @@ class TSdlEnumField : public SdlValueType
 
 public:
 	template<typename ValueType>
-	inline explicit TSdlEnumField(ValueType Owner::* const valuePtr) :
-		TSdlEnumField(TSdlEnum<EnumType>::getSdlEnum()->getName(), valuePtr)
+	inline explicit TSdlEnumField(ValueType Owner::* const valuePtr)
+		: TSdlEnumField(
+			TSdlEnum<EnumType>::getSdlEnum()->getName(), 
+			valuePtr)
 	{}
 
 	template<typename ValueType>
-	inline TSdlEnumField(std::string valueName, ValueType Owner::* const valuePtr) :
-		SdlValueType("enum", std::move(valueName), valuePtr)
+	inline TSdlEnumField(std::string valueName, ValueType Owner::* const valuePtr)
+		: SdlValueType(
+			"enum", 
+			std::move(valueName), 
+			"E/" + TSdlEnum<EnumType>::getSdlEnum()->getName(),
+			valuePtr)
 	{}
 
 	inline std::string valueAsString(const EnumType& value) const override

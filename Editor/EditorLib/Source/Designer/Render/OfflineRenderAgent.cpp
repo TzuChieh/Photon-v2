@@ -21,6 +21,9 @@ RenderConfig OfflineRenderAgent::getRenderConfig() const
 	return {
 		.sceneFile = descLink.getPath(),
 		.sceneWorkingDirectory = desc.getWorkingDirectory(),
+		.outputDirectory = desc.getWorkingDirectory(),
+		.outputName = getName(),
+		.outputFileFormat = m_outputFileFormat,
 		.useCopiedScene = m_useCopiedScene,
 		.enableStatsRequest = m_enableStatsRequest,
 		.enablePeekingFrame = m_enablePeekingFrame};

@@ -3,6 +3,7 @@
 #include "Designer/Render/RenderAgent.h"
 
 #include <SDL/sdl_interface.h>
+#include <DataIO/sdl_picture_file_type.h>
 
 namespace ph::editor::render { class OfflineRenderer; }
 
@@ -25,6 +26,7 @@ private:
 	render::OfflineRenderer* m_renderer = nullptr;
 
 	// SDL-binded fields
+	EPictureFile m_outputFileFormat;
 	bool m_useCopiedScene;
 	bool m_enableStatsRequest;
 	bool m_enablePeekingFrame;
@@ -36,6 +38,11 @@ public:
 		clazz.docName("Offline Render Agent");
 		clazz.description("Controls offline rendering.");
 		clazz.baseOn<RenderAgent>();
+
+		TSdlEnumField<OwnerType, EPictureFile> outputFileFormat("output-file-format", &OwnerType::m_outputFileFormat);
+		outputFileFormat.description("File format of the rendered output.");
+		outputFileFormat.defaultTo(EPictureFile::PNG);
+		clazz.addField(outputFileFormat);
 
 		TSdlBool<OwnerType> useCopiedScene("use-copied-scene", &OwnerType::m_useCopiedScene);
 		useCopiedScene.description(

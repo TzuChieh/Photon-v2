@@ -9,13 +9,26 @@ namespace ph
 
 template<typename T, typename Owner>
 inline TSdlOptionalValue<T, Owner>::TSdlOptionalValue(
-	std::string                     typeName,
-	std::string                     valueName,
-	std::optional<T> Owner::* const valuePtr) :
+	std::string typeName,
+	std::string valueName,
+	std::optional<T> Owner::* valuePtr)
 
-	TSdlAbstractValue<T, Owner>(std::move(typeName), std::move(valueName)),
+	: TSdlOptionalValue(typeName, valueName, typeName, valuePtr)
+{}
 
-	m_valuePtr(valuePtr)
+template<typename T, typename Owner>
+inline TSdlOptionalValue<T, Owner>::TSdlOptionalValue(
+	std::string typeName,
+	std::string valueName,
+	std::string typeSignature,
+	std::optional<T> Owner::* valuePtr)
+
+	: TSdlAbstractValue<T, Owner>(
+		std::move(typeName), 
+		std::move(valueName),
+		std::move(typeSignature))
+
+	, m_valuePtr(valuePtr)
 {
 	PH_ASSERT(m_valuePtr);
 

@@ -96,6 +96,7 @@
 #include "Actor/Material/Utility/EInterfaceFresnel.h"
 #include "Actor/Material/Utility/EInterfaceMicrosurface.h"
 #include "Actor/Material/Utility/ERoughnessToAlpha.h"
+#include "DataIO/sdl_picture_file_type.h"
 
 #include <utility>
 #include <vector>
@@ -203,6 +204,7 @@ inline std::vector<const SdlEnum*> register_engine_enums()
 		get_sdl_enum<EAccelerator>(),
 		get_sdl_enum<ERayEnergyEstimator>(),
 		get_sdl_enum<ESampleFilter>(),
+		get_sdl_enum<EScheduler>(),
 		get_sdl_enum<EImageSampleMode>(),
 		get_sdl_enum<EImageWrapMode>(),
 		get_sdl_enum<math::EColorSpace>(),
@@ -212,6 +214,7 @@ inline std::vector<const SdlEnum*> register_engine_enums()
 		get_sdl_enum<ERoughnessToAlpha>(),
 		get_sdl_enum<EIdealSubstance>(),
 		get_sdl_enum<ESurfaceMaterialMixMode>(),
+		get_sdl_enum<EPictureFile>(),
 	};
 }
 
@@ -252,13 +255,13 @@ bool init_render_engine(EngineInitSettings settings)
 	// Enums are initialized first as they have fewer dependencies.
 	//
 	const auto sdlEnums = get_registered_engine_enums();
-	PH_LOG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
+	PH_LOG_DEBUG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
 
 	// Get SDL classes once here to initialize them--this is not required,
 	// same reason as SDL enums.
 	//
 	const auto sdlClasses = get_registered_engine_classes();
-	PH_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
+	PH_LOG_DEBUG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
 
 	return true;
 }

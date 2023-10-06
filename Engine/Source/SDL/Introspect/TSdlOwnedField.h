@@ -14,7 +14,14 @@ template<typename Owner>
 class TSdlOwnedField : public SdlField
 {
 public:
-	TSdlOwnedField(std::string typeName, std::string valueName);
+	TSdlOwnedField(
+		std::string typeName, 
+		std::string valueName);
+
+	TSdlOwnedField(
+		std::string typeName, 
+		std::string valueName,
+		std::string typeSignature);
 
 	/*! @brief Set the value of the field to a default one.
 	Since the field class is templatized by `Owner` type, we are able to define default value on

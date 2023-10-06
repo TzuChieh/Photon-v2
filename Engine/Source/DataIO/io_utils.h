@@ -8,6 +8,7 @@
 #include "Common/primitive_type.h"
 #include "Frame/frame_fwd.h"
 #include "Math/math_fwd.h"
+#include "DataIO/EPictureFile.h"
 
 #include <string_view>
 #include <string>
@@ -59,21 +60,66 @@ bool load_picture_meta(
 	std::size_t* out_numComponents = nullptr,
 	RegularPictureFormat* out_format = nullptr);
 
+/*! @brief Saves a LDR frame to the specified file.
+Similar to `save(4)`, except file name and format are deduced from path.
+*/
 void save(const LdrRgbFrame& frame, const Path& picturePath);
 
 /*! @brief Saves a HDR frame to the specified file.
-Notice that if the specified format is LDR, values outside [0, 1] will be clamped. Actual format 
-is deduced from filename extension.
+Similar to `save(4)`, except file name and format are deduced from path.
 */
 void save(const HdrRgbFrame& frame, const Path& picturePath);
 
+/*! @brief Saves a LDR frame to the specified file.
+Notice that if the specified format is HDR, values will be promoted to higher precision types which
+can have extra storage cost.
+*/
+void save(
+	const LdrRgbFrame& frame, 
+	const Path& pictureDirectory, 
+	const std::string& name, 
+	EPictureFile format);
+
+/*! @brief Saves a HDR frame to the specified file.
+Notice that if the specified format is LDR, values outside [0, 1] will be clamped (this may result
+in significant data loss depending on the values stored).
+*/
+void save(
+	const HdrRgbFrame& frame, 
+	const Path& pictureDirectory, 
+	const std::string& name, 
+	EPictureFile format);
+
+/*! @brief Saves a frame in PNG format.
+*/
 void save_png(const LdrRgbFrame& frame, const Path& picturePath);
+
+/*! @brief Saves a frame in JPG format.
+*/
 void save_jpg(const LdrRgbFrame& frame, const Path& picturePath);
+
+/*! @brief Saves a frame in BMP format.
+*/
 void save_bmp(const LdrRgbFrame& frame, const Path& picturePath);
+
+/*! @brief Saves a frame in TGA format.
+*/
 void save_tga(const LdrRgbFrame& frame, const Path& picturePath);
+
+/*! @brief Saves a frame in HDR format.
+*/
 void save_hdr(const HdrRgbFrame& frame, const Path& picturePath);
+
+/*! @brief Saves a frame in EXR format.
+*/
 void save_exr(const HdrRgbFrame& frame, const Path& picturePath);
+
+/*! @brief Saves a frame in EXR format with high precision encoding.
+*/
 void save_exr_high_precision(const HdrRgbFrame& frame, const Path& picturePath);
+
+/*! @brief Saves a frame in PFM format.
+*/
 void save_pfm(const HdrRgbFrame& frame, const Path& picturePath);
 
 // HACK

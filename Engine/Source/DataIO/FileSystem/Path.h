@@ -124,7 +124,7 @@ public:
 	Path removeTrailingSeparator() const;
 
 	/*! @brief Returns the filename if present.
-	@return Filename including the extension part. Empty if not present.
+	@return Filename including the extension part (if any). Empty if not present.
 	*/
 	std::string getFilename() const;
 

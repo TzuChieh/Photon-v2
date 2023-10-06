@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL/sdl_fwd.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
 #include "SDL/Introspect/EFieldImportance.h"
 #include "SDL/Introspect/SdlNativeData.h"
@@ -19,6 +18,12 @@ class SdlField
 {
 public:
 	SdlField(std::string typeName, std::string fieldName);
+
+	SdlField(
+		std::string typeName, 
+		std::string fieldName,
+		std::string typeSignature);
+
 	virtual ~SdlField();
 
 	/*! @brief Direct access to the field memory of a SDL instance.
@@ -33,6 +38,7 @@ public:
 	std::string_view getTypeName() const;
 	std::string_view getFieldName() const;
 	std::string_view getDescription() const;
+	std::string_view getTypeSignature() const;
 
 	EFieldImportance getImportance() const;
 
@@ -57,22 +63,12 @@ private:
 	std::string m_typeName;
 	std::string m_fieldName;
 	std::string m_description;
+	std::string m_typeSignature;
 	EFieldImportance m_importance;
 	bool m_isFallbackEnabled;
 };
 
 // In-header Implementation:
-
-inline SdlField::SdlField(std::string typeName, std::string fieldName)
-	: m_typeName(std::move(typeName))
-	, m_fieldName(std::move(fieldName))
-	, m_description()
-	, m_importance(EFieldImportance::NiceToHave)
-	, m_isFallbackEnabled(true)
-{
-	PH_ASSERT(!m_typeName.empty());
-	PH_ASSERT(!m_fieldName.empty());
-}
 
 inline std::string_view SdlField::getTypeName() const
 {
@@ -87,6 +83,11 @@ inline std::string_view SdlField::getFieldName() const
 inline std::string_view SdlField::getDescription() const
 {
 	return m_description;
+}
+
+inline std::string_view SdlField::getTypeSignature() const
+{
+	return m_typeSignature;
 }
 
 inline EFieldImportance SdlField::getImportance() const

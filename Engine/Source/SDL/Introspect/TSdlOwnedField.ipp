@@ -17,8 +17,25 @@ namespace ph
 {
 
 template<typename Owner>
-inline TSdlOwnedField<Owner>::TSdlOwnedField(std::string typeName, std::string valueName)
-	: SdlField(std::move(typeName), std::move(valueName))
+inline TSdlOwnedField<Owner>::TSdlOwnedField(
+	std::string typeName, 
+	std::string valueName)
+
+	: SdlField(
+		std::move(typeName), 
+		std::move(valueName))
+{}
+
+template<typename Owner>
+inline TSdlOwnedField<Owner>::TSdlOwnedField(
+	std::string typeName, 
+	std::string valueName, 
+	std::string typeSignature)
+
+	: SdlField(
+		std::move(typeName), 
+		std::move(valueName),
+		std::move(typeSignature))
 {}
 
 template<typename Owner>

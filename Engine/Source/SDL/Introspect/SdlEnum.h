@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common/primitive_type.h"
+
 #include <string>
 #include <string_view>
 #include <cstddef>
@@ -34,7 +36,7 @@ public:
 		{}
 	};
 
-	using Entry = TEntry<std::uintmax_t>;
+	using Entry = TEntry<int64>;
 
 	explicit SdlEnum(std::string name);
 

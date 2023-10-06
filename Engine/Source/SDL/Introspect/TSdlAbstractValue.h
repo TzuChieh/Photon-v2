@@ -19,6 +19,11 @@ public:
 		std::string typeName, 
 		std::string valueName);
 
+	TSdlAbstractValue(
+		std::string typeName, 
+		std::string valueName,
+		std::string typeSignature);
+
 	/*! @brief Human-readable representation of the value.
 	*/
 	virtual std::string valueAsString(const T& value) const = 0;

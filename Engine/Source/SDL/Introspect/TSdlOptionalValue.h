@@ -21,8 +21,14 @@ class TSdlOptionalValue : public TSdlAbstractValue<T, Owner>
 {
 public:
 	TSdlOptionalValue(
-		std::string               typeName, 
-		std::string               valueName, 
+		std::string typeName, 
+		std::string valueName, 
+		std::optional<T> Owner::* valuePtr);
+
+	TSdlOptionalValue(
+		std::string typeName,
+		std::string valueName,
+		std::string typeSignature,
 		std::optional<T> Owner::* valuePtr);
 
 	std::string valueAsString(const T& value) const override = 0;

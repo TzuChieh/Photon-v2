@@ -16,7 +16,9 @@ namespace ph
 {
 
 /*! @brief SDL enum implementation with common features.
-Enum value and string mapping are done in a brute-force way.
+Enum value and string mapping are done in a brute-force way. This SDL enum type supports enum entries
+with identical value or name, which is useful for giving the user more tolerance on specifying inputs
+(e.g., case inconsistency). See `getTypedEntry()` for more details.
 */
 template<typename InEnumType, std::size_t MAX_ENTRIES = 64>
 class TSdlGeneralEnum : public SdlEnum
@@ -86,10 +88,9 @@ public:
 	}
 
 	/*! @brief Get an enum entry via an enum name.
-
-	Note that the method cannot distinguish between identical enum names,
-	i.e., if two entries have the same enum name, their entries cannot be
-	uniquely identified and returned.
+	Note that the method cannot distinguish between identical enum names, i.e., if two entries have
+	the same enum name, their entries cannot be uniquely identified and returned (however, the returned
+	entry is consistent within the same SDL version).
 	*/
 	inline TEntry<EnumType> getTypedEntry(const std::string_view entryName) const
 	{
@@ -107,10 +108,9 @@ public:
 	}
 
 	/*! @brief Get an enum entry via an enum value.
-
-	Note that the method cannot distinguish between identical enum values,
-	i.e., if two entries have the same enum value, their entries cannot be
-	uniquely identified and returned.
+	Note that the method cannot distinguish between identical enum values, i.e., if two entries have
+	the same enum value, their entries cannot be uniquely identified and returned (however, the returned
+	entry is consistent within the same SDL version).
 	*/
 	inline TEntry<EnumType> getTypedEntry(const EnumType enumValue) const
 	{

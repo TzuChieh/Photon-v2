@@ -9,6 +9,12 @@
 #include "ThirdParty/DearImGui.h"
 
 #include <SDL/SceneDescription.h>
+#include <ph_cpp_core.h>
+#include <ph_editor.h>
+#include <SDL/sdl_helpers.h>
+#include <SDL/Introspect/SdlField.h>
+#include <SDL/Introspect/SdlEnum.h>
+#include <Utility/string_utils.h>
 
 #include <cstddef>
 #include <utility>
@@ -385,6 +391,58 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 				break;
 			}
 
+			case ESdlDataType::Enum:
+			{
+				const EnumType* enumType = getEnumType(prop.getField()->getTypeSignature());
+				if(!enumType || !enumType->enuw)
+				{
+					ImGui::TextUnformatted("(enum data unavailable)");
+					break;
+				}
+
+				std::optional<int64> optValue = nativeData.get<int64>(0);
+				if(!optValue)
+				{
+					if(ImGui::Button(PH_IMGUI_PLUS_ICON " Add Value "))
+					{
+						nativeData.set(0, 0);
+					}
+					break;
+				}
+
+				if(nativeData.isNullClearable)
+				{
+					if(ImGui::Button(PH_IMGUI_CROSS_ICON))
+					{
+						nativeData.set(0, nullptr);
+					}
+					ImGui::SameLine();
+				}
+
+				ImGui::SetNextItemWidth(-FLT_MIN);
+				if(ImGui::BeginCombo("##enum_entry_combo", enumType->getDisplayName(*optValue)))
+				{
+					for(std::size_t ei = 0; ei < enumType->enuw->numEntries(); ++ei)
+					{
+						const auto& entry = enumType->enuw->getEntry(ei);
+						const bool isSelected = entry.value == *optValue;
+						if(ImGui::Selectable(enumType->getDisplayName(entry.value), isSelected))
+						{
+							nativeData.set<int64>(0, entry.value);
+						}
+
+						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+						if(isSelected)
+						{
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+
+					ImGui::EndCombo();
+				}
+				break;
+			}
+
 			default:
 				ImGui::TextUnformatted("(data unavailable)");
 				break;
@@ -507,6 +565,72 @@ void ImguiEditorPropertyPanel::buildPropertiesInGroup(const UIPropertyGroup& gro
 	}// end for each UI property
 
 	//ImGui::PopStyleVar();
+}
+
+auto ImguiEditorPropertyPanel::gatherEnumTypes()
+-> std::vector<EnumType>
+{
+	auto editorEnums = get_registered_editor_enums();
+	auto engineEnums = get_registered_engine_enums();
+
+	std::vector<const SdlEnum*> enums;
+	enums.insert(enums.end(), editorEnums.begin(), editorEnums.end());
+	enums.insert(enums.end(), engineEnums.begin(), engineEnums.end());
+
+	std::vector<EnumType> enumTypes;
+	for(const SdlEnum* enuw : enums)
+	{
+		std::unordered_map<int64, std::string> valueToDisplayName;
+		for(std::size_t ei = 0; ei < enuw->numEntries(); ++ei)
+		{
+			auto entry = enuw->getEntry(ei);
+			auto titleCaseEntryName = sdl::name_to_title_case(entry.name);
+			if(titleCaseEntryName.empty())
+			{
+				titleCaseEntryName = entry.value == 0
+					? "0 (unspecified)"
+					: std::to_string(entry.value) + " (no name)";
+			}
+
+			// Enum entries may have duplicated values/names. Values with same name are just fine--
+			// they have separate map entries; names with same value will have the names appended
+			// in a comma-separated display name.
+			if(valueToDisplayName.contains(entry.value))
+			{
+				valueToDisplayName[entry.value] += ", " + titleCaseEntryName;
+			}
+			else
+			{
+				valueToDisplayName[entry.value] = titleCaseEntryName;
+			}
+		}
+
+		enumTypes.push_back({
+			.enuw = enuw,
+			.valueToDisplayName = valueToDisplayName});
+	}
+
+	return enumTypes;
+}
+
+auto ImguiEditorPropertyPanel::getEnumType(std::string_view typeSignature)
+-> const EnumType*
+{
+	static const string_utils::TStdUnorderedStringMap<EnumType> typeSignatureToEnumType = 
+		[]()
+		{
+			string_utils::TStdUnorderedStringMap<EnumType> mapper;
+			for(const EnumType& enumType : gatherEnumTypes())
+			{
+				std::string typeSignature = "E/" + enumType.enuw->getName();
+				PH_ASSERT(!mapper.contains(typeSignature));
+				mapper[typeSignature] = enumType;
+			}
+			return mapper;
+		}();
+
+	auto iter = typeSignatureToEnumType.find(typeSignature);
+	return iter != typeSignatureToEnumType.end() ? &(iter->second) : nullptr;
 }
 
 }// end namespace ph::editor

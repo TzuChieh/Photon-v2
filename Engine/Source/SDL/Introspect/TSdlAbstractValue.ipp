@@ -8,9 +8,23 @@ namespace ph
 template<typename T, typename Owner>
 inline TSdlAbstractValue<T, Owner>::TSdlAbstractValue(
 	std::string typeName, 
-	std::string valueName) : 
+	std::string valueName)
 
-	TSdlOwnedField<Owner>(std::move(typeName), std::move(valueName))
+	: TSdlOwnedField<Owner>(
+		std::move(typeName), 
+		std::move(valueName))
+{}
+
+template<typename T, typename Owner>
+inline TSdlAbstractValue<T, Owner>::TSdlAbstractValue(
+	std::string typeName,
+	std::string valueName,
+	std::string typeSignature)
+
+	: TSdlOwnedField<Owner>(
+		std::move(typeName),
+		std::move(valueName),
+		std::move(typeSignature))
 {}
 
 template<typename T, typename Owner>

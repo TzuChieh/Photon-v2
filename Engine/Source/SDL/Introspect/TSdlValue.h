@@ -26,7 +26,13 @@ public:
 	TSdlValue(
 		std::string typeName, 
 		std::string valueName, 
-		T Owner::*  valuePtr);
+		T Owner::* valuePtr);
+
+	TSdlValue(
+		std::string typeName,
+		std::string valueName,
+		std::string typeSignature,
+		T Owner::* valuePtr);
 
 	std::string valueAsString(const T& value) const override = 0;
 	SdlNativeData ownedNativeData(Owner& owner) const override = 0;

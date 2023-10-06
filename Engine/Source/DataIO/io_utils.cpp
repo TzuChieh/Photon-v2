@@ -9,6 +9,7 @@
 #include "DataIO/ExrFileWriter.h"
 #include "DataIO/PfmFileWriter.h"
 #include "Math/TVector2.h"
+#include "DataIO/sdl_picture_file_type.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -422,71 +423,98 @@ bool load_picture_meta(
 
 void save(const LdrRgbFrame& frame, const Path& picturePath)
 {
-	const std::string& ext = picturePath.getExtension();
-
-	if(ext == ".png" || ext == ".PNG")
-	{
-		save_png(frame, picturePath);
-	}
-	else if(ext == ".jpg" || ext == ".JPG")
-	{
-		save_jpg(frame, picturePath);
-	}
-	else if(ext == ".bmp" || ext == ".BMP")
-	{
-		save_bmp(frame, picturePath);
-	}
-	else if(ext == ".tga" || ext == ".TGA")
-	{
-		save_tga(frame, picturePath);
-	}
-	else if(
-		ext == ".exr" || ext == ".EXR" ||
-		ext == ".hdr" || ext == ".HDR" ||
-		ext == ".pfm" || ext == ".PFM")
-	{
-		HdrRgbFrame HdrFrame;
-		frame_utils::to_HDR(frame, &HdrFrame);
-
-		save(HdrFrame, picturePath);
-	}
-	else
-	{
-		throw FileIOError(
-			"unsupported picture format <" + ext + ">", picturePath.toString());
-	}
+	save(
+		frame,
+		picturePath.getParent(),
+		picturePath.removeExtension().getFilename(),
+		picture_file_type_from_extension(picturePath.getExtension()));
 }
 
 void save(const HdrRgbFrame& frame, const Path& picturePath)
 {
-	const std::string& ext = picturePath.getExtension();
-	if(ext == ".exr" || ext == ".EXR")
+	save(
+		frame, 
+		picturePath.getParent(), 
+		picturePath.removeExtension().getFilename(),
+		picture_file_type_from_extension(picturePath.getExtension()));
+}
+
+void save(
+	const LdrRgbFrame& frame,
+	const Path& pictureDirectory,
+	const std::string& name,
+	EPictureFile format)
+{
+	switch(format)
 	{
-		save_exr(frame, picturePath);
-	}
-	else if(ext == ".hdr" || ext == ".HDR")
+	case EPictureFile::PNG:
+		save_png(frame, pictureDirectory / (name + ".png"));
+		break;
+
+	case EPictureFile::JPG:
+		save_jpg(frame, pictureDirectory / (name + ".jpg"));
+		break;
+
+	case EPictureFile::BMP:
+		save_bmp(frame, pictureDirectory / (name + ".bmp"));
+		break;
+
+	case EPictureFile::TGA:
+		save_tga(frame, pictureDirectory / (name + ".tga"));
+		break;
+
+	case EPictureFile::HDR:
+	case EPictureFile::EXR:
+	case EPictureFile::HighPrecisionEXR:
 	{
-		save_hdr(frame, picturePath);
+		HdrRgbFrame hdrFrame;
+		frame_utils::to_HDR(frame, &hdrFrame);
+		save(hdrFrame, pictureDirectory, name, format);
+		break;
 	}
-	else if(ext == ".pfm" || ext == ".PFM")
+
+	default:
+		throw FileIOError(
+			"failed to save LDR frame: unsupported format \"" + std::string(TSdlEnum<EPictureFile>{}[format]) + "\"",
+			(pictureDirectory / name).toAbsoluteString());
+	}
+}
+
+void save(
+	const HdrRgbFrame& frame,
+	const Path& pictureDirectory,
+	const std::string& name,
+	EPictureFile format)
+{
+	switch(format)
 	{
-		save_pfm(frame, picturePath);
-	}
-	else if(
-		ext == ".png" || ext == ".PNG" ||
-		ext == ".jpg" || ext == ".JPG" ||
-		ext == ".bmp" || ext == ".BMP" ||
-		ext == ".tga" || ext == ".TGA")
+	case EPictureFile::PNG:
+	case EPictureFile::JPG:
+	case EPictureFile::BMP:
+	case EPictureFile::TGA:
 	{
 		LdrRgbFrame ldrFrame;
 		frame_utils::to_LDR(frame, &ldrFrame);
-
-		save(ldrFrame, picturePath);
+		save(ldrFrame, pictureDirectory, name, format);
+		break;
 	}
-	else
-	{
+
+	case EPictureFile::HDR:
+		save_hdr(frame, pictureDirectory / (name + ".hdr"));
+		break;
+
+	case EPictureFile::EXR:
+		save_exr(frame, pictureDirectory / (name + ".exr"));
+		break;
+
+	case EPictureFile::HighPrecisionEXR:
+		save_exr_high_precision(frame, pictureDirectory / (name + ".exr"));
+		break;
+
+	default:
 		throw FileIOError(
-			"unsupported picture format <" + ext + ">", picturePath.toString());
+			"failed to save HDR frame: unsupported format \"" + std::string(TSdlEnum<EPictureFile>{}[format]) + "\"",
+			(pictureDirectory / name).toAbsoluteString());
 	}
 }
 

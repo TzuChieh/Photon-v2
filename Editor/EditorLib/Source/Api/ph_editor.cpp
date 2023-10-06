@@ -26,6 +26,9 @@
 #include "Designer/Imposter/ImposterObject.h"
 #include "Designer/Imposter/GeneralImposter.h"
 
+// Enums
+#include "RenderCore/SDL/sdl_graphics_api_type.h"
+
 #include <ph_cpp_core.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -67,6 +70,12 @@ inline const SdlClass* register_editor_sdl_class()
 	return clazz;
 }
 
+template<typename EnumType>
+inline const SdlEnum* register_editor_sdl_enum()
+{
+	return TSdlEnum<EnumType>::getSdlEnum();
+}
+
 inline std::vector<const SdlClass*> register_editor_classes()
 {
 	return
@@ -92,6 +101,14 @@ inline std::vector<const SdlClass*> register_editor_classes()
 	};
 }
 
+inline std::vector<const SdlEnum*> register_editor_enums()
+{
+	return
+	{
+		register_editor_sdl_enum<ghi::EGraphicsAPI>(),
+	};
+}
+
 }// end anonymous namespace
 
 int application_entry_point(int argc, char* argv[])
@@ -107,13 +124,14 @@ int application_entry_point(int argc, char* argv[])
 	// that want to be ran early.
 	// Enums are initialized first as they have fewer dependencies.
 	//
-	// TODO
+	const auto sdlEnums = get_registered_editor_enums();
+	PH_DEFAULT_LOG_DEBUG("initialized {} editor SDL enum definitions", sdlEnums.size());
 
 	// Get SDL classes once here to initialize them--this is not required,
 	// same reason as SDL enums.
 	//
 	const auto sdlClasses = get_registered_editor_classes();
-	PH_DEFAULT_LOG("initialized {} editor SDL class definitions", sdlClasses.size());
+	PH_DEFAULT_LOG_DEBUG("initialized {} editor SDL class definitions", sdlClasses.size());
 
 	Program::programStart();
 
@@ -164,6 +182,12 @@ std::span<const SdlClass* const> get_registered_editor_classes()
 {
 	static std::vector<const SdlClass*> classes = register_editor_classes();
 	return classes;
+}
+
+std::span<const SdlEnum* const> get_registered_editor_enums()
+{
+	static std::vector<const SdlEnum*> enums = register_editor_enums();
+	return enums;
 }
 
 Path get_editor_data_directory()
