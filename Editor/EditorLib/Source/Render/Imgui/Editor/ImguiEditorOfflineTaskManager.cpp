@@ -189,6 +189,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	case render::EOfflineRenderStage::CopyingScene: stageName = "Copying Scene"; break;
 	case render::EOfflineRenderStage::LoadingScene: stageName = "Loading Scene"; break;
 	case render::EOfflineRenderStage::Updating: stageName = "Updating"; break;
+	case render::EOfflineRenderStage::Rendering: stageName = "Rendering"; break;
 	case render::EOfflineRenderStage::Developing: stageName = "Developing"; break;
 	case render::EOfflineRenderStage::Finished: stageName = "Finished"; break;
 	}
@@ -210,7 +211,16 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 
 	ImGui::Separator();
 
+	const auto& baseSize = info.stats.viewport.getBaseSizePx();
+	const auto& cropRegion = info.stats.viewport.getCroppedRegionPx();
+
+	// Group 1: Static information about this render
 	ImGui::BeginGroup();
+	ImGui::Text(
+		"Full Viewport: (%d, %d), Render Min: (%d, %d) Max: (%d, %d)",
+		static_cast<int>(baseSize.x()), static_cast<int>(baseSize.y()),
+		static_cast<int>(cropRegion.getMinVertex().x()), static_cast<int>(cropRegion.getMinVertex().y()),
+		static_cast<int>(cropRegion.getMaxVertex().x()), static_cast<int>(cropRegion.getMaxVertex().y()));
 	ImGui::TextUnformatted("Layers:");
 	if(info.stats.layerNames.empty())
 	{
@@ -228,6 +238,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	ImGui::SameLine();
 	ImGui::Spacing();
 
+	// Group 2: Dynamic information (numeric statistics)
 	ImGui::SameLine();
 	ImGui::BeginGroup();
 	ImGui::TextUnformatted("Statistics:");
@@ -245,7 +256,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 			}
 			else
 			{
-				ImGui::BulletText("%s: %f", numericInfo.value);
+				ImGui::BulletText("%s: %f", numericInfo.name.c_str(), numericInfo.value);
 			}
 		}
 	}

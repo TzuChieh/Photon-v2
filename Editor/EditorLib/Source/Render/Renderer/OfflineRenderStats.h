@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Common/primitive_type.h>
+#include <Frame/Viewport.h>
 
 #include <string>
 #include <vector>
@@ -29,6 +30,7 @@ public:
 		bool isInteger = false;
 	};
 
+	Viewport viewport;
 	uint64 totalWork = 0;
 	uint64 workDone = 0;
 	std::vector<std::string> layerNames;

@@ -112,21 +112,27 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 	if(config.enableStatsRequest)
 	{
 		ObservableRenderData entries = renderer->getObservableData();
+		Viewport viewport = renderer->getViewport();
+
+		// Load stats that are constant throughout the rendering process once
 		m_syncedRenderStats.locked(
-			[&entries](OfflineRenderStats& stats)
+			[&viewport , &entries](OfflineRenderStats& stats)
 			{
+				stats.viewport = viewport;
+
+				stats.layerNames.clear();
 				for(std::size_t i = 0; i < entries.numLayers(); ++i)
 				{
 					stats.layerNames.push_back(entries.getLayerName(i));
 				}
 				
+				stats.numericInfos.clear();
 				for(std::size_t i = 0; i < entries.numIntegerStates(); ++i)
 				{
 					stats.numericInfos.push_back({
 						.name = entries.getIntegerStateName(i),
 						.isInteger = true});
 				}
-
 				for(std::size_t i = 0; i < entries.numRealStates(); ++i)
 				{
 					stats.numericInfos.push_back({

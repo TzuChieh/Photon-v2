@@ -14,16 +14,34 @@ namespace ph
 class Viewport final
 {
 public:
+	/*! @brief Creates empty viewport.
+	*/
 	Viewport();
+
 	explicit Viewport(math::TVector2<uint32> baseSizePx);
 	Viewport(math::TVector2<uint32> baseSizePx, math::TAABB2D<int64> windowPx);
 
+	/*! @brief The full size of this viewport.
+	*/
 	const math::TVector2<uint32>& getBaseSizePx() const;
+
+	/*! @brief The window that limits the viewing area of this viewport.
+	*/
 	const math::TAABB2D<int64>& getWindowPx() const;
+
+	/*! @brief The viewing area of this viewport.
+	The difference between cropped region and window is that cropped region will never exceed the
+	area defined by base size.
+	*/
 	math::TAABB2D<int64> getCroppedRegionPx() const;
+
 	std::size_t numBasePixels() const;
-	std::size_t numWindowPixels() const;
+	std::size_t numCroppedRegionPixels() const;
+
+	/*! @brief Whether there is any viewable area in the viewport.
+	*/
 	bool hasView() const;
+
 	std::string toString() const;
 
 private:
@@ -60,7 +78,7 @@ inline const math::TAABB2D<int64>& Viewport::getWindowPx() const
 
 inline math::TAABB2D<int64> Viewport::getCroppedRegionPx() const
 {
-	math::TAABB2D<int64> intersectedWindowPx({0, 0}, {m_baseSizePx.x(), m_baseSizePx.y() });
+	math::TAABB2D<int64> intersectedWindowPx({0, 0}, {m_baseSizePx.x(), m_baseSizePx.y()});
 	intersectedWindowPx.intersectWith(m_windowPx);
 	return intersectedWindowPx;
 }
@@ -70,9 +88,9 @@ inline std::size_t Viewport::numBasePixels() const
 	return static_cast<std::size_t>(m_baseSizePx.x()) * m_baseSizePx.y();
 }
 
-inline std::size_t Viewport::numWindowPixels() const
+inline std::size_t Viewport::numCroppedRegionPixels() const
 {
-	return static_cast<std::size_t>(m_windowPx.getArea());
+	return static_cast<std::size_t>(getCroppedRegionPx().getArea());
 }
 
 inline bool Viewport::hasView() const

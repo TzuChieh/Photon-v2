@@ -181,7 +181,7 @@ private:
 		{
 			if(m_isLocked)
 			{
-				m_parent.m_mutex.unlock();
+				m_parent.m_mutex.unlock_shared();
 			}
 		}
 

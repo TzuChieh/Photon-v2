@@ -30,7 +30,8 @@ public:
 	*/
 	EOfflineRenderStage getRenderStage() const;
 
-	/*!
+	/*! @brief Make an attempt to retrieve render statistics from the render engine.
+	@return `true` if the attempt was successful and results are stored in `stats`. `false` otherwise.
 	@note Thread safe.
 	*/
 	bool tryGetRenderStats(OfflineRenderStats* stats);

@@ -68,10 +68,10 @@ std::string RawResourceCollection::makeResourceName(std::string_view intendedNam
 	int suffixNumber = 1;
 	while(true)
 	{
-		// Generating a name sequence like "name", "name (2)", "name (3)", etc.
+		// Generating a name sequence like "name", "name_2", "name_3", etc.
 		std::string generatedName = 
 			std::string(intendedName) +
-			(suffixNumber == 1 ? "" : " (" + std::to_string(suffixNumber) + ")");
+			(suffixNumber == 1 ? "" : "_" + std::to_string(suffixNumber));
 
 		if(!has(generatedName))
 		{
