@@ -342,7 +342,7 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 			nameColumnId);
 		ImGui::TableSetupColumn("", 
 			ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed,
-			0,
+			textBaseWidth * 2.5f,
 			visibilityColumnId);
 		ImGui::TableSetupColumn("Type", 
 			ImGuiTableColumnFlags_WidthFixed, 
