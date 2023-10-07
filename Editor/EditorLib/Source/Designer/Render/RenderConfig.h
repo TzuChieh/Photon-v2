@@ -14,8 +14,8 @@ public:
 	Path sceneFile;
 	Path sceneWorkingDirectory;
 	Path outputDirectory;
-	std::string outputName;
-	EPictureFile outputFileFormat;
+	std::string outputName = "rendered_scene";
+	EPictureFile outputFileFormat = EPictureFile::EXR;
 	bool useCopiedScene = true;
 	bool enableStatsRequest = true;
 	bool enablePeekingFrame = true;

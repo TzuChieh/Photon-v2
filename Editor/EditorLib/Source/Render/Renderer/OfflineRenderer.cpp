@@ -6,6 +6,9 @@
 #include <Core/Engine.h>
 #include <Core/Renderer/Renderer.h>
 #include <Utility/TFunction.h>
+#include <DataIO/io_utils.h>
+#include <Frame/TFrame.h>
+#include <Utility/exception.h>
 
 #include <memory>
 #include <thread>
@@ -54,7 +57,16 @@ void OfflineRenderer::render(const RenderConfig& config)
 	m_engineThread.addWork(
 		[this, config]()
 		{
-			renderSingleStaticImageOnEngineThread(config);
+			try
+			{
+				renderSingleStaticImageOnEngineThread(config);
+			}
+			catch(const Exception& e)
+			{
+				PH_LOG_ERROR(OfflineRenderer,
+					"Error on rendering single static image: {}", e.what());
+			}
+			
 			setRenderStage(EOfflineRenderStage::Finished);
 		});
 }
@@ -191,7 +203,12 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 
 	setRenderStage(EOfflineRenderStage::Developing);
 
-	// TODO: get final frame or save file
+	// TODO: get final frame
+
+	// Save result to disk
+	HdrRgbFrame frame(renderer->getRenderWidthPx(), renderer->getRenderHeightPx());
+	renderer->retrieveFrame(0, frame);
+	io_utils::save(frame, config.outputDirectory, config.outputName, config.outputFileFormat);
 }
 
 void OfflineRenderer::setupGHI(GHIThreadCaller& caller)
