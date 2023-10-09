@@ -6,6 +6,8 @@
 #include "Render/Imgui/Tool/ImguiFileSystemDialog.h"
 #include "Render/Imgui/Utility/imgui_helpers.h"
 
+#include <Common/logging.h>
+
 #include <algorithm>
 
 namespace ph::editor
@@ -140,7 +142,6 @@ void ImguiEditorImageViewer::buildTopToolbar()
 {
 	const ImGuiStyle& style = ImGui::GetStyle();
 	ImguiFileSystemDialog& fsDialog = getEditorUI().getGeneralFileSystemDialog();
-	ImguiImageLibrary& imageLib = getEditorUI().getImageLibrary();
 
 	// Reset to start position so we can draw on top of the image
 	ImGui::SetCursorPos(ImGui::GetCursorStartPos());
@@ -181,13 +182,7 @@ void ImguiEditorImageViewer::buildTopToolbar()
 	ImGui::SameLine();
 	if(ImGui::Button(PH_IMGUI_CROSS_ICON) && hasSelectedImage())
 	{
-		std::string imageName = getSelectedImageState().name;
-		std::erase_if(m_imageStates,
-			[&imageName](const ImageState& state)
-			{
-				return state.name == imageName;
-			});
-		imageLib.unloadImage(imageName);
+		removeImage(getSelectedImageState().name);
 	}
 
 	ImGui::SameLine();
@@ -246,13 +241,7 @@ void ImguiEditorImageViewer::buildTopToolbar()
 		if(!fsDialog.getSelectedItem().isEmpty())
 		{
 			Path imageFile = fsDialog.getSelectedTarget();
-			auto imageName = imageFile.toAbsoluteString();
-			if(!imageFile.isEmpty() && !imageLib.has(imageName))
-			{
-				imageLib.loadImage(imageName, imageFile);
-				m_imageStates.push_back({
-					.name = imageName});
-			}
+			addImage(imageFile.toAbsoluteString(), imageFile);
 		}
 	}
 }
@@ -261,7 +250,6 @@ void ImguiEditorImageViewer::buildBottomToolbar()
 {
 	const ImGuiStyle& style = ImGui::GetStyle();
 	ImguiFileSystemDialog& fsDialog = getEditorUI().getGeneralFileSystemDialog();
-	ImguiImageLibrary& imageLib = getEditorUI().getImageLibrary();
 
 	// Reset to start position first so we can use `GetContentRegionAvail()` to find the bottom
 	const ImVec2 cursorStartPos = ImGui::GetCursorStartPos();
@@ -369,6 +357,84 @@ void ImguiEditorImageViewer::applyZoomTo(
 	state.minPosInWindow -= 
 		(zoomCenterInWindow - state.minPosInWindow) / state.sizeInWindow * additionalSize;
 	state.sizeInWindow += additionalSize;
+}
+
+void ImguiEditorImageViewer::setCurrentImage(std::string_view name)
+{
+	for(std::size_t i = 0; i < m_imageStates.size(); ++i)
+	{
+		if(m_imageStates[i].name == name)
+		{
+			m_currentImageIdx = i;
+			break;
+		}
+	}
+}
+
+void ImguiEditorImageViewer::addImage(std::string_view name, const Path& imageFile)
+{
+	ImguiImageLibrary& imageLib = getEditorUI().getImageLibrary();
+
+	if(!imageFile.isEmpty() && !imageLib.has(name))
+	{
+		imageLib.loadImage(name, imageFile);
+		m_imageStates.push_back({
+			.name = std::string(name)});
+	}
+	else
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"Failed to add image (file={}) for display. Name collision={}.",
+			imageFile.toAbsoluteString(), imageLib.has(name));
+	}
+}
+
+void ImguiEditorImageViewer::addImage(
+	std::string_view name,
+	math::Vector2UI sizePx,
+	ghi::ESizedPixelFormat format)
+{
+	ImguiImageLibrary& imageLib = getEditorUI().getImageLibrary();
+
+	if(sizePx.product() > 0 && !imageLib.has(name))
+	{
+		imageLib.loadImage(name, sizePx, format);
+		m_imageStates.push_back({
+			.name = std::string(name)});
+	}
+	else
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"Failed to add image buffer (size={}) for display. Name collision={}.",
+			sizePx, imageLib.has(name));
+	}
+}
+
+void ImguiEditorImageViewer::removeImage(std::string_view name)
+{
+	ImguiImageLibrary& imageLib = getEditorUI().getImageLibrary();
+
+	std::erase_if(m_imageStates,
+		[name](const ImageState& state)
+		{
+			return state.name == name;
+		});
+	imageLib.unloadImage(name);
+}
+
+bool ImguiEditorImageViewer::hasImage(std::string_view name) const
+{
+	return getEditorUI().getImageLibrary().has(name);
+}
+
+math::Vector2UI ImguiEditorImageViewer::getImageSizePx(std::string_view name) const
+{
+	return getEditorUI().getImageLibrary().getSizePx(name);
+}
+
+render::TextureHandle ImguiEditorImageViewer::getImageHandle(std::string_view name) const
+{
+	return getEditorUI().getImageLibrary().getHandle(name);
 }
 
 }// end namespace ph::editor

@@ -2,7 +2,9 @@
 
 #include "Render/Renderer/SceneRenderer.h"
 #include "Render/Renderer/OfflineRenderStats.h"
+#include "Render/Renderer/OfflineRenderPeek.h"
 
+#include <Common/primitive_type.h>
 #include <Utility/Concurrent/TSPSCExecutor.h>
 #include <DataIO/FileSystem/Path.h>
 #include <Utility/Concurrent/TSynchronized.h>
@@ -10,8 +12,10 @@
 
 #include <functional>
 #include <atomic>
+#include <thread>
 
 namespace ph { class Engine; }
+namespace ph { class Renderer; }
 namespace ph::editor { class RenderConfig; }
 
 namespace ph::editor::render
@@ -36,6 +40,8 @@ public:
 	*/
 	bool tryGetRenderStats(OfflineRenderStats* stats);
 
+	bool tryGetRenderPeek(OfflineRenderPeek* peek, bool shouldUpdateInput = false);
+
 	void setupGHI(GHIThreadCaller& caller) override;
 	void cleanupGHI(GHIThreadCaller& caller) override;
 	void update(const RenderThreadUpdateContext& ctx) override;
@@ -49,12 +55,17 @@ private:
 	*/
 	void setRenderStage(EOfflineRenderStage stage);
 
+	std::jthread makeStatsRequestThread(Renderer* renderer, uint32 minPeriodMs);
+	std::jthread makePeekFrameThread(Renderer* renderer, uint32 minPeriodMs);
+
 	using EngineWork = std::function<void(void)>;
 
 	TSPSCExecutor<EngineWork> m_engineThread;
 	TRelaxedAtomic<EOfflineRenderStage> m_renderStage;
 	TSynchronized<OfflineRenderStats> m_syncedRenderStats;
+	TSynchronized<OfflineRenderPeek> m_syncedRenderPeek;
 	std::atomic_flag m_requestRenderStats;
+	std::atomic_flag m_requestRenderPeek;
 };
 
 inline EOfflineRenderStage OfflineRenderer::getRenderStage() const

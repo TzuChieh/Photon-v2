@@ -224,4 +224,16 @@ inline std::string TAABB2D<T>::toString() const
 	return "AABB: min" + m_minVertex.toString() + ", max" + m_maxVertex.toString();
 }
 
+template<typename T>
+inline bool TAABB2D<T>::operator == (const TAABB2D& other) const
+{
+	return isEqual(other);
+}
+
+template<typename T>
+inline bool TAABB2D<T>::operator != (const TAABB2D& other) const
+{
+	return !isEqual(other);
+}
+
 }// end namespace ph::math

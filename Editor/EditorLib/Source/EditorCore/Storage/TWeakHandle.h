@@ -115,7 +115,7 @@ namespace std
 template<ph::editor::CWeakHandle Handle>
 struct hash<Handle>
 {
-	inline std::size_t operator () (const Handle& handle) const
+	std::size_t operator () (const Handle& handle) const
 	{
 		return ph::math::murmur3_32(handle, 0);
 	}

@@ -20,6 +20,9 @@ enum class EOfflineRenderStage
 	Finished
 };
 
+/*! @brief Information about the rendering process.
+For gathering general information from the renderer.
+*/
 class OfflineRenderStats final
 {
 public:

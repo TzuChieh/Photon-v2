@@ -3,7 +3,10 @@
 #include "Math/General/TVectorNBase.h"
 #include "Math/math_fwd.h"
 #include "Math/constant.h"
+#include "Math/hash.h"
 #include "Utility/string_utils.h"
+
+#include <functional>
 
 namespace ph::math
 {
@@ -50,5 +53,19 @@ public:
 
 template<typename T>
 PH_DEFINE_INLINE_TO_STRING_FORMATTER_TEMPLATE(ph::math::TVector2<T>);
+
+namespace std
+{
+
+template<typename T>
+struct hash<ph::math::TVector2<T>>
+{
+	std::size_t operator () (const ph::math::TVector2<T>& vec2) const
+	{
+		return ph::math::murmur3_32(vec2, 0);
+	}
+};
+
+}// end namespace std
 
 #include "Math/TVector2.ipp"

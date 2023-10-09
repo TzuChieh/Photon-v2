@@ -340,9 +340,9 @@ void ImguiEditorSceneObjectBrowser::buildObjectsContent(DesignerScene* scene)
 			ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_PreferSortAscending | ImGuiTableColumnFlags_NoHide,
 			0,
 			nameColumnId);
-		ImGui::TableSetupColumn("", 
+		ImGui::TableSetupColumn("##visibility", 
 			ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_WidthFixed,
-			textBaseWidth * 2.5f,
+			textBaseWidth * 2.75f,
 			visibilityColumnId);
 		ImGui::TableSetupColumn("Type", 
 			ImGuiTableColumnFlags_WidthFixed, 

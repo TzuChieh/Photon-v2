@@ -3,10 +3,12 @@
 #include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/constant.h"
+#include "Math/hash.h"
 
 #include <string>
 #include <utility>
 #include <array>
+#include <functional>
 
 namespace ph::math
 {
@@ -58,11 +60,28 @@ public:
 	// TODO: a variant with margins for floating types
 	bool isEqual(const TAABB2D& other) const;
 
+	bool operator == (const TAABB2D& other) const;
+	bool operator != (const TAABB2D& other) const;
+
 private:
 	TVector2<T> m_minVertex;
 	TVector2<T> m_maxVertex;
 };
 
 }// end namespace ph::math
+
+namespace std
+{
+
+template<typename T>
+struct hash<ph::math::TAABB2D<T>>
+{
+	std::size_t operator () (const ph::math::TAABB2D<T>& aabb) const
+	{
+		return ph::math::murmur3_32(aabb, 0);
+	}
+};
+
+}// end namespace std
 
 #include "Math/Geometry/TAABB2D.ipp"

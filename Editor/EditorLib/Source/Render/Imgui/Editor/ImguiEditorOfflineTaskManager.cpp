@@ -6,6 +6,7 @@
 #include "Designer/Render/RenderAgent.h"
 #include "Designer/Render/RenderConfig.h"
 #include "Render/Renderer/OfflineRenderer.h"
+#include "Render/Imgui/Editor/ImguiEditorImageViewer.h"
 
 #include "ThirdParty/DearImGui.h"
 
@@ -24,6 +25,9 @@ ImguiEditorOfflineTaskManager::ImguiEditorOfflineTaskManager(ImguiEditorUIProxy 
 	, m_numValidTaskInfos(0)
 	, m_selectedTaskInfoIdx(0)
 	, m_enableStopRender(false)
+	, m_enableRenderPreview(true)
+	, m_markUpdatedRegions(true)
+	, m_autoSyncImageView(true)
 {}
 
 void ImguiEditorOfflineTaskManager::buildWindow(const char* windowIdName, bool* isOpening)
@@ -81,6 +85,7 @@ auto ImguiEditorOfflineTaskManager::getAttributes() const
 
 void ImguiEditorOfflineTaskManager::buildTaskInfoContent(DesignerScene* scene)
 {
+	// Collect and initialize task infos every frame
 	m_numValidTaskInfos = 0;
 	if(scene)
 	{
@@ -94,6 +99,25 @@ void ImguiEditorOfflineTaskManager::buildTaskInfoContent(DesignerScene* scene)
 			TaskInfo& info = m_taskInfos[m_numValidTaskInfos];
 			info.agent = binding.agent;
 			info.renderer = binding.offlineRenderer;
+
+			// Image name should be unique over all scenes, as we use it for the image viewer
+			if(info.agent)
+			{
+				info.outputImageName.resize(info.agent->getName().size() + 32);
+				const int numChars = std::snprintf(
+					info.outputImageName.data(),
+					info.outputImageName.size(),
+					"%s <ID: %" PRIu64 ">",
+					info.agent->getName().c_str(),
+					info.agent->getId());
+
+				PH_ASSERT(0 < numChars && numChars < info.outputImageName.size());
+				info.outputImageName.resize(numChars);
+			}
+			else
+			{
+				info.outputImageName.clear();
+			}
 
 			++m_numValidTaskInfos;
 		}
@@ -113,6 +137,12 @@ void ImguiEditorOfflineTaskManager::buildTaskInfoContent(DesignerScene* scene)
 				isSelected))
 			{
 				m_selectedTaskInfoIdx = ti;
+
+				// Sync image view when task is clicked
+				if(m_autoSyncImageView)
+				{
+					getEditorUI().getImageViewer().setCurrentImage(info.outputImageName);
+				}
 			}
 
 			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -137,7 +167,51 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	if(info.renderer)
 	{
 		info.stage = info.renderer->getRenderStage();
+	}
+
+	const bool isTaskRunning = info.stage != render::EOfflineRenderStage::Finished;
+	if(isTaskRunning)
+	{
 		info.renderer->tryGetRenderStats(&info.stats);
+
+		if(m_enableRenderPreview && info.stats.viewport.hasView())
+		{
+			ImguiEditorImageViewer& viewer = getEditorUI().getImageViewer();
+
+			const bool hasNoImage = !viewer.hasImage(info.outputImageName);
+
+			// The (0, 0) check is necessary, so we can be sure that the image is in fact having
+			// another size rather than still being processed (not ready).
+			const bool hasWrongImageSize = 
+				viewer.getImageSizePx(info.outputImageName) != math::Vector2UI(0, 0) &&
+				viewer.getImageSizePx(info.outputImageName) != info.stats.viewport.getBaseSizePx();
+
+			// Update image buffer if not exist or size mismatch
+			if(hasNoImage || hasWrongImageSize)
+			{
+				viewer.removeImage(info.outputImageName);
+				viewer.addImage(info.outputImageName, info.stats.viewport.getBaseSizePx());
+
+				// Sync image view when image buffer updated
+				if(m_autoSyncImageView)
+				{
+					getEditorUI().getImageViewer().setCurrentImage(info.outputImageName);
+				}
+			}
+
+			// Update image handle if changed
+			auto freshHandle = viewer.getImageHandle(info.outputImageName);
+			if(freshHandle != info.peek.in.resultHandle)
+			{
+				info.peek.in.resultHandle = freshHandle;
+				info.shouldUpdatePeekInput = true;
+			}
+
+			if(info.renderer->tryGetRenderPeek(&info.peek, info.shouldUpdatePeekInput))
+			{
+				info.shouldUpdatePeekInput = false;
+			}
+		}
 	}
 
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.16f, 0.16f, 1.0f));
@@ -145,14 +219,21 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0.14f, 0.14f, 1.0f));
 	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
 
-	const bool isTaskRunning = info.stage != render::EOfflineRenderStage::Finished;
-
 	if(isTaskRunning) { ImGui::BeginDisabled(); }
 	if(ImGui::Button(PH_IMGUI_START_ICON PH_IMGUI_ICON_TIGHT_PADDING "Start Render "))
 	{
 		if(info.agent && info.renderer)
 		{
 			info.renderer->render(info.agent->getRenderConfig());
+
+			// Always update on rendering start
+			info.shouldUpdatePeekInput = true;
+
+			// Sync image view when rendering start
+			if(m_autoSyncImageView)
+			{
+				getEditorUI().getImageViewer().setCurrentImage(info.outputImageName);
+			}
 		}
 		else
 		{
@@ -214,7 +295,24 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	const auto& baseSize = info.stats.viewport.getBaseSizePx();
 	const auto& cropRegion = info.stats.viewport.getCroppedRegionPx();
 
-	// Group 1: Static information about this render
+	// Group 1: Task settings
+	ImGui::BeginGroup();
+	ImGui::Checkbox("Enable Render Preview", &m_enableRenderPreview);
+	if(!m_enableRenderPreview) { ImGui::BeginDisabled(); }
+	if(ImGui::Checkbox("Mark Updated Regions", &m_markUpdatedRegions))
+	{
+		info.peek.in.wantUpdatingRegions = false;
+		info.shouldUpdatePeekInput = true;
+	}
+	if(!m_enableRenderPreview) { ImGui::EndDisabled(); }
+	ImGui::Checkbox("Auto Sync Image View", &m_autoSyncImageView);
+	ImGui::EndGroup();
+
+	ImGui::SameLine();
+	ImGui::Spacing();
+
+	// Group 2: Static information about this render
+	ImGui::SameLine();
 	ImGui::BeginGroup();
 	ImGui::Text(
 		"Full Viewport: (%d, %d), Render Min: (%d, %d) Max: (%d, %d)",
@@ -238,7 +336,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	ImGui::SameLine();
 	ImGui::Spacing();
 
-	// Group 2: Dynamic information (numeric statistics)
+	// Group 3: Dynamic information (numeric statistics)
 	ImGui::SameLine();
 	ImGui::BeginGroup();
 	ImGui::TextUnformatted("Statistics:");

@@ -23,6 +23,11 @@ ImguiImageLibrary& ImguiEditorUIProxy::getImageLibrary()
 	return m_editorUI.getImageLibrary();
 }
 
+ImguiEditorImageViewer& ImguiEditorUIProxy::getImageViewer()
+{
+	return m_editorUI.getImageViewer();
+}
+
 ImguiFileSystemDialog& ImguiEditorUIProxy::getGeneralFileSystemDialog()
 {
 	return m_editorUI.getGeneralFileSystemDialog();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Common/primitive_type.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/EPictureFile.h>
 
@@ -16,6 +17,8 @@ public:
 	Path outputDirectory;
 	std::string outputName = "rendered_scene";
 	EPictureFile outputFileFormat = EPictureFile::EXR;
+	uint32 minStatsRequestPeriodMs = 100;
+	uint32 minFramePeekPeriodMs = 300;
 	bool useCopiedScene = true;
 	bool enableStatsRequest = true;
 	bool enablePeekingFrame = true;

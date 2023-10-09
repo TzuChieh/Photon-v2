@@ -11,8 +11,9 @@
 #include <Utility/exception.h>
 
 #include <memory>
-#include <thread>
 #include <stop_token>
+#include <unordered_set>
+#include <chrono>
 
 namespace ph::editor::render
 {
@@ -26,7 +27,9 @@ OfflineRenderer::OfflineRenderer()
 	, m_engineThread()
 	, m_renderStage(EOfflineRenderStage::Finished)
 	, m_syncedRenderStats()
+	, m_syncedRenderPeek()
 	, m_requestRenderStats()
+	, m_requestRenderPeek()
 {}
 
 OfflineRenderer::~OfflineRenderer()
@@ -93,6 +96,38 @@ bool OfflineRenderer::tryGetRenderStats(OfflineRenderStats* stats)
 	}
 }
 
+bool OfflineRenderer::tryGetRenderPeek(OfflineRenderPeek* peek, bool shouldUpdateInput)
+{
+	// Always make a request
+	m_requestRenderPeek.test_and_set(std::memory_order_relaxed);
+	m_requestRenderPeek.notify_one();
+
+	if(!peek)
+	{
+		return false;
+	}
+
+	if(shouldUpdateInput)
+	{
+		if(auto locked = m_syncedRenderPeek.tryLock())
+		{
+			locked->in = peek->in;
+			peek->out = locked->out;
+			return true;
+		}
+	}
+	else
+	{
+		if(auto locked = m_syncedRenderPeek.tryConstLock())
+		{
+			peek->out = locked->out;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& config)
 {
 	if(config.useCopiedScene)
@@ -154,52 +189,23 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 			});
 
 		// Respond to stats request
-		statsRequestThread = std::jthread(
-			[this, &renderer](std::stop_token token)
-			{
-				while(!token.stop_requested())
-				{
-					m_requestRenderStats.wait(false, std::memory_order_relaxed);
-
-					if(auto locked = m_syncedRenderStats.tryLock())
-					{
-						RenderStats stats = renderer->asyncQueryRenderStats();
-						
-						std::size_t intIdx = 0;
-						std::size_t realIdx = 0;
-						for(auto& info : locked->numericInfos)
-						{
-							if(info.isInteger)
-							{
-								info.value = static_cast<float64>(stats.getInteger(intIdx));
-								++intIdx;
-							}
-							else
-							{
-								info.value = stats.getReal(realIdx);
-								++realIdx;
-							}
-						}
-					}
-
-					m_requestRenderStats.clear(std::memory_order_relaxed);
-				}
-			});
+		statsRequestThread = makeStatsRequestThread(renderer, config.minStatsRequestPeriodMs);
 	}
 
-	// TODO: respond to peek frame request
+	std::jthread peekFrameThread;
+	if(config.enablePeekingFrame)
+	{
+		// Respond to peek request
+		peekFrameThread = makePeekFrameThread(renderer, config.minFramePeekPeriodMs);
+	}
 
 	setRenderStage(EOfflineRenderStage::Rendering);
 
 	renderEngine->render();
 
-	if(statsRequestThread.joinable())
-	{
-		statsRequestThread.request_stop();
-		statsRequestThread.join();
-	}
-
-	// TODO: stop the peek frame request
+	// No need to monitor the render engine once `Renderer::render()` returns
+	statsRequestThread.request_stop();
+	peekFrameThread.request_stop();
 
 	setRenderStage(EOfflineRenderStage::Developing);
 
@@ -209,6 +215,16 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 	HdrRgbFrame frame(renderer->getRenderWidthPx(), renderer->getRenderHeightPx());
 	renderer->retrieveFrame(0, frame);
 	io_utils::save(frame, config.outputDirectory, config.outputName, config.outputFileFormat);
+
+	if(statsRequestThread.joinable())
+	{
+		statsRequestThread.join();
+	}
+
+	if(peekFrameThread.joinable())
+	{
+		peekFrameThread.join();
+	}
 }
 
 void OfflineRenderer::setupGHI(GHIThreadCaller& caller)
@@ -229,6 +245,115 @@ void OfflineRenderer::update(const RenderThreadUpdateContext& ctx)
 void OfflineRenderer::createGHICommands(GHIThreadCaller& caller)
 {
 	// TODO
+}
+
+std::jthread OfflineRenderer::makeStatsRequestThread(Renderer* renderer, uint32 minPeriodMs)
+{
+	return std::jthread(
+		[this, renderer, minPeriodMs](std::stop_token token)
+		{
+			while(!token.stop_requested())
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(minPeriodMs));
+				if(m_requestRenderStats.test(std::memory_order_relaxed))
+				{
+					m_requestRenderStats.clear(std::memory_order_relaxed);
+				}
+				else
+				{
+					continue;
+				}
+
+				if(auto locked = m_syncedRenderStats.tryLock())
+				{
+					RenderStats stats = renderer->asyncQueryRenderStats();
+						
+					std::size_t intIdx = 0;
+					std::size_t realIdx = 0;
+					for(auto& info : locked->numericInfos)
+					{
+						if(info.isInteger)
+						{
+							info.value = static_cast<float64>(stats.getInteger(intIdx));
+							++intIdx;
+						}
+						else
+						{
+							info.value = stats.getReal(realIdx);
+							++realIdx;
+						}
+					}
+				}// end perform request
+			}
+		});
+}
+
+std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 minPeriodMs)
+{
+	return std::jthread(
+		[this, renderer, minPeriodMs](std::stop_token token)
+		{
+			std::unordered_set<math::TAABB2D<int32>> uniqueRegions;
+			bool wantRegions = false;
+			bool wantFrame = false;
+
+			// We need to decide how many regions to poll in one peek request. Too small, we might
+			// never catch up with the speed of newly added regions. The number of concurrent CPU
+			// threads is a nice value to multiply from as the rendering speed should be roughly
+			// proportional to it.
+			const auto numRegionPollsAtOnce = std::thread::hardware_concurrency() * 4;
+
+			while(!token.stop_requested())
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(minPeriodMs));
+				if(m_requestRenderPeek.test(std::memory_order_relaxed))
+				{
+					m_requestRenderPeek.clear(std::memory_order_relaxed);
+				}
+				else
+				{
+					continue;
+				}
+
+				if(wantRegions)
+				{
+					for(uint32 i = 0; i < numRegionPollsAtOnce; ++i)
+					{
+						Region region;
+						ERegionStatus status = renderer->asyncPollUpdatedRegion(&region);
+						if(status == ERegionStatus::INVALID)
+						{
+							break;
+						}
+
+						math::TAABB2D<int32> castedRegion(region);
+						if(status == ERegionStatus::UPDATING)
+						{
+							uniqueRegions.insert(castedRegion);
+						}
+						else if(status == ERegionStatus::FINISHED)
+						{
+							uniqueRegions.erase(castedRegion);
+						}
+					}
+				}
+
+				if(auto locked = m_syncedRenderPeek.tryLock())
+				{
+					if(wantRegions)
+					{
+						locked->out.updatingRegions.clear();
+						for(const math::TAABB2D<int32>& uniqueRegion : uniqueRegions)
+						{
+							locked->out.updatingRegions.push_back(uniqueRegion);
+						}
+					}
+
+					wantFrame = locked->in.wantIntermediateResult;
+					wantRegions = locked->in.wantUpdatingRegions;
+				}
+			}
+		});
 }
 
 }// end namespace ph::editor::render

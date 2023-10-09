@@ -50,6 +50,7 @@ public:
 	ImguiImageLibrary& getImageLibrary();
 	DimensionHints& getDimensionHints();
 	bool isMain() const;
+	ImguiEditorImageViewer& getImageViewer();
 	ImguiFileSystemDialog& getGeneralFileSystemDialog();
 	ImguiEditorObjectTypeMenu& getObjectTypeMenu();
 	const ImguiEditorTheme& getTheme();
@@ -112,6 +113,12 @@ inline ImguiFontLibrary& ImguiEditorUI::getFontLibrary()
 inline ImguiImageLibrary& ImguiEditorUI::getImageLibrary()
 {
 	return m_imageLibrary;
+}
+
+inline ImguiEditorImageViewer& ImguiEditorUI::getImageViewer()
+{
+	PH_ASSERT(m_imageViewer);
+	return *m_imageViewer;
 }
 
 inline ImguiFileSystemDialog& ImguiEditorUI::getGeneralFileSystemDialog()

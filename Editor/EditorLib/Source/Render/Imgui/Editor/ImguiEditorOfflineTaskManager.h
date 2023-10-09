@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Render/Renderer/OfflineRenderStats.h"
+#include "Render/Renderer/OfflineRenderPeek.h"
 #include "Render/Imgui/ImguiEditorPanel.h"
 
 #include <cstddef>
@@ -34,12 +35,18 @@ private:
 		render::OfflineRenderer* renderer = nullptr;
 		render::EOfflineRenderStage stage = render::EOfflineRenderStage::Standby;
 		render::OfflineRenderStats stats;
+		render::OfflineRenderPeek peek;
+		bool shouldUpdatePeekInput = false;
+		std::string outputImageName;
 	};
 
 	std::vector<TaskInfo> m_taskInfos;
 	std::size_t m_numValidTaskInfos;
 	std::size_t m_selectedTaskInfoIdx;
 	bool m_enableStopRender;
+	bool m_enableRenderPreview;
+	bool m_markUpdatedRegions;
+	bool m_autoSyncImageView;
 };
 
 }// end namespace ph::editor
