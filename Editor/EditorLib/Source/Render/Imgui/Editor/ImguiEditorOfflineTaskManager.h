@@ -45,7 +45,7 @@ private:
 	std::size_t m_selectedTaskInfoIdx;
 	bool m_enableStopRender;
 	bool m_enableRenderPreview;
-	bool m_markUpdatedRegions;
+	bool m_indicateUpdatedRegions;
 	bool m_autoSyncImageView;
 };
 

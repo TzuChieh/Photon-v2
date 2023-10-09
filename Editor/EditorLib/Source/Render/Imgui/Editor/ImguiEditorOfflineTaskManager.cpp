@@ -26,7 +26,7 @@ ImguiEditorOfflineTaskManager::ImguiEditorOfflineTaskManager(ImguiEditorUIProxy 
 	, m_selectedTaskInfoIdx(0)
 	, m_enableStopRender(false)
 	, m_enableRenderPreview(true)
-	, m_markUpdatedRegions(true)
+	, m_indicateUpdatedRegions(true)
 	, m_autoSyncImageView(true)
 {}
 
@@ -207,6 +207,11 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 				info.shouldUpdatePeekInput = true;
 			}
 
+			if(m_indicateUpdatedRegions)
+			{
+				viewer.setImagePixelIndicators(info.outputImageName, info.peek.out.updatingRegions);
+			}
+
 			if(info.renderer->tryGetRenderPeek(&info.peek, info.shouldUpdatePeekInput))
 			{
 				info.shouldUpdatePeekInput = false;
@@ -299,7 +304,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	ImGui::BeginGroup();
 	ImGui::Checkbox("Enable Render Preview", &m_enableRenderPreview);
 	if(!m_enableRenderPreview) { ImGui::BeginDisabled(); }
-	if(ImGui::Checkbox("Mark Updated Regions", &m_markUpdatedRegions))
+	if(ImGui::Checkbox("Indicate Updated Regions", &m_indicateUpdatedRegions))
 	{
 		info.peek.in.wantUpdatingRegions = false;
 		info.shouldUpdatePeekInput = true;

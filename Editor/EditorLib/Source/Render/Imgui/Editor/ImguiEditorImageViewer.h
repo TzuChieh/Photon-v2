@@ -6,8 +6,11 @@
 
 #include "ThirdParty/DearImGui.h"
 
+#include <Common/primitive_type.h>
 #include <Common/assertion.h>
 #include <Math/TVector2.h>
+#include <Math/Geometry/TAABB2D.h>
+#include <Utility/TSpan.h>
 
 #include <cstddef>
 #include <string>
@@ -49,6 +52,10 @@ public:
 	*/
 	void removeImage(std::string_view name);
 
+	void setImagePixelIndicators(
+		std::string_view name,
+		TSpanView<math::TAABB2D<int32>> rectIndicators);
+
 	bool hasImage(std::string_view name) const;
 
 	/*! @brief Get the size of an image.
@@ -74,6 +81,7 @@ private:
 		math::Vector2F minPosInWindow = {0, 0};
 		math::Vector2F sizeInWindow = {0, 0};
 		math::Vector2F pointedPixelPos = {0, 0};
+		std::vector<math::TAABB2D<int32>> rectPixelIndicators;
 	};
 
 	void buildTopToolbar();
@@ -82,6 +90,7 @@ private:
 	void popToolbarStyleAndColor();
 	bool hasSelectedImage() const;
 	auto getSelectedImageState() -> ImageState&;
+	std::size_t getImageStateIndex(std::string_view name) const;
 
 	void applyZoomTo(
 		ImageState& state, 
@@ -94,6 +103,7 @@ private:
 	math::Vector2F m_lastMouseDragDelta;
 	math::Vector2F m_viewAreaMin;
 	math::Vector2F m_viewAreaSize;
+	bool m_showIndicators;
 };
 
 inline bool ImguiEditorImageViewer::hasSelectedImage() const
@@ -106,6 +116,18 @@ inline auto ImguiEditorImageViewer::getSelectedImageState()
 {
 	PH_ASSERT_LT(m_currentImageIdx, m_imageStates.size());
 	return m_imageStates[m_currentImageIdx];
+}
+
+inline std::size_t ImguiEditorImageViewer::getImageStateIndex(std::string_view name) const
+{
+	for(std::size_t i = 0; i < m_imageStates.size(); ++i)
+	{
+		if(m_imageStates[i].name == name)
+		{
+			return i;
+		}
+	}
+	return static_cast<std::size_t>(-1);
 }
 
 }// end namespace ph::editor

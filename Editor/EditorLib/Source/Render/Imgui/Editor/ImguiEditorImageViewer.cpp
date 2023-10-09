@@ -23,6 +23,7 @@ ImguiEditorImageViewer::ImguiEditorImageViewer(ImguiEditorUIProxy editorUI)
 	, m_lastMouseDragDelta(0, 0)
 	, m_viewAreaMin()
 	, m_viewAreaSize()
+	, m_showIndicators(true)
 {}
 
 ImguiEditorImageViewer::~ImguiEditorImageViewer()
@@ -119,6 +120,21 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 		imgui::image_with_fallback(
 			state.textureID,
 			{state.sizeInWindow.x(), state.sizeInWindow.y()});
+
+		if(m_showIndicators && state.actualSize.x() > 0 && state.actualSize.y() > 0)
+		{
+			const auto pixelToWindowScale = state.sizeInWindow / state.actualSize;
+			for(const math::TAABB2D<int32>& rect : state.rectPixelIndicators)
+			{
+				auto rectMin = state.minPosInWindow + math::Vector2F(rect.getMinVertex()) * pixelToWindowScale;
+				auto rectMax = state.minPosInWindow + math::Vector2F(rect.getMaxVertex()) * pixelToWindowScale;
+				ImGui::GetWindowDrawList()->AddRect(
+					{rectMin.x(), rectMin.y()}, 
+					{rectMax.y(), rectMax.y()},
+					IM_COL32(255, 255, 100, 255),
+					0.0f);
+			}
+		}
 	}
 	
 	buildTopToolbar();
@@ -228,6 +244,12 @@ void ImguiEditorImageViewer::buildTopToolbar()
 	{
 		const ImVec2 windowSize = ImGui::GetWindowSize();
 		applyZoomTo(getSelectedImageState(), -1.0f, {windowSize.x * 0.5f, windowSize.y * 0.5f});
+	}
+
+	ImGui::SameLine();
+	if(ImGui::Button(m_showIndicators ? PH_IMGUI_PEN_ICON : PH_IMGUI_NO_PEN_ICON))
+	{
+		m_showIndicators = !m_showIndicators;
 	}
 
 	popToolbarStyleAndColor();
@@ -361,13 +383,10 @@ void ImguiEditorImageViewer::applyZoomTo(
 
 void ImguiEditorImageViewer::setCurrentImage(std::string_view name)
 {
-	for(std::size_t i = 0; i < m_imageStates.size(); ++i)
+	const auto stateIdx = getImageStateIndex(name);
+	if(stateIdx < m_imageStates.size())
 	{
-		if(m_imageStates[i].name == name)
-		{
-			m_currentImageIdx = i;
-			break;
-		}
+		m_currentImageIdx = stateIdx;
 	}
 }
 
@@ -420,6 +439,19 @@ void ImguiEditorImageViewer::removeImage(std::string_view name)
 			return state.name == name;
 		});
 	imageLib.unloadImage(name);
+}
+
+void ImguiEditorImageViewer::setImagePixelIndicators(
+	std::string_view name,
+	TSpanView<math::TAABB2D<int32>> rectIndicators)
+{
+	const auto stateIdx = getImageStateIndex(name);
+	if(stateIdx >= m_imageStates.size())
+	{
+		return;
+	}
+
+	m_imageStates[stateIdx].rectPixelIndicators.assign(rectIndicators.begin(), rectIndicators.end());
 }
 
 bool ImguiEditorImageViewer::hasImage(std::string_view name) const
