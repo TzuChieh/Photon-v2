@@ -12,7 +12,7 @@ GradientImage::GradientImage() :
 	m_endUvw  (1, 1, 0)
 {}
 
-std::shared_ptr<TTexture<Image::Array>> GradientImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::ArrayType>> GradientImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	const auto& images = checkoutImages();
@@ -21,7 +21,7 @@ std::shared_ptr<TTexture<Image::Array>> GradientImage::genNumericTexture(
 		return nullptr;
 	}
 
-	return std::make_shared<TLinearGradientTexture<Image::Array>>(
+	return std::make_shared<TLinearGradientTexture<Image::ArrayType>>(
 		m_beginUvw, 
 		images.first->genNumericTexture(ctx), 
 		m_endUvw,

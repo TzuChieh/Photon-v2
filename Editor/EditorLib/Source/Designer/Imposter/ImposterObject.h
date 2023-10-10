@@ -23,7 +23,7 @@ public:
 	virtual void unbindDescription();
 
 	const std::string& getDescriptionName() const;
-	ISdlResource* getDescriptionResource() const;
+	ISdlResource* getDescription() const;
 
 private:
 	std::shared_ptr<ISdlResource> m_descResource;

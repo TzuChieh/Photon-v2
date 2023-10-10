@@ -3,7 +3,7 @@
 #include "SDL/Introspect/TSdlReference.h"
 #include "Actor/Image/UnifiedNumericImage.h"
 #include "Common/assertion.h"
-#include "Actor/SDLExtension/image_loaders.h"
+#include "Actor/SDLExtension/sdl_image_io.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/SdlResourceLocator.h"

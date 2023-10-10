@@ -105,40 +105,6 @@ std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3Arra
 	}
 }
 
-void save_vector3(const math::Vector3R& value, std::string* const out_str)
-{
-	PH_ASSERT(out_str);
-
-	try
-	{
-		if(value.x() == value.y() && value.y() == value.z())
-		{
-			save_real(value.x(), out_str);
-		}
-		else
-		{
-			out_str->clear();
-
-			std::string savedReal;
-
-			(*out_str) += '"';
-			save_real(value.x(), &savedReal);
-			(*out_str) += savedReal;
-			(*out_str) += ' ';
-			save_real(value.y(), &savedReal);
-			(*out_str) += savedReal;
-			(*out_str) += ' ';
-			save_real(value.z(), &savedReal);
-			(*out_str) += savedReal;
-			(*out_str) += '"';
-		}
-	}
-	catch(const SdlException& e)
-	{
-		throw SdlSaveError("on saving Vector3R -> " + e.whatStr());
-	}
-}
-
 void save_quaternion(const math::QuaternionR& value, std::string* const out_str)
 {
 	PH_ASSERT(out_str);

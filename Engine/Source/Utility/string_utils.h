@@ -656,6 +656,10 @@ inline std::size_t stringify_number(const NumberType value, char* const out_buff
 	}
 }
 
+/*! @brief Converts a number to string.
+Similar to `stringify_number(T, char*, std::size_t)`, except that this variant writes to `std::string`
+and the result is guaranteed to be null terminated (by calling `std::string::c_str()`).
+*/
 template<typename NumberType>
 inline void stringify_number(const NumberType value, std::string* const out_str, const std::size_t maxChars = 64)
 {

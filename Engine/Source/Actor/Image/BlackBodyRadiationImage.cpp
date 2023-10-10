@@ -15,7 +15,7 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(BlackBodyRadiationImage, Image);
 
-std::shared_ptr<TTexture<Image::Array>> BlackBodyRadiationImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::ArrayType>> BlackBodyRadiationImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	constexpr bool isTristimulusMode = 
@@ -54,14 +54,14 @@ std::shared_ptr<TTexture<Image::Array>> BlackBodyRadiationImage::genNumericTextu
 			triValues.size(), Image::ARRAY_SIZE);
 	}
 
-	Image::Array arrayValues;
+	Image::ArrayType arrayValues;
 	arrayValues.set(0);
 	for(std::size_t i = 0; i < Image::ARRAY_SIZE && i < triValues.size(); ++i)
 	{
 		arrayValues[i] = triValues[i];
 	}
 
-	return std::make_shared<TConstantTexture<Image::Array>>(arrayValues);
+	return std::make_shared<TConstantTexture<Image::ArrayType>>(arrayValues);
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> BlackBodyRadiationImage::genColorTexture(

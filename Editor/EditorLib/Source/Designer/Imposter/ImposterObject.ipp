@@ -10,7 +10,7 @@ inline const std::string& ImposterObject::getDescriptionName() const
 	return m_descName;
 }
 
-inline ISdlResource* ImposterObject::getDescriptionResource() const
+inline ISdlResource* ImposterObject::getDescription() const
 {
 	return m_descResource.get();
 }

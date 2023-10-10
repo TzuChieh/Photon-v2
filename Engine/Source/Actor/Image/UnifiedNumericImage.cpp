@@ -187,7 +187,7 @@ inline std::array<uint8, N> to_exact_texture_swizzle_map(const std::string_view 
 
 }// end anonymous namespace
 
-std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::ArrayType>> UnifiedNumericImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	if(m_swizzleSubscripts.size() > Image::ARRAY_SIZE)
@@ -206,13 +206,13 @@ std::shared_ptr<TTexture<Image::Array>> UnifiedNumericImage::genNumericTexture(
 		else
 		{
 			const auto swizzleMap = to_texture_swizzle_map<Image::ARRAY_SIZE>(m_swizzleSubscripts);
-			return std::make_shared<TSwizzledTexture<Image::Array, Image::Array, Image::ARRAY_SIZE>>(
+			return std::make_shared<TSwizzledTexture<Image::ArrayType, Image::ArrayType, Image::ARRAY_SIZE>>(
 				m_image->genNumericTexture(ctx), swizzleMap);
 		}
 	}
 	else
 	{
-		return std::make_shared<TConstantTexture<Image::Array>>(m_constant);
+		return std::make_shared<TConstantTexture<Image::ArrayType>>(m_constant);
 	}
 }
 
@@ -248,12 +248,12 @@ std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(const Cookin
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<1>(m_swizzleSubscripts);
 
-		auto numericArrayToReal = [mappedIndex = swizzleMap[0]](const Image::Array& inputValue)
+		auto numericArrayToReal = [mappedIndex = swizzleMap[0]](const Image::ArrayType& inputValue)
 		{
 			return static_cast<real>(inputValue[mappedIndex]);
 		};
 
-		return std::make_shared<TUnaryTextureOperator<Image::Array, real, decltype(numericArrayToReal)>>(
+		return std::make_shared<TUnaryTextureOperator<Image::ArrayType, real, decltype(numericArrayToReal)>>(
 			m_image->genNumericTexture(ctx), std::move(numericArrayToReal));
 	}
 	else
@@ -267,7 +267,7 @@ std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTextur
 	if(m_image)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<2>(m_swizzleSubscripts);
-		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector2R, 2>>(
+		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector2R, 2>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
 	else
@@ -282,7 +282,7 @@ std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTextur
 	if(m_image)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<3>(m_swizzleSubscripts);
-		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector3R, 3>>(
+		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector3R, 3>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
 	else
@@ -297,7 +297,7 @@ std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTextur
 	if(m_image)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<4>(m_swizzleSubscripts);
-		return std::make_shared<TSwizzledTexture<Image::Array, math::Vector4R, 4>>(
+		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector4R, 4>>(
 			m_image->genNumericTexture(ctx), swizzleMap);
 	}
 	else
@@ -337,6 +337,21 @@ UnifiedNumericImage& UnifiedNumericImage::setConstant(const float64* const const
 	}
 
 	return *this;
+}
+
+Image* UnifiedNumericImage::getImage() const
+{
+	return m_image.get();
+}
+
+Image::ArrayType UnifiedNumericImage::getConstant() const
+{
+	return m_constant;
+}
+
+std::string_view UnifiedNumericImage::getSwizzleSubscripts() const
+{
+	return m_swizzleSubscripts;
 }
 
 }// end namespace ph

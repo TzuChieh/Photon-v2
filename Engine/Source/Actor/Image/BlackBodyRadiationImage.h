@@ -13,7 +13,7 @@ namespace ph
 class BlackBodyRadiationImage : public Image
 {
 public:
-	std::shared_ptr<TTexture<Image::Array>> genNumericTexture(
+	std::shared_ptr<TTexture<Image::ArrayType>> genNumericTexture(
 		const CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(

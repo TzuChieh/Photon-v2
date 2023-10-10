@@ -177,7 +177,7 @@ inline std::vector<NumberType> load_number_array(const std::string& sdlNumberArr
 }
 
 template<typename Element>
-inline void save_vector2(const math::TVector2<Element>& value, std::string* const out_str)
+inline void save_vector2(const math::TVector2<Element>& value, std::string* out_str)
 {
 	PH_ASSERT(out_str);
 
@@ -191,6 +191,7 @@ inline void save_vector2(const math::TVector2<Element>& value, std::string* cons
 		{
 			out_str->clear();
 
+			// OPT:
 			std::string savedElement;
 
 			(*out_str) += '"';
@@ -208,8 +209,44 @@ inline void save_vector2(const math::TVector2<Element>& value, std::string* cons
 	}
 }
 
+template<typename Element>
+inline void save_vector3(const math::TVector3<Element>& value, std::string* out_str)
+{
+	PH_ASSERT(out_str);
+
+	try
+	{
+		if(value.x() == value.y() && value.y() == value.z())
+		{
+			save_number<Element>(value.x(), out_str);
+		}
+		else
+		{
+			out_str->clear();
+
+			// OPT:
+			std::string savedElement;
+
+			(*out_str) += '"';
+			save_number<Element>(value.x(), &savedElement);
+			(*out_str) += savedElement;
+			(*out_str) += ' ';
+			save_number<Element>(value.y(), &savedElement);
+			(*out_str) += savedElement;
+			(*out_str) += ' ';
+			save_number<Element>(value.z(), &savedElement);
+			(*out_str) += savedElement;
+			(*out_str) += '"';
+		}
+	}
+	catch(const SdlException& e)
+	{
+		throw SdlSaveError("on saving Vector3 -> " + e.whatStr());
+	}
+}
+
 template<typename NumberType>
-inline void save_number_array(const std::vector<NumberType>& values, std::string* const out_str)
+inline void save_number_array(TSpanView<NumberType> values, std::string* const out_str)
 {
 	PH_ASSERT(out_str);
 		

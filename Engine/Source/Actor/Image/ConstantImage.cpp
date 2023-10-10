@@ -15,7 +15,7 @@ ConstantImage::ConstantImage() :
 	ConstantImage(0.0)
 {}
 
-std::shared_ptr<TTexture<Image::Array>> ConstantImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::ArrayType>> ConstantImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	if(m_values.size() > Image::ARRAY_SIZE)
@@ -25,14 +25,14 @@ std::shared_ptr<TTexture<Image::Array>> ConstantImage::genNumericTexture(
 			m_values.size(), Image::ARRAY_SIZE);
 	}
 
-	Image::Array arr;
+	Image::ArrayType arr;
 	arr.set(0);
 	for(std::size_t i = 0; i < Image::ARRAY_SIZE && i < m_values.size(); ++i)
 	{
 		arr[i] = m_values[i];
 	}
 
-	return std::make_shared<TConstantTexture<Image::Array>>(arr);
+	return std::make_shared<TConstantTexture<Image::ArrayType>>(arr);
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(

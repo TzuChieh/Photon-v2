@@ -24,7 +24,7 @@ MathImage::MathImage() :
 	m_imageInput1  (nullptr)
 {}
 
-std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::ArrayType>> MathImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	if(!m_operandImage)
@@ -40,14 +40,14 @@ std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
 	{
 		if(m_imageInput0)
 		{
-			using AddFunc = texfunc::TAdd<Image::Array, Image::Array, Image::Array>;
-			return std::make_shared<TBinaryTextureOperator<Image::Array, Image::Array, Image::Array, AddFunc>>(
+			using AddFunc = texfunc::TAdd<Image::ArrayType, Image::ArrayType, Image::ArrayType>;
+			return std::make_shared<TBinaryTextureOperator<Image::ArrayType, Image::ArrayType, Image::ArrayType, AddFunc>>(
 				operandTexture, m_imageInput0->genNumericTexture(ctx));
 		}
 		else
 		{
-			using AddFunc = texfunc::TAddConstant<Image::Array, float64, Image::Array>;
-			return std::make_shared<TUnaryTextureOperator<Image::Array, Image::Array, AddFunc>>(
+			using AddFunc = texfunc::TAddConstant<Image::ArrayType, float64, Image::ArrayType>;
+			return std::make_shared<TUnaryTextureOperator<Image::ArrayType, Image::ArrayType, AddFunc>>(
 				operandTexture, AddFunc(m_scalarInput));
 		}
 	}
@@ -56,14 +56,14 @@ std::shared_ptr<TTexture<Image::Array>> MathImage::genNumericTexture(
 	{
 		if(m_imageInput0)
 		{
-			using MulFunc = texfunc::TMultiply<Image::Array, Image::Array, Image::Array>;
-			return std::make_shared<TBinaryTextureOperator<Image::Array, Image::Array, Image::Array, MulFunc>>(
+			using MulFunc = texfunc::TMultiply<Image::ArrayType, Image::ArrayType, Image::ArrayType>;
+			return std::make_shared<TBinaryTextureOperator<Image::ArrayType, Image::ArrayType, Image::ArrayType, MulFunc>>(
 				operandTexture, m_imageInput0->genNumericTexture(ctx));
 		}
 		else
 		{
-			using MulFunc = texfunc::TMultiplyConstant<Image::Array, float64, Image::Array>;
-			return std::make_shared<TUnaryTextureOperator<Image::Array, Image::Array, MulFunc>>(
+			using MulFunc = texfunc::TMultiplyConstant<Image::ArrayType, float64, Image::ArrayType>;
+			return std::make_shared<TUnaryTextureOperator<Image::ArrayType, Image::ArrayType, MulFunc>>(
 				operandTexture, MulFunc(m_scalarInput));
 		}
 	}

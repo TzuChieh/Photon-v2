@@ -97,7 +97,7 @@ RasterFileImage::RasterFileImage(ResourceIdentifier imageFile)
 	, m_imageFile(std::move(imageFile))
 {}
 
-std::shared_ptr<TTexture<Image::Array>> RasterFileImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::ArrayType>> RasterFileImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	auto pixelBuffer = loadPixelBuffer(ctx);// TODO: warn or throw if elements may be discarded (Image::ARRAY_SIZE too small)

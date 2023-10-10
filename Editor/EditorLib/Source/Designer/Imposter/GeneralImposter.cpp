@@ -34,10 +34,10 @@ UIPropertyLayout GeneralImposter::layoutProperties()
 		prop->setReadOnly(true);
 	}
 
-	if(getDescriptionResource())
+	if(getDescription())
 	{
 		layout.addGroups(UIPropertyLayout::makeLinearListing(
-			getDescriptionResource(), "Description"));
+			getDescription(), "Description"));
 	}
 
 	return layout;

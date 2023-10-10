@@ -10,7 +10,7 @@
 #include "SDL/Introspect/SdlInputContext.h"
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
-#include "Actor/SDLExtension/image_loaders.h"
+#include "Actor/SDLExtension/sdl_spectrum_io.h"
 #include "Actor/SDLExtension/sdl_color_enums.h"
 
 #include <type_traits>
@@ -91,8 +91,7 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		// TODO: allow for more color spaces via tag
-		this->setValue(owner, sdl::load_spectrum(clause, m_usage));
+		this->setValue(owner, sdl::load_spectrum(clause.value, clause.tag, m_usage));
 	}
 
 	void saveToSdl(
@@ -100,8 +99,14 @@ protected:
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
+		if(const math::Spectrum* value = this->getConstValue(owner); value)
+		{
+			sdl::save_spectrum(*value, &out_clause.value, &out_clause.tag);
+		}
+		else
+		{
+			out_clause.isEmpty = true;
+		}
 	}
 
 private:

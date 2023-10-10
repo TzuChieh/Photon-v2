@@ -10,6 +10,7 @@ Helpers are in an additional `sdl` namespace.
 #include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Utility/traits.h"
+#include "Utility/TSpan.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "SDL/ESdlDataType.h"
 
@@ -86,11 +87,13 @@ void save_number(NumberType value, std::string* out_str, std::size_t maxChars = 
 template<typename Element>
 void save_vector2(const math::TVector2<Element>& value, std::string* out_str);
 
-void save_vector3(const math::Vector3R& value, std::string* out_str);
+template<typename Element>
+void save_vector3(const math::TVector3<Element>& value, std::string* out_str);
+
 void save_quaternion(const math::QuaternionR& value, std::string* out_str);
 
 template<typename NumberType>
-void save_number_array(const std::vector<NumberType>& values, std::string* out_str);
+void save_number_array(TSpanView<NumberType> values, std::string* out_str);
 
 void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* out_str);
 

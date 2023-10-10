@@ -484,9 +484,9 @@ std::string_view ImguiEditorSceneObjectBrowser::getDisplayTypeName(const Designe
 	if(m_useDescTypeForObjType)
 	{
 		auto imposterObj = dynamic_cast<const ImposterObject*>(obj);
-		if(imposterObj && imposterObj->getDescriptionResource())
+		if(imposterObj && imposterObj->getDescription())
 		{
-			name = imposterObj->getDescriptionResource()->getDynamicSdlClass()->getDocName();
+			name = imposterObj->getDescription()->getDynamicSdlClass()->getDocName();
 		}
 	}
 

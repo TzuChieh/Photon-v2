@@ -33,7 +33,7 @@ UnifiedColorImage::UnifiedColorImage(const math::Vector3R colorValue, const math
 	setConstantColor(colorValue, colorSpace);
 }
 
-std::shared_ptr<TTexture<Image::Array>> UnifiedColorImage::genNumericTexture(
+std::shared_ptr<TTexture<Image::ArrayType>> UnifiedColorImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	if(m_image)
@@ -77,6 +77,11 @@ UnifiedColorImage& UnifiedColorImage::setConstantColor(math::Vector3R colorValue
 	m_constant           = std::move(colorValue);
 	m_constantColorSpace = colorSpace;
 	return *this;
+}
+
+Image* UnifiedColorImage::getImage() const
+{
+	return m_image.get();
 }
 
 math::Vector3R UnifiedColorImage::getConstant() const
