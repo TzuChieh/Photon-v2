@@ -12,8 +12,6 @@ namespace ph
 class RasterImageBase : public Image
 {
 public:
-	RasterImageBase();
-
 	std::shared_ptr<TTexture<Image::ArrayType>> genNumericTexture(
 		const CookingContext& ctx) override = 0;
 

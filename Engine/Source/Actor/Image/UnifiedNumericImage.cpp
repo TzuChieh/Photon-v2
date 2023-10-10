@@ -131,15 +131,15 @@ inline bool is_identity_swizzle(const std::string_view swizzleSubscripts)
 	return std::equal(swizzleSubscripts.begin(), swizzleSubscripts.end(), charSet.begin());
 }
 
-// Create an index map by mapping input swizzle subscript to array index. If `N` is greater than the number
-// of subscripts, remaining indices are mapped identically.
+// Create an index map by mapping input swizzle subscript to array index. If `N` is greater than the
+// number of subscripts, remaining indices are mapped identically.
 template<std::size_t N>
 inline std::array<uint8, N> to_texture_swizzle_map(const std::string_view swizzleSubscripts)
 {
 	if(used_swizzle_char_set(swizzleSubscripts) == static_cast<std::size_t>(-1))
 	{
 		throw CookException(std::format(
-			"Specified swizzle subscripts ({}) is invalid.",
+			"Specified swizzle subscripts ({}) are invalid.",
 			swizzleSubscripts.size()));
 	}
 
@@ -212,7 +212,8 @@ std::shared_ptr<TTexture<Image::ArrayType>> UnifiedNumericImage::genNumericTextu
 	}
 	else
 	{
-		return std::make_shared<TConstantTexture<Image::ArrayType>>(m_constant);
+		auto constant = getSwizzledConstant();
+		return std::make_shared<TConstantTexture<Image::ArrayType>>(constant);
 	}
 }
 
@@ -258,7 +259,9 @@ std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(const Cookin
 	}
 	else
 	{
-		return std::make_shared<TConstantTexture<real>>(static_cast<real>(m_constant[0]));
+		auto constant = getSwizzledConstant();
+		return std::make_shared<TConstantTexture<real>>(
+			static_cast<real>(constant[0]));
 	}
 }
 
@@ -272,8 +275,9 @@ std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTextur
 	}
 	else
 	{
+		auto constant = getSwizzledConstant();
 		return std::make_shared<TConstantTexture<math::Vector2R>>(
-			math::Vector2R(static_cast<real>(m_constant[0]), static_cast<real>(m_constant[1])));
+			math::Vector2R(static_cast<real>(constant[0]), static_cast<real>(constant[1])));
 	}
 }
 
@@ -287,8 +291,9 @@ std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTextur
 	}
 	else
 	{
+		auto constant = getSwizzledConstant();
 		return std::make_shared<TConstantTexture<math::Vector3R>>(
-			math::Vector3R(static_cast<real>(m_constant[0]), static_cast<real>(m_constant[1]), static_cast<real>(m_constant[2])));
+			math::Vector3R(static_cast<real>(constant[0]), static_cast<real>(constant[1]), static_cast<real>(constant[2])));
 	}
 }
 
@@ -302,8 +307,9 @@ std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTextur
 	}
 	else
 	{
+		auto constant = getSwizzledConstant();
 		return std::make_shared<TConstantTexture<math::Vector4R>>(
-			math::Vector4R(static_cast<real>(m_constant[0]), static_cast<real>(m_constant[1]), static_cast<real>(m_constant[2]), static_cast<real>(m_constant[3])));
+			math::Vector4R(static_cast<real>(constant[0]), static_cast<real>(constant[1]), static_cast<real>(constant[2]), static_cast<real>(constant[3])));
 	}
 }
 
@@ -319,23 +325,16 @@ UnifiedNumericImage& UnifiedNumericImage::setSwizzleSubscripts(std::string swizz
 	return *this;
 }
 
-UnifiedNumericImage& UnifiedNumericImage::setConstant(const float64* const constantData, const std::size_t dataSize)
+UnifiedNumericImage& UnifiedNumericImage::setConstant(TSpanView<float64> constant)
 {
-	PH_ASSERT(constantData);
-
-	if(dataSize > m_constant.size())
+	if(constant.size() > Image::ArrayType::NUM_ELEMENTS)
 	{
 		PH_LOG_WARNING(UnifiedNumericImage,
 			"Data loss detected: setting constant with {} elements while the max allowed number is {}",
-			dataSize, m_constant.size());
+			constant.size(), Image::ArrayType::NUM_ELEMENTS);
 	}
 
-	m_constant.set(0.0);
-	for(std::size_t i = 0; i < std::min(m_constant.size(), dataSize); ++i)
-	{
-		m_constant[i] = constantData[i];
-	}
-
+	m_constant.assign(constant.begin(), constant.end());
 	return *this;
 }
 
@@ -344,7 +343,7 @@ Image* UnifiedNumericImage::getImage() const
 	return m_image.get();
 }
 
-Image::ArrayType UnifiedNumericImage::getConstant() const
+TSpanView<float64> UnifiedNumericImage::getConstant() const
 {
 	return m_constant;
 }
@@ -352,6 +351,20 @@ Image::ArrayType UnifiedNumericImage::getConstant() const
 std::string_view UnifiedNumericImage::getSwizzleSubscripts() const
 {
 	return m_swizzleSubscripts;
+}
+
+Image::ArrayType UnifiedNumericImage::getSwizzledConstant() const
+{
+	constexpr auto N = Image::ArrayType::NUM_ELEMENTS;
+	std::array<uint8, N> swizzleMap = to_texture_swizzle_map<N>(m_swizzleSubscripts);
+
+	Image::ArrayType swizzledConstant;
+	for(std::size_t ni = 0; ni < N; ++ni)
+	{
+		auto mappedNi = swizzleMap[ni];
+		swizzledConstant[ni] = mappedNi < m_constant.size() ? m_constant[mappedNi] : 0.0;
+	}
+	return swizzledConstant;
 }
 
 }// end namespace ph

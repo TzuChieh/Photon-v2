@@ -82,21 +82,6 @@ inline pixel_texture::EWrapMode to_texture_wrap_mode(const EImageWrapMode wrapMo
 
 }// end anonymous namespace
 
-RasterFileImage::RasterFileImage() :
-	RasterFileImage(Path())
-{}
-
-RasterFileImage::RasterFileImage(Path filePath)
-	: RasterFileImage(ResourceIdentifier())
-{
-	m_imageFile.setPath(std::move(filePath));
-}
-
-RasterFileImage::RasterFileImage(ResourceIdentifier imageFile)
-	: RasterImageBase()
-	, m_imageFile(std::move(imageFile))
-{}
-
 std::shared_ptr<TTexture<Image::ArrayType>> RasterFileImage::genNumericTexture(
 	const CookingContext& ctx)
 {

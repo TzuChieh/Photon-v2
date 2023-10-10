@@ -3,7 +3,4 @@
 namespace ph
 {
 
-Image::Image()
-{}
-
 }// end namespace ph

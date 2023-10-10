@@ -76,7 +76,7 @@ public:
 		TSdlUnifiedColorImage<OwnerType> factor("factor", &OwnerType::m_factor);
 		factor.description("Factor that controls the contribution from each material.");
 		factor.noDefault();
-		factor.optional();// Some operation might not need a factor. Check factor at cook time.
+		factor.optional();// some operation might not need a factor; check factor at cook time
 		clazz.addField(factor);
 
 		return clazz;

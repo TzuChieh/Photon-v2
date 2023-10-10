@@ -24,8 +24,6 @@ public:
 	inline static constexpr auto ARRAY_SIZE = ArrayType::NUM_ELEMENTS;
 
 public:
-	Image();
-
 	virtual std::shared_ptr<TTexture<Image::ArrayType>> genNumericTexture(
 		const CookingContext& ctx) = 0;
 

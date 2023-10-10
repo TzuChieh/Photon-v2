@@ -3,16 +3,6 @@
 namespace ph
 {
 
-RasterImageBase::RasterImageBase() :
-
-	Image(),
-
-	m_resolution      (0),
-	m_sampleMode      (EImageSampleMode::Bilinear),
-	m_wrapMode        (EImageWrapMode::Repeat),
-	m_verticalWrapMode(EImageWrapMode::Unspecified)
-{}
-
 math::TVector2<uint32> RasterImageBase::getResolution() const
 {
 	return m_resolution;

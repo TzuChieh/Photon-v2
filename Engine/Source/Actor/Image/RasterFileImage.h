@@ -17,10 +17,6 @@ class RegularPicture;
 class RasterFileImage : public RasterImageBase
 {
 public:
-	RasterFileImage();
-	explicit RasterFileImage(Path filePath);
-	explicit RasterFileImage(ResourceIdentifier imageFile);
-
 	std::shared_ptr<TTexture<Image::ArrayType>> genNumericTexture(
 		const CookingContext& ctx) override;
 
