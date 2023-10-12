@@ -10,9 +10,10 @@ namespace ph
 std::shared_ptr<TTexture<Image::ArrayType>> UnifiedColorImage::genNumericTexture(
 	const CookingContext& ctx)
 {
-	if(m_image)
+	auto outputImage = getOutputImage();
+	if(outputImage)
 	{
-		return m_image->genNumericTexture(ctx);
+		return outputImage->genNumericTexture(ctx);
 	}
 	else
 	{
@@ -23,20 +24,20 @@ std::shared_ptr<TTexture<Image::ArrayType>> UnifiedColorImage::genNumericTexture
 std::shared_ptr<TTexture<math::Spectrum>> UnifiedColorImage::genColorTexture(
 	const CookingContext& ctx)
 {
-	if(m_image)
+	auto outputImage = getOutputImage();
+	if(outputImage)
 	{
-		return m_image->genColorTexture(ctx);
-	}
-	else if(!m_imageFile.getPath().isEmpty())
-	{
-		auto rasterImage = TSdl<RasterFileImage>::make();
-		rasterImage.setFilePath(m_imageFile.getPath());
-		return rasterImage.genColorTexture(ctx);
+		return outputImage->genColorTexture(ctx);
 	}
 	else
 	{
 		return ConstantImage(getConstant(), getConstantColorSpace()).genColorTexture(ctx);
 	}
+}
+
+bool UnifiedColorImage::isInlinable() const
+{
+	return !m_image;
 }
 
 UnifiedColorImage& UnifiedColorImage::setImage(std::shared_ptr<Image> image)
@@ -48,6 +49,12 @@ UnifiedColorImage& UnifiedColorImage::setImage(std::shared_ptr<Image> image)
 UnifiedColorImage& UnifiedColorImage::setFile(Path imageFile)
 {
 	m_imageFile.setPath(std::move(imageFile));
+	return *this;
+}
+
+UnifiedColorImage& UnifiedColorImage::setFile(ResourceIdentifier imageFile)
+{
+	m_imageFile = std::move(imageFile);
 	return *this;
 }
 
@@ -70,6 +77,11 @@ Image* UnifiedColorImage::getImage() const
 	return m_image.get();
 }
 
+const ResourceIdentifier& UnifiedColorImage::getFile() const
+{
+	return m_imageFile;
+}
+
 math::Vector3R UnifiedColorImage::getConstant() const
 {
 	return m_constant;
@@ -78,6 +90,23 @@ math::Vector3R UnifiedColorImage::getConstant() const
 math::EColorSpace UnifiedColorImage::getConstantColorSpace() const
 {
 	return m_constantColorSpace;
+}
+
+std::shared_ptr<Image> UnifiedColorImage::getOutputImage() const
+{
+	if(m_image)
+	{
+		return m_image;
+	}
+
+	if(!m_imageFile.getPath().isEmpty())
+	{
+		auto rasterImage = TSdl<RasterFileImage>::makeResource();
+		rasterImage->setFilePath(m_imageFile.getPath());
+		return rasterImage;
+	}
+
+	return nullptr;
 }
 
 }// end namespace ph

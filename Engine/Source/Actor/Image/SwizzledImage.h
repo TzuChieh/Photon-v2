@@ -32,12 +32,16 @@ public:
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
 		const CookingContext& ctx) override;
 
+	bool isInlinable() const override;
+
 	std::shared_ptr<TTexture<real>> genRealTexture(const CookingContext& ctx);
 	std::shared_ptr<TTexture<math::Vector2R>> genVector2RTexture(const CookingContext& ctx);
 	std::shared_ptr<TTexture<math::Vector3R>> genVector3RTexture(const CookingContext& ctx);
 	std::shared_ptr<TTexture<math::Vector4R>> genVector4RTexture(const CookingContext& ctx);
 
 	UnifiedNumericImage& setImage(std::shared_ptr<Image> image);
+	UnifiedNumericImage& setFile(Path imageFile);
+	UnifiedNumericImage& setFile(ResourceIdentifier imageFile);
 	UnifiedNumericImage& setSwizzleSubscripts(std::string swizzleSubscripts);
 	UnifiedNumericImage& setConstant(TSpanView<float64> constant);
 
@@ -52,6 +56,8 @@ public:
 	*/
 	Image* getImage() const;
 
+	const ResourceIdentifier& getFile() const;
+
 	/*! @brief Get the constant values.
 	@return Constant values. This value will not be used if an image reference is present.
 	*/
@@ -64,6 +70,7 @@ public:
 
 private:
 	Image::ArrayType getSwizzledConstant() const;
+	std::shared_ptr<Image> getOutputImage() const;
 
 	std::shared_ptr<Image> m_image;
 	ResourceIdentifier m_imageFile;
@@ -78,7 +85,7 @@ public:
 		clazz.description(
 			"A general image that incorporates many numeric value representing methods (e.g., constant "
 			"values, image files, image references, and more).");
-		clazz.baseOn<UnifiedNumericImage>();
+		clazz.baseOn<Image>();
 
 		TSdlReference<Image, OwnerType> image("image", &OwnerType::m_image);
 		image.description("References any image.");

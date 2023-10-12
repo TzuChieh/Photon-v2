@@ -25,8 +25,11 @@ public:
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
 		const CookingContext& ctx) override;
 
+	bool isInlinable() const override;
+
 	UnifiedColorImage& setImage(std::shared_ptr<Image> image);
 	UnifiedColorImage& setFile(Path imageFile);
+	UnifiedColorImage& setFile(ResourceIdentifier imageFile);
 	UnifiedColorImage& setConstant(math::Vector3R constant);
 	UnifiedColorImage& setConstantColor(math::Vector3R colorValue, math::EColorSpace colorSpace);
 
@@ -34,6 +37,8 @@ public:
 	@return Pointer to the contained image. May be null if there was no image specified.
 	*/
 	Image* getImage() const;
+
+	const ResourceIdentifier& getFile() const;
 
 	/*! @brief Get the constant color.
 	@return A constant color. This color will not be used if an image reference is present.
@@ -45,6 +50,8 @@ public:
 	math::EColorSpace getConstantColorSpace() const;
 
 private:
+	std::shared_ptr<Image> getOutputImage() const;
+
 	std::shared_ptr<Image> m_image;
 	ResourceIdentifier m_imageFile;
 	math::Vector3R m_constant;
@@ -58,7 +65,7 @@ public:
 		clazz.description(
 			"A general image that incorporates many color representing methods (e.g., constant "
 			"colors, image files, image references, and more).");
-		clazz.baseOn<UnifiedColorImage>();
+		clazz.baseOn<Image>();
 
 		TSdlReference<Image, OwnerType> image("image", &OwnerType::m_image);
 		image.description("References any image.");

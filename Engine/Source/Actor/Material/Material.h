@@ -16,8 +16,6 @@ class PrimitiveMetadata;
 class Material : public TSdlResourceBase<ESdlTypeCategory::Ref_Material>
 {
 public:
-	inline Material() = default;
-
 	virtual void genBehaviors(const CookingContext& ctx, PrimitiveMetadata& metadata) const = 0;
 
 public:

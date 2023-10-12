@@ -6,8 +6,6 @@
 namespace ph
 {
 
-SurfaceMaterial::SurfaceMaterial() = default;
-
 void SurfaceMaterial::genBehaviors(
 	const CookingContext& ctx,
 	PrimitiveMetadata& metadata) const

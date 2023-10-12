@@ -30,6 +30,8 @@ public:
 	*/
 	bool resolve(IResourceIdentifierResolver& resolver);
 	
+	/*! @brief Whether the target resource is identified.
+	*/
 	bool isResolved() const;
 
 	/*! @brief Whether there is an identifier.
@@ -48,6 +50,11 @@ public:
 	types of identifiers that resolves to this path (many-to-one mapping).
 	*/
 	void setPath(Path path);
+
+	/*! @brief Whether any information is contained.
+	@return `true` if any identifier exists, be it unresolved or resolved; otherwise return `false`.
+	*/
+	bool isEmpty() const;
 
 	std::string toString() const;
 

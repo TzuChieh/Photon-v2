@@ -55,11 +55,14 @@ public:
 
 protected:
 	void loadFromSdl(
-		Owner&                 owner,
-		const SdlInputClause&  clause,
+		Owner& owner,
+		const SdlInputClause& clause,
 		const SdlInputContext& ctx) const override;
 
-	// TODO: save
+	void saveToSdl(
+		const Owner& owner,
+		SdlOutputClause& out_clause,
+		const SdlOutputContext& ctx) const override;
 
 private:
 	UnifiedNumericImage* getDefaultImage();
@@ -83,7 +86,7 @@ inline TSdlUnifiedNumericImage<Owner>::TSdlUnifiedNumericImage(
 
 template<typename Owner>
 inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
-	Owner&                 owner,
+	Owner& owner,
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx) const
 {
@@ -106,8 +109,7 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 		// TODO: detect if clause is external file and load it
 		else
 		{
-			const auto numberArray = sdl::load_number_array<float64>(clause.value);
-			numericImage->setConstant(numberArray.data(), numberArray.size());
+			numericImage->setConstant(sdl::load_number_array<float64>(clause.value));
 		}
 	}
 	catch(const SdlException& e)
@@ -117,6 +119,54 @@ inline void TSdlUnifiedNumericImage<Owner>::loadFromSdl(
 	}
 
 	this->setValueRef(owner, std::move(numericImage));
+}
+
+template<typename Owner>
+inline void TSdlUnifiedNumericImage<Owner>::saveToSdl(
+	const Owner& owner,
+	SdlOutputClause& out_clause,
+	const SdlOutputContext& ctx) const
+{
+	const auto& imageRes = this->getValueRef(owner);
+	if(imageRes->isInlinable())
+	{
+		// We cannot inline an image reference
+		PH_ASSERT(!imageRes->getImage());
+
+		if(!imageRes->getFile().isEmpty())
+		{
+			// We support inline SRI only
+			const ResourceIdentifier& sri = imageRes->getFile();
+
+			// Store the original identifier (the unresolved one)
+			if(sri.hasIdentifier())
+			{
+				out_clause.value = sri.getIdentifier();
+			}
+			// Try to work out a SRI from path
+			else
+			{
+				const Path& path = sri.getPath();
+				if(path.isEmpty())
+				{
+					throw SdlSaveError(
+						"failed saving numeric image SRI -> no valid information provided");
+				}
+
+				out_clause.value = SdlResourceLocator(ctx).toExternalIdentifier(path).getIdentifier();
+			}
+		}
+		else
+		{
+			// Save the constant (as value) and swizzle subscripts (as tag)
+			sdl::save_number_array(imageRes->getConstant(), &out_clause.value);
+			out_clause.tag = imageRes->getSwizzleSubscripts();
+		}
+	}
+	else
+	{
+		Base::saveToSdl(owner, out_clause, ctx);
+	}
 }
 
 template<typename Owner>

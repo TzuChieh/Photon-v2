@@ -10,6 +10,7 @@
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/constant_textures.h"
+#include "Actor/Image/RasterFileImage.h"
 
 #include <utility>
 #include <format>
@@ -22,15 +23,6 @@ namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(UnifiedNumericImage, Image);
-
-UnifiedNumericImage::UnifiedNumericImage() :
-
-	Image(),
-
-	m_image            (nullptr),
-	m_swizzleSubscripts(),
-	m_constant         (0.0)
-{}
 
 namespace
 {
@@ -197,17 +189,18 @@ std::shared_ptr<TTexture<Image::ArrayType>> UnifiedNumericImage::genNumericTextu
 			m_swizzleSubscripts.size(), Image::ARRAY_SIZE));
 	}
 
-	if(m_image)
+	auto outputImage = getOutputImage();
+	if(outputImage)
 	{
 		if(is_identity_swizzle(m_swizzleSubscripts))
 		{
-			return m_image->genNumericTexture(ctx);
+			return outputImage->genNumericTexture(ctx);
 		}
 		else
 		{
 			const auto swizzleMap = to_texture_swizzle_map<Image::ARRAY_SIZE>(m_swizzleSubscripts);
 			return std::make_shared<TSwizzledTexture<Image::ArrayType, Image::ArrayType, Image::ARRAY_SIZE>>(
-				m_image->genNumericTexture(ctx), swizzleMap);
+				outputImage->genNumericTexture(ctx), swizzleMap);
 		}
 	}
 	else
@@ -231,9 +224,10 @@ std::shared_ptr<TTexture<math::Spectrum>> UnifiedNumericImage::genColorTexture(
 			m_swizzleSubscripts));
 	}
 
-	if(m_image)
+	auto outputImage = getOutputImage();
+	if(outputImage)
 	{
-		return m_image->genColorTexture(ctx);
+		return outputImage->genColorTexture(ctx);
 	}
 	else
 	{
@@ -241,6 +235,11 @@ std::shared_ptr<TTexture<math::Spectrum>> UnifiedNumericImage::genColorTexture(
 			math::Vector3R(static_cast<real>(m_constant[0]), static_cast<real>(m_constant[1]), static_cast<real>(m_constant[2])),
 			math::EColorSpace::Linear_sRGB).genColorTexture(ctx);
 	}
+}
+
+bool UnifiedNumericImage::isInlinable() const
+{
+	return !m_image;
 }
 
 std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(const CookingContext& ctx)
@@ -319,6 +318,18 @@ UnifiedNumericImage& UnifiedNumericImage::setImage(std::shared_ptr<Image> image)
 	return *this;
 }
 
+UnifiedNumericImage& UnifiedNumericImage::setFile(Path imageFile)
+{
+	m_imageFile.setPath(std::move(imageFile));
+	return *this;
+}
+
+UnifiedNumericImage& UnifiedNumericImage::setFile(ResourceIdentifier imageFile)
+{
+	m_imageFile = std::move(imageFile);
+	return *this;
+}
+
 UnifiedNumericImage& UnifiedNumericImage::setSwizzleSubscripts(std::string swizzleSubscripts)
 {
 	m_swizzleSubscripts = std::move(swizzleSubscripts);
@@ -343,6 +354,11 @@ Image* UnifiedNumericImage::getImage() const
 	return m_image.get();
 }
 
+const ResourceIdentifier& UnifiedNumericImage::getFile() const
+{
+	return m_imageFile;
+}
+
 TSpanView<float64> UnifiedNumericImage::getConstant() const
 {
 	return m_constant;
@@ -365,6 +381,23 @@ Image::ArrayType UnifiedNumericImage::getSwizzledConstant() const
 		swizzledConstant[ni] = mappedNi < m_constant.size() ? m_constant[mappedNi] : 0.0;
 	}
 	return swizzledConstant;
+}
+
+std::shared_ptr<Image> UnifiedNumericImage::getOutputImage() const
+{
+	if(m_image)
+	{
+		return m_image;
+	}
+
+	if(!m_imageFile.getPath().isEmpty())
+	{
+		auto rasterImage = TSdl<RasterFileImage>::makeResource();
+		rasterImage->setFilePath(m_imageFile.getPath());
+		return rasterImage;
+	}
+
+	return nullptr;
 }
 
 }// end namespace ph

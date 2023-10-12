@@ -60,16 +60,13 @@ protected:
 			ResourceIdentifier sri(clause.value);
 			if(sri.resolve(resolver))
 			{
-				this->setValue(
-					owner,
-					sri);
+				this->setValue(owner, sri);
 			}
 			else
 			{
 				// Expected to be a valid SRI. It is an error if it is not a SRI (or cannot be resolved).
 				throw_formatted<SdlLoadError>(
-					"failed loading SRI -> cannot resolve {}",
-					sri.getIdentifier());
+					"failed loading SRI -> cannot resolve {}", sri.getIdentifier());
 			}
 		}
 		else

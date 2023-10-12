@@ -45,6 +45,8 @@ public:
 	not implemented by the resource class.
 	*/
 	virtual const SdlClass* getDynamicSdlClass() const;
+
+	virtual bool isInlinable() const;
 };
 
 // In-header Implementation:
@@ -52,6 +54,11 @@ public:
 inline const SdlClass* ISdlResource::getDynamicSdlClass() const
 {
 	return nullptr;
+}
+
+inline bool ISdlResource::isInlinable() const
+{
+	return false;
 }
 
 }// end namespace ph

@@ -71,6 +71,11 @@ std::string ResourceIdentifier::getString() const
 		: std::string{};
 }
 
+bool ResourceIdentifier::isEmpty() const
+{
+	return !hasIdentifier() && !isResolved();
+}
+
 std::string ResourceIdentifier::toString() const
 {
 	return std::format(

@@ -13,16 +13,6 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(BinaryMixedSurfaceMaterial, Material);
 
-BinaryMixedSurfaceMaterial::BinaryMixedSurfaceMaterial() : 
-
-	SurfaceMaterial(),
-
-	m_mode     (ESurfaceMaterialMixMode::Lerp),
-	m_material0(nullptr), 
-	m_material1(nullptr),
-	m_factor   (nullptr)
-{}
-
 void BinaryMixedSurfaceMaterial::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	if(!m_material0 || !m_material1)
@@ -89,7 +79,7 @@ UnifiedColorImage* BinaryMixedSurfaceMaterial::getFactor()
 {
 	if(!m_factor)
 	{
-		m_factor = std::make_shared<UnifiedColorImage>();
+		m_factor = TSdl<UnifiedColorImage>::makeResource();
 	}
 
 	return m_factor.get();

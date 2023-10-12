@@ -11,16 +11,6 @@
 namespace ph
 {
 
-MatteOpaque::MatteOpaque(const math::Vector3R& albedo) :
-
-	SurfaceMaterial(),
-
-	m_albedo(),
-	m_sigmaDegrees()
-{
-	setAlbedo(albedo);
-}
-
 void MatteOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
 {
 	PH_ASSERT(m_albedo);
@@ -60,7 +50,7 @@ UnifiedColorImage* MatteOpaque::getAlbedo()
 {
 	if(!m_albedo)
 	{
-		m_albedo = std::make_shared<UnifiedColorImage>();
+		m_albedo = TSdl<UnifiedColorImage>::makeResource();
 	}
 
 	return m_albedo.get();

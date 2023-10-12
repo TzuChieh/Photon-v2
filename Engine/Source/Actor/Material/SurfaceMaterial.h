@@ -14,8 +14,6 @@ class SurfaceBehavior;
 class SurfaceMaterial : public Material
 {
 public:
-	SurfaceMaterial();
-
 	virtual void genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const = 0;
 
 	void genBehaviors(const CookingContext& ctx, PrimitiveMetadata& metadata) const override;
