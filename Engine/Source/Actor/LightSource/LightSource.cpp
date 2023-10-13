@@ -12,8 +12,9 @@ std::shared_ptr<Geometry> LightSource::genGeometry(CookingContext& ctx) const
 
 std::shared_ptr<Material> LightSource::genMaterial(CookingContext& ctx) const
 {
-	const math::Vector3R linearSrgbAlbedo(0.5_r);
-	return std::make_shared<MatteOpaque>(linearSrgbAlbedo);
+	/*const math::Vector3R linearSrgbAlbedo(0.5_r);
+	return std::make_shared<MatteOpaque>(linearSrgbAlbedo);*/
+	return nullptr;
 }
 
 }// end namespace ph

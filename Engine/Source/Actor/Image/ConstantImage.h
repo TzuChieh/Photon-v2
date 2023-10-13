@@ -15,45 +15,48 @@ namespace ph
 class ConstantImage : public Image
 {
 public:
-	ConstantImage();
-
-	template<typename T>
-	explicit ConstantImage(T value);
-
-	template<typename T>
-	explicit ConstantImage(const math::TVector3<T>& values);
-
-	template<typename T>
-	explicit ConstantImage(std::vector<T> values);
-
-	template<typename T>
-	ConstantImage(T color, math::EColorSpace colorSpace);
-
-	template<typename T>
-	ConstantImage(const math::TVector3<T>& values, math::EColorSpace colorSpace);
-
-	template<typename T>
-	ConstantImage(std::vector<T> values, math::EColorSpace colorSpace);
-
 	std::shared_ptr<TTexture<Image::ArrayType>> genNumericTexture(
 		const CookingContext& ctx) override;
 
 	std::shared_ptr<TTexture<math::Spectrum>> genColorTexture(
 		const CookingContext& ctx) override;
 
+	template<typename T>
+	void setRaw(T value);
+
+	template<typename T>
+	void setRaw(const math::TVector3<T>& values);
+
+	template<typename T>
+	void setRaw(std::vector<T> values);
+
+	/*! @brief Set as a monochromatic color value.
+	*/
+	template<typename T>
+	void setColor(T color, math::EColorSpace colorSpace);
+
+	/*! @brief Set as a tristimulus color value.
+	*/
+	template<typename T>
+	void setColor(const math::TVector3<T>& color, math::EColorSpace colorSpace);
+
+	template<typename T>
+	void setValues(std::vector<T> values, math::EColorSpace colorSpace);
+
 private:
 	std::vector<float64> m_values;
-	math::EColorSpace    m_colorSpace;
+	math::EColorSpace m_colorSpace;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ConstantImage>)
 	{
 		ClassType clazz("constant");
 		clazz.docName("Constant Image");
-		clazz.description("An image that stores constant value. It can be a single scalar, a vector or a color.");
+		clazz.description(
+			"An image that stores constant values. It can be a single scalar, a vector or a color.");
 		clazz.baseOn<Image>();
 
-		TSdlRealArray<OwnerType, float64> values("value", &OwnerType::m_values);
+		TSdlRealArray<OwnerType, float64> values("values", &OwnerType::m_values);
 		values.description("A series of values to populate the const image.");
 		values.defaultTo({0});
 		values.required();
@@ -72,33 +75,37 @@ public:
 // In-ueader Implementations:
 
 template<typename T>
-inline ConstantImage::ConstantImage(const T value) :
-	ConstantImage(value, math::EColorSpace::Unspecified)
-{}
+inline void ConstantImage::setRaw(T value)
+{
+	setRaw(std::vector<T>{value});
+}
 
 template<typename T>
-inline ConstantImage::ConstantImage(const math::TVector3<T>& values) :
-	ConstantImage(values, math::EColorSpace::Unspecified)
-{}
+inline void ConstantImage::setRaw(const math::TVector3<T>& values)
+{
+	setRaw(std::vector<T>{values.x(), values.y(), values.z()});
+}
 
 template<typename T>
-inline ConstantImage::ConstantImage(std::vector<T> values) :
-	ConstantImage(std::move(values), math::EColorSpace::Unspecified)
-{}
+inline void ConstantImage::setRaw(std::vector<T> values)
+{
+	setValues(std::move(values), math::EColorSpace::Unspecified);
+}
 
 template<typename T>
-inline ConstantImage::ConstantImage(const T color, const math::EColorSpace colorSpace) :
-	ConstantImage(std::vector<T>{color}, colorSpace)
-{}
+inline void ConstantImage::setColor(T color, math::EColorSpace colorSpace)
+{
+	setValues(std::vector<T>{color}, colorSpace);
+}
 
 template<typename T>
-inline ConstantImage::ConstantImage(const math::TVector3<T>& values, const math::EColorSpace colorSpace) :
-	ConstantImage(std::vector<T>{values.x(), values.y(), values.z()}, colorSpace)
-{}
+inline void ConstantImage::setColor(const math::TVector3<T>& color, math::EColorSpace colorSpace)
+{
+	setValues(std::vector<T>{color.x(), color.y(), color.z()}, colorSpace);
+}
 
 template<typename T>
-inline ConstantImage::ConstantImage(std::vector<T> values, const math::EColorSpace colorSpace) :
-	m_values(), m_colorSpace(colorSpace)
+inline void ConstantImage::setValues(std::vector<T> values, math::EColorSpace colorSpace)
 {
 	if constexpr(std::is_same_v<T, float64>)
 	{
@@ -112,6 +119,8 @@ inline ConstantImage::ConstantImage(std::vector<T> values, const math::EColorSpa
 			m_values[i] = static_cast<float64>(values[i]);
 		}
 	}
+
+	m_colorSpace = colorSpace;
 }
 
 }// end namespace ph

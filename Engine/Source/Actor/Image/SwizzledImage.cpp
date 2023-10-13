@@ -1,4 +1,4 @@
-#include "Actor/Image/UnifiedNumericImage.h"
+#include "Actor/Image/SwizzledImage.h"
 #include "Common/assertion.h"
 #include "Common/logging.h"
 #include "Math/TVector2.h"
@@ -10,10 +10,10 @@
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/constant_textures.h"
-#include "Actor/Image/RasterFileImage.h"
+#include "Math/Color/color_spaces.h"
 
+#include <cstddef>
 #include <utility>
-#include <format>
 #include <limits>
 #include <array>
 #include <string_view>
@@ -22,7 +22,7 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(UnifiedNumericImage, Image);
+PH_DEFINE_INTERNAL_LOG_GROUP(SwizzledImage, Image);
 
 namespace
 {
@@ -130,9 +130,8 @@ inline std::array<uint8, N> to_texture_swizzle_map(const std::string_view swizzl
 {
 	if(used_swizzle_char_set(swizzleSubscripts) == static_cast<std::size_t>(-1))
 	{
-		throw CookException(std::format(
-			"Specified swizzle subscripts ({}) are invalid.",
-			swizzleSubscripts.size()));
+		throw_formatted<CookException>(
+			"Specified swizzle subscripts ({}) are invalid.", swizzleSubscripts.size());
 	}
 
 	// Fill identitically first
@@ -169,9 +168,9 @@ inline std::array<uint8, N> to_exact_texture_swizzle_map(const std::string_view 
 {
 	if(N != swizzleSubscripts.size())
 	{
-		throw CookException(std::format(
+		throw_formatted<CookException>(
 			"Mismatched number of subscripts ({}) to specified number of components ({}).", 
-			swizzleSubscripts.size(), N));
+			swizzleSubscripts.size(), N);
 	}
 
 	return to_texture_swizzle_map<N>(swizzleSubscripts);
@@ -179,225 +178,177 @@ inline std::array<uint8, N> to_exact_texture_swizzle_map(const std::string_view 
 
 }// end anonymous namespace
 
-std::shared_ptr<TTexture<Image::ArrayType>> UnifiedNumericImage::genNumericTexture(
-	const CookingContext& ctx)
+std::shared_ptr<TTexture<Image::ArrayType>> SwizzledImage::genNumericTexture(const CookingContext& ctx)
 {
 	if(m_swizzleSubscripts.size() > Image::ARRAY_SIZE)
 	{
-		throw CookException(std::format(
+		throw_formatted<CookException>(
 			"Input swizzle subscripts has more elements ({}) than the max number ({}) swizzler can handle.",
-			m_swizzleSubscripts.size(), Image::ARRAY_SIZE));
+			m_swizzleSubscripts.size(), Image::ARRAY_SIZE);
 	}
 
-	auto outputImage = getOutputImage();
-	if(outputImage)
+	if(m_input)
 	{
 		if(is_identity_swizzle(m_swizzleSubscripts))
 		{
-			return outputImage->genNumericTexture(ctx);
+			return m_input->genNumericTexture(ctx);
 		}
 		else
 		{
 			const auto swizzleMap = to_texture_swizzle_map<Image::ARRAY_SIZE>(m_swizzleSubscripts);
 			return std::make_shared<TSwizzledTexture<Image::ArrayType, Image::ArrayType, Image::ARRAY_SIZE>>(
-				outputImage->genNumericTexture(ctx), swizzleMap);
+				m_input->genNumericTexture(ctx), swizzleMap);
 		}
 	}
 	else
 	{
-		auto constant = getSwizzledConstant();
-		return std::make_shared<TConstantTexture<Image::ArrayType>>(constant);
+		return std::make_shared<TConstantTexture<Image::ArrayType>>(Image::ArrayType(0));
 	}
 }
 
-std::shared_ptr<TTexture<math::Spectrum>> UnifiedNumericImage::genColorTexture(
-	const CookingContext& ctx)
+std::shared_ptr<TTexture<math::Spectrum>> SwizzledImage::genColorTexture(const CookingContext& ctx)
 {
-	if(!m_swizzleSubscripts.empty())
+	if(!m_input)
 	{
-		// As spectrum can be any type from tristimulus to spectral distribution, their number of
-		// components can vary. Swizzling such a type would be inconsistent if the same scene file
-		// is used for different spectrum type configuration.
-		//
-		throw CookException(std::format(
-			"Swizzling (subscript {}) is forbidden for color texture from unified numeric image.",
-			m_swizzleSubscripts));
+		auto constantImage = TSdl<ConstantImage>::make();
+		constantImage.setColor(0, math::EColorSpace::Linear_sRGB);
+		return constantImage.genColorTexture(ctx);
 	}
 
-	auto outputImage = getOutputImage();
-	if(outputImage)
+	if constexpr(math::TColorSpaceDef<math::Spectrum::getColorSpace()>::isTristimulus())
 	{
-		return outputImage->genColorTexture(ctx);
+		if(is_identity_swizzle(m_swizzleSubscripts))
+		{
+			return m_input->genColorTexture(ctx);
+		}
+		else
+		{
+			if(m_swizzleSubscripts.size() > 3)
+			{
+				throw_formatted<CookException>(
+					"Too many subscripts ({}) for a tristimulus color texture.", m_swizzleSubscripts);
+			}
+
+			switch(m_swizzleSubscripts.size())
+			{
+			case 1:
+				return std::make_shared<TSwizzledTexture<math::Spectrum, math::Spectrum, 1>>(
+					m_input->genColorTexture(ctx), 
+					to_texture_swizzle_map<1>(m_swizzleSubscripts));
+
+			case 2:
+				return std::make_shared<TSwizzledTexture<math::Spectrum, math::Spectrum, 2>>(
+					m_input->genColorTexture(ctx),
+					to_texture_swizzle_map<2>(m_swizzleSubscripts));
+
+			case 3:
+				return std::make_shared<TSwizzledTexture<math::Spectrum, math::Spectrum, 3>>(
+					m_input->genColorTexture(ctx),
+					to_texture_swizzle_map<3>(m_swizzleSubscripts));
+
+			default:
+				PH_ASSERT_UNREACHABLE_SECTION();
+				return nullptr;
+			}
+		}
 	}
 	else
 	{
-		return ConstantImage(
-			math::Vector3R(static_cast<real>(m_constant[0]), static_cast<real>(m_constant[1]), static_cast<real>(m_constant[2])),
-			math::EColorSpace::Linear_sRGB).genColorTexture(ctx);
+		if(!m_swizzleSubscripts.empty())
+		{
+			// As spectral distribution can have any number of components, swizzling such a type
+			// would be inconsistent if the same scene file is used for different configurations on 
+			// spectral distribution. Also it is very likely the spectrum has more elements than the
+			// swizzler can handle. We do not support it for now for simplicity.
+			throw_formatted<CookException>(
+				"Swizzling (subscript {}) is forbidden for non-tristimulus color texture.", m_swizzleSubscripts);
+		}
+
+		return m_input->genColorTexture(ctx);
 	}
 }
 
-bool UnifiedNumericImage::isInlinable() const
+std::shared_ptr<TTexture<real>> SwizzledImage::genRealTexture(const CookingContext& ctx)
 {
-	return !m_image;
-}
-
-std::shared_ptr<TTexture<real>> UnifiedNumericImage::genRealTexture(const CookingContext& ctx)
-{
-	if(m_image)
+	if(m_input)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<1>(m_swizzleSubscripts);
-
 		auto numericArrayToReal = [mappedIndex = swizzleMap[0]](const Image::ArrayType& inputValue)
 		{
 			return static_cast<real>(inputValue[mappedIndex]);
 		};
 
 		return std::make_shared<TUnaryTextureOperator<Image::ArrayType, real, decltype(numericArrayToReal)>>(
-			m_image->genNumericTexture(ctx), std::move(numericArrayToReal));
+			m_input->genNumericTexture(ctx), std::move(numericArrayToReal));
 	}
 	else
 	{
-		auto constant = getSwizzledConstant();
-		return std::make_shared<TConstantTexture<real>>(
-			static_cast<real>(constant[0]));
+		return std::make_shared<TConstantTexture<real>>(0.0_r);
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector2R>> UnifiedNumericImage::genVector2RTexture(const CookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector2R>> SwizzledImage::genVector2RTexture(const CookingContext& ctx)
 {
-	if(m_image)
+	if(m_input)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<2>(m_swizzleSubscripts);
 		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector2R, 2>>(
-			m_image->genNumericTexture(ctx), swizzleMap);
+			m_input->genNumericTexture(ctx), swizzleMap);
 	}
 	else
 	{
-		auto constant = getSwizzledConstant();
-		return std::make_shared<TConstantTexture<math::Vector2R>>(
-			math::Vector2R(static_cast<real>(constant[0]), static_cast<real>(constant[1])));
+		return std::make_shared<TConstantTexture<math::Vector2R>>(math::Vector2R(0));
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector3R>> UnifiedNumericImage::genVector3RTexture(const CookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector3R>> SwizzledImage::genVector3RTexture(const CookingContext& ctx)
 {
-	if(m_image)
+	if(m_input)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<3>(m_swizzleSubscripts);
 		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector3R, 3>>(
-			m_image->genNumericTexture(ctx), swizzleMap);
+			m_input->genNumericTexture(ctx), swizzleMap);
 	}
 	else
 	{
-		auto constant = getSwizzledConstant();
-		return std::make_shared<TConstantTexture<math::Vector3R>>(
-			math::Vector3R(static_cast<real>(constant[0]), static_cast<real>(constant[1]), static_cast<real>(constant[2])));
+		return std::make_shared<TConstantTexture<math::Vector3R>>(math::Vector3R(0));
 	}
 }
 
-std::shared_ptr<TTexture<math::Vector4R>> UnifiedNumericImage::genVector4RTexture(const CookingContext& ctx)
+std::shared_ptr<TTexture<math::Vector4R>> SwizzledImage::genVector4RTexture(const CookingContext& ctx)
 {
-	if(m_image)
+	if(m_input)
 	{
 		const auto swizzleMap = to_exact_texture_swizzle_map<4>(m_swizzleSubscripts);
 		return std::make_shared<TSwizzledTexture<Image::ArrayType, math::Vector4R, 4>>(
-			m_image->genNumericTexture(ctx), swizzleMap);
+			m_input->genNumericTexture(ctx), swizzleMap);
 	}
 	else
 	{
-		auto constant = getSwizzledConstant();
-		return std::make_shared<TConstantTexture<math::Vector4R>>(
-			math::Vector4R(static_cast<real>(constant[0]), static_cast<real>(constant[1]), static_cast<real>(constant[2]), static_cast<real>(constant[3])));
+		return std::make_shared<TConstantTexture<math::Vector4R>>(math::Vector4R(0));
 	}
 }
 
-UnifiedNumericImage& UnifiedNumericImage::setImage(std::shared_ptr<Image> image)
+SwizzledImage& SwizzledImage::setInput(std::shared_ptr<Image> input)
 {
-	m_image = std::move(image);
+	m_input = std::move(input);
 	return *this;
 }
 
-UnifiedNumericImage& UnifiedNumericImage::setFile(Path imageFile)
-{
-	m_imageFile.setPath(std::move(imageFile));
-	return *this;
-}
-
-UnifiedNumericImage& UnifiedNumericImage::setFile(ResourceIdentifier imageFile)
-{
-	m_imageFile = std::move(imageFile);
-	return *this;
-}
-
-UnifiedNumericImage& UnifiedNumericImage::setSwizzleSubscripts(std::string swizzleSubscripts)
+SwizzledImage& SwizzledImage::setSwizzleSubscripts(std::string swizzleSubscripts)
 {
 	m_swizzleSubscripts = std::move(swizzleSubscripts);
 	return *this;
 }
 
-UnifiedNumericImage& UnifiedNumericImage::setConstant(TSpanView<float64> constant)
+Image* SwizzledImage::getInput() const
 {
-	if(constant.size() > Image::ArrayType::NUM_ELEMENTS)
-	{
-		PH_LOG_WARNING(UnifiedNumericImage,
-			"Data loss detected: setting constant with {} elements while the max allowed number is {}",
-			constant.size(), Image::ArrayType::NUM_ELEMENTS);
-	}
-
-	m_constant.assign(constant.begin(), constant.end());
-	return *this;
+	return m_input.get();
 }
 
-Image* UnifiedNumericImage::getImage() const
-{
-	return m_image.get();
-}
-
-const ResourceIdentifier& UnifiedNumericImage::getFile() const
-{
-	return m_imageFile;
-}
-
-TSpanView<float64> UnifiedNumericImage::getConstant() const
-{
-	return m_constant;
-}
-
-std::string_view UnifiedNumericImage::getSwizzleSubscripts() const
+std::string_view SwizzledImage::getSwizzleSubscripts() const
 {
 	return m_swizzleSubscripts;
-}
-
-Image::ArrayType UnifiedNumericImage::getSwizzledConstant() const
-{
-	constexpr auto N = Image::ArrayType::NUM_ELEMENTS;
-	std::array<uint8, N> swizzleMap = to_texture_swizzle_map<N>(m_swizzleSubscripts);
-
-	Image::ArrayType swizzledConstant;
-	for(std::size_t ni = 0; ni < N; ++ni)
-	{
-		auto mappedNi = swizzleMap[ni];
-		swizzledConstant[ni] = mappedNi < m_constant.size() ? m_constant[mappedNi] : 0.0;
-	}
-	return swizzledConstant;
-}
-
-std::shared_ptr<Image> UnifiedNumericImage::getOutputImage() const
-{
-	if(m_image)
-	{
-		return m_image;
-	}
-
-	if(!m_imageFile.getPath().isEmpty())
-	{
-		auto rasterImage = TSdl<RasterFileImage>::makeResource();
-		rasterImage->setFilePath(m_imageFile.getPath());
-		return rasterImage;
-	}
-
-	return nullptr;
 }
 
 }// end namespace ph

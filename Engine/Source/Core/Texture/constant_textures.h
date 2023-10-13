@@ -12,7 +12,7 @@
 namespace ph
 {
 
-/*! @brief Texture storing only one single constant.
+/*! @brief Texture storing one single constant of arbitrary type.
 This texture provides only a constant value. Input color usages are ignored.
 For color-related constants, consider using @p TConstantTristimulusTexture or 
 @p TConstantSpectralTexture; otherwise, it is recommended to bake color-related
@@ -22,9 +22,9 @@ template<typename OutputType>
 class TConstantTexture : public TTexture<OutputType>
 {
 public:
-	explicit TConstantTexture(OutputType value) :
-		TTexture<OutputType>(),
-		m_value(std::move(value))
+	explicit TConstantTexture(OutputType value)
+		: TTexture<OutputType>()
+		, m_value(std::move(value))
 	{}
 
 	void sample(const SampleLocation& sampleLocation, OutputType* const out_value) const override
@@ -46,9 +46,14 @@ template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Linear_sRGB>
 class TConstantTristimulusTexture : public TTexture<math::Spectrum>
 {
 public:
-	explicit TConstantTristimulusTexture(math::TristimulusValues value) :
-		TTexture<math::Spectrum>(),
-		m_value(std::move(value))
+	explicit TConstantTristimulusTexture(math::TristimulusValues value)
+		: TTexture<math::Spectrum>()
+		, m_value(std::move(value))
+	{}
+
+	explicit TConstantTristimulusTexture(math::ColorValue value)
+		: TTexture<math::Spectrum>()
+		, m_value({value, value, value})
 	{}
 
 	void sample(const SampleLocation& sampleLocation, math::Spectrum* const out_value) const override
@@ -70,9 +75,9 @@ template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Spectral>
 class TConstantSpectralTexture : public TTexture<math::Spectrum>
 {
 public:
-	explicit TConstantSpectralTexture(math::SpectralSampleValues value) :
-		TTexture<math::Spectrum>(),
-		m_value(std::move(value))
+	explicit TConstantSpectralTexture(math::SpectralSampleValues value)
+		: TTexture<math::Spectrum>()
+		, m_value(std::move(value))
 	{}
 
 	void sample(const SampleLocation& sampleLocation, math::Spectrum* const out_value) const override

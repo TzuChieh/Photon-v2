@@ -67,22 +67,14 @@ void BinaryMixedSurfaceMaterial::setMaterials(
 
 void BinaryMixedSurfaceMaterial::setFactor(const real factor)
 {
-	setFactor(std::make_shared<ConstantImage>(factor, math::EColorSpace::Spectral));
+	auto imageFactor = TSdl<ConstantImage>::makeResource();
+	imageFactor->setColor(factor, math::EColorSpace::Spectral);
+	setFactor(imageFactor);
 }
 
 void BinaryMixedSurfaceMaterial::setFactor(std::shared_ptr<Image> factor)
 {
-	getFactor()->setImage(std::move(factor));
-}
-
-UnifiedColorImage* BinaryMixedSurfaceMaterial::getFactor()
-{
-	if(!m_factor)
-	{
-		m_factor = TSdl<UnifiedColorImage>::makeResource();
-	}
-
-	return m_factor.get();
+	m_factor = std::move(factor);
 }
 
 }// end namespace ph

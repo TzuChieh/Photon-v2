@@ -4,7 +4,7 @@
 #include "Math/math_fwd.h"
 #include "DataIO/FileSystem/Path.h"
 #include "SDL/sdl_interface.h"
-#include "Actor/SDLExtension/TSdlUnifiedColorImage.h"
+//#include "Actor/SDLExtension/TSdlUnifiedColorImage.h"
 
 #include <memory>
 #include <string>
@@ -34,7 +34,7 @@ public:
 	void setBackFaceEmit(bool isBackFaceEmit);
 
 private:
-	std::shared_ptr<UnifiedColorImage> m_emittedRadiance;
+	//std::shared_ptr<UnifiedColorImage> m_emittedRadiance;
 	std::shared_ptr<Geometry>          m_geometry;
 	std::shared_ptr<Material>          m_material;
 	bool                               m_isBackFaceEmit;
@@ -49,10 +49,10 @@ public:
 			"can also be given to describe its surface appearance.");
 		clazz.baseOn<LightSource>();
 
-		TSdlUnifiedColorImage<OwnerType> emittedRadiance("emitted-radiance", &OwnerType::m_emittedRadiance);
+		/*TSdlUnifiedColorImage<OwnerType> emittedRadiance("emitted-radiance", &OwnerType::m_emittedRadiance);
 		emittedRadiance.description("An image that describes the emitted radiance across the surface.");
 		emittedRadiance.defaultLinearSRGB(1.0_r);
-		clazz.addField(emittedRadiance);
+		clazz.addField(emittedRadiance);*/
 
 		TSdlReference<Geometry, OwnerType> geometry("geometry", &OwnerType::m_geometry);
 		geometry.description("A geometry that defines the surface energy is going to emit from.");

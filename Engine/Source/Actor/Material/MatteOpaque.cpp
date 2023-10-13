@@ -2,9 +2,11 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Math/TVector3.h"
 #include "Common/assertion.h"
+#include "Common/logging.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h"
+#include "Actor/Image/SwizzledImage.h"
 
 #include <utility>
 
@@ -13,19 +15,29 @@ namespace ph
 
 void MatteOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behavior) const
 {
-	PH_ASSERT(m_albedo);
+	auto albedo = m_albedo;
+	if(!albedo)
+	{
+		PH_DEFAULT_LOG(
+			"No albedo specified. Default to 50% reflectance.");
+		albedo = makeConstantAlbedo(math::Vector3R(0.5_r));
+	}
 
 	std::shared_ptr<SurfaceOptics> optics;
 	if(m_sigmaDegrees)
 	{
+		auto sigmaDegrees = TSdl<SwizzledImage>::makeResource();
+		sigmaDegrees->setInput(m_sigmaDegrees);
+		sigmaDegrees->setSwizzleSubscripts("x");
+
 		optics = std::make_shared<OrenNayar>(
-			m_albedo->genColorTexture(ctx),
-			m_sigmaDegrees->genRealTexture(ctx));
+			albedo->genColorTexture(ctx),
+			sigmaDegrees->genRealTexture(ctx));
 	}
 	else
 	{
 		optics = std::make_shared<LambertianDiffuse>(
-			m_albedo->genColorTexture(ctx));
+			albedo->genColorTexture(ctx));
 	}
 
 	behavior.setOptics(optics);
@@ -33,27 +45,24 @@ void MatteOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behavio
 
 void MatteOpaque::setAlbedo(const math::Vector3R& albedo)
 {
-	getAlbedo()->setConstantColor(albedo, math::EColorSpace::Linear_sRGB);
+	setAlbedo(makeConstantAlbedo(albedo));
 }
 
 void MatteOpaque::setAlbedo(const real r, const real g, const real b)
 {
-	setAlbedo({r, g, b});
+	setAlbedo(math::Vector3R(r, g, b));
 }
 
 void MatteOpaque::setAlbedo(std::shared_ptr<Image> albedo)
 {
-	getAlbedo()->setImage(std::move(albedo));
+	m_albedo = std::move(albedo);
 }
 
-UnifiedColorImage* MatteOpaque::getAlbedo()
+std::shared_ptr<Image> MatteOpaque::makeConstantAlbedo(const math::Vector3R& albedo)
 {
-	if(!m_albedo)
-	{
-		m_albedo = TSdl<UnifiedColorImage>::makeResource();
-	}
-
-	return m_albedo.get();
+	auto imageAlbedo = TSdl<ConstantImage>::makeResource();
+	imageAlbedo->setColor(albedo, math::EColorSpace::Linear_sRGB);
+	return imageAlbedo;
 }
 
 }// end namespace ph

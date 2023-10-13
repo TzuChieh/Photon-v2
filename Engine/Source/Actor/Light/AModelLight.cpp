@@ -5,6 +5,7 @@
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
+#include "Core/Texture/constant_textures.h"
 
 #include <utility>
 
@@ -28,12 +29,21 @@ const Emitter* AModelLight::buildEmitter(
 	if(lightPrimitives.empty())
 	{
 		PH_DEFAULT_LOG_ERROR(
-			"failed building model light emitter: requires at least a light primitive");
+			"Failed building model light emitter: requires at least a light primitive.");
 		return nullptr;
 	}
 
-	PH_ASSERT(m_emittedRadiance);
-	auto emittedRadiance = m_emittedRadiance->genColorTexture(ctx);
+	std::shared_ptr<TTexture<math::Spectrum>> emittedRadiance;
+	if(m_emittedRadiance)
+	{
+		emittedRadiance = m_emittedRadiance->genColorTexture(ctx);
+	}
+	else
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"Model light does not specify emitted radiance. Default to unit radiance.");
+		emittedRadiance = std::make_shared<TConstantTristimulusTexture<>>(math::ColorValue(1));
+	}
 
 	const Emitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)

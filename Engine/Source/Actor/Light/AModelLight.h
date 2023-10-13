@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Actor/Light/AGeometricLight.h"
+#include "Actor/Image/Image.h"
 #include "SDL/sdl_interface.h"
-#include "Actor/SDLExtension/TSdlUnifiedColorImage.h"
 
 namespace ph
 {
@@ -24,7 +24,7 @@ public:
 private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::shared_ptr<Material> m_material;
-	std::shared_ptr<UnifiedColorImage> m_emittedRadiance;
+	std::shared_ptr<Image> m_emittedRadiance;
 	bool m_isBackFaceEmit;
 
 public:
@@ -47,9 +47,9 @@ public:
 		material.optional();
 		clazz.addField(material);
 
-		TSdlUnifiedColorImage<OwnerType> emittedRadiance("emitted-radiance", &OwnerType::m_emittedRadiance);
+		TSdlReference<Image, OwnerType> emittedRadiance("emitted-radiance", &OwnerType::m_emittedRadiance);
 		emittedRadiance.description("An image that describes the emitted radiance across the surface.");
-		emittedRadiance.defaultLinearSRGB(1.0_r);
+		emittedRadiance.optional();
 		clazz.addField(emittedRadiance);
 
 		TSdlBool<OwnerType> isBackFaceEmit("back-face-emit", &OwnerType::m_isBackFaceEmit);

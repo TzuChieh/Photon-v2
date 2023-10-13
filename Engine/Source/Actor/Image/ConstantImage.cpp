@@ -11,22 +11,17 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(ConstantImage, Image);
 
-ConstantImage::ConstantImage() :
-	ConstantImage(0.0)
-{}
-
 std::shared_ptr<TTexture<Image::ArrayType>> ConstantImage::genNumericTexture(
 	const CookingContext& ctx)
 {
 	if(m_values.size() > Image::ARRAY_SIZE)
 	{
 		PH_LOG_WARNING(ConstantImage, 
-			"{} values provided for a numeric array of max size {}, there will be data loss",
+			"{} values provided for a numeric array of max size {}, there will be data loss.",
 			m_values.size(), Image::ARRAY_SIZE);
 	}
 
-	Image::ArrayType arr;
-	arr.set(0);
+	Image::ArrayType arr(0);
 	for(std::size_t i = 0; i < Image::ARRAY_SIZE && i < m_values.size(); ++i)
 	{
 		arr[i] = m_values[i];
@@ -38,9 +33,13 @@ std::shared_ptr<TTexture<Image::ArrayType>> ConstantImage::genNumericTexture(
 std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 	const CookingContext& ctx)
 {
-	if(m_colorSpace != math::EColorSpace::Spectral)
+	if(math::is_tristimulus(m_colorSpace))
 	{
 		math::Vector3D values;
+		if(m_values.size() == 0)
+		{
+			values.set(0);
+		}
 		if(m_values.size() == 1)
 		{
 			values.set(m_values[0]);
@@ -52,8 +51,8 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		else
 		{
 			PH_LOG_WARNING(ConstantImage,
-				"mismatched number of input values: expected 3, {} provided; generated texture may not be what you want.",
-				m_values.size());
+				"Unexpected number of input values: expected <= 3, {} provided; generated texture "
+				"may not be what you want.", m_values.size());
 
 			values.x() = m_values.size() >= 1 ? m_values[0] : 0;
 			values.y() = m_values.size() >= 2 ? m_values[1] : 0;
@@ -78,19 +77,31 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 
 		default:
 			PH_LOG_WARNING(ConstantImage,
-				"unsupported color space for tristimulus color detected; using Linear-sRGB instead",
-				m_values.size());
+				"Unsupported color space for tristimulus color detected; using Linear-sRGB instead.");
 			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(color);
 		}
 	}
 	else
 	{
 		math::SampledSpectrum sampledSpectrum(0);
+		if(m_values.size() == 0)
+		{
+			sampledSpectrum = math::SampledSpectrum(0);
+		}
 		if(m_values.size() == 1)
 		{
 			sampledSpectrum = math::SampledSpectrum(static_cast<math::ColorValue>(m_values[0]));
 		}
+		// Exact representation of a sampled spectrum
+		else if(m_values.size() == math::SampledSpectrum::NUM_VALUES)
+		{
+			for(std::size_t i = 0; i < math::Spectrum::NUM_VALUES; ++i)
+			{
+				sampledSpectrum[i] = static_cast<math::ColorValue>(m_values[i]);
+			}
+		}
 		// If there are even values, assume to be wavelength-value data points
+		// (N wavelength values followed by N sample values)
 		else if(!m_values.empty() && math::is_even(m_values.size()))
 		{
 			sampledSpectrum = math::SampledSpectrum(math::resample_spectral_samples<math::ColorValue, float64>(

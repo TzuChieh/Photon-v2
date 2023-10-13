@@ -26,26 +26,26 @@ PH_DEFINE_INTERNAL_LOG_GROUP(ModelSource, Light);
 
 ModelSource::ModelSource() :
 	LightSource(),
-	m_emittedRadiance(std::make_shared<UnifiedColorImage>()),
+	//m_emittedRadiance(std::make_shared<UnifiedColorImage>()),
 	m_isBackFaceEmit(false)
 {}
 
 ModelSource::ModelSource(const math::Vector3R& emittedRgbRadiance) :
 	ModelSource()
 {
-	m_emittedRadiance->setConstantColor(emittedRgbRadiance, math::EColorSpace::Linear_sRGB);
+	//m_emittedRadiance->setConstantColor(emittedRgbRadiance, math::EColorSpace::Linear_sRGB);
 }
 
 ModelSource::ModelSource(const Path& imagePath) :
 	ModelSource()
 {
-	m_emittedRadiance->setImage(std::make_shared<RasterFileImage>(imagePath));
+	//m_emittedRadiance->setImage(std::make_shared<RasterFileImage>(imagePath));
 }
 
 ModelSource::ModelSource(const std::shared_ptr<Image>& emittedRadiance) :
 	ModelSource()
 {
-	m_emittedRadiance->setImage(emittedRadiance);
+	//m_emittedRadiance->setImage(emittedRadiance);
 }
 
 std::unique_ptr<Emitter> ModelSource::genEmitter(
@@ -58,15 +58,15 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 		return nullptr;
 	}
 
-	PH_ASSERT(m_emittedRadiance);
-	auto emittedRadiance = m_emittedRadiance->genColorTexture(ctx);
+	/*PH_ASSERT(m_emittedRadiance);
+	auto emittedRadiance = m_emittedRadiance->genColorTexture(ctx);*/
 
 	std::vector<DiffuseSurfaceEmitter> primitiveEmitters;
 	for(const auto& primitive : data.primitives)
 	{
-		DiffuseSurfaceEmitter emitter(primitive);
+		/*DiffuseSurfaceEmitter emitter(primitive);
 		emitter.setEmittedRadiance(emittedRadiance);
-		primitiveEmitters.push_back(emitter);
+		primitiveEmitters.push_back(emitter);*/
 	}
 
 	std::unique_ptr<SurfaceEmitter> emitter;
@@ -79,7 +79,7 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 		PH_ASSERT(!primitiveEmitters.empty());
 
 		auto multiEmitter = std::make_unique<MultiDiffuseSurfaceEmitter>(std::move(primitiveEmitters));
-		multiEmitter->setEmittedRadiance(emittedRadiance);
+		//multiEmitter->setEmittedRadiance(emittedRadiance);
 		emitter = std::move(multiEmitter);
 	}
 

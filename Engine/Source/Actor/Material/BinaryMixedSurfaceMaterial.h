@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Actor/Material/SurfaceMaterial.h"
+#include "Actor/Image/Image.h"
 #include "SDL/sdl_interface.h"
-#include "Actor/SDLExtension/TSdlUnifiedColorImage.h"
 
 #include <memory>
 
@@ -38,14 +38,11 @@ public:
 	void setFactor(real factor);
 	void setFactor(std::shared_ptr<Image> factor);
 
-protected:
-	UnifiedColorImage* getFactor();
-
 private:
-	ESurfaceMaterialMixMode            m_mode;
-	std::shared_ptr<SurfaceMaterial>   m_material0;
-	std::shared_ptr<SurfaceMaterial>   m_material1;
-	std::shared_ptr<UnifiedColorImage> m_factor;
+	ESurfaceMaterialMixMode m_mode;
+	std::shared_ptr<SurfaceMaterial> m_material0;
+	std::shared_ptr<SurfaceMaterial> m_material1;
+	std::shared_ptr<Image> m_factor;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<BinaryMixedSurfaceMaterial>)
@@ -71,9 +68,8 @@ public:
 		material1.required();
 		clazz.addField(material1);
 
-		TSdlUnifiedColorImage<OwnerType> factor("factor", &OwnerType::m_factor);
+		TSdlReference<Image, OwnerType> factor("factor", &OwnerType::m_factor);
 		factor.description("Factor that controls the contribution from each material.");
-		factor.noDefault();
 		factor.optional();// some operation might not need a factor; check factor at cook time
 		clazz.addField(factor);
 

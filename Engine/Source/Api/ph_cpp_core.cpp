@@ -39,6 +39,7 @@
 #include "Actor/Image/RasterFileImage.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/MathImage.h"
+#include "Actor/Image/SwizzledImage.h"
 #include "Actor/Image/CheckerboardImage.h"
 #include "Actor/Image/GradientImage.h"
 #include "Actor/Image/BlackBodyRadiationImage.h"
@@ -152,6 +153,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<RasterImageBase>(),
 		get_sdl_class<RasterFileImage>(),
 		get_sdl_class<MathImage>(),
+		get_sdl_class<SwizzledImage>(),
 		get_sdl_class<BlackBodyRadiationImage>(),
 
 		// Observers
