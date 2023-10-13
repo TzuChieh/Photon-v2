@@ -433,12 +433,14 @@ void ImguiEditorImageViewer::removeImage(std::string_view name)
 {
 	ImguiImageLibrary& imageLib = getEditorUI().getImageLibrary();
 
+	imageLib.unloadImage(name);
+
+	// Note: erase at the end as `name` may depend on the string provided by image state
 	std::erase_if(m_imageStates,
 		[name](const ImageState& state)
 		{
 			return state.name == name;
 		});
-	imageLib.unloadImage(name);
 }
 
 void ImguiEditorImageViewer::setImagePixelIndicators(
