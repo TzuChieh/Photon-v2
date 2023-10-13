@@ -58,7 +58,6 @@ public:
 
 		TSdlRealArray<OwnerType, float64> values("values", &OwnerType::m_values);
 		values.description("A series of values to populate the const image.");
-		values.defaultTo({0});
 		values.required();
 		clazz.addField(values);
 

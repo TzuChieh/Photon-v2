@@ -193,7 +193,7 @@ void SdlInlinePacketInterface::appendSingleClause(
 	out_commandStr += clause.name;
 	if(clause.hasTag())
 	{
-		out_commandStr += ": ";
+		out_commandStr += ':';
 		out_commandStr += clause.tag;
 	}
 
