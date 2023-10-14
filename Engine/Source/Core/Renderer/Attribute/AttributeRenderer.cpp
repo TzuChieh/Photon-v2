@@ -139,17 +139,17 @@ void AttributeRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame&
 
 RenderStats AttributeRenderer::asyncQueryRenderStats()
 {
-	return RenderStats();
+	return RenderStats{};
 }
 
 RenderProgress AttributeRenderer::asyncQueryRenderProgress()
 {
-	return RenderProgress();
+	return RenderProgress{};
 }
 
-ObservableRenderData AttributeRenderer::getObservableData() const
+RenderObservationInfo AttributeRenderer::getObservationInfo() const
 {
-	return ObservableRenderData();
+	return RenderObservationInfo{};
 }
 
 }// end namespace ph

@@ -13,7 +13,7 @@
 #include "Core/Scheduler/Region.h"
 #include "Common/assertion.h"
 #include "Utility/Timer.h"
-#include "Core/Renderer/ObservableRenderData.h"
+#include "Core/Renderer/RenderObservationInfo.h"
 #include "Frame/Viewport.h"
 
 #include <vector>
@@ -52,10 +52,16 @@ public:
 	// TODO: allow polling unioned regions seems like a good idea
 	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
 	
-	// Returns information regarding the ongoing rendering process.
+	/*! @brief Get general information of the ongoing rendering process.
+	More information can be provided by the implementation. The meaning of each stat can be obtained
+	via `getObservationInfo()`.
+	*/
 	virtual RenderStats asyncQueryRenderStats() = 0;
 
-	// TODO: remove this method
+	/*! @brief Get progress of the ongoing rendering process.
+	Implementation is advised to provide this information as it is vital for the caller to be able to
+	observe the progress of a potentially long-running rendering process.
+	*/
 	virtual RenderProgress asyncQueryRenderProgress() = 0;
 
 	// Similar to retrieveFrame(2), except that correctness is not guaranteed 
@@ -65,10 +71,11 @@ public:
 		const Region& region,
 		HdrRgbFrame&  out_frame) = 0;
 
-	// Get information about available outputs of the renderer, which will be
-	// determined after each update. The actual data and can be retrieved via
-	// async<X>() methods.
-	virtual ObservableRenderData getObservableData() const = 0;
+	/*! @brief Get information about available transient outputs of an ongoing render operation.
+	This information will be determined after each update (constant throughout the following rendering 
+	process). The actual data and can be retrieved via async<X>() methods.
+	*/
+	virtual RenderObservationInfo getObservationInfo() const = 0;
 
 	void update(const CoreCookedUnit& cooked, const VisualWorld& world);
 	void render();

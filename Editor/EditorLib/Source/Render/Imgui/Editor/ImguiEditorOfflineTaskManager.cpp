@@ -204,17 +204,16 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 			if(freshHandle != info.peek.in.resultHandle)
 			{
 				info.peek.in.resultHandle = freshHandle;
-				info.shouldUpdatePeekInput = true;
 			}
 
-			if(m_indicateUpdatedRegions)
+			info.peek.in.wantIntermediateResult = m_enableRenderPreview;
+			info.peek.in.wantUpdatingRegions = m_indicateUpdatedRegions;
+			if(info.renderer->tryGetRenderPeek(&info.peek, true))
 			{
-				viewer.setImagePixelIndicators(info.outputImageName, info.peek.out.updatingRegions);
-			}
-
-			if(info.renderer->tryGetRenderPeek(&info.peek, info.shouldUpdatePeekInput))
-			{
-				info.shouldUpdatePeekInput = false;
+				if(m_indicateUpdatedRegions)
+				{
+					viewer.setImagePixelIndicators(info.outputImageName, info.peek.out.updatingRegions);
+				}
 			}
 		}
 	}
@@ -230,9 +229,6 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 		if(info.agent && info.renderer)
 		{
 			info.renderer->render(info.agent->getRenderConfig());
-
-			// Always update on rendering start
-			info.shouldUpdatePeekInput = true;
 
 			// Sync image view when rendering start
 			if(m_autoSyncImageView)
@@ -304,11 +300,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	ImGui::BeginGroup();
 	ImGui::Checkbox("Enable Render Preview", &m_enableRenderPreview);
 	if(!m_enableRenderPreview) { ImGui::BeginDisabled(); }
-	if(ImGui::Checkbox("Indicate Updated Regions", &m_indicateUpdatedRegions))
-	{
-		info.peek.in.wantUpdatingRegions = false;
-		info.shouldUpdatePeekInput = true;
-	}
+	ImGui::Checkbox("Indicate Updated Regions", &m_indicateUpdatedRegions);
 	if(!m_enableRenderPreview) { ImGui::EndDisabled(); }
 	ImGui::Checkbox("Auto Sync Image View", &m_autoSyncImageView);
 	ImGui::EndGroup();

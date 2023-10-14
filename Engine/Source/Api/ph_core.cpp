@@ -183,7 +183,7 @@ void phGetObservableRenderData(
 	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
-		const auto data = engine->getRenderer()->getObservableData();
+		const auto data = engine->getRenderer()->getObservationInfo();
 
 		for(std::size_t i = 0; i < PH_NUM_RENDER_LAYERS; ++i)
 		{
@@ -201,11 +201,11 @@ void phGetObservableRenderData(
 		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)
 		{
 			out_data->integers[i][0] = '\0';
-			if(i < data.numIntegerStates())
+			if(i < data.numIntegerStats())
 			{
 				std::strncpy(
 					out_data->integers[i],
-					data.getIntegerStateName(i).c_str(),
+					data.getIntegerStatName(i).c_str(),
 					PH_MAX_NAME_LENGTH);
 				out_data->integers[i][PH_MAX_NAME_LENGTH] = '\0';
 			}
@@ -214,11 +214,11 @@ void phGetObservableRenderData(
 		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
 		{
 			out_data->reals[i][0] = '\0';
-			if(i < data.numRealStates())
+			if(i < data.numRealStats())
 			{
 				std::strncpy(
 					out_data->reals[i],
-					data.getRealStateName(i).c_str(),
+					data.getRealStatName(i).c_str(),
 					PH_MAX_NAME_LENGTH);
 				out_data->reals[i][PH_MAX_NAME_LENGTH] = '\0';
 			}

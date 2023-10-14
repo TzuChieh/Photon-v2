@@ -429,15 +429,13 @@ void PMRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_fr
 	m_film->develop(out_frame);
 }
 
-ObservableRenderData PMRenderer::getObservableData() const
+RenderObservationInfo PMRenderer::getObservationInfo() const
 {
-	ObservableRenderData data;
-
-	data.setIntegerState(0, m_mode != EPMMode::VANILLA ? "finished passes" : "finished samples");
-	data.setIntegerState(1, "traced photons");
-	data.setIntegerState(2, "photons/second");
-
-	return data;
+	RenderObservationInfo info;
+	info.setIntegerStat(0, m_mode != EPMMode::VANILLA ? "finished passes" : "finished samples");
+	info.setIntegerStat(1, "traced photons");
+	info.setIntegerStat(2, "photons/second");
+	return info;
 }
 
 RenderStats PMRenderer::asyncQueryRenderStats()

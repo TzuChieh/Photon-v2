@@ -33,11 +33,15 @@ private:
 	{
 		RenderAgent* agent = nullptr;
 		render::OfflineRenderer* renderer = nullptr;
+		std::string outputImageName;
+
+		/*! @brief Dynamically obtained states.
+		*/
+		///@{
 		render::EOfflineRenderStage stage = render::EOfflineRenderStage::Standby;
 		render::OfflineRenderStats stats;
 		render::OfflineRenderPeek peek;
-		bool shouldUpdatePeekInput = false;
-		std::string outputImageName;
+		///@}
 	};
 
 	std::vector<TaskInfo> m_taskInfos;

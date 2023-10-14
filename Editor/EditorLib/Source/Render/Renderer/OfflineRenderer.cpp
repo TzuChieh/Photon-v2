@@ -9,6 +9,8 @@
 #include <DataIO/io_utils.h>
 #include <Frame/TFrame.h>
 #include <Utility/exception.h>
+#include <Core/Renderer/RenderProgress.h>
+#include <Core/Renderer/RenderStats.h>
 
 #include <memory>
 #include <stop_token>
@@ -158,32 +160,32 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 	std::jthread statsRequestThread;
 	if(config.enableStatsRequest)
 	{
-		ObservableRenderData entries = renderer->getObservableData();
+		RenderObservationInfo entries = renderer->getObservationInfo();
 		Viewport viewport = renderer->getViewport();
 
 		// Load stats that are constant throughout the rendering process once
 		m_syncedRenderStats.locked(
 			[&viewport , &entries](OfflineRenderStats& stats)
 			{
+				stats = OfflineRenderStats{};
 				stats.viewport = viewport;
 
-				stats.layerNames.clear();
 				for(std::size_t i = 0; i < entries.numLayers(); ++i)
 				{
 					stats.layerNames.push_back(entries.getLayerName(i));
 				}
 				
-				stats.numericInfos.clear();
-				for(std::size_t i = 0; i < entries.numIntegerStates(); ++i)
+				for(std::size_t i = 0; i < entries.numIntegerStats(); ++i)
 				{
 					stats.numericInfos.push_back({
-						.name = entries.getIntegerStateName(i),
+						.name = entries.getIntegerStatName(i),
 						.isInteger = true});
 				}
-				for(std::size_t i = 0; i < entries.numRealStates(); ++i)
+
+				for(std::size_t i = 0; i < entries.numRealStats(); ++i)
 				{
 					stats.numericInfos.push_back({
-						.name = entries.getRealStateName(i),
+						.name = entries.getRealStatName(i),
 						.isInteger = false});
 				}
 			});
@@ -266,8 +268,12 @@ std::jthread OfflineRenderer::makeStatsRequestThread(Renderer* renderer, uint32 
 
 				if(auto locked = m_syncedRenderStats.tryLock())
 				{
+					RenderProgress progress = renderer->asyncQueryRenderProgress();
 					RenderStats stats = renderer->asyncQueryRenderStats();
-						
+
+					locked->totalWork = progress.getTotalWork();
+					locked->workDone = progress.getWorkDone();
+
 					std::size_t intIdx = 0;
 					std::size_t realIdx = 0;
 					for(auto& info : locked->numericInfos)

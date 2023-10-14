@@ -38,7 +38,7 @@ public:
 		const Region& region,
 		HdrRgbFrame&  out_frame) override;
 
-	ObservableRenderData getObservableData() const override;
+	RenderObservationInfo getObservationInfo() const override;
 
 private:
 	using FilmEstimator = TStepperReceiverMeasurementEstimator<HdrRgbFilm, math::Spectrum>;

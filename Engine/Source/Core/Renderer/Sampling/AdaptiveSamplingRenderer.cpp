@@ -322,15 +322,13 @@ RenderProgress AdaptiveSamplingRenderer::asyncQueryRenderProgress()
 	return totalProgress;
 }
 
-ObservableRenderData AdaptiveSamplingRenderer::getObservableData() const
+RenderObservationInfo AdaptiveSamplingRenderer::getObservationInfo() const
 {
-	ObservableRenderData data;
-
-	data.setIntegerState(0, "paths/pixel (avg.)");
-	data.setIntegerState(1, "noisy regions");
-	data.setRealState   (0, "paths/second");
-
-	return data;
+	RenderObservationInfo info;
+	info.setIntegerStat(0, "paths/pixel (avg.)");
+	info.setIntegerStat(1, "noisy regions");
+	info.setRealStat   (0, "paths/second");
+	return info;
 }
 
 }// end namespace ph

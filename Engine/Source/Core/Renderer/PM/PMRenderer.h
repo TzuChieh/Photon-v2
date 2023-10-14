@@ -32,7 +32,7 @@ public:
 		const Region& region,
 		HdrRgbFrame&  out_frame) override;
 
-	ObservableRenderData getObservableData() const override;
+	RenderObservationInfo getObservationInfo() const override;
 
 	void asyncMergeFilm(const HdrRgbFilm& srcFilm);
 	void asyncReplaceFilm(const HdrRgbFilm& srcFilm);

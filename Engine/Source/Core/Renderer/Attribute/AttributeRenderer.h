@@ -36,7 +36,7 @@ public:
 		const Region& region,
 		HdrRgbFrame&  out_frame) override;
 
-	ObservableRenderData getObservableData() const override;
+	RenderObservationInfo getObservationInfo() const override;
 
 private:
 	const Scene*     m_scene;

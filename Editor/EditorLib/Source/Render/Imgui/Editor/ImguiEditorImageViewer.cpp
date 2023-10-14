@@ -90,6 +90,9 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 			{
 				state.pointedPixelPos = 
 					(mousePosInWindow - state.minPosInWindow) / state.sizeInWindow * state.actualSize;
+
+				// Flip y as ImGui's origin is on the upper-left corner which is not what we want
+				state.pointedPixelPos.y() = state.actualSize.y() - state.pointedPixelPos.y();
 			}
 
 			// Mouse just stopped dragging
@@ -113,24 +116,34 @@ void ImguiEditorImageViewer::buildWindow(const char* windowIdName, bool* isOpeni
 			}
 		}
 
-		math::Vector2F drawPosInWindow = state.minPosInWindow;
-		drawPosInWindow += m_lastMouseDragDelta;
+		math::Vector2F draggedMinPosInWindow = state.minPosInWindow;
+		draggedMinPosInWindow += m_lastMouseDragDelta;
 
-		ImGui::SetCursorPos({drawPosInWindow.x(), drawPosInWindow.y()});
+		ImGui::SetCursorPos({draggedMinPosInWindow.x(), draggedMinPosInWindow.y()});
 		imgui::image_with_fallback(
 			state.textureID,
 			{state.sizeInWindow.x(), state.sizeInWindow.y()});
 
 		if(m_showIndicators && state.actualSize.x() > 0 && state.actualSize.y() > 0)
 		{
+			const auto pixelToScreenOffset = draggedMinPosInWindow.add({ImGui::GetWindowPos().x, ImGui::GetWindowPos().y});
 			const auto pixelToWindowScale = state.sizeInWindow / state.actualSize;
 			for(const math::TAABB2D<int32>& rect : state.rectPixelIndicators)
 			{
-				auto rectMin = state.minPosInWindow + math::Vector2F(rect.getMinVertex()) * pixelToWindowScale;
-				auto rectMax = state.minPosInWindow + math::Vector2F(rect.getMaxVertex()) * pixelToWindowScale;
+				// Flip y as ImGui's origin is on the upper-left corner which is not what we want
+				math::Vector2F rectMin(
+					static_cast<float>(rect.getMinVertex().x()), state.actualSize.y() - rect.getMinVertex().y());
+				math::Vector2F rectMax(
+					static_cast<float>(rect.getMaxVertex().x()), state.actualSize.y() - rect.getMaxVertex().y());
+
+				// Transform to screen coordinates
+				rectMin = pixelToScreenOffset + rectMin * pixelToWindowScale;
+				rectMax = pixelToScreenOffset + rectMax * pixelToWindowScale;
+
+				// Draw list is using screen coordinates
 				ImGui::GetWindowDrawList()->AddRect(
-					{rectMin.x(), rectMin.y()}, 
-					{rectMax.y(), rectMax.y()},
+					{rectMin.x(), rectMin.y()},
+					{rectMax.x(), rectMax.y()},
 					IM_COL32(255, 255, 100, 255),
 					0.0f);
 			}
@@ -399,6 +412,9 @@ void ImguiEditorImageViewer::addImage(std::string_view name, const Path& imageFi
 		imageLib.loadImage(name, imageFile);
 		m_imageStates.push_back({
 			.name = std::string(name)});
+
+		// Make the added image current automatically. This is the typical behavior user would expect.
+		setCurrentImage(name);
 	}
 	else
 	{
@@ -420,6 +436,9 @@ void ImguiEditorImageViewer::addImage(
 		imageLib.loadImage(name, sizePx, format);
 		m_imageStates.push_back({
 			.name = std::string(name)});
+
+		// Make the added image current automatically. This is the typical behavior user would expect.
+		setCurrentImage(name);
 	}
 	else
 	{
@@ -436,11 +455,19 @@ void ImguiEditorImageViewer::removeImage(std::string_view name)
 	imageLib.unloadImage(name);
 
 	// Note: erase at the end as `name` may depend on the string provided by image state
-	std::erase_if(m_imageStates,
+	const auto numErased = std::erase_if(m_imageStates,
 		[name](const ImageState& state)
 		{
 			return state.name == name;
 		});
+	PH_ASSERT_LE(numErased, 1);
+
+	// Next valid image may not automatically be current if the removed image is the last one
+	if(numErased == 1 && !m_imageStates.empty() && m_currentImageIdx == m_imageStates.size())
+	{
+		PH_ASSERT_GE(m_currentImageIdx, 1);
+		--m_currentImageIdx;
+	}
 }
 
 void ImguiEditorImageViewer::setImagePixelIndicators(

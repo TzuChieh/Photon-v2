@@ -15,22 +15,22 @@ public:
 	RenderProgress();
 
 	RenderProgress(
-		std::size_t totalWork, 
-		std::size_t workDone,
-		std::size_t elapsedMs);
+		uint64 totalWork, 
+		uint64 workDone,
+		uint64 elapsedMs);
 
-	std::size_t getTotalWork() const;
-	std::size_t getWorkDone() const;
-	std::size_t getElapsedMs() const;
+	uint64 getTotalWork() const;
+	uint64 getWorkDone() const;
+	uint64 getElapsedMs() const;
 	real getNormalizedProgress() const;
 	real getPercentageProgress() const;
 
 	RenderProgress& operator += (const RenderProgress& rhs);
 
 private:
-	std::size_t m_totalWork;
-	std::size_t m_workDone;
-	std::size_t m_elapsedMs;
+	uint64 m_totalWork;
+	uint64 m_workDone;
+	uint64 m_elapsedMs;
 };
 
 // In-header Implementations:
@@ -40,25 +40,25 @@ inline RenderProgress::RenderProgress() :
 {}
 
 inline RenderProgress::RenderProgress(
-	const std::size_t totalWork, 
-	const std::size_t workDone,
-	const std::size_t elapsedMs) : 
+	const uint64 totalWork,
+	const uint64 workDone,
+	const uint64 elapsedMs) :
 	m_totalWork(totalWork),
 	m_workDone(workDone),
 	m_elapsedMs(elapsedMs)
 {}
 
-inline std::size_t RenderProgress::getTotalWork() const
+inline uint64 RenderProgress::getTotalWork() const
 {
 	return m_totalWork;
 }
 
-inline std::size_t RenderProgress::getWorkDone() const
+inline uint64 RenderProgress::getWorkDone() const
 {
 	return m_workDone;
 }
 
-inline std::size_t RenderProgress::getElapsedMs() const
+inline uint64 RenderProgress::getElapsedMs() const
 {
 	return m_elapsedMs;
 }

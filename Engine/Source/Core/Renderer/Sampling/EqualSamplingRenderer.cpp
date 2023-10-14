@@ -295,14 +295,12 @@ RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 	return totalProgress;
 }
 
-ObservableRenderData EqualSamplingRenderer::getObservableData() const
+RenderObservationInfo EqualSamplingRenderer::getObservationInfo() const
 {
-	ObservableRenderData data;
-
-	data.setIntegerState(0, "paths/pixel (avg.)");
-	data.setRealState   (0, "paths/second");
-
-	return data;
+	RenderObservationInfo info;
+	info.setIntegerStat(0, "paths/pixel (avg.)");
+	info.setRealStat   (0, "paths/second");
+	return info;
 }
 
 void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
