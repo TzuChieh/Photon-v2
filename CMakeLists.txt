@@ -176,6 +176,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
         add_compile_options(/fp:fast)
     endif()
 
+    # Always add `/bigobj` flag so error C1128 will not occur. This flag
+    # generally has no drawback on modern MSVC version (only that generated
+    # object file is not compatible to pre-2005 MSVC linker).
+    add_compile_options(/bigobj)
+
 # Using gcc/g++
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 

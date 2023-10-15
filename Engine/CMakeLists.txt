@@ -69,10 +69,6 @@ endif()
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	target_compile_definitions(Engine
 		PUBLIC _CRT_SECURE_NO_WARNINGS)
-
-	# Add `/bigobj` flag (on debug build only) so error C1128 will not occur (this is for `ph_cpp_core.cpp`)
-	target_compile_options(Engine
-		PRIVATE $<$<CONFIG:Debug>:/bigobj>)
 endif()
 
 if(PH_ENABLE_DEBUG)
