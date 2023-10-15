@@ -29,6 +29,7 @@ BasicGraphicsMemoryManager::BasicGraphicsMemoryManager(
 	, m_freeHostBlocks()
 	, m_activeHostBlocks()
 	, m_hostBlockCache()
+	, m_numUsedHostBlocks(0)
 	, m_maxPooledHostBlocks(maxPooledHostBlocks)
 	, m_pooledHostBlockSize(pooledHostBlockSize)
 
@@ -40,11 +41,6 @@ BasicGraphicsMemoryManager::BasicGraphicsMemoryManager(
 	m_maxPooledHostBlocks = m_maxPooledHostBlocks < minBlocks ? minBlocks : m_maxPooledHostBlocks;
 
 	m_hostBlocks = std::make_unique<PooledHostBlock[]>(m_maxPooledHostBlocks);
-	for(std::size_t bi = 0; bi < m_maxPooledHostBlocks; ++bi)
-	{
-		m_freeHostBlocks.enqueue(&m_hostBlocks[bi]);
-	}
-	
 	m_hostBlockCache = std::make_unique<PooledHostBlock*[]>(m_maxPooledHostBlocks);
 }
 
@@ -54,29 +50,35 @@ GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocHostBlock(uint32 numFrames
 
 	// Note: this method can be called concurrently
 
-	PooledHostBlock* hostBlock;
-	if(m_freeHostBlocks.tryDequeue(&hostBlock))
+	// Try to use recycled block, otherwise make a new block
+	PooledHostBlock* hostBlock = nullptr;
+	if(!m_freeHostBlocks.tryDequeue(&hostBlock))
 	{
-		PH_ASSERT(hostBlock);
-		if(!hostBlock->block.hasBlockSource())
+		const auto newBlockIdx = m_numUsedHostBlocks.fetch_add(1, std::memory_order_relaxed);
+		if(newBlockIdx < m_maxPooledHostBlocks)
 		{
+			hostBlock = &(m_hostBlocks[newBlockIdx]);
+			PH_ASSERT(!hostBlock->block.hasBlockSource());
 			hostBlock->block = HostMemoryBlock(m_pooledHostBlockSize);
-			hostBlock->numFramesLeft = numFramesToLive;
 		}
+		else
+		{
+			// We can safely log here--we are not strictly out of memory, just the amount reserved for
+			// GHI is not enough:
+			PH_DEFAULT_LOG_ERROR(
+				"Out of pooled host memory block (max={} blocks, {} MiB each)",
+				m_maxPooledHostBlocks, m_pooledHostBlockSize / math::constant::MiB);
 
-		m_activeHostBlocks.enqueue(hostBlock);
-		return &hostBlock->block;
+			throw OutOfHostMemory{};
+		}
 	}
-	else
-	{
-		// We can safely log here--we are not strictly out of memory, just the amount reserved for
-		// GHI is not enough:
-		PH_DEFAULT_LOG_ERROR(
-			"Out of pooled host memory block (max={} blocks, {} MiB each)",
-			m_maxPooledHostBlocks, m_pooledHostBlockSize / math::constant::MiB);
 
-		throw OutOfHostMemory{};
-	}
+	PH_ASSERT(hostBlock);
+	PH_ASSERT(hostBlock->block.hasBlockSource());
+
+	hostBlock->numFramesLeft = numFramesToLive;
+	m_activeHostBlocks.enqueue(hostBlock);
+	return &hostBlock->block;
 }
 
 GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocCustomHostBlock(

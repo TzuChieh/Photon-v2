@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
+#include <atomic>
 
 namespace ph::editor::ghi
 {
@@ -55,6 +56,7 @@ private:
 	TAtomicQuasiQueue<PooledHostBlock*> m_freeHostBlocks;
 	TAtomicQuasiQueue<PooledHostBlock*> m_activeHostBlocks;
 	std::unique_ptr<PooledHostBlock*[]> m_hostBlockCache;
+	std::atomic_uint32_t m_numUsedHostBlocks;
 	std::size_t m_maxPooledHostBlocks;
 	std::size_t m_pooledHostBlockSize;
 
