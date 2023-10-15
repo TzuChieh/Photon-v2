@@ -34,8 +34,10 @@ public:
 
 	math::TVector2<int64> getFilmDimensionPx() const;
 
-	// TODO: rename to setNumThreads(), it will control # threads used for all engine process
-	void setNumRenderThreads(uint32 numThreads);
+	/*! @brief Control the number of threads used for all engine operations.
+	@param numThreads Number of threads. If set to 0, a default value will automatically be chosen.
+	*/
+	void setNumThreads(uint32 numThreads);
 
 	ERegionStatus asyncPollUpdatedRegion(Region* out_region) const;
 
@@ -57,9 +59,7 @@ private:
 	SceneDescription m_rawScene;
 	VisualWorld m_visualWorld;
 	CoreCookedUnit m_cooked;
-
-	// TODO: remove this
-	uint32 m_numRenderThreads;
+	uint32 m_numThreads;
 
 	//FrameProcessor m_frameProcessor;
 	// TODO: associate each attribute with a pipeline

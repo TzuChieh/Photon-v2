@@ -61,7 +61,7 @@ void phCreateEngine(PHuint64* const out_engineId, const PHuint32 numRenderThread
 	PH_ASSERT(out_engineId);
 
 	auto engine = std::make_unique<Engine>();
-	engine->setNumRenderThreads(static_cast<std::size_t>(numRenderThreads));
+	engine->setNumThreads(static_cast<std::size_t>(numRenderThreads));
 	*out_engineId = static_cast<PHuint64>(ApiDatabase::addResource(std::move(engine)));
 
 	PH_LOG(CAPI, "engine<{}> created", *out_engineId);
@@ -72,7 +72,7 @@ void phSetNumRenderThreads(const PHuint64 engineId, const PHuint32 numRenderThre
 	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
 	if(engine)
 	{
-		engine->setNumRenderThreads(static_cast<uint32>(numRenderThreads));
+		engine->setNumThreads(static_cast<uint32>(numRenderThreads));
 	}
 }
 

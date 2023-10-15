@@ -30,13 +30,12 @@ Engine::Engine()
 	, m_rawScene()
 	, m_visualWorld()
 	, m_cooked()
-	, m_numRenderThreads(1)
+	, m_numThreads(0)
 {
 	PH_LOG(Engine, 
 		"Photon version: {}, PSDL version: {}",
 		PH_ENGINE_VERSION, PH_PSDL_VERSION);
 
-	setNumRenderThreads(1);
 	m_sceneParser.setScene(&m_rawScene);
 }
 
@@ -137,12 +136,13 @@ void Engine::update()
 
 	PH_ASSERT(renderer);
 
-	if(m_numRenderThreads != renderer->numWorkers())
+	if(m_numThreads != 0 && m_numThreads != renderer->numWorkers())
 	{
-		PH_LOG(Engine, "overriding # render workers to {} (it was {})", 
-			m_numRenderThreads, renderer->numWorkers());
+		PH_LOG(Engine,
+			"Overriding # render workers to {} (it was {}).", 
+			m_numThreads, renderer->numWorkers());
 
-		renderer->setNumWorkers(m_numRenderThreads);
+		renderer->setNumWorkers(m_numThreads);
 	}
 
 	getRenderer()->update(m_cooked, m_visualWorld);
@@ -191,11 +191,13 @@ math::TVector2<int64> Engine::getFilmDimensionPx() const
 	return {renderer->getRenderWidthPx(), renderer->getRenderHeightPx()};
 }
 
-void Engine::setNumRenderThreads(const uint32 numThreads)
+void Engine::setNumThreads(uint32 numThreads)
 {
-	m_numRenderThreads = numThreads;
+	m_numThreads = numThreads;
 
-	PH_LOG(Engine, "number of render threads set to {}", numThreads);
+	PH_LOG(Engine,
+		"Number of threads set to {}{}.", 
+		numThreads, numThreads > 0 ? "" : " (auto determine)");
 }
 
 ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const
