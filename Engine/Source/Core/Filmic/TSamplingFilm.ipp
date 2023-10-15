@@ -44,7 +44,7 @@ inline TSamplingFilm<Sample>::TSamplingFilm(
 {
 	setSoftEdge(true);
 
-	PH_ASSERT(getSampleWindowPx().isValid());
+	PH_ASSERT(!getSampleWindowPx().isEmpty());
 }
 
 template<typename Sample>
@@ -86,7 +86,7 @@ inline void TSamplingFilm<Sample>::updateSampleDimensions()
 			math::TVector2<float64>(getEffectiveWindowPx().getMinVertex()).add(0.5).sub(m_filter.getHalfSizePx()),
 			math::TVector2<float64>(getEffectiveWindowPx().getMaxVertex()).sub(0.5).add(m_filter.getHalfSizePx()));
 
-		if(!m_sampleWindowPx.isValid())
+		if(m_sampleWindowPx.isEmpty())
 		{
 			std::cerr << "warning: at TSamplingFilm::updateSampleDimensions(), "
 			          << "invalid sampling window detected" << std::endl;

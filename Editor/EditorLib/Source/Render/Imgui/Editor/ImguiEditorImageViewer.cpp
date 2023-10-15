@@ -498,4 +498,9 @@ render::TextureHandle ImguiEditorImageViewer::getImageHandle(std::string_view na
 	return getEditorUI().getImageLibrary().getHandle(name);
 }
 
+ghi::TextureHandle ImguiEditorImageViewer::getImageGraphicsHandle(std::string_view name) const
+{
+	return getEditorUI().getImageLibrary().getGraphicsHandle(name);
+}
+
 }// end namespace ph::editor

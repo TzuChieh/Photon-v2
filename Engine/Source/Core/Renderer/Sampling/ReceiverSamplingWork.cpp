@@ -143,7 +143,7 @@ void ReceiverSamplingWork::setSampleDimensions(
 	const math::TAABB2D<float64>& filmWindowPx,
 	const math::TVector2<int64>&  sampleResPx)
 {
-	PH_ASSERT_MSG(filmWindowPx.isValid(), filmWindowPx.toString());
+	PH_ASSERT_MSG(!filmWindowPx.isEmpty(), filmWindowPx.toString());
 
 	m_filmResPx    = math::Vector2D(filmResPx);
 	m_filmWindowPx = filmWindowPx;

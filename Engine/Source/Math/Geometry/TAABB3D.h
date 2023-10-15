@@ -115,6 +115,8 @@ public:
 	*/
 	bool isIntersectingVolume(const TAABB3D& other) const;
 
+	bool isEmpty() const;
+
 	/*! @brief Checks whether this bound is a point.
 	*/
 	bool isPoint() const;
@@ -122,8 +124,6 @@ public:
 	/*! @brief Checks whether this bound encloses some amount of volume.
 	*/
 	bool isFiniteVolume() const;
-
-	bool isValid() const;
 
 	/*! @brief Get corner vertices on the minimum (---) and maximum (+++) octants.
 

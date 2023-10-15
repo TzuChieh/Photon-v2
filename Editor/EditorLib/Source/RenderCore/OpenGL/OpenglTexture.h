@@ -31,11 +31,26 @@ public:
 	void createImmutableStorage(const TextureDesc& desc);
 	void createMultiSampled(const TextureDesc& desc);
 
+	/*! @brief Upload pixel data for the full texture.
+	*/
 	void uploadPixelData(
 		TSpanView<std::byte> pixelData,
 		EPixelFormat pixelFormat,
 		EPixelComponent pixelComponent);
 
+	/*! @brief Upload pixel data for a subregion of the texture.
+	*/
+	void uploadPixelData(
+		const math::Vector2UI& regionOriginPx,
+		const math::Vector2UI& regionSizePx,
+		TSpanView<std::byte> pixelData,
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent);
+
+	/*! @brief Upload pixel data for the full texture.
+	This variant can potentially change texture formats including dimensions. Some texture types may
+	not support this kind of modification (e.g., immutable storage).
+	*/
 	void uploadPixelData(
 		const math::Vector3UI& newTextureSizePx,
 		TSpanView<std::byte> pixelData,

@@ -1,8 +1,15 @@
 #include "Render/Renderer/OfflineRenderer.h"
 #include "Designer/Render/RenderConfig.h"
+#include "RenderCore/GHIThreadCaller.h"
+#include "RenderCore/GraphicsContext.h"
+#include "RenderCore/GraphicsMemoryManager.h"
+#include "RenderCore/GHI.h"
+#include "RenderCore/Memory/GraphicsArena.h"
+#include "RenderCore/ghi_enums.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 #include <Core/Engine.h>
 #include <Core/Renderer/Renderer.h>
 #include <Utility/TFunction.h>
@@ -30,6 +37,8 @@ OfflineRenderer::OfflineRenderer()
 	, m_renderStage(EOfflineRenderStage::Finished)
 	, m_syncedRenderStats()
 	, m_syncedRenderPeek()
+	, m_cachedRenderPeekInput()
+	, m_synchedFrameData()
 	, m_requestRenderStats()
 	, m_requestRenderPeek()
 {}
@@ -230,23 +239,55 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 }
 
 void OfflineRenderer::setupGHI(GHIThreadCaller& caller)
-{
-	// TODO
-}
+{}
 
 void OfflineRenderer::cleanupGHI(GHIThreadCaller& caller)
-{
-	// TODO
-}
+{}
 
 void OfflineRenderer::update(const RenderThreadUpdateContext& ctx)
 {
-	// TODO
+	if(getRenderStage() == EOfflineRenderStage::Rendering)
+	{
+		if(auto locked = m_syncedRenderPeek.tryConstLock())
+		{
+			m_cachedRenderPeekInput = locked->in;
+		}
+	}
 }
 
 void OfflineRenderer::createGHICommands(GHIThreadCaller& caller)
 {
-	// TODO
+	PH_PROFILE_NAMED_SCOPE("Copy updated region to arena");
+
+	if(getRenderStage() == EOfflineRenderStage::Rendering &&
+	   m_cachedRenderPeekInput.wantIntermediateResult)
+	{
+		if(auto locked = m_synchedFrameData.tryConstLock();
+		   locked && !locked->updatedRegion.isEmpty())
+		{
+			math::Vector2UI regionOrigin(locked->updatedRegion.getMinVertex());
+			math::Vector2UI regionSize(locked->updatedRegion.getExtents());
+
+			ghi::GraphicsArena arena = caller.getGraphicsContext().getMemoryManager().newRenderProducerHostArena();
+			auto regionData = arena.makeArray<HdrComponent>(std::size_t(3) * regionSize.x() * regionSize.y());
+			locked->frame.copyPixelData(math::TAABB2D<uint32>(locked->updatedRegion), regionData);
+
+			caller.add(
+				[regionData, regionOrigin, regionSize, handle = m_cachedRenderPeekInput.resultHandle]
+				(ghi::GraphicsContext& ctx)
+				{
+					PH_PROFILE_NAMED_SCOPE("Upload updated region");
+
+					ctx.getGHI().tryUploadPixelDataTo2DRegion(
+						handle, 
+						regionOrigin, 
+						regionSize,
+						std::as_bytes(regionData),
+						ghi::EPixelFormat::RGB,
+						ghi::EPixelComponent::Float32);
+				});
+		}
+	}
 }
 
 std::jthread OfflineRenderer::makeStatsRequestThread(Renderer* renderer, uint32 minPeriodMs)
@@ -299,9 +340,9 @@ std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 min
 	return std::jthread(
 		[this, renderer, minPeriodMs](std::stop_token token)
 		{
-			std::unordered_set<math::TAABB2D<int32>> uniqueRegions;
-			bool wantRegions = false;
-			bool wantFrame = false;
+			std::unordered_set<math::TAABB2D<int32>> uniqueUpdatingRegions;
+			math::TAABB2D<int64> updatedRegion = math::TAABB2D<int64>::makeEmpty();
+			OfflineRenderPeek::Input cachedInput;
 
 			// We need to decide how many regions to poll in one peek request. Too small, we might
 			// never catch up with the speed of newly added regions. The number of concurrent CPU
@@ -321,7 +362,7 @@ std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 min
 					continue;
 				}
 
-				if(wantRegions)
+				if(cachedInput.wantUpdatingRegions || cachedInput.wantIntermediateResult)
 				{
 					for(uint32 i = 0; i < numRegionPollsAtOnce; ++i)
 					{
@@ -332,31 +373,48 @@ std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 min
 							break;
 						}
 
-						math::TAABB2D<int32> castedRegion(region);
-						if(status == ERegionStatus::UPDATING)
+						updatedRegion.unionWith(region);
+
+						if(cachedInput.wantUpdatingRegions)
 						{
-							uniqueRegions.insert(castedRegion);
+							const math::TAABB2D<int32> castedRegion(region);
+							if(status == ERegionStatus::UPDATING)
+							{
+								uniqueUpdatingRegions.insert(castedRegion);
+							}
+							else if(status == ERegionStatus::FINISHED)
+							{
+								uniqueUpdatingRegions.erase(castedRegion);
+							}
 						}
-						else if(status == ERegionStatus::FINISHED)
-						{
-							uniqueRegions.erase(castedRegion);
-						}
+					}
+				}
+
+				if(cachedInput.wantIntermediateResult && !updatedRegion.isEmpty())
+				{
+					if(auto locked = m_synchedFrameData.tryLock())
+					{
+						locked->frame.setSize(renderer->getViewport().getBaseSizePx());
+						renderer->asyncPeekFrame(cachedInput.layerIndex, updatedRegion, locked->frame);
+
+						// Append the new region to output
+						locked->updatedRegion.unionWith(math::TAABB2D<int32>(updatedRegion));
+						updatedRegion = math::TAABB2D<int64>::makeEmpty();
 					}
 				}
 
 				if(auto locked = m_syncedRenderPeek.tryLock())
 				{
-					if(wantRegions)
+					if(cachedInput.wantUpdatingRegions)
 					{
 						locked->out.updatingRegions.clear();
-						for(const math::TAABB2D<int32>& uniqueRegion : uniqueRegions)
+						for(const math::TAABB2D<int32>& region : uniqueUpdatingRegions)
 						{
-							locked->out.updatingRegions.push_back(uniqueRegion);
+							locked->out.updatingRegions.push_back(region);
 						}
 					}
 
-					wantFrame = locked->in.wantIntermediateResult;
-					wantRegions = locked->in.wantUpdatingRegions;
+					cachedInput = locked->in;
 				}
 			}
 		});

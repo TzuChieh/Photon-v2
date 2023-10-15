@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/Content/fwd.h"
+#include "RenderCore/ghi_fwd.h"
 
 #include <Common/primitive_type.h>
 #include <Math/Geometry/TAABB2D.h>
@@ -23,10 +23,11 @@ public:
 		*/
 		std::size_t layerIndex = 0;
 
-		render::TextureHandle resultHandle;
+		ghi::TextureHandle resultHandle;
 
 		bool wantIntermediateResult = false;
 		bool wantUpdatingRegions = false;
+		bool performToneMapping = true;
 	};
 
 	struct Output final

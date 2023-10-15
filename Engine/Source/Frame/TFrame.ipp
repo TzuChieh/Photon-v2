@@ -85,7 +85,7 @@ inline TFrame<T, N>::TFrame(const TFrame& other) :
 {}
 
 template<typename T, std::size_t N>
-inline TFrame<T, N>::TFrame(TFrame&& other) :
+inline TFrame<T, N>::TFrame(TFrame&& other) noexcept :
 	m_widthPx  (other.m_widthPx), 
 	m_heightPx (other.m_heightPx),
 	m_pixelData(std::move(other.m_pixelData))
@@ -100,7 +100,7 @@ inline void TFrame<T, N>::fill(const T value)
 template<typename T, std::size_t N>
 inline void TFrame<T, N>::fill(const T value, const math::TAABB2D<uint32>& region)
 {
-	PH_ASSERT_MSG(region.isValid(), region.toString());
+	PH_ASSERT_MSG(!region.isEmpty(), region.toString());
 
 	const uint32 regionDataWidth = static_cast<uint32>(N) * region.getWidth();
 	for(uint32 y = region.getMinVertex().y(); y < region.getMaxVertex().y(); ++y)
@@ -395,9 +395,33 @@ inline constexpr std::size_t TFrame<T, N>::numPixelComponents() const noexcept
 }
 
 template<typename T, std::size_t N>
-inline const T* TFrame<T, N>::getPixelData() const
+inline TSpan<T> TFrame<T, N>::getPixelData()
 {
-	return m_pixelData.data();
+	return m_pixelData;
+}
+
+template<typename T, std::size_t N>
+inline TSpanView<T> TFrame<T, N>::getPixelData() const
+{
+	return m_pixelData;
+}
+
+template<typename T, std::size_t N>
+inline void TFrame<T, N>::copyPixelData(const math::TAABB2D<uint32>& region, TSpan<T> out_data) const
+{
+	PH_ASSERT_MSG(!region.isEmpty(), region.toString());
+
+	const auto regionDataWidth = N * region.getWidth();
+	for(uint32 y = region.getMinVertex().y(); y < region.getMaxVertex().y(); ++y)
+	{
+		const auto srcOffset = calcPixelDataBaseIndex(region.getMinVertex().x(), y);
+		const auto dstOffset = (y - region.getMinVertex().y()) * regionDataWidth;
+
+		std::copy_n(
+			m_pixelData.begin() + srcOffset,
+			regionDataWidth,
+			out_data.begin() + dstOffset);
+	}
 }
 
 template<typename T, std::size_t N>
@@ -446,7 +470,7 @@ inline TFrame<T, N>& TFrame<T, N>::operator = (const TFrame& rhs)
 }
 
 template<typename T, std::size_t N>
-inline TFrame<T, N>& TFrame<T, N>::operator = (TFrame&& rhs)
+inline TFrame<T, N>& TFrame<T, N>::operator = (TFrame&& rhs) noexcept
 {
 	m_widthPx   = rhs.m_widthPx;
 	m_heightPx  = rhs.m_heightPx;

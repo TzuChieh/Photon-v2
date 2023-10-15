@@ -12,7 +12,7 @@
 #include <Common/logging.h>
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
-#include <Math/TVector4.h>
+#include <Math/math_fwd.h>
 #include <Utility/TSpan.h>
 
 #include <cstddef>
@@ -52,7 +52,7 @@ public:
 	*/
 	virtual void unload() = 0;
 
-	/* @brief Set how NDC corresponds to pixels on the display.
+	/*! @brief Set how NDC corresponds to pixels on the display.
 	@param xPx X coordinate of the lower-left corner of the viewport, in pixels.
 	@param yPx Y coordinate of the lower-left corner of the viewport, in pixels.
 	@param widthPx Width of the viewport, in pixels.
@@ -68,8 +68,19 @@ public:
 
 	virtual void swapBuffers() = 0;
 
+	/*! @brief Try to upload pixel data to a texture.
+	@return Whether the data is uploaded. If the texture does not exist, `false` is returned.
+	*/
 	virtual bool tryUploadPixelData(
 		TextureHandle handle,
+		TSpanView<std::byte> pixelData,
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent) = 0;
+
+	virtual bool tryUploadPixelDataTo2DRegion(
+		TextureHandle handle,
+		const math::Vector2UI& regionOriginPx,
+		const math::Vector2UI& regionSizePx,
 		TSpanView<std::byte> pixelData,
 		EPixelFormat pixelFormat,
 		EPixelComponent pixelComponent) = 0;

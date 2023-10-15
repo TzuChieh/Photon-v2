@@ -63,7 +63,7 @@ inline Viewport::Viewport(math::TVector2<uint32> baseSizePx, math::TAABB2D<int64
 	m_baseSizePx(std::move(baseSizePx)),
 	m_windowPx  (std::move(windowPx))
 {
-	PH_ASSERT(m_windowPx.isValid());
+	PH_ASSERT(!m_windowPx.isEmpty());
 }
 
 inline const math::TVector2<uint32>& Viewport::getBaseSizePx() const

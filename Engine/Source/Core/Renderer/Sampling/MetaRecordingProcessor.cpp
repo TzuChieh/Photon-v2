@@ -64,7 +64,7 @@ void MetaRecordingProcessor::getRecord(
 		math::TAABB2D<int64>(
 			overlappedWindowPx.getMinVertex() - storageOrigin,
 			overlappedWindowPx.getMaxVertex() - storageOrigin));
-	PH_ASSERT_MSG(overlappedRegionPx.isValid(), overlappedRegionPx.toString());
+	PH_ASSERT_MSG(!overlappedRegionPx.isEmpty(), overlappedRegionPx.toString());
 
 	out_storage->forEachPixel(
 		overlappedRegionPx,

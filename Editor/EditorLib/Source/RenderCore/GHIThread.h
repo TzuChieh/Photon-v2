@@ -44,10 +44,12 @@ public:
 private:
 	void switchContext(ghi::GraphicsContext* newCtx);
 
+	// Fields that are accessed on GHI thread
 	ghi::GraphicsContext* m_ctx;
 	std::unique_ptr<ghi::GraphicsContext> m_nullCtx;
 	GHIThreadUpdateContext m_updateCtx;
 	Timer m_frameTimer;
+
 	std::atomic<float32> m_frameTimeMs;
 };
 

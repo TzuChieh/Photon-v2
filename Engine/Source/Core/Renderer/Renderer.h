@@ -94,6 +94,7 @@ public:
 	math::TAABB2D<int64> getRenderRegionPx() const;
 
 	/*! @brief Descriptions regarding dimensions for the rendered frame.
+	Viewport is set on ctor and stayed constant during the lifetime of the renderer.
 	*/
 	const Viewport& getViewport() const;
 

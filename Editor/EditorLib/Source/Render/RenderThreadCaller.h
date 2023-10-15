@@ -9,8 +9,8 @@ namespace ph::editor::render { class System; }
 namespace ph::editor
 {
 
-/*! @brief Thin `RenderThread` wrapper for interactions from another thread.
-Mainly to hide unrelated interface in `RenderThread` except for commonly used, cross-thread operations.
+/*! @brief Thin wrapper for render thread interactions from another thread.
+Mainly to hide unrelated render thread interface except for commonly used, cross-thread operations.
 */
 class RenderThreadCaller final
 {

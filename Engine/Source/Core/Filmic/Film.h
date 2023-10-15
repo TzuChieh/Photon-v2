@@ -61,7 +61,7 @@ inline void Film::setActualResPx(const math::TVector2<int64>& actualResPx)
 
 inline void Film::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow)
 {
-	PH_ASSERT(effectiveWindow.isValid());
+	PH_ASSERT(!effectiveWindow.isEmpty());
 
 	m_effectiveWindowPx = effectiveWindow;
 }

@@ -200,7 +200,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 			}
 
 			// Update image handle if changed
-			auto freshHandle = viewer.getImageHandle(info.outputImageName);
+			auto freshHandle = viewer.getImageGraphicsHandle(info.outputImageName);
 			if(freshHandle != info.peek.in.resultHandle)
 			{
 				info.peek.in.resultHandle = freshHandle;

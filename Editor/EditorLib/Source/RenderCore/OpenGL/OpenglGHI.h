@@ -34,6 +34,14 @@ public:
 		EPixelFormat pixelFormat,
 		EPixelComponent pixelComponent) override;
 
+	bool tryUploadPixelDataTo2DRegion(
+		TextureHandle handle,
+		const math::Vector2UI& regionOriginPx,
+		const math::Vector2UI& regionSizePx,
+		TSpanView<std::byte> pixelData,
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent) override;
+
 	TextureNativeHandle tryGetTextureNativeHandle(TextureHandle handle) override;
 
 	void attachTextureToFramebuffer(

@@ -44,6 +44,17 @@ public:
 		return false;
 	}
 
+	bool tryUploadPixelDataTo2DRegion(
+		TextureHandle handle,
+		const math::Vector2UI& regionOriginPx,
+		const math::Vector2UI& regionSizePx,
+		TSpanView<std::byte> pixelData,
+		EPixelFormat pixelFormat,
+		EPixelComponent pixelComponent) override
+	{
+		return false;
+	}
+
 	TextureNativeHandle tryGetTextureNativeHandle(TextureHandle handle) override
 	{
 		return {};

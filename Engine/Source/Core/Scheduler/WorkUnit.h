@@ -55,7 +55,7 @@ inline WorkUnit::WorkUnit(const Region& region, const std::size_t depth) :
 	m_region(region),
 	m_depth(depth)
 {
-	PH_ASSERT_MSG(m_region.isValid(), "region = " + m_region.toString());
+	PH_ASSERT_MSG(!m_region.isEmpty(), "region = " + m_region.toString());
 }
 
 inline int64 WorkUnit::getWidth() const
@@ -80,7 +80,7 @@ inline std::size_t WorkUnit::getDepth() const
 
 inline std::size_t WorkUnit::getVolume() const
 {
-	PH_ASSERT(m_region.isValid());
+	PH_ASSERT(!m_region.isEmpty());
 
 	return static_cast<std::size_t>(m_region.getArea()) * m_depth;
 }

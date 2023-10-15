@@ -309,7 +309,7 @@ RegularPicture load_HDR_picture(const Path& picturePath)
 			picture.setFormat(format);
 
 			picture.getPixels().setPixels(
-				frame.getPixelData(), 
+				frame.getPixelData().data(),
 				math::Vector2S(frame.getSizePx()).product() * 3);
 			//picture.nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
 			//picture.colorSpace = math::EColorSpace::Linear_sRGB;
@@ -530,7 +530,7 @@ void save_png(const LdrRgbFrame& frame, const Path& picturePath)
 		static_cast<int>(frame.widthPx()),
 		static_cast<int>(frame.heightPx()),
 		3,
-		frame.getPixelData(),
+		frame.getPixelData().data(),
 		static_cast<int>(frame.widthPx()) * 3);
 
 	if(stbiResult == 0)
@@ -555,7 +555,7 @@ void save_jpg(const LdrRgbFrame& frame, const Path& picturePath)
 		static_cast<int>(frame.widthPx()),
 		static_cast<int>(frame.heightPx()),
 		3,
-		frame.getPixelData(),
+		frame.getPixelData().data(),
 		10);
 
 	if(stbiResult == 0)
@@ -577,7 +577,7 @@ void save_bmp(const LdrRgbFrame& frame, const Path& picturePath)
 		static_cast<int>(frame.widthPx()),
 		static_cast<int>(frame.heightPx()),
 		3,
-		frame.getPixelData());
+		frame.getPixelData().data());
 
 	if(stbiResult == 0)
 	{
@@ -598,7 +598,7 @@ void save_tga(const LdrRgbFrame& frame, const Path& picturePath)
 		static_cast<int>(frame.widthPx()),
 		static_cast<int>(frame.heightPx()),
 		3,
-		frame.getPixelData());
+		frame.getPixelData().data());
 
 	if(stbiResult == 0)
 	{
@@ -619,7 +619,7 @@ void save_hdr(const HdrRgbFrame& frame, const Path& picturePath)
 		static_cast<int>(frame.widthPx()),
 		static_cast<int>(frame.heightPx()),
 		3,
-		frame.getPixelData());
+		frame.getPixelData().data());
 
 	if(stbiResult == 0)
 	{

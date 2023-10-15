@@ -111,7 +111,7 @@ inline void TileScheduler::scheduleOne(WorkUnit* const out_workUnit)
 		Region tileWorkRegion = gridWorkUnit.getRegion();
 		tileWorkRegion.intersectWith(m_totalWorkUnit.getRegion());
 
-		if(tileWorkRegion.isValid())
+		if(!tileWorkRegion.isEmpty())
 		{
 			*out_workUnit = WorkUnit(tileWorkRegion, gridWorkUnit.getDepth());
 			return;

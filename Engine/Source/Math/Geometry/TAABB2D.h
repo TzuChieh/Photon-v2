@@ -22,7 +22,16 @@ template<typename T>
 class TAABB2D final
 {
 public:
+	/*! @brief Make an empty bound.
+	Given a bound B, unioning B with an empty bound yields B itself, while interseting B with an empty
+	bound is still an empty bound.
+	*/
+	static TAABB2D makeEmpty();
+
+	/*! @brief Bounds nothing. State unspecified.
+	*/
 	TAABB2D();
+
 	TAABB2D(const TVector2<T>& minVertex, const TVector2<T>& maxVertex);
 	explicit TAABB2D(const TVector2<T>& point);
 
@@ -43,12 +52,16 @@ public:
 	std::pair<TVector2<T>, TVector2<T>> getVertices() const;
 	T getWidth() const;
 	T getHeight() const;
+
+	/*! @brief Get the side lengths of the bound.
+	*/
 	TVector2<T> getExtents() const;
+
 	TVector2<T> getCenter() const;
 	std::pair<TAABB2D, TAABB2D> getSplitted(std::size_t axis, T splitPoint) const;
 	TAABB2D getUnioned(const TAABB2D& other) const;
 	TAABB2D getIntersected(const TAABB2D& other) const;
-	bool isValid() const;
+	bool isEmpty() const;
 	bool isPoint() const;
 	bool isArea() const;
 

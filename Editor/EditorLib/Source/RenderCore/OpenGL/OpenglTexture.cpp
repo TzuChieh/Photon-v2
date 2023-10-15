@@ -5,6 +5,7 @@
 #include <Utility/utility.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Math/TVector2.h>
 #include <Math/TVector3.h>
 
 namespace ph::editor::ghi
@@ -13,6 +14,8 @@ namespace ph::editor::ghi
 /*
 Using DSA functions--no need to bind for most situations.
 https://www.khronos.org/opengl/wiki/Direct_State_Access
+
+`glTex<XXX>()` functions are the non-DSA variants, while `glTexture<XXX>()` are the new DSA variants.
 */
 
 void OpenglTexture::create(const TextureDesc& desc)
@@ -106,6 +109,38 @@ void OpenglTexture::uploadPixelData(
 		0, 
 		widthPx, 
 		heightPx, 
+		unsizedFormat,// meaning of each pixel component in `pixelData`
+		opengl::to_data_type(pixelComponent),// type of each pixel component in `pixelData`
+		pixelData.data());
+}
+
+void OpenglTexture::uploadPixelData(
+	const math::Vector2UI& regionOriginPx,
+	const math::Vector2UI& regionSizePx,
+	TSpanView<std::byte> pixelData,
+	EPixelFormat pixelFormat,
+	EPixelComponent pixelComponent)
+{
+	PH_ASSERT(hasResource());
+	PH_ASSERT(pixelData.data());
+
+	if(isMultiSampled())
+	{
+		PH_DEFAULT_LOG_WARNING(
+			"Cannot upload pixel data from host to a multi-sampled texture.");
+		return;
+	}
+
+	// TODO: format of input pixel data should be compatible to the internal format
+	GLenum unsizedFormat = opengl::to_internal_format(pixelFormat);
+
+	glTextureSubImage2D(
+		textureID, 
+		0,
+		lossless_cast<GLint>(regionOriginPx.x()),
+		lossless_cast<GLint>(regionOriginPx.y()),
+		lossless_cast<GLsizei>(regionSizePx.x()),
+		lossless_cast<GLsizei>(regionSizePx.y()),
 		unsizedFormat,// meaning of each pixel component in `pixelData`
 		opengl::to_data_type(pixelComponent),// type of each pixel component in `pixelData`
 		pixelData.data());

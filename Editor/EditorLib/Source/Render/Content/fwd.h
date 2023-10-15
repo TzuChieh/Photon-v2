@@ -9,6 +9,10 @@ namespace ph::editor::render
 
 class Texture;
 
+/*! @brief Handle for render resource management.
+*/
+///@{
 using TextureHandle = TWeakHandle<Texture, uint32, uint32>;
+///@}
 
 }// end namespace ph::editor::render

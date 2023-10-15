@@ -190,6 +190,14 @@ inline TAABB3D<T>& TAABB3D<T>::expand(const TVector3<T>& amount)
 }
 
 template<typename T>
+inline bool TAABB3D<T>::isEmpty() const
+{
+	return m_minVertex.x() > m_maxVertex.x() ||
+	       m_minVertex.y() > m_maxVertex.y() ||
+	       m_minVertex.z() > m_maxVertex.z();
+}
+
+template<typename T>
 inline bool TAABB3D<T>::isPoint() const
 {
 	return m_minVertex.isEqual(m_maxVertex);
@@ -200,14 +208,6 @@ inline bool TAABB3D<T>::isFiniteVolume() const
 {
 	const T volume = getVolume();
 	return volume > T(0) && !std::isinf(volume);
-}
-
-template<typename T>
-inline bool TAABB3D<T>::isValid() const
-{
-	return m_minVertex.x() <= m_maxVertex.x() &&
-	       m_minVertex.y() <= m_maxVertex.y() &&
-	       m_minVertex.z() <= m_maxVertex.z();
 }
 
 template<typename T>

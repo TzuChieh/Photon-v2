@@ -7,6 +7,7 @@
 #include "Math/TArithmeticArray.h"
 #include "Core/Texture/texture_fwd.h"
 #include "Math/Geometry/TAABB2D.h"
+#include "Utility/TSpan.h"
 
 #include <vector>
 #include <cstddef>
@@ -38,7 +39,7 @@ public:
 	TFrame(uint32 wPx, uint32 hPx);
 
 	TFrame(const TFrame& other);
-	TFrame(TFrame&& other);
+	TFrame(TFrame&& other) noexcept;
 	inline ~TFrame() = default;
 
 	void fill(T value);
@@ -73,29 +74,30 @@ public:
 
 	Pixel getPixel(const math::TVector2<uint32>& coordPx) const;
 	void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
-	const T* getPixelData() const;
+
+	/*! @brief Get pixel data for the full frame.
+	@return Data for all pixels in row-major order. Components of a pixel are placed continuously.
+	*/
+	///@{
+	TSpan<T> getPixelData();
+	TSpanView<T> getPixelData() const;
+	///@}
+
+	/*! @brief Copy a region of pixel data into a buffer.
+	@out_data Buffer to copy into. Copied pixels are in row-major and without any padding.
+	*/
+	void copyPixelData(const math::TAABB2D<uint32>& region, TSpan<T> out_data) const;
+
 	math::TVector2<uint32> getSizePx() const;
 
 	TFrame& operator = (const TFrame& rhs);
-	TFrame& operator = (TFrame&& rhs);
+	TFrame& operator = (TFrame&& rhs) noexcept;
 
 	uint32 widthPx() const;
 	uint32 heightPx() const;
 	bool isEmpty() const;
 
 	constexpr std::size_t numPixelComponents() const noexcept;
-
-	// HACK
-	inline std::vector<real> getRealData() const
-	{
-		std::vector<real> realData;
-		for(std::size_t i = 0; i < m_pixelData.size(); i++)
-		{
-			realData.push_back(m_pixelData[i] / 255.0_r);
-		}
-
-		return realData;
-	}
 
 private:
 	uint32 m_widthPx;

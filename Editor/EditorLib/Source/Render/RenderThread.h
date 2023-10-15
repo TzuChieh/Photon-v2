@@ -66,11 +66,15 @@ private:
 	*/
 	void afterLastRenderWorkInFrame();
 
+	// Context should be set before thread start and cannot be changed. See `setGraphicsContext()`.
+	ghi::GraphicsContext* m_graphicsCtx;
+
+	// Fields that are accessed on render thread
 	std::unique_ptr<render::System> m_system;
-	GHIThread                       m_ghiThread;
-	ghi::GraphicsContext*           m_graphicsCtx;
-	Timer                           m_frameTimer;
-	std::atomic<float32>            m_frameTimeMs;
+	GHIThread m_ghiThread;
+	Timer m_frameTimer;
+
+	std::atomic<float32> m_frameTimeMs;
 };
 
 inline float32 RenderThread::getFrameTimeMs() const

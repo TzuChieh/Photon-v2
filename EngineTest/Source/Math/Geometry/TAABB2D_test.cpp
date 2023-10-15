@@ -19,6 +19,54 @@ TEST(TAABB2DTest, Requirements)
 	EXPECT_TRUE(std::is_trivially_copyable_v<TAABB2D<double>>);
 }
 
+TEST(TAABB2DTest, InteractingWithEmptyBound)
+{
+	{
+		EXPECT_TRUE(AABB2D::makeEmpty().isEmpty());// empty
+		EXPECT_FALSE(AABB2D({0.0_r, 0.0_r}).isEmpty());// point
+		EXPECT_FALSE(AABB2D({0.0_r, 1.0_r}).isEmpty());// area
+	}
+
+	{
+		AABB2D point({123.0_r, 456.0_r});
+		AABB2D empty = AABB2D::makeEmpty();
+		point.unionWith(empty);
+		EXPECT_TRUE(point.isPoint());
+		EXPECT_FALSE(point.isArea());
+		EXPECT_EQ(point.getMinVertex().x(), 123.0_r);
+		EXPECT_EQ(point.getMinVertex().y(), 456.0_r);
+	}
+
+	{
+		AABB2D area({-1.0_r, -1.0_r}, {1.0_r, 1.0_r});
+		AABB2D empty = AABB2D::makeEmpty();
+		area.unionWith(empty);
+		EXPECT_FALSE(area.isPoint());
+		EXPECT_TRUE(area.isArea());
+		EXPECT_EQ(area.getMinVertex().x(), -1.0_r);
+		EXPECT_EQ(area.getMinVertex().y(), -1.0_r);
+		EXPECT_EQ(area.getMaxVertex().x(), 1.0_r);
+		EXPECT_EQ(area.getMaxVertex().y(), 1.0_r);
+	}
+
+	{
+		auto bound = TAABB2D<int>::makeEmpty();
+		EXPECT_TRUE(bound.isEmpty());
+		EXPECT_FALSE(bound.isPoint());
+		EXPECT_FALSE(bound.isArea());
+
+		for(int i = -10; i < 10; ++i)
+		{
+			bound.unionWith(TAABB2D<int>({i, i}, {i + 1, i + 1}));
+		}
+		EXPECT_TRUE(bound.isArea());
+		EXPECT_EQ(bound.getMinVertex().x(), -10);
+		EXPECT_EQ(bound.getMinVertex().y(), -10);
+		EXPECT_EQ(bound.getMaxVertex().x(), 10);
+		EXPECT_EQ(bound.getMaxVertex().y(), 10);
+	}
+}
+
 TEST(TAABB2DTest, IntersectingTwoAABB2DsAsAreas)
 {
 	using AABB2DR = TAABB2D<real>;
@@ -72,12 +120,12 @@ TEST(TAABB2DTest, AABB2DValidity)
 	// trial 1
 
 	const AABB2DR aabb1(Vector2R(0, 0), Vector2R(1, 1));
-	EXPECT_TRUE(aabb1.isValid());
+	EXPECT_TRUE(!aabb1.isEmpty());
 
 	// trial 2
 
 	const AABB2DR aabb2(Vector2R(1, 1), Vector2R(-1, -1));
-	EXPECT_FALSE(aabb2.isValid());
+	EXPECT_FALSE(!aabb2.isEmpty());
 }
 
 TEST(TAABB2DTest, IsAABB2DActuallyPoint)

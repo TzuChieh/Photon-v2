@@ -98,6 +98,7 @@ public:
 	math::Vector2UI getSizePx(std::string_view imageName) const;
 	ghi::ESizedPixelFormat getFormat(std::string_view imageName) const;
 	render::TextureHandle getHandle(std::string_view imageName) const;
+	ghi::TextureHandle getGraphicsHandle(std::string_view imageName) const;
 	///@}
 
 	/*void imguiDrawImageButton(
@@ -136,6 +137,7 @@ private:
 	struct Entry
 	{
 		render::TextureHandle handle;
+		ghi::TextureHandle gHandle;
 		ImTextureID textureID = nullptr;
 		math::Vector2UI sizePx = {0, 0};
 		ghi::ESizedPixelFormat format = ghi::ESizedPixelFormat::Empty;
@@ -187,6 +189,12 @@ inline render::TextureHandle ImguiImageLibrary::getHandle(std::string_view name)
 {
 	const Entry* entry = getEntry(name);
 	return entry ? entry->handle : render::TextureHandle{};
+}
+
+inline ghi::TextureHandle ImguiImageLibrary::getGraphicsHandle(std::string_view name) const
+{
+	const Entry* entry = getEntry(name);
+	return entry ? entry->gHandle : ghi::TextureHandle{};
 }
 
 inline Editor& ImguiImageLibrary::getEditor()

@@ -6,9 +6,18 @@
 
 #include <string>
 #include <type_traits>
+#include <limits>
 
 namespace ph::math
 {
+
+template<typename T>
+inline TAABB2D<T> TAABB2D<T>::makeEmpty()
+{
+	return TAABB2D(
+		{std::numeric_limits<T>::max(), std::numeric_limits<T>::max()},
+		{std::numeric_limits<T>::lowest(), std::numeric_limits<T>::lowest()});
+}
 
 template<typename T>
 inline TAABB2D<T>::TAABB2D() :
@@ -55,7 +64,7 @@ inline bool TAABB2D<T>::isIntersectingRange(const TVector2<T>& point) const
 template<typename T>
 inline T TAABB2D<T>::getArea() const
 {
-	PH_ASSERT_MSG(isValid(), toString());
+	PH_ASSERT_MSG(!isEmpty(), toString());
 
 	return getWidth() * getHeight();
 }
@@ -177,9 +186,9 @@ inline TAABB2D<T> TAABB2D<T>::getIntersected(const TAABB2D& other) const
 }
 
 template<typename T>
-inline bool TAABB2D<T>::isValid() const
+inline bool TAABB2D<T>::isEmpty() const
 {
-	return m_minVertex.x() <= m_maxVertex.x() && m_minVertex.y() <= m_maxVertex.y();
+	return m_minVertex.x() > m_maxVertex.x() || m_minVertex.y() > m_maxVertex.y();
 }
 
 template<typename T>
@@ -206,7 +215,7 @@ inline TVector2<T> TAABB2D<T>::sampleToSurface(const std::array<T, 2>& sample) c
 template<typename T>
 inline TVector2<T> TAABB2D<T>::xy01ToSurface(const TVector2<T>& xy01) const
 {
-	PH_ASSERT(isValid());
+	PH_ASSERT(!isEmpty());
 
 	return xy01.mul(getExtents()).add(m_minVertex);
 }

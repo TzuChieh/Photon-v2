@@ -9,6 +9,8 @@
 #include <DataIO/FileSystem/Path.h>
 #include <Utility/Concurrent/TSynchronized.h>
 #include <Utility/Concurrent/TRelaxedAtomic.h>
+#include <Frame/TFrame.h>
+#include <Math/Geometry/TAABB2D.h>
 
 #include <functional>
 #include <atomic>
@@ -48,6 +50,14 @@ public:
 	void createGHICommands(GHIThreadCaller& caller) override;
 
 private:
+	using EngineWork = std::function<void(void)>;
+
+	struct FrameData
+	{
+		HdrRgbFrame frame;
+		math::TAABB2D<int32> updatedRegion = math::TAABB2D<int32>::makeEmpty();
+	};
+
 	void renderSingleStaticImageOnEngineThread(const RenderConfig& config);
 
 	/*!
@@ -58,12 +68,12 @@ private:
 	std::jthread makeStatsRequestThread(Renderer* renderer, uint32 minPeriodMs);
 	std::jthread makePeekFrameThread(Renderer* renderer, uint32 minPeriodMs);
 
-	using EngineWork = std::function<void(void)>;
-
 	TSPSCExecutor<EngineWork> m_engineThread;
 	TRelaxedAtomic<EOfflineRenderStage> m_renderStage;
 	TSynchronized<OfflineRenderStats> m_syncedRenderStats;
 	TSynchronized<OfflineRenderPeek> m_syncedRenderPeek;
+	OfflineRenderPeek::Input m_cachedRenderPeekInput;
+	TSynchronized<FrameData> m_synchedFrameData;
 	std::atomic_flag m_requestRenderStats;
 	std::atomic_flag m_requestRenderPeek;
 };

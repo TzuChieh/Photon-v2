@@ -310,6 +310,11 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 	{
 		if(!r.gHandleQuery.isEmpty() && r.gHandleQuery->isReady())
 		{
+			Entry& entry = !r.entryName.empty()
+				? m_namedEntries[r.entryName]
+				: m_builtinEntries[r.entryIdx];
+			entry.gHandle = r.gHandleQuery->getGraphicsTextureHandle();
+
 			PH_ASSERT(r.nHandleQuery.isEmpty());
 			r.nHandleQuery = ghi::Query::autoRetry<ghi::GetTextureNativeHandle>(
 				r.gHandleQuery->getGraphicsTextureHandle());

@@ -318,6 +318,24 @@ bool OpenglGHI::tryUploadPixelData(
 	return true;
 }
 
+bool OpenglGHI::tryUploadPixelDataTo2DRegion(
+	TextureHandle handle,
+	const math::Vector2UI& regionOriginPx,
+	const math::Vector2UI& regionSizePx,
+	TSpanView<std::byte> pixelData,
+	EPixelFormat pixelFormat,
+	EPixelComponent pixelComponent)
+{
+	OpenglTexture* texture = m_ctx.getObjectManager().textures.get(handle);
+	if(!texture)
+	{
+		return false;
+	}
+
+	texture->uploadPixelData(regionOriginPx, regionSizePx, pixelData, pixelFormat, pixelComponent);
+	return true;
+}
+
 TextureNativeHandle OpenglGHI::tryGetTextureNativeHandle(const TextureHandle handle)
 {
 	OpenglTexture* texture = m_ctx.getObjectManager().textures.get(handle);

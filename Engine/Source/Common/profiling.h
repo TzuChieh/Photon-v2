@@ -24,6 +24,9 @@
 /*
 Note on names used by Tracy: Some Tracy macros require unique names to have unique pointer, see
 Tracy manual 3.1.2 "Unique pointers". `PH_DEFINE_PROFILE_UNIT_NAME()` meet the requirement.
+Macro parameters named `unitName` require unique names. For any other name (macro parameters with a
+`Str` suffix), see Tracy manual 3.1 "Handling text strings" more details (TL;DR: use literal for
+names without a size parameter; otherwise the string data will be copied).
 */
 
 #define PH_PROFILE_LOOP_MARK(unitName)\
@@ -38,8 +41,11 @@ Tracy manual 3.1.2 "Unique pointers". `PH_DEFINE_PROFILE_UNIT_NAME()` meet the r
 #define PH_PROFILE_SCOPE()\
 	ZoneScoped
 
-#define PH_PROFILE_NAME_THIS_THREAD(threadName)\
-	tracy::SetThreadName(threadName)
+#define PH_PROFILE_NAMED_SCOPE(nameStr)\
+	ZoneScopedN(nameStr)
+
+#define PH_PROFILE_NAME_THIS_THREAD(threadNameStr)\
+	tracy::SetThreadName(threadNameStr)
 
 #else
 
@@ -47,6 +53,7 @@ Tracy manual 3.1.2 "Unique pointers". `PH_DEFINE_PROFILE_UNIT_NAME()` meet the r
 #define PH_PROFILE_LOOP_BEGIN(unitName) PH_NO_OP()
 #define PH_PROFILE_LOOP_END(unitName) PH_NO_OP()
 #define PH_PROFILE_SCOPE() PH_NO_OP()
-#define PH_PROFILE_NAME_THIS_THREAD(threadName) PH_NO_OP()
+#define PH_PROFILE_NAMED_SCOPE(nameStr) PH_NO_OP()
+#define PH_PROFILE_NAME_THIS_THREAD(threadNameStr) PH_NO_OP()
 
 #endif

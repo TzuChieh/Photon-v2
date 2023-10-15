@@ -253,7 +253,7 @@ void phGetFrameRgbData(const PHuint64 frameId, const PHfloat32** const out_data)
 	{
 		static_assert(sizeof(PHfloat32) == sizeof(HdrComponent));
 
-		*out_data = static_cast<const PHfloat32*>(frame->getPixelData());
+		*out_data = static_cast<const PHfloat32*>(frame->getPixelData().data());
 	}
 }
 

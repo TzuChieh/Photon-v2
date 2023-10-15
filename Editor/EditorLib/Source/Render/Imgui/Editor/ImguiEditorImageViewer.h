@@ -71,6 +71,13 @@ public:
 	*/
 	render::TextureHandle getImageHandle(std::string_view name) const;
 
+	/*! @brief Get the graphics handle of an image.
+	The availability of the handle is similar to `getImageHandle()`. Graphics handle is often useful
+	for lower level manipulation of the image, whereas render handle is more convenient with scene
+	resource level management.
+	*/
+	ghi::TextureHandle getImageGraphicsHandle(std::string_view name) const;
+
 private:
 	struct ImageState
 	{

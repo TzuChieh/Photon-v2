@@ -21,9 +21,9 @@ RenderThread::RenderThread()
 
 	: Base()
 
+	, m_graphicsCtx(nullptr)
 	, m_system(nullptr)
 	, m_ghiThread()
-	, m_graphicsCtx(nullptr)
 	, m_frameTimer()
 	, m_frameTimeMs(0)
 {}
@@ -87,7 +87,7 @@ void RenderThread::onAsyncWorkerStop()
 		{
 			scene->removeAllContents();
 
-			GHIThreadCaller caller(m_ghiThread);
+			GHIThreadCaller caller(m_ghiThread, *m_graphicsCtx);
 			scene->runPendingCleanups(caller);
 		}
 		render::SystemController(*m_system).clearRemovingScenes();
@@ -192,7 +192,7 @@ void RenderThread::onEndFrame()
 			{
 				scene->updateDynamicResources(sys.updateCtx);
 
-				GHIThreadCaller caller(m_ghiThread);
+				GHIThreadCaller caller(m_ghiThread, *m_graphicsCtx);
 				scene->createGHICommandsForDynamicResources(caller);
 			}
 		});
@@ -203,7 +203,7 @@ void RenderThread::onEndFrame()
 		{
 			for(render::Scene* scene : sys.getScenes())
 			{
-				GHIThreadCaller caller(m_ghiThread);
+				GHIThreadCaller caller(m_ghiThread, *m_graphicsCtx);
 				scene->runPendingSetups(caller);
 				scene->runPendingCleanups(caller);
 			}
@@ -213,7 +213,7 @@ void RenderThread::onEndFrame()
 			{
 				scene->removeAllContents();
 
-				GHIThreadCaller caller(m_ghiThread);
+				GHIThreadCaller caller(m_ghiThread, *m_graphicsCtx);
 				scene->runPendingCleanups(caller);
 			}
 			render::SystemController(sys).clearRemovingScenes();
