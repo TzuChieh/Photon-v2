@@ -18,28 +18,23 @@ class PhFloatValueInputNode(PhMaterialInputNode):
         max=1e32
     )
 
-    usage: bpy.props.EnumProperty(
-        items=[
-            ('RAW', "Raw", ""),
-            ('EMISSION', "Emission", ""),
-            ('REFLECTANCE', "Reflectance", "")
-        ],
-        name="Usage",
-        description="What is the value for",
-        default='RAW'
-    )
+    # TODO: color space
+    # usage: bpy.props.EnumProperty(
+    #     items=[
+    #         ('RAW', "Raw", ""),
+    #         ('EMISSION', "Emission", ""),
+    #         ('REFLECTANCE', "Reflectance", "")
+    #     ],
+    #     name="Usage",
+    #     description="What is the value for",
+    #     default='RAW'
+    # )
 
     def to_sdl(self, b_material, sdlconsole):
         output_socket = self.outputs[0]
         creator = sdl.ConstantImageCreator()
         creator.set_data_name(naming.get_mangled_output_node_socket_name(output_socket, b_material))
-        creator.set_value(sdl.Real(self.value))
-        if self.usage == 'RAW':
-            creator.set_value_type(sdl.String("raw"))
-        elif self.usage == 'EMISSION':
-            creator.set_value_type(sdl.String("emr-linear-srgb"))
-        elif self.usage == 'REFLECTANCE':
-            creator.set_value_type(sdl.String("ecf-linear-srgb"))
+        creator.set_values(sdl.RealArray([self.value]))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

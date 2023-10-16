@@ -48,9 +48,9 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
             image_creator.set_data_name(factor_res_name)
             factor = factor_socket.default_value
             if self.factor_type == 'FLOAT':
-                image_creator.set_value(sdl.RealArray([factor]))
+                image_creator.set_values(sdl.RealArray([factor]))
             else:
-                image_creator.set_value(sdl.Vector3(mathutils.Color((factor[0], factor[1], factor[2]))))
+                image_creator.set_values(sdl.RealArray(mathutils.Color((factor[0], factor[1], factor[2]))))
             image_creator.set_color_space(sdl.Enum("LSRGB"))
             sdlconsole.queue_command(image_creator)
 

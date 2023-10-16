@@ -22,11 +22,11 @@ def run_command_from(working_directory, command_name, *arguments):
 		capture_output=True, 
 		text=True)
 
-	output_str = command_result.stdout
-	error_str = command_result.stderr
+	out_str = command_result.stdout
+	# err_str = command_result.stderr
 
-	if error_str:
-		print("command <%s> ran with error: %s" % 
-			(", ".join([str(arg) for arg in command_args]), error_str))
+	if command_result.returncode != 0:
+		print("command <%s> ran with error (error code: %s)" % 
+			(", ".join([str(arg) for arg in command_args]), str(command_result.returncode)))
 		
-	return output_str
+	return out_str

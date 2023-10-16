@@ -40,7 +40,7 @@ class PhPictureNode(PhMaterialInputNode):
             # TODO: properly handle color space
             creator = sdl.ConstantImageCreator()
             creator.set_color_space(sdl.String("LSRGB"))
-            creator.set_value(sdl.Real(0))
+            creator.set_values(sdl.RealArray([0]))
 
         creator.set_data_name(image_res_name)
         sdlconsole.queue_command(creator)

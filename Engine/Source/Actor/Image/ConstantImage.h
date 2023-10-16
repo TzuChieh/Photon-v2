@@ -57,7 +57,7 @@ public:
 		clazz.baseOn<Image>();
 
 		TSdlRealArray<OwnerType, float64> values("values", &OwnerType::m_values);
-		values.description("A series of values to populate the const image.");
+		values.description("A series of values to initialize the constant.");
 		values.required();
 		clazz.addField(values);
 

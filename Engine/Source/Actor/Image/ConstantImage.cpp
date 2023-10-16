@@ -21,6 +21,13 @@ std::shared_ptr<TTexture<Image::ArrayType>> ConstantImage::genNumericTexture(
 			m_values.size(), Image::ARRAY_SIZE);
 	}
 
+	if(m_colorSpace != math::EColorSpace::Unspecified)
+	{
+		PH_LOG_WARNING(ConstantImage,
+			"Numeric texture will ignore the specified color space ({}).",
+			TSdlEnum<math::EColorSpace>{}[m_colorSpace]);
+	}
+
 	Image::ArrayType arr(0);
 	for(std::size_t i = 0; i < Image::ARRAY_SIZE && i < m_values.size(); ++i)
 	{
