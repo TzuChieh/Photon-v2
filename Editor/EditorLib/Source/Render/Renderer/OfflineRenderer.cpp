@@ -18,6 +18,7 @@
 #include <Utility/exception.h>
 #include <Core/Renderer/RenderProgress.h>
 #include <Core/Renderer/RenderStats.h>
+#include <Frame/Operator/JRToneMapping.h>
 
 #include <memory>
 #include <stop_token>
@@ -225,6 +226,10 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 	// Save result to disk
 	HdrRgbFrame frame(renderer->getRenderWidthPx(), renderer->getRenderHeightPx());
 	renderer->retrieveFrame(0, frame);
+	if(config.performToneMapping)
+	{
+		JRToneMapping{}.operateLocal(frame, {{0, 0}, frame.getSizePx()});
+	}
 	io_utils::save(frame, config.outputDirectory, config.outputName, config.outputFileFormat);
 
 	if(statsRequestThread.joinable())
@@ -396,6 +401,10 @@ std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 min
 					{
 						locked->frame.setSize(renderer->getViewport().getBaseSizePx());
 						renderer->asyncPeekFrame(cachedInput.layerIndex, updatedRegion, locked->frame);
+						if(cachedInput.performToneMapping)
+						{
+							JRToneMapping{}.operateLocal(locked->frame, math::TAABB2D<uint32>(updatedRegion));
+						}
 
 						// Append the new region to output
 						locked->updatedRegion.unionWith(math::TAABB2D<int32>(updatedRegion));

@@ -22,6 +22,7 @@ public:
 	bool useCopiedScene = true;
 	bool enableStatsRequest = true;
 	bool enablePeekingFrame = true;
+	bool performToneMapping = true;
 };
 
 }// end namespace ph::editor
