@@ -128,8 +128,8 @@ void SdlInlinePacketInterface::parseSingleClause(std::string_view clauseString, 
 	}
 	else
 	{
-		out_clause.name = std::string(nameAndTag.substr(0, colonPos + 1));
-		out_clause.tag = nameAndTag.substr(colonPos);
+		out_clause.name = nameAndTag.substr(0, colonPos);
+		out_clause.tag = nameAndTag.substr(colonPos + 1);
 	}
 
 	// Parse the value section of a SDL clause
