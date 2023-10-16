@@ -30,6 +30,7 @@ constexpr std::string_view FILE_ITEM_NAME_PREFIX = PH_IMGUI_GENERAL_FILE_ICON " 
 
 ImguiFileSystemDialog::ImguiFileSystemDialog()
 	: m_explorer()
+	, m_browsingEntry(nullptr)
 	, m_selectedEntry(nullptr)
 	, m_dialogClosedFlag(false)
 
@@ -39,10 +40,11 @@ ImguiFileSystemDialog::ImguiFileSystemDialog()
 	, m_isEditingItem(false)
 
 	, m_fsDialogEntryPathName()
-	, m_fsDialogEntryItems()
+	, m_fsDialogEntryItemNames()
 
 	, m_fsDialogRootNames()
 	, m_fsDialogSelectedRootIdx(static_cast<std::size_t>(-1))
+	, m_fsDialogEntryItems()
 	, m_fsDialogSelectedEntryItemIdx(static_cast<std::size_t>(-1))
 	, m_fsDialogNumSelectedItems(0)
 	, m_fsDialogEntryItemSelection()
@@ -156,7 +158,7 @@ void ImguiFileSystemDialog::buildFileSystemDialogPopupModal(
 
 void ImguiFileSystemDialog::clearSelection()
 {
-	//m_selectedEntry = nullptr;
+	m_selectedEntry = nullptr;
 
 	m_fsDialogSelectedRootIdx = static_cast<std::size_t>(-1);
 	m_fsDialogSelectedEntryItemIdx = static_cast<std::size_t>(-1);
@@ -367,10 +369,14 @@ void ImguiFileSystemDialog::buildFileSystemDialogContent(
 			++m_fsDialogNumSelectedItems;
 		}
 
-		// We are selecting, not editing item input text, if the item selectable is clicked
 		if(ImGui::IsItemClicked())
 		{
+			// We are selecting, not editing item input text, if the item selectable is clicked
 			m_isEditingItem = false;
+
+			// Clicking on item implicitly selects an entry, too
+			PH_ASSERT(m_browsingEntry);
+			m_selectedEntry = m_browsingEntry;
 		}
 	}
 
@@ -453,8 +459,13 @@ void ImguiFileSystemDialog::buildFileSystemDialogTreeNodeRecursive(
 
 	const bool isRootEntry = baseEntry->getParent() == nullptr;
 
-	ImGuiTreeNodeFlags nodeFlags = 0;
-	if(baseEntry == m_selectedEntry)
+	// User may want to select an entry only. Opening/closing node on single click has bad UX as 
+	// the node listing is changing inconsistently and is irrelevant to selecting an entry.
+	ImGuiTreeNodeFlags nodeFlags = 
+		ImGuiTreeNodeFlags_OpenOnDoubleClick | 
+		ImGuiTreeNodeFlags_OpenOnArrow;
+
+	if(baseEntry == m_browsingEntry)
 	{
 		nodeFlags |= ImGuiTreeNodeFlags_Selected;
 	}
@@ -466,9 +477,10 @@ void ImguiFileSystemDialog::buildFileSystemDialogTreeNodeRecursive(
 	const bool isNodeOpened = ImGui::TreeNodeEx(baseEntry->getDirectoryName().c_str(), nodeFlags);
 	const bool isNodeClicked = ImGui::IsItemClicked();
 
-	// Initialize entry related data when an entry is clicked or there was no entry selected
-	if(isNodeClicked || !m_selectedEntry)
+	// Initialize entry related data when an entry is clicked or if nothing was being browsed
+	if(isNodeClicked || !m_browsingEntry)
 	{
+		m_browsingEntry = baseEntry;
 		m_selectedEntry = baseEntry;
 		m_fsDialogEntryItems = m_explorer.makeItemListing(baseEntry, false);
 

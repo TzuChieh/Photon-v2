@@ -22,9 +22,13 @@ public:
 	auto getAttributes() const -> Attributes override;
 
 private:
+	void summarizeInitialContent();
 	void composeSceneWorkingDirectory();
 
 	std::vector<char> m_sceneNameBuffer;
+	bool m_withInitialSceneDescription;
+	Path m_initialSceneDescription;
+	std::string m_initialContentSummary;
 	Path m_baseWorkingDirectory;
 	Path m_composedWorkingDirectory;
 	std::string m_workingDirectoryPreview;

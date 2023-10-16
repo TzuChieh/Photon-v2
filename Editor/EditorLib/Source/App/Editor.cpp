@@ -297,8 +297,8 @@ std::size_t Editor::createScene(const Path& workingDirectory, const std::string&
 }
 
 std::size_t Editor::createSceneFromDescription(
-	const Path& descriptionFile,
 	const Path& workingDirectory,
+	const Path& descriptionFile,
 	const std::string& name)
 {
 	// TODO

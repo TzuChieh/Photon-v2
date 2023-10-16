@@ -20,6 +20,9 @@ ImguiEditorSceneCreator::ImguiEditorSceneCreator(ImguiEditorUIProxy editorUI)
 	: ImguiEditorPanel(editorUI)
 
 	, m_sceneNameBuffer(128, '\0')
+	, m_withInitialSceneDescription(false)
+	, m_initialSceneDescription()
+	, m_initialContentSummary()
 	, m_baseWorkingDirectory()
 	, m_composedWorkingDirectory()
 	, m_workingDirectoryPreview()
@@ -28,6 +31,7 @@ ImguiEditorSceneCreator::ImguiEditorSceneCreator(ImguiEditorUIProxy editorUI)
 {
 	imgui::copy_to(m_sceneNameBuffer, DesignerScene::defaultSceneName());
 
+	summarizeInitialContent();
 	composeSceneWorkingDirectory();
 }
 
@@ -45,11 +49,59 @@ void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpen
 
 	Editor& editor = getEditorUI().getEditor();
 
+	ImGui::BulletText("Fill in basic information");
+	ImGui::Spacing();
 	if(ImGui::InputText("Scene Name", m_sceneNameBuffer.data(), m_sceneNameBuffer.size()))
 	{
 		composeSceneWorkingDirectory();
 	}
 
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+
+	ImGui::BulletText("Add initial content");
+	ImGui::Spacing();
+	if(ImGui::Checkbox("With Scene Description", &m_withInitialSceneDescription))
+	{
+		summarizeInitialContent();
+	}
+	
+	// Scene description selection
+	{
+		ImguiFileSystemDialog& selectSceneDescription = getEditorUI().getGeneralFileSystemDialog();
+		if(!m_withInitialSceneDescription) { ImGui::BeginDisabled(); }
+		if(ImGui::Button("Select Scene Description"))
+		{
+			selectSceneDescription.openPopup(ImguiFileSystemDialog::OPEN_FILE_TITLE);
+		}
+		if(!m_withInitialSceneDescription) { ImGui::EndDisabled(); }
+
+		selectSceneDescription.buildFileSystemDialogPopupModal(
+			ImguiFileSystemDialog::OPEN_FILE_TITLE, getEditorUI());
+		if(selectSceneDescription.dialogClosed())
+		{
+			if(!selectSceneDescription.getSelectedItem().isEmpty())
+			{
+				m_initialSceneDescription = selectSceneDescription.getSelectedTarget();
+			}
+
+			summarizeInitialContent();
+		}
+	}
+	
+	ImGui::Spacing();
+	ImGui::Text("Initial Content:");
+	ImGui::BeginDisabled();
+	ImGui::TextWrapped(m_initialContentSummary.c_str());
+	ImGui::EndDisabled();
+
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+
+	ImGui::BulletText("Where to save?");
+	ImGui::Spacing();
 	{
 		ImguiFileSystemDialog& selectBaseWorkingDirectory = getEditorUI().getGeneralFileSystemDialog();
 		if(ImGui::Button("Select Scene Working Directory"))
@@ -83,10 +135,11 @@ void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpen
 		ImGui::BeginDisabled();
 		ImGui::TextWrapped(m_workingDirectoryPreview.c_str());
 		ImGui::EndDisabled();
-		ImGui::Spacing();
 	}
 	
+	ImGui::Spacing();
 	ImGui::Separator();
+	ImGui::Spacing();
 
 	if(!m_unsatisfactionMessage.empty())
 	{
@@ -144,6 +197,21 @@ auto ImguiEditorSceneCreator::getAttributes() const
 		.icon = PH_IMGUI_SCENE_CREATION_ICON,
 		.tooltip = "Create New Scene",
 		.category = EImguiPanelCategory::File};
+}
+
+void ImguiEditorSceneCreator::summarizeInitialContent()
+{
+	m_initialContentSummary.clear();
+	if(m_withInitialSceneDescription && !m_initialSceneDescription.isEmpty())
+	{
+		m_initialContentSummary += "Initial scene description: \"";
+		m_initialContentSummary += m_initialSceneDescription.toString();
+		m_initialContentSummary += "\". ";
+	}
+	else
+	{
+		m_initialContentSummary += "No initial scene description. ";
+	}
 }
 
 void ImguiEditorSceneCreator::composeSceneWorkingDirectory()

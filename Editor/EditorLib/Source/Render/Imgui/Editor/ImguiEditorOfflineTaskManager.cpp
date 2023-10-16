@@ -217,6 +217,12 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 			}
 		}
 	}
+	else
+	{
+		// Clear update indicators if not rendering
+		ImguiEditorImageViewer& viewer = getEditorUI().getImageViewer();
+		viewer.setImagePixelIndicators(info.outputImageName, {});
+	}
 
 	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.16f, 0.16f, 1.0f));
 	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.2f, 0.2f, 1.0f));

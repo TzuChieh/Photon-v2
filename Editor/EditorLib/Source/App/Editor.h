@@ -78,8 +78,8 @@ public:
 	std::size_t createScene(const Path& workingDirectory, const std::string& name = "");
 
 	std::size_t createSceneFromDescription(
+		const Path& workingDirectory,
 		const Path& descriptionFile,
-		const Path& workingDirectory, 
 		const std::string& name = "");
 
 	/*! @brief Load a scene. The scene will be made active automatically.

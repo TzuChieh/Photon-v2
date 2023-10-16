@@ -52,7 +52,7 @@ void SdlDependencyResolver::analyze(
 		}
 	}
 
-	PH_LOG(SdlDependencyResolver,
+	PH_LOG_DEBUG(SdlDependencyResolver,
 		"gathered {} resources to analyze for dependencies", m_resourceInfos.size());
 
 	calcDispatchOrderFromTopologicalSort();
@@ -138,7 +138,8 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 			}
 		}
 
-		PH_LOG(SdlDependencyResolver, "DAG building done, max references/degree = {}", maxRefCount);
+		PH_LOG_DEBUG(SdlDependencyResolver,
+			"DAG building done, max references/degree = {}", maxRefCount);
 	}// end DAG building
 
 	// Start topological sorting by finding resources without any dependency
@@ -151,7 +152,8 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 		}
 	}
 
-	PH_LOG(SdlDependencyResolver, "{} resources are already independent", independentResIndices.size());
+	PH_LOG_DEBUG(SdlDependencyResolver,
+		"{} resources are already independent", independentResIndices.size());
 
 	// Main topological sorting that produces a valid resource dispatch order
 	m_queuedResources = std::queue<const ISdlResource*>();

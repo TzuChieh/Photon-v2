@@ -131,6 +131,7 @@ private:
 	std::string_view getEntryItemNameWithoutDecorations(std::size_t itemIndex) const;
 
 	FileSystemExplorer m_explorer;
+	FileSystemDirectoryEntry* m_browsingEntry;
 	FileSystemDirectoryEntry* m_selectedEntry;
 	bool m_dialogClosedFlag;
 
