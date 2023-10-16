@@ -105,6 +105,12 @@ public:
 	*/
 	void setName(std::string name);
 
+	/*! @brief Set a unique name to the object.
+	@param uniqueName A name that is unique in the scene. If the uniqueness cannot be guaranteed by
+	the caller, use `setName()` instead.
+	*/
+	void setUniqueName(std::string uniqueName);
+
 	void select();
 	void deselect();
 	bool isSelected() const;

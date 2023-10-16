@@ -22,6 +22,40 @@ ImposterObject* SpecializedImposterBinder::newImposter(
 	const std::shared_ptr<ISdlResource>& descResource,
 	const std::string& descName)
 {
+	ImposterObject* obj = createImposterAndBindDescription(descResource, descName);
+	if(!obj)
+	{
+		return nullptr;
+	}
+
+	m_scene.getRenderDescription().getResources().add(descResource, descName);
+	return obj;
+}
+
+ImposterObject* SpecializedImposterBinder::newImposter(const SdlClass* descClass)
+{
+	return newImposter(
+		TSdl<>::makeResource(descClass),
+		DesignerObject::generateObjectName());
+}
+
+ImposterObject* SpecializedImposterBinder::newImposter(const std::string& descName)
+{
+	auto descResource = m_scene.getRenderDescription().getResources().get(descName);
+	if(!descResource)
+	{
+		PH_ASSERT_MSG(false,
+			"Cannot find the target description resource.");
+		return nullptr;
+	}
+
+	return createImposterAndBindDescription(descResource, descName);
+}
+
+ImposterObject* SpecializedImposterBinder::createImposterAndBindDescription(
+	const std::shared_ptr<ISdlResource>& descResource,
+	const std::string& descName)
+{
 	if(!descResource || descName.empty())
 	{
 		PH_ASSERT_MSG(false,
@@ -45,7 +79,6 @@ ImposterObject* SpecializedImposterBinder::newImposter(
 
 	if(imposterObj->bindDescription(descResource, descName))
 	{
-		m_scene.getRenderDescription().getResources().add(descResource, descName);
 		return imposterObj;
 	}
 	else
@@ -53,13 +86,6 @@ ImposterObject* SpecializedImposterBinder::newImposter(
 		m_scene.deleteObject(imposterObj);
 		return nullptr;
 	}
-}
-
-ImposterObject* SpecializedImposterBinder::newImposter(const SdlClass* descClass)
-{
-	return newImposter(
-		TSdl<>::makeResource(descClass),
-		DesignerObject::generateObjectName());
 }
 
 bool SpecializedImposterBinder::isDescriptionClass(const SdlClass* clazz)

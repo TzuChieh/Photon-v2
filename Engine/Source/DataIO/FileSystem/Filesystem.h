@@ -29,8 +29,8 @@ public:
 
 	/*! @brief Copy a file to another destination.
 	Both paths should represent a file.
-	@param overwriteExisting If `true`, the existing file `dstFile` will be overwritten by the content
-	from `srcFile`.
+	@param overwriteExisting If `true`, the existing file `dstFile` (if present) will be overwritten
+	by the content from `srcFile`.
 	@exception FilesystemError If any error during copying occurred.
 	*/
 	static void copyFile(
@@ -38,14 +38,23 @@ public:
 		const Path& dstFile, 
 		bool overwriteExisting = false);
 
-	/*! @brief Copy a directory and its content recursively to another destination.
-	Both paths should represent a directory.
+	static void copyFileToDirectory(
+		const Path& srcFile,
+		const Path& dstDir,
+		bool overwriteExisting = false,
+		bool createMissingDirectories = true);
+
+	/*! @brief Copy a file or directory recursively to another destination.
+	If `srcPath` is a file, `dstPath` will be interpreted as a file and the method is equivalent to
+	calling `copyFile()`. If `srcPath` is a directory, `dstPath` will be interpreted as a directory.
+	For directory copying, contents in `srcPath` will be copied to `dstPath`. Missing directories
+	are automatically created.
 	@param overwriteExisting If `true`, any existing file will be overwritten.
 	@exception FilesystemError If any error during copying occurred.
 	*/
-	static void copyDirectories(
-		const Path& srcDir, 
-		const Path& dstDir,
+	static void copy(
+		const Path& srcPath, 
+		const Path& dstPath,
 		bool overwriteExisting = false);
 
 	static Path makeRelative(const Path& src, const Path& base);

@@ -240,6 +240,14 @@ void DesignerObject::setName(std::string name)
 	m_name = getScene().getUniqueObjectName(name);
 }
 
+void DesignerObject::setUniqueName(std::string uniqueName)
+{
+	// Check whether `uniqueName` is actually unique in the scene
+	PH_ASSERT(getScene().getUniqueObjectName(uniqueName) == uniqueName);
+
+	m_name = std::move(uniqueName);
+}
+
 void DesignerObject::select()
 {
 	if(getScene().selectObject(this))

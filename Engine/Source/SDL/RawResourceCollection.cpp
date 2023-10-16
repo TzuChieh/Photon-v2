@@ -85,20 +85,16 @@ std::string RawResourceCollection::makeResourceName(std::string_view intendedNam
 	return "";
 }
 
+std::vector<std::shared_ptr<ISdlResource>> RawResourceCollection::getAll(
+	std::vector<std::string>* const out_resourceNames) const
+{
+	return getAllOfType<ISdlResource>(out_resourceNames);
+}
+
 std::vector<const ISdlResource*> RawResourceCollection::listAll(
 	std::vector<std::string>* const out_resourceNames) const
 {
-	std::vector<const ISdlResource*> resources;
-	for(const auto& [name, resource] : m_nameToResource)
-	{
-		resources.push_back(resource.get());
-
-		if(out_resourceNames)
-		{
-			out_resourceNames->push_back(name);
-		}
-	}
-	return resources;
+	return listAllOfType<ISdlResource>(out_resourceNames);
 }
 
 }// end namespace ph

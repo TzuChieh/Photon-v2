@@ -20,8 +20,9 @@ ImguiEditorSceneCreator::ImguiEditorSceneCreator(ImguiEditorUIProxy editorUI)
 	: ImguiEditorPanel(editorUI)
 
 	, m_sceneNameBuffer(128, '\0')
-	, m_withInitialSceneDescription(false)
-	, m_initialSceneDescription()
+	, m_withInitialSceneDesc(false)
+	, m_isSingleFileDesc(true)
+	, m_sceneDescFile()
 	, m_initialContentSummary()
 	, m_baseWorkingDirectory()
 	, m_composedWorkingDirectory()
@@ -37,17 +38,19 @@ ImguiEditorSceneCreator::ImguiEditorSceneCreator(ImguiEditorUIProxy editorUI)
 
 void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpening)
 {
-	// Always center this window when appearing
-	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	// Always put this window on the upper-left corner when appearing
+	ImGui::SetNextWindowPos({0, 0}, ImGuiCond_Appearing, ImVec2(0.0f, 0.0f));
 
-	if(!ImGui::Begin(windowIdName, isOpening, ImGuiWindowFlags_AlwaysAutoResize))
+	// Docking does not make sense on this window--creating a scene is not a commonly used operation
+	constexpr ImGuiWindowFlags windowFlags = 
+		ImGuiWindowFlags_AlwaysAutoResize |
+		ImGuiWindowFlags_NoDocking;
+
+	if(!ImGui::Begin(windowIdName, isOpening, windowFlags))
 	{
 		ImGui::End();
 		return;
 	}
-
-	Editor& editor = getEditorUI().getEditor();
 
 	ImGui::BulletText("Fill in basic information");
 	ImGui::Spacing();
@@ -62,28 +65,31 @@ void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpen
 
 	ImGui::BulletText("Add initial content");
 	ImGui::Spacing();
-	if(ImGui::Checkbox("With Scene Description", &m_withInitialSceneDescription))
+	if(ImGui::Checkbox("With Scene Description", &m_withInitialSceneDesc))
 	{
 		summarizeInitialContent();
 	}
+	ImGui::Checkbox("Single-File Description", &m_isSingleFileDesc);
 	
 	// Scene description selection
 	{
-		ImguiFileSystemDialog& selectSceneDescription = getEditorUI().getGeneralFileSystemDialog();
-		if(!m_withInitialSceneDescription) { ImGui::BeginDisabled(); }
+		ImguiFileSystemDialog& selectSceneDesc = getEditorUI().getGeneralFileSystemDialog();
+		if(!m_withInitialSceneDesc) { ImGui::BeginDisabled(); }
 		if(ImGui::Button("Select Scene Description"))
 		{
-			selectSceneDescription.openPopup(ImguiFileSystemDialog::OPEN_FILE_TITLE);
+			selectSceneDesc.openPopup(ImguiFileSystemDialog::OPEN_FILE_TITLE);
 		}
-		if(!m_withInitialSceneDescription) { ImGui::EndDisabled(); }
+		if(!m_withInitialSceneDesc) { ImGui::EndDisabled(); }
 
-		selectSceneDescription.buildFileSystemDialogPopupModal(
-			ImguiFileSystemDialog::OPEN_FILE_TITLE, getEditorUI());
-		if(selectSceneDescription.dialogClosed())
+		selectSceneDesc.buildFileSystemDialogPopupModal(
+			ImguiFileSystemDialog::OPEN_FILE_TITLE,
+			getEditorUI(),
+			{.canSelectItem = true, .canSelectDirectory = false, .requiresItemSelection = true});
+		if(selectSceneDesc.dialogClosed())
 		{
-			if(!selectSceneDescription.getSelectedItem().isEmpty())
+			if(!selectSceneDesc.getSelectedItem().isEmpty())
 			{
-				m_initialSceneDescription = selectSceneDescription.getSelectedTarget();
+				m_sceneDescFile = selectSceneDesc.getSelectedTarget();
 			}
 
 			summarizeInitialContent();
@@ -165,8 +171,7 @@ void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpen
 		const bool canCreateScene = m_unsatisfactionMessage.empty();
 		if(canCreateScene)
 		{
-			composeSceneWorkingDirectory();
-			editor.createScene(m_composedWorkingDirectory, m_sceneNameBuffer.data());
+			createScene();
 
 			if(isOpening)
 			{
@@ -202,11 +207,20 @@ auto ImguiEditorSceneCreator::getAttributes() const
 void ImguiEditorSceneCreator::summarizeInitialContent()
 {
 	m_initialContentSummary.clear();
-	if(m_withInitialSceneDescription && !m_initialSceneDescription.isEmpty())
+	if(m_withInitialSceneDesc && !m_sceneDescFile.isEmpty())
 	{
 		m_initialContentSummary += "Initial scene description: \"";
-		m_initialContentSummary += m_initialSceneDescription.toString();
+		m_initialContentSummary += m_sceneDescFile.toAbsoluteString();
 		m_initialContentSummary += "\". ";
+
+		if(m_isSingleFileDesc)
+		{
+			m_initialContentSummary += "Single file only. ";
+		}
+		else
+		{
+			m_initialContentSummary += "Multi-file description. ";
+		}
 	}
 	else
 	{
@@ -236,6 +250,32 @@ void ImguiEditorSceneCreator::composeSceneWorkingDirectory()
 	}
 
 	m_workingDirectoryPreview = m_composedWorkingDirectory.toAbsoluteString();
+}
+
+void ImguiEditorSceneCreator::createScene()
+{
+	composeSceneWorkingDirectory();
+	Path workingDirectory = m_composedWorkingDirectory;
+	std::string sceneName = m_sceneNameBuffer.data();
+
+	Editor& editor = getEditorUI().getEditor();
+	if(!m_withInitialSceneDesc)
+	{
+		editor.createScene(workingDirectory, sceneName);
+	}
+	else
+	{
+		if(m_isSingleFileDesc)
+		{
+			editor.createSceneFromDescription(workingDirectory, m_sceneDescFile, sceneName);
+		}
+		else
+		{
+			Path descDirectory = m_sceneDescFile.getParent();
+			std::string descName = m_sceneDescFile.removeExtension().getFilename();
+			editor.createSceneFromDescription(workingDirectory, descDirectory, sceneName, descName);
+		}
+	}
 }
 
 }// end namespace ph::editor

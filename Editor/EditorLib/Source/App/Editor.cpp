@@ -4,8 +4,9 @@
 #include "Designer/DesignerScene.h"
 #include "Designer/IO/DesignerSceneWriter.h"
 #include "Designer/IO/DesignerSceneReader.h"
-#include "Designer/Imposter/ImposterObject.h"
 #include "App/Misc/EditorSettings.h"
+#include "Designer/Imposter/ImposterObject.h"
+#include "Designer/Imposter/SpecializedImposterBinder.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -13,6 +14,7 @@
 #include <Utility/Timer.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/Filesystem.h>
+#include <DataIO/io_exceptions.h>
 #include <SDL/TSdl.h>
 #include <SDL/SdlSceneFileWriter.h>
 #include <SDL/SdlSceneFileReader.h>
@@ -287,8 +289,7 @@ std::size_t Editor::createScene(const Path& workingDirectory, const std::string&
 	scene->getRenderDescription().setWorkingDirectory(workingDirectory);
 
 	PH_LOG(Editor,
-		"created scene \"{}\"",
-		scene->getName());
+		"created scene \"{}\"", scene->getName());
 
 	// Save the scene once, so any necessary files and directories can be created
 	saveScene();
@@ -298,11 +299,127 @@ std::size_t Editor::createScene(const Path& workingDirectory, const std::string&
 
 std::size_t Editor::createSceneFromDescription(
 	const Path& workingDirectory,
-	const Path& descriptionFile,
-	const std::string& name)
+	const Path& sceneDescription,
+	const std::string& name,
+	const std::string& descName)
 {
-	// TODO
-	return nullSceneIndex();
+	if(sceneDescription.isEmpty())
+	{
+		PH_LOG_WARNING(Editor,
+			"Creating scene \"{}\" from description, however the description is empty. Resorting to "
+			"creating a scene normally.", name);
+		return createScene(workingDirectory, name);
+	}
+
+	Path bundledDesc;
+	try
+	{
+		if(Filesystem::hasFile(sceneDescription))
+		{
+			if(!descName.empty())
+			{
+				PH_LOG(Editor,
+					"Ignoring input description name \"{}\" as this is redundant for single-file "
+					"description.", descName);
+			}
+
+			Filesystem::copyFileToDirectory(sceneDescription, workingDirectory, true);
+			bundledDesc = workingDirectory / sceneDescription.getFilename();
+		}
+		else if(Filesystem::hasDirectory(sceneDescription))
+		{
+			Filesystem::copy(sceneDescription, workingDirectory, true);
+
+			std::string descFilename = descName + ".p2";
+			if(descName.empty())
+			{
+				PH_LOG_WARNING(Editor,
+					"Description name is required for directory-based description. "
+					"Defaulting to \"{}\"", name);
+
+				descFilename = name + ".p2";
+			}
+
+			bundledDesc = workingDirectory / descFilename;
+		}
+	}
+	catch(const FilesystemError& e)
+	{
+		PH_LOG_ERROR(Editor,
+			"Cannot create scene \"{}\" from description: {}.", name, e.whatStr());
+	}
+
+	if(!Filesystem::hasFile(bundledDesc))
+	{
+		PH_LOG_ERROR(Editor,
+			"Bundled scene description not found on path \"{}\".", bundledDesc);
+		return nullSceneIndex();
+	}
+	
+	auto sceneIdx = newScene();
+	DesignerScene* scene = getScene(sceneIdx);
+
+	setActiveScene(sceneIdx);
+
+	// Fill the created new scene with required initial properties
+	
+	// Optionally keep the default scene name
+	if(!name.empty())
+	{
+		scene->setName(name);
+	}
+
+	// The description link will be empty if the designer scene is a newly created one. 
+	// Set the link to the same folder and same name as the designer scene (bundled description).
+	PH_ASSERT(!scene->getRenderDescriptionLink().hasIdentifier());
+	scene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(workingDirectory))
+		.toBundleIdentifier(bundledDesc));
+
+	// Bundled description uses the same working directory as the designer scene
+	scene->setWorkingDirectory(workingDirectory);
+	scene->getRenderDescription().setWorkingDirectory(workingDirectory);
+
+	// Read render description
+	try
+	{
+		SdlSceneFileReader reader(bundledDesc.removeExtension().getFilename(), workingDirectory);
+		reader.read(&(scene->getRenderDescription()));
+	}
+	catch(const Exception& e)
+	{
+		PH_LOG_ERROR(Editor,
+			"Scene description loading failed: {}", e.what());
+	}
+
+	// Once description is loaded, create imposters for each of the contained description resource.
+	{
+		SceneDescription& desc = scene->getRenderDescription();
+
+		std::vector<std::string> resourceNames;
+		desc.getResources().getAll(&resourceNames);
+		for(std::size_t ri = 0; ri < resourceNames.size(); ++ri)
+		{
+			SpecializedImposterBinder binder(*scene);
+			ImposterObject* imposter = binder.newImposter(resourceNames[ri]);
+			if(imposter)
+			{
+				// We know the name is unique since resource name is unique and the designer scene
+				// contains no object initially.
+				imposter->setUniqueName(resourceNames[ri]);
+			}
+		}
+
+		PH_LOG(Editor,
+			"Generated {} imposter bindings in scene \"{}\"", resourceNames.size(), scene->getName());
+	}
+
+	PH_LOG(Editor,
+		"created scene \"{}\"", scene->getName());
+
+	// Save the scene once, so any necessary files and directories can be created
+	saveScene();
+
+	return sceneIdx;
 }
 
 std::size_t Editor::loadScene(const Path& sceneFile)

@@ -177,7 +177,7 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 	else
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
-			"Unable to read scene {} (from {}): no target scene description was set",
+			"Unable to read scene {} (from {}): no target scene description was set.",
 			m_sceneName, getSceneWorkingDirectory());
 		return;
 	}
@@ -189,15 +189,13 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 	if(!commandFile)
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
-			"command file <{}> opening failed", 
-			filePath.toAbsoluteString());
+			"command file <{}> opening failed", filePath.toAbsoluteString());
 		return;
 	}
 	else
 	{
 		PH_LOG(SdlSceneFileReader, 
-			"loading command file <{}>", 
-			filePath.toAbsoluteString());
+			"loading command file <{}>", filePath.toAbsoluteString());
 
 		Timer timer;
 		timer.start();

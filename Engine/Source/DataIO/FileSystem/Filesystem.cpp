@@ -53,9 +53,23 @@ void Filesystem::copyFile(
 	}
 }
 
-void Filesystem::copyDirectories(
-	const Path& srcDir,
+void Filesystem::copyFileToDirectory(
+	const Path& srcFile,
 	const Path& dstDir,
+	bool overwriteExisting,
+	bool createMissingDirectories)
+{
+	if(createMissingDirectories && !hasDirectory(dstDir))
+	{
+		createDirectories(dstDir);
+	}
+
+	copyFile(srcFile, dstDir / srcFile.getFilename(), overwriteExisting);
+}
+
+void Filesystem::copy(
+	const Path& srcPath,
+	const Path& dstPath,
 	bool overwriteExisting)
 {
 	auto options = std::filesystem::copy_options::skip_existing;
@@ -68,11 +82,11 @@ void Filesystem::copyDirectories(
 	options |= std::filesystem::copy_options::recursive;
 
 	std::error_code errorCode;
-	std::filesystem::copy(srcDir.toStdPath(), dstDir.toStdPath(), options, errorCode);
+	std::filesystem::copy(srcPath.toStdPath(), dstPath.toStdPath(), options, errorCode);
 	if(errorCode)
 	{
 		throw FilesystemError(std::format(
-			"Error copying directories from \"{}\" to \"{}\".", srcDir, dstDir),
+			"Error copying directories from \"{}\" to \"{}\".", srcPath, dstPath),
 			errorCode);
 	}
 }

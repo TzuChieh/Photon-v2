@@ -460,10 +460,12 @@ void ImguiFileSystemDialog::buildFileSystemDialogTreeNodeRecursive(
 	const bool isRootEntry = baseEntry->getParent() == nullptr;
 
 	// User may want to select an entry only. Opening/closing node on single click has bad UX as 
-	// the node listing is changing inconsistently and is irrelevant to selecting an entry.
+	// the node listing is changing inconsistently and is irrelevant to selecting an entry. We also
+	// make the node hit box span available width to improve UX (easier to select for short names).
 	ImGuiTreeNodeFlags nodeFlags = 
 		ImGuiTreeNodeFlags_OpenOnDoubleClick | 
-		ImGuiTreeNodeFlags_OpenOnArrow;
+		ImGuiTreeNodeFlags_OpenOnArrow | 
+		ImGuiTreeNodeFlags_SpanAvailWidth;
 
 	if(baseEntry == m_browsingEntry)
 	{

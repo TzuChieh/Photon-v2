@@ -24,10 +24,12 @@ public:
 private:
 	void summarizeInitialContent();
 	void composeSceneWorkingDirectory();
+	void createScene();
 
 	std::vector<char> m_sceneNameBuffer;
-	bool m_withInitialSceneDescription;
-	Path m_initialSceneDescription;
+	bool m_withInitialSceneDesc;
+	bool m_isSingleFileDesc;
+	Path m_sceneDescFile;
 	std::string m_initialContentSummary;
 	Path m_baseWorkingDirectory;
 	Path m_composedWorkingDirectory;
