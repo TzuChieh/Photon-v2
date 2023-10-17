@@ -291,7 +291,7 @@ void ImguiEditorUI::build()
 	}
 
 	// DEBUG
-	getImageLibrary().imguiImage(EImguiImage::Folder, {200, 200});
+	//getImageLibrary().imguiImage(EImguiImage::Folder, {200, 200});
 	/*if(ImGui::Button("fs"))
 	{
 		m_generalFileSystemDialog.openPopup(ImguiFileSystemDialog::OPEN_FILE_TITLE);

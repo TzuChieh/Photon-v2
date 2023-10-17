@@ -143,8 +143,17 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 				"resource name is not tracked by the reference resolver");
 		}
 
-		out_clause.value = resourceName;
 		out_clause.isReference = true;
+		if(string_utils::has_any_of(resourceName, string_utils::get_whitespaces()))
+		{
+			out_clause.value = '"';
+			out_clause.value += resourceName;
+			out_clause.value += '"';
+		}
+		else
+		{
+			out_clause.value = resourceName;
+		}
 	}
 	catch(const SdlException& e)
 	{

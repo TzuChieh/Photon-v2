@@ -69,7 +69,10 @@ void ImguiEditorSceneCreator::buildWindow(const char* windowIdName, bool* isOpen
 	{
 		summarizeInitialContent();
 	}
-	ImGui::Checkbox("Single-File Description", &m_isSingleFileDesc);
+	if(ImGui::Checkbox("Single-File Description", &m_isSingleFileDesc))
+	{
+		summarizeInitialContent();
+	}
 	
 	// Scene description selection
 	{

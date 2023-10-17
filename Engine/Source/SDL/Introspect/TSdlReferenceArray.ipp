@@ -156,9 +156,10 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 					"resource name is not tracked by the dependency resolver");
 			}
 
-			out_clause.value += "\"";
+			const bool hasWhitespaces = string_utils::has_any_of(resourceName, string_utils::get_whitespaces());
+			out_clause.value += hasWhitespaces ? "\"" : "";
 			out_clause.value += resourceName;
-			out_clause.value += "\"";
+			out_clause.value += hasWhitespaces ? "\"" : "";
 		}
 		out_clause.value += '}';
 	}
