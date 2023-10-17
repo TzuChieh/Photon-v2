@@ -19,13 +19,15 @@ class OfflineRenderPeek final
 public:
 	struct Input final
 	{
-		/*! Index of the target frame layer for retrieving data.
-		*/
+		/*! Index of the target frame layer for retrieving data. */
 		std::size_t layerIndex = 0;
 
+		/*! Texture to store render result. */
 		ghi::TextureHandle resultHandle;
 
+		/*! Whether intermediate render result will be retrieved. */
 		bool wantIntermediateResult = false;
+
 		bool wantUpdatingRegions = false;
 		bool performToneMapping = true;
 	};

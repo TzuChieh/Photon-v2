@@ -21,7 +21,12 @@ public:
 	uint32 minFramePeekPeriodMs = 300;
 	bool useCopiedScene = true;
 	bool enableStatsRequest = true;
+
+	/*! @brief Whether rendered frame can be viewed from the editor.
+	Disabling this will improve performance slightly (recommended for overnight renders).
+	*/
 	bool enablePeekingFrame = true;
+
 	bool performToneMapping = true;
 };
 

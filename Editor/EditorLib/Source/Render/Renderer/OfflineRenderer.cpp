@@ -6,6 +6,7 @@
 #include "RenderCore/GHI.h"
 #include "RenderCore/Memory/GraphicsArena.h"
 #include "RenderCore/ghi_enums.h"
+#include "EditorCore/Thread/Threads.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -40,6 +41,7 @@ OfflineRenderer::OfflineRenderer()
 	, m_syncedRenderPeek()
 	, m_cachedRenderPeekInput()
 	, m_synchedFrameData()
+	, m_requestCompletedFrameDataUpload()
 	, m_requestRenderStats()
 	, m_requestRenderPeek()
 {}
@@ -224,15 +226,23 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 
 	setRenderStage(EOfflineRenderStage::Developing);
 
-	// TODO: get final frame
-
-	// Save result to disk
+	// Get completed frame
 	HdrRgbFrame frame(renderer->getRenderWidthPx(), renderer->getRenderHeightPx());
+	math::TAABB2D<uint32> fullRegion({0, 0}, frame.getSizePx());
 	renderer->retrieveFrame(0, frame);
 	if(config.performToneMapping)
 	{
-		JRToneMapping{}.operateLocal(frame, {{0, 0}, frame.getSizePx()});
+		JRToneMapping{}.operateLocal(frame, fullRegion);
 	}
+
+	if(config.enablePeekingFrame)
+	{
+		m_synchedFrameData->frame = frame;
+		m_synchedFrameData->updatedRegion = math::TAABB2D<int32>(fullRegion);
+		m_requestCompletedFrameDataUpload.test_and_set(std::memory_order_relaxed);
+	}
+
+	// Save result to disk
 	io_utils::save(frame, config.outputDirectory, config.outputName, config.outputFileFormat);
 
 	if(statsRequestThread.joinable())
@@ -254,6 +264,8 @@ void OfflineRenderer::cleanupGHI(GHIThreadCaller& caller)
 
 void OfflineRenderer::update(const RenderThreadUpdateContext& ctx)
 {
+	PH_PROFILE_SCOPE();
+
 	if(getRenderStage() == EOfflineRenderStage::Rendering)
 	{
 		if(auto locked = m_syncedRenderPeek.tryConstLock())
@@ -265,37 +277,63 @@ void OfflineRenderer::update(const RenderThreadUpdateContext& ctx)
 
 void OfflineRenderer::createGHICommands(GHIThreadCaller& caller)
 {
-	PH_PROFILE_NAMED_SCOPE("Copy updated region to arena");
+	PH_PROFILE_SCOPE();
 
+	// Respond to the data upload request for peeking intermediate frame during rendering.
 	if(getRenderStage() == EOfflineRenderStage::Rendering &&
 	   m_cachedRenderPeekInput.wantIntermediateResult)
 	{
-		if(auto locked = m_synchedFrameData.tryConstLock();
-		   locked && !locked->updatedRegion.isEmpty())
+		tryUploadFrameData(caller);
+	}
+
+	// Respond to the data upload request for a completed frame. Frame data is synchronized, and the
+	// flag is set in a way that guarantees frame data visibility. However, if any subsequent frame
+	// is completed too soon or the try-upload operation is failing for long enough time (both are
+	// very unlikely, but can happen), the newer requests can be missed. Acceptable as this is for
+	// preview only.
+	if(m_requestCompletedFrameDataUpload.test(std::memory_order_relaxed))
+	{
+		if(tryUploadFrameData(caller))
 		{
-			math::Vector2UI regionOrigin(locked->updatedRegion.getMinVertex());
-			math::Vector2UI regionSize(locked->updatedRegion.getExtents());
-
-			ghi::GraphicsArena arena = caller.getGraphicsContext().getMemoryManager().newRenderProducerHostArena();
-			auto regionData = arena.makeArray<HdrComponent>(std::size_t(3) * regionSize.x() * regionSize.y());
-			locked->frame.copyPixelData(math::TAABB2D<uint32>(locked->updatedRegion), regionData);
-
-			caller.add(
-				[regionData, regionOrigin, regionSize, handle = m_cachedRenderPeekInput.resultHandle]
-				(ghi::GraphicsContext& ctx)
-				{
-					PH_PROFILE_NAMED_SCOPE("Upload updated region");
-
-					ctx.getGHI().tryUploadPixelDataTo2DRegion(
-						handle, 
-						regionOrigin, 
-						regionSize,
-						std::as_bytes(regionData),
-						ghi::EPixelFormat::RGB,
-						ghi::EPixelComponent::Float32);
-				});
+			m_requestCompletedFrameDataUpload.clear(std::memory_order_relaxed);
 		}
 	}
+}
+
+bool OfflineRenderer::tryUploadFrameData(GHIThreadCaller& caller)
+{
+	PH_PROFILE_NAMED_SCOPE("Copy updated region to arena");
+	PH_ASSERT(Threads::isOnRenderThread());
+
+	if(auto locked = m_synchedFrameData.tryConstLock();
+	   locked && !locked->updatedRegion.isEmpty())
+	{
+		math::Vector2UI regionOrigin(locked->updatedRegion.getMinVertex());
+		math::Vector2UI regionSize(locked->updatedRegion.getExtents());
+
+		ghi::GraphicsArena arena = caller.getGraphicsContext().getMemoryManager().newRenderProducerHostArena();
+		auto regionData = arena.makeArray<HdrComponent>(std::size_t(3) * regionSize.x() * regionSize.y());
+		locked->frame.copyPixelData(math::TAABB2D<uint32>(locked->updatedRegion), regionData);
+
+		caller.add(
+			[regionData, regionOrigin, regionSize, handle = m_cachedRenderPeekInput.resultHandle]
+			(ghi::GraphicsContext& ctx)
+			{
+				PH_PROFILE_NAMED_SCOPE("Upload updated region");
+
+				ctx.getGHI().tryUploadPixelDataTo2DRegion(
+					handle, 
+					regionOrigin, 
+					regionSize,
+					std::as_bytes(regionData),
+					ghi::EPixelFormat::RGB,
+					ghi::EPixelComponent::Float32);
+			});
+
+		return true;
+	}
+	
+	return false;
 }
 
 std::jthread OfflineRenderer::makeStatsRequestThread(Renderer* renderer, uint32 minPeriodMs)

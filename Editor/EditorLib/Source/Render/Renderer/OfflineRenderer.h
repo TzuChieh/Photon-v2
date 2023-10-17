@@ -58,6 +58,7 @@ private:
 		math::TAABB2D<int32> updatedRegion = math::TAABB2D<int32>::makeEmpty();
 	};
 
+	bool tryUploadFrameData(GHIThreadCaller& caller);
 	void renderSingleStaticImageOnEngineThread(const RenderConfig& config);
 
 	/*!
@@ -74,6 +75,7 @@ private:
 	TSynchronized<OfflineRenderPeek> m_syncedRenderPeek;
 	OfflineRenderPeek::Input m_cachedRenderPeekInput;
 	TSynchronized<FrameData> m_synchedFrameData;
+	std::atomic_flag m_requestCompletedFrameDataUpload;
 	std::atomic_flag m_requestRenderStats;
 	std::atomic_flag m_requestRenderPeek;
 };
