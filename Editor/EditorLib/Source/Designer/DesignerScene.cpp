@@ -750,6 +750,11 @@ void DesignerScene::setWorkingDirectory(Path directory)
 
 void DesignerScene::setName(std::string name)
 {
+	if(name == m_name)
+	{
+		return;
+	}
+
 	m_name = std::move(name);
 }
 

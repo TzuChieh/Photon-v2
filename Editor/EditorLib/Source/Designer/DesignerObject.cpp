@@ -237,6 +237,11 @@ void DesignerObject::enqueueRenderWork(RenderWorkType work)
 
 void DesignerObject::setName(std::string name)
 {
+	if(name == m_name)
+	{
+		return;
+	}
+
 	m_name = getScene().getUniqueObjectName(name);
 }
 

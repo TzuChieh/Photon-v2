@@ -36,6 +36,7 @@ public:
 	Viewport viewport;
 	uint64 totalWork = 0;
 	uint64 workDone = 0;
+	uint64 renderTimeMs = 0;
 	std::vector<std::string> layerNames;
 	std::vector<NumericInfo> numericInfos;
 };

@@ -20,7 +20,7 @@ public:
 
 	void work();
 
-	RenderProgress asyncGetProgress();
+	RenderProgress asyncGetProgress() const;
 
 protected:
 	void setTotalWork(std::size_t totalWork);
@@ -80,7 +80,7 @@ inline void RenderWork::setElapsedMs(const std::size_t elapsedMs)
 	m_elapsedMs.store(static_cast<std::uint32_t>(elapsedMs), std::memory_order_relaxed);
 }
 
-inline RenderProgress RenderWork::asyncGetProgress()
+inline RenderProgress RenderWork::asyncGetProgress() const
 {
 	return RenderProgress(
 		m_totalWork.load(std::memory_order_relaxed),

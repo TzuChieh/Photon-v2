@@ -49,7 +49,7 @@ ReceiverSamplingWork::ReceiverSamplingWork(ReceiverSamplingWork&& other) :
 	m_onWorkFinish   (std::move(other.m_onWorkFinish))
 {}
 
-SamplingStatistics ReceiverSamplingWork::asyncGetStatistics()
+SamplingStatistics ReceiverSamplingWork::asyncGetStatistics() const
 {
 	SamplingStatistics statistics;
 	statistics.numSamplesTaken = m_numSamplesTaken.load(std::memory_order_relaxed);

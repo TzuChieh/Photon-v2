@@ -10,6 +10,8 @@
 
 #include "ThirdParty/DearImGui.h"
 
+#include <Math/time.h>
+
 #include <cstdio>
 #include <array>
 #include <cinttypes>
@@ -286,8 +288,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	ImGui::TextUnformatted(stageName);
 
 	const float progress = info.stats.totalWork != 0
-		? static_cast<float>(info.stats.workDone) / static_cast<float>(info.stats.totalWork)
-		: 0.0f;
+		? static_cast<float>(info.stats.workDone) / static_cast<float>(info.stats.totalWork) : 0.0f;
 
 	std::array<char, 32> progressOverlay;
 	std::snprintf(
@@ -325,7 +326,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	ImGui::TextUnformatted("Layers:");
 	if(info.stats.layerNames.empty())
 	{
-		ImGui::TextUnformatted("No layer name available.");
+		ImGui::BulletText("No layer name available.");
 	}
 	else
 	{
@@ -345,7 +346,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	ImGui::TextUnformatted("Statistics:");
 	if(info.stats.numericInfos.empty())
 	{
-		ImGui::TextUnformatted("No statistics available.");
+		ImGui::BulletText("No statistics available.");
 	}
 	else
 	{
@@ -361,6 +362,21 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 			}
 		}
 	}
+
+	auto renderTimeHMS = math::milliseconds_to_HMS(info.stats.renderTimeMs);
+	ImGui::Text("Render Time: %02d:%02d:%02d",
+		static_cast<int>(renderTimeHMS[0]),
+		static_cast<int>(renderTimeHMS[1]),
+		static_cast<int>(renderTimeHMS[2]));
+	
+	const uint64 estimatedTotalMs = progress > 0.0f ? 
+		static_cast<uint64>(info.stats.renderTimeMs / progress) : 0;
+	auto timeLeftHMS = math::milliseconds_to_HMS(estimatedTotalMs - info.stats.renderTimeMs);
+	ImGui::Text("Time Left: %02d:%02d:%02d",
+		static_cast<int>(timeLeftHMS[0]),
+		static_cast<int>(timeLeftHMS[1]),
+		static_cast<int>(timeLeftHMS[2]));
+
 	ImGui::EndGroup();
 }
 

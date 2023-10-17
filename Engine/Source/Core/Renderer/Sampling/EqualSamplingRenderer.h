@@ -71,6 +71,7 @@ private:
 	
 	std::mutex           m_rendererMutex;
 	std::atomic_uint64_t m_totalPaths;
+	std::atomic_uint64_t m_totalElapsedMs;
 	std::atomic_uint32_t m_suppliedFractionBits;
 	std::atomic_uint32_t m_submittedFractionBits;
 

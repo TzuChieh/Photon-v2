@@ -38,8 +38,9 @@ public:
 
 	virtual ~Renderer();
 
-	// Perform necessary updates for rendering. 
-	// No asynchronous operation is allowed during update.
+	/*! @brief Perform necessary updates for rendering. 
+	No asynchronous operation is allowed during update.
+	*/
 	virtual void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) = 0;
 
 	// Start rendering.

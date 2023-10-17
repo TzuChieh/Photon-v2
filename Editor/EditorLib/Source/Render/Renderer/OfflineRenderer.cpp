@@ -213,6 +213,9 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& 
 
 	setRenderStage(EOfflineRenderStage::Rendering);
 
+	Timer renderTimer;
+	renderTimer.start();
+
 	renderEngine->render();
 
 	// No need to monitor the render engine once `Renderer::render()` returns
@@ -319,6 +322,7 @@ std::jthread OfflineRenderer::makeStatsRequestThread(Renderer* renderer, uint32 
 
 					locked->totalWork = progress.getTotalWork();
 					locked->workDone = progress.getWorkDone();
+					locked->renderTimeMs = progress.getElapsedMs();
 
 					std::size_t intIdx = 0;
 					std::size_t realIdx = 0;

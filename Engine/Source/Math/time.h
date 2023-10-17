@@ -3,9 +3,40 @@
 #include "Math/constant.h"
 
 #include <cmath>
+#include <array>
+#include <chrono>
+#include <ratio>
 
 namespace ph::math
 {
+
+template<typename TimeType, typename UnitType>
+inline auto duration_to_HMS(const std::chrono::duration<TimeType, UnitType>& totalTime)
+-> std::array<TimeType, 3>
+{
+	auto hours = std::chrono::duration_cast<std::chrono::hours>(totalTime);
+	auto minutes = std::chrono::duration_cast<std::chrono::minutes>(totalTime - hours);
+	auto seconds = std::chrono::duration_cast<std::chrono::seconds>(totalTime - hours - minutes);
+
+	return {
+		static_cast<TimeType>(hours.count()),
+		static_cast<TimeType>(minutes.count()),
+		static_cast<TimeType>(seconds.count())};
+}
+
+template<typename TimeType>
+inline auto milliseconds_to_HMS(const TimeType& totalTime)
+-> std::array<TimeType, 3>
+{
+	return duration_to_HMS(std::chrono::duration<TimeType, std::milli>(totalTime));
+}
+
+template<typename TimeType>
+inline auto seconds_to_HMS(const TimeType& totalSeconds)
+-> std::array<TimeType, 3>
+{
+	return duration_to_HMS(std::chrono::duration<TimeType>(totalSeconds));
+}
 
 /*! @brief Convert mean solar time to solar time.
 

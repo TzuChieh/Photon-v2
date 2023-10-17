@@ -64,6 +64,7 @@ EqualSamplingRenderer::EqualSamplingRenderer(
 	m_updatedRegions(),
 	m_rendererMutex(),
 	m_totalPaths(),
+	m_totalElapsedMs(),
 	m_suppliedFractionBits(),
 	m_submittedFractionBits()
 {}
@@ -74,6 +75,7 @@ void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualW
 
 	m_updatedRegions.clear();
 	m_totalPaths            = 0;
+	m_totalElapsedMs        = 0;
 	m_suppliedFractionBits  = 0;
 	m_submittedFractionBits = 0;
 	
@@ -120,8 +122,8 @@ void EqualSamplingRenderer::doRender()
 			auto& renderWork = m_renderWorks[workerId];
 			auto& filmEstimator = m_filmEstimators[workerId];
 
-			float suppliedFraction = 0.0f;
-			float submittedFraction = 0.0f;
+			float32 suppliedFraction = 0.0f;
+			float32 submittedFraction = 0.0f;
 			WorkUnit workUnit;
 			while(true)
 			{
@@ -183,6 +185,7 @@ void EqualSamplingRenderer::doRender()
 					std::memory_order_relaxed);
 
 				m_totalPaths.fetch_add(renderWork.asyncGetStatistics().numSamplesTaken, std::memory_order_relaxed);
+				m_totalElapsedMs.fetch_add(renderWork.asyncGetProgress().getElapsedMs(), std::memory_order_relaxed);
 			}
 		});
 	}
@@ -257,17 +260,19 @@ void EqualSamplingRenderer::addUpdatedRegion(const Region& region, const bool is
 
 RenderStats EqualSamplingRenderer::asyncQueryRenderStats()
 {
-	uint64 totalElapsedMs  = 0;
-	uint64 totalNumSamples = 0;
-	for(auto&& work : m_renderWorks)
+	// We want to calculate transient stats so averaging all current work stats is fine
+	// (when a render work object is restarted its stats will be refreshed)
+	uint64 summedElapsedMs = 0;
+	uint64 summedNumSamples = 0;
+	for(const auto& work : m_renderWorks)
 	{
 		const auto statistics = work.asyncGetStatistics();
-		totalElapsedMs  += work.asyncGetProgress().getElapsedMs();
-		totalNumSamples += statistics.numSamplesTaken;
+		summedElapsedMs += work.asyncGetProgress().getElapsedMs();
+		summedNumSamples += statistics.numSamplesTaken;
 	}
 
-	const float32 samplesPerMs = totalElapsedMs != 0 ?
-		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
+	const float32 samplesPerMs = summedElapsedMs != 0 ?
+		static_cast<float32>(m_renderWorks.size() * summedNumSamples) / static_cast<float32>(summedElapsedMs) : 0.0f;
 
 	RenderStats stats;
 	stats.setInteger(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().getArea()));
@@ -277,22 +282,31 @@ RenderStats EqualSamplingRenderer::asyncQueryRenderStats()
 
 RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 {
-	RenderProgress workerProgress(0, 0, 0);
+	RenderProgress workerProgress;
+	for(const auto& work : m_renderWorks)
 	{
-		for(auto&& work : m_renderWorks)
-		{
-			workerProgress += work.asyncGetProgress();
-		}
+		workerProgress += work.asyncGetProgress();
 	}
 
-	const std::size_t totalWork = 100000000;
-	const float suppliedFraction = bitwise_cast<float>(m_suppliedFractionBits.load(std::memory_order_relaxed));
-	const float submittedFraction = std::max(bitwise_cast<float>(m_submittedFractionBits.load(std::memory_order_relaxed)), suppliedFraction);
-	const float workingFraction = submittedFraction - suppliedFraction;
-	const std::size_t workDone = static_cast<std::size_t>(totalWork * (suppliedFraction + workerProgress.getNormalizedProgress() * workingFraction));
-	RenderProgress totalProgress(totalWork, std::min(workDone, totalWork), workerProgress.getElapsedMs());
+	// Should be plenty (equivalent to a 8k 60FPS 4-hour video with 8192spp)
+	constexpr uint64 totalWork = 7680ull * 4320 * 8192 * 60 * 3600 * 4;
 
-	return totalProgress;
+	const auto suppliedFraction = bitwise_cast<float32>(m_suppliedFractionBits.load(std::memory_order_relaxed));
+	const auto submittedFraction = bitwise_cast<float32>(m_submittedFractionBits.load(std::memory_order_relaxed));
+	const auto workingFraction = std::max(suppliedFraction - submittedFraction, 0.0f);
+	const auto totalFraction = std::min(suppliedFraction + workerProgress.getNormalizedProgress() * workingFraction, 1.0f);
+	const auto workDone = static_cast<uint64>(totalWork * static_cast<float64>(totalFraction));
+	
+	// We want to obtain progress of the entire rendering process. Elapsed time from workers
+	// should not be used directly as they are refreshed everytime they restart.
+	const auto sumbittedTotalMs = m_totalElapsedMs.load(std::memory_order_relaxed);
+	const auto totalMs = sumbittedTotalMs + workerProgress.getElapsedMs();
+	const uint64 elapsedMsPerWorker = !m_renderWorks.empty() ? totalMs / m_renderWorks.size() : 0;
+
+	return RenderProgress(
+		totalWork,
+		std::min(workDone, totalWork),
+		elapsedMsPerWorker);
 }
 
 RenderObservationInfo EqualSamplingRenderer::getObservationInfo() const

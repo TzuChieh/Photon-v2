@@ -11,7 +11,8 @@ namespace ph
 class RenderProgress final
 {
 public:
-	// Represents no progress.
+	/*! @brief Represents no progress.
+	*/
 	RenderProgress();
 
 	RenderProgress(

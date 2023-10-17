@@ -1,7 +1,7 @@
 #pragma once
 
 #include <atomic>
-#include <utility>
+#include <type_traits>
 
 namespace ph
 {
@@ -13,13 +13,12 @@ template<typename T>
 class TRelaxedAtomic final
 {
 public:
-	inline TRelaxedAtomic()
+	TRelaxedAtomic()
 		: m_atomic(T())
 	{}
 
-	template<typename U>
-	inline TRelaxedAtomic(U&& value)
-		: m_atomic(std::forward<U>(value))
+	TRelaxedAtomic(T value)
+		: m_atomic(value)
 	{}
 
 	/*!
@@ -27,7 +26,7 @@ public:
 	fact that the read operation is with relaxed memory order, just like `std::memory_order_relaxed`
 	would be specified at the call site if `std::atomic` was used directly.
 	*/
-	inline T relaxedRead() const
+	T relaxedRead() const
 	{
 		return m_atomic.load(std::memory_order_relaxed);
 	}
@@ -37,10 +36,14 @@ public:
 	fact that the write operation is with relaxed memory order, just like `std::memory_order_relaxed`
 	would be specified at the call site if `std::atomic` was used directly.
 	*/
-	template<typename U>
-	inline void relaxedWrite(U&& value)
+	void relaxedWrite(T value)
 	{
-		m_atomic.store(std::forward<U>(value), std::memory_order_relaxed);
+		m_atomic.store(value, std::memory_order_relaxed);
+	}
+
+	T relaxedFetchAdd(T value) requires std::is_integral_v<T> && std::is_floating_point_v<T>
+	{
+		return m_atomic.fetch_add(value, std::memory_order_relaxed);
 	}
 
 private:

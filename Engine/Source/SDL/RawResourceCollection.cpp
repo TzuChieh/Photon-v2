@@ -57,7 +57,8 @@ std::string RawResourceCollection::rename(std::string_view resourceName, std::st
 			"failed to rename SDL resource \"{}\": resource not found", resourceName);
 	}
 
-	std::string finalName = makeResourceName(newResourceName);
+	std::string finalName = resourceName != newResourceName
+		? makeResourceName(newResourceName) : std::string(resourceName);
 	add(std::move(resource), finalName);
 
 	return finalName;

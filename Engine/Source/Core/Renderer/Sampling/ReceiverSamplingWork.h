@@ -24,7 +24,7 @@ public:
 	explicit ReceiverSamplingWork(const Receiver* receiver);
 	ReceiverSamplingWork(ReceiverSamplingWork&& other);
 
-	SamplingStatistics asyncGetStatistics();
+	SamplingStatistics asyncGetStatistics() const;
 
 	void setSampleGenerator(std::unique_ptr<SampleGenerator> sampleGenerator);
 	void setSampleDimensions(
