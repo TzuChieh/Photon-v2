@@ -20,6 +20,7 @@
 #include <Core/Renderer/RenderProgress.h>
 #include <Core/Renderer/RenderStats.h>
 #include <Frame/Operator/JRToneMapping.h>
+#include <DataIO/FileSystem/Filesystem.h>
 
 #include <memory>
 #include <stop_token>
@@ -49,7 +50,7 @@ OfflineRenderer::OfflineRenderer()
 OfflineRenderer::~OfflineRenderer()
 {}
 
-void OfflineRenderer::render(const RenderConfig& config)
+void OfflineRenderer::render(RenderConfig config)
 {
 	PH_ASSERT(Threads::isOnRenderThread());
 
@@ -144,13 +145,18 @@ bool OfflineRenderer::tryGetRenderPeek(OfflineRenderPeek* peek, bool shouldUpdat
 	return false;
 }
 
-void OfflineRenderer::renderSingleStaticImageOnEngineThread(const RenderConfig& config)
+void OfflineRenderer::renderSingleStaticImageOnEngineThread(RenderConfig config)
 {
 	if(config.useCopiedScene)
 	{
 		setRenderStage(EOfflineRenderStage::CopyingScene);
 
-		// TODO: copy scene
+		Path dstDir = config.sceneWorkingDirectory / "_Intermediate";
+		Filesystem::copyFileToDirectory(config.sceneFile, dstDir, true);
+		
+		// Set scene file to the copied one. Scene working directory should not be changed as
+		// asset files are not copied and expect to stay the same during rendering.
+		config.sceneFile = dstDir / config.sceneFile.getFilename();
 	}
 
 	setRenderStage(EOfflineRenderStage::LoadingScene);

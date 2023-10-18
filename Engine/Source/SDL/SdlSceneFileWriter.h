@@ -2,6 +2,7 @@
 
 #include "SDL/SdlCommandGenerator.h"
 #include "SDL/SdlDependencyResolver.h"
+#include "DataIO/FileSystem/Path.h"
 
 #include <string>
 
@@ -21,13 +22,13 @@ public:
 
 	/*! @brief Creates reader for all engine classes.
 	*/
-	SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory);
+	SdlSceneFileWriter(const Path& sceneFile, const Path& sceneWorkingDirectory);
 
 	/*! @brief Creates reader for a custom set of classes.
 	*/
 	SdlSceneFileWriter(
 		TSpanView<const SdlClass*> targetClasses,
-		std::string sceneName, 
+		const Path& sceneFile, 
 		const Path& sceneWorkingDirectory);
 
 	~SdlSceneFileWriter() override;
@@ -36,7 +37,7 @@ public:
 	*/
 	void write(const SceneDescription& scene);
 
-	void setSceneName(std::string sceneName);
+	void setSceneFile(Path sceneFile);
 
 protected:
 	bool beginCommand(
@@ -55,9 +56,9 @@ protected:
 		const SdlOutputContext& ctx) override;
 
 private:
-	void saveSceneToFile(const SceneDescription& scene, const Path& filePath);
+	void saveSceneToFile(const SceneDescription& scene);
 
-	std::string m_sceneName;
+	Path m_sceneFile;
 	SdlDependencyResolver m_resolver;
 	FormattedTextOutputStream* m_fileStream;
 };

@@ -29,7 +29,7 @@ public:
 	OfflineRenderer();
 	~OfflineRenderer() override;
 
-	void render(const RenderConfig& config);
+	void render(RenderConfig config);
 
 	/*!
 	@note Thread safe.
@@ -59,7 +59,7 @@ private:
 	};
 
 	bool tryUploadFrameData(GHIThreadCaller& caller);
-	void renderSingleStaticImageOnEngineThread(const RenderConfig& config);
+	void renderSingleStaticImageOnEngineThread(RenderConfig config);
 
 	/*!
 	@note Thread safe.

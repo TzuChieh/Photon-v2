@@ -255,7 +255,7 @@ RegularPicture load_picture(const Path& picturePath)
 
 	// If the flow reaches here, loading has failed and we need to throw
 	throw FileIOError(std::format(
-		"unsupported image format <{}>; tried loading as HDR: {}, as LDR: {}", ext, hasTriedHDR, hasTriedLDR),
+		"failed loading <{}> image; tried loading as HDR: {}, as LDR: {}", ext, hasTriedHDR, hasTriedLDR),
 		picturePath.toString());
 }
 

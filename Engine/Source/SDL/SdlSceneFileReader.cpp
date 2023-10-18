@@ -1,5 +1,4 @@
 #include "SDL/SdlSceneFileReader.h"
-#include "DataIO/FileSystem/Path.h"
 #include "ph_cpp_core.h"
 #include "SDL/SceneDescription.h"
 #include "DataIO/Stream/FormattedTextInputStream.h"
@@ -20,24 +19,24 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlSceneFileReader, SDL);
 
 SdlSceneFileReader::SdlSceneFileReader()
-	: SdlSceneFileReader("untitled-scene", Path("./temp_sdl/"))
+	: SdlSceneFileReader(Path("untitled-scene.p2"), Path("./temp_sdl/"))
 {}
 
-SdlSceneFileReader::SdlSceneFileReader(std::string sceneName, const Path& sceneWorkingDirectory)
+SdlSceneFileReader::SdlSceneFileReader(const Path& sceneFile, const Path& sceneWorkingDirectory)
 	: SdlSceneFileReader(
 		get_registered_engine_classes(), 
-		std::move(sceneName), 
+		sceneFile,
 		sceneWorkingDirectory)
 {}
 
 SdlSceneFileReader::SdlSceneFileReader(
 	TSpanView<const SdlClass*> targetClasses,
-	std::string sceneName,
+	const Path& sceneFile,
 	const Path& sceneWorkingDirectory)
 
 	: SdlCommandParser(targetClasses, sceneWorkingDirectory)
 
-	, m_sceneName(std::move(sceneName))
+	, m_sceneFile(sceneFile)
 	, m_scene(nullptr)
 {}
 
@@ -177,25 +176,22 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 	else
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
-			"Unable to read scene {} (from {}): no target scene description was set.",
-			m_sceneName, getSceneWorkingDirectory());
+			"Unable to read scene <{}> (working directory <{}>): no target scene description was set.",
+			m_sceneFile, getSceneWorkingDirectory());
 		return;
 	}
 
-	// Scene file must reside in the scene working directory as it may be accompanied with data files
-	Path filePath = getSceneWorkingDirectory().append(m_sceneName + ".p2");
-
-	FormattedTextInputStream commandFile(filePath);
+	FormattedTextInputStream commandFile(m_sceneFile);
 	if(!commandFile)
 	{
 		PH_LOG_WARNING(SdlSceneFileReader,
-			"command file <{}> opening failed", filePath.toAbsoluteString());
+			"command file <{}> opening failed", m_sceneFile.toAbsoluteString());
 		return;
 	}
 	else
 	{
 		PH_LOG(SdlSceneFileReader, 
-			"loading command file <{}>", filePath.toAbsoluteString());
+			"loading command file <{}>", m_sceneFile.toAbsoluteString());
 
 		Timer timer;
 		timer.start();
@@ -220,9 +216,9 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 	}
 }
 
-void SdlSceneFileReader::setSceneName(std::string sceneName)
+void SdlSceneFileReader::setSceneFile(Path sceneFile)
 {
-	m_sceneName = std::move(sceneName);
+	m_sceneFile = std::move(sceneFile);
 }
 
 void SdlSceneFileReader::setScene(SceneDescription* const scene)

@@ -6,7 +6,6 @@
 #include "SDL/sdl_helpers.h"
 #include "SDL/Introspect/SdlOutputContext.h"
 #include "SDL/Introspect/SdlClass.h"
-#include "DataIO/FileSystem/Path.h"
 #include "DataIO/FileSystem/Filesystem.h"
 #include "ph_cpp_core.h"
 #include "SDL/SceneDescription.h"
@@ -21,24 +20,24 @@ namespace ph
 PH_DEFINE_INTERNAL_LOG_GROUP(SdlSceneFileWriter, SDL);
 
 SdlSceneFileWriter::SdlSceneFileWriter()
-	: SdlSceneFileWriter("untitled-scene", Path("./temp_sdl/"))
+	: SdlSceneFileWriter(Path("untitled-scene.p2"), Path("./temp_sdl/"))
 {}
 
-SdlSceneFileWriter::SdlSceneFileWriter(std::string sceneName, const Path& sceneWorkingDirectory)
+SdlSceneFileWriter::SdlSceneFileWriter(const Path& sceneFile, const Path& sceneWorkingDirectory)
 	: SdlSceneFileWriter(
 		get_registered_engine_classes(), 
-		std::move(sceneName),
+		sceneFile,
 		sceneWorkingDirectory)
 {}
 
 SdlSceneFileWriter::SdlSceneFileWriter(
 	TSpanView<const SdlClass*> targetClasses,
-	std::string sceneName,
+	const Path& sceneFile,
 	const Path& sceneWorkingDirectory)
 
 	: SdlCommandGenerator(targetClasses, sceneWorkingDirectory)
 
-	, m_sceneName(std::move(sceneName))
+	, m_sceneFile(sceneFile)
 	, m_resolver()
 	, m_fileStream(nullptr)
 {}
@@ -91,28 +90,25 @@ void SdlSceneFileWriter::write(const SceneDescription& scene)
 {
 	// TODO: currently will overwrite existing file; should provide options for whether to append
 
-	// Scene file must reside in the scene working directory as it may be accompanied with data files
+	PH_LOG(SdlSceneFileWriter, "generating scene file: {}", m_sceneFile);
+
 	Filesystem::createDirectories(getSceneWorkingDirectory());
-	Path sceneFile = getSceneWorkingDirectory().append(m_sceneName + ".p2");
-
-	PH_LOG(SdlSceneFileWriter, "generating scene file: {}", sceneFile);
-
 	clearStats();
-	saveSceneToFile(scene, sceneFile);
+	saveSceneToFile(scene);
 
 	PH_LOG(SdlSceneFileWriter,
 		"scene file generated, totalling {} commands (errors: {})",
 		numGeneratedCommands(), numGenerationErrors());
 }
 
-void SdlSceneFileWriter::setSceneName(std::string sceneName)
+void SdlSceneFileWriter::setSceneFile(Path sceneFile)
 {
-	m_sceneName = std::move(sceneName);
+	m_sceneFile = std::move(sceneFile);
 }
 
-void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene, const Path& filePath)
+void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene)
 {
-	FormattedTextOutputStream fileStream(filePath);
+	FormattedTextOutputStream fileStream(m_sceneFile);
 	m_fileStream = &fileStream;
 
 	generateVersionCommand(SemanticVersion(PH_PSDL_VERSION));

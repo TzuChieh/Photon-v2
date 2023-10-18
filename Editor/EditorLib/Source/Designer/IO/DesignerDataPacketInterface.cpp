@@ -139,7 +139,7 @@ void DesignerDataPacketInterface::generate(
 	// Filename: <target-type>_<target-name>.<ext> (ignore angle brackets)
 	const auto packetFilename = std::format("{}_{}.pddpa", targetClass->getTypeName(), targetName);
 
-	const Path packetDirectory = ctx.getWorkingDirectory() / "designer_packet";
+	const Path packetDirectory = ctx.getWorkingDirectory() / "DesignerPacket";
 	Filesystem::createDirectories(packetDirectory);
 
 	const Path packetFile = packetDirectory / packetFilename;

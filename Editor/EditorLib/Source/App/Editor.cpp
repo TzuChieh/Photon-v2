@@ -382,7 +382,7 @@ std::size_t Editor::createSceneFromDescription(
 	// Read render description
 	try
 	{
-		SdlSceneFileReader reader(bundledDesc.removeExtension().getFilename(), workingDirectory);
+		SdlSceneFileReader reader(bundledDesc, workingDirectory);
 		reader.read(&(scene->getRenderDescription()));
 	}
 	catch(const Exception& e)
@@ -467,10 +467,9 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 		if(scene->getRenderDescriptionLink().isResolved())
 		{
 			const Path& descFile = scene->getRenderDescriptionLink().getPath();
-			const Path& workingDirectory = descFile.getParent();
-			const std::string& descName = descFile.removeExtension().getFilename();
+			const Path& workingDirectory = sceneFile.getParent();
 
-			SdlSceneFileReader reader(descName, workingDirectory);
+			SdlSceneFileReader reader(descFile, workingDirectory);
 			reader.read(&(scene->getRenderDescription()));
 		}
 		else
@@ -578,11 +577,10 @@ void Editor::saveScene(std::size_t sceneIndex)
 			writer.setSceneWorkingDirectory(description.getWorkingDirectory());
 		}
 
-		// Extract description name using link from the designer scene
+		// Extract description file path using link from the designer scene
 		const ResourceIdentifier& descLink = scene->getRenderDescriptionLink();
 		PH_ASSERT(descLink.isResolved());
-		const std::string& descName = descLink.getPath().removeExtension().getFilename();
-		writer.setSceneName(descName);
+		writer.setSceneFile(descLink.getPath());
 
 		writer.write(scene->getRenderDescription());
 	}

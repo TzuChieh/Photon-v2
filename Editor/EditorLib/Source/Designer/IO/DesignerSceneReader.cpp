@@ -204,7 +204,8 @@ void DesignerSceneReader::readScene()
 {
 	PH_ASSERT(m_scene);
 
-	// Scene file must reside in the scene working directory as it may be accompanied with data files
+	// Scene file must reside in the root of scene working directory as it will be accompanied
+	// with additional data files
 	Path filePath = getSceneWorkingDirectory().append(m_sceneName + ".pds");
 
 	FormattedTextInputStream commandFile(filePath);

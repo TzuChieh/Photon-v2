@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL/SdlCommandParser.h"
+#include "DataIO/FileSystem/Path.h"
 
 #include <string>
 
@@ -19,13 +20,13 @@ public:
 
 	/*! @brief Creates reader for all engine classes.
 	*/
-	SdlSceneFileReader(std::string sceneName, const Path& sceneWorkingDirectory);
+	SdlSceneFileReader(const Path& sceneFile, const Path& sceneWorkingDirectory);
 
 	/*! @brief Creates reader for a custom set of classes.
 	*/
 	SdlSceneFileReader(
 		TSpanView<const SdlClass*> targetClasses, 
-		std::string sceneName, 
+		const Path& sceneFile,
 		const Path& sceneWorkingDirectory);
 
 	~SdlSceneFileReader() override;
@@ -36,7 +37,7 @@ public:
 	*/
 	void read(SceneDescription* scene = nullptr);
 
-	void setSceneName(std::string sceneName);
+	void setSceneFile(Path sceneFile);
 
 	/*!
 	The reader takes a pointer to scene and cache it since a possible use case is to treat the reader
@@ -81,7 +82,7 @@ protected:
 		const SdlInputContext& ctx) override;
 
 private:
-	std::string m_sceneName;
+	Path m_sceneFile;
 	SceneDescription* m_scene;
 };
 

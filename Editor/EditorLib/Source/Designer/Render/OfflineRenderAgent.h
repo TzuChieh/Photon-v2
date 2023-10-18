@@ -16,7 +16,7 @@ public:
 	using Base = RenderAgent;
 
 	RenderConfig getRenderConfig() const override;
-	void render(const RenderConfig& config) override;
+	void render(RenderConfig config) override;
 
 	void renderInit(RenderThreadCaller& caller);
 	void renderUninit(RenderThreadCaller& caller);

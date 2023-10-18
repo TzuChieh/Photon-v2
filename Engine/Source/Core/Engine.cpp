@@ -53,13 +53,13 @@ void Engine::enterCommand(const std::string& commandFragment)
 	}
 }
 
-bool Engine::loadCommands(const Path& filePath)
+bool Engine::loadCommands(const Path& sceneFile)
 {
 	PH_SCOPED_TIMER(LoadCommands);
 
-	// Scene file must reside in the scene working directory as it may be accompanied with data files
-	m_sceneParser.setSceneWorkingDirectory(filePath.getParent());
-	m_sceneParser.setSceneName(filePath.removeExtension().getFilename());
+	// Scene file may reside in a directory different to the scene working directory. Data files will
+	// still be loaded from the scene working directory (call `setWorkingDirectory()` to set it).
+	m_sceneParser.setSceneFile(sceneFile);
 
 	try
 	{
@@ -68,7 +68,7 @@ bool Engine::loadCommands(const Path& filePath)
 	catch(const Exception& e)
 	{
 		PH_LOG(Engine,
-			"error loading scene file {}: {}", filePath.toAbsoluteString(), e.what());
+			"error loading scene file {}: {}", sceneFile.toAbsoluteString(), e.what());
 		return false;
 	}
 	
@@ -234,9 +234,9 @@ void Engine::asyncQueryStatistics(
 	*out_samplesPerSecond = stats.getReal(0);
 }
 
-void Engine::setWorkingDirectory(const Path& path)
+void Engine::setWorkingDirectory(const Path& directory)
 {
-	m_sceneParser.setSceneWorkingDirectory(path);
+	m_sceneParser.setSceneWorkingDirectory(directory);
 }
 
 }// end namespace ph

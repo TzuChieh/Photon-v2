@@ -33,7 +33,7 @@ RenderConfig OfflineRenderAgent::getRenderConfig() const
 		.enablePeekingFrame = m_enablePeekingFrame};
 }
 
-void OfflineRenderAgent::render(const RenderConfig& config)
+void OfflineRenderAgent::render(RenderConfig config)
 {
 	if(!m_renderer)
 	{

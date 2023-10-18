@@ -22,7 +22,7 @@ public:
 	producing rendered result to filesystem. Whether any preview mechanism are supported is
 	depending on the implementation.
 	*/
-	virtual void render(const RenderConfig& config) = 0;
+	virtual void render(RenderConfig config) = 0;
 
 	void renderWithDefaultConfig();
 

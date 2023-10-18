@@ -1,7 +1,9 @@
 import utility
 
-from collections import deque
 import shutil
+import os.path
+from collections import deque
+from pathlib import PureWindowsPath
 
 
 class SdlCommandQueue:
@@ -72,6 +74,11 @@ class SdlConsole:
 		shutil.copyfile(src_file_path, dst_file_path)
 
 		bundled_file_path = utility.get_appended_path(bundled_folder_path, utility.get_filename(src_file_path))
+		
+		# Make Windows path more cross-platform (basically removing backslashes)
+		if os.path.sep == '\\':
+			bundled_file_path = PureWindowsPath(bundled_file_path).as_posix()
+
 		return bundled_file_path
 
 	def queue_command(self, command):

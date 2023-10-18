@@ -23,7 +23,7 @@ public:
 	Engine();
 
 	void enterCommand(const std::string& commandFragment);
-	bool loadCommands(const Path& filePath);
+	bool loadCommands(const Path& sceneFile);
 	void update();
 	void render();
 
@@ -50,7 +50,7 @@ public:
 	void asyncQueryStatistics(float32* out_percentageProgress,
 	                          float32* out_samplesPerSecond) const;
 
-	void setWorkingDirectory(const Path& path);
+	void setWorkingDirectory(const Path& directory);
 
 	Renderer* getRenderer() const;
 

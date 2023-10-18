@@ -105,7 +105,8 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 		metaInfo.save(getSceneWorkingDirectory(), scene.getName());
 	}
 
-	// Scene file must reside in the scene working directory as it may be accompanied with data files
+	// Scene file must reside in the root of scene working directory as it will be accompanied
+	// with additional data files
 	Path sceneFile = getSceneWorkingDirectory().append(scene.getName() + ".pds");
 
 	PH_LOG(DesignerSceneWriter, "generating scene file: {}", sceneFile);

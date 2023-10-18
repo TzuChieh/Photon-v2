@@ -25,7 +25,7 @@ std::shared_ptr<ISdlResource> load_single_resource(const SdlClass* resourceClass
 		auto targetClasses = {resourceClass};
 		SdlSceneFileReader reader(
 			targetClasses,
-			file.removeExtension().getFilename(),
+			file,
 			file.getParent());
 
 		reader.read(&description);
@@ -73,7 +73,7 @@ void save_single_resource(const std::shared_ptr<ISdlResource>& resource, const P
 	auto targetClasses = {resource->getDynamicSdlClass()};
 	SdlSceneFileWriter writer(
 		targetClasses,
-		file.removeExtension().getFilename(),
+		file,
 		file.getParent());
 
 	// For single-resource files, lay each clause on a separate line for ease of reading/editing
