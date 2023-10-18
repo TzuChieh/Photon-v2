@@ -22,6 +22,12 @@ inline std::size_t Editor::numScenes() const
 	return m_scenes.size();
 }
 
+inline std::size_t Editor::getSceneIndex(const DesignerScene* scene) const
+{
+	auto optIndex = m_scenes.indexOf(scene);
+	return optIndex ? *optIndex : nullSceneIndex();
+}
+
 inline constexpr std::size_t Editor::nullSceneIndex()
 {
 	return static_cast<std::size_t>(-1);

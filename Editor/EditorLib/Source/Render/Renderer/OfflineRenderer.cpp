@@ -51,6 +51,8 @@ OfflineRenderer::~OfflineRenderer()
 
 void OfflineRenderer::render(const RenderConfig& config)
 {
+	PH_ASSERT(Threads::isOnRenderThread());
+
 	if(getRenderStage() != EOfflineRenderStage::Finished)
 	{
 		PH_LOG_WARNING(OfflineRenderer,

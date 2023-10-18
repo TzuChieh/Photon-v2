@@ -4,8 +4,12 @@
 #include "Render/RenderThreadCaller.h"
 #include "Render/Renderer/OfflineRenderer.h"
 #include "Render/Scene.h"
+#include "App/Editor.h"
+#include "EditorCore/Thread/Threads.h"
+#include "Render/RenderThread.h"
 
 #include <SDL/SceneDescription.h>
+#include <Common/logging.h>
 
 #include <utility>
 #include <memory>
@@ -27,6 +31,26 @@ RenderConfig OfflineRenderAgent::getRenderConfig() const
 		.useCopiedScene = m_useCopiedScene,
 		.enableStatsRequest = m_enableStatsRequest,
 		.enablePeekingFrame = m_enablePeekingFrame};
+}
+
+void OfflineRenderAgent::render(const RenderConfig& config)
+{
+	if(!m_renderer)
+	{
+		PH_DEFAULT_LOG_ERROR(
+			"Cannot render. No renderer present.");
+		return;
+	}
+
+	// Save the scene before rendering for most up-do-date scene description
+	Editor& editor = getScene().getEditor();
+	editor.saveScene(editor.getSceneIndex(&getScene()));
+
+	Threads::getRenderThread().addWork(
+		[renderer = m_renderer, config](render::System& /* sys */)
+		{
+			renderer->render(config);
+		});
 }
 
 void OfflineRenderAgent::renderInit(RenderThreadCaller& caller)

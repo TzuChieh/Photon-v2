@@ -17,6 +17,15 @@ class RenderAgent : public FlatDesignerObject
 public:
 	virtual RenderConfig getRenderConfig() const = 0;
 
+	/*! @brief Start producing a rendered scene.
+	This method kicks off the rendering process and returns immediately. This method is for
+	producing rendered result to filesystem. Whether any preview mechanism are supported is
+	depending on the implementation.
+	*/
+	virtual void render(const RenderConfig& config) = 0;
+
+	void renderWithDefaultConfig();
+
 	math::TDecomposedTransform<real> getLocalToParent() const override;
 	void setLocalToParent(const math::TDecomposedTransform<real>& transform) override;
 

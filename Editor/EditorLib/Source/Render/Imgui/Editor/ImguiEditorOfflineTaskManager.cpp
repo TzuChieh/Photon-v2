@@ -236,7 +236,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 	{
 		if(info.agent && info.renderer)
 		{
-			info.renderer->render(info.agent->getRenderConfig());
+			info.agent->renderWithDefaultConfig();
 
 			// Sync image view when rendering start
 			if(m_autoSyncImageView)

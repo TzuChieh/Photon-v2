@@ -518,13 +518,29 @@ void Editor::saveScene()
 		return;
 	}
 
-	m_activeScene->pause();
+	saveScene(getSceneIndex(m_activeScene));
+}
+
+void Editor::saveScene(std::size_t sceneIndex)
+{
+	DesignerScene* scene = getScene(sceneIndex);
+	if(!scene)
+	{
+		PH_LOG_WARNING(Editor,
+			"Cannot save scene--input scene is null (scene index: {}).", sceneIndex);
+		return;
+	}
+
+	if(scene == m_activeScene)
+	{
+		scene->pause();
+	}
 
 	// Save designer scene
 	try
 	{
 		DesignerSceneWriter writer;
-		if(m_activeScene->getWorkingDirectory().isEmpty())
+		if(scene->getWorkingDirectory().isEmpty())
 		{
 			PH_LOG_WARNING(Editor,
 				"Designer scene has no working directory specified, using writer's: {}",
@@ -533,10 +549,10 @@ void Editor::saveScene()
 		else
 		{
 			// Obey the working directory from designer scene
-			writer.setSceneWorkingDirectory(m_activeScene->getWorkingDirectory());
+			writer.setSceneWorkingDirectory(scene->getWorkingDirectory());
 		}
 
-		writer.write(*m_activeScene);
+		writer.write(*scene);
 	}
 	catch(const Exception& e)
 	{
@@ -547,7 +563,7 @@ void Editor::saveScene()
 	// Save render description
 	try
 	{
-		const SceneDescription& description = m_activeScene->getRenderDescription();
+		const SceneDescription& description = scene->getRenderDescription();
 
 		SdlSceneFileWriter writer;
 		if(description.getWorkingDirectory().isEmpty())
@@ -563,12 +579,12 @@ void Editor::saveScene()
 		}
 
 		// Extract description name using link from the designer scene
-		const ResourceIdentifier& descLink = m_activeScene->getRenderDescriptionLink();
+		const ResourceIdentifier& descLink = scene->getRenderDescriptionLink();
 		PH_ASSERT(descLink.isResolved());
 		const std::string& descName = descLink.getPath().removeExtension().getFilename();
 		writer.setSceneName(descName);
 
-		writer.write(m_activeScene->getRenderDescription());
+		writer.write(scene->getRenderDescription());
 	}
 	catch(const Exception& e)
 	{
@@ -576,7 +592,10 @@ void Editor::saveScene()
 			"Scene description saving failed: {}", e.what());
 	}
 	
-	m_activeScene->resume();
+	if(scene == m_activeScene)
+	{
+		scene->resume();
+	}
 }
 
 void Editor::setActiveScene(const std::size_t sceneIndex)
@@ -586,6 +605,16 @@ void Editor::setActiveScene(const std::size_t sceneIndex)
 	{
 		DesignerScene* oldActiveScene = m_activeScene;
 		DesignerScene* newActiveScene = sceneToBeActive;
+
+		if(oldActiveScene)
+		{
+			oldActiveScene->pause();
+		}
+
+		if(newActiveScene)
+		{
+			newActiveScene->resume();
+		}
 
 		m_activeScene = newActiveScene;
 		if(m_activeScene)

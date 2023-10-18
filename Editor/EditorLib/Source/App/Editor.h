@@ -92,12 +92,22 @@ public:
 	*/
 	void saveScene();
 
+	/*! @brief Save a contained scene.
+	*/
+	void saveScene(std::size_t sceneIndex);
+
 	DesignerScene* getScene(std::size_t sceneIndex) const;
 	DesignerScene* getActiveScene() const;
 	void setActiveScene(std::size_t sceneIndex);
 	void removeScene(std::size_t sceneIndex);
 	std::size_t numScenes() const;
-	//std::string getUniqueSceneName(const std::string& intendedName) const;
+
+	/*! @brief Get index of the scene.
+	Most scene operations in the editor take scene index as input, this is to ensure all input scenes
+	are actually maintained by the editor. Taking a scene pointer directly has a higher risk of
+	accidently using an external scene (if a check against scene storage is missing).
+	*/
+	std::size_t getSceneIndex(const DesignerScene* scene) const;
 
 	EditContext getEditContext() const;
 
