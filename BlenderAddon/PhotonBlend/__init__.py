@@ -16,7 +16,7 @@ bl_info = {
 	"description": "A renderer featuring physically based rendering.",
 	"author": "Tzu-Chieh Chang",
 	"version": (2, 0, 0),
-	"blender": (2, 80, 0),
+	"blender": (3, 60, 0),
 	"location": "Render Properties >> Render Engine Menu",
 	"warning": "experimental...",
 	"category": "Render"

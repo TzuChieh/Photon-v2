@@ -68,9 +68,9 @@ bool saveStandaloneRgbData(const Path& filePath, const HdrRgbFrame& frame)
 	const int dataHeight = static_cast<int>(frame.heightPx());
 	
 	Imf::Header header(dataWidth, dataHeight);
-	header.channels().insert("R", Imf::Channel(PIXEL_TYPE));
-	header.channels().insert("G", Imf::Channel(PIXEL_TYPE));
-	header.channels().insert("B", Imf::Channel(PIXEL_TYPE));
+	header.channels().insert("Combined.R", Imf::Channel(PIXEL_TYPE));
+	header.channels().insert("Combined.G", Imf::Channel(PIXEL_TYPE));
+	header.channels().insert("Combined.B", Imf::Channel(PIXEL_TYPE));
 
 	Imf::OutputFile file(filePath.toNativeString().c_str(), header);
 
@@ -94,21 +94,21 @@ bool saveStandaloneRgbData(const Path& filePath, const HdrRgbFrame& frame)
 
 	Imf::FrameBuffer frameBuffer;
 	frameBuffer.insert(
-		"R",
+		"Combined.R",
 		Imf::Slice(
 			PIXEL_TYPE,
 			reinterpret_cast<char*>(&pixels[0][0].r),
 			sizeof(pixels[0][0]) * 1,
 			sizeof(pixels[0][0]) * dataWidth));
 	frameBuffer.insert(
-		"G",
+		"Combined.G",
 		Imf::Slice(
 			PIXEL_TYPE,
 			reinterpret_cast<char*>(&pixels[0][0].g),
 			sizeof(pixels[0][0]) * 1,
 			sizeof(pixels[0][0]) * dataWidth));
 	frameBuffer.insert(
-		"B",
+		"Combined.B",
 		Imf::Slice(
 			PIXEL_TYPE,
 			reinterpret_cast<char*>(&pixels[0][0].b),
@@ -142,9 +142,9 @@ bool ExrFileWriter::save(const HdrRgbFrame& frame, std::string& byteBuffer)
 		const int dataHeight = static_cast<int>(frame.heightPx());
 
 		Imf::Header header(dataWidth, dataHeight);
-		header.channels().insert("R", Imf::Channel(PIXEL_TYPE));
-		header.channels().insert("G", Imf::Channel(PIXEL_TYPE));
-		header.channels().insert("B", Imf::Channel(PIXEL_TYPE));
+		header.channels().insert("Combined.R", Imf::Channel(PIXEL_TYPE));
+		header.channels().insert("Combined.G", Imf::Channel(PIXEL_TYPE));
+		header.channels().insert("Combined.B", Imf::Channel(PIXEL_TYPE));
 
 		Imf::StdOSStream stream;
 		Imf::OutputFile file(stream, header);
@@ -169,21 +169,21 @@ bool ExrFileWriter::save(const HdrRgbFrame& frame, std::string& byteBuffer)
 
 		Imf::FrameBuffer frameBuffer;
 		frameBuffer.insert(
-			"R",
+			"Combined.R",
 			Imf::Slice(
 				PIXEL_TYPE,
 				reinterpret_cast<char*>(&pixels[0][0].r),
 				sizeof(pixels[0][0]) * 1,
 				sizeof(pixels[0][0]) * dataWidth));
 		frameBuffer.insert(
-			"G",
+			"Combined.G",
 			Imf::Slice(
 				PIXEL_TYPE,
 				reinterpret_cast<char*>(&pixels[0][0].g),
 				sizeof(pixels[0][0]) * 1,
 				sizeof(pixels[0][0]) * dataWidth));
 		frameBuffer.insert(
-			"B",
+			"Combined.B",
 			Imf::Slice(
 				PIXEL_TYPE,
 				reinterpret_cast<char*>(&pixels[0][0].b),
