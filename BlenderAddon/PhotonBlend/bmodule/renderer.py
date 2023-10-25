@@ -489,7 +489,7 @@ class RendererModule(blender.BlenderModule):
         # RenderEngines also need to tell UI Panels that they are compatible;
         # otherwise most of the UI will be empty when the engine is selected.
 
-        properties_output.RENDER_PT_dimensions.COMPAT_ENGINES.add(PhPhotonRenderEngine.bl_idname)
+        properties_output.RENDER_PT_format.COMPAT_ENGINES.add(PhPhotonRenderEngine.bl_idname)
 
         properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.add(PhPhotonRenderEngine.bl_idname)
         properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.add(PhPhotonRenderEngine.bl_idname)
@@ -501,7 +501,7 @@ class RendererModule(blender.BlenderModule):
 
 
     def unregister(self):
-        properties_output.RENDER_PT_dimensions.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
+        properties_output.RENDER_PT_format.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
 
         properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
         properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)

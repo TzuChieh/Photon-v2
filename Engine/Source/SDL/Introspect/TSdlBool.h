@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlValue.h"
+#include "SDL/Introspect/TSdlOptionalValue.h"
 #include "SDL/sdl_helpers.h"
 
 #include <type_traits>

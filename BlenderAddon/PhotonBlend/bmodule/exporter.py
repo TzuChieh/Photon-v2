@@ -107,7 +107,6 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         This method attempts to enhance this part by trying to automatically adjust object settings to
         match the one used for final rendering (or what the user specifies).
         """
-        
         b_depsgraph = b_context.evaluated_depsgraph_get()
 
         b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
@@ -145,7 +144,6 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         Calling `get_evaluated_depsgraph()` may modify scene settings. This method restores the settings
         modified to their original states.
         """
-        
         b_depsgraph = b_context.evaluated_depsgraph_get()
 
         # Restore mesh objects to original settings

@@ -8,59 +8,67 @@ In situations where name conflict is possible, they are expected to be resolved 
 
 import bpy
 
-# TODO: materials from other blend files (library blends) can have the same name, need to somehow distinguish them
+# TODO: materials from other blend files (library blends) can have the same name, need to somehow distinguish them (ID.name_full?)
 
 
-# Decorates a name given predefined decoration elements.
 def _get_decorated_name(name, **decorations):
+	"""
+	Decorates a name given predefined decoration elements.
+	@param **decorations `prefix`: string to append in the front of `name`; `suffix`: string to append in the back of `name`
+	"""
 	decorated_name = name
 	if 'prefix' in decorations:
-		decorated_name = decorations.get('prefix') + "$" + decorated_name
+		decorated_name = decorations.get('prefix') + "_" + decorated_name
 	if 'suffix' in decorations:
-		decorated_name = decorated_name + "$" + decorations.get('suffix')
+		decorated_name = decorated_name + "_" + decorations.get('suffix')
 
 	return decorated_name
 
 
-# Get a new resource name from an existing name.
-def get_mangled_name(src_name, **decorations):
-	return _get_decorated_name(src_name, **decorations)
-
-
-# Get a unique resource name for the mesh resource.
 def get_mangled_mesh_name(b_mesh: bpy.types.Mesh, **decorations):
-	return "GE" + _get_decorated_name(b_mesh.name, **decorations)
+	"""
+	Get a unique resource name for the mesh resource.
+	"""
+	return "Mesh_" + _get_decorated_name(b_mesh.name, **decorations)
 
 
-# Get a unique resource name for the material resource.
 def get_mangled_material_name(b_material: bpy.types.Material, **decorations):
-	return "MA" + _get_decorated_name(b_material.name, **decorations)
+	"""
+	Get a unique resource name for the material resource.
+	"""
+	return "Material_" + _get_decorated_name(b_material.name, **decorations)
 
 
 # Get a unique resource name for the light resource.
 def get_mangled_light_name(b_light: bpy.types.Light, **decorations):
-	return "LI" + _get_decorated_name(b_light.name, **decorations)
+	"""
+	Get a unique resource name for the light resource.
+	"""
+	return "Light_" + _get_decorated_name(b_light.name, **decorations)
 
 
-# Get a unique resource name for the object resource.
 def get_mangled_object_name(b_object: bpy.types.Object, **decorations):
-	return "OB" + _get_decorated_name(b_object.name, **decorations)
+	"""
+	Get a unique resource name for the object resource.
+	"""
+	return "Object_" + _get_decorated_name(b_object.name, **decorations)
 
 
-# Get a unique resource name for the node resource.
 def get_mangled_node_name(b_node: bpy.types.Node, b_material: bpy.types.Material, **decorations):
+	"""
+	Get a unique resource name for the node resource.
+	"""
 	# Material name is required since node name is unique within the same node tree only.
 	joint_name = _get_decorated_name(b_node.name, prefix=b_material.name)
 
-	return "NO" + _get_decorated_name(joint_name, **decorations)
+	return "Node_" + _get_decorated_name(joint_name, **decorations)
 
 
-# Note that the identifier attribute of a socket is only unique in either input or output sockets, not both.
 def _get_mangled_node_socket_name(
 	b_node_socket: bpy.types.NodeSocket,
 	b_material: bpy.types.Material,
 	**decorations):
-
+	# Note that the identifier attribute of a socket is only unique in either input or output sockets, not both.
 	b_owning_node = b_node_socket.node
 	joint_name = _get_decorated_name(b_node_socket.identifier, prefix=b_owning_node.name)
 	joint_name = _get_decorated_name(joint_name, prefix=b_material.name)
@@ -73,7 +81,7 @@ def get_mangled_input_node_socket_name(
 	b_material: bpy.types.Material,
 	**decorations):
 
-	return "IN" + _get_mangled_node_socket_name(b_node_socket, b_material, **decorations)
+	return "InputNode_" + _get_mangled_node_socket_name(b_node_socket, b_material, **decorations)
 
 
 def get_mangled_output_node_socket_name(
@@ -81,4 +89,4 @@ def get_mangled_output_node_socket_name(
 	b_material: bpy.types.Material,
 	**decorations):
 
-	return "OU" + _get_mangled_node_socket_name(b_node_socket, b_material, **decorations)
+	return "OutputNode_" + _get_mangled_node_socket_name(b_node_socket, b_material, **decorations)

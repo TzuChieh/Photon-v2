@@ -122,9 +122,8 @@ class Exporter:
 
     def export_mesh_object(self, b_mesh_object: bpy.types.Object):
         b_mesh = b_mesh_object.data
-
         if b_mesh is None:
-            print("warning: mesh object (%s)　has no mesh data, not exporting" % b_mesh_object.name)
+            print("warning: mesh object (%s) has no mesh data, not exporting" % b_mesh_object.name)
             return
 
         if len(b_mesh.materials) == 0:
@@ -140,6 +139,7 @@ class Exporter:
             b_mesh.calc_normals_split()
 
         # TODO: might be faster if using len(obj.material_slots()) for array size and simply store each loop tris array
+        # TODO: material can link to mesh or object, distinguish them
         material_idx_loop_triangles_map = {}
         for b_loop_triangle in b_mesh.loop_triangles:
             # This index refers to material slots (their stack order in the UI).
@@ -160,8 +160,13 @@ class Exporter:
                     b_mesh_object.name, material_idx))
                 continue
 
-            # Using slot index as suffix so we can ensure unique geometry names (required by Photon SDL).
-            geometry_name = naming.get_mangled_mesh_name(b_mesh, suffix=str(material_idx))
+            # To ensure unique geometry name (which is required by Photon SDL), we use slot index as suffix. Note that
+            # `bpy.types.Mesh.name` can be the same for different mesh data (even of it appears to have different names
+            # in the outliner, tested in Blender 3.6). This is either a bug or due to support for geometry node, as geometry
+            # can be procedurally generated and we cannot generate a good name for it. This is why we are using mesh object's
+            # name as prefix. See Blender issue "Depsgraph returns wrong evaluated object name in bpy #100314" (https://projects.blender.org/blender/blender/issues/100314).
+            # TODO: Whether this will affect object instancing need to be tested. We may export same mesh data multiple times now.
+            geometry_name = naming.get_mangled_mesh_name(b_mesh, prefix=b_mesh_object.name, suffix=str(material_idx))
             material_name = naming.get_mangled_material_name(b_material)
 
             # Use the active one as the UV map for export.
@@ -198,7 +203,7 @@ class Exporter:
             pos, rot, scale = utility.to_photon_pos_rot_scale(b_mesh_object.matrix_world)
 
             if material.helper.is_emissive(b_material):
-                light_actor_name = naming.get_mangled_object_name(b_mesh_object, prefix="EMISSIVE", suffix=str(material_idx))
+                light_actor_name = naming.get_mangled_object_name(b_mesh_object, prefix="Emissive", suffix=str(material_idx))
                 emission_image_name = material.helper.get_emission_image_res_name(b_material)
                 self.export_light_actor(light_actor_name, emission_image_name, geometry_name, material_name, pos, rot, scale)
             else:
@@ -383,7 +388,7 @@ class Exporter:
         
         b_camera_object = scene.find_active_camera_object(b_depsgraph)
         b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
-        b_materials = scene.find_materials_from_mesh_objects(b_mesh_objects)
+        b_materials = scene.find_materials_from_mesh_objects(b_mesh_objects, b_depsgraph)
         b_light_objects = scene.find_light_objects(b_depsgraph)
 
         print("Exporter found %d mesh objects, %d materials, and %d light objects" % (
@@ -398,12 +403,10 @@ class Exporter:
 
         for b_material in b_materials:
             print("exporting material: " + b_material.name)
+            self.export_material(b_material)
 
-            # HACK: In Blender 2.8, materials from evaluated depsgraph will have all their properties left as default
-            # values (Blender bug?), the original data block is good though
-            # self.export_material(b_material)
-            self.export_material(b_material.original)
-
+        # TODO: Instancing; also see the comment in `export_mesh_object()`, mesh data in mesh object may have name collision
+        # even if they are actually different. How do we properly export mesh data should be revisited.
         for b_mesh_object in b_mesh_objects:
             print("exporting mesh object: " + b_mesh_object.name)
             self.export_mesh_object(b_mesh_object)

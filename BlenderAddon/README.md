@@ -15,3 +15,4 @@ The folder named `PhotonBlend` is a Blender add-on for Photon. **We support only
 ## Development
 
 * It can be useful to have [fake bpy modules](https://github.com/nutti/fake-bpy-module) around so that `import bpy` and its equivalent no longer trigger errors in your IDE (and autocomplete is now possible).
+* By enabling `Edit > Preferences > Interface > Developer Extras` and `Python Tooltips`, you gain more information for developer from Blender's UI.
