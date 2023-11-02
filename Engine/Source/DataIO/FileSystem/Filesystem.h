@@ -5,6 +5,8 @@ namespace ph
 
 class Path;
 
+/*! @brief Filesystem operations for the native operating system.
+*/
 class Filesystem final
 {
 public:

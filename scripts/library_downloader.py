@@ -4,10 +4,11 @@ from utility import filesystem
 
 import sys
 import os
+import configparser
 
 
 # Download third-party libraries for the engine
-def download_thirdparty_library(dst_directory):
+def download_thirdparty_library(dst_directory, setup_config: configparser.ConfigParser):
 
     git_branch_result = console.run_command("git", "branch")
 
@@ -21,15 +22,22 @@ def download_thirdparty_library(dst_directory):
     #
     git_branch_tokens = git_branch_result.split()
     asterisk_index = git_branch_tokens.index("*")
-    git_branch_name = git_branch_tokens[asterisk_index + 1]
-    print("Currently on %s branch" % git_branch_name)
+    photon_branch_name = git_branch_tokens[asterisk_index + 1]
+    print("Currently on %s branch" % photon_branch_name)
 
-    # Use develop branch on third-party lib repo if we are not on master branch
-    if git_branch_name != "master":
-        git_branch_name = "develop"
-    print("Third-party library version selected: %s" % git_branch_name)
+    settings = setup_config["General"]
 
-    src_filename = git_branch_name + ".zip"
+    # Only the main Photon branch uses the main lib branch. For other branches, use the dev lib branch.
+    # The lib branch to use can be overridden by directly specifying a custom branch to use.
+    lib_branch_name = settings.get("CustomThirdPartyBranch", "")
+    if not lib_branch_name:
+        if photon_branch_name == settings["MainBranch"]:
+            lib_branch_name = settings["MainThirdPartyBranch"]
+        else:
+            lib_branch_name = settings["DevThirdPartyBranch"]
+    print("Third-party library version selected: %s" % lib_branch_name)
+
+    src_filename = lib_branch_name + ".zip"
     src_file_url = "https://github.com/TzuChieh/Photon-v2-ThirdParty/archive/refs/heads/" + src_filename
 
     print("Downloading third-party libraries from <%s>..." % src_file_url)
@@ -38,7 +46,7 @@ def download_thirdparty_library(dst_directory):
     # The extracted zip file will be a folder named "Photon-v2-ThirdParty-<branch-name>",
     # rename it to be just "Photon-v2-ThirdParty"
 
-    extracted_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty-" + git_branch_name)
+    extracted_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty-" + lib_branch_name)
     final_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty")
 
     # Delete old library folder first if it exists (basically a clean install)

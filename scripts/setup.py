@@ -23,13 +23,13 @@ print("Loading setup settings from <%s>" % setup_config_path)
 setup_config = configparser.ConfigParser()
 setup_config.read_file(open(setup_config_path))
 
-config_build_directory = os.path.abspath(setup_config["Paths"]["BuildDirectory"])
+config_build_directory = os.path.abspath(setup_config["General"]["BuildDirectory"])
 if not os.path.samefile(config_build_directory, build_directory):
     print("Using build directory other than <%s> is not recommended (currently <%s>)" % (
         config_build_directory, build_directory))
 
 # Download additional data to build directory
-library_downloader.download_thirdparty_library(build_directory)
+library_downloader.download_thirdparty_library(build_directory, setup_config)
 resource_downloader.download_external_resource(build_directory)
 
 # Setup Blender addon
