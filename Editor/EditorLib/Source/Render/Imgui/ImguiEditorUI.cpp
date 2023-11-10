@@ -500,8 +500,13 @@ void ImguiEditorUI::buildMainViewportWindow()
 		return;
 	}
 
-	ImGui::Text("This is window A");
-	ImGui::Text("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+	// Show a centered text note if viewport is not available
+	const auto unavailableNote = "Viewport Render Unavailable";
+	const auto windowSize = ImGui::GetWindowSize();
+	const auto textSize = ImGui::CalcTextSize(unavailableNote);
+	ImGui::SetCursorPos({(windowSize.x - textSize.x) * 0.5f, (windowSize.y - textSize.y) * 0.5f});
+	ImGui::TextUnformatted(unavailableNote);
+
 	ImGui::End();
 }
 
