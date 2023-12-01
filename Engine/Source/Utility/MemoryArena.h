@@ -32,7 +32,7 @@ public:
 	*/
 	MemoryArena(std::size_t blockSizeHintInBytes, std::size_t numDefaultBlocks);
 	
-	/*! @beif Move another arena into this one.
+	/*! @brief Move another arena into this one.
 	The moved-from arena cannot be used unless:
 	1. yet another arena has moved into it
 	2. `clear()` has been called.

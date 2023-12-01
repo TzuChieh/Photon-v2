@@ -11,8 +11,8 @@ namespace ph::math
 
 /*! @brief Blackman-Harris window function.
 A window function similar to Gaussian function in shape. It is defined 
-over [-<radius>, <radius>] and will take on value 0 at boundaries. 
-The peak of the function is at (0, 0).
+over @f$ \left[-radius, radius\right] @f$ and will take on value 0 at boundaries. 
+The peak of the function is at @f$ (0, 0) @f$.
 
 Reference: https://en.wikipedia.org/wiki/Window_function
 */

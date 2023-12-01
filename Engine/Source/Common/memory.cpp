@@ -19,13 +19,6 @@ namespace ph
 namespace detail
 {
 
-/*!
-@param numBytes Number of bytes to allocate. Must be an integer multiple of @p alignmentInBytes.
-@param alignmentInBytes How many bytes to align (so the returned pointer is an integer multiple
-of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof(void*)`.
-@return Pointer to the beginning of newly allocated memory. `nullptr` on failure.
-@note Call free_aligned_memory(void*) to deallocate the memory. This function is thread safe.
-*/
 void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
 {
 	// Alignment must be an integer power of 2.
@@ -53,11 +46,6 @@ void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alig
 #endif
 }
 
-/*!
-@param ptr The memory to be deallocated. @p ptr must be allocated by allocate_aligned_memory(std::size_t, std::size_t).
-If @p ptr is `nullptr`, no action is performed.
-@note This function is thread safe.
-*/
 void free_aligned_memory(void* const ptr)
 {
 #if PH_OPERATING_SYSTEM_IS_WINDOWS

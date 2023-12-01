@@ -11,18 +11,37 @@ looking for if a quick search gives no useful results.
 Home of header and source files that provides functionalities Photon has to
 offer.
 
-- @ref Include
-- @ref Source
+- @ref Include/
+- @ref Source/
+
+Generally speaking, the @ref Include/ folder contains public APIs for the engine,
+while the @ref Source/ folder contains its implementation. For those who want
+direct access to all engine functionalities, you can choose to compile and link
+code from both @ref Include/ and @ref Source/.
 
 @section data_containers Standalone/Composite Data Containers
 
-Raw data that after being cooked, contribute to the final image directly.
+These directories contains raw data descriptions for a scene. They will contribute
+to the final image after being cooked.
 
-- @ref Source/Actor/Geometry
-- @ref Source/Actor/Image
-- @ref Source/Actor/LightSource
-- @ref Source/Actor/Material
-- @ref Source/Actor/MotionSource
-- @ref Source/Actor
+- @ref Source/Actor/
+- @ref Source/Actor/Geometry/
+- @ref Source/Actor/Image/
+- @ref Source/Actor/Light/
+- @ref Source/Actor/Material/
+- @ref Source/Actor/MotionSource/
+
+@section math Math functions
+
+- Common math utilities and types for 3D rendering
+  - @ref Source/Math/
+- Color management and conversion functions
+  - @ref Source/Math/Color/
+- Mathematic constructs of geometries
+  - @ref Source/Math/Geometry/
+- Probabilistic utilities such as RNGs and distributions
+  - @ref Source/Math/Random/
+- Coordinate transformation
+  - @ref Source/Math/Transform/
 
 */

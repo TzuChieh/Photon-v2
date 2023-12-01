@@ -74,7 +74,7 @@ public:
 	SIndex nextStableIndex() const;
 
 	/*! @brief Checks whether the stable index represent a valid object or not.
-	@return `true` if @stableIndex maps to an object, otherwise `false`.
+	@return `true` if @p stableIndex maps to an object, otherwise `false`.
 	*/
 	bool isStableIndexValid(SIndex stableIndex) const;
 
