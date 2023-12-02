@@ -20,6 +20,16 @@ class Receiver;
 class PMRenderer : public Renderer
 {
 public:
+	PMRenderer(
+		EPMMode mode,
+		uint64 numPhotons,
+		uint64 numPasses,
+		uint64 numSamplesPerPixel,
+		real kernelRadius,
+		Viewport viewport,
+		SampleFilter filter,
+		uint32 numWorkers);
+
 	void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) override;
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
@@ -40,10 +50,10 @@ public:
 private:
 	std::unique_ptr<HdrRgbFilm> m_film;
 
-	const Scene*          m_scene;
-	const Receiver*       m_receiver;
-	SampleGenerator*      m_sg;
-	SampleFilter          m_filter;
+	const Scene* m_scene;
+	const Receiver* m_receiver;
+	SampleGenerator* m_sg;
+	SampleFilter m_filter;
 
 	EPMMode m_mode;
 	std::size_t m_numPhotons;
@@ -55,7 +65,7 @@ private:
 
 	PMStatistics m_statistics;
 	std::atomic_uint32_t m_photonsPerSecond;
-	std::atomic_bool     m_isFilmUpdated;
+	std::atomic_bool m_isFilmUpdated;
 
 	void renderWithVanillaPM();
 	void renderWithProgressivePM();

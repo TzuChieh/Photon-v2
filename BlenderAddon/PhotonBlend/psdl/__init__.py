@@ -1,3 +1,2 @@
-from . import sdlresource
-from . import sdlconsole
 from generated import pysdl as sdl
+from . import sdlmapping as mapping

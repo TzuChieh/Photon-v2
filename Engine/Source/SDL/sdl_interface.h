@@ -53,8 +53,9 @@ Available functionalities after defining the macro:
 * `const ClassType* getSdlClass()`
   - A static method for accessing the static SDL class.
 
-* A method `const SdlClass* getDynamicSdlClass()`
-  - A virtual method for accessing SDL class in runtime, through base pointer to resource.
+* `const SdlClass* getDynamicSdlClass() const`
+  - A virtual method for accessing SDL class in runtime, through an instance to resource. The returned
+    class will be the one defined for the actual type of the resource.
 
 */
 #define PH_DEFINE_SDL_CLASS(...)/* variadic args for template types that contain commas */\

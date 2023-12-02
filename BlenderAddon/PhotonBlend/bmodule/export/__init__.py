@@ -10,9 +10,9 @@ from bmodule import (
 
 from bmodule.material import nodes
 from bmodule.mesh import triangle_mesh
-from psdl import sdl
+from psdl import sdl, mapping
 from psdl.sdlconsole import SdlConsole
-from utility import meta, blender
+from utility import blender
 from bmodule.export import cycles_material
 
 import bpy
@@ -294,65 +294,63 @@ class Exporter:
             self.get_sdlconsole().queue_command(rotation)
 
     def export_core_commands(self, b_scene):
-        versionDirective = sdl.VersionDirectiveCommand()
-        self.get_sdlconsole().queue_command(versionDirective)
+        version_directive = sdl.VersionDirectiveCommand()
+        self.get_sdlconsole().queue_command(version_directive)
         
-        meta_info = meta.MetaGetter(b_scene)
+        spp = b_scene.ph_render_num_spp
+        filter_type = b_scene.ph_render_sample_filter_type
+        sample_source_type = b_scene.ph_render_sample_source_type
+        integrator_type = b_scene.ph_render_integrator_type
+        scheduler_type = b_scene.ph_scheduler_type
 
         sample_source = None
-        if b_scene.ph_render_sample_source_type == 'RANDOM':
+        if sample_source_type == 'RANDOM':
             sample_source = sdl.UniformRandomSampleSourceCreator()
-            sample_source.set_samples(sdl.Integer(meta_info.spp()))
-        elif b_scene.ph_render_sample_source_type == 'STRATIFIED':
+            sample_source.set_samples(sdl.Integer(spp))
+        elif sample_source_type == 'STRATIFIED':
             sample_source = sdl.StratifiedSampleSourceCreator()
-            sample_source.set_samples(sdl.Integer(meta_info.spp()))
-        elif b_scene.ph_render_sample_source_type == 'HALTON':
+            sample_source.set_samples(sdl.Integer(spp))
+        elif sample_source_type == 'HALTON':
             sample_source = sdl.HaltonSampleSourceCreator()
-            sample_source.set_samples(sdl.Integer(meta_info.spp()))
+            sample_source.set_samples(sdl.Integer(spp))
+        else:
+            print("warning: sample source %s is not supported" % sample_source_type)
 
         if sample_source is not None:
             sample_source.set_data_name("sample-source")
             self.get_sdlconsole().queue_command(sample_source)
-        else:
-            print("warning: no sample source present")
-
-        render_method = meta_info.render_method()
 
         visualizer = None
-        if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL":
+        if integrator_type == 'BVPT' or integrator_type == 'BNEEPT' or integrator_type == 'BVPTDL':
             visualizer = sdl.PathTracingVisualizerCreator()
-            visualizer.set_sample_filter(sdl.Enum(meta_info.sample_filter_name()))
-            visualizer.set_estimator(sdl.Enum(meta_info.integrator_type_name()))
-            visualizer.set_scheduler(sdl.Enum(b_scene.ph_scheduler_type))
-            
-        # elif render_method == "VPM":
-        #     renderer = sdl.PmRendererCreator()
-        #     renderer.set_mode(sdl.String("vanilla"))
-        #     renderer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
-        #     renderer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
-        #     renderer.set_radius(sdl.Real(b_scene.ph_render_kernel_radius))
-        # elif render_method == "PPM" or render_method == "SPPM":
-        #     mode_name = "progressive" if render_method == "PPM" else "stochastic-progressive"
-        #     renderer = sdl.PmRendererCreator()
-        #     renderer.set_mode(sdl.String(mode_name))
-        #     renderer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
-        #     renderer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
-        #     renderer.set_radius(sdl.Real(b_scene.ph_render_kernel_radius))
-        #     renderer.set_num_passes(sdl.Integer(b_scene.ph_render_num_passes))
+            visualizer.set_sample_filter(mapping.to_filter_enum(filter_type))
+            visualizer.set_estimator(mapping.to_integrator_enum(integrator_type))
+            visualizer.set_scheduler(mapping.to_scheduler_enum(scheduler_type))
+        elif integrator_type == 'VPM':
+            visualizer = sdl.PhotonMappingVisualizerCreator()
+            visualizer.set_mode(mapping.to_integrator_enum(integrator_type))
+            visualizer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
+            visualizer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
+            visualizer.set_photon_radius(sdl.Real(b_scene.ph_render_kernel_radius))
+        elif integrator_type == 'PPM' or integrator_type == 'SPPM':
+            visualizer = sdl.PhotonMappingVisualizerCreator()
+            visualizer.set_mode(mapping.to_integrator_enum(integrator_type))
+            visualizer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
+            visualizer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
+            visualizer.set_photon_radius(sdl.Real(b_scene.ph_render_kernel_radius))
+            visualizer.set_num_passes(sdl.Integer(b_scene.ph_render_num_passes))
         # elif render_method == "ATTRIBUTE":
-        #     renderer = sdl.AttributeRendererCreator()
+        #     visualizer = sdl.AttributeRendererCreator()
         # elif render_method == "CUSTOM":
         #     custom_renderer_sdl_command = sdl.RawCommand()
         #     custom_renderer_sdl_command.append_string(b_scene.ph_render_custom_sdl)
         #     custom_renderer_sdl_command.append_string("\n")
         #     self.get_sdlconsole().queue_command(custom_renderer_sdl_command)
         else:
-            print("warning: render method %s is not supported" % render_method)
+            print("warning: render method %s is not supported" % integrator_type)
 
         if visualizer is not None:
-
             visualizer.set_data_name("visualizer")
-
             if b_scene.ph_use_crop_window:
                 visualizer.set_rect_x(sdl.Integer(b_scene.ph_crop_min_x))
                 visualizer.set_rect_y(sdl.Integer(b_scene.ph_crop_min_y))

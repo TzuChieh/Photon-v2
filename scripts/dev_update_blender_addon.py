@@ -12,7 +12,7 @@ setup_config_path = os.path.join(setup_script_directory, "SetupConfig.ini")
 setup_config = configparser.ConfigParser()
 setup_config.read_file(open(setup_config_path))
 
-build_directory = os.path.abspath(setup_config["Paths"]["BuildDirectory"])
+build_directory = os.path.abspath(setup_config["General"]["BuildDirectory"])
 
 # Obtain path to the SDLGenCLI executable
 sdl_gen_cli_executable_name = "SDLGenCLI.exe"

@@ -17,12 +17,44 @@
 #include "Core/Renderer/PM/TPPMViewpointCollector.h"
 #include "Core/Renderer/PM/TSPPMRadianceEvaluator.h"
 
+#include <utility>
 #include <numeric>
 
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(PhotonMapRenderer, Renderer);
+
+PMRenderer::PMRenderer(
+	EPMMode mode,
+	uint64 numPhotons,
+	uint64 numPasses,
+	uint64 numSamplesPerPixel,
+	real kernelRadius,
+	Viewport viewport,
+	SampleFilter filter,
+	uint32 numWorkers)
+
+	: Renderer(viewport, numWorkers)
+
+	, m_film(nullptr)
+
+	, m_scene(nullptr)
+	, m_receiver(nullptr)
+	, m_sg(nullptr)
+	, m_filter(std::move(filter))
+
+	, m_mode(mode)
+	, m_numPhotons(numPhotons)
+	, m_numPasses(numPasses)
+	, m_numSamplesPerPixel(numSamplesPerPixel)
+	, m_kernelRadius(kernelRadius)
+
+	, m_filmMutex()
+	, m_statistics()
+	, m_photonsPerSecond()
+	, m_isFilmUpdated()
+{}
 
 void PMRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
@@ -73,7 +105,7 @@ void PMRenderer::renderWithVanillaPM()
 	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MB", sizeof(Photon) * m_numPhotons / 1024 / 1024);
 	PH_LOG(PhotonMapRenderer, "start shooting photons...");
 
-	std::vector<Photon>  photonBuffer(m_numPhotons);
+	std::vector<Photon> photonBuffer(m_numPhotons);
 	std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
 	parallel_work(m_numPhotons, numWorkers(),
 		[this, &photonBuffer, &numPhotonPaths](

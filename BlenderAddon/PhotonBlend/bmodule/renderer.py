@@ -249,32 +249,32 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
 
     bpy.types.Scene.ph_render_integrator_type = bpy.props.EnumProperty(
         items=[
-            ("BVPT", "Pure Path Tracing", "Slow but versatile"),
-            ("BNEEPT", "NEE Path Tracing", "Similar to pure PT but good on rendering small lights"),
-            ("VPM", "Photon Mapping", "Rough preview, fairly good at caustics"),
-            ("PPM", "Progressive Photon Mapping", "Good at complex lighting condition"),
-            ("SPPM", "Stochastic Progressive Photon Mapping", "Good at complex lighting condition"),
-            ("BVPTDL", "Pure Path Tracing (Direct Lighting)", ""),
-            ("ATTRIBUTE", "Attribute", ""),
-            ("CUSTOM", "Custom", "Directly input SDL commands for renderer.")
+            ('BVPT', "Pure Path Tracing", "Slow but versatile"),
+            ('BNEEPT', "NEE Path Tracing", "Similar to pure PT but good on rendering small lights"),
+            ('VPM', "Photon Mapping", "Rough preview, fairly good at caustics"),
+            ('PPM', "Progressive Photon Mapping", "Good at complex lighting condition"),
+            ('SPPM', "Stochastic Progressive Photon Mapping", "Good at complex lighting condition"),
+            ('BVPTDL', "Pure Path Tracing (Direct Lighting)", ""),
+            ('ATTRIBUTE', "Attribute", ""),
+            ('CUSTOM', "Custom", "Directly input SDL commands for renderer.")
         ],
         name="Rendering Method",
         description="Photon-v2's rendering methods",
-        default="BNEEPT"
+        default='BNEEPT'
     )
 
     bpy.types.Scene.ph_scheduler_type = bpy.props.EnumProperty(
         items=[
-            ('bulk', "Bulk", ""),
-            ('stripe', "Stripe", ""),
-            ('grid', "Grid", ""),
-            ('tile', "Tile", ""),
-            ('spiral', "Spiral", ""),
-            ('spiral-grid', "Spiral-grid", "")
+            ('BULK', "Bulk", ""),
+            ('STRIPE', "Stripe", ""),
+            ('GRID', "Grid", ""),
+            ('TILE', "Tile", ""),
+            ('SPIRAL', "Spiral", ""),
+            ('SPIRAL_GRID', "Spiral-grid", "")
         ],
         name="Scheduler",
         description="Order of rendering for pixels",
-        default='spiral-grid'
+        default='SPIRAL_GRID'
     )
 
     bpy.types.Scene.ph_render_num_photons = bpy.props.IntProperty(

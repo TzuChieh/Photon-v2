@@ -60,6 +60,7 @@
 #include "EngineEnv/Visualizer/Visualizer.h"
 #include "EngineEnv/Visualizer/FrameVisualizer.h"
 #include "EngineEnv/Visualizer/PathTracingVisualizer.h"
+#include "EngineEnv/Visualizer/PhotonMappingVisualizer.h"
 
 // Options
 #include "SDL/Option.h"
@@ -92,6 +93,7 @@
 #include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
 #include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
 #include "EngineEnv/Visualizer/sdl_scheduler_type.h"
+#include "EngineEnv/Visualizer/sdl_photon_mapping_mode.h"
 #include "Actor/Image/sdl_image_enums.h"
 #include "Actor/SDLExtension/sdl_color_enums.h"
 #include "Actor/Material/Utility/EInterfaceFresnel.h"
@@ -172,6 +174,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<Visualizer>(),
 		get_sdl_class<FrameVisualizer>(),
 		get_sdl_class<PathTracingVisualizer>(),
+		get_sdl_class<PhotonMappingVisualizer>(),
 
 		// Options
 		get_sdl_class<Option>(),
@@ -207,6 +210,7 @@ inline std::vector<const SdlEnum*> register_engine_enums()
 		get_sdl_enum<ERayEnergyEstimator>(),
 		get_sdl_enum<ESampleFilter>(),
 		get_sdl_enum<EScheduler>(),
+		get_sdl_enum<EPhotonMappingMode>(),
 		get_sdl_enum<EImageSampleMode>(),
 		get_sdl_enum<EImageWrapMode>(),
 		get_sdl_enum<math::EColorSpace>(),

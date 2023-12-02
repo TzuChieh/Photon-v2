@@ -52,7 +52,7 @@ public:
 		clazz.addField(scheduler);
 
 		TSdlEnumField<OwnerType, ERayEnergyEstimator> estimator("estimator", &OwnerType::m_estimator);
-		estimator.description("The energy estimating component used by the renderer.");
+		estimator.description("The energy estimating component used by the visualizer.");
 		estimator.defaultTo(ERayEnergyEstimator::BNEEPT);
 		estimator.optional();
 		clazz.addField(estimator);

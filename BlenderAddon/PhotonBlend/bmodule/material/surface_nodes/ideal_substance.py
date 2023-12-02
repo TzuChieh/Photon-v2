@@ -78,7 +78,7 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         creator.set_data_name(surface_mat_res_name)
         creator.set_ior_outer(sdl.Real(self.ior_outer))
         creator.set_ior_inner(sdl.Real(self.ior_inner))
-        creator.set_f0_rgb(sdl.Vector3(self.f0))
+        creator.set_f0(sdl.Spectrum(self.f0))
         creator.set_reflection_scale(sdl.Vector3(self.reflection_scale))
         creator.set_transmission_scale(sdl.Vector3(self.transmission_scale))
 

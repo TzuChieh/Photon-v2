@@ -1,10 +1,19 @@
 #pragma once
 
-#include "EngineEnv/Visualizer/ESampleFilter.h"
 #include "SDL/sdl_interface.h"
 
 namespace ph
 {
+
+enum class ESampleFilter
+{
+	Unspecified = 0,
+
+	Box,
+	Gaussian,
+	MitchellNetravali,
+	BlackmanHarris
+};
 
 PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ESampleFilter>)
 {

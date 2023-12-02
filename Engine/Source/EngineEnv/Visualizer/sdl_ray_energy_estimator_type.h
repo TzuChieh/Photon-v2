@@ -1,10 +1,18 @@
 #pragma once
 
-#include "EngineEnv/Visualizer/ERayEnergyEstimator.h"
 #include "SDL/sdl_interface.h"
 
 namespace ph
 {
+
+enum class ERayEnergyEstimator
+{
+	Unspecified = 0,
+
+	BVPT,
+	BNEEPT,
+	BVPTDL
+};
 
 PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<ERayEnergyEstimator>)
 {
