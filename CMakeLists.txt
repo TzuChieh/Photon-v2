@@ -436,7 +436,7 @@ endif()
 # Add CMake Subdirectories                                                    #
 ###############################################################################
 
-add_subdirectory("./Engine/")
+add_subdirectory("./Engine/Engine/")
 
 if(PH_BUILD_SDL_GEN)
     add_subdirectory("./SDLGenerator/SDLGen/")
