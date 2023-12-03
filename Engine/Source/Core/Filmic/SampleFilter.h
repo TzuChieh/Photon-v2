@@ -12,30 +12,31 @@ namespace ph
 class SampleFilter final
 {
 public:
-	SampleFilter() = default;
-	SampleFilter(const std::shared_ptr<math::TMathFunction2D<float64>>& filter,
-	             float64 widthPx, float64 heightPx);
-	SampleFilter(const SampleFilter& other);
-	SampleFilter(SampleFilter&& other);
+	SampleFilter();
+
+	SampleFilter(
+		const std::shared_ptr<math::TMathFunction2D<float64>>& filterFunc,
+		float64 widthPx,
+		float64 heightPx);
 
 	float64 evaluate(float64 xPx, float64 yPx) const;
-
-	inline const math::TVector2<float64>& getSizePx() const
-	{
-		return m_sizePx;
-	}
-
-	inline const math::TVector2<float64>& getHalfSizePx() const
-	{
-		return m_halfSizePx;
-	}
-
-	SampleFilter& operator = (const SampleFilter& rhs);
+	const math::TVector2<float64>& getSizePx() const;
+	const math::TVector2<float64>& getHalfSizePx() const;
 
 private:
-	std::shared_ptr<math::TMathFunction2D<float64>> m_filter;
-	math::TVector2<float64>                         m_sizePx;
-	math::TVector2<float64>                         m_halfSizePx;
+	std::shared_ptr<math::TMathFunction2D<float64>> m_filterFunc;
+	math::TVector2<float64> m_sizePx;
+	math::TVector2<float64> m_halfSizePx;
 };
+
+inline const math::TVector2<float64>& SampleFilter::getSizePx() const
+{
+	return m_sizePx;
+}
+
+inline const math::TVector2<float64>& SampleFilter::getHalfSizePx() const
+{
+	return m_halfSizePx;
+}
 
 }// end namespace ph

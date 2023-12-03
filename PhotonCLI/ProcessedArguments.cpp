@@ -15,23 +15,24 @@ ProcessedArguments::ProcessedArguments(int argc, char* argv[]) :
 	ProcessedArguments(CommandLineArguments(argc, argv))
 {}
 
-ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
-	m_sceneFilePath             ("./scene.p2"),
-	m_imageOutputPath           ("./rendered_scene"),
-	m_imageFileFormat           ("png"),
-	m_numThreads                (1),
-	m_isPostProcessRequested    (true),
-	m_isHelpMessageRequested    (false),
-	m_isImageSeriesRequested    (false),
-	m_wildcardStart             (""),
-	m_wildcardFinish            (""),
-	m_intermediateOutputInverval(std::numeric_limits<float>::max()),
-	m_intervalUnit              (EIntervalUnit::PERCENTAGE),
-	m_isOverwriteRequested      (false),
+ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
+	: m_executionMode             (EExecutionMode::SingleImage)
+	, m_sceneFilePath             ("./scene.p2")
+	, m_imageOutputPath           ("./rendered_scene")
+	, m_imageFileFormat           ("png")
+	, m_numThreads                (1)
+	, m_isPostProcessRequested    (true)
+	, m_isHelpMessageRequested    (false)
+	, m_isImageSeriesRequested    (false)
+	, m_wildcardStart             ("")
+	, m_wildcardFinish            ("")
+	, m_intermediateOutputInverval(std::numeric_limits<float>::max())
+	, m_intervalUnit              (EIntervalUnit::Percentage)
+	, m_isOverwriteRequested      (false)
 
 	// HACK
-	m_isFrameDiagRequested(false),
-	m_port(0)
+	, m_isFrameDiagRequested(false)
+	, m_port(0)
 {
 	while(!arguments.isEmpty())
 	{
@@ -76,11 +77,11 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments) :
 				const char unit = values[0].back();
 				if(unit == '%')
 				{
-					m_intervalUnit = EIntervalUnit::PERCENTAGE;
+					m_intervalUnit = EIntervalUnit::Percentage;
 				}
 				else if(unit == 's')
 				{
-					m_intervalUnit = EIntervalUnit::SECOND;
+					m_intervalUnit = EIntervalUnit::Second;
 				}
 				else
 				{

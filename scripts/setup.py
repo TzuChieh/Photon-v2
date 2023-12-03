@@ -16,7 +16,7 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 8:
 
 build_directory = os.path.abspath(sys.argv[1])
 setup_script_directory = os.path.dirname(os.path.abspath(__file__))
-setup_config_path = os.path.join(setup_script_directory, "SetupConfig.ini")
+setup_config_path = os.path.join(setup_script_directory, "../Main/SetupConfig.ini")
 
 # Read and parse setup config
 print("Loading setup settings from <%s>" % setup_config_path)

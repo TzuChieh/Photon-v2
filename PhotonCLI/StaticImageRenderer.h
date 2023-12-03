@@ -1,6 +1,5 @@
 #pragma once
 
-#include "util.h"
 #include "ProcessedArguments.h"
 
 #include <ph_core.h>
@@ -10,22 +9,35 @@
 namespace ph::cli
 {
 
-class StaticImageRenderer final
+class StaticImageRenderer
 {
 public:
 	explicit StaticImageRenderer(const ProcessedArguments& args);
-	~StaticImageRenderer();
+	virtual ~StaticImageRenderer();
 
-	void render();
+	virtual void render() = 0;
 
 	void setSceneFilePath(const std::string& path);
 	void setImageOutputPath(const std::string& path);
 
-private:
-	PHuint64           m_engineId;
-	ProcessedArguments m_args;
-
+protected:
+	PHuint64 getEngine() const;
+	const ProcessedArguments& getArgs() const;
 	bool loadCommandsFromSceneFile() const;
+
+private:
+	PHuint64 m_engineId;
+	ProcessedArguments m_args;
 };
+
+inline PHuint64 StaticImageRenderer::getEngine() const
+{
+	return m_engineId;
+}
+
+inline const ProcessedArguments& StaticImageRenderer::getArgs() const
+{
+	return m_args;
+}
 
 }// end namespace ph::cli

@@ -14,17 +14,16 @@ namespace ph::cli
 
 enum class EIntervalUnit
 {
-	PERCENTAGE,
-	SECOND
+	Percentage,
+	Second
 };
 
-//enum class EExecutionMode
-//{
-//	Unspecified,
-//	RENDER_SINGLE_IMAGE,
-//	RENDER_IMAGE_SERIES,
-//	SDL_GENERATION
-//};
+enum class EExecutionMode
+{
+	SingleImage,
+	ImageSeries,
+	Blender
+};
 
 // TODO: a parameter telling whether intermediate outout is requested
 class ProcessedArguments
@@ -36,6 +35,7 @@ public:
 	ProcessedArguments(int argc, char* argv[]);
 	explicit ProcessedArguments(CommandLineArguments arguments);
 
+	EExecutionMode getExecutionMode() const;
 	std::string    getSceneFilePath() const;
 	std::string    getImageOutputPath() const;
 	std::string    getImageFilePath() const;
@@ -74,7 +74,7 @@ public:
 	}
 
 private:
-	//EExecutionMode m_executionMode;
+	EExecutionMode m_executionMode;
 	std::string    m_sceneFilePath;
 	std::string    m_imageOutputPath;
 	std::string    m_imageFileFormat;
@@ -96,6 +96,11 @@ private:
 };
 
 // In-header Implementations:
+
+inline EExecutionMode ProcessedArguments::getExecutionMode() const
+{
+	return m_executionMode;
+}
 
 inline std::string ProcessedArguments::getSceneFilePath() const
 {

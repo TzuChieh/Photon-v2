@@ -1,6 +1,6 @@
 #include "ProcessedArguments.h"
 #include "util.h"
-#include "StaticImageRenderer.h"
+#include "CliStaticImageRenderer.h"
 
 #include <ph_core.h>
 #include <Common/stats.h>
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 
 	if(!args.isImageSeriesRequested())
 	{
-		StaticImageRenderer renderer(args);
+		CliStaticImageRenderer renderer(args);
 		renderer.render();
 	}
 	else
@@ -166,7 +166,7 @@ void renderImageSeries(const ProcessedArguments& args)
 
 	for(const auto& sceneFile : sceneFiles)
 	{
-		StaticImageRenderer renderer(args);
+		CliStaticImageRenderer renderer(args);
 		renderer.setSceneFilePath(sceneFile.second);
 
 		const std::string imageFilename = sceneFile.first;

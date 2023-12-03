@@ -8,7 +8,7 @@ import sys
 
 # First obtain the setup config
 setup_script_directory = os.path.dirname(os.path.abspath(__file__))
-setup_config_path = os.path.join(setup_script_directory, "SetupConfig.ini")
+setup_config_path = os.path.join(setup_script_directory, "../Main/SetupConfig.ini")
 setup_config = configparser.ConfigParser()
 setup_config.read_file(open(setup_config_path))
 

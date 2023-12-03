@@ -4,39 +4,27 @@
 namespace ph
 {
 
-SampleFilter::SampleFilter(const std::shared_ptr<math::TMathFunction2D<float64>>& filter,
-                           const float64 widthPx, const float64 heightPx) :
-	m_filter    (filter),
-	m_sizePx    (widthPx, heightPx),
-	m_halfSizePx(widthPx * 0.5, heightPx * 0.5)
+SampleFilter::SampleFilter()
+	: m_filterFunc(nullptr)
+	, m_sizePx(0)
+	, m_halfSizePx(0)
+{}
+
+SampleFilter::SampleFilter(
+	const std::shared_ptr<math::TMathFunction2D<float64>>& filterFunc,
+	const float64 widthPx, 
+	const float64 heightPx)
+
+	: m_filterFunc(filterFunc)
+	, m_sizePx(widthPx, heightPx)
+	, m_halfSizePx(widthPx * 0.5, heightPx * 0.5)
 {
-	PH_ASSERT(filter);
+	PH_ASSERT(m_filterFunc);
 }
-
-SampleFilter::SampleFilter(const SampleFilter& other) :
-	m_filter    (other.m_filter),
-	m_sizePx    (other.m_sizePx),
-	m_halfSizePx(other.m_halfSizePx)
-{}
-
-SampleFilter::SampleFilter(SampleFilter&& other) : 
-	m_filter    (std::move(other.m_filter)),
-	m_sizePx    (other.m_sizePx), 
-	m_halfSizePx(other.m_halfSizePx)
-{}
 
 float64 SampleFilter::evaluate(const float64 xPx, const float64 yPx) const
 {
-	return m_filter->evaluate(xPx, yPx);
-}
-
-SampleFilter& SampleFilter::operator = (const SampleFilter& rhs)
-{
-	m_filter     = rhs.m_filter;
-	m_sizePx     = rhs.m_sizePx;
-	m_halfSizePx = rhs.m_halfSizePx;
-
-	return *this;
+	return m_filterFunc->evaluate(xPx, yPx);
 }
 
 }// end namespace ph
