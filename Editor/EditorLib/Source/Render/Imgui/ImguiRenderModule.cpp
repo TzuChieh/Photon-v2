@@ -16,7 +16,7 @@
 #include "ThirdParty/ImPlot.h"
 #include "ThirdParty/GLFW3.h"
 
-#include <ph_cpp_core.h>
+#include <ph_core.h>
 #include <Common/profiling.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/Filesystem.h>

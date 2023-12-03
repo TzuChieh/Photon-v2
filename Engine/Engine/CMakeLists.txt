@@ -1,17 +1,9 @@
-# Photon-v2 core engine.
+# Photon core engine.
 
 get_filename_component(ENGINE_DIR "./" ABSOLUTE)
 
-set(ENGINE_C_INCLUDE_DIR        "${ENGINE_DIR}/Include/CEngine/")
-set(ENGINE_CPP_INCLUDE_DIR      "${ENGINE_DIR}/Include/CppEngine/")
-set(ENGINE_CPP_IMPL_INCLUDE_DIR "${ENGINE_DIR}/Source/")
-
-set(ENGINE_C_API_INCLUDE_DIRS
-	"${ENGINE_C_INCLUDE_DIR}")
-
-set(ENGINE_CPP_API_INCLUDE_DIRS
-	"${ENGINE_CPP_INCLUDE_DIR}"
-	"${ENGINE_CPP_IMPL_INCLUDE_DIR}")
+set(ENGINE_INCLUDE_DIR         "${ENGINE_DIR}/Include/")
+set(ENGINE_PRIVATE_INCLUDE_DIR "${ENGINE_DIR}/Source/")
 
 file(GLOB_RECURSE ENGINE_HEADER_FILES 
 	"${ENGINE_DIR}/Include/*.h" 
@@ -41,8 +33,8 @@ set_property(TARGET EngineObjLib PROPERTY POSITION_INDEPENDENT_CODE 1)
 ]]
 
 target_include_directories(Engine 
-	PUBLIC  ${ENGINE_C_API_INCLUDE_DIRS}
-	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS})
+	PUBLIC  ${ENGINE_INCLUDE_DIR}
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 
@@ -100,4 +92,4 @@ source_group(TREE ${ENGINE_DIR} FILES ${ENGINE_SOURCE_FILES})
 # TODO: other files such as .dox
 
 # Make these directories accessible for other sub-projects
-set(ENGINE_CPP_API_INCLUDE_DIRS "${ENGINE_CPP_API_INCLUDE_DIRS}" PARENT_SCOPE)
+set(ENGINE_PRIVATE_INCLUDE_DIR "${ENGINE_PRIVATE_INCLUDE_DIR}" PARENT_SCOPE)

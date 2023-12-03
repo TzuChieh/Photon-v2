@@ -39,6 +39,7 @@ blender_addon.setup_photon_blend(setup_config)
 
 project_names = [
     "Engine",
+    "CEngine",
     "EngineTest",
     "SDLGen",
     "SDLGenCLI",

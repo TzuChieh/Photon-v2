@@ -9,7 +9,7 @@
 #include "ThirdParty/DearImGui.h"
 
 #include <SDL/SceneDescription.h>
-#include <ph_cpp_core.h>
+#include <ph_core.h>
 #include <ph_editor.h>
 #include <SDL/sdl_helpers.h>
 #include <SDL/Introspect/SdlField.h>

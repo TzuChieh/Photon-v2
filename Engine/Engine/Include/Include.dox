@@ -1,3 +1,4 @@
 /*! @dir Include
 @brief Home of header files that provides functionalities Photon Engine has to offer.
+Note that this is a C++ library. For C library, use `CEngine` instead.
 */

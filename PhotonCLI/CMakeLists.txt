@@ -1,4 +1,4 @@
-# Photon-v2 Command Line Application
+# Photon command line application.
 
 get_filename_component(PHOTON_CLI_DIR "./" ABSOLUTE)
 
@@ -20,10 +20,11 @@ add_dependencies(PhotonCLI
 	SDLGen)
 
 target_include_directories(PhotonCLI
-	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS})
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
 target_link_libraries(PhotonCLI
 	PRIVATE Engine
+	PRIVATE CEngine
 	PRIVATE SDLGen)
 
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")

@@ -1,521 +1,315 @@
 #include "ph_core.h"
-#include "Api/ApiDatabase.h"
-#include "Core/Engine.h"
-#include "Core/Receiver/Receiver.h"
-#include "Api/test_scene.h"
-#include "Frame/TFrame.h"
-#include "Math/TArithmeticArray.h"
-#include "ph_cpp_core.h"
-#include "Core/Renderer/Renderer.h"
-#include "DataIO/FileSystem/Path.h"
-#include "Common/assertion.h"
-#include "DataIO/io_utils.h"
-#include "Api/ApiHelper.h"
-#include "Core/Scheduler/Region.h"
-#include "Common/config.h"
+#include "Api/init_and_exit.h"
 #include "Common/logging.h"
-#include "Frame/frame_utils.h"
-#include "Utility/ByteBuffer.h"
-#include "DataIO/io_exceptions.h"
+#include "Common/Log/Logger.h"
+#include "Common/config.h"
 
-#include <memory>
-#include <iostream>
-#include <cstring>
-#include <cstddef>
+// Geometries
+#include "Actor/Geometry/Geometry.h"
+#include "Actor/Geometry/GSphere.h"
+#include "Actor/Geometry/GRectangle.h"
+#include "Actor/Geometry/GTriangle.h"
+#include "Actor/Geometry/GTriangleMesh.h"
+#include "Actor/Geometry/GMengerSponge.h"
+#include "Actor/Geometry/GCuboid.h"
+#include "Actor/Geometry/GEmpty.h"
+#include "Actor/Geometry/GeometrySoup.h"
+#include "Actor/Geometry/GPlyPolygonMesh.h"
 
-using namespace ph;
+// Materials
+#include "Actor/Material/Material.h"
+#include "Actor/Material/MatteOpaque.h"
+#include "Actor/Material/AbradedOpaque.h"
+#include "Actor/Material/AbradedTranslucent.h"
+#include "Actor/Material/IdealSubstance.h"
+#include "Actor/Material/BinaryMixedSurfaceMaterial.h"
+#include "Actor/Material/FullMaterial.h"
+#include "Actor/Material/Volume/VAbsorptionOnly.h"
+#include "Actor/Material/LayeredSurface.h"
+#include "Actor/Material/ThinFilm.h"
 
-PH_DEFINE_INTERNAL_LOG_GROUP(CAPI, Engine);
+// Motions
+#include "Actor/MotionSource/MotionSource.h"
+#include "Actor/MotionSource/ConstantVelocityMotion.h"
 
-void phConfigCoreResourceDirectory(const PHchar* const directory)
+// Images
+#include "Actor/Image/Image.h"
+#include "Actor/Image/ConstantImage.h"
+#include "Actor/Image/RasterImageBase.h"
+#include "Actor/Image/RasterFileImage.h"
+#include "Actor/Image/ConstantImage.h"
+#include "Actor/Image/MathImage.h"
+#include "Actor/Image/SwizzledImage.h"
+#include "Actor/Image/CheckerboardImage.h"
+#include "Actor/Image/GradientImage.h"
+#include "Actor/Image/BlackBodyRadiationImage.h"
+
+// Observers
+#include "EngineEnv/Observer/Observer.h"
+#include "EngineEnv/Observer/OrientedRasterObserver.h"
+#include "EngineEnv/Observer/SingleLensObserver.h"
+
+// Sample Sources
+#include "EngineEnv/SampleSource/SampleSource.h"
+#include "EngineEnv/SampleSource/RuntimeSampleSource.h"
+#include "EngineEnv/SampleSource/UniformRandomSampleSource.h"
+#include "EngineEnv/SampleSource/StratifiedSampleSource.h"
+#include "EngineEnv/SampleSource/HaltonSampleSource.h"
+
+// Visualizers
+#include "EngineEnv/Visualizer/Visualizer.h"
+#include "EngineEnv/Visualizer/FrameVisualizer.h"
+#include "EngineEnv/Visualizer/PathTracingVisualizer.h"
+#include "EngineEnv/Visualizer/PhotonMappingVisualizer.h"
+
+// Options
+#include "SDL/Option.h"
+#include "EngineEnv/Session/RenderSession.h"
+#include "EngineEnv/Session/SingleFrameRenderSession.h"
+
+// Objects
+#include "SDL/Object.h"
+
+// Actors
+#include "Actor/Actor.h"
+#include "Actor/PhysicalActor.h"
+#include "Actor/AModel.h"
+#include "Actor/ADome.h"
+#include "Actor/APhantomModel.h"
+#include "Actor/ATransformedInstance.h"
+#include "Actor/Dome/AImageDome.h"
+#include "Actor/Dome/APreethamDome.h"
+#include "Actor/Light/ALight.h"
+#include "Actor/Light/AGeometricLight.h"
+#include "Actor/Light/AAreaLight.h"
+#include "Actor/Light/AModelLight.h"
+#include "Actor/Light/APointLight.h"
+#include "Actor/Light/ARectangleLight.h"
+#include "Actor/Light/ASphereLight.h"
+#include "Actor/Light/AIesAttenuatedLight.h"
+
+// Enums
+#include "EngineEnv/sdl_accelerator_type.h"
+#include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
+#include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
+#include "EngineEnv/Visualizer/sdl_scheduler_type.h"
+#include "EngineEnv/Visualizer/sdl_photon_mapping_mode.h"
+#include "Actor/Image/sdl_image_enums.h"
+#include "Actor/SDLExtension/sdl_color_enums.h"
+#include "Actor/Material/Utility/EInterfaceFresnel.h"
+#include "Actor/Material/Utility/EInterfaceMicrosurface.h"
+#include "Actor/Material/Utility/ERoughnessToAlpha.h"
+#include "DataIO/sdl_picture_file_type.h"
+
+#include <utility>
+#include <vector>
+
+namespace ph
 {
-	PH_ASSERT(directory);
 
-	Config::CORE_RESOURCE_DIRECTORY() = std::string(directory);
+PH_DEFINE_INTERNAL_LOG_GROUP(CppAPI, Engine);
+
+namespace
+{
+
+template<typename SdlClassType>
+inline const SdlClass* get_sdl_class()
+{
+	return SdlClassType::getSdlClass();
 }
 
-int phInit()
+template<typename EnumType>
+inline const SdlEnum* get_sdl_enum()
 {
-	if(!init_render_engine(EngineInitSettings()))
-	{
-		PH_LOG_ERROR(CAPI, "engine initialization failed");
-		return PH_FALSE;
-	}
-
-	return PH_TRUE;
+	return TSdlEnum<EnumType>::getSdlEnum();
 }
 
-int phExit()
+inline std::vector<const SdlClass*> register_engine_classes()
 {
-	if(!exit_render_engine())
+	return
 	{
-		PH_LOG_ERROR(CAPI, "engine exiting failed");
-		return PH_FALSE;
-	}
+		// Geometries
+		get_sdl_class<Geometry>(),
+		get_sdl_class<GSphere>(),
+		get_sdl_class<GRectangle>(),
+		get_sdl_class<GTriangle>(),
+		get_sdl_class<GTriangleMesh>(),
+		//get_sdl_class<GCuboid>(),
+		get_sdl_class<GMengerSponge>(),
+		get_sdl_class<GeometrySoup>(),
+		get_sdl_class<GPlyPolygonMesh>(),
 
-	return PH_TRUE;
+		// Materials
+		get_sdl_class<Material>(),
+		get_sdl_class<SurfaceMaterial>(),
+		get_sdl_class<MatteOpaque>(),
+		get_sdl_class<AbradedOpaque>(),
+		get_sdl_class<AbradedTranslucent>(),
+		get_sdl_class<FullMaterial>(),
+		get_sdl_class<IdealSubstance>(),
+		get_sdl_class<BinaryMixedSurfaceMaterial>(),
+
+		// Images
+		get_sdl_class<Image>(),
+		get_sdl_class<ConstantImage>(),
+		get_sdl_class<RasterImageBase>(),
+		get_sdl_class<RasterFileImage>(),
+		get_sdl_class<MathImage>(),
+		get_sdl_class<SwizzledImage>(),
+		get_sdl_class<BlackBodyRadiationImage>(),
+
+		// Observers
+		get_sdl_class<Observer>(),
+		get_sdl_class<OrientedRasterObserver>(),
+		get_sdl_class<SingleLensObserver>(),
+
+		// Sample Sources
+		get_sdl_class<SampleSource>(),
+		get_sdl_class<RuntimeSampleSource>(),
+		get_sdl_class<UniformRandomSampleSource>(),
+		get_sdl_class<StratifiedSampleSource>(),
+		get_sdl_class<HaltonSampleSource>(),
+
+		// Visualizers
+		get_sdl_class<Visualizer>(),
+		get_sdl_class<FrameVisualizer>(),
+		get_sdl_class<PathTracingVisualizer>(),
+		get_sdl_class<PhotonMappingVisualizer>(),
+
+		// Options
+		get_sdl_class<Option>(),
+		get_sdl_class<RenderSession>(),
+		get_sdl_class<SingleFrameRenderSession>(),
+
+		// Objects
+		get_sdl_class<Object>(),
+
+		// Actors
+		get_sdl_class<Actor>(),
+		get_sdl_class<PhysicalActor>(),
+		get_sdl_class<AModel>(),
+		get_sdl_class<ADome>(),
+		get_sdl_class<AImageDome>(),
+		get_sdl_class<APreethamDome>(),
+		get_sdl_class<ALight>(),
+		get_sdl_class<AGeometricLight>(),
+		get_sdl_class<AAreaLight>(),
+		get_sdl_class<AModelLight>(),
+		get_sdl_class<APointLight>(),
+		get_sdl_class<ARectangleLight>(),
+		get_sdl_class<ASphereLight>(),
+		get_sdl_class<AIesAttenuatedLight>(),
+	};
 }
 
-void phCreateEngine(PHuint64* const out_engineId, const PHuint32 numRenderThreads)
+inline std::vector<const SdlEnum*> register_engine_enums()
 {
-	PH_ASSERT(out_engineId);
-
-	auto engine = std::make_unique<Engine>();
-	engine->setNumThreads(static_cast<std::size_t>(numRenderThreads));
-	*out_engineId = static_cast<PHuint64>(ApiDatabase::addResource(std::move(engine)));
-
-	PH_LOG(CAPI, "engine<{}> created", *out_engineId);
+	return
+	{
+		get_sdl_enum<EAccelerator>(),
+		get_sdl_enum<ERayEnergyEstimator>(),
+		get_sdl_enum<ESampleFilter>(),
+		get_sdl_enum<EScheduler>(),
+		get_sdl_enum<EPhotonMappingMode>(),
+		get_sdl_enum<EImageSampleMode>(),
+		get_sdl_enum<EImageWrapMode>(),
+		get_sdl_enum<math::EColorSpace>(),
+		get_sdl_enum<math::EColorUsage>(),
+		get_sdl_enum<EMathImageOp>(),
+		get_sdl_enum<EInterfaceFresnel>(),
+		get_sdl_enum<ERoughnessToAlpha>(),
+		get_sdl_enum<EIdealSubstance>(),
+		get_sdl_enum<ESurfaceMaterialMixMode>(),
+		get_sdl_enum<EPictureFile>(),
+	};
 }
 
-void phSetNumRenderThreads(const PHuint64 engineId, const PHuint32 numRenderThreads)
+}// end anonymous namespace
+
+bool init_render_engine(EngineInitSettings settings)
 {
-	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
-	if(engine)
+	detail::core_logging::init();
+
+	if(!settings.additionalLogHandlers.empty())
 	{
-		engine->setNumThreads(static_cast<uint32>(numRenderThreads));
-	}
-}
-
-void phDeleteEngine(const PHuint64 engineId)
-{
-	if(ApiDatabase::removeResource<Engine>(engineId))
-	{
-		PH_LOG(CAPI, "engine<{}> deleted", engineId);
-	}
-	else
-	{
-		PH_LOG_WARNING(CAPI, "error while deleting engine<{}>", engineId);
-	}
-}
-
-void phEnterCommand(const PHuint64 engineId, const PHchar* const commandFragment)
-{
-	static_assert(sizeof(PHchar) == sizeof(char));
-	PH_ASSERT(commandFragment);
-
-	Engine* const engine = ApiDatabase::getResource<Engine>(engineId);
-	if(engine)
-	{
-		engine->enterCommand(commandFragment);
-	}
-}
-
-int phLoadCommands(const PHuint64 engineId, const PHchar* const filePath)
-{
-	static_assert(sizeof(PHchar) == sizeof(char));
-	PH_ASSERT(filePath);
-
-	Engine* const engine = ApiDatabase::getResource<Engine>(engineId);
-	if(engine)
-	{
-		return engine->loadCommands(Path(filePath)) ? PH_TRUE : PH_FALSE;
-	}
-
-	return PH_FALSE;
-}
-
-void phRender(const PHuint64 engineId)
-{
-	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
-	if(engine)
-	{
-		engine->render();
-	}
-}
-
-void phUpdate(const PHuint64 engineId)
-{
-	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
-	if(engine)
-	{
-		engine->update();
-	}
-}
-
-void phAquireFrame(
-	const PHuint64 engineId,
-	const PHuint64 channelIndex,
-	const PHuint64 frameId)
-{
-	Engine*      engine = ApiDatabase::getResource<Engine>(engineId);
-	HdrRgbFrame* frame  = ApiDatabase::getResource<HdrRgbFrame>(frameId);
-	if(engine && frame)
-	{
-		engine->retrieveFrame(
-			static_cast<std::size_t>(channelIndex), 
-			*frame);
-	}
-}
-
-void phAquireFrameRaw(
-	const PHuint64 engineId,
-	const PHuint64 channelIndex,
-	const PHuint64 frameId)
-{
-	Engine*      engine = ApiDatabase::getResource<Engine>(engineId);
-	HdrRgbFrame* frame  = ApiDatabase::getResource<HdrRgbFrame>(frameId);
-	if(engine && frame)
-	{
-		engine->retrieveFrame(
-			static_cast<std::size_t>(channelIndex),
-			*frame, 
-			false);
-	}
-}
-
-void phGetRenderDimension(const PHuint64 engineId, PHuint32* const out_widthPx, PHuint32* const out_heightPx)
-{
-	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
-	if(engine)
-	{
-		const math::TVector2<int64> dim = engine->getFilmDimensionPx();
-		*out_widthPx  = static_cast<PHuint32>(dim.x());
-		*out_heightPx = static_cast<PHuint32>(dim.y());
-	}
-}
-
-void phGetObservableRenderData(
-	const PHuint64                       engineId,
-	struct PHObservableRenderData* const out_data)
-{
-	PH_ASSERT(out_data);
-
-	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
-	if(engine)
-	{
-		const auto data = engine->getRenderer()->getObservationInfo();
-
-		for(std::size_t i = 0; i < PH_NUM_RENDER_LAYERS; ++i)
+		PH_LOG(CppAPI, "adding {} additional log handler(s)", settings.additionalLogHandlers.size());
+		for(LogHandler& handler : settings.additionalLogHandlers)
 		{
-			out_data->layers[i][0] = '\0';
-			if(i < data.numLayers())
+			if(!handler)
 			{
-				std::strncpy(
-					out_data->layers[i], 
-					data.getLayerName(i).c_str(), 
-					PH_MAX_NAME_LENGTH);
-				out_data->layers[i][PH_MAX_NAME_LENGTH] = '\0';
+				PH_LOG_WARNING(CppAPI,
+					"attempting to add a null core log handler");
+				continue;
 			}
+			
+			detail::core_logging::get_core_logger().addLogHandler(std::move(handler));
 		}
 
-		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)
-		{
-			out_data->integers[i][0] = '\0';
-			if(i < data.numIntegerStats())
-			{
-				std::strncpy(
-					out_data->integers[i],
-					data.getIntegerStatName(i).c_str(),
-					PH_MAX_NAME_LENGTH);
-				out_data->integers[i][PH_MAX_NAME_LENGTH] = '\0';
-			}
-		}
-
-		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
-		{
-			out_data->reals[i][0] = '\0';
-			if(i < data.numRealStats())
-			{
-				std::strncpy(
-					out_data->reals[i],
-					data.getRealStatName(i).c_str(),
-					PH_MAX_NAME_LENGTH);
-				out_data->reals[i][PH_MAX_NAME_LENGTH] = '\0';
-			}
-		}
+		settings.additionalLogHandlers.clear();
 	}
+
+	if(!init_engine_IO_infrastructure())
+	{
+		PH_LOG_ERROR(CppAPI, "IO infrastructure initialization failed");
+		return false;
+	}
+
+	// Get SDL enums once here to initialize them--this is not required, just to be safe 
+	// as SDL enum instances are lazy-constructed and may be done in strange places/order 
+	// later (which may cause problems). Also, there may be some extra code in the definition
+	// that want to be ran early.
+	// Enums are initialized first as they have fewer dependencies.
+	//
+	const auto sdlEnums = get_registered_engine_enums();
+	PH_LOG_DEBUG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
+
+	// Get SDL classes once here to initialize them--this is not required,
+	// same reason as SDL enums.
+	//
+	const auto sdlClasses = get_registered_engine_classes();
+	PH_LOG_DEBUG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
+
+	return true;
 }
 
-void phCreateFrame(PHuint64* const out_frameId,
-                   const PHuint32 widthPx, const PHuint32 heightPx)
+bool exit_render_engine()
 {
-	auto frame = std::make_unique<HdrRgbFrame>(widthPx, heightPx);
-	*out_frameId = ApiDatabase::addResource(std::move(frame));
+	if(!exit_API_database())
+	{
+		PH_LOG_ERROR(CppAPI, "C API database exiting failed");
+		return false;
+	}
 
-	PH_LOG(CAPI, "frame<{}> created", *out_frameId);
+	detail::core_logging::exit();
+
+	return true;
 }
 
-void phGetFrameDimension(const PHuint64 frameId, 
-                         PHuint32* const out_widthPx, PHuint32* const out_heightPx)
+std::span<const SdlClass* const> get_registered_engine_classes()
 {
-	HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
-	if(frame)
-	{
-		*out_widthPx  = static_cast<PHuint32>(frame->widthPx());
-		*out_heightPx = static_cast<PHuint32>(frame->heightPx());
-	}
+	static std::vector<const SdlClass*> classes = register_engine_classes();
+	return classes;
 }
 
-void phGetFrameRgbData(const PHuint64 frameId, const PHfloat32** const out_data)
+std::span<const SdlEnum* const> get_registered_engine_enums()
 {
-	HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
-	if(frame)
-	{
-		static_assert(sizeof(PHfloat32) == sizeof(HdrComponent));
-
-		*out_data = static_cast<const PHfloat32*>(frame->getPixelData().data());
-	}
+	static std::vector<const SdlEnum*> enums = register_engine_enums();
+	return enums;
 }
 
-void phDeleteFrame(const PHuint64 frameId)
+Path get_config_directory(const EEngineProject project)
 {
-	if(ApiDatabase::removeResource<HdrRgbFrame>(frameId))
-	{
-		PH_LOG(CAPI, "frame<{}> deleted", frameId);
-	}
-	else
-	{
-		PH_LOG_WARNING(CAPI, "error while deleting frame<{}>", frameId);
-	}
+	return Path(PH_CONFIG_DIRECTORY).append(to_string(project));
 }
 
-int phLoadFrame(PHuint64 frameId, const PHchar* const filePath)
+Path get_internal_resource_directory(const EEngineProject project)
 {
-	PH_ASSERT(filePath);
-
-	/*HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
-	if(frame)
-	{
-		*frame = io_utils::load_picture(Path(filePath)).frame;
-		return PH_TRUE;
-	}
-	else
-	{
-		return PH_FALSE;
-	}*/
-	PH_ASSERT_UNREACHABLE_SECTION();
-	return PH_FALSE;
+	return Path(PH_INTERNAL_RESOURCE_DIRECTORY).append(to_string(project));
 }
 
-int phSaveFrame(const PHuint64 frameId, const PHchar* const filePath)
+Path get_resource_directory(const EEngineProject project)
 {
-	PH_ASSERT(filePath);
-
-	const HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
-	if(frame)
-	{
-		try
-		{
-			io_utils::save(*frame, Path(filePath));
-			return PH_TRUE;
-		}
-		catch(const FileIOError& e)
-		{
-			PH_LOG_WARNING(CAPI,
-				"frame<{}> saving failed: {}", 
-				frameId, e.whatStr());
-			return PH_FALSE;
-		}
-	}
-
-	return PH_FALSE;
+	return Path(PH_RESOURCE_DIRECTORY).append(to_string(project));
 }
 
-int phSaveFrameToBuffer(const PHuint64 frameId, const PHuint64 bufferId)
-{
-	const HdrRgbFrame* const frame  = ApiDatabase::getResource<HdrRgbFrame>(frameId);
-	ByteBuffer* const        buffer = ApiDatabase::getResource<ByteBuffer>(bufferId);
-
-	if(!frame || !buffer)
-	{
-		return PH_FALSE;
-	}
-
-	std::string buf;
-	try
-	{
-		io_utils::save_exr(*frame, buf);
-	}
-	catch(const FileIOError& e)
-	{
-		PH_LOG_WARNING(CAPI,
-			"frame<{}> saving failed: {}", 
-			frameId, e.whatStr());
-		return PH_FALSE;
-	}
-
-	buffer->clear();
-	buffer->write(buf.data(), buf.size());
-
-	return PH_TRUE;
-}
-
-void phFrameOpAbsDifference(const PHuint64 frameAId, const PHuint64 frameBId, const PHuint64 resultFrameId)
-{
-	HdrRgbFrame* frameA      = ApiDatabase::getResource<HdrRgbFrame>(frameAId);
-	HdrRgbFrame* frameB      = ApiDatabase::getResource<HdrRgbFrame>(frameBId);
-	HdrRgbFrame* resultFrame = ApiDatabase::getResource<HdrRgbFrame>(resultFrameId);
-	if(frameA && frameB && resultFrame)
-	{
-		frame_utils::abs_diff(*frameA, *frameB, resultFrame);
-	}
-}
-
-float phFrameOpMSE(const PHuint64 expectedFrameId, const PHuint64 estimatedFrameId)
-{
-	float MSE = 0.0f;
-
-	HdrRgbFrame* expectedFrame  = ApiDatabase::getResource<HdrRgbFrame>(expectedFrameId);
-	HdrRgbFrame* estimatedFrame = ApiDatabase::getResource<HdrRgbFrame>(estimatedFrameId);
-	if(expectedFrame && estimatedFrame)
-	{
-		MSE = static_cast<float>(frame_utils::calc_MSE(*expectedFrame, *estimatedFrame));
-	}
-	else
-	{
-		PH_LOG_WARNING(CAPI, "phFrameOpMSE(2) returned 0 due to invalid frame");
-	}
-
-	return MSE;
-}
-
-void phAsyncGetRendererStatistics(const PHuint64 engineId,
-                                  PHfloat32* const out_percentageProgress,
-                                  PHfloat32* const out_samplesPerSecond)
-{
-	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
-	if(engine)
-	{
-		float32 percentageProgress, samplesPerSecond;
-		engine->asyncQueryStatistics(&percentageProgress, &samplesPerSecond);
-
-		*out_percentageProgress = static_cast<PHfloat32>(percentageProgress);
-		*out_samplesPerSecond = static_cast<PHfloat32>(samplesPerSecond);
-	}
-}
-
-void phAsyncGetRendererState(
-	const PHuint64              engineId,
-	struct PHRenderState* const out_state)
-{
-	PH_ASSERT(out_state);
-
-	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
-	if(engine)
-	{
-		const RenderStats state = engine->getRenderer()->asyncQueryRenderStats();
-
-		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)
-		{
-			out_state->integers[i] = static_cast<PHint64>(state.getInteger(i));
-		}
-		for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_REALS; ++i)
-		{
-			out_state->reals[i] = static_cast<PHfloat32>(state.getReal(i));
-		}
-	}
-}
-
-int phAsyncPollUpdatedFrameRegion(
-	const PHuint64  engineId,
-	PHuint32* const out_xPx,
-	PHuint32* const out_yPx,
-	PHuint32* const out_widthPx,
-	PHuint32* const out_heightPx)
-{
-	PH_ASSERT(out_xPx && out_yPx && out_widthPx && out_heightPx);
-
-	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
-	if(engine)
-	{
-		Region region;
-		const ERegionStatus status = engine->asyncPollUpdatedRegion(&region);
-
-		*out_xPx      = static_cast<PHuint32>(region.getMinVertex().x());
-		*out_yPx      = static_cast<PHuint32>(region.getMinVertex().y());
-		*out_widthPx  = static_cast<PHuint32>(region.getWidth());
-		*out_heightPx = static_cast<PHuint32>(region.getHeight());
-
-		switch(status)
-		{
-		case ERegionStatus::INVALID:  return PH_FILM_REGION_STATUS_INVALID;
-		case ERegionStatus::UPDATING: return PH_FILM_REGION_STATUS_UPDATING;
-		case ERegionStatus::FINISHED: return PH_FILM_REGION_STATUS_FINISHED;
-		}
-	}
-
-	return PH_FILM_REGION_STATUS_INVALID;
-}
-
-void phAsyncPeekFrame(
-	const PHuint64 engineId,
-	const PHuint64 channelIndex,
-	const PHuint32 xPx,
-	const PHuint32 yPx,
-	const PHuint32 widthPx,
-	const PHuint32 heightPx,
-	const PHuint64 frameId)
-{
-	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
-	auto frame  = ApiDatabase::useResource<HdrRgbFrame>(frameId).lock();
-	if(engine && frame)
-	{
-		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
-		engine->asyncPeekFrame(channelIndex, region, *frame);
-	}
-}
-
-void phAsyncPeekFrameRaw(
-	const PHuint64 engineId,
-	const PHuint64 channelIndex,
-	const PHuint32 xPx,
-	const PHuint32 yPx,
-	const PHuint32 widthPx,
-	const PHuint32 heightPx,
-	const PHuint64 frameId)
-{
-	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
-	auto frame  = ApiDatabase::useResource<HdrRgbFrame>(frameId).lock();
-	if(engine && frame)
-	{
-		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
-		engine->asyncPeekFrame(channelIndex, region, *frame, false);
-	}
-}
-
-void phSetWorkingDirectory(const PHuint64 engineId, const PHchar* const workingDirectory)
-{
-	static_assert(sizeof(PHchar) == sizeof(char));
-
-	Engine* engine = ApiDatabase::getResource<Engine>(engineId);
-	if(engine)
-	{
-		const Path path(workingDirectory);
-		engine->setWorkingDirectory(path);
-	}
-}
-
-void phCreateBuffer(PHuint64* const out_bufferId)
-{
-	PH_ASSERT(out_bufferId);
-
-	*out_bufferId = static_cast<PHuint64>(ApiDatabase::addResource(std::make_unique<ByteBuffer>()));
-
-	PH_LOG(CAPI, "buffer<{}> created", *out_bufferId);
-}
-
-void phGetBufferBytes(const PHuint64 bufferId, const unsigned char** const out_bytesPtr, size_t* const out_numBytes)
-{
-	static_assert(sizeof(unsigned char) == sizeof(std::byte));
-	PH_ASSERT(out_bytesPtr);
-	PH_ASSERT(out_numBytes);
-
-	ByteBuffer* const buffer = ApiDatabase::getResource<ByteBuffer>(bufferId);
-	if(buffer)
-	{
-		*out_bytesPtr = reinterpret_cast<const unsigned char*>(buffer->getDataPtr());
-		*out_numBytes = static_cast<size_t>(buffer->numBytes());
-	}
-}
-
-void phDeleteBuffer(const PHuint64 bufferId)
-{
-	if(ApiDatabase::removeResource<ByteBuffer>(bufferId))
-	{
-		PH_LOG(CAPI, "buffer<{}> deleted", bufferId);
-	}
-	else
-	{
-		PH_LOG_WARNING(CAPI, "error while deleting buffer<{}>", bufferId);
-	}
-}
+}// end namespace ph

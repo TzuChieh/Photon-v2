@@ -20,7 +20,7 @@ add_dependencies(SDLGenCLI
 	SDLGen)
 
 target_include_directories(SDLGenCLI
-	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS})
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
 target_link_libraries(SDLGenCLI
 	PRIVATE Engine

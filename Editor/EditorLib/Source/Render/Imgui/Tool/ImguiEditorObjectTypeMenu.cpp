@@ -7,7 +7,7 @@
 
 #include "ThirdParty/DearImGui.h"
 
-#include <ph_cpp_core.h>
+#include <ph_core.h>
 
 #include <string_view>
 #include <algorithm>

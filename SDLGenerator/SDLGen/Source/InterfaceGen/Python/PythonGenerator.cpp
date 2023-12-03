@@ -3,7 +3,7 @@
 #include "InterfaceGen/Python/PythonMethod.h"
 #include "ph_sdlgen.h"
 
-#include <ph_cpp_core.h>
+#include <ph_core.h>
 #include <Utility/Timestamp.h>
 #include <DataIO/io_utils.h>
 #include <SDL/Introspect/SdlClass.h>

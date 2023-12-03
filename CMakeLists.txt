@@ -437,6 +437,7 @@ endif()
 ###############################################################################
 
 add_subdirectory("./Engine/Engine/")
+add_subdirectory("./Engine/CEngine/")
 
 if(PH_BUILD_SDL_GEN)
     add_subdirectory("./SDLGenerator/SDLGen/")

@@ -1,6 +1,6 @@
 #include "SdlGenArguments.h"
 
-#include <ph_cpp_core.h>
+#include <ph_core.h>
 #include <ph_sdlgen.h>
 #include <Common/logging.h>
 

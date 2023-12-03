@@ -4,7 +4,7 @@
 #include "Designer/DesignerObject.h"
 #include "Designer/Imposter/ImposterObject.h"
 
-#include <ph_cpp_core.h>
+#include <ph_core.h>
 #include <Common/assertion.h>
 #include <SDL/TSdl.h>
 

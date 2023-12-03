@@ -7,7 +7,7 @@
 #include "SDL/Introspect/SdlOutputContext.h"
 #include "SDL/Introspect/SdlClass.h"
 #include "DataIO/FileSystem/Filesystem.h"
-#include "ph_cpp_core.h"
+#include "ph_core.h"
 #include "SDL/SceneDescription.h"
 #include "Utility/SemanticVersion.h"
 

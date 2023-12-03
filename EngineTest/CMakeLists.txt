@@ -14,7 +14,7 @@ add_dependencies(EngineTest Engine)
 target_include_directories(EngineTest
 	PRIVATE ${GOOGLETEST_INCLUDE_DIR}
 	PRIVATE "${ENGINE_TEST_DIR}/Source/"
-	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS})
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
 target_link_libraries(EngineTest PRIVATE Engine)
 

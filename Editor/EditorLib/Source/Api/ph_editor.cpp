@@ -29,7 +29,7 @@
 // Enums
 #include "RenderCore/SDL/sdl_graphics_api_type.h"
 
-#include <ph_cpp_core.h>
+#include <ph_core.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Utility/exception.h>

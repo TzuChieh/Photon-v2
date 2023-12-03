@@ -1,7 +1,8 @@
 #pragma once
 
-#include "ph_core.h"
 #include "JObject.h"
+
+#include <ph_c_core.h>
 
 namespace ph
 {

@@ -1,4 +1,4 @@
-# Photon-v2 scene description language generation tools.
+# Photon scene description language generation tools.
 
 get_filename_component(SDL_GEN_DIR "./" ABSOLUTE)
 
@@ -22,7 +22,7 @@ add_dependencies(SDLGen Engine)
 target_include_directories(SDLGen
 	PUBLIC  ${SDL_GEN_INCLUDE_DIR}
 	PRIVATE ${SDL_GEN_PRIVATE_INCLUDE_DIR}
-	PRIVATE ${ENGINE_CPP_API_INCLUDE_DIRS})
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
 target_link_libraries(SDLGen PRIVATE Engine)
 

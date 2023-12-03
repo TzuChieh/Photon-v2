@@ -5,7 +5,7 @@
 #include "JniUtil.h"
 #include "java_type_signature.h"
 
-#include <ph_core.h>
+#include <ph_c_core.h>
 
 #include <iostream>
 #include <array>

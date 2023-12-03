@@ -1,5 +1,5 @@
 #include "SDL/SdlSceneFileReader.h"
-#include "ph_cpp_core.h"
+#include "ph_core.h"
 #include "SDL/SceneDescription.h"
 #include "DataIO/Stream/FormattedTextInputStream.h"
 #include "Common/assertion.h"
