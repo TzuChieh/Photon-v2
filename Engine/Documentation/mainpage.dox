@@ -1,6 +1,6 @@
-/*! @mainpage Photon-v2 Renderer
+/*! @mainpage Engine
 
-* *A physically based renderer for ultra realistic image synthesis.*
+* *The underlying engine for ultra realistic image synthesis.*
 
 This site is meant for people who want to dive into the implementation details of the renderer. For 
 news, feature overview or other information, head over to the 

@@ -1,0 +1,18 @@
+/*! @page project_structure Project Structure
+
+@brief An overview of the project's structure.
+
+Photon is composed of multiple libraries and programs. Together, they form a
+toolset for ultra realistic image synthesis.
+
+@section programs Programs
+
+- Command-line interface of the renderer
+  - <a href="../../Photon_CLI/html/index.html">PhotonCLI</a>
+
+@section libraries Libraries
+
+- Rendering algorithms and core functionalities
+  - <a href="../../Photon_Engine/html/index.html">Engine</a>
+
+*/

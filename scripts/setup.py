@@ -76,3 +76,8 @@ for src_dst_directory in src_dst_directories:
     dst_directory = src_dst_directory[1]
     shutil.copytree(src_directory, dst_directory, dirs_exist_ok=True)
 
+# Perform miscellaneous operations
+
+# Create a `docs` sub-folder under `./Main/` so doxygen can place generated docs under `./Main/docs/<project-name>/`
+# (a workaround since doxygen cannot create directories recursively, only the topmost layer)
+os.makedirs("./Main/docs/", exist_ok=True)
