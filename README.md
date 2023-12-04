@@ -1,5 +1,7 @@
 ![upper teaser image](https://tzuchieh.github.io/images/photon_v2/teaser_upper.jpg)
 
+[//]: # (not using h4 for small text when doxygen can correctly center-align p text)
+[//]: # (not using deprecated html tags when github can correctly handle them)
 <h1 align="center" style="margin-top: 0px; margin-bottom: 0px;">Photon Renderer</h1>
 <h4 align="center" style="margin-top: 0px; font-weight: normal; font-style: italic;"><i>A physically based render engine for ultra realistic image synthesis.</i></h4>
 
