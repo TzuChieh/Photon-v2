@@ -3,12 +3,12 @@
 get_filename_component(PHOTON_CLI_DIR "./" ABSOLUTE)
 
 file(GLOB_RECURSE PHOTON_CLI_HEADER_FILES 
-	"${PHOTON_CLI_DIR}/*.h"
-	"${PHOTON_CLI_DIR}/*.ipp"
-	"${PHOTON_CLI_DIR}/*.tpp")
+	"${PHOTON_CLI_DIR}/Source/*.h"
+	"${PHOTON_CLI_DIR}/Source/*.ipp"
+	"${PHOTON_CLI_DIR}/Source/*.tpp")
 
 file(GLOB_RECURSE PHOTON_CLI_SOURCE_FILES 
-	"${PHOTON_CLI_DIR}/*.cpp")
+	"${PHOTON_CLI_DIR}/Source/*.cpp")
 
 # Explicitly mark them as headers
 set_source_files_properties(${PHOTON_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
