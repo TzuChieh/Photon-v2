@@ -3,10 +3,10 @@
 get_filename_component(SDLGEN_CLI_DIR "./" ABSOLUTE)
 
 file(GLOB_RECURSE SDLGEN_CLI_HEADER_FILES 
-	"${SDLGEN_CLI_DIR}/*.h"
-	"${SDLGEN_CLI_DIR}/*.ipp"
-	"${SDLGEN_CLI_DIR}/*.tpp")
-file(GLOB_RECURSE SDLGEN_CLI_SOURCE_FILES "${SDLGEN_CLI_DIR}/*.cpp")
+	"${SDLGEN_CLI_DIR}/Source/*.h"
+	"${SDLGEN_CLI_DIR}/Source/*.ipp"
+	"${SDLGEN_CLI_DIR}/Source/*.tpp")
+file(GLOB_RECURSE SDLGEN_CLI_SOURCE_FILES "${SDLGEN_CLI_DIR}/Source/*.cpp")
 
 # Explicitly mark them as headers
 set_source_files_properties(${SDLGEN_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY ON)
