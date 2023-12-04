@@ -33,19 +33,6 @@ Please click the following image to watch the [technical showreel for Photon Ren
 
 [![showreel thumbnail](https://tzuchieh.github.io/images/gallery/showreel_thumbnail.jpg)](https://www.youtube.com/watch?v=yieawWJ31pw)
 
-## Images
-
-A couple of still images rendered by Photon:
-
-<a href="https://tzuchieh.github.io/images/gallery/bathroom_(based%20on%20Salle%20de%20bain%20by%20nacimus).jpg"><img src="https://tzuchieh.github.io/images/gallery/bathroom_(based%20on%20Salle%20de%20bain%20by%20nacimus).jpg"></a><br />
-<p align="center"> <i>Cozy Bathroom (based on "Salle de bain" by nacimus)</i> </p>
-
-<a href="https://tzuchieh.github.io/images/gallery/054_chess%20(based%20on%20_Transparent%20Chess%20For%20Cycle_%20by%20yayel59).jpg"><img src="https://tzuchieh.github.io/images/gallery/054_chess%20(based%20on%20_Transparent%20Chess%20For%20Cycle_%20by%20yayel59).jpg"></a><br />
-<p align="center"> <i>Metallic Chess (based on "Transparent Chess For Cycle" by yayel59)</i> </p>
-
-<a href="https://tzuchieh.github.io/images/gallery/048_Arc%20Reactor%20(Iron%20Man)%20by%20kuhn0362%208000spp.jpg"><img src="https://tzuchieh.github.io/images/gallery/048_Arc%20Reactor%20(Iron%20Man)%20by%20kuhn0362%208000spp.jpg"></a><br />
-<p align="center"> <i>Arc Reactor (based on "Arc Reactor (Iron Man)" by kuhn0362)</i> </p>
-
 ## Scene Description Language
 
 The scene description language designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon renderer. To create a scene, you can either open up a text file and start writing right away (visit "[./scenes/](./scenes/)" for reference), or install the Blender add-on in "[./BlenderAddon/](./BlenderAddon)" which contains a separate readme with further details.
