@@ -1,7 +1,12 @@
 ![upper teaser image](https://tzuchieh.github.io/images/photon_v2/teaser_upper.jpg)
 
-<h1 style="text-align: center; margin: 0px; padding: 0px;">Photon Renderer</h1>
-<h4 style="text-align: center; font-weight: normal; font-style: italic;">A physically based render engine for ultra realistic image synthesis.</h4>
+<div style="text-align: center; margin: 0px; padding: 0px;">
+  <h1>Photon Renderer</h1>
+</div>
+
+<div style="text-align: center; font-weight: normal; font-style: italic;">
+  <p>A physically based render engine for ultra realistic image synthesis.</p>
+</div>
 
 ![lower teaser image](https://tzuchieh.github.io/images/photon_v2/teaser_lower.jpg)
 
