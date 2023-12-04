@@ -38,12 +38,13 @@ if specific_project_name != "primary":
 
 build_info = []
 for name, section in projects:
+    project_name = name.removeprefix("Project.")
     if setup_config.has_option(name, "DoxygenConfig"):
         doxygen_config = os.path.join(section["ProjectDirectory"], section["DoxygenConfig"])
         build_doxygen_doc(doxygen_executable, doxygen_config)
-        build_info.append("Generated doc for: %s" % name.removeprefix("Project."))
+        build_info.append("Generated doc for: %s" % project_name)
     else:
-        build_info.append("Project \"%s\" has no doxygen config, no doc generated." % specific_project_name)
+        build_info.append("Project \"%s\" has no doxygen config, no doc generated." % project_name)
     
 # Build the primary doc that links all project docs
 primary_doxygen_config = setup_config["General"]["PrimaryDoxygenConfig"]

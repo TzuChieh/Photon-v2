@@ -57,7 +57,7 @@ The scene description language designed by T.C. Chang can be stored into a text 
 If you use Photon in your research project, you are hightly encouraged to cite it using the following BibTeX template:
 
 ```latex.bib
-@misc{Photon,
+@software{Photon,
 	Author = {Tzu-Chieh Chang},
 	Year   = {2016--2023},
 	Title  = {Photon renderer},
