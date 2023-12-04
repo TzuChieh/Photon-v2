@@ -1,13 +1,13 @@
 ![upper teaser image](https://tzuchieh.github.io/images/photon_v2/teaser_upper.jpg)
 
-<h1 align="center" style="margin-top: 0px;">Photon Renderer</h1>
-<p align="center">A physically based render engine for ultra realistic image synthesis.</p>
+<h1 style="text-align: center; margin: 0px; padding: 0px;">Photon Renderer</h1>
+<h4 style="text-align: center; font-weight: normal; font-style: italic;">A physically based render engine for ultra realistic image synthesis.</h4>
 
 ![lower teaser image](https://tzuchieh.github.io/images/photon_v2/teaser_lower.jpg)
 
-## What is Photon-v2
+## A Brief Introduction
 
-Photon-v2 is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both simulated by a computer. This project is actively being developed and more features are expected to come.
+Photon is a rendering engine made out of my personal interest in computer graphics. A rendering engine is what takes geometrical descriptions and material properties of a 3-D scene as input, and outputs a 2-D image of that scene from a specific point of view. In layman's terms, it is like taking a photograph, except the scene and the camera are both simulated by a computer. This project is actively being developed and more features are expected to come.
 
 **Supported Platforms**: Windows, Linux, macOS *(currently Linux & macOS are not thoroughly tested)*
 

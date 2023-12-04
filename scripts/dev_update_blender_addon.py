@@ -1,16 +1,13 @@
 import blender_addon
 from utility import console
+from utility import config
 
-import configparser
 import os
 import sys
 
 
 # First obtain the setup config
-setup_script_directory = os.path.dirname(os.path.abspath(__file__))
-setup_config_path = os.path.join(setup_script_directory, "../Main/SetupConfig.ini")
-setup_config = configparser.ConfigParser()
-setup_config.read_file(open(setup_config_path))
+setup_config = config.get_setup_config()
 
 build_directory = os.path.abspath(setup_config["General"]["BuildDirectory"])
 

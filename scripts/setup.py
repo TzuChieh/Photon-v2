@@ -1,10 +1,10 @@
 import library_downloader
 import resource_downloader
 import blender_addon
+from utility import config
 
 import sys
 import os
-import configparser
 import shutil
 
 
@@ -14,68 +14,49 @@ if sys.version_info[0] < 3 or sys.version_info[1] < 8:
     print("Require Python version >= 3.8")
     sys.exit()
 
-build_directory = os.path.abspath(sys.argv[1])
-setup_script_directory = os.path.dirname(os.path.abspath(__file__))
-setup_config_path = os.path.join(setup_script_directory, "../Main/SetupConfig.ini")
+build_dir = os.path.abspath(sys.argv[1])
 
 # Read and parse setup config
-print("Loading setup settings from <%s>" % setup_config_path)
-setup_config = configparser.ConfigParser()
-setup_config.read_file(open(setup_config_path))
+setup_config = config.get_setup_config()
 
-config_build_directory = os.path.abspath(setup_config["General"]["BuildDirectory"])
-if not os.path.samefile(config_build_directory, build_directory):
+config_build_dir = os.path.abspath(setup_config["General"]["BuildDirectory"])
+if not os.path.samefile(config_build_dir, build_dir):
     print("Using build directory other than <%s> is not recommended (currently <%s>)" % (
-        config_build_directory, build_directory))
+        config_build_dir, build_dir))
 
 # Download additional data to build directory
-library_downloader.download_thirdparty_library(build_directory, setup_config)
-resource_downloader.download_external_resource(build_directory)
+library_downloader.download_thirdparty_library(build_dir, setup_config)
+resource_downloader.download_external_resource(build_dir)
 
 # Setup Blender addon
 blender_addon.setup_photon_blend(setup_config)
 
 # Install project source data to build directory
 
-project_names = [
-    "Engine",
-    "CEngine",
-    "EngineTest",
-    "SDLGen",
-    "SDLGenCLI",
-    "PhotonCLI",
-    "Editor",
-    "EditorLib",
-    "EditorTest"
-]
+src_dst_dirs = []
 
-src_dst_directories = []
+dst_config_root = os.path.join(build_dir, "Config")
+dst_internal_res_root = os.path.join(build_dir, "InternalResource")
 
-dst_config_root = os.path.join(build_directory, "Config")
-dst_internal_res_root = os.path.join(build_directory, "InternalResource")
-
-for project_name in project_names:
-    if not setup_config.has_section(project_name):
-        continue
-
+for section_name, section in config.get_all_projects(setup_config):
+    project_name = section_name.removeprefix("Project.")
     print("Gathering source data from %s" % project_name)
 
-    if setup_config.has_option(project_name, "ConfigDirectory"):
-        src_config_directory = os.path.abspath(setup_config[project_name]["ConfigDirectory"])
-        dst_config_directory = os.path.join(dst_config_root, project_name)
-        src_dst_directories.append((src_config_directory, dst_config_directory))
+    project_dir = section["ProjectDirectory"]
 
-    if setup_config.has_option(project_name, "InternalResourceDirectory"):
-        src_internal_res_directory = os.path.abspath(setup_config[project_name]["InternalResourceDirectory"])
-        dst_internal_res_directory = os.path.join(dst_internal_res_root, project_name)
-        src_dst_directories.append((src_internal_res_directory, dst_internal_res_directory))
+    if setup_config.has_option(section_name, "ConfigDirectory"):
+        src_config_dir = os.path.join(project_dir, section["ConfigDirectory"])
+        dst_config_dir = os.path.join(dst_config_root, project_name)
+        src_dst_dirs.append((src_config_dir, dst_config_dir))
+
+    if setup_config.has_option(section_name, "InternalResourceDirectory"):
+        src_internal_res_dir = os.path.join(project_dir, section["InternalResourceDirectory"])
+        dst_internal_res_dir = os.path.join(dst_internal_res_root, project_name)
+        src_dst_dirs.append((src_internal_res_dir, dst_internal_res_dir))
 
 print("Installing source data")
-
-for src_dst_directory in src_dst_directories:
-    src_directory = src_dst_directory[0]
-    dst_directory = src_dst_directory[1]
-    shutil.copytree(src_directory, dst_directory, dirs_exist_ok=True)
+for src_dir, dst_dir in src_dst_dirs:
+    shutil.copytree(src_dir, dst_dir, dirs_exist_ok=True)
 
 # Perform miscellaneous operations
 
