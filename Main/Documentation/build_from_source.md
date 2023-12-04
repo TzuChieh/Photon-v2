@@ -16,7 +16,7 @@ If you want to build the editor in previous version, you will also need:
 
 This is not required for building the new C++ based editor.
 
-*Note that the working directory is assumed to be the project root (in the folder that you cloned) if not stated , and please use `./build/` as build folder for now since build scripts are more or less hard-coded to use this path, currently.*
+*Note that the working directory is assumed to be the project root (in the folder that you cloned) if not stated, and please use `./build/` as build folder for now since build scripts are more or less hard-coded to use this path, currently.*
 
 ## Step 1: Run the Setup Script
 Run the setup script (depending on your system, choose either `./setup.bat` or `./setup.sh`), this will download pre-compiled libraries and resources into "./build".
