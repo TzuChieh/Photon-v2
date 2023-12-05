@@ -3,11 +3,11 @@
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/FileSystem/Filesystem.h"
 #include "DataIO/FileSystem/ResourceIdentifier.h"
-#include "Utility/string_utils.h"
 #include "SDL/Introspect/SdlIOContext.h"
 #include "SDL/sdl_exceptions.h"
 
 #include <Common/assertion.h>
+#include <Utility/string_utils.h>
 
 #include <utility>
 

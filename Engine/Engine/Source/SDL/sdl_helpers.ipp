@@ -6,9 +6,9 @@
 #include "SDL/sdl_traits.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/ISdlResource.h"
-#include "Utility/string_utils.h"
 
 #include <Common/assertion.h>
+#include <Utility/string_utils.h>
 
 #include <type_traits>
 

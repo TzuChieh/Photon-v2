@@ -6,9 +6,9 @@
 #include "SDL/SceneDescription.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_helpers.h"
-#include "Utility/string_utils.h"
 
 #include <Common/assertion.h>
+#include <Utility/string_utils.h>
 
 #include <utility>
 

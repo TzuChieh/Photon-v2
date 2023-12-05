@@ -3,9 +3,9 @@
 #include "SDL/ISdlReferenceGroup.h"
 #include "SDL/sdl_exceptions.h"
 #include "Utility/utility.h"
-#include "Utility/string_utils.h"
 
 #include <Common/assertion.h>
+#include <Utility/string_utils.h>
 
 #include <unordered_map>
 #include <string>

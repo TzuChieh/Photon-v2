@@ -1,10 +1,10 @@
 #include "DataIO/Stream/FormattedTextInputStream.h"
 #include "Common/logging.h"
 #include "DataIO/io_exceptions.h"
-#include "Utility/string_utils.h"
 
 #include <Common/assertion.h>
 #include <Common/os.h>
+#include <Utility/string_utils.h>
 
 #include <utility>
 #include <fstream>

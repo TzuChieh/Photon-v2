@@ -4,7 +4,6 @@
 #include "Math/TVector3.h"
 #include "Math/TVector4.h"
 #include "Actor/Basic/exceptions.h"
-#include "Utility/string_utils.h"
 #include "Core/Texture/TSwizzledTexture.h"
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Actor/Image/ConstantImage.h"
@@ -12,6 +11,7 @@
 #include "Math/Color/color_spaces.h"
 
 #include <Common/assertion.h>
+#include <Utility/string_utils.h>
 
 #include <cstddef>
 #include <utility>

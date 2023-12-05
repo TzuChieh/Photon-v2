@@ -3,7 +3,6 @@
 #include "Common/logging.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/ESdlTypeCategory.h"
-#include "Utility/string_utils.h"
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/SdlInlinePacketInterface.h"
@@ -12,6 +11,7 @@
 #include "Common/stats.h"
 
 #include <Common/config.h>
+#include <Utility/string_utils.h>
 
 #include <cstddef>
 #include <utility>

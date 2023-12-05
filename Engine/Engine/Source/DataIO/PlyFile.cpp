@@ -4,8 +4,9 @@
 #include "DataIO/Stream/BinaryFileInputStream.h"
 #include "DataIO/Stream/ByteBufferInputStream.h"
 #include "DataIO/io_exceptions.h"
-#include "Utility/string_utils.h"
 #include "Utility/utility.h"
+
+#include <Utility/string_utils.h>
 
 #include <type_traits>
 #include <memory>

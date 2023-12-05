@@ -3,8 +3,9 @@
 #include "Math/General/TVectorNBase.h"
 #include "Math/math_fwd.h"
 #include "Math/constant.h"
-#include "Utility/string_utils.h"
 #include "Utility/utility.h"
+
+#include <Utility/string_utils.h>
 
 namespace ph::math
 {

@@ -2,8 +2,9 @@
 #include "DataIO/io_exceptions.h"
 #include "DataIO/Stream/FormattedTextInputStream.h"
 #include "DataIO/Stream/FormattedTextOutputStream.h"
-#include "Utility/string_utils.h"
 #include "Common/logging.h"
+
+#include <Utility/string_utils.h>
 
 #include <format>
 
