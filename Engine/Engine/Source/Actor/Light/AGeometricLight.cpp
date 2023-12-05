@@ -12,10 +12,11 @@
 #include "World/Foundation/PreCookReport.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
-#include "Common/logging.h"
 #include "Core/Intersectable/TMetaInjectionPrimitive.h"
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
+
+#include <Common/logging.h>
 
 #include <algorithm>
 

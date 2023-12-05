@@ -4,9 +4,9 @@
 #include "World/Foundation/CookedGeometry.h"
 #include "World/Foundation/CookingContext.h"
 #include "Actor/Basic/exceptions.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 namespace ph
 {

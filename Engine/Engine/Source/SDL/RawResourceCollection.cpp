@@ -1,6 +1,7 @@
 #include "SDL/RawResourceCollection.h"
-#include "Common/logging.h"
 #include "SDL/sdl_helpers.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

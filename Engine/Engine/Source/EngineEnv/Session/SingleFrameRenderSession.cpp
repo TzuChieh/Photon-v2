@@ -1,10 +1,11 @@
 #include "EngineEnv/Session/SingleFrameRenderSession.h"
 #include "EngineEnv/CoreCookingContext.h"
-#include "Common/logging.h"
 #include "SDL/SceneDescription.h"
 #include "EngineEnv/Observer/Observer.h"
 #include "EngineEnv/SampleSource/SampleSource.h"
 #include "EngineEnv/Visualizer/Visualizer.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

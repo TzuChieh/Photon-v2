@@ -5,10 +5,10 @@
 #include "SDL/sdl_exceptions.h"
 #include "SDL/SdlOutputClauses.h"
 #include "SDL/SdlInlinePacketInterface.h"
-#include "Common/logging.h"
 #include "Utility/SemanticVersion.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <cstddef>
 #include <utility>

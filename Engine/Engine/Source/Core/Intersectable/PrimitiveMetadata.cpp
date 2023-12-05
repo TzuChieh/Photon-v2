@@ -1,8 +1,8 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
-#include "Common/logging.h"
 
-#include <iostream>
+#include <Common/logging.h>
+
 #include <limits>
 #include <type_traits>
 

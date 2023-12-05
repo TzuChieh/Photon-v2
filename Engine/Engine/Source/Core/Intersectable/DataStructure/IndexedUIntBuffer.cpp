@@ -1,5 +1,6 @@
 #include "Core/Intersectable/DataStructure/IndexedUIntBuffer.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

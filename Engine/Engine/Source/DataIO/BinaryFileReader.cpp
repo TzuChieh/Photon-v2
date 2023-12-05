@@ -1,5 +1,6 @@
 #include "DataIO/BinaryFileReader.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

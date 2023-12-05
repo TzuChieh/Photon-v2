@@ -5,9 +5,9 @@
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/Introspect/SdlStruct.h"
 #include "SDL/sdl_helpers.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <utility>
 

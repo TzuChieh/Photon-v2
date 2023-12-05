@@ -9,13 +9,14 @@
 #include "Core/Renderer/PM/FullPhoton.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Utility/Concurrent/concurrent.h"
-#include "Common/logging.h"
 #include "Core/Renderer/PM/PPMRadianceEvaluationWork.h"
 #include "Core/Renderer/PM/FullPhoton.h"
 #include "Core/Renderer/PM/FullViewpoint.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/PM/TPPMViewpointCollector.h"
 #include "Core/Renderer/PM/TSPPMRadianceEvaluator.h"
+
+#include <Common/logging.h>
 
 #include <utility>
 #include <numeric>

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Utility/TStableIndexDenseVector.h"
-#include "Common/logging.h"
 #include "Core/Engine.h"
 #include "Frame/TFrame.h"
 #include "Utility/ByteBuffer.h"
+
+#include <Common/logging.h>
 
 #include <memory>
 #include <mutex>

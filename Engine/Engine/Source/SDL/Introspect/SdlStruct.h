@@ -2,7 +2,8 @@
 
 #include "SDL/Introspect/ISdlInstantiable.h"
 #include "SDL/sdl_fwd.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 #include <cstddef>
 #include <string>

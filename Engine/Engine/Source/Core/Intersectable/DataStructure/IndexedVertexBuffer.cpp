@@ -1,10 +1,10 @@
 #include "Core/Intersectable/DataStructure/IndexedVertexBuffer.h"
-#include "Common/logging.h"
 #include "Math/math.h"
 #include "Math/Geometry/geometry.h"
 #include "Math/TVector2.h"
 
 #include <Common/exception.h>
+#include <Common/logging.h>
 
 #include <cstring>
 #include <cmath>

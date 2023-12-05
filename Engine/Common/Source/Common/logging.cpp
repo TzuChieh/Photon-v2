@@ -1,8 +1,7 @@
 #include "Common/logging.h"
 #include "Common/Log/Logger.h"
+#include "Common/assertion.h"
 #include "Utility/Timestamp.h"
-
-#include <Common/assertion.h>
 
 #include <utility>
 #include <mutex>
@@ -124,7 +123,7 @@ void exit()
 	g_coreLogStream.close();
 }
 
-Logger& get_core_logger()
+Logger& get_logger()
 {
 	PH_ASSERT_MSG(g_coreLogger.has_value(),
 		"Using logger without initializing.");

@@ -3,9 +3,9 @@
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/VolumeMaterial.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 namespace ph
 {

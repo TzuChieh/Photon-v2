@@ -1,5 +1,6 @@
 #include "World/Foundation/CookedNamedResource.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

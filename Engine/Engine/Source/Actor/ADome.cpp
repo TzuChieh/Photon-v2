@@ -8,12 +8,13 @@
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
 #include "Core/Texture/Function/unary_texture_operators.h"
-#include "Common/logging.h"
 #include "World/Foundation/CookOrder.h"
 #include "World/Foundation/PreCookReport.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Core/Intersectable/TMetaInjectionPrimitive.h"
+
+#include <Common/logging.h>
 
 #include <algorithm>
 

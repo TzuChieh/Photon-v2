@@ -1,6 +1,5 @@
 #include "Common/stats.h"
-
-#include <Common/assertion.h>
+#include "Common/assertion.h"
 
 #include <utility>
 #include <mutex>

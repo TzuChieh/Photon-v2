@@ -2,10 +2,10 @@
 
 #include "Utility/Concurrent/Workflow.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 #include <stdexcept>
 #include <algorithm>

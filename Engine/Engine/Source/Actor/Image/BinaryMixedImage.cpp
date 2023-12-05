@@ -1,5 +1,6 @@
 #include "Actor/Image/BinaryMixedImage.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

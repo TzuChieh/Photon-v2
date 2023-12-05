@@ -16,17 +16,15 @@ set_source_files_properties(${PHOTON_CLI_HEADER_FILES} PROPERTIES HEADER_FILE_ON
 add_executable(PhotonCLI ${PHOTON_CLI_HEADER_FILES} ${PHOTON_CLI_SOURCE_FILES})
 
 add_dependencies(PhotonCLI
-	Engine
-	SDLGen)
+	Common
+	CEngine)
 
 target_include_directories(PhotonCLI
-	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
+	PRIVATE "${PHOTON_CLI_DIR}/Source/")
 
 target_link_libraries(PhotonCLI
-	PRIVATE Engine
 	PRIVATE Common
-	PRIVATE CEngine
-	PRIVATE SDLGen)
+	PRIVATE CEngine)
 
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 

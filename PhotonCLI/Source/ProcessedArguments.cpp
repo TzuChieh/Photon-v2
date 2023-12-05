@@ -1,6 +1,7 @@
 #include "ProcessedArguments.h"
 #include "util.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 #include <iostream>
 #include <string_view>

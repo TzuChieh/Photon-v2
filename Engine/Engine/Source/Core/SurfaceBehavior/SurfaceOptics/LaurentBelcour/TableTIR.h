@@ -2,10 +2,10 @@
 
 #include "DataIO/BinaryFileReader.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 #include <vector>
 

@@ -1,7 +1,8 @@
 #include "EngineEnv/Observer/OrientedRasterObserver.h"
-#include "Common/logging.h"
 #include "Math/math.h"
 #include "Math/TMatrix4.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

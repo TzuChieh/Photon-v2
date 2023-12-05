@@ -1,9 +1,10 @@
 #include "Actor/Dome/APreethamDome.h"
-#include "Common/logging.h"
 #include "Core/Texture/Sky/PreethamTexture.h"
 #include "Math/math.h"
 #include "Math/time.h"
 #include "Math/Geometry/location.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

@@ -2,7 +2,7 @@
 #include "util.h"
 #include "CliStaticImageRenderer.h"
 
-#include <ph_core.h>
+#include <ph_c_core.h>
 #include <Common/stats.h>
 
 #include <iostream>

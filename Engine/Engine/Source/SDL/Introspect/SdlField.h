@@ -1,9 +1,10 @@
 #pragma once
 
 #include "SDL/sdl_fwd.h"
-#include "Common/logging.h"
 #include "SDL/Introspect/EFieldImportance.h"
 #include "SDL/Introspect/SdlNativeData.h"
+
+#include <Common/logging.h>
 
 #include <string>
 #include <string_view>

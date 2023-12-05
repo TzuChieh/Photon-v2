@@ -8,7 +8,8 @@
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Math/constant.h"
 #include "Core/Emitter/OmniModulatedEmitter.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 #include <memory>
 

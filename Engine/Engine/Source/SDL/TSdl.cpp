@@ -1,5 +1,4 @@
 #include "SDL/TSdl.h"
-#include "Common/logging.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/ISdlResource.h"
 #include "SDL/SdlSceneFileReader.h"
@@ -8,6 +7,7 @@
 #include "SDL/SdlInlinePacketInterface.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 namespace ph
 {

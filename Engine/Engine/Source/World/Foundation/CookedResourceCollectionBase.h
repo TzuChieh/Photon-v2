@@ -4,7 +4,8 @@
 #include "Utility/TUniquePtrVector.h"
 #include "Utility/Concurrent/TSynchronized.h"
 #include "SDL/SdlResourceId.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 #include <string>
 #include <memory>

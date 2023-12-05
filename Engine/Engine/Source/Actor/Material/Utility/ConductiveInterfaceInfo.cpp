@@ -1,7 +1,8 @@
 #include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

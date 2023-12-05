@@ -8,12 +8,12 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
 #include "Core/Texture/constant_textures.h"
-#include "Common/logging.h"
 #include "Actor/Basic/exceptions.h"
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
 #include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <string>
 #include <utility>

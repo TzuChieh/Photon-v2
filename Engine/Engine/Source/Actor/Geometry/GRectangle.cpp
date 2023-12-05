@@ -5,7 +5,8 @@
 #include "Math/TVector3.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 #include <iostream>
 

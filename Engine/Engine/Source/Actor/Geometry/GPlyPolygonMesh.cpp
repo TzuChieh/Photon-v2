@@ -2,7 +2,6 @@
 #include "Core/Intersectable/DataStructure/TIndexedPolygonBuffer.h"
 #include "Actor/Basic/exceptions.h"
 #include "DataIO/PlyFile.h"
-#include "Common/logging.h"
 #include "Core/Intersectable/DataStructure/IndexedVertexBuffer.h"
 #include "Core/Intersectable/DataStructure/IndexedUIntBuffer.h"
 #include "World/Foundation/CookedGeometry.h"
@@ -11,6 +10,8 @@
 #include "Core/Intersectable/TPIndexedKdTreeTriangleMesh.h"
 #include "Math/math.h"
 #include "Utility/Timer.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

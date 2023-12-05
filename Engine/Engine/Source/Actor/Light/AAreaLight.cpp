@@ -1,5 +1,4 @@
 #include "Actor/Light/AAreaLight.h"
-#include "Common/logging.h"
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Actor/Image/ConstantImage.h"
@@ -9,6 +8,7 @@
 #include "Core/Texture/constant_textures.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <vector>
 #include <utility>

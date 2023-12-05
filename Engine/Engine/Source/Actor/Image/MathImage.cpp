@@ -1,10 +1,10 @@
 #include "Actor/Image/MathImage.h"
-#include "Common/logging.h"
 #include "Actor/Basic/exceptions.h"
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Core/Texture/Function/binary_texture_operators.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <memory>
 #include <utility>

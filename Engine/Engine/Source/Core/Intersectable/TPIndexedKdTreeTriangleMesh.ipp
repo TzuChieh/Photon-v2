@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Core/Intersectable/TPIndexedKdTreeTriangleMesh.h"
-#include "Common/logging.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/TVector3.h"
+
+#include <Common/logging.h>
 
 #include <utility>
 #include <limits>

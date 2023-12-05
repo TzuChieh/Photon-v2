@@ -2,10 +2,6 @@
 
 #include "StaticImageRenderer.h"
 
-#include <ph_core.h>
-
-#include <string>
-
 namespace ph::cli
 {
 

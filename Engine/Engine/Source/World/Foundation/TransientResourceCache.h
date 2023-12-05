@@ -5,8 +5,9 @@
 #include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/traits.h"
 #include "SDL/SdlResourceId.h"
-#include "Common/logging.h"
 #include "World/Foundation/TransientVisualElement.h"
+
+#include <Common/logging.h>
 
 #include <utility>
 

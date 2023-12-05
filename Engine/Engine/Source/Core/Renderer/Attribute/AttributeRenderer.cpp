@@ -18,7 +18,6 @@
 #include "Utility/utility.h"
 #include "Core/Scheduler/SpiralGridScheduler.h"
 #include "Core/Scheduler/TileScheduler.h"
-#include "Common/logging.h"
 #include "Core/Scheduler/WorkUnit.h"
 #include "Core/Estimator/SurfaceAttributeEstimator.h"
 #include "Math/Random/sample.h"
@@ -26,6 +25,7 @@
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 #include <cmath>
 #include <vector>

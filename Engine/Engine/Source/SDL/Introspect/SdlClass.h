@@ -2,12 +2,12 @@
 
 #include "SDL/Introspect/ISdlInstantiable.h"
 #include "SDL/sdl_fwd.h"
-#include "Common/logging.h"
 #include "SDL/SdlInputClauses.h"
 #include "SDL/SdlOutputClauses.h"
 #include "SDL/ESdlTypeCategory.h"
 
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 #include <vector>
 #include <cstddef>

@@ -5,9 +5,10 @@
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/BVPTDLEstimator.h"
 #include "Core/Filmic/SampleFilters.h"
-#include "Common/logging.h"
 #include "Core/Renderer/Sampling/EqualSamplingRenderer.h"
 #include "Frame/Viewport.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

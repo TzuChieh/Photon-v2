@@ -1,8 +1,9 @@
 #include "DataIO/PfmFileWriter.h"
 #include "DataIO/Stream/BinaryFileOutputStream.h"
 #include "Utility/utility.h"
-#include "Common/logging.h"
 #include "DataIO/io_exceptions.h"
+
+#include <Common/logging.h>
 
 #include <string>
 #include <limits>

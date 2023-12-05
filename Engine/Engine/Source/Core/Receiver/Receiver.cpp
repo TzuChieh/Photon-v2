@@ -1,9 +1,9 @@
 #include "Core/Receiver/Receiver.h"
 #include "Core/RayDifferential.h"
 #include "Core/Ray.h"
-#include "Common/logging.h"
 
-#include <iostream>
+#include <Common/logging.h>
+
 #include <string>
 
 namespace ph

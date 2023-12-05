@@ -1,5 +1,4 @@
 #include "Core/SampleGenerator/SGHalton.h"
-#include "Common/logging.h"
 #include "Core/Sample.h"
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Math/math.h"
@@ -8,6 +7,7 @@
 #include "Math/Random.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <iostream>
 #include <algorithm>

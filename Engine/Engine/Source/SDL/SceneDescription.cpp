@@ -1,5 +1,6 @@
 #include "SDL/SceneDescription.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 #include <utility>
 

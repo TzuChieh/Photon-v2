@@ -1,5 +1,4 @@
 #include "Actor/Light/AModelLight.h"
-#include "Common/logging.h"
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "World/Foundation/CookingContext.h"
@@ -7,6 +6,7 @@
 #include "Core/Texture/constant_textures.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <utility>
 

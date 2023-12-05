@@ -1,11 +1,11 @@
 #include "Actor/Image/BlackBodyRadiationImage.h"
-#include "Common/logging.h"
 #include "Core/Texture/constant_textures.h"
 #include "Math/Color/color_spaces.h"
 #include "Math/Color/spectral_samples.h"
 #include "Actor/Basic/exceptions.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 // TODO
 #include "Math/TVector3.h"

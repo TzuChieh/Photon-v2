@@ -14,9 +14,9 @@
 #include "Core/Intersectable/Primitive.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Geometry/Geometry.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <iostream>
 

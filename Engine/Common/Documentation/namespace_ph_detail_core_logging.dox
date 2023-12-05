@@ -1,0 +1,5 @@
+/*! @namespace ph::detail::core_logging
+@brief Core logging functionalities.
+Most logs will output information (logs) via a main logger, which we refer to as "core logger".
+This namespace contains implementation details for core logging functionalities.
+ */

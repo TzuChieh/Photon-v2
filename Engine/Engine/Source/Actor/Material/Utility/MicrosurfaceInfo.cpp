@@ -1,9 +1,10 @@
 #include "Actor/Material/Utility/MicrosurfaceInfo.h"
-#include "Common/logging.h"
 #include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h"
 #include "Core/SurfaceBehavior/Property/IsoBeckmann.h"
 #include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

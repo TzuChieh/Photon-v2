@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/Log/logger_fwd.h"
+#include <Common/Log/logger_fwd.h>
 
 #include <vector>
 

@@ -1,9 +1,9 @@
 #include "SDL/SdlDependencyResolver.h"
-#include "Common/logging.h"
 #include "SDL/ISdlResource.h"
 #include "SDL/Introspect/SdlClass.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <algorithm>
 

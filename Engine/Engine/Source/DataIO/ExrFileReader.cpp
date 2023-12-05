@@ -1,10 +1,10 @@
 #include "DataIO/ExrFileReader.h"
-#include "Common/logging.h"
 #include "Utility/utility.h"
 
 #include "Common/ThirdParty/lib_openexr.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <set>
 #include <iostream>

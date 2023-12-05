@@ -8,11 +8,11 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
-#include "Common/logging.h"
 #include "EngineEnv/CoreCookedUnit.h"
 #include "Core/Receiver/Receiver.h"
 
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 #include <utility>
 #include <algorithm>

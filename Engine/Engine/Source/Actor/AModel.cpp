@@ -13,11 +13,11 @@
 #include "World/Foundation/CookedResourceCollection.h"
 #include "World/Foundation/CookedGeometry.h"
 #include "World/Foundation/CookedMotion.h"
-#include "Common/logging.h"
 #include "Core/Intersectable/TMetaInjectionPrimitive.h"
 
+#include <Common/logging.h>
+
 #include <algorithm>
-#include <iostream>
 
 namespace ph
 {

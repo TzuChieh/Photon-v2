@@ -2,9 +2,8 @@
 
 #include "Common/Log/logger_fwd.h"
 #include "Common/Log/ELogLevel.h"
-
-#include <Common/config.h>
-#include <Common/utility.h>
+#include "Common/config.h"
+#include "Common/utility.h"
 
 #include <string>
 #include <vector>
@@ -50,10 +49,26 @@ LogGroups get_core_log_groups();
 namespace ph::detail::core_logging
 {
 
+/*! @brief Initializes core logging functionalities.
+Any logging is only valid after calling `init()`.
+*/
 void init();
+
+/*! @brief Terminates core logging functionalities.
+Cleanup after logging is finished.
+*/
 void exit();
-Logger& get_core_logger();
+
+/*! @brief Get the core logger.
+*/
+Logger& get_logger();
+
+/*! @brief Add a log group to the core logger.
+*/
 std::size_t add_log_group(std::string_view groupName, std::string_view category = "");
+
+/*! @brief Log information to the core logger.
+*/
 void log_to_logger(Logger& logger, std::string_view groupName, ELogLevel logLevel, std::string_view logMessage);
 
 }// end namespace ph::detail::core_logging
@@ -72,7 +87,7 @@ The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the sour
 	{\
 		static const std::size_t logGroupIndex = ::ph::detail::core_logging::add_log_group(#groupName, #category);\
 	\
-		return ::ph::detail::core_logging::get_core_logger();\
+		return ::ph::detail::core_logging::get_logger();\
 	}
 
 #define PH_DEFINE_INLINE_LOG_GROUP(groupName, category)\
@@ -80,7 +95,7 @@ The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the sour
 	{\
 		static const std::size_t logGroupIndex = ::ph::detail::core_logging::add_log_group(#groupName, #category);\
 	\
-		return ::ph::detail::core_logging::get_core_logger();\
+		return ::ph::detail::core_logging::get_logger();\
 	}
 
 /*! @brief Defines a logger that is private to a .cpp file.

@@ -1,6 +1,5 @@
 #include "SDL/SdlCommandParser.h"
 #include "SDL/Tokenizer.h"
-#include "Common/logging.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "SDL/Introspect/SdlClass.h"
@@ -8,9 +7,10 @@
 #include "SDL/SdlInlinePacketInterface.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_parser.h"
-#include "Common/stats.h"
 
 #include <Common/config.h>
+#include <Common/stats.h>
+#include <Common/logging.h>
 #include <Utility/string_utils.h>
 
 #include <cstddef>

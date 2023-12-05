@@ -12,12 +12,12 @@
 #include "Core/Intersectable/Intersector/TIndexedKdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Actor/APhantomModel.h"
-#include "Common/logging.h"
-#include "Common/stats.h"
 #include "World/Foundation/CookOrder.h"
 #include "World/Foundation/PreCookReport.h"
 
 #include <Common/primitive_type.h>
+#include <Common/stats.h>
+#include <Common/logging.h>
 
 #include <limits>
 #include <iostream>

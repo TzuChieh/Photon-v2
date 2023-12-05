@@ -6,7 +6,6 @@
 //#include "Math/Transform/StaticRigidTransform.h"
 //#include "Math/Geometry/THemisphere.h"
 //#include "Math/Random.h"
-//#include "Common/Logger.h"
 //#include "Math/math.h"
 //
 //#include <limits>

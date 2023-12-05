@@ -1,7 +1,7 @@
 #include "Frame/frame_utils.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 namespace ph
 {

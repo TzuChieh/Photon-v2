@@ -1,7 +1,8 @@
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
-#include "Common/logging.h"
+
+#include <Common/logging.h>
 
 namespace ph
 {

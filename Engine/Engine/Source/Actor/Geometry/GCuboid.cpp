@@ -6,9 +6,9 @@
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Math/math.h"
 #include "Actor/Geometry/GTriangleMesh.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <cmath>
 #include <iostream>

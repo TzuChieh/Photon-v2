@@ -2,7 +2,7 @@
 
 #include "ProcessedArguments.h"
 
-#include <ph_core.h>
+#include <ph_c_core.h>
 
 #include <string>
 

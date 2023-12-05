@@ -1,10 +1,11 @@
 #include "World/Foundation/CookingContext.h"
-#include "Common/logging.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "World/VisualWorld.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Actor.h"
 #include "World/Foundation/TransientVisualElement.h"
+
+#include <Common/logging.h>
 
 #include <utility>
 #include <type_traits>

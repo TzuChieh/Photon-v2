@@ -1,13 +1,13 @@
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Math/TVector3.h"
-#include "Common/logging.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h"
 #include "Actor/Image/SwizzledImage.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <utility>
 

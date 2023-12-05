@@ -17,10 +17,10 @@
 #include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Core/Estimator/Integrand.h"
-#include "Common/stats.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/stats.h>
 
 #define RAY_DELTA_DIST 0.0001f
 #define MAX_RAY_BOUNCES 10000

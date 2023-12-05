@@ -1,11 +1,11 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/constant_textures.h"
 #include "Math/TVector3.h"
-#include "Common/logging.h"
 #include "Math/math.h"
 #include "Actor/Basic/exceptions.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 namespace ph
 {

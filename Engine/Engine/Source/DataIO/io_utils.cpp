@@ -1,6 +1,5 @@
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
-#include "Common/logging.h"
 #include "DataIO/ExrFileReader.h"
 #include "Frame/frame_utils.h"
 #include "Frame/RegularPicture.h"
@@ -13,6 +12,7 @@
 #include "Common/ThirdParty/lib_stb.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <fstream>
 #include <sstream>

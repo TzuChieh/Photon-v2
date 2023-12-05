@@ -1,7 +1,8 @@
 #include "DataIO/ExrFileWriter.h"
-#include "Common/logging.h"
 
 #include "Common/ThirdParty/lib_openexr.h"
+
+#include <Common/logging.h>
 
 #include <type_traits>
 

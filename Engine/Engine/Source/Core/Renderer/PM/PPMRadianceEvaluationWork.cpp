@@ -8,11 +8,11 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
-#include "Common/logging.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 namespace ph
 {

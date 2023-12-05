@@ -2,7 +2,6 @@
 #include "ph_core.h"
 #include "SDL/SceneDescription.h"
 #include "DataIO/Stream/FormattedTextInputStream.h"
-#include "Common/logging.h"
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "Utility/utility.h"
@@ -10,6 +9,7 @@
 #include "Utility/Timer.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <utility>
 #include <memory>

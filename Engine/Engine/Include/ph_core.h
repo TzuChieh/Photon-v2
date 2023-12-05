@@ -2,19 +2,23 @@
 
 #include "EngineInitSettings.h"
 #include "EEngineProject.h"
-#include "DataIO/FileSystem/Path.h"
 
 #include <span>
 
 namespace ph { class SdlClass; }
 namespace ph { class SdlEnum; }
 namespace ph { class IniFile; }
+namespace ph { class Path; }
 
 namespace ph
 {
 
 /*! @brief Initialize the render engine.
-Must be called before any other use of the engine.
+Must be called before any other use of the engine. This functions also
+initializes all dependencies. Note that initialization is generally not
+required when using APIs from a base library (e.g., the `Common` library)--in
+case of an exception (such as logging), consult the API's documentation to see
+if anything should be done before using it.
 */
 bool init_render_engine(EngineInitSettings settings);
 

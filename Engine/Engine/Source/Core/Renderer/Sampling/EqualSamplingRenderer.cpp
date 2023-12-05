@@ -19,10 +19,10 @@
 #include "Core/Scheduler/WorkUnit.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
-#include "Common/logging.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 #include <cmath>
 #include <iostream>

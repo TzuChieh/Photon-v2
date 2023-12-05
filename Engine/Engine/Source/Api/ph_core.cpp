@@ -1,7 +1,6 @@
 #include "ph_core.h"
 #include "Api/init_and_exit.h"
-#include "Common/logging.h"
-#include "Common/Log/Logger.h"
+#include "DataIO/FileSystem/Path.h"
 
 // Geometries
 #include "Actor/Geometry/Geometry.h"
@@ -101,6 +100,8 @@
 #include "DataIO/sdl_picture_file_type.h"
 
 #include <Common/config.h>
+#include <Common/logging.h>
+#include <Common/Log/Logger.h>
 
 #include <utility>
 #include <vector>
@@ -243,7 +244,7 @@ bool init_render_engine(EngineInitSettings settings)
 				continue;
 			}
 			
-			detail::core_logging::get_core_logger().addLogHandler(std::move(handler));
+			detail::core_logging::get_logger().addLogHandler(std::move(handler));
 		}
 
 		settings.additionalLogHandlers.clear();

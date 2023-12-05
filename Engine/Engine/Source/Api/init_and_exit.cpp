@@ -1,9 +1,8 @@
 #include "Api/init_and_exit.h"
 #include "Api/ApiDatabase.h"
-#include "Common/logging.h"
 #include "DataIO/io_utils.h"
 
-#include <iostream>
+#include <Common/logging.h>
 
 namespace ph
 {

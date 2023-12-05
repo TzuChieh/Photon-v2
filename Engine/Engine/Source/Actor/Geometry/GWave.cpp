@@ -3,9 +3,10 @@
 #include "Math/TVector3.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Common/logging.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
+
+#include <Common/logging.h>
 
 #include <iostream>
 #include <cmath>

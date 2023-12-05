@@ -1,5 +1,4 @@
 #include "SDL/SdlSceneFileWriter.h"
-#include "Common/logging.h"
 #include "DataIO/Stream/FormattedTextOutputStream.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/Introspect/SdlOutputContext.h"
@@ -11,6 +10,7 @@
 
 #include <Common/assertion.h>
 #include <Common/config.h>
+#include <Common/logging.h>
 
 #include <utility>
 #include <vector>
