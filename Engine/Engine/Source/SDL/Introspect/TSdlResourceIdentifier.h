@@ -2,12 +2,12 @@
 
 #include "SDL/Introspect/TSdlValue.h"
 #include "DataIO/FileSystem/ResourceIdentifier.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/sdl_exceptions.h"
+
+#include <Common/assertion.h>
 
 #include <string>
 

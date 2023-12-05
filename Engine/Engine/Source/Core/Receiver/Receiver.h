@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
 #include "Math/Color/Spectrum.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 namespace ph::math { class RigidTransform; }
 

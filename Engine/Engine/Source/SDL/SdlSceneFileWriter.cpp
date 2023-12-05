@@ -1,6 +1,4 @@
 #include "SDL/SdlSceneFileWriter.h"
-#include "Common/assertion.h"
-#include "Common/config.h"
 #include "Common/logging.h"
 #include "DataIO/Stream/FormattedTextOutputStream.h"
 #include "SDL/sdl_helpers.h"
@@ -10,6 +8,9 @@
 #include "ph_core.h"
 #include "SDL/SceneDescription.h"
 #include "Utility/SemanticVersion.h"
+
+#include <Common/assertion.h>
+#include <Common/config.h>
 
 #include <utility>
 #include <vector>

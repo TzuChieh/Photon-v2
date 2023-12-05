@@ -1,5 +1,6 @@
 #include "Frame/Operator/JRToneMapping.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <limits>
 #include <iostream>

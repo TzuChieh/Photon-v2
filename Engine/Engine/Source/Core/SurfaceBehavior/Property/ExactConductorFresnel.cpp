@@ -1,6 +1,7 @@
 #include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
-#include "Common/assertion.h"
 #include "Math/Color/spectral_samples.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <iostream>

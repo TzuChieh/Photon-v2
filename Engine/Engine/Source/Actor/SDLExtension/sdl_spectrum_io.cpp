@@ -1,13 +1,14 @@
 #include "Actor/SDLExtension/sdl_spectrum_io.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/Tokenizer.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/SdlInputClause.h"
 #include "SDL/Introspect/TSdlEnum.h"
 #include "Math/Color/color_spaces.h"
 #include "Math/Color/spectral_samples.h"
 #include "Math/math.h"
+
+#include <Common/assertion.h>
 
 #include <vector>
 

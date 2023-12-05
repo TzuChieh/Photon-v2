@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Utility/TArrayAsVector.h"
-#include "Common/config.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
+#include <Common/config.h>
 
 #include <utility>
 #include <type_traits>

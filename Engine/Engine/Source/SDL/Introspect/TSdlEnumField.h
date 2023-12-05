@@ -2,9 +2,10 @@
 
 #include "SDL/Introspect/TSdlValue.h"
 #include "SDL/Introspect/TSdlOptionalValue.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/Introspect/TSdlEnum.h"
+
+#include <Common/assertion.h>
 
 #include <type_traits>
 #include <string>

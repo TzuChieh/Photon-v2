@@ -1,6 +1,7 @@
 #include "Core/Texture/HdrRgbTexture2D.h"
-#include "Common/assertion.h"
 #include "Core/Texture/TNearestPixelTex2D.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

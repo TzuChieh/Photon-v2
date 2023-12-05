@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Core/Scheduler/IWorkDispatcher.h"
-#include "Common/primitive_type.h"
 #include "Core/Scheduler/Region.h"
-#include "Common/assertion.h"
 #include "Frame/TFrame.h"
 #include "Math/math.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cmath>
 #include <cstddef>

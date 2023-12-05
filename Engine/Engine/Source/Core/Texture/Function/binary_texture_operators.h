@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Core/Texture/TTexture.h"
-#include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Utility/traits.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TArithmeticArray.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <type_traits>

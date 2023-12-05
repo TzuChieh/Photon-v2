@@ -1,6 +1,7 @@
 #include "DataIO/Stream/FormattedTextOutputStream.h"
-#include "Common/assertion.h"
 #include "DataIO/io_exceptions.h"
+
+#include <Common/assertion.h>
 
 #include <fstream>
 #include <sstream>

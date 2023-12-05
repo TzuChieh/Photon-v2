@@ -2,9 +2,10 @@
 
 #include "Frame/picture_basics.h"
 #include "Math/TVector2.h"
-#include "Common/primitive_type.h"
 #include "Frame/frame_fwd.h"
 #include "Utility/TSpan.h"
+
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <memory>

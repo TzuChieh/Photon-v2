@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/Geometry/TLineSegment.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <limits>
 

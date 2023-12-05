@@ -1,5 +1,4 @@
 #include "Core/Renderer/Renderer.h"
-#include "Common/primitive_type.h"
 #include "Core/Filmic/Film.h"
 #include "World/VisualWorld.h"
 #include "Core/Receiver/Receiver.h"
@@ -12,6 +11,8 @@
 #include "Common/logging.h"
 #include "EngineEnv/CoreCookedUnit.h"
 #include "Core/Receiver/Receiver.h"
+
+#include <Common/primitive_type.h>
 
 #include <utility>
 #include <algorithm>

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Core/Filmic/filmic_fwd.h"
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Math/TVector3.h"
 #include "Core/Filmic/HdrRgbFilm.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 

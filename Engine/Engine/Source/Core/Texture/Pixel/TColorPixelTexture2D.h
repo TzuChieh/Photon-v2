@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Core/Texture/Pixel/TPixelTexture2D.h"
-#include "Common/assertion.h"
-#include "Common/primitive_type.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Math/Color/color_enums.h"
 #include "Math/Color/color_spaces.h"
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/Pixel/pixel_texture_basics.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <array>
 #include <cstddef>

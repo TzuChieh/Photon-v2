@@ -5,7 +5,8 @@
 #include "SDL/Introspect/TSdlOwnedField.h"
 #include "SDL/Introspect/TSdlBruteForceFieldSet.h"
 #include "Utility/TArrayAsVector.h"
-#include "Common/config.h"
+
+#include <Common/config.h>
 
 #include <string>
 #include <utility>

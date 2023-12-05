@@ -1,6 +1,7 @@
 #include "Core/Intersectable/PrimitiveChannel.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

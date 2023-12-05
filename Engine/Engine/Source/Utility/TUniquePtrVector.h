@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "Utility/IMoveOnly.h"
+
+#include <Common/assertion.h>
 
 #include <vector>
 #include <memory>

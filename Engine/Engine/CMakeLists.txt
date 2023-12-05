@@ -36,6 +36,9 @@ target_include_directories(Engine
 	PUBLIC  ${ENGINE_INCLUDE_DIR}
 	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
+target_link_libraries(Engine
+	PUBLIC Common)
+
 include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
 
 link_thirdparty_lib(Engine ${STB_LIB_NAME})
@@ -45,38 +48,6 @@ link_thirdparty_lib(Engine ${OPENEXR_LIB_NAME})
 link_thirdparty_lib(Engine ${CONCURRENTQUEUE_LIB_NAME} PUBLIC)
 link_thirdparty_lib(Engine ${TRACY_LIB_NAME} PUBLIC OPTIONAL
 	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_TRACY)
-
-# Non-Windows platforms do not link to threading and filesystem libraries by default
-if(NOT WIN32)
-	find_package(Threads)
-	target_link_libraries(Engine PUBLIC ${CMAKE_THREAD_LIBS_INIT})
-
-	# FIXME: remove this when osx supports STL filesystem
-	if(NOT APPLE)
-		target_link_libraries(Engine PUBLIC stdc++fs)
-	endif()
-endif()
-
-# Using MSVC
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-	target_compile_definitions(Engine
-		PUBLIC _CRT_SECURE_NO_WARNINGS)
-endif()
-
-if(PH_ENABLE_DEBUG)
-	target_compile_definitions(Engine
-		PUBLIC PH_CONFIG_ENABLE_DEBUG)
-endif()
-
-if(PH_ENABLE_PROFILING)
-	target_compile_definitions(Engine
-		PUBLIC PH_CONFIG_ENABLE_PROFILING)
-endif()
-
-if(PH_DOUBLE_PRECISION_REAL)
-	target_compile_definitions(Engine
-		PUBLIC PH_CONFIG_DOUBLE_PRECISION_REAL)
-endif()
 
 #[[
 

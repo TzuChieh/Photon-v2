@@ -1,8 +1,8 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlValue.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <string>
 

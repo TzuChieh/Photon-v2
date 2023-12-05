@@ -2,8 +2,9 @@
 
 #include "SDL/Introspect/ISdlInstantiable.h"
 #include "SDL/sdl_fwd.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
+
+#include <Common/assertion.h>
 
 #include <string>
 #include <utility>

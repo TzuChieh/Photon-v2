@@ -3,7 +3,8 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/Texture/TSampler.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <memory>
 #include <utility>

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Actor/Image/Image.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <functional>

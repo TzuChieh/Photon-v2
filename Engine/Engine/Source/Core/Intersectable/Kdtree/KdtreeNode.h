@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Core/Intersectable/Kdtree/KdtreeAABB.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <vector>

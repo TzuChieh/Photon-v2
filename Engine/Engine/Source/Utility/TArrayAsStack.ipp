@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Utility/TArrayAsStack.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

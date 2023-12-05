@@ -2,7 +2,8 @@
 
 #include "Core/Intersectable/DataStructure/TriFace.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <array>

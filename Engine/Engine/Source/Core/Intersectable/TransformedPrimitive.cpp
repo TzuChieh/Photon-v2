@@ -1,10 +1,7 @@
 #include "Core/Intersectable/TransformedPrimitive.h"
-#include "Common/assertion.h"
 #include "Math/Transform/RigidTransform.h"
 #include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
 #include "Core/HitDetail.h"
-
-#include <iostream>
 
 namespace ph
 {

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/General/TVectorNBase.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

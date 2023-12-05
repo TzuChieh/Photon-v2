@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Actor/Light/AGeometricLight.h"
-#include "Common/primitive_type.h"
 #include "Math/Color/Spectrum.h"
 #include "SDL/sdl_interface.h"
 #include "Actor/SDLExtension/TSdlSpectrum.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Common/primitive_type.h"
 #include "Core/Texture/TTexture.h"
 #include "Math/Color/Spectrum.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 

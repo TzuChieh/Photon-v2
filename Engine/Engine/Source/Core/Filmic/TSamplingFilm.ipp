@@ -4,7 +4,8 @@
 #include "Math/Function/TConstant2D.h"
 #include "Math/Function/TGaussian2D.h"
 #include "Core/Filmic/SampleFilter.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <iostream>

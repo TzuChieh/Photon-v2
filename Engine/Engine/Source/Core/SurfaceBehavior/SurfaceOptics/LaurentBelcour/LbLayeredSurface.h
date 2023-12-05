@@ -2,8 +2,9 @@
 
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Math/Color/Spectrum.h"
-#include "Common/primitive_type.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 

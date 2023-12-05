@@ -3,8 +3,6 @@
 #include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/PM/TViewpoint.h"
 #include "Core/Renderer/PM/TPhoton.h"
-#include "Common/assertion.h"
-#include "Common/primitive_type.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
@@ -18,6 +16,9 @@
 #include "Math/math.h"
 #include "Core/Scheduler/Region.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <type_traits>

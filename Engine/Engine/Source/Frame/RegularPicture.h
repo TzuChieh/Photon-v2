@@ -2,9 +2,10 @@
 
 #include "Frame/picture_basics.h"
 #include "Frame/PictureData.h"
-#include "Common/primitive_type.h"
 #include "Math/Color/color_basics.h"
 #include "Math/TVector2.h"
+
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 

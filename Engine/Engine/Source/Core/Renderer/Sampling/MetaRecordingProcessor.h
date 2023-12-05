@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Core/Renderer/Sampling/IReceivedRayProcessor.h"
-#include "Common/assertion.h"
 #include "Frame/TFrame.h"
 #include "Math/TVector2.h"
-#include "Common/primitive_type.h"
 #include "Utility/Timer.h"
 #include "Math/Geometry/TAABB2D.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 

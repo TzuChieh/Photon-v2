@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/Color/Spectrum.h"
 #include "Actor/Material/Utility/EInterfaceFresnel.h"
 #include "Actor/SDLExtension/TSdlSpectrum.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <optional>

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Utility/Concurrent/Workflow.h"
-#include "Common/assertion.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Common/logging.h"
-#include "Common/primitive_type.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <stdexcept>
 #include <algorithm>

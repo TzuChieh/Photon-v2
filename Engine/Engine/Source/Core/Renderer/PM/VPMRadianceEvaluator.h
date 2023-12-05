@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/FullPhoton.h"
@@ -17,6 +15,9 @@
 #include "Core/LTABuildingBlock/lta.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 

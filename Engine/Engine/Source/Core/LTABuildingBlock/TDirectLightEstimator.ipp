@@ -7,7 +7,8 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/HitDetail.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 

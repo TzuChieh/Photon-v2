@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL/TSdlAnyInstance.h"
-#include "Common/assertion.h"
 #include "Utility/traits.h"
 #include "Utility/utility.h"
 #include "SDL/sdl_traits.h"
@@ -9,6 +8,8 @@
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/Introspect/SdlStruct.h"
 #include "SDL/Introspect/SdlFunction.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

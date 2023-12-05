@@ -2,7 +2,8 @@
 #include "World/Foundation/CookedMotion.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "World/Foundation/CookingContext.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

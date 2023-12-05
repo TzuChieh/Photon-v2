@@ -1,5 +1,6 @@
 #include "Core/Filmic/SampleFilter.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

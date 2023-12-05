@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "Utility/string_utils_table.h"
 #include "Utility/exception.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <string>

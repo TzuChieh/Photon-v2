@@ -1,11 +1,12 @@
 #include "Actor/Geometry/Geometry.h"
-#include "Common/assertion.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "World/Foundation/CookedGeometry.h"
 #include "World/Foundation/CookingContext.h"
 #include "Actor/Basic/exceptions.h"
 #include "Common/logging.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

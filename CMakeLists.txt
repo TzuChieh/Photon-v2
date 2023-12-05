@@ -436,6 +436,7 @@ endif()
 # Add CMake Subdirectories                                                    #
 ###############################################################################
 
+add_subdirectory("./Engine/Common/")
 add_subdirectory("./Engine/Engine/")
 add_subdirectory("./Engine/CEngine/")
 

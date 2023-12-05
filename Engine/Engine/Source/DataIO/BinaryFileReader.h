@@ -1,7 +1,8 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <fstream>
 #include <vector>

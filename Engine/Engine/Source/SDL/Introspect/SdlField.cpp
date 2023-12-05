@@ -1,6 +1,7 @@
 #include "SDL/Introspect/SdlField.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

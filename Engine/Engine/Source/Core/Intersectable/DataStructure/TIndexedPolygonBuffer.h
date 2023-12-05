@@ -4,7 +4,8 @@
 #include "Core/Intersectable/DataStructure/IndexedVertexBuffer.h"
 #include "Core/Intersectable/DataStructure/IndexedUIntBuffer.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <utility>

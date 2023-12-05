@@ -1,9 +1,10 @@
 #include "Core/Emitter/OmniModulatedEmitter.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

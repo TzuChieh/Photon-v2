@@ -5,7 +5,6 @@
 #include "Math/Transform/StaticRigidTransform.h"
 #include "Core/Intersectable/TransformedPrimitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Common/assertion.h"
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
@@ -14,6 +13,8 @@
 #include "Core/Texture/constant_textures.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Math/Color/color_spaces.h"
+
+#include <Common/assertion.h>
 
 #include <iostream>
 #include <memory>

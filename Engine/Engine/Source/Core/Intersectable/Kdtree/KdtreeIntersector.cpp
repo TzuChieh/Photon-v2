@@ -1,9 +1,8 @@
 #include "Core/Intersectable/Kdtree/KdtreeIntersector.h"
 #include "World/Foundation/CookedDataStorage.h"
 #include "Core/HitProbe.h"
-#include "Common/assertion.h"
 
-#include <iostream>
+#include <Common/assertion.h>
 
 //#define KDTREE_INITIAL_TRIANGLE_BUFFER_SIZE 1000000
 

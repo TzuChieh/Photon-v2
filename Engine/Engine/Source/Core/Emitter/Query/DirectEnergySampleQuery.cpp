@@ -1,5 +1,6 @@
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
 #include "Utility/utility.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <cstddef>

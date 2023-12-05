@@ -1,13 +1,14 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlReference.h"
-#include "Common/assertion.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/ISdlResource.h"
 #include "SDL/SceneDescription.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_helpers.h"
 #include "Utility/string_utils.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

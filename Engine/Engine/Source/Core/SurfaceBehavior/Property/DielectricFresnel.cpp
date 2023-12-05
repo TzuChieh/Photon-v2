@@ -1,5 +1,6 @@
 #include "Core/SurfaceBehavior/Property/DielectricFresnel.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <algorithm>

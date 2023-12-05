@@ -8,9 +8,10 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
 #include "Math/math.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
-#include "Common/assertion.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 #include "Math/Color/Spectrum.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <iostream>

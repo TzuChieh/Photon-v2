@@ -9,7 +9,6 @@
 #include "Math/constant.h"
 #include "Core/Texture/TSampler.h"
 #include "Math/Color/Spectrum.h"
-#include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
@@ -17,7 +16,8 @@
 #include "Math/Color/spectral_samples.h"
 #include "Math/Color/color_spaces.h"
 
-#include <iostream>
+#include <Common/assertion.h>
+
 #include <algorithm>
 #include <cmath>
 

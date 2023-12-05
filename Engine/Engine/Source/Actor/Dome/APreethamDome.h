@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Actor/ADome.h"
-#include "Common/primitive_type.h"
 #include "DataIO/FileSystem/Path.h"
 #include "Core/Texture/TTexture.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector2.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <optional>

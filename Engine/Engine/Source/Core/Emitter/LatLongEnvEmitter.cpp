@@ -1,5 +1,4 @@
 #include "Core/Emitter/LatLongEnvEmitter.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Common/logging.h"
@@ -10,6 +9,8 @@
 #include "Math/Geometry/TDisk.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+
+#include <Common/assertion.h>
 
 #include <vector>
 #include <cmath>

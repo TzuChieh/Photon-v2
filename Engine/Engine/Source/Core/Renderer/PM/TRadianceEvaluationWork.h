@@ -7,7 +7,8 @@
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/math_fwd.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <type_traits>
 

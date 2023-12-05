@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Core/Renderer/PM/TViewpoint.h"
-#include "Common/primitive_type.h"
 #include "Core/SurfaceHit.h"
 #include "Math/TVector2.h"
 #include "Math/Color/Spectrum.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 

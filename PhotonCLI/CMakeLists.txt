@@ -24,6 +24,7 @@ target_include_directories(PhotonCLI
 
 target_link_libraries(PhotonCLI
 	PRIVATE Engine
+	PRIVATE Common
 	PRIVATE CEngine
 	PRIVATE SDLGen)
 

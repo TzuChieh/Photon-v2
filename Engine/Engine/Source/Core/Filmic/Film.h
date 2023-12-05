@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Math/TVector2.h"
 #include "Frame/frame_fwd.h"
-#include "Common/assertion.h"
 #include "Utility/IMoveOnly.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 namespace ph
 {

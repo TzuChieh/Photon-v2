@@ -1,12 +1,13 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlMethod.h"
-#include "Common/assertion.h"
 #include "SDL/SdlInputClauses.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/Introspect/field_set_op.h"
 #include "SDL/SceneDescription.h"
 #include "SDL/sdl_exceptions.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

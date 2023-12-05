@@ -2,13 +2,14 @@
 
 #include "Core/Renderer/Sampling/SamplingRenderer.h"
 #include "Core/Scheduler/Region.h"
-#include "Common/primitive_type.h"
 #include "Core/Scheduler/DammertzDispatcher.h"
 #include "Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Frame/TFrame.h"
 #include "Core/Renderer/Sampling/TStepperReceiverMeasurementEstimator.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Math/Color/Spectrum.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <queue>

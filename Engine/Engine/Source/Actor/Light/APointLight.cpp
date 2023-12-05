@@ -1,6 +1,7 @@
 #include "Actor/Light/APointLight.h"
 #include "Actor/Geometry/GSphere.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

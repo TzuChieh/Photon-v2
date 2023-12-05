@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "Math/TVector3.h"
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtreeNode.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Utility/utility.h"
+
+#include <Common/assertion.h>
 
 #include <vector>
 #include <utility>

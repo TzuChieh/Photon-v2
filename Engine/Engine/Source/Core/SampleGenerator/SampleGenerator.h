@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Core/Sample.h"
 #include "Math/TVector2.h"
 #include "Math/TArithmeticArray.h"
@@ -11,6 +9,9 @@
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Core/SampleGenerator/SamplesNDStream.h"
 #include "Math/TArithmeticArray.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <utility>

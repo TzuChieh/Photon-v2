@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlReferenceArray.h"
-#include "Common/assertion.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/ISdlResource.h"
 #include "SDL/SceneDescription.h"
@@ -9,6 +8,8 @@
 #include "SDL/sdl_helpers.h"
 #include "Utility/string_utils.h"
 #include "SDL/Tokenizer.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

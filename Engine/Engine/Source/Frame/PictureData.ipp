@@ -1,7 +1,8 @@
 #include "Frame/PictureData.h"
 #include "Frame/TFrame.h"
-#include "Common/assertion.h"
 #include "Utility/utility.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 #include <type_traits>

@@ -1,7 +1,8 @@
 #include "Core/Intersectable/Query/PrimitivePosSamplePdfQuery.h"
 #include "Core/HitDetail.h"
 #include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

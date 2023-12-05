@@ -1,5 +1,4 @@
 #include "Actor/Image/SwizzledImage.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
@@ -11,6 +10,8 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Core/Texture/constant_textures.h"
 #include "Math/Color/color_spaces.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <utility>

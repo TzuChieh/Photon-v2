@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Math/Color/TSampledSpectrum.h"
-#include "Common/config.h"
-#include "Common/assertion.h"
 #include "Math/Color/spectral_samples.h"
+
+#include <Common/assertion.h>
+#include <Common/config.h>
 
 #include <type_traits>
 

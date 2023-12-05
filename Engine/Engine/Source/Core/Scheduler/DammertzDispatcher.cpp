@@ -1,6 +1,7 @@
 #include "Core/Scheduler/DammertzDispatcher.h"
-#include "Common/assertion.h"
 #include "Core/Scheduler/GridScheduler.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

@@ -2,8 +2,9 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

@@ -3,9 +3,10 @@
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
-#include "Common/assertion.h"
 #include "Core/Texture/constant_textures.h"
 #include "Core/Texture/TSampler.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

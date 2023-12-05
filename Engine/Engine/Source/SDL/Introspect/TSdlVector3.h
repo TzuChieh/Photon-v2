@@ -2,10 +2,11 @@
 
 #include "SDL/Introspect/TSdlValue.h"
 #include "SDL/Introspect/TSdlOptionalValue.h"
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <type_traits>
 #include <string>

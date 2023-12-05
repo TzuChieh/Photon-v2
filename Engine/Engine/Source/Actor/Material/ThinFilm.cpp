@@ -1,5 +1,4 @@
 #include "Actor/Material/ThinFilm.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/ThinDielectricFilm.h"
 #include "Math/Color/TSampledSpectrum.h"

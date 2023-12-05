@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlOwnedField.h"
-#include "Common/assertion.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/Introspect/SdlOutputContext.h"
 #include "SDL/sdl_exceptions.h"
@@ -10,6 +9,8 @@
 #include "SDL/SdlOutputClause.h"
 #include "Utility/traits.h"
 #include "SDL/TSdlAnyInstance.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

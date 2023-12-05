@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Actor/Actor.h"
-#include "Common/primitive_type.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Actor/Basic/TransformInfo.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 #include <optional>
 

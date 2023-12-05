@@ -2,8 +2,6 @@
 
 #include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/PM/TViewpoint.h"
-#include "Common/assertion.h"
-#include "Common/primitive_type.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
@@ -11,6 +9,9 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Math/Random.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <type_traits>

@@ -1,5 +1,6 @@
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

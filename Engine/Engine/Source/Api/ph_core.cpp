@@ -2,7 +2,6 @@
 #include "Api/init_and_exit.h"
 #include "Common/logging.h"
 #include "Common/Log/Logger.h"
-#include "Common/config.h"
 
 // Geometries
 #include "Actor/Geometry/Geometry.h"
@@ -100,6 +99,8 @@
 #include "Actor/Material/Utility/EInterfaceMicrosurface.h"
 #include "Actor/Material/Utility/ERoughnessToAlpha.h"
 #include "DataIO/sdl_picture_file_type.h"
+
+#include <Common/config.h>
 
 #include <utility>
 #include <vector>

@@ -2,7 +2,8 @@
 
 #include "Math/Function/TMathFunction2D.h"
 #include "Math/constant.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

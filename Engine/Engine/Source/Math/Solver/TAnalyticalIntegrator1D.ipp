@@ -1,5 +1,6 @@
 #include "Math/Solver/TAnalyticalIntegrator1D.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 

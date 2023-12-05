@@ -1,12 +1,13 @@
 #pragma once
 
 #include "Math/Color/Spectrum.h"
-#include "Common/primitive_type.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
 #include "DataIO/FileSystem/CoreResource.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 namespace ph
 {

@@ -1,6 +1,7 @@
 #include "DataIO/FileSystem/Path.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
+
+#include <Common/assertion.h>
 
 #include <cwchar>
 #include <algorithm>

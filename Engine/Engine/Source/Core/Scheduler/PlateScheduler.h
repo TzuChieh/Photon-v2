@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Scheduler/WorkScheduler.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 

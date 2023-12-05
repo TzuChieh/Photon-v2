@@ -1,7 +1,5 @@
 //#pragma once
 //
-//#include "Common/assertion.h"
-//#include "Common/primitive_type.h"
 //#include "Math/math_table.h"
 //#include "Math/Random/shuffle.h"
 //#include "Core/SampleGenerator/Detail/halton.h"

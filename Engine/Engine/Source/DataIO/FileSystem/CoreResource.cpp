@@ -1,5 +1,6 @@
 #include "DataIO/FileSystem/CoreResource.h"
-#include "Common/config.h"
+
+#include <Common/config.h>
 
 namespace ph
 {

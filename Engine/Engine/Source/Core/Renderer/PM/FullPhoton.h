@@ -3,7 +3,8 @@
 #include "Core/Renderer/PM/TPhoton.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

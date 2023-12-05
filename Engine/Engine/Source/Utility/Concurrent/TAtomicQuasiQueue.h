@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/config.h"
+#include <Common/config.h>
 
 #include <moodycamel/concurrentqueue.h>
 

@@ -1,13 +1,14 @@
 #pragma once
 
 #include "SDL/TSdlResourceBase.h"
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Core/Texture/TTexture.h"
 #include "Math/Color/Spectrum.h"
-#include "Common/config.h"
 #include "SDL/sdl_interface.h"
 #include "Math/TArithmeticArray.h"
+
+#include <Common/config.h>
+#include <Common/primitive_type.h>
 
 #include <memory>
 

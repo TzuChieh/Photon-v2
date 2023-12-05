@@ -2,8 +2,6 @@
 
 #include "SDL/Introspect/TSdlValue.h"
 #include "SDL/Introspect/TSdlOptionalValue.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Math/Color/Spectrum.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/SdlResourceLocator.h"
@@ -12,6 +10,9 @@
 #include "DataIO/io_exceptions.h"
 #include "Actor/SDLExtension/sdl_spectrum_io.h"
 #include "Actor/SDLExtension/sdl_color_enums.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <type_traits>
 #include <string>

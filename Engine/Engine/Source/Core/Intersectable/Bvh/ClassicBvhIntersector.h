@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Intersectable/Intersector.h"
-#include "Common/primitive_type.h"
 #include "Core/Intersectable/Bvh/BvhLinearNode.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 

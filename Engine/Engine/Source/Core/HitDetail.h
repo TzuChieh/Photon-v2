@@ -5,7 +5,8 @@
 #include "Math/math.h"
 #include "Core/ECoordSys.h"
 #include "Core/HitInfo.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 

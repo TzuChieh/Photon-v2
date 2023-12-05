@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/Color/chromatic_adaptations.h"
-#include "Common/assertion.h"
 #include "Utility/IUninstantiable.h"
+
+#include <Common/assertion.h>
 
 namespace ph::math
 {

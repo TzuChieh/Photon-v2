@@ -5,7 +5,6 @@
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealAbsorber.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
 #include "Core/Texture/constant_textures.h"
@@ -14,8 +13,9 @@
 #include "Actor/Material/Utility/DielectricInterfaceInfo.h"
 #include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
 
+#include <Common/assertion.h>
+
 #include <string>
-#include <iostream>
 #include <utility>
 
 namespace ph

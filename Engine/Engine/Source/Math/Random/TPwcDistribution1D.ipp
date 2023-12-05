@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/Random/TPwcDistribution1D.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 

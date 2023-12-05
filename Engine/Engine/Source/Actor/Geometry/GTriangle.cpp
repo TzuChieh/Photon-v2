@@ -4,12 +4,13 @@
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
 #include "Math/Geometry/TTriangle.h"
 #include "Actor/Basic/exceptions.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
+
+#include <Common/assertion.h>
 
 #include <iostream>
 

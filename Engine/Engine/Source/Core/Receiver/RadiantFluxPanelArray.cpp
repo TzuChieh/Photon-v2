@@ -1,5 +1,4 @@
 //#include "Core/Receiver/RadiantFluxPanelArray.h"
-//#include "Common/assertion.h"
 //#include "Math/TVector2.h"
 //#include "Math/TVector3.h"
 //#include "Math/Geometry/TAABB2D.h"

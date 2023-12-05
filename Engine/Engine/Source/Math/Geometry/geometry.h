@@ -2,7 +2,8 @@
 
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph::math
 {

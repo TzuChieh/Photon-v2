@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -11,10 +10,12 @@
 #include "Core/Renderer/AttributeTags.h"
 #include "Core/Renderer/RenderStats.h"
 #include "Core/Scheduler/Region.h"
-#include "Common/assertion.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/RenderObservationInfo.h"
 #include "Frame/Viewport.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <mutex>

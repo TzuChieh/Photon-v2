@@ -3,8 +3,9 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Texture/texture_fwd.h"
 #include "Math/Color/Spectrum.h"
-#include "Common/primitive_type.h"
 #include "Core/Texture/TSampler.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <vector>

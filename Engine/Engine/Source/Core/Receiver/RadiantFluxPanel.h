@@ -1,7 +1,6 @@
 //#pragma once
 //
 //#include "Core/Receiver/Receiver.h"
-//#include "Common/primitive_type.h"
 //#include "Math/TVector2.h"
 //
 //#include <memory>

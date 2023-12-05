@@ -1,5 +1,6 @@
 #include "Frame/FrameProcessingPipeline.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <iostream>
 #include <utility>

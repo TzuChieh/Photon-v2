@@ -4,7 +4,8 @@
 #include "Core/Intersectable/DataStructure/TIndexedPolygonBuffer.h"
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtree.h"
 #include "Math/Geometry/TWatertightTriangle.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Texture/TLinearGradientTexture.h"
-#include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

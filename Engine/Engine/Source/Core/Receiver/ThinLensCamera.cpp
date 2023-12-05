@@ -3,8 +3,9 @@
 #include "Math/Transform/Transform.h"
 #include "Math/Transform/RigidTransform.h"
 #include "Math/Random.h"
-#include "Common/assertion.h"
 #include "Math/Geometry/TDisk.h"
+
+#include <Common/assertion.h>
 
 #include <iostream>
 

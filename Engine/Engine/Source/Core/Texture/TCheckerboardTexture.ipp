@@ -1,7 +1,8 @@
 #include "Core/Texture/TCheckerboardTexture.h"
 #include "Core/Texture/SampleLocation.h"
-#include "Common/assertion.h"
 #include "Core/Texture/constant_textures.h"
+
+#include <Common/assertion.h>
 
 #include <iostream>
 #include <memory>

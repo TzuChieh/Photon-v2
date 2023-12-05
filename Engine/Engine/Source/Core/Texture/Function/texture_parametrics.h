@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Texture/TTexture.h"
-#include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
+
+#include <Common/assertion.h>
 
 #include <memory>
 #include <utility>

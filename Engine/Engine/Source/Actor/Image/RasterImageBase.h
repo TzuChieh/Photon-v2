@@ -3,8 +3,9 @@
 #include "Actor/Image/Image.h"
 #include "Actor/Image/sdl_image_enums.h"
 #include "Math/TVector2.h"
-#include "Common/primitive_type.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

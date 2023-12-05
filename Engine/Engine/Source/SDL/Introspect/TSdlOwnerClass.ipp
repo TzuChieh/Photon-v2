@@ -4,11 +4,12 @@
 #include "SDL/Introspect/field_set_op.h"
 #include "SDL/Introspect/SdlStruct.h"
 #include "SDL/Introspect/SdlStructFieldStump.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/Introspect/SdlFunction.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/sdl_traits.h"
+
+#include <Common/assertion.h>
 
 #include <type_traits>
 #include <format>

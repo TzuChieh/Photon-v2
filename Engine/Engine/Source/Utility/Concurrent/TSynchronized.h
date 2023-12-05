@@ -2,7 +2,8 @@
 
 #include "Utility/INoCopyAndMove.h"
 #include "Utility/exception.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <shared_mutex>
 #include <type_traits>

@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "SDL/ESdlDataFormat.h"
 #include "SDL/ESdlDataType.h"
 #include "Utility/TFunction.h"
 #include "Math/Color/spectrum_fwd.h"
 #include "SDL/TSdlAnyInstance.h"
 #include "Utility/TAnyPtr.h"
+
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <variant>

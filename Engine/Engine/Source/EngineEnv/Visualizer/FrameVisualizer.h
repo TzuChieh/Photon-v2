@@ -1,10 +1,11 @@
 #pragma once
 
 #include "EngineEnv/Visualizer/Visualizer.h"
-#include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 #include <optional>
 

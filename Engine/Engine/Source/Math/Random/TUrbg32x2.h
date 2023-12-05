@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/Random/TUniformRandomBitGenerator.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <type_traits>
 #include <utility>

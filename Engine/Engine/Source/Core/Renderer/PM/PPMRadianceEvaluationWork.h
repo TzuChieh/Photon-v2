@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Core/Renderer/PM/TRadianceEvaluationWork.h"
 #include "Core/Renderer/PM/FullPhoton.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/PM/FullViewpoint.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 

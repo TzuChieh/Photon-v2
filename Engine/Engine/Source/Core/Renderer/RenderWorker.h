@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Core/Renderer/RendererProxy.h"
 #include "Core/Renderer/Statistics.h"
 #include "Core/Renderer/RenderProgress.h"
+
+#include <Common/primitive_type.h>
 
 #include <atomic>
 #include <utility>

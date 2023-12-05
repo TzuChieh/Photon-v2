@@ -1,5 +1,4 @@
 #include "SDL/sdl_helpers.h"
-#include "Common/assertion.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "SDL/Tokenizer.h"
@@ -11,6 +10,8 @@
 #include "SDL/SdlOutputClause.h"
 #include "SDL/sdl_exceptions.h"
 #include "Utility/string_utils.h"
+
+#include <Common/assertion.h>
 
 #include <exception>
 #include <cstddef>

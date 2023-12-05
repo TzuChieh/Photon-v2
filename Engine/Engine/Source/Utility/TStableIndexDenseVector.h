@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <vector>

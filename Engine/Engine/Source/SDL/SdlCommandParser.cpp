@@ -10,7 +10,8 @@
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_parser.h"
 #include "Common/stats.h"
-#include "Common/config.h"
+
+#include <Common/config.h>
 
 #include <cstddef>
 #include <utility>

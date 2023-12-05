@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/constant.h"
 #include "Math/hash.h"
+
+#include <Common/primitive_type.h>
 
 #include <string>
 #include <utility>

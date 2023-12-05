@@ -1,14 +1,13 @@
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Texture/TSampler.h"
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/TTexture.h"
-#include "Common/utility.h"
 #include "Math/Random.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 
-#include <iostream>
+#include <Common/assertion.h>
+#include <Common/utility.h>
 
 namespace ph
 {

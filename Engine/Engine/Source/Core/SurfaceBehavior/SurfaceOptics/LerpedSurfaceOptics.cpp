@@ -5,10 +5,11 @@
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TTexture.h"
-#include "Common/assertion.h"
 #include "Core/Texture/constant_textures.h"
 #include "Math/math.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Core/Intersectable/Intersector.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtree.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 

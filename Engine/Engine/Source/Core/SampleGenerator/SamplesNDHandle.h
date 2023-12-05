@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/TArithmeticArray.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <utility>

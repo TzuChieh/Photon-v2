@@ -14,12 +14,13 @@
 #include "Core/HitDetail.h"
 #include "Math/Random.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
-#include "Common/assertion.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/PM/PMStatistics.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

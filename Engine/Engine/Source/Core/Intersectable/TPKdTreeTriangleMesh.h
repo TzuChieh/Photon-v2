@@ -2,11 +2,12 @@
 
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/DataStructure/IndexedTriMesh.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtree.h"
 #include "Math/Geometry/TWatertightTriangle.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <memory>
 

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Math/Geometry/TWatertightTriangle.h"
-#include "Common/assertion.h"
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <string>
 #include <cmath>

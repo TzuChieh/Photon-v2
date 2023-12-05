@@ -3,7 +3,8 @@
 #include "Core/HitDetail.h"
 #include "Core/HitProbe.h"
 #include "Math/Geometry/TAABB3D.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

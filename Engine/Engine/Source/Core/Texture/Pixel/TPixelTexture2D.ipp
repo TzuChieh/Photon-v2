@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Texture/Pixel/TPixelTexture2D.h"
-#include "Common/assertion.h"
 #include "Math/TArithmeticArray.h"
+
+#include <Common/assertion.h>
 
 #include <stdexcept>
 #include <cmath>

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
 #include "Utility/utility.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <climits>

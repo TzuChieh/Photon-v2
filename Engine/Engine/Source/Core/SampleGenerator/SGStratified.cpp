@@ -1,12 +1,12 @@
 #include "Core/SampleGenerator/SGStratified.h"
-#include "Common/assertion.h"
 #include "Core/Sample.h"
 #include "Math/Random.h"
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Math/TVector2.h"
 #include "Core/SampleGenerator/SampleStageReviser.h"
 
-#include <iostream>
+#include <Common/assertion.h>
+
 #include <algorithm>
 #include <iterator>
 

@@ -1,6 +1,7 @@
 #include "Actor/Light/ARectangleLight.h"
-#include "Common/assertion.h"
 #include "Actor/Geometry/GRectangle.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

@@ -1,6 +1,7 @@
 #include "SDL/Introspect/SdlClass.h"
 #include "SDL/sdl_helpers.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

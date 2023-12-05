@@ -1,9 +1,10 @@
 #include "Core/Intersectable/BruteForceIntersector.h"
-#include "Common/primitive_type.h"
 #include "Core/HitProbe.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Math/Geometry/TAABB3D.h"
+
+#include <Common/primitive_type.h>
 
 #include <limits>
 

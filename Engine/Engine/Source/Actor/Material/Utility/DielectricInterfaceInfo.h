@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Actor/Material/Utility/EInterfaceFresnel.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <variant>

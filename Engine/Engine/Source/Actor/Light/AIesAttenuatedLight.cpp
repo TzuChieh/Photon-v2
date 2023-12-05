@@ -1,7 +1,5 @@
 #include "Actor/Light/AIesAttenuatedLight.h"
 #include "Common/logging.h"
-#include "Common/assertion.h"
-#include "Common/utility.h"
 #include "DataIO/Data/IesData.h"
 #include "World/Foundation/PreCookReport.h"
 #include "World/Foundation/CookingContext.h"
@@ -15,6 +13,9 @@
 #include "Core/Texture/Function/unary_texture_operators.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/TMetaInjectionPrimitive.h"
+
+#include <Common/assertion.h>
+#include <Common/utility.h>
 
 namespace ph
 {

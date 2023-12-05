@@ -3,10 +3,11 @@
 #include "Core/Emitter/Sampler/EmitterSampler.h"
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
-#include "Common/assertion.h"
 #include "Core/Ray.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
+
+#include <Common/assertion.h>
 
 #include <limits>
 

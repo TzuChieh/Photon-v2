@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/Renderer/EAttribute.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <array>
 #include <tuple>

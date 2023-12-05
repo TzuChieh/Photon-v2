@@ -3,7 +3,8 @@
 #include "SDL/Introspect/SdlIOContext.h"
 #include "SDL/sdl_fwd.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <string>

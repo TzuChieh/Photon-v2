@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/Function/TMathFunction2D.h"
 #include "Math/TVector2.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 

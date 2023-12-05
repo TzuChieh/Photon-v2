@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Frame/frame_fwd.h"
 #include "Math/Function/TMathFunction2D.h"
@@ -8,6 +7,8 @@
 #include "Core/Texture/texture_fwd.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Utility/TSpan.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <cstddef>

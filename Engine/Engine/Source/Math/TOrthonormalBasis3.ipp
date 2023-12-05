@@ -2,7 +2,8 @@
 
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/math.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 #include <cmath>

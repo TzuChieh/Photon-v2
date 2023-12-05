@@ -2,8 +2,9 @@
 
 #include "Core/Scheduler/IWorkDispatcher.h"
 #include "Core/Scheduler/WorkUnit.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 

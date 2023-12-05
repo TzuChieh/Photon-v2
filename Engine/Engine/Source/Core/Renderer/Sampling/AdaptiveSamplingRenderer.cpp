@@ -1,5 +1,4 @@
 #include "Core/Renderer/Sampling/AdaptiveSamplingRenderer.h"
-#include "Common/assertion.h"
 #include "Core/Ray.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "EngineEnv/CoreCookedUnit.h"
@@ -8,13 +7,13 @@
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
-#include "Common/assertion.h"
 #include "Core/Estimator/Integrand.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Utility/utility.h"
 
+#include <Common/assertion.h>
+
 #include <cmath>
-#include <iostream>
 #include <vector>
 #include <thread>
 #include <chrono>

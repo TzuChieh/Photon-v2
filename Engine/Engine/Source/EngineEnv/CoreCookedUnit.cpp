@@ -1,11 +1,12 @@
 #include "EngineEnv/CoreCookedUnit.h"
 #include "SDL/SceneDescription.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
 #include "World/VisualWorld.h"
 #include "Core/Renderer/Renderer.h"
 #include "Core/Receiver/Receiver.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

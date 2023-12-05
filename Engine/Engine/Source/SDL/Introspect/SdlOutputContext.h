@@ -3,7 +3,8 @@
 #include "SDL/Introspect/SdlIOContext.h"
 #include "DataIO/FileSystem/Path.h"
 #include "SDL/SdlDependencyResolver.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <string>

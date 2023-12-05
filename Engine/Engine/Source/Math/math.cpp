@@ -1,9 +1,9 @@
 #include "Math/math.h"
 #include "Math/TVector3.h"
 #include "Math/constant.h"
-#include "Common/assertion.h"
 
-#include <iostream>
+#include <Common/assertion.h>
+
 #include <iomanip>
 #include <cmath>
 

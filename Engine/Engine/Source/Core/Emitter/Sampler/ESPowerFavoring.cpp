@@ -4,12 +4,11 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Emitter/Emitter.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 
-#include <iostream>
+#include <Common/assertion.h>
 
 namespace ph
 {

@@ -1,5 +1,4 @@
 #include "World/VisualWorld.h"
-#include "Common/primitive_type.h"
 #include "SDL/SceneDescription.h"
 #include "World/Foundation/TransientVisualElement.h"
 #include "World/Foundation/CookingContext.h"
@@ -17,6 +16,8 @@
 #include "Common/stats.h"
 #include "World/Foundation/CookOrder.h"
 #include "World/Foundation/PreCookReport.h"
+
+#include <Common/primitive_type.h>
 
 #include <limits>
 #include <iostream>

@@ -1,5 +1,4 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectric.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
@@ -8,6 +7,8 @@
 #include "Core/Texture/constant_textures.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

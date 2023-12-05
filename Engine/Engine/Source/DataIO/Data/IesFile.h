@@ -1,7 +1,8 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <string>

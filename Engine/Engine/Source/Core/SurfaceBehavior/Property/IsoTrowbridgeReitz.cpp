@@ -1,7 +1,8 @@
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitz.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
 #include "Math/TOrthonormalBasis3.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <string>

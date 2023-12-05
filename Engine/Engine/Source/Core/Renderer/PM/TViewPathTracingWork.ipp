@@ -4,7 +4,6 @@
 #include "World/Scene.h"
 #include "Core/Receiver/Receiver.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Common/assertion.h"
 #include "Core/Ray.h"
 #include "Core/HitDetail.h"
 #include "Core/HitProbe.h"
@@ -19,6 +18,8 @@
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Math/Random/sample.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

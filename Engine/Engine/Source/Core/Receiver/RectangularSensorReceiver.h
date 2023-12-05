@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Receiver/Receiver.h"
-#include "Common/assertion.h"
 #include "Math/TVector2.h"
+
+#include <Common/assertion.h>
 
 namespace ph::math { class Transform; }
 namespace ph::math { class RigidTransform; }

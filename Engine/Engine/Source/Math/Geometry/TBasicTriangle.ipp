@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/Geometry/TBasicTriangle.h"
-#include "Common/assertion.h"
 #include "Math/TMatrix2.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

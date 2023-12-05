@@ -1,11 +1,12 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/config.h"
-#include "Common/assertion.h"
 #include "Math/Color/color_enums.h"
 #include "Utility/utility.h"
 #include "Utility/traits.h"
+
+#include <Common/assertion.h>
+#include <Common/config.h>
+#include <Common/primitive_type.h>
 
 #include <array>
 #include <cstddef>

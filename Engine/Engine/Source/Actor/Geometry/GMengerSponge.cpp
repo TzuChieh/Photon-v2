@@ -1,7 +1,8 @@
 #include "Actor/Geometry/GMengerSponge.h"
-#include "Common/assertion.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
+
+#include <Common/assertion.h>
 
 #include <iostream>
 #include <vector>

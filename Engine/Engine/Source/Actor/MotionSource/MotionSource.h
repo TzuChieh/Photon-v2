@@ -1,9 +1,10 @@
 #pragma once
 
 #include "SDL/TSdlResourceBase.h"
-#include "Common/primitive_type.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/Transform/Transform.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 

@@ -3,7 +3,8 @@
 #include "Core/Scheduler/WorkScheduler.h"
 #include "Math/math.h"
 #include "Math/constant.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 #include <cmath>

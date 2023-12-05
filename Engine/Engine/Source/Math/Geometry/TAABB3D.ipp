@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/Geometry/TAABB3D.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 #include <cmath>

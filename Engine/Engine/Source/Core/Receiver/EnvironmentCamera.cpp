@@ -1,5 +1,4 @@
 //#include "Core/Receiver/EnvironmentCamera.h"
-//#include "Common/assertion.h"
 //#include "Math/constant.h"
 //#include "Math/Geometry/TSphere.h"
 //#include "Math/Random.h"

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "SDL/SdlInputClause.h"
+
+#include <Common/assertion.h>
 
 #include <string>
 #include <string_view>

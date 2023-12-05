@@ -3,8 +3,9 @@
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "Math/Transform/TDecomposedTransform.h"
-#include "Common/primitive_type.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph::math { class StaticAffineTransform; }
 namespace ph::math { class StaticRigidTransform; }

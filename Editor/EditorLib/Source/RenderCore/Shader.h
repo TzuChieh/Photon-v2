@@ -2,7 +2,7 @@
 
 #include "RenderCore/ghi_enums.h"
 
-#include "Common/primitive_type.h"
+#include <Common/primitive_type.h>
 
 #include <string>
 #include <string_view>

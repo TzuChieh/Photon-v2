@@ -2,8 +2,9 @@
 
 #include "SDL/Option.h"
 #include "EngineEnv/CoreSdlResource.h"
-#include "Common/primitive_type.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 #include <string>
 #include <memory>

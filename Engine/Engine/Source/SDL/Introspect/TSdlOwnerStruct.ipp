@@ -3,7 +3,8 @@
 #include "SDL/Introspect/TSdlOwnerStruct.h"
 #include "SDL/Introspect/SdlField.h"
 #include "SDL/Introspect/SdlStructFieldStump.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <type_traits>

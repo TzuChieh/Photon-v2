@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/Geometry/TBasicTriangle.h"
 #include "Math/math_fwd.h"
 #include "Math/Geometry/TLineSegment.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph::math
 {

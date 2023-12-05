@@ -2,7 +2,8 @@
 
 #include "DataIO/Stream/StdInputStream.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <type_traits>
 #include <cstddef>

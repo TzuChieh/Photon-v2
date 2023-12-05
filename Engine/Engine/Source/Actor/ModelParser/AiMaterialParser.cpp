@@ -4,7 +4,6 @@
 //#include "Core/Texture/TConstantTexture.h"
 //#include "Core/Texture/TextureLoader.h"
 //#include "Core/Texture/LdrRgbTexture2D.h"
-//#include "Common/utility.h"
 //
 //#include <iostream>
 //

@@ -1,7 +1,8 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/Primitive.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

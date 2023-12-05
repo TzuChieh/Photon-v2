@@ -1,6 +1,7 @@
 #include "Common/memory.h"
-#include "Common/os.h"
 #include "Common/math_basics.h"
+
+#include <Common/os.h>
 
 #if PH_OPERATING_SYSTEM_IS_WINDOWS
 

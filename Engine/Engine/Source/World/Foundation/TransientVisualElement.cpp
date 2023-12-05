@@ -1,6 +1,7 @@
 #include "World/Foundation/TransientVisualElement.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
+
+#include <Common/assertion.h>
 
 #include <type_traits>
 

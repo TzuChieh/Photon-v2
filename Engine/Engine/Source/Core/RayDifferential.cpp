@@ -1,5 +1,6 @@
 #include "Core/RayDifferential.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

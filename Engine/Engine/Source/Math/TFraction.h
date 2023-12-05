@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/math_fwd.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <utility>
 #include <type_traits>

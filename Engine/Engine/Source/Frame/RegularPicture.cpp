@@ -1,5 +1,6 @@
 #include "Frame/RegularPicture.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

@@ -1,5 +1,6 @@
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

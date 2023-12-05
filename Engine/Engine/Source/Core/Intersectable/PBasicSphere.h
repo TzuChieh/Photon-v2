@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Intersectable/Primitive.h"
-#include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

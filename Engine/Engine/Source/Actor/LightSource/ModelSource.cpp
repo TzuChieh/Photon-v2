@@ -9,13 +9,14 @@
 #include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/RasterFileImage.h"
-#include "Common/assertion.h"
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Common/logging.h"
+
+#include <Common/assertion.h>
 
 #include <iostream>
 

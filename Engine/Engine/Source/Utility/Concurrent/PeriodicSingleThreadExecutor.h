@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Common/config.h"
-#include "Common/primitive_type.h"
+#include <Common/config.h>
+#include <Common/primitive_type.h>
 
 #include <atomic>
 #include <vector>

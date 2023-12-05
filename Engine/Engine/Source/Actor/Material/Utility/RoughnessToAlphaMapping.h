@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Actor/Material/Utility/ERoughnessToAlpha.h"
+
+#include <Common/primitive_type.h>
 
 #include <algorithm>
 #include <cmath>

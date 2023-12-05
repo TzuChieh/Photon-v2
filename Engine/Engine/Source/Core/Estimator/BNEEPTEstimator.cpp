@@ -1,5 +1,4 @@
 #include "Core/Estimator/BNEEPTEstimator.h"
-#include "Common/primitive_type.h"
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
@@ -14,14 +13,14 @@
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/Color/Spectrum.h"
-#include "Common/assertion.h"
 #include "Core/LTABuildingBlock/TMis.h"
 #include "Core/LTABuildingBlock/TDirectLightEstimator.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Core/Estimator/Integrand.h"
 #include "Common/stats.h"
 
-#include <iostream>
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #define RAY_DELTA_DIST 0.0001f
 #define MAX_RAY_BOUNCES 10000

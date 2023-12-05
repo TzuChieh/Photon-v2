@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

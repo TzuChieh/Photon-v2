@@ -2,9 +2,10 @@
 
 #include "SDL/Introspect/SdlEnum.h"
 #include "Utility/TArrayAsVector.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_exceptions.h"
 #include "Utility/utility.h"
+
+#include <Common/assertion.h>
 
 #include <type_traits>
 #include <string>

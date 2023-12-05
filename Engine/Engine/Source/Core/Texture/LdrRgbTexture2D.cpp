@@ -1,11 +1,11 @@
 #include "Core/Texture/LdrRgbTexture2D.h"
 #include "Math/math.h"
 #include "Core/Texture/TextureLoader.h"
-#include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Core/Texture/TNearestPixelTex2D.h"
 
-#include <iostream>
+#include <Common/assertion.h>
+
 #include <string>
 
 namespace ph

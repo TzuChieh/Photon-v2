@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/VolumeBehavior/VolumeOptics.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <memory>
 

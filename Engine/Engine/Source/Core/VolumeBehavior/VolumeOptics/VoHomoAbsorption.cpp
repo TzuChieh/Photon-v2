@@ -1,7 +1,8 @@
 #include "Core/VolumeBehavior/VolumeOptics/VoHomoAbsorption.h"
 #include "Core/VolumeBehavior/BlockFunction/BfConstant.h"
-#include "Common/assertion.h"
 #include "Math/Random.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/assertion.h"
+#include <Common/assertion.h>
 
 #include <type_traits>
 #include <bit>

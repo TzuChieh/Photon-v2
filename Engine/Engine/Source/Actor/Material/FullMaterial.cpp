@@ -1,12 +1,11 @@
 #include "Actor/Material/FullMaterial.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Material/VolumeMaterial.h"
 #include "Common/logging.h"
 
-#include <iostream>
+#include <Common/assertion.h>
 
 namespace ph
 {

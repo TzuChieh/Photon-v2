@@ -1,6 +1,7 @@
 #include "Core/Intersectable/Primitive.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

@@ -2,8 +2,9 @@
 #include "Core/Intersectable/Bvh/BvhInfoNode.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
 #include "Math/Geometry/TAABB3D.h"
+
+#include <Common/assertion.h>
 
 #include <iostream>
 #include <algorithm>

@@ -1,10 +1,11 @@
 #include "Actor/Material/BinaryMixedSurfaceMaterial.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LerpedSurfaceOptics.h"
 #include "Actor/Basic/exceptions.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

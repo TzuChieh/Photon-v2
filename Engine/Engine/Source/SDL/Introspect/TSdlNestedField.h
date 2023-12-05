@@ -1,9 +1,10 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlOwnedField.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "SDL/Introspect/SdlInputContext.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <type_traits>
 #include <string>

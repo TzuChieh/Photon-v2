@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Utility/TBitFlags.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <type_traits>
 

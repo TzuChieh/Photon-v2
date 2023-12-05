@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
+
+#include <Common/primitive_type.h>
 
 #include <array>
 

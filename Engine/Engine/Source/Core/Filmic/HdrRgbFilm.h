@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Core/Receiver/RadianceSensor.h"
 #include "Core/Filmic/TSamplingFilm.h"
 #include "Math/Color/Spectrum.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <memory>

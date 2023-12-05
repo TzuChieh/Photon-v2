@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/constant.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <array>

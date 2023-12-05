@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SDL/sdl_fwd.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <string_view>
 #include <type_traits>

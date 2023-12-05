@@ -2,12 +2,13 @@
 
 #include "EngineEnv/Observer/Observer.h"
 #include "SDL/sdl_interface.h"
-#include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "Math/Transform/TDecomposedTransform.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <optional>
 

@@ -2,7 +2,8 @@
 
 #include "Math/TVector2.h"
 #include "Math/Geometry/TAABB2D.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <cstddef>

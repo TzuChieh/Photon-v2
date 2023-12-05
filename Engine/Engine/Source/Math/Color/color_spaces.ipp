@@ -5,10 +5,11 @@
 #include "Math/Color/spectral_samples.h"
 #include "Utility/IUninstantiable.h"
 #include "Math/math_exceptions.h"
-#include "Common/assertion.h"
 #include "Math/TArithmeticArray.h"
 #include "Math/math.h"
 #include "Math/Color/chromatic_adaptations.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

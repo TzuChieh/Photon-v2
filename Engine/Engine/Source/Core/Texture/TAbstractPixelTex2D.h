@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Core/Texture/TTexture.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Core/Texture/TTexPixel.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

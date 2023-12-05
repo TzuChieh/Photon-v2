@@ -1,7 +1,8 @@
 #include "Common/logging.h"
-#include "Common/assertion.h"
 #include "Common/Log/Logger.h"
 #include "Utility/Timestamp.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <mutex>
@@ -81,6 +82,9 @@ void init()
 	// In case some threads were created before `init()`
 	std::lock_guard<std::mutex> lock(g_coreLogMutex);
 
+	PH_ASSERT_MSG(!g_coreLogger.has_value(),
+		"Logger is already initialized.");
+
 	auto coreLogFilename = Timestamp().toYMDHMS() + "_core_logs.txt";
 	auto coreLogFilePath = std::string(PH_LOG_FILE_DIRECTRY) + coreLogFilename;
 
@@ -105,7 +109,6 @@ void init()
 		std::cerr << "warning: log file <" << coreLogFileAbsPath << "> creation failed" << '\n';
 	}
 
-	PH_ASSERT(!g_coreLogger.has_value());
 	g_coreLogger = make_core_logger();
 }
 
@@ -123,7 +126,9 @@ void exit()
 
 Logger& get_core_logger()
 {
-	PH_ASSERT(g_coreLogger.has_value());
+	PH_ASSERT_MSG(g_coreLogger.has_value(),
+		"Using logger without initializing.");
+
 	return *g_coreLogger;
 }
 

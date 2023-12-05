@@ -1,8 +1,9 @@
 #include "DataIO/Data/CsvFile.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/assertion.h"
 #include "DataIO/Stream/FormattedTextInputStream.h"
 #include "DataIO/Stream/FormattedTextOutputStream.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <sstream>

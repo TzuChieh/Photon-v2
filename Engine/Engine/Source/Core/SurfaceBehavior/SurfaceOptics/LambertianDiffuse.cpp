@@ -6,11 +6,12 @@
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Core/Texture/TSampler.h"
-#include "Common/assertion.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlOwnedField.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <string>
 #include <vector>

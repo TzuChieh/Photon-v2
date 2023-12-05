@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 #include "Math/Random.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <array>

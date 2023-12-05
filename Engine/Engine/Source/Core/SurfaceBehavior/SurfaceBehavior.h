@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/Emitter/Emitter.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 

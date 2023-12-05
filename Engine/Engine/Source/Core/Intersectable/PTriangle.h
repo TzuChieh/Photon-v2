@@ -2,8 +2,9 @@
 
 #include "Core/Intersectable/Primitive.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
 #include "Math/Geometry/TWatertightTriangle.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Actor/Image/Image.h"
-#include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <string>

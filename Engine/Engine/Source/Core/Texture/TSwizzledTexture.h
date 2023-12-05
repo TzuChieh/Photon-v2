@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Core/Texture/TTexture.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Utility/traits.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <array>

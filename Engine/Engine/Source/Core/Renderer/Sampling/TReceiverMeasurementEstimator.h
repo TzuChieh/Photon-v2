@@ -2,12 +2,13 @@
 
 #include "Core/Renderer/Sampling/IReceivedRayProcessor.h"
 #include "Core/Estimator/estimator_fwd.h"
-#include "Common/assertion.h"
 #include "Core/Estimator/TEstimationArray.h"
 #include "Core/Estimator/Integrand.h"
 #include "Math/math_fwd.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Core/Filmic/SampleFilter.h"
+
+#include <Common/assertion.h>
 
 #include <vector>
 #include <cstddef>

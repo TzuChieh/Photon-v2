@@ -1,9 +1,10 @@
 #pragma once
 
 #include "EngineEnv/SampleSource/SampleSource.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 

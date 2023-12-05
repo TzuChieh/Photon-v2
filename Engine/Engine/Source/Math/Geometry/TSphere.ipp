@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Math/Geometry/TSphere.h"
-#include "Common/assertion.h"
 #include "Math/constant.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/TVector2.h"
 #include "Math/TMatrix2.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <algorithm>

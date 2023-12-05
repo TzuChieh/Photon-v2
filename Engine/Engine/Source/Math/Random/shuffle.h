@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "Math/Random.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <algorithm>

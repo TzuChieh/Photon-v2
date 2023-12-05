@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/Emitter/SurfaceEmitter.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <vector>

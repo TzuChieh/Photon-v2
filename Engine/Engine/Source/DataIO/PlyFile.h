@@ -11,7 +11,8 @@ References:
 #include "DataIO/FileSystem/Path.h"
 #include "Utility/SemanticVersion.h"
 #include "Math/constant.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <cstddef>

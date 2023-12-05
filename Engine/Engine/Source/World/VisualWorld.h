@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "World/Foundation/CookedDataStorage.h"
 #include "World/Foundation/TransientVisualElement.h"
 #include "Actor/Actor.h"
@@ -9,12 +8,14 @@
 #include "Core/Emitter/Sampler/EmitterSampler.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Math/TVector3.h"
-#include "Common/assertion.h"
 #include "Utility/IMoveOnly.h"
 #include "EngineEnv/EAccelerator.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "World/Foundation/TransientResourceCache.h"
 #include "Utility/TSpan.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <memory>

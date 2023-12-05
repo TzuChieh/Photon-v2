@@ -2,7 +2,8 @@
 
 #include "Core/Texture/TAbstractPixelTex2D.h"
 #include "Frame/TFrame.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <type_traits>
 #include <utility>

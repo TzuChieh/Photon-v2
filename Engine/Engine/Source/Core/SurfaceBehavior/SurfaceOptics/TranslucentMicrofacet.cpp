@@ -7,9 +7,10 @@
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
-#include "Common/assertion.h"
 #include "Core/LTABuildingBlock/SidednessAgreement.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+
+#include <Common/assertion.h>
 
 #include <memory>
 #include <iostream>

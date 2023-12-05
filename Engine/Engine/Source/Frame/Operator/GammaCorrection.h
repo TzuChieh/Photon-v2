@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Frame/Operator/FrameOperator.h"
-#include "Common/assertion.h"
-#include "Common/primitive_type.h"
 #include "Core/Quantity/ColorSpace.h"
 #include "Math/TVector3.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cmath>
 

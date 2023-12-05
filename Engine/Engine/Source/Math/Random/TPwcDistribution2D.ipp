@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/Random/TPwcDistribution2D.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph::math
 {

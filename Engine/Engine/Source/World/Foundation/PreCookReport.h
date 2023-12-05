@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SDL/SdlResourceId.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph::math { class Transform; }
 

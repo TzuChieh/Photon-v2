@@ -1,5 +1,6 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

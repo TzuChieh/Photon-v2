@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Core/Texture/TTexture.h"
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Frame/TFrame.h"
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/TAbstractPixelTex2D.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <memory>

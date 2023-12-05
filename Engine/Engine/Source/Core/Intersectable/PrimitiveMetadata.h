@@ -5,7 +5,8 @@
 #include "Core/Intersectable/UvwMapper/UvwMapper.h"
 #include "Core/Intersectable/PrimitiveChannel.h"
 #include "Core/VolumeBehavior/VolumeBehavior.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <memory>
 #include <vector>

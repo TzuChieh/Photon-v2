@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Math/Random/TUniformRandomBitGenerator.h"
-#include "Common/primitive_type.h"
 #include "Math/hash.h"
 #include "Math/math.h"
+
+#include <Common/primitive_type.h>
 
 // This is a good reference on built-in 128-bit integer:
 // https://stackoverflow.com/questions/16088282/is-there-a-128-bit-integer-in-gcc

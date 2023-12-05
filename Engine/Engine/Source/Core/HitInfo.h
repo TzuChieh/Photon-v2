@@ -4,7 +4,8 @@
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/math.h"
 #include "Core/ECoordSys.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

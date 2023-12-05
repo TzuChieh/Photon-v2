@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SDL/SdlOutputClause.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <vector>

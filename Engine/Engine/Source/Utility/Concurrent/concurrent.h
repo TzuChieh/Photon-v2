@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "Math/math.h"
+
+#include <Common/assertion.h>
 
 #include <functional>
 #include <cstddef>

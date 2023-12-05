@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Utility/utility.h"
+
+#include <Common/primitive_type.h>
 
 #include <concepts>
 #include <bit>

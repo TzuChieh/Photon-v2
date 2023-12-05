@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/assertion.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/math.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

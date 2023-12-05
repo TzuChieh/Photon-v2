@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Core/SampleGenerator/Halton/halton_fwd.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
 #include "Math/math.h"
 #include "Math/math_table.h"
 #include "Math/Random/Quasi/radical_inverse.h"
 #include "Math/Random/shuffle.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <limits>

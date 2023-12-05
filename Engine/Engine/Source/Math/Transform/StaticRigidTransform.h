@@ -3,8 +3,9 @@
 #include "Math/Transform/RigidTransform.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "Math/Transform/TDecomposedTransform.h"
-#include "Common/assertion.h"
 #include "Common/logging.h"
+
+#include <Common/assertion.h>
 
 namespace ph::math
 {

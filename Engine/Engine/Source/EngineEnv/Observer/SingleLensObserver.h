@@ -2,9 +2,10 @@
 
 #include "EngineEnv/Observer/OrientedRasterObserver.h"
 #include "SDL/sdl_interface.h"
-#include "Common/primitive_type.h"
 #include "Math/Transform/TDecomposedTransform.h"
 #include "Math/TVector2.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <optional>

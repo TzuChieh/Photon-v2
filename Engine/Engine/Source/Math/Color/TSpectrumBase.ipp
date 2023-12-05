@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Math/Color/TSpectrumBase.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
 #include "Math/Color/color_spaces.h"
 #include "Math/math_exceptions.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

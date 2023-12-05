@@ -1,10 +1,11 @@
 #pragma once
 
 #include "SDL/Introspect/SdlField.h"
-#include "Common/assertion.h"
 #include "Utility/TArrayAsVector.h"
-#include "Common/config.h"
 #include "Utility/IMoveOnly.h"
+
+#include <Common/assertion.h>
+#include <Common/config.h>
 
 #include <cstddef>
 #include <type_traits>

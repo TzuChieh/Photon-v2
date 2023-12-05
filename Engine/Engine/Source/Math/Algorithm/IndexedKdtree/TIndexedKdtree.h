@@ -6,9 +6,10 @@
 #include "Math/Algorithm/IndexedKdtree/TIndexedItemEndpoint.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
-#include "Common/assertion.h"
 #include "Math/Geometry/TLineSegment.h"
 #include "Math/Algorithm/IndexedKdtree/IndexedKdtreeParams.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <vector>

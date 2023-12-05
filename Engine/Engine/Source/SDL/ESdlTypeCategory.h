@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/assertion.h"
+#include <Common/assertion.h>
 
 #include <string_view>
 #include <unordered_map>

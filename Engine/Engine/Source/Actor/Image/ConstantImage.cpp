@@ -2,9 +2,10 @@
 #include "Core/Texture/constant_textures.h"
 #include "Math/TVector3.h"
 #include "Common/logging.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
 #include "Actor/Basic/exceptions.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

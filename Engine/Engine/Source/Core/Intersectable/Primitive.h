@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/Intersectable/Intersectable.h"
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Math/Geometry/TAABB3D.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

@@ -1,8 +1,9 @@
 #include "Common/Log/Logger.h"
 #include "Common/Log/ELogLevel.h"
 #include "Utility/Timestamp.h"
-#include "Common/config.h"
-#include "Common/os.h"
+
+#include <Common/config.h>
+#include <Common/os.h>
 
 #include <iostream>
 #include <string>

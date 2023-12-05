@@ -1,7 +1,8 @@
 #pragma once
 
 #include "SDL/Introspect/TSdlAbstractValue.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <string_view>
 #include <optional>

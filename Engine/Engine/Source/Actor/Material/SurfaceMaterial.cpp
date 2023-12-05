@@ -1,5 +1,4 @@
 #include "Actor/Material/SurfaceMaterial.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 

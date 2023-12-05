@@ -10,13 +10,14 @@ to rendering in mind.
 */
 
 #include "Common/math_basics.h"
-#include "Common/primitive_type.h"
 #include "Math/constant.h"
 #include "Math/math_fwd.h"
 #include "Math/math_table.h"
 #include "Common/compiler.h"
-#include "Common/assertion.h"
 #include "Utility/utility.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cmath>
 #include <algorithm>

@@ -1,8 +1,9 @@
 #include "Core/HitProbe.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/Intersectable.h"
 #include "Core/HitDetail.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

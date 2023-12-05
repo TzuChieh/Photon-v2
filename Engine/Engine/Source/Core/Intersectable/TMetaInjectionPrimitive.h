@@ -4,7 +4,8 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/HitProbe.h"
 #include "Utility/traits.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <concepts>
 #include <utility>

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/Texture/TAbstractPixelTex2D.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <vector>
 #include <memory>

@@ -1,5 +1,4 @@
 #include "Api/test_scene.h"
-#include "Common/primitive_type.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/Geometry.h"
 #include "Actor/Material/Material.h"
@@ -13,6 +12,8 @@
 //#include "Actor/ALight.h"
 #include "Actor/Geometry/GCuboid.h"
 #include "Actor/Geometry/GWave.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <string>

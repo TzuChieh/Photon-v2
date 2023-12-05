@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/Color/Spectrum.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

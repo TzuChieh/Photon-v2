@@ -1,5 +1,4 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayeredSurface.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceBehavior/BsdfHelper.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/InterfaceStatistics.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
@@ -10,6 +9,8 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/Random.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 

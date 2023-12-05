@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/primitive_type.h"
+#include <Common/primitive_type.h>
 
 #include <chrono>
 #include <ratio>

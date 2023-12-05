@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Common/config.h"
 #include "Math/Color/color_basics.h"
+
+#include <Common/config.h>
 
 #include <cstddef>
 #include <array>

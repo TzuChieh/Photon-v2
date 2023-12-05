@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/Random/TUniformRandomBitGenerator.h"
-#include "Common/primitive_type.h"
 #include "Math/hash.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph::math
 {

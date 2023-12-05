@@ -3,7 +3,8 @@
 #include "SDL/ISdlResource.h"
 #include "SDL/SdlResourceId.h"
 #include "SDL/ESdlTypeCategory.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

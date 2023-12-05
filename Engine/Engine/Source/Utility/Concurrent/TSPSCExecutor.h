@@ -2,8 +2,9 @@
 
 #include "Utility/Concurrent/TBlockableAtomicQuasiQueue.h"
 #include "Utility/Concurrent/InitiallyPausedThread.h"
-#include "Common/primitive_type.h"
 #include "Utility/TFunction.h"
+
+#include <Common/primitive_type.h>
 
 #include <type_traits>
 #include <thread>

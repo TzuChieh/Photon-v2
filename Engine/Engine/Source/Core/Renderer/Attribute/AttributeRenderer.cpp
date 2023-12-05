@@ -1,5 +1,4 @@
 #include "Core/Renderer/Attribute/AttributeRenderer.h"
-#include "Common/primitive_type.h"
 #include "World/VisualWorld.h"
 #include "Core/Ray.h"
 #include "Math/constant.h"
@@ -10,7 +9,6 @@
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
-#include "Common/assertion.h"
 #include "Core/Estimator/Integrand.h"
 #include "Core/Filmic/Vector3Film.h"
 #include "Core/Scheduler/PlateScheduler.h"
@@ -26,8 +24,10 @@
 #include "Math/Random/sample.h"
 #include "Core/Receiver/Receiver.h"
 
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
+
 #include <cmath>
-#include <iostream>
 #include <vector>
 #include <thread>
 #include <chrono>

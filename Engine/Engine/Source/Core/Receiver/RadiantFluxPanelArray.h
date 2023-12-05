@@ -2,7 +2,6 @@
 //
 //#include "Core/Receiver/Receiver.h"
 //#include "Core/Receiver/RadiantFluxPanel.h"
-//#include "Common/primitive_type.h"
 //
 //#include <memory>
 //#include <vector>

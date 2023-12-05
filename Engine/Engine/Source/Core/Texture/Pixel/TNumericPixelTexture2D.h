@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Core/Texture/Pixel/TPixelTexture2D.h"
-#include "Common/assertion.h"
-#include "Common/primitive_type.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Math/TArithmeticArray.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <algorithm>

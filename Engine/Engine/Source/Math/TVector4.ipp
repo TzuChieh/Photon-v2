@@ -2,7 +2,8 @@
 
 #include "Math/TVector4.h"
 #include "Math/math.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <algorithm>

@@ -3,9 +3,10 @@
 #include "Core/Texture/TTexture.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/SampleLocation.h"
-#include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Math/Color/color_enums.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

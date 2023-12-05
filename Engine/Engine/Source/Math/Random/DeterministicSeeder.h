@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Common/primitive_type.h"
-#include "Common/config.h"
-#include "Common/assertion.h"
 #include "Utility/utility.h"
 #include "Math/hash.h"
+
+#include <Common/assertion.h>
+#include <Common/config.h>
+#include <Common/primitive_type.h>
 
 #include <atomic>
 #include <climits>

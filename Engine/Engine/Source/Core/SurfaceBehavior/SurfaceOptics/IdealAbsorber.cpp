@@ -1,8 +1,9 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealAbsorber.h"
-#include "Common/assertion.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

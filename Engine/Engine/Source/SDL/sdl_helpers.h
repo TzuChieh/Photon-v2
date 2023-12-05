@@ -7,12 +7,13 @@ Helpers are in an additional `sdl` namespace.
 */
 
 #include "SDL/sdl_fwd.h"
-#include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Utility/traits.h"
 #include "Utility/TSpan.h"
 #include "SDL/ESdlTypeCategory.h"
 #include "SDL/ESdlDataType.h"
+
+#include <Common/primitive_type.h>
 
 #include <string>
 #include <string_view>

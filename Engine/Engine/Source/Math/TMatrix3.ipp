@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/TMatrix3.h"
-#include "Common/assertion.h"
 #include "Math/TVector3.h"
+
+#include <Common/assertion.h>
 
 namespace ph::math
 {

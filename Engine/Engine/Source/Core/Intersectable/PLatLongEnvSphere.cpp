@@ -1,5 +1,4 @@
 #include "Core/Intersectable/PLatLongEnvSphere.h"
-#include "Common/assertion.h"
 #include "Math/TVector3.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
@@ -7,6 +6,8 @@
 #include "Math/Geometry/TSphere.h"
 #include "Math/Geometry/TLineSegment.h"
 #include "Core/Intersectable/Query/PrimitivePosSampleQuery.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

@@ -3,7 +3,8 @@
 #include "Math/TVector3.h"
 #include "Math/TQuaternion.h"
 #include "Math/math.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <string>

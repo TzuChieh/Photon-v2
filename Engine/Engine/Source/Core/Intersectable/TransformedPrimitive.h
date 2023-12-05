@@ -4,7 +4,8 @@
 #include "Core/Intersectable/TransformedIntersectable.h"
 #include "Core/HitDetail.h"
 #include "Core/HitProbe.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

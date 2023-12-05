@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/config.h"
-#include "Common/assertion.h"
 #include "Utility/exception.h"
+
+#include <Common/assertion.h>
+#include <Common/config.h>
 
 #include <cstddef>
 #include <type_traits>

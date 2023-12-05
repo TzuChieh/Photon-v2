@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/General/TMatrixNBase.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

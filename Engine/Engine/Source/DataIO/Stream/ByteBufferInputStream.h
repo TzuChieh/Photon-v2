@@ -1,8 +1,9 @@
 #pragma once
 
 #include "DataIO/Stream/IInputStream.h"
-#include "Common/assertion.h"
 #include "DataIO/io_exceptions.h"
+
+#include <Common/assertion.h>
 
 #include <cstddef>
 #include <memory>

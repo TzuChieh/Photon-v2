@@ -1,9 +1,9 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Math/Random.h"
-#include "Common/assertion.h"
 #include "Core/SampleGenerator/SampleContext.h"
 
-#include <iostream>
+#include <Common/assertion.h>
+
 #include <algorithm>
 
 namespace ph

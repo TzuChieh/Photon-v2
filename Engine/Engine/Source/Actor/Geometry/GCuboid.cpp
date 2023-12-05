@@ -4,10 +4,11 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/AModel.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Common/logging.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <iostream>

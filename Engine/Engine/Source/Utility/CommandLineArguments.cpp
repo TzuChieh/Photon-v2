@@ -1,5 +1,6 @@
 #include "Utility/CommandLineArguments.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 

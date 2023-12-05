@@ -1,6 +1,7 @@
 #include "DataIO/Stream/StdOutputStream.h"
-#include "Common/assertion.h"
 #include "DataIO/io_exceptions.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <cerrno>

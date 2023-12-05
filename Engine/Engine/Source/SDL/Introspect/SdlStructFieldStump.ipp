@@ -1,9 +1,10 @@
 #pragma once
 
 #include "SDL/Introspect/SdlStructFieldStump.h"
-#include "Common/assertion.h"
 #include "SDL/Introspect/TSdlNestedField.h"
 #include "SDL/Introspect/SdlStruct.h"
+
+#include <Common/assertion.h>
 
 #include <type_traits>
 #include <utility>

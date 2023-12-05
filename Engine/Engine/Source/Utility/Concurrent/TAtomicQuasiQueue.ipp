@@ -1,5 +1,6 @@
 #include "Utility/Concurrent/TAtomicQuasiQueue.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <stdexcept>

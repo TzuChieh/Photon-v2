@@ -2,9 +2,10 @@
 
 #include "SDL/Introspect/TSdlValue.h"
 #include "DataIO/FileSystem/Path.h"
-#include "Common/primitive_type.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
+
+#include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <string>
 

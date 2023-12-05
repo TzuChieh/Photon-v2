@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math/math_fwd.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <concepts>

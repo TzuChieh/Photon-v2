@@ -2,8 +2,9 @@
 
 #include "SDL/TSdlResourceBase.h"
 #include "Actor/LightSource/EmitterBuildingMaterial.h"
-#include "Common/primitive_type.h"
 #include "SDL/sdl_interface.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <string>

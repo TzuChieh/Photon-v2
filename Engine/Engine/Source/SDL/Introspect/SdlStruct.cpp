@@ -1,5 +1,6 @@
 #include "SDL/Introspect/SdlStruct.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

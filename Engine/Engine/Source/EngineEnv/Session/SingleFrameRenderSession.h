@@ -1,10 +1,11 @@
 #pragma once
 
 #include "EngineEnv/Session/RenderSession.h"
-#include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "SDL/sdl_interface.h"
 #include "EngineEnv/sdl_accelerator_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <string>
 

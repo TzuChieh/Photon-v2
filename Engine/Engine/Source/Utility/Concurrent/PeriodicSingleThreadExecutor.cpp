@@ -1,6 +1,7 @@
 #include "Utility/Concurrent/PeriodicSingleThreadExecutor.h"
-#include "Common/assertion.h"
 #include "Utility/Timer.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <chrono>

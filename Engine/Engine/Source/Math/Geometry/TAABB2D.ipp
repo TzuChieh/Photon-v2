@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math/Geometry/TAABB2D.h"
-#include "Common/assertion.h"
 #include "Math/math.h"
+
+#include <Common/assertion.h>
 
 #include <string>
 #include <type_traits>

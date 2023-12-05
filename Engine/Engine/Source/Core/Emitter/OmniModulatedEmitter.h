@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/Emitter/Emitter.h"
-#include "Common/primitive_type.h"
 #include "Core/Texture/TTexture.h"
 #include "Core/Intersectable/UvwMapper/SphericalMapper.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

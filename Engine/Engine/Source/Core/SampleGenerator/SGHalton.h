@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Common/primitive_type.h"
 #include "Core/SampleGenerator/Halton/EHaltonPermutation.h"
 #include "Core/SampleGenerator/Halton/halton_fwd.h"
+
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <vector>

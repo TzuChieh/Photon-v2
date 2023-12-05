@@ -3,7 +3,8 @@
 #include "Core/VolumeBehavior/BlockFunction.h"
 #include "Core/SurfaceHit.h"
 #include "Math/Color/Spectrum.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <string>

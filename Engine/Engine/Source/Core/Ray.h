@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Math/Geometry/TLineSegment.h"
 #include "Core/Quantity/Time.h"
+
+#include <Common/primitive_type.h>
 
 #include <limits>
 

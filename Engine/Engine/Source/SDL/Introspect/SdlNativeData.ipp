@@ -1,8 +1,9 @@
 #pragma once
 
 #include "SDL/Introspect/SdlNativeData.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_traits.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 

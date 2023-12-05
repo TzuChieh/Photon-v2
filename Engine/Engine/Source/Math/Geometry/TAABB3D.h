@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/TVector3.h"
 #include "Math/math.h"
 #include "Math/constant.h"
 #include "Math/Geometry/TLineSegment.h"
+
+#include <Common/primitive_type.h>
 
 #include <array>
 #include <string>

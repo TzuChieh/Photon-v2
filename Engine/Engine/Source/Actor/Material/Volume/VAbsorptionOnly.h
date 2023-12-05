@@ -3,7 +3,8 @@
 #include "Actor/Material/VolumeMaterial.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/math_fwd.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

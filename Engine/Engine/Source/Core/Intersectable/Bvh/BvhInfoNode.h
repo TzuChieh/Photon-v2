@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Core/Intersectable/Bvh/BvhIntersectableInfo.h"
+
+#include <Common/primitive_type.h>
 
 #include <vector>
 #include <cstddef>

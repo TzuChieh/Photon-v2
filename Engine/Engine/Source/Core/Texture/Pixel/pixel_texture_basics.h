@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/TVector2.h"
 #include "Utility/utility.h"
 #include "Math/math.h"
+
+#include <Common/primitive_type.h>
 
 #include <array>
 #include <cstddef>

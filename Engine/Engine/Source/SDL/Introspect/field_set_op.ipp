@@ -3,8 +3,9 @@
 #include "SDL/Introspect/field_set_op.h"
 #include "SDL/SdlInputClauses.h"
 #include "SDL/Introspect/SdlInputContext.h"
-#include "Common/assertion.h"
 #include "SDL/sdl_helpers.h"
+
+#include <Common/assertion.h>
 
 #include <array>
 #include <utility>

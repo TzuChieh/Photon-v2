@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Utility/IMoveOnly.h"
-#include "Common/assertion.h"
 #include "World/Scene.h"
 #include "Core/HitProbe.h"
 #include "Core/SurfaceHit.h"
@@ -15,6 +14,8 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
+
+#include <Common/assertion.h>
 
 #include <limits>
 

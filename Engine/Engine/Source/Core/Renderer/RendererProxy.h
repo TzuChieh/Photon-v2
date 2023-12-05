@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/Geometry/TAABB2D.h"
 #include "Core/Renderer/RenderWork.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Utility/TSortedVector.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 #include <utility>

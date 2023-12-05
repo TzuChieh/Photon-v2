@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/Intersectable/DataStructure/TAosTriMesh.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <utility>
 #include <limits>

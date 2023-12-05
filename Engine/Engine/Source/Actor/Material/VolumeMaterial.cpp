@@ -1,6 +1,7 @@
 #include "Actor/Material/Volume/VAbsorptionOnly.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

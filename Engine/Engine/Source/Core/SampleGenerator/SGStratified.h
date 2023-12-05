@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Common/primitive_type.h"
+
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 #include <vector>

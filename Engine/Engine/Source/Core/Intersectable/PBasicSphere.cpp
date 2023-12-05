@@ -1,8 +1,9 @@
 #include "Core/Intersectable/PBasicSphere.h"
-#include "Common/assertion.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 #include "Math/Geometry/TSphere.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

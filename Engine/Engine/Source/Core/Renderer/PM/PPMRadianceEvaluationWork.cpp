@@ -1,5 +1,4 @@
 #include "Core/Renderer/PM/PPMRadianceEvaluationWork.h"
-#include "Common/assertion.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -12,6 +11,8 @@
 #include "Common/logging.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

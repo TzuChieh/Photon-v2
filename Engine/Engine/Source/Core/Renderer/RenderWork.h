@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/Filmic/filmic_fwd.h"
-#include "Common/assertion.h"
 #include "Core/Renderer/RenderProgress.h"
+
+#include <Common/assertion.h>
 
 #include <atomic>
 #include <cstddef>

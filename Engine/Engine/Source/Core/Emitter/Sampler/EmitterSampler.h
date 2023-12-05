@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/math_fwd.h"
 #include "Utility/TSpan.h"
+
+#include <Common/primitive_type.h>
 
 #include <memory>
 #include <vector>

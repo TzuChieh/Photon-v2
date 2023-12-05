@@ -1,6 +1,7 @@
 #include "Actor/Light/ASphereLight.h"
-#include "Common/assertion.h"
 #include "Actor/Geometry/GSphere.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

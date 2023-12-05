@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Utility/TSortedMap.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 namespace ph
 {

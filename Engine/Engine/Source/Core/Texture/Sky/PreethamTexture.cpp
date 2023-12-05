@@ -1,10 +1,11 @@
 #include "Core/Texture/Sky/PreethamTexture.h"
-#include "Common/assertion.h"
 #include "Math/constant.h"
 #include "Math/Geometry/TSphere.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Math/Color/color_spaces.h"
 #include "Common/logging.h"
+
+#include <Common/assertion.h>
 
 #include <algorithm>
 

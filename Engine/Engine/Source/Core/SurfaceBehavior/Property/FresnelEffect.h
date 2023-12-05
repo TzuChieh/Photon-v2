@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Common/primitive_type.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
+
+#include <Common/primitive_type.h>
 
 namespace ph
 {

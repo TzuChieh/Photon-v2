@@ -4,7 +4,8 @@
 #include "Math/TQuaternion.h"
 #include "Math/TMatrix4.h"
 #include "Math/math.h"
-#include "Common/assertion.h"
+
+#include <Common/assertion.h>
 
 #include <cstdlib>
 

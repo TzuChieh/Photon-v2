@@ -1,8 +1,9 @@
 #include "Core/SurfaceBehavior/Property/IsoBeckmann.h"
-#include "Common/assertion.h"
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Math/TOrthonormalBasis3.h"
+
+#include <Common/assertion.h>
 
 #include <cmath>
 #include <limits>
