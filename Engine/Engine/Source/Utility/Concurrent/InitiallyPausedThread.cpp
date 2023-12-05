@@ -1,7 +1,7 @@
 #include "Utility/Concurrent/InitiallyPausedThread.h"
-#include "Utility/exception.h"
 
 #include <Common/assertion.h>
+#include <Common/exception.h>
 
 #include <stdexcept>
 

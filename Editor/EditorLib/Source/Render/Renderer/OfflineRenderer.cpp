@@ -9,6 +9,7 @@
 #include "EditorCore/Thread/Threads.h"
 
 #include <Common/assertion.h>
+#include <Common/exception.h>
 #include <Common/logging.h>
 #include <Common/profiling.h>
 #include <Core/Engine.h>
@@ -16,7 +17,6 @@
 #include <Utility/TFunction.h>
 #include <DataIO/io_utils.h>
 #include <Frame/TFrame.h>
-#include <Utility/exception.h>
 #include <Core/Renderer/RenderProgress.h>
 #include <Core/Renderer/RenderStats.h>
 #include <Frame/Operator/JRToneMapping.h>

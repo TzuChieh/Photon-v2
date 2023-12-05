@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Utility/string_utils_table.h"
-#include "Utility/exception.h"
 
 #include <Common/assertion.h>
+#include <Common/exception.h>
 
 #include <cstddef>
 #include <string>

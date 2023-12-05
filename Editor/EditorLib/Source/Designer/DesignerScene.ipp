@@ -6,9 +6,9 @@
 
 #include <Utility/traits.h>
 #include <Common/assertion.h>
+#include <Common/exception.h>
 #include <Common/logging.h>
 #include <SDL/sdl_helpers.h>
-#include <Utility/exception.h>
 
 #include <utility>
 #include <type_traits>

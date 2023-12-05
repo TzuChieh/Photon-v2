@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Utility/INoCopyAndMove.h"
-#include "Utility/exception.h"
 
 #include <Common/assertion.h>
+#include <Common/exception.h>
 
 #include <shared_mutex>
 #include <type_traits>

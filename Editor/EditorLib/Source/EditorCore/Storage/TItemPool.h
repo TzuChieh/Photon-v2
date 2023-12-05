@@ -9,7 +9,7 @@
 #include <Common/memory.h>
 #include <Common/os.h>
 #include <Common/math_basics.h>
-#include <Utility/exception.h>
+#include <Common/exception.h>
 #include <Utility/utility.h>
 
 #include <cstddef>

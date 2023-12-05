@@ -3,7 +3,8 @@
 #include "Math/math.h"
 #include "Math/Geometry/geometry.h"
 #include "Math/TVector2.h"
-#include "Utility/exception.h"
+
+#include <Common/exception.h>
 
 #include <cstring>
 #include <cmath>

@@ -6,8 +6,8 @@
 #include <Utility/TFunction.h>
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
+#include <Common/exception.h>
 #include <Utility/TUniquePtrVector.h>
-#include <Utility/exception.h>
 
 #include <limits>
 #include <type_traits>
