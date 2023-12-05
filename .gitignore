@@ -131,8 +131,8 @@ count.bat
 # Generated code in BlenderAddon
 /BlenderAddon/PhotonBlend/generated/
 
-# Keep track of debug utilities
-!/Engine/Source/Utility/Debug/
+# Explicitly track source code for debugging (debug folders are ignored by default)
+!/Engine/Engine/Source/Utility/Debug/
 
 ###############################################################################
 # macOS                                                                       #
