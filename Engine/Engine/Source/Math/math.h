@@ -13,11 +13,11 @@ to rendering in mind.
 #include "Math/constant.h"
 #include "Math/math_fwd.h"
 #include "Math/math_table.h"
-#include "Common/compiler.h"
 #include "Utility/utility.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/compiler.h>
 
 #include <cmath>
 #include <algorithm>

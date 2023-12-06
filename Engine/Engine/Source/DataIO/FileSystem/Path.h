@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Common/compiler.h"
 #include "Utility/TSpan.h"
 
 #include <Utility/string_utils.h>
+#include <Common/compiler.h>
 
 #include <cstddef>
 #include <string>
