@@ -12,6 +12,8 @@ toolset for ultra realistic image synthesis.
 
 @section libraries Libraries
 
+- Common functionalities, definitions and utilities for Photon projects
+  - <a href="../../Photon_Common/html/index.html">Common</a>
 - Rendering algorithms and core functionalities
   - <a href="../../Photon_Engine/html/index.html">Engine</a>
 

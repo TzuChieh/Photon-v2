@@ -1,5 +1,9 @@
 #pragma once
 
+/*! @file
+@brief String manipulation helpers.
+*/
+
 #include "Utility/string_utils_table.h"
 #include "Common/assertion.h"
 #include "Common/exception.h"

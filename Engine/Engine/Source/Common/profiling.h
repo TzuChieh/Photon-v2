@@ -1,5 +1,9 @@
 #pragma once
 
+/*! @file
+@brief Profiling functions.
+*/
+
 #include <Common/config.h>
 #include <Common/utility.h>
 

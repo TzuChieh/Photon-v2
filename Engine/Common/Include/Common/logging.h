@@ -1,5 +1,9 @@
 #pragma once
 
+/*! @file
+@brief Logging functions.
+*/
+
 #include "Common/Log/logger_fwd.h"
 #include "Common/Log/ELogLevel.h"
 #include "Common/config.h"

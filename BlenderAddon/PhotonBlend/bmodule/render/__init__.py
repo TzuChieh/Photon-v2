@@ -24,6 +24,9 @@ class RenderProcess:
         self.process = None
         self.arguments = {}
 
+        # Request the Blender execution mode
+        self._set_argument("--blender", "")
+
     def __del__(self):
         self.exit()
 

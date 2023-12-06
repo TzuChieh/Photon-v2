@@ -1,5 +1,10 @@
 #pragma once
 
+/*! @file
+@brief Basic math utilities.
+For more math functions, use @ref math.h.
+*/
+
 #include <Common/assertion.h>
 
 #include <type_traits>

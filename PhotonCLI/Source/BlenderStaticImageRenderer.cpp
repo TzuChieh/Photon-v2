@@ -1,25 +1,19 @@
 #include "BlenderStaticImageRenderer.h"
 #include "util.h"
 
+#include <Common/logging.h>
+
 #include <asio.hpp>
 
 #include <iostream>
 #include <string>
 #include <thread>
 #include <chrono>
-#include <atomic>
-#include <limits>
-#include <cstdint>
-
-// FIXME: add osx fs headers once it is supported
-#if defined(_WIN32)
-	#include <filesystem>
-#elif defined(__linux__)
-	#include <experimental/filesystem>
-#endif
 
 namespace ph::cli
 {
+
+PH_DEFINE_INTERNAL_LOG_GROUP(Blender, PhotonCLI);
 
 BlenderStaticImageRenderer::BlenderStaticImageRenderer(const ProcessedArguments& args)
 	: StaticImageRenderer(args)
@@ -70,67 +64,67 @@ void BlenderStaticImageRenderer::render()
 		}
 	});
 
-	const bool useServer = getArgs().getPort() != 0;
+	const unsigned short port = getArgs().getPort();
 
 	std::jthread serverThread;
-	if(useServer)
+	serverThread = std::jthread([this, filmW, filmH, port](std::stop_token token)
 	{
-		serverThread = std::jthread([this, filmW, filmH](std::stop_token token)
+		PHuint64 bufferId;
+		phCreateBuffer(&bufferId);
+
+		PHuint64 serverFrameId;
+		phCreateFrame(&serverFrameId, filmW, filmH);
+
+		try
 		{
-			using asio::ip::tcp;
+			asio::io_context ioContext;
 
-			const std::string IP = "127.0.0.1";
-			const unsigned short PORT = 7000;
+			// Server endpoint listening to the specified port
+			asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), port);
+			asio::ip::tcp::acceptor acceptor(ioContext, endpoint);
+			PH_LOG(Blender, "Server listening on port {}", port);
 
-			PHuint64 bufferId;
-			phCreateBuffer(&bufferId);
+			// A blocking accept, unblocks only if a connection is accepted or an error occurs
+			asio::ip::tcp::socket socket(ioContext);
+			acceptor.accept(socket);
+			PH_LOG(Blender, "Connection accepted.");
 
-			PHuint64 serverFrameId;
-			phCreateFrame(&serverFrameId, filmW, filmH);
-
-			try
+			while(!token.stop_requested())
 			{
-				asio::io_context io_context;
+				phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, filmW, filmH, serverFrameId);
+				phSaveFrameToBuffer(serverFrameId, bufferId);
 
-				tcp::endpoint endpoint = tcp::endpoint(asio::ip::address::from_string(IP), PORT);
-				tcp::acceptor acceptor(io_context, endpoint);
+				const unsigned char* bytesPtr;
+				size_t numBytes;
+				phGetBufferBytes(bufferId, &bytesPtr, &numBytes);
 
-				tcp::socket socket(io_context);
-				acceptor.accept(socket);
+				std::cerr << "SERVER: sending..." << std::endl;
 
-				//while(!isRenderingCompleted)
-				while(!token.stop_requested())
-				{
-					phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, filmW, filmH, serverFrameId);
-					phSaveFrameToBuffer(serverFrameId, bufferId);
+				asio::error_code ignored_error;
+				const auto numBytes64 = static_cast<std::uint64_t>(numBytes);
+				asio::write(socket, asio::buffer(reinterpret_cast<const unsigned char*>(&numBytes64), 8), ignored_error);
+				asio::write(socket, asio::buffer(bytesPtr, numBytes), ignored_error);
 
-					const unsigned char* bytesPtr;
-					size_t numBytes;
-					phGetBufferBytes(bufferId, &bytesPtr, &numBytes);
-
-					std::cerr << "SERVER: sending..." << std::endl;
-
-					asio::error_code ignored_error;
-					const auto numBytes64 = static_cast<std::uint64_t>(numBytes);
-					asio::write(socket, asio::buffer(reinterpret_cast<const unsigned char*>(&numBytes64), 8), ignored_error);
-					asio::write(socket, asio::buffer(bytesPtr, numBytes), ignored_error);
-
-					std::cerr << "SERVER: sent" << std::endl;
-				}
+				std::cerr << "SERVER: sent" << std::endl;
 			}
-			catch(std::exception& e)
-			{
-				std::cerr << e.what() << std::endl;
-			}
+		}
+		catch(const std::exception& e)
+		{
+			PH_LOG_ERROR(Blender, "Error on establishing connection: {}.", e.what());
+		}
 
-			phDeleteBuffer(bufferId);
-			phDeleteFrame(serverFrameId);
-		});
+		phDeleteBuffer(bufferId);
+		phDeleteFrame(serverFrameId);
+	});
+
+	if(renderThread.joinable())
+	{
+		renderThread.join();
 	}
+	PH_LOG(Blender, "Render finished.");
 
 	queryThread.request_stop();
-	renderThread.join();
-	std::cout << "render completed" << std::endl;
+	serverThread.request_stop();
 
 	PHuint64 frameId;
 	phCreateFrame(&frameId, filmW, filmH);
@@ -146,13 +140,6 @@ void BlenderStaticImageRenderer::render()
 	save_frame_with_fail_safe(frameId, getArgs().getImageFilePath());
 
 	phDeleteFrame(frameId);
-
-	if(useServer)
-	{
-		serverThread.join();
-	}
-
-	queryThread.join();
 }
 
 }// end namespace ph::cli

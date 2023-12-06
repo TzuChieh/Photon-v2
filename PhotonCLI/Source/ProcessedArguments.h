@@ -20,6 +20,7 @@ enum class EIntervalUnit
 
 enum class EExecutionMode
 {
+	Help,
 	SingleImage,
 	ImageSeries,
 	Blender
@@ -42,13 +43,12 @@ public:
 	std::string    getImageFileFormat() const;
 	uint32         numThreads() const;
 	bool           isPostProcessRequested() const;
-	bool           isHelpMessageRequested() const;
-	bool           isImageSeriesRequested() const;
 	std::string    wildcardStart() const;
 	std::string    wildcardFinish() const;
 	float          getIntermediateOutputInterval() const;
 	EIntervalUnit  getIntervalUnit() const;
 	bool           isOverwriteRequested() const;
+	unsigned short getPort() const;
 
 	void setSceneFilePath(const std::string& sceneFilePath);
 	void setImageOutputPath(const std::string& imageOutputPath);
@@ -68,10 +68,6 @@ public:
 	{
 		return m_framePathB;
 	}
-	unsigned short getPort() const
-	{
-		return m_port;
-	}
 
 private:
 	EExecutionMode m_executionMode;
@@ -80,19 +76,17 @@ private:
 	std::string    m_imageFileFormat;
 	uint32         m_numThreads;
 	bool           m_isPostProcessRequested;
-	bool           m_isHelpMessageRequested;
-	bool           m_isImageSeriesRequested;
 	std::string    m_wildcardStart;
 	std::string    m_wildcardFinish;
 	float          m_intermediateOutputInverval;
 	EIntervalUnit  m_intervalUnit;
 	bool           m_isOverwriteRequested;
+	uint16         m_port;
 
 	// HACK
 	bool m_isFrameDiagRequested;
 	std::string m_framePathA;
 	std::string m_framePathB;
-	unsigned short m_port;
 };
 
 // In-header Implementations:
@@ -132,16 +126,6 @@ inline bool ProcessedArguments::isPostProcessRequested() const
 	return m_isPostProcessRequested;
 }
 
-inline bool ProcessedArguments::isHelpMessageRequested() const
-{
-	return m_isHelpMessageRequested;
-}
-
-inline bool ProcessedArguments::isImageSeriesRequested() const
-{
-	return m_isImageSeriesRequested;
-}
-
 inline std::string ProcessedArguments::wildcardStart() const
 {
 	return m_wildcardStart;
@@ -165,6 +149,11 @@ inline EIntervalUnit ProcessedArguments::getIntervalUnit() const
 inline bool ProcessedArguments::isOverwriteRequested() const
 {
 	return m_isOverwriteRequested;
+}
+
+inline unsigned short ProcessedArguments::getPort() const
+{
+	return m_port;
 }
 
 inline void ProcessedArguments::setSceneFilePath(const std::string& sceneFilePath)
@@ -234,6 +223,14 @@ Render image series starting from a specific wildcarded string.
 --finish <*>
 
 Render image series until a specific wildcarded string is matched. (inclusive)
+===============================================================================
+--blender
+
+Tailor the renderer to support for in-Blender rendering.
+===============================================================================
+--port <number>
+
+The port to use when running as a server.
 ===============================================================================
 	)" << std::endl;
 }

@@ -1,6 +1,7 @@
 #include "ProcessedArguments.h"
 #include "util.h"
 #include "CliStaticImageRenderer.h"
+#include "BlenderStaticImageRenderer.h"
 
 #include <ph_c_core.h>
 #include <Common/stats.h>
@@ -39,7 +40,7 @@ int main(int argc, char* argv[])
 	}
 
 	ProcessedArguments args(argc, argv);
-	if(args.isHelpMessageRequested())
+	if(args.getExecutionMode() == EExecutionMode::Help)
 	{
 		ProcessedArguments::printHelpMessage();
 		return EXIT_SUCCESS;
@@ -51,7 +52,7 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
-	// begin engine operations
+	// Begin engine operations
 
 	// HACK
 	if(args.isFrameDiagRequested())
@@ -79,19 +80,29 @@ int main(int argc, char* argv[])
 		std::cout << "end frame diag" << std::endl;
 	}
 
-	if(!args.isImageSeriesRequested())
+	if(args.getExecutionMode() == EExecutionMode::SingleImage)
 	{
 		CliStaticImageRenderer renderer(args);
 		renderer.render();
 	}
-	else
+	else if(args.getExecutionMode() == EExecutionMode::ImageSeries)
 	{
 		renderImageSeries(args);
+	}
+	else if(args.getExecutionMode() == EExecutionMode::Blender)
+	{
+		BlenderStaticImageRenderer renderer(args);
+		renderer.render();
+	}
+	else
+	{
+		std::cerr << "Unknown execution mode <" << static_cast<int>(args.getExecutionMode()) << ">." << std::endl;
+		ProcessedArguments::printHelpMessage();
 	}
 
 	std::cout << ph::TimerStatsReport().detailedReport() << std::endl;
 
-	// end engine operations
+	// End engine operations
 
 	if(!phExit())
 	{

@@ -23,8 +23,6 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 	, m_imageFileFormat           ("png")
 	, m_numThreads                (1)
 	, m_isPostProcessRequested    (true)
-	, m_isHelpMessageRequested    (false)
-	, m_isImageSeriesRequested    (false)
 	, m_wildcardStart             ("")
 	, m_wildcardFinish            ("")
 	, m_intermediateOutputInverval(std::numeric_limits<float>::max())
@@ -33,7 +31,7 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 
 	// HACK
 	, m_isFrameDiagRequested(false)
-	, m_port(0)
+	, m_port(7000)
 {
 	while(!arguments.isEmpty())
 	{
@@ -102,11 +100,15 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 		}
 		else if(argument == "--help")
 		{
-			m_isHelpMessageRequested = true;
+			m_executionMode = EExecutionMode::Help;
 		}
 		else if(argument == "--series")
 		{
-			m_isImageSeriesRequested = true;
+			m_executionMode = EExecutionMode::ImageSeries;
+		}
+		else if(argument == "--blender")
+		{
+			m_executionMode = EExecutionMode::Blender;
 		}
 		else if(argument == "--start")
 		{
