@@ -14,8 +14,8 @@ class JLongRef final : public JObject<JLongRef>
 public:
 	JLongRef(const jobject javaObject, JNIEnv* const env);
 
-	PHint64 getValue() const;
-	void setValue(const PHint64 value);
+	PhInt64 getValue() const;
+	void setValue(const PhInt64 value);
 };
 
 }// end namespace ph

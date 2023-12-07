@@ -13,7 +13,7 @@ TEST(FrameProcessorTest, GenerateMipmaps)
 		{
 			for(ph::uint32 x = 0; x < frame.widthPx(); ++x)
 			{
-				ph::HdrRgbFrame::Pixel pixel;
+				ph::HdrRgbFrame::PixelType pixel;
 				frame.getPixel(x, y, &pixel);
 				for(std::size_t i = 0; i < pixel.size(); ++i)
 				{

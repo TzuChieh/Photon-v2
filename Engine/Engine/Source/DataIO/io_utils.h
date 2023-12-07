@@ -8,6 +8,7 @@
 #include "Frame/frame_fwd.h"
 #include "Math/math_fwd.h"
 #include "DataIO/EPictureFile.h"
+#include "Utility/ByteBuffer.h"
 
 #include <Common/primitive_type.h>
 
@@ -123,8 +124,9 @@ void save_exr_high_precision(const HdrRgbFrame& frame, const Path& picturePath);
 */
 void save_pfm(const HdrRgbFrame& frame, const Path& picturePath);
 
-// HACK
-void save_exr(const HdrRgbFrame& frame, std::string& byteBuffer);
+/*! @brief Saves a frame in EXR format to memory.
+*/
+void save_exr(const HdrRgbFrame& frame, ByteBuffer& buffer);
 
 namespace detail
 {

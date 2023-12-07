@@ -21,12 +21,12 @@ JFloatRef::JFloatRef(const jobject javaObject, JNIEnv* const env) :
 	}
 }
 
-PHfloat32 JFloatRef::getValue() const
+PhFloat32 JFloatRef::getValue() const
 {
-	return static_cast<PHfloat32>(m_env->GetFloatField(m_jobject, getFieldId(JAVA_FLOATREF_VALUE_NAME)));
+	return static_cast<PhFloat32>(m_env->GetFloatField(m_jobject, getFieldId(JAVA_FLOATREF_VALUE_NAME)));
 }
 
-void JFloatRef::setValue(const PHfloat32 value)
+void JFloatRef::setValue(const PhFloat32 value)
 {
 	m_env->SetFloatField(m_jobject, getFieldId(JAVA_FLOATREF_VALUE_NAME), static_cast<jfloat>(value));
 }

@@ -41,11 +41,11 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateEngine
 (JNIEnv* env, jclass thiz, jobject out_LongRef_engineId, jint numRenderThreads)
 {
 	ph::JLongRef jEngineId(out_LongRef_engineId, env);
-	PHuint64     engineId;
+	PhUInt64     engineId;
 
-	phCreateEngine(&engineId, static_cast<PHuint32>(numRenderThreads));
+	phCreateEngine(&engineId, static_cast<PhUInt32>(numRenderThreads));
 
-	jEngineId.setValue(static_cast<PHint64>(engineId));
+	jEngineId.setValue(static_cast<PhUInt64>(engineId));
 }
 
 /*
@@ -56,7 +56,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateEngine
 JNIEXPORT void JNICALL Java_photonApi_Ph_phSetNumRenderThreads
 (JNIEnv* env, jclass thiz, jlong engineId, jint numRenderThreads)
 {
-	phSetNumRenderThreads(static_cast<PHuint64>(engineId), static_cast<PHuint32>(numRenderThreads));
+	phSetNumRenderThreads(static_cast<PhUInt64>(engineId), static_cast<PhUInt32>(numRenderThreads));
 }
 
 /*
@@ -70,7 +70,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phEnterCommand
 	const char* commandFragmentString = env->GetStringUTFChars(commandFragment, nullptr);
 	if(commandFragmentString)
 	{
-		phEnterCommand(static_cast<PHuint64>(engineId), commandFragmentString);
+		phEnterCommand(static_cast<PhUInt64>(engineId), commandFragmentString);
 		
 	}
 	else
@@ -94,7 +94,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phEnterCommand
 JNIEXPORT void JNICALL Java_photonApi_Ph_phUpdate
 (JNIEnv* env, jclass thiz, jlong engineId)
 {
-	phUpdate(static_cast<PHuint64>(engineId));
+	phUpdate(static_cast<PhUInt64>(engineId));
 }
 
 /*
@@ -105,7 +105,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phUpdate
 JNIEXPORT void JNICALL Java_photonApi_Ph_phRender
 (JNIEnv* env, jclass thiz, jlong engineId)
 {
-	phRender(static_cast<PHuint64>(engineId));
+	phRender(static_cast<PhUInt64>(engineId));
 }
 
 /*
@@ -117,9 +117,9 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAquireFrame
 (JNIEnv* env, jclass clazz, jlong engineId, jint channelIndex, jlong frameId)
 {
 	phAquireFrame(
-		static_cast<PHuint64>(engineId), 
-		static_cast<PHuint64>(channelIndex), 
-		static_cast<PHuint64>(frameId));
+		static_cast<PhUInt64>(engineId),
+		static_cast<PhUInt64>(channelIndex),
+		static_cast<PhUInt64>(frameId));
 }
 
 /*
@@ -130,13 +130,13 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAquireFrame
 JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderDimension
 (JNIEnv* env, jclass clazz, jlong engineId, jobject out_IntRef_widthPx, jobject out_IntRef_heightPx)
 {
-	PHuint32 widthPx, heightPx;
-	phGetRenderDimension(static_cast<PHuint64>(engineId), &widthPx, &heightPx);
+	PhUInt32 widthPx, heightPx;
+	phGetRenderDimension(static_cast<PhUInt64>(engineId), &widthPx, &heightPx);
 
 	ph::JIntRef jWidthPx(out_IntRef_widthPx, env);
 	ph::JIntRef jHeightPx(out_IntRef_heightPx, env);
-	jWidthPx.setValue(static_cast<PHint32>(widthPx));
-	jHeightPx.setValue(static_cast<PHint32>(heightPx));
+	jWidthPx.setValue(static_cast<PhInt32>(widthPx));
+	jHeightPx.setValue(static_cast<PhInt32>(heightPx));
 }
 
 /*
@@ -147,7 +147,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetRenderDimension
 JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteEngine
 (JNIEnv* env, jclass thiz, jlong engineId)
 {
-	phDeleteEngine(static_cast<PHuint64>(engineId));
+	phDeleteEngine(static_cast<PhUInt64>(engineId));
 }
 
 /*
@@ -158,13 +158,13 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteEngine
 JNIEXPORT void JNICALL Java_photonApi_Ph_phSetWorkingDirectory
 (JNIEnv* env, jclass clazz, jlong engineId, jstring workingDirectory)
 {
-	static_assert(sizeof(PHchar) == sizeof(char), 
+	static_assert(sizeof(PhChar) == sizeof(char), 
 	              "character size mismatch between Photon's char and C++'s.");
 
 	const char* workingDirectoryString = env->GetStringUTFChars(workingDirectory, nullptr);
 	if(workingDirectoryString)
 	{
-		phSetWorkingDirectory(static_cast<PHuint64>(engineId), workingDirectoryString);
+		phSetWorkingDirectory(static_cast<PhUInt64>(engineId), workingDirectoryString);
 
 	}
 	else
@@ -188,11 +188,11 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phSetWorkingDirectory
 JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
 (JNIEnv* env, jclass thiz, jobject out_LongRef_frameId, jint widthPx, jint heightPx)
 {
-	PHuint64 frameId;
-	phCreateFrame(&frameId, static_cast<PHuint32>(widthPx), static_cast<PHuint32>(heightPx));
+	PhUInt64 frameId;
+	phCreateFrame(&frameId, static_cast<PhUInt32>(widthPx), static_cast<PhUInt32>(heightPx));
 
 	ph::JLongRef jFrameId(out_LongRef_frameId, env);
-	jFrameId.setValue(static_cast<PHint64>(frameId));
+	jFrameId.setValue(static_cast<PhUInt64>(frameId));
 }
 
 /*
@@ -203,7 +203,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCreateFrame
 JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
 (JNIEnv* env, jclass thiz, jlong frameId)
 {
-	phDeleteFrame(static_cast<PHuint64>(frameId));
+	phDeleteFrame(static_cast<PhUInt64>(frameId));
 }
 
 /*
@@ -214,9 +214,9 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phDeleteFrame
 JNIEXPORT void JNICALL Java_photonApi_Ph_phCopyFrameRgbData__JLphotonApi_FloatArrayRef_2
 (JNIEnv* env, jclass thiz, jlong frameId, jobject out_FloatArrayRef_rgbData)
 {
-	PHuint32 widthPx;
-	PHuint32 heightPx;
-	phGetFrameDimension(static_cast<PHuint64>(frameId), &widthPx, &heightPx);
+	PhUInt32 widthPx;
+	PhUInt32 heightPx;
+	phGetFrameDimension(static_cast<PhUInt64>(frameId), &widthPx, &heightPx);
 
 	Java_photonApi_Ph_phCopyFrameRgbData__JIIIILphotonApi_FloatArrayRef_2
 	(
@@ -236,12 +236,12 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phCopyFrameRgbData__JIIIILphotonApi_Flo
                            jint xPx, jint yPx, jint wPx, jint hPx, 
                            jobject out_FloatArrayRef_rgbData)
 {
-	const PHfloat32* rgbData;
-	PHuint32         widthPx;
-	PHuint32         heightPx;
+	const PhFloat32* rgbData;
+	PhUInt32         widthPx;
+	PhUInt32         heightPx;
 	const jsize      numComp = 3;
-	phGetFrameRgbData(static_cast<PHuint64>(frameId), &rgbData);
-	phGetFrameDimension(static_cast<PHuint64>(frameId), &widthPx, &heightPx);
+	phGetFrameRgbData(static_cast<PhUInt64>(frameId), &rgbData);
+	phGetFrameDimension(static_cast<PhUInt64>(frameId), &widthPx, &heightPx);
 
 	const jsize numFloats = static_cast<jsize>(wPx * hPx * numComp);
 	jfloatArray object_float_array = env->NewFloatArray(numFloats);
@@ -273,8 +273,8 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererStatistics
                            jobject out_FloatRef_percentageProgress, 
                            jobject out_FloatRef_samplesPerSecond)
 {
-	PHfloat32 progress, frequency;
-	phAsyncGetRendererStatistics(static_cast<PHuint64>(engineId), &progress, &frequency);
+	PhFloat32 progress, frequency;
+	phAsyncGetRendererStatistics(static_cast<PhUInt64>(engineId), &progress, &frequency);
 
 	ph::JFloatRef jProgress(out_FloatRef_percentageProgress, env);
 	ph::JFloatRef jFrequency(out_FloatRef_samplesPerSecond, env);
@@ -295,19 +295,19 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFrameRegion(
 	jobject out_IntRef_wPx, 
 	jobject out_IntRef_hPx)
 {
-	PHuint32 xPx, yPx, wPx, hPx;
+	PhUInt32 xPx, yPx, wPx, hPx;
 	const int status = phAsyncPollUpdatedFrameRegion(
-		static_cast<PHuint64>(engineId), 
+		static_cast<PhUInt64>(engineId),
 		&xPx, &yPx, &wPx, &hPx);
 
 	ph::JIntRef jXpx(out_IntRef_xPx, env);
 	ph::JIntRef jYpx(out_IntRef_yPx, env);
 	ph::JIntRef jWpx(out_IntRef_wPx, env);
 	ph::JIntRef jHpx(out_IntRef_hPx, env);
-	jXpx.setValue(static_cast<PHint32>(xPx));
-	jYpx.setValue(static_cast<PHint32>(yPx));
-	jWpx.setValue(static_cast<PHint32>(wPx));
-	jHpx.setValue(static_cast<PHint32>(hPx));
+	jXpx.setValue(static_cast<PhUInt32>(xPx));
+	jYpx.setValue(static_cast<PhUInt32>(yPx));
+	jWpx.setValue(static_cast<PhUInt32>(wPx));
+	jHpx.setValue(static_cast<PhUInt32>(hPx));
 
 	switch(status)
 	{
@@ -334,13 +334,13 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncPeekFrame(
 	jlong frameId)
 {
 	phAsyncPeekFrame(
-		static_cast<PHuint64>(engineId), 
-		static_cast<PHuint64>(channelIndex),
-		static_cast<PHuint32>(xPx),
-		static_cast<PHuint32>(yPx),
-		static_cast<PHuint32>(wPx),
-		static_cast<PHuint32>(hPx), 
-		static_cast<PHuint64>(frameId));
+		static_cast<PhUInt64>(engineId),
+		static_cast<PhUInt64>(channelIndex),
+		static_cast<PhUInt32>(xPx),
+		static_cast<PhUInt32>(yPx),
+		static_cast<PhUInt32>(wPx),
+		static_cast<PhUInt32>(hPx),
+		static_cast<PhUInt32>(frameId));
 }
 
 /*
@@ -352,7 +352,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phGetObservableRenderData
 (JNIEnv* env, jclass thiz, jlong engineId, jobject out_ObservableRenderData_data)
 {
 	PHObservableRenderData data;
-	phGetObservableRenderData(static_cast<PHuint64>(engineId), &data);
+	phGetObservableRenderData(static_cast<PhUInt64>(engineId), &data);
 
 	jobjectArray jLayerNamesStringArray = env->NewObjectArray(
 		PH_NUM_RENDER_LAYERS, 
@@ -410,7 +410,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererState
 (JNIEnv* env, jclass thiz, jlong engineId, jobject out_RenderState_state)
 {
 	struct PHRenderState state;
-	phAsyncGetRendererState(static_cast<PHuint64>(engineId), &state);
+	phAsyncGetRendererState(static_cast<PhUInt64>(engineId), &state);
 
 	jlongArray jLongArray = env->NewLongArray(PH_NUM_RENDER_STATE_INTEGERS);
 	for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)

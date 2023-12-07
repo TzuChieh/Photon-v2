@@ -138,27 +138,23 @@ option(PH_USE_FAST_MATH
 # Set compiler-dependent settings
 
 # Note: We do not use standard CMAKE_CXX_STANDARD and CMAKE_CXX_STANDARD_REQUIRED
-# settings since their behavior depend on the CMake version in use. We set 
+# settings since their behavior is depending on the CMake version in use. We set 
 # appropriate flags manually and only use standard variables as a fallback.
 
 # Using MSVC
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
-    # Use C++20
+    # Use C++23 and C17
     # If this does not work, you should consider using /std:c++latest or other flags
-    # (VS does not fully support all C++20 features on VS 2019 v16.11.7)
-    #set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++20")
-    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /std:c++latest")
-
-    # HACK: for <= VS 2019 v16.11.7, to make all projects have the /std::c++latest flag
-    set(CMAKE_CXX_STANDARD          23)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    # (VS does not fully support all C++23 features on VS 2022 v17.7.5)
+    # add_compile_options(/std:c++23)
+    add_compile_options(/std:c++latest /std:c17)
 
     # Use PDB files for debugging, which also provides potential optimizations
-    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zi")
+    add_compile_options(/Zi)
 
     # Use multithreaded compilation
-    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /MP")
+    add_compile_options(/MP)
 
     # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
     # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
@@ -168,9 +164,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # comma on empty argument list)
     # TODO: check on new version, currently required on VS 16.10.4
     # https://devblogs.microsoft.com/cppblog/announcing-full-support-for-a-c-c-conformant-preprocessor-in-msvc/
-    set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} /Zc:preprocessor")
+    add_compile_options(/Zc:preprocessor)
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
+    add_compile_options(/utf-8)
 
     if(PH_USE_FAST_MATH)
         add_compile_options(/fp:fast)
@@ -184,8 +180,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 # Using gcc/g++
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
-    # Use C++20
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+    # Use C++23 and C17
+    add_compile_options(-std=c++23 -std=c17)
 
     if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
@@ -194,7 +190,8 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 # Using regular Clang or AppleClang (note we use `MATCHES` here)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 
-    # TODO: enforce C++20 if previous requests have no use
+    # Use C++23 and C17
+    add_compile_options(-std=c++23 -std=c17)
 
     if(PH_USE_FAST_MATH)
         add_compile_options(-ffast-math)
@@ -204,9 +201,11 @@ else()
     message(WARNING
         "Unknown compiler ID <${CMAKE_CXX_COMPILER_ID}>, unable to set specific flags.")
 
-    # Compile with C++20 standard enabled
-    set(CMAKE_CXX_STANDARD          20)
+    # Compile with C++23 and C17 standard enabled
+    set(CMAKE_CXX_STANDARD          23)
+    set(CMAKE_C_STANDARD            17)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_C_STANDARD_REQUIRED   ON)
 endif()
 
 # TODO: add g++ MT MD equivalent flags?

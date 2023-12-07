@@ -21,16 +21,16 @@ public:
 	void setImageOutputPath(const std::string& path);
 
 protected:
-	PHuint64 getEngine() const;
+	PhUInt64 getEngine() const;
 	const ProcessedArguments& getArgs() const;
 	bool loadCommandsFromSceneFile() const;
 
 private:
-	PHuint64 m_engineId;
+	PhUInt64 m_engineId;
 	ProcessedArguments m_args;
 };
 
-inline PHuint64 StaticImageRenderer::getEngine() const
+inline PhUInt64 StaticImageRenderer::getEngine() const
 {
 	return m_engineId;
 }

@@ -7,6 +7,6 @@
 namespace ph::cli
 {
 
-void save_frame_with_fail_safe(PHuint64 frameId, const std::string& filePath);
+void save_frame_with_fail_safe(PhUInt64 frameId, const std::string& filePath);
 
 }// end namespace ph::cli

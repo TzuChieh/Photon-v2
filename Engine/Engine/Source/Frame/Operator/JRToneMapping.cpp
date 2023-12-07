@@ -23,14 +23,14 @@ void JRToneMapping::operate(const HdrRgbFrame& srcFrame, HdrRgbFrame* const out_
 
 void JRToneMapping::operateLocal(HdrRgbFrame& frame, const TAABB2D<uint32>& region) const
 {
-	frame.forEachPixel(region, [this](const HdrRgbFrame::Pixel& pixel)
+	frame.forEachPixel(region, [this](const HdrRgbFrame::PixelType& pixel)
 	{
-		HdrRgbFrame::Pixel color = pixel;
+		HdrRgbFrame::PixelType color = pixel;
 		color.mulLocal(m_exposure);
 		color.subLocal(0.004_r).clampLocal(0.0_r, std::numeric_limits<real>::max());
 
-		const HdrRgbFrame::Pixel numerator   = color.mul(6.2_r).addLocal(0.5_r).mulLocal(color);
-		const HdrRgbFrame::Pixel denominator = color.mul(6.2_r).addLocal(1.7_r).mulLocal(color).addLocal(0.06_r);
+		const HdrRgbFrame::PixelType numerator   = color.mul(6.2_r).addLocal(0.5_r).mulLocal(color);
+		const HdrRgbFrame::PixelType denominator = color.mul(6.2_r).addLocal(1.7_r).mulLocal(color).addLocal(0.06_r);
 		color[0] = numerator[0] / denominator[0];
 		color[1] = numerator[1] / denominator[1];
 		color[2] = numerator[2] / denominator[2];

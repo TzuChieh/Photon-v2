@@ -658,10 +658,10 @@ void save_pfm(const HdrRgbFrame& frame, const Path& picturePath)
 	}
 }
 
-void save_exr(const HdrRgbFrame& frame, std::string& byteBuffer)
+void save_exr(const HdrRgbFrame& frame, ByteBuffer& buffer)
 {
-	ExrFileWriter writer(Path(""));
-	if(!writer.save(frame, byteBuffer))
+	ExrFileWriter writer;
+	if(!writer.saveToMemory(frame, buffer))
 	{
 		throw FileIOError(
 			"failed saving exr to byte buffer");

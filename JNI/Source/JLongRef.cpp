@@ -19,12 +19,12 @@ JLongRef::JLongRef(const jobject javaObject, JNIEnv* const env) :
 	}
 }
 
-PHint64 JLongRef::getValue() const
+PhInt64 JLongRef::getValue() const
 {
-	return static_cast<PHint64>(m_env->GetLongField(m_jobject, getFieldId(JAVA_LONGREF_VALUE_NAME)));
+	return static_cast<PhInt64>(m_env->GetLongField(m_jobject, getFieldId(JAVA_LONGREF_VALUE_NAME)));
 }
 
-void JLongRef::setValue(const PHint64 value)
+void JLongRef::setValue(const PhInt64 value)
 {
 	m_env->SetLongField(m_jobject, getFieldId(JAVA_LONGREF_VALUE_NAME), static_cast<jlong>(value));
 }

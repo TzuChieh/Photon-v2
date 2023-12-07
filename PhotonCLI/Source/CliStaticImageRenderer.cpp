@@ -41,7 +41,7 @@ void CliStaticImageRenderer::render()
 		phRender(getEngine());
 	});
 
-	PHuint32 filmW, filmH;
+	PhUInt32 filmW, filmH;
 	phGetRenderDimension(getEngine(), &filmW, &filmH);
 
 	std::atomic<bool> isRenderingCompleted = false;
@@ -55,15 +55,15 @@ void CliStaticImageRenderer::render()
 		const auto startTime = Clock::now();
 
 		// OPT: does not need to create this frame if intermediate frame is not requested
-		PHuint64 queryFrameId;
+		PhUInt64 queryFrameId;
 		phCreateFrame(&queryFrameId, filmW, filmH);
 
-		PHfloat32 lastProgress = 0;
-		PHfloat32 lastOutputProgress = 0;
+		PhFloat32 lastProgress = 0;
+		PhFloat32 lastOutputProgress = 0;
 		while(!isRenderingCompleted)
 		{
-			PHfloat32 currentProgress;
-			PHfloat32 samplesPerSecond;
+			PhFloat32 currentProgress;
+			PhFloat32 samplesPerSecond;
 			phAsyncGetRendererStatistics(getEngine(), &currentProgress, &samplesPerSecond);
 
 			if(currentProgress - lastProgress > 1.0f)
@@ -132,7 +132,7 @@ void CliStaticImageRenderer::render()
 	isRenderingCompleted = true;
 	std::cout << "render completed" << std::endl;
 
-	PHuint64 frameId;
+	PhUInt64 frameId;
 	phCreateFrame(&frameId, filmW, filmH);
 	if(getArgs().isPostProcessRequested())
 	{

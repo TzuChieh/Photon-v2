@@ -18,10 +18,10 @@ void to_LDR(const HdrRgbFrame& srcFrame, LdrRgbFrame* const out_dstFrame)
 	out_dstFrame->setSize(srcFrame.getSizePx());
 
 	srcFrame.forEachPixel(
-		[out_dstFrame](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& hdrPixel)
+		[out_dstFrame](const uint32 x, const uint32 y, const HdrRgbFrame::PixelType& hdrPixel)
 		{
-			const HdrRgbFrame::Pixel mappedPixel = hdrPixel.mul(255.0_r).add(0.5_r).clampLocal(0.0_r, 255.0_r);
-			out_dstFrame->setPixel(x, y, LdrRgbFrame::Pixel(mappedPixel));
+			const HdrRgbFrame::PixelType mappedPixel = hdrPixel.mul(255.0_r).add(0.5_r).clampLocal(0.0_r, 255.0_r);
+			out_dstFrame->setPixel(x, y, LdrRgbFrame::PixelType(mappedPixel));
 		});
 }
 
@@ -32,12 +32,12 @@ void to_HDR(const LdrRgbFrame& srcFrame, HdrRgbFrame* const out_dstFrame)
 	out_dstFrame->setSize(srcFrame.getSizePx());
 
 	srcFrame.forEachPixel(
-		[out_dstFrame](const uint32 x, const uint32 y, const LdrRgbFrame::Pixel& ldrPixel)
+		[out_dstFrame](const uint32 x, const uint32 y, const LdrRgbFrame::PixelType& ldrPixel)
 		{
 			out_dstFrame->setPixel(
 				x, 
 				y, 
-				HdrRgbFrame::Pixel(ldrPixel).div(255.0_r));
+				HdrRgbFrame::PixelType(ldrPixel).div(255.0_r));
 		});
 }
 
@@ -57,7 +57,7 @@ void abs_diff(const HdrRgbFrame& frameA, const HdrRgbFrame& frameB, HdrRgbFrame*
 
 	frameA.forEachPixel(
 		[&frameB, out_result]
-		(const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixelA)
+		(const uint32 x, const uint32 y, const HdrRgbFrame::PixelType& pixelA)
 		{
 			const auto pixelB = frameB.getPixel({x, y});
 
@@ -81,7 +81,7 @@ real calc_MSE(const HdrRgbFrame& expected, const HdrRgbFrame& estimated)
 	double MSE = 0.0;
 	expected.forEachPixel(
 		[&estimated, &MSE]
-		(const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& expectedPixel)
+		(const uint32 x, const uint32 y, const HdrRgbFrame::PixelType& expectedPixel)
 		{
 			const auto estimatedPixel = estimated.getPixel({x, y});
 

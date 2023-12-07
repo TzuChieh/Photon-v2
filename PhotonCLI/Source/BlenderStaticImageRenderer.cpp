@@ -35,7 +35,7 @@ void BlenderStaticImageRenderer::render()
 		phRender(getEngine());
 	});
 
-	PHuint32 filmW, filmH;
+	PhUInt32 filmW, filmH;
 	phGetRenderDimension(getEngine(), &filmW, &filmH);
 
 	std::jthread queryThread([this](std::stop_token token)
@@ -45,12 +45,12 @@ void BlenderStaticImageRenderer::render()
 
 		const auto startTime = Clock::now();
 
-		PHfloat32 lastProgress = 0;
-		PHfloat32 lastOutputProgress = 0;
+		PhFloat32 lastProgress = 0;
+		PhFloat32 lastOutputProgress = 0;
 		while(!token.stop_requested())
 		{
-			PHfloat32 currentProgress;
-			PHfloat32 samplesPerSecond;
+			PhFloat32 currentProgress;
+			PhFloat32 samplesPerSecond;
 			phAsyncGetRendererStatistics(getEngine(), &currentProgress, &samplesPerSecond);
 
 			if(currentProgress - lastProgress > 1.0f)
@@ -69,10 +69,10 @@ void BlenderStaticImageRenderer::render()
 	std::jthread serverThread;
 	serverThread = std::jthread([this, filmW, filmH, port](std::stop_token token)
 	{
-		PHuint64 bufferId;
+		PhUInt64 bufferId;
 		phCreateBuffer(&bufferId);
 
-		PHuint64 serverFrameId;
+		PhUInt64 serverFrameId;
 		phCreateFrame(&serverFrameId, filmW, filmH);
 
 		try
@@ -92,7 +92,7 @@ void BlenderStaticImageRenderer::render()
 			while(!token.stop_requested())
 			{
 				phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, filmW, filmH, serverFrameId);
-				phSaveFrameToBuffer(serverFrameId, bufferId);
+				phSaveFrameToBuffer(serverFrameId, bufferId, PhFrameFormat::PH_EXR_IMAGE, true);
 
 				const unsigned char* bytesPtr;
 				size_t numBytes;
@@ -126,7 +126,7 @@ void BlenderStaticImageRenderer::render()
 	queryThread.request_stop();
 	serverThread.request_stop();
 
-	PHuint64 frameId;
+	PhUInt64 frameId;
 	phCreateFrame(&frameId, filmW, filmH);
 	if(getArgs().isPostProcessRequested())
 	{

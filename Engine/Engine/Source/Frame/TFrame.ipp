@@ -20,14 +20,14 @@ namespace frame_detail
 {
 
 template<typename Func, typename T, std::size_t N>
-concept CIsGetPixelOp = requires (Func func, typename TFrame<T, N>::Pixel pixel)
+concept CIsGetPixelOp = requires (Func func, typename TFrame<T, N>::PixelType pixel)
 {
 	// Requires returning `void`--to disambiguate with set ops
 	{ func(pixel) } -> std::same_as<void>;
 };
 
 template<typename Func, typename T, std::size_t N>
-concept CIsGetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y, typename TFrame<T, N>::Pixel pixel)
+concept CIsGetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y, typename TFrame<T, N>::PixelType pixel)
 {
 	// Requires returning `void`--to disambiguate with set ops
 	{ func(x, y, pixel) } -> std::same_as<void>;
@@ -36,34 +36,34 @@ concept CIsGetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y, typen
 template<typename Func, typename T, std::size_t N>
 concept CIsSetPixelOp = requires (Func func)
 {
-	{ func() } -> std::convertible_to<typename TFrame<T, N>::Pixel>;
+	{ func() } -> std::convertible_to<typename TFrame<T, N>::PixelType>;
 };
 
 template<typename Func, typename T, std::size_t N>
 concept CIsSetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y)
 {
-	{ func(x, y) } -> std::convertible_to<typename TFrame<T, N>::Pixel>;
+	{ func(x, y) } -> std::convertible_to<typename TFrame<T, N>::PixelType>;
 };
 
 template<typename Func, typename T, std::size_t N>
-concept CIsGetAndSetPixelOp = requires (Func func, typename TFrame<T, N>::Pixel pixel)
+concept CIsGetAndSetPixelOp = requires (Func func, typename TFrame<T, N>::PixelType pixel)
 {
-	{ func(pixel) } -> std::convertible_to<typename TFrame<T, N>::Pixel>;
+	{ func(pixel) } -> std::convertible_to<typename TFrame<T, N>::PixelType>;
 };
 
 template<typename Func, typename T, std::size_t N>
-concept CIsGetAndSetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y, typename TFrame<T, N>::Pixel pixel)
+concept CIsGetAndSetPixelWithCoordsOp = requires (Func func, uint32 x, uint32 y, typename TFrame<T, N>::PixelType pixel)
 {
-	{ func(x, y, pixel) } -> std::convertible_to<typename TFrame<T, N>::Pixel>;
+	{ func(x, y, pixel) } -> std::convertible_to<typename TFrame<T, N>::PixelType>;
 };
 
 }// end namespace frame_detail
 
 template<typename T, std::size_t N>
 template<typename U>
-inline typename TFrame<T, N>::template TPixel<U> TFrame<T, N>::makeMonochromaticPixel(const U value)
+inline typename TFrame<T, N>::template TPixelType<U> TFrame<T, N>::makeMonochromaticPixel(const U value)
 {
-	return TPixel<U>(value);
+	return TPixelType<U>(value);
 }
 
 template<typename T, std::size_t N>
@@ -153,8 +153,8 @@ inline void TFrame<T, N>::sample(
 			PH_ASSERT(x0y0.x() >= 0 && x0y0.y() >= 0 &&
 			          x1y1.x() < widthPx() && x1y1.y() < heightPx());
 
-			TPixel<float64> pixelSum  = makeMonochromaticPixel<float64>(0);
-			float64         weightSum = 0.0;
+			TPixelType<float64> pixelSum  = makeMonochromaticPixel<float64>(0);
+			float64 weightSum = 0.0;
 			for(int64 ky = x0y0.y(); ky <= x1y1.y(); ++ky)
 			{
 				for(int64 kx = x0y0.x(); kx <= x1y1.x(); ++kx)
@@ -162,7 +162,7 @@ inline void TFrame<T, N>::sample(
 					const float64 kernelX = (kx + 0.5) - samplePosPx.x();
 					const float64 kernelY = (ky + 0.5) - samplePosPx.y();
 
-					Pixel pixel;
+					PixelType pixel;
 					getPixel(static_cast<uint32>(kx), static_cast<uint32>(ky), &pixel);
 					const float64 weight = kernel.evaluate(kernelX, kernelY);
 
@@ -174,7 +174,7 @@ inline void TFrame<T, N>::sample(
 				}// 
 			}    // end for each pixel in kernel support
 
-			Pixel sampledPixel;
+			PixelType sampledPixel;
 			if(weightSum > 0.0)
 			{
 				const float64 reciWeightSum = 1.0 / weightSum;
@@ -268,7 +268,7 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 {
 	// OPT
 
-	Pixel pixel;
+	PixelType pixel;
 	for(uint32 y = region.getMinVertex().y(); y < region.getMaxVertex().y(); ++y)
 	{
 		for(uint32 x = region.getMinVertex().x(); x < region.getMaxVertex().x(); ++x)
@@ -315,7 +315,7 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 {
 	// OPT
 
-	Pixel pixel;
+	PixelType pixel;
 	for(uint32 y = region.getMinVertex().y(); y < region.getMaxVertex().y(); ++y)
 	{
 		for(uint32 x = region.getMinVertex().x(); x < region.getMaxVertex().x(); ++x)
@@ -342,9 +342,9 @@ inline void TFrame<T, N>::forEachPixel(const math::TAABB2D<uint32>& region, PerP
 
 template<typename T, std::size_t N>
 inline auto TFrame<T, N>::getPixel(const math::TVector2<uint32>& coordPx) const
-	-> Pixel
+	-> PixelType
 {
-	Pixel pixel;
+	PixelType pixel;
 	getPixel(coordPx.x(), coordPx.y(), &pixel);
 	return pixel;
 }
@@ -353,7 +353,7 @@ template<typename T, std::size_t N>
 inline void TFrame<T, N>::getPixel(
 	const uint32 x, 
 	const uint32 y, 
-	Pixel* const out_pixel) const
+	PixelType* const out_pixel) const
 {
 	PH_ASSERT(out_pixel);
 
@@ -368,7 +368,7 @@ inline void TFrame<T, N>::getPixel(
 }
 
 template<typename T, std::size_t N>
-inline void TFrame<T, N>::setPixel(const math::TVector2<uint32>& coordPx, const Pixel& pixel)
+inline void TFrame<T, N>::setPixel(const math::TVector2<uint32>& coordPx, const PixelType& pixel)
 {
 	setPixel(coordPx.x(), coordPx.y(), pixel);
 }
@@ -377,7 +377,7 @@ template<typename T, std::size_t N>
 inline void TFrame<T, N>::setPixel(
 	const uint32 x, 
 	const uint32 y, 
-	const Pixel& pixel)
+	const PixelType& pixel)
 {
 	const std::size_t baseIndex = calcPixelDataBaseIndex(x, y);
 

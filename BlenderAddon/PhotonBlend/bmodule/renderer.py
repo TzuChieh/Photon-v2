@@ -101,9 +101,9 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         self.renderer.set_num_render_threads(blender.get_render_threads(b_scene))
 
-        HOST = '127.0.0.1'  # The server's hostname or IP address
-        PORT = 7000  # The port used by the server
-        self.renderer.set_port(PORT)
+        host = "127.0.0.1" # the server's hostname or IP address
+        port = 7000 # the port used by the server
+        # self.renderer.set_port(port) 
 
         # Test if the render is canceled once before running the renderer (export can take a long time
         # and user might want to cancel the rendering during that time)
@@ -126,7 +126,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
             is_connected = False
             while num_retries < max_retries:
                 try:
-                    s.connect((HOST, PORT))
+                    s.connect((host, port))
 
                     is_connected = True
                     print("note: connected to the rendering server")

@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 	{
 		std::cout << "begin frame diag" << std::endl;
 
-		PHuint64 frameA, frameB, resultFrame;
+		PhUInt64 frameA, frameB, resultFrame;
 		phCreateFrame(&frameA, 0, 0);
 		phCreateFrame(&frameB, 0, 0);
 		phCreateFrame(&resultFrame, 0, 0);

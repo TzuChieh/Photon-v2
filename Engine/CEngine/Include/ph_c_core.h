@@ -58,18 +58,29 @@ To correctly use Photon-v2 API, please read the following notes:
 #include <stdint.h>
 #include <stddef.h>
 
-typedef char           PHint8;
-typedef unsigned char  PHuint8;
-typedef int            PHint32;
-typedef unsigned int   PHuint32;
-typedef int64_t        PHint64;
-typedef uint64_t       PHuint64;
-typedef float          PHfloat32;
-typedef double         PHfloat64;
-typedef char           PHchar;
+typedef int8_t         PhInt8;
+typedef uint8_t        PhUInt8;
+typedef int16_t        PhInt16;
+typedef uint16_t       PhUInt16;
+typedef int32_t        PhInt32;
+typedef uint32_t       PhUInt32;
+typedef int64_t        PhInt64;
+typedef uint64_t       PhUInt64;
+typedef float          PhFloat32;
+typedef double         PhFloat64;
+typedef char           PhChar;
+typedef unsigned char  PhUChar;
+typedef int32_t        PhBool;
+typedef size_t         PhSize;
 
 #define PH_TRUE  1
 #define PH_FALSE 0
+
+typedef enum PhFrameFormat
+{
+	PH_EXR_IMAGE,
+	PH_RGBA32F
+} PhBufferFormat;
 
 // HACK
 enum PH_EATTRIBUTE
@@ -88,16 +99,16 @@ enum PH_EATTRIBUTE
 // HACK
 struct PHRenderState
 {
-	PHint64   integers[PH_NUM_RENDER_STATE_INTEGERS];
-	PHfloat32 reals[PH_NUM_RENDER_STATE_REALS];
+	PhInt64   integers[PH_NUM_RENDER_STATE_INTEGERS];
+	PhFloat32 reals[PH_NUM_RENDER_STATE_REALS];
 };
 
 // HACK
 struct PHObservableRenderData
 {
-	PHchar layers[PH_NUM_RENDER_LAYERS][PH_MAX_NAME_LENGTH + 1];
-	PHchar integers[PH_NUM_RENDER_STATE_INTEGERS][PH_MAX_NAME_LENGTH + 1];
-	PHchar reals[PH_NUM_RENDER_STATE_REALS][PH_MAX_NAME_LENGTH + 1];
+	PhChar layers[PH_NUM_RENDER_LAYERS][PH_MAX_NAME_LENGTH + 1];
+	PhChar integers[PH_NUM_RENDER_STATE_INTEGERS][PH_MAX_NAME_LENGTH + 1];
+	PhChar reals[PH_NUM_RENDER_STATE_REALS][PH_MAX_NAME_LENGTH + 1];
 };
 
 // HACK
@@ -119,10 +130,10 @@ extern "C" {
 // starting and exiting Photon
 //
 
-extern PH_API void phConfigCoreResourceDirectory(const PHchar* directory);
+extern PH_API void phConfigCoreResourceDirectory(const PhChar* directory);
 
-extern PH_API int phInit();
-extern PH_API int phExit();
+extern PH_API PhBool phInit();
+extern PH_API PhBool phExit();
 
 ///////////////////////////////////////////////////////////////////////////////
 // Core Operations
@@ -132,51 +143,65 @@ extern PH_API int phExit();
 
 /*! @brief Creates an engine.
  */
-extern PH_API void phCreateEngine(PHuint64* out_engineId, const PHuint32 numRenderThreads);
+extern PH_API void phCreateEngine(PhUInt64* out_engineId, const PhUInt32 numRenderThreads);
 
-extern PH_API void phSetNumRenderThreads(PHuint64 engineId, const PHuint32 numRenderThreads);
-extern PH_API void phEnterCommand(PHuint64 engineId, const PHchar* commandFragment);
-extern PH_API int  phLoadCommands(PHuint64 engineId, const PHchar* filePath);
-extern PH_API void phRender(PHuint64 engineId);
+extern PH_API void phSetNumRenderThreads(PhUInt64 engineId, const PhUInt32 numRenderThreads);
+extern PH_API void phEnterCommand(PhUInt64 engineId, const PhChar* commandFragment);
+extern PH_API PhBool phLoadCommands(PhUInt64 engineId, const PhChar* filePath);
+extern PH_API void phRender(PhUInt64 engineId);
 
 // TODO: documentation
-extern PH_API void phUpdate(PHuint64 engineId);
+extern PH_API void phUpdate(PhUInt64 engineId);
 
-extern PH_API void phGetRenderDimension(PHuint64 engineId, PHuint32* out_widthPx, PHuint32* out_heightPx);
+extern PH_API void phGetRenderDimension(PhUInt64 engineId, PhUInt32* out_widthPx, PhUInt32* out_heightPx);
 
 // HACK
 extern PH_API void phGetObservableRenderData(
-	PHuint64                       engineId,
+	PhUInt64                       engineId,
 	struct PHObservableRenderData* out_data);
 
-extern PH_API void phDeleteEngine(PHuint64 engineId);
-extern PH_API void phSetWorkingDirectory(PHuint64 engineId, const PHchar* workingDirectory);
+extern PH_API void phDeleteEngine(PhUInt64 engineId);
+extern PH_API void phSetWorkingDirectory(PhUInt64 engineId, const PhChar* workingDirectory);
 
 // REFACTOR: rename aquire to retrieve
-extern PH_API void phAquireFrame(PHuint64 engineId, PHuint64 channelIndex, PHuint64 frameId);
-extern PH_API void phAquireFrameRaw(PHuint64 engineId, PHuint64 channelIndex, PHuint64 frameId);
+extern PH_API void phAquireFrame(PhUInt64 engineId, PhUInt64 channelIndex, PhUInt64 frameId);
+extern PH_API void phAquireFrameRaw(PhUInt64 engineId, PhUInt64 channelIndex, PhUInt64 frameId);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Frame Operations
 //
 
-extern PH_API void  phCreateFrame(PHuint64* out_frameId, PHuint32 widthPx, PHuint32 heightPx);
-extern PH_API void  phGetFrameDimension(PHuint64 frameId, PHuint32* out_widthPx, PHuint32* out_heightPx);
-extern PH_API void  phGetFrameRgbData(PHuint64 frameId, const PHfloat32** out_data);
-extern PH_API void  phDeleteFrame(PHuint64 frameId);
-extern PH_API int   phLoadFrame(PHuint64 frameId, const PHchar* filePath);
-extern PH_API int   phSaveFrame(PHuint64 frameId, const PHchar* filePath);
-extern PH_API int   phSaveFrameToBuffer(PHuint64 frameId, PHuint64 bufferId);
-extern PH_API void  phFrameOpAbsDifference(PHuint64 frameAId, PHuint64 frameBId, PHuint64 resultFrameId);
-extern PH_API float phFrameOpMSE(PHuint64 expectedFrameId, PHuint64 estimatedFramIde);
+extern PH_API void  phCreateFrame(PhUInt64* out_frameId, PhUInt32 widthPx, PhUInt32 heightPx);
+extern PH_API void  phGetFrameDimension(PhUInt64 frameId, PhUInt32* out_widthPx, PhUInt32* out_heightPx);
+extern PH_API void  phGetFrameRgbData(PhUInt64 frameId, const PhFloat32** out_data);
+extern PH_API void  phDeleteFrame(PhUInt64 frameId);
+extern PH_API PhBool phLoadFrame(PhUInt64 frameId, const PhChar* filePath);
+
+/*! @brief Save a frame to the filesystem.
+*/
+extern PH_API int phSaveFrame(PhUInt64 frameId, const PhChar* filePath);
+
+/*! @brief Save a frame to a buffer.
+@param saveInBigEndian If applicable to the format, specifies whether the result is saved in big endian.
+This is useful, for example, transferring the data through the Internet, where big-endian is the
+standard byte order.
+*/
+extern PH_API PhBool phSaveFrameToBuffer(
+	PhUInt64 frameId,
+	PhUInt64 bufferId,
+	PhFrameFormat formatToSaveIn,
+	PhBool saveInBigEndian);
+
+extern PH_API void phFrameOpAbsDifference(PhUInt64 frameAId, PhUInt64 frameBId, PhUInt64 resultFrameId);
+extern PH_API PhFloat32 phFrameOpMSE(PhUInt64 expectedFrameId, PhUInt64 estimatedFramIde);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Miscellaneous Operations
 //
 
-extern PH_API void phCreateBuffer(PHuint64* out_bufferId);
-extern PH_API void phGetBufferBytes(PHuint64 bufferId, const unsigned char** out_bytesPtr, size_t* out_numBytes);
-extern PH_API void phDeleteBuffer(PHuint64 bufferId);
+extern PH_API void phCreateBuffer(PhUInt64* out_bufferId);
+extern PH_API void phGetBufferBytes(PhUInt64 bufferId, const PhUChar** out_bytesPtr, PhSize* out_numBytes);
+extern PH_API void phDeleteBuffer(PhUInt64 bufferId);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Asynchronous Operations
@@ -187,39 +212,39 @@ extern PH_API void phDeleteBuffer(PHuint64 bufferId);
 // callers
 
 extern PH_API void phAsyncGetRendererStatistics(
-	PHuint64                 engineId,
-	PHfloat32*               out_percentageProgress,
-	PHfloat32*               out_samplesPerSecond);
+	PhUInt64                 engineId,
+	PhFloat32*               out_percentageProgress,
+	PhFloat32*               out_samplesPerSecond);
 
 // HACK
 extern PH_API void phAsyncGetRendererState(
-	PHuint64                 engineId,
+	PhUInt64                 engineId,
 	struct PHRenderState*    out_state);
 
-extern PH_API int  phAsyncPollUpdatedFrameRegion(
-	PHuint64                 engineId,
-	PHuint32*                out_xPx,
-	PHuint32*                out_yPx,
-	PHuint32*                out_widthPx,
-	PHuint32*                out_heightPx);
+extern PH_API PhBool phAsyncPollUpdatedFrameRegion(
+	PhUInt64                 engineId,
+	PhUInt32*                out_xPx,
+	PhUInt32*                out_yPx,
+	PhUInt32*                out_widthPx,
+	PhUInt32*                out_heightPx);
 
 extern PH_API void phAsyncPeekFrame(
-	PHuint64                 engineId, 
-	PHuint64                 channelIndex,
-	PHuint32                 xPx, 
-	PHuint32                 yPx,
-	PHuint32                 widthPx, 
-	PHuint32                 heightPx,
-	PHuint64                 frameId);
+	PhUInt64                 engineId,
+	PhUInt64                 channelIndex,
+	PhUInt32                 xPx,
+	PhUInt32                 yPx,
+	PhUInt32                 widthPx,
+	PhUInt32                 heightPx,
+	PhUInt64                 frameId);
 
 extern PH_API void phAsyncPeekFrameRaw(
-	PHuint64                 engineId,
-	PHuint64                 channelIndex,
-	PHuint32                 xPx,
-	PHuint32                 yPx,
-	PHuint32                 widthPx,
-	PHuint32                 heightPx,
-	PHuint64                 frameId);
+	PhUInt64                 engineId,
+	PhUInt64                 channelIndex,
+	PhUInt32                 xPx,
+	PhUInt32                 yPx,
+	PhUInt32                 widthPx,
+	PhUInt32                 heightPx,
+	PhUInt64                 frameId);
 
 #ifdef __cplusplus
 }

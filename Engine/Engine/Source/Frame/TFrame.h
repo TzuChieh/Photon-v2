@@ -20,15 +20,15 @@ template<typename T, std::size_t N>
 class TFrame final
 {
 public:
-	using Element = T;
+	using ElementType = T;
 
 	template<typename U>
-	using TPixel = math::TArithmeticArray<U, N>;
+	using TPixelType = math::TArithmeticArray<U, N>;
 
-	using Pixel = TPixel<T>;
+	using PixelType = TPixelType<T>;
 
 	template<typename U = T>
-	static TPixel<U> makeMonochromaticPixel(U value);
+	static TPixelType<U> makeMonochromaticPixel(U value);
 
 public:
 	/*! @brief Constructs an empty frame.
@@ -70,11 +70,11 @@ public:
 
 	// TODO: sampling texture
 
-	void setPixel(const math::TVector2<uint32>& coordPx, const Pixel& pixel);
-	void setPixel(uint32 x, uint32 y, const Pixel& pixel);
+	void setPixel(const math::TVector2<uint32>& coordPx, const PixelType& pixel);
+	void setPixel(uint32 x, uint32 y, const PixelType& pixel);
 
-	Pixel getPixel(const math::TVector2<uint32>& coordPx) const;
-	void getPixel(uint32 x, uint32 y, Pixel* out_pixel) const;
+	PixelType getPixel(const math::TVector2<uint32>& coordPx) const;
+	void getPixel(uint32 x, uint32 y, PixelType* out_pixel) const;
 
 	/*! @brief Get pixel data for the full frame.
 	@return Data for all pixels in row-major order. Components of a pixel are placed continuously.

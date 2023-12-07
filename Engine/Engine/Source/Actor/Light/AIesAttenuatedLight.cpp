@@ -183,7 +183,7 @@ std::shared_ptr<TTexture<math::Spectrum>> AIesAttenuatedLight::loadAttenuationTe
 				const real theta = (1.0_r - v) * math::constant::pi<real>;
 
 				const real factor = iesData.sampleAttenuationFactor(theta, phi);
-				attenuationFactors.setPixel(x, y, TFrame<real, 1>::Pixel(factor));
+				attenuationFactors.setPixel(x, y, TFrame<real, 1>::PixelType(factor));
 			}
 		}
 

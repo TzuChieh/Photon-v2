@@ -18,10 +18,10 @@ TEST(PixelBasedTextureTest, NearestFilteredTexture)
 	// trial 1
 
 	Frame frame1(2, 2);
-	frame1.setPixel(0, 0, Frame::Pixel(1));
-	frame1.setPixel(0, 1, Frame::Pixel(2));
-	frame1.setPixel(1, 0, Frame::Pixel(3));
-	frame1.setPixel(1, 1, Frame::Pixel(4));
+	frame1.setPixel(0, 0, Frame::PixelType(1));
+	frame1.setPixel(0, 1, Frame::PixelType(2));
+	frame1.setPixel(1, 0, Frame::PixelType(3));
+	frame1.setPixel(1, 1, Frame::PixelType(4));
 
 	TNearestPixelTex2D<int, 1> texture1(frame1);
 	texture1.setWrapMode(ETexWrapMode::REPEAT);
@@ -55,8 +55,8 @@ TEST(PixelBasedTextureTest, NearestFilteredTexture)
 	// trial 2
 
 	Frame frame2(2, 1);
-	frame2.setPixel(0, 0, Frame::Pixel(4));
-	frame2.setPixel(1, 0, Frame::Pixel(8));
+	frame2.setPixel(0, 0, Frame::PixelType(4));
+	frame2.setPixel(1, 0, Frame::PixelType(8));
 
 	TNearestPixelTex2D<int, 1> texture2(frame2);
 	texture2.setWrapMode(ETexWrapMode::REPEAT);
@@ -70,8 +70,8 @@ TEST(PixelBasedTextureTest, NearestFilteredTexture)
 	// trial 3
 
 	Frame frame3(1, 2);
-	frame3.setPixel(0, 0, Frame::Pixel(6));
-	frame3.setPixel(0, 1, Frame::Pixel(12));
+	frame3.setPixel(0, 0, Frame::PixelType(6));
+	frame3.setPixel(0, 1, Frame::PixelType(12));
 
 	TNearestPixelTex2D<int, 1> texture3(frame3);
 	texture3.setWrapMode(ETexWrapMode::REPEAT);
@@ -93,10 +93,10 @@ TEST(PixelBasedTextureTest, BilinearFilteredTexture)
 	using Frame = TFrame<float, 1>;
 
 	Frame frame1(2, 2);
-	frame1.setPixel(0, 0, Frame::Pixel(1.0f));
-	frame1.setPixel(0, 1, Frame::Pixel(2.0f));
-	frame1.setPixel(1, 0, Frame::Pixel(3.0f));
-	frame1.setPixel(1, 1, Frame::Pixel(4.0f));
+	frame1.setPixel(0, 0, Frame::PixelType(1.0f));
+	frame1.setPixel(0, 1, Frame::PixelType(2.0f));
+	frame1.setPixel(1, 0, Frame::PixelType(3.0f));
+	frame1.setPixel(1, 1, Frame::PixelType(4.0f));
 
 	TBilinearPixelTex2D<float, 1> texture1(frame1);
 	texture1.setWrapMode(ETexWrapMode::CLAMP_TO_EDGE);

@@ -41,7 +41,7 @@ public:
 		const uint32 x, const uint32 y, 
 		TTexPixel<T, N>* const out_pixel) const
 	{
-		static_assert(std::is_same_v<TTexPixel<T, N>, typename TFrame<T, N>::Pixel>, 
+		static_assert(std::is_same_v<TTexPixel<T, N>, typename TFrame<T, N>::PixelType>,
 		              "require same pixel type");
 
 		PH_ASSERT(out_pixel != nullptr);

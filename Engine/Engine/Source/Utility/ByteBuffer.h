@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Utility/TSpan.h"
+
 #include <Common/assertion.h>
 
 #include <vector>
 #include <cstddef>
 #include <algorithm>
-#include <cstring>
 #include <iterator>
 
 namespace ph
@@ -40,7 +41,8 @@ public:
 
 	std::size_t getReadPosition() const;
 	std::size_t getWritePosition() const;
-	const std::byte* getDataPtr() const;
+	TSpan<std::byte> getBytes();
+	TSpanView<std::byte> getBytes() const;
 	std::size_t numBytes() const;
 	bool isEmpty() const;
 	bool hasMoreToRead() const;
@@ -87,7 +89,10 @@ inline void ByteBuffer::read(T* const out_data, const std::size_t numElements)
 	const std::size_t numRemainingBytes = m_buffer.size() - m_readHead;
 	const std::size_t numDataBytes      = std::min(sizeof(T) * numElements, numRemainingBytes);
 
-	std::memcpy(out_data, m_buffer.data() + m_readHead, numDataBytes);
+	std::copy_n(
+		m_buffer.data() + m_readHead, 
+		numDataBytes, 
+		reinterpret_cast<std::byte*>(out_data));
 
 	m_readHead += numDataBytes;
 
@@ -115,7 +120,10 @@ inline void ByteBuffer::write(const T* const data, const std::size_t numElements
 	// Existing space is enough for writing
 	if(numAvailableBytes >= numDataBytes)
 	{
-		std::memcpy(m_buffer.data() + m_writeHead, data, numDataBytes);
+		std::copy_n(
+			reinterpret_cast<const std::byte*>(data), 
+			numDataBytes, 
+			m_buffer.data() + m_writeHead);
 	}
 	else
 	{
@@ -124,7 +132,10 @@ inline void ByteBuffer::write(const T* const data, const std::size_t numElements
 		const std::size_t numShortedBytes = numDataBytes - numAvailableBytes;
 
 		// First copy into what we have left
-		std::memcpy(m_buffer.data() + m_writeHead, data, numAvailableBytes);
+		std::copy_n(
+			reinterpret_cast<const std::byte*>(data),
+			numAvailableBytes, 
+			m_buffer.data() + m_writeHead);
 
 		// Then copy remaining bytes into the buffer (and let the buffer grow by itself)
 		m_buffer.insert(
@@ -204,9 +215,14 @@ inline std::size_t ByteBuffer::getWritePosition() const
 	return m_writeHead;
 }
 
-inline const std::byte* ByteBuffer::getDataPtr() const
+inline TSpan<std::byte> ByteBuffer::getBytes()
 {
-	return m_buffer.data();
+	return m_buffer;
+}
+
+inline TSpanView<std::byte> ByteBuffer::getBytes() const
+{
+	return m_buffer;
 }
 
 inline std::size_t ByteBuffer::numBytes() const

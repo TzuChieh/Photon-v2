@@ -48,7 +48,7 @@ bool PfmFileWriter::save(const HdrRgbFrame& frame)
 	// floating point numbers for each pixel, specified in left to right, 
 	// bottom to top order)
 
-	static_assert(std::numeric_limits<HdrRgbFrame::Element>::is_iec559);
+	static_assert(std::numeric_limits<HdrRgbFrame::ElementType>::is_iec559);
 
 	std::vector<float> rasterData(static_cast<std::size_t>(3) * frame.widthPx() * frame.heightPx());
 	for(uint32 y = 0; y < frame.heightPx(); ++y)

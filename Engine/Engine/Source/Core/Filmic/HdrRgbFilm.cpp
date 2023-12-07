@@ -180,9 +180,10 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 			// TODO: prevent negative pixel
 			out_frame.setPixel(
 				static_cast<uint32>(x), static_cast<uint32>(y),
-				HdrRgbFrame::Pixel({static_cast<HdrComponent>(sensorR), 
-			                        static_cast<HdrComponent>(sensorG), 
-			                        static_cast<HdrComponent>(sensorB)}));
+				HdrRgbFrame::PixelType({
+					static_cast<HdrComponent>(sensorR), 
+					static_cast<HdrComponent>(sensorG), 
+					static_cast<HdrComponent>(sensorB)}));
 		}
 	}
 }

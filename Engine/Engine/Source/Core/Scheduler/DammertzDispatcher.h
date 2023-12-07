@@ -184,7 +184,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIDPO
 	{
 		for(uint32 x = frameRegion.getMinVertex().x(); x < frameRegion.getMaxVertex().x(); ++x)
 		{
-			HdrRgbFrame::Pixel I, A;
+			HdrRgbFrame::PixelType I, A;
 			allEffortFrame.getPixel(x, y, &I);
 			halfEffortFrame.getPixel(x, y, &A);
 
@@ -257,7 +257,7 @@ inline void DammertzDispatcher::TAnalyzer<DammertzDispatcher::ERefineMode::MIN_E
 		real summedRowEp = 0;
 		for(uint32 x = frameRegion.getMinVertex().x(); x < frameRegion.getMaxVertex().x(); ++x)
 		{
-			HdrRgbFrame::Pixel I, A;
+			HdrRgbFrame::PixelType I, A;
 			allEffortFrame.getPixel(x, y, &I);
 			halfEffortFrame.getPixel(x, y, &A);
 

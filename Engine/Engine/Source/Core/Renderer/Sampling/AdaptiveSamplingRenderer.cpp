@@ -244,9 +244,9 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 	{
 		m_metaFrame.forEachPixel(
 			math::TAABB2D<uint32>(region),
-			[&out_frame](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
+			[&out_frame](const uint32 x, const uint32 y, const HdrRgbFrame::PixelType& pixel)
 			{
-				HdrRgbFrame::Pixel mappedPixel;
+				HdrRgbFrame::PixelType mappedPixel;
 				mappedPixel[0] = std::pow(std::log2(pixel[0] + 1) / 14.0_r, 16.0_r);
 				mappedPixel[1] = std::pow(std::log2(pixel[1] + 1) / 14.0_r, 16.0_r);
 				mappedPixel[2] = std::pow(std::log2(pixel[2] + 1) / 14.0_r, 16.0_r);

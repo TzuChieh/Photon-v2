@@ -5,7 +5,7 @@
 namespace ph::cli
 {
 
-void save_frame_with_fail_safe(const PHuint64 frameId, const std::string& filePath)
+void save_frame_with_fail_safe(const PhUInt64 frameId, const std::string& filePath)
 {
 	std::cout << "saving image to <" << filePath << ">" << std::endl;
 

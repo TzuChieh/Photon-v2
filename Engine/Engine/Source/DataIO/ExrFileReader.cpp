@@ -210,12 +210,12 @@ bool loadStandaloneRgbData(Imf::InputFile& file, HdrRgbFrame* const out_frame)
 	out_frame->setSize(dataWidth, dataHeight);
 	out_frame->forEachPixel(
 		[&pixels, lineOrder, height = (long)dataHeight](
-			const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& /* pixel */)
+			const uint32 x, const uint32 y, const HdrRgbFrame::PixelType& /* pixel */)
 		{
 			const RgbPixel& readPixel = lineOrder == Imf::LineOrder::INCREASING_Y ? 
 				pixels[height - 1 - (long)y][(long)x] : pixels[(long)y][(long)x];
 
-			return HdrRgbFrame::Pixel({readPixel.r, readPixel.g, readPixel.b});
+			return HdrRgbFrame::PixelType({readPixel.r, readPixel.g, readPixel.b});
 		});
 
 	return true;

@@ -29,7 +29,7 @@ TEST(TFrameTest, GetAndSetPixel)
 	EXPECT_EQ(pixel1, decltype(pixel1)(7));
 
 	TFrame<int, 2> frame2(2, 5);
-	frame2.setPixel({0, 1}, TFrame<int, 2>::Pixel({1, 2}));
+	frame2.setPixel({0, 1}, TFrame<int, 2>::PixelType({1, 2}));
 	const auto pixel2 = frame2.getPixel({0, 1});
 	EXPECT_EQ(pixel2, decltype(pixel2)({1, 2}));
 }
@@ -45,7 +45,7 @@ TEST(TFrameTest, FillAllWithSpecificValue)
 	{
 		for(uint32 x = 0; x < frame.widthPx(); ++x)
 		{
-			TFrame<float, 2>::Pixel pixel;
+			TFrame<float, 2>::PixelType pixel;
 			frame.getPixel(x, y, &pixel);
 
 			EXPECT_EQ(pixel[0], -3.3f);
@@ -108,7 +108,7 @@ TEST(TFrameTest, Sampling)
 	{
 		for(ph::uint32 x = 0; x < dst.widthPx(); ++x)
 		{
-			Frame::Pixel pixel;
+			Frame::PixelType pixel;
 			dst.getPixel(x, y, &pixel);
 			for(std::size_t i = 0; i < 5; ++i)
 			{
@@ -140,7 +140,7 @@ TEST(TFrameTest, Sampling)
 	{
 		for(ph::uint32 x = 0; x < dst.widthPx(); ++x)
 		{
-			Frame::Pixel pixel;
+			Frame::PixelType pixel;
 			dst.getPixel(x, y, &pixel);
 			for(std::size_t i = 0; i < 5; ++i)
 			{
@@ -154,49 +154,49 @@ TEST(TFrameTest, Flipping)
 {
 	using Frame = TFrame<int, 2>;
 
-	Frame::Pixel pixel;
+	Frame::PixelType pixel;
 
 	// horizontal flip
 
 	Frame frame1(2, 2);
 
-	frame1.setPixel(0, 1, Frame::Pixel({0, 1})); frame1.setPixel(1, 1, Frame::Pixel({2, 3})); 
-	frame1.setPixel(0, 0, Frame::Pixel({4, 5})); frame1.setPixel(1, 0, Frame::Pixel({6, 7}));
+	frame1.setPixel(0, 1, Frame::PixelType({0, 1})); frame1.setPixel(1, 1, Frame::PixelType({2, 3}));
+	frame1.setPixel(0, 0, Frame::PixelType({4, 5})); frame1.setPixel(1, 0, Frame::PixelType({6, 7}));
 
 	frame1.flipHorizontally();
 
 	frame1.getPixel(0, 0, &pixel);
-	EXPECT_TRUE(pixel == Frame::Pixel({6, 7}));
+	EXPECT_TRUE(pixel == Frame::PixelType({6, 7}));
 
 	frame1.getPixel(1, 0, &pixel);
-	EXPECT_TRUE(pixel == Frame::Pixel({4, 5}));
+	EXPECT_TRUE(pixel == Frame::PixelType({4, 5}));
 
 	frame1.getPixel(0, 1, &pixel);
-	EXPECT_TRUE(pixel == Frame::Pixel({2, 3}));
+	EXPECT_TRUE(pixel == Frame::PixelType({2, 3}));
 
 	frame1.getPixel(1, 1, &pixel);
-	EXPECT_TRUE(pixel == Frame::Pixel({0, 1}));
+	EXPECT_TRUE(pixel == Frame::PixelType({0, 1}));
 
 	// vertical flip
 
 	Frame frame2(2, 2);
 
-	frame2.setPixel(0, 1, Frame::Pixel({0, 1})); frame2.setPixel(1, 1, Frame::Pixel({2, 3}));
-	frame2.setPixel(0, 0, Frame::Pixel({4, 5})); frame2.setPixel(1, 0, Frame::Pixel({6, 7}));
+	frame2.setPixel(0, 1, Frame::PixelType({0, 1})); frame2.setPixel(1, 1, Frame::PixelType({2, 3}));
+	frame2.setPixel(0, 0, Frame::PixelType({4, 5})); frame2.setPixel(1, 0, Frame::PixelType({6, 7}));
 
 	frame2.flipVertically();
 
 	frame2.getPixel(0, 0, &pixel);
-	EXPECT_TRUE(pixel == Frame::Pixel({0, 1}));
+	EXPECT_TRUE(pixel == Frame::PixelType({0, 1}));
 
 	frame2.getPixel(1, 0, &pixel);
-	EXPECT_TRUE(pixel == Frame::Pixel({2, 3}));
+	EXPECT_TRUE(pixel == Frame::PixelType({2, 3}));
 
 	frame2.getPixel(0, 1, &pixel);
-	EXPECT_TRUE(pixel == Frame::Pixel({4, 5}));
+	EXPECT_TRUE(pixel == Frame::PixelType({4, 5}));
 
 	frame2.getPixel(1, 1, &pixel);
-	EXPECT_TRUE(pixel == Frame::Pixel({6, 7}));
+	EXPECT_TRUE(pixel == Frame::PixelType({6, 7}));
 }
 
 TEST(TFrameTest, ForEachOperation)
@@ -204,15 +204,15 @@ TEST(TFrameTest, ForEachOperation)
 	using Float2Frame = TFrame<float, 2>;
 
 	Float2Frame frame1(1, 2);
-	frame1.setPixel(0, 0, Float2Frame::Pixel({1, 2}));
-	frame1.setPixel(0, 1, Float2Frame::Pixel({3, 4}));
+	frame1.setPixel(0, 0, Float2Frame::PixelType({1, 2}));
+	frame1.setPixel(0, 1, Float2Frame::PixelType({3, 4}));
 
-	frame1.forEachPixel([](const Float2Frame::Pixel& pixel)
+	frame1.forEachPixel([](const Float2Frame::PixelType& pixel)
 	{
 		return pixel * 2;
 	});
 
-	Float2Frame::Pixel pixel;
+	Float2Frame::PixelType pixel;
 
 	frame1.getPixel(0, 0, &pixel);
 	EXPECT_FLOAT_EQ(pixel[0], 2);

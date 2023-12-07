@@ -49,19 +49,19 @@ template<typename T, std::size_t N>
 inline pixel_buffer::TPixel<float64> TFrameBuffer2D<T, N>::fetchPixel(const math::TVector2<uint32> xy, const std::size_t mipLevel) const
 {
 	// Directly cast all value types to float64
-	return typename TFrame<float64, N>::Pixel(getFramePixel(xy, mipLevel)).toArray();
+	return typename TFrame<float64, N>::PixelType(getFramePixel(xy, mipLevel)).toArray();
 }
 
 template<typename T, std::size_t N>
 inline auto TFrameBuffer2D<T, N>::getFramePixel(const math::TVector2<uint32> xy, const std::size_t mipLevel) const
 {
-	const typename TFrame<T, N>::Pixel framePixel = m_frame.getPixel(xy);
+	const typename TFrame<T, N>::PixelType framePixel = m_frame.getPixel(xy);
 
 	// TODO: this should be a configurable option for each type; or some fixed policy
 	// Convert from [0, 255] to [0, 1] for LDR values
 	if constexpr(std::is_same_v<T, uint8>)
 	{
-		return typename TFrame<float32, N>::Pixel(framePixel) / 255.0f;
+		return typename TFrame<float32, N>::PixelType(framePixel) / 255.0f;
 	}
 	// For rest of the types, no conversion is made
 	else

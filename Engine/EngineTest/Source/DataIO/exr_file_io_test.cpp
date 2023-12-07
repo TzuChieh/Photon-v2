@@ -21,7 +21,7 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 		EXPECT_EQ(frame.widthPx(),  2);
 		EXPECT_EQ(frame.heightPx(), 1);
 
-		HdrRgbFrame::Pixel pixel;
+		HdrRgbFrame::PixelType pixel;
 
 		// black
 		frame.getPixel(0, 0, &pixel);
@@ -46,7 +46,7 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 		EXPECT_EQ(frame.widthPx(),  2);
 		EXPECT_EQ(frame.heightPx(), 2);
 
-		HdrRgbFrame::Pixel pixel;
+		HdrRgbFrame::PixelType pixel;
 
 		// blue
 		frame.getPixel(0, 0, &pixel);

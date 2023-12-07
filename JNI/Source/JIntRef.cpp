@@ -21,12 +21,12 @@ JIntRef::JIntRef(const jobject javaObject, JNIEnv* const env) :
 	}
 }
 
-PHint32 JIntRef::getValue() const
+PhInt32 JIntRef::getValue() const
 {
-	return static_cast<PHint32>(m_env->GetIntField(m_jobject, getFieldId(JAVA_INTREF_VALUE_NAME)));
+	return static_cast<PhInt32>(m_env->GetIntField(m_jobject, getFieldId(JAVA_INTREF_VALUE_NAME)));
 }
 
-void JIntRef::setValue(const PHint32 value)
+void JIntRef::setValue(const PhInt32 value)
 {
 	m_env->SetIntField(m_jobject, getFieldId(JAVA_INTREF_VALUE_NAME), static_cast<jint>(value));
 }

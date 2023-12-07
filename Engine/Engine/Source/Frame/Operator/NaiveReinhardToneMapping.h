@@ -31,7 +31,7 @@ inline void NaiveReinhardToneMapping::operate(const HdrRgbFrame& srcFrame, HdrRg
 
 	srcFrame.forEachPixel(
 		[this, out_dstFrame]
-		(const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
+		(const uint32 x, const uint32 y, const HdrRgbFrame::PixelType& pixel)
 		{
 			out_dstFrame->setPixel(x, y, pixel.div(pixel + 1.0_r));
 		});

@@ -68,7 +68,7 @@ void MetaRecordingProcessor::getRecord(
 
 	out_storage->forEachPixel(
 		overlappedRegionPx,
-		[this, &storageOrigin](const uint32 x, const uint32 y, const HdrRgbFrame::Pixel& pixel)
+		[this, &storageOrigin](const uint32 x, const uint32 y, const HdrRgbFrame::PixelType& pixel)
 		{
 			const auto recordCoord = math::TVector2<uint32>(
 				math::TVector2<int64>(x, y) + storageOrigin - m_recordWindowPx.getMinVertex());
@@ -78,7 +78,7 @@ void MetaRecordingProcessor::getRecord(
 
 			// TODO: ms spent
 
-			HdrRgbFrame::Pixel record;
+			HdrRgbFrame::PixelType record;
 			record[0] = pixel[0] + static_cast<HdrComponent>(processCount[0]);
 			record[1] = pixel[1] + static_cast<HdrComponent>(processCount[0]);
 			record[2] = pixel[2] + static_cast<HdrComponent>(processCount[0]);
