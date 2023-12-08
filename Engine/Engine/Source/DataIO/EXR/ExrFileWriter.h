@@ -1,13 +1,14 @@
 #pragma once
 
 #include "DataIO/FileSystem/Path.h"
-#include "Frame/TFrame.h"
-#include "Utility/ByteBuffer.h"
+#include "Frame/frame_fwd.h"
 
 #include <string_view>
 
 namespace ph
 {
+
+class ByteBuffer;
 
 class ExrFileWriter
 {

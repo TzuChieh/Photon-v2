@@ -8,7 +8,6 @@
 #include "Frame/frame_fwd.h"
 #include "Math/math_fwd.h"
 #include "DataIO/EPictureFile.h"
-#include "Utility/ByteBuffer.h"
 
 #include <Common/primitive_type.h>
 
@@ -18,6 +17,7 @@
 namespace ph { class Path; }
 namespace ph { class RegularPicture; }
 namespace ph { class RegularPictureFormat; }
+namespace ph { class ByteBuffer; }
 
 namespace ph::io_utils
 {

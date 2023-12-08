@@ -1,13 +1,14 @@
 #include "DataIO/io_utils.h"
 #include "DataIO/io_exceptions.h"
-#include "DataIO/ExrFileReader.h"
+#include "DataIO/EXR/ExrFileReader.h"
+#include "DataIO/EXR/ExrFileWriter.h"
 #include "Frame/frame_utils.h"
 #include "Frame/RegularPicture.h"
 #include "DataIO/FileSystem/Path.h"
-#include "DataIO/ExrFileWriter.h"
 #include "DataIO/PfmFileWriter.h"
 #include "Math/TVector2.h"
 #include "DataIO/sdl_picture_file_type.h"
+#include "Utility/ByteBuffer.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 

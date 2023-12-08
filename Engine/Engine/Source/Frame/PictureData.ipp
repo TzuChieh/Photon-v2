@@ -189,7 +189,7 @@ inline TFrame<FrameComponent, N> PictureData::pictureToFrame() const
 	PH_ASSERT(m_data);
 
 	using FrameType = TFrame<FrameComponent, N>;
-	using FramePixelType = typename FrameType::Pixel;
+	using FramePixelType = typename FrameType::PixelType;
 
 	// Pixel component casting is based on the smaller number of components of the two--other
 	// components are either discarded or defaulted to 0.
