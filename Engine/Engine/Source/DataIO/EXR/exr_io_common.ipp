@@ -116,9 +116,15 @@ inline void map_imf_framebuffer_to_frame(
 			"window size: ({}, {}))", frame.getSizePx(), dataWidth, dataHeight);
 	}
 
-	// Recall that we treat `TFrame` to contain the full data window. An `Imf::Slice` expect the base
+	// Recall that we treat `TFrame` to contain the full data window. `Imf::Slice` expects the base
 	// data pointer to point at the first byte of the display window (OpenEXR's origin, on the 
-	// upper-right corner). These variables helps the calculation of the offsets.
+	// upper-right corner). These variables helps the calculation of the offsets. Basically,
+	// OpenEXR calculates the memory address of a pixel by `base + x * xStride + y * yStride` (this
+	// formula is always valid as long as pixel outside of data window is not accessed, even if data
+	// window is smaller than display window).
+	// 
+	// See https://openexr.com/en/latest/ReadingAndWritingImageFiles.html#writing-an-image-file
+	//
 	const auto pixelBytes = sizeof(T) * N;
 	const auto scanlineBytes = pixelBytes * dataWidth;
 	const auto xStride = static_cast<std::ptrdiff_t>(pixelBytes);
@@ -127,7 +133,14 @@ inline void map_imf_framebuffer_to_frame(
 	PH_ASSERT_GE(dataHeight, 1);
 	const char* byteData = reinterpret_cast<const char*>(frame.getPixelData().data());
 	const char* firstScanlineData = byteData + scanlineBytes * (dataHeight - 1);
-	const char* firstDisplayWindowScanlineData = firstScanlineData + (-minDataY * yStride - xStride);
+	const char* firstDisplayWindowScanlineData = firstScanlineData + (-minDataY * yStride - minDataX * xStride);
+
+#if PH_DEBUG
+	// Purposely use all variables to calculate the end of scanline bytes
+	const char* scanlineDataEnd = firstScanlineData + yStride * (dataHeight - 1) + xStride * dataWidth;
+	const T* scanlineDataEndExpected = frame.getPixelData().data() + N * frame.widthPx();
+	PH_ASSERT(scanlineDataEnd == reinterpret_cast<const char*>(scanlineDataEndExpected));
+#endif
 
 	for(std::size_t channelIdx = 0; channelIdx < N; ++channelIdx)
 	{

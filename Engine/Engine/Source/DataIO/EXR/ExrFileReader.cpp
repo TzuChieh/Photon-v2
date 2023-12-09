@@ -124,6 +124,8 @@ bool ExrFileReader::loadStandaloneImageData(
 
 			if(channel->type == Imf::FLOAT)
 			{
+				PH_ASSERT((std::is_same_v<HdrRgbFrame::ElementType, float>));
+
 				map_imf_framebuffer_to_frame(
 					framebuffer,
 					header,
