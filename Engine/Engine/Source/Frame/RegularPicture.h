@@ -13,6 +13,7 @@ namespace ph
 {
 
 /*! @brief Format of common pictures.
+Typically closely related to how the picture is stored natively (e.g., on disk).
 */
 class RegularPictureFormat final
 {

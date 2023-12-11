@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 		phLoadFrame(frameB, args.getFramePathB().c_str());
 
 		phFrameOpAbsDifference(frameA, frameB, resultFrame);
-		phSaveFrame(resultFrame, "./frame_diag_abs_diff.exr");
+		phSaveFrame(resultFrame, "./frame_diag_abs_diff.exr", nullptr);
 
 		const float MSE = phFrameOpMSE(frameA, frameB);
 		{

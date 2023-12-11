@@ -16,7 +16,7 @@ class PfmFileWriter final
 public:
 	explicit PfmFileWriter(const Path& filePath);
 
-	bool save(const HdrRgbFrame& frame);
+	void save(const HdrRgbFrame& frame);
 
 private:
 	Path m_filePath;

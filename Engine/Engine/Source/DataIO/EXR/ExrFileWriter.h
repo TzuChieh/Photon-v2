@@ -21,13 +21,13 @@ public:
 
 	explicit ExrFileWriter(const Path& filePath);
 
-	bool save(const HdrRgbFrame& frame);
-	bool saveHighPrecision(const HdrRgbFrame& frame);
+	void save(const HdrRgbFrame& frame);
+	void saveHighPrecision(const HdrRgbFrame& frame);
 
 	/*! @brief Save an EXR file to the filesystem.
 	A channel will be ignored (not saved) if its name is empty.
 	*/
-	bool saveToFilesystem(
+	void saveToFilesystem(
 		const HdrRgbFrame& frame,
 		bool saveInHighPrecision = false,
 		std::string_view redChannelName = "R",
@@ -37,9 +37,11 @@ public:
 		HdrComponent alphaValue = 1);
 
 	/*! @brief Save an EXR file to memory instead of filesystem.
-	A channel will be ignored (not saved) if its name is empty.
+	A channel will be ignored (not saved) if its name is empty. Saving to memory does not offer
+	precision options. Precision of the saved data is automatically determined for best performance
+	when saving to memory.
 	*/
-	bool saveToMemory(
+	void saveToMemory(
 		const HdrRgbFrame& frame, 
 		ByteBuffer& buffer,
 		std::string_view redChannelName = "R",
@@ -49,7 +51,7 @@ public:
 		HdrComponent alphaValue = 1);
 
 private:
-	static bool saveStandaloneImageData(
+	static void saveStandaloneImageData(
 		const Path& filePath,
 		const HdrRgbFrame& frame,
 		bool saveInHighPrecision,

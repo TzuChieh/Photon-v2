@@ -13,16 +13,16 @@ class ExrFileReader
 public:
 	explicit ExrFileReader(const Path& filePath);
 
-	bool load(HdrRgbFrame* out_frame);
+	void load(HdrRgbFrame* out_frame);
 
-	bool loadFromFilesystem(
+	void loadFromFilesystem(
 		HdrRgbFrame* out_frame,
 		std::string_view redChannelName = "R",
 		std::string_view greenChannelName = "G",
 		std::string_view blueChannelName = "B");
 
 private:
-	static bool loadStandaloneImageData(
+	static void loadStandaloneImageData(
 		const Path filePath,
 		HdrRgbFrame* out_frame,
 		std::string_view redChannelName,

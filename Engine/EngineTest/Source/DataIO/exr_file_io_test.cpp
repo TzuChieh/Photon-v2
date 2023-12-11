@@ -17,7 +17,7 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 		ExrFileReader reader(Path(PH_TEST_RESOURCE_PATH("EXR/2x1_black_white.exr")));
 
 		HdrRgbFrame frame;
-		EXPECT_TRUE(reader.load(&frame));
+		EXPECT_NO_THROW(reader.load(&frame));
 
 		EXPECT_EQ(frame.widthPx(),  2);
 		EXPECT_EQ(frame.heightPx(), 1);
@@ -42,7 +42,7 @@ TEST(ExrFileIOTest, ReadSimpleRgbFiles)
 		ExrFileReader reader(Path(PH_TEST_RESOURCE_PATH("EXR/2x2_B,(50,100,150),R,G.exr")));
 
 		HdrRgbFrame frame;
-		EXPECT_TRUE(reader.load(&frame));
+		EXPECT_NO_THROW(reader.load(&frame));
 
 		EXPECT_EQ(frame.widthPx(),  2);
 		EXPECT_EQ(frame.heightPx(), 2);

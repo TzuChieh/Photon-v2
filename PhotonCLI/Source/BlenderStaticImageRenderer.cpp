@@ -92,7 +92,7 @@ void BlenderStaticImageRenderer::render()
 			while(!token.stop_requested())
 			{
 				phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, filmW, filmH, serverFrameId);
-				phSaveFrameToBuffer(serverFrameId, bufferId, PhFrameFormat::PH_EXR_IMAGE, true);
+				phSaveFrameToBuffer(serverFrameId, bufferId, PH_BUFFER_FORMAT_EXR_IMAGE, nullptr);
 
 				const unsigned char* bytesPtr;
 				size_t numBytes;

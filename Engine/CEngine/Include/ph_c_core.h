@@ -53,34 +53,7 @@ To correctly use Photon-v2 API, please read the following notes:
 // FIXME: sort of hacked
 #define PH_API
 
-// primitive data types
-
-#include <stdint.h>
-#include <stddef.h>
-
-typedef int8_t         PhInt8;
-typedef uint8_t        PhUInt8;
-typedef int16_t        PhInt16;
-typedef uint16_t       PhUInt16;
-typedef int32_t        PhInt32;
-typedef uint32_t       PhUInt32;
-typedef int64_t        PhInt64;
-typedef uint64_t       PhUInt64;
-typedef float          PhFloat32;
-typedef double         PhFloat64;
-typedef char           PhChar;
-typedef unsigned char  PhUChar;
-typedef int32_t        PhBool;
-typedef size_t         PhSize;
-
-#define PH_TRUE  1
-#define PH_FALSE 0
-
-typedef enum PhFrameFormat
-{
-	PH_EXR_IMAGE,
-	PH_RGBA32F
-} PhBufferFormat;
+#include "ph_c_core_types.h"
 
 // HACK
 enum PH_EATTRIBUTE
@@ -179,7 +152,10 @@ extern PH_API PhBool phLoadFrame(PhUInt64 frameId, const PhChar* filePath);
 
 /*! @brief Save a frame to the filesystem.
 */
-extern PH_API int phSaveFrame(PhUInt64 frameId, const PhChar* filePath);
+extern PH_API PhBool phSaveFrame(
+	PhUInt64 frameId, 
+	const PhChar* filePath,
+	const PhFrameSaveInfo* saveInfo);
 
 /*! @brief Save a frame to a buffer.
 @param saveInBigEndian If applicable to the format, specifies whether the result is saved in big endian.
@@ -189,8 +165,8 @@ standard byte order.
 extern PH_API PhBool phSaveFrameToBuffer(
 	PhUInt64 frameId,
 	PhUInt64 bufferId,
-	PhFrameFormat formatToSaveIn,
-	PhBool saveInBigEndian);
+	PhBufferFormat format,
+	const PhFrameSaveInfo* saveInfo);
 
 extern PH_API void phFrameOpAbsDifference(PhUInt64 frameAId, PhUInt64 frameBId, PhUInt64 resultFrameId);
 extern PH_API PhFloat32 phFrameOpMSE(PhUInt64 expectedFrameId, PhUInt64 estimatedFramIde);
@@ -221,7 +197,7 @@ extern PH_API void phAsyncGetRendererState(
 	PhUInt64                 engineId,
 	struct PHRenderState*    out_state);
 
-extern PH_API PhBool phAsyncPollUpdatedFrameRegion(
+extern PH_API int phAsyncPollUpdatedFrameRegion(
 	PhUInt64                 engineId,
 	PhUInt32*                out_xPx,
 	PhUInt32*                out_yPx,

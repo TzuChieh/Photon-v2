@@ -22,35 +22,26 @@ ExrFileReader::ExrFileReader(const Path& filePath) :
 	m_filePath(filePath)
 {}
 
-bool ExrFileReader::load(HdrRgbFrame* const out_frame)
+void ExrFileReader::load(HdrRgbFrame* const out_frame)
 {
-	return loadFromFilesystem(out_frame);
+	loadFromFilesystem(out_frame);
 }
 
-bool ExrFileReader::loadFromFilesystem(
+void ExrFileReader::loadFromFilesystem(
 	HdrRgbFrame* out_frame,
 	std::string_view redChannelName,
 	std::string_view greenChannelName,
 	std::string_view blueChannelName)
 {
-	try
-	{
-		return loadStandaloneImageData(
-			m_filePath,
-			out_frame,
-			redChannelName,
-			greenChannelName,
-			blueChannelName);
-	}
-	catch(const Exception& e)
-	{
-		PH_LOG_WARNING(ExrFileReader, 
-			"failed loading <{}>, reason: {}", m_filePath, e.what());
-		return false;
-	}
+	loadStandaloneImageData(
+		m_filePath,
+		out_frame,
+		redChannelName,
+		greenChannelName,
+		blueChannelName);
 }
 
-bool ExrFileReader::loadStandaloneImageData(
+void ExrFileReader::loadStandaloneImageData(
 	const Path filePath,
 	HdrRgbFrame* out_frame,
 	std::string_view redChannelName,
@@ -76,7 +67,8 @@ bool ExrFileReader::loadStandaloneImageData(
 			"All standalone channels are not found;\n"
 			"available layers and channels in {} are: {}",
 			filePath, list_all_imf_layers_and_channels(header));
-		return false;
+		out_frame->setSize(0, 0);
+		return;
 	}
 
 	// Coordinates are descrete, hence the +1 in the end
@@ -174,8 +166,6 @@ bool ExrFileReader::loadStandaloneImageData(
 				return combinedPixel;
 			});
 	}
-
-	return true;
 }
 
 }// end namespace ph

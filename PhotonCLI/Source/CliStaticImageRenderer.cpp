@@ -121,9 +121,7 @@ void CliStaticImageRenderer::render()
 					phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, filmW, filmH, queryFrameId);
 				}
 
-				phSaveFrame(
-					queryFrameId,
-					imageFilePath.c_str());
+				phSaveFrame(queryFrameId, imageFilePath.c_str(), nullptr);
 			}
 		}// end while
 	});

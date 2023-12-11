@@ -4,6 +4,7 @@
 #include "DataIO/EXR/ExrFileWriter.h"
 #include "Frame/frame_utils.h"
 #include "Frame/RegularPicture.h"
+#include "Frame/PictureMeta.h"
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/PfmFileWriter.h"
 #include "Math/TVector2.h"
@@ -204,6 +205,38 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	return picture;
 }
 
+void save_exr_via_exr_file_writer(
+	const HdrRgbFrame& frame, 
+	const Path& filePath,
+	const bool saveInHighPrecision,
+	const PictureMeta* meta)
+{
+	ExrFileWriter writer(filePath);
+
+	PH_LOG(IOUtils,
+		"saving exr <{}>", filePath.toAbsoluteString());
+
+	// Extract valid meta info to save in an exr file
+	if(meta && meta->numLayers() >= 1)
+	{
+		const auto& channelNames = meta->getChannelNames();
+		writer.saveToFilesystem(
+			frame,
+			saveInHighPrecision,
+			channelNames.size() > 0 ? channelNames[0] : "",
+			channelNames.size() > 1 ? channelNames[1] : "",
+			channelNames.size() > 2 ? channelNames[2] : "",
+			channelNames.size() > 3 ? channelNames[3] : "");
+	}
+	// Save without meta info
+	else
+	{
+		writer.saveToFilesystem(
+			frame,
+			saveInHighPrecision);
+	}
+}
+
 }// end anonymous namespace
 
 std::string load_text(const Path& filePath)
@@ -221,7 +254,7 @@ std::string load_text(const Path& filePath)
 	return buffer.str();
 }
 
-RegularPicture load_picture(const Path& picturePath)
+RegularPicture load_picture(const Path& picturePath, std::size_t layerIdx)
 {
 	const std::string& ext = picturePath.getExtension();
 
@@ -233,7 +266,7 @@ RegularPicture load_picture(const Path& picturePath)
 	{
 		try
 		{
-			return load_HDR_picture(picturePath);
+			return load_HDR_picture(picturePath, layerIdx);
 		}
 		catch(const FileIOError& /* e */)
 		{
@@ -246,7 +279,7 @@ RegularPicture load_picture(const Path& picturePath)
 	{
 		try
 		{
-			return load_LDR_picture(picturePath);
+			return load_LDR_picture(picturePath, layerIdx);
 		}
 		catch(const FileIOError& /* e */)
 		{
@@ -260,7 +293,7 @@ RegularPicture load_picture(const Path& picturePath)
 		picturePath.toString());
 }
 
-RegularPicture load_LDR_picture(const Path& picturePath)
+RegularPicture load_LDR_picture(const Path& picturePath, std::size_t layerIdx)
 {
 	PH_LOG_DEBUG(IOUtils, 
 		"loading LDR picture <{}>", picturePath.toString());
@@ -283,10 +316,12 @@ RegularPicture load_LDR_picture(const Path& picturePath)
 	}
 }
 
-RegularPicture load_HDR_picture(const Path& picturePath)
+RegularPicture load_HDR_picture(const Path& picturePath, std::size_t layerIdx)
 {
 	PH_LOG_DEBUG(IOUtils, 
 		"loading HDR picture <{}>", picturePath.toString());
+
+	// TODO: make use of layer index
 
 	const std::string& ext = picturePath.getExtension();
 	if(ext == ".exr" || ext == ".EXR")
@@ -294,45 +329,39 @@ RegularPicture load_HDR_picture(const Path& picturePath)
 		ExrFileReader exrFileReader(picturePath);
 
 		HdrRgbFrame frame;
-		if(exrFileReader.load(&frame))
-		{
-			// TODO: properly handle picture attributes; properly load from via EXR
+		exrFileReader.load(&frame);
 
-			RegularPicture picture(
-				math::Vector2S(frame.getSizePx()),
-				3,
-				EPicturePixelComponent::Float32);
+		// TODO: properly handle picture attributes; properly load from via EXR
 
-			RegularPictureFormat format;
-			format.setColorSpace(math::EColorSpace::Linear_sRGB);
-			format.setIsGrayscale(false);
-			format.setHasAlpha(false);
-			picture.setFormat(format);
+		RegularPicture picture(
+			math::Vector2S(frame.getSizePx()),
+			3,
+			EPicturePixelComponent::Float32);
 
-			picture.getPixels().setPixels(
-				frame.getPixelData().data(),
-				math::Vector2S(frame.getSizePx()).product() * 3);
-			//picture.nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
-			//picture.colorSpace = math::EColorSpace::Linear_sRGB;
-			//picture.frame.forEachPixel([&frame](const uint32 x, const uint32 y, auto /* pixel */)
-			//{
-			//	const auto framePixel = frame.getPixel({x, y});
+		RegularPictureFormat format;
+		format.setColorSpace(math::EColorSpace::Linear_sRGB);
+		format.setIsGrayscale(false);
+		format.setHasAlpha(false);
+		picture.setFormat(format);
 
-			//	RegularPicture::Pixel picturePixel(0);
-			//	picturePixel[0] = framePixel[0];
-			//	picturePixel[1] = framePixel[1];
-			//	picturePixel[2] = framePixel[2];
+		picture.getPixels().setPixels(
+			frame.getPixelData().data(),
+			math::Vector2S(frame.getSizePx()).product() * 3);
+		//picture.nativeFormat = EPicturePixelFormat::PPF_RGB_32F;
+		//picture.colorSpace = math::EColorSpace::Linear_sRGB;
+		//picture.frame.forEachPixel([&frame](const uint32 x, const uint32 y, auto /* pixel */)
+		//{
+		//	const auto framePixel = frame.getPixel({x, y});
 
-			//	return picturePixel;
-			//});
+		//	RegularPicture::Pixel picturePixel(0);
+		//	picturePixel[0] = framePixel[0];
+		//	picturePixel[1] = framePixel[1];
+		//	picturePixel[2] = framePixel[2];
 
-			return picture;
-		}
-		else
-		{
-			throw FileIOError(
-				".exr file loading failed", picturePath.toString());
-		}
+		//	return picturePixel;
+		//});
+
+		return picture;
 	}
 	else if(ext == ".hdr" || ext == ".HDR")
 	{
@@ -368,10 +397,12 @@ bool has_HDR_support(const std::string_view filenameExt)
 
 bool load_picture_meta(
 	const Path& picturePath,
+	PictureMeta* out_meta,
 	math::Vector2S* out_sizePx,
-	std::size_t* out_numComponents,
-	RegularPictureFormat* out_format)
+	std::size_t* out_numChannels)
 {
+	// TODO: exr support
+
 	// Variables to retrieve image info from stbi_load()
 	int widthPx;
 	int heightPx;
@@ -388,80 +419,73 @@ bool load_picture_meta(
 		out_sizePx->y() = heightPx;
 	}
 
-	if(out_numComponents)
+	if(out_numChannels)
 	{
-		*out_numComponents = numComponents;
+		*out_numChannels = numComponents;
 	}
 
-	if(out_format)
+	if(out_meta)
 	{
-		*out_format = RegularPictureFormat{};
+		*out_meta = PictureMeta{};
+		const auto layerIdx = out_meta->addDefaultLayer();
+
+		out_meta->sizePx().x() = widthPx;
+		out_meta->sizePx().y() = heightPx;
 
 		// For color space, for currently supported formats we can only make an educated guess
 		const std::string& ext = picturePath.getExtension();
 		if(has_HDR_support(ext))
 		{
-			out_format->setColorSpace(math::EColorSpace::Linear_sRGB);
-		}
-
-		// Same goes for component info
-		if(numComponents == 1)
-		{
-			out_format->setIsGrayscale(true);
-		}
-		else if(numComponents == 3)
-		{
-			out_format->setIsGrayscale(false);
-		}
-		else if(numComponents == 4)
-		{
-			out_format->setHasAlpha(true);
+			out_meta->colorSpace(layerIdx) = math::EColorSpace::Linear_sRGB;
 		}
 	}
 
 	return true;
 }
 
-void save(const LdrRgbFrame& frame, const Path& picturePath)
+void save(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
 	save(
 		frame,
-		picturePath.getParent(),
-		picturePath.removeExtension().getFilename(),
-		picture_file_type_from_extension(picturePath.getExtension()));
+		filePath.getParent(),
+		filePath.removeExtension().getFilename(),
+		picture_file_type_from_extension(filePath.getExtension()),
+		meta);
 }
 
-void save(const HdrRgbFrame& frame, const Path& picturePath)
+void save(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
 	save(
 		frame, 
-		picturePath.getParent(), 
-		picturePath.removeExtension().getFilename(),
-		picture_file_type_from_extension(picturePath.getExtension()));
+		filePath.getParent(),
+		filePath.removeExtension().getFilename(),
+		picture_file_type_from_extension(filePath.getExtension()),
+		meta);
 }
 
 void save(
 	const LdrRgbFrame& frame,
-	const Path& pictureDirectory,
+	const Path& fileDirectory,
 	const std::string& name,
-	EPictureFile format)
+	EPictureFile format,
+	const PictureMeta* meta)
 {
 	switch(format)
 	{
 	case EPictureFile::PNG:
-		save_png(frame, pictureDirectory / (name + ".png"));
+		save_png(frame, fileDirectory / (name + ".png"), meta);
 		break;
 
 	case EPictureFile::JPG:
-		save_jpg(frame, pictureDirectory / (name + ".jpg"));
+		save_jpg(frame, fileDirectory / (name + ".jpg"), meta);
 		break;
 
 	case EPictureFile::BMP:
-		save_bmp(frame, pictureDirectory / (name + ".bmp"));
+		save_bmp(frame, fileDirectory / (name + ".bmp"), meta);
 		break;
 
 	case EPictureFile::TGA:
-		save_tga(frame, pictureDirectory / (name + ".tga"));
+		save_tga(frame, fileDirectory / (name + ".tga"), meta);
 		break;
 
 	case EPictureFile::HDR:
@@ -470,22 +494,23 @@ void save(
 	{
 		HdrRgbFrame hdrFrame;
 		frame_utils::to_HDR(frame, &hdrFrame);
-		save(hdrFrame, pictureDirectory, name, format);
+		save(hdrFrame, fileDirectory, name, format, meta);
 		break;
 	}
 
 	default:
 		throw FileIOError(
 			"failed to save LDR frame: unsupported format \"" + std::string(TSdlEnum<EPictureFile>{}[format]) + "\"",
-			(pictureDirectory / name).toAbsoluteString());
+			(fileDirectory / name).toAbsoluteString());
 	}
 }
 
 void save(
 	const HdrRgbFrame& frame,
-	const Path& pictureDirectory,
+	const Path& fileDirectory,
 	const std::string& name,
-	EPictureFile format)
+	EPictureFile format,
+	const PictureMeta* meta)
 {
 	switch(format)
 	{
@@ -496,52 +521,60 @@ void save(
 	{
 		LdrRgbFrame ldrFrame;
 		frame_utils::to_LDR(frame, &ldrFrame);
-		save(ldrFrame, pictureDirectory, name, format);
+		save(ldrFrame, fileDirectory, name, format, meta);
 		break;
 	}
 
 	case EPictureFile::HDR:
-		save_hdr(frame, pictureDirectory / (name + ".hdr"));
+		save_hdr(frame, fileDirectory / (name + ".hdr"), meta);
 		break;
 
 	case EPictureFile::EXR:
-		save_exr(frame, pictureDirectory / (name + ".exr"));
+		save_exr(frame, fileDirectory / (name + ".exr"), meta);
 		break;
 
 	case EPictureFile::HighPrecisionEXR:
-		save_exr_high_precision(frame, pictureDirectory / (name + ".exr"));
+		save_exr_high_precision(frame, fileDirectory / (name + ".exr"), meta);
 		break;
 
 	default:
 		throw FileIOError(
 			"failed to save HDR frame: unsupported format \"" + std::string(TSdlEnum<EPictureFile>{}[format]) + "\"",
-			(pictureDirectory / name).toAbsoluteString());
+			(fileDirectory / name).toAbsoluteString());
 	}
 }
 
-void save_png(const LdrRgbFrame& frame, const Path& picturePath)
+void save_png(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
 	PH_LOG(IOUtils,
-		"saving png <{}>", picturePath.toAbsoluteString());
+		"saving png <{}>", filePath.toAbsoluteString());
 
-	const bool stbiResult = stbi_write_png(
-		picturePath.toString().c_str(),
-		static_cast<int>(frame.widthPx()),
-		static_cast<int>(frame.heightPx()),
-		3,
-		frame.getPixelData().data(),
-		static_cast<int>(frame.widthPx()) * 3);
+	bool stbiResult = false;
+	if(!meta)
+	{
+		stbiResult = stbi_write_png(
+			filePath.toString().c_str(),
+			static_cast<int>(frame.widthPx()),
+			static_cast<int>(frame.heightPx()),
+			3,
+			frame.getPixelData().data(),
+			static_cast<int>(frame.widthPx()) * 3);
+	}
+	else
+	{
+		// TODO
+	}
 
-	if(stbiResult == 0)
+	if(!stbiResult)
 	{
 		throw FileIOError(
-			"failed saving png", picturePath.toString());
+			"failed saving png", filePath.toString());
 	}
 }
 
-void save_jpg(const LdrRgbFrame& frame, const Path& picturePath)
+void save_jpg(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
@@ -549,123 +582,175 @@ void save_jpg(const LdrRgbFrame& frame, const Path& picturePath)
 	constexpr int QUALITY = 10;
 
 	PH_LOG(IOUtils,
-		"saving jpg <{}> with quality = {}", picturePath.toAbsoluteString(), QUALITY);
+		"saving jpg <{}> with quality = {}", filePath.toAbsoluteString(), QUALITY);
 
-	const bool stbiResult = stbi_write_jpg(
-		picturePath.toString().c_str(),
-		static_cast<int>(frame.widthPx()),
-		static_cast<int>(frame.heightPx()),
-		3,
-		frame.getPixelData().data(),
-		10);
+	bool stbiResult = false;
+	if(!meta)
+	{
+		stbiResult = stbi_write_jpg(
+			filePath.toString().c_str(),
+			static_cast<int>(frame.widthPx()),
+			static_cast<int>(frame.heightPx()),
+			3,
+			frame.getPixelData().data(),
+			10);
+	}
+	else
+	{
+		// TODO
+	}
 
-	if(stbiResult == 0)
+	if(!stbiResult)
 	{
 		throw FileIOError(
-			"failed saving jpg", picturePath.toString());
+			"failed saving jpg", filePath.toString());
 	}
 }
 
-void save_bmp(const LdrRgbFrame& frame, const Path& picturePath)
-{
-	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
-
-	PH_LOG(IOUtils, 
-		"saving bmp <{}>", picturePath.toAbsoluteString());
-
-	const bool stbiResult = stbi_write_bmp(
-		picturePath.toString().c_str(),
-		static_cast<int>(frame.widthPx()),
-		static_cast<int>(frame.heightPx()),
-		3,
-		frame.getPixelData().data());
-
-	if(stbiResult == 0)
-	{
-		throw FileIOError(
-			"failed saving bmp", picturePath.toString());
-	}
-}
-
-void save_tga(const LdrRgbFrame& frame, const Path& picturePath)
+void save_bmp(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
 	PH_LOG(IOUtils,
-		"saving tga <{}>", picturePath.toAbsoluteString());
+		"saving bmp <{}>", filePath.toAbsoluteString());
 
-	const bool stbiResult = stbi_write_tga(
-		picturePath.toString().c_str(),
-		static_cast<int>(frame.widthPx()),
-		static_cast<int>(frame.heightPx()),
-		3,
-		frame.getPixelData().data());
+	bool stbiResult = false;
+	if(!meta)
+	{
+		stbiResult = stbi_write_bmp(
+			filePath.toString().c_str(),
+			static_cast<int>(frame.widthPx()),
+			static_cast<int>(frame.heightPx()),
+			3,
+			frame.getPixelData().data());
+	}
+	else
+	{
+		// TODO
+	}
 
-	if(stbiResult == 0)
+	if(!stbiResult)
 	{
 		throw FileIOError(
-			"failed saving tga", picturePath.toString());
+			"failed saving bmp", filePath.toString());
 	}
 }
 
-void save_hdr(const HdrRgbFrame& frame, const Path& picturePath)
+void save_tga(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
+{
+	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
+
+	PH_LOG(IOUtils,
+		"saving tga <{}>", filePath.toAbsoluteString());
+
+	bool stbiResult = false;
+	if(!meta)
+	{
+		bool stbiResult = stbi_write_tga(
+			filePath.toString().c_str(),
+			static_cast<int>(frame.widthPx()),
+			static_cast<int>(frame.heightPx()),
+			3,
+			frame.getPixelData().data());
+	}
+	else
+	{
+		// TODO
+	}
+
+	if(!stbiResult)
+	{
+		throw FileIOError(
+			"failed saving tga", filePath.toString());
+	}
+}
+
+void save_hdr(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
 	static_assert(std::is_same_v<HdrComponent, float>);
 
 	PH_LOG(IOUtils, 
-		"saving hdr <{}>", picturePath.toAbsoluteString());
+		"saving hdr <{}>", filePath.toAbsoluteString());
 
-	const bool stbiResult = stbi_write_hdr(
-		picturePath.toString().c_str(),
-		static_cast<int>(frame.widthPx()),
-		static_cast<int>(frame.heightPx()),
-		3,
-		frame.getPixelData().data());
+	bool stbiResult = false;
+	if(!meta)
+	{
+		stbiResult = stbi_write_hdr(
+			filePath.toString().c_str(),
+			static_cast<int>(frame.widthPx()),
+			static_cast<int>(frame.heightPx()),
+			3,
+			frame.getPixelData().data());
+	}
+	else
+	{
+		// TODO
+	}
 
-	if(stbiResult == 0)
+	if(!stbiResult)
 	{
 		throw FileIOError(
-			"failed saving hdr", picturePath.toString());
+			"failed saving hdr", filePath.toString());
 	}
 }
 
-void save_exr(const HdrRgbFrame& frame, const Path& picturePath)
+void save_exr(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
-	ExrFileWriter writer(picturePath);
-	if(!writer.save(frame))
-	{
-		throw FileIOError(
-			"failed saving exr", picturePath.toString());
-	}
+	save_exr_via_exr_file_writer(
+		frame,
+		filePath,
+		false,
+		meta);
 }
 
-void save_exr_high_precision(const HdrRgbFrame& frame, const Path& picturePath)
+void save_exr_high_precision(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
-	ExrFileWriter writer(picturePath);
-	if(!writer.saveHighPrecision(frame))
-	{
-		throw FileIOError(
-			"failed saving high precision exr", picturePath.toString());
-	}
+	save_exr_via_exr_file_writer(
+		frame,
+		filePath,
+		true,
+		meta);
 }
 
-void save_pfm(const HdrRgbFrame& frame, const Path& picturePath)
+void save_pfm(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
-	PfmFileWriter writer(picturePath);
-	if(!writer.save(frame))
+	PH_LOG(IOUtils,
+		"saving pfm <{}>", filePath.toAbsoluteString());
+
+	if(!meta)
 	{
-		throw FileIOError(
-			"failed saving pfm", picturePath.toString());
+		PfmFileWriter writer(filePath);
+		writer.save(frame);
+	}
+	else
+	{
+		// TODO
+		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 }
 
-void save_exr(const HdrRgbFrame& frame, ByteBuffer& buffer)
+void save_exr(const HdrRgbFrame& frame, ByteBuffer& buffer, const PictureMeta* meta)
 {
 	ExrFileWriter writer;
-	if(!writer.saveToMemory(frame, buffer))
+
+	// Extract valid meta info to save in an exr file
+	if(meta && meta->numLayers() >= 1)
 	{
-		throw FileIOError(
-			"failed saving exr to byte buffer");
+		const auto& channelNames = meta->getChannelNames();
+		writer.saveToMemory(
+			frame,
+			buffer,
+			channelNames.size() > 0 ? channelNames[0] : "",
+			channelNames.size() > 1 ? channelNames[1] : "",
+			channelNames.size() > 2 ? channelNames[2] : "",
+			channelNames.size() > 3 ? channelNames[3] : "");
+	}
+	// Save without meta info
+	else
+	{
+		writer.saveToMemory(
+			frame,
+			buffer);
 	}
 }
 

@@ -1,0 +1,10 @@
+/*! @dir Frame
+@brief Image data manipulation.
+
+In this folder, there are basically two categories of image data, frame and picture. There is a subtle
+difference between them. Generally, frame is a memory block that holds arbitrary data (typically image data),
+and picture is for common image data specifically (e.g., usual image files like a camera photo).
+Photon distinguish frame and picture so implementation can make more assumptions when dealing with pictures,
+which simplifies the logic for many cases. Though pictures are less flexible, they can be more memory
+efficient as their internal data is begin kept as close to their storage form (i.e., on disk) as possible.
+*/

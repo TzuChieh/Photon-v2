@@ -3,7 +3,7 @@
 #include "Frame/TFrame.h"
 #include "Utility/ByteBuffer.h"
 
-#include <Common/logging.h>
+//#include <Common/logging.h>
 #include <Common/exception.h>
 
 #include <type_traits>
@@ -11,7 +11,7 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(ExrFileWriter, DataIO);
+//PH_DEFINE_INTERNAL_LOG_GROUP(ExrFileWriter, DataIO);
 
 ExrFileWriter::ExrFileWriter()
 	: m_filePath()
@@ -21,17 +21,17 @@ ExrFileWriter::ExrFileWriter(const Path& filePath)
 	: m_filePath(filePath)
 {}
 
-bool ExrFileWriter::save(const HdrRgbFrame& frame)
+void ExrFileWriter::save(const HdrRgbFrame& frame)
 {
-	return saveToFilesystem(frame);
+	saveToFilesystem(frame);
 }
 
-bool ExrFileWriter::saveHighPrecision(const HdrRgbFrame& frame)
+void ExrFileWriter::saveHighPrecision(const HdrRgbFrame& frame)
 {
-	return saveToFilesystem(frame, true);
+	saveToFilesystem(frame, true);
 }
 
-bool ExrFileWriter::saveToFilesystem(
+void ExrFileWriter::saveToFilesystem(
 	const HdrRgbFrame& frame,
 	bool saveInHighPrecision,
 	std::string_view redChannelName,
@@ -40,27 +40,18 @@ bool ExrFileWriter::saveToFilesystem(
 	std::string_view alphaChannelName,
 	HdrComponent alphaValue)
 {
-	try
-	{
-		return saveStandaloneImageData(
-			m_filePath, 
-			frame,
-			saveInHighPrecision,
-			redChannelName,
-			greenChannelName,
-			blueChannelName,
-			alphaChannelName,
-			alphaValue);
-	}
-	catch(const Exception& e)
-	{
-		PH_LOG_WARNING(ExrFileWriter, "failed saving <{}>, reason: {}",
-			m_filePath.toString(), e.what());
-		return false;
-	}
+	saveStandaloneImageData(
+		m_filePath, 
+		frame,
+		saveInHighPrecision,
+		redChannelName,
+		greenChannelName,
+		blueChannelName,
+		alphaChannelName,
+		alphaValue);
 }
 
-bool ExrFileWriter::saveToMemory(
+void ExrFileWriter::saveToMemory(
 	const HdrRgbFrame& frame,
 	ByteBuffer& buffer,
 	std::string_view redChannelName,
@@ -69,71 +60,60 @@ bool ExrFileWriter::saveToMemory(
 	std::string_view alphaChannelName,
 	HdrComponent alphaValue)
 {
-	try
-	{
 #if PH_THIRD_PARTY_HAS_OPENEXR
-		static_assert(std::is_same_v<HdrRgbFrame::ElementType, float>);
+	static_assert(std::is_same_v<HdrRgbFrame::ElementType, float>);
 
-		const int dataWidth = static_cast<int>(frame.widthPx());
-		const int dataHeight = static_cast<int>(frame.heightPx());
-		const bool needAlpha = !alphaChannelName.empty();
+	const int dataWidth = static_cast<int>(frame.widthPx());
+	const int dataHeight = static_cast<int>(frame.heightPx());
+	const bool needAlpha = !alphaChannelName.empty();
 
-		// Directly map RGB data from input `frame`
+	// Directly map RGB data from input `frame`
 
-		Imf::Header header(dataWidth, dataHeight);
+	Imf::Header header(dataWidth, dataHeight);
+	create_imf_header_for_frame(
+		header,
+		frame, 
+		{redChannelName, greenChannelName, blueChannelName});
+
+	Imf::FrameBuffer framebuffer;
+	map_imf_framebuffer_to_frame(
+		framebuffer,
+		header,
+		frame,
+		{redChannelName, greenChannelName, blueChannelName});
+
+	// Optionally allocate a single-channel frame to store alpha value
+	if(needAlpha)
+	{
+		// OPT: wasteful, can it be done better? imf slice fill value?
+		TFrame<float, 1> alphaFrame(dataWidth, dataHeight);
+		alphaFrame.fill(alphaValue);
+
 		create_imf_header_for_frame(
 			header,
-			frame, 
-			{redChannelName, greenChannelName, blueChannelName});
+			alphaFrame,
+			{alphaChannelName});
 
-		Imf::FrameBuffer framebuffer;
 		map_imf_framebuffer_to_frame(
 			framebuffer,
 			header,
-			frame,
-			{redChannelName, greenChannelName, blueChannelName});
+			alphaFrame,
+			{alphaChannelName});
 
-		// Optionally allocate a single-channel frame to store alpha value
-		if(needAlpha)
-		{
-			// OPT: wasteful, can it be done better? imf slice fill value?
-			TFrame<float, 1> alphaFrame(dataWidth, dataHeight);
-			alphaFrame.fill(alphaValue);
-
-			create_imf_header_for_frame(
-				header,
-				alphaFrame,
-				{alphaChannelName});
-
-			map_imf_framebuffer_to_frame(
-				framebuffer,
-				header,
-				alphaFrame,
-				{alphaChannelName});
-
-			write_imf_framebuffer_to_memory(header, framebuffer, dataHeight, buffer);
-		}
-		else
-		{
-			write_imf_framebuffer_to_memory(header, framebuffer, dataHeight, buffer);
-		}
-
-		return true;
+		write_imf_framebuffer_to_memory(header, framebuffer, dataHeight, buffer);
+	}
+	else
+	{
+		write_imf_framebuffer_to_memory(header, framebuffer, dataHeight, buffer);
+	}
 #else
-		throw IllegalOperationException(
-			"OpenEXR library is not available.");
+	throw IllegalOperationException(
+		"OpenEXR library is not available.");
 #endif
 // end PH_THIRD_PARTY_HAS_OPENEXR
-	}
-	catch(const Exception& e)
-	{
-		PH_LOG_WARNING(ExrFileWriter, "failed saving exr file to memroy, reason: {}", 
-			e.what());
-		return false;
-	}
 }
 
-bool ExrFileWriter::saveStandaloneImageData(
+void ExrFileWriter::saveStandaloneImageData(
 	const Path& filePath,
 	const HdrRgbFrame& frame,
 	bool saveInHighPrecision,
@@ -238,8 +218,6 @@ bool ExrFileWriter::saveStandaloneImageData(
 			write_imf_framebuffer_to_filesystem(header, framebuffer, dataHeight, filePath);
 		}
 	}
-
-	return true;
 #else
 	throw IllegalOperationException(
 		"OpenEXR library is not available.");

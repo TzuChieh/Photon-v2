@@ -199,7 +199,7 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 		if(!loader.fileToLoad.isEmpty())
 		{
 			math::Vector2S sizePx;
-			if(!io_utils::load_picture_meta(loader.fileToLoad, &sizePx))
+			if(!io_utils::load_picture_meta(loader.fileToLoad, nullptr, &sizePx))
 			{
 				PH_LOG_WARNING(DearImGui,
 					"Cannot load image <{}> for size info. Please make sure the file exists or is a "

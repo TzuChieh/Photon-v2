@@ -1,11 +1,11 @@
 #include "ph_c_core.h"
+#include "Api/api_helpers.h"
 
 #include <ph_core.h>
 #include <Api/ApiDatabase.h>
 #include <Core/Engine.h>
 #include <Core/Receiver/Receiver.h>
 #include <Api/test_scene.h>
-#include <Frame/TFrame.h>
 #include <Math/TArithmeticArray.h>
 #include <Core/Renderer/Renderer.h>
 #include <DataIO/FileSystem/Path.h>
@@ -16,6 +16,8 @@
 #include <Common/config.h>
 #include <Common/logging.h>
 #include <Frame/frame_utils.h>
+#include <Frame/TFrame.h>
+#include <Frame/PictureMeta.h>
 #include <DataIO/io_exceptions.h>
 #include <Utility/ByteBuffer.h>
 #include <Utility/utility.h>
@@ -293,25 +295,37 @@ PhBool phLoadFrame(PhUInt64 frameId, const PhChar* const filePath)
 	return PH_FALSE;
 }
 
-PhBool phSaveFrame(const PhUInt64 frameId, const PhChar* const filePath)
+PhBool phSaveFrame(
+	const PhUInt64 frameId, 
+	const PhChar* filePath,
+	const PhFrameSaveInfo* saveInfo)
 {
 	PH_ASSERT(filePath);
 
 	const HdrRgbFrame* frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
-	if(frame)
+	if(!frame)
 	{
-		try
+		return PH_FALSE;
+	}
+
+	try
+	{
+		if(!saveInfo)
 		{
 			io_utils::save(*frame, Path(filePath));
-			return PH_TRUE;
 		}
-		catch(const FileIOError& e)
+		else
 		{
-			PH_LOG_WARNING(CAPI,
-				"frame<{}> saving failed: {}", 
-				frameId, e.whatStr());
-			return PH_FALSE;
+			PictureMeta meta = make_picture_meta(*saveInfo);
+			io_utils::save(*frame, Path(filePath), &meta);
 		}
+
+		return PH_TRUE;
+	}
+	catch(const FileIOError& e)
+	{
+		PH_LOG_WARNING(CAPI,
+			"frame<{}> saving failed: {}", frameId, e.whatStr());
 	}
 
 	return PH_FALSE;
@@ -320,8 +334,8 @@ PhBool phSaveFrame(const PhUInt64 frameId, const PhChar* const filePath)
 PhBool phSaveFrameToBuffer(
 	const PhUInt64 frameId,
 	const PhUInt64 bufferId,
-	const PhFrameFormat formatToSaveIn,
-	const PhBool saveInBigEndian)
+	const PhBufferFormat format,
+	const PhFrameSaveInfo* saveInfo)
 {
 	const HdrRgbFrame* const frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	ByteBuffer* const buffer = ApiDatabase::getResource<ByteBuffer>(bufferId);
@@ -331,22 +345,29 @@ PhBool phSaveFrameToBuffer(
 		return PH_FALSE;
 	}
 
-
-	if(formatToSaveIn == PH_EXR_IMAGE)
+	buffer->clear();
+	if(format == PH_BUFFER_FORMAT_EXR_IMAGE)
 	{
 		try
 		{
-			buffer->clear();
-			io_utils::save_exr(*frame, *buffer);
+			if(!saveInfo)
+			{
+				io_utils::save_exr(*frame, *buffer);
+			}
+			else
+			{
+				PictureMeta meta = make_picture_meta(*saveInfo);
+				io_utils::save_exr(*frame, *buffer, &meta);
+			}
+			
 			return PH_TRUE;
 		}
 		catch(const Exception& e)
 		{
 			PH_LOG_ERROR(CAPI, "frame<{}> saving failed: {}", frameId, e.what());
-			return PH_FALSE;
 		}
 	}
-	else if(formatToSaveIn == PH_RGBA32F)
+	else if(format == PH_BUFFER_FORMAT_FLOAT32_ARRAY)
 	{
 		// TODO
 		return PH_FALSE;
@@ -354,10 +375,10 @@ PhBool phSaveFrameToBuffer(
 	else
 	{
 		PH_LOG_ERROR(CAPI, 
-			"cannot save frame<{}> in unknown format {}", 
-			frameId, enum_to_value(formatToSaveIn));
-		return PH_FALSE;
+			"cannot save frame<{}> in unknown format {}", frameId, enum_to_value(format));
 	}
+
+	return PH_FALSE;
 }
 
 void phFrameOpAbsDifference(const PhUInt64 frameAId, const PhUInt64 frameBId, const PhUInt64 resultFrameId)
@@ -427,7 +448,7 @@ void phAsyncGetRendererState(
 	}
 }
 
-PhBool phAsyncPollUpdatedFrameRegion(
+int phAsyncPollUpdatedFrameRegion(
 	const PhUInt64  engineId,
 	PhUInt32* const out_xPx,
 	PhUInt32* const out_yPx,

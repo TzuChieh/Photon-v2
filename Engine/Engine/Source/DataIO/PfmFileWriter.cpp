@@ -18,7 +18,7 @@ PfmFileWriter::PfmFileWriter(const Path& filePath) :
 	m_filePath(filePath)
 {}
 
-bool PfmFileWriter::save(const HdrRgbFrame& frame)
+void PfmFileWriter::save(const HdrRgbFrame& frame)
 {
 	BinaryFileOutputStream file(m_filePath);
 
@@ -40,8 +40,7 @@ bool PfmFileWriter::save(const HdrRgbFrame& frame)
 	}
 	catch(const FileIOError& e)
 	{
-		PH_LOG_WARNING(PfmFileWriter, "error writing file header: {}", e.whatStr());
-		return false;
+		throw FileIOError("error writing .pfm header: " + e.whatStr());
 	}
 
 	// Write raster data (a series of three 4-byte IEEE-754 single precision
@@ -70,11 +69,8 @@ bool PfmFileWriter::save(const HdrRgbFrame& frame)
 	}
 	catch(const FileIOError& e)
 	{
-		PH_LOG_WARNING(PfmFileWriter, "error writing file raster data: {}", e.whatStr());
-		return false;
+		throw FileIOError("error writing .pfm raster data: " + e.whatStr());
 	}
-
-	return true;
 }
 
 }// end namespace ph
