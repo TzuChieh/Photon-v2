@@ -46,9 +46,15 @@ typedef enum PhBufferFormat
 
 #define PH_MAX_FRAME_DATA_NAME_SIZE 256
 
+//typedef struct PhFrameLoadInfo
+//{
+//	PhSize numChannels;
+//	const PhChar* channelNames[PH_MAX_FRAME_DATA_NAME_SIZE];
+//} PhFrameLoadInfo;
+
 typedef struct PhFrameSaveInfo
 {
 	PhSize numChannels;
-	const PhChar* channelNames[PH_MAX_FRAME_DATA_NAME_SIZE];
+	const PhChar* const* channelNames;
 	PhEndian endianness;
 } PhFrameSaveInfo;

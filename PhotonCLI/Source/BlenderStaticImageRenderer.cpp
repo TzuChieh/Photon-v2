@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 #include <chrono>
+#include <array>
 
 namespace ph::cli
 {
@@ -75,6 +76,13 @@ void BlenderStaticImageRenderer::render()
 		PhUInt64 serverFrameId;
 		phCreateFrame(&serverFrameId, filmW, filmH);
 
+		std::array<const PhChar*, 3> channelNames{
+			"Combined.R", "Combined.G", "Combined.B"};
+
+		PhFrameSaveInfo frameInfo{};
+		frameInfo.numChannels = channelNames.size();
+		frameInfo.channelNames = channelNames.data();
+
 		try
 		{
 			asio::io_context ioContext;
@@ -92,7 +100,7 @@ void BlenderStaticImageRenderer::render()
 			while(!token.stop_requested())
 			{
 				phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, filmW, filmH, serverFrameId);
-				phSaveFrameToBuffer(serverFrameId, bufferId, PH_BUFFER_FORMAT_EXR_IMAGE, nullptr);
+				phSaveFrameToBuffer(serverFrameId, bufferId, PH_BUFFER_FORMAT_EXR_IMAGE, &frameInfo);
 
 				const unsigned char* bytesPtr;
 				size_t numBytes;
