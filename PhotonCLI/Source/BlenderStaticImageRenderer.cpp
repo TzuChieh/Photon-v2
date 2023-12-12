@@ -76,8 +76,9 @@ void BlenderStaticImageRenderer::render()
 		PhUInt64 serverFrameId;
 		phCreateFrame(&serverFrameId, filmW, filmH);
 
-		std::array<const PhChar*, 3> channelNames{
-			"Combined.R", "Combined.G", "Combined.B"};
+		// Blender expects specific channel names when loading the render result from .exr file
+		std::array<const PhChar*, 4> channelNames{
+			"Combined.R", "Combined.G", "Combined.B", "Combined.A"};
 
 		PhFrameSaveInfo frameInfo{};
 		frameInfo.numChannels = channelNames.size();
