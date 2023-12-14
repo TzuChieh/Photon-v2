@@ -35,7 +35,7 @@ public:
 	static TAABB3D makeUnioned(const TAABB3D& a, const TAABB3D& b);
 
 public:
-	/*! @brief Bounds nothing. State unspecified.
+	/*! @brief Unknown bounds. State unspecified.
 	*/
 	TAABB3D();
 

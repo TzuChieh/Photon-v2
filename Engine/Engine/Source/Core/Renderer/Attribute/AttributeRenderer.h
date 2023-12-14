@@ -28,9 +28,10 @@ public:
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 
-	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
+	std::size_t asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions) override;
 	RenderStats asyncQueryRenderStats() override;
 	RenderProgress asyncQueryRenderProgress() override;
+
 	void asyncPeekFrame(
 		std::size_t   layerIndex,
 		const Region& region,

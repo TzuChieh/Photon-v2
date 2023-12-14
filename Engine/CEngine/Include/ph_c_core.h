@@ -91,10 +91,6 @@ enum PH_ERenderStateType
 	REAL
 };
 
-#define PH_FILM_REGION_STATUS_INVALID  -1
-#define PH_FILM_REGION_STATUS_UPDATING 1
-#define PH_FILM_REGION_STATUS_FINISHED 2
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -197,12 +193,12 @@ extern PH_API void phAsyncGetRendererState(
 	PhUInt64                 engineId,
 	struct PHRenderState*    out_state);
 
-extern PH_API int phAsyncPollUpdatedFrameRegion(
-	PhUInt64                 engineId,
-	PhUInt32*                out_xPx,
-	PhUInt32*                out_yPx,
-	PhUInt32*                out_widthPx,
-	PhUInt32*                out_heightPx);
+extern PH_API PhFrameRegionStatus phAsyncPollUpdatedFrameRegion(
+	PhUInt64 engineId,
+	PhUInt32* out_xPx,
+	PhUInt32* out_yPx,
+	PhUInt32* out_widthPx,
+	PhUInt32* out_heightPx);
 
 extern PH_API void phAsyncPeekFrame(
 	PhUInt64                 engineId,

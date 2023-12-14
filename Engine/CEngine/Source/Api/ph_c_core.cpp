@@ -12,7 +12,7 @@
 #include <Common/assertion.h>
 #include <DataIO/io_utils.h>
 #include <Api/ApiHelper.h>
-#include <Core/Scheduler/Region.h>
+#include <Core/Renderer/RenderRegionStatus.h>
 #include <Common/config.h>
 #include <Common/logging.h>
 #include <Frame/frame_utils.h>
@@ -448,7 +448,7 @@ void phAsyncGetRendererState(
 	}
 }
 
-int phAsyncPollUpdatedFrameRegion(
+PhFrameRegionStatus phAsyncPollUpdatedFrameRegion(
 	const PhUInt64  engineId,
 	PhUInt32* const out_xPx,
 	PhUInt32* const out_yPx,
@@ -458,25 +458,29 @@ int phAsyncPollUpdatedFrameRegion(
 	PH_ASSERT(out_xPx && out_yPx && out_widthPx && out_heightPx);
 
 	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
-	if(engine)
+	if(engine && engine->getRenderer())
 	{
-		Region region;
-		const ERegionStatus status = engine->asyncPollUpdatedRegion(&region);
-
-		*out_xPx      = static_cast<PhUInt32>(region.getMinVertex().x());
-		*out_yPx      = static_cast<PhUInt32>(region.getMinVertex().y());
-		*out_widthPx  = static_cast<PhUInt32>(region.getWidth());
-		*out_heightPx = static_cast<PhUInt32>(region.getHeight());
-
-		switch(status)
+		RenderRegionStatus region;
+		const auto numRegions = engine->getRenderer()->asyncPollUpdatedRegions(TSpan{&region, 1});
+		if(numRegions == 0)
 		{
-		case ERegionStatus::INVALID:  return PH_FILM_REGION_STATUS_INVALID;
-		case ERegionStatus::UPDATING: return PH_FILM_REGION_STATUS_UPDATING;
-		case ERegionStatus::FINISHED: return PH_FILM_REGION_STATUS_FINISHED;
+			return PH_FRAME_REGION_STATUS_INVALID;
+		}
+
+		*out_xPx      = static_cast<PhUInt32>(region.getRegion().getMinVertex().x());
+		*out_yPx      = static_cast<PhUInt32>(region.getRegion().getMinVertex().y());
+		*out_widthPx  = static_cast<PhUInt32>(region.getRegion().getWidth());
+		*out_heightPx = static_cast<PhUInt32>(region.getRegion().getHeight());
+
+		switch(region.getStatus())
+		{
+		case ERegionStatus::Invalid:  return PH_FRAME_REGION_STATUS_INVALID;
+		case ERegionStatus::Finished: return PH_FRAME_REGION_STATUS_FINISHED;
+		case ERegionStatus::Updating: return PH_FRAME_REGION_STATUS_UPDATING;
 		}
 	}
 
-	return PH_FILM_REGION_STATUS_INVALID;
+	return PH_FRAME_REGION_STATUS_INVALID;
 }
 
 void phAsyncPeekFrame(

@@ -8,6 +8,7 @@
 #include "Core/Renderer/Sampling/TStepperReceiverMeasurementEstimator.h"
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Math/Color/Spectrum.h"
+#include "Utility/Concurrent/TAtomicQuasiQueue.h"
 
 #include <Common/primitive_type.h>
 
@@ -31,7 +32,7 @@ public:
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 
-	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
+	std::size_t asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions) override;
 	RenderStats asyncQueryRenderStats() override;
 	RenderProgress asyncQueryRenderProgress() override;
 	void asyncPeekFrame(
@@ -46,6 +47,9 @@ private:
 
 	constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIN_ERROR_DIFFERENCE;
 	//constexpr static auto REFINE_MODE = DammertzDispatcher::ERefineMode::MIDPOINT;
+
+	void asyncAddUpdatedRegion(const Region& region, bool isUpdating);
+	std::function<void()> createWork(FixedSizeThreadPool& workers, uint32 workerId);
 
 	const Scene*               m_scene;
 	const Receiver*            m_receiver;
@@ -65,23 +69,13 @@ private:
 	std::size_t                           m_numInitialSamples;
 	HdrRgbFrame                           m_allEffortFrame;
 	HdrRgbFrame                           m_halfEffortFrame;
-
-	struct UpdatedRegion
-	{
-		Region region;
-		bool   isFinished;
-	};
-	std::deque<UpdatedRegion> m_updatedRegions;
+	TAtomicQuasiQueue<RenderRegionStatus> m_updatedRegionQueue;
 
 	std::mutex           m_rendererMutex;
 	std::atomic_uint64_t m_totalPaths;
 	std::atomic_uint32_t m_suppliedFractionBits;
 	std::atomic_uint32_t m_submittedFractionBits;
 	std::atomic_uint32_t m_numNoisyRegions;
-
-	void addUpdatedRegion(const Region& region, bool isUpdating);
-
-	std::function<void()> createWork(FixedSizeThreadPool& workers, uint32 workerId);
 };
 
 }// end namespace ph

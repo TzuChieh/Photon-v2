@@ -14,10 +14,8 @@
 #include <Common/assertion.h>
 
 #include <cmath>
-#include <vector>
 #include <thread>
 #include <chrono>
-#include <functional>
 #include <utility>
 
 namespace ph
@@ -25,7 +23,7 @@ namespace ph
 
 void AdaptiveSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
-	m_updatedRegions.clear();
+	m_updatedRegionQueue    = TAtomicQuasiQueue<RenderRegionStatus>{};
 	m_totalPaths            = 0;
 	m_suppliedFractionBits  = 0;
 	m_submittedFractionBits = 0;
@@ -43,12 +41,12 @@ void AdaptiveSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const Visu
 	m_allEffortFilm = HdrRgbFilm(
 		getRenderWidthPx(),
 		getRenderHeightPx(),
-		getCropWindowPx(),
+		getRenderRegionPx(),
 		m_filter);
 	m_halfEffortFilm = HdrRgbFilm(
 		getRenderWidthPx(),
 		getRenderHeightPx(),
-		getCropWindowPx(),
+		getRenderRegionPx(),
 		m_filter);
 
 	m_metaRecorders.resize(numWorkers());
@@ -73,7 +71,7 @@ void AdaptiveSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const Visu
 
 	m_dispatcher = DammertzDispatcher(
 		numWorkers(),
-		getCropWindowPx(),
+		getRenderRegionPx(),
 		m_precisionStandard,
 		m_numInitialSamples);
 
@@ -102,9 +100,9 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 {
 	return [this, workerId, &workers]()
 	{
-		auto& renderWork    = m_renderWorks[workerId];
-		auto& filmEstimator = m_filmEstimators[workerId];
-		auto  analyzer      = m_dispatcher.createAnalyzer<REFINE_MODE>();
+		auto& renderWork          = m_renderWorks[workerId];
+		auto& workerFilmEstimator = m_filmEstimators[workerId];
+		auto  workerAnalyzer      = m_dispatcher.createAnalyzer<REFINE_MODE>();
 
 		// DEBUG
 		auto& metaRecorder = m_metaRecorders[workerId];
@@ -142,11 +140,11 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				bitwise_cast<std::uint32_t>(suppliedFraction),
 				std::memory_order_relaxed);
 
-			filmEstimator.setFilmDimensions(
+			workerFilmEstimator.setFilmDimensions(
 				math::TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 				workUnit.getRegion());
 
-			const auto filmDimensions = filmEstimator.getFilmDimensions();
+			const auto filmDimensions = workerFilmEstimator.getFilmDimensions();
 			renderWork.setSampleDimensions(
 				filmDimensions.actualResPx,
 				filmDimensions.sampleWindowPx,
@@ -159,38 +157,36 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				workUnit.getRegion());
 			metaRecorder.clearRecords();
 
-			renderWork.onWorkReport([this, workerId]()
+			renderWork.onWorkReport([this, &workerFilmEstimator]()
 			{
 				// No synchronization needed, since no other worker can have an 
 				// overlapping region with the current one.
-				m_filmEstimators[workerId].mergeFilmTo(0, m_allEffortFilm);
-				m_filmEstimators[workerId].clearFilm(0);
+				workerFilmEstimator.mergeFilmTo(0, m_allEffortFilm);
+				workerFilmEstimator.clearFilm(0);
 
-				std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-				addUpdatedRegion(m_filmEstimators[workerId].getFilmEffectiveWindowPx(), true);
+				asyncAddUpdatedRegion(workerFilmEstimator.getFilmEffectiveWindowPx(), true);
 			});
 
 			renderWork.work();
 
 			// No synchronization needed, since no other worker can have an 
 			// overlapping region with the current one.
-			m_filmEstimators[workerId].mergeFilmTo(1, m_halfEffortFilm);
-			m_filmEstimators[workerId].clearFilm(1);
+			workerFilmEstimator.mergeFilmTo(1, m_halfEffortFilm);
+			workerFilmEstimator.clearFilm(1);
 			m_allEffortFilm.develop(m_allEffortFrame, workUnit.getRegion());
 			m_halfEffortFilm.develop(m_halfEffortFrame, workUnit.getRegion());
-			analyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
+			workerAnalyzer.analyzeFinishedRegion(workUnit.getRegion(), m_allEffortFrame, m_halfEffortFrame);
 
 			m_metaRecorders[workerId].getRecord(&m_metaFrame, {0, 0});
 
 			{
 				std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-				m_dispatcher.addAnalyzedData(analyzer);
+				m_dispatcher.addAnalyzedData(workerAnalyzer);
 				m_numNoisyRegions.store(static_cast<uint32>(m_dispatcher.numPendingRegions()), std::memory_order_relaxed);
-
-				addUpdatedRegion(workUnit.getRegion(), false);
 			}
+
+			asyncAddUpdatedRegion(workUnit.getRegion(), false);
 
 			m_submittedFractionBits.store(
 				bitwise_cast<std::uint32_t>(submittedFraction),
@@ -201,29 +197,9 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 	};
 }
 
-ERegionStatus AdaptiveSamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
+std::size_t AdaptiveSamplingRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions)
 {
-	PH_ASSERT(out_region != nullptr);
-
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-	if(m_updatedRegions.empty())
-	{
-		return ERegionStatus::INVALID;
-	}
-
-	const UpdatedRegion updatedRegion = m_updatedRegions.front();
-	m_updatedRegions.pop_front();
-
-	*out_region = updatedRegion.region;
-	if(updatedRegion.isFinished)
-	{
-		return ERegionStatus::FINISHED;
-	}
-	else
-	{
-		return ERegionStatus::UPDATING;
-	}
+	return m_updatedRegionQueue.tryDequeueBulk(out_regions.begin(), out_regions.size());
 }
 
 // FIXME: Peeking does not need to ensure correctness of the frame.
@@ -261,22 +237,13 @@ void AdaptiveSamplingRenderer::asyncPeekFrame(
 
 void AdaptiveSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
-	asyncPeekFrame(layerIndex, getCropWindowPx(), out_frame);
+	asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
 
-void AdaptiveSamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
+void AdaptiveSamplingRenderer::asyncAddUpdatedRegion(const Region& region, const bool isUpdating)
 {
-	for(UpdatedRegion& pendingRegion : m_updatedRegions)
-	{
-		// later added region takes the precedence
-		if(pendingRegion.region.isEqual(region))
-		{
-			pendingRegion.isFinished = !isUpdating;
-			return;
-		}
-	}
-
-	m_updatedRegions.push_back(UpdatedRegion{region, !isUpdating});
+	m_updatedRegionQueue.enqueue(
+		RenderRegionStatus(region, isUpdating ? ERegionStatus::Updating : ERegionStatus::Finished));
 }
 
 RenderStats AdaptiveSamplingRenderer::asyncQueryRenderStats()
@@ -294,7 +261,7 @@ RenderStats AdaptiveSamplingRenderer::asyncQueryRenderStats()
 		static_cast<float32>(m_renderWorks.size() * totalNumSamples) / static_cast<float32>(totalElapsedMs) : 0.0f;
 
 	RenderStats stats;
-	stats.setInteger(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().getArea()));
+	stats.setInteger(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getRenderRegionPx().getArea()));
 	stats.setInteger(1, m_numNoisyRegions.load(std::memory_order_relaxed));
 	stats.setReal(0, samplesPerMs * 1000);
 	return stats;

@@ -4,6 +4,7 @@
 #include "Core/Receiver/Receiver.h"
 #include "Core/Ray.h"
 #include "Math/constant.h"
+#include "Math/math.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWorker.h"
@@ -77,6 +78,23 @@ void Renderer::setNumWorkers(uint32 numWorkers)
 	}
 
 	m_numWorkers = numWorkers;
+}
+
+std::size_t Renderer::asyncPollMergedUpdatedRegions(
+	TSpan<RenderRegionStatus> out_regions,
+	std::size_t mergeSize)
+{
+	auto numRegions = asyncPollUpdatedRegions(out_regions);
+	mergeSize = mergeSize == 0 ? 1 : mergeSize;
+
+	// Merge regions in-place with a group size == `mergeSize`
+	for(std::size_t ri = 0; ri < out_regions.size(); ++ri)
+	{
+		const auto mergedRegionIdx = ri / mergeSize;
+		out_regions[mergedRegionIdx] = out_regions[mergedRegionIdx].getMerged(out_regions[ri]);
+	}
+
+	return math::ceil_div(out_regions.size(), mergeSize);
 }
 
 // FIXME: without synchronizing, other threads may never observe m_workers being changed

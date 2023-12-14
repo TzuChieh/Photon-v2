@@ -9,6 +9,7 @@
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector2.h"
+#include "Utility/Concurrent/TAtomicQuasiQueue.h"
 
 #include <vector>
 #include <memory>
@@ -36,9 +37,10 @@ public:
 	void doRender() override;
 	void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) override;
 
-	ERegionStatus asyncPollUpdatedRegion(Region* out_region) override;
+	std::size_t asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions) override;
 	RenderStats asyncQueryRenderStats() override;
 	RenderProgress asyncQueryRenderProgress() override;
+
 	void asyncPeekFrame(
 		std::size_t   layerIndex,
 		const Region& region,
@@ -49,34 +51,28 @@ public:
 private:
 	using FilmEstimator = TReceiverMeasurementEstimator<HdrRgbFilm, math::Spectrum>;
 
+	void asyncAddUpdatedRegion(const Region& region, bool isUpdating);
+	void initScheduler(std::size_t numSamplesPerPixel);
+
 	const Scene*                   m_scene;
 	const Receiver*                m_receiver;
 	SampleGenerator*               m_sampleGenerator;
 	HdrRgbFilm                     m_mainFilm;
 
-	std::unique_ptr<WorkScheduler> m_scheduler;
-	EScheduler                     m_schedulerType;
-	math::Vector2S                 m_blockSize;
+	std::unique_ptr<WorkScheduler>          m_scheduler;
+	EScheduler                              m_schedulerType;
+	math::Vector2S                          m_blockSize;
+	TAtomicQuasiQueue<RenderRegionStatus>   m_updatedRegionQueue;
 	
 	std::vector<ReceiverSamplingWork>       m_renderWorks;
 	std::vector<FilmEstimator>              m_filmEstimators;
 	std::vector<MetaRecordingProcessor>     m_metaRecorders;
-
-	struct UpdatedRegion
-	{
-		Region region;
-		bool   isFinished;
-	};
-	std::deque<UpdatedRegion> m_updatedRegions;
 	
 	std::mutex           m_rendererMutex;
 	std::atomic_uint64_t m_totalPaths;
 	std::atomic_uint64_t m_totalElapsedMs;
 	std::atomic_uint32_t m_suppliedFractionBits;
 	std::atomic_uint32_t m_submittedFractionBits;
-
-	void addUpdatedRegion(const Region& region, bool isUpdating);
-	void initScheduler(std::size_t numSamplesPerPixel);
 };
 
 }// end namespace ph

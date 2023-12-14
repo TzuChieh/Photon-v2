@@ -14,6 +14,7 @@
 #include <Common/profiling.h>
 #include <Core/Engine.h>
 #include <Core/Renderer/Renderer.h>
+#include <Core/Renderer/RenderRegionStatus.h>
 #include <Utility/TFunction.h>
 #include <DataIO/io_utils.h>
 #include <Frame/TFrame.h>
@@ -26,6 +27,7 @@
 #include <stop_token>
 #include <unordered_set>
 #include <chrono>
+#include <vector>
 
 namespace ph::editor::render
 {
@@ -395,15 +397,15 @@ std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 min
 	return std::jthread(
 		[this, renderer, minPeriodMs](std::stop_token token)
 		{
-			std::unordered_set<math::TAABB2D<int32>> uniqueUpdatingRegions;
-			math::TAABB2D<int64> updatedRegion = math::TAABB2D<int64>::makeEmpty();
-			OfflineRenderPeek::Input cachedInput;
-
 			// We need to decide how many regions to poll in one peek request. Too small, we might
 			// never catch up with the speed of newly added regions. The number of concurrent CPU
 			// threads is a nice value to multiply from as the rendering speed should be roughly
 			// proportional to it.
-			const auto numRegionPollsAtOnce = std::thread::hardware_concurrency() * 4;
+			std::vector<RenderRegionStatus> regionPollBuffer(std::thread::hardware_concurrency() * 4);
+
+			std::unordered_set<math::TAABB2D<int32>> uniqueUpdatingRegions;
+			math::TAABB2D<int64> updatedRegion = math::TAABB2D<int64>::makeEmpty();
+			OfflineRenderPeek::Input cachedInput;
 
 			while(!token.stop_requested())
 			{
@@ -419,13 +421,25 @@ std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 min
 
 				if(cachedInput.wantUpdatingRegions || cachedInput.wantIntermediateResult)
 				{
-					for(uint32 i = 0; i < numRegionPollsAtOnce; ++i)
+					const auto numNewRegions = renderer->asyncPollUpdatedRegions(regionPollBuffer);
+					
+					// Grow the buffer exponentially so we can always catch up
+					if(regionPollBuffer.size() == numNewRegions)
 					{
-						Region region;
-						ERegionStatus status = renderer->asyncPollUpdatedRegion(&region);
-						if(status == ERegionStatus::INVALID)
+						// Effective growth rate k = 1.5
+						const auto newBufferSize = regionPollBuffer.size() + regionPollBuffer.size() / 2;
+						regionPollBuffer.resize(newBufferSize);
+					}
+					
+					for(uint32 ri = 0; ri < numNewRegions; ++ri)
+					{
+						const Region region = regionPollBuffer[ri].getRegion();
+						const ERegionStatus status = regionPollBuffer[ri].getStatus();
+
+						// Skip uninteresting region statuses
+						if(status == ERegionStatus::Invalid)
 						{
-							break;
+							continue;
 						}
 
 						updatedRegion.unionWith(region);
@@ -433,11 +447,11 @@ std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 min
 						if(cachedInput.wantUpdatingRegions)
 						{
 							const math::TAABB2D<int32> castedRegion(region);
-							if(status == ERegionStatus::UPDATING)
+							if(status == ERegionStatus::Updating)
 							{
 								uniqueUpdatingRegions.insert(castedRegion);
 							}
-							else if(status == ERegionStatus::FINISHED)
+							else if(status == ERegionStatus::Finished)
 							{
 								uniqueUpdatingRegions.erase(castedRegion);
 							}

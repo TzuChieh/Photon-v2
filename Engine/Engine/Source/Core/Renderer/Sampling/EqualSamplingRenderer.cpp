@@ -42,39 +42,40 @@ EqualSamplingRenderer::EqualSamplingRenderer(
 	Viewport                             viewport,
 	SampleFilter                         filter,
 	const uint32                         numWorkers,
-	const EScheduler                     scheduler) : 
+	const EScheduler                     scheduler)
 
-	SamplingRenderer(
+	: SamplingRenderer(
 		std::move(estimator),
 		std::move(viewport),
 		std::move(filter),
-		numWorkers),
+		numWorkers)
 
-	m_scene(nullptr),
-	m_receiver(nullptr),
-	m_sampleGenerator(nullptr),
-	m_mainFilm(),
+	, m_scene(nullptr)
+	, m_receiver(nullptr)
+	, m_sampleGenerator(nullptr)
+	, m_mainFilm()
 
-	m_scheduler(nullptr),
-	m_schedulerType(scheduler),
-	m_blockSize(128, 128),
+	, m_scheduler(nullptr)
+	, m_schedulerType(scheduler)
+	, m_blockSize(128, 128)
+	, m_updatedRegionQueue()
 
-	m_renderWorks(),
-	m_filmEstimators(),
+	, m_renderWorks()
+	, m_filmEstimators()
+	, m_metaRecorders()
 
-	m_updatedRegions(),
-	m_rendererMutex(),
-	m_totalPaths(),
-	m_totalElapsedMs(),
-	m_suppliedFractionBits(),
-	m_submittedFractionBits()
+	, m_rendererMutex()
+	, m_totalPaths()
+	, m_totalElapsedMs()
+	, m_suppliedFractionBits()
+	, m_submittedFractionBits()
 {}
 
 void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
 	PH_LOG(EqualSamplingRenderer, "rendering core: {}", m_estimator->toString());
 
-	m_updatedRegions.clear();
+	m_updatedRegionQueue    = TAtomicQuasiQueue<RenderRegionStatus>{};
 	m_totalPaths            = 0;
 	m_totalElapsedMs        = 0;
 	m_suppliedFractionBits  = 0;
@@ -92,7 +93,7 @@ void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualW
 	m_mainFilm = HdrRgbFilm(
 		getRenderWidthPx(), 
 		getRenderHeightPx(), 
-		getCropWindowPx(),
+		getRenderRegionPx(),
 		m_filter);
 
 	m_filmEstimators.resize(numWorkers());
@@ -120,8 +121,20 @@ void EqualSamplingRenderer::doRender()
 	{
 		workers.queueWork([this, workerId]()
 		{
-			auto& renderWork = m_renderWorks[workerId];
-			auto& filmEstimator = m_filmEstimators[workerId];
+			auto& renderWork          = m_renderWorks[workerId];
+			auto& workerFilmEstimator = m_filmEstimators[workerId];
+
+			renderWork.onWorkReport([this, &workerFilmEstimator]()
+			{
+				{
+					std::lock_guard<std::mutex> lock(m_rendererMutex);
+
+					workerFilmEstimator.mergeFilmTo(0, m_mainFilm);
+				}
+
+				workerFilmEstimator.clearFilm(0);
+				asyncAddUpdatedRegion(workerFilmEstimator.getFilmEffectiveWindowPx(), true);
+			});
 
 			float32 suppliedFraction = 0.0f;
 			float32 submittedFraction = 0.0f;
@@ -149,26 +162,16 @@ void EqualSamplingRenderer::doRender()
 					bitwise_cast<std::uint32_t>(suppliedFraction),
 					std::memory_order_relaxed);
 
-				filmEstimator.setFilmDimensions(
+				workerFilmEstimator.setFilmDimensions(
 					math::TVector2<int64>(getRenderWidthPx(), getRenderHeightPx()),
 					workUnit.getRegion());
 
-				const auto filmDimensions = filmEstimator.getFilmDimensions();
+				const auto filmDimensions = workerFilmEstimator.getFilmDimensions();
 				renderWork.setSampleDimensions(
 					filmDimensions.actualResPx, 
 					filmDimensions.sampleWindowPx, 
 					filmDimensions.effectiveWindowPx.getExtents());
 				renderWork.setSampleGenerator(std::move(sampleGenerator));
-
-				renderWork.onWorkReport([this, workerId]()
-				{
-					std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-					m_filmEstimators[workerId].mergeFilmTo(0, m_mainFilm);
-					m_filmEstimators[workerId].clearFilm(0);
-
-					addUpdatedRegion(m_filmEstimators[workerId].getFilmEffectiveWindowPx(), true);
-				});
 
 				renderWork.work();
 
@@ -177,9 +180,9 @@ void EqualSamplingRenderer::doRender()
 
 					m_scheduler->submit(workUnit);
 					submittedFraction = m_scheduler->getSubmittedFraction();
-
-					addUpdatedRegion(filmEstimator.getFilmEffectiveWindowPx(), false);
 				}
+
+				asyncAddUpdatedRegion(workerFilmEstimator.getFilmEffectiveWindowPx(), false);
 
 				m_submittedFractionBits.store(
 					bitwise_cast<std::uint32_t>(submittedFraction),
@@ -194,29 +197,9 @@ void EqualSamplingRenderer::doRender()
 	workers.waitAllWorks();
 }
 
-ERegionStatus EqualSamplingRenderer::asyncPollUpdatedRegion(Region* const out_region)
+std::size_t EqualSamplingRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions)
 {
-	PH_ASSERT(out_region);
-
-	std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-	if(m_updatedRegions.empty())
-	{
-		return ERegionStatus::INVALID;
-	}
-
-	const UpdatedRegion updatedRegion = m_updatedRegions.front();
-	m_updatedRegions.pop_front();
-
-	*out_region = updatedRegion.region;
-	if(updatedRegion.isFinished)
-	{
-		return ERegionStatus::FINISHED;
-	}
-	else
-	{
-		return ERegionStatus::UPDATING;
-	}
+	return m_updatedRegionQueue.tryDequeueBulk(out_regions.begin(), out_regions.size());
 }
 
 // FIXME: Peeking does not need to ensure correctness of the frame.
@@ -241,22 +224,13 @@ void EqualSamplingRenderer::asyncPeekFrame(
 
 void EqualSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
-	asyncPeekFrame(layerIndex, getCropWindowPx(), out_frame);
+	asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
 
-void EqualSamplingRenderer::addUpdatedRegion(const Region& region, const bool isUpdating)
+void EqualSamplingRenderer::asyncAddUpdatedRegion(const Region& region, const bool isUpdating)
 {
-	for(UpdatedRegion& pendingRegion : m_updatedRegions)
-	{
-		// later added region takes the precedence
-		if(pendingRegion.region.isEqual(region))
-		{
-			pendingRegion.isFinished = !isUpdating;
-			return;
-		}
-	}
-
-	m_updatedRegions.push_back(UpdatedRegion{region, !isUpdating});
+	m_updatedRegionQueue.enqueue(
+		RenderRegionStatus(region, isUpdating ? ERegionStatus::Updating : ERegionStatus::Finished));
 }
 
 RenderStats EqualSamplingRenderer::asyncQueryRenderStats()
@@ -276,7 +250,7 @@ RenderStats EqualSamplingRenderer::asyncQueryRenderStats()
 		static_cast<float32>(m_renderWorks.size() * summedNumSamples) / static_cast<float32>(summedElapsedMs) : 0.0f;
 
 	RenderStats stats;
-	stats.setInteger(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getCropWindowPx().getArea()));
+	stats.setInteger(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getRenderRegionPx().getArea()));
 	stats.setReal(0, samplesPerMs * 1000);
 	return stats;
 }
@@ -320,7 +294,7 @@ RenderObservationInfo EqualSamplingRenderer::getObservationInfo() const
 
 void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
 {
-	const WorkUnit totalWorks(Region(getCropWindowPx()), numSamplesPerPixel);
+	const WorkUnit totalWorks(Region(getRenderRegionPx()), numSamplesPerPixel);
 
 	switch(m_schedulerType)
 	{

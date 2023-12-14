@@ -10,13 +10,16 @@
 #include "Core/Renderer/AttributeTags.h"
 #include "Core/Renderer/RenderStats.h"
 #include "Core/Scheduler/Region.h"
-#include "Utility/Timer.h"
+#include "Core/Renderer/RenderRegionStatus.h"
 #include "Core/Renderer/RenderObservationInfo.h"
 #include "Frame/Viewport.h"
+#include "Utility/Timer.h"
+#include "Utility/TSpan.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
+#include <cstddef>
 #include <vector>
 #include <mutex>
 #include <memory>
@@ -50,9 +53,15 @@ public:
 	// Get the rendered result.
 	virtual void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) = 0;
 
-	// Get the rendering region that has been updated.
-	// TODO: allow polling unioned regions seems like a good idea
-	virtual ERegionStatus asyncPollUpdatedRegion(Region* out_region) = 0;
+	/*! @brief Get the rendering regions that have been updated.
+	Status of a region will always transition to `ERegionStatus::Finished`, and this ordering guarantee
+	is valid for one or across multiple calls. Note that if the renderer has multiple workers working
+	on the same region, you may observe a region transition from `ERegionStatus::Finished` to other
+	status multiple times, but in the end it will still be `ERegionStatus::Finished`.
+	@param out_regions Output buffer for storing the updated regions.
+	@return Number of regions actually stored in the output buffer.
+	*/
+	virtual std::size_t asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions) = 0;
 	
 	/*! @brief Get general information of the ongoing rendering process.
 	More information can be provided by the implementation. The meaning of each stat can be obtained
@@ -66,8 +75,10 @@ public:
 	*/
 	virtual RenderProgress asyncQueryRenderProgress() = 0;
 
-	// Similar to retrieveFrame(2), except that correctness is not guaranteed 
-	// for the returned frame.
+	/*! @brief Get the intermediate render result.
+	This method is similar to `retrieveFrame()`, except that correctness is not guaranteed for the
+	returned frame.
+	*/
 	virtual void asyncPeekFrame(
 		std::size_t   layerIndex,
 		const Region& region,
@@ -89,9 +100,16 @@ public:
 	uint32 numWorkers() const;
 	uint32 getRenderWidthPx() const;
 	uint32 getRenderHeightPx() const;
+
+	/*! @brief The region to work on.
+	The user may specify a window to confine all operations to this region. Note that this
+	is not necessary the region that will be rendered (see `getRenderRegionPx()`).
+	*/
 	math::TAABB2D<int64> getCropWindowPx() const;
 
-	/*! @brief The frame region that is going to be rendered.
+	/*! @brief The region that is going to be rendered.
+	The difference between render region and crop window is that render region will never exceed the
+	area defined by the base render size ([0, 0] to [`getRenderWidthPx()`, `getRenderHeightPx()`]).
 	*/
 	math::TAABB2D<int64> getRenderRegionPx() const;
 
@@ -102,6 +120,17 @@ public:
 
 	bool asyncIsUpdating() const;
 	bool asyncIsRendering() const;
+
+	/*! @brief Get the rendering region that has been updated.
+	This variant polls for combined regions. Note that this variant does not guarantee any status
+	ordering for a region. If a more fine-grained result is desired, use `asyncPollUpdatedRegions()`.
+	@param out_regions Output buffer for storing the updated regions.
+	@param mergeSize Number of regions to merge together. To obtain a single region, you can specify
+	a number greater or equal to the size of the output buffer.
+	*/
+	std::size_t asyncPollMergedUpdatedRegions(
+		TSpan<RenderRegionStatus> out_regions,
+		std::size_t mergeSize);
 
 private:
 	Viewport m_viewport;

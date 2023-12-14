@@ -44,6 +44,13 @@ typedef enum PhBufferFormat
 	PH_BUFFER_FORMAT_FLOAT32_ARRAY
 } PhBufferFormat;
 
+typedef enum PhFrameRegionStatus
+{
+	PH_FRAME_REGION_STATUS_INVALID,
+	PH_FRAME_REGION_STATUS_FINISHED,
+	PH_FRAME_REGION_STATUS_UPDATING
+} PhFrameRegionStatus;
+
 #define PH_MAX_FRAME_DATA_NAME_SIZE 256
 
 //typedef struct PhFrameLoadInfo

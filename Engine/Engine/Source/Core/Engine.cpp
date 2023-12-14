@@ -201,11 +201,6 @@ void Engine::setNumThreads(uint32 numThreads)
 		numThreads, numThreads > 0 ? "" : " (auto determine)");
 }
 
-ERegionStatus Engine::asyncPollUpdatedRegion(Region* const out_region) const
-{
-	return getRenderer()->asyncPollUpdatedRegion(out_region);
-}
-
 void Engine::asyncPeekFrame(
 	const std::size_t layerIndex,
 	const Region&     region,

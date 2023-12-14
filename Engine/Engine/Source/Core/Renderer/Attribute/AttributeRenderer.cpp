@@ -54,7 +54,7 @@ void AttributeRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld
 	m_attributeFilm = HdrRgbFilm(
 		getRenderWidthPx(),
 		getRenderHeightPx(),
-		getCropWindowPx(),
+		getRenderRegionPx(),
 		SampleFilters::createBoxFilter());
 }
 
@@ -102,14 +102,19 @@ void AttributeRenderer::doRender()
 	}
 }
 
-ERegionStatus AttributeRenderer::asyncPollUpdatedRegion(Region* const out_region)
+std::size_t AttributeRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions)
 {
-	PH_ASSERT(out_region);
-
-	//std::lock_guard<std::mutex> lock(m_rendererMutex);
-
-	*out_region = getCropWindowPx();
-	return ERegionStatus::UPDATING;
+	if(asyncIsRendering())
+	{
+		out_regions[0] = RenderRegionStatus(getRenderRegionPx(), ERegionStatus::Updating);
+		return 1;
+	}
+	else
+	{
+		// Report region finished when not rendering, so we meet the required ordering
+		out_regions[0] = RenderRegionStatus(getRenderRegionPx(), ERegionStatus::Finished);
+		return 1;
+	}
 }
 
 // OPT: Peeking does not need to ensure correctness of the frame.
@@ -134,7 +139,7 @@ void AttributeRenderer::asyncPeekFrame(
 
 void AttributeRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
-	asyncPeekFrame(layerIndex, getCropWindowPx(), out_frame);
+	asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
 
 RenderStats AttributeRenderer::asyncQueryRenderStats()

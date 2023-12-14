@@ -296,7 +296,7 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFrameRegion(
 	jobject out_IntRef_hPx)
 {
 	PhUInt32 xPx, yPx, wPx, hPx;
-	const int status = phAsyncPollUpdatedFrameRegion(
+	const auto status = phAsyncPollUpdatedFrameRegion(
 		static_cast<PhUInt64>(engineId),
 		&xPx, &yPx, &wPx, &hPx);
 
@@ -311,8 +311,8 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFrameRegion(
 
 	switch(status)
 	{
-	case PH_FILM_REGION_STATUS_UPDATING: return photonApi_Ph_FILM_REGION_STATUS_UPDATING;
-	case PH_FILM_REGION_STATUS_FINISHED: return photonApi_Ph_FILM_REGION_STATUS_FINISHED;
+	case PH_FRAME_REGION_STATUS_UPDATING: return photonApi_Ph_FILM_REGION_STATUS_UPDATING;
+	case PH_FRAME_REGION_STATUS_FINISHED: return photonApi_Ph_FILM_REGION_STATUS_FINISHED;
 	}
 
 	return photonApi_Ph_FILM_REGION_STATUS_INVALID;

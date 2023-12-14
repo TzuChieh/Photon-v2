@@ -4,10 +4,8 @@
 #include "SDL/SdlSceneFileReader.h"
 #include "SDL/SceneDescription.h"
 #include "Math/TVector2.h"
-#include "Core/Renderer/ERegionStatus.h"
 #include "Frame/frame_fwd.h"
 #include "Frame/FrameProcessor.h"
-#include "Core/Renderer/EAttribute.h"
 #include "Core/Scheduler/Region.h"
 #include "DataIO/FileSystem/Path.h"
 #include "EngineEnv/CoreCookedUnit.h"
@@ -38,8 +36,6 @@ public:
 	@param numThreads Number of threads. If set to 0, a default value will automatically be chosen.
 	*/
 	void setNumThreads(uint32 numThreads);
-
-	ERegionStatus asyncPollUpdatedRegion(Region* out_region) const;
 
 	void asyncPeekFrame(
 		std::size_t   layerIndex,
