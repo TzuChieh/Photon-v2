@@ -51,6 +51,15 @@ typedef enum PhFrameRegionStatus
 	PH_FRAME_REGION_STATUS_UPDATING
 } PhFrameRegionStatus;
 
+typedef struct PhFrameRegionInfo
+{
+	PhUInt32 xPx;
+	PhUInt32 yPx;
+	PhUInt32 widthPx;
+	PhUInt32 heightPx;
+	PhFrameRegionStatus status;
+} PhFrameRegionInfo;
+
 #define PH_MAX_FRAME_DATA_NAME_SIZE 256
 
 //typedef struct PhFrameLoadInfo

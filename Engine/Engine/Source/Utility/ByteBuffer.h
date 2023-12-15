@@ -12,6 +12,8 @@
 namespace ph
 {
 
+/*! @brief An auto-resizable byte storage.
+*/
 class ByteBuffer final
 {
 public:
@@ -24,9 +26,13 @@ public:
 	template<typename T>
 	void read(T* out_data, std::size_t numElements);
 
+	/*! @brief Writes data to the buffer. Grows the buffer if no space left.
+	*/
 	template<typename T>
 	void write(const T& data);
 
+	/*! @brief Writes data to the buffer. Grows the buffer if no space left.
+	*/
 	template<typename T>
 	void write(const T* data, std::size_t numElements);
 

@@ -448,39 +448,74 @@ void phAsyncGetRendererState(
 	}
 }
 
-PhFrameRegionStatus phAsyncPollUpdatedFrameRegion(
-	const PhUInt64  engineId,
-	PhUInt32* const out_xPx,
-	PhUInt32* const out_yPx,
-	PhUInt32* const out_widthPx,
-	PhUInt32* const out_heightPx)
+PhBool phAsyncPollUpdatedFrameRegion(
+	PhUInt64 engineId,
+	PhFrameRegionInfo* out_regionInfo)
 {
-	PH_ASSERT(out_xPx && out_yPx && out_widthPx && out_heightPx);
+	PH_ASSERT(out_regionInfo);
 
 	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
-	if(engine && engine->getRenderer())
+	if(!engine || !engine->getRenderer())
 	{
-		RenderRegionStatus region;
-		const auto numRegions = engine->getRenderer()->asyncPollUpdatedRegions(TSpan{&region, 1});
-		if(numRegions == 0)
-		{
-			return PH_FRAME_REGION_STATUS_INVALID;
-		}
-
-		*out_xPx      = static_cast<PhUInt32>(region.getRegion().getMinVertex().x());
-		*out_yPx      = static_cast<PhUInt32>(region.getRegion().getMinVertex().y());
-		*out_widthPx  = static_cast<PhUInt32>(region.getRegion().getWidth());
-		*out_heightPx = static_cast<PhUInt32>(region.getRegion().getHeight());
-
-		switch(region.getStatus())
-		{
-		case ERegionStatus::Invalid:  return PH_FRAME_REGION_STATUS_INVALID;
-		case ERegionStatus::Finished: return PH_FRAME_REGION_STATUS_FINISHED;
-		case ERegionStatus::Updating: return PH_FRAME_REGION_STATUS_UPDATING;
-		}
+		return PH_FALSE;
 	}
 
-	return PH_FRAME_REGION_STATUS_INVALID;
+	RenderRegionStatus region;
+	const auto numRegions = engine->getRenderer()->asyncPollUpdatedRegions(TSpan{&region, 1});
+	if(numRegions == 0)
+	{
+		return PH_FALSE;
+	}
+
+	out_regionInfo->xPx = static_cast<PhUInt32>(region.getRegion().getMinVertex().x());
+	out_regionInfo->yPx = static_cast<PhUInt32>(region.getRegion().getMinVertex().y());
+	out_regionInfo->widthPx = static_cast<PhUInt32>(region.getRegion().getWidth());
+	out_regionInfo->heightPx = static_cast<PhUInt32>(region.getRegion().getHeight());
+
+	switch(region.getStatus())
+	{
+	case ERegionStatus::Finished:
+		out_regionInfo->status = PH_FRAME_REGION_STATUS_FINISHED;
+		break;
+
+	case ERegionStatus::Updating:
+		out_regionInfo->status = PH_FRAME_REGION_STATUS_UPDATING;
+		break;
+
+	default:
+		out_regionInfo->status = PH_FRAME_REGION_STATUS_INVALID;
+		break;
+	}
+
+	return PH_TRUE;
+}
+
+PhSize phAsyncPollUpdatedFrameRegions(
+	PhUInt64 engineId,
+	PhUInt64 bufferId,
+	PhFrameRegionInfo** out_regionInfosPtr)
+{
+	PH_ASSERT(out_regionInfosPtr);
+
+	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
+	auto buffer = ApiDatabase::useResource<ByteBuffer>(bufferId).lock();
+	if(!engine || !engine->getRenderer() || !buffer)
+	{
+		return 0;
+	}
+
+
+
+	// TODO
+}
+
+PhSize phAsyncPollMergedUpdatedFrameRegions(
+	PhUInt64 engineId,
+	PhUInt64 bufferId,
+	PhSize mergeSize,
+	PhFrameRegionInfo** out_regionInfosPtr)
+{
+	// TODO
 }
 
 void phAsyncPeekFrame(

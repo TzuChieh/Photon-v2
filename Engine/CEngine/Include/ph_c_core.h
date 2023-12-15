@@ -168,7 +168,7 @@ extern PH_API void phFrameOpAbsDifference(PhUInt64 frameAId, PhUInt64 frameBId, 
 extern PH_API PhFloat32 phFrameOpMSE(PhUInt64 expectedFrameId, PhUInt64 estimatedFramIde);
 
 ///////////////////////////////////////////////////////////////////////////////
-// Miscellaneous Operations
+// General Buffer Operations
 //
 
 extern PH_API void phCreateBuffer(PhUInt64* out_bufferId);
@@ -193,12 +193,28 @@ extern PH_API void phAsyncGetRendererState(
 	PhUInt64                 engineId,
 	struct PHRenderState*    out_state);
 
-extern PH_API PhFrameRegionStatus phAsyncPollUpdatedFrameRegion(
+/*! @brief Polls for a single changed region during engine runtime.
+*/
+extern PH_API PhBool phAsyncPollUpdatedFrameRegion(
 	PhUInt64 engineId,
-	PhUInt32* out_xPx,
-	PhUInt32* out_yPx,
-	PhUInt32* out_widthPx,
-	PhUInt32* out_heightPx);
+	PhFrameRegionInfo* out_regionInfo);
+
+/*! @brief Polls for multiple changed regions during engine runtime.
+*/
+extern PH_API PhSize phAsyncPollUpdatedFrameRegions(
+	PhUInt64 engineId,
+	PhUInt64 bufferId,
+	PhFrameRegionInfo** out_regionInfosPtr);
+
+/*! @brief Polls for multiple changed regions during engine runtime.
+@param mergeSize Number of regions to merge together. To obtain a single region, you can specify
+a large number.
+*/
+extern PH_API PhSize phAsyncPollMergedUpdatedFrameRegions(
+	PhUInt64 engineId,
+	PhUInt64 bufferId,
+	PhSize mergeSize,
+	PhFrameRegionInfo** out_regionInfosPtr);
 
 extern PH_API void phAsyncPeekFrame(
 	PhUInt64                 engineId,
