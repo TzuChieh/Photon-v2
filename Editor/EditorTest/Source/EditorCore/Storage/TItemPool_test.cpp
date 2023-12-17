@@ -1,12 +1,14 @@
 #include <EditorCore/Storage/TItemPool.h>
 #include <EditorCore/Storage/TWeakHandle.h>
 #include <EditorCore/Storage/TStrongHandle.h>
+#include <EditorCore/Storage/TConcurrentHandleDispatcher.h>
 
 #include <gtest/gtest.h>
 
 #include <vector>
 #include <memory>
 #include <utility>
+#include <string>
 
 using namespace ph::editor;
 
@@ -553,5 +555,126 @@ TEST(TItemPoolTest, RecognizeUninitializedItem)
 		pool.remove(handle);
 
 		EXPECT_FALSE(pool.get(handle));
+	}
+}
+
+namespace
+{
+
+struct WithConst
+{
+	const int x;
+
+	WithConst()
+		: x(-1)
+	{}
+
+	WithConst(int x)
+		: x(x)
+	{}
+};
+
+}
+
+TEST(TItemPoolTest, ItemWithConstQualifier)
+{
+	// With const member + adding & removing with auto handle management
+	{
+		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<WithConst>>;
+		using Pool = TItemPool<WithConst, Dispatcher>;
+		using Handle = Pool::HandleType;
+
+		constexpr int numItems = 1000;
+
+		Pool pool;
+		std::vector<Handle> handles;
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles.push_back(pool.add(WithConst(i)));
+		}
+		ASSERT_EQ(pool.numItems(), handles.size());
+
+		// Check every item is intactly stored
+		for(int i = 0; i < numItems; ++i)
+		{
+			WithConst* item = pool.get(handles[i]);
+			ASSERT_TRUE(item);
+
+			EXPECT_EQ(item->x, i);
+		}
+
+		// Remove every item
+		for(int i = 0; i < numItems; ++i)
+		{
+			pool.remove(handles[i]);
+			EXPECT_FALSE(pool.get(handles[i]));
+		}
+		EXPECT_EQ(pool.numItems(), 0);
+
+		// Add items again, this time with a different value
+		handles.clear();
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles.push_back(pool.add(WithConst(i * 2)));
+		}
+
+		// Check every item is intactly stored
+		for(int i = 0; i < numItems; ++i)
+		{
+			WithConst* item = pool.get(handles[i]);
+			ASSERT_TRUE(item);
+
+			EXPECT_EQ(item->x, i * 2);
+		}
+	}
+
+	// Const instances + adding & removing with auto handle management
+	{
+		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<const std::string>>;
+		using Pool = TItemPool<const std::string, Dispatcher>;
+		using Handle = Pool::HandleType;
+
+		constexpr int numItems = 1000;
+
+		Pool pool;
+		std::vector<Handle> handles;
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles.push_back(pool.add(std::to_string(i)));
+		}
+		ASSERT_EQ(pool.numItems(), handles.size());
+
+		// Check every item is intactly stored
+		for(int i = 0; i < numItems; ++i)
+		{
+			const std::string* str = pool.get(handles[i]);
+			ASSERT_TRUE(str);
+
+			EXPECT_STREQ(str->c_str(), std::to_string(i).c_str());
+		}
+
+		// Remove every item
+		for(int i = 0; i < numItems; ++i)
+		{
+			pool.remove(handles[i]);
+			EXPECT_FALSE(pool.get(handles[i]));
+		}
+		EXPECT_EQ(pool.numItems(), 0);
+
+		// Add items again, this time with a different value
+		handles.clear();
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles.push_back(pool.add(std::to_string(i * 2)));
+		}
+
+		// Check every item is intactly stored
+		for(int i = 0; i < numItems; ++i)
+		{
+			const std::string* str = pool.get(handles[i]);
+			ASSERT_TRUE(str);
+
+			EXPECT_STREQ(str->c_str(), std::to_string(i * 2).c_str());
+		}
 	}
 }

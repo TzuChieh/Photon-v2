@@ -38,6 +38,12 @@ return all handles to the dispatcher will face stale handle issues sooner or lat
 valid handles (either the ones in the dispatcher or the ones tracked manually by the user) will
 suddenly become invalid. A more complex API/policy may solve the problem, but the increased
 complexity might not worth it, and such feature is not needed currently.
+
+@tparam Dispatcher The dispatcher to use for this pool. Unlike `TItemPool`, trivial item pool does not
+require the handle type to be related to `Item` in any way, i.e., the item type of handle does not
+matter. This is useful for using the handle like an opaque pointer. Example: Specifying
+`Item = std::string` and `Dispatcher = THandleDispatcher<TWeakHandle<int>>` is valid and
+`TWeakHandle<int>` can be used for accessing the pool.
 */
 template<typename Item, CHandleDispatcher Dispatcher = THandleDispatcher<TWeakHandle<Item>>>
 class TTrivialItemPool : public TItemPoolInterface<Item, typename Dispatcher::HandleType>
@@ -376,7 +382,7 @@ private:
 
 	/*! @brief Get pointer to item given its storage.
 	This method helps to automatically do pointer laundering if required. Note that the pointed-to item
-	must be within its lifetime, otherwise `std::launder` has UB.
+	must be within its lifetime, otherwise it is UB.
 	*/
 	inline static Item* getItemPtr(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
 	{
@@ -384,6 +390,7 @@ private:
 		// See [basic.life] Section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
 		if constexpr(std::is_const_v<Item> || PH_STRICT_OBJECT_LIFETIME)
 		{
+			// UB if pointed-to object not within its lifetime
 			return std::launder(getItemPtrDirectly(storage, index));
 		}
 		// We do not need to launder even if `Item` contains const or reference members. See

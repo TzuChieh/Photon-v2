@@ -35,6 +35,13 @@ static_assert(std::is_trivially_copyable_v<SimpleClass2>);
 TEST(TTrivialItemPoolTest, Creation)
 {
 	{
+		TTrivialItemPool<int> pool;
+		EXPECT_EQ(pool.numItems(), 0);
+		EXPECT_EQ(pool.numFreeSpace(), 0);
+		EXPECT_TRUE(pool.isEmpty());
+	}
+
+	{
 		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<int>>;
 
 		TTrivialItemPool<int, Dispatcher> pool;
@@ -60,7 +67,6 @@ TEST(TTrivialItemPoolTest, AddingAndRemovingItems)
 		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<int>>;
 		using Pool = TTrivialItemPool<SimpleClass, Dispatcher>;
 		using Handle = Pool::HandleType;
-		using HandleDispatcher = TConcurrentHandleDispatcher<Handle>;
 
 		constexpr int numItems = 10000;
 
@@ -102,7 +108,6 @@ TEST(TTrivialItemPoolTest, AddingAndRemovingItems)
 		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<int>>;
 		using Pool = TTrivialItemPool<SimpleClass, Dispatcher>;
 		using Handle = Pool::HandleType;
-		using HandleDispatcher = TConcurrentHandleDispatcher<Handle>;
 
 		constexpr int numItems = 10000;
 
@@ -166,7 +171,6 @@ TEST(TTrivialItemPoolTest, RemovedItemHasDefaultValue)
 	// Using `SimpleClass2`, which has non-zero default values
 	using Pool = TTrivialItemPool<SimpleClass2>;
 	using Handle = Pool::HandleType;
-	using HandleDispatcher = TConcurrentHandleDispatcher<Handle>;
 
 	constexpr int numItems = 1000;
 
@@ -249,7 +253,6 @@ TEST(TTrivialItemPoolTest, ItemWithConstQualifier)
 		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<int>>;
 		using Pool = TTrivialItemPool<WithConst, Dispatcher>;
 		using Handle = Pool::HandleType;
-		using HandleDispatcher = TConcurrentHandleDispatcher<Handle>;
 
 		constexpr int numItems = 10000;
 
@@ -300,7 +303,6 @@ TEST(TTrivialItemPoolTest, ItemWithConstQualifier)
 		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<int>>;
 		using Pool = TTrivialItemPool<const SimpleClass, Dispatcher>;
 		using Handle = Pool::HandleType;
-		using HandleDispatcher = TConcurrentHandleDispatcher<Handle>;
 
 		constexpr int numItems = 10000;
 

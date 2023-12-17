@@ -10,6 +10,7 @@
 #include <Common/os.h>
 #include <Common/math_basics.h>
 #include <Common/exception.h>
+#include <Common/config.h>
 #include <Utility/utility.h>
 
 #include <cstddef>
@@ -28,6 +29,8 @@ namespace ph::editor
 
 /*! @brief A general item pool.
 @tparam Item Type of the stored datum. Can be any class or primitive type. Must be move constructible.
+@tparam Dispatcher The dispatcher to use for this pool. Item pool requires the handle type to be
+"compatible" to `Item`, see the definition of `TCompatibleHandleType` for more detail.
 */
 template<
 	typename Item, 
@@ -87,7 +90,7 @@ public:
 			PH_ASSERT_LT(m_currentIdx, m_pool->m_storageStates.size());
 			PH_ASSERT(!m_pool->m_storageStates[m_currentIdx].isFreed);
 
-			return m_pool->m_storageMemory.get()[m_currentIdx];
+			return *getItemPtr(m_pool->m_storageMemory, m_currentIdx);
 		}
 
 		// Pre-incrementable
@@ -377,7 +380,7 @@ public:
 	inline ItemType* get(const TCompatibleHandleType<ItemType>& handle)
 	{
 		return isFresh(handle) && !m_storageStates[handle.getIndex()].isFreed
-			? (m_storageMemory.get() + handle.getIndex())
+			? getItemPtr(m_storageMemory, handle.getIndex())
 			: nullptr;
 	}
 
@@ -390,7 +393,7 @@ public:
 	inline const ItemType* get(const TCompatibleHandleType<ItemType>& handle) const
 	{
 		return isFresh(handle) && !m_storageStates[handle.getIndex()].isFreed
-			? (m_storageMemory.get() + handle.getIndex())
+			? getItemPtr(m_storageMemory, handle.getIndex())
 			: nullptr;
 	}
 
@@ -498,7 +501,7 @@ private:
 		// `Item` was manually destroyed. No need for storing the returned pointer nor using
 		// `std::launder()` on each use for most cases (same object type with exactly the same storage
 		// location), see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/basic.life#8).
-		std::construct_at(m_storageMemory.get() + itemIdx, std::move(item));
+		std::construct_at(getItemPtrDirectly(m_storageMemory, itemIdx), std::move(item));
 
 		m_storageStates[itemIdx].isFreed = false;
 		++m_numItems;
@@ -509,7 +512,7 @@ private:
 		PH_ASSERT_LT(itemIdx, capacity());
 		PH_ASSERT(!m_storageStates[itemIdx].isFreed);
 
-		std::destroy_at(m_storageMemory.get() + itemIdx);
+		std::destroy_at(getItemPtr(m_storageMemory, itemIdx));
 		
 		m_storageStates[itemIdx].isFreed = true;
 		m_storageStates[itemIdx].generation = HandleType::nextGeneration(m_storageStates[itemIdx].generation);
@@ -536,13 +539,13 @@ private:
 			make_aligned_memory<Item>(totalMemorySize, alignmentSize);
 		if(!newStorageMemory)
 		{
-			throw std::bad_alloc();
+			throw std::bad_alloc{};
 		}
 
 		forEachItem(
-			[newItems = newStorageMemory.get()](Item* oldItem, Index idx)
+			[&newStorageMemory](Item* oldItem, Index idx)
 			{
-				std::construct_at(newItems + idx, std::move(*oldItem));
+				std::construct_at(getItemPtrDirectly(newStorageMemory, idx), std::move(*oldItem));
 				std::destroy_at(oldItem);
 			});
 
@@ -558,7 +561,9 @@ private:
 	{
 		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
 		{
-			Item* item = m_storageMemory.get() + itemIdx;
+			Item* item = m_storageStates[itemIdx].isFreed
+				? getItemPtrDirectly(m_storageMemory, itemIdx)
+				: getItemPtr(m_storageMemory, itemIdx);
 			op(item, itemIdx);
 		}
 	}
@@ -568,7 +573,9 @@ private:
 	{
 		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
 		{
-			const Item* item = m_storageMemory.get() + itemIdx;
+			const Item* item = m_storageStates[itemIdx].isFreed
+				? getItemPtrDirectly(m_storageMemory, itemIdx)
+				: getItemPtr(m_storageMemory, itemIdx);
 			op(item, itemIdx);
 		}
 	}
@@ -641,6 +648,32 @@ private:
 			}
 		}
 		return itemEndIdx;
+	}
+
+	/*! @brief Get pointer to item given its storage.
+	This method helps to automatically do pointer laundering if required. Note that the pointed-to item
+	must be within its lifetime, otherwise it is UB.
+	*/
+	inline static Item* getItemPtr(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
+	{
+		// If `Item` is const qualified, laundering is required to prevent aggressive constant folding.
+		// See [basic.life] Section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
+		if constexpr(std::is_const_v<Item> || PH_STRICT_OBJECT_LIFETIME)
+		{
+			// UB if pointed-to object not within its lifetime
+			return std::launder(getItemPtrDirectly(storage, index));
+		}
+		// We do not need to launder even if `Item` contains const or reference members. See
+		// https://stackoverflow.com/questions/62642542/were-all-implementations-of-stdvector-non-portable-before-stdlaunder
+		else
+		{
+			return getItemPtrDirectly(storage, index);
+		}
+	}
+
+	inline static Item* getItemPtrDirectly(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
+	{
+		return storage.get() + index;
 	}
 
 	inline static constexpr Index nextCapacity(const Index currentCapacity)
