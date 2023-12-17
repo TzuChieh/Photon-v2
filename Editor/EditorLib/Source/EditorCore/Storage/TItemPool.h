@@ -496,8 +496,8 @@ private:
 		PH_ASSERT(m_storageStates[itemIdx].isFreed);
 
 		// `Item` was manually destroyed. No need for storing the returned pointer nor using
-		// `std::launder()` on each use (same object type with exactly the same storage location), 
-		// see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
+		// `std::launder()` on each use for most cases (same object type with exactly the same storage
+		// location), see C++ standard [basic.life] section 8 (https://timsong-cpp.github.io/cppwp/basic.life#8).
 		std::construct_at(m_storageMemory.get() + itemIdx, std::move(item));
 
 		m_storageStates[itemIdx].isFreed = false;

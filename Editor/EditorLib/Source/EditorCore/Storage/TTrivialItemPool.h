@@ -87,7 +87,7 @@ public:
 		for(Index i = 0; i < other.capacity(); ++i)
 		{
 			std::construct_at(
-				getItemPtr(m_storageMemory, i),
+				getItemPtrDirectly(m_storageMemory, i),
 				*getItemPtr(other.m_storageMemory, i));
 		}
 
@@ -176,10 +176,10 @@ public:
 		PH_ASSERT_LT(itemIdx, m_generations.size());
 		PH_ASSERT(isFresh(handle));
 
-		// No need for storing the returned pointer nor using `std::launder()` on each use (same object
-		// type with exactly the same storage location), see C++ standard [basic.life] section 8
-		// (https://timsong-cpp.github.io/cppwp/basic.life#8).
-		std::construct_at(getItemPtr(m_storageMemory, itemIdx), std::move(item));
+		// No need for storing the returned pointer nor using `std::launder()` on each use for most
+		// cases (same object type with exactly the same storage location), see C++ standard [basic.life]
+		// section 8 (https://timsong-cpp.github.io/cppwp/basic.life#8).
+		std::construct_at(getItemPtrDirectly(m_storageMemory, itemIdx), std::move(item));
 
 		++m_numItems;
 		return handle;
@@ -353,7 +353,7 @@ private:
 		for(Index i = 0; i < oldCapacity; ++i)
 		{
 			std::construct_at(
-				getItemPtr(newStorageMemory, i),
+				getItemPtrDirectly(newStorageMemory, i),
 				std::move(*getItemPtr(m_storageMemory, i)));
 		}
 
@@ -363,7 +363,7 @@ private:
 		// cannot be relied upon (item lifetime may not begin unless placement new is used).
 		for(Index i = oldCapacity; i < newCapacity; ++i)
 		{
-			std::construct_at(getItemPtr(newStorageMemory, i), Item{});
+			std::construct_at(getItemPtrDirectly(newStorageMemory, i), Item{});
 		}
 
 		// Extend generation records to cover new storage spaces
@@ -374,20 +374,29 @@ private:
 		m_storageMemory = std::move(newStorageMemory);
 	}
 
+	/*! @brief Get pointer to item given its storage.
+	This method helps to automatically do pointer laundering if required. Note that the pointed-to item
+	must be within its lifetime, otherwise `std::launder` has UB.
+	*/
 	inline static Item* getItemPtr(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
 	{
 		// If `Item` is const qualified, laundering is required to prevent aggressive constant folding.
 		// See [basic.life] Section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
 		if constexpr(std::is_const_v<Item> || PH_STRICT_OBJECT_LIFETIME)
 		{
-			return std::launder(storage.get() + index);
+			return std::launder(getItemPtrDirectly(storage, index));
 		}
 		// We do not need to launder even if `Item` contains const or reference members. See
 		// https://stackoverflow.com/questions/62642542/were-all-implementations-of-stdvector-non-portable-before-stdlaunder
 		else
 		{
-			return storage.get() + index;
+			return getItemPtrDirectly(storage, index);
 		}
+	}
+
+	inline static Item* getItemPtrDirectly(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
+	{
+		return storage.get() + index;
 	}
 
 	inline static constexpr Index nextCapacity(const Index currentCapacity)
