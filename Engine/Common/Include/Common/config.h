@@ -66,6 +66,16 @@ Default value is 512 KiB.
 
 #define PH_TFUNCTION_DEFAULT_MIN_SIZE_IN_BYTES (static_cast<std::size_t>(64))
 
+/*! @brief Being strict about object lifetime.
+Some compiler versions and different standards may be using an object lifetime model that can be
+optimized more aggressively (e.g., constant folding on const instances), which may cause UB or
+malfunctions on some low-level code. It is then advisible to turn on this option if such behavior
+is observed on the host platform. Note that turning this option off does not mean the source code
+will be non-conforming to the standard, it means the opposite--follow the latest standard strictly.
+Turning this option on is a fallback when things do not go as planned.
+*/
+#define PH_STRICT_OBJECT_LIFETIME 0
+
 /*! @brief Directory that stores engine log file.
 */
 #define PH_LOG_FILE_DIRECTRY "./Logs/"

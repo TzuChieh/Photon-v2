@@ -10,7 +10,9 @@
 #include <Common/os.h>
 #include <Common/math_basics.h>
 #include <Common/exception.h>
+#include <Common/config.h>
 
+#include <cstddef>
 #include <type_traits>
 #include <limits>
 #include <utility>
@@ -82,11 +84,11 @@ public:
 		grow(other.capacity());
 
 		// Copy all items (they are either created by user or default-constructed)
-		for(std::size_t i = 0; i < other.capacity(); ++i)
+		for(Index i = 0; i < other.capacity(); ++i)
 		{
 			std::construct_at(
-				m_storageMemory.get() + i, 
-				*(other.m_storageMemory.get() + i));
+				getItemPtr(m_storageMemory, i),
+				*getItemPtr(other.m_storageMemory, i));
 		}
 
 		// Copied after storage, since capacity is determined from `m_generations`
@@ -176,8 +178,8 @@ public:
 
 		// No need for storing the returned pointer nor using `std::launder()` on each use (same object
 		// type with exactly the same storage location), see C++ standard [basic.life] section 8
-		// (https://timsong-cpp.github.io/cppwp/n4659/basic.life#8).
-		std::construct_at(m_storageMemory.get() + itemIdx, std::move(item));
+		// (https://timsong-cpp.github.io/cppwp/basic.life#8).
+		std::construct_at(getItemPtr(m_storageMemory, itemIdx), std::move(item));
 
 		++m_numItems;
 		return handle;
@@ -205,7 +207,7 @@ public:
 		static_assert(std::is_trivially_destructible_v<Item>);
 
 		// Instead, we clear it by default constructing a new instance
-		std::construct_at(m_storageMemory.get() + itemIdx, Item{});
+		std::construct_at(getItemPtr(m_storageMemory, itemIdx), Item{});
 
 		const Generation newGeneration = HandleType::nextGeneration(handle.getGeneration());
 		m_generations[itemIdx] = newGeneration;
@@ -242,7 +244,7 @@ public:
 	*/
 	inline Item* get(const HandleType& handle)
 	{
-		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
+		return isFresh(handle) ? getItemPtr(m_storageMemory, handle.getIndex()) : nullptr;
 	}
 
 	/*! @brief Get item by handle.
@@ -253,7 +255,7 @@ public:
 	*/
 	inline const Item* get(const HandleType& handle) const
 	{
-		return isFresh(handle) ? (m_storageMemory.get() + handle.getIndex()) : nullptr;
+		return isFresh(handle) ? getItemPtr(m_storageMemory, handle.getIndex()) : nullptr;
 	}
 
 	inline Index numItems() const
@@ -300,13 +302,13 @@ public:
 	inline Item& operator [] (const std::size_t index)
 	{
 		PH_ASSERT_LT(index, m_generations.size());
-		return *(m_storageMemory.get() + index);
+		return *getItemPtr(m_storageMemory, index);
 	}
 
 	inline const Item& operator [] (const std::size_t index) const
 	{
 		PH_ASSERT_LT(index, m_generations.size());
-		return *(m_storageMemory.get() + index);
+		return *getItemPtr(m_storageMemory, index);
 	}
 	///@}
 
@@ -348,20 +350,20 @@ private:
 		// Copying/moving all items to new storage. No need (and no means) to check items from the
 		// old storage are valid--they are either created by user or default-constructed when their
 		// storage was first allocated.
-		for(std::size_t i = 0; i < oldCapacity; ++i)
+		for(Index i = 0; i < oldCapacity; ++i)
 		{
 			std::construct_at(
-				newStorageMemory.get() + i, 
-				std::move(*(m_storageMemory.get() + i)));
+				getItemPtr(newStorageMemory, i),
+				std::move(*getItemPtr(m_storageMemory, i)));
 		}
 
 		// Set newly created storage space to default values, since accessing items before their
 		// construction is explicitly stated to behave like they are default-constructed. Another reason
 		// is that `Item` may not be an implicit-lifetime class, so C++20's Implicit Object Creation
 		// cannot be relied upon (item lifetime may not begin unless placement new is used).
-		for(std::size_t i = oldCapacity; i < newCapacity; ++i)
+		for(Index i = oldCapacity; i < newCapacity; ++i)
 		{
-			std::construct_at(newStorageMemory.get() + i, Item{});
+			std::construct_at(getItemPtr(newStorageMemory, i), Item{});
 		}
 
 		// Extend generation records to cover new storage spaces
@@ -370,6 +372,22 @@ private:
 
 		// Finally, get rid of the old item storage
 		m_storageMemory = std::move(newStorageMemory);
+	}
+
+	inline static Item* getItemPtr(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
+	{
+		// If `Item` is const qualified, laundering is required to prevent aggressive constant folding.
+		// See [basic.life] Section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
+		if constexpr(std::is_const_v<Item> || PH_STRICT_OBJECT_LIFETIME)
+		{
+			return std::launder(storage.get() + index);
+		}
+		// We do not need to launder even if `Item` contains const or reference members. See
+		// https://stackoverflow.com/questions/62642542/were-all-implementations-of-stdvector-non-portable-before-stdlaunder
+		else
+		{
+			return storage.get() + index;
+		}
 	}
 
 	inline static constexpr Index nextCapacity(const Index currentCapacity)

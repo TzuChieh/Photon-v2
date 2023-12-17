@@ -295,21 +295,22 @@ JNIEXPORT jint JNICALL Java_photonApi_Ph_phAsyncPollUpdatedFrameRegion(
 	jobject out_IntRef_wPx, 
 	jobject out_IntRef_hPx)
 {
-	PhUInt32 xPx, yPx, wPx, hPx;
-	const auto status = phAsyncPollUpdatedFrameRegion(
-		static_cast<PhUInt64>(engineId),
-		&xPx, &yPx, &wPx, &hPx);
+	PhFrameRegionInfo regionInfo;
+	if(!phAsyncPollUpdatedFrameRegion(static_cast<PhUInt64>(engineId), &regionInfo))
+	{
+		return photonApi_Ph_FILM_REGION_STATUS_INVALID;
+	}
 
 	ph::JIntRef jXpx(out_IntRef_xPx, env);
 	ph::JIntRef jYpx(out_IntRef_yPx, env);
 	ph::JIntRef jWpx(out_IntRef_wPx, env);
 	ph::JIntRef jHpx(out_IntRef_hPx, env);
-	jXpx.setValue(static_cast<PhUInt32>(xPx));
-	jYpx.setValue(static_cast<PhUInt32>(yPx));
-	jWpx.setValue(static_cast<PhUInt32>(wPx));
-	jHpx.setValue(static_cast<PhUInt32>(hPx));
+	jXpx.setValue(static_cast<PhInt32>(regionInfo.xPx));
+	jYpx.setValue(static_cast<PhInt32>(regionInfo.yPx));
+	jWpx.setValue(static_cast<PhInt32>(regionInfo.widthPx));
+	jHpx.setValue(static_cast<PhInt32>(regionInfo.heightPx));
 
-	switch(status)
+	switch(regionInfo.status)
 	{
 	case PH_FRAME_REGION_STATUS_UPDATING: return photonApi_Ph_FILM_REGION_STATUS_UPDATING;
 	case PH_FRAME_REGION_STATUS_FINISHED: return photonApi_Ph_FILM_REGION_STATUS_FINISHED;

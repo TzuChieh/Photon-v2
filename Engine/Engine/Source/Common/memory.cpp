@@ -20,6 +20,11 @@ namespace ph
 namespace detail
 {
 
+/* We are placing allocation/free functions in .cpp file to ensure a program will use the same version
+of them. Placing them in a header may expose the program to higher risk of using different versions of
+memory management functions which can cause issues.
+*/
+
 void* allocate_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
 {
 	// Alignment must be an integer power of 2.

@@ -223,3 +223,140 @@ TEST(TTrivialItemPoolTest, RemovedItemHasDefaultValue)
 		}
 	}
 }
+
+namespace
+{
+
+struct WithConst
+{
+	const int x;
+
+	WithConst()
+		: x(-1)
+	{}
+
+	WithConst(int x)
+		: x(x)
+	{}
+};
+
+}
+
+TEST(TTrivialItemPoolTest, ItemWithConstQualifier)
+{
+	// With const member + adding & removing with auto handle management
+	{
+		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<int>>;
+		using Pool = TTrivialItemPool<WithConst, Dispatcher>;
+		using Handle = Pool::HandleType;
+		using HandleDispatcher = TConcurrentHandleDispatcher<Handle>;
+
+		constexpr int numItems = 10000;
+
+		Pool pool;
+		std::vector<Handle> handles;
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles.push_back(pool.add(WithConst(i)));
+		}
+		ASSERT_EQ(pool.numItems(), handles.size());
+
+		// Check every item is intactly stored
+		for(int i = 0; i < numItems; ++i)
+		{
+			WithConst* item = pool.get(handles[i]);
+			ASSERT_TRUE(item);
+
+			EXPECT_EQ(item->x, i);
+		}
+
+		// Remove every item
+		for(int i = 0; i < numItems; ++i)
+		{
+			pool.remove(handles[i]);
+			EXPECT_FALSE(pool.get(handles[i]));
+		}
+		EXPECT_EQ(pool.numItems(), 0);
+
+		// Add items again, this time with a different value
+		handles.clear();
+		for(int i = 0; i < numItems; ++i)
+		{
+			handles.push_back(pool.add(WithConst(i * 2)));
+		}
+
+		// Check every item is intactly stored
+		for(int i = 0; i < numItems; ++i)
+		{
+			WithConst* item = pool.get(handles[i]);
+			ASSERT_TRUE(item);
+
+			EXPECT_EQ(item->x, i * 2);
+		}
+	}
+
+	// Const instances + adding & removing with auto handle management
+	{
+		using Dispatcher = TConcurrentHandleDispatcher<TWeakHandle<int>>;
+		using Pool = TTrivialItemPool<const SimpleClass, Dispatcher>;
+		using Handle = Pool::HandleType;
+		using HandleDispatcher = TConcurrentHandleDispatcher<Handle>;
+
+		constexpr int numItems = 10000;
+
+		Pool pool;
+		std::vector<Handle> handles;
+		for(int i = 0; i < numItems; ++i)
+		{
+			SimpleClass item;
+			item.x = i;
+			item.y = i * -1.1f;
+			item.z = i * 2.2;
+
+			handles.push_back(pool.add(item));
+		}
+		ASSERT_EQ(pool.numItems(), handles.size());
+
+		// Check every item is intactly stored
+		for(int i = 0; i < numItems; ++i)
+		{
+			const SimpleClass* item = pool.get(handles[i]);
+			ASSERT_TRUE(item);
+
+			EXPECT_EQ(item->x, i);
+			EXPECT_EQ(item->y, i * -1.1f);
+			EXPECT_EQ(item->z, i * 2.2);
+		}
+
+		// Remove every item
+		for(int i = 0; i < numItems; ++i)
+		{
+			pool.remove(handles[i]);
+			EXPECT_FALSE(pool.get(handles[i]));
+		}
+		EXPECT_EQ(pool.numItems(), 0);
+
+		// Add items again, this time with a different value
+		handles.clear();
+		for(int i = 0; i < numItems; ++i)
+		{
+			SimpleClass item;
+			item.x = i;
+			item.y = i * 3.3f;
+			item.z = i * -4.4;
+
+			handles.push_back(pool.add(item));
+		}
+
+		// Check every item is intactly stored
+		for(int i = 0; i < numItems; ++i)
+		{
+			const SimpleClass* item = pool.get(handles[i]);
+			ASSERT_TRUE(item);
+
+			EXPECT_EQ(item->x, i);
+			EXPECT_EQ(item->y, i * 3.3f);
+			EXPECT_EQ(item->z, i * -4.4);
+		}
+	}
+}

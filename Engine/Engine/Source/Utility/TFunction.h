@@ -340,6 +340,8 @@ private:
 
 		// FIXME: currently this is UB for non implicit lifetime types--we need to init an instance
 		// and copy into it for types with std::is_implicit_lifetime_v == false, which requires C++23
+		// (use config `PH_STRICT_OBJECT_LIFETIME` and probably need to modify the setter for
+		// `TIsNonEmptyTrivialFunctor` and its concept too)
 	}
 
 	[[noreturn]]

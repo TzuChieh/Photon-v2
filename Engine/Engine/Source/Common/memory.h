@@ -40,6 +40,13 @@ struct AlignedMemoryDeleter
 	{
 		free_aligned_memory(ptr);
 	}
+
+	inline void operator () (const void* const ptr) const
+	{
+		// `const_cast` to support const overload. This is fine as aligned memory is only returned as
+		// a non-const pointer, and casting an originally non-const type is safe.
+		free_aligned_memory(const_cast<void*>(ptr));
+	}
 };
 
 }// end namespace detail

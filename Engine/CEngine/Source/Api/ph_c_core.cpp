@@ -507,6 +507,7 @@ PhSize phAsyncPollUpdatedFrameRegions(
 
 
 	// TODO
+	return 0;
 }
 
 PhSize phAsyncPollMergedUpdatedFrameRegions(
@@ -516,6 +517,7 @@ PhSize phAsyncPollMergedUpdatedFrameRegions(
 	PhFrameRegionInfo** out_regionInfosPtr)
 {
 	// TODO
+	return 0;
 }
 
 void phAsyncPeekFrame(
