@@ -34,6 +34,11 @@ if(NOT WIN32)
 	endif()
 endif()
 
+include("${CMAKE_SOURCE_DIR}/scripts/cmake/func_link_thirdparty_lib.cmake")
+
+link_thirdparty_lib(Common ${TRACY_LIB_NAME} PUBLIC OPTIONAL
+	DETECTING_PREPROCESSOR PH_THIRD_PARTY_HAS_TRACY)
+
 # Using MSVC
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	target_compile_definitions(Common

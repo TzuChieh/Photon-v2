@@ -4,8 +4,8 @@
 @brief Profiling functions.
 */
 
-#include <Common/config.h>
-#include <Common/utility.h>
+#include "Common/config.h"
+#include "Common/utility.h"
 
 #include "Common/ThirdParty/lib_tracy.h"
 
