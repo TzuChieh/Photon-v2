@@ -95,7 +95,7 @@ public:
 		sizeof(std::decay_t<Func>) <= BUFFER_SIZE &&
 		alignof(std::decay_t<Func>) <= BUFFER_ALIGNMENT>;
 	// FIXME: ^^^ alignment requirement not needed for std::is_implicit_lifetime_v == false,
-	// condition can be updated in C++23
+	// condition can be updated in C++23 (non implicit lifetime type need to copy byte-by-byte)
 
 	/*! @brief Main callable target traits.
 	Test whether the target is of specific form and is invocable using @p Args and returns @p R.

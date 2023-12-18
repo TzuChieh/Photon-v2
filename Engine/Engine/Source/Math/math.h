@@ -9,7 +9,6 @@ implementation here since most of them is developed with performance regarding
 to rendering in mind.
 */
 
-#include "Common/math_basics.h"
 #include "Math/constant.h"
 #include "Math/math_fwd.h"
 #include "Math/math_table.h"
@@ -18,6 +17,7 @@ to rendering in mind.
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 #include <Common/compiler.h>
+#include <Common/math_basics.h>
 
 #include <cmath>
 #include <algorithm>
@@ -337,36 +337,37 @@ inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
 	};
 }
 
-/*! @brief Computes 1/sqrt(x) in a fast but approximative way.
+/*! @brief Computes `1/sqrt(x)` in a fast but approximative way.
 
-	This method is best known for its implementation in Quake III Arena (1999).
-	Here the implementation follows what described in the referenced paper,
-	which uses a slightly better (in terms of maximal relative error) magic
-	number. 
+This method is best known for its implementation in Quake III Arena (1999).
+Here the implementation follows what described in the referenced paper,
+which uses a slightly better (in terms of maximal relative error) magic
+number. 
 
-	Reference: http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
+Reference: http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
 */
-// TODO: 
-// 1. implement double version in the reference paper and templatize iteration step
-// 2. is more iteration steps better than doing it in double
-// 3. establish a standard, e.g., fast_<X>() is guaranteed to have max. rel. error < 1%
 inline float fast_rcp_sqrt(float x)
 {
+	// TODO: 
+	// 1. implement double version in the reference paper and templatize iteration step
+	// 2. is more iteration steps better than doing it in double
+	// 3. establish a standard, e.g., fast_<X>() is guaranteed to have max. rel. error < 1%
+
 	PH_ASSERT_GT(x, 0.0f);
 
 	const float halvedInput = 0.5f * x;
 
-	// gives initial guess for later refinements
+	// Gives initial guess for later refinements
 	auto bits = bitwise_cast<std::uint32_t>(x);
 	bits = 0x5F375A86 - (bits >> 1);
 	x = bitwise_cast<float>(bits);
 
 	// Newton's method, each iteration increases accuracy.
 
-	// iteration 1, max. relative error < 0.175125%
+	// Iteration 1, max. relative error < 0.175125%
 	x = x * (1.5f - halvedInput * x * x);
 
-	// iteration 2, disabled since <x> is already good enough
+	// Iteration 2, disabled since <x> is already good enough
 	//x = x * (1.5f - halvedInput * x * x);
 
 	return x;

@@ -1,5 +1,4 @@
 #include "DataIO/PlyFile.h"
-#include "Common/memory.h"
 #include "DataIO/Stream/BinaryFileInputStream.h"
 #include "DataIO/Stream/ByteBufferInputStream.h"
 #include "DataIO/io_exceptions.h"
@@ -7,6 +6,7 @@
 
 #include <Utility/string_utils.h>
 #include <Common/logging.h>
+#include <Common/memory.h>
 
 #include <type_traits>
 #include <memory>
