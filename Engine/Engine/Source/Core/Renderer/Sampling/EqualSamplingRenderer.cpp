@@ -23,6 +23,7 @@
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 #include <cmath>
 #include <iostream>
@@ -115,6 +116,8 @@ void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualW
 
 void EqualSamplingRenderer::doRender()
 {
+	PH_PROFILE_SCOPE();
+
 	FixedSizeThreadPool workers(numWorkers());
 
 	for(uint32 workerId = 0; workerId < numWorkers(); ++workerId)
@@ -126,6 +129,8 @@ void EqualSamplingRenderer::doRender()
 
 			renderWork.onWorkReport([this, &workerFilmEstimator]()
 			{
+				PH_PROFILE_NAMED_SCOPE("Report intermediate render result");
+
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
@@ -142,6 +147,8 @@ void EqualSamplingRenderer::doRender()
 			while(true)
 			{
 				{
+					PH_PROFILE_NAMED_SCOPE("Schedule new work");
+
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 					
 					if(m_scheduler->schedule(&workUnit))
@@ -176,6 +183,8 @@ void EqualSamplingRenderer::doRender()
 				renderWork.work();
 
 				{
+					PH_PROFILE_NAMED_SCOPE("Submit scheduled work");
+
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 					m_scheduler->submit(workUnit);
@@ -199,6 +208,8 @@ void EqualSamplingRenderer::doRender()
 
 std::size_t EqualSamplingRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions)
 {
+	PH_PROFILE_SCOPE();
+
 	return m_updatedRegionQueue.tryDequeueBulk(out_regions.begin(), out_regions.size());
 }
 
@@ -210,6 +221,8 @@ void EqualSamplingRenderer::asyncPeekFrame(
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
+	PH_PROFILE_SCOPE();
+
 	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	if(layerIndex == 0)
@@ -224,6 +237,8 @@ void EqualSamplingRenderer::asyncPeekFrame(
 
 void EqualSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
+	PH_PROFILE_SCOPE();
+
 	asyncPeekFrame(layerIndex, getRenderRegionPx(), out_frame);
 }
 
@@ -235,6 +250,8 @@ void EqualSamplingRenderer::asyncAddUpdatedRegion(const Region& region, const bo
 
 RenderStats EqualSamplingRenderer::asyncQueryRenderStats()
 {
+	PH_PROFILE_SCOPE();
+
 	// We want to calculate transient stats so averaging all current work stats is fine
 	// (when a render work object is restarted its stats will be refreshed)
 	uint64 summedElapsedMs = 0;
@@ -257,6 +274,8 @@ RenderStats EqualSamplingRenderer::asyncQueryRenderStats()
 
 RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 {
+	PH_PROFILE_SCOPE();
+
 	RenderProgress workerProgress;
 	for(const auto& work : m_renderWorks)
 	{

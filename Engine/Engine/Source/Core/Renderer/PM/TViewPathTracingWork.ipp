@@ -20,6 +20,7 @@
 #include "Math/Random/sample.h"
 
 #include <Common/assertion.h>
+#include <Common/profiling.h>
 
 namespace ph
 {
@@ -43,6 +44,7 @@ inline TViewPathTracingWork<ViewPathHandler>::TViewPathTracingWork(
 template<typename ViewPathHandler>
 inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 {
+	PH_PROFILE_SCOPE();
 	PH_ASSERT(m_handler);
 
 	const auto rasterSampleHandle = m_sampleGenerator->declareStageND(

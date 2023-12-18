@@ -8,6 +8,8 @@
 #include "Core/Ray.h"
 #include "Math/Random/sample.h"
 
+#include <Common/profiling.h>
+
 namespace ph
 {
 
@@ -58,6 +60,7 @@ SamplingStatistics ReceiverSamplingWork::asyncGetStatistics() const
 
 void ReceiverSamplingWork::doWork()
 {
+	PH_PROFILE_SCOPE();
 	PH_ASSERT(m_receiver);
 
 	if(m_onWorkStart)

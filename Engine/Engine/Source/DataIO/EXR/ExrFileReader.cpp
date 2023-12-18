@@ -8,6 +8,7 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Common/exception.h>
+#include <Common/profiling.h>
 
 #include <type_traits>
 #include <string>
@@ -33,6 +34,8 @@ void ExrFileReader::loadFromFilesystem(
 	std::string_view greenChannelName,
 	std::string_view blueChannelName)
 {
+	PH_PROFILE_SCOPE();
+
 	loadStandaloneImageData(
 		m_filePath,
 		out_frame,

@@ -21,6 +21,7 @@
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 
 #include <Common/assertion.h>
+#include <Common/profiling.h>
 
 namespace ph
 {
@@ -48,6 +49,8 @@ inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
 template<typename Photon>
 inline void TPhotonMappingWork<Photon>::doWork()
 {
+	PH_PROFILE_SCOPE();
+
 	// FIXME: currently we exit immediately when photon buffer is full; we should trace a full path instead
 
 	Timer timer;

@@ -18,6 +18,7 @@
 #include <Common/primitive_type.h>
 #include <Common/stats.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 #include <limits>
 #include <iostream>
@@ -61,6 +62,7 @@ VisualWorld::VisualWorld()
 
 void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContext& coreCtx)
 {
+	PH_PROFILE_SCOPE();
 	PH_LOG(VisualWorld, "started cooking...");
 
 	// Create the storage for cooked resources, and potentially free all previous resources
@@ -94,6 +96,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	std::vector<TransientVisualElement> visibleElements;
 	while(numCookedActors < sceneActors.size())
 	{
+		PH_PROFILE_NAMED_SCOPE("Cook actors (single level)");
 		PH_SCOPED_TIMER(CookActorLevels);
 
 		auto actorCookBegin = sceneActors.begin() + numCookedActors;
@@ -161,6 +164,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 	PH_LOG(VisualWorld, "updating accelerator...");
 	{
+		PH_PROFILE_NAMED_SCOPE("Update accelerators");
 		PH_SCOPED_TIMER(UpdateAccelerators);
 
 		createTopLevelAccelerator(coreCtx.getTopLevelAcceleratorType());
@@ -169,6 +173,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 	PH_LOG(VisualWorld, "updating light sampler...");
 	{
+		PH_PROFILE_NAMED_SCOPE("Update light sampler");
 		PH_SCOPED_TIMER(UpdateLightSamplers);
 
 		m_emitterSampler->update(emitters);
@@ -192,6 +197,8 @@ void VisualWorld::cookActors(
 	CookingContext& ctx,
 	std::vector<TransientVisualElement>& out_elements)
 {
+	PH_PROFILE_SCOPE();
+
 	// TODO: parallel preCook() and postCook()
 
 	for(const SceneActor& sceneActor : sceneActors)
@@ -263,6 +270,8 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 
 math::AABB3D VisualWorld::calcElementBound(TSpanView<TransientVisualElement> elements)
 {
+	PH_PROFILE_SCOPE();
+
 	std::vector<const Intersectable*> intersectables;
 	for(const TransientVisualElement& element : elements)
 	{

@@ -13,6 +13,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 namespace ph
 {
@@ -44,6 +45,8 @@ PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
 
 void PPMRadianceEvaluationWork::doWork()
 {
+	PH_PROFILE_SCOPE();
+
 	sanitizeVariables();
 
 	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);

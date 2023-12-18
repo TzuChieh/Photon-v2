@@ -15,6 +15,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 #include <fstream>
 #include <sstream>
@@ -445,6 +446,8 @@ bool load_picture_meta(
 
 void save(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
+	PH_PROFILE_SCOPE();
+
 	save(
 		frame,
 		filePath.getParent(),
@@ -455,6 +458,8 @@ void save(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta* met
 
 void save(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
+	PH_PROFILE_SCOPE();
+
 	save(
 		frame, 
 		filePath.getParent(),

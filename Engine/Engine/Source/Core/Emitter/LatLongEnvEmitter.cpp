@@ -11,6 +11,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 #include <vector>
 #include <cmath>
@@ -31,6 +32,7 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 	m_sampleDistribution(),
 	m_radiantFluxApprox (0)
 {
+	PH_PROFILE_SCOPE();
 	PH_ASSERT(surface);
 	PH_ASSERT(radiance);
 	PH_ASSERT_GT(resolution.x() * resolution.y(), 0);

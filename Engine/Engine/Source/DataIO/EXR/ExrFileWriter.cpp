@@ -5,6 +5,7 @@
 
 //#include <Common/logging.h>
 #include <Common/exception.h>
+#include <Common/profiling.h>
 
 #include <type_traits>
 
@@ -40,6 +41,8 @@ void ExrFileWriter::saveToFilesystem(
 	std::string_view alphaChannelName,
 	HdrComponent alphaValue)
 {
+	PH_PROFILE_SCOPE();
+
 	saveStandaloneImageData(
 		m_filePath, 
 		frame,
@@ -60,6 +63,8 @@ void ExrFileWriter::saveToMemory(
 	std::string_view alphaChannelName,
 	HdrComponent alphaValue)
 {
+	PH_PROFILE_SCOPE();
+
 #if PH_THIRD_PARTY_HAS_OPENEXR
 	static_assert(std::is_same_v<HdrRgbFrame::ElementType, float>);
 

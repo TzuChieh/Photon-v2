@@ -17,6 +17,7 @@
 #include "Core/Renderer/PM/TSPPMRadianceEvaluator.h"
 
 #include <Common/logging.h>
+#include <Common/profiling.h>
 
 #include <utility>
 #include <numeric>
@@ -72,6 +73,8 @@ void PMRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world
 
 void PMRenderer::doRender()
 {
+	PH_PROFILE_SCOPE();
+
 	if(m_mode == EPMMode::VANILLA)
 	{
 		PH_LOG(PhotonMapRenderer, "rendering mode: vanilla photon mapping");
@@ -98,6 +101,8 @@ void PMRenderer::doRender()
 
 void PMRenderer::renderWithVanillaPM()
 {
+	PH_PROFILE_SCOPE();
+
 	using Photon = FullPhoton;
 
 	PH_LOG(PhotonMapRenderer, "photon size: {} bytes", sizeof(Photon));
@@ -168,6 +173,8 @@ void PMRenderer::renderWithVanillaPM()
 
 void PMRenderer::renderWithProgressivePM()
 {
+	PH_PROFILE_SCOPE();
+
 	using Photon    = FullPhoton;
 	using Viewpoint = FullViewpoint;
 
@@ -286,6 +293,8 @@ void PMRenderer::renderWithProgressivePM()
 
 void PMRenderer::renderWithStochasticProgressivePM()
 {
+	PH_PROFILE_SCOPE();
+
 	using Photon    = FullPhoton;
 	using Viewpoint = FullViewpoint;
 
@@ -336,6 +345,8 @@ void PMRenderer::renderWithStochasticProgressivePM()
 	std::size_t totalPhotonPaths  = 0;
 	while(numFinishedPasses < m_numPasses)
 	{
+		PH_PROFILE_NAMED_SCOPE("SPPM pass");
+
 		passTimer.start();
 		std::vector<Photon> photonBuffer(numPhotonsPerPass);
 
@@ -346,6 +357,8 @@ void PMRenderer::renderWithStochasticProgressivePM()
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
+				PH_PROFILE_NAMED_SCOPE("SPPM photon shooting");
+
 				auto sampleGenerator = m_sg->genCopied(1);
 
 				TPhotonMappingWork<Photon> photonMappingWork(
@@ -370,6 +383,8 @@ void PMRenderer::renderWithStochasticProgressivePM()
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
+				PH_PROFILE_NAMED_SCOPE("SPPM energy estimation");
+
 				Region region = getRenderRegionPx();
 				auto [minVertex, maxVertex] = region.getVertices();
 				minVertex.x() = getRenderRegionPx().getMinVertex().x() + workStart;
@@ -417,6 +432,8 @@ void PMRenderer::renderWithStochasticProgressivePM()
 
 std::size_t PMRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_regions)
 {
+	PH_PROFILE_SCOPE();
+
 	if(out_regions.empty())
 	{
 		return 0;
@@ -438,6 +455,8 @@ std::size_t PMRenderer::asyncPollUpdatedRegions(TSpan<RenderRegionStatus> out_re
 
 RenderProgress PMRenderer::asyncQueryRenderProgress()
 {
+	PH_PROFILE_SCOPE();
+
 	return RenderProgress(
 		m_mode != EPMMode::VANILLA ? m_numPasses : m_numSamplesPerPixel, 
 		m_statistics.asyncGetNumIterations(), 
@@ -449,6 +468,8 @@ void PMRenderer::asyncPeekFrame(
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
+	PH_PROFILE_SCOPE();
+
 	std::lock_guard<std::mutex> lock(m_filmMutex);
 
 	if(layerIndex == 0)
@@ -463,6 +484,8 @@ void PMRenderer::asyncPeekFrame(
 
 void PMRenderer::retrieveFrame(const std::size_t layerIndex, HdrRgbFrame& out_frame)
 {
+	PH_PROFILE_SCOPE();
+
 	m_film->develop(out_frame);
 }
 
@@ -477,6 +500,8 @@ RenderObservationInfo PMRenderer::getObservationInfo() const
 
 RenderStats PMRenderer::asyncQueryRenderStats()
 {
+	PH_PROFILE_SCOPE();
+
 	RenderStats stats;
 	stats.setInteger(0, m_statistics.asyncGetNumIterations());
 	stats.setInteger(1, m_statistics.asyncGetNumTracedPhotons());
