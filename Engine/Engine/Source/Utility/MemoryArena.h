@@ -11,7 +11,6 @@
 #include <vector>
 #include <utility>
 #include <memory>
-#include <type_traits>
 
 namespace ph
 {
@@ -46,8 +45,10 @@ public:
 	~MemoryArena();
 
 	/*! @brief Allocate raw memory.
-	The memory returned contains no object--placement new is required before any use of the
-	memory content, otherwise it is UB by C++ standard.
+	Generally speaking, the memory returned contains no object--placement new is required before any
+	use of the memory content for most object types, otherwise it is UB by C++ standard. An exception
+	is implicit-lifetime types. This method implicitly create objects of implicit-lifetime type in the
+	memory returned.
 	@param numBytes Number of bytes to allocate.
 	@param alignmentInBytes Alignment requirement of the allocation, in bytes.
 	@return Allocated memory, never `nullptr`.
@@ -70,30 +71,24 @@ public:
 	/*! @brief Allocate raw memory for type @p T.
 	Convenient method for allocating raw memory for object of type @p T. Alignment is handled
 	automatically. See allocRaw(std::size_t, std::size_t) for details.
-	@tparam T Type for the raw memory allocated.
-	@note Placement new is required before any use of the memory content.
+	@tparam T Type for the raw memory allocated, must be trivially destructible.
+	@note Provides storage only. Placement new is required before any use of the memory content.
+	For const types, laundering is needed to access the created object via the returned pointer
+	([basic.life] Section 8.3).
 	*/
 	template<typename T>
-		requires std::is_trivially_destructible_v<T>
-	inline T* alloc()
-	{
-		return reinterpret_cast<T*>(allocRaw(sizeof(T), alignof(T)));
-	}
+	T* alloc();
 
 	/*! @brief Allocate raw memory for array of type @p T.
 	Convenient method for allocating raw memory for array of type @p T. Alignment is handled
 	automatically. See allocRaw(std::size_t, std::size_t) for details.
-	@tparam T Type for the raw array memory allocated.
-	@note Placement new is required before any use of the memory content.
+	@tparam T Type for the raw array memory allocated, must be trivially destructible.
+	@note Provides storage only. Placement new is required before any use of the memory content.
+	For const types, laundering is needed to access the created object via the returned pointer
+	([basic.life] Section 8.3).
 	*/
 	template<typename T>
-		requires std::is_trivially_destructible_v<T>
-	inline TSpan<T> allocArray(const std::size_t arraySize)
-	{
-		return TSpan<T>(
-			reinterpret_cast<T*>(allocRaw(sizeof(T) * arraySize, alignof(T))), 
-			arraySize);
-	}
+	TSpan<T> allocArray(const std::size_t arraySize);
 
 	/*! @brief Make an object of type @p T.
 	Convenient method for creating an object without needing a placement new later. Equivalent to
@@ -103,28 +98,7 @@ public:
 	@param args Arguments for calling the constructor of @p T.
 	*/
 	template<typename T, typename... Args>
-	inline T* make(Args&&... args)
-	{
-		if constexpr(std::is_trivially_destructible_v<T>)
-		{
-			return std::construct_at(alloc<T>(), std::forward<Args>(args)...);
-		}
-		else
-		{
-			T* const objPtr = std::construct_at(
-				reinterpret_cast<T*>(allocRaw(sizeof(T), alignof(T))), 
-				std::forward<Args>(args)...);
-
-			// Record the dtor so we can call it later (on clear)
-			m_dtorCallers.push_back(
-				[objPtr]()
-				{
-					objPtr->~T();
-				});
-
-			return objPtr;
-		}
-	}
+	T* make(Args&&... args);
 
 private:
 	std::vector<TAlignedMemoryUniquePtr<std::byte>> m_blocks;
@@ -141,24 +115,6 @@ private:
 	std::vector<TFunction<void(void), 0>> m_dtorCallers;
 };
 
-inline std::size_t MemoryArena::numUsedBytes() const
-{
-	return m_numUsedBytes;
-}
-
-inline std::size_t MemoryArena::numAllocatedBytes() const
-{
-	return getBlockSizeInBytes() * numAllocatedBlocks();
-}
-
-inline std::size_t MemoryArena::getBlockSizeInBytes() const
-{
-	return m_blockSizeInBytes;
-}
-
-inline std::size_t MemoryArena::numAllocatedBlocks() const
-{
-	return m_blocks.size();
-}
-
 }// end namespace ph
+
+#include "Utility/MemoryArena.ipp"

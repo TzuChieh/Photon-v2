@@ -34,7 +34,7 @@ inline auto allocate_block(const std::size_t blockSizeInBytes)
 	TAlignedMemoryUniquePtr<std::byte> memory = make_aligned_memory<std::byte>(blockSizeInBytes, cacheSize);
 	if(!memory)
 	{
-		throw std::bad_alloc();
+		throw std::bad_alloc{};
 	}
 	return memory;
 }
@@ -135,7 +135,7 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 
 	m_numUsedBytes += numBytes;
 
-	return static_cast<std::byte*>(alignedPtr);
+	return start_implicit_lifetime_as_array<std::byte>(alignedPtr, numBytes);
 }
 
 void MemoryArena::clear()
