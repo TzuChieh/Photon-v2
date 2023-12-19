@@ -148,19 +148,24 @@ public:
 	*/
 	SdlNativeData(ElementGetter getter, ElementSetter setter, AnyNonConstPtr directPtr);
 
-	template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T>
+	template<typename T>
+		requires std::is_arithmetic_v<T> || std::is_enum_v<T>
 	std::optional<T> get(std::size_t elementIdx) const;
 
-	template<typename T> requires std::is_pointer_v<T>
+	template<typename T>
+		requires std::is_pointer_v<T>
 	T get(std::size_t elementIdx) const;
 
-	template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T>
+	template<typename T>
+		requires std::is_arithmetic_v<T> || std::is_enum_v<T>
 	bool set(std::size_t elementIdx, T value) const;
 
-	template<typename T> requires std::is_pointer_v<T>
+	template<typename T>
+		requires std::is_pointer_v<T>
 	bool set(std::size_t elementIdx, T ptr) const;
 
-	template<typename T> requires std::is_null_pointer_v<T>
+	template<typename T>
+		requires std::is_null_pointer_v<T>
 	bool set(std::size_t elementIdx, T nullPtr) const;
 
 	/*! @brief Directly access the underlying data.

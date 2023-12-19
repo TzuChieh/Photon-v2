@@ -8,7 +8,6 @@
 
 #include <cstddef>
 #include <memory>
-#include <type_traits>
 
 namespace ph
 {
@@ -77,21 +76,8 @@ of @p alignmentInBytes). Must be an integer power of 2 and a multiple of `sizeof
 @note This function is thread safe.
 */
 template<typename T = void>
-inline auto make_aligned_memory(const std::size_t numBytes, const std::size_t alignmentInBytes)
-	-> TAlignedMemoryUniquePtr<T>
-{
-	if constexpr(!std::is_same_v<T, void>)
-	{
-		PH_ASSERT_EQ(alignmentInBytes % alignof(T), 0);
-	}
-
-	void* const ptr = detail::allocate_aligned_memory(numBytes, alignmentInBytes);
-
-	// `static_cast` to `T*` is fine here: array types have implicit-lifetime, and now `ptr` points
-	// to an array of `T` and pointer arithmetic is valid. Note that every element in `T*` still has
-	// not started their lifetime if `T` is not an implicit-lifetime type.
-	return TAlignedMemoryUniquePtr<T>(static_cast<T*>(ptr));
-}
+inline auto make_aligned_memory(std::size_t numBytes, std::size_t alignmentInBytes)
+-> TAlignedMemoryUniquePtr<T>;
 
 template<typename T>
 void from_bytes(const std::byte* srcBytes, T* out_dstValue);
@@ -101,6 +87,20 @@ void to_bytes(const T& srcValue, std::byte* out_dstBytes);
 
 template<std::size_t N>
 void reverse_bytes(std::byte* bytes);
+
+/*! @brief Wrapper for `std::start_lifetime_as()`.
+Primarily a fallback when C++23 is not available. This function may touch the storage. For cv overloads
+or one that does not touch the storage, see `std::start_lifetime_as()` (requires C++23).
+*/
+template<typename T>
+T* start_implicit_lifetime_as(void* ptr) noexcept;
+
+/*! @brief Wrapper for `std::start_lifetime_as_array()`.
+Primarily a fallback when C++23 is not available. This function may touch the storage. For cv overloads
+or one that does not touch the storage, see `std::start_lifetime_as_array()` (requires C++23).
+*/
+template<typename T>
+T* start_implicit_lifetime_as_array(void* ptr, std::size_t arrSize) noexcept;
 
 }// end namespace ph
 

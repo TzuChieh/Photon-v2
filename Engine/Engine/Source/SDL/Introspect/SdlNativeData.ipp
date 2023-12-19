@@ -177,7 +177,8 @@ inline SdlNativeData::SdlNativeData(
 	, m_directPtr(directPtr)
 {}
 
-template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T>
+template<typename T>
+	requires std::is_arithmetic_v<T> || std::is_enum_v<T>
 inline std::optional<T> SdlNativeData::get(const std::size_t elementIdx) const
 {
 	PH_ASSERT(m_elementGetter);
@@ -191,7 +192,8 @@ inline std::optional<T> SdlNativeData::get(const std::size_t elementIdx) const
 	}
 }
 
-template<typename T> requires std::is_pointer_v<T>
+template<typename T>
+	requires std::is_pointer_v<T>
 inline T SdlNativeData::get(const std::size_t elementIdx) const
 {
 	PH_ASSERT(m_elementGetter);
@@ -211,7 +213,8 @@ inline T SdlNativeData::get(const std::size_t elementIdx) const
 	}
 }
 
-template<typename T> requires std::is_arithmetic_v<T> || std::is_enum_v<T>
+template<typename T>
+	requires std::is_arithmetic_v<T> || std::is_enum_v<T>
 inline bool SdlNativeData::set(const std::size_t elementIdx, const T value) const
 {
 	PH_ASSERT(m_elementSetter);
@@ -230,7 +233,8 @@ inline bool SdlNativeData::set(const std::size_t elementIdx, const T value) cons
 	}
 }
 
-template<typename T> requires std::is_pointer_v<T>
+template<typename T>
+	requires std::is_pointer_v<T>
 inline bool SdlNativeData::set(const std::size_t elementIdx, T const ptr) const
 {
 	PH_ASSERT(m_elementSetter);
@@ -247,7 +251,8 @@ inline bool SdlNativeData::set(const std::size_t elementIdx, T const ptr) const
 	}
 }
 
-template<typename T> requires std::is_null_pointer_v<T>
+template<typename T>
+	requires std::is_null_pointer_v<T>
 inline bool SdlNativeData::set(std::size_t elementIdx, T /* nullPtr */) const
 {
 	return m_elementSetter(elementIdx, std::monostate{});

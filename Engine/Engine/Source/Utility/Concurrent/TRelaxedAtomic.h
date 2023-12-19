@@ -41,7 +41,8 @@ public:
 		m_atomic.store(value, std::memory_order_relaxed);
 	}
 
-	T relaxedFetchAdd(T value) requires std::is_integral_v<T> && std::is_floating_point_v<T>
+	T relaxedFetchAdd(T value)
+		requires std::is_integral_v<T> && std::is_floating_point_v<T>
 	{
 		return m_atomic.fetch_add(value, std::memory_order_relaxed);
 	}

@@ -39,6 +39,7 @@ inline T* GraphicsMemoryBlock::make(Args&&... args)
 {
 	static_assert(std::is_trivially_destructible_v<T>);
 
+	// IOC of array of size 1
 	T* const storage = reinterpret_cast<T*>(allocRaw(sizeof(T), alignof(T)));
 	if(!storage)
 	{
@@ -51,10 +52,16 @@ inline T* GraphicsMemoryBlock::make(Args&&... args)
 template<typename T>
 inline TSpan<T> GraphicsMemoryBlock::makeArray(const std::size_t arraySize)
 {
-	static_assert(std::is_default_constructible_v<T>);
-	static_assert(std::is_trivially_destructible_v<T>);
+	// To not violate [basic.life] Section 8.3 later
+	// (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
+	using NonConstT = std::remove_const_t<T>;
 
-	T* const storage = reinterpret_cast<T*>(allocRaw(sizeof(T) * arraySize, alignof(T)));
+	static_assert(std::is_default_constructible_v<NonConstT>);
+	static_assert(std::is_trivially_destructible_v<NonConstT>);
+
+	// IOC of array of size `arraySize`
+	NonConstT* const storage = reinterpret_cast<NonConstT*>(
+		allocRaw(sizeof(NonConstT) * arraySize, alignof(NonConstT)));
 	if(!storage)
 	{
 		return {};
@@ -62,9 +69,11 @@ inline TSpan<T> GraphicsMemoryBlock::makeArray(const std::size_t arraySize)
 
 	for(std::size_t i = 0; i < arraySize; ++i)
 	{
-		std::construct_at(storage + i, T{});
+		std::construct_at(storage + i, NonConstT{});
 	}
-	return TSpan<T>(storage, arraySize);
+
+	// Potentially do implicit non-const -> const conversion
+	return TSpan<NonConstT>(storage, arraySize);
 }
 
 inline std::byte* GraphicsMemoryBlock::allocRaw(
@@ -95,7 +104,7 @@ inline std::byte* GraphicsMemoryBlock::allocRaw(
 	// `std::align()` only decreases `availableBytes` by the number of bytes used for alignment
 	m_remainingBytesInBlock = availableBytes - numBytes;
 
-	return static_cast<std::byte*>(alignedPtr);
+	return start_implicit_lifetime_as_array<std::byte>(alignedPtr, numBytes);
 }
 
 }// end namespace ph::editor::ghi

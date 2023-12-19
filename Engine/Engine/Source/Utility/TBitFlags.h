@@ -92,7 +92,7 @@ public:
 	This method is only defined for enum flags.
 	*/
 	inline Input getEnum() const 
-		requires CEnum<Input> && (sizeof(Input) >= sizeof(Value))
+	requires CEnum<Input> && (sizeof(Input) >= sizeof(Value))
 	{
 		return static_cast<Input>(m_bits);
 	}

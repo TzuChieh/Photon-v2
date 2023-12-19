@@ -51,6 +51,8 @@ public:
 	bool hasBlockSource() const;
 
 private:
+	/*! Implicitly create objects of implicit-lifetime type.
+	*/
 	std::byte* allocRaw(std::size_t numBytes, std::size_t alignmentInBytes);
 
 	std::byte* m_blockSource;

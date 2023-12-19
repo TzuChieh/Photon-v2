@@ -74,8 +74,8 @@ public:
 	@note Placement new is required before any use of the memory content.
 	*/
 	template<typename T>
-	inline T* alloc()
 		requires std::is_trivially_destructible_v<T>
+	inline T* alloc()
 	{
 		return reinterpret_cast<T*>(allocRaw(sizeof(T), alignof(T)));
 	}
@@ -87,8 +87,8 @@ public:
 	@note Placement new is required before any use of the memory content.
 	*/
 	template<typename T>
-	inline TSpan<T> allocArray(const std::size_t arraySize)
 		requires std::is_trivially_destructible_v<T>
+	inline TSpan<T> allocArray(const std::size_t arraySize)
 	{
 		return TSpan<T>(
 			reinterpret_cast<T*>(allocRaw(sizeof(T) * arraySize, alignof(T))), 
