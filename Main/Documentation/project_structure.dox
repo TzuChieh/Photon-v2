@@ -10,6 +10,11 @@ toolset for ultra realistic image synthesis.
 - Command-line interface of the renderer
   - <a href="../../Photon_CLI/html/index.html">PhotonCLI</a>
 
+@section programs Plugins
+
+- Blender Add-on for Photon
+  - <a href="../../PhotonBlend/html/index.html">Photon Blend</a>
+
 @section libraries Libraries
 
 - Common functionalities, definitions and utilities for Photon projects

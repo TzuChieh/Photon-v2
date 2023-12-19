@@ -1,5 +1,5 @@
-from utility import console
 from utility import config
+import blender_addon
 
 import sys
 import os
@@ -7,7 +7,7 @@ import subprocess
 
 
 def build_doxygen_doc(doxygen_executable, doxygen_config):
-    working_directory = os.path.dirname(doxygen_config)
+    working_dir = os.path.dirname(doxygen_config)
     doxygen_config_name = os.path.basename(doxygen_config)
 
     # The convention is to run doxygen in the same directory as the config file
@@ -16,7 +16,7 @@ def build_doxygen_doc(doxygen_executable, doxygen_config):
 
     command_result = subprocess.run(
         command_args, 
-        cwd=working_directory)
+        cwd=working_dir)
 
     if command_result.returncode != 0:
         print("command <%s> ran with error (error code: %s)" % 
@@ -27,6 +27,7 @@ specific_project_name = sys.argv[2] if len(sys.argv) > 2 else ""
 specific_project_name = specific_project_name.removeprefix("--")
 setup_config = config.get_setup_config()
 
+# Gather doc build info from projects
 projects = []
 if specific_project_name != "primary":
     # Build doc for a selected project only
@@ -36,6 +37,7 @@ if specific_project_name != "primary":
     else:
         projects.extend(config.get_all_projects(setup_config))
 
+# Build doc for projects
 build_info = []
 for name, section in projects:
     project_name = name.removeprefix("Project.")
@@ -46,7 +48,12 @@ for name, section in projects:
     else:
         build_info.append("Project \"%s\" has no doxygen config, no doc generated." % project_name)
     
-# Build the primary doc that links all project docs
+# Build doc for Photon Blend
+photon_blend_project_dir = blender_addon.get_photon_blend_project_directory(setup_config)
+build_doxygen_doc(doxygen_executable, os.path.join(photon_blend_project_dir, "doxygen.config"))
+build_info.append("Generated doc for Photon Blend")
+
+# Build the primary doc that links all docs
 primary_doxygen_config = setup_config["General"]["PrimaryDoxygenConfig"]
 build_doxygen_doc(doxygen_executable, primary_doxygen_config)
 build_info.append("Primary doc generated.")
