@@ -10,6 +10,7 @@
 #include <utility>
 #include <new>
 #include <memory>
+#include <algorithm>
 
 namespace ph
 {
@@ -52,8 +53,8 @@ concept CNonEmptyFunctorForm =
 	!std::is_empty_v<std::decay_t<Func>> &&// to disambiguate from the empty form
 	!std::is_function_v<std::remove_pointer_t<std::decay_t<Func>>> &&// to disambiguate from the free function form
 	(
-		std::is_constructible_v<std::decay_t<Func>, Func> ||// we can placement new from existing instance
-		std::is_trivially_copyable_v<std::decay_t<Func>>    // or copying to a byte buffer
+		std::is_constructible_v<std::decay_t<Func>, Func&&> ||// we can placement new from an instance
+		std::is_trivially_copyable_v<std::decay_t<Func>>      // or copy to a byte buffer
 	) &&
 	std::is_trivially_destructible_v<std::decay_t<Func>> &&// we are neither storing dtor nor calling it
 	std::is_invocable_r_v<R, const std::decay_t<Func>&, Args...>;// must be const as we store its states and `operator ()` is `const`
@@ -271,11 +272,22 @@ public:
 	{
 		using Functor = std::decay_t<Func>;
 
-		// IOC of array of size 1
-		Functor* const storage = start_implicit_lifetime_as<Functor>(m_data.u_buffer);
+		// Favor constructed functor since it is more efficient in general
+		if constexpr(std::is_constructible_v<Functor, Func&&>)
+		{
+			// IOC of array of size 1
+			Functor* const storage = start_implicit_lifetime_as<Functor>(m_data.u_buffer);
 
-		std::construct_at(storage, std::forward<Func>(func));
-		m_caller = &nonEmptyConstructedFunctorCaller<Functor>;
+			std::construct_at(storage, std::forward<Func>(func));
+			m_caller = &nonEmptyConstructedFunctorCaller<Functor>;
+		}
+		else
+		{
+			static_assert(std::is_trivially_copyable_v<Functor>);
+
+			std::copy_n(reinterpret_cast<const std::byte*>(&func), sizeof(Functor), m_data.u_buffer);
+			m_caller = &nonEmptyCopiedFunctorCaller<Functor>();
+		}
 		
 		return *this;
 	}
@@ -344,11 +356,19 @@ private:
 		const auto& func = *std::launder(reinterpret_cast<const Func*>(self->m_data.u_buffer));
 
 		return func(std::forward<Args>(args)...);
+	}
 
-		// FIXME: currently this is UB for non implicit lifetime types--we need to init an instance
-		// and copy into it for types with std::is_implicit_lifetime_v == false, which requires C++23
-		// (use config `PH_STRICT_OBJECT_LIFETIME` and probably need to modify the setter for
-		// `TIsNonEmptyTrivialFunctor` and its concept too)
+	template<typename Func>
+	inline static R nonEmptyCopiedFunctorCaller(const TFunction* const self, Args... args)
+	{
+		static_assert(std::is_trivially_copyable_v<Func> && std::is_default_constructible_v<Func>,
+			"Current implementation of copied functor caller requires default constructible functor "
+			"to copy bytes into.");
+
+		Func func;
+		std::copy_n(self->m_data.u_buffer, sizeof(Func), reinterpret_cast<std::byte*>(&func));
+
+		return func(std::forward<Args>(args)...);
 	}
 
 	[[noreturn]]
