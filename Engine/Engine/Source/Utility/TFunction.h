@@ -3,6 +3,7 @@
 #include <Common/assertion.h>
 #include <Common/config.h>
 #include <Common/exception.h>
+#include <Common/memory.h>
 
 #include <cstddef>
 #include <type_traits>
@@ -47,11 +48,13 @@ concept CEmptyFunctorForm =
 	std::is_invocable_r_v<R, std::decay_t<Func>, Args...>;// we call from the newly constructed value, no matter the constness
 
 template<typename Func, typename R, typename... Args>
-concept CNonEmptyTrivialFunctorForm = 
+concept CNonEmptyFunctorForm = 
 	!std::is_empty_v<std::decay_t<Func>> &&// to disambiguate from the empty form
 	!std::is_function_v<std::remove_pointer_t<std::decay_t<Func>>> &&// to disambiguate from the free function form
-	std::is_constructible_v<std::decay_t<Func>, Func> &&// we placement new using existing instance
-	std::is_trivially_copyable_v<std::decay_t<Func>> &&// so copying to a byte buffer is legal
+	(
+		std::is_constructible_v<std::decay_t<Func>, Func> ||// we can placement new from existing instance
+		std::is_trivially_copyable_v<std::decay_t<Func>>    // or copying to a byte buffer
+	) &&
 	std::is_trivially_destructible_v<std::decay_t<Func>> &&// we are neither storing dtor nor calling it
 	std::is_invocable_r_v<R, const std::decay_t<Func>&, Args...>;// must be const as we store its states and `operator ()` is `const`
 
@@ -94,8 +97,6 @@ public:
 	using TCanFitBuffer = std::bool_constant<
 		sizeof(std::decay_t<Func>) <= BUFFER_SIZE &&
 		alignof(std::decay_t<Func>) <= BUFFER_ALIGNMENT>;
-	// FIXME: ^^^ alignment requirement not needed for std::is_implicit_lifetime_v == false,
-	// condition can be updated in C++23 (non implicit lifetime type need to copy byte-by-byte)
 
 	/*! @brief Main callable target traits.
 	Test whether the target is of specific form and is invocable using @p Args and returns @p R.
@@ -132,12 +133,15 @@ public:
 
 	/*! @brief Check if the type @p Func is a functor with member variable and can be stored internally.
 	The type @p Func must satisfy a series of conditions in order to be safely stored in the internal
-	buffer. For specific requirements on the type, see the definition of `CNonEmptyTrivialFunctorForm`.
+	buffer. For specific requirements on the type, see the definition of `CNonEmptyFunctorForm`.
 	*/
 	template<typename Func>
-	using TIsNonEmptyTrivialFunctor = std::bool_constant<
-		CNonEmptyTrivialFunctorForm<Func, R, Args...> &&
-		TCanFitBuffer<Func>::value>;
+	using TIsNonEmptyFunctor = std::bool_constant<
+		CNonEmptyFunctorForm<Func, R, Args...> &&
+		(
+			TCanFitBuffer<Func>::value ||            // for placement new into the buffer
+			sizeof(std::decay_t<Func>) <= BUFFER_SIZE// for bytewise copy
+		)>;
 
 	///@}
 
@@ -146,7 +150,7 @@ public:
 	template<typename Func>
 	using TIsStorableFunctor = std::bool_constant<
 		TIsEmptyFunctor<Func>::value ||
-		TIsNonEmptyTrivialFunctor<Func>::value>;
+		TIsNonEmptyFunctor<Func>::value>;
 
 public:
 	/*! @brief Creates an invalid function that cannot be called.
@@ -172,9 +176,10 @@ public:
 		}
 		else
 		{
-			static_assert(TIsNonEmptyTrivialFunctor<Func>::value,
-				"Cannot direct-init TFunction. Possible cause of errors: (1) sizeof functor exceeds current "
-				"limit, reduce functor size or increase the limit; (2) Invalid/mismatched functor signature; "
+			static_assert(TIsNonEmptyFunctor<Func>::value,
+				"Cannot direct-init TFunction with the input functor. Possible cause of errors: "
+				"(1) sizeof functor exceeds current limit, reduce functor size or increase the limit; "
+				"(2) Invalid/mismatched functor signature; "
 				"(3) The direct-init ctor only works for functors. For other function types, please use setters.");
 
 			set<Func>(std::forward<Func>(func));
@@ -262,13 +267,15 @@ public:
 	*/
 	template<typename Func>
 	inline TFunction& set(Func&& func)
-		requires TIsNonEmptyTrivialFunctor<Func>::value
+		requires TIsNonEmptyFunctor<Func>::value
 	{
-		std::construct_at(
-			reinterpret_cast<std::decay_t<Func>*>(m_data.u_buffer),
-			std::forward<Func>(func));
+		using Functor = std::decay_t<Func>;
 
-		m_caller = &nonEmptyTrivialFunctorCaller<std::decay_t<Func>>;
+		// IOC of array of size 1
+		Functor* const storage = start_implicit_lifetime_as<Functor>(m_data.u_buffer);
+
+		std::construct_at(storage, std::forward<Func>(func));
+		m_caller = &nonEmptyConstructedFunctorCaller<Functor>;
 		
 		return *this;
 	}
@@ -330,10 +337,10 @@ private:
 	}
 
 	template<typename Func>
-	inline static R nonEmptyTrivialFunctorCaller(const TFunction* const self, Args... args)
+	inline static R nonEmptyConstructedFunctorCaller(const TFunction* const self, Args... args)
 	{
 		// We do not obtain the pointer to `Func` via placement new (or `std::construct_at`).
-		// Instead, we cast it from raw buffer and laundering it is required by the standard
+		// Instead, we cast it from raw buffer and laundering is required by the standard
 		const auto& func = *std::launder(reinterpret_cast<const Func*>(self->m_data.u_buffer));
 
 		return func(std::forward<Args>(args)...);

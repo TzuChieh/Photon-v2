@@ -52,7 +52,7 @@ inline T* GraphicsMemoryBlock::make(Args&&... args)
 template<typename T>
 inline TSpan<T> GraphicsMemoryBlock::makeArray(const std::size_t arraySize)
 {
-	// To not violate [basic.life] Section 8.3 later
+	// To not violate [basic.life] section 8.3 later
 	// (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
 	using NonConstT = std::remove_const_t<T>;
 

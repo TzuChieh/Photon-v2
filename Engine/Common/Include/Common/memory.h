@@ -91,6 +91,8 @@ void reverse_bytes(std::byte* bytes);
 /*! @brief Wrapper for `std::start_lifetime_as()`.
 Primarily a fallback when C++23 is not available. This function may touch the storage. For cv overloads
 or one that does not touch the storage, see `std::start_lifetime_as()` (requires C++23).
+@note Starting lifetime of an array of `unsigned char` or `std::byte` implicitly creates objects within
+the region of storage. See [intro.object] section 13 (https://timsong-cpp.github.io/cppwp/intro.object#13).
 */
 template<typename T>
 T* start_implicit_lifetime_as(void* ptr) noexcept;
@@ -98,6 +100,8 @@ T* start_implicit_lifetime_as(void* ptr) noexcept;
 /*! @brief Wrapper for `std::start_lifetime_as_array()`.
 Primarily a fallback when C++23 is not available. This function may touch the storage. For cv overloads
 or one that does not touch the storage, see `std::start_lifetime_as_array()` (requires C++23).
+@note Starting lifetime of an array of `unsigned char` or `std::byte` implicitly creates objects within
+the region of storage. See [intro.object] section 13 (https://timsong-cpp.github.io/cppwp/intro.object#13).
 */
 template<typename T>
 T* start_implicit_lifetime_as_array(void* ptr, std::size_t arrSize) noexcept;

@@ -74,7 +74,7 @@ public:
 	@tparam T Type for the raw memory allocated, must be trivially destructible.
 	@note Provides storage only. Placement new is required before any use of the memory content.
 	For const types, laundering is needed to access the created object via the returned pointer
-	([basic.life] Section 8.3).
+	([basic.life] section 8.3).
 	*/
 	template<typename T>
 	T* alloc();
@@ -85,7 +85,7 @@ public:
 	@tparam T Type for the raw array memory allocated, must be trivially destructible.
 	@note Provides storage only. Placement new is required before any use of the memory content.
 	For const types, laundering is needed to access the created object via the returned pointer
-	([basic.life] Section 8.3).
+	([basic.life] section 8.3).
 	*/
 	template<typename T>
 	TSpan<T> allocArray(const std::size_t arraySize);

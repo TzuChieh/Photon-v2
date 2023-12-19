@@ -139,11 +139,11 @@ TEST(TFunctionTest, Traits)
 	{
 		using Func = TFunction<void(void)>;
 
-		static_assert(Func::TIsNonEmptyTrivialFunctor<MemberIsRef>{} == true);
+		static_assert(Func::TIsNonEmptyFunctor<MemberIsRef>{} == true);
 
 		float value;
 		auto refCapturingLambda = [&value](void) -> void {};
-		static_assert(Func::TIsNonEmptyTrivialFunctor<decltype(refCapturingLambda)>{} == true);
+		static_assert(Func::TIsNonEmptyFunctor<decltype(refCapturingLambda)>{} == true);
 	}
 }
 

@@ -657,7 +657,7 @@ private:
 	inline static Item* getItemPtr(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
 	{
 		// If `Item` is const qualified, laundering is required to prevent aggressive constant folding.
-		// See [basic.life] Section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
+		// See [basic.life] section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
 		if constexpr(std::is_const_v<Item> || PH_STRICT_OBJECT_LIFETIME)
 		{
 			// UB if pointed-to object not within its lifetime
