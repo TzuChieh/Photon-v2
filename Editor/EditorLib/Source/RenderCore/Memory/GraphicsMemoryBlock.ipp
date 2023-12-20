@@ -67,10 +67,7 @@ inline TSpan<T> GraphicsMemoryBlock::makeArray(const std::size_t arraySize)
 		return {};
 	}
 
-	for(std::size_t i = 0; i < arraySize; ++i)
-	{
-		std::construct_at(storage + i, NonConstT{});
-	}
+	std::uninitialized_default_construct_n(storage, arraySize);
 
 	// Potentially do implicit non-const -> const conversion
 	return TSpan<NonConstT>(storage, arraySize);

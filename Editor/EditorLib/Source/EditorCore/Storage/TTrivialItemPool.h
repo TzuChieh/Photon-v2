@@ -60,7 +60,6 @@ class TTrivialItemPool : public TItemPoolInterface<Item, typename Dispatcher::Ha
 	static_assert(std::is_trivially_destructible_v<Item>,
 		"Item must be trivially destructible.");
 
-	// TODO: possibly utilize std::uninitialized_copy
 	// TODO: optimize item copy when we have std::is_implicit_lifetime
 
 public:
@@ -213,7 +212,7 @@ public:
 		static_assert(std::is_trivially_destructible_v<Item>);
 
 		// Instead, we clear it by default constructing a new instance
-		std::construct_at(getItemPtr(m_storageMemory, itemIdx), Item{});
+		std::construct_at(getItemPtr(m_storageMemory, itemIdx));
 
 		const Generation newGeneration = HandleType::nextGeneration(handle.getGeneration());
 		m_generations[itemIdx] = newGeneration;
@@ -350,7 +349,7 @@ private:
 			make_aligned_memory<Item>(totalMemorySize, alignmentSize);
 		if(!newStorageMemory)
 		{
-			throw std::bad_alloc();
+			throw std::bad_alloc{};
 		}
 
 		// Copying/moving all items to new storage. No need (and no means) to check items from the
@@ -367,10 +366,9 @@ private:
 		// construction is explicitly stated to behave like they are default-constructed. Another reason
 		// is that `Item` may not be an implicit-lifetime class, so C++20's Implicit Object Creation
 		// cannot be relied upon (item lifetime may not begin unless placement new is used).
-		for(Index i = oldCapacity; i < newCapacity; ++i)
-		{
-			std::construct_at(getItemPtrDirectly(newStorageMemory, i), Item{});
-		}
+		std::uninitialized_default_construct_n(
+			getItemPtrDirectly(newStorageMemory, oldCapacity),
+			newCapacity - oldCapacity);
 
 		// Extend generation records to cover new storage spaces
 		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);

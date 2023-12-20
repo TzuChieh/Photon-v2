@@ -6,6 +6,7 @@
 #include "EditorCore/Storage/TStrongHandle.h"
 
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
 #include <Common/memory.h>
 #include <Common/os.h>
 #include <Common/math_basics.h>
@@ -690,7 +691,10 @@ private:
 	struct StorageState
 	{
 		Generation generation = HandleType::nextGeneration(HandleType::INVALID_GENERATION);
-		bool isFreed = true;
+		uint8 isFreed : 1 = true;
+
+		// Can support more tags, e.g., isDisabled for disabling an item slot permanently
+		// so generation collision will never happen.
 	};
 
 	TAlignedMemoryUniquePtr<Item> m_storageMemory;
