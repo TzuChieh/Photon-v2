@@ -40,7 +40,10 @@ typedef enum PhEndian
 
 typedef enum PhBufferFormat
 {
+	/*! Contains an EXR image in memory. */
 	PH_BUFFER_FORMAT_EXR_IMAGE,
+
+	/*! Contains a 32-bit float array. */
 	PH_BUFFER_FORMAT_FLOAT32_ARRAY
 } PhBufferFormat;
 

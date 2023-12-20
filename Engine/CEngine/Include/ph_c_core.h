@@ -204,17 +204,21 @@ extern PH_API PhBool phAsyncPollUpdatedFrameRegion(
 extern PH_API PhSize phAsyncPollUpdatedFrameRegions(
 	PhUInt64 engineId,
 	PhUInt64 bufferId,
-	PhFrameRegionInfo** out_regionInfosPtr);
+	PhFrameRegionInfo* out_regionInfos,
+	PhSize maxRegionInfos);
 
 /*! @brief Polls for multiple changed regions during engine runtime.
-@param mergeSize Number of regions to merge together. To obtain a single region, you can specify
-a large number.
+@param out_regionInfos Output buffer for storing the updated regions. The size of the buffer also
+determines the maximum number of regions that will participate in the merging process.
+@param mergeSize Number of regions to merge to a single unit. To obtain a single region, you can
+specify a number greater or equal to the size of the output buffer.
 */
 extern PH_API PhSize phAsyncPollMergedUpdatedFrameRegions(
 	PhUInt64 engineId,
 	PhUInt64 bufferId,
 	PhSize mergeSize,
-	PhFrameRegionInfo** out_regionInfosPtr);
+	PhFrameRegionInfo* out_regionInfos,
+	PhSize maxRegionInfos);
 
 extern PH_API void phAsyncPeekFrame(
 	PhUInt64                 engineId,

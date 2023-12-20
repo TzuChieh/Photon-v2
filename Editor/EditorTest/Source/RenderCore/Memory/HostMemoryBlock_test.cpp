@@ -150,12 +150,17 @@ TEST(HostMemoryBlockTest, ArrayAllocation)
 		constexpr int numInts = 100;
 
 		HostMemoryBlock block(sizeof(int) * numInts);
-		TSpan<int> ints = block.makeArray<int>(numInts);// zero-init all elements
+		TSpan<int> ints = block.makeArray<int>(numInts);// default construct all elements (may not be 0)
 
 		EXPECT_EQ(ints.size(), numInts);
 		for(int i = 0; i < numInts; ++i)
 		{
-			EXPECT_EQ(ints[i], 0);
+			ints[i] = i;
+		}
+
+		for(int i = 0; i < numInts; ++i)
+		{
+			EXPECT_EQ(ints[i], i);
 		}
 	}
 
@@ -169,12 +174,12 @@ TEST(HostMemoryBlockTest, ArrayAllocation)
 		EXPECT_EQ(doubles.size(), numDoubles);
 		for(int i = 0; i < numDoubles; ++i)
 		{
-			doubles[i] = i;
+			doubles[i] = i * 1.1;
 		}
 
 		for(int i = 0; i < numDoubles; ++i)
 		{
-			EXPECT_EQ(doubles[i], i);
+			EXPECT_EQ(doubles[i], i * 1.1);
 		}
 	}
 
@@ -194,6 +199,7 @@ TEST(HostMemoryBlockTest, ArrayAllocation)
 		EXPECT_EQ(objs.size(), numObjs);
 		for(int i = 0; i < numObjs; ++i)
 		{
+			// Should already be default constructed
 			EXPECT_EQ(objs[i].x, 1);
 			EXPECT_EQ(objs[i].y, 2.0);
 

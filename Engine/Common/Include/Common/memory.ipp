@@ -121,30 +121,15 @@ concept CPermissiveImplicitLifetime = std::disjunction_v<
 template<typename T>
 inline T* start_implicit_lifetime_as(void* ptr) noexcept
 {
-	static_assert(
-		std::is_trivially_copyable_v<T>
-#if __cpp_lib_is_implicit_lifetime
-		&& std::is_implicit_lifetime_v<T>
-#else
-		&& detail::CPermissiveImplicitLifetime<T>
-#endif
-		);
-
 #if __cpp_lib_start_lifetime_as
 	return std::start_lifetime_as<T>(ptr);
 #else
-	// `std::memmove()` is one of the "magic" operations that implicitly create objects of
-	// implicit lifetime type, we can hijack this property to do our work
-	// (see https://stackoverflow.com/questions/76445860/implementation-of-stdstart-lifetime-as)
-	// Note that using `new(ptr) std::byte[sizeof(T)]` as in Robert Leahy's talk in CppCon 2022
-	// is an alternative to `std::memmove`, except that the object representation (value) will
-	// be indeterminate due to placement new.
-	return std::launder(static_cast<T*>(std::memmove(ptr, ptr, sizeof(T))));
+	return start_implicit_lifetime_as_array<T>(ptr, 1);
 #endif
 }
 
 template<typename T>
-inline T* start_implicit_lifetime_as_array(void* ptr, std::size_t arrSize) noexcept
+inline T* start_implicit_lifetime_as_array(void* ptr, std::size_t numArrayElements) noexcept
 {
 	static_assert(
 		std::is_trivially_copyable_v<T>
@@ -156,15 +141,15 @@ inline T* start_implicit_lifetime_as_array(void* ptr, std::size_t arrSize) noexc
 		);
 
 #if __cpp_lib_start_lifetime_as
-	return std::start_lifetime_as_array<T>(ptr, arrSize);
+	return std::start_lifetime_as_array<T>(ptr, numArrayElements);
 #else
 	// `std::memmove()` is one of the "magic" operations that implicitly create objects of
 	// implicit lifetime type, we can hijack this property to do our work
 	// (see https://stackoverflow.com/questions/76445860/implementation-of-stdstart-lifetime-as)
-	// Note that using `new(ptr) std::byte[sizeof(T)]` as in Robert Leahy's talk in CppCon 2022
-	// is an alternative to `std::memmove`, except that the object representation (value) will
-	// be indeterminate due to placement new.
-	return std::launder(static_cast<T*>(std::memmove(ptr, ptr, sizeof(T) * arrSize)));
+	// Note that using `new(ptr) std::byte[sizeof(T) * numArrayElements]` as in Robert Leahy's talk in
+	// CppCon 2022 is an alternative to `std::memmove`, except that the object representation (value)
+	// will be indeterminate due to placement new.
+	return std::launder(static_cast<T*>(std::memmove(ptr, ptr, sizeof(T) * numArrayElements)));
 #endif
 }
 

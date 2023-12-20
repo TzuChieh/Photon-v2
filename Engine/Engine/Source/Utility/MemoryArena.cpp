@@ -88,7 +88,7 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 	// It is impossible to allocate memory larger than the fixed block size
 	if(numBytes > m_blockSizeInBytes)
 	{
-		throw std::bad_alloc();
+		throw std::bad_alloc{};
 	}
 
 	// NOTE: A better strategy would be keeping a record of remaining space in each block, then pick the
@@ -116,7 +116,7 @@ std::byte* MemoryArena::allocRaw(const std::size_t numBytes, const std::size_t a
 		// remaining in the block
 		if(!alignedPtr)
 		{
-			throw std::bad_alloc();
+			throw std::bad_alloc{};
 		}
 
 		++m_currentBlockIdx;

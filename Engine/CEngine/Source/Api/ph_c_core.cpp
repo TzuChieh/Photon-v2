@@ -3,18 +3,20 @@
 
 #include <ph_core.h>
 #include <Api/ApiDatabase.h>
-#include <Core/Engine.h>
-#include <Core/Receiver/Receiver.h>
-#include <Api/test_scene.h>
-#include <Math/TArithmeticArray.h>
-#include <Core/Renderer/Renderer.h>
-#include <DataIO/FileSystem/Path.h>
 #include <Common/assertion.h>
-#include <DataIO/io_utils.h>
-#include <Api/ApiHelper.h>
-#include <Core/Renderer/RenderRegionStatus.h>
 #include <Common/config.h>
 #include <Common/logging.h>
+#include <Common/profiling.h>
+#include <Common/memory.h>
+#include <Core/Engine.h>
+#include <Core/Receiver/Receiver.h>
+#include <Core/Renderer/Renderer.h>
+#include <Core/Renderer/RenderRegionStatus.h>
+#include <Api/test_scene.h>
+#include <Math/TArithmeticArray.h>
+#include <DataIO/FileSystem/Path.h>
+#include <DataIO/io_utils.h>
+#include <Api/ApiHelper.h>
 #include <Frame/frame_utils.h>
 #include <Frame/TFrame.h>
 #include <Frame/PictureMeta.h>
@@ -26,6 +28,7 @@
 #include <iostream>
 #include <cstring>
 #include <cstddef>
+#include <array>
 
 using namespace ph;
 
@@ -337,9 +340,10 @@ PhBool phSaveFrameToBuffer(
 	const PhBufferFormat format,
 	const PhFrameSaveInfo* saveInfo)
 {
+	PH_PROFILE_SCOPE();
+
 	const HdrRgbFrame* const frame = ApiDatabase::getResource<HdrRgbFrame>(frameId);
 	ByteBuffer* const buffer = ApiDatabase::getResource<ByteBuffer>(bufferId);
-
 	if(!frame || !buffer)
 	{
 		return PH_FALSE;
@@ -369,8 +373,51 @@ PhBool phSaveFrameToBuffer(
 	}
 	else if(format == PH_BUFFER_FORMAT_FLOAT32_ARRAY)
 	{
-		// TODO
-		return PH_FALSE;
+		constexpr auto maxChannels = HdrRgbFrame::PixelType::NUM_ELEMENTS;
+
+		std::array<bool, maxChannels> shouldSaveChannel;
+		for(std::size_t channelIdx = 0; channelIdx < maxChannels; ++channelIdx)
+		{
+			shouldSaveChannel[channelIdx] = true;
+
+			if(saveInfo)
+			{
+				// Skip the channel if we specify less channels or the channel name is empty
+				if(channelIdx >= saveInfo->numChannels ||
+				   (saveInfo->channelNames && (!saveInfo->channelNames[channelIdx] ||
+				                                saveInfo->channelNames[channelIdx][0] == '\0')))
+				{
+					shouldSaveChannel[channelIdx] = false;
+				}
+			}
+		}
+
+		const bool needReversingBytes = saveInfo ? is_reversing_bytes_needed(saveInfo->endianness) : false;
+
+		frame->forEachPixel(
+			[&shouldSaveChannel, needReversingBytes, buffer](const HdrRgbFrame::PixelType& pixel)
+			{
+				for(std::size_t channelIdx = 0; channelIdx < maxChannels; ++channelIdx)
+				{
+					if(!shouldSaveChannel[channelIdx])
+					{
+						continue;
+					}
+
+					const auto pixelComponent = pixel[channelIdx];
+
+					std::array<std::byte, sizeof(pixelComponent)> bytes;
+					to_bytes(pixelComponent, bytes.data());
+					if(needReversingBytes)
+					{
+						reverse_bytes<sizeof(pixelComponent)>(bytes.data());
+					}
+
+					buffer->write(bytes.data(), bytes.size());
+				}
+			});
+
+		return PH_TRUE;
 	}
 	else
 	{
@@ -452,7 +499,7 @@ PhBool phAsyncPollUpdatedFrameRegion(
 	PhUInt64 engineId,
 	PhFrameRegionInfo* out_regionInfo)
 {
-	PH_ASSERT(out_regionInfo);
+	PH_PROFILE_SCOPE();
 
 	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	if(!engine || !engine->getRenderer())
@@ -467,25 +514,7 @@ PhBool phAsyncPollUpdatedFrameRegion(
 		return PH_FALSE;
 	}
 
-	out_regionInfo->xPx = static_cast<PhUInt32>(region.getRegion().getMinVertex().x());
-	out_regionInfo->yPx = static_cast<PhUInt32>(region.getRegion().getMinVertex().y());
-	out_regionInfo->widthPx = static_cast<PhUInt32>(region.getRegion().getWidth());
-	out_regionInfo->heightPx = static_cast<PhUInt32>(region.getRegion().getHeight());
-
-	switch(region.getStatus())
-	{
-	case ERegionStatus::Finished:
-		out_regionInfo->status = PH_FRAME_REGION_STATUS_FINISHED;
-		break;
-
-	case ERegionStatus::Updating:
-		out_regionInfo->status = PH_FRAME_REGION_STATUS_UPDATING;
-		break;
-
-	default:
-		out_regionInfo->status = PH_FRAME_REGION_STATUS_INVALID;
-		break;
-	}
+	to_frame_region_info(region, out_regionInfo);
 
 	return PH_TRUE;
 }
@@ -493,9 +522,10 @@ PhBool phAsyncPollUpdatedFrameRegion(
 PhSize phAsyncPollUpdatedFrameRegions(
 	PhUInt64 engineId,
 	PhUInt64 bufferId,
-	PhFrameRegionInfo** out_regionInfosPtr)
+	PhFrameRegionInfo* out_regionInfos,
+	PhSize maxRegionInfos)
 {
-	PH_ASSERT(out_regionInfosPtr);
+	PH_PROFILE_SCOPE();
 
 	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	auto buffer = ApiDatabase::useResource<ByteBuffer>(bufferId).lock();
@@ -504,20 +534,50 @@ PhSize phAsyncPollUpdatedFrameRegions(
 		return 0;
 	}
 
+	buffer->rewindWrite();
+	TSpan<RenderRegionStatus> regions = make_array_from_buffer<RenderRegionStatus>(
+		maxRegionInfos, *buffer, true);
 
+	const auto numPolledRegions = engine->getRenderer()->asyncPollUpdatedRegions(regions);
 
-	// TODO
-	return 0;
+	// Translate from `RenderRegionStatus` to `PhFrameRegionInfo`
+	for(std::size_t ri = 0; ri < numPolledRegions; ++ri)
+	{
+		to_frame_region_info(regions[ri], out_regionInfos + ri);
+	}
+
+	return numPolledRegions;
 }
 
 PhSize phAsyncPollMergedUpdatedFrameRegions(
 	PhUInt64 engineId,
 	PhUInt64 bufferId,
 	PhSize mergeSize,
-	PhFrameRegionInfo** out_regionInfosPtr)
+	PhFrameRegionInfo* out_regionInfos,
+	PhSize maxRegionInfos)
 {
-	// TODO
-	return 0;
+	PH_PROFILE_SCOPE();
+
+	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
+	auto buffer = ApiDatabase::useResource<ByteBuffer>(bufferId).lock();
+	if(!engine || !engine->getRenderer() || !buffer)
+	{
+		return 0;
+	}
+
+	buffer->rewindWrite();
+	TSpan<RenderRegionStatus> regions = make_array_from_buffer<RenderRegionStatus>(
+		maxRegionInfos, *buffer, true);
+
+	const auto numPolledRegions = engine->getRenderer()->asyncPollMergedUpdatedRegions(regions, mergeSize);
+
+	// Translate from `RenderRegionStatus` to `PhFrameRegionInfo`
+	for(std::size_t ri = 0; ri < numPolledRegions; ++ri)
+	{
+		to_frame_region_info(regions[ri], out_regionInfos + ri);
+	}
+
+	return numPolledRegions;
 }
 
 void phAsyncPeekFrame(

@@ -56,17 +56,26 @@ public:
 		TFrame& sampled, 
 		const math::TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
 
+	/*! @brief Iterate over all pixels in the frame in row-major order.
+	*/
+	///@{
 	template<typename PerPixelOperation>
 	void forEachPixel(PerPixelOperation op);
 
 	template<typename PerPixelOperation>
 	void forEachPixel(PerPixelOperation op) const;
+	///@}
 
+	/*! @brief Iterate over all pixels in the frame in row-major order.
+	@param region The region to iterate for.
+	*/
+	///@{
 	template<typename PerPixelOperation>
 	void forEachPixel(const math::TAABB2D<uint32>& region, PerPixelOperation op);
 
 	template<typename PerPixelOperation>
 	void forEachPixel(const math::TAABB2D<uint32>& region, PerPixelOperation op) const;
+	///@}
 
 	// TODO: sampling texture
 

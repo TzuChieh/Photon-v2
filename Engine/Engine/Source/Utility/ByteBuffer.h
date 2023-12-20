@@ -38,17 +38,35 @@ public:
 
 	void rewindRead();
 	void rewindWrite();
+
+	/*! @brief Clear all data and reset reader and writer positions.
+	*/
 	void clear();
+
 	void fill(std::byte filledByte);
 	void truncate();
 	void fit();
 	void setReadPosition(std::size_t indexOfByte);
 	void setWritePosition(std::size_t indexOfByte);
+	void setNumBytes(std::size_t numBytes);
 
+	/*!
+	@return The index that is going to be read next.
+	*/
 	std::size_t getReadPosition() const;
+
+	/*!
+	@return The index that is going to be written next.
+	*/
 	std::size_t getWritePosition() const;
+
+	/*! @brief Direct access to all the bytes in the buffer.
+	*/
+	///@{
 	TSpan<std::byte> getBytes();
 	TSpanView<std::byte> getBytes() const;
+	///@}
+
 	std::size_t numBytes() const;
 	bool isEmpty() const;
 	bool hasMoreToRead() const;
@@ -188,7 +206,7 @@ inline void ByteBuffer::truncate()
 
 	if(m_readHead > m_writeHead)
 	{
-		m_readHead = m_writeHead;
+		setReadPosition(m_writeHead);
 	}
 }
 
@@ -209,6 +227,21 @@ inline void ByteBuffer::setWritePosition(const std::size_t indexOfByte)
 	PH_ASSERT_LE(indexOfByte, m_buffer.size());
 
 	m_writeHead = indexOfByte;
+}
+
+inline void ByteBuffer::setNumBytes(const std::size_t numBytes)
+{
+	m_buffer.resize(numBytes);
+
+	if(m_writeHead > numBytes)
+	{
+		setWritePosition(numBytes);
+	}
+
+	if(m_readHead > numBytes)
+	{
+		setReadPosition(numBytes);
+	}
 }
 
 inline std::size_t ByteBuffer::getReadPosition() const

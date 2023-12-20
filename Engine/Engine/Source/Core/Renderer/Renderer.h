@@ -124,9 +124,10 @@ public:
 	/*! @brief Get the rendering region that has been updated.
 	This variant polls for combined regions. Note that this variant does not guarantee any status
 	ordering for a region. If a more fine-grained result is desired, use `asyncPollUpdatedRegions()`.
-	@param out_regions Output buffer for storing the updated regions.
-	@param mergeSize Number of regions to merge together. To obtain a single region, you can specify
-	a number greater or equal to the size of the output buffer.
+	@param out_regions Output buffer for storing the updated regions. The size of the buffer also
+	determines the maximum number of regions that will participate in the merging process.
+	@param mergeSize Number of regions to merge to a single unit. To obtain a single region, you can
+	specify a number greater or equal to the size of the output buffer.
 	*/
 	std::size_t asyncPollMergedUpdatedRegions(
 		TSpan<RenderRegionStatus> out_regions,
