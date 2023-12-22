@@ -16,6 +16,26 @@ namespace ph::cli
 
 PH_DEFINE_INTERNAL_LOG_GROUP(Blender, PhotonCLI);
 
+namespace
+{
+
+PhFrameSaveInfo make_frame_save_info_for_blender()
+{
+	// Blender expects specific channel names when loading the render result from .exr file
+	/*static const std::array<const PhChar*, 4> channelNames{
+		"Combined.R", "Combined.G", "Combined.B", "Combined.A"};*/
+	static const std::array<const PhChar*, 4> channelNames{
+		"ViewLayer.Combined.R", "ViewLayer.Combined.G", "ViewLayer.Combined.B", "ViewLayer.Combined.A"};
+
+	PhFrameSaveInfo frameInfo{};
+	frameInfo.numChannels = channelNames.size();
+	frameInfo.channelNames = channelNames.data();
+
+	return frameInfo;
+}
+
+}// end anonymous namespace
+
 BlenderStaticImageRenderer::BlenderStaticImageRenderer(const ProcessedArguments& args)
 
 	: StaticImageRenderer(args)
@@ -76,7 +96,8 @@ void BlenderStaticImageRenderer::render()
 		phAquireFrameRaw(getEngine(), 0, frameId);
 	}
 
-	save_frame_with_fail_safe(frameId, getArgs().getImageFilePath());
+	const PhFrameSaveInfo frameInfo = make_frame_save_info_for_blender();
+	save_frame_with_fail_safe(frameId, getArgs().getImageFilePath(), &frameInfo);
 
 	phDeleteFrame(frameId);
 }
@@ -159,15 +180,7 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 	PhRenderProgress currentProgress{};
 	PhRenderProgress lastProgress{};
 
-	// Blender expects specific channel names when loading the render result from .exr file
-	/*std::array<const PhChar*, 4> channelNames{
-		"Combined.R", "Combined.G", "Combined.B", "Combined.A"};*/
-	std::array<const PhChar*, 4> channelNames{
-		"ViewLayer.Combined.R", "ViewLayer.Combined.G", "ViewLayer.Combined.B", "ViewLayer.Combined.A"};
-
-	PhFrameSaveInfo frameInfo{};
-	frameInfo.numChannels = channelNames.size();
-	frameInfo.channelNames = channelNames.data();
+	const PhFrameSaveInfo frameInfo = make_frame_save_info_for_blender();
 
 	while(!token.stop_requested())
 	{

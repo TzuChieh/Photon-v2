@@ -556,21 +556,13 @@ void save_png(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils,
 		"saving png <{}>", filePath.toAbsoluteString());
 
-	bool stbiResult = false;
-	if(!meta)
-	{
-		stbiResult = stbi_write_png(
-			filePath.toString().c_str(),
-			static_cast<int>(frame.widthPx()),
-			static_cast<int>(frame.heightPx()),
-			3,
-			frame.getPixelData().data(),
-			static_cast<int>(frame.widthPx()) * 3);
-	}
-	else
-	{
-		// TODO
-	}
+	const bool stbiResult = stbi_write_png(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData().data(),
+		static_cast<int>(frame.widthPx()) * 3);
 
 	if(!stbiResult)
 	{
@@ -589,21 +581,13 @@ void save_jpg(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils,
 		"saving jpg <{}> with quality = {}", filePath.toAbsoluteString(), QUALITY);
 
-	bool stbiResult = false;
-	if(!meta)
-	{
-		stbiResult = stbi_write_jpg(
-			filePath.toString().c_str(),
-			static_cast<int>(frame.widthPx()),
-			static_cast<int>(frame.heightPx()),
-			3,
-			frame.getPixelData().data(),
-			10);
-	}
-	else
-	{
-		// TODO
-	}
+	const bool stbiResult = stbi_write_jpg(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData().data(),
+		10);
 
 	if(!stbiResult)
 	{
@@ -619,20 +603,12 @@ void save_bmp(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils,
 		"saving bmp <{}>", filePath.toAbsoluteString());
 
-	bool stbiResult = false;
-	if(!meta)
-	{
-		stbiResult = stbi_write_bmp(
-			filePath.toString().c_str(),
-			static_cast<int>(frame.widthPx()),
-			static_cast<int>(frame.heightPx()),
-			3,
-			frame.getPixelData().data());
-	}
-	else
-	{
-		// TODO
-	}
+	const bool stbiResult = stbi_write_bmp(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData().data());
 
 	if(!stbiResult)
 	{
@@ -648,20 +624,12 @@ void save_tga(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils,
 		"saving tga <{}>", filePath.toAbsoluteString());
 
-	bool stbiResult = false;
-	if(!meta)
-	{
-		bool stbiResult = stbi_write_tga(
-			filePath.toString().c_str(),
-			static_cast<int>(frame.widthPx()),
-			static_cast<int>(frame.heightPx()),
-			3,
-			frame.getPixelData().data());
-	}
-	else
-	{
-		// TODO
-	}
+	const bool stbiResult = stbi_write_tga(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData().data());
 
 	if(!stbiResult)
 	{
@@ -677,20 +645,12 @@ void save_hdr(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils, 
 		"saving hdr <{}>", filePath.toAbsoluteString());
 
-	bool stbiResult = false;
-	if(!meta)
-	{
-		stbiResult = stbi_write_hdr(
-			filePath.toString().c_str(),
-			static_cast<int>(frame.widthPx()),
-			static_cast<int>(frame.heightPx()),
-			3,
-			frame.getPixelData().data());
-	}
-	else
-	{
-		// TODO
-	}
+	const bool stbiResult = stbi_write_hdr(
+		filePath.toString().c_str(),
+		static_cast<int>(frame.widthPx()),
+		static_cast<int>(frame.heightPx()),
+		3,
+		frame.getPixelData().data());
 
 	if(!stbiResult)
 	{
@@ -722,16 +682,8 @@ void save_pfm(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils,
 		"saving pfm <{}>", filePath.toAbsoluteString());
 
-	if(!meta)
-	{
-		PfmFileWriter writer(filePath);
-		writer.save(frame);
-	}
-	else
-	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
-	}
+	PfmFileWriter writer(filePath);
+	writer.save(frame);
 }
 
 void save_exr(const HdrRgbFrame& frame, ByteBuffer& buffer, const PictureMeta* meta)

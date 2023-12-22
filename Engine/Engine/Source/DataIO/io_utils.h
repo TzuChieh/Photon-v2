@@ -84,6 +84,8 @@ void save(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* met
 /*! @brief Saves a LDR frame to the specified file.
 Notice that if the specified format is HDR, values will be promoted to higher precision types which
 can have extra storage cost.
+@param meta General information for storing the frame as a picture. The information given may or may
+not be considered (depending on the file format).
 */
 void save(
 	const LdrRgbFrame& frame, 
@@ -95,6 +97,8 @@ void save(
 /*! @brief Saves a HDR frame to the specified file.
 Notice that if the specified format is LDR, values outside [0, 1] will be clamped (this may result
 in significant data loss depending on the values stored).
+@param meta General information for storing the frame as a picture. The information given may or may
+not be considered (depending on the file format).
 */
 void save(
 	const HdrRgbFrame& frame, 

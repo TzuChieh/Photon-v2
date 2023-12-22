@@ -115,6 +115,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         self.renderer.run()
         b_render_result = self.begin_result(0, 0, width_px, height_px)
 
+        # Receive and display intermediate render result from the server
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Connect to the rendering server
             # max_retries = 100
@@ -144,12 +145,11 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                 # Keep receiving data until program terminated or connection ended
                 while self.renderer.is_running():
                     try:
-                        ready_for_read, ready_for_write, in_error = select.select([s], [], [], 5)
-                    except select.error:
-                        # 0 = done receiving, 1 = done sending, 2 = both
-                        s.shutdown(2)
+                        select_timeout = poll_seconds
+                        ready_for_read, ready_for_write, in_error = select.select([s], [], [], select_timeout)
+                    except select.error as e:
                         # TODO: maybe reconnect is needed on some error type
-                        print("note: connection to the rendering server ended")
+                        print("connection to the rendering server ended: %s" % str(e))
                         break
 
                     # Read incoming data as fast as possible
@@ -176,10 +176,6 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
                             # Reset image size to an unset state
                             num_image_bytes = -1
-                    # Wait some time if data from server is not ready
-                    else:        
-                        print("waiting image")
-                        time.sleep(poll_seconds)
 
                     if self.test_break():
                         print("render canceled")
@@ -188,12 +184,16 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
             else:
                 print("warning: connection failed")
 
+            # 0 = done receiving, 1 = done sending, 2 = both
+            s.shutdown(2)
+
         while self.renderer.is_running():
             print("waiting for renderer to finish running...")
             time.sleep(poll_seconds)
         
         self.renderer.exit()
 
+        # Load and display the final image
         is_canceled = self.test_break()
         if not is_canceled:
             image_file_path = image_file_path.with_suffix("." + image_file_format)
