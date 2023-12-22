@@ -274,7 +274,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererStatistics
                            jobject out_FloatRef_samplesPerSecond)
 {
 	PhFloat32 progress, frequency;
-	phAsyncGetRendererStatistics(static_cast<PhUInt64>(engineId), &progress, &frequency);
+	phAsyncGetRenderStatistics(static_cast<PhUInt64>(engineId), &progress, &frequency);
 
 	ph::JFloatRef jProgress(out_FloatRef_percentageProgress, env);
 	ph::JFloatRef jFrequency(out_FloatRef_samplesPerSecond, env);
@@ -411,7 +411,7 @@ JNIEXPORT void JNICALL Java_photonApi_Ph_phAsyncGetRendererState
 (JNIEnv* env, jclass thiz, jlong engineId, jobject out_RenderState_state)
 {
 	struct PHRenderState state;
-	phAsyncGetRendererState(static_cast<PhUInt64>(engineId), &state);
+	phAsyncGetRenderState(static_cast<PhUInt64>(engineId), &state);
 
 	jlongArray jLongArray = env->NewLongArray(PH_NUM_RENDER_STATE_INTEGERS);
 	for(std::size_t i = 0; i < PH_NUM_RENDER_STATE_INTEGERS; ++i)

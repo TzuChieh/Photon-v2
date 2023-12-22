@@ -2,8 +2,8 @@
 
 #include "util.h"
 
-#include <Utility/CommandLineArguments.h>
 #include <Common/primitive_type.h>
+#include <Utility/CommandLineArguments.h>
 
 #include <string>
 #include <vector>
@@ -45,10 +45,12 @@ public:
 	bool           isPostProcessRequested() const;
 	std::string    wildcardStart() const;
 	std::string    wildcardFinish() const;
-	float          getIntermediateOutputInterval() const;
-	EIntervalUnit  getIntervalUnit() const;
+	float32        getIntermediateOutputInterval() const;
+	EIntervalUnit  getIntermediateOutputIntervalUnit() const;
 	bool           isOverwriteRequested() const;
-	unsigned short getPort() const;
+	uint16         getPort() const;
+	float32        getBlenderPeekInterval() const;
+	EIntervalUnit  getBlenderPeekIntervalUnit() const;
 
 	void setSceneFilePath(const std::string& sceneFilePath);
 	void setImageOutputPath(const std::string& imageOutputPath);
@@ -78,10 +80,12 @@ private:
 	bool           m_isPostProcessRequested;
 	std::string    m_wildcardStart;
 	std::string    m_wildcardFinish;
-	float          m_intermediateOutputInverval;
-	EIntervalUnit  m_intervalUnit;
+	float32        m_intermediateOutputInterval;
+	EIntervalUnit  m_intermediateOutputIntervalUnit;
 	bool           m_isOverwriteRequested;
 	uint16         m_port;
+	float32        m_blenderPeekInterval;
+	EIntervalUnit  m_blenderPeekIntervalUnit;
 
 	// HACK
 	bool m_isFrameDiagRequested;
@@ -136,14 +140,14 @@ inline std::string ProcessedArguments::wildcardFinish() const
 	return m_wildcardFinish;
 }
 
-inline float ProcessedArguments::getIntermediateOutputInterval() const
+inline float32 ProcessedArguments::getIntermediateOutputInterval() const
 {
-	return m_intermediateOutputInverval;
+	return m_intermediateOutputInterval;
 }
 
-inline EIntervalUnit ProcessedArguments::getIntervalUnit() const
+inline EIntervalUnit ProcessedArguments::getIntermediateOutputIntervalUnit() const
 {
-	return m_intervalUnit;
+	return m_intermediateOutputIntervalUnit;
 }
 
 inline bool ProcessedArguments::isOverwriteRequested() const
@@ -151,9 +155,19 @@ inline bool ProcessedArguments::isOverwriteRequested() const
 	return m_isOverwriteRequested;
 }
 
-inline unsigned short ProcessedArguments::getPort() const
+inline uint16 ProcessedArguments::getPort() const
 {
 	return m_port;
+}
+
+inline float32 ProcessedArguments::getBlenderPeekInterval() const
+{
+	return m_blenderPeekInterval;
+}
+
+inline EIntervalUnit ProcessedArguments::getBlenderPeekIntervalUnit() const
+{
+	return m_blenderPeekIntervalUnit;
 }
 
 inline void ProcessedArguments::setSceneFilePath(const std::string& sceneFilePath)
@@ -170,31 +184,31 @@ inline void ProcessedArguments::printHelpMessage()
 {
 	std::cout << R"(
 ===============================================================================
--s <path>
+[-s <path>]
  
 Specify path to scene file. To render an image series, you can specify
 "myScene*.p2" as <path> where * is a wildcard for any string (--series is
 required in this case). 
 (default path: "./scene.p2")
 ===============================================================================
--o <path>
+[-o <path>]
 
 Specify image output path. This should be a filename (without extension) for 
 single image or a directory for image series. 
 (default path: "./rendered_scene")
 ===============================================================================
--of <format>
+[-of <format>]
 
 Specify the format of output image. Supported formats are: png, jpg, bmp, tga,
 hdr, exr.
 (default format: png)
 ===============================================================================
--t <number>
+[-t <number>]
 
 Set number of threads used for rendering. 
 (default: single thread)
 ===============================================================================
--p <interval> <is_overwriting>
+[-p <interval> <is_overwriting>]
 
 Output an intermediate image whenever the specified <interval> has passed, 
 e.g., write 2.3% to output whenever the rendering has progressed 2.3 percent; 
@@ -202,35 +216,38 @@ or write 7s to output every 7 seconds. Specify <is_overwriting> as true will
 make the program overwrite previous intermediate image; false for the 
 opposite effect.
 ===============================================================================
---raw
+[--raw]
 
 Do not perform any post-processing. 
 (default: perform post-processing)
 ===============================================================================
---help
+[--help]
 
 Print this help message then exit.
 ===============================================================================
---series
+[--series]
 
 Render an image series. The order for rendering will be lexicographical order
 of the wildcarded string. Currently only .png is supported.
 ===============================================================================
---start <*>
+[--start <*>]
 
 Render image series starting from a specific wildcarded string.
 ===============================================================================
---finish <*>
+[--finish <*>]
 
 Render image series until a specific wildcarded string is matched. (inclusive)
 ===============================================================================
---blender
+[--blender <peek_interval>]
 
-Tailor the renderer to support for in-Blender rendering.
+Tailor the renderer to support for use with Blender. <peek_interval> determines
+how often intermediate image is retrieved from the renderer to display in
+Blender (default to 1s).
 ===============================================================================
---port <number>
+[--port <number>]
 
 The port to use when running as a server.
+(default: 7000)
 ===============================================================================
 	)" << std::endl;
 }

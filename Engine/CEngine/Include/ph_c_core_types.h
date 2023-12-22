@@ -54,6 +54,13 @@ typedef enum PhFrameRegionStatus
 	PH_FRAME_REGION_STATUS_UPDATING
 } PhFrameRegionStatus;
 
+typedef struct PhRenderProgress
+{
+	PhUInt64 totalWork;
+	PhUInt64 workDone;
+	PhUInt64 elapsedMs;
+} PhRenderProgress;
+
 typedef struct PhFrameRegionInfo
 {
 	PhUInt32 xPx;

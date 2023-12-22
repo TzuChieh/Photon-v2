@@ -88,7 +88,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         image_file_name = "__temp_rendered"
         image_file_format = "exr"
         image_file_path = self.renderer_data_path / image_file_name
-        refresh_seconds = 2
+        poll_seconds = 1.0
 
         self.renderer.set_scene_file_path(self.scene_file_path)
         self.renderer.set_image_output_path(image_file_path)
@@ -98,6 +98,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         # self.renderer.request_intermediate_output(interval=refresh_seconds, unit='s', is_overwriting=True)
         intermediate_image_file_path = Path(str(image_file_path) + "_intermediate_")
         intermediate_image_file_path = intermediate_image_file_path.with_suffix("." + image_file_format)
+        intermediate_image_file_path = str(intermediate_image_file_path.resolve())
 
         self.renderer.set_num_render_threads(blender.get_render_threads(b_scene))
 
@@ -112,13 +113,9 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
             return
 
         self.renderer.run()
-
         b_render_result = self.begin_result(0, 0, width_px, height_px)
-        b_render_layer = b_render_result.layers[0]
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(refresh_seconds)
-
             # Connect to the rendering server
             # max_retries = 100
             max_retries = 1000
@@ -126,25 +123,25 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
             is_connected = False
             while num_retries < max_retries:
                 try:
+                    s.settimeout(poll_seconds)
                     s.connect((host, port))
-
                     is_connected = True
                     print("note: connected to the rendering server")
                     break
                 except OSError:
-                    print("note: connection failed, retrying... (attempt %d/%d)" % (num_retries + 1, max_retries))
+                    print("note: waiting for server to respond... (attempt %d/%d)" % (num_retries + 1, max_retries))
                     num_retries += 1
-                    time.sleep(refresh_seconds)
+                    time.sleep(poll_seconds)
 
+            # Connection established
             if is_connected:
                 s.setblocking(False)
 
-                # Connection established
-
-                # Keep receiving data until program terminated or connection ended
                 num_chunk_bytes = 1 * 1024 * 1024
                 data = bytes()
                 num_image_bytes = -1
+
+                # Keep receiving data until program terminated or connection ended
                 while self.renderer.is_running():
                     try:
                         ready_for_read, ready_for_write, in_error = select.select([s], [], [], 5)
@@ -155,6 +152,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                         print("note: connection to the rendering server ended")
                         break
 
+                    # Read incoming data as fast as possible
                     if ready_for_read:
                         data += s.recv(num_chunk_bytes)
 
@@ -164,10 +162,11 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
                         # Data for the image received
                         if num_image_bytes > 0 and len(data) >= 8 + num_image_bytes:
-                            with open(intermediate_image_file_path, 'wb') as image_file:
+                            with open(intermediate_image_file_path, 'w+b') as image_file:
                                 image_file.write(data[8:8 + num_image_bytes])
-
-                            b_render_layer.load_from_file(str(intermediate_image_file_path.resolve()))
+                                image_file.flush()
+                                image_file.seek(0)
+                                b_render_result.load_from_file(intermediate_image_file_path)
 
                             # Signal that pixels have been updated and can be redrawn in the user interface
                             self.update_result(b_render_result)
@@ -177,8 +176,10 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
                             # Reset image size to an unset state
                             num_image_bytes = -1
-
-                            time.sleep(refresh_seconds)
+                    # Wait some time if data from server is not ready
+                    else:        
+                        print("waiting image")
+                        time.sleep(poll_seconds)
 
                     if self.test_break():
                         print("render canceled")
@@ -189,14 +190,14 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         while self.renderer.is_running():
             print("waiting for renderer to finish running...")
-            time.sleep(refresh_seconds)
+            time.sleep(poll_seconds)
         
         self.renderer.exit()
 
         is_canceled = self.test_break()
         if not is_canceled:
             image_file_path = image_file_path.with_suffix("." + image_file_format)
-            b_render_layer.load_from_file(str(image_file_path))
+            b_render_result.load_from_file(str(image_file_path))
             self.update_result(b_render_result)
 
         self.end_result(b_render_result)

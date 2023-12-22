@@ -141,7 +141,7 @@ std::size_t add_log_group(const std::string_view groupName, const std::string_vi
 	return g_coreLogGroups.addGroup(groupName, category);
 }
 
-void log_to_logger(Logger& logger, const std::string_view groupName, const ELogLevel logLevel, const std::string_view logMessage)
+void log_to_logger(const Logger& logger, const std::string_view groupName, const ELogLevel logLevel, const std::string_view logMessage)
 {
 	logger.log(groupName, logLevel, logMessage);
 }

@@ -179,17 +179,19 @@ extern PH_API void phDeleteBuffer(PhUInt64 bufferId);
 // Asynchronous Operations
 //
 
+extern PH_API void phAsyncGetRenderProgress(PhUInt64 engineId, PhRenderProgress* out_progress);
+
 // TODO: async queries should tolerate invalid operations such as being called
 // after underlying resource is already deleted, this can ease the burden of 
 // callers
 
-extern PH_API void phAsyncGetRendererStatistics(
+extern PH_API void phAsyncGetRenderStatistics(
 	PhUInt64                 engineId,
 	PhFloat32*               out_percentageProgress,
 	PhFloat32*               out_samplesPerSecond);
 
 // HACK
-extern PH_API void phAsyncGetRendererState(
+extern PH_API void phAsyncGetRenderState(
 	PhUInt64                 engineId,
 	struct PHRenderState*    out_state);
 
@@ -221,22 +223,22 @@ extern PH_API PhSize phAsyncPollMergedUpdatedFrameRegions(
 	PhSize maxRegionInfos);
 
 extern PH_API void phAsyncPeekFrame(
-	PhUInt64                 engineId,
-	PhUInt64                 channelIndex,
-	PhUInt32                 xPx,
-	PhUInt32                 yPx,
-	PhUInt32                 widthPx,
-	PhUInt32                 heightPx,
-	PhUInt64                 frameId);
+	PhUInt64 engineId,
+	PhUInt64 layerIndex,
+	PhUInt32 xPx,
+	PhUInt32 yPx,
+	PhUInt32 widthPx,
+	PhUInt32 heightPx,
+	PhUInt64 frameId);
 
 extern PH_API void phAsyncPeekFrameRaw(
-	PhUInt64                 engineId,
-	PhUInt64                 channelIndex,
-	PhUInt32                 xPx,
-	PhUInt32                 yPx,
-	PhUInt32                 widthPx,
-	PhUInt32                 heightPx,
-	PhUInt64                 frameId);
+	PhUInt64 engineId,
+	PhUInt64 layerIndex,
+	PhUInt32 xPx,
+	PhUInt32 yPx,
+	PhUInt32 widthPx,
+	PhUInt32 heightPx,
+	PhUInt64 frameId);
 
 #ifdef __cplusplus
 }

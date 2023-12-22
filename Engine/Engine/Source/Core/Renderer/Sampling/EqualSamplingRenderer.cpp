@@ -264,7 +264,7 @@ RenderStats EqualSamplingRenderer::asyncQueryRenderStats()
 	}
 
 	const float32 samplesPerMs = summedElapsedMs != 0 ?
-		static_cast<float32>(m_renderWorks.size() * summedNumSamples) / static_cast<float32>(summedElapsedMs) : 0.0f;
+		m_renderWorks.size() * (static_cast<float32>(summedNumSamples) / summedElapsedMs) : 0.0f;
 
 	RenderStats stats;
 	stats.setInteger(0, m_totalPaths.load(std::memory_order_relaxed) / static_cast<std::size_t>(getRenderRegionPx().getArea()));
@@ -308,6 +308,9 @@ RenderObservationInfo EqualSamplingRenderer::getObservationInfo() const
 	RenderObservationInfo info;
 	info.setIntegerStat(0, "paths/pixel (avg.)");
 	info.setRealStat   (0, "paths/second");
+
+	info.setProgressTimeMeasurement("wall clock time");
+
 	return info;
 }
 

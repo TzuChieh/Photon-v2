@@ -9,7 +9,11 @@ def delete_folder_with_contents(folder_path):
 
     print("Deleting folder <%s>..." % folder_path)
 
-    max_retries = 30
+    is_folder_deleted = False
+    if not os.path.isdir(folder_path):
+        return is_folder_deleted
+
+    max_retries = 50
     num_retries = 0
     while num_retries < max_retries:
         # Setting `ignore_errors` so non-empty folders can be deleted without errors being thrown
@@ -30,7 +34,7 @@ def delete_folder_with_contents(folder_path):
             break
 
     if num_retries == max_retries:
-        warnings.warn( "Cannot delete a non-folder <%s>" % folder_path, stacklevel=16)
+        warnings.warn("Cannot delete folder <%s>" % folder_path, stacklevel=16)
 
     is_folder_deleted = not os.path.isdir(folder_path)
     return is_folder_deleted

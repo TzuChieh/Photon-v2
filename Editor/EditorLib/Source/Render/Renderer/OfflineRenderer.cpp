@@ -348,149 +348,147 @@ bool OfflineRenderer::tryUploadFrameData(GHIThreadCaller& caller)
 
 std::jthread OfflineRenderer::makeStatsRequestThread(Renderer* renderer, uint32 minPeriodMs)
 {
-	return std::jthread(
-		[this, renderer, minPeriodMs](std::stop_token token)
+	return std::jthread([this, renderer, minPeriodMs](std::stop_token token)
+	{
+		while(!token.stop_requested())
 		{
-			while(!token.stop_requested())
+			std::this_thread::sleep_for(std::chrono::milliseconds(minPeriodMs));
+			if(m_requestRenderStats.test(std::memory_order_relaxed))
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(minPeriodMs));
-				if(m_requestRenderStats.test(std::memory_order_relaxed))
-				{
-					m_requestRenderStats.clear(std::memory_order_relaxed);
-				}
-				else
-				{
-					continue;
-				}
-
-				if(auto locked = m_syncedRenderStats.tryLock())
-				{
-					RenderProgress progress = renderer->asyncQueryRenderProgress();
-					RenderStats stats = renderer->asyncQueryRenderStats();
-
-					locked->totalWork = progress.getTotalWork();
-					locked->workDone = progress.getWorkDone();
-					locked->renderTimeMs = progress.getElapsedMs();
-
-					std::size_t intIdx = 0;
-					std::size_t realIdx = 0;
-					for(auto& info : locked->numericInfos)
-					{
-						if(info.isInteger)
-						{
-							info.value = static_cast<float64>(stats.getInteger(intIdx));
-							++intIdx;
-						}
-						else
-						{
-							info.value = stats.getReal(realIdx);
-							++realIdx;
-						}
-					}
-				}// end perform request
+				m_requestRenderStats.clear(std::memory_order_relaxed);
 			}
-		});
+			else
+			{
+				continue;
+			}
+
+			if(auto locked = m_syncedRenderStats.tryLock())
+			{
+				RenderProgress progress = renderer->asyncQueryRenderProgress();
+				RenderStats stats = renderer->asyncQueryRenderStats();
+
+				locked->totalWork = progress.getTotalWork();
+				locked->workDone = progress.getWorkDone();
+				locked->renderTimeMs = progress.getElapsedMs();
+
+				std::size_t intIdx = 0;
+				std::size_t realIdx = 0;
+				for(auto& info : locked->numericInfos)
+				{
+					if(info.isInteger)
+					{
+						info.value = static_cast<float64>(stats.getInteger(intIdx));
+						++intIdx;
+					}
+					else
+					{
+						info.value = stats.getReal(realIdx);
+						++realIdx;
+					}
+				}
+			}// end perform request
+		}
+	});
 }
 
 std::jthread OfflineRenderer::makePeekFrameThread(Renderer* renderer, uint32 minPeriodMs)
 {
-	return std::jthread(
-		[this, renderer, minPeriodMs](std::stop_token token)
+	return std::jthread([this, renderer, minPeriodMs](std::stop_token token)
+	{
+		// We need to decide how many regions to poll in one peek request. Too small, we might
+		// never catch up with the speed of newly added regions. The number of concurrent CPU
+		// threads is a nice value to multiply from as the rendering speed should be roughly
+		// proportional to it.
+		std::vector<RenderRegionStatus> regionPollBuffer(std::thread::hardware_concurrency() * 4);
+
+		std::unordered_set<math::TAABB2D<int32>> uniqueUpdatingRegions;
+		math::TAABB2D<int64> updatedRegion = math::TAABB2D<int64>::makeEmpty();
+		OfflineRenderPeek::Input cachedInput;
+
+		while(!token.stop_requested())
 		{
-			// We need to decide how many regions to poll in one peek request. Too small, we might
-			// never catch up with the speed of newly added regions. The number of concurrent CPU
-			// threads is a nice value to multiply from as the rendering speed should be roughly
-			// proportional to it.
-			std::vector<RenderRegionStatus> regionPollBuffer(std::thread::hardware_concurrency() * 4);
-
-			std::unordered_set<math::TAABB2D<int32>> uniqueUpdatingRegions;
-			math::TAABB2D<int64> updatedRegion = math::TAABB2D<int64>::makeEmpty();
-			OfflineRenderPeek::Input cachedInput;
-
-			while(!token.stop_requested())
+			std::this_thread::sleep_for(std::chrono::milliseconds(minPeriodMs));
+			if(m_requestRenderPeek.test(std::memory_order_relaxed))
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(minPeriodMs));
-				if(m_requestRenderPeek.test(std::memory_order_relaxed))
-				{
-					m_requestRenderPeek.clear(std::memory_order_relaxed);
-				}
-				else
-				{
-					continue;
-				}
+				m_requestRenderPeek.clear(std::memory_order_relaxed);
+			}
+			else
+			{
+				continue;
+			}
 
-				if(cachedInput.wantUpdatingRegions || cachedInput.wantIntermediateResult)
-				{
-					const auto numNewRegions = renderer->asyncPollUpdatedRegions(regionPollBuffer);
+			if(cachedInput.wantUpdatingRegions || cachedInput.wantIntermediateResult)
+			{
+				const auto numNewRegions = renderer->asyncPollUpdatedRegions(regionPollBuffer);
 					
-					// Grow the buffer exponentially so we can always catch up
-					if(regionPollBuffer.size() == numNewRegions)
-					{
-						// Effective growth rate k = 1.5
-						const auto newBufferSize = regionPollBuffer.size() + regionPollBuffer.size() / 2;
-						regionPollBuffer.resize(newBufferSize);
-					}
+				// Grow the buffer exponentially so we can always catch up
+				if(regionPollBuffer.size() == numNewRegions)
+				{
+					// Effective growth rate k = 1.5
+					const auto newBufferSize = regionPollBuffer.size() + regionPollBuffer.size() / 2;
+					regionPollBuffer.resize(newBufferSize);
+				}
 					
-					for(uint32 ri = 0; ri < numNewRegions; ++ri)
-					{
-						const Region region = regionPollBuffer[ri].getRegion();
-						const ERegionStatus status = regionPollBuffer[ri].getStatus();
-
-						// Skip uninteresting region statuses
-						if(status == ERegionStatus::Invalid)
-						{
-							continue;
-						}
-
-						updatedRegion.unionWith(region);
-
-						if(cachedInput.wantUpdatingRegions)
-						{
-							const math::TAABB2D<int32> castedRegion(region);
-							if(status == ERegionStatus::Updating)
-							{
-								uniqueUpdatingRegions.insert(castedRegion);
-							}
-							else if(status == ERegionStatus::Finished)
-							{
-								uniqueUpdatingRegions.erase(castedRegion);
-							}
-						}
-					}
-				}
-
-				if(cachedInput.wantIntermediateResult && !updatedRegion.isEmpty())
+				for(uint32 ri = 0; ri < numNewRegions; ++ri)
 				{
-					if(auto locked = m_synchedFrameData.tryLock())
+					const Region region = regionPollBuffer[ri].getRegion();
+					const ERegionStatus status = regionPollBuffer[ri].getStatus();
+
+					// Skip uninteresting region statuses
+					if(status == ERegionStatus::Invalid)
 					{
-						locked->frame.setSize(renderer->getViewport().getBaseSizePx());
-						renderer->asyncPeekFrame(cachedInput.layerIndex, updatedRegion, locked->frame);
-						if(cachedInput.performToneMapping)
-						{
-							JRToneMapping{}.operateLocal(locked->frame, math::TAABB2D<uint32>(updatedRegion));
-						}
-
-						// Append the new region to output
-						locked->updatedRegion.unionWith(math::TAABB2D<int32>(updatedRegion));
-						updatedRegion = math::TAABB2D<int64>::makeEmpty();
+						continue;
 					}
-				}
 
-				if(auto locked = m_syncedRenderPeek.tryLock())
-				{
+					updatedRegion.unionWith(region);
+
 					if(cachedInput.wantUpdatingRegions)
 					{
-						locked->out.updatingRegions.clear();
-						for(const math::TAABB2D<int32>& region : uniqueUpdatingRegions)
+						const math::TAABB2D<int32> castedRegion(region);
+						if(status == ERegionStatus::Updating)
 						{
-							locked->out.updatingRegions.push_back(region);
+							uniqueUpdatingRegions.insert(castedRegion);
+						}
+						else if(status == ERegionStatus::Finished)
+						{
+							uniqueUpdatingRegions.erase(castedRegion);
 						}
 					}
-
-					cachedInput = locked->in;
 				}
 			}
-		});
+
+			if(cachedInput.wantIntermediateResult && !updatedRegion.isEmpty())
+			{
+				if(auto locked = m_synchedFrameData.tryLock())
+				{
+					locked->frame.setSize(renderer->getViewport().getBaseSizePx());
+					renderer->asyncPeekFrame(cachedInput.layerIndex, updatedRegion, locked->frame);
+					if(cachedInput.performToneMapping)
+					{
+						JRToneMapping{}.operateLocal(locked->frame, math::TAABB2D<uint32>(updatedRegion));
+					}
+
+					// Append the new region to output
+					locked->updatedRegion.unionWith(math::TAABB2D<int32>(updatedRegion));
+					updatedRegion = math::TAABB2D<int64>::makeEmpty();
+				}
+			}
+
+			if(auto locked = m_syncedRenderPeek.tryLock())
+			{
+				if(cachedInput.wantUpdatingRegions)
+				{
+					locked->out.updatingRegions.clear();
+					for(const math::TAABB2D<int32>& region : uniqueUpdatingRegions)
+					{
+						locked->out.updatingRegions.push_back(region);
+					}
+				}
+
+				cachedInput = locked->in;
+			}
+		}
+	});
 }
 
 }// end namespace ph::editor::render

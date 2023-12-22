@@ -22,7 +22,13 @@ public:
 
 	uint64 getTotalWork() const;
 	uint64 getWorkDone() const;
+
+	/*!
+	@return Time spent for getting the work done. Whether the time will be in wall clock time or CPU time
+	(or any other measurements) is up to the progress provider.
+	*/
 	uint64 getElapsedMs() const;
+
 	real getNormalizedProgress() const;
 	real getPercentageProgress() const;
 

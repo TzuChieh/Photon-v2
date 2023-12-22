@@ -17,21 +17,23 @@ ProcessedArguments::ProcessedArguments(int argc, char* argv[]) :
 {}
 
 ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
-	: m_executionMode             (EExecutionMode::SingleImage)
-	, m_sceneFilePath             ("./scene.p2")
-	, m_imageOutputPath           ("./rendered_scene")
-	, m_imageFileFormat           ("png")
-	, m_numThreads                (1)
-	, m_isPostProcessRequested    (true)
-	, m_wildcardStart             ("")
-	, m_wildcardFinish            ("")
-	, m_intermediateOutputInverval(std::numeric_limits<float>::max())
-	, m_intervalUnit              (EIntervalUnit::Percentage)
-	, m_isOverwriteRequested      (false)
+	: m_executionMode                 (EExecutionMode::SingleImage)
+	, m_sceneFilePath                 ("./scene.p2")
+	, m_imageOutputPath               ("./rendered_scene")
+	, m_imageFileFormat               ("png")
+	, m_numThreads                    (1)
+	, m_isPostProcessRequested        (true)
+	, m_wildcardStart                 ("")
+	, m_wildcardFinish                ("")
+	, m_intermediateOutputInterval    (std::numeric_limits<float32>::max())
+	, m_intermediateOutputIntervalUnit(EIntervalUnit::Percentage)
+	, m_isOverwriteRequested          (false)
+	, m_port                          (7000)
+	, m_blenderPeekInterval           (1.0f)
+	, m_blenderPeekIntervalUnit       (EIntervalUnit::Second)
 
 	// HACK
 	, m_isFrameDiagRequested(false)
-	, m_port(7000)
 {
 	while(!arguments.isEmpty())
 	{
@@ -58,8 +60,8 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 			}
 			else
 			{
-				PH_LOG_WARNING(PhotonCliArgs, "bad number of threads {} detected, using {} instead",
-					numThreads, m_numThreads);
+				PH_LOG_WARNING(PhotonCliArgs,
+					"bad number of threads {} detected, using {} instead", numThreads, m_numThreads);
 			}
 		}
 		else if(argument == "-p")
@@ -70,28 +72,28 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 
 			if(values[0].length() >= 2)
 			{
-				const std::string inverval = values[0].substr(0, values[0].length() - 1);
-				m_intermediateOutputInverval = std::stof(inverval);
+				const std::string interval = values[0].substr(0, values[0].length() - 1);
+				m_intermediateOutputInterval = std::stof(interval);
 
 				const char unit = values[0].back();
 				if(unit == '%')
 				{
-					m_intervalUnit = EIntervalUnit::Percentage;
+					m_intermediateOutputIntervalUnit = EIntervalUnit::Percentage;
 				}
 				else if(unit == 's')
 				{
-					m_intervalUnit = EIntervalUnit::Second;
+					m_intermediateOutputIntervalUnit = EIntervalUnit::Second;
 				}
 				else
 				{
-					PH_LOG_WARNING(PhotonCliArgs, "unknown intermediate output interval unit <{}> specified",
-						values[0]);
+					PH_LOG_WARNING(PhotonCliArgs,
+						"unknown intermediate output interval unit <{}> specified", unit);
 				}
 			}
 			else
 			{
-				PH_LOG_WARNING(PhotonCliArgs, "unrecognizable intermediate output interval <{}> specified",
-					values[0]);
+				PH_LOG_WARNING(PhotonCliArgs,
+					"unrecognizable intermediate output interval <{}> specified", values[0]);
 			}
 		}
 		else if(argument == "--raw")
@@ -109,6 +111,33 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 		else if(argument == "--blender")
 		{
 			m_executionMode = EExecutionMode::Blender;
+
+			const std::string intervalWithUnit = arguments.retrieveString();
+			if(intervalWithUnit.length() >= 2)
+			{
+				const std::string interval = intervalWithUnit.substr(0, intervalWithUnit.length() - 1);
+				m_blenderPeekInterval = std::stof(interval);
+
+				const char unit = intervalWithUnit.back();
+				if(unit == '%')
+				{
+					m_blenderPeekIntervalUnit = EIntervalUnit::Percentage;
+				}
+				else if(unit == 's')
+				{
+					m_blenderPeekIntervalUnit = EIntervalUnit::Second;
+				}
+				else
+				{
+					PH_LOG_WARNING(PhotonCliArgs,
+						"unknown blender peek interval unit <{}> specified", unit);
+				}
+			}
+			else
+			{
+				PH_LOG_WARNING(PhotonCliArgs, 
+					"unrecognizable blender peek interval <{}> specified", intervalWithUnit);
+			}
 		}
 		else if(argument == "--start")
 		{

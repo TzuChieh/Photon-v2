@@ -294,6 +294,9 @@ RenderObservationInfo AdaptiveSamplingRenderer::getObservationInfo() const
 	info.setIntegerStat(0, "paths/pixel (avg.)");
 	info.setIntegerStat(1, "noisy regions");
 	info.setRealStat   (0, "paths/second");
+
+	info.setProgressTimeMeasurement("CPU time");
+
 	return info;
 }
 

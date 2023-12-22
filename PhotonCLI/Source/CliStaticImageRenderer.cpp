@@ -28,7 +28,6 @@ CliStaticImageRenderer::CliStaticImageRenderer(const ProcessedArguments& args)
 void CliStaticImageRenderer::render()
 {
 	setSceneFilePath(getArgs().getSceneFilePath());
-
 	if(!loadCommandsFromSceneFile())
 	{
 		return;
@@ -41,13 +40,13 @@ void CliStaticImageRenderer::render()
 		phRender(getEngine());
 	});
 
-	PhUInt32 filmW, filmH;
-	phGetRenderDimension(getEngine(), &filmW, &filmH);
+	PhUInt32 imageWidthPx, imageHeightPx;
+	phGetRenderDimension(getEngine(), &imageWidthPx, &imageHeightPx);
 
 	std::atomic<bool> isRenderingCompleted = false;
 
 	// REFACTOR: make a dedicated query class
-	std::thread queryThread([this, filmW, filmH, &isRenderingCompleted]()
+	std::thread queryThread([this, imageWidthPx, imageHeightPx, &isRenderingCompleted]()
 	{
 		using namespace std::chrono_literals;
 		using Clock = std::chrono::steady_clock;
@@ -56,7 +55,7 @@ void CliStaticImageRenderer::render()
 
 		// OPT: does not need to create this frame if intermediate frame is not requested
 		PhUInt64 queryFrameId;
-		phCreateFrame(&queryFrameId, filmW, filmH);
+		phCreateFrame(&queryFrameId, imageWidthPx, imageHeightPx);
 
 		PhFloat32 lastProgress = 0;
 		PhFloat32 lastOutputProgress = 0;
@@ -64,7 +63,7 @@ void CliStaticImageRenderer::render()
 		{
 			PhFloat32 currentProgress;
 			PhFloat32 samplesPerSecond;
-			phAsyncGetRendererStatistics(getEngine(), &currentProgress, &samplesPerSecond);
+			phAsyncGetRenderStatistics(getEngine(), &currentProgress, &samplesPerSecond);
 
 			if(currentProgress - lastProgress > 1.0f)
 			{
@@ -75,7 +74,7 @@ void CliStaticImageRenderer::render()
 
 			bool shouldSaveImage = false;
 			std::string imageFilePath = getArgs().getImageOutputPath() + "_intermediate_";
-			if(getArgs().getIntervalUnit() == EIntervalUnit::Percentage)
+			if(getArgs().getIntermediateOutputIntervalUnit() == EIntervalUnit::Percentage)
 			{
 				if(currentProgress - lastOutputProgress > getArgs().getIntermediateOutputInterval())
 				{
@@ -90,7 +89,7 @@ void CliStaticImageRenderer::render()
 					std::this_thread::sleep_for(2s);
 				}
 			}
-			else if(getArgs().getIntervalUnit() == EIntervalUnit::Second)
+			else if(getArgs().getIntermediateOutputIntervalUnit() == EIntervalUnit::Second)
 			{
 				const auto currentTime = Clock::now();
 				const auto duration = currentTime - startTime;
@@ -114,11 +113,11 @@ void CliStaticImageRenderer::render()
 
 				if(getArgs().isPostProcessRequested())
 				{
-					phAsyncPeekFrame(getEngine(), 0, 0, 0, filmW, filmH, queryFrameId);
+					phAsyncPeekFrame(getEngine(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
 				}
 				else
 				{
-					phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, filmW, filmH, queryFrameId);
+					phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
 				}
 
 				phSaveFrame(queryFrameId, imageFilePath.c_str(), nullptr);
@@ -131,7 +130,7 @@ void CliStaticImageRenderer::render()
 	std::cout << "render completed" << std::endl;
 
 	PhUInt64 frameId;
-	phCreateFrame(&frameId, filmW, filmH);
+	phCreateFrame(&frameId, imageWidthPx, imageHeightPx);
 	if(getArgs().isPostProcessRequested())
 	{
 		phAquireFrame(getEngine(), 0, frameId);

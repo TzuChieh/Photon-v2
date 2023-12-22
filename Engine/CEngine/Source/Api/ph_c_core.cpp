@@ -373,6 +373,8 @@ PhBool phSaveFrameToBuffer(
 	}
 	else if(format == PH_BUFFER_FORMAT_FLOAT32_ARRAY)
 	{
+		// TODO: able to add empty channels (e.g., alpha)
+
 		constexpr auto maxChannels = HdrRgbFrame::PixelType::NUM_ELEMENTS;
 
 		std::array<bool, maxChannels> shouldSaveChannel;
@@ -457,11 +459,28 @@ PhFloat32 phFrameOpMSE(const PhUInt64 expectedFrameId, const PhUInt64 estimatedF
 	return MSE;
 }
 
-void phAsyncGetRendererStatistics(
+void phAsyncGetRenderProgress(PhUInt64 engineId, PhRenderProgress* out_progress)
+{
+	PH_ASSERT(out_progress);
+
+	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
+	if(engine && engine->getRenderer())
+	{
+		RenderProgress progress = engine->getRenderer()->asyncQueryRenderProgress();
+		out_progress->totalWork = progress.getTotalWork();
+		out_progress->workDone = progress.getWorkDone();
+		out_progress->elapsedMs = progress.getElapsedMs();
+	}
+}
+
+void phAsyncGetRenderStatistics(
 	const PhUInt64 engineId,
 	PhFloat32* const out_percentageProgress,
 	PhFloat32* const out_samplesPerSecond)
 {
+	PH_ASSERT(out_percentageProgress);
+	PH_ASSERT(out_samplesPerSecond);
+
 	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	if(engine)
 	{
@@ -473,7 +492,7 @@ void phAsyncGetRendererStatistics(
 	}
 }
 
-void phAsyncGetRendererState(
+void phAsyncGetRenderState(
 	const PhUInt64              engineId,
 	struct PHRenderState* const out_state)
 {
@@ -581,38 +600,38 @@ PhSize phAsyncPollMergedUpdatedFrameRegions(
 }
 
 void phAsyncPeekFrame(
-	const PhUInt64 engineId,
-	const PhUInt64 channelIndex,
-	const PhUInt32 xPx,
-	const PhUInt32 yPx,
-	const PhUInt32 widthPx,
-	const PhUInt32 heightPx,
-	const PhUInt64 frameId)
+	PhUInt64 engineId,
+	PhUInt64 layerIndex,
+	PhUInt32 xPx,
+	PhUInt32 yPx,
+	PhUInt32 widthPx,
+	PhUInt32 heightPx,
+	PhUInt64 frameId)
 {
 	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	auto frame  = ApiDatabase::useResource<HdrRgbFrame>(frameId).lock();
 	if(engine && frame)
 	{
 		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
-		engine->asyncPeekFrame(channelIndex, region, *frame);
+		engine->asyncPeekFrame(layerIndex, region, *frame);
 	}
 }
 
 void phAsyncPeekFrameRaw(
-	const PhUInt64 engineId,
-	const PhUInt64 channelIndex,
-	const PhUInt32 xPx,
-	const PhUInt32 yPx,
-	const PhUInt32 widthPx,
-	const PhUInt32 heightPx,
-	const PhUInt64 frameId)
+	PhUInt64 engineId,
+	PhUInt64 layerIndex,
+	PhUInt32 xPx,
+	PhUInt32 yPx,
+	PhUInt32 widthPx,
+	PhUInt32 heightPx,
+	PhUInt64 frameId)
 {
 	auto engine = ApiDatabase::useResource<Engine>(engineId).lock();
 	auto frame  = ApiDatabase::useResource<HdrRgbFrame>(frameId).lock();
 	if(engine && frame)
 	{
 		Region region({xPx, yPx}, {xPx + widthPx, yPx + heightPx});
-		engine->asyncPeekFrame(channelIndex, region, *frame, false);
+		engine->asyncPeekFrame(layerIndex, region, *frame, false);
 	}
 }
 

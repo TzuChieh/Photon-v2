@@ -16,9 +16,9 @@
 
 /*! @file
 Note on loggers:
-All logging functionalities are thread-safe when accessed via pre-defined macros. It is not advisible
-to log in class dtor, especially for static instances. Also make sure not to call any logging 
-functions when the logger is not initialized.
+All logging functionalities are thread-safe when using pre-defined macros. It is not advisible
+to log in class dtor, especially for static instances as they may live outside of engine's lifetime.
+Also make sure not to call any logging functions when the logger is not initialized.
 */
 
 namespace ph
@@ -64,16 +64,19 @@ Cleanup after logging is finished.
 void exit();
 
 /*! @brief Get the core logger.
+@note Const methods of core logger are thread-safe.
 */
 Logger& get_logger();
 
 /*! @brief Add a log group to the core logger.
+@note Thread-safe.
 */
 std::size_t add_log_group(std::string_view groupName, std::string_view category = "");
 
-/*! @brief Log information to the core logger.
+/*! @brief Log information to the specified logger.
+@note Thread-safe if the logger is thread-safe.
 */
-void log_to_logger(Logger& logger, std::string_view groupName, ELogLevel logLevel, std::string_view logMessage);
+void log_to_logger(const Logger& logger, std::string_view groupName, ELogLevel logLevel, std::string_view logMessage);
 
 }// end namespace ph::detail::core_logging
 
@@ -82,12 +85,12 @@ The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the sour
 .cpp file).
 */
 #define PH_DECLARE_LOG_GROUP(groupName)\
-	::ph::Logger& internal_impl_logger_access_##groupName()
+	const ::ph::Logger& internal_impl_logger_access_##groupName()
 
 /*! @brief Defines a logger.
 */
 #define PH_DEFINE_LOG_GROUP(groupName, category)\
-	::ph::Logger& internal_impl_logger_access_##groupName()\
+	const ::ph::Logger& internal_impl_logger_access_##groupName()\
 	{\
 		static const std::size_t logGroupIndex = ::ph::detail::core_logging::add_log_group(#groupName, #category);\
 	\
@@ -95,7 +98,7 @@ The logger should be defined using `PH_DEFINE_LOG_GROUP()` somewhere in the sour
 	}
 
 #define PH_DEFINE_INLINE_LOG_GROUP(groupName, category)\
-	inline ::ph::Logger& internal_impl_logger_access_##groupName()\
+	inline const ::ph::Logger& internal_impl_logger_access_##groupName()\
 	{\
 		static const std::size_t logGroupIndex = ::ph::detail::core_logging::add_log_group(#groupName, #category);\
 	\

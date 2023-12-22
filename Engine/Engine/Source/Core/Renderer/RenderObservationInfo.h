@@ -14,10 +14,12 @@ namespace ph
 class RenderObservationInfo final
 {
 public:
+	void setProgressTimeMeasurement(const std::string& measurement);
 	void setLayer(std::size_t index, const std::string& name);
 	void setIntegerStat(std::size_t index, const std::string& name);
 	void setRealStat(std::size_t index, const std::string& name);
 
+	std::string getProgressTimeMeasurement() const;
 	std::string getLayerName(std::size_t index) const;
 	std::string getIntegerStatName(std::size_t index) const;
 	std::string getRealStatName(std::size_t index) const;
@@ -26,12 +28,18 @@ public:
 	std::size_t numRealStats() const;
 
 private:
+	std::string m_progressTimeMeasurement;
 	std::vector<std::string> m_layerNames;
 	std::vector<std::string> m_integerStatNames;
 	std::vector<std::string> m_realStatNames;
 };
 
 // In-header Implementations:
+
+inline void RenderObservationInfo::setProgressTimeMeasurement(const std::string& measurement)
+{
+	m_progressTimeMeasurement = measurement;
+}
 
 inline void RenderObservationInfo::setLayer(const std::size_t index, const std::string& name)
 {
@@ -64,6 +72,11 @@ inline void RenderObservationInfo::setRealStat(const std::size_t index, const st
 
 	PH_ASSERT_LT(index, m_realStatNames.size());
 	m_realStatNames[index] = name;
+}
+
+inline std::string RenderObservationInfo::getProgressTimeMeasurement() const
+{
+	return m_progressTimeMeasurement;
 }
 
 inline std::string RenderObservationInfo::getLayerName(const std::size_t index) const
