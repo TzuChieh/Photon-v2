@@ -21,6 +21,8 @@ FixedSizeThreadPool::FixedSizeThreadPool(const std::size_t numWorkers) :
 	m_isTerminationRequested(false),
 	m_numUnfinishedWorks    (0)
 {
+	PH_ASSERT_GT(numWorkers, 0);
+
 	for(auto& worker : m_workers)
 	{
 		worker = std::thread([this]()
@@ -37,6 +39,7 @@ FixedSizeThreadPool::~FixedSizeThreadPool()
 	// Wait for any workers that are still processing to finish
 	for(auto& worker : m_workers)
 	{
+		// Not joining default-constructed thread and already-joined thread
 		if(worker.joinable())
 		{
 			worker.join();

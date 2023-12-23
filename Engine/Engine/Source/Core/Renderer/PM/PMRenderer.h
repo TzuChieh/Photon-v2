@@ -64,7 +64,6 @@ private:
 	std::atomic_bool m_isFilmUpdated;
 
 	void renderWithProgressivePM();
-	void renderWithStochasticProgressivePM();
 };
 
 }// end namespace ph

@@ -47,10 +47,12 @@ public:
 	*/
 	virtual void doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world) = 0;
 
-	// Start rendering.
+	/*! @brief Perform rendering.
+	*/
 	virtual void doRender() = 0;
 
-	// Get the rendered result.
+	/*! @brief Get the rendered result.
+	*/
 	virtual void retrieveFrame(std::size_t layerIndex, HdrRgbFrame& out_frame) = 0;
 
 	/*! @brief Get the rendering regions that have been updated.
@@ -90,7 +92,12 @@ public:
 	*/
 	virtual RenderObservationInfo getObservationInfo() const = 0;
 
+	/*! @brief Start updating.
+	*/
 	void update(const CoreCookedUnit& cooked, const VisualWorld& world);
+
+	/*! @brief Start rendering.
+	*/
 	void render();
 
 	/*! @brief Set number of workers for the renderer.

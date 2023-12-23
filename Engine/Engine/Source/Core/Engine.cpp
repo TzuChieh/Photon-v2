@@ -156,13 +156,11 @@ void Engine::render()
 	Renderer* const renderer = getRenderer();
 	if(!renderer)
 	{
-		PH_LOG_ERROR(Engine, "no renderer present");
-
+		PH_LOG_ERROR(Engine, "No renderer present. Render operation terminated.");
 		return;
 	}
 
 	PH_ASSERT(renderer);
-
 	renderer->render();
 }
 

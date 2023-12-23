@@ -186,7 +186,8 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 	{
 		PH_PROFILE_NAMED_SCOPE("Peek and send");
 
-		std::this_thread::sleep_for(peekInverval);
+		// When doing peeking, we should strive for faster time to first pixel, and not doing peeking
+		// too frequently (computation cost) while keeping the user up-to-date.
 
 		// If nothing progresses, do not bother to peek as it is likely the same result
 		lastProgress = currentProgress;
@@ -194,6 +195,8 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 		if(currentProgress.totalWork == lastProgress.totalWork &&
 		   currentProgress.workDone == lastProgress.workDone)
 		{
+			// Wait a while before we try to check progress again
+			std::this_thread::sleep_for(peekInverval);
 			continue;
 		}
 
@@ -208,6 +211,8 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 		const auto numBytes64 = static_cast<std::uint64_t>(numBytes);
 		asio::write(socket, asio::buffer(reinterpret_cast<const unsigned char*>(&numBytes64), 8), ignoredError);
 		asio::write(socket, asio::buffer(bytesPtr, numBytes), ignoredError);
+
+		std::this_thread::sleep_for(peekInverval);
 	}
 
 	PH_LOG(Blender, "Stopping server...");

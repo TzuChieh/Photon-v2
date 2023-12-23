@@ -5,6 +5,7 @@
 #include "Frame/Viewport.h"
 #include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Renderer/PM/VanillaPMRenderer.h"
+#include "Core/Renderer/PM/StochasticProgressivePMRenderer.h"
 #include "Core/Renderer/PM/EPMMode.h"
 
 #include <Common/logging.h>
@@ -41,15 +42,29 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 	}
 
 	std::unique_ptr<Renderer> renderer;
-	if(m_mode == EPhotonMappingMode::Vanilla)
+	switch(m_mode)
+	{
+	case EPhotonMappingMode::Vanilla:
 	{
 		renderer = std::make_unique<VanillaPMRenderer>(
 			makeCommonParams(),
 			viewport,
 			makeSampleFilter(),
 			ctx.numWorkers());
+		break;
 	}
-	else
+
+	case EPhotonMappingMode::StochasticProgressive:
+	{
+		renderer = std::make_unique<StochasticProgressivePMRenderer>(
+			makeCommonParams(),
+			viewport,
+			makeSampleFilter(),
+			ctx.numWorkers());
+		break;
+	}
+
+	default:
 	{
 		renderer = std::make_unique<PMRenderer>(
 			mode,
@@ -57,6 +72,10 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 			viewport,
 			makeSampleFilter(),
 			ctx.numWorkers());
+		/*PH_LOG_WARNING(PhotonMappingVisualizer,
+			"Unsupported PM mode ({}), no renderer generated.", TSdlEnum<EPhotonMappingMode>{}[m_mode]);*/
+		break;
+	}
 	}
 
 	cooked.addRenderer(std::move(renderer));

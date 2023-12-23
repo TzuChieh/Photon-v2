@@ -86,7 +86,7 @@ void VanillaPMRenderer::renderWithVanillaPM()
 	tracePhotonTimer.stop();
 	const auto photonsPerSecond = getCommonParams().numPhotons / tracePhotonTimer.getDeltaS<float64>();
 	m_photonsPerSecond.store(
-		std::isfinite(photonsPerSecond) ? static_cast<uint64>(photonsPerSecond) : 0,
+		std::isfinite(photonsPerSecond) ? static_cast<uint64>(photonsPerSecond + 0.5) : 0,
 		std::memory_order_relaxed);
 
 	PH_LOG(PMRenderer, "building photon map...");
@@ -147,8 +147,8 @@ RenderProgress VanillaPMRenderer::asyncQueryRenderProgress()
 	PH_PROFILE_SCOPE();
 
 	return RenderProgress(
-		getCommonParams().numSamplesPerPixel,
-		getStatistics().getNumIterations(),
+		getCommonParams().numPhotons,
+		getStatistics().getNumTracedPhotons(),
 		0);
 }
 
@@ -161,7 +161,7 @@ void VanillaPMRenderer::asyncPeekFrame(
 
 	if(layerIndex == 0)
 	{
-		getPrimaryFilm()->develop(out_frame, region);
+		asyncDevelopPrimaryFilm(region, out_frame);
 	}
 	else
 	{
