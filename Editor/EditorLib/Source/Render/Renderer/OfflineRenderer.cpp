@@ -187,7 +187,7 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(RenderConfig config)
 
 		// Load stats that are constant throughout the rendering process once
 		m_syncedRenderStats.locked(
-			[&viewport , &entries](OfflineRenderStats& stats)
+			[&viewport, &entries](OfflineRenderStats& stats)
 			{
 				stats = OfflineRenderStats{};
 				stats.viewport = viewport;

@@ -10,7 +10,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Emitter/Emitter.h"
-#include "Core/Renderer/PM/PMRenderer.h"
+#include "Core/Renderer/PM/PMRendererBase.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
@@ -26,8 +26,8 @@ namespace ph
 
 class Scene;
 class SampleGenerator;
-class PMStatistics;
-class PMRenderer;
+class PMAtomicStatistics;
+class PMRendererBase;
 
 class VPMRadianceEvaluator : public TViewPathHandler<VPMRadianceEvaluator>
 {
@@ -51,8 +51,8 @@ public:
 
 	void impl_onSampleBatchFinished();
 
-	void setPMStatistics(PMStatistics* statistics);
-	void setPMRenderer(PMRenderer* renderer);
+	void setStatistics(PMAtomicStatistics* statistics);
+	void setRenderer(PMRendererBase* renderer);
 	void setKernelRadius(real radius);
 
 private:
@@ -62,8 +62,8 @@ private:
 	const Scene*                  m_scene;
 
 	real                          m_kernelRadius;
-	PMStatistics*                 m_statistics;
-	PMRenderer*                   m_renderer;
+	PMAtomicStatistics*           m_statistics;
+	PMRendererBase*               m_renderer;
 
 	math::Vector2D                m_rasterCoord;
 	math::Spectrum                m_sampledRadiance;
@@ -87,8 +87,8 @@ inline VPMRadianceEvaluator::VPMRadianceEvaluator(
 	PH_ASSERT(film);
 	PH_ASSERT_GT(numPhotonPaths, 0);
 
-	setPMStatistics(nullptr);
-	setPMRenderer(nullptr);
+	setStatistics(nullptr);
+	setRenderer(nullptr);
 	setKernelRadius(0.1_r);
 
 	m_film->clear();
@@ -188,22 +188,22 @@ inline void VPMRadianceEvaluator::impl_onSampleBatchFinished()
 {
 	if(m_statistics)
 	{
-		m_statistics->asyncIncrementNumIterations();
+		m_statistics->incrementNumIterations();
 	}
 
 	if(m_renderer)
 	{
-		m_renderer->asyncMergeFilm(*m_film);
+		m_renderer->asyncMergeToPrimaryFilm(*m_film);
 		m_film->clear();
 	}
 }
 
-inline void VPMRadianceEvaluator::setPMStatistics(PMStatistics* const statistics)
+inline void VPMRadianceEvaluator::setStatistics(PMAtomicStatistics* const statistics)
 {
 	m_statistics = statistics;
 }
 
-inline void VPMRadianceEvaluator::setPMRenderer(PMRenderer* const renderer)
+inline void VPMRadianceEvaluator::setRenderer(PMRendererBase* const renderer)
 {
 	m_renderer = renderer;
 }

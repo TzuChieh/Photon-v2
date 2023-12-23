@@ -4,6 +4,7 @@
 #include "Core/Filmic/SampleFilters.h"
 #include "Frame/Viewport.h"
 #include "Core/Renderer/PM/PMRenderer.h"
+#include "Core/Renderer/PM/VanillaPMRenderer.h"
 #include "Core/Renderer/PM/EPMMode.h"
 
 #include <Common/logging.h>
@@ -39,15 +40,24 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 		break;
 	}
 
-	auto renderer = std::make_unique<PMRenderer>(
-		mode,
-		m_numPhotons,
-		m_numPasses,
-		m_numSamplesPerPixel,
-		m_photonRadius,
-		viewport,
-		makeSampleFilter(),
-		ctx.numWorkers());
+	std::unique_ptr<Renderer> renderer;
+	if(m_mode == EPhotonMappingMode::Vanilla)
+	{
+		renderer = std::make_unique<VanillaPMRenderer>(
+			makeCommonParams(),
+			viewport,
+			makeSampleFilter(),
+			ctx.numWorkers());
+	}
+	else
+	{
+		renderer = std::make_unique<PMRenderer>(
+			mode,
+			makeCommonParams(),
+			viewport,
+			makeSampleFilter(),
+			ctx.numWorkers());
+	}
 
 	cooked.addRenderer(std::move(renderer));
 }
@@ -71,6 +81,15 @@ SampleFilter PhotonMappingVisualizer::makeSampleFilter() const
 
 	PH_LOG(PhotonMappingVisualizer, "sample filter unspecified, using Blackman-Harris filter");
 	return SampleFilters::createBlackmanHarrisFilter();
+}
+
+PMCommonParams PhotonMappingVisualizer::makeCommonParams() const
+{
+	return PMCommonParams{
+		.numPhotons = m_numPhotons,
+		.numPasses = m_numPasses,
+		.numSamplesPerPixel = m_numSamplesPerPixel,
+		.kernelRadius = m_photonRadius};
 }
 
 }// end namespace ph

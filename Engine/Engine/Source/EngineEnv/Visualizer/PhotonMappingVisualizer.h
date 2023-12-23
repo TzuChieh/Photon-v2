@@ -7,6 +7,7 @@
 #include "EngineEnv/Visualizer/sdl_photon_mapping_mode.h"
 #include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
 #include "Core/Filmic/SampleFilter.h"
+#include "Core/Renderer/PM/PMCommonParams.h"
 
 #include <Common/primitive_type.h>
 
@@ -20,8 +21,6 @@ namespace ph
 class PhotonMappingVisualizer : public FrameVisualizer
 {
 public:
-	inline PhotonMappingVisualizer() = default;
-
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 	EPhotonMappingMode getMode() const;
@@ -29,7 +28,7 @@ public:
 
 protected:
 	SampleFilter makeSampleFilter() const;
-	std::unique_ptr<IRayEnergyEstimator> makeEstimator() const;
+	PMCommonParams makeCommonParams() const;
 
 private:
 	EPhotonMappingMode m_mode;
@@ -61,17 +60,20 @@ public:
 		sampleFilter.optional();
 		clazz.addField(sampleFilter);
 
+		// Borrow the default values there
+		const PMCommonParams commonParams{};
+
 		TSdlUInt64<OwnerType> numPhotons("num-photons", &OwnerType::m_numPhotons);
 		numPhotons.description(
 			"Number of photons used. For progressive techniques, this value is for a single pass.");
-		numPhotons.defaultTo(200000);
+		numPhotons.defaultTo(commonParams.numPhotons);
 		numPhotons.optional();
 		clazz.addField(numPhotons);
 
 		TSdlUInt64<OwnerType> numPasses("num-passes", &OwnerType::m_numPasses);
 		numPasses.description(
 			"Number of passes performed by progressive techniques.");
-		numPasses.defaultTo(1);
+		numPasses.defaultTo(commonParams.numPasses);
 		numPasses.optional();
 		clazz.addField(numPasses);
 
@@ -79,7 +81,7 @@ public:
 		numSamplesPerPixel.description(
 			"Number of samples per pixel. Higher values can resolve image aliasing, but can consume "
 			"large amounts of memory.");
-		numSamplesPerPixel.defaultTo(4);
+		numSamplesPerPixel.defaultTo(commonParams.numSamplesPerPixel);
 		numSamplesPerPixel.optional();
 		clazz.addField(numSamplesPerPixel);
 
@@ -87,7 +89,7 @@ public:
 		photonRadius.description(
 			"Energy contribution radius for each photon. For progressive techniques, this value is for "
 			"setting up the initial radius.");
-		photonRadius.defaultTo(0.1_r);
+		photonRadius.defaultTo(commonParams.kernelRadius);
 		photonRadius.optional();
 		clazz.addField(photonRadius);
 

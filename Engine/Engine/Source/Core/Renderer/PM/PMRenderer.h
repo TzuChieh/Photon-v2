@@ -4,7 +4,8 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/PM/EPMMode.h"
-#include "Core/Renderer/PM/PMStatistics.h"
+#include "Core/Renderer/PM/PMAtomicStatistics.h"
+#include "Core/Renderer/PM/PMCommonParams.h"
 
 #include <vector>
 #include <memory>
@@ -22,10 +23,7 @@ class PMRenderer : public Renderer
 public:
 	PMRenderer(
 		EPMMode mode,
-		uint64 numPhotons,
-		uint64 numPasses,
-		uint64 numSamplesPerPixel,
-		real kernelRadius,
+		PMCommonParams commonParams,
 		Viewport viewport,
 		SampleFilter filter,
 		uint32 numWorkers);
@@ -57,18 +55,14 @@ private:
 	SampleFilter m_filter;
 
 	EPMMode m_mode;
-	std::size_t m_numPhotons;
-	std::size_t m_numPasses;
-	std::size_t m_numSamplesPerPixel;
-	real m_kernelRadius;
+	PMCommonParams m_commonParams;
 
 	std::mutex m_filmMutex;
 
-	PMStatistics m_statistics;
+	PMAtomicStatistics m_statistics;
 	std::atomic_uint32_t m_photonsPerSecond;
 	std::atomic_bool m_isFilmUpdated;
 
-	void renderWithVanillaPM();
 	void renderWithProgressivePM();
 	void renderWithStochasticProgressivePM();
 };

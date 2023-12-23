@@ -15,7 +15,7 @@
 #include "Math/Random.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
 #include "Utility/Timer.h"
-#include "Core/Renderer/PM/PMStatistics.h"
+#include "Core/Renderer/PM/PMAtomicStatistics.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
@@ -43,7 +43,7 @@ inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
 	m_numPhotons(numPhotons),
 	m_numPhotonPaths(out_numPhotonPaths)
 {
-	setPMStatistics(nullptr);
+	setStatistics(nullptr);
 }
 
 template<typename Photon>
@@ -158,7 +158,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 			if(m_statistics)
 			{
-				m_statistics->asyncAddNumTracedPhotons(photonCounter);
+				m_statistics->addNumTracedPhotons(photonCounter);
 			}
 
 			photonCounter = 0;
@@ -170,12 +170,12 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 	if(m_statistics)
 	{
-		m_statistics->asyncAddNumTracedPhotons(photonCounter);
+		m_statistics->addNumTracedPhotons(photonCounter);
 	}
 }
 
 template<typename Photon>
-inline void TPhotonMappingWork<Photon>::setPMStatistics(PMStatistics* const statistics)
+inline void TPhotonMappingWork<Photon>::setStatistics(PMAtomicStatistics* const statistics)
 {
 	m_statistics = statistics;
 }

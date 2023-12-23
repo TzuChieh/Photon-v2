@@ -57,7 +57,7 @@ public:
 	Status of a region will always transition to `ERegionStatus::Finished`, and this ordering guarantee
 	is valid for one or across multiple calls. Note that if the renderer has multiple workers working
 	on the same region, you may observe a region transition from `ERegionStatus::Finished` to other
-	status multiple times, but in the end it will still be `ERegionStatus::Finished`.
+	status multiple times, but in the end it will eventually be `ERegionStatus::Finished`.
 	@param out_regions Output buffer for storing the updated regions.
 	@return Number of regions actually stored in the output buffer.
 	*/

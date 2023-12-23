@@ -10,8 +10,11 @@ To correctly use Photon-v2 API, please read the following notes:
   should be called on the same thread.
 
 - phCreate/Delete<X>() and phAsync<X>() functions can be used in a multithreaded
-  environment, namely, they are thread-safe. An exception would be that create 
-  and delete should be called from the same thread.
+  environment. They are thread-safe provided the following conditions are met:
+  * phDelete<X>() should be called from the same thread its corresponding
+    phCreate<X>() was called from.
+  * phAsync<X>() cannot be called during phUpdate() (memory effects must be made
+    visible to the calling thread).
 
 - Resources created by phCreate<X>() cannot be manipulated concurrently. Any
   function requiring some resource ID inputs (except phAsync<X>() functions) is

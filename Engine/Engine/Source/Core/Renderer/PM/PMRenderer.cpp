@@ -21,6 +21,7 @@
 
 #include <utility>
 #include <numeric>
+#include <vector>
 
 namespace ph
 {
@@ -29,10 +30,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(PhotonMapRenderer, Renderer);
 
 PMRenderer::PMRenderer(
 	EPMMode mode,
-	uint64 numPhotons,
-	uint64 numPasses,
-	uint64 numSamplesPerPixel,
-	real kernelRadius,
+	PMCommonParams commonParams,
 	Viewport viewport,
 	SampleFilter filter,
 	uint32 numWorkers)
@@ -47,10 +45,7 @@ PMRenderer::PMRenderer(
 	, m_filter(std::move(filter))
 
 	, m_mode(mode)
-	, m_numPhotons(numPhotons)
-	, m_numPasses(numPasses)
-	, m_numSamplesPerPixel(numSamplesPerPixel)
-	, m_kernelRadius(kernelRadius)
+	, m_commonParams(commonParams)
 
 	, m_filmMutex()
 	, m_statistics()
@@ -75,13 +70,7 @@ void PMRenderer::doRender()
 {
 	PH_PROFILE_SCOPE();
 
-	if(m_mode == EPMMode::VANILLA)
-	{
-		PH_LOG(PhotonMapRenderer, "rendering mode: vanilla photon mapping");
-
-		renderWithVanillaPM();
-	}
-	else if(m_mode == EPMMode::PROGRESSIVE)
+	if(m_mode == EPMMode::PROGRESSIVE)
 	{
 		PH_LOG(PhotonMapRenderer, "rendering mode: progressive photon mapping");
 
@@ -99,78 +88,6 @@ void PMRenderer::doRender()
 	}
 }
 
-void PMRenderer::renderWithVanillaPM()
-{
-	PH_PROFILE_SCOPE();
-
-	using Photon = FullPhoton;
-
-	PH_LOG(PhotonMapRenderer, "photon size: {} bytes", sizeof(Photon));
-
-	PH_LOG(PhotonMapRenderer, "target number of photons: {}", m_numPhotons);
-	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MB", sizeof(Photon) * m_numPhotons / 1024 / 1024);
-	PH_LOG(PhotonMapRenderer, "start shooting photons...");
-
-	std::vector<Photon> photonBuffer(m_numPhotons);
-	std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
-	parallel_work(m_numPhotons, numWorkers(),
-		[this, &photonBuffer, &numPhotonPaths](
-			const std::size_t workerIdx, 
-			const std::size_t workStart, 
-			const std::size_t workEnd)
-		{
-			auto sampleGenerator = m_sg->genCopied(1);
-
-			TPhotonMappingWork<Photon> photonMappingWork(
-				m_scene,
-				m_receiver,
-				sampleGenerator.get(),
-				&(photonBuffer[workStart]),
-				workEnd - workStart,
-				&(numPhotonPaths[workerIdx]));
-			photonMappingWork.setPMStatistics(&m_statistics);
-
-			photonMappingWork.work();
-		});
-	const std::size_t totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), std::size_t(0));
-
-	PH_LOG(PhotonMapRenderer, "building photon map...");
-
-	TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
-	photonMap.build(std::move(photonBuffer));
-
-	PH_LOG(PhotonMapRenderer, "estimating radiance...");
-
-	parallel_work(m_numSamplesPerPixel, numWorkers(),
-		[this, &photonMap, totalPhotonPaths](
-			const std::size_t workerIdx, 
-			const std::size_t workStart, 
-			const std::size_t workEnd)
-		{
-			auto sampleGenerator = m_sg->genCopied(workEnd - workStart);
-			auto film            = std::make_unique<HdrRgbFilm>(
-				getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), m_filter);
-
-			VPMRadianceEvaluator evaluator(
-				&photonMap, 
-				totalPhotonPaths, 
-				film.get(), 
-				m_scene);
-			evaluator.setPMRenderer(this);
-			evaluator.setPMStatistics(&m_statistics);
-			evaluator.setKernelRadius(m_kernelRadius);
-
-			TViewPathTracingWork<VPMRadianceEvaluator> radianceEvaluator(
-				&evaluator,
-				m_scene,
-				m_receiver,
-				sampleGenerator.get(),
-				getRenderRegionPx());
-
-			radianceEvaluator.work();
-		});
-}
-
 void PMRenderer::renderWithProgressivePM()
 {
 	PH_PROFILE_SCOPE();
@@ -186,9 +103,9 @@ void PMRenderer::renderWithProgressivePM()
 	std::vector<Viewpoint> viewpoints;
 	{
 		using ViewpointCollector = TPPMViewpointCollector<Viewpoint>;
-		ViewpointCollector viewpointCollector(6, m_kernelRadius);
+		ViewpointCollector viewpointCollector(6, m_commonParams.kernelRadius);
 
-		auto viewpointSampleGenerator = m_sg->genCopied(m_numSamplesPerPixel);
+		auto viewpointSampleGenerator = m_sg->genCopied(m_commonParams.numSamplesPerPixel);
 
 		TViewPathTracingWork<ViewpointCollector> viewpointWork(
 			&viewpointCollector,
@@ -205,7 +122,7 @@ void PMRenderer::renderWithProgressivePM()
 	PH_LOG(PhotonMapRenderer, "size of viewpoint buffer: {} MiB", 
 		math::bytes_to_MiB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
-	const std::size_t numPhotonsPerPass = m_numPhotons;
+	const std::size_t numPhotonsPerPass = m_commonParams.numPhotons;
 
 	PH_LOG(PhotonMapRenderer, "number of photons per pass: {}", numPhotonsPerPass);
 	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MiB",
@@ -220,7 +137,7 @@ void PMRenderer::renderWithProgressivePM()
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
 	std::size_t totalPhotonPaths  = 0;
-	while(numFinishedPasses < m_numPasses)
+	while(numFinishedPasses < m_commonParams.numPasses)
 	{
 		passTimer.start();
 		std::vector<Photon> photonBuffer(numPhotonsPerPass);
@@ -241,7 +158,7 @@ void PMRenderer::renderWithProgressivePM()
 					&(photonBuffer[workStart]),
 					workEnd - workStart,
 					&(numPhotonPaths[workerIdx]));
-				photonMappingWork.setPMStatistics(&m_statistics);
+				photonMappingWork.setStatistics(&m_statistics);
 
 				photonMappingWork.work();
 			});
@@ -266,7 +183,7 @@ void PMRenderer::renderWithProgressivePM()
 					&(viewpoints[workStart]),
 					workEnd - workStart,
 					m_scene);
-				radianceEstimator.setPMStatistics(&m_statistics);
+				radianceEstimator.setStatistics(&m_statistics);
 
 				radianceEstimator.work();
 
@@ -286,7 +203,7 @@ void PMRenderer::renderWithProgressivePM()
 		const real photonsPerMs = passTimeMs != 0 ? static_cast<real>(numPhotonsPerPass) / passTimeMs : 0;
 		m_photonsPerSecond.store(static_cast<std::uint32_t>(photonsPerMs * 1000 + 0.5_r), std::memory_order_relaxed);
 
-		m_statistics.asyncIncrementNumIterations();
+		m_statistics.incrementNumIterations();
 		++numFinishedPasses;
 	}// end while more pass needed
 }
@@ -311,7 +228,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 			auto& viewpoint = viewpoints[y * getRenderRegionPx().getWidth() + x];
 
 			if constexpr(Viewpoint::template has<EViewpointData::RADIUS>()) {
-				viewpoint.template set<EViewpointData::RADIUS>(m_kernelRadius);
+				viewpoint.template set<EViewpointData::RADIUS>(m_commonParams.kernelRadius);
 			}
 			if constexpr(Viewpoint::template has<EViewpointData::NUM_PHOTONS>()) {
 				viewpoint.template set<EViewpointData::NUM_PHOTONS>(0.0_r);
@@ -328,7 +245,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 	PH_LOG(PhotonMapRenderer, "size of viewpoint buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
-	const std::size_t numPhotonsPerPass = m_numPhotons;
+	const std::size_t numPhotonsPerPass = m_commonParams.numPhotons;
 
 	PH_LOG(PhotonMapRenderer, "number of photons per pass: {}", numPhotonsPerPass);
 	PH_LOG(PhotonMapRenderer, "size of photon buffer: {} MiB",
@@ -343,7 +260,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
 	std::size_t totalPhotonPaths  = 0;
-	while(numFinishedPasses < m_numPasses)
+	while(numFinishedPasses < m_commonParams.numPasses)
 	{
 		PH_PROFILE_NAMED_SCOPE("SPPM pass");
 
@@ -368,7 +285,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 					&(photonBuffer[workStart]),
 					workEnd - workStart,
 					&(numPhotonPaths[workerIdx]));
-				photonMappingWork.setPMStatistics(&m_statistics);
+				photonMappingWork.setStatistics(&m_statistics);
 
 				photonMappingWork.work();
 			});
@@ -425,7 +342,7 @@ void PMRenderer::renderWithStochasticProgressivePM()
 		const real photonsPerMs = passTimeMs != 0 ? static_cast<real>(numPhotonsPerPass) / passTimeMs : 0;
 		m_photonsPerSecond.store(static_cast<std::uint32_t>(photonsPerMs * 1000 + 0.5_r), std::memory_order_relaxed);
 
-		m_statistics.asyncIncrementNumIterations();
+		m_statistics.incrementNumIterations();
 		++numFinishedPasses;
 	}// end while more pass needed
 }
@@ -458,8 +375,8 @@ RenderProgress PMRenderer::asyncQueryRenderProgress()
 	PH_PROFILE_SCOPE();
 
 	return RenderProgress(
-		m_mode != EPMMode::VANILLA ? m_numPasses : m_numSamplesPerPixel, 
-		m_statistics.asyncGetNumIterations(), 
+		m_mode != EPMMode::VANILLA ? m_commonParams.numPasses : m_commonParams.numSamplesPerPixel,
+		m_statistics.getNumIterations(), 
 		0);
 }
 
@@ -503,8 +420,8 @@ RenderStats PMRenderer::asyncQueryRenderStats()
 	PH_PROFILE_SCOPE();
 
 	RenderStats stats;
-	stats.setInteger(0, m_statistics.asyncGetNumIterations());
-	stats.setInteger(1, m_statistics.asyncGetNumTracedPhotons());
+	stats.setInteger(0, m_statistics.getNumIterations());
+	stats.setInteger(1, m_statistics.getNumTracedPhotons());
 	stats.setInteger(2, static_cast<RenderStats::IntegerType>(m_photonsPerSecond.load(std::memory_order_relaxed)));
 	return stats;
 }

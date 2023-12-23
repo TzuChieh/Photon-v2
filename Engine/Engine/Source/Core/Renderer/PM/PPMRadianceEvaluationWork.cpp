@@ -39,7 +39,7 @@ PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
 {
 	PH_ASSERT(film);
 
-	setPMStatistics(nullptr);
+	setStatistics(nullptr);
 	setAlpha(2.0_r / 3.0_r);
 }
 

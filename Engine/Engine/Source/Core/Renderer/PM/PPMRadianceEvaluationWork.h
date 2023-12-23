@@ -14,8 +14,7 @@ namespace ph
 {
 
 class Scene;
-class PMStatistics;
-class PMRenderer;
+class PMAtomicStatistics;
 
 /*
 	Implements the progressive photon mapping technique developed by 
@@ -40,25 +39,25 @@ public:
 		std::size_t                   numViewpoints,
 		const Scene*                  scene);
 
-	void setPMStatistics(PMStatistics* statistics);
+	void setStatistics(PMAtomicStatistics* statistics);
 	void setAlpha(real alpha);
 
 private:
 	void doWork() override;
 
-	HdrRgbFilm*    m_film;
-	PMStatistics*  m_statistics;
-	FullViewpoint* m_viewpoints;
-	std::size_t    m_numViewpoints;
-	const Scene*   m_scene;
-	real           m_alpha;
+	HdrRgbFilm*         m_film;
+	PMAtomicStatistics* m_statistics;
+	FullViewpoint*      m_viewpoints;
+	std::size_t         m_numViewpoints;
+	const Scene*        m_scene;
+	real                m_alpha;
 
 	void sanitizeVariables();
 };
 
 // In-header Implementations:
 
-inline void PPMRadianceEvaluationWork::setPMStatistics(PMStatistics* const statistics)
+inline void PPMRadianceEvaluationWork::setStatistics(PMAtomicStatistics* const statistics)
 {
 	m_statistics = statistics;
 }

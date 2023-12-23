@@ -14,7 +14,7 @@ namespace ph
 class Scene;
 class Receiver;
 class SampleGenerator;
-class PMStatistics;
+class PMAtomicStatistics;
 
 template<typename Photon>
 class TPhotonMappingWork : public RenderWork
@@ -30,18 +30,18 @@ public:
 		std::size_t      numPhotons,
 		std::size_t*     out_numPhotonPaths);
 
-	void setPMStatistics(PMStatistics* statistics);
+	void setStatistics(PMAtomicStatistics* statistics);
 
 private:
 	void doWork() override;
 
-	const Scene*     m_scene;
-	const Receiver*  m_receiver;
-	SampleGenerator* m_sampleGenerator;
-	Photon*          m_photonBuffer;
-	std::size_t      m_numPhotons;
-	std::size_t*     m_numPhotonPaths;
-	PMStatistics*    m_statistics;
+	const Scene*        m_scene;
+	const Receiver*     m_receiver;
+	SampleGenerator*    m_sampleGenerator;
+	Photon*             m_photonBuffer;
+	std::size_t         m_numPhotons;
+	std::size_t*        m_numPhotonPaths;
+	PMAtomicStatistics* m_statistics;
 };
 
 }// end namespace ph
