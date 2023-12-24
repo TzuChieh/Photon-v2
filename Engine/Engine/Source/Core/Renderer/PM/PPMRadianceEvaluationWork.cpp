@@ -4,7 +4,6 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
