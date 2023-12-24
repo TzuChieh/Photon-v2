@@ -3,8 +3,8 @@
 #include "EngineEnv/CoreCookedUnit.h"
 #include "Core/Filmic/SampleFilters.h"
 #include "Frame/Viewport.h"
-#include "Core/Renderer/PM/PMRenderer.h"
 #include "Core/Renderer/PM/VanillaPMRenderer.h"
+#include "Core/Renderer/PM/ProgressivePMRenderer.h"
 #include "Core/Renderer/PM/StochasticProgressivePMRenderer.h"
 #include "Core/Renderer/PM/EPMMode.h"
 
@@ -54,6 +54,16 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 		break;
 	}
 
+	case EPhotonMappingMode::Progressive:
+	{
+		renderer = std::make_unique<ProgressivePMRenderer>(
+			makeCommonParams(),
+			viewport,
+			makeSampleFilter(),
+			ctx.numWorkers());
+		break;
+	}
+
 	case EPhotonMappingMode::StochasticProgressive:
 	{
 		renderer = std::make_unique<StochasticProgressivePMRenderer>(
@@ -66,14 +76,8 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 
 	default:
 	{
-		renderer = std::make_unique<PMRenderer>(
-			mode,
-			makeCommonParams(),
-			viewport,
-			makeSampleFilter(),
-			ctx.numWorkers());
-		/*PH_LOG_WARNING(PhotonMappingVisualizer,
-			"Unsupported PM mode ({}), no renderer generated.", TSdlEnum<EPhotonMappingMode>{}[m_mode]);*/
+		PH_LOG_WARNING(PhotonMappingVisualizer,
+			"Unsupported PM mode ({}), no renderer generated.", TSdlEnum<EPhotonMappingMode>{}[m_mode]);
 		break;
 	}
 	}

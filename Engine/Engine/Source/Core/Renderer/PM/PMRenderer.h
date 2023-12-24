@@ -62,8 +62,6 @@ private:
 	PMAtomicStatistics m_statistics;
 	std::atomic_uint32_t m_photonsPerSecond;
 	std::atomic_bool m_isFilmUpdated;
-
-	void renderWithProgressivePM();
 };
 
 }// end namespace ph

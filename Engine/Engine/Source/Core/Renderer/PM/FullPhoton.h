@@ -15,8 +15,6 @@ It is unrecommended to use this kind of photon if low memory usage is desired.
 class FullPhoton : public TPhoton<FullPhoton>
 {
 public:
-	FullPhoton() = default;
-
 	template<EPhotonData TYPE>
 	static constexpr bool impl_has();
 
