@@ -17,7 +17,7 @@
 namespace ph
 {
 
-template<typename Photon>
+template<CPhoton Photon>
 inline TRadianceEvaluationWork<Photon>::TRadianceEvaluationWork(
 	const TPhotonMap<Photon>* photonMap,
 	const std::size_t         numPhotonPaths) :
@@ -28,7 +28,7 @@ inline TRadianceEvaluationWork<Photon>::TRadianceEvaluationWork(
 	PH_ASSERT_GT(numPhotonPaths, 0);
 }
 
-template<typename Photon>
+template<CPhoton Photon>
 inline void TRadianceEvaluationWork<Photon>::doWork()
 {
 	/*for(std::size_t i = 0; i < m_numViewpoints; ++i)
@@ -46,7 +46,7 @@ inline void TRadianceEvaluationWork<Photon>::doWork()
 	}*/
 }
 
-template<typename Photon>
+template<CPhoton Photon>
 inline math::Spectrum TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	const SurfaceHit&     location,
 	const math::Vector3R& excitant,
@@ -101,13 +101,13 @@ inline math::Spectrum TRadianceEvaluationWork<Photon>::evaluateRadiance(
 	return radiance;
 }
 
-template<typename Photon>
+template<CPhoton Photon>
 inline const TPhotonMap<Photon>* TRadianceEvaluationWork<Photon>::getPhotonMap() const
 {
 	return m_photonMap;
 }
 
-template<typename Photon>
+template<CPhoton Photon>
 inline const std::size_t TRadianceEvaluationWork<Photon>::numPhotonPaths() const
 {
 	return m_numPhotonPaths;

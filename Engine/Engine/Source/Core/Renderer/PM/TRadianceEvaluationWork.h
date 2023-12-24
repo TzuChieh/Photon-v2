@@ -17,7 +17,7 @@ namespace ph
 
 class SurfaceHit;
 
-template<typename Photon>
+template<CPhoton Photon>
 class TRadianceEvaluationWork : public RenderWork
 {
 	static_assert(std::is_base_of_v<TPhoton<Photon>, Photon>);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/TArrayAsVector.h"
+#include "Utility/TArrayVector.h"
 
 #include <Common/assertion.h>
 #include <Common/config.h>
@@ -12,7 +12,7 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-inline TArrayAsVector<T, N>::TArrayAsVector() :
+inline TArrayVector<T, N>::TArrayVector() :
 
 #if PH_DEBUG
 	// Request value-initialization: set to zeros for primitive types
@@ -26,7 +26,7 @@ inline TArrayAsVector<T, N>::TArrayAsVector() :
 
 template<typename T, std::size_t N>
 template<typename U>
-inline void TArrayAsVector<T, N>::pushBack(U&& item)
+inline void TArrayVector<T, N>::pushBack(U&& item)
 {
 	// TODO: static assert for U == T, amy require ref and ptr removal
 
@@ -38,7 +38,7 @@ inline void TArrayAsVector<T, N>::pushBack(U&& item)
 }
 
 template<typename T, std::size_t N>
-inline void TArrayAsVector<T, N>::popBack()
+inline void TArrayVector<T, N>::popBack()
 {
 	PH_ASSERT_GT(m_size, 0);
 	
@@ -46,7 +46,7 @@ inline void TArrayAsVector<T, N>::popBack()
 }
 
 template<typename T, std::size_t N>
-inline std::size_t TArrayAsVector<T, N>::size() const
+inline std::size_t TArrayVector<T, N>::size() const
 {
 	PH_ASSERT_LE(m_size, N);
 
@@ -54,37 +54,37 @@ inline std::size_t TArrayAsVector<T, N>::size() const
 }
 
 template<typename T, std::size_t N>
-inline void TArrayAsVector<T, N>::clear()
+inline void TArrayVector<T, N>::clear()
 {
 	m_size = 0;
 }
 
 template<typename T, std::size_t N>
-inline bool TArrayAsVector<T, N>::isEmpty() const
+inline bool TArrayVector<T, N>::isEmpty() const
 {
 	return m_size == 0;
 }
 
 template<typename T, std::size_t N>
-inline bool TArrayAsVector<T, N>::isFull() const
+inline bool TArrayVector<T, N>::isFull() const
 {
 	return m_size == N;
 }
 
 template<typename T, std::size_t N>
-inline T* TArrayAsVector<T, N>::get(const std::size_t index)
+inline T* TArrayVector<T, N>::get(const std::size_t index)
 {
 	return index < m_size ? &(m_data[index]) : nullptr;
 }
 
 template<typename T, std::size_t N>
-inline const T* TArrayAsVector<T, N>::get(const std::size_t index) const
+inline const T* TArrayVector<T, N>::get(const std::size_t index) const
 {
 	return index < m_size ? &(m_data[index]) : nullptr;
 }
 
 template<typename T, std::size_t N>
-inline T& TArrayAsVector<T, N>::operator [] (const std::size_t index)
+inline T& TArrayVector<T, N>::operator [] (const std::size_t index)
 {
 	PH_ASSERT_LT(index, m_size);
 
@@ -92,7 +92,7 @@ inline T& TArrayAsVector<T, N>::operator [] (const std::size_t index)
 }
 
 template<typename T, std::size_t N>
-inline const T& TArrayAsVector<T, N>::operator [] (const std::size_t index) const
+inline const T& TArrayVector<T, N>::operator [] (const std::size_t index) const
 {
 	PH_ASSERT_LT(index, m_size);
 
@@ -100,7 +100,7 @@ inline const T& TArrayAsVector<T, N>::operator [] (const std::size_t index) cons
 }
 
 template<typename T, std::size_t N>
-inline T& TArrayAsVector<T, N>::front()
+inline T& TArrayVector<T, N>::front()
 {
 	PH_ASSERT_GT(m_size, 0);
 
@@ -108,7 +108,7 @@ inline T& TArrayAsVector<T, N>::front()
 }
 
 template<typename T, std::size_t N>
-inline const T& TArrayAsVector<T, N>::front() const
+inline const T& TArrayVector<T, N>::front() const
 {
 	PH_ASSERT_GT(m_size, 0);
 
@@ -116,7 +116,7 @@ inline const T& TArrayAsVector<T, N>::front() const
 }
 
 template<typename T, std::size_t N>
-inline T& TArrayAsVector<T, N>::back()
+inline T& TArrayVector<T, N>::back()
 {
 	PH_ASSERT_GT(m_size, 0);
 
@@ -124,7 +124,7 @@ inline T& TArrayAsVector<T, N>::back()
 }
 
 template<typename T, std::size_t N>
-inline const T& TArrayAsVector<T, N>::back() const
+inline const T& TArrayVector<T, N>::back() const
 {
 	PH_ASSERT_GT(m_size, 0);
 
@@ -132,19 +132,19 @@ inline const T& TArrayAsVector<T, N>::back() const
 }
 
 template<typename T, std::size_t N>
-typename std::array<T, N>::iterator TArrayAsVector<T, N>::begin() noexcept
+typename std::array<T, N>::iterator TArrayVector<T, N>::begin() noexcept
 {
 	return m_data.begin();
 }
 
 template<typename T, std::size_t N>
-typename std::array<T, N>::const_iterator TArrayAsVector<T, N>::begin() const noexcept
+typename std::array<T, N>::const_iterator TArrayVector<T, N>::begin() const noexcept
 {
 	return m_data.begin();
 }
 
 template<typename T, std::size_t N>
-typename std::array<T, N>::iterator TArrayAsVector<T, N>::end() noexcept
+typename std::array<T, N>::iterator TArrayVector<T, N>::end() noexcept
 {
 	// Not using std::advance() as we expect it to be randomly accessible
 	// (no permissive code)
@@ -152,7 +152,7 @@ typename std::array<T, N>::iterator TArrayAsVector<T, N>::end() noexcept
 }
 
 template<typename T, std::size_t N>
-typename std::array<T, N>::const_iterator TArrayAsVector<T, N>::end() const noexcept
+typename std::array<T, N>::const_iterator TArrayVector<T, N>::end() const noexcept
 {
 	// Not using std::advance() as we expect it to be randomly accessible
 	// (no permissive code)

@@ -16,7 +16,7 @@ class Receiver;
 class SampleGenerator;
 class PMAtomicStatistics;
 
-template<typename Photon>
+template<CPhoton Photon>
 class TPhotonMappingWork : public RenderWork
 {
 	static_assert(std::is_base_of_v<TPhoton<Photon>, Photon>);

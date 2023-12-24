@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/TArrayAsStack.h"
+#include "Utility/TArrayStack.h"
 
 #include <Common/assertion.h>
 
@@ -10,18 +10,13 @@ namespace ph
 {
 
 template<typename T, std::size_t N>
-inline TArrayAsStack<T, N>::TArrayAsStack() :
+inline TArrayStack<T, N>::TArrayStack() :
 	m_data{}, m_currentIndex(-1)
 {}
 
 template<typename T, std::size_t N>
-inline TArrayAsStack<T, N>::TArrayAsStack(const TArrayAsStack& other) :
-	m_data(other.m_data), m_currentIndex(other.m_currentIndex)
-{}
-
-template<typename T, std::size_t N>
 template<typename U>
-inline void TArrayAsStack<T, N>::push(U&& item)
+inline void TArrayStack<T, N>::push(U&& item)
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex + 1, Index(0), Index(N));
 
@@ -29,7 +24,7 @@ inline void TArrayAsStack<T, N>::push(U&& item)
 }
 
 template<typename T, std::size_t N>
-inline void TArrayAsStack<T, N>::pop()
+inline void TArrayStack<T, N>::pop()
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex - 1, Index(-1), Index(N - 1));
 	
@@ -37,7 +32,7 @@ inline void TArrayAsStack<T, N>::pop()
 }
 
 template<typename T, std::size_t N>
-inline T& TArrayAsStack<T, N>::top()
+inline T& TArrayStack<T, N>::top()
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex, Index(0), Index(N));
 
@@ -45,7 +40,7 @@ inline T& TArrayAsStack<T, N>::top()
 }
 
 template<typename T, std::size_t N>
-inline const T& TArrayAsStack<T, N>::top() const
+inline const T& TArrayStack<T, N>::top() const
 {
 	PH_ASSERT_IN_RANGE(m_currentIndex, Index(0), Index(N));
 
@@ -53,7 +48,7 @@ inline const T& TArrayAsStack<T, N>::top() const
 }
 
 template<typename T, std::size_t N>
-inline std::size_t TArrayAsStack<T, N>::height() const
+inline std::size_t TArrayStack<T, N>::height() const
 {
 	PH_ASSERT_GE(m_currentIndex + 1, Index(0));
 
@@ -61,28 +56,19 @@ inline std::size_t TArrayAsStack<T, N>::height() const
 }
 
 template<typename T, std::size_t N>
-inline void TArrayAsStack<T, N>::clear()
+inline void TArrayStack<T, N>::clear()
 {
 	m_currentIndex = -1;
 }
 
 template<typename T, std::size_t N>
-inline bool TArrayAsStack<T, N>::isEmpty() const
+inline bool TArrayStack<T, N>::isEmpty() const
 {
 	return m_currentIndex == -1;
 }
 
 template<typename T, std::size_t N>
-inline TArrayAsStack<T, N>& TArrayAsStack<T, N>::operator = (const TArrayAsStack& rhs)
-{
-	m_data         = rhs.m_data;
-	m_currentIndex = rhs.m_currentIndex;
-
-	return *this;
-}
-
-template<typename T, std::size_t N>
-inline T& TArrayAsStack<T, N>::operator [] (const std::size_t index)
+inline T& TArrayStack<T, N>::operator [] (const std::size_t index)
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_data.size());
 
@@ -90,7 +76,7 @@ inline T& TArrayAsStack<T, N>::operator [] (const std::size_t index)
 }
 
 template<typename T, std::size_t N>
-inline const T& TArrayAsStack<T, N>::operator [] (const std::size_t index) const
+inline const T& TArrayStack<T, N>::operator [] (const std::size_t index) const
 {
 	PH_ASSERT_IN_RANGE(index, 0, m_data.size());
 

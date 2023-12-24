@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <concepts>
+#include <utility>
 
 namespace ph::editor
 {
@@ -10,12 +11,6 @@ template<typename T>
 concept CWeakHandle = requires
 {
 	typename T::WeakHandleTag;
-	typename T::ItemType;
-	typename T::IndexType;
-	typename T::GenerationType;
-	T::INVALID_INDEX;
-	T::INVALID_GENERATION;
-	{ T::nextGeneration(typename T::GenerationType{}) } -> std::same_as<typename T::GenerationType>;
 };
 
 template<typename T>
@@ -26,7 +21,7 @@ concept CHandleDispatcher =
 	{
 		typename T::HandleType;
 		{ t.dispatchOne() } -> std::same_as<typename T::HandleType>;
-		{ t.returnOne(typename T::HandleType{}) } -> std::same_as<void>;
+		{ t.returnOne(std::declval<typename T::HandleType>()) } -> std::same_as<void>;
 	};
 
 template<typename ItemInterface, CWeakHandle Handle>

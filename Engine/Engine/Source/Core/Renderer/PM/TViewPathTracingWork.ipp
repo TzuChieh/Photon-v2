@@ -119,7 +119,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 		const math::Vector3R V = tracingRay.getDirection();
 		const math::Vector3R N = surfaceHit.getShadingNormal();
 
-		if(policy.getSampleMode() == EViewPathSampleMode::SINGLE_PATH)
+		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)
 		{
 			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::RADIANCE, ESidednessPolicy::STRICT));
 			bsdfSample.inputs.set(surfaceHit, V);
@@ -165,7 +165,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 	const std::size_t pathLength,
 	SampleFlow& sampleFlow)
 {
-	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ELEMENTAL_BRANCH);
+	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ElementalBranch);
 
 	const SurfaceTracer surfaceTracer(m_scene);
 

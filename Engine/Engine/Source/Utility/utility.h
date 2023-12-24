@@ -59,7 +59,7 @@ Destructor is not included.
 	PH_DEFINE_RULE_OF_5_MEMBERS_NO_DTOR(ClassType);\
 	ClassType::~ClassType() = default
 
-/*! @brief Helper to define defaultedrule of 5 special class members (inlined).
+/*! @brief Helper to define defaulted rule of 5 special class members (inlined).
 */
 #define PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(ClassType)\
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS_NO_DTOR(ClassType);\

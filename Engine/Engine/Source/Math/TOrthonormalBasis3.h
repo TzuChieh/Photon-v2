@@ -13,7 +13,7 @@ public:
 	static TOrthonormalBasis3 makeFromUnitY(const TVector3<T>& unitYAxis);
 
 	TOrthonormalBasis3();
-	TOrthonormalBasis3(const TOrthonormalBasis3& other);
+
 	TOrthonormalBasis3(
 		const TVector3<T>& xAxis, 
 		const TVector3<T>& yAxis, 
@@ -54,8 +54,6 @@ public:
 	TVector3<T> getXAxis() const;
 	TVector3<T> getYAxis() const;
 	TVector3<T> getZAxis() const;
-	
-	TOrthonormalBasis3& operator = (const TOrthonormalBasis3& rhs);
 
 private:
 	TVector3<T> m_xAxis;

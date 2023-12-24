@@ -5,8 +5,13 @@
 
 #include <Common/assertion.h>
 
+#include <type_traits>
+
 namespace ph
 {
+
+// A simple value type should be trivially copyable
+static_assert(std::is_trivially_copyable_v<HitProbe>);
 
 void HitProbe::calcIntersectionDetail(
 	const Ray&       ray,

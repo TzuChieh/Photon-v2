@@ -8,6 +8,7 @@
 #include <bit>
 #include <climits>
 #include <type_traits>
+#include <utility>
 
 namespace ph::math
 {
@@ -147,7 +148,7 @@ inline void TUniformRandomBitGenerator<Derived, Bits>::jumpAhead(const uint64 di
 {
 	static_assert(requires (Derived derived)
 		{
-			{ derived.impl_jumpAhead(uint64{})} -> std::same_as<void>;
+			{ derived.impl_jumpAhead(std::declval<uint64>())} -> std::same_as<void>;
 		},
 		"Uniform random bit generator must implement `impl_jumpAhead(uint64 distance) -> void`.");
 

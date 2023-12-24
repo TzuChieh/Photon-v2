@@ -27,7 +27,7 @@
 namespace ph
 {
 
-template<typename Viewpoint, typename Photon>
+template<CViewpoint Viewpoint, CPhoton Photon>
 class TSPPMRadianceEvaluator : public TViewPathHandler<TSPPMRadianceEvaluator<Viewpoint, Photon>>
 {
 	static_assert(std::is_base_of_v<TViewpoint<Viewpoint>, Viewpoint>);
@@ -78,7 +78,7 @@ private:
 
 // In-header Implementations:
 
-template<typename Viewpoint, typename Photon>
+template<CViewpoint Viewpoint, CPhoton Photon>
 inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 	Viewpoint* viewpoints,
 	std::size_t numViewpoints,
@@ -108,7 +108,7 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 	PH_ASSERT_GE(maxViewpointDepth, 1);
 }
 
-template<typename Viewpoint, typename Photon>
+template<CViewpoint Viewpoint, CPhoton Photon>
 inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleStart(
 	const math::Vector2D& rasterCoord,
 	const math::Spectrum& pathThroughput)
@@ -139,7 +139,7 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleStar
 	return true;
 }
 
-template<typename Viewpoint, typename Photon>
+template<CViewpoint Viewpoint, CPhoton Photon>
 inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	const std::size_t     pathLength,
 	const SurfaceHit&     surfaceHit,
@@ -149,7 +149,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
 	// TODO: MIS
-	if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>())
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
 		if(metadata->getSurface().getEmitter())
 		{
@@ -163,14 +163,17 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	if(optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DIFFUSE_REFLECTION}) ||
 		pathLength >= m_maxViewpointDepth)
 	{
-		if constexpr(Viewpoint::template has<EViewpointData::SURFACE_HIT>()) {
-			m_viewpoint->template set<EViewpointData::SURFACE_HIT>(surfaceHit);
+		if constexpr(Viewpoint::template has<EViewpointData::SurfaceHit>())
+		{
+			m_viewpoint->template set<EViewpointData::SurfaceHit>(surfaceHit);
 		}
-		if constexpr(Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>()) {
-			m_viewpoint->template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
+		if constexpr(Viewpoint::template has<EViewpointData::ViewThroughput>())
+		{
+			m_viewpoint->template set<EViewpointData::ViewThroughput>(pathThroughput);
 		}
-		if constexpr(Viewpoint::template has<EViewpointData::VIEW_DIR>()) {
-			m_viewpoint->template set<EViewpointData::VIEW_DIR>(surfaceHit.getIncidentRay().getDirection().mul(-1));
+		if constexpr(Viewpoint::template has<EViewpointData::ViewDir>())
+		{
+			m_viewpoint->template set<EViewpointData::ViewDir>(surfaceHit.getIncidentRay().getDirection().mul(-1));
 		}
 
 		m_isViewpointFound = true;
@@ -185,7 +188,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	}
 }
 
-template<typename Viewpoint, typename Photon>
+template<CViewpoint Viewpoint, CPhoton Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd()
 {
 	if(!m_isViewpointFound)
@@ -195,11 +198,11 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 
 	const SurfaceTracer surfaceTracer(m_scene);
 
-	const SurfaceHit&    surfaceHit = m_viewpoint->template get<EViewpointData::SURFACE_HIT>();
-	const math::Vector3R L          = m_viewpoint->template get<EViewpointData::VIEW_DIR>();
+	const SurfaceHit&    surfaceHit = m_viewpoint->template get<EViewpointData::SurfaceHit>();
+	const math::Vector3R L          = m_viewpoint->template get<EViewpointData::ViewDir>();
 	const math::Vector3R Ng         = surfaceHit.getGeometryNormal();
 	const math::Vector3R Ns         = surfaceHit.getShadingNormal();
-	const real           R          = m_viewpoint->template get<EViewpointData::RADIUS>();
+	const real           R          = m_viewpoint->template get<EViewpointData::Radius>();
 
 	m_photonCache.clear();
 	m_photonMap->findWithinRange(surfaceHit.getPosition(), R, m_photonCache);
@@ -207,7 +210,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	// FIXME: as a parameter
 	const real alpha = 2.0_r / 3.0_r;
 
-	const real N    = m_viewpoint->template get<EViewpointData::NUM_PHOTONS>();
+	const real N    = m_viewpoint->template get<EViewpointData::NumPhotons>();
 	const real M    = static_cast<real>(m_photonCache.size());
 	const real newN = N + alpha * M;
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
@@ -218,7 +221,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	BsdfEvalQuery  bsdfEval(bsdfContext);
 	for(const auto& photon : m_photonCache)
 	{
-		const math::Vector3R V = photon.template get<EPhotonData::FROM_DIR>();
+		const math::Vector3R V = photon.template get<EPhotonData::FromDir>();
 
 		bsdfEval.inputs.set(surfaceHit, L, V);
 		if(!surfaceTracer.doBsdfEvaluation(bsdfEval))
@@ -226,23 +229,23 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 			continue;
 		}
 
-		math::Spectrum tau = photon.template get<EPhotonData::THROUGHPUT_RADIANCE>();
+		math::Spectrum tau = photon.template get<EPhotonData::ThroughputRadiance>();
 		tau.mulLocal(bsdfEval.outputs.bsdf);
 		tau.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 
 		tauM.addLocal(tau);
 	}
-	tauM.mulLocal(m_viewpoint->template get<EViewpointData::VIEW_THROUGHPUT>());
+	tauM.mulLocal(m_viewpoint->template get<EViewpointData::ViewThroughput>());
 
-	const math::Spectrum tauN   = m_viewpoint->template get<EViewpointData::TAU>();
+	const math::Spectrum tauN   = m_viewpoint->template get<EViewpointData::Tau>();
 	const math::Spectrum newTau = (N + M) != 0.0_r ? (tauN + tauM) * (newN / (N + M)) : math::Spectrum(0);
 
-	m_viewpoint->template set<EViewpointData::RADIUS>(newR);
-	m_viewpoint->template set<EViewpointData::NUM_PHOTONS>(newN);
-	m_viewpoint->template set<EViewpointData::TAU>(newTau);
+	m_viewpoint->template set<EViewpointData::Radius>(newR);
+	m_viewpoint->template set<EViewpointData::NumPhotons>(newN);
+	m_viewpoint->template set<EViewpointData::Tau>(newTau);
 }
 
-template<typename Viewpoint, typename Photon>
+template<CViewpoint Viewpoint, CPhoton Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinished()
 {
 	// evaluate radiance using current iteration's data
@@ -257,25 +260,25 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinishe
 			PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
 			const auto& viewpoint = m_viewpoints[viewpointIdx];
 
-			const real radius             = viewpoint.template get<EViewpointData::RADIUS>();
+			const real radius             = viewpoint.template get<EViewpointData::Radius>();
 			const real kernelArea         = radius * radius * math::constant::pi<real>;
 			const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
 
-			math::Spectrum radiance(viewpoint.template get<EViewpointData::TAU>() * radianceMultiplier);
-			radiance.addLocal(viewpoint.template get<EViewpointData::VIEW_RADIANCE>() / static_cast<real>(m_numSamplesPerPixel));
+			math::Spectrum radiance(viewpoint.template get<EViewpointData::Tau>() * radianceMultiplier);
+			radiance.addLocal(viewpoint.template get<EViewpointData::ViewRadiance>() / static_cast<real>(m_numSamplesPerPixel));
 			m_film->setPixel(static_cast<float64>(x), static_cast<float64>(y), radiance);
 		}
 	}
 }
 
-template<typename Viewpoint, typename Photon>
+template<CViewpoint Viewpoint, CPhoton Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::addViewRadiance(const math::Spectrum& radiance)
 {
-	if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>())
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
-		math::Spectrum viewRadiance = m_viewpoint->template get<EViewpointData::VIEW_RADIANCE>();
+		math::Spectrum viewRadiance = m_viewpoint->template get<EViewpointData::ViewRadiance>();
 		viewRadiance.addLocal(radiance);
-		m_viewpoint->template set<EViewpointData::VIEW_RADIANCE>(viewRadiance);
+		m_viewpoint->template set<EViewpointData::ViewRadiance>(viewRadiance);
 	}
 }
 

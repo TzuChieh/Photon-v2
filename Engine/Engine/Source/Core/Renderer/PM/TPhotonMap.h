@@ -9,20 +9,20 @@
 namespace ph
 {
 
-template<typename Photon>
+template<CPhoton Photon>
 struct TPhotonCenterCalculator
 {
 	static_assert(std::is_base_of_v<TPhoton<Photon>, Photon>);
 
 	math::Vector3R operator () (const Photon& photon) const
 	{
-		static_assert(Photon::template has<EPhotonData::POSITION>());
+		static_assert(Photon::template has<EPhotonData::Position>());
 
-		return photon.template get<EPhotonData::POSITION>();
+		return photon.template get<EPhotonData::Position>();
 	}
 };
 
-template<typename Photon>
+template<CPhoton Photon>
 using TPhotonMap = math::TIndexedPointKdtree<Photon, int, TPhotonCenterCalculator<Photon>>;
 
 }// end namespace ph

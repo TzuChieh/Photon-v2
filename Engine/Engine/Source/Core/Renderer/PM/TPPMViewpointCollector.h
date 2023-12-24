@@ -20,7 +20,7 @@
 namespace ph
 {
 
-template<typename Viewpoint>
+template<CViewpoint Viewpoint>
 class TPPMViewpointCollector : public TViewPathHandler<TPPMViewpointCollector<Viewpoint>>
 {
 	static_assert(std::is_base_of_v<TViewpoint<Viewpoint>, Viewpoint>);
@@ -61,7 +61,7 @@ private:
 
 // In-header Implementations:
 
-template<typename Viewpoint>
+template<CViewpoint Viewpoint>
 inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
 	const std::size_t       maxViewpointDepth,
 	const real              initialKernelRadius) : 
@@ -72,7 +72,7 @@ inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
 	PH_ASSERT_GT(initialKernelRadius, 0.0_r);
 }
 
-template<typename Viewpoint>
+template<CViewpoint Viewpoint>
 inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
 	const math::Vector2D& rasterCoord,
 	const math::Spectrum& pathThroughput)
@@ -83,17 +83,21 @@ inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
 		return false;
 	}
 
-	if constexpr(Viewpoint::template has<EViewpointData::RASTER_COORD>()) {
-		m_viewpoint.template set<EViewpointData::RASTER_COORD>(rasterCoord);
+	if constexpr(Viewpoint::template has<EViewpointData::RasterCoord>())
+	{
+		m_viewpoint.template set<EViewpointData::RasterCoord>(rasterCoord);
 	}
-	if constexpr(Viewpoint::template has<EViewpointData::RADIUS>()) {
-		m_viewpoint.template set<EViewpointData::RADIUS>(m_initialKernelRadius);
+	if constexpr(Viewpoint::template has<EViewpointData::Radius>())
+	{
+		m_viewpoint.template set<EViewpointData::Radius>(m_initialKernelRadius);
 	}
-	if constexpr(Viewpoint::template has<EViewpointData::NUM_PHOTONS>()) {
-		m_viewpoint.template set<EViewpointData::NUM_PHOTONS>(0.0_r);
+	if constexpr(Viewpoint::template has<EViewpointData::NumPhotons>())
+	{
+		m_viewpoint.template set<EViewpointData::NumPhotons>(0.0_r);
 	}
-	if constexpr(Viewpoint::template has<EViewpointData::TAU>()) {
-		m_viewpoint.template set<EViewpointData::TAU>(math::Spectrum(0));
+	if constexpr(Viewpoint::template has<EViewpointData::Tau>())
+	{
+		m_viewpoint.template set<EViewpointData::Tau>(math::Spectrum(0));
 	}
 
 	m_receiverSampleViewpoints = 0;
@@ -101,7 +105,7 @@ inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
 	return true;
 }
 
-template<typename Viewpoint>
+template<CViewpoint Viewpoint>
 inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	const std::size_t     pathLength,
 	const SurfaceHit&     surfaceHit,
@@ -146,21 +150,21 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	}
 }
 
-template<typename Viewpoint>
+template<CViewpoint Viewpoint>
 inline void TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleEnd()
 {
 	if(m_receiverSampleViewpoints > 0)
 	{
 		// Normalize current receiver sample's path throughput.
-		if constexpr(Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>())
+		if constexpr(Viewpoint::template has<EViewpointData::ViewThroughput>())
 		{
 			for(std::size_t i = m_viewpoints.size() - m_receiverSampleViewpoints; i < m_viewpoints.size(); ++i)
 			{
 				auto& viewpoint = m_viewpoints[i];
 
-				math::Spectrum pathThroughput = viewpoint.template get<EViewpointData::VIEW_THROUGHPUT>();
+				math::Spectrum pathThroughput = viewpoint.template get<EViewpointData::ViewThroughput>();
 				pathThroughput.mulLocal(static_cast<real>(m_receiverSampleViewpoints));
-				viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
+				viewpoint.template set<EViewpointData::ViewThroughput>(pathThroughput);
 			}
 		}
 	}
@@ -178,23 +182,23 @@ inline void TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleEnd()
 	}
 }
 
-template<typename Viewpoint>
+template<CViewpoint Viewpoint>
 inline void TPPMViewpointCollector<Viewpoint>::impl_onSampleBatchFinished()
 {}
 
-template<typename Viewpoint>
+template<CViewpoint Viewpoint>
 std::vector<Viewpoint> TPPMViewpointCollector<Viewpoint>::claimViewpoints()
 {
 	return std::move(m_viewpoints);
 }
 
-template<typename Viewpoint>
+template<CViewpoint Viewpoint>
 void TPPMViewpointCollector<Viewpoint>::addViewpoint(
 	const SurfaceHit&     surfaceHit,
 	const math::Vector3R& viewDir,
 	const math::Spectrum& pathThroughput)
 {
-	if constexpr(Viewpoint::template has<EViewpointData::VIEW_RADIANCE>())
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
 		const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 		PH_ASSERT(metadata);
@@ -204,17 +208,20 @@ void TPPMViewpointCollector<Viewpoint>::addViewpoint(
 		{
 			metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewRadiance);
 		}
-		m_viewpoint.template set<EViewpointData::VIEW_RADIANCE>(viewRadiance);
+		m_viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
 	}
 
-	if constexpr(Viewpoint::template has<EViewpointData::SURFACE_HIT>()) {
-		m_viewpoint.template set<EViewpointData::SURFACE_HIT>(surfaceHit);
+	if constexpr(Viewpoint::template has<EViewpointData::SurfaceHit>())
+	{
+		m_viewpoint.template set<EViewpointData::SurfaceHit>(surfaceHit);
 	}
-	if constexpr(Viewpoint::template has<EViewpointData::VIEW_THROUGHPUT>()) {
-		m_viewpoint.template set<EViewpointData::VIEW_THROUGHPUT>(pathThroughput);
+	if constexpr(Viewpoint::template has<EViewpointData::ViewThroughput>())
+	{
+		m_viewpoint.template set<EViewpointData::ViewThroughput>(pathThroughput);
 	}
-	if constexpr(Viewpoint::template has<EViewpointData::VIEW_DIR>()) {
-		m_viewpoint.template set<EViewpointData::VIEW_DIR>(viewDir);
+	if constexpr(Viewpoint::template has<EViewpointData::ViewDir>())
+	{
+		m_viewpoint.template set<EViewpointData::ViewDir>(viewDir);
 	}
 
 	m_viewpoints.push_back(m_viewpoint);

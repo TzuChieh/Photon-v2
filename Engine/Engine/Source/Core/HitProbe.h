@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Utility/TArrayAsStack.h"
+#include "Utility/TArrayStack.h"
 #include "Math/TVector3.h"
 
 #include <Common/assertion.h>
@@ -88,7 +88,7 @@ public:
 	T popCache();
 
 private:
-	using Stack = TArrayAsStack<const Intersectable*, PH_HIT_PROBE_DEPTH>;
+	using Stack = TArrayStack<const Intersectable*, PH_HIT_PROBE_DEPTH>;
 
 	Stack       m_hitStack;
 	real        m_hitRayT;

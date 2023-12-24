@@ -7,39 +7,41 @@
 namespace ph
 {
 
-/*
-	Directives on how to trace the next path.
+/*! @brief Directives on how to trace the next path.
 */
 enum class EViewPathSampleMode
 {
-	// Keep tracing current path.
-	SINGLE_PATH,
+	/*! Keep tracing current path. */
+	SinglePath,
 
-	// Trace a different path for each elemental.
-	ELEMENTAL_BRANCH
+	/*! Trace a different path for each elemental. */
+	ElementalBranch
 };
 
-/*
-	Specifying and querying policies for tracing view path.
+/*! @brief Specifying and querying policies for tracing view path.
 */
 class ViewPathTracingPolicy
 {
 public:
 	ViewPathTracingPolicy();
 
-	// Kills the path.
+	/*! @brief Kills the path.
+	*/
 	ViewPathTracingPolicy& kill();
 
-	// Use russian roulette to kill the path.
+	/*! @brief Use russian roulette to kill the path.
+	*/
 	ViewPathTracingPolicy& useRussianRoulette(bool useRR);
 
-	// Effectively as specifying EViewPathSampleMode::SINGLE_PATH. It is also
-	// possible to specify the desired elemental for tracing the path.
+	/*! @brief Effectively as specifying `EViewPathSampleMode::SinglePath`.
+	@param elemental The desired elemental for tracing the path.
+	*/
 	ViewPathTracingPolicy& traceSinglePathFor(SurfaceElemental elemental);
 
-	// Effectively as specifying EViewPathSampleMode::ELEMENTAL_BRANCH. It is 
-	// also possible to select target phenomena for tracing. Path will not be
-	// traced if the elemental's phenomenon is not one of the targets.
+	/*! @brief Effectively as specifying `EViewPathSampleMode::ElementalBranch`.
+	@param phenomena The target phenomena for tracing. Path will not be traced if the elemental's
+	phenomenon is not one of the targets.
+	*/
 	ViewPathTracingPolicy& traceBranchedPathFor(SurfacePhenomena phenomena);
 
 	bool isKilled() const;
@@ -61,7 +63,7 @@ private:
 inline ViewPathTracingPolicy::ViewPathTracingPolicy() : 
 	m_isKilled(false),
 	m_useRussianRoulette(true),
-	m_sampleMode(EViewPathSampleMode::SINGLE_PATH),
+	m_sampleMode(EViewPathSampleMode::SinglePath),
 	m_targetElemental(ALL_ELEMENTALS),
 	m_targetPhenomena()
 {}
@@ -82,7 +84,7 @@ inline ViewPathTracingPolicy& ViewPathTracingPolicy::useRussianRoulette(const bo
 
 inline ViewPathTracingPolicy& ViewPathTracingPolicy::traceSinglePathFor(const SurfaceElemental elemental)
 {
-	m_sampleMode      = EViewPathSampleMode::SINGLE_PATH;
+	m_sampleMode      = EViewPathSampleMode::SinglePath;
 	m_targetElemental = elemental;
 
 	return *this;
@@ -90,7 +92,7 @@ inline ViewPathTracingPolicy& ViewPathTracingPolicy::traceSinglePathFor(const Su
 
 inline ViewPathTracingPolicy& ViewPathTracingPolicy::traceBranchedPathFor(const SurfacePhenomena phenomena)
 {
-	m_sampleMode      = EViewPathSampleMode::ELEMENTAL_BRANCH;
+	m_sampleMode      = EViewPathSampleMode::ElementalBranch;
 	m_targetPhenomena = phenomena;
 
 	return *this;
@@ -108,14 +110,14 @@ inline EViewPathSampleMode ViewPathTracingPolicy::getSampleMode() const
 
 inline SurfaceElemental ViewPathTracingPolicy::getTargetElemental() const
 {
-	PH_ASSERT(m_sampleMode == EViewPathSampleMode::SINGLE_PATH);
+	PH_ASSERT(m_sampleMode == EViewPathSampleMode::SinglePath);
 
 	return m_targetElemental;
 }
 
 inline SurfacePhenomena ViewPathTracingPolicy::getTargetPhenomena() const
 {
-	PH_ASSERT(m_sampleMode == EViewPathSampleMode::ELEMENTAL_BRANCH);
+	PH_ASSERT(m_sampleMode == EViewPathSampleMode::ElementalBranch);
 
 	return m_targetPhenomena;
 }

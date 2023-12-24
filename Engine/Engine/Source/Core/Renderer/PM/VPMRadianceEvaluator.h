@@ -153,7 +153,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	math::Spectrum radiance(0);
 	for(const auto& photon : m_photonCache)
 	{
-		const math::Vector3R V = photon.get<EPhotonData::FROM_DIR>();
+		const math::Vector3R V = photon.get<EPhotonData::FromDir>();
 
 		bsdfEval.inputs.set(surfaceHit, L, V);
 		if(!surfaceTracer.doBsdfEvaluation(bsdfEval))
@@ -165,7 +165,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 		throughput.mulLocal(bsdfEval.outputs.bsdf);
 		throughput.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
 
-		radiance.addLocal(throughput * photon.get<EPhotonData::THROUGHPUT_RADIANCE>());
+		radiance.addLocal(throughput * photon.get<EPhotonData::ThroughputRadiance>());
 	}
 
 	// OPT: cache

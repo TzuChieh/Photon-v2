@@ -4,19 +4,26 @@
 
 #include <Common/assertion.h>
 
+#include <type_traits>
+
 namespace ph
 {
 
+// A simple value type should be trivially copyable
+static_assert(std::is_trivially_copyable_v<SurfaceHit>);
+
 namespace
 {
-	const PrimitiveMetadata* get_primitive_metadata(const SurfaceHit& surfaceHit)
-	{
-		PH_ASSERT(surfaceHit.getDetail().getPrimitive());
 
-		return surfaceHit.getDetail().getPrimitive()->getMetadata();
-	}
+inline const PrimitiveMetadata* get_primitive_metadata(const SurfaceHit& surfaceHit)
+{
+	PH_ASSERT(surfaceHit.getDetail().getPrimitive());
+
+	return surfaceHit.getDetail().getPrimitive()->getMetadata();
 }
-	
+
+}// end anonymous namespace
+
 SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 {
 	// Since channel switching is fairly expensive, do not perform a redundant

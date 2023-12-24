@@ -6,15 +6,16 @@
 namespace ph
 {
 
-// TODO: dtor call policy? currently no dtor call on element remove, rely on life-time of vector
-
+/*! @brief A fixed size stack backed by an array.
+The container inherits the properties of a fixed size array of type `T`. The container keeps all `N`
+elements alive until its lifetime ends, even if elements are popped/removed from the stack. It is
+guaranteed that no dynamic memory allocation takes place.
+*/
 template<typename T, std::size_t N>
-class TArrayAsStack final
+class TArrayStack final
 {
 public:
-	TArrayAsStack();
-	TArrayAsStack(const TArrayAsStack& other);
-	~TArrayAsStack() = default;
+	TArrayStack();
 
 	template<typename U>
 	void push(U&& item);
@@ -26,12 +27,11 @@ public:
 	void clear();
 	bool isEmpty() const;
 
-	TArrayAsStack& operator = (const TArrayAsStack& rhs);
 	T& operator [] (std::size_t index);
 	const T& operator [] (std::size_t index) const;
 
 private:
-	// must be signed type
+	// Must be signed type
 	using Index = int;
 
 	std::array<T, N> m_data;
@@ -40,4 +40,4 @@ private:
 
 }// end namespace ph
 
-#include "Utility/TArrayAsStack.ipp"
+#include "Utility/TArrayStack.ipp"

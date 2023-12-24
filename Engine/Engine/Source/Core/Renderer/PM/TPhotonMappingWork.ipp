@@ -26,7 +26,7 @@
 namespace ph
 {
 
-template<typename Photon>
+template<CPhoton Photon>
 inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
 
 	const Scene* const     scene,
@@ -46,7 +46,7 @@ inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
 	setStatistics(nullptr);
 }
 
-template<typename Photon>
+template<CPhoton Photon>
 inline void TPhotonMappingWork<Photon>::doWork()
 {
 	PH_PROFILE_SCOPE();
@@ -108,15 +108,17 @@ inline void TPhotonMappingWork<Photon>::doWork()
 				throughputRadiance = weightedThroughputRadiance;
 
 				Photon photon;
-
-				if constexpr(Photon::template has<EPhotonData::POSITION>()) {
-					photon.template set<EPhotonData::POSITION>(surfaceHit.getPosition());
+				if constexpr(Photon::template has<EPhotonData::Position>())
+				{
+					photon.template set<EPhotonData::Position>(surfaceHit.getPosition());
 				}
-				if constexpr(Photon::template has<EPhotonData::THROUGHPUT_RADIANCE>()) {
-					photon.template set<EPhotonData::THROUGHPUT_RADIANCE>(throughputRadiance);
+				if constexpr(Photon::template has<EPhotonData::ThroughputRadiance>())
+				{
+					photon.template set<EPhotonData::ThroughputRadiance>(throughputRadiance);
 				}
-				if constexpr(Photon::template has<EPhotonData::FROM_DIR>()) {
-					photon.template set<EPhotonData::FROM_DIR>(tracingRay.getDirection().mul(-1));
+				if constexpr(Photon::template has<EPhotonData::FromDir>())
+				{
+					photon.template set<EPhotonData::FromDir>(tracingRay.getDirection().mul(-1));
 				}
 
 				m_photonBuffer[numStoredPhotons++] = photon;
@@ -174,7 +176,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 	}
 }
 
-template<typename Photon>
+template<CPhoton Photon>
 inline void TPhotonMappingWork<Photon>::setStatistics(PMAtomicStatistics* const statistics)
 {
 	m_statistics = statistics;

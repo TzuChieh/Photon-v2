@@ -61,11 +61,6 @@ inline TOrthonormalBasis3<T>::TOrthonormalBasis3() :
 {}
 
 template<typename T>
-inline TOrthonormalBasis3<T>::TOrthonormalBasis3(const TOrthonormalBasis3& other) :
-	TOrthonormalBasis3(other.m_xAxis, other.m_yAxis, other.m_zAxis)
-{}
-
-template<typename T>
 inline TOrthonormalBasis3<T>::TOrthonormalBasis3(
 	const TVector3<T>& xAxis,
 	const TVector3<T>& yAxis, 
@@ -351,14 +346,6 @@ template<typename T>
 inline TVector3<T> TOrthonormalBasis3<T>::getZAxis() const
 {
 	return m_zAxis;
-}
-
-template<typename T>
-inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::operator = (const TOrthonormalBasis3& rhs)
-{
-	set(rhs.m_xAxis, rhs.m_yAxis, rhs.m_zAxis);
-
-	return *this;
 }
 
 }// end namespace ph::math

@@ -1,9 +1,13 @@
 #include "Core/HitDetail.h"
 
 #include <limits>
+#include <type_traits>
 
 namespace ph
 {
+
+// A simple value type should be trivially copyable
+static_assert(std::is_trivially_copyable_v<HitDetail>);
 
 HitDetail::HitDetail() :
 	m_primitive(nullptr),

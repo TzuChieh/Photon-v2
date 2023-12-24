@@ -1,4 +1,4 @@
-#include <Utility/TArrayAsVector.h>
+#include <Utility/TArrayVector.h>
 
 #include <gtest/gtest.h>
 
@@ -8,25 +8,25 @@
 
 using namespace ph;
 
-TEST(TArrayAsVectorTest, BasicConstruction)
+TEST(TArrayVectorTest, BasicConstruction)
 {
 	{
-		TArrayAsVector<int, 3> vec;
+		TArrayVector<int, 3> vec;
 		EXPECT_TRUE(vec.isEmpty());
 	}
 	
 	{
-		TArrayAsVector<float, 1> vec;
+		TArrayVector<float, 1> vec;
 		EXPECT_TRUE(vec.isEmpty());
 	}
 
 	{
-		TArrayAsVector<double*, 10> vec;
+		TArrayVector<double*, 10> vec;
 		EXPECT_TRUE(vec.isEmpty());
 	}
 
 	{
-		TArrayAsVector<int, 2> vecA;
+		TArrayVector<int, 2> vecA;
 		vecA.pushBack(1);
 		vecA.pushBack(2);
 
@@ -37,10 +37,10 @@ TEST(TArrayAsVectorTest, BasicConstruction)
 	}
 }
 
-TEST(TArrayAsVectorTest, SafeOutOfBoundAccessor)
+TEST(TArrayVectorTest, SafeOutOfBoundAccessor)
 {
 	{
-		TArrayAsVector<int, 2> vec;
+		TArrayVector<int, 2> vec;
 		vec.pushBack(4);
 		vec.pushBack(5);
 
@@ -52,7 +52,7 @@ TEST(TArrayAsVectorTest, SafeOutOfBoundAccessor)
 	}
 
 	{
-		TArrayAsVector<int, 2> vec;
+		TArrayVector<int, 2> vec;
 		EXPECT_FALSE(vec.get(0));
 		EXPECT_FALSE(vec.get(1));
 		EXPECT_FALSE(vec.get(100));
@@ -64,10 +64,10 @@ TEST(TArrayAsVectorTest, SafeOutOfBoundAccessor)
 	}
 }
 
-TEST(TArrayAsVectorTest, PushAndPop)
+TEST(TArrayVectorTest, PushAndPop)
 {
 	{
-		TArrayAsVector<int, 3> vec;
+		TArrayVector<int, 3> vec;
 		EXPECT_EQ(vec.size(), 0);
 		EXPECT_TRUE(vec.isEmpty());
 
@@ -115,8 +115,7 @@ TEST(TArrayAsVectorTest, PushAndPop)
 
 	// Push lvalue
 	{
-
-		TArrayAsVector<float, 3> vec;
+		TArrayVector<float, 3> vec;
 
 		float val = -3.0f;
 		vec.pushBack(val);
@@ -135,10 +134,10 @@ TEST(TArrayAsVectorTest, PushAndPop)
 	}
 }
 
-TEST(TArrayAsVectorTest, RequiredProperties)
+TEST(TArrayVectorTest, RequiredProperties)
 {
 	{
-		using Vec = TArrayAsVector<char, 10>;
+		using Vec = TArrayVector<char, 10>;
 		EXPECT_TRUE(std::is_copy_constructible_v<Vec>);
 		EXPECT_TRUE(std::is_move_constructible_v<Vec>);
 		EXPECT_TRUE(std::is_copy_assignable_v<Vec>);
@@ -146,7 +145,7 @@ TEST(TArrayAsVectorTest, RequiredProperties)
 	}
 
 	{
-		using Vec = TArrayAsVector<double, 10>;
+		using Vec = TArrayVector<double, 10>;
 		EXPECT_TRUE(std::is_copy_constructible_v<Vec>);
 		EXPECT_TRUE(std::is_move_constructible_v<Vec>);
 		EXPECT_TRUE(std::is_copy_assignable_v<Vec>);
@@ -154,7 +153,7 @@ TEST(TArrayAsVectorTest, RequiredProperties)
 	}
 	
 	{
-		using Vec = TArrayAsVector<std::unique_ptr<float>, 10>;
+		using Vec = TArrayVector<std::unique_ptr<float>, 10>;
 		EXPECT_FALSE(std::is_copy_constructible_v<Vec>);
 		EXPECT_TRUE(std::is_move_constructible_v<Vec>);
 		EXPECT_FALSE(std::is_copy_assignable_v<Vec>);
@@ -162,10 +161,10 @@ TEST(TArrayAsVectorTest, RequiredProperties)
 	}
 }
 
-TEST(TArrayAsVectorTest, PushNonCopyable)
+TEST(TArrayVectorTest, PushNonCopyable)
 {
 	{
-		TArrayAsVector<std::unique_ptr<int>, 3> vec;
+		TArrayVector<std::unique_ptr<int>, 3> vec;
 		EXPECT_EQ(vec.size(), 0);
 		EXPECT_TRUE(vec.isEmpty());
 

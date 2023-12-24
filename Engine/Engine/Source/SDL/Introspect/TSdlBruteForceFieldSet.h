@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL/Introspect/SdlField.h"
-#include "Utility/TArrayAsVector.h"
+#include "Utility/TArrayVector.h"
 #include "Utility/IMoveOnly.h"
 
 #include <Common/assertion.h>
@@ -106,7 +106,7 @@ public:
 	}
 
 private:
-	TArrayAsVector<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
+	TArrayVector<std::unique_ptr<BaseFieldType>, MAX_FIELDS> m_fields;
 
 	template<typename T>
 	inline bool canAddField(const T& field)

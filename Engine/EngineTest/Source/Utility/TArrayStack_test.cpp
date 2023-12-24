@@ -1,28 +1,28 @@
-#include <Utility/TArrayAsStack.h>
+#include <Utility/TArrayStack.h>
 
 #include <gtest/gtest.h>
 
 using namespace ph;
 
-TEST(TArrayAsStackTest, InitIntStackToZero)
+TEST(TArrayStackTest, InitIntStackToZero)
 {
-	TArrayAsStack<int, 3> stack;
+	TArrayStack<int, 3> stack;
 	EXPECT_TRUE(stack[0] == 0);
 	EXPECT_TRUE(stack[1] == 0);
 	EXPECT_TRUE(stack[2] == 0);
 }
 
-TEST(TArrayAsStackTest, InitPtrStackToNullptr)
+TEST(TArrayStackTest, InitPtrStackToNullptr)
 {
-	TArrayAsStack<int*, 3> stack;
+	TArrayStack<int*, 3> stack;
 	EXPECT_TRUE(stack[0] == nullptr);
 	EXPECT_TRUE(stack[1] == nullptr);
 	EXPECT_TRUE(stack[2] == nullptr);
 }
 
-TEST(TArrayAsStackTest, PushAndPop)
+TEST(TArrayStackTest, PushAndPop)
 {
-	TArrayAsStack<int, 3> stack;
+	TArrayStack<int, 3> stack;
 	EXPECT_TRUE(stack.height() == 0);
 
 	stack.push(-1);

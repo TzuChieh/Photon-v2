@@ -4,7 +4,7 @@
 #include "SDL/sdl_fwd.h"
 #include "SDL/Introspect/TSdlOwnedField.h"
 #include "SDL/Introspect/TSdlBruteForceFieldSet.h"
-#include "Utility/TArrayAsVector.h"
+#include "Utility/TArrayVector.h"
 
 #include <Common/config.h>
 
@@ -120,7 +120,7 @@ private:
 	template<typename DstType, typename SrcType>
 	DstType* castTo(SrcType* srcInstance) const;
 
-	using FunctionSet = TArrayAsVector<const SdlFunction*, PH_SDL_MAX_FUNCTIONS>;
+	using FunctionSet = TArrayVector<const SdlFunction*, PH_SDL_MAX_FUNCTIONS>;
 
 	FieldSet    m_fields;
 	FunctionSet m_functions;

@@ -14,10 +14,8 @@
 namespace ph
 {
 
-/*
-	This viewpoint type stores all possible viewpoint data without any loss of
-	information. It is unrecommended to use this kind of viewpoint if low memory
-	usage is desired.
+/*! @brief This viewpoint type stores all possible viewpoint data without any loss of information.
+It is unrecommended to use this kind of viewpoint if low memory usage is desired.
 */
 class FullViewpoint : public TViewpoint<FullViewpoint>
 {
@@ -50,14 +48,14 @@ template<EViewpointData TYPE>
 inline constexpr bool FullViewpoint::impl_has()
 {
 	if constexpr(
-		TYPE == EViewpointData::SURFACE_HIT       ||
-		TYPE == EViewpointData::RASTER_COORD      ||
-		TYPE == EViewpointData::RADIUS            ||
-		TYPE == EViewpointData::NUM_PHOTONS       ||
-		TYPE == EViewpointData::TAU               ||
-		TYPE == EViewpointData::VIEW_THROUGHPUT   || 
-		TYPE == EViewpointData::VIEW_DIR          || 
-		TYPE == EViewpointData::VIEW_RADIANCE)
+		TYPE == EViewpointData::SurfaceHit     ||
+		TYPE == EViewpointData::RasterCoord    ||
+		TYPE == EViewpointData::Radius         ||
+		TYPE == EViewpointData::NumPhotons     ||
+		TYPE == EViewpointData::Tau            ||
+		TYPE == EViewpointData::ViewThroughput || 
+		TYPE == EViewpointData::ViewDir        || 
+		TYPE == EViewpointData::ViewRadiance)
 	{
 		return true;
 	}
@@ -70,31 +68,40 @@ inline constexpr bool FullViewpoint::impl_has()
 template<EViewpointData TYPE>
 inline decltype(auto) FullViewpoint::impl_get() const
 {
-	if constexpr(TYPE == EViewpointData::SURFACE_HIT) {
+	if constexpr(TYPE == EViewpointData::SurfaceHit)
+	{
 		return m_surfaceHit;
 	}
-	else if constexpr(TYPE == EViewpointData::RASTER_COORD) {
+	else if constexpr(TYPE == EViewpointData::RasterCoord)
+	{
 		return math::Vector2D(m_rasterCoord);
 	}
-	else if constexpr(TYPE == EViewpointData::RADIUS) {
+	else if constexpr(TYPE == EViewpointData::Radius)
+	{
 		return m_radius;
 	}
-	else if constexpr(TYPE == EViewpointData::NUM_PHOTONS) {
+	else if constexpr(TYPE == EViewpointData::NumPhotons)
+	{
 		return m_numPhotons;
 	}
-	else if constexpr(TYPE == EViewpointData::TAU) {
+	else if constexpr(TYPE == EViewpointData::Tau)
+	{
 		return m_tau;
 	}
-	else if constexpr(TYPE == EViewpointData::VIEW_THROUGHPUT) {
+	else if constexpr(TYPE == EViewpointData::ViewThroughput)
+	{
 		return m_viewThroughput;
 	}
-	else if constexpr(TYPE == EViewpointData::VIEW_DIR) {
+	else if constexpr(TYPE == EViewpointData::ViewDir)
+	{
 		return m_viewDir;
 	}
-	else if constexpr(TYPE == EViewpointData::VIEW_RADIANCE) {
+	else if constexpr(TYPE == EViewpointData::ViewRadiance)
+	{
 		return m_viewRadiance;
 	}
-	else {
+	else
+	{
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
 	}
@@ -103,31 +110,40 @@ inline decltype(auto) FullViewpoint::impl_get() const
 template<EViewpointData TYPE, typename T>
 inline void FullViewpoint::impl_set(const T& value)
 {
-	if constexpr(TYPE == EViewpointData::SURFACE_HIT) {
+	if constexpr(TYPE == EViewpointData::SurfaceHit)
+	{
 		m_surfaceHit = value;
 	}
-	else if constexpr(TYPE == EViewpointData::RASTER_COORD) {
+	else if constexpr(TYPE == EViewpointData::RasterCoord)
+	{
 		m_rasterCoord = math::Vector2R(value);
 	}
-	else if constexpr(TYPE == EViewpointData::RADIUS) {
+	else if constexpr(TYPE == EViewpointData::Radius)
+	{
 		m_radius = value;
 	}
-	else if constexpr(TYPE == EViewpointData::NUM_PHOTONS) {
+	else if constexpr(TYPE == EViewpointData::NumPhotons)
+	{
 		m_numPhotons = value;
 	}
-	else if constexpr(TYPE == EViewpointData::TAU) {
+	else if constexpr(TYPE == EViewpointData::Tau)
+	{
 		m_tau = value;
 	}
-	else if constexpr(TYPE == EViewpointData::VIEW_THROUGHPUT) {
+	else if constexpr(TYPE == EViewpointData::ViewThroughput)
+	{
 		m_viewThroughput = value;
 	}
-	else if constexpr(TYPE == EViewpointData::VIEW_DIR) {
+	else if constexpr(TYPE == EViewpointData::ViewDir)
+	{
 		m_viewDir = value;
 	}
-	else if constexpr(TYPE == EViewpointData::VIEW_RADIANCE) {
+	else if constexpr(TYPE == EViewpointData::ViewRadiance)
+	{
 		m_viewRadiance = value;
 	}
-	else {
+	else
+	{
 		PH_ASSERT_UNREACHABLE_SECTION();
 	}
 }

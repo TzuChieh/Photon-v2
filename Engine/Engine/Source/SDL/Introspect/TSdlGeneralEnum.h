@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL/Introspect/SdlEnum.h"
-#include "Utility/TArrayAsVector.h"
+#include "Utility/TArrayVector.h"
 #include "SDL/sdl_exceptions.h"
 #include "Utility/utility.h"
 
@@ -147,7 +147,7 @@ private:
 	};
 
 	std::string m_nameBuffer;
-	TArrayAsVector<BasicEnumEntry, MAX_ENTRIES> m_entries;
+	TArrayVector<BasicEnumEntry, MAX_ENTRIES> m_entries;
 };
 
 }// end namespace ph

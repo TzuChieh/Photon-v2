@@ -6,14 +6,16 @@
 namespace ph
 {
 
-// TODO: dtor call policy? currently no dtor call on element remove, rely on life-time of vector
-// TODO: iterators
-
+/*! @brief A fixed size vector backed by an array.
+The container inherits the properties of a fixed size array of type `T`. The container keeps all `N`
+elements alive until its lifetime ends, even if elements are popped/removed from the vector. It is
+guaranteed that no dynamic memory allocation takes place.
+*/
 template<typename T, std::size_t N>
-class TArrayAsVector final
+class TArrayVector final
 {
 public:
-	TArrayAsVector();
+	TArrayVector();
 
 	template<typename U>
 	void pushBack(U&& item);
@@ -52,4 +54,4 @@ private:
 
 }// end namespace ph
 
-#include "Utility/TArrayAsVector.ipp"
+#include "Utility/TArrayVector.ipp"

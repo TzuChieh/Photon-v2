@@ -1,7 +1,12 @@
 #include "Core/HitInfo.h"
 
+#include <type_traits>
+
 namespace ph
 {
+
+// A simple value type should be trivially copyable
+static_assert(std::is_trivially_copyable_v<HitInfo>);
 
 HitInfo::HitInfo() :
 	m_position(0, 0, 0),
