@@ -96,7 +96,7 @@ void BNEEPTEstimator::estimate(
 		{
 			const PrimitiveMetadata* me = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* op = me->getSurface().getOptics();
-			if(op->getAllPhenomena().hasAny({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION}))
+			if(op->getAllPhenomena().hasAny({ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission}))
 			{
 				canDoNEE = false;
 			}
@@ -110,7 +110,7 @@ void BNEEPTEstimator::estimate(
 			real           directPdfW;
 			math::Spectrum emittedRadiance;
 
-			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::STRICT>(&scene).sample(
+			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::Strict>(&scene).sample(
 				surfaceHit, ray.getTime(), sampleFlow,
 				&L, &directPdfW, &emittedRadiance))
 			{
@@ -223,7 +223,7 @@ void BNEEPTEstimator::estimate(
 					// TODO: <directLightPdfW> might be 0, should we stop using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
-					const real directLightPdfW = TDirectLightEstimator<ESidednessPolicy::STRICT>(&scene).samplePdfWUnoccluded(
+					const real directLightPdfW = TDirectLightEstimator<ESidednessPolicy::Strict>(&scene).samplePdfWUnoccluded(
 						surfaceHit, Xe, ray.getTime());
 
 					BsdfPdfQuery bsdfPdfQuery;

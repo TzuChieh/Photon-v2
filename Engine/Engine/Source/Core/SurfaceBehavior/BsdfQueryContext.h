@@ -21,7 +21,7 @@ public:
 	BsdfQueryContext(
 		SurfaceElemental elemental, 
 		ETransport       transport, 
-		ESidednessPolicy sidednessPolicy = ESidednessPolicy::STRICT);
+		ESidednessPolicy sidednessPolicy = ESidednessPolicy::Strict);
 };
 
 // In-header Implementations:
@@ -31,7 +31,7 @@ inline BsdfQueryContext::BsdfQueryContext() :
 {}
 
 inline BsdfQueryContext::BsdfQueryContext(SurfaceElemental elemental) :
-	BsdfQueryContext(elemental, ETransport::RADIANCE)
+	BsdfQueryContext(elemental, ETransport::Radiance)
 {}
 
 inline BsdfQueryContext::BsdfQueryContext(

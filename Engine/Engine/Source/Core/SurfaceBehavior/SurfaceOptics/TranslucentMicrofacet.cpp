@@ -31,7 +31,7 @@ TranslucentMicrofacet::TranslucentMicrofacet(
 	PH_ASSERT(fresnel);
 	PH_ASSERT(microfacet);
 
-	m_phenomena.set({ESurfacePhenomenon::GLOSSY_REFLECTION, ESurfacePhenomenon::GLOSSY_TRANSMISSION});
+	m_phenomena.set({ESurfacePhenomenon::GlossyReflection, ESurfacePhenomenon::GlossyTransmission});
 	m_numElementals = 2;
 }
 
@@ -39,8 +39,8 @@ ESurfacePhenomenon TranslucentMicrofacet::getPhenomenonOf(const SurfaceElemental
 {
 	PH_ASSERT_LT(elemental, 2);
 
-	return elemental == REFLECTION ? ESurfacePhenomenon::GLOSSY_REFLECTION : 
-	                                 ESurfacePhenomenon::GLOSSY_TRANSMISSION;
+	return elemental == REFLECTION ? ESurfacePhenomenon::GlossyReflection : 
+	                                 ESurfacePhenomenon::GlossyTransmission;
 }
 
 void TranslucentMicrofacet::calcBsdf(
@@ -116,7 +116,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real D = m_microfacet->distribution(in.X, N, H);
 		const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
 
-		const real transportFactor = ctx.transport == ETransport::RADIANCE ?
+		const real transportFactor = ctx.transport == ETransport::Radiance ?
 			etaT / etaI : 1.0_r;
 
 		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
@@ -216,7 +216,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 		m_fresnel->calcTransmittance(H.dot(out.L), &F);
 
-		if(ctx.transport == ETransport::RADIANCE)
+		if(ctx.transport == ETransport::Radiance)
 		{
 			real etaI = m_fresnel->getIorOuter();
 			real etaT = m_fresnel->getIorInner();

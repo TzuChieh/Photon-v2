@@ -38,7 +38,7 @@ IdealDielectric::IdealDielectric(
 	PH_ASSERT(m_reflectionScale);
 	PH_ASSERT(m_transmissionScale);
 
-	m_phenomena.set({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION});
+	m_phenomena.set({ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission});
 	m_numElementals = 2;
 }
 
@@ -46,8 +46,8 @@ ESurfacePhenomenon IdealDielectric::getPhenomenonOf(const SurfaceElemental eleme
 {
 	PH_ASSERT_LT(elemental, 2);
 
-	return elemental == REFLECTION ? ESurfacePhenomenon::DELTA_REFLECTION : 
-	                                 ESurfacePhenomenon::DELTA_TRANSMISSION;
+	return elemental == REFLECTION ? ESurfacePhenomenon::DeltaReflection :
+	                                 ESurfacePhenomenon::DeltaTransmission;
 }
 
 void IdealDielectric::calcBsdf(
@@ -129,7 +129,7 @@ void IdealDielectric::calcBsdfSample(
 		// FIXME: just use 1 - F
 		m_fresnel->calcTransmittance(N.dot(out.L), &F);
 
-		if(ctx.transport == ETransport::RADIANCE)
+		if(ctx.transport == ETransport::Radiance)
 		{
 			real etaI = m_fresnel->getIorOuter();
 			real etaT = m_fresnel->getIorInner();

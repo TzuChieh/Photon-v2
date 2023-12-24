@@ -160,7 +160,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	}
 	
 	// TODO: better handling of glossy optics
-	if(optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DIFFUSE_REFLECTION}) ||
+	if(optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DiffuseReflection}) ||
 		pathLength >= m_maxViewpointDepth)
 	{
 		if constexpr(Viewpoint::template has<EViewpointData::SurfaceHit>())
@@ -215,7 +215,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	const real newN = N + alpha * M;
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, ESidednessPolicy::Strict);
 
 	math::Spectrum tauM(0);
 	BsdfEvalQuery  bsdfEval(bsdfContext);

@@ -28,7 +28,7 @@ ThinDielectricFilm::ThinDielectricFilm(
 	PH_ASSERT_EQ(reflectanceTable.size(), 91);
 	PH_ASSERT_EQ(transmittanceTable.size(), 91);
 
-	m_phenomena.set({ESurfacePhenomenon::DELTA_REFLECTION, ESurfacePhenomenon::DELTA_TRANSMISSION});
+	m_phenomena.set({ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission});
 	m_numElementals = 2;
 }
 
@@ -36,8 +36,8 @@ ESurfacePhenomenon ThinDielectricFilm::getPhenomenonOf(const SurfaceElemental el
 {
 	PH_ASSERT_LT(elemental, 2);
 
-	return elemental == REFLECTION ? ESurfacePhenomenon::DELTA_REFLECTION : 
-	                                 ESurfacePhenomenon::DELTA_TRANSMISSION;
+	return elemental == REFLECTION ? ESurfacePhenomenon::DeltaReflection : 
+	                                 ESurfacePhenomenon::DeltaTransmission;
 }
 
 void ThinDielectricFilm::calcBsdf(

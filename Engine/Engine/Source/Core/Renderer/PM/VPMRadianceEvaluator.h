@@ -114,7 +114,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 	PH_ASSERT_GE(pathLength, 1);
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, ESidednessPolicy::Strict);
 	const PrimitiveMetadata* const metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* const     surfaceOptics = metadata->getSurface().getOptics();
 
@@ -128,13 +128,13 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	// FIXME: properly handle delta optics (mixed case)
 
 	if(pathLength < MAX_PATH_LENGTH && surfaceOptics->getAllPhenomena().hasAny({
-		ESurfacePhenomenon::DELTA_REFLECTION,
-		ESurfacePhenomenon::DELTA_TRANSMISSION}))
+		ESurfacePhenomenon::DeltaReflection,
+		ESurfacePhenomenon::DeltaTransmission}))
 	{
 		return ViewPathTracingPolicy().
 			traceBranchedPathFor(SurfacePhenomena({
-				ESurfacePhenomenon::DELTA_REFLECTION,
-				ESurfacePhenomenon::DELTA_TRANSMISSION})).
+				ESurfacePhenomenon::DeltaReflection,
+				ESurfacePhenomenon::DeltaTransmission})).
 			useRussianRoulette(false);
 	}
 

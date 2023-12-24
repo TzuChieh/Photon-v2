@@ -31,14 +31,14 @@ IdealTransmitter::IdealTransmitter(
 	PH_ASSERT(m_fresnel);
 	PH_ASSERT(m_transmissionScale);
 
-	m_phenomena.set({ESurfacePhenomenon::DELTA_TRANSMISSION});
+	m_phenomena.set({ESurfacePhenomenon::DeltaTransmission});
 }
 
 ESurfacePhenomenon IdealTransmitter::getPhenomenonOf(const SurfaceElemental elemental) const
 {
 	PH_ASSERT_EQ(elemental, 0);
 
-	return ESurfacePhenomenon::DELTA_TRANSMISSION;
+	return ESurfacePhenomenon::DeltaTransmission;
 }
 
 void IdealTransmitter::calcBsdf(
@@ -68,7 +68,7 @@ void IdealTransmitter::calcBsdfSample(
 	m_fresnel->calcTransmittance(cosI, &F);
 
 	real transportFactor = 1.0_r;
-	if(ctx.transport == ETransport::RADIANCE)
+	if(ctx.transport == ETransport::Radiance)
 	{
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();

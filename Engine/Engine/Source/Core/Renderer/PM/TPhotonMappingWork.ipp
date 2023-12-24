@@ -56,7 +56,7 @@ inline void TPhotonMappingWork<Photon>::doWork()
 	Timer timer;
 	timer.start();
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, ESidednessPolicy::Strict);
 	const SurfaceTracer surfaceTracer(m_scene);
 
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_numPhotons);

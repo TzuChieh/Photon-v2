@@ -48,7 +48,7 @@ void PPMRadianceEvaluationWork::doWork()
 
 	sanitizeVariables();
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::IMPORTANCE, ESidednessPolicy::STRICT);
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, ESidednessPolicy::Strict);
 	const SurfaceTracer    surfaceTracer(m_scene);
 
 	std::vector<FullPhoton> photonCache;

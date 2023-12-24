@@ -9,22 +9,21 @@
 namespace ph
 {
 
-/*
-	Available surface phenomena.
+/*! @brief Available surface phenomena.
 */
 enum class ESurfacePhenomenon : uint32
 {
-	DIFFUSE_REFLECTION  = uint32(1) << 0,
-	DELTA_REFLECTION    = uint32(1) << 1,
-	GLOSSY_REFLECTION   = uint32(1) << 2,
-	DELTA_TRANSMISSION  = uint32(1) << 3,
-	GLOSSY_TRANSMISSION = uint32(1) << 4
+	DiffuseReflection  = uint32(1) << 0,
+	DeltaReflection    = uint32(1) << 1,
+	GlossyReflection   = uint32(1) << 2,
+	DeltaTransmission  = uint32(1) << 3,
+	GlossyTransmission = uint32(1) << 4
 };
 
 enum class ETransport
 {
-	RADIANCE,
-	IMPORTANCE
+	Radiance,
+	Importance
 };
 
 using SurfacePhenomena = TBitFlags<uint32, ESurfacePhenomenon>;

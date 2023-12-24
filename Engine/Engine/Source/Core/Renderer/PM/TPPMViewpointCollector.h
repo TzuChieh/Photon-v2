@@ -117,8 +117,8 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	// check if there's any non-delta elemental
 	SurfacePhenomena phenomena = optics->getAllPhenomena();
 	phenomena.turnOff({
-		ESurfacePhenomenon::DELTA_REFLECTION,
-		ESurfacePhenomenon::DELTA_TRANSMISSION});
+		ESurfacePhenomenon::DeltaReflection,
+		ESurfacePhenomenon::DeltaTransmission});
 	if(!phenomena.isEmpty())
 	{
 		// It is okay to add a viewpoint without specifying which surface
@@ -133,13 +133,13 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 
 	if(pathLength < m_maxViewpointDepth && 
 	   optics->getAllPhenomena().hasAny({
-		ESurfacePhenomenon::DELTA_REFLECTION,
-		ESurfacePhenomenon::DELTA_TRANSMISSION}))
+		ESurfacePhenomenon::DeltaReflection,
+		ESurfacePhenomenon::DeltaTransmission}))
 	{
 		return ViewPathTracingPolicy().
 			traceBranchedPathFor(SurfacePhenomena({
-				ESurfacePhenomenon::DELTA_REFLECTION,
-				ESurfacePhenomenon::DELTA_TRANSMISSION})).
+				ESurfacePhenomenon::DeltaReflection,
+				ESurfacePhenomenon::DeltaTransmission})).
 			useRussianRoulette(false);
 	}
 	else

@@ -8,25 +8,24 @@
 namespace ph
 {
 
-/*
-	Options for dealing with situations where a vector is within the hemisphere
-	defined by geometry normal but outside the one defined by shading normal or
-	vice versa.
+/*!
+Options for dealing with situations where a vector is within the hemisphere
+defined by geometry normal but outside the one defined by shading normal or
+vice versa.
 */
 enum class ESidednessPolicy
 {
-	// Perform any calculations without caring sidedness agreement.
-	DO_NOT_CARE,
+	/*! Perform any calculations without caring sidedness agreement. */
+	DoNotCare,
 
-	// A vector must lies in hemispheres defined by geometry normal and shading
-	// normal simultaneously.
-	STRICT,
+	/*! A vector must lies in hemispheres defined by geometry normal and shading normal simultaneously. */
+	Strict,
 
-	// Judging sidedness agreement solely on geometry normal.
-	TRUST_GEOMETRY,
+	/*! Judging sidedness agreement solely on geometry normal. */
+	TrustGeometry,
 	
-	// Judging sidedness agreement solely on shading normal.
-	TRUST_SHADING
+	/*! Judging sidedness agreement solely on shading normal. */
+	TrustShading
 };
 
 class SidednessAgreement
@@ -58,7 +57,7 @@ private:
 // In-header Implementations:
 
 inline SidednessAgreement::SidednessAgreement() : 
-	SidednessAgreement(ESidednessPolicy::DO_NOT_CARE)
+	SidednessAgreement(ESidednessPolicy::DoNotCare)
 {}
 
 inline SidednessAgreement::SidednessAgreement(const ESidednessPolicy policy) :
@@ -71,16 +70,16 @@ inline bool SidednessAgreement::isSidednessAgreed(
 {
 	switch(m_policy)
 	{
-	case ESidednessPolicy::DO_NOT_CARE:
-	case ESidednessPolicy::TRUST_GEOMETRY:
-	case ESidednessPolicy::TRUST_SHADING:
+	case ESidednessPolicy::DoNotCare:
+	case ESidednessPolicy::TrustGeometry:
+	case ESidednessPolicy::TrustShading:
 	{
 		// no agreement issue with single input vector with these policies
 		return true;
 		break;
 	}
 
-	case ESidednessPolicy::STRICT:
+	case ESidednessPolicy::Strict:
 	{
 		const math::Vector3R& Ng = X.getGeometryNormal();
 		const math::Vector3R& Ns = X.getShadingNormal();
@@ -103,8 +102,8 @@ inline bool SidednessAgreement::isSameHemisphere(
 {
 	switch(m_policy)
 	{
-	case ESidednessPolicy::TRUST_GEOMETRY:
-	case ESidednessPolicy::DO_NOT_CARE:
+	case ESidednessPolicy::TrustGeometry:
+	case ESidednessPolicy::DoNotCare:
 	{
 		const math::Vector3R& Ng = X.getGeometryNormal();
 
@@ -112,7 +111,7 @@ inline bool SidednessAgreement::isSameHemisphere(
 		break;
 	}
 
-	case ESidednessPolicy::TRUST_SHADING:
+	case ESidednessPolicy::TrustShading:
 	{
 		const math::Vector3R& Ns = X.getShadingNormal();
 
@@ -120,7 +119,7 @@ inline bool SidednessAgreement::isSameHemisphere(
 		break;
 	}
 
-	case ESidednessPolicy::STRICT:
+	case ESidednessPolicy::Strict:
 	{
 		const math::Vector3R& N = X.getGeometryNormal();
 
@@ -145,8 +144,8 @@ inline bool SidednessAgreement::isOppositeHemisphere(
 {
 	switch(m_policy)
 	{
-	case ESidednessPolicy::TRUST_GEOMETRY:
-	case ESidednessPolicy::DO_NOT_CARE:
+	case ESidednessPolicy::TrustGeometry:
+	case ESidednessPolicy::DoNotCare:
 	{
 		const math::Vector3R& Ng = X.getGeometryNormal();
 
@@ -154,7 +153,7 @@ inline bool SidednessAgreement::isOppositeHemisphere(
 		break;
 	}
 
-	case ESidednessPolicy::TRUST_SHADING:
+	case ESidednessPolicy::TrustShading:
 	{
 		const math::Vector3R& Ns = X.getShadingNormal();
 
@@ -162,7 +161,7 @@ inline bool SidednessAgreement::isOppositeHemisphere(
 		break;
 	}
 
-	case ESidednessPolicy::STRICT:
+	case ESidednessPolicy::Strict:
 	{
 		const math::Vector3R& N = X.getGeometryNormal();
 

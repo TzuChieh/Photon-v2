@@ -121,7 +121,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)
 		{
-			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::RADIANCE, ESidednessPolicy::STRICT));
+			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::Radiance, ESidednessPolicy::Strict));
 			bsdfSample.inputs.set(surfaceHit, V);
 			Ray sampledRay;
 			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
@@ -180,7 +180,7 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
 			continue;
 		}
 
-		BsdfSampleQuery sample(BsdfQueryContext(i, ETransport::RADIANCE, ESidednessPolicy::STRICT));
+		BsdfSampleQuery sample(BsdfQueryContext(i, ETransport::Radiance, ESidednessPolicy::Strict));
 		sample.inputs.set(surfaceHit, V);
 
 		Ray sampledRay;

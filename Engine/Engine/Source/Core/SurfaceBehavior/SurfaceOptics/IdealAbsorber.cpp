@@ -11,14 +11,14 @@ namespace ph
 IdealAbsorber::IdealAbsorber() : 
 	SurfaceOptics()
 {
-	m_phenomena.set({ESurfacePhenomenon::DIFFUSE_REFLECTION});
+	m_phenomena.set({ESurfacePhenomenon::DiffuseReflection});
 }
 
 ESurfacePhenomenon IdealAbsorber::getPhenomenonOf(const SurfaceElemental elemental) const
 {
 	PH_ASSERT_EQ(elemental, 0);
 
-	return ESurfacePhenomenon::DIFFUSE_REFLECTION;
+	return ESurfacePhenomenon::DiffuseReflection;
 }
 
 void IdealAbsorber::calcBsdf(
