@@ -10,7 +10,7 @@
 
 #include <cstddef>
 #include <iostream>
-#include <algorithm>
+
 #include <cmath>
 #include <memory>
 
@@ -20,11 +20,11 @@ namespace ph
 // OPT: precalculate resolutions (the ones end with ...ResPx)
 
 HdrRgbFilm::HdrRgbFilm(
-	const int64         actualWidthPx, 
-	const int64         actualHeightPx,
-	const SampleFilter& filter) : 
+	const int64                 actualWidthPx, 
+	const int64                 actualHeightPx,
+	const SampleFilter&         filter)
 
-	HdrRgbFilm(
+	: HdrRgbFilm(
 		actualWidthPx, 
 		actualHeightPx,
 		math::TAABB2D<int64>(
@@ -37,26 +37,19 @@ HdrRgbFilm::HdrRgbFilm(
 	const int64                 actualWidthPx, 
 	const int64                 actualHeightPx,
 	const math::TAABB2D<int64>& effectiveWindowPx,
-	const SampleFilter&         filter) :
+	const SampleFilter&         filter)
 
-	TSamplingFilm<math::Spectrum>(
+	: TSamplingFilm<math::Spectrum>(
 		actualWidthPx, 
 		actualHeightPx, 
 		effectiveWindowPx, 
-		filter),
+		filter)
 
-	m_pixelRadianceSensors()
+	, m_pixelRadianceSensors()
 {
 	resizeRadianceSensorBuffer();
-	clear();
+	clearRadianceSensors();
 }
-
-HdrRgbFilm::HdrRgbFilm(HdrRgbFilm&& other) :
-
-	TSamplingFilm<math::Spectrum>(std::move(other)),
-
-	m_pixelRadianceSensors(std::move(other.m_pixelRadianceSensors))
-{}
 
 void HdrRgbFilm::addSample(
 	const float64         xPx, 
@@ -76,15 +69,15 @@ void HdrRgbFilm::addSample(
 {
 	const math::TVector2<float64> samplePosPx(xPx, yPx);
 
-	// compute filter bounds
+	// Compute filter bounds
 	math::TVector2<float64> filterMin(samplePosPx.sub(getFilter().getHalfSizePx()));
 	math::TVector2<float64> filterMax(samplePosPx.add(getFilter().getHalfSizePx()));
 
-	// reduce to effective bounds
+	// Reduce to effective bounds
 	filterMin = filterMin.max(math::TVector2<float64>(getEffectiveWindowPx().getMinVertex()));
 	filterMax = filterMax.min(math::TVector2<float64>(getEffectiveWindowPx().getMaxVertex()));
 
-	// compute pixel index bounds (exclusive on x1y1)
+	// Compute pixel index bounds (exclusive on x1y1)
 	math::TVector2<int64> x0y0(filterMin.sub(0.5).ceil());
 	math::TVector2<int64> x1y1(filterMax.sub(0.5).floor());
 	x1y1.x() += 1;
@@ -150,10 +143,6 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 	frameIndexBound.intersectWith(regionPx);
 	frameIndexBound.setMaxVertex(frameIndexBound.getMaxVertex().sub(1));
 
-	float64     sensorR, sensorG, sensorB;
-	float64     reciWeight;
-	std::size_t fx, fy, filmIndex;
-
 	// FIXME: we should iterate in frameIndexBound only
 	for(int64 y = 0; y < getActualResPx().y(); y++)
 	{
@@ -164,18 +153,17 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 				continue;
 			}
 
-			fx = x - getEffectiveWindowPx().getMinVertex().x();
-			fy = y - getEffectiveWindowPx().getMinVertex().y();
-			filmIndex = fy * static_cast<std::size_t>(getEffectiveResPx().x()) + fx;
+			const auto ex           = x - getEffectiveWindowPx().getMinVertex().x();
+			const auto ey           = y - getEffectiveWindowPx().getMinVertex().y();
+			const auto filmIndex    = ey * getEffectiveResPx().x() + ex;
+			const auto sensorWeight = m_pixelRadianceSensors[filmIndex].accuWeight;
 
-			const float64 sensorWeight = m_pixelRadianceSensors[filmIndex].accuWeight;
+			// Prevent division by zero
+			const auto rcpWeight = sensorWeight == 0.0 ? 0.0 : 1.0 / sensorWeight;
 
-			// prevent division by zero
-			reciWeight = sensorWeight == 0.0 ? 0.0 : 1.0 / sensorWeight;
-
-			sensorR = m_pixelRadianceSensors[filmIndex].accuR * reciWeight;
-			sensorG = m_pixelRadianceSensors[filmIndex].accuG * reciWeight;
-			sensorB = m_pixelRadianceSensors[filmIndex].accuB * reciWeight;
+			const auto sensorR = m_pixelRadianceSensors[filmIndex].accuR * rcpWeight;
+			const auto sensorG = m_pixelRadianceSensors[filmIndex].accuG * rcpWeight;
+			const auto sensorB = m_pixelRadianceSensors[filmIndex].accuB * rcpWeight;
 
 			// TODO: prevent negative pixel
 			out_frame.setPixel(
@@ -190,7 +178,7 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 
 void HdrRgbFilm::clear()
 {
-	std::fill(m_pixelRadianceSensors.begin(), m_pixelRadianceSensors.end(), RadianceSensor());
+	clearRadianceSensors();
 }
 
 void HdrRgbFilm::mergeWith(const HdrRgbFilm& other)
@@ -225,21 +213,7 @@ void HdrRgbFilm::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindo
 	TSamplingFilm<math::Spectrum>::setEffectiveWindowPx(effectiveWindow);
 
 	resizeRadianceSensorBuffer();
-	clear();
-}
-
-HdrRgbFilm& HdrRgbFilm::operator = (HdrRgbFilm&& other)
-{
-	TSamplingFilm<math::Spectrum>::operator = (std::move(other));
-
-	m_pixelRadianceSensors = std::move(other.m_pixelRadianceSensors);
-
-	return *this;
-}
-
-void HdrRgbFilm::resizeRadianceSensorBuffer()
-{
-	m_pixelRadianceSensors.resize(getEffectiveWindowPx().getArea());
+	clearRadianceSensors();
 }
 
 void HdrRgbFilm::setPixel(

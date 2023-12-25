@@ -8,7 +8,7 @@
 namespace ph
 {
 
-struct SamplingFilmDimensions
+struct SamplingFilmDimensions final
 {
 	math::TVector2<int64>  actualResPx;
 	math::TAABB2D<int64>   effectiveWindowPx;

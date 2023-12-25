@@ -12,6 +12,7 @@
 #include "Core/Renderer/RenderProgress.h"
 #include "Core/Renderer/RenderStats.h"
 #include "Utility/Concurrent/concurrent.h"
+#include "Utility/Concurrent/FixedSizeThreadPool.h"
 #include "Utility/Timer.h"
 
 #include <Common/profiling.h>
@@ -43,6 +44,7 @@ void StochasticProgressivePMRenderer::doRender()
 {
 	PH_LOG(PMRenderer, "rendering mode: stochastic progressive photon mapping");
 
+	m_photonsPerSecond.store(0, std::memory_order_relaxed);
 	renderWithStochasticProgressivePM();
 }
 
@@ -55,6 +57,9 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 
 	PH_LOG(PMRenderer, "photon size: {} bytes", sizeof(Photon));
 	PH_LOG(PMRenderer, "viewpoint size: {} bytes", sizeof(Viewpoint));
+
+	FixedSizeThreadPool workers(numWorkers());
+
 	PH_LOG(PMRenderer, "start generating viewpoints...");
 
 	std::vector<Viewpoint> viewpoints(getRenderRegionPx().getArea());
@@ -99,8 +104,6 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
 
 	Timer passTimer;
-	m_photonsPerSecond.store(0, std::memory_order_relaxed);
-
 	std::size_t numFinishedPasses = 0;
 	std::size_t totalPhotonPaths  = 0;
 	while(numFinishedPasses < getCommonParams().numPasses)
@@ -111,7 +114,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		std::vector<Photon> photonBuffer(numPhotonsPerPass);
 
 		std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
-		parallel_work(numPhotonsPerPass, numWorkers(),
+		parallel_work(workers, numPhotonsPerPass,
 			[this, &photonBuffer, &numPhotonPaths](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
@@ -137,7 +140,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
 		photonMap.build(std::move(photonBuffer));
 
-		parallel_work(getRenderRegionPx().getWidth(), numWorkers(),
+		parallel_work(workers, getRenderRegionPx().getWidth(),
 			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths, numFinishedPasses](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 

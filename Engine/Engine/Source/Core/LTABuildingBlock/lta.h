@@ -13,24 +13,22 @@ namespace ph
 namespace lta
 {
 
-/*
-	Using shading normal for light transport algorithms is equivalent to using
-	asymmetric BSDFs. This can lead to inconsistent results between regular 
-	and adjoint algorithms. This correction factor, when multiplied with BSDF,
-	restores the symmetric condition of the BSDF during importance transport.
+/*!
+Using shading normal for light transport algorithms is equivalent to using
+asymmetric BSDFs. This can lead to inconsistent results between regular
+and adjoint algorithms. This correction factor, when multiplied with BSDF,
+restores the symmetric condition of the BSDF during importance transport.
 
-	<Ns>: shading normal
-	<Ng>: geometry normal
-	<L>:  direction of incident importance
-	<V>:  direction of excitant importance
+References:
+[1] Eric Veach, "Non-symmetric Scattering in Light Transport Algorithms",
+Eurographics Rendering Workshop 1996 Proceedings.
 
-	Note that all vectors are expected to be in unit length and leaving 
-	the surface.
+@param Ns Shading normal.
+@param Ng Geometry normal.
+@param L Direction of incident importance.
+@param V Direction of excitant importance.
 
-	References:
-
-	Eric Veach, "Non-symmetric Scattering in Light Transport Algorithms",
-	Eurographics Rendering Workshop 1996 Proceedings.
+@note All vectors are expected to be in unit length and leaving the surface.
 */
 inline real importance_BSDF_Ns_corrector(
 	const math::Vector3R& Ns,

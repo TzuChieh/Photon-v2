@@ -42,6 +42,7 @@ void VanillaPMRenderer::doRender()
 {
 	PH_LOG(PMRenderer, "rendering mode: vanilla photon mapping");
 
+	m_photonsPerSecond.store(0, std::memory_order_relaxed);
 	renderWithVanillaPM();
 }
 
@@ -58,7 +59,6 @@ void VanillaPMRenderer::renderWithVanillaPM()
 
 	Timer tracePhotonTimer;
 	tracePhotonTimer.start();
-	m_photonsPerSecond.store(0, std::memory_order_relaxed);
 
 	std::vector<Photon> photonBuffer(getCommonParams().numPhotons);
 	std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);

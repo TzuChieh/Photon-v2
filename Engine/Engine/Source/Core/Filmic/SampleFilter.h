@@ -21,7 +21,15 @@ public:
 		float64 heightPx);
 
 	float64 evaluate(float64 xPx, float64 yPx) const;
+
+	/*!
+	@return Width and height of the filter.
+	*/
 	const math::TVector2<float64>& getSizePx() const;
+
+	/*!
+	@return Half width and half height of the filter.
+	*/
 	const math::TVector2<float64>& getHalfSizePx() const;
 
 private:

@@ -16,20 +16,19 @@ namespace ph
 class Scene;
 class PMAtomicStatistics;
 
-/*
-	Implements the progressive photon mapping technique developed by 
-	Hachisuka et al. The radiance evaluation process progressively shrinks 
-	the kernel radius and increases the number of photons, reaching a 
-	consistent result in the limit. 
+/*!
+Implements the progressive photon mapping technique developed by 
+Hachisuka et al. The radiance evaluation process progressively shrinks 
+the kernel radius and increases the number of photons, reaching a 
+consistent result in the limit. 
 
-	References:
-
-	Hachisuka et al., "Progressive Photon Mapping", ACM SIGGRAPH Asia 2008.
+References:
+[1] Hachisuka et al., "Progressive Photon Mapping", ACM SIGGRAPH Asia 2008.
 */
-
-// TODO: templatize photon and viewpoint type
 class PPMRadianceEvaluationWork : public TRadianceEvaluationWork<FullPhoton>
 {
+	// TODO: templatize photon and viewpoint type
+
 public:
 	PPMRadianceEvaluationWork(
 		const TPhotonMap<FullPhoton>* photonMap,

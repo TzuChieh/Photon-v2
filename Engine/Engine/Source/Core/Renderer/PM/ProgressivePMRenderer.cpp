@@ -44,6 +44,7 @@ void ProgressivePMRenderer::doRender()
 {
 	PH_LOG(PMRenderer, "rendering mode: progressive photon mapping");
 
+	m_photonsPerSecond.store(0, std::memory_order_relaxed);
 	renderWithProgressivePM();
 }
 

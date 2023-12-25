@@ -248,7 +248,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinished()
 {
-	// evaluate radiance using current iteration's data
+	// Evaluate radiance using current iteration's data
 	for(int64 y = m_filmRegion.getMinVertex().y(); y < m_filmRegion.getMaxVertex().y(); ++y)
 	{
 		for(int64 x = m_filmRegion.getMinVertex().x(); x < m_filmRegion.getMaxVertex().x(); ++x)

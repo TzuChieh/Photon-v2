@@ -177,7 +177,7 @@ isSoftEdgedFilm() const
 {
 	PH_ASSERT(!m_films.empty());
 
-	return m_films.front().isSoftEdge();
+	return m_films.front().isSoftEdged();
 }
 
 template<typename SamplingFilmType, typename EstimationType>

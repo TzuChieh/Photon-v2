@@ -14,7 +14,7 @@ namespace ph
 class Film : private IMoveOnly
 {
 public:
-	Film() = default;
+	Film();
 
 	Film(
 		int64                       actualWidthPx, 
@@ -25,13 +25,23 @@ public:
 		int64                       actualHeightPx,
 		const math::TAABB2D<int64>& effectiveWindowPx);
 
-	Film(Film&& other);
+	Film(Film&& other) = default;
+	Film& operator = (Film&& other) = default;
 
 	virtual ~Film() = default;
 
 	virtual void clear() = 0;
 
+	/*! @brief Set the apparent size of the film.
+	If only a sub-region of the film is going to be used, set the effective window accordingly may
+	improve performance especially in memory usage.
+	*/
 	virtual void setActualResPx(const math::TVector2<int64>& actualResPx);
+
+	/*! @brief Set the region where the film will be used.
+	Implementation is advised to take advantage of this and only allocate memory for the part
+	within the effective window.
+	*/
 	virtual void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow);
 
 	void develop(HdrRgbFrame& out_frame) const;
@@ -40,8 +50,6 @@ public:
 	const math::TVector2<int64>& getActualResPx() const;
 	math::TVector2<int64> getEffectiveResPx() const;
 	const math::TAABB2D<int64>& getEffectiveWindowPx() const;
-
-	Film& operator = (Film&& other);
 
 private:
 	virtual void developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const = 0;
