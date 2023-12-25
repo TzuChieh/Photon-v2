@@ -3,13 +3,13 @@
 namespace ph::math
 {
 
-template<typename ValueType>
+template<typename Value>
 class TMathFunction2D
 {
 public:
 	virtual ~TMathFunction2D() = default;
 
-	virtual ValueType evaluate(ValueType x, ValueType y) const = 0;
+	virtual Value evaluate(Value x, Value y) const = 0;
 };
 
 }// end namespace ph::math

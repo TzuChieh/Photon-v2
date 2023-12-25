@@ -28,25 +28,25 @@ using SampledSpectrum = TSampledSpectrum<
 	ColorValue, 
 	DefaultSpectralSampleProps>;
 
-#if defined(PH_RENDER_MODE_LINEAR_SRGB)
+#if PH_RENDER_MODE == PH_RENDER_MODE_LINEAR_SRGB
 
-	using Spectrum = LinearSRGBSpectrum;
+using Spectrum = LinearSRGBSpectrum;
 
-#elif defined(PH_RENDER_MODE_ACES)
+#elif PH_RENDER_MODE == PH_RENDER_MODE_ACES
 
-	using Spectrum = ACESSpectrum;
+using Spectrum = ACESSpectrum;
 
-#elif defined(PH_RENDER_MODE_SPECTRAL)
+#elif PH_RENDER_MODE == PH_RENDER_MODE_SPECTRAL
 
-	using Spectrum = SampledSpectrum;
+using Spectrum = SampledSpectrum;
 
-#elif defined(PH_RENDER_MODE_FULL_SPECTRAL)
+#elif PH_RENDER_MODE == PH_RENDER_MODE_FULL_SPECTRAL
 
-	// TODO
+// TODO
 
 #else
 
-	using Spectrum = LinearSRGBSpectrum;
+using Spectrum = LinearSRGBSpectrum;
 
 #endif
 

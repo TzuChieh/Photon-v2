@@ -5,26 +5,25 @@
 namespace ph::math
 {
 
-template<typename ValueType>
-class TConstant2D : public TMathFunction2D<ValueType>
+template<typename Value>
+class TConstant2D : public TMathFunction2D<Value>
 {
 public:
-	explicit TConstant2D(ValueType constantValue);
+	explicit TConstant2D(Value constantValue);
 
-	ValueType evaluate(ValueType x, ValueType y) const override;
+	Value evaluate(Value x, Value y) const override;
 
 private:
-	ValueType m_constantValue;
+	Value m_constantValue;
 };
 
-template<typename ValueType>
-inline TConstant2D<ValueType>::TConstant2D(const ValueType constantValue) :
-	TMathFunction2D<ValueType>(),
-	m_constantValue(constantValue)
+template<typename Value>
+inline TConstant2D<Value>::TConstant2D(const Value constantValue)
+	: m_constantValue(constantValue)
 {}
 
-template<typename ValueType>
-inline ValueType TConstant2D<ValueType>::evaluate(const ValueType x, const ValueType y) const
+template<typename Value>
+inline Value TConstant2D<Value>::evaluate(const Value x, const Value y) const
 {
 	return m_constantValue;
 }

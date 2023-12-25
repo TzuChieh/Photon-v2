@@ -94,10 +94,12 @@ Turning this option on is a fallback when things do not go as planned.
 // Render Modes                                                              //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PH_RENDER_MODE_LINEAR_SRGB
-//#define PH_RENDER_MODE_ACES
-//#define PH_RENDER_MODE_SPECTRAL
-//#define PH_RENDER_MODE_FULL_SPECTRAL
+#define PH_RENDER_MODE_LINEAR_SRGB 0
+#define PH_RENDER_MODE_ACES 1
+#define PH_RENDER_MODE_SPECTRAL 2
+#define PH_RENDER_MODE_FULL_SPECTRAL 3
+
+#define PH_RENDER_MODE PH_RENDER_MODE_LINEAR_SRGB
 
 ///////////////////////////////////////////////////////////////////////////////
 // Data Structures                                                           //

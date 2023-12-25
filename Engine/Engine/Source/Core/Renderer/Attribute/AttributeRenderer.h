@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Renderer/Renderer.h"
-#include "Core/Filmic/HdrRgbFilm.h"
+#include "Core/Filmic/Vector3Film.h"
 #include "Core/Renderer/Sampling/ReceiverSamplingWork.h"
 #include "Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
 #include "Core/Scheduler/WorkScheduler.h"
@@ -45,7 +45,7 @@ private:
 	SampleGenerator* m_sampleGenerator;
 
 	std::string      m_attributeName;
-	HdrRgbFilm       m_attributeFilm;
+	Vector3Film      m_attributeFilm;
 	
 	std::mutex       m_rendererMutex;
 };

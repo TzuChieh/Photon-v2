@@ -32,8 +32,8 @@ private:
 };
 
 template<typename Value>
-inline TBlackmanHarris2D<Value>::TBlackmanHarris2D(const Value radius) :
-	m_reciRadius(radius > Value(0) ? Value(1) / radius : Value(0))
+inline TBlackmanHarris2D<Value>::TBlackmanHarris2D(const Value radius)
+	: m_reciRadius(radius > Value(0) ? Value(1) / radius : Value(0))
 {
 	PH_ASSERT(radius > Value(0));
 }

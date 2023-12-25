@@ -12,18 +12,19 @@
 namespace ph
 {
 
-/*
-	A film that records 3-D vectors.
+/*! @brief A film that records 3-D vectors.
 */
 class Vector3Film : public TSamplingFilm<math::Vector3R>
 {
 public:
 	Vector3Film(
-		int64 actualWidthPx, int64 actualHeightPx,
+		int64 actualWidthPx,
+		int64 actualHeightPx,
 		const SampleFilter& filter);
 
 	Vector3Film(
-		int64 actualWidthPx, int64 actualHeightPx,
+		int64 actualWidthPx,
+		int64 actualHeightPx,
 		const math::TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter& filter);
 
@@ -40,27 +41,29 @@ private:
 // In-header Implementations:
 
 inline Vector3Film::Vector3Film(
-	int64 actualWidthPx, int64 actualHeightPx,
-	const SampleFilter& filter) : 
+	const int64 actualWidthPx,
+	const int64 actualHeightPx,
+	const SampleFilter& filter)
 
-	TSamplingFilm(actualWidthPx, actualHeightPx, filter),
+	: TSamplingFilm(actualWidthPx, actualHeightPx, filter)
 
-	m_film(actualWidthPx, actualHeightPx, filter)
+	, m_film(actualWidthPx, actualHeightPx, filter)
 {}
 
 inline Vector3Film::Vector3Film(
-	int64 actualWidthPx, int64 actualHeightPx,
+	const int64 actualWidthPx,
+	const int64 actualHeightPx,
 	const math::TAABB2D<int64>& effectiveWindowPx,
-	const SampleFilter& filter) :
+	const SampleFilter& filter)
 
-	TSamplingFilm(actualWidthPx, actualHeightPx, effectiveWindowPx, filter),
+	: TSamplingFilm(actualWidthPx, actualHeightPx, effectiveWindowPx, filter)
 
-	m_film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter)
+	, m_film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter)
 {}
 
 inline void Vector3Film::addSample(const float64 xPx, const float64 yPx, const math::Vector3R& vec3)
 {
-	m_film.addSample(xPx, yPx, vec3);
+	m_film.addRgbSample(xPx, yPx, vec3);
 }
 
 inline void Vector3Film::clear()

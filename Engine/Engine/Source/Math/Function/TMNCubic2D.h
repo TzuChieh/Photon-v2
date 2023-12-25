@@ -10,37 +10,37 @@ namespace ph::math
 
 /*! @brief Mitchell–Netravali filter function.
 */
-template<typename ValueType>
-class TMNCubic2D : public TMathFunction2D<ValueType>
+template<typename Value>
+class TMNCubic2D : public TMathFunction2D<Value>
 {
 public:
-	TMNCubic2D(ValueType b, ValueType c);
+	TMNCubic2D(Value b, Value c);
 
-	ValueType evaluate(ValueType x, ValueType y) const override;
+	Value evaluate(Value x, Value y) const override;
 
 private:
-	ValueType m_b;
-	ValueType m_c;
+	Value m_b;
+	Value m_c;
 
-	ValueType mnCubic1D(ValueType x) const;
+	Value mnCubic1D(Value x) const;
 };
 
-template<typename ValueType>
-inline TMNCubic2D<ValueType>::TMNCubic2D(const ValueType b, const ValueType c) :
-	TMathFunction2D<ValueType>(),
-	m_b(b), m_c(c)
+template<typename Value>
+inline TMNCubic2D<Value>::TMNCubic2D(const Value b, const Value c)
+	: m_b(b)
+	, m_c(c)
 {}
 
-template<typename ValueType>
-inline ValueType TMNCubic2D<ValueType>::evaluate(const ValueType x, const ValueType y) const
+template<typename Value>
+inline Value TMNCubic2D<Value>::evaluate(const Value x, const Value y) const
 {
 	return mnCubic1D(x) * mnCubic1D(y);
 }
 
-template<typename ValueType>
-inline ValueType TMNCubic2D<ValueType>::mnCubic1D(const ValueType x) const
+template<typename Value>
+inline Value TMNCubic2D<Value>::mnCubic1D(const Value x) const
 {
-	const ValueType absX = std::abs(x);
+	const Value absX = std::abs(x);
 	if(absX < 1)
 	{
 		return

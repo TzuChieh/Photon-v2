@@ -7,12 +7,10 @@
 #include "Core/Filmic/SampleFilters.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <cstddef>
-#include <iostream>
-
 #include <cmath>
-#include <memory>
 
 namespace ph
 {
@@ -59,10 +57,10 @@ void HdrRgbFilm::addSample(
 	PH_ASSERT_MSG(radiance.isFinite(), radiance.toString());
 
 	const auto rgb = math::Vector3R(radiance.toLinearSRGB(math::EColorUsage::EMR));
-	addSample(xPx, yPx, rgb);
+	addRgbSample(xPx, yPx, rgb);
 }
 
-void HdrRgbFilm::addSample(
+void HdrRgbFilm::addRgbSample(
 	const float64         xPx, 
 	const float64         yPx, 
 	const math::Vector3R& rgb)
@@ -83,24 +81,23 @@ void HdrRgbFilm::addSample(
 	x1y1.x() += 1;
 	x1y1.y() += 1;
 
-	for(int64 y = x0y0.y(); y < x1y1.y(); y++)
+	for(int64 y = x0y0.y(); y < x1y1.y(); ++y)
 	{
-		for(int64 x = x0y0.x(); x < x1y1.x(); x++)
+		for(int64 x = x0y0.x(); x < x1y1.x(); ++x)
 		{
 			// TODO: factor out the -0.5 part
-			const float64 filterX = x - (xPx - 0.5);
-			const float64 filterY = y - (yPx - 0.5);
+			const float64 filterX      = x - (xPx - 0.5);
+			const float64 filterY      = y - (yPx - 0.5);
+			const auto    filterWeight = getFilter().evaluate(filterX, filterY);
 
-			const std::size_t fx = x - getEffectiveWindowPx().getMinVertex().x();
-			const std::size_t fy = y - getEffectiveWindowPx().getMinVertex().y();
-			const std::size_t index = fy * static_cast<std::size_t>(getEffectiveResPx().x()) + fx;
-			
-			const float64 weight = getFilter().evaluate(filterX, filterY);
+			const auto sensorX      = x - getEffectiveWindowPx().getMinVertex().x();
+			const auto sensorY      = y - getEffectiveWindowPx().getMinVertex().y();
+			const auto sensorIndex  = sensorY * getEffectiveResPx().x() + sensorX;
 
-			m_pixelRadianceSensors[index].accuR      += rgb.r() * weight;
-			m_pixelRadianceSensors[index].accuG      += rgb.g() * weight;
-			m_pixelRadianceSensors[index].accuB      += rgb.b() * weight;
-			m_pixelRadianceSensors[index].accuWeight += weight;
+			m_pixelRadianceSensors[sensorIndex].accuR      += rgb.r() * filterWeight;
+			m_pixelRadianceSensors[sensorIndex].accuG      += rgb.g() * filterWeight;
+			m_pixelRadianceSensors[sensorIndex].accuB      += rgb.b() * filterWeight;
+			m_pixelRadianceSensors[sensorIndex].accuWeight += filterWeight;
 		}
 	}
 }
@@ -134,36 +131,31 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 	if(out_frame.widthPx()  != getActualResPx().x() ||
 	   out_frame.heightPx() != getActualResPx().y())
 	{
-		std::cerr << "warning: at HdrRgbFilm::develop(), "
-		          << "input frame dimension mismatch" << std::endl;
+		PH_DEFAULT_LOG_WARNING(
+			"Input frame dimension mismatch when developing HdrRgbFilm (film size: {}, frame size: {})",
+			getActualResPx(), out_frame.getSizePx());
 		return;
 	}
 
-	math::TAABB2D<int64> frameIndexBound(getEffectiveWindowPx());
-	frameIndexBound.intersectWith(regionPx);
-	frameIndexBound.setMaxVertex(frameIndexBound.getMaxVertex().sub(1));
+	// We only need to develop the pixels within this region
+	math::TAABB2D<int64> frameWindow(getEffectiveWindowPx());
+	frameWindow.intersectWith(regionPx);
 
-	// FIXME: we should iterate in frameIndexBound only
-	for(int64 y = 0; y < getActualResPx().y(); y++)
+	for(int64 y = frameWindow.getMinVertex().y(); y < frameWindow.getMaxVertex().y(); ++y)
 	{
-		for(int64 x = 0; x < getActualResPx().x(); x++)
+		for(int64 x = frameWindow.getMinVertex().x(); x < frameWindow.getMaxVertex().x(); ++x)
 		{
-			if(!frameIndexBound.isIntersectingArea({x, y}))
-			{
-				continue;
-			}
-
-			const auto ex           = x - getEffectiveWindowPx().getMinVertex().x();
-			const auto ey           = y - getEffectiveWindowPx().getMinVertex().y();
-			const auto filmIndex    = ey * getEffectiveResPx().x() + ex;
-			const auto sensorWeight = m_pixelRadianceSensors[filmIndex].accuWeight;
+			const auto sensorX      = x - getEffectiveWindowPx().getMinVertex().x();
+			const auto sensorY      = y - getEffectiveWindowPx().getMinVertex().y();
+			const auto sensorIndex  = sensorY * getEffectiveResPx().x() + sensorX;
+			const auto sensorWeight = m_pixelRadianceSensors[sensorIndex].accuWeight;
 
 			// Prevent division by zero
 			const auto rcpWeight = sensorWeight == 0.0 ? 0.0 : 1.0 / sensorWeight;
 
-			const auto sensorR = m_pixelRadianceSensors[filmIndex].accuR * rcpWeight;
-			const auto sensorG = m_pixelRadianceSensors[filmIndex].accuG * rcpWeight;
-			const auto sensorB = m_pixelRadianceSensors[filmIndex].accuB * rcpWeight;
+			const auto sensorR = m_pixelRadianceSensors[sensorIndex].accuR * rcpWeight;
+			const auto sensorG = m_pixelRadianceSensors[sensorIndex].accuG * rcpWeight;
+			const auto sensorB = m_pixelRadianceSensors[sensorIndex].accuB * rcpWeight;
 
 			// TODO: prevent negative pixel
 			out_frame.setPixel(

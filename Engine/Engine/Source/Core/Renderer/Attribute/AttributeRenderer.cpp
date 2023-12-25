@@ -5,7 +5,6 @@
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "EngineEnv/CoreCookedUnit.h"
 #include "World/VisualWorld.h"
-#include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/RenderWorker.h"
 #include "Core/Renderer/RendererProxy.h"
@@ -51,7 +50,7 @@ void AttributeRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld
 	PH_ASSERT(m_receiver);
 	PH_ASSERT(m_sampleGenerator);
 
-	m_attributeFilm = HdrRgbFilm(
+	m_attributeFilm = Vector3Film(
 		getRenderWidthPx(),
 		getRenderHeightPx(),
 		getRenderRegionPx(),

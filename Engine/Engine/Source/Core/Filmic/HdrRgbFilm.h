@@ -37,7 +37,7 @@ public:
 	void clear() override;
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
-	void addSample(float64 xPx, float64 yPx, const math::Vector3R& rgb);
+	void addRgbSample(float64 xPx, float64 yPx, const math::Vector3R& rgb);
 	void mergeWith(const HdrRgbFilm& other);
 
 	// HACK
