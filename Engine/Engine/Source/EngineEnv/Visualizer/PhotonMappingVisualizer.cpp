@@ -1,7 +1,7 @@
 #include "EngineEnv/Visualizer/PhotonMappingVisualizer.h"
 #include "EngineEnv/CoreCookingContext.h"
 #include "EngineEnv/CoreCookedUnit.h"
-#include "Core/Filmic/SampleFilters.h"
+#include "Core/Filmic/SampleFilter.h"
 #include "Frame/Viewport.h"
 #include "Core/Renderer/PM/VanillaPMRenderer.h"
 #include "Core/Renderer/PM/ProgressivePMRenderer.h"
@@ -90,20 +90,20 @@ SampleFilter PhotonMappingVisualizer::makeSampleFilter() const
 	switch(getSampleFilter())
 	{
 	case ESampleFilter::Box:
-		return SampleFilters::createBoxFilter();
+		return SampleFilter::makeBox();
 
 	case ESampleFilter::Gaussian:
-		return SampleFilters::createGaussianFilter();
+		return SampleFilter::makeGaussian();
 
 	case ESampleFilter::MitchellNetravali:
-		return SampleFilters::createMitchellNetravaliFilter();
+		return SampleFilter::makeMitchellNetravali();
 
 	case ESampleFilter::BlackmanHarris:
-		return SampleFilters::createBlackmanHarrisFilter();
+		return SampleFilter::makeBlackmanHarris();
 	}
 
 	PH_LOG(PhotonMappingVisualizer, "sample filter unspecified, using Blackman-Harris filter");
-	return SampleFilters::createBlackmanHarrisFilter();
+	return SampleFilter::makeBlackmanHarris();
 }
 
 PMCommonParams PhotonMappingVisualizer::makeCommonParams() const

@@ -3,7 +3,7 @@
 #include <Common/primitive_type.h>
 #include <Math/Function/TGaussian2D.h>
 #include <Math/Function/TConstant2D.h>
-#include <Math/Function/TMNCubic2D.h>
+#include <Math/Function/TMitchellNetravaliCubic2D.h>
 #include <Math/Function/TPiecewiseLinear1D.h>
 
 #include <gtest/gtest.h>
@@ -67,11 +67,11 @@ TEST(MathFunctionTest, TGaussian2dHasCorrectProperty)
 	EXPECT_EQ(submergedGaussianFunc->evaluate(-1.00f,  2.00f), 0.0f);
 }
 
-TEST(MathFunctionTest, TMNCubic2dHasCorrectProperty)
+TEST(MathFunctionTest, TMitchellNetravaliCubic2dHasCorrectProperty)
 {
 	const float32 b = 1.0f / 3.0f;
 	const float32 c = 1.0f / 3.0f;
-	auto mnCubic2dFunc = std::make_unique<TMNCubic2D<float32>>(b, c);
+	auto mnCubic2dFunc = std::make_unique<TMitchellNetravaliCubic2D<float32>>(b, c);
 
 	EXPECT_NEAR(mnCubic2dFunc->evaluate( 2,  0), 0.0f, TEST_FLOAT32_EPSILON);
 	EXPECT_NEAR(mnCubic2dFunc->evaluate( 3,  3), 0.0f, TEST_FLOAT32_EPSILON);

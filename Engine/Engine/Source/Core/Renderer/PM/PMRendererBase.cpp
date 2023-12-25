@@ -1,6 +1,5 @@
 #include "Core/Renderer/PM/PMRendererBase.h"
 #include "Core/Renderer/RenderRegionStatus.h"
-#include "Core/Filmic/SampleFilters.h"
 #include "EngineEnv/CoreCookedUnit.h"
 #include "World/VisualWorld.h"
 

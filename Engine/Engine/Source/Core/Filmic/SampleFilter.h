@@ -6,6 +6,7 @@
 #include <Common/primitive_type.h>
 
 #include <memory>
+#include <utility>
 
 namespace ph
 {
@@ -13,10 +14,18 @@ namespace ph
 class SampleFilter final
 {
 public:
+	template<typename MathFunction>
+	static SampleFilter make(MathFunction func, float64 widthPx, float64 heightPx);
+
+	static SampleFilter makeBox();
+	static SampleFilter makeGaussian();
+	static SampleFilter makeMitchellNetravali();
+	static SampleFilter makeBlackmanHarris();
+
 	SampleFilter();
 
 	SampleFilter(
-		const std::shared_ptr<math::TMathFunction2D<float64>>& filterFunc,
+		std::shared_ptr<math::TMathFunction2D<float64>> filterFunc,
 		float64 widthPx,
 		float64 heightPx);
 
@@ -37,6 +46,12 @@ private:
 	math::TVector2<float64> m_sizePx;
 	math::TVector2<float64> m_halfSizePx;
 };
+
+template<typename MathFunction>
+inline SampleFilter SampleFilter::make(MathFunction func, const float64 widthPx, const float64 heightPx)
+{
+	return SampleFilter(std::make_shared<MathFunction>(std::move(func)), widthPx, heightPx);
+}
 
 inline const math::TVector2<float64>& SampleFilter::getSizePx() const
 {

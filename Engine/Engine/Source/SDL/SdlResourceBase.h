@@ -18,10 +18,10 @@ class SdlResourceBase : public ISdlResource
 protected:
 	SdlResourceBase();
 	SdlResourceBase(const SdlResourceBase& other);
-	inline SdlResourceBase(SdlResourceBase&& other) = default;
+	SdlResourceBase(SdlResourceBase&& other) = default;
 
 	SdlResourceBase& operator = (const SdlResourceBase& rhs);
-	inline SdlResourceBase& operator = (SdlResourceBase&& rhs) = default;
+	SdlResourceBase& operator = (SdlResourceBase&& rhs) = default;
 
 public:
 	ESdlTypeCategory getDynamicCategory() const override = 0;

@@ -1,9 +1,10 @@
 #include "constants_for_test.h"
 
 #include <Core/Filmic/HdrRgbFilm.h>
-#include <Core/Filmic/SampleFilters.h>
+#include <Core/Filmic/SampleFilter.h>
 #include <Frame/TFrame.h>
 #include <Math/Color/Spectrum.h>
+#include <Math/Function/TLinearGradient2D.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -20,7 +21,7 @@ TEST(HdrRgbFilmTest, CorrectRasterCoordinates)
 		const int64 filmWpx = 1;
 		const int64 filmHpx = 2;
 
-		const auto& filter = SampleFilters::createBoxFilter();
+		const auto& filter = SampleFilter::makeBox();
 		const auto& film = HdrRgbFilm(filmWpx, filmHpx, filter);
 
 		EXPECT_EQ(film.getActualResPx().x(), filmWpx);
@@ -65,7 +66,7 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 		const int64 filmHpx = 2;
 
 		HdrRgbFrame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
-		const auto& filter = SampleFilters::createGaussianFilter();
+		const auto& filter = SampleFilter::makeGaussian();
 		HdrRgbFilm film(filmWpx, filmHpx, filter);
 
 		const float64 testSamplePos1Xpx = film.getSampleWindowPx().getMinVertex().x() + 0.2;
@@ -104,7 +105,15 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 
 	// Asymmetric filter
 	{
+		const int64 filmWpx = 1;
+		const int64 filmHpx = 2;
 
+		HdrRgbFrame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
+
+		const auto unitHorizontalGradient = TLinearGradient2D<float64>::makeHorizontal(1);
+		HdrRgbFilm film(filmWpx, filmHpx, SampleFilter::make(unitHorizontalGradient, 1, 1));
+
+		// TODO
 	}
 }
 

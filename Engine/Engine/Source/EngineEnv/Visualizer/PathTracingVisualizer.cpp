@@ -4,7 +4,7 @@
 #include "Core/Estimator/BVPTEstimator.h"
 #include "Core/Estimator/BNEEPTEstimator.h"
 #include "Core/Estimator/BVPTDLEstimator.h"
-#include "Core/Filmic/SampleFilters.h"
+#include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/Sampling/EqualSamplingRenderer.h"
 #include "Frame/Viewport.h"
 
@@ -40,20 +40,20 @@ SampleFilter PathTracingVisualizer::makeSampleFilter() const
 	switch(getSampleFilter())
 	{
 	case ESampleFilter::Box:
-		return SampleFilters::createBoxFilter();
+		return SampleFilter::makeBox();
 
 	case ESampleFilter::Gaussian:
-		return SampleFilters::createGaussianFilter();
+		return SampleFilter::makeGaussian();
 
 	case ESampleFilter::MitchellNetravali:
-		return SampleFilters::createMitchellNetravaliFilter();
+		return SampleFilter::makeMitchellNetravali();
 
 	case ESampleFilter::BlackmanHarris:
-		return SampleFilters::createBlackmanHarrisFilter();
+		return SampleFilter::makeBlackmanHarris();
 	}
 
 	PH_LOG(PathTracingVisualizer, "sample filter unspecified, using Blackman-Harris filter");
-	return SampleFilters::createBlackmanHarrisFilter();
+	return SampleFilter::makeBlackmanHarris();
 }
 
 std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() const

@@ -12,8 +12,6 @@ public:
 	static constexpr ESdlTypeCategory CATEGORY = ESdlTypeCategory::Ref_Visualizer;
 
 public:
-	inline Visualizer() = default;
-
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	ESdlTypeCategory getDynamicCategory() const override;

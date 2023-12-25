@@ -11,10 +11,10 @@ namespace ph::math
 /*! @brief Mitchell–Netravali filter function.
 */
 template<typename Value>
-class TMNCubic2D : public TMathFunction2D<Value>
+class TMitchellNetravaliCubic2D : public TMathFunction2D<Value>
 {
 public:
-	TMNCubic2D(Value b, Value c);
+	TMitchellNetravaliCubic2D(Value b, Value c);
 
 	Value evaluate(Value x, Value y) const override;
 
@@ -26,19 +26,19 @@ private:
 };
 
 template<typename Value>
-inline TMNCubic2D<Value>::TMNCubic2D(const Value b, const Value c)
+inline TMitchellNetravaliCubic2D<Value>::TMitchellNetravaliCubic2D(const Value b, const Value c)
 	: m_b(b)
 	, m_c(c)
 {}
 
 template<typename Value>
-inline Value TMNCubic2D<Value>::evaluate(const Value x, const Value y) const
+inline Value TMitchellNetravaliCubic2D<Value>::evaluate(const Value x, const Value y) const
 {
 	return mnCubic1D(x) * mnCubic1D(y);
 }
 
 template<typename Value>
-inline Value TMNCubic2D<Value>::mnCubic1D(const Value x) const
+inline Value TMitchellNetravaliCubic2D<Value>::mnCubic1D(const Value x) const
 {
 	const Value absX = std::abs(x);
 	if(absX < 1)

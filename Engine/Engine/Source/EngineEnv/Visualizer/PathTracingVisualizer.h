@@ -7,13 +7,13 @@
 #include "EngineEnv/Visualizer/sdl_scheduler_type.h"
 #include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
 #include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
-#include "Core/Filmic/SampleFilter.h"
 
 #include <Common/primitive_type.h>
 
 #include <memory>
 
 namespace ph { class IRayEnergyEstimator; }
+namespace ph { class SampleFilter; }
 
 namespace ph
 {
@@ -21,8 +21,6 @@ namespace ph
 class PathTracingVisualizer : public FrameVisualizer
 {
 public:
-	inline PathTracingVisualizer() = default;
-
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 	EScheduler getScheduler() const;

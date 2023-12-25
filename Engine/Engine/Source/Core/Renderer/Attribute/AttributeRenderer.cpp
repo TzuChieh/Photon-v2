@@ -54,7 +54,7 @@ void AttributeRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld
 		getRenderWidthPx(),
 		getRenderHeightPx(),
 		getRenderRegionPx(),
-		SampleFilters::createBoxFilter());
+		SampleFilter::makeBox());
 }
 
 void AttributeRenderer::doRender()

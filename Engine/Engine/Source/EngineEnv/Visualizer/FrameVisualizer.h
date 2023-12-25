@@ -15,8 +15,6 @@ namespace ph
 class FrameVisualizer : public Visualizer
 {
 public:
-	inline FrameVisualizer() = default;
-
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	std::optional<math::TAABB2D<int64>> getCropWindowPx() const;

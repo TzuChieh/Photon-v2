@@ -6,7 +6,6 @@
 #include "SDL/sdl_interface.h"
 #include "EngineEnv/Visualizer/sdl_photon_mapping_mode.h"
 #include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
-#include "Core/Filmic/SampleFilter.h"
 #include "Core/Renderer/PM/PMCommonParams.h"
 
 #include <Common/primitive_type.h>
@@ -14,6 +13,7 @@
 #include <memory>
 
 namespace ph { class IRayEnergyEstimator; }
+namespace ph { class SampleFilter; }
 
 namespace ph
 {

@@ -22,9 +22,9 @@ public:
 	TSamplingFilm() = default;
 
 	TSamplingFilm(
-		int64               actualWidthPx, 
-		int64               actualHeightPx,
-		const SampleFilter& filter);
+		int64                       actualWidthPx, 
+		int64                       actualHeightPx,
+		const SampleFilter&         filter);
 
 	TSamplingFilm(
 		int64                       actualWidthPx, 

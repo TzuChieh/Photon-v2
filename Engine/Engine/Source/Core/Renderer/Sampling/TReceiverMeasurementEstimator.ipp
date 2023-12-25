@@ -3,7 +3,6 @@
 #include "Core/Renderer/Sampling/TReceiverMeasurementEstimator.h"
 #include "Math/TVector2.h"
 #include "Core/Ray.h"
-#include "Core/Filmic/SampleFilters.h"
 #include "Core/Estimator/IRayEnergyEstimator.h"
 
 namespace ph
