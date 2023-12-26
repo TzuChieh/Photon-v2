@@ -23,12 +23,6 @@ namespace ph
 
 void AdaptiveSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
-	m_updatedRegionQueue    = TAtomicQuasiQueue<RenderRegionStatus>{};
-	m_totalPaths            = 0;
-	m_suppliedFractionBits  = 0;
-	m_submittedFractionBits = 0;
-	m_numNoisyRegions       = 0;
-
 	m_scene           = world.getScene();
 	m_receiver        = cooked.getReceiver();
 	m_sampleGenerator = cooked.getSampleGenerator();
@@ -82,6 +76,14 @@ void AdaptiveSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const Visu
 	m_halfEffortFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
 
 	m_metaFrame = HdrRgbFrame(getRenderWidthPx(), getRenderHeightPx());
+
+	// Enough for 1024 workers, each with 16 updates queued
+	m_updatedRegionQueue = TAtomicQuasiQueue<RenderRegionStatus>(1024 * 16);
+
+	m_totalPaths            = 0;
+	m_suppliedFractionBits  = 0;
+	m_submittedFractionBits = 0;
+	m_numNoisyRegions       = 0;
 }
 
 void AdaptiveSamplingRenderer::doRender()
@@ -242,8 +244,19 @@ void AdaptiveSamplingRenderer::retrieveFrame(const std::size_t layerIndex, HdrRg
 
 void AdaptiveSamplingRenderer::asyncAddUpdatedRegion(const Region& region, const bool isUpdating)
 {
-	m_updatedRegionQueue.enqueue(
-		RenderRegionStatus(region, isUpdating ? ERegionStatus::Updating : ERegionStatus::Finished));
+	if(isUpdating)
+	{
+		// Updating regions may keep accumulating, even with identical regions added. To not
+		// exhaust all available memory, simply drop the region if no space is available.
+		m_updatedRegionQueue.tryEnqueue(RenderRegionStatus(region, ERegionStatus::Updating));
+	}
+	else
+	{
+		// Always enqueue non-updating regions to meet the required ordering. A sane implementation
+		// will not resubmitting non-updating regions for too many times, so no risk of using too
+		// much memory.
+		m_updatedRegionQueue.enqueue(RenderRegionStatus(region, ERegionStatus::Finished));
+	}
 }
 
 RenderStats AdaptiveSamplingRenderer::asyncQueryRenderStats()
