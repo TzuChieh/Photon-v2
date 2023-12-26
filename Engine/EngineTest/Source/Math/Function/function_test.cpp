@@ -4,7 +4,9 @@
 #include <Math/Function/TGaussian2D.h>
 #include <Math/Function/TConstant2D.h>
 #include <Math/Function/TMitchellNetravaliCubic2D.h>
+#include <Math/Function/TLinearGradient2D.h>
 #include <Math/Function/TPiecewiseLinear1D.h>
+#include <Math/Function/THeavisideStep2D.h>
 
 #include <gtest/gtest.h>
 
@@ -80,6 +82,60 @@ TEST(MathFunctionTest, TMitchellNetravaliCubic2dHasCorrectProperty)
 	EXPECT_GT(mnCubic2dFunc->evaluate( 0.5f, 0.5f), 0.0f);
 	EXPECT_GT(mnCubic2dFunc->evaluate(-1.0f, 1.0f), 0.0f);
 	EXPECT_LT(mnCubic2dFunc->evaluate(-1.5f, 1.0f), 0.0f);
+}
+
+TEST(MathFunctionTest, TLinearGradient2dHasCorrectValue)
+{
+	{
+		const auto unitHorizontalGradient = TLinearGradient2D<float64>::makeHorizontal(1);
+
+		// Make sure the unit horizontal gradient is what we expect--
+		// goes -0.5 -> +0.5 from left to right
+		EXPECT_DOUBLE_EQ(unitHorizontalGradient.evaluate(-0.5 ,  0.11), -0.5 );
+		EXPECT_DOUBLE_EQ(unitHorizontalGradient.evaluate(-0.25,  0.77), -0.25);
+		EXPECT_DOUBLE_EQ(unitHorizontalGradient.evaluate( 0.0 , -0.22),  0.0 );
+		EXPECT_DOUBLE_EQ(unitHorizontalGradient.evaluate( 0.25, -0.99),  0.25);
+		EXPECT_DOUBLE_EQ(unitHorizontalGradient.evaluate( 0.5 ,  0.88),  0.5 );
+	}
+
+	{
+		const auto unitVerticalGradient = TLinearGradient2D<float64>::makeVertical(1);
+
+		// Make sure the unit vertical gradient is what we expect--
+		// goes -0.5 -> +0.5 from bottom to top
+		EXPECT_DOUBLE_EQ(unitVerticalGradient.evaluate(-0.13, -0.5),  -0.5 );
+		EXPECT_DOUBLE_EQ(unitVerticalGradient.evaluate(-0.65, -0.25), -0.25);
+		EXPECT_DOUBLE_EQ(unitVerticalGradient.evaluate( 0.44,  0.0),   0.0 );
+		EXPECT_DOUBLE_EQ(unitVerticalGradient.evaluate( 0.23,  0.25),  0.25);
+		EXPECT_DOUBLE_EQ(unitVerticalGradient.evaluate( 0.6 ,  0.5),   0.5 );
+	}
+}
+
+TEST(MathFunctionTest, THeavisideStep2dHasCorrectValue)
+{
+	{
+		const auto unitHorizontalStep = THeavisideStep2D<float64>::makeHorizontal();
+
+		// Make sure the unit horizontal step is what we expect--
+		// goes 0.0 -> 1.0 from left to right
+		EXPECT_DOUBLE_EQ(unitHorizontalStep.evaluate(-0.5 ,  0.11), 0.0);
+		EXPECT_DOUBLE_EQ(unitHorizontalStep.evaluate(-0.25,  0.77), 0.0);
+		EXPECT_DOUBLE_EQ(unitHorizontalStep.evaluate( 0.0 , -0.22), 0.5);
+		EXPECT_DOUBLE_EQ(unitHorizontalStep.evaluate( 0.25, -0.99), 1.0);
+		EXPECT_DOUBLE_EQ(unitHorizontalStep.evaluate( 0.5 ,  0.88), 1.0);
+	}
+
+	{
+		const auto unitVerticalStep = THeavisideStep2D<float64>::makeVertical();
+
+		// Make sure the unit vertical step is what we expect--
+		// goes 0.0 -> 1.0 from bottom to top
+		EXPECT_DOUBLE_EQ(unitVerticalStep.evaluate(-0.13, -0.5),  0.0);
+		EXPECT_DOUBLE_EQ(unitVerticalStep.evaluate(-0.65, -0.25), 0.0);
+		EXPECT_DOUBLE_EQ(unitVerticalStep.evaluate( 0.44,  0.0),  0.5);
+		EXPECT_DOUBLE_EQ(unitVerticalStep.evaluate( 0.23,  0.25), 1.0);
+		EXPECT_DOUBLE_EQ(unitVerticalStep.evaluate( 0.6 ,  0.5),  1.0);
+	}
 }
 
 TEST(MathFunctionTest, TPiecewiseLinear1Doperations)

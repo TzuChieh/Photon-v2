@@ -4,7 +4,7 @@
 #include <Core/Filmic/SampleFilter.h>
 #include <Frame/TFrame.h>
 #include <Math/Color/Spectrum.h>
-#include <Math/Function/TLinearGradient2D.h>
+#include <Math/Function/THeavisideStep2D.h>
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -110,10 +110,36 @@ TEST(HdrRgbFilmTest, DevelopesToFrame)
 
 		HdrRgbFrame frame(static_cast<uint32>(filmWpx), static_cast<uint32>(filmHpx));
 
-		const auto unitHorizontalGradient = TLinearGradient2D<float64>::makeHorizontal(1);
-		HdrRgbFilm film(filmWpx, filmHpx, SampleFilter::make(unitHorizontalGradient, 1, 1));
+		const auto unitHorizontalStep = THeavisideStep2D<float64>::makeHorizontal();
+		HdrRgbFilm film(filmWpx, filmHpx, SampleFilter::make(unitHorizontalStep, 1, 1));
 
-		// TODO
+		// X1 on the endpoint of the LHS of first pixel, Y doesn't matter as this is horizontal step
+		const float64 testSamplePos1XPx = 0.5 - 0.5;
+		const float64 testSamplePos1YPx = 0.5 - 0.123456789;
+
+		// X2 on the midpoint of the RHS of first pixel, Y doesn't matter as this is horizontal step
+		const float64 testSamplePos2XPx = 0.5 + 0.25;
+		const float64 testSamplePos2YPx = 0.5 - 0.54321;
+
+		film.addSample(testSamplePos1XPx, testSamplePos1YPx, Spectrum(3.0_r));
+		film.addSample(testSamplePos2XPx, testSamplePos2YPx, Spectrum(1.0_r));
+		film.develop(frame);
+		
+		// We have 2 samples, this is how the reconstructed pixel value would be calculated:
+		// * The first sample contributes 3 * 1 = 3
+		// * The second sample contributes 1 * 0 = 0
+		// Normalization goes as (3 + 0) / (1 + 0) = 3 / 1 = 3
+		// 
+		// Note that if the filter function is evaluated the other way around (i.e., rather than
+		// centering the filter around sample positions, instead the filter is centering around
+		// pixel center), the answer would be (0 + 1) / (0 + 1) = 1, which is wrong as we treat
+		// a film/image as point samples of a continuous function, where the function is reconstructed
+		// by placing a filter function on each sample point.
+		//
+		for(auto componentValue : frame.getPixel({0, 0}))
+		{
+			EXPECT_NEAR(componentValue, 3.0_r, TEST_FLOAT32_EPSILON);
+		}
 	}
 }
 

@@ -76,9 +76,4 @@ SampleFilter::SampleFilter(
 	PH_ASSERT(m_filterFunc);
 }
 
-float64 SampleFilter::evaluate(const float64 xPx, const float64 yPx) const
-{
-	return m_filterFunc->evaluate(xPx, yPx);
-}
-
 }// end namespace ph
