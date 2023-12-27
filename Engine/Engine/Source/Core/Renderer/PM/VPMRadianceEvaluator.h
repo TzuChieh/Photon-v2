@@ -3,18 +3,18 @@
 #include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/FullPhoton.h"
-#include "Core/Filmic/HdrRgbFilm.h"
+#include "Core/Filmic/TSamplingFilm.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Emitter/Emitter.h"
-#include "Core/Renderer/PM/PMRendererBase.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/lta.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Math/Color/Spectrum.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -27,19 +27,19 @@ namespace ph
 class Scene;
 class SampleGenerator;
 class PMAtomicStatistics;
-class PMRendererBase;
 
 class VPMRadianceEvaluator : public TViewPathHandler<VPMRadianceEvaluator>
 {
 public:
 	VPMRadianceEvaluator(
-		const TPhotonMap<FullPhoton>* photonMap,
-		std::size_t                   numPhotonPaths,
-		HdrRgbFilm*                   film,
-		const Scene*                  scene);
+		const TPhotonMap<FullPhoton>*  photonMap,
+		std::size_t                    numPhotonPaths,
+		TSamplingFilm<math::Spectrum>* film,
+		const Scene*                   scene);
 
 	bool impl_onReceiverSampleStart(
 		const math::Vector2D& rasterCoord,
+		const math::Vector2S& sampleIndex,
 		const math::Spectrum& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -52,50 +52,46 @@ public:
 	void impl_onSampleBatchFinished();
 
 	void setStatistics(PMAtomicStatistics* statistics);
-	void setRenderer(PMRendererBase* renderer);
 	void setKernelRadius(real radius);
 
 private:
-	const TPhotonMap<FullPhoton>* m_photonMap;
-	std::size_t                   m_numPhotonPaths;
-	HdrRgbFilm*                   m_film;
-	const Scene*                  m_scene;
+	const TPhotonMap<FullPhoton>*  m_photonMap;
+	std::size_t                    m_numPhotonPaths;
+	TSamplingFilm<math::Spectrum>* m_film;
+	const Scene*                   m_scene;
 
-	real                          m_kernelRadius;
-	PMAtomicStatistics*           m_statistics;
-	PMRendererBase*               m_renderer;
+	real                           m_kernelRadius;
+	PMAtomicStatistics*            m_statistics;
 
-	math::Vector2D                m_rasterCoord;
-	math::Spectrum                m_sampledRadiance;
-	std::vector<FullPhoton>       m_photonCache;
+	math::Vector2D                 m_rasterCoord;
+	math::Spectrum                 m_sampledRadiance;
+	std::vector<FullPhoton>        m_photonCache;
 };
 
 // In-header Implementations:
 
 inline VPMRadianceEvaluator::VPMRadianceEvaluator(
-	const TPhotonMap<FullPhoton>* photonMap,
-	const std::size_t             numPhotonPaths,
-	HdrRgbFilm* const             film,
-	const Scene* const            scene) :
+	const TPhotonMap<FullPhoton>* const  photonMap,
+	const std::size_t                    numPhotonPaths,
+	TSamplingFilm<math::Spectrum>* const film,
+	const Scene* const                   scene)
 
-	m_photonMap(photonMap),
-	m_numPhotonPaths(numPhotonPaths),
-	m_film(film),
-	m_scene(scene)
+	: m_photonMap(photonMap)
+	, m_numPhotonPaths(numPhotonPaths)
+	, m_film(film)
+	, m_scene(scene)
 {
 	PH_ASSERT(photonMap);
 	PH_ASSERT(film);
 	PH_ASSERT_GT(numPhotonPaths, 0);
 
 	setStatistics(nullptr);
-	setRenderer(nullptr);
 	setKernelRadius(0.1_r);
-
-	m_film->clear();
 }
 
 inline bool VPMRadianceEvaluator::impl_onReceiverSampleStart(
 	const math::Vector2D& rasterCoord,
+	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
 {
 	m_rasterCoord = rasterCoord;
@@ -190,22 +186,11 @@ inline void VPMRadianceEvaluator::impl_onSampleBatchFinished()
 	{
 		m_statistics->incrementNumIterations();
 	}
-
-	if(m_renderer)
-	{
-		m_renderer->asyncMergeToPrimaryFilm(*m_film);
-		m_film->clear();
-	}
 }
 
 inline void VPMRadianceEvaluator::setStatistics(PMAtomicStatistics* const statistics)
 {
 	m_statistics = statistics;
-}
-
-inline void VPMRadianceEvaluator::setRenderer(PMRendererBase* const renderer)
-{
-	m_renderer = renderer;
 }
 
 inline void VPMRadianceEvaluator::setKernelRadius(const real radius)

@@ -66,7 +66,12 @@ public:
 	bool isPoint() const;
 	bool isArea() const;
 
+	/*! @brief Maps a 2D sample to the points within the AABB uniformly.
+	*/
 	TVector2<T> sampleToSurface(const std::array<T, 2>& sample) const;
+
+	/*! @brief Maps a 2D vector in [0, 1] to the points within the AABB uniformly.
+	*/
 	TVector2<T> xy01ToSurface(const TVector2<T>& xy01) const;
 
 	std::string toString() const;

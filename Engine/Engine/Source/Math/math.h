@@ -66,10 +66,6 @@ inline T squared(const T value)
 //
 void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
-// Clamp a value to specific range. If a floating-point value is NaN, its 
-// value is clamped to lower bound. Neither lower bound or upper bound 
-// can be NaN, or the method's behavior is undefined.
-
 /*! @brief Clamps a integer value in [lowerBound, upperBound].
 */
 template<typename T, std::enable_if_t<!std::is_floating_point_v<T>, int> = 0>
@@ -79,10 +75,13 @@ inline T clamp(const T value, const T lowerBound, const T upperBound)
 }
 
 /*! @brief Clamps a float value in [lowerBound, upperBound].
+If a floating-point value is NaN, its value is clamped to lower bound. Neither lower bound or upper
+bound can be NaN, or the method's behavior is undefined.
 */
 template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 inline T clamp(const T value, const T lowerBound, const T upperBound)
 {
+	// Use `fmin` & `fmax` as they have the properties we want (see this function's doc)
 	return std::fmin(upperBound, std::fmax(value, lowerBound));
 }
 

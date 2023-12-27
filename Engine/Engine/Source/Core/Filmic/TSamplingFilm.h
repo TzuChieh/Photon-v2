@@ -15,6 +15,8 @@
 namespace ph
 {
 
+/*! @brief A camera film that receives any quantity, for sampling-based rendering techniques.
+*/
 template<typename Sample>
 class TSamplingFilm : public Film
 {
@@ -32,7 +34,18 @@ public:
 		const math::TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter&         filter);
 
+	/*! @brief Applies filter to sample value and add to the film.
+	Generally, this method can produce higher quality result by reconstruct the image function with
+	a filter.
+	*/
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;
+
+	/*! @brief Let the pixel developes to the specified sample value.
+	An interface for using the film as an ordinary image. This method may disturb sample weights.
+	Using this method with `addSample()` may result in image artifacts unless the implementation
+	says otherwise.
+	*/
+	virtual void setPixel(float64 xPx, float64 yPx, const Sample& sample) = 0;
 
 	void clear() override = 0;
 

@@ -27,11 +27,12 @@ class TPPMViewpointCollector : public TViewPathHandler<TPPMViewpointCollector<Vi
 
 public:
 	TPPMViewpointCollector(
-		std::size_t maxViewpointDepth,
-		real        initialKernelRadius);
+		std::size_t           maxViewpointDepth,
+		real                  initialKernelRadius);
 
 	bool impl_onReceiverSampleStart(
 		const math::Vector2D& rasterCoord,
+		const math::Vector2S& sampleIndex,
 		const math::Spectrum& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -63,10 +64,14 @@ private:
 
 template<CViewpoint Viewpoint>
 inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
-	const std::size_t       maxViewpointDepth,
-	const real              initialKernelRadius) : 
-	m_maxViewpointDepth  (maxViewpointDepth),
-	m_initialKernelRadius(initialKernelRadius)
+	const std::size_t     maxViewpointDepth,
+	const real            initialKernelRadius)
+
+	: m_viewpoints              ()
+	, m_maxViewpointDepth       (maxViewpointDepth)
+	, m_initialKernelRadius     (initialKernelRadius)
+	, m_viewpoint               ()
+	, m_receiverSampleViewpoints(0)
 {
 	PH_ASSERT_GE(maxViewpointDepth, 1);
 	PH_ASSERT_GT(initialKernelRadius, 0.0_r);
@@ -75,6 +80,7 @@ inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
 template<CViewpoint Viewpoint>
 inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
 	const math::Vector2D& rasterCoord,
+	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
 {
 	if(pathThroughput.isZero())

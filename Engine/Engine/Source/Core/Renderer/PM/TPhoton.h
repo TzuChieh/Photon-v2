@@ -53,8 +53,8 @@ inline constexpr bool TPhoton<Derived>::has()
 		{
 			{ Derived::template impl_has<TYPE>() } -> CSame<bool>;
 		},
-		"A photon mapping photon type must implement static method "
-		"`template<EPhotonData TYPE> impl_has() -> bool`.");
+		"A photon mapping photon type must implement a static method callable as "
+		"`impl_has<EPhotonData{}>() -> bool`.");
 
 	return Derived::template impl_has<TYPE>();
 }
@@ -67,8 +67,8 @@ inline decltype(auto) TPhoton<Derived>::get() const
 		{
 			{ derived.template impl_get<TYPE>() } -> CNotSame<void>;
 		},
-		"A photon mapping photon type must implement "
-		"`template<EPhotonData TYPE> impl_get() const -> (any type)`.");
+		"A photon mapping photon type must implement a method callable as "
+		"`impl_get<EPhotonData{}>() const -> (any type)`.");
 
 	return static_cast<const Derived&>(*this).template impl_get<TYPE>();
 }
@@ -81,8 +81,8 @@ inline void TPhoton<Derived>::set(const T& value)
 		{
 			{ derived.template impl_set<TYPE>(value) } -> CSame<void>;
 		},
-		"A photon mapping photon type must implement "
-		"`template<EPhotonData TYPE, typename T> impl_set(const T& value) -> void`.");
+		"A photon mapping photon type must implement a method callable as "
+		"`impl_set<EPhotonData{}, T{}>(T{}) -> void`.");
 
 	static_cast<Derived&>(*this).template impl_set<TYPE>(value);
 }

@@ -14,69 +14,77 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/LTABuildingBlock/SurfaceTracer.h"
 #include "Core/LTABuildingBlock/RussianRoulette.h"
-#include "Math/Geometry/TAABB2D.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Math/Geometry/TAABB2D.h"
+#include "Math/math.h"
 #include "Math/Random/sample.h"
 
 #include <Common/assertion.h>
 #include <Common/profiling.h>
 
+#include <algorithm>
+
 namespace ph
 {
 
-template<typename ViewPathHandler>
-inline TViewPathTracingWork<ViewPathHandler>::TViewPathTracingWork(
+template<CViewPathHandler Handler>
+inline TViewPathTracingWork<Handler>::TViewPathTracingWork(
+	Handler* const                handler,
+	const Scene* const            scene,
+	const Receiver* const         receiver,
+	SampleGenerator* const        sampleGenerator,
+	const math::TAABB2D<float64>& rasterSampleWindowPx,
+	const math::TVector2<int64>&  sampleRes)
 
-	ViewPathHandler* const handler,
-	const Scene* const scene,
-	const Receiver* const receiver,
-	SampleGenerator* sampleGenerator,
-	const Region& rasterRegion) :
+	: m_handler             (handler)
+	, m_scene               (scene)
+	, m_receiver            (receiver)
+	, m_sampleGenerator     (sampleGenerator)
+	, m_rasterSampleWindowPx(rasterSampleWindowPx)
+	, m_sampleRes           (sampleRes)
+{
+	PH_ASSERT_GT(sampleRes.product(), 0);
+}
 
-	m_handler(handler),
-	m_scene(scene),
-	m_receiver(receiver),
-	m_sampleGenerator(sampleGenerator),
-	m_rasterRegion(rasterRegion)
-{}
-
-template<typename ViewPathHandler>
-inline void TViewPathTracingWork<ViewPathHandler>::doWork()
+template<CViewPathHandler Handler>
+inline void TViewPathTracingWork<Handler>::doWork()
 {
 	PH_PROFILE_SCOPE();
 	PH_ASSERT(m_handler);
+	PH_ASSERT_GT(m_sampleRes.product(), 0);
 
 	const auto rasterSampleHandle = m_sampleGenerator->declareStageND(
 		2,
-		m_rasterRegion.getArea(),
-		{static_cast<std::size_t>(m_rasterRegion.getWidth()), static_cast<std::size_t>(m_rasterRegion.getHeight())});
+		m_sampleRes.product(),
+		{m_sampleRes.x(), m_sampleRes.y()});
 
-	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_rasterRegion.getArea());
-
-	const math::TAABB2D<float64> rRegion(m_rasterRegion);
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_sampleRes.product());
 
 	while(m_sampleGenerator->prepareSampleBatch())
 	{
-		auto rasterSamples = m_sampleGenerator->getSamplesND(rasterSampleHandle);
+		const auto rasterSamples = m_sampleGenerator->getSamplesND(rasterSampleHandle);
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 		for(std::size_t i = 0; i < rasterSamples.numSamples(); ++i)
 		{
-			// TODO: use TArithmeticArray directly
-			
-			const auto rasterCoord = rRegion.sampleToSurface(math::sample_cast<float64>(rasterSamples.template get<2>(i)));
-			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
+			const auto rasterSample = math::sample_cast<float64>(rasterSamples.template get<2>(i));
+			const math::Vector2D rasterCoord = m_rasterSampleWindowPx.sampleToSurface(rasterSample);
+			const math::Vector2S sampleIndex(math::Vector2D(
+				math::clamp(m_sampleRes.x() * rasterSample[0], 0.0, m_sampleRes.x() - 1.0),
+				math::clamp(m_sampleRes.y() * rasterSample[1], 0.0, m_sampleRes.y() - 1.0)));
 
 			Ray tracingRay;
 			const auto quantityWeight = m_receiver->receiveRay(rasterCoord, &tracingRay);
 			tracingRay.reverse();
 
 			math::Spectrum pathThroughput(quantityWeight);
-			if(!m_handler->onReceiverSampleStart(rasterCoord, pathThroughput))
+			if(!m_handler->onReceiverSampleStart(rasterCoord, sampleIndex, pathThroughput))
 			{
 				m_handler->onReceiverSampleEnd();
 				continue;
 			}
+
+			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			traceViewPath(
 				tracingRay, 
@@ -91,8 +99,8 @@ inline void TViewPathTracingWork<ViewPathHandler>::doWork()
 	}// end while single sample batch
 }
 
-template<typename ViewPathHandler>
-inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
+template<CViewPathHandler Handler>
+inline void TViewPathTracingWork<Handler>::traceViewPath(
 	Ray            tracingRay,
 	math::Spectrum pathThroughput,
 	std::size_t    pathLength,
@@ -155,15 +163,15 @@ inline void TViewPathTracingWork<ViewPathHandler>::traceViewPath(
 	}// end while true
 }
 
-template<typename ViewPathHandler>
-inline void TViewPathTracingWork<ViewPathHandler>::traceElementallyBranchedPath(
+template<CViewPathHandler Handler>
+inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 	const ViewPathTracingPolicy& policy,
-	const math::Vector3R& V,
-	const math::Vector3R& N,
-	const SurfaceHit& surfaceHit,
-	const math::Spectrum& pathThroughput,
-	const std::size_t pathLength,
-	SampleFlow& sampleFlow)
+	const math::Vector3R&        V,
+	const math::Vector3R&        N,
+	const SurfaceHit&            surfaceHit,
+	const math::Spectrum&        pathThroughput,
+	const std::size_t            pathLength,
+	SampleFlow&                  sampleFlow)
 {
 	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ElementalBranch);
 

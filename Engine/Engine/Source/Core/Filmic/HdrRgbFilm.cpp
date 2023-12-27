@@ -14,6 +14,17 @@
 namespace ph
 {
 
+namespace
+{
+
+inline math::Vector3R spectrum_sample_to_rgb(const math::Spectrum& sample)
+{
+	// Currently this assumes the incoming sample is energy
+	return math::Vector3R(sample.toLinearSRGB(math::EColorUsage::EMR));
+}
+
+}// end anonymous namespace
+
 // OPT: precalculate resolutions (the ones end with ...ResPx)
 
 HdrRgbFilm::HdrRgbFilm(
@@ -51,12 +62,21 @@ HdrRgbFilm::HdrRgbFilm(
 void HdrRgbFilm::addSample(
 	const float64         xPx, 
 	const float64         yPx, 
-	const math::Spectrum& radiance)
+	const math::Spectrum& sample)
 {
-	PH_ASSERT_MSG(radiance.isFinite(), radiance.toString());
+	PH_ASSERT_MSG(sample.isFinite(), sample.toString());
 
-	const auto rgb = math::Vector3R(radiance.toLinearSRGB(math::EColorUsage::EMR));
-	addRgbSample(xPx, yPx, rgb);
+	addRgbSample(xPx, yPx, spectrum_sample_to_rgb(sample));
+}
+
+void HdrRgbFilm::setPixel(
+	const float64         xPx, 
+	const float64         yPx, 
+	const math::Spectrum& sample)
+{
+	PH_ASSERT_MSG(sample.isFinite(), sample.toString());
+
+	setRgbPixel(xPx, yPx, spectrum_sample_to_rgb(sample));
 }
 
 void HdrRgbFilm::addRgbSample(
@@ -99,6 +119,24 @@ void HdrRgbFilm::addRgbSample(
 			m_pixelRadianceSensors[sensorIndex].accuWeight += filterWeight;
 		}
 	}
+}
+
+void HdrRgbFilm::setRgbPixel(
+	const float64         xPx, 
+	const float64         yPx, 
+	const math::Vector3R& rgb)
+{
+	const auto filmX = std::min(static_cast<int64>(xPx), static_cast<int64>(getActualResPx().x()) - 1);
+	const auto filmY = std::min(static_cast<int64>(yPx), static_cast<int64>(getActualResPx().y()) - 1);
+
+	const auto ix    = filmX - getEffectiveWindowPx().getMinVertex().x();
+	const auto iy    = filmY - getEffectiveWindowPx().getMinVertex().y();
+	const auto index = iy * static_cast<std::size_t>(getEffectiveResPx().x()) + ix;
+
+	m_pixelRadianceSensors[index].accuR      = rgb.r();
+	m_pixelRadianceSensors[index].accuG      = rgb.g();
+	m_pixelRadianceSensors[index].accuB      = rgb.b();
+	m_pixelRadianceSensors[index].accuWeight = 1.0;
 }
 
 //void HdrRgbFilm::genChild(
@@ -205,26 +243,6 @@ void HdrRgbFilm::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindo
 
 	resizeRadianceSensorBuffer();
 	clearRadianceSensors();
-}
-
-void HdrRgbFilm::setPixel(
-	const float64         xPx, 
-	const float64         yPx, 
-	const math::Spectrum& spectrum)
-{
-	const std::size_t filmX = std::min(static_cast<std::size_t>(xPx), static_cast<std::size_t>(getActualResPx().x()) - 1);
-	const std::size_t filmY = std::min(static_cast<std::size_t>(yPx), static_cast<std::size_t>(getActualResPx().y()) - 1);
-
-	const std::size_t ix = filmX - getEffectiveWindowPx().getMinVertex().x();
-	const std::size_t iy = filmY - getEffectiveWindowPx().getMinVertex().y();
-	const std::size_t index = iy * static_cast<std::size_t>(getEffectiveResPx().x()) + ix;
-
-	const auto rgb = math::Vector3R(spectrum.toLinearSRGB(math::EColorUsage::EMR));
-
-	m_pixelRadianceSensors[index].accuR      = rgb.r();
-	m_pixelRadianceSensors[index].accuG      = rgb.g();
-	m_pixelRadianceSensors[index].accuB      = rgb.b();
-	m_pixelRadianceSensors[index].accuWeight = 1.0;
 }
 
 }// end namespace

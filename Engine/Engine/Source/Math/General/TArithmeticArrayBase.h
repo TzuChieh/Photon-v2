@@ -81,11 +81,16 @@ protected:
 
 	// TODO: supply clamp methods for NaN-safe and NaN-propagative versions
 
-	// Clamp current array's components to specific range. If a component is NaN, its value is clamped 
-	// to lower bound. Either lower bound or upper bound shall not be NaN, or the method's behavior is 
-	// undefined.
+	/*! @brief Clamp current array's components to specific range.
+	If a component is NaN, its value is clamped to lower bound. Either lower bound or upper bound
+	shall not be NaN, or the method's behavior is undefined.
+	*/
+	///@{
 	Derived clamp(T lowerBound, T upperBound) const;
 	Derived& clampLocal(T lowerBound, T upperBound);
+	Derived clamp(const Derived& lowerBound, const Derived& upperBound) const;
+	Derived& clampLocal(const Derived& lowerBound, const Derived& upperBound);
+	///@}
 
 	Derived abs() const;
 	Derived& absLocal();

@@ -11,6 +11,8 @@
 namespace ph
 {
 
+/*! @brief A camera film that receives any quantity.
+*/
 class Film : private IMoveOnly
 {
 public:
@@ -30,6 +32,8 @@ public:
 
 	virtual ~Film() = default;
 
+	/*! @brief Set all pixel data to its initial state.
+	*/
 	virtual void clear() = 0;
 
 	/*! @brief Set the apparent size of the film.

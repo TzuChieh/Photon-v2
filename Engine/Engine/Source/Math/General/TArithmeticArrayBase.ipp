@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/General/TArithmeticArrayBase.h"
+#include "Math/math.h"
 
 #include <Common/assertion.h>
 
@@ -270,11 +271,27 @@ template<typename Derived, typename T, std::size_t N>
 inline auto TArithmeticArrayBase<Derived, T, N>::clampLocal(const T lowerBound, const T upperBound)
 -> Derived&
 {
-	// TODO: properly handle integer types
-
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		m[i] = std::fmin(upperBound, std::fmax(m[i], lowerBound));
+		m[i] = ::ph::math::clamp(m[i], lowerBound, upperBound);
+	}
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::clamp(const Derived& lowerBound, const Derived& upperBound) const
+-> Derived
+{
+	return Derived(static_cast<const Derived&>(*this)).clampLocal(lowerBound, upperBound);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::clampLocal(const Derived& lowerBound, const Derived& upperBound)
+-> Derived&
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = ::ph::math::clamp(m[i], lowerBound[i], upperBound[i]);
 	}
 	return static_cast<Derived&>(*this);
 }

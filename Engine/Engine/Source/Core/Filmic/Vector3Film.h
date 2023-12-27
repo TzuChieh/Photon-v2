@@ -28,7 +28,8 @@ public:
 		const math::TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter& filter);
 
-	void addSample(float64 xPx, float64 yPx, const math::Vector3R& vec3) override;
+	void addSample(float64 xPx, float64 yPx, const math::Vector3R& sample) override;
+	void setPixel(float64 xPx, float64 yPx, const math::Vector3R& sample) override;
 	void clear() override;
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
@@ -61,9 +62,14 @@ inline Vector3Film::Vector3Film(
 	, m_film(actualWidthPx, actualHeightPx, effectiveWindowPx, filter)
 {}
 
-inline void Vector3Film::addSample(const float64 xPx, const float64 yPx, const math::Vector3R& vec3)
+inline void Vector3Film::addSample(const float64 xPx, const float64 yPx, const math::Vector3R& sample)
 {
-	m_film.addRgbSample(xPx, yPx, vec3);
+	m_film.addRgbSample(xPx, yPx, sample);
+}
+
+inline void Vector3Film::setPixel(const float64 xPx, const float64 yPx, const math::Vector3R& sample)
+{
+	m_film.setRgbPixel(xPx, yPx, sample);
 }
 
 inline void Vector3Film::clear()

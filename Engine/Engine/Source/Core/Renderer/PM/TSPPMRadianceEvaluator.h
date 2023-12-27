@@ -9,11 +9,12 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Math/Random.h"
-#include "World/Scene.h"
-#include "Core/Filmic/HdrRgbFilm.h"
-#include "Core/Renderer/PM/TPhotonMap.h"
 #include "Math/math.h"
+#include "Math/Random.h"
+#include "Math/Color/Spectrum.h"
+#include "World/Scene.h"
+#include "Core/Filmic/TSamplingFilm.h"
+#include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Scheduler/Region.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 
@@ -40,13 +41,14 @@ public:
 		const TPhotonMap<Photon>* photonMap,
 		std::size_t numPhotonPaths,
 		const Scene* scene,
-		HdrRgbFilm* film,
+		TSamplingFilm<math::Spectrum>* film,
 		const Region& filmRegion,
 		std::size_t numSamplesPerPixel,
 		std::size_t maxViewpointDepth);
 
 	bool impl_onReceiverSampleStart(
 		const math::Vector2D& rasterCoord,
+		const math::Vector2S& sampleIndex,
 		const math::Spectrum& pathThroughput);
 
 	auto impl_onPathHitSurface(
@@ -64,7 +66,7 @@ private:
 	const TPhotonMap<Photon>* m_photonMap;
 	std::size_t m_numPhotonPaths;
 	const Scene* m_scene;
-	HdrRgbFilm* m_film;
+	TSamplingFilm<math::Spectrum>* m_film;
 	Region m_filmRegion;
 	std::size_t m_numSamplesPerPixel;
 	std::size_t m_maxViewpointDepth;
@@ -85,7 +87,7 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 	const TPhotonMap<Photon>* photonMap,
 	std::size_t numPhotonPaths,
 	const Scene* scene,
-	HdrRgbFilm* film,
+	TSamplingFilm<math::Spectrum>* film,
 	const Region& filmRegion,
 	std::size_t numSamplesPerPixel,
 	std::size_t maxViewpointDepth) :
@@ -111,6 +113,7 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleStart(
 	const math::Vector2D& rasterCoord,
+	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
 {
 	// FIXME: sample res

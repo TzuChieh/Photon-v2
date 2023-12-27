@@ -111,7 +111,6 @@ void VanillaPMRenderer::renderWithVanillaPM()
 				totalPhotonPaths, 
 				film.get(), 
 				getScene());
-			evaluator.setRenderer(this);
 			evaluator.setStatistics(&getStatistics());
 			evaluator.setKernelRadius(getCommonParams().kernelRadius);
 
@@ -120,9 +119,12 @@ void VanillaPMRenderer::renderWithVanillaPM()
 				getScene(),
 				getReceiver(),
 				sampleGenerator.get(),
-				getRenderRegionPx());
+				film->getSampleWindowPx(),
+				getRenderRegionPx().getExtents());
 
 			radianceEvaluator.work();
+
+			asyncMergeToPrimaryFilm(*film);
 		});
 }
 

@@ -58,8 +58,8 @@ inline constexpr bool TViewpoint<Derived>::has()
 		{
 			{ Derived::template impl_has<TYPE>() } -> CSame<bool>;
 		},
-		"A photon mapping viewpoint type must implement static method "
-		"`template<EViewpointData TYPE> impl_has() -> bool`.");
+		"A photon mapping viewpoint type must implement a static method callable as "
+		"`impl_has<EViewpointData{}>() -> bool`.");
 
 	return Derived::template impl_has<TYPE>();
 }
@@ -72,8 +72,8 @@ inline decltype(auto) TViewpoint<Derived>::get() const
 		{
 			{ derived.template impl_get<TYPE>() } -> CNotSame<void>;
 		},
-		"A photon mapping viewpoint type must implement "
-		"`template<EViewpointData TYPE> impl_get() const -> (any type)`.");
+		"A photon mapping viewpoint type must implement a method callable as "
+		"`impl_get<EViewpointData{}>() const -> (any type)`.");
 
 	return static_cast<const Derived&>(*this).template impl_get<TYPE>();
 }
@@ -86,8 +86,8 @@ inline void TViewpoint<Derived>::set(const T& value)
 		{
 			{ derived.template impl_set<TYPE>(value) } -> CSame<void>;
 		},
-		"A photon mapping viewpoint type must implement "
-		"`template<EViewpointData TYPE, typename T> impl_set(const T& value) -> void`.");
+		"A photon mapping viewpoint type must implement a method callable as "
+		"`impl_set<EViewpointData{}, T{}>(T{}) -> void`.");
 
 	static_cast<Derived&>(*this).template impl_set<TYPE>(value);
 }

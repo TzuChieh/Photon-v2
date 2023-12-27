@@ -55,9 +55,6 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 	using Photon    = FullPhoton;
 	using Viewpoint = FullViewpoint;
 
-	PH_LOG(PMRenderer, "photon size: {} bytes", sizeof(Photon));
-	PH_LOG(PMRenderer, "viewpoint size: {} bytes", sizeof(Viewpoint));
-
 	PH_LOG(PMRenderer, "start gathering viewpoints...");
 
 	std::vector<Viewpoint> viewpoints;
@@ -72,18 +69,21 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 			getScene(),
 			getReceiver(),
 			viewpointSampleGenerator.get(),
-			getRenderRegionPx());
+			getPrimaryFilm()->getSampleWindowPx(),
+			getRenderRegionPx().getExtents());
 
 		viewpointWork.work();
 
 		viewpoints = viewpointCollector.claimViewpoints();
 	}
 	
+	PH_LOG(PMRenderer, "viewpoint size: {} bytes", sizeof(Viewpoint));
 	PH_LOG(PMRenderer, "size of viewpoint buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
 	const std::size_t numPhotonsPerPass = getCommonParams().numPhotons;
 
+	PH_LOG(PMRenderer, "photon size: {} bytes", sizeof(Photon));
 	PH_LOG(PMRenderer, "number of photons per pass: {}", numPhotonsPerPass);
 	PH_LOG(PMRenderer, "size of photon buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Photon) * numPhotonsPerPass));

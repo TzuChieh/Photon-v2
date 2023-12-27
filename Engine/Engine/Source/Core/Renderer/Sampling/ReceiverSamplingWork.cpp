@@ -17,38 +17,38 @@ ReceiverSamplingWork::ReceiverSamplingWork() :
 	ReceiverSamplingWork(nullptr)
 {}
 
-ReceiverSamplingWork::ReceiverSamplingWork(const Receiver* const receiver) :
+ReceiverSamplingWork::ReceiverSamplingWork(const Receiver* const receiver)
 
-	RenderWork(),
+	: RenderWork()
 
-	m_receiver       (receiver),
-	m_processors     (),
-	m_sampleGenerator(nullptr),
-	m_filmResPx      (1, 1),
-	m_filmWindowPx   ({0, 0}, {1, 1}),
-	m_sampleResPx    (1, 1),
+	, m_receiver            (receiver)
+	, m_processors          ()
+	, m_sampleGenerator     (nullptr)
+	, m_rasterActualResPx   (1, 1)
+	, m_rasterSampleWindowPx({0, 0}, {1, 1})
+	, m_sampleRes           (1, 1)
 
-	m_numSamplesTaken(0),
-	m_onWorkStart    (nullptr),
-	m_onWorkReport   (nullptr),
-	m_onWorkFinish   (nullptr)
+	, m_numSamplesTaken     (0)
+	, m_onWorkStart         (nullptr)
+	, m_onWorkReport        (nullptr)
+	, m_onWorkFinish        (nullptr)
 {}
 
-ReceiverSamplingWork::ReceiverSamplingWork(ReceiverSamplingWork&& other) :
+ReceiverSamplingWork::ReceiverSamplingWork(ReceiverSamplingWork&& other) noexcept
 
-	RenderWork(other),
+	: RenderWork(other)
 
-	m_receiver       (other.m_receiver),
-	m_processors     (std::move(other.m_processors)),
-	m_sampleGenerator(std::move(other.m_sampleGenerator)),
-	m_filmResPx      (std::move(other.m_filmResPx)),
-	m_filmWindowPx   (std::move(other.m_filmWindowPx)),
-	m_sampleResPx    (std::move(other.m_sampleResPx)),
+	, m_receiver            (other.m_receiver)
+	, m_processors          (std::move(other.m_processors))
+	, m_sampleGenerator     (std::move(other.m_sampleGenerator))
+	, m_rasterActualResPx   (std::move(other.m_rasterActualResPx))
+	, m_rasterSampleWindowPx(std::move(other.m_rasterSampleWindowPx))
+	, m_sampleRes           (std::move(other.m_sampleRes))
 
-	m_numSamplesTaken(other.m_numSamplesTaken.load()),
-	m_onWorkStart    (std::move(other.m_onWorkStart)),
-	m_onWorkReport   (std::move(other.m_onWorkReport)),
-	m_onWorkFinish   (std::move(other.m_onWorkFinish))
+	, m_numSamplesTaken     (other.m_numSamplesTaken.load())
+	, m_onWorkStart         (std::move(other.m_onWorkStart))
+	, m_onWorkReport        (std::move(other.m_onWorkReport))
+	, m_onWorkFinish        (std::move(other.m_onWorkFinish))
 {}
 
 SamplingStatistics ReceiverSamplingWork::asyncGetStatistics() const
@@ -75,12 +75,12 @@ void ReceiverSamplingWork::doWork()
 
 	const auto rasterSampleHandle = m_sampleGenerator->declareStageND(
 		2,
-		m_sampleResPx.product(),
-		m_sampleResPx.toVector());
+		m_sampleRes.product(),
+		m_sampleRes.toVector());
 
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(
 		5,
-		m_sampleResPx.product());
+		m_sampleRes.product());
 
 	Timer sampleTimer;
 
@@ -99,7 +99,8 @@ void ReceiverSamplingWork::doWork()
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 		for(std::size_t si = 0; si < rasterSamples.numSamples(); ++si)
 		{
-			const auto rasterCoord = m_filmWindowPx.sampleToSurface(math::sample_cast<float64>(rasterSamples.get<2>(si)));
+			const auto rasterCoord = m_rasterSampleWindowPx.sampleToSurface(
+				math::sample_cast<float64>(rasterSamples.get<2>(si)));
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			Ray ray;
@@ -142,15 +143,16 @@ void ReceiverSamplingWork::setSampleGenerator(std::unique_ptr<SampleGenerator> s
 }
 
 void ReceiverSamplingWork::setSampleDimensions(
-	const math::TVector2<int64>&  filmResPx,
-	const math::TAABB2D<float64>& filmWindowPx,
-	const math::TVector2<int64>&  sampleResPx)
+	const math::TVector2<int64>&  rasterActualResPx,
+	const math::TAABB2D<float64>& rasterSampleWindowPx,
+	const math::TVector2<int64>&  sampleRes)
 {
-	PH_ASSERT_MSG(!filmWindowPx.isEmpty(), filmWindowPx.toString());
+	PH_ASSERT_MSG(!rasterSampleWindowPx.isEmpty(), rasterSampleWindowPx.toString());
+	PH_ASSERT_GT(sampleRes.product(), 0);
 
-	m_filmResPx    = math::Vector2D(filmResPx);
-	m_filmWindowPx = filmWindowPx;
-	m_sampleResPx  = math::Vector2S(sampleResPx);
+	m_rasterActualResPx    = math::Vector2D(rasterActualResPx);
+	m_rasterSampleWindowPx = rasterSampleWindowPx;
+	m_sampleRes            = math::Vector2S(sampleRes);
 }
 
 void ReceiverSamplingWork::addProcessor(IReceivedRayProcessor* const processor)
@@ -175,21 +177,21 @@ void ReceiverSamplingWork::onWorkFinish(std::function<void()> func)
 	m_onWorkFinish = std::move(func);
 }
 
-ReceiverSamplingWork& ReceiverSamplingWork::operator = (ReceiverSamplingWork&& other)
+ReceiverSamplingWork& ReceiverSamplingWork::operator = (ReceiverSamplingWork&& other) noexcept
 {
 	RenderWork::operator = (std::move(other));
 
-	m_receiver        = other.m_receiver;
-	m_processors      = std::move(other.m_processors);
-	m_sampleGenerator = std::move(other.m_sampleGenerator);
-	m_filmResPx       = std::move(other.m_filmResPx);
-	m_filmWindowPx    = std::move(other.m_filmWindowPx);
-	m_sampleResPx     = std::move(other.m_sampleResPx);
+	m_receiver             = other.m_receiver;
+	m_processors           = std::move(other.m_processors);
+	m_sampleGenerator      = std::move(other.m_sampleGenerator);
+	m_rasterActualResPx    = std::move(other.m_rasterActualResPx);
+	m_rasterSampleWindowPx = std::move(other.m_rasterSampleWindowPx);
+	m_sampleRes            = std::move(other.m_sampleRes);
 
-	m_numSamplesTaken = other.m_numSamplesTaken.load();
-	m_onWorkStart     = std::move(other.m_onWorkStart);
-	m_onWorkReport    = std::move(other.m_onWorkReport);
-	m_onWorkFinish    = std::move(other.m_onWorkFinish);
+	m_numSamplesTaken      = other.m_numSamplesTaken.load();
+	m_onWorkStart          = std::move(other.m_onWorkStart);
+	m_onWorkReport         = std::move(other.m_onWorkReport);
+	m_onWorkFinish         = std::move(other.m_onWorkFinish);
 
 	return *this;
 }

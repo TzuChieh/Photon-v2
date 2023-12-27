@@ -33,15 +33,14 @@ public:
 		const math::TAABB2D<int64>& effectiveWindowPx,
 		const SampleFilter&         filter);
 
-	void addSample(float64 xPx, float64 yPx, const math::Spectrum& spectrum) override;
+	void addSample(float64 xPx, float64 yPx, const math::Spectrum& sample) override;
+	void setPixel(float64 xPx, float64 yPx, const math::Spectrum& sample) override;
 	void clear() override;
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
 	void addRgbSample(float64 xPx, float64 yPx, const math::Vector3R& rgb);
+	void setRgbPixel(float64 xPx, float64 yPx, const math::Vector3R& rgb);
 	void mergeWith(const HdrRgbFilm& other);
-
-	// HACK
-	void setPixel(float64 xPx, float64 yPx, const math::Spectrum& spectrum);
 
 private:
 	void developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64>& regionPx) const override;
