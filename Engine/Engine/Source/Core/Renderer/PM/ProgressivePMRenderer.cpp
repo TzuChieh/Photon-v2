@@ -13,6 +13,7 @@
 #include "Core/Renderer/RenderProgress.h"
 #include "Core/Renderer/RenderStats.h"
 #include "Utility/Concurrent/concurrent.h"
+#include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/Timer.h"
 
 #include <Common/profiling.h>
@@ -90,9 +91,8 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 	PH_LOG(PMRenderer, "start accumulating passes...");
 
-	std::mutex resultFilmMutex;
-	auto resultFilm = std::make_unique<HdrRgbFilm>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
+	TSynchronized<HdrRgbFilm> resultFilm(HdrRgbFilm(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter()));
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
@@ -128,18 +128,18 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 		photonMap.build(std::move(photonBuffer));
 
 		parallel_work(viewpoints.size(), numWorkers(),
-			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths](
+			[this, &photonMap, &viewpoints, &resultFilm, totalPhotonPaths](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
-				auto film = std::make_unique<HdrRgbFilm>(
+				HdrRgbFilm film(
 					getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
 
 				PPMRadianceEvaluationWork radianceEstimator(
 					&photonMap, 
 					totalPhotonPaths,
-					film.get(),
+					&film,
 					&(viewpoints[workStart]),
 					workEnd - workStart,
 					getScene());
@@ -147,15 +147,11 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 				radianceEstimator.work();
 
-				{
-					std::lock_guard<std::mutex> lock(resultFilmMutex);
-
-					resultFilm->mergeWith(*film);
-				}
+				resultFilm->mergeWith(film);
 			});
 
-		asyncReplacePrimaryFilm(*resultFilm);
-		resultFilm->clear();
+		asyncReplacePrimaryFilm(resultFilm.unsafeGetReference());
+		resultFilm.unsafeGetReference().clear();
 
 		passTimer.stop();
 
