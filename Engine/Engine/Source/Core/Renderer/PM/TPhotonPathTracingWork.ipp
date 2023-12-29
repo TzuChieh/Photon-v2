@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Renderer/PM/TPhotonMappingWork.h"
+#include "Core/Renderer/PM/TPhotonPathTracingWork.h"
 #include "World/Scene.h"
 #include "Core/Receiver/Receiver.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
@@ -27,27 +27,30 @@ namespace ph
 {
 
 template<CPhoton Photon>
-inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
+inline TPhotonPathTracingWork<Photon>::TPhotonPathTracingWork(
 
 	const Scene* const     scene,
 	const Receiver* const  receiver,
 	SampleGenerator* const sampleGenerator,
-	Photon* const          photonBuffer,
-	const std::size_t      numPhotons,
-	std::size_t* const     out_numPhotonPaths)
+	const TSpan<Photon>    photonBuffer,
+	const uint32           minPhotonBounces,
+	const uint32           maxPhotonBounces)
 
-	: m_scene(scene)
-	, m_receiver(receiver)
-	, m_sampleGenerator(sampleGenerator)
-	, m_photonBuffer(photonBuffer)
-	, m_numPhotons(numPhotons)
-	, m_numPhotonPaths(out_numPhotonPaths)
+	: m_scene           (scene)
+	, m_receiver        (receiver)
+	, m_sampleGenerator (sampleGenerator)
+	, m_photonBuffer    (photonBuffer)
+	, m_minPhotonBounces(minPhotonBounces)
+	, m_maxPhotonBounces(maxPhotonBounces)
+	, m_numPhotonPaths  (0)
+	, m_statistics      (nullptr)
 {
-	setStatistics(nullptr);
+	PH_ASSERT_GE(minPhotonBounces, 1);
+	PH_ASSERT_LE(minPhotonBounces, maxPhotonBounces);
 }
 
 template<CPhoton Photon>
-inline void TPhotonMappingWork<Photon>::doWork()
+inline void TPhotonPathTracingWork<Photon>::doWork()
 {
 	PH_PROFILE_SCOPE();
 
@@ -59,16 +62,16 @@ inline void TPhotonMappingWork<Photon>::doWork()
 	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, ESidednessPolicy::Strict);
 	const SurfaceTracer surfaceTracer(m_scene);
 
-	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_numPhotons);
+	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_photonBuffer.size());
 	m_sampleGenerator->prepareSampleBatch();// HACK: check if succeeded
 	auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 
-	std::size_t numStoredPhotons = 0;
-	*m_numPhotonPaths            = 0;
-	std::size_t photonCounter    = 0;
-	while(numStoredPhotons < m_numPhotons)
+	m_numPhotonPaths               = 0;
+	std::size_t numStoredPhotons   = 0;
+	std::size_t photonStatsCounter = 0;
+	while(numStoredPhotons < m_photonBuffer.size())
 	{
-		++(*m_numPhotonPaths);
+		++m_numPhotonPaths;
 
 		SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
@@ -83,21 +86,25 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			continue;
 		}
 
-		// Here 0-bounce lighting is not accounted for
-
+		// Here 0-bounce lighting is never accounted for
 		math::Spectrum throughputRadiance(emittedRadiance);
 		throughputRadiance.divLocal(pdfA);
 		throughputRadiance.divLocal(pdfW);
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
-		// Start tracing single photon path
+		// Start tracing single photon path with at least 1 bounce
+		uint32 numPhotonBounces = 0;
 		while(!throughputRadiance.isZero())
 		{
+			PH_ASSERT_LT(numPhotonBounces, m_maxPhotonBounces);
+
 			SurfaceHit surfaceHit;
 			if(!surfaceTracer.traceNextSurface(tracingRay, bsdfContext.sidedness, &surfaceHit))
 			{
 				break;
 			}
+
+			++numPhotonBounces;
 
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
@@ -107,24 +114,15 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			{
 				throughputRadiance = weightedThroughputRadiance;
 
-				Photon photon;
-				if constexpr(Photon::template has<EPhotonData::Position>())
+				if(numPhotonBounces >= m_minPhotonBounces)
 				{
-					photon.template set<EPhotonData::Position>(surfaceHit.getPosition());
-				}
-				if constexpr(Photon::template has<EPhotonData::ThroughputRadiance>())
-				{
-					photon.template set<EPhotonData::ThroughputRadiance>(throughputRadiance);
-				}
-				if constexpr(Photon::template has<EPhotonData::FromDir>())
-				{
-					photon.template set<EPhotonData::FromDir>(tracingRay.getDirection().mul(-1));
+					m_photonBuffer[numStoredPhotons++] = makePhoton(
+						surfaceHit, throughputRadiance, tracingRay);
+					++photonStatsCounter;
 				}
 
-				m_photonBuffer[numStoredPhotons++] = photon;
-				++photonCounter;
-
-				if(numStoredPhotons == m_numPhotons)
+				if(numStoredPhotons == m_photonBuffer.size() || 
+				   numPhotonBounces == m_maxPhotonBounces)
 				{
 					break;
 				}
@@ -153,17 +151,17 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			tracingRay = sampledRay;
 		}// end single photon path
 
-		if(photonCounter >= 16384)
+		if(photonStatsCounter >= 16384)
 		{
 			timer.stop();
 			setElapsedMs(timer.getDeltaMs());
 
 			if(m_statistics)
 			{
-				m_statistics->addNumTracedPhotons(photonCounter);
+				m_statistics->addNumTracedPhotons(photonStatsCounter);
 			}
 
-			photonCounter = 0;
+			photonStatsCounter = 0;
 		}
 	}// end while photon buffer is not full
 
@@ -172,14 +170,43 @@ inline void TPhotonMappingWork<Photon>::doWork()
 
 	if(m_statistics)
 	{
-		m_statistics->addNumTracedPhotons(photonCounter);
+		m_statistics->addNumTracedPhotons(photonStatsCounter);
 	}
 }
 
 template<CPhoton Photon>
-inline void TPhotonMappingWork<Photon>::setStatistics(PMAtomicStatistics* const statistics)
+inline void TPhotonPathTracingWork<Photon>::setStatistics(PMAtomicStatistics* const statistics)
 {
 	m_statistics = statistics;
+}
+
+template<CPhoton Photon>
+inline std::size_t TPhotonPathTracingWork<Photon>::numPhotonPaths() const
+{
+	return m_numPhotonPaths;
+}
+
+template<CPhoton Photon>
+inline Photon TPhotonPathTracingWork<Photon>::makePhoton(
+	const SurfaceHit&     surfaceHit, 
+	const math::Spectrum& throughputRadiance,
+	const Ray&            tracingRay)
+{
+	Photon photon;
+	if constexpr(Photon::template has<EPhotonData::Position>())
+	{
+		photon.template set<EPhotonData::Position>(surfaceHit.getPosition());
+	}
+	if constexpr(Photon::template has<EPhotonData::ThroughputRadiance>())
+	{
+		photon.template set<EPhotonData::ThroughputRadiance>(throughputRadiance);
+	}
+	if constexpr(Photon::template has<EPhotonData::FromDir>())
+	{
+		photon.template set<EPhotonData::FromDir>(tracingRay.getDirection().mul(-1));
+	}
+
+	return photon;
 }
 
 }// end namespace ph

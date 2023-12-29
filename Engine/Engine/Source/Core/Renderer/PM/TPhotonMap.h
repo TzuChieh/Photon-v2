@@ -4,25 +4,36 @@
 #include "Core/Renderer/PM/TPhoton.h"
 #include "Math/TVector3.h"
 
+#include <Common/primitive_type.h>
+
 #include <type_traits>
 
 namespace ph
 {
 
+/*! @brief Default photon map type. Should be adequate for most cases.
+*/
 template<CPhoton Photon>
-struct TPhotonCenterCalculator
+class TPhotonMap final
 {
-	static_assert(std::is_base_of_v<TPhoton<Photon>, Photon>);
-
-	math::Vector3R operator () (const Photon& photon) const
+public:
+	struct PhotonCenterCalculator
 	{
-		static_assert(Photon::template has<EPhotonData::Position>());
+		static_assert(std::is_base_of_v<TPhoton<Photon>, Photon>);
 
-		return photon.template get<EPhotonData::Position>();
-	}
+		math::Vector3R operator () (const Photon& photon) const
+		{
+			static_assert(Photon::template has<EPhotonData::Position>());
+
+			return photon.template get<EPhotonData::Position>();
+		}
+	};
+
+	using MapType = math::TIndexedPointKdtree<Photon, int, PhotonCenterCalculator>;
+
+	MapType map = MapType(2, PhotonCenterCalculator{});
+	uint32 minPhotonBounces = 1;
+	uint32 maxPhotonBounces = 16384;
 };
-
-template<CPhoton Photon>
-using TPhotonMap = math::TIndexedPointKdtree<Photon, int, TPhotonCenterCalculator<Photon>>;
 
 }// end namespace ph

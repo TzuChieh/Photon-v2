@@ -3,7 +3,7 @@
 #include "Core/Renderer/PM/PMAtomicStatistics.h"
 #include "Core/Renderer/PM/FullPhoton.h"
 #include "Core/Renderer/PM/FullViewpoint.h"
-#include "Core/Renderer/PM/TPhotonMappingWork.h"
+#include "Core/Renderer/PM/TPhotonPathTracingWork.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/TViewPathTracingWork.h"
@@ -157,7 +157,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 
 	std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
 	std::vector<Photon> photonBuffer(numPhotonsPerPass);
-	TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
+	TPhotonMap<Photon> photonMap;
 
 	PH_LOG(PMRenderer, "start accumulating passes...");
 
@@ -180,20 +180,22 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 
 				auto sampleGenerator = getSampleGenerator()->genCopied(1);
 
-				TPhotonMappingWork<Photon> photonMappingWork(
+				TPhotonPathTracingWork<Photon> photonTracingWork(
 					getScene(),
 					getReceiver(),
 					sampleGenerator.get(),
-					&(photonBuffer[workStart]),
-					workEnd - workStart,
-					&(numPhotonPaths[workerIdx]));
-				photonMappingWork.setStatistics(&getStatistics());
+					{photonBuffer.data() + workStart, workEnd - workStart},
+					getCommonParams().minPhotonBounces,
+					getCommonParams().maxPhotonBounces);
+				photonTracingWork.setStatistics(&getStatistics());
 
-				photonMappingWork.work();
+				photonTracingWork.work();
+
+				numPhotonPaths[workerIdx] = photonTracingWork.numPhotonPaths();
 			});
 		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
 
-		photonMap.build(photonBuffer);
+		photonMap.map.build(photonBuffer);
 
 		for(RadianceEvaluationRegion& radianceEvalRegion : radianceEvalRegions)
 		{

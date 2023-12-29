@@ -28,6 +28,18 @@ public:
 	setting up the initial radius.
 	*/
 	real kernelRadius = 0.1_r;
+
+	/*! Minimum number of bounces for a photon. 0-bounce photon is not supported, as it is like
+	approximating emissive surface with photons and the result is overly blurry for no good reason.
+	0-bounce lighting is done via traditional path sampling.
+	*/
+	uint32 minPhotonBounces = 1;
+
+	/*! Maximum number of bounces for a photon. The default value is effectively infinite bounces.
+	Combined with `minPhotonBounces`, these parameters are useful if only some number of bounces
+	are estimated via photons.
+	*/
+	uint32 maxPhotonBounces = 16384;
 };
 
 }// end namespace ph

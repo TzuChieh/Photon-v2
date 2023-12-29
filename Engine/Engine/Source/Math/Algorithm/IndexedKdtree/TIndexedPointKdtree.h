@@ -27,6 +27,8 @@ class TIndexedPointKdtree final
 public:
 	using Node = TIndexedKdtreeNode<Index, false>;
 
+	/*! @brief Creates empty tree. Call `build()` to populate the tree.
+	*/
 	TIndexedPointKdtree(std::size_t maxNodeItems, const PointCalculator& pointCalculator);
 
 	void build(std::vector<Item> items);

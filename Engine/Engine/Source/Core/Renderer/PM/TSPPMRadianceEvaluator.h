@@ -85,15 +85,15 @@ private:
 
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
-	TSpan<Viewpoint> viewpoints,
-	const TPhotonMap<Photon>* photonMap,
-	std::size_t numPhotonPaths,
-	const Scene* scene,
-	TSamplingFilm<math::Spectrum>* film,
+	const TSpan<Viewpoint> viewpoints,
+	const TPhotonMap<Photon>* const photonMap,
+	const std::size_t numPhotonPaths,
+	const Scene* const scene,
+	TSamplingFilm<math::Spectrum>* const film,
 	const Region& statisticsRegion,
 	const math::TVector2<int64>& statisticsRes,
-	std::size_t numViewRadianceSamples,
-	std::size_t maxViewpointDepth)
+	const std::size_t numViewRadianceSamples,
+	const std::size_t maxViewpointDepth)
 
 	: m_viewpoints(viewpoints)
 	, m_photonMap(photonMap)
@@ -204,7 +204,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	const real           R          = m_viewpoint->template get<EViewpointData::Radius>();
 
 	m_photonCache.clear();
-	m_photonMap->findWithinRange(surfaceHit.getPosition(), R, m_photonCache);
+	m_photonMap->map.findWithinRange(surfaceHit.getPosition(), R, m_photonCache);
 
 	// FIXME: as a parameter
 	const real alpha = 2.0_r / 3.0_r;

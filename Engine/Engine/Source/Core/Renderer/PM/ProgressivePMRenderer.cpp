@@ -3,7 +3,7 @@
 #include "Core/Renderer/PM/PMAtomicStatistics.h"
 #include "Core/Renderer/PM/FullPhoton.h"
 #include "Core/Renderer/PM/FullViewpoint.h"
-#include "Core/Renderer/PM/TPhotonMappingWork.h"
+#include "Core/Renderer/PM/TPhotonPathTracingWork.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/TViewPathTracingWork.h"
@@ -111,21 +111,23 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 			{
 				auto sampleGenerator = getSampleGenerator()->genCopied(1);
 
-				TPhotonMappingWork<Photon> photonMappingWork(
+				TPhotonPathTracingWork<Photon> photonTracingWork(
 					getScene(),
 					getReceiver(),
 					sampleGenerator.get(),
-					&(photonBuffer[workStart]),
-					workEnd - workStart,
-					&(numPhotonPaths[workerIdx]));
-				photonMappingWork.setStatistics(&getStatistics());
+					{photonBuffer.data() + workStart, workEnd - workStart},
+					getCommonParams().minPhotonBounces,
+					getCommonParams().maxPhotonBounces);
+				photonTracingWork.setStatistics(&getStatistics());
 
-				photonMappingWork.work();
+				photonTracingWork.work();
+
+				numPhotonPaths[workerIdx] = photonTracingWork.numPhotonPaths();
 			});
 		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
 
-		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
-		photonMap.build(std::move(photonBuffer));
+		TPhotonMap<Photon> photonMap;
+		photonMap.map.build(std::move(photonBuffer));
 
 		parallel_work(viewpoints.size(), numWorkers(),
 			[this, &photonMap, &viewpoints, &resultFilm, totalPhotonPaths](

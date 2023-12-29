@@ -137,7 +137,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	PH_ASSERT_LE(pathLength, MAX_PATH_LENGTH);
 
 	m_photonCache.clear();
-	m_photonMap->findWithinRange(surfaceHit.getPosition(), m_kernelRadius, m_photonCache);
+	m_photonMap->map.findWithinRange(surfaceHit.getPosition(), m_kernelRadius, m_photonCache);
 
 	const SurfaceTracer surfaceTracer(m_scene);
 

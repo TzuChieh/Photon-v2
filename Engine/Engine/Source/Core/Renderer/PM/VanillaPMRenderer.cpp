@@ -2,7 +2,7 @@
 #include "Core/Filmic/HdrRgbFilm.h"
 #include "Core/Renderer/PM/PMAtomicStatistics.h"
 #include "Core/Renderer/PM/FullPhoton.h"
-#include "Core/Renderer/PM/TPhotonMappingWork.h"
+#include "Core/Renderer/PM/TPhotonPathTracingWork.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/VPMRadianceEvaluator.h"
@@ -70,16 +70,18 @@ void VanillaPMRenderer::renderWithVanillaPM()
 		{
 			auto sampleGenerator = getSampleGenerator()->genCopied(1);
 
-			TPhotonMappingWork<Photon> photonMappingWork(
+			TPhotonPathTracingWork<Photon> photonTracingWork(
 				getScene(),
 				getReceiver(),
 				sampleGenerator.get(),
-				&(photonBuffer[workStart]),
-				workEnd - workStart,
-				&(numPhotonPaths[workerIdx]));
-			photonMappingWork.setStatistics(&getStatistics());
+				{photonBuffer.data() + workStart, workEnd - workStart},
+				getCommonParams().minPhotonBounces,
+				getCommonParams().maxPhotonBounces);
+			photonTracingWork.setStatistics(&getStatistics());
 
-			photonMappingWork.work();
+			photonTracingWork.work();
+
+			numPhotonPaths[workerIdx] = photonTracingWork.numPhotonPaths();
 		});
 	const std::size_t totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), std::size_t(0));
 
@@ -91,8 +93,8 @@ void VanillaPMRenderer::renderWithVanillaPM()
 
 	PH_LOG(PMRenderer, "building photon map...");
 
-	TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
-	photonMap.build(std::move(photonBuffer));
+	TPhotonMap<Photon> photonMap;
+	photonMap.map.build(std::move(photonBuffer));
 
 	PH_LOG(PMRenderer, "estimating radiance...");
 

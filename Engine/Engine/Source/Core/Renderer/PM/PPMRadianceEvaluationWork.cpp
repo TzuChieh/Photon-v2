@@ -63,7 +63,7 @@ void PPMRadianceEvaluationWork::doWork()
 		const real           R          = viewpoint.get<EViewpointData::Radius>();
 
 		photonCache.clear();
-		getPhotonMap()->findWithinRange(surfaceHit.getPosition(), R, photonCache);
+		getPhotonMap()->map.findWithinRange(surfaceHit.getPosition(), R, photonCache);
 
 		const real N    = viewpoint.get<EViewpointData::NumPhotons>();
 		const real M    = static_cast<real>(photonCache.size());
