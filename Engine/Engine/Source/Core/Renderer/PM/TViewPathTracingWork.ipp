@@ -48,6 +48,12 @@ inline TViewPathTracingWork<Handler>::TViewPathTracingWork(
 }
 
 template<CViewPathHandler Handler>
+inline const math::Vector2S& TViewPathTracingWork<Handler>::getSampleRes() const
+{
+	return m_sampleRes;
+}
+
+template<CViewPathHandler Handler>
 inline void TViewPathTracingWork<Handler>::doWork()
 {
 	PH_PROFILE_SCOPE();
@@ -72,6 +78,9 @@ inline void TViewPathTracingWork<Handler>::doWork()
 			const math::Vector2S sampleIndex(math::Vector2D(
 				math::clamp(m_sampleRes.x() * rasterSample[0], 0.0, m_sampleRes.x() - 1.0),
 				math::clamp(m_sampleRes.y() * rasterSample[1], 0.0, m_sampleRes.y() - 1.0)));
+
+			PH_ASSERT_LT(sampleIndex.x(), m_sampleRes.x());
+			PH_ASSERT_LT(sampleIndex.y(), m_sampleRes.y());
 
 			Ray tracingRay;
 			const auto quantityWeight = m_receiver->receiveRay(rasterCoord, &tracingRay);

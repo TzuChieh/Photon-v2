@@ -34,14 +34,14 @@ inline TPhotonMappingWork<Photon>::TPhotonMappingWork(
 	SampleGenerator* const sampleGenerator,
 	Photon* const          photonBuffer,
 	const std::size_t      numPhotons,
-	std::size_t* const     out_numPhotonPaths) :
+	std::size_t* const     out_numPhotonPaths)
 
-	m_scene(scene),
-	m_receiver(receiver),
-	m_sampleGenerator(sampleGenerator),
-	m_photonBuffer(photonBuffer),
-	m_numPhotons(numPhotons),
-	m_numPhotonPaths(out_numPhotonPaths)
+	: m_scene(scene)
+	, m_receiver(receiver)
+	, m_sampleGenerator(sampleGenerator)
+	, m_photonBuffer(photonBuffer)
+	, m_numPhotons(numPhotons)
+	, m_numPhotonPaths(out_numPhotonPaths)
 {
 	setStatistics(nullptr);
 }
@@ -83,14 +83,14 @@ inline void TPhotonMappingWork<Photon>::doWork()
 			continue;
 		}
 
-		// here 0-bounce lighting is not accounted for
+		// Here 0-bounce lighting is not accounted for
 
 		math::Spectrum throughputRadiance(emittedRadiance);
 		throughputRadiance.divLocal(pdfA);
 		throughputRadiance.divLocal(pdfW);
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
-		// start tracing single photon path
+		// Start tracing single photon path
 		while(!throughputRadiance.isZero())
 		{
 			SurfaceHit surfaceHit;

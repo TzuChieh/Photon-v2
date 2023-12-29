@@ -133,8 +133,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
-				HdrRgbFilm film(
-					getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
+				HdrRgbFilm film(getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
 
 				PPMRadianceEvaluationWork radianceEstimator(
 					&photonMap, 

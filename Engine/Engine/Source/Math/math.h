@@ -316,16 +316,17 @@ inline constexpr NumberType bytes_to_PiB(const std::size_t numBytes)
 /*! @brief Gets the i-th evenly divided range.
 
 Gets the i-th range [beginIndex, endIndex) which is the result of dividing
-<totalSize> into <numDivisions> parts as evenly as possible.
+`totalSize` into `numDivisions` parts as evenly as possible.
 */
-// TODO: it is possible to generalize to signed range
-//       maybe use ith_evenly_divided_size() as function name and 
-//       ith_evenly_divided_range() for signed/unsigned range
 inline std::pair<std::size_t, std::size_t> ith_evenly_divided_range(
 	const std::size_t rangeIndex, 
 	const std::size_t totalSize,
 	const std::size_t numDivisions)
 {
+	// TODO: it is possible to generalize to signed range
+	// maybe use ith_evenly_divided_size() as function name and 
+	// ith_evenly_divided_range() for signed/unsigned range
+
 	PH_ASSERT_GT(numDivisions, 0);
 	PH_ASSERT_LT(rangeIndex, numDivisions);
 

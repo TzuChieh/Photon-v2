@@ -328,12 +328,14 @@ class Exporter:
             visualizer.set_scheduler(mapping.to_scheduler_enum(scheduler_type))
         elif integrator_type == 'VPM':
             visualizer = sdl.PhotonMappingVisualizerCreator()
+            visualizer.set_sample_filter(mapping.to_filter_enum(filter_type))
             visualizer.set_mode(mapping.to_integrator_enum(integrator_type))
             visualizer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
             visualizer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
             visualizer.set_photon_radius(sdl.Real(b_scene.ph_render_kernel_radius))
         elif integrator_type == 'PPM' or integrator_type == 'SPPM':
             visualizer = sdl.PhotonMappingVisualizerCreator()
+            visualizer.set_sample_filter(mapping.to_filter_enum(filter_type))
             visualizer.set_mode(mapping.to_integrator_enum(integrator_type))
             visualizer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
             visualizer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))

@@ -37,6 +37,9 @@ public:
 	/*! @brief Applies filter to sample value and add to the film.
 	Generally, this method can produce higher quality result by reconstruct the image function with
 	a filter.
+	@param xPx The x coordinate in raster space.
+	@param yPx The y coordinate in raster space.
+	@param sample The value to add as a sample.
 	*/
 	virtual void addSample(float64 xPx, float64 yPx, const Sample& sample) = 0;
 
@@ -44,6 +47,9 @@ public:
 	An interface for using the film as an ordinary image. This method may disturb sample weights.
 	Using this method with `addSample()` may result in image artifacts unless the implementation
 	says otherwise.
+	@param xPx The x coordinate in raster space.
+	@param yPx The y coordinate in raster space.
+	@param sample The value the pixel will develop to.
 	*/
 	virtual void setPixel(float64 xPx, float64 yPx, const Sample& sample) = 0;
 

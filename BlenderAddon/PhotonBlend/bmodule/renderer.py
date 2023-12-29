@@ -104,7 +104,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
 
         host = "127.0.0.1" # the server's hostname or IP address
         port = 7000 # the port used by the server
-        # self.renderer.set_port(port) 
+        self.renderer.set_port(port) 
 
         # Test if the render is canceled once before running the renderer (export can take a long time
         # and user might want to cancel the rendering during that time)
@@ -133,6 +133,12 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                     print("note: waiting for server to respond... (attempt %d/%d)" % (num_retries + 1, max_retries))
                     num_retries += 1
                     time.sleep(poll_seconds)
+
+                    # User can cancel the render if server failed to respond for too long
+                    if self.test_break():
+                        print("render canceled")
+                        self.renderer.exit()
+                        break
 
             # Connection established
             if is_connected:
@@ -181,11 +187,12 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
                         print("render canceled")
                         self.renderer.exit()
                         break
+
+                # Shutdown sends data and is only allowed when the socket is connected
+                # 0 = done receiving, 1 = done sending, 2 = both
+                s.shutdown(2)
             else:
                 print("warning: connection failed")
-
-            # 0 = done receiving, 1 = done sending, 2 = both
-            s.shutdown(2)
 
         while self.renderer.is_running():
             print("waiting for renderer to finish running...")

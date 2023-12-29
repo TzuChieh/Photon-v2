@@ -19,7 +19,8 @@ public:
 	std::size_t numPasses = 1;
 
 	/*! Number of samples per pixel. Higher values can resolve image aliasing, but can consume large
-	amounts of memory for some algorithms.
+	amounts of memory for some algorithms. This value can also mean the number of statistics gathered
+	in a single pixel for some techniques. If the value is not a power-of-2 number, it may be adjusted.
 	*/
 	std::size_t numSamplesPerPixel = 4;
 

@@ -42,6 +42,8 @@ public:
 		const math::TAABB2D<float64>& rasterSampleWindowPx,
 		const math::TVector2<int64>&  sampleRes);
 
+	const math::Vector2S& getSampleRes() const;
+
 private:
 	void doWork() override;
 

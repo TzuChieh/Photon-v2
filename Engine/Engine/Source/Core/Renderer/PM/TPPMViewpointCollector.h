@@ -120,7 +120,7 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* const     optics   = metadata->getSurface().getOptics();
 
-	// check if there's any non-delta elemental
+	// Check if there's any non-delta elemental
 	SurfacePhenomena phenomena = optics->getAllPhenomena();
 	phenomena.turnOff({
 		ESurfacePhenomenon::DeltaReflection,
@@ -139,8 +139,8 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 
 	if(pathLength < m_maxViewpointDepth && 
 	   optics->getAllPhenomena().hasAny({
-		ESurfacePhenomenon::DeltaReflection,
-		ESurfacePhenomenon::DeltaTransmission}))
+	       ESurfacePhenomenon::DeltaReflection,
+	       ESurfacePhenomenon::DeltaTransmission}))
 	{
 		return ViewPathTracingPolicy().
 			traceBranchedPathFor(SurfacePhenomena({

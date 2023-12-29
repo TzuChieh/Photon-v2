@@ -66,10 +66,30 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 
 	case EPhotonMappingMode::StochasticProgressive:
 	{
+		SampleFilter filter;
+		if(getSampleFilter() == ESampleFilter::Unspecified)
+		{
+			filter = SampleFilter::makeBox();
+		}
+		else
+		{
+			if(getSampleFilter() != ESampleFilter::Box)
+			{
+				PH_LOG_WARNING(PhotonMappingVisualizer,
+					"SPPM renderer follows Hachisuka's original paper (2009) strictly, and divides "
+					"raster space into regions for storing photon statistics. Using a non-box filter "
+					"will result in an overly blurred image as the stored statistics are equivalent "
+					"to applying a box filter already. Increasing samples per pixel with non-box "
+					"filter will approach the correct, per-sample filtered PT result in the limit.");
+			}
+
+			filter = makeSampleFilter();
+		}
+
 		renderer = std::make_unique<StochasticProgressivePMRenderer>(
 			makeCommonParams(),
 			viewport,
-			makeSampleFilter(),
+			filter,
 			ctx.numWorkers());
 		break;
 	}

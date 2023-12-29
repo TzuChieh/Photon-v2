@@ -11,8 +11,10 @@
 #include "Core/Renderer/RenderObservationInfo.h"
 #include "Core/Renderer/RenderProgress.h"
 #include "Core/Renderer/RenderStats.h"
+#include "Math/math.h"
 #include "Utility/Concurrent/concurrent.h"
 #include "Utility/Concurrent/FixedSizeThreadPool.h"
+#include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/Timer.h"
 
 #include <Common/profiling.h>
@@ -24,6 +26,27 @@
 
 namespace ph
 {
+
+namespace
+{
+
+template<CViewpoint Viewpoint>
+struct TSPPMRadianceEvaluationRegion final
+{
+	/*! The area within the film to do evaluation. */
+	Region region;
+
+	/*! The film to store the evaluation result. */
+	HdrRgbFilm film;
+
+	/*! The resolution of the stored statistics for evaluation. */
+	math::TVector2<int64> statisticsRes;
+
+	/*! Buffer that stores the statistics. */
+	std::vector<Viewpoint> viewpoints;
+};
+
+}// end anonymous namespace
 
 StochasticProgressivePMRenderer::StochasticProgressivePMRenderer(
 	PMCommonParams commonParams,
@@ -52,20 +75,49 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 {
 	PH_PROFILE_SCOPE();
 
-	using Photon    = FullPhoton;
-	using Viewpoint = FullViewpoint;
+	using Photon                   = FullPhoton;
+	using Viewpoint                = FullViewpoint;
+	using RadianceEvaluationRegion = TSPPMRadianceEvaluationRegion<Viewpoint>;
+
+	// TODO: log once for viewpoint not needing raster coord
 
 	FixedSizeThreadPool workers(numWorkers());
 
 	PH_LOG(PMRenderer, "start generating viewpoints...");
 
-	std::vector<Viewpoint> viewpoints(getRenderRegionPx().getArea());
-	for(std::size_t y = 0; y < static_cast<std::size_t>(getRenderRegionPx().getHeight()); ++y)
-	{
-		for(std::size_t x = 0; x < static_cast<std::size_t>(getRenderRegionPx().getWidth()); ++x)
-		{
-			auto& viewpoint = viewpoints[y * getRenderRegionPx().getWidth() + x];
+	// Keep the same number of statistics in x & y so the image will not look stretched
+	auto numStatisticsPerDim = static_cast<int64>(std::sqrt(getCommonParams().numSamplesPerPixel));
+	numStatisticsPerDim = numStatisticsPerDim != 0 ? numStatisticsPerDim : 1;
 
+	std::size_t totalViewpoints = 0;
+
+	std::vector<RadianceEvaluationRegion> radianceEvalRegions(numWorkers());
+	for(std::size_t workerIdx = 0; workerIdx < numWorkers(); ++workerIdx)
+	{
+		RadianceEvaluationRegion& radianceEvalRegion = radianceEvalRegions[workerIdx];
+
+		// Divide render region on y-axis, so iterations will be more cache friendly on each worker
+		const auto [workBegin, workEnd] = math::ith_evenly_divided_range(
+			workerIdx, getRenderRegionPx().getHeight(), numWorkers());
+
+		Region region = getRenderRegionPx();
+		auto [minVertex, maxVertex] = region.getVertices();
+		minVertex.y() = getRenderRegionPx().getMinVertex().y() + workBegin;
+		maxVertex.y() = getRenderRegionPx().getMinVertex().y() + workEnd;
+		region.setVertices({minVertex, maxVertex});
+
+		// Resolution of photon statistics gathered. If more than one statistics per pixel are
+		// gathered, we evenly divide them within the pixel.
+		math::TVector2<int64> statisticsRes = region.getExtents() * numStatisticsPerDim;
+
+		radianceEvalRegion.region = region;
+		radianceEvalRegion.film = HdrRgbFilm(
+			getRenderWidthPx(), getRenderHeightPx(), region, getFilter());
+		radianceEvalRegion.statisticsRes = statisticsRes;
+
+		radianceEvalRegion.viewpoints.resize(statisticsRes.product());
+		for(Viewpoint& viewpoint : radianceEvalRegion.viewpoints)
+		{
 			if constexpr(Viewpoint::template has<EViewpointData::Radius>())
 			{
 				viewpoint.template set<EViewpointData::Radius>(getCommonParams().kernelRadius);
@@ -83,11 +135,15 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 				viewpoint.template set<EViewpointData::ViewRadiance>(math::Spectrum(0));
 			}
 		}
+
+		totalViewpoints += radianceEvalRegion.viewpoints.size();
 	}
 
+	PH_LOG(PMRenderer, "viewpoint (statistics record) resolution: {}", 
+		getRenderRegionPx().getExtents() * numStatisticsPerDim);
 	PH_LOG(PMRenderer, "viewpoint size: {} bytes", sizeof(Viewpoint));
 	PH_LOG(PMRenderer, "size of viewpoint buffer: {} MiB",
-		math::bytes_to_MiB<real>(sizeof(Viewpoint) * viewpoints.size()));
+		math::bytes_to_MiB<real>(sizeof(Viewpoint) * totalViewpoints));
 
 	const std::size_t numPhotonsPerPass = getCommonParams().numPhotons;
 
@@ -96,11 +152,14 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 	PH_LOG(PMRenderer, "size of photon buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Photon) * numPhotonsPerPass));
 
-	PH_LOG(PMRenderer, "start accumulating passes...");
+	TSynchronized<HdrRgbFilm> resultFilm(HdrRgbFilm(
+		getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter()));
 
-	std::mutex resultFilmMutex;
-	auto resultFilm = std::make_unique<HdrRgbFilm>(
-		getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
+	std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
+	std::vector<Photon> photonBuffer(numPhotonsPerPass);
+	TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
+
+	PH_LOG(PMRenderer, "start accumulating passes...");
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
@@ -110,9 +169,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		PH_PROFILE_NAMED_SCOPE("SPPM pass");
 
 		passTimer.start();
-		std::vector<Photon> photonBuffer(numPhotonsPerPass);
 
-		std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
 		parallel_work(workers, numPhotonsPerPass,
 			[this, &photonBuffer, &numPhotonPaths](
 				const std::size_t workerIdx, 
@@ -136,35 +193,27 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 			});
 		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
 
-		TPhotonMap<Photon> photonMap(2, TPhotonCenterCalculator<Photon>());
-		photonMap.build(std::move(photonBuffer));
+		photonMap.build(photonBuffer);
 
-		parallel_work(workers, getRenderRegionPx().getWidth(),
-			[this, &photonMap, &viewpoints, &resultFilm, &resultFilmMutex, totalPhotonPaths, numFinishedPasses](
-				const std::size_t workerIdx, 
-				const std::size_t workStart, 
-				const std::size_t workEnd)
+		for(RadianceEvaluationRegion& radianceEvalRegion : radianceEvalRegions)
+		{
+			workers.queueWork([this, &radianceEvalRegion, &photonMap, &resultFilm, totalPhotonPaths, numFinishedPasses]()
 			{
 				PH_PROFILE_NAMED_SCOPE("SPPM energy estimation");
 
-				Region region = getRenderRegionPx();
-				auto [minVertex, maxVertex] = region.getVertices();
-				minVertex.x() = getRenderRegionPx().getMinVertex().x() + workStart;
-				maxVertex.x() = getRenderRegionPx().getMinVertex().x() + workEnd;
-				region.setVertices({minVertex, maxVertex});
-
+				radianceEvalRegion.film.clear();
 				auto sampleGenerator = getSampleGenerator()->genCopied(1);
 
 				using RadianceEvaluator = TSPPMRadianceEvaluator<Viewpoint, Photon>;
 
 				RadianceEvaluator radianceEvaluator(
-					viewpoints.data(),
-					viewpoints.size(),
+					radianceEvalRegion.viewpoints,
 					&photonMap,
 					totalPhotonPaths,
 					getScene(),
-					resultFilm.get(),
-					region,
+					&radianceEvalRegion.film,
+					radianceEvalRegion.region,
+					radianceEvalRegion.statisticsRes,
 					numFinishedPasses + 1,
 					16384);
 
@@ -173,14 +222,19 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 					getScene(),
 					getReceiver(),
 					sampleGenerator.get(),
-					math::TAABB2D<float64>(region),
-					region.getExtents());
+					// Must from within the region, shared statistics do not need out-of-region samples
+					math::TAABB2D<float64>(radianceEvalRegion.region),
+					radianceEvalRegion.statisticsRes);
 
 				viewpointWork.work();
-			});
 
-		asyncReplacePrimaryFilm(*resultFilm);
-		resultFilm->clear();
+				resultFilm->mergeWith(radianceEvalRegion.film);
+			});
+		}
+		workers.waitAllWorks();
+
+		asyncReplacePrimaryFilm(resultFilm.unsafeGetReference());
+		resultFilm.unsafeGetReference().clear();
 
 		passTimer.stop();
 

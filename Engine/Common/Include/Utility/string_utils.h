@@ -44,7 +44,7 @@ concept CHasToString = requires (const ObjType& obj)
 		/* `parse()` is inherited from the base class */\
 	\
 		/* Define `format()` by calling `std::string`'s implementation with custom type's `toString()`*/\
-		inline auto format(const __VA_ARGS__& value, ::std::format_context& ctx)\
+		inline auto format(const __VA_ARGS__& value, ::std::format_context& ctx) const\
 		{\
 			return ::std::formatter<::std::string>::format(\
 				value.toString(), ctx);\

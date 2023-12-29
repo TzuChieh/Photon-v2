@@ -22,6 +22,7 @@ public:
 	static SampleFilter make(MathFunction func, float64 widthPx, float64 heightPx);
 
 	/*! @brief Create a normalized box filter.
+	Box size is the same as a texel (1 px in width and height).
 	*/
 	static SampleFilter makeBox();
 

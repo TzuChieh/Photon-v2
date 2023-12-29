@@ -49,6 +49,7 @@ private:
 	using Base = TItemPoolInterface<ItemInterface, HandleType>;
 	using Index = typename HandleType::IndexType;
 	using Generation = typename HandleType::GenerationType;
+	using NonConstItem = std::remove_const_t<Item>;
 
 public:
 	/*! If `Item` is a polymorphic type, then `Item` itself along with all its bases can form a
@@ -167,7 +168,7 @@ public:
 	using IteratorType = TIterator<false>;
 	using ConstIteratorType = TIterator<true>;
 
-	inline TItemPool()
+	TItemPool()
 		: m_storageMemory()
 		, m_storageStates()
 		, m_dispatcher()
@@ -177,7 +178,7 @@ public:
 	/*! @brief Copy items stored in `other` into this pool.
 	Handles that were originally valid for `other` will also be valid for this pool.
 	*/
-	inline TItemPool(const TItemPool& other)
+	TItemPool(const TItemPool& other)
 		requires std::is_copy_constructible_v<Item> &&
 		         std::is_copy_constructible_v<Dispatcher>
 
@@ -203,20 +204,20 @@ public:
 		PH_ASSERT_EQ(m_numItems, other.m_numItems);
 	}
 
-	inline TItemPool(TItemPool&& other) noexcept
+	TItemPool(TItemPool&& other) noexcept
 		: TItemPool()
 	{
 		swap(*this, other);
 	}
 
-	inline TItemPool& operator = (TItemPool rhs) noexcept
+	TItemPool& operator = (TItemPool rhs) noexcept
 	{
 		swap(*this, rhs);
 
 		return *this;
 	}
 
-	inline ~TItemPool() override
+	~TItemPool() override
 	{
 		clear();
 
@@ -224,12 +225,12 @@ public:
 		PH_ASSERT_EQ(m_numItems, 0);
 	}
 
-	inline ItemInterface* accessItem(const HandleType& handle) override
+	ItemInterface* accessItem(const HandleType& handle) override
 	{
 		return get(handle);
 	}
 
-	inline const ItemInterface* viewItem(const HandleType& handle) const override
+	const ItemInterface* viewItem(const HandleType& handle) const override
 	{
 		return get(handle);
 	}
@@ -238,7 +239,7 @@ public:
 	Will not invalidate iterators. Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
 	@return Handle of the added `item`.
 	*/
-	inline HandleType add(Item item)
+	HandleType add(Item item)
 	{
 		return createAt(dispatchOneHandle(), std::move(item));
 	}
@@ -247,7 +248,7 @@ public:
 	Will not invalidate iterators. Complexity: O(1).
 	*/
 	template<typename ItemType>
-	inline void remove(const TCompatibleHandleType<ItemType>& handle)
+	void remove(const TCompatibleHandleType<ItemType>& handle)
 	{
 		returnOneHandle(removeAt(handle));
 	}
@@ -258,7 +259,7 @@ public:
 	@return Handle of the created `item`. Equivalent to the input `handle`.
 	*/
 	template<typename ItemType>
-	inline HandleType createAt(const TCompatibleHandleType<ItemType>& handle, Item item)
+	HandleType createAt(const TCompatibleHandleType<ItemType>& handle, Item item)
 	{
 		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);
 
@@ -309,7 +310,7 @@ public:
 	*/
 	template<typename ItemType>
 	[[nodiscard]]
-	inline HandleType removeAt(const TCompatibleHandleType<ItemType>& handle)
+	HandleType removeAt(const TCompatibleHandleType<ItemType>& handle)
 	{
 		if(!isFresh(handle))
 		{
@@ -337,7 +338,7 @@ public:
 	Manual handle management API.
 	*/
 	[[nodiscard]]
-	inline HandleType dispatchOneHandle()
+	HandleType dispatchOneHandle()
 	{
 		// Note: call the dispatcher without touching internal states, as this method may be called
 		// with a different policy (e.g., from a different thread, depending on the dispatcher used)
@@ -348,7 +349,7 @@ public:
 	Manual handle management API.
 	*/
 	template<typename ItemType>
-	inline void returnOneHandle(const TCompatibleHandleType<ItemType>& handle)
+	void returnOneHandle(const TCompatibleHandleType<ItemType>& handle)
 	{
 		HandleType nativeHandle(handle.getIndex(), handle.getGeneration());
 
@@ -357,7 +358,7 @@ public:
 		m_dispatcher.returnOne(nativeHandle);
 	}
 
-	inline void clear()
+	void clear()
 	{
 		if(isEmpty())
 		{
@@ -378,7 +379,7 @@ public:
 	uninitialized item (not yet created), null will also be returned.
 	*/
 	template<typename ItemType>
-	inline ItemType* get(const TCompatibleHandleType<ItemType>& handle)
+	ItemType* get(const TCompatibleHandleType<ItemType>& handle)
 	{
 		return isFresh(handle) && !m_storageStates[handle.getIndex()].isFreed
 			? getItemPtr(m_storageMemory, handle.getIndex())
@@ -391,7 +392,7 @@ public:
 	uninitialized item (not yet created), null will also be returned.
 	*/
 	template<typename ItemType>
-	inline const ItemType* get(const TCompatibleHandleType<ItemType>& handle) const
+	const ItemType* get(const TCompatibleHandleType<ItemType>& handle) const
 	{
 		return isFresh(handle) && !m_storageStates[handle.getIndex()].isFreed
 			? getItemPtr(m_storageMemory, handle.getIndex())
@@ -399,7 +400,7 @@ public:
 	}
 
 	template<typename ItemType>
-	inline auto getStrong(const TCompatibleHandleType<ItemType>& handle)
+	auto getStrong(const TCompatibleHandleType<ItemType>& handle)
 	-> TStrongHandle<ItemInterface, Index, Generation>
 	{
 		using StrongHandle = TStrongHandle<ItemInterface, Index, Generation>;
@@ -411,19 +412,19 @@ public:
 		return StrongHandle(EmbeddedWeakHandle(handle), this);
 	}
 
-	inline Index numItems() const
+	Index numItems() const
 	{
 		PH_ASSERT_LE(m_numItems, capacity());
 		return m_numItems;
 	}
 
-	inline Index numFreeSpace() const
+	Index numFreeSpace() const
 	{
 		PH_ASSERT_LE(m_numItems, capacity());
 		return capacity() - m_numItems;
 	}
 
-	inline Index capacity() const
+	Index capacity() const
 	{
 		PH_ASSERT_LE(m_storageStates.size(), maxCapacity());
 		return static_cast<Index>(m_storageStates.size());
@@ -432,12 +433,12 @@ public:
 	/*!
 	@return Wether this pool contains any item.
 	*/
-	inline bool isEmpty() const
+	bool isEmpty() const
 	{
 		return numItems() == 0;
 	}
 
-	inline bool hasFreeSpace() const
+	bool hasFreeSpace() const
 	{
 		return numFreeSpace() > 0;
 	}
@@ -447,7 +448,7 @@ public:
 	item validity.
 	*/
 	template<typename ItemType>
-	inline bool isFresh(const TCompatibleHandleType<ItemType>& handle) const
+	bool isFresh(const TCompatibleHandleType<ItemType>& handle) const
 	{
 		return handle.getIndex() < m_storageStates.size() &&
 		       handle.getGeneration() == m_storageStates[handle.getIndex()].generation;
@@ -456,33 +457,33 @@ public:
 	/*! @brief Iterators for all created items in the pool.
 	*/
 	///@{
-	inline IteratorType begin()
+	IteratorType begin()
 	{
 		return IteratorType(this, nextItemBeginIndex(0));
 	}
 
-	inline IteratorType end()
+	IteratorType end()
 	{
 		return IteratorType(this, capacity());
 	}
 
-	inline ConstIteratorType cbegin()
+	ConstIteratorType cbegin()
 	{
 		return IteratorType(this, nextItemBeginIndex(0));
 	}
 
-	inline ConstIteratorType cend()
+	ConstIteratorType cend()
 	{
 		return IteratorType(this, capacity());
 	}
 	///@}
 
-	inline static constexpr Index maxCapacity()
+	static constexpr Index maxCapacity()
 	{
 		return std::numeric_limits<Index>::max();
 	}
 
-	inline friend void swap(TItemPool& first, TItemPool& second) noexcept
+	friend void swap(TItemPool& first, TItemPool& second) noexcept
 	{
 		// Enable ADL
 		using std::swap;
@@ -494,7 +495,7 @@ public:
 	}
 
 private:
-	inline void createItemAtIndex(const Index itemIdx, Item item)
+	void createItemAtIndex(const Index itemIdx, Item item)
 	{
 		PH_ASSERT_LT(itemIdx, m_storageStates.size());
 		PH_ASSERT(m_storageStates[itemIdx].isFreed);
@@ -508,7 +509,7 @@ private:
 		++m_numItems;
 	}
 
-	inline void removeItemAtIndex(const Index itemIdx)
+	void removeItemAtIndex(const Index itemIdx)
 	{
 		PH_ASSERT_LT(itemIdx, capacity());
 		PH_ASSERT(!m_storageStates[itemIdx].isFreed);
@@ -520,12 +521,12 @@ private:
 		--m_numItems;
 	}
 
-	inline HandleType getHandleByIndex(const Index itemIdx) const
+	HandleType getHandleByIndex(const Index itemIdx) const
 	{
 		return HandleType(itemIdx, m_storageStates[itemIdx].generation);
 	}
 
-	inline void grow(const Index newCapacity)
+	void grow(const Index newCapacity)
 	{
 		const Index oldCapacity = capacity();
 		PH_ASSERT_GT(newCapacity, oldCapacity);
@@ -534,10 +535,10 @@ private:
 		const auto alignmentSize = std::lcm(alignof(Item), os::get_L1_cache_line_size_in_bytes());
 		const auto totalMemorySize = math::next_multiple(requiredMemorySize, alignmentSize);
 
-		// Create new item storage and move item over
+		// Create new item storage and move items over
 
-		TAlignedMemoryUniquePtr<Item> newStorageMemory = 
-			make_aligned_memory<Item>(totalMemorySize, alignmentSize);
+		TAlignedMemoryUniquePtr<NonConstItem> newStorageMemory =
+			make_aligned_memory<NonConstItem>(totalMemorySize, alignmentSize);
 		if(!newStorageMemory)
 		{
 			throw std::bad_alloc{};
@@ -558,7 +559,7 @@ private:
 	}
 
 	template<typename PerItemStorageOp>
-	inline void forEachItemStorage(PerItemStorageOp op)
+	void forEachItemStorage(PerItemStorageOp op)
 	{
 		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
 		{
@@ -570,7 +571,7 @@ private:
 	}
 
 	template<typename PerItemStorageOp>
-	inline void forEachItemStorage(PerItemStorageOp op) const
+	void forEachItemStorage(PerItemStorageOp op) const
 	{
 		for(Index itemIdx = 0; itemIdx < capacity(); ++itemIdx)
 		{
@@ -582,7 +583,7 @@ private:
 	}
 
 	template<typename PerItemOp>
-	inline void forEachItem(PerItemOp op)
+	void forEachItem(PerItemOp op)
 	{
 		forEachItemStorage(
 			[op, this](Item* item, Index idx)
@@ -597,7 +598,7 @@ private:
 	}
 
 	template<typename PerItemOp>
-	inline void forEachItem(PerItemOp op) const
+	void forEachItem(PerItemOp op) const
 	{
 		forEachItemStorage(
 			[op, this](const Item* item, Index idx)
@@ -611,7 +612,7 @@ private:
 			});
 	}
 
-	inline Index nextItemBeginIndex(const Index beginIdx) const
+	Index nextItemBeginIndex(const Index beginIdx) const
 	{
 		// If failed, most likely be using an out-of-range iterator
 		PH_ASSERT_IN_RANGE_INCLUSIVE(beginIdx, 0, capacity());
@@ -631,7 +632,7 @@ private:
 		return itemBeginIdx;
 	}
 
-	inline Index previousItemEndIndex(const Index endIdx) const
+	Index previousItemEndIndex(const Index endIdx) const
 	{
 		// If failed, most likely be using an out-of-range iterator
 		PH_ASSERT_IN_RANGE_INCLUSIVE(endIdx, 0, capacity());
@@ -655,11 +656,15 @@ private:
 	This method helps to automatically do pointer laundering if required. Note that the pointed-to item
 	must be within its lifetime, otherwise it is UB.
 	*/
-	inline static Item* getItemPtr(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
+	static auto getItemPtr(
+		const TAlignedMemoryUniquePtr<NonConstItem>& storage,
+		const std::size_t index)
+	-> NonConstItem*
 	{
 		// If `Item` is const qualified, laundering is required to prevent aggressive constant folding.
 		// See [basic.life] section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
-		if constexpr(std::is_const_v<Item> || PH_STRICT_OBJECT_LIFETIME)
+		//                   vvv currently not required as we are storing `NonConstItem`
+		if constexpr(/* std::is_const_v<Item> || */ PH_STRICT_OBJECT_LIFETIME)
 		{
 			// UB if pointed-to object not within its lifetime
 			return std::launder(getItemPtrDirectly(storage, index));
@@ -672,12 +677,15 @@ private:
 		}
 	}
 
-	inline static Item* getItemPtrDirectly(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
+	static auto getItemPtrDirectly(
+		const TAlignedMemoryUniquePtr<NonConstItem>& storage,
+		const std::size_t index)
+	-> NonConstItem*
 	{
 		return storage.get() + index;
 	}
 
-	inline static constexpr Index nextCapacity(const Index currentCapacity)
+	static constexpr Index nextCapacity(const Index currentCapacity)
 	{
 		// Effective growth rate k = 1.5
 		const Index oldCapacity = currentCapacity;
@@ -697,7 +705,12 @@ private:
 		// so generation collision will never happen.
 	};
 
-	TAlignedMemoryUniquePtr<Item> m_storageMemory;
+	// LWG 3870 forbids `std::construct_at` to modify/create const objects. We store all items
+	// as `NonConstItem` and rely on implicit casts to const if required. This seems to be a weaker
+	// part of the standard and supporting const storage does not worth the risk of UB for now.
+	// See `getItemPtr()` for more important things to know for supporting const items.
+	TAlignedMemoryUniquePtr<NonConstItem> m_storageMemory;
+
 	std::vector<StorageState> m_storageStates;
 	Dispatcher m_dispatcher;
 	Index m_numItems;

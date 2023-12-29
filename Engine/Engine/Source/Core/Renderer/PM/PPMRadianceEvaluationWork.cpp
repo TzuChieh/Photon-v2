@@ -95,7 +95,7 @@ void PPMRadianceEvaluationWork::doWork()
 		viewpoint.set<EViewpointData::NumPhotons>(newN);
 		viewpoint.set<EViewpointData::Tau>(newTau);
 		
-		// evaluate radiance using current iteration's data
+		// Evaluate radiance using current iteration's data
 
 		const real kernelArea         = newR * newR * math::constant::pi<real>;
 		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(numPhotonPaths()));
@@ -114,8 +114,8 @@ void PPMRadianceEvaluationWork::sanitizeVariables()
 	real sanitizedAlpha = m_alpha;
 	if(m_alpha < 0.0_r || m_alpha > 1.0_r)
 	{
-		PH_LOG_WARNING(PPMRadianceEvaluationWork, "alpha must be in [0, 1], {} provided, clamping", m_alpha);
-
+		PH_LOG_WARNING(PPMRadianceEvaluationWork,
+			"alpha must be in [0, 1], {} provided, clamping", m_alpha);
 		sanitizedAlpha = math::clamp(m_alpha, 0.0_r, 1.0_r);
 	}
 

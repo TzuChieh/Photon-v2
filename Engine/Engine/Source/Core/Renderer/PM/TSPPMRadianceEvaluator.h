@@ -17,6 +17,7 @@
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Scheduler/Region.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Utility/TSpan.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -36,14 +37,14 @@ class TSPPMRadianceEvaluator : public TViewPathHandler<TSPPMRadianceEvaluator<Vi
 
 public:
 	TSPPMRadianceEvaluator(
-		Viewpoint* viewpoints,
-		std::size_t numViewpoints,
+		TSpan<Viewpoint> viewpoints,
 		const TPhotonMap<Photon>* photonMap,
 		std::size_t numPhotonPaths,
 		const Scene* scene,
 		TSamplingFilm<math::Spectrum>* film,
-		const Region& filmRegion,
-		std::size_t numSamplesPerPixel,
+		const Region& statisticsRegion,
+		const math::TVector2<int64>& statisticsRes,
+		std::size_t numViewRadianceSamples,
 		std::size_t maxViewpointDepth);
 
 	bool impl_onReceiverSampleStart(
@@ -61,53 +62,68 @@ public:
 	void impl_onSampleBatchFinished();
 
 private:
-	Viewpoint* m_viewpoints;
-	std::size_t m_numViewpoints;
+	void addViewRadiance(Viewpoint& viewpoint, const math::Spectrum& radiance);
+	math::Spectrum estimateRadiance(const Viewpoint& viewpoint) const;
+	std::size_t getViewpointIndex(int64 sampleX, int64 sampleY) const;
+
+	TSpan<Viewpoint> m_viewpoints;
 	const TPhotonMap<Photon>* m_photonMap;
-	std::size_t m_numPhotonPaths;
+	real m_rcpNumPhotonPaths;
 	const Scene* m_scene;
 	TSamplingFilm<math::Spectrum>* m_film;
-	Region m_filmRegion;
-	std::size_t m_numSamplesPerPixel;
+	Region m_statisticsRegion;
+	math::TVector2<int64> m_statisticsRes;
+	real m_rcpNumViewRadianceSamples;
 	std::size_t m_maxViewpointDepth;
 
 	Viewpoint* m_viewpoint;
 	std::vector<Photon> m_photonCache;
-	bool m_isViewpointFound;
-
-	void addViewRadiance(const math::Spectrum& radiance);
+	bool m_foundTargetHitPoint;
 };
 
 // In-header Implementations:
 
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
-	Viewpoint* viewpoints,
-	std::size_t numViewpoints,
+	TSpan<Viewpoint> viewpoints,
 	const TPhotonMap<Photon>* photonMap,
 	std::size_t numPhotonPaths,
 	const Scene* scene,
 	TSamplingFilm<math::Spectrum>* film,
-	const Region& filmRegion,
-	std::size_t numSamplesPerPixel,
-	std::size_t maxViewpointDepth) :
+	const Region& statisticsRegion,
+	const math::TVector2<int64>& statisticsRes,
+	std::size_t numViewRadianceSamples,
+	std::size_t maxViewpointDepth)
 
-	m_viewpoints(viewpoints),
-	m_numViewpoints(numViewpoints),
-	m_photonMap(photonMap),
-	m_numPhotonPaths(numPhotonPaths),
-	m_scene(scene),
-	m_film(film),
-	m_filmRegion(filmRegion),
-	m_numSamplesPerPixel(numSamplesPerPixel),
-	m_maxViewpointDepth(maxViewpointDepth)
+	: m_viewpoints(viewpoints)
+	, m_photonMap(photonMap)
+	, m_rcpNumPhotonPaths()
+	, m_scene(scene)
+	, m_film(film)
+	, m_statisticsRegion(statisticsRegion)
+	, m_statisticsRes(statisticsRes)
+	, m_rcpNumViewRadianceSamples()
+	, m_maxViewpointDepth(maxViewpointDepth)
+
+	, m_viewpoint(nullptr)
+	, m_photonCache()
+	, m_foundTargetHitPoint(false)
 {
-	PH_ASSERT(m_viewpoints);
+	PH_ASSERT(!m_viewpoints.empty());
 	PH_ASSERT(photonMap);
 	PH_ASSERT_GE(numPhotonPaths, 1);
 	PH_ASSERT(scene);
 	PH_ASSERT(film);
+	PH_ASSERT_GE(statisticsRes.product(), 1);
 	PH_ASSERT_GE(maxViewpointDepth, 1);
+
+	m_rcpNumPhotonPaths = numPhotonPaths > 0
+		? 1.0_r / static_cast<real>(numPhotonPaths)
+		: 0.0_r;
+
+	m_rcpNumViewRadianceSamples = numViewRadianceSamples > 0
+		? 1.0_r / static_cast<real>(numViewRadianceSamples)
+		: 0.0_r;
 }
 
 template<CViewpoint Viewpoint, CPhoton Photon>
@@ -116,28 +132,8 @@ inline bool TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleStar
 	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
 {
-	// FIXME: sample res
-
-	const auto fRasterCoord = math::Vector2R(rasterCoord);
-
-	const math::Vector2S regionPosPx(math::Vector2R(
-		math::clamp(
-			fRasterCoord.x() - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().x()),
-			0.0_r,
-			static_cast<real>(m_film->getEffectiveResPx().x() - 1)),
-		math::clamp(
-			fRasterCoord.y() - static_cast<real>(m_film->getEffectiveWindowPx().getMinVertex().y()),
-			0.0_r, 
-			static_cast<real>(m_film->getEffectiveResPx().y() - 1))));
-
-	const std::size_t viewpointIdx = 
-		regionPosPx.y() * static_cast<std::size_t>(m_film->getEffectiveResPx().x()) +
-		regionPosPx.x();
-
-	PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
-	m_viewpoint = &(m_viewpoints[viewpointIdx]);
-	
-	m_isViewpointFound = false;
+	m_viewpoint = &(m_viewpoints[getViewpointIndex(sampleIndex.x(), sampleIndex.y())]);
+	m_foundTargetHitPoint = false;
 
 	return true;
 }
@@ -158,7 +154,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		{
 			math::Spectrum viewRadiance;
 			metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewRadiance);
-			addViewRadiance(pathThroughput * viewRadiance);
+			addViewRadiance(*m_viewpoint, pathThroughput * viewRadiance);
 		}
 	}
 	
@@ -179,7 +175,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 			m_viewpoint->template set<EViewpointData::ViewDir>(surfaceHit.getIncidentRay().getDirection().mul(-1));
 		}
 
-		m_isViewpointFound = true;
+		m_foundTargetHitPoint = true;
 
 		return ViewPathTracingPolicy().kill();
 	}
@@ -194,7 +190,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd()
 {
-	if(!m_isViewpointFound)
+	if(!m_foundTargetHitPoint)
 	{
 		return;
 	}
@@ -251,38 +247,75 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinished()
 {
-	// Evaluate radiance using current iteration's data
-	for(int64 y = m_filmRegion.getMinVertex().y(); y < m_filmRegion.getMaxVertex().y(); ++y)
+	PH_ASSERT_GT(m_statisticsRes.product(), 0);
+
+	const math::TAABB2D<float64> statisticsRegion(m_statisticsRegion);
+	const auto rcpStatisticsRes = math::Vector2D(m_statisticsRes).rcp();
+
+	// Evaluate radiance using current iteration's data. Each SPPM statistics gathered is for
+	// estimating average radiance for a small sub-pixel region. We treat each estimated value
+	// as if it is centered on the sub-pixel region it represents.
+	for(int64 y = 0; y < m_statisticsRes.y(); ++y)
 	{
-		for(int64 x = m_filmRegion.getMinVertex().x(); x < m_filmRegion.getMaxVertex().x(); ++x)
+		for(int64 x = 0; x < m_statisticsRes.x(); ++x)
 		{
-			const std::size_t viewpointIdx =
-				(y - m_film->getEffectiveWindowPx().getMinVertex().y()) * static_cast<std::size_t>(m_film->getEffectiveResPx().x()) +
-				(x - m_film->getEffectiveWindowPx().getMinVertex().x());
+			const auto& viewpoint = m_viewpoints[getViewpointIndex(x, y)];
+			const auto& statisticsRasterCoord = statisticsRegion.xy01ToSurface(
+				(math::Vector2D(math::TVector2<int64>{x, y}) + 0.5) * rcpStatisticsRes);
 
-			PH_ASSERT_LT(viewpointIdx, m_numViewpoints);
-			const auto& viewpoint = m_viewpoints[viewpointIdx];
-
-			const real radius             = viewpoint.template get<EViewpointData::Radius>();
-			const real kernelArea         = radius * radius * math::constant::pi<real>;
-			const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
-
-			math::Spectrum radiance(viewpoint.template get<EViewpointData::Tau>() * radianceMultiplier);
-			radiance.addLocal(viewpoint.template get<EViewpointData::ViewRadiance>() / static_cast<real>(m_numSamplesPerPixel));
-			m_film->setPixel(static_cast<float64>(x), static_cast<float64>(y), radiance);
+			// For most accurate result, we should average the viewpoints' radiance by ourselves and
+			// use `setPixel()` to store the value directly. Using `addSample()` will only be correct
+			// if a box filter is used. Nevertheless, the worst result is a slightly overblurred image.
+			// If higher number of viewpoints/regions per pixel were used, it will still approach a
+			// per-sample filtered PT result in the limit (infinite viewpoints per pixel) except on
+			// edges as we are not storing out-of-raster-bound statistics.
+			m_film->addSample(
+				statisticsRasterCoord.x(), 
+				statisticsRasterCoord.y(), 
+				estimateRadiance(viewpoint));
 		}
 	}
 }
 
 template<CViewpoint Viewpoint, CPhoton Photon>
-inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::addViewRadiance(const math::Spectrum& radiance)
+inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::addViewRadiance(
+	Viewpoint& viewpoint, 
+	const math::Spectrum& radiance)
 {
 	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
 		math::Spectrum viewRadiance = m_viewpoint->template get<EViewpointData::ViewRadiance>();
 		viewRadiance.addLocal(radiance);
-		m_viewpoint->template set<EViewpointData::ViewRadiance>(viewRadiance);
+		viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
 	}
+}
+
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline math::Spectrum TSPPMRadianceEvaluator<Viewpoint, Photon>::estimateRadiance(
+	const Viewpoint& viewpoint) const
+{
+	const real radius             = viewpoint.template get<EViewpointData::Radius>();
+	const real kernelArea         = radius * radius * math::constant::pi<real>;
+	const real radianceMultiplier = m_rcpNumPhotonPaths / kernelArea;
+	const auto tau                = viewpoint.template get<EViewpointData::Tau>();
+	const auto viewRadiance       = viewpoint.template get<EViewpointData::ViewRadiance>();
+
+	math::Spectrum radiance(tau * radianceMultiplier);
+	radiance.addLocal(viewRadiance * m_rcpNumViewRadianceSamples);
+	return radiance;
+}
+
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline std::size_t TSPPMRadianceEvaluator<Viewpoint, Photon>::getViewpointIndex(
+	const int64 sampleX, const int64 sampleY) const
+{
+	PH_ASSERT_IN_RANGE(sampleX, 0, m_statisticsRes.x());
+	PH_ASSERT_IN_RANGE(sampleY, 0, m_statisticsRes.y());
+
+	const std::size_t viewpointIdx = sampleY * m_statisticsRes.x() + sampleX;
+	PH_ASSERT_LT(viewpointIdx, m_viewpoints.size());
+
+	return viewpointIdx;
 }
 
 }// end namespace ph

@@ -242,7 +242,6 @@ void HdrRgbFilm::setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindo
 	TSamplingFilm<math::Spectrum>::setEffectiveWindowPx(effectiveWindow);
 
 	resizeRadianceSensorBuffer();
-	clearRadianceSensors();
 }
 
 }// end namespace

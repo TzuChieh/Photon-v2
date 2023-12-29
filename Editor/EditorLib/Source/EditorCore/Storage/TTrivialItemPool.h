@@ -68,16 +68,17 @@ public:
 private:
 	using Index = typename HandleType::IndexType;
 	using Generation = typename HandleType::GenerationType;
+	using NonConstItem = std::remove_const_t<Item>;
 
 public:
-	inline TTrivialItemPool()
+	TTrivialItemPool()
 		: m_storageMemory()
 		, m_generations()
 		, m_dispatcher()
 		, m_numItems(0)
 	{}
 
-	inline TTrivialItemPool(const TTrivialItemPool& other)
+	TTrivialItemPool(const TTrivialItemPool& other)
 		requires std::is_copy_constructible_v<Item> && 
 	             std::is_copy_constructible_v<Dispatcher>
 
@@ -100,27 +101,27 @@ public:
 		m_generations = other.m_generations;
 	}
 
-	inline TTrivialItemPool(TTrivialItemPool&& other) noexcept
+	TTrivialItemPool(TTrivialItemPool&& other) noexcept
 		: TTrivialItemPool()
 	{
 		swap(*this, other);
 	}
 
-	inline TTrivialItemPool& operator = (TTrivialItemPool rhs) noexcept
+	TTrivialItemPool& operator = (TTrivialItemPool rhs) noexcept
 	{
 		swap(*this, rhs);
 
 		return *this;
 	}
 
-	inline ~TTrivialItemPool() override = default;
+	~TTrivialItemPool() override = default;
 
-	inline Item* accessItem(const HandleType& handle) override
+	Item* accessItem(const HandleType& handle) override
 	{
 		return get(handle);
 	}
 
-	inline const Item* viewItem(const HandleType& handle) const override
+	const Item* viewItem(const HandleType& handle) const override
 	{
 		return get(handle);
 	}
@@ -131,7 +132,7 @@ public:
 	hence lost handles cannot be recycled automatically.
 	*/
 	[[nodiscard]]
-	inline HandleType add(Item item)
+	HandleType add(Item item)
 	{
 		return createAt(dispatchOneHandle(), std::move(item));
 	}
@@ -139,7 +140,7 @@ public:
 	/*! @brief Remove the item at the storage slot indicated by `handle`.
 	Complexity: O(1).
 	*/
-	inline void remove(const HandleType& handle)
+	void remove(const HandleType& handle)
 	{
 		returnOneHandle(removeAt(handle));
 	}
@@ -148,7 +149,7 @@ public:
 	Manual handle management API. Complexity: Amortized O(1). O(1) if `hasFreeSpace()` returns true.
 	@return Handle of the created `item`. Same as the input `handle`.
 	*/
-	inline HandleType createAt(const HandleType& handle, Item item)
+	HandleType createAt(const HandleType& handle, Item item)
 	{
 		constexpr auto initialGeneration = HandleType::nextGeneration(HandleType::INVALID_GENERATION);
 
@@ -197,7 +198,7 @@ public:
 	calling `returnOneHandle()`.
 	*/
 	[[nodiscard]]
-	inline HandleType removeAt(const HandleType& handle)
+	HandleType removeAt(const HandleType& handle)
 	{
 		if(!isFresh(handle))
 		{
@@ -224,7 +225,7 @@ public:
 	Manual handle management API.
 	*/
 	[[nodiscard]]
-	inline HandleType dispatchOneHandle()
+	HandleType dispatchOneHandle()
 	{
 		// Note: call the dispatcher without touching internal states, as this method may be called
 		// with a different policy (e.g., from a different thread, depending on the dispatcher used)
@@ -234,7 +235,7 @@ public:
 	/*!
 	Manual handle management API.
 	*/
-	inline void returnOneHandle(const HandleType& handle)
+	void returnOneHandle(const HandleType& handle)
 	{
 		// Note: call the dispatcher without touching internal states, as this method may be called
 		// with a different policy (e.g., from a different thread, depending on the dispatcher used)
@@ -247,7 +248,7 @@ public:
 	Complexity: O(1).
 	@return Pointer to the item. Null if item does not exist.
 	*/
-	inline Item* get(const HandleType& handle)
+	Item* get(const HandleType& handle)
 	{
 		return isFresh(handle) ? getItemPtr(m_storageMemory, handle.getIndex()) : nullptr;
 	}
@@ -258,24 +259,24 @@ public:
 	Complexity: O(1).
 	@return Pointer to the item. Null if item does not exist.
 	*/
-	inline const Item* get(const HandleType& handle) const
+	const Item* get(const HandleType& handle) const
 	{
 		return isFresh(handle) ? getItemPtr(m_storageMemory, handle.getIndex()) : nullptr;
 	}
 
-	inline Index numItems() const
+	Index numItems() const
 	{
 		PH_ASSERT_LE(m_numItems, capacity());
 		return m_numItems;
 	}
 
-	inline Index numFreeSpace() const
+	Index numFreeSpace() const
 	{
 		PH_ASSERT_LE(m_numItems, capacity());
 		return capacity() - m_numItems;
 	}
 
-	inline Index capacity() const
+	Index capacity() const
 	{
 		PH_ASSERT_LE(m_generations.size(), maxCapacity());
 		return static_cast<Index>(m_generations.size());
@@ -284,7 +285,7 @@ public:
 	/*!
 	@return Wether this pool contains any item.
 	*/
-	inline bool isEmpty() const
+	bool isEmpty() const
 	{
 		return numItems() == 0;
 	}
@@ -293,7 +294,7 @@ public:
 	@return Whether the handle is an up-to-date one for the underlying storage. Does not check for
 	item validity.
 	*/
-	inline bool isFresh(const HandleType& handle) const
+	bool isFresh(const HandleType& handle) const
 	{
 		return handle.getIndex() < m_generations.size() &&
 		       handle.getGeneration() == m_generations[handle.getIndex()];
@@ -304,25 +305,25 @@ public:
 	@return The item at `index`. Default constructed if it is not created already.
 	*/
 	///@{
-	inline Item& operator [] (const std::size_t index)
+	Item& operator [] (const std::size_t index)
 	{
 		PH_ASSERT_LT(index, m_generations.size());
 		return *getItemPtr(m_storageMemory, index);
 	}
 
-	inline const Item& operator [] (const std::size_t index) const
+	const Item& operator [] (const std::size_t index) const
 	{
 		PH_ASSERT_LT(index, m_generations.size());
 		return *getItemPtr(m_storageMemory, index);
 	}
 	///@}
 
-	inline static constexpr Index maxCapacity()
+	static constexpr Index maxCapacity()
 	{
 		return std::numeric_limits<Index>::max();
 	}
 
-	inline friend void swap(TTrivialItemPool& first, TTrivialItemPool& second) noexcept
+	friend void swap(TTrivialItemPool& first, TTrivialItemPool& second) noexcept
 	{
 		// Enable ADL
 		using std::swap;
@@ -334,19 +335,19 @@ public:
 	}
 
 private:
-	inline void grow(const Index newCapacity)
+	void grow(const Index newCapacity)
 	{
 		const Index oldCapacity = capacity();
 		PH_ASSERT_GT(newCapacity, oldCapacity);
 
-		const auto requiredMemorySize = newCapacity * sizeof(Item);
-		const auto alignmentSize = std::lcm(alignof(Item), os::get_L1_cache_line_size_in_bytes());
+		const auto requiredMemorySize = newCapacity * sizeof(NonConstItem);
+		const auto alignmentSize = std::lcm(alignof(NonConstItem), os::get_L1_cache_line_size_in_bytes());
 		const auto totalMemorySize = math::next_multiple(requiredMemorySize, alignmentSize);
 
 		// Create new item storage and move items over
 
-		TAlignedMemoryUniquePtr<Item> newStorageMemory = 
-			make_aligned_memory<Item>(totalMemorySize, alignmentSize);
+		TAlignedMemoryUniquePtr<NonConstItem> newStorageMemory =
+			make_aligned_memory<NonConstItem>(totalMemorySize, alignmentSize);
 		if(!newStorageMemory)
 		{
 			throw std::bad_alloc{};
@@ -382,11 +383,15 @@ private:
 	This method helps to automatically do pointer laundering if required. Note that the pointed-to item
 	must be within its lifetime, otherwise it is UB.
 	*/
-	inline static Item* getItemPtr(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
+	static auto getItemPtr(
+		const TAlignedMemoryUniquePtr<NonConstItem>& storage, 
+		const std::size_t index)
+	-> NonConstItem*
 	{
 		// If `Item` is const qualified, laundering is required to prevent aggressive constant folding.
-		// See [basic.life] section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3)
-		if constexpr(std::is_const_v<Item> || PH_STRICT_OBJECT_LIFETIME)
+		// See [basic.life] section 8.3 (https://timsong-cpp.github.io/cppwp/basic.life#8.3).
+		//                   vvv currently not required as we are storing `NonConstItem`
+		if constexpr(/* std::is_const_v<Item> || */ PH_STRICT_OBJECT_LIFETIME)
 		{
 			// UB if pointed-to object not within its lifetime
 			return std::launder(getItemPtrDirectly(storage, index));
@@ -399,12 +404,15 @@ private:
 		}
 	}
 
-	inline static Item* getItemPtrDirectly(const TAlignedMemoryUniquePtr<Item>& storage, const std::size_t index)
+	static auto getItemPtrDirectly(
+		const TAlignedMemoryUniquePtr<NonConstItem>& storage, 
+		const std::size_t index)
+	-> NonConstItem*
 	{
 		return storage.get() + index;
 	}
 
-	inline static constexpr Index nextCapacity(const Index currentCapacity)
+	static constexpr Index nextCapacity(const Index currentCapacity)
 	{
 		// Effective growth rate k = 1.5
 		const Index oldCapacity = currentCapacity;
@@ -415,7 +423,12 @@ private:
 	}
 
 private:
-	TAlignedMemoryUniquePtr<Item> m_storageMemory;
+	// LWG 3870 forbids `std::construct_at` to modify/create const objects. We store all items
+	// as `NonConstItem` and rely on implicit casts to const if required. This seems to be a weaker
+	// part of the standard and supporting const storage does not worth the risk of UB for now.
+	// See `getItemPtr()` for more important things to know for supporting const items.
+	TAlignedMemoryUniquePtr<NonConstItem> m_storageMemory;
+
 	std::vector<Generation> m_generations;
 	Dispatcher m_dispatcher;
 	Index m_numItems;
