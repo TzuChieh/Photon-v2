@@ -28,7 +28,7 @@ enum class ESidednessPolicy
 	TrustShading
 };
 
-class SidednessAgreement
+class SidednessAgreement final
 {
 public:
 	SidednessAgreement();

@@ -150,7 +150,13 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	// TODO: MIS
 	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
-		if(metadata->getSurface().getEmitter())
+		// Never contain 0-bounce photons
+		PH_ASSERT_GE(m_photonMap->minPhotonBounces, 1);
+
+		// Use path tracing to estimate lighting if we cannot construct the path length
+		// from photon map (including 0-bounce lighting)
+		if(metadata->getSurface().getEmitter() &&
+		   pathLength < m_photonMap->minPhotonBounces + 1)
 		{
 			math::Spectrum viewRadiance;
 			metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewRadiance);
@@ -160,7 +166,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	
 	// TODO: better handling of glossy optics
 	if(optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DiffuseReflection}) ||
-		pathLength >= m_maxViewpointDepth)
+	   pathLength >= m_maxViewpointDepth)
 	{
 		if constexpr(Viewpoint::template has<EViewpointData::SurfaceHit>())
 		{

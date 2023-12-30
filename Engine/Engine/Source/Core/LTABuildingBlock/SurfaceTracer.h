@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Utility/IMoveOnly.h"
 #include "World/Scene.h"
 #include "Core/HitProbe.h"
 #include "Core/SurfaceHit.h"
@@ -24,7 +23,7 @@ namespace ph
 
 class SampleFlow;
 
-class SurfaceTracer final : private IMoveOnly
+class SurfaceTracer final
 {
 public:
 	explicit SurfaceTracer(const Scene* scene);
@@ -34,11 +33,18 @@ public:
 		const SidednessAgreement& sidedness, 
 		SurfaceHit*               out_X) const;
 
-	bool doBsdfSample(
+	bool bsdfSampleNextSurface(
 		BsdfSampleQuery& bsdfSample,
-		SampleFlow&      sampleFlow,
-		Ray*             out_ray) const;
+		SampleFlow& sampleFlow,
+		SurfaceHit* out_X) const;
 
+	bool doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const;
+
+	bool doBsdfSample(
+		BsdfSampleQuery& bsdfSample, 
+		SampleFlow& sampleFlow, 
+		Ray* out_sampledRay) const;
+	
 	bool doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const;
 	bool doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const;
 	
@@ -87,13 +93,23 @@ inline bool SurfaceTracer::traceNextSurface(
 	return sidedness.isSidednessAgreed(*out_X, ray.getDirection());
 }
 
-inline bool SurfaceTracer::doBsdfSample(
-	BsdfSampleQuery& bsdfSample, 
-	SampleFlow&      sampleFlow, 
-	Ray* const       out_ray) const
+inline bool SurfaceTracer::bsdfSampleNextSurface(
+	BsdfSampleQuery& bsdfSample,
+	SampleFlow& sampleFlow,
+	SurfaceHit* out_X) const
+{
+	Ray sampledRay;
+	if(!doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
+	{
+		return false;
+	}
+
+	return traceNextSurface(sampledRay, bsdfSample.context.sidedness, out_X);
+}
+
+inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const
 {
 	PH_ASSERT(m_scene);
-	PH_ASSERT(out_ray);
 
 	const SurfaceHit&         X         = bsdfSample.inputs.X;
 	const SidednessAgreement& sidedness = bsdfSample.context.sidedness;
@@ -106,11 +122,29 @@ inline bool SurfaceTracer::doBsdfSample(
 
 	getSurfaceOptics(X)->calcBsdfSample(bsdfSample, sampleFlow);
 
-	// HACK: hard-coded number
-	*out_ray = Ray(X.getPosition(), bsdfSample.outputs.L, 0.0001_r, std::numeric_limits<real>::max());
-
 	return bsdfSample.outputs.isMeasurable() &&
 	       sidedness.isSidednessAgreed(X, bsdfSample.outputs.L);
+}
+
+inline bool SurfaceTracer::doBsdfSample(
+	BsdfSampleQuery& bsdfSample,
+	SampleFlow& sampleFlow,
+	Ray* const out_sampledRay) const
+{
+	if(!doBsdfSample(bsdfSample, sampleFlow))
+	{
+		return false;
+	}
+
+	PH_ASSERT(out_sampledRay);
+	// HACK: hard-coded number
+	*out_sampledRay = Ray(
+		bsdfSample.inputs.X.getPosition(),
+		bsdfSample.outputs.L,
+		0.0001_r,
+		std::numeric_limits<real>::max());
+
+	return true;
 }
 
 inline bool SurfaceTracer::doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const

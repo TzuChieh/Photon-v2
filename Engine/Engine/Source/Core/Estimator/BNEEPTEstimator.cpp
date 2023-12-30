@@ -110,7 +110,7 @@ void BNEEPTEstimator::estimate(
 			real           directPdfW;
 			math::Spectrum emittedRadiance;
 
-			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::Strict>(&scene).sample(
+			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::Strict>(&scene).neeSample(
 				surfaceHit, ray.getTime(), sampleFlow,
 				&L, &directPdfW, &emittedRadiance))
 			{
@@ -223,7 +223,7 @@ void BNEEPTEstimator::estimate(
 					// TODO: <directLightPdfW> might be 0, should we stop using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
-					const real directLightPdfW = TDirectLightEstimator<ESidednessPolicy::Strict>(&scene).samplePdfWUnoccluded(
+					const real directLightPdfW = TDirectLightEstimator<ESidednessPolicy::Strict>(&scene).neeSamplePdfWUnoccluded(
 						surfaceHit, Xe, ray.getTime());
 
 					BsdfPdfQuery bsdfPdfQuery;
