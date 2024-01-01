@@ -13,11 +13,17 @@
 namespace ph
 {
 
-// TODO: test
+/*! @brief A sample with arbitrary dimensions with fine-grained sampling control.
+*/
 class SampleFlow final
 {
 public:
+	/*! @brief Creates a flow of totally random values.
+	*/
 	SampleFlow();
+
+	/*! @brief Creates a flow with the first N dimensions pre-calculated.
+	*/
 	SampleFlow(const real* savedDims, std::size_t numSavedDims);
 
 	real flow1D();
@@ -31,7 +37,7 @@ public:
 	bool unflowedPick(real pickProbability);
 
 	// TODO: non-const is intentional for future sample recording
-	bool randomPick(real pickProbability);
+	bool unflowedRandomPick(real pickProbability);
 
 private:
 	const real*         m_savedDims;
@@ -103,7 +109,7 @@ inline bool SampleFlow::unflowedPick(const real pickProbability)
 	return isPicked;
 }
 
-inline bool SampleFlow::randomPick(const real pickProbability)
+inline bool SampleFlow::unflowedRandomPick(const real pickProbability)
 {
 	return math::pick(pickProbability, math::Random::genUniformReal_i0_e1());
 }

@@ -10,8 +10,8 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Emitter/Emitter.h"
-#include "Core/LTABuildingBlock/SurfaceTracer.h"
-#include "Core/LTABuildingBlock/lta.h"
+#include "Core/LTA/SurfaceTracer.h"
+#include "Core/LTA/lta.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Math/Color/Spectrum.h"
@@ -110,7 +110,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 	PH_ASSERT_GE(pathLength, 1);
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, ESidednessPolicy::Strict);
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
 	const PrimitiveMetadata* const metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics* const     surfaceOptics = metadata->getSurface().getOptics();
 
@@ -139,7 +139,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	m_photonCache.clear();
 	m_photonMap->map.findWithinRange(surfaceHit.getPosition(), m_kernelRadius, m_photonCache);
 
-	const SurfaceTracer surfaceTracer(m_scene);
+	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	const math::Vector3R L  = surfaceHit.getIncidentRay().getDirection().mul(-1);
 	const math::Vector3R Ns = surfaceHit.getShadingNormal();

@@ -5,8 +5,8 @@
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Emitter/Emitter.h"
-#include "Core/LTABuildingBlock/SurfaceTracer.h"
-#include "Core/LTABuildingBlock/lta.h"
+#include "Core/LTA/SurfaceTracer.h"
+#include "Core/LTA/lta.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 
@@ -48,8 +48,8 @@ void PPMRadianceEvaluationWork::doWork()
 
 	sanitizeVariables();
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, ESidednessPolicy::Strict);
-	const SurfaceTracer    surfaceTracer(m_scene);
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
+	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	std::vector<FullPhoton> photonCache;
 	for(std::size_t i = 0; i < m_numViewpoints; ++i)

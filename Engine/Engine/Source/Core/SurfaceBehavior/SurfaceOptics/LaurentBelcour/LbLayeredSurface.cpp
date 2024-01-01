@@ -3,7 +3,7 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/InterfaceStatistics.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/LbLayer.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h"
-#include "Core/LTABuildingBlock/SidednessAgreement.h"
+#include "Core/LTA/SidednessAgreement.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"

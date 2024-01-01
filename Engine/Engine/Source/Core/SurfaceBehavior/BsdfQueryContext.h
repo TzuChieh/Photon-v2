@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
-#include "Core/LTABuildingBlock/SidednessAgreement.h"
+#include "Core/LTA/SidednessAgreement.h"
 
 namespace ph
 {
@@ -11,37 +11,42 @@ namespace ph
 class BsdfQueryContext final
 {
 public:
-	SurfaceElemental   elemental;
-	ETransport         transport;
-	SidednessAgreement sidedness;
+	SurfaceElemental        elemental = ALL_ELEMENTALS;
+	ETransport              transport = ETransport::Radiance;
+	lta::SidednessAgreement sidedness = lta::SidednessAgreement(lta::ESidednessPolicy::Strict);
 
-	BsdfQueryContext();
+	BsdfQueryContext() = default;
 	explicit BsdfQueryContext(SurfaceElemental elemental);
+	explicit BsdfQueryContext(lta::ESidednessPolicy sidednessPolicy);
 
 	BsdfQueryContext(
 		SurfaceElemental elemental, 
 		ETransport       transport, 
-		ESidednessPolicy sidednessPolicy = ESidednessPolicy::Strict);
+		lta::ESidednessPolicy sidednessPolicy = lta::ESidednessPolicy::Strict);
 };
 
 // In-header Implementations:
 
-inline BsdfQueryContext::BsdfQueryContext() :
-	BsdfQueryContext(ALL_ELEMENTALS)
-{}
+inline BsdfQueryContext::BsdfQueryContext(SurfaceElemental elemental)
+	: BsdfQueryContext()
+{
+	this->elemental = elemental;
+}
 
-inline BsdfQueryContext::BsdfQueryContext(SurfaceElemental elemental) :
-	BsdfQueryContext(elemental, ETransport::Radiance)
-{}
+inline BsdfQueryContext::BsdfQueryContext(lta::ESidednessPolicy sidednessPolicy)
+	: BsdfQueryContext()
+{
+	sidedness = lta::SidednessAgreement(sidednessPolicy);
+}
 
 inline BsdfQueryContext::BsdfQueryContext(
-	const SurfaceElemental elemental,
-	const ETransport       transport,
-	const ESidednessPolicy sidednessPolicy) : 
+	const SurfaceElemental      elemental,
+	const ETransport            transport,
+	const lta::ESidednessPolicy sidednessPolicy)
 
-	elemental(elemental),
-	transport(transport),
-	sidedness(sidednessPolicy)
+	: elemental(elemental)
+	, transport(transport)
+	, sidedness(sidednessPolicy)
 {}
 
 }// end namespace ph

@@ -13,9 +13,9 @@
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/Color/Spectrum.h"
-#include "Core/LTABuildingBlock/TMis.h"
-#include "Core/LTABuildingBlock/TDirectLightEstimator.h"
-#include "Core/LTABuildingBlock/RussianRoulette.h"
+#include "Core/LTA/TMis.h"
+#include "Core/LTA/TDirectLightEstimator.h"
+#include "Core/LTA/RussianRoulette.h"
 #include "Core/Estimator/Integrand.h"
 
 #include <Common/assertion.h>
@@ -44,7 +44,10 @@ void BNEEPTEstimator::estimate(
 
 	const Scene&    scene    = integrand.getScene();
 	const Receiver& receiver = integrand.getReceiver();
-	const auto&     mis      = TMis<EMisStyle::POWER>();
+
+	const lta::TDirectLightEstimator<lta::ESidednessPolicy::Strict> directLight{&scene};
+	const lta::TMis<lta::EMisStyle::Power> mis{};
+	const lta::RussianRoulette rr{};
 
 	// common variables
 	math::Spectrum accuRadiance(0);
@@ -110,8 +113,8 @@ void BNEEPTEstimator::estimate(
 			real           directPdfW;
 			math::Spectrum emittedRadiance;
 
-			if(canDoNEE && TDirectLightEstimator<ESidednessPolicy::Strict>(&scene).neeSample(
-				surfaceHit, ray.getTime(), sampleFlow,
+			if(canDoNEE && directLight.neeSampleEmission(
+				surfaceHit, sampleFlow,
 				&L, &directPdfW, &emittedRadiance))
 			{
 				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
@@ -189,8 +192,6 @@ void BNEEPTEstimator::estimate(
 			//	break;
 			//}
 
-			const math::Vector3R directLitPos = surfaceHit.getPosition();
-
 			// trace a ray using BSDF's suggestion
 			//
 			tracingRay.setOrigin(surfaceHit.getPosition());
@@ -223,8 +224,8 @@ void BNEEPTEstimator::estimate(
 					// TODO: <directLightPdfW> might be 0, should we stop using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
-					const real directLightPdfW = TDirectLightEstimator<ESidednessPolicy::Strict>(&scene).neeSamplePdfWUnoccluded(
-						surfaceHit, Xe, ray.getTime());
+					const real directLightPdfW = directLight.neeSamplePdfWUnoccluded(
+						surfaceHit, Xe);
 
 					BsdfPdfQuery bsdfPdfQuery;
 					bsdfPdfQuery.inputs.set(bsdfSample);
@@ -238,8 +239,7 @@ void BNEEPTEstimator::estimate(
 						math::Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 						weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
-						// avoid excessive, negative weight and possible NaNs
-						//
+						// Avoid excessive, negative weight and possible NaNs
 						rationalClamp(weight);
 
 						accuRadiance.addLocal(radianceLe.mulLocal(weight));
@@ -261,7 +261,7 @@ void BNEEPTEstimator::estimate(
 			if(numBounces >= 3)
 			{
 				math::Spectrum weightedAccuLiWeight;
-				if(RussianRoulette::surviveOnLuminance(
+				if(rr.surviveOnLuminance(
 					accuLiWeight, sampleFlow, &weightedAccuLiWeight))
 				{
 					accuLiWeight = weightedAccuLiWeight;

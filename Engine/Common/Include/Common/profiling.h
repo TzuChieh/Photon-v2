@@ -19,7 +19,7 @@
 
 #else
 
-#define PH_PROFILE_UNIT_NAME(unitName)
+#define PH_DEFINE_PROFILE_UNIT_NAME(unitName)
 
 #endif
 

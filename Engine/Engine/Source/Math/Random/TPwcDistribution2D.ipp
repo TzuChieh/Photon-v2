@@ -3,7 +3,6 @@
 #include "Math/Random/TPwcDistribution2D.h"
 
 #include <Common/assertion.h>
-#include <Common/profiling.h>
 
 namespace ph::math
 {
@@ -17,7 +16,6 @@ inline TPwcDistribution2D<T>::TPwcDistribution2D(
 	m_marginalYs(),
 	m_conditionalXs(numWeights.y())
 {
-	PH_PROFILE_SCOPE();
 	PH_ASSERT(weights && numWeights.x() > 0 && numWeights.y() > 0);
 
 	// initialize conditional distributions for each row

@@ -5,7 +5,7 @@
 
 #include <Common/assertion.h>
 
-namespace ph
+namespace ph::lta
 {
 
 /*!
@@ -126,7 +126,7 @@ inline bool SidednessAgreement::isSameHemisphere(
 		return isSidednessAgreed(X, vecA) &&     // Both vectors need to be strictly
 		       isSidednessAgreed(X, vecB) &&     // agreed on sidedness.
 		       vecA.dot(N) * vecB.dot(N) > 0.0_r;// Then testing hemisphere with either normal
-		                                         // (the other normal would yield same sign)
+		                                         // (the other normal would yield the same sign)
 		break;
 	}
 
@@ -184,4 +184,4 @@ inline void SidednessAgreement::adjustForSidednessAgreement(
 	// currently no adjustment
 }
 
-}// end namespace ph
+}// end namespace ph::lta

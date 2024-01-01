@@ -5,13 +5,13 @@
 
 #include <string>
 
-namespace ph
+namespace ph::lta
 {
 
 enum class EMisStyle
 {
-	BALANCE,
-	POWER
+	Balance,
+	Power
 };
 
 template<EMisStyle STYLE>
@@ -24,14 +24,13 @@ public:
 			"pdf0 = " + std::to_string(pdf0) + ", "
 			"pdf1 = " + std::to_string(pdf1));
 
-		if constexpr(STYLE == EMisStyle::BALANCE)
+		if constexpr(STYLE == EMisStyle::Balance)
 		{
 			return pdf0 / (pdf0 + pdf1);
 		}
 
-		// power heuristic with beta = 2
-		//
-		if constexpr(STYLE == EMisStyle::POWER)
+		// Power heuristic with beta = 2
+		if constexpr(STYLE == EMisStyle::Power)
 		{
 			return (pdf0 * pdf0) / (pdf0 * pdf0 + pdf1 * pdf1);
 		}
@@ -41,4 +40,4 @@ public:
 	}
 };
 
-}// end namespace ph
+}// end namespace ph::lta

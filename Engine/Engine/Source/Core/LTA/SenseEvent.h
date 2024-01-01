@@ -5,7 +5,7 @@
 
 #include <Common/primitive_type.h>
 
-namespace ph
+namespace ph::lta
 {
 
 class SenseEvent final
@@ -20,4 +20,4 @@ public:
 	{}
 };
 
-}// end namespace ph
+}// end namespace ph::lta

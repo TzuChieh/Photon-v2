@@ -1,4 +1,4 @@
-#include "Core/LTABuildingBlock/PtVolumetricEstimator.h"
+#include "Core/LTA/PtVolumetricEstimator.h"
 #include "Math/TVector3.h"
 #include "World/Scene.h"
 #include "Core/SurfaceHit.h"
@@ -9,7 +9,7 @@
 
 #include <limits>
 
-namespace ph
+namespace ph::lta
 {
 
 void PtVolumetricEstimator::sample(
@@ -64,4 +64,4 @@ void PtVolumetricEstimator::sample(
 	}
 }
 
-}// end namespace ph
+}// end namespace ph::lta

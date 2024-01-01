@@ -7,11 +7,11 @@
 
 #include <cmath>
 
-namespace ph
+namespace ph::lta
 {
 
-namespace lta
-{
+// FIXME: hardcoded number
+inline constexpr real self_intersect_delta = 0.0001_r;
 
 /*!
 Using shading normal for light transport algorithms is equivalent to using
@@ -41,6 +41,4 @@ inline real importance_BSDF_Ns_corrector(
 	return std::abs((Ns.dot(V) * Ng.dot(L)) / (Ng.dot(V) * Ns.dot(L)));
 }
 
-}// end namespace lta
-
-}// end namespace ph
+}// end namespace ph::lta

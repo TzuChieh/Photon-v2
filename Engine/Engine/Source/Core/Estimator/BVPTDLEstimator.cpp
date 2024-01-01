@@ -9,7 +9,7 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Math/Color/Spectrum.h"
-#include "Core/LTABuildingBlock/SurfaceTracer.h"
+#include "Core/LTA/SurfaceTracer.h"
 #include "Math/TVector3.h"
 #include "Core/Estimator/Integrand.h"
 
@@ -24,7 +24,7 @@ void BVPTDLEstimator::estimate(
 	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation) const
 {
-	const SurfaceTracer surfaceTracer(&(integrand.getScene()));
+	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
 
 	math::Spectrum& accuRadiance = out_estimation[m_estimationIndex].setColorValues(0);
 	math::Spectrum  accuPathWeight(1);

@@ -10,9 +10,9 @@
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Math/Color/Spectrum.h"
-#include "Core/LTABuildingBlock/PtVolumetricEstimator.h"
-#include "Core/LTABuildingBlock/SurfaceTracer.h"
-#include "Core/LTABuildingBlock/RussianRoulette.h"
+#include "Core/LTA/PtVolumetricEstimator.h"
+#include "Core/LTA/SurfaceTracer.h"
+#include "Core/LTA/RussianRoulette.h"
 #include "Math/TVector3.h"
 #include "Core/Estimator/Integrand.h"
 
@@ -30,7 +30,7 @@ void BVPTEstimator::estimate(
 	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation) const
 {
-	const SurfaceTracer    surfaceTracer(&(integrand.getScene()));
+	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
 
 	uint32 numBounces = 0;
 	math::Spectrum accuRadiance(0);
@@ -78,7 +78,7 @@ void BVPTEstimator::estimate(
 		if(numBounces >= 3)
 		{
 			math::Spectrum weightedAccuLiWeight;
-			if(RussianRoulette::surviveOnLuminance(
+			if(lta::RussianRoulette{}.surviveOnLuminance(
 				accuLiWeight, sampleFlow, &weightedAccuLiWeight))
 			{
 				accuLiWeight = weightedAccuLiWeight;
@@ -103,7 +103,7 @@ void BVPTEstimator::estimate(
 				math::Vector3R endV;
 				math::Spectrum weight;
 				math::Spectrum radiance;
-				PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
+				lta::PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
 				accuLiWeight.mulLocal(weight);
 				if(accuLiWeight.isZero())

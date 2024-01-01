@@ -6,7 +6,7 @@
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Core/Texture/TSampler.h"
-#include "Core/LTABuildingBlock/SidednessAgreement.h"
+#include "Core/LTA/SidednessAgreement.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Core/SampleGenerator/SampleFlow.h"

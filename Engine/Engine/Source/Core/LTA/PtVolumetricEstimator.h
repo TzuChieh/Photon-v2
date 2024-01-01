@@ -3,11 +3,11 @@
 #include "Math/math_fwd.h"
 #include "Math/Color/Spectrum.h"
 
-namespace ph
-{
+namespace ph { class Scene; }
+namespace ph { class SurfaceHit; }
 
-class Scene;
-class SurfaceHit;
+namespace ph::lta
+{
 
 class PtVolumetricEstimator final
 {
@@ -22,4 +22,4 @@ public:
 		math::Spectrum* out_radiance);
 };
 
-}// end namespace ph
+}// end namespace ph::lta

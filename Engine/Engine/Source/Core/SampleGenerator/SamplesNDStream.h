@@ -21,11 +21,20 @@ public:
 		std::size_t numDims, 
 		std::size_t numSamples);
 
+	/*! @brief Read the next N-dimensional sample.
+	@return Pointer to a N-dimensional sample.
+	*/
 	const real* readSample();
 
+	/*! @brief Read the next N-dimensional sample.
+	@tparam N Number of dimensions. Must be equal to the sample dimension of this stream.
+	*/
 	template<std::size_t N>
 	std::array<real, N> readSample();
 
+	/*! @brief Read the next N-dimensional sample as flow, which has more flexible controls for sampling.
+	@return The next N-dimensional sample in the form of flow.
+	*/
 	SampleFlow readSampleAsFlow();
 
 	std::size_t numDims() const;

@@ -13,11 +13,11 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/Random.h"
-#include "Core/LTABuildingBlock/RussianRoulette.h"
+#include "Core/LTA/RussianRoulette.h"
 #include "Utility/Timer.h"
 #include "Core/Renderer/PM/PMAtomicStatistics.h"
-#include "Core/LTABuildingBlock/SurfaceTracer.h"
-#include "Core/LTABuildingBlock/lta.h"
+#include "Core/LTA/SurfaceTracer.h"
+#include "Core/LTA/lta.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 
 #include <Common/assertion.h>
@@ -59,8 +59,8 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 	Timer timer;
 	timer.start();
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, ESidednessPolicy::Strict);
-	const SurfaceTracer surfaceTracer(m_scene);
+	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
+	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_photonBuffer.size());
 	m_sampleGenerator->prepareSampleBatch();// HACK: check if succeeded
@@ -110,7 +110,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
 			math::Spectrum weightedThroughputRadiance;
-			if(RussianRoulette::surviveOnLuminance(throughputRadiance, sampleFlow, &weightedThroughputRadiance))
+			if(lta::RussianRoulette{}.surviveOnLuminance(throughputRadiance, sampleFlow, &weightedThroughputRadiance))
 			{
 				throughputRadiance = weightedThroughputRadiance;
 

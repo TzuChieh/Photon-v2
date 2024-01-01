@@ -3,7 +3,7 @@
 #include "World/Scene.h"
 #include "Core/HitProbe.h"
 #include "Core/SurfaceHit.h"
-#include "Core/LTABuildingBlock/SidednessAgreement.h"
+#include "Core/LTA/SidednessAgreement.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
@@ -18,10 +18,10 @@
 
 #include <limits>
 
-namespace ph
-{
+namespace ph { class SampleFlow; }
 
-class SampleFlow;
+namespace ph::lta
+{
 
 class SurfaceTracer final
 {
@@ -35,40 +35,31 @@ public:
 
 	bool bsdfSampleNextSurface(
 		BsdfSampleQuery& bsdfSample,
-		SampleFlow& sampleFlow,
-		SurfaceHit* out_X) const;
+		SampleFlow&      sampleFlow,
+		SurfaceHit*      out_X) const;
 
 	bool doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const;
 
 	bool doBsdfSample(
 		BsdfSampleQuery& bsdfSample, 
-		SampleFlow& sampleFlow, 
-		Ray* out_sampledRay) const;
+		SampleFlow&      sampleFlow, 
+		Ray*             out_sampledRay) const;
 	
 	bool doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const;
 	bool doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const;
 	
 private:
-	const Scene* m_scene;
+	const Scene& getScene() const;
 
 	static const SurfaceOptics* getSurfaceOptics(const SurfaceHit& X);
+	
+	const Scene* m_scene;
 };
 
 // In-header Implementations:
 
-inline const SurfaceOptics* SurfaceTracer::getSurfaceOptics(const SurfaceHit& X)
-{
-	const auto* const metadata = X.getDetail().getPrimitive()->getMetadata();
-	PH_ASSERT(metadata);
-
-	const auto* const optics = metadata->getSurface().getOptics();
-	PH_ASSERT(optics);
-
-	return optics;
-}
-
-inline SurfaceTracer::SurfaceTracer(const Scene* const scene) :
-	m_scene(scene)
+inline SurfaceTracer::SurfaceTracer(const Scene* const scene)
+	: m_scene(scene)
 {
 	PH_ASSERT(scene);
 }
@@ -82,7 +73,7 @@ inline bool SurfaceTracer::traceNextSurface(
 	PH_ASSERT(out_X);
 
 	HitProbe probe;
-	if(!m_scene->isIntersecting(ray, &probe))
+	if(!getScene().isIntersecting(ray, &probe))
 	{
 		return false;
 	}
@@ -94,9 +85,9 @@ inline bool SurfaceTracer::traceNextSurface(
 }
 
 inline bool SurfaceTracer::bsdfSampleNextSurface(
-	BsdfSampleQuery& bsdfSample,
-	SampleFlow& sampleFlow,
-	SurfaceHit* out_X) const
+	BsdfSampleQuery&  bsdfSample,
+	SampleFlow&       sampleFlow,
+	SurfaceHit* const out_X) const
 {
 	Ray sampledRay;
 	if(!doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
@@ -128,8 +119,8 @@ inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow&
 
 inline bool SurfaceTracer::doBsdfSample(
 	BsdfSampleQuery& bsdfSample,
-	SampleFlow& sampleFlow,
-	Ray* const out_sampledRay) const
+	SampleFlow&      sampleFlow,
+	Ray* const       out_sampledRay) const
 {
 	if(!doBsdfSample(bsdfSample, sampleFlow))
 	{
@@ -185,4 +176,20 @@ inline bool SurfaceTracer::doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const
 	return bsdfPdfQuery.outputs.sampleDirPdfW > 0.0_r;
 }
 
-}// end namespace ph
+inline const Scene& SurfaceTracer::getScene() const
+{
+	PH_ASSERT(m_scene);
+
+	return *m_scene;
+}
+
+inline const SurfaceOptics* SurfaceTracer::getSurfaceOptics(const SurfaceHit& X)
+{
+	// Does not make sense to call this method if `X` hits nothing
+	PH_ASSERT(X.getDetail().getPrimitive());
+
+	const auto* const meta = X.getDetail().getPrimitive()->getMetadata();
+	return meta ? meta->getSurface().getOptics() : nullptr;
+}
+
+}// end namespace ph::lta

@@ -12,8 +12,8 @@
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/LTABuildingBlock/SurfaceTracer.h"
-#include "Core/LTABuildingBlock/RussianRoulette.h"
+#include "Core/LTA/SurfaceTracer.h"
+#include "Core/LTA/RussianRoulette.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Math/Geometry/TAABB2D.h"
@@ -115,7 +115,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 	std::size_t    pathLength,
 	SampleFlow&    sampleFlow)
 {	
-	const SurfaceTracer surfaceTracer(m_scene);
+	const lta::SurfaceTracer surfaceTracer{m_scene};
 	while(true)
 	{
 		SurfaceHit surfaceHit;
@@ -138,7 +138,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)
 		{
-			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::Radiance, ESidednessPolicy::Strict));
+			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::Radiance, lta::ESidednessPolicy::Strict));
 			bsdfSample.inputs.set(surfaceHit, V);
 			Ray sampledRay;
 			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
@@ -152,7 +152,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 			if(policy.useRussianRoulette())
 			{
 				math::Spectrum weightedThroughput;
-				if(RussianRoulette::surviveOnLuminance(pathThroughput, sampleFlow, &weightedThroughput))
+				if(lta::RussianRoulette{}.surviveOnLuminance(pathThroughput, sampleFlow, &weightedThroughput))
 				{
 					pathThroughput = weightedThroughput;
 				}
@@ -184,7 +184,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 {
 	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ElementalBranch);
 
-	const SurfaceTracer surfaceTracer(m_scene);
+	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	const PrimitiveMetadata* metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics*     surfaceOptics = metadata->getSurface().getOptics();
@@ -197,7 +197,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 			continue;
 		}
 
-		BsdfSampleQuery sample(BsdfQueryContext(i, ETransport::Radiance, ESidednessPolicy::Strict));
+		BsdfSampleQuery sample(BsdfQueryContext(i, ETransport::Radiance, lta::ESidednessPolicy::Strict));
 		sample.inputs.set(surfaceHit, V);
 
 		Ray sampledRay;
@@ -213,7 +213,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 		if(policy.useRussianRoulette())
 		{
 			math::Spectrum weightedThroughput;
-			if(RussianRoulette::surviveOnLuminance(elementalPathThroughput, sampleFlow, &weightedThroughput))
+			if(lta::RussianRoulette{}.surviveOnLuminance(elementalPathThroughput, sampleFlow, &weightedThroughput))
 			{
 				elementalPathThroughput = weightedThroughput;
 			}

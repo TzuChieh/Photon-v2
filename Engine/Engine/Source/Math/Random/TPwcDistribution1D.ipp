@@ -4,7 +4,6 @@
 #include "Math/math.h"
 
 #include <Common/assertion.h>
-#include <Common/profiling.h>
 
 #include <algorithm>
 
@@ -37,8 +36,6 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 	// one more entry since we are storing values on endpoints
 	m_cdf(numWeights + 1, 0)
 {
-	PH_PROFILE_SCOPE();
-
 	PH_ASSERT(max > min && weights && numWeights > 0);
 	m_delta = (max - min) / static_cast<T>(numWeights);
 
@@ -98,8 +95,6 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D() = default;
 template<typename T>
 inline std::size_t TPwcDistribution1D<T>::sampleDiscrete(const T sample) const
 {
-	PH_PROFILE_SCOPE();
-
 	const auto& result = std::lower_bound(m_cdf.begin(), m_cdf.end(), sample);
 	PH_ASSERT_MSG(result != m_cdf.end(), 
 		"sample = "         + std::to_string(sample) + ", "
@@ -188,7 +183,6 @@ std::size_t TPwcDistribution1D<T>::continuousToDiscrete(const T sample) const
 template<typename T>
 inline T TPwcDistribution1D<T>::continuouslySampleValue(const T sample, const std::size_t straddledColumn) const
 {
-	PH_PROFILE_SCOPE();
 	PH_ASSERT(straddledColumn < numColumns());
 
 	const T cdfDelta = m_cdf[straddledColumn + 1] - m_cdf[straddledColumn];

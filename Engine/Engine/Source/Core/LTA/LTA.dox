@@ -1,0 +1,4 @@
+/*! @dir LTA
+@brief Light transport algorithms.
+Building blocks for general purpose rendering algorithms, with a focus on global illumination.
+*/
