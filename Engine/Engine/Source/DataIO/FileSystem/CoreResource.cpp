@@ -11,7 +11,7 @@ CoreResource::CoreResource(const std::string& identifier) :
 
 Path CoreResource::getPath() const
 {
-	const Path& baseDirectory = Path(Config::CORE_RESOURCE_DIRECTORY());
+	const Path& baseDirectory = Path(Config::RENDERER_RESOURCE_DIRECTORY());
 	return baseDirectory.append(Path(m_identifier));
 }
 

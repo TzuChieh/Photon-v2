@@ -40,9 +40,13 @@ def download_zipfile_and_extract(src_zipfile_url, dst_directory):
 	print("Extracting file...")
 
 	# Extract zipped resource folder
-	zip_file = zipfile.ZipFile(temp_dst_file_path, "r")
-	zip_file.extractall(dst_directory)
-	zip_file.close()
+	with zipfile.ZipFile(temp_dst_file_path, "r") as zip_file:
+		zip_file.extractall(dst_directory)
+
+	# Wait some time as it seems to trigger this issue if we rename the extract file later too quickly
+	# https://bugs.python.org/issue33240
+	# FIXME: remove this hack
+	# time.sleep(0.5)
 
 	print("Deleting temporary file %s." % temp_dst_file_path)
 

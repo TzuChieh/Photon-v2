@@ -10,6 +10,12 @@ import configparser
 # Download third-party libraries for the engine
 def download_thirdparty_library(dst_directory, setup_config: configparser.ConfigParser):
 
+    final_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty")
+
+    # Delete old library folder first if it exists (basically a clean install)
+    if filesystem.delete_folder_with_contents(final_folder_path):
+        print("Old library folder deleted")
+
     git_branch_result = console.run_command("git", "branch")
 
     # "git branch" returns branch names and indicate current branch like this
@@ -45,15 +51,8 @@ def download_thirdparty_library(dst_directory, setup_config: configparser.Config
 
     # The extracted zip file will be a folder named "Photon-v2-ThirdParty-<branch-name>",
     # rename it to be just "Photon-v2-ThirdParty"
-
     extracted_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty-" + lib_branch_name)
-    final_folder_path = os.path.join(dst_directory, "Photon-v2-ThirdParty")
-
-    # Delete old library folder first if it exists (basically a clean install)
-    if filesystem.delete_folder_with_contents(final_folder_path):
-        print("Old library folder deleted")
-
-    os.rename(extracted_folder_path, final_folder_path)
+    filesystem.rename_folder(extracted_folder_path, final_folder_path)
 
     # Check resources
     if os.path.isdir(final_folder_path):

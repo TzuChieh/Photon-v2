@@ -1,6 +1,7 @@
 import library_downloader
 import resource_downloader
 import blender_addon
+import render_test
 from utility import config
 
 import sys
@@ -30,6 +31,9 @@ resource_downloader.download_external_resource(build_dir)
 
 # Setup Blender addon
 blender_addon.setup_photon_blend(setup_config)
+
+# Setup render test
+render_test.setup_render_test(setup_config)
 
 # Install project source data to build directory
 

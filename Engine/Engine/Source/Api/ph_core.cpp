@@ -311,7 +311,7 @@ Path get_internal_resource_directory(const EEngineProject project)
 
 Path get_resource_directory(const EEngineProject project)
 {
-	return Path(PH_RESOURCE_DIRECTORY).append(to_string(project));
+	return Path(PH_RENDERER_RESOURCE_DIRECTORY).append(to_string(project));
 }
 
 }// end namespace ph

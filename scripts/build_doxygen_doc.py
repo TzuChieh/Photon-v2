@@ -49,7 +49,7 @@ for name, section in projects:
         build_info.append("Project \"%s\" has no doxygen config, no doc generated." % project_name)
     
 # Build doc for Photon Blend
-photon_blend_project_dir = blender_addon.get_photon_blend_project_directory(setup_config)
+photon_blend_project_dir = blender_addon.get_photon_blend_project_dir(setup_config)
 build_doxygen_doc(doxygen_executable, os.path.join(photon_blend_project_dir, "doxygen.config"))
 build_info.append("Generated doc for Photon Blend")
 

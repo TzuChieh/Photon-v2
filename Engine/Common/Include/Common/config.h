@@ -88,7 +88,7 @@ Turning this option on is a fallback when things do not go as planned.
 
 /*! @brief Resources that are optional for the renderer.
 */
-#define PH_RESOURCE_DIRECTORY "./Photon-v2-Resource-main/Resource/"
+#define PH_RENDERER_RESOURCE_DIRECTORY "./Photon-v2-Resource/Resource/"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Render Modes                                                              //
@@ -126,7 +126,7 @@ namespace ph
 class Config final
 {
 public:
-	static std::string& CORE_RESOURCE_DIRECTORY();
+	static std::string& RENDERER_RESOURCE_DIRECTORY();
 };
 
 }// end namespace ph

@@ -4,9 +4,9 @@
 namespace ph
 {
 
-std::string& Config::CORE_RESOURCE_DIRECTORY()
+std::string& Config::RENDERER_RESOURCE_DIRECTORY()
 {
-	static std::string directory("./Photon-v2-Resource-main/Resource/");
+	static std::string directory("./Photon-v2-Resource/Resource/");
 
 	// TODO: assert is folder
 	return directory;

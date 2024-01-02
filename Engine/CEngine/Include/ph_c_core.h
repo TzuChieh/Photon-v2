@@ -102,7 +102,7 @@ extern "C" {
 // starting and exiting Photon
 //
 
-extern PH_API void phConfigCoreResourceDirectory(const PhChar* directory);
+extern PH_API void phConfigRendererResourceDirectory(const PhChar* directory);
 
 extern PH_API PhBool phInit();
 extern PH_API PhBool phExit();
