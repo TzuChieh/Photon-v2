@@ -496,6 +496,7 @@ void save(
 	case EPictureFile::HDR:
 	case EPictureFile::EXR:
 	case EPictureFile::HighPrecisionEXR:
+	case EPictureFile::PFM:
 	{
 		HdrRgbFrame hdrFrame;
 		frame_utils::to_HDR(frame, &hdrFrame);
@@ -540,6 +541,10 @@ void save(
 
 	case EPictureFile::HighPrecisionEXR:
 		save_exr_high_precision(frame, fileDirectory / (name + ".exr"), meta);
+		break;
+
+	case EPictureFile::PFM:
+		save_pfm(frame, fileDirectory / (name + ".pfm"), meta);
 		break;
 
 	default:

@@ -1,14 +1,21 @@
 import struct
+import numpy
 
 
 class Image:
     def __init__(self):
         super.__init__()
 
-        self.width = 0
-        self.height = 0
-        self.num_components = 0
-        self.values = []
+        self.values = numpy.reshape([], (0, 0, 0))
+
+    def get_height(self):
+        return self.values.shape[0]
+
+    def get_width(self):
+        return self.values.shape[1]
+    
+    def num_components(self):
+        return self.values.shape[2]
 
 
 def read_pfm(file_path):
@@ -22,14 +29,14 @@ def read_pfm(file_path):
         elif header_lines[0] == 'Pf':
             num_components = 1
         else:
-            raise Exception("input is not a .pfm file")
+            raise ValueError("input is not a .pfm file")
         
         dimensions_str = header_lines[1].split()
         if len(dimensions_str) == 2:
             width = int(dimensions_str[0])
             height = int(dimensions_str[1])
         else:
-            raise Exception("expected two numbers for dimensions, %d were found" % len(dimensions_str))
+            raise ValueError("expected two numbers for dimensions, %d were found" % len(dimensions_str))
         
         endian_indicator = float(header_lines[2])
         if endian_indicator < 0:
@@ -37,22 +44,19 @@ def read_pfm(file_path):
         elif endian_indicator > 0:
             endian_format = '>' # big endian
         else:
-            raise Exception("bad byte order indicator, %f were given" % endian_indicator)
+            raise ValueError("bad byte order indicator, %f were given" % endian_indicator)
         
         # Parse pixel data
 
         pixel_bytes = pfm_file.read()
         num_floats = width * height * num_components
         if len(pixel_bytes) != num_floats * 4:
-            raise Exception("expected %d bytes for pixel data, %d bytes were found" % (num_floats * 4, len(pixel_bytes)))
+            raise ValueError("expected %d bytes for pixel data, %d bytes were found" % (num_floats * 4, len(pixel_bytes)))
 
-        floats = list(struct.unpack(endian_format + str(num_floats) + 'f', pixel_bytes))
+        floats = struct.unpack(endian_format + str(num_floats) + 'f', pixel_bytes)
+        shape = (height, width, 3) if num_components == 3 else (height, width)
 
         image = Image()
-        image.width = width
-        image.height = height
-        image.num_components = num_components
-        image.values = floats
-
+        image.values = numpy.reshape(floats, shape)
         return image
 
