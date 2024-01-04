@@ -1,8 +1,9 @@
+from infra import paths
+
 import subprocess
-from pathlib import Path
 
 
-def open_default_render_process(scene_path, output_path, num_threads = 1):
+def open_default_render_process(scene_path, output_path, num_threads=1):
     process = RenderProcess()
     process.set_scene_file_path(scene_path)
     process.set_image_output_path(output_path)
@@ -70,7 +71,7 @@ class RenderProcess:
     def _generate_argument_string(self):
         argument_string = ""
 
-        executable_path = (Path(".") / "bin" / "PhotonCLI").resolve()
+        executable_path = paths.renderer_executable().resolve(strict=True)
         argument_string += str(executable_path) + " "
 
         for key, value in self.arguments.items():

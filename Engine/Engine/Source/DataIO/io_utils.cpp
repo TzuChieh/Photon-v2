@@ -10,6 +10,7 @@
 #include "Math/TVector2.h"
 #include "DataIO/sdl_picture_file_type.h"
 #include "Utility/ByteBuffer.h"
+#include "DataIO/FileSystem/Filesystem.h"
 
 #include "Common/ThirdParty/lib_stb.h"
 
@@ -216,6 +217,8 @@ void save_exr_via_exr_file_writer(
 
 	PH_LOG(IOUtils,
 		"saving exr <{}>", filePath.toAbsoluteString());
+
+	Filesystem::createDirectories(filePath.getParent());
 
 	// Extract valid meta info to save in an exr file
 	if(meta && meta->numLayers() >= 1)
@@ -561,6 +564,9 @@ void save_png(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils,
 		"saving png <{}>", filePath.toAbsoluteString());
 
+	// `stb` does not create missing directories
+	Filesystem::createDirectories(filePath.getParent());
+
 	const bool stbiResult = stbi_write_png(
 		filePath.toString().c_str(),
 		static_cast<int>(frame.widthPx()),
@@ -586,6 +592,9 @@ void save_jpg(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils,
 		"saving jpg <{}> with quality = {}", filePath.toAbsoluteString(), QUALITY);
 
+	// `stb` does not create missing directories
+	Filesystem::createDirectories(filePath.getParent());
+
 	const bool stbiResult = stbi_write_jpg(
 		filePath.toString().c_str(),
 		static_cast<int>(frame.widthPx()),
@@ -607,6 +616,9 @@ void save_bmp(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 
 	PH_LOG(IOUtils,
 		"saving bmp <{}>", filePath.toAbsoluteString());
+
+	// `stb` does not create missing directories
+	Filesystem::createDirectories(filePath.getParent());
 
 	const bool stbiResult = stbi_write_bmp(
 		filePath.toString().c_str(),
@@ -636,6 +648,9 @@ void save_tga(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 		3,
 		frame.getPixelData().data());
 
+	// `stb` does not create missing directories
+	Filesystem::createDirectories(filePath.getParent());
+
 	if(!stbiResult)
 	{
 		throw FileIOError(
@@ -649,6 +664,9 @@ void save_hdr(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 
 	PH_LOG(IOUtils, 
 		"saving hdr <{}>", filePath.toAbsoluteString());
+
+	// `stb` does not create missing directories
+	Filesystem::createDirectories(filePath.getParent());
 
 	const bool stbiResult = stbi_write_hdr(
 		filePath.toString().c_str(),
@@ -686,6 +704,8 @@ void save_pfm(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 {
 	PH_LOG(IOUtils,
 		"saving pfm <{}>", filePath.toAbsoluteString());
+
+	Filesystem::createDirectories(filePath.getParent());
 
 	PfmFileWriter writer(filePath);
 	writer.save(frame);

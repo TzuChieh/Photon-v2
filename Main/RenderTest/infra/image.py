@@ -1,12 +1,15 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
 import struct
-import numpy
+from pathlib import Path
 
 
 class Image:
     def __init__(self):
-        super.__init__()
+        super().__init__()
 
-        self.values = numpy.reshape([], (0, 0, 0))
+        self.values = np.reshape([], (0, 0, 0))
 
     def get_height(self):
         return self.values.shape[0]
@@ -16,10 +19,39 @@ class Image:
     
     def num_components(self):
         return self.values.shape[2]
+    
+    def to_summed(self):
+        img = Image()
+        img.values = self.values.sum(axis=2, keepdims=True)
+        return img
+    
+    def to_absolute(self):
+        img = Image()
+        img.values = np.absolute(self.values)
+        return img
+    
+    def to_summed_absolute(self):
+        return self.to_absolute().to_summed()
+
+    def save_plot(self, file_path, title):
+        plt.imshow(self.values, interpolation='nearest')
+        plt.title(title)
+        plt.savefig(Path(file_path).with_suffix(".png"), bbox_inches='tight')
+        plt.clf()
+
+    def save_pseudocolor_plot(self, file_path, title):
+        if self.num_components() != 1:
+            raise ValueError("expected 1 color component, %d were found" % self.num_components())
+        
+        plt.imshow(self.values, cmap='nipy_spectral', interpolation='nearest')
+        plt.title(title)
+        plt.colorbar()
+        plt.savefig(Path(file_path).with_suffix(".png"), bbox_inches='tight')
+        plt.clf()
 
 
 def read_pfm(file_path):
-    with open(file_path, 'rb') as pfm_file:
+    with open(Path(file_path).with_suffix(".pfm"), 'rb') as pfm_file:
         # Parse header
 
         header_lines = [pfm_file.readline().decode('ascii').strip() for _ in range(3)]
@@ -57,6 +89,5 @@ def read_pfm(file_path):
         shape = (height, width, 3) if num_components == 3 else (height, width)
 
         image = Image()
-        image.values = numpy.reshape(floats, shape)
+        image.values = np.reshape(floats, shape)
         return image
-

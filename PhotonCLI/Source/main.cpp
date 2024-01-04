@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
 {
 	if(argc <= 1)
 	{
-		std::cout << "Photon-v2 Renderer" << std::endl;
-		std::cout << "Use --help for a list of available commands." << std::endl;
+		std::cout << "Photon-v2 Renderer\n";
+		std::cout << "Use --help for a list of available commands.\n";
 		return EXIT_SUCCESS;
 	}
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
 	if(!phInit())
 	{
-		std::cerr << "Photon initialing failed" << std::endl;
+		std::cerr << "Photon initialing failed\n";
 		return EXIT_FAILURE;
 	}
 
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 	// HACK
 	if(args.isFrameDiagRequested())
 	{
-		std::cout << "begin frame diag" << std::endl;
+		std::cout << "begin frame diag\n";
 
 		PhUInt64 frameA, frameB, resultFrame;
 		phCreateFrame(&frameA, 0, 0);
@@ -73,11 +73,11 @@ int main(int argc, char* argv[])
 		const float MSE = phFrameOpMSE(frameA, frameB);
 		{
 			std::ostream transientCout(std::cout.rdbuf());
-			transientCout << std::setprecision(20) << "MSE  = " << MSE << std::endl;
-			transientCout << std::setprecision(20) << "RMSE = " << std::sqrt(MSE) << std::endl;
+			transientCout << std::setprecision(20) << "MSE  = " << MSE << '\n';
+			transientCout << std::setprecision(20) << "RMSE = " << std::sqrt(MSE) << '\n';
 		}
 
-		std::cout << "end frame diag" << std::endl;
+		std::cout << "end frame diag" << '\n';
 	}
 
 	if(args.getExecutionMode() == EExecutionMode::SingleImage)
@@ -96,17 +96,17 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		std::cerr << "Unknown execution mode <" << static_cast<int>(args.getExecutionMode()) << ">." << std::endl;
+		std::cerr << "Unknown execution mode <" << static_cast<int>(args.getExecutionMode()) << ">.\n";
 		ProcessedArguments::printHelpMessage();
 	}
 
-	std::cout << ph::TimerStatsReport().detailedReport() << std::endl;
+	std::cout << ph::TimerStatsReport().detailedReport() << '\n';
 
 	// End engine operations
 
 	if(!phExit())
 	{
-		std::cerr << "Photon exiting failed" << std::endl;
+		std::cerr << "Photon exiting failed\n";
 		return EXIT_FAILURE;
 	}
 
