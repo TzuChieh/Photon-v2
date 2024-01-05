@@ -6,6 +6,7 @@
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Core/Texture/constant_textures.h"
+#include "Actor/Material/IdealSubstance.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -22,6 +23,16 @@ std::shared_ptr<Geometry> AAreaLight::getGeometry(const CookingContext& ctx) con
 	PH_ASSERT(area);
 	return area;
 }
+
+std::shared_ptr<Material> AAreaLight::getMaterial(const CookingContext& ctx) const
+{
+	// TODO: transmitter if not want to cast shadow
+
+	auto material = TSdl<IdealSubstance>::makeResource();
+	material->setSubstance(EIdealSubstance::Absorber);
+	return material;
+}
+
 
 const Emitter* AAreaLight::buildEmitter(
 	const CookingContext& ctx,

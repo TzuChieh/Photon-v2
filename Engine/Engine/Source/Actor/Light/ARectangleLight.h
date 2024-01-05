@@ -25,7 +25,7 @@ public:
 		ClassType clazz("rectangle-light");
 		clazz.docName("Rectangular Light Actor");
 		clazz.description(
-			"This type of light emits energy from a rectangular shape.Note that energy"
+			"This type of light emits energy from a rectangular shape. Note that energy "
 			"is only allowed to emit from one side of the rectangle, not both sides.");
 		clazz.baseOn<AAreaLight>();
 

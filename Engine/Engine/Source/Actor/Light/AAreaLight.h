@@ -16,6 +16,7 @@ public:
 	virtual std::shared_ptr<Geometry> getArea(const CookingContext& ctx) const = 0;
 
 	std::shared_ptr<Geometry> getGeometry(const CookingContext& ctx) const override;
+	std::shared_ptr<Material> getMaterial(const CookingContext& ctx) const override;
 
 	const Emitter* buildEmitter(
 		const CookingContext& ctx,
@@ -31,8 +32,10 @@ public:
 		ClassType clazz("area-light");
 		clazz.docName("Area Light Actor");
 		clazz.description(
-			"This type of light source has a finite area. Energy is allowed to "
-			"emit as long as the emitting source is within the area.");
+			"This type of light source has a finite area, with various simplifications on the "
+			"characteristics of the emission profile. Energy is allowed to emit diffusively and "
+			"uniformally within the area. By default, the energy emitting surface absorbs all "
+			"incoming energy (which is effectively a pure absorber).");
 		clazz.baseOn<AGeometricLight>();
 
 		TSdlSpectrum<OwnerType> color("color", math::EColorUsage::EMR, &OwnerType::m_color);

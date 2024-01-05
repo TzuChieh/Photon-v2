@@ -40,7 +40,7 @@ class Image:
         if create_dirs:
             Path(file_path).parents[0].mkdir(parents=True, exist_ok=True)
 
-        plt.imshow(self.values, interpolation='nearest')
+        plt.imshow(self.values, origin='lower', interpolation='nearest')
         plt.title(title)
         plt.savefig(Path(file_path).with_suffix(".png"), bbox_inches='tight')
         plt.clf()
@@ -52,7 +52,7 @@ class Image:
         if create_dirs:
             Path(file_path).parents[0].mkdir(parents=True, exist_ok=True)
         
-        plt.imshow(self.values, cmap='nipy_spectral', interpolation='nearest')
+        plt.imshow(self.values, origin='lower', cmap='nipy_spectral', interpolation='nearest')
         plt.title(title)
         plt.colorbar()
         plt.savefig(Path(file_path).with_suffix(".png"), bbox_inches='tight')
@@ -109,3 +109,8 @@ def rmse_of(img_a: Image, img_b: Image):
 
     mse = ((img_a.values - img_b.values)**2).mean()
     return np.sqrt(mse)
+
+def re_avg_of(img_actual: Image, img_expected: Image):
+    avg_actual = np.average(img_actual.values)
+    avg_expected = np.average(img_expected.values)
+    return (avg_actual - avg_expected) / avg_expected
