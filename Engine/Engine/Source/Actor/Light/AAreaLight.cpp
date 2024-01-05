@@ -33,7 +33,6 @@ std::shared_ptr<Material> AAreaLight::getMaterial(const CookingContext& ctx) con
 	return material;
 }
 
-
 const Emitter* AAreaLight::buildEmitter(
 	const CookingContext& ctx,
 	TSpanView<const Primitive*> lightPrimitives) const

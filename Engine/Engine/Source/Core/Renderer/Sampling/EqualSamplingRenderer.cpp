@@ -131,8 +131,6 @@ void EqualSamplingRenderer::doRender()
 
 			renderWork.onWorkReport([this, &workerFilmEstimator]()
 			{
-				PH_PROFILE_NAMED_SCOPE("Report intermediate render result");
-
 				{
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
@@ -149,8 +147,6 @@ void EqualSamplingRenderer::doRender()
 			while(true)
 			{
 				{
-					PH_PROFILE_NAMED_SCOPE("Schedule new work");
-
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 					
 					if(m_scheduler->schedule(&workUnit))
@@ -185,8 +181,6 @@ void EqualSamplingRenderer::doRender()
 				renderWork.work();
 
 				{
-					PH_PROFILE_NAMED_SCOPE("Submit scheduled work");
-
 					std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 					m_scheduler->submit(workUnit);

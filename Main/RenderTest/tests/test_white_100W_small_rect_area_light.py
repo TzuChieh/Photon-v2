@@ -6,16 +6,14 @@ import numpy as np
 from pytest import approx
 
 
-case_name = "white_100W_rect_area_light"
+case_name = "white_100W_small_rect_area_light"
 
 output_images = [
-    paths.test_output() / case_name / "bvpt",
     paths.test_output() / case_name / "bneept",
     paths.test_output() / case_name / "sppm",
 ]
 
 output_debug_images = [
-    paths.test_output() / case_name / "bvpt_error",
     paths.test_output() / case_name / "bneept_error",
     paths.test_output() / case_name / "sppm_error",
 ]
@@ -26,20 +24,22 @@ reference_images = [
 
 def test_render():
     """
-    A rectangular area light is shining the ground below it. The ground is diffusive (albedo = 50%).
+    This test is similar to the \"white_100W_rect_area_light\" test, except that the rectangular area light
+    is much smaller (0.005 x 0.005 unit^2), and the light source is placed higher above the ground so it
+    cannot induce too much variance (it is a strong radiance source). This test is not suitable to run using
+    BVPT, as it may require way more than 10M samples to have proper convergence.
     """
-    ref_img_path = paths.test_resources() / case_name / "ref_bneept_8192spp"
+    ref_img_path = paths.test_resources() / case_name / "ref_bneept_4096spp"
     ref_img = image.read_pfm(ref_img_path)
-    ref_img.save_plot(reference_images[0], "Reference: BNEEPT 8192 spp", create_dirs=True)
+    ref_img.save_plot(reference_images[0], "Reference: BNEEPT 4096 spp", create_dirs=True)
     
     scenes = [
-        paths.test_resources() / case_name / "scene_bvpt.p2",
         paths.test_resources() / case_name / "scene_bneept.p2",
         paths.test_resources() / case_name / "scene_sppm.p2",
     ]
 
-    max_rmses = [0.06, 0.04, 0.12]
-    max_re_avgs = [0.0008, 0.0004, 0.002]
+    max_rmses = [0.002, 0.05]
+    max_re_avgs = [0.00004, 0.007]
 
     for scene, output, debug_output, max_rmse, max_re_avg in zip(scenes, output_images, output_debug_images, max_rmses, max_re_avgs):
         process = renderer.open_default_render_process(scene, output, num_threads=6)

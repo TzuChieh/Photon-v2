@@ -294,7 +294,7 @@ void BNEEPTEstimator::estimate(
 void BNEEPTEstimator::rationalClamp(math::Spectrum& value)
 {
 	// TODO: should negative value be allowed?
-	value.clampLocal(0.0_r, 1000000.0_r);
+	value.clampLocal(0.0_r, 1e9_r);
 }
 
 }// end namespace ph

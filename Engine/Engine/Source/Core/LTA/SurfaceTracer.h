@@ -133,7 +133,8 @@ inline bool SurfaceTracer::doBsdfSample(
 		bsdfSample.inputs.X.getPosition(),
 		bsdfSample.outputs.L,
 		0.0001_r,
-		std::numeric_limits<real>::max());
+		std::numeric_limits<real>::max(),
+		bsdfSample.inputs.X.getIncidentRay().getTime());
 
 	return true;
 }

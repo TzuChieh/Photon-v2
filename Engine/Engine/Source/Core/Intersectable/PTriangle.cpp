@@ -261,7 +261,7 @@ real PTriangle::calcExtendedArea() const
 
 real PTriangle::calcPositionSamplePdfA(const math::Vector3R& position) const
 {
-	return 1.0_r / this->PTriangle::calcExtendedArea();
+	return 1.0_r / PTriangle::calcExtendedArea();
 }
 
 }// end namespace ph
