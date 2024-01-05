@@ -20,6 +20,9 @@ class Image:
     def num_components(self):
         return self.values.shape[2]
     
+    def get_dimensions(self):
+        return (self.get_height(), self.get_width(), self.num_components())
+    
     def to_summed(self):
         img = Image()
         img.values = self.values.sum(axis=2, keepdims=True)
@@ -33,15 +36,21 @@ class Image:
     def to_summed_absolute(self):
         return self.to_absolute().to_summed()
 
-    def save_plot(self, file_path, title):
+    def save_plot(self, file_path, title, create_dirs=False):
+        if create_dirs:
+            Path(file_path).parents[0].mkdir(parents=True, exist_ok=True)
+
         plt.imshow(self.values, interpolation='nearest')
         plt.title(title)
         plt.savefig(Path(file_path).with_suffix(".png"), bbox_inches='tight')
         plt.clf()
 
-    def save_pseudocolor_plot(self, file_path, title):
+    def save_pseudocolor_plot(self, file_path, title, create_dirs=False):
         if self.num_components() != 1:
             raise ValueError("expected 1 color component, %d were found" % self.num_components())
+        
+        if create_dirs:
+            Path(file_path).parents[0].mkdir(parents=True, exist_ok=True)
         
         plt.imshow(self.values, cmap='nipy_spectral', interpolation='nearest')
         plt.title(title)
@@ -91,3 +100,12 @@ def read_pfm(file_path):
         image = Image()
         image.values = np.reshape(floats, shape)
         return image
+
+def rmse_of(img_a: Image, img_b: Image):
+    dim_a = img_a.get_dimensions()
+    dim_b = img_b.get_dimensions()
+    if dim_a != dim_b:
+        raise ValueError("input images have different dimensions (%s and %s)" % (str(dim_a), str(dim_b)))
+
+    mse = ((img_a.values - img_b.values)**2).mean()
+    return np.sqrt(mse)

@@ -194,7 +194,8 @@ required in this case).
 [-o <path>]
 
 Specify image output path. This should be a filename (without extension) for 
-single image or a directory for image series. 
+single image or a directory for image series. Note that the application will
+not create the directory for you if it is not already exists.
 (default path: "./rendered_scene")
 ===============================================================================
 [-of <format>]

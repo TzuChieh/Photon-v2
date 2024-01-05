@@ -8,12 +8,6 @@ from pytest import approx
 
 case_name = "fullscreen_unit_radiance"
 
-input_scenes = [
-    paths.test_resources() / case_name / "scene_bvpt.p2",
-    paths.test_resources() / case_name / "scene_bneept.p2",
-    paths.test_resources() / case_name / "scene_sppm.p2",
-]
-
 output_images = [
     paths.test_output() / case_name / "bvpt",
     paths.test_output() / case_name / "bneept",
@@ -32,7 +26,13 @@ def test_render():
     (1, 1, 1). All output images should appear white, and all images showing error should be completely black
     (or any other color representing 0, depending on the color map).
     """
-    for scene, output, debug_output in zip(input_scenes, output_images, output_debug_images):
+    scenes = [
+        paths.test_resources() / case_name / "scene_bvpt.p2",
+        paths.test_resources() / case_name / "scene_bneept.p2",
+        paths.test_resources() / case_name / "scene_sppm.p2",
+    ]
+
+    for scene, output, debug_output in zip(scenes, output_images, output_debug_images):
         process = renderer.open_default_render_process(scene, output)
         process.run_and_wait()
 
@@ -40,8 +40,9 @@ def test_render():
         img.save_plot(output, output.name.upper() + " Output")
 
         img.values -= 1.0
+        img.values *= 100
         img = img.to_summed_absolute()
-        img.save_pseudocolor_plot(debug_output, output.name.upper() + " Absolute Error")
+        img.save_pseudocolor_plot(debug_output, output.name.upper() + " 100X Absolute Error")
 
         img = image.read_pfm(output)
         for value in np.nditer(img.values):

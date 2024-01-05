@@ -1,6 +1,7 @@
 from infra import paths
 
 import subprocess
+from pathlib import Path
 
 
 def open_default_render_process(scene_path, output_path, num_threads=1):
@@ -10,6 +11,11 @@ def open_default_render_process(scene_path, output_path, num_threads=1):
     process.set_num_render_threads(num_threads)
     process.set_image_format("pfm")
     process.request_raw_output()
+
+    # Output path may contain new (non-existing) folders, create them first so ordinary file save
+    # operations will not fail
+    Path(output_path).parents[0].mkdir(parents=True, exist_ok=True)
+
     return process
 
 
