@@ -3,7 +3,7 @@ from infra import renderer
 from infra import paths
 
 import numpy as np
-from pytest import approx
+import pytest
 
 
 case_name = "checkerboard_emissive_quad"
@@ -24,16 +24,19 @@ reference_images = [
     paths.test_output() / case_name / "ref"
 ]
 
-def test_render():
+@pytest.fixture(scope='module')
+def ref_img():
+    img_path = paths.test_resources() / case_name / "ref_bvpt_8192spp"
+    img = image.read_pfm(img_path)
+    img.save_plot(reference_images[0], "Reference: BVPT 8192 spp", create_dirs=True)
+    return img
+
+def test_render(ref_img):
     """
     A emissive quad is placed in front of the camera. The emission is textured with a checkerboard image.
     The quad will perfectly fit the rendered image (i.e., the rendered output should be identical to the
     checkboard image, with a different resolution).
     """
-    ref_img_path = paths.test_resources() / case_name / "ref_bvpt_8192spp"
-    ref_img = image.read_pfm(ref_img_path)
-    ref_img.save_plot(reference_images[0], "Reference: BVPT 8192 spp", create_dirs=True)
-    
     scenes = [
         paths.test_resources() / case_name / "scene_bvpt.p2",
         paths.test_resources() / case_name / "scene_bneept.p2",
