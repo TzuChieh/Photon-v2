@@ -6,6 +6,7 @@ import matplotlib
 import sys
 import re
 import json
+import inspect
 from collections import abc
 
 
@@ -58,7 +59,8 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
         called_case = called_case[0]
 
     # Write case info and case result in .json format
-    with open((called_case.get_output_dir() / called_case.get_name()).with_suffix(".json"), 'w') as json_file:
+    with open((called_case.get_output_dir() / called_case.get_name()).with_suffix('.json'), 'w') as json_file:
         case_info = called_case.to_json_dict()
-        case_info["outcome"] = report.outcome
+        case_info['outcome'] = report.outcome
+        case_info['desc'] = inspect.cleandoc(item.function.__doc__)
         json_file.write(json.dumps(case_info, indent=4))

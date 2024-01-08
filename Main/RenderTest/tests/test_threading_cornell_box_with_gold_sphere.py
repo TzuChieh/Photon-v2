@@ -10,8 +10,8 @@ res_dir = paths.test_resources() / "cornell_box_with_gold_sphere"
 num_threads_to_test = [1, 2, 5, 8, 17, 64, 100]
 
 cases = []
-for t in num_threads_to_test:
-    _case = infra.TestCase(__name__, "BNEEPT %dT" % t, res_dir / "scene_bneept.p2")
+for i, t in enumerate(num_threads_to_test):
+    _case = infra.TestCase(__name__, "BNEEPT (%d) %dT" % (i + 1, t), res_dir / "scene_bneept.p2")
     _case.output = "bneept_%dt" % t
     _case.debug_output = "bneept_error_%dt" % t
     _case.ref = "ref"

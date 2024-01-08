@@ -6,6 +6,8 @@ from pathlib import Path
 
 
 class Image:
+    default_plot_format = '.jpg'
+
     def __init__(self):
         super().__init__()
 
@@ -38,11 +40,11 @@ class Image:
 
     def save_plot(self, file_path, title, create_dirs=False):
         if create_dirs:
-            Path(file_path).parents[0].mkdir(parents=True, exist_ok=True)
+            Path(file_path).parent.mkdir(parents=True, exist_ok=True)
 
         plt.imshow(self.values, origin='lower', interpolation='nearest')
         plt.title(title, fontsize=11)
-        plt.savefig(Path(file_path).with_suffix(".jpg"), bbox_inches='tight')
+        plt.savefig(Path(file_path).with_suffix(Image.default_plot_format), bbox_inches='tight')
         plt.clf()
 
     def save_pseudocolor_plot(self, file_path, title, color_min=0.0, color_max=100.0, create_dirs=False):
@@ -50,7 +52,7 @@ class Image:
             raise ValueError("expected 1 color component, %d were found" % self.num_components())
         
         if create_dirs:
-            Path(file_path).parents[0].mkdir(parents=True, exist_ok=True)
+            Path(file_path).parent.mkdir(parents=True, exist_ok=True)
         
         plt.imshow(
             self.values, 
@@ -61,7 +63,7 @@ class Image:
             interpolation='nearest')
         plt.title(title, fontsize=11)
         plt.colorbar()
-        plt.savefig(Path(file_path).with_suffix(".jpg"), bbox_inches='tight')
+        plt.savefig(Path(file_path).with_suffix(Image.default_plot_format), bbox_inches='tight')
         plt.clf()
 
 

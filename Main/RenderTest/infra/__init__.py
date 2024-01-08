@@ -12,6 +12,7 @@ class TestCase:
         if module_name not in sys.modules:
             raise ValueError("specified name \"%s\" is not a module" % module_name)
 
+        self._test_name = module_name.removeprefix("tests.").replace("_", " ").title()
         self._case_name = case_name
         self._output_dir = paths.test_output() / module_name
         self._scene_path = scene_path
