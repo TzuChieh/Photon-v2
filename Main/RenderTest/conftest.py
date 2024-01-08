@@ -5,6 +5,7 @@ import matplotlib
 
 import sys
 import re
+import json
 from collections import abc
 
 
@@ -46,7 +47,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
         elif isinstance(value, abc.Iterable):
             cases.extend([e for e in value if isinstance(e, infra.TestCase)])
 
-    # Extract test ID from square brackets (`item.name` contains "test_func_name[test-id]")
+    # Extract test ID from square brackets (`item.name` contains "test_func_name[test-id]") and find the case
     called_test_id = re.findall(r'\[(.*?)\]', item.name)[0]
     called_case = [case for case in cases if case.get_name() == called_test_id]
     if not called_case:
@@ -56,5 +57,8 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     else:
         called_case = called_case[0]
 
-    print(called_case.get_name())
-    # print("function: ", item.function, ", node name: ", item.name, ", node id: ", item.nodeid)
+    # Write case info and case result in .json format
+    with open((called_case.get_output_dir() / called_case.get_name()).with_suffix(".json"), 'w') as json_file:
+        case_info = called_case.to_json_dict()
+        case_info["outcome"] = report.outcome
+        json_file.write(json.dumps(case_info, indent=4))

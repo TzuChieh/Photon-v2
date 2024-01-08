@@ -2,6 +2,7 @@ from infra import paths
 
 import sys
 import json
+import copy
 
 
 class TestCase:
@@ -37,5 +38,15 @@ class TestCase:
     def get_ref_path(self):
         return self.get_output_dir()  / self.ref
 
-    def to_json(self):
-        return json.dumps(self.__dict__)
+    def to_json_dict(self):
+        """
+        Get a json serializable dictionary containing information from this object.
+        """
+        out_case = copy.copy(self)
+        
+        # `pathlib.Path` is not serializable to json by default, convert to string manually
+        out_case._output_dir = str(self._output_dir)
+        out_case._scene_path = str(self._scene_path)
+
+        return out_case.__dict__
+
