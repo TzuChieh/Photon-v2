@@ -41,21 +41,27 @@ class Image:
             Path(file_path).parents[0].mkdir(parents=True, exist_ok=True)
 
         plt.imshow(self.values, origin='lower', interpolation='nearest')
-        plt.title(title)
-        plt.savefig(Path(file_path).with_suffix(".png"), bbox_inches='tight')
+        plt.title(title, fontsize=11)
+        plt.savefig(Path(file_path).with_suffix(".jpg"), bbox_inches='tight')
         plt.clf()
 
-    def save_pseudocolor_plot(self, file_path, title, create_dirs=False):
+    def save_pseudocolor_plot(self, file_path, title, color_min=0.0, color_max=100.0, create_dirs=False):
         if self.num_components() != 1:
             raise ValueError("expected 1 color component, %d were found" % self.num_components())
         
         if create_dirs:
             Path(file_path).parents[0].mkdir(parents=True, exist_ok=True)
         
-        plt.imshow(self.values, origin='lower', cmap='nipy_spectral', interpolation='nearest')
-        plt.title(title)
+        plt.imshow(
+            self.values, 
+            origin='lower', 
+            cmap='nipy_spectral', 
+            vmin=color_min, 
+            vmax=color_max, 
+            interpolation='nearest')
+        plt.title(title, fontsize=11)
         plt.colorbar()
-        plt.savefig(Path(file_path).with_suffix(".png"), bbox_inches='tight')
+        plt.savefig(Path(file_path).with_suffix(".jpg"), bbox_inches='tight')
         plt.clf()
 
 
@@ -102,15 +108,27 @@ def read_pfm(file_path):
         return image
 
 def rmse_of(img_a: Image, img_b: Image):
+    """
+    Calculate RMSE of two images. The resulting value has the same unit as the original image.
+    """
+    return np.sqrt(mse_of(img_a, img_b))
+
+def mse_of(img_a: Image, img_b: Image):
+    """
+    Calculate MSE of two images. MSE is more sensitive to outliers. However, the resulting value does not
+    have the same unit as the original image.
+    """
     dim_a = img_a.get_dimensions()
     dim_b = img_b.get_dimensions()
     if dim_a != dim_b:
         raise ValueError("input images have different dimensions (%s and %s)" % (str(dim_a), str(dim_b)))
 
-    mse = ((img_a.values - img_b.values)**2).mean()
-    return np.sqrt(mse)
+    return ((img_a.values - img_b.values)**2).mean()
 
 def re_avg_of(img_actual: Image, img_expected: Image):
+    """
+    Calculate the relative error of the averaged value (mean) of an image.
+    """
     avg_actual = np.average(img_actual.values)
     avg_expected = np.average(img_expected.values)
     return (avg_actual - avg_expected) / avg_expected
