@@ -17,8 +17,10 @@ class TestCase:
         self._output_dir = paths.test_output() / module_name
         self._scene_path = scene_path
 
+        self.case_msg = ""
         self.output = ""
         self.debug_output = ""
+        self.debug_msg = ""
         self.ref = ""
 
     def get_name(self):

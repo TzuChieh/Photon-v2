@@ -106,6 +106,9 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 
 			++numPhotonBounces;
 
+			// TODO: we can also skip storing this photon if the BSDF has little contribution
+			// (e.g., by measuring its integrated value)
+
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 

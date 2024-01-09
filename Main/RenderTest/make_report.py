@@ -14,6 +14,11 @@ def _write_case_report(report_file, case, title_prefix=""):
         outcome = "!!! " + outcome.upper() + " !!!"
     
     report_file.write("### %sCase %s: *\\<%s\\>*\n\n" % (title_prefix, case['_case_name'], outcome))
+    
+    case_msg = case['case_msg']
+    if case_msg:
+        report_file.write("%s\n\n" % case_msg)
+    
     report_file.write("Time spent: %d seconds.\n\n" % int(case['secs']))
 
     case_output_dir = Path(case['_output_dir'])
@@ -57,6 +62,10 @@ def _write_case_report(report_file, case, title_prefix=""):
 
     report_file.write("#### Debug Output\n\n")
     report_file.write("%s\n\n" % debug_output_img)
+    
+    debug_msg = case['debug_msg']
+    if debug_msg:
+        report_file.write("Debug message: %s\n\n" % debug_msg)
 
 
 def _write_test_report(report_file, test_name, cases):
@@ -99,8 +108,11 @@ def _write_catalog(report_file, test_to_cases):
         report_file.write("All tests passed.\n")
     else:
         for test_name, num in test_to_num_failed.items():
+            if num == 0:
+                continue
             report_file.write("* [(%d) %s (%ds)](#%s)\n" % 
                 (num, test_name, int(test_to_secs[test_name]), test_name.replace(" ", "-").lower()))
+
     report_file.write("\n")
 
     report_file.write("## Passed Tests (%d)\n\n" % num_passed)
@@ -108,8 +120,11 @@ def _write_catalog(report_file, test_to_cases):
         report_file.write("All tests failed.\n")
     else:
         for test_name, num in test_to_num_passed.items():
+            if num == 0:
+                continue
             report_file.write("* [(%d) %s (%ds)](#%s)\n" % 
                 (num, test_name, int(test_to_secs[test_name]), test_name.replace(" ", "-").lower()))
+            
     report_file.write("\n")
 
 

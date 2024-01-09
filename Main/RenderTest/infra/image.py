@@ -47,7 +47,15 @@ class Image:
         plt.savefig(Path(file_path).with_suffix(Image.default_plot_format), bbox_inches='tight')
         plt.clf()
 
-    def save_pseudocolor_plot(self, file_path, title, color_min=0.0, color_max=100.0, create_dirs=False):
+    def save_pseudocolor_plot(
+            self, 
+            file_path, 
+            title, 
+            color_min=0.0, 
+            color_max=100.0, 
+            create_dirs=False,
+            color_map='nipy_spectral'):
+        
         if self.num_components() != 1:
             raise ValueError("expected 1 color component, %d were found" % self.num_components())
         
@@ -57,7 +65,7 @@ class Image:
         plt.imshow(
             self.values, 
             origin='lower', 
-            cmap='nipy_spectral', 
+            cmap=color_map, 
             vmin=color_min, 
             vmax=color_max, 
             interpolation='nearest')
