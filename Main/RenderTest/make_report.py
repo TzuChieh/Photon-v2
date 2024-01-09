@@ -14,7 +14,8 @@ def _write_case_report(report_file, case, title_prefix=""):
         outcome = "!!! " + outcome.upper() + " !!!"
     
     report_file.write("### %sCase %s: *\\<%s\\>*\n\n" % (title_prefix, case['_case_name'], outcome))
-    
+    report_file.write("Time spent: %d seconds.\n\n" % int(case['secs']))
+
     case_output_dir = Path(case['_output_dir'])
 
     # Copy reference image to report output if specified. Sets `ref_img` to a markdown fragment for the image.
@@ -73,6 +74,45 @@ def _write_test_report(report_file, test_name, cases):
             _write_case_report(report_file, case, title_prefix="(%d/%d) " % (i + 1, len(cases)))
 
 
+def _write_catalog(report_file, test_to_cases):
+    num_failed = 0
+    num_passed = 0
+    test_to_num_failed = {}
+    test_to_num_passed = {}
+    test_to_secs = {}
+    for test_name, cases in test_to_cases.items():
+        test_to_num_failed[test_name] = 0
+        test_to_num_passed[test_name] = 0
+        test_to_secs[test_name] = 0.0
+        for case in cases:
+            if case['outcome'] == "passed":
+                num_passed += 1
+                test_to_num_passed[test_name] += 1
+            else:
+                num_failed += 1
+                test_to_num_failed[test_name] += 1
+            
+            test_to_secs[test_name] += case['secs']
+
+    report_file.write("## Failed Tests (%d)\n\n" % num_failed)
+    if num_failed == 0:
+        report_file.write("All tests passed.\n")
+    else:
+        for test_name, num in test_to_num_failed.items():
+            report_file.write("* [(%d) %s (%ds)](#%s)\n" % 
+                (num, test_name, int(test_to_secs[test_name]), test_name.replace(" ", "-").lower()))
+    report_file.write("\n")
+
+    report_file.write("## Passed Tests (%d)\n\n" % num_passed)
+    if num_passed == 0:
+        report_file.write("All tests failed.\n")
+    else:
+        for test_name, num in test_to_num_passed.items():
+            report_file.write("* [(%d) %s (%ds)](#%s)\n" % 
+                (num, test_name, int(test_to_secs[test_name]), test_name.replace(" ", "-").lower()))
+    report_file.write("\n")
+
+
 def write():
     output_dir = paths.test_output()
 
@@ -90,6 +130,11 @@ def write():
             case_infos[i] = json.loads(case_file.read())
 
     num_passed_cases = sum(1 for case in case_infos if case['outcome'] == "passed")
+    total_test_secs = sum(case['secs'] for case in case_infos)
+
+    # Sort cases based on test name & case name first, so dictionaries created from them are ordered accordingly
+    # (`dict` retains insertion order since python 3.7)
+    case_infos = sorted(case_infos, key=lambda case: case['_test_name'] + case['_case_name'])
 
     # Start generating report in markdown format
 
@@ -102,8 +147,15 @@ def write():
     report_file.write("* Generation Time (UTC): %s\n" % datetime.datetime.now(datetime.timezone.utc))
     report_file.write("* %d cases, %d passed (%f%%)\n" % 
         (len(case_infos), num_passed_cases, num_passed_cases / len(case_infos) * 100.0))
+    report_file.write("* Total time spent: %d seconds\n" % int(total_test_secs))
     report_file.write("\n")
 
+    report_file.write(
+        "Note that timing is wall-clock time estimated *per-worker*. Depending on the settings, a worker could be a "
+        "thread or process, etc. If the tests are run in parallel, timing can be higher than its sequential counterpart.\n")
+    report_file.write("\n")
+
+    # Organize cases base on the test they belong to
     test_to_cases = {}
     for case in case_infos:
         test_name = case['_test_name']
@@ -111,7 +163,13 @@ def write():
             test_to_cases[test_name] = []
         test_to_cases[test_name].append(case)
 
+    _write_catalog(report_file, test_to_cases)
+
     for test_name, cases in test_to_cases.items():
-        _write_test_report(report_file, test_name, sorted(cases, key=lambda case: case['_case_name']))
+        _write_test_report(report_file, test_name, cases)
 
     report_file.close()
+
+
+if __name__ == '__main__':
+    write()

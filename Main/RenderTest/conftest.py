@@ -63,4 +63,5 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
         case_info = called_case.to_json_dict()
         case_info['outcome'] = report.outcome
         case_info['desc'] = inspect.cleandoc(item.function.__doc__)
+        case_info['secs'] = call.duration
         json_file.write(json.dumps(case_info, indent=4))
