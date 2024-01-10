@@ -61,10 +61,9 @@ void LbLayeredSurface::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.bsdf.setColorValues(0);
-
 	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
+		out.setMeasurability(false);
 		return;
 	}
 
@@ -74,18 +73,21 @@ void LbLayeredSurface::calcBsdf(
 	const real brdfDeno = 4.0_r * std::abs(NoV * NoL);
 	if(brdfDeno == 0.0_r)
 	{
+		out.setMeasurability(false);
 		return;
 	}
 
 	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
+		out.setMeasurability(false);
 		return;
 	}
 	
 	const real absHoL = std::min(H.absDot(in.L), 1.0_r);
 
 	InterfaceStatistics statistics(absHoL, LbLayer());
+	out.bsdf.setColorValues(0);
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
 		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
@@ -100,6 +102,7 @@ void LbLayeredSurface::calcBsdf(
 
 		out.bsdf.addLocal(statistics.getEnergyScale().mul(D * G / brdfDeno));
 	}
+	out.setMeasurability(out.bsdf);
 }
 
 void LbLayeredSurface::calcBsdfSample(
@@ -193,7 +196,7 @@ void LbLayeredSurface::calcBsdfSample(
 	BsdfEvalOutput evalOutput;
 	LbLayeredSurface::calcBsdf(ctx, evalInput, evalOutput);
 	out.pdfAppliedBsdf = evalOutput.bsdf / pdf;
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void LbLayeredSurface::calcBsdfSamplePdfW(

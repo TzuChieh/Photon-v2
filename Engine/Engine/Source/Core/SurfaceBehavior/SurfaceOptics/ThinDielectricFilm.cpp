@@ -45,7 +45,7 @@ void ThinDielectricFilm::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.bsdf.setColorValues(0);
+	out.setMeasurability(false);
 }
 
 void ThinDielectricFilm::calcBsdfSample(
@@ -148,7 +148,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	math::Spectrum value;
 	value.setSpectral((scale / N.absDot(out.L)).getColorValues(), math::EColorUsage::RAW);
 	out.pdfAppliedBsdf = value;
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void ThinDielectricFilm::calcBsdfSamplePdfW(

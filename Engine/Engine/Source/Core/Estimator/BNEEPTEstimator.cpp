@@ -124,7 +124,7 @@ void BNEEPTEstimator::estimate(
 				bsdfEval.inputs.set(surfaceHit, L, V);
 
 				surfaceBehavior.getOptics()->calcBsdf(bsdfEval);
-				if(bsdfEval.outputs.isGood())
+				if(bsdfEval.outputs.isMeasurable())
 				{
 					BsdfPdfQuery bsdfPdfQuery;
 					bsdfPdfQuery.inputs.set(bsdfEval);

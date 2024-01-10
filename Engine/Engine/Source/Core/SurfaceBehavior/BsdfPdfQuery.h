@@ -25,11 +25,10 @@ public:
 		const math::Vector3R& V);
 };
 
-// TODO: method for checking validity
 class BsdfPdfOutput final
 {
 public:
-	real sampleDirPdfW;
+	real sampleDirPdfW = 0.0_r;
 };
 
 class BsdfPdfQuery final
@@ -38,24 +37,23 @@ public:
 	using Input  = BsdfPdfInput;
 	using Output = BsdfPdfOutput;
 
-	BsdfQueryContext context;
+	BsdfQueryContext context = BsdfQueryContext{};
 	Input            inputs;
 	Output           outputs;
 
-	BsdfPdfQuery();
+	BsdfPdfQuery() = default;
 	explicit BsdfPdfQuery(BsdfQueryContext context);
 };
 
 // In-header Implementations:
 
-inline BsdfPdfQuery::BsdfPdfQuery() : 
-	BsdfPdfQuery(BsdfQueryContext())
-{}
+inline BsdfPdfQuery::BsdfPdfQuery(BsdfQueryContext context)
+	: BsdfPdfQuery()
+{
+	this->context = std::move(context);
 
-inline BsdfPdfQuery::BsdfPdfQuery(BsdfQueryContext context) : 
-	context(std::move(context))
 	// rest of the fields are initialized via setters
-{}
+}
 
 inline void BsdfPdfInput::set(
 	const SurfaceHit&     X,

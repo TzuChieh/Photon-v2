@@ -48,7 +48,7 @@ void IdealReflector::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.bsdf.setColorValues(0);
+	out.setMeasurability(false);
 }
 
 void IdealReflector::calcBsdfSample(
@@ -64,12 +64,12 @@ void IdealReflector::calcBsdfSample(
 	m_fresnel->calcReflectance(NoL, &(out.pdfAppliedBsdf));
 	out.pdfAppliedBsdf.mulLocal(1.0_r / std::abs(NoL));
 
-	// a scale factor for artistic control
+	// A scale factor for artistic control
 	const math::Spectrum& reflectionScale =
 		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.X);
 	out.pdfAppliedBsdf.mulLocal(reflectionScale);
 
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void IdealReflector::calcBsdfSamplePdfW(

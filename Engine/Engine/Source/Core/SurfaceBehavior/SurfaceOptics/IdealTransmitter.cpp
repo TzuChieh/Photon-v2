@@ -46,7 +46,7 @@ void IdealTransmitter::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.bsdf.setColorValues(0);
+	out.setMeasurability(false);
 }
 
 void IdealTransmitter::calcBsdfSample(
@@ -87,7 +87,7 @@ void IdealTransmitter::calcBsdfSample(
 		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.X);
 	out.pdfAppliedBsdf.mulLocal(transmissionScale);
 
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void IdealTransmitter::calcBsdfSamplePdfW(

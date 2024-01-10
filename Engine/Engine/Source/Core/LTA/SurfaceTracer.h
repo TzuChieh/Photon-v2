@@ -155,7 +155,7 @@ inline bool SurfaceTracer::doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const
 
 	getSurfaceOptics(X)->calcBsdf(bsdfEval);
 
-	return bsdfEval.outputs.isGood();
+	return bsdfEval.outputs.isMeasurable();
 }
 
 inline bool SurfaceTracer::doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const

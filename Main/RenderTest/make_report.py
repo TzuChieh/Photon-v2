@@ -1,8 +1,11 @@
 from infra import paths
 from infra import image
 
+import psutil
+
 import json
 import datetime
+import platform
 from pathlib import Path
 
 
@@ -139,6 +142,11 @@ def write():
                 continue
             case_infos.append(dirpath / filename)
 
+    if not case_infos:
+        print("No test output found. Report not generated.")
+        print("Please run the test first.")
+        return
+
     # Load all into dictionaries
     for i, case_info in enumerate(case_infos):
         with open(case_info, 'r') as case_file:
@@ -163,14 +171,28 @@ def write():
     report_file.write("* %d cases, %d passed (%f%%)\n" % 
         (len(case_infos), num_passed_cases, num_passed_cases / len(case_infos) * 100.0))
     report_file.write("* Total time spent: %d seconds\n" % int(total_test_secs))
+
     report_file.write("\n")
 
     report_file.write(
         "Note that timing is wall-clock time estimated *per-worker*. Depending on the settings, a worker could be a "
         "thread or process, etc. If the tests are run in parallel, timing can be higher than its sequential counterpart.\n")
+    
     report_file.write("\n")
 
-    # Organize cases base on the test they belong to
+    ram_info = psutil.virtual_memory()
+    disk_info = psutil.disk_usage(paths.engine_build().root)
+    report_file.write("## System Information\n\n")
+    report_file.write("* OS: %s\n" % platform.system())
+    report_file.write("* CPU: %s (%d logical, %d physical)\n" % 
+        (platform.processor(), psutil.cpu_count(logical=True), psutil.cpu_count(logical=False)))
+    report_file.write("* RAM: %.3f GiB installed\n" % (ram_info.total / (1024 ** 3)))
+    report_file.write("* Disk: %.2f GiB total, %.2f GiB available, %.2f GiB used\n" % 
+        (disk_info.total / (1024 ** 3), disk_info.free / (1024 ** 3), disk_info.used / (1024 ** 3)))
+
+    report_file.write("\n")
+
+    # Organize cases based on the test they belong to
     test_to_cases = {}
     for case in case_infos:
         test_name = case['_test_name']

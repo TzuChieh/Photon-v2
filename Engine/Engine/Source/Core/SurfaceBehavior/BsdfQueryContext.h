@@ -13,7 +13,7 @@ class BsdfQueryContext final
 public:
 	SurfaceElemental        elemental = ALL_ELEMENTALS;
 	ETransport              transport = ETransport::Radiance;
-	lta::SidednessAgreement sidedness = lta::SidednessAgreement(lta::ESidednessPolicy::Strict);
+	lta::SidednessAgreement sidedness = lta::SidednessAgreement{lta::ESidednessPolicy::Strict};
 
 	BsdfQueryContext() = default;
 	explicit BsdfQueryContext(SurfaceElemental elemental);

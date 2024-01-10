@@ -50,17 +50,17 @@ void OpaqueMicrofacet::calcBsdf(
 	const real NoL = N.dot(in.L);
 	const real NoV = N.dot(in.V);
 
-	// check if L, V lies on different side of the surface
+	// Check if L, V lies on different side of the surface
 	if(NoL * NoV <= 0.0_r)
 	{
-		out.bsdf.setColorValues(0);
+		out.setMeasurability(false);
 		return;
 	}
 
 	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 	{
-		out.bsdf.setColorValues(0);
+		out.setMeasurability(false);
 		return;
 	}
 
@@ -75,6 +75,7 @@ void OpaqueMicrofacet::calcBsdf(
 	const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
 
 	out.bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
+	out.setMeasurability(out.bsdf);
 }
 
 void OpaqueMicrofacet::calcBsdfSample(
@@ -119,7 +120,7 @@ void OpaqueMicrofacet::calcBsdfSample(
 
 	const real G = m_microfacet->shadowing(in.X, N, H, L, in.V);
 	out.pdfAppliedBsdf = F.mul(G).mulLocal(multiplier);
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void OpaqueMicrofacet::calcBsdfSamplePdfW(

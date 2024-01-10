@@ -55,7 +55,7 @@ void IdealDielectric::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	out.bsdf.setColorValues(0);
+	out.setMeasurability(false);
 }
 
 void IdealDielectric::calcBsdfSample(
@@ -159,7 +159,7 @@ void IdealDielectric::calcBsdfSample(
 	}
 
 	out.pdfAppliedBsdf = F / N.absDot(out.L);
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void IdealDielectric::calcBsdfSamplePdfW(

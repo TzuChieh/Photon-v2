@@ -7,6 +7,10 @@
 #include "Math/Color/Spectrum.h"
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 
+#include <Common/assertion.h>
+
+#include <utility>
+
 namespace ph
 {
 
@@ -31,7 +35,22 @@ class BsdfEvalOutput
 public:
 	math::Spectrum bsdf;
 
-	bool isGood() const;
+	/*! @brief Tells whether this evaluation has non-zero and sane contribution.
+	All evaluated data should be usable if true is returned; otherwise, zero contribution is implied,
+	and evaluated data is undefined.
+	*/
+	bool isMeasurable() const;
+
+	/*! @brief Set measurability directly.
+	*/
+	void setMeasurability(bool measurability);
+
+	/*! @brief Set measurability based on a reference spectrum.
+	*/
+	void setMeasurability(const math::Spectrum& reference);
+
+private:
+	bool m_isMeasurable = false;
 };
 
 class BsdfEvalQuery final
@@ -40,24 +59,23 @@ public:
 	using Input  = BsdfEvalInput;
 	using Output = BsdfEvalOutput;
 	
-	BsdfQueryContext context;
+	BsdfQueryContext context = BsdfQueryContext{};
 	Input            inputs;
 	Output           outputs;
 
-	BsdfEvalQuery();
+	BsdfEvalQuery() = default;
 	explicit BsdfEvalQuery(BsdfQueryContext context);
 };
 
 // In-header Implementations:
 
-inline BsdfEvalQuery::BsdfEvalQuery() :
-	BsdfEvalQuery(BsdfQueryContext())
-{}
+inline BsdfEvalQuery::BsdfEvalQuery(BsdfQueryContext context)
+	: BsdfEvalQuery()
+{
+	this->context = std::move(context);
 
-inline BsdfEvalQuery::BsdfEvalQuery(BsdfQueryContext context) :
-	context(std::move(context))
 	// rest of the fields are initialized via setters
-{}
+}
 
 inline void BsdfEvalInput::set(
 	const SurfaceHit&     X, 
@@ -69,9 +87,28 @@ inline void BsdfEvalInput::set(
 	this->V = V;
 }
 
-inline bool BsdfEvalOutput::isGood() const
+inline bool BsdfEvalOutput::isMeasurable() const
 {
-	return bsdf.isFinite();
+#if PH_DEBUG
+	// When an evaluation report being measurable, it must be non-zero and not some crazy values
+	if(m_isMeasurable)
+	{
+		PH_ASSERT(!bsdf.isZero());
+		PH_ASSERT_MSG(bsdf.isFinite(), bsdf.toString());
+	}
+#endif
+
+	return m_isMeasurable;
+}
+
+inline void BsdfEvalOutput::setMeasurability(const bool measurability)
+{
+	m_isMeasurable = measurability;
+}
+
+inline void BsdfEvalOutput::setMeasurability(const math::Spectrum& reference)
+{
+	setMeasurability(!reference.isZero() && reference.isFinite());
 }
 
 }// end namespace ph

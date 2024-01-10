@@ -41,12 +41,13 @@ void LambertianDiffuse::calcBsdf(
 {
 	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
-		out.bsdf.setColorValues(0);
+		out.setMeasurability(false);
 		return;
 	}
 
 	math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.X);
 	out.bsdf = albedo.mulLocal(math::constant::rcp_pi<real>);
+	out.setMeasurability(out.bsdf);
 }
 
 void LambertianDiffuse::calcBsdfSample(
@@ -86,7 +87,7 @@ void LambertianDiffuse::calcBsdfSample(
 	}
 
 	out.pdfAppliedBsdf = albedo.mulLocal(1.0_r / absNoL);
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void LambertianDiffuse::calcBsdfSamplePdfW(

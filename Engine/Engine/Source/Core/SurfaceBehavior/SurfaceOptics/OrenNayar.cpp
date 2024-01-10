@@ -68,7 +68,7 @@ void OrenNayar::calcBsdf(
 
 	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
-		out.bsdf.setColorValues(0);
+		out.setMeasurability(false);
 		return;
 	}
 
@@ -112,6 +112,7 @@ void OrenNayar::calcBsdf(
 	}
 
 	out.bsdf = albedo * (math::constant::rcp_pi<real> * (A + B * cosTerm * sinAlpha * tanBeta));
+	out.setMeasurability(out.bsdf);
 }
 
 void OrenNayar::calcBsdfSample(
@@ -152,14 +153,14 @@ void OrenNayar::calcBsdfSample(
 	BsdfEvalQuery eval;
 	eval.inputs.set(in.X, L, in.V);
 	OrenNayar::calcBsdf(ctx, eval.inputs, eval.outputs);
-	if(!eval.outputs.isGood())
+	if(!eval.outputs.isMeasurable())
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
 	out.pdfAppliedBsdf = eval.outputs.bsdf.div(pdfW);
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void OrenNayar::calcBsdfSamplePdfW(

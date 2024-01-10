@@ -231,7 +231,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 			bsdfEval.inputs.set(X, L, V);
 
 			optics->calcBsdf(bsdfEval);
-			if(bsdfEval.outputs.isGood())
+			if(bsdfEval.outputs.isMeasurable())
 			{
 				BsdfPdfQuery bsdfPdfQuery{BsdfQueryContext(POLICY)};
 				bsdfPdfQuery.inputs.set(bsdfEval);

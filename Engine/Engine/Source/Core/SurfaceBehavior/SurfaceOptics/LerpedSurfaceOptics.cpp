@@ -87,6 +87,7 @@ void LerpedSurfaceOptics::calcBsdf(
 		m_optics1->calcBsdf(ctx, in, eval1);
 
 		out.bsdf = eval0.bsdf * ratio + eval1.bsdf * (math::Spectrum(1) - ratio);
+		out.setMeasurability(out.bsdf);
 	}
 	else
 	{
@@ -104,6 +105,7 @@ void LerpedSurfaceOptics::calcBsdf(
 			m_optics1->calcBsdf(localCtx, in, out);
 			out.bsdf.mulLocal(math::Spectrum(1) - ratio);
 		}
+		out.setMeasurability(out.bsdf);
 	}
 }
 
@@ -166,7 +168,6 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 		out.pdfAppliedBsdf = bsdf / pdfW;
 		out.L = sampleOutput.L;
-		out.setMeasurability(true);
 	}
 	else
 	{
@@ -185,6 +186,8 @@ void LerpedSurfaceOptics::calcBsdfSample(
 			out.pdfAppliedBsdf.mulLocal(math::Spectrum(1) - ratio);
 		}
 	}
+
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void LerpedSurfaceOptics::calcBsdfSamplePdfW(

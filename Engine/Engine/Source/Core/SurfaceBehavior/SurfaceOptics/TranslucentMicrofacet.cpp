@@ -55,7 +55,7 @@ void TranslucentMicrofacet::calcBsdf(
 	const real NoLmulNoV = NoL * NoV;
 	if(NoLmulNoV == 0.0_r)
 	{
-		out.bsdf.setColorValues(0);
+		out.setMeasurability(false);
 		return;
 	}
 
@@ -66,7 +66,7 @@ void TranslucentMicrofacet::calcBsdf(
 		math::Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
 		{
-			out.bsdf.setColorValues(0);
+			out.setMeasurability(false);
 			return;
 		}
 
@@ -97,7 +97,7 @@ void TranslucentMicrofacet::calcBsdf(
 		math::Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
 		if(H.isZero())
 		{
-			out.bsdf.setColorValues(0);
+			out.setMeasurability(false);
 			return;
 		}
 		H.normalizeLocal();
@@ -122,17 +122,18 @@ void TranslucentMicrofacet::calcBsdf(
 		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
 		if(!std::isfinite(iorTerm))
 		{
-			out.bsdf.setColorValues(0);
+			out.setMeasurability(false);
 			return;
 		}
 
 		const real dotTerm = std::abs(HoL * HoV / NoLmulNoV);
 
 		out.bsdf = F.mul(D * G * dotTerm * (iorTerm * iorTerm));
+		out.setMeasurability(out.bsdf);
 	}
 	else
 	{
-		out.bsdf.setColorValues(0);
+		out.setMeasurability(false);
 	}
 }
 
@@ -256,7 +257,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	}
 
 	out.pdfAppliedBsdf = F.mul(G * dotTerms);
-	out.setMeasurability(true);
+	out.setMeasurability(out.pdfAppliedBsdf);
 }
 
 void TranslucentMicrofacet::calcBsdfSamplePdfW(
