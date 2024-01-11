@@ -41,7 +41,7 @@ def test_render(ref_img, case, t):
 
     output_img.values -= ref_img.values
     output_img.values *= 100
-    output_img = output_img.to_summed_absolute()
+    output_img = output_img.to_summed_absolute_components()
     output_img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error")
 
     assert mse < 0.0016

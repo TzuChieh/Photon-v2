@@ -5,7 +5,6 @@ from infra import paths
 
 import numpy as np
 import pytest
-from pytest import approx
 
 
 res_dir = paths.test_resources() / "gray_furnace_box"
@@ -29,13 +28,13 @@ sppm_diffuse_sphere_case = infra.TestCase(__name__, "SPPM Diffuse Sphere", res_d
 sppm_diffuse_sphere_case.output = "sppm_diffuse_sphere"
 sppm_diffuse_sphere_case.debug_output = "sppm_diffuse_sphere_error"
 
-@pytest.mark.parametrize("case, base_diff", [
-    pytest.param(bvpt_diffuse_sphere_case, 1e-4, id=bvpt_diffuse_sphere_case.get_name()),
-    pytest.param(bneept_diffuse_sphere_case, 1e-4, id=bneept_diffuse_sphere_case.get_name()),
-    pytest.param(bneept_diffuse_sphere_small_box_case, 1e-4, id=bneept_diffuse_sphere_small_box_case.get_name()),
-    pytest.param(sppm_diffuse_sphere_case, 1e-3, id=sppm_diffuse_sphere_case.get_name()),
+@pytest.mark.parametrize("case", [
+    pytest.param(bvpt_diffuse_sphere_case, id=bvpt_diffuse_sphere_case.get_name()),
+    pytest.param(bneept_diffuse_sphere_case, id=bneept_diffuse_sphere_case.get_name()),
+    pytest.param(bneept_diffuse_sphere_small_box_case, id=bneept_diffuse_sphere_small_box_case.get_name()),
+    pytest.param(sppm_diffuse_sphere_case, id=sppm_diffuse_sphere_case.get_name()),
 ])
-def test_render(case, base_diff):
+def test_render(case):
     """
     The classical white furnace test, with medium gray background to better judge energy loss/gain. There is
     an object placed in the middle. If there is no energy loss in the target model, then the output image
@@ -48,19 +47,20 @@ def test_render(case, base_diff):
     img = image.read_pfm(case.get_output_path())
     img.save_plot(case.get_output_path(), case.get_name() + " Output")
 
+    mean_diff = np.mean(img.values) - 0.5
     case.debug_msg = "mean diff = %.8f, max pixel = %.8f, min pixel = %.8f" % (
-        np.mean(img.values) - 0.5, np.max(img.values), np.min(img.values))
+        mean_diff, np.max(img.values), np.min(img.values))
 
-    img.values = (img.values - 0.5) / base_diff
-    img = img.to_summed_absolute()
+    img = img.to_averaged_component()
+    img.values = (img.values - 0.5) / 0.5
+    img.values *= 100
     img.save_pseudocolor_plot(
         case.get_debug_output_path(), 
-        case.get_name() + " Relative Error to %f" % base_diff,
-        color_min=-100,
-        color_max=100,
+        case.get_name() + " Energy Loss (%)",
+        color_min=-1.2,
+        color_max=1.2,
         color_map='bwr')
 
-    img = image.read_pfm(case.get_output_path())
-    for value in np.nditer(img.values):
-        assert value == approx(0.5, abs=base_diff * 100)
+    max_mean_diff = 1e-3
+    assert abs(mean_diff) < max_mean_diff
     

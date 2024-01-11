@@ -25,18 +25,23 @@ class Image:
     def get_dimensions(self):
         return (self.get_height(), self.get_width(), self.num_components())
     
-    def to_summed(self):
+    def to_summed_component(self):
         img = Image()
         img.values = self.values.sum(axis=2, keepdims=True)
         return img
     
-    def to_absolute(self):
+    def to_averaged_component(self):
+        img = Image()
+        img.values = self.values.mean(axis=2, keepdims=True)
+        return img
+    
+    def to_absolute_components(self):
         img = Image()
         img.values = np.absolute(self.values)
         return img
     
-    def to_summed_absolute(self):
-        return self.to_absolute().to_summed()
+    def to_summed_absolute_components(self):
+        return self.to_absolute_components().to_summed_component()
 
     def save_plot(self, file_path, title, create_dirs=False):
         if create_dirs:

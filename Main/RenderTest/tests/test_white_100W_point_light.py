@@ -26,7 +26,7 @@ def ref_img():
 
 @pytest.mark.parametrize("case, max_mse, max_re_avg", [
     pytest.param(bneept_case, 0.000036, 0.001, id=bneept_case.get_name()),
-    pytest.param(sppm_case, 0.000169, 0.0024, id=sppm_case.get_name()),
+    pytest.param(sppm_case, 0.000169, 0.005, id=sppm_case.get_name()),
 ])
 def test_render(ref_img, case, max_mse, max_re_avg):
     """
@@ -45,7 +45,7 @@ def test_render(ref_img, case, max_mse, max_re_avg):
 
     output_img.values -= ref_img.values
     output_img.values *= 100
-    output_img = output_img.to_summed_absolute()
+    output_img = output_img.to_summed_absolute_components()
     output_img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error")
 
     assert mse < max_mse

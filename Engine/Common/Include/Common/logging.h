@@ -166,8 +166,8 @@ PH_DECLARE_LOG_GROUP(PhotonRenderer);
 	#define PH_DEFAULT_LOG_DEBUG(formatString, ...) PH_LOG_DEBUG(PhotonRenderer, formatString, __VA_ARGS__)
 	#define PH_DEFAULT_LOG_DEBUG_STRING(rawString) PH_LOG_DEBUG_STRING(PhotonRenderer, rawString)
 #else
-	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_NO_OP()
-	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_NO_OP()
+	#define PH_DEFAULT_LOG_DEBUG(groupName, rawString) PH_NO_OP()
+	#define PH_DEFAULT_LOG_DEBUG_STRING(groupName, formatString, ...) PH_NO_OP()
 #endif
 
 #define PH_DEFAULT_LOG(formatString, ...) PH_LOG(PhotonRenderer, formatString, __VA_ARGS__)

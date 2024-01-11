@@ -41,7 +41,7 @@ def test_render(case):
 
     img.values -= 1.0
     img.values *= 100
-    img = img.to_summed_absolute()
+    img = img.to_summed_absolute_components()
     img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error")
 
     img = image.read_pfm(case.get_output_path())
