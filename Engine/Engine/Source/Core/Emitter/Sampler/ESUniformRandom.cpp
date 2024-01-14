@@ -1,5 +1,4 @@
 #include "Core/Emitter/Sampler/ESUniformRandom.h"
-#include "Math/Random.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"

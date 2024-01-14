@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 
 #include <Common/assertion.h>
 
@@ -39,7 +39,7 @@ void shuffle_durstenfeld_index_pairs(
 
 	for(std::size_t i = beginIndex; i < endIndex; ++i)
 	{
-		const std::size_t ri = math::Random::genUniformIndex_iL_eU(i, endIndex);
+		const std::size_t ri = math::Random::index(i, endIndex);
 		consumer(i, ri);
 	}
 }

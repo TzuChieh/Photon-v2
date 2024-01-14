@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/SampleGenerator/SampleFlow.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -86,7 +86,7 @@ inline const real* SamplesNDStream::readSample()
 	{
 		for(auto& element : m_overreadBuffer)
 		{
-			element = math::Random::genUniformReal_i0_e1();
+			element = math::Random::sample();
 		}
 		return m_overreadBuffer.data();
 	}

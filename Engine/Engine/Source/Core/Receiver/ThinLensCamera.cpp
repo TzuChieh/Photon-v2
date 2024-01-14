@@ -2,7 +2,7 @@
 #include "Core/Ray.h"
 #include "Math/Transform/Transform.h"
 #include "Math/Transform/RigidTransform.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 #include "Math/Geometry/TDisk.h"
 
 #include <Common/assertion.h>
@@ -47,9 +47,7 @@ math::Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray
 	const auto focalPlanePos = lensCenterToSensorDir.mul(-lensCenterToFocalPlanePosLength);
 
 	math::TDisk<float64> lensDisk(m_lensRadius);
-	const auto lensPos2D = lensDisk.sampleToSurface2D({
-		math::Random::genUniformReal_i0_e1(),
-		math::Random::genUniformReal_i0_e1()});
+	const auto lensPos2D = lensDisk.sampleToSurface2D({math::Random::sampleND<2, float64>()});
 	const auto lensPos = math::Vector3D(lensPos2D.x(), lensPos2D.y(), 0);
 
 	// Now we transform camera space data to world space

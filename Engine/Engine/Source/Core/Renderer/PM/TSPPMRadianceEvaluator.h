@@ -10,7 +10,6 @@
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Math/math.h"
-#include "Math/Random.h"
 #include "Math/Color/Spectrum.h"
 #include "World/Scene.h"
 #include "Core/Filmic/TSamplingFilm.h"

@@ -4,7 +4,7 @@
 #include "Math/math.h"
 #include "Core/SampleGenerator/Halton/halton.h"
 #include "Core/SampleGenerator/SampleContext.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -116,7 +116,7 @@ void SGHalton::genSamplesOfAnyDimensions(
 			// Run out of available dimensions, use random samples hereafter
 			else
 			{
-				dimSample = math::Random::genUniformReal_i0_e1();
+				dimSample = math::Random::sample();
 			}
 			out_samples[si][di] = dimSample;
 		}

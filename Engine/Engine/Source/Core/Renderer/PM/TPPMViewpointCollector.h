@@ -8,7 +8,6 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Math/Random.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>

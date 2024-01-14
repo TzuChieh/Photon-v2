@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 #include "Math/Random/sample.h"
 
 #include <Common/assertion.h>
@@ -111,7 +111,7 @@ inline bool SampleFlow::unflowedPick(const real pickProbability)
 
 inline bool SampleFlow::unflowedRandomPick(const real pickProbability)
 {
-	return math::pick(pickProbability, math::Random::genUniformReal_i0_e1());
+	return math::pick(pickProbability, math::Random::sample());
 }
 
 inline bool SampleFlow::hasMoreToRead() const
@@ -129,7 +129,7 @@ inline real SampleFlow::load1D()
 	}
 
 	return m_savedDims && hasMoreToRead() ?
-		m_savedDims[m_numReadDims++] : math::Random::genUniformReal_i0_e1();
+		m_savedDims[m_numReadDims++] : math::Random::sample();
 }
 
 }// end namespace ph

@@ -1,6 +1,6 @@
 #include "Core/SampleGenerator/SGStratified.h"
 #include "Core/Sample.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 #include "Core/SampleGenerator/SamplesND.h"
 #include "Math/TVector2.h"
 #include "Core/SampleGenerator/SampleStageReviser.h"
@@ -30,7 +30,7 @@ void SGStratified::genSamples1D(
 
 	for(std::size_t x = 0; x < stage.numSamples(); ++x)
 	{
-		const real jitter = math::Random::genUniformReal_i0_e1();
+		const real jitter = math::Random::sample();
 		out_samples.setSample<1>(x, {(static_cast<real>(x) + jitter) * dx});
 	}
 	out_samples.shuffle();
@@ -65,8 +65,8 @@ void SGStratified::genSamples2D(
 		{
 			for(std::size_t x = 0; x < strataSizes.x(); ++x)
 			{
-				const real jitterX = math::Random::genUniformReal_i0_e1();
-				const real jitterY = math::Random::genUniformReal_i0_e1();
+				const real jitterX = math::Random::sample();
+				const real jitterY = math::Random::sample();
 				out_samples.setSample<2>(
 					currentIndex, 
 					{(static_cast<real>(x) + jitterX) * dx, (static_cast<real>(y) + jitterY) * dy});
@@ -83,9 +83,7 @@ void SGStratified::genSamples2D(
 	// TODO: use hypercube sampling?
 	for(std::size_t i = currentIndex; i < out_samples.numSamples(); ++i)
 	{
-		out_samples.setSample<2>(
-			i,
-			{math::Random::genUniformReal_i0_e1(), math::Random::genUniformReal_i0_e1()});
+		out_samples.setSample<2>(i, math::Random::sampleND<2>());
 	}
 
 	// TODO: shuffle only the quasi part?

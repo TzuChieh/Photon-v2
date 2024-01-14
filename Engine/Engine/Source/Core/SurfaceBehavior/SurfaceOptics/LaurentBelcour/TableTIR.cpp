@@ -1,6 +1,6 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableTIR.h"
 #include "Math/math.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 
 namespace ph
 {
@@ -45,9 +45,9 @@ real TableTIR::sample(const real cosWi, const real alpha, const real relIor) con
 	else if constexpr(MODE == EInterpolationMode::STOCHASTIC_QUADLINEAR)
 	{
 		// target integer indices
-		int iCosWi  = static_cast<int>(fCosWi  + math::Random::genUniformReal_i0_e1());
-		int iAlpha  = static_cast<int>(fAlpha  + math::Random::genUniformReal_i0_e1());
-		int iRelIor = static_cast<int>(fRelIor + math::Random::genUniformReal_i0_e1());
+		int iCosWi  = static_cast<int>(fCosWi  + math::Random::sample());
+		int iAlpha  = static_cast<int>(fAlpha  + math::Random::sample());
+		int iRelIor = static_cast<int>(fRelIor + math::Random::sample());
 
 		// ensure indices stay in the limits
 		iCosWi  = std::min(iCosWi,  m_numCosWi  - 1);

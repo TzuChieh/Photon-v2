@@ -15,9 +15,13 @@ namespace ph
 class Ray;
 class RayDifferential;
 
-// TODO: time
+/*! @brief A target that can receive any physical quantity, typically electromagnetic energy.
+*/
 class Receiver
 {
+	// TODO: time
+	// TODO: sample flow
+
 public:
 	explicit Receiver(const math::RigidTransform* receiverToWorld);
 

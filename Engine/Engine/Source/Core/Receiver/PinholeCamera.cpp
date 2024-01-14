@@ -1,7 +1,7 @@
 #include "Core/Receiver/PinholeCamera.h"
 #include "Core/Ray.h"
 #include "Math/math.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 #include "Math/Transform/Transform.h"
 #include "Math/Transform/RigidTransform.h"
 
@@ -39,7 +39,7 @@ math::Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray*
 
 	// HACK
 	Time time;
-	time.relativeT = math::Random::genUniformReal_i0_e1();
+	time.relativeT = math::Random::sample();
 	out_ray->setTime(time);
 
 	PH_ASSERT_MSG(out_ray->getOrigin().isFinite() && out_ray->getDirection().isFinite(), "\n"

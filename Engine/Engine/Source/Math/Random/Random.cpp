@@ -1,4 +1,4 @@
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 #include "Math/math.h"
 #include "Math/Random/DeterministicSeeder.h"
 #include "Math/Random/TMt19937.h"
@@ -14,7 +14,7 @@ namespace ph::math
 {
 
 // NOTE: consider using __rdtsc() as seed (if film merging is desired)
-real Random::genUniformReal_i0_e1()
+real Random::sample()
 {
 	//static thread_local std::mt19937 generator(DeterministicSeeder::nextSeed<uint32>());
 	//static thread_local TMt19937<uint32> generator(DeterministicSeeder::nextSeed<uint32>());
@@ -33,17 +33,6 @@ real Random::genUniformReal_i0_e1()
 	//return distribution(generator);
 	return generator.generateSample();
 	//return static_cast<real>(generator.generateSample<float64>());
-}
-
-std::size_t Random::genUniformIndex_iL_eU(const std::size_t lowerBound,
-                                          const std::size_t upperBound)
-{
-	PH_ASSERT(upperBound > lowerBound);
-
-	const std::size_t numIntervals = upperBound - lowerBound;
-	std::size_t index = static_cast<std::size_t>(lowerBound + genUniformReal_i0_e1() * numIntervals);
-
-	return index < lowerBound ? lowerBound : (index >= upperBound ? upperBound - 1 : index);
 }
 
 // FIXME: type-punning with unions is undefined behavior

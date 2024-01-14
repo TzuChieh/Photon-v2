@@ -3,7 +3,7 @@
 #include "Core/Texture/TSampler.h"
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/TTexture.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 
 #include <Common/assertion.h>
@@ -43,7 +43,7 @@ void MultiDiffuseSurfaceEmitter::genDirectSample(DirectEnergySampleQuery& query,
 	PH_ASSERT(!m_emitters.empty());
 
 	// FIXME: use sampleFlow
-	const DiffuseSurfaceEmitter& emitter = m_emitters[math::Random::genUniformIndex_iL_eU(0, m_emitters.size())];
+	const DiffuseSurfaceEmitter& emitter = m_emitters[math::Random::index(0, m_emitters.size())];
 
 	emitter.genDirectSample(query, sampleFlow);
 	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
@@ -55,7 +55,7 @@ void MultiDiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, m
 	// randomly and uniformly pick a primitive
 
 	// FIXME: use sampleFlow
-	const auto& emitter = m_emitters[math::Random::genUniformIndex_iL_eU(0, m_emitters.size())];
+	const auto& emitter = m_emitters[math::Random::index(0, m_emitters.size())];
 	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
 
 	emitter.emitRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);

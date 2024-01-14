@@ -1,6 +1,6 @@
 #include "Core/SurfaceBehavior/SurfaceOptics/LaurentBelcour/TableFGD.h"
 #include "Math/math.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 
 #include <cmath>
 #include <array>
@@ -51,10 +51,10 @@ real TableFGD::sample(const real cosWi, const real alpha, const real iorN, const
 	else if constexpr(MODE == EInterpolationMode::STOCHASTIC_QUADLINEAR)
 	{
 		// target integer indices
-		int iCosWi = static_cast<int>(fCosWi + math::Random::genUniformReal_i0_e1());
-		int iAlpha = static_cast<int>(fAlpha + math::Random::genUniformReal_i0_e1());
-		int iIorN  = static_cast<int>(fIorN  + math::Random::genUniformReal_i0_e1());
-		int iIorK  = static_cast<int>(fIorK  + math::Random::genUniformReal_i0_e1());
+		int iCosWi = static_cast<int>(fCosWi + math::Random::sample());
+		int iAlpha = static_cast<int>(fAlpha + math::Random::sample());
+		int iIorN  = static_cast<int>(fIorN  + math::Random::sample());
+		int iIorK  = static_cast<int>(fIorK  + math::Random::sample());
 
 		// ensure indices stay in the limits
 		iCosWi = std::min(iCosWi, m_numCosWi - 1);

@@ -7,7 +7,7 @@
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
-#include "Math/Random.h"
+#include "Math/Random/Random.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 
 #include <Common/assertion.h>
@@ -143,7 +143,7 @@ void LbLayeredSurface::calcBsdfSample(
 	// NOTE: watch out for the case where selectWeight cannot be reduced to <= 0 due to 
 	// numerical error (handled in current implmentation)
 	// TODO: try to use sampleFlow for this
-	real selectWeight = math::Random::genUniformReal_i0_e1() * summedSampleWeights - sampleWeights[0];
+	real selectWeight = math::Random::sample() * summedSampleWeights - sampleWeights[0];
 	std::size_t selectIndex = 0;
 	for(selectIndex = 0; selectWeight > 0.0_r && selectIndex + 1 < numLayers(); ++selectIndex)
 	{
