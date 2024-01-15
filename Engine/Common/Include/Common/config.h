@@ -101,6 +101,17 @@ Turning this option on is a fallback when things do not go as planned.
 
 #define PH_RENDER_MODE PH_RENDER_MODE_LINEAR_SRGB
 
+/*! @brief Being strict about the symmetricity of importance transport.
+There are many sources of asymmetry between light and importance transport, but not all of them can
+be handled gracefully. One example is when shading normals are used for light transport, it is
+equivalent to using an asymmetric, modified BSDF. However, the correction factor to restore consistency
+between light and importance transport can have high variance and makes the result unusable for some
+scenes. This option (when disabled) attempt to fix that by introducing a small bias.
+
+See also: "SPPM implementation is not symmetric" https://github.com/mmp/pbrt-v3/issues/209
+*/
+#define PH_STRICT_ASYMMETRIC_IMPORTANCE_TRANSPORT 0
+
 ///////////////////////////////////////////////////////////////////////////////
 // Data Structures                                                           //
 ///////////////////////////////////////////////////////////////////////////////

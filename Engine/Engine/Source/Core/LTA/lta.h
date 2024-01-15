@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Math/TVector3.h"
+#include "Math/math.h"
 
+#include <Common/config.h>
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
@@ -16,8 +18,12 @@ inline constexpr real self_intersect_delta = 0.0001_r;
 /*!
 Using shading normal for light transport algorithms is equivalent to using
 asymmetric BSDFs. This can lead to inconsistent results between regular
-and adjoint algorithms. This correction factor, when multiplied with BSDF,
-restores the symmetric condition of the BSDF during importance transport.
+and adjoint algorithms. This correction factor, when multiplied with the
+weight of an importance scatter event, restores the consistency when adjoint
+algorithms also use shading normals during importance transport.
+
+This factor also considers the geometry factor `Ns.dot(L)`. The geometry factor is
+expected to be used (multiplied) together with this factor.
 
 References:
 [1] Eric Veach, "Non-symmetric Scattering in Light Transport Algorithms",
@@ -30,15 +36,80 @@ Eurographics Rendering Workshop 1996 Proceedings.
 
 @note All vectors are expected to be in unit length and leaving the surface.
 */
-inline real importance_BSDF_Ns_corrector(
+inline real importance_scatter_Ns_corrector(
 	const math::Vector3R& Ns,
 	const math::Vector3R& Ng,
 	const math::Vector3R& L,
 	const math::Vector3R& V)
 {
-	PH_ASSERT_GT(std::abs(Ns.dot(V) * Ng.dot(L)), 0.0_r);
+	PH_ASSERT_NE(Ng.dot(V) * Ns.dot(L), 0.0_r);
 
 	return std::abs((Ns.dot(V) * Ng.dot(L)) / (Ng.dot(V) * Ns.dot(L)));
+}
+
+/*!
+This correction factor is for the same reason as `importance_scatter_Ns_corrector()`, to restore
+the consistency of importance transport when shading normal is used for light transport. This factor
+works on the BSDF itself only. Using this factor accounts the fact that shading normals make a BSDF
+asymmetric during light/importance transport.
+
+This factor does not take the geometry factor `Ns.dot(L)` into account. It considers the BSDF only.
+
+@param Ns Shading normal.
+@param Ng Geometry normal.
+@param V Direction of excitant importance.
+
+@note All vectors are expected to be in unit length and leaving the surface.
+*/
+inline real importance_BSDF_Ns_corrector(
+	const math::Vector3R& Ns,
+	const math::Vector3R& Ng,
+	const math::Vector3R& V)
+{
+	PH_ASSERT_NE(Ng.dot(V), 0.0_r);
+
+	return std::abs(Ns.dot(V) / Ng.dot(V));
+}
+
+/*! @brief Smoother version of `importance_scatter_Ns_corrector()`.
+
+The weighting for importance transport is only correct (same scene interpretation and rendered result)
+if we account for the BSDF asymmetry when shading normal is used. However, this factor introduces
+high variance (big firefly marks). This version attempts to lower the variance by removing large
+correction factor (and this introduces bias, though not easily noticeable).
+
+In PBRT-v3, this factor is completely ignored. In Mitsuba 0.6, this factor is only applied on last
+bounce, i.e., during radiance estimation (applying the `importance_BSDF_Ns_corrector()`, not the
+scattering/throughput one).
+*/
+inline real tamed_importance_scatter_Ns_corrector(
+	const math::Vector3R& Ns,
+	const math::Vector3R& Ng,
+	const math::Vector3R& L,
+	const math::Vector3R& V)
+{
+	const auto factor = importance_scatter_Ns_corrector(Ns, Ng, L, V);
+#if PH_STRICT_ASYMMETRIC_IMPORTANCE_TRANSPORT
+	return factor;
+#else
+	return math::clamp(factor, 0.0_r, 10.0_r);
+#endif
+}
+
+/*! @brief Smoother version of `importance_BSDF_Ns_corrector()`.
+See `tamed_importance_scatter_Ns_corrector()` for explanation.
+*/
+inline real tamed_importance_BSDF_Ns_corrector(
+	const math::Vector3R& Ns,
+	const math::Vector3R& Ng,
+	const math::Vector3R& V)
+{
+	const auto factor = importance_BSDF_Ns_corrector(Ns, Ng, V);
+#if PH_STRICT_ASYMMETRIC_IMPORTANCE_TRANSPORT
+	return factor;
+#else
+	return math::clamp(factor, 0.0_r, 100.0_r);
+#endif
 }
 
 }// end namespace ph::lta

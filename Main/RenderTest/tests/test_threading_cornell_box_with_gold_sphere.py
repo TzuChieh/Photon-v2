@@ -45,5 +45,5 @@ def test_render(ref_img, case, t):
     output_img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error")
 
     assert mse < 0.0016
-    assert abs(re_avg) < 0.002
+    assert abs(re_avg) < 0.0025
     

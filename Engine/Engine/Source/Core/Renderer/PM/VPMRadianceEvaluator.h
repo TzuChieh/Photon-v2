@@ -159,7 +159,7 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 
 		math::Spectrum throughput(pathThroughput);
 		throughput.mulLocal(bsdfEval.outputs.bsdf);
-		throughput.mulLocal(lta::importance_BSDF_Ns_corrector(Ns, Ng, L, V));
+		throughput.mulLocal(lta::tamed_importance_BSDF_Ns_corrector(Ns, Ng, V));
 
 		radiance.addLocal(throughput * photon.get<EPhotonData::ThroughputRadiance>());
 	}
