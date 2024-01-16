@@ -150,6 +150,10 @@ inline auto VPMRadianceEvaluator::impl_onPathHitSurface(
 	for(const auto& photon : m_photonCache)
 	{
 		const math::Vector3R V = photon.get<EPhotonData::FromDir>();
+		if(!accept_photon_by_surface_topology(photon, Ng, Ns, L, V, bsdfContext.sidedness))
+		{
+			continue;
+		}
 
 		bsdfEval.inputs.set(surfaceHit, L, V);
 		if(!surfaceTracer.doBsdfEvaluation(bsdfEval))

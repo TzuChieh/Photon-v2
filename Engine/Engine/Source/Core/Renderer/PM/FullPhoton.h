@@ -28,6 +28,7 @@ private:
 	math::Spectrum m_throughputRadiance;
 	math::Vector3R m_position;
 	math::Vector3R m_fromDir;
+	math::Vector3R m_geometryNormal;
 };
 
 // In-header Implementations:
@@ -38,7 +39,8 @@ inline constexpr bool FullPhoton::impl_has()
 	if constexpr(
 		TYPE == EPhotonData::ThroughputRadiance ||
 		TYPE == EPhotonData::Position           || 
-		TYPE == EPhotonData::FromDir)
+		TYPE == EPhotonData::FromDir            ||
+		TYPE == EPhotonData::GeometryNormal)
 	{
 		return true;
 	}
@@ -63,6 +65,10 @@ inline decltype(auto) FullPhoton::impl_get() const
 	{
 		return m_fromDir;
 	}
+	else if constexpr(TYPE == EPhotonData::GeometryNormal)
+	{
+		return m_geometryNormal;
+	}
 	else
 	{
 		PH_ASSERT_UNREACHABLE_SECTION();
@@ -84,6 +90,10 @@ inline void FullPhoton::impl_set(const T& value)
 	else if constexpr(TYPE == EPhotonData::FromDir)
 	{
 		m_fromDir = value;
+	}
+	else if constexpr(TYPE == EPhotonData::GeometryNormal)
+	{
+		m_geometryNormal = value;
 	}
 	else
 	{

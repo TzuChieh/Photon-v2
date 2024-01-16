@@ -207,6 +207,10 @@ inline Photon TPhotonPathTracingWork<Photon>::makePhoton(
 	{
 		photon.template set<EPhotonData::FromDir>(tracingRay.getDirection().mul(-1));
 	}
+	if constexpr(Photon::template has<EPhotonData::GeometryNormal>())
+	{
+		photon.template set<EPhotonData::GeometryNormal>(surfaceHit.getGeometryNormal());
+	}
 
 	return photon;
 }

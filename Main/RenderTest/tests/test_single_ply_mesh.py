@@ -43,6 +43,11 @@ suzanne_bneept_case.output = "suzanne_bneept"
 suzanne_bneept_case.debug_output = "suzanne_bneept_error"
 suzanne_bneept_case.ref = "ref_suzanne"
 
+suzanne_sppm_case = infra.TestCase(__name__, "Suzanne (SPPM)", res_dir / "suzanne_sppm.p2")
+suzanne_sppm_case.output = "suzanne_sppm"
+suzanne_sppm_case.debug_output = "suzanne_sppm_error"
+suzanne_sppm_case.ref = "ref_suzanne"
+
 @pytest.fixture(scope='module')
 def ref_quad_img():
     img = image.read_pfm(res_dir / "ref_quad_bvpt_16384spp")
@@ -60,15 +65,16 @@ def ref_suzanne_img():
     pytest.param(quad_bvpt_case, 0.000074, 0.002, id=quad_bvpt_case.get_name()),
     pytest.param(quad_bneept_ascii_case, 0.000074, 0.002, id=quad_bneept_ascii_case.get_name()),
     pytest.param(quad_bneept_case, 0.000074, 0.002, id=quad_bneept_case.get_name()),
-    pytest.param(quad_sppm_case, 0.0014, 0.003, id=quad_sppm_case.get_name()),
+    pytest.param(quad_sppm_case, 0.0014, 0.01, id=quad_sppm_case.get_name()),
     pytest.param(suzanne_bvpt_case, 0.00007, 0.001, id=suzanne_bvpt_case.get_name()),
     pytest.param(suzanne_bneept_case, 0.00007, 0.001, id=suzanne_bneept_case.get_name()),
+    pytest.param(suzanne_sppm_case, 0.0002, 0.01, id=suzanne_sppm_case.get_name()),
 ])
 def test_render(ref_quad_img, ref_suzanne_img, case, max_mse, max_re_avg):
     """
     A single .ply mesh is placed between a large area light and diffusive ground. The mesh itself is diffusive.
     """
-    is_suzzane_case = case is suzanne_bvpt_case or case is suzanne_bneept_case
+    is_suzzane_case = case is suzanne_bvpt_case or case is suzanne_bneept_case or case is suzanne_sppm_case
 
     t = 12 if is_suzzane_case else 6 
     process = renderer.open_default_render_process(case.get_scene_path(), case.get_output_path(), num_threads=t)

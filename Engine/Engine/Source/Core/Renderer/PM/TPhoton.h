@@ -2,6 +2,8 @@
 
 #include "Utility/utility.h"
 #include "Utility/traits.h"
+#include "Math/TVector3.h"
+#include "Core/LTA/SidednessAgreement.h"
 
 #include <utility>
 #include <type_traits>
@@ -13,7 +15,8 @@ enum class EPhotonData
 {
 	ThroughputRadiance,
 	Position,
-	FromDir
+	FromDir,
+	GeometryNormal
 };
 
 template<typename T>
@@ -43,7 +46,29 @@ protected:
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TPhoton);
 };
 
-// In-header Implementations:
+template<CPhoton Photon>
+inline bool accept_photon_by_surface_topology(
+	const Photon& photon,
+	const math::Vector3R& Ng,
+	const math::Vector3R& Ns,
+	const math::Vector3R& L,
+	const math::Vector3R& V,
+	const lta::SidednessAgreement& sidedness)
+{
+	if constexpr(Photon::template has<EPhotonData::GeometryNormal>())
+	{
+		const math::Vector3R photonNg = photon.template get<EPhotonData::GeometryNormal>();
+		if(photonNg.dot(Ng) < 0.1_r || // ~> 84.26 deg
+		   photonNg.dot(Ns) < 0.2_r || // ~> 78.46 deg
+		   !sidedness.isSidednessAgreed(photonNg, Ns, V) ||
+		   !sidedness.isSidednessAgreed(photonNg, Ns, L))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
 
 template<typename Derived>
 template<EPhotonData TYPE>

@@ -35,14 +35,25 @@ public:
 	explicit SidednessAgreement(ESidednessPolicy policy);
 
 	bool isSidednessAgreed(
+		const math::Vector3R& Ng,
+		const math::Vector3R& Ns,
+		const math::Vector3R& vec) const;
+
+	bool isSidednessAgreed(
 		const SurfaceHit&     X, 
 		const math::Vector3R& vec) const;
 
+	/*!
+	@return Whether `vecA` and `vecB` are under the same hemisphere given current policy.
+	*/
 	bool isSameHemisphere(
 		const SurfaceHit&     X, 
 		const math::Vector3R& vecA,
 		const math::Vector3R& vecB) const;
 
+	/*!
+	@return Whether `vecA` and `vecB` are under the opposite hemisphere given current policy.
+	*/
 	bool isOppositeHemisphere(
 		const SurfaceHit&     X,
 		const math::Vector3R& vecA,
@@ -65,7 +76,8 @@ inline SidednessAgreement::SidednessAgreement(const ESidednessPolicy policy) :
 {}
 
 inline bool SidednessAgreement::isSidednessAgreed(
-	const SurfaceHit&     X,
+	const math::Vector3R& Ng,
+	const math::Vector3R& Ns,
 	const math::Vector3R& vec) const
 {
 	switch(m_policy)
@@ -74,25 +86,26 @@ inline bool SidednessAgreement::isSidednessAgreed(
 	case ESidednessPolicy::TrustGeometry:
 	case ESidednessPolicy::TrustShading:
 	{
-		// no agreement issue with single input vector with these policies
+		// No agreement issue with single input vector with these policies
 		return true;
-		break;
 	}
 
 	case ESidednessPolicy::Strict:
 	{
-		const math::Vector3R& Ng = X.getGeometryNormal();
-		const math::Vector3R& Ns = X.getShadingNormal();
-
 		return Ng.dot(vec) * Ns.dot(vec) > 0.0_r;
-		break;
 	}
 
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
-		break;
 	}
+}
+
+inline bool SidednessAgreement::isSidednessAgreed(
+	const SurfaceHit&     X,
+	const math::Vector3R& vec) const
+{
+	return isSidednessAgreed(X.getGeometryNormal(), X.getShadingNormal(), vec);
 }
 
 inline bool SidednessAgreement::isSameHemisphere(
@@ -108,7 +121,6 @@ inline bool SidednessAgreement::isSameHemisphere(
 		const math::Vector3R& Ng = X.getGeometryNormal();
 
 		return Ng.dot(vecA) * Ng.dot(vecB) > 0.0_r;
-		break;
 	}
 
 	case ESidednessPolicy::TrustShading:
@@ -116,7 +128,6 @@ inline bool SidednessAgreement::isSameHemisphere(
 		const math::Vector3R& Ns = X.getShadingNormal();
 
 		return Ns.dot(vecA) * Ns.dot(vecB) > 0.0_r;
-		break;
 	}
 
 	case ESidednessPolicy::Strict:
@@ -127,13 +138,11 @@ inline bool SidednessAgreement::isSameHemisphere(
 		       isSidednessAgreed(X, vecB) &&     // agreed on sidedness.
 		       vecA.dot(N) * vecB.dot(N) > 0.0_r;// Then testing hemisphere with either normal
 		                                         // (the other normal would yield the same sign)
-		break;
 	}
 
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
-		break;
 	}
 }
 
@@ -150,7 +159,6 @@ inline bool SidednessAgreement::isOppositeHemisphere(
 		const math::Vector3R& Ng = X.getGeometryNormal();
 
 		return Ng.dot(vecA) * Ng.dot(vecB) < 0.0_r;
-		break;
 	}
 
 	case ESidednessPolicy::TrustShading:
@@ -158,7 +166,6 @@ inline bool SidednessAgreement::isOppositeHemisphere(
 		const math::Vector3R& Ns = X.getShadingNormal();
 
 		return Ns.dot(vecA) * Ns.dot(vecB) < 0.0_r;
-		break;
 	}
 
 	case ESidednessPolicy::Strict:
@@ -174,14 +181,13 @@ inline bool SidednessAgreement::isOppositeHemisphere(
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();
 		return false;
-		break;
 	}
 }
 
 inline void SidednessAgreement::adjustForSidednessAgreement(
 	SurfaceHit& X) const
 {
-	// currently no adjustment
+	// Currently no adjustment
 }
 
 }// end namespace ph::lta
