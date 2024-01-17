@@ -44,7 +44,7 @@ OrenNayar::OrenNayar(
 
 ESurfacePhenomenon OrenNayar::getPhenomenonOf(const SurfaceElemental elemental) const
 {
-	PH_ASSERT_MSG(elemental == ALL_ELEMENTALS || elemental == 0, std::to_string(elemental));
+	PH_ASSERT_MSG(elemental == ALL_SURFACE_ELEMENTALS || elemental == 0, std::to_string(elemental));
 
 	return ESurfacePhenomenon::DiffuseReflection;
 }
@@ -64,7 +64,7 @@ void OrenNayar::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	PH_ASSERT_MSG(ctx.elemental == ALL_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
+	PH_ASSERT_MSG(ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
 
 	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{
@@ -121,7 +121,7 @@ void OrenNayar::calcBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	PH_ASSERT_MSG(ctx.elemental == ALL_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
+	PH_ASSERT_MSG(ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
 
 	const math::Vector3R N = in.X.getShadingNormal();
 	PH_ASSERT(N.isFinite());
@@ -168,7 +168,7 @@ void OrenNayar::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	PH_ASSERT_MSG(ctx.elemental == ALL_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
+	PH_ASSERT_MSG(ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
 
 	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
 	{

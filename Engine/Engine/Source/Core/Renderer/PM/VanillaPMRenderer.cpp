@@ -5,7 +5,7 @@
 #include "Core/Renderer/PM/TPhotonPathTracingWork.h"
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
-#include "Core/Renderer/PM/VPMRadianceEvaluator.h"
+#include "Core/Renderer/PM/TVPMRadianceEvaluator.h"
 #include "Core/Renderer/PM/TViewPathTracingWork.h"
 #include "Core/Renderer/RenderObservationInfo.h"
 #include "Core/Renderer/RenderProgress.h"
@@ -75,8 +75,8 @@ void VanillaPMRenderer::renderWithVanillaPM()
 				getReceiver(),
 				sampleGenerator.get(),
 				{photonBuffer.data() + workStart, workEnd - workStart},
-				getCommonParams().minPhotonBounces,
-				getCommonParams().maxPhotonBounces);
+				getCommonParams().minPhotonPathLength,
+				getCommonParams().maxPhotonPathLength);
 			photonTracingWork.setStatistics(&getStatistics());
 
 			photonTracingWork.work();
@@ -108,15 +108,18 @@ void VanillaPMRenderer::renderWithVanillaPM()
 			auto film            = std::make_unique<HdrRgbFilm>(
 				getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
 
-			VPMRadianceEvaluator evaluator(
-				&photonMap, 
-				totalPhotonPaths, 
-				film.get(), 
-				getScene());
+			using RadianceEvaluator = TVPMRadianceEvaluator<FullPhoton>;
+
+			RadianceEvaluator evaluator(
+				&photonMap,
+				totalPhotonPaths,
+				getScene(),
+				film.get());
 			evaluator.setStatistics(&getStatistics());
 			evaluator.setKernelRadius(getCommonParams().kernelRadius);
+			evaluator.setStochasticPathSampleBeginLength(5);
 
-			TViewPathTracingWork<VPMRadianceEvaluator> radianceEvaluator(
+			TViewPathTracingWork<RadianceEvaluator> radianceEvaluator(
 				&evaluator,
 				getScene(),
 				getReceiver(),

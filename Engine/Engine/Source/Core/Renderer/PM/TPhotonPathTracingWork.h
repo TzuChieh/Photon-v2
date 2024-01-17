@@ -32,8 +32,8 @@ public:
 		const Receiver*  receiver,
 		SampleGenerator* sampleGenerator,
 		TSpan<Photon>    photonBuffer,
-		uint32           minPhotonBounces = 1,
-		uint32           maxPhotonBounces = 16384);
+		uint32           minPhotonPathLength = 1,
+		uint32           maxPhotonPathLength = 16384);
 
 	void setStatistics(PMAtomicStatistics* statistics);
 
@@ -51,8 +51,8 @@ private:
 	const Receiver*     m_receiver;
 	SampleGenerator*    m_sampleGenerator;
 	TSpan<Photon>       m_photonBuffer;
-	uint32              m_minPhotonBounces;
-	uint32              m_maxPhotonBounces;
+	uint32              m_minPhotonPathLength;
+	uint32              m_maxPhotonPathLength;
 	std::size_t         m_numPhotonPaths;
 	PMAtomicStatistics* m_statistics;
 };

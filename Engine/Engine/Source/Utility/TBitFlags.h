@@ -27,71 +27,71 @@ private:
 public:
 	/*! @brief Creates an instance with no flags.
 	*/
-	TBitFlags();
+	constexpr TBitFlags();
 
 	/*! @brief Create with initial flags set.
 	*/
-	explicit TBitFlags(const FlagsSet& flagsSet);
+	explicit constexpr TBitFlags(const FlagsSet& flagsSet);
 
 	/*! @brief Copy construct flags from another `TBitFlags` with a different `Input` type.
 	*/
 	template<typename OtherInput>
-	explicit TBitFlags(const TBitFlags<Value, OtherInput>& otherFlags);
+	explicit constexpr TBitFlags(const TBitFlags<Value, OtherInput>& otherFlags);
 
 	/*! @brief Unions specified flags into this instance.
 	*/
 	///@{
-	TBitFlags& unionWith(const FlagsSet& flagsSet);
-	TBitFlags& unionWith(const TBitFlags& flags);
+	constexpr TBitFlags& unionWith(const FlagsSet& flagsSet);
+	constexpr TBitFlags& unionWith(const TBitFlags& flags);
 	///@}
 
 	/*! @brief Intersects this instance with the specified flags.
 	*/
-	TBitFlags& intersectWith(const FlagsSet& flagsSet);
+	constexpr TBitFlags& intersectWith(const FlagsSet& flagsSet);
 	
 	/*! @brief Enable/disable specified flags.
 	*/
 	///@{
-	TBitFlags& turnOn(const FlagsSet& flagsSet);
-	TBitFlags& turnOff(const FlagsSet& flagsSet);
+	constexpr TBitFlags& turnOn(const FlagsSet& flagsSet);
+	constexpr TBitFlags& turnOff(const FlagsSet& flagsSet);
 	///@}
 
 	/*! @brief Checks whether this instance contains no specified flags.
 	*/
-	bool hasNone(const FlagsSet& flagsSet) const;
+	constexpr bool hasNone(const FlagsSet& flagsSet) const;
 
 	/*! @brief Checks whether this instance contains at least one of the specified flags.
 	*/
-	bool hasAny(const FlagsSet& flagsSet) const;
+	constexpr bool hasAny(const FlagsSet& flagsSet) const;
 
 	/*! @brief Checks whether this instance contains all of the specified flags.
 	*/
-	bool hasAll(const FlagsSet& flagsSet) const;
+	constexpr bool hasAll(const FlagsSet& flagsSet) const;
 
 	/*! @brief Checks whether this instance contains exactly the specified flags. No more, no less.
 	*/
-	bool hasExactly(const FlagsSet& flagsSet) const;
+	constexpr bool hasExactly(const FlagsSet& flagsSet) const;
 
-	bool has(Input singleFlag) const;
-	bool hasNo(Input singleFlag) const;
+	constexpr bool has(Input singleFlag) const;
+	constexpr bool hasNo(Input singleFlag) const;
 	
 	/*! @brief Checks whether this instance contains no flags.
 	*/
-	bool isEmpty() const;
+	constexpr bool isEmpty() const;
 
-	bool isEqual(const TBitFlags& other) const;
+	constexpr bool isEqual(const TBitFlags& other) const;
 
 	/*! @brief Get the value representing current flags.
 	*/
-	Value get() const;
+	constexpr Value get() const;
 
 	// TODO: method for clear all flags
-	TBitFlags& set(const FlagsSet& flagsSet);
+	constexpr TBitFlags& set(const FlagsSet& flagsSet);
 
 	/*! @brief Get the enum representing current flags.
 	This method is only defined for enum flags.
 	*/
-	inline Input getEnum() const 
+	constexpr Input getEnum() const
 	requires CEnum<Input> && (sizeof(Input) >= sizeof(Value))
 	{
 		return static_cast<Input>(m_bits);
@@ -100,7 +100,7 @@ public:
 private:
 	Value m_bits;
 
-	static Value collectFlags(const FlagsSet& flagsSet);
+	static constexpr Value collectFlags(const FlagsSet& flagsSet);
 };
 
 /*! @brief Convenient type for using scoped/unscoped enum for bit flags.
@@ -110,15 +110,17 @@ using TEnumFlags = TBitFlags<std::underlying_type_t<EnumType>, EnumType>;
 
 }// end namespace ph
 
+/*! @brief Defines `operator |` and `operator &` for `EnumType`.
+*/
 #define PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(EnumType)\
 	static_assert(::ph::CEnum<EnumType>, #EnumType " must be an enum type");\
 	\
-	inline EnumType operator | (const EnumType lhs, const EnumType rhs)\
+	inline constexpr EnumType operator | (const EnumType lhs, const EnumType rhs)\
 	{\
 		return ::ph::TEnumFlags<EnumType>({lhs, rhs}).getEnum();\
 	}\
 	\
-	inline EnumType operator & (const EnumType lhs, const EnumType rhs)\
+	inline constexpr EnumType operator & (const EnumType lhs, const EnumType rhs)\
 	{\
 		return ::ph::TEnumFlags<EnumType>({lhs}).intersectWith({rhs}).getEnum();\
 	}

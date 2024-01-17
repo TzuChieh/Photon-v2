@@ -40,25 +40,25 @@ class TSPPMRadianceEvaluator : public TViewPathHandler<TSPPMRadianceEvaluator<Vi
 
 public:
 	TSPPMRadianceEvaluator(
-		TSpan<Viewpoint> viewpoints,
-		const TPhotonMap<Photon>* photonMap,
-		std::size_t numPhotonPaths,
-		const Scene* scene,
+		TSpan<Viewpoint>               viewpoints,
+		const TPhotonMap<Photon>*      photonMap,
+		std::size_t                    numPhotonPaths,
+		const Scene*                   scene,
 		TSamplingFilm<math::Spectrum>* film,
-		const Region& statisticsRegion,
-		const math::TVector2<int64>& statisticsRes,
-		std::size_t numViewRadianceSamples,
-		std::size_t maxViewpointDepth);
+		const Region&                  statisticsRegion,
+		const math::TVector2<int64>&   statisticsRes,
+		std::size_t                    numViewRadianceSamples,
+		std::size_t                    maxViewpointDepth);
 
 	bool impl_onReceiverSampleStart(
-		const math::Vector2D& rasterCoord,
-		const math::Vector2S& sampleIndex,
-		const math::Spectrum& pathThroughput);
+		const math::Vector2D&          rasterCoord,
+		const math::Vector2S&          sampleIndex,
+		const math::Spectrum&          pathThroughput);
 
 	auto impl_onPathHitSurface(
-		std::size_t           pathLength,
-		const SurfaceHit&     surfaceHit,
-		const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy;
+		std::size_t                    pathLength,
+		const SurfaceHit&              surfaceHit,
+		const math::Spectrum&          pathThroughput) -> ViewPathTracingPolicy;
 
 	void impl_onReceiverSampleEnd();
 
@@ -162,7 +162,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	// at least path length = 2 (can be even longer depending on the settings)
 	
 	// Never contain 0-bounce photons
-	PH_ASSERT_GE(m_photonMap->minPhotonBounces, 1);
+	PH_ASSERT_GE(m_photonMap->minPhotonPathLength, 1);
 
 	// Path length = 1 (0-bounce) lighting via path tracing (directly sample radiance)
 	if(pathLength == 1 && meta->getSurface().getEmitter())
@@ -172,11 +172,12 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		addViewRadiance(*m_viewpoint, pathThroughput * viewRadiance);
 	}
 
-	const auto minLengthWithPhotonMap = m_photonMap->minPhotonBounces + 1;
+	// +1 as when we merge view path with photon path, full path length is at least increased by 1
+	const auto minFullLengthWithPhotonMap = m_photonMap->minPhotonPathLength + 1;
 
 	// Path length > 1 lighting via path tracing if we cannot construct the path length
 	// from photon map
-	if(pathLength + 1 < minLengthWithPhotonMap)
+	if(pathLength + 1 < minFullLengthWithPhotonMap)
 	{
 		math::Spectrum viewRadiance;
 		SampleFlow randomFlow;
@@ -189,8 +190,10 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		}
 	}
 
-	// For path length = N, we can construct light transport path lengths with photon map, all at
-	// once, in the range [`N + m_photonMap->minPhotonBounces`, infinity (if RR is used))
+	// FIXME: properly handle delta optics (mixed case)
+
+	// For path length = N, we can construct full light transport path lengths with photon map, all at
+	// once, for the range [`N + m_photonMap->minPhotonPathLength`, infinity (if RR is used))
 	if(optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DiffuseReflection}) ||
 	   pathLength >= m_maxViewpointDepth)
 	{
@@ -217,14 +220,14 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 	{
 		// If we extend the path length from N (current) to N + 1 (by returning a non-killing policy),
 		// this means we are not using photon map to approximate lighting for path length = N' =
-		// `N + m_photonMap->minPhotonBounces`. We will lose energy for path length = N' if we do
+		// `N + m_photonMap->minPhotonPathLength`. We will lose energy for path length = N' if we do
 		// nothing. Here we use path tracing to find the energy that would otherwise be lost.
 		math::Spectrum viewRadiance;
 		SampleFlow randomFlow;
 		if(IndirectLight{m_scene}.bsdfSamplePathWithNee(
 			surfaceHit, 
 			randomFlow,
-			m_photonMap->minPhotonBounces,// we are already on view path of length N
+			m_photonMap->minPhotonPathLength,// we are already on view path of length N
 			lta::RussianRoulette{},
 			&viewRadiance))
 		{
@@ -232,7 +235,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		}
 
 		return ViewPathTracingPolicy().
-			traceSinglePathFor(ALL_ELEMENTALS).
+			traceSinglePathFor(ALL_SURFACE_ELEMENTALS).
 			useRussianRoulette(true);
 	}
 }
@@ -264,7 +267,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	const real newN = N + alpha * M;
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
+	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
 
 	math::Spectrum tauM(0);
 	BsdfEvalQuery  bsdfEval(bsdfContext);

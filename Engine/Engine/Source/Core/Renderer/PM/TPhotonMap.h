@@ -32,8 +32,16 @@ public:
 	using MapType = math::TIndexedPointKdtree<Photon, int, PhotonCenterCalculator>;
 
 	MapType map = MapType(2, PhotonCenterCalculator{});
-	uint32 minPhotonBounces = 1;
-	uint32 maxPhotonBounces = 16384;
+
+	/*! Minimum length of photon paths in this photon map. If a photon lands on a surface for the
+	first time, then its path length is 1 (no need to bounce).
+	*/
+	uint32 minPhotonPathLength = 1;
+
+	/*! Maximum length of photon paths in this photon map. The default value is practically
+	infinite number of bounces.
+	*/
+	uint32 maxPhotonPathLength = 16384;
 };
 
 }// end namespace ph

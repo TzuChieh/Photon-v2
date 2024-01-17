@@ -80,7 +80,7 @@ void LerpedSurfaceOptics::calcBsdf(
 {
 	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
-	if(ctx.elemental == ALL_ELEMENTALS)
+	if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 	{
 		BsdfEvalOutput eval0, eval1;
 		m_optics0->calcBsdf(ctx, in, eval0);
@@ -117,7 +117,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 {
 	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
-	if(ctx.elemental == ALL_ELEMENTALS)
+	if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 	{
 		math::Spectrum sampledRatio  = ratio;
 		SurfaceOptics* sampledOptics = m_optics0.get();
@@ -197,7 +197,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 {
 	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
 
-	if(ctx.elemental == ALL_ELEMENTALS)
+	if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 	{
 		const real prob = probabilityOfPickingOptics0(ratio);
 

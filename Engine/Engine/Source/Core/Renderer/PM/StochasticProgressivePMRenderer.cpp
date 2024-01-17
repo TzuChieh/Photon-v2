@@ -185,8 +185,8 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 					getReceiver(),
 					sampleGenerator.get(),
 					{photonBuffer.data() + workStart, workEnd - workStart},
-					getCommonParams().minPhotonBounces,
-					getCommonParams().maxPhotonBounces);
+					getCommonParams().minPhotonPathLength,
+					getCommonParams().maxPhotonPathLength);
 				photonTracingWork.setStatistics(&getStatistics());
 
 				photonTracingWork.work();

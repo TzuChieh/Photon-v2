@@ -11,7 +11,7 @@ namespace ph
 class BsdfQueryContext final
 {
 public:
-	SurfaceElemental        elemental = ALL_ELEMENTALS;
+	SurfaceElemental        elemental = ALL_SURFACE_ELEMENTALS;
 	ETransport              transport = ETransport::Radiance;
 	lta::SidednessAgreement sidedness = lta::SidednessAgreement{lta::ESidednessPolicy::Strict};
 

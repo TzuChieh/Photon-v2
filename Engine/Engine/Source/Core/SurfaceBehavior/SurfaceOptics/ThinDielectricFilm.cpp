@@ -54,8 +54,8 @@ void ThinDielectricFilm::calcBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
-	const bool canTransmit = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == TRANSMISSION;
+	const bool canReflect  = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == REFLECTION;
+	const bool canTransmit = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
 	if(!canReflect && !canTransmit)
 	{
@@ -106,7 +106,7 @@ void ThinDielectricFilm::calcBsdfSample(
 		scale = m_reflectanceTable[index];
 
 		// account for probability
-		if(ctx.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			scale.divLocal(reflectProb);
 		}
@@ -133,7 +133,7 @@ void ThinDielectricFilm::calcBsdfSample(
 		}*/
 
 		// account for probability
-		if(ctx.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			scale.divLocal(1.0_r - reflectProb);
 		}

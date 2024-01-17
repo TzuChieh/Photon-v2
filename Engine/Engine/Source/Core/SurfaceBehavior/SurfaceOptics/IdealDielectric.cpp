@@ -64,8 +64,8 @@ void IdealDielectric::calcBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	const bool canReflect  = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == REFLECTION;
-	const bool canTransmit = ctx.elemental == ALL_ELEMENTALS || ctx.elemental == TRANSMISSION;
+	const bool canReflect  = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == REFLECTION;
+	const bool canTransmit = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
 	if(!canReflect && !canTransmit)
 	{
@@ -113,7 +113,7 @@ void IdealDielectric::calcBsdfSample(
 		F.mulLocal(reflectionScale);
 
 		// account for probability
-		if(ctx.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(reflectProb);
 		}
@@ -146,7 +146,7 @@ void IdealDielectric::calcBsdfSample(
 		F.mulLocal(transmissionScale);
 
 		// account for probability
-		if(ctx.elemental == ALL_ELEMENTALS)
+		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(1.0_r - reflectProb);
 		}

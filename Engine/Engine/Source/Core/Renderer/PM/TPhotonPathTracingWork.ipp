@@ -32,20 +32,20 @@ inline TPhotonPathTracingWork<Photon>::TPhotonPathTracingWork(
 	const Receiver* const  receiver,
 	SampleGenerator* const sampleGenerator,
 	const TSpan<Photon>    photonBuffer,
-	const uint32           minPhotonBounces,
-	const uint32           maxPhotonBounces)
+	const uint32           minPhotonPathLength,
+	const uint32           maxPhotonPathLength)
 
-	: m_scene           (scene)
-	, m_receiver        (receiver)
-	, m_sampleGenerator (sampleGenerator)
-	, m_photonBuffer    (photonBuffer)
-	, m_minPhotonBounces(minPhotonBounces)
-	, m_maxPhotonBounces(maxPhotonBounces)
-	, m_numPhotonPaths  (0)
-	, m_statistics      (nullptr)
+	: m_scene              (scene)
+	, m_receiver           (receiver)
+	, m_sampleGenerator    (sampleGenerator)
+	, m_photonBuffer       (photonBuffer)
+	, m_minPhotonPathLength(minPhotonPathLength)
+	, m_maxPhotonPathLength(maxPhotonPathLength)
+	, m_numPhotonPaths     (0)
+	, m_statistics         (nullptr)
 {
-	PH_ASSERT_GE(minPhotonBounces, 1);
-	PH_ASSERT_LE(minPhotonBounces, maxPhotonBounces);
+	PH_ASSERT_GE(minPhotonPathLength, 1);
+	PH_ASSERT_LE(minPhotonPathLength, maxPhotonPathLength);
 }
 
 template<CPhoton Photon>
@@ -58,7 +58,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 	Timer timer;
 	timer.start();
 
-	const BsdfQueryContext bsdfContext(ALL_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
+	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_photonBuffer.size());
@@ -92,10 +92,10 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
 
 		// Start tracing single photon path with at least 1 bounce
-		uint32 numPhotonBounces = 0;
+		uint32 photonPathLength = 0;
 		while(!throughputRadiance.isZero())
 		{
-			PH_ASSERT_LT(numPhotonBounces, m_maxPhotonBounces);
+			PH_ASSERT_LT(photonPathLength, m_maxPhotonPathLength);
 
 			SurfaceHit surfaceHit;
 			if(!surfaceTracer.traceNextSurface(tracingRay, bsdfContext.sidedness, &surfaceHit))
@@ -103,7 +103,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 				break;
 			}
 
-			++numPhotonBounces;
+			++photonPathLength;
 
 			// TODO: we can also skip storing this photon if the BSDF has little contribution
 			// (e.g., by measuring its integrated value)
@@ -116,7 +116,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			{
 				throughputRadiance = weightedThroughputRadiance;
 
-				if(numPhotonBounces >= m_minPhotonBounces)
+				if(photonPathLength >= m_minPhotonPathLength)
 				{
 					m_photonBuffer[numStoredPhotons++] = makePhoton(
 						surfaceHit, throughputRadiance, tracingRay);
@@ -124,7 +124,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 				}
 
 				if(numStoredPhotons == m_photonBuffer.size() || 
-				   numPhotonBounces == m_maxPhotonBounces)
+				   photonPathLength == m_maxPhotonPathLength)
 				{
 					break;
 				}

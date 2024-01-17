@@ -64,7 +64,7 @@ inline ViewPathTracingPolicy::ViewPathTracingPolicy() :
 	m_isKilled(false),
 	m_useRussianRoulette(true),
 	m_sampleMode(EViewPathSampleMode::SinglePath),
-	m_targetElemental(ALL_ELEMENTALS),
+	m_targetElemental(ALL_SURFACE_ELEMENTALS),
 	m_targetPhenomena()
 {}
 
