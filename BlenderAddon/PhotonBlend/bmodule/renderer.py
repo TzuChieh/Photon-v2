@@ -262,6 +262,7 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
             ('VPM', "Photon Mapping", "Rough preview, fairly good at caustics"),
             ('PPM', "Progressive Photon Mapping", "Good at complex lighting condition"),
             ('SPPM', "Stochastic Progressive Photon Mapping", "Good at complex lighting condition"),
+            ('PPPM', "Probabilistic Progressive Photon Mapping", "Good at complex lighting condition. Consumes more memory."),
             ('BVPTDL', "Pure Path Tracing (Direct Lighting)", ""),
             ('ATTRIBUTE', "Attribute", ""),
             ('CUSTOM', "Custom", "Directly input SDL commands for renderer.")
@@ -357,32 +358,32 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
         b_scene = b_context.scene
         b_layout = self.layout
 
-        b_layout.prop(b_scene, "ph_render_integrator_type")
+        b_layout.prop(b_scene, 'ph_render_integrator_type')
 
         render_method = b_scene.ph_render_integrator_type
-        if render_method == "BVPT" or render_method == "BNEEPT" or render_method == "BVPTDL" or render_method == "ATTRIBUTE":
-            b_layout.prop(b_scene, "ph_render_sample_filter_type")
-            if render_method != "ATTRIBUTE":
-                b_layout.prop(b_scene, "ph_scheduler_type")
-        elif render_method == "VPM" or render_method == "PPM" or render_method == "SPPM":
-            b_layout.prop(b_scene, "ph_render_num_photons")
-            b_layout.prop(b_scene, "ph_render_num_spp_pm")
-            b_layout.prop(b_scene, "ph_render_num_passes")
-            b_layout.prop(b_scene, "ph_render_kernel_radius")
-        elif render_method == "CUSTOM":
-            b_layout.prop(b_scene, "ph_render_custom_sdl")
+        if render_method == 'BVPT' or render_method == 'BNEEPT' or render_method == 'BVPTDL' or render_method == 'ATTRIBUTE':
+            b_layout.prop(b_scene, 'ph_render_sample_filter_type')
+            if render_method != 'ATTRIBUTE':
+                b_layout.prop(b_scene, 'ph_scheduler_type')
+        elif render_method == 'VPM' or render_method == 'PPM' or render_method == 'SPPM' or render_method == 'PPPM':
+            b_layout.prop(b_scene, 'ph_render_num_photons')
+            b_layout.prop(b_scene, 'ph_render_num_spp_pm')
+            b_layout.prop(b_scene, 'ph_render_num_passes')
+            b_layout.prop(b_scene, 'ph_render_kernel_radius')
+        elif render_method == 'CUSTOM':
+            b_layout.prop(b_scene, 'ph_render_custom_sdl')
         else:
             pass
 
-        if render_method != "CUSTOM":
+        if render_method != 'CUSTOM':
             b_layout.prop(b_scene, "ph_use_crop_window")
 
         use_crop_window = b_scene.ph_use_crop_window
-        if use_crop_window and render_method != "CUSTOM":
-            b_layout.prop(b_scene, "ph_crop_min_x")
-            b_layout.prop(b_scene, "ph_crop_min_y")
-            b_layout.prop(b_scene, "ph_crop_width")
-            b_layout.prop(b_scene, "ph_crop_height")
+        if use_crop_window and render_method != 'CUSTOM':
+            b_layout.prop(b_scene, 'ph_crop_min_x')
+            b_layout.prop(b_scene, 'ph_crop_min_y')
+            b_layout.prop(b_scene, 'ph_crop_width')
+            b_layout.prop(b_scene, 'ph_crop_height')
 
 
 @blender.register_class
@@ -399,34 +400,34 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
 
     bpy.types.Scene.ph_render_sample_filter_type = bpy.props.EnumProperty(
         items=[
-            ("BOX", "Box", "box filter"),
-            ("GAUSSIAN", "Gaussian", "Gaussian filter"),
-            ("MN", "Mitchell-Netravali", "Mitchell-Netravali filter"),
-            ("BH", "Blackman-Harris", "Blackman-Harris filter")
+            ('BOX', "Box", "box filter"),
+            ('GAUSSIAN', "Gaussian", "Gaussian filter"),
+            ('MN', "Mitchell-Netravali", "Mitchell-Netravali filter"),
+            ('BH', "Blackman-Harris", "Blackman-Harris filter")
         ],
         name="Sample Filter",
         description="Photon-v2's sample filter types",
-        default="BH"
+        default='BH'
     )
 
     bpy.types.Scene.ph_render_sample_source_type = bpy.props.EnumProperty(
         items=[
-            ("RANDOM", "Random", "Pseudorandom numbers"),
-            ("STRATIFIED", "Stratified", "Quasirandom numbers based on domain subdivision"),
-            ("HALTON", "Halton", "Quasirandom numbers that are well distributed over all dimensions")
+            ('RANDOM', "Random", "Pseudorandom numbers"),
+            ('STRATIFIED', "Stratified", "Quasirandom numbers based on domain subdivision"),
+            ('HALTON', "Halton", "Quasirandom numbers that are well distributed over all dimensions")
         ],
         name="Sample Source",
         description="Photon-v2's sample source types",
-        default="STRATIFIED"
+        default='STRATIFIED'
     )
 
     def draw(self, b_context):
         b_scene = b_context.scene
         layout = self.layout
 
-        layout.prop(b_scene, "ph_render_num_spp")
-        layout.prop(b_scene, "ph_render_sample_filter_type")
-        layout.prop(b_scene, "ph_render_sample_source_type")
+        layout.prop(b_scene, 'ph_render_num_spp')
+        layout.prop(b_scene, 'ph_render_sample_filter_type')
+        layout.prop(b_scene, 'ph_render_sample_source_type')
 
 
 @blender.register_class

@@ -6,7 +6,7 @@
 #include "Core/Renderer/PM/VanillaPMRenderer.h"
 #include "Core/Renderer/PM/ProgressivePMRenderer.h"
 #include "Core/Renderer/PM/StochasticProgressivePMRenderer.h"
-#include "Core/Renderer/PM/EPMMode.h"
+#include "Core/Renderer/PM/ProbabilisticProgressivePMRenderer.h"
 
 #include <Common/logging.h>
 
@@ -23,22 +23,6 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 	if(optCropWindow.has_value())
 	{
 		viewport = Viewport(ctx.getFrameSizePx(), *optCropWindow);
-	}
-
-	auto mode = EPMMode::VANILLA;
-	switch(m_mode)
-	{
-	case EPhotonMappingMode::Vanilla:
-		mode = EPMMode::VANILLA;
-		break;
-
-	case EPhotonMappingMode::Progressive:
-		mode = EPMMode::PROGRESSIVE;
-		break;
-
-	case EPhotonMappingMode::StochasticProgressive:
-		mode = EPMMode::STOCHASTIC_PROGRESSIVE;
-		break;
 	}
 
 	std::unique_ptr<Renderer> renderer;
@@ -90,6 +74,16 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 			makeCommonParams(),
 			viewport,
 			filter,
+			ctx.numWorkers());
+		break;
+	}
+
+	case EPhotonMappingMode::ProbabilisticProgressive:
+	{
+		renderer = std::make_unique<ProbabilisticProgressivePMRenderer>(
+			makeCommonParams(),
+			viewport,
+			makeSampleFilter(),
 			ctx.numWorkers());
 		break;
 	}

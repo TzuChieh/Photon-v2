@@ -12,6 +12,31 @@ namespace ph
 {
 
 void parallel_work(
+	const std::size_t numWorkers,
+
+	std::function<
+		void(std::size_t workerIdx)
+	> work)
+{
+	PH_ASSERT_GT(numWorkers, 0);
+
+	std::vector<std::thread> workers(numWorkers);
+	for(std::size_t workerIdx = 0; workerIdx < numWorkers; ++workerIdx)
+	{
+		workers[workerIdx] = std::thread(work, workerIdx);
+	}
+
+	for(auto& workerThread : workers)
+	{
+		// Not joining default-constructed thread and already-joined thread
+		if(workerThread.joinable())
+		{
+			workerThread.join();
+		}
+	}
+}
+
+void parallel_work(
 	const std::size_t totalWorkSize,
 	const std::size_t numWorkers,
 

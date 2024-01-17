@@ -244,7 +244,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		const auto photonsPerMs = passTimeMs != 0 ? numPhotonsPerPass / passTimeMs : 0;
 		m_photonsPerSecond.store(static_cast<std::uint64_t>(photonsPerMs * 1000 + 0.5), std::memory_order_relaxed);
 
-		getStatistics().incrementNumIterations();
+		getStatistics().incrementNumProcessedSteps();
 		++numFinishedPasses;
 	}// end while more pass needed
 }
@@ -259,8 +259,8 @@ RenderStats StochasticProgressivePMRenderer::asyncQueryRenderStats()
 	PH_PROFILE_SCOPE();
 
 	RenderStats stats;
-	stats.setInteger(0, getStatistics().getNumIterations());
-	stats.setInteger(1, getStatistics().getNumTracedPhotons());
+	stats.setInteger(0, getStatistics().numProcessedSteps());
+	stats.setInteger(1, getStatistics().numTracedPhotons());
 	stats.setInteger(2, static_cast<RenderStats::IntegerType>(m_photonsPerSecond.load(std::memory_order_relaxed)));
 	return stats;
 }
@@ -271,7 +271,7 @@ RenderProgress StochasticProgressivePMRenderer::asyncQueryRenderProgress()
 
 	return RenderProgress(
 		getCommonParams().numPasses,
-		getStatistics().getNumIterations(),
+		getStatistics().numProcessedSteps(),
 		0);
 }
 

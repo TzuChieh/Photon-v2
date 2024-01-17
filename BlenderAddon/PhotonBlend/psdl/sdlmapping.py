@@ -31,6 +31,8 @@ def to_integrator_enum(b_integrator_type):
 		integrator_name = "progressive"
 	elif b_integrator_type == 'SPPM':
 		integrator_name = "stochastic-progressive"
+	elif b_integrator_type == 'PPPM':
+		integrator_name = "probabilistic-progressive"
 	else:
 		print("warning: unsupported integrator type %s, using bvpt instead" % b_integrator_type)
 		integrator_name = "bvpt"

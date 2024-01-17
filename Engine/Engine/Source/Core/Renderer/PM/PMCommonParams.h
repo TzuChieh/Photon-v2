@@ -7,6 +7,8 @@
 namespace ph
 {
 
+/*! @brief Common parameters of photon mapping.
+*/
 class PMCommonParams final
 {
 public:
@@ -40,6 +42,13 @@ public:
 	are estimated via photons.
 	*/
 	uint32 maxPhotonPathLength = 16384;
+
+	/*! Controls the kernel radius reduction rate for progressive techniques. Smaller value has
+	higher radius reduction rate (higher variance/noise, smaller expected error/bias), larger value
+	has lower radius reduction rate (lower variance/noise, higher expected error/bias). Alpha
+	effectively determines a trade-off between noise and bias. The value should be within (0, 1).
+	*/
+	real alpha = 2.0_r / 3.0_r;
 };
 
 }// end namespace ph

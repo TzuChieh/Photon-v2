@@ -9,6 +9,19 @@ namespace ph
 class FixedSizeThreadPool;
 
 /*! @brief Runs specified works in parallel.
+The function will block the calling thread until all works are complete.
+@param numWorkers Number of workers running the works.
+@param work The actual work that is going to be executed; where the index of the executing worker
+is specified as input.
+*/
+void parallel_work(
+	const std::size_t numWorkers,
+
+	std::function<
+		void(std::size_t workerIdx)
+	> work);
+
+/*! @brief Runs specified works in parallel.
 The function will block the calling thread until all works are complete. Note that 0-sized works are not
 executed (@p work is not called in this case).
 @param totalWorkSize Total amount of work.

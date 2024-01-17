@@ -9,7 +9,8 @@ enum class EPhotonMappingMode
 {
 	Vanilla = 0,
 	Progressive,
-	StochasticProgressive
+	StochasticProgressive,
+	ProbabilisticProgressive
 };
 
 PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EPhotonMappingMode>)
@@ -25,6 +26,10 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EPhotonMappingMode>)
 
 	sdlEnum.addEntry(EnumType::StochasticProgressive, "stochastic-progressive",
 		"Stochastic sampling technique is utilized for energy value computation.");
+
+	sdlEnum.addEntry(EnumType::ProbabilisticProgressive, "probabilistic-progressive",
+		"Probabilistic approach to progressive photon mapping. Consumes more memory, but is "
+		"easily parallelizable to multiple workers.");
 
 	return sdlEnum;
 }

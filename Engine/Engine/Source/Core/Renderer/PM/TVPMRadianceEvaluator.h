@@ -54,7 +54,11 @@ public:
 
 	void impl_onSampleBatchFinished();
 
+	/*! @brief Binds a statistics tracker.
+	This evaluator will increment the number of steps for each processed sample batch.
+	*/
 	void setStatistics(PMAtomicStatistics* statistics);
+
 	void setKernelRadius(real radius);
 
 	/*! @brief Set the view path length to start random path sampling.
@@ -268,7 +272,7 @@ inline void TVPMRadianceEvaluator<Photon>::impl_onSampleBatchFinished()
 {
 	if(m_statistics)
 	{
-		m_statistics->incrementNumIterations();
+		m_statistics->incrementNumProcessedSteps();
 	}
 }
 

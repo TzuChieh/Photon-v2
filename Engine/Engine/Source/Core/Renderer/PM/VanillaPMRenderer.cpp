@@ -143,8 +143,8 @@ RenderStats VanillaPMRenderer::asyncQueryRenderStats()
 	PH_PROFILE_SCOPE();
 
 	RenderStats stats;
-	stats.setInteger(0, getStatistics().getNumIterations());
-	stats.setInteger(1, getStatistics().getNumTracedPhotons());
+	stats.setInteger(0, getStatistics().numProcessedSteps());
+	stats.setInteger(1, getStatistics().numTracedPhotons());
 	stats.setInteger(2, static_cast<RenderStats::IntegerType>(m_photonsPerSecond.load(std::memory_order_relaxed)));
 	return stats;
 }
@@ -155,7 +155,7 @@ RenderProgress VanillaPMRenderer::asyncQueryRenderProgress()
 
 	return RenderProgress(
 		getCommonParams().numPhotons,
-		getStatistics().getNumTracedPhotons(),
+		getStatistics().numTracedPhotons(),
 		0);
 }
 
