@@ -15,13 +15,11 @@ class PH_MATERIAL_PT_header(bpy.types.Panel):
     bl_region_type = "WINDOW"
     bl_options = {"HIDE_HEADER"}
 
-    COMPATIBLE_ENGINES = {settings.renderer_id_name}
-
     @classmethod
     def poll(cls, b_context):
         render_settings = b_context.scene.render
         return (
-            render_settings.engine in cls.COMPATIBLE_ENGINES and
+            render_settings.engine in settings.photon_engines and
             (b_context.material or b_context.object)
         )
 
@@ -77,19 +75,18 @@ class PH_MATERIAL_OT_add_material_nodes(bpy.types.Operator):
     """
     Adds a node tree for a material.
     """
-
-    bl_idname = "photon.add_material_nodes"
+    bl_idname = 'photon.add_material_nodes'
     bl_label = "Add Material Nodes"
 
     @classmethod
     def poll(cls, b_context):
-        b_material = getattr(b_context, "material", None)
+        b_material = getattr(b_context, 'material', None)
         return b_material is not None and b_material.photon.node_tree is None
 
     def execute(self, b_context):
         b_material = b_context.material
 
-        node_tree = bpy.data.node_groups.new(b_material.name, type="PH_MATERIAL_NODE_TREE")
+        node_tree = bpy.data.node_groups.new(b_material.name, type='PH_MATERIAL_NODE_TREE')
         b_material.photon.node_tree = node_tree
         b_material.photon.use_nodes = True
 
@@ -100,7 +97,7 @@ class PH_MATERIAL_OT_add_material_nodes(bpy.types.Operator):
         # stored in .blend file sometimes. Use fake user is sort of hacked.
         # node_tree.use_fake_user = True
 
-        return {"FINISHED"}
+        return {'FINISHED'}
 
     def add_default_nodes(self, node_tree: bpy.types.NodeTree):
         if node_tree is None:
@@ -127,18 +124,10 @@ class PhMaterialPanel(bpy.types.Panel):
     bl_region_type = "WINDOW"
     bl_context = "material"
 
-    COMPATIBLE_ENGINES = {
-        settings.renderer_id_name,
-        settings.cycles_id_name
-    }
-
     @classmethod
     def poll(cls, b_context):
         render_settings = b_context.scene.render
-        return (
-            render_settings.engine in cls.COMPATIBLE_ENGINES and
-            b_context.material
-        )
+        return b_context.material and render_settings.engine in settings.photon_and_cycles_engines
 
 
 @blender.register_class

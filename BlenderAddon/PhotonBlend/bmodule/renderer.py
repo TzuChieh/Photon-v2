@@ -23,7 +23,7 @@ import time
 class PhPhotonRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
     # RenderEngine; define its internal name, visible name and capabilities.
-    bl_idname = settings.renderer_id_name
+    bl_idname = settings.render_engine_id_name
     bl_label = "Photon"
     bl_use_preview = False
 
@@ -40,7 +40,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
         self.renderer_data_path = self._get_temp_folder_path(self.identifier)
         self.scene_file_path = None
 
-        print("Photon Renderer started (id: %s)" % self.identifier)
+        print("Photon render engine started (id: %s)" % self.identifier)
 
     # When the render engine instance is destroyed, this is called. Clean up any render engine data here, 
     # for example stopping running render threads.
@@ -57,7 +57,7 @@ class PhPhotonRenderEngine(bpy.types.RenderEngine):
             if self.renderer_data_path.exists():
                 shutil.rmtree(self.renderer_data_path)
 
-        print("Photon Renderer exited (id: %s)" % self.identifier)
+        print("Photon render engine exited (id: %s)" % self.identifier)
 
     # Export scene data for render
     def update(self, b_blend_data, b_depsgraph):
@@ -243,12 +243,10 @@ class PhRenderPanel(bpy.types.Panel):
     bl_region_type = "WINDOW"
     bl_context = "render"
 
-    COMPATIBLE_ENGINES = {settings.renderer_id_name}
-
     @classmethod
     def poll(cls, context):
         render_settings = context.scene.render
-        return render_settings.engine in cls.COMPATIBLE_ENGINES
+        return render_settings.engine in settings.photon_engines
 
 
 @blender.register_class

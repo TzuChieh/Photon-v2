@@ -12,8 +12,6 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
 
-    COMPATIBLE_ENGINES = {settings.renderer_id_name}
-
     bpy.types.Camera.ph_resolution_x = bpy.props.IntProperty(
         name="Resolution X",
         description="Resolution in x-axis. Will be overridden by settings in the output panel if the camera is active.",
@@ -68,7 +66,7 @@ class PH_CAMERA_PT_camera(bpy.types.Panel):
     @classmethod
     def poll(cls, b_context):
         render_settings = b_context.scene.render
-        return render_settings.engine in cls.COMPATIBLE_ENGINES and b_context.camera
+        return render_settings.engine in settings.photon_engines and b_context.camera
 
     def draw(self, b_context):
 

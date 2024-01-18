@@ -173,12 +173,10 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
     bl_label = "Photon Node Tree"
     bl_icon = 'MATERIAL'
 
-    COMPATIBLE_ENGINES = {settings.renderer_id_name}
-
     @classmethod
     def poll(cls, b_context):
         render_settings = b_context.scene.render
-        return render_settings.engine in cls.COMPATIBLE_ENGINES
+        return render_settings.engine in settings.photon_engines
 
     # Blender: set the current node tree to the one the active material owns (update editor views)
     @classmethod

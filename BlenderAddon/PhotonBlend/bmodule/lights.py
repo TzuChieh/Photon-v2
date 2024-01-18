@@ -9,12 +9,10 @@ class PhLightPanel(bpy.types.Panel):
     bl_region_type = "WINDOW"
     bl_context = "data"
 
-    COMPATIBLE_ENGINES = {settings.renderer_id_name}
-
     @classmethod
     def poll(cls, context):
         render_settings = context.scene.render
-        return (render_settings.engine in cls.COMPATIBLE_ENGINES and
+        return (render_settings.engine in settings.photon_engines and
                 context.light)
 
 

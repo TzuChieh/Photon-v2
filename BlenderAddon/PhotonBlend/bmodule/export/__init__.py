@@ -51,11 +51,6 @@ class Exporter:
         print("-------------------------------------------------------------")
 
     def export_material(self, b_material):
-        # DEBUG
-        # print("name = %s" % b_material.name)
-        # print("evaluated = %s" % b_material.ph_node_tree_name)
-        # print("original = %s" % b_material.original.ph_node_tree_name)
-
         # FIXME: hack
         if b_material.photon.use_nodes:
             return nodes.to_sdl(b_material, self.get_sdlconsole())

@@ -10,8 +10,6 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 	bl_space_type = "PROPERTIES"
 	bl_region_type = "WINDOW"
 
-	COMPATIBLE_ENGINES = {settings.renderer_id_name}
-
 	bpy.types.World.ph_background_type = bpy.props.EnumProperty(
 		items=[
 			('IMAGE', "Image", ""),
@@ -33,7 +31,7 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 	bpy.types.World.ph_image_file_path = bpy.props.StringProperty(
 		name="File",
 		default="",
-		subtype="FILE_PATH"
+		subtype='FILE_PATH'
 	)
 
 	bpy.types.World.ph_preetham_turbidity = bpy.props.FloatProperty(
@@ -93,7 +91,7 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 	@classmethod
 	def poll(cls, b_context):
 		render_settings = b_context.scene.render
-		return render_settings.engine in cls.COMPATIBLE_ENGINES and b_context.world
+		return render_settings.engine in settings.photon_engines and b_context.world
 
 	def draw(self, b_context):
 		b_layout = self.layout
