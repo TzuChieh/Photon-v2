@@ -51,7 +51,7 @@ for name, section in projects:
 # Build doc for Photon Blend
 photon_blend_project_dir = blender_addon.get_photon_blend_project_dir(setup_config)
 build_doxygen_doc(doxygen_executable, os.path.join(photon_blend_project_dir, "doxygen.config"))
-build_info.append("Generated doc for Photon Blend")
+build_info.append("Generated doc for PhotonBlend")
 
 # Build the primary doc that links all docs
 primary_doxygen_config = setup_config["General"]["PrimaryDoxygenConfig"]

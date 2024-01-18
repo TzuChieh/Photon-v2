@@ -13,7 +13,7 @@ public:
 	@param focalDistance The distance to the plane this camera is focusing on.
 	@param sensorSize Size of the installed sensor.
 	@param rasterToSensor Transform from raster to sensor position (in camera space).
-	@param receiverToWorld Transform from camera to world space.
+	@param cameraToWorld Transform from camera to world space.
 	*/
 	ThinLensCamera(
 		float64                     lensRadius,

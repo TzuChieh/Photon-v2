@@ -47,7 +47,7 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         ],
         name="Subdivision Quality",
         description="The subdivision quality of exported mesh.",
-        default="RENDER"
+        default='RENDER'
     )
 
     def execute(self, b_context: bpy.types.Context):

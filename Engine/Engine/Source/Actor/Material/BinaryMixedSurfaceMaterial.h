@@ -69,7 +69,9 @@ public:
 		clazz.addField(material1);
 
 		TSdlReference<Image, OwnerType> factor("factor", &OwnerType::m_factor);
-		factor.description("Factor that controls the contribution from each material.");
+		factor.description(
+			"Factor that controls the contribution from each material. Basically, the final material "
+			"would be \"material-0 * factor + material-1 * (1 - factor)\".");
 		factor.optional();// some operation might not need a factor; check factor at cook time
 		clazz.addField(factor);
 

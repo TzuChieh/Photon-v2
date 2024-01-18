@@ -33,13 +33,13 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 
 	m_firstNonZeroPdfColumn(0),
 
-	// one more entry since we are storing values on endpoints
+	// One more entry since we are storing values on endpoints
 	m_cdf(numWeights + 1, 0)
 {
 	PH_ASSERT(max > min && weights && numWeights > 0);
 	m_delta = (max - min) / static_cast<T>(numWeights);
 
-	// construct CDF by first integrating the weights
+	// Construct CDF by first integrating the weights
 	m_cdf[0] = 0;
 	for(std::size_t i = 1; i < m_cdf.size(); ++i)
 	{
@@ -52,7 +52,7 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 	const T sum = m_cdf.back();
 	if(sum > 0)
 	{
-		// normalize the CDF
+		// Normalize the CDF
 		for(std::size_t i = 1; i < m_cdf.size(); ++i)
 		{
 			// We do not multiply with reciprocal of sum here since we want to
@@ -73,7 +73,7 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 	}
 	PH_ASSERT_EQ(m_cdf.back(), T(1));
 
-	// find first column with non-zero PDF
+	// Find first column with non-zero PDF
 	for(std::size_t i = 0; i < numColumns(); ++i)
 	{
 		if(pdfContinuous(i) > 0)
@@ -97,8 +97,8 @@ inline std::size_t TPwcDistribution1D<T>::sampleDiscrete(const T sample) const
 {
 	const auto& result = std::lower_bound(m_cdf.begin(), m_cdf.end(), sample);
 	PH_ASSERT_MSG(result != m_cdf.end(), 
-		"sample = "         + std::to_string(sample) + ", "
-		"last CDF value = " + std::to_string(m_cdf.back()));
+		"sample = " + std::to_string(sample) + ", "
+		"last CDF value = " + (m_cdf.empty() ? "(empty CDF)" : std::to_string(m_cdf.back())));
 
 	return result != m_cdf.begin() ? result - m_cdf.begin() - 1 : m_firstNonZeroPdfColumn;
 }

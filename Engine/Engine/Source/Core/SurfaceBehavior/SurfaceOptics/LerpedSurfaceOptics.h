@@ -21,11 +21,15 @@ public:
 		const std::shared_ptr<SurfaceOptics>& optics0, 
 		const std::shared_ptr<SurfaceOptics>& optics1);
 
+	/*! @brief Computes the final optics as `optics0 * ratio + optics1 * (1 - ratio)`.
+	*/
 	LerpedSurfaceOptics(
 		const std::shared_ptr<SurfaceOptics>& optics0,
 		const std::shared_ptr<SurfaceOptics>& optics1,
 		real ratio);
 
+	/*! @brief Computes the final optics as `optics0 * ratio + optics1 * (1 - ratio)`.
+	*/
 	LerpedSurfaceOptics(
 		const std::shared_ptr<SurfaceOptics>& optics0, 
 		const std::shared_ptr<SurfaceOptics>& optics1,

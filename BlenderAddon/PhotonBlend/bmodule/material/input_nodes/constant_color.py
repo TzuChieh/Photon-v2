@@ -18,7 +18,7 @@ class PhConstantColorInputNode(PhMaterialInputNode):
         default=[0.5, 0.5, 0.5],
         min=0.0,
         max=1.0,
-        subtype="COLOR",
+        subtype='COLOR',
         size=3
     )
 
@@ -45,6 +45,6 @@ class PhConstantColorInputNode(PhMaterialInputNode):
         self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
-        b_layout.template_color_picker(self, "color", value_slider=True)
-        b_layout.prop(self, "color", text="")
-        b_layout.prop(self, "usage", text="")
+        b_layout.template_color_picker(self, 'color', value_slider=True)
+        b_layout.prop(self, 'color', text="")
+        # b_layout.prop(self, "usage", text="")

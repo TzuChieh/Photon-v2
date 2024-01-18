@@ -67,7 +67,8 @@ inline std::shared_ptr<T> ISdlReferenceGroup::getTyped(std::string_view resource
 		// (name is correct, but with a wrong type).
 
 		throw_formatted<SdlLoadError>(
-			"resource type is not the requested type (category: {}, name: {})",
+			"resource type (category: {}) is not the requested type (category: {}, name: {})",
+			sdl::category_to_string(get(resourceName)->getDynamicCategory()),
 			sdl::category_to_string(sdl::category_of<T>()), resourceName);
 	}
 

@@ -11,7 +11,7 @@ namespace ph
 /*! @brief Modeling Fresnel effects that occur on interfaces.
 
 The two sides of a interface are called inner and outer sides, where outer side
-has $\cos(\theta_{indicent})>0$ and inner side has $\cos(\theta_{indicent})<0$.
+has @f$ \cos(\theta_{indicent})>0 @f$ and inner side has @f$ \cos(\theta_{indicent})<0 @f$.
 */
 class FresnelEffect
 {

@@ -29,7 +29,7 @@ def find_output_node_from_node_tree(node_tree):
     for node in node_tree.nodes:
         # FIXME: PH_OUTPUT is hard-coded; should be resolved after creating its own file
         # if getattr(node, "bl_idname", None) == PhOutputNode.bl_idname:
-        if getattr(node, "bl_idname", None) == "PH_OUTPUT":
+        if getattr(node, 'bl_idname', None) == 'PH_OUTPUT':
             return node
 
     return None

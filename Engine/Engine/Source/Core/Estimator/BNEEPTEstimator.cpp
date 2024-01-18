@@ -288,6 +288,11 @@ void BNEEPTEstimator::estimate(
 		}
 	}// end for each bounces
 
+	/*if(!accuRadiance.isFinite())
+	{
+		PH_ASSERT(false);
+	}*/
+
 	out_estimation[m_estimationIndex] = accuRadiance;
 }
 

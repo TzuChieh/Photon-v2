@@ -19,25 +19,25 @@ private:
 public:
 	using Listener = DispatcherType::Listener;
 
-	/*! @biref Same as `TEventDispatcher::addListener()`.
+	/*! @brief Same as `TEventDispatcher::addListener()`.
 	*/
 	Listener* addListener(Listener listener);
 
 	template<auto MethodPtr, typename Class>
 	Listener* addListener(Class* instancePtr);
 
-	/*! @biref Same as `TEventDispatcher::removeListener()`.
+	/*! @brief Same as `TEventDispatcher::removeListener()`.
 	*/
 	void removeListener(Listener* listener);
 
-	/*! @biref Same as `TEventDispatcher::removeListenerImmediately()`.
+	/*! @brief Same as `TEventDispatcher::removeListenerImmediately()`.
 	*/
 	void removeListenerImmediately(Listener* listener);
 
 private:
 	friend ClassType;
 
-	/*! @biref Same as `TEventDispatcher::dispatch()`.
+	/*! @brief Same as `TEventDispatcher::dispatch()`.
 	Hidden as for some implementation (such as `Editor`), event may be dispatched with extra logic.
 	This is to prevent calling the raw/original dispatch accidentally.
 	*/

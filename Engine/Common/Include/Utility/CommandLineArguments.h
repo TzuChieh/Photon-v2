@@ -27,7 +27,7 @@ public:
 	bool isEmpty() const;
 
 	/*! @brief Get the first argument passed in and remove it from the internal buffer.
-	@param defaultValue A default value if the operation cannot be done (such as isEmpty() is true).
+	@param defaultString A default value if the operation cannot be done (such as isEmpty() is true).
 	*/
 	std::string retrieveString(const std::string& defaultString = "");
 

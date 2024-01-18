@@ -24,7 +24,6 @@ class PhPictureNode(PhMaterialInputNode):
         # TODO: not bundle/copy the same file if already present
 
         if self.file_path != "":
-
             # Copy the image file to scene folder and obtain an identifier for it
             image_path = bpy.path.abspath(self.file_path)
             bundled_image_path = sdlconsole.bundle_file(image_path, PhPictureNode.bl_idname + "_pictures")

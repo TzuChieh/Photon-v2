@@ -15,14 +15,15 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
 
     substance_type: bpy.props.EnumProperty(
         items=[
-            ("DIELECTRIC_REFLECTOR", "Dielectric Reflector", ""),
-            ("METALLIC_REFLECTOR", "Metallic Reflector", ""),
-            ("DIELECTRIC_TRANSMITTER", "Dielectric Transmitter", ""),
-            ("DIELECTRIC", "Dielectric", "")
+            ('DIELECTRIC_REFLECTOR', "Dielectric Reflector", ""),
+            ('METALLIC_REFLECTOR', "Metallic Reflector", ""),
+            ('DIELECTRIC_TRANSMITTER', "Dielectric Transmitter", ""),
+            ('DIELECTRIC', "Dielectric", ""),
+            ('ABSORBER', "Absorber", "Absorbs all energy.")
         ],
         name="Substance Type",
         description="Type of ideal substance.",
-        default="METALLIC_REFLECTOR"
+        default='METALLIC_REFLECTOR'
     )
 
     f0: bpy.props.FloatVectorProperty(
@@ -82,14 +83,16 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         creator.set_reflection_scale(sdl.Vector3(self.reflection_scale))
         creator.set_transmission_scale(sdl.Vector3(self.transmission_scale))
 
-        if self.substance_type == "DIELECTRIC_REFLECTOR":
+        if self.substance_type == 'DIELECTRIC_REFLECTOR':
             creator.set_substance(sdl.Enum("dielectric-reflector"))
-        elif self.substance_type == "METALLIC_REFLECTOR":
+        elif self.substance_type == 'METALLIC_REFLECTOR':
             creator.set_substance(sdl.Enum("metallic-reflector"))
-        elif self.substance_type == "DIELECTRIC_TRANSMITTER":
+        elif self.substance_type == 'DIELECTRIC_TRANSMITTER':
             creator.set_substance(sdl.Enum("transmitter"))
-        elif self.substance_type == "DIELECTRIC":
+        elif self.substance_type == 'DIELECTRIC':
             creator.set_substance(sdl.Enum("dielectric"))
+        elif self.substance_type == 'ABSORBER':
+            creator.set_substance(sdl.Enum("absorber"))
 
         sdlconsole.queue_command(creator)
 
@@ -97,18 +100,18 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         self.outputs.new(PhSurfaceMaterialSocket.bl_idname, PhSurfaceMaterialSocket.bl_label)
 
     def draw_buttons(self, b_context, b_layout):
-        b_layout.prop(self, "substance_type", text="")
-        b_layout.prop(self, "ior_outer")
+        b_layout.prop(self, 'substance_type', text="")
+        b_layout.prop(self, 'ior_outer')
 
         if (
-            self.substance_type == "DIELECTRIC_REFLECTOR" or
-            self.substance_type == "DIELECTRIC_TRANSMITTER" or
-            self.substance_type == "DIELECTRIC"
+            self.substance_type == 'DIELECTRIC_REFLECTOR' or
+            self.substance_type == 'DIELECTRIC_TRANSMITTER' or
+            self.substance_type == 'DIELECTRIC'
         ):
-            b_layout.prop(self, "ior_inner")
+            b_layout.prop(self, 'ior_inner')
 
-        if self.substance_type == "METALLIC_REFLECTOR":
-            b_layout.prop(self, "f0")
+        if self.substance_type == 'METALLIC_REFLECTOR':
+            b_layout.prop(self, 'f0')
 
-        b_layout.prop(self, "reflection_scale")
-        b_layout.prop(self, "transmission_scale")
+        b_layout.prop(self, 'reflection_scale')
+        b_layout.prop(self, 'transmission_scale')

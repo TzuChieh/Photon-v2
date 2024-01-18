@@ -13,7 +13,7 @@ toolset for ultra realistic image synthesis.
 @section programs Plugins
 
 - Blender Add-on for Photon
-  - <a href="../../PhotonBlend/html/index.html">Photon Blend</a>
+  - <a href="../../PhotonBlend/html/index.html">PhotonBlend</a>
 
 @section libraries Libraries
 
@@ -21,5 +21,7 @@ toolset for ultra realistic image synthesis.
   - <a href="../../Photon_Common/html/index.html">Common</a>
 - Rendering algorithms and core functionalities
   - <a href="../../Photon_Engine/html/index.html">Engine</a>
+- Core editor functionalities of the renderer
+  - <a href="../../Photon_EditorLib/html/index.html">EditorLib</a>
 
 */
