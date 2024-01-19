@@ -26,6 +26,7 @@ public:
 	/*! @brief Constructing path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
 	@param pathLength The length of the path to construct. This method is effectively the same as
 	`TDirectLightEstimator::bsdfSampleOutgoingWithNee()` if input is 1.
+	@param out_Lo Sampled energy. The energy is for the specified path length only.
 	@return Whether output parameters are usable. If `false` is returned, the sample should still
 	be treated as valid, albeit its contribution is effectively zero.
 	*/

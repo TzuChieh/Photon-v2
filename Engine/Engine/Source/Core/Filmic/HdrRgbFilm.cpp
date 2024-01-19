@@ -201,6 +201,12 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 					static_cast<HdrComponent>(sensorR), 
 					static_cast<HdrComponent>(sensorG), 
 					static_cast<HdrComponent>(sensorB)}));
+
+			// DEBUG nan
+			if(!std::isfinite(sensorR) || !std::isfinite(sensorG) || !std::isfinite(sensorB))
+			{
+				PH_ASSERT(false);
+			}
 		}
 	}
 }

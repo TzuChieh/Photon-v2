@@ -288,6 +288,7 @@ void BNEEPTEstimator::estimate(
 		}
 	}// end for each bounces
 
+	// DEBUG nan
 	if(!accuRadiance.isFinite())
 	{
 		PH_ASSERT(false);
