@@ -203,24 +203,24 @@ void LbLayeredSurface::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	out.sampleDirPdfW = 0.0_r;
+	out.setSampleDirPdfW(0);
 
-	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		return;
 	}
 
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 
 	math::Vector3R H;
-	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 	{
 		return;
 	}
 
-	const real absNoV = std::min(N.absDot(in.V), 1.0_r);
+	const real absNoV = std::min(N.absDot(in.getV()), 1.0_r);
 	const real NoH = N.dot(H);
-	const real HoL = H.dot(in.L);
+	const real HoL = H.dot(in.getL());
 
 	// Similar to genBsdfSample(), here we perform adding-doubling then compute
 	// MIS'ed (balance heuristic) PDF value.
@@ -240,13 +240,13 @@ void LbLayeredSurface::calcBsdfSamplePdfW(
 		summedSampleWeights += sampleWeight;
 
 		IsoTrowbridgeReitzConstant ggx(statistics.getEquivalentAlpha());
-		const real D = ggx.distribution(in.X, N, H);
+		const real D = ggx.distribution(in.getX(), N, H);
 		pdf += sampleWeight * std::abs(D * NoH / (4.0_r * HoL));
 	}
 
 	if(summedSampleWeights > 0.0_r)
 	{
-		out.sampleDirPdfW = pdf / summedSampleWeights;
+		out.setSampleDirPdfW(pdf / summedSampleWeights);
 	}
 }
 

@@ -183,7 +183,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 				bsdfPdfQuery.inputs.set(X, L, V);
 				optics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
-				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 				if(bsdfSamplePdfW > 0)
 				{
 					const real misWeighting = MIS{}.weight(bsdfSamplePdfW, neePdfW);
@@ -237,7 +237,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 				bsdfPdfQuery.inputs.set(bsdfEval);
 				optics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
-				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 				const real misWeighting   = MIS{}.weight(neePdfW, bsdfSamplePdfW);
 
 				math::Spectrum weight(bsdfEval.outputs.bsdf * N.absDot(L) * misWeighting / neePdfW);

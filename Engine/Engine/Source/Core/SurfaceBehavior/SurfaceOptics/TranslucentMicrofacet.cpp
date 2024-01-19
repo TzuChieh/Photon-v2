@@ -269,22 +269,24 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 	const bool canReflect  = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == REFLECTION;
 	const bool canTransmit = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 
-	// reflection
-	if(canReflect && ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
+	real sampleDirPdfW = 0;
+
+	// Reflection
+	if(canReflect && ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		math::Vector3R H;
-		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
+		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 		{
-			out.sampleDirPdfW = 0;
+			out.setSampleDirPdfW(0);
 			return;
 		}
 
-		const real HoL = H.dot(in.L);
+		const real HoL = H.dot(in.getL());
 		const real NoH = N.dot(H);
-		const real HoV = H.dot(in.V);
-		const real D   = m_microfacet->distribution(in.X, N, H);
+		const real HoV = H.dot(in.getV());
+		const real D   = m_microfacet->distribution(in.getX(), N, H);
 
 		math::Spectrum F;
 		m_fresnel->calcReflectance(HoL, &F);
@@ -292,13 +294,13 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 			? getReflectionProbability(F)
 			: 1.0_r;
 
-		out.sampleDirPdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
+		sampleDirPdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
 	}
-	// transmission
-	else if(canTransmit && ctx.sidedness.isOppositeHemisphere(in.X, in.L, in.V))
+	// Transmission
+	else if(canTransmit && ctx.sidedness.isOppositeHemisphere(in.getX(), in.getL(), in.getV()))
 	{
-		const real NoV = N.dot(in.V);
-		const real NoL = N.dot(in.L);
+		const real NoV = N.dot(in.getV());
+		const real NoL = N.dot(in.getL());
 
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -309,10 +311,10 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 
 		// here H will point into the medium with lower IoR
 		// (see: B. Walter et al., Microfacet Models for Refraction, near the end of P.5)
-		math::Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
+		math::Vector3R H = in.getL().mul(-etaI).add(in.getV().mul(-etaT));
 		if(H.isZero())
 		{
-			out.sampleDirPdfW = 0;
+			out.setSampleDirPdfW(0);
 			return;
 		}
 		H.normalizeLocal();
@@ -323,10 +325,10 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 			H.mulLocal(-1.0_r);
 		}
 
-		const real HoV = H.dot(in.V);
+		const real HoV = H.dot(in.getV());
 		const real NoH = N.dot(H);
-		const real HoL = H.dot(in.L);
-		const real D   = m_microfacet->distribution(in.X, N, H);
+		const real HoL = H.dot(in.getL());
+		const real D   = m_microfacet->distribution(in.getX(), N, H);
 
 		math::Spectrum F;
 		m_fresnel->calcReflectance(HoL, &F);
@@ -337,17 +339,14 @@ void TranslucentMicrofacet::calcBsdfSamplePdfW(
 		const real iorTerm    = etaI * HoL + etaT * HoV;
 		const real multiplier = (etaI * etaI * HoL) / (iorTerm * iorTerm);
 
-		out.sampleDirPdfW = std::abs(D * NoH * multiplier) * refractProb;
+		sampleDirPdfW = std::abs(D * NoH * multiplier) * refractProb;
 	}
 	else
 	{
-		out.sampleDirPdfW = 0.0_r;
+		sampleDirPdfW = 0;
 	}
 
-	if(!std::isfinite(out.sampleDirPdfW))
-	{
-		out.sampleDirPdfW = 0;
-	}
+	out.setSampleDirPdfW(std::isfinite(sampleDirPdfW) ? sampleDirPdfW : 0.0_r);
 }
 
 real TranslucentMicrofacet::getReflectionProbability(const math::Spectrum& F)

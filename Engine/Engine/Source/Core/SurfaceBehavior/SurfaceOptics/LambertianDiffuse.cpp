@@ -96,14 +96,14 @@ void LambertianDiffuse::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
-		out.sampleDirPdfW = 0;
+		out.setSampleDirPdfW(0);
 		return;
 	}
 
-	const math::Vector3R N = in.X.getShadingNormal();
-	out.sampleDirPdfW = in.L.absDot(N) * math::constant::rcp_pi<real>;
+	const math::Vector3R N = in.getX().getShadingNormal();
+	out.setSampleDirPdfW(in.getL().absDot(N) * math::constant::rcp_pi<real>);
 }
 
 }// end namespace ph

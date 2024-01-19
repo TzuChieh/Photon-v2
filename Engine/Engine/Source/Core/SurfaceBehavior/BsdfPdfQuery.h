@@ -5,16 +5,17 @@
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 
+#include <Common/assertion.h>
+
+#include <cmath>
+#include <string>
+
 namespace ph
 {
 
 class BsdfPdfInput final
 {
 public:
-	SurfaceHit     X;
-	math::Vector3R L;
-	math::Vector3R V;
-
 	void set(const BsdfEvalQuery& eval);
 	void set(const BsdfSampleQuery& sample);
 	void set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput);
@@ -23,12 +24,33 @@ public:
 		const SurfaceHit&     X, 
 		const math::Vector3R& L,
 		const math::Vector3R& V);
+
+	const SurfaceHit& getX() const;
+	const math::Vector3R& getL() const;
+	const math::Vector3R& getV() const;
+
+private:
+	SurfaceHit     m_X;
+	math::Vector3R m_L;
+	math::Vector3R m_V;
+#if PH_DEBUG
+	bool           m_hasSet{false};
+#endif
 };
 
 class BsdfPdfOutput final
 {
 public:
-	real sampleDirPdfW = 0.0_r;
+	void setSampleDirPdfW(real pdfW);
+
+	/*!
+	@return PDF (solid angle domain) of a BSDF sample being on a specific direction. Guaranteed to
+	be finite.
+	*/
+	real getSampleDirPdfW() const;
+
+private:
+	real m_sampleDirPdfW{0};
 };
 
 class BsdfPdfQuery final
@@ -52,7 +74,7 @@ inline BsdfPdfQuery::BsdfPdfQuery(BsdfQueryContext context)
 {
 	this->context = std::move(context);
 
-	// rest of the fields are initialized via setters
+	// (rest of the fields are initialized via setters)
 }
 
 inline void BsdfPdfInput::set(
@@ -60,9 +82,46 @@ inline void BsdfPdfInput::set(
 	const math::Vector3R& L,
 	const math::Vector3R& V)
 {
-	this->X = X;
-	this->L = L;
-	this->V = V;
+	m_X = X;
+	m_L = L;
+	m_V = V;
+
+#if PH_DEBUG
+	m_hasSet = true;
+#endif
+}
+
+inline const SurfaceHit& BsdfPdfInput::getX() const
+{
+	PH_ASSERT(m_hasSet);
+
+	return m_X;
+}
+
+inline const math::Vector3R& BsdfPdfInput::getL() const
+{
+	PH_ASSERT(m_hasSet);
+
+	return m_L;
+}
+
+inline const math::Vector3R& BsdfPdfInput::getV() const
+{
+	PH_ASSERT(m_hasSet);
+
+	return m_V;
+}
+
+inline void BsdfPdfOutput::setSampleDirPdfW(const real pdfW)
+{
+	m_sampleDirPdfW = pdfW;
+}
+
+inline real BsdfPdfOutput::getSampleDirPdfW() const
+{
+	PH_ASSERT_MSG(std::isfinite(m_sampleDirPdfW), "pdfW = " + std::to_string(m_sampleDirPdfW));
+
+	return m_sampleDirPdfW;
 }
 
 }// end namespace ph

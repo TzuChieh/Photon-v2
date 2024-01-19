@@ -129,33 +129,33 @@ void OpaqueMicrofacet::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 
-	const real NoL = N.dot(in.L);
-	const real NoV = N.dot(in.V);
+	const real NoL = N.dot(in.getL());
+	const real NoV = N.dot(in.getV());
 
-	// check if L, V lies on different side of the surface
+	// Check if L, V lies on different side of the surface
 	if(NoL * NoV <= 0.0_r)
 	{
-		out.sampleDirPdfW = 0;
+		out.setSampleDirPdfW(0);
 		return;
 	}
 
 	math::Vector3R H;
-	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 	{
-		out.sampleDirPdfW = 0;
+		out.setSampleDirPdfW(0);
 		return;
 	}
 
 	const real NoH = N.dot(H);
-	const real HoL = H.dot(in.L);
-	const real D = m_microfacet->distribution(in.X, N, H);
+	const real HoL = H.dot(in.getL());
+	const real D = m_microfacet->distribution(in.getX(), N, H);
 
-	out.sampleDirPdfW = std::abs(D * NoH / (4.0_r * HoL));
-	if(!std::isfinite(out.sampleDirPdfW))
+	out.setSampleDirPdfW(std::abs(D * NoH / (4.0_r * HoL)));
+	if(!std::isfinite(out.getSampleDirPdfW()))
 	{
-		out.sampleDirPdfW = 0;
+		out.setSampleDirPdfW(0);
 	}
 }
 

@@ -162,19 +162,19 @@ inline bool SurfaceTracer::doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const
 {
 	PH_ASSERT(m_scene);
 
-	const SurfaceHit&         X         = bsdfPdfQuery.inputs.X;
+	const SurfaceHit&         X         = bsdfPdfQuery.inputs.getX();
 	const SidednessAgreement& sidedness = bsdfPdfQuery.context.sidedness;
 
 	if(!X.hasSurfaceOptics() ||
-	   !sidedness.isSidednessAgreed(X, bsdfPdfQuery.inputs.V) ||
-	   !sidedness.isSidednessAgreed(X, bsdfPdfQuery.inputs.L))
+	   !sidedness.isSidednessAgreed(X, bsdfPdfQuery.inputs.getV()) ||
+	   !sidedness.isSidednessAgreed(X, bsdfPdfQuery.inputs.getL()))
 	{
 		return false;
 	}
 
 	getSurfaceOptics(X)->calcBsdfSamplePdfW(bsdfPdfQuery);
 
-	return bsdfPdfQuery.outputs.sampleDirPdfW > 0.0_r;
+	return bsdfPdfQuery.outputs.getSampleDirPdfW() > 0.0_r;
 }
 
 inline const Scene& SurfaceTracer::getScene() const

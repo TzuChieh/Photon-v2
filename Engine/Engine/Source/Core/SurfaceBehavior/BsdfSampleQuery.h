@@ -30,13 +30,23 @@ private:
 #endif
 };
 
+/*!
+It is an error to get output data if `isMeasurable()` returns `false`.
+*/
 class BsdfSampleOutput final
 {
 public:
 	void setL(const math::Vector3R& L);
 	void setPdfAppliedBsdf(const math::Spectrum& pdfAppliedBsdf);
 
+	/*!
+	@return Sampled direction (normalized).
+	*/
 	const math::Vector3R& getL() const;
+
+	/*!
+	@return Sampled BSDF with PDF (solid angle domain) applied. Guaranteed to be non-zero and finite.
+	*/
 	const math::Spectrum& getPdfAppliedBsdf() const;
 
 	/*! @brief Tells whether this sample has non-zero and sane contribution.
@@ -119,26 +129,18 @@ inline void BsdfSampleOutput::setPdfAppliedBsdf(const math::Spectrum& pdfApplied
 
 inline const math::Vector3R& BsdfSampleOutput::getL() const
 {
-#if PH_DEBUG
-	if(m_isMeasurable)
-	{
-		PH_ASSERT_MSG(0.95_r < m_L.length() && m_L.length() < 1.05_r, m_L.toString());
-	}
-#endif
+	PH_ASSERT(m_isMeasurable);
+	PH_ASSERT_MSG(0.95_r < m_L.length() && m_L.length() < 1.05_r, m_L.toString());
 
 	return m_L;
 }
 
 inline const math::Spectrum& BsdfSampleOutput::getPdfAppliedBsdf() const
 {
-#if PH_DEBUG
 	// When a sample report being measurable, it must be non-zero and not some crazy values
-	if(m_isMeasurable)
-	{
-		PH_ASSERT(!m_pdfAppliedBsdf.isZero());
-		PH_ASSERT_MSG(m_pdfAppliedBsdf.isFinite(), m_pdfAppliedBsdf.toString());
-	}
-#endif
+	PH_ASSERT(m_isMeasurable);
+	PH_ASSERT(!m_pdfAppliedBsdf.isZero());
+	PH_ASSERT_MSG(m_pdfAppliedBsdf.isFinite(), m_pdfAppliedBsdf.toString());
 
 	return m_pdfAppliedBsdf;
 }

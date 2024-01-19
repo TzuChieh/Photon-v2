@@ -130,7 +130,7 @@ void BNEEPTEstimator::estimate(
 					bsdfPdfQuery.inputs.set(bsdfEval);
 					surfaceBehavior.getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
 
-					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 					const real misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
 					const math::Vector3R N = surfaceHit.getShadingNormal();
 
@@ -231,7 +231,7 @@ void BNEEPTEstimator::estimate(
 					bsdfPdfQuery.inputs.set(bsdfSample);
 					surfaceBehavior->getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
 
-					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
+					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 					if(bsdfSamplePdfW > 0)
 					{
 						const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);

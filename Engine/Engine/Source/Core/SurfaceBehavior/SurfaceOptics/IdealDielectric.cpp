@@ -170,7 +170,7 @@ void IdealDielectric::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	out.sampleDirPdfW = 0.0_r;
+	out.setSampleDirPdfW(0);
 }
 
 }// end namespace ph

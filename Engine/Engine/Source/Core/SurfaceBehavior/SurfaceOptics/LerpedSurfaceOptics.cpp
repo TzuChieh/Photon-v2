@@ -150,19 +150,19 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 		// TODO: this is quite a harsh condition--it may be possible to just 
 		// sample another elemental if one of them has 0 pdfW
-		if(query[0].outputs.sampleDirPdfW == 0 || query[1].outputs.sampleDirPdfW == 0)
+		if(query[0].outputs.getSampleDirPdfW() == 0 || query[1].outputs.getSampleDirPdfW() == 0)
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
 		const math::Spectrum bsdf =
-			sampledRatio * (sampleOutput.getPdfAppliedBsdf() * query[0].outputs.sampleDirPdfW) +
+			sampledRatio * (sampleOutput.getPdfAppliedBsdf() * query[0].outputs.getSampleDirPdfW()) +
 			(math::Spectrum(1) - sampledRatio) * eval.outputs.bsdf;
 
 		const real pdfW = 
-			sampledProb * query[0].outputs.sampleDirPdfW +
-			(1.0_r - sampledProb) * query[1].outputs.sampleDirPdfW;
+			sampledProb * query[0].outputs.getSampleDirPdfW() +
+			(1.0_r - sampledProb) * query[1].outputs.getSampleDirPdfW();
 
 		PH_ASSERT_MSG(pdfW > 0 && std::isfinite(pdfW), std::to_string(pdfW));
 
@@ -207,7 +207,7 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
+	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
 
 	if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 	{
@@ -217,7 +217,8 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 		m_optics0->calcBsdfSamplePdfW(ctx, in, query0);
 		m_optics1->calcBsdfSamplePdfW(ctx, in, query1);
 
-		out.sampleDirPdfW = query0.sampleDirPdfW * prob + query1.sampleDirPdfW * (1.0_r - prob);
+		out.setSampleDirPdfW(
+			query0.getSampleDirPdfW() * prob + query1.getSampleDirPdfW() * (1.0_r - prob));
 	}
 	else
 	{
