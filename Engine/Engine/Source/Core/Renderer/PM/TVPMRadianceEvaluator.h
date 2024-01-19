@@ -308,7 +308,7 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon>::estimateRadianceWithPhotonM
 		}
 
 		math::Spectrum throughput(viewPathThroughput);
-		throughput.mulLocal(bsdfEval.outputs.bsdf);
+		throughput.mulLocal(bsdfEval.outputs.getBsdf());
 		throughput.mulLocal(lta::tamed_importance_BSDF_Ns_corrector(Ns, Ng, V));
 
 		radiance.addLocal(throughput * photon.get<EPhotonData::ThroughputRadiance>());

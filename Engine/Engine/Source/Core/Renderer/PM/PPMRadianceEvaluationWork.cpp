@@ -87,7 +87,7 @@ void PPMRadianceEvaluationWork::doWork()
 			}
 
 			math::Spectrum tau = photon.get<EPhotonData::ThroughputRadiance>();
-			tau.mulLocal(bsdfEval.outputs.bsdf);
+			tau.mulLocal(bsdfEval.outputs.getBsdf());
 			tau.mulLocal(lta::tamed_importance_BSDF_Ns_corrector(Ns, Ng, V));
 
 			tauM.addLocal(tau);

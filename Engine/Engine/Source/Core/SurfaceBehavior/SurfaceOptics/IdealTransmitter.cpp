@@ -91,7 +91,6 @@ void IdealTransmitter::calcBsdfSample(
 
 	out.setPdfAppliedBsdf(pdfAppliedBsdf);
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void IdealTransmitter::calcBsdfSamplePdfW(

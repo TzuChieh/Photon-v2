@@ -39,15 +39,14 @@ void LambertianDiffuse::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
-	math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.X);
-	out.bsdf = albedo.mulLocal(math::constant::rcp_pi<real>);
-	out.setMeasurability(out.bsdf);
+	const math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.getX());
+	out.setBsdf(albedo * math::constant::rcp_pi<real>);
 }
 
 void LambertianDiffuse::calcBsdfSample(
@@ -63,6 +62,11 @@ void LambertianDiffuse::calcBsdfSample(
 
 	const math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(
 		*m_albedo, in.getX());
+	if(albedo.isZero())
+	{
+		out.setMeasurability(false);
+		return;
+	}
 
 	// Generate and transform L to N's space
 
@@ -85,10 +89,8 @@ void LambertianDiffuse::calcBsdfSample(
 		return;
 	}
 
-	const math::Spectrum pdfAppliedBsdf = albedo.mul(1.0_r / absNoL);
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setPdfAppliedBsdf(albedo.mul(1.0_r / absNoL));
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void LambertianDiffuse::calcBsdfSamplePdfW(

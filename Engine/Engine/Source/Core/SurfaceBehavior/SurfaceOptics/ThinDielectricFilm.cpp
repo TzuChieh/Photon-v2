@@ -149,7 +149,6 @@ void ThinDielectricFilm::calcBsdfSample(
 	pdfAppliedBsdf.setSpectral((scale / N.absDot(L)).getColorValues(), math::EColorUsage::RAW);
 	out.setPdfAppliedBsdf(pdfAppliedBsdf);
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void ThinDielectricFilm::calcBsdfSamplePdfW(

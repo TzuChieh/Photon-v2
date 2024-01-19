@@ -286,7 +286,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 		}
 
 		math::Spectrum tau = photon.template get<EPhotonData::ThroughputRadiance>();
-		tau.mulLocal(bsdfEval.outputs.bsdf);
+		tau.mulLocal(bsdfEval.outputs.getBsdf());
 		tau.mulLocal(lta::tamed_importance_BSDF_Ns_corrector(Ns, Ng, V));
 
 		tauM.addLocal(tau);

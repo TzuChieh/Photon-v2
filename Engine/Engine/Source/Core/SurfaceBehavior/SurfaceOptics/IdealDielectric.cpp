@@ -159,10 +159,8 @@ void IdealDielectric::calcBsdfSample(
 		return;
 	}
 
-	const auto pdfAppliedBsdf = F / N.absDot(L);
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setPdfAppliedBsdf(F / N.absDot(L));
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void IdealDielectric::calcBsdfSamplePdfW(

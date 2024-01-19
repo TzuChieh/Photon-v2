@@ -66,37 +66,37 @@ void OrenNayar::calcBsdf(
 {
 	PH_ASSERT_MSG(ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
 
-	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
-	const auto albedo       = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.X);
-	const real sigmaRadians = math::to_radians(TSampler<real>().sample(*m_sigmaDegrees, in.X));
+	const auto albedo       = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.getX());
+	const real sigmaRadians = math::to_radians(TSampler<real>().sample(*m_sigmaDegrees, in.getX()));
 
-	const auto& shadingBasis = in.X.getDetail().getShadingBasis();
+	const auto& shadingBasis = in.getX().getDetail().getShadingBasis();
 
 	const real sigma2    = sigmaRadians * sigmaRadians;
 	const real A         = 1.0_r - (sigma2 / (2.0_r * (sigma2 + 0.33_r)));
 	const real B         = 0.45_r * sigma2 / (sigma2 + 0.09_r);
-	const real sinThetaL = shadingBasis.sinTheta(in.L);
-	const real sinThetaV = shadingBasis.sinTheta(in.V);
+	const real sinThetaL = shadingBasis.sinTheta(in.getL());
+	const real sinThetaV = shadingBasis.sinTheta(in.getV());
 
 	real cosTerm = 0.0_r;
 	if(sinThetaL > 0.0001_r && sinThetaV > 0.0001_r)
 	{
-		const real sinPhiL = shadingBasis.sinPhi(in.L);
-		const real sinPhiV = shadingBasis.sinPhi(in.V);
-		const real cosPhiL = shadingBasis.cosPhi(in.L);
-		const real cosPhiV = shadingBasis.cosPhi(in.V);
+		const real sinPhiL = shadingBasis.sinPhi(in.getL());
+		const real sinPhiV = shadingBasis.sinPhi(in.getV());
+		const real cosPhiL = shadingBasis.cosPhi(in.getL());
+		const real cosPhiV = shadingBasis.cosPhi(in.getV());
 
 		// compute max(0, cos(phi_L - phi_V)) and clamp to <= 1
 		cosTerm = math::clamp(cosPhiL * cosPhiV + sinPhiL * sinPhiV, 0.0_r, 1.0_r);
 	}
 
-	const real absCosThetaL = shadingBasis.absCosTheta(in.L);
-	const real absCosThetaV = shadingBasis.absCosTheta(in.V);
+	const real absCosThetaL = shadingBasis.absCosTheta(in.getL());
+	const real absCosThetaV = shadingBasis.absCosTheta(in.getV());
 
 	// we can determin the size of theta_L and theta_V by comparing their cosines
 	real sinAlpha, tanBeta;
@@ -111,8 +111,9 @@ void OrenNayar::calcBsdf(
 		tanBeta  = sinThetaV / absCosThetaV;
 	}
 
-	out.bsdf = albedo * (math::constant::rcp_pi<real> * (A + B * cosTerm * sinAlpha * tanBeta));
-	out.setMeasurability(out.bsdf);
+	const math::Spectrum bsdf = 
+		albedo * (math::constant::rcp_pi<real> * (A + B * cosTerm * sinAlpha * tanBeta));
+	out.setBsdf(bsdf);
 }
 
 void OrenNayar::calcBsdfSample(
@@ -159,10 +160,8 @@ void OrenNayar::calcBsdfSample(
 		return;
 	}
 
-	const math::Spectrum pdfAppliedBsdf = eval.outputs.bsdf / pdfW;
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setPdfAppliedBsdf(eval.outputs.getBsdf() / pdfW);
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void OrenNayar::calcBsdfSamplePdfW(

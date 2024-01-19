@@ -135,7 +135,7 @@ void BNEEPTEstimator::estimate(
 					const math::Vector3R N = surfaceHit.getShadingNormal();
 
 					math::Spectrum weight;
-					weight = bsdfEval.outputs.bsdf.mul(N.absDot(L));
+					weight = bsdfEval.outputs.getBsdf().mul(N.absDot(L));
 					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directPdfW);
 
 					// avoid excessive, negative weight and possible NaNs

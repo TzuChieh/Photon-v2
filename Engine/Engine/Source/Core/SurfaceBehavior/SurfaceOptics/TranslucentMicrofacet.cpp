@@ -48,9 +48,9 @@ void TranslucentMicrofacet::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	const math::Vector3R N   = in.X.getShadingNormal();
-	const real           NoL = N.dot(in.L);
-	const real           NoV = N.dot(in.V);
+	const math::Vector3R N   = in.getX().getShadingNormal();
+	const real           NoL = N.dot(in.getL());
+	const real           NoV = N.dot(in.getV());
 
 	const real NoLmulNoV = NoL * NoV;
 	if(NoLmulNoV == 0.0_r)
@@ -59,31 +59,32 @@ void TranslucentMicrofacet::calcBsdf(
 		return;
 	}
 
-	// reflection
-	if(ctx.sidedness.isSameHemisphere(in.X, in.L, in.V) && 
+	// Reflection
+	if(ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()) &&
 	   (ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == REFLECTION))
 	{
 		math::Vector3R H;
-		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
+		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		const real HoV = H.dot(in.V);
+		const real HoV = H.dot(in.getV());
 		const real NoH = N.dot(H);
-		const real HoL = H.dot(in.L);
+		const real HoL = H.dot(in.getL());
 
 		math::Spectrum F;
 		m_fresnel->calcReflectance(HoL, &F);
 
-		const real D = m_microfacet->distribution(in.X, N, H);
-		const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
+		const real D = m_microfacet->distribution(in.getX(), N, H);
+		const real G = m_microfacet->shadowing(in.getX(), N, H, in.getL(), in.getV());
 
-		out.bsdf = F.mul(D * G / (4.0_r * std::abs(NoLmulNoV)));
+		const math::Spectrum bsdf = F.mul(D * G / (4.0_r * std::abs(NoLmulNoV)));
+		out.setBsdf(bsdf);
 	}
-	// refraction
-	else if(ctx.sidedness.isOppositeHemisphere(in.X, in.L, in.V) &&
+	// Refraction
+	else if(ctx.sidedness.isOppositeHemisphere(in.getX(), in.getL(), in.getV()) &&
 	        (ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == TRANSMISSION))
 	{
 		real etaI = m_fresnel->getIorOuter();
@@ -94,7 +95,7 @@ void TranslucentMicrofacet::calcBsdf(
 		}
 
 		// H should be on the same hemisphere as N
-		math::Vector3R H = in.L.mul(-etaI).add(in.V.mul(-etaT));
+		math::Vector3R H = in.getL().mul(-etaI).add(in.getV().mul(-etaT));
 		if(H.isZero())
 		{
 			out.setMeasurability(false);
@@ -106,15 +107,15 @@ void TranslucentMicrofacet::calcBsdf(
 			H.mulLocal(-1.0_r);
 		}
 
-		const real HoV = H.dot(in.V);
+		const real HoV = H.dot(in.getV());
 		const real NoH = N.dot(H);
-		const real HoL = H.dot(in.L);
+		const real HoL = H.dot(in.getL());
 
 		math::Spectrum F;
 		m_fresnel->calcTransmittance(HoL, &F);
 
-		const real D = m_microfacet->distribution(in.X, N, H);
-		const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
+		const real D = m_microfacet->distribution(in.getX(), N, H);
+		const real G = m_microfacet->shadowing(in.getX(), N, H, in.getL(), in.getV());
 
 		const real transportFactor = ctx.transport == ETransport::Radiance ?
 			etaT / etaI : 1.0_r;
@@ -128,8 +129,8 @@ void TranslucentMicrofacet::calcBsdf(
 
 		const real dotTerm = std::abs(HoL * HoV / NoLmulNoV);
 
-		out.bsdf = F.mul(D * G * dotTerm * (iorTerm * iorTerm));
-		out.setMeasurability(out.bsdf);
+		const math::Spectrum bsdf = F.mul(D * G * dotTerm * (iorTerm * iorTerm));
+		out.setBsdf(bsdf);
 	}
 	else
 	{
@@ -255,10 +256,8 @@ void TranslucentMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	const math::Spectrum pdfAppliedBsdf = F.mul(G * dotTerms);
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setPdfAppliedBsdf(F.mul(G* dotTerms));
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void TranslucentMicrofacet::calcBsdfSamplePdfW(

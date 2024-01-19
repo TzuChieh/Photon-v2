@@ -7,8 +7,8 @@ namespace ph
 void BsdfSampleInput::set(const BsdfEvalQuery& eval)
 {
 	set(
-		eval.inputs.X, 
-		eval.inputs.V);
+		eval.inputs.getX(),
+		eval.inputs.getV());
 }
 
 }// end namespace ph

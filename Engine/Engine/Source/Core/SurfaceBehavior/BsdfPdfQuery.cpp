@@ -8,9 +8,9 @@ namespace ph
 void BsdfPdfInput::set(const BsdfEvalQuery& eval)
 {
 	set(
-		eval.inputs.X,
-		eval.inputs.L,
-		eval.inputs.V);
+		eval.inputs.getX(),
+		eval.inputs.getL(),
+		eval.inputs.getV());
 }
 
 void BsdfPdfInput::set(const BsdfSampleQuery& sample)

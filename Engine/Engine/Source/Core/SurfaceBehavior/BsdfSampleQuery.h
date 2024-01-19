@@ -37,7 +37,10 @@ class BsdfSampleOutput final
 {
 public:
 	void setL(const math::Vector3R& L);
-	void setPdfAppliedBsdf(const math::Spectrum& pdfAppliedBsdf);
+
+	void setPdfAppliedBsdf(
+		const math::Spectrum& pdfAppliedBsdf, 
+		bool inferMeasurabilityFromThis = true);
 
 	/*!
 	@return Sampled direction (normalized).
@@ -51,7 +54,8 @@ public:
 
 	/*! @brief Tells whether this sample has non-zero and sane contribution.
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
-	and sampled data is undefined.
+	and sampled data is undefined. This method is an efficient way to decide whether the BSDF sample
+	has potential to contribute.
 	*/
 	bool isMeasurable() const;
 
@@ -122,9 +126,16 @@ inline void BsdfSampleOutput::setL(const math::Vector3R& L)
 	m_L = L;
 }
 
-inline void BsdfSampleOutput::setPdfAppliedBsdf(const math::Spectrum& pdfAppliedBsdf)
+inline void BsdfSampleOutput::setPdfAppliedBsdf(
+	const math::Spectrum& pdfAppliedBsdf, 
+	const bool inferMeasurabilityFromThis)
 {
 	m_pdfAppliedBsdf = pdfAppliedBsdf;
+
+	if(inferMeasurabilityFromThis)
+	{
+		setMeasurability(pdfAppliedBsdf);
+	}
 }
 
 inline const math::Vector3R& BsdfSampleOutput::getL() const

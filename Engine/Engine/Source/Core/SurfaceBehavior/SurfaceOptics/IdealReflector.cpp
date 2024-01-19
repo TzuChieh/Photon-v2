@@ -72,7 +72,6 @@ void IdealReflector::calcBsdfSample(
 
 	out.setPdfAppliedBsdf(pdfAppliedBsdf);
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void IdealReflector::calcBsdfSamplePdfW(

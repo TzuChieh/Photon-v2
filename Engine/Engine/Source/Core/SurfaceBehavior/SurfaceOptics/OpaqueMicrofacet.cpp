@@ -45,10 +45,10 @@ void OpaqueMicrofacet::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 
-	const real NoL = N.dot(in.L);
-	const real NoV = N.dot(in.V);
+	const real NoL = N.dot(in.getL());
+	const real NoV = N.dot(in.getV());
 
 	// Check if L, V lies on different side of the surface
 	if(NoL * NoV <= 0.0_r)
@@ -58,24 +58,24 @@ void OpaqueMicrofacet::calcBsdf(
 	}
 
 	math::Vector3R H;
-	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
-	const real HoV = H.dot(in.V);
+	const real HoV = H.dot(in.getV());
 	const real NoH = N.dot(H);
-	const real HoL = H.dot(in.L);
+	const real HoL = H.dot(in.getL());
 
 	math::Spectrum F;
 	m_fresnel->calcReflectance(HoL, &F);
 
-	const real D = m_microfacet->distribution(in.X, N, H);
-	const real G = m_microfacet->shadowing(in.X, N, H, in.L, in.V);
+	const real D = m_microfacet->distribution(in.getX(), N, H);
+	const real G = m_microfacet->shadowing(in.getX(), N, H, in.getL(), in.getV());
 
-	out.bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
-	out.setMeasurability(out.bsdf);
+	const math::Spectrum bsdf = F.mul(D * G / (4.0_r * std::abs(NoV * NoL)));
+	out.setBsdf(bsdf);
 }
 
 void OpaqueMicrofacet::calcBsdfSample(
@@ -118,10 +118,8 @@ void OpaqueMicrofacet::calcBsdfSample(
 	m_fresnel->calcReflectance(HoL, &F);
 
 	const real G = m_microfacet->shadowing(in.getX(), N, H, L, in.getV());
-	const math::Spectrum pdfAppliedBsdf = F.mul(G).mulLocal(multiplier);
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setPdfAppliedBsdf(F.mul(G).mulLocal(multiplier));
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void OpaqueMicrofacet::calcBsdfSamplePdfW(

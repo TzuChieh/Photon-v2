@@ -61,15 +61,15 @@ void LbLayeredSurface::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	if(!ctx.sidedness.isSameHemisphere(in.X, in.L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
-	const math::Vector3R N = in.X.getShadingNormal();
-	const real NoL = N.dot(in.L);
-	const real NoV = N.dot(in.V);
+	const math::Vector3R N = in.getX().getShadingNormal();
+	const real NoL = N.dot(in.getL());
+	const real NoV = N.dot(in.getV());
 	const real brdfDeno = 4.0_r * std::abs(NoV * NoL);
 	if(brdfDeno == 0.0_r)
 	{
@@ -78,16 +78,16 @@ void LbLayeredSurface::calcBsdf(
 	}
 
 	math::Vector3R H;
-	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.L, in.V, N, &H))
+	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 	{
 		out.setMeasurability(false);
 		return;
 	}
 	
-	const real absHoL = std::min(H.absDot(in.L), 1.0_r);
+	const real absHoL = std::min(H.absDot(in.getL()), 1.0_r);
 
 	InterfaceStatistics statistics(absHoL, LbLayer());
-	out.bsdf.setColorValues(0);
+	math::Spectrum bsdf(0);
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
 		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
@@ -97,12 +97,12 @@ void LbLayeredSurface::calcBsdf(
 		}
 
 		IsoTrowbridgeReitzConstant ggx(statistics.getEquivalentAlpha());
-		const real D = ggx.distribution(in.X, N, H);
-		const real G = ggx.shadowing(in.X, N, H, in.L, in.V);
+		const real D = ggx.distribution(in.getX(), N, H);
+		const real G = ggx.shadowing(in.getX(), N, H, in.getL(), in.getV());
 
-		out.bsdf.addLocal(statistics.getEnergyScale().mul(D * G / brdfDeno));
+		bsdf += statistics.getEnergyScale().mul(D * G / brdfDeno);
 	}
-	out.setMeasurability(out.bsdf);
+	out.setBsdf(bsdf);
 }
 
 void LbLayeredSurface::calcBsdfSample(
@@ -192,10 +192,8 @@ void LbLayeredSurface::calcBsdfSample(
 	BsdfEvalOutput evalOutput;
 	LbLayeredSurface::calcBsdf(ctx, evalInput, evalOutput);
 	
-	const math::Spectrum pdfAppliedBsdf = evalOutput.bsdf / pdf;
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setPdfAppliedBsdf(evalOutput.getBsdf() / pdf);
 	out.setL(L);
-	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void LbLayeredSurface::calcBsdfSamplePdfW(

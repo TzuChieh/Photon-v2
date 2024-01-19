@@ -29,24 +29,44 @@ class SurfaceTracer final
 public:
 	explicit SurfaceTracer(const Scene* scene);
 
+	/*!
+	@return out_X The next surface.
+	@return Is the next surface found.
+	*/
 	bool traceNextSurface(
 		const Ray&                ray, 
 		const SidednessAgreement& sidedness, 
 		SurfaceHit*               out_X) const;
 
+	/*! @brief Uses BSDF sample to trace the next surface.
+	@return Is the next surface found.
+	*/
 	bool bsdfSampleNextSurface(
 		BsdfSampleQuery& bsdfSample,
 		SampleFlow&      sampleFlow,
 		SurfaceHit*      out_X) const;
 
+	/*!
+	@return Whether the BSDF sample has potential to contribute.
+	*/
 	bool doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const;
 
+	/*!
+	@return Whether the BSDF sample has potential to contribute.
+	*/
 	bool doBsdfSample(
 		BsdfSampleQuery& bsdfSample, 
 		SampleFlow&      sampleFlow, 
 		Ray*             out_sampledRay) const;
 	
+	/*!
+	@return Whether the BSDF has potential to contribute.
+	*/
 	bool doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const;
+
+	/*!
+	@return Whether the PDF is non-zero and has a sane value.
+	*/
 	bool doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const;
 	
 private:
@@ -143,12 +163,12 @@ inline bool SurfaceTracer::doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const
 {
 	PH_ASSERT(m_scene);
 
-	const SurfaceHit&         X         = bsdfEval.inputs.X;
+	const SurfaceHit&         X         = bsdfEval.inputs.getX();
 	const SidednessAgreement& sidedness = bsdfEval.context.sidedness;
 
 	if(!X.hasSurfaceOptics() ||
-	   !sidedness.isSidednessAgreed(X, bsdfEval.inputs.V) ||
-	   !sidedness.isSidednessAgreed(X, bsdfEval.inputs.L))
+	   !sidedness.isSidednessAgreed(X, bsdfEval.inputs.getV()) ||
+	   !sidedness.isSidednessAgreed(X, bsdfEval.inputs.getL()))
 	{
 		return false;
 	}
