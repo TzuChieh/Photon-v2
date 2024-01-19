@@ -160,23 +160,23 @@ void TranslucentMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 
 	math::Vector3R H;
 	m_microfacet->genDistributedH(
-		in.X,
+		in.getX(),
 		N,
 		sampleFlow.flow2D(),
 		&H);
 
 	math::Spectrum F;
-	m_fresnel->calcReflectance(H.dot(in.V), &F);
+	m_fresnel->calcReflectance(H.dot(in.getV()), &F);
 	const real reflectProb = getReflectionProbability(F);
 
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
 
-	// we cannot sample both path, choose one randomly
+	// We cannot sample both path, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
 		if(sampleFlow.unflowedPick(reflectProb))
@@ -191,44 +191,45 @@ void TranslucentMicrofacet::calcBsdfSample(
 
 	PH_ASSERT(sampleReflect || sampleTransmit);
 
+	math::Vector3R L;
 	if(sampleReflect)
 	{
-		// calculate reflected L
-		out.L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
-		if(!ctx.sidedness.isSameHemisphere(in.X, in.V, out.L))
+		// Calculate reflected L
+		L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
+		if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getV(), L))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		// account for probability
+		// Account for probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(reflectProb);
 		}
 	}
-	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, H, &(out.L)))
+	else if(sampleTransmit && m_fresnel->calcRefractDir(in.getV(), H, &L))
 	{
-		if(!ctx.sidedness.isOppositeHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), L))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		m_fresnel->calcTransmittance(H.dot(out.L), &F);
+		m_fresnel->calcTransmittance(H.dot(L), &F);
 
 		if(ctx.transport == ETransport::Radiance)
 		{
 			real etaI = m_fresnel->getIorOuter();
 			real etaT = m_fresnel->getIorInner();
-			if(N.dot(out.L) < 0.0_r)
+			if(N.dot(L) < 0.0_r)
 			{
 				std::swap(etaI, etaT);
 			}
 			F.mulLocal(etaT * etaT / (etaI * etaI));
 		}
 
-		// account for probability
+		// Account for probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(1.0_r - reflectProb);
@@ -241,14 +242,12 @@ void TranslucentMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	const math::Vector3R L = out.L;
-
 	const real NoL = N.dot(L);
-	const real HoV = H.dot(in.V);
-	const real NoV = N.dot(in.V);
+	const real HoV = H.dot(in.getV());
+	const real NoV = N.dot(in.getV());
 	const real NoH = N.dot(H);
 
-	const real G        = m_microfacet->shadowing(in.X, N, H, L, in.V);
+	const real G        = m_microfacet->shadowing(in.getX(), N, H, L, in.getV());
 	const real dotTerms = std::abs(HoV / (NoV * NoL * NoH));
 	if(!std::isfinite(dotTerms))
 	{
@@ -256,8 +255,10 @@ void TranslucentMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf = F.mul(G * dotTerms);
-	out.setMeasurability(out.pdfAppliedBsdf);
+	const math::Spectrum pdfAppliedBsdf = F.mul(G * dotTerms);
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void TranslucentMicrofacet::calcBsdfSamplePdfW(

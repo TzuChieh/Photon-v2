@@ -70,9 +70,8 @@ void BVPTEstimator::estimate(
 			break;
 		}
 
-		const math::Vector3R L = bsdfSample.outputs.L;
-
-		const math::Spectrum liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		const math::Vector3R L = bsdfSample.outputs.getL();
+		const math::Spectrum liWeight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
 		accuLiWeight.mulLocal(liWeight);
 
 		if(numBounces >= 3)
@@ -119,14 +118,14 @@ void BVPTEstimator::estimate(
 					break;
 				}
 
-				accuLiWeight.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
+				accuLiWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
 				if(accuLiWeight.isZero())
 				{
 					break;
 				}
 
 				const math::Vector3R nextRayOrigin(Xe.getPosition());
-				const math::Vector3R nextRayDirection(bsdfSample.outputs.L);
+				const math::Vector3R nextRayDirection(bsdfSample.outputs.getL());
 				tracingRay.setOrigin(nextRayOrigin);
 				tracingRay.setDirection(nextRayDirection);
 			}

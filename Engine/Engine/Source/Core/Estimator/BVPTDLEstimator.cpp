@@ -77,8 +77,8 @@ void BVPTDLEstimator::estimate(
 			return;
 		}
 
-		const math::Vector3R L          = bsdfSample.outputs.L;
-		const math::Spectrum pathWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+		const math::Vector3R L          = bsdfSample.outputs.getL();
+		const math::Spectrum pathWeight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
 
 		accuPathWeight.mulLocal(pathWeight);
 

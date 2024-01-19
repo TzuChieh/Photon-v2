@@ -57,19 +57,22 @@ void IdealReflector::calcBsdfSample(
 	SampleFlow&             /* sampleFlow */,
 	BsdfSampleOutput&       out) const
 {
-	const math::Vector3R N = in.X.getShadingNormal();
-	out.L = in.V.mul(-1.0_r).reflect(N);
+	const math::Vector3R N = in.getX().getShadingNormal();
+	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(N);
+	const real NoL = N.dot(L);
 
-	const real NoL = N.dot(out.L);
-	m_fresnel->calcReflectance(NoL, &(out.pdfAppliedBsdf));
-	out.pdfAppliedBsdf.mulLocal(1.0_r / std::abs(NoL));
+	math::Spectrum pdfAppliedBsdf;
+	m_fresnel->calcReflectance(NoL, &pdfAppliedBsdf);
+	pdfAppliedBsdf.mulLocal(1.0_r / std::abs(NoL));
 
 	// A scale factor for artistic control
 	const math::Spectrum& reflectionScale =
-		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.X);
-	out.pdfAppliedBsdf.mulLocal(reflectionScale);
+		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.getX());
+	pdfAppliedBsdf.mulLocal(reflectionScale);
 
-	out.setMeasurability(out.pdfAppliedBsdf);
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void IdealReflector::calcBsdfSamplePdfW(

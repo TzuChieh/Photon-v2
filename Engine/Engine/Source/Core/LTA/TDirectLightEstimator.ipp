@@ -61,8 +61,8 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleEmission(
 	math::Spectrum Le;
 	emitter->evalEmittedRadiance(Xe, &Le);
 	
-	if(out_L)              { *out_L = bsdfSample.outputs.L; }
-	if(out_pdfAppliedBsdf) { *out_pdfAppliedBsdf = bsdfSample.outputs.pdfAppliedBsdf; }
+	if(out_L)              { *out_L = bsdfSample.outputs.getL(); }
+	if(out_pdfAppliedBsdf) { *out_pdfAppliedBsdf = bsdfSample.outputs.getPdfAppliedBsdf(); }
 	if(out_Le)             { *out_Le = Le; }
 	if(out_Xe)             { *out_Xe = Xe; }
 

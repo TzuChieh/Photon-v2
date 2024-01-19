@@ -111,10 +111,8 @@ void LbLayeredSurface::calcBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	out.pdfAppliedBsdf.setColorValues(0);
-
-	const math::Vector3R N = in.X.getShadingNormal();
-	const real absNoV = std::min(N.absDot(in.V), 1.0_r);
+	const math::Vector3R N = in.getX().getShadingNormal();
+	const real absNoV = std::min(N.absDot(in.getV()), 1.0_r);
 
 	// Perform adding-doubling algorithm and gather information for later
 	// sampling process.
@@ -155,16 +153,14 @@ void LbLayeredSurface::calcBsdfSample(
 
 	IsoTrowbridgeReitzConstant ggx(alphas[selectIndex]);
 	math::Vector3R H;
-	ggx.genDistributedH(in.X, N, sampleFlow.flow2D(), &H);
-	const math::Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
+	ggx.genDistributedH(in.getX(), N, sampleFlow.flow2D(), &H);
+	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
 
-	if(!ctx.sidedness.isSameHemisphere(in.X, L, in.V))
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), L, in.getV()))
 	{
 		out.setMeasurability(false);
 		return;
 	}
-
-	out.L = L;
 
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(L);
@@ -179,7 +175,7 @@ void LbLayeredSurface::calcBsdfSample(
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
 		IsoTrowbridgeReitzConstant ggx(alphas[i]);
-		const real D = ggx.distribution(in.X, N, H);
+		const real D = ggx.distribution(in.getX(), N, H);
 		const real weight = sampleWeights[i] / summedSampleWeights;
 		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
 	}
@@ -191,12 +187,15 @@ void LbLayeredSurface::calcBsdfSample(
 	}
 
 	BsdfEvalInput evalInput;
-	evalInput.set(in.X, L, in.V);
+	evalInput.set(in.getX(), L, in.getV());
 	// FIXME: we already complete adding-doubling, reuse the computed results
 	BsdfEvalOutput evalOutput;
 	LbLayeredSurface::calcBsdf(ctx, evalInput, evalOutput);
-	out.pdfAppliedBsdf = evalOutput.bsdf / pdf;
-	out.setMeasurability(out.pdfAppliedBsdf);
+	
+	const math::Spectrum pdfAppliedBsdf = evalOutput.bsdf / pdf;
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void LbLayeredSurface::calcBsdfSamplePdfW(

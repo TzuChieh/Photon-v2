@@ -146,8 +146,8 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 				break;
 			}
 
-			pathThroughput.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
-			pathThroughput.mulLocal(N.absDot(bsdfSample.outputs.L));
+			pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
+			pathThroughput.mulLocal(N.absDot(bsdfSample.outputs.getL()));
 
 			if(policy.useRussianRoulette())
 			{
@@ -207,7 +207,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 		}
 
 		math::Spectrum elementalPathThroughput(pathThroughput);
-		elementalPathThroughput.mulLocal(sample.outputs.pdfAppliedBsdf);
+		elementalPathThroughput.mulLocal(sample.outputs.getPdfAppliedBsdf());
 		elementalPathThroughput.mulLocal(N.absDot(sampledRay.getDirection()));
 
 		if(policy.useRussianRoulette())

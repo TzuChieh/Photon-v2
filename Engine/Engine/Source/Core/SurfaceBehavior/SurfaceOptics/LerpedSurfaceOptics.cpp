@@ -115,7 +115,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.X);
+	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
 
 	if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 	{
@@ -157,7 +157,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		}
 
 		const math::Spectrum bsdf =
-			sampledRatio * (sampleOutput.pdfAppliedBsdf * query[0].outputs.sampleDirPdfW) +
+			sampledRatio * (sampleOutput.getPdfAppliedBsdf() * query[0].outputs.sampleDirPdfW) +
 			(math::Spectrum(1) - sampledRatio) * eval.outputs.bsdf;
 
 		const real pdfW = 
@@ -166,28 +166,40 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 		PH_ASSERT_MSG(pdfW > 0 && std::isfinite(pdfW), std::to_string(pdfW));
 
-		out.pdfAppliedBsdf = bsdf / pdfW;
-		out.L = sampleOutput.L;
+		const math::Spectrum pdfAppliedBsdf = bsdf / pdfW;
+		out.setPdfAppliedBsdf(pdfAppliedBsdf);
+		out.setL(sampleOutput.getL());
+		out.setMeasurability(pdfAppliedBsdf);
 	}
 	else
 	{
 		PH_ASSERT(ctx.elemental < m_numElementals);
 
+		math::Spectrum pdfAppliedBsdf(0);
 		if(ctx.elemental < m_optics0->m_numElementals)
 		{
 			m_optics0->calcBsdfSample(ctx, in, sampleFlow, out);
-			out.pdfAppliedBsdf.mulLocal(ratio);
+
+			if(out.isMeasurable())
+			{
+				pdfAppliedBsdf = out.getPdfAppliedBsdf() * ratio;
+			}
 		}
 		else
 		{
 			BsdfQueryContext localCtx = ctx;
 			localCtx.elemental = ctx.elemental - m_optics0->m_numElementals;
 			m_optics1->calcBsdfSample(localCtx, in, sampleFlow, out);
-			out.pdfAppliedBsdf.mulLocal(math::Spectrum(1) - ratio);
-		}
-	}
 
-	out.setMeasurability(out.pdfAppliedBsdf);
+			if(out.isMeasurable())
+			{
+				pdfAppliedBsdf = out.getPdfAppliedBsdf() * (math::Spectrum(1) - ratio);
+			}
+		}
+
+		out.setPdfAppliedBsdf(pdfAppliedBsdf);
+		out.setMeasurability(pdfAppliedBsdf);
+	}
 }
 
 void LerpedSurfaceOptics::calcBsdfSamplePdfW(

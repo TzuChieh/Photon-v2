@@ -61,20 +61,19 @@ void LambertianDiffuse::calcBsdfSample(
 	// generating a cos(theta) weighted L corresponding to N, which PDF is cos(theta)/pi.
 	// Thus, BRDF_lambertian/PDF = albedo/cos(theta).
 
-	math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(*m_albedo, in.X);
+	const math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(
+		*m_albedo, in.getX());
 
-	// generate and transform L to N's space
+	// Generate and transform L to N's space
 
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 	PH_ASSERT(N.isFinite());
 
-	math::Vector3R& L = out.L;
-
-	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(sampleFlow.flow2D());
-
-	L = in.X.getDetail().getShadingBasis().localToWorld(L);
+	math::Vector3R L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
+		sampleFlow.flow2D());
+	L = in.getX().getDetail().getShadingBasis().localToWorld(L);
 	L.normalizeLocal();
-	if(in.V.dot(N) < 0.0_r)
+	if(in.getV().dot(N) < 0.0_r)
 	{
 		L.mulLocal(-1.0_r);
 	}
@@ -86,8 +85,10 @@ void LambertianDiffuse::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf = albedo.mulLocal(1.0_r / absNoL);
-	out.setMeasurability(out.pdfAppliedBsdf);
+	const math::Spectrum pdfAppliedBsdf = albedo.mul(1.0_r / absNoL);
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void LambertianDiffuse::calcBsdfSamplePdfW(

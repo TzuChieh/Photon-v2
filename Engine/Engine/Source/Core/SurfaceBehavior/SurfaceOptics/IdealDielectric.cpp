@@ -73,10 +73,10 @@ void IdealDielectric::calcBsdfSample(
 		return;
 	}
 
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 
 	math::Spectrum F;
-	m_fresnel->calcReflectance(N.dot(in.V), &F);
+	m_fresnel->calcReflectance(N.dot(in.getV()), &F);
 	const real reflectProb = F.avg();
 
 	bool sampleReflect  = canReflect;
@@ -97,55 +97,56 @@ void IdealDielectric::calcBsdfSample(
 
 	PH_ASSERT(sampleReflect || sampleTransmit);
 
+	math::Vector3R L;
 	if(sampleReflect)
 	{
-		// calculate reflected L
-		out.L = in.V.mul(-1.0_r).reflect(N).normalizeLocal();
-		if(!ctx.sidedness.isSameHemisphere(in.X, in.V, out.L))
+		// Calculate reflected L
+		L = in.getV().mul(-1.0_r).reflect(N).normalizeLocal();
+		if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getV(), L))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		// a scale factor for artistic control
+		// A scale factor for artistic control
 		const math::Spectrum reflectionScale =
-			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.X);
+			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.getX());
 		F.mulLocal(reflectionScale);
 
-		// account for probability
+		// Account for probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(reflectProb);
 		}
 	}
-	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, N, &(out.L)))
+	else if(sampleTransmit && m_fresnel->calcRefractDir(in.getV(), N, &L))
 	{
-		if(!ctx.sidedness.isOppositeHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), L))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
 		// FIXME: just use 1 - F
-		m_fresnel->calcTransmittance(N.dot(out.L), &F);
+		m_fresnel->calcTransmittance(N.dot(L), &F);
 
 		if(ctx.transport == ETransport::Radiance)
 		{
 			real etaI = m_fresnel->getIorOuter();
 			real etaT = m_fresnel->getIorInner();
-			if(N.dot(out.L) < 0.0_r)
+			if(N.dot(L) < 0.0_r)
 			{
 				std::swap(etaI, etaT);
 			}
 			F.mulLocal(etaT * etaT / (etaI * etaI));
 		}
 
-		// a scale factor for artistic control
+		// A scale factor for artistic control
 		const math::Spectrum transmissionScale =
-			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.X);
+			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.getX());
 		F.mulLocal(transmissionScale);
 
-		// account for probability
+		// Account for probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(1.0_r - reflectProb);
@@ -158,8 +159,10 @@ void IdealDielectric::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf = F / N.absDot(out.L);
-	out.setMeasurability(out.pdfAppliedBsdf);
+	const auto pdfAppliedBsdf = F / N.absDot(L);
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void IdealDielectric::calcBsdfSamplePdfW(

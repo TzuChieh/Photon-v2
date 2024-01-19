@@ -55,15 +55,17 @@ void IdealTransmitter::calcBsdfSample(
 	SampleFlow&             /* sampleFlow */,
 	BsdfSampleOutput&       out) const
 {
-	const math::Vector3R N = in.X.getShadingNormal();
-	math::Vector3R& L = out.L;
-	if(!m_fresnel->calcRefractDir(in.V, N, &L))
+	const math::Vector3R N = in.getX().getShadingNormal();
+
+	math::Vector3R L;
+	if(!m_fresnel->calcRefractDir(in.getV(), N, &L))
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
-	real cosI = N.dot(L);
+	const real cosI = N.dot(L);
+
 	math::Spectrum F;
 	m_fresnel->calcTransmittance(cosI, &F);
 
@@ -80,14 +82,16 @@ void IdealTransmitter::calcBsdfSample(
 		transportFactor = (etaT * etaT) / (etaI * etaI);
 	}
 	
-	out.pdfAppliedBsdf = F.mul(transportFactor / std::abs(cosI));
+	math::Spectrum pdfAppliedBsdf = F.mul(transportFactor / std::abs(cosI));
 
 	// A scale factor for artistic control
 	const math::Spectrum transmissionScale =
-		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.X);
-	out.pdfAppliedBsdf.mulLocal(transmissionScale);
+		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.getX());
+	pdfAppliedBsdf.mulLocal(transmissionScale);
 
-	out.setMeasurability(out.pdfAppliedBsdf);
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void IdealTransmitter::calcBsdfSamplePdfW(

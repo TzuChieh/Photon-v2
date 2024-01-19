@@ -159,7 +159,7 @@ void BNEEPTEstimator::estimate(
 			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample, sampleFlow);
 
 			const math::Vector3R N = surfaceHit.getShadingNormal();
-			const math::Vector3R L = bsdfSample.outputs.L;
+			const math::Vector3R L = bsdfSample.outputs.getL();
 
 			// blackness check & sidedness agreement between real geometry and shading normal
 			//
@@ -236,7 +236,7 @@ void BNEEPTEstimator::estimate(
 					{
 						const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
-						math::Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+						math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
 						weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
 						// Avoid excessive, negative weight and possible NaNs
@@ -248,14 +248,14 @@ void BNEEPTEstimator::estimate(
 				// not do MIS
 				else
 				{
-					math::Spectrum weight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+					math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
 					weight.mulLocal(accuLiWeight);
 
 					accuRadiance.addLocal(radianceLe.mulLocal(weight));
 				}
 			}
 
-			const math::Spectrum currentLiWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
+			const math::Spectrum currentLiWeight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
 			accuLiWeight.mulLocal(currentLiWeight);
 
 			if(numBounces >= 3)

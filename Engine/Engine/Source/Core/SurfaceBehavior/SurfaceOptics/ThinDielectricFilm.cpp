@@ -63,16 +63,16 @@ void ThinDielectricFilm::calcBsdfSample(
 		return;
 	}
 
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 
 	math::Spectrum F;
-	m_fresnel->calcReflectance(N.dot(in.V), &F);
+	m_fresnel->calcReflectance(N.dot(in.getV()), &F);
 	const real reflectProb = F.avg();
 
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
 
-	// we cannot sample both path, choose one randomly
+	// We cannot sample both path, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
 		if(sampleFlow.unflowedPick(reflectProb))
@@ -87,17 +87,17 @@ void ThinDielectricFilm::calcBsdfSample(
 
 	PH_ASSERT(sampleReflect || sampleTransmit);
 
-	// calculate reflected L
-	out.L = in.V.mul(-1.0_r).reflect(N).normalizeLocal();
+	// Calculate reflected L
+	math::Vector3R L = in.getV().mul(-1.0_r).reflect(N).normalizeLocal();
 
-	real degree = math::to_degrees(N.absDot(out.L));
-	std::size_t index = math::clamp(static_cast<std::size_t>(degree + 0.5_r), std::size_t(0), std::size_t(90));
+	const real degree = math::to_degrees(N.absDot(L));
+	const std::size_t index = math::clamp(
+		static_cast<std::size_t>(degree + 0.5_r), std::size_t(0), std::size_t(90));
 
 	math::SampledSpectrum scale(0);
-
 	if(sampleReflect)
 	{
-		if(!ctx.sidedness.isSameHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getV(), L))
 		{
 			out.setMeasurability(false);
 			return;
@@ -111,9 +111,9 @@ void ThinDielectricFilm::calcBsdfSample(
 			scale.divLocal(reflectProb);
 		}
 	}
-	else if(sampleTransmit && m_fresnel->calcRefractDir(in.V, N, &(out.L)))
+	else if(sampleTransmit && m_fresnel->calcRefractDir(in.getV(), N, &L))
 	{
-		if(!ctx.sidedness.isOppositeHemisphere(in.X, in.V, out.L))
+		if(!ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), L))
 		{
 			out.setMeasurability(false);
 			return;
@@ -145,10 +145,11 @@ void ThinDielectricFilm::calcBsdfSample(
 		return;
 	}
 
-	math::Spectrum value;
-	value.setSpectral((scale / N.absDot(out.L)).getColorValues(), math::EColorUsage::RAW);
-	out.pdfAppliedBsdf = value;
-	out.setMeasurability(out.pdfAppliedBsdf);
+	math::Spectrum pdfAppliedBsdf;
+	pdfAppliedBsdf.setSpectral((scale / N.absDot(L)).getColorValues(), math::EColorUsage::RAW);
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void ThinDielectricFilm::calcBsdfSamplePdfW(

@@ -3,6 +3,7 @@
 #include "World/Scene.h"
 #include "Core/HitProbe.h"
 #include "Core/SurfaceHit.h"
+#include "Core/LTA/lta.h"
 #include "Core/LTA/SidednessAgreement.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
@@ -102,11 +103,11 @@ inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow&
 {
 	PH_ASSERT(m_scene);
 
-	const SurfaceHit&         X         = bsdfSample.inputs.X;
+	const SurfaceHit&         X         = bsdfSample.inputs.getX();
 	const SidednessAgreement& sidedness = bsdfSample.context.sidedness;
 
 	if(!X.hasSurfaceOptics() || 
-	   !sidedness.isSidednessAgreed(X, bsdfSample.inputs.V))
+	   !sidedness.isSidednessAgreed(X, bsdfSample.inputs.getV()))
 	{
 		return false;
 	}
@@ -114,7 +115,7 @@ inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow&
 	getSurfaceOptics(X)->calcBsdfSample(bsdfSample, sampleFlow);
 
 	return bsdfSample.outputs.isMeasurable() &&
-	       sidedness.isSidednessAgreed(X, bsdfSample.outputs.L);
+	       sidedness.isSidednessAgreed(X, bsdfSample.outputs.getL());
 }
 
 inline bool SurfaceTracer::doBsdfSample(
@@ -128,13 +129,12 @@ inline bool SurfaceTracer::doBsdfSample(
 	}
 
 	PH_ASSERT(out_sampledRay);
-	// HACK: hard-coded number
 	*out_sampledRay = Ray(
-		bsdfSample.inputs.X.getPosition(),
-		bsdfSample.outputs.L,
-		0.0001_r,
+		bsdfSample.inputs.getX().getPosition(),
+		bsdfSample.outputs.getL(),
+		lta::self_intersect_delta,
 		std::numeric_limits<real>::max(),
-		bsdfSample.inputs.X.getIncidentRay().getTime());
+		bsdfSample.inputs.getX().getIncidentRay().getTime());
 
 	return true;
 }

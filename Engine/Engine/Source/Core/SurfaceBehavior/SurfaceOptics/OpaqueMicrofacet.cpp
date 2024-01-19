@@ -90,21 +90,20 @@ void OpaqueMicrofacet::calcBsdfSample(
 	// The PDF for this sampling scheme is D(H)*|NoH|/(4*|HoL|). The reason that 4*|HoL| exists is because there's a 
 	// jacobian involved (from H's probability space to L's).
 
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 
 	math::Vector3R H;
 	m_microfacet->genDistributedH(
-		in.X,
+		in.getX(),
 		N,
 		sampleFlow.flow2D(),
 		&H);
 
-	const math::Vector3R L = in.V.mul(-1.0_r).reflect(H).normalizeLocal();
-	out.L = L;
+	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
 
-	const real NoV = N.dot(in.V);
+	const real NoV = N.dot(in.getV());
 	const real NoL = N.dot(L);
-	const real HoV = H.dot(in.V);
+	const real HoV = H.dot(in.getV());
 	const real HoL = H.dot(L);
 	const real NoH = N.dot(H);
 
@@ -118,9 +117,11 @@ void OpaqueMicrofacet::calcBsdfSample(
 	math::Spectrum F;
 	m_fresnel->calcReflectance(HoL, &F);
 
-	const real G = m_microfacet->shadowing(in.X, N, H, L, in.V);
-	out.pdfAppliedBsdf = F.mul(G).mulLocal(multiplier);
-	out.setMeasurability(out.pdfAppliedBsdf);
+	const real G = m_microfacet->shadowing(in.getX(), N, H, L, in.getV());
+	const math::Spectrum pdfAppliedBsdf = F.mul(G).mulLocal(multiplier);
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void OpaqueMicrofacet::calcBsdfSamplePdfW(

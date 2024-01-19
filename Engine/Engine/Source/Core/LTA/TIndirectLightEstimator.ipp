@@ -71,7 +71,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			}
 
 			surfaceHit = nextSurfaceHit;
-			accuLiWeight *= bsdfSample.outputs.pdfAppliedBsdf * N.absDot(bsdfSample.outputs.L);
+			accuLiWeight *= bsdfSample.outputs.getPdfAppliedBsdf() * N.absDot(bsdfSample.outputs.getL());
 		}
 
 		math::Spectrum weightedAccuLiWeight;

@@ -143,10 +143,10 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			}
 
 			math::Vector3R V = tracingRay.getDirection().mul(-1);
-			math::Vector3R L = bsdfSample.outputs.L;
+			math::Vector3R L = bsdfSample.outputs.getL();
 			math::Vector3R Ng = surfaceHit.getGeometryNormal();
 			math::Vector3R Ns = surfaceHit.getShadingNormal();
-			throughputRadiance.mulLocal(bsdfSample.outputs.pdfAppliedBsdf);
+			throughputRadiance.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
 			throughputRadiance.mulLocal(lta::tamed_importance_scatter_Ns_corrector(Ns, Ng, L, V));
 			throughputRadiance.mulLocal(Ns.absDot(L));
 

@@ -16,17 +16,17 @@ void BsdfPdfInput::set(const BsdfEvalQuery& eval)
 void BsdfPdfInput::set(const BsdfSampleQuery& sample)
 {
 	set(
-		sample.inputs.X, 
-		sample.outputs.L, 
-		sample.inputs.V);
+		sample.inputs.getX(),
+		sample.outputs.getL(),
+		sample.inputs.getV());
 }
 
 void BsdfPdfInput::set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput)
 {
 	set(
-		sampleInput.X,
-		sampleOutput.L,
-		sampleInput.V);
+		sampleInput.getX(),
+		sampleOutput.getL(),
+		sampleInput.getV());
 }
 
 }// end namespace ph

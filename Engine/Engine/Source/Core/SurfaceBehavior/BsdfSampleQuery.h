@@ -10,29 +10,34 @@
 
 #include <utility>
 
-// TODO: provide default ctors for these classes?
-
 namespace ph
 {
 
 class BsdfSampleInput final
 {
 public:
-	SurfaceHit     X;
-	math::Vector3R V;
-
 	void set(const BsdfEvalQuery& eval);
+	void set(const SurfaceHit& X, const math::Vector3R& V);
 
-	void set(
-		const SurfaceHit&     X, 
-		const math::Vector3R& V); 
+	const SurfaceHit& getX() const;
+	const math::Vector3R& getV() const;
+
+private:
+	SurfaceHit     m_X;
+	math::Vector3R m_V;
+#if PH_DEBUG
+	bool           m_hasSet{false};
+#endif
 };
 
 class BsdfSampleOutput final
 {
 public:
-	math::Vector3R L;
-	math::Spectrum pdfAppliedBsdf;
+	void setL(const math::Vector3R& L);
+	void setPdfAppliedBsdf(const math::Spectrum& pdfAppliedBsdf);
+
+	const math::Vector3R& getL() const;
+	const math::Spectrum& getPdfAppliedBsdf() const;
 
 	/*! @brief Tells whether this sample has non-zero and sane contribution.
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
@@ -49,7 +54,9 @@ public:
 	void setMeasurability(const math::Spectrum& reference);
 
 private:
-	bool m_isMeasurable = false;
+	math::Vector3R m_L{0};
+	math::Spectrum m_pdfAppliedBsdf{0};
+	bool           m_isMeasurable{false};
 };
 
 class BsdfSampleQuery final
@@ -73,29 +80,71 @@ inline BsdfSampleQuery::BsdfSampleQuery(BsdfQueryContext context)
 {
 	this->context = std::move(context);
 
-	// rest of the fields are initialized via setters
+	// (rest of the fields are initialized via setters)
 }
 
-inline void BsdfSampleInput::set(
-	const SurfaceHit&     X, 
-	const math::Vector3R& V)
+inline void BsdfSampleInput::set(const SurfaceHit& X, const math::Vector3R& V)
 {
-	this->X = X;
-	this->V = V;
+	m_X = X;
+	m_V = V;
+
+#if PH_DEBUG
+	m_hasSet = true;
+#endif
 }
 
-inline bool BsdfSampleOutput::isMeasurable() const
+inline const SurfaceHit& BsdfSampleInput::getX() const
+{
+	PH_ASSERT(m_hasSet);
+
+	return m_X;
+}
+
+inline const math::Vector3R& BsdfSampleInput::getV() const
+{
+	PH_ASSERT(m_hasSet);
+
+	return m_V;
+}
+
+inline void BsdfSampleOutput::setL(const math::Vector3R& L)
+{
+	m_L = L;
+}
+
+inline void BsdfSampleOutput::setPdfAppliedBsdf(const math::Spectrum& pdfAppliedBsdf)
+{
+	m_pdfAppliedBsdf = pdfAppliedBsdf;
+}
+
+inline const math::Vector3R& BsdfSampleOutput::getL() const
+{
+#if PH_DEBUG
+	if(m_isMeasurable)
+	{
+		PH_ASSERT_MSG(0.95_r < m_L.length() && m_L.length() < 1.05_r, m_L.toString());
+	}
+#endif
+
+	return m_L;
+}
+
+inline const math::Spectrum& BsdfSampleOutput::getPdfAppliedBsdf() const
 {
 #if PH_DEBUG
 	// When a sample report being measurable, it must be non-zero and not some crazy values
 	if(m_isMeasurable)
 	{
-		PH_ASSERT(!pdfAppliedBsdf.isZero());
-		PH_ASSERT_MSG(pdfAppliedBsdf.isFinite(), pdfAppliedBsdf.toString());
-		PH_ASSERT_MSG(0.95_r < L.length() && L.length() < 1.05_r, L.toString());
+		PH_ASSERT(!m_pdfAppliedBsdf.isZero());
+		PH_ASSERT_MSG(m_pdfAppliedBsdf.isFinite(), m_pdfAppliedBsdf.toString());
 	}
 #endif
 
+	return m_pdfAppliedBsdf;
+}
+
+inline bool BsdfSampleOutput::isMeasurable() const
+{
 	return m_isMeasurable;
 }
 

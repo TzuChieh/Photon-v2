@@ -123,22 +123,22 @@ void OrenNayar::calcBsdfSample(
 {
 	PH_ASSERT_MSG(ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == 0, std::to_string(ctx.elemental));
 
-	const math::Vector3R N = in.X.getShadingNormal();
+	const math::Vector3R N = in.getX().getShadingNormal();
 	PH_ASSERT(N.isFinite());
 
-	math::Vector3R& L = out.L;
 	real pdfW;
-	L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(sampleFlow.flow2D(), &pdfW);
+	math::Vector3R L = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
+		sampleFlow.flow2D(), &pdfW);
 	if(pdfW == 0.0_r)
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
-	// transform to world space and make it on the same hemisphere as V
-	L = in.X.getDetail().getShadingBasis().localToWorld(L);
+	// Transform to world space and make it on the same hemisphere as V
+	L = in.getX().getDetail().getShadingBasis().localToWorld(L);
 	L.normalizeLocal();
-	if(in.V.dot(N) < 0.0_r)
+	if(in.getV().dot(N) < 0.0_r)
 	{
 		L.mulLocal(-1.0_r);
 	}
@@ -151,7 +151,7 @@ void OrenNayar::calcBsdfSample(
 	}
 
 	BsdfEvalQuery eval;
-	eval.inputs.set(in.X, L, in.V);
+	eval.inputs.set(in.getX(), L, in.getV());
 	OrenNayar::calcBsdf(ctx, eval.inputs, eval.outputs);
 	if(!eval.outputs.isMeasurable())
 	{
@@ -159,8 +159,10 @@ void OrenNayar::calcBsdfSample(
 		return;
 	}
 
-	out.pdfAppliedBsdf = eval.outputs.bsdf.div(pdfW);
-	out.setMeasurability(out.pdfAppliedBsdf);
+	const math::Spectrum pdfAppliedBsdf = eval.outputs.bsdf / pdfW;
+	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setL(L);
+	out.setMeasurability(pdfAppliedBsdf);
 }
 
 void OrenNayar::calcBsdfSamplePdfW(

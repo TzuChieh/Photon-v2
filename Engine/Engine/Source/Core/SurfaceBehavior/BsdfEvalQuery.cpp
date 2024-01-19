@@ -12,9 +12,9 @@ void BsdfEvalInput::set(const BsdfSampleQuery& sample)
 void BsdfEvalInput::set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput)
 {
 	set(
-		sampleInput.X,
-		sampleOutput.L,
-		sampleInput.V);
+		sampleInput.getX(),
+		sampleOutput.getL(),
+		sampleInput.getV());
 }
 
 }// end namespace ph
