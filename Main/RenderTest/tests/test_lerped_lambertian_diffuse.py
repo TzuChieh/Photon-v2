@@ -18,6 +18,12 @@ bvpt_case2.output = "bvpt_factor0p8"
 bvpt_case2.debug_output = "bvpt_factor0p8_error"
 bvpt_case2.ref = "ref"
 
+bvpt_case3 = infra.TestCase(__name__, "BVPT (factor = 0 percent)", res_dir / "scene_factor0p0_bvpt.p2")
+bvpt_case3.output = "bvpt_factor0p0"
+bvpt_case3.debug_output = "bvpt_factor0p0_error"
+bvpt_case3.ref = "ref"
+bvpt_case3.case_msg = "This is a corner case where the lerping factor is 0 (0 * material_0 + 1 * material_0)."
+
 @pytest.fixture(scope='module')
 def ref_img():
     img = image.read_pfm(res_dir / "ref_no_lerp_bvpt_65536spp")
@@ -27,6 +33,7 @@ def ref_img():
 @pytest.mark.parametrize("case, max_mse, max_re_avg", [
     pytest.param(bvpt_case1, 0.0036, 0.0008, id=bvpt_case1.get_name()),
     pytest.param(bvpt_case2, 0.0036, 0.0008, id=bvpt_case2.get_name()),
+    pytest.param(bvpt_case3, 0.0036, 0.0008, id=bvpt_case3.get_name()),
 ])
 def test_render(ref_img, case, max_mse, max_re_avg):
     """
