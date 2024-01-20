@@ -119,6 +119,7 @@ inline void BsdfPdfOutput::setSampleDirPdfW(const real pdfW)
 
 inline real BsdfPdfOutput::getSampleDirPdfW() const
 {
+	// Optics implementation is responsible to provide non-infinite and non-NaN PDF
 	PH_ASSERT_MSG(std::isfinite(m_sampleDirPdfW), "pdfW = " + std::to_string(m_sampleDirPdfW));
 
 	return m_sampleDirPdfW;

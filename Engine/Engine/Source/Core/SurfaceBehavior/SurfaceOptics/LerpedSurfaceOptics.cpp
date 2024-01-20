@@ -85,10 +85,13 @@ void LerpedSurfaceOptics::calcBsdf(
 		BsdfEvalOutput eval0, eval1;
 		m_optics0->calcBsdf(ctx, in, eval0);
 		m_optics1->calcBsdf(ctx, in, eval1);
+		if(!eval0.isMeasurable() || !eval1.isMeasurable())
+		{
+			out.setMeasurability(false);
+			return;
+		}
 
-		const math::Spectrum bsdf = 
-			eval0.getBsdf() * ratio + eval1.getBsdf() * (math::Spectrum(1) - ratio);
-		out.setBsdf(bsdf);
+		out.setBsdf(eval0.getBsdf() * ratio + eval1.getBsdf() * (math::Spectrum(1) - ratio));
 	}
 	else
 	{
@@ -97,7 +100,7 @@ void LerpedSurfaceOptics::calcBsdf(
 		if(ctx.elemental < m_optics0->m_numElementals)
 		{
 			m_optics0->calcBsdf(ctx, in, out);
-
+			
 			if(out.isMeasurable())
 			{
 				out.setBsdf(out.getBsdf() * ratio);
@@ -149,6 +152,11 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		BsdfEvalQuery eval;
 		eval.inputs.set(in, sampleOutput);
 		anotherOptics->calcBsdf(ctx, eval.inputs, eval.outputs);
+		if(!eval.outputs.isMeasurable())
+		{
+			out.setMeasurability(false);
+			return;
+		}
 
 		BsdfPdfQuery query[2];
 		query[0].inputs.set(in, sampleOutput);
