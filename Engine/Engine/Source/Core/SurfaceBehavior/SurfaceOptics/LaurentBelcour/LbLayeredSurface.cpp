@@ -191,7 +191,12 @@ void LbLayeredSurface::calcBsdfSample(
 	// FIXME: we already complete adding-doubling, reuse the computed results
 	BsdfEvalOutput evalOutput;
 	LbLayeredSurface::calcBsdf(ctx, evalInput, evalOutput);
-	
+	if(!evalOutput.isMeasurable())
+	{
+		out.setMeasurability(false);
+		return;
+	}
+
 	out.setPdfAppliedBsdf(evalOutput.getBsdf() / pdf);
 	out.setL(L);
 }
@@ -242,7 +247,7 @@ void LbLayeredSurface::calcBsdfSamplePdfW(
 		pdf += sampleWeight * std::abs(D * NoH / (4.0_r * HoL));
 	}
 
-	if(summedSampleWeights > 0.0_r)
+	if(summedSampleWeights > 0.0_r && std::isfinite(pdf))
 	{
 		out.setSampleDirPdfW(pdf / summedSampleWeights);
 	}

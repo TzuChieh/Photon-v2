@@ -45,6 +45,9 @@ public:
 
 	/*!
 	@return Whether `vecA` and `vecB` are under the same hemisphere given current policy.
+	@note `isSameHemisphere() == !isOppositeHemisphere()` is not necessary true. Consider the case
+	where one of the vectors is perpendicular to the normal, it could theoretically belong to both
+	hemisphere; to eliminate the ambiguity, the test is exclusive and returns false in this case.
 	*/
 	bool isSameHemisphere(
 		const SurfaceHit&     X, 
@@ -53,6 +56,9 @@ public:
 
 	/*!
 	@return Whether `vecA` and `vecB` are under the opposite hemisphere given current policy.
+	@note `isOppositeHemisphere() == !isSameHemisphere()` is not necessary true. Consider the case
+	where one of the vectors is perpendicular to the normal, it could theoretically belong to both
+	hemisphere; to eliminate the ambiguity, the test is exclusive and returns false in this case.
 	*/
 	bool isOppositeHemisphere(
 		const SurfaceHit&     X,

@@ -19,6 +19,8 @@
 namespace ph
 {
 
+// The implementation is double-sided.
+
 OpaqueMicrofacet::OpaqueMicrofacet(
 	const std::shared_ptr<ConductorFresnel>& fresnel,
 	const std::shared_ptr<Microfacet>&       microfacet) :
@@ -50,8 +52,8 @@ void OpaqueMicrofacet::calcBsdf(
 	const real NoL = N.dot(in.getL());
 	const real NoV = N.dot(in.getV());
 
-	// Check if L, V lies on different side of the surface
-	if(NoL * NoV <= 0.0_r)
+	// Ensure L & V lies on the same side of the surface
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		out.setMeasurability(false);
 		return;
@@ -132,8 +134,8 @@ void OpaqueMicrofacet::calcBsdfSamplePdfW(
 	const real NoL = N.dot(in.getL());
 	const real NoV = N.dot(in.getV());
 
-	// Check if L, V lies on different side of the surface
-	if(NoL * NoV <= 0.0_r)
+	// Ensure L & V lies on the same side of the surface
+	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
 		out.setSampleDirPdfW(0);
 		return;

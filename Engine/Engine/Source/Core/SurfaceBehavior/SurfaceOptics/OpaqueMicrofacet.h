@@ -11,6 +11,9 @@
 namespace ph
 {
 
+/*! @brief Microfacet based opaque surface model.
+This model is double-sided.
+*/
 class OpaqueMicrofacet : public SurfaceOptics
 {
 public:

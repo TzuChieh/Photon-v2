@@ -18,7 +18,7 @@
 namespace ph
 {
 
-// Current implementation is double-sided.
+// The implementation is double-sided.
 
 LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<math::Spectrum>>& albedo) :
 	SurfaceOptics(),
