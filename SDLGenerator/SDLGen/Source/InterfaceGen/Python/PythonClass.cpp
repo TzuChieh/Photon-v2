@@ -36,6 +36,11 @@ void PythonClass::setInheritedClass(std::string inheritedClassName)
 	m_inheritedClassName = std::move(inheritedClassName);
 }
 
+void PythonClass::setDoc(std::string doc)
+{
+	m_doc = doc;
+}
+
 bool PythonClass::hasMethod(const std::string_view methodName) const
 {
 	for(const PythonMethod& method : m_methods)
@@ -54,14 +59,19 @@ bool PythonClass::isInheriting() const
 	return !m_inheritedClassName.empty();
 }
 
-std::string PythonClass::getClassName() const
+const std::string& PythonClass::getClassName() const
 {
 	return m_className;
 }
 
-std::string PythonClass::getInheritedClassName() const
+const std::string& PythonClass::getInheritedClassName() const
 {
 	return m_inheritedClassName;
+}
+
+const std::string& PythonClass::getDoc() const
+{
+	return m_doc;
 }
 
 std::string PythonClass::genCode() const
@@ -82,6 +92,12 @@ std::string PythonClass::genCode() const
 	else
 	{
 		code += std::format("class {}:\n", m_className);
+	}
+
+	if(!m_doc.empty())
+	{
+		code += std::format("{}\"\"\"\n{}{}\n{}\"\"\"\n",
+			PythonMethod::UNIT_INDENT, PythonMethod::UNIT_INDENT, m_doc, PythonMethod::UNIT_INDENT);
 	}
 
 	if(!m_methods.empty())

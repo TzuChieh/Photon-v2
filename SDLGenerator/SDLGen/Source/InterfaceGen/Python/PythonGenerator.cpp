@@ -221,6 +221,7 @@ inline PythonClass gen_sdl_creator_class(const SdlClass& sdlClass)
 		clazz.setInheritedClass(gen_creator_class_name(*sdlClass.getBase()));
 	}
 
+	clazz.setDoc(std::string(sdlClass.getDescription()));
 	clazz.addDefaultInit();
 
 	// Override `get_full_type()` (for non-blueprint class only, so blueprint classes remain
@@ -240,6 +241,7 @@ inline PythonClass gen_sdl_creator_class(const SdlClass& sdlClass)
 		const auto fieldName = sdl::name_to_snake_case(field.getFieldName());
 
 		PythonMethod inputMethod("set_" + fieldName);
+		inputMethod.setDoc(std::string(field.getDescription()));
 		inputMethod.addInput(fieldName, "", "AbstractData");
 		inputMethod.addCodeLine("self.set_input(\"{}\", {})", field.getFieldName(), fieldName);
 		clazz.addMethod(inputMethod);
@@ -252,6 +254,7 @@ inline PythonClass gen_sdl_explicit_executor_class(const SdlFunction& sdlFunctio
 {
 	PythonClass clazz(gen_explicit_executor_class_name(sdlFunction, parentClass));
 	clazz.setInheritedClass("ExplicitExecutorCommand");
+	clazz.setDoc(std::string(sdlFunction.getDescription()));
 	clazz.addDefaultInit();
 
 	// Override `get_full_type()`
@@ -272,6 +275,7 @@ inline PythonClass gen_sdl_explicit_executor_class(const SdlFunction& sdlFunctio
 		const auto paramName = sdl::name_to_snake_case(param.getFieldName());
 
 		PythonMethod inputMethod("set_" + paramName);
+		inputMethod.setDoc(std::string(param.getDescription()));
 		inputMethod.addInput(paramName, "", "AbstractData");
 		inputMethod.addCodeLine("self.set_input(\"{}\", {})", param.getFieldName(), paramName);
 		clazz.addMethod(inputMethod);
@@ -291,6 +295,7 @@ inline PythonClass gen_sdl_helper_explicit_executor_class(
 
 	PythonClass clazz(gen_explicit_executor_class_name(sdlFunction, callingParentClass));
 	clazz.setInheritedClass(gen_explicit_executor_class_name(sdlFunction, parentClass));
+	clazz.setDoc(std::string(sdlFunction.getDescription()));
 	clazz.addDefaultInit();
 
 	// We do not have to override `get_full_type()` and `get_name()`. Calling with compatible 
@@ -324,6 +329,7 @@ inline std::vector<PythonClass> gen_sdl_implicit_executor_classes(TSpanView<cons
 		{
 			PythonClass clazz("Call" + sdl::name_to_camel_case(funcName, true));
 			clazz.setInheritedClass("ImplicitExecutorCommand");
+			clazz.setDoc(std::string(sdlFunction->getDescription()));
 			clazz.addDefaultInit();
 
 			// Override `get_name()`
@@ -355,6 +361,7 @@ inline std::vector<PythonClass> gen_sdl_implicit_executor_classes(TSpanView<cons
 			}
 
 			PythonMethod inputMethod("set_" + paramName);
+			inputMethod.setDoc(std::string(param.getDescription()));
 			inputMethod.addInput(paramName, "", "AbstractData");
 			inputMethod.addCodeLine("self.set_input(\"{}\", {})", param.getFieldName(), paramName);
 			clazz.addMethod(inputMethod);

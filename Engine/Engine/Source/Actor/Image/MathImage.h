@@ -23,8 +23,8 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EMathImageOp>)
 	SdlEnumType sdlEnum("math-image-op");
 	sdlEnum.description("The mathematical operation used on images.");
 
-	sdlEnum.addEntry(EnumType::Add,      "ADD");
-	sdlEnum.addEntry(EnumType::Multiply, "MUL");
+	sdlEnum.addEntry(EnumType::Add,      "add");
+	sdlEnum.addEntry(EnumType::Multiply, "mul");
 
 	return sdlEnum;
 }
@@ -42,14 +42,16 @@ public:
 
 	MathImage& setOperation(EMathImageOp op);
 	MathImage& setOperandImage(std::shared_ptr<Image> operand);
-	MathImage& setScalarInput(float64 value);
+	MathImage& setScalarInput0(float64 value);
+	MathImage& setScalarInput1(float64 value);
 	MathImage& setInputImage0(std::shared_ptr<Image> input);
 	MathImage& setInputImage1(std::shared_ptr<Image> input);
 
 private:
 	EMathImageOp           m_mathOp;
 	std::shared_ptr<Image> m_operandImage;
-	float64                m_scalarInput;
+	float64                m_scalarInput0;
+	float64                m_scalarInput1;
 	std::shared_ptr<Image> m_imageInput0;
 	std::shared_ptr<Image> m_imageInput1;
 
@@ -74,11 +76,23 @@ public:
 		operandImage.required();
 		clazz.addField(operandImage);
 
-		TSdlReal<OwnerType, float64> scalarInput("scalar-input", &OwnerType::m_scalarInput);
-		scalarInput.description("A scalar input for the specified mathematical operation.");
-		scalarInput.defaultTo(0.0);
-		scalarInput.optional();
-		clazz.addField(scalarInput);
+		TSdlReal<OwnerType, float64> scalarInput0("scalar-input-0", &OwnerType::m_scalarInput0);
+		scalarInput0.description(
+			"First scalar input for the specified mathematical operation. This will only be used if "
+			"no image input is provided. Using scalar input is also more efficient than specifying "
+			"the scalar as a constant image input.");
+		scalarInput0.defaultTo(0.0);
+		scalarInput0.optional();
+		clazz.addField(scalarInput0);
+
+		TSdlReal<OwnerType, float64> scalarInput1("scalar-input-1", &OwnerType::m_scalarInput1);
+		scalarInput1.description(
+			"Second scalar input for the specified mathematical operation. This will only be used if "
+			"no image input is provided. Using scalar input is also more efficient than specifying "
+			"the scalar as a constant image input.");
+		scalarInput1.defaultTo(0.0);
+		scalarInput1.optional();
+		clazz.addField(scalarInput1);
 
 		TSdlReference<Image, OwnerType> imageInput0("input-0", &OwnerType::m_imageInput0);
 		imageInput0.description("First input for the specified mathematical operation.");

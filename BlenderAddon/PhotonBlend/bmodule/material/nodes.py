@@ -54,8 +54,8 @@ PH_MATERIAL_NODES = [
         surface_nodes.PhSurfaceLayerNode,
         surface_nodes.PhIdealSubstanceNode,
         surface_nodes.PhPureAbsorberNode,
-        math_nodes.PhMultiplyNode,
-        math_nodes.PhAddNode]
+        math_nodes.PhArithmeticNode,
+]
 
 
 @blender.register_module

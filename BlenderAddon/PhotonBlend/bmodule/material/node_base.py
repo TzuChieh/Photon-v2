@@ -20,13 +20,17 @@ class PhMaterialNodeSocket(bpy.types.NodeSocket):
         default=False
     )
 
-    # Blender: draw socket's color
     def draw_color(self, b_context, node):
+        """
+        Blender: Draw socket's color.
+        """
         return [0.0, 0.0, 0.0, 1.0]
 
-    # Blender: draw socket
     def draw(self, b_context, b_layout, node, text):
-        if node.bl_idname != 'PH_OUTPUT':
+        """
+        Blender: Draw socket.
+        """
+        if not self.link_only:
             if self.is_linked or self.is_output:
                 b_layout.label(text=text)
             else:
@@ -38,6 +42,9 @@ class PhMaterialNodeSocket(bpy.types.NodeSocket):
             b_layout.label(text=text)
 
     def get_from_res_name(self, b_material, link_index=0):
+        """
+        Get the previously created SDL resource name from an input link.
+        """
         if not self.links:
             return None
 
@@ -66,6 +73,9 @@ class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
 
 @blender.register_class
 class PhFloatValueSocket(PhMaterialNodeSocket):
+    """
+    General float value.
+    """
     bl_idname = 'PH_FLOAT_VALUE_SOCKET'
     bl_label = "Value"
 
@@ -83,6 +93,9 @@ class PhFloatValueSocket(PhMaterialNodeSocket):
 
 @blender.register_class
 class PhFloatFactorSocket(PhMaterialNodeSocket):
+    """
+    Float value in the range [0, 1].
+    """
     bl_idname = 'PH_FLOAT_SOCKET'
     bl_label = "Factor"
 
@@ -100,6 +113,9 @@ class PhFloatFactorSocket(PhMaterialNodeSocket):
 
 @blender.register_class
 class PhColorSocket(PhMaterialNodeSocket):
+    """
+    General color value.
+    """
     bl_idname = 'PH_COLOR_SOCKET'
     bl_label = "Color"
 
@@ -111,6 +127,26 @@ class PhColorSocket(PhMaterialNodeSocket):
         max=1.0,
         subtype='COLOR',
         size=3
+    )
+
+    def draw_color(self, b_context, node):
+        return [0.7, 0.7, 0.1, 1.0]  # yellow
+
+
+@blender.register_class
+class PhColorSocketWithFloatDefault(PhMaterialNodeSocket):
+    """
+    General color value. This variant uses float as default value.
+    """
+    bl_idname = 'PH_COLOR_F_SOCKET'
+    bl_label = "Color"
+
+    default_value: bpy.props.FloatProperty(
+        name="Float",
+        default=0.5,
+        min=-1e32,
+        max=1e32,
+        subtype='NONE'
     )
 
     def draw_color(self, b_context, node):
@@ -200,15 +236,29 @@ class PhMaterialNode(bpy.types.Node):
 
     @classmethod
     def poll(cls, b_node_tree):
-        return b_node_tree.bl_idname == PhMaterialNodeTree.bl_idname
+        """
+        Blender: If non-null output is returned, the node type can be added to the tree.
+        """
+        return super().poll(b_node_tree) and b_node_tree.bl_idname == PhMaterialNodeTree.bl_idname
 
-    # Blender: called when node created
     def init(self, b_context):
+        """
+        Blender: Initialize a new instance of this node. Called when node created.
+        """
+        super().init(b_context)
+
+    def draw_buttons(self, b_context, b_layout):
+        """
+        Blender: Draw node buttons. Draw properties in node.
+        """
         pass
 
-    # Blender: draw properties in node
-    def draw_buttons(self, b_context, b_layout):
-        pass
+    def draw_label(self):
+        """
+        Blender: Returns a dynamic label string.
+        """
+        return self.bl_label
+
 
 
 class PhMaterialOutputNode(PhMaterialNode):

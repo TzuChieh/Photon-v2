@@ -16,8 +16,10 @@ public:
 	inline static constexpr std::string_view UNIT_INDENT = "    ";
 
 public:
-	inline PythonMethod() = default;
+	PythonMethod() = default;
 	explicit PythonMethod(std::string methodName);
+
+	void setDoc(std::string doc);
 
 	void addInput(
 		std::string variableName, 
@@ -33,6 +35,7 @@ public:
 	void endIndent();
 
 	const std::string& getMethodName() const;
+	const std::string& getDoc() const;
 
 	/*!
 	@param indentAmount Additional indent to apply when generating code.
@@ -40,7 +43,8 @@ public:
 	std::string genCode(std::size_t indentAmount = 0) const;
 
 private:
-	std::string m_methodName;
+	std::string              m_methodName;
+	std::string              m_doc;
 	std::vector<std::string> m_codeLines;
 	std::vector<std::string> m_inputs;
 
@@ -54,6 +58,11 @@ private:
 inline const std::string& PythonMethod::getMethodName() const
 {
 	return m_methodName;
+}
+
+inline const std::string& PythonMethod::getDoc() const
+{
+	return m_doc;
 }
 
 template<typename... Args>

@@ -14,15 +14,16 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(MathImage, Image);
 
-MathImage::MathImage() :
+MathImage::MathImage()
 
-	Image(),
+	: Image()
 
-	m_mathOp       (EMathImageOp::Add), 
-	m_operandImage (nullptr), 
-	m_scalarInput  (0.0),
-	m_imageInput0  (nullptr),
-	m_imageInput1  (nullptr)
+	, m_mathOp      (EMathImageOp::Add)
+	, m_operandImage(nullptr)
+	, m_scalarInput0(0.0)
+	, m_scalarInput1(0.0)
+	, m_imageInput0 (nullptr)
+	, m_imageInput1 (nullptr)
 {}
 
 std::shared_ptr<TTexture<Image::ArrayType>> MathImage::genNumericTexture(
@@ -49,7 +50,7 @@ std::shared_ptr<TTexture<Image::ArrayType>> MathImage::genNumericTexture(
 		{
 			using AddFunc = texfunc::TAddConstant<Image::ArrayType, float64, Image::ArrayType>;
 			return std::make_shared<TUnaryTextureOperator<Image::ArrayType, Image::ArrayType, AddFunc>>(
-				operandTexture, AddFunc(m_scalarInput));
+				operandTexture, AddFunc(m_scalarInput0));
 		}
 	}
 
@@ -65,7 +66,7 @@ std::shared_ptr<TTexture<Image::ArrayType>> MathImage::genNumericTexture(
 		{
 			using MulFunc = texfunc::TMultiplyConstant<Image::ArrayType, float64, Image::ArrayType>;
 			return std::make_shared<TUnaryTextureOperator<Image::ArrayType, Image::ArrayType, MulFunc>>(
-				operandTexture, MulFunc(m_scalarInput));
+				operandTexture, MulFunc(m_scalarInput0));
 		}
 	}
 
@@ -97,7 +98,7 @@ std::shared_ptr<TTexture<math::Spectrum>> MathImage::genColorTexture(
 		{
 			using AddFunc = texfunc::TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 			return std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, AddFunc>>(
-				operandTexture, AddFunc(static_cast<math::ColorValue>(m_scalarInput)));
+				operandTexture, AddFunc(static_cast<math::ColorValue>(m_scalarInput0)));
 		}
 	}
 
@@ -112,7 +113,7 @@ std::shared_ptr<TTexture<math::Spectrum>> MathImage::genColorTexture(
 		{
 			using MulFunc = texfunc::TMultiplyConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 			return std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, MulFunc>>(
-				operandTexture, MulFunc(static_cast<math::ColorValue>(m_scalarInput)));
+				operandTexture, MulFunc(static_cast<math::ColorValue>(m_scalarInput0)));
 		}
 	}
 
@@ -133,9 +134,15 @@ MathImage& MathImage::setOperandImage(std::shared_ptr<Image> operand)
 	return *this;
 }
 
-MathImage& MathImage::setScalarInput(const float64 value)
+MathImage& MathImage::setScalarInput0(const float64 value)
 {
-	m_scalarInput = value;
+	m_scalarInput0 = value;
+	return *this;
+}
+
+MathImage& MathImage::setScalarInput1(const float64 value)
+{
+	m_scalarInput1 = value;
 	return *this;
 }
 

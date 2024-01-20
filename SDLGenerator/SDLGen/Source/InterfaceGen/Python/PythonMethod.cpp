@@ -22,6 +22,11 @@ PythonMethod::PythonMethod(std::string methodName)
 	addInput("self");
 }
 
+void PythonMethod::setDoc(std::string doc)
+{
+	m_doc = doc;
+}
+
 void PythonMethod::addInput(
 	std::string variableName,
 	std::string defaultArgument,
@@ -87,6 +92,12 @@ std::string PythonMethod::genCode(const std::size_t indentAmount) const
 
 	code += std::format("{}def {}({}):\n", 
 		indention, m_methodName, inputList);
+
+	if(!m_doc.empty())
+	{
+		code += std::format("{}{}\"\"\"\n{}{}{}\n{}{}\"\"\"\n",
+			indention, UNIT_INDENT, indention, UNIT_INDENT, m_doc, indention, UNIT_INDENT);
+	}
 
 	if(!m_codeLines.empty())
 	{
