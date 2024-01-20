@@ -9,6 +9,7 @@ namespace ph
 
 class SurfaceOptics;
 class VolumeOptics;
+class Emitter;
 
 class SurfaceHit final
 {
@@ -27,6 +28,11 @@ public:
 	math::Vector3R getPosition() const;
 	math::Vector3R getShadingNormal() const;
 	math::Vector3R getGeometryNormal() const;
+
+	const Emitter* getSurfaceEmitter() const;
+	const SurfaceOptics* getSurfaceOptics() const;
+	const VolumeOptics* getInteriorOptics() const;
+	const VolumeOptics* getExteriorOptics() const;
 
 private:
 	Ray       m_incidentRay;

@@ -17,6 +17,7 @@ namespace
 
 inline const PrimitiveMetadata* get_primitive_metadata(const SurfaceHit& surfaceHit)
 {
+	// Does not make sense to call this method if `surfaceHit` hits nothing
 	PH_ASSERT(surfaceHit.getDetail().getPrimitive());
 
 	return surfaceHit.getDetail().getPrimitive()->getMetadata();
@@ -41,17 +42,44 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 
 bool SurfaceHit::hasSurfaceOptics() const
 {
-	return get_primitive_metadata(*this)->getSurface().getOptics();
+	auto const meta = get_primitive_metadata(*this);
+	return meta ? meta->getSurface().getOptics() : false;
 }
 
 bool SurfaceHit::hasInteriorOptics() const
 {
-	return get_primitive_metadata(*this)->getInterior().getOptics();
+	auto const meta = get_primitive_metadata(*this);
+	return meta ? meta->getInterior().getOptics() : false;
 }
 
 bool SurfaceHit::hasExteriorOptics() const
 {
-	return get_primitive_metadata(*this)->getExterior().getOptics();
+	auto const meta = get_primitive_metadata(*this);
+	return meta ? meta->getExterior().getOptics() : false;
+}
+
+const Emitter* SurfaceHit::getSurfaceEmitter() const
+{
+	auto const meta = get_primitive_metadata(*this);
+	return meta ? meta->getSurface().getEmitter() : nullptr;
+}
+
+const SurfaceOptics* SurfaceHit::getSurfaceOptics() const
+{
+	auto const meta = get_primitive_metadata(*this);
+	return meta ? meta->getSurface().getOptics() : nullptr;
+}
+
+const VolumeOptics* SurfaceHit::getInteriorOptics() const
+{
+	auto const meta = get_primitive_metadata(*this);
+	return meta ? meta->getInterior().getOptics() : nullptr;
+}
+
+const VolumeOptics* SurfaceHit::getExteriorOptics() const
+{
+	auto const meta = get_primitive_metadata(*this);
+	return meta ? meta->getExterior().getOptics() : nullptr;
 }
 
 }// end namespace ph

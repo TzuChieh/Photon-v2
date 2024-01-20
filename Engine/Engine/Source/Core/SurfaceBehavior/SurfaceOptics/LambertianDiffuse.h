@@ -9,6 +9,9 @@
 namespace ph
 {
 
+/*! @brief Lambertian diffuse model.
+This model is double-sided.
+*/
 class LambertianDiffuse : public SurfaceOptics
 {
 public:

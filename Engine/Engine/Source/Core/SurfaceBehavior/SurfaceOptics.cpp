@@ -18,6 +18,13 @@ SurfaceOptics::~SurfaceOptics() = default;
 
 void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 {
+	if(!eval.context.sidedness.isSidednessAgreed(eval.inputs.getX(), eval.inputs.getL()) ||
+	   !eval.context.sidedness.isSidednessAgreed(eval.inputs.getX(), eval.inputs.getV()))
+	{
+		eval.outputs.setMeasurability(false);
+		return;
+	}
+
 	calcBsdf(
 		eval.context,
 		eval.inputs,
@@ -26,15 +33,35 @@ void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 
 void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlow) const
 {
+	if(!sample.context.sidedness.isSidednessAgreed(sample.inputs.getX(), sample.inputs.getV()))
+	{
+		sample.outputs.setMeasurability(false);
+		return;
+	}
+
 	calcBsdfSample(
 		sample.context,
 		sample.inputs, 
 		sampleFlow,
 		sample.outputs);
+
+	if(sample.outputs.isMeasurable() &&
+	   !sample.context.sidedness.isSidednessAgreed(sample.inputs.getX(), sample.outputs.getL()))
+	{
+		sample.outputs.setMeasurability(false);
+		return;
+	}
 }
 
 void SurfaceOptics::calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const
 {
+	if(!pdfQuery.context.sidedness.isSidednessAgreed(pdfQuery.inputs.getX(), pdfQuery.inputs.getL()) ||
+	   !pdfQuery.context.sidedness.isSidednessAgreed(pdfQuery.inputs.getX(), pdfQuery.inputs.getV()))
+	{
+		pdfQuery.outputs.setSampleDirPdfW(0);
+		return;
+	}
+
 	calcBsdfSamplePdfW(
 		pdfQuery.context,
 		pdfQuery.inputs,

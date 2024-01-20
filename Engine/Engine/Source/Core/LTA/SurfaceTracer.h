@@ -10,10 +10,12 @@
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Core/Ray.h"
 #include "Math/TVector3.h"
+#include "Math/Color/Spectrum.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Core/Emitter/Emitter.h"
 
 #include <Common/assertion.h>
 
@@ -24,6 +26,10 @@ namespace ph { class SampleFlow; }
 namespace ph::lta
 {
 
+/*! @brief Common operations for surface tracing.
+This class also handles many subtle cases for surface tracing. You may take the implementations here
+as reference if a more fine-grained control is needed for a custom operation.
+*/
 class SurfaceTracer final
 {
 public:
@@ -31,7 +37,7 @@ public:
 
 	/*!
 	@return out_X The next surface.
-	@return Is the next surface found.
+	@return Is the next surface found. Outputs are not usable if `false` is returned.
 	*/
 	bool traceNextSurface(
 		const Ray&                ray, 
@@ -39,7 +45,7 @@ public:
 		SurfaceHit*               out_X) const;
 
 	/*! @brief Uses BSDF sample to trace the next surface.
-	@return Is the next surface found.
+	@return Is the next surface found. Outputs are not usable if `false` is returned.
 	*/
 	bool bsdfSampleNextSurface(
 		BsdfSampleQuery& bsdfSample,
@@ -52,7 +58,8 @@ public:
 	bool doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const;
 
 	/*!
-	@return Whether the BSDF sample has potential to contribute.
+	@return Whether the BSDF sample has potential to contribute. Outputs are not usable if
+	`false` is returned.
 	*/
 	bool doBsdfSample(
 		BsdfSampleQuery& bsdfSample, 
@@ -68,11 +75,20 @@ public:
 	@return Whether the PDF is non-zero and has a sane value.
 	*/
 	bool doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const;
+
+	/*!
+	@param out_Le The sampled emitted energy of `Xe` in the opposite direction of incident ray. Does not
+	contain any weighting.
+	@return Whether the sample has potential to contribute. Outputs are not usable if `false`
+	is returned.
+	*/
+	bool sampleZeroBounceEmission(
+		const SurfaceHit&         Xe, 
+		const SidednessAgreement& sidedness,
+		math::Spectrum*           out_Le) const;
 	
 private:
 	const Scene& getScene() const;
-
-	static const SurfaceOptics* getSurfaceOptics(const SurfaceHit& X);
 	
 	const Scene* m_scene;
 };
@@ -90,7 +106,6 @@ inline bool SurfaceTracer::traceNextSurface(
 	const SidednessAgreement& sidedness,
 	SurfaceHit* const         out_X) const
 {
-	PH_ASSERT(m_scene);
 	PH_ASSERT(out_X);
 
 	HitProbe probe;
@@ -121,21 +136,16 @@ inline bool SurfaceTracer::bsdfSampleNextSurface(
 
 inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const
 {
-	PH_ASSERT(m_scene);
-
-	const SurfaceHit&         X         = bsdfSample.inputs.getX();
-	const SidednessAgreement& sidedness = bsdfSample.context.sidedness;
-
-	if(!X.hasSurfaceOptics() || 
-	   !sidedness.isSidednessAgreed(X, bsdfSample.inputs.getV()))
+	const SurfaceHit& X = bsdfSample.inputs.getX();
+	const SurfaceOptics* const optics = X.getSurfaceOptics();
+	if(!optics)
 	{
 		return false;
 	}
 
-	getSurfaceOptics(X)->calcBsdfSample(bsdfSample, sampleFlow);
+	optics->calcBsdfSample(bsdfSample, sampleFlow);
 
-	return bsdfSample.outputs.isMeasurable() &&
-	       sidedness.isSidednessAgreed(X, bsdfSample.outputs.getL());
+	return bsdfSample.outputs.isMeasurable();
 }
 
 inline bool SurfaceTracer::doBsdfSample(
@@ -161,40 +171,51 @@ inline bool SurfaceTracer::doBsdfSample(
 
 inline bool SurfaceTracer::doBsdfEvaluation(BsdfEvalQuery& bsdfEval) const
 {
-	PH_ASSERT(m_scene);
-
-	const SurfaceHit&         X         = bsdfEval.inputs.getX();
-	const SidednessAgreement& sidedness = bsdfEval.context.sidedness;
-
-	if(!X.hasSurfaceOptics() ||
-	   !sidedness.isSidednessAgreed(X, bsdfEval.inputs.getV()) ||
-	   !sidedness.isSidednessAgreed(X, bsdfEval.inputs.getL()))
+	const SurfaceHit& X = bsdfEval.inputs.getX();
+	const SurfaceOptics* const optics = X.getSurfaceOptics();
+	if(!optics)
 	{
 		return false;
 	}
 
-	getSurfaceOptics(X)->calcBsdf(bsdfEval);
+	optics->calcBsdf(bsdfEval);
 
 	return bsdfEval.outputs.isMeasurable();
 }
 
 inline bool SurfaceTracer::doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const
 {
-	PH_ASSERT(m_scene);
-
-	const SurfaceHit&         X         = bsdfPdfQuery.inputs.getX();
-	const SidednessAgreement& sidedness = bsdfPdfQuery.context.sidedness;
-
-	if(!X.hasSurfaceOptics() ||
-	   !sidedness.isSidednessAgreed(X, bsdfPdfQuery.inputs.getV()) ||
-	   !sidedness.isSidednessAgreed(X, bsdfPdfQuery.inputs.getL()))
+	const SurfaceHit& X = bsdfPdfQuery.inputs.getX();
+	const SurfaceOptics* const optics = X.getSurfaceOptics();
+	if(!optics)
 	{
 		return false;
 	}
 
-	getSurfaceOptics(X)->calcBsdfSamplePdfW(bsdfPdfQuery);
+	optics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 	return bsdfPdfQuery.outputs.getSampleDirPdfW() > 0.0_r;
+}
+
+inline bool SurfaceTracer::sampleZeroBounceEmission(
+	const SurfaceHit&         Xe, 
+	const SidednessAgreement& sidedness,
+	math::Spectrum* const     out_Le) const
+{
+	PH_ASSERT(out_Le);
+
+	const auto* const emitter = Xe.getSurfaceEmitter();
+
+	// Sidedness agreement between real geometry and shading normal
+	// (do not check for hemisphere--emitter may be back-emitting and this is judged by the emitter)
+	if(!emitter ||
+	   !sidedness.isSidednessAgreed(Xe, Xe.getIncidentRay().getDirection()))
+	{
+		return false;
+	}
+
+	emitter->evalEmittedRadiance(Xe, out_Le);
+	return true;
 }
 
 inline const Scene& SurfaceTracer::getScene() const
@@ -202,15 +223,6 @@ inline const Scene& SurfaceTracer::getScene() const
 	PH_ASSERT(m_scene);
 
 	return *m_scene;
-}
-
-inline const SurfaceOptics* SurfaceTracer::getSurfaceOptics(const SurfaceHit& X)
-{
-	// Does not make sense to call this method if `X` hits nothing
-	PH_ASSERT(X.getDetail().getPrimitive());
-
-	const auto* const meta = X.getDetail().getPrimitive()->getMetadata();
-	return meta ? meta->getSurface().getOptics() : nullptr;
 }
 
 }// end namespace ph::lta

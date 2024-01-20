@@ -22,8 +22,19 @@ public:
 
 	virtual ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const = 0;
 
+	/*! @brief Executes a BSDF evaluation query.
+	Respects sidedness policy.
+	*/
 	void calcBsdf(BsdfEvalQuery& eval) const;
+
+	/*! @brief Executes a BSDF sample query.
+	Respects sidedness policy.
+	*/
 	void calcBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlow) const;
+
+	/*! @brief Executes a BSDF sample PDF query.
+	Respects sidedness policy.
+	*/
 	void calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const;
 
 	SurfacePhenomena getAllPhenomena() const;
@@ -36,17 +47,29 @@ protected:
 	SurfaceElemental m_numElementals;
 
 private:
+	/*!
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
 	virtual void calcBsdf(
 		const BsdfQueryContext& ctx,
 		const BsdfEvalInput&    in,
 		BsdfEvalOutput&         out) const = 0;
 
+	/*!
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
 	virtual void calcBsdfSample(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
 		SampleFlow&             sampleFlow,
 		BsdfSampleOutput&       out) const = 0;
 
+	/*!
+	Implementations do not need to care whether the input or output vectors are in a geometrically
+	possible configuration (e.g., sidedness according to `ESidednessPolicy`).
+	*/
 	virtual void calcBsdfSamplePdfW(
 		const BsdfQueryContext& ctx,
 		const BsdfPdfInput&     in,

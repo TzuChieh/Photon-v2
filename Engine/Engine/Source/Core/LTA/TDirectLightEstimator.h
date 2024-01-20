@@ -29,7 +29,9 @@ public:
 
 	/*! @brief Sample lighting using BSDF's suggestion.
 	A light sampling technique that is always valid.
-	@return Whether output parameters are usable. If `false` is returned, the sample should still
+	@param out_Le The sampled emitted energy of another surface. Does not contain any weighting.
+	@param out_Xe The surface that is emitting energy.
+	@return Whether outputs are usable. If `false` is returned, the sample should still
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
 	bool bsdfSampleEmission(
@@ -43,7 +45,9 @@ public:
 	/*! @brief Sample lighting using next-event estimation.
 	This light sampling technique may not always be valid. Calling this method when `isNeeSamplable()`
 	returns `false` is an error.
-	@return Whether output parameters are usable. If `false` is returned, the sample should still
+	@param out_Le The sampled emitted energy of another surface. Does not contain any weighting.
+	@param out_Xe The surface that is emitting energy.
+	@return Whether outputs are usable. If `false` is returned, the sample should still
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
 	bool neeSampleEmission(
@@ -56,7 +60,9 @@ public:
 
 	/*! @brief Sample lighting by combining the techniques used by `bsdfSample()` and `neeSample()`.
 	A light sampling technique that is always valid.
-	@return Whether output parameters are usable. If `false` is returned, the sample should still
+	@param out_Lo The sampled outgoing energy from `X`. The sample is properly weighted with any
+	required BSDFs and PDFs.
+	@return Whether outputs are usable. If `false` is returned, the sample should still
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
 	bool bsdfSampleOutgoingWithNee(
@@ -82,10 +88,6 @@ public:
 
 private:
 	const Scene& getScene() const;
-
-	static const Primitive& getPrimitive(const SurfaceHit& X);
-	static const SurfaceOptics* getSurfaceOptics(const SurfaceHit& X);
-	static const Emitter* getEmitter(const SurfaceHit& X);
 
 	const Scene* m_scene;
 };

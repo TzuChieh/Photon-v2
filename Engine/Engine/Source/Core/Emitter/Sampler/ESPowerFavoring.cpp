@@ -10,6 +10,8 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
+#include <cmath>
+
 namespace ph
 {
 
@@ -77,7 +79,8 @@ real ESPowerFavoring::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vect
 	PH_ASSERT(result != m_emitterToIndexMap.end());
 	const real pickPdf = m_distribution.pdfDiscrete(result->second);
 
-	return samplePdfW * pickPdf;
+	const auto directPdfW = samplePdfW * pickPdf;
+	return std::isfinite(directPdfW) ? directPdfW : 0;
 }
 
 }// end namespace ph

@@ -10,6 +10,7 @@
 #include <Common/assertion.h>
 
 #include <iostream>
+#include <cmath>
 
 namespace ph
 {
@@ -62,7 +63,8 @@ real ESUniformRandom::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vect
 	PH_ASSERT(hitEmitter);
 	const real samplePdfW = hitEmitter->calcDirectSamplePdfW(emitPos, targetPos);
 
-	return pickPdfW * samplePdfW;
+	const auto directPdfW = pickPdfW * samplePdfW;
+	return std::isfinite(directPdfW) ? directPdfW : 0;
 }
 
 }// end namespace ph

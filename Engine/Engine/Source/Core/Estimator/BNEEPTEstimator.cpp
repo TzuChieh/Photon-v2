@@ -16,6 +16,7 @@
 #include "Core/LTA/TMis.h"
 #include "Core/LTA/TDirectLightEstimator.h"
 #include "Core/LTA/RussianRoulette.h"
+#include "Core/LTA/SurfaceTracer.h"
 #include "Core/Estimator/Integrand.h"
 
 #include <Common/assertion.h>
@@ -42,26 +43,26 @@ void BNEEPTEstimator::estimate(
 {
 	PH_SCOPED_TIMER(FullEstimation);
 
-	const Scene&    scene    = integrand.getScene();
-	const Receiver& receiver = integrand.getReceiver();
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
 
-	const lta::TDirectLightEstimator<lta::ESidednessPolicy::Strict> directLight{&scene};
+	const lta::TDirectLightEstimator<sidednessPolicy> directLight{&integrand.getScene()};
 	const lta::TMis<lta::EMisStyle::Power> mis{};
 	const lta::RussianRoulette rr{};
+	const lta::SurfaceTracer surfaceTracer{&integrand.getScene()};
+	const lta::SidednessAgreement sidedness{sidednessPolicy};
+	const BsdfQueryContext bsdfContext{sidednessPolicy};
 
-	// common variables
+	// Common variables
 	math::Spectrum accuRadiance(0);
 	math::Spectrum accuLiWeight(1);
-	HitProbe       hitProbe;
 	SurfaceHit     surfaceHit;
-	math::Vector3R V;
 
-	// reversing the ray for backward tracing
+	// Reversing the ray for backward tracing
 	Ray tracingRay = Ray(ray).reverse();
-	tracingRay.setMinT(0.0001_r);// HACK: hard-coded number
+	tracingRay.setMinT(lta::self_intersect_delta);
 	tracingRay.setMaxT(std::numeric_limits<real>::max());
 
-	if(!scene.isIntersecting(tracingRay, &hitProbe))
+	if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &surfaceHit))
 	{
 		out_estimation[m_estimationIndex] = accuRadiance;
 		return;
@@ -70,42 +71,23 @@ void BNEEPTEstimator::estimate(
 	// 0-bounce direct lighting
 	{
 		PH_SCOPED_TIMER(ZeroBounceDirect);
-
-		surfaceHit = SurfaceHit(tracingRay, hitProbe);
-
-		// sidedness agreement between real geometry and shading normal
-		V = tracingRay.getDirection().mul(-1.0_r);
-		if(surfaceHit.getGeometryNormal().dot(V) * surfaceHit.getShadingNormal().dot(V) <= 0.0_r)
+		
+		math::Spectrum radianceLi;
+		if(surfaceTracer.sampleZeroBounceEmission(surfaceHit, sidedness, &radianceLi))
 		{
-			out_estimation[m_estimationIndex] = accuRadiance;
-			return;
-		}
-
-		const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
-		const SurfaceBehavior&   surfaceBehavior = metadata->getSurface();
-		if(surfaceBehavior.getEmitter())
-		{
-			math::Spectrum radianceLi;
-			surfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 			accuRadiance.addLocal(radianceLi);
 		}
 	}
 
-	// ray bouncing around the scene (1 ~ N bounces)
+	// Ray bouncing around the scene (1 ~ N bounces)
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
 	{
-		// FIXME: too hacky
-		bool canDoNEE = true;
-		{
-			const PrimitiveMetadata* me = surfaceHit.getDetail().getPrimitive()->getMetadata();
-			const SurfaceOptics* op = me->getSurface().getOptics();
-			if(op->getAllPhenomena().hasAny({ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission}))
-			{
-				canDoNEE = false;
-			}
-		}
+		const math::Vector3R V = tracingRay.getDirection().mul(-1.0_r);
+		PH_ASSERT_MSG(V.isFinite(), V.toString());
 
-		// direct light sample
+		const bool canDoNEE = directLight.isNeeSamplable(surfaceHit);
+
+		// Direct light sample
 		{
 			PH_SCOPED_TIMER(DirectLightSampling);
 
@@ -117,18 +99,18 @@ void BNEEPTEstimator::estimate(
 				surfaceHit, sampleFlow,
 				&L, &directPdfW, &emittedRadiance))
 			{
-				const PrimitiveMetadata* metadata        = surfaceHit.getDetail().getPrimitive()->getMetadata();
-				const SurfaceBehavior&   surfaceBehavior = metadata->getSurface();
+				// With a contributing NEE sample, optics must present
+				const SurfaceOptics* surfaceOptics = surfaceHit.getSurfaceOptics();
+				PH_ASSERT(surfaceOptics);
 
-				BsdfEvalQuery bsdfEval;
+				BsdfEvalQuery bsdfEval(bsdfContext);
 				bsdfEval.inputs.set(surfaceHit, L, V);
-
-				surfaceBehavior.getOptics()->calcBsdf(bsdfEval);
+				surfaceOptics->calcBsdf(bsdfEval);
 				if(bsdfEval.outputs.isMeasurable())
 				{
-					BsdfPdfQuery bsdfPdfQuery;
+					BsdfPdfQuery bsdfPdfQuery(bsdfContext);
 					bsdfPdfQuery.inputs.set(bsdfEval);
-					surfaceBehavior.getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
+					surfaceOptics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 					const real misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
@@ -138,7 +120,7 @@ void BNEEPTEstimator::estimate(
 					weight = bsdfEval.outputs.getBsdf().mul(N.absDot(L));
 					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directPdfW);
 
-					// avoid excessive, negative weight and possible NaNs
+					// Avoid excessive, negative weight and possible NaNs
 					rationalClamp(weight);
 
 					accuRadiance.addLocal(emittedRadiance.mul(weight));
@@ -150,33 +132,22 @@ void BNEEPTEstimator::estimate(
 		{
 			PH_SCOPED_TIMER(BSDFAndIndirectLightSampling);
 
-			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-			const SurfaceBehavior*   surfaceBehavior = &(metadata->getSurface());
+			const SurfaceOptics* surfaceOptics = surfaceHit.getSurfaceOptics();
+			PH_ASSERT(surfaceOptics);
 
-			BsdfSampleQuery bsdfSample;
+			BsdfSampleQuery bsdfSample(bsdfContext);
 			bsdfSample.inputs.set(surfaceHit, V);
-
-			surfaceBehavior->getOptics()->calcBsdfSample(bsdfSample, sampleFlow);
-
-			const math::Vector3R N = surfaceHit.getShadingNormal();
-			const math::Vector3R L = bsdfSample.outputs.getL();
-
-			// blackness check & sidedness agreement between real geometry and shading normal
-			//
-			if(!bsdfSample.outputs.isMeasurable() ||
-			   surfaceHit.getGeometryNormal().dot(L) * surfaceHit.getShadingNormal().dot(L) <= 0.0_r)
+			surfaceOptics->calcBsdfSample(bsdfSample, sampleFlow);
+			if(!bsdfSample.outputs.isMeasurable())
 			{
 				break;
 			}
 
-			// DEBUG
-			if(!L.isFinite())
-			{
-				std::cerr << surfaceBehavior->getOptics()->toString() << std::endl;
-				return;
-			}
+			const math::Vector3R N = surfaceHit.getShadingNormal();
+			const math::Vector3R L = bsdfSample.outputs.getL();
 
-			PH_ASSERT(L.isFinite());
+			PH_ASSERT_MSG(L.isFinite(),
+				"L = " + L.toString() + ", from " + surfaceOptics->toString());
 
 			//BsdfPdfQuery bsdfPdfQuery;
 			//bsdfPdfQuery.inputs.set(bsdfSample);
@@ -192,45 +163,41 @@ void BNEEPTEstimator::estimate(
 			//	break;
 			//}
 
-			// trace a ray using BSDF's suggestion
-			//
+			// Trace a ray using BSDF's suggestion
 			tracingRay.setOrigin(surfaceHit.getPosition());
 			tracingRay.setDirection(L);
-			if(!scene.isIntersecting(tracingRay, &hitProbe))
-			{
-				break;
-			}
-			const SurfaceHit Xe = SurfaceHit(tracingRay, hitProbe);
-			if(Xe.getGeometryNormal().dot(L) * Xe.getShadingNormal().dot(L) <= 0.0_r)
+			SurfaceHit nextSurfaceHit;
+			if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &nextSurfaceHit))
 			{
 				break;
 			}
 
-			// FIXME: this is dangerous... setting metadata to new hit point
-			metadata = Xe.getDetail().getPrimitive()->getMetadata();
-
-			const Emitter* emitter = metadata->getSurface().getEmitter();
-			if(emitter)
+			const Emitter* nextEmitter = nextSurfaceHit.getSurfaceEmitter();
+			if(nextEmitter)
 			{
 				math::Spectrum radianceLe;
-				emitter->evalEmittedRadiance(Xe, &radianceLe);
+				nextEmitter->evalEmittedRadiance(nextSurfaceHit, &radianceLe);
 
 				// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
 				// deltas and MIS for non-deltas
 
-				// do MIS
+				// Do MIS (BSDF sample + NEE)
 				if(canDoNEE && !radianceLe.isZero())
 				{
 					// TODO: <directLightPdfW> might be 0, should we stop using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
+					// `directLightPdfW` can be 0 (e.g., delta BSDF) and this is fine--MIS weighting
+					// still works. No need to test occlusion again as we already done that.
 					const real directLightPdfW = directLight.neeSamplePdfWUnoccluded(
-						surfaceHit, Xe);
+						surfaceHit, nextSurfaceHit);
 
 					BsdfPdfQuery bsdfPdfQuery;
 					bsdfPdfQuery.inputs.set(bsdfSample);
-					surfaceBehavior->getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
+					surfaceOptics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
+					// `canDoNEE` is already checked, but `bsdfSamplePdfW` can still be 0 (e.g.,
+					// sidedness policy or by the distribution itself).
 					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 					if(bsdfSamplePdfW > 0)
 					{
@@ -245,7 +212,7 @@ void BNEEPTEstimator::estimate(
 						accuRadiance.addLocal(radianceLe.mulLocal(weight));
 					}
 				}
-				// not do MIS
+				// Not do MIS (BSDF sample only)
 				else
 				{
 					math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
@@ -272,8 +239,7 @@ void BNEEPTEstimator::estimate(
 				}
 			}
 
-			// avoid excessive, negative weight and possible NaNs
-			//
+			// Avoid excessive, negative weight and possible NaNs
 			rationalClamp(accuLiWeight);
 
 			if(accuLiWeight.isZero())
@@ -281,18 +247,12 @@ void BNEEPTEstimator::estimate(
 				break;
 			}
 
-			V = tracingRay.getDirection().mul(-1.0_r);
-			PH_ASSERT_MSG(V.isFinite(), V.toString());
-
-			surfaceHit = Xe;
+			surfaceHit = nextSurfaceHit;
 		}
 	}// end for each bounces
 
-	// DEBUG nan
-	if(!accuRadiance.isFinite())
-	{
-		PH_ASSERT(false);
-	}
+	PH_ASSERT_MSG(accuLiWeight.isFinite() && accuRadiance.isFinite(),
+		"accuLiWeight = " + accuLiWeight.toString() + ", accuRadiance = " + accuRadiance.toString());
 
 	out_estimation[m_estimationIndex] = accuRadiance;
 }

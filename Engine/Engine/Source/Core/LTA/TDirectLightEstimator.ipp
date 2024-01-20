@@ -52,7 +52,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleEmission(
 		return false;
 	}
 
-	const Emitter* emitter = getEmitter(Xe);
+	const Emitter* emitter = Xe.getSurfaceEmitter();
 	if(!emitter)
 	{
 		return false;
@@ -166,7 +166,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 		SurfaceHit Xe;
 		if(bsdfSampleEmission(X, sampleFlow, &L, &pdfAppliedBsdf, &bsdfLe, &Xe))
 		{
-			const SurfaceOptics* optics = getSurfaceOptics(X);
+			const SurfaceOptics* optics = X.getSurfaceOptics();
 			PH_ASSERT(optics);
 
 			// If NEE cannot sample the same light from `X` (due to delta BSDF, etc.), then we
@@ -176,13 +176,15 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 			// MIS
 			if(isNeeSamplable(X))
 			{
-				// No need to test occlusion again as `bsdfSample()` already done that
+				// No need to test occlusion again as `bsdfSampleEmission()` already done that
 				const real neePdfW = neeSamplePdfWUnoccluded(X, Xe);
 
 				BsdfPdfQuery bsdfPdfQuery{BsdfQueryContext(POLICY)};
 				bsdfPdfQuery.inputs.set(X, L, V);
 				optics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
+				// `isNeeSamplable()` is already checked, but `bsdfSamplePdfW` can still be 0 (e.g.,
+				// sidedness policy or by the distribution itself).
 				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 				if(bsdfSamplePdfW > 0)
 				{
@@ -224,7 +226,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 			// no problem doing the same. No need to consider delta light sources as Photon do not
 			// have them.
 
-			const SurfaceOptics* optics = getSurfaceOptics(X);
+			const SurfaceOptics* optics = X.getSurfaceOptics();
 			PH_ASSERT(optics);
 
 			BsdfEvalQuery bsdfEval{BsdfQueryContext(POLICY)};
@@ -268,9 +270,8 @@ inline real TDirectLightEstimator<POLICY>::neeSamplePdfWUnoccluded(
 template<ESidednessPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::isNeeSamplable(const SurfaceHit& X) const
 {
-	const SurfaceOptics* optics = getSurfaceOptics(X);
-	return optics && optics->getAllPhenomena().hasNone(
-		{ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission});
+	const SurfaceOptics* optics = X.getSurfaceOptics();
+	return optics && optics->getAllPhenomena().hasNo(DELTA_SURFACE_PHENOMENA);
 }
 
 template<ESidednessPolicy POLICY>
@@ -279,29 +280,6 @@ inline const Scene& TDirectLightEstimator<POLICY>::getScene() const
 	PH_ASSERT(m_scene);
 
 	return *m_scene;
-}
-
-template<ESidednessPolicy POLICY>
-inline const Primitive& TDirectLightEstimator<POLICY>::getPrimitive(const SurfaceHit& X)
-{
-	// Does not make sense to call this method if `X` hits nothing
-	PH_ASSERT(X.getDetail().getPrimitive());
-
-	return *(X.getDetail().getPrimitive());
-}
-
-template<ESidednessPolicy POLICY>
-inline const SurfaceOptics* TDirectLightEstimator<POLICY>::getSurfaceOptics(const SurfaceHit& X)
-{
-	const PrimitiveMetadata* meta = getPrimitive(X).getMetadata();
-	return meta ? meta->getSurface().getOptics() : nullptr;
-}
-
-template<ESidednessPolicy POLICY>
-inline const Emitter* TDirectLightEstimator<POLICY>::getEmitter(const SurfaceHit& X)
-{
-	const PrimitiveMetadata* meta = getPrimitive(X).getMetadata();
-	return meta ? meta->getSurface().getEmitter() : nullptr;
 }
 
 }// end namespace ph::lta

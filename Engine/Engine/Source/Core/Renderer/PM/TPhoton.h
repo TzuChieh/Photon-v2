@@ -46,6 +46,10 @@ protected:
 	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TPhoton);
 };
 
+/*!
+Given a valid set of target point's evaluation attributes (`Ng`, `Ns`, `L`, `V`), checks whether
+`photon` is usable under the `sidedness` constraint.
+*/
 template<CPhoton Photon>
 inline bool accept_photon_by_surface_topology(
 	const Photon& photon,
