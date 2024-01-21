@@ -255,15 +255,15 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
 
     bpy.types.Scene.ph_render_integrator_type = bpy.props.EnumProperty(
         items=[
-            ('BVPT', "Pure Path Tracing", "Slow but versatile"),
-            ('BNEEPT', "NEE Path Tracing", "Similar to pure PT but good on rendering small lights"),
-            ('VPM', "Photon Mapping", "Rough preview, fairly good at caustics"),
-            ('PPM', "Progressive Photon Mapping", "Good at complex lighting condition"),
-            ('SPPM', "Stochastic Progressive Photon Mapping", "Good at complex lighting condition"),
-            ('PPPM', "Probabilistic Progressive Photon Mapping", "Good at complex lighting condition. Consumes more memory."),
-            ('BVPTDL', "Pure Path Tracing (Direct Lighting)", ""),
-            ('ATTRIBUTE', "Attribute", ""),
-            ('CUSTOM', "Custom", "Directly input SDL commands for renderer.")
+            ('BVPT', "Pure Path Tracing", "Slow but versatile", 0),
+            ('BNEEPT', "NEE Path Tracing", "Similar to pure PT but good on rendering small lights", 1),
+            ('VPM', "Photon Mapping", "Rough preview, fairly good at caustics", 2),
+            ('PPM', "Progressive Photon Mapping", "Good at complex lighting condition", 3),
+            ('SPPM', "Stochastic Progressive Photon Mapping", "Good at complex lighting condition", 4),
+            ('PPPM', "Probabilistic Progressive Photon Mapping", "Good at complex lighting condition. Consumes more memory.", 5),
+            ('BVPTDL', "Pure Path Tracing (Direct Lighting)", "", 6),
+            ('ATTRIBUTE', "Attribute", "", 7),
+            ('CUSTOM', "Custom", "Directly input SDL commands for renderer.", 8)
         ],
         name="Rendering Method",
         description="Photon-v2's rendering methods",
@@ -272,12 +272,12 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
 
     bpy.types.Scene.ph_scheduler_type = bpy.props.EnumProperty(
         items=[
-            ('BULK', "Bulk", ""),
-            ('STRIPE', "Stripe", ""),
-            ('GRID', "Grid", ""),
-            ('TILE', "Tile", ""),
-            ('SPIRAL', "Spiral", ""),
-            ('SPIRAL_GRID', "Spiral-grid", "")
+            ('BULK', "Bulk", "", 0),
+            ('STRIPE', "Stripe", "", 1),
+            ('GRID', "Grid", "", 2),
+            ('TILE', "Tile", "", 3),
+            ('SPIRAL', "Spiral", "", 4),
+            ('SPIRAL_GRID', "Spiral-grid", "", 5)
         ],
         name="Scheduler",
         description="Order of rendering for pixels",
@@ -398,10 +398,10 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
 
     bpy.types.Scene.ph_render_sample_filter_type = bpy.props.EnumProperty(
         items=[
-            ('BOX', "Box", "box filter"),
-            ('GAUSSIAN', "Gaussian", "Gaussian filter"),
-            ('MN', "Mitchell-Netravali", "Mitchell-Netravali filter"),
-            ('BH', "Blackman-Harris", "Blackman-Harris filter")
+            ('BOX', "Box", "box filter", 0),
+            ('GAUSSIAN', "Gaussian", "Gaussian filter", 1),
+            ('MN', "Mitchell-Netravali", "Mitchell-Netravali filter", 2),
+            ('BH', "Blackman-Harris", "Blackman-Harris filter", 3)
         ],
         name="Sample Filter",
         description="Photon-v2's sample filter types",
@@ -410,9 +410,9 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
 
     bpy.types.Scene.ph_render_sample_source_type = bpy.props.EnumProperty(
         items=[
-            ('RANDOM', "Random", "Pseudorandom numbers"),
-            ('STRATIFIED', "Stratified", "Quasirandom numbers based on domain subdivision"),
-            ('HALTON', "Halton", "Quasirandom numbers that are well distributed over all dimensions")
+            ('RANDOM', "Random", "Pseudorandom numbers", 0),
+            ('STRATIFIED', "Stratified", "Quasirandom numbers based on domain subdivision", 1),
+            ('HALTON', "Halton", "Quasirandom numbers that are well distributed over all dimensions", 2)
         ],
         name="Sample Source",
         description="Photon-v2's sample source types",
@@ -434,9 +434,9 @@ class PH_RENDERING_PT_data_structures(PhRenderPanel):
 
     bpy.types.Scene.ph_top_level_accelerator = bpy.props.EnumProperty(
         items=[
-            ('BF', "Brute Force", "Iteratively test every object. Super-duper SLOW."),
-            ('BVH', "BVH", "Bounding volume hierarchy."),
-            ('IKD', "Indexed Kd-tree", "Indexed Kd-tree.")
+            ('BF', "Brute Force", "Iteratively test every object. Super-duper SLOW.", 0),
+            ('BVH', "BVH", "Bounding volume hierarchy.", 1),
+            ('IKD', "Indexed Kd-tree", "Indexed Kd-tree.", 2)
         ],
         name="Top Level Accelerator",
         description="Type of the first level of acceleration structures.",

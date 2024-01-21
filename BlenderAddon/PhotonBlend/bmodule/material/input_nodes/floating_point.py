@@ -21,9 +21,9 @@ class PhFloatValueInputNode(PhMaterialInputNode):
     # TODO: color space
     # usage: bpy.props.EnumProperty(
     #     items=[
-    #         ('RAW', "Raw", ""),
-    #         ('EMISSION', "Emission", ""),
-    #         ('REFLECTANCE', "Reflectance", "")
+    #         ('RAW', "Raw", "", 0),
+    #         ('EMISSION', "Emission", "", 1),
+    #         ('REFLECTANCE', "Reflectance", "", 2)
     #     ],
     #     name="Usage",
     #     description="What is the value for",

@@ -20,8 +20,8 @@ class PhSurfaceLayerNode(PhSurfaceMaterialNode):
 
     ior_type: bpy.props.EnumProperty(
         items=[
-            ("SCALAR", "Scalar", ""),
-            ("RGB", "RGB", "")
+            ("SCALAR", "Scalar", "", 0),
+            ("RGB", "RGB", "", 1)
         ],
         name="IoR Type",
         description="Type of IoR data used.",

@@ -21,6 +21,18 @@ concept CCanAdd = requires (A a, B b, C c)
 	c = a + b;
 };
 
+/*! @brief Check if instances of types can be subtracted.
+
+Checks whether the instances of the involved types can be subtracted
+and is capable of assigning the result into an instance of the third type,
+i.e., able to do C = A - B with corresponding instances.
+*/
+template<typename A, typename B, typename C>
+concept CCanSubtract = requires (A a, B b, C c)
+{
+	c = a - b;
+};
+
 /*! @brief Check if instances of types can be multiplied together.
 
 Checks whether the instances of the involved types can be multiplied together
@@ -31,6 +43,18 @@ template<typename A, typename B, typename C>
 concept CCanMultiply = requires (A a, B b, C c)
 {
 	c = a * b;
+};
+
+/*! @brief Check if instances of types can be divided.
+
+Checks whether the instances of the involved types can be divided
+and is capable of assigning the result into an instance of the third type,
+i.e., able to do C = A / B with corresponding instances.
+*/
+template<typename A, typename B, typename C>
+concept CCanDivide = requires (A a, B b, C c)
+{
+	c = a / b;
 };
 
 /*! @brief Check if object conversion can be made.

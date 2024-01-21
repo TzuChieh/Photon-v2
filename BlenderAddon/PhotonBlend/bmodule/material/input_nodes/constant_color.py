@@ -25,8 +25,8 @@ class PhConstantColorInputNode(PhMaterialInputNode):
     # TODO: color space
     # usage: bpy.props.EnumProperty(
     #     items=[
-    #         ('EMISSION', "Emission", ""),
-    #         ('REFLECTANCE', "Reflectance", "")
+    #         ('EMISSION', "Emission", "", 0),
+    #         ('REFLECTANCE', "Reflectance", "", 1)
     #     ],
     #     name="Usage",
     #     description="What is the color for",

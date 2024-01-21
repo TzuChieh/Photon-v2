@@ -19,6 +19,26 @@ The folder named `PhotonBlend` is a Blender add-on for Photon. **We support only
 * By enabling `Edit > Preferences > Interface > Developer Extras` and `Python Tooltips`, you gain more information for developer from Blender's UI.
 * To avoid opening Blender console manually everytime on startup, pass `-con` to the Blender executable.
 
+### Notes on `bpy.types.EnumProperty`
+
+When defining enum entries, you **must** specify a number for it. The number are unique value used as the identifier for the entry (stored in file data). If you do not do this, the original .blend file will break (by using wrong or invalid value) when entries are added/reordered/renamed. The following is a **wrong** example:
+
+```python
+items = [
+    ('entry', "Entry", "Hello entry!"),
+    ('entry2', "Entry 2", "Hello entry 2!"),
+]
+```
+
+Please always use the following form (numbers are specified in the end, and should not be changed to keep the integrity of old .blend files):
+
+```python
+items = [
+    ('entry', "Entry", "Hello entry!", 0),
+    ('entry2', "Entry 2", "Hello entry 2!", 1),
+]
+```
+
 ## Troubleshooting
 
 * Exported scene is different or missing some data.

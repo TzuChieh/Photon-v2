@@ -15,8 +15,8 @@ class PhDiffuseSurfaceNode(PhSurfaceMaterialNode):
 
     diffusion_type: bpy.props.EnumProperty(
         items=[
-            ('LAMBERTIAN', "Lambertian", ""),
-            ('OREN_NAYAR', "Oren Nayar", "")
+            ('LAMBERTIAN', "Lambertian", "", 0),
+            ('OREN_NAYAR', "Oren Nayar", "", 1)
         ],
         name="Type",
         description="surface diffusion types",

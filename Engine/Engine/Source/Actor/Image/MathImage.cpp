@@ -8,11 +8,145 @@
 
 #include <memory>
 #include <utility>
+#include <type_traits>
 
 namespace ph
 {
 
 PH_DEFINE_INTERNAL_LOG_GROUP(MathImage, Image);
+
+namespace
+{
+
+template<typename OperandType, typename InputType, typename OutputType, typename InputScalarType = real>
+inline auto cook_single_input_operation(
+	const EMathImageOp                            operation,
+	const std::shared_ptr<TTexture<OperandType>>& operand,
+	const std::shared_ptr<TTexture<InputType>>&   input,
+	std::optional<InputScalarType>                inputScalar = std::nullopt)
+-> std::shared_ptr<TTexture<OutputType>>
+{
+	if(!operand)
+	{
+		PH_LOG_ERROR(MathImage,
+			"No operand provided for {} operation.", TSdlEnum<EMathImageOp>{}[operation]);
+		return nullptr;
+	}
+
+	switch(operation)
+	{
+	case EMathImageOp::Add:
+	{
+		if(input)
+		{
+			using AddFunc = texfunc::TAdd<OperandType, InputType, OutputType>;
+			return std::make_shared<
+				TBinaryTextureOperator<OperandType, InputType, OutputType, AddFunc>>(
+					operand, input);
+		}
+		else
+		{
+			if(!inputScalar)
+			{
+				PH_LOG_WARNING(MathImage,
+					"No input provided for Add operation. Using 0.");
+				inputScalar = InputScalarType{0};
+			}
+
+			using AddFunc = texfunc::TAddConstant<OperandType, InputScalarType, OutputType>;
+			return std::make_shared<
+				TUnaryTextureOperator<OperandType, OutputType, AddFunc>>(
+					operand, AddFunc(*inputScalar));
+		}
+	}
+
+	case EMathImageOp::Subtract:
+	{
+		if(input)
+		{
+			using SubFunc = texfunc::TSubtract<OperandType, InputType, OutputType>;
+			return std::make_shared<
+				TBinaryTextureOperator<OperandType, InputType, OutputType, SubFunc>>(
+					operand, input);
+		}
+		else
+		{
+			if(!inputScalar)
+			{
+				PH_LOG_WARNING(MathImage,
+					"No input provided for Subtract operation. Using 0.");
+				inputScalar = InputScalarType{0};
+			}
+
+			using SubFunc = texfunc::TSubtractConstant<OperandType, InputScalarType, OutputType>;
+			return std::make_shared<
+				TUnaryTextureOperator<OperandType, OutputType, SubFunc>>(
+					operand, SubFunc(*inputScalar));
+		}
+	}
+
+	case EMathImageOp::Multiply:
+	{
+		if(input)
+		{
+			using MulFunc = texfunc::TMultiply<OperandType, InputType, OutputType>;
+			return std::make_shared<
+				TBinaryTextureOperator<OperandType, InputType, OutputType, MulFunc>>(
+					operand, input);
+		}
+		else
+		{
+			if(!inputScalar)
+			{
+				PH_LOG_WARNING(MathImage,
+					"No input provided for Multiply operation. Using 1.");
+				inputScalar = InputScalarType{1};
+			}
+
+			using MulFunc = texfunc::TMultiplyConstant<OperandType, InputScalarType, OutputType>;
+			return std::make_shared<
+				TUnaryTextureOperator<OperandType, OutputType, MulFunc>>(
+					operand, MulFunc(*inputScalar));
+		}
+	}
+
+	case EMathImageOp::Divide:
+	{
+		if(input)
+		{
+			using DivFunc = texfunc::TDivide<OperandType, InputType, OutputType>;
+			return std::make_shared<
+				TBinaryTextureOperator<OperandType, InputType, OutputType, DivFunc>>(
+					operand, input);
+		}
+		else
+		{
+			if(!inputScalar)
+			{
+				PH_LOG_WARNING(MathImage,
+					"No input provided for Divide operation. Using 1.");
+				inputScalar = InputScalarType{1};
+			}
+
+			const InputScalarType divisor = *inputScalar;
+			if(divisor == 0)
+			{
+				PH_LOG_WARNING(MathImage, "Division by 0 detected.");
+			}
+
+			using DivFunc = texfunc::TDivideConstant<OperandType, InputScalarType, OutputType>;
+			return std::make_shared<
+				TUnaryTextureOperator<OperandType, OutputType, DivFunc>>(
+					operand, DivFunc(divisor));
+		}
+	}
+
+	default:
+		throw CookException("Specified math image operation is not supported.");
+	}
+}
+
+}// end anonymous namespace
 
 MathImage::MathImage()
 
@@ -34,45 +168,11 @@ std::shared_ptr<TTexture<Image::ArrayType>> MathImage::genNumericTexture(
 		throw CookException("No operand image provided for numeric texture.");
 	}
 
-	auto operandTexture = m_operandImage->genNumericTexture(ctx);
-
-	switch(m_mathOp)
-	{
-	case EMathImageOp::Add:
-	{
-		if(m_imageInput0)
-		{
-			using AddFunc = texfunc::TAdd<Image::ArrayType, Image::ArrayType, Image::ArrayType>;
-			return std::make_shared<TBinaryTextureOperator<Image::ArrayType, Image::ArrayType, Image::ArrayType, AddFunc>>(
-				operandTexture, m_imageInput0->genNumericTexture(ctx));
-		}
-		else
-		{
-			using AddFunc = texfunc::TAddConstant<Image::ArrayType, float64, Image::ArrayType>;
-			return std::make_shared<TUnaryTextureOperator<Image::ArrayType, Image::ArrayType, AddFunc>>(
-				operandTexture, AddFunc(m_scalarInput0));
-		}
-	}
-
-	case EMathImageOp::Multiply:
-	{
-		if(m_imageInput0)
-		{
-			using MulFunc = texfunc::TMultiply<Image::ArrayType, Image::ArrayType, Image::ArrayType>;
-			return std::make_shared<TBinaryTextureOperator<Image::ArrayType, Image::ArrayType, Image::ArrayType, MulFunc>>(
-				operandTexture, m_imageInput0->genNumericTexture(ctx));
-		}
-		else
-		{
-			using MulFunc = texfunc::TMultiplyConstant<Image::ArrayType, float64, Image::ArrayType>;
-			return std::make_shared<TUnaryTextureOperator<Image::ArrayType, Image::ArrayType, MulFunc>>(
-				operandTexture, MulFunc(m_scalarInput0));
-		}
-	}
-
-	default:
-		throw CookException("Specified math image operation is not supported on numeric texture.");
-	}
+	return cook_single_input_operation<Image::ArrayType, Image::ArrayType, Image::ArrayType, float64>(
+		m_mathOp, 
+		m_operandImage->genNumericTexture(ctx),
+		m_imageInput0 ? m_imageInput0->genNumericTexture(ctx) : nullptr,
+		m_scalarInput0);
 }
 
 std::shared_ptr<TTexture<math::Spectrum>> MathImage::genColorTexture(
@@ -83,43 +183,11 @@ std::shared_ptr<TTexture<math::Spectrum>> MathImage::genColorTexture(
 		throw CookException("No operand image provided for color texture.");
 	}
 
-	auto operandTexture = m_operandImage->genColorTexture(ctx);
-
-	switch(m_mathOp)
-	{
-	case EMathImageOp::Add:
-	{
-		if(m_imageInput0)
-		{
-			return std::make_shared<TBinaryTextureOperator<math::Spectrum, math::Spectrum, math::Spectrum, texfunc::AddSpectrum>>(
-				operandTexture, m_imageInput0->genColorTexture(ctx));
-		}
-		else
-		{
-			using AddFunc = texfunc::TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
-			return std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, AddFunc>>(
-				operandTexture, AddFunc(static_cast<math::ColorValue>(m_scalarInput0)));
-		}
-	}
-
-	case EMathImageOp::Multiply:
-	{
-		if(m_imageInput0)
-		{
-			return std::make_shared<TBinaryTextureOperator<math::Spectrum, math::Spectrum, math::Spectrum, texfunc::MultiplySpectrum>>(
-				operandTexture, m_imageInput0->genColorTexture(ctx));
-		}
-		else
-		{
-			using MulFunc = texfunc::TMultiplyConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
-			return std::make_shared<TUnaryTextureOperator<math::Spectrum, math::Spectrum, MulFunc>>(
-				operandTexture, MulFunc(static_cast<math::ColorValue>(m_scalarInput0)));
-		}
-	}
-
-	default:
-		throw CookException("Specified math image operation is not supported on color texture.");
-	}
+	return cook_single_input_operation<math::Spectrum, math::Spectrum, math::Spectrum, math::ColorValue>(
+		m_mathOp,
+		m_operandImage->genColorTexture(ctx),
+		m_imageInput0 ? m_imageInput0->genColorTexture(ctx) : nullptr,
+		static_cast<math::ColorValue>(m_scalarInput0));
 }
 
 MathImage& MathImage::setOperation(const EMathImageOp op)

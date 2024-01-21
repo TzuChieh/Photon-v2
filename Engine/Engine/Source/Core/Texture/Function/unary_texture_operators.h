@@ -2,6 +2,7 @@
 
 #include "Core/Texture/TTexture.h"
 #include "Core/Texture/SampleLocation.h"
+#include "Core/Texture/Function/binary_texture_operators.h"
 #include "Utility/traits.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TArithmeticArray.h"
@@ -27,6 +28,8 @@ concept CUnaryOperator = requires (OperatorType op, InputType input)
 	{ op(input) } -> std::same_as<OutputType>;
 };
 
+/*! @brief Constructs output value from input value.
+*/
 template<typename InputType, typename OutputType>
 class TDefaultConversion final
 {
@@ -34,12 +37,14 @@ public:
 	OutputType operator () (const InputType& inputValue) const
 	{
 		static_assert(IsBuildable<OutputType, InputType>(),
-			"<OutputType> must be buildable from <InputType>");
+			"`OutputType` must be buildable from `InputType`");
 
 		return OutputType(inputValue);
 	}
 };
 
+/*! @brief Converts a scalar value to spectrum.
+*/
 template<typename T>
 class TScalarToSpectrum final
 {
@@ -60,49 +65,65 @@ public:
 	}
 };
 
-template<typename InputType, typename ConstantType, typename OutputType>
-class TAddConstant final
+/*! @brief Uses binary operator as a unary one by treating the second input as constant.
+*/
+template
+<
+	typename InputType, 
+	typename ConstantType,
+	typename OutputType,
+	CBinaryOperator<InputType, ConstantType, OutputType> BinaryOperatorType
+>
+class TUnaryFromBinary final
 {
 public:
-	explicit TAddConstant(ConstantType constant) :
-		m_constant(std::move(constant))
+	explicit TUnaryFromBinary(ConstantType constant)
+		: m_constant(std::move(constant))
 	{}
 
 	OutputType operator () (const InputType& inputValue) const
 	{
-		static_assert(CCanAdd<InputType, ConstantType, OutputType>,
-			"Must have add operator for <OutputType> = <InputType> + <ConstantType>");
+		static_assert(std::default_initializable<BinaryOperatorType>);
 
-		return inputValue + m_constant;
+		return BinaryOperatorType{}(inputValue, m_constant);
 	}
 
 private:
 	ConstantType m_constant;
 };
 
-using SpectrumAddScalar = TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
+template<typename InputType, typename ConstantType, typename OutputType>
+using TAddConstant = TUnaryFromBinary<
+	InputType, 
+	ConstantType, 
+	OutputType, 
+	TAdd<InputType, ConstantType, OutputType>>;
 
 template<typename InputType, typename ConstantType, typename OutputType>
-class TMultiplyConstant final
-{
-public:
-	explicit TMultiplyConstant(ConstantType constant) :
-		m_constant(std::move(constant))
-	{}
+using TSubtractConstant = TUnaryFromBinary<
+	InputType,
+	ConstantType,
+	OutputType,
+	TSubtract<InputType, ConstantType, OutputType>>;
 
-	OutputType operator () (const InputType& inputValue) const
-	{
-		static_assert(CCanMultiply<InputType, ConstantType, OutputType>,
-			"Must have multiply operator for <OutputType> = <InputType> * <ConstantType>");
+template<typename InputType, typename ConstantType, typename OutputType>
+using TMultiplyConstant = TUnaryFromBinary<
+	InputType,
+	ConstantType,
+	OutputType,
+	TMultiply<InputType, ConstantType, OutputType>>;
 
-		return inputValue * m_constant;
-	}
+template<typename InputType, typename ConstantType, typename OutputType>
+using TDivideConstant = TUnaryFromBinary<
+	InputType,
+	ConstantType,
+	OutputType,
+	TDivide<InputType, ConstantType, OutputType>>;
 
-private:
-	ConstantType m_constant;
-};
-
+using SpectrumAddScalar      = TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
+using SpectrumSubtractScalar = TSubtractConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 using SpectrumMultiplyScalar = TMultiplyConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
+using SpectrumDivideScalar   = TDivideConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 
 }// end namespace texfunc
 

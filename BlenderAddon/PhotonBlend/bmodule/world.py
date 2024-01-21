@@ -12,8 +12,8 @@ class PH_WORLD_PT_background(bpy.types.Panel):
 
 	bpy.types.World.ph_background_type = bpy.props.EnumProperty(
 		items=[
-			('IMAGE', "Image", ""),
-			('PREETHAM', "Preetham", "")
+			('IMAGE', "Image", "", 0),
+			('PREETHAM', "Preetham", "", 1)
 		],
 		name="Background Type",
 		description="Type of the background.",

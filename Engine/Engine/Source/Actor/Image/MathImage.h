@@ -6,7 +6,6 @@
 #include <Common/primitive_type.h>
 
 #include <vector>
-#include <utility>
 #include <optional>
 
 namespace ph
@@ -15,7 +14,9 @@ namespace ph
 enum class EMathImageOp
 {
 	Add = 0,
-	Multiply
+	Subtract,
+	Multiply,
+	Divide
 };
 
 PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EMathImageOp>)
@@ -24,7 +25,9 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EMathImageOp>)
 	sdlEnum.description("The mathematical operation used on images.");
 
 	sdlEnum.addEntry(EnumType::Add,      "add");
+	sdlEnum.addEntry(EnumType::Subtract, "sub");
 	sdlEnum.addEntry(EnumType::Multiply, "mul");
+	sdlEnum.addEntry(EnumType::Divide,   "div");
 
 	return sdlEnum;
 }
@@ -105,7 +108,6 @@ public:
 		clazz.addField(imageInput1);
 
 		return clazz;
-
 	}
 };
 

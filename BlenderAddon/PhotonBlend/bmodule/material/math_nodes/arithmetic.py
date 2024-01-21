@@ -12,8 +12,10 @@ class PhArithmeticNode(PhMaterialMathNode):
     bl_label = "Arithmetic"
 
     operation_type_items = [
-        ('add', "Add", ""),
-        ('mul', "Multiply", ""),
+        ('add', "Add", "", 0),
+        ('sub', "Subtract", "", 2),
+        ('mul', "Multiply", "", 1),
+        ('div', "Division", "", 3),
     ]
 
     operation_type: bpy.props.EnumProperty(

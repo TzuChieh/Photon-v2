@@ -20,8 +20,8 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
 
     factor_type: bpy.props.EnumProperty(
         items=[
-            ('FLOAT', "Float Factor", "Determine mix factor of all color channels together"),
-            ('COLOR', "Color Factor", "Determine mix factor of each color channel")
+            ('FLOAT', "Float Factor", "Determine mix factor of all color channels together", 0),
+            ('COLOR', "Color Factor", "Determine mix factor of each color channel", 1)
         ],
         name="Factor Type",
         description="Type of mixing factor",

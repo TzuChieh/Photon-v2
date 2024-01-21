@@ -15,11 +15,11 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
 
     substance_type: bpy.props.EnumProperty(
         items=[
-            ('DIELECTRIC_REFLECTOR', "Dielectric Reflector", ""),
-            ('METALLIC_REFLECTOR', "Metallic Reflector", ""),
-            ('DIELECTRIC_TRANSMITTER', "Dielectric Transmitter", ""),
-            ('DIELECTRIC', "Dielectric", ""),
-            ('ABSORBER', "Absorber", "Absorbs all energy.")
+            ('DIELECTRIC_REFLECTOR', "Dielectric Reflector", "", 0),
+            ('METALLIC_REFLECTOR', "Metallic Reflector", "", 1),
+            ('DIELECTRIC_TRANSMITTER', "Dielectric Transmitter", "", 2),
+            ('DIELECTRIC', "Dielectric", "", 3),
+            ('ABSORBER', "Absorber", "Absorbs all energy.", 4)
         ],
         name="Substance Type",
         description="Type of ideal substance.",

@@ -34,7 +34,7 @@ public:
 	OutputType operator () (const InputTypeA& inputValueA, const InputTypeB& inputValueB) const
 	{
 		static_assert(CCanAdd<InputTypeA, InputTypeB, OutputType>,
-			"Must have add operator for <OutputType> = <InputTypeA> + <InputTypeB>");
+			"Must have addition operator for `OutputType` = `InputTypeA` + `InputTypeB`");
 
 		return inputValueA + inputValueB;
 	}
@@ -43,19 +43,49 @@ public:
 using AddSpectrum = TAdd<math::Spectrum, math::Spectrum, math::Spectrum>;
 
 template<typename InputTypeA, typename InputTypeB, typename OutputType>
+class TSubtract final
+{
+public:
+	OutputType operator () (const InputTypeA& inputValueA, const InputTypeB& inputValueB) const
+	{
+		static_assert(CCanSubtract<InputTypeA, InputTypeB, OutputType>,
+			"Must have subtraction operator for `OutputType` = `InputTypeA` - `InputTypeB`");
+
+		return inputValueA - inputValueB;
+	}
+};
+
+using SubtractSpectrum = TSubtract<math::Spectrum, math::Spectrum, math::Spectrum>;
+
+template<typename InputTypeA, typename InputTypeB, typename OutputType>
 class TMultiply final
 {
 public:
 	OutputType operator () (const InputTypeA& inputValueA, const InputTypeB& inputValueB) const
 	{
 		static_assert(CCanMultiply<InputTypeA, InputTypeB, OutputType>,
-			"Must have multiply operator for <OutputType> = <InputTypeA> * <InputTypeB>");
+			"Must have multiplication operator for `OutputType` = `InputTypeA` * `InputTypeB`");
 
 		return inputValueA * inputValueB;
 	}
 };
 
 using MultiplySpectrum = TMultiply<math::Spectrum, math::Spectrum, math::Spectrum>;
+
+template<typename InputTypeA, typename InputTypeB, typename OutputType>
+class TDivide final
+{
+public:
+	OutputType operator () (const InputTypeA& inputValueA, const InputTypeB& inputValueB) const
+	{
+		static_assert(CCanDivide<InputTypeA, InputTypeB, OutputType>,
+			"Must have multiplication operator for `OutputType` = `InputTypeA` / `InputTypeB`");
+
+		return inputValueA / inputValueB;
+	}
+};
+
+using DivideSpectrum = TDivide<math::Spectrum, math::Spectrum, math::Spectrum>;
 
 }// end namespace texfunc
 
@@ -72,14 +102,14 @@ public:
 	using InputTexResA = std::shared_ptr<TTexture<InputTypeA>>;
 	using InputTexResB = std::shared_ptr<TTexture<InputTypeB>>;
 
-	TBinaryTextureOperator(InputTexResA inputA, InputTexResB inputB) requires std::default_initializable<OperatorType> :
-		TBinaryTextureOperator(std::move(inputA), std::move(inputB), OperatorType())
+	TBinaryTextureOperator(InputTexResA inputA, InputTexResB inputB) requires std::default_initializable<OperatorType>
+		: TBinaryTextureOperator(std::move(inputA), std::move(inputB), OperatorType{})
 	{}
 
-	TBinaryTextureOperator(InputTexResA inputA, InputTexResB inputB, OperatorType op) :
-		m_inputA  (std::move(inputA)),
-		m_inputB  (std::move(inputB)),
-		m_operator(std::move(op))
+	TBinaryTextureOperator(InputTexResA inputA, InputTexResB inputB, OperatorType op)
+		: m_inputA  (std::move(inputA))
+		, m_inputB  (std::move(inputB))
+		, m_operator(std::move(op))
 	{}
 
 	void sample(const SampleLocation& sampleLocation, OutputType* const out_value) const override

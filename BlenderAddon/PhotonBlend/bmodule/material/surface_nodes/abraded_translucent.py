@@ -15,8 +15,8 @@ class PhAbradedTranslucentNode(PhSurfaceMaterialNode):
 
     fresnel_type: bpy.props.EnumProperty(
         items=[
-            ('SCHLICK', "Schlick Approximation", ""),
-            ('EXACT', "Exact", "")
+            ('SCHLICK', "Schlick Approximation", "", 0),
+            ('EXACT', "Exact", "", 1)
         ],
         name="Fresnel Type",
         description="Type of Fresnel effect used.",

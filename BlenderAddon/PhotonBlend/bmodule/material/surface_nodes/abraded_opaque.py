@@ -15,9 +15,9 @@ class PhAbradedOpaqueNode(PhSurfaceMaterialNode):
 
     mapping_type: bpy.props.EnumProperty(
         items=[
-            ('SQUARED', "Squared", ""),
-            ('PBRTV3', "pbrt-v3", ""),
-            ('EQUALED', "Equaled", "")
+            ('SQUARED', "Squared", "", 0),
+            ('PBRTV3', "pbrt-v3", "", 1),
+            ('EQUALED', "Equaled", "", 2)
         ],
         name="Roughness Mapping Type",
         description="",

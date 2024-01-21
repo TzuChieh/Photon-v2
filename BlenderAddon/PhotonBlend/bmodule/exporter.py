@@ -57,8 +57,8 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
 
     subdivision_quality: bpy.props.EnumProperty(
         items=[
-            ('VIEWPORT', "Viewport", "The level as seen in the viewport."),
-            ('RENDER', "Render", "Final render quality."),
+            ('VIEWPORT', "Viewport", "The level as seen in the viewport.", 0),
+            ('RENDER', "Render", "Final render quality.", 1),
         ],
         name="Subdivision Quality",
         description="The subdivision quality of exported mesh.",
