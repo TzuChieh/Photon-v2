@@ -120,10 +120,18 @@ using TDivideConstant = TUnaryFromBinary<
 	OutputType,
 	TDivide<InputType, ConstantType, OutputType>>;
 
+template<typename InputType, typename ConstantType, typename OutputType>
+using TPowerConstant = TUnaryFromBinary<
+	InputType,
+	ConstantType,
+	OutputType,
+	TPower<InputType, ConstantType, OutputType>>;
+
 using SpectrumAddScalar      = TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 using SpectrumSubtractScalar = TSubtractConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 using SpectrumMultiplyScalar = TMultiplyConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 using SpectrumDivideScalar   = TDivideConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
+using SpectrumPowerScalar    = TPowerConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 
 }// end namespace texfunc
 

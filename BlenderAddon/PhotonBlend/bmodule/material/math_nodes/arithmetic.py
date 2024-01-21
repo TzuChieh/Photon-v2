@@ -12,10 +12,11 @@ class PhArithmeticNode(PhMaterialMathNode):
     bl_label = "Arithmetic"
 
     operation_type_items = [
-        ('add', "Add", "", 0),
-        ('sub', "Subtract", "", 2),
-        ('mul', "Multiply", "", 1),
-        ('div', "Division", "", 3),
+        ('add', "Add", "A + B", 0),
+        ('sub', "Subtract", " A - B", 2),
+        ('mul', "Multiply", "A * B", 1),
+        ('div', "Division", "A / B", 3),
+        ('pow', "Power", "A ^ B", 4),
     ]
 
     operation_type: bpy.props.EnumProperty(
@@ -55,8 +56,8 @@ class PhArithmeticNode(PhMaterialMathNode):
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
-        self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Value")
-        self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Value")
+        self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Value A")
+        self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Value B")
         self.outputs.new(PhColorSocketWithFloatDefault.bl_idname, PhColorSocketWithFloatDefault.bl_label)
 
     def draw_buttons(self, b_context, b_layout):

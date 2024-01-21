@@ -14,6 +14,7 @@
 #include <utility>
 #include <concepts>
 #include <array>
+#include <cmath>
 
 namespace ph
 {
@@ -40,8 +41,6 @@ public:
 	}
 };
 
-using AddSpectrum = TAdd<math::Spectrum, math::Spectrum, math::Spectrum>;
-
 template<typename InputTypeA, typename InputTypeB, typename OutputType>
 class TSubtract final
 {
@@ -54,8 +53,6 @@ public:
 		return inputValueA - inputValueB;
 	}
 };
-
-using SubtractSpectrum = TSubtract<math::Spectrum, math::Spectrum, math::Spectrum>;
 
 template<typename InputTypeA, typename InputTypeB, typename OutputType>
 class TMultiply final
@@ -70,8 +67,6 @@ public:
 	}
 };
 
-using MultiplySpectrum = TMultiply<math::Spectrum, math::Spectrum, math::Spectrum>;
-
 template<typename InputTypeA, typename InputTypeB, typename OutputType>
 class TDivide final
 {
@@ -85,7 +80,43 @@ public:
 	}
 };
 
-using DivideSpectrum = TDivide<math::Spectrum, math::Spectrum, math::Spectrum>;
+template<typename InputTypeA, typename InputTypeB, typename OutputType>
+class TPower final
+{
+public:
+	OutputType operator () (const InputTypeA& inputValueA, const InputTypeB& inputValueB) const
+	{
+		constexpr bool canCallPowMethod = requires (InputTypeA a, InputTypeB b)
+		{
+			{ a.pow(b) } -> std::convertible_to<OutputType>;
+		};
+
+		constexpr bool canCallStdPow = requires (InputTypeA a, InputTypeB b)
+		{
+			{ std::pow(a, b) } -> std::convertible_to<OutputType>;
+		};
+
+		if constexpr(canCallPowMethod)
+		{
+			return inputValueA.pow(inputValueB);
+		}
+		else if constexpr(canCallStdPow)
+		{
+			return std::pow(inputValueA, inputValueB);
+		}
+		else
+		{
+			PH_STATIC_ASSERT_DEPENDENT_FALSE(OutputType,
+				"Cannot perform power operation for the specified types.");
+		}
+	}
+};
+
+using AddSpectrum      = TAdd<math::Spectrum, math::Spectrum, math::Spectrum>;
+using SubtractSpectrum = TSubtract<math::Spectrum, math::Spectrum, math::Spectrum>;
+using MultiplySpectrum = TMultiply<math::Spectrum, math::Spectrum, math::Spectrum>;
+using DivideSpectrum   = TDivide<math::Spectrum, math::Spectrum, math::Spectrum>;
+using PowerSpectrum    = TPower<math::Spectrum, math::Spectrum, math::Spectrum>;
 
 }// end namespace texfunc
 

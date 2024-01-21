@@ -16,7 +16,8 @@ enum class EMathImageOp
 	Add = 0,
 	Subtract,
 	Multiply,
-	Divide
+	Divide,
+	Power
 };
 
 PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EMathImageOp>)
@@ -28,6 +29,7 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EMathImageOp>)
 	sdlEnum.addEntry(EnumType::Subtract, "sub");
 	sdlEnum.addEntry(EnumType::Multiply, "mul");
 	sdlEnum.addEntry(EnumType::Divide,   "div");
+	sdlEnum.addEntry(EnumType::Power,    "pow");
 
 	return sdlEnum;
 }

@@ -141,6 +141,33 @@ inline auto cook_single_input_operation(
 		}
 	}
 
+	case EMathImageOp::Power:
+	{
+		if(input)
+		{
+			using PowFunc = texfunc::TPower<OperandType, InputType, OutputType>;
+			return std::make_shared<
+				TBinaryTextureOperator<OperandType, InputType, OutputType, PowFunc>>(
+					operand, input);
+		}
+		else
+		{
+			if(!inputScalar)
+			{
+				PH_LOG_WARNING(MathImage,
+					"No input provided for Power operation. Using 1.");
+				inputScalar = InputScalarType{1};
+			}
+
+			const InputScalarType exponent = *inputScalar;
+
+			using PowFunc = texfunc::TPowerConstant<OperandType, InputScalarType, OutputType>;
+			return std::make_shared<
+				TUnaryTextureOperator<OperandType, OutputType, PowFunc>>(
+					operand, PowFunc(exponent));
+		}
+	}
+
 	default:
 		throw CookException("Specified math image operation is not supported.");
 	}
