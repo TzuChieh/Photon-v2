@@ -2,6 +2,7 @@
 
 #include "Core/Texture/Pixel/TPixelTexture2D.h"
 #include "Core/Texture/SampleLocation.h"
+#include "Math/TVector3.h"
 #include "Math/Color/color_enums.h"
 #include "Math/Color/color_spaces.h"
 #include "Math/Color/Spectrum.h"
@@ -9,6 +10,7 @@
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 #include <array>
 #include <cstddef>
@@ -18,12 +20,20 @@
 
 namespace ph
 {
-
+	
+/*!
+@tparam COLOR_SPACE Source color space. The color space of the contained pixel data. If is
+`math::EColorSpace::Unspecified`, then raw color data is used (without any space transformations).
+Using `math::EColorSpace::Unspecified` when the engine is in spectral mode may fallback to
+`math::EColorSpace::Linear_sRGB` if a direct conversion is impossible.
+*/
 template<math::EColorSpace COLOR_SPACE>
 class TColorPixelTexture2D : public TPixelTexture2D<math::Spectrum>
 {
-	static_assert(math::TColorSpaceDef<COLOR_SPACE>::isTristimulus(),
-		"TColorPixelTexture2D Supports only tristimulus color space.");
+	static_assert(
+		math::TColorSpaceDef<COLOR_SPACE>::isTristimulus() ||
+		COLOR_SPACE == math::EColorSpace::Unspecified,
+		"`TColorPixelTexture2D` supports only tristimulus color space or raw color data.");
 
 public:
 	TColorPixelTexture2D(
@@ -84,6 +94,15 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 			"Pixel layout with {} pixel elements does not match a pixel buffer with {} pixel elements",
 			layoutSize, pixelSize));
 	}
+
+#if PH_DEBUG
+	if(COLOR_SPACE == math::EColorSpace::Unspecified && math::Spectrum::NUM_VALUES != 3)
+	{
+		PH_DEFAULT_LOG_DEBUG(
+			"TColorPixelTexture2D will fallback to treating values as linear sRGB (reason: direct "
+			"value conversion cannot be performed).");
+	}
+#endif
 }
 
 template<math::EColorSpace COLOR_SPACE>
@@ -97,58 +116,59 @@ inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
 	const pixel_buffer::TPixel<float64> sampledPixel = samplePixelBuffer(math::Vector2D(sampleLocation.uv()));
 
 	// Get tristimulus color according to pixel buffer layout. Alpha is ignored for this texture.
+	// TODO: we can also add a premultiplied alpha mode
 
 	PH_ASSERT_LE(pixel_texture::num_pixel_elements(m_colorLayout), getPixelBuffer()->numPixelElements());
 
-	math::TTristimulusValues<float64> color{};
+	math::TVector3<float64> color(0);
 	switch(m_colorLayout)
 	{
 	case pixel_texture::EPixelLayout::R:
-		color[0] = sampledPixel[0];
+		color.r() = sampledPixel[0];
 		break;
 
 	case pixel_texture::EPixelLayout::G:
-		color[1] = sampledPixel[0];
+		color.g() = sampledPixel[0];
 		break;
 
 	case pixel_texture::EPixelLayout::B:
-		color[2] = sampledPixel[0];
+		color.b() = sampledPixel[0];
 		break;
 
 	// FIXME: monochromatic may not mean same value on all components -> HSV?
 	case pixel_texture::EPixelLayout::Monochromatic:
-		color.fill(sampledPixel[0]);
+		color.set(sampledPixel[0]);
 		break;
 
 	case pixel_texture::EPixelLayout::RG:
-		color[0] = sampledPixel[0];
-		color[1] = sampledPixel[1];
+		color.r() = sampledPixel[0];
+		color.g() = sampledPixel[1];
 		break;
 
 	case pixel_texture::EPixelLayout::RGB:
 	case pixel_texture::EPixelLayout::RGBA:
-		color[0] = sampledPixel[0];
-		color[1] = sampledPixel[1];
-		color[2] = sampledPixel[2];
+		color.r() = sampledPixel[0];
+		color.g() = sampledPixel[1];
+		color.b() = sampledPixel[2];
 		break;
 
 	case pixel_texture::EPixelLayout::BGR:
 	case pixel_texture::EPixelLayout::BGRA:
-		color[0] = sampledPixel[2];
-		color[1] = sampledPixel[1];
-		color[2] = sampledPixel[0];
+		color.r() = sampledPixel[2];
+		color.g() = sampledPixel[1];
+		color.b() = sampledPixel[0];
 		break;
 
 	case pixel_texture::EPixelLayout::ARGB:
-		color[0] = sampledPixel[1];
-		color[1] = sampledPixel[2];
-		color[2] = sampledPixel[3];
+		color.r() = sampledPixel[1];
+		color.g() = sampledPixel[2];
+		color.b() = sampledPixel[3];
 		break;
 
 	case pixel_texture::EPixelLayout::ABGR:
-		color[0] = sampledPixel[3];
-		color[1] = sampledPixel[2];
-		color[2] = sampledPixel[1];
+		color.r() = sampledPixel[3];
+		color.g() = sampledPixel[2];
+		color.b() = sampledPixel[1];
 		break;
 
 	default:
@@ -158,11 +178,29 @@ inline void TColorPixelTexture2D<COLOR_SPACE>::sample(
 	}
 
 	const math::TristimulusValues castedColor = {
-		static_cast<math::ColorValue>(color[0]),
-		static_cast<math::ColorValue>(color[1]),
-		static_cast<math::ColorValue>(color[2])};
+		static_cast<math::ColorValue>(color.r()),
+		static_cast<math::ColorValue>(color.g()),
+		static_cast<math::ColorValue>(color.b())};
 
-	out_value->setTransformed<COLOR_SPACE>(castedColor, sampleLocation.expectedUsage());
+	// Transform color values to the engine color space
+	if constexpr(COLOR_SPACE != math::EColorSpace::Unspecified)
+	{
+		out_value->setTransformed<COLOR_SPACE>(castedColor, sampleLocation.expectedUsage());
+	}
+	// This is raw color values
+	else
+	{
+		// No transform needed when direct conversion is possible
+		if constexpr(math::Spectrum::NUM_VALUES == 3)
+		{
+			out_value->setColorValues(castedColor);
+		}
+		// Best guess: raw data is in linear sRGB (as a fallback)
+		else
+		{
+			out_value->setLinearSRGB(castedColor, sampleLocation.expectedUsage());
+		}
+	}
 }
 
 }// end namespace ph

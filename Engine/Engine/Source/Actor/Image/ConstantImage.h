@@ -53,7 +53,8 @@ public:
 		ClassType clazz("constant");
 		clazz.docName("Constant Image");
 		clazz.description(
-			"An image that stores constant values. It can be a single scalar, a vector or a color.");
+			"An image that stores constant values. It can be a single scalar, a vector or a color. "
+			"By default, all values are treated as raw data (bypass any color space conversion).");
 		clazz.baseOn<Image>();
 
 		TSdlRealArray<OwnerType, float64> values("values", &OwnerType::m_values);
@@ -62,7 +63,11 @@ public:
 		clazz.addField(values);
 
 		TSdlEnumField<OwnerType, math::EColorSpace> colorSpace(&OwnerType::m_colorSpace);
-		colorSpace.description("Associated color space of the constant.");
+		colorSpace.description(
+			"Associated color space of the constant. By default, values are raw data. If a color "
+			"space is specified, then values will be treated as if in the specified color space. "
+			"When the engine is in spectral mode, raw data may be treated as linear sRGB if a "
+			"direct conversion is impossible.");
 		colorSpace.defaultTo(math::EColorSpace::Unspecified);
 		colorSpace.optional();
 		clazz.addField(colorSpace);

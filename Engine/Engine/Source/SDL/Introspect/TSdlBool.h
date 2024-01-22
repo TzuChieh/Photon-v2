@@ -4,6 +4,9 @@
 #include "SDL/Introspect/TSdlOptionalValue.h"
 #include "SDL/sdl_helpers.h"
 
+#include <Common/config.h>
+#include <Common/logging.h>
+
 #include <type_traits>
 #include <string>
 #include <utility>
@@ -76,14 +79,28 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		if(clause.value == "true" || clause.value == "TRUE")
+		if(clause.value == "true" || clause.value == "TRUE" || clause.value == "True")
 		{
 			this->setValue(owner, true);
 		}
+#if !PH_DEBUG
 		else
 		{
 			this->setValue(owner, false);
 		}
+#else
+		else if(clause.value == "false" || clause.value == "FALSE" || clause.value == "False")
+		{
+			this->setValue(owner, false);
+		}
+		else
+		{
+			PH_DEFAULT_LOG_DEBUG(
+				"Unrecognized SDL bool literal: {}, treating it as false.", clause.value);
+
+			this->setValue(owner, false);
+		}
+#endif
 	}
 
 	inline void saveToSdl(

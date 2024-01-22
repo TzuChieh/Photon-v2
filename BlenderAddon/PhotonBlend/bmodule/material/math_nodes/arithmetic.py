@@ -1,5 +1,6 @@
 from ..node_base import (
         PhMaterialMathNode,
+        PhColorSocket,
         PhColorSocketWithFloatDefault)
 from psdl import sdl
 from ... import naming
@@ -17,6 +18,7 @@ class PhArithmeticNode(PhMaterialMathNode):
         ('mul', "Multiply", "A * B", 1),
         ('div', "Division", "A / B", 3),
         ('pow', "Power", "A ^ B", 4),
+        ('abs', "Absolute", "|A|", 5),
     ]
 
     operation_type: bpy.props.EnumProperty(
@@ -36,8 +38,7 @@ class PhArithmeticNode(PhMaterialMathNode):
             operand_color_res_name = naming.get_mangled_input_node_socket_name(operand_socket, b_material)
             creator = sdl.ConstantImageCreator()
             creator.set_data_name(operand_color_res_name)
-            creator.set_values(sdl.RealArray(operand_socket.default_value[:3]))
-            creator.set_color_space(sdl.Enum("LSRGB"))
+            creator.set_values(sdl.RealArray([operand_socket.default_value]))
             sdlconsole.queue_command(creator)
 
         input0_color_res_name = input0_socket.get_from_res_name(b_material)
@@ -56,9 +57,13 @@ class PhArithmeticNode(PhMaterialMathNode):
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
-        self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Value A")
-        self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Value B")
-        self.outputs.new(PhColorSocketWithFloatDefault.bl_idname, PhColorSocketWithFloatDefault.bl_label)
+        socket_a = self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Value A")
+        socket_b = self.inputs.new(PhColorSocketWithFloatDefault.bl_idname, "Value B")
+        self.outputs.new(PhColorSocket.bl_idname, PhColorSocket.bl_label)
+
+        # Default op is mul, this make it effectively a no-op on create
+        socket_a.default_value = 1
+        socket_b.default_value = 1
 
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, 'operation_type', text="")

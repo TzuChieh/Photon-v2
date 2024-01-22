@@ -60,7 +60,7 @@ concept CColorSpaceDefinition =
 	CSpectralColorSpaceDefinition<DefType, T>;
 
 /*! @brief Sinkhole for color spaces without definition.
-Specialize the class to provide definitions for color space. Must satisfy
+Specialize this class to provide definitions for color space. Must satisfy
 `CTristimulusColorSpaceDefinition` or `CSpectralColorSpaceDefinition`.
 */
 template<EColorSpace COLOR_SPACE, typename T>
@@ -69,6 +69,19 @@ class TColorSpaceDefinition final
 	// Available color spaces must provide definition and thus should not end up here.
 	static_assert(COLOR_SPACE == EColorSpace::Unspecified || COLOR_SPACE == EColorSpace::NUM,
 		"No definition for the specified COLOR_SPACE.");
+
+public:
+	static consteval EColorSpace getColorSpace() noexcept
+	// Should not provide color space info for `EColorSpace::NUM` as it is not even a color space
+	requires (COLOR_SPACE == EColorSpace::Unspecified)
+	{
+		return COLOR_SPACE;
+	}
+
+	static consteval bool isTristimulus() noexcept
+	{
+		return false;
+	}
 };
 
 /*! @brief Helper alias for @p TColorSpaceDefinition which uses the @p ColorValue type.
@@ -77,7 +90,7 @@ template<EColorSpace COLOR_SPACE>
 using TColorSpaceDef = TColorSpaceDefinition<COLOR_SPACE, ColorValue>;
 
 /*! @brief Check whether @p colorSpace is a tristimulus color space.
-This is a runtime check. For compile-time check, use `TColorSpaceDef< ? >::isTristimulus()`.
+This is a runtime check. For compile-time check, use `TColorSpaceDef<?>::isTristimulus()`.
 */
 bool is_tristimulus(EColorSpace colorSpace);
 

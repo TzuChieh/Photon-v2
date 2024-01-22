@@ -12,10 +12,10 @@
 namespace ph
 {
 
-/*
-	Divide work region into rectangles, each rectangle has the complete depth. 
-	The order of each scheduled rectangle forms a spiral shape originating
-	from the center.
+/*!
+Divide work region into rectangles, each rectangle has the complete depth. 
+The order of each scheduled rectangle forms a spiral shape originating
+from the center.
 */
 class SpiralScheduler : public WorkScheduler
 {
@@ -52,8 +52,15 @@ private:
 
 // In-header Implementations:
 
-inline SpiralScheduler::SpiralScheduler() :
-	WorkScheduler()
+inline SpiralScheduler::SpiralScheduler()
+
+	: WorkScheduler()
+
+	, m_headSize     (0)
+	, m_headPos      (0)
+	, m_headFacing   (EFacing::POSITIVE_X)
+	, m_currentCycles(0)
+	, m_currentSteps (0)
 {}
 
 inline SpiralScheduler::SpiralScheduler(

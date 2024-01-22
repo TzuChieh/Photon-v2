@@ -33,10 +33,12 @@ enum class EColorSpace
 
 	// Special values:
 	
-	// Number of entries (should always be the one next to last entry)
+	/*! Number of entries (should always be the one next to last entry). */
 	NUM,
 
-	// Default spectral representation
+	/*! Default spectral representation. Also for general spectral representation that does not want
+	to be tied to a specific spectral color space.
+	*/
 	Spectral = Spectral_Smits
 };
 

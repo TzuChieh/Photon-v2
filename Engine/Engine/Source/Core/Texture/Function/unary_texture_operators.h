@@ -3,6 +3,7 @@
 #include "Core/Texture/TTexture.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Core/Texture/Function/binary_texture_operators.h"
+#include "Core/Texture/Function/ternary_texture_operators.h"
 #include "Utility/traits.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TArithmeticArray.h"
@@ -65,6 +66,38 @@ public:
 	}
 };
 
+template<typename InputType, typename OutputType>
+class TAbsolute final
+{
+public:
+	OutputType operator () (const InputType& inputValue) const
+	{
+		constexpr bool canCallAbsMethod = requires (InputType input)
+		{
+			{ input.abs() } -> std::convertible_to<OutputType>;
+		};
+
+		constexpr bool canCallStdAbs = requires (InputType input)
+		{
+			{ std::abs(input) } -> std::convertible_to<OutputType>;
+		};
+
+		if constexpr(canCallAbsMethod)
+		{
+			return inputValue.abs();
+		}
+		else if constexpr(canCallStdAbs)
+		{
+			return std::abs(inputValue);
+		}
+		else
+		{
+			PH_STATIC_ASSERT_DEPENDENT_FALSE(OutputType,
+				"Cannot perform absolute operation for the specified types.");
+		}
+	}
+};
+
 /*! @brief Uses binary operator as a unary one by treating the second input as constant.
 */
 template
@@ -90,6 +123,36 @@ public:
 
 private:
 	ConstantType m_constant;
+};
+
+/*! @brief Uses ternary operator as a unary one by treating the second and third inputs as constants.
+*/
+template
+<
+	typename InputType, 
+	typename ConstantTypeA,
+	typename ConstantTypeB,
+	typename OutputType,
+	CTernaryOperator<InputType, ConstantTypeA, ConstantTypeB, OutputType> TernaryOperatorType
+>
+class TUnaryFromTernary final
+{
+public:
+	TUnaryFromTernary(ConstantTypeA constantA, ConstantTypeB constantB)
+		: m_constantA(std::move(constantA))
+		, m_constantB(std::move(constantB))
+	{}
+
+	OutputType operator () (const InputType& inputValue) const
+	{
+		static_assert(std::default_initializable<TernaryOperatorType>);
+
+		return TernaryOperatorType{}(inputValue, m_constantA, m_constantB);
+	}
+
+private:
+	ConstantTypeA m_constantA;
+	ConstantTypeB m_constantB;
 };
 
 template<typename InputType, typename ConstantType, typename OutputType>
@@ -126,6 +189,14 @@ using TPowerConstant = TUnaryFromBinary<
 	ConstantType,
 	OutputType,
 	TPower<InputType, ConstantType, OutputType>>;
+
+template<typename InputType, typename ConstantTypeA, typename ConstantTypeB, typename OutputType>
+using TClampConstant = TUnaryFromTernary<
+	InputType,
+	ConstantTypeA,
+	ConstantTypeB,
+	OutputType,
+	TClamp<InputType, ConstantTypeA, ConstantTypeB, OutputType>>;
 
 using SpectrumAddScalar      = TAddConstant<math::Spectrum, math::ColorValue, math::Spectrum>;
 using SpectrumSubtractScalar = TSubtractConstant<math::Spectrum, math::ColorValue, math::Spectrum>;

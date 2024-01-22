@@ -12,9 +12,9 @@
 namespace ph
 {
 
-/*
-	Slice work region into rectangular cells with similar dimensions, each 
-	region has complete depth.
+/*!
+Slice work region into rectangular cells with similar dimensions, each 
+region has complete depth.
 */
 class GridScheduler : public WorkScheduler
 {
@@ -56,8 +56,14 @@ private:
 
 // In-header Implementations:
 
-inline GridScheduler::GridScheduler() :
-	WorkScheduler()
+inline GridScheduler::GridScheduler()
+
+	: WorkScheduler()
+
+	, m_numCells   (0)
+	, m_origin     (EOrigin::LOWER_LEFT)
+	, m_prioriAxis (0)
+	, m_currentCell(0, 0)
 {}
 
 inline GridScheduler::GridScheduler(
@@ -84,7 +90,7 @@ inline GridScheduler::GridScheduler(
 		totalWorkUnit, 
 		numCells,
 		EOrigin::LOWER_LEFT,
-		math::constant::X_AXIS)
+		math::constant::X_AXIS)// default to X-first as it is likely more cache friendly
 {}
 
 inline GridScheduler::GridScheduler(

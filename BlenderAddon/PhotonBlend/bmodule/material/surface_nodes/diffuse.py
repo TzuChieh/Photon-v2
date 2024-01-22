@@ -41,7 +41,7 @@ class PhDiffuseSurfaceNode(PhSurfaceMaterialNode):
             creator.set_data_name(albedo_res_name)
             albedo = albedo_socket.default_value
             creator.set_values(sdl.RealArray(mathutils.Color((albedo[0], albedo[1], albedo[2]))))
-            creator.set_color_space(sdl.Enum("LSRGB"))
+            creator.set_color_space(sdl.Enum('LSRGB'))
             sdlconsole.queue_command(creator)
 
         creator = sdl.MatteOpaqueMaterialCreator()

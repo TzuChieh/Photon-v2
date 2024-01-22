@@ -89,6 +89,8 @@ std::shared_ptr<TTexture<Image::ArrayType>> RasterFileImage::genNumericTexture(
 	auto pixelBuffer = loadPixelBuffer(ctx);// TODO: warn or throw if elements may be discarded (Image::ARRAY_SIZE too small)
 	setResolution(pixelBuffer->getSize());
 
+	// When used as a numeric texture, no color space info is required--pixel buffer should directly
+	// store the desired values
 	return std::make_shared<TNumericPixelTexture2D<float64, Image::ARRAY_SIZE>>(
 		pixelBuffer,
 		getTextureSampleMode(),
@@ -102,6 +104,18 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	math::EColorSpace           colorSpace;
 	pixel_texture::EPixelLayout pixelLayout;
 	auto pixelBuffer = loadPixelBuffer(ctx, &colorSpace, &pixelLayout);
+
+	// User specified color space take precedence
+	if(m_colorSpace != math::EColorSpace::Unspecified)
+	{
+		colorSpace = m_colorSpace;
+	}
+
+	// If stated as non-color, treat as raw data
+	if(!m_isColor)
+	{
+		colorSpace = math::EColorSpace::Unspecified;
+	}
 
 	setResolution(pixelBuffer->getSize());
 
@@ -122,6 +136,16 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 
 	switch(colorSpace)
 	{
+	case math::EColorSpace::Unspecified:
+		// Will be treated as raw data (no transform if possible, otherwise fallback to linear sRGB)
+		return textureMaker.template operator () <math::EColorSpace::Unspecified>();
+
+	case math::EColorSpace::CIE_XYZ:
+		return textureMaker.template operator () <math::EColorSpace::CIE_XYZ>();
+
+	case math::EColorSpace::CIE_xyY:
+		return textureMaker.template operator () <math::EColorSpace::CIE_xyY>();
+
 	case math::EColorSpace::sRGB:
 		return textureMaker.template operator () <math::EColorSpace::sRGB>();
 
@@ -131,11 +155,11 @@ std::shared_ptr<TTexture<math::Spectrum>> RasterFileImage::genColorTexture(
 	case math::EColorSpace::ACEScg:
 		return textureMaker.template operator () <math::EColorSpace::ACEScg>();
 
-	// We should not have other color spaces from raster files
+	// Currently unsupported color spaces
 	default:
 		// TODO: better log warning and use a default picture
 		throw CookException(
-			"error on generating texture for picture <" + m_imageFile.toString() + ">: invalid color space");
+			"error on generating texture for picture <" + m_imageFile.toString() + ">: unsupported color space");
 	}
 }
 

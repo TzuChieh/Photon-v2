@@ -12,9 +12,9 @@
 namespace ph
 {
 
-/*
-	A spiral scheduler that further schedules each work unit using
-	a grid scheduler.
+/*!
+A spiral scheduler that further schedules each work unit using
+a grid scheduler.
 */
 class SpiralGridScheduler : public WorkScheduler
 {
@@ -42,8 +42,13 @@ private:
 
 // In-header Implementations:
 
-inline SpiralGridScheduler::SpiralGridScheduler() :
-	WorkScheduler()
+inline SpiralGridScheduler::SpiralGridScheduler()
+
+	: WorkScheduler()
+
+	, m_spiralScheduler()
+	, m_numGridCells   (0)
+	, m_currentGrid    ()
 {}
 
 inline SpiralGridScheduler::SpiralGridScheduler(

@@ -12,8 +12,8 @@
 namespace ph
 {
 
-/*
-	Divide work region into rectangles with prescribed dimensions.
+/*!
+Divide work region into rectangles with prescribed dimensions.
 */
 class TileScheduler : public WorkScheduler
 {
@@ -50,8 +50,9 @@ private:
 
 // In-header Implementations:
 
-inline TileScheduler::TileScheduler() :
-	WorkScheduler()
+inline TileScheduler::TileScheduler()
+	: WorkScheduler()
+	, m_grid()
 {}
 
 inline TileScheduler::TileScheduler(
@@ -64,7 +65,7 @@ inline TileScheduler::TileScheduler(
 		totalWorkUnit, 
 		tileSize,
 		EOrigin::LOWER_LEFT,
-		math::constant::X_AXIS)
+		math::constant::X_AXIS)// default to X-first as it is likely more cache friendly
 {}
 
 inline TileScheduler::TileScheduler(

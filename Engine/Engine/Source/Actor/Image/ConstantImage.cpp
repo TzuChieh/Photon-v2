@@ -7,6 +7,8 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 
+#include <algorithm>
+
 namespace ph
 {
 
@@ -48,7 +50,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		{
 			values.set(0);
 		}
-		if(m_values.size() == 1)
+		else if(m_values.size() == 1)
 		{
 			values.set(m_values[0]);
 		}
@@ -71,9 +73,14 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 
 		// Using tristimulus texture here since we do not know how the texture will be used
 		// (e.g., as energy, as raw values, etc.)
-
 		switch(m_colorSpace)
 		{
+		case math::EColorSpace::CIE_XYZ:
+			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::CIE_XYZ>>(color);
+
+		case math::EColorSpace::CIE_xyY:
+			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::CIE_xyY>>(color);
+
 		case math::EColorSpace::Linear_sRGB:
 			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(color);
 
@@ -89,6 +96,49 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(color);
 		}
 	}
+	else if(m_colorSpace == math::EColorSpace::Unspecified)
+	{
+		if(m_values.size() == 0)
+		{
+			return std::make_shared<TConstantTexture<math::Spectrum>>(
+				math::Spectrum(0));
+		}
+		else if(m_values.size() == 1)
+		{
+			return std::make_shared<TConstantTexture<math::Spectrum>>(
+				math::Spectrum(static_cast<math::ColorValue>(m_values[0])));
+		}
+		// 3 input values and a direct conversion is not possible: fallback to linear sRGB
+		else if(m_values.size() == 3 && m_values.size() != math::Spectrum::NUM_VALUES)
+		{
+			const math::Vector3D rawValues(m_values[0], m_values[1], m_values[2]);
+
+			PH_LOG_DEBUG(ConstantImage,
+				"Fallback to linear sRGB with values: {}", rawValues);
+
+			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(
+				math::TVector3<math::ColorValue>(rawValues).toArray());
+		}
+		// Fill input values directly as much as we can
+		else
+		{
+			if(m_values.size() != math::Spectrum::NUM_VALUES)
+			{
+				PH_LOG_WARNING(ConstantImage,
+					"Unexpected number of input values ({} provided) when treating the values as "
+					"raw data; generated texture may not be what you want.", m_values.size());
+			}
+
+			math::Spectrum rawValues(0);
+			for(std::size_t i = 0; i < std::min(math::Spectrum::NUM_VALUES, m_values.size()); ++i)
+			{
+				rawValues[i] = static_cast<math::ColorValue>(m_values[i]);
+			}
+
+			return std::make_shared<TConstantTexture<math::Spectrum>>(
+				math::Spectrum(rawValues));
+		}
+	}
 	else
 	{
 		math::SampledSpectrum sampledSpectrum(0);
@@ -96,14 +146,14 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		{
 			sampledSpectrum = math::SampledSpectrum(0);
 		}
-		if(m_values.size() == 1)
+		else if(m_values.size() == 1)
 		{
 			sampledSpectrum = math::SampledSpectrum(static_cast<math::ColorValue>(m_values[0]));
 		}
 		// Exact representation of a sampled spectrum
-		else if(m_values.size() == math::SampledSpectrum::NUM_VALUES)
+		else if(m_values.size() == sampledSpectrum.NUM_VALUES)
 		{
-			for(std::size_t i = 0; i < math::Spectrum::NUM_VALUES; ++i)
+			for(std::size_t i = 0; i < sampledSpectrum.NUM_VALUES; ++i)
 			{
 				sampledSpectrum[i] = static_cast<math::ColorValue>(m_values[i]);
 			}
@@ -126,7 +176,6 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 
 		// Using spectral texture here since we do not know how the texture will be used
 		// (e.g., as energy, as raw values, etc.)
-		//
 		return std::make_shared<TConstantSpectralTexture<math::EColorSpace::Spectral>>(
 			sampledSpectrum.getColorValues());
 	}

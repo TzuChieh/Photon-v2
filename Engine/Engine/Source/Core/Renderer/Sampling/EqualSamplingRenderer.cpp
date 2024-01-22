@@ -295,7 +295,7 @@ RenderProgress EqualSamplingRenderer::asyncQueryRenderProgress()
 	const auto suppliedFraction = bitwise_cast<float32>(m_suppliedFractionBits.load(std::memory_order_relaxed));
 	const auto submittedFraction = bitwise_cast<float32>(m_submittedFractionBits.load(std::memory_order_relaxed));
 	const auto workingFraction = std::max(suppliedFraction - submittedFraction, 0.0f);
-	const auto totalFraction = std::min(suppliedFraction + workerProgress.getNormalizedProgress() * workingFraction, 1.0f);
+	const auto totalFraction = std::min(submittedFraction + workerProgress.getNormalizedProgress() * workingFraction, 1.0f);
 	const auto workDone = static_cast<uint64>(totalWork * static_cast<float64>(totalFraction));
 	
 	// We want to obtain progress of the entire rendering process. Elapsed time from workers
@@ -334,7 +334,7 @@ void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
 
 	case EScheduler::Stripe:
 		m_scheduler = std::make_unique<StripeScheduler>(
-			numWorkers(), totalWorks, math::constant::X_AXIS);
+			numWorkers(), totalWorks);
 		break;
 
 	case EScheduler::Grid:

@@ -11,14 +11,19 @@
 namespace ph
 {
 
-/*
-	Divide work region into stripes, each stripe has the complete depth. This
-	scheduler is essentially a plate scheduler, just in different dimensions.
+/*!
+Divide work region into stripes, each stripe has the complete depth. This
+scheduler is essentially a plate scheduler, just in different dimensions.
 */
 class StripeScheduler : public WorkScheduler
 {
 public:
 	StripeScheduler();
+
+	StripeScheduler(
+		std::size_t                   numWorkers, 
+		const WorkUnit&               totalWorkUnit);
+
 	StripeScheduler(
 		std::size_t                   numWorkers, 
 		const WorkUnit&               totalWorkUnit,
@@ -34,8 +39,23 @@ private:
 
 // In-header Implementations:
 
-inline StripeScheduler::StripeScheduler() :
-	WorkScheduler()
+inline StripeScheduler::StripeScheduler()
+
+	: WorkScheduler()
+
+	, m_slicedAxis  (0)
+	, m_numScheduled(0)
+	, m_sideLength  (0)
+{}
+
+inline StripeScheduler::StripeScheduler(
+	const std::size_t                   numWorkers,
+	const WorkUnit&                     totalWorkUnit)
+
+	: StripeScheduler(
+		numWorkers, 
+		totalWorkUnit,
+		math::constant::Y_AXIS)// default to slice Y as it is likely more cache friendly
 {}
 
 inline StripeScheduler::StripeScheduler(

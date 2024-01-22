@@ -38,6 +38,22 @@ class Enum(AbstractData):
         return "\"" + self.__stringID + "\""
 
 
+class Bool(AbstractData):
+    def __init__(self, value=False):
+        """
+        @param value A value that is convertible to bool.
+        """
+        super().__init__()
+        self.__value = value
+
+    def get_type(self):
+        return "bool"
+
+    def generate_data(self):
+        # `__value` may not be bool already (e.g., an int), always convert to bool again
+        return str(bool(self.__value))
+
+
 class Integer(AbstractData):
     def __init__(self, integer=0):
         super().__init__()

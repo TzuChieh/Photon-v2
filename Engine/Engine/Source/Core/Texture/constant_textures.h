@@ -40,7 +40,7 @@ private:
 };
 
 /*! @brief A constant color texture that can adapt values in tristimulus color space to spectrum.
-Converts tristimulus values to spectrum based on runtime parameters.
+Converts tristimulus values to spectrum based on parameters obtained during rendering.
 @tparam COLOR_SPACE The color space this texture is in. Must be tristimulus.
 */
 template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Linear_sRGB>
@@ -69,7 +69,7 @@ private:
 };
 
 /*! @brief A constant color texture that can adapt spectral values to spectrum.
-Converts spectral values to spectrum based on runtime parameters.
+Converts spectral values to spectrum based on parameters obtained during rendering.
 @tparam COLOR_SPACE The color space this texture is in. Must be spectral.
 */
 template<math::EColorSpace COLOR_SPACE = math::EColorSpace::Spectral>

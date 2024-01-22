@@ -18,18 +18,6 @@ class PhFloatValueInputNode(PhMaterialInputNode):
         max=1e32
     )
 
-    # TODO: color space
-    # usage: bpy.props.EnumProperty(
-    #     items=[
-    #         ('RAW', "Raw", "", 0),
-    #         ('EMISSION', "Emission", "", 1),
-    #         ('REFLECTANCE', "Reflectance", "", 2)
-    #     ],
-    #     name="Usage",
-    #     description="What is the value for",
-    #     default='RAW'
-    # )
-
     def to_sdl(self, b_material, sdlconsole):
         output_socket = self.outputs[0]
         creator = sdl.ConstantImageCreator()
@@ -42,4 +30,3 @@ class PhFloatValueInputNode(PhMaterialInputNode):
 
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, 'value')
-        b_layout.prop(self, 'usage', text="")

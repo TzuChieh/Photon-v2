@@ -260,7 +260,6 @@ class PhMaterialNode(bpy.types.Node):
         return self.bl_label
 
 
-
 class PhMaterialOutputNode(PhMaterialNode):
     node_category = OUTPUT_CATEGORY
 

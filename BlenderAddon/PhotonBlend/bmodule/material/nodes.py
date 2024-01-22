@@ -55,6 +55,7 @@ PH_MATERIAL_NODES = [
         surface_nodes.PhIdealSubstanceNode,
         surface_nodes.PhPureAbsorberNode,
         math_nodes.PhArithmeticNode,
+        math_nodes.PhClampNode,
 ]
 
 

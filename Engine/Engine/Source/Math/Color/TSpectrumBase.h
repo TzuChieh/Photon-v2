@@ -50,9 +50,13 @@ public:
 	std::size_t minComponent() const;
 	std::size_t maxComponent() const;
 
+	/*! @brief Set and get raw color values directly.
+	*/
+	///@{
 	Derived& setColorValues(const TRawColorValues<T, N>& values);
 	Derived& setColorValues(T rawColorValue);
 	const TRawColorValues<T, N>& getColorValues() const;
+	///@}
 
 	template<EColorSpace SRC_COLOR_SPACE>
 	Derived& setTransformed(const auto& srcColorValues, EColorUsage usage);
@@ -94,6 +98,8 @@ public:
 	TRawColorValues<T, 3> toLinearSRGB(EColorUsage usage) const;
 
 	Derived& putEnergy(T energyLevel);
+
+	// Expose public interfaces. `set()` not exposed since we want to use our better-named setters.
 
 	using Base::add;
 	using Base::addLocal;
