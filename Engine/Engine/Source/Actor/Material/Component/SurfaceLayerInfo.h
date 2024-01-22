@@ -4,10 +4,9 @@
 #include "Math/TVector3.h"
 #include "Actor/Material/Component/RoughnessToAlphaMapping.h"
 #include "SDL/sdl_interface.h"
+#include "Actor/SDLExtension/TSdlSpectrum.h"
 
 #include <Common/primitive_type.h>
-
-#include <vector>
 
 namespace ph
 {
@@ -15,8 +14,6 @@ namespace ph
 class SurfaceLayerInfo final
 {
 public:
-	SurfaceLayerInfo();
-
 	real getRoughness() const;
 	real getAlpha() const;
 	math::Spectrum getIorN() const;
@@ -36,18 +33,55 @@ private:
 	math::Spectrum m_sigmaS;
 
 public:
-	/*PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<SurfaceLayerInfo>)
+	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<SurfaceLayerInfo>)
 	{
 		StructType ztruct("surface-layer-info");
-		ztruct.setDescription("Information for layered material construction.");
+		ztruct.description("Data for layered material construction.");
 
-		TSdlReal<StructType> roughness("roughness", &StructType::m_roughness);
+		TSdlReal<OwnerType> roughness("roughness", &OwnerType::m_roughness);
 		roughness.description("Roughness of the layer.");
 		roughness.defaultTo(0);
+		roughness.optional();
 		ztruct.addField(roughness);
 
+		TSdlSpectrum<OwnerType> iorN("ior-n", math::EColorUsage::RAW, &OwnerType::m_iorN);
+		iorN.description("The real part of the layer's index of refraction.");
+		iorN.defaultTo(math::Spectrum(1));
+		iorN.optional();
+		ztruct.addField(iorN);
+
+		TSdlSpectrum<OwnerType> iorK("ior-k", math::EColorUsage::RAW, &OwnerType::m_iorK);
+		iorK.description("The imaginary part of the layer's index of refraction.");
+		iorK.defaultTo(math::Spectrum(0));
+		iorK.optional();
+		ztruct.addField(iorK);
+
+		TSdlReal<OwnerType> depth("depth", &OwnerType::m_depth);
+		depth.description("Thickness of the layer.");
+		depth.defaultTo(0);
+		depth.optional();
+		ztruct.addField(depth);
+
+		TSdlReal<OwnerType> g("g", &OwnerType::m_g);
+		g.description("The g variable in Henyey-Greenstein phase function.");
+		g.defaultTo(1);
+		g.optional();
+		ztruct.addField(g);
+
+		TSdlSpectrum<OwnerType> sigmaA("sigma-a", math::EColorUsage::RAW, &OwnerType::m_sigmaA);
+		sigmaA.description("The volume absorption coefficient.");
+		sigmaA.defaultTo(math::Spectrum(0));
+		sigmaA.optional();
+		ztruct.addField(sigmaA);
+
+		TSdlSpectrum<OwnerType> sigmaS("sigma-s", math::EColorUsage::RAW, &OwnerType::m_sigmaS);
+		sigmaS.description("The volume scattering coefficient.");
+		sigmaS.defaultTo(math::Spectrum(0));
+		sigmaS.optional();
+		ztruct.addField(sigmaS);
+
 		return ztruct;
-	}*/
+	}
 };
 
 // In-header Implementations:

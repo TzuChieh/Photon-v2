@@ -149,6 +149,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<AbradedTranslucent>(),
 		get_sdl_class<FullMaterial>(),
 		get_sdl_class<IdealSubstance>(),
+		get_sdl_class<LayeredSurface>(),
 		get_sdl_class<BinaryMixedSurfaceMaterial>(),
 
 		// Images
