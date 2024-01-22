@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Material/Utility/ERoughnessToAlpha.h"
+#include "Actor/Material/Component/ERoughnessToAlpha.h"
 
 #include <Common/primitive_type.h>
 

@@ -94,9 +94,9 @@
 #include "EngineEnv/Visualizer/sdl_photon_mapping_mode.h"
 #include "Actor/Image/sdl_image_enums.h"
 #include "Actor/SDLExtension/sdl_color_enums.h"
-#include "Actor/Material/Utility/EInterfaceFresnel.h"
-#include "Actor/Material/Utility/EInterfaceMicrosurface.h"
-#include "Actor/Material/Utility/ERoughnessToAlpha.h"
+#include "Actor/Material/Component/EInterfaceFresnel.h"
+#include "Actor/Material/Component/EInterfaceMicrosurface.h"
+#include "Actor/Material/Component/ERoughnessToAlpha.h"
 #include "DataIO/sdl_picture_file_type.h"
 
 #include <Common/config.h>

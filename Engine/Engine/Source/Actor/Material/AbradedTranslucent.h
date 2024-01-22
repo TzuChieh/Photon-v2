@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Actor/Material/SurfaceMaterial.h"
-#include "Actor/Material/Utility/DielectricInterfaceInfo.h"
-#include "Actor/Material/Utility/MicrosurfaceInfo.h"
+#include "Actor/Material/Component/DielectricInterfaceInfo.h"
+#include "Actor/Material/Component/MicrosurfaceInfo.h"
 #include "SDL/sdl_interface.h"
 
 namespace ph

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Actor/Material/Utility/EInterfaceMicrosurface.h"
-#include "Actor/Material/Utility/ERoughnessToAlpha.h"
+#include "Actor/Material/Component/EInterfaceMicrosurface.h"
+#include "Actor/Material/Component/ERoughnessToAlpha.h"
 #include "SDL/sdl_interface.h"
 
 #include <Common/assertion.h>

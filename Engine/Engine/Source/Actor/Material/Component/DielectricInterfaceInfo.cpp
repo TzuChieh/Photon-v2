@@ -1,4 +1,4 @@
-#include "Actor/Material/Utility/DielectricInterfaceInfo.h"
+#include "Actor/Material/Component/DielectricInterfaceInfo.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 

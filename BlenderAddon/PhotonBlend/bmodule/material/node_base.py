@@ -112,6 +112,27 @@ class PhFloatFactorSocket(PhMaterialNodeSocket):
 
 
 @blender.register_class
+class PhFloatVectorSocket(PhMaterialNodeSocket):
+    """
+    General float vector.
+    """
+    bl_idname = 'PH_FLOAT_VECTOR_SOCKET'
+    bl_label = "Vector"
+
+    default_value: bpy.props.FloatVectorProperty(
+        name="Vector",
+        default=[0, 0, 0],
+        min=-1e32,
+        max=1e32,
+        subtype='NONE',
+        size=3
+    )
+
+    def draw_color(self, b_context, node):
+        return [0.476, 0.727, 0.829, 1.0]  # blue
+
+
+@blender.register_class
 class PhColorSocket(PhMaterialNodeSocket):
     """
     General color value.

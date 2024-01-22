@@ -1,4 +1,4 @@
-#include "Actor/Material/Utility/SurfaceLayerInfo.h"
+#include "Actor/Material/Component/SurfaceLayerInfo.h"
 
 namespace ph
 {

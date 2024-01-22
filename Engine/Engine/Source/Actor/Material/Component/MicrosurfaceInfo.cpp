@@ -1,5 +1,5 @@
-#include "Actor/Material/Utility/MicrosurfaceInfo.h"
-#include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
+#include "Actor/Material/Component/MicrosurfaceInfo.h"
+#include "Actor/Material/Component/RoughnessToAlphaMapping.h"
 #include "Core/SurfaceBehavior/Property/IsoTrowbridgeReitzConstant.h"
 #include "Core/SurfaceBehavior/Property/IsoBeckmann.h"
 #include "Core/SurfaceBehavior/Property/AnisoTrowbridgeReitz.h"

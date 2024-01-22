@@ -2,7 +2,7 @@
 
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
-#include "Actor/Material/Utility/RoughnessToAlphaMapping.h"
+#include "Actor/Material/Component/RoughnessToAlphaMapping.h"
 #include "SDL/sdl_interface.h"
 
 #include <Common/primitive_type.h>

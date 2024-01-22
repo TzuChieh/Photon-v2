@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Actor/Material/SurfaceMaterial.h"
-#include "Actor/Material/Utility/SurfaceLayerInfo.h"
+#include "Actor/Material/Component/SurfaceLayerInfo.h"
 
 #include <vector>
 

@@ -43,6 +43,7 @@ def to_sdl(b_material, sdlconsole):
 PH_MATERIAL_NODES = [
         output_nodes.PhOutputNode,
         input_nodes.PhFloatValueInputNode,
+        input_nodes.PhConstantVectorInputNode,
         input_nodes.PhConstantColorInputNode,
         input_nodes.PhPictureNode,
         input_nodes.PhBlackBodyInputNode,

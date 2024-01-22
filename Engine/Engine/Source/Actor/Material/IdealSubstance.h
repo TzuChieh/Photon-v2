@@ -4,7 +4,7 @@
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
 #include "SDL/sdl_interface.h"
-#include "Actor/Material/Utility/EInterfaceFresnel.h"
+#include "Actor/Material/Component/EInterfaceFresnel.h"
 #include "Actor/SDLExtension/TSdlSpectrum.h"
 
 #include <Common/primitive_type.h>

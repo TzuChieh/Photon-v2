@@ -1,4 +1,4 @@
-#include "Actor/Material/Utility/ConductiveInterfaceInfo.h"
+#include "Actor/Material/Component/ConductiveInterfaceInfo.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Core/SurfaceBehavior/Property/ExactConductorFresnel.h"
 
