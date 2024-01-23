@@ -9,10 +9,10 @@ import os
 import shutil
 
 
-# Requires Python version >= 3.8, check that if we have the required version
+# Requires Python version >= 3.9, check that if we have the required version
 print("Python version: %s" % sys.version)
-if sys.version_info[0] < 3 or sys.version_info[1] < 8:
-    print("Require Python version >= 3.8")
+if (int(sys.version_info[0]), int(sys.version_info[1])) < (3, 9):
+    print("Require Python version >= 3.9")
     sys.exit()
 
 build_dir = os.path.abspath(sys.argv[1])
