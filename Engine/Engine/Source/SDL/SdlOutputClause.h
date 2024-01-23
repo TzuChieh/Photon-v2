@@ -39,7 +39,7 @@ public:
 	// TODO: support binary data
 
 public:
-	inline SdlOutputClause() = default;
+	SdlOutputClause() = default;
 
 	void clear();
 	bool hasTag() const;

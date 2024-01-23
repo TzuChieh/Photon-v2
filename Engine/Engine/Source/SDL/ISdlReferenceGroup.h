@@ -3,6 +3,7 @@
 #include "SDL/ISdlResource.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/sdl_exceptions.h"
+#include "Utility/utility.h"
 
 #include <string_view>
 #include <memory>
@@ -16,10 +17,8 @@ namespace ph
 class ISdlReferenceGroup
 {
 public:
-	inline ISdlReferenceGroup() = default;
-	inline ISdlReferenceGroup(const ISdlReferenceGroup& other) = default;
-	inline ISdlReferenceGroup(ISdlReferenceGroup&& other) = default;
-	inline virtual ~ISdlReferenceGroup() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS_NO_DTOR(ISdlReferenceGroup);
+	virtual ~ISdlReferenceGroup() = default;
 
 	/*! @brief Get a resource reference.
 	@param resourceName The name of the resource.
@@ -43,9 +42,6 @@ public:
 	*/
 	template<typename T>
 	bool hasTyped(std::string_view resourceName) const;
-
-	inline ISdlReferenceGroup& operator = (const ISdlReferenceGroup& rhs) = default;
-	inline ISdlReferenceGroup& operator = (ISdlReferenceGroup&& rhs) = default;
 };
 
 template<typename T>

@@ -12,6 +12,8 @@
 namespace ph
 {
 
+/*! @brief Container for input clauses.
+*/
 class SdlInputClauses final
 {
 public:
@@ -26,6 +28,10 @@ public:
 	/*! @brief Add a new clause.
 	*/
 	void add(std::string type, std::string name, std::string value, std::string tag);
+
+	/*! @brief Add all clauses from another clause container.
+	*/
+	void add(const SdlInputClauses& clauses);
 
 	/*! @brief Remove a clause by index. Preserves the order of remaining clauses.
 	*/
@@ -68,6 +74,14 @@ inline void SdlInputClauses::add(std::string type, std::string name, std::string
 inline void SdlInputClauses::add(std::string type, std::string name, std::string value, std::string tag)
 {
 	add(SdlInputClause(std::move(type), std::move(name), std::move(value), std::move(tag)));
+}
+
+inline void SdlInputClauses::add(const SdlInputClauses& clauses)
+{
+	for(std::size_t ci = 0; ci < clauses.size(); ++ci)
+	{
+		add(clauses[ci]);
+	}
 }
 
 inline void SdlInputClauses::consume(const std::size_t index)

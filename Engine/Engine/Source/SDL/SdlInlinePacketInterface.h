@@ -2,8 +2,10 @@
 
 #include "SDL/SdlDataPacketInterface.h"
 #include "SDL/sdl_fwd.h"
+#include "Utility/TSpan.h"
 
 #include <string>
+#include <vector>
 
 namespace ph
 {
@@ -40,8 +42,14 @@ public:
 		std::string& out_packetCommand) const override;
 
 private:
-	static void parseClauses(std::string_view packetCommand, SdlInputClauses& out_clauses);
-	static void parseSingleClause(std::string_view clauseString, SdlInputClause& out_clause);
+	static void parseClauses(
+		TSpanView<std::string> clauseStrings,
+		const SdlInputContext& ctx, 
+		SdlInputClauses& out_clauses);
+
+	static void parseSingleClause(
+		TSpanView<std::string> clauseTokens,
+		SdlInputClause& out_clause);
 
 	static void appendSingleClause(
 		const SdlOutputClause& clause,

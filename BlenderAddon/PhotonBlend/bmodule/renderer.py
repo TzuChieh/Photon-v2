@@ -260,7 +260,7 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
             ('VPM', "Photon Mapping", "Rough preview, fairly good at caustics", 2),
             ('PPM', "Progressive Photon Mapping", "Good at complex lighting condition", 3),
             ('SPPM', "Stochastic Progressive Photon Mapping", "Good at complex lighting condition", 4),
-            ('PPPM', "Probabilistic Progressive Photon Mapping", "Good at complex lighting condition. Consumes more memory.", 5),
+            ('PPPM', "Probabilistic Progressive Photon Mapping", "Good at complex lighting condition. Consumes more memory but may render in a shorter time than SPPM.", 5),
             ('BVPTDL', "Pure Path Tracing (Direct Lighting)", "", 6),
             ('ATTRIBUTE', "Attribute", "", 7),
             ('CUSTOM', "Custom", "Directly input SDL commands for renderer.", 8)

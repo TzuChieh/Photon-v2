@@ -34,5 +34,6 @@ using SdlNonConstInstance = TSdlAnyInstance<false>;
 
 class ISdlResource;
 class ISdlReferenceGroup;
+class ISdlDataPacketGroup;
 
 }// end namespace ph

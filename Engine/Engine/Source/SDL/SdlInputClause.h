@@ -27,6 +27,7 @@ public:
 	/*! @brief If the carried value is a SDL reference.
 	Identify the format of the string only. Does not test whether the reference actually 
 	points to a valid target or not.
+	@return `true` if `value` is a reference, `false` otherwise.
 	*/
 	bool isReference = false;
 
@@ -34,7 +35,7 @@ public:
 	// TODO: support binary data
 
 public:
-	inline SdlInputClause() = default;
+	SdlInputClause() = default;
 	explicit SdlInputClause(std::string value);
 	SdlInputClause(std::string value, std::string tag);
 	SdlInputClause(std::string type, std::string name, std::string value);

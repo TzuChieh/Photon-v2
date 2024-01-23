@@ -3,6 +3,8 @@
 #include "SDL/SdlInputClauses.h"
 #include "SDL/SdlOutputClause.h"
 #include "SDL/SdlOutputClauses.h"
+#include "SDL/Introspect/SdlInputContext.h"
+#include "SDL/ISdlDataPacketGroup.h"
 #include "SDL/Tokenizer.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_parser.h"
@@ -10,7 +12,6 @@
 #include <Utility/string_utils.h>
 
 #include <utility>
-#include <vector>
 #include <algorithm>
 
 namespace ph
@@ -46,12 +47,20 @@ SdlInlinePacketInterface::SdlInlinePacketInterface(int clauseIndentAmount, char 
 
 void SdlInlinePacketInterface::parse(
 	std::string_view packetCommand,
-	const SdlInputContext& /* ctx */,
+	const SdlInputContext& ctx,
 	std::string_view /* targetName */,
 	ISdlResource* /* targetInstance */,
 	SdlInputClauses& out_clauses) const
 {
-	parseClauses(packetCommand, out_clauses);
+	static const Tokenizer clausesTokenizer(
+		{' ', '\t', '\n', '\r'}, 
+		{{'[', ']'}});
+
+	// OPT: use view
+	std::vector<std::string> clauseStrings;
+	clausesTokenizer.tokenize(std::string(packetCommand), clauseStrings);
+
+	parseClauses(clauseStrings, ctx, out_clauses);
 }
 
 void SdlInlinePacketInterface::generate(
@@ -73,40 +82,64 @@ void SdlInlinePacketInterface::generate(
 	}
 }
 
-void SdlInlinePacketInterface::parseClauses(std::string_view packetCommand, SdlInputClauses& out_clauses)
-{
-	static const Tokenizer clausesTokenizer(
-		{' ', '\t', '\n', '\r'}, 
-		{{'[', ']'}});
-
-	// OPT: use view
-	std::vector<std::string> clauseStrings;
-	clausesTokenizer.tokenize(std::string(packetCommand), clauseStrings);
-
-	// TODO: reuse input clause
-	for(const auto& clauseString : clauseStrings)
-	{
-		SdlInputClause clause;
-		parseSingleClause(clauseString, clause);
-		out_clauses.add(std::move(clause));
-	}
-}
-
-void SdlInlinePacketInterface::parseSingleClause(std::string_view clauseString, SdlInputClause& out_clause)
+void SdlInlinePacketInterface::parseClauses(
+	TSpanView<std::string> clauseStrings,
+	const SdlInputContext& ctx,
+	SdlInputClauses& out_clauses)
 {
 	static const Tokenizer clauseTokenizer(
 		{' ', '\t', '\n', '\r'}, 
 		{{'"', '"'}, {'{', '}'}});
 
-	if(clauseString.empty())
+	// TODO: reuse input clause
+	for(const auto& clauseString : clauseStrings)
 	{
-		throw SdlLoadError(
-			"syntax error: clause string is empty");
-	}
+		if(clauseString.empty())
+		{
+			throw SdlLoadError(
+				"syntax error: clause string is empty");
+		}
 
-	// TODO: tokenize string_view
-	std::vector<std::string> tokens;
-	clauseTokenizer.tokenize(std::string(clauseString), tokens);
+		// TODO: tokenize string_view
+		std::vector<std::string> clauseTokens;
+		clauseTokenizer.tokenize(std::string(clauseString), clauseTokens);
+
+		if(clauseTokens.size() == 1)
+		{
+			std::string_view dataPacketName = string_utils::trim(clauseTokens[0]);
+			if(dataPacketName.empty())
+			{
+				throw_formatted<SdlLoadError>(
+					"syntax error: data packet name is empty");
+			}
+
+			// If current SDL dialect allows named data packet, then it does not make sense to pass
+			// a context without source data packets.
+			PH_ASSERT(ctx.getSrcDataPackets());
+
+			const SdlInputClauses* dataPacket = ctx.getSrcDataPackets()->get(dataPacketName);
+			if(!dataPacket)
+			{
+				throw_formatted<SdlLoadError>(
+					"no data packet is named {}", dataPacketName);
+			}
+
+			out_clauses.add(*dataPacket);
+		}
+		else
+		{
+			SdlInputClause clause;
+			parseSingleClause(clauseTokens, clause);
+			out_clauses.add(std::move(clause));
+		}
+	}
+}
+
+void SdlInlinePacketInterface::parseSingleClause(
+	TSpanView<std::string> clauseTokens,
+	SdlInputClause& out_clause)
+{
+	const auto tokens = clauseTokens;
 	if(tokens.size() < 2)
 	{
 		throw_formatted<SdlLoadError>(

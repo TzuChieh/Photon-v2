@@ -20,8 +20,6 @@ namespace ph
 class RawResourceCollection : public ISdlReferenceGroup
 {
 public:
-	RawResourceCollection();
-
 	std::shared_ptr<ISdlResource> get(std::string_view resourceName) const override;
 	bool has(std::string_view resourceName) const override;
 

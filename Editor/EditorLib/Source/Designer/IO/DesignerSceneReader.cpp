@@ -72,12 +72,11 @@ bool DesignerSceneReader::beginCommand(
 	const SdlClass* const targetClass,
 	SdlInputContext* const out_ctx)
 {
-	if(commandType == ESdlCommandType::Phantom)
+	if(commandType == ESdlCommandType::Phantom || commandType == ESdlCommandType::NamedDataPacket)
 	{
 		PH_LOG_WARNING(DesignerSceneReader,
-			"Phantom command should not be used to create designer resource (class = {}), "
-			"ignoring this command",
-			sdl::gen_pretty_name(targetClass));
+			"Phantom and named data packet command are not supported (class = {}), "
+			"ignoring this command", sdl::gen_pretty_name(targetClass));
 		return false;
 	}
 
@@ -148,9 +147,9 @@ ISdlResource* DesignerSceneReader::createResource(
 }
 
 void DesignerSceneReader::initResource(
+	std::string_view resourceName,
 	ISdlResource* const resource,
 	const SdlInputContext& ctx,
-	std::string_view resourceName,
 	SdlInputClauses& clauses,
 	ESdlCommandType /* commandType */)
 {
@@ -199,6 +198,14 @@ void DesignerSceneReader::commandVersionSet(
 	const SemanticVersion& /* version */,
 	const SdlInputContext& /* ctx */)
 {}
+
+void DesignerSceneReader::storeNamedDataPacket(
+	std::string_view packetName,
+	const SdlInputClauses& packet,
+	const SdlInputContext& ctx)
+{
+	PH_ASSERT_UNREACHABLE_SECTION();
+}
 
 void DesignerSceneReader::readScene()
 {

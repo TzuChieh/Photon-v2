@@ -211,7 +211,7 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 			"reference name cannot be empty");
 	}
 
-	if(!ctx.getSrcReferences())
+	if(!ctx.getSrcResources())
 	{
 		throw_formatted<SdlLoadError>(
 			"no target reference group specified");
@@ -219,7 +219,7 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 
 	// TODO: allow type mismatch?
 	// TODO: we may support some simple syntax such as wildcards or empty ref etc.
-	auto resource = ctx.getSrcReferences()->getTyped<ResourceType>(referenceName);
+	auto resource = ctx.getSrcResources()->getTyped<ResourceType>(referenceName);
 	if(!resource)
 	{
 		throw_formatted<SdlLoadError>(

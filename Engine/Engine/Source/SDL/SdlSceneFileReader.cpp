@@ -38,6 +38,7 @@ SdlSceneFileReader::SdlSceneFileReader(
 	: SdlCommandParser(targetClasses, sceneWorkingDirectory)
 
 	, m_sceneFile(sceneFile)
+	, m_namedDataPackets()
 	, m_scene(nullptr)
 {}
 
@@ -48,7 +49,7 @@ bool SdlSceneFileReader::beginCommand(
 	const SdlClass* const targetClass,
 	SdlInputContext* const out_ctx)
 {
-	*out_ctx = SdlInputContext(m_scene, getSceneWorkingDirectory(), targetClass);
+	*out_ctx = SdlInputContext(m_scene, &m_namedDataPackets, getSceneWorkingDirectory(), targetClass);
 
 	// Consume all commands
 	return true;
@@ -102,9 +103,9 @@ ISdlResource* SdlSceneFileReader::createResource(
 }
 
 void SdlSceneFileReader::initResource(
+	std::string_view resourceName,
 	ISdlResource* const resource,
 	const SdlInputContext& ctx,
-	std::string_view resourceName,
 	SdlInputClauses& clauses,
 	const ESdlCommandType /* commandType */)
 {
@@ -162,6 +163,14 @@ void SdlSceneFileReader::commandVersionSet(
 	const SdlInputContext& /* ctx */)
 {}
 
+void SdlSceneFileReader::storeNamedDataPacket(
+	std::string_view packetName,
+	const SdlInputClauses& packet,
+	const SdlInputContext& ctx)
+{
+	m_namedDataPackets.add(packet, packetName);
+}
+
 void SdlSceneFileReader::read(SceneDescription* const scene)
 {
 	// Only update current scene if `scene` is not null
@@ -181,6 +190,9 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 			m_sceneFile, getSceneWorkingDirectory());
 		return;
 	}
+
+	// Clear existing named packets before reading new file
+	m_namedDataPackets = SdlDataPacketCollection();
 
 	FormattedTextInputStream commandFile(m_sceneFile);
 	if(!commandFile)

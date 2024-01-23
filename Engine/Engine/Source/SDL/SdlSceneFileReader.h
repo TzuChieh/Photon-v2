@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL/SdlCommandParser.h"
+#include "SDL/SdlDataPacketCollection.h"
 #include "DataIO/FileSystem/Path.h"
 
 #include <string>
@@ -60,9 +61,9 @@ protected:
 		ESdlCommandType commandType) override;
 
 	void initResource(
+		std::string_view resourceName,
 		ISdlResource* resource,
 		const SdlInputContext& ctx,
-		std::string_view resourceName,
 		SdlInputClauses& clauses,
 		ESdlCommandType commandType) override;
 
@@ -81,8 +82,14 @@ protected:
 		const SemanticVersion& version,
 		const SdlInputContext& ctx) override;
 
+	void storeNamedDataPacket(
+		std::string_view packetName,
+		const SdlInputClauses& packet,
+		const SdlInputContext& ctx) override;
+
 private:
 	Path m_sceneFile;
+	SdlDataPacketCollection m_namedDataPackets;
 	SceneDescription* m_scene;
 };
 

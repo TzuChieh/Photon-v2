@@ -54,9 +54,9 @@ protected:
 		ESdlCommandType commandType) override;
 
 	void initResource(
+		std::string_view resourceName,
 		ISdlResource* resource,
 		const SdlInputContext& ctx,
-		std::string_view resourceName,
 		SdlInputClauses& clauses,
 		ESdlCommandType commandType) override;
 
@@ -73,6 +73,11 @@ protected:
 
 	void commandVersionSet(
 		const SemanticVersion& version,
+		const SdlInputContext& ctx) override;
+
+	void storeNamedDataPacket(
+		std::string_view packetName,
+		const SdlInputClauses& packet,
 		const SdlInputContext& ctx) override;
 
 private:

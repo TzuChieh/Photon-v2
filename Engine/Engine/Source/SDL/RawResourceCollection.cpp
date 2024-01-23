@@ -8,11 +8,6 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(RawResourceCollection, SDL);
 
-RawResourceCollection::RawResourceCollection()
-	: ISdlReferenceGroup()
-	, m_nameToResource()
-{}
-
 void RawResourceCollection::add(
 	std::shared_ptr<ISdlResource> resource,
 	std::string_view resourceName)
@@ -21,8 +16,8 @@ void RawResourceCollection::add(
 	{
 		throw_formatted<SdlLoadError>(
 			"cannot add SDL resource due to empty resource/name (resource: {}, name: {})", 
-			resource ? sdl::category_to_string(resource->getDynamicCategory()) : "no resource",
-			resourceName.empty() ? resourceName : "no name");
+			resource ? sdl::category_to_string(resource->getDynamicCategory()) : "(no resource)",
+			resourceName.empty() ? resourceName : "(no name)");
 	}
 
 	const auto& iter = m_nameToResource.find(resourceName);
@@ -75,7 +70,7 @@ std::string RawResourceCollection::makeResourceName(std::string_view intendedNam
 			std::string(intendedName) +
 			(suffixNumber == 1 ? "" : "_" + std::to_string(suffixNumber));
 
-		if(!has(generatedName))
+		if(!get(generatedName))
 		{
 			return generatedName;
 		}

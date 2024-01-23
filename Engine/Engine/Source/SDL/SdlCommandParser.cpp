@@ -25,6 +25,7 @@ PH_DEFINE_INTERNAL_TIMER_STAT(ParseCommandTotal, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(ParseLoadCommand, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(ParseExecutionCommand, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(ParseDirectiveCommand, SdlCommandParser);
+PH_DEFINE_INTERNAL_TIMER_STAT(ParseNamedDataPacketCommand, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetCommandHeader, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetClauses, SdlCommandParser);
 PH_DEFINE_INTERNAL_TIMER_STAT(GetSDLClass, SdlCommandParser);
@@ -38,8 +39,10 @@ SdlCommandParser::SdlCommandParser(
 	const Path& sceneWorkingDirectory)
 
 	: m_commandVersion(PH_PSDL_VERSION)
+
 	, m_mangledNameToClass()
 	, m_packetInterface(std::make_unique<SdlInlinePacketInterface>())
+
 	, m_sceneWorkingDirectory(sceneWorkingDirectory)
 	, m_isInSingleLineComment(false)
 	, m_processedCommandCache()
@@ -262,6 +265,10 @@ void SdlCommandParser::parseSingleCommand(const CommandHeader& command)
 		parseDirectiveCommand(command);
 		break;
 
+	case ESdlCommandType::NamedDataPacket:
+		parseNamedDataPacketCommand(command);
+		break;
+
 	default:
 		throw SdlLoadError("unsupported command type");
 		break;
@@ -321,9 +328,9 @@ void SdlCommandParser::parseLoadCommand(const CommandHeader& command)
 		getClauses(command.dataString, ctx, resourceName, resource, &clauses);
 
 		initResource(
+			resourceName,
 			resource, 
 			ctx,
-			resourceName,
 			clauses,
 			command.commandType);
 
@@ -469,6 +476,43 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 	endCommand();
 }
 
+void SdlCommandParser::parseNamedDataPacketCommand(const CommandHeader& command)
+{
+	PH_SCOPED_TIMER(ParseNamedDataPacketCommand);
+
+	if(command.dataPacketName.empty())
+	{
+		throw SdlLoadError(
+			"syntax error: name is required in a named data packet command");
+	}
+
+	PH_ASSERT(command.commandType == ESdlCommandType::NamedDataPacket);
+
+	// Now we have name-related information, which is useful for debugging. 
+	// Catch load errors here to provide name information and re-throw.
+	try
+	{
+		// TODO: reuse input context
+		SdlInputContext ctx;
+		if(!beginCommand(command.commandType, nullptr, &ctx))
+		{
+			return;
+		}
+
+		// Get input value clauses and stroe it as a named data packet
+		SdlInputClauses clauses;
+		getClauses(command.dataString, ctx, "", nullptr, &clauses);
+		storeNamedDataPacket(command.dataPacketName, clauses, ctx);
+
+		endCommand();
+	}
+	catch(const SdlException& e)
+	{
+		throw_formatted<SdlLoadError>(
+			"failed to load named data packet <{}> -> {}", command.dataPacketName, e.whatStr());
+	}
+}
+
 void SdlCommandParser::getClauses(
 	std::string_view packetCommand, 
 	const SdlInputContext& ctx,
@@ -538,19 +582,18 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 		return header;
 	}
 
-	// Parsing resource command
+	// Parsing data command
 	
 	const auto equalSignPos = headTrimmedCommand.find('=');
 	if(equalSignPos == std::string_view::npos)
 	{
 		throw SdlLoadError(
-			"syntax error: resource command requires an assignment operator, none was found");
+			"syntax error: data command requires an assignment operator, none was found");
 	}
 
 	const auto headerString = string_utils::trim_tail(headTrimmedCommand.substr(0, equalSignPos));
 	header.dataString = headTrimmedCommand.substr(equalSignPos + 1);
 
-	
 	// Find the syntax dot sign (must escape the ones potentially in quoted names)
 	auto dotSignPos = std::string_view::npos;
 	{
@@ -573,17 +616,28 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 		case 1:
 			// Executor call without SDL type and reference, 
 			// e.g., `Func()`
+			// TODO: ensure parantheses exist (may need to update tokenizer impl)
 			header.commandType = ESdlCommandType::Execution;
 			header.executorName = tokens[0];
 			break;
 
 		case 2:
+			// Named data packet,
+			// e.g., `packet some-name`, `packet "name with spaces"`
+			if(tokens[0] == "packet")
+			{
+				header.commandType = ESdlCommandType::NamedDataPacket;
+				header.dataPacketName = tokens[1];
+			}
 			// Executor call without SDL type but with reference, 
 			// e.g., `Func(@Ref)`, `Func(@"Ref with spaces")`
 			// (@ may be surrounded by whitespaces)
-			header.commandType = ESdlCommandType::Execution;
-			header.executorName = tokens[0];
-			header.reference = sdl_parser::get_reference(tokens[1]);
+			else
+			{
+				header.commandType = ESdlCommandType::Execution;
+				header.executorName = tokens[0];
+				header.reference = sdl_parser::get_reference(tokens[1]);
+			}
 			break;
 
 		case 3:

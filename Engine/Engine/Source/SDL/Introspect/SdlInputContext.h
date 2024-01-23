@@ -27,51 +27,68 @@ public:
 		const SdlClass* srcClass);
 
 	SdlInputContext(
-		const ISdlReferenceGroup* srcReferences,
+		const ISdlReferenceGroup* srcResources,
+		const ISdlDataPacketGroup* srcDataPackets,
 		Path workingDirectory,
 		const SdlClass* srcClass);
 
 	/*!
 	@return References that are relevant to the current input.
 	*/
-	const ISdlReferenceGroup* getSrcReferences() const;
+	const ISdlReferenceGroup* getSrcResources() const;
+
+	/*!
+	@return Named data packets that are relevant to the current input.
+	*/
+	const ISdlDataPacketGroup* getSrcDataPackets() const;
 
 private:
-	const ISdlReferenceGroup* m_srcReferences;
+	const ISdlReferenceGroup* m_srcResources;
+	const ISdlDataPacketGroup* m_srcDataPackets;
 };
 
 // In-header Implementation:
 
 inline SdlInputContext::SdlInputContext()
 	: SdlIOContext()
-	, m_srcReferences(nullptr)
+	, m_srcResources(nullptr)
+	, m_srcDataPackets(nullptr)
 {}
 
 inline SdlInputContext::SdlInputContext(Path workingDirectory)
 	: SdlIOContext(std::move(workingDirectory))
-	, m_srcReferences(nullptr)
+	, m_srcResources(nullptr)
+	, m_srcDataPackets(nullptr)
 {}
 
 inline SdlInputContext::SdlInputContext(
 	Path workingDirectory,
 	const SdlClass* const srcClass)
 
-	: SdlInputContext(nullptr, std::move(workingDirectory), srcClass)
+	: SdlInputContext(nullptr, nullptr, std::move(workingDirectory), srcClass)
 {}
 
 inline SdlInputContext::SdlInputContext(
-	const ISdlReferenceGroup* const srcReferences,
+	const ISdlReferenceGroup* const srcResources,
+	const ISdlDataPacketGroup* const srcDataPackets,
 	Path workingDirectory,
 	const SdlClass* const srcClass)
 
 	: SdlIOContext(std::move(workingDirectory), srcClass)
 
-	, m_srcReferences(srcReferences)
+	, m_srcResources(srcResources)
+	, m_srcDataPackets(srcDataPackets)
 {}
 
-inline const ISdlReferenceGroup* SdlInputContext::getSrcReferences() const
+inline const ISdlReferenceGroup* SdlInputContext::getSrcResources() const
 {
-	return m_srcReferences;
+	return m_srcResources;
 }
+
+inline const ISdlDataPacketGroup* SdlInputContext::getSrcDataPackets() const
+{
+	return m_srcDataPackets;
+}
+
 
 }// end namespace ph

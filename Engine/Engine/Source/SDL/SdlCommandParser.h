@@ -24,6 +24,7 @@ enum class ESdlCommandType
 	Removal,
 	Update,
 	Execution,
+	NamedDataPacket,
 	Phantom
 };
 
@@ -82,9 +83,9 @@ protected:
 		ESdlCommandType commandType) = 0;
 	
 	virtual void initResource(
+		std::string_view resourceName,
 		ISdlResource* resource, 
 		const SdlInputContext& ctx,
-		std::string_view resourceName,
 		SdlInputClauses& clauses,
 		ESdlCommandType commandType) = 0;
 	
@@ -117,6 +118,11 @@ protected:
 		const SemanticVersion& version,
 		const SdlInputContext& ctx) = 0;
 
+	virtual void storeNamedDataPacket(
+		std::string_view packetName,
+		const SdlInputClauses& packet,
+		const SdlInputContext& ctx) = 0;
+
 private:
 	// OPT: use view
 	struct CommandHeader final
@@ -125,6 +131,7 @@ private:
 		std::string targetCategory;
 		std::string targetType;
 		std::string executorName;
+		std::string dataPacketName;
 		std::string reference;
 		std::string dataString;
 
@@ -156,6 +163,7 @@ private:
 	void parseLoadCommand(const CommandHeader& command);
 	void parseExecutionCommand(const CommandHeader& command);
 	void parseDirectiveCommand(const CommandHeader& command);
+	void parseNamedDataPacketCommand(const CommandHeader& command);
 
 	/*! @brief Retrieve clauses from the packet command.
 	*/
