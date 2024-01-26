@@ -7,18 +7,18 @@
 namespace ph::sdl_parser
 {
 
-auto get_name_with_specifier_from_token(std::string_view inToken)
+auto get_name_with_specifier(std::string_view nameToken)
 -> std::pair<std::string_view, char>
 {
 	// Remove any leading and trailing blank characters
-	auto token = string_utils::trim(inToken);
+	auto token = string_utils::trim(nameToken);
 
 	// Should at least contain a specifier + non-empty reference (name)
 	if(token.size() < 2)
 	{
 		throw_formatted<SdlLoadError>(
 			"syntax error: token is empty or comes without any specifier (<{}> was given)",
-			inToken);
+			nameToken);
 	}
 
 	const char specifier = token.front();
@@ -72,7 +72,7 @@ auto get_name_with_specifier_from_token(std::string_view inToken)
 
 std::string_view get_reference(std::string_view referenceToken)
 {
-	auto [name, specifier] = get_name_with_specifier_from_token(referenceToken);
+	auto [name, specifier] = get_name_with_specifier(referenceToken);
 	if(specifier != '@')
 	{
 		throw_formatted<SdlLoadError>(
@@ -84,7 +84,7 @@ std::string_view get_reference(std::string_view referenceToken)
 
 std::string_view get_data_packet_name(std::string_view dataPacketNameToken)
 {
-	auto [name, specifier] = get_name_with_specifier_from_token(dataPacketNameToken);
+	auto [name, specifier] = get_name_with_specifier(dataPacketNameToken);
 	if(specifier != '$')
 	{
 		throw_formatted<SdlLoadError>(

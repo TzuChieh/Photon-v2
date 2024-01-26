@@ -6,7 +6,9 @@
 namespace ph::sdl_parser
 {
 
-auto get_name_with_specifier_from_token(std::string_view inToken)
+bool starts_with_specifier(std::string_view nameToken);
+
+auto get_name_with_specifier(std::string_view nameToken)
 -> std::pair<std::string_view, char>;
 
 /*! @brief Retrieve reference from a single reference token.
@@ -30,3 +32,5 @@ std::string_view trim_double_quotes(std::string_view str);
 bool is_double_quoted(std::string_view str);
 
 }// end namespace ph::sdl_parser
+
+#include "SDL/sdl_parser.ipp"

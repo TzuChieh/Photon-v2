@@ -106,12 +106,7 @@ void SdlInlinePacketInterface::parseClauses(
 
 		if(clauseTokens.size() == 1)
 		{
-			std::string_view dataPacketName = string_utils::trim(clauseTokens[0]);
-			if(dataPacketName.empty())
-			{
-				throw_formatted<SdlLoadError>(
-					"syntax error: data packet name is empty");
-			}
+			const auto dataPacketName = sdl_parser::get_data_packet_name(clauseTokens[0]);
 
 			// If current SDL dialect allows named data packet, then it does not make sense to pass
 			// a context without source data packets.
@@ -175,9 +170,9 @@ void SdlInlinePacketInterface::parseSingleClause(
 		break;
 
 	case 3:
-		// "@" signifies a following reference,
+		// Starts with a name specifier, using "@" (signifies a following reference) as an example,
 		// e.g., `@Ref`
-		if(tokens[2].starts_with('@'))
+		if(sdl_parser::starts_with_specifier(tokens[2]))
 		{
 			out_clause.isReference = true;
 			out_clause.value = sdl_parser::get_reference(tokens[2]);
@@ -191,10 +186,10 @@ void SdlInlinePacketInterface::parseSingleClause(
 		break;
 
 	case 4:
-		// "@" signifies a following reference,
+		// Starts with a name specifier, using "@" (signifies a following reference) as an example,
 		// e.g., `@ Ref`, `@"Ref"`
 		//         ^ with whitespaces
-		if(tokens[2] == "@")
+		if(sdl_parser::starts_with_specifier(tokens[2]))
 		{
 			out_clause.isReference = true;
 			out_clause.value = tokens[3];
