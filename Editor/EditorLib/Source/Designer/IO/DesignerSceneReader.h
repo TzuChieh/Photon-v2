@@ -2,8 +2,8 @@
 
 #include "Designer/IO/DesignerSceneMetaInfo.h"
 
+#include <Container/TStdUnorderedStringMap.h>
 #include <SDL/SdlCommandParser.h>
-#include <Utility/string_utils.h>
 
 #include <string>
 #include <unordered_map>
@@ -22,7 +22,6 @@ class DesignerSceneReader : public SdlCommandParser
 public:
 	DesignerSceneReader();
 	explicit DesignerSceneReader(const Path& sceneWorkingDirectory);
-	~DesignerSceneReader() override;
 
 	/*! @brief Read the entire designer scene.
 	Scene information must be provided via `setSceneInfo()` prior to calling this method.
@@ -87,7 +86,7 @@ private:
 	std::string m_sceneName;
 	DesignerScene* m_scene;
 	DesignerSceneMetaInfo m_metaInfo;
-	string_utils::TStdUnorderedStringMap<DesignerObject*> m_nameToNewObjs;
+	TStdUnorderedStringMap<DesignerObject*> m_nameToNewObjs;
 };
 
 }// end namespace ph

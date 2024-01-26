@@ -40,16 +40,19 @@ SdlSceneFileWriter::SdlSceneFileWriter(
 
 	, m_sceneFile(sceneFile)
 	, m_resolver()
+	, m_namedOutputClauses()
 	, m_fileStream(nullptr)
 {}
-
-SdlSceneFileWriter::~SdlSceneFileWriter() = default;
 
 bool SdlSceneFileWriter::beginCommand(
 	const SdlClass* const targetClass,
 	SdlOutputContext* const out_ctx)
 {
-	*out_ctx = SdlOutputContext(&m_resolver, getSceneWorkingDirectory(), targetClass);
+	*out_ctx = SdlOutputContext(
+		&m_resolver, 
+		&m_namedOutputClauses, 
+		&getSceneWorkingDirectory(), 
+		targetClass);
 
 	return true;
 }
@@ -73,6 +76,12 @@ void SdlSceneFileWriter::saveResource(
 	}
 
 	resourceClass->saveResource(*resource, clauses, ctx);
+
+	// If the resource outputs named clauses, save them before the resource
+	if(ctx.getNamedOutputClauses() && ctx.getNamedOutputClauses()->numNamedOutputClauses() > 0)
+	{
+		generateCachedNamedDataPacketCommand(*ctx.getNamedOutputClauses());
+	}
 }
 
 void SdlSceneFileWriter::commandGenerated(
@@ -114,6 +123,8 @@ void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene)
 
 	generateVersionCommand(SemanticVersion(PH_PSDL_VERSION));
 
+	// TODO: phantom resources
+
 	std::vector<std::string> names;
 	std::vector<const ISdlResource*> resources = scene.getResources().listAll(&names);
 	m_resolver.analyze(resources, names);
@@ -122,7 +133,7 @@ void SdlSceneFileWriter::saveSceneToFile(const SceneDescription& scene)
 	    resource != nullptr; 
 	    resource = m_resolver.next())
 	{
-		generateLoadCommand(resource, m_resolver.getResourceName(resource));
+		generateResourceCommand(resource, m_resolver.getResourceName(resource));
 	}
 
 	m_fileStream = nullptr;

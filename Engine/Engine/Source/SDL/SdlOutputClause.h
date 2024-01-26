@@ -14,6 +14,10 @@ class SdlOutputClause final
 {
 public:
 	std::string type;
+
+	/*! @brief Stores a name for the data.
+	May refer to some output clauses. See `isUsingNamedOutputClauses`.
+	*/
 	std::string name;
 
 	/*! @brief Stores stringified data of a clause.
@@ -36,6 +40,10 @@ public:
 	*/
 	bool isReference = false;
 
+	/*! @brief If the carried name refers to some output clauses.
+	*/
+	bool isUsingNamedOutputClauses = false;
+
 	// TODO: support binary data
 
 public:
@@ -56,6 +64,7 @@ inline void SdlOutputClause::clear()
 
 	isEmpty = false;
 	isReference = false;
+	isUsingNamedOutputClauses = false;
 }
 
 inline bool SdlOutputClause::hasTag() const

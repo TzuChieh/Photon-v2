@@ -2,11 +2,13 @@
 
 #include "SDL/Introspect/ISdlInstantiable.h"
 #include "SDL/sdl_fwd.h"
+#include "Utility/TAnyPtr.h"
 
 #include <Common/logging.h>
 
 #include <cstddef>
 #include <string>
+#include <vector>
 
 namespace ph
 {
@@ -14,13 +16,8 @@ namespace ph
 PH_DEFINE_EXTERNAL_LOG_GROUP(SdlStruct, SDL);
 
 /*!
-SDL struct do not provide interface for initializing instances to default values such as the one
-provided by SDL class (`SdlClass::initDefaultResource()`). The rationale behind this is that SDL
-struct is designed to be a simple grouped data carrier without the burden of inheritance and 
-member functions. For efficiency and ease of reuse, initializing instances to default values 
-requires a concrete type (the exact type of the struct). Implementations that wish to support this
-feature should use define a method with signature `initDefaultStruct(T& instance) const` where T is
-the concrete type of the struct. 
+SDL struct is designed to be a simple grouped data carrier without the burden of inheritance and 
+member functions for efficiency and ease of reuse.
 
 `TSdl` provides a simplified interface for initializing instances to default values.
 */
@@ -29,8 +26,35 @@ class SdlStruct : public ISdlInstantiable
 public:
 	explicit SdlStruct(std::string typeName);
 
-	virtual std::size_t numFields() const = 0;
-	virtual const SdlField* getField(std::size_t index) const = 0;
+	/*! @brief Initialize a struct object from value clauses.
+	How the object will be initialized depends on the struct's SDL definition.
+	*/
+	virtual void initObject(
+		AnyNonConstPtr         obj,
+		SdlInputClauses&       clauses,
+		const SdlInputContext& ctx) const = 0;
+
+	/*! @brief Initialize a struct object to default values.
+	Default values are defined by the struct's SDL definition.
+	*/
+	virtual void initDefaultObject(AnyNonConstPtr obj) const = 0;
+
+	virtual void saveObject(
+		AnyConstPtr             obj,
+		SdlOutputClauses&       clauses,
+		const SdlOutputContext& ctx) const = 0;
+
+	/*! @brief Get all SDL resources referenced by @p obj.
+	@param obj The object that may contain SDL resources.
+	@param out_resources SDL resources referenced by @p obj. Never contains null.
+	Appends to existing ones.
+	*/
+	virtual void referencedResources(
+		AnyConstPtr obj,
+		std::vector<const ISdlResource*>& out_resources) const = 0;
+
+	std::size_t numFields() const override = 0;
+	const SdlField* getField(std::size_t index) const override = 0;
 
 	std::string_view getTypeName() const override;
 	std::string_view getDescription() const override;

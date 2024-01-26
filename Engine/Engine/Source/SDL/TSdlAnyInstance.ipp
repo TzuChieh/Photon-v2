@@ -34,8 +34,6 @@ inline TSdlAnyInstance<IS_CONST>::TSdlAnyInstance(T* const target)
 {
 	static_assert(sizeof(T) == sizeof(T),
 		"Input must be a complete type.");
-	static_assert(!(!IS_CONST && std::is_const_v<T>),
-		"Input instance is const, cannot convert it to non-const.");
 
 	if constexpr(CDerived<T, ISdlResource>)
 	{
@@ -125,13 +123,6 @@ inline auto* TSdlAnyInstance<IS_CONST>::get() const
 	}
 
 	return static_cast<ReturnType*>(nullptr);
-}
-
-template<bool IS_CONST>
-template<typename T>
-inline const auto* TSdlAnyInstance<IS_CONST>::getConst() const
-{
-	return std::as_const(get<T>());
 }
 
 template<bool IS_CONST>

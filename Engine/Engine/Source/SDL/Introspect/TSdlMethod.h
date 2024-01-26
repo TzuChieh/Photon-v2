@@ -18,7 +18,8 @@ be accessed via the functor's member variables. Each member variables then can b
 binded much like the members of a canonical SDL resource.
 
 @tparam MethodStruct Type of the functor.
-@tparam TargetType Type of the SDL resource class that defines the method.
+@tparam TargetType Type that defines the method. May be any C++ class/struct type including
+SDL resource types.
 */
 template<typename MethodStruct, typename TargetType>
 class TSdlMethod : public SdlFunction

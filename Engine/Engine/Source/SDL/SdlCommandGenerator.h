@@ -10,6 +10,8 @@
 #include <cstddef>
 #include <unordered_set>
 #include <memory>
+#include <vector>
+#include <utility>
 
 namespace ph
 {
@@ -26,9 +28,12 @@ public:
 	// TODO: parameters like binary form? multi-thread?
 	// TODO: command types, e.g., phantom
 
-	void generateLoadCommand(
+	void generateResourceCommand(
 		const ISdlResource* resource,
 		std::string_view resourceName);
+
+	void generateCachedNamedDataPacketCommand(
+		const SdlNamedOutputClauses& namedClauses);
 
 	void generateVersionCommand(const SemanticVersion& version);
 
@@ -60,17 +65,25 @@ protected:
 		const SdlOutputContext& ctx,
 		SdlOutputClauses& clauses) = 0;
 
+	/*! @brief Called when one or more commands are generated.
+	@param commandStr The newly generated command(s).
+	*/
 	virtual void commandGenerated(
 		std::string_view commandStr,
 		const SdlOutputContext& ctx) = 0;
 
 private:
+	/*! @brief Generate a load command for the resource.
+	*/
 	void generateLoadCommand(
 		const ISdlResource& resource, 
 		const SdlOutputContext& ctx,
 		std::string_view resourceName,
 		const SdlOutputClauses& clauses,
 		std::string& out_commandStr);
+
+	std::string borrowStringBuffer();
+	void returnStringBuffer(std::string&& buffer);
 
 	static void appendFullSdlType(
 		const SdlClass* clazz,
@@ -82,6 +95,7 @@ private:
 	Path m_sceneWorkingDirectory;
 	std::size_t m_numGeneratedCommands;
 	std::size_t m_numGenerationErrors;
+	std::vector<std::string> m_stringBuffers;
 };
 
 inline const Path& SdlCommandGenerator::getSceneWorkingDirectory() const
@@ -97,6 +111,24 @@ inline std::size_t SdlCommandGenerator::numGeneratedCommands() const
 inline std::size_t SdlCommandGenerator::numGenerationErrors() const
 {
 	return m_numGenerationErrors;
+}
+
+inline std::string SdlCommandGenerator::borrowStringBuffer()
+{
+	if(m_stringBuffers.empty())
+	{
+		m_stringBuffers.push_back(std::string());
+	}
+
+	std::string buffer = std::move(m_stringBuffers.back());
+	m_stringBuffers.pop_back();
+	return buffer;
+}
+
+inline void SdlCommandGenerator::returnStringBuffer(std::string&& buffer)
+{
+	buffer.clear();
+	m_stringBuffers.push_back(std::move(buffer));
 }
 
 }// end namespace ph

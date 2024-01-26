@@ -5,7 +5,7 @@
 #include "Utility/utility.h"
 
 #include <Common/assertion.h>
-#include <Utility/string_utils.h>
+#include <Container/TStdUnorderedStringMap.h>
 
 #include <unordered_map>
 #include <string>
@@ -92,7 +92,7 @@ public:
 		std::vector<std::string>* out_resourceNames = nullptr) const;
 
 private:
-	using ResourceMapType = string_utils::TStdUnorderedStringMap<std::shared_ptr<ISdlResource>>;
+	using ResourceMapType = TStdUnorderedStringMap<std::shared_ptr<ISdlResource>>;
 
 	ResourceMapType m_nameToResource;
 };

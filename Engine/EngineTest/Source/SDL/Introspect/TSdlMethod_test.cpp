@@ -4,6 +4,7 @@
 #include <SDL/TSdlResourceBase.h>
 #include <SDL/Introspect/TSdlString.h>
 #include <SDL/SdlInputClauses.h>
+#include <SDL/sdl_interface.h>
 
 #include <gtest/gtest.h>
 
@@ -19,6 +20,11 @@ class TestResource : public TSdlResourceBase<ESdlTypeCategory::Ref_Option>
 {
 public:
 	std::string str;
+
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<TestResource>)
+	{
+		return ClassType("dummy");
+	}
 };
 
 struct TestMethodStruct

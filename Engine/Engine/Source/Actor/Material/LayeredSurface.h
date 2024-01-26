@@ -30,8 +30,10 @@ public:
 		clazz.description("Model a surface as having multiple coating layers.");
 		clazz.baseOn<SurfaceMaterial>();
 
-		/*clazz.addStruct(&OwnerType::m_interfaceInfo);
-		clazz.addStruct(&OwnerType::m_microsurfaceInfo);*/
+		TSdlStructArray<SurfaceLayerInfo, OwnerType> layers("layers", &OwnerType::m_layers);
+		layers.description("Physical properties of each layer.");
+		layers.required();
+		clazz.addField(layers);
 
 		return clazz;
 	}

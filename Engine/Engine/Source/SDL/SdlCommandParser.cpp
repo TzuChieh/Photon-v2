@@ -623,11 +623,11 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 
 		case 2:
 			// Named data packet,
-			// e.g., `packet some-name`, `packet "name with spaces"`
+			// e.g., `packet $some-name`
 			if(tokens[0] == "packet")
 			{
 				header.commandType = ESdlCommandType::NamedDataPacket;
-				header.dataPacketName = tokens[1];
+				header.dataPacketName = sdl_parser::get_data_packet_name(tokens[1]);
 			}
 			// Executor call without SDL type but with reference, 
 			// e.g., `Func(@Ref)`, `Func(@"Ref with spaces")`
@@ -641,12 +641,29 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 			break;
 
 		case 3:
+			// Named data packet,
+			// e.g., `packet $ some-name`, `packet $ "name with spaces"`
+			//                ^ with whitespaces
+			if(tokens[0] == "packet")
+			{
+				if(tokens[1] != "$")
+				{
+					throw_formatted<SdlLoadError>(
+						"non-cached data packet is not supported (packet: <{}>)", tokens[2]);
+				}
+
+				header.commandType = ESdlCommandType::NamedDataPacket;
+				header.dataPacketName = tokens[2];
+			}
 			// Creator with SDL type and reference,
 			// e.g., `Category(Type) @Ref`
-			header.commandType = ESdlCommandType::Load;
-			header.targetCategory = tokens[0];
-			header.targetType = tokens[1];
-			header.reference = sdl_parser::get_reference(tokens[2]);
+			else
+			{
+				header.commandType = ESdlCommandType::Load;
+				header.targetCategory = tokens[0];
+				header.targetType = tokens[1];
+				header.reference = sdl_parser::get_reference(tokens[2]);
+			}
 			break;
 
 		case 4:

@@ -20,6 +20,7 @@ class SdlInputClauses;
 class SdlOutputContext;
 class SdlOutputClause;
 class SdlOutputClauses;
+class SdlNamedOutputClauses;
 class SdlDataPacketInterface;
 class SdlCommandGenerator;
 class SdlCommandParser;

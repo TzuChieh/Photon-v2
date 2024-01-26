@@ -3,6 +3,8 @@
 #include "SDL/Introspect/TSdlOwnerStruct.h"
 #include "SDL/Introspect/SdlField.h"
 #include "SDL/Introspect/SdlStructFieldStump.h"
+#include "SDL/Introspect/field_set_op.h"
+#include "SDL/sdl_exceptions.h"
 
 #include <Common/assertion.h>
 
@@ -14,12 +16,88 @@ namespace ph
 {
 
 template<typename StructType>
-inline TSdlOwnerStruct<StructType>::TSdlOwnerStruct(std::string name) :
+inline TSdlOwnerStruct<StructType>::TSdlOwnerStruct(std::string name)
 
-	SdlStruct(std::move(name)),
+	: SdlStruct(std::move(name))
 
-	m_fields()
+	, m_fields()
 {}
+
+template<typename StructType>
+inline void TSdlOwnerStruct<StructType>::initObject(
+	AnyNonConstPtr         obj,
+	SdlInputClauses&       clauses,
+	const SdlInputContext& ctx) const
+{
+	constexpr auto noticeReceiver = [](std::string noticeMsg, EFieldImportance importance)
+	{
+		if(importance == EFieldImportance::Optional || importance == EFieldImportance::NiceToHave)
+		{
+			PH_LOG_STRING(SdlStruct, noticeMsg);
+		}
+		else
+		{
+			PH_LOG_WARNING_STRING(SdlStruct, noticeMsg);
+		}
+	};
+
+	PH_ASSERT(obj);
+
+	// Redundant clauses are not allowed. If this method is called, that means the object is
+	// initialized with clauses dedicated to it.
+	field_set_op::load_fields_from_sdl(
+		*(obj.get<StructType>()),
+		m_fields,
+		clauses,
+		ctx,
+		noticeReceiver);
+}
+
+template<typename StructType>
+inline void TSdlOwnerStruct<StructType>::initDefaultObject(AnyNonConstPtr obj) const
+{
+	PH_ASSERT(obj);
+
+	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
+	{
+		const auto& field = m_fields[fieldIdx];
+
+		// Set field to default value regardless of its importance (field importance is for import/export)
+		field.ownedValueToDefault(*(obj.get<StructType>()));
+	}
+}
+
+template<typename StructType>
+inline void TSdlOwnerStruct<StructType>::saveObject(
+	AnyConstPtr             obj,
+	SdlOutputClauses&       clauses,
+	const SdlOutputContext& ctx) const
+{
+	PH_ASSERT(obj);
+
+	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
+	{
+		const TSdlOwnedField<StructType>& field = m_fields[fieldIdx];
+
+		SdlOutputClause& clause = clauses.createClause();
+		sdl::save_field_id(&field, clause);
+		field.toSdl(*(obj.get<StructType>()), clause, ctx);
+	}
+}
+
+
+template<typename StructType>
+inline void TSdlOwnerStruct<StructType>::referencedResources(
+	AnyConstPtr obj,
+	std::vector<const ISdlResource*>& out_resources) const
+{
+	PH_ASSERT(obj);
+
+	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
+	{
+		m_fields[fieldIdx].ownedResources(*(obj.get<StructType>()), out_resources);
+	}
+}
 
 template<typename StructType>
 template<typename T>

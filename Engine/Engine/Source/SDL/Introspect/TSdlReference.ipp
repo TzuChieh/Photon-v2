@@ -137,11 +137,11 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 
 	try
 	{
-		const auto& resourceName = ctx.getDependencyResolver().getResourceName(resource.get());
+		const auto resourceName = ctx.getResourceName(resource.get());
 		if(resourceName.empty())
 		{
 			throw SdlSaveError(
-				"resource name is not tracked by the reference resolver");
+				"resource name unavailable");
 		}
 
 		out_clause.isReference = true;
@@ -158,9 +158,8 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 	}
 	catch(const SdlException& e)
 	{
-		throw SdlSaveError(
-			"unable to save resource reference " +
-			valueToString(owner) + " -> " + e.whatStr());
+		throw_formatted<SdlSaveError>(
+			"unable to save resource reference {} -> {}", valueToString(owner), e.whatStr());
 	}
 }
 

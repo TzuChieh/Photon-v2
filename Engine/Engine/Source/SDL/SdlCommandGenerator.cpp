@@ -5,13 +5,12 @@
 #include "SDL/sdl_exceptions.h"
 #include "SDL/SdlOutputClauses.h"
 #include "SDL/SdlInlinePacketInterface.h"
+#include "SDL/SdlNamedOutputClauses.h"
 #include "Utility/SemanticVersion.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
-
-#include <cstddef>
-#include <utility>
+#include <Utility/string_utils.h>
 
 namespace ph
 {
@@ -31,6 +30,7 @@ SdlCommandGenerator::SdlCommandGenerator(
 	, m_sceneWorkingDirectory(sceneWorkingDirectory)
 	, m_numGeneratedCommands(0)
 	, m_numGenerationErrors(0)
+	, m_stringBuffers()
 {}
 
 SdlCommandGenerator::~SdlCommandGenerator() = default;
@@ -41,7 +41,7 @@ SdlDataPacketInterface& SdlCommandGenerator::getPacketInterface()
 	return *m_packetInterface;
 }
 
-void SdlCommandGenerator::generateLoadCommand(
+void SdlCommandGenerator::generateResourceCommand(
 	const ISdlResource* const resource,
 	std::string_view resourceName)
 {
@@ -50,6 +50,7 @@ void SdlCommandGenerator::generateLoadCommand(
 		return;
 	}
 
+	std::string generatedCommand = borrowStringBuffer();
 	const SdlClass* clazz = resource->getDynamicSdlClass();
 	PH_ASSERT(clazz);
 
@@ -72,10 +73,8 @@ void SdlCommandGenerator::generateLoadCommand(
 		SdlOutputClauses clauses;
 		saveResource(resource, ctx, clauses);
 
-		// TODO: reuse string buffer
-		std::string generatedCommand;
 		generateLoadCommand(
-			*resource, 
+			*resource,
 			ctx,
 			resourceName,
 			clauses,
@@ -84,9 +83,8 @@ void SdlCommandGenerator::generateLoadCommand(
 		if(!generatedCommand.empty())
 		{
 			commandGenerated(generatedCommand, ctx);
-			++m_numGeneratedCommands;
 		}
-		
+
 		endCommand();
 	}
 	catch(const SdlException& e)
@@ -103,6 +101,59 @@ void SdlCommandGenerator::generateLoadCommand(
 
 		++m_numGenerationErrors;
 	}
+
+	returnStringBuffer(std::move(generatedCommand));
+}
+
+void SdlCommandGenerator::generateCachedNamedDataPacketCommand(
+	const SdlNamedOutputClauses& namedClauses)
+{
+	std::string generatedCommand = borrowStringBuffer();
+
+	try
+	{
+		// TODO: resue output context
+		SdlOutputContext ctx;
+		if(!beginCommand(nullptr, &ctx))
+		{
+			return;
+		}
+
+		SdlNamedOutputClauses& namedClauses = *ctx.getNamedOutputClauses();
+		for(std::size_t ni = 0; ni < namedClauses.numNamedOutputClauses(); ++ni)
+		{
+			const auto packetName = namedClauses.getName(ni);
+
+			// Cached packet name is quoted if contains any whitespace
+			const bool hasWhitespace = string_utils::has_any_of(packetName, string_utils::get_whitespaces());
+			generatedCommand += hasWhitespace ? "packet $\"" : "packet $";
+			generatedCommand += packetName;
+			generatedCommand += hasWhitespace ? "\" = " : " = ";
+
+			getPacketInterface().generate(
+				namedClauses.getOutputClauses(ni), ctx, "", nullptr, generatedCommand);
+
+			generatedCommand += ";\n";
+
+			++m_numGeneratedCommands;
+		}
+
+		if(!generatedCommand.empty())
+		{
+			commandGenerated(generatedCommand, ctx);
+		}
+		
+		endCommand();
+	}
+	catch(const SdlException& e)
+	{
+		PH_LOG_WARNING(SdlCommandGenerator, 
+			"error generating cached name data packet command -> {}", e.whatStr());
+
+		++m_numGenerationErrors;
+	}
+
+	returnStringBuffer(std::move(generatedCommand));
 }
 
 void SdlCommandGenerator::generateVersionCommand(const SemanticVersion& version)
@@ -168,14 +219,20 @@ void SdlCommandGenerator::generateLoadCommand(
 
 	appendFullSdlType(resourceClass, out_commandStr);
 
-	// Resource name is always quoted (TODO: not needed if contains no whitespaces)
-	out_commandStr += " @\"";
-	out_commandStr += resourceName;
-	out_commandStr += "\" = ";
+	// TODO: phantom
 
-	getPacketInterface().generate(clauses, ctx, resourceName, &resource, out_commandStr);
+	// Resource name is quoted if contains any whitespace
+	const bool hasWhitespace = string_utils::has_any_of(resourceName, string_utils::get_whitespaces());
+	out_commandStr += hasWhitespace ? " @\"" : " @";
+	out_commandStr += resourceName;
+	out_commandStr += hasWhitespace ? "\" = " : " = ";
+
+	getPacketInterface().generate(
+		clauses, ctx, resourceName, &resource, out_commandStr);
 
 	out_commandStr += ";\n";
+
+	++m_numGeneratedCommands;
 }
 
 void SdlCommandGenerator::appendFullSdlType(

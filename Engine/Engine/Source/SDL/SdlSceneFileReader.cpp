@@ -49,7 +49,7 @@ bool SdlSceneFileReader::beginCommand(
 	const SdlClass* const targetClass,
 	SdlInputContext* const out_ctx)
 {
-	*out_ctx = SdlInputContext(m_scene, &m_namedDataPackets, getSceneWorkingDirectory(), targetClass);
+	*out_ctx = SdlInputContext(m_scene, &m_namedDataPackets, &getSceneWorkingDirectory(), targetClass);
 
 	// Consume all commands
 	return true;
@@ -168,7 +168,7 @@ void SdlSceneFileReader::storeNamedDataPacket(
 	const SdlInputClauses& packet,
 	const SdlInputContext& ctx)
 {
-	m_namedDataPackets.add(packet, packetName);
+	m_namedDataPackets.addOrUpdate(packet, packetName);
 }
 
 void SdlSceneFileReader::read(SceneDescription* const scene)

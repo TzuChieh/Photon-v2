@@ -12,7 +12,7 @@
 namespace ph
 {
 
-/*! @brief A group of SDL references.
+/*! @brief View for a group of SDL references.
 */
 class ISdlReferenceGroup
 {

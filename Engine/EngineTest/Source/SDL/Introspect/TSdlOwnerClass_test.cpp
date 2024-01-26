@@ -31,6 +31,11 @@ public:
 	{
 		return CATEGORY;
 	}
+
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<TestResource>)
+	{
+		return ClassType("testClass");
+	}
 };
 
 struct TestMethodStruct

@@ -14,6 +14,9 @@
 namespace ph
 {
 
+/*! @brief Resolves dependency between SDL resources and provides a valid initialization order.
+Optionally provide resource name lookup (if user provides resource name during analyzation).
+*/
 class SdlDependencyResolver final
 {
 public:
@@ -35,9 +38,9 @@ public:
 	const ISdlResource* next();
 
 	/*! @brief Get resource name by resource pointer.
-	Only valid for the resources in the last `analyze()` call.
+	Only valid for the resources in the last `analyze()` call. String buffer is backed by the resolver.
 	*/
-	std::string getResourceName(const ISdlResource* resource) const;
+	std::string_view getResourceName(const ISdlResource* resource) const;
 
 private:
 	struct ResourceInfo

@@ -5,6 +5,7 @@
 #include "DataIO/FileSystem/Path.h"
 #include "DataIO/io_exceptions.h"
 #include "SDL/Introspect/SdlClass.h"
+#include "SDL/Introspect/SdlStruct.h"
 #include "SDL/Introspect/SdlField.h"
 #include "SDL/Introspect/SdlFunction.h"
 #include "SDL/SdlOutputClause.h"
@@ -174,6 +175,13 @@ std::string gen_pretty_name(const SdlClass* const clazz)
 {
 	return clazz
 		? std::format("category: {}, name: {}", clazz->genCategoryName(), clazz->getTypeName())
+		: "unavailable";
+}
+
+std::string gen_pretty_name(const SdlStruct* const ztruct)
+{
+	return ztruct
+		? std::format("name: {}", ztruct->getTypeName())
 		: "unavailable";
 }
 

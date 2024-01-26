@@ -26,9 +26,6 @@ public:
 	template<typename T>
 	auto* get() const;
 
-	template<typename T>
-	const T* getConst() const;
-
 	operator bool () const;
 
 	template<typename T>
@@ -68,8 +65,6 @@ inline TAnyPtr<IS_CONST>::TAnyPtr(T* const ptr)
 {
 	static_assert(sizeof(T) == sizeof(T),
 		"Input must be a complete type.");
-	static_assert(!(!IS_CONST && std::is_const_v<T>),
-		"Input pointer is const, cannot convert it to non-const.");
 }
 
 template<bool IS_CONST>
@@ -79,6 +74,7 @@ inline auto* TAnyPtr<IS_CONST>::get() const
 	// Also handles the case where `const` is explicitly specified in `T`
 	using ReturnType = std::conditional_t<IS_CONST, const T, T>;
 
+	// Important: type must be exactly equal for the cast to have defined behavior
 	if(m_pointedType == typeid(T))
 	{
 		return static_cast<ReturnType*>(m_pointer);
@@ -87,13 +83,6 @@ inline auto* TAnyPtr<IS_CONST>::get() const
 	{
 		return static_cast<ReturnType*>(nullptr);
 	}
-}
-
-template<bool IS_CONST>
-template<typename T>
-inline const T* TAnyPtr<IS_CONST>::getConst() const
-{
-	return std::as_const(get<T>());
 }
 
 template<bool IS_CONST>

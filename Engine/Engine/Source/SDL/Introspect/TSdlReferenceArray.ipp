@@ -2,6 +2,8 @@
 
 #include "SDL/Introspect/TSdlReferenceArray.h"
 #include "SDL/Introspect/SdlInputContext.h"
+#include "SDL/Introspect/SdlOutputContext.h"
+#include "SDL/SdlDependencyResolver.h"
 #include "SDL/ISdlResource.h"
 #include "SDL/SceneDescription.h"
 #include "SDL/sdl_exceptions.h"
@@ -49,7 +51,7 @@ template<typename T, typename Owner>
 inline void TSdlReferenceArray<T, Owner>::ownedValueToDefault(Owner& owner) const
 {
 	// Default value for an array is empty
-	owner.*m_valuePtr = std::vector<std::shared_ptr<T>>{};\
+	owner.*m_valuePtr = std::vector<std::shared_ptr<T>>{};
 }
 
 template<typename T, typename Owner>
@@ -143,6 +145,11 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 	const SdlOutputContext& ctx) const
 {
 	const std::vector<std::shared_ptr<T>>& referenceVector = getValueVec(owner);
+	if(referenceVector.empty())
+	{
+		out_clause.isEmpty = true;
+		return;
+	}
 
 	// Basically generates a list of reference names
 	try
@@ -150,17 +157,18 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 		out_clause.value = '{';
 		for(const std::shared_ptr<T>& resource : referenceVector)
 		{
-			const auto& resourceName = ctx.getDependencyResolver().getResourceName(resource.get());
+			const auto resourceName = ctx.getResourceName(resource.get());
 			if(resourceName.empty())
 			{
 				throw SdlSaveError(
-					"resource name is not tracked by the dependency resolver");
+					"resource name unavailable");
 			}
 
 			const bool hasWhitespaces = string_utils::has_any_of(resourceName, string_utils::get_whitespaces());
 			out_clause.value += hasWhitespaces ? "\"" : "";
 			out_clause.value += resourceName;
 			out_clause.value += hasWhitespaces ? "\"" : "";
+			out_clause.value += ' ';
 		}
 		out_clause.value += '}';
 	}
@@ -213,7 +221,7 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 
 	if(!ctx.getSrcResources())
 	{
-		throw_formatted<SdlLoadError>(
+		throw SdlLoadError(
 			"no target reference group specified");
 	}
 
@@ -223,8 +231,7 @@ inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference
 	if(!resource)
 	{
 		throw_formatted<SdlLoadError>(
-			"cannot find resource referenced by <{}>",
-			referenceName);
+			"cannot find resource referenced by <{}>", referenceName);
 	}
 
 	return resource;

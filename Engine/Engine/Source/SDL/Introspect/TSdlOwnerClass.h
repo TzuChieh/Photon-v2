@@ -38,7 +38,7 @@ public:
 
 	void saveResource(
 		const ISdlResource&     resource,
-		SdlOutputClauses&       out_clauses,
+		SdlOutputClauses&       clauses,
 		const SdlOutputContext& ctx) const override;
 
 	void call(
@@ -71,7 +71,7 @@ public:
 	*/
 	void saveFieldsToSdl(
 		const Owner&            owner,
-		SdlOutputClauses&       out_clauses,
+		SdlOutputClauses&       clauses,
 		const SdlOutputContext& ctx) const;
 
 	const TSdlOwnedField<Owner>* getOwnedField(std::size_t index) const;

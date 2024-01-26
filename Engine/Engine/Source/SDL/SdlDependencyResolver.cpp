@@ -71,10 +71,24 @@ const ISdlResource* SdlDependencyResolver::next()
 	return resource;
 }
 
-std::string SdlDependencyResolver::getResourceName(const ISdlResource* const resource) const
+std::string_view SdlDependencyResolver::getResourceName(const ISdlResource* const resource) const
 {
 	const auto optIdx = getResourceInfoIdx(resource);
-	return optIdx ? m_resourceInfos[*optIdx].name : "";
+
+	// Return empty string if not available.
+	//
+	//       !!! IMPORTANT NOTE !!!
+	// Do NOT use ternary conditional to return `std::string_view` if the resulting types are
+	// different--if they both got promoted to `std::string`, a dangling view will be created!
+	//
+	if(optIdx)
+	{
+		return m_resourceInfos[*optIdx].name;
+	}
+	else
+	{
+		return "";
+	}
 }
 
 void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()

@@ -61,6 +61,9 @@ enum class ESdlDataType : uint8
 	/*! Enum types. Specific enum type would require reflection from the enum name. */
 	Enum,
 
+	/*! Struct types. Specific struct type would require reflection from the struct name. */
+	Struct,
+
 	/*! `The ph::Geometry` type. */
 	Geometry,
 

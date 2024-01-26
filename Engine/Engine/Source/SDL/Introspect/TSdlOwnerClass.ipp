@@ -87,7 +87,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::initDefaultResource(ISdlResource& r
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::saveResource(
 	const ISdlResource&     resource,
-	SdlOutputClauses&       out_clauses,
+	SdlOutputClauses&       clauses,
 	const SdlOutputContext& ctx) const
 {
 	// No specific ordering is required here. We save base class first just like how
@@ -95,11 +95,11 @@ inline void TSdlOwnerClass<Owner, FieldSet>::saveResource(
 	if(isDerived())
 	{
 		PH_ASSERT(getBase());
-		getBase()->saveResource(resource, out_clauses, ctx);
+		getBase()->saveResource(resource, clauses, ctx);
 	}
 
 	const Owner* const ownerResource = castTo<const Owner>(&resource);
-	saveFieldsToSdl(*ownerResource, out_clauses, ctx);
+	saveFieldsToSdl(*ownerResource, clauses, ctx);
 }
 
 template<typename Owner, typename FieldSet>
@@ -251,7 +251,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::loadFieldsFromSdl(
 	SdlInputClauses&        clauses,
 	const SdlInputContext&  ctx) const
 {
-	auto noticeReceiver = [](std::string noticeMsg, EFieldImportance importance)
+	constexpr auto noticeReceiver = [](std::string noticeMsg, EFieldImportance importance)
 	{
 		if(importance == EFieldImportance::Optional || importance == EFieldImportance::NiceToHave)
 		{
@@ -274,7 +274,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::loadFieldsFromSdl(
 			m_fields,
 			clauses,
 			ctx,
-			std::move(noticeReceiver));
+			noticeReceiver);
 	}
 	else
 	{
@@ -283,7 +283,7 @@ inline void TSdlOwnerClass<Owner, FieldSet>::loadFieldsFromSdl(
 			m_fields,
 			clauses,
 			ctx,
-			std::move(noticeReceiver));
+			noticeReceiver);
 	}
 }
 
@@ -302,14 +302,14 @@ inline void TSdlOwnerClass<Owner, FieldSet>::setFieldsToDefaults(Owner& owner) c
 template<typename Owner, typename FieldSet>
 inline void TSdlOwnerClass<Owner, FieldSet>::saveFieldsToSdl(
 	const Owner&            owner,
-	SdlOutputClauses&       out_clauses,
+	SdlOutputClauses& clauses,
 	const SdlOutputContext& ctx) const
 {
 	for(std::size_t fieldIdx = 0; fieldIdx < m_fields.numFields(); ++fieldIdx)
 	{
 		const TSdlOwnedField<Owner>& field = m_fields[fieldIdx];
 
-		SdlOutputClause& clause = out_clauses.createClause();
+		SdlOutputClause& clause = clauses.createClause();
 		sdl::save_field_id(&field, clause);
 		field.toSdl(owner, clause, ctx);
 	}

@@ -32,6 +32,7 @@
 #include "SDL/Introspect/TSdlEnumField.h"
 #include "SDL/Introspect/TSdlPath.h"
 #include "SDL/Introspect/TSdlResourceIdentifier.h"
+#include "SDL/Introspect/TSdlStructArray.h"
 
 // Function types
 #include "SDL/Introspect/TSdlMethod.h"

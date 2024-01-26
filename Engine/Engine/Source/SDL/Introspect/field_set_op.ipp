@@ -56,8 +56,8 @@ inline void load_fields_from_sdl(
 			{
 				// Treat a redundant clause input as an optional field
 				noticeReceiver(
-					"SDL class <" + ctx.genPrettySrcClassName() + "> has no matching field for "
-					"input clause <" + clause.genPrettyName() + ">, ignoring",
+					"no matching field for input clause <" + clause.genPrettyName() + "> "
+					"(" + ctx.genPrettySrcInfo() + "), ignoring",
 					EFieldImportance::Optional);
 			}
 
@@ -82,8 +82,9 @@ inline void load_fields_from_sdl(
 				if(importance != EFieldImportance::Optional)
 				{
 					noticeReceiver(
-						"no clause for " + sdl::gen_pretty_name(ctx.getSrcClass(), &field) +
-						", defaults to <" + field.valueToString(owner) + ">",
+						"no clause for field <" + sdl::gen_pretty_name(&field) + "> "
+						"(" + ctx.genPrettySrcInfo() + "), default to "
+						"<" + field.valueToString(owner) + ">",
 						importance);
 				}
 			}

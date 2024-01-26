@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Utility/string_utils.h>
+#include <Container/TStdUnorderedStringMap.h>
 
 #include <string>
 #include <string_view>
@@ -44,7 +44,7 @@ public:
 	-> const ObjectMetaInfo*;
 
 private:
-	using StringMapType = string_utils::TStdUnorderedStringMap<ObjectMetaInfo>;
+	using StringMapType = TStdUnorderedStringMap<ObjectMetaInfo>;
 
 	void setObjectMetaInfo(
 		std::string_view objectName, 

@@ -32,9 +32,6 @@ public:
 	template<typename T>
 	auto* get() const;
 
-	template<typename T>
-	const auto* getConst() const;
-
 	const SdlClass* getClass() const;
 	const SdlStruct* getStruct() const;
 	const SdlFunction* getFunction() const;

@@ -9,6 +9,8 @@ namespace ph
 
 class SdlInputClauses;
 
+/*! @brief View for a group of named data packets.
+*/
 class ISdlDataPacketGroup
 {
 public:

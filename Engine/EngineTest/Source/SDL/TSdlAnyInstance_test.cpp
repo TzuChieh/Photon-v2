@@ -16,8 +16,7 @@ struct DummyStruct
 
 	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<DummyStruct>)
 	{
-		StructType ztruct("dummy");
-		return ztruct;
+		return StructType("dummy");
 	}
 };
 

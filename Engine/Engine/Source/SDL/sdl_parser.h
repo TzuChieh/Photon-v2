@@ -1,17 +1,23 @@
 #pragma once
 
 #include <string_view>
+#include <utility>
 
 namespace ph::sdl_parser
 {
 
+auto get_name_with_specifier_from_token(std::string_view inToken)
+-> std::pair<std::string_view, char>;
+
 /*! @brief Retrieve reference from a single reference token.
 A reference token is not the same as a reference. Reference token contains additional specifiers
-such as a reference indicator (the @ character). For example, `@name` is a reference token, while
+such as a persistence indicator (the @ character). For example, `@name` is a reference token, while
 `name` is a reference (with `@` being its specifier), and this function will return `name`
 given `@name`.
 */
 std::string_view get_reference(std::string_view referenceToken);
+
+std::string_view get_data_packet_name(std::string_view dataPacketNameToken);
 
 /*! @brief Remove the enclosing double quotes and whitespaces from `str`.
 Note that if only a single double quote exists (not in a pair), it does not count as being enclosed

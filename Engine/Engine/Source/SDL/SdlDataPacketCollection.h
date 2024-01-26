@@ -3,7 +3,7 @@
 #include "SDL/ISdlDataPacketGroup.h"
 #include "SDL/SdlInputClauses.h"
 
-#include <Utility/string_utils.h>
+#include <Container/TStdUnorderedStringMap.h>
 
 #include <unordered_map>
 
@@ -15,12 +15,20 @@ class SdlDataPacketCollection : public ISdlDataPacketGroup
 public:
 	const SdlInputClauses* get(std::string_view packetName) const override;
 
-	void add(
+	void addUnique(
+		SdlInputClauses packet,
+		std::string_view packetName);
+
+	void addOrUpdate(
 		SdlInputClauses packet,
 		std::string_view packetName);
 
 private:
-	using PacketMapType = string_utils::TStdUnorderedStringMap<SdlInputClauses>;
+	void add(
+		SdlInputClauses packet,
+		std::string_view packetName);
+
+	using PacketMapType = TStdUnorderedStringMap<SdlInputClauses>;
 
 	PacketMapType m_nameToPacket;
 };

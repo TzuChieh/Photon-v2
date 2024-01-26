@@ -10,8 +10,8 @@
 #include "ThirdParty/DearImGui.h"
 
 #include <Common/assertion.h>
+#include <Container/TStdUnorderedStringMap.h>
 #include <Utility/utility.h>
-#include <Utility/string_utils.h>
 #include <Math/TVector2.h>
 #include <Math/TVector4.h>
 #include <DataIO/FileSystem/Path.h>
@@ -169,7 +169,7 @@ private:
 	std::vector<Loader> m_loaders;
 	std::vector<NativeHandleRetriever> m_retrievers;
 	std::vector<render::TextureHandle> m_unloadingTextures;
-	string_utils::TStdUnorderedStringMap<Entry> m_namedEntries;
+	TStdUnorderedStringMap<Entry> m_namedEntries;
 	std::array<Entry, enum_size<EImguiImage>()> m_builtinEntries;
 };
 

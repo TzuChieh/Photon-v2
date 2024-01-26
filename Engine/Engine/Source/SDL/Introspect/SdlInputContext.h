@@ -8,29 +8,29 @@
 
 #include <utility>
 #include <string>
+#include <type_traits>
 
 namespace ph
 {
 
 /*! @brief Data that SDL input process can rely on.
-@note Modifications to this class must be aware for potential concurrent use cases.
 */
 class SdlInputContext final : public SdlIOContext
 {
 public:
 	SdlInputContext();
 
-	explicit SdlInputContext(Path workingDirectory);
-
-	SdlInputContext(
-		Path workingDirectory,
-		const SdlClass* srcClass);
+	explicit SdlInputContext(
+		const Path* workingDirectory,
+		const SdlClass* srcClass = nullptr,
+		const SdlStruct* srcStruct = nullptr);
 
 	SdlInputContext(
 		const ISdlReferenceGroup* srcResources,
 		const ISdlDataPacketGroup* srcDataPackets,
-		Path workingDirectory,
-		const SdlClass* srcClass);
+		const Path* workingDirectory,
+		const SdlClass* srcClass = nullptr,
+		const SdlStruct* srcStruct = nullptr);
 
 	/*!
 	@return References that are relevant to the current input.
@@ -47,34 +47,44 @@ private:
 	const ISdlDataPacketGroup* m_srcDataPackets;
 };
 
+// Try to make the context trivially copyable, so mock contexts and copy-and-modified contexts can
+// be cheaper to create.
+static_assert(std::is_trivially_copyable_v<SdlInputContext>);
+
 // In-header Implementation:
 
 inline SdlInputContext::SdlInputContext()
-	: SdlIOContext()
-	, m_srcResources(nullptr)
-	, m_srcDataPackets(nullptr)
-{}
 
-inline SdlInputContext::SdlInputContext(Path workingDirectory)
-	: SdlIOContext(std::move(workingDirectory))
+	: SdlIOContext()
+
 	, m_srcResources(nullptr)
 	, m_srcDataPackets(nullptr)
 {}
 
 inline SdlInputContext::SdlInputContext(
-	Path workingDirectory,
-	const SdlClass* const srcClass)
+	const Path* const workingDirectory,
+	const SdlClass* const srcClass,
+	const SdlStruct* const srcStruct)
 
-	: SdlInputContext(nullptr, nullptr, std::move(workingDirectory), srcClass)
+	: SdlInputContext(
+		nullptr,
+		nullptr,
+		workingDirectory, 
+		srcClass, 
+		srcStruct)
 {}
 
 inline SdlInputContext::SdlInputContext(
 	const ISdlReferenceGroup* const srcResources,
 	const ISdlDataPacketGroup* const srcDataPackets,
-	Path workingDirectory,
-	const SdlClass* const srcClass)
+	const Path* const workingDirectory,
+	const SdlClass* const srcClass,
+	const SdlStruct* const srcStruct)
 
-	: SdlIOContext(std::move(workingDirectory), srcClass)
+	: SdlIOContext(
+		workingDirectory, 
+		srcClass, 
+		srcStruct)
 
 	, m_srcResources(srcResources)
 	, m_srcDataPackets(srcDataPackets)
@@ -89,6 +99,5 @@ inline const ISdlDataPacketGroup* SdlInputContext::getSrcDataPackets() const
 {
 	return m_srcDataPackets;
 }
-
 
 }// end namespace ph

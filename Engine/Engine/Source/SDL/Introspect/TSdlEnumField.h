@@ -29,14 +29,14 @@ class TSdlEnumField : public SdlValueType
 
 public:
 	template<typename ValueType>
-	inline explicit TSdlEnumField(ValueType Owner::* const valuePtr)
+	explicit TSdlEnumField(ValueType Owner::* const valuePtr)
 		: TSdlEnumField(
 			TSdlEnum<EnumType>::getSdlEnum()->getName(), 
 			valuePtr)
 	{}
 
 	template<typename ValueType>
-	inline TSdlEnumField(std::string valueName, ValueType Owner::* const valuePtr)
+	TSdlEnumField(std::string valueName, ValueType Owner::* const valuePtr)
 		: SdlValueType(
 			"enum", 
 			std::move(valueName), 
@@ -44,12 +44,12 @@ public:
 			valuePtr)
 	{}
 
-	inline std::string valueAsString(const EnumType& value) const override
+	std::string valueAsString(const EnumType& value) const override
 	{
 		return std::string(TSdlEnum<EnumType>()[value]);
 	}
 
-	inline SdlNativeData ownedNativeData(Owner& owner) const override
+	SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		EnumType* const enumPtr = this->getValue(owner);
 		if constexpr(std::is_base_of_v<TSdlOptionalValue<EnumType, Owner>, SdlValueType>)
@@ -90,7 +90,7 @@ public:
 	}
 
 protected:
-	inline void loadFromSdl(
+	void loadFromSdl(
 		Owner&                 owner,
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
@@ -98,7 +98,7 @@ protected:
 		this->setValue(owner, TSdlEnum<EnumType>()[clause.value]);
 	}
 
-	inline void saveToSdl(
+	void saveToSdl(
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override

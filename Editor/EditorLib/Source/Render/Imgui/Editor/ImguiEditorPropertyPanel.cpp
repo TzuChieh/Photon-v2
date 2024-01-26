@@ -8,13 +8,13 @@
 
 #include "ThirdParty/DearImGui.h"
 
+#include <Container/TStdUnorderedStringMap.h>
 #include <SDL/SceneDescription.h>
 #include <ph_core.h>
 #include <ph_editor.h>
 #include <SDL/sdl_helpers.h>
 #include <SDL/Introspect/SdlField.h>
 #include <SDL/Introspect/SdlEnum.h>
-#include <Utility/string_utils.h>
 
 #include <cstddef>
 #include <utility>
@@ -616,10 +616,10 @@ auto ImguiEditorPropertyPanel::gatherEnumTypes()
 auto ImguiEditorPropertyPanel::getEnumType(std::string_view typeSignature)
 -> const EnumType*
 {
-	static const string_utils::TStdUnorderedStringMap<EnumType> typeSignatureToEnumType = 
+	static const TStdUnorderedStringMap<EnumType> typeSignatureToEnumType =
 		[]()
 		{
-			string_utils::TStdUnorderedStringMap<EnumType> mapper;
+			TStdUnorderedStringMap<EnumType> mapper;
 			for(const EnumType& enumType : gatherEnumTypes())
 			{
 				std::string typeSignature = "E/" + enumType.enuw->getName();

@@ -22,7 +22,23 @@ public:
 public:
 	explicit TSdlOwnerStruct(std::string name);
 
-	/*! @brief Initialize a struct object to default values.
+	void initObject(
+		AnyNonConstPtr         obj,
+		SdlInputClauses&       clauses,
+		const SdlInputContext& ctx) const override;
+
+	void initDefaultObject(AnyNonConstPtr obj) const override;
+
+	void saveObject(
+		AnyConstPtr             obj,
+		SdlOutputClauses&       clauses,
+		const SdlOutputContext& ctx) const override;
+
+	void referencedResources(
+		AnyConstPtr obj,
+		std::vector<const ISdlResource*>& out_resources) const override;
+
+	/*! @brief Initialize the struct object to default values.
 	*/
 	void initDefaultStruct(StructType& structObj) const;
 

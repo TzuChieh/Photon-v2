@@ -6,6 +6,8 @@
 #include "SDL/Introspect/field_set_op.h"
 #include "SDL/SceneDescription.h"
 #include "SDL/sdl_exceptions.h"
+#include "SDL/sdl_traits.h"
+#include "SDL/sdl_helpers.h"
 
 #include <Common/assertion.h>
 
@@ -25,19 +27,22 @@ inline void TSdlMethod<MethodStruct, TargetType>::call(
 	SdlInputClauses&       clauses,
 	const SdlInputContext& ctx) const
 {
+	static_assert(CHasSdlClassDefinition<TargetType>);
+
 	if(!resource)
 	{
-		throw SdlLoadError(
-			"cannot call SDL method without target resource "
-			"(" + ctx.genPrettySrcClassName() + ")");
+		throw_formatted<SdlLoadError>(
+			"cannot call SDL method without target resource ({})",
+			sdl::gen_pretty_name(TargetType::getSdlClass()));
 	}
 
 	auto const targetRes = dynamic_cast<TargetType*>(resource);
 	if(!targetRes)
 	{
-		throw SdlLoadError(
-			"type cast error: target resource is not owned by "
-			"SDL class <" + ctx.genPrettySrcClassName() + ">");
+		throw_formatted<SdlLoadError>(
+			"incompatible target resource, given {}, expected {}",
+			sdl::gen_pretty_name(resource->getDynamicSdlClass()),
+			sdl::gen_pretty_name(TargetType::getSdlClass()));
 	}
 
 	PH_ASSERT(targetRes);
@@ -56,7 +61,7 @@ inline void TSdlMethod<MethodStruct, TargetType>::callMethod(
 	static_assert(std::is_invocable_v<MethodStruct, TargetType&>,
 		"MethodStruct must contain an operator() that can take a TargetType instance.");
 
-	MethodStruct methodStructObj;
+	MethodStruct methodStructObj{};
 	loadParameters(
 		methodStructObj,
 		clauses,

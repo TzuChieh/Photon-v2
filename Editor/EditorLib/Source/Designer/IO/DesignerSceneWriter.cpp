@@ -44,7 +44,7 @@ bool DesignerSceneWriter::beginCommand(
 	const SdlClass* const targetClass,
 	SdlOutputContext* const out_ctx)
 {
-	*out_ctx = SdlOutputContext(&m_resolver, getSceneWorkingDirectory(), targetClass);
+	*out_ctx = SdlOutputContext(&m_resolver, nullptr, &getSceneWorkingDirectory(), targetClass);
 
 	return true;
 }
@@ -142,14 +142,14 @@ void DesignerSceneWriter::saveSceneToFile(const DesignerScene& scene, const Path
 	generateVersionCommand(SemanticVersion(PH_PSDL_VERSION));
 
 	// Save designer scene first, since object creation depends on scene
-	generateLoadCommand(&scene, scene.getName());
+	generateResourceCommand(&scene, scene.getName());
 
 	// Save designer objects
 	for(const ISdlResource* resource = m_resolver.next();
 	    resource != nullptr;
 	    resource = m_resolver.next())
 	{
-		generateLoadCommand(resource, m_resolver.getResourceName(resource));
+		generateResourceCommand(resource, m_resolver.getResourceName(resource));
 	}
 
 	m_fileStream = nullptr;

@@ -281,7 +281,7 @@ std::size_t Editor::createScene(const Path& workingDirectory, const std::string&
 	// The description link will be empty if the designer scene is a newly created one. 
 	// Set the link to the same folder and same name as the designer scene (bundled description).
 	PH_ASSERT(!scene->getRenderDescriptionLink().hasIdentifier());
-	scene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(workingDirectory))
+	scene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(&workingDirectory))
 		.toBundleIdentifier(workingDirectory / (scene->getName() + ".p2")));
 
 	// Bundled description uses the same working directory as the designer scene
@@ -372,7 +372,7 @@ std::size_t Editor::createSceneFromDescription(
 	// The description link will be empty if the designer scene is a newly created one. 
 	// Set the link to the same folder and same name as the designer scene (bundled description).
 	PH_ASSERT(!scene->getRenderDescriptionLink().hasIdentifier());
-	scene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(workingDirectory))
+	scene->setRenderDescriptionLink(SdlResourceLocator(SdlOutputContext(&workingDirectory))
 		.toBundleIdentifier(bundledDesc));
 
 	// Bundled description uses the same working directory as the designer scene

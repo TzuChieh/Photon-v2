@@ -4,8 +4,8 @@
 
 #include "ThirdParty/glad2.h"
 
+#include <Container/TStdUnorderedStringMap.h>
 #include <Utility/utility.h>
-#include <Utility/string_utils.h>
 
 #include <memory>
 #include <string>
@@ -50,7 +50,7 @@ private:
 	std::string getInfoLog() const;
 
 	GLuint m_programID;
-	string_utils::TStdUnorderedStringMap<Uniform> m_nameToUniform;
+	TStdUnorderedStringMap<Uniform> m_nameToUniform;
 };
 
 inline auto OpenglShaderProgram::getUniform(const GLenum type, std::string_view name) const

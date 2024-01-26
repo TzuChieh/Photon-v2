@@ -2,6 +2,7 @@
 
 #include "SDL/SdlCommandGenerator.h"
 #include "SDL/SdlDependencyResolver.h"
+#include "SDL/SdlNamedOutputClauses.h"
 #include "DataIO/FileSystem/Path.h"
 
 #include <string>
@@ -31,8 +32,6 @@ public:
 		const Path& sceneFile, 
 		const Path& sceneWorkingDirectory);
 
-	~SdlSceneFileWriter() override;
-
 	/*! @brief Writes the scene to the writer-specified destination.
 	*/
 	void write(const SceneDescription& scene);
@@ -60,6 +59,7 @@ private:
 
 	Path m_sceneFile;
 	SdlDependencyResolver m_resolver;
+	SdlNamedOutputClauses m_namedOutputClauses;
 	FormattedTextOutputStream* m_fileStream;
 };
 

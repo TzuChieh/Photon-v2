@@ -8,7 +8,7 @@ namespace ph
 
 /*! @brief Abstraction for a value that is owned by some owner type.
 Governs how a field should be initialized on the policy level.
-@tparam Owner The owner type. May be any class/struct type including SDL resource types.
+@tparam Owner The owner type. May be any C++ class/struct type including SDL resource types.
 */
 template<typename Owner>
 class TSdlOwnedField : public SdlField

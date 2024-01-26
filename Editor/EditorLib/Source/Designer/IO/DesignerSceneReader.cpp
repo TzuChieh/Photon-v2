@@ -33,8 +33,6 @@ DesignerSceneReader::DesignerSceneReader(const Path& sceneWorkingDirectory)
 	setPacketInterface(std::make_unique<DesignerDataPacketInterface>());
 }
 
-DesignerSceneReader::~DesignerSceneReader() = default;
-
 void DesignerSceneReader::read()
 {
 	if(!m_sceneName.empty() && m_scene)
@@ -75,12 +73,12 @@ bool DesignerSceneReader::beginCommand(
 	if(commandType == ESdlCommandType::Phantom || commandType == ESdlCommandType::NamedDataPacket)
 	{
 		PH_LOG_WARNING(DesignerSceneReader,
-			"Phantom and named data packet command are not supported (class = {}), "
+			"Phantom and named data packet commands are not supported (class = {}), "
 			"ignoring this command", sdl::gen_pretty_name(targetClass));
 		return false;
 	}
 
-	*out_ctx = SdlInputContext(getSceneWorkingDirectory(), targetClass);
+	*out_ctx = SdlInputContext(&getSceneWorkingDirectory(), targetClass);
 
 	// Consume all commands
 	return true;
