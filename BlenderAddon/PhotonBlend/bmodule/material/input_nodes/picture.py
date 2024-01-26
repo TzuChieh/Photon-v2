@@ -46,7 +46,7 @@ class PhPictureNode(PhMaterialInputNode):
             ('xyY', "CIE xyY", "", 2),
             ('LSRGB', "Linear sRGB", "", 3),
             ('SRGB', "sRGB", "", 4),
-            ('ACES', "ACEScg", "", 5),
+            ('ACEScg', "ACEScg", "", 5),
         ],
         name="Color Space",
         description="Color space of the picture.",

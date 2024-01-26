@@ -9,6 +9,9 @@ enum class EColorSpace
 	Update `is_tristimulus()` if entries are modified.
 	*/
 
+	/*! If applicable, most likely will treat values as raw data or fallback to linear sRGB. 
+	Will result in error if used in a non-applicable situation.
+	*/
 	Unspecified = 0,
 
 	/*! The CIE 1931 color space that many color spaces based on. */

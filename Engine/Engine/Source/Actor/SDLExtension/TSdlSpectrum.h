@@ -30,23 +30,23 @@ class TSdlSpectrum : public SdlValueType
 
 public:
 	template<typename ValueType>
-	inline TSdlSpectrum(
+	TSdlSpectrum(
 		std::string valueName, 
 		const math::EColorUsage usage,
-		ValueType Owner::* const valuePtr) :
+		ValueType Owner::* const valuePtr)
 
-		SdlValueType("spectrum", std::move(valueName), valuePtr),
+		: SdlValueType("spectrum", std::move(valueName), valuePtr)
 
-		m_usage(usage)
+		, m_usage(usage)
 	{}
 
-	inline std::string valueAsString(const math::Spectrum& spectrum) const override
+	std::string valueAsString(const math::Spectrum& spectrum) const override
 	{
 		// TODO: add type, # values?
 		return spectrum.toString();
 	}
 
-	inline SdlNativeData ownedNativeData(Owner& owner) const override
+	SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		math::Spectrum* const spectrum = this->getValue(owner);
 		if constexpr(std::is_base_of_v<TSdlOptionalValue<math::Spectrum, Owner>, SdlValueType>)
@@ -87,7 +87,7 @@ public:
 	}
 
 protected:
-	inline void loadFromSdl(
+	void loadFromSdl(
 		Owner&                 owner,
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override

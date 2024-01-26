@@ -40,6 +40,8 @@ protected:
 public:
 	using Base::Base;
 
+	/*! @brief Set color values directly. Calling `setColorValues()` has the same effect.
+	*/
 	template<typename U>
 	explicit TSpectrumBase(const TRawColorValues<U, N>& values);
 

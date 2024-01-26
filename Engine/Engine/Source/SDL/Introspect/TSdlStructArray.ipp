@@ -24,8 +24,9 @@ inline TSdlStructArray<Struct, Owner>::TSdlStructArray(
 	std::vector<Struct> Owner::* const valuePtr)
 
 	: TSdlOwnedField<Owner>(
-		getStructTypeName() + "-array",
-		std::move(valueName))
+		"struct-array",
+		std::move(valueName),
+		"[S/" + getStructTypeName())
 
 	, m_valuePtr(valuePtr)
 {

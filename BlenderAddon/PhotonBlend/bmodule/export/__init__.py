@@ -19,6 +19,7 @@ import bpy
 import mathutils
 
 import math
+import time
 
 
 class Exporter:
@@ -39,6 +40,8 @@ class Exporter:
         print("-------------------------------------------------------------")
         print("exporting Photon scene to <%s>" % scene_folder_path)
 
+        self.__begin_time = time.time()
+
         utility.create_folder(scene_folder_path)
 
         self.__sdlconsole = SdlConsole(scene_folder_path, scene_name)
@@ -47,7 +50,9 @@ class Exporter:
     def end(self):
         self.__sdlconsole.finish()
 
-        print("exporting complete")
+        elapsed_time = time.time() - self.__begin_time
+
+        print("exporting complete (%f s)" % elapsed_time)
         print("-------------------------------------------------------------")
 
     def export_material(self, b_material):

@@ -16,7 +16,7 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<math::EColorSpace>)
 	sdlEnum.addEntry(EnumType::CIE_xyY,     "xyY");
 	sdlEnum.addEntry(EnumType::Linear_sRGB, "LSRGB");
 	sdlEnum.addEntry(EnumType::sRGB,        "SRGB");
-	sdlEnum.addEntry(EnumType::ACEScg,      "ACES");
+	sdlEnum.addEntry(EnumType::ACEScg,      "ACEScg");
 
 	// Spectral representation is always defined to be "SPD" on the SDL side and is expected to
 	// have values for constructing a spectral distribution. This way, it is easier to change the
