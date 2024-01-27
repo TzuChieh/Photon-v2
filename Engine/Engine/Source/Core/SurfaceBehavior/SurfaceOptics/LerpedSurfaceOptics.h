@@ -40,11 +40,6 @@ public:
 	std::string toString() const override;
 
 private:
-	std::shared_ptr<SurfaceOptics>            m_optics0;
-	std::shared_ptr<SurfaceOptics>            m_optics1;
-	std::shared_ptr<TTexture<math::Spectrum>> m_ratio;
-	TSampler<math::Spectrum>                  m_sampler;
-
 	void calcBsdf(
 		const BsdfQueryContext& ctx,
 		const BsdfEvalInput&    in,
@@ -62,6 +57,12 @@ private:
 		BsdfPdfOutput&          out) const override;
 
 	static real probabilityOfPickingOptics0(const math::Spectrum& ratio);
+
+	std::shared_ptr<SurfaceOptics>            m_optics0;
+	std::shared_ptr<SurfaceOptics>            m_optics1;
+	std::shared_ptr<TTexture<math::Spectrum>> m_ratio;
+	TSampler<math::Spectrum>                  m_sampler;
+	bool                                      m_containsDelta;
 };
 
 // In-header Implementations:
@@ -73,6 +74,11 @@ inline std::string LerpedSurfaceOptics::toString() const
 		"optics_0: " + m_optics0->toString() + 
 		"optics_1: " + m_optics1->toString() + 
 		", " + SurfaceOptics::toString();
+}
+
+inline real LerpedSurfaceOptics::probabilityOfPickingOptics0(const math::Spectrum& ratio)
+{
+	return math::clamp(ratio.relativeLuminance(math::EColorUsage::ECF), 0.0_r, 1.0_r);
 }
 
 }// end namespace ph

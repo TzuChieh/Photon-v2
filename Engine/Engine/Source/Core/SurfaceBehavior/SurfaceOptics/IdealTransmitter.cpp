@@ -31,7 +31,7 @@ IdealTransmitter::IdealTransmitter(
 	PH_ASSERT(m_fresnel);
 	PH_ASSERT(m_transmissionScale);
 
-	m_phenomena.set({ESurfacePhenomenon::DeltaTransmission});
+	m_phenomena.set(ESurfacePhenomenon::DeltaTransmission);
 }
 
 ESurfacePhenomenon IdealTransmitter::getPhenomenonOf(const SurfaceElemental elemental) const

@@ -271,7 +271,7 @@ template<ESidednessPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::isNeeSamplable(const SurfaceHit& X) const
 {
 	const SurfaceOptics* optics = X.getSurfaceOptics();
-	return optics && optics->getAllPhenomena().hasNo(DELTA_SURFACE_PHENOMENA);
+	return optics && optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA);
 }
 
 template<ESidednessPolicy POLICY>

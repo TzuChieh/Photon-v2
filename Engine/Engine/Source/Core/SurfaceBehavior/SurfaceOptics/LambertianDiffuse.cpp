@@ -26,7 +26,7 @@ LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<math::Spectr
 {
 	PH_ASSERT(albedo);
 
-	m_phenomena.set({ESurfacePhenomenon::DiffuseReflection});
+	m_phenomena.set(ESurfacePhenomenon::DiffuseReflection);
 }
 
 ESurfacePhenomenon LambertianDiffuse::getPhenomenonOf(const SurfaceElemental elemental) const

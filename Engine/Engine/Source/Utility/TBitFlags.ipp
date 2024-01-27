@@ -48,8 +48,13 @@ inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::intersectWith
 template<typename Value, typename Input>
 inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::set(const FlagsSet& flagsSet)
 {
-	m_bits = collectFlags(flagsSet);
+	return set(static_cast<Input>(collectFlags(flagsSet)));
+}
 
+template<typename Value, typename Input>
+inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::set(const Input flagsSet)
+{
+	m_bits = static_cast<Value>(flagsSet);
 	return *this;
 }
 
@@ -70,38 +75,65 @@ inline constexpr TBitFlags<Value, Input>& TBitFlags<Value, Input>::turnOff(const
 template<typename Value, typename Input>
 inline constexpr bool TBitFlags<Value, Input>::hasNone(const FlagsSet& flagsSet) const
 {
-	return (m_bits & collectFlags(flagsSet)) == 0;
+	return hasNone(static_cast<Input>(collectFlags(flagsSet)));
 }
 
 template<typename Value, typename Input>
 inline constexpr bool TBitFlags<Value, Input>::hasAny(const FlagsSet& flagsSet) const
 {
-	return (m_bits & collectFlags(flagsSet)) != 0;
+	return hasAny(static_cast<Input>(collectFlags(flagsSet)));
 }
 
 template<typename Value, typename Input>
 inline constexpr bool TBitFlags<Value, Input>::hasAll(const FlagsSet& flagsSet) const
 {
-	const Value& inputFlags = collectFlags(flagsSet);
-	return (m_bits & inputFlags) == inputFlags;
+	return hasAll(static_cast<Input>(collectFlags(flagsSet)));
 }
 
 template<typename Value, typename Input>
 inline constexpr bool TBitFlags<Value, Input>::hasExactly(const FlagsSet& flagsSet) const
 {
-	return m_bits == collectFlags(flagsSet);
+	return hasExactly(static_cast<Input>(collectFlags(flagsSet)));
+}
+
+template<typename Value, typename Input>
+inline constexpr bool TBitFlags<Value, Input>::hasNone(const Input flagsSet) const
+{
+	const auto flagsValue = static_cast<Value>(flagsSet);
+	return (m_bits & flagsValue) == 0;
+}
+
+template<typename Value, typename Input>
+inline constexpr bool TBitFlags<Value, Input>::hasAny(const Input flagsSet) const
+{
+	const auto flagsValue = static_cast<Value>(flagsSet);
+	return (m_bits & flagsValue) != 0;
+}
+
+template<typename Value, typename Input>
+inline constexpr bool TBitFlags<Value, Input>::hasAll(const Input flagsSet) const
+{
+	const auto flagsValue = static_cast<Value>(flagsSet);
+	return (m_bits & flagsValue) == flagsValue;
+}
+
+template<typename Value, typename Input>
+inline constexpr bool TBitFlags<Value, Input>::hasExactly(const Input flagsSet) const
+{
+	const auto flagsValue = static_cast<Value>(flagsSet);
+	return m_bits == flagsValue;
 }
 
 template<typename Value, typename Input>
 inline constexpr bool TBitFlags<Value, Input>::has(const Input singleFlag) const
 {
-	return (m_bits & static_cast<Value>(singleFlag)) != 0;
+	return hasAll(singleFlag);
 }
 
 template<typename Value, typename Input>
 inline constexpr bool TBitFlags<Value, Input>::hasNo(const Input singleFlag) const
 {
-	return (m_bits & static_cast<Value>(singleFlag)) == 0;
+	return hasNone(singleFlag);
 }
 
 template<typename Value, typename Input>

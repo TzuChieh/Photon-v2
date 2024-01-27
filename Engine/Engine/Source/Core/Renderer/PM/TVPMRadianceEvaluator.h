@@ -217,8 +217,8 @@ inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
 
 	// For path length = N, we can construct full light transport path lengths with photon map, all at
 	// once, for the range [`N + m_photonMap->minPhotonPathLength`, infinity (if RR is used))
-	if(optics->getAllPhenomena().hasNo(DELTA_SURFACE_PHENOMENA) &&
-	   optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DiffuseReflection}))
+	if(optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) &&
+	   optics->getAllPhenomena().hasAny(ESurfacePhenomenon::DiffuseReflection))
 	{
 		const BsdfQueryContext bsdfContext(
 			ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);

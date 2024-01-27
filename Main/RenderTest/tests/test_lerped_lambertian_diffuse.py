@@ -24,18 +24,31 @@ bvpt_case3.debug_output = "bvpt_factor0p0_error"
 bvpt_case3.ref = "ref"
 bvpt_case3.case_msg = "This is a corner case where the lerping factor is 0 (0 * material_0 + 1 * material_0)."
 
+bneept_case1 = infra.TestCase(__name__, "BNEEPT (factor = 50 percent)", res_dir / "scene_factor0p5_bneept.p2")
+bneept_case1.output = "bneept_factor0p5"
+bneept_case1.debug_output = "bneept_factor0p5_error"
+bneept_case1.ref = "ref"
+
+bneept_case2 = infra.TestCase(__name__, "BNEEPT (factor = 0 percent)", res_dir / "scene_factor0p0_bneept.p2")
+bneept_case2.output = "bneept_factor0p0"
+bneept_case2.debug_output = "bneept_factor0p0_error"
+bneept_case2.ref = "ref"
+bneept_case2.case_msg = "This is a corner case where the lerping factor is 0 (0 * material_0 + 1 * material_0)."
+
 @pytest.fixture(scope='module')
 def ref_img():
     img = image.read_pfm(res_dir / "ref_no_lerp_bvpt_65536spp")
     img.save_plot(bvpt_case1.get_ref_path(), "Reference: BVPT (no lerp) 65536 spp", create_dirs=True)
     return img
 
-@pytest.mark.parametrize("case, max_mse, max_re_avg", [
-    pytest.param(bvpt_case1, 0.0036, 0.0008, id=bvpt_case1.get_name()),
-    pytest.param(bvpt_case2, 0.0036, 0.0008, id=bvpt_case2.get_name()),
-    pytest.param(bvpt_case3, 0.0036, 0.0008, id=bvpt_case3.get_name()),
+@pytest.mark.parametrize("case", [
+    pytest.param(bvpt_case1, id=bvpt_case1.get_name()),
+    pytest.param(bvpt_case2, id=bvpt_case2.get_name()),
+    pytest.param(bvpt_case3, id=bvpt_case3.get_name()),
+    pytest.param(bneept_case1, id=bneept_case1.get_name()),
+    pytest.param(bneept_case2, id=bneept_case2.get_name()),
 ])
-def test_render(ref_img, case, max_mse, max_re_avg):
+def test_render(ref_img, case):
     """
     A sphere with lerped Lambertian diffuse of different factors, comparing against a non-lerped (albedo = 
     100%) reference. The ground is non-lerped diffusive (albedo = 50%).
@@ -51,7 +64,7 @@ def test_render(ref_img, case, max_mse, max_re_avg):
     output_img.values -= ref_img.values
     output_img.values *= 100
     output_img = output_img.to_summed_absolute_components()
-    output_img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error")
+    output_img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error", color_max=50)
 
     assert mse < 0.00012
     assert abs(re_avg) < 0.00018

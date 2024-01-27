@@ -113,7 +113,7 @@ void IdealDielectric::calcBsdfSample(
 			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.getX());
 		F.mulLocal(reflectionScale);
 
-		// Account for probability
+		// Account for pick probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(reflectProb);
@@ -146,7 +146,7 @@ void IdealDielectric::calcBsdfSample(
 			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.getX());
 		F.mulLocal(transmissionScale);
 
-		// Account for probability
+		// Account for pick probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(1.0_r - reflectProb);

@@ -11,7 +11,7 @@ namespace ph
 IdealAbsorber::IdealAbsorber() : 
 	SurfaceOptics()
 {
-	m_phenomena.set({ESurfacePhenomenon::DiffuseReflection});
+	m_phenomena.set(ESurfacePhenomenon::DiffuseReflection);
 }
 
 ESurfacePhenomenon IdealAbsorber::getPhenomenonOf(const SurfaceElemental elemental) const

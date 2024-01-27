@@ -194,7 +194,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 
 	// For path length = N, we can construct full light transport path lengths with photon map, all at
 	// once, for the range [`N + m_photonMap->minPhotonPathLength`, infinity (if RR is used))
-	if(optics->getAllPhenomena().hasAny({ESurfacePhenomenon::DiffuseReflection}) ||
+	if(optics->getAllPhenomena().hasAny(ESurfacePhenomenon::DiffuseReflection) ||
 	   pathLength >= m_maxViewpointDepth)
 	{
 		// TODO: better handling of glossy optics

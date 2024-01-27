@@ -32,7 +32,7 @@ OpaqueMicrofacet::OpaqueMicrofacet(
 {
 	PH_ASSERT(fresnel && microfacet);
 
-	m_phenomena.set({ESurfacePhenomenon::GlossyReflection});
+	m_phenomena.set(ESurfacePhenomenon::GlossyReflection);
 }
 
 ESurfacePhenomenon OpaqueMicrofacet::getPhenomenonOf(const SurfaceElemental elemental) const

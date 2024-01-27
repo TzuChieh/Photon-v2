@@ -203,7 +203,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 			return;
 		}
 
-		// Account for probability
+		// Account for pick probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(reflectProb);
@@ -230,7 +230,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 			F.mulLocal(etaT * etaT / (etaI * etaI));
 		}
 
-		// Account for probability
+		// Account for pick probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			F.divLocal(1.0_r - reflectProb);

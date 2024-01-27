@@ -46,7 +46,7 @@ LbLayeredSurface::LbLayeredSurface(
 	          m_gs.size()      == m_sigmaAs.size() &&
 	          m_sigmaAs.size() == m_sigmaSs.size());
 
-	m_phenomena.set({ESurfacePhenomenon::GlossyReflection});
+	m_phenomena.set(ESurfacePhenomenon::GlossyReflection);
 }
 
 ESurfacePhenomenon LbLayeredSurface::getPhenomenonOf(const SurfaceElemental elemental) const

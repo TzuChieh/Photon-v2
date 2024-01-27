@@ -20,9 +20,9 @@ namespace ph
 
 LerpedSurfaceOptics::LerpedSurfaceOptics(
 	const std::shared_ptr<SurfaceOptics>& optics0,
-	const std::shared_ptr<SurfaceOptics>& optics1) : 
+	const std::shared_ptr<SurfaceOptics>& optics1)
 
-	LerpedSurfaceOptics(
+	: LerpedSurfaceOptics(
 		optics0,
 		optics1,
 		0.5_r)
@@ -31,9 +31,9 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 LerpedSurfaceOptics::LerpedSurfaceOptics(
 	const std::shared_ptr<SurfaceOptics>& optics0,
 	const std::shared_ptr<SurfaceOptics>& optics1,
-	const real ratio) : 
+	const real ratio)
 
-	LerpedSurfaceOptics(
+	: LerpedSurfaceOptics(
 		optics0, 
 		optics1, 
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(ratio)))
@@ -42,20 +42,27 @@ LerpedSurfaceOptics::LerpedSurfaceOptics(
 LerpedSurfaceOptics::LerpedSurfaceOptics(
 	const std::shared_ptr<SurfaceOptics>& optics0,
 	const std::shared_ptr<SurfaceOptics>& optics1,
-	const std::shared_ptr<TTexture<math::Spectrum>>& ratio) :
+	const std::shared_ptr<TTexture<math::Spectrum>>& ratio)
 
-	m_optics0(optics0),
-	m_optics1(optics1),
-	m_ratio  (ratio),
-	m_sampler(math::EColorUsage::ECF)
+	: m_optics0      (optics0)
+	, m_optics1      (optics1)
+	, m_ratio        (ratio)
+	, m_sampler      (math::EColorUsage::ECF)
+	, m_containsDelta(false)
 {
-	PH_ASSERT(optics0 && optics1 && ratio);
+	PH_ASSERT(optics0);
+	PH_ASSERT(optics1);
+	PH_ASSERT(ratio);
 
 	m_phenomena.set({});
-	m_phenomena.unionWith(m_optics0->m_phenomena);
-	m_phenomena.unionWith(m_optics1->m_phenomena);
+	m_phenomena.unionWith(optics0->m_phenomena);
+	m_phenomena.unionWith(optics1->m_phenomena);
 
-	m_numElementals = m_optics0->m_numElementals + m_optics1->m_numElementals;
+	m_numElementals = optics0->m_numElementals + optics1->m_numElementals;
+
+	m_containsDelta = 
+		optics0->m_phenomena.hasAny(DELTA_SURFACE_PHENOMENA) ||
+		optics1->m_phenomena.hasAny(DELTA_SURFACE_PHENOMENA);
 }
 
 ESurfacePhenomenon LerpedSurfaceOptics::getPhenomenonOf(const SurfaceElemental elemental) const
@@ -78,25 +85,28 @@ void LerpedSurfaceOptics::calcBsdf(
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
 {
-	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
-
-	if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
+	if(ctx.elemental == ALL_SURFACE_ELEMENTALS && !m_containsDelta)
 	{
+		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
+
 		BsdfEvalOutput eval0, eval1;
 		m_optics0->calcBsdf(ctx, in, eval0);
 		m_optics1->calcBsdf(ctx, in, eval1);
-		if(!eval0.isMeasurable() || !eval1.isMeasurable())
-		{
-			out.setMeasurability(false);
-			return;
-		}
 
-		out.setBsdf(eval0.getBsdf() * ratio + eval1.getBsdf() * (math::Spectrum(1) - ratio));
+		const math::Spectrum bsdf0 = eval0.isMeasurable() ? eval0.getBsdf() : math::Spectrum(0);
+		const math::Spectrum bsdf1 = eval1.isMeasurable() ? eval1.getBsdf() : math::Spectrum(0);
+
+		out.setBsdf(bsdf0 * ratio + bsdf1 * (math::Spectrum(1) - ratio));
+	}
+	else if(ctx.elemental == ALL_SURFACE_ELEMENTALS && m_containsDelta)
+	{
+		out.setMeasurability(false);
 	}
 	else
 	{
+		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
+
 		PH_ASSERT(ctx.elemental < m_numElementals);
-		
 		if(ctx.elemental < m_optics0->m_numElementals)
 		{
 			m_optics0->calcBsdf(ctx, in, out);
@@ -128,8 +138,10 @@ void LerpedSurfaceOptics::calcBsdfSample(
 {
 	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
 
-	if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
+	if(ctx.elemental == ALL_SURFACE_ELEMENTALS && !m_containsDelta)
 	{
+		// When both optics are non-delta, sample the lerped distribution
+
 		math::Spectrum sampledRatio  = ratio;
 		SurfaceOptics* sampledOptics = m_optics0.get();
 		SurfaceOptics* anotherOptics = m_optics1.get();
@@ -152,15 +164,13 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		BsdfEvalQuery eval;
 		eval.inputs.set(in, sampleOutput);
 		anotherOptics->calcBsdf(ctx, eval.inputs, eval.outputs);
-		if(!eval.outputs.isMeasurable())
-		{
-			out.setMeasurability(false);
-			return;
-		}
+
+		const math::Spectrum bsdf1 = 
+			eval.outputs.isMeasurable() ? eval.outputs.getBsdf() : math::Spectrum(0);
 
 		BsdfPdfQuery query[2];
 		query[0].inputs.set(in, sampleOutput);
-		query[1].inputs.set(eval);
+		query[1].inputs.set(in, sampleOutput);
 		sampledOptics->calcBsdfSamplePdfW(ctx, query[0].inputs, query[0].outputs);
 		anotherOptics->calcBsdfSamplePdfW(ctx, query[1].inputs, query[1].outputs);
 
@@ -174,7 +184,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 		const math::Spectrum bsdf =
 			sampledRatio * (sampleOutput.getPdfAppliedBsdf() * query[0].outputs.getSampleDirPdfW()) +
-			(math::Spectrum(1) - sampledRatio) * eval.outputs.getBsdf();
+			(math::Spectrum(1) - sampledRatio) * bsdf1;
 
 		const real pdfW = 
 			sampledProb * query[0].outputs.getSampleDirPdfW() +
@@ -184,6 +194,30 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 		out.setPdfAppliedBsdf(bsdf / pdfW);
 		out.setL(sampleOutput.getL());
+	}
+	else if(ctx.elemental == ALL_SURFACE_ELEMENTALS && m_containsDelta)
+	{
+		// When one or both of the optics are delta, pick one to sample
+
+		math::Spectrum sampledRatio  = ratio;
+		SurfaceOptics* sampledOptics = m_optics0.get();
+		real           sampledProb   = probabilityOfPickingOptics0(ratio);
+		if(!sampleFlow.unflowedPick(sampledProb))
+		{
+			sampledRatio  = math::Spectrum(1) - sampledRatio;
+			sampledOptics = m_optics1.get();
+			sampledProb   = 1.0_r - sampledProb;
+		}
+
+		sampledOptics->calcBsdfSample(ctx, in, sampleFlow, out);
+		if(!out.isMeasurable())
+		{
+			out.setMeasurability(false);
+			return;
+		}
+
+		// Apply the scale (lerp ratio) and account for pick probability
+		out.setPdfAppliedBsdf(out.getPdfAppliedBsdf() * sampledRatio / sampledProb);
 	}
 	else
 	{
@@ -217,10 +251,9 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
-
-	if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
+	if(ctx.elemental == ALL_SURFACE_ELEMENTALS && !m_containsDelta)
 	{
+		const math::Spectrum ratio = m_sampler.sample(*m_ratio, in.getX());
 		const real prob = probabilityOfPickingOptics0(ratio);
 
 		BsdfPdfQuery::Output query0, query1;
@@ -229,6 +262,10 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 
 		out.setSampleDirPdfW(
 			query0.getSampleDirPdfW() * prob + query1.getSampleDirPdfW() * (1.0_r - prob));
+	}
+	else if(ctx.elemental == ALL_SURFACE_ELEMENTALS && m_containsDelta)
+	{
+		out.setSampleDirPdfW(0);
 	}
 	else
 	{
@@ -245,11 +282,6 @@ void LerpedSurfaceOptics::calcBsdfSamplePdfW(
 			m_optics1->calcBsdfSamplePdfW(localCtx, in, out);
 		}
 	}
-}
-
-real LerpedSurfaceOptics::probabilityOfPickingOptics0(const math::Spectrum& ratio)
-{
-	return math::clamp(ratio.relativeLuminance(math::EColorUsage::ECF), 0.0_r, 1.0_r);
 }
 
 }// end namespace ph

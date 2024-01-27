@@ -33,7 +33,7 @@ IdealReflector::IdealReflector(
 	PH_ASSERT(m_fresnel);
 	PH_ASSERT(m_reflectionScale);
 
-	m_phenomena.set({ESurfacePhenomenon::DeltaReflection});
+	m_phenomena.set(ESurfacePhenomenon::DeltaReflection);
 }
 
 ESurfacePhenomenon IdealReflector::getPhenomenonOf(const SurfaceElemental elemental) const

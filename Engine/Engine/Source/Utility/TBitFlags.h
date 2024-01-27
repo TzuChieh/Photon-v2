@@ -72,7 +72,32 @@ public:
 	*/
 	constexpr bool hasExactly(const FlagsSet& flagsSet) const;
 
+	/*! @brief Checks whether this instance contains no specified flags.
+	*/
+	constexpr bool hasNone(Input flagsSet) const;
+
+	/*! @brief Checks whether this instance contains at least one of the specified flags.
+	*/
+	constexpr bool hasAny(Input flagsSet) const;
+
+	/*! @brief Checks whether this instance contains all of the specified flags.
+	*/
+	constexpr bool hasAll(Input flagsSet) const;
+	
+	/*! @brief Checks whether this instance contains exactly the specified flags. No more, no less.
+	*/
+	constexpr bool hasExactly(Input flagsSet) const;
+
+	/*! @brief Checks whether this single flag is fully contained.
+	@param singleFlag The flag to test. If the flag combines multiple flags, this method is
+	effectively the same as `hasAll()`.
+	*/
 	constexpr bool has(Input singleFlag) const;
+
+	/*! @brief Checks whether this single flag is fully absent.
+	@param singleFlag The flag to test. If the flag combines multiple flags, this method is
+	effectively the same as `hasNone()`.
+	*/
 	constexpr bool hasNo(Input singleFlag) const;
 	
 	/*! @brief Checks whether this instance contains no flags.
@@ -86,7 +111,9 @@ public:
 	constexpr Value get() const;
 
 	// TODO: method for clear all flags
+
 	constexpr TBitFlags& set(const FlagsSet& flagsSet);
+	constexpr TBitFlags& set(Input flagsSet);
 
 	/*! @brief Get the enum representing current flags.
 	This method is only defined for enum flags.
