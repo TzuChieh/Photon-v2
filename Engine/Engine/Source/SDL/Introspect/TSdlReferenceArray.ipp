@@ -3,11 +3,13 @@
 #include "SDL/Introspect/TSdlReferenceArray.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "SDL/Introspect/SdlOutputContext.h"
+#include "SDL/Introspect/TSdlReference.h"
 #include "SDL/SdlDependencyResolver.h"
 #include "SDL/ISdlResource.h"
 #include "SDL/SceneDescription.h"
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_helpers.h"
+#include "SDL/sdl_parser.h"
 #include "SDL/Tokenizer.h"
 
 #include <Common/assertion.h>
@@ -17,18 +19,6 @@
 
 namespace ph
 {
-
-class Geometry;
-class Material;
-class MotionSource;
-class LightSource;
-class Actor;
-class Image;
-class FrameProcessor;
-class Observer;
-class SampleSource;
-class Visualizer;
-class Option;
 
 template<typename T, typename Owner>
 inline TSdlReferenceArray<T, Owner>::TSdlReferenceArray(
@@ -133,7 +123,7 @@ inline void TSdlReferenceArray<T, Owner>::loadFromSdl(
 	catch(const SdlException& e)
 	{
 		throw_formatted<SdlLoadError>(
-			"unable to load resource on parsing reference array {} -> {}",
+			"on parsing reference array {} -> {}",
 			valueToString(owner), e.whatStr());
 	}
 }
@@ -151,7 +141,7 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 		return;
 	}
 
-	// Basically generates a list of reference names
+	// Basically generates a list of reference names  (with proper specifier)
 	try
 	{
 		out_clause.value = '{';
@@ -165,6 +155,7 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 			}
 
 			const bool hasWhitespaces = string_utils::has_any_of(resourceName, string_utils::get_whitespaces());
+			out_clause.value += sdl_parser::persistent_specifier;
 			out_clause.value += hasWhitespaces ? "\"" : "";
 			out_clause.value += resourceName;
 			out_clause.value += hasWhitespaces ? "\"" : "";
@@ -174,9 +165,8 @@ inline void TSdlReferenceArray<T, Owner>::saveToSdl(
 	}
 	catch(const SdlException& e)
 	{
-		throw SdlSaveError(
-			"unable to save reference array " +
-			valueToString(owner) + " -> " + e.whatStr());
+		throw_formatted<SdlSaveError>(
+			"on saving reference array {} -> {}", valueToString(owner), e.whatStr());
 	}
 }
 
@@ -188,53 +178,43 @@ inline std::vector<std::shared_ptr<T>> TSdlReferenceArray<T, Owner>::loadReferen
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'"', '"'}});
 
-	try
-	{
-		std::vector<std::string> referenceTokens;
-		tokenizer.tokenize(clause.value, referenceTokens);
-
-		std::vector<std::shared_ptr<T>> referenceVector(referenceTokens.size());
-		for(std::size_t i = 0; i < referenceVector.size(); ++i)
-		{
-			referenceVector[i] = loadReference(referenceTokens[i], ctx);
-		}
-
-		return referenceVector;
-	}
-	catch(const SdlException& e)
-	{
-		throw SdlLoadError("on parsing reference array -> " + e.whatStr());
-	}
-}
-
-template<typename T, typename Owner>
-template<typename ResourceType>
-inline std::shared_ptr<ResourceType> TSdlReferenceArray<T, Owner>::loadReference(
-	std::string_view referenceName,
-	const SdlInputContext& ctx)
-{
-	if(referenceName.empty())
-	{
-		throw SdlLoadError(
-			"reference name cannot be empty");
-	}
-
 	if(!ctx.getSrcResources())
 	{
 		throw SdlLoadError(
 			"no target reference group specified");
 	}
 
-	// TODO: allow type mismatch?
-	// TODO: we may support some simple syntax such as wildcards or empty ref etc.
-	auto resource = ctx.getSrcResources()->getTyped<ResourceType>(referenceName);
-	if(!resource)
+	if(clause.valueType == ESdlClauseValue::PersistentTargetName)
 	{
-		throw_formatted<SdlLoadError>(
-			"cannot find resource referenced by <{}>", referenceName);
+		auto resource = TSdlReference<T, Owner>::loadReference(clause, ctx);
+		return {resource};
 	}
+	else if(clause.valueType == ESdlClauseValue::General)
+	{
+		std::vector<std::string> tokens;
+		tokenizer.tokenize(clause.value, tokens);
+		if(tokens.size() % 2 != 0)
+		{
+			throw SdlLoadError(
+				"syntax error: unexpected input format");
+		}
 
-	return resource;
+		const auto numReferenceTokens = tokens.size() / 2;
+		std::vector<std::shared_ptr<T>> referenceVector(numReferenceTokens);
+		for(std::size_t i = 0; i < numReferenceTokens; ++i)
+		{
+			const std::string referenceToken = tokens[i * 2] + tokens[i * 2 + 1];
+			const auto reference = sdl_parser::get_reference(referenceToken);
+			referenceVector[i] = TSdlReference<T, Owner>::loadReference(reference, ctx);
+		}
+
+		return referenceVector;
+	}
+	else
+	{
+		throw SdlLoadError(
+			"bad reference type (only persistent target is supported)");
+	}
 }
 
 template<typename T, typename Owner>

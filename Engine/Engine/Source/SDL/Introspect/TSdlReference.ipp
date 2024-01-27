@@ -15,18 +15,6 @@
 namespace ph
 {
 
-class Geometry;
-class Material;
-class MotionSource;
-class LightSource;
-class Actor;
-class Image;
-class FrameProcessor;
-class Observer;
-class SampleSource;
-class Visualizer;
-class Option;
-
 template<typename T, typename Owner>
 inline TSdlReference<T, Owner>::TSdlReference(
 	std::string                       valueName,
@@ -112,13 +100,12 @@ inline void TSdlReference<T, Owner>::loadFromSdl(
 {
 	try
 	{
-		setValueRef(owner, loadResource(clause, ctx));
+		setValueRef(owner, loadReference(clause, ctx));
 	}
 	catch(const SdlException& e)
 	{
-		throw SdlLoadError(
-			"unable to load resource on parsing reference " + 
-			valueToString(owner) + " -> " + e.whatStr());
+		throw_formatted<SdlLoadError>(
+			"on parsing reference {} -> {}", valueToString(owner), e.whatStr());
 	}
 }
 
@@ -144,7 +131,7 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 				"resource name unavailable");
 		}
 
-		out_clause.isReference = true;
+		out_clause.valueType = ESdlClauseValue::PersistentTargetName;
 		if(string_utils::has_any_of(resourceName, string_utils::get_whitespaces()))
 		{
 			out_clause.value = '"';
@@ -159,27 +146,41 @@ inline void TSdlReference<T, Owner>::saveToSdl(
 	catch(const SdlException& e)
 	{
 		throw_formatted<SdlSaveError>(
-			"unable to save resource reference {} -> {}", valueToString(owner), e.whatStr());
+			"on saving resource reference {} -> {}", valueToString(owner), e.whatStr());
 	}
 }
 
 template<typename T, typename Owner>
 template<typename ResourceType>
-inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
+inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadReference(
 	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
-	const auto& referenceName = clause.value;
+	if(!ctx.getSrcResources())
+	{
+		throw SdlLoadError(
+			"no target reference group specified");
+	}
+
+	if(clause.valueType != ESdlClauseValue::PersistentTargetName)
+	{
+		throw SdlLoadError(
+			"bad reference type (only persistent target is supported)");
+	}
+
+	return loadReference(clause.value, ctx);
+}
+
+template<typename T, typename Owner>
+template<typename ResourceType>
+inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadReference(
+	std::string_view referenceName,
+	const SdlInputContext& ctx)
+{
 	if(referenceName.empty())
 	{
 		throw SdlLoadError(
 			"reference name cannot be empty");
-	}
-
-	if(!ctx.getSrcResources())
-	{
-		throw_formatted<SdlLoadError>(
-			"no target reference group specified");
 	}
 
 	// TODO: allow type mismatch?
@@ -187,8 +188,7 @@ inline std::shared_ptr<ResourceType> TSdlReference<T, Owner>::loadResource(
 	if(!resource)
 	{
 		throw_formatted<SdlLoadError>(
-			"cannot find resource referenced by <{}>",
-			referenceName);
+			"cannot find resource referenced by <{}>", referenceName);
 	}
 
 	return resource;

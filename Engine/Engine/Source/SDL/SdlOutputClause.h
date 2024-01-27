@@ -30,15 +30,15 @@ public:
 
 	std::string tag;
 	
+	/*! @brief Type of the carried value.
+	For identifying the type of the value string only. Does not check whether the value has valid
+	format or points to a valid target.
+	*/
+	ESdlClauseValue valueType = ESdlClauseValue::General;
+
 	/*! @brief If the clause carries no data and does not need to be written.
 	*/
 	bool isEmpty = false;
-
-	/*! @brief If the carried value is a SDL reference.
-	Identify the format of the string only. Does not test whether the reference actually
-	points to a valid target or not.
-	*/
-	bool isReference = false;
 
 	/*! @brief If the carried name refers to some output clauses.
 	*/
@@ -62,8 +62,8 @@ inline void SdlOutputClause::clear()
 	value.clear();
 	tag.clear();
 
+	valueType = ESdlClauseValue::General;
 	isEmpty = false;
-	isReference = false;
 	isUsingNamedOutputClauses = false;
 }
 

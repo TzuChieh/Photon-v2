@@ -37,4 +37,16 @@ class ISdlResource;
 class ISdlReferenceGroup;
 class ISdlDataPacketGroup;
 
+enum ESdlClauseValue
+{
+	/*! Value of unspecified format. */
+	General = 0,
+
+	/*! Name of a single persistent target. */
+	PersistentTargetName,
+
+	/*! Name of a single cached target. */
+	CachedTargetName
+};
+
 }// end namespace ph

@@ -21,8 +21,8 @@ class PhSurfaceLayerNode(PhSurfaceMaterialNode):
 
     ior_type: bpy.props.EnumProperty(
         items=[
-            ('SCALAR', "Scalar.", "", 0),
-            ('VECTOR', "Vector values for tristimulus render mode.", "", 1)
+            ('SCALAR', "Scalar", "Scalar.", 0),
+            ('VECTOR', "Vector", "Vector values for tristimulus render mode.", 1)
         ],
         name="IoR Type",
         description="Type of IoR data used.",
@@ -105,8 +105,8 @@ class PhSurfaceLayerNode(PhSurfaceMaterialNode):
             b_layout.prop(self, 'ior_n_scalar')
             b_layout.prop(self, 'ior_k_scalar')
         elif self.ior_type == 'VECTOR':
-            b_layout.prop(self, 'ior_n_rgb_vector')
-            b_layout.prop(self, 'ior_k_rgb_vector')
+            b_layout.prop(self, 'ior_n_vector')
+            b_layout.prop(self, 'ior_k_vector')
 
         b_layout.prop(self, 'depth')
         b_layout.prop(self, 'g')
@@ -119,8 +119,8 @@ class PhSurfaceLayerNode(PhSurfaceMaterialNode):
         packet.set_input('roughness', sdl.Real(self.roughness))
 
         if self.ior_type == 'SCALAR':
-            packet.set_input('ior-n', sdl.Spectrum(self.ior_n_scalar))
-            packet.set_input('ior-k', sdl.Spectrum(self.ior_k_scalar))
+            packet.set_input('ior-n', sdl.Spectrum([self.ior_n_scalar]))
+            packet.set_input('ior-k', sdl.Spectrum([self.ior_k_scalar]))
         elif self.ior_type == 'VECTOR':
             packet.set_input('ior-n', sdl.Spectrum(self.ior_n_vector))
             packet.set_input('ior-k', sdl.Spectrum(self.ior_k_vector))

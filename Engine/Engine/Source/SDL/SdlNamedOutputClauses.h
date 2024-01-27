@@ -30,7 +30,7 @@ public:
 		std::string_view clausesName);
 
 	/*! @brief Add a named output clauses with generated name. Potentially update the existing one.
-	@return Generated name.
+	@return Generated name. Never contain whitespaces.
 	*/
 	std::string_view addOrUpdate(SdlOutputClauses packet);
 

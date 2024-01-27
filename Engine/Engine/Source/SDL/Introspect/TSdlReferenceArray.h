@@ -45,6 +45,11 @@ public:
 	TSdlReferenceArray& niceToHave();
 	TSdlReferenceArray& required();
 
+	template<typename ResourceType = T>
+	static std::vector<std::shared_ptr<T>> loadReferenceArray(
+		const SdlInputClause& clause,
+		const SdlInputContext& ctx);
+
 protected:
 	void loadFromSdl(
 		Owner&                 owner,
@@ -55,16 +60,6 @@ protected:
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override;
-
-	template<typename ResourceType = T>
-	static std::vector<std::shared_ptr<T>> loadReferenceArray(
-		const SdlInputClause&  clause,
-		const SdlInputContext& ctx);
-
-	template<typename ResourceType = T>
-	static std::shared_ptr<ResourceType> loadReference(
-		std::string_view referenceName,
-		const SdlInputContext& ctx);
 
 private:
 	std::vector<std::shared_ptr<T>> Owner::* m_valuePtr;

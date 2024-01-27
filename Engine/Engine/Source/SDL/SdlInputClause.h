@@ -19,17 +19,18 @@ public:
 
 	/*! @brief Loaded stringified data of a clause.
 	All potential SDL value prefixes or suffixes (e.g., "" or {}) are already removed for convenience.
+	If the value contains a single named target, its corresponding specifier (e.g., "@", "$") will
+	be removed, see `valueType`.]
 	*/
 	std::string value;
 
 	std::string tag;
 
-	/*! @brief If the carried value is a SDL reference.
-	Identify the format of the string only. Does not test whether the reference actually 
-	points to a valid target or not.
-	@return `true` if `value` is a reference, `false` otherwise.
+	/*! @brief Type of the carried value.
+	For identifying the type of the value string only. Does not check whether the value has valid
+	format or points to a valid target.
 	*/
-	bool isReference = false;
+	ESdlClauseValue valueType = ESdlClauseValue::General;
 
 	// TODO: more efficient storage; able to reuse memory
 	// TODO: support binary data

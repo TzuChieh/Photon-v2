@@ -7,6 +7,57 @@
 namespace ph::sdl_parser
 {
 
+bool is_single_name_with_specifier(std::string_view valueToken)
+{
+	if(!starts_with_specifier(valueToken))
+	{
+		return false;
+	}
+
+	// The token must contain at least one specifier + name
+	valueToken = string_utils::trim_head(valueToken);
+	PH_ASSERT(is_specifier(valueToken[0]));
+
+	// Remove the first specifier
+	valueToken.remove_prefix(1);
+	valueToken = string_utils::trim_head(valueToken);
+	
+	// Remove the first name (quoted)
+	if(!valueToken.empty() && valueToken.starts_with('"'))
+	{
+		valueToken.remove_prefix(1);
+		while(!valueToken.empty())
+		{
+			if(valueToken.starts_with('"'))
+			{
+				valueToken.remove_prefix(1);
+				break;
+			}
+			else if(valueToken.starts_with("\\\""))
+			{
+				valueToken.remove_prefix(2);
+			}
+			else
+			{
+				valueToken.remove_prefix(1);
+			}
+		}
+	}
+	// Remove the first name (not quoted)
+	else
+	{
+		while(!valueToken.empty() && !string_utils::is_whitespace(valueToken[0]))
+		{
+			valueToken.remove_prefix(1);
+		}
+	}
+
+	// If the token contains more non-whitespace content, it does not contain only single
+	// specifier + name. Additional content could be more specifier + names, or arbitrary values.
+	valueToken = string_utils::trim_head(valueToken);
+	return valueToken.empty();
+}
+
 auto get_name_with_specifier(std::string_view nameToken)
 -> std::pair<std::string_view, char>
 {
@@ -30,8 +81,8 @@ auto get_name_with_specifier(std::string_view nameToken)
 	switch(specifier)
 	{
 	// Token contains a name (optionally with quotes)
-	case '@':
-	case '$':
+	case persistent_specifier:
+	case cached_specifier:
 	{
 		if(token.empty())
 		{
@@ -73,7 +124,7 @@ auto get_name_with_specifier(std::string_view nameToken)
 std::string_view get_reference(std::string_view referenceToken)
 {
 	auto [name, specifier] = get_name_with_specifier(referenceToken);
-	if(specifier != '@')
+	if(specifier != persistent_specifier)
 	{
 		throw_formatted<SdlLoadError>(
 			"non-persistent reference is not supported (reference: <{}>)", name);
@@ -85,7 +136,7 @@ std::string_view get_reference(std::string_view referenceToken)
 std::string_view get_data_packet_name(std::string_view dataPacketNameToken)
 {
 	auto [name, specifier] = get_name_with_specifier(dataPacketNameToken);
-	if(specifier != '$')
+	if(specifier != cached_specifier)
 	{
 		throw_formatted<SdlLoadError>(
 			"non-cached data packet is not supported (packet: <{}>)", name);

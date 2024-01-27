@@ -109,10 +109,11 @@ void DesignerDataPacketInterface::generate(
 			continue;
 		}
 
-		// Designer does not support saving SDL reference. This need to be reported and fail early, 
-		// otherwise saved data may be corrupted or cumbersome to recover. A better way to prevent 
-		// this would be to disallow binding to references during SDL definition stage.
-		if(clause.isReference)
+		// Designer does not support saving SDL named target (e.g., reference). This need to be
+		// reported and fail early, otherwise saved data may be corrupted or cumbersome to recover.
+		// A better way to prevent this would be to disallow binding to named targets during
+		// SDL definition stage.
+		if(clause.valueType != ESdlClauseValue::General)
 		{
 			throw_formatted<SdlSaveError>(
 				"Attempting to directly save SDL reference, this is not a feature supported by "

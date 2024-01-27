@@ -9,6 +9,7 @@
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_helpers.h"
 #include "SDL/sdl_traits.h"
+#include "SDL/sdl_parser.h"
 #include "SDL/Tokenizer.h"
 
 #include <Common/assertion.h>
@@ -121,8 +122,7 @@ inline void TSdlStructArray<Struct, Owner>::loadFromSdl(
 	catch(const SdlException& e)
 	{
 		throw_formatted<SdlLoadError>(
-			"unable to load resource on parsing struct array {} -> {}",
-			valueToString(owner), e.whatStr());
+			"on parsing struct array {} -> {}", valueToString(owner), e.whatStr());
 	}
 }
 
@@ -141,7 +141,7 @@ inline void TSdlStructArray<Struct, Owner>::saveToSdl(
 
 	static_assert(CHasSdlStructDefinition<Struct>);
 
-	// Basically generates a list of data packet names
+	// Basically generates a list of data packet names (with proper specifier)
 	try
 	{
 		if(!ctx.getNamedOutputClauses())
@@ -158,6 +158,7 @@ inline void TSdlStructArray<Struct, Owner>::saveToSdl(
 
 			const auto generatedName = ctx.getNamedOutputClauses()->addOrUpdate(objClauses);
 
+			out_clause.value += sdl_parser::cached_specifier;
 			out_clause.value += generatedName;
 			out_clause.value += ' ';
 		}
@@ -172,27 +173,46 @@ inline void TSdlStructArray<Struct, Owner>::saveToSdl(
 
 template<typename Struct, typename Owner>
 inline std::vector<Struct> TSdlStructArray<Struct, Owner>::loadStructArray(
-	const SdlInputClause&  clause,
+	const SdlInputClause& clause,
 	const SdlInputContext& ctx)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'"', '"'}});
 
-	try
+	if(!ctx.getSrcDataPackets())
 	{
-		std::vector<std::string> packetNameTokens;
-		tokenizer.tokenize(clause.value, packetNameTokens);
+		throw SdlLoadError(
+			"no target data packet group specified");
+	}
 
-		std::vector<Struct> structVector(packetNameTokens.size());
-		for(std::size_t i = 0; i < structVector.size(); ++i)
+	if(clause.valueType == ESdlClauseValue::CachedTargetName)
+	{
+		auto obj = loadStruct(clause.value, ctx);
+		return {obj};
+	}
+	else if(clause.valueType == ESdlClauseValue::General)
+	{
+		std::vector<std::string> tokens;
+		tokenizer.tokenize(clause.value, tokens);
+		if(tokens.size() % 2 != 0)
 		{
-			structVector[i] = loadStruct(packetNameTokens[i], ctx);
+			throw SdlLoadError("syntax error: unexpected input format");
+		}
+
+		const auto numPacketNameTokens = tokens.size() / 2;
+		std::vector<Struct> structVector(numPacketNameTokens);
+		for(std::size_t i = 0; i < numPacketNameTokens; ++i)
+		{
+			const std::string packetNameToken = tokens[i * 2] + tokens[i * 2 + 1];
+			const auto packetName = sdl_parser::get_data_packet_name(packetNameToken);
+			structVector[i] = loadStruct(packetName, ctx);
 		}
 
 		return structVector;
 	}
-	catch(const SdlException& e)
+	else
 	{
-		throw SdlLoadError("on parsing struct array -> " + e.whatStr());
+		throw SdlLoadError(
+			"bad data packet type (only cached target is supported)");
 	}
 }
 
@@ -205,12 +225,6 @@ inline Struct TSdlStructArray<Struct, Owner>::loadStruct(
 	{
 		throw SdlLoadError(
 			"packet name cannot be empty");
-	}
-
-	if(!ctx.getSrcDataPackets())
-	{
-		throw SdlLoadError(
-			"no target data packet group specified");
 	}
 
 	const SdlInputClauses* const packet = ctx.getSrcDataPackets()->get(packetName);

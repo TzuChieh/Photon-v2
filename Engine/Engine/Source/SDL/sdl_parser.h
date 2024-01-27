@@ -6,8 +6,15 @@
 namespace ph::sdl_parser
 {
 
-bool starts_with_specifier(std::string_view nameToken);
+inline constexpr char persistent_specifier = '@';
+inline constexpr char cached_specifier = '$';
 
+bool is_specifier(char ch);
+bool starts_with_specifier(std::string_view valueToken);
+bool is_single_name_with_specifier(std::string_view valueToken);
+
+/*! @brief Retrieve name and specifier from a single name token.
+*/
 auto get_name_with_specifier(std::string_view nameToken)
 -> std::pair<std::string_view, char>;
 

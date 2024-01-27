@@ -7,10 +7,15 @@
 namespace ph::sdl_parser
 {
 
-inline bool starts_with_specifier(std::string_view nameToken)
+inline bool is_specifier(const char ch)
 {
-	nameToken = string_utils::trim(nameToken);
-	return !nameToken.empty() && (nameToken[0] == '@' || nameToken[0] == '$');
+	return ch == persistent_specifier || ch == cached_specifier;
 }
+
+inline bool starts_with_specifier(std::string_view valueToken)
+{
+	valueToken = string_utils::trim_head(valueToken);
+	return !valueToken.empty() && is_specifier(valueToken[0]);
+} 
 
 }// end namespace ph::sdl_parser

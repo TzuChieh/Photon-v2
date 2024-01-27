@@ -100,13 +100,10 @@ void SdlInlinePacketInterface::parseClauses(
 				"syntax error: clause string is empty");
 		}
 
-		// TODO: tokenize string_view
-		std::vector<std::string> clauseTokens;
-		clauseTokenizer.tokenize(std::string(clauseString), clauseTokens);
-
-		if(clauseTokens.size() == 1)
+		// Expand a data packet into multiple input clauses
+		if(sdl_parser::is_single_name_with_specifier(clauseString))
 		{
-			const auto dataPacketName = sdl_parser::get_data_packet_name(clauseTokens[0]);
+			const auto dataPacketName = sdl_parser::get_data_packet_name(clauseString);
 
 			// If current SDL dialect allows named data packet, then it does not make sense to pass
 			// a context without source data packets.
@@ -121,8 +118,13 @@ void SdlInlinePacketInterface::parseClauses(
 
 			out_clauses.add(*dataPacket);
 		}
+		// Parse and add single input clause
 		else
 		{
+			// TODO: tokenize string_view
+			std::vector<std::string> clauseTokens;
+			clauseTokenizer.tokenize(std::string(clauseString), clauseTokens);
+
 			SdlInputClause clause;
 			parseSingleClause(clauseTokens, clause);
 			out_clauses.add(std::move(clause));
@@ -170,29 +172,58 @@ void SdlInlinePacketInterface::parseSingleClause(
 		break;
 
 	case 3:
-		// Starts with a name specifier, using "@" (signifies a following reference) as an example,
-		// e.g., `@Ref`
-		if(sdl_parser::starts_with_specifier(tokens[2]))
+		// Value is a single specifier + name,
+		// e.g., `@Ref`, `$hello`
+		if(sdl_parser::is_single_name_with_specifier(tokens[2]))
 		{
-			out_clause.isReference = true;
-			out_clause.value = sdl_parser::get_reference(tokens[2]);
+			PH_ASSERT(!tokens[2].empty());
+			switch(tokens[2].front())
+			{
+			case sdl_parser::persistent_specifier:
+				out_clause.valueType = ESdlClauseValue::PersistentTargetName;
+				out_clause.value = sdl_parser::get_name_with_specifier(tokens[2]).first;
+				break;
+
+			case sdl_parser::cached_specifier:
+				out_clause.valueType = ESdlClauseValue::CachedTargetName;
+				out_clause.value = sdl_parser::get_name_with_specifier(tokens[2]).first;
+				break;
+
+			default:
+				PH_ASSERT_UNREACHABLE_SECTION();
+				break;
+			}
 		}
 		// Otherwise, just a ordinary value
 		else
 		{
-			out_clause.isReference = false;
+			out_clause.valueType = ESdlClauseValue::General;
 			out_clause.value = tokens[2];
 		}
 		break;
 
 	case 4:
-		// Starts with a name specifier, using "@" (signifies a following reference) as an example,
-		// e.g., `@ Ref`, `@"Ref"`
+		// Value is a single specifier + name,
+		// e.g., `@ Ref`, `@"Ref"`, `$ "abc"`
 		//         ^ with whitespaces
-		if(sdl_parser::starts_with_specifier(tokens[2]))
+		if(!tokens[2].empty() && sdl_parser::is_specifier(tokens[2].front()))
 		{
-			out_clause.isReference = true;
-			out_clause.value = tokens[3];
+			switch(tokens[2].front())
+			{
+			case sdl_parser::persistent_specifier:
+				out_clause.valueType = ESdlClauseValue::PersistentTargetName;
+				out_clause.value = tokens[3];
+				break;
+
+			case sdl_parser::cached_specifier:
+				out_clause.valueType = ESdlClauseValue::CachedTargetName;
+				out_clause.value = tokens[3];
+				break;
+
+			default:
+				PH_ASSERT_UNREACHABLE_SECTION();
+				break;
+			}
 		}
 		// Otherwise, it is an error
 		else
@@ -227,9 +258,19 @@ void SdlInlinePacketInterface::appendSingleClause(
 	}
 
 	out_commandStr += ' ';
-	if(clause.isReference)
+	switch(clause.valueType)
 	{
-		out_commandStr += '@';
+	case ESdlClauseValue::PersistentTargetName:
+		out_commandStr += sdl_parser::persistent_specifier;
+		break;
+
+	case ESdlClauseValue::CachedTargetName:
+		out_commandStr += sdl_parser::cached_specifier;
+		break;
+
+	default:
+		// Append nothing.
+		break;
 	}
 
 	// Clause values know how to group its content properly (e.g., by double quotes), 
