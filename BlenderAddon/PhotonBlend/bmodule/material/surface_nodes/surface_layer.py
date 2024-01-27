@@ -77,18 +77,24 @@ class PhSurfaceLayerNode(PhSurfaceMaterialNode):
         max=1.0
     )
 
-    sigma_a: bpy.props.FloatProperty(
+    sigma_a: bpy.props.FloatVectorProperty(
         name="Sigma A",
-        default=0.1,
+        description="Volume absorption coefficient.",
+        default=[0.1, 0.1, 0.1],
         min=0.0,
-        max=sys.float_info.max
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3
     )
 
-    sigma_s: bpy.props.FloatProperty(
+    sigma_s: bpy.props.FloatVectorProperty(
         name="Sigma S",
-        default=0.1,
+        description="Volume scattering coefficient.",
+        default=[0.1, 0.1, 0.1],
         min=0.0,
-        max=sys.float_info.max
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3
     )
 
     def to_sdl(self, b_material, sdlconsole):
@@ -127,7 +133,7 @@ class PhSurfaceLayerNode(PhSurfaceMaterialNode):
 
         packet.set_input('depth', sdl.Real(self.depth))
         packet.set_input('g', sdl.Real(self.g))
-        packet.set_input('sigma-a', sdl.Real(self.sigma_a))
-        packet.set_input('sigma-s', sdl.Real(self.sigma_s))
+        packet.set_input('sigma-a', sdl.Spectrum(self.sigma_a))
+        packet.set_input('sigma-s', sdl.Spectrum(self.sigma_s))
 
         return packet

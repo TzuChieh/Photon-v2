@@ -15,15 +15,15 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
 
     substance_type: bpy.props.EnumProperty(
         items=[
-            ('DIELECTRIC_REFLECTOR', "Dielectric Reflector", "", 0),
-            ('METALLIC_REFLECTOR', "Metallic Reflector", "", 1),
-            ('DIELECTRIC_TRANSMITTER', "Dielectric Transmitter", "", 2),
-            ('DIELECTRIC', "Dielectric", "", 3),
-            ('ABSORBER', "Absorber", "Absorbs all energy.", 4)
+            ('dielectric-reflector', "Dielectric Reflector", "", 0),
+            ('metallic-reflector', "Metallic Reflector", "", 1),
+            ('transmitter', "Dielectric Transmitter", "", 2),
+            ('dielectric', "Dielectric", "", 3),
+            ('absorber', "Absorber", "Absorbs all energy.", 4)
         ],
         name="Substance Type",
         description="Type of ideal substance.",
-        default='METALLIC_REFLECTOR'
+        default='metallic-reflector'
     )
 
     f0: bpy.props.FloatVectorProperty(
@@ -32,7 +32,7 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         default=[0.9, 0.9, 0.9],
         min=0.0,
         max=1.0,
-        subtype="COLOR",
+        subtype='COLOR',
         size=3
     )
 
@@ -52,21 +52,21 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
 
     reflection_scale: bpy.props.FloatVectorProperty(
         name="Reflection Scale",
-        description="for artistic control",
+        description="Reflection intensity scaling factor for artistic control.",
         default=[1.0, 1.0, 1.0],
         min=0.0,
         max=sys.float_info.max,
-        subtype="COLOR",
+        subtype='COLOR',
         size=3
     )
 
     transmission_scale: bpy.props.FloatVectorProperty(
         name="Transmission Scale",
-        description="for artistic control",
+        description="Transmission intensity scaling factor for artistic control.",
         default=[1.0, 1.0, 1.0],
         min=0.0,
-        max=1.0,
-        subtype="COLOR",
+        max=sys.float_info.max,
+        subtype='COLOR',
         size=3
     )
 
@@ -80,20 +80,9 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         creator.set_ior_outer(sdl.Real(self.ior_outer))
         creator.set_ior_inner(sdl.Real(self.ior_inner))
         creator.set_f0(sdl.Spectrum(self.f0))
-        creator.set_reflection_scale(sdl.Vector3(self.reflection_scale))
-        creator.set_transmission_scale(sdl.Vector3(self.transmission_scale))
-
-        if self.substance_type == 'DIELECTRIC_REFLECTOR':
-            creator.set_substance(sdl.Enum("dielectric-reflector"))
-        elif self.substance_type == 'METALLIC_REFLECTOR':
-            creator.set_substance(sdl.Enum("metallic-reflector"))
-        elif self.substance_type == 'DIELECTRIC_TRANSMITTER':
-            creator.set_substance(sdl.Enum("transmitter"))
-        elif self.substance_type == 'DIELECTRIC':
-            creator.set_substance(sdl.Enum("dielectric"))
-        elif self.substance_type == 'ABSORBER':
-            creator.set_substance(sdl.Enum("absorber"))
-
+        creator.set_reflection_scale(sdl.Spectrum(self.reflection_scale))
+        creator.set_transmission_scale(sdl.Spectrum(self.transmission_scale))
+        creator.set_substance(sdl.Enum(self.substance_type))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
@@ -104,13 +93,13 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         b_layout.prop(self, 'ior_outer')
 
         if (
-            self.substance_type == 'DIELECTRIC_REFLECTOR' or
-            self.substance_type == 'DIELECTRIC_TRANSMITTER' or
-            self.substance_type == 'DIELECTRIC'
+            self.substance_type == 'dielectric-reflector' or
+            self.substance_type == 'transmitter' or
+            self.substance_type == 'dielectric'
         ):
             b_layout.prop(self, 'ior_inner')
 
-        if self.substance_type == 'METALLIC_REFLECTOR':
+        if self.substance_type == 'metallic-reflector':
             b_layout.prop(self, 'f0')
 
         b_layout.prop(self, 'reflection_scale')
