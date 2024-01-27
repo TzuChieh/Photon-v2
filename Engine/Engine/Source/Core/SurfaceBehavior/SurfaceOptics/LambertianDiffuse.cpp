@@ -64,11 +64,6 @@ void LambertianDiffuse::calcBsdfSample(
 
 	const math::Spectrum albedo = TSampler<math::Spectrum>(math::EColorUsage::ECF).sample(
 		*m_albedo, in.getX());
-	if(albedo.isZero())
-	{
-		out.setMeasurability(false);
-		return;
-	}
 
 	// Generate and transform L to N's space
 

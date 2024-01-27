@@ -154,13 +154,11 @@ void OrenNayar::calcBsdfSample(
 	BsdfEvalQuery eval;
 	eval.inputs.set(in.getX(), L, in.getV());
 	OrenNayar::calcBsdf(ctx, eval.inputs, eval.outputs);
-	if(!eval.outputs.isMeasurable())
-	{
-		out.setMeasurability(false);
-		return;
-	}
 
-	out.setPdfAppliedBsdf(eval.outputs.getBsdf() / pdfW);
+	const math::Spectrum bsdf = 
+		eval.outputs.isMeasurable() ? eval.outputs.getBsdf() : math::Spectrum(0);
+
+	out.setPdfAppliedBsdf(bsdf / pdfW);
 	out.setL(L);
 }
 

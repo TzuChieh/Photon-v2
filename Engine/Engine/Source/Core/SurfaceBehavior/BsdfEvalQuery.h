@@ -49,11 +49,11 @@ public:
 		bool inferMeasurabilityFromThis = true);
 
 	/*!
-	@return Get the evaluated BSDF.
+	@return Get the evaluated BSDF. Guaranteed to be finite.
 	*/
 	const math::Spectrum& getBsdf() const;
 
-	/*! @brief Tells whether this evaluation has non-zero and sane contribution.
+	/*! @brief Tells whether this evaluation has sane contribution.
 	All evaluated data should be usable if true is returned; otherwise, zero contribution is implied,
 	and evaluated data is undefined. This method is an efficient way to decide whether the BSDF has
 	potential to contribute.
@@ -146,9 +146,8 @@ inline void BsdfEvalOutput::setBsdf(
 
 inline const math::Spectrum& BsdfEvalOutput::getBsdf() const
 {
-	// When an evaluation report being measurable, it must be non-zero and not some crazy values
+	// When an evaluation report being measurable, it must not be some crazy values
 	PH_ASSERT(m_isMeasurable);
-	PH_ASSERT(!m_bsdf.isZero());
 	PH_ASSERT_MSG(m_bsdf.isFinite(), m_bsdf.toString());
 
 	return m_bsdf;
@@ -166,7 +165,7 @@ inline void BsdfEvalOutput::setMeasurability(const bool measurability)
 
 inline void BsdfEvalOutput::setMeasurability(const math::Spectrum& reference)
 {
-	setMeasurability(!reference.isZero() && reference.isFinite());
+	setMeasurability(reference.isFinite());
 }
 
 }// end namespace ph

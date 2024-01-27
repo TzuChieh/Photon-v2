@@ -48,11 +48,11 @@ public:
 	const math::Vector3R& getL() const;
 
 	/*!
-	@return Sampled BSDF with PDF (solid angle domain) applied. Guaranteed to be non-zero and finite.
+	@return Sampled BSDF with PDF (solid angle domain) applied. Guaranteed to be finite.
 	*/
 	const math::Spectrum& getPdfAppliedBsdf() const;
 
-	/*! @brief Tells whether this sample has non-zero and sane contribution.
+	/*! @brief Tells whether this sample has sane contribution.
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
 	and sampled data is undefined. This method is an efficient way to decide whether the BSDF sample
 	has potential to contribute.
@@ -148,9 +148,8 @@ inline const math::Vector3R& BsdfSampleOutput::getL() const
 
 inline const math::Spectrum& BsdfSampleOutput::getPdfAppliedBsdf() const
 {
-	// When a sample report being measurable, it must be non-zero and not some crazy values
+	// When a sample report being measurable, it must not be some crazy values
 	PH_ASSERT(m_isMeasurable);
-	PH_ASSERT(!m_pdfAppliedBsdf.isZero());
 	PH_ASSERT_MSG(m_pdfAppliedBsdf.isFinite(), m_pdfAppliedBsdf.toString());
 
 	return m_pdfAppliedBsdf;
@@ -168,7 +167,7 @@ inline void BsdfSampleOutput::setMeasurability(const bool measurability)
 
 inline void BsdfSampleOutput::setMeasurability(const math::Spectrum& reference)
 {
-	setMeasurability(!reference.isZero() && reference.isFinite());
+	setMeasurability(reference.isFinite());
 }
 
 }// end namespace ph

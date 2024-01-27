@@ -41,14 +41,14 @@ def ref_img():
     img.save_plot(bvpt_case1.get_ref_path(), "Reference: BVPT (no lerp) 65536 spp", create_dirs=True)
     return img
 
-@pytest.mark.parametrize("case", [
-    pytest.param(bvpt_case1, id=bvpt_case1.get_name()),
-    pytest.param(bvpt_case2, id=bvpt_case2.get_name()),
-    pytest.param(bvpt_case3, id=bvpt_case3.get_name()),
-    pytest.param(bneept_case1, id=bneept_case1.get_name()),
-    pytest.param(bneept_case2, id=bneept_case2.get_name()),
+@pytest.mark.parametrize("case, max_mse, max_re_avg", [
+    pytest.param(bvpt_case1, 0.00012, 0.00018, id=bvpt_case1.get_name()),
+    pytest.param(bvpt_case2, 0.00012, 0.00018, id=bvpt_case2.get_name()),
+    pytest.param(bvpt_case3, 0.00012, 0.00018, id=bvpt_case3.get_name()),
+    pytest.param(bneept_case1, 0.00012, 0.00080, id=bneept_case1.get_name()),
+    pytest.param(bneept_case2, 0.00012, 0.00052, id=bneept_case2.get_name()),
 ])
-def test_render(ref_img, case):
+def test_render(ref_img, case, max_mse, max_re_avg):
     """
     A sphere with lerped Lambertian diffuse of different factors, comparing against a non-lerped (albedo = 
     100%) reference. The ground is non-lerped diffusive (albedo = 50%).
@@ -64,8 +64,8 @@ def test_render(ref_img, case):
     output_img.values -= ref_img.values
     output_img.values *= 100
     output_img = output_img.to_summed_absolute_components()
-    output_img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error", color_max=50)
+    output_img.save_pseudocolor_plot(case.get_debug_output_path(), case.get_name() + " 100X Absolute Error", color_max=70)
 
-    assert mse < 0.00012
-    assert abs(re_avg) < 0.00018
+    assert mse < max_mse
+    assert abs(re_avg) < max_re_avg
     

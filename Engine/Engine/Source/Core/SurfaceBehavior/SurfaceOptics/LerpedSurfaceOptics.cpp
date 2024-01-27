@@ -165,7 +165,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		eval.inputs.set(in, sampleOutput);
 		anotherOptics->calcBsdf(ctx, eval.inputs, eval.outputs);
 
-		const math::Spectrum bsdf1 = 
+		const math::Spectrum anotherBsdf = 
 			eval.outputs.isMeasurable() ? eval.outputs.getBsdf() : math::Spectrum(0);
 
 		BsdfPdfQuery query[2];
@@ -184,7 +184,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 		const math::Spectrum bsdf =
 			sampledRatio * (sampleOutput.getPdfAppliedBsdf() * query[0].outputs.getSampleDirPdfW()) +
-			(math::Spectrum(1) - sampledRatio) * bsdf1;
+			(math::Spectrum(1) - sampledRatio) * anotherBsdf;
 
 		const real pdfW = 
 			sampledProb * query[0].outputs.getSampleDirPdfW() +
@@ -212,7 +212,6 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		sampledOptics->calcBsdfSample(ctx, in, sampleFlow, out);
 		if(!out.isMeasurable())
 		{
-			out.setMeasurability(false);
 			return;
 		}
 

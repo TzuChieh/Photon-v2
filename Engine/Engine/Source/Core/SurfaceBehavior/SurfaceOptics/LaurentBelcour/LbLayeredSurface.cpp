@@ -191,13 +191,11 @@ void LbLayeredSurface::calcBsdfSample(
 	// FIXME: we already complete adding-doubling, reuse the computed results
 	BsdfEvalOutput evalOutput;
 	LbLayeredSurface::calcBsdf(ctx, evalInput, evalOutput);
-	if(!evalOutput.isMeasurable())
-	{
-		out.setMeasurability(false);
-		return;
-	}
 
-	out.setPdfAppliedBsdf(evalOutput.getBsdf() / pdf);
+	const math::Spectrum bsdf = 
+		evalOutput.isMeasurable() ? evalOutput.getBsdf() : math::Spectrum(0);
+
+	out.setPdfAppliedBsdf(bsdf / pdf);
 	out.setL(L);
 }
 
