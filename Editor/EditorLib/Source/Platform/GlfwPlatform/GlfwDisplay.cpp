@@ -45,7 +45,7 @@ void GlfwDisplay::initialize(
 
 	if(graphicsAPI == ghi::EGraphicsAPI::OpenGL)
 	{
-		PH_LOG(GlfwDisplay, "target graphics API: OpenGL, requesting version 4.6");
+		PH_LOG(GlfwDisplay, Note, "target graphics API: OpenGL, requesting version 4.6");
 
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);

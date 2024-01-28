@@ -58,7 +58,7 @@ void OfflineRenderer::render(RenderConfig config)
 
 	if(getRenderStage() != EOfflineRenderStage::Finished)
 	{
-		PH_LOG_WARNING(OfflineRenderer,
+		PH_LOG(OfflineRenderer, Warning,
 			"Please wait until current rendering task is finished before starting another render.");
 		return;
 	}
@@ -85,7 +85,7 @@ void OfflineRenderer::render(RenderConfig config)
 			}
 			catch(const Exception& e)
 			{
-				PH_LOG_ERROR(OfflineRenderer,
+				PH_LOG(OfflineRenderer, Error,
 					"Error on rendering single static image: {}", e.what());
 			}
 			
@@ -174,7 +174,7 @@ void OfflineRenderer::renderSingleStaticImageOnEngineThread(RenderConfig config)
 	Renderer* renderer = renderEngine->getRenderer();
 	if(!renderer)
 	{
-		PH_LOG_ERROR(OfflineRenderer,
+		PH_LOG(OfflineRenderer, Error,
 			"Failed to retrieve renderer from engine. Cannot render single static image.");
 		return;
 	}

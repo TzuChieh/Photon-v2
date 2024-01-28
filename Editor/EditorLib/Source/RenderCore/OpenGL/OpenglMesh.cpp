@@ -70,7 +70,7 @@ OpenglMesh::OpenglMesh(
 		     indexStorage.getIndexType() == EStorageElement::UInt16 ||
 		     indexStorage.getIndexType() == EStorageElement::UInt32))
 		{
-			PH_DEFAULT_LOG_ERROR(
+			PH_DEFAULT_LOG(Error,
 				"[OpenglMesh] using index storage with unsupported index type for drawing");
 		}
 

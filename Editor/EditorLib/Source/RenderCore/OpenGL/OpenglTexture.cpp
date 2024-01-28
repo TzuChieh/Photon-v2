@@ -94,7 +94,7 @@ void OpenglTexture::uploadPixelData(
 
 	if(isMultiSampled())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Cannot upload pixel data from host to a multi-sampled texture.");
 		return;
 	}
@@ -126,7 +126,7 @@ void OpenglTexture::uploadPixelData(
 
 	if(isMultiSampled())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Cannot upload pixel data from host to a multi-sampled texture.");
 		return;
 	}
@@ -157,7 +157,7 @@ void OpenglTexture::uploadPixelData(
 
 	if(isMultiSampled())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Cannot upload pixel data from host to a multi-sampled texture.");
 		return;
 	}

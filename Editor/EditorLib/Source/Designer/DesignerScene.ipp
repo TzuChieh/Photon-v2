@@ -133,7 +133,7 @@ inline void DesignerScene::registerObjectType()
 	const SdlClass* const clazz = ObjectType::getSdlClass();
 	if(classToObjMaker.find(clazz) != classToObjMaker.end())
 	{
-		PH_LOG_ERROR(DesignerScene,
+		PH_LOG(DesignerScene, Error,
 			"designer object already registered ({})",
 			sdl::gen_pretty_name(clazz));
 

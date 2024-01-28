@@ -66,7 +66,7 @@ void ExrFileReader::loadStandaloneImageData(
 
 	if(channels == Channels{nullptr, nullptr, nullptr})
 	{
-		PH_LOG_WARNING(ExrFileReader,
+		PH_LOG(ExrFileReader, Warning, 
 			"All standalone channels are not found;\n"
 			"available layers and channels in {} are: {}",
 			filePath, list_all_imf_layers_and_channels(header));
@@ -131,7 +131,7 @@ void ExrFileReader::loadStandaloneImageData(
 			{
 				if(channel->type != Imf::HALF)
 				{
-					PH_LOG_WARNING(ExrFileReader,
+					PH_LOG(ExrFileReader, Warning,
 						"Unsupported channel value type {} in file {}, ignoring this channel.",
 						enum_to_value(channel->type), filePath);
 					continue;

@@ -27,7 +27,7 @@ inline std::shared_ptr<ISdlResource> TSdl<void>::makeResource(const SdlClass* cl
 	// Could be empty due to `T` being abstract or being defined to be uninstantiable
 	if(!resource)
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"default resource creation failed, {} could be abstract or defined to be uninstantiable",
 			clazz->genPrettyName());
 		return nullptr;
@@ -64,7 +64,7 @@ inline std::shared_ptr<T> TSdl<T>::makeResource()
 	std::shared_ptr<T> typedResource = std::dynamic_pointer_cast<T>(std::move(resource));
 	if(!typedResource)
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"default resource creation failed, {} may not have SDL class defined",
 			clazz->genPrettyName());
 	}

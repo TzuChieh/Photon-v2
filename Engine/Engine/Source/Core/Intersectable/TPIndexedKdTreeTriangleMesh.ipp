@@ -42,7 +42,7 @@ inline TPIndexedKdTreeTriangleMesh<Index>::TPIndexedKdTreeTriangleMesh(
 
 	if(triangleBuffer && triangleBuffer->numFaces() > std::numeric_limits<Index>::max())
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"Kd-Tree index type max value is {} which can not store {} triangles, please use a "
 			"wider index type",
 			std::numeric_limits<Index>::max(), triangleBuffer->numFaces());

@@ -17,7 +17,7 @@ namespace
 
 inline void glfw_error_callback(const int errorCode, const char* const errorDescription)
 {
-	PH_LOG_ERROR(GlfwPlatform, "GLFW error: {} (error code = {})",
+	PH_LOG(GlfwPlatform, Error, "GLFW error: {} (error code = {})",
 		errorDescription, errorCode);
 }
 
@@ -55,7 +55,7 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 	ghi::EGraphicsAPI requestedGraphicsAPI = settings.graphicsAPI;
 	if(settings.graphicsAPI == ghi::EGraphicsAPI::Unknown)
 	{
-		PH_LOG(GlfwPlatform, 
+		PH_LOG(GlfwPlatform, Note,
 			"graphics API defaults to OpenGL");
 
 		requestedGraphicsAPI = ghi::EGraphicsAPI::OpenGL;
@@ -64,7 +64,7 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 	math::Vector2S requestedDisplaySizePx = settings.displaySizePx;
 	if(requestedDisplaySizePx.product() == 0)
 	{
-		PH_LOG(GlfwPlatform, 
+		PH_LOG(GlfwPlatform, Note,
 			"display area is 0, trying to request a default size");
 
 		GLFWmonitor* const primaryMonitor = glfwGetPrimaryMonitor();
@@ -72,7 +72,7 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 		{
 			requestedDisplaySizePx = {1920, 1080};
 
-			PH_LOG_WARNING(GlfwPlatform, 
+			PH_LOG(GlfwPlatform, Warning,
 				"cannot find primary monitor, display size defaults to {}", requestedDisplaySizePx);
 		}
 		else
@@ -86,7 +86,7 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 			// HACK: scale it for now, often too large
 			requestedDisplaySizePx /= 2;
 
-			PH_LOG(GlfwPlatform,
+			PH_LOG(GlfwPlatform, Note,
 				"display size defaults to primary monitor work area {}", requestedDisplaySizePx);
 		}
 	}
@@ -102,7 +102,7 @@ void GlfwPlatform::initialize(const AppSettings& settings)
 
 	if(!m_display.getGraphicsContext())
 	{
-		PH_LOG_ERROR(GlfwPlatform,
+		PH_LOG(GlfwPlatform, Error,
 			"no graphics context present, editor will likely crash");
 	}
 }
@@ -114,7 +114,7 @@ void GlfwPlatform::terminate()
 		m_input.terminate();
 		m_display.terminate();
 
-		PH_LOG(GlfwPlatform, 
+		PH_LOG(GlfwPlatform, Note,
 			"GLFW input stopped and window closed");
 	}
 

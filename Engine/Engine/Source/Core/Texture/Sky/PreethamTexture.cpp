@@ -81,7 +81,7 @@ PreethamTexture::PreethamTexture(
 
 	if(m_Yabs_xyY.z() <= 0)
 	{
-		PH_LOG_WARNING(PreethamTexture,
+		PH_LOG(PreethamTexture, Warning,
 			"turbidity = {} causes absolute zenith luminance to be negative/zero "
 			"(currently = {} K*cd/m^2); consider using values in [2, 10]", 
 			turbidity, m_Yabs_xyY.z());

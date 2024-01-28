@@ -118,7 +118,7 @@ void PPMRadianceEvaluationWork::sanitizeVariables()
 	real sanitizedAlpha = m_alpha;
 	if(m_alpha < 0.0_r || m_alpha > 1.0_r)
 	{
-		PH_LOG_WARNING(PPMRadianceEvaluationWork,
+		PH_LOG(PPMRadianceEvaluationWork, Warning,
 			"alpha must be in [0, 1], {} provided, clamping", m_alpha);
 		sanitizedAlpha = math::clamp(m_alpha, 0.0_r, 1.0_r);
 	}

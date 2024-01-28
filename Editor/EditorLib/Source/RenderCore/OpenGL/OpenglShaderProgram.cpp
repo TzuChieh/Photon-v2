@@ -117,7 +117,7 @@ void OpenglShaderProgram::checkLinkStatus(const Shader& vertexShader, const Shad
 	glGetProgramiv(m_programID, GL_LINK_STATUS, &isLinked);
 	if(isLinked == GL_FALSE)
 	{
-		PH_LOG_ERROR(OpenglShaderProgram,
+		PH_LOG(OpenglShaderProgram, Error,
 			"{} link failed (against vs: {}, fs: {}): {}", 
 			getName(), vertexShader.getName(), fragmentShader.getName(), getInfoLog());
 	}
@@ -131,7 +131,7 @@ void OpenglShaderProgram::validateProgram(const Shader& vertexShader, const Shad
 	glGetProgramiv(m_programID, GL_VALIDATE_STATUS, &isValidated);
 	if(isValidated == GL_FALSE)
 	{
-		PH_LOG_ERROR(OpenglShaderProgram,
+		PH_LOG(OpenglShaderProgram, Error,
 			"{} validation failed (against vs: {}, fs: {}): {}",
 			getName(), vertexShader.getName(), fragmentShader.getName(), getInfoLog());
 	}
@@ -194,13 +194,13 @@ void OpenglShaderProgram::warnUniformNotFound(
 {
 	if(!uniform)
 	{
-		PH_LOG_WARNING(OpenglShaderProgram,
+		PH_LOG(OpenglShaderProgram, Warning,
 			"in shader {}, uniform with name {} not found",
 			getName(), intendedName);
 	}
 	else
 	{
-		PH_LOG_WARNING(OpenglShaderProgram,
+		PH_LOG(OpenglShaderProgram, Warning,
 			"in shader {}, uniform {} with type {} not found (closest match has type = {} instead)",
 			getName(), intendedName, intendedType, uniform->type);
 	}

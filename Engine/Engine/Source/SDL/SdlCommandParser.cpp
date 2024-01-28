@@ -54,7 +54,7 @@ SdlCommandParser::SdlCommandParser(
 	{
 		if(!clazz)
 		{
-			PH_LOG_WARNING(SdlCommandParser, 
+			PH_LOG(SdlCommandParser, Warning,
 				"null SDL target class detected during parser construction");
 			continue;
 		}
@@ -63,7 +63,7 @@ SdlCommandParser::SdlCommandParser(
 		const auto& iter = m_mangledNameToClass.find(mangledClassName);
 		if(iter != m_mangledNameToClass.end())
 		{
-			PH_LOG_WARNING(SdlCommandParser,
+			PH_LOG(SdlCommandParser, Warning,
 				"SDL class <{}> already registered, overwriting; please check for name "
 				"collision: mangled name is <{}>", 
 				clazz->genPrettyName(), mangledClassName);
@@ -240,7 +240,7 @@ void SdlCommandParser::parseCommand(const std::string& command)
 			: command;
 		shortenedCommand = string_utils::trim(shortenedCommand);
 
-		PH_LOG_WARNING(SdlCommandParser,
+		PH_LOG(SdlCommandParser, Warning,
 			"command failed to run -> {} (parsing <{}>)", 
 			e.whatStr(), shortenedCommand);
 
@@ -459,7 +459,7 @@ void SdlCommandParser::parseDirectiveCommand(const CommandHeader& command)
 
 		if(loadedVersion != m_commandVersion)
 		{
-			PH_LOG_WARNING(SdlCommandParser,
+			PH_LOG(SdlCommandParser, Warning,
 				"switching PSDL version: old={}, new={} (engine native PSDL={})", 
 				m_commandVersion.toString(), versionStr, PH_PSDL_VERSION);
 		}
@@ -558,7 +558,7 @@ auto SdlCommandParser::parseCommandHeader(const std::string_view command)
 	// Require at least 2 characters, e.g., `#?` or `//`
 	if(headTrimmedCommand.size() < 2)
 	{
-		PH_LOG_WARNING(SdlCommandParser, "invalid command detected: {}", command);
+		PH_LOG(SdlCommandParser, Warning, "invalid command detected: {}", command);
 		return CommandHeader();
 	}
 

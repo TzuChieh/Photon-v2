@@ -26,7 +26,7 @@ void SdlDependencyResolver::analyze(
 	{
 		if(resourceNames.size() != resources.size())
 		{
-			PH_LOG_WARNING(SdlDependencyResolver,
+			PH_LOG(SdlDependencyResolver, Warning,
 				"incomplete resource name info detected: {} resource names provided (expecting {})", 
 				resourceNames.size(),
 				resources.size());
@@ -53,7 +53,7 @@ void SdlDependencyResolver::analyze(
 		}
 	}
 
-	PH_LOG_DEBUG(SdlDependencyResolver,
+	PH_DEBUG_LOG(SdlDependencyResolver,
 		"gathered {} resources to analyze for dependencies", m_resourceInfos.size());
 
 	calcDispatchOrderFromTopologicalSort();
@@ -101,7 +101,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 	std::vector<std::vector<std::size_t>> adjacencyLists(numResources);
 	std::vector<int> dependentCounts(numResources, 0);
 
-	PH_LOG(SdlDependencyResolver, "building DAG for {} resources", numResources);
+	PH_LOG(SdlDependencyResolver, Note, "building DAG for {} resources", numResources);
 
 	// Builds the DAG (fill in adjacency lists)
 	{
@@ -128,7 +128,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 
 				if(referencedRes == resInfo.resource)
 				{
-					PH_LOG_WARNING(SdlDependencyResolver,
+					PH_LOG(SdlDependencyResolver, Warning,
 						"resource {} referenced itself, ignoring the reference", resInfo.name);
 					continue;
 				}
@@ -136,7 +136,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 				const auto optReferencedResIdx = getResourceInfoIdx(referencedRes);
 				if(!optReferencedResIdx)
 				{
-					PH_LOG_WARNING(SdlDependencyResolver,
+					PH_LOG(SdlDependencyResolver, Warning,
 						"resource {} referenced a resource that is not tracked by the analyzer, ignoring the reference "
 						"(this typically happens if the referenced resource is not submitted for analysis)",
 						resInfo.name);
@@ -153,7 +153,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 			}
 		}
 
-		PH_LOG_DEBUG(SdlDependencyResolver,
+		PH_DEBUG_LOG(SdlDependencyResolver,
 			"DAG building done, max references/degree = {}", maxRefCount);
 	}// end DAG building
 
@@ -167,7 +167,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 		}
 	}
 
-	PH_LOG_DEBUG(SdlDependencyResolver,
+	PH_DEBUG_LOG(SdlDependencyResolver,
 		"{} resources are already independent", independentResIndices.size());
 
 	// Main topological sorting that produces a valid resource dispatch order
@@ -207,7 +207,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 
 	if(m_queuedResources.size() != numResources)
 	{
-		PH_LOG_WARNING(SdlDependencyResolver, "queued {} resources while there are {} in total",
+		PH_LOG(SdlDependencyResolver, Warning, "queued {} resources while there are {} in total",
 			m_queuedResources.size(), numResources);
 	}
 
@@ -219,7 +219,7 @@ void SdlDependencyResolver::calcDispatchOrderFromTopologicalSort()
 		if(dependentCount != -1)
 		{
 			const ResourceInfo& resInfo = m_resourceInfos[resIdx];
-			PH_LOG_WARNING(SdlDependencyResolver,
+			PH_LOG(SdlDependencyResolver, Warning,
 				"possible cyclic references detected: resource {} has {} references that cannot be resolved",
 				resInfo.name, dependentCount);
 		}

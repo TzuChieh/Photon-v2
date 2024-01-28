@@ -59,7 +59,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 
 	if(!geometry)
 	{
-		PH_LOG_ERROR(AGeometricLight,
+		PH_LOG(AGeometricLight, Error,
 			"cannot build geometric light, please make sure the actor is geometric or supply a "
 			"valid geometry resource");
 		return TransientVisualElement();
@@ -67,7 +67,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 
 	if(!material)
 	{
-		PH_LOG(AGeometricLight,
+		PH_LOG(AGeometricLight, Note,
 			"material is not specified, using default diffusive material");
 		material = TSdl<MatteOpaque>::makeResource();
 	}
@@ -148,7 +148,7 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	const Emitter* emitter = buildEmitter(ctx, lightPrimitives);
 	if(!emitter)
 	{
-		PH_LOG_ERROR(AGeometricLight,
+		PH_LOG(AGeometricLight, Error,
 			"no emitter generated");
 		return cookedLight;
 	}
@@ -173,7 +173,7 @@ std::shared_ptr<Geometry> AGeometricLight::getSanifiedGeometry(
 	// TODO: test "isRigid()" may be more appropriate
 	if(srcLocalToWorld.getDecomposed().hasScaleEffect())
 	{
-		PH_LOG(AGeometricLight,
+		PH_LOG(AGeometricLight, Note,
 			"scale detected (which is {}), this is undesirable since many light attributes will "
 			"be affected; can incur additional memory overhead as the original cooked geometry "
 			"may not be used (e.g., a transformed temporary is used instead and the original is "
@@ -185,7 +185,7 @@ std::shared_ptr<Geometry> AGeometricLight::getSanifiedGeometry(
 		sanifiedGeometry = srcGeometry->genTransformed(baseLW);
 		if(!sanifiedGeometry)
 		{
-			PH_LOG_WARNING(AGeometricLight,
+			PH_LOG(AGeometricLight, Warning,
 				"scale detected and has failed to apply it to the geometry; "
 				"scaling on light with attached geometry may have unexpected "
 				"behaviors such as miscalculated primitive surface area, which "

@@ -123,23 +123,23 @@ inline void APIENTRY ph_editor_OpenGL_debug_callback(
 	// Anything that isn't an error or performance issue
 	case GL_DEBUG_SEVERITY_NOTIFICATION:
 		// You can uncomment this to enable trace level info logging
-		//PH_LOG(OpenglGHI, "{}", debugStr);
+		//PH_LOG(OpenglGHI, Note, "{}", debugStr);
 		break;
 
 	// Redundant state change performance warning, or unimportant undefined behavior
 	case GL_DEBUG_SEVERITY_LOW:
-		PH_LOG(OpenglGHI, "{}", debugStr);
+		PH_LOG(OpenglGHI, Note, "{}", debugStr);
 		break;
 
 	// Major performance warnings, shader compilation/linking warnings, or the use of deprecated functionality
 	case GL_DEBUG_SEVERITY_MEDIUM:
-		PH_LOG_WARNING(OpenglGHI, "{}", debugStr);
+		PH_LOG(OpenglGHI, Warning, "{}", debugStr);
 		break;
 
 	// All OpenGL Errors, shader compilation/linking errors, or highly-dangerous undefined behavior
 	case GL_DEBUG_SEVERITY_HIGH:
 	default:
-		PH_LOG_ERROR(OpenglGHI, "{}", debugStr);
+		PH_LOG(OpenglGHI, Error, "{}", debugStr);
 		break;
 	}
 }
@@ -199,12 +199,12 @@ void OpenglGHI::load()
 		glDebugMessageCallback(ph_editor_OpenGL_debug_callback, nullptr);
 	}
 
-	PH_LOG(OpenglGHI,
+	PH_LOG(OpenglGHI, Note,
 		"loaded OpenGL {}.{}", 
 		GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
 	// Log information provided by OpenGL itself
-	PH_LOG(OpenglGHI,
+	PH_LOG(OpenglGHI, Note,
 		"Vendor: {}, Renderer: {}, Version: {}, GLSL Version: {}",
 		GLubyte_to_sv(glGetString(GL_VENDOR)),
 		GLubyte_to_sv(glGetString(GL_RENDERER)),
@@ -291,7 +291,7 @@ void OpenglGHI::draw(Mesh& mesh, const EMeshDrawMode drawMode)
 	}
 	else
 	{
-		PH_LOG_ERROR(OpenglGHI,
+		PH_LOG(OpenglGHI, Error,
 			"cannot draw mesh; index buffer: {}, # vertex buffers: {}, draw mode: {}",
 			mesh.hasIndexStorage(), mesh.numVertexStorages(), enum_to_value(drawMode));
 	}
@@ -367,7 +367,7 @@ void OpenglGHI::attachTextureToFramebuffer(
 	{
 		if(attachmentIdx != 0)
 		{
-			PH_LOG_WARNING(OpenglGHI,
+			PH_LOG(OpenglGHI, Warning,
 				"Attempting to attach depth stencil texture to invalid attachment point {}.",
 				attachmentIdx);
 		}
@@ -400,7 +400,7 @@ std::shared_ptr<ShaderProgram> OpenglGHI::createShaderProgram(
 	}
 	else
 	{
-		PH_LOG_ERROR(OpenglGHI,
+		PH_LOG(OpenglGHI, Error,
 			"cannot create shader program (some shaders are missing)");
 		return nullptr;
 	}*/

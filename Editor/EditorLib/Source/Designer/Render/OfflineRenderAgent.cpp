@@ -37,7 +37,7 @@ void OfflineRenderAgent::render(RenderConfig config)
 {
 	if(!m_renderer)
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"Cannot render. No renderer present.");
 		return;
 	}

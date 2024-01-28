@@ -76,7 +76,7 @@ inline pixel_texture::EWrapMode to_texture_wrap_mode(const EImageWrapMode wrapMo
 		return pixel_texture::EWrapMode::FlippedClampToEdge;
 
 	default:
-		PH_LOG_WARNING(RasterFileImage, "unsupported image wrap mode, using Repeat");
+		PH_LOG(RasterFileImage, Warning, "unsupported image wrap mode, using Repeat");
 		return pixel_texture::EWrapMode::Repeat;
 	}
 }
@@ -213,7 +213,7 @@ std::shared_ptr<PixelBuffer2D> RasterFileImage::loadPixelBuffer(
 			break;
 
 		default:
-			PH_LOG_WARNING(RasterFileImage,
+			PH_LOG(RasterFileImage, Warning,
 				"Does not support layout of {} pixel elements. Default to RGBA.", picture.numComponents());
 			*out_pixelLayout = pixel_texture::EPixelLayout::RGBA;
 			break;
@@ -276,7 +276,7 @@ pixel_texture::ESampleMode RasterFileImage::getTextureSampleMode() const
 		return pixel_texture::ESampleMode::Trilinear;
 
 	default:
-		PH_LOG_WARNING(RasterFileImage, "unsupported image sample mode, using Bilinear");
+		PH_LOG(RasterFileImage, Warning, "unsupported image sample mode, using Bilinear");
 		return pixel_texture::ESampleMode::Bilinear;
 	}
 }

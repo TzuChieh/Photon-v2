@@ -22,7 +22,7 @@ void CookedNamedResource::setBackgroundPrimitive(const Primitive* const primitiv
 	// Log this event so it is easier to track.
 	if(m_backgroundPrimitive != nullptr)
 	{
-		PH_LOG(CookedNamedResource,
+		PH_LOG(CookedNamedResource, Note,
 			"overwriting existing background primitive");
 	}
 

@@ -60,7 +60,7 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 			}
 			else
 			{
-				PH_LOG_WARNING(PhotonCliArgs,
+				PH_LOG(PhotonCliArgs, Warning,
 					"bad number of threads {} detected, using {} instead", numThreads, m_numThreads);
 			}
 		}
@@ -86,13 +86,13 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 				}
 				else
 				{
-					PH_LOG_WARNING(PhotonCliArgs,
+					PH_LOG(PhotonCliArgs, Warning,
 						"unknown intermediate output interval unit <{}> specified", unit);
 				}
 			}
 			else
 			{
-				PH_LOG_WARNING(PhotonCliArgs,
+				PH_LOG(PhotonCliArgs, Warning,
 					"unrecognizable intermediate output interval <{}> specified", values[0]);
 			}
 		}
@@ -129,13 +129,13 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 				}
 				else
 				{
-					PH_LOG_WARNING(PhotonCliArgs,
+					PH_LOG(PhotonCliArgs, Warning,
 						"unknown blender peek interval unit <{}> specified", unit);
 				}
 			}
 			else
 			{
-				PH_LOG_WARNING(PhotonCliArgs, 
+				PH_LOG(PhotonCliArgs, Warning,
 					"unrecognizable blender peek interval <{}> specified", intervalWithUnit);
 			}
 		}
@@ -144,7 +144,7 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 			m_wildcardStart = arguments.retrieveString();
 			if(m_wildcardStart.empty())
 			{
-				PH_LOG_WARNING(PhotonCliArgs, "no wildcard string specified for --start");
+				PH_LOG(PhotonCliArgs, Warning, "no wildcard string specified for --start");
 			}
 		}
 		else if(argument == "--finish")
@@ -152,7 +152,7 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 			m_wildcardFinish = arguments.retrieveString();
 			if(m_wildcardFinish.empty())
 			{
-				PH_LOG_WARNING(PhotonCliArgs, "no wildcard string specified for --finish");
+				PH_LOG(PhotonCliArgs, Warning, "no wildcard string specified for --finish");
 			}
 		}
 		else if(argument == "-fd")
@@ -168,7 +168,7 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 		}
 		else
 		{
-			PH_LOG_WARNING(PhotonCliArgs, "unknown command <{}> specified, ignoring",
+			PH_LOG(PhotonCliArgs, Warning, "unknown command <{}> specified, ignoring",
 				argument);
 		}
 	}// end while more arguments exist

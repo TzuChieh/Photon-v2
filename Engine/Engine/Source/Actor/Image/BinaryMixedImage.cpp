@@ -22,7 +22,7 @@ auto BinaryMixedImage::checkoutImages() const
 	auto imageB = m_imageB.lock();
 	if(!imageA || !imageB)
 	{
-		PH_LOG_WARNING(BinaryMixedImage,
+		PH_LOG(BinaryMixedImage, Warning,
 			"image pair is incomplete");
 	}
 

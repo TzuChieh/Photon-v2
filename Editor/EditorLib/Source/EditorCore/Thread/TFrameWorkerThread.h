@@ -515,7 +515,7 @@ private:
 
 				if(numDequeuedAnyThreadWorks == maxAnyThreadWorksPerFrame + 1)
 				{
-					PH_LOG_WARNING(TFrameWorkerThread,
+					PH_LOG(TFrameWorkerThread, Warning,
 						"too many concurrently added works ({}), current safe limit is {}",
 						numDequeuedAnyThreadWorks + frame.anyThreadWorkQueue.estimatedSize(), maxAnyThreadWorksPerFrame);
 				}

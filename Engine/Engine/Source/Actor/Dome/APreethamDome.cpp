@@ -34,7 +34,7 @@ math::Vector2R APreethamDome::calcSunSphericalCoordinates() const
 	math::Vector2R sunPhiTheta(0, 0);
 	if(m_sunPhiThetaDegrees.has_value())
 	{
-		PH_LOG(PreethamDomeActor,
+		PH_LOG(PreethamDomeActor, Note,
 			"Using direct specification of sun position [{} deg, {} deg] (spherical coordinates) "
 			"in the sky. Note that this may not be physically correct since not every position "
 			"in the sky is possible for the sun given a location on Earth.",
@@ -68,7 +68,7 @@ void APreethamDome::checkTurbidity(const real turbidity)
 {
 	if(turbidity < 2 || turbidity > 10)
 	{
-		PH_LOG(PreethamDomeActor,
+		PH_LOG(PreethamDomeActor, Note,
 			"turbidity values not in [2, 10] may cause rendering artifacts as "
 			"the fitting might break (this is the range being tested in the paper)");
 	}

@@ -170,7 +170,7 @@ void DesignerScene::createRenderCommands(RenderThreadCaller& caller)
 		}
 		else
 		{
-			PH_LOG_WARNING(DesignerScene,
+			PH_LOG(DesignerScene, Warning,
 				"One render work canceled (from object {}, init: {}, fully init: {}), please "
 				"make sure to not enqueue render work outside of usable object lifetime.",
 				get_object_debug_info(renderWork.obj), 
@@ -247,7 +247,7 @@ bool DesignerScene::deselectObject(DesignerObject* const obj)
 	const auto numErasedObjs = std::erase(m_selectedObjs, obj);
 	if(numErasedObjs != 1)
 	{
-		PH_LOG_WARNING(DesignerScene,
+		PH_LOG(DesignerScene, Warning,
 			"Deselecting object {}, {} were found and deselected",
 			get_object_debug_info(obj), numErasedObjs);
 	}
@@ -658,7 +658,7 @@ void DesignerScene::cleanup()
 			if(objState.has(EObjectState::HasRenderInitialized) &&
 			   objState.hasNo(EObjectState::HasRenderUninitialized))
 			{
-				PH_LOG_ERROR(DesignerScene,
+				PH_LOG(DesignerScene, Error,
 					"invalid object cleanup state detected: object {} needs render cleanup first",
 					get_object_debug_info(obj.get()));
 			}

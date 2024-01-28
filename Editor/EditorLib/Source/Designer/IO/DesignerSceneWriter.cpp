@@ -60,7 +60,7 @@ void DesignerSceneWriter::saveResource(
 	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
 	{
-		PH_LOG_WARNING(DesignerSceneWriter,
+		PH_LOG(DesignerSceneWriter, Warning,
 			"Unable to save resource (class = {}): {}",
 			sdl::gen_pretty_name(resourceClass),
 			!resource ? "null resource" : "null class");
@@ -88,7 +88,7 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 
 	if(!scene.isPaused())
 	{
-		PH_LOG_WARNING(DesignerSceneWriter,
+		PH_LOG(DesignerSceneWriter, Warning,
 			"Designer scene {} should be paused before writing started. If not, its internal states "
 			"might change and cause corruption in the saved data.", scene.getName());
 	}
@@ -109,12 +109,12 @@ void DesignerSceneWriter::write(const DesignerScene& scene)
 	// with additional data files
 	Path sceneFile = getSceneWorkingDirectory().append(scene.getName() + ".pds");
 
-	PH_LOG(DesignerSceneWriter, "generating scene file: {}", sceneFile);
+	PH_LOG(DesignerSceneWriter, Note, "generating scene file: {}", sceneFile);
 
 	clearStats();
 	saveSceneToFile(scene, sceneFile);
 
-	PH_LOG(DesignerSceneWriter,
+	PH_LOG(DesignerSceneWriter, Note,
 		"scene file generated, totalling {} commands (errors: {})", 
 		numGeneratedCommands(), numGenerationErrors());
 }

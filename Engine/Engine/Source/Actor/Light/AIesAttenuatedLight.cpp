@@ -32,14 +32,14 @@ PreCookReport AIesAttenuatedLight::preCook(const CookingContext& ctx) const
 
 	if(!m_source)
 	{
-		PH_LOG_WARNING(AIesAttenuatedLight,
+		PH_LOG(AIesAttenuatedLight, Warning,
 			"ignoring this light: light source is not specified");
 		report.markAsUncookable();
 	}
 
 	if(!m_iesFile.isResolved())
 	{
-		PH_LOG_WARNING(AIesAttenuatedLight,
+		PH_LOG(AIesAttenuatedLight, Warning,
 			"ignoring this light: IES file is missing");
 		report.markAsUncookable();
 	}
@@ -53,7 +53,7 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	TransientVisualElement sourceElement = getSourceVisualElement(ctx);
 	if(sourceElement.emitters.empty())
 	{
-		PH_LOG_WARNING(AIesAttenuatedLight,
+		PH_LOG(AIesAttenuatedLight, Warning,
 			"ignoring this light: no emitters were found");
 		return {};
 	}
@@ -62,7 +62,7 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	   sourceElement.emitters.size() != 1 && 
 	   sourceElement.emitters.size() != sourceElement.primitivesView.size())
 	{
-		PH_LOG_WARNING(AIesAttenuatedLight,
+		PH_LOG(AIesAttenuatedLight, Warning,
 			"ignoring this light: no match between emitters and primitives "
 			"(# emitters: {}, # primitives: {})",
 			sourceElement.emitters.size(), sourceElement.primitivesView.size());

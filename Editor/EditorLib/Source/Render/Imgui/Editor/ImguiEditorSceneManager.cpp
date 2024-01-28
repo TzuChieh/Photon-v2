@@ -32,7 +32,7 @@ inline void save_scene(
 	auto dirPath = fsDialog.getSelectedDirectory();
 	if(dirPath.isEmpty())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"cannot save scene: no directory specified");
 		return;
 	}
@@ -119,7 +119,7 @@ void ImguiEditorSceneManager::buildWindow(const char* windowIdName, bool* isOpen
 			auto items = fsDialog.getSelectedItems();
 			for(const auto& item : items)
 			{
-				PH_DEFAULT_LOG("selected: {}", item.toString());
+				PH_DEFAULT_LOG(Note, "selected: {}", item.toString());
 			}
 		}
 

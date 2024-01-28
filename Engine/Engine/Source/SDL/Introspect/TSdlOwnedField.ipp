@@ -80,7 +80,7 @@ inline void TSdlOwnedField<Owner>::fromSdl(
 			// (as the user provided a SDL value string for the field, 
 			// a successful parse was expected)
 			//
-			PH_LOG_WARNING(SdlField, "load error from {} -> {}; value defaults to {}", 
+			PH_LOG(SdlField, Warning, "load error from {} -> {}; value defaults to {}",
 				sdl::gen_pretty_name(ctx.getSrcClass(), this),
 				e.whatStr(),
 				valueToString(owner));

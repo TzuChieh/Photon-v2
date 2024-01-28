@@ -32,7 +32,7 @@ GHIThread::~GHIThread()
 void GHIThread::onAsyncWorkerStart()
 {
 	PH_PROFILE_NAME_THIS_THREAD("GHI thread");
-	PH_LOG(GHIThread, "thread started");
+	PH_LOG(GHIThread, Note, "thread started");
 
 	switchContext(m_nullCtx.get());
 }
@@ -41,7 +41,7 @@ void GHIThread::onAsyncWorkerStop()
 {
 	switchContext(nullptr);
 
-	PH_LOG(GHIThread, "thread stopped");
+	PH_LOG(GHIThread, Note, "thread stopped");
 }
 
 void GHIThread::onAsyncProcessWork(const Work& work)

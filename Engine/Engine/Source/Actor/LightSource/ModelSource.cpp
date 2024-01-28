@@ -54,7 +54,7 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 {
 	if(data.primitives.empty())
 	{
-		PH_LOG_WARNING(ModelSource,
+		PH_LOG(ModelSource, Warning,
 			"no primitive provided; requires at least a primitive to build emitter");
 		return nullptr;
 	}

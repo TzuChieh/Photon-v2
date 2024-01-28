@@ -12,7 +12,7 @@ bool BinaryFileReader::open()
 	m_inputStream.open(m_filePath.toString(), std::ios_base::in | std::ios_base::binary);
 	if(!m_inputStream.good())
 	{
-		PH_LOG_WARNING(BinaryFileReader, "<{}> open failed", m_filePath.toString());
+		PH_LOG(BinaryFileReader, Warning, "<{}> open failed", m_filePath.toString());
 		return false;
 	}
 

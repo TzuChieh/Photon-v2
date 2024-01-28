@@ -41,7 +41,7 @@ void BinaryMixedSurfaceMaterial::genSurface(const CookingContext& ctx, SurfaceBe
 		}
 		else
 		{
-			PH_LOG_WARNING(BinaryMixedSurfaceMaterial,
+			PH_LOG(BinaryMixedSurfaceMaterial, Warning,
 				"No lerp factor specified. The result might not be what you want.");
 			behavior.setOptics(std::make_shared<LerpedSurfaceOptics>(optics0, optics1));
 		}

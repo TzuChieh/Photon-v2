@@ -80,7 +80,7 @@ void BlenderStaticImageRenderer::render()
 	{
 		renderThread.join();
 	}
-	PH_LOG(Blender, "Render finished.");
+	PH_LOG(Blender, Note, "Render finished.");
 
 	statsThread.request_stop();
 	serverThread.request_stop();
@@ -142,7 +142,7 @@ std::jthread BlenderStaticImageRenderer::makeServerThread(const uint16 port, con
 		}
 		catch(const std::exception& e)
 		{
-			PH_LOG_ERROR(Blender, "Error on establishing connection: {}.", e.what());
+			PH_LOG(Blender, Error, "Error on establishing connection: {}.", e.what());
 		}
 	});
 }
@@ -150,7 +150,7 @@ std::jthread BlenderStaticImageRenderer::makeServerThread(const uint16 port, con
 void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 port, const float32 peekIntervalS)
 {
 	const std::chrono::duration<float32> peekInverval(peekIntervalS);
-	PH_LOG(Blender, "Server peek interval is {}", peekInverval);
+	PH_LOG(Blender, Note, "Server peek interval is {}", peekInverval);
 
 	// At this point, we know nothing but render has not started yet
 
@@ -159,12 +159,12 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 	// Server endpoint listening to the specified port
 	asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), port);
 	asio::ip::tcp::acceptor acceptor(ioContext, endpoint);
-	PH_LOG(Blender, "Server listening on port {}", port);
+	PH_LOG(Blender, Note, "Server listening on port {}", port);
 
 	// A blocking accept, unblocks only if a connection is accepted or an error occurs
 	asio::ip::tcp::socket socket(ioContext);
 	acceptor.accept(socket);
-	PH_LOG(Blender, "Connection accepted.");
+	PH_LOG(Blender, Note, "Connection accepted.");
 
 	// Start peeking and send data only if being notified
 	m_serverStartPeekingFlag.wait(false);
@@ -215,7 +215,7 @@ void BlenderStaticImageRenderer::runServer(std::stop_token token, const uint16 p
 		std::this_thread::sleep_for(peekInverval);
 	}
 
-	PH_LOG(Blender, "Stopping server...");
+	PH_LOG(Blender, Note, "Stopping server...");
 
 	phDeleteBuffer(bufferId);
 	phDeleteFrame(serverFrameId);

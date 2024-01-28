@@ -20,7 +20,7 @@ IesData::IesData(const Path& iesFilePath) :
 {
 	if(!m_file.load())
 	{
-		PH_LOG_WARNING(IesData, "failed on loading file <{}>", m_file.getFilename());
+		PH_LOG(IesData, Warning, "failed on loading file <{}>", m_file.getFilename());
 
 		return;
 	}
@@ -77,7 +77,7 @@ void IesData::processCandelaValues()
 {
 	if(m_file.getPhotometricWebType() != IesFile::EPhotometricWebType::C)
 	{
-		PH_LOG_WARNING(IesData, "web type is not C, not supported (file: {})",
+		PH_LOG(IesData, Warning, "web type is not C, not supported (file: {})",
 			m_file.getFilename());
 
 		return;
@@ -87,7 +87,7 @@ void IesData::processCandelaValues()
 	const auto hDegrees = m_file.getHorizontalAngles();
 	if(!hDegrees.empty() && hDegrees[0] != 0)
 	{
-		PH_LOG_WARNING(IesData, 
+		PH_LOG(IesData, Warning,
 			"horizontal degrees does not start with 0, which is not supported (file: {})",
 			m_file.getFilename());
 
@@ -146,7 +146,7 @@ void IesData::processCandelaValues()
 	}
 	else
 	{
-		PH_LOG_WARNING(IesData, "unsupported angle difference (file: {})",
+		PH_LOG(IesData, Warning, "unsupported angle difference (file: {})",
 			m_file.getFilename());
 
 		return;
@@ -172,7 +172,7 @@ void IesData::processCandelaValues()
 	}
 	else
 	{
-		PH_LOG_WARNING(IesData, "unsupported vertical angle difference (file: {})",
+		PH_LOG(IesData, Warning, "unsupported vertical angle difference (file: {})",
 			m_file.getFilename());
 
 		return;
@@ -202,7 +202,7 @@ void IesData::processAttenuationFactors()
 
 	if(minCandela < 0.0_r || maxCandela <= 0.0_r)
 	{
-		PH_LOG_WARNING(IesData, "bad candela value detected in file <{}>",
+		PH_LOG(IesData, Warning, "bad candela value detected in file <{}>",
 			m_file.getFilename());
 	}
 

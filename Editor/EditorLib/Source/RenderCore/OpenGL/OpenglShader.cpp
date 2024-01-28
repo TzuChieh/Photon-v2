@@ -32,18 +32,18 @@ OpenglShader::OpenglShader(
 
 	// Check compilation status and possibly log warning/error
 
-	PH_LOG(OpenglShader,
+	PH_LOG(OpenglShader, Note,
 		"[shader {}] compile log: {}", getName(), getInfoLog());
 
 	GLint isCompiled;
 	glGetShaderiv(m_shaderID, GL_COMPILE_STATUS, &isCompiled);
 	if(isCompiled == GL_TRUE)
 	{
-		PH_LOG(OpenglShader, "[shader {}] compilation successed", getName());
+		PH_LOG(OpenglShader, Note, "[shader {}] compilation successed", getName());
 	}
 	else
 	{
-		PH_LOG_ERROR(OpenglShader, 
+		PH_LOG(OpenglShader, Error,
 			"[shader {}] compilation failed, see log for detailed reason of failure", 
 			getName());
 	}

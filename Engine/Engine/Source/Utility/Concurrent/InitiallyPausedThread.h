@@ -96,8 +96,8 @@ inline InitiallyPausedThread::InitiallyPausedThread(Func&& func, Args&&... args)
 			}
 			catch(const Exception& e)
 			{
-				PH_DEFAULT_LOG_ERROR("[InitiallyPausedThread] unhandled exception thrown: {}",
-					e.what());
+				PH_DEFAULT_LOG(Error,
+					"[InitiallyPausedThread] unhandled exception thrown: {}", e.what());
 
 				PH_DEBUG_BREAK();
 			}

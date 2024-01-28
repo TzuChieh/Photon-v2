@@ -65,7 +65,7 @@ StochasticProgressivePMRenderer::StochasticProgressivePMRenderer(
 
 void StochasticProgressivePMRenderer::doRender()
 {
-	PH_LOG(PMRenderer, "rendering mode: stochastic progressive photon mapping");
+	PH_LOG(PMRenderer, Note, "rendering mode: stochastic progressive photon mapping");
 
 	m_photonsPerSecond.store(0, std::memory_order_relaxed);
 	renderWithStochasticProgressivePM();
@@ -83,7 +83,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 
 	FixedSizeThreadPool workers(numWorkers());
 
-	PH_LOG(PMRenderer, "start generating viewpoints...");
+	PH_LOG(PMRenderer, Note, "start generating viewpoints...");
 
 	// Keep the same number of statistics in x & y so the image will not look stretched
 	auto numStatisticsPerDim = static_cast<int64>(std::sqrt(getCommonParams().numSamplesPerPixel));
@@ -139,17 +139,17 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		totalViewpoints += radianceEvalRegion.viewpoints.size();
 	}
 
-	PH_LOG(PMRenderer, "viewpoint (statistics record) resolution: {}", 
+	PH_LOG(PMRenderer, Note, "viewpoint (statistics record) resolution: {}", 
 		getRenderRegionPx().getExtents() * numStatisticsPerDim);
-	PH_LOG(PMRenderer, "viewpoint size: {} bytes", sizeof(Viewpoint));
-	PH_LOG(PMRenderer, "size of viewpoint buffer: {} MiB",
+	PH_LOG(PMRenderer, Note, "viewpoint size: {} bytes", sizeof(Viewpoint));
+	PH_LOG(PMRenderer, Note, "size of viewpoint buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Viewpoint) * totalViewpoints));
 
 	const std::size_t numPhotonsPerPass = getCommonParams().numPhotons;
 
-	PH_LOG(PMRenderer, "photon size: {} bytes", sizeof(Photon));
-	PH_LOG(PMRenderer, "number of photons per pass: {}", numPhotonsPerPass);
-	PH_LOG(PMRenderer, "size of photon buffer: {} MiB",
+	PH_LOG(PMRenderer, Note, "photon size: {} bytes", sizeof(Photon));
+	PH_LOG(PMRenderer, Note, "number of photons per pass: {}", numPhotonsPerPass);
+	PH_LOG(PMRenderer, Note, "size of photon buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Photon) * numPhotonsPerPass));
 
 	TSynchronized<HdrRgbFilm> resultFilm(HdrRgbFilm(
@@ -159,7 +159,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 	std::vector<Photon> photonBuffer(numPhotonsPerPass);
 	TPhotonMap<Photon> photonMap;
 
-	PH_LOG(PMRenderer, "start accumulating passes...");
+	PH_LOG(PMRenderer, Note, "start accumulating passes...");
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;

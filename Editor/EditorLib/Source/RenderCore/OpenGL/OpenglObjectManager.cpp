@@ -104,7 +104,7 @@ void OpenglObjectManager::uploadPixelData(
 		OpenglTexture* texture = textures.get(handle);
 		if(!texture || !texture->hasResource())
 		{
-			PH_LOG_ERROR(OpenglObjectManager,
+			PH_LOG(OpenglObjectManager, Error,
 				"Cannot upload pixel data for texture; object: {}, resource: {}, handle: {}",
 				static_cast<void*>(texture), texture ? texture->hasResource() : false, handle);
 			return;
@@ -175,7 +175,7 @@ void OpenglObjectManager::deleteAllTextures()
 		}
 	}
 
-	PH_LOG(OpenglObjectManager,
+	PH_LOG(OpenglObjectManager, Note,
 		"Deleted {} textures. Storage capacity = {}.",
 		numDeleted, textures.capacity());
 }
@@ -185,7 +185,7 @@ void OpenglObjectManager::onGHILoad()
 
 void OpenglObjectManager::onGHIUnload()
 {
-	PH_LOG(OpenglObjectManager,
+	PH_LOG(OpenglObjectManager, Note,
 		"Start cleaning up resource objects...");
 
 	// Perform pending deletes
@@ -201,12 +201,12 @@ void OpenglObjectManager::onGHIUnload()
 		}
 	}
 
-	PH_LOG(OpenglObjectManager,
+	PH_LOG(OpenglObjectManager, Note,
 		"performed {} pending deletes, {} were successful.",
 		numAttempts, numAttempts - numFailedAttempts);
 	if(numFailedAttempts != 0)
 	{
-		PH_LOG_ERROR(OpenglObjectManager,
+		PH_LOG(OpenglObjectManager, Error,
 			"{} out of {} deletes were unsuccessful. Please ensure correct object lifecycle.",
 			numFailedAttempts, numAttempts);
 	}
@@ -248,7 +248,7 @@ void OpenglObjectManager::endFrameUpdate(const GHIThreadUpdateContext& ctx)
 			++deleter.numRetries;
 			if(deleter.numRetries >= maxRetries)
 			{
-				PH_LOG_WARNING(OpenglObjectManager,
+				PH_LOG(OpenglObjectManager, Warning,
 					"Detected hanging object deleter ({} retries), canceling",
 					deleter.numRetries);
 				continue;

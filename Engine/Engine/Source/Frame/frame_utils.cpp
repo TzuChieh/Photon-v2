@@ -47,7 +47,7 @@ void abs_diff(const HdrRgbFrame& frameA, const HdrRgbFrame& frameB, HdrRgbFrame*
 
 	if(!frameA.getSizePx().isEqual(frameB.getSizePx()))
 	{
-		PH_LOG_WARNING(FrameUtilities, "Dimension mismatch in abs_diff(3); sizes are: {}, {}", 
+		PH_LOG(FrameUtilities, Warning, "Dimension mismatch in abs_diff(3); sizes are: {}, {}",
 			frameA.getSizePx().toString(), frameB.getSizePx().toString());
 
 		return;
@@ -72,7 +72,7 @@ real calc_MSE(const HdrRgbFrame& expected, const HdrRgbFrame& estimated)
 
 	if(!expected.getSizePx().isEqual(estimated.getSizePx()))
 	{
-		PH_LOG_WARNING(FrameUtilities, "Dimension mismatch in calc_MSE(2); sizes are: {}, {}", 
+		PH_LOG(FrameUtilities, Warning, "Dimension mismatch in calc_MSE(2); sizes are: {}, {}",
 			expected.getSizePx().toString(), estimated.getSizePx().toString());
 
 		return 0.0_r;

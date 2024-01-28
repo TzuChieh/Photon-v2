@@ -255,11 +255,11 @@ inline void TSdlOwnerClass<Owner, FieldSet>::loadFieldsFromSdl(
 	{
 		if(importance == EFieldImportance::Optional || importance == EFieldImportance::NiceToHave)
 		{
-			PH_LOG_STRING(SdlClass, noticeMsg);
+			PH_LOG_STRING(SdlClass, Note, noticeMsg);
 		}
 		else
 		{
-			PH_LOG_WARNING_STRING(SdlClass, noticeMsg);
+			PH_LOG_STRING(SdlClass, Warning, noticeMsg);
 		}
 	};
 

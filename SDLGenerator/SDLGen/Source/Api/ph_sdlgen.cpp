@@ -21,27 +21,27 @@ void generate_sdl_interface(const EInterfaceGenerator type, const std::string_vi
 
 	if(!Filesystem::hasDirectory(outputDirectory))
 	{
-		PH_LOG_WARNING(SdlGenApi, "cannot create output directory <{}>",
+		PH_LOG(SdlGenApi, Warning, "cannot create output directory <{}>",
 			outputDirectory.toAbsoluteString());
 	}
 
 	auto generator = InterfaceGenerator::makeGenerator(type, outputDirectory);
 	if(!generator)
 	{
-		PH_LOG_WARNING(SdlGenApi, "invalid generator type <{}> provided, nothing is generated",
+		PH_LOG(SdlGenApi, Warning, "invalid generator type <{}> provided, nothing is generated",
 			enum_to_string(type));
 		return;
 	}
 
 	PH_ASSERT(generator);
 
-	PH_LOG(SdlGenApi, "generating SDL interface via generator {}", generator->getName());
+	PH_LOG(SdlGenApi, Note, "generating SDL interface via generator {}", generator->getName());
 
 	generator->generate(
 		get_registered_engine_classes(),
 		get_registered_engine_enums());
 
-	PH_LOG(SdlGenApi, "done generating SDL interface, output to <{}>",
+	PH_LOG(SdlGenApi, Note, "done generating SDL interface, output to <{}>",
 		generator->getOutputDirectory().toAbsoluteString());
 }
 

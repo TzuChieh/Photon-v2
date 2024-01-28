@@ -168,7 +168,7 @@ void HdrRgbFilm::developRegion(HdrRgbFrame& out_frame, const math::TAABB2D<int64
 	if(out_frame.widthPx()  != getActualResPx().x() ||
 	   out_frame.heightPx() != getActualResPx().y())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Input frame dimension mismatch when developing HdrRgbFilm (film size: {}, frame size: {})",
 			getActualResPx(), out_frame.getSizePx());
 		return;

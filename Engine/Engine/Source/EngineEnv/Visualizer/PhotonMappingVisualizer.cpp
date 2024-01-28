@@ -59,7 +59,7 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 		{
 			if(getSampleFilter() != ESampleFilter::Box)
 			{
-				PH_LOG_WARNING(PhotonMappingVisualizer,
+				PH_LOG(PhotonMappingVisualizer, Warning,
 					"SPPM renderer follows Hachisuka's original paper (2009) strictly, and divides "
 					"raster space into regions for storing photon statistics. Using a non-box filter "
 					"will result in an overly blurred image as the stored statistics are equivalent "
@@ -90,7 +90,7 @@ void PhotonMappingVisualizer::cook(const CoreCookingContext& ctx, CoreCookedUnit
 
 	default:
 	{
-		PH_LOG_WARNING(PhotonMappingVisualizer,
+		PH_LOG(PhotonMappingVisualizer, Warning,
 			"Unsupported PM mode ({}), no renderer generated.", TSdlEnum<EPhotonMappingMode>{}[m_mode]);
 		break;
 	}
@@ -116,7 +116,7 @@ SampleFilter PhotonMappingVisualizer::makeSampleFilter() const
 		return SampleFilter::makeBlackmanHarris();
 	}
 
-	PH_LOG(PhotonMappingVisualizer, "sample filter unspecified, using Blackman-Harris filter");
+	PH_LOG(PhotonMappingVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
 	return SampleFilter::makeBlackmanHarris();
 }
 

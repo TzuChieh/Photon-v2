@@ -198,7 +198,7 @@ bool GCuboid::checkData(const real xLen, const real yLen, const real zLen)
 {
 	if(xLen <= 0.0_r || yLen <= 0.0_r || zLen <= 0.0_r)
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"at GCuboid::checkData(), GCuboid's dimensions (x: {}, y: {}, z: {}) are zero or negative",
 			xLen, yLen, zLen);
 

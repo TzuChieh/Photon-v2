@@ -74,7 +74,7 @@ EqualSamplingRenderer::EqualSamplingRenderer(
 
 void EqualSamplingRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
-	PH_LOG(EqualSamplingRenderer, "rendering core: {}", m_estimator->toString());
+	PH_LOG(EqualSamplingRenderer, Note, "rendering core: {}", m_estimator->toString());
 
 	m_scene           = world.getScene();
 	m_receiver        = cooked.getReceiver();
@@ -358,7 +358,7 @@ void EqualSamplingRenderer::initScheduler(const std::size_t numSamplesPerPixel)
 		break;
 
 	default:
-		PH_LOG_WARNING(EqualSamplingRenderer, "unsupported scheduler ID: {}", 
+		PH_LOG(EqualSamplingRenderer, Warning, "unsupported scheduler ID: {}",
 			static_cast<int>(m_schedulerType));
 
 		// If this happends, we then assume other inputs might also be bad.

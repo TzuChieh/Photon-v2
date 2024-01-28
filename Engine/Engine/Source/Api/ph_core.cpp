@@ -235,12 +235,12 @@ bool init_render_engine(EngineInitSettings settings)
 
 	if(!settings.additionalLogHandlers.empty())
 	{
-		PH_LOG(CppAPI, "adding {} additional log handler(s)", settings.additionalLogHandlers.size());
+		PH_LOG(CppAPI, Note, "adding {} additional log handler(s)", settings.additionalLogHandlers.size());
 		for(LogHandler& handler : settings.additionalLogHandlers)
 		{
 			if(!handler)
 			{
-				PH_LOG_WARNING(CppAPI,
+				PH_LOG(CppAPI, Warning,
 					"attempting to add a null core log handler");
 				continue;
 			}
@@ -253,7 +253,7 @@ bool init_render_engine(EngineInitSettings settings)
 
 	if(!init_engine_IO_infrastructure())
 	{
-		PH_LOG_ERROR(CppAPI, "IO infrastructure initialization failed");
+		PH_LOG(CppAPI, Error, "IO infrastructure initialization failed");
 		return false;
 	}
 
@@ -264,13 +264,13 @@ bool init_render_engine(EngineInitSettings settings)
 	// Enums are initialized first as they have fewer dependencies.
 	//
 	const auto sdlEnums = get_registered_engine_enums();
-	PH_LOG_DEBUG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
+	PH_DEBUG_LOG(CppAPI, "initialized {} SDL enum definitions", sdlEnums.size());
 
 	// Get SDL classes once here to initialize them--this is not required,
 	// same reason as SDL enums.
 	//
 	const auto sdlClasses = get_registered_engine_classes();
-	PH_LOG_DEBUG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
+	PH_DEBUG_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
 
 	return true;
 }
@@ -279,7 +279,7 @@ bool exit_render_engine()
 {
 	if(!exit_API_database())
 	{
-		PH_LOG_ERROR(CppAPI, "C API database exiting failed");
+		PH_LOG(CppAPI, Error, "C API database exiting failed");
 		return false;
 	}
 

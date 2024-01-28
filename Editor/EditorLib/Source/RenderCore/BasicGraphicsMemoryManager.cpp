@@ -65,7 +65,7 @@ GraphicsMemoryBlock* BasicGraphicsMemoryManager::allocHostBlock(uint32 numFrames
 		{
 			// We can safely log here--we are not strictly out of memory, just the amount reserved for
 			// GHI is not enough:
-			PH_DEFAULT_LOG_ERROR(
+			PH_DEFAULT_LOG(Error,
 				"Out of pooled host memory block (max={} blocks, {} MiB each)",
 				m_maxPooledHostBlocks, m_pooledHostBlockSize / math::constant::MiB);
 

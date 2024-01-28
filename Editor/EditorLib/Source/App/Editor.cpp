@@ -64,7 +64,7 @@ void Editor::start()
 		}
 		else
 		{
-			PH_LOG(Editor,
+			PH_LOG(Editor, Note,
 				"No saved editor settings found, creating new one");
 
 			m_settings = TSdl<EditorSettings>::makeResource();
@@ -162,9 +162,8 @@ void Editor::afterRenderStage()
 
 void Editor::stop()
 {
-	PH_LOG(Editor,
-		"{} scenes to be closed",
-		m_scenes.size());
+	PH_LOG(Editor, Note,
+		"{} scenes to be closed", m_scenes.size());
 
 	// Remove all scenes from back to front
 	while(numScenes() != 0)
@@ -288,7 +287,7 @@ std::size_t Editor::createScene(const Path& workingDirectory, const std::string&
 	scene->setWorkingDirectory(workingDirectory);
 	scene->getRenderDescription().setWorkingDirectory(workingDirectory);
 
-	PH_LOG(Editor,
+	PH_LOG(Editor, Note,
 		"created scene \"{}\"", scene->getName());
 
 	// Save the scene once, so any necessary files and directories can be created
@@ -305,7 +304,7 @@ std::size_t Editor::createSceneFromDescription(
 {
 	if(sceneDescription.isEmpty())
 	{
-		PH_LOG_WARNING(Editor,
+		PH_LOG(Editor, Warning,
 			"Creating scene \"{}\" from description, however the description is empty. Resorting to "
 			"creating a scene normally.", name);
 		return createScene(workingDirectory, name);
@@ -318,7 +317,7 @@ std::size_t Editor::createSceneFromDescription(
 		{
 			if(!descName.empty())
 			{
-				PH_LOG(Editor,
+				PH_LOG(Editor, Note,
 					"Ignoring input description name \"{}\" as this is redundant for single-file "
 					"description.", descName);
 			}
@@ -333,7 +332,7 @@ std::size_t Editor::createSceneFromDescription(
 			std::string descFilename = descName + ".p2";
 			if(descName.empty())
 			{
-				PH_LOG_WARNING(Editor,
+				PH_LOG(Editor, Warning,
 					"Description name is required for directory-based description. "
 					"Defaulting to \"{}\"", name);
 
@@ -345,13 +344,13 @@ std::size_t Editor::createSceneFromDescription(
 	}
 	catch(const FilesystemError& e)
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Cannot create scene \"{}\" from description: {}.", name, e.whatStr());
 	}
 
 	if(!Filesystem::hasFile(bundledDesc))
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Bundled scene description not found on path \"{}\".", bundledDesc);
 		return nullSceneIndex();
 	}
@@ -387,7 +386,7 @@ std::size_t Editor::createSceneFromDescription(
 	}
 	catch(const Exception& e)
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Scene description loading failed: {}", e.what());
 	}
 
@@ -409,11 +408,11 @@ std::size_t Editor::createSceneFromDescription(
 			}
 		}
 
-		PH_LOG(Editor,
+		PH_LOG(Editor, Note,
 			"Generated {} imposter bindings in scene \"{}\"", resourceNames.size(), scene->getName());
 	}
 
-	PH_LOG(Editor,
+	PH_LOG(Editor, Note,
 		"created scene \"{}\"", scene->getName());
 
 	// Save the scene once, so any necessary files and directories can be created
@@ -429,14 +428,14 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 	const std::string& filenameExt = sceneFile.getExtension();
 	if(filenameExt != ".pds")
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Cannot load designer scene \"{}\": unsupported file type.", sceneFile);
 		return nullSceneIndex();
 	}
 	
 	if(!Filesystem::hasFile(sceneFile))
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Cannot load designer scene \"{}\": file does not exist.", sceneFile);
 		return nullSceneIndex();
 	}
@@ -457,7 +456,7 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 	}
 	catch(const Exception& e)
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Designer scene loading failed: {}", e.what());
 	}
 	
@@ -482,7 +481,7 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 	}
 	catch(const Exception& e)
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Scene description loading failed: {}", e.what());
 	}
 
@@ -500,7 +499,7 @@ std::size_t Editor::loadScene(const Path& sceneFile)
 			imposter->bindDescription(desc.get(descName), descName);
 		}
 
-		PH_LOG(Editor,
+		PH_LOG(Editor, Note,
 			"Processed {} imposter bindings in scene \"{}\"", imposters.size(), scene->getName());
 	}
 
@@ -512,7 +511,7 @@ void Editor::saveScene()
 {
 	if(!m_activeScene)
 	{
-		PH_LOG_WARNING(Editor,
+		PH_LOG(Editor, Warning,
 			"Cannot save scene--current active scene is null.");
 		return;
 	}
@@ -525,7 +524,7 @@ void Editor::saveScene(std::size_t sceneIndex)
 	DesignerScene* scene = getScene(sceneIndex);
 	if(!scene)
 	{
-		PH_LOG_WARNING(Editor,
+		PH_LOG(Editor, Warning,
 			"Cannot save scene--input scene is null (scene index: {}).", sceneIndex);
 		return;
 	}
@@ -541,7 +540,7 @@ void Editor::saveScene(std::size_t sceneIndex)
 		DesignerSceneWriter writer;
 		if(scene->getWorkingDirectory().isEmpty())
 		{
-			PH_LOG_WARNING(Editor,
+			PH_LOG(Editor, Warning,
 				"Designer scene has no working directory specified, using writer's: {}",
 				writer.getSceneWorkingDirectory());
 		}
@@ -555,7 +554,7 @@ void Editor::saveScene(std::size_t sceneIndex)
 	}
 	catch(const Exception& e)
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Designer scene saving failed: {}", e.what());
 	}
 
@@ -567,7 +566,7 @@ void Editor::saveScene(std::size_t sceneIndex)
 		SdlSceneFileWriter writer;
 		if(description.getWorkingDirectory().isEmpty())
 		{
-			PH_LOG_WARNING(Editor,
+			PH_LOG(Editor, Warning,
 				"Render description has no working directory specified, using writer's: {}",
 				writer.getSceneWorkingDirectory());
 		}
@@ -586,7 +585,7 @@ void Editor::saveScene(std::size_t sceneIndex)
 	}
 	catch(const Exception& e)
 	{
-		PH_LOG_ERROR(Editor,
+		PH_LOG(Editor, Error,
 			"Scene description saving failed: {}", e.what());
 	}
 	
@@ -617,13 +616,13 @@ void Editor::setActiveScene(const std::size_t sceneIndex)
 		m_activeScene = newActiveScene;
 		if(m_activeScene)
 		{
-			PH_LOG(Editor,
+			PH_LOG(Editor, Note,
 				"scene \"{}\" is now active",
 				m_activeScene->getName());
 		}
 		else
 		{
-			PH_LOG(Editor,
+			PH_LOG(Editor, Note,
 				"no scene is now active");
 		}
 
@@ -638,7 +637,7 @@ void Editor::removeScene(const std::size_t sceneIndex)
 {
 	if(sceneIndex >= m_scenes.size())
 	{
-		PH_LOG_WARNING(Editor,
+		PH_LOG(Editor, Warning,
 			"unable to remove scene (scene index {} is invalid, must < {})",
 			sceneIndex, m_scenes.size());
 		return;
@@ -670,7 +669,7 @@ void Editor::removeScene(const std::size_t sceneIndex)
 		.hasRenderCleanupDone = false,
 		.hasCleanupDone = false});
 
-	PH_LOG(Editor, 
+	PH_LOG(Editor, Note,
 		"removed scene \"{}\"", 
 		m_removingScenes.back().scene->getName());
 
@@ -681,13 +680,13 @@ void Editor::loadSettings(const Path& settingsFile)
 {
 	if(!Filesystem::hasFile(settingsFile))
 	{
-		PH_LOG_WARNING(Editor,
+		PH_LOG(Editor, Warning,
 			"Failed to load editor settings {} (file does not exist)",
 			settingsFile);
 		return;
 	}
 
-	PH_LOG(Editor,
+	PH_LOG(Editor, Note,
 		"Loading editor settings {}",
 		settingsFile);
 
@@ -698,13 +697,13 @@ void Editor::saveSettings(const Path& settingsFile) const
 {
 	if(!m_settings)
 	{
-		PH_LOG_WARNING(Editor,
+		PH_LOG(Editor, Warning,
 			"Failed to save editor settings {} (no data present)",
 			settingsFile);
 		return;
 	}
 
-	PH_LOG(Editor,
+	PH_LOG(Editor, Note,
 		"Saving editor settings {}",
 		settingsFile);
 

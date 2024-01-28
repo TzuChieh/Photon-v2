@@ -43,7 +43,7 @@ ProgressivePMRenderer::ProgressivePMRenderer(
 
 void ProgressivePMRenderer::doRender()
 {
-	PH_LOG(PMRenderer, "rendering mode: progressive photon mapping");
+	PH_LOG(PMRenderer, Note, "rendering mode: progressive photon mapping");
 
 	m_photonsPerSecond.store(0, std::memory_order_relaxed);
 	renderWithProgressivePM();
@@ -56,7 +56,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 	using Photon    = FullPhoton;
 	using Viewpoint = FullViewpoint;
 
-	PH_LOG(PMRenderer, "start gathering viewpoints...");
+	PH_LOG(PMRenderer, Note, "start gathering viewpoints...");
 
 	std::vector<Viewpoint> viewpoints;
 	{
@@ -78,18 +78,18 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 		viewpoints = viewpointCollector.claimViewpoints();
 	}
 	
-	PH_LOG(PMRenderer, "viewpoint size: {} bytes", sizeof(Viewpoint));
-	PH_LOG(PMRenderer, "size of viewpoint buffer: {} MiB",
+	PH_LOG(PMRenderer, Note, "viewpoint size: {} bytes", sizeof(Viewpoint));
+	PH_LOG(PMRenderer, Note, "size of viewpoint buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
 	const std::size_t numPhotonsPerPass = getCommonParams().numPhotons;
 
-	PH_LOG(PMRenderer, "photon size: {} bytes", sizeof(Photon));
-	PH_LOG(PMRenderer, "number of photons per pass: {}", numPhotonsPerPass);
-	PH_LOG(PMRenderer, "size of photon buffer: {} MiB",
+	PH_LOG(PMRenderer, Note, "photon size: {} bytes", sizeof(Photon));
+	PH_LOG(PMRenderer, Note, "number of photons per pass: {}", numPhotonsPerPass);
+	PH_LOG(PMRenderer, Note, "size of photon buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Photon) * numPhotonsPerPass));
 
-	PH_LOG(PMRenderer, "start accumulating passes...");
+	PH_LOG(PMRenderer, Note, "start accumulating passes...");
 
 	TSynchronized<HdrRgbFilm> resultFilm(HdrRgbFilm(
 		getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter()));

@@ -57,7 +57,7 @@ inline bool TQuery<Target, Performer>::run(Target& target)
 	case EQuery::AutoRetry:
 		if(m_numRetries >= maxRetries)
 		{
-			PH_DEFAULT_LOG_WARNING(
+			PH_DEFAULT_LOG(Warning,
 				"Detected hanging graphics query ({} retries), canceling",
 				m_numRetries);
 

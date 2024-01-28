@@ -21,7 +21,7 @@ inline void run_single_file_reading_work(const System::FileReadingWork& work)
 	}
 	else
 	{
-		PH_LOG_WARNING(System,
+		PH_LOG(System, Warning,
 			"One file reading work is empty, skipping.");
 	}
 }
@@ -132,7 +132,7 @@ void System::clearRemovedScenes()
 		std::unique_ptr<Scene> removedScene = m_sceneStorage.remove(scene);
 		if(!removedScene)
 		{
-			PH_LOG_ERROR(System,
+			PH_LOG(System, Error,
 				"Removed scene {} was not in the system storage. Please make sure to transfer scene "
 				"ownership to the system after construction.", scene->getDebugName());
 		}

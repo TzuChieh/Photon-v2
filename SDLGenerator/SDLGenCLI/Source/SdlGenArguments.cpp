@@ -37,7 +37,7 @@ SdlGenArguments::SdlGenArguments(CommandLineArguments arguments) :
 			}
 			else
 			{
-				PH_LOG_WARNING(SdlGenCliArgs, "unknown interface generation type specified: {}",
+				PH_LOG(SdlGenCliArgs, Warning, "unknown interface generation type specified: {}",
 					interfaceType);
 
 				m_interfaceGeneratorType = EInterfaceGenerator::Unspecified;
@@ -53,7 +53,7 @@ SdlGenArguments::SdlGenArguments(CommandLineArguments arguments) :
 		}
 		else
 		{
-			PH_LOG_WARNING(SdlGenCliArgs, "unknown command <{}> specified, ignoring",
+			PH_LOG(SdlGenCliArgs, Warning, "unknown command <{}> specified, ignoring",
 				argument);
 		}
 	}// end while more arguments exist

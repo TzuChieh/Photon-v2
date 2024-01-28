@@ -29,7 +29,7 @@ inline auto cook_zero_input_operation(
 {
 	if(!operand)
 	{
-		PH_LOG_ERROR(MathImage,
+		PH_LOG(MathImage, Error,
 			"No operand provided for {} operation.", TSdlEnum<EMathImageOp>{}[operation]);
 		return nullptr;
 	}
@@ -59,7 +59,7 @@ inline auto cook_one_input_operation(
 {
 	if(!operand)
 	{
-		PH_LOG_ERROR(MathImage,
+		PH_LOG(MathImage, Error,
 			"No operand provided for {} operation.", TSdlEnum<EMathImageOp>{}[operation]);
 		return nullptr;
 	}
@@ -79,7 +79,7 @@ inline auto cook_one_input_operation(
 		{
 			if(!inputScalar)
 			{
-				PH_LOG_WARNING(MathImage,
+				PH_LOG(MathImage, Warning,
 					"No value provided for Add operation. Using 0.");
 				inputScalar = InputScalarType{0};
 			}
@@ -104,7 +104,7 @@ inline auto cook_one_input_operation(
 		{
 			if(!inputScalar)
 			{
-				PH_LOG_WARNING(MathImage,
+				PH_LOG(MathImage, Warning,
 					"No value provided for Subtract operation. Using 0.");
 				inputScalar = InputScalarType{0};
 			}
@@ -129,7 +129,7 @@ inline auto cook_one_input_operation(
 		{
 			if(!inputScalar)
 			{
-				PH_LOG_WARNING(MathImage,
+				PH_LOG(MathImage, Warning,
 					"No value provided for Multiply operation. Using 1.");
 				inputScalar = InputScalarType{1};
 			}
@@ -154,7 +154,7 @@ inline auto cook_one_input_operation(
 		{
 			if(!inputScalar)
 			{
-				PH_LOG_WARNING(MathImage,
+				PH_LOG(MathImage, Warning,
 					"No divisor provided for Divide operation. Using 1.");
 				inputScalar = InputScalarType{1};
 			}
@@ -162,7 +162,7 @@ inline auto cook_one_input_operation(
 			const InputScalarType divisor = *inputScalar;
 			if(divisor == 0)
 			{
-				PH_LOG_WARNING(MathImage, "Division by 0 detected.");
+				PH_LOG(MathImage, Warning, "Division by 0 detected.");
 			}
 
 			using DivFunc = texfunc::TDivideConstant<OperandType, InputScalarType, OutputType>;
@@ -185,7 +185,7 @@ inline auto cook_one_input_operation(
 		{
 			if(!inputScalar)
 			{
-				PH_LOG_WARNING(MathImage,
+				PH_LOG(MathImage, Warning,
 					"No exponent provided for Power operation. Using 1.");
 				inputScalar = InputScalarType{1};
 			}
@@ -224,7 +224,7 @@ inline auto cook_two_inputs_operation(
 {
 	if(!operand)
 	{
-		PH_LOG_ERROR(MathImage,
+		PH_LOG(MathImage, Error,
 			"No operand provided for {} operation.", TSdlEnum<EMathImageOp>{}[operation]);
 		return nullptr;
 	}
@@ -244,7 +244,7 @@ inline auto cook_two_inputs_operation(
 				if(!inputScalar1)
 				{
 					constexpr auto minValue = std::numeric_limits<InputScalarType1>::lowest();
-					PH_LOG_WARNING(MathImage,
+					PH_LOG(MathImage, Warning,
 						"No lower-bound provided for Clamp operation. Using {}.", minValue);
 					inputScalar1 = minValue;
 				}
@@ -257,7 +257,7 @@ inline auto cook_two_inputs_operation(
 				if(!inputScalar2)
 				{
 					constexpr auto maxValue = std::numeric_limits<InputScalarType2>::max();
-					PH_LOG_WARNING(MathImage,
+					PH_LOG(MathImage, Warning,
 						"No upper-bound provided for Clamp operation. Using {}.", maxValue);
 					inputScalar2 = maxValue;
 				}

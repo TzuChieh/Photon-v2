@@ -121,7 +121,7 @@ bool GRectangle::checkData(const real width, const real height)
 {
 	if(width <= 0.0_r || height <= 0.0_r)
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"at GRectangle::checkData(), rectangle dimensions ({}, {}) are zero or negative",
 			width, height);
 

@@ -39,7 +39,7 @@ const Emitter* AAreaLight::buildEmitter(
 {
 	if(lightPrimitives.empty())
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"failed building area light emitter: requires at least a light primitive");
 		return nullptr;
 	}

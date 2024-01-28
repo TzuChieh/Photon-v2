@@ -101,7 +101,7 @@ void IndexedVertexBuffer::declareAttribute(
 		{
 			if(numElements != 0 && numElements != 3)
 			{
-				PH_LOG(IndexedVertexBuffer, 
+				PH_LOG(IndexedVertexBuffer, Note,
 					"Octahedral unit vector is defined to have 3 elements. The specified number ({}) is ignored.",
 					numElements);
 			}
@@ -203,7 +203,7 @@ void IndexedVertexBuffer::allocate(const std::size_t numVertices)
 
 	if(m_byteBufferSize == 0)
 	{
-		PH_LOG_WARNING(IndexedVertexBuffer, "Allocated buffer with 0 size.");
+		PH_LOG(IndexedVertexBuffer, Warning, "Allocated buffer with 0 size.");
 	}
 }
 

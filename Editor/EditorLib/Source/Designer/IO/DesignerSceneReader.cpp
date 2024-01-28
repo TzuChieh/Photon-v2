@@ -41,7 +41,7 @@ void DesignerSceneReader::read()
 	}
 	else
 	{
-		PH_LOG_WARNING(DesignerSceneReader,
+		PH_LOG(DesignerSceneReader, Warning,
 			"Unable to read designer scene from {}: target designer scene info incomplete "
 			"(name={}, storage={})", getSceneWorkingDirectory(), m_sceneName, static_cast<void*>(m_scene));
 		return;
@@ -72,7 +72,7 @@ bool DesignerSceneReader::beginCommand(
 {
 	if(commandType == ESdlCommandType::Phantom || commandType == ESdlCommandType::NamedDataPacket)
 	{
-		PH_LOG_WARNING(DesignerSceneReader,
+		PH_LOG(DesignerSceneReader, Warning,
 			"Phantom and named data packet commands are not supported (class = {}), "
 			"ignoring this command", sdl::gen_pretty_name(targetClass));
 		return false;
@@ -116,7 +116,7 @@ ISdlResource* DesignerSceneReader::createResource(
 	}
 	else
 	{
-		PH_LOG_WARNING(DesignerSceneReader,
+		PH_LOG(DesignerSceneReader, Warning,
 			"Designer object {} (class = {}) meta info missing, creating as root={}",
 			resourceName, sdl::gen_pretty_name(resourceClass), isRootObj);
 	}
@@ -135,7 +135,7 @@ ISdlResource* DesignerSceneReader::createResource(
 
 	if(m_nameToNewObjs.contains(resourceName))
 	{
-		PH_LOG_WARNING(DesignerSceneReader,
+		PH_LOG(DesignerSceneReader, Warning,
 			"Duplicated designer object {} (class = {}) found, overwriting",
 			resourceName, sdl::gen_pretty_name(resourceClass));
 	}
@@ -154,7 +154,7 @@ void DesignerSceneReader::initResource(
 	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
 	{
-		PH_LOG_ERROR(DesignerSceneReader,
+		PH_LOG(DesignerSceneReader, Error,
 			"Unable to initialize designer resource {} (class = {}): {}",
 			resourceName,
 			sdl::gen_pretty_name(resourceClass),
@@ -187,7 +187,7 @@ void DesignerSceneReader::runExecutor(
 {
 	// Running executor is not a feature supported by designer scene
 
-	PH_LOG_WARNING(DesignerSceneReader,
+	PH_LOG(DesignerSceneReader, Warning,
 		"Attempting to run executor {} (class = {}): calling executor is not supported",
 		executorName, sdl::gen_pretty_name(ctx.getSrcClass()));
 }
@@ -216,13 +216,13 @@ void DesignerSceneReader::readScene()
 	FormattedTextInputStream commandFile(filePath);
 	if(!commandFile)
 	{
-		PH_LOG_WARNING(DesignerSceneReader,
+		PH_LOG(DesignerSceneReader, Warning,
 			"Command file <{}> opening failed.", filePath.toAbsoluteString());
 		return;
 	}
 	else
 	{
-		PH_LOG(DesignerSceneReader,
+		PH_LOG(DesignerSceneReader, Note,
 			"Loading command file <{}>...", filePath.toAbsoluteString());
 
 		Timer timer;
@@ -239,7 +239,7 @@ void DesignerSceneReader::readScene()
 
 		timer.stop();
 
-		PH_LOG(DesignerSceneReader,
+		PH_LOG(DesignerSceneReader, Note,
 			"Command file loaded (PSDL version: {}), time elapsed = {} ms.", 
 			getCommandVersion().toString(), timer.getDeltaMs());
 	}
@@ -271,7 +271,7 @@ void DesignerSceneReader::readScene()
 			}
 			else
 			{
-				PH_LOG_WARNING(DesignerSceneReader,
+				PH_LOG(DesignerSceneReader, Warning,
 					"Designer object {} cannot find its parent {}",
 					name, objMetaInfo->parentName);
 			}

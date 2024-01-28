@@ -48,7 +48,7 @@ inline TableTIR::TableTIR(const Path& tableFilePath) :
 	m_minAlpha (0.0f), m_maxAlpha (0.0f),
 	m_minRelIor(0.0f), m_maxRelIor(0.0f)
 {
-	PH_LOG(TableTIR, "loading <{}>", tableFilePath.toString());
+	PH_LOG(TableTIR, Note, "loading <{}>", tableFilePath.toString());
 
 	BinaryFileReader reader(tableFilePath);
 	if(!reader.open())
@@ -63,10 +63,10 @@ inline TableTIR::TableTIR(const Path& tableFilePath) :
 	reader.read(&m_minAlpha);  reader.read(&m_maxAlpha);
 	reader.read(&m_minRelIor); reader.read(&m_maxRelIor);
 
-	PH_LOG_DEBUG(TableTIR, "dimension: (cos-w_i = {}, alpha = {}, relative-IOR = {})", 
+	PH_DEBUG_LOG(TableTIR, "dimension: (cos-w_i = {}, alpha = {}, relative-IOR = {})",
 		m_numCosWi, m_numAlpha, m_numRelIor);
 
-	PH_LOG_DEBUG(TableTIR, "range: (cos-w_i = [{}, {}], alpha = [{}, {}], relative-IOR = [{}, {}])",
+	PH_DEBUG_LOG(TableTIR, "range: (cos-w_i = [{}, {}], alpha = [{}, {}], relative-IOR = [{}, {}])",
 		m_minCosWi, m_maxCosWi,
 		m_minAlpha, m_maxAlpha,
 		m_minRelIor, m_maxRelIor);

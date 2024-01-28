@@ -123,6 +123,7 @@ The logger will be usable anywhere that includes the header file containing this
 	do\
 	{\
 		constexpr auto logLevel = ::ph::ELogLevel::level;\
+		const auto rawString = rawStringExpr;\
 		if constexpr(::ph::is_once(logLevel))\
 		{\
 			static const bool PH_CONCAT_2(dummy, __LINE__) = [&]()\
@@ -131,7 +132,7 @@ The logger will be usable anywhere that includes the header file containing this
 					internal_impl_logger_access_##groupName(),\
 					#groupName,\
 					logLevel,\
-					rawStringExpr);\
+					rawString);\
 				return true;\
 			}();\
 		}\
@@ -141,7 +142,7 @@ The logger will be usable anywhere that includes the header file containing this
 				internal_impl_logger_access_##groupName(),\
 				#groupName,\
 				logLevel,\
-				rawStringExpr);\
+				rawString);\
 		}\
 	} while(0)
 
@@ -156,21 +157,15 @@ The logger will be usable anywhere that includes the header file containing this
 		std::format(formatString __VA_OPT__(,) __VA_ARGS__))
 
 #if PH_ENABLE_DEBUG_LOG
-	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Debug, rawString)
-	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Debug, formatString, __VA_ARGS__)
+	#define PH_DEBUG_LOG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Debug, rawString)
+	#define PH_DEBUG_LOG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Debug, formatString, __VA_ARGS__)
 #else
-	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_NO_OP()
-	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_NO_OP()
+	#define PH_DEBUG_LOG_STRING(groupName, rawString) PH_NO_OP()
+	#define PH_DEBUG_LOG(groupName, formatString, ...) PH_NO_OP()
 #endif
 
-#define PH_LOG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Note, rawString)
-#define PH_LOG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Note, formatString, __VA_ARGS__)
-
-#define PH_LOG_WARNING_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Warning, rawString)
-#define PH_LOG_WARNING(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Warning, formatString, __VA_ARGS__)
-
-#define PH_LOG_ERROR_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Error, rawString)
-#define PH_LOG_ERROR(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Error, formatString, __VA_ARGS__)
+#define PH_LOG_STRING(groupName, level, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, level, rawString)
+#define PH_LOG(groupName, level, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, level, formatString, __VA_ARGS__)
 
 namespace ph
 {
@@ -182,19 +177,15 @@ PH_DECLARE_LOG_GROUP(PhotonRenderer);
 */
 ///@{
 #if PH_ENABLE_DEBUG_LOG
-	#define PH_DEFAULT_LOG_DEBUG(formatString, ...) PH_LOG_DEBUG(PhotonRenderer, formatString, __VA_ARGS__)
-	#define PH_DEFAULT_LOG_DEBUG_STRING(rawString) PH_LOG_DEBUG_STRING(PhotonRenderer, rawString)
+	#define PH_DEFAULT_DEBUG_LOG_STRING(rawString) PH_DEBUG_LOG_STRING(PhotonRenderer, rawString)
+	#define PH_DEFAULT_DEBUG_LOG(formatString, ...) PH_DEBUG_LOG(PhotonRenderer, formatString, __VA_ARGS__)
 #else
-	#define PH_DEFAULT_LOG_DEBUG(groupName, rawString) PH_NO_OP()
-	#define PH_DEFAULT_LOG_DEBUG_STRING(groupName, formatString, ...) PH_NO_OP()
+	#define PH_DEFAULT_DEBUG_LOG_STRING(rawString, ...) PH_NO_OP()
+	#define PH_DEFAULT_DEBUG_LOG(formatString) PH_NO_OP()
 #endif
 
-#define PH_DEFAULT_LOG(formatString, ...) PH_LOG(PhotonRenderer, formatString, __VA_ARGS__)
-#define PH_DEFAULT_LOG_STRING(rawString) PH_LOG_STRING(PhotonRenderer, rawString)
-#define PH_DEFAULT_LOG_WARNING(formatString, ...) PH_LOG_WARNING(PhotonRenderer, formatString, __VA_ARGS__)
-#define PH_DEFAULT_LOG_WARNING_STRING(rawString) PH_LOG_WARNING_STRING(PhotonRenderer, rawString)
-#define PH_DEFAULT_LOG_ERROR(formatString, ...) PH_LOG_ERROR(PhotonRenderer, formatString, __VA_ARGS__)
-#define PH_DEFAULT_LOG_ERROR_STRING(rawString) PH_LOG_ERROR_STRING(PhotonRenderer, rawString)
+#define PH_DEFAULT_LOG_STRING(level, rawString) PH_LOG_STRING(PhotonRenderer, level, rawString)
+#define PH_DEFAULT_LOG(level, formatString, ...) PH_LOG(PhotonRenderer, level, formatString, __VA_ARGS__)
 ///@}
 
 }// end namespace ph

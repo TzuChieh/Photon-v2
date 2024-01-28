@@ -95,7 +95,7 @@ void SdlCommandGenerator::generateResourceCommand(
 			resourceNameInfo = "(unavailable)";
 		}
 
-		PH_LOG_WARNING(SdlCommandGenerator, 
+		PH_LOG(SdlCommandGenerator, Warning,
 			"error generating load command for resource {} ({}) -> {}",
 			resourceNameInfo, clazz->genPrettyName(), e.whatStr());
 
@@ -147,7 +147,7 @@ void SdlCommandGenerator::generateCachedNamedDataPacketCommand(
 	}
 	catch(const SdlException& e)
 	{
-		PH_LOG_WARNING(SdlCommandGenerator, 
+		PH_LOG(SdlCommandGenerator, Warning,
 			"error generating cached name data packet command -> {}", e.whatStr());
 
 		++m_numGenerationErrors;
@@ -177,7 +177,7 @@ void SdlCommandGenerator::generateVersionCommand(const SemanticVersion& version)
 	}
 	catch(const SdlException& e)
 	{
-		PH_LOG_WARNING(SdlCommandGenerator,
+		PH_LOG(SdlCommandGenerator, Warning,
 			"error generating version command (intended version: {}) -> {}",
 			version.toString(), e.whatStr());
 

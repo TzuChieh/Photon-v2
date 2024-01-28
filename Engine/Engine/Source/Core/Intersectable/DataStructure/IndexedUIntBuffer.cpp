@@ -29,7 +29,7 @@ void IndexedUIntBuffer::declareUIntFormatByMaxValue(const uint64 maxValue)
 		}
 	}
 
-	PH_LOG_WARNING(IndexedUIntBuffer, 
+	PH_LOG(IndexedUIntBuffer, Warning,
 		"Unable to store integer value {}, max allowed value is {}", maxValue, maxAllowedValue(64));
 	declareUIntFormat(64);
 }
@@ -47,7 +47,7 @@ void IndexedUIntBuffer::allocate(const std::size_t numUInts)
 
 	if(m_byteBufferSize == 0)
 	{
-		PH_LOG_WARNING(IndexedUIntBuffer, "Allocated buffer with 0 size.");
+		PH_LOG(IndexedUIntBuffer, Warning, "Allocated buffer with 0 size.");
 	}
 }
 

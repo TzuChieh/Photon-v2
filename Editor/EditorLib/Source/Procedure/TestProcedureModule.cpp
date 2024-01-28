@@ -22,7 +22,7 @@ void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 	auto res = TSdl<RasterFileImage>::makeResource();
 	if(res)
 	{
-		PH_DEFAULT_LOG("res created");
+		PH_DEFAULT_LOG(Note, "res created");
 	}
 
 	/*res->setFilePath(Path("./rendered_scene.png"));
@@ -39,13 +39,13 @@ void TestProcedureModule::onAttach(const ModuleAttachmentInfo& info)
 	info.editor->onKeyPressed.addListener(
 		[](const KeyPressedEvent& e)
 		{
-			PH_DEFAULT_LOG("key down: {}", static_cast<int>(e.getKey()));
+			PH_DEFAULT_LOG(Note, "key down: {}", static_cast<int>(e.getKey()));
 		});
 
 	info.editor->onKeyReleased.addListener(
 		[](const KeyReleasedEvent& e)
 		{
-			PH_DEFAULT_LOG("key up: {}", static_cast<int>(e.getKey()));
+			PH_DEFAULT_LOG(Note, "key up: {}", static_cast<int>(e.getKey()));
 		});
 
 	// TODO

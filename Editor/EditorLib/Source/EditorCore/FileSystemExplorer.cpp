@@ -108,7 +108,7 @@ std::optional<std::size_t> FileSystemExplorer::addRootPath(const Path& path)
 
 	if(!Filesystem::hasDirectory(path))
 	{
-		PH_LOG_WARNING(FileSystemExplorer,
+		PH_LOG(FileSystemExplorer, Warning,
 			"cannot add non-directory root path {}", path);
 		return std::nullopt;
 	}

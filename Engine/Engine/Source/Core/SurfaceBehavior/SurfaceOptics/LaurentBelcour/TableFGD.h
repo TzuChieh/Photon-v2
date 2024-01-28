@@ -64,7 +64,7 @@ inline TableFGD::TableFGD(const Path& tableFilePath) :
 	m_minIorN (0.0f), m_maxIorN (0.0f),
 	m_minIorK (0.0f), m_maxIorK (0.0f)
 {
-	PH_LOG(TableFGD, "loading <{}>", tableFilePath.toString());
+	PH_LOG(TableFGD, Note, "loading <{}>", tableFilePath.toString());
 
 	BinaryFileReader reader(tableFilePath);
 	if(!reader.open())
@@ -81,11 +81,11 @@ inline TableFGD::TableFGD(const Path& tableFilePath) :
 	reader.read(&m_minIorN);  reader.read(&m_maxIorN);
 	reader.read(&m_minIorK);  reader.read(&m_maxIorK);
 
-	PH_LOG_DEBUG(TableFGD, 
+	PH_DEBUG_LOG(TableFGD,
 		"dimension: (cos-w_i = {}, alpha = {}, IOR-n = {}, IOR-k = {})", 
 		m_numCosWi, m_numAlpha, m_numIorN, m_numIorK);
 
-	PH_LOG_DEBUG(TableFGD, 
+	PH_DEBUG_LOG(TableFGD, 
 		"range: (cos-w_i = [{}, {}], alpha = [{}, {}], IOR-n = [{}, {}], IOR-k = [{}, {}])", 
 		m_minCosWi, m_maxCosWi, 
 		m_minAlpha, m_maxAlpha, 

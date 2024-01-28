@@ -33,11 +33,11 @@ inline void TSdlOwnerStruct<StructType>::initObject(
 	{
 		if(importance == EFieldImportance::Optional || importance == EFieldImportance::NiceToHave)
 		{
-			PH_LOG_STRING(SdlStruct, noticeMsg);
+			PH_LOG_STRING(SdlStruct, Note, noticeMsg);
 		}
 		else
 		{
-			PH_LOG_WARNING_STRING(SdlStruct, noticeMsg);
+			PH_LOG_STRING(SdlStruct, Warning, noticeMsg);
 		}
 	};
 

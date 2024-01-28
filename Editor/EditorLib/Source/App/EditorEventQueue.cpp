@@ -48,7 +48,7 @@ void EditorEventQueue::updateAnyThreadEvents()
 
 		if(numDequeuedWorks == maxAnyThreadWorksPerUpdate + 1)
 		{
-			PH_LOG_WARNING(EditorEventQueue,
+			PH_LOG(EditorEventQueue, Warning,
 				"too many concurrently added editor events ({}), current safe limit is {}",
 				numDequeuedWorks + m_anyThreadWorks.estimatedSize(), maxAnyThreadWorksPerUpdate);
 		}

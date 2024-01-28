@@ -28,11 +28,11 @@ void ESPowerFavoring::update(TSpanView<const Emitter*> emitters)
 	{
 		m_emitters.push_back(emitter);
 	}
-	PH_LOG(PowerFavoringEmitterSampler, "added {} emitters", m_emitters.size());
+	PH_LOG(PowerFavoringEmitterSampler, Note, "added {} emitters", m_emitters.size());
 
 	if(m_emitters.empty())
 	{
-		PH_LOG_WARNING(PowerFavoringEmitterSampler, "no Emitter detected");
+		PH_LOG(PowerFavoringEmitterSampler, Warning, "no Emitter detected");
 		return;
 	}
 

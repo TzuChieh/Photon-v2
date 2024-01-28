@@ -146,7 +146,7 @@ inline void GHI::rawCommand(
 
 	if(API_TYPE != m_apiType)
 	{
-		PH_LOG_ERROR(GHI,
+		PH_LOG(GHI, Error,
 			"cannot call raw command of type {} under current GHI type {}, "
 			"skipping command at {}({}:{})",
 			toString(API_TYPE), toString(m_apiType), srcLocation.file_name(), srcLocation.line(), srcLocation.column());

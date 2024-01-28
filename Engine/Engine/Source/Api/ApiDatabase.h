@@ -51,7 +51,7 @@ inline std::size_t ApiDatabase::addResource(std::unique_ptr<Resource> resource)
 
 	const std::size_t id = RESOURCES<Resource>().add(std::move(resource));
 
-	PH_LOG(ApiDatabase, "added resource<{}>", id);
+	PH_LOG(ApiDatabase, Note, "added resource<{}>", id);
 
 	return id;
 }
@@ -65,7 +65,7 @@ inline Resource* ApiDatabase::getResource(const std::size_t id)
 
 	if(!resource)
 	{
-		PH_LOG_WARNING(ApiDatabase, "resource<{}> does not exist", id);
+		PH_LOG(ApiDatabase, Warning, "resource<{}> does not exist", id);
 	}
 
 	return resource ? resource->get() : nullptr;
@@ -80,11 +80,11 @@ inline bool ApiDatabase::removeResource(const std::size_t id)
 
 	if(isRemoved)
 	{
-		PH_LOG(ApiDatabase, "removed resource<{}>", id);
+		PH_LOG(ApiDatabase, Note, "removed resource<{}>", id);
 	}
 	else
 	{
-		PH_LOG_WARNING(ApiDatabase, "failed removing resource<{}>", id);
+		PH_LOG(ApiDatabase, Warning, "failed removing resource<{}>", id);
 	}
 
 	return isRemoved;

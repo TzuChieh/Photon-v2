@@ -72,7 +72,7 @@ protected:
 				}
 				else
 				{
-					PH_LOG(CookedResourceCollectionBase,
+					PH_LOG(CookedResourceCollectionBase, Note,
 						"overwriting existing cooked resource (id: {})", id);
 
 					// Clear the content of existing resource while keeping its pointer valid

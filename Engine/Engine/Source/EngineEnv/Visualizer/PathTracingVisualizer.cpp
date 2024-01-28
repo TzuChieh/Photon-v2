@@ -52,7 +52,7 @@ SampleFilter PathTracingVisualizer::makeSampleFilter() const
 		return SampleFilter::makeBlackmanHarris();
 	}
 
-	PH_LOG(PathTracingVisualizer, "sample filter unspecified, using Blackman-Harris filter");
+	PH_LOG(PathTracingVisualizer, Note, "sample filter unspecified, using Blackman-Harris filter");
 	return SampleFilter::makeBlackmanHarris();
 }
 
@@ -70,7 +70,7 @@ std::unique_ptr<IRayEnergyEstimator> PathTracingVisualizer::makeEstimator() cons
 		return std::make_unique<BVPTDLEstimator>();
 	}
 
-	PH_LOG(PathTracingVisualizer, "no ray energy estimator unspecified, using BNEEPT");
+	PH_LOG(PathTracingVisualizer, Note, "no ray energy estimator unspecified, using BNEEPT");
 	return std::make_unique<BNEEPTEstimator>();
 }
 

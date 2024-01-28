@@ -40,7 +40,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(AttributeRenderer, Renderer);
 
 void AttributeRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
-	PH_LOG(AttributeRenderer, "target attribute: {}", m_attributeName);
+	PH_LOG(AttributeRenderer, Note, "target attribute: {}", m_attributeName);
 
 	m_scene           = world.getScene();
 	m_receiver        = cooked.getReceiver();

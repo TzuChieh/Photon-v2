@@ -80,7 +80,7 @@ std::string PythonClass::genCode() const
 
 	if(m_className.empty())
 	{
-		PH_LOG_WARNING(PythonClass, "no class name provided, ignoring");
+		PH_LOG(PythonClass, Warning, "no class name provided, ignoring");
 		return "";
 	}
 

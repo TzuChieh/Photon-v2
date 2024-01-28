@@ -17,7 +17,7 @@ void SdlDataPacketCollection::addUnique(
 	const auto& iter = m_nameToPacket.find(packetName);
 	if(iter != m_nameToPacket.end())
 	{
-		PH_LOG_WARNING(SdlDataPacketCollection,
+		PH_LOG(SdlDataPacketCollection, Warning,
 			"duplicated SDL data packet detected, overwriting (name: {})", packetName);
 	}
 

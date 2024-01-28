@@ -23,7 +23,7 @@ void RawResourceCollection::add(
 	const auto& iter = m_nameToResource.find(resourceName);
 	if(iter != m_nameToResource.end())
 	{
-		PH_LOG_WARNING(RawResourceCollection,
+		PH_LOG(RawResourceCollection, Warning,
 			"duplicated SDL resource detected, overwriting (resource: {}, name: {})", 
 			sdl::category_to_string(resource->getDynamicCategory()), resourceName);
 	}

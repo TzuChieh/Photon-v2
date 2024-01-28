@@ -11,21 +11,22 @@ void save_frame_with_fail_safe(
 	const std::string& filePath,
 	const PhFrameSaveInfo* const saveInfo)
 {
-	PH_DEFAULT_LOG("saving image to {}", filePath);
+	PH_DEFAULT_LOG(Note, "saving image to {}", filePath);
 
 	if(!phSaveFrame(frameId, filePath.c_str(), saveInfo))
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Image saving failed. In case precious data will be lost, "
 			"the image will be saved in higher precision (.exr format).");
 
 		if(!phSaveFrame(frameId, (filePath + "_failsafe.exr").c_str(), saveInfo))
 		{
-			PH_DEFAULT_LOG_WARNING("Image saving failed. Will try saving again in .pfm (without extra info).");
+			PH_DEFAULT_LOG(Warning,
+				"Image saving failed. Will try saving again in .pfm (without extra info).");
 
 			if(!!phSaveFrame(frameId, (filePath + "_failsafe.pfm").c_str(), nullptr))
 			{
-				PH_DEFAULT_LOG_ERROR("Image saving failed again.");
+				PH_DEFAULT_LOG(Error, "Image saving failed again.");
 			}
 		}
 	}

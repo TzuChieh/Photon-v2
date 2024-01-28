@@ -40,7 +40,7 @@ VanillaPMRenderer::VanillaPMRenderer(
 
 void VanillaPMRenderer::doRender()
 {
-	PH_LOG(PMRenderer, "rendering mode: vanilla photon mapping");
+	PH_LOG(PMRenderer, Note, "rendering mode: vanilla photon mapping");
 
 	m_photonsPerSecond.store(0, std::memory_order_relaxed);
 	renderWithVanillaPM();
@@ -52,10 +52,10 @@ void VanillaPMRenderer::renderWithVanillaPM()
 
 	using Photon = FullPhoton;
 
-	PH_LOG(PMRenderer, "photon size: {} bytes", sizeof(Photon));
-	PH_LOG(PMRenderer, "target number of photons: {}", getCommonParams().numPhotons);
-	PH_LOG(PMRenderer, "size of photon buffer: {} MB", sizeof(Photon) * getCommonParams().numPhotons / 1024 / 1024);
-	PH_LOG(PMRenderer, "start shooting photons...");
+	PH_LOG(PMRenderer, Note, "photon size: {} bytes", sizeof(Photon));
+	PH_LOG(PMRenderer, Note, "target number of photons: {}", getCommonParams().numPhotons);
+	PH_LOG(PMRenderer, Note, "size of photon buffer: {} MB", sizeof(Photon) * getCommonParams().numPhotons / 1024 / 1024);
+	PH_LOG(PMRenderer, Note, "start shooting photons...");
 
 	Timer tracePhotonTimer;
 	tracePhotonTimer.start();
@@ -91,12 +91,12 @@ void VanillaPMRenderer::renderWithVanillaPM()
 		std::isfinite(photonsPerSecond) ? static_cast<uint64>(photonsPerSecond + 0.5) : 0,
 		std::memory_order_relaxed);
 
-	PH_LOG(PMRenderer, "building photon map...");
+	PH_LOG(PMRenderer, Note, "building photon map...");
 
 	TPhotonMap<Photon> photonMap;
 	photonMap.map.build(std::move(photonBuffer));
 
-	PH_LOG(PMRenderer, "estimating radiance...");
+	PH_LOG(PMRenderer, Note, "estimating radiance...");
 
 	parallel_work(getCommonParams().numSamplesPerPixel, numWorkers(),
 		[this, &photonMap, totalPhotonPaths](

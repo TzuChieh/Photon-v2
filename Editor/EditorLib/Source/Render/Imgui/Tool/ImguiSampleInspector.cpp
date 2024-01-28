@@ -267,7 +267,7 @@ void ImguiSampleInspector::genRngPoints(
 	}
 	else
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Cannot generate points from RNG: unsupported type {}",
 			m_rngSettings.type);
 	}
@@ -301,7 +301,7 @@ void ImguiSampleInspector::genGeneratorPoints(
 		break;
 
 	default:
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Cannot generate points from sample generator: unsupported type {}",
 			m_generatorSettings.type);
 		return;
@@ -341,7 +341,7 @@ void ImguiSampleInspector::genGeneratorPoints(
 
 	if(!generator->prepareSampleBatch())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Sample batch preparation failed.");
 		return;
 	}

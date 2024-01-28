@@ -98,7 +98,7 @@ inline TColorPixelTexture2D<COLOR_SPACE>::TColorPixelTexture2D(
 #if PH_DEBUG
 	if(COLOR_SPACE == math::EColorSpace::Unspecified && math::Spectrum::NUM_VALUES != 3)
 	{
-		PH_DEFAULT_LOG_DEBUG(
+		PH_DEFAULT_DEBUG_LOG(
 			"TColorPixelTexture2D will fallback to treating values as linear sRGB (reason: direct "
 			"value conversion cannot be performed).");
 	}

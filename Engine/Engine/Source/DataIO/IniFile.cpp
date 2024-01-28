@@ -105,7 +105,7 @@ void IniFile::setProperty(const std::string_view propertyName, const std::string
 {
 	if(propertyName.empty())
 	{
-		PH_LOG_WARNING(IniFile, "use of empty property name is discouraged (associated value: <{}>)",
+		PH_LOG(IniFile, Warning, "use of empty property name is discouraged (associated value: <{}>)",
 			propertyValue);
 	}
 

@@ -24,12 +24,12 @@ void Program::programStart()
 
 	Threads::setMainThreadID(std::this_thread::get_id());
 
-	PH_LOG(Program, "editor program start");
+	PH_LOG(Program, Note, "editor program start");
 }
 
 void Program::programExit()
 {
-	PH_LOG(Program, "editor program exit");
+	PH_LOG(Program, Note, "editor program exit");
 
 	Threads::setMainThreadID(std::thread::id());
 }

@@ -66,7 +66,7 @@ std::unique_ptr<ConductorFresnel> ConductiveInterfaceInfo::genFresnelEffect() co
 			// complete information for that, fallback to Schlick approximation
 			// and issue a warning.
 
-			PH_LOG_WARNING(ConductiveInterfaceInfo,
+			PH_LOG(ConductiveInterfaceInfo, Warning,
 				"exact Fresnel formula is requested without complete information "
 				"specified; will fallback to Schlick approximation");
 		}

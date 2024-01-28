@@ -112,7 +112,7 @@ inline void TSamplingFilm<Sample>::updateSampleDimensions()
 
 	if(m_sampleWindowPx.isEmpty())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Sampling film has empty sample window (effective window = {}, half filter size = {}, "
 			"softness = {}).", getEffectiveWindowPx().toString(), getFilter().getHalfSizePx(), m_softness);
 	}

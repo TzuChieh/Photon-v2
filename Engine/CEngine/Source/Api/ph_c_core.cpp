@@ -45,7 +45,7 @@ PhBool phInit()
 {
 	if(!init_render_engine(EngineInitSettings()))
 	{
-		PH_LOG_ERROR(CAPI, "engine initialization failed");
+		PH_LOG(CAPI, Error, "engine initialization failed");
 		return PH_FALSE;
 	}
 
@@ -56,7 +56,7 @@ PhBool phExit()
 {
 	if(!exit_render_engine())
 	{
-		PH_LOG_ERROR(CAPI, "engine exiting failed");
+		PH_LOG(CAPI, Error, "engine exiting failed");
 		return PH_FALSE;
 	}
 
@@ -71,7 +71,7 @@ void phCreateEngine(PhUInt64* const out_engineId, const PhUInt32 numRenderThread
 	engine->setNumThreads(static_cast<std::size_t>(numRenderThreads));
 	*out_engineId = static_cast<PhUInt64>(ApiDatabase::addResource(std::move(engine)));
 
-	PH_LOG(CAPI, "engine<{}> created", *out_engineId);
+	PH_LOG(CAPI, Note, "engine<{}> created", *out_engineId);
 }
 
 void phSetNumRenderThreads(const PhUInt64 engineId, const PhUInt32 numRenderThreads)
@@ -87,11 +87,11 @@ void phDeleteEngine(const PhUInt64 engineId)
 {
 	if(ApiDatabase::removeResource<Engine>(engineId))
 	{
-		PH_LOG(CAPI, "engine<{}> deleted", engineId);
+		PH_LOG(CAPI, Note, "engine<{}> deleted", engineId);
 	}
 	else
 	{
-		PH_LOG_WARNING(CAPI, "error while deleting engine<{}>", engineId);
+		PH_LOG(CAPI, Warning, "error while deleting engine<{}>", engineId);
 	}
 }
 
@@ -241,7 +241,7 @@ void phCreateFrame(
 	auto frame = std::make_unique<HdrRgbFrame>(widthPx, heightPx);
 	*out_frameId = ApiDatabase::addResource(std::move(frame));
 
-	PH_LOG(CAPI, "frame<{}> created", *out_frameId);
+	PH_LOG(CAPI, Note, "frame<{}> created", *out_frameId);
 }
 
 void phGetFrameDimension(
@@ -272,11 +272,11 @@ void phDeleteFrame(const PhUInt64 frameId)
 {
 	if(ApiDatabase::removeResource<HdrRgbFrame>(frameId))
 	{
-		PH_LOG(CAPI, "frame<{}> deleted", frameId);
+		PH_LOG(CAPI, Note, "frame<{}> deleted", frameId);
 	}
 	else
 	{
-		PH_LOG_WARNING(CAPI, "error while deleting frame<{}>", frameId);
+		PH_LOG(CAPI, Warning, "error while deleting frame<{}>", frameId);
 	}
 }
 
@@ -327,7 +327,7 @@ PhBool phSaveFrame(
 	}
 	catch(const FileIOError& e)
 	{
-		PH_LOG_WARNING(CAPI,
+		PH_LOG(CAPI, Warning,
 			"frame<{}> saving failed: {}", frameId, e.whatStr());
 	}
 
@@ -368,7 +368,7 @@ PhBool phSaveFrameToBuffer(
 		}
 		catch(const Exception& e)
 		{
-			PH_LOG_ERROR(CAPI, "frame<{}> saving failed: {}", frameId, e.what());
+			PH_LOG(CAPI, Error, "frame<{}> saving failed: {}", frameId, e.what());
 		}
 	}
 	else if(format == PH_BUFFER_FORMAT_FLOAT32_ARRAY)
@@ -423,7 +423,7 @@ PhBool phSaveFrameToBuffer(
 	}
 	else
 	{
-		PH_LOG_ERROR(CAPI, 
+		PH_LOG(CAPI, Error,
 			"cannot save frame<{}> in unknown format {}", frameId, enum_to_value(format));
 	}
 
@@ -453,7 +453,7 @@ PhFloat32 phFrameOpMSE(const PhUInt64 expectedFrameId, const PhUInt64 estimatedF
 	}
 	else
 	{
-		PH_LOG_WARNING(CAPI, "phFrameOpMSE(2) returned 0 due to invalid frame");
+		PH_LOG(CAPI, Warning, "phFrameOpMSE(2) returned 0 due to invalid frame");
 	}
 
 	return MSE;
@@ -653,7 +653,7 @@ void phCreateBuffer(PhUInt64* const out_bufferId)
 
 	*out_bufferId = static_cast<PhUInt64>(ApiDatabase::addResource(std::make_unique<ByteBuffer>()));
 
-	PH_LOG(CAPI, "buffer<{}> created", *out_bufferId);
+	PH_LOG(CAPI, Note, "buffer<{}> created", *out_bufferId);
 }
 
 void phGetBufferBytes(
@@ -677,10 +677,10 @@ void phDeleteBuffer(const PhUInt64 bufferId)
 {
 	if(ApiDatabase::removeResource<ByteBuffer>(bufferId))
 	{
-		PH_LOG(CAPI, "buffer<{}> deleted", bufferId);
+		PH_LOG(CAPI, Note, "buffer<{}> deleted", bufferId);
 	}
 	else
 	{
-		PH_LOG_WARNING(CAPI, "error while deleting buffer<{}>", bufferId);
+		PH_LOG(CAPI, Warning, "error while deleting buffer<{}>", bufferId);
 	}
 }

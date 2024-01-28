@@ -13,7 +13,7 @@ bool init_engine_IO_infrastructure()
 {
 	if(!io_utils::detail::init_picture_IO())
 	{
-		PH_LOG_WARNING(InitAndExit,
+		PH_LOG(InitAndExit, Warning,
 			"init_picture_IO() failed");
 		return false;
 	}

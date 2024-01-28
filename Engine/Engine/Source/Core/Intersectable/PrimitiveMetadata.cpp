@@ -42,7 +42,7 @@ void PrimitiveMetadata::setChannel(const uint32 channelId, const PrimitiveChanne
 	}
 	else
 	{
-		PH_LOG_WARNING(PrimitiveMetadata, "channel ID ({}) is invalid", channelId);
+		PH_LOG(PrimitiveMetadata, Warning, "channel ID ({}) is invalid", channelId);
 	}
 }
 

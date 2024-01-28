@@ -134,7 +134,7 @@ void DesignerSceneMetaInfo::setObjectMetaInfo(
 	if(expectNoOverwrite &&
 	   m_objectNameToObjectMetaInfo.find(objectName) != m_objectNameToObjectMetaInfo.end())
 	{
-		PH_LOG_WARNING(DesignerSceneMetaInfo,
+		PH_LOG(DesignerSceneMetaInfo, Warning,
 			"Designer object {} meta info is being overwritten",
 			objectName);
 	}

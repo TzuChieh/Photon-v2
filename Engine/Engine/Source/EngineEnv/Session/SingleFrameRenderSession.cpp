@@ -22,7 +22,7 @@ void SingleFrameRenderSession::applyToContext(CoreCookingContext& ctx) const
 	}
 	else
 	{
-		PH_LOG_WARNING(SingleFrameRenderSession, 
+		PH_LOG(SingleFrameRenderSession, Warning,
 			"invalid frame size provided: {}", m_frameSizePx.toString());
 	}
 
@@ -44,7 +44,7 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	}
 	else
 	{
-		PH_LOG_WARNING(SingleFrameRenderSession,
+		PH_LOG(SingleFrameRenderSession, Warning,
 			"observer <{}> not found", getObserverName());
 	}
 
@@ -55,7 +55,7 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	}
 	else
 	{
-		PH_LOG_WARNING(SingleFrameRenderSession,
+		PH_LOG(SingleFrameRenderSession, Warning,
 			"sample source <{}> not found", getSampleSourceName());
 	}
 
@@ -66,7 +66,7 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 	}
 	else
 	{
-		PH_LOG_WARNING(SingleFrameRenderSession,
+		PH_LOG(SingleFrameRenderSession, Warning,
 			"visualizer <{}> not found", getVisualizerName());
 	}
 

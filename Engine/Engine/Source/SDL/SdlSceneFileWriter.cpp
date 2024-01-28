@@ -68,7 +68,7 @@ void SdlSceneFileWriter::saveResource(
 	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
 	{
-		PH_LOG_WARNING(SdlSceneFileWriter,
+		PH_LOG(SdlSceneFileWriter, Warning,
 			"Unable to save resource (class = {}): {}",
 			sdl::gen_pretty_name(resourceClass),
 			!resource ? "null resource" : "null class");
@@ -100,13 +100,13 @@ void SdlSceneFileWriter::write(const SceneDescription& scene)
 {
 	// TODO: currently will overwrite existing file; should provide options for whether to append
 
-	PH_LOG(SdlSceneFileWriter, "generating scene file: {}", m_sceneFile);
+	PH_LOG(SdlSceneFileWriter, Note, "generating scene file: {}", m_sceneFile);
 
 	Filesystem::createDirectories(getSceneWorkingDirectory());
 	clearStats();
 	saveSceneToFile(scene);
 
-	PH_LOG(SdlSceneFileWriter,
+	PH_LOG(SdlSceneFileWriter, Note,
 		"scene file generated, totalling {} commands (errors: {})",
 		numGeneratedCommands(), numGenerationErrors());
 }

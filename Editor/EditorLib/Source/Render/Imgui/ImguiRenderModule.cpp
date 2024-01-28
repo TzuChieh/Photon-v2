@@ -239,7 +239,7 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
 	// DEBUG
 	//glfwSwapInterval(1); // Enable vsync
 
-    PH_LOG(DearImGui, "setting-up context...");
+    PH_LOG(DearImGui, Note, "setting-up context...");
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -260,7 +260,7 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
 	initializeImguiFonts(editor);
 	initializeImguiImages(editor);
 
-	PH_LOG(DearImGui, "setting-up style...");
+	PH_LOG(DearImGui, Note, "setting-up style...");
 
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
@@ -273,7 +273,7 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 	}
 
-	PH_LOG(DearImGui, "setting-up platform renderer backends...");
+	PH_LOG(DearImGui, Note, "setting-up platform renderer backends...");
 
 	ImGui_ImplGlfw_InitForOpenGL(m_glfwWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
@@ -298,7 +298,7 @@ void ImguiRenderModule::initializeImgui(Editor& editor)
 
 void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 {
-	PH_LOG(DearImGui, "setting-up fonts...");
+	PH_LOG(DearImGui, Note, "setting-up fonts...");
 
 	constexpr std::string_view BASE_FONT_FILENAME = "Arimo[wght].ttf";
 	//constexpr std::string_view FONT_ICON_FILENAME = FONT_ICON_FILE_NAME_MDI;
@@ -353,7 +353,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 
 	if(!m_fontLibrary->defaultFont || !m_fontLibrary->largeFont)
 	{
-		PH_LOG_ERROR(DearImGui,
+		PH_LOG(DearImGui, Error,
 			"font initialization failed (default font valid: {}, large font valid: {})",
 			m_fontLibrary->defaultFont != nullptr, m_fontLibrary->largeFont != nullptr);
 	}
@@ -361,7 +361,7 @@ void ImguiRenderModule::initializeImguiFonts(Editor& editor)
 
 void ImguiRenderModule::initializeImguiImages(Editor& editor)
 {
-	PH_LOG(DearImGui, "setting-up images...");
+	PH_LOG(DearImGui, Note, "setting-up images...");
 
 	m_imageLibrary = std::make_unique<ImguiImageLibrary>();
 	Path imageDirectory = get_internal_resource_directory(EEngineProject::EditorLib) / "Image";
@@ -380,7 +380,7 @@ void ImguiRenderModule::terminateImgui()
     GLFWwindow* const backupCurrentCtx = glfwGetCurrentContext();
     glfwMakeContextCurrent(m_glfwWindow);
 
-    PH_LOG(DearImGui, "cleaning up...");
+    PH_LOG(DearImGui, Note, "cleaning up...");
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

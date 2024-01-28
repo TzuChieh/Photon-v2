@@ -246,7 +246,7 @@ void ImguiEditorOfflineTaskManager::buildTaskDetailContent()
 		}
 		else
 		{
-			PH_LOG_ERROR(DearImGui,
+			PH_LOG(DearImGui, Error,
 				"Cannot start render, required target missing (agent={}, renderer={}).",
 				static_cast<void*>(info.agent), static_cast<void*>(info.renderer));
 		}

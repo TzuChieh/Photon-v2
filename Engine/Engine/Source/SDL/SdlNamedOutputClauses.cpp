@@ -23,7 +23,7 @@ void SdlNamedOutputClauses::addUnique(
 	const auto& iter = m_clausesNames.find(std::string(clausesName));
 	if(iter != m_clausesNames.end())
 	{
-		PH_LOG_WARNING(SdlNamedOutputClauses,
+		PH_LOG(SdlNamedOutputClauses, Warning,
 			"duplicated named SDL output clauses detected, overwriting (name: {})", clausesName);
 	}
 

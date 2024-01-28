@@ -19,7 +19,7 @@ void MatteOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behavio
 	auto albedo = m_albedo;
 	if(!albedo)
 	{
-		PH_DEFAULT_LOG(
+		PH_DEFAULT_LOG(Note,
 			"No albedo specified. Default to 50% reflectance.");
 		albedo = makeConstantAlbedo(math::Vector3R(0.5_r));
 	}

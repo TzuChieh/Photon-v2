@@ -47,7 +47,7 @@ void OpenglFramebuffer::createBuffer(const FramebufferDesc& desc)
 	{
 		if(fi >= colorAttachments.size() && !desc.colorFormats[fi].isEmpty())
 		{
-			PH_DEFAULT_LOG_ERROR(
+			PH_DEFAULT_LOG(Error,
 				"Too many color attachments, max = {}, ignoring the rest.", MAX_COLOR_ATTACHMENTS);
 			break;
 		}
@@ -106,7 +106,7 @@ void OpenglFramebuffer::attachColor(
 	if(attachmentIdx >= colorAttachments.size() ||
 	   colorAttachments[attachmentIdx].internalFormat == GL_NONE)
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"Too many color attachments (index = {}, empty = {}, max = {}), ignoring.",
 			attachmentIdx,
 			attachmentIdx >= colorAttachments.size() ? true : colorAttachments[attachmentIdx].internalFormat == GL_NONE,
@@ -116,7 +116,7 @@ void OpenglFramebuffer::attachColor(
 
 	if(!colorTexture.hasResource() || !handle)
 	{
-		PH_DEFAULT_LOG(
+		PH_DEFAULT_LOG(Error,
 			"Nullifying color attachment {}.", attachmentIdx);
 
 		// Attach empty texture to framebuffer (DSA)
@@ -130,7 +130,7 @@ void OpenglFramebuffer::attachColor(
 
 	if(!colorTexture.isColor())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Texture for color attachment {} is not a color format.", attachmentIdx);
 	}
 
@@ -139,7 +139,7 @@ void OpenglFramebuffer::attachColor(
 	   numSamples != colorTexture.numSamples ||
 	   colorAttachments[attachmentIdx].internalFormat != colorTexture.internalFormat)
 	{
-		PH_DEFAULT_LOG(
+		PH_DEFAULT_LOG(Note,
 			"Using heterogeneous color attachment on {}.", attachmentIdx);
 	}
 
@@ -165,14 +165,14 @@ void OpenglFramebuffer::attachDepthStencil(
 
 	if(depthStencilAttachment.internalFormat == GL_NONE)
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"The buffer did not declare a depth stencil attachment, ignoring.");
 		return;
 	}
 
 	if(!depthStencilTexture.hasResource() || !handle)
 	{
-		PH_DEFAULT_LOG(
+		PH_DEFAULT_LOG(Note,
 			"Nullifying depth stencil attachment.");
 
 		// Attach empty texture to framebuffer (DSA)
@@ -186,7 +186,7 @@ void OpenglFramebuffer::attachDepthStencil(
 
 	if(depthStencilTexture.isColor())
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Texture for depth stencil attachment is a color format.");
 	}
 
@@ -195,7 +195,7 @@ void OpenglFramebuffer::attachDepthStencil(
 	   numSamples != depthStencilTexture.numSamples ||
 	   depthStencilAttachment.internalFormat != depthStencilTexture.internalFormat)
 	{
-		PH_DEFAULT_LOG(
+		PH_DEFAULT_LOG(Note,
 			"Using heterogeneous depth stencil attachment.");
 	}
 
@@ -295,7 +295,7 @@ bool OpenglFramebuffer::checkCompleteness()
 {
 	if(glCheckNamedFramebufferStatus(framebufferID, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"Framebuffer incomplete: {}", getFramebufferStatusInfo(framebufferID));
 		return false;
 	}

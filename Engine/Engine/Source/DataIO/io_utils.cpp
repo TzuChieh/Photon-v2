@@ -91,7 +91,7 @@ RegularPicture load_LDR_via_stb(const std::string& fullFilename)
 	}
 	else
 	{
-		PH_LOG_WARNING(IOUtils,
+		PH_LOG(IOUtils, Warning,
 			"unsupported number of components in LDR picture <{}> ({} components detected), may produce error" ,
 			fullFilename, numComponents);
 	}
@@ -169,7 +169,7 @@ RegularPicture load_HDR_via_stb(const std::string& fullFilename)
 	}
 	else
 	{
-		PH_LOG_WARNING(IOUtils,
+		PH_LOG(IOUtils, Warning,
 			"unsupported number of components in LDR picture <{}> ({} components detected), may produce error" ,
 			fullFilename, numComponents);
 	}
@@ -214,7 +214,7 @@ void save_exr_via_exr_file_writer(
 {
 	ExrFileWriter writer(filePath);
 
-	PH_LOG(IOUtils,
+	PH_LOG(IOUtils, Note,
 		"saving exr <{}>", filePath.toAbsoluteString());
 
 	// Extract valid meta info to save in an exr file
@@ -296,7 +296,7 @@ RegularPicture load_picture(const Path& picturePath, std::size_t layerIdx)
 
 RegularPicture load_LDR_picture(const Path& picturePath, std::size_t layerIdx)
 {
-	PH_LOG_DEBUG(IOUtils, 
+	PH_DEBUG_LOG(IOUtils,
 		"loading LDR picture <{}>", picturePath.toString());
 
 	const std::string& ext = picturePath.getExtension();
@@ -319,7 +319,7 @@ RegularPicture load_LDR_picture(const Path& picturePath, std::size_t layerIdx)
 
 RegularPicture load_HDR_picture(const Path& picturePath, std::size_t layerIdx)
 {
-	PH_LOG_DEBUG(IOUtils, 
+	PH_DEBUG_LOG(IOUtils,
 		"loading HDR picture <{}>", picturePath.toString());
 
 	// TODO: make use of layer index
@@ -558,7 +558,7 @@ void save_png(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
-	PH_LOG(IOUtils,
+	PH_LOG(IOUtils, Note,
 		"saving png <{}>", filePath.toAbsoluteString());
 
 	const bool stbiResult = stbi_write_png(
@@ -583,7 +583,7 @@ void save_jpg(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	// FIXME: variable quality
 	constexpr int QUALITY = 10;
 
-	PH_LOG(IOUtils,
+	PH_LOG(IOUtils, Note,
 		"saving jpg <{}> with quality = {}", filePath.toAbsoluteString(), QUALITY);
 
 	const bool stbiResult = stbi_write_jpg(
@@ -605,7 +605,7 @@ void save_bmp(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
-	PH_LOG(IOUtils,
+	PH_LOG(IOUtils, Note,
 		"saving bmp <{}>", filePath.toAbsoluteString());
 
 	const bool stbiResult = stbi_write_bmp(
@@ -626,7 +626,7 @@ void save_tga(const LdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 {
 	static_assert(sizeof(LdrComponent) * CHAR_BIT == 8);
 
-	PH_LOG(IOUtils,
+	PH_LOG(IOUtils, Note,
 		"saving tga <{}>", filePath.toAbsoluteString());
 
 	const bool stbiResult = stbi_write_tga(
@@ -647,7 +647,7 @@ void save_hdr(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 {
 	static_assert(std::is_same_v<HdrComponent, float>);
 
-	PH_LOG(IOUtils, 
+	PH_LOG(IOUtils, Note,
 		"saving hdr <{}>", filePath.toAbsoluteString());
 
 	const bool stbiResult = stbi_write_hdr(
@@ -684,7 +684,7 @@ void save_exr_high_precision(const HdrRgbFrame& frame, const Path& filePath, con
 
 void save_pfm(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta* meta)
 {
-	PH_LOG(IOUtils,
+	PH_LOG(IOUtils, Note,
 		"saving pfm <{}>", filePath.toAbsoluteString());
 
 	PfmFileWriter writer(filePath);

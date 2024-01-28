@@ -47,7 +47,7 @@ void GPlyPolygonMesh::storeCooked(
 	// Log some stats for performance analysis
 	if(triangleBuffer)
 	{
-		PH_LOG(GPlyPolygonMesh, 
+		PH_LOG(GPlyPolygonMesh, Note,
 			"{} buffer stats: {} verts, {} faces ({:.3f} MiB, {:.3f} B per face)", 
 			m_plyFile.getIdentifier(),
 			triangleBuffer->getVertexBuffer().numVertices(),
@@ -55,7 +55,7 @@ void GPlyPolygonMesh::storeCooked(
 			math::bytes_to_MiB<double>(triangleBuffer->memoryUsage()),
 			triangleBuffer->averagePerPolygonMemoryUsage());
 
-		PH_LOG(GPlyPolygonMesh,
+		PH_LOG(GPlyPolygonMesh, Note,
 			"{} buffer timings: {:.2f} ms loading, {:.2f} ms building accel",
 			m_plyFile.getIdentifier(),
 			loadTimer.getDeltaMs<double>(),
@@ -79,7 +79,7 @@ std::shared_ptr<Geometry> GPlyPolygonMesh::genTransformed(
 
 IndexedTriangleBuffer GPlyPolygonMesh::loadTriangleBuffer() const
 {
-	PH_LOG(GPlyPolygonMesh, "loading file {}", m_plyFile);
+	PH_LOG(GPlyPolygonMesh, Note, "loading file {}", m_plyFile);
 
 	PlyFile file(m_plyFile.getPath());
 

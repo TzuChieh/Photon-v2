@@ -418,7 +418,7 @@ void ImguiEditorImageViewer::addImage(std::string_view name, const Path& imageFi
 	}
 	else
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Failed to add image (file={}) for display. Name collision={}.",
 			imageFile.toAbsoluteString(), imageLib.has(name));
 	}
@@ -442,7 +442,7 @@ void ImguiEditorImageViewer::addImage(
 	}
 	else
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Failed to add image buffer (size={}) for display. Name collision={}.",
 			sizePx, imageLib.has(name));
 	}

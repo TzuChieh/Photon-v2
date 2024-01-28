@@ -27,7 +27,7 @@ CookingContext::CookingContext(const VisualWorld* const world)
 		m_cache = getWorld().getCache();
 	}
 	
-	PH_LOG(CookingContext, 
+	PH_LOG(CookingContext, Note,
 		"created context, contains resource storage: {}, contains transient cache: {}",
 		m_resources != nullptr, m_cache != nullptr);
 }

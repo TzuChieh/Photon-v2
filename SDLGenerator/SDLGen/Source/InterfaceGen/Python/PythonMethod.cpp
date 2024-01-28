@@ -74,7 +74,7 @@ std::string PythonMethod::genCode(const std::size_t indentAmount) const
 
 	if(m_methodName.empty())
 	{
-		PH_LOG_WARNING(PythonMethod, "no method name provided, ignoring");
+		PH_LOG(PythonMethod, Warning, "no method name provided, ignoring");
 		return "";
 	}
 

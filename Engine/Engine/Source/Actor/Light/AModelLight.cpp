@@ -29,7 +29,7 @@ const Emitter* AModelLight::buildEmitter(
 {
 	if(lightPrimitives.empty())
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"Failed building model light emitter: requires at least a light primitive.");
 		return nullptr;
 	}
@@ -41,7 +41,7 @@ const Emitter* AModelLight::buildEmitter(
 	}
 	else
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Model light does not specify emitted radiance. Default to unit radiance.");
 		emittedRadiance = std::make_shared<TConstantTristimulusTexture<>>(math::ColorValue(1));
 	}

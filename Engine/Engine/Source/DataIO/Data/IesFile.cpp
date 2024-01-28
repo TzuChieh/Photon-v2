@@ -32,7 +32,7 @@ bool IesFile::load()
 		return false;
 	}
 
-	PH_LOG(IesFile, "loading file <{}>", filePathStr);
+	PH_LOG(IesFile, Note, "loading file <{}>", filePathStr);
 
 	// TODO: consider using std::byte instead of char
 	std::vector<char> buffer{std::istreambuf_iterator<char>(file), 
@@ -40,7 +40,7 @@ bool IesFile::load()
 
 	if(!parse(buffer))
 	{
-		PH_LOG_WARNING(IesFile, "file <{}> parsing failed; file content read has {} bytes", 
+		PH_LOG(IesFile, Warning, "file <{}> parsing failed; file content read has {} bytes",
 			filePathStr, buffer.size());
 		return false;
 	}
@@ -59,7 +59,7 @@ bool IesFile::parse(const std::vector<char>& data)
 
 	if(lines.empty())
 	{
-		PH_LOG_WARNING(IesFile, "no line detected in file <{}>", m_path.toAbsoluteString());
+		PH_LOG(IesFile, Warning, "no line detected in file <{}>", m_path.toAbsoluteString());
 		return false;
 	}
 
@@ -187,7 +187,7 @@ std::size_t IesFile::parseLabelsAndKeywords(const std::vector<std::string>& line
 	}
 	if(tiltLineIndex == lines.size())
 	{
-		PH_LOG_WARNING(IesFile, "no tilt line detected in file <{}>", 
+		PH_LOG(IesFile, Warning, "no tilt line detected in file <{}>",
 			m_path.toAbsoluteString());
 		return lines.size();
 	}
@@ -260,7 +260,7 @@ std::size_t IesFile::parseTiltLine(const std::vector<std::string>& lines, const 
 		m_tilt = line.substr(5);
 		if(m_tilt != "NONE")
 		{
-			PH_LOG_WARNING(IesFile, "for file <{}>, does not support tilt <{}>", 
+			PH_LOG(IesFile, Warning, "for file <{}>, does not support tilt <{}>",
 				m_path.toAbsoluteString(), m_tilt);
 			return lines.size();
 		}
@@ -269,7 +269,7 @@ std::size_t IesFile::parseTiltLine(const std::vector<std::string>& lines, const 
 	}
 	else
 	{
-		PH_LOG_WARNING(IesFile, "invalid tilt line detected in file <{}>", 
+		PH_LOG(IesFile, Warning, "invalid tilt line detected in file <{}>",
 			m_path.toAbsoluteString());
 		return lines.size();
 	}
@@ -320,7 +320,7 @@ std::size_t IesFile::parseMetadata1(const std::vector<std::string>& lines, const
 	tokenizer.tokenize(lines[currentLine], tokens);
 	if(tokens.size() != 10)
 	{
-		PH_LOG_WARNING(IesFile, 
+		PH_LOG(IesFile, Warning,
 			"the line for metadata 1 has {} tokens only (10 expected), will still try to parse (file {})", 
 			tokens.size(), m_path.toAbsoluteString());
 	}
@@ -416,7 +416,7 @@ std::size_t IesFile::parseMetadata2(const std::vector<std::string>& lines, const
 	tokenizer.tokenize(lines[currentLine], tokens);
 	if(tokens.size() != 3)
 	{
-		PH_LOG_WARNING(IesFile,
+		PH_LOG(IesFile, Warning,
 			"the line for metadata 2 has {} tokens only (3 expected), will still try to parse (file {})", 
 			tokens.size(), m_path.toAbsoluteString());
 	}
@@ -450,8 +450,8 @@ std::size_t IesFile::parseAngles(const std::vector<std::string>& lines, const st
 
 		if(m_verticalAngles.size() > m_numVerticalAngles)
 		{
-			PH_LOG_WARNING(IesFile, "too many vertical angles in file {}", 
-				m_path.toAbsoluteString());
+			PH_LOG(IesFile, Warning, 
+				"too many vertical angles in file {}", m_path.toAbsoluteString());
 			break;
 		}
 	}
@@ -470,8 +470,8 @@ std::size_t IesFile::parseAngles(const std::vector<std::string>& lines, const st
 
 		if(m_horizontalAngles.size() > m_numHorizontalAngles)
 		{
-			PH_LOG_WARNING(IesFile, "too many horizontal angles in file {}",
-				m_path.toAbsoluteString());
+			PH_LOG(IesFile, Warning, 
+				"too many horizontal angles in file {}", m_path.toAbsoluteString());
 			break;
 		}
 	}
@@ -479,8 +479,8 @@ std::size_t IesFile::parseAngles(const std::vector<std::string>& lines, const st
 	if(m_verticalAngles.size() != m_numVerticalAngles ||
 	   m_horizontalAngles.size() != m_numHorizontalAngles)
 	{
-		PH_LOG_WARNING(IesFile, "mismatched number of angles in file {}",
-			m_path.toAbsoluteString());
+		PH_LOG(IesFile, Warning, 
+			"mismatched number of angles in file {}", m_path.toAbsoluteString());
 	}
 
 	return parsingLine;
@@ -505,7 +505,7 @@ std::size_t IesFile::parseCandelaValues(const std::vector<std::string>& lines, c
 	const std::size_t expectedNumCandelaValues = m_numVerticalAngles * m_numHorizontalAngles;
 	if(tokens.size() != expectedNumCandelaValues)
 	{
-		PH_LOG_WARNING(IesFile,
+		PH_LOG(IesFile, Warning, 
 			"mismatched number of candela values ({}, expected to be {}) in file {}", 
 			tokens.size(), expectedNumCandelaValues, m_path.toAbsoluteString());
 	}

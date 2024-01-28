@@ -37,8 +37,8 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 	PH_ASSERT(radiance);
 	PH_ASSERT_GT(resolution.x() * resolution.y(), 0);
 
-	PH_LOG(LatLongEnvEmitter, "constructing sample distribution with resolution {}", 
-		resolution.toString());
+	PH_LOG(LatLongEnvEmitter, Note,
+		"constructing sample distribution with resolution {}", resolution.toString());
 
 	constexpr auto USAGE = math::EColorUsage::EMR;
 	const real rcpResolutionY = 1.0_r / static_cast<real>(resolution.y());

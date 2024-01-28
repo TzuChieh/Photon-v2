@@ -206,7 +206,7 @@ wchar_t Path::charToWchar(const char ch)
 	const std::wint_t wch = std::btowc(ch);
 	if(wch == WEOF)
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"at Path::charToWchar(), char <{}> failed to widen to wchar",
 			ch);
 	}

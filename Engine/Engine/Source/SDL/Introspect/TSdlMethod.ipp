@@ -85,11 +85,11 @@ inline void TSdlMethod<MethodStruct, TargetType>::loadParameters(
 		{
 			if(importance == EFieldImportance::Optional || importance == EFieldImportance::NiceToHave)
 			{
-				PH_LOG_STRING(SdlFunction, noticeMsg);
+				PH_LOG_STRING(SdlFunction, Note, noticeMsg);
 			}
 			else
 			{
-				PH_LOG_WARNING_STRING(SdlFunction, noticeMsg);
+				PH_LOG_STRING(SdlFunction, Warning, noticeMsg);
 			}
 		});
 }

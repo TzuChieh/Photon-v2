@@ -31,7 +31,7 @@ PreCookReport ADome::preCook(const CookingContext& ctx) const
 	math::TDecomposedTransform<real> sanifiedLocalToWorld = m_localToWorld.getDecomposed();
 	if(sanifiedLocalToWorld.hasScaleEffect())
 	{
-		PH_LOG_WARNING(DomeActor,
+		PH_LOG(DomeActor, Warning,
 			"Scale detected and is ignored; scaling on dome light should be avoided as it does "
 			"not have any effect. If resizing the dome is desired, it should be done by "
 			"changing its radius.");

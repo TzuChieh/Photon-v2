@@ -95,7 +95,7 @@ protected:
 		}
 		else
 		{
-			PH_DEFAULT_LOG_DEBUG(
+			PH_DEFAULT_DEBUG_LOG(
 				"Unrecognized SDL bool literal: {}, treating it as false.", clause.value);
 
 			this->setValue(owner, false);

@@ -63,7 +63,7 @@ VisualWorld::VisualWorld()
 void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContext& coreCtx)
 {
 	PH_PROFILE_SCOPE();
-	PH_LOG(VisualWorld, "started cooking...");
+	PH_LOG(VisualWorld, Note, "started cooking...");
 
 	// Create the storage for cooked resources, and potentially free all previous resources
 	m_cookedResources = std::make_unique<CookedResourceCollection>();
@@ -109,7 +109,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 			});
 
 		const CookLevel currentActorLevel = actorCookBegin->actor->getCookOrder().level;
-		PH_LOG(VisualWorld, "cooking actor level: {}", currentActorLevel);
+		PH_LOG(VisualWorld, Note, "cooking actor level: {}", currentActorLevel);
 
 		// Find the transition point from current level to next level
 		auto actorCookEnd = std::upper_bound(actorCookBegin, sceneActors.end(), currentActorLevel,
@@ -127,11 +127,11 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		// TODO: should union with receiver's bound instead
 		bound.unionWith(m_receiverPos);
 
-		PH_LOG(VisualWorld, "current iteration actor bound: {}", bound.toString());
+		PH_LOG(VisualWorld, Note, "current iteration actor bound: {}", bound.toString());
 
 		if(currentActorLevel == static_cast<CookLevel>(ECookLevel::FIRST))
 		{
-			PH_LOG(VisualWorld, "root actors bound calculated to be: {}", bound.toString());
+			PH_LOG(VisualWorld, Note, "root actors bound calculated to be: {}", bound.toString());
 
 			m_rootActorsBound = bound;
 		}
@@ -139,7 +139,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		m_leafActorsBound = bound;
 		numCookedActors += actorCookEnd - actorCookBegin;
 
-		PH_LOG(VisualWorld, "# cooked actors: {}", numCookedActors);
+		PH_LOG(VisualWorld, Note, "# cooked actors: {}", numCookedActors);
 	}// end while more raw actors
 
 	m_backgroundPrimitive = m_cookedResources->getNamed().asConst()->getBackgroundPrimitive();
@@ -159,10 +159,10 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		}
 	}
 
-	PH_LOG(VisualWorld, "discretized into {} visible intersectables, number of emitters: {}", 
+	PH_LOG(VisualWorld, Note, "discretized into {} visible intersectables, number of emitters: {}", 
 		visibleIntersectables.size(), emitters.size());
 
-	PH_LOG(VisualWorld, "updating accelerator...");
+	PH_LOG(VisualWorld, Note, "updating accelerator...");
 	{
 		PH_PROFILE_NAMED_SCOPE("Update accelerators");
 		PH_SCOPED_TIMER(UpdateAccelerators);
@@ -171,7 +171,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		m_intersector->update(visibleIntersectables);
 	}
 
-	PH_LOG(VisualWorld, "updating light sampler...");
+	PH_LOG(VisualWorld, Note, "updating light sampler...");
 	{
 		PH_PROFILE_NAMED_SCOPE("Update light sampler");
 		PH_SCOPED_TIMER(UpdateLightSamplers);
@@ -181,7 +181,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 	// Finished cooking
 
-	PH_LOG(VisualWorld, 
+	PH_LOG(VisualWorld, Note,
 		"done cooking actors, data cooked: {}", 
 		getCookedResources()->getStats());
 
@@ -222,12 +222,12 @@ void VisualWorld::cookActors(
 		}
 		catch(const RuntimeException& e)
 		{
-			PH_LOG_ERROR(VisualWorld,
+			PH_LOG(VisualWorld, Error,
 				"on cooking actor: {}", e.whatStr());
 		}
 		catch(const Exception& e)
 		{
-			PH_LOG_ERROR(VisualWorld,
+			PH_LOG(VisualWorld, Error,
 				"on cooking actor: {}", e.what());
 		}
 	}
@@ -265,7 +265,7 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 		break;
 	}
 
-	PH_LOG(VisualWorld, "top level accelerator type: {}", name);
+	PH_LOG(VisualWorld, Note, "top level accelerator type: {}", name);
 }
 
 math::AABB3D VisualWorld::calcElementBound(TSpanView<TransientVisualElement> elements)

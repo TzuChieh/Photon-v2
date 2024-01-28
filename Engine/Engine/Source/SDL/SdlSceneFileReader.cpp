@@ -66,7 +66,7 @@ ISdlResource* SdlSceneFileReader::createResource(
 	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resourceClass || !resourceClass->allowCreateFromClass())
 	{
-		PH_LOG_WARNING(SdlSceneFileReader,
+		PH_LOG(SdlSceneFileReader, Warning,
 			"Unable to create resource {} (class = {}): {}",
 			resourceName, 
 			sdl::gen_pretty_name(resourceClass), 
@@ -90,7 +90,7 @@ ISdlResource* SdlSceneFileReader::createResource(
 		}
 		else
 		{
-			PH_LOG_WARNING(SdlSceneFileReader, 
+			PH_LOG(SdlSceneFileReader, Warning,
 				"Resource {} (class = {}) generated for command type {} and is ignored",
 				resourceName, 
 				sdl::gen_pretty_name(resourceClass), 
@@ -112,7 +112,7 @@ void SdlSceneFileReader::initResource(
 	const SdlClass* resourceClass = ctx.getSrcClass();
 	if(!resource || !resourceClass)
 	{
-		PH_LOG_WARNING(SdlSceneFileReader,
+		PH_LOG(SdlSceneFileReader, Warning,
 			"Unable to initialize resource {} (class = {}): {}",
 			resourceName,
 			sdl::gen_pretty_name(resourceClass),
@@ -149,7 +149,7 @@ void SdlSceneFileReader::runExecutor(
 	const SdlClass* targetClass = ctx.getSrcClass();
 	if(!targetClass)
 	{
-		PH_LOG_WARNING(SdlSceneFileReader,
+		PH_LOG(SdlSceneFileReader, Warning,
 			"Unable to run executor {}: null target class",
 			executorName);
 		return;
@@ -185,7 +185,7 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 	}
 	else
 	{
-		PH_LOG_WARNING(SdlSceneFileReader,
+		PH_LOG(SdlSceneFileReader, Warning,
 			"Unable to read scene <{}> (working directory <{}>): no target scene description was set.",
 			m_sceneFile, getSceneWorkingDirectory());
 		return;
@@ -197,13 +197,13 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 	FormattedTextInputStream commandFile(m_sceneFile);
 	if(!commandFile)
 	{
-		PH_LOG_WARNING(SdlSceneFileReader,
+		PH_LOG(SdlSceneFileReader, Warning,
 			"command file <{}> opening failed", m_sceneFile.toAbsoluteString());
 		return;
 	}
 	else
 	{
-		PH_LOG(SdlSceneFileReader, 
+		PH_LOG(SdlSceneFileReader, Note,
 			"loading command file <{}>", m_sceneFile.toAbsoluteString());
 
 		Timer timer;
@@ -222,9 +222,9 @@ void SdlSceneFileReader::read(SceneDescription* const scene)
 
 		timer.stop();
 
-		PH_LOG(SdlSceneFileReader, 
+		PH_LOG(SdlSceneFileReader, Note,
 			"command file PSDL version: {}", getCommandVersion().toString());
-		PH_LOG(SdlSceneFileReader, 
+		PH_LOG(SdlSceneFileReader, Note,
 			"command file loaded, time elapsed = {} ms", timer.getDeltaMs());
 	}
 }

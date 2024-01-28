@@ -44,7 +44,7 @@ inline std::string_view format_to_ply_keyword(const EPlyDataFormat format)
 	case EPlyDataFormat::BinaryLittleEndian: return "binary_little_endian";
 	case EPlyDataFormat::BinaryBigEndian:    return "binary_big_endian";
 	default: 
-		PH_LOG_WARNING(PlyFile, "Unknown PLY format, cannot convert to keyword.");
+		PH_LOG(PlyFile, Warning, "Unknown PLY format, cannot convert to keyword.");
 		return "";
 	}
 }
@@ -62,7 +62,7 @@ inline EPlyDataFormat ply_keyword_to_format(const std::string_view keyword)
 		}
 	}
 
-	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify format; assuming ASCII.", keyword);
+	PH_LOG(PlyFile, Warning, "Unknown PLY keyword: {}, cannot identify format; assuming ASCII.", keyword);
 	return EPlyDataFormat::ASCII;
 }
 
@@ -75,7 +75,7 @@ inline std::string_view entry_to_ply_keyword(const EPlyHeaderEntry entry)
 	case EPlyHeaderEntry::Comment:  return "comment";
 	case EPlyHeaderEntry::Format:   return "format";
 	default: 
-		PH_LOG_WARNING(PlyFile, "Unknown PLY entry, cannot convert to keyword.");
+		PH_LOG(PlyFile, Warning, "Unknown PLY entry, cannot convert to keyword.");
 		return "";
 	}
 }
@@ -95,7 +95,7 @@ inline EPlyHeaderEntry ply_keyword_to_entry(const std::string_view keyword)
 		}
 	}
 
-	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify entry.", keyword);
+	PH_LOG(PlyFile, Warning, "Unknown PLY keyword: {}, cannot identify entry.", keyword);
 	return EPlyHeaderEntry::Unspecified;
 }
 
@@ -112,7 +112,7 @@ inline std::string_view data_type_to_ply_keyword(const EPlyDataType dataType)
 	case EPlyDataType::Float32: return "float";
 	case EPlyDataType::Float64: return "double";
 	default: 
-		PH_LOG_WARNING(PlyFile, "Unknown PLY data type, cannot convert to keyword.");
+		PH_LOG(PlyFile, Warning, "Unknown PLY data type, cannot convert to keyword.");
 		return "";
 	}
 }
@@ -190,7 +190,7 @@ inline EPlyDataType ply_keyword_to_data_type(const std::string_view keyword)
 		break;
 	}
 
-	PH_LOG_WARNING(PlyFile, "Unknown PLY keyword: {}, cannot identify data type.", keyword);
+	PH_LOG(PlyFile, Warning, "Unknown PLY keyword: {}, cannot identify data type.", keyword);
 	return EPlyDataType::Unspecified;
 }
 
@@ -670,7 +670,7 @@ PlyFile::PlyFile() :
 		break;
 
 	default:
-		PH_LOG_WARNING(PlyFile, 
+		PH_LOG(PlyFile, Warning,
 			"unsupported native byte ordering {} detected", 
 			enum_to_value(std::endian::native));
 		break;

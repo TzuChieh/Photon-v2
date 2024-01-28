@@ -33,7 +33,7 @@ Engine::Engine()
 	, m_cooked()
 	, m_numThreads(0)
 {
-	PH_LOG(Engine, 
+	PH_LOG(Engine, Note,
 		"Photon version: {}, PSDL version: {}",
 		PH_ENGINE_VERSION, PH_PSDL_VERSION);
 
@@ -48,7 +48,7 @@ void Engine::enterCommand(const std::string& commandFragment)
 	}
 	catch(const Exception& e)
 	{
-		PH_LOG(Engine, 
+		PH_LOG(Engine, Note,
 			"error running command: {}",
 			e.what());
 	}
@@ -68,7 +68,7 @@ bool Engine::loadCommands(const Path& sceneFile)
 	}
 	catch(const Exception& e)
 	{
-		PH_LOG(Engine,
+		PH_LOG(Engine, Note,
 			"error loading scene file {}: {}", sceneFile.toAbsoluteString(), e.what());
 		return false;
 	}
@@ -83,7 +83,7 @@ void Engine::update()
 	// Wait all potentially unfinished commands
 	m_sceneParser.flush();
 
-	PH_LOG(Engine, "parsed {} commands, {} errors generated", 
+	PH_LOG(Engine, Note, "parsed {} commands, {} errors generated", 
 		m_sceneParser.numParsedCommands(), m_sceneParser.numParseErrors());
 
 	std::shared_ptr<RenderSession> renderSession;
@@ -93,14 +93,14 @@ void Engine::update()
 		auto renderSessions = m_rawScene.getResources().getAllOfType<RenderSession>();
 		if(renderSessions.empty())
 		{
-			PH_LOG_ERROR(Engine, "require at least a render session; engine failed to update");
+			PH_LOG(Engine, Error, "require at least a render session; engine failed to update");
 
 			return;
 		}
 
 		if(renderSessions.size() > 1)
 		{
-			PH_LOG_WARNING(Engine, "more than 1 render session specified, taking the last one");
+			PH_LOG(Engine, Warning, "more than 1 render session specified, taking the last one");
 		}
 
 		renderSession = renderSessions.back();
@@ -120,7 +120,7 @@ void Engine::update()
 	Renderer* const renderer = m_cooked.getRenderer();
 	if(!renderer)
 	{
-		PH_LOG_ERROR(Engine, "no renderer present");
+		PH_LOG(Engine, Error, "no renderer present");
 
 		return;
 	}
@@ -139,7 +139,7 @@ void Engine::update()
 
 	if(m_numThreads != 0 && m_numThreads != renderer->numWorkers())
 	{
-		PH_LOG(Engine,
+		PH_LOG(Engine, Note,
 			"Overriding # render workers to {} (it was {}).", 
 			m_numThreads, renderer->numWorkers());
 
@@ -156,7 +156,7 @@ void Engine::render()
 	Renderer* const renderer = getRenderer();
 	if(!renderer)
 	{
-		PH_LOG_ERROR(Engine, "No renderer present. Render operation terminated.");
+		PH_LOG(Engine, Error, "No renderer present. Render operation terminated.");
 		return;
 	}
 
@@ -194,7 +194,7 @@ void Engine::setNumThreads(uint32 numThreads)
 {
 	m_numThreads = numThreads;
 
-	PH_LOG(Engine,
+	PH_LOG(Engine, Note,
 		"Number of threads set to {}{}.", 
 		numThreads, numThreads > 0 ? "" : " (auto determine)");
 }

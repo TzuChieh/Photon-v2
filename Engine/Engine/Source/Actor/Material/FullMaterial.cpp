@@ -31,7 +31,7 @@ void FullMaterial::genBehaviors(
 {
 	if(!m_surfaceMaterial && !m_interiorMaterial && !m_exteriorMaterial)
 	{
-		PH_LOG_WARNING(FullMaterial, "no material specified, skipping behavior generation");
+		PH_LOG(FullMaterial, Warning, "no material specified, skipping behavior generation");
 		return;
 	}
 

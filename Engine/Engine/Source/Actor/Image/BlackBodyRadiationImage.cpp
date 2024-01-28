@@ -50,7 +50,7 @@ std::shared_ptr<TTexture<Image::ArrayType>> BlackBodyRadiationImage::genNumericT
 
 	if(triValues.size() > Image::ARRAY_SIZE)
 	{
-		PH_LOG_WARNING(BlackBodyRadiationImage,
+		PH_LOG(BlackBodyRadiationImage, Warning,
 			"{} values provided for a numeric array of max size {}, there will be data loss",
 			triValues.size(), Image::ARRAY_SIZE);
 	}

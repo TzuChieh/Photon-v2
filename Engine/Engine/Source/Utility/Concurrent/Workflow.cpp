@@ -174,7 +174,7 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 {
 	PH_ASSERT_EQ(m_idToDependencyIds.size(), numWorks());
 
-	PH_LOG(Workflow, "building dispatch order from DAG for {} works", numWorks());
+	PH_LOG(Workflow, Note, "building dispatch order from DAG for {} works", numWorks());
 
 	// Builds a DAG by reversing the dependency lists
 	auto workDAG          = std::make_unique<std::vector<std::size_t>[]>(numWorks());
@@ -192,14 +192,14 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 			{
 				if(dependencyId == workId)
 				{
-					PH_LOG_WARNING(Workflow,
+					PH_LOG(Workflow, Warning,
 						"work-{} depends on itself, ignoring the dependency", workId);
 					continue;
 				}
 
 				if(dependencyId >= numWorks())
 				{
-					PH_LOG_WARNING(Workflow,
+					PH_LOG(Workflow, Warning,
 						"work-{} referenced work-{} which is not tracked by the current Workflow, ignoring the dependency",
 						workId, dependencyId);
 					continue;
@@ -213,7 +213,7 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 			}
 		}
 
-		PH_LOG(Workflow, "DAG building done, max dependencies/degree = {}", maxDependencies);
+		PH_LOG(Workflow, Note, "DAG building done, max dependencies/degree = {}", maxDependencies);
 	}// end DAG building
 
 	// Start topological sorting by finding works without any dependency
@@ -226,7 +226,7 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 		}
 	}
 
-	PH_LOG(Workflow, "{} works are already independent", independentWorkIds.size());
+	PH_LOG(Workflow, Note, "{} works are already independent", independentWorkIds.size());
 
 	// Main topological sorting that produces a valid work dispatch order
 	auto        workDispatchOrder  = std::make_unique<std::size_t[]>(numWorks());
@@ -268,7 +268,7 @@ std::unique_ptr<std::size_t[]> Workflow::determineDispatchOrderFromTopologicalSo
 
 		if(dependencyCount != -1)
 		{
-			PH_LOG_WARNING(Workflow, 
+			PH_LOG(Workflow, Warning,
 				"possible cyclic dependency detected: work-{} has {} dependencies that cannot be resolved",
 				workId, dependencyCount);
 		}

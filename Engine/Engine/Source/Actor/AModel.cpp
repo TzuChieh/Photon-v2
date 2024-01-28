@@ -45,7 +45,7 @@ TransientVisualElement AModel::cook(const CookingContext& ctx, const PreCookRepo
 {
 	if(!m_geometry || !m_material)
 	{
-		PH_LOG_WARNING(AModel,
+		PH_LOG(AModel, Warning,
 			"incomplete data detected (missing geometry: {}, missing material: {})",
 			m_geometry == nullptr, m_material == nullptr);
 

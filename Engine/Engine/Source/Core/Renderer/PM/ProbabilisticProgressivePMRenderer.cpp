@@ -116,7 +116,7 @@ ProbabilisticProgressivePMRenderer::ProbabilisticProgressivePMRenderer(
 
 void ProbabilisticProgressivePMRenderer::doRender()
 {
-	PH_LOG(PMRenderer, "rendering mode: probabilistic progressive photon mapping");
+	PH_LOG(PMRenderer, Note, "rendering mode: probabilistic progressive photon mapping");
 
 	m_photonsPerSecond.store(0, std::memory_order_relaxed);
 	renderWithProbabilisticProgressivePM();
@@ -132,10 +132,10 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 
 	const std::size_t numPhotonsPerPass = getCommonParams().numPhotons;
 
-	PH_LOG(PMRenderer, "photon size: {} bytes", sizeof(Photon));
-	PH_LOG(PMRenderer, "number of photons per pass: {}", numPhotonsPerPass);
+	PH_LOG(PMRenderer, Note, "photon size: {} bytes", sizeof(Photon));
+	PH_LOG(PMRenderer, Note, "number of photons per pass: {}", numPhotonsPerPass);
 	const auto singlePhotonBufferMBs = math::bytes_to_MiB<real>(sizeof(Photon) * numPhotonsPerPass);
-	PH_LOG(PMRenderer, "total size of photon buffer: {} MiB ({} MiB per worker)",
+	PH_LOG(PMRenderer, Note, "total size of photon buffer: {} MiB ({} MiB per worker)",
 		singlePhotonBufferMBs * numWorkers(), singlePhotonBufferMBs);
 
 	std::vector<PPPMIteration> pppmIterations(numWorkers());
@@ -152,7 +152,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 		pppmIteration.photonMap.maxPhotonPathLength = getCommonParams().maxPhotonPathLength;
 	}
 
-	PH_LOG(PMRenderer, "start accumulating passes...");
+	PH_LOG(PMRenderer, Note, "start accumulating passes...");
 
 	KernelRadiusDispatcher radiusDispatcher(
 		getCommonParams().kernelRadius, getCommonParams().alpha, getCommonParams().numPasses);
@@ -176,7 +176,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 			}
 
 			pppmIteration.kernelRadius = *optNextRadius;
-			//PH_LOG_DEBUG(PMRenderer, "PPPM r = {}", *optNextRadius);
+			//PH_DEBUG_LOG(PMRenderer, "PPPM r = {}", *optNextRadius);
 
 			{
 				PH_PROFILE_NAMED_SCOPE("PPPM photon shooting");

@@ -125,13 +125,13 @@ int application_entry_point(int argc, char* argv[])
 	// Enums are initialized first as they have fewer dependencies.
 	//
 	const auto sdlEnums = get_registered_editor_enums();
-	PH_DEFAULT_LOG_DEBUG("initialized {} editor SDL enum definitions", sdlEnums.size());
+	PH_DEFAULT_DEBUG_LOG("initialized {} editor SDL enum definitions", sdlEnums.size());
 
 	// Get SDL classes once here to initialize them--this is not required,
 	// same reason as SDL enums.
 	//
 	const auto sdlClasses = get_registered_editor_classes();
-	PH_DEFAULT_LOG_DEBUG("initialized {} editor SDL class definitions", sdlClasses.size());
+	PH_DEFAULT_DEBUG_LOG("initialized {} editor SDL class definitions", sdlClasses.size());
 
 	Program::programStart();
 
@@ -157,7 +157,7 @@ int application_entry_point(int argc, char* argv[])
 	}
 	catch(const Exception& e)
 	{
-		PH_DEFAULT_LOG_ERROR("unhandled exception thrown: {}",
+		PH_DEFAULT_LOG(Error, "unhandled exception thrown: {}",
 			e.what());
 
 		PH_DEBUG_BREAK();

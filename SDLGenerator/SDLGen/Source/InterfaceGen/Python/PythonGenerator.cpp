@@ -101,7 +101,7 @@ void PythonGenerator::generate(
 
 	m_file.writeString("\n\n");
 
-	PH_LOG(PythonGenerator, "generated {} helper reference classes", sdlCategories.size());
+	PH_LOG(PythonGenerator, Note, "generated {} helper reference classes", sdlCategories.size());
 
 	// Generate directive classes
 	{
@@ -115,7 +115,7 @@ void PythonGenerator::generate(
 
 		m_file.writeString("\n\n");
 
-		PH_LOG(PythonGenerator, "generated {} directive classes", directiveClasses.size());
+		PH_LOG(PythonGenerator, Note, "generated {} directive classes", directiveClasses.size());
 	}
 
 	// Generate creator classes (for SDL creation command)
@@ -135,7 +135,7 @@ void PythonGenerator::generate(
 
 	m_file.writeString("\n\n");
 
-	PH_LOG(PythonGenerator, "generated {} creator classes", creatorClasses.size());
+	PH_LOG(PythonGenerator, Note, "generated {} creator classes", creatorClasses.size());
 
 	// Generate function execution classes (for SDL execution command in explicit class type form)
 
@@ -181,7 +181,7 @@ void PythonGenerator::generate(
 
 	m_file.writeString("\n\n");
 
-	PH_LOG(PythonGenerator, "generated {} executor classes", executorClasses.size());
+	PH_LOG(PythonGenerator, Note, "generated {} executor classes", executorClasses.size());
 }
 
 Path PythonGenerator::makeResourcePath(const std::string& fileSubPath) const
@@ -425,7 +425,7 @@ inline std::string gen_explicit_executor_class_name(const SdlFunction& sdlFuncti
 
 inline std::vector<PythonClass> resolve_class_inheritances(const std::vector<PythonClass>& inUnresolvedClasses)
 {
-	PH_LOG(PythonGenerator, 
+	PH_LOG(PythonGenerator, Note, 
 		"resolving class inheritances for {} classes", inUnresolvedClasses.size());
 
 	std::vector<PythonClass> resolvedClasses;
@@ -491,7 +491,7 @@ inline std::vector<PythonClass> resolve_class_inheritances(const std::vector<Pyt
 			nameListing += "<" + clazz.getClassName() + "> ";
 		}
 
-		PH_LOG_WARNING(PythonGenerator, 
+		PH_LOG(PythonGenerator, Warning,
 			"found {} unresolved classes, listing: {}", unresolvedClasses.size(), nameListing);
 	}
 

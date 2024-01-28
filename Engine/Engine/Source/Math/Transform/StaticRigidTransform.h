@@ -116,7 +116,7 @@ inline auto StaticRigidTransform::getScaleFreeTransforms(const std::vector<TDeco
 		}
 		else
 		{
-			PH_LOG_WARNING(StaticRigidTransform,
+			PH_LOG(StaticRigidTransform, Warning,
 				"scale effect detected, which is {}, ignoring", transform.getScale().toString());
 
 			scaleFreeTransforms.push_back(TDecomposedTransform<U>(transform).setScale(1));

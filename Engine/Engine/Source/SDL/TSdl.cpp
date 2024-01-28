@@ -35,7 +35,7 @@ std::shared_ptr<ISdlResource> load_single_resource(const SdlClass* resourceClass
 	auto allResources = description.getResources().getAllOfType<ISdlResource>();
 	if(allResources.size() != 1)
 	{
-		PH_DEFAULT_LOG_WARNING(
+		PH_DEFAULT_LOG(Warning,
 			"Expecting 1 resource, {} were found",
 			allResources.size());
 	}
@@ -49,7 +49,7 @@ std::shared_ptr<ISdlResource> load_single_resource(const SdlClass* resourceClass
 		auto loadedResource = allResources.front();
 		if(loadedResource->getDynamicSdlClass() != resourceClass)
 		{
-			PH_DEFAULT_LOG_WARNING(
+			PH_DEFAULT_LOG(Warning,
 				"Resource type mismatch, expecting: {}, found: {}",
 				sdl::gen_pretty_name(loadedResource->getDynamicSdlClass()),
 				sdl::gen_pretty_name(resourceClass));

@@ -41,7 +41,7 @@ void RenderThread::onAsyncProcessWork(const Work& work)
 void RenderThread::onAsyncWorkerStart()
 {
 	PH_PROFILE_NAME_THIS_THREAD("Render thread");
-	PH_LOG(RenderThread, "thread started");
+	PH_LOG(RenderThread, Note, "thread started");
 
 	if(!m_graphicsCtx)
 	{
@@ -110,7 +110,7 @@ void RenderThread::onAsyncWorkerStop()
 
 	m_system = nullptr;
 
-	PH_LOG(RenderThread, "thread stopped");
+	PH_LOG(RenderThread, Note, "thread stopped");
 }
 
 void RenderThread::onBeginFrame()

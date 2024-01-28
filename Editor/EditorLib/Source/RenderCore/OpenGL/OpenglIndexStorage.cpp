@@ -17,7 +17,7 @@ OpenglIndexStorage::OpenglIndexStorage(
 {
 	if(!isIntegerIndexType())
 	{
-		PH_DEFAULT_LOG_ERROR(
+		PH_DEFAULT_LOG(Error,
 			"[OpenglIndexStorage] non-integer type used as index type");
 	}
 }

@@ -61,8 +61,8 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 	}
 	else
 	{
-		PH_LOG_WARNING(OrientedRasterObserver, "Direction vector {} is too short. Defaults to -z axis.",
-			direction.toString());
+		PH_LOG(OrientedRasterObserver, Warning, 
+			"Direction vector {} is too short. Defaults to -z axis.", direction.toString());
 
 		zAxis.set({0, 0, 1});
 	}
@@ -78,7 +78,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 	{
 		// TODO: make this a note not warning as this can be properly recovered
 		//       (warn on short up-axis though)
-		PH_LOG_WARNING(OrientedRasterObserver, 
+		PH_LOG(OrientedRasterObserver, Warning,
 			"Up axis {} is not properly configured. It is too close to the direction "
 			"vector, or its length is too short. Trying to recover using +x as right "
 			"vector or +y as up vector.",
@@ -107,7 +107,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromYawPitchRoll(
 {
 	if(yawDegrees < -180.0_r || yawDegrees > 180.0_r)
 	{
-		PH_LOG_WARNING(OrientedRasterObserver,
+		PH_LOG(OrientedRasterObserver, Warning,
 			"Yaw degrees {} out of range. Clamping to [-180, 180].", yawDegrees);
 
 		yawDegrees = math::clamp(yawDegrees, -180.0_r, 180.0_r);
@@ -115,7 +115,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromYawPitchRoll(
 
 	if(pitchDegrees < -90.0_r || pitchDegrees > 90.0_r)
 	{
-		PH_LOG_WARNING(OrientedRasterObserver,
+		PH_LOG(OrientedRasterObserver, Warning,
 			"Pitch degrees {} out of range. Clamping to [-90, 90].", pitchDegrees);
 
 		pitchDegrees = math::clamp(pitchDegrees, -90.0_r, 90.0_r);
@@ -123,7 +123,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromYawPitchRoll(
 
 	if(rollDegrees < -180.0_r || rollDegrees > 180.0_r)
 	{
-		PH_LOG_WARNING(OrientedRasterObserver,
+		PH_LOG(OrientedRasterObserver, Warning,
 			"Roll degrees {} out of range. Clamping to [-180, 180].", yawDegrees);
 
 		rollDegrees = math::clamp(rollDegrees, -180.0_r, 180.0_r);

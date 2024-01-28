@@ -46,24 +46,24 @@ Scene::~Scene()
 	std::size_t numLeftoverContents = m_textures.numItems();
 	if(numLeftoverContents != 0)
 	{
-		PH_LOG_ERROR(Scene,
+		PH_LOG(Scene, Error,
 			"{} render contents are still present on scene destruction; remove the contents when "
 			"you are done with them.", numLeftoverContents);
 
-		PH_LOG(Scene,
+		PH_LOG(Scene, Note,
 			"Trying to cleanup leftover contents...");
 		removeAllContents();
 	}
 
 	if(!m_pendingCleanups.empty())
 	{
-		PH_LOG_ERROR(Scene,
+		PH_LOG(Scene, Error,
 			"{} pending GHI cleanups are not executed", m_pendingCleanups.size());
 	}
 
 	if(!m_resources.isEmpty())
 	{
-		PH_LOG_ERROR(Scene,
+		PH_LOG(Scene, Error,
 			"{} resources are still present; manual resource removal before scene destruction is "
 			"mandatory as we cannot foreseen any potential side effects such as dependency between "
 			"resources.", m_resources.size());
@@ -95,7 +95,7 @@ void Scene::removeTexture(TextureHandle handle)
 	Texture* texture = m_textures.get(handle);
 	if(!texture)
 	{
-		PH_LOG_ERROR(Scene,
+		PH_LOG(Scene, Error,
 			"Cannot remove texture with invalid handle {}", handle);
 		return;
 	}
@@ -113,7 +113,7 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 	Texture* texture = m_textures.get(handle);
 	if(!texture || !texture->handle)
 	{
-		PH_LOG_ERROR(Scene,
+		PH_LOG(Scene, Error,
 			"Cannot load picture <{}>: texture={}, graphics handle={}",
 			pictureFile, static_cast<void*>(texture), handle);
 		return;
@@ -129,7 +129,7 @@ void Scene::loadPicture(TextureHandle handle, const Path& pictureFile)
 			}
 			catch(const FileIOError& e)
 			{
-				PH_LOG_ERROR(Scene,
+				PH_LOG(Scene, Error,
 					"Cannot load picture: {}", e.whatStr());
 			}
 
@@ -228,7 +228,7 @@ void Scene::destroyRemovedResources()
 		auto resource = m_resources.remove(resourcePtr);
 		if(!resource)
 		{
-			PH_LOG_WARNING(Scene,
+			PH_LOG(Scene, Warning,
 				"Did not find the specified resource, one resource not destroyed.");
 		}
 	}
@@ -259,7 +259,7 @@ void Scene::setSystem(System* sys)
 
 void Scene::removeAllContents()
 {
-	PH_LOG(Scene,
+	PH_LOG(Scene, Note,
 		"Removing all contents in {}.", getDebugName());
 
 	// Remove textures

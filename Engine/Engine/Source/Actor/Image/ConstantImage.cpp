@@ -19,14 +19,14 @@ std::shared_ptr<TTexture<Image::ArrayType>> ConstantImage::genNumericTexture(
 {
 	if(m_values.size() > Image::ARRAY_SIZE)
 	{
-		PH_LOG_WARNING(ConstantImage, 
+		PH_LOG(ConstantImage, Warning,
 			"{} values provided for a numeric array of max size {}, there will be data loss.",
 			m_values.size(), Image::ARRAY_SIZE);
 	}
 
 	if(m_colorSpace != math::EColorSpace::Unspecified)
 	{
-		PH_LOG_WARNING(ConstantImage,
+		PH_LOG(ConstantImage, Warning,
 			"Numeric texture will ignore the specified color space ({}).",
 			TSdlEnum<math::EColorSpace>{}[m_colorSpace]);
 	}
@@ -60,7 +60,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		}
 		else
 		{
-			PH_LOG_WARNING(ConstantImage,
+			PH_LOG(ConstantImage, Warning,
 				"Unexpected number of input values: expected <= 3, {} provided; generated texture "
 				"may not be what you want.", m_values.size());
 
@@ -91,7 +91,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::ACEScg>>(color);
 
 		default:
-			PH_LOG_WARNING(ConstantImage,
+			PH_LOG(ConstantImage, Warning,
 				"Unsupported color space for tristimulus color detected; using Linear-sRGB instead.");
 			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(color);
 		}
@@ -113,7 +113,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		{
 			const math::Vector3D rawValues(m_values[0], m_values[1], m_values[2]);
 
-			PH_LOG_DEBUG(ConstantImage,
+			PH_DEBUG_LOG(ConstantImage,
 				"Fallback to linear sRGB with values: {}", rawValues);
 
 			return std::make_shared<TConstantTristimulusTexture<math::EColorSpace::Linear_sRGB>>(
@@ -124,7 +124,7 @@ std::shared_ptr<TTexture<math::Spectrum>> ConstantImage::genColorTexture(
 		{
 			if(m_values.size() != math::Spectrum::NUM_VALUES)
 			{
-				PH_LOG_WARNING(ConstantImage,
+				PH_LOG(ConstantImage, Warning,
 					"Unexpected number of input values ({} provided) when treating the values as "
 					"raw data; generated texture may not be what you want.", m_values.size());
 			}

@@ -100,14 +100,14 @@ void ImguiImageLibrary::loadImage(
 {
 	if(imageName.empty() || filePath.isEmpty())
 	{
-		PH_LOG_WARNING(DearImGui,
+		PH_LOG(DearImGui, Warning,
 			"Cannot load image file with incomplete info: name={}, path={}.", imageName, filePath);
 		return;
 	}
 
 	if(getEntry(imageName))
 	{
-		PH_LOG(DearImGui,
+		PH_LOG(DearImGui, Note,
 			"Overwriting image {}.", imageName);
 		unloadImage(imageName);
 	}
@@ -129,14 +129,14 @@ void ImguiImageLibrary::loadImage(
 {
 	if(imageName.empty())
 	{
-		PH_LOG_WARNING(DearImGui,
+		PH_LOG(DearImGui, Warning,
 			"Cannot load image buffer with empty name.", imageName);
 		return;
 	}
 
 	if(getEntry(imageName))
 	{
-		PH_LOG(DearImGui,
+		PH_LOG(DearImGui, Note,
 			"Overwriting image {}.", imageName);
 		unloadImage(imageName);
 	}
@@ -201,7 +201,7 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 			math::Vector2S sizePx;
 			if(!io_utils::load_picture_meta(loader.fileToLoad, nullptr, &sizePx))
 			{
-				PH_LOG_WARNING(DearImGui,
+				PH_LOG(DearImGui, Warning,
 					"Cannot load image <{}> for size info. Please make sure the file exists or is a "
 					"valid image file.", loader.fileToLoad);
 				continue;
@@ -237,7 +237,7 @@ void ImguiImageLibrary::createRenderCommands(RenderThreadCaller& caller, render:
 			{
 				const math::Vector2UI defaultSize(128, 128);
 
-				PH_LOG_WARNING(DearImGui,
+				PH_LOG(DearImGui, Warning,
 					"Image buffer <{}> has invalid size {}. Resetting to {}.",
 					loader.entryName, loader.sizePx, defaultSize);
 

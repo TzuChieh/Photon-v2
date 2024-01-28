@@ -35,11 +35,11 @@ Renderer::~Renderer() = default;
 
 void Renderer::update(const CoreCookedUnit& cooked, const VisualWorld& world)
 {
-	PH_LOG(Renderer, "# render workers = {}", numWorkers());
-	PH_LOG(Renderer, "render dimensions = {}", getViewport().toString());
-	PH_LOG(Renderer, "actual render resolution = {}", getRenderRegionPx().getExtents().toString());
+	PH_LOG(Renderer, Note, "# render workers = {}", numWorkers());
+	PH_LOG(Renderer, Note, "render dimensions = {}", getViewport().toString());
+	PH_LOG(Renderer, Note, "actual render resolution = {}", getRenderRegionPx().getExtents().toString());
 
-	PH_LOG(Renderer, "updating...");
+	PH_LOG(Renderer, Note, "updating...");
 
 	Timer updateTimer;
 	updateTimer.start();
@@ -50,12 +50,12 @@ void Renderer::update(const CoreCookedUnit& cooked, const VisualWorld& world)
 	m_isUpdating = false;
 	updateTimer.stop();
 
-	PH_LOG(Renderer, "update time: {} ms", updateTimer.getDeltaMs());
+	PH_LOG(Renderer, Note, "update time: {} ms", updateTimer.getDeltaMs());
 }
 
 void Renderer::render()
 {
-	PH_LOG(Renderer, "rendering...");
+	PH_LOG(Renderer, Note, "rendering...");
 
 	Timer renderTimer;
 	renderTimer.start();
@@ -66,14 +66,14 @@ void Renderer::render()
 	m_isRendering = false;
 	renderTimer.stop();
 
-	PH_LOG(Renderer, "render time: {} ms", renderTimer.getDeltaMs());
+	PH_LOG(Renderer, Note, "render time: {} ms", renderTimer.getDeltaMs());
 }
 
 void Renderer::setNumWorkers(uint32 numWorkers)
 {
 	if(numWorkers == 0)
 	{
-		PH_LOG_WARNING(Renderer, "# workers cannot be 0, set to 1");
+		PH_LOG(Renderer, Warning, "# workers cannot be 0, set to 1");
 		numWorkers = 1;
 	}
 
