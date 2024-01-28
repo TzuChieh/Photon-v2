@@ -74,11 +74,24 @@ std::string Logger::makeLogString(
 	{
 		switch(logLevel)
 		{
-		case ELogLevel::Debug:   logMessage += "[DEBUG] ";   break;
-		case ELogLevel::Warning: logMessage += "[WARNING] "; break;
-		case ELogLevel::Error:   logMessage += "[ERROR] ";   break;
+		case ELogLevel::Debug:
+		case ELogLevel::DebugOnce:
+			logMessage += "[DEBUG] ";
+			break;
 
-		default: logMessage += "[UNKNOWN] "; break;
+		case ELogLevel::Warning:
+		case ELogLevel::WarningOnce:
+			logMessage += "[WARNING] ";
+			break;
+
+		case ELogLevel::Error:
+		case ELogLevel::ErrorOnce:
+			logMessage += "[ERROR] ";
+			break;
+
+		default:
+			logMessage += "[UNKNOWN] ";
+			break;
 		}
 	}
 
@@ -89,7 +102,10 @@ std::string Logger::makeLogString(
 
 bool Logger::shouldStdOutPrintWithoutBuffering(const ELogLevel logLevel)
 {
-	return logLevel == ELogLevel::Error || logLevel == ELogLevel::Debug;
+	return logLevel == ELogLevel::Error ||
+	       logLevel == ELogLevel::ErrorOnce ||
+	       logLevel == ELogLevel::Debug ||
+	       logLevel == ELogLevel::DebugOnce;
 }
 
 auto Logger::makeStdOutLogPrinter() -> LogHandler
@@ -153,14 +169,17 @@ auto Logger::makeColoredStdOutLogPrinter() -> LogHandler
 		switch(logLevel)
 		{
 		case ELogLevel::Warning:
+		case ELogLevel::WarningOnce:
 			SetConsoleTextAttribute(stdOutHandle, WARNING_COLOR);
 			break;
 
 		case ELogLevel::Error:
+		case ELogLevel::ErrorOnce:
 			SetConsoleTextAttribute(stdOutHandle, ERROR_COLOR);
 			break;
 
 		case ELogLevel::Debug:
+		case ELogLevel::DebugOnce:
 			SetConsoleTextAttribute(stdOutHandle, DEBUG_COLOR);
 			break;
 		}

@@ -100,11 +100,14 @@ void ImguiEditorLog::buildWindow(const char* windowIdName, bool* isOpening)
 
 			switch(log.level)
 			{
-			case ELogLevel::Debug: 
+			case ELogLevel::Debug:
+			case ELogLevel::DebugOnce:
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.2f, 1.0f, 1.0f)); break;
 			case ELogLevel::Warning:
+			case ELogLevel::WarningOnce:
 				ImGui::PushStyleColor(ImGuiCol_Text, getEditorUI().getTheme().warningColor); break;
 			case ELogLevel::Error:
+			case ELogLevel::ErrorOnce:
 				ImGui::PushStyleColor(ImGuiCol_Text, getEditorUI().getTheme().errorColor); break;
 			default: 
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.95f, 0.95f, 0.95f, 1.0f)); break;

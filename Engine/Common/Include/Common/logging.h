@@ -119,39 +119,58 @@ The logger will be usable anywhere that includes the header file containing this
 */
 #define PH_DEFINE_EXTERNAL_LOG_GROUP(groupName, category) PH_DEFINE_INLINE_LOG_GROUP(groupName, category)
 
-#define PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, logLevel, rawString)\
-	::ph::detail::core_logging::log_to_logger(\
-		internal_impl_logger_access_##groupName(),\
-		#groupName,\
-		logLevel,\
-		rawString)
+#define PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, level, rawStringExpr)\
+	do\
+	{\
+		constexpr auto logLevel = ::ph::ELogLevel::level;\
+		if constexpr(::ph::is_once(logLevel))\
+		{\
+			static const bool PH_CONCAT_2(dummy, __LINE__) = [&]()\
+			{\
+				::ph::detail::core_logging::log_to_logger(\
+					internal_impl_logger_access_##groupName(),\
+					#groupName,\
+					logLevel,\
+					rawStringExpr);\
+				return true;\
+			}();\
+		}\
+		else\
+		{\
+			::ph::detail::core_logging::log_to_logger(\
+				internal_impl_logger_access_##groupName(),\
+				#groupName,\
+				logLevel,\
+				rawStringExpr);\
+		}\
+	} while(0)
 
 // TODO: it could be beneficial to determine when can we use std::vformat()
 // instead of always using std::format() for logging
 // PH_LOG_STRING() variant for directly logging a runtime string?
 
-#define PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, logLevel, formatString, ...)\
+#define PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, level, formatString, ...)\
 	PH_LOG_RAW_STRING_TO_CORE_LOGGER(\
 		groupName,\
-		logLevel,\
+		level,\
 		std::format(formatString __VA_OPT__(,) __VA_ARGS__))
 
 #if PH_ENABLE_DEBUG_LOG
-	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Debug, rawString)
-	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Debug, formatString, __VA_ARGS__)
+	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Debug, rawString)
+	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Debug, formatString, __VA_ARGS__)
 #else
 	#define PH_LOG_DEBUG_STRING(groupName, rawString) PH_NO_OP()
 	#define PH_LOG_DEBUG(groupName, formatString, ...) PH_NO_OP()
 #endif
 
-#define PH_LOG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Note, rawString)
-#define PH_LOG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Note, formatString, __VA_ARGS__)
+#define PH_LOG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Note, rawString)
+#define PH_LOG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Note, formatString, __VA_ARGS__)
 
-#define PH_LOG_WARNING_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Warning, rawString)
-#define PH_LOG_WARNING(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Warning, formatString, __VA_ARGS__)
+#define PH_LOG_WARNING_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Warning, rawString)
+#define PH_LOG_WARNING(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Warning, formatString, __VA_ARGS__)
 
-#define PH_LOG_ERROR_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Error, rawString)
-#define PH_LOG_ERROR(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, ::ph::ELogLevel::Error, formatString, __VA_ARGS__)
+#define PH_LOG_ERROR_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Error, rawString)
+#define PH_LOG_ERROR(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Error, formatString, __VA_ARGS__)
 
 namespace ph
 {
