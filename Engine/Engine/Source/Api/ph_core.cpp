@@ -87,6 +87,7 @@
 #include "Actor/Light/AIesAttenuatedLight.h"
 
 // Enums
+#include "EngineEnv/SampleSource/sdl_halton_randomization_types.h"
 #include "EngineEnv/sdl_accelerator_type.h"
 #include "EngineEnv/Visualizer/sdl_ray_energy_estimator_type.h"
 #include "EngineEnv/Visualizer/sdl_sample_filter_type.h"
@@ -125,6 +126,11 @@ inline const SdlEnum* get_sdl_enum()
 {
 	return TSdlEnum<EnumType>::getSdlEnum();
 }
+
+/* The following section registeres SDL classes and enums to the engine. Please note that SDL
+interface definition and reflection do not need registration to work, this simply provide an
+interface to available classes and enums so some functionalities can benefit from it.
+*/
 
 inline std::vector<const SdlClass*> register_engine_classes()
 {
@@ -209,6 +215,8 @@ inline std::vector<const SdlEnum*> register_engine_enums()
 {
 	return
 	{
+		get_sdl_enum<EHaltonPermutation>(),
+		get_sdl_enum<EHaltonSequence>(),
 		get_sdl_enum<EAccelerator>(),
 		get_sdl_enum<ERayEnergyEstimator>(),
 		get_sdl_enum<ESampleFilter>(),

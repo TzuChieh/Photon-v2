@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Core/SampleGenerator/SampleGenerator.h"
-#include "Core/SampleGenerator/Halton/EHaltonPermutation.h"
+#include "Core/SampleGenerator/Halton/halton_randomization_enums.h"
 #include "Core/SampleGenerator/Halton/halton_fwd.h"
+#include "Utility/TSpan.h"
 
 #include <Common/primitive_type.h>
 
@@ -15,8 +16,10 @@ namespace ph
 class SGHalton : public SampleGenerator
 {
 public:
-	explicit SGHalton(std::size_t numSamples);
-	SGHalton(std::size_t numSamples, EHaltonPermutation scheme);
+	SGHalton(
+		std::size_t numSamples, 
+		EHaltonPermutation permutation,
+		EHaltonSequence sequence);
 
 private:
 	void genSamples1D(
@@ -43,11 +46,17 @@ private:
 		const SampleStage&   stage,
 		SamplesND            out_samples);
 
-	real genSingleGeneralHaltonSample(std::size_t dimIndex, uint64 seedValue) const;
+	static real genSingleGeneralHaltonSample(
+		EHaltonPermutation permutation,
+		std::size_t dimIndex, 
+		uint64 seedValue,
+		TSpanView<halton_detail::PermutationTable> permutationTables);
 
 	std::vector<halton_detail::PermutationTable> m_permutationTables;
 	std::vector<std::size_t> m_dimSeedRecords;
-	EHaltonPermutation m_scheme;
+	EHaltonPermutation m_permutation;
+	EHaltonSequence m_sequence;
+	std::size_t m_leapAmount;
 };
 
 }// end namespace ph

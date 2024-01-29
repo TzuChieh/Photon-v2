@@ -9,8 +9,6 @@ namespace ph
 class StratifiedSampleSource : public RuntimeSampleSource
 {
 public:
-	inline StratifiedSampleSource() = default;
-
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 public:

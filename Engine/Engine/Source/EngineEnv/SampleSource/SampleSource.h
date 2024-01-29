@@ -12,8 +12,6 @@ public:
 	static constexpr ESdlTypeCategory CATEGORY = ESdlTypeCategory::Ref_SampleSource;
 
 public:
-	inline SampleSource() = default;
-
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	ESdlTypeCategory getDynamicCategory() const override;

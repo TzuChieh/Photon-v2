@@ -402,32 +402,32 @@ inline T reverse_bits(const T value)
 
 	if constexpr(NUM_BITS == 8)
 	{
-		return T(detail::BITS8_REVERSE_TABLE[value]);
+		return T(table::detail::BITS8_REVERSE[value]);
 	}
 	else if constexpr(NUM_BITS == 16)
 	{
-		return (T(detail::BITS8_REVERSE_TABLE[value        & 0xFF]) << 8) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 8) & 0xFF]));
+		return (T(table::detail::BITS8_REVERSE[value        & 0xFF]) << 8) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 8) & 0xFF]));
 	}
 	else if constexpr(NUM_BITS == 32)
 	{
-		return (T(detail::BITS8_REVERSE_TABLE[value         & 0xFF]) << 24) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 8)  & 0xFF]) << 16) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 16) & 0xFF]) << 8)  |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 24) & 0xFF]));
+		return (T(table::detail::BITS8_REVERSE[value         & 0xFF]) << 24) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 8)  & 0xFF]) << 16) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 16) & 0xFF]) << 8)  |
+		       (T(table::detail::BITS8_REVERSE[(value >> 24) & 0xFF]));
 	}
 	else
 	{
 		static_assert(NUM_BITS == 64);
 
-		return (T(detail::BITS8_REVERSE_TABLE[value         & 0xFF]) << 56) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 8)  & 0xFF]) << 48) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 16) & 0xFF]) << 40) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 24) & 0xFF]) << 32) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 32) & 0xFF]) << 24) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 40) & 0xFF]) << 16) |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 48) & 0xFF]) << 8)  |
-		       (T(detail::BITS8_REVERSE_TABLE[(value >> 56) & 0xFF]));
+		return (T(table::detail::BITS8_REVERSE[value         & 0xFF]) << 56) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 8)  & 0xFF]) << 48) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 16) & 0xFF]) << 40) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 24) & 0xFF]) << 32) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 32) & 0xFF]) << 24) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 40) & 0xFF]) << 16) |
+		       (T(table::detail::BITS8_REVERSE[(value >> 48) & 0xFF]) << 8)  |
+		       (T(table::detail::BITS8_REVERSE[(value >> 56) & 0xFF]));
 	}
 }
 

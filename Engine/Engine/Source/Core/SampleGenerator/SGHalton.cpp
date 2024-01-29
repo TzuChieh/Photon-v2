@@ -5,6 +5,7 @@
 #include "Core/SampleGenerator/Halton/halton.h"
 #include "Core/SampleGenerator/SampleContext.h"
 #include "Math/Random/Random.h"
+#include "Math/math_table.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -17,34 +18,62 @@
 namespace ph
 {
 
-SGHalton::SGHalton(const std::size_t numSamples)
-	: SGHalton(numSamples, EHaltonPermutation::Fixed)
-{}
+// TODO: we can actually do leap + any permutation, will it be worth?
 
-SGHalton::SGHalton(const std::size_t numSamples, const EHaltonPermutation scheme)
+SGHalton::SGHalton(
+	const std::size_t numSamples, 
+	const EHaltonPermutation permutation,
+	const EHaltonSequence sequence)
 	//: SampleGenerator(numSamples, numSamples)
 	: SampleGenerator(numSamples, 4)// HARDCODE
 
 	, m_permutationTables()
 	, m_dimSeedRecords(halton_detail::MAX_DIMENSIONS, 0)
-	, m_scheme(scheme)
+	, m_permutation(permutation)
+	, m_sequence(sequence)
+	, m_leapAmount(1)
 {
-	if(scheme == EHaltonPermutation::Fixed || scheme == EHaltonPermutation::PerDigit)
+	if(permutation == EHaltonPermutation::Fixed || permutation == EHaltonPermutation::PerDigit)
 	{
 		m_permutationTables.resize(halton_detail::MAX_DIMENSIONS);
 		for(std::size_t dimIndex = 0; dimIndex < m_permutationTables.size(); ++dimIndex)
 		{
-			if(scheme == EHaltonPermutation::Fixed)
+			if(permutation == EHaltonPermutation::Fixed)
 			{
 				m_permutationTables[dimIndex] = halton_detail::FixedPermuter::makeTable(dimIndex);
 			}
 			else
 			{
-				PH_ASSERT(scheme == EHaltonPermutation::PerDigit);
+				PH_ASSERT(permutation == EHaltonPermutation::PerDigit);
 
 				m_permutationTables[dimIndex] = halton_detail::PerDigitPermuter::makeTable(dimIndex);
 			}
 		}
+	}
+
+	if(sequence == EHaltonSequence::Leap || sequence == EHaltonSequence::RandomLeap)
+	{
+		// Sevaral good leap values were found experimentally by minimizing the integration error
+		// for several test functions in [1]. Those values are 31, 61, 149, 409 and 1949. The value
+		// should be a prime and different than all the bases used for generating Halton sequence.
+		// 
+		// References:
+		// [1] Ladislav Kocis and William J. Whiten, "Computational Investigations of Low-Discrepancy
+		// Sequences", last section of p. 274
+
+		constexpr auto maxHaltonBase = math::table::PRIME[halton_detail::MAX_DIMENSIONS - 1];
+
+		// For non random leap, just pick one arbitrarily
+		constexpr auto leapPrime = math::table::GOOD_PRIME[256];
+		static_assert(leapPrime > maxHaltonBase);
+
+		constexpr std::size_t randomLeapRange[2] = {151, math::table::GOOD_PRIME.size()};
+		static_assert(randomLeapRange[0] < randomLeapRange[1]);
+		static_assert(math::table::GOOD_PRIME[randomLeapRange[0]] > maxHaltonBase);
+
+		m_leapAmount = sequence == EHaltonSequence::Leap
+			? leapPrime 
+			: math::table::GOOD_PRIME[math::Random::index(randomLeapRange[0], randomLeapRange[1])];
 	}
 }
 
@@ -91,6 +120,9 @@ void SGHalton::genSamplesOfAnyDimensions(
 	const SampleStage&   stage,
 	SamplesND            out_samples)
 {
+	// Seed will not progress if leap == 0
+	PH_ASSERT_GE(m_leapAmount, 1);
+
 	for(std::size_t si = 0; si < out_samples.numSamples(); ++si)
 	{
 		for(std::size_t di = 0, stageDimIndex = stage.getDimIndexRange().first;
@@ -105,13 +137,15 @@ void SGHalton::genSamplesOfAnyDimensions(
 			{
 				dimSample = halton_detail::radical_inverse(
 					stageDimIndex, 
-					m_dimSeedRecords[stageDimIndex] + si);
+					m_dimSeedRecords[stageDimIndex] + si * m_leapAmount);
 			}
 			else if(stageDimIndex < halton_detail::MAX_DIMENSIONS)
 			{
 				dimSample = genSingleGeneralHaltonSample(
+					m_permutation,
 					stageDimIndex, 
-					m_dimSeedRecords[stageDimIndex] + si);
+					m_dimSeedRecords[stageDimIndex] + si * m_leapAmount,
+					m_permutationTables);
 			}
 			// Run out of available dimensions, use random samples hereafter
 			else
@@ -127,21 +161,25 @@ void SGHalton::genSamplesOfAnyDimensions(
 	const auto dimIndexEnd = std::min(stage.getDimIndexRange().second, halton_detail::MAX_DIMENSIONS);
 	for(std::size_t i = dimIndexBegin; i < dimIndexEnd; ++i)
 	{
-		m_dimSeedRecords[i] += out_samples.numSamples();
+		m_dimSeedRecords[i] += out_samples.numSamples() * m_leapAmount;
 	}
 }
 
 std::unique_ptr<SampleGenerator> SGHalton::genNewborn(const std::size_t numSamples) const
 {
-	// TODO: reuse permutations or not? 
-	// be careful that using the same permutation in different generator instances can lead
-	// to exactly the same generated samples
-	return std::make_unique<SGHalton>(numSamples);
+	// TODO: settings for reuse permutations or not? be careful that using the same permutation 
+	// in different generator instances can lead to exactly the same generated samples
+
+	return std::make_unique<SGHalton>(numSamples, m_permutation, m_sequence);
 }
 
-real SGHalton::genSingleGeneralHaltonSample(const std::size_t dimIndex, const uint64 seedValue) const
+real SGHalton::genSingleGeneralHaltonSample(
+	const EHaltonPermutation permutation,
+	const std::size_t dimIndex,
+	const uint64 seedValue,
+	TSpanView<halton_detail::PermutationTable> permutationTables)
 {
-	switch(m_scheme)
+	switch(permutation)
 	{
 	case EHaltonPermutation::None:
 		return halton_detail::radical_inverse(dimIndex, seedValue);
@@ -150,13 +188,19 @@ real SGHalton::genSingleGeneralHaltonSample(const std::size_t dimIndex, const ui
 		return halton_detail::radical_inverse_permuted(
 			dimIndex,
 			seedValue,
-			halton_detail::FixedPermuter(m_permutationTables[dimIndex]));
+			halton_detail::FixedPermuter(permutationTables[dimIndex]));
 
 	case EHaltonPermutation::PerDigit:
 		return halton_detail::radical_inverse_permuted(
 			dimIndex,
 			seedValue,
-			halton_detail::PerDigitPermuter(m_permutationTables[dimIndex]));
+			halton_detail::PerDigitPermuter(permutationTables[dimIndex]));
+
+	case EHaltonPermutation::Owen:
+		return halton_detail::radical_inverse_permuted(
+			dimIndex,
+			seedValue,
+			halton_detail::OwenScrambledPermuter(dimIndex));
 
 	default:
 		PH_ASSERT_UNREACHABLE_SECTION();

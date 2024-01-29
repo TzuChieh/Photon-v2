@@ -198,4 +198,43 @@ inline uint32 murmur3_32(const T* const data, const std::size_t dataSize, const 
 	return h1;
 }
 
+inline uint32 permuted_index(uint32 i, uint32 l, uint32 p)
+{
+	// This is the implementation from Kensler's paper: "Correlated Multi-Jittered Sampling".
+	// See https://afnan.io/posts/2019-04-05-explaining-the-hashed-permutation/ for
+	// a nice introduction.
+	// Note that PBRT-v4 also uses the same implementation, see their `PermutationElement()`.
+
+	unsigned w = l - 1;
+	w |= w >> 1;
+	w |= w >> 2;
+	w |= w >> 4;
+	w |= w >> 8;
+	w |= w >> 16;
+
+	do
+	{
+		i ^= p;
+		i *= 0xe170893d;
+		i ^= p >> 16;
+		i ^= (i & w) >> 4;
+		i ^= p >> 8;
+		i *= 0x0929eb3f;
+		i ^= p >> 23;
+		i ^= (i & w) >> 1;
+		i *= 1 | p >> 27;
+		i *= 0x6935fa69;
+		i ^= (i & w) >> 11;
+		i *= 0x74dcb303;
+		i ^= (i & w) >> 2;
+		i *= 0x9e501cc3;
+		i ^= (i & w) >> 2;
+		i *= 0xc860a3df;
+		i &= w;
+		i ^= i >> 5;
+	} while (i >= l);
+
+	return (i + p) % l; 
+}
+
 }// end namespace ph::math

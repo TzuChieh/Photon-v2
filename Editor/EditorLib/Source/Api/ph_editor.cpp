@@ -76,6 +76,11 @@ inline const SdlEnum* register_editor_sdl_enum()
 	return TSdlEnum<EnumType>::getSdlEnum();
 }
 
+/* The following section registeres SDL classes and enums to the editor. Please note that SDL
+interface definition and reflection do not need registration to work, this simply provide an
+interface to available classes and enums so some functionalities can benefit from it.
+*/
+
 inline std::vector<const SdlClass*> register_editor_classes()
 {
 	return

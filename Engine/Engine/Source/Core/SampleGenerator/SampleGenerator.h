@@ -30,7 +30,7 @@ class SampleGenerator
 public:
 	SampleGenerator(std::size_t numSampleBatches, std::size_t maxCachedBatches);
 	explicit SampleGenerator(std::size_t numSampleBatches);
-	virtual ~SampleGenerator();
+	virtual ~SampleGenerator() = default;
 
 	void genSplitted(std::size_t numSplits,
 	                 std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const;

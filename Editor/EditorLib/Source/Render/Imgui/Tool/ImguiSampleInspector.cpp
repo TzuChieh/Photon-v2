@@ -289,15 +289,15 @@ void ImguiSampleInspector::genGeneratorPoints(
 		break;
 		
 	case EGenerator::Halton:
-		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::None);
+		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::None, EHaltonSequence::Original);
 		break;
 
 	case EGenerator::HaltonFixedScramble:
-		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::Fixed);
+		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::Fixed, EHaltonSequence::Original);
 		break;
 
 	case EGenerator::HaltonPerDigitScramble:
-		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::PerDigit);
+		generator = std::make_unique<SGHalton>(1, EHaltonPermutation::PerDigit, EHaltonSequence::Original);
 		break;
 
 	default:

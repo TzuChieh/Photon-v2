@@ -9,8 +9,6 @@ namespace ph
 class UniformRandomSampleSource : public RuntimeSampleSource
 {
 public:
-	inline UniformRandomSampleSource() = default;
-
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override;
 
 public:

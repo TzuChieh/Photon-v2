@@ -16,8 +16,6 @@ namespace ph
 class RuntimeSampleSource : public SampleSource
 {
 public:
-	inline RuntimeSampleSource() = default;
-
 	void cook(const CoreCookingContext& ctx, CoreCookedUnit& cooked) override = 0;
 
 	std::size_t getNumSamples() const;

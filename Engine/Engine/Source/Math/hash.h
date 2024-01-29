@@ -84,6 +84,14 @@ uint32 murmur3_32(const T& data, uint32 seed);
 template<typename T>
 uint32 murmur3_32(const T* data, std::size_t dataSize, uint32 seed);
 
+/*! @brief Get the permuted index or value in O(1) space and O(1) time.
+@param i The index or value to be permuted.
+@param l The size of the permutation vector.
+@param p The seed to use for the shuffle.
+@return The permuted index or value.
+*/
+uint32 permuted_index(uint32 i, uint32 l, uint32 p);
+
 }// end namespace ph::math
 
 #include "Math/hash.ipp"

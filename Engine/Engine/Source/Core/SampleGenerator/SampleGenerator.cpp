@@ -28,11 +28,9 @@ SampleGenerator::SampleGenerator(
 	PH_ASSERT_GE(maxCachedBatches, 1);
 }
 
-SampleGenerator::SampleGenerator(const std::size_t numSampleBatches) : 
-	SampleGenerator(numSampleBatches, 4)
+SampleGenerator::SampleGenerator(const std::size_t numSampleBatches)
+	: SampleGenerator(numSampleBatches, 4)
 {}
-
-SampleGenerator::~SampleGenerator() = default;
 
 bool SampleGenerator::prepareSampleBatch()
 {

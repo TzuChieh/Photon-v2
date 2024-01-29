@@ -304,15 +304,17 @@ class Exporter:
         scheduler_type = b_scene.ph_scheduler_type
 
         sample_source = None
-        if sample_source_type == 'RANDOM':
+        if sample_source_type == 'uniform-random':
             sample_source = sdl.UniformRandomSampleSourceCreator()
             sample_source.set_samples(sdl.Integer(spp))
-        elif sample_source_type == 'STRATIFIED':
+        elif sample_source_type == 'stratified':
             sample_source = sdl.StratifiedSampleSourceCreator()
             sample_source.set_samples(sdl.Integer(spp))
-        elif sample_source_type == 'HALTON':
+        elif sample_source_type == 'halton':
             sample_source = sdl.HaltonSampleSourceCreator()
             sample_source.set_samples(sdl.Integer(spp))
+            sample_source.set_permutation(sdl.Enum(b_scene.ph_render_halton_permutation))
+            sample_source.set_sequence(sdl.Enum(b_scene.ph_render_halton_sequence))
         else:
             print("warning: sample source %s is not supported" % sample_source_type)
 

@@ -410,13 +410,36 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
 
     bpy.types.Scene.ph_render_sample_source_type = bpy.props.EnumProperty(
         items=[
-            ('RANDOM', "Random", "Pseudorandom numbers", 0),
-            ('STRATIFIED', "Stratified", "Quasirandom numbers based on domain subdivision", 1),
-            ('HALTON', "Halton", "Quasirandom numbers that are well distributed over all dimensions", 2)
+            ('uniform-random', "Random", "Pseudorandom numbers", 0),
+            ('stratified', "Stratified", "Quasirandom numbers based on domain subdivision", 1),
+            ('halton', "Halton", "Quasirandom numbers that are well distributed over all dimensions", 2)
         ],
         name="Sample Source",
         description="Photon-v2's sample source types",
-        default='STRATIFIED'
+        default='stratified'
+    )
+
+    bpy.types.Scene.ph_render_halton_permutation = bpy.props.EnumProperty(
+        items=[
+            ('none', "None", "", 0),
+            ('fixed', "Fixed", "", 1),
+            ('per-digit', "Per-digit", "", 2),
+            ('owen', "Owen", "", 3)
+        ],
+        name="Halton Permutation",
+        description="",
+        default='fixed'
+    )
+
+    bpy.types.Scene.ph_render_halton_sequence = bpy.props.EnumProperty(
+        items=[
+            ('original', "Original", "", 0),
+            ('leap', "Leap", "", 1),
+            ('random-leap', "Random Leap", "", 2)
+        ],
+        name="Halton Sequence",
+        description="",
+        default='original'
     )
 
     def draw(self, b_context):
@@ -426,6 +449,10 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
         layout.prop(b_scene, 'ph_render_num_spp')
         layout.prop(b_scene, 'ph_render_sample_filter_type')
         layout.prop(b_scene, 'ph_render_sample_source_type')
+
+        if b_scene.ph_render_sample_source_type == 'halton':
+            layout.prop(b_scene, 'ph_render_halton_permutation')
+            layout.prop(b_scene, 'ph_render_halton_sequence')
 
 
 @blender.register_class

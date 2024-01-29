@@ -73,6 +73,8 @@ inline void TViewPathTracingWork<Handler>::doWork()
 		auto raySamples = m_sampleGenerator->getSamplesND(raySampleHandle);
 		for(std::size_t i = 0; i < rasterSamples.numSamples(); ++i)
 		{
+			// OPT: could be tiled; this has bad cache behavior (sample may jump around too far)
+
 			const auto rasterSample = math::sample_cast<float64>(rasterSamples.template get<2>(i));
 			const math::Vector2D rasterCoord = m_rasterSampleWindowPx.sampleToSurface(rasterSample);
 			const math::Vector2S sampleIndex(math::Vector2D(

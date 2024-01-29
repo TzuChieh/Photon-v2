@@ -123,16 +123,16 @@ be processed during the radical inverse.
 @param permuter Must be callable with `<BASE>(digit)` and return a permuted digit.
 */
 template<auto BASE, std::floating_point Result, std::integral Value, typename DigitPermuter>
-inline Result radical_inverse_permuted(const Value value, DigitPermuter permuter)
+inline Result radical_inverse_permuted(const Value dimIndex, const Value value, DigitPermuter permuter)
 {
 	static_assert(std::integral<decltype(BASE)>,
 		"`BASE` must be an integer.");
 	static_assert(BASE >= 2);
 	static_assert(requires (DigitPermuter p)
 		{
-			{ p.template operator()<BASE>(Value{})} -> std::same_as<Value>;
+			{ p.template operator()<BASE>(Value{}, Value{})} -> std::same_as<Value>;
 		},
-		"`DigitPermuter` must be callable with `<BASE>(digit)` and return a permuted digit.");
+		"`DigitPermuter` must be callable with `<BASE>(dimIndex, digit)` and return a permuted digit.");
 
 	constexpr Result rcpBase = Result(1) / BASE;
 	constexpr Value maxDigits = radical_inverse_detail::num_meaningful_digits<Result>(BASE);
@@ -152,7 +152,7 @@ inline Result radical_inverse_permuted(const Value value, DigitPermuter permuter
 	{
 		const Value quotient = currentValue / BASE;
 		const Value remainder = currentValue - quotient * BASE;
-		const Value permutedRemainder = permuter.template operator()<BASE>(remainder);
+		const Value permutedRemainder = permuter.template operator()<BASE>(dimIndex, remainder);
 
 		unscaledReversedValue = unscaledReversedValue * BASE + permutedRemainder;
 		scaler *= rcpBase;
