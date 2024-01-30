@@ -27,6 +27,16 @@ public:
 	@note Thread-safe. Each thread gets a different sequence.
 	*/
 	static std::size_t index(std::size_t lowerBound, std::size_t upperBound);
+
+	/*!
+	@return 32 uniform random bits.
+	*/
+	static uint32 bits32();
+
+	/*!
+	@return 64 uniform random bits.
+	*/
+	static uint64 bits64();
 };
 
 }// end namespace ph::math

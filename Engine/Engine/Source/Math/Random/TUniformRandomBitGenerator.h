@@ -85,9 +85,9 @@ inline TargetBits TUniformRandomBitGenerator<Derived, Bits>::generate()
 		else if constexpr(targetBitsSize == 8 && bitsSize == 4)
 		{
 			// Generate 8-byte bits by combining two 4-byte bits
-			const uint64 lower4B = bitwise_cast<uint32>(generate());
-			const uint64 higher4B = bitwise_cast<uint32>(generate()) << 32;
-			return bitwise_cast<TargetBits>(higher4B | lower4B);
+			const auto lower4B = bitwise_cast<uint32>(generate());
+			const auto higher4B = bitwise_cast<uint32>(generate());
+			return bitwise_cast<TargetBits>((static_cast<uint64>(higher4B) << 32) | lower4B);
 
 			// Note: combining 2 `uint32` like this may not yield as good result as using 2 separate
 			// generators (with different state and sequence).

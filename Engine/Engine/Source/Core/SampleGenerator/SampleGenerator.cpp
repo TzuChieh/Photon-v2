@@ -80,6 +80,9 @@ SamplesNDHandle SampleGenerator::declareStageND(
 	const std::size_t              numSamples,
 	const std::vector<std::size_t> dimSizeHints)
 {
+	PH_ASSERT_MSG(!m_isSampleBatchPrepared,
+		"Once sample batch starts preparing, no new stages can be declared anymore.");
+
 	const std::size_t bufferIndex = m_totalBufferSize;
 	const std::size_t stageIndex  = m_stages.size();
 

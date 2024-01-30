@@ -13,9 +13,13 @@
 namespace ph::math
 {
 
-// NOTE: consider using __rdtsc() as seed (if film merging is desired)
-real Random::sample()
+namespace
 {
+
+auto& default_global_rng()
+{
+	// NOTE: consider using __rdtsc() as seed (if film merging is desired)
+
 	//static thread_local std::mt19937 generator(DeterministicSeeder::nextSeed<uint32>());
 	//static thread_local TMt19937<uint32> generator(DeterministicSeeder::nextSeed<uint32>());
 	static thread_local Pcg32 generator(DeterministicSeeder::nextSeed<uint32>());
@@ -31,8 +35,25 @@ real Random::sample()
 	//static thread_local std::uniform_real_distribution<real> distribution(0.0_r, 1.0_r);
 
 	//return distribution(generator);
-	return generator.generateSample();
+	return generator;
 	//return static_cast<real>(generator.generateSample<float64>());
+}
+
+}// end anonymous namespace
+
+real Random::sample()
+{
+	return default_global_rng().generateSample();
+}
+
+uint32 Random::bits32()
+{
+	return default_global_rng().generate<uint32>();
+}
+
+uint64 Random::bits64()
+{
+	return default_global_rng().generate<uint64>();
 }
 
 // FIXME: type-punning with unions is undefined behavior

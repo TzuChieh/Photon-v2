@@ -18,7 +18,8 @@ enum class EHaltonSequence
 {
 	Original = 0,
 	Leap,
-	RandomLeap
+	RandomLeap,
+	RandomStart
 };
 
 }// end namespace ph::halton

@@ -44,11 +44,16 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EHaltonSequence>)
 		"The original sequence starting from sample index 0.");
 
 	sdlEnum.addEntry(EnumType::Leap, "leap",
-		"Skip a pre-defined amount of samples between each sample. The skip amount is carefully "
+		"Skipping a pre-defined amount of samples between each sample. The skip amount is carefully "
 		"chosen to not introduce degenerated samples.");
 
 	sdlEnum.addEntry(EnumType::RandomLeap, "random-leap",
 		"Similar to leap, except that a random leap amount is used for each sample generator.");
+
+	sdlEnum.addEntry(EnumType::RandomStart, "random-start",
+		"Choosing a starting point for each dimension randomly (for each sample generator). "
+		"In practice (where we only have finite precision), this is actually skipping a certain "
+		"amount of samples for each dimension.");
 
 	return sdlEnum;
 }

@@ -435,7 +435,8 @@ class PH_RENDERING_PT_sampling(PhRenderPanel):
         items=[
             ('original', "Original", "", 0),
             ('leap', "Leap", "", 1),
-            ('random-leap', "Random Leap", "", 2)
+            ('random-leap', "Random Leap", "", 2),
+            ('random-start', "Random Start", "", 3),
         ],
         name="Halton Sequence",
         description="",

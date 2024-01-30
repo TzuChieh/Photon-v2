@@ -56,10 +56,6 @@ SGHalton::SGHalton(
 		// Sevaral good leap values were found experimentally by minimizing the integration error
 		// for several test functions in [1]. Those values are 31, 61, 149, 409 and 1949. The value
 		// should be a prime and different than all the bases used for generating Halton sequence.
-		// 
-		// References:
-		// [1] Ladislav Kocis and William J. Whiten, "Computational Investigations of Low-Discrepancy
-		// Sequences", last section of p. 274
 
 		constexpr auto maxHaltonBase = math::table::PRIME[halton_detail::MAX_DIMENSIONS - 1];
 
@@ -67,13 +63,31 @@ SGHalton::SGHalton(
 		constexpr auto leapPrime = math::table::GOOD_PRIME[256];
 		static_assert(leapPrime > maxHaltonBase);
 
-		constexpr std::size_t randomLeapRange[2] = {151, math::table::GOOD_PRIME.size()};
+		constexpr uint64 randomLeapRange[2] = {151, math::table::GOOD_PRIME.size()};
 		static_assert(randomLeapRange[0] < randomLeapRange[1]);
 		static_assert(math::table::GOOD_PRIME[randomLeapRange[0]] > maxHaltonBase);
 
 		m_leapAmount = sequence == EHaltonSequence::Leap
 			? leapPrime 
 			: math::table::GOOD_PRIME[math::Random::index(randomLeapRange[0], randomLeapRange[1])];
+	}
+
+	if(sequence == EHaltonSequence::RandomStart)
+	{
+		// Note the difference between random-start and random-skip sequences: random-start is using
+		// a random starting point in [0, 1] and generate the sequence from there (effectively adding
+		// `1 / BASE` with rightward-carry add in each iteration), while random-skip is skipping a
+		// certain number of samples from the start. Since we have only finite precision, random-start
+		// is effectively the same as random-skip with some skip amount [2].
+
+		for(uint64& dimSeed : m_dimSeedRecords)
+		{
+			// We do not need to generate a uniform random value in [0, 1] and work out the 
+			// corresponding sample index/seed for it. A uniform random sample index value will also 
+			// have uniform random digits for any base. After applying radical inverse, the resulting
+			// (first) sample will be uniform random in [0, 1].
+			dimSeed = math::Random::bits64();
+		}
 	}
 }
 

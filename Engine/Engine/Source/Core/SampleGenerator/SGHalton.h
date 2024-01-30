@@ -1,5 +1,16 @@
 #pragma once
 
+/*! @file
+
+@brief Halton sample generator.
+
+References:
+[1] Ladislav Kocis and William J. Whiten, "Computational Investigations of Low-Discrepancy Sequences", 
+last section of p. 274
+[2] X. Wang and F.J. Hickernell, "Randomized Halton sequences", Mathematical and Computer Modelling,
+Volume 32, Issues 7--8, 2000
+*/
+
 #include "Core/SampleGenerator/SampleGenerator.h"
 #include "Core/SampleGenerator/Halton/halton_randomization_enums.h"
 #include "Core/SampleGenerator/Halton/halton_fwd.h"
@@ -53,10 +64,10 @@ private:
 		TSpanView<halton_detail::PermutationTable> permutationTables);
 
 	std::vector<halton_detail::PermutationTable> m_permutationTables;
-	std::vector<std::size_t> m_dimSeedRecords;
+	std::vector<uint64> m_dimSeedRecords;
 	EHaltonPermutation m_permutation;
 	EHaltonSequence m_sequence;
-	std::size_t m_leapAmount;
+	uint64 m_leapAmount;
 };
 
 }// end namespace ph
