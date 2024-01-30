@@ -14,6 +14,7 @@ SampleGenerator::SampleGenerator(
 
 	: m_numSampleBatches     (numSampleBatches)
 	, m_maxCachedBatches     (maxCachedBatches)
+
 	, m_numUsedBatches       (0)
 	, m_numUsedCaches        (maxCachedBatches)
 	, m_numDeclaredDims      (0)
@@ -26,6 +27,8 @@ SampleGenerator::SampleGenerator(
 {
 	PH_ASSERT_GE(numSampleBatches, 1);
 	PH_ASSERT_GE(maxCachedBatches, 1);
+
+	reset();
 }
 
 SampleGenerator::SampleGenerator(const std::size_t numSampleBatches)
@@ -169,6 +172,13 @@ SamplesNDStream SampleGenerator::getSamplesND(const SamplesNDHandle& handle) con
 		stage.numSamples());
 }
 
+void SampleGenerator::rebirth()
+{
+	reset();
+
+	onRebirth();
+}
+
 void SampleGenerator::genSplitted(const std::size_t numSplits,
                                   std::vector<std::unique_ptr<SampleGenerator>>& out_sgs) const
 {
@@ -180,20 +190,15 @@ void SampleGenerator::genSplitted(const std::size_t numSplits,
 	{
 		if(remainingBatches >= batchesPerSplit)
 		{
-			out_sgs.push_back(genNewborn(batchesPerSplit));
+			out_sgs.push_back(makeNewborn(batchesPerSplit));
 			remainingBatches -= batchesPerSplit;
 		}
 		else
 		{
-			out_sgs.push_back(genNewborn(remainingBatches));
+			out_sgs.push_back(makeNewborn(remainingBatches));
 			return;
 		}
 	}
-}
-
-std::unique_ptr<SampleGenerator> SampleGenerator::genCopied(const std::size_t numSampleBatches) const
-{
-	return genNewborn(numSampleBatches);
 }
 
 bool SampleGenerator::isSamplesGE3DSupported() const
@@ -273,6 +278,24 @@ void SampleGenerator::genSampleBatch(const std::size_t cachedBatchIndex)
 			break;
 		}
 	}
+}
+
+void SampleGenerator::reset()
+{
+	PH_ASSERT_GE(m_numSampleBatches, 1);
+	PH_ASSERT_GE(m_maxCachedBatches, 1);
+
+	m_numUsedBatches  = 0;
+	m_numUsedCaches   = m_maxCachedBatches;
+	m_numDeclaredDims = 0;
+	m_totalBufferSize = 0;
+
+	m_sampleBuffer.clear();
+	m_stages.clear();
+
+#if PH_DEBUG
+	m_isSampleBatchPrepared = false;
+#endif
 }
 
 }// end namespace ph

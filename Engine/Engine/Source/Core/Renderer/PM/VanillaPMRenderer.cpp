@@ -68,7 +68,7 @@ void VanillaPMRenderer::renderWithVanillaPM()
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
-			auto sampleGenerator = getSampleGenerator()->genCopied(1);
+			auto sampleGenerator = getSampleGenerator()->makeNewborn(1);
 
 			TPhotonPathTracingWork<Photon> photonTracingWork(
 				getScene(),
@@ -104,7 +104,7 @@ void VanillaPMRenderer::renderWithVanillaPM()
 			const std::size_t workStart, 
 			const std::size_t workEnd)
 		{
-			auto sampleGenerator = getSampleGenerator()->genCopied(workEnd - workStart);
+			auto sampleGenerator = getSampleGenerator()->makeNewborn(workEnd - workStart);
 			auto film            = std::make_unique<HdrRgbFilm>(
 				getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
 

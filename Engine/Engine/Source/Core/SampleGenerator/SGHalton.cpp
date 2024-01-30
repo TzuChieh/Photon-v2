@@ -27,31 +27,48 @@ SGHalton::SGHalton(
 	//: SampleGenerator(numSamples, numSamples)
 	: SampleGenerator(numSamples, 4)// HARDCODE
 
+	, m_permutation      (permutation)
+	, m_sequence         (sequence)
 	, m_permutationTables()
-	, m_dimSeedRecords(halton_detail::MAX_DIMENSIONS, 0)
-	, m_permutation(permutation)
-	, m_sequence(sequence)
-	, m_leapAmount(1)
+	, m_dimSeedRecords   ()
+	, m_leapAmount       (1)
 {
-	if(permutation == EHaltonPermutation::Fixed || permutation == EHaltonPermutation::PerDigit)
+	startNewSequence();
+}
+
+// TODO: able to control when to use a new permutation
+// TODO: hammersley for fixed number of samples
+
+void SGHalton::onRebirth()
+{
+	startNewSequence();
+}
+
+void SGHalton::startNewSequence()
+{
+	// Only generate the tables once for each generator instance
+	if(m_permutationTables.empty() &&
+	   (m_permutation == EHaltonPermutation::Fixed || m_permutation == EHaltonPermutation::PerDigit))
 	{
 		m_permutationTables.resize(halton_detail::MAX_DIMENSIONS);
 		for(std::size_t dimIndex = 0; dimIndex < m_permutationTables.size(); ++dimIndex)
 		{
-			if(permutation == EHaltonPermutation::Fixed)
+			if(m_permutation == EHaltonPermutation::Fixed)
 			{
 				m_permutationTables[dimIndex] = halton_detail::FixedPermuter::makeTable(dimIndex);
 			}
 			else
 			{
-				PH_ASSERT(permutation == EHaltonPermutation::PerDigit);
+				PH_ASSERT(m_permutation == EHaltonPermutation::PerDigit);
 
 				m_permutationTables[dimIndex] = halton_detail::PerDigitPermuter::makeTable(dimIndex);
 			}
 		}
 	}
 
-	if(sequence == EHaltonSequence::Leap || sequence == EHaltonSequence::RandomLeap)
+	// Random sequence types will reinitialize for each generator life cycle
+
+	if(m_sequence == EHaltonSequence::Leap || m_sequence == EHaltonSequence::RandomLeap)
 	{
 		// Sevaral good leap values were found experimentally by minimizing the integration error
 		// for several test functions in [1]. Those values are 31, 61, 149, 409 and 1949. The value
@@ -67,12 +84,16 @@ SGHalton::SGHalton(
 		static_assert(randomLeapRange[0] < randomLeapRange[1]);
 		static_assert(math::table::GOOD_PRIME[randomLeapRange[0]] > maxHaltonBase);
 
-		m_leapAmount = sequence == EHaltonSequence::Leap
+		m_leapAmount = m_sequence == EHaltonSequence::Leap
 			? leapPrime 
 			: math::table::GOOD_PRIME[math::Random::index(randomLeapRange[0], randomLeapRange[1])];
 	}
+	else
+	{
+		m_leapAmount = 1;
+	}
 
-	if(sequence == EHaltonSequence::RandomStart)
+	if(m_sequence == EHaltonSequence::RandomStart)
 	{
 		// Note the difference between random-start and random-skip sequences: random-start is using
 		// a random starting point in [0, 1] and generate the sequence from there (effectively adding
@@ -89,10 +110,13 @@ SGHalton::SGHalton(
 			dimSeed = math::Random::bits64();
 		}
 	}
+	else
+	{
+		// New sequence can simply start from current seed values.
+		// Here we just ensure it has enough slots.
+		m_dimSeedRecords.resize(halton_detail::MAX_DIMENSIONS, 0);
+	}
 }
-
-// TODO: able to control when to use a new permutation
-// TODO: hammersley for fixed number of samples
 
 void SGHalton::genSamples1D(
 	const SampleContext& context,
@@ -179,12 +203,12 @@ void SGHalton::genSamplesOfAnyDimensions(
 	}
 }
 
-std::unique_ptr<SampleGenerator> SGHalton::genNewborn(const std::size_t numSamples) const
+std::unique_ptr<SampleGenerator> SGHalton::makeNewborn(const std::size_t numSampleBatches) const
 {
 	// TODO: settings for reuse permutations or not? be careful that using the same permutation 
 	// in different generator instances can lead to exactly the same generated samples
 
-	return std::make_unique<SGHalton>(numSamples, m_permutation, m_sequence);
+	return std::make_unique<SGHalton>(numSampleBatches, m_permutation, m_sequence);
 }
 
 real SGHalton::genSingleGeneralHaltonSample(

@@ -13,9 +13,12 @@
 namespace ph
 {
 
-SGStratified::SGStratified(const std::size_t numSamples) :
+SGStratified::SGStratified(const std::size_t numSamples)
 	//SampleGenerator(numSamples, numSamples)
-	SampleGenerator(numSamples, 4)// HACK
+	: SampleGenerator(numSamples, 4)// HARDCODE
+{}
+
+void SGStratified::onRebirth()
 {}
 
 void SGStratified::genSamples1D(
@@ -90,9 +93,9 @@ void SGStratified::genSamples2D(
 	out_samples.shuffle();
 }
 
-std::unique_ptr<SampleGenerator> SGStratified::genNewborn(const std::size_t numSamples) const
+std::unique_ptr<SampleGenerator> SGStratified::makeNewborn(const std::size_t numSampleBatches) const
 {
-	return std::make_unique<SGStratified>(numSamples);
+	return std::make_unique<SGStratified>(numSampleBatches);
 }
 
 void SGStratified::reviseSampleStage(SampleStageReviser reviser)

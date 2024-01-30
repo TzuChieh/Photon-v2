@@ -48,12 +48,13 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EHaltonSequence>)
 		"chosen to not introduce degenerated samples.");
 
 	sdlEnum.addEntry(EnumType::RandomLeap, "random-leap",
-		"Similar to leap, except that a random leap amount is used for each sample generator.");
+		"Similar to leap, except that a random leap amount is used for each sample generator "
+		"life cycle.");
 
 	sdlEnum.addEntry(EnumType::RandomStart, "random-start",
-		"Choosing a starting point for each dimension randomly (for each sample generator). "
-		"In practice (where we only have finite precision), this is actually skipping a certain "
-		"amount of samples for each dimension.");
+		"Choosing a starting point for each dimension randomly (for each sample generator "
+		"life cycle). In practice (where we only have finite precision), this is actually skipping "
+		"a certain amount of samples for each dimension.");
 
 	return sdlEnum;
 }

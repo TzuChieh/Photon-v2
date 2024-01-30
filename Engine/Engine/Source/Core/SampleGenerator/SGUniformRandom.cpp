@@ -4,6 +4,9 @@
 namespace ph
 {
 
+void SGUniformRandom::onRebirth()
+{}
+
 void SGUniformRandom::genSamples1D(
 	const SampleContext& context,
 	const SampleStage&   stage,
@@ -26,9 +29,9 @@ void SGUniformRandom::genSamples2D(
 	}
 }
 
-std::unique_ptr<SampleGenerator> SGUniformRandom::genNewborn(const std::size_t numSamples) const
+std::unique_ptr<SampleGenerator> SGUniformRandom::makeNewborn(const std::size_t numSampleBatches) const
 {
-	return std::make_unique<SGUniformRandom>(numSamples);
+	return std::make_unique<SGUniformRandom>(numSampleBatches);
 }
 
 }// end namespace ph

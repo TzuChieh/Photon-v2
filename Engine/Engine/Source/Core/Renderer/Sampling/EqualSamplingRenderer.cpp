@@ -161,7 +161,7 @@ void EqualSamplingRenderer::doRender()
 				}
 
 				const std::size_t spp = workUnit.getDepth();
-				auto sampleGenerator = m_sampleGenerator->genCopied(spp);
+				auto sampleGenerator = m_sampleGenerator->makeNewborn(spp);
 
 				m_suppliedFractionBits.store(
 					bitwise_cast<std::uint32_t>(suppliedFraction),

@@ -63,7 +63,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 		using ViewpointCollector = TPPMViewpointCollector<Viewpoint>;
 		ViewpointCollector viewpointCollector(6, getCommonParams().kernelRadius);
 
-		auto viewpointSampleGenerator = getSampleGenerator()->genCopied(getCommonParams().numSamplesPerPixel);
+		auto viewpointSampleGenerator = getSampleGenerator()->makeNewborn(getCommonParams().numSamplesPerPixel);
 
 		TViewPathTracingWork<ViewpointCollector> viewpointWork(
 			&viewpointCollector,
@@ -109,7 +109,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
-				auto sampleGenerator = getSampleGenerator()->genCopied(1);
+				auto sampleGenerator = getSampleGenerator()->makeNewborn(1);
 
 				TPhotonPathTracingWork<Photon> photonTracingWork(
 					getScene(),

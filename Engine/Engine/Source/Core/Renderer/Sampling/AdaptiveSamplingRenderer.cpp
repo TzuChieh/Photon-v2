@@ -125,7 +125,7 @@ std::function<void()> AdaptiveSamplingRenderer::createWork(FixedSizeThreadPool& 
 				}
 
 				const std::size_t spp = workUnit.getDepth();
-				sampleGenerator = m_sampleGenerator->genCopied(spp);
+				sampleGenerator = m_sampleGenerator->makeNewborn(spp);
 
 				std::size_t numPendingRegions = m_dispatcher.numPendingRegions();
 				while(!m_freeWorkerIds.empty() && numPendingRegions > 0)

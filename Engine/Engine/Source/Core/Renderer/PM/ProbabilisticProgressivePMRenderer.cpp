@@ -152,13 +152,25 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 		pppmIteration.photonMap.maxPhotonPathLength = getCommonParams().maxPhotonPathLength;
 	}
 
+	std::vector<std::unique_ptr<SampleGenerator>> photonSampleGenerators(numWorkers());
+	for(auto& sampleGenerator : photonSampleGenerators)
+	{
+		sampleGenerator = getSampleGenerator()->makeNewborn(1);
+	}
+
+	std::vector<std::unique_ptr<SampleGenerator>> viewSampleGenerators(numWorkers());
+	for(auto& sampleGenerator : viewSampleGenerators)
+	{
+		sampleGenerator = getSampleGenerator()->makeNewborn(getCommonParams().numSamplesPerPixel);
+	}
+
 	PH_LOG(PMRenderer, Note, "start accumulating passes...");
 
 	KernelRadiusDispatcher radiusDispatcher(
 		getCommonParams().kernelRadius, getCommonParams().alpha, getCommonParams().numPasses);
 
 	parallel_work(numWorkers(), 
-	[this, numPhotonsPerPass, &pppmIterations, &radiusDispatcher](
+	[this, numPhotonsPerPass, &pppmIterations, &photonSampleGenerators, &viewSampleGenerators, &radiusDispatcher](
 		const std::size_t workerIdx)
 	{
 		PPPMIteration& pppmIteration = pppmIterations[workerIdx];
@@ -181,12 +193,12 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 			{
 				PH_PROFILE_NAMED_SCOPE("PPPM photon shooting");
 
-				auto sampleGenerator = getSampleGenerator()->genCopied(1);
+				SampleGenerator* photonSampleGenerator = photonSampleGenerators[workerIdx].get();
 
 				TPhotonPathTracingWork<Photon> photonTracingWork(
 					getScene(),
 					getReceiver(),
-					sampleGenerator.get(),
+					photonSampleGenerator,
 					pppmIteration.photonBuffer,
 					getCommonParams().minPhotonPathLength,
 					getCommonParams().maxPhotonPathLength);
@@ -195,6 +207,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 				photonTracingWork.work();
 
 				pppmIteration.numPhotonPaths = photonTracingWork.numPhotonPaths();
+				photonSampleGenerator->rebirth();
 			}
 
 			{
@@ -208,7 +221,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 
 				using RadianceEvaluator = TVPMRadianceEvaluator<FullPhoton>;
 
-				auto sampleGenerator = getSampleGenerator()->genCopied(getCommonParams().numSamplesPerPixel);
+				SampleGenerator* viewSampleGenerator = viewSampleGenerators[workerIdx].get();
 				pppmIteration.film.clear();
 
 				RadianceEvaluator evaluator(
@@ -224,13 +237,14 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 					&evaluator,
 					getScene(),
 					getReceiver(),
-					sampleGenerator.get(),
+					viewSampleGenerator,
 					pppmIteration.film.getSampleWindowPx(),
 					getRenderRegionPx().getExtents());
 
 				radianceEvaluator.work();
 
 				asyncMergeToPrimaryFilm(pppmIteration.film);
+				viewSampleGenerator->rebirth();
 			}
 
 			iterationTimer.stop();

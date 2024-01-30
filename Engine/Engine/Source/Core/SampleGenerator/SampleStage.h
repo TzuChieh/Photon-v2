@@ -201,7 +201,7 @@ inline auto SampleStage::getDimSizeHints() const
 inline auto SampleStage::makeIdentityDimSizeHints(const std::size_t numDims)
 	-> SizeHints
 {
-	// let each dimension equally sized
+	// Let each dimension equally sized
 	return SizeHints(numDims, 1);
 }
 

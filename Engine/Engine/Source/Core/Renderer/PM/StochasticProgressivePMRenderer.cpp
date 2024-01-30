@@ -178,7 +178,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 			{
 				PH_PROFILE_NAMED_SCOPE("SPPM photon shooting");
 
-				auto sampleGenerator = getSampleGenerator()->genCopied(1);
+				auto sampleGenerator = getSampleGenerator()->makeNewborn(1);
 
 				TPhotonPathTracingWork<Photon> photonTracingWork(
 					getScene(),
@@ -204,7 +204,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 				PH_PROFILE_NAMED_SCOPE("SPPM energy estimation");
 
 				radianceEvalRegion.film.clear();
-				auto sampleGenerator = getSampleGenerator()->genCopied(1);
+				auto sampleGenerator = getSampleGenerator()->makeNewborn(1);
 
 				using RadianceEvaluator = TSPPMRadianceEvaluator<Viewpoint, Photon>;
 

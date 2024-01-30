@@ -32,7 +32,11 @@ public:
 		EHaltonPermutation permutation,
 		EHaltonSequence sequence);
 
+	std::unique_ptr<SampleGenerator> makeNewborn(std::size_t numSampleBatches) const override;
+
 private:
+	void onRebirth() override;
+
 	void genSamples1D(
 		const SampleContext& context,
 		const SampleStage&   stage,
@@ -50,7 +54,7 @@ private:
 
 	bool isSamplesGE3DSupported() const override;
 
-	std::unique_ptr<SampleGenerator> genNewborn(std::size_t numSamples) const override;
+	void startNewSequence();
 
 	void genSamplesOfAnyDimensions(
 		const SampleContext& context,
@@ -63,10 +67,11 @@ private:
 		uint64 seedValue,
 		TSpanView<halton_detail::PermutationTable> permutationTables);
 
-	std::vector<halton_detail::PermutationTable> m_permutationTables;
-	std::vector<uint64> m_dimSeedRecords;
 	EHaltonPermutation m_permutation;
 	EHaltonSequence m_sequence;
+
+	std::vector<halton_detail::PermutationTable> m_permutationTables;
+	std::vector<uint64> m_dimSeedRecords;
 	uint64 m_leapAmount;
 };
 
