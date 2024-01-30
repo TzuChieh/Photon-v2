@@ -124,7 +124,7 @@ message(STATUS
 set(USE_FAST_MATH_DEFAULT OFF)
 
 option(PH_ENABLE_DEBUG "Enable debug functionalities." ON)
-option(PH_ENABLE_PROFILING "Enable profiling functionalities." ON)
+option(PH_ENABLE_PROFILING "Enable profiling functionalities." OFF)
 option(PH_DOUBLE_PRECISION_REAL "Use double precision type for real numbers." OFF)
 
 option(PH_USE_FAST_MATH

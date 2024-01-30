@@ -93,6 +93,9 @@ void SGHalton::startNewSequence()
 		m_leapAmount = 1;
 	}
 
+	// Here we just ensure it has enough slots, while keeping seed values from previous cycle.
+	m_dimSeedRecords.resize(halton_detail::MAX_DIMENSIONS, 0);
+
 	if(m_sequence == EHaltonSequence::RandomStart)
 	{
 		// Note the difference between random-start and random-skip sequences: random-start is using
@@ -109,12 +112,6 @@ void SGHalton::startNewSequence()
 			// (first) sample will be uniform random in [0, 1].
 			dimSeed = math::Random::bits64();
 		}
-	}
-	else
-	{
-		// New sequence can simply start from current seed values.
-		// Here we just ensure it has enough slots.
-		m_dimSeedRecords.resize(halton_detail::MAX_DIMENSIONS, 0);
 	}
 }
 
