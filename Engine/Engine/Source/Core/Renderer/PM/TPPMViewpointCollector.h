@@ -8,6 +8,9 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Core/LTA/TDirectLightEstimator.h"
+#include "Core/LTA/TIndirectLightEstimator.h"
+#include "Core/LTA/RussianRoulette.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -116,8 +119,22 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	const SurfaceHit&     surfaceHit,
 	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
 {
-	const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-	const SurfaceOptics* const     optics   = metadata->getSurface().getOptics();
+	using DirectLight = lta::TDirectLightEstimator<lta::ESidednessPolicy::Strict>;
+	using IndirectLight = lta::TIndirectLightEstimator<lta::ESidednessPolicy::Strict>;
+
+	PH_ASSERT(surfaceHit.getDetail().getPrimitive());
+	const PrimitiveMetadata* meta = surfaceHit.getDetail().getPrimitive()->getMetadata();
+	const SurfaceOptics* optics = meta ? meta->getSurface().getOptics() : nullptr;
+	if(!optics)
+	{
+		return ViewPathTracingPolicy().kill();
+	}
+
+	// Cannot have path length = 1 lighting using only photon map--when we use a photon map, it is
+	// at least path length = 2 (can be even longer depending on the settings)
+	
+	// Never contain 0-bounce photons
+	PH_ASSERT_GE(m_photonMap->minPhotonPathLength, 1);
 
 	// Check if there's any non-delta elemental
 	SurfacePhenomena phenomena = optics->getAllPhenomena();

@@ -8,10 +8,11 @@
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/TViewPathTracingWork.h"
 #include "Core/Renderer/PM/TPPMViewpointCollector.h"
-#include "Core/Renderer/PM/PPMRadianceEvaluationWork.h"
+#include "Core/Renderer/PM/TPPMRadianceEvaluationWork.h"
 #include "Core/Renderer/RenderObservationInfo.h"
 #include "Core/Renderer/RenderProgress.h"
 #include "Core/Renderer/RenderStats.h"
+#include "Math/math.h"
 #include "Utility/Concurrent/concurrent.h"
 #include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/Timer.h"
@@ -96,7 +97,6 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
-	std::size_t totalPhotonPaths  = 0;
 	while(numFinishedPasses < getCommonParams().numPasses)
 	{
 		passTimer.start();
@@ -124,26 +124,26 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 				numPhotonPaths[workerIdx] = photonTracingWork.numPhotonPaths();
 			});
-		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
 
 		TPhotonMap<Photon> photonMap;
 		photonMap.map.build(std::move(photonBuffer));
+		photonMap.numPhotonPaths = math::summation<std::size_t>(numPhotonPaths);
 
 		parallel_work(viewpoints.size(), numWorkers(),
-			[this, &photonMap, &viewpoints, &resultFilm, totalPhotonPaths](
+			[this, &photonMap, &viewpoints, &resultFilm](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
 			{
 				HdrRgbFilm film(getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
 
-				PPMRadianceEvaluationWork radianceEstimator(
-					&photonMap, 
-					totalPhotonPaths,
-					&film,
-					&(viewpoints[workStart]),
-					workEnd - workStart,
-					getScene());
+				using RadianceEvalWork = TPPMRadianceEvaluationWork<Photon, Viewpoint>;
+
+				RadianceEvalWork radianceEstimator(
+					{&(viewpoints[workStart]), workEnd - workStart},
+					&photonMap,
+					getScene(),
+					&film);
 				radianceEstimator.setStatistics(&getStatistics());
 
 				radianceEstimator.work();

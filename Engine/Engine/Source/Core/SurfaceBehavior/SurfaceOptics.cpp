@@ -14,8 +14,6 @@ SurfaceOptics::SurfaceOptics() :
 	m_numElementals(1)
 {}
 
-SurfaceOptics::~SurfaceOptics() = default;
-
 void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 {
 	if(!eval.context.sidedness.isSidednessAgreed(eval.inputs.getX(), eval.inputs.getL()) ||

@@ -11,6 +11,8 @@ namespace ph
 
 class SampleFlow;
 
+/*! @brief Describes how light interacts with a surface. 
+*/
 class SurfaceOptics
 {
 	// FIXME: sort-of hacked, should clarify the need of this in the future
@@ -18,8 +20,11 @@ class SurfaceOptics
 
 public:
 	SurfaceOptics();
-	virtual ~SurfaceOptics();
+	virtual ~SurfaceOptics() = default;
 
+	/*! @brief Get the phenomenon of a surface component.
+	One can also setup query for a specific elemental. See `BsdfQueryContext`.
+	*/
 	virtual ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const = 0;
 
 	/*! @brief Executes a BSDF evaluation query.
@@ -37,7 +42,15 @@ public:
 	*/
 	void calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const;
 
+	/*! @brief Get all phenomena that exist in this surface.
+	@note If a surface has any delta phenomenon along with any non-delta phenomenon, it should be
+	treated the same way as a surface with only pure delta phenomenon.
+	*/
 	SurfacePhenomena getAllPhenomena() const;
+
+	/*! @brief Get number of components this surface contains.
+	@see `getPhenomenonOf()`.
+	*/
 	SurfaceElemental numElementals() const;
 
 	virtual std::string toString() const;

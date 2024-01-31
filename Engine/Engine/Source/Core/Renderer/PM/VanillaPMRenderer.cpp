@@ -10,6 +10,7 @@
 #include "Core/Renderer/RenderObservationInfo.h"
 #include "Core/Renderer/RenderProgress.h"
 #include "Core/Renderer/RenderStats.h"
+#include "Math/math.h"
 #include "Utility/Concurrent/concurrent.h"
 #include "Utility/Timer.h"
 
@@ -83,7 +84,6 @@ void VanillaPMRenderer::renderWithVanillaPM()
 
 			numPhotonPaths[workerIdx] = photonTracingWork.numPhotonPaths();
 		});
-	const std::size_t totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), std::size_t(0));
 
 	tracePhotonTimer.stop();
 	const auto photonsPerSecond = getCommonParams().numPhotons / tracePhotonTimer.getDeltaS<float64>();
@@ -95,11 +95,12 @@ void VanillaPMRenderer::renderWithVanillaPM()
 
 	TPhotonMap<Photon> photonMap;
 	photonMap.map.build(std::move(photonBuffer));
+	photonMap.numPhotonPaths = math::summation<std::size_t>(numPhotonPaths);
 
 	PH_LOG(PMRenderer, Note, "estimating radiance...");
 
 	parallel_work(getCommonParams().numSamplesPerPixel, numWorkers(),
-		[this, &photonMap, totalPhotonPaths](
+		[this, &photonMap](
 			const std::size_t workerIdx, 
 			const std::size_t workStart, 
 			const std::size_t workEnd)
@@ -112,7 +113,6 @@ void VanillaPMRenderer::renderWithVanillaPM()
 
 			RadianceEvaluator evaluator(
 				&photonMap,
-				totalPhotonPaths,
 				getScene(),
 				film.get());
 			evaluator.setStatistics(&getStatistics());

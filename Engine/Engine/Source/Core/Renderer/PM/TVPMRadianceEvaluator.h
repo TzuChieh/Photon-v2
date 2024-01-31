@@ -36,7 +36,6 @@ class TVPMRadianceEvaluator : public TViewPathHandler<TVPMRadianceEvaluator<Phot
 public:
 	TVPMRadianceEvaluator(
 		const TPhotonMap<Photon>*      photonMap,
-		std::size_t                    numPhotonPaths,
 		const Scene*                   scene,
 		TSamplingFilm<math::Spectrum>* film);
 
@@ -78,7 +77,6 @@ private:
 		const math::Spectrum& viewPathThroughput);
 
 	const TPhotonMap<Photon>*      m_photonMap;
-	std::size_t                    m_numPhotonPaths;
 	TSamplingFilm<math::Spectrum>* m_film;
 	const Scene*                   m_scene;
 
@@ -99,28 +97,26 @@ private:
 template<CPhoton Photon>
 inline TVPMRadianceEvaluator<Photon>::TVPMRadianceEvaluator(
 	const TPhotonMap<Photon>* const      photonMap,
-	const std::size_t                    numPhotonPaths,
 	const Scene* const                   scene,
 	TSamplingFilm<math::Spectrum>* const film)
 
-	: m_photonMap(photonMap)
-	, m_numPhotonPaths(numPhotonPaths)
-	, m_film(film)
-	, m_scene(scene)
+	: m_photonMap                  (photonMap)
+	, m_film                       (film)
+	, m_scene                      (scene)
 
-	, m_kernelRadius()
-	, m_kernelDensityNormalizer()
-	, m_statistics()
+	, m_kernelRadius               ()
+	, m_kernelDensityNormalizer    ()
+	, m_statistics                 ()
 	, m_stochasticSampleBeginLength()
-	, m_evalBeginLength()
-	, m_evalEndLength()
+	, m_evalBeginLength            ()
+	, m_evalEndLength              ()
 
-	, m_rasterCoord()
-	, m_sampledRadiance()
-	, m_photonCache()
+	, m_rasterCoord                ()
+	, m_sampledRadiance            ()
+	, m_photonCache                ()
 {
 	PH_ASSERT(photonMap);
-	PH_ASSERT_GT(numPhotonPaths, 0);
+	PH_ASSERT_GT(photonMap->numPhotonPaths, 0);
 	PH_ASSERT(scene);
 	PH_ASSERT(film);
 
@@ -241,6 +237,7 @@ inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
 			randomFlow,
 			m_photonMap->minPhotonPathLength,// we are already on view path of length N
 			lta::RussianRoulette{},
+			1,// likely a delta or glossy surface, delay RR slightly
 			&viewRadiance))
 		{
 			m_sampledRadiance.addLocal(pathThroughput * viewRadiance);
@@ -332,7 +329,7 @@ inline void TVPMRadianceEvaluator<Photon>::setKernelRadius(const real radius)
 	m_kernelRadius = radius;
 
 	const real kernelArea = radius * radius * math::constant::pi<real>;
-	m_kernelDensityNormalizer = 1.0_r / (kernelArea * static_cast<real>(m_numPhotonPaths));
+	m_kernelDensityNormalizer = 1.0_r / (kernelArea * static_cast<real>(m_photonMap->numPhotonPaths));
 }
 
 template<CPhoton Photon>

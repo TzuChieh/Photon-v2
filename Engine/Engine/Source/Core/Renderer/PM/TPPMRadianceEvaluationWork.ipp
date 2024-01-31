@@ -1,4 +1,6 @@
-#include "Core/Renderer/PM/PPMRadianceEvaluationWork.h"
+#pragma once
+
+#include "Core/Renderer/PM/TPPMRadianceEvaluationWork.h"
 #include "Core/Intersectable/Primitive.h"
 #include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
@@ -14,35 +16,36 @@
 #include <Common/logging.h>
 #include <Common/profiling.h>
 
+#include <vector>
+
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(PPMRadianceEvaluationWork, PhotonMap);
+template<CPhoton Photon, CViewpoint Viewpoint>
+inline TPPMRadianceEvaluationWork<Photon, Viewpoint>
+::TPPMRadianceEvaluationWork(
+	TSpan<Viewpoint>                     viewpoints,
+	const TPhotonMap<Photon>* const      photonMap,
+	const Scene* const                   scene,
+	TSamplingFilm<math::Spectrum>* const film)
 
-PPMRadianceEvaluationWork::PPMRadianceEvaluationWork(
-
-	const TPhotonMap<FullPhoton>* const photonMap,
-	const std::size_t                   numPhotonPaths,
-
-	HdrRgbFilm* const    film,
-	FullViewpoint* const viewpoints,
-	const std::size_t    numViewpoints,
-	const Scene* const   scene) :
-
-	TRadianceEvaluationWork(photonMap, numPhotonPaths),
-
-	m_film         (film),
-	m_viewpoints   (viewpoints),
-	m_numViewpoints(numViewpoints),
-	m_scene        (scene)
+	: m_viewpoints    (viewpoints)
+	, m_scene         (scene)
+	, m_photonMap     (photonMap)
+	, m_film          (film)
+	, m_statistics    (nullptr)
+	, m_alpha         ()
 {
+	PH_ASSERT(scene);
 	PH_ASSERT(film);
 
 	setStatistics(nullptr);
 	setAlpha(2.0_r / 3.0_r);
 }
 
-void PPMRadianceEvaluationWork::doWork()
+template<CPhoton Photon, CViewpoint Viewpoint>
+inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
+::doWork()
 {
 	PH_PROFILE_SCOPE();
 
@@ -52,10 +55,8 @@ void PPMRadianceEvaluationWork::doWork()
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	std::vector<FullPhoton> photonCache;
-	for(std::size_t i = 0; i < m_numViewpoints; ++i)
+	for(Viewpoint& viewpoint : m_viewpoints)
 	{
-		FullViewpoint& viewpoint = m_viewpoints[i];
-
 		const SurfaceHit&    surfaceHit = viewpoint.get<EViewpointData::SurfaceHit>();
 		const math::Vector3R L          = viewpoint.get<EViewpointData::ViewDir>();
 		const math::Vector3R Ng         = surfaceHit.getGeometryNormal();
@@ -63,7 +64,7 @@ void PPMRadianceEvaluationWork::doWork()
 		const real           R          = viewpoint.get<EViewpointData::Radius>();
 
 		photonCache.clear();
-		getPhotonMap()->map.findWithinRange(surfaceHit.getPosition(), R, photonCache);
+		m_photonMap->map.findWithinRange(surfaceHit.getPosition(), R, photonCache);
 
 		const real N    = viewpoint.get<EViewpointData::NumPhotons>();
 		const real M    = static_cast<real>(photonCache.size());
@@ -102,7 +103,7 @@ void PPMRadianceEvaluationWork::doWork()
 		// Evaluate radiance using current iteration's data
 
 		const real kernelArea         = newR * newR * math::constant::pi<real>;
-		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(numPhotonPaths()));
+		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_photonMap->numPhotonPaths));
 
 		math::Spectrum radiance(viewpoint.get<EViewpointData::Tau>() * radianceMultiplier);
 		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>());
@@ -113,12 +114,14 @@ void PPMRadianceEvaluationWork::doWork()
 	}
 }
 
-void PPMRadianceEvaluationWork::sanitizeVariables()
+template<CPhoton Photon, CViewpoint Viewpoint>
+inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
+::sanitizeVariables()
 {
 	real sanitizedAlpha = m_alpha;
 	if(m_alpha < 0.0_r || m_alpha > 1.0_r)
 	{
-		PH_LOG(PPMRadianceEvaluationWork, Warning,
+		PH_DEFAULT_LOG(Warning,
 			"alpha must be in [0, 1], {} provided, clamping", m_alpha);
 		sanitizedAlpha = math::clamp(m_alpha, 0.0_r, 1.0_r);
 	}

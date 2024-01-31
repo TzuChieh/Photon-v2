@@ -44,6 +44,8 @@ struct TSPPMRadianceEvaluationRegion final
 
 	/*! Buffer that stores the statistics. */
 	std::vector<Viewpoint> viewpoints;
+
+	std::unique_ptr<SampleGenerator> viewSampleGenerator;
 };
 
 }// end anonymous namespace
@@ -137,6 +139,8 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		}
 
 		totalViewpoints += radianceEvalRegion.viewpoints.size();
+
+		radianceEvalRegion.viewSampleGenerator = getSampleGenerator()->makeNewborn(1);
 	}
 
 	PH_LOG(PMRenderer, Note, "viewpoint (statistics record) resolution: {}", 
@@ -157,13 +161,15 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 
 	std::vector<std::size_t> numPhotonPaths(numWorkers(), 0);
 	std::vector<Photon> photonBuffer(numPhotonsPerPass);
+
 	TPhotonMap<Photon> photonMap;
+	photonMap.minPhotonPathLength = getCommonParams().minPhotonPathLength;
+	photonMap.maxPhotonPathLength = getCommonParams().maxPhotonPathLength;
 
 	PH_LOG(PMRenderer, Note, "start accumulating passes...");
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
-	std::size_t totalPhotonPaths  = 0;
 	while(numFinishedPasses < getCommonParams().numPasses)
 	{
 		PH_PROFILE_NAMED_SCOPE("SPPM pass");
@@ -193,37 +199,35 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 
 				numPhotonPaths[workerIdx] = photonTracingWork.numPhotonPaths();
 			});
-		totalPhotonPaths = std::accumulate(numPhotonPaths.begin(), numPhotonPaths.end(), totalPhotonPaths);
 
 		photonMap.map.build(photonBuffer);
+		photonMap.numPhotonPaths = math::summation<std::size_t>(numPhotonPaths);
 
 		for(RadianceEvaluationRegion& radianceEvalRegion : radianceEvalRegions)
 		{
-			workers.queueWork([this, &radianceEvalRegion, &photonMap, &resultFilm, totalPhotonPaths, numFinishedPasses]()
+			workers.queueWork([this, &radianceEvalRegion, &photonMap, &resultFilm, numFinishedPasses]()
 			{
 				PH_PROFILE_NAMED_SCOPE("SPPM energy estimation");
 
 				radianceEvalRegion.film.clear();
-				auto sampleGenerator = getSampleGenerator()->makeNewborn(1);
+				SampleGenerator* viewSampleGenerator = radianceEvalRegion.viewSampleGenerator.get();
 
 				using RadianceEvaluator = TSPPMRadianceEvaluator<Viewpoint, Photon>;
 
 				RadianceEvaluator radianceEvaluator(
 					radianceEvalRegion.viewpoints,
 					&photonMap,
-					totalPhotonPaths,
 					getScene(),
 					&radianceEvalRegion.film,
 					radianceEvalRegion.region,
 					radianceEvalRegion.statisticsRes,
-					numFinishedPasses + 1,
-					16384);
+					numFinishedPasses + 1);
 
 				TViewPathTracingWork<RadianceEvaluator> viewpointWork(
 					&radianceEvaluator,
 					getScene(),
 					getReceiver(),
-					sampleGenerator.get(),
+					viewSampleGenerator,
 					// Must from within the region, shared statistics do not need out-of-region samples
 					math::TAABB2D<float64>(radianceEvalRegion.region),
 					radianceEvalRegion.statisticsRes);
@@ -231,6 +235,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 				viewpointWork.work();
 
 				resultFilm->mergeWith(radianceEvalRegion.film);
+				viewSampleGenerator->rebirth();
 			});
 		}
 		workers.waitAllWorks();

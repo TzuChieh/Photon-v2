@@ -40,9 +40,11 @@ struct TPPPMIteration final
 	/*! The photon's radius (bandwidth) for the iteration. */
 	real kernelRadius;
 
-	std::size_t numPhotonPaths;
 	std::vector<Photon> photonBuffer;
 	TPhotonMap<Photon> photonMap;
+
+	std::unique_ptr<SampleGenerator> photonSampleGenerator;
+	std::unique_ptr<SampleGenerator> viewSampleGenerator;
 };
 
 class KernelRadiusDispatcher final
@@ -145,23 +147,13 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 		pppmIteration.film = HdrRgbFilm(
 			getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
 		pppmIteration.kernelRadius = -1.0_r;
-		pppmIteration.numPhotonPaths = numPhotonsPerPass;
 		pppmIteration.photonBuffer = std::vector<Photon>(numPhotonsPerPass);
 		pppmIteration.photonMap = TPhotonMap<Photon>();
 		pppmIteration.photonMap.minPhotonPathLength = getCommonParams().minPhotonPathLength;
 		pppmIteration.photonMap.maxPhotonPathLength = getCommonParams().maxPhotonPathLength;
-	}
-
-	std::vector<std::unique_ptr<SampleGenerator>> photonSampleGenerators(numWorkers());
-	for(auto& sampleGenerator : photonSampleGenerators)
-	{
-		sampleGenerator = getSampleGenerator()->makeNewborn(1);
-	}
-
-	std::vector<std::unique_ptr<SampleGenerator>> viewSampleGenerators(numWorkers());
-	for(auto& sampleGenerator : viewSampleGenerators)
-	{
-		sampleGenerator = getSampleGenerator()->makeNewborn(getCommonParams().numSamplesPerPixel);
+		pppmIteration.photonSampleGenerator = getSampleGenerator()->makeNewborn(1);
+		pppmIteration.viewSampleGenerator = getSampleGenerator()->makeNewborn(
+			getCommonParams().numSamplesPerPixel);
 	}
 
 	PH_LOG(PMRenderer, Note, "start accumulating passes...");
@@ -170,7 +162,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 		getCommonParams().kernelRadius, getCommonParams().alpha, getCommonParams().numPasses);
 
 	parallel_work(numWorkers(), 
-	[this, numPhotonsPerPass, &pppmIterations, &photonSampleGenerators, &viewSampleGenerators, &radiusDispatcher](
+	[this, numPhotonsPerPass, &pppmIterations, &radiusDispatcher](
 		const std::size_t workerIdx)
 	{
 		PPPMIteration& pppmIteration = pppmIterations[workerIdx];
@@ -193,7 +185,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 			{
 				PH_PROFILE_NAMED_SCOPE("PPPM photon shooting");
 
-				SampleGenerator* photonSampleGenerator = photonSampleGenerators[workerIdx].get();
+				SampleGenerator* photonSampleGenerator = pppmIteration.photonSampleGenerator.get();
 
 				TPhotonPathTracingWork<Photon> photonTracingWork(
 					getScene(),
@@ -206,7 +198,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 
 				photonTracingWork.work();
 
-				pppmIteration.numPhotonPaths = photonTracingWork.numPhotonPaths();
+				pppmIteration.photonMap.numPhotonPaths = photonTracingWork.numPhotonPaths();
 				photonSampleGenerator->rebirth();
 			}
 
@@ -221,12 +213,11 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 
 				using RadianceEvaluator = TVPMRadianceEvaluator<FullPhoton>;
 
-				SampleGenerator* viewSampleGenerator = viewSampleGenerators[workerIdx].get();
+				SampleGenerator* viewSampleGenerator = pppmIteration.viewSampleGenerator.get();
 				pppmIteration.film.clear();
 
 				RadianceEvaluator evaluator(
 					&pppmIteration.photonMap,
-					pppmIteration.numPhotonPaths,
 					getScene(),
 					&pppmIteration.film);
 				evaluator.setStatistics(&getStatistics());

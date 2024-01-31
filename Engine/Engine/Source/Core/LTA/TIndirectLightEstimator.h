@@ -26,6 +26,8 @@ public:
 	/*! @brief Constructing path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
 	@param pathLength The length of the path to construct. This method is effectively the same as
 	`TDirectLightEstimator::bsdfSampleOutgoingWithNee()` if input is 1.
+	@param rrBeginPathLength When to start using russian roulette. If 0, russian roulette will be
+	performed right away, before any sampling take place.
 	@param out_Lo Sampled energy. The energy is for the specified path length only.
 	@return Whether output parameters are usable. If `false` is returned, the sample should still
 	be treated as valid, albeit its contribution is effectively zero.
@@ -35,6 +37,7 @@ public:
 		SampleFlow&            sampleFlow,
 		std::size_t            pathLength,
 		const RussianRoulette& rr,
+		std::size_t            rrBeginPathLength,
 		math::Spectrum*        out_Lo = nullptr) const;
 
 private:

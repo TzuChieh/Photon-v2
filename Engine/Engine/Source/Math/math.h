@@ -13,6 +13,7 @@ to rendering in mind.
 #include "Math/math_fwd.h"
 #include "Math/math_table.h"
 #include "Utility/utility.h"
+#include "Utility/TSpan.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -21,6 +22,7 @@ to rendering in mind.
 
 #include <cmath>
 #include <algorithm>
+#include <numeric>
 #include <type_traits>
 #include <utility>
 #include <limits>
@@ -270,12 +272,20 @@ inline bool is_odd(const T value)
 //
 bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N);
 
-/*! @brief Multiplies all values together within a container.
+/*! @brief Sum all values within a container together.
 */
 template<typename T>
-inline T product(const std::vector<T>& values)
+inline T summation(TSpanView<T> values, const T initialValue = 0)
 {
-	T result(1);
+	return std::accumulate(values.begin(), values.end(), initialValue);
+}
+
+/*! @brief Multiplies all values within a container together.
+*/
+template<typename T>
+inline T product(TSpanView<T> values, const T initialValue = 1)
+{
+	T result = initialValue;
 	for(auto&& value : values)
 	{
 		result *= value;

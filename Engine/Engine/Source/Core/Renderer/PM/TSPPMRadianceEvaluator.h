@@ -42,13 +42,11 @@ public:
 	TSPPMRadianceEvaluator(
 		TSpan<Viewpoint>               viewpoints,
 		const TPhotonMap<Photon>*      photonMap,
-		std::size_t                    numPhotonPaths,
 		const Scene*                   scene,
 		TSamplingFilm<math::Spectrum>* film,
 		const Region&                  statisticsRegion,
 		const math::TVector2<int64>&   statisticsRes,
-		std::size_t                    numViewRadianceSamples,
-		std::size_t                    maxViewpointDepth);
+		std::size_t                    numViewRadianceSamples);
 
 	bool impl_onReceiverSampleStart(
 		const math::Vector2D&          rasterCoord,
@@ -69,48 +67,44 @@ private:
 	math::Spectrum estimateRadiance(const Viewpoint& viewpoint) const;
 	std::size_t getViewpointIndex(int64 sampleX, int64 sampleY) const;
 
-	TSpan<Viewpoint> m_viewpoints;
-	const TPhotonMap<Photon>* m_photonMap;
-	real m_rcpNumPhotonPaths;
-	const Scene* m_scene;
+	TSpan<Viewpoint>               m_viewpoints;
+	const TPhotonMap<Photon>*      m_photonMap;
+	real                           m_rcpNumPhotonPaths;
+	const Scene*                   m_scene;
 	TSamplingFilm<math::Spectrum>* m_film;
-	Region m_statisticsRegion;
-	math::TVector2<int64> m_statisticsRes;
-	real m_rcpNumViewRadianceSamples;
-	std::size_t m_maxViewpointDepth;
+	Region                         m_statisticsRegion;
+	math::TVector2<int64>          m_statisticsRes;
+	real                           m_rcpNumViewRadianceSamples;
 
-	Viewpoint* m_viewpoint;
-	std::vector<Photon> m_photonCache;
-	bool m_foundTargetHitPoint;
+	Viewpoint*                     m_viewpoint;
+	std::vector<Photon>            m_photonCache;
+	bool                           m_foundTargetHitPoint;
 };
 
 // In-header Implementations:
 
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
-	const TSpan<Viewpoint> viewpoints,
-	const TPhotonMap<Photon>* const photonMap,
-	const std::size_t numPhotonPaths,
-	const Scene* const scene,
+	const TSpan<Viewpoint>               viewpoints,
+	const TPhotonMap<Photon>* const      photonMap,
+	const Scene* const                   scene,
 	TSamplingFilm<math::Spectrum>* const film,
-	const Region& statisticsRegion,
-	const math::TVector2<int64>& statisticsRes,
-	const std::size_t numViewRadianceSamples,
-	const std::size_t maxViewpointDepth)
+	const Region&                        statisticsRegion,
+	const math::TVector2<int64>&         statisticsRes,
+	const std::size_t                    numViewRadianceSamples)
 
-	: m_viewpoints(viewpoints)
-	, m_photonMap(photonMap)
-	, m_rcpNumPhotonPaths()
-	, m_scene(scene)
-	, m_film(film)
-	, m_statisticsRegion(statisticsRegion)
-	, m_statisticsRes(statisticsRes)
+	: m_viewpoints               (viewpoints)
+	, m_photonMap                (photonMap)
+	, m_rcpNumPhotonPaths        ()
+	, m_scene                    (scene)
+	, m_film                     (film)
+	, m_statisticsRegion         (statisticsRegion)
+	, m_statisticsRes            (statisticsRes)
 	, m_rcpNumViewRadianceSamples()
-	, m_maxViewpointDepth(maxViewpointDepth)
 
-	, m_viewpoint(nullptr)
-	, m_photonCache()
-	, m_foundTargetHitPoint(false)
+	, m_viewpoint                (nullptr)
+	, m_photonCache              ()
+	, m_foundTargetHitPoint      (false)
 {
 	PH_ASSERT(!m_viewpoints.empty());
 	PH_ASSERT(photonMap);
@@ -120,8 +114,8 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 	PH_ASSERT_GE(statisticsRes.product(), 1);
 	PH_ASSERT_GE(maxViewpointDepth, 1);
 
-	m_rcpNumPhotonPaths = numPhotonPaths > 0
-		? 1.0_r / static_cast<real>(numPhotonPaths)
+	m_rcpNumPhotonPaths = photonMap->numPhotonPaths > 0
+		? 1.0_r / static_cast<real>(photonMap->numPhotonPaths)
 		: 0.0_r;
 
 	m_rcpNumViewRadianceSamples = numViewRadianceSamples > 0
@@ -190,14 +184,12 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		}
 	}
 
-	// FIXME: properly handle delta optics (mixed case)
-
-	// For path length = N, we can construct full light transport path lengths with photon map, all at
-	// once, for the range [`N + m_photonMap->minPhotonPathLength`, infinity (if RR is used))
-	if(optics->getAllPhenomena().hasAny(ESurfacePhenomenon::DiffuseReflection) ||
-	   pathLength >= m_maxViewpointDepth)
+	if(optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) && 
+	   optics->getAllPhenomena().hasAny(ESurfacePhenomenon::DiffuseReflection))
 	{
-		// TODO: better handling of glossy optics
+		// For path length = N, we can construct full light transport path lengths with photon map,
+		// all at once, for the range
+		// [`N + m_photonMap->minPhotonPathLength`, `N + m_photonMap->maxPhotonPathLength`].
 
 		if constexpr(Viewpoint::template has<EViewpointData::SurfaceHit>())
 		{
@@ -214,6 +206,21 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 
 		m_foundTargetHitPoint = true;
 
+		// For path lengths beyond `N + m_photonMap->maxPhotonPathLength`, use path tracing.
+
+		math::Spectrum viewRadiance;
+		SampleFlow randomFlow;
+		if(IndirectLight{m_scene}.bsdfSamplePathWithNee(
+			surfaceHit, 
+			randomFlow,
+			m_photonMap->maxPhotonPathLength + 1,// we are already on view path of length N
+			lta::RussianRoulette{},
+			0,// the path length is likely long already, do RR immediately
+			&viewRadiance))
+		{
+			addViewRadiance(*m_viewpoint, pathThroughput * viewRadiance);
+		}
+
 		return ViewPathTracingPolicy().kill();
 	}
 	else
@@ -229,6 +236,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 			randomFlow,
 			m_photonMap->minPhotonPathLength,// we are already on view path of length N
 			lta::RussianRoulette{},
+			1,// likely a delta or glossy surface, delay RR slightly
 			&viewRadiance))
 		{
 			addViewRadiance(*m_viewpoint, pathThroughput * viewRadiance);

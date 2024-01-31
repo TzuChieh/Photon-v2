@@ -6,6 +6,7 @@
 
 #include <Common/primitive_type.h>
 
+#include <cstddef>
 #include <type_traits>
 
 namespace ph
@@ -32,6 +33,8 @@ public:
 	using MapType = math::TIndexedPointKdtree<Photon, int, PhotonCenterCalculator>;
 
 	MapType map = MapType(2, PhotonCenterCalculator{});
+
+	std::size_t numPhotonPaths = 0;
 
 	/*! Minimum length of photon paths in this photon map. If a photon lands on a surface for the
 	first time, then its path length is 1 (no need to bounce).

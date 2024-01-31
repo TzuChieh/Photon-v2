@@ -28,6 +28,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	SampleFlow&            sampleFlow,
 	const std::size_t      pathLength,
 	const RussianRoulette& rr,
+	const std::size_t      rrBeginPathLength,
 	math::Spectrum* const  out_Lo) const
 {
 	PH_ASSERT_GE(pathLength, 1);
@@ -39,14 +40,27 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	SurfaceHit surfaceHit = X;
 	math::Spectrum accuLiWeight(1);
 
-	auto remainingPathLength = pathLength;
-	while(remainingPathLength > 0)
+	std::size_t currentPathLength = 0;
+	while(currentPathLength < pathLength)
 	{
+		if(currentPathLength >= rrBeginPathLength)
+		{
+			math::Spectrum weightedAccuLiWeight;
+			if(rr.surviveOnLuminance(accuLiWeight, sampleFlow, &weightedAccuLiWeight))
+			{
+				accuLiWeight = weightedAccuLiWeight;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
 		const math::Vector3R V = surfaceHit.getIncidentRay().getDirection().mul(-1);
 		const math::Vector3R N = surfaceHit.getShadingNormal();
 
 		// Sample direct lighting
-		if(remainingPathLength == 1)
+		if(currentPathLength + 1 == pathLength)
 		{
 			math::Spectrum Lo;
 			if(directLight.bsdfSampleOutgoingWithNee(
@@ -74,17 +88,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			accuLiWeight *= bsdfSample.outputs.getPdfAppliedBsdf() * N.absDot(bsdfSample.outputs.getL());
 		}
 
-		math::Spectrum weightedAccuLiWeight;
-		if(rr.surviveOnLuminance(accuLiWeight, sampleFlow, &weightedAccuLiWeight))
-		{
-			accuLiWeight = weightedAccuLiWeight;
-		}
-		else
-		{
-			return false;
-		}
-
-		--remainingPathLength;
+		++currentPathLength;
 	}
 
 	return false;
