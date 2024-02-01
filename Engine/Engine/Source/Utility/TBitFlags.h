@@ -33,6 +33,10 @@ public:
 	*/
 	explicit constexpr TBitFlags(const FlagsSet& flagsSet);
 
+	/*! @brief Create with initial flags set.
+	*/
+	explicit constexpr TBitFlags(Input flagsSet);
+
 	/*! @brief Copy construct flags from another `TBitFlags` with a different `Input` type.
 	*/
 	template<typename OtherInput>

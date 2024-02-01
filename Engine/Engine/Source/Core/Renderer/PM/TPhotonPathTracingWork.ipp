@@ -119,7 +119,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 				if(photonPathLength >= m_minPhotonPathLength)
 				{
 					m_photonBuffer[numStoredPhotons++] = makePhoton(
-						surfaceHit, throughputRadiance, tracingRay);
+						surfaceHit, throughputRadiance, tracingRay, photonPathLength);
 					++photonStatsCounter;
 				}
 
@@ -192,7 +192,8 @@ template<CPhoton Photon>
 inline Photon TPhotonPathTracingWork<Photon>::makePhoton(
 	const SurfaceHit&     surfaceHit, 
 	const math::Spectrum& throughputRadiance,
-	const Ray&            tracingRay)
+	const Ray&            tracingRay,
+	const std::size_t     pathLength)
 {
 	Photon photon;
 	if constexpr(Photon::template has<EPhotonData::Position>())
@@ -210,6 +211,10 @@ inline Photon TPhotonPathTracingWork<Photon>::makePhoton(
 	if constexpr(Photon::template has<EPhotonData::GeometryNormal>())
 	{
 		photon.template set<EPhotonData::GeometryNormal>(surfaceHit.getGeometryNormal());
+	}
+	if constexpr(Photon::template has<EPhotonData::PathLength>())
+	{
+		photon.template set<EPhotonData::PathLength>(pathLength);
 	}
 
 	return photon;

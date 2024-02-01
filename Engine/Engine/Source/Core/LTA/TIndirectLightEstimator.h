@@ -24,11 +24,12 @@ public:
 	explicit TIndirectLightEstimator(const Scene* scene);
 
 	/*! @brief Constructing path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
-	@param pathLength The length of the path to construct. This method is effectively the same as
-	`TDirectLightEstimator::bsdfSampleOutgoingWithNee()` if input is 1.
+	This method is effectively the same as `TDirectLightEstimator::bsdfSampleOutgoingWithNee()` if
+	input path length is 1.
+	@param pathLength The length of the path to construct.
+	@param out_Lo Sampled outgoing energy from `X`. The energy is for the specified path length only.
 	@param rrBeginPathLength When to start using russian roulette. If 0, russian roulette will be
 	performed right away, before any sampling take place.
-	@param out_Lo Sampled energy. The energy is for the specified path length only.
 	@return Whether output parameters are usable. If `false` is returned, the sample should still
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
@@ -37,8 +38,30 @@ public:
 		SampleFlow&            sampleFlow,
 		std::size_t            pathLength,
 		const RussianRoulette& rr,
-		std::size_t            rrBeginPathLength,
-		math::Spectrum*        out_Lo = nullptr) const;
+		math::Spectrum*        out_Lo = nullptr,
+		std::size_t            rrBeginPathLength = 0,
+		const math::Spectrum&  initialPathWeight = math::Spectrum(1)) const;
+
+	/*! @brief Constructing path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
+	This method is effectively the same as `TDirectLightEstimator::bsdfSampleOutgoingWithNee()` if
+	input path length is in range [1, 1].
+	@param minPathLength The minimum length of the path to construct.
+	@param maxPathLength The maximum length of the path to construct (inclusive).
+	@param out_Lo Sampled outgoing energy from `X`. The energy is for the specified path length range only.
+	@param rrBeginPathLength When to start using russian roulette. If 0, russian roulette will be
+	performed right away, before any sampling take place.
+	@return Whether output parameters are usable. If `false` is returned, the sample should still
+	be treated as valid, albeit its contribution is effectively zero.
+	*/
+	bool bsdfSamplePathWithNee(
+		const SurfaceHit&      X,
+		SampleFlow&            sampleFlow,
+		std::size_t            minPathLength,
+		std::size_t            maxPathLength,
+		const RussianRoulette& rr,
+		math::Spectrum*        out_Lo = nullptr,
+		std::size_t            rrBeginPathLength = 0, 
+		const math::Spectrum&  initialPathWeight = math::Spectrum(1)) const;
 
 private:
 	const Scene* m_scene;

@@ -3,19 +3,13 @@
 #include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/PM/TPhotonMap.h"
 #include "Core/Renderer/PM/TPhoton.h"
+#include "Core/Renderer/PM/PMCommonParams.h"
 #include "Core/Filmic/TSamplingFilm.h"
-#include "Core/Intersectable/Primitive.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Emitter/Emitter.h"
-#include "Core/LTA/SurfaceTracer.h"
-#include "Core/LTA/lta.h"
-#include "Core/LTA/TDirectLightEstimator.h"
-#include "Core/LTA/TIndirectLightEstimator.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/Renderer/PM/photon_map_light_transport.h"
 #include "Math/Color/Spectrum.h"
 
 #include <Common/assertion.h>
@@ -24,11 +18,11 @@
 #include <cstddef>
 #include <vector>
 
+namespace ph { class Scene; }
+namespace ph { class PMAtomicStatistics; }
+
 namespace ph
 {
-
-class Scene;
-class PMAtomicStatistics;
 
 template<CPhoton Photon>
 class TVPMRadianceEvaluator : public TViewPathHandler<TVPMRadianceEvaluator<Photon>>
@@ -64,11 +58,15 @@ public:
 	*/
 	void setStochasticPathSampleBeginLength(std::size_t stochasticSampleBeginLength);
 
-	/*! @brief Set the view path lengths for radiance evaluation.
-	This is not the range of full path lengths. The range of full path lengths that are being
-	evaluated also depends on the photon map used.
+	/*! @brief Set the full light transport path lengths for radiance evaluation.
+	Whether all the requested path lengths are evaluated using photon map also depends on the input
+	photon map's settings. Path lengths must be >= 1.
+	@param minFullPathLength The minimum full light transport path length to consider.
+	@param maxFullPathLength The maximum full light transport path length to consider (inclusive).
 	*/
-	void setPathLengthRange(std::size_t evalBeginLength, std::size_t evalEndLength = 16384);
+	void setFullPathLengthRange(
+		std::size_t minFullPathLength, 
+		std::size_t maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH);
 
 private:
 	math::Spectrum estimateRadianceWithPhotonMap(
@@ -84,8 +82,8 @@ private:
 	real                           m_kernelDensityNormalizer;
 	PMAtomicStatistics*            m_statistics;
 	std::size_t                    m_stochasticSampleBeginLength;
-	std::size_t                    m_evalBeginLength;
-	std::size_t                    m_evalEndLength;
+	std::size_t                    m_minFullPathLength;
+	std::size_t                    m_maxFullPathLength;
 
 	math::Vector2D                 m_rasterCoord;
 	math::Spectrum                 m_sampledRadiance;
@@ -108,22 +106,22 @@ inline TVPMRadianceEvaluator<Photon>::TVPMRadianceEvaluator(
 	, m_kernelDensityNormalizer    ()
 	, m_statistics                 ()
 	, m_stochasticSampleBeginLength()
-	, m_evalBeginLength            ()
-	, m_evalEndLength              ()
+	, m_minFullPathLength          ()
+	, m_maxFullPathLength          ()
 
 	, m_rasterCoord                ()
 	, m_sampledRadiance            ()
 	, m_photonCache                ()
 {
 	PH_ASSERT(photonMap);
-	PH_ASSERT_GT(photonMap->numPhotonPaths, 0);
+	PH_ASSERT_GT(photonMap->numPaths, 0);
 	PH_ASSERT(scene);
 	PH_ASSERT(film);
 
 	setStatistics(nullptr);
 	setKernelRadius(0.1_r);
 	setStochasticPathSampleBeginLength(1);
-	setPathLengthRange(1);
+	setFullPathLengthRange(1);
 }
 
 template<CPhoton Photon>
@@ -144,109 +142,65 @@ inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
 	const SurfaceHit&     surfaceHit,
 	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
 {
-	using DirectLight = lta::TDirectLightEstimator<lta::ESidednessPolicy::Strict>;
-	using IndirectLight = lta::TIndirectLightEstimator<lta::ESidednessPolicy::Strict>;
-
-	PH_ASSERT_GE(pathLength, 1);
-
-	PH_ASSERT(surfaceHit.getDetail().getPrimitive());
-	const PrimitiveMetadata* meta = surfaceHit.getDetail().getPrimitive()->getMetadata();
-	const SurfaceOptics* optics = meta ? meta->getSurface().getOptics() : nullptr;
-	if(pathLength + 1 == m_evalEndLength || !optics)
+	const SurfaceOptics* optics = surfaceHit.getSurfaceOptics();
+	if(!optics)
 	{
 		return ViewPathTracingPolicy().kill();
 	}
 
-	// Not evaluating radiance for current path length yet
-	if(pathLength < m_evalBeginLength)
 	{
-		if(pathLength < m_stochasticSampleBeginLength)
-		{
-			return ViewPathTracingPolicy().
-				traceBranchedPathFor(SurfacePhenomena({ALL_SURFACE_PHENOMENA})).
-				useRussianRoulette(false);
-		}
-		else
-		{
-			return ViewPathTracingPolicy().
-				traceSinglePathFor(ALL_SURFACE_ELEMENTALS).
-				useRussianRoulette(true);
-		}
+		const auto unaccountedEnergy = estimate_certainly_lost_energy(
+			pathLength,
+			surfaceHit,
+			pathThroughput,
+			m_photonMap,
+			m_scene,
+			m_minFullPathLength,
+			m_maxFullPathLength);
+		m_sampledRadiance += unaccountedEnergy;
 	}
 
-	// Evaluate radiance for current path length
-	PH_ASSERT_IN_RANGE(pathLength, m_evalBeginLength, m_evalEndLength);
-
-	// Cannot have path length = 1 lighting using only photon map--when we use a photon map, it is
-	// at least path length = 2 (can be even longer depending on the settings)
-
-	// Never contain 0-bounce photons
-	PH_ASSERT_GE(m_photonMap->minPhotonPathLength, 1);
-
-	// Path length = 1 (0-bounce) lighting via path tracing (directly sample radiance)
-	if(pathLength == 1 && meta->getSurface().getEmitter())
-	{
-		math::Spectrum viewRadiance;
-		meta->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewRadiance);
-		m_sampledRadiance.addLocal(pathThroughput * viewRadiance);
-	}
-
-	// +1 as when we merge view path with photon path, full path length is at least increased by 1
-	const auto minFullLengthWithPhotonMap = m_photonMap->minPhotonPathLength + 1;
-
-	// Path length > 1 lighting via path tracing if we cannot construct the path length
-	// from photon map
-	if(pathLength + 1 < minFullLengthWithPhotonMap)
-	{
-		math::Spectrum viewRadiance;
-		SampleFlow randomFlow;
-		if(DirectLight{m_scene}.bsdfSampleOutgoingWithNee(
-			surfaceHit, 
-			randomFlow,
-			&viewRadiance))
-		{
-			m_sampledRadiance.addLocal(pathThroughput * viewRadiance);
-		}
-	}
-
-	// FIXME: properly handle delta optics (mixed case)
-
-	// For path length = N, we can construct full light transport path lengths with photon map, all at
-	// once, for the range [`N + m_photonMap->minPhotonPathLength`, infinity (if RR is used))
-	if(optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) &&
+	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
+	   optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) &&
 	   optics->getAllPhenomena().hasAny(ESurfacePhenomenon::DiffuseReflection))
 	{
 		const BsdfQueryContext bsdfContext(
 			ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
 
-		m_sampledRadiance.addLocal(estimateRadianceWithPhotonMap(
-			surfaceHit, bsdfContext, pathThroughput));
+		// For path length = N, we can construct light transport path lengths with photon map,
+		// all at once, for the range [N_min, N_max] = 
+		// [`N + m_photonMap->minPathLength`, `N + m_photonMap->maxPathLength`].
+		m_sampledRadiance += estimateRadianceWithPhotonMap(
+			surfaceHit, bsdfContext, pathThroughput);
+
+		const auto unaccountedEnergy = estimate_lost_energy_for_merging(
+			pathLength,
+			surfaceHit,
+			pathThroughput,
+			m_photonMap,
+			m_scene,
+			m_minFullPathLength,
+			m_maxFullPathLength);
+		m_sampledRadiance += unaccountedEnergy;
 
 		return ViewPathTracingPolicy().kill();
 	}
 	else
 	{
-		// If we extend the path length from N (current) to N + 1 (by returning a non-killing policy),
-		// this means we are not using photon map to approximate lighting for path length = N' =
-		// `N + m_photonMap->minPhotonPathLength`. We will lose energy for path length = N' if we do
-		// nothing. Here we use path tracing to find the energy that would otherwise be lost.
-		math::Spectrum viewRadiance;
-		SampleFlow randomFlow;
-		if(IndirectLight{m_scene}.bsdfSamplePathWithNee(
-			surfaceHit, 
-			randomFlow,
-			m_photonMap->minPhotonPathLength,// we are already on view path of length N
-			lta::RussianRoulette{},
-			1,// likely a delta or glossy surface, delay RR slightly
-			&viewRadiance))
-		{
-			m_sampledRadiance.addLocal(pathThroughput * viewRadiance);
-		}
+		const auto unaccountedEnergy = estimate_lost_energy_for_extending(
+			pathLength,
+			surfaceHit,
+			pathThroughput,
+			m_photonMap,
+			m_scene,
+			m_minFullPathLength,
+			m_maxFullPathLength);
+		m_sampledRadiance += unaccountedEnergy;
 
 		if(pathLength < m_stochasticSampleBeginLength)
 		{
 			return ViewPathTracingPolicy().
-				traceBranchedPathFor(SurfacePhenomena({ALL_SURFACE_PHENOMENA})).
+				traceBranchedPathFor(SurfacePhenomena(ALL_SURFACE_PHENOMENA)).
 				useRussianRoulette(false);
 		}
 		else
@@ -280,7 +234,7 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon>::estimateRadianceWithPhotonM
 	const math::Spectrum& viewPathThroughput)
 {
 	m_photonCache.clear();
-	m_photonMap->map.findWithinRange(X.getPosition(), m_kernelRadius, m_photonCache);
+	m_photonMap->find(X.getPosition(), m_kernelRadius, m_photonCache);
 
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
@@ -308,7 +262,7 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon>::estimateRadianceWithPhotonM
 		throughput.mulLocal(bsdfEval.outputs.getBsdf());
 		throughput.mulLocal(lta::tamed_importance_BSDF_Ns_corrector(Ns, Ng, V));
 
-		radiance.addLocal(throughput * photon.get<EPhotonData::ThroughputRadiance>());
+		radiance.addLocal(throughput * photon.template get<EPhotonData::ThroughputRadiance>());
 	}
 	radiance.mulLocal(m_kernelDensityNormalizer);
 
@@ -329,7 +283,7 @@ inline void TVPMRadianceEvaluator<Photon>::setKernelRadius(const real radius)
 	m_kernelRadius = radius;
 
 	const real kernelArea = radius * radius * math::constant::pi<real>;
-	m_kernelDensityNormalizer = 1.0_r / (kernelArea * static_cast<real>(m_photonMap->numPhotonPaths));
+	m_kernelDensityNormalizer = 1.0_r / (kernelArea * static_cast<real>(m_photonMap->numPaths));
 }
 
 template<CPhoton Photon>
@@ -342,13 +296,14 @@ inline void TVPMRadianceEvaluator<Photon>::setStochasticPathSampleBeginLength(
 }
 
 template<CPhoton Photon>
-inline void TVPMRadianceEvaluator<Photon>::setPathLengthRange(
-	const std::size_t evalBeginLength, const std::size_t evalEndLength)
+inline void TVPMRadianceEvaluator<Photon>::setFullPathLengthRange(
+	const std::size_t minFullPathLength, const std::size_t maxFullPathLength)
 {
-	PH_ASSERT_LT(evalBeginLength, evalEndLength);
+	PH_ASSERT_GE(minFullPathLength, 1);
+	PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
 
-	m_evalBeginLength = evalBeginLength;
-	m_evalEndLength = evalEndLength;
+	m_minFullPathLength = minFullPathLength;
+	m_maxFullPathLength = maxFullPathLength;
 }
 
 }// end namespace ph

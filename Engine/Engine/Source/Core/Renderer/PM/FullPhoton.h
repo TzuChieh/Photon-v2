@@ -3,8 +3,10 @@
 #include "Core/Renderer/PM/TPhoton.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
+#include "Utility/utility.h"
 
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 namespace ph
 {
@@ -29,6 +31,7 @@ private:
 	math::Vector3R m_position;
 	math::Vector3R m_fromDir;
 	math::Vector3R m_geometryNormal;
+	uint32         m_pathLength;
 };
 
 // In-header Implementations:
@@ -40,7 +43,8 @@ inline constexpr bool FullPhoton::impl_has()
 		TYPE == EPhotonData::ThroughputRadiance ||
 		TYPE == EPhotonData::Position           || 
 		TYPE == EPhotonData::FromDir            ||
-		TYPE == EPhotonData::GeometryNormal)
+		TYPE == EPhotonData::GeometryNormal     ||
+		TYPE == EPhotonData::PathLength)
 	{
 		return true;
 	}
@@ -69,6 +73,10 @@ inline decltype(auto) FullPhoton::impl_get() const
 	{
 		return m_geometryNormal;
 	}
+	else if constexpr(TYPE == EPhotonData::PathLength)
+	{
+		return m_pathLength;
+	}
 	else
 	{
 		PH_ASSERT_UNREACHABLE_SECTION();
@@ -94,6 +102,10 @@ inline void FullPhoton::impl_set(const T& value)
 	else if constexpr(TYPE == EPhotonData::GeometryNormal)
 	{
 		m_geometryNormal = value;
+	}
+	else if constexpr(TYPE == EPhotonData::PathLength)
+	{
+		m_pathLength = lossless_cast<uint32>(value);
 	}
 	else
 	{

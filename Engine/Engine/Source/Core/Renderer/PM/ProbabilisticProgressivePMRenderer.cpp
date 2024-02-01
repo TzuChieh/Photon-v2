@@ -149,8 +149,8 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 		pppmIteration.kernelRadius = -1.0_r;
 		pppmIteration.photonBuffer = std::vector<Photon>(numPhotonsPerPass);
 		pppmIteration.photonMap = TPhotonMap<Photon>();
-		pppmIteration.photonMap.minPhotonPathLength = getCommonParams().minPhotonPathLength;
-		pppmIteration.photonMap.maxPhotonPathLength = getCommonParams().maxPhotonPathLength;
+		pppmIteration.photonMap.minPathLength = getCommonParams().minPhotonPathLength;
+		pppmIteration.photonMap.maxPathLength = getCommonParams().maxPhotonPathLength;
 		pppmIteration.photonSampleGenerator = getSampleGenerator()->makeNewborn(1);
 		pppmIteration.viewSampleGenerator = getSampleGenerator()->makeNewborn(
 			getCommonParams().numSamplesPerPixel);
@@ -198,7 +198,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 
 				photonTracingWork.work();
 
-				pppmIteration.photonMap.numPhotonPaths = photonTracingWork.numPhotonPaths();
+				pppmIteration.photonMap.numPaths = photonTracingWork.numPhotonPaths();
 				photonSampleGenerator->rebirth();
 			}
 

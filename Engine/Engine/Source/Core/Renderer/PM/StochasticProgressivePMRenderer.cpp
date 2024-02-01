@@ -163,8 +163,8 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 	std::vector<Photon> photonBuffer(numPhotonsPerPass);
 
 	TPhotonMap<Photon> photonMap;
-	photonMap.minPhotonPathLength = getCommonParams().minPhotonPathLength;
-	photonMap.maxPhotonPathLength = getCommonParams().maxPhotonPathLength;
+	photonMap.minPathLength = getCommonParams().minPhotonPathLength;
+	photonMap.maxPathLength = getCommonParams().maxPhotonPathLength;
 
 	PH_LOG(PMRenderer, Note, "start accumulating passes...");
 
@@ -201,7 +201,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 			});
 
 		photonMap.map.build(photonBuffer);
-		photonMap.numPhotonPaths = math::summation<std::size_t>(numPhotonPaths);
+		photonMap.numPaths = math::summation<std::size_t>(numPhotonPaths);
 
 		for(RadianceEvaluationRegion& radianceEvalRegion : radianceEvalRegions)
 		{

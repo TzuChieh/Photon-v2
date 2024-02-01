@@ -127,7 +127,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 		TPhotonMap<Photon> photonMap;
 		photonMap.map.build(std::move(photonBuffer));
-		photonMap.numPhotonPaths = math::summation<std::size_t>(numPhotonPaths);
+		photonMap.numPaths = math::summation<std::size_t>(numPhotonPaths);
 
 		parallel_work(viewpoints.size(), numWorkers(),
 			[this, &photonMap, &viewpoints, &resultFilm](

@@ -134,7 +134,7 @@ inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
 	// at least path length = 2 (can be even longer depending on the settings)
 	
 	// Never contain 0-bounce photons
-	PH_ASSERT_GE(m_photonMap->minPhotonPathLength, 1);
+	PH_ASSERT_GE(m_photonMap->minPathLength, 1);
 
 	// Check if there's any non-delta elemental
 	SurfacePhenomena phenomena = optics->getAllPhenomena();

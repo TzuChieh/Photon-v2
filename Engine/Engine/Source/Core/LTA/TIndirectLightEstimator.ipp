@@ -28,8 +28,9 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	SampleFlow&            sampleFlow,
 	const std::size_t      pathLength,
 	const RussianRoulette& rr,
+	math::Spectrum* const  out_Lo,
 	const std::size_t      rrBeginPathLength,
-	math::Spectrum* const  out_Lo) const
+	const math::Spectrum&  initialPathWeight) const
 {
 	PH_ASSERT_GE(pathLength, 1);
 
@@ -38,7 +39,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	const BsdfQueryContext bsdfCtx{POLICY};
 
 	SurfaceHit surfaceHit = X;
-	math::Spectrum accuLiWeight(1);
+	math::Spectrum accuLiWeight = initialPathWeight;
 
 	std::size_t currentPathLength = 0;
 	while(currentPathLength < pathLength)
@@ -92,6 +93,80 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	}
 
 	return false;
+}
+
+template<ESidednessPolicy POLICY>
+inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
+	const SurfaceHit&      X,
+	SampleFlow&            sampleFlow,
+	const std::size_t      minPathLength,
+	const std::size_t      maxPathLength,
+	const RussianRoulette& rr,
+	math::Spectrum* const  out_Lo,
+	const std::size_t      rrBeginPathLength,
+	const math::Spectrum&  initialPathWeight) const
+{
+	PH_ASSERT_GE(minPathLength, 1);
+	PH_ASSERT_LE(minPathLength, maxPathLength);
+
+	const TDirectLightEstimator<POLICY> directLight{m_scene};
+
+	SurfaceHit surfaceHit = X;
+	math::Spectrum accuPathWeight = initialPathWeight;
+	math::Spectrum accuLo(0);
+
+	std::size_t currentPathLength = 0;
+	while(currentPathLength + 1 <= maxPathLength)// can extend by 1?
+	{
+		if(currentPathLength >= rrBeginPathLength)
+		{
+			math::Spectrum weightedAccuPathWeight;
+			if(rr.surviveOnLuminance(accuPathWeight, sampleFlow, &weightedAccuPathWeight))
+			{
+				accuPathWeight = weightedAccuPathWeight;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		const math::Vector3R V = surfaceHit.getIncidentRay().getDirection().mul(-1);
+		const math::Vector3R N = surfaceHit.getShadingNormal();
+
+		math::Spectrum Lo;
+		math::Vector3R L;
+		math::Spectrum pdfAppliedBsdf;
+		SurfaceHit nextSurfaceHit;
+		if(directLight.bsdfSampleOutgoingWithNee(
+			surfaceHit,
+			sampleFlow,
+			&Lo,
+			&L,
+			&pdfAppliedBsdf,
+			&nextSurfaceHit))
+		{
+			++currentPathLength;
+
+			// Only account energy from the specified path length range
+			PH_ASSERT_LE(currentPathLength, maxPathLength);
+			if(minPathLength <= currentPathLength)
+			{
+				accuLo += accuPathWeight * Lo;
+			}
+
+			accuPathWeight *= pdfAppliedBsdf * N.absDot(L);
+			surfaceHit = nextSurfaceHit;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	if(out_Lo) { *out_Lo = accuLo; }
+
+	return true;
 }
 
 }// end namespace ph::lta

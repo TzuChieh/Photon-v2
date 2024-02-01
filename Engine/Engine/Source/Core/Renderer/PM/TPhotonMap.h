@@ -2,12 +2,16 @@
 
 #include "Math/Algorithm/IndexedKdtree/TIndexedPointKdtree.h"
 #include "Core/Renderer/PM/TPhoton.h"
+#include "Core/Renderer/PM/PMCommonParams.h"
 #include "Math/TVector3.h"
 
+#include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 #include <cstddef>
 #include <type_traits>
+#include <vector>
 
 namespace ph
 {
@@ -34,17 +38,97 @@ public:
 
 	MapType map = MapType(2, PhotonCenterCalculator{});
 
-	std::size_t numPhotonPaths = 0;
+	/*! Number of photon paths in this photon map.
+	*/
+	std::size_t numPaths = 0;
 
 	/*! Minimum length of photon paths in this photon map. If a photon lands on a surface for the
 	first time, then its path length is 1 (no need to bounce).
 	*/
-	uint32 minPhotonPathLength = 1;
+	uint32 minPathLength = 1;
 
 	/*! Maximum length of photon paths in this photon map. The default value is practically
 	infinite number of bounces.
 	*/
-	uint32 maxPhotonPathLength = 16384;
+	uint32 maxPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH;
+
+	/*!
+	@param viewPathLength The view path length used for forming a full path.
+	@param minFullPathLength The minimum full path length to form.
+	@param maxFullPathLength The maximum full path length to form (inclusive).
+	@return Can this photon map form any paths in the specified full path length range. 
+	*/
+	bool canContribute(
+		const std::size_t viewPathLength,
+		const std::size_t minFullPathLength,
+		const std::size_t maxFullPathLength) const
+	{
+		PH_ASSERT_LE(minTargetPathLength, maxTargetPathLength);
+		const auto minFullPathLengthFromMap = viewPathLength + minPathLength;
+		const auto maxFullPathLengthFromMap = viewPathLength + maxPathLength;
+		return maxFullPathLength >= minFullPathLengthFromMap && 
+		       minFullPathLength <= maxFullPathLengthFromMap;
+	}
+
+	/*! @brief Find all photons in a radius.
+	*/
+	void find(
+		const math::Vector3R& position,
+		const real            kernelRadius,
+		std::vector<Photon>&  photons) const
+	{
+		map.findWithinRange(position, kernelRadius, photons);
+	}
+
+	/*! @brief Find all photons in a radius that can contribute given the path requirements.
+	@see `canContribute()`.
+	*/
+	void find(
+		const math::Vector3R& position,
+		const real            kernelRadius,
+		const std::size_t     viewPathLength,
+		const std::size_t     minFullPathLength,
+		const std::size_t     maxFullPathLength,
+		std::vector<Photon>&  photons) const
+	{
+		if(!canContribute(viewPathLength, minFullPathLength, maxFullPathLength))
+		{
+			return;
+		}
+
+		if constexpr(Photon::template has<EPhotonData::PathLength>())
+		{
+			const auto kernelRadius2 = kernelRadius * kernelRadius;
+
+			map.rangeTraversal(
+				position,
+				kernelRadius2,
+				[
+					this, kernelRadius2, viewPathLength, minFullPathLength, maxFullPathLength, 
+					&position, &photons
+				]
+				(const Photon& photon)
+				{
+					const auto pos         = PhotonCenterCalculator{}(photon);
+					const auto dist2       = (pos - position).lengthSquared();
+					const auto fullPathLen = viewPathLength + photon.template get<EPhotonData::PathLength>();
+					if(dist2 < kernelRadius2 && 
+					   minFullPathLength <= fullPathLen && fullPathLen <= maxFullPathLength)
+					{
+						photons.push_back(photon);
+					}
+				});
+		}
+		else
+		{
+			// No path length available, this is an error.
+			PH_DEFAULT_LOG(ErrorOnce, 
+				"The photon type in this photon map contains no path length info. Cannot find "
+				"photon for the specified full path length in [{}, {}]. This photon map "
+				"contains path length in [{}, {}].", 
+				minFullPathLength, maxFullPathLength, minPathLength, maxPathLength);
+		}
+	}
 };
 
 }// end namespace ph

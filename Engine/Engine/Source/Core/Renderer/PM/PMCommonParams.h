@@ -12,6 +12,8 @@ namespace ph
 class PMCommonParams final
 {
 public:
+	inline static constexpr uint32 DEFAULT_MAX_PATH_LENGTH = 16384;
+
 	/*! Number of photons used. For progressive techniques, this value is for a single pass.
 	*/
 	std::size_t numPhotons = 200000;
@@ -41,7 +43,7 @@ public:
 	Combined with `minPhotonPathLength`, these parameters are useful if only some number of bounces
 	are estimated via photons.
 	*/
-	uint32 maxPhotonPathLength = 16384;
+	uint32 maxPhotonPathLength = DEFAULT_MAX_PATH_LENGTH;
 
 	/*! Controls the kernel radius reduction rate for progressive techniques. Smaller value has
 	higher radius reduction rate (higher variance/noise, smaller expected error/bias), larger value

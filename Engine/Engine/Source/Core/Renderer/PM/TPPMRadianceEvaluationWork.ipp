@@ -11,6 +11,7 @@
 #include "Core/LTA/lta.h"
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
+#include "Core/Renderer/PM/photon_map_light_transport.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -64,7 +65,7 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 		const real           R          = viewpoint.get<EViewpointData::Radius>();
 
 		photonCache.clear();
-		m_photonMap->map.findWithinRange(surfaceHit.getPosition(), R, photonCache);
+		m_photonMap->find(surfaceHit.getPosition(), R, photonCache);
 
 		const real N    = viewpoint.get<EViewpointData::NumPhotons>();
 		const real M    = static_cast<real>(photonCache.size());
@@ -103,7 +104,7 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 		// Evaluate radiance using current iteration's data
 
 		const real kernelArea         = newR * newR * math::constant::pi<real>;
-		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_photonMap->numPhotonPaths));
+		const real radianceMultiplier = 1.0_r / (kernelArea * static_cast<real>(m_photonMap->numPaths));
 
 		math::Spectrum radiance(viewpoint.get<EViewpointData::Tau>() * radianceMultiplier);
 		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>());

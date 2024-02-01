@@ -2,6 +2,7 @@
 
 #include "Core/Renderer/RenderWork.h"
 #include "Core/Renderer/PM/TPhoton.h"
+#include "Core/Renderer/PM/PMCommonParams.h"
 #include "Math/Color/Spectrum.h"
 #include "Utility/TSpan.h"
 
@@ -33,7 +34,7 @@ public:
 		SampleGenerator* sampleGenerator,
 		TSpan<Photon>    photonBuffer,
 		uint32           minPhotonPathLength = 1,
-		uint32           maxPhotonPathLength = 16384);
+		uint32           maxPhotonPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH);
 
 	void setStatistics(PMAtomicStatistics* statistics);
 
@@ -45,7 +46,8 @@ private:
 	static Photon makePhoton(
 		const SurfaceHit&     surfaceHit, 
 		const math::Spectrum& throughputRadiance,
-		const Ray&            tracingRay);
+		const Ray&            tracingRay,
+		std::size_t           pathLength);
 
 	const Scene*        m_scene;
 	const Receiver*     m_receiver;
