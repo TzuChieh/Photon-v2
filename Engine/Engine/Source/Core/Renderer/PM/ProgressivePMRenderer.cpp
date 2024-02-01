@@ -97,6 +97,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
+	std::size_t totalPhotonPaths = 0;
 	while(numFinishedPasses < getCommonParams().numPasses)
 	{
 		passTimer.start();
@@ -129,8 +130,10 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 		photonMap.map.build(std::move(photonBuffer));
 		photonMap.numPaths = math::summation<std::size_t>(numPhotonPaths);
 
+		totalPhotonPaths += photonMap.numPaths;
+
 		parallel_work(viewpoints.size(), numWorkers(),
-			[this, &photonMap, &viewpoints, &resultFilm](
+			[this, totalPhotonPaths, &photonMap, &viewpoints, &resultFilm](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
@@ -143,7 +146,8 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 					{&(viewpoints[workStart]), workEnd - workStart},
 					&photonMap,
 					getScene(),
-					&film);
+					&film,
+					totalPhotonPaths);
 				radianceEstimator.setStatistics(&getStatistics());
 
 				radianceEstimator.work();

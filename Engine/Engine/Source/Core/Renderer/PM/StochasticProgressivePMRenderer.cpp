@@ -170,6 +170,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 
 	Timer passTimer;
 	std::size_t numFinishedPasses = 0;
+	std::size_t totalPhotonPaths = 0;
 	while(numFinishedPasses < getCommonParams().numPasses)
 	{
 		PH_PROFILE_NAMED_SCOPE("SPPM pass");
@@ -203,9 +204,11 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 		photonMap.map.build(photonBuffer);
 		photonMap.numPaths = math::summation<std::size_t>(numPhotonPaths);
 
+		totalPhotonPaths += photonMap.numPaths;
+
 		for(RadianceEvaluationRegion& radianceEvalRegion : radianceEvalRegions)
 		{
-			workers.queueWork([this, &radianceEvalRegion, &photonMap, &resultFilm, numFinishedPasses]()
+			workers.queueWork([this, totalPhotonPaths, &radianceEvalRegion, &photonMap, &resultFilm, numFinishedPasses]()
 			{
 				PH_PROFILE_NAMED_SCOPE("SPPM energy estimation");
 
@@ -221,7 +224,8 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 					&radianceEvalRegion.film,
 					radianceEvalRegion.region,
 					radianceEvalRegion.statisticsRes,
-					numFinishedPasses + 1);
+					numFinishedPasses + 1,
+					totalPhotonPaths);
 
 				TViewPathTracingWork<RadianceEvaluator> viewpointWork(
 					&radianceEvaluator,

@@ -32,11 +32,16 @@ template<CPhoton Photon, CViewpoint Viewpoint>
 class TPPMRadianceEvaluationWork : public RenderWork
 {
 public:
+	/*!
+	@param totalPhotonPaths Number of photon paths of all time (accumulated). This term is the
+	@f$ N_e @f$ term in the original paper, not the same as `photonMap->numPaths`.
+	*/
 	TPPMRadianceEvaluationWork(
 		TSpan<Viewpoint>               viewpoints,
 		const TPhotonMap<Photon>*      photonMap,
 		const Scene*                   scene,
-		TSamplingFilm<math::Spectrum>* film);
+		TSamplingFilm<math::Spectrum>* film,
+		std::size_t                    totalPhotonPaths);
 
 	void setStatistics(PMAtomicStatistics* statistics);
 	void setAlpha(real alpha);
@@ -48,6 +53,7 @@ private:
 	const Scene*                   m_scene;
 	const TPhotonMap<Photon>*      m_photonMap;
 	TSamplingFilm<math::Spectrum>* m_film;
+	real                           m_rcpTotalPhotonPaths;
 	PMAtomicStatistics*            m_statistics;
 	real                           m_alpha;
 

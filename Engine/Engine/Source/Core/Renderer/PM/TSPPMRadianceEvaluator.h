@@ -43,6 +43,10 @@ class TSPPMRadianceEvaluator : public TViewPathHandler<TSPPMRadianceEvaluator<Vi
 	static_assert(std::is_base_of_v<TPhoton<Photon>, Photon>);
 
 public:
+	/*!
+	@param totalPhotonPaths Number of photon paths of all time (accumulated). This term is the
+	@f$ N_e @f$ term in the original paper, not the same as `photonMap->numPaths`.
+	*/
 	TSPPMRadianceEvaluator(
 		TSpan<Viewpoint>               viewpoints,
 		const TPhotonMap<Photon>*      photonMap,
@@ -50,6 +54,7 @@ public:
 		TSamplingFilm<math::Spectrum>* film,
 		const Region&                  statisticsRegion,
 		const math::TVector2<int64>&   statisticsRes,
+		std::size_t                    totalPhotonPaths,
 		std::size_t                    numViewRadianceSamples);
 
 	bool impl_onReceiverSampleStart(
@@ -73,7 +78,7 @@ private:
 
 	TSpan<Viewpoint>               m_viewpoints;
 	const TPhotonMap<Photon>*      m_photonMap;
-	real                           m_rcpNumPhotonPaths;
+	real                           m_rcpTotalPhotonPaths;
 	const Scene*                   m_scene;
 	TSamplingFilm<math::Spectrum>* m_film;
 	Region                         m_statisticsRegion;
@@ -95,11 +100,12 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 	TSamplingFilm<math::Spectrum>* const film,
 	const Region&                        statisticsRegion,
 	const math::TVector2<int64>&         statisticsRes,
-	const std::size_t                    numViewRadianceSamples)
+	const std::size_t                    numViewRadianceSamples,
+	const std::size_t                    totalPhotonPaths)
 
 	: m_viewpoints               (viewpoints)
 	, m_photonMap                (photonMap)
-	, m_rcpNumPhotonPaths        ()
+	, m_rcpTotalPhotonPaths      ()
 	, m_scene                    (scene)
 	, m_film                     (film)
 	, m_statisticsRegion         (statisticsRegion)
@@ -118,8 +124,8 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 	PH_ASSERT_GE(statisticsRes.product(), 1);
 	PH_ASSERT_GE(maxViewpointDepth, 1);
 
-	m_rcpNumPhotonPaths = photonMap->numPaths > 0
-		? 1.0_r / static_cast<real>(photonMap->numPaths)
+	m_rcpTotalPhotonPaths = totalPhotonPaths > 0
+		? 1.0_r / static_cast<real>(totalPhotonPaths)
 		: 0.0_r;
 
 	m_rcpNumViewRadianceSamples = numViewRadianceSamples > 0
@@ -322,7 +328,7 @@ inline math::Spectrum TSPPMRadianceEvaluator<Viewpoint, Photon>::estimateRadianc
 {
 	const real radius             = viewpoint.template get<EViewpointData::Radius>();
 	const real kernelArea         = radius * radius * math::constant::pi<real>;
-	const real radianceMultiplier = m_rcpNumPhotonPaths / kernelArea;
+	const real radianceMultiplier = m_rcpTotalPhotonPaths / kernelArea;
 	const auto tau                = viewpoint.template get<EViewpointData::Tau>();
 	const auto viewRadiance       = viewpoint.template get<EViewpointData::ViewRadiance>();
 
