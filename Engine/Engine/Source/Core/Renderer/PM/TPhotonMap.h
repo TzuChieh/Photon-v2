@@ -16,6 +16,18 @@
 namespace ph
 {
 
+/*! @brief Carries common informatiom for a photon map.
+@see `TPhotonMap` for what each parameter means.
+*/
+template<CPhoton Photon>
+class TPhotonMapInfo final
+{
+public:
+	std::size_t numPaths = 0;
+	uint32 minPathLength = 1;
+	uint32 maxPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH;
+};
+
 /*! @brief Default photon map type. Should be adequate for most cases.
 */
 template<CPhoton Photon>
@@ -128,6 +140,14 @@ public:
 				"contains path length in [{}, {}].", 
 				minFullPathLength, maxFullPathLength, minPathLength, maxPathLength);
 		}
+	}
+
+	TPhotonMapInfo<Photon> getInfo() const
+	{
+		return {
+			.numPaths = numPaths,
+			.minPathLength = minPathLength,
+			.maxPathLength = maxPathLength};
 	}
 };
 

@@ -72,9 +72,9 @@ public:
 	void impl_onSampleBatchFinished();
 
 private:
-	void addViewRadiance(Viewpoint& viewpoint, const math::Spectrum& radiance);
 	math::Spectrum estimateRadiance(const Viewpoint& viewpoint) const;
 	std::size_t getViewpointIndex(int64 sampleX, int64 sampleY) const;
+	static void addViewRadiance(Viewpoint& viewpoint, const math::Spectrum& radiance);
 
 	TSpan<Viewpoint>               m_viewpoints;
 	const TPhotonMap<Photon>*      m_photonMap;
@@ -162,7 +162,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 			pathLength,
 			surfaceHit,
 			pathThroughput,
-			m_photonMap,
+			m_photonMap->getInfo(),
 			m_scene);
 		addViewRadiance(*m_viewpoint, unaccountedEnergy);
 	}
@@ -193,7 +193,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 			pathLength,
 			surfaceHit,
 			pathThroughput,
-			m_photonMap,
+			m_photonMap->getInfo(),
 			m_scene);
 		addViewRadiance(*m_viewpoint, unaccountedEnergy);
 
@@ -205,7 +205,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 			pathLength,
 			surfaceHit,
 			pathThroughput,
-			m_photonMap,
+			m_photonMap->getInfo(),
 			m_scene);
 		addViewRadiance(*m_viewpoint, unaccountedEnergy);
 
@@ -310,19 +310,6 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onSampleBatchFinishe
 }
 
 template<CViewpoint Viewpoint, CPhoton Photon>
-inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::addViewRadiance(
-	Viewpoint& viewpoint, 
-	const math::Spectrum& radiance)
-{
-	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
-	{
-		math::Spectrum viewRadiance = m_viewpoint->template get<EViewpointData::ViewRadiance>();
-		viewRadiance += radiance;
-		viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
-	}
-}
-
-template<CViewpoint Viewpoint, CPhoton Photon>
 inline math::Spectrum TSPPMRadianceEvaluator<Viewpoint, Photon>::estimateRadiance(
 	const Viewpoint& viewpoint) const
 {
@@ -348,6 +335,19 @@ inline std::size_t TSPPMRadianceEvaluator<Viewpoint, Photon>::getViewpointIndex(
 	PH_ASSERT_LT(viewpointIdx, m_viewpoints.size());
 
 	return viewpointIdx;
+}
+
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::addViewRadiance(
+	Viewpoint& viewpoint, 
+	const math::Spectrum& radiance)
+{
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+	{
+		math::Spectrum viewRadiance = viewpoint.template get<EViewpointData::ViewRadiance>();
+		viewRadiance += radiance;
+		viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
+	}
 }
 
 }// end namespace ph

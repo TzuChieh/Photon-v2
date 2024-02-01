@@ -25,6 +25,11 @@ Hachisuka et al. The radiance evaluation process progressively shrinks
 the kernel radius and increases the number of photons, reaching a 
 consistent result in the limit. 
 
+This evaluator is intended to serve as a reference implementation for other more sophisticated
+techniques. Tricks and shortcuts are avoided if possible, so the evaluated radiance is more likely
+to be correct. Performance is not a major concern for this evaluator, so do not use this in
+situations where time is valuable.
+
 References:
 [1] Hachisuka et al., "Progressive Photon Mapping", ACM SIGGRAPH Asia 2008.
 */
@@ -41,7 +46,8 @@ public:
 		const TPhotonMap<Photon>*      photonMap,
 		const Scene*                   scene,
 		TSamplingFilm<math::Spectrum>* film,
-		std::size_t                    totalPhotonPaths);
+		std::size_t                    totalPhotonPaths,
+		std::size_t                    numViewRadianceSamples);
 
 	void setStatistics(PMAtomicStatistics* statistics);
 	void setAlpha(real alpha);
@@ -54,6 +60,7 @@ private:
 	const TPhotonMap<Photon>*      m_photonMap;
 	TSamplingFilm<math::Spectrum>* m_film;
 	real                           m_rcpTotalPhotonPaths;
+	real                           m_rcpNumViewRadianceSamples;
 	PMAtomicStatistics*            m_statistics;
 	real                           m_alpha;
 

@@ -153,7 +153,7 @@ inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
 			pathLength,
 			surfaceHit,
 			pathThroughput,
-			m_photonMap,
+			m_photonMap->getInfo(),
 			m_scene,
 			m_minFullPathLength,
 			m_maxFullPathLength);
@@ -177,7 +177,7 @@ inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
 			pathLength,
 			surfaceHit,
 			pathThroughput,
-			m_photonMap,
+			m_photonMap->getInfo(),
 			m_scene,
 			m_minFullPathLength,
 			m_maxFullPathLength);
@@ -191,7 +191,7 @@ inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
 			pathLength,
 			surfaceHit,
 			pathThroughput,
-			m_photonMap,
+			m_photonMap->getInfo(),
 			m_scene,
 			m_minFullPathLength,
 			m_maxFullPathLength);

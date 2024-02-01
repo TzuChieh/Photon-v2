@@ -61,8 +61,12 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 	std::vector<Viewpoint> viewpoints;
 	{
-		using ViewpointCollector = TPPMViewpointCollector<Viewpoint>;
-		ViewpointCollector viewpointCollector(6, getCommonParams().kernelRadius);
+		using ViewpointCollector = TPPMViewpointCollector<Viewpoint, Photon>;
+		ViewpointCollector viewpointCollector(
+			6, 
+			getCommonParams().kernelRadius,
+			TPhotonMap<Photon>{}.getInfo(),// using default parameters
+			getScene());
 
 		auto viewpointSampleGenerator = getSampleGenerator()->makeNewborn(getCommonParams().numSamplesPerPixel);
 
@@ -133,7 +137,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 		totalPhotonPaths += photonMap.numPaths;
 
 		parallel_work(viewpoints.size(), numWorkers(),
-			[this, totalPhotonPaths, &photonMap, &viewpoints, &resultFilm](
+			[this, totalPhotonPaths, numFinishedPasses, &photonMap, &viewpoints, &resultFilm](
 				const std::size_t workerIdx, 
 				const std::size_t workStart, 
 				const std::size_t workEnd)
@@ -147,7 +151,8 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 					&photonMap,
 					getScene(),
 					&film,
-					totalPhotonPaths);
+					totalPhotonPaths,
+					numFinishedPasses + 1);
 				radianceEstimator.setStatistics(&getStatistics());
 
 				radianceEstimator.work();

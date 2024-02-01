@@ -29,21 +29,27 @@ inline TPPMRadianceEvaluationWork<Photon, Viewpoint>
 	const TPhotonMap<Photon>* const      photonMap,
 	const Scene* const                   scene,
 	TSamplingFilm<math::Spectrum>* const film,
-	const std::size_t                    totalPhotonPaths)
+	const std::size_t                    totalPhotonPaths,
+	const std::size_t                    numViewRadianceSamples)
 
-	: m_viewpoints         (viewpoints)
-	, m_scene              (scene)
-	, m_photonMap          (photonMap)
-	, m_film               (film)
-	, m_rcpTotalPhotonPaths()
-	, m_statistics         (nullptr)
-	, m_alpha              ()
+	: m_viewpoints               (viewpoints)
+	, m_scene                    (scene)
+	, m_photonMap                (photonMap)
+	, m_film                     (film)
+	, m_rcpTotalPhotonPaths      ()
+	, m_rcpNumViewRadianceSamples()
+	, m_statistics               (nullptr)
+	, m_alpha                    ()
 {
 	PH_ASSERT(scene);
 	PH_ASSERT(film);
 
 	m_rcpTotalPhotonPaths = totalPhotonPaths > 0
 		? 1.0_r / static_cast<real>(totalPhotonPaths)
+		: 0.0_r;
+
+	m_rcpNumViewRadianceSamples = numViewRadianceSamples > 0
+		? 1.0_r / static_cast<real>(numViewRadianceSamples)
 		: 0.0_r;
 
 	setStatistics(nullptr);
@@ -60,6 +66,10 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 
 	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
 	const lta::SurfaceTracer surfaceTracer{m_scene};
+
+	// For each viewpoint, evaluate radiance using collected data. If the viewpoint is for
+	// view radiance only (and is on a delta optics), the evaluation would still work fine
+	// (just the radius cannot shrink).
 
 	std::vector<FullPhoton> photonCache;
 	for(Viewpoint& viewpoint : m_viewpoints)
@@ -113,7 +123,7 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 		const real radianceMultiplier = m_rcpTotalPhotonPaths / kernelArea;
 
 		math::Spectrum radiance(viewpoint.get<EViewpointData::Tau>() * radianceMultiplier);
-		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>());
+		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>() * m_rcpNumViewRadianceSamples);
 		radiance.mulLocal(viewpoint.get<EViewpointData::ViewThroughput>());
 
 		const math::Vector2D rasterCoord = viewpoint.get<EViewpointData::RasterCoord>();

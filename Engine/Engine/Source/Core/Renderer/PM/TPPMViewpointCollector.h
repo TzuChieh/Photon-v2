@@ -2,15 +2,11 @@
 
 #include "Core/Renderer/PM/TViewPathHandler.h"
 #include "Core/Renderer/PM/TViewpoint.h"
+#include "Core/Renderer/PM/TPhoton.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Intersectable/Primitive.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Core/Emitter/Emitter.h"
-#include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
-#include "Core/LTA/TDirectLightEstimator.h"
-#include "Core/LTA/TIndirectLightEstimator.h"
-#include "Core/LTA/RussianRoulette.h"
+#include "Core/Renderer/PM/TPhotonMap.h"
+#include "Core/Renderer/PM/photon_map_light_transport.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -19,18 +15,26 @@
 #include <type_traits>
 #include <utility>
 
+namespace ph { class Scene; }
+
 namespace ph
 {
 
-template<CViewpoint Viewpoint>
-class TPPMViewpointCollector : public TViewPathHandler<TPPMViewpointCollector<Viewpoint>>
+/*!
+The viewpoint collector for PPM radiance evaluator.
+*/
+template<CViewpoint Viewpoint, CPhoton Photon>
+class TPPMViewpointCollector : public TViewPathHandler<TPPMViewpointCollector<Viewpoint, Photon>>
 {
 	static_assert(std::is_base_of_v<TViewpoint<Viewpoint>, Viewpoint>);
+	static_assert(std::is_base_of_v<TPhoton<Photon>, Photon>);
 
 public:
 	TPPMViewpointCollector(
-		std::size_t           maxViewpointDepth,
-		real                  initialKernelRadius);
+		std::size_t                   maxViewpointDepth,
+		real                          initialKernelRadius,
+		const TPhotonMapInfo<Photon>& photonMapInfo,
+		const Scene*                  scene);
 
 	bool impl_onReceiverSampleStart(
 		const math::Vector2D& rasterCoord,
@@ -49,29 +53,38 @@ public:
 	std::vector<Viewpoint> claimViewpoints();
 
 private:
+	void addViewpoint(
+		const SurfaceHit& surfaceHit,
+		const math::Vector3R& viewDir,
+		const math::Spectrum& pathThroughput);
+
+	static void addViewRadiance(Viewpoint& viewpoint, const math::Spectrum& radiance);
+
 	std::vector<Viewpoint> m_viewpoints;
 	std::size_t            m_maxViewpointDepth;
 	real                   m_initialKernelRadius;
+	TPhotonMapInfo<Photon> m_photonMapInfo;
+	const Scene*           m_scene;
 
 	Viewpoint              m_viewpoint;
 	std::size_t            m_receiverSampleViewpoints;
-
-	void addViewpoint(
-		const SurfaceHit&     surfaceHit, 
-		const math::Vector3R& viewDir,
-		const math::Spectrum& pathThroughput);
 };
 
 // In-header Implementations:
 
-template<CViewpoint Viewpoint>
-inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
-	const std::size_t     maxViewpointDepth,
-	const real            initialKernelRadius)
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline TPPMViewpointCollector<Viewpoint, Photon>::TPPMViewpointCollector(
+	const std::size_t             maxViewpointDepth,
+	const real                    initialKernelRadius,
+	const TPhotonMapInfo<Photon>& photonMapInfo,
+	const Scene* const            scene)
 
 	: m_viewpoints              ()
 	, m_maxViewpointDepth       (maxViewpointDepth)
 	, m_initialKernelRadius     (initialKernelRadius)
+	, m_photonMapInfo           (photonMapInfo)
+	, m_scene                   (scene)
+
 	, m_viewpoint               ()
 	, m_receiverSampleViewpoints(0)
 {
@@ -79,8 +92,8 @@ inline TPPMViewpointCollector<Viewpoint>::TPPMViewpointCollector(
 	PH_ASSERT_GT(initialKernelRadius, 0.0_r);
 }
 
-template<CViewpoint Viewpoint>
-inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline bool TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleStart(
 	const math::Vector2D& rasterCoord,
 	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
@@ -107,73 +120,106 @@ inline bool TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleStart(
 	{
 		m_viewpoint.template set<EViewpointData::Tau>(math::Spectrum(0));
 	}
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+	{
+		m_viewpoint.template set<EViewpointData::ViewRadiance>(math::Spectrum(0));
+	}
 
 	m_receiverSampleViewpoints = 0;
 
 	return true;
 }
 
-template<CViewpoint Viewpoint>
-inline auto TPPMViewpointCollector<Viewpoint>::impl_onPathHitSurface(
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	const std::size_t     pathLength,
 	const SurfaceHit&     surfaceHit,
 	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
 {
-	using DirectLight = lta::TDirectLightEstimator<lta::ESidednessPolicy::Strict>;
-	using IndirectLight = lta::TIndirectLightEstimator<lta::ESidednessPolicy::Strict>;
-
-	PH_ASSERT(surfaceHit.getDetail().getPrimitive());
-	const PrimitiveMetadata* meta = surfaceHit.getDetail().getPrimitive()->getMetadata();
-	const SurfaceOptics* optics = meta ? meta->getSurface().getOptics() : nullptr;
+	const SurfaceOptics* optics = surfaceHit.getSurfaceOptics();
 	if(!optics)
 	{
 		return ViewPathTracingPolicy().kill();
 	}
 
-	// Cannot have path length = 1 lighting using only photon map--when we use a photon map, it is
-	// at least path length = 2 (can be even longer depending on the settings)
-	
-	// Never contain 0-bounce photons
-	PH_ASSERT_GE(m_photonMap->minPathLength, 1);
+	PH_ASSERT_LE(pathLength, m_maxViewpointDepth);
 
-	// Check if there's any non-delta elemental
-	SurfacePhenomena phenomena = optics->getAllPhenomena();
-	phenomena.turnOff({
-		ESurfacePhenomenon::DeltaReflection,
-		ESurfacePhenomenon::DeltaTransmission});
-	if(!phenomena.isEmpty())
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
-		// It is okay to add a viewpoint without specifying which surface
-		// elemental is used--since it is impossible for delta elementals
-		// to have non-zero contribution in any BSDF evaluation process, so
-		// we will not double-count any path throughput.
+		const auto unaccountedEnergy = estimate_certainly_lost_energy(
+			pathLength,
+			surfaceHit,
+			pathThroughput,
+			m_photonMapInfo,
+			m_scene);
+		addViewRadiance(m_viewpoint, unaccountedEnergy);
+	}
+
+	// Below we explicitly list each possible delta phenomenon to emphasize one point: we are
+	// not using RR, the number of added viewpoints can grow exponentially, and the base is number
+	// of phenomena we list (exponent = view path depth).
+
+	// Add viewpoint if there is any non-delta elemental (NOTE: Also merges on glossy! This is
+	// just a reference implementation and this can simplify the logic.)
+	if(optics->getAllPhenomena().hasNone({
+		ESurfacePhenomenon::DeltaReflection,
+		ESurfacePhenomenon::DeltaTransmission}))
+	{
+		const auto unaccountedEnergy = estimate_lost_energy_for_merging(
+			pathLength,
+			surfaceHit,
+			pathThroughput,
+			m_photonMapInfo,
+			m_scene);
+		addViewRadiance(m_viewpoint, unaccountedEnergy);
+
 		addViewpoint(
 			surfaceHit, 
 			surfaceHit.getIncidentRay().getDirection().mul(-1), 
 			pathThroughput);
-	}
-
-	if(pathLength < m_maxViewpointDepth && 
-	   optics->getAllPhenomena().hasAny({
-	       ESurfacePhenomenon::DeltaReflection,
-	       ESurfacePhenomenon::DeltaTransmission}))
-	{
-		return ViewPathTracingPolicy().
-			traceBranchedPathFor(SurfacePhenomena({
-				ESurfacePhenomenon::DeltaReflection,
-				ESurfacePhenomenon::DeltaTransmission})).
-			useRussianRoulette(false);
-	}
-	else
-	{
-		PH_ASSERT_LE(pathLength, m_maxViewpointDepth);
 
 		return ViewPathTracingPolicy().kill();
 	}
+	else
+	{
+		PH_ASSERT(optics->getAllPhenomena().hasAny({
+			ESurfacePhenomenon::DeltaReflection,
+			ESurfacePhenomenon::DeltaTransmission}));
+
+		const auto unaccountedEnergy = estimate_lost_energy_for_extending(
+			pathLength,
+			surfaceHit,
+			pathThroughput,
+			m_photonMapInfo,
+			m_scene);
+		addViewRadiance(m_viewpoint, unaccountedEnergy);
+
+		if(pathLength < m_maxViewpointDepth)
+		{
+			return ViewPathTracingPolicy().
+				traceBranchedPathFor(SurfacePhenomena({
+					ESurfacePhenomenon::DeltaReflection,
+					ESurfacePhenomenon::DeltaTransmission})).
+				useRussianRoulette(false);
+		}
+		else
+		{
+			PH_ASSERT_EQ(pathLength, m_maxViewpointDepth);
+
+			// For the view radiance only. Could be more efficient if we use a separate film or
+			// render pass for that.
+			addViewpoint(
+				surfaceHit,
+				surfaceHit.getIncidentRay().getDirection().mul(-1),
+				pathThroughput);
+
+			return ViewPathTracingPolicy().kill();
+		}
+	}
 }
 
-template<CViewpoint Viewpoint>
-inline void TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleEnd()
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline void TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleEnd()
 {
 	if(m_receiverSampleViewpoints > 0)
 	{
@@ -204,35 +250,22 @@ inline void TPPMViewpointCollector<Viewpoint>::impl_onReceiverSampleEnd()
 	}
 }
 
-template<CViewpoint Viewpoint>
-inline void TPPMViewpointCollector<Viewpoint>::impl_onSampleBatchFinished()
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline void TPPMViewpointCollector<Viewpoint, Photon>::impl_onSampleBatchFinished()
 {}
 
-template<CViewpoint Viewpoint>
-std::vector<Viewpoint> TPPMViewpointCollector<Viewpoint>::claimViewpoints()
+template<CViewpoint Viewpoint, CPhoton Photon>
+std::vector<Viewpoint> TPPMViewpointCollector<Viewpoint, Photon>::claimViewpoints()
 {
 	return std::move(m_viewpoints);
 }
 
-template<CViewpoint Viewpoint>
-void TPPMViewpointCollector<Viewpoint>::addViewpoint(
+template<CViewpoint Viewpoint, CPhoton Photon>
+void TPPMViewpointCollector<Viewpoint, Photon>::addViewpoint(
 	const SurfaceHit&     surfaceHit,
 	const math::Vector3R& viewDir,
 	const math::Spectrum& pathThroughput)
 {
-	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
-	{
-		const PrimitiveMetadata* const metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
-		PH_ASSERT(metadata);
-
-		math::Spectrum viewRadiance(0);
-		if(metadata->getSurface().getEmitter())
-		{
-			metadata->getSurface().getEmitter()->evalEmittedRadiance(surfaceHit, &viewRadiance);
-		}
-		m_viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
-	}
-
 	if constexpr(Viewpoint::template has<EViewpointData::SurfaceHit>())
 	{
 		m_viewpoint.template set<EViewpointData::SurfaceHit>(surfaceHit);
@@ -248,6 +281,19 @@ void TPPMViewpointCollector<Viewpoint>::addViewpoint(
 
 	m_viewpoints.push_back(m_viewpoint);
 	++m_receiverSampleViewpoints;
+}
+
+template<CViewpoint Viewpoint, CPhoton Photon>
+inline void TPPMViewpointCollector<Viewpoint, Photon>::addViewRadiance(
+	Viewpoint& viewpoint, 
+	const math::Spectrum& radiance)
+{
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+	{
+		math::Spectrum viewRadiance = viewpoint.template get<EViewpointData::ViewRadiance>();
+		viewRadiance += radiance;
+		viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
+	}
 }
 
 }// end namespace ph
