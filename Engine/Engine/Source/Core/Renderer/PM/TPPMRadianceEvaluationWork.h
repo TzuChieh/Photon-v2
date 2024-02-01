@@ -46,8 +46,7 @@ public:
 		const TPhotonMap<Photon>*      photonMap,
 		const Scene*                   scene,
 		TSamplingFilm<math::Spectrum>* film,
-		std::size_t                    totalPhotonPaths,
-		std::size_t                    numViewRadianceSamples);
+		std::size_t                    totalPhotonPaths);
 
 	void setStatistics(PMAtomicStatistics* statistics);
 	void setAlpha(real alpha);
@@ -60,7 +59,6 @@ private:
 	const TPhotonMap<Photon>*      m_photonMap;
 	TSamplingFilm<math::Spectrum>* m_film;
 	real                           m_rcpTotalPhotonPaths;
-	real                           m_rcpNumViewRadianceSamples;
 	PMAtomicStatistics*            m_statistics;
 	real                           m_alpha;
 

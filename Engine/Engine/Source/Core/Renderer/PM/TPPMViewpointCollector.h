@@ -159,20 +159,26 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	// not using RR, the number of added viewpoints can grow exponentially, and the base is number
 	// of phenomena we list (exponent = view path depth).
 
-	// Add viewpoint if there is any non-delta elemental (NOTE: Also merges on glossy! This is
-	// just a reference implementation and this can simplify the logic.)
-	if(optics->getAllPhenomena().hasNone({
-		ESurfacePhenomenon::DeltaReflection,
-		ESurfacePhenomenon::DeltaTransmission}))
+	// Add viewpoint if there is any non-delta elemental or max viewpoint depth reached.
+	// NOTE: Also merges on glossy! This is just a reference implementation and this can simplify
+	// the logic. Can also merge on delta elemental when max viewpoint depth reached (in this case
+	// some energy is lost due to the view point depth limit).
+	if(pathLength == m_maxViewpointDepth || optics->getAllPhenomena().hasNone({
+		ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission}))
 	{
-		const auto unaccountedEnergy = estimate_lost_energy_for_merging(
-			pathLength,
-			surfaceHit,
-			pathThroughput,
-			m_photonMapInfo,
-			m_scene);
-		addViewRadiance(m_viewpoint, unaccountedEnergy);
+		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+		{
+			const auto unaccountedEnergy = estimate_lost_energy_for_merging(
+				pathLength,
+				surfaceHit,
+				pathThroughput,
+				m_photonMapInfo,
+				m_scene);
+			addViewRadiance(m_viewpoint, unaccountedEnergy);
+		}
 
+		// If on delta surface when max view depth is reached, the viewpoint is for the view
+		// radiance only. Could be more efficient if we use a separate film or render pass for that.
 		addViewpoint(
 			surfaceHit, 
 			surfaceHit.getIncidentRay().getDirection().mul(-1), 
@@ -183,38 +189,23 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 	else
 	{
 		PH_ASSERT(optics->getAllPhenomena().hasAny({
-			ESurfacePhenomenon::DeltaReflection,
-			ESurfacePhenomenon::DeltaTransmission}));
+			ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission}));
 
-		const auto unaccountedEnergy = estimate_lost_energy_for_extending(
-			pathLength,
-			surfaceHit,
-			pathThroughput,
-			m_photonMapInfo,
-			m_scene);
-		addViewRadiance(m_viewpoint, unaccountedEnergy);
-
-		if(pathLength < m_maxViewpointDepth)
+		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 		{
-			return ViewPathTracingPolicy().
-				traceBranchedPathFor(SurfacePhenomena({
-					ESurfacePhenomenon::DeltaReflection,
-					ESurfacePhenomenon::DeltaTransmission})).
-				useRussianRoulette(false);
-		}
-		else
-		{
-			PH_ASSERT_EQ(pathLength, m_maxViewpointDepth);
-
-			// For the view radiance only. Could be more efficient if we use a separate film or
-			// render pass for that.
-			addViewpoint(
+			const auto unaccountedEnergy = estimate_lost_energy_for_extending(
+				pathLength,
 				surfaceHit,
-				surfaceHit.getIncidentRay().getDirection().mul(-1),
-				pathThroughput);
-
-			return ViewPathTracingPolicy().kill();
+				pathThroughput,
+				m_photonMapInfo,
+				m_scene);
+			addViewRadiance(m_viewpoint, unaccountedEnergy);
 		}
+
+		return ViewPathTracingPolicy().
+			traceBranchedPathFor(SurfacePhenomena({
+				ESurfacePhenomenon::DeltaReflection, ESurfacePhenomenon::DeltaTransmission})).
+			useRussianRoulette(false);
 	}
 }
 

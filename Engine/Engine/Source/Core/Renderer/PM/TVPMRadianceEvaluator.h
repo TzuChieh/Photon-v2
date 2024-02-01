@@ -148,17 +148,15 @@ inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
 		return ViewPathTracingPolicy().kill();
 	}
 
-	{
-		const auto unaccountedEnergy = estimate_certainly_lost_energy(
-			pathLength,
-			surfaceHit,
-			pathThroughput,
-			m_photonMap->getInfo(),
-			m_scene,
-			m_minFullPathLength,
-			m_maxFullPathLength);
-		m_sampledRadiance += unaccountedEnergy;
-	}
+	const auto unaccountedEnergy = estimate_certainly_lost_energy(
+		pathLength,
+		surfaceHit,
+		pathThroughput,
+		m_photonMap->getInfo(),
+		m_scene,
+		m_minFullPathLength,
+		m_maxFullPathLength);
+	m_sampledRadiance += unaccountedEnergy;
 
 	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
 	   optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) &&

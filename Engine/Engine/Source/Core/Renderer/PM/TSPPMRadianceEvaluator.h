@@ -157,6 +157,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		return ViewPathTracingPolicy().kill();
 	}
 
+	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 	{
 		const auto unaccountedEnergy = estimate_certainly_lost_energy(
 			pathLength,
@@ -189,25 +190,31 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 
 		m_foundTargetHitPoint = true;
 
-		const auto unaccountedEnergy = estimate_lost_energy_for_merging(
-			pathLength,
-			surfaceHit,
-			pathThroughput,
-			m_photonMap->getInfo(),
-			m_scene);
-		addViewRadiance(*m_viewpoint, unaccountedEnergy);
+		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+		{
+			const auto unaccountedEnergy = estimate_lost_energy_for_merging(
+				pathLength,
+				surfaceHit,
+				pathThroughput,
+				m_photonMap->getInfo(),
+				m_scene);
+			addViewRadiance(*m_viewpoint, unaccountedEnergy);
+		}
 
 		return ViewPathTracingPolicy().kill();
 	}
 	else
 	{
-		const auto unaccountedEnergy = estimate_lost_energy_for_extending(
-			pathLength,
-			surfaceHit,
-			pathThroughput,
-			m_photonMap->getInfo(),
-			m_scene);
-		addViewRadiance(*m_viewpoint, unaccountedEnergy);
+		if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+		{
+			const auto unaccountedEnergy = estimate_lost_energy_for_extending(
+				pathLength,
+				surfaceHit,
+				pathThroughput,
+				m_photonMap->getInfo(),
+				m_scene);
+			addViewRadiance(*m_viewpoint, unaccountedEnergy);
+		}
 
 		return ViewPathTracingPolicy().
 			traceSinglePathFor(ALL_SURFACE_ELEMENTALS).

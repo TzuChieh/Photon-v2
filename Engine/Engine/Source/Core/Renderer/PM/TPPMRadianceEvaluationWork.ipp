@@ -29,15 +29,13 @@ inline TPPMRadianceEvaluationWork<Photon, Viewpoint>
 	const TPhotonMap<Photon>* const      photonMap,
 	const Scene* const                   scene,
 	TSamplingFilm<math::Spectrum>* const film,
-	const std::size_t                    totalPhotonPaths,
-	const std::size_t                    numViewRadianceSamples)
+	const std::size_t                    totalPhotonPaths)
 
 	: m_viewpoints               (viewpoints)
 	, m_scene                    (scene)
 	, m_photonMap                (photonMap)
 	, m_film                     (film)
 	, m_rcpTotalPhotonPaths      ()
-	, m_rcpNumViewRadianceSamples()
 	, m_statistics               (nullptr)
 	, m_alpha                    ()
 {
@@ -46,10 +44,6 @@ inline TPPMRadianceEvaluationWork<Photon, Viewpoint>
 
 	m_rcpTotalPhotonPaths = totalPhotonPaths > 0
 		? 1.0_r / static_cast<real>(totalPhotonPaths)
-		: 0.0_r;
-
-	m_rcpNumViewRadianceSamples = numViewRadianceSamples > 0
-		? 1.0_r / static_cast<real>(numViewRadianceSamples)
 		: 0.0_r;
 
 	setStatistics(nullptr);
@@ -123,7 +117,7 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 		const real radianceMultiplier = m_rcpTotalPhotonPaths / kernelArea;
 
 		math::Spectrum radiance(viewpoint.get<EViewpointData::Tau>() * radianceMultiplier);
-		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>() * m_rcpNumViewRadianceSamples);
+		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>());
 		radiance.mulLocal(viewpoint.get<EViewpointData::ViewThroughput>());
 
 		const math::Vector2D rasterCoord = viewpoint.get<EViewpointData::RasterCoord>();

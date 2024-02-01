@@ -59,6 +59,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 
 	PH_LOG(PMRenderer, Note, "start gathering viewpoints...");
 
+	// Collecting viewpoints. This is only done once in PPM.
 	std::vector<Viewpoint> viewpoints;
 	{
 		using ViewpointCollector = TPPMViewpointCollector<Viewpoint, Photon>;
@@ -83,7 +84,8 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 		viewpoints = viewpointCollector.claimViewpoints();
 	}
 	
-	PH_LOG(PMRenderer, Note, "viewpoint size: {} bytes", sizeof(Viewpoint));
+	PH_LOG(PMRenderer, Note, "viewpoint size: {} bytes, viewpoints collected: {}",
+		sizeof(Viewpoint), viewpoints.size());
 	PH_LOG(PMRenderer, Note, "size of viewpoint buffer: {} MiB",
 		math::bytes_to_MiB<real>(sizeof(Viewpoint) * viewpoints.size()));
 
@@ -151,8 +153,7 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 					&photonMap,
 					getScene(),
 					&film,
-					totalPhotonPaths,
-					numFinishedPasses + 1);
+					totalPhotonPaths);
 				radianceEstimator.setStatistics(&getStatistics());
 
 				radianceEstimator.work();
