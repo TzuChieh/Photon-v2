@@ -30,6 +30,10 @@ def find_materials_from_mesh_objects(b_mesh_objects, b_depsgraph: bpy.types.Deps
 	for b_object in b_mesh_objects:
 		b_mesh = b_object.data
 		for b_material in b_mesh.materials:
+			# Could be `None`, e.g., a material slot with no material assigned
+			if not b_material:
+				continue
+
 			# Get the evaluated material if the mesh data block is evaluated
 			if b_mesh.is_evaluated:
 				b_material = b_material.evaluated_get(b_depsgraph)

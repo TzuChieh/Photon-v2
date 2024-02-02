@@ -15,12 +15,12 @@ class PhAbradedTranslucentNode(PhSurfaceMaterialNode):
 
     fresnel_type: bpy.props.EnumProperty(
         items=[
-            ('SCHLICK', "Schlick Approximation", "", 0),
-            ('EXACT', "Exact", "", 1)
+            ('schlick', "Schlick Approximation", "", 0),
+            ('exact', "Exact", "", 1)
         ],
         name="Fresnel Type",
         description="Type of Fresnel effect used.",
-        default='EXACT'
+        default='exact'
     )
 
     roughness: bpy.props.FloatProperty(
@@ -53,10 +53,7 @@ class PhAbradedTranslucentNode(PhSurfaceMaterialNode):
         creator.set_roughness(sdl.Real(self.roughness))
         creator.set_ior_inner(sdl.Real(self.ior_inner))
         creator.set_ior_outer(sdl.Real(self.ior_outer))
-        if self.fresnel_type == 'SCHLICK':
-            creator.set_fresnel_model(sdl.String("schlick"))
-        elif self.fresnel_type == 'EXACT':
-            creator.set_fresnel_model(sdl.String("exact"))
+        creator.set_fresnel(sdl.Enum(self.fresnel_type))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):

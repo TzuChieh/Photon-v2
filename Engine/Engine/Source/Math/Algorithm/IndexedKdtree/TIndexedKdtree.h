@@ -2,12 +2,12 @@
 
 #include "Math/Geometry/TAABB3D.h"
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtreeNode.h"
-#include "Utility/utility.h"
 #include "Math/Algorithm/IndexedKdtree/TIndexedItemEndpoint.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
 #include "Math/Geometry/TLineSegment.h"
 #include "Math/Algorithm/IndexedKdtree/IndexedKdtreeParams.h"
+#include "Utility/utility.h"
 
 #include <Common/assertion.h>
 

@@ -14,8 +14,8 @@ template<
 	typename IndexToItem,
 	typename ItemToAABB,
 	typename Index>
-inline TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-TIndexedKdtree(
+inline TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::TIndexedKdtree(
 	const std::size_t   numItems,
 	IndexToItem         indexToItem,
 	ItemToAABB          itemToAABB,
@@ -40,8 +40,8 @@ template<
 	typename Index>
 template<
 	typename TesterFunc>
-inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
+inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 -> bool
 {
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
@@ -199,8 +199,8 @@ template<
 	typename IndexToItem,
 	typename ItemToAABB,
 	typename Index>
-inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-getAABB() const
+inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::getAABB() const
 -> AABB3D
 {
 	PH_ASSERT(!isEmpty());
@@ -212,9 +212,8 @@ template<
 	typename IndexToItem,
 	typename ItemToAABB,
 	typename Index>
-inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-
-isEmpty() const
+inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::isEmpty() const
 -> bool
 {
 	return m_numItems == 0;
@@ -224,8 +223,8 @@ template<
 	typename IndexToItem,
 	typename ItemToAABB,
 	typename Index>
-inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-build(ItemToAABB itemToAABB, IndexedKdtreeParams params)
+inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::build(ItemToAABB itemToAABB, IndexedKdtreeParams params)
 {
 	PH_ASSERT_GT(m_numItems, 0);
 
@@ -276,8 +275,8 @@ template<
 	typename IndexToItem,
 	typename ItemToAABB,
 	typename Index>
-inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>::
-buildNodeRecursive(
+inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::buildNodeRecursive(
 	std::size_t nodeIndex,
 	const AABB3D& nodeAABB,
 	const Index* nodeItemIndices,
@@ -300,7 +299,7 @@ buildNodeRecursive(
 
 	if(currentNodeDepth == maxNodeDepth || numNodeItems <= params.getMaxNodeItems())
 	{
-		m_nodeBuffer[nodeIndex] = Node::makeLeaf(nodeItemIndices, numNodeItems, m_itemIndices);
+		m_nodeBuffer[nodeIndex] = Node::makeLeaf({nodeItemIndices, numNodeItems}, m_itemIndices);
 		return;
 	}
 
@@ -383,7 +382,7 @@ buildNodeRecursive(
 	   bestAxis == -1 ||
 	   newNumBadRefines == 3)
 	{
-		m_nodeBuffer[nodeIndex] = Node::makeLeaf(nodeItemIndices, numNodeItems, m_itemIndices);
+		m_nodeBuffer[nodeIndex] = Node::makeLeaf({nodeItemIndices, numNodeItems}, m_itemIndices);
 		return;
 	}
 

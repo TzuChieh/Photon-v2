@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Math/constant.h"
+#include "Utility/TSpan.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -15,9 +16,9 @@
 namespace ph::math
 {
 
-/*
-	An indexed kD-tree node with compacted memory layout without regarding
-	alignment issues.
+/*!
+An indexed kD-tree node with compacted memory layout without regarding
+alignment issues.
 */
 template<typename Index, bool USE_SINGLE_ITEM_OPT = true>
 class TIndexedKdtreeNode final
@@ -35,8 +36,7 @@ public:
 		std::size_t         numItems);
 
 	static TIndexedKdtreeNode makeLeaf(
-		const Index*        itemIndices,
-		std::size_t         numItems,
+		TSpanView<Index>    itemIndices,
 		std::vector<Index>& indexBuffer);
 
 	TIndexedKdtreeNode();
@@ -89,12 +89,12 @@ private:
 // In-header Implementations:
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	TIndexedKdtreeNode() = default;
+inline TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::TIndexedKdtreeNode() = default;
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	makeInner(
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::makeInner(
 		const real                          splitPos,
 		const math::constant::AxisIndexType splitAxisIndex,
 		const std::size_t                   rightChildIndex) -> TIndexedKdtreeNode
@@ -116,12 +116,13 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	makeLeaf(
-		const Index       index,
-		const std::size_t numItems) -> TIndexedKdtreeNode
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::makeLeaf(
+	const Index       index,
+	const std::size_t numItems) -> TIndexedKdtreeNode
 {
-	PH_ASSERT(numItems <= MAX_U1_NUMBER);
+	PH_ASSERT_LE(numItems, MAX_U1_NUMBER);
+	PH_ASSERT(numItems == 0 || numItems == 1);
 
 	TIndexedKdtreeNode node;
 
@@ -135,15 +136,15 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	makeLeaf(
-		const Index* const  itemIndices,
-		const std::size_t   numItems,
-		std::vector<Index>& indexBuffer) -> TIndexedKdtreeNode
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::makeLeaf(
+	const TSpanView<Index> itemIndices,
+	std::vector<Index>&    indexBuffer) -> TIndexedKdtreeNode
 {
-	PH_ASSERT(itemIndices && numItems <= MAX_U1_NUMBER);
+	PH_ASSERT(itemIndices.data());
+	PH_ASSERT_LE(itemIndices.size(), MAX_U1_NUMBER);
 
-	if(!(USE_SINGLE_ITEM_OPT && numItems == 1))
+	if(!(USE_SINGLE_ITEM_OPT && itemIndices.size() == 1))
 	{
 		// For leaf nodes we directly store index offset value in <u0>. If Index is signed type, 
 		// value conversion from negative Index back to std::size_t can mess up the stored bits. 
@@ -152,29 +153,26 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 		PH_ASSERT(indexBuffer.size() <= static_cast<std::size_t>(std::numeric_limits<Index>::max()));
 		const Index indexBufferOffset = static_cast<Index>(indexBuffer.size());
 
-		for(std::size_t i = 0; i < numItems; ++i)
-		{
-			indexBuffer.push_back(itemIndices[i]);
-		}
+		indexBuffer.insert(indexBuffer.end(), itemIndices.begin(), itemIndices.end());
 
-		return makeLeaf(indexBufferOffset, numItems);
+		return makeLeaf(indexBufferOffset, itemIndices.size());
 	}
 	else
 	{
-		return makeLeaf(itemIndices[0], numItems);
+		return makeLeaf(itemIndices[0], itemIndices.size());
 	}
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	isLeaf() const -> bool
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::isLeaf() const -> bool
 {
 	return (u1_flags & 0b11) == 0b11;
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	positiveChildIndex() const -> std::size_t
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::positiveChildIndex() const -> std::size_t
 {
 	PH_ASSERT(!isLeaf());
 
@@ -182,8 +180,8 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	numItems() const -> std::size_t
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::numItems() const -> std::size_t
 {
 	PH_ASSERT(isLeaf());
 
@@ -191,8 +189,8 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	splitPos() const -> real
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::splitPos() const -> real
 {
 	PH_ASSERT(!isLeaf());
 
@@ -200,8 +198,8 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	splitAxisIndex() const -> int
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::splitAxisIndex() const -> int
 {
 	PH_ASSERT(!isLeaf());
 
@@ -209,8 +207,8 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	index() const -> std::size_t
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::index() const -> std::size_t
 {
 	PH_ASSERT(isLeaf());
 
@@ -218,8 +216,8 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	singleItemDirectIndex() const -> std::size_t
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::singleItemDirectIndex() const -> std::size_t
 {
 	if constexpr(USE_SINGLE_ITEM_OPT)
 	{
@@ -235,8 +233,8 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
 }
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>::
-	indexBufferOffset() const -> std::size_t
+inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
+::indexBufferOffset() const -> std::size_t
 {
 	PH_ASSERT(!(USE_SINGLE_ITEM_OPT && numItems() == 1));
 
