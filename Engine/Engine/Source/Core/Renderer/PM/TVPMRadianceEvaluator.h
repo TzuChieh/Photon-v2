@@ -24,12 +24,12 @@ namespace ph { class PMAtomicStatistics; }
 namespace ph
 {
 
-template<CPhoton Photon>
-class TVPMRadianceEvaluator : public TViewPathHandler<TVPMRadianceEvaluator<Photon>>
+template<CPhoton Photon, typename PhotonMap = TPhotonMap<Photon>>
+class TVPMRadianceEvaluator : public TViewPathHandler<TVPMRadianceEvaluator<Photon, PhotonMap>>
 {
 public:
 	TVPMRadianceEvaluator(
-		const TPhotonMap<Photon>*      photonMap,
+		const PhotonMap*               photonMap,
 		const Scene*                   scene,
 		TSamplingFilm<math::Spectrum>* film);
 
@@ -74,7 +74,7 @@ private:
 		const BsdfQueryContext& bsdfContext,
 		const math::Spectrum& viewPathThroughput);
 
-	const TPhotonMap<Photon>*      m_photonMap;
+	const PhotonMap*               m_photonMap;
 	TSamplingFilm<math::Spectrum>* m_film;
 	const Scene*                   m_scene;
 
@@ -92,9 +92,10 @@ private:
 
 // In-header Implementations:
 
-template<CPhoton Photon>
-inline TVPMRadianceEvaluator<Photon>::TVPMRadianceEvaluator(
-	const TPhotonMap<Photon>* const      photonMap,
+template<CPhoton Photon, typename PhotonMap>
+inline TVPMRadianceEvaluator<Photon, PhotonMap>
+::TVPMRadianceEvaluator(
+	const PhotonMap* const               photonMap,
 	const Scene* const                   scene,
 	TSamplingFilm<math::Spectrum>* const film)
 
@@ -124,8 +125,9 @@ inline TVPMRadianceEvaluator<Photon>::TVPMRadianceEvaluator(
 	setFullPathLengthRange(1);
 }
 
-template<CPhoton Photon>
-inline bool TVPMRadianceEvaluator<Photon>::impl_onReceiverSampleStart(
+template<CPhoton Photon, typename PhotonMap>
+inline bool TVPMRadianceEvaluator<Photon, PhotonMap>
+::impl_onReceiverSampleStart(
 	const math::Vector2D& rasterCoord,
 	const math::Vector2S& sampleIndex,
 	const math::Spectrum& pathThroughput)
@@ -136,11 +138,13 @@ inline bool TVPMRadianceEvaluator<Photon>::impl_onReceiverSampleStart(
 	return true;
 }
 
-template<CPhoton Photon>
-inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
+template<CPhoton Photon, typename PhotonMap>
+inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
+::impl_onPathHitSurface(
 	const std::size_t     pathLength,
 	const SurfaceHit&     surfaceHit,
-	const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy
+	const math::Spectrum& pathThroughput)
+-> ViewPathTracingPolicy
 {
 	const SurfaceOptics* optics = surfaceHit.getSurfaceOptics();
 	if(!optics)
@@ -210,14 +214,16 @@ inline auto TVPMRadianceEvaluator<Photon>::impl_onPathHitSurface(
 	}
 }
 
-template<CPhoton Photon>
-inline void TVPMRadianceEvaluator<Photon>::impl_onReceiverSampleEnd()
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::impl_onReceiverSampleEnd()
 {
 	m_film->addSample(m_rasterCoord.x(), m_rasterCoord.y(), m_sampledRadiance);
 }
 
-template<CPhoton Photon>
-inline void TVPMRadianceEvaluator<Photon>::impl_onSampleBatchFinished()
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::impl_onSampleBatchFinished()
 {
 	if(m_statistics)
 	{
@@ -225,8 +231,9 @@ inline void TVPMRadianceEvaluator<Photon>::impl_onSampleBatchFinished()
 	}
 }
 
-template<CPhoton Photon>
-inline math::Spectrum TVPMRadianceEvaluator<Photon>::estimateRadianceWithPhotonMap(
+template<CPhoton Photon, typename PhotonMap>
+inline math::Spectrum TVPMRadianceEvaluator<Photon, PhotonMap>
+::estimateRadianceWithPhotonMap(
 	const SurfaceHit& X,
 	const BsdfQueryContext& bsdfContext,
 	const math::Spectrum& viewPathThroughput)
@@ -267,14 +274,16 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon>::estimateRadianceWithPhotonM
 	return radiance;
 }
 
-template<CPhoton Photon>
-inline void TVPMRadianceEvaluator<Photon>::setStatistics(PMAtomicStatistics* const statistics)
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::setStatistics(PMAtomicStatistics* const statistics)
 {
 	m_statistics = statistics;
 }
 
-template<CPhoton Photon>
-inline void TVPMRadianceEvaluator<Photon>::setKernelRadius(const real radius)
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::setKernelRadius(const real radius)
 {
 	PH_ASSERT_GT(radius, 0.0_r);
 
@@ -284,8 +293,9 @@ inline void TVPMRadianceEvaluator<Photon>::setKernelRadius(const real radius)
 	m_kernelDensityNormalizer = 1.0_r / (kernelArea * static_cast<real>(m_photonMap->numPaths));
 }
 
-template<CPhoton Photon>
-inline void TVPMRadianceEvaluator<Photon>::setStochasticPathSampleBeginLength(
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::setStochasticPathSampleBeginLength(
 	const std::size_t stochasticSampleBeginLength)
 {
 	PH_ASSERT_GE(stochasticSampleBeginLength, 1);
@@ -293,8 +303,9 @@ inline void TVPMRadianceEvaluator<Photon>::setStochasticPathSampleBeginLength(
 	m_stochasticSampleBeginLength = stochasticSampleBeginLength;
 }
 
-template<CPhoton Photon>
-inline void TVPMRadianceEvaluator<Photon>::setFullPathLengthRange(
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::setFullPathLengthRange(
 	const std::size_t minFullPathLength, const std::size_t maxFullPathLength)
 {
 	PH_ASSERT_GE(minFullPathLength, 1);

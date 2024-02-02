@@ -12,6 +12,7 @@
 #include "Core/Renderer/RenderProgress.h"
 #include "Core/Renderer/RenderStats.h"
 #include "Math/math.h"
+#include "Utility/TSpan.h"
 #include "Utility/Concurrent/concurrent.h"
 #include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/Timer.h"
@@ -34,6 +35,8 @@ namespace
 template<CPhoton Photon>
 struct TPPPMIteration final
 {
+	using PhotonMapType = TPhotonMap<Photon, TSpan<Photon>>;
+
 	/*! Stores the evaluation result for current iteration. */
 	HdrRgbFilm film;
 
@@ -41,7 +44,8 @@ struct TPPPMIteration final
 	real kernelRadius;
 
 	std::vector<Photon> photonBuffer;
-	TPhotonMap<Photon> photonMap;
+	PhotonMapType photonMap;
+	PhotonMapType::BuildCacheType photonMapBuildCache;
 
 	std::unique_ptr<SampleGenerator> photonSampleGenerator;
 	std::unique_ptr<SampleGenerator> viewSampleGenerator;
@@ -148,7 +152,7 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 			getRenderWidthPx(), getRenderHeightPx(), getRenderRegionPx(), getFilter());
 		pppmIteration.kernelRadius = -1.0_r;
 		pppmIteration.photonBuffer = std::vector<Photon>(numPhotonsPerPass);
-		pppmIteration.photonMap = TPhotonMap<Photon>();
+		pppmIteration.photonMap = PPPMIteration::PhotonMapType{};
 		pppmIteration.photonMap.minPathLength = getCommonParams().minPhotonPathLength;
 		pppmIteration.photonMap.maxPathLength = getCommonParams().maxPhotonPathLength;
 		pppmIteration.photonSampleGenerator = getSampleGenerator()->makeNewborn(1);
@@ -205,13 +209,14 @@ void ProbabilisticProgressivePMRenderer::renderWithProbabilisticProgressivePM()
 			{
 				PH_PROFILE_NAMED_SCOPE("PPPM build photon map");
 
-				pppmIteration.photonMap.map.build(pppmIteration.photonBuffer);
+				pppmIteration.photonMap.map.build(
+					pppmIteration.photonBuffer, pppmIteration.photonMapBuildCache);
 			}
 
 			{
 				PH_PROFILE_NAMED_SCOPE("PPPM energy estimation");
 
-				using RadianceEvaluator = TVPMRadianceEvaluator<FullPhoton>;
+				using RadianceEvaluator = TVPMRadianceEvaluator<Photon, PPPMIteration::PhotonMapType>;
 
 				SampleGenerator* viewSampleGenerator = pppmIteration.viewSampleGenerator.get();
 				pppmIteration.film.clear();

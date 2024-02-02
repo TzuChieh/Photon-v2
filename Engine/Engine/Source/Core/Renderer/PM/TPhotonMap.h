@@ -30,7 +30,11 @@ public:
 
 /*! @brief Default photon map type. Should be adequate for most cases.
 */
-template<CPhoton Photon>
+template
+<
+	CPhoton Photon, 
+	math::CIndexedPointKdtreeItemStorage<Photon> PhotonStorage = std::vector<Photon>
+>
 class TPhotonMap final
 {
 public:
@@ -46,7 +50,8 @@ public:
 		}
 	};
 
-	using MapType = math::TIndexedPointKdtree<Photon, int, PhotonCenterCalculator>;
+	using MapType = math::TIndexedPointKdtree<Photon, int, PhotonCenterCalculator, PhotonStorage>;
+	using BuildCacheType = MapType::BuildCache;
 
 	MapType map = MapType(2, PhotonCenterCalculator{});
 
