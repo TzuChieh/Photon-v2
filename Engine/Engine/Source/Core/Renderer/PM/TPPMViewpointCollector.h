@@ -214,16 +214,24 @@ inline void TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 {
 	if(m_receiverSampleViewpoints > 0)
 	{
-		// Normalize current receiver sample's path throughput.
-		if constexpr(Viewpoint::template has<EViewpointData::ViewThroughput>())
+		// Normalize current receiver sample's path throughput and view radiance (since no RR
+		// is used and each view path carries an independent component of the total energy)
+		for(std::size_t i = m_viewpoints.size() - m_receiverSampleViewpoints; i < m_viewpoints.size(); ++i)
 		{
-			for(std::size_t i = m_viewpoints.size() - m_receiverSampleViewpoints; i < m_viewpoints.size(); ++i)
-			{
-				auto& viewpoint = m_viewpoints[i];
+			auto& viewpoint = m_viewpoints[i];
 
+			if constexpr(Viewpoint::template has<EViewpointData::ViewThroughput>())
+			{
 				math::Spectrum pathThroughput = viewpoint.template get<EViewpointData::ViewThroughput>();
 				pathThroughput.mulLocal(static_cast<real>(m_receiverSampleViewpoints));
 				viewpoint.template set<EViewpointData::ViewThroughput>(pathThroughput);
+			}
+
+			if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
+			{
+				math::Spectrum viewRadiance = viewpoint.template get<EViewpointData::ViewRadiance>();
+				viewRadiance.mulLocal(static_cast<real>(m_receiverSampleViewpoints));
+				viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
 			}
 		}
 	}

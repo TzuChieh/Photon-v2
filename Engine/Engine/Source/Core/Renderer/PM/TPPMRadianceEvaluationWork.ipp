@@ -117,8 +117,8 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 		const real radianceMultiplier = m_rcpTotalPhotonPaths / kernelArea;
 
 		math::Spectrum radiance(viewpoint.get<EViewpointData::Tau>() * radianceMultiplier);
-		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>());
 		radiance.mulLocal(viewpoint.get<EViewpointData::ViewThroughput>());
+		radiance.addLocal(viewpoint.get<EViewpointData::ViewRadiance>());
 
 		const math::Vector2D rasterCoord = viewpoint.get<EViewpointData::RasterCoord>();
 		m_film->addSample(rasterCoord.x(), rasterCoord.y(), radiance);

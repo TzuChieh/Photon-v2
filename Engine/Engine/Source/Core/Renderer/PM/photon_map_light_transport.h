@@ -67,6 +67,7 @@ of the total energy (in equilibrium).
 @param scene The scene that is being rendered.
 @param minFullPathLength The minimum length of the full light transport path to consider.
 @param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
+@return The energy that is lost, properly weighted by `viewPathThroughput`.
 */
 template<CPhoton Photon>
 inline math::Spectrum estimate_certainly_lost_energy(
@@ -140,6 +141,7 @@ of the total energy (in equilibrium).
 @param scene The scene that is being rendered.
 @param minFullPathLength The minimum length of the full light transport path to consider.
 @param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
+@return The energy that is lost, properly weighted by `viewPathThroughput`.
 */
 template<CPhoton Photon>
 inline math::Spectrum estimate_lost_energy_for_extending(
@@ -206,6 +208,7 @@ of the total energy (in equilibrium).
 @param scene The scene that is being rendered.
 @param minFullPathLength The minimum length of the full light transport path to consider.
 @param maxFullPathLength The maximum length of the full light transport path to consider (inclusive).
+@return The energy that is lost, properly weighted by `viewPathThroughput`.
 */
 template<CPhoton Photon>
 inline math::Spectrum estimate_lost_energy_for_merging(

@@ -69,7 +69,8 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 			TPhotonMap<Photon>{}.getInfo(),// using default parameters
 			getScene());
 
-		auto viewpointSampleGenerator = getSampleGenerator()->makeNewborn(getCommonParams().numSamplesPerPixel);
+		auto viewpointSampleGenerator = getSampleGenerator()->makeNewborn(
+			getCommonParams().numSamplesPerPixel);
 
 		TViewPathTracingWork<ViewpointCollector> viewpointWork(
 			&viewpointCollector,
