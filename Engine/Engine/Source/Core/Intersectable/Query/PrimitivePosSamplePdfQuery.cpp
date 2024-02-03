@@ -17,7 +17,7 @@ void PrimitivePosSamplePdfInput::set(const math::Vector3R& position)
 	set(position, HitDetail::NO_FACE_ID);
 }
 
-void PrimitivePosSamplePdfInput::set(const math::Vector3R& position, const std::size_t faceId)
+void PrimitivePosSamplePdfInput::set(const math::Vector3R& position, const uint64 faceId)
 {
 	this->position = position;
 	this->faceId   = faceId;

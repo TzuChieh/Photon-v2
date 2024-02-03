@@ -18,31 +18,43 @@ The philosophy of this abstraction layer is that texture sampling
 processes should not care about the context of a hit, but focus on the
 actual data of the target point. 
 */
-// FIXME: uvw should be in float64 for better highres pixel texture sample precision (test if required)
 class SampleLocation final
 {
+	// FIXME: uvw should be in float64 for better highres pixel texture sample precision 
+	// (test if required)
+
 public:
-	// Constructs a sample location at (u, v, (w)).
+	/*! @brief Constructs a sample location at @f$ (u, v, (w)) @f$.
+	*/
+	///@{
 	SampleLocation(const math::Vector3R& uvw, math::EColorUsage usage);
 	SampleLocation(const math::Vector2R& uv, math::EColorUsage usage);
+	///@}
 
-	// Constructs a sample location from hit information.
+	/*! @brief Constructs a sample location from hit information.
+	*/
+	///@{
 	explicit SampleLocation(const HitDetail& hit);
 	SampleLocation(const HitDetail& hit, math::EColorUsage usage);
+	///@}
 
 	SampleLocation(const SampleLocation& other);
 
-	// Gets and sets the uvw coordinates of this sample location.
+	/*! @brief Gets and sets the uvw coordinates of this sample location.
+	*/
+	///@{
 	math::Vector3R uvw() const;
 	math::Vector2R uv() const;
 	void setUvw(const math::Vector3R& uvw);
 	void setUv(const math::Vector2R& uv);
+	///@}
 
 	// TODO: should use uvw remapper instead
 	// or update derivatives?
 	SampleLocation getUvwScaled(const math::Vector3R& scale) const;
 
-	// Gets expected type of the usage for the sample.
+	/*! @brief Gets expected type of the usage for the sample.
+	*/
 	math::EColorUsage expectedUsage() const;
 
 private:
@@ -87,19 +99,24 @@ inline math::Vector2R SampleLocation::uv() const
 
 inline void SampleLocation::setUvw(const math::Vector3R& uvw)
 {
-	m_hit.setHitIntrinsics(m_hit.getPrimitive(), uvw, m_hit.getRayT());
+	m_hit.setHitIntrinsics(
+		m_hit.getPrimitive(), 
+		uvw, 
+		m_hit.getRayT(), 
+		m_hit.getFaceId(),
+		m_hit.getFaceTopology());
 }
 
 inline void SampleLocation::setUv(const math::Vector2R& uv)
 {
-	m_hit.setHitIntrinsics(m_hit.getPrimitive(), math::Vector3R(uv.x(), uv.y(), 0.0_r), m_hit.getRayT());
+	setUvw(math::Vector3R(uv.x(), uv.y(), 0.0_r));
 }
 
 inline SampleLocation SampleLocation::getUvwScaled(const math::Vector3R& scale) const
 {
-	HitDetail newDetail = m_hit;
-	newDetail.setHitIntrinsics(m_hit.getPrimitive(), m_hit.getUVW().mul(scale), m_hit.getRayT());
-	return SampleLocation(newDetail, m_usage);
+	SampleLocation result(*this);
+	result.setUvw(m_hit.getUVW().mul(scale));
+	return result;
 }
 
 inline math::EColorUsage SampleLocation::expectedUsage() const

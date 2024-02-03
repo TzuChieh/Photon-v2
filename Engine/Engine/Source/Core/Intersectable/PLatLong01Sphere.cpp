@@ -33,7 +33,7 @@ void PLatLong01Sphere::calcIntersectionDetail(
 
 	const math::Vector2R hitUv = positionToUV(hitPosition);
 
-	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
+	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
 		hitNormal,
 		hitNormal);
@@ -49,10 +49,10 @@ void PLatLong01Sphere::calcIntersectionDetail(
 	const math::Vector3R& dNdU = dPdU.mul(getRadius());
 	const math::Vector3R& dNdV = dPdV.mul(getRadius());
 
-	out_detail->getHitInfo(ECoordSys::LOCAL).setDerivatives(
+	out_detail->getHitInfo(ECoordSys::Local).setDerivatives(
 		dPdU, dPdV, dNdU, dNdV);
 
-	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
+	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 	out_detail->setHitIntrinsics(this, math::Vector3R(hitUv.x(), hitUv.y(), 0), probe.getHitRayT());
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&

@@ -16,12 +16,12 @@ class PrimitivePosSamplePdfInput final
 {
 public:
 	math::Vector3R position;
-	std::size_t    faceId;
+	uint64         faceId;
 
 	PrimitivePosSamplePdfInput();
 
 	void set(const math::Vector3R& position);
-	void set(const math::Vector3R& position, std::size_t faceId);
+	void set(const math::Vector3R& position, uint64 faceId);
 	void set(const HitDetail& detail);
 	void set(const PrimitivePosSampleQuery& query);
 };

@@ -130,7 +130,12 @@ public:
 		m_primitiveGetter()->calcIntersectionDetail(ray, probe, out_detail);
 
 		// This is a representative of the original primitive
-		out_detail->setHitIntrinsics(this, out_detail->getUVW(), out_detail->getRayT());
+		out_detail->setHitIntrinsics(
+			this, 
+			out_detail->getUVW(), 
+			out_detail->getRayT(),
+			out_detail->getFaceId(),
+			out_detail->getFaceTopology());
 	}
 
 	math::AABB3D calcAABB() const override

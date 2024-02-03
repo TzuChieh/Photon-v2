@@ -56,7 +56,14 @@ public:
 		PH_ASSERT(probe.getCurrentHit() == &m_intersectable);
 
 		m_intersectable.calcIntersectionDetail(ray, probe, out_detail);
-		out_detail->setHitIntrinsics(this, out_detail->getUVW(), out_detail->getRayT());
+
+		// This is a representative of the original primitive
+		out_detail->setHitIntrinsics(
+			this, 
+			out_detail->getUVW(), 
+			out_detail->getRayT(),
+			out_detail->getFaceId(),
+			out_detail->getFaceTopology());
 	}
 
 	inline bool mayOverlapVolume(const math::AABB3D& aabb) const override

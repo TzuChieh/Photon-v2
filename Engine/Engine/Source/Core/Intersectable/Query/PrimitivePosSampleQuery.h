@@ -19,7 +19,7 @@ public:
 	math::Vector3R position;
 	math::Vector3R normal;
 	math::Vector3R uvw;
-	std::size_t    faceId;
+	uint64         faceId;
 	real           pdfA;
 
 	PrimitivePosSampleOutput();

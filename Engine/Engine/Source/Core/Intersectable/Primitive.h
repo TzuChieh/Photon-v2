@@ -16,6 +16,8 @@ class PrimitiveMetadata;
 class PrimitivePosSampleQuery;
 class SampleFlow;
 
+/*! @brief A physical shape in the scene. 
+*/
 class Primitive : public Intersectable
 {
 public:
@@ -37,8 +39,11 @@ public:
 	virtual real calcPositionSamplePdfA(const math::Vector3R& position) const;
 
 	/*! @brief Calculates the area extended by this primitive.
+	
 	The term "extended" implies single-sided, e.g., a triangle's extended area is half the absolute
-	value of the cross product of its two edge vectors, no need to multiply by 2 for two sides. 
+	value of the cross product of its two edge vectors. To treat it as double-sided, you need to
+	multiply the result by 2 manually.
+
 	A zero return value means the concept of extended area does not apply to this primitive.
 	*/
 	virtual real calcExtendedArea() const;

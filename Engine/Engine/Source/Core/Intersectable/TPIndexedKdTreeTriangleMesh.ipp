@@ -164,14 +164,19 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcIntersectionDetail(
 		"dPdU = " + dPdU.toString() + ", dPdV = " + dPdV.toString() + "\n"
 		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 	
-	out_detail->setHitIntrinsics(this, uvw, probe.getHitRayT());
-	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
+	out_detail->setHitIntrinsics(
+		this, 
+		uvw, 
+		probe.getHitRayT(),
+		HitDetail::NO_FACE_ID,// TODO
+		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
+	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		position,
 		faceNormal,
 		shadingNormal);
-	out_detail->getHitInfo(ECoordSys::LOCAL).setDerivatives(
+	out_detail->getHitInfo(ECoordSys::Local).setDerivatives(
 		dPdU, dPdV, dNdU, dNdV);
-	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
+	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 }
 
 template<typename Index>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Utility/TBitFlags.h"
 #include "Math/math.h"
+#include "Utility/TBitFlags.h"
 
 #include <Common/primitive_type.h>
 
@@ -29,7 +29,7 @@ enum class ETransport
 	Importance
 };
 
-using SurfacePhenomena = TBitFlags<uint32, ESurfacePhenomenon>;
+using SurfacePhenomena = TEnumFlags<ESurfacePhenomenon>;
 using SurfaceElemental = int;
 
 static_assert(std::is_signed_v<SurfaceElemental>, 

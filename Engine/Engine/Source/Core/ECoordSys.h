@@ -5,10 +5,10 @@ namespace ph
 
 enum class ECoordSys : int
 {
-	WORLD = 0,
-	LOCAL = 1,
+	World = 0,
+	Local = 1,
 
-	NUM_ELEMENTS = 2
+	SIZE = 2
 };
 
 }// end namespace ph

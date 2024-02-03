@@ -5,8 +5,11 @@
 #include "Math/math.h"
 #include "Core/ECoordSys.h"
 #include "Core/HitInfo.h"
+#include "Core/FaceTopology.h"
+#include "Utility/utility.h"
 
 #include <Common/assertion.h>
+#include <Common/primitive_type.h>
 
 #include <cstddef>
 
@@ -20,28 +23,31 @@ namespace ph
 class HitDetail final
 {
 public:
-	inline static constexpr auto NO_FACE_ID = static_cast<std::size_t>(-1);
+	inline static constexpr auto NO_FACE_ID = static_cast<uint64>(-1);
 
 	HitDetail();
 
+	/*! @brief Set essential attributes that are independent to the coordinate system.
+	*/
 	HitDetail& setHitIntrinsics(
 		const Primitive*      primitive,
 		const math::Vector3R& uvw,
 		real                  rayT,
-		std::size_t           faceId = NO_FACE_ID);
+		uint64                faceId = NO_FACE_ID,
+		FaceTopology          faceTopology = FaceTopology(EFaceTopology::General));
 
 	void computeBases();
 
-	math::Vector3R getPosition(ECoordSys coordSys = ECoordSys::WORLD) const;
-	math::Vector3R getShadingNormal(ECoordSys coordSys = ECoordSys::WORLD) const;
-	math::Vector3R getGeometryNormal(ECoordSys coordSys = ECoordSys::WORLD) const;
-	math::Vector3R getdPdU(ECoordSys coordSys = ECoordSys::WORLD) const;
-	math::Vector3R getdPdV(ECoordSys coordSys = ECoordSys::WORLD) const;
-	math::Vector3R getdNdU(ECoordSys coordSys = ECoordSys::WORLD) const;
-	math::Vector3R getdNdV(ECoordSys coordSys = ECoordSys::WORLD) const;
+	math::Vector3R getPosition(ECoordSys coordSys = ECoordSys::World) const;
+	math::Vector3R getShadingNormal(ECoordSys coordSys = ECoordSys::World) const;
+	math::Vector3R getGeometryNormal(ECoordSys coordSys = ECoordSys::World) const;
+	math::Vector3R getdPdU(ECoordSys coordSys = ECoordSys::World) const;
+	math::Vector3R getdPdV(ECoordSys coordSys = ECoordSys::World) const;
+	math::Vector3R getdNdU(ECoordSys coordSys = ECoordSys::World) const;
+	math::Vector3R getdNdV(ECoordSys coordSys = ECoordSys::World) const;
 	math::Vector3R getUVW() const;
-	const math::Basis3R& getGeometryBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
-	const math::Basis3R& getShadingBasis(ECoordSys coordSys = ECoordSys::WORLD) const;
+	const math::Basis3R& getGeometryBasis(ECoordSys coordSys = ECoordSys::World) const;
+	const math::Basis3R& getShadingBasis(ECoordSys coordSys = ECoordSys::World) const;
 
 	/*! @brief Get the parametric distance from the incident ray's origin.
 	Notice that parametric distance is not ordinary distance but defined in terms of a ray
@@ -50,20 +56,23 @@ public:
 	real getRayT() const;
 
 	/*! @brief Get the face ID associated to the hit.
-	May be NO_FACE_ID if not applicable to the hit.
+	May be `NO_FACE_ID` if not applicable to the hit.
 	*/
-	std::size_t getFaceId() const;
+	uint64 getFaceId() const;
+
+	FaceTopology getFaceTopology() const;
 
 	const Primitive* getPrimitive() const;
-	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::WORLD) const;
-	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::WORLD);
+	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World) const;
+	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World);
 
 private:
 	const Primitive* m_primitive;
 	math::Vector3R   m_uvw;
 	real             m_rayT;
-	std::size_t      m_faceId;
-	HitInfo          m_hitInfos[static_cast<int>(ECoordSys::NUM_ELEMENTS)];
+	HitInfo          m_hitInfos[enum_size<ECoordSys>()];
+	uint64           m_faceId;
+	FaceTopology     m_faceTopology;
 };
 
 // In-header Implementations:
@@ -118,9 +127,14 @@ inline real HitDetail::getRayT() const
 	return m_rayT;
 }
 
-inline std::size_t HitDetail::getFaceId() const
+inline uint64 HitDetail::getFaceId() const
 {
 	return m_faceId;
+}
+
+inline FaceTopology HitDetail::getFaceTopology() const
+{
+	return FaceTopology(m_faceTopology);
 }
 
 inline const Primitive* HitDetail::getPrimitive() const
@@ -135,14 +149,14 @@ inline math::Vector3R HitDetail::getUVW() const
 
 inline const HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys) const
 {
-	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, static_cast<int>(ECoordSys::NUM_ELEMENTS));
+	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, enum_size<ECoordSys>());
 
 	return m_hitInfos[static_cast<int>(coordSys)];
 }
 
 inline HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys)
 {
-	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, static_cast<int>(ECoordSys::NUM_ELEMENTS));
+	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, enum_size<ECoordSys>());
 
 	return m_hitInfos[static_cast<int>(coordSys)];
 }

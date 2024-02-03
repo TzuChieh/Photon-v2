@@ -20,11 +20,12 @@ enough: we need to support opearations on the stored data for it to be useful,
 this is what intersectables are meant for.
 
 The most common operation is **ray intersection test**. We need to know whether
-a given ray is intersecting a triangle for the rest of the system to work.
-Remember that we can also model the table and mug using other shapes such as
-quads, they should support the same operation set as triangles. Photon supports
-many kinds of *object* that can be intersected by rays, such as just-mentioned
-triangles and quads, and they are named after their capability "intersectable".
+a given ray is intersecting something, such as a triangle, for the rest of the
+system to work. Remember that we can also model the table and mug using other
+shapes such as quads, they should support the same operation set as triangles.
+Photon supports many kinds of *object* that can be intersected by rays, such
+as just-mentioned triangles and quads, and these objects are named after their
+capability: "intersectable".
 */
 class Intersectable
 {

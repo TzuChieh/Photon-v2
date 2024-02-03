@@ -77,11 +77,11 @@ void PLatLongEnvSphere::calcIntersectionDetail(
 	m_worldToLocal->transformV(unitRayDir, &localUnitRayDir);
 	const math::Vector2R& hitUv = unitSphere.surfaceToLatLong01(localUnitRayDir);
 
-	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
+	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
 		hitNormal,
 		hitNormal);
-	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
+	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 	out_detail->setHitIntrinsics(this, math::Vector3R(hitUv.x(), hitUv.y(), 0), probe.getHitRayT());
 
 	// TODO: derivatives are unset; any point on the sphere can potentially map

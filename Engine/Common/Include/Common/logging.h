@@ -174,6 +174,8 @@ namespace ph
 PH_DECLARE_LOG_GROUP(PhotonRenderer);
 
 /*! @brief A set of helper utility macros to log using Photon renderer's default log group.
+@note Default log group macros are for uses in the `ph` namespace. For general usages, use the
+custom log group macros.
 */
 ///@{
 #if PH_ENABLE_DEBUG_LOG

@@ -74,7 +74,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 		m_uvwB, hitBaryABC.y(),
 		m_uvwC, hitBaryABC.z());
 
-	out_detail->getHitInfo(ECoordSys::LOCAL).setAttributes(
+	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
 		m_faceNormal, 
 		hitShadingNormal);
@@ -98,11 +98,16 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 		dNdV = dNab.mul(-dUVac.x()).add(dNac.mul(dUVab.x())).mulLocal(rcpUvDet);
 	}
 	
-	out_detail->getHitInfo(ECoordSys::LOCAL).setDerivatives(
+	out_detail->getHitInfo(ECoordSys::Local).setDerivatives(
 		dPdU, dPdV, dNdU, dNdV);
 
-	out_detail->getHitInfo(ECoordSys::WORLD) = out_detail->getHitInfo(ECoordSys::LOCAL);
-	out_detail->setHitIntrinsics(this, hitUVW, probe.getHitRayT());
+	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
+	out_detail->setHitIntrinsics(
+		this, 
+		hitUVW, 
+		probe.getHitRayT(), 
+		HitDetail::NO_FACE_ID, 
+		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"
