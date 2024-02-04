@@ -5,6 +5,7 @@
 
 #include <limits>
 #include <type_traits>
+#include <utility>
 
 namespace ph
 {
@@ -18,27 +19,25 @@ PrimitiveMetadata::PrimitiveMetadata() :
 	m_channels()
 {
 	// Adds a default channel.
-	//
 	addChannel(PrimitiveChannel());
 }
 
-uint32 PrimitiveMetadata::addChannel(const PrimitiveChannel& channel)
+uint8 PrimitiveMetadata::addChannel(const PrimitiveChannel& channel)
 {
 	m_channels.push_back(channel);
 
 	// Making sure the maximum index of the channels does not exceed what
 	// a channel ID type can handle.
-	//
-	PH_ASSERT(m_channels.size() - 1 <= static_cast<std::size_t>(std::numeric_limits<uint32>::max()));
+	PH_ASSERT_LT(m_channels.size() - 1, static_cast<std::size_t>(std::numeric_limits<uint8>::max()));
 
-	return static_cast<uint32>(m_channels.size() - 1);
+	return static_cast<uint8>(m_channels.size() - 1);
 }
 
-void PrimitiveMetadata::setChannel(const uint32 channelId, const PrimitiveChannel& channel)
+void PrimitiveMetadata::setChannel(const uint8 channelId, PrimitiveChannel channel)
 {
 	if(isChannelIdValid(channelId))
 	{
-		m_channels[channelId] = channel;
+		m_channels[channelId] = std::move(channel);
 	}
 	else
 	{
@@ -47,6 +46,6 @@ void PrimitiveMetadata::setChannel(const uint32 channelId, const PrimitiveChanne
 }
 
 static_assert(std::is_copy_constructible_v<PrimitiveMetadata>,
-	"PrimitiveMetadata should be copyable so modified context can be easily created.");
+	"`PrimitiveMetadata` should be copyable so modified context can be easily created.");
 
 }// end namespace ph

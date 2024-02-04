@@ -23,13 +23,7 @@ class Ray;
 class HitProbe final
 {
 public:
-	inline HitProbe() :
-		m_hitStack(),
-		m_hitRayT(std::numeric_limits<real>::max()),
-		m_hitDetailChannel(0),
-		m_cache(),
-		m_cacheHead(0)
-	{}
+	HitProbe();
 
 	void calcIntersectionDetail(const Ray& ray, HitDetail* out_detail);
 	bool isOnDefaultChannel() const;
@@ -45,36 +39,15 @@ public:
 	*/
 	void pushBaseHit(const Intersectable* hitTarget, real hitRayT);
 
-	inline void popIntermediateHit()
-	{
-		m_hitStack.pop();
-	}
+	void popIntermediateHit();
 
-	inline void replaceCurrentHitWith(const Intersectable* const newCurrentHit)
-	{
-		m_hitStack.pop();
-		m_hitStack.push(newCurrentHit);
-	}
+	void replaceCurrentHitWith(const Intersectable* newCurrentHit);
 
-	inline void setChannel(const uint32 channel)
-	{
-		m_hitDetailChannel = channel;
-	}
+	void setChannel(uint8 channel);
+	uint8 getChannel() const;
 
-	inline const Intersectable* getCurrentHit() const
-	{
-		return m_hitStack.top();
-	}
-
-	inline real getHitRayT() const
-	{
-		return m_hitRayT;
-	}
-
-	inline uint32 getChannel() const
-	{
-		return m_hitDetailChannel;
-	}
+	const Intersectable* getCurrentHit() const;
+	real getHitRayT() const;
 
 	/*!
 	Clears the probe object and makes it ready for probing again. 
@@ -92,12 +65,20 @@ private:
 
 	Stack       m_hitStack;
 	real        m_hitRayT;
-	uint32      m_hitDetailChannel;
 	std::byte   m_cache[PH_HIT_PROBE_CACHE_BYTES];
-	std::size_t m_cacheHead;
+	uint8       m_cacheHead;
+	uint8       m_hitDetailChannel;
 };
 
 // In-header Implementations:
+
+inline HitProbe::HitProbe()
+	: m_hitStack()
+	, m_hitRayT(std::numeric_limits<real>::max())
+	, m_cache()
+	, m_cacheHead(0)
+	, m_hitDetailChannel(0)
+{}
 
 inline void HitProbe::pushIntermediateHit(const Intersectable* const hitTarget)
 {
@@ -108,6 +89,37 @@ inline void HitProbe::pushBaseHit(const Intersectable* const hitTarget, const re
 {
 	m_hitStack.push(hitTarget);
 	m_hitRayT = hitRayT;
+}
+
+inline void HitProbe::popIntermediateHit()
+{
+	m_hitStack.pop();
+}
+
+inline void HitProbe::replaceCurrentHitWith(const Intersectable* const newCurrentHit)
+{
+	m_hitStack.pop();
+	m_hitStack.push(newCurrentHit);
+}
+
+inline void HitProbe::setChannel(const uint8 channel)
+{
+	m_hitDetailChannel = channel;
+}
+
+inline uint8 HitProbe::getChannel() const
+{
+	return m_hitDetailChannel;
+}
+
+inline const Intersectable* HitProbe::getCurrentHit() const
+{
+	return m_hitStack.top();
+}
+
+inline real HitProbe::getHitRayT() const
+{
+	return m_hitRayT;
 }
 
 inline void HitProbe::clear()

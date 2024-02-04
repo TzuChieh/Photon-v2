@@ -17,48 +17,28 @@ namespace ph
 class PrimitiveMetadata final
 {
 public:
-	static constexpr uint32 INVALID_CHANNEL_ID = static_cast<uint32>(-1);
-	static constexpr uint32 DEFAULT_CHANNEL_ID = static_cast<uint32>( 0);
+	static constexpr auto INVALID_CHANNEL_ID = static_cast<uint8>(-1);
+	static constexpr auto DEFAULT_CHANNEL_ID = static_cast<uint8>( 0);
 
 	PrimitiveMetadata();
 
-	// Adds a channel to the metadata. Returns a channel ID that can be used
-	// to access the just added channel.
-	uint32 addChannel(const PrimitiveChannel& channel);
+	/*! @brief Adds a channel to the metadata.
+	@return The channel's ID. Can be used to access the just-added channel.
+	*/
+	uint8 addChannel(const PrimitiveChannel& channel);
 
-	void setChannel(uint32 channelId, const PrimitiveChannel& channel);
+	void setChannel(uint8 channelId, PrimitiveChannel channel);
+	const PrimitiveChannel& getChannel(uint8 channelId) const;
+	const PrimitiveChannel& getDefaultChannel() const;
+	bool isChannelIdValid(uint8 channelId) const;
 
-	inline const PrimitiveChannel& getChannel(const uint32 channelId) const
-	{
-		if(isChannelIdValid(channelId))
-		{
-			return m_channels[channelId];
-		}
-		else
-		{
-			return getDefaultChannel();
-		}
-	}
+	SurfaceBehavior& getSurface();
+	VolumeBehavior& getInterior();
+	VolumeBehavior& getExterior();
 
-	inline const PrimitiveChannel& getDefaultChannel() const
-	{
-		return getChannel(DEFAULT_CHANNEL_ID);
-	}
-
-	inline bool isChannelIdValid(const uint32 channelId) const
-	{
-		PH_ASSERT(channelId != INVALID_CHANNEL_ID);
-
-		return channelId < m_channels.size();
-	}
-
-	inline SurfaceBehavior&       getSurface()  { return m_surface;  }
-	inline VolumeBehavior&        getInterior() { return m_interior; }
-	inline VolumeBehavior&        getExterior() { return m_exterior; }
-
-	inline const SurfaceBehavior& getSurface() const  { return m_surface;  }
-	inline const VolumeBehavior&  getInterior() const { return m_interior; }
-	inline const VolumeBehavior&  getExterior() const { return m_exterior; }
+	const SurfaceBehavior& getSurface() const;
+	const VolumeBehavior& getInterior() const;
+	const VolumeBehavior& getExterior() const;
 
 private:
 	SurfaceBehavior               m_surface;
@@ -66,5 +46,57 @@ private:
 	VolumeBehavior                m_exterior;
 	std::vector<PrimitiveChannel> m_channels;
 };
+
+inline const PrimitiveChannel& PrimitiveMetadata::getChannel(const uint8 channelId) const
+{
+	if(isChannelIdValid(channelId))
+	{
+		return m_channels[channelId];
+	}
+	else
+	{
+		return getDefaultChannel();
+	}
+}
+
+inline const PrimitiveChannel& PrimitiveMetadata::getDefaultChannel() const
+{
+	return getChannel(DEFAULT_CHANNEL_ID);
+}
+
+inline bool PrimitiveMetadata::isChannelIdValid(const uint8 channelId) const
+{
+	return channelId < m_channels.size();
+}
+
+inline SurfaceBehavior& PrimitiveMetadata::getSurface()
+{
+	return m_surface;
+}
+
+inline VolumeBehavior& PrimitiveMetadata::getInterior()
+{
+	return m_interior;
+}
+
+inline VolumeBehavior& PrimitiveMetadata::getExterior()
+{
+	return m_exterior;
+}
+
+inline const SurfaceBehavior& PrimitiveMetadata::getSurface() const
+{
+	return m_surface;
+}
+
+inline const VolumeBehavior& PrimitiveMetadata::getInterior() const
+{
+	return m_interior;
+}
+
+inline const VolumeBehavior& PrimitiveMetadata::getExterior() const
+{
+	return m_exterior;
+}
 
 }// end namespace ph
