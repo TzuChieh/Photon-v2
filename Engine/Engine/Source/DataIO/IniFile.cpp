@@ -3,7 +3,7 @@
 #include "DataIO/Stream/FormattedTextInputStream.h"
 #include "DataIO/Stream/FormattedTextOutputStream.h"
 
-#include <Utility/string_utils.h>
+#include <Common/Utility/string_utils.h>
 #include <Common/logging.h>
 
 #include <format>

@@ -9,7 +9,7 @@
 #include <DataIO/Stream/FormattedTextInputStream.h>
 #include <DataIO/Stream/FormattedTextOutputStream.h>
 #include <Common/assertion.h>
-#include <Utility/string_utils.h>
+#include <Common/Utility/string_utils.h>
 #include <SDL/SdlResourceLocator.h>
 #include <SDL/sdl_exceptions.h>
 #include <SDL/SdlInputClauses.h>

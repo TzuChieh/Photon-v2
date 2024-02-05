@@ -3,7 +3,7 @@
 #include "util.h"
 
 #include <Common/primitive_type.h>
-#include <Utility/CommandLineArguments.h>
+#include <Common/Utility/CommandLineArguments.h>
 
 #include <string>
 #include <vector>

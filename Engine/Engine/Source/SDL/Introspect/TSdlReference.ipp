@@ -8,7 +8,7 @@
 #include "SDL/sdl_helpers.h"
 
 #include <Common/assertion.h>
-#include <Utility/string_utils.h>
+#include <Common/Utility/string_utils.h>
 
 #include <utility>
 

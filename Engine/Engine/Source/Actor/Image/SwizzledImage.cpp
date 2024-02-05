@@ -11,7 +11,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
-#include <Utility/string_utils.h>
+#include <Common/Utility/string_utils.h>
 
 #include <cstddef>
 #include <utility>

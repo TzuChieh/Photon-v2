@@ -12,8 +12,8 @@
 #include "ThirdParty/DearImGui.h"
 
 #include <Common/assertion.h>
+#include <Common/Utility/string_utils.h>
 #include <SDL/Introspect/SdlClass.h>
-#include <Utility/string_utils.h>
 
 #include <algorithm>
 

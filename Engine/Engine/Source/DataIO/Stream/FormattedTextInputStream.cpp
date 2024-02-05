@@ -4,7 +4,7 @@
 #include <Common/assertion.h>
 #include <Common/os.h>
 #include <Common/logging.h>
-#include <Utility/string_utils.h>
+#include <Common/Utility/string_utils.h>
 
 #include <utility>
 #include <fstream>

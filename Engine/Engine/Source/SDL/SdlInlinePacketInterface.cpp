@@ -9,7 +9,7 @@
 #include "SDL/sdl_exceptions.h"
 #include "SDL/sdl_parser.h"
 
-#include <Utility/string_utils.h>
+#include <Common/Utility/string_utils.h>
 
 #include <utility>
 #include <algorithm>

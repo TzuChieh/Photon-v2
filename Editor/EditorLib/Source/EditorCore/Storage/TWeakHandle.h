@@ -2,9 +2,9 @@
 
 #include "EditorCore/Storage/fwd.h"
 
+#include <Common/Utility/string_utils.h>
 #include <Utility/traits.h>
 #include <Utility/utility.h>
-#include <Utility/string_utils.h>
 #include <Math/hash.h>
 
 #include <cstddef>

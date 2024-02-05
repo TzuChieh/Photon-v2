@@ -7,7 +7,7 @@
 #include "SDL/sdl_exceptions.h"
 
 #include <Common/assertion.h>
-#include <Utility/string_utils.h>
+#include <Common/Utility/string_utils.h>
 
 #include <utility>
 
