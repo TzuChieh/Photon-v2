@@ -91,21 +91,23 @@ option(BUILD_SHARED_LIBS
     "Build as shared libraries (if applicable)."
     OFF)
 
-set(BUILD_SDL_GEN_DEFAULT    ON)
-set(BUILD_PHOTON_CLI_DEFAULT ON)
-set(BUILD_EDITOR_DEFAULT     ON)
-set(BUILD_TESTS_DEFAULT      ON)
-set(BUILD_EDITOR_JNI_DEFAULT OFF)
+set(BUILD_SDL_GEN_DEFAULT        ON)
+set(BUILD_PHOTON_CLI_DEFAULT     ON)
+set(BUILD_EDITOR_DEFAULT         ON)
+set(BUILD_TESTS_DEFAULT          ON)
+set(BUILD_EDITOR_JNI_DEFAULT     OFF)
+set(BUILD_OPTIONAL_TOOLS_DEFAULT OFF)
 
 if(WIN32)
     set(BUILD_EDITOR_JNI_DEFAULT ON)
 endif()
 
-option(PH_BUILD_SDL_GEN     "Build SDL automation tool."        ${BUILD_SDL_GEN_DEFAULT})
-option(PH_BUILD_PHOTON_CLI  "Build command-line application."   ${BUILD_PHOTON_CLI_DEFAULT})
-option(PH_BUILD_EDITOR      "Build editor application."         ${BUILD_EDITOR_DEFAULT})
-option(PH_BUILD_TESTS       "Build unit tests for the project." ${BUILD_TESTS_DEFAULT})
-option(PH_BUILD_EDITOR_JNI  "Build JNI for GUI."                ${BUILD_EDITOR_JNI_DEFAULT})
+option(PH_BUILD_SDL_GEN        "Build SDL automation tool."               ${BUILD_SDL_GEN_DEFAULT})
+option(PH_BUILD_PHOTON_CLI     "Build command-line application."          ${BUILD_PHOTON_CLI_DEFAULT})
+option(PH_BUILD_EDITOR         "Build editor application."                ${BUILD_EDITOR_DEFAULT})
+option(PH_BUILD_TESTS          "Build unit tests for the project."        ${BUILD_TESTS_DEFAULT})
+option(PH_BUILD_EDITOR_JNI     "Build JNI for GUI."                       ${BUILD_EDITOR_JNI_DEFAULT})
+option(PH_BUILD_OPTIONAL_TOOLS "Build additional tools for the renderer." ${BUILD_OPTIONAL_TOOLS_DEFAULT})
 
 set(PH_THIRD_PARTY_LIBS_INSTALL_DIR 
     "${THIRDPARTY_DIR}/Prebuilt/${THIRD_PARTY_PLATFORM}/ThirdParty/" 
@@ -463,4 +465,8 @@ endif()
 
 if(PH_BUILD_PHOTON_CLI)
     add_subdirectory("./PhotonCLI/")
+endif()
+
+if(PH_BUILD_OPTIONAL_TOOLS)
+    add_subdirectory("./Tool/IntersectError/")
 endif()

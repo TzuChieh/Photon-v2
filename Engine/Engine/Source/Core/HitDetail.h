@@ -56,7 +56,9 @@ public:
 	real getRayT() const;
 
 	/*! @brief Get the face ID associated to the hit.
-	May be `NO_FACE_ID` if not applicable to the hit.
+	@return The ID for the face that was hit. The ID is not globally unique--it is unique only
+	for the primitive that was hit. For instanced triangle meshes, each mesh typically has the
+	same set of face IDs. May be `NO_FACE_ID` if not available.
 	*/
 	uint64 getFaceId() const;
 
