@@ -6,6 +6,7 @@
 #include <Common/assertion.h>
 
 #include <cmath>
+#include <type_traits>
 
 namespace ph::math
 {
@@ -108,6 +109,20 @@ inline TVector3<T> TBasicTriangle<T>::getFaceNormal() const
 	const auto [eAB, eAC] = getEdgeVectors();
 
 	return eAB.cross(eAC).normalizeLocal();
+}
+
+template<typename T>
+inline TVector3<T> TBasicTriangle<T>::getCentroid() const
+{
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		constexpr auto oneThird = T(1) / T(3);
+		return (m_vA + m_vB + m_vC) * oneThird;
+	}
+	else
+	{
+		return (m_vA + m_vB + m_vC) / T(3);
+	}
 }
 
 template<typename T>

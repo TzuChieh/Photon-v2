@@ -54,6 +54,7 @@ protected:
 public:
 	T getArea() const;
 	TVector3<T> getFaceNormal() const;
+	TVector3<T> getCentroid() const;
 	TAABB3D<T> getAABB() const;
 
 	/*! @brief Calculate face normal with a fail-safe value.
@@ -75,6 +76,8 @@ public:
 	coordinates) are distributed uniformly if the sample is uniform.
 
 	Reference: Osada et al., Section 4.2, "Shape Distributions", TOG02
+
+	@return Sampled barycentric coordinates.
 	*/
 	TVector3<T> sampleToBarycentricOsada(const std::array<T, 2>& sample) const;
 

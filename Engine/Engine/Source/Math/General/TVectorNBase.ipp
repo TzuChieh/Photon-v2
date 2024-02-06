@@ -126,6 +126,13 @@ inline auto TVectorNBase<Derived, T, N>::normalizeLocal()
 }
 
 template<typename Derived, typename T, std::size_t N>
+inline auto TVectorNBase<Derived, T, N>::safeNormalize(const Derived& fallback) const
+-> Derived
+{
+	return lengthSquared() > static_cast<T>(0) ? normalize() : fallback;
+}
+
+template<typename Derived, typename T, std::size_t N>
 template<typename>
 inline auto TVectorNBase<Derived, T, N>::negate() const
 -> Derived

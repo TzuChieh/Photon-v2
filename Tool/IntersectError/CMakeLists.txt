@@ -19,7 +19,8 @@ add_dependencies(IntersectError
 	Engine)
 
 target_include_directories(IntersectError
-	PRIVATE ${INTERSECT_ERROR_INCLUDE_DIR})
+	PRIVATE ${INTERSECT_ERROR_INCLUDE_DIR}
+	PRIVATE ${ENGINE_PRIVATE_INCLUDE_DIR})
 
 target_link_libraries(IntersectError
 	PRIVATE Engine)

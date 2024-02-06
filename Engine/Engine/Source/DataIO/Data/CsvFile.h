@@ -33,7 +33,7 @@ Does not handle multiline quoted field (a quoted string value with newline chara
 class CsvFile final
 {
 public:
-	inline CsvFile() = default;
+	CsvFile() = default;
 
 	/*! @brief Loads a .csv file. Effectively calls `load()`.
 	*/

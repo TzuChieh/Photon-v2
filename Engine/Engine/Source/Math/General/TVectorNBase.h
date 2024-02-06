@@ -36,9 +36,15 @@ public:
 	T length() const;
 	T lengthSquared() const;
 
-	// Notice that normalizing a integer typed vector will result in 0-vector most of the time.
+	/*! @brief Normalize the vector.
+	Notice that normalizing a integer typed vector will result in 0-vector most of the time.
+	*/
+	///@{
 	Derived normalize() const;
 	Derived& normalizeLocal();
+	///@}
+
+	Derived safeNormalize(const Derived& fallback = Derived{}) const;
 
 	template<typename = std::enable_if_t<std::is_signed_v<T>>>
 	Derived negate() const;
