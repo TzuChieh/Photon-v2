@@ -41,6 +41,7 @@ src_dst_dirs = []
 
 dst_config_root = os.path.join(build_dir, "Config")
 dst_internal_res_root = os.path.join(build_dir, "InternalResource")
+dst_script_root = os.path.join(build_dir, "Script")
 
 for section_name, section in config.get_all_projects(setup_config):
     project_name = section_name.removeprefix("Project.")
@@ -57,6 +58,11 @@ for section_name, section in config.get_all_projects(setup_config):
         src_internal_res_dir = os.path.join(project_dir, section["InternalResourceDirectory"])
         dst_internal_res_dir = os.path.join(dst_internal_res_root, project_name)
         src_dst_dirs.append((src_internal_res_dir, dst_internal_res_dir))
+
+    if setup_config.has_option(section_name, "ScriptDirectory"):
+        src_script_dir = os.path.join(project_dir, section["ScriptDirectory"])
+        dst_script_dir = os.path.join(dst_script_root, project_name)
+        src_dst_dirs.append((src_script_dir, dst_script_dir))
 
 print("Installing source data")
 for src_dir, dst_dir in src_dst_dirs:

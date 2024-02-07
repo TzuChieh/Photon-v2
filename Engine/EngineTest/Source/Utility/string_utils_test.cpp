@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 
+#include <cstddef>
 #include <charconv>
 #include <string>
 
@@ -76,4 +77,45 @@ TEST(StringUtilsTest, StringifyIntAlphabetic)
 	}
 
 	// TODO: base 37 to 62
+}
+
+TEST(StringUtilsTest, StringifyFloatRoundTrip)
+{
+	// `float`
+	{
+		constexpr float min = -1e9f;
+		constexpr float max = 1e9f;
+		constexpr std::size_t num = 100000;
+
+		std::string str;
+		for(std::size_t i = 0; i < num; ++i)
+		{
+			const auto value = static_cast<float>((i + 0.5) / num * (max - min) + min);
+
+			str.resize(64);
+			str.resize(string_utils::stringify_float(value, str.data(), str.size()));
+			const auto parsedValue = string_utils::parse_float<float>(str);
+
+			EXPECT_EQ(value, parsedValue);
+		}
+	}
+
+	// `double`
+	{
+		constexpr double min = -1e18f;
+		constexpr double max = 1e18f;
+		constexpr std::size_t num = 100000;
+
+		std::string str;
+		for(std::size_t i = 0; i < num; ++i)
+		{
+			const auto value = static_cast<double>((i + 0.5) / num * (max - min) + min);
+
+			str.resize(64);
+			str.resize(string_utils::stringify_float(value, str.data(), str.size()));
+			const auto parsedValue = string_utils::parse_float<double>(str);
+
+			EXPECT_EQ(value, parsedValue);
+		}
+	}
 }

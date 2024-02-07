@@ -1,6 +1,7 @@
 #include <ph_core.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
+#include <Common/Utility/string_utils.h>
 #include <Core/Intersectable/PTriangle.h>
 #include <Core/Ray.h>
 #include <Core/HitProbe.h>
@@ -11,6 +12,7 @@
 #include <Math/TMatrix4.h>
 #include <Math/Random/Pcg32.h>
 #include <Math/Random/DeterministicSeeder.h>
+#include <Math/Random/TPwcDistribution1D.h>
 #include <Math/Geometry/TSphere.h>
 #include <Math/Geometry/TTriangle.h>
 #include <Math/Transform/TDecomposedTransform.h>
@@ -25,6 +27,7 @@
 #include <vector>
 #include <algorithm>
 #include <atomic>
+#include <limits>
 
 namespace
 {
@@ -44,12 +47,11 @@ struct IntersectConfig final
 {
 	std::size_t numObjsPerCase;
 	std::size_t numRaysPerObj;
-	math::Vector3R minTranslate;
-	math::Vector3R maxTranslate;
+	real minDistance;
+	real maxDistance;
 	real minRotateDegs;
 	real maxRotateDegs;
-	math::Vector3R minScale;
-	math::Vector3R maxScale;
+	math::TPwcDistribution1D<real> distanceDistribution;
 };
 
 struct IntersectResult final
@@ -59,6 +61,7 @@ struct IntersectResult final
 	math::Vector3R rayOrigin;
 	math::Vector3R hitPos;
 	math::Vector3R expectedHitPos;
+	math::Vector3R expectedHitNormal;
 };
 
 class IntersectCase
@@ -75,12 +78,11 @@ public:
 		return {tls_rng.generateSample(), tls_rng.generateSample()};
 	}
 
-	static math::Vector3R makeRandomTranslate(const IntersectConfig& config)
+	static math::Vector3R makeRandomPoint(const IntersectConfig& config)
 	{
-		return math::Vector3R::lerp(
-			config.minTranslate, 
-			config.maxTranslate, 
-			tls_rng.generateSample());
+		const auto factor = config.distanceDistribution.sampleContinuous(tls_rng.generateSample());
+		const auto radius = std::lerp(config.minDistance, config.maxDistance, factor);
+		return math::TSphere<real>(radius).sampleToSurfaceArchimedes(makeRandomSample2D());
 	}
 
 	static math::QuaternionR makeRandomRotate(const IntersectConfig& config)
@@ -92,20 +94,12 @@ public:
 		return math::QuaternionR(dir, math::to_radians(degs));
 	}
 
-	static math::Vector3R makeRandomScale(const IntersectConfig& config)
-	{
-		return math::Vector3R::lerp(
-			config.minScale,
-			config.maxScale,
-			tls_rng.generateSample());
-	}
-
 	static math::TDecomposedTransform<real> makeRandomTransform(const IntersectConfig& config)
 	{
 		return math::TDecomposedTransform<real>(
-			makeRandomTranslate(config),
+			makeRandomPoint(config),
 			makeRandomRotate(config),
-			makeRandomScale(config));
+			makeRandomPoint(config));
 	}
 
 	static math::Matrix4R makeRandomTransformMatrix(const IntersectConfig& config)
@@ -155,6 +149,7 @@ public:
 			result.objSize = triangle.getAABB().getExtents();
 			result.objPos = triangle.getCentroid();
 			result.expectedHitPos = targetHitPos;
+			result.expectedHitNormal = triangle.getFaceNormal();
 
 			for(std::size_t ri = 0; ri < config.numRaysPerObj; ++ri)
 			{
@@ -205,7 +200,7 @@ public:
 class ChartData final
 {
 public:
-	ChartData(const std::size_t numEntries, const real minX, const real maxX)
+	ChartData(const std::size_t numEntries, const AccurateReal minX, const AccurateReal maxX)
 		: m_xs(numEntries)
 		, m_minX(minX)
 		, m_maxX(maxX)
@@ -220,7 +215,7 @@ public:
 		m_logMaxX = std::log10(maxX);
 	}
 
-	void addValue(const real x, const real value)
+	void addValue(const AccurateReal x, const AccurateReal value)
 	{
 		if(x < m_minX || m_maxX < x)
 		{
@@ -242,22 +237,26 @@ public:
 	void saveAsCsv(const Path& filePath)
 	{
 		CsvFile file;
+		std::string strBuffer;
 		for(std::size_t ri = 0; ri < m_xs.size(); ++ri)
 		{
 			const Entry& entry = m_xs[ri];
+			if(entry.num == 0)
+			{
+				continue;
+			}
 
 			const auto fraction = (ri + 0.5_r) / m_xs.size();
 			const auto logX = std::lerp(m_logMinX, m_logMaxX, fraction);
 			const auto x = std::pow(10, logX);
-			const auto mean = entry.num > 0 ? entry.sum / entry.num : 0.0;
+			const auto mean = entry.sum / entry.num;
 
 			CsvFileRow row;
-			row.addValue(std::to_string(x));
-			row.addValue(std::to_string(entry.num));
-			row.addValue(std::to_string(mean));
-			row.addValue(std::to_string(entry.min));
-			row.addValue(std::to_string(entry.max));
-
+			row.addValue(string_utils::stringify_number(x,         &strBuffer));
+			row.addValue(string_utils::stringify_number(entry.num, &strBuffer));
+			row.addValue(string_utils::stringify_number(mean,      &strBuffer));
+			row.addValue(string_utils::stringify_number(entry.min, &strBuffer));
+			row.addValue(string_utils::stringify_number(entry.max, &strBuffer));
 			file.addRow(row);
 		}
 
@@ -269,15 +268,15 @@ private:
 	{
 		std::size_t num = 0;
 		AccurateReal sum = 0;
-		real min = 0;
-		real max = 0;
+		AccurateReal min = std::numeric_limits<AccurateReal>::max();
+		AccurateReal max = std::numeric_limits<AccurateReal>::min();
 	};
 
 	std::vector<Entry> m_xs;
-	real m_minX;
-	real m_maxX;
-	real m_logMinX;
-	real m_logMaxX;
+	AccurateReal m_minX;
+	AccurateReal m_maxX;
+	AccurateReal m_logMinX;
+	AccurateReal m_logMaxX;
 };
 
 }// end anonymous namespace
@@ -292,15 +291,29 @@ int main(int argc, char* argv[])
 	Timer timer;
 	timer.start();
 
+	constexpr bool favorSmallerDistance = true;
+
 	IntersectConfig config;
-	config.numObjsPerCase = 1000;
-	config.numRaysPerObj = 4;
-	config.minTranslate = {-1e3_r, -1e3_r, -1e3_r};
-	config.maxTranslate = {1e3_r, 1e3_r, 1e3_r};
-	config.minRotateDegs = -720;
-	config.maxRotateDegs = 720;
-	config.minScale = {-1e2_r, -1e2_r, -1e2_r};
-	config.maxScale = {1e2_r, 1e2_r, 1e2_r};
+	config.numObjsPerCase = 1000000;
+	config.numRaysPerObj = 16;
+	config.minDistance = 1e-6_r;
+	config.maxDistance = 1e6_r;
+	config.minRotateDegs = -7200;
+	config.maxRotateDegs = 7200;
+
+	if constexpr(favorSmallerDistance)
+	{
+		std::vector<real> weights(1000);
+		for(std::size_t wi = 0; wi < weights.size(); ++wi)
+		{
+			weights[wi] = static_cast<real>((weights.size() - wi) / weights.size());
+		}
+		config.distanceDistribution = math::TPwcDistribution1D<real>(weights);
+	}
+	else
+	{
+		config.distanceDistribution = math::TPwcDistribution1D<real>({1});
+	}
 
 	std::vector<IntersectResult> results;
 
@@ -314,16 +327,24 @@ int main(int argc, char* argv[])
 	PH_LOG(IntersectError, Note,
 		"Time spent: {} s.", timer.getDeltaS());
 
-	ChartData chart(100, 1e-5_r, 1e5_r);
-	for(const IntersectResult& result : results)
 	{
-		const real objDistance = result.objPos.length();
-		const auto hitError = static_cast<real>(
-			(AccurateVec3(result.expectedHitPos) - AccurateVec3(result.hitPos)).length());
+		ChartData errorVsDistChart(10000, 1e-8_r, 1e8_r);
+		ChartData errorVsSizeChart(10000, 1e-8_r, 1e8_r);
+		for(const IntersectResult& result : results)
+		{
+			const auto hitDist = AccurateVec3(result.expectedHitPos).length();
+			const auto objSize = result.objSize.max();
+			const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
+			const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
 
-		chart.addValue(objDistance, hitError);
+			errorVsDistChart.addValue(hitDist, distToPlane);
+			errorVsSizeChart.addValue(objSize, distToPlane);
+		}
+		errorVsDistChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+			/ Path("triangle_error_vs_dist.csv"));
+		errorVsSizeChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+			/ Path("triangle_error_vs_size.csv"));
 	}
-	chart.saveAsCsv(Path("./intersect_error.csv"));
 
 	return exit_render_engine() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

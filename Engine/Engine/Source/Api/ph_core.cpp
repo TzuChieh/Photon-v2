@@ -323,4 +323,9 @@ Path get_resource_directory(const EEngineProject project)
 	return Path(PH_RENDERER_RESOURCE_DIRECTORY).append(to_string(project));
 }
 
+Path get_script_directory(const EEngineProject project)
+{
+	return Path(PH_SCRIPT_DIRECTORY).append(to_string(project));
+}
+
 }// end namespace ph

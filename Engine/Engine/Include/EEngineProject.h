@@ -14,7 +14,8 @@ enum class EEngineProject
 	PhotonCLI,
 	Editor,
 	EditorLib,
-	EditorTest
+	EditorTest,
+	IntersectError
 };
 
 std::string_view to_string(EEngineProject project);

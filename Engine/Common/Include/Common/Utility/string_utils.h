@@ -461,8 +461,11 @@ inline NumberType parse_number(const std::string_view numberStr)
 
 /*! @brief Converts a float to string.
 
-Supports float, double, and long double. The function expects a large enough 
-@p bufferSize determined by the caller. The written string is not null terminated.
+Supports all built-in floating point types (e.g., float, double, and long double).
+The function expects a large enough @p bufferSize determined by the caller.
+The written string is not null terminated. By default, the stringified float guarantees round-trip
+conversion--feeding the converted string `s` from `value` to `parse_float()` will result in the
+same value.
 
 @param out_buffer The buffer for storing the string.
 @param bufferSize Size of @p out_buffer.
@@ -472,6 +475,7 @@ template<typename T>
 inline std::size_t stringify_float(const T value, char* const out_buffer, const std::size_t bufferSize)
 {
 	// TODO: option to handle base prefix (e.g., 0x)
+	// TODO: option to handle precision
 
 	static_assert(std::is_floating_point_v<T>,
 		"stringify_float() accepts only floating point type.");
@@ -604,7 +608,10 @@ Accepts all types supported by stringify_float(T, char*, std::size_t) and
 stringify_int(T, char*, std::size_t). The written string is not null terminated.
 */
 template<typename NumberType>
-inline std::size_t stringify_number(const NumberType value, char* const out_buffer, const std::size_t bufferSize)
+inline std::size_t stringify_number(
+	const NumberType value, 
+	char* const out_buffer, 
+	const std::size_t bufferSize)
 {
 	if constexpr(std::is_floating_point_v<NumberType>)
 	{
@@ -620,10 +627,13 @@ inline std::size_t stringify_number(const NumberType value, char* const out_buff
 
 /*! @brief Converts a number to string.
 Similar to `stringify_number(T, char*, std::size_t)`, except that this variant writes to `std::string`
-and the result is guaranteed to be null terminated (by calling `std::string::c_str()`).
+and the resulting string is guaranteed to be null terminated (by calling `std::string::c_str()`).
 */
 template<typename NumberType>
-inline void stringify_number(const NumberType value, std::string* const out_str, const std::size_t maxChars = 64)
+inline std::string& stringify_number(
+	const NumberType value, 
+	std::string* const out_str, 
+	const std::size_t maxChars = 64)
 {
 	PH_ASSERT(out_str);
 
@@ -631,6 +641,7 @@ inline void stringify_number(const NumberType value, std::string* const out_str,
 	const std::size_t actualStrSize = string_utils::stringify_number<NumberType>(
 		value, out_str->data(), out_str->size());
 	out_str->resize(actualStrSize);
+	return *out_str;
 }
 
 }// end namespace ph::string_utils

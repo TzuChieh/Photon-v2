@@ -44,6 +44,7 @@ public:
 
 	/*! @brief Generate an index.
 	Given a uniform unit random sample, generate a column index according to the sample weights.
+	@return Column index in [0, `numColumns()`).
 	*/
 	std::size_t sampleDiscrete(T sample) const;
 	// TODO: a sample resued version

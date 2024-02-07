@@ -81,6 +81,7 @@ Turning this option on is a fallback when things do not go as planned.
 #define PH_LOG_FILE_DIRECTRY "./Logs/"
 
 #define PH_CONFIG_DIRECTORY "./Config/"
+#define PH_SCRIPT_DIRECTORY "./Script/"
 
 /*! @brief Resources that are integrated as part of the renderer.
 */

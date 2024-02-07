@@ -46,4 +46,8 @@ Path get_internal_resource_directory(EEngineProject project);
 */
 Path get_resource_directory(EEngineProject project);
 
+/*! @brief Directory to scripts for the project.
+*/
+Path get_script_directory(EEngineProject project);
+
 }// end namespace ph
