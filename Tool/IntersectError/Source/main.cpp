@@ -19,6 +19,7 @@
 #include <DataIO/Data/CsvFile.h>
 #include <DataIO/FileSystem/Path.h>
 #include <Utility/Timer.h>
+#include <Utility/Concurrent/concurrent.h>
 
 #include <cstdlib>
 #include <cstddef>
@@ -28,6 +29,9 @@
 #include <algorithm>
 #include <atomic>
 #include <limits>
+#include <thread>
+#include <chrono>
+#include <stop_token>
 
 namespace
 {
@@ -200,6 +204,8 @@ public:
 class ChartData final
 {
 public:
+	ChartData() = default;
+
 	ChartData(const std::size_t numEntries, const AccurateReal minX, const AccurateReal maxX)
 		: m_xs(numEntries)
 		, m_minX(minX)
@@ -263,6 +269,24 @@ public:
 		file.save(filePath);
 	}
 
+	void mergeWith(const ChartData& other)
+	{
+		PH_ASSERT_EQ(m_xs.size(), other.m_xs.size());
+		PH_ASSERT_EQ(m_minX, other.m_minX);
+		PH_ASSERT_EQ(m_maxX, other.m_maxX);
+
+		for(std::size_t xi = 0; xi < m_xs.size(); ++xi)
+		{
+			Entry& entry = m_xs[xi];
+			const Entry& otherEntry = other.m_xs[xi];
+
+			entry.num += otherEntry.num;
+			entry.sum += otherEntry.sum;
+			entry.min = std::min(otherEntry.min, entry.min);
+			entry.max = std::min(otherEntry.max, entry.max);
+		}
+	}
+
 private:
 	struct Entry
 	{
@@ -273,11 +297,87 @@ private:
 	};
 
 	std::vector<Entry> m_xs;
-	AccurateReal m_minX;
-	AccurateReal m_maxX;
-	AccurateReal m_logMinX;
-	AccurateReal m_logMaxX;
+	AccurateReal m_minX = 1;
+	AccurateReal m_maxX = 10;
+	AccurateReal m_logMinX = std::log10(1);
+	AccurateReal m_logMaxX = std::log10(10);
 };
+
+class ChartDataCollection final
+{
+public:
+	ChartData errorVsDistChart;
+	ChartData errorVsSizeChart;
+
+	void mergeWith(const ChartDataCollection& other)
+	{
+		errorVsDistChart.mergeWith(other.errorVsDistChart);
+		errorVsSizeChart.mergeWith(other.errorVsSizeChart);
+	}
+};
+
+ChartDataCollection run_cases(
+	const std::vector<std::unique_ptr<IntersectCase>>& cases,
+	const IntersectConfig& config)
+{
+	std::vector<IntersectResult> results;
+	for(const auto& intersectCase: cases)
+	{
+		intersectCase->run(config, results);
+	}
+
+	ChartDataCollection charts{
+		.errorVsDistChart = ChartData(10000, 1e-8_r, 1e8_r),
+		.errorVsSizeChart = ChartData(10000, 1e-8_r, 1e8_r)};
+	for(const IntersectResult& result : results)
+	{
+		const auto hitDist = AccurateVec3(result.expectedHitPos).length();
+		const auto objSize = result.objSize.max();
+		const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
+		const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
+
+		charts.errorVsDistChart.addValue(hitDist, distToPlane);
+		charts.errorVsSizeChart.addValue(objSize, distToPlane);
+	}
+	return charts;
+}
+
+ChartDataCollection run_cases_parallel(
+	const std::vector<std::unique_ptr<IntersectCase>>& cases,
+	const IntersectConfig& config,
+	const std::size_t numThreads)
+{
+	PH_ASSERT_GT(numThreads, 0);
+
+	std::jthread statsThread([](std::stop_token token)
+	{
+		while(!token.stop_requested())
+		{
+			PH_LOG(IntersectError, Note,
+				"Intersects {} objects.", g_numIntersects.load(std::memory_order_relaxed));
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		}
+	});
+
+	std::vector<ChartDataCollection> threadCharts(numThreads);
+	parallel_work(config.numObjsPerCase, numThreads,
+		[&cases, &config, &threadCharts]
+		(const std::size_t workerIdx, const std::size_t workBegin, const std::size_t workEnd)
+		{
+			IntersectConfig threadConfig = config;
+			threadConfig.numObjsPerCase = workEnd - workBegin;
+
+			threadCharts[workerIdx] = run_cases(cases, threadConfig);
+		});
+	statsThread.request_stop();
+
+	ChartDataCollection mergedCharts = threadCharts[0];
+	for(std::size_t ti = 1; ti < threadCharts.size(); ++ti)
+	{
+		mergedCharts.mergeWith(threadCharts[ti]);
+	}
+	return mergedCharts;
+}
 
 }// end anonymous namespace
 
@@ -292,9 +392,10 @@ int main(int argc, char* argv[])
 	timer.start();
 
 	constexpr bool favorSmallerDistance = true;
+	constexpr auto numThreads = 10;
 
 	IntersectConfig config;
-	config.numObjsPerCase = 1000000;
+	config.numObjsPerCase = 10000000;
 	config.numRaysPerObj = 16;
 	config.minDistance = 1e-6_r;
 	config.maxDistance = 1e6_r;
@@ -315,10 +416,13 @@ int main(int argc, char* argv[])
 		config.distanceDistribution = math::TPwcDistribution1D<real>({1});
 	}
 
-	std::vector<IntersectResult> results;
+	std::vector<std::unique_ptr<IntersectCase>> cases;
+	cases.push_back(std::make_unique<TriangleCase>());
 
-	TriangleCase triangleCase;
-	triangleCase.run(config, results);
+	PH_LOG(IntersectError, Note,
+		"Run intersection cases using {} threads.", numThreads);
+
+	ChartDataCollection charts = run_cases_parallel(cases, config, numThreads);
 
 	timer.stop();
 
@@ -327,24 +431,10 @@ int main(int argc, char* argv[])
 	PH_LOG(IntersectError, Note,
 		"Time spent: {} s.", timer.getDeltaS());
 
-	{
-		ChartData errorVsDistChart(10000, 1e-8_r, 1e8_r);
-		ChartData errorVsSizeChart(10000, 1e-8_r, 1e8_r);
-		for(const IntersectResult& result : results)
-		{
-			const auto hitDist = AccurateVec3(result.expectedHitPos).length();
-			const auto objSize = result.objSize.max();
-			const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
-			const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
-
-			errorVsDistChart.addValue(hitDist, distToPlane);
-			errorVsSizeChart.addValue(objSize, distToPlane);
-		}
-		errorVsDistChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
-			/ Path("triangle_error_vs_dist.csv"));
-		errorVsSizeChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
-			/ Path("triangle_error_vs_size.csv"));
-	}
+	charts.errorVsDistChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+		/ Path("triangle_error_vs_dist.csv"));
+	charts.errorVsSizeChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+		/ Path("triangle_error_vs_size.csv"));
 
 	return exit_render_engine() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
