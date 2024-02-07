@@ -320,25 +320,39 @@ ChartDataCollection run_cases(
 	const std::vector<std::unique_ptr<IntersectCase>>& cases,
 	const IntersectConfig& config)
 {
-	std::vector<IntersectResult> results;
-	for(const auto& intersectCase: cases)
-	{
-		intersectCase->run(config, results);
-	}
+	PH_ASSERT_GT(config.numRaysPerObj, 0);
+	const std::size_t iterationSize = 1000000 / config.numRaysPerObj;
 
 	ChartDataCollection charts{
 		.errorVsDistChart = ChartData(10000, 1e-8_r, 1e8_r),
 		.errorVsSizeChart = ChartData(10000, 1e-8_r, 1e8_r)};
-	for(const IntersectResult& result : results)
-	{
-		const auto hitDist = AccurateVec3(result.expectedHitPos).length();
-		const auto objSize = result.objSize.max();
-		const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
-		const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
 
-		charts.errorVsDistChart.addValue(hitDist, distToPlane);
-		charts.errorVsSizeChart.addValue(objSize, distToPlane);
+	IntersectConfig iterationConfig = config;
+	std::vector<IntersectResult> results;
+	std::size_t numObjsPerCaseRemained = config.numObjsPerCase;
+	while(numObjsPerCaseRemained > 0)
+	{
+		iterationConfig.numObjsPerCase = std::min(iterationSize, numObjsPerCaseRemained);
+		numObjsPerCaseRemained -= iterationConfig.numObjsPerCase;
+
+		results.clear();
+		for(const auto& intersectCase: cases)
+		{
+			intersectCase->run(iterationConfig, results);
+		}
+
+		for(const IntersectResult& result : results)
+		{
+			const auto hitDist = AccurateVec3(result.expectedHitPos).length();
+			const auto objSize = result.objSize.max();
+			const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
+			const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
+
+			charts.errorVsDistChart.addValue(hitDist, distToPlane);
+			charts.errorVsSizeChart.addValue(objSize, distToPlane);
+		}
 	}
+
 	return charts;
 }
 
