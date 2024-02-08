@@ -320,6 +320,43 @@ inline TVector3<T> TSphere<T>::sampleToSurfaceArchimedes(
 }
 
 template<typename T>
+inline TVector3<T> TSphere<T>::sampleToSurfaceAbsCosThetaWeighted(const std::array<T, 2>& sample) const
+{
+	PH_ASSERT_LE(static_cast<T>(0), sample[0]); PH_ASSERT_LE(sample[0], static_cast<T>(1));
+	PH_ASSERT_LE(static_cast<T>(0), sample[1]); PH_ASSERT_LE(sample[1], static_cast<T>(1));
+
+	const auto ySign         = math::sign(sample[1] - static_cast<T>(0.5));
+	const auto reusedSample1 = ySign * static_cast<T>(2) * (sample[1] - static_cast<T>(0.5));
+
+	const T phi     = constant::two_pi<T> * sample[0];
+	const T yValue  = ySign * std::sqrt(reusedSample1);
+	const T yRadius = std::sqrt(static_cast<T>(1) - yValue * yValue);// TODO: y*y is in fact valueB?
+
+	const auto localUnitPos = TVector3<T>(
+		std::sin(phi) * yRadius,
+		yValue,
+		std::cos(phi) * yRadius);
+
+	return localUnitPos.mul(m_radius);
+}
+
+template<typename T>
+inline TVector3<T> TSphere<T>::sampleToSurfaceAbsCosThetaWeighted(
+	const std::array<T, 2>& sample, T* const out_pdfA) const
+{
+	const auto localPos = sampleToSurfaceAbsCosThetaWeighted(sample);
+
+	PH_ASSERT_GE(localPos.y(), static_cast<T>(0));
+	const T cosTheta = localPos.y() / m_radius;
+
+	// PDF_A is |cos(theta)|/(pi*r^2)
+	PH_ASSERT(out_pdfA);
+	*out_pdfA = std::abs(cosTheta) / (constant::pi<real> * m_radius * m_radius);
+
+	return localPos;
+}
+
+template<typename T>
 inline T TSphere<T>::uniformSurfaceSamplePdfA() const
 {
 	// PDF_A is 1/(4*pi*r^2)

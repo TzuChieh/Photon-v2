@@ -28,6 +28,9 @@ public:
 	*/
 	TDecomposedTransform();
 
+	/*! @brief Creates a transformation.
+	The transform effectively applies `scale` and `rotation` first, then translates to `position`.
+	*/
 	TDecomposedTransform(
 		const TVector3<T>& position,
 		const TQuaternion<T>& rotation,

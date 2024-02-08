@@ -105,10 +105,11 @@ inline T to_radians(const T degrees)
 
 /*! @brief Extract the sign of @p value.
 
-@return 1 when @p value > 0; -1 when @p value < 0; 0 when @p value == 0
-
 Function is defined only if the provided value is comparable to 0. Note that the
-input is passed by value. (current implementation is branchless)
+input is passed by value.
+
+@return 1 when @p value > 0; -1 when @p value < 0; 0 when @p value == 0.
+@note This function is branchless.
 */
 template<typename T>
 inline int sign(const T value)

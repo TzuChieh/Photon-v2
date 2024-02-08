@@ -12,14 +12,15 @@
 #include <Math/TMatrix4.h>
 #include <Math/Random/Pcg32.h>
 #include <Math/Random/DeterministicSeeder.h>
-#include <Math/Random/TPwcDistribution1D.h>
 #include <Math/Geometry/TSphere.h>
 #include <Math/Geometry/TTriangle.h>
+#include <Math/TOrthonormalBasis3.h>
 #include <Math/Transform/TDecomposedTransform.h>
 #include <DataIO/Data/CsvFile.h>
 #include <DataIO/FileSystem/Path.h>
 #include <Utility/Timer.h>
 #include <Utility/Concurrent/concurrent.h>
+#include <Utility/Concurrent/FixedSizeThreadPool.h>
 
 #include <cstdlib>
 #include <cstddef>
@@ -44,6 +45,8 @@ using AccurateQuat = math::TQuaternion<AccurateReal>;
 
 thread_local math::Pcg32 tls_rng(math::DeterministicSeeder::nextSeed<uint32>());
 std::atomic_uint64_t g_numIntersects(0);
+std::atomic_uint64_t g_numMissed(0);
+std::atomic_uint64_t g_numDegenerateTriangles(0);
 
 PH_DEFINE_INTERNAL_LOG_GROUP(IntersectError, IntersectError);
 
@@ -55,7 +58,12 @@ struct IntersectConfig final
 	real maxDistance;
 	real minRotateDegs;
 	real maxRotateDegs;
-	math::TPwcDistribution1D<real> distanceDistribution;
+	real minSize;
+	real maxSize;
+	real rayMinT = 0;
+	real rayMaxT = std::numeric_limits<real>::max();
+	bool radomizeRayDir = true;
+	bool cosWeightedRay = false;
 };
 
 struct IntersectResult final
@@ -82,10 +90,14 @@ public:
 		return {tls_rng.generateSample(), tls_rng.generateSample()};
 	}
 
+	static real makeRandomDistance(const IntersectConfig& config)
+	{
+		return std::lerp(config.minDistance, config.maxDistance, tls_rng.generateSample());
+	}
+
 	static math::Vector3R makeRandomPoint(const IntersectConfig& config)
 	{
-		const auto factor = config.distanceDistribution.sampleContinuous(tls_rng.generateSample());
-		const auto radius = std::lerp(config.minDistance, config.maxDistance, factor);
+		const auto radius = makeRandomDistance(config);
 		return math::TSphere<real>(radius).sampleToSurfaceArchimedes(makeRandomSample2D());
 	}
 
@@ -98,12 +110,23 @@ public:
 		return math::QuaternionR(dir, math::to_radians(degs));
 	}
 
+	static real makeRandomSize(const IntersectConfig& config)
+	{
+		return std::lerp(config.minSize, config.maxSize, tls_rng.generateSample());
+	}
+
+	static math::Vector3R makeRandomScale(const IntersectConfig& config)
+	{
+		const auto radius = makeRandomSize(config);
+		return math::TSphere<real>(radius).sampleToSurfaceArchimedes(makeRandomSample2D());
+	}
+
 	static math::TDecomposedTransform<real> makeRandomTransform(const IntersectConfig& config)
 	{
 		return math::TDecomposedTransform<real>(
 			makeRandomPoint(config),
 			makeRandomRotate(config),
-			makeRandomPoint(config));
+			makeRandomScale(config));
 	}
 
 	static math::Matrix4R makeRandomTransformMatrix(const IntersectConfig& config)
@@ -113,25 +136,45 @@ public:
 		return mat;
 	}
 
-	static Ray makeRandomRay(const IntersectConfig& config, const math::Vector3R& targetPos)
+	static Ray makeRandomDirRay(
+		const IntersectConfig& config,
+		const math::Vector3R& targetHitPos,
+		const math::Vector3R& targetHitNormal)
 	{
-		while(true)
-		{
-			const auto mat = makeRandomTransformMatrix(config);
-			const auto unitSphere = math::TSphere<real>::makeUnit();
+		const auto unitSphere = math::TSphere<real>::makeUnit();
+		const auto localDir = config.cosWeightedRay
+			? unitSphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
+			: unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		const auto dir = math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localDir);
+		return Ray(targetHitPos, dir, config.rayMinT, config.rayMaxT);
+	}
 
-			math::Vector3R origin;
-			mat.mul(unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D()), 1, &origin);
+	static Ray makeRandomPosRay(
+		const IntersectConfig& config, 
+		const math::Vector3R& targetHitPos,
+		const math::Vector3R& targetHitNormal)
+	{
+		const auto factor = tls_rng.generateSample();
+		const auto radius = std::pow(10.0_r, factor * 20.0_r - 10.0_r);// [10^-10, 10^10]
+		const auto sphere = math::TSphere<real>(radius);
+		const auto localOrigin = config.cosWeightedRay
+			? sphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
+			: sphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		const auto origin = 
+			targetHitPos + 
+			math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localOrigin);
+		const auto originToTarget = targetHitPos - origin;
+		return Ray(origin, originToTarget.normalize(), config.rayMinT, config.rayMaxT);
+	}
 
-			const auto originToTarget = targetPos - origin;
-			if(originToTarget.lengthSquared() > 0)
-			{
-				return Ray(origin, originToTarget.normalize());
-			}
-		}
-		
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return Ray();
+	static Ray makeRandomRay(
+		const IntersectConfig& config, 
+		const math::Vector3R& targetHitPos,
+		const math::Vector3R& targetHitNormal)
+	{
+		return config.radomizeRayDir 
+			? makeRandomDirRay(config, targetHitPos, targetHitNormal)
+			: makeRandomPosRay(config, targetHitPos, targetHitNormal);
 	}
 };
 
@@ -145,6 +188,12 @@ public:
 		for(std::size_t oi = 0; oi < config.numObjsPerCase; ++oi)
 		{
 			const auto triangle = makeRandomTriangle(config);
+			if(triangle.isDegenerate())
+			{
+				g_numDegenerateTriangles.fetch_add(1, std::memory_order_relaxed);
+				continue;
+			}
+
 			const PTriangle ptriangle(triangle.getVa(), triangle.getVb(), triangle.getVc());
 			const auto targetHitPos = triangle.barycentricToSurface(
 				triangle.sampleToBarycentricOsada(makeRandomSample2D()));
@@ -157,11 +206,15 @@ public:
 
 			for(std::size_t ri = 0; ri < config.numRaysPerObj; ++ri)
 			{
-				const auto ray = makeRandomRay(config, targetHitPos);
+				const auto ray = makeRandomRay(
+					config, 
+					result.expectedHitPos,
+					result.expectedHitNormal);
 
 				HitProbe probe;
 				if(!ptriangle.isIntersecting(ray, probe))
 				{
+					g_numMissed.fetch_add(1, std::memory_order_relaxed);
 					continue;
 				}
 
@@ -179,25 +232,15 @@ public:
 
 	static math::TTriangle<real> makeRandomTriangle(const IntersectConfig& config)
 	{
-		while(true)
-		{
-			const auto mat = makeRandomTransformMatrix(config);
-			const auto unitSphere = math::TSphere<real>::makeUnit();
+		const auto mat = makeRandomTransformMatrix(config);
+		const auto unitSphere = math::TSphere<real>::makeUnit();
 
-			math::Vector3R vA, vB, vC;
-			mat.mul(unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D()), 1, &vA);
-			mat.mul(unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D()), 1, &vB);
-			mat.mul(unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D()), 1, &vC);
+		math::Vector3R vA, vB, vC;
+		mat.mul(unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D()), 1, &vA);
+		mat.mul(unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D()), 1, &vB);
+		mat.mul(unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D()), 1, &vC);
 
-			math::TTriangle<real> triangle(vA, vB, vC);
-			if(!triangle.isDegenerate())
-			{
-				return triangle;
-			}
-		}
-
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return math::TTriangle<real>();
+		return math::TTriangle<real>(vA, vB, vC);
 	}
 };
 
@@ -283,7 +326,7 @@ public:
 			entry.num += otherEntry.num;
 			entry.sum += otherEntry.sum;
 			entry.min = std::min(otherEntry.min, entry.min);
-			entry.max = std::min(otherEntry.max, entry.max);
+			entry.max = std::max(otherEntry.max, entry.max);
 		}
 	}
 
@@ -324,8 +367,8 @@ ChartDataCollection run_cases(
 	const std::size_t iterationSize = 1000000 / config.numRaysPerObj;
 
 	ChartDataCollection charts{
-		.errorVsDistChart = ChartData(10000, 1e-8_r, 1e8_r),
-		.errorVsSizeChart = ChartData(10000, 1e-8_r, 1e8_r)};
+		.errorVsDistChart = ChartData(20000, 1e-20_r, 1e20_r),
+		.errorVsSizeChart = ChartData(20000, 1e-20_r, 1e20_r)};
 
 	IntersectConfig iterationConfig = config;
 	std::vector<IntersectResult> results;
@@ -359,22 +402,10 @@ ChartDataCollection run_cases(
 ChartDataCollection run_cases_parallel(
 	const std::vector<std::unique_ptr<IntersectCase>>& cases,
 	const IntersectConfig& config,
-	const std::size_t numThreads)
+	FixedSizeThreadPool& threads)
 {
-	PH_ASSERT_GT(numThreads, 0);
-
-	std::jthread statsThread([](std::stop_token token)
-	{
-		while(!token.stop_requested())
-		{
-			PH_LOG(IntersectError, Note,
-				"Intersects {} objects.", g_numIntersects.load(std::memory_order_relaxed));
-			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-		}
-	});
-
-	std::vector<ChartDataCollection> threadCharts(numThreads);
-	parallel_work(config.numObjsPerCase, numThreads,
+	std::vector<ChartDataCollection> threadCharts(threads.numWorkers());
+	parallel_work(threads, config.numObjsPerCase,
 		[&cases, &config, &threadCharts]
 		(const std::size_t workerIdx, const std::size_t workBegin, const std::size_t workEnd)
 		{
@@ -383,7 +414,6 @@ ChartDataCollection run_cases_parallel(
 
 			threadCharts[workerIdx] = run_cases(cases, threadConfig);
 		});
-	statsThread.request_stop();
 
 	ChartDataCollection mergedCharts = threadCharts[0];
 	for(std::size_t ti = 1; ti < threadCharts.size(); ++ti)
@@ -405,38 +435,56 @@ int main(int argc, char* argv[])
 	Timer timer;
 	timer.start();
 
-	constexpr bool favorSmallerDistance = true;
-	constexpr auto numThreads = 10;
-
-	IntersectConfig config;
-	config.numObjsPerCase = 10000000;
-	config.numRaysPerObj = 16;
-	config.minDistance = 1e-6_r;
-	config.maxDistance = 1e6_r;
-	config.minRotateDegs = -7200;
-	config.maxRotateDegs = 7200;
-
-	if constexpr(favorSmallerDistance)
-	{
-		std::vector<real> weights(1000);
-		for(std::size_t wi = 0; wi < weights.size(); ++wi)
-		{
-			weights[wi] = static_cast<real>((weights.size() - wi) / weights.size());
-		}
-		config.distanceDistribution = math::TPwcDistribution1D<real>(weights);
-	}
-	else
-	{
-		config.distanceDistribution = math::TPwcDistribution1D<real>({1});
-	}
+	FixedSizeThreadPool threads(10);
 
 	std::vector<std::unique_ptr<IntersectCase>> cases;
 	cases.push_back(std::make_unique<TriangleCase>());
 
 	PH_LOG(IntersectError, Note,
-		"Run intersection cases using {} threads.", numThreads);
+		"Run intersection cases using {} threads.", threads.numWorkers());
 
-	ChartDataCollection charts = run_cases_parallel(cases, config, numThreads);
+	std::jthread statsThread([](std::stop_token token)
+	{
+		while(!token.stop_requested())
+		{
+			PH_LOG(IntersectError, Note,
+				"Intersects: {}, missed: {}, degenerate triangles: {}",
+				g_numIntersects.load(std::memory_order_relaxed),
+				g_numMissed.load(std::memory_order_relaxed),
+				g_numDegenerateTriangles.load(std::memory_order_relaxed));
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		}
+	});
+
+	constexpr real step = 5.0_r;
+
+	std::vector<ChartDataCollection> allCharts;
+	for(real objDistance = 1e-8_r; objDistance < 1e10_r; objDistance *= step)
+	{
+		for(real objSize = 1e-6_r; objSize < 1e8_r; objSize *= step)
+		{
+			IntersectConfig config;
+			config.numObjsPerCase = 100000;
+			config.numRaysPerObj = 128;
+			config.minDistance = objDistance / step;
+			config.maxDistance = objDistance * step;
+			config.minRotateDegs = -72000;
+			config.maxRotateDegs = 72000;
+			config.minSize = objSize / step;
+			config.maxSize = objSize * step;
+
+			allCharts.push_back(run_cases_parallel(cases, config, threads));
+		}
+	}
+
+	statsThread.request_stop();
+
+	ChartDataCollection mergedCharts = allCharts[0];
+	for(std::size_t ci = 1; ci < allCharts.size(); ++ci)
+	{
+		mergedCharts.mergeWith(allCharts[ci]);
+	}
 
 	timer.stop();
 
@@ -445,10 +493,10 @@ int main(int argc, char* argv[])
 	PH_LOG(IntersectError, Note,
 		"Time spent: {} s.", timer.getDeltaS());
 
-	charts.errorVsDistChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
-		/ Path("triangle_error_vs_dist.csv"));
-	charts.errorVsSizeChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
-		/ Path("triangle_error_vs_size.csv"));
+	mergedCharts.errorVsDistChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+		/ Path("error_vs_dist.csv"));
+	mergedCharts.errorVsSizeChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+		/ Path("error_vs_size.csv"));
 
 	return exit_render_engine() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

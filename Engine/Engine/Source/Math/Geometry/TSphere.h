@@ -55,6 +55,9 @@ public:
 	*/
 	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample, T* out_pdfA) const;
 
+	TVector3<T> sampleToSurfaceAbsCosThetaWeighted(const std::array<T, 2>& sample) const;
+	TVector3<T> sampleToSurfaceAbsCosThetaWeighted(const std::array<T, 2>& sample, T* out_pdfA) const;
+
 	T uniformSurfaceSamplePdfA() const;
 
 	TVector2<T> surfaceToLatLong01(const TVector3<T>& surface) const;
