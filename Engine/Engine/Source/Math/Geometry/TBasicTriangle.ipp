@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <type_traits>
+#include <limits>
 
 namespace ph::math
 {
@@ -151,6 +152,20 @@ inline TAABB3D<T> TBasicTriangle<T>::getAABB() const
 	return math::TAABB3D<T>(
 		math::Vector3R(minX - TRIANGLE_EPSILON, minY - TRIANGLE_EPSILON, minZ - TRIANGLE_EPSILON),
 		math::Vector3R(maxX + TRIANGLE_EPSILON, maxY + TRIANGLE_EPSILON, maxZ + TRIANGLE_EPSILON));
+}
+
+template<typename T>
+inline T TBasicTriangle<T>::getAspectRatio() const
+{
+	if(isDegenerate())
+	{
+		return std::numeric_limits<T>::infinity();
+	}
+
+	const auto ab = (m_vB - m_vA).length();
+	const auto ac = (m_vC - m_vA).length();
+	const auto bc = (m_vC - m_vB).length();
+	return (ab * ac * bc) / ((ab + ac - bc) * (ac + bc - ab) * (ab + bc - ac));
 }
 
 template<typename T>

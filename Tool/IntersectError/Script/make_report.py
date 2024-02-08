@@ -18,34 +18,40 @@ def read_csv_data(file_name):
     return csv_data
 
 
-fig = plt.figure(figsize=(12, 8))
-axes = fig.subplots(2, 2)
+fig = plt.figure(figsize=(16, 8))
+axes = fig.subplots(2, 3)
 
 error_vs_dist_data = read_csv_data("error_vs_dist.csv")
-axes[0, 0].set_title("%d Triangle Intersects" % sum(error_vs_dist_data[1]))
 axes[0, 0].plot(error_vs_dist_data[0], error_vs_dist_data[2])
 axes[0, 0].set_xscale('log', base=10)
 axes[0, 0].set_yscale('log', base=10)
 axes[0, 0].set_xlabel("Hit Distance")
 axes[0, 0].set_ylabel("Mean Error")
 
+axes[1, 0].plot(error_vs_dist_data[0], error_vs_dist_data[4])
+axes[1, 0].set_xscale('log', base=10)
+axes[1, 0].set_yscale('log', base=10)
+axes[1, 0].set_xlabel("Hit Distance")
+axes[1, 0].set_ylabel("Max. Error")
+
 error_vs_size = read_csv_data("error_vs_size.csv")
-axes[0, 1].set_title("%d Triangle Intersects" % sum(error_vs_size[1]))
 axes[0, 1].plot(error_vs_size[0], error_vs_size[2])
 axes[0, 1].set_xscale('log', base=10)
 axes[0, 1].set_yscale('log', base=10)
 axes[0, 1].set_xlabel("Max. Extent")
 axes[0, 1].set_ylabel("Mean Error")
 
-axes[1, 0].plot(error_vs_dist_data[0], error_vs_dist_data[1])
-axes[1, 0].set_xscale('log', base=10)
-axes[1, 0].set_xlabel("Hit Distance")
-axes[1, 0].set_ylabel("Number of Intersections")
-
-axes[1, 1].plot(error_vs_dist_data[0], error_vs_dist_data[4])
+axes[1, 1].plot(error_vs_size[0], error_vs_size[4])
 axes[1, 1].set_xscale('log', base=10)
 axes[1, 1].set_yscale('log', base=10)
-axes[1, 1].set_xlabel("Hit Distance")
+axes[1, 1].set_xlabel("Max. Extent")
 axes[1, 1].set_ylabel("Max. Error")
+
+axes[0, 2].plot(error_vs_dist_data[0], error_vs_dist_data[1])
+axes[0, 2].set_xscale('log', base=10)
+axes[0, 2].set_xlabel("Hit Distance")
+axes[0, 2].set_ylabel("Number of Intersections")
+
+fig.suptitle("%d Intersections" % sum(error_vs_dist_data[1]))
 
 plt.show()

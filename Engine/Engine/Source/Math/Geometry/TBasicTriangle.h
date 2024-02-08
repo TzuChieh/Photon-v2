@@ -57,6 +57,15 @@ public:
 	TVector3<T> getCentroid() const;
 	TAABB3D<T> getAABB() const;
 
+	/*! @brief Calculate aspect ratio of this triangle.
+	For a triangle, its aspect ratio is defined to be the ratio of the circumradius to twice the
+	inradius. The higher the aspect ratio, the narrower the shape of the triangle. A triangle with
+	extreme aspect ratio will look like a needle. The smallest aspect ratio possible is 1 (an
+	equilateral triangle), while the largest possible aspect ratio is infinity (degenerate).
+	@note For integer types, returns 0 for degenerate triangles.
+	*/
+	T getAspectRatio() const;
+
 	/*! @brief Calculate face normal with a fail-safe value.
 
 	The vertices may form a degenerate triangle (zero cross product and thus

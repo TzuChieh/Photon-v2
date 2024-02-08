@@ -46,7 +46,7 @@ using AccurateQuat = math::TQuaternion<AccurateReal>;
 thread_local math::Pcg32 tls_rng(math::DeterministicSeeder::nextSeed<uint32>());
 std::atomic_uint64_t g_numIntersects(0);
 std::atomic_uint64_t g_numMissed(0);
-std::atomic_uint64_t g_numDegenerateTriangles(0);
+std::atomic_uint64_t g_numDegenerateObjs(0);
 
 PH_DEFINE_INTERNAL_LOG_GROUP(IntersectError, IntersectError);
 
@@ -64,6 +64,7 @@ struct IntersectConfig final
 	real rayMaxT = std::numeric_limits<real>::max();
 	bool radomizeRayDir = true;
 	bool cosWeightedRay = false;
+	real maxObjAspectRatio = 1e6_r;
 };
 
 struct IntersectResult final
@@ -146,7 +147,7 @@ public:
 			? unitSphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
 			: unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D());
 		const auto dir = math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localDir);
-		return Ray(targetHitPos, dir, config.rayMinT, config.rayMaxT);
+		return Ray(targetHitPos, dir.normalize(), config.rayMinT, config.rayMaxT);
 	}
 
 	static Ray makeRandomPosRay(
@@ -188,9 +189,9 @@ public:
 		for(std::size_t oi = 0; oi < config.numObjsPerCase; ++oi)
 		{
 			const auto triangle = makeRandomTriangle(config);
-			if(triangle.isDegenerate())
+			if(triangle.isDegenerate() || triangle.getAspectRatio() > config.maxObjAspectRatio)
 			{
-				g_numDegenerateTriangles.fetch_add(1, std::memory_order_relaxed);
+				g_numDegenerateObjs.fetch_add(1, std::memory_order_relaxed);
 				continue;
 			}
 
@@ -226,6 +227,22 @@ public:
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
+
+				// DEBUG
+				{
+					const auto hitDist = AccurateVec3(result.expectedHitPos).length();
+					const auto objSize = result.objSize.max();
+					const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
+					const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
+					if(hitDist > 0 && distToPlane / hitDist > 0.01)
+					{
+						PH_LOG(IntersectError, Warning,
+							"Outlier: hit distance = {}, error = {}, vA = {}, vB = {}, vC = {}, "
+							"aspect ratio = {}", 
+							hitDist, distToPlane, triangle.getVa(), triangle.getVb(), triangle.getVc(),
+							triangle.getAspectRatio());
+					}
+				}
 			}
 		}
 	}
@@ -266,7 +283,8 @@ public:
 
 	void addValue(const AccurateReal x, const AccurateReal value)
 	{
-		if(x < m_minX || m_maxX < x)
+		// NaN aware
+		if(!(m_minX <= x && x <= m_maxX) || std::isnan(value))
 		{
 			return;
 		}
@@ -367,8 +385,8 @@ ChartDataCollection run_cases(
 	const std::size_t iterationSize = 1000000 / config.numRaysPerObj;
 
 	ChartDataCollection charts{
-		.errorVsDistChart = ChartData(20000, 1e-20_r, 1e20_r),
-		.errorVsSizeChart = ChartData(20000, 1e-20_r, 1e20_r)};
+		.errorVsDistChart = ChartData(50000, 1e-15_r, 1e15_r),
+		.errorVsSizeChart = ChartData(50000, 1e-15_r, 1e15_r)};
 
 	IntersectConfig iterationConfig = config;
 	std::vector<IntersectResult> results;
@@ -448,25 +466,25 @@ int main(int argc, char* argv[])
 		while(!token.stop_requested())
 		{
 			PH_LOG(IntersectError, Note,
-				"Intersects: {}, missed: {}, degenerate triangles: {}",
+				"Intersects: {}, missed: {}, degenerate objs: {}",
 				g_numIntersects.load(std::memory_order_relaxed),
 				g_numMissed.load(std::memory_order_relaxed),
-				g_numDegenerateTriangles.load(std::memory_order_relaxed));
+				g_numDegenerateObjs.load(std::memory_order_relaxed));
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		}
 	});
 
 	constexpr real step = 5.0_r;
 
 	std::vector<ChartDataCollection> allCharts;
-	for(real objDistance = 1e-8_r; objDistance < 1e10_r; objDistance *= step)
+	for(real objDistance = 1e-12_r; objDistance < 1e12_r; objDistance *= step)
 	{
-		for(real objSize = 1e-6_r; objSize < 1e8_r; objSize *= step)
+		for(real objSize = 1e-9_r; objSize < 1e9_r; objSize *= step)
 		{
 			IntersectConfig config;
-			config.numObjsPerCase = 100000;
-			config.numRaysPerObj = 128;
+			config.numObjsPerCase = 10000000;
+			config.numRaysPerObj = 256;
 			config.minDistance = objDistance / step;
 			config.maxDistance = objDistance * step;
 			config.minRotateDegs = -72000;
