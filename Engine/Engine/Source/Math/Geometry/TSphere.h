@@ -30,6 +30,7 @@ public:
 
 	bool isInside(const TVector3<T>& point) const;
 
+	T getRadius() const;
 	T getArea() const;
 	TAABB3D<T> getAABB() const;
 

@@ -3,6 +3,8 @@
 #include <Common/logging.h>
 #include <Common/Utility/string_utils.h>
 #include <Core/Intersectable/PTriangle.h>
+#include <Core/Intersectable/PLatLong01Sphere.h>
+#include <Core/Intersectable/TransformedIntersectable.h>
 #include <Core/Ray.h>
 #include <Core/HitProbe.h>
 #include <Core/HitDetail.h>
@@ -14,8 +16,10 @@
 #include <Math/Random/DeterministicSeeder.h>
 #include <Math/Geometry/TSphere.h>
 #include <Math/Geometry/TTriangle.h>
+#include <Math/Geometry/THemisphere.h>
 #include <Math/TOrthonormalBasis3.h>
 #include <Math/Transform/TDecomposedTransform.h>
+#include <Math/Transform/StaticAffineTransform.h>
 #include <DataIO/Data/CsvFile.h>
 #include <DataIO/FileSystem/Path.h>
 #include <Utility/Timer.h>
@@ -62,8 +66,9 @@ struct IntersectConfig final
 	real maxSize;
 	real rayMinT = 0;
 	real rayMaxT = std::numeric_limits<real>::max();
-	bool radomizeRayDir = true;
+	bool randomizeRayDir = true;
 	bool cosWeightedRay = false;
+	bool hemisphericalRay = true;
 	real maxObjAspectRatio = 1e6_r;
 };
 
@@ -130,22 +135,27 @@ public:
 			makeRandomScale(config));
 	}
 
-	static math::Matrix4R makeRandomTransformMatrix(const IntersectConfig& config)
-	{
-		math::Matrix4R mat;
-		makeRandomTransform(config).genTransformMatrix(&mat);
-		return mat;
-	}
-
 	static Ray makeRandomDirRay(
 		const IntersectConfig& config,
 		const math::Vector3R& targetHitPos,
 		const math::Vector3R& targetHitNormal)
 	{
-		const auto unitSphere = math::TSphere<real>::makeUnit();
-		const auto localDir = config.cosWeightedRay
-			? unitSphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
-			: unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		math::Vector3R localDir;
+		if(config.hemisphericalRay)
+		{
+			const auto unitHemisphere = math::THemisphere<real>::makeUnit();
+			localDir = config.cosWeightedRay
+				? unitHemisphere.sampleToSurfaceCosThetaWeighted(makeRandomSample2D())
+				: unitHemisphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		}
+		else
+		{
+			const auto unitSphere = math::TSphere<real>::makeUnit();
+			localDir = config.cosWeightedRay
+				? unitSphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
+				: unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		}
+
 		const auto dir = math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localDir);
 		return Ray(targetHitPos, dir.normalize(), config.rayMinT, config.rayMaxT);
 	}
@@ -157,10 +167,23 @@ public:
 	{
 		const auto factor = tls_rng.generateSample();
 		const auto radius = std::pow(10.0_r, factor * 20.0_r - 10.0_r);// [10^-10, 10^10]
-		const auto sphere = math::TSphere<real>(radius);
-		const auto localOrigin = config.cosWeightedRay
-			? sphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
-			: sphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+
+		math::Vector3R localOrigin;
+		if(config.hemisphericalRay)
+		{
+			const auto hemisphere = math::THemisphere<real>(radius);
+			localOrigin = config.cosWeightedRay
+				? hemisphere.sampleToSurfaceCosThetaWeighted(makeRandomSample2D())
+				: hemisphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		}
+		else
+		{
+			const auto sphere = math::TSphere<real>(radius);
+			localOrigin = config.cosWeightedRay
+				? sphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
+				: sphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		}
+
 		const auto origin = 
 			targetHitPos + 
 			math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localOrigin);
@@ -173,7 +196,7 @@ public:
 		const math::Vector3R& targetHitPos,
 		const math::Vector3R& targetHitNormal)
 	{
-		return config.radomizeRayDir 
+		return config.randomizeRayDir 
 			? makeRandomDirRay(config, targetHitPos, targetHitNormal)
 			: makeRandomPosRay(config, targetHitPos, targetHitNormal);
 	}
@@ -249,7 +272,8 @@ public:
 
 	static math::TTriangle<real> makeRandomTriangle(const IntersectConfig& config)
 	{
-		const auto mat = makeRandomTransformMatrix(config);
+		math::Matrix4R mat;
+		makeRandomTransform(config).genTransformMatrix(&mat);
 		const auto unitSphere = math::TSphere<real>::makeUnit();
 
 		math::Vector3R vA, vB, vC;
@@ -258,6 +282,64 @@ public:
 		mat.mul(unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D()), 1, &vC);
 
 		return math::TTriangle<real>(vA, vB, vC);
+	}
+};
+
+class SphereCase : public IntersectCase
+{
+public:
+	void run(
+		const IntersectConfig& config,
+		std::vector<IntersectResult>& results) const override
+	{
+		for(std::size_t oi = 0; oi < config.numObjsPerCase; ++oi)
+		{
+			const auto sphere = makeRandomSphere(config);
+			if(sphere.getRadius() <= 0)
+			{
+				g_numDegenerateObjs.fetch_add(1, std::memory_order_relaxed);
+				continue;
+			}
+
+			const PLatLong01Sphere psphere(sphere.getRadius());
+			const auto targetHitPos = sphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+
+			IntersectResult result;
+			result.objSize = sphere.getAABB().getExtents();
+			result.objPos = math::Vector3R(0);
+			result.expectedHitPos = targetHitPos;
+			result.expectedHitNormal = targetHitPos / sphere.getRadius();
+
+			for(std::size_t ri = 0; ri < config.numRaysPerObj; ++ri)
+			{
+				const auto ray = makeRandomRay(
+					config, 
+					result.expectedHitPos,
+					result.expectedHitNormal);
+
+				HitProbe probe;
+				if(!psphere.isIntersecting(ray, probe))
+				{
+					g_numMissed.fetch_add(1, std::memory_order_relaxed);
+					continue;
+				}
+
+				HitDetail hitDetail;
+				psphere.calcIntersectionDetail(ray, probe, &hitDetail);
+
+				result.rayOrigin = ray.getOrigin();
+				result.hitPos = hitDetail.getPosition();
+
+				results.push_back(result);
+				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
+			}
+		}
+	}
+
+private:
+	static math::TSphere<real> makeRandomSphere(const IntersectConfig& config)
+	{
+		return math::TSphere<real>(makeRandomSize(config));
 	}
 };
 
@@ -456,7 +538,8 @@ int main(int argc, char* argv[])
 	FixedSizeThreadPool threads(10);
 
 	std::vector<std::unique_ptr<IntersectCase>> cases;
-	cases.push_back(std::make_unique<TriangleCase>());
+	//cases.push_back(std::make_unique<TriangleCase>());
+	cases.push_back(std::make_unique<SphereCase>());
 
 	PH_LOG(IntersectError, Note,
 		"Run intersection cases using {} threads.", threads.numWorkers());
@@ -483,8 +566,8 @@ int main(int argc, char* argv[])
 		for(real objSize = 1e-6_r; objSize < 1e7_r; objSize *= step)
 		{
 			IntersectConfig config;
-			config.numObjsPerCase = 1000000;
-			config.numRaysPerObj = 128;
+			config.numObjsPerCase = 10000;
+			config.numRaysPerObj = 64;
 			config.minDistance = objDistance / step;
 			config.maxDistance = objDistance * step;
 			config.minRotateDegs = -72000;

@@ -18,7 +18,7 @@ def read_csv_data(file_name):
     return csv_data
 
 
-fig = plt.figure(figsize=(16, 8))
+fig = plt.figure(figsize=(20, 8))
 axes = fig.subplots(2, 3)
 
 error_vs_dist_data = read_csv_data("error_vs_dist.csv")

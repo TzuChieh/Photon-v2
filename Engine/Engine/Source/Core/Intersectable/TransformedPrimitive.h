@@ -7,21 +7,19 @@
 
 #include <Common/assertion.h>
 
+namespace ph::math { class RigidTransform; }
+
 namespace ph
 {
 
-namespace math
-{
-	class RigidTransform;
-}
-
+/*!
+A transformed primitive accepts only rigid transformations. This way,
+properties such as surface area and volume are guaranteed to be the same
+during transformations.
+*/
 class TransformedPrimitive : public Primitive
 {
 public:
-	// A transformed primitive accepts only rigid transformations. This way, 
-	// properties such as surface area and volume are guaranteed to be the same
-	// during transformations.
-	//
 	TransformedPrimitive(
 		const Primitive*            primitive,
 		const math::RigidTransform* localToWorld,

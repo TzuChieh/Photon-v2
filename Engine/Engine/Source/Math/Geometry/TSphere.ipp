@@ -235,10 +235,14 @@ inline bool TSphere<T>::isIntersectingHearnBaker(
 }
 
 template<typename T>
+inline T TSphere<T>::getRadius() const
+{
+	return m_radius;
+}
+
+template<typename T>
 inline T TSphere<T>::getArea() const
 {
-	PH_ASSERT_GE(m_radius, T(0));
-
 	return constant::four_pi<T> * m_radius * m_radius;
 }
 
