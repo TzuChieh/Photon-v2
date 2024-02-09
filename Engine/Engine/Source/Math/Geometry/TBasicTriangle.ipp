@@ -157,15 +157,20 @@ inline TAABB3D<T> TBasicTriangle<T>::getAABB() const
 template<typename T>
 inline T TBasicTriangle<T>::getAspectRatio() const
 {
-	if(isDegenerate())
+	const auto ab = (m_vB - m_vA).length();
+	const auto ac = (m_vC - m_vA).length();
+	const auto bc = (m_vC - m_vB).length();
+
+	const auto termA = ab + ac - bc;
+	const auto termB = ac + bc - ab;
+	const auto termC = ab + bc - ac;
+	if(termA <= static_cast<T>(0) || termB <= static_cast<T>(0) || termC <= static_cast<T>(0) ||
+	   isDegenerate())
 	{
 		return std::numeric_limits<T>::infinity();
 	}
 
-	const auto ab = (m_vB - m_vA).length();
-	const auto ac = (m_vC - m_vA).length();
-	const auto bc = (m_vC - m_vB).length();
-	return (ab * ac * bc) / ((ab + ac - bc) * (ac + bc - ab) * (ab + bc - ac));
+	return (ab * ac * bc) / (termA * termB * termC);
 }
 
 template<typename T>

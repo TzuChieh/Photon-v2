@@ -478,13 +478,13 @@ int main(int argc, char* argv[])
 	constexpr real step = 5.0_r;
 
 	std::vector<ChartDataCollection> allCharts;
-	for(real objDistance = 1e-12_r; objDistance < 1e12_r; objDistance *= step)
+	for(real objDistance = 1e-6_r; objDistance < 1e9_r; objDistance *= step)
 	{
-		for(real objSize = 1e-9_r; objSize < 1e9_r; objSize *= step)
+		for(real objSize = 1e-6_r; objSize < 1e7_r; objSize *= step)
 		{
 			IntersectConfig config;
-			config.numObjsPerCase = 10000000;
-			config.numRaysPerObj = 256;
+			config.numObjsPerCase = 1000000;
+			config.numRaysPerObj = 128;
 			config.minDistance = objDistance / step;
 			config.maxDistance = objDistance * step;
 			config.minRotateDegs = -72000;
