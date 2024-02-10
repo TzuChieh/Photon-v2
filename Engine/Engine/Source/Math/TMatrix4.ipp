@@ -12,7 +12,7 @@ namespace ph::math
 {
 
 template<typename T>
-TMatrix4<T> TMatrix4<T>::IDENTITY()
+TMatrix4<T> TMatrix4<T>::makeIdentity()
 {
 	return TMatrix4().initIdentity();
 }

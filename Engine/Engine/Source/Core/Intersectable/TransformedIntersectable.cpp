@@ -9,25 +9,25 @@
 namespace ph
 {
 
+TransformedIntersectable::TransformedIntersectable()
+	: m_intersectable(nullptr)
+	, m_localToWorld (nullptr)
+	, m_worldToLocal (nullptr)
+{}
+
 TransformedIntersectable::TransformedIntersectable(
 	const Intersectable* const   intersectable,
 	const math::Transform* const localToWorld,
-	const math::Transform* const worldToLocal) :
+	const math::Transform* const worldToLocal)
 
-	m_intersectable(intersectable),
-	m_localToWorld(localToWorld),
-	m_worldToLocal(worldToLocal)
+	: m_intersectable(intersectable)
+	, m_localToWorld(localToWorld)
+	, m_worldToLocal(worldToLocal)
 {
 	PH_ASSERT(intersectable);
 	PH_ASSERT(localToWorld);
 	PH_ASSERT(worldToLocal);
 }
-
-TransformedIntersectable::TransformedIntersectable(const TransformedIntersectable& other) : 
-	m_intersectable(other.m_intersectable),
-	m_localToWorld(other.m_localToWorld),
-	m_worldToLocal(other.m_worldToLocal)
-{}
 
 // FIXME: intersecting routines' time correctness
 
@@ -102,15 +102,6 @@ math::AABB3D TransformedIntersectable::calcAABB() const
 	//}
 
 	return worldAABB;
-}
-
-TransformedIntersectable& TransformedIntersectable::operator = (const TransformedIntersectable& rhs)
-{
-	m_intersectable = rhs.m_intersectable;
-	m_localToWorld  = rhs.m_localToWorld;
-	m_worldToLocal  = rhs.m_worldToLocal;
-
-	return *this;
 }
 
 }// end namespace ph

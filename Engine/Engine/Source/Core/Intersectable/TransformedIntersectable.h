@@ -11,10 +11,12 @@ namespace ph
 class TransformedIntersectable : public Intersectable
 {
 public:
-	TransformedIntersectable(const Intersectable*   intersectable, 
-	                         const math::Transform* localToWorld,
-	                         const math::Transform* worldToLocal);
-	TransformedIntersectable(const TransformedIntersectable& other);
+	TransformedIntersectable();
+
+	TransformedIntersectable(
+		const Intersectable*   intersectable, 
+		const math::Transform* localToWorld,
+		const math::Transform* worldToLocal);
 
 	bool isOccluding(const Ray& ray) const override;
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
@@ -22,8 +24,6 @@ public:
 	                                    HitDetail* out_detail) const override;
 	bool mayOverlapVolume(const math::AABB3D& aabb) const override;
 	math::AABB3D calcAABB() const override;
-
-	TransformedIntersectable& operator = (const TransformedIntersectable& rhs);
 
 protected:
 	const Intersectable*   m_intersectable;

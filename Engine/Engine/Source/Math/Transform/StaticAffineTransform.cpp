@@ -9,12 +9,12 @@ namespace ph::math
 
 const StaticAffineTransform& StaticAffineTransform::IDENTITY()
 {
-	static const StaticAffineTransform identityTransform(Matrix4R::IDENTITY(), Matrix4R::IDENTITY());
+	static const StaticAffineTransform identityTransform(Matrix4R::makeIdentity(), Matrix4R::makeIdentity());
 	return identityTransform;
 }
 
 StaticAffineTransform::StaticAffineTransform() :
-	StaticAffineTransform(Matrix4R::IDENTITY(), Matrix4R::IDENTITY())
+	StaticAffineTransform(Matrix4R::makeIdentity(), Matrix4R::makeIdentity())
 {}
 
 StaticAffineTransform::StaticAffineTransform(const Matrix4R& transform, const Matrix4R& inverseTransform) :

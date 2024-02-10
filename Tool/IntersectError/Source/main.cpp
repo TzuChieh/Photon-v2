@@ -46,6 +46,7 @@ using namespace ph;
 using AccurateReal = double;
 using AccurateVec3 = math::TVector3<AccurateReal>;
 using AccurateQuat = math::TQuaternion<AccurateReal>;
+using AccurateMat4 = math::TMatrix4<AccurateReal>;
 
 thread_local math::Pcg32 tls_rng(math::DeterministicSeeder::nextSeed<uint32>());
 std::atomic_uint64_t g_numIntersects(0);
@@ -68,7 +69,6 @@ struct IntersectConfig final
 	real rayMaxT = std::numeric_limits<real>::max();
 	bool randomizeRayDir = true;
 	bool cosWeightedRay = false;
-	bool hemisphericalRay = true;
 	real maxObjAspectRatio = 1e6_r;
 };
 
@@ -123,8 +123,18 @@ public:
 
 	static math::Vector3R makeRandomScale(const IntersectConfig& config)
 	{
-		const auto radius = makeRandomSize(config);
-		return math::TSphere<real>(radius).sampleToSurfaceArchimedes(makeRandomSample2D());
+		while(true)
+		{
+			const auto radius = makeRandomSize(config);
+			const auto scale = math::TSphere<real>(radius).sampleToSurfaceArchimedes(makeRandomSample2D());
+			if(scale.min() * config.maxObjAspectRatio >= scale.max())
+			{
+				return scale;
+			}
+		}
+
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return {};
 	}
 
 	static math::TDecomposedTransform<real> makeRandomTransform(const IntersectConfig& config)
@@ -135,27 +145,26 @@ public:
 			makeRandomScale(config));
 	}
 
+	static void makeRandomTransforms(
+		const IntersectConfig& config, 
+		const std::size_t numTransforms,
+		std::vector<math::TDecomposedTransform<real>>& out_transforms)
+	{
+		for(std::size_t ti = 0; ti < numTransforms; ++ti)
+		{
+			out_transforms.push_back(makeRandomTransform(config));
+		}
+	}
+
 	static Ray makeRandomDirRay(
 		const IntersectConfig& config,
 		const math::Vector3R& targetHitPos,
 		const math::Vector3R& targetHitNormal)
 	{
-		math::Vector3R localDir;
-		if(config.hemisphericalRay)
-		{
-			const auto unitHemisphere = math::THemisphere<real>::makeUnit();
-			localDir = config.cosWeightedRay
-				? unitHemisphere.sampleToSurfaceCosThetaWeighted(makeRandomSample2D())
-				: unitHemisphere.sampleToSurfaceArchimedes(makeRandomSample2D());
-		}
-		else
-		{
-			const auto unitSphere = math::TSphere<real>::makeUnit();
-			localDir = config.cosWeightedRay
-				? unitSphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
-				: unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D());
-		}
-
+		const auto unitSphere = math::TSphere<real>::makeUnit();
+		const auto localDir = config.cosWeightedRay
+			? unitSphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
+			: unitSphere.sampleToSurfaceArchimedes(makeRandomSample2D());
 		const auto dir = math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localDir);
 		return Ray(targetHitPos, dir.normalize(), config.rayMinT, config.rayMaxT);
 	}
@@ -167,23 +176,41 @@ public:
 	{
 		const auto factor = tls_rng.generateSample();
 		const auto radius = std::pow(10.0_r, factor * 20.0_r - 10.0_r);// [10^-10, 10^10]
+		const auto sphere = math::TSphere<real>(radius);
+		const auto localOrigin = config.cosWeightedRay
+			? sphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
+			: sphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		const auto origin = 
+			targetHitPos + 
+			math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localOrigin);
+		const auto originToTarget = targetHitPos - origin;
+		return Ray(origin, originToTarget.normalize(), config.rayMinT, config.rayMaxT);
+	}
 
-		math::Vector3R localOrigin;
-		if(config.hemisphericalRay)
-		{
-			const auto hemisphere = math::THemisphere<real>(radius);
-			localOrigin = config.cosWeightedRay
-				? hemisphere.sampleToSurfaceCosThetaWeighted(makeRandomSample2D())
-				: hemisphere.sampleToSurfaceArchimedes(makeRandomSample2D());
-		}
-		else
-		{
-			const auto sphere = math::TSphere<real>(radius);
-			localOrigin = config.cosWeightedRay
-				? sphere.sampleToSurfaceAbsCosThetaWeighted(makeRandomSample2D())
-				: sphere.sampleToSurfaceArchimedes(makeRandomSample2D());
-		}
+	static Ray makeHemisphericalRandomDirRay(
+		const IntersectConfig& config,
+		const math::Vector3R& targetHitPos,
+		const math::Vector3R& targetHitNormal)
+	{
+		const auto unitHemisphere = math::THemisphere<real>::makeUnit();
+		const auto localDir = config.cosWeightedRay
+			? unitHemisphere.sampleToSurfaceCosThetaWeighted(makeRandomSample2D())
+			: unitHemisphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+		const auto dir = math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localDir);
+		return Ray(targetHitPos, dir.normalize(), config.rayMinT, config.rayMaxT);
+	}
 
+	static Ray makeHemisphericalRandomPosRay(
+		const IntersectConfig& config, 
+		const math::Vector3R& targetHitPos,
+		const math::Vector3R& targetHitNormal)
+	{
+		const auto factor = tls_rng.generateSample();
+		const auto radius = std::pow(10.0_r, factor * 20.0_r - 10.0_r);// [10^-10, 10^10]
+		const auto hemisphere = math::THemisphere<real>(radius);
+		const auto localOrigin = config.cosWeightedRay
+			? hemisphere.sampleToSurfaceCosThetaWeighted(makeRandomSample2D())
+			: hemisphere.sampleToSurfaceArchimedes(makeRandomSample2D());
 		const auto origin = 
 			targetHitPos + 
 			math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localOrigin);
@@ -199,6 +226,44 @@ public:
 		return config.randomizeRayDir 
 			? makeRandomDirRay(config, targetHitPos, targetHitNormal)
 			: makeRandomPosRay(config, targetHitPos, targetHitNormal);
+	}
+
+	static Ray makeHemisphericalRandomRay(
+		const IntersectConfig& config,
+		const math::Vector3R& targetHitPos,
+		const math::Vector3R& targetHitNormal)
+	{
+		return config.randomizeRayDir
+			? makeHemisphericalRandomDirRay(config, targetHitPos, targetHitNormal)
+			: makeHemisphericalRandomPosRay(config, targetHitPos, targetHitNormal);
+	}
+
+	static bool findInitialHit(
+		const IntersectConfig& config,
+		const Intersectable& intersectable,
+		const math::Vector3R& potentialHitPos,
+		const math::Vector3R& potentialHitNormal,
+		math::Vector3R* const out_actualHitPos,
+		math::Vector3R* const out_actualhitNormal)
+	{
+		// Use longest random position ray towards potential hit to have better chance getting a hit
+		auto ray = makeRandomPosRay(config, potentialHitPos, potentialHitNormal);
+		ray.setRange(0, std::numeric_limits<real>::max());
+
+		HitProbe probe;
+		if(!intersectable.isIntersecting(ray, probe))
+		{
+			return false;
+		}
+
+		HitDetail hitDetail;
+		intersectable.calcIntersectionDetail(ray, probe, &hitDetail);
+
+		PH_ASSERT(out_actualHitPos);
+		PH_ASSERT(out_actualhitNormal);
+		*out_actualHitPos = hitDetail.getPosition();
+		*out_actualhitNormal = hitDetail.getGeometryNormal();
+		return true;
 	}
 };
 
@@ -341,6 +406,124 @@ private:
 	{
 		return math::TSphere<real>(makeRandomSize(config));
 	}
+};
+
+class TransformedSphereCase : public IntersectCase
+{
+public:
+	explicit TransformedSphereCase(const std::size_t numTransformLayers)
+		: m_numTransformLayers(numTransformLayers)
+	{
+		PH_ASSERT_GT(numTransformLayers, 0);
+	}
+
+	void run(
+		const IntersectConfig& config,
+		std::vector<IntersectResult>& results) const override
+	{
+		SphereData data;
+		for(std::size_t oi = 0; oi < config.numObjsPerCase; ++oi)
+		{
+			makeRandomSphere(config, data);
+			if(data.localSphere.getRadius() <= 0)
+			{
+				g_numDegenerateObjs.fetch_add(1, std::memory_order_relaxed);
+				continue;
+			}
+
+			const auto localPotentialHitPos = data.localSphere.sampleToSurfaceArchimedes(
+				makeRandomSample2D());
+			const auto localPotentialHitNormal = localPotentialHitPos / data.localSphere.getRadius();
+
+			math::Vector3R potentialHitPos, potentialHitNormal;
+			data.localToWorld.transformP(localPotentialHitPos, &potentialHitPos);
+			data.localToWorld.transformO(localPotentialHitNormal, &potentialHitNormal);
+
+			IntersectResult result;
+			if(!findInitialHit(
+				config, *data.sphere, potentialHitPos, potentialHitNormal, 
+				&result.expectedHitPos, &result.expectedHitNormal))
+			{
+				continue;
+			}
+
+			result.objSize = data.sphere->calcAABB().getExtents();
+			result.objPos = data.sphere->calcAABB().getCentroid();
+
+			for(std::size_t ri = 0; ri < config.numRaysPerObj; ++ri)
+			{
+				// Use ray in the hemisphere defined by normal, otherwise we can get the further
+				// ray-sphere hit point
+				const auto ray = makeHemisphericalRandomRay(
+					config, 
+					result.expectedHitPos,
+					result.expectedHitNormal);
+
+				HitProbe probe;
+				if(!data.sphere->isIntersecting(ray, probe))
+				{
+					g_numMissed.fetch_add(1, std::memory_order_relaxed);
+					continue;
+				}
+
+				HitDetail hitDetail;
+				data.sphere->calcIntersectionDetail(ray, probe, &hitDetail);
+
+				result.rayOrigin = ray.getOrigin();
+				result.hitPos = hitDetail.getPosition();
+
+				results.push_back(result);
+				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
+			}
+		}
+	}
+
+private:
+	struct SphereData
+	{
+		TransformedIntersectable* sphere = nullptr;
+		math::TSphere<real> localSphere = math::TSphere<real>(0);
+		math::StaticAffineTransform localToWorld = math::StaticAffineTransform::IDENTITY();
+		PLatLong01Sphere localPSphere = PLatLong01Sphere(0);
+		std::vector<TransformedIntersectable> intersectables;
+		std::vector<math::StaticAffineTransform> transforms;
+		std::vector<math::StaticAffineTransform> inversedTransforms;
+		std::vector<math::TDecomposedTransform<real>> decomposedTransforms;
+	};
+
+	void makeRandomSphere(const IntersectConfig& config, SphereData& out_data) const
+	{
+		out_data.decomposedTransforms.clear();
+		makeRandomTransforms(config, m_numTransformLayers, out_data.decomposedTransforms);
+
+		out_data.localToWorld = math::StaticAffineTransform::makeParentedForward(
+			out_data.decomposedTransforms);
+
+		out_data.localSphere = math::TSphere<real>(makeRandomSize(config));
+		out_data.localPSphere = PLatLong01Sphere(out_data.localSphere.getRadius());
+
+		out_data.intersectables.resize(m_numTransformLayers);
+		out_data.transforms.resize(m_numTransformLayers);
+		out_data.inversedTransforms.resize(m_numTransformLayers);
+		for(std::size_t n = out_data.transforms.size(); n > 0; --n)
+		{
+			const Intersectable* intersectable = n == out_data.transforms.size()
+				? static_cast<const Intersectable*>(&out_data.localPSphere)
+				: static_cast<const Intersectable*>(&out_data.intersectables[n]);
+
+			out_data.transforms[n - 1] = math::StaticAffineTransform::makeForward(
+				out_data.decomposedTransforms[n - 1]);
+			out_data.inversedTransforms[n - 1] = math::StaticAffineTransform::makeInverse(
+				out_data.decomposedTransforms[n - 1]);
+			out_data.intersectables[n - 1] = TransformedIntersectable(
+				intersectable,
+				&out_data.transforms[n - 1],
+				&out_data.inversedTransforms[n - 1]);
+		}
+		out_data.sphere = &out_data.intersectables.front();
+	}
+
+	std::size_t m_numTransformLayers;
 };
 
 class ChartData final
@@ -539,7 +722,8 @@ int main(int argc, char* argv[])
 
 	std::vector<std::unique_ptr<IntersectCase>> cases;
 	//cases.push_back(std::make_unique<TriangleCase>());
-	cases.push_back(std::make_unique<SphereCase>());
+	//cases.push_back(std::make_unique<SphereCase>());
+	cases.push_back(std::make_unique<TransformedSphereCase>(2));
 
 	PH_LOG(IntersectError, Note,
 		"Run intersection cases using {} threads.", threads.numWorkers());
@@ -561,12 +745,14 @@ int main(int argc, char* argv[])
 	constexpr real step = 5.0_r;
 
 	std::vector<ChartDataCollection> allCharts;
+	//for(real objDistance = 1e-3_r; objDistance < 1e3_r; objDistance *= step)
 	for(real objDistance = 1e-6_r; objDistance < 1e9_r; objDistance *= step)
 	{
+		//for(real objSize = 1e-3_r; objSize < 1e3_r; objSize *= step)
 		for(real objSize = 1e-6_r; objSize < 1e7_r; objSize *= step)
 		{
 			IntersectConfig config;
-			config.numObjsPerCase = 10000;
+			config.numObjsPerCase = 100000;
 			config.numRaysPerObj = 64;
 			config.minDistance = objDistance / step;
 			config.maxDistance = objDistance * step;

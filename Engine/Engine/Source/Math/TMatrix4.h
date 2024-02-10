@@ -14,7 +14,7 @@ template<typename T>
 class TMatrix4 final
 {
 public:
-	static TMatrix4 IDENTITY();
+	static TMatrix4 makeIdentity();
 
 public:
 	using Elements = std::array<std::array<T, 4>, 4>;

@@ -229,7 +229,7 @@ TEST(TMatrix4Test, RotationMatrixFromBasis)
 {
 	Matrix mat1;
 	mat1.initRotation({1, 0, 0}, {0, 1, 0}, {0, 0, 1});
-	EXPECT_TRUE(mat1.isEqual(Matrix::IDENTITY()));
+	EXPECT_TRUE(mat1.isEqual(Matrix::makeIdentity()));
 
 	Matrix mat2;
 	mat2.initRotation({0, 0, 1}, {-1, 0, 0}, {0, -1, 0});
