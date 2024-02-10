@@ -284,14 +284,19 @@ public:
 			}
 
 			const PTriangle ptriangle(triangle.getVa(), triangle.getVb(), triangle.getVc());
-			const auto targetHitPos = triangle.barycentricToSurface(
+			const auto potentialHitPos = triangle.barycentricToSurface(
 				triangle.sampleToBarycentricOsada(makeRandomSample2D()));
 
 			IntersectResult result;
+			if(!findInitialHit(
+				config, ptriangle, potentialHitPos, triangle.getFaceNormal(),
+				&result.expectedHitPos, &result.expectedHitNormal))
+			{
+				continue;
+			}
+
 			result.objSize = triangle.getAABB().getExtents();
 			result.objPos = triangle.getCentroid();
-			result.expectedHitPos = targetHitPos;
-			result.expectedHitNormal = triangle.getFaceNormal();
 
 			for(std::size_t ri = 0; ri < config.numRaysPerObj; ++ri)
 			{
@@ -317,7 +322,7 @@ public:
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
 
 				// DEBUG
-				{
+				/*{
 					const auto hitDist = AccurateVec3(result.expectedHitPos).length();
 					const auto objSize = result.objSize.max();
 					const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
@@ -330,7 +335,7 @@ public:
 							hitDist, distToPlane, triangle.getVa(), triangle.getVb(), triangle.getVc(),
 							triangle.getAspectRatio());
 					}
-				}
+				}*/
 			}
 		}
 	}
@@ -367,17 +372,24 @@ public:
 			}
 
 			const PLatLong01Sphere psphere(sphere.getRadius());
-			const auto targetHitPos = sphere.sampleToSurfaceArchimedes(makeRandomSample2D());
+			const auto potentialHitPos = sphere.sampleToSurfaceArchimedes(makeRandomSample2D());
 
 			IntersectResult result;
+			if(!findInitialHit(
+				config, psphere, potentialHitPos, potentialHitPos / sphere.getRadius(),
+				&result.expectedHitPos, &result.expectedHitNormal))
+			{
+				continue;
+			}
+
 			result.objSize = sphere.getAABB().getExtents();
 			result.objPos = math::Vector3R(0);
-			result.expectedHitPos = targetHitPos;
-			result.expectedHitNormal = targetHitPos / sphere.getRadius();
 
 			for(std::size_t ri = 0; ri < config.numRaysPerObj; ++ri)
 			{
-				const auto ray = makeRandomRay(
+				// Use ray in the hemisphere defined by normal, otherwise we can get the further
+				// ray-sphere hit point
+				const auto ray = makeHemisphericalRandomRay(
 					config, 
 					result.expectedHitPos,
 					result.expectedHitNormal);
@@ -721,9 +733,9 @@ int main(int argc, char* argv[])
 	FixedSizeThreadPool threads(10);
 
 	std::vector<std::unique_ptr<IntersectCase>> cases;
-	//cases.push_back(std::make_unique<TriangleCase>());
+	cases.push_back(std::make_unique<TriangleCase>());
 	//cases.push_back(std::make_unique<SphereCase>());
-	cases.push_back(std::make_unique<TransformedSphereCase>(2));
+	//cases.push_back(std::make_unique<TransformedSphereCase>(2));
 
 	PH_LOG(IntersectError, Note,
 		"Run intersection cases using {} threads.", threads.numWorkers());

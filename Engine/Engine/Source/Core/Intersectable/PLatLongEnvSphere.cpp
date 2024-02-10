@@ -58,10 +58,12 @@ void PLatLongEnvSphere::calcIntersectionDetail(
 {
 	PH_ASSERT(out_detail);
 
-	const math::Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
-	const math::Vector3R& unitRayDir  = ray.getDirection().normalize();
+	math::Vector3R hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
+	hitPosition = hitPosition.normalize() * getRadius();// refine hit point; the ray can be far away
+	                                                    // and contains large numeric error
 
 	// Normal is calculated such that it is always facing the incident ray
+	const math::Vector3R& unitRayDir  = ray.getDirection().normalize();
 	const math::Vector3R& hitNormal = unitRayDir.mul(-1);
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitNormal.isFinite(), "\n"

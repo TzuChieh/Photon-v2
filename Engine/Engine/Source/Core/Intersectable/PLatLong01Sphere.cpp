@@ -24,8 +24,10 @@ void PLatLong01Sphere::calcIntersectionDetail(
 {
 	PH_ASSERT(out_detail);
 
-	const math::Vector3R& hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
-	const math::Vector3R& hitNormal   = hitPosition.normalize();
+	math::Vector3R hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
+	const math::Vector3R& hitNormal = hitPosition.normalize();
+	hitPosition = hitNormal * getRadius();// refine hit point; the ray can be far away and contains
+	                                      // large numeric error
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitNormal.isFinite(), "\n"
 		"hit-position = " + hitPosition.toString() + "\n"
