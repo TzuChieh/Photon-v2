@@ -113,6 +113,14 @@ inline TVector3<T> TBasicTriangle<T>::getFaceNormal() const
 }
 
 template<typename T>
+inline TVector3<T> TBasicTriangle<T>::safeGetFaceNormal(const TVector3<T>& failSafe) const
+{
+	const auto [eAB, eAC] = getEdgeVectors();
+
+	return !isDegenerate() ? eAB.cross(eAC).safeNormalize(failSafe) : failSafe;
+}
+
+template<typename T>
 inline TVector3<T> TBasicTriangle<T>::getCentroid() const
 {
 	if constexpr(std::is_floating_point_v<T>)
@@ -171,12 +179,6 @@ inline T TBasicTriangle<T>::getAspectRatio() const
 	}
 
 	return (ab * ac * bc) / (termA * termB * termC);
-}
-
-template<typename T>
-inline TVector3<T> TBasicTriangle<T>::getFaceNormalSafe(const TVector3<T>& failSafe) const
-{
-	return !isDegenerate() ? getFaceNormal() : failSafe;
 }
 
 template<typename T>

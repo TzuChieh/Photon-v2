@@ -118,11 +118,9 @@ inline TSPPMRadianceEvaluator<Viewpoint, Photon>::TSPPMRadianceEvaluator(
 {
 	PH_ASSERT(!m_viewpoints.empty());
 	PH_ASSERT(photonMap);
-	PH_ASSERT_GE(numPhotonPaths, 1);
 	PH_ASSERT(scene);
 	PH_ASSERT(film);
 	PH_ASSERT_GE(statisticsRes.product(), 1);
-	PH_ASSERT_GE(maxViewpointDepth, 1);
 
 	m_rcpTotalPhotonPaths = totalPhotonPaths > 0
 		? 1.0_r / static_cast<real>(totalPhotonPaths)

@@ -24,7 +24,7 @@ PTriangle::PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const m
 	, m_uvwB(1, 0, 0)
 	, m_uvwC(0, 1, 0)
 {
-	m_faceNormal = m_triangle.getFaceNormalSafe(math::Vector3R(0, 1, 0));
+	m_faceNormal = m_triangle.safeGetFaceNormal(math::Vector3R(0, 1, 0));
 	PH_ASSERT(m_faceNormal.isFinite() && m_faceNormal.length() > 0.0_r);
 
 	m_nA = m_faceNormal;
@@ -35,14 +35,14 @@ PTriangle::PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const m
 bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	real hitT;
-	math::Vector3R hitBaryABCs;
-	if(!m_triangle.isIntersecting(ray.getSegment(), &hitT, &hitBaryABCs))
+	math::Vector3R hitBaryABC;
+	if(!m_triangle.isIntersecting(ray.getSegment(), &hitT, &hitBaryABC))
 	{
 		return false;
 	}
 
 	probe.pushBaseHit(this, hitT);
-	probe.pushCache(hitBaryABCs);
+	probe.pushCache(hitBaryABC);
 	return true;
 }
 

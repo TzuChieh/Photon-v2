@@ -21,14 +21,14 @@ def read_csv_data(file_name):
 fig = plt.figure(figsize=(20, 8))
 axes = fig.subplots(2, 3)
 
-error_vs_dist_data = read_csv_data("error_vs_dist.csv")
-axes[0, 0].plot(error_vs_dist_data[0], error_vs_dist_data[2])
+error_vs_dist = read_csv_data("error_vs_dist.csv")
+axes[0, 0].plot(error_vs_dist[0], error_vs_dist[2])
 axes[0, 0].set_xscale('log', base=10)
 axes[0, 0].set_yscale('log', base=10)
 axes[0, 0].set_xlabel("Hit Distance")
 axes[0, 0].set_ylabel("Mean Error")
 
-axes[1, 0].plot(error_vs_dist_data[0], error_vs_dist_data[4])
+axes[1, 0].plot(error_vs_dist[0], error_vs_dist[4])
 axes[1, 0].set_xscale('log', base=10)
 axes[1, 0].set_yscale('log', base=10)
 axes[1, 0].set_xlabel("Hit Distance")
@@ -47,11 +47,18 @@ axes[1, 1].set_yscale('log', base=10)
 axes[1, 1].set_xlabel("Max. Extent")
 axes[1, 1].set_ylabel("Max. Error")
 
-axes[0, 2].plot(error_vs_dist_data[0], error_vs_dist_data[1])
+axes[0, 2].plot(error_vs_dist[0], error_vs_dist[1])
 axes[0, 2].set_xscale('log', base=10)
 axes[0, 2].set_xlabel("Hit Distance")
 axes[0, 2].set_ylabel("Number of Intersections")
 
-fig.suptitle("%d Intersections" % sum(error_vs_dist_data[1]))
+offset_vs_dist = read_csv_data("offset_vs_dist.csv")
+axes[1, 2].plot(offset_vs_dist[0], offset_vs_dist[4])
+axes[1, 2].set_xscale('log', base=10)
+axes[1, 2].set_yscale('log', base=10)
+axes[1, 2].set_xlabel("Hit Distance")
+axes[1, 2].set_ylabel("Max. Offset Distance")
+
+fig.suptitle("%d Intersections" % sum(offset_vs_dist[1]))
 
 plt.show()

@@ -80,7 +80,7 @@ public:
 		const std::size_t minFullPathLength,
 		const std::size_t maxFullPathLength) const
 	{
-		PH_ASSERT_LE(minTargetPathLength, maxTargetPathLength);
+		PH_ASSERT_LE(minFullPathLength, maxFullPathLength);
 		const auto minFullPathLengthFromMap = viewPathLength + minPathLength;
 		const auto maxFullPathLengthFromMap = viewPathLength + maxPathLength;
 		return maxFullPathLength >= minFullPathLengthFromMap && 

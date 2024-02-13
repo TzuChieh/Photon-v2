@@ -506,8 +506,8 @@ inline auto TArithmeticArrayBase<Derived, T, N>::lerp(const Derived& rhs, const 
 template<typename Derived, typename T, std::size_t N>
 inline bool TArithmeticArrayBase<Derived, T, N>::isZero() const
 {
-	// TODO: using lengthSquared() == 0 can achieve branchless isZero()
-	// (will it be faster?)
+	// While using `lengthSquared() == 0` is branchless, it can suffer from numerical
+	// error and report small (but non-zero) values as 0.
 
 	for(std::size_t i = 0; i < N; ++i)
 	{

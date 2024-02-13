@@ -36,7 +36,7 @@ void GTriangle::storeCooked(
 	triangle.setUVWc(m_uvwC);
 
 	// Use face normal if vertex normal was not supplied
-	const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).getFaceNormalSafe();
+	const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).safeGetFaceNormal();
 	triangle.setNa(!m_nA.isZero() ? m_nA.normalize() : faceNormal);
 	triangle.setNb(!m_nB.isZero() ? m_nB.normalize() : faceNormal);
 	triangle.setNc(!m_nC.isZero() ? m_nC.normalize() : faceNormal);
@@ -66,7 +66,7 @@ void GTriangle::genPrimitive(
 	triangle.setUVWc(m_uvwC);
 
 	// Use face normal if vertex normal was not supplied
-	const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).getFaceNormalSafe();
+	const auto faceNormal = math::TTriangle<real>(m_vA, m_vB, m_vC).safeGetFaceNormal();
 	triangle.setNa(!m_nA.isZero() ? m_nA.normalize() : faceNormal);
 	triangle.setNb(!m_nB.isZero() ? m_nB.normalize() : faceNormal);
 	triangle.setNc(!m_nC.isZero() ? m_nC.normalize() : faceNormal);

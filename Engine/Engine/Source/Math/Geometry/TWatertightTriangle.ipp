@@ -61,7 +61,8 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 		}
 	}
 
-	PH_ASSERT_MSG(segmentDir.z() != T(0) && std::isfinite(segmentDir.z()), std::to_string(segmentDir.z()));
+	PH_ASSERT_MSG(segmentDir.z() != static_cast<T>(0) && std::isfinite(segmentDir.z()), 
+		std::to_string(segmentDir.z()));
 
 	const T rcpSegmentDirZ = T(1) / segmentDir.z();
 	const T shearX         = -segmentDir.x() * rcpSegmentDirZ;
@@ -83,7 +84,7 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	// Possibly fallback to higher precision test for triangle edges
 	if constexpr(sizeof(T) < sizeof(float64))
 	{
-		if(funcEa == T(0) || funcEb == T(0) || funcEc == T(0))
+		if(funcEa == static_cast<T>(0) || funcEb == static_cast<T>(0) || funcEc == static_cast<T>(0))
 		{
 			const float64 funcEa64 = static_cast<float64>(vBt.x()) * static_cast<float64>(vCt.y()) -
 			                         static_cast<float64>(vBt.y()) * static_cast<float64>(vCt.x());
@@ -98,15 +99,15 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 		}
 	}
 
-	if((funcEa < T(0) || funcEb < T(0) || funcEc < T(0)) && 
-	   (funcEa > T(0) || funcEb > T(0) || funcEc > T(0)))
+	if((funcEa < static_cast<T>(0) || funcEb < static_cast<T>(0) || funcEc < static_cast<T>(0)) &&
+	   (funcEa > static_cast<T>(0) || funcEb > static_cast<T>(0) || funcEc > static_cast<T>(0)))
 	{
 		return false;
 	}
 
+	// In addition to 0, also reject NaN and Inf (they will sabotage the barycentric coordinates)
 	const T determinant = funcEa + funcEb + funcEc;
-
-	if(determinant == T(0))
+	if(determinant == static_cast<T>(0) || !std::isfinite(determinant))
 	{
 		return false;
 	}
@@ -116,8 +117,7 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	vCt.z() *= shearZ;
 
 	const T hitTscaled = funcEa * vAt.z() + funcEb * vBt.z() + funcEc * vCt.z();
-
-	if(determinant > T(0))
+	if(determinant > static_cast<T>(0))
 	{
 		if(hitTscaled < segment.getMinT() * determinant || hitTscaled > segment.getMaxT() * determinant)
 		{
@@ -134,7 +134,8 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 
 	// So the ray intersects the triangle
 
-	PH_ASSERT_MSG(determinant != T(0) && std::isfinite(determinant), std::to_string(determinant));
+	PH_ASSERT_MSG(determinant != static_cast<T>(0) && std::isfinite(determinant), 
+		std::to_string(determinant));
 
 	const T rcpDeterminant = T(1) / determinant;
 	const T baryA          = funcEa * rcpDeterminant;
@@ -146,5 +147,28 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	*out_hitBarycentricCoords = TVector3<T>(baryA, baryB, baryC);
 	return true;
 }
+
+//template<typename T>
+//inline bool TWatertightTriangle<T>::isIntersectingRefined(
+//	const TLineSegment<T>& segment,
+//	T* const               out_hitT,
+//	TVector3<T>* const     out_hitBarycentricCoords) const
+//{
+//	const auto segmentOriginToCentroid = this->getCentroid() - segment.getOrigin();
+//	const auto approxHitT = segmentOriginToCentroid.dot(segment.getDirection());
+//
+//	const TLineSegment<T> shiftedSegment(
+//		segment.getPoint(approxHitT),
+//		segment.getDirection(),
+//		segment.getMinT() - approxHitT,
+//		segment.getMaxT() - approxHitT);
+//	if(!isIntersecting(shiftedSegment, out_hitT, out_hitBarycentricCoords))
+//	{
+//		return false;
+//	}
+//
+//	*out_hitT += approxHitT;
+//	return true;
+//}
 
 }// end namespace ph::math

@@ -72,7 +72,7 @@ public:
 	producing NaNs after being normalized, or vertices with Inf/NaN), in such 
 	case the fail-safe vector will be returned.
 	*/
-	TVector3<T> getFaceNormalSafe(const TVector3<T>& failSafe = {0, 1, 0}) const;
+	TVector3<T> safeGetFaceNormal(const TVector3<T>& failSafe = {0, 1, 0}) const;
 
 	std::pair<TVector3<T>, TVector3<T>> getEdgeVectors() const;
 	TVector3<T> surfaceToBarycentric(const TVector3<T>& position) const;

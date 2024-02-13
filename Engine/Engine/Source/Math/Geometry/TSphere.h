@@ -24,9 +24,18 @@ public:
 	TSphere() = default;
 	explicit TSphere(T radius);
 
+	/*! @brief Checks whether the `segment` is interseting with this sphere.
+	@param out_hitT The parametric distance of the hit point for `segment`.
+	*/
 	bool isIntersecting(
 		const TLineSegment<T>& segment,
 		real*                  out_hitT) const;
+
+	/*! @brief Same as `isIntersecting()`, except the cost is slightly higher to reduce numerical error.
+	*/
+	/*bool isIntersectingRefined(
+		const TLineSegment<T>& segment,
+		T*                     out_hitT) const;*/
 
 	bool isInside(const TVector3<T>& point) const;
 

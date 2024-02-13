@@ -24,14 +24,15 @@ void PLatLong01Sphere::calcIntersectionDetail(
 {
 	PH_ASSERT(out_detail);
 
-	math::Vector3R hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
-	const math::Vector3R& hitNormal = hitPosition.normalize();
-	hitPosition = hitNormal * getRadius();// refine hit point; the ray can be far away and contains
-	                                      // large numeric error
+	// Refine hit point by normal and radius since the ray can be far away
+	// and contains large numerical error
+	math::Vector3R hitPosition = ray.getSegment().getPoint(probe.getHitRayT());
+	const math::Vector3R& hitNormal = hitPosition.safeNormalize({0, 1, 0});
+	hitPosition = hitNormal * getRadius();
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitNormal.isFinite(), "\n"
-		"hit-position = " + hitPosition.toString() + "\n"
-		"hit-normal   = " + hitNormal.toString() + "\n");
+		"hitPosition = " + hitPosition.toString() + "\n"
+		"hitNormal   = " + hitNormal.toString() + "\n");
 
 	const math::Vector2R hitUv = positionToUV(hitPosition);
 
@@ -55,7 +56,12 @@ void PLatLong01Sphere::calcIntersectionDetail(
 		dPdU, dPdV, dNdU, dNdV);
 
 	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
-	out_detail->setHitIntrinsics(this, math::Vector3R(hitUv.x(), hitUv.y(), 0), probe.getHitRayT());
+	out_detail->setHitIntrinsics(
+		this, 
+		math::Vector3R(hitUv.x(), hitUv.y(), 0), 
+		probe.getHitRayT(),
+		HitDetail::NO_FACE_ID, 
+		FaceTopology({EFaceTopology::Convex}));
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

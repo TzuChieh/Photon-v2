@@ -8,13 +8,26 @@
 namespace ph
 {
 
+/*! @brief Categorizing face topology (generally locally around a hit point).
+*/
 enum class EFaceTopology : uint8
 {
-	General       = math::flag_bit<uint8, 0>(),
-	Planar        = math::flag_bit<uint8, 1>(),
-	Convex        = math::flag_bit<uint8, 2>(),
-	Concave       = math::flag_bit<uint8, 3>(),
-	Triangular    = math::flag_bit<uint8, 4>(),
+	/*! Basically cannot assume anything about the face. */
+	General = math::flag_bit<uint8, 0>(),
+
+	/*! Flat face. */
+	Planar = math::flag_bit<uint8, 1>(),
+
+	/*! A bump into the hemisphere of face normal. */
+	Convex = math::flag_bit<uint8, 2>(),
+
+	/*! A dent into the opposite hemisphere of face normal. */
+	Concave = math::flag_bit<uint8, 3>(),
+
+	/*! The face is a triangle. */
+	Triangular = math::flag_bit<uint8, 4>(),
+
+	/*! The face is a quadrilateral. */
 	Quadrilateral = math::flag_bit<uint8, 5>()
 };
 

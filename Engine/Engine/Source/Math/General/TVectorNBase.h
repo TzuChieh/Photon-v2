@@ -55,6 +55,9 @@ public:
 	std::size_t minDimension() const;
 	std::size_t maxDimension() const;
 
+	template<typename = std::enable_if_t<std::is_signed_v<T>>>
+	Derived operator - () const;
+
 	using Base::NUM_ELEMENTS;
 	using Base::size;
 

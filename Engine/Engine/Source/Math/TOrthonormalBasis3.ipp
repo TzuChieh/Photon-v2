@@ -15,10 +15,14 @@ namespace ph::math
 template<typename T>
 inline TOrthonormalBasis3<T> TOrthonormalBasis3<T>::makeFromUnitY(const TVector3<T>& unitYAxis)
 {
-	PH_ASSERT_MSG(unitYAxis.length() > T(0.9) && unitYAxis.isFinite(), unitYAxis.toString());
+	PH_ASSERT_MSG(
+		static_cast<T>(0.9) < unitYAxis.length() &&
+		unitYAxis.length() < static_cast<T>(1.1) &&
+		unitYAxis.isFinite(),
+		unitYAxis.toString());
 
 	// choose an axis deviate enough to specified y-axis to perform cross product in order to avoid some 
-	// numeric errors
+	// numerical errors
 	TVector3<T> unitXAxis;
 	if(std::abs(unitYAxis.y()) < constant::rcp_sqrt_2<real>)
 	{

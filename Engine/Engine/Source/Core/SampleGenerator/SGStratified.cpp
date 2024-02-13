@@ -147,7 +147,7 @@ std::vector<std::size_t> SGStratified::reviseDimSizeHints(
 		*max = *max > 1 ? *max - 1 : 1;
 	}
 
-	PH_ASSERT_IN_RANGE_INCLUSIVE(math::product(revisedDimSizeHints), 1, numSamples);
+	PH_ASSERT_IN_RANGE_INCLUSIVE(math::product<std::size_t>(revisedDimSizeHints), 1, numSamples);
 	return revisedDimSizeHints;
 }
 

@@ -28,6 +28,7 @@
 
 #include <cstdlib>
 #include <cstddef>
+#include <cmath>
 #include <memory>
 #include <array>
 #include <vector>
@@ -80,6 +81,7 @@ struct IntersectResult final
 	math::Vector3R hitPos;
 	math::Vector3R expectedHitPos;
 	math::Vector3R expectedHitNormal;
+	real offsetDistance;
 };
 
 class IntersectCase
@@ -184,7 +186,8 @@ public:
 			targetHitPos + 
 			math::Basis3R::makeFromUnitY(targetHitNormal).localToWorld(localOrigin);
 		const auto originToTarget = targetHitPos - origin;
-		return Ray(origin, originToTarget.normalize(), config.rayMinT, config.rayMaxT);
+		const auto dir = originToTarget.safeNormalize({0, 1, 0});
+		return Ray(origin, dir, config.rayMinT, config.rayMaxT);
 	}
 
 	static Ray makeHemisphericalRandomDirRay(
@@ -265,6 +268,60 @@ public:
 		*out_actualhitNormal = hitDetail.getGeometryNormal();
 		return true;
 	}
+
+	static real findOffsetDistance(
+		const IntersectConfig& config,
+		const Intersectable& intersectable,
+		const Ray& targetRay,
+		const math::Vector3R& targetHitPos,
+		const math::Vector3R& targetHitNormal)
+	{
+		// Offset in the hemisphere of N, so we will not bump into ourself
+		// (TODO: for some shapes we need more logics, e.g., offset into -N for concaves)
+		const auto offsetDir = targetHitNormal.dot(targetRay.getDirection()) >= 0.0_r
+			? targetHitNormal : -targetHitNormal;
+
+		// Assumes `targetHitPos` is an intersection point on `intersectable`
+		
+		// First find an offset that results in no intersection
+		real maxDist = targetHitPos.length() * 1e-5_r;// based on statistics of `IntersectionResult`
+		maxDist = maxDist > 0.0_r && std::isfinite(maxDist) ? maxDist : 1e-6_r;
+		while(true)
+		{
+			HitProbe probe;
+			Ray ray = targetRay;
+			ray.setOrigin(targetHitPos + offsetDir * maxDist);
+			if(!intersectable.isIntersecting(ray, probe))
+			{
+				break;
+			}
+
+			maxDist *= 2.0_r;
+		}
+
+		// Then use bisection method to find the min. distance that results in no intersection
+		real minDist = 0.0_r;
+		while(true)
+		{
+			const real midDist = (minDist + maxDist) * 0.5_r;
+			if(!(minDist < midDist && midDist < maxDist))
+			{
+				return maxDist;
+			}
+
+			HitProbe probe;
+			Ray ray = targetRay;
+			ray.setOrigin(targetHitPos + offsetDir * midDist);
+			if(!intersectable.isIntersecting(ray, probe))
+			{
+				maxDist = midDist;
+			}
+			else
+			{
+				minDist = midDist;
+			}
+		}
+	}
 };
 
 class TriangleCase : public IntersectCase
@@ -317,25 +374,11 @@ public:
 
 				result.rayOrigin = ray.getOrigin();
 				result.hitPos = hitDetail.getPosition();
+				result.offsetDistance = findOffsetDistance(
+					config, ptriangle, ray, hitDetail.getPosition(), hitDetail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
-
-				// DEBUG
-				/*{
-					const auto hitDist = AccurateVec3(result.expectedHitPos).length();
-					const auto objSize = result.objSize.max();
-					const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
-					const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
-					if(hitDist > 0 && distToPlane / hitDist > 0.01)
-					{
-						PH_LOG(IntersectError, Warning,
-							"Outlier: hit distance = {}, error = {}, vA = {}, vB = {}, vC = {}, "
-							"aspect ratio = {}", 
-							hitDist, distToPlane, triangle.getVa(), triangle.getVb(), triangle.getVc(),
-							triangle.getAspectRatio());
-					}
-				}*/
 			}
 		}
 	}
@@ -353,6 +396,127 @@ public:
 
 		return math::TTriangle<real>(vA, vB, vC);
 	}
+};
+
+class TransformedTriangleCase : public IntersectCase
+{
+public:
+	explicit TransformedTriangleCase(const std::size_t numTransformLevels)
+		: m_numTransformLevels(numTransformLevels)
+	{
+		PH_ASSERT_GT(numTransformLevels, 0);
+	}
+
+	void run(
+		const IntersectConfig& config,
+		std::vector<IntersectResult>& results) const override
+	{
+		TriangleData data;
+		for(std::size_t oi = 0; oi < config.numObjsPerCase; ++oi)
+		{
+			makeRandomTriangle(config, data);
+			if(data.localTriangle.isDegenerate() || 
+			   data.localTriangle.getAspectRatio() > config.maxObjAspectRatio)
+			{
+				g_numDegenerateObjs.fetch_add(1, std::memory_order_relaxed);
+				continue;
+			}
+
+			const auto localPotentialHitPos = data.localTriangle.barycentricToSurface(
+				data.localTriangle.sampleToBarycentricOsada(makeRandomSample2D()));
+			const auto localPotentialHitNormal = data.localTriangle.getFaceNormal();
+
+			math::Vector3R potentialHitPos, potentialHitNormal;
+			data.localToWorld.transformP(localPotentialHitPos, &potentialHitPos);
+			data.localToWorld.transformO(localPotentialHitNormal, &potentialHitNormal);
+			potentialHitNormal = potentialHitNormal.safeNormalize({0, 0, 0});
+
+			IntersectResult result;
+			if(potentialHitNormal.isZero() || !findInitialHit(
+				config, *data.triangle, potentialHitPos, potentialHitNormal, 
+				&result.expectedHitPos, &result.expectedHitNormal))
+			{
+				continue;
+			}
+
+			result.objSize = data.triangle->calcAABB().getExtents();
+			data.localToWorld.transformP(data.localTriangle.getCentroid(), &result.objPos);
+
+			for(std::size_t ri = 0; ri < config.numRaysPerObj; ++ri)
+			{
+				const auto ray = makeRandomRay(
+					config, 
+					result.expectedHitPos,
+					result.expectedHitNormal);
+
+				HitProbe probe;
+				if(!data.triangle->isIntersecting(ray, probe))
+				{
+					g_numMissed.fetch_add(1, std::memory_order_relaxed);
+					continue;
+				}
+
+				HitDetail hitDetail;
+				data.triangle->calcIntersectionDetail(ray, probe, &hitDetail);
+
+				result.rayOrigin = ray.getOrigin();
+				result.hitPos = hitDetail.getPosition();
+				result.offsetDistance = findOffsetDistance(
+					config, *data.triangle, ray, hitDetail.getPosition(), hitDetail.getGeometryNormal());
+
+				results.push_back(result);
+				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
+			}
+		}
+	}
+
+private:
+	struct TriangleData
+	{
+		TransformedIntersectable* triangle = nullptr;
+		math::TTriangle<real> localTriangle = math::TTriangle<real>();
+		math::StaticAffineTransform localToWorld = math::StaticAffineTransform::IDENTITY();
+		PTriangle localPTriangle = PTriangle(math::Vector3R(0), math::Vector3R(1), math::Vector3R(2));
+		std::vector<TransformedIntersectable> intersectables;
+		std::vector<math::StaticAffineTransform> transforms;
+		std::vector<math::StaticAffineTransform> inversedTransforms;
+		std::vector<math::TDecomposedTransform<real>> decomposedTransforms;
+	};
+
+	void makeRandomTriangle(const IntersectConfig& config, TriangleData& out_data) const
+	{
+		out_data.decomposedTransforms.clear();
+		makeRandomTransforms(config, m_numTransformLevels, out_data.decomposedTransforms);
+
+		out_data.localToWorld = math::StaticAffineTransform::makeParentedForward(
+			out_data.decomposedTransforms);
+
+		out_data.localTriangle = TriangleCase::makeRandomTriangle(config);
+		out_data.localPTriangle = PTriangle(
+			out_data.localTriangle.getVa(), out_data.localTriangle.getVb(), out_data.localTriangle.getVc());
+
+		out_data.intersectables.resize(m_numTransformLevels);
+		out_data.transforms.resize(m_numTransformLevels);
+		out_data.inversedTransforms.resize(m_numTransformLevels);
+		for(std::size_t n = out_data.transforms.size(); n > 0; --n)
+		{
+			const Intersectable* intersectable = n == out_data.transforms.size()
+				? static_cast<const Intersectable*>(&out_data.localPTriangle)
+				: static_cast<const Intersectable*>(&out_data.intersectables[n]);
+
+			out_data.transforms[n - 1] = math::StaticAffineTransform::makeForward(
+				out_data.decomposedTransforms[n - 1]);
+			out_data.inversedTransforms[n - 1] = math::StaticAffineTransform::makeInverse(
+				out_data.decomposedTransforms[n - 1]);
+			out_data.intersectables[n - 1] = TransformedIntersectable(
+				intersectable,
+				&out_data.transforms[n - 1],
+				&out_data.inversedTransforms[n - 1]);
+		}
+		out_data.triangle = &out_data.intersectables.front();
+	}
+
+	std::size_t m_numTransformLevels;
 };
 
 class SphereCase : public IntersectCase
@@ -406,6 +570,8 @@ public:
 
 				result.rayOrigin = ray.getOrigin();
 				result.hitPos = hitDetail.getPosition();
+				result.offsetDistance = findOffsetDistance(
+					config, psphere, ray, hitDetail.getPosition(), hitDetail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -413,7 +579,6 @@ public:
 		}
 	}
 
-private:
 	static math::TSphere<real> makeRandomSphere(const IntersectConfig& config)
 	{
 		return math::TSphere<real>(makeRandomSize(config));
@@ -423,10 +588,10 @@ private:
 class TransformedSphereCase : public IntersectCase
 {
 public:
-	explicit TransformedSphereCase(const std::size_t numTransformLayers)
-		: m_numTransformLayers(numTransformLayers)
+	explicit TransformedSphereCase(const std::size_t numTransformLevels)
+		: m_numTransformLevels(numTransformLevels)
 	{
-		PH_ASSERT_GT(numTransformLayers, 0);
+		PH_ASSERT_GT(numTransformLevels, 0);
 	}
 
 	void run(
@@ -450,9 +615,10 @@ public:
 			math::Vector3R potentialHitPos, potentialHitNormal;
 			data.localToWorld.transformP(localPotentialHitPos, &potentialHitPos);
 			data.localToWorld.transformO(localPotentialHitNormal, &potentialHitNormal);
+			potentialHitNormal = potentialHitNormal.safeNormalize({0, 0, 0});
 
 			IntersectResult result;
-			if(!findInitialHit(
+			if(potentialHitNormal.isZero() || !findInitialHit(
 				config, *data.sphere, potentialHitPos, potentialHitNormal, 
 				&result.expectedHitPos, &result.expectedHitNormal))
 			{
@@ -483,6 +649,8 @@ public:
 
 				result.rayOrigin = ray.getOrigin();
 				result.hitPos = hitDetail.getPosition();
+				result.offsetDistance = findOffsetDistance(
+					config, *data.sphere, ray, hitDetail.getPosition(), hitDetail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -506,17 +674,17 @@ private:
 	void makeRandomSphere(const IntersectConfig& config, SphereData& out_data) const
 	{
 		out_data.decomposedTransforms.clear();
-		makeRandomTransforms(config, m_numTransformLayers, out_data.decomposedTransforms);
+		makeRandomTransforms(config, m_numTransformLevels, out_data.decomposedTransforms);
 
 		out_data.localToWorld = math::StaticAffineTransform::makeParentedForward(
 			out_data.decomposedTransforms);
 
-		out_data.localSphere = math::TSphere<real>(makeRandomSize(config));
+		out_data.localSphere = SphereCase::makeRandomSphere(config);
 		out_data.localPSphere = PLatLong01Sphere(out_data.localSphere.getRadius());
 
-		out_data.intersectables.resize(m_numTransformLayers);
-		out_data.transforms.resize(m_numTransformLayers);
-		out_data.inversedTransforms.resize(m_numTransformLayers);
+		out_data.intersectables.resize(m_numTransformLevels);
+		out_data.transforms.resize(m_numTransformLevels);
+		out_data.inversedTransforms.resize(m_numTransformLevels);
 		for(std::size_t n = out_data.transforms.size(); n > 0; --n)
 		{
 			const Intersectable* intersectable = n == out_data.transforms.size()
@@ -535,22 +703,27 @@ private:
 		out_data.sphere = &out_data.intersectables.front();
 	}
 
-	std::size_t m_numTransformLayers;
+	std::size_t m_numTransformLevels;
 };
 
+/*!
+Basically a xy-chart, where x is in log scale. The interval [`minX`, `maxX`] is divided into
+`numBins` sub-intervals. Since the width of the bins are in log scale, larger x corresponds to
+a wider bin.
+*/
 class ChartData final
 {
 public:
 	ChartData() = default;
 
-	ChartData(const std::size_t numEntries, const AccurateReal minX, const AccurateReal maxX)
-		: m_xs(numEntries)
+	ChartData(const std::size_t numBins, const AccurateReal minX, const AccurateReal maxX)
+		: m_xs(numBins)
 		, m_minX(minX)
 		, m_maxX(maxX)
 		, m_logMinX()
 		, m_logMaxX()
 	{
-		PH_ASSERT_GE(numEntries, 1);
+		PH_ASSERT_GE(numBins, 1);
 		PH_ASSERT_GT(minX, 0);
 		PH_ASSERT_LT(minX, maxX);
 
@@ -571,11 +744,11 @@ public:
 		auto idx = static_cast<std::size_t>(fraction * m_xs.size());
 		idx = idx < m_xs.size() ? idx : m_xs.size() - 1;
 
-		Entry& entry = m_xs[idx];
-		entry.num++;
-		entry.sum += value;
-		entry.min = std::min(value, entry.min);
-		entry.max = std::max(value, entry.max);
+		Bin& bin = m_xs[idx];
+		bin.num++;
+		bin.sum += value;
+		bin.min = std::min(value, bin.min);
+		bin.max = std::max(value, bin.max);
 	}
 
 	void saveAsCsv(const Path& filePath)
@@ -584,8 +757,8 @@ public:
 		std::string strBuffer;
 		for(std::size_t ri = 0; ri < m_xs.size(); ++ri)
 		{
-			const Entry& entry = m_xs[ri];
-			if(entry.num == 0)
+			const Bin& bin = m_xs[ri];
+			if(bin.num == 0)
 			{
 				continue;
 			}
@@ -593,14 +766,14 @@ public:
 			const auto fraction = (ri + 0.5_r) / m_xs.size();
 			const auto logX = std::lerp(m_logMinX, m_logMaxX, fraction);
 			const auto x = std::pow(10, logX);
-			const auto mean = entry.sum / entry.num;
+			const auto mean = bin.sum / bin.num;
 
 			CsvFileRow row;
-			row.addValue(string_utils::stringify_number(x,         &strBuffer));
-			row.addValue(string_utils::stringify_number(entry.num, &strBuffer));
-			row.addValue(string_utils::stringify_number(mean,      &strBuffer));
-			row.addValue(string_utils::stringify_number(entry.min, &strBuffer));
-			row.addValue(string_utils::stringify_number(entry.max, &strBuffer));
+			row.addValue(string_utils::stringify_number(x,       &strBuffer));
+			row.addValue(string_utils::stringify_number(bin.num, &strBuffer));
+			row.addValue(string_utils::stringify_number(mean,    &strBuffer));
+			row.addValue(string_utils::stringify_number(bin.min, &strBuffer));
+			row.addValue(string_utils::stringify_number(bin.max, &strBuffer));
 			file.addRow(row);
 		}
 
@@ -615,18 +788,18 @@ public:
 
 		for(std::size_t xi = 0; xi < m_xs.size(); ++xi)
 		{
-			Entry& entry = m_xs[xi];
-			const Entry& otherEntry = other.m_xs[xi];
+			Bin& bin = m_xs[xi];
+			const Bin& otherBin = other.m_xs[xi];
 
-			entry.num += otherEntry.num;
-			entry.sum += otherEntry.sum;
-			entry.min = std::min(otherEntry.min, entry.min);
-			entry.max = std::max(otherEntry.max, entry.max);
+			bin.num += otherBin.num;
+			bin.sum += otherBin.sum;
+			bin.min = std::min(otherBin.min, bin.min);
+			bin.max = std::max(otherBin.max, bin.max);
 		}
 	}
 
 private:
-	struct Entry
+	struct Bin
 	{
 		std::size_t num = 0;
 		AccurateReal sum = 0;
@@ -634,7 +807,7 @@ private:
 		AccurateReal max = std::numeric_limits<AccurateReal>::min();
 	};
 
-	std::vector<Entry> m_xs;
+	std::vector<Bin> m_xs;
 	AccurateReal m_minX = 1;
 	AccurateReal m_maxX = 10;
 	AccurateReal m_logMinX = std::log10(1);
@@ -644,13 +817,15 @@ private:
 class ChartDataCollection final
 {
 public:
-	ChartData errorVsDistChart;
-	ChartData errorVsSizeChart;
+	ChartData errorVsDist;
+	ChartData errorVsSize;
+	ChartData offsetVsDist;
 
 	void mergeWith(const ChartDataCollection& other)
 	{
-		errorVsDistChart.mergeWith(other.errorVsDistChart);
-		errorVsSizeChart.mergeWith(other.errorVsSizeChart);
+		errorVsDist.mergeWith(other.errorVsDist);
+		errorVsSize.mergeWith(other.errorVsSize);
+		offsetVsDist.mergeWith(other.offsetVsDist);
 	}
 };
 
@@ -660,10 +835,11 @@ ChartDataCollection run_cases(
 {
 	PH_ASSERT_GT(config.numRaysPerObj, 0);
 	const std::size_t iterationSize = 1000000 / config.numRaysPerObj;
-
+	
 	ChartDataCollection charts{
-		.errorVsDistChart = ChartData(50000, 1e-15_r, 1e15_r),
-		.errorVsSizeChart = ChartData(50000, 1e-15_r, 1e15_r)};
+		.errorVsDist = ChartData(50000, 1e-30, 1e30),
+		.errorVsSize = ChartData(50000, 1e-30, 1e30),
+		.offsetVsDist = ChartData(50000, 1e-30, 1e30)};
 
 	IntersectConfig iterationConfig = config;
 	std::vector<IntersectResult> results;
@@ -686,8 +862,9 @@ ChartDataCollection run_cases(
 			const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
 			const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
 
-			charts.errorVsDistChart.addValue(hitDist, distToPlane);
-			charts.errorVsSizeChart.addValue(objSize, distToPlane);
+			charts.errorVsDist.addValue(hitDist, distToPlane);
+			charts.errorVsSize.addValue(objSize, distToPlane);
+			charts.offsetVsDist.addValue(hitDist, result.offsetDistance);
 		}
 	}
 
@@ -734,6 +911,7 @@ int main(int argc, char* argv[])
 
 	std::vector<std::unique_ptr<IntersectCase>> cases;
 	cases.push_back(std::make_unique<TriangleCase>());
+	//cases.push_back(std::make_unique<TransformedTriangleCase>(3));
 	//cases.push_back(std::make_unique<SphereCase>());
 	//cases.push_back(std::make_unique<TransformedSphereCase>(2));
 
@@ -764,8 +942,8 @@ int main(int argc, char* argv[])
 		for(real objSize = 1e-6_r; objSize < 1e7_r; objSize *= step)
 		{
 			IntersectConfig config;
-			config.numObjsPerCase = 100000;
-			config.numRaysPerObj = 64;
+			config.numObjsPerCase = 10000;
+			config.numRaysPerObj = 32;
 			config.minDistance = objDistance / step;
 			config.maxDistance = objDistance * step;
 			config.minRotateDegs = -72000;
@@ -792,10 +970,12 @@ int main(int argc, char* argv[])
 	PH_LOG(IntersectError, Note,
 		"Time spent: {} s.", timer.getDeltaS());
 
-	mergedCharts.errorVsDistChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+	mergedCharts.errorVsDist.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
 		/ Path("error_vs_dist.csv"));
-	mergedCharts.errorVsSizeChart.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+	mergedCharts.errorVsSize.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
 		/ Path("error_vs_size.csv"));
+	mergedCharts.offsetVsDist.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+		/ Path("offset_vs_dist.csv"));
 
 	return exit_render_engine() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

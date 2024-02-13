@@ -69,8 +69,6 @@ inline auto TVectorNBase<Derived, T, N>::normalizeLocal()
 {
 	if constexpr(std::is_floating_point_v<T>)
 	{
-		PH_ASSERT_NE(length(), static_cast<T>(0));
-
 		const T rcpLen = static_cast<T>(1) / length();
 		for(std::size_t i = 0; i < N; ++i)
 		{
@@ -129,7 +127,8 @@ template<typename Derived, typename T, std::size_t N>
 inline auto TVectorNBase<Derived, T, N>::safeNormalize(const Derived& fallback) const
 -> Derived
 {
-	return lengthSquared() > static_cast<T>(0) ? normalize() : fallback;
+	const Derived normalized = normalize();
+	return !normalized.isZero() && normalized.isFinite() ? normalized : fallback;
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -160,6 +159,14 @@ inline std::size_t TVectorNBase<Derived, T, N>::maxDimension() const
 {
 	// maxIndex() is not exposed; use "this" to access it in current scope
 	return this->maxIndex();
+}
+
+template<typename Derived, typename T, std::size_t N>
+template<typename>
+inline auto TVectorNBase<Derived, T, N>::operator - () const
+-> Derived
+{
+	return negate();
 }
 
 }// end namespace ph::math

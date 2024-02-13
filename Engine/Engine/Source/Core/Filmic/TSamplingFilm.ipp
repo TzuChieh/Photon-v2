@@ -124,7 +124,7 @@ inline void TSamplingFilm<Sample>::updateSampleDimensions()
 #if PH_DEBUG
 	if(m_softness == 0.0f && m_filter.getHalfSizePx().isEqual({0.5, 0.5}))
 	{
-		// For fairly small integers and only do +- of 0.5, no numeric error should manifest
+		// For fairly small integers and only do +- of 0.5, no numerical error should manifest
 		const auto fEffectiveWindowPx = math::TAABB2D<float64>(getEffectiveWindowPx());
 		PH_ASSERT_MSG(m_sampleWindowPx == fEffectiveWindowPx,
 			"sample window = " + m_sampleWindowPx.toString() + ", "

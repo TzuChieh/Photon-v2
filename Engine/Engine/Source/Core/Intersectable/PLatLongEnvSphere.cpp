@@ -58,17 +58,18 @@ void PLatLongEnvSphere::calcIntersectionDetail(
 {
 	PH_ASSERT(out_detail);
 
-	math::Vector3R hitPosition = ray.getOrigin().add(ray.getDirection().mul(probe.getHitRayT()));
-	hitPosition = hitPosition.normalize() * getRadius();// refine hit point; the ray can be far away
-	                                                    // and contains large numeric error
+	// Refine hit point by normal and radius since the ray can be far away
+	// and contains large numerical error
+	math::Vector3R hitPosition = ray.getSegment().getPoint(probe.getHitRayT());
+	hitPosition = hitPosition.safeNormalize({0, 1, 0}) * getRadius();
 
 	// Normal is calculated such that it is always facing the incident ray
 	const math::Vector3R& unitRayDir  = ray.getDirection().normalize();
 	const math::Vector3R& hitNormal = unitRayDir.mul(-1);
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitNormal.isFinite(), "\n"
-		"hit-position = " + hitPosition.toString() + "\n"
-		"hit-normal   = " + hitNormal.toString() + "\n");
+		"hitPosition = " + hitPosition.toString() + "\n"
+		"hitNormal   = " + hitNormal.toString() + "\n");
 
 	const auto unitSphere = math::TSphere<real>::makeUnit();
 
@@ -84,7 +85,12 @@ void PLatLongEnvSphere::calcIntersectionDetail(
 		hitNormal,
 		hitNormal);
 	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
-	out_detail->setHitIntrinsics(this, math::Vector3R(hitUv.x(), hitUv.y(), 0), probe.getHitRayT());
+	out_detail->setHitIntrinsics(
+		this, 
+		math::Vector3R(hitUv.x(), hitUv.y(), 0), 
+		probe.getHitRayT(), 
+		HitDetail::NO_FACE_ID, 
+		FaceTopology({EFaceTopology::Concave}));
 
 	// TODO: derivatives are unset; any point on the sphere can potentially map
 	// to any UV for a hemisphere of directions

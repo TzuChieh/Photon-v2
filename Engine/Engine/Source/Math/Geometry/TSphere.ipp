@@ -37,6 +37,28 @@ inline bool TSphere<T>::isIntersecting(
 	return isIntersectingHearnBaker(segment, out_hitT);
 }
 
+//template<typename T>
+//inline bool TSphere<T>::isIntersectingRefined(
+//	const TLineSegment<T>& segment,
+//	T* const               out_hitT) const
+//{
+//	const auto segmentOriginToCentroid = math::TVector3<T>(0) - segment.getOrigin();
+//	const auto approxHitT = segmentOriginToCentroid.dot(segment.getDirection());
+//
+//	const TLineSegment<T> shiftedSegment(
+//		segment.getPoint(approxHitT),
+//		segment.getDirection(),
+//		segment.getMinT() - approxHitT,
+//		segment.getMaxT() - approxHitT);
+//	if(!isIntersecting(shiftedSegment, out_hitT))
+//	{
+//		return false;
+//	}
+//
+//	*out_hitT += approxHitT;
+//	return true;
+//}
+
 template<typename T>
 inline bool TSphere<T>::isInside(const TVector3<T>& point) const
 {
