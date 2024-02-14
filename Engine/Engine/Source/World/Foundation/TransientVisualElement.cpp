@@ -1,5 +1,5 @@
 #include "World/Foundation/TransientVisualElement.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersection/Primitive.h"
 
 #include <Common/assertion.h>
 

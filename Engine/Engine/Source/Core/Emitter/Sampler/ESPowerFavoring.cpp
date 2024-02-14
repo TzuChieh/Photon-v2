@@ -2,10 +2,10 @@
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
+#include "Core/Intersection/Primitive.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/SampleGenerator/SampleFlow.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>

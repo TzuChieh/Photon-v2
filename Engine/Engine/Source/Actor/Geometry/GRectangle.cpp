@@ -1,9 +1,9 @@
 #include "Actor/Geometry/GRectangle.h"
-#include "Core/Intersectable/PTriangle.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
+#include "Core/Intersection/PTriangle.h"
 #include "Actor/Geometry/GTriangleMesh.h"
 #include "Actor/Geometry/GTriangle.h"
 #include "Math/TVector3.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 
 #include <Common/logging.h>

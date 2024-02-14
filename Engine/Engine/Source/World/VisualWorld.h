@@ -4,7 +4,7 @@
 #include "World/Foundation/TransientVisualElement.h"
 #include "Actor/Actor.h"
 #include "World/Scene.h"
-#include "Core/Intersectable/Intersector.h"
+#include "Core/Intersection/Intersector.h"
 #include "Core/Emitter/Sampler/EmitterSampler.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Math/TVector3.h"

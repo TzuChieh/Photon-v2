@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Intersectable/data_structure_fwd.h"
+#include "Core/Intersection/data_structure_fwd.h"
 
 #include <vector>
 

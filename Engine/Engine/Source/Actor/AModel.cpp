@@ -1,11 +1,12 @@
 #include "Actor/AModel.h"
 #include "Math/math.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
+#include "Core/Intersection/TransformedIntersectable.h"
+#include "Core/Intersection/TMetaInjectionPrimitive.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "World/Foundation/TransientVisualElement.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Math/Transform/StaticAffineTransform.h"
-#include "Core/Intersectable/TransformedIntersectable.h"
 #include "Core/Quantity/Time.h"
 #include "Actor/ModelBuilder.h"
 #include "World/Foundation/PreCookReport.h"
@@ -13,7 +14,6 @@
 #include "World/Foundation/CookedResourceCollection.h"
 #include "World/Foundation/CookedGeometry.h"
 #include "World/Foundation/CookedMotion.h"
-#include "Core/Intersectable/TMetaInjectionPrimitive.h"
 
 #include <Common/logging.h>
 

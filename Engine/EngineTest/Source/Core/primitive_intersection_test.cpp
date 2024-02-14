@@ -1,6 +1,6 @@
-#include <Core/Intersectable/PLatLong01Sphere.h>
+#include <Core/Intersection/PLatLong01Sphere.h>
 #include <Core/Ray.h>
-#include <Core/Intersectable/PrimitiveMetadata.h>
+#include <Core/Intersection/PrimitiveMetadata.h>
 
 #include <gtest/gtest.h>
 

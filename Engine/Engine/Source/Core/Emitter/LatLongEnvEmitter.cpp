@@ -2,7 +2,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
-#include "Core/Intersectable/PLatLongEnvSphere.h"
+#include "Core/Intersection/PLatLongEnvSphere.h"
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Math/Geometry/TDisk.h"

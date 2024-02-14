@@ -1,5 +1,5 @@
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersection/Primitive.h"
 #include "Core/Texture/TSampler.h"
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/TTexture.h"

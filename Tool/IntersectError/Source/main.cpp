@@ -2,9 +2,9 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Common/Utility/string_utils.h>
-#include <Core/Intersectable/PTriangle.h>
-#include <Core/Intersectable/PLatLong01Sphere.h>
-#include <Core/Intersectable/TransformedIntersectable.h>
+#include <Core/Intersection/PTriangle.h>
+#include <Core/Intersection/PLatLong01Sphere.h>
+#include <Core/Intersection/TransformedIntersectable.h>
 #include <Core/Ray.h>
 #include <Core/HitProbe.h>
 #include <Core/HitDetail.h>

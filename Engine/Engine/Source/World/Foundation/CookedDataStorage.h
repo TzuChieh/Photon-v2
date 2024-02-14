@@ -3,8 +3,8 @@
 #include "Utility/TIteratorProxy.h"
 #include "Utility/TConstIteratorProxy.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/Intersectable/Intersectable.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/Intersectable.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 #include "World/Foundation/TransientVisualElement.h"
 #include "Math/Transform/Transform.h"
 

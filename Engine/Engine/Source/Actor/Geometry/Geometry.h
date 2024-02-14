@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SDL/TSdlResourceBase.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersection/Primitive.h"
 #include "Math/Transform/StaticAffineTransform.h"
 #include "SDL/sdl_interface.h"
 

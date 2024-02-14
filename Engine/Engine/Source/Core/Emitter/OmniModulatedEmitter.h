@@ -2,7 +2,7 @@
 
 #include "Core/Emitter/Emitter.h"
 #include "Core/Texture/TTexture.h"
-#include "Core/Intersectable/UvwMapper/SphericalMapper.h"
+#include "Core/Intersection/UvwMapper/SphericalMapper.h"
 
 #include <Common/primitive_type.h>
 

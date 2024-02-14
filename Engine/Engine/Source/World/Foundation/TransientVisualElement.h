@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Intersectable/Intersectable.h"
+#include "Core/Intersection/Intersectable.h"
 
 #include <vector>
 

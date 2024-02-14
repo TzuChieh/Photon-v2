@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Core/Renderer/PM/TPPMRadianceEvaluationWork.h"
-#include "Core/Intersectable/Primitive.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/Primitive.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
 #include "Core/SurfaceHit.h"

@@ -1,5 +1,5 @@
 #include "Actor/Material/Volume/VAbsorptionOnly.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 
 #include <Common/assertion.h>
 

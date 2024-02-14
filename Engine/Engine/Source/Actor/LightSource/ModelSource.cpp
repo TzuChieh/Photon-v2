@@ -10,8 +10,8 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/RasterFileImage.h"
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
+#include "Core/Intersection/Primitive.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "Actor/Geometry/Geometry.h"
 

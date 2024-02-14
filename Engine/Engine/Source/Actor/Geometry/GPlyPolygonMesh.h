@@ -3,7 +3,7 @@
 #include "Actor/Geometry/Geometry.h"
 #include "DataIO/FileSystem/ResourceIdentifier.h"
 #include "SDL/sdl_interface.h"
-#include "Core/Intersectable/data_structure_fwd.h"
+#include "Core/Intersection/data_structure_fwd.h"
 
 namespace ph
 {

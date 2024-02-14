@@ -1,7 +1,7 @@
 #include "Actor/Material/FullMaterial.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Actor/Material/SurfaceMaterial.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 #include "Actor/Material/VolumeMaterial.h"
 
 #include <Common/assertion.h>

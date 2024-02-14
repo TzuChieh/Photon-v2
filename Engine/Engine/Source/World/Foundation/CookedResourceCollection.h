@@ -2,17 +2,17 @@
 
 #include "World/Foundation/CookedResourceCollectionBase.h"
 #include "Utility/TUniquePtrVector.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
 #include "World/Foundation/CookedGeometry.h"
 #include "World/Foundation/CookedMotion.h"
 #include "Utility/Concurrent/TSynchronized.h"
 #include "Utility/traits.h"
 #include "SDL/SdlResourceId.h"
-#include "Core/Intersectable/Intersectable.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
+#include "Core/Intersection/Intersectable.h"
+#include "Core/Intersection/DataStructure/TIndexedPolygonBuffer.h"
 #include "Core/Emitter/Emitter.h"
 #include "World/Foundation/CookedNamedResource.h"
-#include "Core/Intersectable/DataStructure/TIndexedPolygonBuffer.h"
 
 #include <Common/logging.h>
 

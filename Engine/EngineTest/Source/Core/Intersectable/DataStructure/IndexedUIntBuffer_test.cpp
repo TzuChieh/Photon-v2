@@ -1,4 +1,4 @@
-#include <Core/Intersectable/DataStructure/IndexedUIntBuffer.h>
+#include <Core/Intersection/DataStructure/IndexedUIntBuffer.h>
 
 #include <gtest/gtest.h>
 

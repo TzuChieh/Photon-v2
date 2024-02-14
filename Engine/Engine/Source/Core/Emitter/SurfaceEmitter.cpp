@@ -2,7 +2,7 @@
 #include "Math/math.h"
 #include "Core/SurfaceHit.h"
 #include "Core/HitDetail.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersection/Primitive.h"
 
 #include <Common/assertion.h>
 

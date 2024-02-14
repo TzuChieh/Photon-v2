@@ -1,10 +1,10 @@
 #include "World/Scene.h"
-#include "Core/Intersectable/Intersector.h"
 #include "Core/Emitter/Sampler/EmitterSampler.h"
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Core/Ray.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersection/Intersector.h"
+#include "Core/Intersection/Primitive.h"
 #include "Core/Emitter/Emitter.h"
 
 #include <Common/assertion.h>

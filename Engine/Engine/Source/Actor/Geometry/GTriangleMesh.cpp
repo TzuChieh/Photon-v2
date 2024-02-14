@@ -1,5 +1,5 @@
 #include "Actor/Geometry/GTriangleMesh.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "Actor/Geometry/GeometrySoup.h"
 #include "Actor/Basic/exceptions.h"

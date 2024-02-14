@@ -1,6 +1,6 @@
 #include "Actor/Material/SurfaceMaterial.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 
 namespace ph
 {

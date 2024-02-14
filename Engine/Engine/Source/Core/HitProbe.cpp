@@ -1,7 +1,7 @@
 #include "Core/HitProbe.h"
-#include "Core/Intersectable/Intersectable.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
+#include "Core/Intersection/Intersectable.h"
 #include "Core/HitDetail.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
 
 #include <Common/assertion.h>
 

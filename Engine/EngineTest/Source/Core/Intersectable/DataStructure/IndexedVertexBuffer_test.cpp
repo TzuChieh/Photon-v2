@@ -1,4 +1,4 @@
-#include <Core/Intersectable/DataStructure/IndexedVertexBuffer.h>
+#include <Core/Intersection/DataStructure/IndexedVertexBuffer.h>
 #include <Math/Geometry/TSphere.h>
 #include <Math/math.h>
 

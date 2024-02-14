@@ -10,8 +10,8 @@
 #include "Core/Texture/Pixel/TFrameBuffer2D.h"
 #include "Core/Texture/Pixel/TScalarPixelTexture2D.h"
 #include "Core/Texture/Function/unary_texture_operators.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Core/Intersectable/TMetaInjectionPrimitive.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
+#include "Core/Intersection/TMetaInjectionPrimitive.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>

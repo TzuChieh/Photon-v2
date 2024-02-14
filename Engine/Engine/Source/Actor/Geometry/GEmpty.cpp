@@ -1,5 +1,5 @@
 #include "Actor/Geometry/GEmpty.h"
-#include "Core/Intersectable/PEmpty.h"
+#include "Core/Intersection/PEmpty.h"
 #include "Actor/Geometry/PrimitiveBuildingMaterial.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"

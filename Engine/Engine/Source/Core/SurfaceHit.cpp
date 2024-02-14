@@ -1,6 +1,6 @@
 #include "Core/SurfaceHit.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
-#include "Core/Intersectable/Primitive.h"
+#include "Core/Intersection/Primitive.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 
 #include <Common/assertion.h>
 

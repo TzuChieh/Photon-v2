@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Utility/IMoveOnly.h"
-#include "Core/Intersectable/Intersectable.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/Intersectable.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 #include "Math/Transform/Transform.h"
 #include "World/Foundation/TransientVisualElement.h"
 

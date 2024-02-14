@@ -3,7 +3,7 @@
 #include "Actor/Material/IdealSubstance.h"
 #include "World/Foundation/CookingContext.h"
 #include "Math/Transform/StaticRigidTransform.h"
-#include "Core/Intersectable/PLatLongEnvSphere.h"
+#include "Core/Intersection/PLatLongEnvSphere.h"
 #include "Core/Emitter/LatLongEnvEmitter.h"
 #include "Actor/Dome/AImageDome.h"
 #include "Actor/Dome/APreethamDome.h"
@@ -12,7 +12,7 @@
 #include "World/Foundation/PreCookReport.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
-#include "Core/Intersectable/TMetaInjectionPrimitive.h"
+#include "Core/Intersection/TMetaInjectionPrimitive.h"
 
 #include <Common/logging.h>
 

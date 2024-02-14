@@ -2,8 +2,8 @@
 #include "Math/TVector3.h"
 #include "World/Scene.h"
 #include "Core/SurfaceHit.h"
-#include "Core/Intersectable/Primitive.h"
-#include "Core/Intersectable/PrimitiveMetadata.h"
+#include "Core/Intersection/Primitive.h"
+#include "Core/Intersection/PrimitiveMetadata.h"
 #include "Core/VolumeBehavior/VolumeOptics.h"
 #include "Core/VolumeBehavior/VolumeDistanceSample.h"
 
