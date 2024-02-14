@@ -10,12 +10,13 @@ namespace ph
 static_assert(std::is_trivially_copyable_v<HitDetail>);
 
 HitDetail::HitDetail()
-	: m_primitive   (nullptr)
-	, m_uvw         (0, 0, 0)
-	, m_rayT        (std::numeric_limits<real>::max())
-	, m_hitInfos    {HitInfo(), HitInfo()}
-	, m_faceId      (NO_FACE_ID)
-	, m_faceTopology(EFaceTopology::General)
+	: m_primitive         (nullptr)
+	, m_uvw               (0, 0, 0)
+	, m_rayT              (std::numeric_limits<real>::max())
+	, m_hitInfos          {HitInfo(), HitInfo()}
+	, m_faceId            (NO_FACE_ID)
+	, m_faceTopology      (EFaceTopology::General)
+	, m_numTransformLevels(0)
 {}
 
 HitDetail& HitDetail::setHitIntrinsics(

@@ -170,6 +170,7 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcIntersectionDetail(
 		probe.getHitRayT(),
 		HitDetail::NO_FACE_ID,// TODO
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
+	out_detail->resetTransformLevel();
 	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		position,
 		faceNormal,

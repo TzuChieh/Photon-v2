@@ -15,6 +15,8 @@ template<typename T, std::size_t N>
 class TArrayStack final
 {
 public:
+	/*! Creates empty stack.
+	*/
 	TArrayStack();
 
 	template<typename U>

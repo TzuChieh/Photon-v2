@@ -36,14 +36,14 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 {
 	PH_ASSERT(out_probe);
 
-	out_probe->clear();
+	*out_probe = HitProbe{};
 	if(m_intersector->isIntersecting(ray, *out_probe))
 	{
 		return true;
 	}
 	else if(m_backgroundPrimitive)
 	{
-		out_probe->clear();
+		*out_probe = HitProbe{};
 		return m_backgroundPrimitive->isIntersecting(ray, *out_probe);
 	}
 

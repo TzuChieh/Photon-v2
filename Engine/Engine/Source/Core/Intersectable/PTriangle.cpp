@@ -108,6 +108,7 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 		probe.getHitRayT(), 
 		HitDetail::NO_FACE_ID, 
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
+	out_detail->resetTransformLevel();
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

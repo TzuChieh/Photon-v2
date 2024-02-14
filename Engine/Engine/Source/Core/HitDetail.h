@@ -25,6 +25,9 @@ class HitDetail final
 public:
 	inline static constexpr auto NO_FACE_ID = static_cast<uint64>(-1);
 
+	/*!
+	Creates a hit detail filled with default values.
+	*/
 	HitDetail();
 
 	/*! @brief Set essential attributes that are independent to the coordinate system.
@@ -67,6 +70,9 @@ public:
 	const Primitive* getPrimitive() const;
 	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World) const;
 	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World);
+	uint8 numTransformLevels() const;
+	void resetTransformLevel();
+	void addTransformLevel();
 
 private:
 	const Primitive* m_primitive;
@@ -75,6 +81,7 @@ private:
 	HitInfo          m_hitInfos[enum_size<ECoordSys>()];
 	uint64           m_faceId;
 	FaceTopology     m_faceTopology;
+	uint8            m_numTransformLevels;
 };
 
 // In-header Implementations:
@@ -161,6 +168,21 @@ inline HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys)
 	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, enum_size<ECoordSys>());
 
 	return m_hitInfos[static_cast<int>(coordSys)];
+}
+
+inline uint8 HitDetail::numTransformLevels() const
+{
+	return m_numTransformLevels;
+}
+
+inline void HitDetail::resetTransformLevel()
+{
+	m_numTransformLevels = 0;
+}
+
+inline void HitDetail::addTransformLevel()
+{
+	++m_numTransformLevels;
 }
 
 }// end namespace ph

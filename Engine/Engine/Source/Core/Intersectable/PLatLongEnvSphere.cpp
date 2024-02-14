@@ -91,6 +91,7 @@ void PLatLongEnvSphere::calcIntersectionDetail(
 		probe.getHitRayT(), 
 		HitDetail::NO_FACE_ID, 
 		FaceTopology({EFaceTopology::Concave}));
+	out_detail->resetTransformLevel();
 
 	// TODO: derivatives are unset; any point on the sphere can potentially map
 	// to any UV for a hemisphere of directions

@@ -23,6 +23,10 @@ class Ray;
 class HitProbe final
 {
 public:
+	/*!
+	Creates an empty probe object and makes it ready for probing. To clear a used probe, assign an
+	empty probe to it.
+	*/
 	HitProbe();
 
 	void calcIntersectionDetail(const Ray& ray, HitDetail* out_detail);
@@ -49,11 +53,6 @@ public:
 	const Intersectable* getCurrentHit() const;
 	real getHitRayT() const;
 
-	/*!
-	Clears the probe object and makes it ready for probing again. 
-	*/
-	void clear();
-
 	template<typename T>
 	void pushCache(const T& data);
 
@@ -73,10 +72,10 @@ private:
 // In-header Implementations:
 
 inline HitProbe::HitProbe()
-	: m_hitStack()
-	, m_hitRayT(std::numeric_limits<real>::max())
-	, m_cache()
-	, m_cacheHead(0)
+	: m_hitStack        ()
+	, m_hitRayT         (std::numeric_limits<real>::max())
+	, m_cache           ()
+	, m_cacheHead       (0)
 	, m_hitDetailChannel(0)
 {}
 
@@ -120,14 +119,6 @@ inline const Intersectable* HitProbe::getCurrentHit() const
 inline real HitProbe::getHitRayT() const
 {
 	return m_hitRayT;
-}
-
-inline void HitProbe::clear()
-{
-	m_hitStack.clear();
-	m_hitRayT = std::numeric_limits<real>::max();
-	m_hitDetailChannel = 0;
-	m_cacheHead = 0;
 }
 
 template<typename T>

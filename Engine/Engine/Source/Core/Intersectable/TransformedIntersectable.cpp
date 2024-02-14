@@ -67,6 +67,7 @@ void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, HitProbe& 
 	*out_detail = localDetail;
 	m_localToWorld->transform(localDetail.getHitInfo(ECoordSys::World), 
 	                          &(out_detail->getHitInfo(ECoordSys::World)));
+	out_detail->addTransformLevel();
 }
 
 // FIXME: this is broken under timed environment
