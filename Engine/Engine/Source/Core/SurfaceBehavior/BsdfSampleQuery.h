@@ -16,7 +16,7 @@ namespace ph
 class BsdfSampleInput final
 {
 public:
-	void set(const BsdfEvalQuery& eval);
+	void set(const BsdfEvalInput& evalInput);
 	void set(const SurfaceHit& X, const math::Vector3R& V);
 
 	const SurfaceHit& getX() const;
@@ -99,6 +99,11 @@ inline BsdfSampleQuery::BsdfSampleQuery(BsdfQueryContext context)
 
 inline void BsdfSampleInput::set(const SurfaceHit& X, const math::Vector3R& V)
 {
+	// Not querying from uninitialized surface hit
+	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
+
+	PH_ASSERT_IN_RANGE(V.lengthSquared(), 0.9_r, 1.1_r);
+
 	m_X = X;
 	m_V = V;
 
@@ -123,6 +128,8 @@ inline const math::Vector3R& BsdfSampleInput::getV() const
 
 inline void BsdfSampleOutput::setL(const math::Vector3R& L)
 {
+	PH_ASSERT_IN_RANGE(L.lengthSquared(), 0.9_r, 1.1_r);
+
 	m_L = L;
 }
 
@@ -141,7 +148,7 @@ inline void BsdfSampleOutput::setPdfAppliedBsdf(
 inline const math::Vector3R& BsdfSampleOutput::getL() const
 {
 	PH_ASSERT(m_isMeasurable);
-	PH_ASSERT_MSG(0.95_r < m_L.length() && m_L.length() < 1.05_r, m_L.toString());
+	PH_ASSERT_IN_RANGE(m_L.lengthSquared(), 0.9_r, 1.1_r);
 
 	return m_L;
 }

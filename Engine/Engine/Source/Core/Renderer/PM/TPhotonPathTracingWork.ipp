@@ -18,6 +18,7 @@
 #include "Core/LTA/SurfaceTracer.h"
 #include "Core/LTA/lta.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
+#include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
 #include <Common/assertion.h>
 #include <Common/profiling.h>
@@ -74,22 +75,30 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 
 		SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
+		// TODO: properly sample time
+		EnergyEmissionSampleQuery energyEmission;
+		energyEmission.inputs.set(Time{});
+
+		SurfaceHit surfaceHit;
 		Ray tracingRay;
-		math::Spectrum emittedRadiance;
-		math::Vector3R emitN;
-		real pdfA;
-		real pdfW;
-		m_scene->emitRay(sampleFlow, &tracingRay, &emittedRadiance, &emitN, &pdfA, &pdfW);
-		if(pdfA * pdfW == 0.0_r)
 		{
-			continue;
+			HitProbe probe;
+			m_scene->emitRay(energyEmission, sampleFlow, probe);
+			if(!energyEmission.outputs)
+			{
+				continue;
+			}
+
+			constexpr SurfaceHitReason reason(ESurfaceHitReason::SampledPosDir);
+			tracingRay = energyEmission.outputs.getEmittedRay();
+			surfaceHit = SurfaceHit(tracingRay, probe, reason);
 		}
 
 		// Here 0-bounce lighting is never accounted for
-		math::Spectrum throughputRadiance(emittedRadiance);
-		throughputRadiance.divLocal(pdfA);
-		throughputRadiance.divLocal(pdfW);
-		throughputRadiance.mulLocal(emitN.absDot(tracingRay.getDirection()));
+		math::Spectrum throughputRadiance(energyEmission.outputs.getEmittedEnergy());
+		throughputRadiance.divLocal(energyEmission.outputs.getPdfA());
+		throughputRadiance.divLocal(energyEmission.outputs.getPdfW());
+		throughputRadiance.mulLocal(surfaceHit.getShadingNormal().absDot(tracingRay.getDirection()));
 
 		// Start tracing single photon path with at least 1 bounce
 		uint32 photonPathLength = 0;
@@ -97,8 +106,8 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 		{
 			PH_ASSERT_LT(photonPathLength, m_maxPhotonPathLength);
 
-			SurfaceHit surfaceHit;
-			if(!surfaceTracer.traceNextSurface(tracingRay, bsdfContext.sidedness, &surfaceHit))
+			if(!surfaceTracer.traceNextSurfaceFrom(
+				surfaceHit, tracingRay, bsdfContext.sidedness, &surfaceHit))
 			{
 				break;
 			}

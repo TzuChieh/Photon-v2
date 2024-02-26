@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Common/Log/logger_fwd.h>
+#include <Common/primitive_type.h>
 
 #include <vector>
 
@@ -15,6 +16,8 @@ public:
 	thread-safety. It is also inadvisable to perform time consuming tasks in the handler.
 	*/
 	std::vector<LogHandler> additionalLogHandlers;
+
+	real selfIntersectDelta = 0.0002_r;
 };
 
 }// end namespace ph

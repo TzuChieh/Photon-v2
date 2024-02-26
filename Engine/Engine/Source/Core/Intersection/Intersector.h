@@ -18,7 +18,7 @@ public:
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
 	math::AABB3D calcAABB() const override = 0;
 
-	void calcIntersectionDetail(
+	void calcHitDetail(
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;

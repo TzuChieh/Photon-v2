@@ -14,7 +14,7 @@ HitDetail::HitDetail()
 	, m_uvw               (0, 0, 0)
 	, m_rayT              (std::numeric_limits<real>::max())
 	, m_hitInfos          {HitInfo(), HitInfo()}
-	, m_faceId            (NO_FACE_ID)
+	, m_faceID            (NO_FACE_ID)
 	, m_faceTopology      (EFaceTopology::General)
 	, m_numTransformLevels(0)
 {}
@@ -23,13 +23,13 @@ HitDetail& HitDetail::setHitIntrinsics(
 	const Primitive* const primitive,
 	const math::Vector3R&  uvw,
 	const real             rayT,
-	const uint64           faceId,
+	const uint64           faceID,
 	const FaceTopology     faceTopology)
 {
 	m_primitive    = primitive;
 	m_uvw          = uvw;
 	m_rayT         = rayT;
-	m_faceId       = faceId;
+	m_faceID       = faceID;
 	m_faceTopology = faceTopology;
 
 	return *this;

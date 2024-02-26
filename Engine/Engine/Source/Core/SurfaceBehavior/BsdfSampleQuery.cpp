@@ -4,11 +4,11 @@
 namespace ph
 {
 
-void BsdfSampleInput::set(const BsdfEvalQuery& eval)
+void BsdfSampleInput::set(const BsdfEvalInput& evalInput)
 {
 	set(
-		eval.inputs.getX(),
-		eval.inputs.getV());
+		evalInput.getX(),
+		evalInput.getV());
 }
 
 }// end namespace ph

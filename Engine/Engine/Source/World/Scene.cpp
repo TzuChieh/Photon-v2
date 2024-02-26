@@ -6,6 +6,7 @@
 #include "Core/Intersection/Intersector.h"
 #include "Core/Intersection/Primitive.h"
 #include "Core/Emitter/Emitter.h"
+#include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
 #include <Common/assertion.h>
 
@@ -73,23 +74,37 @@ const Emitter* Scene::pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) c
 	return m_emitterSampler->pickEmitter(sampleFlow, out_PDF);
 }
 
-void Scene::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
+void Scene::genDirectSample(
+	DirectEnergySampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
-	m_emitterSampler->genDirectSample(query, sampleFlow);
+	m_emitterSampler->genDirectSample(query, sampleFlow, probe);
 }
 
-real Scene::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
+void Scene::calcDirectSamplePdfW(
+	DirectEnergySamplePdfQuery& query,
+	HitProbe& probe) const
 {
-	return m_emitterSampler->calcDirectPdfW(emitPos, targetPos);
+	m_emitterSampler->calcDirectSamplePdfW(query, probe);
 }
 
-void Scene::emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void Scene::emitRay(
+	EnergyEmissionSampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
 	real pickPdf;
 	const Emitter* emitter = m_emitterSampler->pickEmitter(sampleFlow, &pickPdf);
 
-	emitter->emitRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
-	*out_pdfA *= pickPdf;
+	PH_ASSERT(emitter);
+	emitter->emitRay(query, sampleFlow, probe);
+	if(!query.outputs)
+	{
+		return;
+	}
+
+	query.outputs.setPdf(query.outputs.getPdfA() * pickPdf, query.outputs.getPdfW());
 }
 
 }// end namespace ph

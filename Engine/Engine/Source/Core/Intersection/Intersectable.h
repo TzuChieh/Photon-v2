@@ -35,20 +35,31 @@ public:
 	/*! @brief Determine whether a given ray hits the object.
 
 	Checks whether the specified ray intersects this intersectable. If there is
-	an intersection, true is returned and a brief intersection report is stored
+	an intersection, true is returned and a brief hit report is stored
 	inside the probe. If there is no intersection, false is returned and the
-	state of the probe is undefined.
+	state of the probe is undefined. `ray` and `probe` can be used for obtaining
+	hit detail if an intersection is found.
+
+	@note Generates hit event (with `ray` and `probe`).
 	*/
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
 
 	/*! @brief Calculates properties of a hit, such as coordinates and normal.
 
-	This method calculates a detailed description of the intersection from the
-	ray and probe used for calling isIntersecting() (if an intersection is
-	found). The process of calculating intersection detail will destroy the
-	input probe.
+	This method calculates a detailed description of a hit from the ray and
+	probe involved in a hit event. For example, the ray and probe used for
+	calling isIntersecting() can be the inputs of this method (if an
+	intersection is found). The process of calculating intersection detail will
+	destroy the input probe.
+
+	@param out_detail Stores the calculated details. This method calculates the
+	essential details only. Some information such as coordinate bases will only
+	be available if specifically requested afterwards (for an example, see
+	`HitDetail::computeBases()`).
+
+	@note See `Primitive` for more methods that can generate a hit event.
 	*/
-	virtual void calcIntersectionDetail(
+	virtual void calcHitDetail(
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const = 0;

@@ -9,13 +9,10 @@
 
 #include <memory>
 
+namespace ph { class Primitive; }
+
 namespace ph
 {
-
-class Primitive;
-class SurfaceHit;
-class Ray;
-class Time;
 
 class SurfaceEmitter : public Emitter
 {
@@ -23,26 +20,32 @@ public:
 	SurfaceEmitter();
 
 	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override = 0;
-	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override = 0;
 
-	// FIXME: ray time
-	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override = 0;
+	void genDirectSample(
+		DirectEnergySampleQuery& query, 
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override = 0;
 
-	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override = 0;
+	void calcDirectSamplePdfW(
+		DirectEnergySamplePdfQuery& query,
+		HitProbe& probe) const override = 0;
+
+	void emitRay(
+		EnergyEmissionSampleQuery& query,
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override = 0;
 	
 	virtual void setFrontFaceEmit();
 	virtual void setBackFaceEmit();
 
 protected:
-	bool m_isBackFaceEmission;
-
 	bool canEmit(const math::Vector3R& emitDirection, const math::Vector3R& N) const;
-	real calcPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const;
-	real calcPdfW(
-		const Primitive* emitSurface, 
-		const math::Vector3R& emitPos,
-		const math::Vector3R& emitNormal,
-		const math::Vector3R& targetPos) const;
+
+	void calcDirectSamplePdfWForSingleSurface(
+		DirectEnergySamplePdfQuery& query,
+		HitProbe& probe) const;
+
+	bool m_isBackFaceEmission;
 };
 
 }// end namespace ph

@@ -98,6 +98,7 @@ inline void TViewPathTracingWork<Handler>::doWork()
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
 
 			traceViewPath(
+				SurfaceHit{},
 				tracingRay, 
 				pathThroughput, 
 				0,
@@ -112,36 +113,48 @@ inline void TViewPathTracingWork<Handler>::doWork()
 
 template<CViewPathHandler Handler>
 inline void TViewPathTracingWork<Handler>::traceViewPath(
-	Ray            tracingRay,
-	math::Spectrum pathThroughput,
-	std::size_t    pathLength,
-	SampleFlow&    sampleFlow)
+	SurfaceHit            prevHit,
+	Ray                   tracingRay,
+	math::Spectrum        pathThroughput,
+	std::size_t           pathLength,
+	SampleFlow&           sampleFlow)
 {	
 	const lta::SurfaceTracer surfaceTracer{m_scene};
+
 	while(true)
 	{
-		SurfaceHit surfaceHit;
-		if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext().sidedness, &surfaceHit))
+		SurfaceHit X;
+		if(pathLength == 0)
 		{
-			break;
+			if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext{}.sidedness, &X))
+			{
+				break;
+			}
+		}
+		else
+		{
+			if(!surfaceTracer.traceNextSurfaceFrom(
+				prevHit, tracingRay, BsdfQueryContext{}.sidedness, &X))
+			{
+				break;
+			}
 		}
 
 		++pathLength;
-		const ViewPathTracingPolicy& policy = m_handler->onPathHitSurface(pathLength, surfaceHit, pathThroughput);
+		const ViewPathTracingPolicy& policy = m_handler->onPathHitSurface(pathLength, X, pathThroughput);
 		if(policy.isKilled())
 		{
 			break;
 		}
 
-		// FIXME: reversed then assigned again later seems to be dangerous, state is unclear
-		tracingRay.reverse();
-		const math::Vector3R V = tracingRay.getDirection();
-		const math::Vector3R N = surfaceHit.getShadingNormal();
+		const math::Vector3R V = -tracingRay.getDirection();
+		const math::Vector3R N = X.getShadingNormal();
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)
 		{
 			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::Radiance, lta::ESidednessPolicy::Strict));
-			bsdfSample.inputs.set(surfaceHit, V);
+			bsdfSample.inputs.set(X, V);
+
 			Ray sampledRay;
 			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
 			{
@@ -168,18 +181,20 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 		}
 		else
 		{
-			traceElementallyBranchedPath(policy, V, N, surfaceHit, pathThroughput, pathLength, sampleFlow);
+			traceElementallyBranchedPath(policy, X, V, N, pathThroughput, pathLength, sampleFlow);
 			break;
 		}
+
+		prevHit = X;
 	}// end while true
 }
 
 template<CViewPathHandler Handler>
 inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 	const ViewPathTracingPolicy& policy,
+	const SurfaceHit&            X,
 	const math::Vector3R&        V,
 	const math::Vector3R&        N,
-	const SurfaceHit&            surfaceHit,
 	const math::Spectrum&        pathThroughput,
 	const std::size_t            pathLength,
 	SampleFlow&                  sampleFlow)
@@ -188,7 +203,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
-	const PrimitiveMetadata* metadata      = surfaceHit.getDetail().getPrimitive()->getMetadata();
+	const PrimitiveMetadata* metadata      = X.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics*     surfaceOptics = metadata->getSurface().getOptics();
 
 	const SurfacePhenomena targetPhenomena = policy.getTargetPhenomena();
@@ -200,7 +215,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 		}
 
 		BsdfSampleQuery sample(BsdfQueryContext(i, ETransport::Radiance, lta::ESidednessPolicy::Strict));
-		sample.inputs.set(surfaceHit, V);
+		sample.inputs.set(X, V);
 
 		Ray sampledRay;
 		if(!surfaceTracer.doBsdfSample(sample, sampleFlow, &sampledRay))
@@ -226,6 +241,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 		}
 
 		traceViewPath(
+			X,
 			sampledRay,
 			elementalPathThroughput,
 			pathLength,

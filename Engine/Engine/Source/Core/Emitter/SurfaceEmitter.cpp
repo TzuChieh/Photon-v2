@@ -3,6 +3,9 @@
 #include "Core/SurfaceHit.h"
 #include "Core/HitDetail.h"
 #include "Core/Intersection/Primitive.h"
+#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
+#include "Core/LTA/lta.h"
 
 #include <Common/assertion.h>
 
@@ -29,39 +32,30 @@ void SurfaceEmitter::setBackFaceEmit()
 	m_isBackFaceEmission = true;
 }
 
-real SurfaceEmitter::calcPdfW(
-	const Primitive* const emitSurface,
-	const math::Vector3R&  emitPos,
-	const math::Vector3R&  emitNormal,
-	const math::Vector3R&  targetPos) const
+void SurfaceEmitter::calcDirectSamplePdfWForSingleSurface(
+	DirectEnergySamplePdfQuery& query,
+	HitProbe& probe) const
 {
-	PH_ASSERT(emitSurface);
+	query.outputs.setPdfW(0);
 
-	math::Vector3R emitDir = targetPos.sub(emitPos);
-	if(!canEmit(emitDir, emitNormal))
+	const auto emitterToTargetPos = query.inputs.getTargetPos() - query.inputs.getEmitPos();
+	if(!canEmit(emitterToTargetPos, query.inputs.getEmitPosNormal()))
 	{
-		return 0.0_r;
-	}
-	emitDir.normalizeLocal();
-
-	const real emitDirDotNormal = emitDir.dot(emitNormal);
-	if(emitDirDotNormal == 0.0_r)
-	{
-		return 0.0_r;
+		return;
 	}
 
-	const real samplePdfA  = emitSurface->calcPositionSamplePdfA(emitPos);
-	const real distSquared = targetPos.sub(emitPos).lengthSquared();
-	return samplePdfA / std::abs(emitDirDotNormal) * distSquared;
-}
+	PrimitivePosSamplePdfQuery posSample;
+	posSample.inputs.set(query.inputs);
 
-real SurfaceEmitter::calcPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
-{
-	return calcPdfW(
-		emitPos.getDetail().getPrimitive(), 
-		emitPos.getPosition(), 
-		emitPos.getShadingNormal(), 
-		targetPos);
+	PH_ASSERT(query.inputs.getSrcPrimitive());
+	query.inputs.getSrcPrimitive()->calcPosSamplePdfA(posSample, probe);
+	if(!posSample.outputs)
+	{
+		return;
+	}
+
+	query.outputs.setPdfW(lta::pdfA_to_pdfW(
+		posSample.outputs.getPdfA(), emitterToTargetPos, query.inputs.getEmitPosNormal()));
 }
 
 }// end namespace ph

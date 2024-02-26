@@ -11,13 +11,19 @@ class PLatLong01Sphere : public PBasicSphere
 public:
 	explicit PLatLong01Sphere(real radius);
 
-	void calcIntersectionDetail(
+	void calcHitDetail(
 		const Ray& ray,
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
 
-	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
-	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
+	void genPosSample(
+		PrimitivePosSampleQuery& query,
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override;
+
+	void calcPosSamplePdfA(
+		PrimitivePosSamplePdfQuery& query,
+		HitProbe& probe) const override;
 
 	/*! @brief Maps a position on the sphere surface to UV coordinates (lat-long-01 format).
 	*/

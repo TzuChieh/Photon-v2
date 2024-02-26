@@ -259,7 +259,13 @@ bool init_render_engine(EngineInitSettings settings)
 		settings.additionalLogHandlers.clear();
 	}
 
-	if(!init_engine_IO_infrastructure())
+	if(!init_engine_core(settings))
+	{
+		PH_LOG(CppAPI, Error, "core initialization failed");
+		return false;
+	}
+
+	if(!init_engine_IO_infrastructure(settings))
 	{
 		PH_LOG(CppAPI, Error, "IO infrastructure initialization failed");
 		return false;

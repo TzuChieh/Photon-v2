@@ -1,6 +1,6 @@
 #include "Core/Intersection/TransformedPrimitive.h"
-#include "Math/Transform/RigidTransform.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
+#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
 #include "Core/HitDetail.h"
 
 namespace ph
@@ -9,42 +9,99 @@ namespace ph
 TransformedPrimitive::TransformedPrimitive(
 	const Primitive* const            primitive,
 	const math::RigidTransform* const localToWorld,
-	const math::RigidTransform* const worldToLocal) :
+	const math::RigidTransform* const worldToLocal)
 
-	Primitive(),
+	: Primitive()
 
-	m_primitive(primitive),
-	m_intersectable(primitive, localToWorld, worldToLocal),
-	m_localToWorld(localToWorld),
-	m_worldToLocal(worldToLocal)
+	, m_primitive(primitive)
+	, m_localToWorld(localToWorld)
+	, m_worldToLocal(worldToLocal)
 {
 	PH_ASSERT(primitive);
 	PH_ASSERT(localToWorld);
 	PH_ASSERT(worldToLocal);
 }
 
-real TransformedPrimitive::calcPositionSamplePdfA(const math::Vector3R& position) const
+bool TransformedPrimitive::mayOverlapVolume(const math::AABB3D& aabb) const
 {
-	math::Vector3R localPosition;
-	m_worldToLocal->transformP(position, &localPosition);
-	return m_primitive->calcPositionSamplePdfA(localPosition);
+	// FIXME: this is broken under timed environment
+
+	math::AABB3D localAABB;
+	m_worldToLocal->transform(aabb, &localAABB);
+	return m_primitive->mayOverlapVolume(localAABB);
 }
 
-void TransformedPrimitive::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
+math::AABB3D TransformedPrimitive::calcAABB() const
 {
-	m_primitive->genPositionSample(query, sampleFlow);
+	// FIXME: static intersectable do not need to consider time
 
-	if(query.out)
+	const math::AABB3D localAABB = m_primitive->calcAABB();
+
+	math::AABB3D worldAABB;
+	m_localToWorld->transform(localAABB, &worldAABB);
+	return worldAABB;
+}
+
+void TransformedPrimitive::genPosSample(
+	PrimitivePosSampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
+{
+	PrimitivePosSampleQuery localQuery;
+	if(query.inputs.getObservationPos())
 	{
-		math::Vector3R worldPosition;
-		m_localToWorld->transformP(query.out.position, &worldPosition);
-
-		math::Vector3R worldNormal;
-		m_localToWorld->transformO(query.out.normal, &worldNormal);
-
-		query.out.position = worldPosition;
-		query.out.normal = worldNormal;
+		math::Vector3R localObservationPos;
+		m_worldToLocal->transformP(*query.inputs.getObservationPos(), &localObservationPos);
+		localQuery.inputs.set(query.inputs.getTime(), localObservationPos);
 	}
+	else
+	{
+		localQuery.inputs.set(query.inputs.getTime());
+	}
+
+	m_primitive->genPosSample(localQuery, sampleFlow, probe);
+	if(!localQuery.outputs)
+	{
+		query.outputs.invalidate();
+		return;
+	}
+
+	probe.pushIntermediateHit(this);
+
+	math::Vector3R worldPos;
+	m_localToWorld->transformP(localQuery.outputs.getPos(), &worldPos);
+	query.outputs.setPos(worldPos);
+
+	Ray worldRay;
+	m_localToWorld->transform(localQuery.outputs.getObservationRay(), &worldRay);
+	query.outputs.setObservationRay(worldRay);
+
+	query.outputs.setPdfA(localQuery.outputs.getPdfA());
+}
+
+void TransformedPrimitive::calcPosSamplePdfA(
+	PrimitivePosSamplePdfQuery& query,
+	HitProbe& probe) const
+{
+	math::Vector3R localPosition;
+	m_worldToLocal->transformP(query.inputs.getPos(), &localPosition);
+
+	Ray localRay;
+	m_worldToLocal->transform(query.inputs.getObservationRay(), &localRay);
+
+	PrimitivePosSamplePdfQuery localQuery;
+	localQuery.inputs.set(localPosition, localRay, query.inputs.getFaceID());
+
+	m_primitive->calcPosSamplePdfA(localQuery, probe);
+	if(!localQuery.outputs)
+	{
+		query.outputs.setPdfA(0);
+		return;
+	}
+
+	probe.pushIntermediateHit(this);
+
+	query.outputs.setPdfA(localQuery.outputs.getPdfA());
 }
 
 bool TransformedPrimitive::uvwToPosition(

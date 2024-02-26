@@ -23,7 +23,6 @@
 #include <Common/primitive_type.h>
 #include <Common/stats.h>
 
-#define RAY_DELTA_DIST 0.0001f
 #define MAX_RAY_BOUNCES 10000
 //#define MAX_RAY_BOUNCES 1
 
@@ -59,8 +58,7 @@ void BNEEPTEstimator::estimate(
 
 	// Reversing the ray for backward tracing
 	Ray tracingRay = Ray(ray).reverse();
-	tracingRay.setMinT(lta::self_intersect_delta);
-	tracingRay.setMaxT(std::numeric_limits<real>::max());
+	tracingRay.setRange(0, std::numeric_limits<real>::max());
 
 	if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &surfaceHit))
 	{
@@ -96,8 +94,7 @@ void BNEEPTEstimator::estimate(
 			math::Spectrum emittedRadiance;
 
 			if(canDoNEE && directLight.neeSampleEmission(
-				surfaceHit, sampleFlow,
-				&L, &directPdfW, &emittedRadiance))
+				surfaceHit, sampleFlow, &L, &directPdfW, &emittedRadiance))
 			{
 				// With a contributing NEE sample, optics must present
 				const SurfaceOptics* surfaceOptics = surfaceHit.getSurfaceOptics();
@@ -109,7 +106,7 @@ void BNEEPTEstimator::estimate(
 				if(bsdfEval.outputs.isMeasurable())
 				{
 					BsdfPdfQuery bsdfPdfQuery(bsdfContext);
-					bsdfPdfQuery.inputs.set(bsdfEval);
+					bsdfPdfQuery.inputs.set(bsdfEval.inputs);
 					surfaceOptics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
@@ -167,7 +164,7 @@ void BNEEPTEstimator::estimate(
 			tracingRay.setOrigin(surfaceHit.getPosition());
 			tracingRay.setDirection(L);
 			SurfaceHit nextSurfaceHit;
-			if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &nextSurfaceHit))
+			if(!surfaceTracer.traceNextSurfaceFrom(surfaceHit, tracingRay, sidedness, &nextSurfaceHit))
 			{
 				break;
 			}

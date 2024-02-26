@@ -5,11 +5,12 @@
 namespace ph
 {
 
-/*
-	BVPTDL: Backward Vanilla Path Tracing Direct Lighting
+/*! @brief A direct lighting only estimator using path tracing.
 
-	This estimator has properties similar to BVPT, excpet that it computes only
-	direct lighting effects.
+BVPTDL: Backward Vanilla Path Tracing Direct Lighting.
+
+This estimator has properties similar to BVPT, excpet that it computes only
+direct lighting effects.
 */
 class BVPTDLEstimator : public PartialRayEnergyEstimator
 {

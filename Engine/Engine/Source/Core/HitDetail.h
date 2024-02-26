@@ -36,7 +36,7 @@ public:
 		const Primitive*      primitive,
 		const math::Vector3R& uvw,
 		real                  rayT,
-		uint64                faceId = NO_FACE_ID,
+		uint64                faceID = NO_FACE_ID,
 		FaceTopology          faceTopology = FaceTopology(EFaceTopology::General));
 
 	void computeBases();
@@ -63,7 +63,7 @@ public:
 	for the primitive that was hit. For instanced triangle meshes, each mesh typically has the
 	same set of face IDs. May be `NO_FACE_ID` if not available.
 	*/
-	uint64 getFaceId() const;
+	uint64 getFaceID() const;
 
 	FaceTopology getFaceTopology() const;
 
@@ -79,7 +79,7 @@ private:
 	math::Vector3R   m_uvw;
 	real             m_rayT;
 	HitInfo          m_hitInfos[enum_size<ECoordSys>()];
-	uint64           m_faceId;
+	uint64           m_faceID;
 	FaceTopology     m_faceTopology;
 	uint8            m_numTransformLevels;
 };
@@ -136,9 +136,9 @@ inline real HitDetail::getRayT() const
 	return m_rayT;
 }
 
-inline uint64 HitDetail::getFaceId() const
+inline uint64 HitDetail::getFaceID() const
 {
-	return m_faceId;
+	return m_faceID;
 }
 
 inline FaceTopology HitDetail::getFaceTopology() const

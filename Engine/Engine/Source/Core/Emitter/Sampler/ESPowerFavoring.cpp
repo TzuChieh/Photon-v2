@@ -1,5 +1,6 @@
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
+#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersection/PrimitiveMetadata.h"
@@ -56,31 +57,43 @@ const Emitter* ESPowerFavoring::pickEmitter(SampleFlow& sampleFlow, real* const 
 	return m_emitters[pickedIndex];
 }
 
-void ESPowerFavoring::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
+void ESPowerFavoring::genDirectSample(
+	DirectEnergySampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
 	const std::size_t pickedIndex = m_distribution.sampleDiscrete(sampleFlow.flow1D());// FIXME: use pick
 	const real        pickPdf     = m_distribution.pdfDiscrete(pickedIndex);
 
-	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow);
-	query.out.pdfW *= pickPdf;
+	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow, probe);
+	if(!query.outputs)
+	{
+		return;
+	}
+
+	query.outputs.setPdfW(query.outputs.getPdfW() * pickPdf);
 }
 
-real ESPowerFavoring::calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
+void ESPowerFavoring::calcDirectSamplePdfW(
+	DirectEnergySamplePdfQuery& query,
+	HitProbe& probe) const
 {
-	const Primitive* hitPrim = emitPos.getDetail().getPrimitive();
+	const Primitive* hitPrim = query.inputs.getSrcPrimitive();
 	PH_ASSERT(hitPrim);
-
 	const Emitter* hitEmitter = hitPrim->getMetadata()->getSurface().getEmitter();
 	PH_ASSERT(hitEmitter);
 
-	const real samplePdfW = hitEmitter->calcDirectSamplePdfW(emitPos, targetPos);
+	hitEmitter->calcDirectSamplePdfW(query, probe);
+	if(!query.outputs)
+	{
+		return;
+	}
 
 	const auto& result = m_emitterToIndexMap.find(hitEmitter);
 	PH_ASSERT(result != m_emitterToIndexMap.end());
-	const real pickPdf = m_distribution.pdfDiscrete(result->second);
-
-	const auto directPdfW = samplePdfW * pickPdf;
-	return std::isfinite(directPdfW) ? directPdfW : 0;
+	const auto pickPdf = m_distribution.pdfDiscrete(result->second);
+	const auto directPdfW = query.outputs.getPdfW() * pickPdf;
+	query.outputs.setPdfW(std::isfinite(directPdfW) ? directPdfW : 0);
 }
 
 }// end namespace ph

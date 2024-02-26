@@ -3,6 +3,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
+#include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
 #include <Common/assertion.h>
 
@@ -36,15 +37,18 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectr
 	out_radiance->mulLocal(filterValue);
 }
 
-void OmniModulatedEmitter::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
+void OmniModulatedEmitter::genDirectSample(
+	DirectEnergySampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
-	m_source->genDirectSample(query, sampleFlow);
-	if(!query.out)
+	m_source->genDirectSample(query, sampleFlow, probe);
+	if(!query.outputs)
 	{
 		return;
 	}
 
-	const math::Vector3R emitDirection = query.in.targetPos.sub(query.out.emitPos);
+	const auto emitDirection = query.inputs.getTargetPos() - query.outputs.getEmitPos();
 
 	math::Vector3R uv;
 	m_dirToUv.directionToUvw(emitDirection, &uv);
@@ -53,30 +57,37 @@ void OmniModulatedEmitter::genDirectSample(DirectEnergySampleQuery& query, Sampl
 	uv.y() = 1.0_r - uv.y();
 
 	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
-	query.out.radianceLe.mulLocal(filterValue);
+	query.outputs.setEmittedEnergy(query.outputs.getEmittedEnergy() * filterValue);
 }
 
-void OmniModulatedEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void OmniModulatedEmitter::calcDirectSamplePdfW(
+	DirectEnergySamplePdfQuery& query,
+	HitProbe& probe) const
 {
-	m_source->emitRay(sampleFlow, out_ray, out_Le, out_eN, out_pdfA, out_pdfW);
+	m_source->calcDirectSamplePdfW(query, probe);
+
+	// TODO: if importance sampling is used, pdfW should be changed here
+}
+
+void OmniModulatedEmitter::emitRay(
+	EnergyEmissionSampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
+{
+	m_source->emitRay(query, sampleFlow, probe);
+	if(!query.outputs)
+	{
+		return;
+	}
 
 	math::Vector3R uv;
-	m_dirToUv.directionToUvw(out_ray->getDirection(), &uv);
+	m_dirToUv.directionToUvw(query.outputs.getEmittedRay().getDirection(), &uv);
 
 	// HACK
 	uv.y() = 1.0_r - uv.y();
 
-	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
-	out_Le->mulLocal(filterValue);
-}
-
-real OmniModulatedEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
-{
-	const real pdfW = m_source->calcDirectSamplePdfW(emitPos, targetPos);
-
-	// TODO: if importance sampling is used, pdfW should be changed here
-
-	return pdfW;
+	const auto filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
+	query.outputs.setEmittedEnergy(query.outputs.getEmittedEnergy() * filterValue);
 }
 
 void OmniModulatedEmitter::setFilter(const std::shared_ptr<TTexture<math::Spectrum>>& filter)

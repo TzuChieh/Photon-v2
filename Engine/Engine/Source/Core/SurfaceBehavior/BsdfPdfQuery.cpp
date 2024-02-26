@@ -5,12 +5,12 @@
 namespace ph
 {
 
-void BsdfPdfInput::set(const BsdfEvalQuery& eval)
+void BsdfPdfInput::set(const BsdfEvalInput& evalInput)
 {
 	set(
-		eval.inputs.getX(),
-		eval.inputs.getL(),
-		eval.inputs.getV());
+		evalInput.getX(),
+		evalInput.getL(),
+		evalInput.getV());
 }
 
 void BsdfPdfInput::set(const BsdfSampleQuery& sample)

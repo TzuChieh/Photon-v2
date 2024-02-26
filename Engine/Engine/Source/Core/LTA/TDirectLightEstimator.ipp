@@ -2,6 +2,7 @@
 #include "World/Scene.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
+#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersection/Primitive.h"
 #include "Core/Intersection/PrimitiveMetadata.h"
@@ -16,11 +17,13 @@
 #include "Core/LTA/lta.h"
 #include "Core/LTA/SurfaceTracer.h"
 #include "Core/LTA/TMis.h"
+#include "Core/LTA/SurfaceHitRefinery.h"
 #include "Math/TVector3.h"
 
 #include <Common/assertion.h>
 
 #include <algorithm>
+#include <limits>
 
 namespace ph::lta
 {
@@ -60,6 +63,8 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleEmission(
 
 	math::Spectrum Le;
 	emitter->evalEmittedRadiance(Xe, &Le);
+
+	PH_ASSERT_IN_RANGE(bsdfSample.outputs.getL().lengthSquared(), 0.9_r, 1.1_r);
 	
 	if(out_L)              { *out_L = bsdfSample.outputs.getL(); }
 	if(out_pdfAppliedBsdf) { *out_pdfAppliedBsdf = bsdfSample.outputs.getPdfAppliedBsdf(); }
@@ -80,65 +85,38 @@ inline bool TDirectLightEstimator<POLICY>::neeSampleEmission(
 {
 	PH_ASSERT(isNeeSamplable(X));
 
-	DirectEnergySampleQuery directLightSample;
-	directLightSample.in.set(X.getPosition());
-	getScene().genDirectSample(directLightSample, sampleFlow);
-	if(!directLightSample.out)
+	const SidednessAgreement sidedness{POLICY};
+
+	DirectEnergySampleQuery directSample;
+	directSample.inputs.set(X);
+
+	HitProbe probe;
+	getScene().genDirectSample(directSample, sampleFlow, probe);
+	if(!directSample.outputs)
 	{
 		return false;
 	}
 
-	// Before visibility test, make sure the vector to light is long enough to avoid self-intersection
-	// (at least 3 deltas, 2 for ray endpoints and 1 for ray body, HACK). Also checks sidedness
-	// agreement between real geometry and shading normal.
-	const auto toLightVec = directLightSample.out.emitPos - directLightSample.in.targetPos;
-	if(toLightVec.lengthSquared() <= math::squared(self_intersect_delta * 3) ||
-	   !SidednessAgreement(POLICY).isSidednessAgreed(X, toLightVec))
+	const auto toLightVec = directSample.outputs.getEmitPos() - directSample.inputs.getTargetPos();
+	if(!sidedness.isSidednessAgreed(X, toLightVec))
 	{
 		return false;
 	}
 
-	// If surface hit info is requested, a potentially more expensive intersection test is needed
-	// for the visibility test
-	if(out_Xe)
+	constexpr SurfaceHitReason reason{ESurfaceHitReason::SampledPos};
+	const SurfaceHit Xe(directSample.outputs.getObservationRay(), probe, reason);
+	const std::optional<Ray> visibilityRay = SurfaceHitRefinery{X}.tryEscape(Xe);
+	if(!visibilityRay || getScene().isOccluding(*visibilityRay))
 	{
-		const Ray visibilityRay(
-			X.getPosition(), 
-			toLightVec.normalize(), 
-			self_intersect_delta,
-			toLightVec.length() * 2,// HACK: to ensure an intersection
-			X.getIncidentRay().getTime());
-
-		SurfaceHit Xe;
-		if(!SurfaceTracer(m_scene).traceNextSurface(visibilityRay, SidednessAgreement(POLICY), &Xe) ||
-		   Xe.getDetail().getPrimitive() != directLightSample.out.srcPrimitive)
-		{
-			return false;
-		}
-
-		*out_Xe = Xe;
-		if(out_L) { *out_L = visibilityRay.getDirection(); }
-	}
-	// Occlusion test
-	else
-	{
-		const Ray visibilityRay(
-			X.getPosition(), 
-			toLightVec.normalize(), 
-			self_intersect_delta,
-			toLightVec.length() - self_intersect_delta * 2,
-			X.getIncidentRay().getTime());
-
-		if(getScene().isOccluding(visibilityRay))
-		{
-			return false;
-		}
-
-		if(out_L) { *out_L = visibilityRay.getDirection(); }
+		return false;
 	}
 
-	if(out_pdfW) { *out_pdfW = directLightSample.out.pdfW; }
-	if(out_Le)   { *out_Le = directLightSample.out.radianceLe; }
+	PH_ASSERT_IN_RANGE(visibilityRay->getDirection().lengthSquared(), 0.9_r, 1.1_r);
+
+	if(out_Xe)   { *out_Xe = Xe; }
+	if(out_L)    { *out_L = visibilityRay->getDirection(); }
+	if(out_pdfW) { *out_pdfW = directSample.outputs.getPdfW(); }
+	if(out_Le)   { *out_Le = directSample.outputs.getEmittedEnergy(); }
 
 	return true;
 }
@@ -204,6 +182,8 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 				sampledLo += bsdfLe * pdfAppliedBsdf * N.absDot(L);
 			}
 
+			PH_ASSERT_IN_RANGE(L.lengthSquared(), 0.9_r, 1.1_r);
+
 			if(out_L)              { *out_L = L; }
 			if(out_pdfAppliedBsdf) { *out_pdfAppliedBsdf = pdfAppliedBsdf; }
 			if(out_Xe)             { *out_Xe = Xe; }
@@ -236,7 +216,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 			if(bsdfEval.outputs.isMeasurable())
 			{
 				BsdfPdfQuery bsdfPdfQuery{BsdfQueryContext(POLICY)};
-				bsdfPdfQuery.inputs.set(bsdfEval);
+				bsdfPdfQuery.inputs.set(bsdfEval.inputs);
 				optics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
@@ -264,7 +244,12 @@ inline real TDirectLightEstimator<POLICY>::neeSamplePdfWUnoccluded(
 {
 	PH_ASSERT(isNeeSamplable(X));
 
-	return getScene().calcDirectPdfW(Xe, X.getPosition());
+	DirectEnergySamplePdfQuery pdfQuery;
+	pdfQuery.inputs.set(X, Xe);
+
+	HitProbe probe;
+	getScene().calcDirectSamplePdfW(pdfQuery, probe);
+	return pdfQuery.outputs ? pdfQuery.outputs.getPdfW() : 0;
 }
 
 template<ESidednessPolicy POLICY>

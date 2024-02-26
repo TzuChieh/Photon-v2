@@ -22,9 +22,9 @@ public:
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 
-	void calcIntersectionDetail(
+	void calcHitDetail(
 		const Ray& ray,
-		HitProbe& probe,
+		HitProbe&  probe,
 		HitDetail* out_detail) const override;
 
 	math::AABB3D calcAABB() const override;
@@ -51,6 +51,12 @@ private:
 		{
 			return triangle.getAABB();
 		}
+	};
+
+	struct ClosestHitProbeResult
+	{
+		math::Vector3R bary;
+		Index faceIndex;
 	};
 
 	using KdTree = math::TIndexedKdtree<

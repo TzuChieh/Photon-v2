@@ -29,7 +29,8 @@ public:
 	*/
 	HitProbe();
 
-	void calcIntersectionDetail(const Ray& ray, HitDetail* out_detail);
+	void calcHitDetail(const Ray& ray, HitDetail* out_detail);
+	void calcFullHitDetail(const Ray& ray, HitDetail* out_detail);
 	bool isOnDefaultChannel() const;
 
 	/*!
@@ -43,9 +44,10 @@ public:
 	*/
 	void pushBaseHit(const Intersectable* hitTarget, real hitRayT);
 
-	void popIntermediateHit();
+	void popHit();
 
 	void replaceCurrentHitWith(const Intersectable* newCurrentHit);
+	void replaceBaseHitRayTWith(real hitRayT);
 
 	void setChannel(uint8 channel);
 	uint8 getChannel() const;
@@ -67,6 +69,9 @@ private:
 	std::byte   m_cache[PH_HIT_PROBE_CACHE_BYTES];
 	uint8       m_cacheHead;
 	uint8       m_hitDetailChannel;
+#if PH_DEBUG
+	bool        m_hasBaseHitSet{false};
+#endif
 };
 
 // In-header Implementations:
@@ -88,9 +93,13 @@ inline void HitProbe::pushBaseHit(const Intersectable* const hitTarget, const re
 {
 	m_hitStack.push(hitTarget);
 	m_hitRayT = hitRayT;
+
+#if PH_DEBUG
+	m_hasBaseHitSet = true;
+#endif
 }
 
-inline void HitProbe::popIntermediateHit()
+inline void HitProbe::popHit()
 {
 	m_hitStack.pop();
 }
@@ -99,6 +108,12 @@ inline void HitProbe::replaceCurrentHitWith(const Intersectable* const newCurren
 {
 	m_hitStack.pop();
 	m_hitStack.push(newCurrentHit);
+}
+
+inline void HitProbe::replaceBaseHitRayTWith(const real hitRayT)
+{
+	PH_ASSERT(m_hasBaseHitSet);
+	m_hitRayT = hitRayT;
 }
 
 inline void HitProbe::setChannel(const uint8 channel)
@@ -118,6 +133,7 @@ inline const Intersectable* HitProbe::getCurrentHit() const
 
 inline real HitProbe::getHitRayT() const
 {
+	PH_ASSERT(m_hasBaseHitSet);
 	return m_hitRayT;
 }
 

@@ -37,7 +37,7 @@ SurfaceHit SurfaceHit::switchChannel(const uint32 newChannel) const
 
 	HitProbe newProbe = m_recordedProbe;
 	newProbe.setChannel(newChannel);
-	return SurfaceHit(m_incidentRay, newProbe);
+	return SurfaceHit(m_ray, newProbe, m_reason);
 }
 
 bool SurfaceHit::hasSurfaceOptics() const

@@ -56,16 +56,17 @@ private:
 	math::Vector2S         m_sampleRes;
 
 	void traceViewPath(
-		Ray            tracingRay, 
-		math::Spectrum pathThroughput,
-		std::size_t    pathLength,
-		SampleFlow&    sampleFlow);
+		SurfaceHit            prevHit,
+		Ray                   tracingRay, 
+		math::Spectrum        pathThroughput,
+		std::size_t           pathLength,
+		SampleFlow&           sampleFlow);
 
 	void traceElementallyBranchedPath(
 		const ViewPathTracingPolicy& policy,
+		const SurfaceHit&            X,
 		const math::Vector3R&        V,
 		const math::Vector3R&        N,
-		const SurfaceHit&            surfaceHit,
 		const math::Spectrum&        pathThroughput,
 		std::size_t                  pathLength,
 		SampleFlow&                  sampleFlow);

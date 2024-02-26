@@ -14,6 +14,7 @@ class HitProbe;
 class HitDetail;
 class PrimitiveMetadata;
 class PrimitivePosSampleQuery;
+class PrimitivePosSamplePdfQuery;
 class SampleFlow;
 
 /*! @brief A physical shape in the scene. 
@@ -23,7 +24,7 @@ class Primitive : public Intersectable
 public:
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override = 0;
 
-	void calcIntersectionDetail(
+	void calcHitDetail(
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const override = 0;
@@ -31,12 +32,21 @@ public:
 	math::AABB3D calcAABB() const override = 0;
 
 	/*! @brief Generates a sample point on the surface of this primitive.
+	
+	@note Generates hit event (with `PrimitivePosSampleOutput::getObservationRay()` and `probe`).
 	*/
-	virtual void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const;
+	virtual void genPosSample(
+		PrimitivePosSampleQuery& query, 
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const;
 
 	/*! @brief Given a point on the surface of this primitive, calculates the PDF of sampling this point.
+	
+	@note Generates hit event (with `PrimitivePosSamplePdfInput::getObservationRay()` and `probe`).
 	*/
-	virtual real calcPositionSamplePdfA(const math::Vector3R& position) const;
+	virtual void calcPosSamplePdfA(
+		PrimitivePosSamplePdfQuery& query,
+		HitProbe& probe) const;
 
 	/*! @brief Calculates the area extended by this primitive.
 	
@@ -60,11 +70,6 @@ public:
 };
 
 // In-header Implementation:
-
-inline real Primitive::calcPositionSamplePdfA(const math::Vector3R& position) const
-{
-	return 0.0_r;
-}
 
 inline real Primitive::calcExtendedArea() const
 {

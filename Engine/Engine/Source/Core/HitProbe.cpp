@@ -13,13 +13,20 @@ namespace ph
 // A simple value type should be trivially copyable
 static_assert(std::is_trivially_copyable_v<HitProbe>);
 
-void HitProbe::calcIntersectionDetail(
+void HitProbe::calcHitDetail(
 	const Ray&       ray,
 	HitDetail* const out_detail)
 {
 	PH_ASSERT(getCurrentHit() != nullptr);
 
-	getCurrentHit()->calcIntersectionDetail(ray, *this, out_detail);
+	getCurrentHit()->calcHitDetail(ray, *this, out_detail);
+}
+
+void HitProbe::calcFullHitDetail(
+	const Ray&       ray,
+	HitDetail* const out_detail)
+{
+	calcHitDetail(ray, out_detail);
 	out_detail->computeBases();
 }
 

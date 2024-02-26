@@ -1,16 +1,14 @@
 #include "Core/Intersection/TransformedIntersectable.h"
-#include "Core/Ray.h"
-#include "Core/HitDetail.h"
-#include "Core/HitProbe.h"
 #include "Math/Geometry/TAABB3D.h"
-
-#include <Common/assertion.h>
 
 namespace ph
 {
 
 TransformedIntersectable::TransformedIntersectable()
-	: m_intersectable(nullptr)
+
+	: Intersectable()
+
+	, m_intersectable(nullptr)
 	, m_localToWorld (nullptr)
 	, m_worldToLocal (nullptr)
 {}
@@ -29,58 +27,19 @@ TransformedIntersectable::TransformedIntersectable(
 	PH_ASSERT(worldToLocal);
 }
 
-// FIXME: intersecting routines' time correctness
-
-bool TransformedIntersectable::isOccluding(const Ray& ray) const
-{
-	Ray localRay;
-	m_worldToLocal->transform(ray, &localRay);
-	return m_intersectable->isOccluding(localRay);
-}
-
-bool TransformedIntersectable::isIntersecting(const Ray& ray, HitProbe& probe) const
-{
-	Ray localRay;
-	m_worldToLocal->transform(ray, &localRay);
-	if(m_intersectable->isIntersecting(localRay, probe))
-	{
-		probe.pushIntermediateHit(this);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-void TransformedIntersectable::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-                                                      HitDetail* const out_detail) const
-{
-	probe.popIntermediateHit();
-
-	Ray localRay;
-	m_worldToLocal->transform(ray, &localRay);
-
-	HitDetail localDetail;
-	probe.getCurrentHit()->calcIntersectionDetail(localRay, probe, &localDetail);
-
-	*out_detail = localDetail;
-	m_localToWorld->transform(localDetail.getHitInfo(ECoordSys::World), 
-	                          &(out_detail->getHitInfo(ECoordSys::World)));
-	out_detail->addTransformLevel();
-}
-
-// FIXME: this is broken under timed environment
 bool TransformedIntersectable::mayOverlapVolume(const math::AABB3D& aabb) const
 {
+	// FIXME: this is broken under timed environment
+
 	math::AABB3D localAABB;
 	m_worldToLocal->transform(aabb, &localAABB);
 	return m_intersectable->mayOverlapVolume(localAABB);
 }
 
-// FIXME: static intersectable do not need to consider time
 math::AABB3D TransformedIntersectable::calcAABB() const
 {
+	// FIXME: static intersectable do not need to consider time
+
 	const math::AABB3D localAABB = m_intersectable->calcAABB();
 		
 	math::AABB3D worldAABB;

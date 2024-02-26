@@ -6,6 +6,7 @@
 #include "Math/Geometry/TSphere.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
+#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
 
 #include <Common/assertion.h>
 
@@ -16,8 +17,7 @@ PLatLong01Sphere::PLatLong01Sphere(const real radius) :
 	PBasicSphere(radius)
 {}
 
-// TODO: use exact UV derivatives
-void PLatLong01Sphere::calcIntersectionDetail(
+void PLatLong01Sphere::calcHitDetail(
 	const Ray&       ray,
 	HitProbe&        probe,
 	HitDetail* const out_detail) const
@@ -26,9 +26,8 @@ void PLatLong01Sphere::calcIntersectionDetail(
 
 	// Refine hit point by normal and radius since the ray can be far away
 	// and contains large numerical error
-	math::Vector3R hitPosition = ray.getSegment().getPoint(probe.getHitRayT());
-	const math::Vector3R& hitNormal = hitPosition.safeNormalize({0, 1, 0});
-	hitPosition = hitNormal * getRadius();
+	const auto [hitPosition, hitNormal] = getRefinedSurfaceAndNormal(
+		ray.getSegment().getPoint(probe.getHitRayT()));
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitNormal.isFinite(), "\n"
 		"hitPosition = " + hitPosition.toString() + "\n"
@@ -41,6 +40,7 @@ void PLatLong01Sphere::calcIntersectionDetail(
 		hitNormal,
 		hitNormal);
 
+	// TODO: use exact UV derivatives; this is finite difference
 	const auto [dPdU, dPdV] = math::TSphere<real>(getRadius()).surfaceDerivativesWrtUv(
 		hitPosition,
 		[this](const math::Vector3R& position)
@@ -70,23 +70,37 @@ void PLatLong01Sphere::calcIntersectionDetail(
 		"dNdU = " + dNdU.toString() + ", dNdV = " + dNdV.toString() + "\n");
 }
 
-real PLatLong01Sphere::calcPositionSamplePdfA(const math::Vector3R& position) const
+void PLatLong01Sphere::genPosSample(
+	PrimitivePosSampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
-	return math::TSphere(getRadius()).uniformSurfaceSamplePdfA();
+	const math::TSphere<real> sphere(getRadius());
+	const auto pos = sphere.sampleToSurfaceArchimedes(sampleFlow.flow2D());
+	const auto pdfA = sphere.uniformSurfaceSamplePdfA();
+
+	const Ray observationRay(
+		query.inputs.getObservationPos().value_or(pos),
+		pos - query.inputs.getObservationPos().value_or(pos),
+		0,
+		1,
+		query.inputs.getTime());
+
+	query.outputs.setPos(pos);
+	query.outputs.setPdfA(pdfA);
+	query.outputs.setObservationRay(observationRay);
+
+	probe.pushBaseHit(this, observationRay.getMaxT());
 }
 
-void PLatLong01Sphere::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
+void PLatLong01Sphere::calcPosSamplePdfA(
+	PrimitivePosSamplePdfQuery& query,
+	HitProbe& probe) const
 {
-	const auto normal = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
-		sampleFlow.flow2D());
-	const auto position = normal * getRadius();
+	const math::TSphere<real> sphere(getRadius());
+	query.outputs.setPdfA(sphere.uniformSurfaceSamplePdfA());
 
-	query.out.normal = normal;
-	query.out.position = position;
-	query.out.pdfA = PLatLong01Sphere::calcPositionSamplePdfA(position);
-
-	const math::Vector2R uv = positionToUV(position);
-	query.out.uvw = {uv.x(), uv.y(), 0.0_r};
+	probe.pushBaseHit(this, query.inputs.getObservationRay().getMaxT());
 }
 
 math::Vector2R PLatLong01Sphere::positionToUV(const math::Vector3R& position) const

@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Core/Intersection/Primitive.h"
-#include "Math/math_fwd.h"
+#include "Math/TVector3.h"
 
 #include <Common/primitive_type.h>
+
+#include <utility>
 
 namespace ph
 {
@@ -13,7 +15,7 @@ class PBasicSphere : public Primitive
 public:
 	explicit PBasicSphere(real radius);
 
-	void calcIntersectionDetail(
+	void calcHitDetail(
 		const Ray& ray,
 		HitProbe&  probe,
 		HitDetail* out_detail) const override = 0;
@@ -25,6 +27,14 @@ public:
 
 	real getRadius() const;
 	real getRcpRadius() const;
+
+protected:
+	/*!
+	Get refined surface position since the original coordinates may contain large numerical error
+	due to far ray, extreme-sized sphere, etc.
+	*/
+	auto getRefinedSurfaceAndNormal(const math::Vector3R& srcSurface) const
+	-> std::pair<math::Vector3R, math::Vector3R>;
 
 private:
 	real m_radius;
@@ -41,6 +51,14 @@ inline real PBasicSphere::getRadius() const
 inline real PBasicSphere::getRcpRadius() const
 {
 	return m_rcpRadius;
+}
+
+inline auto PBasicSphere::getRefinedSurfaceAndNormal(const math::Vector3R& srcSurface) const
+-> std::pair<math::Vector3R, math::Vector3R>
+{
+	const auto refinedNormal = srcSurface.safeNormalize({0, 1, 0});
+	const auto refinedSurface = refinedNormal * getRadius();
+	return {refinedSurface, refinedNormal};
 }
 
 }// end namespace ph

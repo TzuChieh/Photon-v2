@@ -1,38 +1,20 @@
 #include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
-#include "Core/HitDetail.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
-
-#include <Common/assertion.h>
+#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
 
 namespace ph
 {
 
-PrimitivePosSamplePdfInput::PrimitivePosSamplePdfInput() :
-	position(0),
-	faceId  (HitDetail::NO_FACE_ID)
-{}
-
-void PrimitivePosSamplePdfInput::set(const math::Vector3R& position)
+void PrimitivePosSamplePdfInput::set(const PrimitivePosSampleOutput& sampleOutput, const SurfaceHit& X)
 {
-	set(position, HitDetail::NO_FACE_ID);
+	PH_ASSERT(sampleOutput);
+
+	set(sampleOutput.getPos(), sampleOutput.getObservationRay(), X.getDetail().getFaceID());
 }
 
-void PrimitivePosSamplePdfInput::set(const math::Vector3R& position, const uint64 faceId)
+void PrimitivePosSamplePdfInput::set(const DirectEnergySamplePdfInput& pdfInput)
 {
-	this->position = position;
-	this->faceId   = faceId;
-}
-
-void PrimitivePosSamplePdfInput::set(const HitDetail& detail)
-{
-	set(detail.getPosition(), detail.getFaceId());
-}
-
-void PrimitivePosSamplePdfInput::set(const PrimitivePosSampleQuery& query)
-{
-	PH_ASSERT(query.out);
-
-	set(query.out.position, query.out.faceId);
+	set(pdfInput.getEmitPos(), pdfInput.getObservationRay(), pdfInput.getSrcFaceID());
 }
 
 }// end namespace ph

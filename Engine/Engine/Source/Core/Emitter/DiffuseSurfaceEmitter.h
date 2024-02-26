@@ -5,7 +5,6 @@
 #include <Common/primitive_type.h>
 
 #include <memory>
-#include <vector>
 
 namespace ph
 {
@@ -18,9 +17,21 @@ public:
 	explicit DiffuseSurfaceEmitter(const Primitive* surface);
 
 	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override;
-	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const override;
-	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const override;
-	real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const override;
+
+	void genDirectSample(
+		DirectEnergySampleQuery& query,
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override;
+
+	void calcDirectSamplePdfW(
+		DirectEnergySamplePdfQuery& query,
+		HitProbe& probe) const override;
+
+	void emitRay(
+		EnergyEmissionSampleQuery& query,
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override;
+
 	real calcRadiantFluxApprox() const override;
 
 	const Primitive* getSurface() const;

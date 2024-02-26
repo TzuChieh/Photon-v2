@@ -114,7 +114,7 @@ public:
 		const auto degs = std::lerp(
 			config.minRotateDegs, config.maxRotateDegs, tls_rng.generateSample());
 		const auto dir = math::TSphere<real>::makeUnit().sampleToSurfaceArchimedes(
-			{tls_rng.generateSample(), tls_rng.generateSample()});
+			makeRandomSample2D());
 		return math::QuaternionR(dir, math::to_radians(degs));
 	}
 
@@ -259,13 +259,13 @@ public:
 			return false;
 		}
 
-		HitDetail hitDetail;
-		intersectable.calcIntersectionDetail(ray, probe, &hitDetail);
+		HitDetail detail;
+		intersectable.calcHitDetail(ray, probe, &detail);
 
 		PH_ASSERT(out_actualHitPos);
 		PH_ASSERT(out_actualhitNormal);
-		*out_actualHitPos = hitDetail.getPosition();
-		*out_actualhitNormal = hitDetail.getGeometryNormal();
+		*out_actualHitPos = detail.getPosition();
+		*out_actualhitNormal = detail.getGeometryNormal();
 		return true;
 	}
 
@@ -299,7 +299,7 @@ public:
 			maxDist *= 2.0_r;
 		}
 
-		// Then use bisection method to find the min. distance that results in no intersection
+		// Then use bisection method to find the smallest distance that results in no intersection
 		real minDist = 0.0_r;
 		while(true)
 		{
@@ -369,13 +369,13 @@ public:
 					continue;
 				}
 
-				HitDetail hitDetail;
-				ptriangle.calcIntersectionDetail(ray, probe, &hitDetail);
+				HitDetail detail;
+				ptriangle.calcHitDetail(ray, probe, &detail);
 
 				result.rayOrigin = ray.getOrigin();
-				result.hitPos = hitDetail.getPosition();
+				result.hitPos = detail.getPosition();
 				result.offsetDistance = findOffsetDistance(
-					config, ptriangle, ray, hitDetail.getPosition(), hitDetail.getGeometryNormal());
+					config, ptriangle, ray, detail.getPosition(), detail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -456,13 +456,13 @@ public:
 					continue;
 				}
 
-				HitDetail hitDetail;
-				data.triangle->calcIntersectionDetail(ray, probe, &hitDetail);
+				HitDetail detail;
+				data.triangle->calcHitDetail(ray, probe, &detail);
 
 				result.rayOrigin = ray.getOrigin();
-				result.hitPos = hitDetail.getPosition();
+				result.hitPos = detail.getPosition();
 				result.offsetDistance = findOffsetDistance(
-					config, *data.triangle, ray, hitDetail.getPosition(), hitDetail.getGeometryNormal());
+					config, *data.triangle, ray, detail.getPosition(), detail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -565,13 +565,13 @@ public:
 					continue;
 				}
 
-				HitDetail hitDetail;
-				psphere.calcIntersectionDetail(ray, probe, &hitDetail);
+				HitDetail detail;
+				psphere.calcHitDetail(ray, probe, &detail);
 
 				result.rayOrigin = ray.getOrigin();
-				result.hitPos = hitDetail.getPosition();
+				result.hitPos = detail.getPosition();
 				result.offsetDistance = findOffsetDistance(
-					config, psphere, ray, hitDetail.getPosition(), hitDetail.getGeometryNormal());
+					config, psphere, ray, detail.getPosition(), detail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -644,13 +644,13 @@ public:
 					continue;
 				}
 
-				HitDetail hitDetail;
-				data.sphere->calcIntersectionDetail(ray, probe, &hitDetail);
+				HitDetail detail;
+				data.sphere->calcHitDetail(ray, probe, &detail);
 
 				result.rayOrigin = ray.getOrigin();
-				result.hitPos = hitDetail.getPosition();
+				result.hitPos = detail.getPosition();
 				result.offsetDistance = findOffsetDistance(
-					config, *data.sphere, ray, hitDetail.getPosition(), hitDetail.getGeometryNormal());
+					config, *data.sphere, ray, detail.getPosition(), detail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -711,12 +711,12 @@ Basically a xy-chart, where x is in log scale. The interval [`minX`, `maxX`] is 
 `numBins` sub-intervals. Since the width of the bins are in log scale, larger x corresponds to
 a wider bin.
 */
-class ChartData final
+class BinnedData final
 {
 public:
-	ChartData() = default;
+	BinnedData() = default;
 
-	ChartData(const std::size_t numBins, const AccurateReal minX, const AccurateReal maxX)
+	BinnedData(const std::size_t numBins, const AccurateReal minX, const AccurateReal maxX)
 		: m_xs(numBins)
 		, m_minX(minX)
 		, m_maxX(maxX)
@@ -731,10 +731,10 @@ public:
 		m_logMaxX = std::log10(maxX);
 	}
 
-	void addValue(const AccurateReal x, const AccurateReal value)
+	void addValue(const AccurateReal x, const AccurateReal y)
 	{
 		// NaN aware
-		if(!(m_minX <= x && x <= m_maxX) || std::isnan(value))
+		if(!(m_minX <= x && x <= m_maxX) || std::isnan(y))
 		{
 			return;
 		}
@@ -745,10 +745,11 @@ public:
 		idx = idx < m_xs.size() ? idx : m_xs.size() - 1;
 
 		Bin& bin = m_xs[idx];
-		bin.num++;
-		bin.sum += value;
-		bin.min = std::min(value, bin.min);
-		bin.max = std::max(value, bin.max);
+		bin.numY++;
+		bin.sumY += y;
+		bin.sumY2 += y * y;
+		bin.minY = std::min(y, bin.minY);
+		bin.maxY = std::max(y, bin.maxY);
 	}
 
 	void saveAsCsv(const Path& filePath)
@@ -758,29 +759,33 @@ public:
 		for(std::size_t ri = 0; ri < m_xs.size(); ++ri)
 		{
 			const Bin& bin = m_xs[ri];
-			if(bin.num == 0)
+			if(bin.numY == 0 || 
+			   bin.minY >= std::numeric_limits<AccurateReal>::max() ||
+			   bin.maxY <= std::numeric_limits<AccurateReal>::min())
 			{
 				continue;
 			}
 
-			const auto fraction = (ri + 0.5_r) / m_xs.size();
+			const auto fraction = (ri + 0.5) / m_xs.size();
 			const auto logX = std::lerp(m_logMinX, m_logMaxX, fraction);
 			const auto x = std::pow(10, logX);
-			const auto mean = bin.sum / bin.num;
+			const auto mean = bin.sumY / bin.numY;
+			const auto sigma = std::sqrt(std::max(bin.sumY2 / bin.numY - mean * mean, 0.0));
 
 			CsvFileRow row;
-			row.addValue(string_utils::stringify_number(x,       &strBuffer));
-			row.addValue(string_utils::stringify_number(bin.num, &strBuffer));
-			row.addValue(string_utils::stringify_number(mean,    &strBuffer));
-			row.addValue(string_utils::stringify_number(bin.min, &strBuffer));
-			row.addValue(string_utils::stringify_number(bin.max, &strBuffer));
+			row.addValue(string_utils::stringify_number(x,        &strBuffer));
+			row.addValue(string_utils::stringify_number(bin.numY, &strBuffer));
+			row.addValue(string_utils::stringify_number(mean,     &strBuffer));
+			row.addValue(string_utils::stringify_number(sigma,    &strBuffer));
+			row.addValue(string_utils::stringify_number(bin.minY, &strBuffer));
+			row.addValue(string_utils::stringify_number(bin.maxY, &strBuffer));
 			file.addRow(row);
 		}
 
 		file.save(filePath);
 	}
 
-	void mergeWith(const ChartData& other)
+	void mergeWith(const BinnedData& other)
 	{
 		PH_ASSERT_EQ(m_xs.size(), other.m_xs.size());
 		PH_ASSERT_EQ(m_minX, other.m_minX);
@@ -791,20 +796,22 @@ public:
 			Bin& bin = m_xs[xi];
 			const Bin& otherBin = other.m_xs[xi];
 
-			bin.num += otherBin.num;
-			bin.sum += otherBin.sum;
-			bin.min = std::min(otherBin.min, bin.min);
-			bin.max = std::max(otherBin.max, bin.max);
+			bin.numY  += otherBin.numY;
+			bin.sumY  += otherBin.sumY;
+			bin.sumY2 += otherBin.sumY2;
+			bin.minY  =  std::min(otherBin.minY, bin.minY);
+			bin.maxY  =  std::max(otherBin.maxY, bin.maxY);
 		}
 	}
 
 private:
 	struct Bin
 	{
-		std::size_t num = 0;
-		AccurateReal sum = 0;
-		AccurateReal min = std::numeric_limits<AccurateReal>::max();
-		AccurateReal max = std::numeric_limits<AccurateReal>::min();
+		std::size_t numY = 0;
+		AccurateReal sumY = 0;
+		AccurateReal sumY2 = 0;
+		AccurateReal minY = std::numeric_limits<AccurateReal>::max();
+		AccurateReal maxY = std::numeric_limits<AccurateReal>::min();
 	};
 
 	std::vector<Bin> m_xs;
@@ -814,14 +821,14 @@ private:
 	AccurateReal m_logMaxX = std::log10(10);
 };
 
-class ChartDataCollection final
+class BinnedDataCollection final
 {
 public:
-	ChartData errorVsDist;
-	ChartData errorVsSize;
-	ChartData offsetVsDist;
+	BinnedData errorVsDist;
+	BinnedData errorVsSize;
+	BinnedData offsetVsDist;
 
-	void mergeWith(const ChartDataCollection& other)
+	void mergeWith(const BinnedDataCollection& other)
 	{
 		errorVsDist.mergeWith(other.errorVsDist);
 		errorVsSize.mergeWith(other.errorVsSize);
@@ -829,17 +836,17 @@ public:
 	}
 };
 
-ChartDataCollection run_cases(
+BinnedDataCollection run_cases(
 	const std::vector<std::unique_ptr<IntersectCase>>& cases,
 	const IntersectConfig& config)
 {
 	PH_ASSERT_GT(config.numRaysPerObj, 0);
 	const std::size_t iterationSize = 1000000 / config.numRaysPerObj;
 	
-	ChartDataCollection charts{
-		.errorVsDist = ChartData(50000, 1e-30, 1e30),
-		.errorVsSize = ChartData(50000, 1e-30, 1e30),
-		.offsetVsDist = ChartData(50000, 1e-30, 1e30)};
+	BinnedDataCollection bins{
+		.errorVsDist = BinnedData(50000, 1e-30, 1e30),
+		.errorVsSize = BinnedData(50000, 1e-30, 1e30),
+		.offsetVsDist = BinnedData(50000, 1e-30, 1e30)};
 
 	IntersectConfig iterationConfig = config;
 	std::vector<IntersectResult> results;
@@ -862,37 +869,37 @@ ChartDataCollection run_cases(
 			const auto errorVec = AccurateVec3(result.hitPos) - AccurateVec3(result.expectedHitPos);
 			const auto distToPlane = std::abs(errorVec.dot(AccurateVec3(result.expectedHitNormal)));
 
-			charts.errorVsDist.addValue(hitDist, distToPlane);
-			charts.errorVsSize.addValue(objSize, distToPlane);
-			charts.offsetVsDist.addValue(hitDist, result.offsetDistance);
+			bins.errorVsDist.addValue(hitDist, distToPlane);
+			bins.errorVsSize.addValue(objSize, distToPlane);
+			bins.offsetVsDist.addValue(hitDist, result.offsetDistance);
 		}
 	}
 
-	return charts;
+	return bins;
 }
 
-ChartDataCollection run_cases_parallel(
+BinnedDataCollection run_cases_parallel(
 	const std::vector<std::unique_ptr<IntersectCase>>& cases,
 	const IntersectConfig& config,
 	FixedSizeThreadPool& threads)
 {
-	std::vector<ChartDataCollection> threadCharts(threads.numWorkers());
+	std::vector<BinnedDataCollection> threadBins(threads.numWorkers());
 	parallel_work(threads, config.numObjsPerCase,
-		[&cases, &config, &threadCharts]
+		[&cases, &config, &threadBins]
 		(const std::size_t workerIdx, const std::size_t workBegin, const std::size_t workEnd)
 		{
 			IntersectConfig threadConfig = config;
 			threadConfig.numObjsPerCase = workEnd - workBegin;
 
-			threadCharts[workerIdx] = run_cases(cases, threadConfig);
+			threadBins[workerIdx] = run_cases(cases, threadConfig);
 		});
 
-	ChartDataCollection mergedCharts = threadCharts[0];
-	for(std::size_t ti = 1; ti < threadCharts.size(); ++ti)
+	BinnedDataCollection mergedBins = threadBins[0];
+	for(std::size_t ti = 1; ti < threadBins.size(); ++ti)
 	{
-		mergedCharts.mergeWith(threadCharts[ti]);
+		mergedBins.mergeWith(threadBins[ti]);
 	}
-	return mergedCharts;
+	return mergedBins;
 }
 
 }// end anonymous namespace
@@ -934,16 +941,16 @@ int main(int argc, char* argv[])
 
 	constexpr real step = 5.0_r;
 
-	std::vector<ChartDataCollection> allCharts;
+	std::vector<BinnedDataCollection> allBins;
 	//for(real objDistance = 1e-3_r; objDistance < 1e3_r; objDistance *= step)
-	for(real objDistance = 1e-6_r; objDistance < 1e9_r; objDistance *= step)
+	for(real objDistance = 1e-6_r; objDistance < 1e8_r; objDistance *= step)
 	{
-		//for(real objSize = 1e-3_r; objSize < 1e3_r; objSize *= step)
-		for(real objSize = 1e-6_r; objSize < 1e7_r; objSize *= step)
+		for(real objSize = 1e-2_r; objSize < 1e-1_r; objSize *= step)
+		//for(real objSize = 1e-6_r; objSize < 1e6_r; objSize *= step)
 		{
 			IntersectConfig config;
-			config.numObjsPerCase = 10000;
-			config.numRaysPerObj = 32;
+			config.numObjsPerCase = 100000;
+			config.numRaysPerObj = 16;
 			config.minDistance = objDistance / step;
 			config.maxDistance = objDistance * step;
 			config.minRotateDegs = -72000;
@@ -951,16 +958,16 @@ int main(int argc, char* argv[])
 			config.minSize = objSize / step;
 			config.maxSize = objSize * step;
 
-			allCharts.push_back(run_cases_parallel(cases, config, threads));
+			allBins.push_back(run_cases_parallel(cases, config, threads));
 		}
 	}
 
 	statsThread.request_stop();
 
-	ChartDataCollection mergedCharts = allCharts[0];
-	for(std::size_t ci = 1; ci < allCharts.size(); ++ci)
+	BinnedDataCollection mergedBins = allBins[0];
+	for(std::size_t ci = 1; ci < allBins.size(); ++ci)
 	{
-		mergedCharts.mergeWith(allCharts[ci]);
+		mergedBins.mergeWith(allBins[ci]);
 	}
 
 	timer.stop();
@@ -970,11 +977,11 @@ int main(int argc, char* argv[])
 	PH_LOG(IntersectError, Note,
 		"Time spent: {} s.", timer.getDeltaS());
 
-	mergedCharts.errorVsDist.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+	mergedBins.errorVsDist.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
 		/ Path("error_vs_dist.csv"));
-	mergedCharts.errorVsSize.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+	mergedBins.errorVsSize.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
 		/ Path("error_vs_size.csv"));
-	mergedCharts.offsetVsDist.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
+	mergedBins.offsetVsDist.saveAsCsv(get_script_directory(EEngineProject::IntersectError)
 		/ Path("offset_vs_dist.csv"));
 
 	return exit_render_engine() ? EXIT_SUCCESS : EXIT_FAILURE;

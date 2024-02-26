@@ -103,7 +103,7 @@ inline void SampleLocation::setUvw(const math::Vector3R& uvw)
 		m_hit.getPrimitive(), 
 		uvw, 
 		m_hit.getRayT(), 
-		m_hit.getFaceId(),
+		m_hit.getFaceID(),
 		m_hit.getFaceTopology());
 }
 

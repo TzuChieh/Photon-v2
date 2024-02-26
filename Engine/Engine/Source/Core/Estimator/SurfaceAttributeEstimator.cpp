@@ -29,7 +29,7 @@ void SurfaceAttributeEstimator::estimate(
 	HitProbe probe;
 	if(integrand.getScene().isIntersecting(probingRay, &probe))
 	{
-		SurfaceHit surfaceHit(probingRay, probe);
+		//SurfaceHit surfaceHit(probingRay, probe);
 
 		/*if(out_estimation.numEstimations() >= 1)
 		{
@@ -44,7 +44,7 @@ void SurfaceAttributeEstimator::estimate(
 		//if(out_estimation.numEstimations() >= 3)
 		{
 			//out_estimation[2] = surfaceHit.getPosition();
-			out_estimation[0] = surfaceHit.getPosition().sub({30, 0, 0}).div(3);
+			//out_estimation[0] = surfaceHit.getPosition().sub({30, 0, 0}).div(3);
 		}
 
 		/*if(out_estimation.numEstimations() >= 4)

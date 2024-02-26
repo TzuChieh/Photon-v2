@@ -17,12 +17,23 @@ public:
 	PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const math::Vector3R& vC);
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	void calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-	                            HitDetail* out_detail) const override;
+
+	void calcHitDetail(
+		const Ray& ray, 
+		HitProbe&  probe,
+		HitDetail* out_detail) const override;
+
 	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
-	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
-	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
+
+	void genPosSample(
+		PrimitivePosSampleQuery& query,
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override;
+
+	void calcPosSamplePdfA(
+		PrimitivePosSamplePdfQuery& query,
+		HitProbe& probe) const override;
 
 	real calcExtendedArea() const override;
 

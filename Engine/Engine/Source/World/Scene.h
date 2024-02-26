@@ -13,6 +13,8 @@ class Intersector;
 class EmitterSampler;
 class HitProbe;
 class DirectEnergySampleQuery;
+class DirectEnergySamplePdfQuery;
+class EnergyEmissionSampleQuery;
 class Ray;
 class Emitter;
 class Primitive;
@@ -29,10 +31,32 @@ public:
 	bool isIntersecting(const Ray& ray, HitProbe* out_probe) const;
 
 	const Emitter* pickEmitter(SampleFlow& sampleFlow, real* const out_PDF) const;
-	void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const;
-	real calcDirectPdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const;
 
-	void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const;
+	/*! @brief Sample direct lighting for a target position.
+
+	@note Generates hit event (with `DirectEnergySampleOutput::getObservationRay()` and `probe`).
+	*/
+	void genDirectSample(
+		DirectEnergySampleQuery& query, 
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const;
+
+	/*! @brief Sample direct lighting for a target position.
+
+	@note Generates hit event (with `DirectEnergySamplePdfInput::getObservationRay()` and `probe`).
+	*/
+	void calcDirectSamplePdfW(
+		DirectEnergySamplePdfQuery& query,
+		HitProbe& probe) const;
+
+	/*! @brief Emit a ray that carries some amount of energy from an emitter.
+
+	@note Generates hit event (with `EnergyEmissionSampleOutput::getEmittedRay()` and `probe`).
+	*/
+	void emitRay(
+		EnergyEmissionSampleQuery& query,
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const;
 
 	void setBackgroundPrimitive(const Primitive* const primitive);
 

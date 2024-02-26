@@ -16,7 +16,7 @@ namespace ph
 class BsdfPdfInput final
 {
 public:
-	void set(const BsdfEvalQuery& eval);
+	void set(const BsdfEvalInput& evalInput);
 	void set(const BsdfSampleQuery& sample);
 	void set(const BsdfSampleInput& sampleInput, const BsdfSampleOutput& sampleOutput);
 
@@ -82,6 +82,12 @@ inline void BsdfPdfInput::set(
 	const math::Vector3R& L,
 	const math::Vector3R& V)
 {
+	// Not querying from uninitialized surface hit
+	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
+
+	PH_ASSERT_IN_RANGE(L.lengthSquared(), 0.9_r, 1.1_r);
+	PH_ASSERT_IN_RANGE(V.lengthSquared(), 0.9_r, 1.1_r);
+
 	m_X = X;
 	m_L = L;
 	m_V = V;

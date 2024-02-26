@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Core/Intersection/Primitive.h"
-#include "Core/Intersection/TransformedIntersectable.h"
+#include "Math/Transform/RigidTransform.h"
 #include "Core/HitDetail.h"
 #include "Core/HitProbe.h"
+#include "Core/Ray.h"
 
 #include <Common/assertion.h>
 
@@ -19,20 +20,25 @@ during transformations.
 */
 class TransformedPrimitive : public Primitive
 {
+	// FIXME: intersecting routines' time correctness
 public:
 	TransformedPrimitive(
 		const Primitive*            primitive,
 		const math::RigidTransform* localToWorld,
 		const math::RigidTransform* worldToLocal);
 
-	inline bool isOccluding(const Ray& ray) const override
+	bool isOccluding(const Ray& ray) const override
 	{
-		return m_intersectable.isOccluding(ray);
+		Ray localRay;
+		m_worldToLocal->transform(ray, &localRay);
+		return m_primitive->isOccluding(localRay);
 	}
 
-	inline bool isIntersecting(const Ray& ray, HitProbe& probe) const override
+	bool isIntersecting(const Ray& ray, HitProbe& probe) const override
 	{
-		if(m_intersectable.isIntersecting(ray, probe))
+		Ray localRay;
+		m_worldToLocal->transform(ray, &localRay);
+		if(m_primitive->isIntersecting(localRay, probe))
 		{
 			probe.pushIntermediateHit(this);
 			return true;
@@ -43,62 +49,71 @@ public:
 		}
 	}
 
-	inline void calcIntersectionDetail(
+	void calcHitDetail(
 		const Ray&       ray,
 		HitProbe&        probe,
 		HitDetail* const out_detail) const override
 	{
-		probe.popIntermediateHit();
-
 		// If failed, it is likely to be caused by mismatched/missing probe push or pop in the hit stack
-		PH_ASSERT(probe.getCurrentHit() == &m_intersectable);
+		PH_ASSERT(probe.getCurrentHit() == this);
 
-		m_intersectable.calcIntersectionDetail(ray, probe, out_detail);
+		probe.popHit();
+
+		Ray localRay;
+		m_worldToLocal->transform(ray, &localRay);
+
+		// Current hit is not necessary `m_primitive`. For example, if `m_primitive` contains
+		// multiple instances then it could simply skip over to one of them.
+		PH_ASSERT(probe.getCurrentHit());
+		HitDetail localDetail;
+		probe.getCurrentHit()->calcHitDetail(localRay, probe, &localDetail);
+
+		*out_detail = localDetail;
+		m_localToWorld->transform(
+			localDetail.getHitInfo(ECoordSys::World), &(out_detail->getHitInfo(ECoordSys::World)));
+
+		out_detail->addTransformLevel();
 
 		// This is a representative of the original primitive
 		out_detail->setHitIntrinsics(
 			this, 
 			out_detail->getUVW(), 
 			out_detail->getRayT(),
-			out_detail->getFaceId(),
+			out_detail->getFaceID(),
 			out_detail->getFaceTopology());
 	}
 
-	inline bool mayOverlapVolume(const math::AABB3D& aabb) const override
-	{
-		return m_intersectable.mayOverlapVolume(aabb);
-	}
+	bool mayOverlapVolume(const math::AABB3D& aabb) const override;
+	math::AABB3D calcAABB() const override;
 
-	inline math::AABB3D calcAABB() const override
-	{
-		return m_intersectable.calcAABB();
-	}
+	void genPosSample(
+		PrimitivePosSampleQuery& query,
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override;
 
-	real calcPositionSamplePdfA(const math::Vector3R& position) const override;
-	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override;
+	void calcPosSamplePdfA(
+		PrimitivePosSamplePdfQuery& query,
+		HitProbe& probe) const override;
 
 	bool uvwToPosition(
 		const math::Vector3R& uvw,
 		math::Vector3R*       out_position) const override;
 
-	inline real calcExtendedArea() const override
+	real calcExtendedArea() const override
 	{
-		// does not change under rigid transform
+		// Does not change under rigid transform
 		return m_primitive->calcExtendedArea();
 	}
 
-	const PrimitiveMetadata* getMetadata() const override;
+	const PrimitiveMetadata* getMetadata() const override
+	{
+		return m_primitive->getMetadata();
+	}
 
 private:
 	const Primitive*            m_primitive;
-	TransformedIntersectable    m_intersectable;
 	const math::RigidTransform* m_localToWorld;
 	const math::RigidTransform* m_worldToLocal;
 };
-
-inline const PrimitiveMetadata* TransformedPrimitive::getMetadata() const
-{
-	return m_primitive->getMetadata();
-}
 
 }// end namespace ph

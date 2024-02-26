@@ -4,12 +4,12 @@
 namespace ph
 {
 
-void Intersector::calcIntersectionDetail(
+void Intersector::calcHitDetail(
 	const Ray&       ray, 
 	HitProbe&        probe,
 	HitDetail* const out_detail) const
 {
-	probe.getCurrentHit()->calcIntersectionDetail(ray, probe, out_detail);
+	probe.getCurrentHit()->calcHitDetail(ray, probe, out_detail);
 }
 
 }// end namespace ph

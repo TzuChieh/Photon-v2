@@ -1,21 +1,18 @@
 #pragma once
 
 #include "Math/math_fwd.h"
-#include "Math/Transform/Transform.h"
 #include "Math/Color/Spectrum.h"
 
 #include <Common/primitive_type.h>
 
-#include <memory>
-
 namespace ph
 {
 
-class Primitive;
 class SurfaceHit;
+class HitProbe;
 class DirectEnergySampleQuery;
-class Ray;
-class Time;
+class DirectEnergySamplePdfQuery;
+class EnergyEmissionSampleQuery;
 class SampleFlow;
 
 class Emitter
@@ -25,12 +22,32 @@ public:
 	virtual ~Emitter();
 
 	virtual void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const = 0;
-	virtual void genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const = 0;
 
-	// FIXME: ray time
-	virtual void emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const = 0;
+	/*! @brief Sample direct lighting for a target position.
 
-	virtual real calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const = 0;
+	@note Generates hit event (with `DirectEnergySampleOutput::getObservationRay()` and `probe`).
+	*/
+	virtual void genDirectSample(
+		DirectEnergySampleQuery& query, 
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const = 0;
+
+	/*! @brief Sample direct lighting for a target position.
+
+	@note Generates hit event (with `DirectEnergySamplePdfInput::getObservationRay()` and `probe`).
+	*/
+	virtual void calcDirectSamplePdfW(
+		DirectEnergySamplePdfQuery& query,
+		HitProbe& probe) const = 0;
+
+	/*! @brief Emit a ray that carries some amount of energy from this emitter.
+
+	@note Generates hit event (with `EnergyEmissionSampleOutput::getEmittedRay()` and `probe`).
+	*/
+	virtual void emitRay(
+		EnergyEmissionSampleQuery& query, 
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const = 0;
 
 	virtual real calcRadiantFluxApprox() const;
 };
@@ -39,6 +56,7 @@ public:
 
 inline real Emitter::calcRadiantFluxApprox() const
 {
+	// Non-zero to avoid not being sampled
 	return 1.0_r;
 }
 

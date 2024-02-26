@@ -5,6 +5,7 @@
 #include "Core/SurfaceHit.h"
 #include "Core/LTA/lta.h"
 #include "Core/LTA/SidednessAgreement.h"
+#include "Core/LTA/SurfaceHitRefinery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
@@ -35,11 +36,29 @@ class SurfaceTracer final
 public:
 	explicit SurfaceTracer(const Scene* scene);
 
-	/*!
+	/*! @brief Find the next surface.
+	This variant does not refine the surface hit point. If refining is desired,
+	see `traceNextSurfaceFrom()`.
+	@param ray The ray that is used for finding the next surface.
+	@param sidedness Sidedness policy.
 	@return out_X The next surface.
 	@return Is the next surface found. Outputs are not usable if `false` is returned.
 	*/
 	bool traceNextSurface(
+		const Ray&                ray, 
+		const SidednessAgreement& sidedness, 
+		SurfaceHit*               out_X) const;
+
+	/*! @brief Find the next surface from a location.
+	This variant also refines the surface hit point before starting the trace.
+	@param X The location to start the find from. Can also use the object as `out_X`.
+	@param ray The ray that is used for finding the next surface.
+	@param sidedness Sidedness policy.
+	@return out_X The next surface.
+	@return Is the next surface found. Outputs are not usable if `false` is returned.
+	*/
+	bool traceNextSurfaceFrom(
+		const SurfaceHit&         X,
 		const Ray&                ray, 
 		const SidednessAgreement& sidedness, 
 		SurfaceHit*               out_X) const;
@@ -114,10 +133,23 @@ inline bool SurfaceTracer::traceNextSurface(
 		return false;
 	}
 
-	*out_X = SurfaceHit(ray, probe);
+	*out_X = SurfaceHit(ray, probe, SurfaceHitReason(ESurfaceHitReason::IncidentRay));
 	sidedness.adjustForSidednessAgreement(*out_X);
 
 	return sidedness.isSidednessAgreed(*out_X, ray.getDirection());
+}
+
+inline bool SurfaceTracer::traceNextSurfaceFrom(
+	const SurfaceHit&         X,
+	const Ray&                ray, 
+	const SidednessAgreement& sidedness, 
+	SurfaceHit* const         out_X) const
+{
+	// Not tracing from uninitialized surface hit
+	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
+
+	const Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDirection());
+	return traceNextSurface(refinedRay, sidedness, out_X);
 }
 
 inline bool SurfaceTracer::bsdfSampleNextSurface(
@@ -131,7 +163,11 @@ inline bool SurfaceTracer::bsdfSampleNextSurface(
 		return false;
 	}
 
-	return traceNextSurface(sampledRay, bsdfSample.context.sidedness, out_X);
+	return traceNextSurfaceFrom(
+		bsdfSample.inputs.getX(), 
+		sampledRay, 
+		bsdfSample.context.sidedness, 
+		out_X);
 }
 
 inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const
@@ -162,9 +198,9 @@ inline bool SurfaceTracer::doBsdfSample(
 	*out_sampledRay = Ray(
 		bsdfSample.inputs.getX().getPosition(),
 		bsdfSample.outputs.getL(),
-		lta::self_intersect_delta,
+		0,
 		std::numeric_limits<real>::max(),
-		bsdfSample.inputs.getX().getIncidentRay().getTime());
+		bsdfSample.inputs.getX().getTime());
 
 	return true;
 }

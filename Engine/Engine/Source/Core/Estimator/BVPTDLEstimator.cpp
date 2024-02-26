@@ -13,7 +13,7 @@
 #include "Math/TVector3.h"
 #include "Core/Estimator/Integrand.h"
 
-#include <iostream>
+#include <limits>
 
 namespace ph
 {
@@ -35,10 +35,9 @@ void BVPTDLEstimator::estimate(
 	{
 		// backward tracing to light
 		firstRay = Ray(ray).reverse();
-		firstRay.setMinT(0.0001_r);// HACK: hard-coded number
-		firstRay.setMaxT(std::numeric_limits<real>::max());
+		firstRay.setRange(0, std::numeric_limits<real>::max());
 
-		if(!surfaceTracer.traceNextSurface(firstRay, BsdfQueryContext().sidedness, &firstHit))
+		if(!surfaceTracer.traceNextSurface(firstRay, BsdfQueryContext{}.sidedness, &firstHit))
 		{
 			return;
 		}
@@ -72,7 +71,8 @@ void BVPTDLEstimator::estimate(
 			return;
 		}
 
-		if(!surfaceTracer.traceNextSurface(secondRay, BsdfQueryContext().sidedness, &secondHit))
+		if(!surfaceTracer.traceNextSurfaceFrom(
+			firstHit, secondRay, BsdfQueryContext{}.sidedness, &secondHit))
 		{
 			return;
 		}

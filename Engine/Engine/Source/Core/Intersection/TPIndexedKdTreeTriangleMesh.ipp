@@ -14,18 +14,6 @@
 namespace ph
 {
 
-namespace detail
-{
-
-template<typename Index>
-struct TClosestHitProbeResult
-{
-	math::Vector3R bary;
-	Index faceIndex;
-};
-
-}// end namespace detail
-
 template<typename Index>
 inline TPIndexedKdTreeTriangleMesh<Index>::TPIndexedKdTreeTriangleMesh(
 	IndexedTriangleBuffer* const triangleBuffer,
@@ -53,7 +41,7 @@ template<typename Index>
 inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	real closestHitT = std::numeric_limits<real>::max();
-	detail::TClosestHitProbeResult<Index> closestHit;
+	ClosestHitProbeResult closestHit;
 
 	const bool hasHit = m_kdTree.nearestTraversal(
 		ray.getSegment(), 
@@ -96,15 +84,15 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, H
 }
 
 template<typename Index>
-inline void TPIndexedKdTreeTriangleMesh<Index>::calcIntersectionDetail(
-	const Ray& ray,
-	HitProbe& probe,
+inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
+	const Ray&       ray,
+	HitProbe&        probe,
 	HitDetail* const out_detail) const
 {
 	PH_ASSERT(out_detail);
 	PH_ASSERT(m_triangleBuffer);
 
-	const auto closestHit = probe.popCache<detail::TClosestHitProbeResult<Index>>();
+	const auto closestHit = probe.popCache<ClosestHitProbeResult>();
 	PH_ASSERT_MSG(!closestHit.bary.isZero() && closestHit.bary.isFinite(),
 		closestHit.bary.toString());
 

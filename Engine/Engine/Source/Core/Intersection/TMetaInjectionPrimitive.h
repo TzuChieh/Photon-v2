@@ -117,24 +117,24 @@ public:
 		}
 	}
 
-	void calcIntersectionDetail(
-		const Ray& ray,
-		HitProbe& probe,
+	void calcHitDetail(
+		const Ray&       ray,
+		HitProbe&        probe,
 		HitDetail* const out_detail) const override
 	{
-		probe.popIntermediateHit();
+		probe.popHit();
 
 		// If failed, it is likely to be caused by mismatched/missing probe push or pop in the hit stack
 		PH_ASSERT(probe.getCurrentHit() == getInjectee());
 
-		m_primitiveGetter()->calcIntersectionDetail(ray, probe, out_detail);
+		m_primitiveGetter()->calcHitDetail(ray, probe, out_detail);
 
 		// This is a representative of the original primitive
 		out_detail->setHitIntrinsics(
 			this, 
 			out_detail->getUVW(), 
 			out_detail->getRayT(),
-			out_detail->getFaceId(),
+			out_detail->getFaceID(),
 			out_detail->getFaceTopology());
 	}
 
@@ -153,14 +153,19 @@ public:
 		return m_primitiveGetter()->mayOverlapVolume(volume);
 	}
 
-	void genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const override
+	void genPosSample(
+		PrimitivePosSampleQuery& query, 
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override
 	{
-		m_primitiveGetter()->genPositionSample(query, sampleFlow);
+		m_primitiveGetter()->genPosSample(query, sampleFlow, probe);
 	}
 
-	real calcPositionSamplePdfA(const math::Vector3R& position) const override
+	void calcPosSamplePdfA(
+		PrimitivePosSamplePdfQuery& query,
+		HitProbe& probe) const override
 	{
-		return m_primitiveGetter()->calcPositionSamplePdfA(position);
+		m_primitiveGetter()->calcPosSamplePdfA(query, probe);
 	}
 
 	real calcExtendedArea() const override

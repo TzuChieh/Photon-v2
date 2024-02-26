@@ -2,7 +2,12 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
+#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
+#include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
+#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
 #include "Core/Intersection/PLatLongEnvSphere.h"
+#include "Core/LTA/lta.h"
 #include "Math/constant.h"
 #include "Math/math.h"
 #include "Math/Geometry/TDisk.h"
@@ -16,6 +21,7 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <limits>
 
 namespace ph
 {
@@ -85,87 +91,97 @@ void LatLongEnvEmitter::evalEmittedRadiance(
 	*out_radiance = sampler.sample(*m_radiance, X);
 }
 
-void LatLongEnvEmitter::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
-{
-	query.out.pdfW = 0;
-	query.out.srcPrimitive = m_surface;
-
-	real uvSamplePdf;
-	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
-		sampleFlow.flow2D(),
-		&uvSamplePdf);
-
-	if(!m_surface->latLong01ToSurface(uvSample, query.in.targetPos, &query.out.emitPos))
-	{
-		return;
-	}
-
-	TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
-	query.out.radianceLe = sampler.sample(*m_radiance, uvSample);
-	
-	// FIXME: assuming spherical uv mapping is used
-	const real sinTheta = std::sin((1.0_r - uvSample.y()) * math::constant::pi<real>);
-	if(sinTheta <= 0.0_r)
-	{
-		return;
-	}
-	query.out.pdfW = uvSamplePdf / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
-}
-
-// FIXME: ray time
-void LatLongEnvEmitter::emitRay(SampleFlow& sampleFlow, Ray* out_ray, math::Spectrum* out_Le, math::Vector3R* out_eN, real* out_pdfA, real* out_pdfW) const
+void LatLongEnvEmitter::genDirectSample(
+	DirectEnergySampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
-		sampleFlow.flow2D(),
-		&uvSamplePdf);
+		sampleFlow.flow2D(), &uvSamplePdf);
 
-	TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
-	*out_Le = sampler.sample(*m_radiance, uvSample);
+	PrimitivePosSampleQuery posSample;
+	posSample.inputs.set(query.inputs.getTime(), query.inputs.getTargetPos());
 
-	const real sinTheta = std::sin((1.0_r - uvSample.y()) * math::constant::pi<real>);
-	*out_pdfW = uvSamplePdf / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
-
-	// HACK
-	math::Vector3R direction;
-	m_surface->latLong01ToSurface(
-		uvSample,
-		math::Vector3R(0, 0, 0),
-		&direction);
-	direction.normalizeLocal();
-	direction.mulLocal(-1);
-	*out_eN = direction;
-	
-	real diskPdf;
-	math::Vector2R diskPos = math::TDisk<real>(1.0_r).sampleToSurface2D(
-		sampleFlow.flow2D(), &diskPdf);
-
-	*out_pdfA = diskPdf / (m_surface->getRadius() * m_surface->getRadius());
-
-	const auto basis = math::Basis3R::makeFromUnitY(direction);
-	math::Vector3R position = direction.mul(-1) * m_surface->getRadius() +
-		(basis.getZAxis() * diskPos.x() * m_surface->getRadius()) +
-		(basis.getXAxis() * diskPos.y() * m_surface->getRadius());// TODO: use TDisk to do this
-
-	out_ray->setDirection(direction);
-	out_ray->setOrigin(position);
-	out_ray->setMinT(0.0001_r);// HACK: hard-code number
-	out_ray->setMaxT(std::numeric_limits<real>::max());
-}
-
-real LatLongEnvEmitter::calcDirectSamplePdfW(
-	const SurfaceHit&     emitPos, 
-	const math::Vector3R& targetPos) const
-{
-	// FIXME: assuming spherical uv mapping us used
-	const math::Vector3R uvw = emitPos.getDetail().getUVW();
-	const real sinTheta = std::sin((1.0_r - uvw.y()) * math::constant::pi<real>);
-	if(sinTheta <= 0.0_r)
+	m_surface->genPosSampleWithObservationPos(uvSample, uvSamplePdf, posSample, probe);
+	if(!posSample.outputs)
 	{
-		return 0.0_r;
+		query.outputs.invalidate();
+		return;
 	}
 
-	return m_sampleDistribution.pdfContinuous({uvw.x(), uvw.y()}) / (2.0_r * math::constant::pi<real> * math::constant::pi<real> * sinTheta);
+	HitDetail detail;
+	HitProbe(probe).calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+
+	// TODO: use sampler with surface hit
+	query.outputs.setEmittedEnergy(TSampler<math::Spectrum>{math::EColorUsage::EMR}.sample(
+		*m_radiance, uvSample));
+	query.outputs.setEmitPos(posSample.outputs.getPos());
+	query.outputs.setPdfW(lta::pdfA_to_pdfW(
+		posSample.outputs.getPdfA(), 
+		query.inputs.getTargetPos() - posSample.outputs.getPos(),
+		detail.getShadingNormal()));
+	query.outputs.setSrcPrimitive(m_surface);
+	query.outputs.setObservationRay(posSample.outputs.getObservationRay());
+}
+
+void LatLongEnvEmitter::calcDirectSamplePdfW(
+	DirectEnergySamplePdfQuery& query,
+	HitProbe& probe) const
+{
+	const math::Vector3R uvw(query.inputs.getXe().getDetail().getUVW());
+	const math::Vector2R latLong01(uvw.x(), uvw.y());
+	const auto latLong01Pdf = m_sampleDistribution.pdfContinuous({uvw.x(), uvw.y()});
+
+	PrimitivePosSamplePdfQuery pdfQuery;
+	pdfQuery.inputs.set(query.inputs);
+	m_surface->calcPosSamplePdfWithObservationPos(latLong01, latLong01Pdf, pdfQuery, probe);
+	if(!pdfQuery.outputs)
+	{
+		query.outputs.setPdfW(0);
+		return;
+	}
+
+	query.outputs.setPdfW(lta::pdfA_to_pdfW(
+		pdfQuery.outputs.getPdfA(),
+		query.inputs.getTargetPos() - query.inputs.getEmitPos(),
+		query.inputs.getXe().getShadingNormal()));
+}
+
+void LatLongEnvEmitter::emitRay(
+	EnergyEmissionSampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
+{
+	real uvSamplePdf;
+	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
+		sampleFlow.flow2D(), &uvSamplePdf);
+
+	const auto emittedEnergy = TSampler<math::Spectrum>{math::EColorUsage::EMR}.sample(
+		*m_radiance, uvSample);
+
+	PrimitivePosSampleQuery posSample;
+	posSample.inputs.set(query.inputs.getTime());
+
+	math::Vector3R unitObservationDir;
+	real pdfW;
+	m_surface->genPosSampleWithoutObservationPos(
+		uvSample, uvSamplePdf, posSample, sampleFlow, probe, &unitObservationDir, &pdfW);
+	if(!posSample.outputs)
+	{
+		query.outputs.invalidate();
+		return;
+	}
+
+	auto emittedRay = posSample.outputs.getObservationRay();
+	emittedRay.setDirection(-unitObservationDir);
+	emittedRay.setRange(0, std::numeric_limits<real>::max());
+
+	probe.replaceBaseHitRayTWith(emittedRay.getMinT());
+
+	query.outputs.setEmittedEnergy(emittedEnergy);
+	query.outputs.setEmittedRay(emittedRay);
+	query.outputs.setPdf(posSample.outputs.getPdfA(), pdfW);
 }
 
 real LatLongEnvEmitter::calcRadiantFluxApprox() const

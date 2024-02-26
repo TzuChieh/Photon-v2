@@ -20,8 +20,8 @@ public:
 	explicit BsdfQueryContext(lta::ESidednessPolicy sidednessPolicy);
 
 	BsdfQueryContext(
-		SurfaceElemental elemental, 
-		ETransport       transport, 
+		SurfaceElemental      elemental, 
+		ETransport            transport, 
 		lta::ESidednessPolicy sidednessPolicy = lta::ESidednessPolicy::Strict);
 };
 

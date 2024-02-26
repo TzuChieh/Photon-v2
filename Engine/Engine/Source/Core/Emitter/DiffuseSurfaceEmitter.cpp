@@ -4,22 +4,27 @@
 #include "Core/Texture/constant_textures.h"
 #include "Core/Intersection/Primitive.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
+#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
+#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 #include "Core/Ray.h"
-#include "Math/constant.h"
+#include "Core/HitProbe.h"
+#include "Core/HitDetail.h"
 #include "Core/Texture/TSampler.h"
+#include "Math/constant.h"
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Math/Geometry/THemisphere.h"
 #include "Math/TOrthonormalBasis3.h"
 #include "Core/SampleGenerator/SampleFlow.h"
+#include "Core/LTA/lta.h"
 #include "Math/Color/spectral_samples.h"
 #include "Math/Color/color_spaces.h"
 
 #include <Common/assertion.h>
 
-#include <algorithm>
-#include <cmath>
+#include <limits>
 
 namespace ph
 {
@@ -54,68 +59,90 @@ void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spect
 	*out_radiance = sampler.sample(getEmittedRadiance(), X);
 }
 
-void DiffuseSurfaceEmitter::genDirectSample(DirectEnergySampleQuery& query, SampleFlow& sampleFlow) const
+void DiffuseSurfaceEmitter::genDirectSample(
+	DirectEnergySampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
-	PrimitivePosSampleQuery positionSample;
-	m_surface->genPositionSample(positionSample, sampleFlow);
-	if(!positionSample.out)
+	PrimitivePosSampleQuery posSample;
+	posSample.inputs.set(query.inputs.getTime(), query.inputs.getTargetPos());
+
+	m_surface->genPosSample(posSample, sampleFlow, probe);
+	if(!posSample.outputs)
 	{
+		query.outputs.invalidate();
 		return;
 	}
 
-	const math::Vector3R emitterToTargetPos(query.in.targetPos - positionSample.out.position);
-	const math::Vector3R emitDir(emitterToTargetPos.normalize());
-	if(!canEmit(emitDir, positionSample.out.normal))
+	HitDetail detail;
+	HitProbe(probe).calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+
+	const auto emitterToTargetPos = query.inputs.getTargetPos() - posSample.outputs.getPos();
+	if(!canEmit(emitterToTargetPos, detail.getShadingNormal()))
 	{
+		query.outputs.invalidate();
 		return;
 	}
 
-	query.out.emitPos = positionSample.out.position;
-	query.out.srcPrimitive = m_surface;
-
-	const real distSquared = emitterToTargetPos.lengthSquared();
-	const real emitDirDotNormal = emitDir.dot(positionSample.out.normal);
-	query.out.pdfW = positionSample.out.pdfA / std::abs(emitDirDotNormal) * distSquared;
-
-	// TODO: use sampler
+	// TODO: use sampler with surface hit
+	math::Spectrum emittedEnergy;
 	getEmittedRadiance().sample(
-		SampleLocation(positionSample.out.uvw, math::EColorUsage::EMR), &query.out.radianceLe);
+		SampleLocation(detail.getUVW(), math::EColorUsage::EMR), &emittedEnergy);
+
+	query.outputs.setEmitPos(posSample.outputs.getPos());
+	query.outputs.setEmittedEnergy(emittedEnergy);
+	query.outputs.setSrcPrimitive(m_surface);
+	query.outputs.setPdfW(lta::pdfA_to_pdfW(
+		posSample.outputs.getPdfA(), emitterToTargetPos, detail.getShadingNormal()));
+	query.outputs.setObservationRay(posSample.outputs.getObservationRay());
 }
 
-real DiffuseSurfaceEmitter::calcDirectSamplePdfW(const SurfaceHit& emitPos, const math::Vector3R& targetPos) const
+void DiffuseSurfaceEmitter::calcDirectSamplePdfW(
+	DirectEnergySamplePdfQuery& query,
+	HitProbe& probe) const
 {
-	return calcPdfW(emitPos, targetPos);
+	calcDirectSamplePdfWForSingleSurface(query, probe);
 }
 
-void DiffuseSurfaceEmitter::emitRay(SampleFlow& sampleFlow, Ray* const out_ray, math::Spectrum* const out_Le, math::Vector3R* const out_eN, real* const out_pdfA, real* const out_pdfW) const
+void DiffuseSurfaceEmitter::emitRay(
+	EnergyEmissionSampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
-	PrimitivePosSampleQuery positionSample;
-	m_surface->genPositionSample(positionSample, sampleFlow);
-
-	/*real pdfW;
-	Vector3R rayDir = UniformUnitHemisphere::map(
-		{Random::genUniformReal_i0_e1(), Random::genUniformReal_i0_e1()},
-		&pdfW);*/
+	PrimitivePosSampleQuery posSample;
+	posSample.inputs.set(query.inputs.getTime());
+	m_surface->genPosSample(posSample, sampleFlow, probe);
+	if(!posSample.outputs)
+	{
+		query.outputs.invalidate();
+		return;
+	}
 
 	real pdfW;
 	const auto localRayDir = math::THemisphere<real>::makeUnit().sampleToSurfaceCosThetaWeighted(
-		sampleFlow.flow2D(),
-		&pdfW);
+		sampleFlow.flow2D(), &pdfW);
 
-	const auto sampleBasis = math::Basis3R::makeFromUnitY(positionSample.out.normal);
-	math::Vector3R rayDir = sampleBasis.localToWorld(localRayDir);
-	rayDir.normalizeLocal();
+	HitDetail detail;
+	HitProbe(probe).calcHitDetail(posSample.outputs.getObservationRay(), &detail);
 
-	// TODO: time
+	const auto sampleBasis = math::Basis3R::makeFromUnitY(detail.getShadingNormal());
+	const auto rayDir = sampleBasis.localToWorld(localRayDir);
 
-	out_ray->setDirection(rayDir);
-	out_ray->setOrigin(positionSample.out.position);
-	out_ray->setMinT(0.0001_r);// HACK: hard-code number
-	out_ray->setMaxT(std::numeric_limits<real>::max());
-	*out_eN = positionSample.out.normal;
-	*out_pdfA = positionSample.out.pdfA;
-	*out_pdfW = pdfW;
-	*out_Le = TSampler<math::Spectrum>(math::EColorUsage::EMR).sample(*m_emittedRadiance, positionSample.out.uvw);
+	const Ray emittedRay(
+		posSample.outputs.getPos(),
+		rayDir.normalize(),
+		0,
+		std::numeric_limits<real>::max(),
+		query.inputs.getTime());
+
+	// The emitted ray will be representing the hit event
+	probe.replaceBaseHitRayTWith(emittedRay.getMinT());
+
+	query.outputs.setEmittedRay(emittedRay);
+	query.outputs.setPdf(posSample.outputs.getPdfA(), pdfW);
+	query.outputs.setEmittedEnergy(
+		TSampler<math::Spectrum>(math::EColorUsage::EMR).sample(
+			*m_emittedRadiance, detail.getUVW()));
 }
 
 const Primitive* DiffuseSurfaceEmitter::getSurface() const
@@ -141,22 +168,30 @@ real DiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 {
 	PH_ASSERT(m_emittedRadiance && m_surface);
 
-	// randomly pick a point on the surface
+	// Randomly pick a point on the surface
 
 	// TODO: more samples can be better
-	PrimitivePosSampleQuery positionSample;
+	// FIXME: use random time
+
+	PrimitivePosSampleQuery posSample;
+	posSample.inputs.set(Time{});
 	SampleFlow randomFlow;
-	m_surface->genPositionSample(positionSample, randomFlow);
-	if(!positionSample.out)
+	HitProbe probe;
+	m_surface->genPosSample(posSample, randomFlow, probe);
+	if(!posSample.outputs)
 	{
 		return SurfaceEmitter::calcRadiantFluxApprox();
 	}
 
 	// FIXME: this assumption is too bad
 
-	// and assume the surface emits constant radiance sampled from that point
+	// And assume the surface emits constant radiance sampled from that point
 
-	const auto sampledL = TSampler<math::Spectrum>(math::EColorUsage::EMR).sample(*m_emittedRadiance, positionSample.out.uvw);
+	HitDetail detail;
+	probe.calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+
+	const auto sampledL = TSampler<math::Spectrum>(math::EColorUsage::EMR).sample(
+		*m_emittedRadiance, detail.getUVW());
 
 	const real radiance     = math::estimate_color_energy<math::Spectrum::getColorSpace(), real>(sampledL.getColorValues());
 	const real extendedArea = m_surface->calcExtendedArea();

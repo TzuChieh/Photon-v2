@@ -5,6 +5,7 @@
 #include "Core/HitDetail.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
+#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
 #include "Math/TVector2.h"
 #include "Math/math.h"
 #include "Core/SampleGenerator/SampleFlow.h"
@@ -46,8 +47,10 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 	return true;
 }
 
-void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
-                                       HitDetail* const out_detail) const
+void PTriangle::calcHitDetail(
+	const Ray&       ray,
+	HitProbe&        probe,
+	HitDetail* const out_detail) const
 {
 	PH_ASSERT(out_detail);
 
@@ -55,24 +58,17 @@ void PTriangle::calcIntersectionDetail(const Ray& ray, HitProbe& probe,
 	PH_ASSERT_MSG(!hitBaryABC.isZero() && hitBaryABC.isFinite(), 
 		hitBaryABC.toString());
 
-	const math::Vector3R hitPosition = m_triangle.barycentricToSurface(hitBaryABC);
-
-	const auto hitShadingNormal = math::Vector3R::weightedSum(
-		m_nA, hitBaryABC.x(),
-		m_nB, hitBaryABC.y(),
-		m_nC, hitBaryABC.z()).normalizeLocal();
+	const auto hitPosition = m_triangle.barycentricToSurface(hitBaryABC);
+	const auto hitShadingNormal = Triangle::interpolate(m_nA, m_nB, m_nC, hitBaryABC).normalize();
+	const auto hitUVW = Triangle::interpolate(m_uvwA, m_uvwB, m_uvwC, hitBaryABC);
 
 	PH_ASSERT_MSG(hitPosition.isFinite() && hitShadingNormal.isFinite(), "\n"
-		"hit-position       = " + hitPosition.toString() + "\n"
-		"hit-shading-normal = " + hitShadingNormal.toString() + "\n");
+		"hitPosition      = " + hitPosition.toString() + "\n"
+		"hitShadingNormal = " + hitShadingNormal.toString() + "\n");
+	PH_ASSERT_IN_RANGE(hitShadingNormal.lengthSquared(), 0.9_r, 1.1_r);
 
 	// TODO: respect primitive channel
 	// (if it's default channel, use vertex uvw; otherwise, use mapper)
-
-	const auto hitUVW = math::Vector3R::weightedSum(
-		m_uvwA, hitBaryABC.x(),
-		m_uvwB, hitBaryABC.y(),
-		m_uvwC, hitBaryABC.z());
 
 	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
@@ -130,7 +126,7 @@ bool PTriangle::mayOverlapVolume(const math::AABB3D& volume) const
 	math::Vector3R tvB = m_triangle.getVb();
 	math::Vector3R tvC = m_triangle.getVc();
 
-	// move the origin to the volume/AABB's center
+	// Move the origin to the volume/AABB's center
 	const math::Vector3R aabbCenter(volume.getMinVertex().add(volume.getMaxVertex()).mulLocal(0.5_r));
 	tvA.subLocal(aabbCenter);
 	tvB.subLocal(aabbCenter);
@@ -140,7 +136,7 @@ bool PTriangle::mayOverlapVolume(const math::AABB3D& volume) const
 	math::Vector3R projection;
 	math::Vector3R sortedProjection;// (min, mid, max)
 
-	// test AABB face normals (x-, y- and z-axes)
+	// Test AABB face normals (x-, y- and z-axes)
 	projection.set({tvA.x(), tvB.x(), tvC.x()});
 	projection.sort(&sortedProjection);
 	if(sortedProjection.z() < -aabbHalfExtents.x() || sortedProjection.x() > aabbHalfExtents.x())
@@ -156,7 +152,7 @@ bool PTriangle::mayOverlapVolume(const math::AABB3D& volume) const
 	if(sortedProjection.z() < -aabbHalfExtents.z() || sortedProjection.x() > aabbHalfExtents.z())
 		return false;
 
-	// test triangle's face normal
+	// Test triangle's face normal
 	real trigOffset = math::Vector3R(tvA).dot(m_faceNormal);
 	sortedProjection.z() = std::abs(aabbHalfExtents.x() * m_faceNormal.x())
 	                     + std::abs(aabbHalfExtents.y() * m_faceNormal.y())
@@ -165,7 +161,7 @@ bool PTriangle::mayOverlapVolume(const math::AABB3D& volume) const
 	if(sortedProjection.z() < trigOffset || sortedProjection.x() > trigOffset)
 		return false;
 
-	// test 9 edge cross-products (saves in projection)
+	// Test 9 edge cross-products (saves in projection)
 	real aabbR;
 	real trigE;// projected coordinate of a triangle's edge
 	real trigV;// the remaining vertex's projected coordinate
@@ -244,30 +240,49 @@ bool PTriangle::mayOverlapVolume(const math::AABB3D& volume) const
 	if(trigE < trigV) { if(trigE > aabbR || trigV < -aabbR) return false; }
 	else              { if(trigV > aabbR || trigE < -aabbR) return false; }
 
-	// no separating axis found
+	// No separating axis found
 	return true;
 }
 
-void PTriangle::genPositionSample(PrimitivePosSampleQuery& query, SampleFlow& sampleFlow) const
+void PTriangle::genPosSample(
+	PrimitivePosSampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
 {
-	const math::Vector3R baryABC = m_triangle.sampleToBarycentricOsada(
-		sampleFlow.flow2D(), &query.out.pdfA);
+	real pdfA;
+	const auto baryABC = m_triangle.sampleToBarycentricOsada(
+		sampleFlow.flow2D(), &pdfA);
 
-	query.out.position = m_triangle.barycentricToSurface(baryABC);
-	query.out.uvw      = Triangle::interpolate(m_uvwA, m_uvwB, m_uvwC, baryABC);
-	query.out.normal   = Triangle::interpolate(m_nA, m_nB, m_nC, baryABC).normalize();
+	const auto pos = m_triangle.barycentricToSurface(baryABC);
 
-	PH_ASSERT_IN_RANGE(query.out.normal.length(), 0.9_r, 1.1_r);
+	const Ray observationRay(
+		query.inputs.getObservationPos().value_or(pos),
+		pos - query.inputs.getObservationPos().value_or(pos),
+		0,
+		1,
+		query.inputs.getTime());
+
+	query.outputs.setPos(pos);
+	query.outputs.setPdfA(pdfA);
+	query.outputs.setObservationRay(observationRay);
+
+	probe.pushBaseHit(this, observationRay.getMaxT());
+	probe.pushCache(baryABC);
+}
+
+void PTriangle::calcPosSamplePdfA(
+	PrimitivePosSamplePdfQuery& query,
+	HitProbe& probe) const
+{
+	query.outputs.setPdfA(m_triangle.uniformSurfaceSamplePdfA());
+
+	probe.pushBaseHit(this, query.inputs.getObservationRay().getMaxT());
+	probe.pushCache(m_triangle.surfaceToBarycentric(query.inputs.getPos()));
 }
 
 real PTriangle::calcExtendedArea() const
 {
 	return m_triangle.getArea();
-}
-
-real PTriangle::calcPositionSamplePdfA(const math::Vector3R& position) const
-{
-	return 1.0_r / PTriangle::calcExtendedArea();
 }
 
 }// end namespace ph

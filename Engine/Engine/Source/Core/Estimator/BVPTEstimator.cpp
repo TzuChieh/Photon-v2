@@ -16,8 +16,6 @@
 #include "Math/TVector3.h"
 #include "Core/Estimator/Integrand.h"
 
-#include <iostream>
-
 #define MAX_RAY_BOUNCES 10000
 //#define MAX_RAY_BOUNCES 1
 
@@ -36,15 +34,29 @@ void BVPTEstimator::estimate(
 	math::Spectrum accuRadiance(0);
 	math::Spectrum accuLiWeight(1);
 
-	// backward tracing to light
+	// Backward tracing to light
 	Ray tracingRay = Ray(ray).reverse();
-	tracingRay.setMinT(0.0001_r);// HACK: hard-coded number
-	tracingRay.setMaxT(std::numeric_limits<real>::max());
+	tracingRay.setRange(0, std::numeric_limits<real>::max());
 
 	SurfaceHit surfaceHit;
-	while(numBounces <= MAX_RAY_BOUNCES && 
-	      surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext().sidedness, &surfaceHit))
+	while(numBounces <= MAX_RAY_BOUNCES)
 	{
+		if(numBounces == 0)
+		{
+			if(!surfaceTracer.traceNextSurface(tracingRay, BsdfQueryContext{}.sidedness, &surfaceHit))
+			{
+				break;
+			}
+		}
+		else
+		{
+			if(!surfaceTracer.traceNextSurfaceFrom(
+				surfaceHit, tracingRay, BsdfQueryContext{}.sidedness, &surfaceHit))
+			{
+				break;
+			}
+		}
+
 		const auto* const      metadata           = surfaceHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& hitSurfaceBehavior = metadata->getSurface();
 

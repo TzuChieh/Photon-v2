@@ -16,7 +16,7 @@ public:
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 	bool isOccluding(const Ray& ray) const override;
 
-	void calcIntersectionDetail(
+	void calcHitDetail(
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
@@ -41,7 +41,7 @@ inline bool PEmpty::isOccluding(const Ray& ray) const
 	return false;
 }
 
-inline void PEmpty::calcIntersectionDetail(
+inline void PEmpty::calcHitDetail(
 	const Ray& ray,
 	HitProbe&  probe,
 	HitDetail* const out_detail) const
