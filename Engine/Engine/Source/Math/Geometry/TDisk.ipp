@@ -7,6 +7,12 @@ namespace ph::math
 {
 
 template<typename T>
+inline TDisk<T> TDisk<T>::makeUnit()
+{
+	return TDisk(1);
+}
+
+template<typename T>
 inline TDisk<T>::TDisk(const T radius) : 
 	m_radius(radius)
 {

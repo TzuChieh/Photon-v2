@@ -18,6 +18,8 @@ template<typename T>
 class TDisk final
 {
 public:
+	static TDisk makeUnit();
+
 	TDisk() = default;
 	explicit TDisk(T radius);
 

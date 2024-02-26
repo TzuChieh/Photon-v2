@@ -33,6 +33,12 @@ public:
 	*/
 	Ray(const math::Vector3R& origin, const math::Vector3R& direction);
 
+	/*! @brief A longest possible ray.
+
+	@param direction Does not need to be normalized.
+	*/
+	Ray(const math::Vector3R& origin, const math::Vector3R& direction, const Time& time);
+
 	/*! @brief A ray segment.
 
 	@param minT Parametric distance where the ray begins.
@@ -46,7 +52,10 @@ public:
 	*/
 	Ray(const math::Vector3R& origin, const math::Vector3R& direction, real minT, real maxT, const Time& time);
 
-	// TODO: doc
+	/*! @copydoc Ray::Ray(const Vector3R&, const Vector3R&, real, real)
+
+	@param time The associated time of this ray.
+	*/
 	Ray(const math::TLineSegment<real>& segment, const Time& time);
 
 	/*! @brief Points this ray in opposite direction.
@@ -119,31 +128,36 @@ private:
 
 // In-header Implementations:
 
-inline Ray::Ray(const math::TLineSegment<real>& segment, const Time& time) :
-	m_segment(segment), m_time(time)
+inline Ray::Ray(const math::TLineSegment<real>& segment, const Time& time)
+	: m_segment(segment)
+	, m_time(time)
 {}
 
 inline Ray::Ray(
-	const math::Vector3R& origin, const math::Vector3R& direction,
-	const real minT, const real maxT,
-	const Time& time) :
+	const math::Vector3R& origin,
+	const math::Vector3R& direction,
+	const real minT,
+	const real maxT,
+	const Time& time)
 
-	Ray(
-		math::TLineSegment<real>(
-			origin, direction,
-			minT, maxT),
-		time)
+	: Ray(math::TLineSegment<real>(origin, direction, minT, maxT), time)
 {}
 
 inline Ray::Ray(
-	const math::Vector3R& origin, const math::Vector3R& direction,
-	const real minT, const real maxT) :
+	const math::Vector3R& origin, 
+	const math::Vector3R& direction, 
+	const real minT, 
+	const real maxT)
 
-	Ray(origin, direction, minT, maxT, Time())
+	: Ray(origin, direction, minT, maxT, Time{})
 {}
 
-inline Ray::Ray(const math::Vector3R& origin, const math::Vector3R& direction) :
-	Ray(origin, direction, 0, std::numeric_limits<real>::max())
+inline Ray::Ray(const math::Vector3R& origin, const math::Vector3R& direction)
+	: Ray(origin, direction, 0, std::numeric_limits<real>::max())
+{}
+
+inline Ray::Ray(const math::Vector3R& origin, const math::Vector3R& direction, const Time& time)
+	: Ray(origin, direction, 0, std::numeric_limits<real>::max(), time)
 {}
 
 inline Ray& Ray::reverse()

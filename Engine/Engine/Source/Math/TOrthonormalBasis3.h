@@ -12,8 +12,13 @@ class TOrthonormalBasis3 final
 public:
 	static TOrthonormalBasis3 makeFromUnitY(const TVector3<T>& unitYAxis);
 
+	/*! @brief Creates basis with unit x, y and z axes.
+	*/
 	TOrthonormalBasis3();
 
+	/*! @brief Creates basis with custom x, y and z axes.
+	All axes are expected to be normalized already.
+	*/
 	TOrthonormalBasis3(
 		const TVector3<T>& xAxis, 
 		const TVector3<T>& yAxis, 

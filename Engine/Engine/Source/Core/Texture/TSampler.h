@@ -15,19 +15,19 @@ template<typename OutputType>
 class TSampler final
 {
 public:
-	inline TSampler() :
+	TSampler() :
 		TSampler(math::EColorUsage::RAW)
 	{}
 
-	inline TSampler(const math::EColorUsage sampleUsage) :
+	TSampler(const math::EColorUsage sampleUsage) :
 		TSampler(sampleUsage, 0)
 	{}
 
-	inline TSampler(const math::EColorUsage sampleUsage, const uint32 sampledChannel) :
+	TSampler(const math::EColorUsage sampleUsage, const uint32 sampledChannel) :
 		m_sampleUsage(sampleUsage), m_sampledChannel(sampledChannel)
 	{}
 
-	inline OutputType sample(const TTexture<OutputType>& texture, const SurfaceHit& X) const
+	OutputType sample(const TTexture<OutputType>& texture, const SurfaceHit& X) const
 	{
 		HitDetail channeledDetail = X.getDetail();
 		if(m_sampledChannel != 0)
@@ -40,14 +40,14 @@ public:
 		return value;
 	}
 
-	inline OutputType sample(const TTexture<OutputType>& texture, const math::Vector3R& uvw) const
+	OutputType sample(const TTexture<OutputType>& texture, const math::Vector3R& uvw) const
 	{
 		OutputType value;
 		texture.sample(SampleLocation(uvw, m_sampleUsage), &value);
 		return value;
 	}
 
-	inline OutputType sample(const TTexture<OutputType>& texture, const math::Vector2R& uv) const
+	OutputType sample(const TTexture<OutputType>& texture, const math::Vector2R& uv) const
 	{
 		OutputType value;
 		texture.sample(SampleLocation(uv, m_sampleUsage), &value);

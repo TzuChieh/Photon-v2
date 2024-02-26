@@ -15,11 +15,7 @@ namespace ph::math
 template<typename T>
 inline TOrthonormalBasis3<T> TOrthonormalBasis3<T>::makeFromUnitY(const TVector3<T>& unitYAxis)
 {
-	PH_ASSERT_MSG(
-		static_cast<T>(0.9) < unitYAxis.length() &&
-		unitYAxis.length() < static_cast<T>(1.1) &&
-		unitYAxis.isFinite(),
-		unitYAxis.toString());
+	PH_ASSERT_IN_RANGE(unitYAxis.lengthSquared(), static_cast<T>(0.9), static_cast<T>(1.1));
 
 	// choose an axis deviate enough to specified y-axis to perform cross product in order to avoid some 
 	// numerical errors
@@ -37,9 +33,8 @@ inline TOrthonormalBasis3<T> TOrthonormalBasis3<T>::makeFromUnitY(const TVector3
 
 	const TVector3<T> unitZAxis = unitXAxis.cross(unitYAxis);
 
-	PH_ASSERT_MSG(unitXAxis.isFinite() && unitZAxis.isFinite(), "\n"
-		"unit-x-axis = " + unitXAxis.toString() + "\n"
-		"unit-z-axis = " + unitZAxis.toString() + "\n");
+	PH_ASSERT_IN_RANGE(unitXAxis.lengthSquared(), static_cast<T>(0.9), static_cast<T>(1.1));
+	PH_ASSERT_IN_RANGE(unitZAxis.lengthSquared(), static_cast<T>(0.9), static_cast<T>(1.1));
 
 	return TOrthonormalBasis3(unitXAxis, unitYAxis, unitZAxis);
 
@@ -68,11 +63,16 @@ template<typename T>
 inline TOrthonormalBasis3<T>::TOrthonormalBasis3(
 	const TVector3<T>& xAxis,
 	const TVector3<T>& yAxis, 
-	const TVector3<T>& zAxis) : 
-	m_xAxis(xAxis),
-	m_yAxis(yAxis),
-	m_zAxis(zAxis)
-{}
+	const TVector3<T>& zAxis)
+
+	: m_xAxis(xAxis)
+	, m_yAxis(yAxis)
+	, m_zAxis(zAxis)
+{
+	PH_ASSERT_IN_RANGE(xAxis.lengthSquared(), static_cast<T>(0.9), static_cast<T>(1.1));
+	PH_ASSERT_IN_RANGE(yAxis.lengthSquared(), static_cast<T>(0.9), static_cast<T>(1.1));
+	PH_ASSERT_IN_RANGE(zAxis.lengthSquared(), static_cast<T>(0.9), static_cast<T>(1.1));
+}
 
 template<typename T>
 inline TVector3<T> TOrthonormalBasis3<T>::worldToLocal(const TVector3<T>& worldVec) const
@@ -266,9 +266,9 @@ inline T TOrthonormalBasis3<T>::tan2Theta(const TVector3<T>& unitVec) const
 template<typename T>
 inline TOrthonormalBasis3<T>& TOrthonormalBasis3<T>::renormalize()
 {
-	m_xAxis.normalizeLocal();
-	m_yAxis.normalizeLocal();
-	m_zAxis.normalizeLocal();
+	renormalizeXAxis();
+	renormalizeYAxis();
+	renormalizeZAxis();
 
 	return *this;
 }

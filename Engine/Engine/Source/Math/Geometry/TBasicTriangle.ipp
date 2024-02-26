@@ -125,12 +125,12 @@ inline TVector3<T> TBasicTriangle<T>::getCentroid() const
 {
 	if constexpr(std::is_floating_point_v<T>)
 	{
-		constexpr auto oneThird = T(1) / T(3);
+		constexpr auto oneThird = static_cast<T>(1) / static_cast<T>(3);
 		return (m_vA + m_vB + m_vC) * oneThird;
 	}
 	else
 	{
-		return (m_vA + m_vB + m_vC) / T(3);
+		return (m_vA + m_vB + m_vC) / static_cast<T>(3);
 	}
 }
 
@@ -209,16 +209,16 @@ inline TVector3<T> TBasicTriangle<T>::surfaceToBarycentric(const TVector3<T>& po
 	// TODO: check numeric stability
 
 	const T denominator = d00 * d11 - d01 * d01;
-	if(denominator == T(0))
+	if(denominator == static_cast<T>(0))
 	{
 		return {0, 0, 0};
 	}
 
-	const T rcpDenominator = T(1) / denominator;
+	const T rcpDenominator = static_cast<T>(1) / denominator;
 	
 	const T b = (d11 * d20 - d01 * d21) * rcpDenominator;
 	const T c = (d00 * d21 - d01 * d20) * rcpDenominator;
-	const T a = T(1) - b - c;
+	const T a = static_cast<T>(1) - b - c;
 
 	return {a, b, c};
 }

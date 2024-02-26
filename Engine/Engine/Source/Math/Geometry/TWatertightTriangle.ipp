@@ -137,7 +137,7 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	PH_ASSERT_MSG(determinant != static_cast<T>(0) && std::isfinite(determinant), 
 		std::to_string(determinant));
 
-	const T rcpDeterminant = T(1) / determinant;
+	const T rcpDeterminant = static_cast<T>(1) / determinant;
 	const T baryA          = funcEa * rcpDeterminant;
 	const T baryB          = funcEb * rcpDeterminant;
 	const T baryC          = funcEc * rcpDeterminant;

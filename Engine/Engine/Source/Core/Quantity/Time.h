@@ -27,6 +27,18 @@ public:
 	{
 
 	}
+
+	bool operator == (const Time& other) const
+	{
+		return absoluteS == other.absoluteS && 
+		       relativeS == other.relativeS &&
+		       relativeT == other.relativeT;
+	}
+
+	bool operator != (const Time& other) const
+	{
+		return !(*this == other);
+	}
 };
 
 }// end namespace ph

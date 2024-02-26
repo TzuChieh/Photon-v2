@@ -12,8 +12,17 @@
 namespace ph::lta
 {
 
-// FIXME: hardcoded number
-inline constexpr real self_intersect_delta = 0.0001_r;
+/*! @brief Transform area domain PDF to solid angle domain PDF w.r.t. a position.
+*/
+inline real pdfA_to_pdfW(
+	const real pdfA,
+	const math::Vector3R& dAPosToTargetPos,
+	const math::Vector3R& dANormal)
+{
+	const real distSquared = dAPosToTargetPos.lengthSquared();
+	const real signedPdfW = pdfA / dAPosToTargetPos.normalize().dot(dANormal) * distSquared;
+	return std::isfinite(signedPdfW) ? std::abs(signedPdfW) : 0.0_r;
+}
 
 /*!
 Using shading normal for light transport algorithms is equivalent to using

@@ -35,7 +35,7 @@ void PtVolumetricEstimator::sample(
 		Ray ray(currXs.getPosition(), currL, 0.0001_r, std::numeric_limits<real>::max());
 		if(scene.isIntersecting(ray, &probe))
 		{
-			currXe = SurfaceHit(ray, probe);
+			//currXe = SurfaceHit(ray, probe);
 		}
 		else
 		{

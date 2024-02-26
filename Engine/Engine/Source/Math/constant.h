@@ -44,6 +44,12 @@ template<typename T>
 inline constexpr T rcp_four_pi = T(
 	0.0795774715459476678844418816862571810172298228702282243738336720294483988);
 
+/*! @brief Value of @f$ \pi^2 @f$.
+*/
+template<typename T>
+inline constexpr T pi2 = T(
+	9.8696044010893586188344909998761511353136994072407906264133493762200448224);
+
 /*! @brief Value of @f$ \sqrt{2} @f$.
 */
 template<typename T>

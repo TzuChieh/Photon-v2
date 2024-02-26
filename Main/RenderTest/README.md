@@ -16,6 +16,12 @@ Most tests already utilizes threading provided by Photon itself. However, tests 
 
 > python ./RenderTest/run_and_report.py -n 20
 
+## Run Specified Tests Only
+
+You can use the keyword expressions provided by pytest. For example, to run `test_fullscreen_unit_radiance`, you can use
+
+> python ./RenderTest/run_and_report.py -k unit_radiance
+
 ## Writing New Tests
 
 If you do not follow the pattern of existing tests, please keep in mind that the tests can run in parallel (e.g., using `xdist`). All tests must be written in a thread-safe and process-safe way. 

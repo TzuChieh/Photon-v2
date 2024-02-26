@@ -20,28 +20,30 @@ void on_assertion_failed();
 
 #if PH_DEBUG
 
-	#define PH_ASSERT_MSG(condition, failMessage)\
-		do\
+#define PH_ASSERT_MSG(condition, failMessage)\
+	do\
+	{\
+		if(!(condition))\
 		{\
-			if(!(condition))\
-			{\
-				::ph::detail::output_assertion_message(\
-					std::string(__FILE__),\
-					std::to_string(__LINE__),\
-					std::string(#condition),\
-					std::string((failMessage)));\
-				\
-				::ph::detail::on_assertion_failed();\
-			}\
-		} while(0)
+			::ph::detail::output_assertion_message(\
+				std::string(__FILE__),\
+				std::to_string(__LINE__),\
+				std::string(#condition),\
+				std::string((failMessage)));\
+			\
+			::ph::detail::on_assertion_failed();\
+		}\
+	} while(0)
 
-	#define PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, lowerBoundSymbol, upperBoundSymbol)\
-		(std::string(#value) + " = " + std::to_string(value) + ", asserted to be in range = " + \
-		lowerBoundSymbol + std::to_string(lowerBound) + ", " + std::to_string(upperBound) + upperBoundSymbol)
+#define PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, lowerBoundSymbol, upperBoundSymbol)\
+	(std::string(#value) + " = " + std::to_string(value) + ", asserted to be in range = " + \
+	lowerBoundSymbol + std::to_string(lowerBound) + ", " + std::to_string(upperBound) + upperBoundSymbol)
 
 #else
-	#define PH_ASSERT_MSG(condition, message) PH_NO_OP()
-	#define PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, lowerBoundSymbol, upperBoundSymbol) PH_NO_OP()
+
+#define PH_ASSERT_MSG(condition, message) PH_NO_OP()
+#define PH_INTERNAL_RANGE_MSG(value, lowerBound, upperBound, lowerBoundSymbol, upperBoundSymbol) PH_NO_OP()
+
 #endif
 
 #define PH_ASSERT(condition)\

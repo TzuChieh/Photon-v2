@@ -48,9 +48,12 @@ private:
 	math::Vector3R m_dNdU;
 	math::Vector3R m_dNdV;
 
-	// TODO: basis may be constructed on demand (will this be costly?)
 	math::Basis3R m_geometryBasis;
 	math::Basis3R m_shadingBasis;
+
+#if PH_DEBUG
+	bool m_isBasesComputed{false};
+#endif
 };
 
 // In-header Implementations:
@@ -92,11 +95,13 @@ inline math::Vector3R HitInfo::getdNdV() const
 
 inline const math::Basis3R& HitInfo::getGeometryBasis() const
 {
+	PH_ASSERT(m_isBasesComputed);
 	return m_geometryBasis;
 }
 
 inline const math::Basis3R& HitInfo::getShadingBasis() const
 {
+	PH_ASSERT(m_isBasesComputed);
 	return m_shadingBasis;
 }
 
@@ -108,6 +113,10 @@ inline void HitInfo::setAttributes(
 	m_position = position;
 	m_geometryBasis.setYAxis(geometryNormal);
 	m_shadingBasis.setYAxis(shadingNormal);
+
+#if PH_DEBUG
+	m_isBasesComputed = false;
+#endif
 }
 
 inline void HitInfo::setDerivatives(
@@ -120,6 +129,10 @@ inline void HitInfo::setDerivatives(
 	m_dPdV = dPdV;
 	m_dNdU = dNdU;
 	m_dNdV = dNdV;
+
+#if PH_DEBUG
+	m_isBasesComputed = false;
+#endif
 }
 
 inline void HitInfo::computeBases()
@@ -151,8 +164,12 @@ inline void HitInfo::computeBases()
 	}
 
 	PH_ASSERT_MSG(m_geometryBasis.getYAxis().isFinite() && m_shadingBasis.getYAxis().isFinite(), "\n"
-		"geometry-y-axis = " + m_geometryBasis.getYAxis().toString() + "\n"
-		"shading-y-axis  = " + m_shadingBasis.getYAxis().toString() + "\n");
+		"m_geometryBasis.getYAxis() = " + m_geometryBasis.getYAxis().toString() + "\n"
+		"m_shadingBasis.getYAxis()  = " + m_shadingBasis.getYAxis().toString() + "\n");
+
+#if PH_DEBUG
+	m_isBasesComputed = true;
+#endif
 }
 
 }// end namespace ph
