@@ -39,8 +39,6 @@ public:
 		TSpanView<Index>    itemIndices,
 		std::vector<Index>& indexBuffer);
 
-	TIndexedKdtreeNode();
-
 	bool isLeaf() const;
 	std::size_t positiveChildIndex() const;
 	std::size_t numItems() const;
@@ -58,7 +56,7 @@ private:
 		For inner nodes: Splitting position <splitPos> along the axis of 
 		splitting is stored.
 		
-		For leaf nodes:  An index value for accessing item is stored in <index>.
+		For leaf nodes: An index value for accessing item is stored in <index>.
 	*/
 	union
 	{
@@ -87,10 +85,6 @@ private:
 };
 
 // In-header Implementations:
-
-template<typename Index, bool USE_SINGLE_ITEM_OPT>
-inline TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
-::TIndexedKdtreeNode() = default;
 
 template<typename Index, bool USE_SINGLE_ITEM_OPT>
 inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
@@ -122,7 +116,6 @@ inline auto TIndexedKdtreeNode<Index, USE_SINGLE_ITEM_OPT>
 	const std::size_t numItems) -> TIndexedKdtreeNode
 {
 	PH_ASSERT_LE(numItems, MAX_U1_NUMBER);
-	PH_ASSERT(numItems == 0 || numItems == 1);
 
 	TIndexedKdtreeNode node;
 
