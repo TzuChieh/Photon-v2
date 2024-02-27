@@ -33,7 +33,7 @@ def _write_case_report(report_file, case, title_prefix=""):
         report_ref_img = paths.report_output() / ref_img.relative_to(paths.test_output())
         report_ref_img.parent.mkdir(parents=True, exist_ok=True)
         report_ref_img.write_bytes(ref_img.read_bytes())
-        ref_img = "![reference image](%s)" % report_ref_img.relative_to(paths.report_output())
+        ref_img = "![reference image](%s)" % report_ref_img.relative_to(paths.report_output()).as_posix()
     else:
         ref_img = "(no reference image)"
 
@@ -44,7 +44,7 @@ def _write_case_report(report_file, case, title_prefix=""):
         report_output_img = paths.report_output() / output_img.relative_to(paths.test_output())
         report_output_img.parent.mkdir(parents=True, exist_ok=True)
         report_output_img.write_bytes(output_img.read_bytes())
-        output_img = "![output image](%s)" % report_output_img.relative_to(paths.report_output())
+        output_img = "![output image](%s)" % report_output_img.relative_to(paths.report_output()).as_posix()
     else:
         output_img = "(no output image)"
 
@@ -55,7 +55,7 @@ def _write_case_report(report_file, case, title_prefix=""):
         report_debug_output_img = paths.report_output() / debug_output_img.relative_to(paths.test_output())
         report_debug_output_img.parent.mkdir(parents=True, exist_ok=True)
         report_debug_output_img.write_bytes(debug_output_img.read_bytes())
-        debug_output_img = "![debug output image](%s)" % report_debug_output_img.relative_to(paths.report_output())
+        debug_output_img = "![debug output image](%s)" % report_debug_output_img.relative_to(paths.report_output()).as_posix()
     else:
         debug_output_img = "(no debug output image)"
 
