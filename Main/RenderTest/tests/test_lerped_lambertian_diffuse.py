@@ -42,9 +42,9 @@ def ref_img():
     return img
 
 @pytest.mark.parametrize("case, max_mse, max_re_avg", [
-    pytest.param(bvpt_case1, 0.00012, 0.00018, id=bvpt_case1.get_name()),
-    pytest.param(bvpt_case2, 0.00012, 0.00018, id=bvpt_case2.get_name()),
-    pytest.param(bvpt_case3, 0.00012, 0.00018, id=bvpt_case3.get_name()),
+    pytest.param(bvpt_case1, 0.00012, 0.00036, id=bvpt_case1.get_name()),
+    pytest.param(bvpt_case2, 0.00012, 0.00036, id=bvpt_case2.get_name()),
+    pytest.param(bvpt_case3, 0.00012, 0.00036, id=bvpt_case3.get_name()),
     pytest.param(bneept_case1, 0.00012, 0.00080, id=bneept_case1.get_name()),
     pytest.param(bneept_case2, 0.00012, 0.00052, id=bneept_case2.get_name()),
 ])

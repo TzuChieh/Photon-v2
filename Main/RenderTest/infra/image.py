@@ -8,10 +8,10 @@ from pathlib import Path
 class Image:
     default_plot_format = '.jpg'
 
-    def __init__(self):
+    def __init__(self, width=0, height=0, num_components=0):
         super().__init__()
 
-        self.values = np.reshape([], (0, 0, 0))
+        self.values = np.zeros((height, width, num_components))
 
     def get_height(self):
         return self.values.shape[0]
@@ -24,7 +24,10 @@ class Image:
     
     def get_dimensions(self):
         return (self.get_height(), self.get_width(), self.num_components())
-    
+
+    def fill(self, value):
+        self.values.fill(value)
+
     def to_summed_component(self):
         img = Image()
         img.values = self.values.sum(axis=2, keepdims=True)
