@@ -147,6 +147,8 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 			break;
 		}
 
+		PH_ASSERT_IN_RANGE(tracingRay.getDirection().lengthSquared(), 0.9_r, 1.1_r);
+
 		const math::Vector3R V = -tracingRay.getDirection();
 		const math::Vector3R N = X.getShadingNormal();
 

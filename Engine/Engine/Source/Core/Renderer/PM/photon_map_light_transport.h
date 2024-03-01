@@ -13,6 +13,7 @@
 #include "Core/Emitter/Emitter.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
 #include "Core/SurfaceBehavior/SurfaceOptics.h"
+#include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Math/TVector3.h"
 #include "Math/Color/Spectrum.h"
 
@@ -114,10 +115,13 @@ inline math::Spectrum estimate_certainly_lost_energy(
 	if(viewPathLength + 1 < minPathLengthWithPhotonMap && 
 	   minFullPathLength <= viewPathLength + 1 && viewPathLength + 1 <= maxFullPathLength)
 	{
+		BsdfSampleQuery bsdfSample;
+		bsdfSample.inputs.set(X, -X.getIncidentRay().getDirection());
+
 		math::Spectrum viewRadiance;
 		SampleFlow randomFlow;
-		if(DirectLight{scene}.bsdfSampleOutgoingWithNee(
-			X, 
+		if(DirectLight{scene}.bsdfSamplePathWithNee(
+			bsdfSample,
 			randomFlow,
 			&viewRadiance))
 		{

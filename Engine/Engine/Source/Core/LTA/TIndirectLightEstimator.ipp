@@ -38,7 +38,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	const TDirectLightEstimator<POLICY> directLight{m_scene};
 	const BsdfQueryContext bsdfCtx{POLICY};
 
-	SurfaceHit surfaceHit = X;
+	SurfaceHit currentHit = X;
 	math::Spectrum accuLiWeight = initialPathWeight;
 
 	std::size_t currentPathLength = 0;
@@ -57,17 +57,17 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			}
 		}
 
-		const math::Vector3R V = surfaceHit.getIncidentRay().getDirection().mul(-1);
-		const math::Vector3R N = surfaceHit.getShadingNormal();
+		const math::Vector3R V = currentHit.getIncidentRay().getDirection().mul(-1);
+		const math::Vector3R N = currentHit.getShadingNormal();
+
+		BsdfSampleQuery bsdfSample{bsdfCtx};
+		bsdfSample.inputs.set(currentHit, V);
 
 		// Sample direct lighting
 		if(currentPathLength + 1 == pathLength)
 		{
 			math::Spectrum Lo;
-			if(directLight.bsdfSampleOutgoingWithNee(
-				surfaceHit,
-				sampleFlow,
-				&Lo))
+			if(directLight.bsdfSamplePathWithNee(bsdfSample, sampleFlow, &Lo))
 			{
 				if(out_Lo) { *out_Lo = accuLiWeight * Lo; }
 				return true;
@@ -76,16 +76,14 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 		// Extend the path
 		else
 		{
-			BsdfSampleQuery bsdfSample{bsdfCtx};
-			bsdfSample.inputs.set(surfaceHit, V);
-
-			SurfaceHit nextSurfaceHit;
-			if(!surfaceTracer.bsdfSampleNextSurface(bsdfSample, sampleFlow, &nextSurfaceHit))
+			SurfaceHit nextHit;
+			if(!surfaceTracer.bsdfSampleNextSurface(bsdfSample, sampleFlow, &nextHit) ||
+			   !bsdfSample.outputs.isMeasurable())
 			{
 				return false;
 			}
 
-			surfaceHit = nextSurfaceHit;
+			currentHit = nextHit;
 			accuLiWeight *= bsdfSample.outputs.getPdfAppliedBsdf() * N.absDot(bsdfSample.outputs.getL());
 		}
 
@@ -110,8 +108,9 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	PH_ASSERT_LE(minPathLength, maxPathLength);
 
 	const TDirectLightEstimator<POLICY> directLight{m_scene};
+	const BsdfQueryContext bsdfCtx{POLICY};
 
-	SurfaceHit surfaceHit = X;
+	SurfaceHit currentHit = X;
 	math::Spectrum accuPathWeight = initialPathWeight;
 	math::Spectrum accuLo(0);
 
@@ -131,20 +130,17 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			}
 		}
 
-		const math::Vector3R V = surfaceHit.getIncidentRay().getDirection().mul(-1);
-		const math::Vector3R N = surfaceHit.getShadingNormal();
+		const math::Vector3R V = currentHit.getIncidentRay().getDirection().mul(-1);
+		const math::Vector3R N = currentHit.getShadingNormal();
+
+		BsdfSampleQuery bsdfSample{bsdfCtx};
+		bsdfSample.inputs.set(currentHit, V);
 
 		math::Spectrum Lo;
-		math::Vector3R L;
-		math::Spectrum pdfAppliedBsdf;
-		SurfaceHit nextSurfaceHit;
-		if(directLight.bsdfSampleOutgoingWithNee(
-			surfaceHit,
-			sampleFlow,
-			&Lo,
-			&L,
-			&pdfAppliedBsdf,
-			&nextSurfaceHit))
+		std::optional<SurfaceHit> nextHit;
+		if(directLight.bsdfSamplePathWithNee(bsdfSample, sampleFlow, &Lo, &nextHit) &&
+		   bsdfSample.outputs.isMeasurable() &&
+		   nextHit)
 		{
 			++currentPathLength;
 
@@ -155,8 +151,8 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 				accuLo += accuPathWeight * Lo;
 			}
 
-			accuPathWeight *= pdfAppliedBsdf * N.absDot(L);
-			surfaceHit = nextSurfaceHit;
+			accuPathWeight *= bsdfSample.outputs.getPdfAppliedBsdf() * N.absDot(bsdfSample.outputs.getL());
+			currentHit = *nextHit;
 		}
 		else
 		{

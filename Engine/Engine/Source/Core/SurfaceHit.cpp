@@ -17,8 +17,8 @@ namespace
 
 inline const PrimitiveMetadata* get_primitive_metadata(const SurfaceHit& surfaceHit)
 {
-	// Does not make sense to call this method if `surfaceHit` hits nothing
-	PH_ASSERT(surfaceHit.getDetail().getPrimitive());
+	PH_ASSERT_MSG(surfaceHit.getDetail().getPrimitive(),
+		"Does not make sense to call the method if `surfaceHit` hits nothing.");
 
 	return surfaceHit.getDetail().getPrimitive()->getMetadata();
 }

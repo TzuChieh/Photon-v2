@@ -37,68 +37,46 @@ inline TDirectLightEstimator<POLICY>::TDirectLightEstimator(const Scene* const s
 
 template<ESidednessPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::bsdfSampleEmission(
-	const SurfaceHit&         X,
-	SampleFlow&               sampleFlow,
-	math::Vector3R* const     out_L,
-	math::Spectrum* const     out_pdfAppliedBsdf,
-	math::Spectrum* const     out_Le,
-	SurfaceHit* const         out_Xe) const
+	BsdfSampleQuery&                 bsdfSample,
+	SampleFlow&                      sampleFlow,
+	math::Spectrum* const            out_Le,
+	std::optional<SurfaceHit>* const out_X) const
 {
-	const math::Vector3R V = X.getIncidentRay().getDirection().mul(-1);
-
-	BsdfSampleQuery bsdfSample{BsdfQueryContext(POLICY)};
-	bsdfSample.inputs.set(X, V);
-
-	SurfaceHit Xe;
-	if(!SurfaceTracer(m_scene).bsdfSampleNextSurface(bsdfSample, sampleFlow, &Xe))
+	SurfaceHit nextX;
+	const bool foundNextX = SurfaceTracer{m_scene}.bsdfSampleNextSurface(bsdfSample, sampleFlow, &nextX);
+	if(!bsdfSample.outputs.isMeasurable())
 	{
 		return false;
 	}
 
-	const Emitter* emitter = Xe.getSurfaceEmitter();
-	if(!emitter)
+	math::Spectrum Le(0);
+	if(foundNextX && nextX.getSurfaceEmitter())
 	{
-		return false;
+		nextX.getSurfaceEmitter()->evalEmittedRadiance(nextX, &Le);
 	}
-
-	math::Spectrum Le;
-	emitter->evalEmittedRadiance(Xe, &Le);
 
 	PH_ASSERT_IN_RANGE(bsdfSample.outputs.getL().lengthSquared(), 0.9_r, 1.1_r);
 	
-	if(out_L)              { *out_L = bsdfSample.outputs.getL(); }
-	if(out_pdfAppliedBsdf) { *out_pdfAppliedBsdf = bsdfSample.outputs.getPdfAppliedBsdf(); }
-	if(out_Le)             { *out_Le = Le; }
-	if(out_Xe)             { *out_Xe = Xe; }
+	if(out_Le) { *out_Le = Le; }
+	if(out_X)  { *out_X = foundNextX ? std::make_optional(nextX) : std::nullopt; }
 
 	return true;
 }
 
 template<ESidednessPolicy POLICY>
 inline bool TDirectLightEstimator<POLICY>::neeSampleEmission(
-	const SurfaceHit&         X,
+	DirectEnergySampleQuery&  directSample,
 	SampleFlow&               sampleFlow,
-	math::Vector3R* const     out_L,
-	real* const               out_pdfW,
-	math::Spectrum* const     out_Le,
 	SurfaceHit* const         out_Xe) const
 {
-	PH_ASSERT(isNeeSamplable(X));
+	PH_ASSERT(isNeeSamplable(directSample.inputs.getX()));
 
 	const SidednessAgreement sidedness{POLICY};
-
-	DirectEnergySampleQuery directSample;
-	directSample.inputs.set(X);
+	const SurfaceHit& X = directSample.inputs.getX();
 
 	HitProbe probe;
 	getScene().genDirectSample(directSample, sampleFlow, probe);
-	if(!directSample.outputs)
-	{
-		return false;
-	}
-
-	const auto toLightVec = directSample.outputs.getEmitPos() - directSample.inputs.getTargetPos();
-	if(!sidedness.isSidednessAgreed(X, toLightVec))
+	if(!directSample.outputs || !sidedness.isSidednessAgreed(X, directSample.getTargetToEmit()))
 	{
 		return false;
 	}
@@ -112,53 +90,53 @@ inline bool TDirectLightEstimator<POLICY>::neeSampleEmission(
 	}
 
 	PH_ASSERT_IN_RANGE(visibilityRay->getDirection().lengthSquared(), 0.9_r, 1.1_r);
+	PH_ASSERT(Xe.getSurfaceEmitter());
 
-	if(out_Xe)   { *out_Xe = Xe; }
-	if(out_L)    { *out_L = visibilityRay->getDirection(); }
-	if(out_pdfW) { *out_pdfW = directSample.outputs.getPdfW(); }
-	if(out_Le)   { *out_Le = directSample.outputs.getEmittedEnergy(); }
+	if(out_Xe) { *out_Xe = Xe; }
 
 	return true;
 }
 
 template<ESidednessPolicy POLICY>
-inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
-	const SurfaceHit&         X,
-	SampleFlow&               sampleFlow,
-	math::Spectrum* const     out_Lo,
-	math::Vector3R* const     out_L,
-	math::Spectrum* const     out_pdfAppliedBsdf,
-	SurfaceHit* const         out_Xe) const
+inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
+	BsdfSampleQuery&                 bsdfSample,
+	SampleFlow&                      sampleFlow,
+	math::Spectrum* const            out_Lo,
+	std::optional<SurfaceHit>* const out_X) const
 {
 	using MIS = TMis<EMisStyle::Power>;
 
+	const SurfaceHit&    X = bsdfSample.inputs.getX();
 	const math::Vector3R V = X.getIncidentRay().getDirection().mul(-1);
 	const math::Vector3R N = X.getShadingNormal();
 	math::Spectrum sampledLo(0);
 
 	// BSDF sample
 	{
-		math::Vector3R L;
-		math::Spectrum pdfAppliedBsdf;
 		math::Spectrum bsdfLe;
-		SurfaceHit Xe;
-		if(bsdfSampleEmission(X, sampleFlow, &L, &pdfAppliedBsdf, &bsdfLe, &Xe))
+		std::optional<SurfaceHit> nextX;
+		if(bsdfSampleEmission(bsdfSample, sampleFlow, &bsdfLe, &nextX) &&
+		   bsdfSample.outputs.isMeasurable() &&
+		   nextX)
 		{
 			const SurfaceOptics* optics = X.getSurfaceOptics();
 			PH_ASSERT(optics);
+
+			const auto L              = bsdfSample.outputs.getL();
+			const auto pdfAppliedBsdf = bsdfSample.outputs.getPdfAppliedBsdf();
 
 			// If NEE cannot sample the same light from `X` (due to delta BSDF, etc.), then we
 			// cannot use MIS weighting to remove NEE contribution as BSDF sampling may not
 			// always have an explicit PDF term.
 			
 			// MIS
-			if(isNeeSamplable(X))
+			if(isNeeSamplable(X) && nextX->getSurfaceEmitter())
 			{
 				// No need to test occlusion again as `bsdfSampleEmission()` already done that
-				const real neePdfW = neeSamplePdfWUnoccluded(X, Xe);
+				const real neePdfW = neeSamplePdfWUnoccluded(X, *nextX);
 
-				BsdfPdfQuery bsdfPdfQuery{BsdfQueryContext(POLICY)};
-				bsdfPdfQuery.inputs.set(X, L, V);
+				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
+				bsdfPdfQuery.inputs.set(bsdfSample);
 				optics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 				// `isNeeSamplable()` is already checked, but `bsdfSamplePdfW` can still be 0 (e.g.,
@@ -181,26 +159,20 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 			{
 				sampledLo += bsdfLe * pdfAppliedBsdf * N.absDot(L);
 			}
-
-			PH_ASSERT_IN_RANGE(L.lengthSquared(), 0.9_r, 1.1_r);
-
-			if(out_L)              { *out_L = L; }
-			if(out_pdfAppliedBsdf) { *out_pdfAppliedBsdf = pdfAppliedBsdf; }
-			if(out_Xe)             { *out_Xe = Xe; }
 		}
-		else
-		{
-			return false;
-		}
+
+		// If BSDF sampling failed for whatever reason, we cannot simply return `false`
+		// as NEE could still sample a non-zero outgoing energy
+		if(out_X) { *out_X = nextX; }
 	}
 
 	// NEE
 	if(isNeeSamplable(X))
 	{
-		math::Vector3R L;
-		math::Spectrum neeLe;
-		real neePdfW;
-		if(neeSampleEmission(X, sampleFlow, &L, &neePdfW, &neeLe))
+		DirectEnergySampleQuery directSample;
+		directSample.inputs.set(bsdfSample.inputs.getX());
+		if(neeSampleEmission(directSample, sampleFlow) && 
+		   directSample.outputs)
 		{
 			// Always do MIS. If NEE can sample a light from `X`, then BSDF light sample should have
 			// no problem doing the same. No need to consider delta light sources as Photon do not
@@ -209,16 +181,18 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 			const SurfaceOptics* optics = X.getSurfaceOptics();
 			PH_ASSERT(optics);
 
-			BsdfEvalQuery bsdfEval{BsdfQueryContext(POLICY)};
-			bsdfEval.inputs.set(X, L, V);
-
+			BsdfEvalQuery bsdfEval{bsdfSample.context};
+			bsdfEval.inputs.set(X, directSample.getTargetToEmit().normalize(), V);
 			optics->calcBsdf(bsdfEval);
+
 			if(bsdfEval.outputs.isMeasurable())
 			{
-				BsdfPdfQuery bsdfPdfQuery{BsdfQueryContext(POLICY)};
+				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
 				bsdfPdfQuery.inputs.set(bsdfEval.inputs);
 				optics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
+				const auto L              = bsdfEval.inputs.getL();
+				const real neePdfW        = directSample.outputs.getPdfW();
 				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 				const real misWeighting   = MIS{}.weight(neePdfW, bsdfSamplePdfW);
 
@@ -227,7 +201,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleOutgoingWithNee(
 				// Avoid excessive, negative weight and possible NaNs
 				weight.clampLocal(0.0_r, 1e9_r);
 
-				sampledLo += neeLe * weight;
+				sampledLo += directSample.outputs.getEmittedEnergy() * weight;
 			}
 		}
 	}
@@ -243,6 +217,7 @@ inline real TDirectLightEstimator<POLICY>::neeSamplePdfWUnoccluded(
 	const SurfaceHit&     Xe) const
 {
 	PH_ASSERT(isNeeSamplable(X));
+	PH_ASSERT(Xe.getSurfaceEmitter());
 
 	DirectEnergySamplePdfQuery pdfQuery;
 	pdfQuery.inputs.set(X, Xe);

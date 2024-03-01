@@ -56,6 +56,7 @@ public:
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
 	and sampled data is undefined. This method is an efficient way to decide whether the BSDF sample
 	has potential to contribute.
+	@note Measurability has nothing to do with whether the sampled value is 0 or not.
 	*/
 	bool isMeasurable() const;
 

@@ -94,6 +94,8 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			surfaceHit = SurfaceHit(tracingRay, probe, reason);
 		}
 
+		PH_ASSERT_IN_RANGE(tracingRay.getDirection().lengthSquared(), 0.9_r, 1.1_r);
+
 		// Here 0-bounce lighting is never accounted for
 		math::Spectrum throughputRadiance(energyEmission.outputs.getEmittedEnergy());
 		throughputRadiance.divLocal(energyEmission.outputs.getPdfA());

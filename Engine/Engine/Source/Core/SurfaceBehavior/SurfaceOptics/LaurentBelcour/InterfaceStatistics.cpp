@@ -87,6 +87,13 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	}
 	else
 	{
+		// FIXME: I could not faithfully reproduce Laurent's result with the parameters specified
+		// in his paper (the gold dragon, the sphere in section 4 of the supplemental material).
+		// `conversions::gToVariance(layer2.getG())` seems to cause high variance in `sT12` & `sT21`,
+		// causing the layer under it to have higher alpha than expected. Not sure if this is an
+		// error on our side. `g` needs to be pretty small, e.g., 0.7 -> 0.96, 0.9 -> 0.99, to match
+		// the appearance in the paper.
+
 		PH_ASSERT(layer2.isVolume());
 
 		// mean does not change with volumes

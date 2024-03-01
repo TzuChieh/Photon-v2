@@ -152,11 +152,8 @@ void OpaqueMicrofacet::calcBsdfSamplePdfW(
 	const real HoL = H.dot(in.getL());
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 
-	out.setSampleDirPdfW(std::abs(D * NoH / (4.0_r * HoL)));
-	if(!std::isfinite(out.getSampleDirPdfW()))
-	{
-		out.setSampleDirPdfW(0);
-	}
+	const real pdfW = std::abs(D * NoH / (4.0_r * HoL));
+	out.setSampleDirPdfW(std::isfinite(pdfW) ? pdfW : 0);
 }
 
 }// end namespace ph

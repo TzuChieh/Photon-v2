@@ -159,6 +159,9 @@ public:
 		HitProbe& probe) const override
 	{
 		m_primitiveGetter()->genPosSample(query, sampleFlow, probe);
+
+		// Hit detail will be modified by this primitive
+		probe.pushIntermediateHit(this);
 	}
 
 	void calcPosSamplePdfA(
@@ -166,6 +169,9 @@ public:
 		HitProbe& probe) const override
 	{
 		m_primitiveGetter()->calcPosSamplePdfA(query, probe);
+
+		// Hit detail will be modified by this primitive
+		probe.pushIntermediateHit(this);
 	}
 
 	real calcExtendedArea() const override

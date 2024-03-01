@@ -1,4 +1,5 @@
 #include "Core/Estimator/BNEEPTEstimator.h"
+#include "Core/Estimator/Integrand.h"
 #include "Core/Ray.h"
 #include "World/Scene.h"
 #include "Math/TVector3.h"
@@ -17,7 +18,7 @@
 #include "Core/LTA/TDirectLightEstimator.h"
 #include "Core/LTA/RussianRoulette.h"
 #include "Core/LTA/SurfaceTracer.h"
-#include "Core/Estimator/Integrand.h"
+#include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
@@ -89,16 +90,17 @@ void BNEEPTEstimator::estimate(
 		{
 			PH_SCOPED_TIMER(DirectLightSampling);
 
-			math::Vector3R L;
-			real           directPdfW;
-			math::Spectrum emittedRadiance;
-
-			if(canDoNEE && directLight.neeSampleEmission(
-				surfaceHit, sampleFlow, &L, &directPdfW, &emittedRadiance))
+			DirectEnergySampleQuery directSample;
+			directSample.inputs.set(surfaceHit);
+			if(canDoNEE && 
+			   directLight.neeSampleEmission(directSample, sampleFlow) &&
+			   directSample.outputs)
 			{
 				// With a contributing NEE sample, optics must present
 				const SurfaceOptics* surfaceOptics = surfaceHit.getSurfaceOptics();
 				PH_ASSERT(surfaceOptics);
+
+				const auto L = directSample.getTargetToEmit().normalize();
 
 				BsdfEvalQuery bsdfEval(bsdfContext);
 				bsdfEval.inputs.set(surfaceHit, L, V);
@@ -110,17 +112,17 @@ void BNEEPTEstimator::estimate(
 					surfaceOptics->calcBsdfSamplePdfW(bsdfPdfQuery);
 
 					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
-					const real misWeighting = mis.weight(directPdfW, bsdfSamplePdfW);
+					const real misWeighting = mis.weight(directSample.outputs.getPdfW(), bsdfSamplePdfW);
 					const math::Vector3R N = surfaceHit.getShadingNormal();
 
 					math::Spectrum weight;
 					weight = bsdfEval.outputs.getBsdf().mul(N.absDot(L));
-					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directPdfW);
+					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directSample.outputs.getPdfW());
 
 					// Avoid excessive, negative weight and possible NaNs
 					rationalClamp(weight);
 
-					accuRadiance.addLocal(emittedRadiance.mul(weight));
+					accuRadiance.addLocal(directSample.outputs.getEmittedEnergy() * weight);
 				}
 			}
 		}// end direct light sample

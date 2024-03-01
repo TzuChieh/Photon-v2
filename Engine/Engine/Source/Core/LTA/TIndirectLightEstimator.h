@@ -16,6 +16,7 @@ namespace ph::lta
 class RussianRoulette;
 
 /*! @brief Estimate indirect lighting for a surface point.
+@tparam POLICY The default sidedness policy to use if none can be inferred from the inputs.
 */
 template<ESidednessPolicy POLICY>
 class TIndirectLightEstimator final
@@ -24,7 +25,7 @@ public:
 	explicit TIndirectLightEstimator(const Scene* scene);
 
 	/*! @brief Constructing path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
-	This method is effectively the same as `TDirectLightEstimator::bsdfSampleOutgoingWithNee()` if
+	This method is effectively the same as `TDirectLightEstimator::bsdfSamplePathWithNee()` if
 	input path length is 1.
 	@param pathLength The length of the path to construct.
 	@param out_Lo Sampled outgoing energy from `X`. The energy is for the specified path length only.
@@ -33,6 +34,7 @@ public:
 	@return Whether output parameters are usable. If `false` is returned, the sample should still
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
+	[[nodiscard]]
 	bool bsdfSamplePathWithNee(
 		const SurfaceHit&      X,
 		SampleFlow&            sampleFlow,
@@ -43,7 +45,7 @@ public:
 		const math::Spectrum&  initialPathWeight = math::Spectrum(1)) const;
 
 	/*! @brief Constructing path with BSDF sampling and estimate lighting with both BSDF sampling and next-event estimation.
-	This method is effectively the same as `TDirectLightEstimator::bsdfSampleOutgoingWithNee()` if
+	This method is effectively the same as `TDirectLightEstimator::bsdfSamplePathWithNee()` if
 	input path length is in range [1, 1].
 	@param minPathLength The minimum length of the path to construct.
 	@param maxPathLength The maximum length of the path to construct (inclusive).
@@ -53,6 +55,7 @@ public:
 	@return Whether output parameters are usable. If `false` is returned, the sample should still
 	be treated as valid, albeit its contribution is effectively zero.
 	*/
+	[[nodiscard]]
 	bool bsdfSamplePathWithNee(
 		const SurfaceHit&      X,
 		SampleFlow&            sampleFlow,

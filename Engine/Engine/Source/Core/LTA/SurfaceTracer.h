@@ -42,7 +42,7 @@ public:
 	@param ray The ray that is used for finding the next surface.
 	@param sidedness Sidedness policy.
 	@return out_X The next surface.
-	@return Is the next surface found. Outputs are not usable if `false` is returned.
+	@return Is the next surface found. Output parameters are not usable if `false` is returned.
 	*/
 	bool traceNextSurface(
 		const Ray&                ray, 
@@ -55,7 +55,7 @@ public:
 	@param ray The ray that is used for finding the next surface.
 	@param sidedness Sidedness policy.
 	@return out_X The next surface.
-	@return Is the next surface found. Outputs are not usable if `false` is returned.
+	@return Is the next surface found. Output parameters are not usable if `false` is returned.
 	*/
 	bool traceNextSurfaceFrom(
 		const SurfaceHit&         X,
@@ -64,7 +64,7 @@ public:
 		SurfaceHit*               out_X) const;
 
 	/*! @brief Uses BSDF sample to trace the next surface.
-	@return Is the next surface found. Outputs are not usable if `false` is returned.
+	@return Is the next surface found. Output parameters are not usable if `false` is returned.
 	*/
 	bool bsdfSampleNextSurface(
 		BsdfSampleQuery& bsdfSample,
@@ -77,7 +77,7 @@ public:
 	bool doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow& sampleFlow) const;
 
 	/*!
-	@return Whether the BSDF sample has potential to contribute. Outputs are not usable if
+	@return Whether the BSDF sample has potential to contribute. Output parameters are not usable if
 	`false` is returned.
 	*/
 	bool doBsdfSample(
@@ -98,7 +98,7 @@ public:
 	/*!
 	@param out_Le The sampled emitted energy of `Xe` in the opposite direction of incident ray. Does not
 	contain any weighting.
-	@return Whether the sample has potential to contribute. Outputs are not usable if `false`
+	@return Whether the sample has potential to contribute. Output parameters are not usable if `false`
 	is returned.
 	*/
 	bool sampleZeroBounceEmission(

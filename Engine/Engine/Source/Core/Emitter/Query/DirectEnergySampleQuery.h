@@ -17,14 +17,13 @@ class DirectEnergySampleInput final
 {
 public:
 	void set(const SurfaceHit& X);
-	void set(const math::Vector3R& targetPos, const Time& time);
 
-	const math::Vector3R& getTargetPos() const;
+	const SurfaceHit& getX() const;
+	math::Vector3R getTargetPos() const;
 	const Time& getTime() const;
 
 private:
-	math::Vector3R m_targetPos;
-	Time m_time;
+	SurfaceHit m_X;
 #if PH_DEBUG
 	bool m_hasSet{false};
 #endif
@@ -41,7 +40,11 @@ public:
 	void invalidate();
 
 	const math::Vector3R& getEmitPos() const;
+
+	/*! @brief The sampled emitted energy of. Does not contain any path weighting.
+	*/
 	const math::Spectrum& getEmittedEnergy() const;
+
 	real getPdfW() const;
 	const Primitive* getSrcPrimitive() const;
 
@@ -76,33 +79,36 @@ public:
 	Output outputs;
 
 	DirectEnergySampleQuery() = default;
+
+	math::Vector3R getTargetToEmit() const;
+	math::Vector3R getEmitToTarget() const;
 };
 
 inline void DirectEnergySampleInput::set(const SurfaceHit& X)
 {
-	set(X.getPosition(), X.getTime());
-}
-
-inline void DirectEnergySampleInput::set(const math::Vector3R& targetPos, const Time& time)
-{
-	m_targetPos = targetPos;
-	m_time = time;
+	m_X = X;
 
 #if PH_DEBUG
 	m_hasSet = true;
 #endif
 }
 
-inline const math::Vector3R& DirectEnergySampleInput::getTargetPos() const
+inline const SurfaceHit& DirectEnergySampleInput::getX() const
 {
 	PH_ASSERT(m_hasSet);
-	return m_targetPos;
+	return m_X;
+}
+
+inline math::Vector3R DirectEnergySampleInput::getTargetPos() const
+{
+	PH_ASSERT(m_hasSet);
+	return m_X.getPosition();
 }
 
 inline const Time& DirectEnergySampleInput::getTime() const
 {
 	PH_ASSERT(m_hasSet);
-	return m_time;
+	return m_X.getTime();
 }
 
 inline void DirectEnergySampleOutput::setEmitPos(const math::Vector3R& emitPos)
@@ -159,6 +165,7 @@ inline real DirectEnergySampleOutput::getPdfW() const
 inline const Primitive* DirectEnergySampleOutput::getSrcPrimitive() const
 {
 	PH_ASSERT(*this);
+	PH_ASSERT(m_srcPrimitive);
 	return m_srcPrimitive;
 }
 
@@ -170,7 +177,17 @@ inline const Ray& DirectEnergySampleOutput::getObservationRay() const
 
 inline DirectEnergySampleOutput::operator bool () const
 {
-	return m_pdfW > 0;
+	return m_pdfW;
+}
+
+inline math::Vector3R DirectEnergySampleQuery::getTargetToEmit() const
+{
+	return outputs.getEmitPos() - inputs.getTargetPos();
+}
+
+inline math::Vector3R DirectEnergySampleQuery::getEmitToTarget() const
+{
+	return inputs.getTargetPos() - outputs.getEmitPos();
 }
 
 }// end namespace ph
