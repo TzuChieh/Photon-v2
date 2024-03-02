@@ -126,7 +126,8 @@ PMCommonParams PhotonMappingVisualizer::makeCommonParams() const
 		.numPhotons = m_numPhotons,
 		.numPasses = m_numPasses,
 		.numSamplesPerPixel = m_numSamplesPerPixel,
-		.kernelRadius = m_photonRadius};
+		.kernelRadius = m_photonRadius,
+		.glossyMergeBeginLength = m_glossyMergeBeginLength};
 }
 
 }// end namespace ph

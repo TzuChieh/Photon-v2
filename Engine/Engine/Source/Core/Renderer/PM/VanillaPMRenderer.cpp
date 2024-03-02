@@ -118,6 +118,7 @@ void VanillaPMRenderer::renderWithVanillaPM()
 			evaluator.setStatistics(&getStatistics());
 			evaluator.setKernelRadius(getCommonParams().kernelRadius);
 			evaluator.setStochasticPathSampleBeginLength(5);
+			evaluator.setGlossyMergeBeginLength(getCommonParams().glossyMergeBeginLength);
 
 			TViewPathTracingWork<RadianceEvaluator> radianceEvaluator(
 				&evaluator,

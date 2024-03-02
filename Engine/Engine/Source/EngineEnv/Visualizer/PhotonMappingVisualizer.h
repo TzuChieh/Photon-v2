@@ -37,6 +37,7 @@ private:
 	uint64 m_numPasses;
 	uint64 m_numSamplesPerPixel;
 	real m_photonRadius;
+	uint32 m_glossyMergeBeginLength;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PhotonMappingVisualizer>)
@@ -94,6 +95,13 @@ public:
 		photonRadius.defaultTo(commonParams.kernelRadius);
 		photonRadius.optional();
 		clazz.addField(photonRadius);
+
+		TSdlUInt32<OwnerType> glossyMergeBeginLength("glossy-merge-begin-length", &OwnerType::m_glossyMergeBeginLength);
+		glossyMergeBeginLength.description(
+			"The minimum path length to start estimating energy using photons on glossy surface.");
+		glossyMergeBeginLength.defaultTo(commonParams.glossyMergeBeginLength);
+		glossyMergeBeginLength.optional();
+		clazz.addField(glossyMergeBeginLength);
 
 		return clazz;
 	}

@@ -312,6 +312,14 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
         min=0
     )
 
+    bpy.types.Scene.ph_render_glossy_merge_begin_length = bpy.props.IntProperty(
+        name="Glossy Merge Begin Length",
+        description="",
+        default=1,
+        min=1,
+        max=16384
+    )
+
     bpy.types.Scene.ph_use_crop_window = bpy.props.BoolProperty(
         name="Use Crop Window",
         description="",
@@ -368,6 +376,7 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
             b_layout.prop(b_scene, 'ph_render_num_spp_pm')
             b_layout.prop(b_scene, 'ph_render_num_passes')
             b_layout.prop(b_scene, 'ph_render_kernel_radius')
+            b_layout.prop(b_scene, 'ph_render_glossy_merge_begin_length')
         elif render_method == 'CUSTOM':
             b_layout.prop(b_scene, 'ph_render_custom_sdl')
         else:

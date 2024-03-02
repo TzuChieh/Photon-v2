@@ -303,7 +303,6 @@ class Exporter:
         integrator_type = b_scene.ph_render_integrator_type
         scheduler_type = b_scene.ph_scheduler_type
 
-        sample_source = None
         if sample_source_type == 'uniform-random':
             sample_source = sdl.UniformRandomSampleSourceCreator()
             sample_source.set_samples(sdl.Integer(spp))
@@ -317,32 +316,39 @@ class Exporter:
             sample_source.set_sequence(sdl.Enum(b_scene.ph_render_halton_sequence))
         else:
             print("warning: sample source %s is not supported" % sample_source_type)
+            sample_source = None
 
         if sample_source is not None:
             sample_source.set_data_name("sample-source")
             self.get_sdlconsole().queue_command(sample_source)
 
-        visualizer = None
-        if integrator_type == 'BVPT' or integrator_type == 'BNEEPT' or integrator_type == 'BVPTDL':
+        if (
+            integrator_type == 'BVPT' or 
+            integrator_type == 'BNEEPT' or 
+            integrator_type == 'BVPTDL'):
+
             visualizer = sdl.PathTracingVisualizerCreator()
             visualizer.set_sample_filter(mapping.to_filter_enum(filter_type))
             visualizer.set_estimator(mapping.to_integrator_enum(integrator_type))
             visualizer.set_scheduler(mapping.to_scheduler_enum(scheduler_type))
-        elif integrator_type == 'VPM':
+
+        elif (
+            integrator_type == 'VPM' or 
+            integrator_type == 'PPM' or 
+            integrator_type == 'SPPM' or 
+            integrator_type == 'PPPM'):
+            
             visualizer = sdl.PhotonMappingVisualizerCreator()
             visualizer.set_sample_filter(mapping.to_filter_enum(filter_type))
             visualizer.set_mode(mapping.to_integrator_enum(integrator_type))
             visualizer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
             visualizer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
             visualizer.set_photon_radius(sdl.Real(b_scene.ph_render_kernel_radius))
-        elif integrator_type == 'PPM' or integrator_type == 'SPPM' or integrator_type == 'PPPM':
-            visualizer = sdl.PhotonMappingVisualizerCreator()
-            visualizer.set_sample_filter(mapping.to_filter_enum(filter_type))
-            visualizer.set_mode(mapping.to_integrator_enum(integrator_type))
-            visualizer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
-            visualizer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
-            visualizer.set_photon_radius(sdl.Real(b_scene.ph_render_kernel_radius))
-            visualizer.set_num_passes(sdl.Integer(b_scene.ph_render_num_passes))
+            visualizer.set_glossy_merge_begin_length(sdl.Integer(b_scene.ph_render_glossy_merge_begin_length))
+
+            if integrator_type != 'VPM':
+                visualizer.set_num_passes(sdl.Integer(b_scene.ph_render_num_passes))
+        
         # elif render_method == "ATTRIBUTE":
         #     visualizer = sdl.AttributeRendererCreator()
         # elif render_method == "CUSTOM":
@@ -352,6 +358,7 @@ class Exporter:
         #     self.get_sdlconsole().queue_command(custom_renderer_sdl_command)
         else:
             print("warning: render method %s is not supported" % integrator_type)
+            visualizer = None
 
         if visualizer is not None:
             visualizer.set_data_name("visualizer")

@@ -51,6 +51,12 @@ public:
 	effectively determines a trade-off between noise and bias. The value should be within (0, 1).
 	*/
 	real alpha = 2.0_r / 3.0_r;
+
+	/*! The minimum path length to start estimating energy using photons on glossy surface.
+	If the scene contains diffuse surface and is easily reachable by photons, it is recommended
+	to set this to a lower value.
+	*/
+	uint32 glossyMergeBeginLength = 1;
 };
 
 }// end namespace ph

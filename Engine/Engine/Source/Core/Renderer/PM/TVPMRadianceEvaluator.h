@@ -68,6 +68,8 @@ public:
 		std::size_t minFullPathLength, 
 		std::size_t maxFullPathLength = PMCommonParams::DEFAULT_MAX_PATH_LENGTH);
 
+	void setGlossyMergeBeginLength(uint32 glossyMergeBeginLength);
+
 private:
 	math::Spectrum estimateRadianceWithPhotonMap(
 		const SurfaceHit& X,
@@ -84,6 +86,7 @@ private:
 	std::size_t                    m_stochasticSampleBeginLength;
 	std::size_t                    m_minFullPathLength;
 	std::size_t                    m_maxFullPathLength;
+	uint32                         m_glossyMergeBeginLength;
 
 	math::Vector2D                 m_rasterCoord;
 	math::Spectrum                 m_sampledRadiance;
@@ -109,6 +112,7 @@ inline TVPMRadianceEvaluator<Photon, PhotonMap>
 	, m_stochasticSampleBeginLength()
 	, m_minFullPathLength          ()
 	, m_maxFullPathLength          ()
+	, m_glossyMergeBeginLength     ()
 
 	, m_rasterCoord                ()
 	, m_sampledRadiance            ()
@@ -123,6 +127,7 @@ inline TVPMRadianceEvaluator<Photon, PhotonMap>
 	setKernelRadius(0.1_r);
 	setStochasticPathSampleBeginLength(1);
 	setFullPathLengthRange(1);
+	setGlossyMergeBeginLength(1);
 }
 
 template<CPhoton Photon, typename PhotonMap>
@@ -162,9 +167,14 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		m_maxFullPathLength);
 	m_sampledRadiance += unaccountedEnergy;
 
+	const auto phenomena = optics->getAllPhenomena();
+	const bool isSufficientlyDiffuse = pathLength >= m_glossyMergeBeginLength
+		? phenomena.hasAny(ESurfacePhenomenon::DiffuseReflection)
+		: phenomena.hasExactly(ESurfacePhenomenon::DiffuseReflection);
+
 	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
-	   optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) &&
-	   optics->getAllPhenomena().hasAny(ESurfacePhenomenon::DiffuseReflection))
+	   phenomena.hasNone(DELTA_SURFACE_PHENOMENA) &&
+	   isSufficientlyDiffuse)
 	{
 		const BsdfQueryContext bsdfContext(
 			ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
@@ -313,6 +323,16 @@ inline void TVPMRadianceEvaluator<Photon, PhotonMap>
 
 	m_minFullPathLength = minFullPathLength;
 	m_maxFullPathLength = maxFullPathLength;
+}
+
+template<CPhoton Photon, typename PhotonMap>
+inline void TVPMRadianceEvaluator<Photon, PhotonMap>
+::setGlossyMergeBeginLength(
+	const uint32 glossyMergeBeginLength)
+{
+	PH_ASSERT_GE(glossyMergeBeginLength, 1);
+
+	m_glossyMergeBeginLength = glossyMergeBeginLength;
 }
 
 }// end namespace ph
