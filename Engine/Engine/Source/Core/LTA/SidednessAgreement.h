@@ -44,6 +44,26 @@ public:
 		const math::Vector3R& vec) const;
 
 	/*!
+	@return Whether `vec` is under the front facing hemisphere given current policy.
+	@note `isFrontHemisphere() == !isBackHemisphere()` is not necessary true. Consider the case
+	where one of the vectors is perpendicular to the normal, it could theoretically belong to both
+	hemisphere; to eliminate the ambiguity, the test is exclusive and returns false in this case.
+	*/
+	bool isFrontHemisphere(
+		const SurfaceHit&     X,
+		const math::Vector3R& vec) const;
+
+	/*!
+	@return Whether `vec` is under the back facing hemisphere given current policy.
+	@note `isFrontHemisphere() == !isBackHemisphere()` is not necessary true. Consider the case
+	where one of the vectors is perpendicular to the normal, it could theoretically belong to both
+	hemisphere; to eliminate the ambiguity, the test is exclusive and returns false in this case.
+	*/
+	bool isBackHemisphere(
+		const SurfaceHit&     X,
+		const math::Vector3R& vec) const;
+
+	/*!
 	@return Whether `vecA` and `vecB` are under the same hemisphere given current policy.
 	@note `isSameHemisphere() == !isOppositeHemisphere()` is not necessary true. Consider the case
 	where one of the vectors is perpendicular to the normal, it could theoretically belong to both
@@ -112,6 +132,78 @@ inline bool SidednessAgreement::isSidednessAgreed(
 	const math::Vector3R& vec) const
 {
 	return isSidednessAgreed(X.getGeometryNormal(), X.getShadingNormal(), vec);
+}
+
+inline bool SidednessAgreement::isFrontHemisphere(
+	const SurfaceHit&     X,
+	const math::Vector3R& vec) const
+{
+	switch(m_policy)
+	{
+	case ESidednessPolicy::TrustGeometry:
+	case ESidednessPolicy::DoNotCare:
+	{
+		const math::Vector3R& Ng = X.getGeometryNormal();
+
+		return Ng.dot(vec) > 0.0_r;
+	}
+
+	case ESidednessPolicy::TrustShading:
+	{
+		const math::Vector3R& Ns = X.getShadingNormal();
+
+		return Ns.dot(vec) > 0.0_r;
+	}
+
+	case ESidednessPolicy::Strict:
+	{
+		const math::Vector3R& N = X.getGeometryNormal();
+
+		return isSidednessAgreed(X, vec) && // The vector need to be strictly agreed on sidedness.
+		       vec.dot(N) > 0.0_r;          // Then testing hemisphere with either normal
+		                                    // (the other normal would yield the same sign)
+	}
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return false;
+	}
+}
+
+inline bool SidednessAgreement::isBackHemisphere(
+	const SurfaceHit&     X,
+	const math::Vector3R& vec) const
+{
+	switch(m_policy)
+	{
+	case ESidednessPolicy::TrustGeometry:
+	case ESidednessPolicy::DoNotCare:
+	{
+		const math::Vector3R& Ng = X.getGeometryNormal();
+
+		return Ng.dot(vec) < 0.0_r;
+	}
+
+	case ESidednessPolicy::TrustShading:
+	{
+		const math::Vector3R& Ns = X.getShadingNormal();
+
+		return Ns.dot(vec) < 0.0_r;
+	}
+
+	case ESidednessPolicy::Strict:
+	{
+		const math::Vector3R& N = X.getGeometryNormal();
+
+		return isSidednessAgreed(X, vec) && // The vector need to be strictly agreed on sidedness.
+		       vec.dot(N) < 0.0_r;          // Then testing hemisphere with either normal
+		                                    // (the other normal would yield the same sign)
+	}
+
+	default:
+		PH_ASSERT_UNREACHABLE_SECTION();
+		return false;
+	}
 }
 
 inline bool SidednessAgreement::isSameHemisphere(

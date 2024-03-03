@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ESurfaceRefineMode.h"
+
 #include <Common/Log/logger_fwd.h>
 #include <Common/primitive_type.h>
 
@@ -8,6 +10,10 @@
 namespace ph
 {
 
+/*! @brief Options for initializing core engine.
+These settings are loaded on engine startup and remains constant till engine exit. Changing the
+settings will require an engine restart to see the effect.
+*/
 class EngineInitSettings
 {
 public:
@@ -16,6 +22,8 @@ public:
 	thread-safety. It is also inadvisable to perform time consuming tasks in the handler.
 	*/
 	std::vector<LogHandler> additionalLogHandlers;
+
+	ESurfaceRefineMode surfaceRefineMode = ESurfaceRefineMode::Default;
 
 	real selfIntersectDelta = 0.0002_r;
 };
