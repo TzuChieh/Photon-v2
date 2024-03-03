@@ -42,7 +42,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	math::Spectrum accuLiWeight = initialPathWeight;
 
 	std::size_t currentPathLength = 0;
-	while(currentPathLength < pathLength)
+	while(currentPathLength < pathLength)// can extend by 1?
 	{
 		if(currentPathLength >= rrBeginPathLength)
 		{
@@ -107,6 +107,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	PH_ASSERT_GE(minPathLength, 1);
 	PH_ASSERT_LE(minPathLength, maxPathLength);
 
+	const SurfaceTracer surfaceTracer{m_scene};
 	const TDirectLightEstimator<POLICY> directLight{m_scene};
 	const BsdfQueryContext bsdfCtx{POLICY};
 
@@ -115,7 +116,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	math::Spectrum accuLo(0);
 
 	std::size_t currentPathLength = 0;
-	while(currentPathLength + 1 <= maxPathLength)// can extend by 1?
+	while(currentPathLength < maxPathLength)// can extend by 1?
 	{
 		if(currentPathLength >= rrBeginPathLength)
 		{
@@ -136,28 +137,37 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 		BsdfSampleQuery bsdfSample{bsdfCtx};
 		bsdfSample.inputs.set(currentHit, V);
 
-		math::Spectrum Lo;
-		std::optional<SurfaceHit> nextHit;
-		if(directLight.bsdfSamplePathWithNee(bsdfSample, sampleFlow, &Lo, &nextHit) &&
-		   bsdfSample.outputs.isMeasurable() &&
-		   nextHit)
+		// Account for energy from the specified path length range
+		PH_ASSERT_LE(currentPathLength + 1, maxPathLength);
+		if(currentPathLength + 1 >= minPathLength)
 		{
-			++currentPathLength;
-
-			// Only account energy from the specified path length range
-			PH_ASSERT_LE(currentPathLength, maxPathLength);
-			if(minPathLength <= currentPathLength)
+			math::Spectrum Lo;
+			std::optional<SurfaceHit> nextHit;
+			if(!directLight.bsdfSamplePathWithNee(bsdfSample, sampleFlow, &Lo, &nextHit) ||
+			   !bsdfSample.outputs.isMeasurable() ||
+			   !nextHit)
 			{
-				accuLo += accuPathWeight * Lo;
+				break;
 			}
 
-			accuPathWeight *= bsdfSample.outputs.getPdfAppliedBsdf() * N.absDot(bsdfSample.outputs.getL());
+			accuLo += accuPathWeight * Lo;
 			currentHit = *nextHit;
 		}
+		// Extend the path
 		else
 		{
-			break;
+			SurfaceHit nextHit;
+			if(!surfaceTracer.bsdfSampleNextSurface(bsdfSample, sampleFlow, &nextHit) ||
+			   !bsdfSample.outputs.isMeasurable())
+			{
+				break;
+			}
+
+			currentHit = nextHit;
 		}
+
+		accuPathWeight *= bsdfSample.outputs.getPdfAppliedBsdf() * N.absDot(bsdfSample.outputs.getL());
+		++currentPathLength;
 	}
 
 	if(out_Lo) { *out_Lo = accuLo; }
