@@ -7,6 +7,7 @@
 #include "ESurfaceRefineMode.h"
 #include "Core/LTA/SidednessAgreement.h"
 
+#include <Common/config.h>
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
@@ -14,6 +15,7 @@
 #include <cmath>
 #include <limits>
 #include <optional>
+#include <atomic>
 
 namespace ph { class EngineInitSettings; }
 
@@ -39,7 +41,6 @@ public:
 
 	std::optional<Ray> tryEscapeIteratively(
 		const SurfaceHit& X2,
-		const math::Vector3R& dir,
 		std::size_t numIterations = 2) const;
 
 public:
@@ -58,6 +59,36 @@ private:
 	static real s_selfIntersectDelta;
 
 	const SurfaceHit& m_X;
+
+#if PH_ENABLE_HIT_EVENT_STATS
+public:
+	static void reportStats();
+
+private:
+	struct HitEventStats
+	{
+		std::atomic_uint64_t numEvents;
+		std::atomic_uint64_t numFailedEmpiricalEscapes;
+		std::atomic_uint64_t numIterations;
+
+		void markEvent()
+		{
+			numEvents.fetch_add(1, std::memory_order_relaxed);
+		}
+
+		void markFailedEmpiricalEscape()
+		{
+			numFailedEmpiricalEscapes.fetch_add(1, std::memory_order_relaxed);
+		}
+
+		void markIteration()
+		{
+			numIterations.fetch_add(1, std::memory_order_relaxed);
+		}
+	};
+
+	static HitEventStats s_stats;
+#endif
 };
 
 inline SurfaceHitRefinery::SurfaceHitRefinery(const SurfaceHit& X)
@@ -86,6 +117,10 @@ inline Ray SurfaceHitRefinery::escapeManually(const math::Vector3R& dir, const r
 {
 	PH_ASSERT_MSG(dir.isFinite() && !dir.isZero(), dir.toString());
 
+#if PH_ENABLE_HIT_EVENT_STATS
+	s_stats.markEvent();
+#endif
+
 	return Ray(
 		m_X.getPosition(),
 		dir.normalize(),
@@ -96,6 +131,10 @@ inline Ray SurfaceHitRefinery::escapeManually(const math::Vector3R& dir, const r
 
 inline Ray SurfaceHitRefinery::escapeEmpirically(const math::Vector3R& dir) const
 {
+#if PH_ENABLE_HIT_EVENT_STATS
+	s_stats.markEvent();
+#endif
+
 	return Ray(
 		m_X.getPosition() + empiricalOffsetVec(m_X, dir),
 		dir.normalize(),
@@ -108,6 +147,10 @@ inline Ray SurfaceHitRefinery::escapeIteratively(
 	const math::Vector3R& dir,
 	const std::size_t numIterations) const
 {
+#if PH_ENABLE_HIT_EVENT_STATS
+	s_stats.markEvent();
+#endif
+
 	return Ray(
 		m_X.getPosition() + iterativeOffsetVec(m_X, dir, numIterations),
 		dir.normalize(),
@@ -127,7 +170,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscape(const SurfaceHit& X2) co
 		return tryEscapeEmpirically(X2);
 
 	case ESurfaceRefineMode::Iterative:
-		return tryEscapeEmpirically(X2);
+		return tryEscapeIteratively(X2);
 	}
 
 	PH_ASSERT_UNREACHABLE_SECTION();
@@ -136,6 +179,10 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscape(const SurfaceHit& X2) co
 
 inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit& X2, const real delta) const
 {
+#if PH_ENABLE_HIT_EVENT_STATS
+	s_stats.markEvent();
+#endif
+
 	const auto xToX2 = X2.getPosition() - m_X.getPosition();
 	const auto distance2 = xToX2.lengthSquared();
 
@@ -160,6 +207,10 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit
 
 inline std::optional<Ray> SurfaceHitRefinery::tryEscapeEmpirically(const SurfaceHit& X2) const
 {
+#if PH_ENABLE_HIT_EVENT_STATS
+	s_stats.markEvent();
+#endif
+
 	const auto xToX2 = X2.getPosition() - m_X.getPosition();
 	const auto originX = m_X.getPosition() + empiricalOffsetVec(m_X, xToX2);
 	const auto originX2 = X2.getPosition() + empiricalOffsetVec(X2, -xToX2);
@@ -182,9 +233,12 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeEmpirically(const Surface
 
 inline std::optional<Ray> SurfaceHitRefinery::tryEscapeIteratively(
 	const SurfaceHit& X2,
-	const math::Vector3R& dir,
 	const std::size_t numIterations) const
 {
+#if PH_ENABLE_HIT_EVENT_STATS
+	s_stats.markEvent();
+#endif
+
 	const auto xToX2 = X2.getPosition() - m_X.getPosition();
 	const auto originX = m_X.getPosition() + iterativeOffsetVec(m_X, xToX2, numIterations);
 	const auto originX2 = X2.getPosition() + iterativeOffsetVec(X2, -xToX2, numIterations);

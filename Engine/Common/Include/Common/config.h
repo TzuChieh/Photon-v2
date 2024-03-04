@@ -66,6 +66,10 @@ Default value is 512 KiB.
 
 #define PH_TFUNCTION_DEFAULT_MIN_SIZE_IN_BYTES (static_cast<std::size_t>(64))
 
+/*! @brief Enable statistics recording for hit events.
+*/
+#define PH_ENABLE_HIT_EVENT_STATS 0
+
 /*! @brief Being strict about object lifetime.
 Some compiler versions and different standards may be using an object lifetime model that can be
 optimized more aggressively (e.g., constant folding on const instances), which may cause UB or

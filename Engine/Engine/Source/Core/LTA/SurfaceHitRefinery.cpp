@@ -1,16 +1,46 @@
 #include "Core/LTA/SurfaceHitRefinery.h"
 #include "EngineInitSettings.h"
 
+#include <Common/logging.h>
+
 namespace ph::lta
 {
 
 ESurfaceRefineMode SurfaceHitRefinery::s_refineMode = ESurfaceRefineMode::Default;
 real SurfaceHitRefinery::s_selfIntersectDelta = 0.0002_r;
 
+#if PH_ENABLE_HIT_EVENT_STATS
+SurfaceHitRefinery::HitEventStats SurfaceHitRefinery::s_stats;
+
+void SurfaceHitRefinery::reportStats()
+{
+	const auto numEvents = s_stats.numEvents.load();
+	const auto numFailedEmpiricalEscapes = s_stats.numFailedEmpiricalEscapes.load();
+	const auto numIterations = s_stats.numIterations.load();
+
+	PH_DEFAULT_LOG(Note,
+		"Surface hit refine stats: "
+		"{} events, "
+		"{} failed initial empirical escapes ({}%), "
+		"{} iterations performed ({} per event)",
+		numEvents,
+		numFailedEmpiricalEscapes,
+		numEvents > 0 ? static_cast<double>(numFailedEmpiricalEscapes) / numEvents * 100 : 0.0,
+		numIterations,
+		numEvents > 0 ? static_cast<double>(numIterations) / numEvents : 0.0);
+}
+#endif
+
 void SurfaceHitRefinery::init(const EngineInitSettings& settings)
 {
 	s_refineMode = settings.surfaceRefineMode;
 	s_selfIntersectDelta = settings.selfIntersectDelta;
+
+#if PH_ENABLE_HIT_EVENT_STATS
+	s_stats.numEvents = 0;
+	s_stats.numFailedEmpiricalEscapes = 0;
+	s_stats.numIterations = 0;
+#endif
 }
 
 math::Vector3R SurfaceHitRefinery::iterativeOffsetVec(
@@ -41,6 +71,10 @@ math::Vector3R SurfaceHitRefinery::iterativeOffsetVec(
 		}
 
 		maxDist *= 2.0_r;
+
+#if PH_ENABLE_HIT_EVENT_STATS
+		s_stats.markFailedEmpiricalEscape();
+#endif
 	}
 	PH_ASSERT_MSG(std::isfinite(maxDist), std::to_string(maxDist));
 
@@ -67,6 +101,10 @@ math::Vector3R SurfaceHitRefinery::iterativeOffsetVec(
 		}
 
 		++numRefinements;
+
+#if PH_ENABLE_HIT_EVENT_STATS
+		s_stats.markIteration();
+#endif
 	}
 
 	return offsetDir * maxDist;

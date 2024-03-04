@@ -2,7 +2,9 @@
 #include "Api/ApiDatabase.h"
 #include "DataIO/io_utils.h"
 #include "Core/LTA/SurfaceHitRefinery.h"
+#include "Core/LTA/SurfaceHitRefinery.h"
 
+#include <Common/config.h>
 #include <Common/logging.h>
 
 namespace ph
@@ -27,6 +29,16 @@ bool init_engine_IO_infrastructure(const EngineInitSettings& settings)
 	}
 
 	return true;
+}
+
+void after_engine_init(const EngineInitSettings& settings)
+{}
+
+void before_engine_exit()
+{
+#if PH_ENABLE_HIT_EVENT_STATS
+	lta::SurfaceHitRefinery::reportStats();
+#endif
 }
 
 bool exit_API_database()

@@ -286,11 +286,15 @@ bool init_render_engine(EngineInitSettings settings)
 	const auto sdlClasses = get_registered_engine_classes();
 	PH_DEBUG_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
 
+	after_engine_init(settings);
+
 	return true;
 }
 
 bool exit_render_engine()
 {
+	before_engine_exit();
+
 	if(!exit_API_database())
 	{
 		PH_LOG(CppAPI, Error, "C API database exiting failed");
