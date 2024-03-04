@@ -84,6 +84,22 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, H
 }
 
 template<typename Index>
+inline bool TPIndexedKdTreeTriangleMesh<Index>::reintersect(
+	const Ray& ray,
+	HitProbe& probe,
+	const Ray& /* srcRay */,
+	HitProbe& srcProbe) const
+{
+	// Popping may seem redudant, but it is not. Upper-level intersectables may cache their
+	// own data, and popping data consistently during probe consumption makes sure everybody
+	// gets their data.
+	srcProbe.popCache<ClosestHitProbeResult>();
+	srcProbe.popHit();
+
+	return TPIndexedKdTreeTriangleMesh::isIntersecting(ray, probe);
+}
+
+template<typename Index>
 inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 	const Ray&       ray,
 	HitProbe&        probe,
@@ -95,6 +111,8 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 	const auto closestHit = probe.popCache<ClosestHitProbeResult>();
 	PH_ASSERT_MSG(!closestHit.bary.isZero() && closestHit.bary.isFinite(),
 		closestHit.bary.toString());
+
+	probe.popHit();
 
 	const auto& positions = m_triangleBuffer->getPositions(closestHit.faceIndex);
 	const auto& texCoords = m_triangleBuffer->getTexCoords(closestHit.faceIndex);

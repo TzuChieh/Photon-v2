@@ -31,6 +31,7 @@ public:
 
 	void calcHitDetail(const Ray& ray, HitDetail* out_detail);
 	void calcFullHitDetail(const Ray& ray, HitDetail* out_detail);
+	bool reintersect(const Ray& ray, HitProbe& probe, const Ray& srcRay);
 	bool isOnDefaultChannel() const;
 
 	/*!

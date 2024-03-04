@@ -22,6 +22,12 @@ public:
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
 
+	bool reintersect(
+		const Ray& ray,
+		HitProbe& probe,
+		const Ray& /* srcRay */,
+		HitProbe& srcProbe) const override;
+
 	void calcHitDetail(
 		const Ray& ray,
 		HitProbe&  probe,

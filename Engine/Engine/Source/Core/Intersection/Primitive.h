@@ -29,6 +29,12 @@ public:
 		HitProbe&  probe,
 		HitDetail* out_detail) const override = 0;
 
+	bool reintersect(
+		const Ray& ray,
+		HitProbe& probe,
+		const Ray& srcRay,
+		HitProbe& srcProbe) const override = 0;
+
 	math::AABB3D calcAABB() const override = 0;
 
 	/*! @brief Generates a sample point on the surface of this primitive.

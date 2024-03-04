@@ -14,12 +14,19 @@ public:
 	PEmpty();
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
-	bool isOccluding(const Ray& ray) const override;
+
+	bool reintersect(
+		const Ray& ray,
+		HitProbe& probe,
+		const Ray& srcRay,
+		HitProbe& srcProbe) const override;
 
 	void calcHitDetail(
 		const Ray& ray, 
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
+
+	bool isOccluding(const Ray& ray) const override;
 
 	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
@@ -41,6 +48,15 @@ inline bool PEmpty::isOccluding(const Ray& ray) const
 	return false;
 }
 
+inline bool PEmpty::reintersect(
+	const Ray& /* ray */,
+	HitProbe& /* probe */,
+	const Ray& /* srcRay */,
+	HitProbe& /* srcProbe */) const
+{
+	return false;
+}
+
 inline void PEmpty::calcHitDetail(
 	const Ray& ray,
 	HitProbe&  probe,
@@ -58,9 +74,7 @@ inline bool PEmpty::mayOverlapVolume(const math::AABB3D& volume) const
 
 inline math::AABB3D PEmpty::calcAABB() const
 {
-	// TODO: return a point or an invalid AABB?
-
-	return math::AABB3D({0, 0, 0});
+	return math::AABB3D::makeEmpty();
 }
 
 }// end namespace ph

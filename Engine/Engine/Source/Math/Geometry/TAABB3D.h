@@ -30,6 +30,12 @@ template<typename T>
 class TAABB3D final
 {
 public:
+	/*! @brief Make an empty bound.
+	Given a bound B, unioning B with an empty bound yields B itself, while interseting B with an empty
+	bound is still an empty bound.
+	*/
+	static TAABB3D makeEmpty();
+
 	/*! @brief Creates a new TAABB3D by unioning inputs.
 	*/
 	static TAABB3D makeUnioned(const TAABB3D& a, const TAABB3D& b);

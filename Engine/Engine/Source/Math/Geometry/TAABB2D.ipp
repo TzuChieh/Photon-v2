@@ -15,9 +15,12 @@ namespace ph::math
 template<typename T>
 inline TAABB2D<T> TAABB2D<T>::makeEmpty()
 {
+	constexpr T maxVal = std::numeric_limits<T>::max();
+	constexpr T minVal = std::numeric_limits<T>::lowest();
+
 	return TAABB2D(
-		{std::numeric_limits<T>::max(), std::numeric_limits<T>::max()},
-		{std::numeric_limits<T>::lowest(), std::numeric_limits<T>::lowest()});
+		{maxVal, maxVal},
+		{minVal, minVal});
 }
 
 template<typename T>

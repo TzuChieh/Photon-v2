@@ -37,12 +37,36 @@ public:
 	Checks whether the specified ray intersects this intersectable. If there is
 	an intersection, true is returned and a brief hit report is stored
 	inside the probe. If there is no intersection, false is returned and the
-	state of the probe is undefined. `ray` and `probe` can be used for obtaining
-	hit detail if an intersection is found.
+	state of the probe is undefined. `ray` and `probe` can be used for
+	obtaining hit detail if an intersection is found.
 
 	@note Generates hit event (with `ray` and `probe`).
 	*/
 	virtual bool isIntersecting(const Ray& ray, HitProbe& probe) const = 0;
+
+	/*! @brief Intersect the intersected object again with a different ray.
+	
+	This method is different to isIntersecting(const Ray, HitProbe&) const.
+	Given `srcRay` and `srcProbe`, this method performs an intersection
+	test against the chain of intersectables recorded in `srcProbe` (so it is
+	impossible to "discover" new intersectables with this method). Taking BVH
+	as an example, the implementation may only record the intersected object
+	in the probe so this method can bypass the entire BVH traversal.
+
+	@param ray The ray to test for intersection.
+	@param probe The probe to record the intersection.
+	@param srcRay The ray from a hit event.
+	@param srcProbe The probe from a hit event. The process of re-intersect
+	will destroy the probe.
+	@return Whether `ray` intersects the object.
+
+	@note Generates hit event (with `ray` and `probe`).
+	*/
+	virtual bool reintersect(
+		const Ray& ray,
+		HitProbe& probe,
+		const Ray& srcRay,
+		HitProbe& srcProbe) const = 0;
 
 	/*! @brief Calculates properties of a hit, such as coordinates and normal.
 
@@ -52,6 +76,9 @@ public:
 	intersection is found). The process of calculating intersection detail will
 	destroy the input probe.
 
+	@param ray The ray from a hit event.
+	@param probe The probe from a hit event. The process of detail calculation
+	will destroy the probe.
 	@param out_detail Stores the calculated details. This method calculates the
 	essential details only. Some information such as coordinate bases will only
 	be available if specifically requested afterwards (for an example, see
@@ -74,6 +101,9 @@ public:
 	simply calls isIntersecting(const Ray&, HitProbe&) const to do the job. The test generally
 	considers the underlying shape as **hollow** (for closed shape), e.g., a sphere is not occluding
 	a line segment inside the sphere.
+
+	This method does not provide any means to retrieve `HitDetail`. Focusing on testing occlusion
+	can improve performance for some cases.
 	*/
 	virtual bool isOccluding(const Ray& ray) const;
 

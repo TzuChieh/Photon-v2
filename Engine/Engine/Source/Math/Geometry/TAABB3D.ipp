@@ -12,6 +12,17 @@ namespace ph::math
 {
 
 template<typename T>
+inline TAABB3D<T> TAABB3D<T>::makeEmpty()
+{
+	constexpr T maxVal = std::numeric_limits<T>::max();
+	constexpr T minVal = std::numeric_limits<T>::lowest();
+
+	return TAABB3D(
+		{maxVal, maxVal, maxVal},
+		{minVal, minVal, minVal});
+}
+
+template<typename T>
 inline TAABB3D<T> TAABB3D<T>::makeUnioned(const TAABB3D& a, const TAABB3D& b)
 {
 	return TAABB3D(a).unionWith(b);

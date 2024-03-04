@@ -47,6 +47,21 @@ bool PTriangle::isIntersecting(const Ray& ray, HitProbe& probe) const
 	return true;
 }
 
+bool PTriangle::reintersect(
+	const Ray& ray,
+	HitProbe& probe,
+	const Ray& /* srcRay */,
+	HitProbe& srcProbe) const
+{
+	// Popping may seem redudant, but it is not. Upper-level intersectables may cache their
+	// own data, and popping data consistently during probe consumption makes sure everybody
+	// gets their data.
+	srcProbe.popCache<math::Vector3R>();
+	srcProbe.popHit();
+
+	return PTriangle::isIntersecting(ray, probe);
+}
+
 void PTriangle::calcHitDetail(
 	const Ray&       ray,
 	HitProbe&        probe,
@@ -57,6 +72,8 @@ void PTriangle::calcHitDetail(
 	const auto hitBaryABC = probe.popCache<math::Vector3R>();
 	PH_ASSERT_MSG(!hitBaryABC.isZero() && hitBaryABC.isFinite(), 
 		hitBaryABC.toString());
+
+	probe.popHit();
 
 	const auto hitPosition = m_triangle.barycentricToSurface(hitBaryABC);
 	const auto hitShadingNormal = Triangle::interpolate(m_nA, m_nB, m_nC, hitBaryABC).normalize();

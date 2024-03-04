@@ -64,6 +64,8 @@ void PLatLongEnvSphere::calcHitDetail(
 {
 	PH_ASSERT(out_detail);
 
+	probe.popHit();
+
 	Ray localRay;
 	m_worldToLocal->transform(ray, &localRay);
 

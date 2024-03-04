@@ -24,6 +24,8 @@ void PLatLong01Sphere::calcHitDetail(
 {
 	PH_ASSERT(out_detail);
 
+	probe.popHit();
+
 	// Refine hit point by normal and radius since the ray can be far away
 	// and contains large numerical error
 	const auto [hitPosition, hitNormal] = getRefinedSurfaceAndNormal(

@@ -21,6 +21,13 @@ public:
 		HitDetail* out_detail) const override = 0;
 
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override;
+
+	bool reintersect(
+		const Ray& ray,
+		HitProbe& probe,
+		const Ray& srcRay,
+		HitProbe& srcProbe) const override;
+
 	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 	real calcExtendedArea() const override;

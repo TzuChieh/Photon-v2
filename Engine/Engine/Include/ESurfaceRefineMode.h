@@ -10,7 +10,7 @@ enum class ESurfaceRefineMode
 	Iterative,
 
 	// Special values
-	Default = Empirical,
+	Default = Iterative,
 };
 
 }// end namespace ph

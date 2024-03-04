@@ -59,6 +59,7 @@ public:
 		SurfaceHitReason reason);
 
 	SurfaceHit switchChannel(uint32 newChannel) const;
+	bool reintersect(const Ray& ray, HitProbe& probe) const;
 
 	bool hasSurfaceOptics() const;
 	bool hasInteriorOptics() const;
@@ -66,6 +67,7 @@ public:
 
 	const HitDetail& getDetail() const;
 	SurfaceHitReason getReason() const;
+	const Ray& getRay() const;
 	const Ray& getIncidentRay() const;
 	const Time& getTime() const;
 	math::Vector3R getPosition() const;
@@ -118,6 +120,11 @@ inline SurfaceHit::SurfaceHit(
 	, m_reason       {reason}
 {}
 
+inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const
+{
+	return HitProbe(m_recordedProbe).reintersect(ray, probe, getRay());
+}
+
 inline const HitDetail& SurfaceHit::getDetail() const
 {
 	return m_detail;
@@ -128,10 +135,16 @@ inline SurfaceHitReason SurfaceHit::getReason() const
 	return m_reason;
 }
 
+inline const Ray& SurfaceHit::getRay() const
+{
+	PH_ASSERT(!m_reason.hasExactly(ESurfaceHitReason::Invalid));
+	return m_ray;
+}
+
 inline const Ray& SurfaceHit::getIncidentRay() const
 {
 	PH_ASSERT(m_reason.has(ESurfaceHitReason::IncidentRay));
-	return m_ray;
+	return getRay();
 }
 
 inline const Time& SurfaceHit::getTime() const

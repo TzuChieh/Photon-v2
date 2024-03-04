@@ -74,8 +74,7 @@ math::AABB3D BruteForceIntersector::calcAABB() const
 {
 	if(m_intersectables.empty())
 	{
-		// FIXME: return an invalid one or a point?
-		return math::AABB3D();
+		return math::AABB3D::makeEmpty();
 	}
 
 	math::AABB3D unionedAabb = m_intersectables.front()->calcAABB();

@@ -4,6 +4,15 @@
 namespace ph
 {
 
+bool Intersector::reintersect(
+	const Ray& ray,
+	HitProbe& probe,
+	const Ray& srcRay,
+	HitProbe& srcProbe) const
+{
+	return srcProbe.getCurrentHit()->reintersect(ray, probe, srcRay, srcProbe);
+}
+
 void Intersector::calcHitDetail(
 	const Ray&       ray, 
 	HitProbe&        probe,

@@ -28,6 +28,17 @@ bool PBasicSphere::isIntersecting(const Ray& ray, HitProbe& probe) const
 	return true;
 }
 
+bool PBasicSphere::reintersect(
+	const Ray& ray,
+	HitProbe& probe,
+	const Ray& /* srcRay */,
+	HitProbe& srcProbe) const
+{
+	srcProbe.popHit();
+
+	return PBasicSphere::isIntersecting(ray, probe);
+}
+
 bool PBasicSphere::mayOverlapVolume(const math::AABB3D& volume) const
 {
 	return math::TSphere(m_radius).mayOverlapVolume(volume);

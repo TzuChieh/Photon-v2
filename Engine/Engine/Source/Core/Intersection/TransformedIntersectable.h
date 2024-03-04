@@ -22,13 +22,6 @@ public:
 		const math::Transform* localToWorld,
 		const math::Transform* worldToLocal);
 
-	bool isOccluding(const Ray& ray) const override
-	{
-		Ray localRay;
-		m_worldToLocal->transform(ray, &localRay);
-		return m_intersectable->isOccluding(localRay);
-	}
-
 	bool isIntersecting(const Ray& ray, HitProbe& probe) const override
 	{
 		Ray localRay;
@@ -44,14 +37,28 @@ public:
 		}
 	}
 
+	bool reintersect(
+		const Ray& ray,
+		HitProbe& probe,
+		const Ray& /* srcRay */,
+		HitProbe& srcProbe) const override
+	{
+		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
+		// the hit stack; 2. the hit event is invalid
+		PH_ASSERT(srcProbe.getCurrentHit() == this);
+		srcProbe.popHit();
+
+		return TransformedIntersectable::isIntersecting(ray, probe);
+	}
+
 	void calcHitDetail(
 		const Ray&       ray, 
 		HitProbe&        probe,
 		HitDetail* const out_detail) const override
 	{
-		// If failed, it is likely to be caused by mismatched/missing probe push or pop in the hit stack
+		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
+		// the hit stack; 2. the hit event is invalid
 		PH_ASSERT(probe.getCurrentHit() == this);
-
 		probe.popHit();
 
 		Ray localRay;
@@ -68,6 +75,13 @@ public:
 			localDetail.getHitInfo(ECoordSys::World), &(out_detail->getHitInfo(ECoordSys::World)));
 
 		out_detail->addTransformLevel();
+	}
+
+	bool isOccluding(const Ray& ray) const override
+	{
+		Ray localRay;
+		m_worldToLocal->transform(ray, &localRay);
+		return m_intersectable->isOccluding(localRay);
 	}
 
 	bool mayOverlapVolume(const math::AABB3D& aabb) const override;

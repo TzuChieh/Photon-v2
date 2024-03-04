@@ -29,6 +29,7 @@ public:
 	*/
 	static TAABB2D makeEmpty();
 
+public:
 	/*! @brief Unknown bounds. State unspecified.
 	*/
 	TAABB2D();

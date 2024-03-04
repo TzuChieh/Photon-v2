@@ -117,22 +117,38 @@ public:
 		}
 	}
 
+	bool reintersect(
+		const Ray& ray,
+		HitProbe& probe,
+		const Ray& /* srcRay */,
+		HitProbe& srcProbe) const override
+	{
+		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
+		// the hit stack; 2. the hit event is invalid
+		PH_ASSERT(srcProbe.getCurrentHit() == this);
+		srcProbe.popHit();
+
+		return TMetaInjectionPrimitive::isIntersecting(ray, probe);
+	}
+
 	void calcHitDetail(
 		const Ray&       ray,
 		HitProbe&        probe,
 		HitDetail* const out_detail) const override
 	{
+		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
+		// the hit stack; 2. the hit event is invalid
+		PH_ASSERT(probe.getCurrentHit() == this);
 		probe.popHit();
 
-		// If failed, it is likely to be caused by mismatched/missing probe push or pop in the hit stack
-		PH_ASSERT(probe.getCurrentHit() == getInjectee());
-
-		m_primitiveGetter()->calcHitDetail(ray, probe, out_detail);
+		// Current hit is not necessary the injectee (as obtained via `getInjectee()`). For example,
+		// if the injectee contains multiple instances then it could simply skip over to one of them.
+		probe.getCurrentHit()->calcHitDetail(ray, probe, out_detail);
 
 		// This is a representative of the original primitive
 		out_detail->setHitIntrinsics(
-			this, 
-			out_detail->getUVW(), 
+			this,
+			out_detail->getUVW(),
 			out_detail->getRayT(),
 			out_detail->getFaceID(),
 			out_detail->getFaceTopology());

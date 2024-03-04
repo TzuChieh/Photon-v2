@@ -30,6 +30,13 @@ void HitProbe::calcFullHitDetail(
 	out_detail->computeBases();
 }
 
+bool HitProbe::reintersect(const Ray& ray, HitProbe& probe, const Ray& srcRay)
+{
+	PH_ASSERT(getCurrentHit() != nullptr);
+
+	return getCurrentHit()->reintersect(ray, probe, srcRay, *this);
+}
+
 bool HitProbe::isOnDefaultChannel() const
 {
 	return m_hitDetailChannel == PrimitiveMetadata::DEFAULT_CHANNEL_ID;
