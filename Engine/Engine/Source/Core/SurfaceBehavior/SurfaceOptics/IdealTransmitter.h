@@ -16,7 +16,7 @@ public:
 	explicit IdealTransmitter(std::shared_ptr<DielectricFresnel> fresnel);
 
 	IdealTransmitter(
-		std::shared_ptr<DielectricFresnel>  fresnel,
+		std::shared_ptr<DielectricFresnel>        fresnel,
 		std::shared_ptr<TTexture<math::Spectrum>> transmissionScale);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;

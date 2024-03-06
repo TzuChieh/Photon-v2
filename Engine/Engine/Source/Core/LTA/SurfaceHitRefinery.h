@@ -33,7 +33,7 @@ public:
 
 	Ray escapeIteratively(
 		const math::Vector3R& dir, 
-		std::size_t numIterations = 2) const;
+		std::size_t numIterations = numIterations()) const;
 
 	std::optional<Ray> tryEscape(const SurfaceHit& X2) const;
 	std::optional<Ray> tryEscapeManually(const SurfaceHit& X2, real delta = selfIntersectDelta()) const;
@@ -41,11 +41,20 @@ public:
 
 	std::optional<Ray> tryEscapeIteratively(
 		const SurfaceHit& X2,
-		std::size_t numIterations = 2) const;
+		std::size_t numIterations = numIterations()) const;
 
 public:
 	static void init(const EngineInitSettings& settings);
+
+	/*! @brief A small value for resolving self-intersections.
+	*/
 	static real selfIntersectDelta();
+
+	/*! @brief Number of iterations to perform when escaping in iterative mode.
+	*/
+	static std::size_t numIterations();
+
+private:
 	static real empiricalOffsetDist(const SurfaceHit& X);
 	static math::Vector3R empiricalOffsetVec(const SurfaceHit& X, const math::Vector3R& dir);
 
@@ -54,9 +63,11 @@ public:
 		const math::Vector3R& dir,
 		std::size_t numIterations);
 
-private:
+	static bool reintersect(const SurfaceHit& X, const Ray& ray, HitProbe& probe);
+
 	static ESurfaceRefineMode s_refineMode;
 	static real s_selfIntersectDelta;
+	static std::size_t s_numIterations;
 
 	const SurfaceHit& m_X;
 
@@ -69,11 +80,12 @@ private:
 	{
 		std::atomic_uint64_t numEvents;
 		std::atomic_uint64_t numFailedEmpiricalEscapes;
-		std::atomic_uint64_t numIterations;
+		std::atomic_uint64_t numFailedIterativeEscapes;
+		std::atomic_uint64_t numReintersecs;
 
-		void markEvent()
+		void markEvent(const std::uint64_t num = 1)
 		{
-			numEvents.fetch_add(1, std::memory_order_relaxed);
+			numEvents.fetch_add(num, std::memory_order_relaxed);
 		}
 
 		void markFailedEmpiricalEscape()
@@ -81,9 +93,14 @@ private:
 			numFailedEmpiricalEscapes.fetch_add(1, std::memory_order_relaxed);
 		}
 
-		void markIteration()
+		void markFailedIterativeEscape()
 		{
-			numIterations.fetch_add(1, std::memory_order_relaxed);
+			numFailedIterativeEscapes.fetch_add(1, std::memory_order_relaxed);
+		}
+
+		void markReintersect()
+		{
+			numReintersecs.fetch_add(1, std::memory_order_relaxed);
 		}
 	};
 
@@ -138,8 +155,6 @@ inline Ray SurfaceHitRefinery::escapeEmpirically(const math::Vector3R& dir) cons
 	return Ray(
 		m_X.getPosition() + empiricalOffsetVec(m_X, dir),
 		dir.normalize(),
-		0,
-		std::numeric_limits<real>::max(),
 		m_X.getTime());
 }
 
@@ -154,8 +169,6 @@ inline Ray SurfaceHitRefinery::escapeIteratively(
 	return Ray(
 		m_X.getPosition() + iterativeOffsetVec(m_X, dir, numIterations),
 		dir.normalize(),
-		0,
-		std::numeric_limits<real>::max(),
 		m_X.getTime());
 }
 
@@ -180,7 +193,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscape(const SurfaceHit& X2) co
 inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit& X2, const real delta) const
 {
 #if PH_ENABLE_HIT_EVENT_STATS
-	s_stats.markEvent();
+	s_stats.markEvent(2);
 #endif
 
 	const auto xToX2 = X2.getPosition() - m_X.getPosition();
@@ -208,7 +221,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit
 inline std::optional<Ray> SurfaceHitRefinery::tryEscapeEmpirically(const SurfaceHit& X2) const
 {
 #if PH_ENABLE_HIT_EVENT_STATS
-	s_stats.markEvent();
+	s_stats.markEvent(2);
 #endif
 
 	const auto xToX2 = X2.getPosition() - m_X.getPosition();
@@ -236,7 +249,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeIteratively(
 	const std::size_t numIterations) const
 {
 #if PH_ENABLE_HIT_EVENT_STATS
-	s_stats.markEvent();
+	s_stats.markEvent(2);
 #endif
 
 	const auto xToX2 = X2.getPosition() - m_X.getPosition();
@@ -266,6 +279,11 @@ inline real SurfaceHitRefinery::selfIntersectDelta()
 	return s_selfIntersectDelta;
 }
 
+inline std::size_t SurfaceHitRefinery::numIterations()
+{
+	return s_numIterations;
+}
+
 inline real SurfaceHitRefinery::empiricalOffsetDist(const SurfaceHit& X)
 {
 	const auto dist = X.getPosition().length() * 1e-3_r;
@@ -280,6 +298,15 @@ inline math::Vector3R SurfaceHitRefinery::empiricalOffsetVec(const SurfaceHit& X
 	return SidednessAgreement{ESidednessPolicy::TrustGeometry}.isFrontHemisphere(X, dir)
 		? X.getGeometryNormal() * dist
 		: X.getGeometryNormal() * -dist;
+}
+
+inline bool SurfaceHitRefinery::reintersect(const SurfaceHit& X, const Ray& ray, HitProbe& probe)
+{
+#if PH_ENABLE_HIT_EVENT_STATS
+	s_stats.markReintersect();
+#endif
+
+	return X.reintersect(ray, probe);
 }
 
 }// end namespace ph::lta

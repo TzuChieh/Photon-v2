@@ -68,7 +68,7 @@ Default value is 512 KiB.
 
 /*! @brief Enable statistics recording for hit events.
 */
-#define PH_ENABLE_HIT_EVENT_STATS 0
+#define PH_ENABLE_HIT_EVENT_STATS 1
 
 /*! @brief Being strict about object lifetime.
 Some compiler versions and different standards may be using an object lifetime model that can be

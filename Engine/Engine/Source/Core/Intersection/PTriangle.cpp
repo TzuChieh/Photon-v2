@@ -26,7 +26,8 @@ PTriangle::PTriangle(const math::Vector3R& vA, const math::Vector3R& vB, const m
 	, m_uvwC(0, 1, 0)
 {
 	m_faceNormal = m_triangle.safeGetFaceNormal(math::Vector3R(0, 1, 0));
-	PH_ASSERT(m_faceNormal.isFinite() && m_faceNormal.length() > 0.0_r);
+	PH_ASSERT_MSG(m_faceNormal.isFinite(), m_faceNormal.toString());
+	PH_ASSERT_IN_RANGE(m_faceNormal.lengthSquared(), 0.9_r, 1.1_r);
 
 	m_nA = m_faceNormal;
 	m_nB = m_faceNormal;

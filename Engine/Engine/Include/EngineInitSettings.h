@@ -5,6 +5,7 @@
 #include <Common/Log/logger_fwd.h>
 #include <Common/primitive_type.h>
 
+#include <cstddef>
 #include <vector>
 
 namespace ph
@@ -26,6 +27,7 @@ public:
 	ESurfaceRefineMode surfaceRefineMode = ESurfaceRefineMode::Default;
 
 	real selfIntersectDelta = 0.0002_r;
+	std::size_t numIterativeSurfaceRefinements = 2;
 };
 
 }// end namespace ph

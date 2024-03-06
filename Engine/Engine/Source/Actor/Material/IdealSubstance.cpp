@@ -49,7 +49,17 @@ void IdealSubstance::genSurface(const CookingContext& ctx, SurfaceBehavior& beha
 	case EIdealSubstance::DielectricReflector:
 	{
 		auto interfaceInfo = DielectricInterfaceInfo(m_fresnel, m_iorOuter, m_iorInner);
-		behavior.setOptics(std::make_shared<IdealReflector>(interfaceInfo.genFresnelEffect()));
+
+		if(m_reflectionScale == math::Spectrum(1))
+		{
+			behavior.setOptics(std::make_shared<IdealReflector>(interfaceInfo.genFresnelEffect()));
+		}
+		else
+		{
+			behavior.setOptics(std::make_shared<IdealReflector>(
+				interfaceInfo.genFresnelEffect(),
+				std::make_shared<TConstantTexture<math::Spectrum>>(m_reflectionScale)));
+		}
 	}
 	break;
 
@@ -89,7 +99,16 @@ void IdealSubstance::genSurface(const CookingContext& ctx, SurfaceBehavior& beha
 			interfaceInfo.setIorInnerN(*m_iorInnerK);
 		}
 
-		behavior.setOptics(std::make_shared<IdealReflector>(interfaceInfo.genFresnelEffect()));
+		if(m_reflectionScale == math::Spectrum(1))
+		{
+			behavior.setOptics(std::make_shared<IdealReflector>(interfaceInfo.genFresnelEffect()));
+		}
+		else
+		{
+			behavior.setOptics(std::make_shared<IdealReflector>(
+				interfaceInfo.genFresnelEffect(),
+				std::make_shared<TConstantTexture<math::Spectrum>>(m_reflectionScale)));
+		}
 	}
 	break;
 
@@ -98,7 +117,16 @@ void IdealSubstance::genSurface(const CookingContext& ctx, SurfaceBehavior& beha
 		auto interfaceInfo = DielectricInterfaceInfo(m_fresnel, m_iorOuter, m_iorInner);
 		auto fresnel       = interfaceInfo.genFresnelEffect();
 
-		behavior.setOptics(std::make_shared<IdealTransmitter>(std::move(fresnel)));
+		if(m_transmissionScale == math::Spectrum(1))
+		{
+			behavior.setOptics(std::make_shared<IdealTransmitter>(std::move(fresnel)));
+		}
+		else
+		{
+			behavior.setOptics(std::make_shared<IdealTransmitter>(
+				std::move(fresnel),
+				std::make_shared<TConstantTexture<math::Spectrum>>(m_transmissionScale)));
+		}
 	}
 	break;
 

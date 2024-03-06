@@ -45,56 +45,17 @@ public:
 
 	// TODO: update internal data like area when setters are called
 
-	inline void setNa(const math::Vector3R& nA)
-	{
-		PH_ASSERT_MSG(nA.isFinite() && nA.length() > 0.9_r, nA.toString());
+	void setNa(const math::Vector3R& nA);
+	void setNb(const math::Vector3R& nB);
+	void setNc(const math::Vector3R& nC);
 
-		m_nA = nA;
-	}
+	void setUVWa(const math::Vector3R& uvwA);
+	void setUVWb(const math::Vector3R& uvwB);
+	void setUVWc(const math::Vector3R& uvwC);
 
-	inline void setNb(const math::Vector3R& nB)
-	{
-		PH_ASSERT_MSG(nB.isFinite() && nB.length() > 0.9_r, nB.toString());
-
-		m_nB = nB;
-	}
-
-	inline void setNc(const math::Vector3R& nC)
-	{
-		PH_ASSERT_MSG(nC.isFinite() && nC.length() > 0.9_r, nC.toString());
-
-		m_nC = nC;
-	}
-
-	inline void setUVWa(const math::Vector3R& uvwA)
-	{
-		m_uvwA = uvwA;
-	}
-
-	inline void setUVWb(const math::Vector3R& uvwB)
-	{
-		m_uvwB = uvwB;
-	}
-
-	inline void setUVWc(const math::Vector3R& uvwC)
-	{
-		m_uvwC = uvwC;
-	}
-
-	inline const math::Vector3R& getUVWa() const
-	{
-		return m_uvwA;
-	}
-
-	inline const math::Vector3R& getUVWb() const
-	{
-		return m_uvwB;
-	}
-
-	inline const math::Vector3R& getUVWc() const
-	{
-		return m_uvwC;
-	}
+	const math::Vector3R& getUVWa() const;
+	const math::Vector3R& getUVWb() const;
+	const math::Vector3R& getUVWc() const;
 
 private:
 	using Triangle = math::TWatertightTriangle<real>;
@@ -111,5 +72,59 @@ private:
 
 	math::Vector3R m_faceNormal;
 };
+
+inline void PTriangle::setNa(const math::Vector3R& nA)
+{
+	PH_ASSERT_MSG(nA.isFinite(), nA.toString());
+	PH_ASSERT_IN_RANGE(nA.lengthSquared(), 0.9_r, 1.1_r);
+
+	m_nA = nA;
+}
+
+inline void PTriangle::setNb(const math::Vector3R& nB)
+{
+	PH_ASSERT_MSG(nB.isFinite(), nB.toString());
+	PH_ASSERT_IN_RANGE(nB.lengthSquared(), 0.9_r, 1.1_r);
+
+	m_nB = nB;
+}
+
+inline void PTriangle::setNc(const math::Vector3R& nC)
+{
+	PH_ASSERT_MSG(nC.isFinite(), nC.toString());
+	PH_ASSERT_IN_RANGE(nC.lengthSquared(), 0.9_r, 1.1_r);
+
+	m_nC = nC;
+}
+
+inline void PTriangle::setUVWa(const math::Vector3R& uvwA)
+{
+	m_uvwA = uvwA;
+}
+
+inline void PTriangle::setUVWb(const math::Vector3R& uvwB)
+{
+	m_uvwB = uvwB;
+}
+
+inline void PTriangle::setUVWc(const math::Vector3R& uvwC)
+{
+	m_uvwC = uvwC;
+}
+
+inline const math::Vector3R& PTriangle::getUVWa() const
+{
+	return m_uvwA;
+}
+
+inline const math::Vector3R& PTriangle::getUVWb() const
+{
+	return m_uvwB;
+}
+
+inline const math::Vector3R& PTriangle::getUVWc() const
+{
+	return m_uvwC;
+}
 
 }// end namespace ph

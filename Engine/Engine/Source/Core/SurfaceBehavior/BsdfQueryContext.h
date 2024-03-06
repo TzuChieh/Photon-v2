@@ -6,10 +6,12 @@
 namespace ph
 {
 
-// TODO: make this able to init query for multiple elementals or 
-// based on surface phenomenon (which can produce a phenomenon/bsdfQuery iterator for surface optics to consume)
+/*! @brief The environment a BSDF query is performed under.
+*/
 class BsdfQueryContext final
 {
+	// TODO: make this able to init query for multiple elementals or 
+	// based on surface phenomenon (which can produce a phenomenon/bsdfQuery iterator for surface optics to consume)
 public:
 	SurfaceElemental        elemental = ALL_SURFACE_ELEMENTALS;
 	ETransport              transport = ETransport::Radiance;
