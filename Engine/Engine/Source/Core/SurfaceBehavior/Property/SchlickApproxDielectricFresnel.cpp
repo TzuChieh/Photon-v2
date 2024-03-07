@@ -9,14 +9,19 @@ namespace ph
 
 SchlickApproxDielectricFresnel::SchlickApproxDielectricFresnel(
 	const real iorOuter, 
-	const real iorInner) : 
-	DielectricFresnel(iorOuter, iorInner)
+	const real iorInner)
+
+	: DielectricFresnel(iorOuter, iorInner)
+
+	, m_f0{}
+	, m_tirIorRatio2{}
 {
 	const double numi = std::pow(iorOuter - iorInner, 2);
 	const double deno = std::pow(iorOuter + iorInner, 2);
 	m_f0 = static_cast<real>(numi / deno);
 
-	m_tirIorRatio2 = std::max(iorOuter, iorInner) / std::min(iorOuter, iorInner);
+	const auto tirIorRatio = std::max(iorOuter, iorInner) / std::min(iorOuter, iorInner);
+	m_tirIorRatio2 = tirIorRatio * tirIorRatio;
 }
 
 void SchlickApproxDielectricFresnel::calcReflectance(
@@ -27,17 +32,15 @@ void SchlickApproxDielectricFresnel::calcReflectance(
 
 	real cosTheta = std::abs(cosThetaIncident);
 
-	// According to SIGGRAPH 2015 Course: 
-	// "Extending the Disney BRDF to a BSDF with Integrated Subsurface Scattering (Brent Burley)",
-	// since Schlick's approximation erroneously ignores the critical angle during calculation.
+	// Schlick's approximation erroneously ignores the critical angle during calculation.
 	// To fix this, we can use the refraction angle instead when TIR is possible (i.e., the
-	// situation where the IOR of the incident side is greater than the opposite side).
+	// situation where the IoR of the incident side is greater than the opposite side) [1].
 	if((cosThetaIncident > 0 && m_iorOuter > m_iorInner) ||
 	   (cosThetaIncident < 0 && m_iorInner > m_iorOuter))
 	{
 		const real sinT2 = (1.0_r - cosThetaIncident * cosThetaIncident) * m_tirIorRatio2;
 
-		// handles TIR
+		// Handles TIR
 		if(sinT2 >= 1.0_r)
 		{
 			out_reflectance->setColorValues(1.0_r);
@@ -52,3 +55,8 @@ void SchlickApproxDielectricFresnel::calcReflectance(
 }
 
 }// end namespace ph
+
+/* References:
+[1] Brent Burley, "Extending the Disney BRDF to a BSDF with Integrated Subsurface Scattering",
+SIGGRAPH 2015 Course
+*/

@@ -20,7 +20,7 @@ public:
 
 	virtual void calcReflectance(real cosThetaIncident, math::Spectrum* out_reflectance) const = 0;
 
-	inline void calcTransmittance(real cosThetaIncident, math::Spectrum* out_transmittance) const
+	void calcTransmittance(real cosThetaIncident, math::Spectrum* out_transmittance) const
 	{
 		calcReflectance(cosThetaIncident, out_transmittance);
 		out_transmittance->complementLocal();
