@@ -64,7 +64,9 @@ void PLatLong01Sphere::calcHitDetail(
 		probe.getHitRayT(),
 		HitDetail::NO_FACE_ID, 
 		FaceTopology({EFaceTopology::Convex}));
-	out_detail->resetTransformLevel();
+
+	const auto meanError = getRadius() * 5e-8_r;
+	out_detail->setIntersectErrors(meanError, meanError * 1e1_r);
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

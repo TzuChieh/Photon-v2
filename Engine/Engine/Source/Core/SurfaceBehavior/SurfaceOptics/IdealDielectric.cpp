@@ -127,7 +127,6 @@ void IdealDielectric::calcBsdfSample(
 			return;
 		}
 
-		// FIXME: just use 1 - F
 		m_fresnel->calcTransmittance(N.dot(L), &F);
 
 		if(ctx.transport == ETransport::Radiance)

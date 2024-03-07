@@ -276,7 +276,7 @@ public:
 		const math::Vector3R& targetHitPos,
 		const math::Vector3R& targetHitNormal)
 	{
-		// Offset in the hemisphere of N, so we will not bump into ourself
+		// Offset in the hemisphere of N such that we will not bump into ourself
 		// (TODO: for some shapes we need more logics, e.g., offset into -N for concaves)
 		const auto offsetDir = targetHitNormal.dot(targetRay.getDirection()) >= 0.0_r
 			? targetHitNormal : -targetHitNormal;
@@ -917,10 +917,10 @@ int main(int argc, char* argv[])
 	FixedSizeThreadPool threads(10);
 
 	std::vector<std::unique_ptr<IntersectCase>> cases;
-	cases.push_back(std::make_unique<TriangleCase>());
-	//cases.push_back(std::make_unique<TransformedTriangleCase>(3));
+	//cases.push_back(std::make_unique<TriangleCase>());
+	cases.push_back(std::make_unique<TransformedTriangleCase>(3));
 	//cases.push_back(std::make_unique<SphereCase>());
-	//cases.push_back(std::make_unique<TransformedSphereCase>(2));
+	//cases.push_back(std::make_unique<TransformedSphereCase>(3));
 
 	PH_LOG(IntersectError, Note,
 		"Run intersection cases using {} threads.", threads.numWorkers());
@@ -942,11 +942,9 @@ int main(int argc, char* argv[])
 	constexpr real step = 5.0_r;
 
 	std::vector<BinnedDataCollection> allBins;
-	//for(real objDistance = 1e-3_r; objDistance < 1e3_r; objDistance *= step)
 	for(real objDistance = 1e-6_r; objDistance < 1e8_r; objDistance *= step)
 	{
-		for(real objSize = 1e-2_r; objSize < 1e-1_r; objSize *= step)
-		//for(real objSize = 1e-6_r; objSize < 1e6_r; objSize *= step)
+		for(real objSize = 1e-6_r; objSize < 1e6_r; objSize *= step)
 		{
 			IntersectConfig config;
 			config.numObjsPerCase = 100000;

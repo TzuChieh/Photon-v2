@@ -53,6 +53,7 @@ k = 10
 axes[0, 1].plot(error_vs_size[0], chebyshev_bound(k, error_vs_size[1]))
 axes[0, 1].set_xscale('log', base=10)
 axes[0, 1].set_yscale('log', base=10)
+# axes[0, 1].set_ylim([1e-4, 1e-1])
 axes[0, 1].set_xlabel("Hit Distance")
 axes[0, 1].set_ylabel(f"Probability outside {k}*sigma")
 axes[0, 1].legend()

@@ -176,7 +176,6 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 		probe.getHitRayT(),
 		HitDetail::NO_FACE_ID,// TODO
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
-	out_detail->resetTransformLevel();
 	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		position,
 		faceNormal,
@@ -184,6 +183,10 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 	out_detail->getHitInfo(ECoordSys::Local).setDerivatives(
 		dPdU, dPdV, dNdU, dNdV);
 	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
+
+	const auto hitDistance = position.length();
+	const auto meanError = hitDistance > 1e-5_r ? hitDistance * 5e-8_r : 5e-13_r;
+	out_detail->setIntersectErrors(meanError, meanError * 5e2_r);
 }
 
 template<typename Index>

@@ -16,7 +16,8 @@ HitDetail::HitDetail()
 	, m_hitInfos          {HitInfo(), HitInfo()}
 	, m_faceID            (NO_FACE_ID)
 	, m_faceTopology      (EFaceTopology::General)
-	, m_numTransformLevels(0)
+	, m_meanIntersectError(0)
+	, m_maxIntersectError (0)
 {}
 
 HitDetail& HitDetail::setHitIntrinsics(

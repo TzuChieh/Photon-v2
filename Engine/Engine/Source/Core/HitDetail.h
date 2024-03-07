@@ -12,6 +12,7 @@
 #include <Common/primitive_type.h>
 
 #include <cstddef>
+#include <utility>
 
 namespace ph { class Primitive; }
 
@@ -70,18 +71,18 @@ public:
 	const Primitive* getPrimitive() const;
 	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World) const;
 	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World);
-	uint8 numTransformLevels() const;
-	void resetTransformLevel();
-	void addTransformLevel();
+	std::pair<real, real> getIntersectErrors() const;
+	void setIntersectErrors(real meanError, real maxError);
 
 private:
 	const Primitive* m_primitive;
 	math::Vector3R   m_uvw;
 	real             m_rayT;
+	real			 m_meanIntersectError;
+	real			 m_maxIntersectError;
 	HitInfo          m_hitInfos[enum_size<ECoordSys>()];
 	uint64           m_faceID;
 	FaceTopology     m_faceTopology;
-	uint8            m_numTransformLevels;
 };
 
 // In-header Implementations:
@@ -170,19 +171,19 @@ inline HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys)
 	return m_hitInfos[static_cast<int>(coordSys)];
 }
 
-inline uint8 HitDetail::numTransformLevels() const
+inline std::pair<real, real> HitDetail::getIntersectErrors() const
 {
-	return m_numTransformLevels;
+	return {m_meanIntersectError, m_maxIntersectError};
 }
 
-inline void HitDetail::resetTransformLevel()
+inline void HitDetail::setIntersectErrors(const real meanError, const real maxError)
 {
-	m_numTransformLevels = 0;
-}
+	// These should be absolute values
+	PH_ASSERT_GE(meanError, 0.0_r);
+	PH_ASSERT_GE(maxError, 0.0_r);
 
-inline void HitDetail::addTransformLevel()
-{
-	++m_numTransformLevels;
+	m_meanIntersectError = meanError;
+	m_maxIntersectError = maxError;
 }
 
 }// end namespace ph

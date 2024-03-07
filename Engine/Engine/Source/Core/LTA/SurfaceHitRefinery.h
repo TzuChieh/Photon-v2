@@ -5,7 +5,6 @@
 #include "Math/TVector3.h"
 #include "Math/math.h"
 #include "ESurfaceRefineMode.h"
-#include "Core/LTA/SidednessAgreement.h"
 
 #include <Common/config.h>
 #include <Common/assertion.h>
@@ -55,6 +54,9 @@ public:
 	static std::size_t numIterations();
 
 private:
+	static real fallbackOffsetDist(const SurfaceHit& X, real distanceFactor);
+	static real maxErrorOffsetDist(const SurfaceHit& X);
+	static real meanErrorOffsetDist(const SurfaceHit& X);
 	static real empiricalOffsetDist(const SurfaceHit& X);
 	static math::Vector3R empiricalOffsetVec(const SurfaceHit& X, const math::Vector3R& dir);
 
@@ -80,6 +82,7 @@ private:
 	{
 		std::atomic_uint64_t numEvents;
 		std::atomic_uint64_t numFailedEmpiricalEscapes;
+		std::atomic_uint64_t numFailedInitialEscapes;
 		std::atomic_uint64_t numFailedIterativeEscapes;
 		std::atomic_uint64_t numReintersecs;
 
@@ -91,6 +94,11 @@ private:
 		void markFailedEmpiricalEscape()
 		{
 			numFailedEmpiricalEscapes.fetch_add(1, std::memory_order_relaxed);
+		}
+
+		void markFailedInitialEscape()
+		{
+			numFailedInitialEscapes.fetch_add(1, std::memory_order_relaxed);
 		}
 
 		void markFailedIterativeEscape()
@@ -284,20 +292,69 @@ inline std::size_t SurfaceHitRefinery::numIterations()
 	return s_numIterations;
 }
 
-inline real SurfaceHitRefinery::empiricalOffsetDist(const SurfaceHit& X)
+inline real SurfaceHitRefinery::fallbackOffsetDist(const SurfaceHit& X, const real distanceFactor)
 {
-	const auto dist = X.getPosition().length() * 1e-3_r;
-	return dist > 0.0_r && std::isfinite(dist) ? dist : selfIntersectDelta();
+	const auto fallbackDist = std::max(X.getPosition().length() * distanceFactor, selfIntersectDelta());
+	return std::isfinite(fallbackDist) ? fallbackDist : selfIntersectDelta();
+}
+
+inline real SurfaceHitRefinery::maxErrorOffsetDist(const SurfaceHit& X)
+{
+	const auto [_, maxError] = X.getDetail().getIntersectErrors();
+	const auto dist = maxError;
+	if(std::isfinite(dist))
+	{
+		// Allow to be 0 (if the implementation is confident--with 0 error)
+		return dist;
+	}
+	else
+	{
+		// A pretty pessimistic mapping obtained from a fairly extreme `IntersectError` test 
+		constexpr real distanceFactor = 1e-3_r;
+		return fallbackOffsetDist(X, distanceFactor);
+	}
+}
+
+inline real SurfaceHitRefinery::meanErrorOffsetDist(const SurfaceHit& X)
+{
+	const auto [meanError, _] = X.getDetail().getIntersectErrors();
+	const auto dist = meanError;
+	if(std::isfinite(dist))
+	{
+		// Allow to be 0 (if the implementation is confident--with 0 error)
+		return dist;
+	}
+	else
+	{
+		// A pretty pessimistic mapping obtained from a fairly extreme `IntersectError` test 
+		constexpr real distanceFactor = 1e-6_r;
+		return fallbackOffsetDist(X, distanceFactor);
+	}
 }
 
 inline math::Vector3R SurfaceHitRefinery::empiricalOffsetVec(const SurfaceHit& X, const math::Vector3R& dir)
 {
 	PH_ASSERT_MSG(dir.isFinite() && !dir.isZero(), dir.toString());
 
-	const auto dist = empiricalOffsetDist(X);
-	return SidednessAgreement{ESidednessPolicy::TrustGeometry}.isFrontHemisphere(X, dir)
-		? X.getGeometryNormal() * dist
-		: X.getGeometryNormal() * -dist;
+	const auto N = X.getGeometryNormal();
+	const auto dist = maxErrorOffsetDist(X);
+	const auto offsetVec = N.dot(dir) > 0.0_r ? N * dist : N * -dist;
+
+#if PH_ENABLE_HIT_EVENT_STATS
+	// Unfortunately we cannot test whether the escape was successful or not for some face topologies
+	// as the ray can have valid self-intersect against them
+	if(X.getDetail().getFaceTopology().hasNone({EFaceTopology::Concave, EFaceTopology::General}))
+	{
+		HitProbe probe;
+		Ray ray(X.getPosition() + offsetVec, dir.normalize(), X.getTime());
+		if(X.reintersect(ray, probe))
+		{
+			s_stats.markFailedEmpiricalEscape();
+		}
+	}
+#endif
+
+	return offsetVec;
 }
 
 inline bool SurfaceHitRefinery::reintersect(const SurfaceHit& X, const Ray& ray, HitProbe& probe)

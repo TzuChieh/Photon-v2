@@ -86,7 +86,8 @@ public:
 		m_localToWorld->transform(
 			localDetail.getHitInfo(ECoordSys::World), &(out_detail->getHitInfo(ECoordSys::World)));
 
-		out_detail->addTransformLevel();
+		const auto [meanError, maxError] = out_detail->getIntersectErrors();
+		out_detail->setIntersectErrors(meanError, maxError * 1.25_r);
 
 		// This is a representative of the original primitive
 		out_detail->setHitIntrinsics(
