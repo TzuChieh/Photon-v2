@@ -20,11 +20,15 @@ public:
 
 	virtual void calcReflectance(real cosThetaIncident, math::Spectrum* out_reflectance) const = 0;
 
-	void calcTransmittance(real cosThetaIncident, math::Spectrum* out_transmittance) const
-	{
-		calcReflectance(cosThetaIncident, out_transmittance);
-		out_transmittance->complementLocal();
-	}
+	void calcTransmittance(real cosThetaIncident, math::Spectrum* out_transmittance) const;
 };
+
+inline void FresnelEffect::calcTransmittance(
+	const real cosThetaIncident,
+	math::Spectrum* const out_transmittance) const
+{
+	calcReflectance(cosThetaIncident, out_transmittance);
+	out_transmittance->complementLocal();
+}
 
 }// end namespace ph

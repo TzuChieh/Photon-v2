@@ -8,9 +8,12 @@ namespace ph
 SchlickApproxConductorFresnel::SchlickApproxConductorFresnel(
 	const real            iorOuter,
 	const math::Spectrum& iorInnerN,
-	const math::Spectrum& iorInnerK) :
+	const math::Spectrum& iorInnerK)
 
-	ConductorFresnel(iorOuter, iorInnerN, iorInnerK)
+	: ConductorFresnel()
+
+	, m_f0{}
+	, m_f0Complement{}
 {
 	const math::Spectrum neg2 = iorInnerN.sub(math::Spectrum(iorOuter)).pow(2);
 	const math::Spectrum pos2 = iorInnerN.add(math::Spectrum(iorOuter)).pow(2);
@@ -21,13 +24,12 @@ SchlickApproxConductorFresnel::SchlickApproxConductorFresnel(
 }
 
 SchlickApproxConductorFresnel::SchlickApproxConductorFresnel(
-	const math::Spectrum& f0) :
+	const math::Spectrum& f0)
 
-	// FIXME: this might cause problems if the class is used polymorphically
-	// actual IoR values are not needed by Schlick's approximation during runtime
-	ConductorFresnel(1, math::Spectrum(1), math::Spectrum(1)),
+	: ConductorFresnel()
 
-	m_f0(f0), m_f0Complement(f0.complement())
+	, m_f0(f0)
+	, m_f0Complement(f0.complement())
 {}
 
 void SchlickApproxConductorFresnel::calcReflectance(

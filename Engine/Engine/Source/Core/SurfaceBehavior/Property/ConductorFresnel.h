@@ -18,20 +18,11 @@ conflicts with the current name is highly unlikely.
 class ConductorFresnel : public FresnelEffect
 {
 public:
-	ConductorFresnel();
-	ConductorFresnel(
-		real                  iorOuter, 
-		const math::Spectrum& iorInnerN,
-		const math::Spectrum& iorInnerK);
+	ConductorFresnel() = default;
 
 	void calcReflectance(
 		real            cosThetaIncident, 
 		math::Spectrum* out_reflectance) const override = 0;
-
-protected:
-	real           m_iorOuter;
-	math::Spectrum m_iorInnerN;
-	math::Spectrum m_iorInnerK;
 };
 
 }// end namespace ph

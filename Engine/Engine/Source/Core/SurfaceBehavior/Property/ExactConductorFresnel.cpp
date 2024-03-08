@@ -2,9 +2,9 @@
 #include "Math/Color/spectral_samples.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
 #include <cmath>
-#include <iostream>
 
 namespace ph
 {
@@ -12,9 +12,15 @@ namespace ph
 ExactConductorFresnel::ExactConductorFresnel(
 	const real            iorOuter,
 	const math::Spectrum& iorInnerN,
-	const math::Spectrum& iorInnerK) :
+	const math::Spectrum& iorInnerK)
 
-	ConductorFresnel()
+	: ConductorFresnel()
+
+	, m_iorOuter{}
+	, m_iorInnerN{}
+	, m_iorInnerK{}
+	, m_en2_sub_ek2{}
+	, m_4_mul_en2_mul_ek2{}
 {
 	setIors(iorOuter, iorInnerN, iorInnerK);
 }
@@ -23,15 +29,23 @@ ExactConductorFresnel::ExactConductorFresnel(
 	const real               iorOuter,
 	const std::vector<real>& iorWavelengthsNm,
 	const std::vector<real>& iorInnerNs,
-	const std::vector<real>& iorInnerKs) : 
+	const std::vector<real>& iorInnerKs)
 
-	ConductorFresnel()
+	: ConductorFresnel()
+	
+	, m_iorOuter{}
+	, m_iorInnerN{}
+	, m_iorInnerK{}
+	, m_en2_sub_ek2{}
+	, m_4_mul_en2_mul_ek2{}
 {
 	if(iorWavelengthsNm.size() != iorInnerNs.size() ||
 	   iorWavelengthsNm.size() != iorInnerKs.size())
 	{
-		std::cerr << "warning: at ExactConductorDielectricFresnel ctor, "
-		          << "irregular-sized input data detected" << std::endl;
+		PH_DEFAULT_LOG(Warning,
+			"at ExactConductorFresnel ctor, irregular-sized input data detected "
+			"(#iorWavelengthsNm: {}, #iorInnerNs: {}, #iorInnerKs: {})",
+			iorWavelengthsNm.size(), iorInnerNs.size(), iorInnerKs.size());
 		return;
 	}
 

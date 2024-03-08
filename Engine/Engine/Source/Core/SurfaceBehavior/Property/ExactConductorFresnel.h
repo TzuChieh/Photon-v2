@@ -31,6 +31,9 @@ public:
 		math::Spectrum* out_reflectance) const override;
 
 private:
+	real           m_iorOuter;
+	math::Spectrum m_iorInnerN;
+	math::Spectrum m_iorInnerK;
 	math::Spectrum m_en2_sub_ek2;
 	math::Spectrum m_4_mul_en2_mul_ek2;
 

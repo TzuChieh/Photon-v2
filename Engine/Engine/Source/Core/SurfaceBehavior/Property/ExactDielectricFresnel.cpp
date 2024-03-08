@@ -5,8 +5,8 @@
 namespace ph
 {
 
-ExactDielectricFresnel::ExactDielectricFresnel(const real iorOuter, const real iorInner) :
-	DielectricFresnel(iorOuter, iorInner)
+ExactDielectricFresnel::ExactDielectricFresnel(const real iorOuter, const real iorInner)
+	: DielectricFresnel(iorOuter, iorInner)
 {}
 
 void ExactDielectricFresnel::calcReflectance(
@@ -18,7 +18,7 @@ void ExactDielectricFresnel::calcReflectance(
 	real etaI = m_iorOuter;
 	real etaT = m_iorInner;
 
-	// handles the case where incident light is from inner to outer
+	// Handles the case where incident light is from inner to outer
 	real cosI = cosThetaIncident;
 	if(cosThetaIncident < 0.0_r)
 	{
@@ -29,7 +29,7 @@ void ExactDielectricFresnel::calcReflectance(
 	const real etaRatio = etaI / etaT;
 	const real sinT2    = (1.0_r - cosI * cosI) * etaRatio * etaRatio;
 
-	// handles TIR
+	// Handles TIR
 	if(sinT2 >= 1.0_r)
 	{
 		out_reflectance->setColorValues(1.0_r);

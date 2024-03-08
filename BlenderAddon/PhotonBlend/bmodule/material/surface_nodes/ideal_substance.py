@@ -26,6 +26,16 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         default='metallic-reflector'
     )
 
+    fresnel_type: bpy.props.EnumProperty(
+        items=[
+            ('schlick', "Schlick Approximation", "", 0),
+            ('exact', "Exact", "", 1)
+        ],
+        name="Fresnel Type",
+        description="Type of Fresnel effect used.",
+        default='exact'
+    )
+
     f0: bpy.props.FloatVectorProperty(
         name="F0",
         description="F0 value",
@@ -83,6 +93,7 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         creator.set_reflection_scale(sdl.Spectrum(self.reflection_scale))
         creator.set_transmission_scale(sdl.Spectrum(self.transmission_scale))
         creator.set_substance(sdl.Enum(self.substance_type))
+        creator.set_fresnel(sdl.Enum(self.fresnel_type))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
@@ -90,6 +101,7 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
 
     def draw_buttons(self, b_context, b_layout):
         b_layout.prop(self, 'substance_type', text="")
+        b_layout.prop(self, 'fresnel_type', text="")
         b_layout.prop(self, 'ior_outer')
 
         if (
@@ -99,7 +111,7 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         ):
             b_layout.prop(self, 'ior_inner')
 
-        if self.substance_type == 'metallic-reflector':
+        if self.substance_type == 'metallic-reflector' and self.fresnel_type == 'schlick':
             b_layout.prop(self, 'f0')
 
         b_layout.prop(self, 'reflection_scale')
