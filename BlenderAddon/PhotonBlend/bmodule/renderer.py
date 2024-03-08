@@ -502,7 +502,7 @@ class PH_RENDERING_PT_performance(PhRenderPanel):
         b_scene = b_context.scene
         b_layout = self.layout
 
-        b_layout.prop(b_scene.render, "threads_mode")
+        b_layout.prop(b_scene.render, 'threads_mode')
 
         b_sub_col = b_layout.column(align=True)
         b_sub_col.enabled = b_scene.render.threads_mode == 'FIXED'

@@ -15,6 +15,7 @@
 #include <limits>
 #include <optional>
 #include <atomic>
+#include <utility>
 
 namespace ph { class EngineInitSettings; }
 
@@ -54,18 +55,43 @@ public:
 	static std::size_t numIterations();
 
 private:
+	struct IterativeOffsetResult
+	{
+		math::Vector3R offset{0};
+		math::Vector3R unitDir{0};
+		real maxDistance{0};
+	};
+
 	static real fallbackOffsetDist(const SurfaceHit& X, real distanceFactor);
 	static real maxErrorOffsetDist(const SurfaceHit& X);
 	static real meanErrorOffsetDist(const SurfaceHit& X);
-	static real empiricalOffsetDist(const SurfaceHit& X);
 	static math::Vector3R empiricalOffsetVec(const SurfaceHit& X, const math::Vector3R& dir);
 
-	static math::Vector3R iterativeOffsetVec(
+	static IterativeOffsetResult iterativeOffset(
 		const SurfaceHit& X, 
 		const math::Vector3R& dir,
 		std::size_t numIterations);
 
+	static IterativeOffsetResult iterativeMutualOffset(
+		const SurfaceHit& X,
+		const SurfaceHit& X2,
+		const math::Vector3R& dir,
+		std::size_t numIterations);
+
 	static bool reintersect(const SurfaceHit& X, const Ray& ray, HitProbe& probe);
+
+	/*! Unfortunately we cannot test whether the escape was successful or not for some face
+	topologies as the ray can have valid self-intersect against them. This method checks whether
+	the specified configuration is one of those cases.
+	*/
+	static bool canVerifyOffset(const SurfaceHit& X, const math::Vector3R& dir);
+
+	static bool verifyOffset(
+		const SurfaceHit& X, 
+		const math::Vector3R& dir,
+		const math::Vector3R& rayOrigin,
+		const math::Vector3R& rayOffset,
+		real rayLength = std::numeric_limits<real>::max());
 
 	static ESurfaceRefineMode s_refineMode;
 	static real s_selfIntersectDelta;
@@ -122,6 +148,8 @@ inline SurfaceHitRefinery::SurfaceHitRefinery(const SurfaceHit& X)
 
 inline Ray SurfaceHitRefinery::escape(const math::Vector3R& dir) const
 {
+	PH_ASSERT_MSG(dir.isFinite() && !dir.isZero(), dir.toString());
+
 	switch(s_refineMode)
 	{
 	case ESurfaceRefineMode::Manual:
@@ -140,8 +168,6 @@ inline Ray SurfaceHitRefinery::escape(const math::Vector3R& dir) const
 
 inline Ray SurfaceHitRefinery::escapeManually(const math::Vector3R& dir, const real delta) const
 {
-	PH_ASSERT_MSG(dir.isFinite() && !dir.isZero(), dir.toString());
-
 #if PH_ENABLE_HIT_EVENT_STATS
 	s_stats.markEvent();
 #endif
@@ -174,9 +200,14 @@ inline Ray SurfaceHitRefinery::escapeIteratively(
 	s_stats.markEvent();
 #endif
 
+	const IterativeOffsetResult result = iterativeOffset(m_X, dir, numIterations);
+	PH_ASSERT_GT(result.maxDistance, 0.0_r);
+
 	return Ray(
-		m_X.getPosition() + iterativeOffsetVec(m_X, dir, numIterations),
-		dir.normalize(),
+		m_X.getPosition() + result.offset,
+		result.unitDir,
+		0,
+		result.maxDistance,
 		m_X.getTime());
 }
 
@@ -261,19 +292,14 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeIteratively(
 #endif
 
 	const auto xToX2 = X2.getPosition() - m_X.getPosition();
-	const auto originX = m_X.getPosition() + iterativeOffsetVec(m_X, xToX2, numIterations);
-	const auto originX2 = X2.getPosition() + iterativeOffsetVec(X2, -xToX2, numIterations);
-	const auto distance = (originX2 - originX).length();
-	const auto rcpDistance = 1.0_r / distance;
-	if(rcpDistance != 0 && std::isfinite(rcpDistance))
+	const IterativeOffsetResult result = iterativeMutualOffset(m_X, X2, xToX2, numIterations);
+	if(result.maxDistance > 0.0_r && std::isfinite(result.maxDistance))
 	{
-		// Mutual escape like this changes the originally analyzed ray directions and lengths.
-		// This can defeat the efforts done by `iterativeOffsetVec()` in some cases.
 		return Ray(
-			originX,
-			(originX2 - originX) * rcpDistance,
+			m_X.getPosition() + result.offset,
+			result.unitDir,
 			0,
-			distance,
+			result.maxDistance,
 			m_X.getTime());// following X's time
 	}
 	else
@@ -341,16 +367,9 @@ inline math::Vector3R SurfaceHitRefinery::empiricalOffsetVec(const SurfaceHit& X
 	const auto offsetVec = N.dot(dir) > 0.0_r ? N * dist : N * -dist;
 
 #if PH_ENABLE_HIT_EVENT_STATS
-	// Unfortunately we cannot test whether the escape was successful or not for some face topologies
-	// as the ray can have valid self-intersect against them
-	if(X.getDetail().getFaceTopology().hasNone({EFaceTopology::Concave, EFaceTopology::General}))
+	if(canVerifyOffset(X, dir) && !verifyOffset(X, dir, X.getPosition(), offsetVec))
 	{
-		HitProbe probe;
-		Ray ray(X.getPosition() + offsetVec, dir.normalize(), X.getTime());
-		if(X.reintersect(ray, probe))
-		{
-			s_stats.markFailedEmpiricalEscape();
-		}
+		s_stats.markFailedEmpiricalEscape();
 	}
 #endif
 
@@ -364,6 +383,30 @@ inline bool SurfaceHitRefinery::reintersect(const SurfaceHit& X, const Ray& ray,
 #endif
 
 	return X.reintersect(ray, probe);
+}
+
+inline bool SurfaceHitRefinery::canVerifyOffset(const SurfaceHit& X, const math::Vector3R& dir)
+{
+	const auto N = X.getGeometryNormal();
+	const auto topology = X.getDetail().getFaceTopology();
+
+	return topology.hasNo(EFaceTopology::General) &&
+	       (topology.hasNo(EFaceTopology::Concave) || N.dot(dir) < 0.0_r) &&
+	       (topology.hasNo(EFaceTopology::Convex) || N.dot(dir) > 0.0_r);
+}
+
+inline bool SurfaceHitRefinery::verifyOffset(
+	const SurfaceHit& X,
+	const math::Vector3R& dir,
+	const math::Vector3R& rayOrigin,
+	const math::Vector3R& rayOffset,
+	const real rayLength)
+{
+	PH_ASSERT(canVerifyOffset(X, rayDir));
+
+	HitProbe probe;
+	Ray ray(rayOrigin + rayOffset, dir.normalize(), 0, rayLength, X.getTime());
+	return !X.reintersect(ray, probe);
 }
 
 }// end namespace ph::lta

@@ -27,7 +27,7 @@ public:
 	ESurfaceRefineMode surfaceRefineMode = ESurfaceRefineMode::Default;
 
 	real selfIntersectDelta = 0.0002_r;
-	std::size_t numIterativeSurfaceRefinements = 2;
+	std::size_t numIterativeSurfaceRefinements = 4;
 };
 
 }// end namespace ph
