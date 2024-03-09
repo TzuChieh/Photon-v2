@@ -123,9 +123,8 @@ void PTriangle::calcHitDetail(
 		HitDetail::NO_FACE_ID, 
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
 
-	const auto hitDistance = hitPosition.length();
-	const auto meanError = hitDistance > 1e-5_r ? hitDistance * 5e-8_r : 5e-13_r;
-	out_detail->setIntersectErrors(meanError, meanError * 5e2_r);
+	constexpr auto meanFactor = 5e-8_r;
+	out_detail->setDistanceErrorFactors(meanFactor, meanFactor * 5e2_r);
 
 	PH_ASSERT_MSG(dPdU.isFinite() && dPdV.isFinite() &&
 	              dNdU.isFinite() && dNdV.isFinite(), "\n"

@@ -74,8 +74,8 @@ public:
 		m_localToWorld->transform(
 			localDetail.getHitInfo(ECoordSys::World), &(out_detail->getHitInfo(ECoordSys::World)));
 
-		const auto [meanError, maxError] = out_detail->getIntersectErrors();
-		out_detail->setIntersectErrors(meanError, maxError * 1.25_r);
+		const auto [meanFactor, maxFactor] = out_detail->getDistanceErrorFactors();
+		out_detail->setDistanceErrorFactors(meanFactor, maxFactor * 1.25_r);
 	}
 
 	bool isOccluding(const Ray& ray) const override

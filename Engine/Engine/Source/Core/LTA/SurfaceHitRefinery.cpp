@@ -83,6 +83,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 
 	// First find an offset that results in no intersection
 	real maxDist = initialOffsetDist;
+	real minDist = 0.0_r;
 	while(true)
 	{
 		HitProbe probe;
@@ -92,6 +93,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 			break;
 		}
 
+		minDist = maxDist;
 		maxDist *= 2.0_r;
 	}
 	PH_ASSERT_MSG(std::isfinite(maxDist), std::to_string(maxDist));
@@ -104,7 +106,6 @@ auto SurfaceHitRefinery::iterativeOffset(
 #endif
 
 	// Then use bisection method to find the smallest distance that results in no intersection
-	real minDist = 0.0_r;
 	std::size_t numRefinements = 0;
 	while(numRefinements < numIterations)
 	{
@@ -162,7 +163,8 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 	// Use max error under the assumption that `X2` is typically further and the accuracy on
 	// that end matters less (~0% chance with failed initial escape)
 	const auto initialOffsetDist = maxErrorOffsetDist(X2);
-	const auto distanceToX2 = (resultX.offset - X2.getPosition()).length();
+	const auto resultOrigin = X.getPosition() + resultX.offset;
+	const auto distanceToX2 = (resultOrigin - X2.getPosition()).length();
 	const auto escapeDir2 = -resultX.unitDir;
 
 	// Possibly fallback to empirical offset
@@ -176,11 +178,12 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 
 	// First find an offset that results in no intersection
 	real maxDist = initialOffsetDist;
+	real minDist = 0.0_r;
 	while(distanceToX2 > maxDist)
 	{
 		HitProbe probe;
 		Ray ray(
-			X.getPosition() + resultX.offset, 
+			resultOrigin,
 			resultX.unitDir, 
 			0, 
 			distanceToX2 - maxDist,
@@ -190,6 +193,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 			break;
 		}
 
+		minDist = maxDist;
 		maxDist *= 2.0_r;
 	}
 	PH_ASSERT_MSG(std::isfinite(maxDist), std::to_string(maxDist));
@@ -202,7 +206,6 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 #endif
 
 	// Then use bisection method to find the smallest distance that results in no intersection
-	real minDist = 0.0_r;
 	std::size_t numRefinements = 0;
 	while(distanceToX2 > maxDist && numRefinements < numIterations)
 	{
@@ -214,7 +217,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 
 		HitProbe probe;
 		Ray ray(
-			X.getPosition() + resultX.offset,
+			resultOrigin,
 			resultX.unitDir,
 			0,
 			distanceToX2 - midDist,

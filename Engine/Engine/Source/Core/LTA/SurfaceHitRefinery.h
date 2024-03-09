@@ -326,8 +326,8 @@ inline real SurfaceHitRefinery::fallbackOffsetDist(const SurfaceHit& X, const re
 
 inline real SurfaceHitRefinery::maxErrorOffsetDist(const SurfaceHit& X)
 {
-	const auto [_, maxError] = X.getDetail().getIntersectErrors();
-	const auto dist = maxError;
+	const auto [_, maxFactor] = X.getDetail().getDistanceErrorFactors();
+	const auto dist = X.getPosition().length() * maxFactor;
 	if(std::isfinite(dist))
 	{
 		// Allow to be 0 (if the implementation is confident--with 0 error)
@@ -335,7 +335,7 @@ inline real SurfaceHitRefinery::maxErrorOffsetDist(const SurfaceHit& X)
 	}
 	else
 	{
-		// A pretty pessimistic mapping obtained from a fairly extreme `IntersectError` test 
+		// A pessimistic mapping obtained from a fairly extreme `IntersectError` test 
 		constexpr real distanceFactor = 1e-3_r;
 		return fallbackOffsetDist(X, distanceFactor);
 	}
@@ -343,8 +343,8 @@ inline real SurfaceHitRefinery::maxErrorOffsetDist(const SurfaceHit& X)
 
 inline real SurfaceHitRefinery::meanErrorOffsetDist(const SurfaceHit& X)
 {
-	const auto [meanError, _] = X.getDetail().getIntersectErrors();
-	const auto dist = meanError;
+	const auto [meanFactor, _] = X.getDetail().getDistanceErrorFactors();
+	const auto dist = X.getPosition().length() * meanFactor;
 	if(std::isfinite(dist))
 	{
 		// Allow to be 0 (if the implementation is confident--with 0 error)
@@ -352,7 +352,7 @@ inline real SurfaceHitRefinery::meanErrorOffsetDist(const SurfaceHit& X)
 	}
 	else
 	{
-		// A pretty pessimistic mapping obtained from a fairly extreme `IntersectError` test 
+		// A pessimistic mapping obtained from a fairly extreme `IntersectError` test 
 		constexpr real distanceFactor = 1e-6_r;
 		return fallbackOffsetDist(X, distanceFactor);
 	}

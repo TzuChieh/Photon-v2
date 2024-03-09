@@ -13,6 +13,7 @@
 
 #include <cstddef>
 #include <utility>
+#include <cmath>
 
 namespace ph { class Primitive; }
 
@@ -71,18 +72,18 @@ public:
 	const Primitive* getPrimitive() const;
 	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World) const;
 	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World);
-	std::pair<real, real> getIntersectErrors() const;
-	void setIntersectErrors(real meanError, real maxError);
+	std::pair<real, real> getDistanceErrorFactors() const;
+	void setDistanceErrorFactors(real meanFactor, real maxFactor);
 
 private:
 	const Primitive* m_primitive;
 	math::Vector3R   m_uvw;
 	real             m_rayT;
-	real			 m_meanIntersectError;
-	real			 m_maxIntersectError;
 	HitInfo          m_hitInfos[enum_size<ECoordSys>()];
 	uint64           m_faceID;
 	FaceTopology     m_faceTopology;
+	int8			 m_meanDistanceErrorFactorExp2;
+	int8			 m_maxDistanceErrorFactorExp2;
 };
 
 // In-header Implementations:
@@ -171,19 +172,21 @@ inline HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys)
 	return m_hitInfos[static_cast<int>(coordSys)];
 }
 
-inline std::pair<real, real> HitDetail::getIntersectErrors() const
+inline std::pair<real, real> HitDetail::getDistanceErrorFactors() const
 {
-	return {m_meanIntersectError, m_maxIntersectError};
+	return {
+		static_cast<real>(std::exp2(m_meanDistanceErrorFactorExp2)),
+		static_cast<real>(std::exp2(m_maxDistanceErrorFactorExp2))};
 }
 
-inline void HitDetail::setIntersectErrors(const real meanError, const real maxError)
+inline void HitDetail::setDistanceErrorFactors(const real meanFactor, const real maxFactor)
 {
 	// These should be absolute values
-	PH_ASSERT_GE(meanError, 0.0_r);
-	PH_ASSERT_GE(maxError, 0.0_r);
+	PH_ASSERT_GE(meanFactor, 0.0_r);
+	PH_ASSERT_GE(maxFactor, 0.0_r);
 
-	m_meanIntersectError = meanError;
-	m_maxIntersectError = maxError;
+	m_meanDistanceErrorFactorExp2 = static_cast<int8>(std::round(std::log2(meanFactor)));
+	m_maxDistanceErrorFactorExp2 = static_cast<int8>(std::ceil(std::log2(maxFactor)));
 }
 
 }// end namespace ph
