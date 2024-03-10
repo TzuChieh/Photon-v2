@@ -40,15 +40,24 @@ public:
 	bool reintersect(
 		const Ray& ray,
 		HitProbe& probe,
-		const Ray& /* srcRay */,
+		const Ray& srcRay,
 		HitProbe& srcProbe) const override
 	{
-		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
-		// the hit stack; 2. the hit event is invalid
 		PH_ASSERT(srcProbe.getCurrentHit() == this);
 		srcProbe.popHit();
 
-		return TransformedIntersectable::isIntersecting(ray, probe);
+		Ray localRay, localSrcRay;
+		m_worldToLocal->transform(ray, &localRay);
+		m_worldToLocal->transform(srcRay, &localSrcRay);
+		if(srcProbe.getCurrentHit()->reintersect(localRay, probe, localSrcRay, srcProbe))
+		{
+			probe.pushIntermediateHit(this);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	void calcHitDetail(

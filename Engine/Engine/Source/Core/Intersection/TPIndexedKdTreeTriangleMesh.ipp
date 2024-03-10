@@ -49,7 +49,7 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, H
 		[ray, &closestHitT, &closestHit](
 			const Triangle& triangle,
 			const math::TLineSegment<real>& segment,
-			const std::size_t triangleIndex)
+			const std::size_t triangleIdx)
 		-> std::optional<real>
 		{
 			real hitT;
@@ -63,7 +63,7 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, H
 			{
 				closestHitT = hitT;
 				closestHit.bary = hitBary;
-				closestHit.faceIdx = static_cast<Index>(triangleIndex);
+				closestHit.faceIdx = lossless_cast<Index>(triangleIdx);
 			}
 
 			return hitT;
