@@ -70,6 +70,7 @@ public:
 
 	AABB3D getAABB() const;
 	bool isEmpty() const;
+	Item getItem(std::size_t idx) const;
 
 private:
 	void build(ItemToAABB itemToAABB, IndexedKdtreeParams params);

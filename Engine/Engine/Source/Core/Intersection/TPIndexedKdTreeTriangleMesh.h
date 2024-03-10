@@ -42,12 +42,12 @@ private:
 	{
 		IndexedTriangleBuffer* triangleBuffer;
 
-		Triangle operator () (const std::size_t index) const
+		Triangle operator () (const std::size_t idx) const
 		{
 			PH_ASSERT(triangleBuffer);
-			PH_ASSERT_LT(index, triangleBuffer->numFaces());
+			PH_ASSERT_LT(idx, triangleBuffer->numFaces());
 
-			return Triangle(triangleBuffer->getPositions(index));
+			return Triangle(triangleBuffer->getPositions(idx));
 		}
 	};
 
@@ -62,7 +62,7 @@ private:
 	struct ClosestHitProbeResult
 	{
 		math::Vector3R bary;
-		Index faceIndex;
+		Index faceIdx;
 	};
 
 	using KdTree = math::TIndexedKdtree<

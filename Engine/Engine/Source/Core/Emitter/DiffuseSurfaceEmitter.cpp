@@ -29,20 +29,18 @@
 namespace ph
 {
 
-DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface) :
-	SurfaceEmitter(), 
-	m_surface(surface),
-	m_emittedRadiance(nullptr)
+DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface)
+
+	: SurfaceEmitter()
+
+	, m_surface(surface)
+	, m_emittedRadiance(nullptr)
 {
 	PH_ASSERT(surface);
 
-	const real extendedArea = surface->calcExtendedArea();
-	m_reciExtendedArea = extendedArea > 0.0_r ? 1.0_r / extendedArea : 0.0_r;
-
-	static const auto DEFAULT_RADIANCE = math::Spectrum().setSpectral(
+	const auto defaultRadiance = math::Spectrum().setSpectral(
 		math::resample_illuminant_D65<math::ColorValue>(), math::EColorUsage::EMR);
-
-	setEmittedRadiance(std::make_shared<TConstantTexture<math::Spectrum>>(DEFAULT_RADIANCE));
+	setEmittedRadiance(std::make_shared<TConstantTexture<math::Spectrum>>(defaultRadiance));
 }
 
 void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* const out_radiance) const

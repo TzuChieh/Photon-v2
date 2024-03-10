@@ -129,7 +129,7 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 			if(numItems == 1)
 			{
 				const auto itemIndex = currentNode->singleItemDirectIndex();
-				const Item& item = m_indexToItem(itemIndex);
+				const Item& item = getItem(itemIndex);
 
 				std::optional<real> hitT;
 				if constexpr(TEST_WITH_ITEM_IDX)
@@ -152,7 +152,7 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 				for(std::size_t i = 0; i < numItems; ++i)
 				{
 					const Index itemIndex = m_itemIndices[currentNode->indexBufferOffset() + i];
-					const Item& item = m_indexToItem(itemIndex);
+					const Item& item = getItem(itemIndex);
 
 					std::optional<real> hitT;
 					if constexpr(TEST_WITH_ITEM_IDX)
@@ -223,6 +223,19 @@ template<
 	typename IndexToItem,
 	typename ItemToAABB,
 	typename Index>
+inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
+::getItem(const std::size_t idx) const
+-> Item
+{
+	PH_ASSERT_LT(idx, m_numItems);
+
+	return m_indexToItem(lossless_cast<Index>(idx));
+}
+
+template<
+	typename IndexToItem,
+	typename ItemToAABB,
+	typename Index>
 inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 ::build(ItemToAABB itemToAABB, IndexedKdtreeParams params)
 {
@@ -232,10 +245,10 @@ inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 
 	// Cache item AABB and calculate root AABB
 	std::vector<AABB3D> itemAABBs;
-	m_rootAABB = itemToAABB(m_indexToItem(0));
+	m_rootAABB = itemToAABB(getItem(0));
 	for(std::size_t i = 0; i < m_numItems; ++i)
 	{
-		const AABB3D aabb = itemToAABB(m_indexToItem(i));
+		const AABB3D aabb = itemToAABB(getItem(i));
 
 		itemAABBs.push_back(aabb);
 		m_rootAABB.unionWith(aabb);
@@ -244,10 +257,10 @@ inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 	std::unique_ptr<Index[]> negativeItemIndicesCache(new Index[m_numItems]);
 	std::unique_ptr<Index[]> positiveItemIndicesCache(new Index[m_numItems * maxNodeDepth]);
 
-	PH_ASSERT(m_numItems - 1 <= std::numeric_limits<Index>::max());
+	PH_ASSERT_LE(m_numItems - 1, std::numeric_limits<Index>::max());
 	for(std::size_t i = 0; i < m_numItems; ++i)
 	{
-		negativeItemIndicesCache[i] = static_cast<Index>(i);
+		negativeItemIndicesCache[i] = lossless_cast<Index>(i);
 	}
 
 	std::array<std::unique_ptr<ItemEndpoint[]>, 3> endPointsCache;
@@ -295,7 +308,7 @@ inline void TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 	{
 		m_nodeBuffer.resize(m_numNodes * 2);
 	}
-	PH_ASSERT(nodeIndex < m_nodeBuffer.size());
+	PH_ASSERT_LT(nodeIndex, m_nodeBuffer.size());
 
 	if(currentNodeDepth == maxNodeDepth || numNodeItems <= params.getMaxNodeItems())
 	{

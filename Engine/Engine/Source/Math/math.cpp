@@ -41,9 +41,9 @@ void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const o
 
 bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N)
 {
-	PH_ASSERT(N.length() > 0.0_r);
+	PH_ASSERT_GT(N.lengthSquared(), 0.0_r);
 
-	return N.dot(vector) >= 0.0_r;
+	return N.dot(vector) > 0.0_r;
 }
 
 }// end namespace ph::math

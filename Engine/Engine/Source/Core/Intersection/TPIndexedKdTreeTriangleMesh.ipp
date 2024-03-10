@@ -5,6 +5,7 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/TVector3.h"
+#include "Utility/utility.h"
 
 #include <Common/logging.h>
 
@@ -53,21 +54,19 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, H
 		{
 			real hitT;
 			math::Vector3R hitBary;
-			if(triangle.isIntersecting(segment, &hitT, &hitBary))
-			{
-				if(hitT < closestHitT)
-				{
-					closestHitT = hitT;
-					closestHit.bary = hitBary;
-					closestHit.faceIndex = static_cast<Index>(triangleIndex);
-				}
-
-				return hitT;
-			}
-			else
+			if(!triangle.isIntersecting(segment, &hitT, &hitBary))
 			{
 				return {};
 			}
+
+			if(hitT < closestHitT)
+			{
+				closestHitT = hitT;
+				closestHit.bary = hitBary;
+				closestHit.faceIdx = static_cast<Index>(triangleIndex);
+			}
+
+			return hitT;
 		});
 
 	if(hasHit)
@@ -90,13 +89,25 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::reintersect(
 	const Ray& /* srcRay */,
 	HitProbe& srcProbe) const
 {
-	// Popping may seem redudant, but it is not. Upper-level intersectables may cache their
-	// own data, and popping data consistently during probe consumption makes sure everybody
-	// gets their data.
-	srcProbe.popCache<ClosestHitProbeResult>();
+	auto closestHit = srcProbe.popCache<ClosestHitProbeResult>();
 	srcProbe.popHit();
 
-	return TPIndexedKdTreeTriangleMesh::isIntersecting(ray, probe);
+	const Triangle triangle = m_kdTree.getItem(closestHit.faceIdx);
+
+	real hitT;
+	math::Vector3R hitBary;
+	if(triangle.isIntersecting(ray.getSegment(), &hitT, &hitBary))
+	{
+		closestHit.bary = hitBary;
+		probe.pushBaseHit(this, hitT);
+		probe.pushCache(closestHit);
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 template<typename Index>
@@ -114,9 +125,9 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 
 	probe.popHit();
 
-	const auto& positions = m_triangleBuffer->getPositions(closestHit.faceIndex);
-	const auto& texCoords = m_triangleBuffer->getTexCoords(closestHit.faceIndex);
-	const auto& normals = m_triangleBuffer->getNormals(closestHit.faceIndex);
+	const auto& positions = m_triangleBuffer->getPositions(closestHit.faceIdx);
+	const auto& texCoords = m_triangleBuffer->getTexCoords(closestHit.faceIdx);
+	const auto& normals = m_triangleBuffer->getNormals(closestHit.faceIdx);
 
 	const Triangle triangle(positions);
 	const math::Vector3R position = triangle.barycentricToSurface(closestHit.bary);
@@ -174,7 +185,7 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 		this, 
 		uvw, 
 		probe.getHitRayT(),
-		HitDetail::NO_FACE_ID,// TODO
+		lossless_cast<uint64>(closestHit.faceIdx),
 		FaceTopology({EFaceTopology::Planar, EFaceTopology::Triangular}));
 	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		position,
