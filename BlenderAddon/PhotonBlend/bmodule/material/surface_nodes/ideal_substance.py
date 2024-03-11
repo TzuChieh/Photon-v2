@@ -80,6 +80,26 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         size=3
     )
 
+    ior_inner_n: bpy.props.FloatVectorProperty(
+        name="IoR Inner N",
+        description="Real part of the complex IoR.",
+        default=[0.0, 0.0, 0.0],
+        min=0.0,
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3
+    )
+
+    ior_inner_k: bpy.props.FloatVectorProperty(
+        name="IoR Inner K",
+        description="Imaginary part of the complex IoR.",
+        default=[0.0, 0.0, 0.0],
+        min=0.0,
+        max=sys.float_info.max,
+        subtype='COLOR',
+        size=3
+    )
+
     def to_sdl(self, b_material, sdlconsole):
 
         surface_mat_socket = self.outputs[0]
@@ -87,13 +107,26 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
 
         creator = sdl.IdealSubstanceMaterialCreator()
         creator.set_data_name(surface_mat_res_name)
-        creator.set_ior_outer(sdl.Real(self.ior_outer))
-        creator.set_ior_inner(sdl.Real(self.ior_inner))
-        creator.set_f0(sdl.Spectrum(self.f0))
-        creator.set_reflection_scale(sdl.Spectrum(self.reflection_scale))
-        creator.set_transmission_scale(sdl.Spectrum(self.transmission_scale))
         creator.set_substance(sdl.Enum(self.substance_type))
         creator.set_fresnel(sdl.Enum(self.fresnel_type))
+        creator.set_ior_outer(sdl.Real(self.ior_outer))
+
+        if (
+            self.substance_type == 'dielectric-reflector' or
+            self.substance_type == 'transmitter' or
+            self.substance_type == 'dielectric'
+        ):
+            creator.set_ior_inner(sdl.Real(self.ior_inner))
+        
+        if self.substance_type == 'metallic-reflector':
+            if self.fresnel_type == 'schlick':
+                creator.set_f0(sdl.Spectrum(self.f0))
+            elif self.fresnel_type == "exact":
+                creator.set_ior_inner_n(sdl.Spectrum(self.ior_inner_n))
+                creator.set_ior_inner_k(sdl.Spectrum(self.ior_inner_k))
+
+        creator.set_reflection_scale(sdl.Spectrum(self.reflection_scale))
+        creator.set_transmission_scale(sdl.Spectrum(self.transmission_scale))
         sdlconsole.queue_command(creator)
 
     def init(self, b_context):
@@ -111,8 +144,12 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
         ):
             b_layout.prop(self, 'ior_inner')
 
-        if self.substance_type == 'metallic-reflector' and self.fresnel_type == 'schlick':
-            b_layout.prop(self, 'f0')
+        if self.substance_type == 'metallic-reflector':
+            if self.fresnel_type == 'schlick':
+                b_layout.prop(self, 'f0')
+            elif self.fresnel_type == "exact":
+                b_layout.prop(self, 'ior_inner_n')
+                b_layout.prop(self, 'ior_inner_k')
 
         b_layout.prop(self, 'reflection_scale')
         b_layout.prop(self, 'transmission_scale')
