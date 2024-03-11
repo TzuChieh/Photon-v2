@@ -124,7 +124,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 		// FIXME: calc bounds from newly cooked actors and union
 		math::AABB3D bound = calcElementBound(visibleElements);
-		// TODO: should union with receiver's bound instead
+		// FIXME: should union with receiver's bound instead
 		bound.unionWith(m_receiverPos);
 
 		PH_LOG(VisualWorld, Note, "current iteration actor bound: {}", bound.toString());

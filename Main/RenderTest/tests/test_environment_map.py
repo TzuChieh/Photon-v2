@@ -48,6 +48,14 @@ white_bneept_sphere_case.ref = "ref_white"
 white_bneept_sphere_case.case_msg = (
     "Effectively a white furnace test.")
 
+white_pppm_plane_case = infra.TestCase(__name__, "PPPM (white map + plane)", res_dir / "scene_white_pppm_plane.p2")
+white_pppm_plane_case.output = "white_pppm_plane"
+white_pppm_plane_case.debug_output = "white_pppm_plane_error"
+white_pppm_plane_case.ref = "ref_white"
+white_pppm_plane_case.case_msg = (
+    "Effectively a white furnace test. The receiver is placed fairly close to the plane, looking at the horizon "
+    "(forms grazing angles). The environment sphere is also shifted and rotated, which should not affect the result.")
+
 @pytest.fixture(scope='module')
 def ref_white_img():
     img = image.Image(128, 64, 3)
@@ -68,12 +76,16 @@ def ref_debug_sphere_img():
     pytest.param(debug_bneept_sphere_shifted_case, 0.0001, 0.0003, id=debug_bneept_sphere_shifted_case.get_name()),
     pytest.param(white_bvpt_sphere_case, 1e-10, 1e-10, id=white_bvpt_sphere_case.get_name()),
     pytest.param(white_bneept_sphere_case, 1e-10, 1e-10, id=white_bneept_sphere_case.get_name()),
+    pytest.param(white_pppm_plane_case, 0.0009, 0.0106, id=white_pppm_plane_case.get_name()),
 ])
 def test_render(ref_white_img, ref_debug_sphere_img, case, max_mse, max_re_avg):
     """
     An object is being illuminated by an environment map.
     """
-    is_white_case = case is white_bvpt_sphere_case or case is white_bneept_sphere_case
+    is_white_case = (
+        case is white_bvpt_sphere_case or 
+        case is white_bneept_sphere_case or 
+        case is white_pppm_plane_case)
 
     process = renderer.open_default_render_process(case.get_scene_path(), case.get_output_path(), num_threads=4)
     process.run_and_wait()

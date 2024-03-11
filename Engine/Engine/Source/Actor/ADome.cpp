@@ -61,13 +61,13 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	localToWorld->transformP({0, 0, 0}, &domeCenter);
 
 	// Get the sphere radius that can encompass all actors
-	real domeRadius = 1000.0_r;
+	real domeRadius = 1.0_r;
 	for(auto vertex : worldBound.getBoundVertices())
 	{
-		constexpr real ENLARGEMENT = 1.01_r;
+		constexpr auto enlargement = 1.01_r;
 
-		const auto centerToVertex = (vertex - domeCenter);
-		const real ri = centerToVertex.length() * ENLARGEMENT;
+		const auto centerToVertex = vertex - domeCenter;
+		const auto ri = centerToVertex.length() * enlargement;
 
 		domeRadius = std::max(ri, domeRadius);
 	}
