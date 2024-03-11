@@ -74,6 +74,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 	const auto N = X.getGeometryNormal();
 	const auto offsetDir = N.dot(dir) > 0.0_r ? N : -N;
 	const auto escapeDir = dir.normalize();
+	const auto escapeCos = math::clamp(escapeDir.dot(offsetDir), 0.0_r, 1.0_r);
 
 	PH_ASSERT_IN_RANGE(offsetDir.lengthSquared(), 0.9_r, 1.1_r);
 	PH_ASSERT_IN_RANGE(escapeDir.lengthSquared(), 0.9_r, 1.1_r);
@@ -93,6 +94,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 			break;
 		}
 
+		maxDist += probe.getHitRayT() * escapeCos;
 		minDist = maxDist;
 		maxDist *= 2.0_r;
 	}
@@ -126,7 +128,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 		}
 		else
 		{
-			minDist = midDist;
+			minDist = math::clamp(midDist + probe.getHitRayT() * escapeCos, midDist, maxDist);
 		}
 	}
 
@@ -193,6 +195,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 			break;
 		}
 
+		maxDist = std::max(distanceToX2 - probe.getHitRayT(), maxDist);
 		minDist = maxDist;
 		maxDist *= 2.0_r;
 	}
@@ -231,7 +234,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 		}
 		else
 		{
-			minDist = midDist;
+			minDist = math::clamp(distanceToX2 - probe.getHitRayT(), midDist, maxDist);
 		}
 	}
 
