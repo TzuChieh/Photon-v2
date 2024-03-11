@@ -8,7 +8,7 @@
 namespace ph
 {
 
-/*! @brief Categorizing face topology (generally locally around a hit point).
+/*! @brief Categorizing face topology.
 */
 enum class EFaceTopology : uint8
 {

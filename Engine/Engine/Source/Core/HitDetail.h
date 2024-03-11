@@ -27,12 +27,17 @@ class HitDetail final
 public:
 	inline static constexpr auto NO_FACE_ID = static_cast<uint64>(-1);
 
-	/*!
-	Creates a hit detail filled with default values.
+	/*! @brief Creates a hit detail filled with default values.
 	*/
 	HitDetail();
 
 	/*! @brief Set essential attributes that are independent to the coordinate system.
+	@param primitive The primitive that was hit.
+	@param uvw The parametric coordinates of the hit.
+	@param rayT The parametric distance of the hit relative to the ray. The unit of this
+	value depends on the length of the ray's direction vector.
+	@param faceID ID of the face that was hit. This ID may not be globally unique, see `getFaceID()`.
+	@param faceTopology Surface topology locally around the hit point.
 	*/
 	HitDetail& setHitIntrinsics(
 		const Primitive*      primitive,
@@ -67,9 +72,16 @@ public:
 	*/
 	uint64 getFaceID() const;
 
+	/*!
+	@return Surface topology locally around the hit point.
+	*/
 	FaceTopology getFaceTopology() const;
 
+	/*!
+	@return The primitive that was hit.
+	*/
 	const Primitive* getPrimitive() const;
+
 	const HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World) const;
 	HitInfo& getHitInfo(ECoordSys coordSys = ECoordSys::World);
 	std::pair<real, real> getDistanceErrorFactors() const;

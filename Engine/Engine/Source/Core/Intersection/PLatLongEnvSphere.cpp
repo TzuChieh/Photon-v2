@@ -71,8 +71,11 @@ void PLatLongEnvSphere::calcHitDetail(
 
 	// Refine hit point by normal and radius since the ray can be far away
 	// and contains large numerical error
-	const auto [localHitPosition, localHitNormal] = getRefinedSurfaceAndNormal(
+	auto [localHitPosition, localHitNormal] = getRefinedSurfaceAndNormal(
 		localRay.getSegment().getPoint(probe.getHitRayT()));
+
+	// Normal is always facing the sphere's center
+	localHitNormal *= -1;
 
 	PH_ASSERT_MSG(localHitPosition.isFinite() && localHitNormal.isFinite(), "\n"
 		"localHitPosition = " + localHitPosition.toString() + "\n"
@@ -99,12 +102,18 @@ void PLatLongEnvSphere::calcHitDetail(
 		hitNormal,
 		hitNormal);
 	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
+
+	// Should be `EFaceTopology::Concave` in theory. However, this primitive typically will
+	// encompass the whole scene and is usually so large that treating the hit as locally planar
+	// is a reasonable approximation.
+	constexpr auto faceTopology = EFaceTopology::Planar;
+
 	out_detail->setHitIntrinsics(
 		this, 
 		math::Vector3R(hitUV.x(), hitUV.y(), 0),
 		probe.getHitRayT(), 
 		HitDetail::NO_FACE_ID, 
-		FaceTopology({EFaceTopology::Concave}));
+		FaceTopology({faceTopology}));
 
 	constexpr auto meanFactor = 5e-8_r;
 	out_detail->setDistanceErrorFactors(meanFactor, meanFactor * 1e1_r);

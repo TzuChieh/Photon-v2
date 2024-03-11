@@ -39,6 +39,8 @@ protected:
 	/*!
 	Get refined surface position since the original coordinates may contain large numerical error
 	due to far ray, extreme-sized sphere, etc.
+	@return Refined surface position and the normal of that position. Normal is pointing away from
+	the sphere.
 	*/
 	auto getRefinedSurfaceAndNormal(const math::Vector3R& srcSurface) const
 	-> std::pair<math::Vector3R, math::Vector3R>;
