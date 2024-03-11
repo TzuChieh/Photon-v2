@@ -80,7 +80,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 	PH_ASSERT_IN_RANGE(escapeDir.lengthSquared(), 0.9_r, 1.1_r);
 
 	// Use mean error for more accuracy (~50% chance with failed initial escape)
-	const auto initialOffsetDist = meanErrorOffsetDist(X);
+	const auto initialOffsetDist = meanErrorOffsetDist(X) + std::numeric_limits<real>::min();
 
 	// First find an offset that results in no intersection
 	real maxDist = initialOffsetDist;
@@ -164,7 +164,7 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 
 	// Use max error under the assumption that `X2` is typically further and the accuracy on
 	// that end matters less (~0% chance with failed initial escape)
-	const auto initialOffsetDist = maxErrorOffsetDist(X2);
+	const auto initialOffsetDist = maxErrorOffsetDist(X2) + std::numeric_limits<real>::min();
 	const auto resultOrigin = X.getPosition() + resultX.offset;
 	const auto distanceToX2 = (resultOrigin - X2.getPosition()).length();
 	const auto escapeDir2 = -resultX.unitDir;

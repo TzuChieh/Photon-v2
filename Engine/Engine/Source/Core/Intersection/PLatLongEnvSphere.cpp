@@ -103,17 +103,12 @@ void PLatLongEnvSphere::calcHitDetail(
 		hitNormal);
 	out_detail->getHitInfo(ECoordSys::World) = out_detail->getHitInfo(ECoordSys::Local);
 
-	// Should be `EFaceTopology::Concave` in theory. However, this primitive typically will
-	// encompass the whole scene and is usually so large that treating the hit as locally planar
-	// is a reasonable approximation.
-	constexpr auto faceTopology = EFaceTopology::Planar;
-
 	out_detail->setHitIntrinsics(
 		this, 
 		math::Vector3R(hitUV.x(), hitUV.y(), 0),
 		probe.getHitRayT(), 
 		HitDetail::NO_FACE_ID, 
-		FaceTopology({faceTopology}));
+		FaceTopology({EFaceTopology::Concave}));
 
 	constexpr auto meanFactor = 5e-8_r;
 	out_detail->setDistanceErrorFactors(meanFactor, meanFactor * 1e1_r);
@@ -259,22 +254,21 @@ void PLatLongEnvSphere::latLong01ToSurface(
 	PH_ASSERT(out_pdfA);
 
 	const auto localDir = math::TSphere<real>::makeUnit().latLong01ToSurface(latLong01);
+	const auto localDirBasis = math::Basis3R::makeFromUnitY(localDir);
 
-	math::Vector3R worldDir;
-	m_localToWorld->transformV(localDir, &worldDir);
-	*out_unitObservationDir = worldDir;
+	// In the space local to `localDir`, not in local space
+	const math::THemisphere<real> hemisphereInLocalDir(getRadius());
 
-	const math::THemisphere<real> hemisphereInWorldDir(getRadius());
-
-	// We want to uniformly sample all points facing `worldDir`, so a cosine-weighted sample
-	// is required (so it will be uniform if projected on a disk facing `worldDir`). This is
+	// We want to uniformly sample all points facing `localDir`, so a cosine-weighted sample
+	// is required (so it will be uniform if projected on a disk facing `localDir`). This is
 	// slightly different from PBRT-v3's approach [1], as we want to keep the environment
 	// sphere's physical size and the points cannot simply be put on a disk.
-	const auto surfaceInWorldDir = hemisphereInWorldDir.sampleToSurfaceCosThetaWeighted(
+	const auto surfaceInLocalDir = hemisphereInLocalDir.sampleToSurfaceCosThetaWeighted(
 		uniformSample, out_pdfA);
-	
-	const auto basis = math::Basis3R::makeFromUnitY(worldDir);
-	*out_surface = basis.localToWorld(surfaceInWorldDir);
+
+	const auto localSurface = localDirBasis.localToWorld(surfaceInLocalDir);
+	m_localToWorld->transformP(localSurface, out_surface);
+	m_localToWorld->transformV(localDir, out_unitObservationDir);
 }
 
 }// end namespace ph
