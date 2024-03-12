@@ -203,7 +203,7 @@ void PLatLongEnvSphere::genPosSampleWithoutObservationPos(
 
 	const Ray observationRay(
 		surface,
-		{0, 0, 0},
+		*out_unitObservationDir,
 		0,
 		0,
 		query.inputs.getTime());
@@ -222,6 +222,7 @@ bool PLatLongEnvSphere::latLong01ToSurface(
 	math::Vector3R* const out_unitObservationDir) const
 {
 	PH_ASSERT(out_surface);
+	PH_ASSERT(out_unitObservationDir);
 
 	math::Vector3R localObservationPos;
 	m_worldToLocal->transformP(observationPos, &localObservationPos);
@@ -239,6 +240,7 @@ bool PLatLongEnvSphere::latLong01ToSurface(
 
 	const math::Vector3R localHitPos = localLine.getPoint(hitT);
 	m_localToWorld->transformP(localHitPos, out_surface);
+	m_localToWorld->transformV(localDir, out_unitObservationDir);
 	return true;
 }
 

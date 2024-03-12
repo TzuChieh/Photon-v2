@@ -49,7 +49,8 @@ public:
 
 	/*! @brief Get the ray from observation position to sampled position.
 	If there is no explicitly provided observation position, the sampled position will be the
-	observation position.
+	observation position. In this case, the length of the ray will be 0 and whether the direction
+	of the ray is set to a meaningful value is depending on the implementation.
 	*/
 	const Ray& getObservationRay() const;
 
