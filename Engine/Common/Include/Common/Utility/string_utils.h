@@ -470,6 +470,7 @@ same value.
 @param out_buffer The buffer for storing the string.
 @param bufferSize Size of @p out_buffer.
 @return Number of characters written to @p out_buffer.
+@note No dynamic memory allocation is performed.
 */
 template<typename T>
 inline std::size_t stringify_float(const T value, char* const out_buffer, const std::size_t bufferSize)
@@ -503,6 +504,7 @@ Supports all signed and unsigned standard integer types. The function expects a 
 @param out_buffer The buffer for storing the string.
 @param bufferSize Size of @p out_buffer.
 @return Number of characters written to @p out_buffer.
+@note No dynamic memory allocation is performed.
 */
 template<std::integral T>
 inline std::size_t stringify_int_alphabetic(
@@ -569,6 +571,7 @@ Supports all signed and unsigned standard integer types. The function expects a 
 @param out_buffer The buffer for storing the string.
 @param bufferSize Size of @p out_buffer.
 @return Number of characters written to @p out_buffer.
+@note No dynamic memory allocation is performed.
 */
 template<std::integral T>
 inline std::size_t stringify_int(
@@ -606,6 +609,7 @@ inline std::size_t stringify_int(
 /*! @brief Converts a number to string.
 Accepts all types supported by stringify_float(T, char*, std::size_t) and
 stringify_int(T, char*, std::size_t). The written string is not null terminated.
+@return Number of characters written to @p out_buffer.
 */
 template<typename NumberType>
 inline std::size_t stringify_number(
@@ -628,20 +632,23 @@ inline std::size_t stringify_number(
 /*! @brief Converts a number to string.
 Similar to `stringify_number(T, char*, std::size_t)`, except that this variant writes to `std::string`
 and the resulting string is guaranteed to be null terminated (by calling `std::string::c_str()`).
+@param out_str The string to append the result to.
+@return @p out_str for convenience.
 */
 template<typename NumberType>
 inline std::string& stringify_number(
 	const NumberType value, 
-	std::string* const out_str, 
+	std::string& out_str, 
 	const std::size_t maxChars = 64)
 {
-	PH_ASSERT(out_str);
+	const auto originalSize = out_str.size();
+	out_str.resize(originalSize + maxChars);
 
-	out_str->resize(maxChars);
-	const std::size_t actualStrSize = string_utils::stringify_number<NumberType>(
-		value, out_str->data(), out_str->size());
-	out_str->resize(actualStrSize);
-	return *out_str;
+	const std::size_t newSize = string_utils::stringify_number<NumberType>(
+		value, out_str.data() + originalSize, maxChars);
+
+	out_str.resize(originalSize + newSize);
+	return out_str;
 }
 
 }// end namespace ph::string_utils

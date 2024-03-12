@@ -9,8 +9,10 @@
 namespace ph
 {
 
-class Ray;
-
+/*! @brief A single triangle.
+This triangle type is for constructing simple shapes such as a quad or box. For more complex shapes,
+it is better to use a more space efficient primitive type for them.
+*/
 class PTriangle : public Primitive
 {
 public:

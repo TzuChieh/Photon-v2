@@ -105,8 +105,7 @@ protected:
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		// TODO: view
-		this->setValue(owner, sdl::load_vector2<Element>(std::string(clause.value)));
+		this->setValue(owner, sdl::load_vector2<Element>(clause.value));
 	}
 
 	inline void saveToSdl(
@@ -116,7 +115,7 @@ protected:
 	{
 		if(const math::TVector2<Element>* vec2 = this->getConstValue(owner); vec2)
 		{
-			sdl::save_vector2<Element>(*vec2, &out_clause.value);
+			sdl::save_vector2<Element>(*vec2, out_clause.value);
 		}
 		else
 		{

@@ -27,16 +27,16 @@ class TSdlVector3Array : public SdlValueType
 
 public:
 	template<typename ValueType>
-	inline TSdlVector3Array(std::string valueName, ValueType Owner::* const valuePtr) :
+	TSdlVector3Array(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("vector3-array", std::move(valueName), valuePtr)
 	{}
 
-	inline std::string valueAsString(const std::vector<math::TVector3<Element>>& vec3Array) const override
+	std::string valueAsString(const std::vector<math::TVector3<Element>>& vec3Array) const override
 	{
 		return "[" + std::to_string(vec3Array.size()) + " vector3 values...]";
 	}
 
-	inline SdlNativeData ownedNativeData(Owner& owner) const override
+	SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		std::vector<math::TVector3<Element>>* const vec3Vec = this->getValue(owner);
 
@@ -68,17 +68,17 @@ public:
 	}
 
 protected:
-	inline void loadFromSdl(
+	void loadFromSdl(
 		Owner&                 owner,
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
 		// TODO: resource file
 
-		this->setValue(owner, sdl::load_vector3_array(std::string(clause.value)));
+		this->setValue(owner, sdl::load_vector3_array<Element>(clause.value));
 	}
 
-	inline void saveToSdl(
+	void saveToSdl(
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
@@ -87,7 +87,7 @@ protected:
 
 		if(const std::vector<math::TVector3<Element>>* const vec3Arr = this->getConstValue(owner); vec3Arr)
 		{
-			sdl::save_vector3_array(*vec3Arr, &out_clause.value);
+			sdl::save_vector3_array<Element>(*vec3Arr, out_clause.value);
 		}
 	}
 };

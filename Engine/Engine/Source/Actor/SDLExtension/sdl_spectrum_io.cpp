@@ -133,13 +133,14 @@ void save_spectrum(
 	PH_ASSERT(out_sdlSpectrumStr);
 	PH_ASSERT(out_tag);
 
+	out_sdlSpectrumStr->clear();
 	try
 	{
 		auto colorSpace = math::EColorSpace::Unspecified;
 		if constexpr(math::TColorSpaceDef<math::Spectrum::getColorSpace()>::isTristimulus())
 		{
 			math::TVector3<math::ColorValue> color3(spectrum.getColorValues());
-			sdl::save_vector3(color3, out_sdlSpectrumStr);
+			sdl::save_vector3(color3, *out_sdlSpectrumStr);
 			colorSpace = math::Spectrum::getColorSpace();
 		}
 		else
@@ -147,13 +148,13 @@ void save_spectrum(
 			// Constant spectrum special case (save as a single raw value)
 			if(spectrum.minComponent() == spectrum.maxComponent())
 			{
-				save_number<math::ColorValue>(spectrum[0], out_sdlSpectrumStr);
+				save_number<math::ColorValue>(spectrum[0], *out_sdlSpectrumStr);
 				colorSpace = math::EColorSpace::Unspecified;
 			}
 			// Save exact representation of a spectrum (save sample values directly)
 			else
 			{
-				sdl::save_number_array<math::ColorValue>(spectrum.getColorValues(), out_sdlSpectrumStr);
+				sdl::save_number_array<math::ColorValue>(spectrum.getColorValues(), *out_sdlSpectrumStr);
 				colorSpace = math::Spectrum::getColorSpace();
 			}
 		}

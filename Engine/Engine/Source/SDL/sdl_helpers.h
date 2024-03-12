@@ -15,6 +15,7 @@ Helpers are in an additional `sdl` namespace.
 
 #include <Common/primitive_type.h>
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -50,53 +51,99 @@ Accepts all types supported by load_float() and load_int().
 template<typename NumberType>
 NumberType load_number(std::string_view sdlNumberStr);
 
-template<typename Element>
-math::TVector2<Element> load_vector2(const std::string& sdlVector2Str);
+template<typename NumberType>
+void load_numbers(std::string_view sdlNumbersStr, TSpan<NumberType> out_numbers);
 
-math::Vector3R load_vector3(const std::string& sdlVector3Str);
-math::QuaternionR load_quaternion(const std::string& sdlQuaternionStr);
+template<typename Element>
+math::TVector2<Element> load_vector2(std::string_view sdlVec2Str);
+
+template<typename Element>
+math::TVector3<Element> load_vector3(std::string_view sdlVec3Str);
+
+template<typename Element>
+math::TVector4<Element> load_vector4(std::string_view sdlVec4Str);
+
+template<typename Element>
+math::TQuaternion<Element> load_quaternion(std::string_view sdlQuatStr);
 
 template<typename NumberType>
-std::vector<NumberType> load_number_array(const std::string& sdlNumberArrayStr);
+std::vector<NumberType> load_number_array(std::string_view sdlNumberArrayStr);
 
-std::vector<math::Vector3R> load_vector3_array(const std::string& sdlVector3ArrayStr);
+template<typename Element>
+std::vector<math::TVector3<Element>> load_vector3_array(std::string_view sdlVec3ArrayStr);
 
-void save_real(real value, std::string* out_str);
-void save_integer(integer value, std::string* out_str);
+/*!
+@param out_str The string to append the saved data to.
+*/
+void save_real(real value, std::string& out_str);
+
+/*!
+@param out_str The string to append the saved data to.
+*/
+void save_integer(integer value, std::string& out_str);
 
 /*! @brief Converts a floating-point number to its SDL representation.
-
 Supports `ph::real`, `float`, `double`, and `long double`.
+@param out_str The string to append the saved data to.
 */
 template<typename FloatType>
-void save_float(FloatType value, std::string* out_str, std::size_t maxChars = 32);
+void save_float(FloatType value, std::string& out_str);
 
 /*! @brief Converts a integer number to its SDL representation.
-
 Supports `ph::real`, `float`, `double`, and `long double`.
+@param out_str The string to append the saved data to.
 */
 template<typename IntType>
-void save_int(IntType value, std::string* out_str, std::size_t maxChars = 32);
+void save_int(IntType value, std::string& out_str);
 
 /*! @brief Converts a number to its SDL representation.
-
 Accepts all types supported by save_float() and save_int().
+@param out_str The string to append the saved data to.
 */
 template<typename NumberType>
-void save_number(NumberType value, std::string* out_str, std::size_t maxChars = 32);
+void save_number(NumberType value, std::string& out_str);
 
-template<typename Element>
-void save_vector2(const math::TVector2<Element>& value, std::string* out_str);
-
-template<typename Element>
-void save_vector3(const math::TVector3<Element>& value, std::string* out_str);
-
-void save_quaternion(const math::QuaternionR& value, std::string* out_str);
-
+/*!
+@param out_str The string to append the saved data to.
+*/
 template<typename NumberType>
-void save_number_array(TSpanView<NumberType> values, std::string* out_str);
+void save_numbers(TSpanView<NumberType> numbers, std::string& out_str);
 
-void save_vector3_array(const std::vector<math::Vector3R>& values, std::string* out_str);
+/*!
+@param out_str The string to append the saved data to.
+*/
+template<typename Element>
+void save_vector2(const math::TVector2<Element>& value, std::string& out_str);
+
+/*!
+@param out_str The string to append the saved data to.
+*/
+template<typename Element>
+void save_vector3(const math::TVector3<Element>& value, std::string& out_str);
+
+/*!
+@param out_str The string to append the saved data to.
+*/
+template<typename Element>
+void save_vector4(const math::TVector4<Element>& value, std::string& out_str);
+
+/*!
+@param out_str The string to append the saved data to.
+*/
+template<typename Element>
+void save_quaternion(const math::TQuaternion<Element>& value, std::string& out_str);
+
+/*!
+@param out_str The string to append the saved data to.
+*/
+template<typename NumberType>
+void save_number_array(TSpanView<NumberType> values, std::string& out_str);
+
+/*!
+@param out_str The string to append the saved data to.
+*/
+template<typename Element>
+void save_vector3_array(TSpanView<math::TVector3<Element>> values, std::string& out_str);
 
 /*! @brief Save the identity of the field to output clause.
 */

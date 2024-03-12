@@ -25,7 +25,7 @@ class TSdlQuaternion : public SdlValueType
 
 public:
 	template<typename ValueType>
-	inline TSdlQuaternion(std::string valueName, ValueType Owner::* const valuePtr) :
+	TSdlQuaternion(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("quaternion", std::move(valueName), valuePtr)
 	{
 		if constexpr(std::is_same_v<SdlValueType, TSdlValue<math::TQuaternion<Element>, Owner>>)
@@ -34,12 +34,12 @@ public:
 		}
 	}
 	
-	inline std::string valueAsString(const math::TQuaternion<Element>& quat) const override
+	std::string valueAsString(const math::TQuaternion<Element>& quat) const override
 	{
 		return quat.toString();
 	}
 
-	inline SdlNativeData ownedNativeData(Owner& owner) const override
+	SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		math::TQuaternion<Element>* const quat = this->getValue(owner);
 		if constexpr(std::is_base_of_v<TSdlOptionalValue<math::TQuaternion<Element>, Owner>, SdlValueType>)
@@ -135,22 +135,22 @@ public:
 	}
 
 protected:
-	inline void loadFromSdl(
+	void loadFromSdl(
 		Owner&                 owner,
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
 	{
-		this->setValue(owner, sdl::load_quaternion(std::string(clause.value)));
+		this->setValue(owner, sdl::load_quaternion<Element>(clause.value));
 	}
 
-	inline void saveToSdl(
+	void saveToSdl(
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override
 	{
 		if(const math::TQuaternion<Element>* quat = this->getConstValue(owner); quat)
 		{
-			sdl::save_quaternion(*quat, &out_clause.value);
+			sdl::save_quaternion(*quat, out_clause.value);
 		}
 		else
 		{

@@ -252,8 +252,11 @@ inline float64 ascii_ply_data_to_bytes(const std::string_view asciiPlyData, std:
 	return static_cast<float64>(value);
 }
 
+/*!
+@param out_asciiPlyData The string to append the result to.
+*/
 template<typename DataType>
-inline void bytes_to_ascii_ply_data(const std::byte* const binaryPlyData, std::string* const out_asciiPlyData)
+inline void bytes_to_ascii_ply_data(const std::byte* const binaryPlyData, std::string& out_asciiPlyData)
 {
 	const auto value = read_binary_ply_data<DataType>(binaryPlyData);
 	string_utils::stringify_number<DataType>(value, out_asciiPlyData);
@@ -342,10 +345,13 @@ inline float64 ascii_ply_data_to_bytes(
 	return 0.0;
 }
 
+/*!
+@param out_asciiPlyData The string to append the result to.
+*/
 inline void bytes_to_ascii_ply_data(
 	const std::byte* const binaryPlyData,
 	const EPlyDataType     dataType, 
-	std::string* const     out_asciiPlyData)
+	std::string&           out_asciiPlyData)
 {
 	switch(dataType)
 	{

@@ -89,7 +89,7 @@ protected:
 	{
 		if(const IntType* value = this->getConstValue(owner); value)
 		{
-			sdl::save_int<IntType>(*value, &out_clause.value);
+			sdl::save_int<IntType>(*value, out_clause.value);
 		}
 		else
 		{

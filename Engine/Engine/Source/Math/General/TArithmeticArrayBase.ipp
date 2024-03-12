@@ -808,4 +808,18 @@ inline auto TArithmeticArrayBase<Derived, T, N>::toArray() const
 	return m;
 }
 
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::toSpan()
+-> TSpan<T>
+{
+	return m;
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::toView() const
+-> TSpanView<T>
+{
+	return m;
+}
+
 }// end namespace ph::math

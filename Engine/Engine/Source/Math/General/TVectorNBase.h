@@ -113,6 +113,8 @@ public:
 	using Base::toString;
 	using Base::toVector;
 	using Base::toArray;
+	using Base::toSpan;
+	using Base::toView;
 
 	using Base::operator [];
 	using Base::operator ==;

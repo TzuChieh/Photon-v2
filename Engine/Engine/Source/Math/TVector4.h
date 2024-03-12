@@ -3,6 +3,7 @@
 #include "Math/General/TVectorNBase.h"
 #include "Math/math_fwd.h"
 #include "Math/constant.h"
+#include "Utility/utility.h"
 
 namespace ph::math
 {
@@ -17,12 +18,7 @@ protected:
 	using Base::m;
 
 public:
-	inline TVector4() = default;
-	inline TVector4(const TVector4& other) = default;
-	inline TVector4(TVector4&& other) = default;
-	inline TVector4& operator = (const TVector4& rhs) = default;
-	inline TVector4& operator = (TVector4&& rhs) = default;
-	inline ~TVector4() = default;
+	PH_DEFINE_INLINE_RULE_OF_5_MEMBERS(TVector4);
 
 	using Base::Base;
 

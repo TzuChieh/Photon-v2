@@ -773,12 +773,25 @@ public:
 			const auto sigma = std::sqrt(std::max(bin.sumY2 / bin.numY - mean * mean, 0.0));
 
 			CsvFileRow row;
-			row.addValue(string_utils::stringify_number(x,        &strBuffer));
-			row.addValue(string_utils::stringify_number(bin.numY, &strBuffer));
-			row.addValue(string_utils::stringify_number(mean,     &strBuffer));
-			row.addValue(string_utils::stringify_number(sigma,    &strBuffer));
-			row.addValue(string_utils::stringify_number(bin.minY, &strBuffer));
-			row.addValue(string_utils::stringify_number(bin.maxY, &strBuffer));
+
+			strBuffer.clear();
+			row.addValue(string_utils::stringify_number(x, strBuffer));
+
+			strBuffer.clear();
+			row.addValue(string_utils::stringify_number(bin.numY, strBuffer));
+
+			strBuffer.clear();
+			row.addValue(string_utils::stringify_number(mean, strBuffer));
+
+			strBuffer.clear();
+			row.addValue(string_utils::stringify_number(sigma, strBuffer));
+
+			strBuffer.clear();
+			row.addValue(string_utils::stringify_number(bin.minY, strBuffer));
+
+			strBuffer.clear();
+			row.addValue(string_utils::stringify_number(bin.maxY, strBuffer));
+
 			file.addRow(row);
 		}
 

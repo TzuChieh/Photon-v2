@@ -89,7 +89,7 @@ protected:
 	{
 		if(const FloatType* value = this->getConstValue(owner); value)
 		{
-			sdl::save_float<FloatType>(*value, &out_clause.value);
+			sdl::save_float<FloatType>(*value, out_clause.value);
 		}
 		else
 		{

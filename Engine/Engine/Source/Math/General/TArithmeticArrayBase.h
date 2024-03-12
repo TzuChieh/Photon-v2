@@ -2,6 +2,7 @@
 
 #include "Math/math_fwd.h"
 #include "Utility/utility.h"
+#include "Utility/TSpan.h"
 
 #include <Common/primitive_type.h>
 
@@ -161,6 +162,8 @@ protected:
 	std::string toString() const;
 	std::vector<T> toVector() const;
 	std::array<T, N> toArray() const;
+	TSpan<T> toSpan();
+	TSpanView<T> toView() const;
 
 protected:
 	std::array<T, N> m;

@@ -95,7 +95,7 @@ protected:
 
 		if(const std::vector<Element>* const numberArr = this->getConstValue(owner); numberArr)
 		{
-			sdl::save_number_array<Element>(*numberArr, &out_clause.value);
+			sdl::save_number_array<Element>(*numberArr, out_clause.value);
 		}
 	}
 };

@@ -2,6 +2,9 @@
 
 #include "SDL/sdl_helpers.h"
 #include "Math/TVector2.h"
+#include "Math/TVector3.h"
+#include "Math/TVector4.h"
+#include "Math/TQuaternion.h"
 #include "SDL/Tokenizer.h"
 #include "SDL/sdl_traits.h"
 #include "SDL/sdl_exceptions.h"
@@ -11,12 +14,14 @@
 #include <Common/Utility/string_utils.h>
 
 #include <type_traits>
+#include <algorithm>
+#include <exception>
 
 namespace ph::sdl
 {
 
 template<typename FloatType>
-inline FloatType load_float(const std::string_view sdlFloatStr)
+inline FloatType load_float(std::string_view sdlFloatStr)
 {
 	try
 	{
@@ -29,7 +34,7 @@ inline FloatType load_float(const std::string_view sdlFloatStr)
 }
 
 template<typename IntType>
-inline IntType load_int(const std::string_view sdlIntStr)
+inline IntType load_int(std::string_view sdlIntStr)
 {
 	try
 	{
@@ -42,7 +47,7 @@ inline IntType load_int(const std::string_view sdlIntStr)
 }
 
 template<typename NumberType>
-inline NumberType load_number(const std::string_view sdlNumberStr)
+inline NumberType load_number(std::string_view sdlNumberStr)
 {
 	if constexpr(std::is_floating_point_v<NumberType>)
 	{
@@ -56,96 +61,64 @@ inline NumberType load_number(const std::string_view sdlNumberStr)
 	}
 }
 
-inline real load_real(const std::string_view sdlRealStr)
+template<typename NumberType>
+inline void load_numbers(std::string_view sdlNumbersStr, TSpan<NumberType> out_numbers)
+{
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
+
+	const auto N = out_numbers.size();
+	PH_ASSERT_GT(N, 0);
+
+	try
+	{
+		// TODO: use view
+		std::vector<std::string> tokens;
+		tokenizer.tokenize(std::string(sdlNumbersStr), tokens);
+
+		// N input values form a N-tuple exactly
+		if(tokens.size() == N)
+		{
+			for(std::size_t ni = 0; ni < N; ++ni)
+			{
+				out_numbers[ni] = load_number<NumberType>(tokens[ni]);
+			}
+		}
+		// 1 input value results in the N-tuple filled with the same value
+		else if(tokens.size() == 1)
+		{
+			std::fill(out_numbers.begin(), out_numbers.end(), load_number<NumberType>(tokens[0]));
+		}
+		else
+		{
+			throw_formatted<SdlLoadError>(
+				"invalid number of tokens: {}", tokens.size());
+		}
+	}
+	catch(const SdlException& e)
+	{
+		throw_formatted<SdlLoadError>(
+			"on parsing {}-tuple -> {}", out_numbers.size(), e.whatStr());
+	}
+}
+
+inline real load_real(std::string_view sdlRealStr)
 {
 	return load_float<real>(sdlRealStr);
 }
 
-inline integer load_integer(const std::string_view sdlIntegerStr)
+inline integer load_integer(std::string_view sdlIntegerStr)
 {
 	return load_int<integer>(sdlIntegerStr);
 }
 
-inline void save_real(const real value, std::string* const out_str)
-{
-	save_float<real>(value, out_str);
-}
-
-inline void save_integer(const integer value, std::string* const out_str)
-{
-	save_int<integer>(value, out_str);
-}
-
-template<typename FloatType>
-inline void save_float(const FloatType value, std::string* const out_str, const std::size_t maxChars)
-{
-	try
-	{
-		string_utils::stringify_number(value, out_str, maxChars);
-	}
-	catch(const std::exception& e)
-	{
-		throw SdlSaveError("on saving floating-point value -> " + std::string(e.what()));
-	}
-}
-
-template<typename IntType>
-inline void save_int(const IntType value, std::string* const out_str, const std::size_t maxChars)
-{
-	try
-	{
-		string_utils::stringify_number(value, out_str, maxChars);
-	}
-	catch(const std::exception& e)
-	{
-		throw SdlSaveError("on saving integer value -> " + std::string(e.what()));
-	}
-}
-
-template<typename NumberType>
-inline void save_number(const NumberType value, std::string* const out_str, const std::size_t maxChars)
-{
-	if constexpr(std::is_floating_point_v<NumberType>)
-	{
-		save_float<NumberType>(value, out_str, maxChars);
-	}
-	else
-	{
-		static_assert(std::is_integral_v<NumberType>);
-
-		save_int<NumberType>(value, out_str, maxChars);
-	}
-}
-
 template<typename Element>
-inline math::TVector2<Element> load_vector2(const std::string& sdlVector2Str)
+inline math::TVector2<Element> load_vector2(std::string_view sdlVec2Str)
 {
-	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
-
 	try
 	{
-		std::vector<std::string> tokens;
-		tokenizer.tokenize(sdlVector2Str, tokens);
-
-		// 2 input values form a vec2 exactly
-		if(tokens.size() == 2)
-		{
-			return math::TVector2<Element>(
-				load_number<Element>(tokens[0]),
-				load_number<Element>(tokens[1]));
-		}
-		// 1 input value results in vec2 filled with the same value
-		else if(tokens.size() == 1)
-		{
-			return math::TVector2<Element>(
-				load_number<Element>(tokens[0]));
-		}
-		else
-		{
-			throw SdlLoadError(
-				"invalid Vector2 representation "
-				"(number of values = " + std::to_string(tokens.size()) + ")");
-		}
+		math::TVector2<Element> vec2;
+		load_numbers(sdlVec2Str, vec2.toSpan());
+		return vec2;
 	}
 	catch(const SdlException& e)
 	{
@@ -153,15 +126,76 @@ inline math::TVector2<Element> load_vector2(const std::string& sdlVector2Str)
 	}
 }
 
-template<typename NumberType>
-inline std::vector<NumberType> load_number_array(const std::string& sdlNumberArrayStr)
+template<typename Element>
+inline math::TVector3<Element> load_vector3(std::string_view sdlVec3Str)
+{
+	try
+	{
+		math::TVector3<Element> vec3;
+		load_numbers(sdlVec3Str, vec3.toSpan());
+		return vec3;
+	}
+	catch(const SdlException& e)
+	{
+		throw SdlLoadError("on parsing Vector3 -> " + e.whatStr());
+	}
+}
+
+template<typename Element>
+inline math::TVector4<Element> load_vector4(std::string_view sdlVec4Str)
+{
+	try
+	{
+		math::TVector3<Element> vec4;
+		load_numbers(sdlVec4Str, vec4.toSpan());
+		return vec4;
+	}
+	catch(const SdlException& e)
+	{
+		throw SdlLoadError("on parsing Vector4 -> " + e.whatStr());
+	}
+}
+
+template<typename Element>
+inline math::TQuaternion<Element> load_quaternion(std::string_view sdlQuatStr)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
 	try
 	{
+		// TODO: handle all equal values (use load_numbers())
+
+		// TODO: use view
+		std::vector<std::string> tokens;
+		tokenizer.tokenize(std::string(sdlQuatStr), tokens);
+
+		if(tokens.size() != 4)
+		{
+			throw SdlLoadError("invalid QuaternionR representation");
+		}
+
+		return math::QuaternionR(
+			load_real(tokens[0]),
+			load_real(tokens[1]),
+			load_real(tokens[2]),
+			load_real(tokens[3]));
+	}
+	catch(const SdlException& e)
+	{
+		throw SdlLoadError("on parsing QuaternionR -> " + e.whatStr());
+	}
+}
+
+template<typename NumberType>
+inline std::vector<NumberType> load_number_array(std::string_view sdlNumberArrayStr)
+{
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
+
+	try
+	{
+		// TODO: use view
 		std::vector<std::string> arrayTokens;
-		tokenizer.tokenize(sdlNumberArrayStr, arrayTokens);
+		tokenizer.tokenize(std::string(sdlNumberArrayStr), arrayTokens);
 
 		std::vector<NumberType> numberArray(arrayTokens.size());
 		for(std::size_t i = 0; i < numberArray.size(); ++i)
@@ -178,31 +212,121 @@ inline std::vector<NumberType> load_number_array(const std::string& sdlNumberArr
 }
 
 template<typename Element>
-inline void save_vector2(const math::TVector2<Element>& value, std::string* out_str)
+inline std::vector<math::TVector3<Element>> load_vector3_array(std::string_view sdlVec3ArrayStr)
 {
-	PH_ASSERT(out_str);
+	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {{'"', '"'}});
 
 	try
 	{
-		if(value.x() == value.y())
+		// TODO: use view
+		std::vector<std::string> vec3Tokens;
+		tokenizer.tokenize(std::string(sdlVec3ArrayStr), vec3Tokens);
+
+		std::vector<math::TVector3<Element>> vec3Array(vec3Tokens.size());
+		for(std::size_t i = 0; i < vec3Array.size(); ++i)
 		{
-			save_number<Element>(value.x(), out_str);
+			vec3Array[i] = load_vector3<Element>(vec3Tokens[i]);
+		}
+
+		return vec3Array;
+	}
+	catch(const SdlException& e)
+	{
+		throw SdlLoadError("on parsing Vector3 array -> " + e.whatStr());
+	}
+}
+
+inline void save_real(const real value, std::string& out_str)
+{
+	save_float<real>(value, out_str);
+}
+
+inline void save_integer(const integer value, std::string& out_str)
+{
+	save_int<integer>(value, out_str);
+}
+
+template<typename FloatType>
+inline void save_float(const FloatType value, std::string& out_str)
+{
+	try
+	{
+		string_utils::stringify_number(value, out_str, 32);
+	}
+	catch(const std::exception& e)
+	{
+		throw SdlSaveError("on saving floating-point value -> " + std::string(e.what()));
+	}
+}
+
+template<typename IntType>
+inline void save_int(const IntType value, std::string& out_str)
+{
+	try
+	{
+		string_utils::stringify_number(value, out_str, 32);
+	}
+	catch(const std::exception& e)
+	{
+		throw SdlSaveError("on saving integer value -> " + std::string(e.what()));
+	}
+}
+
+template<typename NumberType>
+inline void save_number(const NumberType value, std::string& out_str)
+{
+	if constexpr(std::is_floating_point_v<NumberType>)
+	{
+		save_float<NumberType>(value, out_str);
+	}
+	else
+	{
+		static_assert(std::is_integral_v<NumberType>);
+
+		save_int<NumberType>(value, out_str);
+	}
+}
+
+template<typename NumberType>
+inline void save_numbers(
+	TSpanView<NumberType> numbers, 
+	std::string& out_str)
+{
+	const auto N = numbers.size();
+	PH_ASSERT_GT(N, 0);
+
+	try
+	{
+		// If all values are equal, we can save it as one value
+		if(std::equal(numbers.begin() + 1, numbers.end(), numbers.begin()))
+		{
+			save_number<NumberType>(numbers[0], out_str);
 		}
 		else
 		{
-			out_str->clear();
-
-			// OPT:
-			std::string savedElement;
-
-			(*out_str) += '"';
-			save_number<Element>(value.x(), &savedElement);
-			(*out_str) += savedElement;
-			(*out_str) += ' ';
-			save_number<Element>(value.y(), &savedElement);
-			(*out_str) += savedElement;
-			(*out_str) += '"';
+			save_number<NumberType>(numbers[0], out_str);
+			for(std::size_t ni = 1; ni < N; ++ni)
+			{
+				out_str += ' ';
+				save_number<NumberType>(numbers[ni], out_str);
+			}
 		}
+	}
+	catch(const SdlException& e)
+	{
+		throw_formatted<SdlSaveError>(
+			"on saving {}-tuple -> {}", numbers.size(), e.whatStr());
+	}
+}
+
+template<typename Element>
+inline void save_vector2(const math::TVector2<Element>& value, std::string& out_str)
+{
+	try
+	{
+		out_str += '"';
+		save_numbers(value.toView(), out_str);
+		out_str += '"';
 	}
 	catch(const SdlException& e)
 	{
@@ -211,34 +335,13 @@ inline void save_vector2(const math::TVector2<Element>& value, std::string* out_
 }
 
 template<typename Element>
-inline void save_vector3(const math::TVector3<Element>& value, std::string* out_str)
+inline void save_vector3(const math::TVector3<Element>& value, std::string& out_str)
 {
-	PH_ASSERT(out_str);
-
 	try
 	{
-		if(value.x() == value.y() && value.y() == value.z())
-		{
-			save_number<Element>(value.x(), out_str);
-		}
-		else
-		{
-			out_str->clear();
-
-			// OPT:
-			std::string savedElement;
-
-			(*out_str) += '"';
-			save_number<Element>(value.x(), &savedElement);
-			(*out_str) += savedElement;
-			(*out_str) += ' ';
-			save_number<Element>(value.y(), &savedElement);
-			(*out_str) += savedElement;
-			(*out_str) += ' ';
-			save_number<Element>(value.z(), &savedElement);
-			(*out_str) += savedElement;
-			(*out_str) += '"';
-		}
+		out_str += '"';
+		save_numbers(value.toView(), out_str);
+		out_str += '"';
 	}
 	catch(const SdlException& e)
 	{
@@ -246,30 +349,80 @@ inline void save_vector3(const math::TVector3<Element>& value, std::string* out_
 	}
 }
 
-template<typename NumberType>
-inline void save_number_array(TSpanView<NumberType> values, std::string* const out_str)
+template<typename Element>
+inline void save_vector4(const math::TVector4<Element>& value, std::string& out_str)
 {
-	PH_ASSERT(out_str);
-		
-	out_str->clear();
-
 	try
 	{
-		(*out_str) += '"';
+		out_str += '"';
+		save_numbers(value.toView(), out_str);
+		out_str += '"';
+	}
+	catch(const SdlException& e)
+	{
+		throw SdlSaveError("on saving Vector4 -> " + e.whatStr());
+	}
+}
 
-		std::string savedNumber;
-		for(const auto& value : values)
-		{
-			save_number<NumberType>(value, &savedNumber);
-			(*out_str) += savedNumber;
-			(*out_str) += ' ';
-		}
+template<typename Element>
+inline void save_quaternion(const math::TQuaternion<Element>& value, std::string& out_str)
+{
+	try
+	{
+		out_str += '"';
+		save_number(value.x, out_str);
+		out_str += ' ';
+		save_number(value.y, out_str);
+		out_str += ' ';
+		save_number(value.z, out_str);
+		out_str += ' ';
+		save_number(value.w, out_str);
+		out_str += '"';
+	}
+	catch(const SdlException& e)
+	{
+		throw SdlSaveError("on saving QuaternionR -> " + e.whatStr());
+	}
+}
 
-		(*out_str) += '"';
+template<typename NumberType>
+inline void save_number_array(TSpanView<NumberType> values, std::string& out_str)
+{
+	try
+	{
+		out_str += '"';
+		save_numbers(values, out_str);
+		out_str += '"';
 	}
 	catch(const SdlException& e)
 	{
 		throw SdlSaveError("on saving number array -> " + e.whatStr());
+	}
+}
+
+template<typename Element>
+inline void save_vector3_array(TSpanView<math::TVector3<Element>> values, std::string& out_str)
+{
+	try
+	{
+		out_str += '{';
+
+		if(!values.empty())
+		{
+			save_vector3(values[0], out_str);
+		}
+
+		for(std::size_t vi = 1; vi < values.size(); ++vi)
+		{
+			out_str += ' ';
+			save_vector3(values[vi], out_str);
+		}
+
+		out_str += '}';
+	}
+	catch(const SdlException& e)
+	{
+		throw SdlSaveError("on saving Vector3 array -> " + e.whatStr());
 	}
 }
 
