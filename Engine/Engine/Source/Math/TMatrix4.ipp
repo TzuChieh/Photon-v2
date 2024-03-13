@@ -78,19 +78,19 @@ inline TMatrix4<T>& TMatrix4<T>::initTranslation(const TVector3<T>& value)
 template<typename T>
 inline TMatrix4<T>& TMatrix4<T>::initRotation(const TQuaternion<T>& rot)
 {
-	m[0][0] = 1 - 2*(rot.y*rot.y + rot.z*rot.z);
-	m[0][1] = 2*(rot.x*rot.y - rot.z*rot.w);
-	m[0][2] = 2*(rot.y*rot.w + rot.x*rot.z);
+	m[0][0] = 1 - 2 * (rot.y() * rot.y() + rot.z() * rot.z());
+	m[0][1] = 2 * (rot.x() * rot.y() - rot.z() * rot.w());
+	m[0][2] = 2 * (rot.y() * rot.w() + rot.x() * rot.z());
 	m[0][3] = 0;
 
-	m[1][0] = 2*(rot.x*rot.y + rot.z*rot.w);
-	m[1][1] = 1 - 2*(rot.x*rot.x + rot.z*rot.z);
-	m[1][2] = 2*(rot.y*rot.z - rot.x*rot.w);
+	m[1][0] = 2 * (rot.x() * rot.y() + rot.z() * rot.w());
+	m[1][1] = 1 - 2 * (rot.x() * rot.x() + rot.z() * rot.z());
+	m[1][2] = 2 * (rot.y() * rot.z() - rot.x() * rot.w());
 	m[1][3] = 0;
 
-	m[2][0] = 2*(rot.x*rot.z - rot.y*rot.w);
-	m[2][1] = 2*(rot.y*rot.z + rot.x*rot.w);
-	m[2][2] = 1 - 2*(rot.x*rot.x + rot.y*rot.y);
+	m[2][0] = 2 * (rot.x() * rot.z() - rot.y() * rot.w());
+	m[2][1] = 2 * (rot.y() * rot.z() + rot.x() * rot.w());
+	m[2][2] = 1 - 2 * (rot.x() * rot.x() + rot.y() * rot.y());
 	m[2][3] = 0;
 
 	m[3][0] = 0;

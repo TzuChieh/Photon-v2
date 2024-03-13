@@ -6,6 +6,7 @@
 
 #include <Common/assertion.h>
 
+#include <array>
 #include <cmath>
 #include <string>
 #include <cstdlib>
@@ -43,9 +44,9 @@ template<typename T>
 template<typename U>
 inline TVector3<T>::TVector3(const TVector3<U>& other) : 
 	TVector3(
-		static_cast<T>(other[0]), 
-		static_cast<T>(other[1]),
-		static_cast<T>(other[2]))
+		static_cast<T>(other.x()), 
+		static_cast<T>(other.y()),
+		static_cast<T>(other.z()))
 {}
 
 template<typename T>
@@ -54,14 +55,15 @@ inline TVector3<T> TVector3<T>::rotate(const TQuaternion<T>& rotation) const
 	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
 	const TQuaternion<T> result = rotation.mul(*this).mulLocal(conjugatedRotation);
 
-	return TVector3(result.x, result.y, result.z);
+	return TVector3(result.x(), result.y(), result.z());
 }
 
 template<typename T>
 inline void TVector3<T>::rotate(const TQuaternion<T>& rotation,
                                 TVector3* const out_result) const
 {
-	PH_ASSERT(out_result != nullptr && out_result != this);
+	PH_ASSERT(out_result);
+	PH_ASSERT(out_result != this);
 
 	const TQuaternion<T>& conjugatedRotation = rotation.conjugate();
 	const TQuaternion<T> result = rotation.mul(*this).mulLocal(conjugatedRotation);
@@ -83,7 +85,8 @@ template<typename T>
 inline void TVector3<T>::cross(const TVector3& rhs, 
                                TVector3* const out_result) const
 {
-	PH_ASSERT(out_result != nullptr && out_result != this);
+	PH_ASSERT(out_result);
+	PH_ASSERT(out_result != this);
 
 	out_result->x() = y() * rhs.z() - z() * rhs.y();
 	out_result->y() = z() * rhs.x() - x() * rhs.z();
@@ -120,11 +123,13 @@ inline TVector3<T>& TVector3<T>::reflectLocal(const TVector3& normal)
 	return *this;
 }
 
-// returned (x, y, z) = (min, mid, max)
 template<typename T>
 inline void TVector3<T>::sort(TVector3* const out_result) const
 {
-	PH_ASSERT(out_result != nullptr && out_result != this);
+	PH_ASSERT(out_result);
+	PH_ASSERT(out_result != this);
+
+	// Returned (x, y, z) = (min, mid, max)
 
 	if(x() > y())
 	{

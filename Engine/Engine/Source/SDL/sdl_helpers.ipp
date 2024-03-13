@@ -159,30 +159,15 @@ inline math::TVector4<Element> load_vector4(std::string_view sdlVec4Str)
 template<typename Element>
 inline math::TQuaternion<Element> load_quaternion(std::string_view sdlQuatStr)
 {
-	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
-
 	try
 	{
-		// TODO: handle all equal values (use load_numbers())
-
-		// TODO: use view
-		std::vector<std::string> tokens;
-		tokenizer.tokenize(std::string(sdlQuatStr), tokens);
-
-		if(tokens.size() != 4)
-		{
-			throw SdlLoadError("invalid QuaternionR representation");
-		}
-
-		return math::QuaternionR(
-			load_real(tokens[0]),
-			load_real(tokens[1]),
-			load_real(tokens[2]),
-			load_real(tokens[3]));
+		math::TQuaternion<Element> quat;
+		load_numbers(sdlQuatStr, quat.toSpan());
+		return quat;
 	}
 	catch(const SdlException& e)
 	{
-		throw SdlLoadError("on parsing QuaternionR -> " + e.whatStr());
+		throw SdlLoadError("on parsing Quaternion -> " + e.whatStr());
 	}
 }
 
@@ -370,18 +355,12 @@ inline void save_quaternion(const math::TQuaternion<Element>& value, std::string
 	try
 	{
 		out_str += '"';
-		save_number(value.x, out_str);
-		out_str += ' ';
-		save_number(value.y, out_str);
-		out_str += ' ';
-		save_number(value.z, out_str);
-		out_str += ' ';
-		save_number(value.w, out_str);
+		save_numbers(value.toView(), out_str);
 		out_str += '"';
 	}
 	catch(const SdlException& e)
 	{
-		throw SdlSaveError("on saving QuaternionR -> " + e.whatStr());
+		throw SdlSaveError("on saving Quaternion -> " + e.whatStr());
 	}
 }
 

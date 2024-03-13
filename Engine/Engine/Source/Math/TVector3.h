@@ -10,6 +10,8 @@
 namespace ph::math
 {
 
+/*! @brief Represents a 3-D vector.
+*/
 template<typename T>
 class TVector3 final : public TVectorNBase<TVector3<T>, T, 3>
 {
@@ -51,7 +53,9 @@ public:
 	TVector3 reflect(const TVector3& normal) const;
 	TVector3& reflectLocal(const TVector3& normal);
 
-	// returned (x, y, z) = (min, mid, max)
+	/*!
+	@param out_result The sorted values, (x, y, z) = (min, mid, max).
+	*/
 	void sort(TVector3* out_result) const;
 
 	T& x();

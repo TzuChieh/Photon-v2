@@ -47,21 +47,9 @@ public:
 			auto data = SdlNativeData(
 				[&optQuat = this->valueRef(owner)](std::size_t elementIdx) -> SdlGetterVariant
 				{
-					if(optQuat)
-					{
-						switch(elementIdx)
-						{
-						case 0: return SdlNativeData::permissiveElementGetter(&(optQuat->x));
-						case 1: return SdlNativeData::permissiveElementGetter(&(optQuat->y));
-						case 2: return SdlNativeData::permissiveElementGetter(&(optQuat->z));
-						case 3: return SdlNativeData::permissiveElementGetter(&(optQuat->w));
-						default: return std::monostate{};
-						}
-					}
-					else
-					{
-						return std::monostate{};
-					}
+					return optQuat
+						? SdlNativeData::permissiveElementGetter(&((*optQuat)[elementIdx]))
+						: std::monostate{};
 				},
 				[&optQuat = this->valueRef(owner)](std::size_t elementIdx, SdlSetterVariant input) -> bool
 				{
@@ -76,15 +64,8 @@ public:
 						{
 							optQuat = math::TQuaternion<Element>{};
 						}
-						
-						switch(elementIdx)
-						{
-						case 0: return SdlNativeData::permissiveElementSetter(input, &(optQuat->x));
-						case 1: return SdlNativeData::permissiveElementSetter(input, &(optQuat->y));
-						case 2: return SdlNativeData::permissiveElementSetter(input, &(optQuat->z));
-						case 3: return SdlNativeData::permissiveElementSetter(input, &(optQuat->w));
-						default: return false;
-						}
+
+						return SdlNativeData::permissiveElementSetter(input, &((*optQuat)[elementIdx]));
 					}
 				},
 				AnyNonConstPtr(quat));
@@ -104,25 +85,11 @@ public:
 				data = SdlNativeData(
 					[quat](std::size_t elementIdx) -> SdlGetterVariant
 					{
-						switch(elementIdx)
-						{
-						case 0: return SdlNativeData::permissiveElementGetter(&(quat->x));
-						case 1: return SdlNativeData::permissiveElementGetter(&(quat->y));
-						case 2: return SdlNativeData::permissiveElementGetter(&(quat->z));
-						case 3: return SdlNativeData::permissiveElementGetter(&(quat->w));
-						default: return std::monostate{};
-						}
+						return SdlNativeData::permissiveElementGetter(&((*quat)[elementIdx]));
 					},
 					[quat](std::size_t elementIdx, SdlSetterVariant input) -> bool
 					{
-						switch(elementIdx)
-						{
-						case 0: return SdlNativeData::permissiveElementSetter(input, &(quat->x));
-						case 1: return SdlNativeData::permissiveElementSetter(input, &(quat->y));
-						case 2: return SdlNativeData::permissiveElementSetter(input, &(quat->z));
-						case 3: return SdlNativeData::permissiveElementSetter(input, &(quat->w));
-						default: return false;
-						}
+						return SdlNativeData::permissiveElementSetter(input, &((*quat)[elementIdx]));
 					},
 					AnyNonConstPtr(quat));
 			}

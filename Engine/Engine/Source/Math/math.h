@@ -746,6 +746,19 @@ template<typename T, std::size_t EXTENT = std::dynamic_extent>
 void normalize(TSpan<T, EXTENT> vec);
 ///@}
 
+/*! @brief Treating input values as vectors and calculates their dot product.
+*/
+///@{
+template<typename T, std::size_t N>
+T dot_product(const std::array<T, N>& vecA, const std::array<T, N>& vecB);
+
+template<typename T>
+T dot_product(const std::vector<T>& vecA, const std::vector<T>& vecB);
+
+template<typename T, std::size_t EXTENT = std::dynamic_extent>
+T dot_product(TSpanView<T, EXTENT> vecA, TSpanView<T, EXTENT> vecB);
+///@}
+
 }// end namespace ph::math
 
 #include "Math/math.ipp"

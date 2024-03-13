@@ -202,4 +202,29 @@ inline void normalize(TSpan<T, EXTENT> vec)
 	}
 }
 
+template<typename T, std::size_t N>
+inline T dot_product(const std::array<T, N>& vecA, const std::array<T, N>& vecB)
+{
+	return dot_product(TSpanView<T, N>{vecA}, TSpanView<T, N>{vecB});
+}
+
+template<typename T>
+inline T dot_product(const std::vector<T>& vecA, const std::vector<T>& vecB)
+{
+	return dot_product(TSpanView<T>{vecA}, TSpanView<T>{vecB});
+}
+
+template<typename T, std::size_t EXTENT>
+inline T dot_product(TSpanView<T, EXTENT> vecA, TSpanView<T, EXTENT> vecB)
+{
+	PH_ASSERT_EQ(vecA.size(), vecB.size());
+
+	T result(0);
+	for(std::size_t i = 0; i < vecA.size(); ++i)
+	{
+		result += vecA[i] * vecB[i];
+	}
+	return result;
+}
+
 }// end namespace ph::math
