@@ -102,7 +102,7 @@ protected:
 	{
 		if(const math::Spectrum* value = this->getConstValue(owner); value)
 		{
-			sdl::save_spectrum(*value, &out_clause.value, &out_clause.tag);
+			sdl::save_spectrum(*value, out_clause.value, out_clause.tag);
 		}
 		else
 		{

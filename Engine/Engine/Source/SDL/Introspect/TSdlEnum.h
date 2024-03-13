@@ -25,7 +25,7 @@ class TSdlEnum final
 public:
 	/*! @brief Get enum value from its name.
 	*/
-	EnumType operator [] (const std::string_view entryName) const;
+	EnumType operator [] (std::string_view entryName) const;
 
 	/*! @brief Get enum name from its value.
 
