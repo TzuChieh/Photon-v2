@@ -61,8 +61,8 @@ inline NumberType load_number(std::string_view sdlNumberStr)
 	}
 }
 
-template<typename NumberType>
-inline void load_numbers(std::string_view sdlNumbersStr, TSpan<NumberType> out_numbers)
+template<typename NumberType, std::size_t EXTENT>
+inline void load_numbers(std::string_view sdlNumbersStr, TSpan<NumberType, EXTENT> out_numbers)
 {
 	static const Tokenizer tokenizer({' ', '\t', '\n', '\r'}, {});
 
@@ -287,9 +287,9 @@ inline void save_number(const NumberType value, std::string& out_str)
 	}
 }
 
-template<typename NumberType>
+template<typename NumberType, std::size_t EXTENT>
 inline void save_numbers(
-	TSpanView<NumberType> numbers, 
+	TSpanView<NumberType, EXTENT> numbers,
 	std::string& out_str)
 {
 	const auto N = numbers.size();

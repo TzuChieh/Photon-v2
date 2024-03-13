@@ -13,6 +13,7 @@ to rendering in mind.
 #include "Math/math_fwd.h"
 #include "Math/math_table.h"
 #include "Utility/utility.h"
+#include "Utility/traits.h"
 #include "Utility/TSpan.h"
 
 #include <Common/assertion.h>
@@ -211,7 +212,6 @@ inline T log2_floor(const T value)
 }
 
 /*! @brief Retrieve the fractional part of @p value (with the sign unchanged).
-
 The result is not guaranteed to be the same as the bit representation of
 <value>'s fractional part. The result is undefined if input value is NaN or
 +-Inf.
@@ -224,7 +224,6 @@ inline T fractional_part(const T value)
 }
 
 /*! @brief Wraps an integer around [lower-bound, upper-bound].
-	
 For example, given a bound [-1, 2], 3 will be wrapped to -1.
 */
 template<typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
@@ -246,7 +245,6 @@ inline T wrap(T value, const T lowerBound, const T upperBound)
 }
 
 /*! @brief Checks if a number is even.
-
 @param value The number to be tested. Should be an integer type.
 */
 template<typename T>
@@ -259,7 +257,6 @@ inline bool is_even(const T value)
 }
 
 /*! @brief Checks if a number is odd.
-
 @param value The number to be tested. Should be an integer type.
 */
 template<typename T>
@@ -275,24 +272,29 @@ bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N);
 
 /*! @brief Sum all values within a container together.
 */
+///@{
+template<typename T, std::size_t N>
+T summation(const std::array<T, N>& values, T initialValue = 0);
+
 template<typename T>
-inline T summation(TSpanView<T> values, const T initialValue = 0)
-{
-	return std::accumulate(values.begin(), values.end(), initialValue);
-}
+T summation(const std::vector<T>& values, T initialValue = 0);
+
+template<typename T, std::size_t EXTENT = std::dynamic_extent>
+T summation(TSpanView<T, EXTENT> values, T initialValue = 0);
+///@}
 
 /*! @brief Multiplies all values within a container together.
 */
+///@{
+template<typename T, std::size_t N>
+T product(const std::array<T, N>& values, T initialValue = 1);
+
 template<typename T>
-inline T product(TSpanView<T> values, const T initialValue = 1)
-{
-	T result = initialValue;
-	for(auto&& value : values)
-	{
-		result *= value;
-	}
-	return result;
-}
+T product(const std::vector<T>& values, T initialValue = 1);
+
+template<typename T, std::size_t EXTENT = std::dynamic_extent>
+T product(TSpanView<T, EXTENT> values, T initialValue = 1);
+///@}
 
 template<typename NumberType>
 inline constexpr NumberType bytes_to_KiB(const std::size_t numBytes)
@@ -690,4 +692,60 @@ inline void uint64_mul(const uint64 lhs, const uint64 rhs, uint64& out_high64, u
 #endif
 }
 
+/*! @brief Treating input values as a vector and calculates its length.
+*/
+///@{
+template<typename T, std::size_t N>
+T length(const std::array<T, N>& vec);
+
+template<typename T>
+T length(const std::vector<T>& vec);
+
+template<typename T, std::size_t EXTENT = std::dynamic_extent>
+T length(TSpanView<T, EXTENT> vec);
+///@}
+
+/*! @brief Treating input values as a vector and calculates its squared length.
+*/
+///@{
+template<typename T, std::size_t N>
+T length_squared(const std::array<T, N>& vec);
+
+template<typename T>
+T length_squared(const std::vector<T>& vec);
+
+template<typename T, std::size_t EXTENT = std::dynamic_extent>
+T length_squared(TSpanView<T, EXTENT> vec);
+///@}
+
+/*! @brief Treating input values as a vector and calculates its p-norm.
+*/
+///@{
+template<typename T, std::size_t N>
+T p_norm(const std::array<T, N>& vec);
+
+template<typename T>
+T p_norm(const std::vector<T>& vec);
+
+template<std::size_t P, typename T, std::size_t EXTENT = std::dynamic_extent>
+T p_norm(TSpanView<T, EXTENT> vec);
+///@}
+
+/*! @brief Treating input values as a vector and normalize it.
+Notice that normalizing a integer typed vector will result in 0-vector most of the time.
+@param vec The vector to be normalized in-place.
+*/
+///@{
+template<typename T, std::size_t N>
+void normalize(std::array<T, N>& vec);
+
+template<typename T>
+void normalize(std::vector<T>& vec);
+
+template<typename T, std::size_t EXTENT = std::dynamic_extent>
+void normalize(TSpan<T, EXTENT> vec);
+///@}
+
 }// end namespace ph::math
+
+#include "Math/math.ipp"

@@ -141,7 +141,7 @@ std::vector<std::size_t> SGStratified::reviseDimSizeHints(
 	// Numerical error on floating point operations may cause the revised hint
 	// size being greater than the number of samples. In such case, decrease 
 	// the size of largest dimension iteratively until the condition being satisfied.
-	while(math::product<std::size_t>(revisedDimSizeHints) > numSamples)
+	while(math::product(revisedDimSizeHints) > numSamples)
 	{
 		auto max = std::max_element(revisedDimSizeHints.begin(), revisedDimSizeHints.end());
 		*max = *max > 1 ? *max - 1 : 1;

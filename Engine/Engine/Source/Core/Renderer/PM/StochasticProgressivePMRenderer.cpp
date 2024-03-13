@@ -202,7 +202,7 @@ void StochasticProgressivePMRenderer::renderWithStochasticProgressivePM()
 			});
 
 		photonMap.map.build(photonBuffer);
-		photonMap.numPaths = math::summation<std::size_t>(numPhotonPaths);
+		photonMap.numPaths = math::summation(numPhotonPaths);
 
 		totalPhotonPaths += photonMap.numPaths;
 

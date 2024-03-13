@@ -299,12 +299,7 @@ inline auto TArithmeticArrayBase<Derived, T, N>::clampLocal(const Derived& lower
 template<typename Derived, typename T, std::size_t N>
 inline T TArithmeticArrayBase<Derived, T, N>::sum() const
 {
-	T result(0);
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		result += m[i];
-	}
-	return result;
+	return ::ph::math::summation(m);
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -326,12 +321,7 @@ inline T TArithmeticArrayBase<Derived, T, N>::avg() const
 template<typename Derived, typename T, std::size_t N>
 inline T TArithmeticArrayBase<Derived, T, N>::product() const
 {
-	T result(1);
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		result *= m[i];
-	}
-	return result;
+	return ::ph::math::product(m);
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -810,14 +800,14 @@ inline auto TArithmeticArrayBase<Derived, T, N>::toArray() const
 
 template<typename Derived, typename T, std::size_t N>
 inline auto TArithmeticArrayBase<Derived, T, N>::toSpan()
--> TSpan<T>
+-> TSpan<T, N>
 {
 	return m;
 }
 
 template<typename Derived, typename T, std::size_t N>
 inline auto TArithmeticArrayBase<Derived, T, N>::toView() const
--> TSpanView<T>
+-> TSpanView<T, N>
 {
 	return m;
 }

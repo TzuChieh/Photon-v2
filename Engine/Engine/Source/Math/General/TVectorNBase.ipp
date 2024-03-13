@@ -42,18 +42,13 @@ inline T TVectorNBase<Derived, T, N>::absDot(const T rhs) const
 template<typename Derived, typename T, std::size_t N>
 inline T TVectorNBase<Derived, T, N>::length() const
 {
-	return std::sqrt(lengthSquared());
+	return ::ph::math::length(m);
 }
 
 template<typename Derived, typename T, std::size_t N>
 inline T TVectorNBase<Derived, T, N>::lengthSquared() const
 {
-	T result(0);
-	for(std::size_t i = 0; i < N; ++i)
-	{
-		result += m[i] * m[i];
-	}
-	return result;
+	return ::ph::math::length_squared(m);
 }
 
 template<typename Derived, typename T, std::size_t N>
@@ -67,60 +62,9 @@ template<typename Derived, typename T, std::size_t N>
 inline auto TVectorNBase<Derived, T, N>::normalizeLocal()
 -> Derived&
 {
-	if constexpr(std::is_floating_point_v<T>)
-	{
-		const T rcpLen = static_cast<T>(1) / length();
-		for(std::size_t i = 0; i < N; ++i)
-		{
-			m[i] *= rcpLen;
-		}
-		return static_cast<Derived&>(*this);
-	}
-	else
-	{
-		static_assert(std::is_integral_v<T>);
+	::ph::math::normalize(m);
 
-		// The only way that normalizing an integer vector will not result in 
-		// a 0-vector is that only a single component has finite value, while
-		// all other components are zero. We detect these cases and directly
-		// returns the result.
-
-		constexpr auto EMPTY_IDX = static_cast<std::size_t>(-1);
-
-		auto nonZeroIdx = EMPTY_IDX;
-		for(std::size_t i = 0; i < N; ++i)
-		{
-			if(m[i] != static_cast<T>(0))
-			{
-				// Found the first non-zero component, record the index
-				if(nonZeroIdx == EMPTY_IDX)
-				{
-					nonZeroIdx = i;
-				}
-				// This is not the first non-zero component, the result must be 0-vector
-				else
-				{
-					set(static_cast<T>(0));
-					return static_cast<Derived&>(*this);
-				}
-			}
-		}
-
-		// Every component is 0
-		if(nonZeroIdx == EMPTY_IDX)
-		{
-			set(static_cast<T>(0));
-		}
-		// Only a single component is != 0
-		else
-		{
-			PH_ASSERT_NE(m[nonZeroIdx], static_cast<T>(0));
-
-			set(sign(m[nonZeroIdx]));
-		}
-
-		return static_cast<Derived&>(*this);
-	}
+	return static_cast<Derived&>(*this);
 }
 
 template<typename Derived, typename T, std::size_t N>

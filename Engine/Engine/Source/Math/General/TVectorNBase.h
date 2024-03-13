@@ -96,11 +96,13 @@ public:
 
 	using Base::sum;
 	using Base::avg;
+	using Base::product;
 	using Base::min;
+	using Base::minIndex;
 	using Base::max;
+	using Base::maxIndex;
 	using Base::ceil;
 	using Base::floor;
-	using Base::product;
 	using Base::lerp;
 	using Base::isZero;
 	using Base::isNonNegative;

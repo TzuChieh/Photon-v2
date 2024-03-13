@@ -95,7 +95,7 @@ void VanillaPMRenderer::renderWithVanillaPM()
 
 	TPhotonMap<Photon> photonMap;
 	photonMap.map.build(std::move(photonBuffer));
-	photonMap.numPaths = math::summation<std::size_t>(numPhotonPaths);
+	photonMap.numPaths = math::summation(numPhotonPaths);
 
 	PH_LOG(PMRenderer, Note, "estimating radiance...");
 

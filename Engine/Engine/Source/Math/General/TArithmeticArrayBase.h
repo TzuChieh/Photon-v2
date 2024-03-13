@@ -162,8 +162,8 @@ protected:
 	std::string toString() const;
 	std::vector<T> toVector() const;
 	std::array<T, N> toArray() const;
-	TSpan<T> toSpan();
-	TSpanView<T> toView() const;
+	TSpan<T, N> toSpan();
+	TSpanView<T, N> toView() const;
 
 protected:
 	std::array<T, N> m;

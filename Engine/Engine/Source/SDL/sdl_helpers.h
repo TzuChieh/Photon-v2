@@ -51,8 +51,8 @@ Accepts all types supported by load_float() and load_int().
 template<typename NumberType>
 NumberType load_number(std::string_view sdlNumberStr);
 
-template<typename NumberType>
-void load_numbers(std::string_view sdlNumbersStr, TSpan<NumberType> out_numbers);
+template<typename NumberType, std::size_t EXTENT = std::dynamic_extent>
+void load_numbers(std::string_view sdlNumbersStr, TSpan<NumberType, EXTENT> out_numbers);
 
 template<typename Element>
 math::TVector2<Element> load_vector2(std::string_view sdlVec2Str);
@@ -106,8 +106,8 @@ void save_number(NumberType value, std::string& out_str);
 /*!
 @param out_str The string to append the saved data to.
 */
-template<typename NumberType>
-void save_numbers(TSpanView<NumberType> numbers, std::string& out_str);
+template<typename NumberType, std::size_t EXTENT = std::dynamic_extent>
+void save_numbers(TSpanView<NumberType, EXTENT> numbers, std::string& out_str);
 
 /*!
 @param out_str The string to append the saved data to.

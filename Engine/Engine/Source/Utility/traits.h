@@ -89,6 +89,9 @@ concept CSubscriptable = requires (ObjType obj, std::size_t index)
 	obj[index];
 };
 
+template<CSubscriptable Ts>
+using TSubscriptedTypeOf = decltype(std::declval<Ts>()[0]);
+
 /*! @brief Whether the type is a scoped/unscoped enum.
 */
 template<typename EnumType>
