@@ -24,6 +24,7 @@
 #include "SDL/Introspect/TSdlString.h"
 #include "SDL/Introspect/TSdlVector2.h"
 #include "SDL/Introspect/TSdlVector3.h"
+#include "SDL/Introspect/TSdlVector4.h"
 #include "SDL/Introspect/TSdlQuaternion.h"
 #include "SDL/Introspect/TSdlRealArray.h"
 #include "SDL/Introspect/TSdlVector3Array.h"

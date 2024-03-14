@@ -22,6 +22,9 @@ enum class ESdlDataFormat : uint8
 	/*! `math::TVector3<T>` types. */
 	Vector3,
 
+	/*! `math::TVector4<T>` types. */
+	Vector4,
+
 	/*! `math::TQuaternion<T>` types. */
 	Quaternion,
 

@@ -29,7 +29,7 @@ public:
 	requried depends on the @p SdlValueType used.
 	*/
 	template<typename ValueType>
-	inline TSdlVector3(std::string valueName, ValueType Owner::* const valuePtr) :
+	TSdlVector3(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("vector3", std::move(valueName), valuePtr)
 	{
 		if constexpr(std::is_same_v<SdlValueType, TSdlValue<math::TVector3<Element>, Owner>>)
@@ -38,12 +38,12 @@ public:
 		}
 	}
 
-	inline std::string valueAsString(const math::TVector3<Element>& vec3) const override
+	std::string valueAsString(const math::TVector3<Element>& vec3) const override
 	{
 		return vec3.toString();
 	}
 
-	inline SdlNativeData ownedNativeData(Owner& owner) const override
+	SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		math::TVector3<Element>* const vec3 = this->getValue(owner);
 		if constexpr(std::is_base_of_v<TSdlOptionalValue<math::TVector3<Element>, Owner>, SdlValueType>)
@@ -106,7 +106,7 @@ public:
 	}
 
 protected:
-	inline void loadFromSdl(
+	void loadFromSdl(
 		Owner&                 owner,
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
@@ -114,7 +114,7 @@ protected:
 		this->setValue(owner, sdl::load_vector3<Element>(clause.value));
 	}
 
-	inline void saveToSdl(
+	void saveToSdl(
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override

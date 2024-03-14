@@ -2,7 +2,7 @@
 
 #include "Actor/Geometry/Geometry.h"
 #include "Math/TVector3.h"
-#include "Math/Geometry/TAABB2D.h"
+#include "Math/TVector4.h"
 #include "SDL/sdl_interface.h"
 
 #include <Common/primitive_type.h>
@@ -17,13 +17,6 @@ namespace ph
 class GCuboid : public Geometry
 {
 public:
-	GCuboid();
-	explicit GCuboid(real sideLength);
-	GCuboid(real sideLength, const math::Vector3R& offset);
-	GCuboid(real xLen, real yLen, real zLen);
-	GCuboid(const math::Vector3R& minVertex, const math::Vector3R& maxVertex);
-	GCuboid(real xLen, real yLen, real zLen, const math::Vector3R& offset);
-
 	void storeCooked(
 		CookedGeometry& out_geometry,
 		const CookingContext& ctx) const override;
@@ -34,10 +27,20 @@ public:
 
 	std::shared_ptr<Geometry> genTriangulated() const override;
 
+	GCuboid& setSize(real sideLength);
+	GCuboid& setSize(real xLen, real yLen, real zLen);
+	GCuboid& setSize(const math::Vector3R& minVertex, const math::Vector3R& maxVertex);
+	GCuboid& setSize(real xLen, real yLen, real zLen, const math::Vector3R& offset);
+
 private:
-	math::Vector3R              m_size;
-	math::Vector3R              m_offset;
-	std::array<math::AABB2D, 6> m_faceUVs;
+	math::Vector3R m_size;
+	math::Vector3R m_offset;
+	math::Vector4R m_pxFaceUV;
+	math::Vector4R m_nxFaceUV;
+	math::Vector4R m_pyFaceUV;
+	math::Vector4R m_nyFaceUV;
+	math::Vector4R m_pzFaceUV;
+	math::Vector4R m_nzFaceUV;
 
 	static bool checkData(
 		const PrimitiveBuildingMaterial& data, 
@@ -45,17 +48,17 @@ private:
 
 	static bool checkData(real xLen, real yLen, real zLen);
 
-	static std::array<math::AABB2D, 6> genNormalizedFaceUVs();
+	static math::Vector4R makeNormalizedFaceUV();
 
 public:
-	// TODO: math::AABB to vec4
-	/*PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GCuboid>)
+	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<GCuboid>)
 	{
 		ClassType clazz("cuboid");
-		clazz.setDescription(
+		clazz.docName("Cuboid Geometry");
+		clazz.description(
 			"A shape that is similar to cube but may contain rectangular faces. "
 			"It is centered around origin.");
-		clazz.setBase(&Geometry::getSdlClass());
+		clazz.baseOn<Geometry>();
 
 		TSdlVector3<OwnerType> size("size", &OwnerType::m_size);
 		size.description("x, y, z dimensions of the cuboid.");
@@ -68,16 +71,50 @@ public:
 		offset.optional();
 		clazz.addField(offset);
 
-		const std::array<math::AABB2D, 6> normalizedFaceUVs = genNormalizedFaceUVs();
-
-		TSdlQuaternion<OwnerType> pxFaceUV("px-face-uv", &OwnerType::m_faceUVs[0]);
-		pxFaceUV.description("UV coordinates of the +x face (+y as upward), in (min-u, min-v, max-u, max-v).");
-		pxFaceUV.defaultTo(normalizedFaceUVs[0]);
+		TSdlVector4<OwnerType> pxFaceUV("px-face-uv", &OwnerType::m_pxFaceUV);
+		pxFaceUV.description(
+			"UV coordinates of the +x face (+y as upward), in (min-u, min-v, max-u, max-v).");
+		pxFaceUV.defaultTo(makeNormalizedFaceUV());
 		pxFaceUV.optional();
 		clazz.addField(pxFaceUV);
 
+		TSdlVector4<OwnerType> nxFaceUV("nx-face-uv", &OwnerType::m_nxFaceUV);
+		nxFaceUV.description(
+			"UV coordinates of the -x face (+y as upward), in (min-u, min-v, max-u, max-v).");
+		nxFaceUV.defaultTo(makeNormalizedFaceUV());
+		nxFaceUV.optional();
+		clazz.addField(nxFaceUV);
+
+		TSdlVector4<OwnerType> pyFaceUV("py-face-uv", &OwnerType::m_pyFaceUV);
+		pyFaceUV.description(
+			"UV coordinates of the +y face (-z as upward), in (min-u, min-v, max-u, max-v).");
+		pyFaceUV.defaultTo(makeNormalizedFaceUV());
+		pyFaceUV.optional();
+		clazz.addField(pyFaceUV);
+
+		TSdlVector4<OwnerType> nyFaceUV("ny-face-uv", &OwnerType::m_nyFaceUV);
+		nyFaceUV.description(
+			"UV coordinates of the -y face (+z as upward), in (min-u, min-v, max-u, max-v).");
+		nyFaceUV.defaultTo(makeNormalizedFaceUV());
+		nyFaceUV.optional();
+		clazz.addField(nyFaceUV);
+
+		TSdlVector4<OwnerType> pzFaceUV("pz-face-uv", &OwnerType::m_pzFaceUV);
+		pzFaceUV.description(
+			"UV coordinates of the +z face (+y as upward), in (min-u, min-v, max-u, max-v).");
+		pzFaceUV.defaultTo(makeNormalizedFaceUV());
+		pzFaceUV.optional();
+		clazz.addField(pzFaceUV);
+
+		TSdlVector4<OwnerType> nzFaceUV("nz-face-uv", &OwnerType::m_nzFaceUV);
+		nzFaceUV.description(
+			"UV coordinates of the -z face (+y as upward), in (min-u, min-v, max-u, max-v).");
+		nzFaceUV.defaultTo(makeNormalizedFaceUV());
+		nzFaceUV.optional();
+		clazz.addField(nzFaceUV);
+
 		return clazz;
-	}*/
+	}
 };
 
 }// end namespace ph

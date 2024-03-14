@@ -17,36 +17,6 @@
 namespace ph
 {
 
-GCuboid::GCuboid() : 
-	GCuboid(1)
-{}
-
-GCuboid::GCuboid(const real sideLength) : 
-	GCuboid(sideLength, math::Vector3R(0, 0, 0))
-{}
-
-GCuboid::GCuboid(const real sideLength, const math::Vector3R& offset) :
-	GCuboid(sideLength, sideLength, sideLength, offset)
-{}
-
-GCuboid::GCuboid(const real xLen, const real yLen, const real zLen) :
-	GCuboid(xLen, yLen, zLen, math::Vector3R(0, 0, 0))
-{}
-
-GCuboid::GCuboid(const math::Vector3R& minVertex, const math::Vector3R& maxVertex) :
-	GCuboid(maxVertex.x() - minVertex.x(),
-	        maxVertex.y() - minVertex.y(),
-	        maxVertex.z() - minVertex.z(),
-	        (maxVertex + minVertex) * 0.5_r)
-{}
-
-GCuboid::GCuboid(const real xLen, const real yLen, const real zLen, const math::Vector3R& offset) :
-	Geometry(),
-	m_size(xLen, yLen, zLen), m_offset(offset), m_faceUVs(genNormalizedFaceUVs())
-{
-	PH_ASSERT(xLen > 0.0_r && yLen > 0.0_r && zLen > 0.0_r);
-}
-
 void GCuboid::storeCooked(
 	CookedGeometry& out_geometry,
 	const CookingContext& ctx) const
@@ -90,108 +60,133 @@ std::shared_ptr<Geometry> GCuboid::genTriangulated() const
 	// 12 triangles (all CCW)
 
 	// +z face (+y as upward)
-	const int pz = math::constant::Z_AXIS;
 	{
 		auto upperTriangle = TSdl<GTriangle>::make().setVertices(vPPP, vNPP, vNNP);
-		upperTriangle.setUVWa({m_faceUVs[pz].getMaxVertex().x(), m_faceUVs[pz].getMaxVertex().y(), 0});
-		upperTriangle.setUVWb({m_faceUVs[pz].getMinVertex().x(), m_faceUVs[pz].getMaxVertex().y(), 0});
-		upperTriangle.setUVWc({m_faceUVs[pz].getMinVertex().x(), m_faceUVs[pz].getMinVertex().y(), 0});
+		upperTriangle.setUVWa({m_pzFaceUV.z(), m_pzFaceUV.w(), 0});
+		upperTriangle.setUVWb({m_pzFaceUV.x(), m_pzFaceUV.w(), 0});
+		upperTriangle.setUVWc({m_pzFaceUV.x(), m_pzFaceUV.y(), 0});
 
 		auto lowerTriangle = TSdl<GTriangle>::make().setVertices(vPPP, vNNP, vPNP);
-		lowerTriangle.setUVWa({m_faceUVs[pz].getMaxVertex().x(), m_faceUVs[pz].getMaxVertex().y(), 0});
-		lowerTriangle.setUVWb({m_faceUVs[pz].getMinVertex().x(), m_faceUVs[pz].getMinVertex().y(), 0});
-		lowerTriangle.setUVWc({m_faceUVs[pz].getMaxVertex().x(), m_faceUVs[pz].getMinVertex().y(), 0});
+		lowerTriangle.setUVWa({m_pzFaceUV.z(), m_pzFaceUV.w(), 0});
+		lowerTriangle.setUVWb({m_pzFaceUV.x(), m_pzFaceUV.y(), 0});
+		lowerTriangle.setUVWc({m_pzFaceUV.z(), m_pzFaceUV.y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// -z face (+y as upward)
-	const int nz = math::constant::Z_AXIS + 3;
 	{
 		auto upperTriangle = TSdl<GTriangle>::make().setVertices(vNPN, vPPN, vPNN);
-		upperTriangle.setUVWa({m_faceUVs[nz].getMaxVertex().x(), m_faceUVs[nz].getMaxVertex().y(), 0});
-		upperTriangle.setUVWb({m_faceUVs[nz].getMinVertex().x(), m_faceUVs[nz].getMaxVertex().y(), 0});
-		upperTriangle.setUVWc({m_faceUVs[nz].getMinVertex().x(), m_faceUVs[nz].getMinVertex().y(), 0});
+		upperTriangle.setUVWa({m_nzFaceUV.z(), m_nzFaceUV.w(), 0});
+		upperTriangle.setUVWb({m_nzFaceUV.x(), m_nzFaceUV.w(), 0});
+		upperTriangle.setUVWc({m_nzFaceUV.x(), m_nzFaceUV.y(), 0});
 
 		auto lowerTriangle = TSdl<GTriangle>::make().setVertices(vNPN, vPNN, vNNN);
-		lowerTriangle.setUVWa({m_faceUVs[nz].getMaxVertex().x(), m_faceUVs[nz].getMaxVertex().y(), 0});
-		lowerTriangle.setUVWb({m_faceUVs[nz].getMinVertex().x(), m_faceUVs[nz].getMinVertex().y(), 0});
-		lowerTriangle.setUVWc({m_faceUVs[nz].getMaxVertex().x(), m_faceUVs[nz].getMinVertex().y(), 0});
+		lowerTriangle.setUVWa({m_nzFaceUV.z(), m_nzFaceUV.w(), 0});
+		lowerTriangle.setUVWb({m_nzFaceUV.x(), m_nzFaceUV.y(), 0});
+		lowerTriangle.setUVWc({m_nzFaceUV.z(), m_nzFaceUV.y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// +x face (+y as upward)
-	const int px = math::constant::X_AXIS;
 	{
 		auto upperTriangle = TSdl<GTriangle>::make().setVertices(vPPN, vPPP, vPNP);
-		upperTriangle.setUVWa({m_faceUVs[px].getMaxVertex().x(), m_faceUVs[px].getMaxVertex().y(), 0});
-		upperTriangle.setUVWb({m_faceUVs[px].getMinVertex().x(), m_faceUVs[px].getMaxVertex().y(), 0});
-		upperTriangle.setUVWc({m_faceUVs[px].getMinVertex().x(), m_faceUVs[px].getMinVertex().y(), 0});
+		upperTriangle.setUVWa({m_pxFaceUV.z(), m_pxFaceUV.w(), 0});
+		upperTriangle.setUVWb({m_pxFaceUV.x(), m_pxFaceUV.w(), 0});
+		upperTriangle.setUVWc({m_pxFaceUV.x(), m_pxFaceUV.y(), 0});
 
 		auto lowerTriangle = TSdl<GTriangle>::make().setVertices(vPPN, vPNP, vPNN);
-		lowerTriangle.setUVWa({m_faceUVs[px].getMaxVertex().x(), m_faceUVs[px].getMaxVertex().y(), 0});
-		lowerTriangle.setUVWb({m_faceUVs[px].getMinVertex().x(), m_faceUVs[px].getMinVertex().y(), 0});
-		lowerTriangle.setUVWc({m_faceUVs[px].getMaxVertex().x(), m_faceUVs[px].getMinVertex().y(), 0});
+		lowerTriangle.setUVWa({m_pxFaceUV.z(), m_pxFaceUV.w(), 0});
+		lowerTriangle.setUVWb({m_pxFaceUV.x(), m_pxFaceUV.y(), 0});
+		lowerTriangle.setUVWc({m_pxFaceUV.w(), m_pxFaceUV.y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// -x face (+y as upward)
-	const int nx = math::constant::X_AXIS + 3;
 	{
 		auto upperTriangle = TSdl<GTriangle>::make().setVertices(vNPP, vNPN, vNNN);
-		upperTriangle.setUVWa({m_faceUVs[nx].getMaxVertex().x(), m_faceUVs[nx].getMaxVertex().y(), 0});
-		upperTriangle.setUVWb({m_faceUVs[nx].getMinVertex().x(), m_faceUVs[nx].getMaxVertex().y(), 0});
-		upperTriangle.setUVWc({m_faceUVs[nx].getMinVertex().x(), m_faceUVs[nx].getMinVertex().y(), 0});
+		upperTriangle.setUVWa({m_nxFaceUV.z(), m_nxFaceUV.w(), 0});
+		upperTriangle.setUVWb({m_nxFaceUV.x(), m_nxFaceUV.w(), 0});
+		upperTriangle.setUVWc({m_nxFaceUV.x(), m_nxFaceUV.y(), 0});
 
 		auto lowerTriangle = TSdl<GTriangle>::make().setVertices(vNPP, vNNN, vNNP);
-		lowerTriangle.setUVWa({m_faceUVs[nx].getMaxVertex().x(), m_faceUVs[nx].getMaxVertex().y(), 0});
-		lowerTriangle.setUVWb({m_faceUVs[nx].getMinVertex().x(), m_faceUVs[nx].getMinVertex().y(), 0});
-		lowerTriangle.setUVWc({m_faceUVs[nx].getMaxVertex().x(), m_faceUVs[nx].getMinVertex().y(), 0});
+		lowerTriangle.setUVWa({m_nxFaceUV.z(), m_nxFaceUV.w(), 0});
+		lowerTriangle.setUVWb({m_nxFaceUV.x(), m_nxFaceUV.y(), 0});
+		lowerTriangle.setUVWc({m_nxFaceUV.z(), m_nxFaceUV.y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// +y face (-z as upward)
-	const int py = math::constant::Y_AXIS;
 	{
 		auto upperTriangle = TSdl<GTriangle>::make().setVertices(vPPN, vNPN, vNPP);
-		upperTriangle.setUVWa({m_faceUVs[py].getMaxVertex().x(), m_faceUVs[py].getMaxVertex().y(), 0});
-		upperTriangle.setUVWb({m_faceUVs[py].getMinVertex().x(), m_faceUVs[py].getMaxVertex().y(), 0});
-		upperTriangle.setUVWc({m_faceUVs[py].getMinVertex().x(), m_faceUVs[py].getMinVertex().y(), 0});
+		upperTriangle.setUVWa({m_pyFaceUV.z(), m_pyFaceUV.w(), 0});
+		upperTriangle.setUVWb({m_pyFaceUV.x(), m_pyFaceUV.w(), 0});
+		upperTriangle.setUVWc({m_pyFaceUV.x(), m_pyFaceUV.y(), 0});
 
 		auto lowerTriangle = TSdl<GTriangle>::make().setVertices(vPPN, vNPP, vPPP);
-		lowerTriangle.setUVWa({m_faceUVs[py].getMaxVertex().x(), m_faceUVs[py].getMaxVertex().y(), 0});
-		lowerTriangle.setUVWb({m_faceUVs[py].getMinVertex().x(), m_faceUVs[py].getMinVertex().y(), 0});
-		lowerTriangle.setUVWc({m_faceUVs[py].getMaxVertex().x(), m_faceUVs[py].getMinVertex().y(), 0});
+		lowerTriangle.setUVWa({m_pyFaceUV.z(), m_pyFaceUV.w(), 0});
+		lowerTriangle.setUVWb({m_pyFaceUV.x(), m_pyFaceUV.y(), 0});
+		lowerTriangle.setUVWc({m_pyFaceUV.z(), m_pyFaceUV.y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	// +y face (+z as upward)
-	const int ny = math::constant::Y_AXIS + 3;
 	{
 		auto upperTriangle = TSdl<GTriangle>::make().setVertices(vPNP, vNNP, vNNN);
-		upperTriangle.setUVWa({m_faceUVs[ny].getMaxVertex().x(), m_faceUVs[ny].getMaxVertex().y(), 0});
-		upperTriangle.setUVWb({m_faceUVs[ny].getMinVertex().x(), m_faceUVs[ny].getMaxVertex().y(), 0});
-		upperTriangle.setUVWc({m_faceUVs[ny].getMinVertex().x(), m_faceUVs[ny].getMinVertex().y(), 0});
+		upperTriangle.setUVWa({m_nyFaceUV.z(), m_nyFaceUV.w(), 0});
+		upperTriangle.setUVWb({m_nyFaceUV.x(), m_nyFaceUV.w(), 0});
+		upperTriangle.setUVWc({m_nyFaceUV.x(), m_nyFaceUV.y(), 0});
 
 		auto lowerTriangle = TSdl<GTriangle>::make().setVertices(vPNP, vNNN, vPNN);
-		lowerTriangle.setUVWa({m_faceUVs[ny].getMaxVertex().x(), m_faceUVs[ny].getMaxVertex().y(), 0});
-		lowerTriangle.setUVWb({m_faceUVs[ny].getMinVertex().x(), m_faceUVs[ny].getMinVertex().y(), 0});
-		lowerTriangle.setUVWc({m_faceUVs[ny].getMaxVertex().x(), m_faceUVs[ny].getMinVertex().y(), 0});
+		lowerTriangle.setUVWa({m_nyFaceUV.z(), m_nyFaceUV.w(), 0});
+		lowerTriangle.setUVWb({m_nyFaceUV.x(), m_nyFaceUV.y(), 0});
+		lowerTriangle.setUVWc({m_nyFaceUV.z(), m_nyFaceUV.y(), 0});
 
 		triangleMesh->addTriangle(upperTriangle);
 		triangleMesh->addTriangle(lowerTriangle);
 	}
 
 	return triangleMesh;
+}
+
+GCuboid& GCuboid::setSize(const real sideLength)
+{
+	return setSize(sideLength, sideLength, sideLength);
+}
+
+GCuboid& GCuboid::setSize(const real xLen, const real yLen, const real zLen)
+{
+	return setSize(xLen, yLen, zLen, m_offset);
+}
+
+GCuboid& GCuboid::setSize(const math::Vector3R& minVertex, const math::Vector3R& maxVertex)
+{
+	return setSize(
+		maxVertex.x() - minVertex.x(),
+		maxVertex.y() - minVertex.y(),
+		maxVertex.z() - minVertex.z(),
+		(maxVertex + minVertex) * 0.5_r);
+}
+
+GCuboid& GCuboid::setSize(const real xLen, const real yLen, const real zLen, const math::Vector3R& offset)
+{
+	PH_ASSERT_GT(xLen, 0.0_r);
+	PH_ASSERT_GT(yLen, 0.0_r);
+	PH_ASSERT_GT(zLen, 0.0_r);
+
+	m_size = {xLen, yLen, zLen};
+	m_offset = offset;
+
+	return *this;
 }
 
 bool GCuboid::checkData(const real xLen, const real yLen, const real zLen)
@@ -210,7 +205,9 @@ bool GCuboid::checkData(const real xLen, const real yLen, const real zLen)
 
 bool GCuboid::checkData(
 	const PrimitiveBuildingMaterial& data, 
-	const real xLen, const real yLen, const real zLen)
+	const real xLen, 
+	const real yLen, 
+	const real zLen)
 {
 	if(!data.metadata)
 	{
@@ -227,12 +224,9 @@ bool GCuboid::checkData(
 	return true;
 }
 
-auto GCuboid::genNormalizedFaceUVs()
-	->std::array<math::AABB2D, 6>
+math::Vector4R GCuboid::makeNormalizedFaceUV()
 {
-	std::array<math::AABB2D, 6> faceUVs;
-	faceUVs.fill({{0, 0}, {1, 1}});
-	return faceUVs;
+	return {0, 0, 1, 1};
 }
 
 }// end namespace ph

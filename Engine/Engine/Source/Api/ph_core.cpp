@@ -142,7 +142,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<GRectangle>(),
 		get_sdl_class<GTriangle>(),
 		get_sdl_class<GTriangleMesh>(),
-		//get_sdl_class<GCuboid>(),
+		get_sdl_class<GCuboid>(),
 		get_sdl_class<GMengerSponge>(),
 		get_sdl_class<GeometrySoup>(),
 		get_sdl_class<GPlyPolygonMesh>(),

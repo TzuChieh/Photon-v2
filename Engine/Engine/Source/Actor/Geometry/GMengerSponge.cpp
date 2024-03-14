@@ -60,18 +60,18 @@ void GMengerSponge::genPrimitive(
 	}
 }
 
-// Reference: http://woo4.me/wootracer/menger-sponge/
-//
 void GMengerSponge::genMengerSpongeRecursive(
 	const math::Vector3R& minVertex,
 	const math::Vector3R& maxVertex,
 	const uint32          currentIteration,
 	std::vector<GCuboid>& cubes) const
 {
+	// Reference: http://woo4.me/wootracer/menger-sponge/
+
 	PH_ASSERT(currentIteration <= m_numIteration);
 	if(currentIteration == m_numIteration)
 	{
-		cubes.push_back(GCuboid(minVertex, maxVertex));
+		cubes.push_back(TSdl<GCuboid>::make().setSize(minVertex, maxVertex));
 		return;
 	}
 

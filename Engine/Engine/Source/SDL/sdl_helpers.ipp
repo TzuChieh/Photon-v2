@@ -146,7 +146,7 @@ inline math::TVector4<Element> load_vector4(std::string_view sdlVec4Str)
 {
 	try
 	{
-		math::TVector3<Element> vec4;
+		math::TVector4<Element> vec4;
 		load_numbers(sdlVec4Str, vec4.toSpan());
 		return vec4;
 	}
@@ -262,13 +262,13 @@ inline void save_number(const NumberType value, std::string& out_str)
 {
 	if constexpr(std::is_floating_point_v<NumberType>)
 	{
-		save_float<NumberType>(value, out_str);
+		save_float(value, out_str);
 	}
 	else
 	{
 		static_assert(std::is_integral_v<NumberType>);
 
-		save_int<NumberType>(value, out_str);
+		save_int(value, out_str);
 	}
 }
 

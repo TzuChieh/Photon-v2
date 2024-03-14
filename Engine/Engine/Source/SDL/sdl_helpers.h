@@ -25,8 +25,6 @@ Helpers are in an additional `sdl` namespace.
 namespace ph::sdl
 {
 
-// TODO: templatize vec3, quat related funcs
-
 real load_real(std::string_view sdlRealStr);
 integer load_integer(std::string_view sdlIntegerStr);
 
@@ -45,7 +43,6 @@ template<typename IntType>
 IntType load_int(std::string_view sdlIntStr);
 
 /*! @brief Returns a number by processing its SDL representation.
-
 Accepts all types supported by load_float() and load_int().
 */
 template<typename NumberType>
