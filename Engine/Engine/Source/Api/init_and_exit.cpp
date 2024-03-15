@@ -3,6 +3,7 @@
 #include "DataIO/io_utils.h"
 #include "Core/LTA/SurfaceHitRefinery.h"
 #include "Core/LTA/SurfaceHitRefinery.h"
+#include "Math/Random/DeterministicSeeder.h"
 
 #include <Common/config.h>
 #include <Common/logging.h>
@@ -14,6 +15,7 @@ PH_DEFINE_INTERNAL_LOG_GROUP(InitAndExit, Engine);
 
 bool init_engine_core(const EngineInitSettings& settings)
 {
+	math::DeterministicSeeder::init(settings);
 	lta::SurfaceHitRefinery::init(settings);
 
 	return true;

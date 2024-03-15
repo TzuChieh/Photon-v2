@@ -28,6 +28,10 @@ public:
 
 	real selfIntersectDelta = 0.0002_r;
 	std::size_t numIterativeSurfaceRefinements = 1;
+
+	bool useRandomSeed = false;
+	uint32 fixedSeed = 42;
+	uint32 fixedSeedStep = 1;
 };
 
 }// end namespace ph

@@ -4,12 +4,13 @@
 #include "Math/hash.h"
 
 #include <Common/assertion.h>
-#include <Common/config.h>
 #include <Common/primitive_type.h>
 
 #include <atomic>
 #include <climits>
 #include <type_traits>
+
+namespace ph { class EngineInitSettings; }
 
 namespace ph::math
 {
@@ -23,8 +24,13 @@ public:
 	template<typename T>
 	static T nextSeed();
 
+	static void init(const EngineInitSettings& settings);
+
 private:
 	static uint32 nextUInt32Number();
+
+	static std::atomic<uint32> s_numberSource;
+	static uint32 s_step;
 };
 
 template<typename T>
@@ -57,12 +63,9 @@ inline T DeterministicSeeder::nextSeed()
 
 inline uint32 DeterministicSeeder::nextUInt32Number()
 {
-	static std::atomic<uint32> numberSource(42);
-#if PH_ENSURE_LOCKFREE_ALGORITHMS_ARE_LOCKLESS
-	static_assert(std::atomic<uint32>::is_always_lock_free);
-#endif
+	PH_ASSERT_NE(s_step, 0);
 
-	return numberSource.fetch_add(1, std::memory_order_relaxed);
+	return s_numberSource.fetch_add(s_step, std::memory_order_relaxed);
 }
 
 }// end namespace ph::math

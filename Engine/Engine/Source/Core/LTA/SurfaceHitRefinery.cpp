@@ -6,9 +6,9 @@
 namespace ph::lta
 {
 
-ESurfaceRefineMode SurfaceHitRefinery::s_refineMode = ESurfaceRefineMode::Default;
-real SurfaceHitRefinery::s_selfIntersectDelta = 0.0001_r;
-std::size_t SurfaceHitRefinery::s_numIterations = 2;
+ESurfaceRefineMode SurfaceHitRefinery::s_refineMode;
+real SurfaceHitRefinery::s_selfIntersectDelta;
+std::size_t SurfaceHitRefinery::s_numIterations;
 
 #if PH_ENABLE_HIT_EVENT_STATS
 SurfaceHitRefinery::HitEventStats SurfaceHitRefinery::s_stats;
