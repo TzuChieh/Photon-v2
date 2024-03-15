@@ -468,5 +468,6 @@ if(PH_BUILD_PHOTON_CLI)
 endif()
 
 if(PH_BUILD_OPTIONAL_TOOLS)
+    add_subdirectory("./Tool/FilmMerger/")
     add_subdirectory("./Tool/IntersectError/")
 endif()
