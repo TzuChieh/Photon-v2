@@ -111,6 +111,8 @@ def read_pfm(file_path):
         else:
             raise ValueError("bad byte order indicator, %f were given" % endian_indicator)
         
+        scale = abs(endian_indicator)
+
         # Parse pixel data
 
         pixel_bytes = pfm_file.read()
@@ -123,6 +125,8 @@ def read_pfm(file_path):
 
         image = Image()
         image.values = np.reshape(floats, shape)
+        if scale != 1:
+            image.values *= scale
         return image
 
 def rmse_of(img_a: Image, img_b: Image):

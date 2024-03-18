@@ -6,7 +6,7 @@
 #include "Frame/RegularPicture.h"
 #include "Frame/PictureMeta.h"
 #include "DataIO/FileSystem/Path.h"
-#include "DataIO/PfmFileWriter.h"
+#include "DataIO/PfmFile.h"
 #include "Math/TVector2.h"
 #include "DataIO/sdl_picture_file_type.h"
 #include "Utility/ByteBuffer.h"
@@ -367,6 +367,30 @@ RegularPicture load_HDR_picture(const Path& picturePath, std::size_t layerIdx)
 	{
 		return load_HDR_via_stb(picturePath.toNativeString());
 	}
+	else if(ext == ".pfm" || ext == ".PFM")
+	{
+		// TODO: support monochromatic
+
+		PfmFile file;
+		file.load(picturePath);
+
+		RegularPicture picture(
+			math::Vector2S(file.getColorFrame().getSizePx()),
+			3,
+			EPicturePixelComponent::Float32);
+
+		RegularPictureFormat format;
+		format.setColorSpace(math::EColorSpace::Linear_sRGB);
+		format.setIsGrayscale(false);
+		format.setHasAlpha(false);
+		picture.setFormat(format);
+
+		picture.getPixels().setPixels(
+			file.getColorFrame().getPixelData().data(),
+			file.getColorFrame().getPixelData().size());
+
+		return picture;
+	}
 	else
 	{
 		throw FileIOError(
@@ -374,9 +398,10 @@ RegularPicture load_HDR_picture(const Path& picturePath, std::size_t layerIdx)
 	}
 }
 
-// OPT: make this faster
 bool has_LDR_support(const std::string_view filenameExt)
 {
+	// OPT: make this faster
+
 	return 
 		filenameExt == ".png"  || filenameExt == ".PNG"  ||
 		filenameExt == ".jpg"  || filenameExt == ".JPG"  ||
@@ -387,12 +412,14 @@ bool has_LDR_support(const std::string_view filenameExt)
 		filenameExt == ".pgm"  || filenameExt == ".PGM";
 }
 
-// OPT: make this faster
 bool has_HDR_support(const std::string_view filenameExt)
 {
+	// OPT: make this faster
+
 	return
 		filenameExt == ".exr" || filenameExt == ".EXR" ||
-		filenameExt == ".hdr" || filenameExt == ".HDR";
+		filenameExt == ".hdr" || filenameExt == ".HDR" ||
+		filenameExt == ".pfm" || filenameExt == ".PFM";
 }
 
 bool load_picture_meta(
@@ -686,8 +713,7 @@ void save_pfm(const HdrRgbFrame& frame, const Path& filePath, const PictureMeta*
 	PH_LOG(IOUtils, Note,
 		"saving pfm <{}>", filePath.toAbsoluteString());
 
-	PfmFileWriter writer(filePath);
-	writer.save(frame);
+	PfmFile{frame}.save(filePath);
 }
 
 void save_exr(const HdrRgbFrame& frame, ByteBuffer& buffer, const PictureMeta* meta)

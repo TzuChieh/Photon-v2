@@ -125,14 +125,14 @@ inline Target bitwise_cast(const Source& source)
 	}
 }
 
-inline bool is_big_endian()
+inline consteval bool is_big_endian()
 {
 #if __cpp_lib_endian
 	return std::endian::native == std::endian::big;
 #else
 	static_assert(sizeof(int) > sizeof(char));
 
-	const int i = 0x07;
+	constexpr int i = 0x07;
 	return reinterpret_cast<const char*>(&i)[0] != '\x07';
 #endif
 }

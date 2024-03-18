@@ -53,6 +53,11 @@ public:
 	TSpanView<std::byte> getBytes() const;
 	bool isEmpty() const;
 
+	/*! @brief Set pixel data directly.
+	This method also supports packed pixel data. For example, if RGBA is packed into an `int32`,
+	`PixelData` would be `int32` which can contain 4 components. It is up to the user to provide
+	suitably-sized `pixelData`.
+	*/
 	template<typename PixelData>
 	void setPixels(
 		const PixelData* pixelData,

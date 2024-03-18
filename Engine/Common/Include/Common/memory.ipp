@@ -62,6 +62,8 @@ inline void reverse_bytes(std::byte* const bytes)
 {
 	PH_ASSERT(bytes);
 
+	// Cases for each `N`. One may also consider to add an implementation for a specific `N`.
+
 	if constexpr(N == 1)
 	{
 		// Nothing to do, single byte is already its own reverse
@@ -90,9 +92,7 @@ inline void reverse_bytes(std::byte* const bytes)
 	}
 	else
 	{
-		// Invalid `N` (number of bytes)
-		// (one may also consider to add impl for `N`)
-		PH_ASSERT_UNREACHABLE_SECTION();
+		std::reverse(bytes, bytes + N);
 	}
 }
 
