@@ -1,7 +1,7 @@
 #include "EditorCore/Thread/Threads.h"
 #include "Render/RenderThread.h"
 
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 
 namespace ph::editor
 {

@@ -6,7 +6,7 @@
 #include <Utility/TFunction.h>
 #include <Common/primitive_type.h>
 #include <Common/assertion.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <Utility/TUniquePtrVector.h>
 
 #include <limits>

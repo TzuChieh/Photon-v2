@@ -1,7 +1,8 @@
 #include "Actor/Geometry/GIndexedTriangleMesh.h"
 #include "DataIO/PlyFile.h"
 #include "Actor/Basic/exceptions.h"
-#include "DataIO/io_exceptions.h"
+
+#include <Common/io_exceptions.h>
 
 namespace ph
 {

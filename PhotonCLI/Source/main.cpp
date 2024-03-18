@@ -34,9 +34,15 @@ int main(int argc, char* argv[])
 {
 	if(argc <= 1)
 	{
-		std::cout << "Photon-v2 Renderer\n";
+		std::cout << "Photon Renderer\n";
 		std::cout << "Use --help for a list of available commands.\n";
 		return EXIT_SUCCESS;
+	}
+
+	if(!phInit())
+	{
+		std::cerr << "Photon initializing failed\n";
+		return EXIT_FAILURE;
 	}
 
 	ProcessedArguments args(argc, argv);
@@ -44,12 +50,6 @@ int main(int argc, char* argv[])
 	{
 		args.printHelpMessage();
 		return EXIT_SUCCESS;
-	}
-
-	if(!phInit())
-	{
-		std::cerr << "Photon initialing failed\n";
-		return EXIT_FAILURE;
 	}
 
 	// Begin engine operations

@@ -2,7 +2,7 @@
 
 #include <Utility/INoCopyAndMove.h>
 #include <Common/primitive_type.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 
 namespace ph::editor
 {

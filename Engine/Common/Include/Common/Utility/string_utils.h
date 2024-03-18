@@ -6,7 +6,7 @@
 
 #include "Common/Utility/string_utils_table.h"
 #include "Common/assertion.h"
-#include "Common/exception.h"
+#include "Common/exceptions.h"
 
 #include <cstddef>
 #include <string>

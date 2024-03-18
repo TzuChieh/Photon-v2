@@ -5,10 +5,10 @@
 #include "SDL/SdlResourceLocator.h"
 #include "SDL/Introspect/SdlInputContext.h"
 #include "DataIO/io_utils.h"
-#include "DataIO/io_exceptions.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/io_exceptions.h>
 
 #include <type_traits>
 #include <string>

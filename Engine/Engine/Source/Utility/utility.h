@@ -3,7 +3,7 @@
 #include "Utility/traits.h"
 
 #include <Common/assertion.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 
 #include <utility>
 #include <type_traits>

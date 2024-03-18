@@ -4,7 +4,7 @@
 #include "Designer/UI/UIPropertyLayout.h"
 
 #include <Common/assertion.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <Utility/utility.h>
 #include <Math/TVector3.h>
 #include <Math/TQuaternion.h>

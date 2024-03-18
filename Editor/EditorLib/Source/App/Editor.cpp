@@ -11,10 +11,10 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Common/profiling.h>
+#include <Common/io_exceptions.h>
 #include <Utility/Timer.h>
 #include <DataIO/FileSystem/Path.h>
 #include <DataIO/FileSystem/Filesystem.h>
-#include <DataIO/io_exceptions.h>
 #include <SDL/TSdl.h>
 #include <SDL/SdlSceneFileWriter.h>
 #include <SDL/SdlSceneFileReader.h>

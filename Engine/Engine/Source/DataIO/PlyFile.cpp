@@ -1,11 +1,11 @@
 #include "DataIO/PlyFile.h"
 #include "DataIO/Stream/BinaryFileInputStream.h"
 #include "DataIO/Stream/ByteBufferInputStream.h"
-#include "DataIO/io_exceptions.h"
 #include "Utility/utility.h"
 
 #include <Common/Utility/string_utils.h>
 #include <Common/logging.h>
+#include <Common/io_exceptions.h>
 #include <Common/memory.h>
 
 #include <type_traits>

@@ -7,7 +7,6 @@
 
 namespace ph { class SdlClass; }
 namespace ph { class SdlEnum; }
-namespace ph { class IniFile; }
 namespace ph { class Path; }
 
 namespace ph

@@ -8,10 +8,10 @@
 #include "RenderCore/ghi_enums.h"
 
 #include <Common/logging.h>
+#include <Common/io_exceptions.h>
 #include <DataIO/io_utils.h>
 #include <DataIO/FileSystem/Path.h>
 #include <Frame/RegularPicture.h>
-#include <DataIO/io_exceptions.h>
 
 #include <utility>
 #include <algorithm>

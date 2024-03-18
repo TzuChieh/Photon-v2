@@ -1,5 +1,4 @@
 #include "DataIO/io_utils.h"
-#include "DataIO/io_exceptions.h"
 #include "DataIO/EXR/ExrFileReader.h"
 #include "DataIO/EXR/ExrFileWriter.h"
 #include "Frame/frame_utils.h"
@@ -16,6 +15,7 @@
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Common/profiling.h>
+#include <Common/io_exceptions.h>
 
 #include <fstream>
 #include <sstream>

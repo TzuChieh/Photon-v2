@@ -3,7 +3,7 @@
 #include "DataIO/EXR/exr_io_common.h"
 #include "Frame/TFrame.h"
 
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 
 namespace ph
 {

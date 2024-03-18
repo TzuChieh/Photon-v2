@@ -3,7 +3,7 @@
 #include "Utility/IMoveOnly.h"
 
 #include <Common/debug.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <Common/logging.h>
 
 #include <thread>

@@ -1,7 +1,7 @@
 #include "ProcessedArguments.h"
 
 #include <ph_core.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <Common/logging.h>
 #include <DataIO/io_utils.h>
 #include <Frame/RegularPicture.h>
@@ -11,6 +11,7 @@
 #include <Math/TVector3.h>
 
 #include <vector>
+#include <iostream>
 
 namespace
 {
@@ -77,6 +78,13 @@ void merge_films(const film_merger::ProcessedArguments& args)
 
 int main(int argc, char* argv[])
 {
+	if(argc <= 1)
+	{
+		std::cout << "Photon Film Merger\n";
+		std::cout << "Use --help for a list of available commands.\n";
+		return EXIT_SUCCESS;
+	}
+
 	if(!init_render_engine(EngineInitSettings{}))
 	{
 		return EXIT_FAILURE;

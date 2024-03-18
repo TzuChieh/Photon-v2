@@ -15,7 +15,7 @@ namespace ph
 These settings are loaded on engine startup and remains constant till engine exit. Changing the
 settings will require an engine restart to see the effect.
 */
-class EngineInitSettings
+class EngineInitSettings final
 {
 public:
 	/*! @brief Additional log handlers for the core engine's internal logger.
@@ -29,9 +29,15 @@ public:
 	real selfIntersectDelta = 0.0002_r;
 	std::size_t numIterativeSurfaceRefinements = 1;
 
+	/*! @brief Randomly seed the engine RNGs, so the output is not deterministic.
+	This is useful if multiple machines are working on the same scene using a mergeable algorithm.
+	*/
 	bool useRandomSeed = false;
+
 	uint32 fixedSeed = 42;
 	uint32 fixedSeedStep = 1;
+
+
 };
 
 }// end namespace ph

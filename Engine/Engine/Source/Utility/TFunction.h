@@ -2,7 +2,7 @@
 
 #include <Common/assertion.h>
 #include <Common/config.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <Common/memory.h>
 
 #include <cstddef>

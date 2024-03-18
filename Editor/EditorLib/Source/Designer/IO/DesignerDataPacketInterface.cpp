@@ -19,7 +19,7 @@
 #include <SDL/Introspect/SdlClass.h>
 #include <SDL/sdl_helpers.h>
 #include <SDL/sdl_parser.h>
-#include <DataIO/io_exceptions.h>
+#include <Common/io_exceptions.h>
 #include <DataIO/FileSystem/ResourceIdentifier.h>
 
 #include <utility>

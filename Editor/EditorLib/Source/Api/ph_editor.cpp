@@ -32,7 +32,7 @@
 #include <ph_core.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <DataIO/FileSystem/Path.h>
 #include <Utility/traits.h>
 

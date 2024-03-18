@@ -87,7 +87,7 @@ private:
 	float32        m_blenderPeekInterval;
 	EIntervalUnit  m_blenderPeekIntervalUnit;
 
-	// HACK
+	// FIXME: this should move to other utilities such as the editor
 	bool m_isFrameDiagRequested;
 	std::string m_framePathA;
 	std::string m_framePathB;

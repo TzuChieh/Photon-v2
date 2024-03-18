@@ -9,7 +9,7 @@
 #include "EditorCore/Thread/Threads.h"
 
 #include <Common/assertion.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <Common/logging.h>
 #include <Common/profiling.h>
 #include <Core/Engine.h>

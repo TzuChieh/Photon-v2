@@ -2,10 +2,7 @@
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
-#include <Common/exception.h>
-
-#include <string_view>
-#include <limits>
+#include <Common/exceptions.h>
 
 namespace ph::film_merger
 {
@@ -51,16 +48,8 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 					"The weighting factor argument must follow a film path.");
 			}
 
-			const auto weightStr = arguments.retrieveString();
-			if(weightStr.empty())
-			{
-				PH_DEFAULT_LOG(Warning,
-					"Expecting a weighting factor, none was found.");
-				continue;
-			}
-
 			PH_ASSERT(!m_filmInfos.empty());
-			m_filmInfos.back().weight = std::stod(weightStr);
+			m_filmInfos.back().weight = arguments.retrieveFloat(1.0);
 		}
 		else
 		{

@@ -1,9 +1,9 @@
 #include "DataIO/Stream/FormattedTextInputStream.h"
-#include "DataIO/io_exceptions.h"
 
 #include <Common/assertion.h>
 #include <Common/os.h>
 #include <Common/logging.h>
+#include <Common/io_exceptions.h>
 #include <Common/Utility/string_utils.h>
 
 #include <utility>

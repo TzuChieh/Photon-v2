@@ -3,9 +3,9 @@
 #include "DataIO/Stream/BinaryFileInputStream.h"
 #include "DataIO/Stream/BinaryFileOutputStream.h"
 #include "Utility/utility.h"
-#include "DataIO/io_exceptions.h"
 
 #include <Common/logging.h>
+#include <Common/io_exceptions.h>
 #include <Common/Utility/string_utils.h>
 
 #include <string>

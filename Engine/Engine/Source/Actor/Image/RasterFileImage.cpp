@@ -1,7 +1,6 @@
 #include "Actor/Image/RasterFileImage.h"
 #include "Core/Texture/Pixel/TFrameBuffer2D.h"
 #include "DataIO/io_utils.h"
-#include "DataIO/io_exceptions.h"
 #include "Actor/Basic/exceptions.h"
 #include "Frame/TFrame.h"
 #include "Core/Texture/Pixel/TNumericPixelTexture2D.h"
@@ -9,6 +8,7 @@
 #include "Frame/RegularPicture.h"
 
 #include <Common/logging.h>
+#include <Common/io_exceptions.h>
 
 #include <utility>
 #include <cstddef>

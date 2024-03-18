@@ -10,7 +10,7 @@
 #include <Common/memory.h>
 #include <Common/os.h>
 #include <Common/math_basics.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <Common/config.h>
 #include <Utility/utility.h>
 

@@ -20,7 +20,7 @@
 #include <Frame/frame_utils.h>
 #include <Frame/TFrame.h>
 #include <Frame/PictureMeta.h>
-#include <DataIO/io_exceptions.h>
+#include <Common/io_exceptions.h>
 #include <Utility/ByteBuffer.h>
 #include <Utility/utility.h>
 

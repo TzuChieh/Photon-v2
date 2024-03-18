@@ -1,8 +1,6 @@
 #pragma once
 
-#include "DataIO/FileSystem/Path.h"
-
-#include <Common/assertion.h>
+#include "Common/assertion.h"
 
 #include <string>
 #include <string_view>
@@ -14,16 +12,21 @@
 namespace ph
 {
 
+/*! @brief INI file I/O.
+This class is useful for recording various settings across the entire engine project. As a low-level
+I/O class in `Common` library, it can be used regardless the engine initialization state (see
+`init_render_engine()` and `exit_render_engine()` in `Engine` library for more details). 
+*/
 class IniFile final
 {
 public:
-	static IniFile read(const Path& iniFilePath);
+	static IniFile read(const std::string& iniFilePath);
 
 public:
 	IniFile();
-	explicit IniFile(const Path& iniFilePath);
+	explicit IniFile(const std::string& iniFilePath);
 
-	void save(const Path& iniFilePath);
+	void save(const std::string& iniFilePath);
 	void clear();
 
 	std::size_t numSections() const;
@@ -54,11 +57,11 @@ private:
 		std::vector<std::pair<std::string, std::string>> keyValPairs;
 	};
 
-	std::vector<IniSection> m_sections;
-	std::size_t             m_currentSectionIdx;
-
 	IniSection& getIniSection(std::size_t sectionIdx);
 	const IniSection& getIniSection(std::size_t sectionIdx) const;
+
+	std::vector<IniSection> m_sections;
+	std::size_t             m_currentSectionIdx;
 };
 
 // In-header Implementations:

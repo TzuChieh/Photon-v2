@@ -1,8 +1,8 @@
 #include "DataIO/Stream/StdInputStream.h"
-#include "DataIO/io_exceptions.h"
 
 #include <Common/assertion.h>
 #include <Common/os.h>
+#include <Common/io_exceptions.h>
 
 #include <utility>
 #include <fstream>

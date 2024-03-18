@@ -7,7 +7,7 @@
 #include "Render/System.h"
 
 #include <Common/assertion.h>
-#include <Common/exception.h>
+#include <Common/exceptions.h>
 #include <Common/profiling.h>
 #include <SDL/Introspect/SdlClass.h>
 
