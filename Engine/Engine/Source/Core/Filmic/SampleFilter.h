@@ -11,6 +11,8 @@
 namespace ph
 {
 
+/*! @brief An image reconstruction kernel.
+*/
 class SampleFilter final
 {
 public:

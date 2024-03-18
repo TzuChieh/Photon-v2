@@ -16,6 +16,7 @@ class Ray;
 class RayDifferential;
 
 /*! @brief A target that can receive any physical quantity, typically electromagnetic energy.
+The received energy is originated from some `Emitter`s.
 */
 class Receiver
 {

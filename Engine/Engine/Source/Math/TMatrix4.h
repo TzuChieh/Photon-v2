@@ -10,6 +10,8 @@
 namespace ph::math
 {
 	
+/*! @brief Represents a 4x4 matrix.
+*/
 template<typename T>
 class TMatrix4 final
 {

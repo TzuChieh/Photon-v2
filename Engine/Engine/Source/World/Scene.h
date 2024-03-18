@@ -21,6 +21,8 @@ class Primitive;
 class SurfaceHit;
 class SampleFlow;
 
+/*! @brief A unified interface for accessing cooked content in a visual world.
+*/
 class Scene final
 {
 public:

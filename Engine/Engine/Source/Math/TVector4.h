@@ -8,6 +8,8 @@
 namespace ph::math
 {
 
+/*! @brief Represents a 4-D vector.
+*/
 template<typename T>
 class TVector4 final : public TVectorNBase<TVector4<T>, T, 4>
 {

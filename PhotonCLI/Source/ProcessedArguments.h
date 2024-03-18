@@ -26,9 +26,9 @@ enum class EExecutionMode
 	Blender
 };
 
-// TODO: a parameter telling whether intermediate outout is requested
 class ProcessedArguments
 {
+	// TODO: a parameter telling whether intermediate output is requested
 public:
 	static void printHelpMessage();
 
@@ -201,7 +201,7 @@ not create the directory for you if it is not already exists.
 [-of <format>]
 
 Specify the format of output image. Supported formats are: png, jpg, bmp, tga,
-hdr, exr.
+hdr, exr, pfm.
 (default format: png)
 ===============================================================================
 [-t <number>]

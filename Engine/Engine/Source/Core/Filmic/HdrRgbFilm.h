@@ -38,8 +38,30 @@ public:
 	void clear() override;
 	void setEffectiveWindowPx(const math::TAABB2D<int64>& effectiveWindow) override;
 
+	/*! @brief Add a pixel sample.
+	@param xPx The pixel's x coordinate.
+	@param yPx The pixel's y coordinate.
+	@param rgb The RGB values of the pixel.
+	*/
+	///@{
 	void addRgbSample(float64 xPx, float64 yPx, const math::Vector3R& rgb);
-	void setRgbPixel(float64 xPx, float64 yPx, const math::Vector3R& rgb);
+	void addRgbSample(float64 xPx, float64 yPx, const math::Vector3D& rgb);
+	///@}
+
+	/*! @brief Set a pixel directly.
+	Filter is not applied when setting a pixel directly (effectively applying a box filter).
+	The pixel coordinate is not integral as the implementation may choose to store the values in
+	higher resolution (e.g., super sampling).
+	@param xPx The pixel's x coordinate.
+	@param yPx The pixel's y coordinate.
+	@param rgb The RGB values of the pixel.
+	@param weight The weight of the pixel.
+	*/
+	///@{
+	void setRgbPixel(float64 xPx, float64 yPx, const math::Vector3R& rgb, float64 weight = 1);
+	void setRgbPixel(float64 xPx, float64 yPx, const math::Vector3D& rgb, float64 weight = 1);
+	///@}
+
 	void mergeWith(const HdrRgbFilm& other);
 
 private:
@@ -50,6 +72,23 @@ private:
 
 	std::vector<RadianceSensor> m_pixelRadianceSensors;
 };
+
+inline void HdrRgbFilm::addRgbSample(
+	const float64         xPx, 
+	const float64         yPx, 
+	const math::Vector3R& rgb)
+{
+	addRgbSample(xPx, yPx, math::Vector3D(rgb));
+}
+
+inline void HdrRgbFilm::setRgbPixel(
+	const float64         xPx,
+	const float64         yPx,
+	const math::Vector3R& rgb,
+	const float64         weight)
+{
+	setRgbPixel(xPx, yPx, math::Vector3D(rgb), weight);
+}
 
 inline void HdrRgbFilm::clearRadianceSensors()
 {

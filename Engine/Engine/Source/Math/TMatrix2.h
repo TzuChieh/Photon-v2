@@ -9,6 +9,8 @@
 namespace ph::math
 {
 
+/*! @brief Represents a 2x2 matrix.
+*/
 template<typename T>
 class TMatrix2 final
 {

@@ -22,28 +22,76 @@ namespace ph { class EngineInitSettings; }
 namespace ph::lta
 {
 
+/*! @brief Algorithms for various hit point adjustments.
+For surface escaping routines, the generated ray is not guaranteed to "actually" avoid the surface.
+In other words, self-intersection may still happen under different circumstances dpending on the
+method used.
+*/
 class SurfaceHitRefinery final
 {
 public:
 	explicit SurfaceHitRefinery(const SurfaceHit& X);
 
+	/*! @brief Escape this surface in a specific direction using engine settings.
+	@param dir The direction to escape. No need to be normalized.
+	@return The longest ray in `dir` that avoids this surface.
+	*/
 	Ray escape(const math::Vector3R& dir) const;
+
+	/*! @brief Escape this surface in a specific direction by a small offset.
+	@param dir The direction to escape. No need to be normalized.
+	@param delta The amount to offset.
+	@return The longest ray in `dir` that avoids this surface.
+	*/
 	Ray escapeManually(const math::Vector3R& dir, real delta = selfIntersectDelta()) const;
+
+	/*! @brief Escape this surface in a specific direction by some adaptive offset.
+	@param dir The direction to escape. No need to be normalized.
+	@return The longest ray in `dir` that avoids this surface.
+	*/
 	Ray escapeEmpirically(const math::Vector3R& dir) const;
 
+	/*! @brief Escape this surface in a specific direction by iteratively re-intersect with the surface.
+	This variant is in general the most accurate one but is 5% ~ 15% more expensive than `escapeManually()`.
+	@param dir The direction to escape. No need to be normalized.
+	@param numIterations The desired number of improvements to have on the offset.
+	@return The longest ray in `dir` that avoids this surface.
+	*/
 	Ray escapeIteratively(
 		const math::Vector3R& dir, 
 		std::size_t numIterations = numIterations()) const;
 
+	/*! @brief Mutually escape from `X` and `X2` using engine settings.
+	@param X2 The other surface to escape from.
+	@return The ray that avoids both surfaces.
+	*/
 	std::optional<Ray> tryEscape(const SurfaceHit& X2) const;
+
+	/*! @brief Mutually escape from `X` and `X2` by a small offset.
+	@param X2 The other surface to escape from.
+	@param delta The amount to offset.
+	@return The ray that avoids both surfaces.
+	*/
 	std::optional<Ray> tryEscapeManually(const SurfaceHit& X2, real delta = selfIntersectDelta()) const;
+	
+	/*! @brief Mutually escape from `X` and `X2` by some adaptive offset.
+	@param X2 The other surface to escape from.
+	@return The ray that avoids both surfaces.
+	*/
 	std::optional<Ray> tryEscapeEmpirically(const SurfaceHit& X2) const;
 
+	/*! @brief Mutually escape from `X` and `X2` by iteratively re-intersect with the surfaces.
+	@param X2 The other surface to escape from.
+	@param numIterations The desired number of improvements to have on the offset.
+	@return The ray that avoids both surfaces.
+	*/
 	std::optional<Ray> tryEscapeIteratively(
 		const SurfaceHit& X2,
 		std::size_t numIterations = numIterations()) const;
 
 public:
+	/*! @brief Initialize from engine settings.
+	*/
 	static void init(const EngineInitSettings& settings);
 
 	/*! @brief A small value for resolving self-intersections.

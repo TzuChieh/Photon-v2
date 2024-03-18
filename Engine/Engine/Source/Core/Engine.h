@@ -15,6 +15,8 @@
 namespace ph
 {
 
+/*! @brief The render engine.
+*/
 class Engine final
 {
 public:

@@ -19,7 +19,6 @@
 
 #include <fstream>
 #include <sstream>
-#include <format>
 #include <climits>
 #include <type_traits>
 
@@ -289,9 +288,9 @@ RegularPicture load_picture(const Path& picturePath, std::size_t layerIdx)
 	}
 
 	// If the flow reaches here, loading has failed and we need to throw
-	throw FileIOError(std::format(
-		"failed loading <{}> image; tried loading as HDR: {}, as LDR: {}", ext, hasTriedHDR, hasTriedLDR),
-		picturePath.toString());
+	throw_formatted<FileIOError>(
+		"failed loading <{}> image; tried loading as HDR: {}, as LDR: {}",
+		ext, hasTriedHDR, hasTriedLDR, picturePath.toString());
 }
 
 RegularPicture load_LDR_picture(const Path& picturePath, std::size_t layerIdx)

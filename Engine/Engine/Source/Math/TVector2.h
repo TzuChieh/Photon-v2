@@ -12,6 +12,8 @@
 namespace ph::math
 {
 
+/*! @brief Represents a 2-D vector.
+*/
 template<typename T>
 class TVector2 final : public TVectorNBase<TVector2<T>, T, 2>
 {

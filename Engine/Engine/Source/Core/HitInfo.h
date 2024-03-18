@@ -12,6 +12,8 @@ namespace ph
 
 class Primitive;
 
+/*! @brief General information for a ray-primitive intersection.
+*/
 class HitInfo final
 {
 public:

@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 	ProcessedArguments args(argc, argv);
 	if(args.getExecutionMode() == EExecutionMode::Help)
 	{
-		ProcessedArguments::printHelpMessage();
+		args.printHelpMessage();
 		return EXIT_SUCCESS;
 	}
 

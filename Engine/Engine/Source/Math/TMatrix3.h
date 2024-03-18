@@ -9,6 +9,8 @@
 namespace ph::math
 {
 
+/*! @brief Represents a 3x3 matrix.
+*/
 template<typename T>
 class TMatrix3 final : public TMatrixNBase<TMatrix3<T>, T, 3>
 {

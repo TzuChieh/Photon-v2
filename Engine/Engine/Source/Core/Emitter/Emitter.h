@@ -15,6 +15,9 @@ class DirectEnergySamplePdfQuery;
 class EnergyEmissionSampleQuery;
 class SampleFlow;
 
+/*! @brief An electromagnetic energy emitting source.
+The emitted energy can be captured by a `Receiver`.
+*/
 class Emitter
 {
 public:

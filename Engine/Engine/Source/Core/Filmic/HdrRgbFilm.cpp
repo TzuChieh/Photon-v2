@@ -82,7 +82,7 @@ void HdrRgbFilm::setPixel(
 void HdrRgbFilm::addRgbSample(
 	const float64         xPx, 
 	const float64         yPx, 
-	const math::Vector3R& rgb)
+	const math::Vector3D& rgb)
 {
 	const math::TVector2<float64> samplePosPx(xPx, yPx);
 
@@ -124,7 +124,8 @@ void HdrRgbFilm::addRgbSample(
 void HdrRgbFilm::setRgbPixel(
 	const float64         xPx, 
 	const float64         yPx, 
-	const math::Vector3R& rgb)
+	const math::Vector3D& rgb,
+	const float64         weight)
 {
 	const auto filmX = std::min(static_cast<int64>(xPx), static_cast<int64>(getActualResPx().x()) - 1);
 	const auto filmY = std::min(static_cast<int64>(yPx), static_cast<int64>(getActualResPx().y()) - 1);
@@ -136,7 +137,7 @@ void HdrRgbFilm::setRgbPixel(
 	m_pixelRadianceSensors[index].accuR      = rgb.r();
 	m_pixelRadianceSensors[index].accuG      = rgb.g();
 	m_pixelRadianceSensors[index].accuB      = rgb.b();
-	m_pixelRadianceSensors[index].accuWeight = 1.0;
+	m_pixelRadianceSensors[index].accuWeight = weight;
 }
 
 //void HdrRgbFilm::genChild(

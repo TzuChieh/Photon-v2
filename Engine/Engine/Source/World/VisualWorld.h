@@ -28,6 +28,8 @@ namespace ph { class Primitive; }
 namespace ph
 {
 
+/*! @brief A virtual world for image synthesis.
+*/
 class VisualWorld final : private IMoveOnly
 {
 public:

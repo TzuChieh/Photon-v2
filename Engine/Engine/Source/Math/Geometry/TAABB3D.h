@@ -19,7 +19,7 @@ class TAABB3D;
 
 using AABB3D = TAABB3D<real>;
 
-/*! @brief A 3-D Axis-Aligned Bounding Box.
+/*! @brief A 3-D Axis-Aligned Bounding Box (AABB).
 
 A construct that have a cuboid-shaped boundary. An AABB, depending on the usage,
 may represent a point, a layer of skin, or a volume.

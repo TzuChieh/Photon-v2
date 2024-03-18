@@ -6,6 +6,8 @@
 namespace ph::math
 {
 
+/*! @brief Represents a set of orthonormal basis vectors in 3-D space.
+*/
 template<typename T>
 class TOrthonormalBasis3 final
 {
