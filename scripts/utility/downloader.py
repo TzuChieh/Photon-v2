@@ -9,7 +9,7 @@ def download_file(src_file_url, dst_file_path, max_retry=10):
 	# FIXME: a temporary measure to resolve the SSL issue encountered on one of my machine (IDK why),
 	# and this is pretty bad as it could introduce security concerns
 	# https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
-	# ssl._create_default_https_context = ssl._create_unverified_context
+	ssl._create_default_https_context = ssl._create_unverified_context
 
 	print("Downloading file %s..." % dst_file_path)
 
