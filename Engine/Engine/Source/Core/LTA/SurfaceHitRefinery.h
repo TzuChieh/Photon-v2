@@ -450,7 +450,7 @@ inline bool SurfaceHitRefinery::verifyOffset(
 	const math::Vector3R& rayOffset,
 	const real rayLength)
 {
-	PH_ASSERT(canVerifyOffset(X, rayDir));
+	PH_ASSERT(canVerifyOffset(X, dir));
 
 	HitProbe probe;
 	Ray ray(rayOrigin + rayOffset, dir.normalize(), 0, rayLength, X.getTime());

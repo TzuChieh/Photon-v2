@@ -51,7 +51,7 @@ not invoke any engine functionalities.
 */
 inline EngineInitSettings get_editor_engine_init_settings()
 {
-	EngineInitSettings settings;
+	auto settings = EngineInitSettings::loadStandardConfig();
 	settings.additionalLogHandlers.push_back(ImguiEditorLog::engineLogHook);
 	return settings;
 }

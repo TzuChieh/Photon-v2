@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[])
 {
-	if(!ph::init_render_engine(ph::EngineInitSettings{}))
+	if(!ph::init_render_engine(ph::EngineInitSettings::loadStandardConfig()))
 	{
 		std::cerr << "Photon initialization failed" << std::endl;
 		return EXIT_FAILURE;

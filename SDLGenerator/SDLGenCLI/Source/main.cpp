@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	using namespace ph;
 	using namespace ph::sdlgen;
 
-	if(!init_render_engine(EngineInitSettings()))
+	if(!init_render_engine(EngineInitSettings::loadStandardConfig()))
 	{
 		std::cerr << "Photon Renderer initialization failed" << std::endl;
 		return EXIT_FAILURE;

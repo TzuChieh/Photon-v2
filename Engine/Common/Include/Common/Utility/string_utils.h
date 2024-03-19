@@ -406,7 +406,7 @@ inline T parse_float(const std::string_view floatStr)
 
 /*! @brief Returns an integer by processing its string representation.
 Supports the following:
-1. Supports all signed and unsigned standard integer types.
+1. Supports all signed and unsigned standard integer types (including `bool`).
 2. Supports both base 10 (no prefix) and base 16 (0x prefix) inputs.
 */
 template<typename T>
@@ -429,16 +429,19 @@ inline T parse_int(std::string_view intStr)
 		intStr.remove_prefix(2);
 	}
 
-	T value;
+	// `std::from_chars()` does not support `bool` so we treat it as unsigned char
+	using IntType = std::conditional_t<std::is_same_v<T, bool>, unsigned char, T>;
+	
+	std::remove_const_t<IntType> intValue;
 	const std::from_chars_result result = std::from_chars(
 		intStr.data(),
 		intStr.data() + intStr.size(),
-		value,
+		intValue,
 		base);
 
 	detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
 
-	return value;
+	return static_cast<T>(intValue);
 }
 
 /*! @brief Returns a number by processing its string representation.
@@ -498,8 +501,8 @@ inline std::size_t stringify_float(const T value, char* const out_buffer, const 
 
 /*! @brief Converts an integer to base [2, 62] string.
 
-Supports all signed and unsigned standard integer types. The function expects a large enough
-@p bufferSize determined by the caller. The written string is not null terminated.
+Supports all signed and unsigned standard integer types (including `bool`). The function expects
+a large enough @p bufferSize determined by the caller. The written string is not null terminated.
 
 @param out_buffer The buffer for storing the string.
 @param bufferSize Size of @p out_buffer.
@@ -508,44 +511,43 @@ Supports all signed and unsigned standard integer types. The function expects a 
 */
 template<std::integral T>
 inline std::size_t stringify_int_alphabetic(
-	T value, 
+	const T value, 
 	char* const out_buffer, 
 	const std::size_t bufferSize,
 	const int base)
 {
 	PH_ASSERT(out_buffer);
+	PH_ASSERT_GE(bufferSize, 1);
 	PH_ASSERT_IN_RANGE_INCLUSIVE(base, 2, 62);
+
+	// Treat `bool` as unsigned char (for arithmetics)
+	using IntType = std::conditional_t<std::is_same_v<T, bool>, unsigned char, T>;
+	auto intValue = static_cast<std::remove_const_t<IntType>>(value);
 
 	std::size_t numCharsWritten = 0;
 
 	// Write sign
 	if constexpr(std::is_signed_v<T>)
 	{
-		if(value < 0)
+		if(intValue < 0)
 		{
-			if(bufferSize == 0)
-			{
-				throw OutOfRangeException(
-					"result cannot fit in the output buffer: 0 buffer size, cannot hold the negative sign");
-			}
-
 			out_buffer[0] = '-';
 			++numCharsWritten;
 
-			value = -value;
+			intValue = -intValue;
 		}
 	}
 
 	// Use a temporary buffer, enough to hold base 2 output
-	std::array<unsigned char, sizeof(T) * CHAR_BIT> tmpBuffer;
+	std::array<unsigned char, sizeof(IntType) * CHAR_BIT> tmpBuffer;
 	auto tmpBufferEnd = tmpBuffer.end();
 
-	PH_ASSERT_GE(value, 0);
+	PH_ASSERT_GE(intValue, 0);
 	do
 	{
-		*(--tmpBufferEnd) = table::BASE62_DIGITS[value % base];
-		value /= base;
-	} while(value > 0);
+		*(--tmpBufferEnd) = table::BASE62_DIGITS[intValue % base];
+		intValue /= base;
+	} while(intValue > 0);
 	
 	auto numDigits = tmpBuffer.end() - tmpBufferEnd;
 	if(numCharsWritten + numDigits > bufferSize)
@@ -565,8 +567,8 @@ inline std::size_t stringify_int_alphabetic(
 
 /*! @brief Converts an integer to string.
 
-Supports all signed and unsigned standard integer types. The function expects a large enough
-@p bufferSize determined by the caller. The written string is not null terminated.
+Supports all signed and unsigned standard integer types (including `bool`). The function expects
+a large enough @p bufferSize determined by the caller. The written string is not null terminated.
 
 @param out_buffer The buffer for storing the string.
 @param bufferSize Size of @p out_buffer.
@@ -575,10 +577,10 @@ Supports all signed and unsigned standard integer types. The function expects a 
 */
 template<std::integral T>
 inline std::size_t stringify_int(
-	T value, 
-	char* out_buffer, 
-	std::size_t bufferSize,
-	int base = 10)
+	const T value, 
+	char* const out_buffer,
+	const std::size_t bufferSize,
+	const int base = 10)
 {
 	PH_ASSERT_IN_RANGE_INCLUSIVE(base, 2, 62);
 
@@ -588,10 +590,14 @@ inline std::size_t stringify_int(
 		PH_ASSERT(out_buffer);
 		PH_ASSERT_GE(bufferSize, 1);
 
+		// `std::to_chars()` does not support `bool` so we treat it as unsigned char
+		using IntType = std::conditional_t<std::is_same_v<T, bool>, unsigned char, T>;
+		const auto intValue = static_cast<IntType>(value);
+
 		std::to_chars_result result = std::to_chars(
 			out_buffer,
 			out_buffer + bufferSize,
-			value,
+			intValue,
 			base);
 
 		detail_from_to_char::throw_from_std_errc_if_has_error(result.ec);
@@ -630,8 +636,9 @@ inline std::size_t stringify_number(
 }
 
 /*! @brief Converts a number to string.
-Similar to `stringify_number(T, char*, std::size_t)`, except that this variant writes to `std::string`
-and the resulting string is guaranteed to be null terminated (by calling `std::string::c_str()`).
+Similar to `stringify_number(NumberType, char*, std::size_t)`, except that this variant writes to
+`std::string` and the resulting string is guaranteed to be null terminated (by calling
+`std::string::c_str()`).
 @param out_str The string to append the result to.
 @return @p out_str for convenience.
 */
@@ -649,6 +656,22 @@ inline std::string& stringify_number(
 
 	out_str.resize(originalSize + newSize);
 	return out_str;
+}
+
+/*! @brief Converts a number to string.
+Similar to `stringify_number(NumberType, std::string&, std::size_t)`, except that this variant
+creates a new string.
+@param out_str The string to append the result to.
+@return A new string that stores the number.
+*/
+template<typename NumberType>
+inline std::string stringify_number(
+	const NumberType value,
+	const std::size_t maxChars = 64)
+{
+	std::string str;
+	stringify_number(value, str, maxChars);
+	return str;
 }
 
 }// end namespace ph::string_utils

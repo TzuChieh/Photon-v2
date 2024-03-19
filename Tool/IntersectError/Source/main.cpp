@@ -919,7 +919,7 @@ BinnedDataCollection run_cases_parallel(
 
 int main(int argc, char* argv[])
 {
-	if(!init_render_engine(EngineInitSettings{}))
+	if(!init_render_engine(EngineInitSettings::loadStandardConfig()))
 	{
 		return EXIT_FAILURE;
 	}

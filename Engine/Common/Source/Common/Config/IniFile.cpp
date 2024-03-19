@@ -41,12 +41,12 @@ void IniFile::save(const std::string& iniFilePath)
 		// Normal section
 		else
 		{
-			outputFile << "[" + section.name + "]";
+			outputFile << '[' << section.name << "]\n";
 		}
 
 		for(const auto& prop : section.keyValPairs)
 		{
-			outputFile << prop.first + "=" + prop.second;
+			outputFile << prop.first << '=' << prop.second << '\n';
 		}
 	}
 }
@@ -101,7 +101,10 @@ std::optional<std::size_t> IniFile::findPropertyIndex(const std::string_view pro
 	return std::nullopt;
 }
 
-void IniFile::setProperty(const std::string_view propertyName, const std::string_view propertyValue, const bool createIfNotExist)
+void IniFile::setProperty(
+	const std::string_view propertyName, 
+	const std::string_view propertyValue, 
+	const bool createIfNotExist)
 {
 	const auto optPropertyIdx = findPropertyIndex(propertyName);
 	if(optPropertyIdx)

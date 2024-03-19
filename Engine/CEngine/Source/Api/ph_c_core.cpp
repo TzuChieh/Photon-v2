@@ -43,9 +43,9 @@ void phConfigRendererResourceDirectory(const PhChar* const directory)
 
 PhBool phInit()
 {
-	if(!init_render_engine(EngineInitSettings()))
+	if(!init_render_engine(EngineInitSettings::loadStandardConfig()))
 	{
-		PH_LOG(CAPI, Error, "engine initialization failed");
+		std::cerr << "engine initializing failed\n";
 		return PH_FALSE;
 	}
 
@@ -56,7 +56,7 @@ PhBool phExit()
 {
 	if(!exit_render_engine())
 	{
-		PH_LOG(CAPI, Error, "engine exiting failed");
+		std::cerr << "engine exiting failed\n";
 		return PH_FALSE;
 	}
 

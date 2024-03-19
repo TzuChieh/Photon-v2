@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <string>
 
 namespace ph
 {
@@ -18,6 +19,8 @@ settings will require an engine restart to see the effect.
 class EngineInitSettings final
 {
 public:
+	static EngineInitSettings loadStandardConfig();
+
 	/*! @brief Additional log handlers for the core engine's internal logger.
 	Important note: Handler may be called concurrently hence its implementation must ensure proper
 	thread-safety. It is also inadvisable to perform time consuming tasks in the handler.
@@ -37,7 +40,9 @@ public:
 	uint32 fixedSeed = 42;
 	uint32 fixedSeedStep = 1;
 
-
+	bool tryLoad(const std::string& settingsFile);
+	void load(const std::string& settingsFile);
+	void save(const std::string& settingsFile) const;
 };
 
 }// end namespace ph

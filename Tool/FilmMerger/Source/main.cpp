@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if(!init_render_engine(EngineInitSettings{}))
+	if(!init_render_engine(EngineInitSettings::loadStandardConfig()))
 	{
 		return EXIT_FAILURE;
 	}

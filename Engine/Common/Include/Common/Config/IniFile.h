@@ -23,7 +23,10 @@ public:
 	static IniFile read(const std::string& iniFilePath);
 
 public:
+	/*! @brief Creates a file with no content. An empty section is made current.
+	*/
 	IniFile();
+
 	explicit IniFile(const std::string& iniFilePath);
 
 	void save(const std::string& iniFilePath);
@@ -40,8 +43,17 @@ public:
 	std::string_view getPropertyName(std::size_t propertyIdx) const;
 	std::string_view getPropertyValue(std::size_t propertyIdx) const;
 	std::optional<std::size_t> findPropertyIndex(std::string_view propertyName) const;
+
+	/*! @brief Set a property under current section by index.
+	*/
 	void setProperty(std::size_t propertyIdx, std::string_view propertyValue);
-	void setProperty(std::string_view propertyName, std::string_view propertyValue, bool createIfNotExist = true);
+
+	/*! @brief Set a property under current section by name.
+	*/
+	void setProperty(
+		std::string_view propertyName, 
+		std::string_view propertyValue, 
+		bool createIfNotExist = true);
 
 	/*! @brief Add another INI file to this one.
 	All properties from the other file will be added to this one. New sections
