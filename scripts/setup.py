@@ -43,6 +43,7 @@ dst_config_root = os.path.join(build_dir, "Config")
 dst_internal_res_root = os.path.join(build_dir, "InternalResource")
 dst_script_root = os.path.join(build_dir, "Script")
 
+# Gather project data to install
 for section_name, section in config.get_all_projects(setup_config):
     project_name = section_name.removeprefix("Project.")
     print("Gathering source data from %s" % project_name)
@@ -63,6 +64,11 @@ for section_name, section in config.get_all_projects(setup_config):
         src_script_dir = os.path.join(project_dir, section["ScriptDirectory"])
         dst_script_dir = os.path.join(dst_script_root, project_name)
         src_dst_dirs.append((src_script_dir, dst_script_dir))
+
+# Gather miscellaneous data to install
+
+# Place main configs directly into the installed config directory
+src_dst_dirs.append(("./Main/Config/", dst_config_root))
 
 print("Installing source data")
 for src_dir, dst_dir in src_dst_dirs:
