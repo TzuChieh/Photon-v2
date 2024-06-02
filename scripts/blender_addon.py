@@ -4,6 +4,7 @@ import shutil
 import os
 import configparser
 
+# FIXME #94: return Path directly
 
 def get_photon_blend_project_dir(setup_config: configparser.ConfigParser):
     return os.path.abspath(setup_config["PhotonBlend"]["ProjectDirectory"])

@@ -19,9 +19,9 @@ The folder named `PhotonBlend` is a Blender add-on for Photon. **We support only
 * By enabling `Edit > Preferences > Interface > Developer Extras` and `Python Tooltips`, you gain more information for developer from Blender's UI.
 * To avoid opening Blender console manually everytime on startup, pass `-con` to the Blender executable.
 
-### Notes on `bpy.types.EnumProperty`
+### Enum Property
 
-When defining enum entries, you **must** specify a number for it. The number are unique value used as the identifier for the entry (stored in file data). If you do not do this, the original .blend file will break (by using wrong or invalid value) when entries are added/reordered/renamed. The following is a **wrong** example:
+When defining enum entries for `bpy.types.EnumProperty`, you **must** specify a number for it. The numbers are unique value used as the identifier for the entry (stored in file data). If you do not do this, the original .blend file will break (by using wrong or invalid value) when entries are added/reordered/renamed. The following is a **wrong** example:
 
 ```python
 items = [
@@ -42,7 +42,7 @@ items = [
 ## Troubleshooting
 
 * Exported scene is different or missing some data.
-  - If you are exporting via `File -> Export -> Photon Scene (.p2)`, try using the `Render to .p2` render engine to export instead. Unfortunately Blender currently does not support getting a depsgraph with `depsgraph.mode == 'RENDER'` (except the one passed to `bpy.types.RenderEngine` by Blender). This will cause the exporter to export in `VIEWPORT` mode, and many settings such as subdivision modifiers will not apply their `RENDER` mode settings. The exporter still attempts to enhance this part by trying to automatically adjust object settings to match the one used for final rendering (or what the user specifies), but chances are that some parts are still missing/different. The `Render to .p2` render engine export scenes in `RENDER` mode by default. See [Get "Render" dependency graph](https://devtalk.blender.org/t/get-render-dependency-graph/12164) for a related discussion.
+  - If you are exporting via `File -> Export -> Photon Scene (.p2)`, try using the `Render to .p2` render engine to export instead. Unfortunately Blender currently does not support getting a depsgraph with ``depsgraph.mode == 'RENDER'`` (except the one passed to `bpy.types.RenderEngine` by Blender). This will cause the exporter to export in `VIEWPORT` mode, and many settings such as subdivision modifiers will not apply their `RENDER` mode settings. The exporter still attempts to enhance this part by trying to automatically adjust object settings to match the one used for final rendering (or what the user specifies), but chances are that some parts are still missing/different. The `Render to .p2` render engine export scenes in `RENDER` mode by default. See [Get "Render" dependency graph](https://devtalk.blender.org/t/get-render-dependency-graph/12164) for a related discussion.
 
 * The render is completely black.
   - Go to `Window -> Toggle System Console` and see if there is message like "Warning: reading render result: expected channel "XXX" not found". If so, then it is due to we are not fully supporting Blender's layer system yet. Please change the view layer's name to its default (ViewLayer) for now.

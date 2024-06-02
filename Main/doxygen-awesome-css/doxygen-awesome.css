@@ -129,7 +129,7 @@ html {
      * (`searchbar-width` is only applied on screens >= 768px.
      * on smaller screens the searchbar will always fill the entire screen width) */
     --searchbar-height: 33px;
-    --searchbar-width: 210px;
+    --searchbar-width: 310px;
     --searchbar-border-radius: var(--searchbar-height);
 
     /* code block colors */
@@ -2666,4 +2666,12 @@ h2:hover a.anchorlink, h1:hover a.anchorlink, h3:hover a.anchorlink, h4:hover a.
     .section_buttons tr td:nth-of-type(2).markdownTableBodyRight a {
         border-radius: 0 var(--border-radius-medium) var(--border-radius-medium) 0;
     }
+}
+
+/******************************************************************************
+Photon custom styles
+******************************************************************************/
+
+h1, h2, h3, h4, h5, .title {
+    color: rgb(71, 210, 71);
 }

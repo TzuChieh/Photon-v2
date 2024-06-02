@@ -10,6 +10,9 @@ def get_setup_config():
 	return setup_config
 
 def get_all_sections(config, prefix=""):
+	"""
+	@return A list of tuples, each tuple contains name of the section and the actual section.
+	"""
 	sections = []
 	for section_name in config.sections():
 		if section_name.startswith(prefix):
@@ -17,12 +20,18 @@ def get_all_sections(config, prefix=""):
 	return sections
 
 def get_all_projects(setup_config):
+	"""
+	@return A list of tuples, each tuple contains (section) name of the project and the actual section.
+	"""
 	return get_all_sections(setup_config, "Project.")
 
 def get_project(setup_config, project_name):
+	"""
+	@return A tuple that contains name of the section and the actual section.
+	@exception ValueError If there is no project named `project_name`.
+	"""
 	section_name = "Project." + project_name
 	if setup_config.has_section(section_name):
 		return (section_name, setup_config[section_name])
 	else:
-		print("Error: no project named \"%s\"" % project_name)
-		return None
+		raise ValueError("no project named \"%s\"" % project_name)
