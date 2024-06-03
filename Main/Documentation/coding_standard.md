@@ -1,5 +1,7 @@
 # Coding Standard
 
+[TOC]
+
 The development of the core of Photon complies to a collection of rules.
 
 ## Why

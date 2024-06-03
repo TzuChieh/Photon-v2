@@ -19,7 +19,10 @@ def create_base_config(dir, doxygen_cwd, project_name, project_code_name):
     common_config_rel_path = common_config_path().relative_to(doxygen_cwd, walk_up=True)
     common_config_rel_dir = common_config_rel_path.parent
     output_rel_dir = common_config_rel_dir / "docs" / project_code_name
-    stylesheet_rel_path = (common_config_rel_dir / "doxygen-awesome-css" / "doxygen-awesome").with_suffix('.css')
+    header_rel_dir = (common_config_rel_dir / "header").with_suffix('.html')
+    css1_rel_path = (common_config_rel_dir / "doxygen-awesome-css" / "doxygen-awesome").with_suffix('.css')
+    css2_rel_path = (common_config_rel_dir / "custom").with_suffix('.css')
+    toc_js_rel_path = (common_config_rel_dir / "doxygen-awesome-css" / "doxygen-awesome-interactive-toc").with_suffix('.js')
     layout_rel_path = (common_config_rel_dir / "doxygen_layout").with_suffix('.xml')
     tag_rel_path = (common_config_rel_dir / "docs" / project_code_name).with_suffix('.tag')
 
@@ -28,6 +31,9 @@ def create_base_config(dir, doxygen_cwd, project_name, project_code_name):
         f.write("\n")
         f.write(f"PROJECT_NAME          = \"{project_name}\"\n")
         f.write(f"OUTPUT_DIRECTORY      = {output_rel_dir.as_posix()}\n")
-        f.write(f"HTML_EXTRA_STYLESHEET = {stylesheet_rel_path.as_posix()}\n")
+        f.write(f"HTML_HEADER           = {header_rel_dir.as_posix()}\n")
+        f.write(f"HTML_EXTRA_STYLESHEET = {css1_rel_path.as_posix()} \\\n")
+        f.write(f"                        {css2_rel_path.as_posix()}\n")
+        f.write(f"HTML_EXTRA_FILES      = {toc_js_rel_path.as_posix()}\n")
         f.write(f"LAYOUT_FILE           = {layout_rel_path.as_posix()}\n")
         f.write(f"GENERATE_TAGFILE      = {tag_rel_path.as_posix()}\n")

@@ -35,7 +35,7 @@ public:
 
 	/*! @brief Get all SDL resources associated by @p owner.
 	@param owner Owner instance in question.
-	@return SDL resources associated with this field by the owner. Never contains null. Appends to
+	@param out_resources SDL resources associated with this field by the owner. Never contains null. Appends to
 	existing ones.
 	*/
 	virtual void ownedResources(

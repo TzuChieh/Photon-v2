@@ -1,5 +1,7 @@
 # Build From Source
 
+[TOC]
+
 Building Photon is super easy since the renderer is coded from scratch (almost) using standard C++. Each of the required third-party libraries is either header only or pre-compiled, and can be handled automatically with the setup script.
 
 ## Prerequisites

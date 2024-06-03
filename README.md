@@ -35,7 +35,7 @@ Please click the following image to watch the [technical showreel for Photon Ren
 
 ## Scene Description Language
 
-The scene description language designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon renderer. To create a scene, you can either open up a text file and start writing right away (visit "[./scenes/](./scenes/)" for reference), or install the Blender add-on in "[./BlenderAddon/](./BlenderAddon)" which contains a separate readme with further details.
+The scene description language designed by T.C. Chang can be stored into a text file (.p2 filename extension) and loaded by Photon renderer. To create a scene, you can either open up a text file and start writing right away (visit [./scenes/](https://github.com/TzuChieh/Photon-v2/tree/master/scenes) for reference), or install the Blender add-on in [./BlenderAddon/](https://github.com/TzuChieh/Photon-v2/tree/master/BlenderAddon) which contains a separate readme with further details.
 
 ## About the Author
 
