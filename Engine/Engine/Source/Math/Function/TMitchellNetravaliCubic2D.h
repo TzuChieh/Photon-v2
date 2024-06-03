@@ -8,7 +8,7 @@
 namespace ph::math
 {
 
-/*! @brief Mitchell–Netravali filter function.
+/*! @brief Mitchell–Netravali filter function @cite Mitchell:1988:Reconstruction.
 */
 template<typename Value>
 class TMitchellNetravaliCubic2D : public TMathFunction2D<Value>

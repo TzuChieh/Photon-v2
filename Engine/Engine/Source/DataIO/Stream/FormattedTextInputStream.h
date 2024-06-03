@@ -16,22 +16,26 @@ public:
 	inline FormattedTextInputStream() = default;
 
 	/*! @brief Take a file as stream.
+	@param textFilePath The file to open as stream.
 	*/
 	explicit FormattedTextInputStream(const Path& textFilePath);
 
 	/*! @brief Take a string as stream.
+	@param textString The string to read as stream. This string will be copied.
 	*/
-	explicit FormattedTextInputStream(const std::string& textString);
+	explicit FormattedTextInputStream(std::string textString);
 
 	inline FormattedTextInputStream(FormattedTextInputStream&& other) = default;
 
 	std::string acquireName() const override;
 
 	/*! @brief Read all remaining text. All contents are preserved.
+	@param[out] out_allText Buffer to store all text from this stream.
 	*/
 	void readAll(std::string* out_allText);
 
 	/*! @brief Read all remaining text without any whitespaces.
+	@param[out] out_allText Buffer to store all text from this stream with whitespaces removed.
 	*/
 	void readAllTightly(std::string* out_allText);
 

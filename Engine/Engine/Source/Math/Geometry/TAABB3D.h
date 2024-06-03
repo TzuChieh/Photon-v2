@@ -89,8 +89,8 @@ public:
 	TAABB3D& expand(const TVector3<T>& amount);
 
 	/*! @brief Checks whether a line segment intersects this volume.
-
-	@return True if intersection is found, otherwise false.
+	@param segment The line section to intersect with.
+	@return `true` if intersection is found, `false` otherwise.
 	*/
 	bool isIntersectingVolume(const TLineSegment<T>& segment) const;
 

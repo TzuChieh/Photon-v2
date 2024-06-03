@@ -29,14 +29,12 @@ real load_real(std::string_view sdlRealStr);
 integer load_integer(std::string_view sdlIntegerStr);
 
 /*! @brief Returns a floating-point number by processing its SDL representation.
-
 Supports `ph::real`, `float`, `double`, and `long double`.
 */
 template<typename FloatType>
 FloatType load_float(std::string_view sdlFloatStr);
 
 /*! @brief Returns a integer number by processing its SDL representation.
-
 Supports `ph::integer` and all signed and unsigned standard integer types.
 */
 template<typename IntType>
@@ -70,17 +68,20 @@ template<typename Element>
 std::vector<math::TVector3<Element>> load_vector3_array(std::string_view sdlVec3ArrayStr);
 
 /*!
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 void save_real(real value, std::string& out_str);
 
 /*!
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 void save_integer(integer value, std::string& out_str);
 
 /*! @brief Converts a floating-point number to its SDL representation.
 Supports `ph::real`, `float`, `double`, and `long double`.
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 template<typename FloatType>
@@ -88,6 +89,7 @@ void save_float(FloatType value, std::string& out_str);
 
 /*! @brief Converts a integer number to its SDL representation.
 Supports `ph::real`, `float`, `double`, and `long double`.
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 template<typename IntType>
@@ -95,48 +97,56 @@ void save_int(IntType value, std::string& out_str);
 
 /*! @brief Converts a number to its SDL representation.
 Accepts all types supported by save_float() and save_int().
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 template<typename NumberType>
 void save_number(NumberType value, std::string& out_str);
 
 /*!
+@param numbers The values to save.
 @param out_str The string to append the saved data to.
 */
 template<typename NumberType, std::size_t EXTENT = std::dynamic_extent>
 void save_numbers(TSpanView<NumberType, EXTENT> numbers, std::string& out_str);
 
 /*!
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 template<typename Element>
 void save_vector2(const math::TVector2<Element>& value, std::string& out_str);
 
 /*!
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 template<typename Element>
 void save_vector3(const math::TVector3<Element>& value, std::string& out_str);
 
 /*!
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 template<typename Element>
 void save_vector4(const math::TVector4<Element>& value, std::string& out_str);
 
 /*!
+@param value The value to save.
 @param out_str The string to append the saved data to.
 */
 template<typename Element>
 void save_quaternion(const math::TQuaternion<Element>& value, std::string& out_str);
 
 /*!
+@param values The values to save.
 @param out_str The string to append the saved data to.
 */
 template<typename NumberType>
 void save_number_array(TSpanView<NumberType> values, std::string& out_str);
 
 /*!
+@param values The values to save.
 @param out_str The string to append the saved data to.
 */
 template<typename Element>

@@ -29,7 +29,7 @@ public:
 public:
 	Listener* addListener(Listener listener);
 
-	/*! @biref Remove a listener that was added to this dispatcher.
+	/*! @brief Remove a listener that was added to this dispatcher.
 	The listener will not be removed immediately. Instead, @p listener will be marked for removal,
 	and actually be removed during dispatch. The removal process is delayed so calling
 	`removeListener()` in an event is valid and will not invalidate any listeners while they are
@@ -40,13 +40,13 @@ public:
 	*/
 	void removeListener(Listener* listener);
 
-	/*! @biref Immediately remove a listener that was added to this dispatcher.
+	/*! @brief Immediately remove a listener that was added to this dispatcher.
 	@param listener Listener to remove. Must be one of the added listeners or be null (no-op in
 	this case).
 	*/
 	void removeListenerImmediately(Listener* listener);
 
-	/*! @biref Submit an event to the listeners.
+	/*! @brief Submit an event to the listeners.
 	@param e The event to submit.
 	@param dispatchFunc A customizable function of the form `(EventType, Listener)` that governs how
 	the event is submitted to listeners. Generally a call to listener, e.g., `listener(e)`, is expected

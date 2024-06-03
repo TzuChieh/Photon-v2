@@ -104,8 +104,8 @@ public:
 
 	/*! @brief Similar to `toNativeString()`, except the buffer is provided.
 	This variant guarantees no dynamic allocation takes place.
-	@param out_buffer The buffer to store the string.
-	@param out_numTotalChars Total number of characters in the string representation of this path
+	@param[out] out_buffer The buffer to store the string.
+	@param[out] out_numTotalChars Total number of characters in the string representation of this path
 	(including the null terminator).
 	@param isNullTerminated Whether the resultant string should be null-terminated. If true,
 	null terminator will present even if the string is not fully copied.

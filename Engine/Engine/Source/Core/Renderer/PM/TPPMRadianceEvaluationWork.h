@@ -20,18 +20,14 @@ class Scene;
 class PMAtomicStatistics;
 
 /*!
-Implements the progressive photon mapping technique developed by 
-Hachisuka et al. The radiance evaluation process progressively shrinks 
-the kernel radius and increases the number of photons, reaching a 
-consistent result in the limit. 
+Implements the progressive photon mapping technique developed by Hachisuka et al.
+@cite Hachisuka:2008:Progressive. The radiance evaluation process progressively shrinks 
+the kernel radius and increases the number of photons, reaching a consistent result in the limit. 
 
 This evaluator is intended to serve as a reference implementation for other more sophisticated
 techniques. Tricks and shortcuts are avoided if possible, so the evaluated radiance is more likely
 to be correct. Performance is not a major concern for this evaluator, so do not use this in
 situations where time is valuable.
-
-References:
-[1] Hachisuka et al., "Progressive Photon Mapping", ACM SIGGRAPH Asia 2008.
 */
 template<CPhoton Photon, CViewpoint Viewpoint>
 class TPPMRadianceEvaluationWork : public RenderWork

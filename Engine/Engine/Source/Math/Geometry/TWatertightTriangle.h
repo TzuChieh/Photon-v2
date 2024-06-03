@@ -16,8 +16,9 @@ public:
 	using TBasicTriangle<T>::TBasicTriangle;
 
 	/*! @brief Checks whether the `segment` is interseting with this triangle.
-	@param out_hitT The parametric distance of the hit point for `segment`.
-	@param out_hitBarycentricCoords The barycentric coordinates of the hit point for this triangle.
+	@param segment The line section to intersect with.
+	@param[out] out_hitT The parametric distance of the hit point for `segment`.
+	@param[out] out_hitBarycentricCoords The barycentric coordinates of the hit point for this triangle.
 	@note It is advisible to use `out_hitBarycentricCoodrs` to calculate the hit point as the
 	numerical error will generally be smaller than using `out_hitT`.
 	*/

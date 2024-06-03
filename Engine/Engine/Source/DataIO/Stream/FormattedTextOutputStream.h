@@ -17,10 +17,12 @@ public:
 	inline FormattedTextOutputStream() = default;
 
 	/*! @brief Output to a file as stream.
+	@param filePath The file to open as stream.
 	*/
 	explicit FormattedTextOutputStream(const Path& filePath);
 
 	/*! @brief Output to a string as stream.
+	@param initialStrContent The initial content of the stream. This string will be copied.
 	*/
 	explicit FormattedTextOutputStream(std::string initialStrContent);
 
@@ -28,11 +30,21 @@ public:
 
 	std::string acquireName() const override;
 
+	/*! @brief Write a single char to the stream.
+	@param ch The character to write.
+	*/
 	void writeChar(char ch);
+
+	/*! @brief Write newline to the stream.
+	*/
 	void writeNewLine();
 
 	using StdOutputStream::writeString;
 
+	/*! @brief Write formatted string to the stream.
+	@param formatStr The format string. Accepts the same syntax as the standard formatting library.
+	@param args The arguments to be formatted.
+	*/
 	template<typename... Args>
 	void writeString(std::string_view formatStr, Args&&... args);
 

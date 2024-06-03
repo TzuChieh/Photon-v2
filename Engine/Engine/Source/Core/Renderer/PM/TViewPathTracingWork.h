@@ -29,8 +29,12 @@ class TViewPathTracingWork : public RenderWork
 
 public:
 	/*!
+	@param handler Callback for handling path events.
+	@param scene The scene to trace.
+	@param receiver The receiver to start tracing from.
+	@param sampleGenerator The sample generator to use.
 	@param rasterSampleWindowPx The region to place samples.
-	@param sampleResPx The resolution of samples. This determines the amount and density of
+	@param sampleRes The resolution of samples. This determines the amount and density of
 	sample placement. For example, a sample resolution of `(a, b)` will place `a * b` samples
 	within the sample window.
 	*/

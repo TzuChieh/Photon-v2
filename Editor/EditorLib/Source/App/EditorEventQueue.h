@@ -30,8 +30,7 @@ public:
 	/*! @brief Dequeue and execute added works.
 	There is a limit on the max number of concurrently added (any thread) works executed,
 	see `maxAnyThreadWorksPerUpdate`. This is to avoid starvation if too many works are
-	continuously being added concurrently.
-	@return Do not return until works are executed.
+	continuously being added concurrently. Will not return until all works are executed.
 	@note Main thread only.
 	*/
 	void flushAllEvents();

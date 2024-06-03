@@ -27,14 +27,10 @@ namespace ph
 {
 
 /*!
-This radiance evaluator follows Hachisuka's original paper on SPPM [1] closely, and is intended
-to serve as a reference implementation for other more sophisticated techniques. Tricks and shortcuts
-are avoided if possible, so the evaluated radiance is more likely to be correct. Performance is
-not a major concern for this evaluator, so do not use this in situations where time is valuable.
-
-References:
-[1] Toshiya Hachisuka and Henrik Wann Jensen, "Stochastic Progressive Photon Mapping",
-ACM Transactions on Graphics (Proceedings of SIGGRAPH Asia), 2009.
+This radiance evaluator follows Hachisuka's original paper on SPPM @cite Hachisuka:2009:Stochastic
+closely, and is intended to serve as a reference implementation for other more sophisticated techniques.
+Tricks and shortcuts are avoided if possible, so the evaluated radiance is more likely to be correct.
+Performance is not a major concern for this evaluator, so do not use this in situations where time is valuable.
 */
 template<CViewpoint Viewpoint, CPhoton Photon>
 class TSPPMRadianceEvaluator : public TViewPathHandler<TSPPMRadianceEvaluator<Viewpoint, Photon>>

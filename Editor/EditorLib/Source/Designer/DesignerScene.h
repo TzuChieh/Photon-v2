@@ -95,9 +95,14 @@ public:
 	void changeObjectTick(DesignerObject* obj, bool shouldTick);
 	void changeObjectRenderTick(DesignerObject* obj, bool shouldTick);
 
-	/*! @brief Create a new (non-root) object.
+	/*! @name Create object with static type.
+	@tparam ObjectType Static type of the object.
 	@param shouldInit Whether the object should be initialized after creation. If false, initialization
 	can be done manually by calling `initObject()`.
+	@param shouldSetToDefault Whether to fill the object with default values (as defined by PSDL).
+	*/
+	///@{
+	/*! @brief Create a new object.
 	*/
 	template<typename ObjectType>
 	[[nodiscard]]
@@ -106,8 +111,6 @@ public:
 		bool shouldSetToDefault = true);
 
 	/*! @brief Create a new root object.
-	@param shouldInit Whether the object should be initialized after creation. If false, initialization
-	can be done manually by calling `initObject()`.
 	*/
 	template<typename ObjectType>
 	ObjectType* newRootObject(
@@ -117,14 +120,20 @@ public:
 	/*! @brief Create root object with automatic lifetime management.
 	The root object will delete itself once the `shared_ptr` free its pointer. Similar to normal objects,
 	using the object pointer after the scene is removed is an error.
-	@param shouldInit Whether the object should be initialized after creation. If false, initialization
-	can be done manually by calling `initObject()`.
 	*/
 	template<typename ObjectType>
 	std::shared_ptr<ObjectType> newSharedRootObject(
 		bool shouldInit = true,
 		bool shouldSetToDefault = true);
+	///@}
 
+	/*! @name Create object with dynamic type.
+	@param clazz Dynamic type of the object.
+	@param shouldInit Whether the object should be initialized after creation. If false, initialization
+	can be done manually by calling `initObject()`.
+	@param shouldSetToDefault Whether to fill the object with default values (as defined by PSDL).
+	*/
+	///@{
 	/*! @brief Similar to its templated version, except that object type is inferred dynamically.
 	*/
 	[[nodiscard]]
@@ -146,6 +155,7 @@ public:
 		const SdlClass* clazz,
 		bool shouldInit = true,
 		bool shouldSetToDefault = true);
+	///@}
 
 	/*! @brief Initialize the object.
 	By default this is called automatically when creating new object. If the object creation routine 

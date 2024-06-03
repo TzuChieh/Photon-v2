@@ -22,10 +22,15 @@ public:
 	static TSphere makeUnit();
 
 	TSphere() = default;
+
+	/*!
+	@param radius Radius of the sphere.
+	*/
 	explicit TSphere(T radius);
 
 	/*! @brief Checks whether the `segment` is interseting with this sphere.
-	@param out_hitT The parametric distance of the hit point for `segment`.
+	@param segment The line section to intersect with.
+	@param[out] out_hitT The parametric distance of the hit point for `segment`.
 	*/
 	bool isIntersecting(
 		const TLineSegment<T>& segment,
@@ -44,29 +49,48 @@ public:
 	TAABB3D<T> getAABB() const;
 
 	/*! @brief Conservatively checks whether this sphere overlaps a volume.
-
 	By conservative, it means **true can be returned even though the sphere does not overlap 
 	the volume**; but if it actually does, **true must be returned**. The test considers the 
 	sphere as **hollow** and the volume is **solid**.
 	*/
 	bool mayOverlapVolume(const TAABB3D<T>& volume) const;
 
-	/*! @brief Map the 2D sample to a position on the surface of the sphere.
-	
+	/*! @name Map 2-D sample to a position on the surface.
+	*/
+	///@{
+	/*!
 	A common mapping method that is based on Archimedes' derivation that 
 	the horizontal slices of a sphere have equal area. The mapped positions
 	are distributed uniformly if the sample is uniform. For a unit sphere,
 	this method effectively generates normalized directions.
+	@param sample Uniform 2-D sample in [0, 1].
+	@return The sampled surface position.
 	*/
 	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample) const;
 
 	/*!
-	An overload with PDF. Expected the input @p sample to be uniform.
+	An overload with PDF.
+	@param[out] out_pdfA Area domain PDF of sampling this surface position.
 	*/
 	TVector3<T> sampleToSurfaceArchimedes(const std::array<T, 2>& sample, T* out_pdfA) const;
+	///@}
 
+	/*! @name Map 2-D sample to a position on the surface.
+	*/
+	///@{
+	/*!
+	The mapped positions are weighted according to the cosine of the zenith angle.
+	@param sample Uniform 2-D sample in [0, 1].
+	@return The sampled surface position.
+	*/
 	TVector3<T> sampleToSurfaceAbsCosThetaWeighted(const std::array<T, 2>& sample) const;
+
+	/*!
+	An overload with PDF.
+	@param[out] out_pdfA Area domain PDF of sampling this surface position.
+	*/
 	TVector3<T> sampleToSurfaceAbsCosThetaWeighted(const std::array<T, 2>& sample, T* out_pdfA) const;
+	///@}
 
 	T uniformSurfaceSamplePdfA() const;
 

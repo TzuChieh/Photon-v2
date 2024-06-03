@@ -14,6 +14,8 @@ class IInputStream : public IDataStream
 public:
 	/*! @brief Read specific number of raw bytes in one go.
 	The method does not return before finishing the reading process.
+	@param numBytes Number of bytes to read.
+	@param[out] out_bytes The read bytes. Must contain storage for at least `numBytes` bytes.
 	@exception IOException If the read operation failed.
 	*/
 	virtual void read(std::size_t numBytes, std::byte* out_bytes) = 0;
@@ -28,6 +30,7 @@ public:
 
 	/*! @brief Set the input position of the stream.
 	The unit of the position is defined by the implementation.
+	@param pos The position to set to.
 	@exception IOException If the seeking process failed.
 	*/
 	virtual void seekGet(std::size_t pos) = 0;
@@ -46,6 +49,8 @@ public:
 	/*! @brief Read some data in the form of raw bytes.
 	The method may return before finish reading all bytes. In such case, the method
 	returns how many bytes were actually read.
+	@param numBytes Maximum number of bytes to read.
+	@param[out] out_bytes The read bytes. Must contain storage for at least `numBytes` bytes.
 	@return How many bytes were actually read.
 	@exception IOException If the read operation failed.
 	*/
@@ -53,7 +58,7 @@ public:
 
 	/*! @brief Read a line. Equivalent to calling readString(std::string*, char) with '\n' as 
 	the delimiter.
-	@param out_string The read string. Does not include the new-line character.
+	@param[out] out_string The read string. Does not include the new-line character.
 	@exception IOException If the read operation failed.
 	*/
 	void readLine(std::string* out_string);

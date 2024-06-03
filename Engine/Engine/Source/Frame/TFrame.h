@@ -68,6 +68,7 @@ public:
 
 	/*! @brief Iterate over all pixels in the frame in row-major order.
 	@param region The region to iterate for.
+	@param op The operation to perform for each pixel.
 	*/
 	///@{
 	template<typename PerPixelOperation>
@@ -94,7 +95,8 @@ public:
 	///@}
 
 	/*! @brief Copy a region of pixel data into a buffer.
-	@out_data Buffer to copy into. Copied pixels are in row-major and without any padding.
+	@param region The region to copy from.
+	@param[out] out_data Buffer to copy into. Copied pixels are in row-major and without any padding.
 	*/
 	void copyPixelData(const math::TAABB2D<uint32>& region, TSpan<T> out_data) const;
 

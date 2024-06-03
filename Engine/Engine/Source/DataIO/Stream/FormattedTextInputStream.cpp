@@ -26,10 +26,10 @@ FormattedTextInputStream::FormattedTextInputStream(const Path& textFilePath)
 		textFilePath.toAbsoluteString())
 {}
 
-FormattedTextInputStream::FormattedTextInputStream(const std::string& textString)
+FormattedTextInputStream::FormattedTextInputStream(std::string textString)
 	: FormattedTextInputStream(
 		std::make_unique<std::istringstream>(
-			textString, 
+			std::move(textString), 
 			std::ios_base::in),
 		"")
 {}

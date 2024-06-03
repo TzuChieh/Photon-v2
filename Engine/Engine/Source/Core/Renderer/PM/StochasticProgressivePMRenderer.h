@@ -7,6 +7,9 @@
 namespace ph
 {
 
+/*!
+Renderer based on the stochastic progressive photon mapping algorithm @cite Hachisuka:2009:Stochastic.
+*/
 class StochasticProgressivePMRenderer : public PMRendererBase
 {
 public:

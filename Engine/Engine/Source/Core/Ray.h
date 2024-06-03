@@ -93,7 +93,6 @@ public:
 	void setSegment(const math::TLineSegment<real>& segment);
 
 	/*! @name Getters
-
 	Basic getters for line attributes. See corresponding setters (if present)
 	for more info.
 	*/

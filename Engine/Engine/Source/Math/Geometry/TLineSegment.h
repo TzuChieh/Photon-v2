@@ -58,13 +58,12 @@ public:
 	void setMaxT(T t);
 
 	/*! @brief Set the parametric range where the segment extends.
-
-	The range is [minT, maxT). This is equivalent to calling \ref setMinT(T) 
-	and \ref setMaxT(T) together.
+	The range is [minT, maxT). This is equivalent to calling @ref setMinT(T) 
+	and @ref setMaxT(T) together.
 	*/
 	void setRange(T minT, T maxT);
 
-	/*! @brief Same as \ref setRange(T, T).
+	/*! @brief Same as @ref setRange(T,T).
 	*/
 	void setRange(const std::pair<T, T>& minMaxT);
 

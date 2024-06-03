@@ -2,7 +2,7 @@
 
 /*! @file
 @brief Basic math utilities.
-For more math functions, use @ref math.h.
+For more math functions, see `Engine` project's `math.h`.
 */
 
 #include "Common/assertion.h"

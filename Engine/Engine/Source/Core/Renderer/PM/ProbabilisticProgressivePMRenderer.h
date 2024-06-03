@@ -7,6 +7,9 @@
 namespace ph
 {
 
+/*!
+Renderer based on the probabilistic progressive photon mapping algorithm @cite Knaus:2011:Progressive.
+*/
 class ProbabilisticProgressivePMRenderer : public PMRendererBase
 {
 public:
