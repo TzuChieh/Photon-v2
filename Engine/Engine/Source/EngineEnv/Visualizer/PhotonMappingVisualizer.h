@@ -38,6 +38,7 @@ private:
 	uint64 m_numSamplesPerPixel;
 	real m_photonRadius;
 	uint32 m_glossyMergeBeginLength;
+	uint32 m_stochasticViewSampleBeginLength;
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<PhotonMappingVisualizer>)
@@ -98,10 +99,22 @@ public:
 
 		TSdlUInt32<OwnerType> glossyMergeBeginLength("glossy-merge-begin-length", &OwnerType::m_glossyMergeBeginLength);
 		glossyMergeBeginLength.description(
-			"The minimum path length to start estimating energy using photons on glossy surface.");
+			"Hint for the minimum path length to start estimating energy using photons on glossy surface."
+			"If the scene contains diffuse surface and is easily reachable by photons, it is recommended "
+			"to set this to a lower value.");
 		glossyMergeBeginLength.defaultTo(commonParams.glossyMergeBeginLength);
 		glossyMergeBeginLength.optional();
 		clazz.addField(glossyMergeBeginLength);
+
+		TSdlUInt32<OwnerType> stochasticViewSampleBeginLength("stochastic-view-sample-begin-length", &OwnerType::m_stochasticViewSampleBeginLength);
+		stochasticViewSampleBeginLength.description(
+			"Hint for the view path length to start random path sampling. If this value differ too much "
+			"from the mean specular path length from the scene, the energy estimation result may contain "
+			"excessive amount of variance. Beware when using higher values as non-stochastic path may be "
+			"branched, which can result in exponential growth of number of rays.");
+		stochasticViewSampleBeginLength.defaultTo(commonParams.stochasticViewSampleBeginLength);
+		stochasticViewSampleBeginLength.optional();
+		clazz.addField(stochasticViewSampleBeginLength);
 
 		return clazz;
 	}

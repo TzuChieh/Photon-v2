@@ -67,7 +67,7 @@ private:
 	const Scene*           m_scene;
 
 	Viewpoint              m_viewpoint;
-	std::size_t            m_receiverSampleViewpoints;
+	std::size_t            m_numBranchedPathViewpoints;
 };
 
 // In-header Implementations:
@@ -79,14 +79,14 @@ inline TPPMViewpointCollector<Viewpoint, Photon>::TPPMViewpointCollector(
 	const TPhotonMapInfo<Photon>& photonMapInfo,
 	const Scene* const            scene)
 
-	: m_viewpoints              ()
-	, m_maxViewpointDepth       (maxViewpointDepth)
-	, m_initialKernelRadius     (initialKernelRadius)
-	, m_photonMapInfo           (photonMapInfo)
-	, m_scene                   (scene)
+	: m_viewpoints               ()
+	, m_maxViewpointDepth        (maxViewpointDepth)
+	, m_initialKernelRadius      (initialKernelRadius)
+	, m_photonMapInfo            (photonMapInfo)
+	, m_scene                    (scene)
 
-	, m_viewpoint               ()
-	, m_receiverSampleViewpoints(0)
+	, m_viewpoint                ()
+	, m_numBranchedPathViewpoints(0)
 {
 	PH_ASSERT_GE(maxViewpointDepth, 1);
 	PH_ASSERT_GT(initialKernelRadius, 0.0_r);
@@ -125,7 +125,7 @@ inline bool TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleStar
 		m_viewpoint.template set<EViewpointData::ViewRadiance>(math::Spectrum(0));
 	}
 
-	m_receiverSampleViewpoints = 0;
+	m_numBranchedPathViewpoints = 0;
 
 	return true;
 }
@@ -212,25 +212,25 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 template<CViewpoint Viewpoint, CPhoton Photon>
 inline void TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleEnd()
 {
-	if(m_receiverSampleViewpoints > 0)
+	if(m_numBranchedPathViewpoints > 0)
 	{
 		// Normalize current receiver sample's path throughput and view radiance (since no RR
 		// is used and each view path carries an independent component of the total energy)
-		for(std::size_t i = m_viewpoints.size() - m_receiverSampleViewpoints; i < m_viewpoints.size(); ++i)
+		for(std::size_t i = m_viewpoints.size() - m_numBranchedPathViewpoints; i < m_viewpoints.size(); ++i)
 		{
 			auto& viewpoint = m_viewpoints[i];
 
 			if constexpr(Viewpoint::template has<EViewpointData::ViewThroughput>())
 			{
 				math::Spectrum pathThroughput = viewpoint.template get<EViewpointData::ViewThroughput>();
-				pathThroughput.mulLocal(static_cast<real>(m_receiverSampleViewpoints));
+				pathThroughput.mulLocal(static_cast<real>(m_numBranchedPathViewpoints));
 				viewpoint.template set<EViewpointData::ViewThroughput>(pathThroughput);
 			}
 
 			if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 			{
 				math::Spectrum viewRadiance = viewpoint.template get<EViewpointData::ViewRadiance>();
-				viewRadiance.mulLocal(static_cast<real>(m_receiverSampleViewpoints));
+				viewRadiance.mulLocal(static_cast<real>(m_numBranchedPathViewpoints));
 				viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
 			}
 		}
@@ -279,7 +279,7 @@ void TPPMViewpointCollector<Viewpoint, Photon>::addViewpoint(
 	}
 
 	m_viewpoints.push_back(m_viewpoint);
-	++m_receiverSampleViewpoints;
+	++m_numBranchedPathViewpoints;
 }
 
 template<CViewpoint Viewpoint, CPhoton Photon>

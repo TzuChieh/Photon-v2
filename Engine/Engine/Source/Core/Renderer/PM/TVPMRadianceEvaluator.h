@@ -56,7 +56,7 @@ public:
 
 	/*! @brief Set the view path length to start random path sampling.
 	*/
-	void setStochasticPathSampleBeginLength(std::size_t stochasticSampleBeginLength);
+	void setStochasticSampleBeginLength(std::size_t stochasticSampleBeginLength);
 
 	/*! @brief Set the full light transport path lengths for radiance evaluation.
 	Whether all the requested path lengths are evaluated using photon map also depends on the input
@@ -125,7 +125,7 @@ inline TVPMRadianceEvaluator<Photon, PhotonMap>
 
 	setStatistics(nullptr);
 	setKernelRadius(0.1_r);
-	setStochasticPathSampleBeginLength(1);
+	setStochasticSampleBeginLength(1);
 	setFullPathLengthRange(1);
 	setGlossyMergeBeginLength(1);
 }
@@ -305,7 +305,7 @@ inline void TVPMRadianceEvaluator<Photon, PhotonMap>
 
 template<CPhoton Photon, typename PhotonMap>
 inline void TVPMRadianceEvaluator<Photon, PhotonMap>
-::setStochasticPathSampleBeginLength(
+::setStochasticSampleBeginLength(
 	const std::size_t stochasticSampleBeginLength)
 {
 	PH_ASSERT_GE(stochasticSampleBeginLength, 1);

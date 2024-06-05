@@ -6,19 +6,31 @@ A quick overview of the features supported by Photon. Similar to [Project Struct
 
 ## Visualizer
 
-Rendering is the process of visualizing a scene. In Photon, we use a [visualizer](@ref ph::Visualizer) to generate a [renderer](@ref ph::Renderer) to actually render an image. This is where most of the core algorithms meet and work together--and is arguably the most complex part of a renderer. While there are many types of renderers to choose from, there is hardly an all-purpose renderer as each one of them is designed to deal with different situations. The efficiency of a rendering algorithm is also partly depending on the characteristics of a scene, e.g., sizes of geometries, material properties, etc. At the extreme end, one can always construct a scene that will fail a certain rendering algorithm. Be sure to understand and try different renderers if things do not work out.
+Rendering is the process of visualizing a scene. In Photon, we use a [Visualizer](@ref ph::Visualizer) to generate a [Renderer](@ref ph::Renderer) to actually render an image. This is where most of the core algorithms meet and work together--and is arguably the most complex part of a renderer. While there are many types of renderers to choose from, there is hardly an all-purpose renderer as each one of them is designed to deal with different situations. The efficiency of a rendering algorithm is also partly depending on the characteristics of a scene, e.g., sizes of geometries, material properties, etc. At the extreme end, one can always construct a scene that will fail a certain rendering algorithm. Be sure to understand and try different renderers if things do not work out.
 
 ### Unidirectional Path Tracing
 
-![BVPT Teaser](055_books_based_on_Libri_sulla_mensola_books_by_archemi.jpg "An example image rendered using this renderer.")
+![BVPT Teaser](Gallery/055_books_based_on_Libri_sulla_mensola_books_by_archemi.jpg "An example image rendered using this renderer.")
 
-Though this is a relatively simple renderer to solve the *rendering equation* as proposed by Kajiya @cite Kajiya:1986:Rendering, this renderer is a good starting point before diving into other solvers. Backward unidirectional path tracing does not handle small light sources well, and scenes with hard-to-find light transport paths are likely to fail, too. This renderer can be constructed by creating a `PathTracingVisualizer` with the `BVPT` energy estimator (use `BVPTDL` if only direct lighting is required).
+Though this is a relatively simple renderer to solve the *rendering equation* as proposed by Kajiya @cite Kajiya:1986:Rendering, this renderer is a good starting point before diving into other solvers. Backward unidirectional path tracing does not handle small light sources well, and scenes with hard-to-find light transport paths are likely to fail, too. This renderer can be constructed by creating a [PathTracingVisualizer](@ref ph::PathTracingVisualizer) with [BVPT](@ref ph::ERayEnergyEstimator::BVPT) energy estimator (use [BVPTDL](@ref ph::ERayEnergyEstimator::BVPTDL) if only direct lighting is required).
 
 ### Unidirectional Path Tracing with NEE
 
-![BNEEPT Teaser](bathroom_based_on_Salle_de_bain_by_nacimus.jpg "NEE can handle more complex scenes.")
+![BNEEPT Teaser](Gallery/bathroom_based_on_Salle_de_bain_by_nacimus.jpg "NEE can handle more complex scenes.")
 
-With the addition of Next Event Estimation (NEE), unidirectional path tracing can handle common scenes quite effectively. This renderer combines additional sampling techniques @cite Veach:1995:Optimally to better handle smaller light sources. This renderer can be constructed by creating a `PathTracingVisualizer` with the `BNEEPT` energy estimator.
+With the addition of Next Event Estimation (NEE), unidirectional path tracing can handle common scenes quite effectively. While largely based on the same principle as the non-NEE variant, this renderer combines additional sampling techniques @cite Veach:1995:Optimally to better handle smaller light sources. Similarly, create a [PathTracingVisualizer](@ref ph::PathTracingVisualizer) with [BNEEPT](@ref ph::ERayEnergyEstimator::BNEEPT) energy estimator to use this renderer.
+
+### Vanilla Photon Mapping
+
+![VPM Teaser](Example/vpm_caustics_perfumes_by_gp3991.jpg "Rendered caustics with 500M photons (radius: 0.1, spp: 4). The image is not rendered to convergence to better show the characteristics between different photon mapping techniques.")
+
+It is worth to clarify that the project is named *Photon* not because the focus is on photon mapping techniques, but because photon is the elementary particle that transmit light, and the core of this project is to solve light transport problems. Nevertheless, several photon mapping techniques are available here, and the most fundamental one is vanilla photon mapping @cite Jensen:1996:Global. All photon mapping techniques are capable of *merging* nearby light transport paths in some way, and this form of path reuse allows them to excel on a wider variety of lighting phenomena. You can get a vanilla photon mapping renderer by creating a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Vanilla](@ref ph::EPhotonMappingMode::Vanilla) mode.
+
+### Progressive Photon Mapping
+
+### Stochastic Progressive Photon Mapping
+
+### Probabilistic Progressive Photon Mapping
 
 ### Scheduler
 

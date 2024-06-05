@@ -53,6 +53,10 @@ void SurfaceHitRefinery::init(const EngineInitSettings& settings)
 	s_stats.numFailedIterativeEscapes = 0;
 	s_stats.numReintersecs = 0;
 #endif
+
+	PH_DEFAULT_LOG(Note,
+		"SurfaceHitRefinery initialized: mode = {}",
+		refine_mode_to_str(s_refineMode));
 }
 
 auto SurfaceHitRefinery::iterativeOffset(

@@ -117,7 +117,7 @@ void VanillaPMRenderer::renderWithVanillaPM()
 				film.get());
 			evaluator.setStatistics(&getStatistics());
 			evaluator.setKernelRadius(getCommonParams().kernelRadius);
-			evaluator.setStochasticPathSampleBeginLength(5);
+			evaluator.setStochasticSampleBeginLength(getCommonParams().stochasticViewSampleBeginLength);
 			evaluator.setGlossyMergeBeginLength(getCommonParams().glossyMergeBeginLength);
 
 			TViewPathTracingWork<RadianceEvaluator> radianceEvaluator(

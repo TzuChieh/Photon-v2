@@ -52,11 +52,18 @@ public:
 	*/
 	real alpha = 2.0_r / 3.0_r;
 
-	/*! The minimum path length to start estimating energy using photons on glossy surface.
+	/*! Hint for the minimum path length to start estimating energy using photons on glossy surface.
 	If the scene contains diffuse surface and is easily reachable by photons, it is recommended
 	to set this to a lower value.
 	*/
 	uint32 glossyMergeBeginLength = 1;
+
+	/*! Hint for the view path length to start random path sampling. If this value differ too much
+	from the mean specular path length from the scene, the energy estimation result may contain
+	excessive amount of variance. Beware when using higher values as non-stochastic path may be
+	branched, which can result in exponential growth of number of rays.
+	*/
+	uint32 stochasticViewSampleBeginLength = 5;
 };
 
 }// end namespace ph
