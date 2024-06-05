@@ -82,10 +82,11 @@ concept CPhotonException =
 
 template<CPhotonException ExceptionType, typename... Args>
 [[noreturn]]
-inline void throw_formatted(const std::string_view formattedMsg, Args&&... args)
+inline void throw_formatted(const std::format_string<Args...> msgFormat, Args&&... args)
 {
+	// Intentionally not forwarding to `std::make_format_args` due to P2905R2
 	throw ExceptionType(
-		std::vformat(formattedMsg, std::make_format_args(std::forward<Args>(args)...)));
+		std::vformat(msgFormat.get(), std::make_format_args(args...)));
 }
 
 }// end namespace ph

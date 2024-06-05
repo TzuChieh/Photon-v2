@@ -46,7 +46,7 @@ public:
 	@param args The arguments to be formatted.
 	*/
 	template<typename... Args>
-	void writeString(std::string_view formatStr, Args&&... args);
+	void writeString(std::format_string<Args...> strFormat, Args&&... args);
 
 	/*! @brief Get the string that was written.
 	@exception IOException If the stream is not a string stream.
@@ -67,10 +67,11 @@ private:
 // In-header Implementations:
 
 template<typename... Args>
-inline void FormattedTextOutputStream::writeString(const std::string_view formatStr, Args&&... args)
+inline void FormattedTextOutputStream::writeString(const std::format_string<Args...> strFormat, Args&&... args)
 {
+	// Intentionally not forwarding to `std::make_format_args` due to P2905R2
 	writeString(
-		std::vformat(formatStr, std::make_format_args(std::forward<Args>(args)...)));
+		std::vformat(strFormat.get(), std::make_format_args(args...)));
 }
 
 }// end namespace ph

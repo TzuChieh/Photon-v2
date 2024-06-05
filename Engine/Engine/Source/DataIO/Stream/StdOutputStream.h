@@ -16,7 +16,7 @@ class StdOutputStream : public IOutputStream
 public:
 	StdOutputStream() = default;
 	explicit StdOutputStream(std::unique_ptr<std::ostream> stream);
-	StdOutputStream(StdOutputStream&& other);
+	StdOutputStream(StdOutputStream&& other) noexcept;
 
 	void write(std::size_t numBytes, const std::byte* bytes) override;
 	void writeString(std::string_view str) override;
@@ -26,7 +26,7 @@ public:
 
 	std::ostream* getStream() const;
 
-	StdOutputStream& operator = (StdOutputStream&& rhs);
+	StdOutputStream& operator = (StdOutputStream&& rhs) noexcept;
 
 protected:
 	bool isStreamGoodForWrite() const;
@@ -46,12 +46,12 @@ private:
 
 // In-header Implementations:
 
-inline StdOutputStream::StdOutputStream(StdOutputStream&& other)
+inline StdOutputStream::StdOutputStream(StdOutputStream&& other) noexcept
 {
 	*this = std::move(other);
 }
 
-inline StdOutputStream& StdOutputStream::operator = (StdOutputStream&& rhs)
+inline StdOutputStream& StdOutputStream::operator = (StdOutputStream&& rhs) noexcept
 {
 	m_ostream = std::move(rhs.m_ostream);
 	return *this;

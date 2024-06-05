@@ -288,13 +288,11 @@ inline char AZ_to_az(const char ch)
 Characters that are not English alphabets, or being upper-case already, 
 will be preserved.
 
-@param str String that is going to be converted in-place.
+@param[in, out] str String that is going to be converted in-place.
 */
-inline void az_to_AZ(std::string* const str)
+inline void az_to_AZ(std::string& str)
 {
-	PH_ASSERT(str);
-
-	for(char& ch : *str)
+	for(char& ch : str)
 	{
 		ch = az_to_AZ(ch);
 	}
@@ -305,13 +303,11 @@ inline void az_to_AZ(std::string* const str)
 Characters that are not English alphabets, or being lower-case already, 
 will be preserved.
 
-@param str String that is going to be converted in-place.
+@param[in, out] str String that is going to be converted in-place.
 */
-inline void AZ_to_az(std::string* const str)
+inline void AZ_to_az(std::string& str)
 {
-	PH_ASSERT(str);
-
-	for(char& ch : *str)
+	for(char& ch : str)
 	{
 		ch = AZ_to_az(ch);
 	}

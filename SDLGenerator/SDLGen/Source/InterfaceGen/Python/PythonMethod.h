@@ -29,7 +29,7 @@ public:
 	void addCodeLine(std::string codeLine);
 
 	template<typename... Args>
-	void addCodeLine(std::string_view formatStr, Args&&... args);
+	void addCodeLine(std::format_string<Args...> strFormat, Args&&... args);
 
 	void beginIndent();
 	void endIndent();
@@ -66,10 +66,11 @@ inline const std::string& PythonMethod::getDoc() const
 }
 
 template<typename... Args>
-inline void PythonMethod::addCodeLine(const std::string_view formatStr, Args&&... args)
+inline void PythonMethod::addCodeLine(const std::format_string<Args...> strFormat, Args&&... args)
 {
+	// Intentionally not forwarding to `std::make_format_args` due to P2905R2
 	addCodeLine(
-		std::vformat(formatStr, std::make_format_args(std::forward<Args>(args)...)));
+		std::vformat(strFormat.get(), std::make_format_args(args...)));
 }
 
 }// end namespace ph::sdlgen

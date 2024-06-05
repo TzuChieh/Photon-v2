@@ -39,10 +39,10 @@ public:
 	void writeNewLine();
 
 	template<typename... Args>
-	void writeLine(std::string_view formatStr, Args&&... args);
+	void writeLine(std::format_string<Args...> formatStr, Args&&... args);
 
 	template<typename... Args>
-	void writeString(std::string_view formatStr, Args&&... args);
+	void writeString(std::format_string<Args...> formatStr, Args&&... args);
 
 	void clearDoc();
 
@@ -92,17 +92,19 @@ inline void MarkdownDocGenerator::writeString(std::string_view str)
 }
 
 template<typename... Args>
-inline void MarkdownDocGenerator::writeLine(std::string_view formatStr, Args&&... args)
+inline void MarkdownDocGenerator::writeLine(const std::format_string<Args...> strFormat, Args&&... args)
 {
+	// Intentionally not forwarding to `std::make_format_args` due to P2905R2
 	writeLine(
-		std::vformat(formatStr, std::make_format_args(std::forward<Args>(args)...)));
+		std::vformat(strFormat.get(), std::make_format_args(args...)));
 }
 
 template<typename... Args>
-inline void MarkdownDocGenerator::writeString(std::string_view formatStr, Args&&... args)
+inline void MarkdownDocGenerator::writeString(const std::format_string<Args...> strFormat, Args&&... args)
 {
+	// Intentionally not forwarding to `std::make_format_args` due to P2905R2
 	writeString(
-		std::vformat(formatStr, std::make_format_args(std::forward<Args>(args)...)));
+		std::vformat(strFormat.get(), std::make_format_args(args...)));
 }
 
 inline void MarkdownDocGenerator::writeChar(const char ch)
