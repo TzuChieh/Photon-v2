@@ -15,15 +15,8 @@ Photon is a rendering engine made out of my personal interest in computer graphi
 
 ## Useful Links
 
-* [**Project Website**](https://tzuchieh.github.io/photon_v2_what_is_photon.html)
-* [**Features**](https://tzuchieh.github.io/photon_v2_features.html)
-* [**Discord**](https://discord.gg/tqkdSDt) (you can discuss graphics with me here ^_^)
-
-## Contributing
-
-* [**Build from Source**](https://tzuchieh.github.io/photon_v2_build_from_source.html)
-* [**Coding Standards**](https://tzuchieh.github.io/photon_v2_coding_standard.html)
 * [**Documentation**](https://tzuchieh.github.io/Photon-v2-site/engine_docs/v2.0.0-beta/Photon/html/index.html)
+* [**Discuss graphics with me on Discord ^_^!**](https://discord.gg/tqkdSDt)
 
 If you want to get involved and is looking for a place to start, the [issues](https://github.com/TzuChieh/Photon-v2/issues) page might be of interest to you. I am glad to provide detailed guidance on any of them.
 
