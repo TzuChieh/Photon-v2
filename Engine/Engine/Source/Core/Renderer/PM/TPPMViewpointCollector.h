@@ -58,8 +58,6 @@ private:
 		const math::Vector3R& viewDir,
 		const math::Spectrum& pathThroughput);
 
-	static void addViewRadiance(Viewpoint& viewpoint, const math::Spectrum& radiance);
-
 	std::vector<Viewpoint> m_viewpoints;
 	std::size_t            m_maxViewpointDepth;
 	real                   m_initialKernelRadius;
@@ -67,6 +65,7 @@ private:
 	const Scene*           m_scene;
 
 	Viewpoint              m_viewpoint;
+	math::Spectrum         m_viewRadiance;
 	std::size_t            m_numBranchedPathViewpoints;
 };
 
@@ -86,6 +85,7 @@ inline TPPMViewpointCollector<Viewpoint, Photon>::TPPMViewpointCollector(
 	, m_scene                    (scene)
 
 	, m_viewpoint                ()
+	, m_viewRadiance             ()
 	, m_numBranchedPathViewpoints(0)
 {
 	PH_ASSERT_GE(maxViewpointDepth, 1);
@@ -125,6 +125,7 @@ inline bool TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleStar
 		m_viewpoint.template set<EViewpointData::ViewRadiance>(math::Spectrum(0));
 	}
 
+	m_viewRadiance = math::Spectrum(0);
 	m_numBranchedPathViewpoints = 0;
 
 	return true;
@@ -152,7 +153,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 			pathThroughput,
 			m_photonMapInfo,
 			m_scene);
-		addViewRadiance(m_viewpoint, unaccountedEnergy);
+		m_viewRadiance += unaccountedEnergy;
 	}
 
 	// Below we explicitly list each possible delta phenomenon to emphasize one point: we are
@@ -174,7 +175,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 				pathThroughput,
 				m_photonMapInfo,
 				m_scene);
-			addViewRadiance(m_viewpoint, unaccountedEnergy);
+			m_viewRadiance += unaccountedEnergy;
 		}
 
 		// If on delta surface when max view depth is reached, the viewpoint is for the view
@@ -199,7 +200,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 				pathThroughput,
 				m_photonMapInfo,
 				m_scene);
-			addViewRadiance(m_viewpoint, unaccountedEnergy);
+			m_viewRadiance += unaccountedEnergy;
 		}
 
 		return ViewPathTracingPolicy().
@@ -214,12 +215,13 @@ inline void TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 {
 	if(m_numBranchedPathViewpoints > 0)
 	{
-		// Normalize current receiver sample's path throughput and view radiance (since no RR
-		// is used and each view path carries an independent component of the total energy)
+		// For each viewpoint gathered on this single receiver sample
 		for(std::size_t i = m_viewpoints.size() - m_numBranchedPathViewpoints; i < m_viewpoints.size(); ++i)
 		{
 			auto& viewpoint = m_viewpoints[i];
 
+			// Normalize current receiver sample's path throughput (since no RR is used
+			// and each view path carries an independent component of the total energy)
 			if constexpr(Viewpoint::template has<EViewpointData::ViewThroughput>())
 			{
 				math::Spectrum pathThroughput = viewpoint.template get<EViewpointData::ViewThroughput>();
@@ -227,11 +229,10 @@ inline void TPPMViewpointCollector<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 				viewpoint.template set<EViewpointData::ViewThroughput>(pathThroughput);
 			}
 
+			// `m_viewRadiance` is already properly weighted and accumulated
 			if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
 			{
-				math::Spectrum viewRadiance = viewpoint.template get<EViewpointData::ViewRadiance>();
-				viewRadiance.mulLocal(static_cast<real>(m_numBranchedPathViewpoints));
-				viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
+				viewpoint.template set<EViewpointData::ViewRadiance>(m_viewRadiance);
 			}
 		}
 	}
@@ -280,19 +281,6 @@ void TPPMViewpointCollector<Viewpoint, Photon>::addViewpoint(
 
 	m_viewpoints.push_back(m_viewpoint);
 	++m_numBranchedPathViewpoints;
-}
-
-template<CViewpoint Viewpoint, CPhoton Photon>
-inline void TPPMViewpointCollector<Viewpoint, Photon>::addViewRadiance(
-	Viewpoint& viewpoint, 
-	const math::Spectrum& radiance)
-{
-	if constexpr(Viewpoint::template has<EViewpointData::ViewRadiance>())
-	{
-		math::Spectrum viewRadiance = viewpoint.template get<EViewpointData::ViewRadiance>();
-		viewRadiance += radiance;
-		viewpoint.template set<EViewpointData::ViewRadiance>(viewRadiance);
-	}
 }
 
 }// end namespace ph

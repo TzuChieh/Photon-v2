@@ -62,9 +62,11 @@ void ProgressivePMRenderer::renderWithProgressivePM()
 	// Collecting viewpoints. This is only done once in PPM.
 	std::vector<Viewpoint> viewpoints;
 	{
+		// TODO: parallelize
+
 		using ViewpointCollector = TPPMViewpointCollector<Viewpoint, Photon>;
 		ViewpointCollector viewpointCollector(
-			6, 
+			getCommonParams().stochasticViewSampleBeginLength,
 			getCommonParams().kernelRadius,
 			TPhotonMap<Photon>{}.getInfo(),// using default parameters
 			getScene());

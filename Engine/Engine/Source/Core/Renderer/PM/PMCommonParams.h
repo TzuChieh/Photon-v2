@@ -59,11 +59,11 @@ public:
 	uint32 glossyMergeBeginLength = 1;
 
 	/*! Hint for the view path length to start random path sampling. If this value differ too much
-	from the mean specular path length from the scene, the energy estimation result may contain
-	excessive amount of variance. Beware when using higher values as non-stochastic path may be
-	branched, which can result in exponential growth of number of rays.
+	from the mean specular path length from the scene, the energy estimation result may contain higher
+	variance or bias. Beware when using higher values as non-stochastic path may be branched,
+	which can result in exponential growth of number of rays.
 	*/
-	uint32 stochasticViewSampleBeginLength = 5;
+	uint32 stochasticViewSampleBeginLength = 3;
 };
 
 }// end namespace ph

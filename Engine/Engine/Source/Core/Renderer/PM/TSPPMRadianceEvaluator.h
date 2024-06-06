@@ -70,6 +70,9 @@ public:
 private:
 	math::Spectrum estimateRadiance(const Viewpoint& viewpoint) const;
 	std::size_t getViewpointIndex(int64 sampleX, int64 sampleY) const;
+
+	/*! @brief Accumulate additional radiance into the viewpoint.
+	*/
 	static void addViewRadiance(Viewpoint& viewpoint, const math::Spectrum& radiance);
 
 	TSpan<Viewpoint>               m_viewpoints;

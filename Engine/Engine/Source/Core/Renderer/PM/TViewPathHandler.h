@@ -43,7 +43,7 @@ public:
 		const SurfaceHit&     surfaceHit,
 		const math::Spectrum& pathThroughput) -> ViewPathTracingPolicy;
 
-	/*! @brief Called after a receiver sample is ended.
+	/*! @brief Called after a receiver sample has ended.
 	*/
 	void onReceiverSampleEnd();
 

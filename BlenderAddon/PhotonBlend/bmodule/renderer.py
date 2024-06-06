@@ -323,7 +323,7 @@ class PH_RENDERING_PT_rendering(PhRenderPanel):
     bpy.types.Scene.ph_render_stochastic_view_sample_begin_length = bpy.props.IntProperty(
         name="Stochastic View Sample Begin Length",
         description="",
-        default=5,
+        default=3,
         min=1,
         max=16384
     )

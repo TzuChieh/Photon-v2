@@ -81,8 +81,8 @@ inline TileScheduler::TileScheduler(
 {
 	PH_ASSERT_MSG(tileSize.product() > 0, tileSize.toString());
 
-	// since grid scheduler slices work region, we need to round up the 
-	// grid size to make each slice with size <tileSize>
+	// Since grid scheduler slices work region evenly, we need to round up the 
+	// grid size to make each slice of size `tileSize`
 	math::TVector2<int64> gridSize(
 		math::ceil_div(totalWorkUnit.getWidth(),  static_cast<int64>(tileSize.x())),
 		math::ceil_div(totalWorkUnit.getHeight(), static_cast<int64>(tileSize.y())));

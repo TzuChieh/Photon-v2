@@ -13,6 +13,11 @@ Renderer based on the progressive photon mapping algorithm @cite Hachisuka:2008:
 class ProgressivePMRenderer : public PMRendererBase
 {
 public:
+	/*!
+	@param commonParams Common parameters for the renderer. This renderer does not support
+	constructing view path stochastically, so `PMCommonParams::stochasticViewSampleBeginLength` will
+	act as the maximum path length of collected viewpoints.
+	*/
 	ProgressivePMRenderer(
 		PMCommonParams commonParams,
 		Viewport       viewport,
