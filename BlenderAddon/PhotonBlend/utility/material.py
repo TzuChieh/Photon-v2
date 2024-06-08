@@ -1,3 +1,6 @@
+"""
+@brief General material-related helpers.
+"""
 import bpy
 
 

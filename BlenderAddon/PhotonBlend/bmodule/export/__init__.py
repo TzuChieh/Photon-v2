@@ -3,15 +3,15 @@ import utility
 from utility import blender
 
 from bmodule import (
-        naming,
-        material,
-        scene,
-        light)
+    naming,
+    material,
+    mesh,
+    scene,
+    light)
 
 from bmodule.material import nodes
 from bmodule.mesh import triangle_mesh
-from psdl import sdl, mapping
-from psdl.sdlconsole import SdlConsole
+from psdl import sdl, sdlmapping, SdlConsole
 from utility import blender
 from bmodule.export import cycles_material
 
@@ -68,147 +68,10 @@ class Exporter:
             # return node.MaterialNodeTranslateResult()
             return None
 
-    def export_light_actor(self, light_actor_name, emission_image_name, geometry_name, material_name, position, rotation, scale):
-
-        creator = sdl.ModelLightActorCreator()
-        creator.set_data_name(light_actor_name)
-        creator.set_emitted_radiance(sdl.Image(emission_image_name))
-        creator.set_geometry(sdl.Geometry(geometry_name))
-        creator.set_material(sdl.Material(material_name))
-        self.get_sdlconsole().queue_command(creator)   
-
-        translator = sdl.CallTranslate()
-        translator.set_target_name(light_actor_name)
-        translator.set_amount(sdl.Vector3(position))
-        self.get_sdlconsole().queue_command(translator)
-
-        rotator = sdl.CallRotate()
-        rotator.set_target_name(light_actor_name)
-        rotator.set_rotation(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
-        self.get_sdlconsole().queue_command(rotator)
-
-        scaler = sdl.CallScale()
-        scaler.set_target_name(light_actor_name)
-        scaler.set_amount(sdl.Vector3(scale))
-        self.get_sdlconsole().queue_command(scaler)
-
-    def export_model_actor(self, model_actor_name, geometry_name, material_name, position, rotation, scale):
-        
-        creator = sdl.ModelActorCreator()
-        creator.set_data_name(model_actor_name)
-        creator.set_geometry(sdl.Geometry(geometry_name))
-        creator.set_material(sdl.Material(material_name))
-        self.get_sdlconsole().queue_command(creator)
-
-        translator = sdl.CallTranslate()
-        translator.set_target_name(model_actor_name)
-        translator.set_amount(sdl.Vector3(position))
-        self.get_sdlconsole().queue_command(translator)
-
-        rotator = sdl.CallRotate()
-        rotator.set_target_name(model_actor_name)
-        rotator.set_rotation(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
-        self.get_sdlconsole().queue_command(rotator)
-
-        scaler = sdl.CallScale()
-        scaler.set_target_name(model_actor_name)
-        scaler.set_amount(sdl.Vector3(scale))
-        self.get_sdlconsole().queue_command(scaler)
-
     # def exportRaw(self, rawText):
     # 	command = sdl.RawCommand()
     # 	command.append_string(rawText)
     # 	self.__sdlconsole.queue_command(command)
-
-    def export_mesh_object(self, b_mesh_object: bpy.types.Object):
-        b_mesh = b_mesh_object.data
-        if b_mesh is None:
-            print("warning: mesh object (%s) has no mesh data, not exporting" % b_mesh_object.name)
-            return
-
-        if len(b_mesh.materials) == 0:
-            print("warning: mesh object (%s) has no material, not exporting" % b_mesh_object.name)
-            return
-
-        # Group faces with the same material, then export each material-faces pair as a Photon actor.
-
-        b_mesh.calc_loop_triangles()
-        if not b_mesh.has_custom_normals:
-            b_mesh.calc_normals()
-        else:
-            b_mesh.calc_normals_split()
-
-        # TODO: might be faster if using len(obj.material_slots()) for array size and simply store each loop tris array
-        # TODO: material can link to mesh or object, distinguish them
-        material_idx_loop_triangles_map = {}
-        for b_loop_triangle in b_mesh.loop_triangles:
-            # This index refers to material slots (their stack order in the UI).
-            material_idx = b_loop_triangle.material_index
-
-            if material_idx not in material_idx_loop_triangles_map.keys():
-                material_idx_loop_triangles_map[material_idx] = []
-
-            material_idx_loop_triangles_map[material_idx].append(b_loop_triangle)
-
-        for material_idx in material_idx_loop_triangles_map.keys():
-            b_material = b_mesh_object.material_slots[material_idx].material
-            loop_triangles = material_idx_loop_triangles_map[material_idx]
-
-            # A material slot can be empty, this check is necessary.
-            if b_material is None:
-                print("warning: no material is in mesh object %s's material slot %d, not exporting" % (
-                    b_mesh_object.name, material_idx))
-                continue
-
-            # To ensure unique geometry name (which is required by Photon SDL), we use slot index as suffix. Note that
-            # `bpy.types.Mesh.name` can be the same for different mesh data (even of it appears to have different names
-            # in the outliner, tested in Blender 3.6). This is either a bug or due to support for geometry node, as geometry
-            # can be procedurally generated and we cannot generate a good name for it. This is why we are using mesh object's
-            # name as prefix. See Blender issue "Depsgraph returns wrong evaluated object name in bpy #100314" (https://projects.blender.org/blender/blender/issues/100314).
-            # TODO: Whether this will affect object instancing need to be tested. We may export same mesh data multiple times now.
-            geometry_name = naming.get_mangled_mesh_name(b_mesh, prefix=b_mesh_object.name, suffix=str(material_idx))
-            material_name = naming.get_mangled_material_name(b_material)
-
-            # Use the active one as the UV map for export.
-            # TODO: support exporting multiple or zero UV maps/layers
-            b_uv_layers = b_mesh.uv_layers
-            b_active_uv_layer = b_uv_layers.active
-
-            # TODO: support & check mesh without uv map
-            # if len(b_mesh.uv_layers) == 0:
-            #     print("warning: mesh (%s) has no uv maps, ignoring" % geometry_name)
-            #     continue
-
-            # TODO: support & check mesh without uv map
-            # if b_active_uv_layer is None:
-            #     print("warning: mesh (%s) has %d uv maps, but no one is active (no uv map will be exported)" % (
-            #         geometry_name, len(b_uv_layers)))
-            #     continue
-
-            # TODO: support & check mesh with multiple uv maps
-            if len(b_mesh.uv_layers) > 1:
-                print("warning: mesh (%s) has %d uv maps, only the active one is exported" % (
-                    geometry_name, len(b_uv_layers)))
-
-            triangle_mesh.loop_triangles_to_sdl_triangle_mesh(
-                geometry_name,
-                self.get_sdlconsole(),
-                loop_triangles,
-                b_mesh.vertices,
-                # b_active_uv_layer.data)
-                b_active_uv_layer.data if b_active_uv_layer is not None else None,# HACK
-                b_mesh.has_custom_normals)
-
-            # creating actor (can be either model or light depending on emissivity)
-            pos, rot, scale = utility.to_photon_pos_rot_scale(b_mesh_object.matrix_world)
-
-            if material.helper.is_emissive(b_material):
-                light_actor_name = naming.get_mangled_object_name(b_mesh_object, prefix="Emissive", suffix=str(material_idx))
-                emission_image_name = material.helper.get_emission_image_res_name(b_material)
-                self.export_light_actor(light_actor_name, emission_image_name, geometry_name, material_name, pos, rot, scale)
-            else:
-                model_actor_name = naming.get_mangled_object_name(b_mesh_object, suffix=str(material_idx))
-                self.export_model_actor(model_actor_name, geometry_name, material_name, pos, rot, scale)
 
     def export_camera(self, b_camera_object):
         b_camera = b_camera_object.data
@@ -216,7 +79,7 @@ class Exporter:
         observer = None
         if b_camera.type == "PERSP":
 
-            position, rot, scale = utility.to_photon_pos_rot_scale(b_camera_object.matrix_world)
+            position, rot, scale = blender.to_photon_pos_rot_scale(b_camera_object.matrix_world)
             if abs(scale.x - 1.0) > 0.0001 or abs(scale.y - 1.0) > 0.0001 or abs(scale.z - 1.0) > 0.0001:
                 print("warning: camera (%s) contains scale factor, ignoring" % b_camera.name)
 
@@ -328,9 +191,9 @@ class Exporter:
             integrator_type == 'BVPTDL'):
 
             visualizer = sdl.PathTracingVisualizerCreator()
-            visualizer.set_sample_filter(mapping.to_filter_enum(filter_type))
-            visualizer.set_estimator(mapping.to_integrator_enum(integrator_type))
-            visualizer.set_scheduler(mapping.to_scheduler_enum(scheduler_type))
+            visualizer.set_sample_filter(sdlmapping.to_filter_enum(filter_type))
+            visualizer.set_estimator(sdlmapping.to_integrator_enum(integrator_type))
+            visualizer.set_scheduler(sdlmapping.to_scheduler_enum(scheduler_type))
 
         elif (
             integrator_type == 'VPM' or 
@@ -339,8 +202,8 @@ class Exporter:
             integrator_type == 'PPPM'):
             
             visualizer = sdl.PhotonMappingVisualizerCreator()
-            visualizer.set_sample_filter(mapping.to_filter_enum(filter_type))
-            visualizer.set_mode(mapping.to_integrator_enum(integrator_type))
+            visualizer.set_sample_filter(sdlmapping.to_filter_enum(filter_type))
+            visualizer.set_mode(sdlmapping.to_integrator_enum(integrator_type))
             visualizer.set_num_photons(sdl.Integer(b_scene.ph_render_num_photons))
             visualizer.set_num_samples_per_pixel(sdl.Integer(b_scene.ph_render_num_spp_pm))
             visualizer.set_photon_radius(sdl.Real(b_scene.ph_render_kernel_radius))
@@ -415,15 +278,16 @@ class Exporter:
             print("exporting material: " + b_material.name)
             self.export_material(b_material)
 
-        # TODO: Instancing; also see the comment in `export_mesh_object()`, mesh data in mesh object may have name collision
-        # even if they are actually different. How do we properly export mesh data should be revisited.
+        # TODO: Instancing; also see the comment in `mesh_object_to_sdl_actor()`, mesh data in mesh object may
+        # have name collision even if they are actually different. How do we properly export mesh data should
+        # be revisited
         for b_mesh_object in b_mesh_objects:
             print("exporting mesh object: " + b_mesh_object.name)
-            self.export_mesh_object(b_mesh_object)
+            mesh.export.mesh_object_to_sdl_actor(b_mesh_object, self.get_sdlconsole())
 
         for b_light_object in b_light_objects:
             print("exporting light object: " + b_light_object.name)
-            light.light_object_to_sdl_actor(b_light_object, self.get_sdlconsole())
+            light.export.light_object_to_sdl_actor(b_light_object, self.get_sdlconsole())
 
         b_world = b_depsgraph.scene_eval.world
         self.export_world(b_world)

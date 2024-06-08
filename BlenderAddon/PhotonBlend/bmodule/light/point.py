@@ -1,5 +1,4 @@
-from psdl.sdlconsole import SdlConsole
-from psdl import sdl
+from psdl import sdl, SdlConsole
 from .. import naming
 
 import bpy

@@ -1,6 +1,6 @@
-render_engine_id_name = 'PHOTON'
-exporter_engine_id_name = 'PHOTON_EXPORT'
-cycles_engine_id_name   = 'CYCLES'
+render_engine_idname = 'PHOTON'
+exporter_engine_idname = 'PHOTON_EXPORT'
+cycles_engine_idname   = 'CYCLES'
 
-photon_engines = {render_engine_id_name, exporter_engine_id_name}
-photon_and_cycles_engines = photon_engines | {cycles_engine_id_name}
+photon_engines = {render_engine_idname, exporter_engine_idname}
+photon_and_cycles_engines = photon_engines | {cycles_engine_idname}

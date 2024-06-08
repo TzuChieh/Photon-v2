@@ -1,11 +1,11 @@
 """
-Utilities for providing unique names (e.g., through name mangling or other means) for Photon resources in Blender.
-Uniqueness of a name is guaranteed across all supported resource base categories. For example, two object resources will
-never have the same mangled names, and a mesh resource will never have the same mangled name as a material resource.
+Utilities for providing unique names (e.g., through name mangling or other means) for Photon resources
+in Blender. Uniqueness of a name is guaranteed across all supported resource base categories. For example,
+two object resources will never have the same mangled names, and a mesh resource will never have the same
+mangled name as a material resource.
 
 In situations where name conflict is possible, they are expected to be resolved via the specified decorations.
 """
-
 import bpy
 
 # TODO: materials from other blend files (library blends) can have the same name, need to somehow distinguish them (ID.name_full?)

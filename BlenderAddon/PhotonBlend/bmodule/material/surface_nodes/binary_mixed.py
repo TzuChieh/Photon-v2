@@ -5,8 +5,8 @@ from ..node_base import (
         PhSurfaceMaterialSocket)
 from psdl import sdl
 from ... import naming
-from .. import helper
 from .pure_absorber import PhPureAbsorberNode
+from utility import material
 
 import bpy
 import mathutils
@@ -73,7 +73,7 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
         self.width *= 1.2
 
         # owning_material = bpy.context.material
-        # owning_node_tree = helper.find_node_tree_from_material(owning_material)
+        # owning_node_tree = material.find_node_tree_from_material(owning_material)
         #
         # # Create a new default node if not found
         # default_node_name = PhBinaryMixedSurfaceNode.DEFAULT_NODE_NAME

@@ -1,6 +1,11 @@
+"""
+@brief General Blender-related helpers.
+"""
 import bpy
+from mathutils import Vector, Quaternion, Matrix
 
 from abc import ABC, abstractmethod
+import math
 
 
 def get_render_width_px(b_scene: bpy.types.Scene):
@@ -34,6 +39,52 @@ def get_render_threads(b_scene: bpy.types.Scene):
 
     num_reserved_threads = b_scene.ph_num_reserved_threads
     return max(num_specified_threads - num_reserved_threads, 1)
+
+
+def blender_to_photon_quat():
+	"""
+	In Blender, its coordinate system is right-handed, x-right, z-up and y-front. This function returns
+	a `Quaternion` to transform from Blender's to Photon's coordinate system (which is right-handed, x-right, 
+	y-up and -z-front).
+	"""
+	return Quaternion((1.0, 0.0, 0.0), math.radians(-90.0))
+
+
+def blender_to_photon_mat():
+	"""
+	Returns a 3x3 `Matrix` to transform from Blender's to Photon's coordinate system.
+	"""
+	# TODO: could be a constant (directly specify matrix elements)
+	return blender_to_photon_quat().to_matrix()
+
+
+def to_photon_vec3(b_vec3: Vector):
+	"""
+	Transform a `Vector` from Blender's to Photon's coordinate system.
+	"""
+	return blender_to_photon_mat() @ b_vec3
+
+
+def to_photon_quat(b_quat: Quaternion):
+	"""
+	Transform a `Quaternion` from Blender's to Photon's coordinate system. Keep in mind that Blender's 
+	`Quaternion` is in (w, x, y, z) order, and the `@` operator do not work like `Matrix` 
+	(its `quat @ additional_quat` while matrix is `additional_mat @ mat`).
+	"""
+	return b_quat @ blender_to_photon_quat()
+
+
+def to_photon_pos_rot_scale(b_matrix: Matrix):
+	"""
+	In Blender, its coordinate system is right-handed, x-right, z-up and y-front. This function takes a 
+	matrix from Blender and returns decomposed transformations (position, rotation and scale) in Photon's 
+	coordinate system (which is right-handed, x-right, y-up and -z-front).
+	"""
+	blender_to_photon = blender_to_photon_mat().to_4x4()
+
+	pos, rot, scale = (blender_to_photon @ b_matrix).decompose()
+
+	return pos, rot, scale
 
 
 class BlenderModule(ABC):
@@ -87,8 +138,10 @@ class BlenderModuleManager:
 module_manager = None
 
 
-# Helper decorator to register a module to Blender
 def register_module(module_class):
+    """
+    @brief Helper decorator to register a module to Blender
+    """
     global module_manager
 
     if module_manager is None:
@@ -104,8 +157,10 @@ def register_module(module_class):
     return module_class
 
 
-# Helper decorator to register a addon class (bpy classes) to Blender
 def register_class(bpy_addon_class):
+    """
+    @brief Helper decorator to register a addon class (bpy classes) to Blender.
+    """
     global module_manager
 
     if module_manager is None:

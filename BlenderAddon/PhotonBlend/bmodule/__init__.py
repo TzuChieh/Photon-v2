@@ -1,11 +1,12 @@
 from utility import blender
 from bmodule import (
-        cameras,
-        exporter,
-        lights,
-        materials,
-        renderer,
-        world)
+    cameras,
+    exporter,
+    lights,
+    materials,
+    meshes,
+    renderer,
+    world)
 
 import bpy
 

@@ -1,10 +1,11 @@
-from utility import settings, blender
-from .material import helper
-from . import material
-from .material.output_nodes import PhOutputNode
-from .material.surface_nodes import PhDiffuseSurfaceNode
+from utility import settings, blender, material
+from bmodule.material.output_nodes import PhOutputNode
+from bmodule.material.surface_nodes import PhDiffuseSurfaceNode
 
 import bpy
+from bl_ui import (
+    properties_material,
+    )
 
 
 @blender.register_class
@@ -148,8 +149,8 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
         layout.prop(b_material, "use_nodes", text="Use Shader Nodes")
 
         # Show traditional UI for shader nodes.
-        node_tree = helper.find_node_tree_from_material(b_context.material)
-        output_node = helper.find_output_node_from_node_tree(node_tree)
+        node_tree = material.find_node_tree_from_material(b_context.material)
+        output_node = material.find_output_node_from_node_tree(node_tree)
         if output_node is not None:
             for input_socket in output_node.inputs:
                 if input_socket.is_linked:
@@ -191,3 +192,12 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
 #         row = layout.row()
 #         row.prop(material, "ph_is_emissive")
 #         row.prop(material, "ph_emitted_radiance")
+
+@blender.register_module
+class MaterialModule(blender.BlenderModule):
+    def register(self):
+        # Tell UI Panels that they are compatible
+        properties_material.MATERIAL_PT_custom_props.COMPAT_ENGINES.add(settings.render_engine_idname)
+
+    def unregister(self):
+        properties_material.MATERIAL_PT_custom_props.COMPAT_ENGINES.remove(settings.render_engine_idname)

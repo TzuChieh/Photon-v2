@@ -1,3 +1,6 @@
+"""
+@brief General mesh-related helpers.
+"""
 import bpy
 
 

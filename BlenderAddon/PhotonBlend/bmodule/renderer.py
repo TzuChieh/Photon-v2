@@ -1,13 +1,13 @@
-from utility import (
-        settings,
-        blender)
-from . import render
-from . import export
+from utility import settings, blender
+from bmodule import render
+from bmodule import export
 
 import bpy
 from bl_ui import (
-        properties_output,
-        properties_data_camera)
+    properties_render,
+    properties_output,
+    properties_data_camera,
+    )
 
 import uuid
 import tempfile
@@ -23,7 +23,7 @@ import time
 class PhPhotonRenderEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
     # RenderEngine; define its internal name, visible name and capabilities.
-    bl_idname = settings.render_engine_id_name
+    bl_idname = settings.render_engine_idname
     bl_label = "Photon"
     bl_use_preview = False
 
@@ -541,25 +541,19 @@ class RendererModule(blender.BlenderModule):
     def register(self):
         # RenderEngines also need to tell UI Panels that they are compatible;
         # otherwise most of the UI will be empty when the engine is selected.
-
+        properties_render.RENDER_PT_color_management.COMPAT_ENGINES.add(PhPhotonRenderEngine.bl_idname)
         properties_output.RENDER_PT_format.COMPAT_ENGINES.add(PhPhotonRenderEngine.bl_idname)
-
         properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.add(PhPhotonRenderEngine.bl_idname)
         properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.add(PhPhotonRenderEngine.bl_idname)
-
         # properties_data_light.DATA_PT_light.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
         # properties_data_light.DATA_PT_area.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
-
         # properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.add(PhotonRenderer.bl_idname)
 
-
     def unregister(self):
+        properties_render.RENDER_PT_color_management.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
         properties_output.RENDER_PT_format.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
-
         properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
         properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.remove(PhPhotonRenderEngine.bl_idname)
-
         # properties_data_light.DATA_PT_light.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
         # properties_data_light.DATA_PT_area.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)
-
         # properties_material.MATERIAL_PT_preview.COMPAT_ENGINES.remove(PhotonRenderer.bl_idname)

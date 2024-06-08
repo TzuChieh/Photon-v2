@@ -1,6 +1,5 @@
 import utility
-from psdl import sdl
-from psdl.sdlconsole import SdlConsole
+from psdl import sdl, SdlConsole
 
 from mathutils import Vector, Quaternion
 

@@ -1,4 +1,4 @@
-# Coding Standard
+# Coding Standard {#main_coding_standard}
 
 [TOC]
 

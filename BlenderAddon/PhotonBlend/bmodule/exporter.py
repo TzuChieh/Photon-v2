@@ -1,9 +1,5 @@
-from .export import Exporter
-from .material import helper
-from utility import blender, settings
-from .mesh import helper
-from . import scene
-import pres
+from bmodule import scene, export
+from utility import blender, settings, mesh
 
 import bpy
 import bpy_extras
@@ -22,7 +18,7 @@ class ExporterCache:
 def save_scene(scene_path, scene_name, b_depsgraph: bpy.types.Depsgraph):
     b_scene = b_depsgraph.scene_eval
 
-    exporter = Exporter(scene_path)
+    exporter = export.Exporter(scene_path)
     exporter.begin(scene_name)
     exporter.export_core_commands(b_scene)
     exporter.export(b_depsgraph)
@@ -30,12 +26,11 @@ def save_scene(scene_path, scene_name, b_depsgraph: bpy.types.Depsgraph):
     exporter.end()
 
 
-# ExportHelper is a helper class, defines filename and invoke() function which calls the file selector.
 class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """
-    Export the scene to a format that is readable by Photon-v2.
+    Export the scene to a format that is readable by Photon-v2. `ExportHelper` is a helper class,
+    defines `filename` and `invoke()` function which calls the file selector.
     """
-
     bl_idname = "object.p2_exporter"
     bl_label = "Photon SDL"
 
@@ -123,7 +118,7 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         if should_force_subdiv:
             for b_evaluated_mesh_object in b_mesh_objects:
                 b_mesh_object = b_evaluated_mesh_object.original
-                helper.mesh_object_force_subdiv_level(
+                mesh.mesh_object_force_subdiv_level(
                     b_mesh_object,
                     self.subdivision_quality,
                     subdiv_original_settings)
@@ -134,7 +129,7 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         autosmooth_original_settings = {}
         for b_evaluated_mesh_object in b_mesh_objects:
             b_mesh_object = b_evaluated_mesh_object.original
-            helper.mesh_object_autosmooth_to_edgesplit(
+            mesh.mesh_object_autosmooth_to_edgesplit(
                 b_mesh_object,
                 autosmooth_original_settings)
 
@@ -159,16 +154,18 @@ class OBJECT_OT_p2_exporter(bpy.types.Operator, bpy_extras.io_utils.ExportHelper
         if cache.subdiv_original_settings is not None:
             for b_evaluated_mesh_object in b_mesh_objects:
                 b_mesh_object = b_evaluated_mesh_object.original
-                helper.restore_mesh_object_subdiv_level(b_mesh_object, cache.subdiv_original_settings)
+                mesh.restore_mesh_object_subdiv_level(b_mesh_object, cache.subdiv_original_settings)
 
         if cache.autosmooth_original_settings is not None:
             for b_evaluated_mesh_object in b_mesh_objects:
                 b_mesh_object = b_evaluated_mesh_object.original
-                helper.restore_mesh_object_autosmooth(b_mesh_object, cache.autosmooth_original_settings)
+                mesh.restore_mesh_object_autosmooth(b_mesh_object, cache.autosmooth_original_settings)
 
 
-# Add exporter into a dynamic menu
 def menu_func_export(self, b_context):
+    """
+    Add exporter into a dynamic menu.
+    """
     self.layout.operator(OBJECT_OT_p2_exporter.bl_idname, text="Photon Scene (.p2)")
 
 
@@ -176,7 +173,7 @@ def menu_func_export(self, b_context):
 class PhPhotonExportEngine(bpy.types.RenderEngine):
     # These three members are used by blender to set up the
     # RenderEngine; define its internal name, visible name and capabilities.
-    bl_idname = settings.exporter_engine_id_name
+    bl_idname = settings.exporter_engine_idname
     bl_label = "Render to .p2"
     bl_use_preview = False
 
@@ -272,7 +269,7 @@ class PH_RENDERING_PT_exporting(bpy.types.Panel):
     @classmethod
     def poll(cls, context):
         render_settings = context.scene.render
-        return render_settings.engine == settings.exporter_engine_id_name
+        return render_settings.engine == settings.exporter_engine_idname
 
     def draw(self, b_context):
         b_scene = b_context.scene
@@ -284,6 +281,9 @@ class PH_RENDERING_PT_exporting(bpy.types.Panel):
 
 @blender.register_module
 class ExporterModule(blender.BlenderModule):
+    """
+    For exporter functionalities that need a custom registration order. 
+    """
     def register(self):
         bpy.utils.register_class(OBJECT_OT_p2_exporter)
         bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
@@ -295,9 +295,9 @@ class ExporterModule(blender.BlenderModule):
         properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.add(PhPhotonExportEngine.bl_idname)
 
     def unregister(self):
-        bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
-        bpy.utils.unregister_class(OBJECT_OT_p2_exporter)
-
         properties_output.RENDER_PT_format.COMPAT_ENGINES.remove(PhPhotonExportEngine.bl_idname)
         properties_data_camera.DATA_PT_lens.COMPAT_ENGINES.remove(PhPhotonExportEngine.bl_idname)
         properties_data_camera.DATA_PT_camera.COMPAT_ENGINES.remove(PhPhotonExportEngine.bl_idname)
+
+        bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
+        bpy.utils.unregister_class(OBJECT_OT_p2_exporter)

@@ -1,4 +1,4 @@
-# Project Structure
+# Project Structure {#main_project_structure}
 
 [TOC]
 

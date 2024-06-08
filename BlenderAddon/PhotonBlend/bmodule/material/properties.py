@@ -1,3 +1,6 @@
+"""
+@brief Additional material data block properties.
+"""
 from utility import blender
 
 import bpy

@@ -1,4 +1,4 @@
-# Blender Add-on for Photon-v2
+# Blender Add-on for Photon-v2 {#photonblend_index}
 
 [//TODO]: # (add a tutorial on how to install)
 

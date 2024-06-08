@@ -1,4 +1,9 @@
-from bmodule.material import properties
-from bmodule.material import nodes
-from bmodule.material import node_base
-from bmodule.material import helper
+"""
+@brief Material extensions in Blender for Photon renderer.
+"""
+from bmodule.material import (
+    properties,
+    nodes,
+    node_base,
+    properties,
+    )

@@ -2,9 +2,8 @@
 Basic definitions and data for node-based materials.
 """
 
-from utility import settings, blender
+from utility import settings, blender, material
 from bmodule import naming
-from bmodule.material import helper
 
 import bpy
 import nodeitems_utils
@@ -238,8 +237,8 @@ class PhMaterialNodeTree(bpy.types.NodeTree):
     # Blender: set the current node tree to the one the active material owns (update editor views)
     @classmethod
     def get_from_context(cls, b_context):
-        b_material = helper.find_active_material_from_context(b_context)
-        b_node_tree = helper.find_node_tree_from_material(b_material)
+        b_material = material.find_active_material_from_context(b_context)
+        b_node_tree = material.find_node_tree_from_material(b_material)
         if b_material is not None and b_node_tree is not None:
             return b_node_tree, b_material, b_material
 

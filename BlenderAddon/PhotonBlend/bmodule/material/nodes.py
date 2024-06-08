@@ -1,11 +1,11 @@
-from utility import blender
-from bmodule.material import helper
+from utility import blender, material
 from bmodule.material import node_base
 from bmodule.material import (
-        output_nodes,
-        input_nodes,
-        surface_nodes,
-        math_nodes)
+    output_nodes,
+    input_nodes,
+    surface_nodes,
+    math_nodes,
+    )
 from psdl import sdl
 from bmodule import naming
 
@@ -27,8 +27,8 @@ def to_sdl_recursive(b_material, current_node, processed_nodes, sdlconsole):
 
 
 def to_sdl(b_material, sdlconsole):
-    node_tree = helper.find_node_tree_from_material(b_material)
-    output_node = helper.find_output_node_from_node_tree(node_tree)
+    node_tree = material.find_node_tree_from_material(b_material)
+    output_node = material.find_output_node_from_node_tree(node_tree)
     if output_node is None:
         print("material <%s> has no output node, generating fallback material for it" % b_material.name)
         fallback_creator = sdl.MatteOpaqueMaterialCreator()
@@ -41,22 +41,22 @@ def to_sdl(b_material, sdlconsole):
 
 
 PH_MATERIAL_NODES = [
-        output_nodes.PhOutputNode,
-        input_nodes.PhFloatValueInputNode,
-        input_nodes.PhConstantVectorInputNode,
-        input_nodes.PhConstantColorInputNode,
-        input_nodes.PhPictureNode,
-        input_nodes.PhBlackBodyInputNode,
-        surface_nodes.PhDiffuseSurfaceNode,
-        surface_nodes.PhBinaryMixedSurfaceNode,
-        surface_nodes.PhAbradedOpaqueNode,
-        surface_nodes.PhAbradedTranslucentNode,
-        surface_nodes.PhLayeredSurfaceNode,
-        surface_nodes.PhSurfaceLayerNode,
-        surface_nodes.PhIdealSubstanceNode,
-        surface_nodes.PhPureAbsorberNode,
-        math_nodes.PhArithmeticNode,
-        math_nodes.PhClampNode,
+    output_nodes.PhOutputNode,
+    input_nodes.PhFloatValueInputNode,
+    input_nodes.PhConstantVectorInputNode,
+    input_nodes.PhConstantColorInputNode,
+    input_nodes.PhPictureNode,
+    input_nodes.PhBlackBodyInputNode,
+    surface_nodes.PhDiffuseSurfaceNode,
+    surface_nodes.PhBinaryMixedSurfaceNode,
+    surface_nodes.PhAbradedOpaqueNode,
+    surface_nodes.PhAbradedTranslucentNode,
+    surface_nodes.PhLayeredSurfaceNode,
+    surface_nodes.PhSurfaceLayerNode,
+    surface_nodes.PhIdealSubstanceNode,
+    surface_nodes.PhPureAbsorberNode,
+    math_nodes.PhArithmeticNode,
+    math_nodes.PhClampNode,
 ]
 
 
