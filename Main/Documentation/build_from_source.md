@@ -59,10 +59,14 @@ and substitute `SOME_OPTION` and `SOME_VALUE` with the options listed below.
 | PH_BUILD_SDL_GEN | ON (default), OFF | Build SDL automation tool. |
 | PH_BUILD_PHOTON_CLI | ON (default), OFF | Build command-line application. |
 
-You can also obtain a complete list of options with descriptions by running `cmake -LAH ../` in the build folder.
+> [!tip]
+> You can also obtain a complete list of options with descriptions by running `cmake -LAH ../` in the build folder.
 
 ## Appendix B: Building Documentation
 
 Similar to building the libraries, running setup script is also required (depending on your system, choose either `./setup.bat` or `./setup.sh`). After that, you can either choose to run Doxygen from the same directory as the `doxygen.config` file of each project, or run `python ./scripts/build_doxygen_doc.py <path-to-doxygen-executable>`. The output will be in `./Main/docs/`.
 
-You will also need the `bibtex` tool to be present in the search path to generate project bibliography.
+Currently we are building documentation using Doxygen 1.11.0. You will also need the `bibtex` tool to be present in the search path to generate project bibliography.
+
+> [!warning]
+> As noted by the [Doxygen documentation for output customization](https://www.doxygen.nl/manual/customize.html), `./Main/header.html` may need to be regenerated and updated after upgrading/changing the Doxygen version.

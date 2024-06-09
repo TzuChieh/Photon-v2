@@ -12,37 +12,37 @@ Rendering is the process of visualizing a scene. In Photon, we use a [Visualizer
 
 ![BVPT Teaser](Gallery/055_books_based_on_Libri_sulla_mensola_books_by_archemi.jpg "An example image rendered using this renderer.")
 
-Though this is a relatively simple renderer to solve the *rendering equation* as proposed by Kajiya @cite Kajiya:1986:Rendering, this renderer is a good starting point before diving into other solvers. Backward unidirectional path tracing does not handle small light sources well, and scenes with hard-to-find light transport paths are likely to fail, too. This renderer can be constructed by creating a [PathTracingVisualizer](@ref ph::PathTracingVisualizer) with [BVPT](@ref ph::ERayEnergyEstimator::BVPT) energy estimator (use [BVPTDL](@ref ph::ERayEnergyEstimator::BVPTDL) if only direct lighting is required).
+Though this is a relatively simple renderer to solve the *rendering equation* as proposed by Kajiya @cite Kajiya:1986:Rendering, this renderer is a good starting point before diving into other solvers. Backward unidirectional path tracing does not handle small light sources well, and scenes with hard-to-find light transport paths are likely to fail, too. This renderer can be constructed by creating a [PathTracingVisualizer](@ref ph::PathTracingVisualizer) with [BVPT](@ref ph::ERayEnergyEstimator) energy estimator (use [BVPTDL](@ref ph::ERayEnergyEstimator) if only direct lighting is required).
 
 ### Unidirectional Path Tracing with NEE {#bneept}
 
 ![BNEEPT Teaser](Gallery/bathroom_based_on_Salle_de_bain_by_nacimus.jpg "NEE can handle more complex scenes.")
 
-With the addition of Next Event Estimation (NEE), unidirectional path tracing can handle common scenes quite effectively. While largely based on the same principle as the non-NEE variant, this renderer combines additional sampling techniques @cite Veach:1995:Optimally to better handle smaller light sources. Similarly, create a [PathTracingVisualizer](@ref ph::PathTracingVisualizer) with [BNEEPT](@ref ph::ERayEnergyEstimator::BNEEPT) energy estimator to use this renderer.
+With the addition of Next Event Estimation (NEE), unidirectional path tracing can handle common scenes quite effectively. While largely based on the same principle as the non-NEE variant, this renderer combines additional sampling techniques @cite Veach:1995:Optimally to better handle smaller light sources. Similarly, create a [PathTracingVisualizer](@ref ph::PathTracingVisualizer) with [BNEEPT](@ref ph::ERayEnergyEstimator) energy estimator to use this renderer.
 
 ### Vanilla Photon Mapping {#vpm}
 
 ![VPM Teaser](Example/vpm_perfumes_by_gp3991.jpg "Perfume bottle and its cap rendered with 500M photons (radius: 0.1, spp: 4). The image has not rendered to convergence to better show the characteristics between different photon mapping techniques.")
 
-It is worth to clarify that the project is named *Photon* not because the focus is on photon mapping techniques, but because photon is the elementary particle that transmit light, and the core of this project is to solve light transport problems. Nevertheless, several photon mapping techniques are available here, and the most fundamental one is vanilla photon mapping @cite Jensen:1996:Global. All photon mapping techniques are capable of *merging* nearby light transport paths in some way, and this form of path reuse allows them to excel on a wider variety of lighting phenomena. You can get a vanilla photon mapping renderer by creating a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Vanilla](@ref ph::EPhotonMappingMode::Vanilla) mode.
+It is worth to clarify that the project is named *Photon* not because the focus is on photon mapping techniques, but because photon is the elementary particle that transmit light, and the core of this project is to solve light transport problems. Nevertheless, several photon mapping techniques are available here, and the most fundamental one is vanilla photon mapping @cite Jensen:1996:Global. All photon mapping techniques are capable of *merging* nearby light transport paths in some way, and this form of path reuse allows them to excel on a wider variety of lighting phenomena. You can get a vanilla photon mapping renderer by creating a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Vanilla](@ref ph::EPhotonMappingMode) mode.
 
 ### Progressive Photon Mapping {#ppm}
 
 ![PPM Teaser](Example/ppm_perfumes_by_gp3991.jpg "Perfume bottle and its cap rendered with 0.5M photons for 1000 passes (radius: 0.1, spp: 4). The image has not rendered to convergence to better show the characteristics between different photon mapping techniques.")
 
-This renderer implements the PPM algorithm by Hachisuka et al. @cite Hachisuka:2008:Progressive The first pass traces a fixed set of view vertices then the following iterative process will estimate the incoming energy on those vertices. The rendered result will be closer to ground truth with more view vertices (and the above image is rendered with maximum view path length = 10). The algorithm can leverage effectively infinite amount of photons to render a scene, achieving superior results then vanilla photon mapping. Create a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Progressive](@ref ph::EPhotonMappingMode::Progressive) mode to use this renderer.
+This renderer implements the PPM algorithm by Hachisuka et al. @cite Hachisuka:2008:Progressive The first pass traces a fixed set of view vertices then the following iterative process will estimate the incoming energy on those vertices. The rendered result will be closer to ground truth with more view vertices (and the above image is rendered with maximum view path length = 10). The algorithm can leverage effectively infinite amount of photons to render a scene, achieving superior results then vanilla photon mapping. Create a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Progressive](@ref ph::EPhotonMappingMode) mode to use this renderer.
 
 ### Stochastic Progressive Photon Mapping {#sppm}
 
 ![SPPM Teaser](Example/sppm_perfumes_by_gp3991.jpg "Perfume bottle and its cap rendered with 0.5M photons for 1000 passes (radius: 0.1, spp: 4). The image has not rendered to convergence to better show the characteristics between different photon mapping techniques.")
 
-This renderer implements the SPPM algorithm by Hachisuka et al. @cite Hachisuka:2009:Stochastic, and is intended to serve as a reference implementation for other more sophisticated techniques. Tricks and shortcuts are avoided if possible, so the evaluated radiance is more likely to remain correct as the project evolves. Performance is not a major concern for this renderer, so do not use it in situations where time is valuable. Create a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Progressive](@ref ph::EPhotonMappingMode::StochasticProgressive) mode to use this renderer.
+This renderer implements the SPPM algorithm by Hachisuka et al. @cite Hachisuka:2009:Stochastic, and is intended to serve as a reference implementation for other more sophisticated techniques. Tricks and shortcuts are avoided if possible, so the evaluated radiance is more likely to remain correct as the project evolves. Performance is not a major concern for this renderer, so do not use it in situations where time is valuable. Create a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Progressive](@ref ph::EPhotonMappingMode) mode to use this renderer.
 
 ### Probabilistic Progressive Photon Mapping {#pppm}
 
 ![PPPM Teaser](Example/pppm_perfumes_by_gp3991.jpg "Perfume bottle and its cap rendered with 0.5M photons for 1000 passes (radius: 0.1, spp: 4). The image has not rendered to convergence to better show the characteristics between different photon mapping techniques.")
 
-This renderer is based on Knaus and Zwicker's paper @cite Knaus:2011:Progressive, which decouples any intermediate radiance estimate from previous iterations. We can treat any photon mapping technique as a black box and parallelizes the calculation of each iteration trivially. However, this renderer consumes more memory in comparison with others. Create a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Progressive](@ref ph::EPhotonMappingMode::ProbabilisticProgressive) mode to use this renderer.
+This renderer is based on Knaus and Zwicker's paper @cite Knaus:2011:Progressive, which decouples any intermediate radiance estimate from previous iterations. We can treat any photon mapping technique as a black box and parallelizes the calculation of each iteration trivially. However, this renderer consumes more memory in comparison with others. Create a [PhotonMappingVisualizer](@ref ph::PhotonMappingVisualizer) in [Progressive](@ref ph::EPhotonMappingMode) mode to use this renderer.
 
 ### Scheduler
 
@@ -75,27 +75,51 @@ For thin lens camera, as its name suggests, the lens system in this camera is as
 
 ### Environment Camera
 
+[//TODO]: <> (wip)
+
 ### Energy Measurement
+
+[//TODO]: <> (wip)
 
 ## Image
 
+[//TODO]: <> (wip)
+
 ### Texture
+
+[//TODO]: <> (wip)
 
 ### Film
 
+[//TODO]: <> (wip)
+
 ### Filtering
+
+[//TODO]: <> (wip)
 
 ### Tone-mapping
 
+[//TODO]: <> (wip)
+
 ### Reading and Writing
+
+[//TODO]: <> (wip)
 
 ### Merging
 
+[//TODO]: <> (wip)
+
 ## Material
+
+[//TODO]: <> (wip)
 
 ### Surface Behavior
 
+[//TODO]: <> (wip)
+
 ### Volume Behavior
+
+[//TODO]: <> (wip)
 
 ## Geometry
 
@@ -103,23 +127,69 @@ If there is a ball in the scene, we can create a [sphere geometry](@ref ph::GSph
 
 ### Intersectable and Primitive
 
+When a [Geometry](@ref ph::Geometry) is defined in the scene, it will be converted to an [Intersectable](@ref ph::Intersectable) before actual rendering begins. The renderer further treat some intersectable types as [Primitive](@ref ph::Primitive) from which a richer set of functionalities are expected. In a similar way, some intersectable types are being classified as [Intersector](@ref ph::Intersector) and they typically act as an aggregate of intersectables.
 
+> [!note]
+> These distinctions are not that important from a users perspective. However, for developers or researchers that want to dive into the source it is best to keep these in mind.
 
 ### Basic Shapes
 
+These are common shapes to have in a renderer and you are likely to find them also on other renderers. They are also useful for defining the shape of light sources or for further tessellation. We start by introducing rectangle shape, which can be created by [rectangle geometry](@ref ph::GRectangle).
+
+![Rectangle Geometry](Example/rectangle.jpg "Rectangle lies on the XY-plane by default. With UV in [0, 1] across the whole surface.")
+
+We also have freestanding triangle shape which can be created by [triangle geometry](@ref ph::GTriangle).
+
+![Triangle Geometry](Example/triangle.jpg "Triangle has customizable UVs and normals.")
+
+> [!note]
+> It is not recommended to build complex shapes out of multiple freestanding triangle geometries unless you have good reasons to do so. It is highly memory inefficient.
+
+There is also sphere shape created by [sphere geometry](@ref ph::GSphere). The sphere generated is a true sphere by default (not a triangle mesh counterpart).
+
+![Sphere Geometry](Example/sphere.jpg "An example sphere shape.")
+
+You can also build a cube or box shape using [cuboid geometry](@ref ph::GCuboid). It is quite useful to have a generalized cube at hand. Unlike cubes, a cuboid allows variable extents. Cuboids are axis-aligned bounding boxes (AABB) in their local space.
+
+![Cuboid Geometry](Example/cuboid.jpg "A Cuboid (in fact a cube in this image).")
+
+A bonus to have cuboids is that voxel games like [Minecraft](https://en.wikipedia.org/wiki/Minecraft) can be rendered easily. Here is a work-in-progress render of a Minecraft level parser that tries to translate in-game data into PSDL:
+
+![Minecraft Example](Example/textured_mc.jpg "Test render of a Minecraft level parser.")
+
+Almost all shapes are built from triangle meshes for a typical scene. Games, modeling programs, and other applications typically use triangle mesh to represent arbitrary 3-D shapes. It is basically a collection of triangles grouping in a way that approximate some shapes. It can be created by [triangle mesh geometry](@ref ph::GTriangleMesh) or [polygon mesh](@ref ph::GPlyPolygonMesh). The later is a more memory efficient representation of a triangle mesh and supports customizable vertex layout and arbitrary index bit precision. Binary storage format is also supported ([PLY format](https://en.wikipedia.org/wiki/PLY_(file_format))).
+
+![Triangle Mesh Geometry](Example/triangle_mesh.jpg "Stanford bunny built from a triangle mesh.")
+
 ### Advanced Shapes
+
+We also support some interesting shapes such as wave and fractals. These special geometries are sometimes useful for modeling a scene. One of them is the [Menger sponge](https://en.wikipedia.org/wiki/Menger_sponge), a famous fractal shape. It can be created by [Menger sponge geometry](@ref ph::GMengerSponge).
+
+![Menger Sponge Geometry](Example/menger_sponge.jpg "A fractal geometry (Menger sponge).")
+
+A wave shape is basically a cuboid with its top surface being tessellated according to a superposition of 2-D sine and cosine functions. It can be created by [wave geometry](@ref ph::GWave).
+
+![Wave Geometry](Gallery/045_water_dragon_color_light.jpg "A triangle mesh submerged inside a wave geometry.")
 
 ### Acceleration Structure
 
+[//TODO]: <> (wip)
+
 ## Light
+
+[//TODO]: <> (wip)
 
 ### Emitter
 
+[//TODO]: <> (wip)
+
 ## Sample Source
+
+[//TODO]: <> (wip)
 
 ### Sample Generator
 
-
+[//TODO]: <> (wip)
 
 
 
