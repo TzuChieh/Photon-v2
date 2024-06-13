@@ -53,10 +53,11 @@ public:
 	*/
 	const math::Spectrum& getBsdf() const;
 
-	/*! @brief Tells whether this evaluation has sane contribution.
+	/*! @brief Tells whether this evaluation has potential to contribute.
 	All evaluated data should be usable if true is returned; otherwise, zero contribution is implied,
-	and evaluated data is undefined. This method is an efficient way to decide whether the BSDF has
-	potential to contribute.
+	and evaluated data is undefined. This method is also an efficient way to decide whether the BSDF
+	has sane value (compared to manually testing its value).
+	@note Measurability has nothing to do with whether the sampled value is 0 or not.
 	*/
 	bool isMeasurable() const;
 

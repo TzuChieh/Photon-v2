@@ -36,7 +36,7 @@ inline auto SdlStructFieldStump::genFieldSet(StructType Owner::* const structObj
 		fieldSet.addField(nestedField);
 	}
 
-	return std::move(fieldSet);
+	return fieldSet;
 }
 
 }// end namespace ph

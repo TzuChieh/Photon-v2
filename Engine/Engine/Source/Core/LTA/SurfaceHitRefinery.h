@@ -32,7 +32,8 @@ class SurfaceHitRefinery final
 public:
 	explicit SurfaceHitRefinery(const SurfaceHit& X);
 
-	/*! @brief Escape this surface in a specific direction using engine settings.
+	/*! @brief Escape this surface in a specific direction.
+	The method to use for escaping the surface is determined by engine settings.
 	@param dir The direction to escape. No need to be normalized.
 	@return The longest ray in `dir` that avoids this surface.
 	*/
@@ -61,7 +62,8 @@ public:
 		const math::Vector3R& dir, 
 		std::size_t numIterations = numIterations()) const;
 
-	/*! @brief Mutually escape from `X` and `X2` using engine settings.
+	/*! @brief Mutually escape from `X` and `X2`.
+	The method to use for escaping the surfaces is determined by engine settings.
 	@param X2 The other surface to escape from.
 	@return The ray that avoids both surfaces.
 	*/

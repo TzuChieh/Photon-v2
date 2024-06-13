@@ -6,23 +6,31 @@ This directory (`./Main/RenderTest/`) contains the primary end-to-end tests for 
 
 In the build directory, you can run tests using
 
-> pytest ./RenderTest/
+```shell
+pytest ./RenderTest/
+```
 
 or run and produce a markdown report with
 
-> python ./RenderTest/run_and_report.py
+```shell
+python ./RenderTest/run_and_report.py
+```
 
 ## Parallel Test Execution
 
-Most tests already utilizes threading provided by Photon itself. However, tests run by `pytest` is sequential by default. You can install the `pytest-xdist` plugin (`pip install pytest-xdist`) and run tests across multiple CPUs. For example, to run tests using 20 CPUs, you can execute the following command:
+Most tests already utilizes threading provided by Photon itself. However, tests run by `pytest` is sequential by default. You can install the `pytest-xdist` plugin (`pip install pytest-xdist`) and run tests across multiple CPU cores. For example, to run tests using 20 CPU cores, you can execute the following command:
 
-> python ./RenderTest/run_and_report.py -n 20
+```shell
+python ./RenderTest/run_and_report.py -n 20
+```
 
 ## Run Specified Tests Only
 
 You can use the keyword expressions provided by pytest. For example, to run `test_fullscreen_unit_radiance`, you can use
 
-> python ./RenderTest/run_and_report.py -k unit_radiance
+```shell
+python ./RenderTest/run_and_report.py -k unit_radiance
+```
 
 ## Writing New Tests
 

@@ -52,10 +52,10 @@ public:
 	*/
 	const math::Spectrum& getPdfAppliedBsdf() const;
 
-	/*! @brief Tells whether this sample has sane contribution.
+	/*! @brief Tells whether this sample has potential to contribute.
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
-	and sampled data is undefined. This method is an efficient way to decide whether the BSDF sample
-	has potential to contribute.
+	and sampled data is undefined. This method is also an efficient way to decide whether the BSDF
+	sample has sane value (compared to manually testing its value).
 	@note Measurability has nothing to do with whether the sampled value is 0 or not.
 	*/
 	bool isMeasurable() const;

@@ -9,3 +9,13 @@ html {
 h1, h2, h3, h4, h5, .title {
     color: rgb(71, 210, 71);
 }
+
+/* Move top bar a little away from right side so the GitHub logo is not obstructed. */
+#main-nav {
+    margin-right: 80px;
+}
+
+#top {
+    background: #010028;
+    border-bottom: 2px solid var(--separator-color);
+}
