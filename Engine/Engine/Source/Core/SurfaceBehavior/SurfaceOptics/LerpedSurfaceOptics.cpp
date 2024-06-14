@@ -165,8 +165,9 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		eval.inputs.set(in, sampleOutput);
 		anotherOptics->calcBsdf(ctx, eval.inputs, eval.outputs);
 
-		const math::Spectrum anotherBsdf = 
-			eval.outputs.isMeasurable() ? eval.outputs.getBsdf() : math::Spectrum(0);
+		const math::Spectrum anotherBsdfCos = eval.outputs.isMeasurable()
+			? eval.outputs.getBsdf() * sampleOutput.getCos()
+			: math::Spectrum(0);
 
 		BsdfPdfQuery query[2];
 		query[0].inputs.set(in, sampleOutput);
@@ -182,17 +183,17 @@ void LerpedSurfaceOptics::calcBsdfSample(
 			return;
 		}
 
-		const math::Spectrum bsdf =
-			sampledRatio * (sampleOutput.getPdfAppliedBsdf() * query[0].outputs.getSampleDirPdfW()) +
-			(math::Spectrum(1) - sampledRatio) * anotherBsdf;
+		const math::Spectrum sampledBsdfCos =
+			sampleOutput.getPdfAppliedBsdfCos() * query[0].outputs.getSampleDirPdfW();
+		const math::Spectrum bsdfCos =
+			sampledRatio * sampledBsdfCos + (math::Spectrum(1) - sampledRatio) * anotherBsdfCos;
 
 		const real pdfW = 
 			sampledProb * query[0].outputs.getSampleDirPdfW() +
 			(1.0_r - sampledProb) * query[1].outputs.getSampleDirPdfW();
-
 		PH_ASSERT_MSG(pdfW > 0 && std::isfinite(pdfW), std::to_string(pdfW));
-
-		out.setPdfAppliedBsdf(bsdf / pdfW);
+		
+		out.setPdfAppliedBsdfCos(bsdfCos / pdfW, sampleOutput.getCos());
 		out.setL(sampleOutput.getL());
 	}
 	else if(ctx.elemental == ALL_SURFACE_ELEMENTALS && m_containsDelta)
@@ -216,7 +217,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 		}
 
 		// Apply the scale (lerp ratio) and account for pick probability
-		out.setPdfAppliedBsdf(out.getPdfAppliedBsdf() * sampledRatio / sampledProb);
+		out.setPdfAppliedBsdfCos(out.getPdfAppliedBsdfCos() * sampledRatio / sampledProb, out.getCos());
 	}
 	else
 	{
@@ -228,7 +229,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 			if(out.isMeasurable())
 			{
-				out.setPdfAppliedBsdf(out.getPdfAppliedBsdf() * ratio);
+				out.setPdfAppliedBsdfCos(out.getPdfAppliedBsdfCos() * ratio, out.getCos());
 			}
 		}
 		else
@@ -239,7 +240,7 @@ void LerpedSurfaceOptics::calcBsdfSample(
 
 			if(out.isMeasurable())
 			{
-				out.setPdfAppliedBsdf(out.getPdfAppliedBsdf() * (math::Spectrum(1) - ratio));
+				out.setPdfAppliedBsdfCos(out.getPdfAppliedBsdfCos() * (math::Spectrum(1) - ratio), out.getCos());
 			}
 		}
 	}

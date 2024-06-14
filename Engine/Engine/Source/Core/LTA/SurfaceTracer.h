@@ -43,6 +43,9 @@ public:
 	@param sidedness Sidedness policy.
 	@return out_X The next surface.
 	@return Is the next surface found. Output parameters are not usable if `false` is returned.
+	@note If you are tracing from a surface (not a point from the mid-air),
+	`traceNextSurfaceFrom(const SurfaceHit&, const Ray&, const SidednessAgreement&, SurfaceHit*)`
+	may be more robust.
 	*/
 	bool traceNextSurface(
 		const Ray&                ray, 

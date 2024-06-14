@@ -18,8 +18,18 @@ class FresnelEffect
 public:
 	virtual ~FresnelEffect() = default;
 
+	/*!
+	@param cosThetaIncident Cosine of the incident angle.
+	@param[out] out_reflectance The reflectance of the interface on the specified angle.
+	@note `cosThetaIncident` is signed, so inner and outer sides can be determined.
+	*/
 	virtual void calcReflectance(real cosThetaIncident, math::Spectrum* out_reflectance) const = 0;
 
+	/*!
+	@param cosThetaIncident Cosine of the incident angle.
+	@param[out] out_transmittance The transmittance of the interface on the specified angle.
+	@note `cosThetaIncident` is signed, so inner and outer sides can be determined.
+	*/
 	void calcTransmittance(real cosThetaIncident, math::Spectrum* out_transmittance) const;
 };
 

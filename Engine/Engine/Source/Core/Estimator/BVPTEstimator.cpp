@@ -82,9 +82,7 @@ void BVPTEstimator::estimate(
 			break;
 		}
 
-		const math::Vector3R L = bsdfSample.outputs.getL();
-		const math::Spectrum liWeight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
-		accuLiWeight.mulLocal(liWeight);
+		accuLiWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
 
 		if(numBounces >= 3)
 		{
@@ -107,6 +105,8 @@ void BVPTEstimator::estimate(
 
 		// volume test
 		{
+			const math::Vector3R L = bsdfSample.outputs.getL();
+
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			if(surfaceHit.hasInteriorOptics() && surfaceHit.getShadingNormal().dot(V) * surfaceHit.getShadingNormal().dot(L) < 0.0_r)
 			{
@@ -130,6 +130,7 @@ void BVPTEstimator::estimate(
 					break;
 				}
 
+				// XXX: cosine term?
 				accuLiWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
 				if(accuLiWeight.isZero())
 				{

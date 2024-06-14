@@ -1,5 +1,6 @@
 from infra import paths
 from infra import image
+import res
 
 import psutil
 
@@ -7,6 +8,18 @@ import json
 import datetime
 import platform
 from pathlib import Path
+
+
+def _get_img_bytes(img: Path):
+    """
+    Read image bytes from the given path. If any error occurs, bytes for a fallback image will
+    be returned instead.
+    """
+    try:
+        return img.read_bytes()
+    except Exception as e:
+        print(f"error on loading image {img}: {e}")
+        return res.get_error_img_bytes()
 
 
 def _write_case_report(report_file, case, title_prefix=""):
@@ -32,7 +45,7 @@ def _write_case_report(report_file, case, title_prefix=""):
         ref_img = (case_output_dir / ref_img).with_suffix(image.Image.default_plot_format)
         report_ref_img = paths.report_output() / ref_img.relative_to(paths.test_output())
         report_ref_img.parent.mkdir(parents=True, exist_ok=True)
-        report_ref_img.write_bytes(ref_img.read_bytes())
+        report_ref_img.write_bytes(_get_img_bytes(ref_img))
         ref_img = "![reference image](%s)" % report_ref_img.relative_to(paths.report_output()).as_posix()
     else:
         ref_img = "(no reference image)"
@@ -43,7 +56,7 @@ def _write_case_report(report_file, case, title_prefix=""):
         output_img = (case_output_dir / output_img).with_suffix(image.Image.default_plot_format)
         report_output_img = paths.report_output() / output_img.relative_to(paths.test_output())
         report_output_img.parent.mkdir(parents=True, exist_ok=True)
-        report_output_img.write_bytes(output_img.read_bytes())
+        report_output_img.write_bytes(_get_img_bytes(output_img))
         output_img = "![output image](%s)" % report_output_img.relative_to(paths.report_output()).as_posix()
     else:
         output_img = "(no output image)"
@@ -54,7 +67,7 @@ def _write_case_report(report_file, case, title_prefix=""):
         debug_output_img = (case_output_dir / debug_output_img).with_suffix(image.Image.default_plot_format)
         report_debug_output_img = paths.report_output() / debug_output_img.relative_to(paths.test_output())
         report_debug_output_img.parent.mkdir(parents=True, exist_ok=True)
-        report_debug_output_img.write_bytes(debug_output_img.read_bytes())
+        report_debug_output_img.write_bytes(_get_img_bytes(debug_output_img))
         debug_output_img = "![debug output image](%s)" % report_debug_output_img.relative_to(paths.report_output()).as_posix()
     else:
         debug_output_img = "(no debug output image)"

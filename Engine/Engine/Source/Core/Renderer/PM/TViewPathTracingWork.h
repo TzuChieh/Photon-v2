@@ -70,7 +70,6 @@ private:
 		const ViewPathTracingPolicy& policy,
 		const SurfaceHit&            X,
 		const math::Vector3R&        V,
-		const math::Vector3R&        N,
 		const math::Spectrum&        pathThroughput,
 		std::size_t                  pathLength,
 		SampleFlow&                  sampleFlow);

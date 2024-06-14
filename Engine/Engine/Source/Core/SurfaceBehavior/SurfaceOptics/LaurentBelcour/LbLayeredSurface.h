@@ -12,16 +12,8 @@ namespace ph
 {
 
 /*! @brief Laurent Belcour's layered BSDF model.
-
-Reference: 
-	
-Efficient Rendering of Layered Materials using an Atomic Decomposition 
-with Statistical Operators
-
-ACM Transactions on Graphics (proc. of SIGGRAPH 2018)
-
-- Project Page
-https://belcour.github.io/blog/research/2018/05/05/brdf-realtime-layered.html
+This is the symmetric model as described in Section 6.2 of the paper @cite Belcour:2018:Efficient.
+Laurent Belcour's project page: https://belcour.github.io/blog/research/2018/05/05/brdf-realtime-layered.html.
 */
 class LbLayeredSurface : public SurfaceOptics
 {

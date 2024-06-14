@@ -86,6 +86,7 @@ void LbLayeredSurface::calcBsdf(
 	
 	const real absHoL = std::min(H.absDot(in.getL()), 1.0_r);
 
+	// Using the half angle symmetric model
 	InterfaceStatistics statistics(absHoL, LbLayer());
 	math::Spectrum bsdf(0);
 	for(std::size_t i = 0; i < numLayers(); ++i)
@@ -96,7 +97,7 @@ void LbLayeredSurface::calcBsdf(
 			PH_ASSERT(i == numLayers() - 1);
 		}
 
-		IsoTrowbridgeReitzConstant ggx(statistics.getEquivalentAlpha());
+		const IsoTrowbridgeReitzConstant ggx(statistics.getEquivalentAlpha());
 		const real D = ggx.distribution(in.getX(), N, H);
 		const real G = ggx.shadowing(in.getX(), N, H, in.getL(), in.getV());
 
@@ -114,8 +115,9 @@ void LbLayeredSurface::calcBsdfSample(
 	const math::Vector3R N = in.getX().getShadingNormal();
 	const real absNoV = std::min(N.absDot(in.getV()), 1.0_r);
 
-	// Perform adding-doubling algorithm and gather information for later
-	// sampling process.
+	// Perform adding-doubling algorithm and gather information for later sampling process:
+	// we first construct an approximative distribution from the view direction, then use it
+	// to importance sample the actual BSDF we need.
 	
 	sampleWeights.resize(numLayers());
 	alphas.resize(numLayers());
@@ -137,9 +139,9 @@ void LbLayeredSurface::calcBsdfSample(
 		alphas[i] = statistics.getEquivalentAlpha();
 	}
 
-	// Select BSDF lobe to sample based on energy term.
-	// NOTE: watch out for the case where selectWeight cannot be reduced to <= 0 due to 
-	// numerical error (handled in current implmentation)
+	// Select BSDF lobe to sample based on energy term. Note that we must watch out for
+	// the case where `selectWeight` cannot be reduced to <= 0 due to numerical error
+	// (handled in current implmentation).
 	// TODO: try to use sampleFlow for this
 	real selectWeight = math::Random::sample() * summedSampleWeights - sampleWeights[0];
 	std::size_t selectIndex = 0;
@@ -151,11 +153,12 @@ void LbLayeredSurface::calcBsdfSample(
 		"selectIndex  = " + std::to_string(selectIndex)  + "\n"
 		"selectWeight = " + std::to_string(selectWeight) + "\n");
 
-	IsoTrowbridgeReitzConstant ggx(alphas[selectIndex]);
-	math::Vector3R H;
-	ggx.genDistributedH(in.getX(), N, sampleFlow.flow2D(), &H);
-	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
+	const IsoTrowbridgeReitzConstant selectedGgx(alphas[selectIndex]);
 
+	math::Vector3R H;
+	selectedGgx.genDistributedH(in.getX(), N, sampleFlow.flow2D(), &H);
+
+	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), L, in.getV()))
 	{
 		out.setMeasurability(false);
@@ -164,38 +167,28 @@ void LbLayeredSurface::calcBsdfSample(
 
 	const real NoH = N.dot(H);
 	const real HoL = H.dot(L);
-	if(HoL == 0.0_r)
-	{
-		out.setMeasurability(false);
-		return;
-	}
 
-	// MIS: Using balance heuristic.
+	// MIS with balance heuristic
 	real pdf = 0.0_r;
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		IsoTrowbridgeReitzConstant ggx(alphas[i]);
+		const IsoTrowbridgeReitzConstant ggx(alphas[i]);
 		const real D = ggx.distribution(in.getX(), N, H);
 		const real weight = sampleWeights[i] / summedSampleWeights;
 		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
 	}
 
-	if(pdf == 0.0_r)
-	{
-		out.setMeasurability(false);
-		return;
-	}
-
 	BsdfEvalInput evalInput;
 	evalInput.set(in.getX(), L, in.getV());
-	// FIXME: we already complete adding-doubling, reuse the computed results
+
 	BsdfEvalOutput evalOutput;
 	LbLayeredSurface::calcBsdf(ctx, evalInput, evalOutput);
 
+	const real absNoL = N.absDot(L);
 	const math::Spectrum bsdf = 
 		evalOutput.isMeasurable() ? evalOutput.getBsdf() : math::Spectrum(0);
 
-	out.setPdfAppliedBsdf(bsdf / pdf);
+	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdf, absNoL);
 	out.setL(L);
 }
 

@@ -144,21 +144,15 @@ void OrenNayar::calcBsdfSample(
 		L.mulLocal(-1.0_r);
 	}
 
-	const real absNoL = N.absDot(L);
-	if(absNoL == 0.0_r)
-	{
-		out.setMeasurability(false);
-		return;
-	}
-
 	BsdfEvalQuery eval;
 	eval.inputs.set(in.getX(), L, in.getV());
 	OrenNayar::calcBsdf(ctx, eval.inputs, eval.outputs);
 
+	const real absNoL = N.absDot(L);
 	const math::Spectrum bsdf = 
 		eval.outputs.isMeasurable() ? eval.outputs.getBsdf() : math::Spectrum(0);
 
-	out.setPdfAppliedBsdf(bsdf / pdfW);
+	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
 	out.setL(L);
 }
 

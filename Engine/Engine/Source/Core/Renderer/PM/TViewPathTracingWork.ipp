@@ -150,7 +150,6 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 		PH_ASSERT_IN_RANGE(tracingRay.getDirection().lengthSquared(), 0.9_r, 1.1_r);
 
 		const math::Vector3R V = -tracingRay.getDirection();
-		const math::Vector3R N = X.getShadingNormal();
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)
 		{
@@ -163,8 +162,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 				break;
 			}
 
-			pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
-			pathThroughput.mulLocal(N.absDot(bsdfSample.outputs.getL()));
+			pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
 
 			if(policy.useRussianRoulette())
 			{
@@ -183,7 +181,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 		}
 		else
 		{
-			traceElementallyBranchedPath(policy, X, V, N, pathThroughput, pathLength, sampleFlow);
+			traceElementallyBranchedPath(policy, X, V, pathThroughput, pathLength, sampleFlow);
 			break;
 		}
 
@@ -196,7 +194,6 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 	const ViewPathTracingPolicy& policy,
 	const SurfaceHit&            X,
 	const math::Vector3R&        V,
-	const math::Vector3R&        N,
 	const math::Spectrum&        pathThroughput,
 	const std::size_t            pathLength,
 	SampleFlow&                  sampleFlow)
@@ -226,8 +223,7 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 		}
 
 		math::Spectrum elementalPathThroughput(pathThroughput);
-		elementalPathThroughput.mulLocal(sample.outputs.getPdfAppliedBsdf());
-		elementalPathThroughput.mulLocal(N.absDot(sampledRay.getDirection()));
+		elementalPathThroughput.mulLocal(sample.outputs.getPdfAppliedBsdfCos());
 
 		if(policy.useRussianRoulette())
 		{

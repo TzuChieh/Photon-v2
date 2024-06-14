@@ -82,14 +82,14 @@ void IdealTransmitter::calcBsdfSample(
 		transportFactor = (etaT * etaT) / (etaI * etaI);
 	}
 	
-	math::Spectrum pdfAppliedBsdf = F.mul(transportFactor / std::abs(cosI));
+	F *= transportFactor;
 
 	// A scale factor for artistic control
 	const math::Spectrum transmissionScale =
 		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.getX());
-	pdfAppliedBsdf.mulLocal(transmissionScale);
+	F *= transmissionScale;
 
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setPdfAppliedBsdfCos(F, std::abs(cosI));
 	out.setL(L);
 }
 

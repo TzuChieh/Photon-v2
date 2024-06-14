@@ -143,7 +143,7 @@
 //	//	case ESurfacePhenomenon::TRANSMISSION:
 //	//	{
 //	//		rayOriginDelta.set(L).mulLocal(RAY_DELTA_DIST);
-//
+//			// TODO: use pdfAppliedBsdfCos
 //	//		Spectrum liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 //
 //	//		if(numBounces >= 3)

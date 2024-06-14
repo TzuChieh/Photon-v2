@@ -31,16 +31,25 @@ private:
 };
 
 /*!
-It is an error to get output data if `isMeasurable()` returns `false`.
+@note It is an error to get output data if `isMeasurable()` returns `false`.
 */
 class BsdfSampleOutput final
 {
 public:
 	void setL(const math::Vector3R& L);
 
-	void setPdfAppliedBsdf(
-		const math::Spectrum& pdfAppliedBsdf, 
-		bool inferMeasurabilityFromThis = true);
+	/*!
+	@param pdfAppliedBsdfCos The sampled BSDF in a coupled form. See `getPdfAppliedBsdfCos()` for
+	more information.
+	@param cos The contained Lambert's cosine term (absolute value). See `getCos()` for
+	more information.
+	@param inferMeasurability Whether to determine measurability from the supplied data. All supplied
+	data must be sane for the sample to be measurable.
+	*/
+	void setPdfAppliedBsdfCos(
+		const math::Spectrum& pdfAppliedBsdfCos,
+		real cos,
+		bool inferMeasurability = true);
 
 	/*!
 	@return Sampled direction (normalized).
@@ -48,9 +57,30 @@ public:
 	const math::Vector3R& getL() const;
 
 	/*!
-	@return Sampled BSDF with PDF (solid angle domain) applied. Guaranteed to be finite.
+	@return Lambert's cosine term. Guaranteed to be > 0. This is the absolute value of
+	@f$ N \cdot L @f$, where @f$ N @f$ is the normal vector and @f$ L @f$ is the sampled direction.
+	@note This cosine term is an absolute value. You may need to consult the corresponding `SurfaceHit`
+	if its sign is needed.
 	*/
-	const math::Spectrum& getPdfAppliedBsdf() const;
+	real getCos() const;
+
+	/*!
+	@return Sampled BSDF with PDF (solid angle domain) applied. Guaranteed to be finite.
+	Specifically, it is equivalent to @f$ BSDF / PDF_{\omega} @f$.
+	*/
+	math::Spectrum getPdfAppliedBsdf() const;
+
+	/*!
+	Prefer using this method when applicable instead of applying the cosine term manually.
+	The coupled form often results in less computation and potentially offers better numerical
+	stability as some terms can often be canceled out.
+	@return Sampled BSDF with Lambert's cosine law and PDF (solid angle domain) applied.
+	Guaranteed to be finite. Specifically, it is equivalent to
+	@f$ BSDF * \lvert\cos\theta\rvert / PDF_{\omega} @f$.
+	@note This cosine term is an absolute value. You may need to consult the corresponding `SurfaceHit`
+	if its sign is needed.
+	*/
+	const math::Spectrum& getPdfAppliedBsdfCos() const;
 
 	/*! @brief Tells whether this sample has potential to contribute.
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
@@ -70,7 +100,8 @@ public:
 
 private:
 	math::Vector3R m_L{0};
-	math::Spectrum m_pdfAppliedBsdf{0};
+	math::Spectrum m_pdfAppliedBsdfCos{0};
+	real           m_cos{0};
 	bool           m_isMeasurable{false};
 };
 
@@ -134,15 +165,18 @@ inline void BsdfSampleOutput::setL(const math::Vector3R& L)
 	m_L = L;
 }
 
-inline void BsdfSampleOutput::setPdfAppliedBsdf(
-	const math::Spectrum& pdfAppliedBsdf, 
-	const bool inferMeasurabilityFromThis)
+inline void BsdfSampleOutput::setPdfAppliedBsdfCos(
+	const math::Spectrum& pdfAppliedBsdfCos,
+	const real cos,
+	const bool inferMeasurability)
 {
-	m_pdfAppliedBsdf = pdfAppliedBsdf;
+	m_pdfAppliedBsdfCos = pdfAppliedBsdfCos;
+	m_cos = cos;
 
-	if(inferMeasurabilityFromThis)
+	if(inferMeasurability)
 	{
-		setMeasurability(pdfAppliedBsdf);
+		setMeasurability(pdfAppliedBsdfCos);
+		setMeasurability(isMeasurable() && 0.0_r < cos && cos < 1.1_r);
 	}
 }
 
@@ -154,13 +188,27 @@ inline const math::Vector3R& BsdfSampleOutput::getL() const
 	return m_L;
 }
 
-inline const math::Spectrum& BsdfSampleOutput::getPdfAppliedBsdf() const
+inline real BsdfSampleOutput::getCos() const
+{
+	PH_ASSERT(m_isMeasurable);
+	PH_ASSERT_IN_RANGE_EXCLUSIVE(m_cos, 0.0_r, 1.1_r);
+
+	return m_cos;
+}
+
+inline math::Spectrum BsdfSampleOutput::getPdfAppliedBsdf() const
+{
+	const auto pdfAppliedBsdf = getPdfAppliedBsdfCos() / getCos();
+	return pdfAppliedBsdf.isFinite() ? pdfAppliedBsdf : math::Spectrum(0);
+}
+
+inline const math::Spectrum& BsdfSampleOutput::getPdfAppliedBsdfCos() const
 {
 	// When a sample report being measurable, it must not be some crazy values
 	PH_ASSERT(m_isMeasurable);
-	PH_ASSERT_MSG(m_pdfAppliedBsdf.isFinite(), m_pdfAppliedBsdf.toString());
+	PH_ASSERT_MSG(m_pdfAppliedBsdfCos.isFinite(), m_pdfAppliedBsdfCos.toString());
 
-	return m_pdfAppliedBsdf;
+	return m_pdfAppliedBsdfCos;
 }
 
 inline bool BsdfSampleOutput::isMeasurable() const

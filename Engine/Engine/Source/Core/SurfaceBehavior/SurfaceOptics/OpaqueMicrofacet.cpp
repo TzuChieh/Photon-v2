@@ -14,7 +14,6 @@
 #include <Common/assertion.h>
 
 #include <cmath>
-#include <iostream>
 
 namespace ph
 {
@@ -66,8 +65,6 @@ void OpaqueMicrofacet::calcBsdf(
 		return;
 	}
 
-	const real HoV = H.dot(in.getV());
-	const real NoH = N.dot(H);
 	const real HoL = H.dot(in.getL());
 
 	math::Spectrum F;
@@ -87,10 +84,10 @@ void OpaqueMicrofacet::calcBsdfSample(
 	BsdfSampleOutput&       out) const
 {
 	// Cook-Torrance microfacet specular BRDF is D(H)*F(V, H)*G(L, V, H)/(4*|NoL|*|NoV|).
-	// The importance sampling strategy is to generate a microfacet normal (H) which follows D(H)'s distribution, and
-	// generate L by reflecting -V using H.
-	// The PDF for this sampling scheme is D(H)*|NoH|/(4*|HoL|). The reason that 4*|HoL| exists is because there's a 
-	// jacobian involved (from H's probability space to L's).
+	// The importance sampling strategy is to generate a microfacet normal (H) which follows
+	// D(H)'s distribution, and generate L by reflecting -V using H.
+	// The PDF for this sampling scheme is D(H)*|NoH|/(4*|HoL|). The reason that 4*|HoL| exists is
+	// because there's a jacobian involved (from H's probability space to L's).
 
 	const math::Vector3R N = in.getX().getShadingNormal();
 
@@ -102,25 +99,16 @@ void OpaqueMicrofacet::calcBsdfSample(
 		&H);
 
 	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
-
 	const real NoV = N.dot(in.getV());
-	const real NoL = N.dot(L);
-	const real HoV = H.dot(in.getV());
 	const real HoL = H.dot(L);
 	const real NoH = N.dot(H);
-
-	const real multiplier = std::abs(HoL / (NoV * NoL * NoH));
-	if(!std::isfinite(multiplier))
-	{
-		out.setMeasurability(false);
-		return;
-	}
+	const real dotTerms = std::abs(HoL / (NoV * NoH));
+	const real G = m_microfacet->shadowing(in.getX(), N, H, L, in.getV());
 
 	math::Spectrum F;
 	m_fresnel->calcReflectance(HoL, &F);
 
-	const real G = m_microfacet->shadowing(in.getX(), N, H, L, in.getV());
-	out.setPdfAppliedBsdf(F.mul(G).mulLocal(multiplier));
+	out.setPdfAppliedBsdfCos(F.mul(G * dotTerms), N.absDot(L));
 	out.setL(L);
 }
 

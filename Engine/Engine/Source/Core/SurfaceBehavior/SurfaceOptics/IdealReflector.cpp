@@ -61,16 +61,15 @@ void IdealReflector::calcBsdfSample(
 	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(N);
 	const real NoL = N.dot(L);
 
-	math::Spectrum pdfAppliedBsdf;
-	m_fresnel->calcReflectance(NoL, &pdfAppliedBsdf);
-	pdfAppliedBsdf.mulLocal(1.0_r / std::abs(NoL));
+	math::Spectrum F;
+	m_fresnel->calcReflectance(NoL, &F);
 
 	// A scale factor for artistic control
 	const math::Spectrum& reflectionScale =
 		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.getX());
-	pdfAppliedBsdf.mulLocal(reflectionScale);
+	F *= reflectionScale;
 
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	out.setPdfAppliedBsdfCos(F, std::abs(NoL));
 	out.setL(L);
 }
 

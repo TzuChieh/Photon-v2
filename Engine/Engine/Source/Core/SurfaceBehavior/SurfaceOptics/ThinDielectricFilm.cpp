@@ -105,7 +105,7 @@ void ThinDielectricFilm::calcBsdfSample(
 
 		scale = m_reflectanceTable[index];
 
-		// account for probability
+		// Account for probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			scale.divLocal(reflectProb);
@@ -132,7 +132,7 @@ void ThinDielectricFilm::calcBsdfSample(
 			F.mulLocal(etaT * etaT / (etaI * etaI));
 		}*/
 
-		// account for probability
+		// Account for probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{
 			scale.divLocal(1.0_r - reflectProb);
@@ -145,9 +145,10 @@ void ThinDielectricFilm::calcBsdfSample(
 		return;
 	}
 
-	math::Spectrum pdfAppliedBsdf;
-	pdfAppliedBsdf.setSpectral((scale / N.absDot(L)).getColorValues(), math::EColorUsage::RAW);
-	out.setPdfAppliedBsdf(pdfAppliedBsdf);
+	math::Spectrum pdfAppliedBsdfCos;
+	pdfAppliedBsdfCos.setSpectral(scale.getColorValues(), math::EColorUsage::RAW);
+
+	out.setPdfAppliedBsdfCos(pdfAppliedBsdfCos, N.absDot(L));
 	out.setL(L);
 }
 

@@ -202,7 +202,7 @@ void BNEEPTEstimator::estimate(
 					{
 						const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
-						math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
+						math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdfCos();
 						weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
 
 						// Avoid excessive, negative weight and possible NaNs
@@ -214,15 +214,14 @@ void BNEEPTEstimator::estimate(
 				// Not do MIS (BSDF sample only)
 				else
 				{
-					math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
+					math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdfCos();
 					weight.mulLocal(accuLiWeight);
 
 					accuRadiance.addLocal(radianceLe.mulLocal(weight));
 				}
 			}
 
-			const math::Spectrum currentLiWeight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
-			accuLiWeight.mulLocal(currentLiWeight);
+			accuLiWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
 
 			if(numBounces >= 3)
 			{

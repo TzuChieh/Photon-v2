@@ -138,20 +138,20 @@ void TranslucentMicrofacet::calcBsdf(
 	}
 }
 
-// Cook-Torrance microfacet specular BRDF for translucent surface is:
-// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H))/(iorI*HoL+iorO*HoV)^2.
-// The importance sampling strategy is to generate a microfacet normal (H) which 
-// follows D(H)'s distribution, and generate L by reflecting/refracting -V using H.
-// The PDF for this sampling scheme is (D(H)*|NoH|)*(iorO^2*|HoV|/((iorI*HoL+iorO*HoV)^2)).
-// The reason that the latter multiplier in the PDF exists is because there's a 
-// jacobian involved (from H's probability space to L's).
-//
 void TranslucentMicrofacet::calcBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
+	// Cook-Torrance microfacet specular BRDF for translucent surface is
+	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H))/(iorI*HoL+iorO*HoV)^2.
+	// The importance sampling strategy is to generate a microfacet normal (H) which
+	// follows D(H)'s distribution, and generate L by reflecting/refracting -V using H.
+	// The PDF for this sampling scheme is (D(H)*|NoH|)*(iorO^2*|HoV|/((iorI*HoL+iorO*HoV)^2)).
+	// The reason that the latter multiplier in the PDF exists is because there's a
+	// jacobian involved (from H's probability space to L's).
+
 	const bool canReflect  = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == REFLECTION;
 	const bool canTransmit = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
@@ -243,20 +243,13 @@ void TranslucentMicrofacet::calcBsdfSample(
 		return;
 	}
 
-	const real NoL = N.dot(L);
 	const real HoV = H.dot(in.getV());
 	const real NoV = N.dot(in.getV());
 	const real NoH = N.dot(H);
+	const real dotTerms = std::abs(HoV / (NoV * NoH));
+	const real G = m_microfacet->shadowing(in.getX(), N, H, L, in.getV());
 
-	const real G        = m_microfacet->shadowing(in.getX(), N, H, L, in.getV());
-	const real dotTerms = std::abs(HoV / (NoV * NoL * NoH));
-	if(!std::isfinite(dotTerms))
-	{
-		out.setMeasurability(false);
-		return;
-	}
-
-	out.setPdfAppliedBsdf(F.mul(G* dotTerms));
+	out.setPdfAppliedBsdfCos(F.mul(G * dotTerms), N.absDot(L));
 	out.setL(L);
 }
 

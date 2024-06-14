@@ -83,13 +83,13 @@ inline bool TDirectLightEstimator<POLICY>::neeSampleEmission(
 
 	constexpr SurfaceHitReason reason{ESurfaceHitReason::SampledPos};
 	const SurfaceHit Xe(directSample.outputs.getObservationRay(), probe, reason);
-	const std::optional<Ray> visibilityRay = SurfaceHitRefinery{X}.tryEscape(Xe);
-	if(!visibilityRay || getScene().isOccluding(*visibilityRay))
+	const auto optVisibilityRay = SurfaceHitRefinery{X}.tryEscape(Xe);
+	if(!optVisibilityRay || getScene().isOccluding(*optVisibilityRay))
 	{
 		return false;
 	}
 
-	PH_ASSERT_IN_RANGE(visibilityRay->getDirection().lengthSquared(), 0.9_r, 1.1_r);
+	PH_ASSERT_IN_RANGE(optVisibilityRay->getDirection().lengthSquared(), 0.9_r, 1.1_r);
 	PH_ASSERT(Xe.getSurfaceEmitter());
 
 	if(out_Xe) { *out_Xe = Xe; }
@@ -122,8 +122,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			const SurfaceOptics* optics = X.getSurfaceOptics();
 			PH_ASSERT(optics);
 
-			const auto L              = bsdfSample.outputs.getL();
-			const auto pdfAppliedBsdf = bsdfSample.outputs.getPdfAppliedBsdf();
+			const auto pdfAppliedBsdfCos = bsdfSample.outputs.getPdfAppliedBsdfCos();
 
 			// If NEE cannot sample the same light from `X` (due to delta BSDF, etc.), then we
 			// cannot use MIS weighting to remove NEE contribution as BSDF sampling may not
@@ -145,8 +144,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 				if(bsdfSamplePdfW > 0)
 				{
 					const real misWeighting = MIS{}.weight(bsdfSamplePdfW, neePdfW);
-
-					math::Spectrum weight(pdfAppliedBsdf * N.absDot(L) * misWeighting);
+					math::Spectrum weight(pdfAppliedBsdfCos * misWeighting);
 
 					// Avoid excessive, negative weight and possible NaNs
 					weight.clampLocal(0.0_r, 1e9_r);
@@ -157,7 +155,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			// BSDF sample only
 			else
 			{
-				sampledLo += bsdfLe * pdfAppliedBsdf * N.absDot(L);
+				sampledLo += bsdfLe * pdfAppliedBsdfCos;
 			}
 		}
 

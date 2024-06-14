@@ -50,7 +50,7 @@ void BVPTDLEstimator::estimate(
 			math::Spectrum emittedRadiance;
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(firstHit, &emittedRadiance);
 
-			// avoid excessive, negative weight and possible NaNs
+			// Avoid excessive, negative weight and possible NaNs
 			emittedRadiance.clampLocal(0.0_r, 1000000000.0_r);
 
 			accuRadiance.addLocal(emittedRadiance.mul(accuPathWeight));
@@ -77,10 +77,7 @@ void BVPTDLEstimator::estimate(
 			return;
 		}
 
-		const math::Vector3R L          = bsdfSample.outputs.getL();
-		const math::Spectrum pathWeight = bsdfSample.outputs.getPdfAppliedBsdf().mul(N.absDot(L));
-
-		accuPathWeight.mulLocal(pathWeight);
+		accuPathWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
 
 		const auto* const      metadata        = secondHit.getDetail().getPrimitive()->getMetadata();
 		const SurfaceBehavior& surfaceBehavior = metadata->getSurface();

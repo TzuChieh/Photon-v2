@@ -162,6 +162,7 @@
 //	//		return;
 //	//	}
 //
+//		// TODO: use pdfAppliedBsdfCos
 //	//	Vector3R liWeight = bsdfSample.outputs.pdfAppliedBsdf.mul(N.absDot(L));
 //
 //	//	if(numBounces >= 3)

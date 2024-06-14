@@ -39,14 +39,18 @@ private:
 };
 
 /*!
-It is an error to get output data if `isMeasurable()` returns `false`.
+@note It is an error to get output data if `isMeasurable()` returns `false`.
 */
 class BsdfEvalOutput
 {
 public:
+	/*!
+	@param bsdf The evaluated BSDF.
+	@param inferMeasurability Whether to determine measurability from the supplied data.
+	*/
 	void setBsdf(
 		const math::Spectrum& bsdf, 
-		bool inferMeasurabilityFromThis = true);
+		bool inferMeasurability = true);
 
 	/*!
 	@return Get the evaluated BSDF. Guaranteed to be finite.

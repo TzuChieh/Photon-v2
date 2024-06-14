@@ -58,7 +58,6 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 		}
 
 		const math::Vector3R V = currentHit.getIncidentRay().getDirection().mul(-1);
-		const math::Vector3R N = currentHit.getShadingNormal();
 
 		BsdfSampleQuery bsdfSample{bsdfCtx};
 		bsdfSample.inputs.set(currentHit, V);
@@ -84,7 +83,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			}
 
 			currentHit = nextHit;
-			accuLiWeight *= bsdfSample.outputs.getPdfAppliedBsdf() * N.absDot(bsdfSample.outputs.getL());
+			accuLiWeight *= bsdfSample.outputs.getPdfAppliedBsdfCos();
 		}
 
 		++currentPathLength;
@@ -132,7 +131,6 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 		}
 
 		const math::Vector3R V = currentHit.getIncidentRay().getDirection().mul(-1);
-		const math::Vector3R N = currentHit.getShadingNormal();
 
 		BsdfSampleQuery bsdfSample{bsdfCtx};
 		bsdfSample.inputs.set(currentHit, V);
@@ -166,7 +164,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			currentHit = nextHit;
 		}
 
-		accuPathWeight *= bsdfSample.outputs.getPdfAppliedBsdf() * N.absDot(bsdfSample.outputs.getL());
+		accuPathWeight *= bsdfSample.outputs.getPdfAppliedBsdfCos();
 		++currentPathLength;
 	}
 

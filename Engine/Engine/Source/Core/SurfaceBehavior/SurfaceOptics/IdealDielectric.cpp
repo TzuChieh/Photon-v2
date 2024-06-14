@@ -158,7 +158,7 @@ void IdealDielectric::calcBsdfSample(
 		return;
 	}
 
-	out.setPdfAppliedBsdf(F / N.absDot(L));
+	out.setPdfAppliedBsdfCos(F, N.absDot(L));
 	out.setL(L);
 }
 

@@ -8,8 +8,10 @@
 
 ![lower teaser image](https://tzuchieh.github.io/images/photon_v2/teaser_lower.jpg)
 
-<img alt="GitHub License" src="https://img.shields.io/github/license/TzuChieh/Photon-v2">
-<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/TzuChieh/Photon-v2">
+<p float="middle">
+	<img alt="GitHub License" src="https://img.shields.io/github/license/TzuChieh/Photon-v2">
+	<img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/TzuChieh/Photon-v2">
+</p>
 
 ## A Brief Introduction
 
