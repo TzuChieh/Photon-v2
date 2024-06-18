@@ -78,7 +78,7 @@ void IdealReflector::calcBsdfPdf(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	out.setSampleDirPdfW(0);
+	out.setSampleDirPdf({});
 }
 
 }// end namespace ph

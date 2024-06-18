@@ -197,7 +197,7 @@ void LbLayeredSurface::calcBsdfPdf(
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const
 {
-	out.setSampleDirPdfW(0);
+	out.setSampleDirPdf({});
 
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
@@ -240,7 +240,7 @@ void LbLayeredSurface::calcBsdfPdf(
 
 	if(summedSampleWeights > 0.0_r && std::isfinite(pdf))
 	{
-		out.setSampleDirPdfW(pdf / summedSampleWeights);
+		out.setSampleDirPdf(lta::PDF::W(pdf / summedSampleWeights));
 	}
 }
 

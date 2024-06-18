@@ -89,8 +89,8 @@ class Exporter:
             cam_up_dir = rot @ mathutils.Vector((0, 1, 0))
 
             observer = sdl.SingleLensObserverCreator()
-            observer.set_position(sdl.Vector3(position))
-            observer.set_direction(sdl.Vector3(cam_dir))
+            observer.set_pos(sdl.Vector3(position))
+            observer.set_dir(sdl.Vector3(cam_dir))
             observer.set_up_axis(sdl.Vector3(cam_up_dir))
 
             lens_unit = b_camera.lens_unit

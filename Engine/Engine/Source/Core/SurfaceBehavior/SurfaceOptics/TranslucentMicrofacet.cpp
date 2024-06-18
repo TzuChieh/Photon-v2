@@ -271,7 +271,7 @@ void TranslucentMicrofacet::calcBsdfPdf(
 		math::Vector3R H;
 		if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 		{
-			out.setSampleDirPdfW(0);
+			out.setSampleDirPdf({});
 			return;
 		}
 
@@ -306,7 +306,7 @@ void TranslucentMicrofacet::calcBsdfPdf(
 		math::Vector3R H = in.getL().mul(-etaI).add(in.getV().mul(-etaT));
 		if(H.isZero())
 		{
-			out.setSampleDirPdfW(0);
+			out.setSampleDirPdf({});
 			return;
 		}
 		H.normalizeLocal();
@@ -338,7 +338,7 @@ void TranslucentMicrofacet::calcBsdfPdf(
 		sampleDirPdfW = 0;
 	}
 
-	out.setSampleDirPdfW(std::isfinite(sampleDirPdfW) ? sampleDirPdfW : 0.0_r);
+	out.setSampleDirPdf(lta::PDF::W(sampleDirPdfW));
 }
 
 real TranslucentMicrofacet::getReflectionProbability(const math::Spectrum& F)

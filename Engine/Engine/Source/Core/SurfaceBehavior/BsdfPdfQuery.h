@@ -45,7 +45,6 @@ private:
 class BsdfPdfOutput final
 {
 public:
-	void setSampleDirPdfW(real pdfW);
 	void setSampleDirPdf(const lta::PDF& pdf);
 
 	real getSampleDirPdfW() const;
@@ -124,11 +123,6 @@ inline const math::Vector3R& BsdfPdfInput::getV() const
 	PH_ASSERT(m_hasSet);
 
 	return m_V;
-}
-
-inline void BsdfPdfOutput::setSampleDirPdfW(const real pdfW)
-{
-	setSampleDirPdf(lta::PDF::W(pdfW));
 }
 
 inline void BsdfPdfOutput::setSampleDirPdf(const lta::PDF& pdf)

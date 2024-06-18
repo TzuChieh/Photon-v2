@@ -56,7 +56,7 @@ void SurfaceOptics::calcBsdfPdf(BsdfPdfQuery& pdfQuery) const
 	if(!pdfQuery.context.sidedness.isSidednessAgreed(pdfQuery.inputs.getX(), pdfQuery.inputs.getL()) ||
 	   !pdfQuery.context.sidedness.isSidednessAgreed(pdfQuery.inputs.getX(), pdfQuery.inputs.getV()))
 	{
-		pdfQuery.outputs.setSampleDirPdfW(0);
+		pdfQuery.outputs.setSampleDirPdf({});
 		return;
 	}
 

@@ -90,12 +90,12 @@ void LambertianDiffuse::calcBsdfPdf(
 {
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
-		out.setSampleDirPdfW(0);
+		out.setSampleDirPdf({});
 		return;
 	}
 
 	const math::Vector3R N = in.getX().getShadingNormal();
-	out.setSampleDirPdfW(in.getL().absDot(N) * math::constant::rcp_pi<real>);
+	out.setSampleDirPdf(lta::PDF::W(in.getL().absDot(N) * math::constant::rcp_pi<real>));
 }
 
 }// end namespace ph

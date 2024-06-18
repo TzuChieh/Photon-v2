@@ -260,12 +260,12 @@ void LerpedSurfaceOptics::calcBsdfPdf(
 		m_optics0->calcBsdfPdf(ctx, in, query0);
 		m_optics1->calcBsdfPdf(ctx, in, query1);
 
-		out.setSampleDirPdfW(
-			query0.getSampleDirPdfW() * prob + query1.getSampleDirPdfW() * (1.0_r - prob));
+		out.setSampleDirPdf(lta::PDF::W(
+			query0.getSampleDirPdfW() * prob + query1.getSampleDirPdfW() * (1.0_r - prob)));
 	}
 	else if(ctx.elemental == ALL_SURFACE_ELEMENTALS && m_containsDelta)
 	{
-		out.setSampleDirPdfW(0);
+		out.setSampleDirPdf({});
 	}
 	else
 	{

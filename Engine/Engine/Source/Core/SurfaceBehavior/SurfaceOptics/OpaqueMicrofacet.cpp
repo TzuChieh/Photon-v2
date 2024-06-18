@@ -125,14 +125,14 @@ void OpaqueMicrofacet::calcBsdfPdf(
 	// Ensure L & V lies on the same side of the surface
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), in.getL(), in.getV()))
 	{
-		out.setSampleDirPdfW(0);
+		out.setSampleDirPdf({});
 		return;
 	}
 
 	math::Vector3R H;
 	if(!BsdfHelper::makeHalfVectorSameHemisphere(in.getL(), in.getV(), N, &H))
 	{
-		out.setSampleDirPdfW(0);
+		out.setSampleDirPdf({});
 		return;
 	}
 
@@ -141,7 +141,7 @@ void OpaqueMicrofacet::calcBsdfPdf(
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 
 	const real pdfW = std::abs(D * NoH / (4.0_r * HoL));
-	out.setSampleDirPdfW(std::isfinite(pdfW) ? pdfW : 0);
+	out.setSampleDirPdf(lta::PDF::W(pdfW));
 }
 
 }// end namespace ph
