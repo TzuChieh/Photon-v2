@@ -97,7 +97,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	if(!radianceFunctionInfo.isAnalytical)
 	{
 		domeEmitter = ctx.getResources()->makeEmitter<LatLongEnvEmitter>(
-			domePrimitive->getInjectee(),
+			domePrimitive,
 			radianceFunction,
 			radianceFunctionInfo.resolution);
 	}
@@ -105,7 +105,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 	{
 		// FIXME: proper resolution for analytical emitter
 		domeEmitter = ctx.getResources()->makeEmitter<LatLongEnvEmitter>(
-			domePrimitive->getInjectee(),
+			domePrimitive,
 			radianceFunction,
 			math::Vector2S(512, 256));
 	}

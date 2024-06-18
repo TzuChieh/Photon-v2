@@ -12,7 +12,7 @@
 namespace ph
 {
 
-class PLatLongEnvSphere;
+class Primitive;
 
 /*! @brief Models energy coming from background.
 
@@ -28,7 +28,7 @@ public:
 	using RadianceTexture = std::shared_ptr<TTexture<math::Spectrum>>;
 
 	LatLongEnvEmitter(
-		const PLatLongEnvSphere* surface,
+		const Primitive*         envSurface,
 		const RadianceTexture&   radiance,
 		const math::Vector2S&    resolution);
 
@@ -49,7 +49,7 @@ public:
 	real calcRadiantFluxApprox() const override;
 
 private:
-	const PLatLongEnvSphere*       m_surface;
+	const Primitive*               m_envSurface;
 	RadianceTexture                m_radiance;
 	math::TPwcDistribution2D<real> m_sampleDistribution;
 	real                           m_radiantFluxApprox;
