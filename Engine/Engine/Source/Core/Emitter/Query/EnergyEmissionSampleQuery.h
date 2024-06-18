@@ -3,6 +3,7 @@
 #include "Math/TVector3.h"
 #include "Core/Ray.h"
 #include "Core/Quantity/Time.h"
+#include "Core/LTA/PDF.h"
 #include "Math/Color/Spectrum.h"
 
 #include <Common/assertion.h>
@@ -11,6 +12,8 @@
 namespace ph
 {
 
+/*! @brief Input for `EnergyEmissionSampleQuery`.
+*/
 class EnergyEmissionSampleInput final
 {
 public:
@@ -25,16 +28,19 @@ private:
 #endif
 };
 
+/*! @brief Output for `EnergyEmissionSampleQuery`.
+*/
 class EnergyEmissionSampleOutput final
 {
 public:
-	void setPdf(real pdfA, real pdfW);
+	void setPdf(const lta::PDF& pdfPos, const lta::PDF& pdfDir);
 	void setEmittedRay(const Ray& emittedRay);
 	void setEmittedEnergy(const math::Spectrum& emittedEnergy);
-	void invalidate();
 
 	real getPdfA() const;
 	real getPdfW() const;
+	const lta::PDF& getPdfPos() const;
+	const lta::PDF& getPdfDir() const;
 	const Ray& getEmittedRay() const;
 	const math::Spectrum& getEmittedEnergy() const;
 
@@ -45,12 +51,14 @@ public:
 	operator bool () const;
 
 private:
-	real m_pdfA{0};
-	real m_pdfW{0};
-	Ray m_emittedRay{};
+	lta::PDF       m_pdfPos{};
+	lta::PDF       m_pdfDir{};
+	Ray            m_emittedRay{};
 	math::Spectrum m_emittedEnergy{0};
 };
 
+/*! @brief Information for generating a sample for energy emission.
+*/
 class EnergyEmissionSampleQuery final
 {
 public:
@@ -81,10 +89,10 @@ inline const Time& EnergyEmissionSampleInput::getTime() const
 	return m_time;
 }
 
-inline void EnergyEmissionSampleOutput::setPdf(const real pdfA, const real pdfW)
+inline void EnergyEmissionSampleOutput::setPdf(const lta::PDF& pdfPos, const lta::PDF& pdfDir)
 {
-	m_pdfA = pdfA;
-	m_pdfW = pdfW;
+	m_pdfPos = pdfPos;
+	m_pdfDir = pdfDir;
 }
 
 inline void EnergyEmissionSampleOutput::setEmittedRay(const Ray& emittedRay)
@@ -97,25 +105,28 @@ inline void EnergyEmissionSampleOutput::setEmittedEnergy(const math::Spectrum& e
 	m_emittedEnergy = emittedEnergy;
 }
 
-inline void EnergyEmissionSampleOutput::invalidate()
-{
-	// Must cuase `EnergyEmissionSampleOutput::operator bool ()` method to evaluate to `false`
-	m_pdfA = 0;
-	m_pdfW = 0;
-
-	PH_ASSERT(!(*this));
-}
-
 inline real EnergyEmissionSampleOutput::getPdfA() const
 {
 	PH_ASSERT(*this);
-	return m_pdfA;
+	return m_pdfPos.getPdfA();
 }
 
 inline real EnergyEmissionSampleOutput::getPdfW() const
 {
 	PH_ASSERT(*this);
-	return m_pdfW;
+	return m_pdfDir.getPdfW();
+}
+
+inline const lta::PDF& EnergyEmissionSampleOutput::getPdfPos() const
+{
+	PH_ASSERT(*this);
+	return m_pdfPos;
+}
+
+inline const lta::PDF& EnergyEmissionSampleOutput::getPdfDir() const
+{
+	PH_ASSERT(*this);
+	return m_pdfDir;
 }
 
 inline const Ray& EnergyEmissionSampleOutput::getEmittedRay() const
@@ -132,7 +143,7 @@ inline const math::Spectrum& EnergyEmissionSampleOutput::getEmittedEnergy() cons
 
 inline EnergyEmissionSampleOutput::operator bool () const
 {
-	return m_pdfA > 0 && m_pdfW > 0;
+	return !m_pdfPos.isEmpty() && !m_pdfDir.isEmpty();
 }
 
 }// end namespace ph

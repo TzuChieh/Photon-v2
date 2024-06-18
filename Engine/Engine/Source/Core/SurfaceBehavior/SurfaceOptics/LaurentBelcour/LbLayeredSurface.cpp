@@ -106,7 +106,7 @@ void LbLayeredSurface::calcBsdf(
 	out.setBsdf(bsdf);
 }
 
-void LbLayeredSurface::calcBsdfSample(
+void LbLayeredSurface::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -192,7 +192,7 @@ void LbLayeredSurface::calcBsdfSample(
 	out.setL(L);
 }
 
-void LbLayeredSurface::calcBsdfSamplePdfW(
+void LbLayeredSurface::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

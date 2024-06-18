@@ -9,7 +9,7 @@ namespace ph
 static_assert(std::is_trivially_copyable_v<HitInfo>);
 
 HitInfo::HitInfo() :
-	m_position(0, 0, 0),
+	m_pos(0, 0, 0),
 
 	// TODO: default axes should change here
 	m_dPdU(0, 0, 1),

@@ -249,11 +249,11 @@ inline math::Spectrum TVPMRadianceEvaluator<Photon, PhotonMap>
 	const math::Spectrum& viewPathThroughput)
 {
 	m_photonCache.clear();
-	m_photonMap->find(X.getPosition(), m_kernelRadius, m_photonCache);
+	m_photonMap->find(X.getPos(), m_kernelRadius, m_photonCache);
 
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
-	const math::Vector3R L  = X.getIncidentRay().getDirection().mul(-1);
+	const math::Vector3R L  = X.getIncidentRay().getDir().mul(-1);
 	const math::Vector3R Ns = X.getShadingNormal();
 	const math::Vector3R Ng = X.getGeometryNormal();
 

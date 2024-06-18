@@ -28,7 +28,7 @@ public:
 
 private:
 	math::Spectrum m_throughputRadiance;
-	math::Vector3R m_position;
+	math::Vector3R m_pos;
 	math::Vector3R m_fromDir;
 	math::Vector3R m_geometryNormal;
 	uint32         m_pathLength;
@@ -41,7 +41,7 @@ inline constexpr bool FullPhoton::impl_has()
 {
 	if constexpr(
 		TYPE == EPhotonData::ThroughputRadiance ||
-		TYPE == EPhotonData::Position           || 
+		TYPE == EPhotonData::Pos                || 
 		TYPE == EPhotonData::FromDir            ||
 		TYPE == EPhotonData::GeometryNormal     ||
 		TYPE == EPhotonData::PathLength)
@@ -61,9 +61,9 @@ inline decltype(auto) FullPhoton::impl_get() const
 	{
 		return m_throughputRadiance;
 	}
-	else if constexpr(TYPE == EPhotonData::Position)
+	else if constexpr(TYPE == EPhotonData::Pos)
 	{
-		return m_position;
+		return m_pos;
 	}
 	else if constexpr(TYPE == EPhotonData::FromDir)
 	{
@@ -91,9 +91,9 @@ inline void FullPhoton::impl_set(const T& value)
 	{
 		m_throughputRadiance = value;
 	}
-	else if constexpr(TYPE == EPhotonData::Position)
+	else if constexpr(TYPE == EPhotonData::Pos)
 	{
-		m_position = value;
+		m_pos = value;
 	}
 	else if constexpr(TYPE == EPhotonData::FromDir)
 	{

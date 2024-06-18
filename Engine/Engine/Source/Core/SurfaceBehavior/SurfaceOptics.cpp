@@ -29,7 +29,7 @@ void SurfaceOptics::calcBsdf(BsdfEvalQuery& eval) const
 		eval.outputs);
 }
 
-void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlow) const
+void SurfaceOptics::genBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFlow) const
 {
 	if(!sample.context.sidedness.isSidednessAgreed(sample.inputs.getX(), sample.inputs.getV()))
 	{
@@ -37,7 +37,7 @@ void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFl
 		return;
 	}
 
-	calcBsdfSample(
+	genBsdfSample(
 		sample.context,
 		sample.inputs, 
 		sampleFlow,
@@ -51,7 +51,7 @@ void SurfaceOptics::calcBsdfSample(BsdfSampleQuery& sample, SampleFlow& sampleFl
 	}
 }
 
-void SurfaceOptics::calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const
+void SurfaceOptics::calcBsdfPdf(BsdfPdfQuery& pdfQuery) const
 {
 	if(!pdfQuery.context.sidedness.isSidednessAgreed(pdfQuery.inputs.getX(), pdfQuery.inputs.getL()) ||
 	   !pdfQuery.context.sidedness.isSidednessAgreed(pdfQuery.inputs.getX(), pdfQuery.inputs.getV()))
@@ -60,7 +60,7 @@ void SurfaceOptics::calcBsdfSamplePdfW(BsdfPdfQuery& pdfQuery) const
 		return;
 	}
 
-	calcBsdfSamplePdfW(
+	calcBsdfPdf(
 		pdfQuery.context,
 		pdfQuery.inputs,
 		pdfQuery.outputs);

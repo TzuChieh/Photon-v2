@@ -13,7 +13,7 @@ namespace ph::math { class RigidTransform; }
 namespace ph
 {
 
-/*!
+/*! @brief Applies rigid transformation to a primitive.
 A transformed primitive accepts only rigid transformations. This way,
 properties such as surface area and volume are guaranteed to be the same
 during transformations.
@@ -115,13 +115,7 @@ public:
 		SampleFlow& sampleFlow,
 		HitProbe& probe) const override;
 
-	void calcPosSamplePdfA(
-		PrimitivePosSamplePdfQuery& query,
-		HitProbe& probe) const override;
-
-	bool uvwToPosition(
-		const math::Vector3R& uvw,
-		math::Vector3R*       out_position) const override;
+	void calcPosPdf(PrimitivePosPdfQuery& query) const override;
 
 	real calcExtendedArea() const override
 	{

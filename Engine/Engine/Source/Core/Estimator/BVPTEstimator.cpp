@@ -71,7 +71,7 @@ void BVPTEstimator::estimate(
 			accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
 		}
 
-		const math::Vector3R V = tracingRay.getDirection().mul(-1.0f);
+		const math::Vector3R V = tracingRay.getDir().mul(-1.0f);
 		const math::Vector3R N = surfaceHit.getShadingNormal();
 
 		BsdfSampleQuery bsdfSample;
@@ -124,7 +124,7 @@ void BVPTEstimator::estimate(
 
 				BsdfSampleQuery bsdfSample;
 				bsdfSample.inputs.set(Xe, endV);
-				metadata->getSurface().getOptics()->calcBsdfSample(bsdfSample, sampleFlow);
+				metadata->getSurface().getOptics()->genBsdfSample(bsdfSample, sampleFlow);
 				if(!bsdfSample.outputs.isMeasurable())
 				{
 					break;
@@ -137,10 +137,10 @@ void BVPTEstimator::estimate(
 					break;
 				}
 
-				const math::Vector3R nextRayOrigin(Xe.getPosition());
-				const math::Vector3R nextRayDirection(bsdfSample.outputs.getL());
+				const math::Vector3R nextRayOrigin(Xe.getPos());
+				const math::Vector3R nextRayDir(bsdfSample.outputs.getL());
 				tracingRay.setOrigin(nextRayOrigin);
-				tracingRay.setDirection(nextRayDirection);
+				tracingRay.setDir(nextRayDir);
 			}
 			else
 			{

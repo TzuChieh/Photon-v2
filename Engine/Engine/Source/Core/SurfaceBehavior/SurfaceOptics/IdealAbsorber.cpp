@@ -29,7 +29,7 @@ void IdealAbsorber::calcBsdf(
 	out.setMeasurability(false);
 }
 
-void IdealAbsorber::calcBsdfSample(
+void IdealAbsorber::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             /* sampleFlow */,
@@ -38,7 +38,7 @@ void IdealAbsorber::calcBsdfSample(
 	out.setMeasurability(false);
 }
 
-void IdealAbsorber::calcBsdfSamplePdfW(
+void IdealAbsorber::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

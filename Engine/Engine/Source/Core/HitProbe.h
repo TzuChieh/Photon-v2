@@ -29,9 +29,25 @@ public:
 	*/
 	HitProbe();
 
+	/*! @brief Calculates basic hit information using this probe.
+	@warning This method will destroy `this` probe.
+	*/
 	void calcHitDetail(const Ray& ray, HitDetail* out_detail);
+
+	/*! @brief Calculates full hit information using this probe.
+	@warning This method will destroy `this` probe.
+	*/
 	void calcFullHitDetail(const Ray& ray, HitDetail* out_detail);
+
+	/*! @brief Intersect the intersected object again with a different ray.
+	@param ray The different ray to use for intersection test.
+	@param probe The probe to record the intersection.
+	@param srcRay The ray from a previous hit event (associated with `this` probe).
+	@note Generates hit event (with `ray` and `probe`).
+	@warning This method will destroy `this` probe.
+	*/
 	bool reintersect(const Ray& ray, HitProbe& probe, const Ray& srcRay);
+
 	bool isOnDefaultChannel() const;
 
 	/*!

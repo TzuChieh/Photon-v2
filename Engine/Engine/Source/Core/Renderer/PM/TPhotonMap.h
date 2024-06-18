@@ -44,9 +44,9 @@ public:
 
 		math::Vector3R operator () (const Photon& photon) const
 		{
-			static_assert(Photon::template has<EPhotonData::Position>());
+			static_assert(Photon::template has<EPhotonData::Pos>());
 
-			return photon.template get<EPhotonData::Position>();
+			return photon.template get<EPhotonData::Pos>();
 		}
 	};
 

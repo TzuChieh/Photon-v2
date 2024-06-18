@@ -39,9 +39,7 @@ public:
 		SampleFlow& sampleFlow,
 		HitProbe& probe) const override;
 
-	void calcPosSamplePdfA(
-		PrimitivePosSamplePdfQuery& query,
-		HitProbe& probe) const override;
+	void calcPosPdf(PrimitivePosPdfQuery& query) const override;
 
 	real calcExtendedArea() const override;
 

@@ -4,6 +4,7 @@
 #include "Core/Ray.h"
 #include "Core/Quantity/Time.h"
 #include "Core/SurfaceHit.h"
+#include "Core/LTA/PDF.h"
 #include "Math/Color/Spectrum.h"
 
 #include <Common/assertion.h>
@@ -13,32 +14,44 @@ namespace ph
 
 class Primitive;
 
+/*! @brief Input for `DirectEnergySampleQuery`.
+*/
 class DirectEnergySampleInput final
 {
 public:
 	void set(const SurfaceHit& X);
 
+	/*!
+	@return Information about the energy receiving position.
+	*/
 	const SurfaceHit& getX() const;
+
+	/*!
+	@return The position that receives energy.
+	*/
 	math::Vector3R getTargetPos() const;
-	const Time& getTime() const;
 
 private:
 	SurfaceHit m_X;
 #if PH_DEBUG
-	bool m_hasSet{false};
+	bool       m_hasSet{false};
 #endif
 };
 
+/*! @brief Output for `DirectEnergySampleQuery`.
+*/
 class DirectEnergySampleOutput final
 {
 public:
 	void setEmitPos(const math::Vector3R& emitPos);
 	void setEmittedEnergy(const math::Spectrum& emittedEnergy);
-	void setPdfW(real pdfW);
+	void setPdf(const lta::PDF& pdf);
 	void setSrcPrimitive(const Primitive* srcPrimitive);
 	void setObservationRay(const Ray& observationRay);
-	void invalidate();
 
+	/*!
+	@return The position that emits energy.
+	*/
 	const math::Vector3R& getEmitPos() const;
 
 	/*! @brief The sampled emitted energy of. Does not contain any path weighting.
@@ -46,6 +59,7 @@ public:
 	const math::Spectrum& getEmittedEnergy() const;
 
 	real getPdfW() const;
+	const lta::PDF& getPdf() const;
 	const Primitive* getSrcPrimitive() const;
 
 	/*! @brief Get the ray from target position to sampled emitting position.
@@ -64,11 +78,13 @@ public:
 private:
 	math::Vector3R   m_emitPos{0};
 	math::Spectrum   m_emittedEnergy{0};
-	real             m_pdfW{0};
+	lta::PDF         m_pdf{};
 	const Primitive* m_srcPrimitive{nullptr};
 	Ray              m_observationRay{};
 };
 
+/*! @brief Information for generating a sample for direct energy estimation.
+*/
 class DirectEnergySampleQuery final
 {
 public:
@@ -101,14 +117,7 @@ inline const SurfaceHit& DirectEnergySampleInput::getX() const
 
 inline math::Vector3R DirectEnergySampleInput::getTargetPos() const
 {
-	PH_ASSERT(m_hasSet);
-	return m_X.getPosition();
-}
-
-inline const Time& DirectEnergySampleInput::getTime() const
-{
-	PH_ASSERT(m_hasSet);
-	return m_X.getTime();
+	return getX().getPos();
 }
 
 inline void DirectEnergySampleOutput::setEmitPos(const math::Vector3R& emitPos)
@@ -121,9 +130,9 @@ inline void DirectEnergySampleOutput::setEmittedEnergy(const math::Spectrum& emi
 	m_emittedEnergy = emittedEnergy;
 }
 
-inline void DirectEnergySampleOutput::setPdfW(const real pdfW)
+inline void DirectEnergySampleOutput::setPdf(const lta::PDF& pdf)
 {
-	m_pdfW = pdfW;
+	m_pdf = pdf;
 }
 
 inline void DirectEnergySampleOutput::setSrcPrimitive(const Primitive* srcPrimitive)
@@ -134,14 +143,6 @@ inline void DirectEnergySampleOutput::setSrcPrimitive(const Primitive* srcPrimit
 inline void DirectEnergySampleOutput::setObservationRay(const Ray& observationRay)
 {
 	m_observationRay = observationRay;
-}
-
-inline void DirectEnergySampleOutput::invalidate()
-{
-	// Must cuase `DirectEnergySampleOutput::operator bool ()` method to evaluate to `false`
-	m_pdfW = 0;
-
-	PH_ASSERT(!(*this));
 }
 
 inline const math::Vector3R& DirectEnergySampleOutput::getEmitPos() const
@@ -159,7 +160,13 @@ inline const math::Spectrum& DirectEnergySampleOutput::getEmittedEnergy() const
 inline real DirectEnergySampleOutput::getPdfW() const
 {
 	PH_ASSERT(*this);
-	return m_pdfW;
+	return m_pdf.getPdfW();
+}
+
+inline const lta::PDF& DirectEnergySampleOutput::getPdf() const
+{
+	PH_ASSERT(*this);
+	return m_pdf;
 }
 
 inline const Primitive* DirectEnergySampleOutput::getSrcPrimitive() const
@@ -177,7 +184,7 @@ inline const Ray& DirectEnergySampleOutput::getObservationRay() const
 
 inline DirectEnergySampleOutput::operator bool () const
 {
-	return m_pdfW;
+	return !m_pdf.isEmpty();
 }
 
 inline math::Vector3R DirectEnergySampleQuery::getTargetToEmit() const

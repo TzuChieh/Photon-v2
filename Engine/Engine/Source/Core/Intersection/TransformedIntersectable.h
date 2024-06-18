@@ -11,6 +11,8 @@
 namespace ph
 {
 
+/*! @brief Applies general transformation to an intersectable.
+*/
 class TransformedIntersectable : public Intersectable
 {
 	// FIXME: intersecting routines' time correctness

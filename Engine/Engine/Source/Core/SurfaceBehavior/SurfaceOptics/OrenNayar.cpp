@@ -116,7 +116,7 @@ void OrenNayar::calcBsdf(
 	out.setBsdf(bsdf);
 }
 
-void OrenNayar::calcBsdfSample(
+void OrenNayar::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -156,7 +156,7 @@ void OrenNayar::calcBsdfSample(
 	out.setL(L);
 }
 
-void OrenNayar::calcBsdfSamplePdfW(
+void OrenNayar::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

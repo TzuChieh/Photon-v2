@@ -247,7 +247,7 @@ public:
 		const math::Vector3R& potentialHitPos,
 		const math::Vector3R& potentialHitNormal,
 		math::Vector3R* const out_actualHitPos,
-		math::Vector3R* const out_actualhitNormal)
+		math::Vector3R* const out_actualHitNormal)
 	{
 		// Use longest random position ray towards potential hit to have better chance getting a hit
 		auto ray = makeRandomPosRay(config, potentialHitPos, potentialHitNormal);
@@ -263,9 +263,9 @@ public:
 		intersectable.calcHitDetail(ray, probe, &detail);
 
 		PH_ASSERT(out_actualHitPos);
-		PH_ASSERT(out_actualhitNormal);
-		*out_actualHitPos = detail.getPosition();
-		*out_actualhitNormal = detail.getGeometryNormal();
+		PH_ASSERT(out_actualHitNormal);
+		*out_actualHitPos = detail.getPos();
+		*out_actualHitNormal = detail.getGeometryNormal();
 		return true;
 	}
 
@@ -278,7 +278,7 @@ public:
 	{
 		// Offset in the hemisphere of N such that we will not bump into ourself
 		// (TODO: for some shapes we need more logics, e.g., offset into -N for concaves)
-		const auto offsetDir = targetHitNormal.dot(targetRay.getDirection()) >= 0.0_r
+		const auto offsetDir = targetHitNormal.dot(targetRay.getDir()) >= 0.0_r
 			? targetHitNormal : -targetHitNormal;
 
 		// Assumes `targetHitPos` is an intersection point on `intersectable`
@@ -373,9 +373,9 @@ public:
 				ptriangle.calcHitDetail(ray, probe, &detail);
 
 				result.rayOrigin = ray.getOrigin();
-				result.hitPos = detail.getPosition();
+				result.hitPos = detail.getPos();
 				result.offsetDistance = findOffsetDistance(
-					config, ptriangle, ray, detail.getPosition(), detail.getGeometryNormal());
+					config, ptriangle, ray, detail.getPos(), detail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -460,9 +460,9 @@ public:
 				data.triangle->calcHitDetail(ray, probe, &detail);
 
 				result.rayOrigin = ray.getOrigin();
-				result.hitPos = detail.getPosition();
+				result.hitPos = detail.getPos();
 				result.offsetDistance = findOffsetDistance(
-					config, *data.triangle, ray, detail.getPosition(), detail.getGeometryNormal());
+					config, *data.triangle, ray, detail.getPos(), detail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -569,9 +569,9 @@ public:
 				psphere.calcHitDetail(ray, probe, &detail);
 
 				result.rayOrigin = ray.getOrigin();
-				result.hitPos = detail.getPosition();
+				result.hitPos = detail.getPos();
 				result.offsetDistance = findOffsetDistance(
-					config, psphere, ray, detail.getPosition(), detail.getGeometryNormal());
+					config, psphere, ray, detail.getPos(), detail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);
@@ -648,9 +648,9 @@ public:
 				data.sphere->calcHitDetail(ray, probe, &detail);
 
 				result.rayOrigin = ray.getOrigin();
-				result.hitPos = detail.getPosition();
+				result.hitPos = detail.getPos();
 				result.offsetDistance = findOffsetDistance(
-					config, *data.sphere, ray, detail.getPosition(), detail.getGeometryNormal());
+					config, *data.sphere, ray, detail.getPos(), detail.getGeometryNormal());
 
 				results.push_back(result);
 				g_numIntersects.fetch_add(1, std::memory_order_relaxed);

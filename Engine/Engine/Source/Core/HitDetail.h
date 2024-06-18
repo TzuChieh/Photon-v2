@@ -48,7 +48,7 @@ public:
 
 	void computeBases();
 
-	math::Vector3R getPosition(ECoordSys coordSys = ECoordSys::World) const;
+	math::Vector3R getPos(ECoordSys coordSys = ECoordSys::World) const;
 	math::Vector3R getShadingNormal(ECoordSys coordSys = ECoordSys::World) const;
 	math::Vector3R getGeometryNormal(ECoordSys coordSys = ECoordSys::World) const;
 	math::Vector3R getdPdU(ECoordSys coordSys = ECoordSys::World) const;
@@ -100,9 +100,9 @@ private:
 
 // In-header Implementations:
 
-inline math::Vector3R HitDetail::getPosition(const ECoordSys coordSys) const
+inline math::Vector3R HitDetail::getPos(const ECoordSys coordSys) const
 {
-	return getHitInfo(coordSys).getPosition();
+	return getHitInfo(coordSys).getPos();
 }
 
 inline math::Vector3R HitDetail::getShadingNormal(const ECoordSys coordSys) const

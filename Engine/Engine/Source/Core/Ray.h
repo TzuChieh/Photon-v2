@@ -23,7 +23,7 @@ public:
 	class Differential;
 
 public:
-	/*! @brief A ray which state is unspecified.
+	/*! @brief A ray with unspecified state.
 	*/
 	Ray() = default;
 
@@ -88,7 +88,7 @@ public:
 
 	Note that the vector does not need to be normalized.
 	*/
-	void setDirection(const math::Vector3R& dir);
+	void setDir(const math::Vector3R& dir);
 
 	void setSegment(const math::TLineSegment<real>& segment);
 
@@ -98,7 +98,7 @@ public:
 	*/
 	///@{
 	const math::Vector3R& getOrigin() const;
-	const math::Vector3R& getDirection() const;
+	const math::Vector3R& getDir() const;
 	real getMinT() const;
 	real getMaxT() const;
 	const math::TLineSegment<real>& getSegment() const;
@@ -186,9 +186,9 @@ inline void Ray::setOrigin(const math::Vector3R& pos)
 	m_segment.setOrigin(pos);
 }
 
-inline void Ray::setDirection(const math::Vector3R& dir)
+inline void Ray::setDir(const math::Vector3R& dir)
 {
-	m_segment.setDirection(dir);
+	m_segment.setDir(dir);
 }
 
 inline void Ray::setSegment(const math::TLineSegment<real>& segment)
@@ -211,9 +211,9 @@ inline const math::Vector3R& Ray::getOrigin() const
 	return m_segment.getOrigin();
 }
 
-inline const math::Vector3R& Ray::getDirection() const
+inline const math::Vector3R& Ray::getDir() const
 {
-	return m_segment.getDirection();
+	return m_segment.getDir();
 }
 
 inline real Ray::getMinT() const

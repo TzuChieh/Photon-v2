@@ -75,7 +75,7 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 		const real           R          = viewpoint.get<EViewpointData::Radius>();
 
 		photonCache.clear();
-		m_photonMap->find(surfaceHit.getPosition(), R, photonCache);
+		m_photonMap->find(surfaceHit.getPos(), R, photonCache);
 
 		const real N    = viewpoint.get<EViewpointData::NumPhotons>();
 		const real M    = static_cast<real>(photonCache.size());

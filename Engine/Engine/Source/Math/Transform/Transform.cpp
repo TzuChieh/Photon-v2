@@ -49,16 +49,16 @@ void Transform::transformP(const Vector3R& point, Vector3R* const out_point) con
 
 void Transform::transform(const Ray& ray, Ray* const out_ray) const
 {
-	Vector3R rayOrigin, rayDirection;
+	Vector3R rayOrigin, rayDir;
 	real rayMinT, rayMaxT;
-	transformLineSegment(ray.getOrigin(), ray.getDirection(), 
+	transformLineSegment(ray.getOrigin(), ray.getDir(),
 	                     ray.getMinT(), ray.getMaxT(), 
 	                     ray.getTime(),
-	                     &rayOrigin, &rayDirection,
+	                     &rayOrigin, &rayDir,
 	                     &rayMinT, &rayMaxT);
 
 	out_ray->setOrigin(rayOrigin);
-	out_ray->setDirection(rayDirection);
+	out_ray->setDir(rayDir);
 	out_ray->setMinT(rayMinT);
 	out_ray->setMaxT(rayMaxT);
 }
@@ -69,7 +69,7 @@ void Transform::transform(const HitInfo& info, const Time& time,
 	Vector3R tPosition;
 	Vector3R tGeometryNormal;
 	Vector3R tShadingNormal;
-	transformPoint(info.getPosition(), time, &tPosition);
+	transformPoint(info.getPos(), time, &tPosition);
 	transformOrientation(info.getGeometryNormal(), time, &tGeometryNormal);
 	transformOrientation(info.getShadingNormal(), time, &tShadingNormal);
 

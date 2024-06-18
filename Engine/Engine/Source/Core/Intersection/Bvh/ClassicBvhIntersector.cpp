@@ -41,7 +41,7 @@ void ClassicBvhIntersector::update(TSpanView<const Intersectable*> intersectable
 
 bool ClassicBvhIntersector::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
-	const int32 isDirNeg[3] = {ray.getDirection().x() < 0, ray.getDirection().y() < 0, ray.getDirection().z() < 0};
+	const int32 isDirNeg[3] = {ray.getDir().x() < 0, ray.getDir().y() < 0, ray.getDir().z() < 0};
 
 	std::size_t todoNodes[NODE_STACK_SIZE];
 	int32       numTodoNodes     = 0;

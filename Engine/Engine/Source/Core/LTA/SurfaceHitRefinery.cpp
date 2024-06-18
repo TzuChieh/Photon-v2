@@ -92,7 +92,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 	while(true)
 	{
 		HitProbe probe;
-		Ray ray(X.getPosition() + offsetDir * maxDist, escapeDir, X.getTime());
+		Ray ray(X.getPos() + offsetDir * maxDist, escapeDir, X.getTime());
 		if(!reintersect(X, ray, probe))
 		{
 			break;
@@ -122,7 +122,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 		}
 
 		HitProbe probe;
-		Ray ray(X.getPosition() + offsetDir * midDist, escapeDir, X.getTime());
+		Ray ray(X.getPos() + offsetDir * midDist, escapeDir, X.getTime());
 		if(!reintersect(X, ray, probe))
 		{
 			maxDist = midDist;
@@ -139,7 +139,7 @@ auto SurfaceHitRefinery::iterativeOffset(
 	const auto offsetVec = offsetDir * maxDist;
 
 #if PH_ENABLE_HIT_EVENT_STATS
-	if(!verifyOffset(X, dir, X.getPosition(), offsetVec))
+	if(!verifyOffset(X, dir, X.getPos(), offsetVec))
 	{
 		s_stats.markFailedIterativeEscape();
 	}
@@ -169,8 +169,8 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 	// Use max error under the assumption that `X2` is typically further and the accuracy on
 	// that end matters less (~0% chance with failed initial escape)
 	const auto initialOffsetDist = maxErrorOffsetDist(X2) + std::numeric_limits<real>::min();
-	const auto resultOrigin = X.getPosition() + resultX.offset;
-	const auto distanceToX2 = (resultOrigin - X2.getPosition()).length();
+	const auto resultOrigin = X.getPos() + resultX.offset;
+	const auto distanceToX2 = (resultOrigin - X2.getPos()).length();
 	const auto escapeDir2 = -resultX.unitDir;
 
 	// Possibly fallback to empirical offset
@@ -245,12 +245,12 @@ auto SurfaceHitRefinery::iterativeMutualOffset(
 	const auto rayLength = std::max(distanceToX2 - maxDist, 0.0_r);
 
 #if PH_ENABLE_HIT_EVENT_STATS
-	if(!verifyOffset(X, dir, X.getPosition(), resultX.offset, rayLength))
+	if(!verifyOffset(X, dir, X.getPos(), resultX.offset, rayLength))
 	{
 		s_stats.markFailedIterativeEscape();
 	}
 
-	if(!verifyOffset(X2, dir, X.getPosition(), resultX.offset, rayLength))
+	if(!verifyOffset(X2, dir, X.getPos(), resultX.offset, rayLength))
 	{
 		s_stats.markFailedIterativeEscape();
 	}

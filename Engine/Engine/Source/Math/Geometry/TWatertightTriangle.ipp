@@ -21,7 +21,7 @@ inline bool TWatertightTriangle<T>::isIntersecting(
 	PH_ASSERT(out_hitT);
 	PH_ASSERT(out_hitBarycentricCoords);
 
-	TVector3<T> segmentDir = segment.getDirection();
+	TVector3<T> segmentDir = segment.getDir();
 	TVector3<T> vAt        = this->getVa().sub(segment.getOrigin());
 	TVector3<T> vBt        = this->getVb().sub(segment.getOrigin());
 	TVector3<T> vCt        = this->getVc().sub(segment.getOrigin());

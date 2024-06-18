@@ -2,10 +2,10 @@
 #include "Core/SurfaceHit.h"
 #include "Core/Texture/TSampler.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
-#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
-#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
+#include "Core/Intersection/Query/PrimitivePosPdfQuery.h"
 #include "Core/Intersection/PLatLongEnvSphere.h"
 #include "Core/LTA/lta.h"
 #include "Math/constant.h"
@@ -101,12 +101,13 @@ void LatLongEnvEmitter::genDirectSample(
 		sampleFlow.flow2D(), &uvSamplePdf);
 
 	PrimitivePosSampleQuery posSample;
-	posSample.inputs.set(query.inputs.getTime(), query.inputs.getTargetPos());
-
-	m_surface->genPosSampleWithObservationPos(uvSample, uvSamplePdf, posSample, probe);
+	posSample.inputs.set(
+		query.inputs,
+		{uvSample.x(), uvSample.y(), 0},
+		{.value = uvSamplePdf, .domain = lta::EDomain::UV01});
+	m_surface->genPosSample(posSample, sampleFlow, probe);
 	if(!posSample.outputs)
 	{
-		query.outputs.invalidate();
 		return;
 	}
 
@@ -117,35 +118,31 @@ void LatLongEnvEmitter::genDirectSample(
 	query.outputs.setEmittedEnergy(TSampler<math::Spectrum>{math::EColorUsage::EMR}.sample(
 		*m_radiance, uvSample));
 	query.outputs.setEmitPos(posSample.outputs.getPos());
-	query.outputs.setPdfW(lta::pdfA_to_pdfW(
+	query.outputs.setPdf(lta::PDF::W(lta::pdfA_to_pdfW(
 		posSample.outputs.getPdfA(), 
 		query.inputs.getTargetPos() - posSample.outputs.getPos(),
-		detail.getShadingNormal()));
+		detail.getShadingNormal())));
 	query.outputs.setSrcPrimitive(m_surface);
 	query.outputs.setObservationRay(posSample.outputs.getObservationRay());
 }
 
-void LatLongEnvEmitter::calcDirectSamplePdfW(
-	DirectEnergySamplePdfQuery& query,
-	HitProbe& probe) const
+void LatLongEnvEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	const math::Vector3R uvw(query.inputs.getXe().getDetail().getUVW());
-	const math::Vector2R latLong01(uvw.x(), uvw.y());
-	const auto latLong01Pdf = m_sampleDistribution.pdfContinuous({uvw.x(), uvw.y()});
+	const real latLong01Pdf = m_sampleDistribution.pdfContinuous({uvw.x(), uvw.y()});
 
-	PrimitivePosSamplePdfQuery pdfQuery;
-	pdfQuery.inputs.set(query.inputs);
-	m_surface->calcPosSamplePdfWithObservationPos(latLong01, latLong01Pdf, pdfQuery, probe);
-	if(!pdfQuery.outputs)
+	PrimitivePosPdfQuery posPdf;
+	posPdf.inputs.set(query.inputs, {.value = latLong01Pdf, .domain = lta::EDomain::UV01});
+	m_surface->calcPosPdf(posPdf);
+	if(!posPdf.outputs)
 	{
-		query.outputs.setPdfW(0);
 		return;
 	}
 
-	query.outputs.setPdfW(lta::pdfA_to_pdfW(
-		pdfQuery.outputs.getPdfA(),
+	query.outputs.setPdf(lta::PDF::W(lta::pdfA_to_pdfW(
+		posPdf.outputs.getPdfA(),
 		query.inputs.getTargetPos() - query.inputs.getEmitPos(),
-		query.inputs.getXe().getShadingNormal()));
+		query.inputs.getXe().getShadingNormal())));
 }
 
 void LatLongEnvEmitter::emitRay(
@@ -157,31 +154,34 @@ void LatLongEnvEmitter::emitRay(
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
 		sampleFlow.flow2D(), &uvSamplePdf);
 
-	const auto emittedEnergy = TSampler<math::Spectrum>{math::EColorUsage::EMR}.sample(
-		*m_radiance, uvSample);
-
 	PrimitivePosSampleQuery posSample;
-	posSample.inputs.set(query.inputs.getTime());
-
-	math::Vector3R unitObservationDir;
-	real pdfW;
-	m_surface->genPosSampleWithoutObservationPos(
-		uvSample, uvSamplePdf, posSample, sampleFlow, probe, &unitObservationDir, &pdfW);
+	posSample.inputs.set(
+		query.inputs.getTime(),
+		std::nullopt,
+		{uvSample.x(), uvSample.y(), 0},
+		{.value = uvSamplePdf, .domain = lta::EDomain::UV01},
+		true);
+	m_surface->genPosSample(posSample, sampleFlow, probe);
 	if(!posSample.outputs)
 	{
-		query.outputs.invalidate();
 		return;
 	}
 
-	auto emittedRay = posSample.outputs.getObservationRay();
-	emittedRay.setDirection(-unitObservationDir);
-	emittedRay.setRange(0, std::numeric_limits<real>::max());
+	// This emitter needs the suggested sample direction
+	PH_ASSERT(posSample.outputs.getPdfDir());
+	PH_ASSERT_IN_RANGE(posSample.outputs.getDir().lengthSquared(), 0.0_r, 1.1_r);
 
-	probe.replaceBaseHitRayTWith(emittedRay.getMinT());
+	const auto emittedEnergy = TSampler<math::Spectrum>{math::EColorUsage::EMR}.sample(
+		*m_radiance, uvSample);
+
+	auto emittedRay = posSample.outputs.getObservationRay();
+	emittedRay.setRange(0, std::numeric_limits<real>::max());
 
 	query.outputs.setEmittedEnergy(emittedEnergy);
 	query.outputs.setEmittedRay(emittedRay);
-	query.outputs.setPdf(posSample.outputs.getPdfA(), pdfW);
+	query.outputs.setPdf(posSample.outputs.getPdfPos(), posSample.outputs.getPdfDir());
+
+	probe.replaceBaseHitRayTWith(emittedRay.getMinT());
 }
 
 real LatLongEnvEmitter::calcRadiantFluxApprox() const

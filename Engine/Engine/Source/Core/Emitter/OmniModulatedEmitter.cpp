@@ -22,15 +22,17 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectr
 	PH_ASSERT(m_filter);
 
 	m_source->evalEmittedRadiance(X, out_radiance);
+	if(out_radiance->isZero())
+	{
+		return;
+	}
 
-	// TODO: early out when radiance = 0
-
-	const math::Vector3R emitDirection = X.getIncidentRay().getDirection().mul(-1);
+	const math::Vector3R emitDir = X.getIncidentRay().getDir().mul(-1);
 
 	math::Vector3R uv;
-	m_dirToUv.directionToUvw(emitDirection, &uv);
+	m_dirToUv.dirToUvw(emitDir, &uv);
 
-	// HACK
+	// HACK: should impose some standard uv on input
 	uv.y() = 1.0_r - uv.y();
 
 	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
@@ -48,23 +50,21 @@ void OmniModulatedEmitter::genDirectSample(
 		return;
 	}
 
-	const auto emitDirection = query.inputs.getTargetPos() - query.outputs.getEmitPos();
+	const auto emitDir = query.inputs.getTargetPos() - query.outputs.getEmitPos();
 
 	math::Vector3R uv;
-	m_dirToUv.directionToUvw(emitDirection, &uv);
+	m_dirToUv.dirToUvw(emitDir, &uv);
 
-	// HACK
+	// HACK: should impose some standard uv on input
 	uv.y() = 1.0_r - uv.y();
 
 	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
 	query.outputs.setEmittedEnergy(query.outputs.getEmittedEnergy() * filterValue);
 }
 
-void OmniModulatedEmitter::calcDirectSamplePdfW(
-	DirectEnergySamplePdfQuery& query,
-	HitProbe& probe) const
+void OmniModulatedEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
-	m_source->calcDirectSamplePdfW(query, probe);
+	m_source->calcDirectPdf(query);
 
 	// TODO: if importance sampling is used, pdfW should be changed here
 }
@@ -81,9 +81,9 @@ void OmniModulatedEmitter::emitRay(
 	}
 
 	math::Vector3R uv;
-	m_dirToUv.directionToUvw(query.outputs.getEmittedRay().getDirection(), &uv);
+	m_dirToUv.dirToUvw(query.outputs.getEmittedRay().getDir(), &uv);
 
-	// HACK
+	// HACK: should impose some standard uv on input
 	uv.y() = 1.0_r - uv.y();
 
 	const auto filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);

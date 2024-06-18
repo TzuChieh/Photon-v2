@@ -32,6 +32,7 @@ void HitProbe::calcFullHitDetail(
 
 bool HitProbe::reintersect(const Ray& ray, HitProbe& probe, const Ray& srcRay)
 {
+	PH_ASSERT(&probe != this);
 	PH_ASSERT(getCurrentHit() != nullptr);
 
 	return getCurrentHit()->reintersect(ray, probe, srcRay, *this);

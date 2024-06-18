@@ -48,7 +48,7 @@ void ThinDielectricFilm::calcBsdf(
 	out.setMeasurability(false);
 }
 
-void ThinDielectricFilm::calcBsdfSample(
+void ThinDielectricFilm::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -152,7 +152,7 @@ void ThinDielectricFilm::calcBsdfSample(
 	out.setL(L);
 }
 
-void ThinDielectricFilm::calcBsdfSamplePdfW(
+void ThinDielectricFilm::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

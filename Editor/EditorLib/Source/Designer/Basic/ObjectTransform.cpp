@@ -6,27 +6,27 @@
 namespace ph::editor
 {
 
-ObjectTransform& ObjectTransform::setPosition(const real x, const real y, const real z)
+ObjectTransform& ObjectTransform::setPos(const real x, const real y, const real z)
 {
-	return setPosition({x, y, z});
+	return setPos({x, y, z});
 }
 
-ObjectTransform& ObjectTransform::setPosition(const math::Vector3R& position)
+ObjectTransform& ObjectTransform::setPos(const math::Vector3R& pos)
 {
-	m_position = position;
+	m_pos = pos;
 
 	return *this;
 }
 
-ObjectTransform& ObjectTransform::setRotation(const math::Vector3R& axis, const real degrees)
+ObjectTransform& ObjectTransform::setRot(const math::Vector3R& axis, const real degrees)
 {
 	const auto normalizedAxis = axis.normalize();
-	return setRotation(math::QuaternionR(normalizedAxis, math::to_radians(degrees)));
+	return setRot(math::QuaternionR(normalizedAxis, math::to_radians(degrees)));
 }
 
-ObjectTransform& ObjectTransform::setRotation(const math::QuaternionR& rotation)
+ObjectTransform& ObjectTransform::setRot(const math::QuaternionR& rot)
 {
-	m_rotation = rotation;
+	m_rot = rot;
 
 	return *this;
 }
@@ -84,14 +84,14 @@ ObjectTransform& ObjectTransform::scale(const math::Vector3R& amount)
 	return set(getDecomposed().scale(amount));
 }
 
-math::Vector3R ObjectTransform::getPosition() const
+math::Vector3R ObjectTransform::getPos() const
 {
-	return m_position;
+	return m_pos;
 }
 
-math::QuaternionR ObjectTransform::getRotation() const
+math::QuaternionR ObjectTransform::getRot() const
 {
-	return m_rotation;
+	return m_rot;
 }
 
 math::Vector3R ObjectTransform::getScale() const
@@ -102,8 +102,8 @@ math::Vector3R ObjectTransform::getScale() const
 math::TDecomposedTransform<real> ObjectTransform::getDecomposed() const
 {
 	return math::TDecomposedTransform<real>(
-		m_position,
-		m_rotation,
+		m_pos,
+		m_rot,
 		m_scale);
 }
 
@@ -129,8 +129,8 @@ math::StaticRigidTransform ObjectTransform::getInverseStaticRigid() const
 
 ObjectTransform& ObjectTransform::set(const math::TDecomposedTransform<real>& decomposed)
 {
-	m_position = decomposed.getPosition();
-	m_rotation = decomposed.getRotation();
+	m_pos = decomposed.getPos();
+	m_rot = decomposed.getRot();
 	m_scale = decomposed.getScale();
 
 	return *this;

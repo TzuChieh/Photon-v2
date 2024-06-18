@@ -21,13 +21,11 @@ public:
 		SampleFlow& sampleFlow,
 		HitProbe& probe) const override;
 
-	void calcPosSamplePdfA(
-		PrimitivePosSamplePdfQuery& query,
-		HitProbe& probe) const override;
+	void calcPosPdf(PrimitivePosPdfQuery& query) const override;
 
 	/*! @brief Maps a position on the sphere surface to UV coordinates (lat-long-01 format).
 	*/
-	math::Vector2R positionToUV(const math::Vector3R& position) const;
+	math::Vector2R posToUV(const math::Vector3R& position) const;
 };
 
 }// end namespace ph

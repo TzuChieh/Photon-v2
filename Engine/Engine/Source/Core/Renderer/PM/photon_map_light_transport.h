@@ -116,7 +116,7 @@ inline math::Spectrum estimate_certainly_lost_energy(
 	   minFullPathLength <= viewPathLength + 1 && viewPathLength + 1 <= maxFullPathLength)
 	{
 		BsdfSampleQuery bsdfSample;
-		bsdfSample.inputs.set(X, -X.getIncidentRay().getDirection());
+		bsdfSample.inputs.set(X, -X.getIncidentRay().getDir());
 
 		math::Spectrum viewRadiance;
 		SampleFlow randomFlow;

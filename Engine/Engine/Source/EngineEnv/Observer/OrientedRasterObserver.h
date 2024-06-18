@@ -24,19 +24,19 @@ public:
 
 protected:
 	math::TDecomposedTransform<float64> makeObserverPose() const;
-	math::Vector3D makePosition() const;
-	math::QuaternionD makeRotation() const;
-	math::Vector3D makeDirection() const;
+	math::Vector3D makePos() const;
+	math::QuaternionD makeRot() const;
+	math::Vector3D makeDir() const;
 
 private:
-	math::Vector3R m_position;
+	math::Vector3R m_pos;
 	math::Vector3R m_yawPitchRollDegrees;
 
-	std::optional<math::Vector3R> m_direction;
+	std::optional<math::Vector3R> m_dir;
 	std::optional<math::Vector3R> m_upAxis;
 
-	static math::QuaternionD makeRotationFromVectors(const math::Vector3R& direction, const math::Vector3R& upAxis);
-	static math::QuaternionD makeRotationFromYawPitchRoll(real yawDegrees, real pitchDegrees, real rollDegrees);
+	static math::QuaternionD makeRotFromVectors(const math::Vector3R& direction, const math::Vector3R& upAxis);
+	static math::QuaternionD makeRotFromYawPitchRoll(real yawDegrees, real pitchDegrees, real rollDegrees);
 
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<OrientedRasterObserver>)
@@ -48,10 +48,10 @@ public:
 			"Projective observers face the -z axis (+y up) and reside on (0, 0, 0) by default.");
 		clazz.baseOn<Observer>();
 
-		TSdlVector3<OwnerType> position("position", &OwnerType::m_position);
-		position.description("Position of the observer.");
-		position.defaultTo({0, 0, 0});
-		clazz.addField(position);
+		TSdlVector3<OwnerType> pos("pos", &OwnerType::m_pos);
+		pos.description("Position of the observer.");
+		pos.defaultTo({0, 0, 0});
+		clazz.addField(pos);
 
 		TSdlVector3<OwnerType> yawPitchRollDegrees("yaw-pitch-row-degrees", &OwnerType::m_yawPitchRollDegrees);
 		yawPitchRollDegrees.description(
@@ -63,9 +63,9 @@ public:
 		yawPitchRollDegrees.optional();
 		clazz.addField(yawPitchRollDegrees);
 
-		TSdlOptionalVector3<OwnerType> direction("direction", &OwnerType::m_direction);
-		direction.description("Direction vector that this observer is looking at. No need to be normalized.");
-		clazz.addField(direction);
+		TSdlOptionalVector3<OwnerType> dir("dir", &OwnerType::m_dir);
+		dir.description("Direction vector that this observer is looking at. No need to be normalized.");
+		clazz.addField(dir);
 
 		TSdlOptionalVector3<OwnerType> upAxis("up-axis", &OwnerType::m_upAxis);
 		upAxis.description("The direction vector that this observer consider as upward. No need to be normalized.");

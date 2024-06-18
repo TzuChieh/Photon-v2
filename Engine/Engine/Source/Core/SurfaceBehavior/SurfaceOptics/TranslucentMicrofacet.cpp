@@ -138,7 +138,7 @@ void TranslucentMicrofacet::calcBsdf(
 	}
 }
 
-void TranslucentMicrofacet::calcBsdfSample(
+void TranslucentMicrofacet::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -253,7 +253,7 @@ void TranslucentMicrofacet::calcBsdfSample(
 	out.setL(L);
 }
 
-void TranslucentMicrofacet::calcBsdfSamplePdfW(
+void TranslucentMicrofacet::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

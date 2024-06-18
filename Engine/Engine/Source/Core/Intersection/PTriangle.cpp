@@ -5,7 +5,7 @@
 #include "Core/HitDetail.h"
 #include "Math/Geometry/TAABB3D.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
-#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
+#include "Core/Intersection/Query/PrimitivePosPdfQuery.h"
 #include "Math/TVector2.h"
 #include "Math/math.h"
 #include "Core/SampleGenerator/SampleFlow.h"
@@ -283,21 +283,16 @@ void PTriangle::genPosSample(
 		query.inputs.getTime());
 
 	query.outputs.setPos(pos);
-	query.outputs.setPdfA(pdfA);
+	query.outputs.setPdfPos(lta::PDF::A(pdfA));
 	query.outputs.setObservationRay(observationRay);
 
 	probe.pushBaseHit(this, observationRay.getMaxT());
 	probe.pushCache(baryABC);
 }
 
-void PTriangle::calcPosSamplePdfA(
-	PrimitivePosSamplePdfQuery& query,
-	HitProbe& probe) const
+void PTriangle::calcPosPdf(PrimitivePosPdfQuery& query) const
 {
-	query.outputs.setPdfA(m_triangle.uniformSurfaceSamplePdfA());
-
-	probe.pushBaseHit(this, query.inputs.getObservationRay().getMaxT());
-	probe.pushCache(m_triangle.surfaceToBarycentric(query.inputs.getPos()));
+	query.outputs.setPdf(lta::PDF::A(m_triangle.uniformSurfaceSamplePdfA()));
 }
 
 real PTriangle::calcExtendedArea() const

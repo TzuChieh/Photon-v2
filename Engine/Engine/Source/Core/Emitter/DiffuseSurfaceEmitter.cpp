@@ -4,9 +4,9 @@
 #include "Core/Texture/constant_textures.h"
 #include "Core/Intersection/Primitive.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
-#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
+#include "Core/Intersection/Query/PrimitivePosPdfQuery.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
-#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 #include "Core/Ray.h"
 #include "Core/HitProbe.h"
@@ -45,7 +45,7 @@ DiffuseSurfaceEmitter::DiffuseSurfaceEmitter(const Primitive* const surface)
 
 void DiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* const out_radiance) const
 {
-	const math::Vector3R emitDir = X.getIncidentRay().getDirection().mul(-1.0_r);
+	const math::Vector3R emitDir = X.getIncidentRay().getDir().mul(-1.0_r);
 	if(!canEmit(emitDir, X.getShadingNormal()))
 	{
 		out_radiance->setColorValues(0.0_r);
@@ -63,12 +63,10 @@ void DiffuseSurfaceEmitter::genDirectSample(
 	HitProbe& probe) const
 {
 	PrimitivePosSampleQuery posSample;
-	posSample.inputs.set(query.inputs.getTime(), query.inputs.getTargetPos());
-
+	posSample.inputs.set(query.inputs);
 	m_surface->genPosSample(posSample, sampleFlow, probe);
 	if(!posSample.outputs)
 	{
-		query.outputs.invalidate();
 		return;
 	}
 
@@ -78,7 +76,6 @@ void DiffuseSurfaceEmitter::genDirectSample(
 	const auto emitterToTargetPos = query.inputs.getTargetPos() - posSample.outputs.getPos();
 	if(!canEmit(emitterToTargetPos, detail.getShadingNormal()))
 	{
-		query.outputs.invalidate();
 		return;
 	}
 
@@ -90,16 +87,14 @@ void DiffuseSurfaceEmitter::genDirectSample(
 	query.outputs.setEmitPos(posSample.outputs.getPos());
 	query.outputs.setEmittedEnergy(emittedEnergy);
 	query.outputs.setSrcPrimitive(m_surface);
-	query.outputs.setPdfW(lta::pdfA_to_pdfW(
-		posSample.outputs.getPdfA(), emitterToTargetPos, detail.getShadingNormal()));
+	query.outputs.setPdf(lta::PDF::W(lta::pdfA_to_pdfW(
+		posSample.outputs.getPdfA(), emitterToTargetPos, detail.getShadingNormal())));
 	query.outputs.setObservationRay(posSample.outputs.getObservationRay());
 }
 
-void DiffuseSurfaceEmitter::calcDirectSamplePdfW(
-	DirectEnergySamplePdfQuery& query,
-	HitProbe& probe) const
+void DiffuseSurfaceEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
-	calcDirectSamplePdfWForSingleSurface(query, probe);
+	calcDirectPdfWForSrcPrimitive(query);
 }
 
 void DiffuseSurfaceEmitter::emitRay(
@@ -112,7 +107,6 @@ void DiffuseSurfaceEmitter::emitRay(
 	m_surface->genPosSample(posSample, sampleFlow, probe);
 	if(!posSample.outputs)
 	{
-		query.outputs.invalidate();
 		return;
 	}
 
@@ -137,7 +131,7 @@ void DiffuseSurfaceEmitter::emitRay(
 	probe.replaceBaseHitRayTWith(emittedRay.getMinT());
 
 	query.outputs.setEmittedRay(emittedRay);
-	query.outputs.setPdf(posSample.outputs.getPdfA(), pdfW);
+	query.outputs.setPdf(posSample.outputs.getPdfPos(), lta::PDF::W(pdfW));
 	query.outputs.setEmittedEnergy(
 		TSampler<math::Spectrum>(math::EColorUsage::EMR).sample(
 			*m_emittedRadiance, detail.getUVW()));

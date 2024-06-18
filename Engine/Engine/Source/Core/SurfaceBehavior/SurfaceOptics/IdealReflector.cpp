@@ -51,7 +51,7 @@ void IdealReflector::calcBsdf(
 	out.setMeasurability(false);
 }
 
-void IdealReflector::calcBsdfSample(
+void IdealReflector::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             /* sampleFlow */,
@@ -73,7 +73,7 @@ void IdealReflector::calcBsdfSample(
 	out.setL(L);
 }
 
-void IdealReflector::calcBsdfSamplePdfW(
+void IdealReflector::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

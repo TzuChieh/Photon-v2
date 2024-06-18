@@ -35,8 +35,8 @@ public:
 	/*! @brief Determine whether a given ray hits the object.
 
 	Checks whether the specified ray intersects this intersectable. If there is
-	an intersection, true is returned and a brief hit report is stored
-	inside the probe. If there is no intersection, false is returned and the
+	an intersection, `true` is returned and a brief hit report is stored
+	inside the probe. If there is no intersection, `false` is returned and the
 	state of the probe is undefined. `ray` and `probe` can be used for
 	obtaining hit detail if an intersection is found.
 
@@ -55,12 +55,13 @@ public:
 
 	@param ray The ray to test for intersection.
 	@param probe The probe to record the intersection.
-	@param srcRay The ray from a hit event.
+	@param srcRay The ray from a previous hit event.
 	@param srcProbe The probe from a hit event. The process of re-intersect
 	will destroy the probe.
 	@return Whether `ray` intersects the object.
 
 	@note Generates hit event (with `ray` and `probe`).
+	@warning This method will destroy `srcProbe`.
 	*/
 	virtual bool reintersect(
 		const Ray& ray,
@@ -85,6 +86,7 @@ public:
 	`HitDetail::computeBases()`).
 
 	@note See `Primitive` for more methods that can generate a hit event.
+	@warning This method will destroy the probe.
 	*/
 	virtual void calcHitDetail(
 		const Ray& ray, 

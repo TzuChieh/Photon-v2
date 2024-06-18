@@ -23,9 +23,7 @@ public:
 		SampleFlow& sampleFlow,
 		HitProbe& probe) const override;
 
-	void calcDirectSamplePdfW(
-		DirectEnergySamplePdfQuery& query,
-		HitProbe& probe) const override;
+	void calcDirectPdf(DirectEnergyPdfQuery& query) const override;
 
 	void emitRay(
 		EnergyEmissionSampleQuery& query,

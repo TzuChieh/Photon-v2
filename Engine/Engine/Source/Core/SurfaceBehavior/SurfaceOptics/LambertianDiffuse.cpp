@@ -51,7 +51,7 @@ void LambertianDiffuse::calcBsdf(
 	out.setBsdf(albedo * math::constant::rcp_pi<real>);
 }
 
-void LambertianDiffuse::calcBsdfSample(
+void LambertianDiffuse::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -83,7 +83,7 @@ void LambertianDiffuse::calcBsdfSample(
 	out.setL(L);
 }
 
-void LambertianDiffuse::calcBsdfSamplePdfW(
+void LambertianDiffuse::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

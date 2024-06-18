@@ -1,6 +1,6 @@
 #include "Core/Intersection/Primitive.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
-#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
+#include "Core/Intersection/Query/PrimitivePosPdfQuery.h"
 
 #include <Common/assertion.h>
 
@@ -12,15 +12,13 @@ void Primitive::genPosSample(
 	SampleFlow& /* sampleFlow */,
 	HitProbe& /* probe */) const
 {
-	query.outputs.invalidate();
+	query.outputs = {};
 	PH_ASSERT(!query.outputs);
 }
 
-void Primitive::calcPosSamplePdfA(
-	PrimitivePosSamplePdfQuery& query,
-	HitProbe& probe) const
+void Primitive::calcPosPdf(PrimitivePosPdfQuery& query) const
 {
-	query.outputs.setPdfA(0);
+	query.outputs = {};
 	PH_ASSERT(!query.outputs);
 }
 

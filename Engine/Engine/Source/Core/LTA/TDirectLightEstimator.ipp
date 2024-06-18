@@ -2,7 +2,7 @@
 #include "World/Scene.h"
 #include "Core/Emitter/Emitter.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
-#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersection/Primitive.h"
 #include "Core/Intersection/PrimitiveMetadata.h"
@@ -16,7 +16,7 @@
 #include "Core/Ray.h"
 #include "Core/LTA/lta.h"
 #include "Core/LTA/SurfaceTracer.h"
-#include "Core/LTA/TMis.h"
+#include "Core/LTA/TMIS.h"
 #include "Core/LTA/SurfaceHitRefinery.h"
 #include "Math/TVector3.h"
 
@@ -89,7 +89,7 @@ inline bool TDirectLightEstimator<POLICY>::neeSampleEmission(
 		return false;
 	}
 
-	PH_ASSERT_IN_RANGE(optVisibilityRay->getDirection().lengthSquared(), 0.9_r, 1.1_r);
+	PH_ASSERT_IN_RANGE(optVisibilityRay->getDir().lengthSquared(), 0.9_r, 1.1_r);
 	PH_ASSERT(Xe.getSurfaceEmitter());
 
 	if(out_Xe) { *out_Xe = Xe; }
@@ -104,10 +104,10 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	math::Spectrum* const            out_Lo,
 	std::optional<SurfaceHit>* const out_X) const
 {
-	using MIS = TMis<EMisStyle::Power>;
+	using MIS = TMIS<EMISStyle::Power>;
 
 	const SurfaceHit&    X = bsdfSample.inputs.getX();
-	const math::Vector3R V = X.getIncidentRay().getDirection().mul(-1);
+	const math::Vector3R V = X.getIncidentRay().getDir().mul(-1);
 	const math::Vector3R N = X.getShadingNormal();
 	math::Spectrum sampledLo(0);
 
@@ -136,7 +136,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 
 				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
 				bsdfPdfQuery.inputs.set(bsdfSample);
-				optics->calcBsdfSamplePdfW(bsdfPdfQuery);
+				optics->calcBsdfPdf(bsdfPdfQuery);
 
 				// `isNeeSamplable()` is already checked, but `bsdfSamplePdfW` can still be 0 (e.g.,
 				// sidedness policy or by the distribution itself).
@@ -187,7 +187,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			{
 				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
 				bsdfPdfQuery.inputs.set(bsdfEval.inputs);
-				optics->calcBsdfSamplePdfW(bsdfPdfQuery);
+				optics->calcBsdfPdf(bsdfPdfQuery);
 
 				const auto L              = bsdfEval.inputs.getL();
 				const real neePdfW        = directSample.outputs.getPdfW();
@@ -217,11 +217,9 @@ inline real TDirectLightEstimator<POLICY>::neeSamplePdfWUnoccluded(
 	PH_ASSERT(isNeeSamplable(X));
 	PH_ASSERT(Xe.getSurfaceEmitter());
 
-	DirectEnergySamplePdfQuery pdfQuery;
+	DirectEnergyPdfQuery pdfQuery;
 	pdfQuery.inputs.set(X, Xe);
-
-	HitProbe probe;
-	getScene().calcDirectSamplePdfW(pdfQuery, probe);
+	getScene().calcDirectPdf(pdfQuery);
 	return pdfQuery.outputs ? pdfQuery.outputs.getPdfW() : 0;
 }
 

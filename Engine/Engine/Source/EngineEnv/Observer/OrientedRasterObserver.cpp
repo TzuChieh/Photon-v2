@@ -12,26 +12,26 @@ PH_DEFINE_INTERNAL_LOG_GROUP(OrientedRasterObserver, Observer);
 math::TDecomposedTransform<float64> OrientedRasterObserver::makeObserverPose() const
 {
 	math::TDecomposedTransform<float64> pose;
-	pose.setPosition(makePosition());
-	pose.setRotation(makeRotation());
+	pose.setPos(makePos());
+	pose.setRot(makeRot());
 	return pose;
 }
 
-math::Vector3D OrientedRasterObserver::makePosition() const
+math::Vector3D OrientedRasterObserver::makePos() const
 {
-	return math::Vector3D(m_position);
+	return math::Vector3D(m_pos);
 }
 
-math::QuaternionD OrientedRasterObserver::makeRotation() const
+math::QuaternionD OrientedRasterObserver::makeRot() const
 {
 	auto rotation = math::QuaternionD::makeNoRotation();
-	if(m_direction && m_upAxis)
+	if(m_dir && m_upAxis)
 	{
-		rotation = makeRotationFromVectors(*m_direction, *m_upAxis);
+		rotation = makeRotFromVectors(*m_dir, *m_upAxis);
 	}
 	else
 	{
-		rotation = makeRotationFromYawPitchRoll(
+		rotation = makeRotFromYawPitchRoll(
 			m_yawPitchRollDegrees.x(),
 			m_yawPitchRollDegrees.y(),
 			m_yawPitchRollDegrees.z());
@@ -40,13 +40,13 @@ math::QuaternionD OrientedRasterObserver::makeRotation() const
 	return rotation;
 }
 
-math::Vector3D OrientedRasterObserver::makeDirection() const
+math::Vector3D OrientedRasterObserver::makeDir() const
 {
-	return math::Vector3D(0, 0, -1).rotate(makeRotation()).normalize();
+	return math::Vector3D(0, 0, -1).rotate(makeRot()).normalize();
 }
 
-math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
-	const math::Vector3R& direction, 
+math::QuaternionD OrientedRasterObserver::makeRotFromVectors(
+	const math::Vector3R& dir, 
 	const math::Vector3R& upAxis)
 {
 	constexpr float64 MIN_LENGTH = 0.001;
@@ -54,7 +54,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 	// Projective observers face the negated z-axis of its basis by default,
 	// negate again to get the z-axis back
 	//
-	auto zAxis = math::Vector3D(direction).mul(-1);
+	auto zAxis = math::Vector3D(dir).mul(-1);
 	if(zAxis.lengthSquared() > MIN_LENGTH * MIN_LENGTH)
 	{
 		zAxis.normalizeLocal();
@@ -62,7 +62,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 	else
 	{
 		PH_LOG(OrientedRasterObserver, Warning, 
-			"Direction vector {} is too short. Defaults to -z axis.", direction.toString());
+			"Direction vector {} is too short. Defaults to -z axis.", dir.toString());
 
 		zAxis.set({0, 0, 1});
 	}
@@ -100,7 +100,7 @@ math::QuaternionD OrientedRasterObserver::makeRotationFromVectors(
 	return math::QuaternionD(worldToViewRotMat);
 }
 
-math::QuaternionD OrientedRasterObserver::makeRotationFromYawPitchRoll(
+math::QuaternionD OrientedRasterObserver::makeRotFromYawPitchRoll(
 	real yawDegrees,
 	real pitchDegrees,
 	real rollDegrees)

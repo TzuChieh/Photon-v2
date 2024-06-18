@@ -94,13 +94,13 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			surfaceHit = SurfaceHit(tracingRay, probe, reason);
 		}
 
-		PH_ASSERT_IN_RANGE(tracingRay.getDirection().lengthSquared(), 0.9_r, 1.1_r);
+		PH_ASSERT_IN_RANGE(tracingRay.getDir().lengthSquared(), 0.9_r, 1.1_r);
 
 		// Here 0-bounce lighting is never accounted for
 		math::Spectrum throughputRadiance(energyEmission.outputs.getEmittedEnergy());
 		throughputRadiance.divLocal(energyEmission.outputs.getPdfA());
 		throughputRadiance.divLocal(energyEmission.outputs.getPdfW());
-		throughputRadiance.mulLocal(surfaceHit.getShadingNormal().absDot(tracingRay.getDirection()));
+		throughputRadiance.mulLocal(surfaceHit.getShadingNormal().absDot(tracingRay.getDir()));
 
 		// Start tracing single photon path with at least 1 bounce
 		uint32 photonPathLength = 0;
@@ -147,13 +147,13 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 
 			BsdfSampleQuery bsdfSample(bsdfContext);
 			Ray sampledRay;
-			bsdfSample.inputs.set(surfaceHit, tracingRay.getDirection().mul(-1));
+			bsdfSample.inputs.set(surfaceHit, tracingRay.getDir().mul(-1));
 			if(!surfaceTracer.doBsdfSample(bsdfSample, sampleFlow, &sampledRay))
 			{
 				break;
 			}
 
-			math::Vector3R V = tracingRay.getDirection().mul(-1);
+			math::Vector3R V = tracingRay.getDir().mul(-1);
 			math::Vector3R L = bsdfSample.outputs.getL();
 			math::Vector3R Ng = surfaceHit.getGeometryNormal();
 			math::Vector3R Ns = surfaceHit.getShadingNormal();
@@ -206,9 +206,9 @@ inline Photon TPhotonPathTracingWork<Photon>::makePhoton(
 	const std::size_t     pathLength)
 {
 	Photon photon;
-	if constexpr(Photon::template has<EPhotonData::Position>())
+	if constexpr(Photon::template has<EPhotonData::Pos>())
 	{
-		photon.template set<EPhotonData::Position>(surfaceHit.getPosition());
+		photon.template set<EPhotonData::Pos>(surfaceHit.getPos());
 	}
 	if constexpr(Photon::template has<EPhotonData::ThroughputRadiance>())
 	{
@@ -216,7 +216,7 @@ inline Photon TPhotonPathTracingWork<Photon>::makePhoton(
 	}
 	if constexpr(Photon::template has<EPhotonData::FromDir>())
 	{
-		photon.template set<EPhotonData::FromDir>(tracingRay.getDirection().mul(-1));
+		photon.template set<EPhotonData::FromDir>(tracingRay.getDir().mul(-1));
 	}
 	if constexpr(Photon::template has<EPhotonData::GeometryNormal>())
 	{

@@ -36,12 +36,20 @@ public:
 		HitProbe&  probe,
 		HitDetail* out_detail) const override;
 
+	void calcPosPdf(PrimitivePosPdfQuery& query) const override;
+
+	void genPosSample(
+		PrimitivePosSampleQuery& query,
+		SampleFlow& sampleFlow,
+		HitProbe& probe) const override;
+
 	bool mayOverlapVolume(const math::AABB3D& volume) const override;
 	math::AABB3D calcAABB() const override;
 	real calcExtendedArea() const override;
 
+private:
 	/*! @brief Generates a sample point on the surface of this primitive.
-	Basically a hit event generating version of `latLong01ToSurface(3)`.
+	Basically a hit event generating version of `latLong01ToSurface(4)`.
 	@param latLong01 The sampled UV coordinates. Determines the direction of observation.
 	@param latLong01Pdf UV space PDF of sampling the UV coordinates.
 	@note Generates hit event (with `PrimitivePosSampleOutput::getObservationRay()` and `probe`).
@@ -52,17 +60,8 @@ public:
 		PrimitivePosSampleQuery& query,
 		HitProbe& probe) const;
 
-	/*!
-	@note Generates hit event (with `PrimitivePosSamplePdfInput::getObservationRay()` and `probe`).
-	*/
-	void calcPosSamplePdfWithObservationPos(
-		const math::Vector2R& latLong01,
-		real latLong01Pdf,
-		PrimitivePosSamplePdfQuery& query,
-		HitProbe& probe) const;
-
 	/*! @brief Generates a sample point on the surface of this primitive.
-	Basically a hit event generating version of `latLong01ToSurface(4)`.
+	Basically a hit event generating version of `latLong01ToSurface(5)`.
 	@param latLong01 The sampled UV coordinates. Determines the direction of observation.
 	@param latLong01Pdf UV space PDF of sampling the UV coordinates.
 	@note Generates hit event (with `PrimitivePosSampleOutput::getObservationRay()` and `probe`).
@@ -72,9 +71,15 @@ public:
 		real latLong01Pdf,
 		PrimitivePosSampleQuery& query,
 		SampleFlow& sampleFlow,
-		HitProbe& probe,
-		math::Vector3R* out_unitObservationDir,
-		real* out_pdfW) const;
+		HitProbe& probe) const;
+
+	/*!
+	@note Generates hit event (with `PrimitivePosPdfOutput::getObservationRay()` and `probe`).
+	*/
+	void calcPosPdfWithObservationPos(
+		const math::Vector2R& latLong01,
+		real latLong01Pdf,
+		PrimitivePosPdfQuery& query) const;
 
 	/*! @brief Map UV coordinates back to a point on the surface.
 	@param latLong01 The sampled UV coordinates. Determines the direction of observation.
@@ -105,7 +110,6 @@ public:
 		math::Vector3R* out_unitObservationDir,
 		real* out_pdfA) const;
 
-private:
 	const math::StaticRigidTransform* m_localToWorld;
 	const math::StaticRigidTransform* m_worldToLocal;
 	math::Vector3R m_worldOrigin;

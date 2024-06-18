@@ -10,10 +10,10 @@ namespace ph::math
 {
 
 template<typename T>
-inline TLineSegment<T>::TLineSegment(const TVector3<T>& origin, const TVector3<T>& direction) : 
+inline TLineSegment<T>::TLineSegment(const TVector3<T>& origin, const TVector3<T>& dir) : 
 	TLineSegment(
 		origin,
-		direction,
+		dir,
 		static_cast<T>(0),
 		std::numeric_limits<T>::max())
 {}
@@ -21,19 +21,19 @@ inline TLineSegment<T>::TLineSegment(const TVector3<T>& origin, const TVector3<T
 template<typename T>
 inline TLineSegment<T>::TLineSegment(
 	const TVector3<T>& origin, 
-	const TVector3<T>& direction, 
+	const TVector3<T>& dir, 
 	const T            minT, 
 	const T            maxT)
 {
 	setOrigin(origin);
-	setDirection(direction);
+	setDir(dir);
 	setRange(minT, maxT);
 }
 
 template<typename T>
 inline TLineSegment<T>& TLineSegment<T>::flip()
 {
-	m_direction.mulLocal(T(-1));
+	m_dir.mulLocal(T(-1));
 
 	return *this;
 }
@@ -72,9 +72,9 @@ inline void TLineSegment<T>::setOrigin(const TVector3<T>& pos)
 }
 
 template<typename T>
-inline void TLineSegment<T>::setDirection(const TVector3<T>& dir)
+inline void TLineSegment<T>::setDir(const TVector3<T>& dir)
 {
-	m_direction = dir;
+	m_dir = dir;
 }
 
 template<typename T>
@@ -84,9 +84,9 @@ inline const TVector3<T>& TLineSegment<T>::getOrigin() const
 }
 
 template<typename T>
-inline const TVector3<T>& TLineSegment<T>::getDirection() const
+inline const TVector3<T>& TLineSegment<T>::getDir() const
 {
-	return m_direction;
+	return m_dir;
 }
 
 template<typename T>
@@ -110,19 +110,19 @@ inline std::pair<T, T> TLineSegment<T>::getRange() const
 template<typename T>
 inline TVector3<T> TLineSegment<T>::getTail() const
 {
-	return m_direction * m_minT + m_origin;
+	return m_dir * m_minT + m_origin;
 }
 
 template<typename T>
 inline TVector3<T> TLineSegment<T>::getHead() const
 {
-	return m_direction * m_maxT + m_origin;
+	return m_dir * m_maxT + m_origin;
 }
 
 template<typename T>
 inline TVector3<T> TLineSegment<T>::getPoint(const T t) const
 {
-	return m_origin.add(m_direction.mul(t));
+	return m_origin.add(m_dir.mul(t));
 }
 
 }// end namespace ph::math

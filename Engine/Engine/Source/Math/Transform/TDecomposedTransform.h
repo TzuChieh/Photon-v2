@@ -32,8 +32,8 @@ public:
 	The transform effectively applies `scale` and `rotation` first, then translates to `position`.
 	*/
 	TDecomposedTransform(
-		const TVector3<T>& position,
-		const TQuaternion<T>& rotation,
+		const TVector3<T>& pos,
+		const TQuaternion<T>& rot,
 		const TVector3<T>& scale);
 
 	inline TDecomposedTransform& translate(const TVector3<T>& amount)
@@ -43,18 +43,18 @@ public:
 
 	inline TDecomposedTransform& translate(const T x, const T y, const T z)
 	{
-		m_position.addLocal({x, y, z});
+		m_pos.addLocal({x, y, z});
 
 		return *this;
 	}
 
-	inline TDecomposedTransform rotate(const TQuaternion<T>& rotation)
+	inline TDecomposedTransform rotate(const TQuaternion<T>& rot)
 	{
-		TQuaternion<T> addtionalRotation(rotation);
-		addtionalRotation.normalizeLocal();
+		TQuaternion<T> addtionalRot(rot);
+		addtionalRot.normalizeLocal();
 
-		const TQuaternion<T> totalRotation = addtionalRotation.mul(m_rotation).normalizeLocal();
-		setRotation(totalRotation);
+		const TQuaternion<T> totalRot = addtionalRot.mul(m_rot).normalizeLocal();
+		setRot(totalRot);
 
 		return *this;
 	}
@@ -79,16 +79,16 @@ public:
 		return *this;
 	}
 
-	inline TDecomposedTransform& setPosition(const TVector3<T>& position)
+	inline TDecomposedTransform& setPos(const TVector3<T>& pos)
 	{
-		m_position = position;
+		m_pos = pos;
 
 		return *this;
 	}
 
-	inline TDecomposedTransform& setRotation(const TQuaternion<T>& rotation)
+	inline TDecomposedTransform& setRot(const TQuaternion<T>& rot)
 	{
-		m_rotation = rotation;
+		m_rot = rot;
 
 		return *this;
 	}
@@ -105,8 +105,8 @@ public:
 		return *this;
 	}
 
-	TVector3<T> getPosition() const;
-	TQuaternion<T> getRotation() const;
+	TVector3<T> getPos() const;
+	TQuaternion<T> getRot() const;
 	TVector3<T> getScale() const;
 
 	void genTransformMatrix(TMatrix4<T>* out_result) const;
@@ -124,8 +124,8 @@ public:
 	bool operator != (const TDecomposedTransform& rhs) const;
 
 private:
-	TVector3<T> m_position;
-	TQuaternion<T> m_rotation;
+	TVector3<T> m_pos;
+	TQuaternion<T> m_rot;
 	TVector3<T> m_scale;
 };
 
@@ -141,12 +141,12 @@ inline TDecomposedTransform<T>::TDecomposedTransform()
 
 template<typename T>
 inline TDecomposedTransform<T>::TDecomposedTransform(
-	const TVector3<T>& position,
-	const TQuaternion<T>& rotation,
+	const TVector3<T>& pos,
+	const TQuaternion<T>& rot,
 	const TVector3<T>& scale)
 
-	: m_position(position)
-	, m_rotation(rotation)
+	: m_pos(pos)
+	, m_rot(rot)
 	, m_scale(scale)
 {}
 
@@ -158,8 +158,8 @@ inline void TDecomposedTransform<T>::genTransformMatrix(TMatrix4<T>* const out_r
 	TMatrix4<T> translationMatrix;
 	TMatrix4<T> rotationMatrix;
 	TMatrix4<T> scaleMatrix;
-	translationMatrix.initTranslation(m_position);
-	rotationMatrix.initRotation(m_rotation);
+	translationMatrix.initTranslation(m_pos);
+	rotationMatrix.initRotation(m_rot);
 	scaleMatrix.initScale(m_scale);
 
 	*out_result = translationMatrix.mul(rotationMatrix).mul(scaleMatrix);
@@ -175,8 +175,8 @@ inline void TDecomposedTransform<T>::genInverseTransformMatrix(TMatrix4<T>* cons
 	TMatrix4<T> inverseTranslationMatrix;
 	TMatrix4<T> inverseRotationMatrix;
 	TMatrix4<T> inverseScaleMatrix;
-	inverseTranslationMatrix.initTranslation(inverted.m_position);
-	inverseRotationMatrix.initRotation(inverted.m_rotation);
+	inverseTranslationMatrix.initTranslation(inverted.m_pos);
+	inverseRotationMatrix.initRotation(inverted.m_rot);
 	inverseScaleMatrix.initScale(inverted.m_scale);
 
 	*out_result = inverseScaleMatrix.mul(inverseRotationMatrix).mul(inverseTranslationMatrix);
@@ -186,9 +186,9 @@ template<typename T>
 inline TDecomposedTransform<T> TDecomposedTransform<T>::invert() const
 {
 	TDecomposedTransform result;
-	result.m_position = m_position.mul(-1);
-	result.m_rotation = m_rotation.conjugate();
-	result.m_scale    = m_scale.rcp();
+	result.m_pos   = m_pos.mul(-1);
+	result.m_rot   = m_rot.conjugate();
+	result.m_scale = m_scale.rcp();
 	return result;
 }
 
@@ -219,8 +219,8 @@ inline bool TDecomposedTransform<T>::isIdentity() const
 template<typename T>
 inline bool TDecomposedTransform<T>::operator == (const TDecomposedTransform& rhs) const
 {
-	return m_position == rhs.m_position &&
-	       m_rotation == rhs.m_rotation &&
+	return m_pos == rhs.m_pos &&
+	       m_rot == rhs.m_rot &&
 	       m_scale == rhs.m_scale;
 }
 
@@ -231,15 +231,15 @@ inline bool TDecomposedTransform<T>::operator != (const TDecomposedTransform& rh
 }
 
 template<typename T>
-inline TVector3<T> TDecomposedTransform<T>::getPosition() const
+inline TVector3<T> TDecomposedTransform<T>::getPos() const
 {
-	return m_position;
+	return m_pos;
 }
 
 template<typename T>
-inline TQuaternion<T> TDecomposedTransform<T>::getRotation() const
+inline TQuaternion<T> TDecomposedTransform<T>::getRot() const
 {
-	return m_rotation;
+	return m_rot;
 }
 
 template<typename T>

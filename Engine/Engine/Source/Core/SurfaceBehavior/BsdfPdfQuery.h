@@ -4,15 +4,17 @@
 #include "Core/SurfaceBehavior/BsdfQueryContext.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
+#include "Core/LTA/PDF.h"
 
 #include <Common/assertion.h>
 
-#include <cmath>
 #include <string>
 
 namespace ph
 {
 
+/*! @brief Input for `BsdfPdfQuery`.
+*/
 class BsdfPdfInput final
 {
 public:
@@ -38,21 +40,27 @@ private:
 #endif
 };
 
+/*! @brief Output for `BsdfPdfQuery`.
+*/
 class BsdfPdfOutput final
 {
 public:
 	void setSampleDirPdfW(real pdfW);
+	void setSampleDirPdf(const lta::PDF& pdf);
 
-	/*!
-	@return PDF (solid angle domain) of a BSDF sample being on a specific direction. Guaranteed to
-	be finite.
-	*/
 	real getSampleDirPdfW() const;
 
+	/*!
+	@return PDF of a BSDF sample being on a specific direction. Guaranteed to be non-empty.
+	*/
+	const lta::PDF& getSampleDirPdf() const;
+
 private:
-	real m_sampleDirPdfW{0};
+	lta::PDF m_sampleDirPdf{};
 };
 
+/*! @brief Information for the probability of generating a specific BSDF sample.
+*/
 class BsdfPdfQuery final
 {
 public:
@@ -120,15 +128,25 @@ inline const math::Vector3R& BsdfPdfInput::getV() const
 
 inline void BsdfPdfOutput::setSampleDirPdfW(const real pdfW)
 {
-	m_sampleDirPdfW = pdfW;
+	setSampleDirPdf(lta::PDF::W(pdfW));
+}
+
+inline void BsdfPdfOutput::setSampleDirPdf(const lta::PDF& pdf)
+{
+	m_sampleDirPdf = pdf;
 }
 
 inline real BsdfPdfOutput::getSampleDirPdfW() const
 {
-	// Query responder is responsible to provide non-infinite and non-NaN PDF
-	PH_ASSERT_MSG(std::isfinite(m_sampleDirPdfW), "pdfW = " + std::to_string(m_sampleDirPdfW));
+	return getSampleDirPdf().getPdfW();
+}
 
-	return m_sampleDirPdfW;
+inline const lta::PDF& BsdfPdfOutput::getSampleDirPdf() const
+{
+	// Query responder is responsible to provide non-empty PDF
+	PH_ASSERT_MSG(!m_sampleDirPdf.isEmpty(), "pdf = " + std::to_string(m_sampleDirPdf.value));
+
+	return m_sampleDirPdf;
 }
 
 }// end namespace ph

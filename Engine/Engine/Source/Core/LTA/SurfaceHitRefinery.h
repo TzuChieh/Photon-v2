@@ -223,7 +223,7 @@ inline Ray SurfaceHitRefinery::escapeManually(const math::Vector3R& dir, const r
 #endif
 
 	return Ray(
-		m_X.getPosition(),
+		m_X.getPos(),
 		dir.normalize(),
 		delta,
 		std::numeric_limits<real>::max(),
@@ -237,7 +237,7 @@ inline Ray SurfaceHitRefinery::escapeEmpirically(const math::Vector3R& dir) cons
 #endif
 
 	return Ray(
-		m_X.getPosition() + empiricalOffsetVec(m_X, dir),
+		m_X.getPos() + empiricalOffsetVec(m_X, dir),
 		dir.normalize(),
 		m_X.getTime());
 }
@@ -254,7 +254,7 @@ inline Ray SurfaceHitRefinery::escapeIteratively(
 	PH_ASSERT_GT(result.maxDistance, 0.0_r);
 
 	return Ray(
-		m_X.getPosition() + result.offset,
+		m_X.getPos() + result.offset,
 		result.unitDir,
 		0,
 		result.maxDistance,
@@ -285,7 +285,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit
 	s_stats.markEvent(2);
 #endif
 
-	const auto xToX2 = X2.getPosition() - m_X.getPosition();
+	const auto xToX2 = X2.getPos() - m_X.getPos();
 	const auto distance2 = xToX2.lengthSquared();
 
 	// Make sure the two points are distant enough to avoid self-intersection
@@ -295,7 +295,7 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit
 		const auto distance = std::sqrt(distance2);
 		const auto unitDir = xToX2 / distance;
 		return Ray(
-			m_X.getPosition(),
+			m_X.getPos(),
 			unitDir,
 			delta,
 			distance - delta,
@@ -313,9 +313,9 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeEmpirically(const Surface
 	s_stats.markEvent(2);
 #endif
 
-	const auto xToX2 = X2.getPosition() - m_X.getPosition();
-	const auto originX = m_X.getPosition() + empiricalOffsetVec(m_X, xToX2);
-	const auto originX2 = X2.getPosition() + empiricalOffsetVec(X2, -xToX2);
+	const auto xToX2 = X2.getPos() - m_X.getPos();
+	const auto originX = m_X.getPos() + empiricalOffsetVec(m_X, xToX2);
+	const auto originX2 = X2.getPos() + empiricalOffsetVec(X2, -xToX2);
 	const auto distance = (originX2 - originX).length();
 	const auto rcpDistance = 1.0_r / distance;
 	if(rcpDistance != 0 && std::isfinite(rcpDistance))
@@ -341,12 +341,12 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeIteratively(
 	s_stats.markEvent(2);
 #endif
 
-	const auto xToX2 = X2.getPosition() - m_X.getPosition();
+	const auto xToX2 = X2.getPos() - m_X.getPos();
 	const IterativeOffsetResult result = iterativeMutualOffset(m_X, X2, xToX2, numIterations);
 	if(result.maxDistance > 0.0_r && std::isfinite(result.maxDistance))
 	{
 		return Ray(
-			m_X.getPosition() + result.offset,
+			m_X.getPos() + result.offset,
 			result.unitDir,
 			0,
 			result.maxDistance,
@@ -370,14 +370,14 @@ inline std::size_t SurfaceHitRefinery::numIterations()
 
 inline real SurfaceHitRefinery::fallbackOffsetDist(const SurfaceHit& X, const real distanceFactor)
 {
-	const auto fallbackDist = std::max(X.getPosition().length() * distanceFactor, selfIntersectDelta());
+	const auto fallbackDist = std::max(X.getPos().length() * distanceFactor, selfIntersectDelta());
 	return std::isfinite(fallbackDist) ? fallbackDist : selfIntersectDelta();
 }
 
 inline real SurfaceHitRefinery::maxErrorOffsetDist(const SurfaceHit& X)
 {
 	const auto [_, maxFactor] = X.getDetail().getDistanceErrorFactors();
-	const auto offsetDist = X.getPosition().length() * maxFactor;
+	const auto offsetDist = X.getPos().length() * maxFactor;
 	if(std::isfinite(offsetDist))
 	{
 		// Allow to be 0 (if the implementation is confident--with 0 error)
@@ -394,7 +394,7 @@ inline real SurfaceHitRefinery::maxErrorOffsetDist(const SurfaceHit& X)
 inline real SurfaceHitRefinery::meanErrorOffsetDist(const SurfaceHit& X)
 {
 	const auto [meanFactor, _] = X.getDetail().getDistanceErrorFactors();
-	const auto offsetDist = X.getPosition().length() * meanFactor;
+	const auto offsetDist = X.getPos().length() * meanFactor;
 	if(std::isfinite(offsetDist))
 	{
 		// Allow to be 0 (if the implementation is confident--with 0 error)
@@ -417,7 +417,7 @@ inline math::Vector3R SurfaceHitRefinery::empiricalOffsetVec(const SurfaceHit& X
 	const auto offsetVec = N.dot(dir) > 0.0_r ? N * dist : N * -dist;
 
 #if PH_ENABLE_HIT_EVENT_STATS
-	if(canVerifyOffset(X, dir) && !verifyOffset(X, dir, X.getPosition(), offsetVec))
+	if(canVerifyOffset(X, dir) && !verifyOffset(X, dir, X.getPos(), offsetVec))
 	{
 		s_stats.markFailedEmpiricalEscape();
 	}

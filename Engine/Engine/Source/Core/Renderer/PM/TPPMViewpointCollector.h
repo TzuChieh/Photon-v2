@@ -182,7 +182,7 @@ inline auto TPPMViewpointCollector<Viewpoint, Photon>::impl_onPathHitSurface(
 		// radiance only. Could be more efficient if we use a separate film or render pass for that.
 		addViewpoint(
 			surfaceHit, 
-			surfaceHit.getIncidentRay().getDirection().mul(-1), 
+			surfaceHit.getIncidentRay().getDir().mul(-1),
 			pathThroughput);
 
 		return ViewPathTracingPolicy().kill();

@@ -186,26 +186,14 @@ public:
 		probe.pushIntermediateHit(this);
 	}
 
-	void calcPosSamplePdfA(
-		PrimitivePosSamplePdfQuery& query,
-		HitProbe& probe) const override
+	void calcPosPdf(PrimitivePosPdfQuery& query) const override
 	{
-		m_primitiveGetter()->calcPosSamplePdfA(query, probe);
-
-		// Hit detail will be modified by this primitive
-		probe.pushIntermediateHit(this);
+		m_primitiveGetter()->calcPosPdf(query);
 	}
 
 	real calcExtendedArea() const override
 	{
 		return m_primitiveGetter()->calcExtendedArea();
-	}
-
-	bool uvwToPosition(
-		const math::Vector3R& uvw,
-		math::Vector3R* const out_position) const override
-	{
-		return m_primitiveGetter()->uvwToPosition(uvw, out_position);
 	}
 
 	const PrimitiveMetadata* getMetadata() const override

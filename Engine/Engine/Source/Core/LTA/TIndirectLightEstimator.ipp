@@ -57,7 +57,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			}
 		}
 
-		const math::Vector3R V = currentHit.getIncidentRay().getDirection().mul(-1);
+		const math::Vector3R V = currentHit.getIncidentRay().getDir().mul(-1);
 
 		BsdfSampleQuery bsdfSample{bsdfCtx};
 		bsdfSample.inputs.set(currentHit, V);
@@ -130,7 +130,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			}
 		}
 
-		const math::Vector3R V = currentHit.getIncidentRay().getDirection().mul(-1);
+		const math::Vector3R V = currentHit.getIncidentRay().getDir().mul(-1);
 
 		BsdfSampleQuery bsdfSample{bsdfCtx};
 		bsdfSample.inputs.set(currentHit, V);

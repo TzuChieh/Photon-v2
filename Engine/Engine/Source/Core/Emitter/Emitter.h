@@ -11,7 +11,7 @@ namespace ph
 class SurfaceHit;
 class HitProbe;
 class DirectEnergySampleQuery;
-class DirectEnergySamplePdfQuery;
+class DirectEnergyPdfQuery;
 class EnergyEmissionSampleQuery;
 class SampleFlow;
 
@@ -27,7 +27,6 @@ public:
 	virtual void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const = 0;
 
 	/*! @brief Sample direct lighting for a target position.
-
 	@note Generates hit event (with `DirectEnergySampleOutput::getObservationRay()` and `probe`).
 	*/
 	virtual void genDirectSample(
@@ -35,16 +34,11 @@ public:
 		SampleFlow& sampleFlow,
 		HitProbe& probe) const = 0;
 
-	/*! @brief Sample direct lighting for a target position.
-
-	@note Generates hit event (with `DirectEnergySamplePdfInput::getObservationRay()` and `probe`).
+	/*! @brief Calculate the PDF of direct lighting for a target position.
 	*/
-	virtual void calcDirectSamplePdfW(
-		DirectEnergySamplePdfQuery& query,
-		HitProbe& probe) const = 0;
+	virtual void calcDirectPdf(DirectEnergyPdfQuery& query) const = 0;
 
 	/*! @brief Emit a ray that carries some amount of energy from this emitter.
-
 	@note Generates hit event (with `EnergyEmissionSampleOutput::getEmittedRay()` and `probe`).
 	*/
 	virtual void emitRay(

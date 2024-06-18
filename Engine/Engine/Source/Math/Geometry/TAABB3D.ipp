@@ -273,7 +273,7 @@ inline bool TAABB3D<T>::isIntersectingVolumeKajiyaKay(
 
 	// find ray-slab hitting interval in x-axis then intersect with (tMin, tMax)
 
-	T rcpDir = T(1) / segment.getDirection().x();
+	T rcpDir = T(1) / segment.getDir().x();
 	T t1     = (m_minVertex.x() - segment.getOrigin().x()) * rcpDir;
 	T t2     = (m_maxVertex.x() - segment.getOrigin().x()) * rcpDir;
 
@@ -295,7 +295,7 @@ inline bool TAABB3D<T>::isIntersectingVolumeKajiyaKay(
 
 	// find ray-slab hitting interval in y-axis then intersect with (tMin, tMax)
 
-	rcpDir = T(1) / segment.getDirection().y();
+	rcpDir = T(1) / segment.getDir().y();
 	t1     = (m_minVertex.y() - segment.getOrigin().y()) * rcpDir;
 	t2     = (m_maxVertex.y() - segment.getOrigin().y()) * rcpDir;
 
@@ -317,7 +317,7 @@ inline bool TAABB3D<T>::isIntersectingVolumeKajiyaKay(
 
 	// find ray-slab hitting interval in z-axis then intersect with (tMin, tMax)
 
-	rcpDir = T(1) / segment.getDirection().z();
+	rcpDir = T(1) / segment.getDir().z();
 	t1     = (m_minVertex.z() - segment.getOrigin().z()) * rcpDir;
 	t2     = (m_maxVertex.z() - segment.getOrigin().z()) * rcpDir;
 
@@ -359,7 +359,7 @@ inline bool TAABB3D<T>::isIntersectingVolumeTavian(
 	// Find ray-slab hitting interval in the i-th dimension then intersect with (tMin, tMax)
 	for(std::size_t i = 0; i < 3; ++i)
 	{
-		T rcpDir = T(1) / segment.getDirection()[i];
+		T rcpDir = T(1) / segment.getDir()[i];
 		T t1 = (m_minVertex[i] - segment.getOrigin()[i]) * rcpDir;
 		T t2 = (m_maxVertex[i] - segment.getOrigin()[i]) * rcpDir;
 

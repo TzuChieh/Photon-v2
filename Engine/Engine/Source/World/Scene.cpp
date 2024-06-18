@@ -53,7 +53,7 @@ bool Scene::isIntersecting(const Ray& ray, HitProbe* const out_probe) const
 
 bool Scene::isOccluding(const Ray& ray) const
 {
-	PH_ASSERT(ray.getOrigin().isFinite() && ray.getDirection().isFinite());
+	PH_ASSERT(ray.getOrigin().isFinite() && ray.getDir().isFinite());
 
 	if(m_intersector->isOccluding(ray))
 	{
@@ -82,11 +82,9 @@ void Scene::genDirectSample(
 	m_emitterSampler->genDirectSample(query, sampleFlow, probe);
 }
 
-void Scene::calcDirectSamplePdfW(
-	DirectEnergySamplePdfQuery& query,
-	HitProbe& probe) const
+void Scene::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
-	m_emitterSampler->calcDirectSamplePdfW(query, probe);
+	m_emitterSampler->calcDirectPdf(query);
 }
 
 void Scene::emitRay(
@@ -104,7 +102,7 @@ void Scene::emitRay(
 		return;
 	}
 
-	query.outputs.setPdf(query.outputs.getPdfA() * pickPdf, query.outputs.getPdfW());
+	query.outputs.setPdf(query.outputs.getPdfPos() * pickPdf, query.outputs.getPdfDir());
 }
 
 }// end namespace ph

@@ -61,7 +61,7 @@ void BVPTDLEstimator::estimate(
 	Ray        secondRay;
 	SurfaceHit secondHit;
 	{
-		const math::Vector3R V = firstRay.getDirection().mul(-1.0f);
+		const math::Vector3R V = firstRay.getDir().mul(-1.0f);
 		const math::Vector3R N = firstHit.getShadingNormal();
 
 		BsdfSampleQuery bsdfSample;

@@ -9,18 +9,18 @@
 namespace ph
 {
 
-void SphericalMapper::directionToUvw(const math::Vector3R& direction, math::Vector3R* const out_uvw) const
+void SphericalMapper::dirToUvw(const math::Vector3R& dir, math::Vector3R* const out_uvw) const
 {
 	using namespace math::constant;
 
 	PH_ASSERT(out_uvw);
 
-	const math::Vector3R& unitVector = direction.normalize();
+	const math::Vector3R& unitVector = dir.normalize();
 
 	const real cosTheta = math::clamp(unitVector.y(), -1.0_r, 1.0_r);
 
 	const real theta  = std::acos(cosTheta);                             // [  0,   pi]
-	const real phiRaw = std::atan2(unitVector.x(), unitVector.z());          // [-pi,   pi]
+	const real phiRaw = std::atan2(unitVector.x(), unitVector.z());      // [-pi,   pi]
 	const real phi    = phiRaw >= 0.0_r ? phiRaw : two_pi<real> + phiRaw;// [  0, 2*pi]
 
 	out_uvw->x() = phi / two_pi<real>;           // [0, 1]
@@ -28,9 +28,9 @@ void SphericalMapper::directionToUvw(const math::Vector3R& direction, math::Vect
 	out_uvw->z() = 0.0_r;
 }
 
-bool SphericalMapper::uvwToDirection(const math::Vector3R& uvw, math::Vector3R* const out_direction) const
+bool SphericalMapper::uvwToDir(const math::Vector3R& uvw, math::Vector3R* const out_dir) const
 {
-	PH_ASSERT(out_direction);
+	PH_ASSERT(out_dir);
 
 	PH_ASSERT(0.0_r <= uvw.x() && uvw.x() <= 1.0_r &&
 	          0.0_r <= uvw.y() && uvw.y() <= 1.0_r);
@@ -39,9 +39,9 @@ bool SphericalMapper::uvwToDirection(const math::Vector3R& uvw, math::Vector3R* 
 	const real phi   = uvw.x() * math::constant::two_pi<real>;
 
 	const real zxPlaneRadius = std::sin(theta);
-	out_direction->x() = zxPlaneRadius * std::sin(phi);
-	out_direction->y() = std::cos(theta);
-	out_direction->z() = zxPlaneRadius * std::cos(phi);
+	out_dir->x() = zxPlaneRadius * std::sin(phi);
+	out_dir->y() = std::cos(theta);
+	out_dir->z() = zxPlaneRadius * std::cos(phi);
 
 	return true;
 }

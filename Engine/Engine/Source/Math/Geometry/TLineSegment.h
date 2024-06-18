@@ -34,11 +34,11 @@ public:
 
 	/*! @brief A line that covers the parametric range [minT, maxT).
 
-	@param direction Line direction. Does not need to be normalized.
+	@param dir Line direction. Does not need to be normalized.
 	*/
 	TLineSegment(
 		const TVector3<T>& origin, 
-		const TVector3<T>& direction, 
+		const TVector3<T>& dir, 
 		T                  minT, 
 		T                  maxT);
 
@@ -75,7 +75,7 @@ public:
 
 	Note that the vector does not need to be normalized.
 	*/
-	void setDirection(const TVector3<T>& dir);
+	void setDir(const TVector3<T>& dir);
 
 	/*! @name Getters
 
@@ -84,7 +84,7 @@ public:
 	*/
 	///@{
 	const TVector3<T>& getOrigin() const;
-	const TVector3<T>& getDirection() const;
+	const TVector3<T>& getDir() const;
 	T getMinT() const;
 	T getMaxT() const;
 	std::pair<T, T> getRange() const;
@@ -104,7 +104,7 @@ public:
 
 private:
 	TVector3<T> m_origin;
-	TVector3<T> m_direction;
+	TVector3<T> m_dir;
 	T           m_minT;
 	T           m_maxT;
 };

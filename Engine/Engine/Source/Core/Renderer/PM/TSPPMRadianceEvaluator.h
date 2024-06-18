@@ -182,7 +182,7 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		}
 		if constexpr(Viewpoint::template has<EViewpointData::ViewDir>())
 		{
-			m_viewpoint->template set<EViewpointData::ViewDir>(surfaceHit.getIncidentRay().getDirection().mul(-1));
+			m_viewpoint->template set<EViewpointData::ViewDir>(surfaceHit.getIncidentRay().getDir().mul(-1));
 		}
 
 		m_foundTargetHitPoint = true;
@@ -236,7 +236,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	const real           R          = m_viewpoint->template get<EViewpointData::Radius>();
 
 	m_photonCache.clear();
-	m_photonMap->find(surfaceHit.getPosition(), R, m_photonCache);
+	m_photonMap->find(surfaceHit.getPos(), R, m_photonCache);
 
 	// FIXME: as a parameter
 	const real alpha = 2.0_r / 3.0_r;

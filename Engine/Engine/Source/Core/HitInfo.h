@@ -20,7 +20,7 @@ public:
 	HitInfo();
 
 	void setAttributes(
-		const math::Vector3R& position,
+		const math::Vector3R& pos,
 		const math::Vector3R& geometryNormal,
 		const math::Vector3R& shadingNormal);
 
@@ -32,7 +32,7 @@ public:
 
 	void computeBases();
 
-	math::Vector3R getPosition() const;
+	math::Vector3R getPos() const;
 	math::Vector3R getShadingNormal() const;
 	math::Vector3R getGeometryNormal() const;
 	math::Vector3R getdPdU() const;
@@ -43,7 +43,7 @@ public:
 	const math::Basis3R& getShadingBasis() const;
 
 private:
-	math::Vector3R m_position;
+	math::Vector3R m_pos;
 
 	math::Vector3R m_dPdU;
 	math::Vector3R m_dPdV;
@@ -60,9 +60,9 @@ private:
 
 // In-header Implementations:
 
-inline math::Vector3R HitInfo::getPosition() const
+inline math::Vector3R HitInfo::getPos() const
 {
-	return m_position;
+	return m_pos;
 }
 
 inline math::Vector3R HitInfo::getShadingNormal() const
@@ -108,11 +108,11 @@ inline const math::Basis3R& HitInfo::getShadingBasis() const
 }
 
 inline void HitInfo::setAttributes(
-	const math::Vector3R& position,
+	const math::Vector3R& pos,
 	const math::Vector3R& geometryNormal,
 	const math::Vector3R& shadingNormal)
 {
-	m_position = position;
+	m_pos = pos;
 	m_geometryBasis.setYAxis(geometryNormal);
 	m_shadingBasis.setYAxis(shadingNormal);
 

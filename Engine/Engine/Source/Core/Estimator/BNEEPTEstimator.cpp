@@ -14,7 +14,7 @@
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
 #include "Math/Color/Spectrum.h"
-#include "Core/LTA/TMis.h"
+#include "Core/LTA/TMIS.h"
 #include "Core/LTA/TDirectLightEstimator.h"
 #include "Core/LTA/RussianRoulette.h"
 #include "Core/LTA/SurfaceTracer.h"
@@ -46,7 +46,7 @@ void BNEEPTEstimator::estimate(
 	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
 
 	const lta::TDirectLightEstimator<sidednessPolicy> directLight{&integrand.getScene()};
-	const lta::TMis<lta::EMisStyle::Power> mis{};
+	const lta::TMIS<lta::EMISStyle::Power> mis{};
 	const lta::RussianRoulette rr{};
 	const lta::SurfaceTracer surfaceTracer{&integrand.getScene()};
 	const lta::SidednessAgreement sidedness{sidednessPolicy};
@@ -81,7 +81,7 @@ void BNEEPTEstimator::estimate(
 	// Ray bouncing around the scene (1 ~ N bounces)
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
 	{
-		const math::Vector3R V = tracingRay.getDirection().mul(-1.0_r);
+		const math::Vector3R V = tracingRay.getDir().mul(-1.0_r);
 		PH_ASSERT_MSG(V.isFinite(), V.toString());
 
 		const bool canDoNEE = directLight.isNeeSamplable(surfaceHit);
@@ -109,7 +109,7 @@ void BNEEPTEstimator::estimate(
 				{
 					BsdfPdfQuery bsdfPdfQuery(bsdfContext);
 					bsdfPdfQuery.inputs.set(bsdfEval.inputs);
-					surfaceOptics->calcBsdfSamplePdfW(bsdfPdfQuery);
+					surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
 
 					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 					const real misWeighting = mis.weight(directSample.outputs.getPdfW(), bsdfSamplePdfW);
@@ -136,7 +136,7 @@ void BNEEPTEstimator::estimate(
 
 			BsdfSampleQuery bsdfSample(bsdfContext);
 			bsdfSample.inputs.set(surfaceHit, V);
-			surfaceOptics->calcBsdfSample(bsdfSample, sampleFlow);
+			surfaceOptics->genBsdfSample(bsdfSample, sampleFlow);
 			if(!bsdfSample.outputs.isMeasurable())
 			{
 				break;
@@ -163,8 +163,8 @@ void BNEEPTEstimator::estimate(
 			//}
 
 			// Trace a ray using BSDF's suggestion
-			tracingRay.setOrigin(surfaceHit.getPosition());
-			tracingRay.setDirection(L);
+			tracingRay.setOrigin(surfaceHit.getPos());
+			tracingRay.setDir(L);
 			SurfaceHit nextSurfaceHit;
 			if(!surfaceTracer.traceNextSurfaceFrom(surfaceHit, tracingRay, sidedness, &nextSurfaceHit))
 			{
@@ -193,7 +193,7 @@ void BNEEPTEstimator::estimate(
 
 					BsdfPdfQuery bsdfPdfQuery;
 					bsdfPdfQuery.inputs.set(bsdfSample);
-					surfaceOptics->calcBsdfSamplePdfW(bsdfPdfQuery);
+					surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
 
 					// `canDoNEE` is already checked, but `bsdfSamplePdfW` can still be 0 (e.g.,
 					// sidedness policy or by the distribution itself).

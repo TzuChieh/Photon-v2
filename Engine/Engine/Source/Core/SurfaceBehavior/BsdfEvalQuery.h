@@ -14,6 +14,8 @@
 namespace ph
 {
 
+/*! @brief Input for `BsdfEvalQuery`.
+*/
 class BsdfEvalInput final
 {
 public:
@@ -38,7 +40,7 @@ private:
 #endif
 };
 
-/*!
+/*! @brief Output for `BsdfEvalQuery`.
 @note It is an error to get output data if `isMeasurable()` returns `false`.
 */
 class BsdfEvalOutput
@@ -78,6 +80,8 @@ private:
 	bool m_isMeasurable{false};
 };
 
+/*! @brief Information for obtaining a sample value from BSDF.
+*/
 class BsdfEvalQuery final
 {
 public:

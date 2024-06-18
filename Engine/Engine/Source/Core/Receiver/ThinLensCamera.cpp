@@ -61,7 +61,7 @@ math::Spectrum ThinLensCamera::receiveRay(const math::Vector2D& rasterCoord, Ray
 	getCameraToWorld().transformP(math::Vector3R(lensPos), &worldLensPos);
 
 	PH_ASSERT(out_ray);
-	out_ray->setDirection(worldSensedRayDir);
+	out_ray->setDir(worldSensedRayDir);
 	out_ray->setOrigin(worldLensPos);
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());

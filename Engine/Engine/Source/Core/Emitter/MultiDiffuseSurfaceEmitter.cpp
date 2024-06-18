@@ -5,7 +5,7 @@
 #include "Core/Texture/TTexture.h"
 #include "Math/Random/Random.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
-#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
 #include <Common/assertion.h>
@@ -57,23 +57,15 @@ void MultiDiffuseSurfaceEmitter::genDirectSample(
 	}
 
 	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
-	query.outputs.setPdfW(query.outputs.getPdfW() * pickPdf);
+	query.outputs.setPdf(query.outputs.getPdf() * pickPdf);
 }
 
-void MultiDiffuseSurfaceEmitter::calcDirectSamplePdfW(
-	DirectEnergySamplePdfQuery& query,
-	HitProbe& probe) const
+void MultiDiffuseSurfaceEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	PH_ASSERT(!m_emitters.empty());
 
-	calcDirectSamplePdfWForSingleSurface(query, probe);
-	if(!query.outputs)
-	{
-		return;
-	}
-
-	const auto pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
-	query.outputs.setPdfW(query.outputs.getPdfW() * pickPdf);
+	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
+	calcDirectPdfWForSrcPrimitive(query, lta::PDF::D(pickPdf));
 }
 
 void MultiDiffuseSurfaceEmitter::emitRay(
@@ -93,7 +85,7 @@ void MultiDiffuseSurfaceEmitter::emitRay(
 		return;
 	}
 
-	query.outputs.setPdf(query.outputs.getPdfA() * pickPdf, query.outputs.getPdfW());
+	query.outputs.setPdf(query.outputs.getPdfPos() * pickPdf, query.outputs.getPdfDir());
 }
 
 void MultiDiffuseSurfaceEmitter::setEmittedRadiance(

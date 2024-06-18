@@ -37,13 +37,13 @@ private:
 		const BsdfEvalInput&    in,
 		BsdfEvalOutput&         out) const override;
 
-	void calcBsdfSample(
+	void genBsdfSample(
 		const BsdfQueryContext& ctx,
 		const BsdfSampleInput&  in,
 		SampleFlow&             sampleFlow,
 		BsdfSampleOutput&       out) const override;
 
-	void calcBsdfSamplePdfW(
+	void calcBsdfPdf(
 		const BsdfQueryContext& ctx,
 		const BsdfPdfInput&     in,
 		BsdfPdfOutput&          out) const override;

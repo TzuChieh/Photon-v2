@@ -63,9 +63,9 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 	{
 		return false;
 	}
-	TLineSegment<real> intersectSegment(segment.getOrigin(), segment.getDirection(), minT, maxT);
+	TLineSegment<real> intersectSegment(segment.getOrigin(), segment.getDir(), minT, maxT);
 
-	const Vector3R rcpRayDir(segment.getDirection().rcp());
+	const Vector3R rcpRayDir(segment.getDir().rcp());
 
 	std::array<NodeState, MAX_STACK_HEIGHT> nodeStack;
 	int stackHeight = 0;
@@ -83,7 +83,7 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 			if(
 				(segment.getOrigin()[splitAxis] < currentNode->splitPos()) ||
 				(segment.getOrigin()[splitAxis] == currentNode->splitPos() && 
-				 segment.getDirection()[splitAxis] <= 0))
+				 segment.getDir()[splitAxis] <= 0))
 			{
 				nearHitNode = currentNode + 1;
 				farHitNode  = &(m_nodeBuffer[currentNode->positiveChildIndex()]);

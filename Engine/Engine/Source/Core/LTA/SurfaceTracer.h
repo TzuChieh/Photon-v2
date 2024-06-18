@@ -139,7 +139,7 @@ inline bool SurfaceTracer::traceNextSurface(
 	*out_X = SurfaceHit(ray, probe, SurfaceHitReason(ESurfaceHitReason::IncidentRay));
 	sidedness.adjustForSidednessAgreement(*out_X);
 
-	return sidedness.isSidednessAgreed(*out_X, ray.getDirection());
+	return sidedness.isSidednessAgreed(*out_X, ray.getDir());
 }
 
 inline bool SurfaceTracer::traceNextSurfaceFrom(
@@ -151,7 +151,7 @@ inline bool SurfaceTracer::traceNextSurfaceFrom(
 	// Not tracing from uninitialized surface hit
 	PH_ASSERT(!X.getReason().hasExactly(ESurfaceHitReason::Invalid));
 
-	const Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDirection());
+	const Ray refinedRay = SurfaceHitRefinery{X}.escape(ray.getDir());
 	return traceNextSurface(refinedRay, sidedness, out_X);
 }
 
@@ -182,7 +182,7 @@ inline bool SurfaceTracer::doBsdfSample(BsdfSampleQuery& bsdfSample, SampleFlow&
 		return false;
 	}
 
-	optics->calcBsdfSample(bsdfSample, sampleFlow);
+	optics->genBsdfSample(bsdfSample, sampleFlow);
 
 	return bsdfSample.outputs.isMeasurable();
 }
@@ -199,7 +199,7 @@ inline bool SurfaceTracer::doBsdfSample(
 
 	PH_ASSERT(out_sampledRay);
 	*out_sampledRay = Ray(
-		bsdfSample.inputs.getX().getPosition(),
+		bsdfSample.inputs.getX().getPos(),
 		bsdfSample.outputs.getL(),
 		0,
 		std::numeric_limits<real>::max(),
@@ -231,7 +231,7 @@ inline bool SurfaceTracer::doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const
 		return false;
 	}
 
-	optics->calcBsdfSamplePdfW(bsdfPdfQuery);
+	optics->calcBsdfPdf(bsdfPdfQuery);
 
 	return bsdfPdfQuery.outputs.getSampleDirPdfW() > 0.0_r;
 }
@@ -248,7 +248,7 @@ inline bool SurfaceTracer::sampleZeroBounceEmission(
 	// Sidedness agreement between real geometry and shading normal
 	// (do not check for hemisphere--emitter may be back-emitting and this is judged by the emitter)
 	if(!emitter ||
-	   !sidedness.isSidednessAgreed(Xe, Xe.getIncidentRay().getDirection()))
+	   !sidedness.isSidednessAgreed(Xe, Xe.getIncidentRay().getDir()))
 	{
 		return false;
 	}

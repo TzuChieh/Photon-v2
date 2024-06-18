@@ -6,7 +6,7 @@
 #include "Math/Geometry/TSphere.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
-#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
+#include "Core/Intersection/Query/PrimitivePosPdfQuery.h"
 
 #include <Common/assertion.h>
 
@@ -35,7 +35,7 @@ void PLatLong01Sphere::calcHitDetail(
 		"hitPosition = " + hitPosition.toString() + "\n"
 		"hitNormal   = " + hitNormal.toString() + "\n");
 
-	const math::Vector2R hitUv = positionToUV(hitPosition);
+	const math::Vector2R hitUv = posToUV(hitPosition);
 
 	out_detail->getHitInfo(ECoordSys::Local).setAttributes(
 		hitPosition, 
@@ -47,7 +47,7 @@ void PLatLong01Sphere::calcHitDetail(
 		hitPosition,
 		[this](const math::Vector3R& position)
 		{
-			return positionToUV(position);
+			return posToUV(position);
 		});
 
 	// Normal derivatives are actually scaled version of dPdU and dPdV
@@ -91,23 +91,19 @@ void PLatLong01Sphere::genPosSample(
 		query.inputs.getTime());
 
 	query.outputs.setPos(pos);
-	query.outputs.setPdfA(pdfA);
+	query.outputs.setPdfPos(lta::PDF::A(pdfA));
 	query.outputs.setObservationRay(observationRay);
 
 	probe.pushBaseHit(this, observationRay.getMaxT());
 }
 
-void PLatLong01Sphere::calcPosSamplePdfA(
-	PrimitivePosSamplePdfQuery& query,
-	HitProbe& probe) const
+void PLatLong01Sphere::calcPosPdf(PrimitivePosPdfQuery& query) const
 {
 	const math::TSphere<real> sphere(getRadius());
-	query.outputs.setPdfA(sphere.uniformSurfaceSamplePdfA());
-
-	probe.pushBaseHit(this, query.inputs.getObservationRay().getMaxT());
+	query.outputs.setPdf(lta::PDF::A(sphere.uniformSurfaceSamplePdfA()));
 }
 
-math::Vector2R PLatLong01Sphere::positionToUV(const math::Vector3R& position) const
+math::Vector2R PLatLong01Sphere::posToUV(const math::Vector3R& position) const
 {
 	return math::TSphere<real>(getRadius()).surfaceToLatLong01(position);
 }

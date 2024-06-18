@@ -94,7 +94,7 @@ inline bool TSphere<T>::isIntersectingNaive(
 	// FIXME: T may be more precise than float64
 
 	const Vector3D rayO(segment.getOrigin());
-	const Vector3D rayD(segment.getDirection());
+	const Vector3D rayD(segment.getDir());
 
 	// Vector from ray origin (o) to sphere center (c)
 	const Vector3D oc = Vector3D(0).sub(rayO);
@@ -176,7 +176,7 @@ inline bool TSphere<T>::isIntersectingHearnBaker(
 	// We use the same notation as `isIntersectingNaive()` for the geometries
 
 	const Vector3D rayO(segment.getOrigin());
-	const Vector3D rayD(segment.getDirection());
+	const Vector3D rayD(segment.getDir());
 	const Vector3D unitRayD = rayD.normalize();
 
 	// Vector from sphere center (c) to ray origin (o)

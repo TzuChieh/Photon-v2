@@ -58,7 +58,7 @@ void IdealDielectric::calcBsdf(
 	out.setMeasurability(false);
 }
 
-void IdealDielectric::calcBsdfSample(
+void IdealDielectric::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -162,7 +162,7 @@ void IdealDielectric::calcBsdfSample(
 	out.setL(L);
 }
 
-void IdealDielectric::calcBsdfSamplePdfW(
+void IdealDielectric::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

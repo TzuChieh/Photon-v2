@@ -14,7 +14,7 @@ namespace ph
 enum class EPhotonData
 {
 	ThroughputRadiance,
-	Position,
+	Pos,
 	FromDir,
 	GeometryNormal,
 	PathLength

@@ -13,6 +13,8 @@
 namespace ph
 {
 
+/*! @brief Input for `BsdfSampleQuery`.
+*/
 class BsdfSampleInput final
 {
 public:
@@ -30,7 +32,7 @@ private:
 #endif
 };
 
-/*!
+/*! @brief Output for `BsdfSampleQuery`.
 @note It is an error to get output data if `isMeasurable()` returns `false`.
 */
 class BsdfSampleOutput final
@@ -65,7 +67,7 @@ public:
 	real getCos() const;
 
 	/*!
-	@return Sampled BSDF with PDF (solid angle domain) applied. Guaranteed to be finite.
+	@return Sampled BSDF with PDF (on the same domain) applied. Guaranteed to be finite.
 	Specifically, it is equivalent to @f$ BSDF / PDF_{\omega} @f$.
 	*/
 	math::Spectrum getPdfAppliedBsdf() const;
@@ -74,7 +76,7 @@ public:
 	Prefer using this method when applicable instead of applying the cosine term manually.
 	The coupled form often results in less computation and potentially offers better numerical
 	stability as some terms can often be canceled out.
-	@return Sampled BSDF with Lambert's cosine law and PDF (solid angle domain) applied.
+	@return Sampled BSDF with Lambert's cosine law and PDF (on the same domain) applied.
 	Guaranteed to be finite. Specifically, it is equivalent to
 	@f$ BSDF * \lvert\cos\theta\rvert / PDF_{\omega} @f$.
 	@note This cosine term is an absolute value. You may need to consult the corresponding `SurfaceHit`
@@ -105,6 +107,8 @@ private:
 	bool           m_isMeasurable{false};
 };
 
+/*! @brief Information for generating a BSDF sample.
+*/
 class BsdfSampleQuery final
 {
 public:

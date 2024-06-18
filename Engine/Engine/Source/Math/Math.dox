@@ -1,3 +1,5 @@
 /*! @dir Math
 @brief Fundamental math utilities.
+@note Most of the classes here do not initialize their internal variables for performance reasons.
+Always make sure class instances are in a defined state before use.
 */

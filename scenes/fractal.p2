@@ -2,7 +2,7 @@
 
 +> option(single-frame-render-session) @session [vector2 frame-size "720 480"] [string visualizer @visualizer] [string observer @observer] [string sample-source @sampler]
 
-+> observer(single-lens) @observer [real fov-degrees 30] [vector3 position "0 7 60"] [vector3 direction "0 0 -1"] [vector3 up-axis "0 1 0"]
++> observer(single-lens) @observer [real fov-degrees 30] [vector3 pos "0 7 60"] [vector3 dir "0 0 -1"] [vector3 up-axis "0 1 0"]
 +> sample-source(stratified) @sampler [integer samples 40]
 +> visualizer(path-tracing) @visualizer [enum sample-filter gaussian] [enum estimator bneept]
 

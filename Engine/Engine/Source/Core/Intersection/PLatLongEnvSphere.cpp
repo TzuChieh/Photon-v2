@@ -9,7 +9,7 @@
 #include "Math/TOrthonormalBasis3.h"
 #include "Math/constant.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
-#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
+#include "Core/Intersection/Query/PrimitivePosPdfQuery.h"
 #include "Core/SampleGenerator/SampleFlow.h"
 
 #include <Common/assertion.h>
@@ -81,11 +81,11 @@ void PLatLongEnvSphere::calcHitDetail(
 		"localHitPosition = " + localHitPosition.toString() + "\n"
 		"localHitNormal   = " + localHitNormal.toString() + "\n");
 
-	const auto unitRayDir = ray.getDirection().normalize();
+	const auto unitRayDir = ray.getDir().normalize();
 	const auto unitSphere = math::TSphere<real>::makeUnit();
 
 	math::Vector3R localUnitRayDir;
-	m_worldToLocal->transformV(localRay.getDirection(), &localUnitRayDir);
+	m_worldToLocal->transformV(localRay.getDir(), &localUnitRayDir);
 	localUnitRayDir = localUnitRayDir.safeNormalize({0, 1, 0});
 
 	// UV is mapped from incident direction for the purpose of environment lighting
@@ -117,6 +117,50 @@ void PLatLongEnvSphere::calcHitDetail(
 	// a hemisphere of directions.
 }
 
+void PLatLongEnvSphere::genPosSample(
+	PrimitivePosSampleQuery& query,
+	SampleFlow& sampleFlow,
+	HitProbe& probe) const
+{
+	PH_ASSERT(query.inputs.getUvwPdf().domain == lta::EDomain::UV01);
+
+	if(query.inputs.getObservationPos())
+	{
+		genPosSampleWithObservationPos(
+			{query.inputs.getUvw().x(), query.inputs.getUvw().y()},
+			*query.inputs.getUvwPdf(),
+			query,
+			probe);
+	}
+	else
+	{
+		genPosSampleWithoutObservationPos(
+			{query.inputs.getUvw().x(), query.inputs.getUvw().y()},
+			*query.inputs.getUvwPdf(),
+			query,
+			sampleFlow,
+			probe);
+	}
+}
+
+void PLatLongEnvSphere::calcPosPdf(PrimitivePosPdfQuery& query) const
+{
+	if(query.inputs.getObservationPos())
+	{
+		const math::Vector3R uvw(query.inputs.getUvw());
+		const math::Vector2R latLong01(uvw.x(), uvw.y());
+
+		PH_ASSERT(query.inputs.getUvwPdf().domain == lta::EDomain::UV01);
+		const real latLong01Pdf = *query.inputs.getUvwPdf();
+
+		calcPosPdfWithObservationPos(latLong01, latLong01Pdf, query);
+	}
+	else
+	{
+		PH_ASSERT_UNREACHABLE_SECTION();
+	}
+}
+
 void PLatLongEnvSphere::genPosSampleWithObservationPos(
 	const math::Vector2R& latLong01,
 	const real latLong01Pdf,
@@ -130,7 +174,6 @@ void PLatLongEnvSphere::genPosSampleWithObservationPos(
 	math::Vector3R unitObservationDir;
 	if(!latLong01ToSurface(latLong01, *query.inputs.getObservationPos(), &surface, &unitObservationDir))
 	{
-		query.outputs.invalidate();
 		return;
 	}
 
@@ -151,28 +194,9 @@ void PLatLongEnvSphere::genPosSampleWithObservationPos(
 
 	query.outputs.setPos(surface);
 	query.outputs.setObservationRay(observationRay);
-	query.outputs.setPdfA(pdfA);
+	query.outputs.setPdfPos(lta::PDF::A(pdfA));
 
 	probe.pushBaseHit(this, observationRay.getMaxT());
-}
-
-void PLatLongEnvSphere::calcPosSamplePdfWithObservationPos(
-	const math::Vector2R& latLong01,
-	const real latLong01Pdf,
-	PrimitivePosSamplePdfQuery& query,
-	HitProbe& probe) const
-{
-	const real sinTheta = std::sin((1.0_r - latLong01.y()) * math::constant::pi<real>);
-
-	// Absolute value of the determinant of Jacobian from UV space to Cartesian
-	const real detJacobian = 2.0_r * math::constant::pi2<real> * getRadius() * getRadius() * sinTheta;
-
-	real pdfA = latLong01Pdf / detJacobian;
-	pdfA = std::isfinite(pdfA) ? pdfA : 0.0_r;
-
-	query.outputs.setPdfA(pdfA);
-
-	probe.pushBaseHit(this, query.inputs.getObservationRay().getMaxT());
 }
 
 void PLatLongEnvSphere::genPosSampleWithoutObservationPos(
@@ -180,39 +204,51 @@ void PLatLongEnvSphere::genPosSampleWithoutObservationPos(
 	const real latLong01Pdf,
 	PrimitivePosSampleQuery& query,
 	SampleFlow& sampleFlow,
-	HitProbe& probe,
-	math::Vector3R* const out_unitObservationDir,
-	real* const out_pdfW) const
+	HitProbe& probe) const
 {
 	// Observation position must not present, otherwise it does not make sense to use this
 	// method for one-to-many mapping
 	PH_ASSERT(!query.inputs.getObservationPos());
 
+	// Current implementation reports the suggested sample direction and PDF no matter if they
+	// are requested (`query.suggestDir()`) as they are cheap to compute and is already a by-product.
+
 	math::Vector3R surface;
+	math::Vector3R unitObservationDir;
 	real pdfA;
-	latLong01ToSurface(latLong01, sampleFlow.flow2D(), &surface, out_unitObservationDir, &pdfA);
+	latLong01ToSurface(latLong01, sampleFlow.flow2D(), &surface, &unitObservationDir, &pdfA);
 
 	const real sinTheta = std::sin((1.0_r - latLong01.y()) * math::constant::pi<real>);
 
 	// Absolute value of the determinant of Jacobian from UV space to solid angle
 	const real detJacobian = 2.0_r * math::constant::pi2<real> * sinTheta;
 
-	PH_ASSERT(out_pdfW);
-	*out_pdfW = latLong01Pdf / detJacobian;
-	*out_pdfW = std::isfinite(*out_pdfW) ? *out_pdfW : 0.0_r;
-
 	const Ray observationRay(
 		surface,
-		*out_unitObservationDir,
+		-unitObservationDir,
 		0,
 		0,
 		query.inputs.getTime());
 
 	query.outputs.setPos(surface);
 	query.outputs.setObservationRay(observationRay);
-	query.outputs.setPdfA(pdfA);
+	query.outputs.setPdfPos(lta::PDF::A(pdfA));
+	query.outputs.setPdfDir(lta::PDF::W(latLong01Pdf / detJacobian));
 
 	probe.pushBaseHit(this, observationRay.getMaxT());
+}
+
+void PLatLongEnvSphere::calcPosPdfWithObservationPos(
+	const math::Vector2R& latLong01,
+	const real latLong01Pdf,
+	PrimitivePosPdfQuery& query) const
+{
+	const real sinTheta = std::sin((1.0_r - latLong01.y()) * math::constant::pi<real>);
+
+	// Absolute value of the determinant of Jacobian from UV space to Cartesian
+	const real detJacobian = 2.0_r * math::constant::pi2<real> * getRadius() * getRadius() * sinTheta;
+
+	query.outputs.setPdf(lta::PDF::A(latLong01Pdf / detJacobian));
 }
 
 bool PLatLongEnvSphere::latLong01ToSurface(

@@ -77,7 +77,7 @@ void OpaqueMicrofacet::calcBsdf(
 	out.setBsdf(bsdf);
 }
 
-void OpaqueMicrofacet::calcBsdfSample(
+void OpaqueMicrofacet::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -112,7 +112,7 @@ void OpaqueMicrofacet::calcBsdfSample(
 	out.setL(L);
 }
 
-void OpaqueMicrofacet::calcBsdfSamplePdfW(
+void OpaqueMicrofacet::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

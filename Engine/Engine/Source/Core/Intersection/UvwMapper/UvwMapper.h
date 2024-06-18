@@ -11,26 +11,26 @@ class UvwMapper
 public:
 	virtual ~UvwMapper();
 
-	virtual void positionToUvw(const math::Vector3R& position, math::Vector3R* out_uvw) const = 0;
+	virtual void posToUvw(const math::Vector3R& pos, math::Vector3R* out_uvw) const = 0;
 
-	virtual void directionToUvw(const math::Vector3R& direction, math::Vector3R* out_uvw) const;
-	virtual bool uvwToPosition(const math::Vector3R& uvw, math::Vector3R* out_position) const;
-	virtual bool uvwToDirection(const math::Vector3R& uvw, math::Vector3R* out_direction) const;
+	virtual void dirToUvw(const math::Vector3R& dir, math::Vector3R* out_uvw) const;
+	virtual bool uvwToPos(const math::Vector3R& uvw, math::Vector3R* out_pos) const;
+	virtual bool uvwToDir(const math::Vector3R& uvw, math::Vector3R* out_dir) const;
 };
 
 // In-header Implementations:
 
-inline void UvwMapper::directionToUvw(const math::Vector3R& direction, math::Vector3R* const out_uvw) const
+inline void UvwMapper::dirToUvw(const math::Vector3R& dir, math::Vector3R* const out_uvw) const
 {
-	positionToUvw(direction, out_uvw);
+	posToUvw(dir, out_uvw);
 }
 
-inline bool UvwMapper::uvwToPosition(const math::Vector3R& uvw, math::Vector3R* const out_position) const
+inline bool UvwMapper::uvwToPos(const math::Vector3R& uvw, math::Vector3R* const out_pos) const
 {
 	return false;
 }
 
-inline bool UvwMapper::uvwToDirection(const math::Vector3R& uvw, math::Vector3R* const out_direction) const
+inline bool UvwMapper::uvwToDir(const math::Vector3R& uvw, math::Vector3R* const out_dir) const
 {
 	return false;
 }

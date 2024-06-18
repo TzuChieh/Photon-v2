@@ -1,6 +1,6 @@
 #include "Core/Emitter/Sampler/ESUniformRandom.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
-#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersection/PrimitiveMetadata.h"
@@ -51,7 +51,7 @@ void ESUniformRandom::genDirectSample(
 	// Randomly and uniformly select an emitter
 	const std::size_t picker = static_cast<std::size_t>(sampleFlow.flow1D() * static_cast<real>(m_emitters.size()));
 	const std::size_t pickedIndex = picker == m_emitters.size() ? picker - 1 : picker;
-	const real pickPdfW = 1.0_r / static_cast<real>(m_emitters.size());
+	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
 
 	m_emitters[pickedIndex]->genDirectSample(query, sampleFlow, probe);
 	if(!query.outputs)
@@ -59,27 +59,27 @@ void ESUniformRandom::genDirectSample(
 		return;
 	}
 
-	query.outputs.setPdfW(query.outputs.getPdfW() * pickPdfW);
+	query.outputs.setPdf(query.outputs.getPdf() * pickPdf);
 }
 
-void ESUniformRandom::calcDirectSamplePdfW(
-	DirectEnergySamplePdfQuery& query,
-	HitProbe& probe) const
+void ESUniformRandom::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	const Primitive* const hitPrim = query.inputs.getSrcPrimitive();
-	PH_ASSERT(hitPrim);
-	const Emitter* const hitEmitter = hitPrim->getMetadata()->getSurface().getEmitter();
-	PH_ASSERT(hitEmitter);
+	const Emitter* const hitEmitter = hitPrim ? hitPrim->getMetadata()->getSurface().getEmitter() : nullptr;
+	if(!hitEmitter)
+	{
+		query.outputs.setPdf({});
+		return;
+	}
 
-	hitEmitter->calcDirectSamplePdfW(query, probe);
+	hitEmitter->calcDirectPdf(query);
 	if(!query.outputs)
 	{
 		return;
 	}
 
-	const auto pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
-	const auto directPdfW = query.outputs.getPdfW() * pickPdf;
-	query.outputs.setPdfW(std::isfinite(directPdfW) ? directPdfW : 0);
+	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
+	query.outputs.setPdf(query.outputs.getPdf() * pickPdf);
 }
 
 }// end namespace ph

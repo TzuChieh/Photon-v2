@@ -49,7 +49,7 @@ void IdealTransmitter::calcBsdf(
 	out.setMeasurability(false);
 }
 
-void IdealTransmitter::calcBsdfSample(
+void IdealTransmitter::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             /* sampleFlow */,
@@ -93,7 +93,7 @@ void IdealTransmitter::calcBsdfSample(
 	out.setL(L);
 }
 
-void IdealTransmitter::calcBsdfSamplePdfW(
+void IdealTransmitter::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

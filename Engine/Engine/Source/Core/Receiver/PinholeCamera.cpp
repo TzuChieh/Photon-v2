@@ -32,7 +32,7 @@ math::Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray*
 	math::Vector3R pinholePos;
 	getCameraToWorld().transformP({0, 0, 0}, &pinholePos);
 
-	out_ray->setDirection(genReceiveRayDir(rasterCoord));
+	out_ray->setDir(genReceiveRayDir(rasterCoord));
 	out_ray->setOrigin(pinholePos);
 	out_ray->setMinT(0.0001_r);// HACK: hard-coded number
 	out_ray->setMaxT(std::numeric_limits<real>::max());
@@ -42,9 +42,9 @@ math::Spectrum PinholeCamera::receiveRay(const math::Vector2D& rasterCoord, Ray*
 	time.relativeT = math::Random::sample();
 	out_ray->setTime(time);
 
-	PH_ASSERT_MSG(out_ray->getOrigin().isFinite() && out_ray->getDirection().isFinite(), "\n"
+	PH_ASSERT_MSG(out_ray->getOrigin().isFinite() && out_ray->getDir().isFinite(), "\n"
 		"origin    = " + out_ray->getOrigin().toString() + "\n"
-		"direction = " + out_ray->getDirection().toString() + "\n");
+		"direction = " + out_ray->getDir().toString() + "\n");
 
 	return math::Spectrum(1);
 }

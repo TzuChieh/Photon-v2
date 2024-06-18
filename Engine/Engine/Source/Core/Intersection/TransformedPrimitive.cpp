@@ -1,6 +1,6 @@
 #include "Core/Intersection/TransformedPrimitive.h"
 #include "Core/Intersection/Query/PrimitivePosSampleQuery.h"
-#include "Core/Intersection/Query/PrimitivePosSamplePdfQuery.h"
+#include "Core/Intersection/Query/PrimitivePosPdfQuery.h"
 #include "Core/HitDetail.h"
 
 namespace ph
@@ -52,21 +52,28 @@ void TransformedPrimitive::genPosSample(
 	{
 		math::Vector3R localObservationPos;
 		m_worldToLocal->transformP(*query.inputs.getObservationPos(), &localObservationPos);
-		localQuery.inputs.set(query.inputs.getTime(), localObservationPos);
+
+		localQuery.inputs.set(
+			query.inputs.getTime(),
+			localObservationPos,
+			query.inputs.getUvw(),
+			query.inputs.getUvwPdf(),
+			query.inputs.suggestDir());
 	}
 	else
 	{
-		localQuery.inputs.set(query.inputs.getTime());
+		localQuery.inputs = query.inputs;
 	}
 
 	m_primitive->genPosSample(localQuery, sampleFlow, probe);
 	if(!localQuery.outputs)
 	{
-		query.outputs.invalidate();
 		return;
 	}
 
 	probe.pushIntermediateHit(this);
+
+	// Make sure to forward all local query outputs to world query outputs
 
 	math::Vector3R worldPos;
 	m_localToWorld->transformP(localQuery.outputs.getPos(), &worldPos);
@@ -76,48 +83,13 @@ void TransformedPrimitive::genPosSample(
 	m_localToWorld->transform(localQuery.outputs.getObservationRay(), &worldRay);
 	query.outputs.setObservationRay(worldRay);
 
-	query.outputs.setPdfA(localQuery.outputs.getPdfA());
+	query.outputs.setPdfPos(localQuery.outputs.getPdfPos());
+	query.outputs.setPdfDir(localQuery.outputs.getPdfDir());
 }
 
-void TransformedPrimitive::calcPosSamplePdfA(
-	PrimitivePosSamplePdfQuery& query,
-	HitProbe& probe) const
+void TransformedPrimitive::calcPosPdf(PrimitivePosPdfQuery& query) const
 {
-	math::Vector3R localPosition;
-	m_worldToLocal->transformP(query.inputs.getPos(), &localPosition);
-
-	Ray localRay;
-	m_worldToLocal->transform(query.inputs.getObservationRay(), &localRay);
-
-	PrimitivePosSamplePdfQuery localQuery;
-	localQuery.inputs.set(localPosition, localRay, query.inputs.getFaceID());
-
-	m_primitive->calcPosSamplePdfA(localQuery, probe);
-	if(!localQuery.outputs)
-	{
-		query.outputs.setPdfA(0);
-		return;
-	}
-
-	probe.pushIntermediateHit(this);
-
-	query.outputs.setPdfA(localQuery.outputs.getPdfA());
-}
-
-bool TransformedPrimitive::uvwToPosition(
-	const math::Vector3R& uvw,
-	math::Vector3R* const out_position) const
-{
-	PH_ASSERT(out_position);
-
-	math::Vector3R localPosition;
-	if(!m_primitive->uvwToPosition(uvw, &localPosition))
-	{
-		return false;
-	}
-
-	m_localToWorld->transformP(localPosition, out_position);
-	return true;
+	m_primitive->calcPosPdf(query);
 }
 
 }// end namespace ph

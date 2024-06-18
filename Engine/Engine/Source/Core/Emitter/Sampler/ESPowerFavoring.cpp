@@ -1,6 +1,6 @@
 #include "Core/Emitter/Sampler/ESPowerFavoring.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
-#include "Core/Emitter/Query/DirectEnergySamplePdfQuery.h"
+#include "Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceHit.h"
 #include "Core/Intersection/PrimitiveMetadata.h"
@@ -71,19 +71,20 @@ void ESPowerFavoring::genDirectSample(
 		return;
 	}
 
-	query.outputs.setPdfW(query.outputs.getPdfW() * pickPdf);
+	query.outputs.setPdf(query.outputs.getPdf() * pickPdf);
 }
 
-void ESPowerFavoring::calcDirectSamplePdfW(
-	DirectEnergySamplePdfQuery& query,
-	HitProbe& probe) const
+void ESPowerFavoring::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	const Primitive* hitPrim = query.inputs.getSrcPrimitive();
-	PH_ASSERT(hitPrim);
-	const Emitter* hitEmitter = hitPrim->getMetadata()->getSurface().getEmitter();
-	PH_ASSERT(hitEmitter);
+	const Emitter* hitEmitter = hitPrim ? hitPrim->getMetadata()->getSurface().getEmitter() : nullptr;
+	if(!hitEmitter)
+	{
+		query.outputs.setPdf({});
+		return;
+	}
 
-	hitEmitter->calcDirectSamplePdfW(query, probe);
+	hitEmitter->calcDirectPdf(query);
 	if(!query.outputs)
 	{
 		return;
@@ -91,9 +92,8 @@ void ESPowerFavoring::calcDirectSamplePdfW(
 
 	const auto& result = m_emitterToIndexMap.find(hitEmitter);
 	PH_ASSERT(result != m_emitterToIndexMap.end());
-	const auto pickPdf = m_distribution.pdfDiscrete(result->second);
-	const auto directPdfW = query.outputs.getPdfW() * pickPdf;
-	query.outputs.setPdfW(std::isfinite(directPdfW) ? directPdfW : 0);
+	const real pickPdf = m_distribution.pdfDiscrete(result->second);
+	query.outputs.setPdf(query.outputs.getPdf() * pickPdf);
 }
 
 }// end namespace ph
