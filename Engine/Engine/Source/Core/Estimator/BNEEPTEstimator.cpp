@@ -110,19 +110,20 @@ void BNEEPTEstimator::estimate(
 					BsdfPdfQuery bsdfPdfQuery(bsdfContext);
 					bsdfPdfQuery.inputs.set(bsdfEval.inputs);
 					surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
+					if(bsdfPdfQuery.outputs)
+					{
+						const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
+						const real misWeighting = mis.weight(directSample.outputs.getPdfW(), bsdfSamplePdfW);
+						const math::Vector3R N = surfaceHit.getShadingNormal();
 
-					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
-					const real misWeighting = mis.weight(directSample.outputs.getPdfW(), bsdfSamplePdfW);
-					const math::Vector3R N = surfaceHit.getShadingNormal();
+						math::Spectrum weight = bsdfEval.outputs.getBsdf().mul(N.absDot(L));
+						weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directSample.outputs.getPdfW());
 
-					math::Spectrum weight;
-					weight = bsdfEval.outputs.getBsdf().mul(N.absDot(L));
-					weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directSample.outputs.getPdfW());
+						// Avoid excessive, negative weight and possible NaNs
+						rationalClamp(weight);
 
-					// Avoid excessive, negative weight and possible NaNs
-					rationalClamp(weight);
-
-					accuRadiance.addLocal(directSample.outputs.getEmittedEnergy() * weight);
+						accuRadiance.addLocal(directSample.outputs.getEmittedEnergy() * weight);
+					}
 				}
 			}
 		}// end direct light sample
@@ -195,11 +196,11 @@ void BNEEPTEstimator::estimate(
 					bsdfPdfQuery.inputs.set(bsdfSample);
 					surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
 
-					// `canDoNEE` is already checked, but `bsdfSamplePdfW` can still be 0 (e.g.,
-					// sidedness policy or by the distribution itself).
-					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
-					if(bsdfSamplePdfW > 0)
+					// `canDoNEE` is already checked, but BSDF PDF can still be empty or 0
+					// (e.g., sidedness policy or by the distribution itself).
+					if(bsdfPdfQuery.outputs)
 					{
+						const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
 						const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
 						math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdfCos();

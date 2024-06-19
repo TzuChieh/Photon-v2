@@ -233,7 +233,7 @@ inline bool SurfaceTracer::doBsdfPdfQuery(BsdfPdfQuery& bsdfPdfQuery) const
 
 	optics->calcBsdfPdf(bsdfPdfQuery);
 
-	return bsdfPdfQuery.outputs.getSampleDirPdfW() > 0.0_r;
+	return bsdfPdfQuery.outputs;
 }
 
 inline bool SurfaceTracer::sampleZeroBounceEmission(

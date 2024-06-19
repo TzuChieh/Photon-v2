@@ -184,7 +184,7 @@ inline const Ray& DirectEnergySampleOutput::getObservationRay() const
 
 inline DirectEnergySampleOutput::operator bool () const
 {
-	return !m_pdf.isEmpty();
+	return m_pdf;
 }
 
 inline math::Vector3R DirectEnergySampleQuery::getTargetToEmit() const

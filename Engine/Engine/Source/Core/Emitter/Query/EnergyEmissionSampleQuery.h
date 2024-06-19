@@ -143,7 +143,7 @@ inline const math::Spectrum& EnergyEmissionSampleOutput::getEmittedEnergy() cons
 
 inline EnergyEmissionSampleOutput::operator bool () const
 {
-	return !m_pdfPos.isEmpty() && !m_pdfDir.isEmpty();
+	return m_pdfPos && m_pdfDir;
 }
 
 }// end namespace ph

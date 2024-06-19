@@ -177,7 +177,7 @@ void LerpedSurfaceOptics::genBsdfSample(
 
 		// TODO: this is quite a harsh condition--it may be possible to just 
 		// sample another elemental if one of them has 0 pdfW
-		if(query[0].outputs.getSampleDirPdfW() == 0 || query[1].outputs.getSampleDirPdfW() == 0)
+		if(!query[0].outputs.getSampleDirPdf() || !query[1].outputs.getSampleDirPdf())
 		{
 			out.setMeasurability(false);
 			return;
@@ -260,8 +260,11 @@ void LerpedSurfaceOptics::calcBsdfPdf(
 		m_optics0->calcBsdfPdf(ctx, in, query0);
 		m_optics1->calcBsdfPdf(ctx, in, query1);
 
+		const real pdfW0 = query0 ? query0.getSampleDirPdfW() : 0.0_r;
+		const real pdfW1 = query1 ? query1.getSampleDirPdfW() : 0.0_r;
+
 		out.setSampleDirPdf(lta::PDF::W(
-			query0.getSampleDirPdfW() * prob + query1.getSampleDirPdfW() * (1.0_r - prob)));
+			pdfW0 * prob + pdfW1 * (1.0_r - prob)));
 	}
 	else if(ctx.elemental == ALL_SURFACE_ELEMENTALS && m_containsDelta)
 	{

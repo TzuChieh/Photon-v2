@@ -158,7 +158,7 @@ inline const lta::PDF& DirectEnergyPdfOutput::getPdf() const
 
 inline DirectEnergyPdfOutput::operator bool () const
 {
-	return !m_pdf.isEmpty();
+	return m_pdf;
 }
 
 }// end namespace ph

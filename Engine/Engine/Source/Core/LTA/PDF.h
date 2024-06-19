@@ -54,10 +54,8 @@ public:
 	*/
 	real operator * () const;
 
-	/*!
-	@return `!isEmpty()`.
-	@note This does not test `value` in any way. `value == 0` or `std::isfinite(value) == false` can
-	still happen.
+	/*! @brief Whether the PDF is sane and positive.
+	@return Same as `!isEmpty() && std::isfinite(value) && value > 0`.
 	*/
 	operator bool () const;
 
@@ -117,7 +115,7 @@ inline real PDF::operator * () const
 
 inline PDF::operator bool () const
 {
-	return !isEmpty();
+	return !isEmpty() && std::isfinite(value) && value > 0;
 }
 
 inline PDF PDF::operator + (const real rhs) const

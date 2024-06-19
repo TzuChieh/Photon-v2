@@ -260,7 +260,7 @@ inline const lta::PDF& PrimitivePosSampleOutput::getPdfDir() const
 
 inline PrimitivePosSampleOutput::operator bool () const
 {
-	return !m_pdfPos.isEmpty();
+	return m_pdfPos;
 }
 
 }// end namespace ph

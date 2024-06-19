@@ -138,12 +138,13 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 				bsdfPdfQuery.inputs.set(bsdfSample);
 				optics->calcBsdfPdf(bsdfPdfQuery);
 
-				// `isNeeSamplable()` is already checked, but `bsdfSamplePdfW` can still be 0 (e.g.,
-				// sidedness policy or by the distribution itself).
-				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
-				if(bsdfSamplePdfW > 0)
+				// `isNeeSamplable()` is already checked, but BSDF PDF can still be empty or 0
+				// (e.g., sidedness policy or by the distribution itself)
+				if(bsdfPdfQuery.outputs)
 				{
-					const real misWeighting = MIS{}.weight(bsdfSamplePdfW, neePdfW);
+					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
+					const real misWeighting   = MIS{}.weight(bsdfSamplePdfW, neePdfW);
+
 					math::Spectrum weight(pdfAppliedBsdfCos * misWeighting);
 
 					// Avoid excessive, negative weight and possible NaNs
@@ -182,24 +183,25 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			BsdfEvalQuery bsdfEval{bsdfSample.context};
 			bsdfEval.inputs.set(X, directSample.getTargetToEmit().normalize(), V);
 			optics->calcBsdf(bsdfEval);
-
 			if(bsdfEval.outputs.isMeasurable())
 			{
 				BsdfPdfQuery bsdfPdfQuery{bsdfSample.context};
 				bsdfPdfQuery.inputs.set(bsdfEval.inputs);
 				optics->calcBsdfPdf(bsdfPdfQuery);
+				if(bsdfPdfQuery.outputs)
+				{
+					const auto L              = bsdfEval.inputs.getL();
+					const real neePdfW        = directSample.outputs.getPdfW();
+					const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
+					const real misWeighting   = MIS{}.weight(neePdfW, bsdfSamplePdfW);
 
-				const auto L              = bsdfEval.inputs.getL();
-				const real neePdfW        = directSample.outputs.getPdfW();
-				const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
-				const real misWeighting   = MIS{}.weight(neePdfW, bsdfSamplePdfW);
+					math::Spectrum weight(bsdfEval.outputs.getBsdf() * N.absDot(L) * misWeighting / neePdfW);
 
-				math::Spectrum weight(bsdfEval.outputs.getBsdf() * N.absDot(L) * misWeighting / neePdfW);
+					// Avoid excessive, negative weight and possible NaNs
+					weight.safeClampLocal(0.0_r, 1e9_r);
 
-				// Avoid excessive, negative weight and possible NaNs
-				weight.safeClampLocal(0.0_r, 1e9_r);
-
-				sampledLo += directSample.outputs.getEmittedEnergy() * weight;
+					sampledLo += directSample.outputs.getEmittedEnergy() * weight;
+				}
 			}
 		}
 	}

@@ -50,9 +50,11 @@ public:
 	real getSampleDirPdfW() const;
 
 	/*!
-	@return PDF of a BSDF sample being on a specific direction. Guaranteed to be non-empty.
+	@return PDF of a BSDF sample being on a specific direction. Guaranteed to be sane and positive.
 	*/
 	const lta::PDF& getSampleDirPdf() const;
+
+	operator bool () const;
 
 private:
 	lta::PDF m_sampleDirPdf{};
@@ -137,9 +139,13 @@ inline real BsdfPdfOutput::getSampleDirPdfW() const
 
 inline const lta::PDF& BsdfPdfOutput::getSampleDirPdf() const
 {
-	// Query responder is responsible to provide non-empty PDF
-	PH_ASSERT_MSG(!m_sampleDirPdf.isEmpty(), "pdf = " + std::to_string(m_sampleDirPdf.value));
+	PH_ASSERT(*this);
 
+	return m_sampleDirPdf;
+}
+
+inline BsdfPdfOutput::operator bool () const
+{
 	return m_sampleDirPdf;
 }
 

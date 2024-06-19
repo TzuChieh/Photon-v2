@@ -159,7 +159,7 @@ inline const lta::PDF& PrimitivePosPdfOutput::getPdf() const
 
 inline PrimitivePosPdfOutput::operator bool () const
 {
-	return !m_pdf.isEmpty();
+	return m_pdf;
 }
 
 }// end namespace ph
