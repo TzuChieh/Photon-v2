@@ -30,26 +30,68 @@ TEST(MathTest, NumberSignExtraction)
 
 TEST(MathTest, NumberClamping)
 {
-	EXPECT_TRUE(clamp(-1, 0, 4) == 0);
-	EXPECT_TRUE(clamp( 2, 0, 4) == 2);
-	EXPECT_TRUE(clamp( 7, 0, 4) == 4);
-	EXPECT_TRUE(clamp( 7, 7, 8) == 7);
-	EXPECT_TRUE(clamp( 8, 7, 8) == 8);
-
-	EXPECT_TRUE(clamp(-3.0f, 1.0f, 5.0f) == 1.0f);
-	EXPECT_TRUE(clamp( 2.5f, 1.0f, 5.0f) == 2.5f);
-	EXPECT_TRUE(clamp( 5.1f, 1.0f, 5.0f) == 5.0f);
-	EXPECT_TRUE(clamp( 5.1f, 5.1f, 6.1f) == 5.1f);
-	EXPECT_TRUE(clamp( 6.1f, 5.1f, 6.1f) == 6.1f);
-
-	if constexpr(std::numeric_limits<float>::has_quiet_NaN)
+	// Ordinary clamping
 	{
-		EXPECT_TRUE(clamp(std::numeric_limits<float>::quiet_NaN(), 1.0f, 5.0f) == 1.0f);
+		EXPECT_EQ(clamp(-1, 0, 4), 0);
+		EXPECT_EQ(clamp( 2, 0, 4), 2);
+		EXPECT_EQ(clamp( 7, 0, 4), 4);
+		EXPECT_EQ(clamp( 7, 7, 8), 7);
+		EXPECT_EQ(clamp( 8, 7, 8), 8);
+
+		EXPECT_EQ(clamp(-3.0f, 1.0f, 5.0f), 1.0f);
+		EXPECT_EQ(clamp( 2.5f, 1.0f, 5.0f), 2.5f);
+		EXPECT_EQ(clamp( 5.1f, 1.0f, 5.0f), 5.0f);
+		EXPECT_EQ(clamp( 5.1f, 5.1f, 6.1f), 5.1f);
+		EXPECT_EQ(clamp( 6.1f, 5.1f, 6.1f), 6.1f);
+
+		EXPECT_EQ(clamp(std::numeric_limits<float>::lowest(), -3000.0f, 123456.0f), -3000.0f);
+		EXPECT_EQ(clamp(std::numeric_limits<double>::max(), 1e9, 1e32), 1e32);
 	}
 
+	// Safe clamping: NaN float
+	if constexpr(std::numeric_limits<float>::has_quiet_NaN)
+	{
+		constexpr auto nan = std::numeric_limits<float>::quiet_NaN();
+
+		EXPECT_EQ(safe_clamp(nan, 1.0f, 5.0f), 1.0f);
+		EXPECT_EQ(safe_clamp(nan, -3.2f, -0.1f), -3.2f);
+	}
+
+	// Safe clamping: NaN double
 	if constexpr(std::numeric_limits<double>::has_quiet_NaN)
 	{
-		EXPECT_TRUE(clamp(std::numeric_limits<double>::quiet_NaN(), 1.0, 5.0) == 1.0);
+		constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
+
+		EXPECT_EQ(safe_clamp(nan, 2.0, 5.0), 2.0);
+		EXPECT_EQ(safe_clamp(nan, -2.2, -5.5), -2.2);
+	}
+
+	// Safe clamping: Inf float
+	if constexpr(std::numeric_limits<float>::has_infinity)
+	{
+		constexpr auto inf = std::numeric_limits<float>::infinity();
+
+		EXPECT_EQ(safe_clamp(inf, 1.0f, 5.0f), 1.0f);
+		EXPECT_EQ(safe_clamp(-inf, 1.0f, 5.0f), 1.0f);
+		EXPECT_EQ(safe_clamp(inf, -1.0f, -5.0f), -1.0f);
+		EXPECT_EQ(safe_clamp(inf, -1.0f, inf), -1.0f);
+		EXPECT_EQ(safe_clamp(inf, inf, inf), inf);
+		EXPECT_EQ(safe_clamp(-inf, inf, inf), inf);
+		EXPECT_EQ(safe_clamp(-inf, -inf, inf), -inf);
+	}
+
+	// Safe clamping: Inf double
+	if constexpr(std::numeric_limits<double>::has_infinity)
+	{
+		constexpr auto inf = std::numeric_limits<double>::infinity();
+
+		EXPECT_EQ(safe_clamp(inf, 1.0, 5.0), 1.0);
+		EXPECT_EQ(safe_clamp(-inf, 1.0, 5.0), 1.0);
+		EXPECT_EQ(safe_clamp(inf, -1.0, -5.0), -1.0);
+		EXPECT_EQ(safe_clamp(inf, -1.0, inf), -1.0);
+		EXPECT_EQ(safe_clamp(inf, inf, inf), inf);
+		EXPECT_EQ(safe_clamp(-inf, inf, inf), inf);
+		EXPECT_EQ(safe_clamp(-inf, -inf, inf), -inf);
 	}
 }
 
@@ -69,7 +111,7 @@ TEST(MathTest, EvaluateNextPowerOf2)
 	EXPECT_EQ(next_power_of_2(1023),  1024);
 	EXPECT_EQ(next_power_of_2(32700), 32768);
 
-	// special case (this behavior is part of spec.)
+	// Special case (this behavior is part of spec.)
 	EXPECT_EQ(next_power_of_2(0), 0);
 }
 
@@ -238,7 +280,7 @@ TEST(MathTest, FastSqrt)
 
 		const double relativeError = std::abs(fastResult - goodResult) / goodResult;
 
-		// accept at most 1% max. relative error
+		// Accept at most 1% max. relative error
 		EXPECT_LT(relativeError * 100.0, 1.0);
 	}
 }

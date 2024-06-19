@@ -126,6 +126,8 @@ public:
 
 	using Base::clamp;
 	using Base::clampLocal;
+	using Base::safeClamp;
+	using Base::safeClampLocal;
 
 	using Base::abs;
 	using Base::absLocal;

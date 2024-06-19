@@ -51,7 +51,7 @@ void BVPTDLEstimator::estimate(
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(firstHit, &emittedRadiance);
 
 			// Avoid excessive, negative weight and possible NaNs
-			emittedRadiance.clampLocal(0.0_r, 1000000000.0_r);
+			emittedRadiance.safeClampLocal(0.0_r, 1e9_r);
 
 			accuRadiance.addLocal(emittedRadiance.mul(accuPathWeight));
 		}
@@ -88,7 +88,7 @@ void BVPTDLEstimator::estimate(
 			surfaceBehavior.getEmitter()->evalEmittedRadiance(secondHit, &emittedRadiance);
 
 			// avoid excessive, negative weight and possible NaNs
-			emittedRadiance.clampLocal(0.0_r, 1000000000.0_r);
+			emittedRadiance.safeClampLocal(0.0_r, 1e9_r);
 
 			accuRadiance.addLocal(emittedRadiance.mul(accuPathWeight));
 		}

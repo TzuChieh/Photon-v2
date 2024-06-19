@@ -10,46 +10,46 @@ namespace
 
 enum class EInterpolationMode
 {
-	NEAREST,
+	Nearest,
 
 	// NOTE: causing artifacts at grazing angles (especially low roughnesses)
-	STOCHASTIC_QUADLINEAR
+	StochasticQuadlinear
 };
 
-constexpr EInterpolationMode MODE = EInterpolationMode::NEAREST;
+constexpr EInterpolationMode MODE = EInterpolationMode::Nearest;
 
 }
 
 real TableTIR::sample(const real cosWi, const real alpha, const real relIor) const
 {
-	// float indices
+	// Float indices
 	real fCosWi  = (m_numCosWi  - 1) * (cosWi  - m_minCosWi ) / (m_maxCosWi  - m_minCosWi );
 	real fAlpha  = (m_numAlpha  - 1) * (alpha  - m_minAlpha ) / (m_maxAlpha  - m_minAlpha );
 	real fRelIor = (m_numRelIor - 1) * (relIor - m_minRelIor) / (m_maxRelIor - m_minRelIor);
 
-	// ensure float indices stay in the limits
+	// Ensure float indices stay in the limits
 	// (may have inputs exceeding tabled range)
 	fCosWi  = math::clamp(fCosWi,  0.0_r, static_cast<real>(m_numCosWi  - 1));
 	fAlpha  = math::clamp(fAlpha,  0.0_r, static_cast<real>(m_numAlpha  - 1));
 	fRelIor = math::clamp(fRelIor, 0.0_r, static_cast<real>(m_numRelIor - 1));
 
-	if constexpr(MODE == EInterpolationMode::NEAREST)
+	if constexpr(MODE == EInterpolationMode::Nearest)
 	{
-		// nearest integer indices
+		// Nearest integer indices
 		int iCosWi  = static_cast<int>(fCosWi  + 0.5_r);
 		int iAlpha  = static_cast<int>(fAlpha  + 0.5_r);
 		int iRelIor = static_cast<int>(fRelIor + 0.5_r);
 
 		return m_table[calcIndex(iCosWi, iAlpha, iRelIor)];
 	}
-	else if constexpr(MODE == EInterpolationMode::STOCHASTIC_QUADLINEAR)
+	else if constexpr(MODE == EInterpolationMode::StochasticQuadlinear)
 	{
-		// target integer indices
+		// Target integer indices
 		int iCosWi  = static_cast<int>(fCosWi  + math::Random::sample());
 		int iAlpha  = static_cast<int>(fAlpha  + math::Random::sample());
 		int iRelIor = static_cast<int>(fRelIor + math::Random::sample());
 
-		// ensure indices stay in the limits
+		// Ensure indices stay in the limits
 		iCosWi  = std::min(iCosWi,  m_numCosWi  - 1);
 		iAlpha  = std::min(iAlpha,  m_numAlpha  - 1);
 		iRelIor = std::min(iRelIor, m_numRelIor - 1);

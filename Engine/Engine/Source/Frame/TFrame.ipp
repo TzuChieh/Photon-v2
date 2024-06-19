@@ -118,7 +118,9 @@ inline void TFrame<T, N>::fill(const T value, const math::TAABB2D<uint32>& regio
 // TODO: wrap mode
 template<typename T, std::size_t N>
 inline void TFrame<T, N>::sample(
-	TFrame& sampled, const math::TMathFunction2D<float64>& kernel, const uint32 kernelRadiusPx) const
+	TFrame& sampled,
+	const math::TMathFunction2D<float64>& kernel,
+	const uint32 kernelRadiusPx) const
 {
 	if(isEmpty() || sampled.isEmpty() ||
 	   kernelRadiusPx == 0)
@@ -180,10 +182,7 @@ inline void TFrame<T, N>::sample(
 				const float64 reciWeightSum = 1.0 / weightSum;
 				for(std::size_t i = 0; i < N; ++i)
 				{
-					float64 sampledValue = pixelSum[i] * reciWeightSum;
-					sampledValue = math::clamp(sampledValue,
-					                           static_cast<float64>(std::numeric_limits<T>::lowest()),
-					                           static_cast<float64>(std::numeric_limits<T>::max()));
+					const float64 sampledValue = pixelSum[i] * reciWeightSum;
 					sampledPixel[i] = static_cast<T>(sampledValue);
 				}
 			}

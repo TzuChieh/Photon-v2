@@ -54,7 +54,8 @@ public:
 	// TODO: specify size instead of radius for finer control
 	void sample(
 		TFrame& sampled, 
-		const math::TMathFunction2D<float64>& kernel, uint32 kernelRadiusPx) const;
+		const math::TMathFunction2D<float64>& kernel,
+		uint32 kernelRadiusPx) const;
 
 	/*! @brief Iterate over all pixels in the frame in row-major order.
 	*/

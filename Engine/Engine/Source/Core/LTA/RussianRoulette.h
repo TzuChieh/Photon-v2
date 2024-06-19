@@ -19,8 +19,9 @@ public:
 	{
 		PH_ASSERT(out_weightedS);
 
-		// Survive rate is not allowed to be 100% to avoid immortal rays (e.g., TIR)
-		const real rrSurviveRate = math::clamp(s.relativeLuminance(), 0.0_r, 0.95_r);
+		// Survive rate is not allowed to be 100% to avoid immortal rays (e.g., TIR);
+		// the rate should also kill non-finite luminance as this is a good place to do it
+		const real rrSurviveRate = math::safe_clamp(s.relativeLuminance(), 0.0_r, 0.95_r);
 		const real rrSpin        = sampleFlow.flow1D();// FIXME: use something like sampleFlow.binaryPick()
 
 		// Survived

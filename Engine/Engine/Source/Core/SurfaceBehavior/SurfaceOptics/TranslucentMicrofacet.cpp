@@ -343,9 +343,9 @@ void TranslucentMicrofacet::calcBsdfPdf(
 
 real TranslucentMicrofacet::getReflectionProbability(const math::Spectrum& F)
 {
-	constexpr real MIN_PROBABILITY = 0.0001_r;
+	constexpr real minProbability = 0.0001_r;
 
-	return math::clamp(F.avg(), MIN_PROBABILITY, 1.0_r - MIN_PROBABILITY);
+	return math::clamp(F.avg(), minProbability, 1.0_r - minProbability);
 }
 
 }// end namespace ph

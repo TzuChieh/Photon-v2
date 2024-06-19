@@ -6,7 +6,6 @@
 
 #include <concepts>
 #include <type_traits>
-#include <algorithm>
 #include <climits>
 #include <limits>
 
@@ -113,7 +112,7 @@ inline Result radical_inverse(const Value value)
 			currentValue = quotient;
 		}
 
-		return std::clamp<Result>(unscaledReversedValue * scaler, 0, 1);
+		return math::clamp<Result>(unscaledReversedValue * scaler, 0, 1);
 	}
 }
 
@@ -161,7 +160,7 @@ inline Result radical_inverse_permuted(const Value dimIndex, const Value value, 
 		currentValue = quotient;
 	}
 
-	return std::clamp<Result>(unscaledReversedValue * scaler, 0, 1);
+	return math::clamp<Result>(unscaledReversedValue * scaler, 0, 1);
 }
 
 }// end namespace ph::math

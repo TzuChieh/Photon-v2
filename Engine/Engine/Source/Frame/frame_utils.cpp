@@ -20,7 +20,7 @@ void to_LDR(const HdrRgbFrame& srcFrame, LdrRgbFrame* const out_dstFrame)
 	srcFrame.forEachPixel(
 		[out_dstFrame](const uint32 x, const uint32 y, const HdrRgbFrame::PixelType& hdrPixel)
 		{
-			const HdrRgbFrame::PixelType mappedPixel = hdrPixel.mul(255.0_r).add(0.5_r).clampLocal(0.0_r, 255.0_r);
+			const HdrRgbFrame::PixelType mappedPixel = hdrPixel.mul(255.0_r).add(0.5_r).safeClampLocal(0.0_r, 255.0_r);
 			out_dstFrame->setPixel(x, y, LdrRgbFrame::PixelType(mappedPixel));
 		});
 }

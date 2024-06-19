@@ -3,8 +3,8 @@
 #include "Core/Texture/constant_textures.h"
 
 #include <Common/assertion.h>
+#include <Common/logging.h>
 
-#include <iostream>
 #include <memory>
 
 namespace ph
@@ -12,7 +12,8 @@ namespace ph
 
 template<typename OutputType>
 inline TCheckerboardTexture<OutputType>::TCheckerboardTexture(
-	const real numUtiles, const real numVtiles,
+	const real numUtiles,
+	const real numVtiles,
 	const OutputType& oddValue, const OutputType& evenValue) : 
 
 	TCheckerboardTexture(
@@ -23,14 +24,16 @@ inline TCheckerboardTexture<OutputType>::TCheckerboardTexture(
 
 template<typename OutputType>
 inline TCheckerboardTexture<OutputType>::TCheckerboardTexture(
-	const real numUtiles, const real numVtiles,
+	const real numUtiles,
+	const real numVtiles,
 	const std::shared_ptr<TTexture<OutputType>>& oddTexture,
 	const std::shared_ptr<TTexture<OutputType>>& evenTexture)
 {
 	if(numUtiles <= 0.0f || numVtiles <= 0.0f)
 	{
-		std::cerr << "warning: at TCheckerboardTexture's ctor, " 
-		          << "number of tiles <= 0" << std::endl;
+		PH_DEFAULT_LOG(Warning,
+			"at TCheckerboardTexture's ctor, number of tiles <= 0 (numUtiles = {}, numVtiles = {})",
+			numUtiles, numVtiles);
 	}
 
 	setOddTexture(oddTexture);
@@ -72,8 +75,8 @@ inline void TCheckerboardTexture<OutputType>::setOddTexture(
 {
 	if(!oddTexture || oddTexture.get() == this)
 	{
-		std::cerr << "warning: at TCheckerboardTexture::setOddTexture(), " 
-		          << "does not allow empty or self-referencing tile" << std::endl;
+		PH_DEFAULT_LOG(Warning,
+			"at TCheckerboardTexture::setOddTexture(), does not allow empty or self-referencing tile");
 		return;
 	}
 
@@ -86,8 +89,8 @@ inline void TCheckerboardTexture<OutputType>::setEvenTexture(
 {
 	if(!evenTexture || evenTexture.get() == this)
 	{
-		std::cerr << "warning: at TCheckerboardTexture::setEvenTexture(), " 
-		          << "does not allow empty or self-referencing tile" << std::endl;
+		PH_DEFAULT_LOG(Warning,
+			"at TCheckerboardTexture::setEvenTexture(), does not allow empty or self-referencing tile");
 		return;
 	}
 

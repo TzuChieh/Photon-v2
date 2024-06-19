@@ -26,11 +26,6 @@
 #include <Common/primitive_type.h>
 #include <Common/logging.h>
 
-#include <cmath>
-#include <vector>
-#include <thread>
-#include <chrono>
-#include <functional>
 #include <utility>
 
 namespace ph
@@ -59,6 +54,8 @@ void AttributeRenderer::doUpdate(const CoreCookedUnit& cooked, const VisualWorld
 
 void AttributeRenderer::doRender()
 {
+	// TODO: threading
+
 	const Integrand integrand(m_scene, m_receiver);
 
 	SurfaceAttributeEstimator estimator;
@@ -93,9 +90,9 @@ void AttributeRenderer::doRender()
 			estimator.estimate(ray, integrand, sampleFlow, estimation);
 
 			{
-				//std::lock_guard<std::mutex> lock(m_rendererMutex);
+				std::lock_guard<std::mutex> lock(m_rendererMutex);
 
-				m_attributeFilm.addSample(rasterCoord.x(), rasterCoord.y(), estimation[0].clamp(0, std::numeric_limits<real>::max()));
+				m_attributeFilm.addSample(rasterCoord.x(), rasterCoord.y(), estimation[0]);
 			}
 		}
 	}
@@ -124,7 +121,7 @@ void AttributeRenderer::asyncPeekFrame(
 	const Region&     region,
 	HdrRgbFrame&      out_frame)
 {
-	//std::lock_guard<std::mutex> lock(m_rendererMutex);
+	std::lock_guard<std::mutex> lock(m_rendererMutex);
 
 	if(layerIndex == 0)
 	{

@@ -28,12 +28,14 @@ class TCheckerboardTexture : public TTexture<OutputType>
 {
 public:
 	TCheckerboardTexture(
-		real numUtiles, real numVtiles,
+		real numUtiles,
+		real numVtiles,
 		const OutputType& oddValue, 
 		const OutputType& evenValue);
 
 	TCheckerboardTexture(
-		real numUtiles, real numVtiles,
+		real numUtiles,
+		real numVtiles,
 		const std::shared_ptr<TTexture<OutputType>>& oddTexture, 
 		const std::shared_ptr<TTexture<OutputType>>& evenTexture);
 

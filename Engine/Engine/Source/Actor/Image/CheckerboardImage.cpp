@@ -1,10 +1,14 @@
 #include "Actor/Image/CheckerboardImage.h"
 #include "Core/Texture/TCheckerboardTexture.h"
 
+#include <Common/logging.h>
+
 #include <algorithm>
 
 namespace ph
 {
+
+PH_DEFINE_INTERNAL_LOG_GROUP(CheckerboardImage, Image);
 
 CheckerboardImage::CheckerboardImage() : 
 	Image(),
@@ -43,13 +47,13 @@ std::shared_ptr<TTexture<math::Spectrum>> CheckerboardImage::genColorTexture(
 
 void CheckerboardImage::setNumTiles(const real numTilesX, const real numTilesY)
 {
-	const real minNumTiles = 0.0001_r;
+	constexpr real minNumTiles = 0.0001_r;
 
 	if(numTilesX < minNumTiles || numTilesY < minNumTiles)
 	{
-		std::cout << "NOTE: Setting checkerboard image with number of tiles less than "
-		          << minNumTiles
-		          << " is not recommended; clamping it to minimum size." << std::endl;
+		PH_LOG(CheckerboardImage, Note,
+			"Setting checkerboard image with number of tiles less than {} is not recommended; "
+			"clamping it to minimum size.", minNumTiles);
 	}
 
 	m_numTilesX = std::max(numTilesX, minNumTiles);
@@ -69,15 +73,15 @@ void CheckerboardImage::setEvenImage(const std::weak_ptr<Image>& evenImage)
 auto CheckerboardImage::checkOutImages() const
 	-> std::pair<std::shared_ptr<Image>, std::shared_ptr<Image>>
 {
-	auto oddImage  = m_oddImage.lock();
-	auto evenImage = m_evenImage.lock();
+	std::shared_ptr<Image> oddImage  = m_oddImage.lock();
+	std::shared_ptr<Image> evenImage = m_evenImage.lock();
 	if(oddImage == nullptr || evenImage == nullptr)
 	{
-		std::cerr << "warning: at CheckerboardImage::checkOutImages(), "
-		          << "some required image is empty" << std::endl;
+		PH_LOG(CheckerboardImage, Warning,
+			"at CheckerboardImage::checkOutImages(), some required image is empty");
 	}
 
-	return {std::move(oddImage), std::move(evenImage)};
+	return {oddImage, evenImage};
 }
 
 }// end namespace ph

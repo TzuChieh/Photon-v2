@@ -297,6 +297,42 @@ inline auto TArithmeticArrayBase<Derived, T, N>::clampLocal(const Derived& lower
 }
 
 template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::safeClamp(const T lowerBound, const T upperBound) const
+-> Derived
+{
+	return Derived(static_cast<const Derived&>(*this)).safeClampLocal(lowerBound, upperBound);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::safeClampLocal(const T lowerBound, const T upperBound)
+-> Derived&
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = ::ph::math::safe_clamp(m[i], lowerBound, upperBound);
+	}
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::safeClamp(const Derived& lowerBound, const Derived& upperBound) const
+-> Derived
+{
+	return Derived(static_cast<const Derived&>(*this)).safeClampLocal(lowerBound, upperBound);
+}
+
+template<typename Derived, typename T, std::size_t N>
+inline auto TArithmeticArrayBase<Derived, T, N>::safeClampLocal(const Derived& lowerBound, const Derived& upperBound)
+-> Derived&
+{
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		m[i] = ::ph::math::safe_clamp(m[i], lowerBound[i], upperBound[i]);
+	}
+	return static_cast<Derived&>(*this);
+}
+
+template<typename Derived, typename T, std::size_t N>
 inline T TArithmeticArrayBase<Derived, T, N>::sum() const
 {
 	return ::ph::math::summation(m);

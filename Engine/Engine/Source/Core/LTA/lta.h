@@ -101,7 +101,7 @@ inline real tamed_importance_scatter_Ns_corrector(
 #if PH_STRICT_ASYMMETRIC_IMPORTANCE_TRANSPORT
 	return factor;
 #else
-	return math::clamp(factor, 0.0_r, 10.0_r);
+	return math::safe_clamp(factor, 0.0_r, 10.0_r);
 #endif
 }
 
@@ -119,7 +119,7 @@ inline real tamed_importance_BSDF_Ns_corrector(
 #else
 	// To my testing, the corrector for BSDF dominates the unbearable variance. Clamping to 10 seems to
 	// work well. Mitsuba 0.6 uses another approach: discards the photon if `Ng.dot(V) < 1e-2f`.
-	return math::clamp(factor, 0.0_r, 10.0_r);
+	return math::safe_clamp(factor, 0.0_r, 10.0_r);
 #endif
 }
 

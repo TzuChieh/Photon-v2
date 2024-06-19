@@ -66,12 +66,12 @@ void BVPTEstimator::estimate(
 			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
-			accuLiWeight.clampLocal(0.0_r, 1000000000.0_r);
+			accuLiWeight.safeClampLocal(0.0_r, 1e9_r);
 
 			accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
 		}
 
-		const math::Vector3R V = tracingRay.getDir().mul(-1.0f);
+		const math::Vector3R V = tracingRay.getDir().mul(-1);
 		const math::Vector3R N = surfaceHit.getShadingNormal();
 
 		BsdfSampleQuery bsdfSample;

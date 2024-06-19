@@ -147,7 +147,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 					math::Spectrum weight(pdfAppliedBsdfCos * misWeighting);
 
 					// Avoid excessive, negative weight and possible NaNs
-					weight.clampLocal(0.0_r, 1e9_r);
+					weight.safeClampLocal(0.0_r, 1e9_r);
 
 					sampledLo += bsdfLe * weight;
 				}
@@ -197,7 +197,7 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 				math::Spectrum weight(bsdfEval.outputs.getBsdf() * N.absDot(L) * misWeighting / neePdfW);
 
 				// Avoid excessive, negative weight and possible NaNs
-				weight.clampLocal(0.0_r, 1e9_r);
+				weight.safeClampLocal(0.0_r, 1e9_r);
 
 				sampledLo += directSample.outputs.getEmittedEnergy() * weight;
 			}

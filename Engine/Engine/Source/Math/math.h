@@ -69,23 +69,44 @@ inline T squared(const T value)
 //
 void form_orthonormal_basis_frisvad(const Vector3R& unitYaxis, Vector3R* const out_unitXaxis, Vector3R* const out_unitZaxis);
 
-/*! @brief Clamps a integer value in [lowerBound, upperBound].
+/*! @brief Clamps a value to [lowerBound, upperBound].
+None of `value`, `lowerBound` and `upperBound` can be NaN, or the method's behavior is undefined.
 */
-template<typename T, std::enable_if_t<!std::is_floating_point_v<T>, int> = 0>
+template<typename T>
 inline T clamp(const T value, const T lowerBound, const T upperBound)
 {
-	return std::min(upperBound, std::max(value, lowerBound));
+	// VS does not like integers in `std::isnan()`,
+	// see: https://stackoverflow.com/questions/61646166/how-to-resolve-fpclassify-ambiguous-call-to-overloaded-function
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		PH_ASSERT(!std::isnan(value));
+		PH_ASSERT(!std::isnan(lowerBound));
+		PH_ASSERT(!std::isnan(upperBound));
+	}
+	
+	PH_ASSERT_LE(lowerBound, upperBound);
+
+	return std::clamp(value, lowerBound, upperBound);
 }
 
-/*! @brief Clamps a float value in [lowerBound, upperBound].
-If a floating-point value is NaN, its value is clamped to lower bound. Neither lower bound or upper
-bound can be NaN, or the method's behavior is undefined.
+/*! @brief Clamps a value to [lowerBound, upperBound], fallback to `lowerBound`.
+If a floating-point value is non-finite (e.g., being Inf, NaN), its value is clamped to `lowerBound`.
+Neither `lowerBound` nor `upperBound` can be NaN, or the method's behavior is undefined.
 */
-template<typename T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
-inline T clamp(const T value, const T lowerBound, const T upperBound)
+template<typename T>
+inline T safe_clamp(const T value, const T lowerBound, const T upperBound)
 {
-	// Use `fmin` & `fmax` as they have the properties we want (see this function's doc)
-	return std::fmin(upperBound, std::fmax(value, lowerBound));
+	// VS does not like integers in `std::isnan()`,
+	// see: https://stackoverflow.com/questions/61646166/how-to-resolve-fpclassify-ambiguous-call-to-overloaded-function
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		PH_ASSERT(!std::isnan(lowerBound));
+		PH_ASSERT(!std::isnan(upperBound));
+	}
+
+	PH_ASSERT_LE(lowerBound, upperBound);
+
+	return std::isfinite(value) ? std::clamp(value, lowerBound, upperBound) : lowerBound;
 }
 
 /*! @brief Convert radians to degrees.

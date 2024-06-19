@@ -8,10 +8,7 @@
 #include "Core/Renderer/Sampling/MetaRecordingProcessor.h"
 #include "Math/TVector2.h"
 
-#include <vector>
-#include <memory>
-#include <atomic>
-#include <functional>
+#include <mutex>
 #include <string>
 
 namespace ph

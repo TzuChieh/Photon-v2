@@ -70,7 +70,7 @@ real IesData::sampleAttenuationFactor(const real theta, const real phi) const
 	// FIXME: Bicubic interpolation will cause overshoot in some places.
 	// It is subtle but can be physically incorrect for attenuation factors.
 	// Need a "smoother" solution here.
-	return math::clamp(factor, 0.0_r, 1.0_r);
+	return math::safe_clamp(factor, 0.0_r, 1.0_r);
 }
 
 void IesData::processCandelaValues()

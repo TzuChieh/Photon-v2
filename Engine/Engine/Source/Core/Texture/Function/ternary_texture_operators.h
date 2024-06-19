@@ -3,19 +3,17 @@
 #include "Core/Texture/TTexture.h"
 #include "Core/Texture/SampleLocation.h"
 #include "Utility/traits.h"
+#include "Math/math.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TArithmeticArray.h"
 
 #include <Common/assertion.h>
 
-#include <cstddef>
 #include <type_traits>
 #include <memory>
 #include <utility>
 #include <concepts>
-#include <array>
 #include <cmath>
-#include <algorithm>
 
 namespace ph
 {
@@ -43,18 +41,18 @@ public:
 			{ a.clamp(b, c) } -> std::convertible_to<OutputType>;
 		};
 
-		constexpr bool canCallStdClamp = requires (InputTypeA a, InputTypeB b, InputTypeC c)
+		constexpr bool canCallMathClamp = requires (InputTypeA a, InputTypeB b, InputTypeC c)
 		{
-			{ std::clamp(a, b, c) } -> std::convertible_to<OutputType>;
+			{ math::clamp(a, b, c) } -> std::convertible_to<OutputType>;
 		};
 
 		if constexpr(canCallClampMethod)
 		{
 			return inputValueA.clamp(inputValueB, inputValueC);
 		}
-		else if constexpr(canCallStdClamp)
+		else if constexpr(canCallMathClamp)
 		{
-			return std::clamp(inputValueA, inputValueB, inputValueC);
+			return math::clamp(inputValueA, inputValueB, inputValueC);
 		}
 		else
 		{
