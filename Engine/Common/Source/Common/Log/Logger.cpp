@@ -70,7 +70,7 @@ std::string Logger::makeLogString(
 		logMessage += "] ";
 	}
 
-	if(logLevel != ELogLevel::Note)
+	if(logLevel != ELogLevel::Note && logLevel != ELogLevel::NoteOnce)
 	{
 		switch(logLevel)
 		{
