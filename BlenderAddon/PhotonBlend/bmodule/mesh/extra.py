@@ -2,6 +2,7 @@
 @brief Building extra mesh object types.
 """
 from utility import blender
+from psdl import sdl
 
 import bpy
 import bpy_extras
@@ -9,6 +10,9 @@ import bpy_extras
 
 @blender.register_class
 class PH_MESH_OT_add_menger_sponge(bpy.types.Operator, bpy_extras.object_utils.AddObjectHelper):
+    """
+    Add a menger sponge geometry. For other renderers, this will be a cube (of the same transformations).
+    """
     bl_idname = 'photon.add_menger_sponge'
     bl_label = "Add Menger Sponge"
     bl_description = "Add a menger sponge (represented by a cuboid)."
@@ -16,7 +20,7 @@ class PH_MESH_OT_add_menger_sponge(bpy.types.Operator, bpy_extras.object_utils.A
 
     num_iterations: bpy.props.IntProperty(
         name="Iterations",
-        description="Number of recursive iterations on generating the sponge.",
+        description=sdl.MengerSpongeGeometryCreator.set_iterations.__doc__,
         min=0,
         default=3
         )

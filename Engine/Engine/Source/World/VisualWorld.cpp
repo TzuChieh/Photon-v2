@@ -129,7 +129,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 
 		PH_LOG(VisualWorld, Note, "current iteration actor bound: {}", bound.toString());
 
-		if(currentActorLevel == static_cast<CookLevel>(ECookLevel::FIRST))
+		if(currentActorLevel == static_cast<CookLevel>(ECookLevel::First))
 		{
 			PH_LOG(VisualWorld, Note, "root actors bound calculated to be: {}", bound.toString());
 

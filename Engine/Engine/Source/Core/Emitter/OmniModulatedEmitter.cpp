@@ -10,19 +10,22 @@
 namespace ph
 {
 
-OmniModulatedEmitter::OmniModulatedEmitter(const Emitter* source)
-	: m_source(source)
+OmniModulatedEmitter::OmniModulatedEmitter(
+	const Emitter* const    source,
+	const EmitterFeatureSet featureSet)
+
+	: Emitter(featureSet)
+
+	, m_source(source)
 	, m_filter(nullptr)
 {
 	PH_ASSERT(m_source);
 }
 
-void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const
+void OmniModulatedEmitter::evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* const out_energy) const
 {
-	PH_ASSERT(m_filter);
-
-	m_source->evalEmittedRadiance(X, out_radiance);
-	if(out_radiance->isZero())
+	m_source->evalEmittedEnergy(X, out_energy);
+	if(out_energy->isZero())
 	{
 		return;
 	}
@@ -35,8 +38,9 @@ void OmniModulatedEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectr
 	// HACK: should impose some standard uv on input
 	uv.y() = 1.0_r - uv.y();
 
+	PH_ASSERT(m_filter);
 	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
-	out_radiance->mulLocal(filterValue);
+	out_energy->mulLocal(filterValue);
 }
 
 void OmniModulatedEmitter::genDirectSample(
@@ -44,6 +48,11 @@ void OmniModulatedEmitter::genDirectSample(
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
 {
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
+	{
+		return;
+	}
+
 	m_source->genDirectSample(query, sampleFlow, probe);
 	if(!query.outputs)
 	{
@@ -64,6 +73,11 @@ void OmniModulatedEmitter::genDirectSample(
 
 void OmniModulatedEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
+	{
+		return;
+	}
+
 	m_source->calcDirectPdf(query);
 
 	// TODO: if importance sampling is used, pdfW should be changed here
@@ -74,6 +88,11 @@ void OmniModulatedEmitter::emitRay(
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
 {
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
+	{
+		return;
+	}
+
 	m_source->emitRay(query, sampleFlow, probe);
 	if(!query.outputs)
 	{

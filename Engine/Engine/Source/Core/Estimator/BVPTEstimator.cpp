@@ -63,7 +63,7 @@ void BVPTEstimator::estimate(
 		if(hitSurfaceBehavior.getEmitter())
 		{
 			math::Spectrum radianceLi;
-			hitSurfaceBehavior.getEmitter()->evalEmittedRadiance(surfaceHit, &radianceLi);
+			hitSurfaceBehavior.getEmitter()->evalEmittedEnergy(surfaceHit, &radianceLi);
 
 			// avoid excessive, negative weight and possible NaNs
 			accuLiWeight.safeClampLocal(0.0_r, 1e9_r);

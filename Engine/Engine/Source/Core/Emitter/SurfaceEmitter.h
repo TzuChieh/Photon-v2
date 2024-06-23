@@ -18,9 +18,9 @@ namespace ph
 class SurfaceEmitter : public Emitter
 {
 public:
-	SurfaceEmitter();
+	explicit SurfaceEmitter(EmitterFeatureSet featureSet = defaultFeatureSet);
 
-	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override = 0;
+	void evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* out_energy) const override = 0;
 
 	void genDirectSample(
 		DirectEnergySampleQuery& query, 
@@ -39,14 +39,16 @@ public:
 
 protected:
 	/*!
-	@return Can the emitter emit energy in `emitDirection` given surface normal `N`. This method
+	@return Can the emitter emit energy in `emitDir` given surface normal `N`. This method
 	also considers front/back face emission settings.
 	*/
-	bool canEmit(const math::Vector3R& emitDirection, const math::Vector3R& N) const;
+	bool canEmit(const math::Vector3R& emitDir, const math::Vector3R& N) const;
 
 	/*!
 	Performs `calcDirectPdf()` on the source primitive specified by `query`. This computes solid
-	angle domain PDF of sampling the emitter (as represented by the source primitive).
+	angle domain PDF of sampling the surface emitter (as represented by the source primitive).
+	@note
+	- Handles `EEmitterFeatureSet::DirectSample`
 	*/
 	void calcDirectPdfWForSrcPrimitive(
 		DirectEnergyPdfQuery& query,

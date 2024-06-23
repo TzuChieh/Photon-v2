@@ -46,7 +46,7 @@ enum class ESurfaceHitReason : detail::SurfaceHitReasonIntType
 	SampledDir = detail::shr_sampled_dir_bits,
 
 	/*! Both a position and a direction from the surface are picked. */
-	SampledPosDir = detail::shr_sampled_pos_bits | detail::shr_sampled_dir_bits
+	SampledPosDir = detail::shr_sampled_pos_bits | detail::shr_sampled_dir_bits,
 };
 
 PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(ESurfaceHitReason);

@@ -42,7 +42,7 @@ public:
 		clazz.baseOn<Geometry>();
 
 		TSdlInteger<OwnerType, uint32> numIteration("iterations", &OwnerType::m_numIteration);
-		numIteration.description("Number of iterations on the fractal surface detail.");
+		numIteration.description("Number of recursive iterations on the fractal surface detail.");
 		numIteration.defaultTo(3);
 		clazz.addField(numIteration);
 

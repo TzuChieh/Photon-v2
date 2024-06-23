@@ -123,7 +123,7 @@ TransientVisualElement ADome::cook(const CookingContext& ctx, const PreCookRepor
 
 CookOrder ADome::getCookOrder() const
 {
-	return CookOrder(ECookPriority::LOW, ECookLevel::LAST);
+	return CookOrder(ECookPriority::Low, ECookLevel::Last);
 }
 
 }// end namespace ph

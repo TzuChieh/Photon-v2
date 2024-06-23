@@ -136,7 +136,6 @@ class PH_MATERIAL_PT_properties(PhMaterialPanel):
     """
     Setting up primary material properties.
     """
-
     bl_label = "Main Properties"
 
     def draw(self, b_context):

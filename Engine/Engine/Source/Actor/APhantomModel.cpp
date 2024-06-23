@@ -45,7 +45,7 @@ TransientVisualElement APhantomModel::cook(const CookingContext& ctx, const PreC
 
 CookOrder APhantomModel::getCookOrder() const
 {
-	return CookOrder(ECookPriority::HIGH);
+	return CookOrder(ECookPriority::High);
 }
 
 }// end namespace ph

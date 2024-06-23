@@ -4,6 +4,7 @@
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Core/Texture/constant_textures.h"
+#include "Math/Color/spectral_samples.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -34,24 +35,27 @@ const Emitter* AModelLight::buildEmitter(
 		return nullptr;
 	}
 
-	std::shared_ptr<TTexture<math::Spectrum>> emittedRadiance;
-	if(m_emittedRadiance)
+	// Do not assume a specific energy unit (most likely being radiance though)
+	std::shared_ptr<TTexture<math::Spectrum>> emittedEnergy;
+	if(m_emittedEnergy)
 	{
-		emittedRadiance = m_emittedRadiance->genColorTexture(ctx);
+		emittedEnergy = m_emittedEnergy->genColorTexture(ctx);
 	}
 	else
 	{
 		PH_DEFAULT_LOG(Warning,
-			"Model light does not specify emitted radiance. Default to unit radiance.");
-		emittedRadiance = std::make_shared<TConstantTristimulusTexture<>>(math::ColorValue(1));
+			"Model light does not specify emitted energy. Default to unit D65.");
+
+		const auto defaultEnergy = math::Spectrum().setSpectral(
+			math::resample_illuminant_D65<math::ColorValue>(), math::EColorUsage::EMR);
+		emittedEnergy = std::make_shared<TConstantTexture<math::Spectrum>>(defaultEnergy);
 	}
 
 	const Emitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)
 	{
-		auto* emitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(lightPrimitives[0]);
-		emitter->setEmittedRadiance(emittedRadiance);
-
+		auto* emitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(
+			lightPrimitives[0], emittedEnergy, getEmitterFeatureSet());
 		if(m_isBackFaceEmit)
 		{
 			emitter->setBackFaceEmit();
@@ -65,20 +69,17 @@ const Emitter* AModelLight::buildEmitter(
 	}
 	else
 	{
-		PH_ASSERT_GT(lightPrimitives.size(), 1);
+		PH_ASSERT_GE(lightPrimitives.size(), 2);
 
-		std::vector<DiffuseSurfaceEmitter> primitiveEmitters;
-		for(auto* primitive : lightPrimitives)
+		std::vector<DiffuseSurfaceEmitter> emitters;
+		for(const Primitive* primitive : lightPrimitives)
 		{
-			DiffuseSurfaceEmitter emitter(primitive);
-			emitter.setEmittedRadiance(emittedRadiance);
-			primitiveEmitters.push_back(emitter);
+			emitters.push_back(
+				DiffuseSurfaceEmitter(primitive, emittedEnergy));
 		}
 
 		auto* multiEmitter = ctx.getResources()->makeEmitter<MultiDiffuseSurfaceEmitter>(
-			std::move(primitiveEmitters));
-		multiEmitter->setEmittedRadiance(emittedRadiance);
-
+			emitters, getEmitterFeatureSet());
 		if(m_isBackFaceEmit)
 		{
 			multiEmitter->setBackFaceEmit();

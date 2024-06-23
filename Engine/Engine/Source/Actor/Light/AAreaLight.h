@@ -13,6 +13,9 @@ namespace ph
 class AAreaLight : public AGeometricLight
 {
 public:
+	/*!
+	@return A geometry representing the energy-emitting area.
+	*/
 	virtual std::shared_ptr<Geometry> getArea(const CookingContext& ctx) const = 0;
 
 	std::shared_ptr<Geometry> getGeometry(const CookingContext& ctx) const override;

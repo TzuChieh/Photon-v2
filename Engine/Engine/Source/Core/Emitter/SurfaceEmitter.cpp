@@ -12,14 +12,16 @@
 namespace ph
 {
 
-SurfaceEmitter::SurfaceEmitter() : 
-	Emitter(),
-	m_isBackFaceEmission(false)
+SurfaceEmitter::SurfaceEmitter(const EmitterFeatureSet featureSet)
+	: Emitter(featureSet)
+	, m_isBackFaceEmission(false)
 {}
 
-bool SurfaceEmitter::canEmit(const math::Vector3R& emitDirection, const math::Vector3R& N) const
+bool SurfaceEmitter::canEmit(const math::Vector3R& emitDir, const math::Vector3R& N) const
 {
-	return math::is_same_hemisphere(emitDirection, N) != m_isBackFaceEmission;
+	return m_isBackFaceEmission
+		? math::is_opposite_hemisphere(emitDir, N)
+		: math::is_same_hemisphere(emitDir, N);
 }
 
 void SurfaceEmitter::setFrontFaceEmit()
@@ -38,7 +40,7 @@ void SurfaceEmitter::calcDirectPdfWForSrcPrimitive(
 	const lta::PDF& emitPosUvwPdf) const
 {
 	const auto emitterToTargetPos = query.inputs.getTargetPos() - query.inputs.getEmitPos();
-	if(!query.inputs.getSrcPrimitive() || 
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample) ||
 	   !canEmit(emitterToTargetPos, query.inputs.getEmitPosNormal()))
 	{
 		return;
@@ -46,7 +48,7 @@ void SurfaceEmitter::calcDirectPdfWForSrcPrimitive(
 
 	PrimitivePosPdfQuery posPdf;
 	posPdf.inputs.set(query.inputs, emitPosUvwPdf);
-	query.inputs.getSrcPrimitive()->calcPosPdf(posPdf);
+	query.inputs.getSrcPrimitive().calcPosPdf(posPdf);
 	if(!posPdf.outputs)
 	{
 		return;

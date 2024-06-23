@@ -24,7 +24,7 @@ public:
 private:
 	std::shared_ptr<Geometry> m_geometry;
 	std::shared_ptr<Material> m_material;
-	std::shared_ptr<Image> m_emittedRadiance;
+	std::shared_ptr<Image> m_emittedEnergy;
 	bool m_isBackFaceEmit;
 
 public:
@@ -47,10 +47,11 @@ public:
 		material.optional();
 		clazz.addField(material);
 
-		TSdlReference<Image, OwnerType> emittedRadiance("emitted-radiance", &OwnerType::m_emittedRadiance);
-		emittedRadiance.description("An image that describes the emitted radiance across the surface.");
-		emittedRadiance.optional();
-		clazz.addField(emittedRadiance);
+		TSdlReference<Image, OwnerType> emittedEnergy("emitted-energy", &OwnerType::m_emittedEnergy);
+		emittedEnergy.description(
+			"An image that describes the emitted energy (e.g., radiance) across the surface.");
+		emittedEnergy.optional();
+		clazz.addField(emittedEnergy);
 
 		TSdlBool<OwnerType> isBackFaceEmit("back-face-emit", &OwnerType::m_isBackFaceEmit);
 		isBackFaceEmit.description("Whether the energy should emit from the back face of the geometry.");

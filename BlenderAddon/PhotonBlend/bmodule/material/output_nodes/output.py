@@ -3,7 +3,7 @@ from ..node_base import (
         PhSurfaceMaterialSocket,
         PhColorSocket)
 from psdl import sdl
-from ... import naming
+from bmodule import naming
 
 
 class PhOutputNode(PhMaterialOutputNode):

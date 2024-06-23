@@ -3,6 +3,7 @@
 #include "Actor/Light/ALight.h"
 #include "Actor/Material/Material.h"
 #include "Actor/Geometry/Geometry.h"
+#include "Core/Emitter/Emitter.h"
 #include "Utility/TSpan.h"
 #include "SDL/sdl_interface.h"
 
@@ -11,7 +12,6 @@
 namespace ph
 {
 
-class Emitter;
 class Primitive;
 
 class AGeometricLight : public ALight
@@ -38,6 +38,17 @@ public:
 		const TransformInfo& srcLocalToWorld,
 		math::TDecomposedTransform<real>* out_remainingLocalToWorld = nullptr);
 
+protected:
+	/*!
+	@return Create an emitter feature set from light settings.
+	*/
+	virtual EmitterFeatureSet getEmitterFeatureSet() const;
+
+	bool m_isDirectlyVisible;
+	bool m_useBsdfSample;
+	bool m_useDirectSample;
+	bool m_useEmissionSample;
+
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<AGeometricLight>)
 	{
@@ -45,6 +56,38 @@ public:
 		clazz.docName("Geometric Light Actor");
 		clazz.description("Energy emitters that come with a physical geometry.");
 		clazz.baseOn<ALight>();
+
+		TSdlBool<OwnerType> directlyVisible("directly-visible", &OwnerType::m_isDirectlyVisible);
+		directlyVisible.description(
+			"Whether the light is directly visible. For example, you can see a bright sphere "
+			"for a directly visible spherical area light.");
+		directlyVisible.defaultTo(true);
+		directlyVisible.optional();
+		clazz.addField(directlyVisible);
+
+		TSdlBool<OwnerType> bsdfSample("bsdf-sample", &OwnerType::m_useBsdfSample);
+		bsdfSample.description(
+			"Whether to use BSDF sampling technique for rendering the light, i.e., choosing a "
+			"direction based on BSDF and relying on randomly hitting a light.");
+		bsdfSample.defaultTo(true);
+		bsdfSample.optional();
+		clazz.addField(bsdfSample);
+
+		TSdlBool<OwnerType> directSample("direct-sample", &OwnerType::m_useDirectSample);
+		directSample.description(
+			"Whether to use direct sampling technique for rendering the light, i.e., directly "
+			"establish a connection from a light to the illuminated location.");
+		directSample.defaultTo(true);
+		directSample.optional();
+		clazz.addField(directSample);
+
+		TSdlBool<OwnerType> emissionSample("emission-sample", &OwnerType::m_useEmissionSample);
+		emissionSample.description(
+			"Whether to use emission sampling technique for rendering the light, i.e., start "
+			"rendering the light from the light source itself.");
+		emissionSample.defaultTo(true);
+		emissionSample.optional();
+		clazz.addField(emissionSample);
 
 		return clazz;
 	}

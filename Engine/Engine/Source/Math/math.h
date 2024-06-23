@@ -286,10 +286,17 @@ inline bool is_odd(const T value)
 	return !is_even(value);
 }
 
-// Checks whether the specified vector is within the hemisphere defined by
-// the normal vector N. N points to the hemisphere's peak, i.e., theta = 0.
-//
+/*! @brief Checks whether the specified vector is within the hemisphere defined by the normal vector `N`.
+`N` points to the hemisphere's peak, i.e., theta = 0 in spherical coordinates.
+*/
 bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N);
+
+/*! @brief Checks whether the specified vector is within the hemisphere defined by the normal vector `-N`.
+`N` points to the hemisphere's peak, i.e., theta = 0 in spherical coordinates.
+@note For the case where `vector` is perpendicular to `N`, both this function and `is_same_hemisphere()`
+returns `false`.
+*/
+bool is_opposite_hemisphere(const Vector3R& vector, const Vector3R& N);
 
 /*! @brief Sum all values within a container together.
 */

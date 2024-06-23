@@ -158,6 +158,37 @@ TransientVisualElement AGeometricLight::cook(const CookingContext& ctx, const Pr
 	return cookedLight;
 }
 
+EmitterFeatureSet AGeometricLight::getEmitterFeatureSet() const
+{
+	EmitterFeatureSet featureSet = Emitter::defaultFeatureSet;
+
+	featureSet.turnOff({EEmitterFeatureSet::ZeroBounceSample});
+	if(m_isDirectlyVisible)
+	{
+		featureSet.turnOn({EEmitterFeatureSet::ZeroBounceSample});
+	}
+
+	featureSet.turnOff({EEmitterFeatureSet::BsdfSample});
+	if(m_useBsdfSample)
+	{
+		featureSet.turnOn({EEmitterFeatureSet::BsdfSample});
+	}
+
+	featureSet.turnOff({EEmitterFeatureSet::DirectSample});
+	if(m_useDirectSample)
+	{
+		featureSet.turnOn({EEmitterFeatureSet::DirectSample});
+	}
+
+	featureSet.turnOff({EEmitterFeatureSet::EmissionSample});
+	if(m_useEmissionSample)
+	{
+		featureSet.turnOn({EEmitterFeatureSet::EmissionSample});
+	}
+
+	return featureSet;
+}
+
 std::shared_ptr<Geometry> AGeometricLight::getSanifiedGeometry(
 	const std::shared_ptr<Geometry>& srcGeometry,
 	const TransformInfo& srcLocalToWorld,

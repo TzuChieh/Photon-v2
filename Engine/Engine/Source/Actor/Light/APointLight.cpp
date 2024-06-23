@@ -2,6 +2,7 @@
 #include "Actor/Geometry/GSphere.h"
 
 #include <Common/primitive_type.h>
+#include <Common/logging.h>
 
 namespace ph
 {
@@ -18,6 +19,21 @@ std::shared_ptr<Geometry> APointLight::getArea(const CookingContext& ctx) const
 	auto sphere = TSdl<GSphere>::makeResource();
 	sphere->setRadius(POINT_SOURCE_RADIUS);
 	return sphere;
+}
+
+EmitterFeatureSet APointLight::getEmitterFeatureSet() const
+{
+	// Just use base implementation, but emit a note for potential high variance on certain settings
+	const EmitterFeatureSet featureSet = AAreaLight::getEmitterFeatureSet();
+	if(featureSet.has(EEmitterFeatureSet::BsdfSample))
+	{
+		PH_DEFAULT_LOG(NoteOnce,
+			"BSDF sampling technique is enabled on a point light; please note that as point lights "
+			"can easily produce extreme amount of energy density (e.g., radiance), this technique "
+			"may produce high variance or fireflies.");
+	}
+
+	return featureSet;
 }
 
 }// end namespace ph

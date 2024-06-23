@@ -7,6 +7,7 @@
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Core/Texture/constant_textures.h"
 #include "Actor/Material/IdealSubstance.h"
+#include "Math/Color/spectral_samples.h"
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
@@ -45,39 +46,48 @@ const Emitter* AAreaLight::buildEmitter(
 	}
 
 	real lightArea = 0.0_r;
-	for(auto* primitive : lightPrimitives)
+	for(const Primitive* primitive : lightPrimitives)
 	{
 		lightArea += primitive->calcExtendedArea();
 	}
 	PH_ASSERT_GT(lightArea, 0.0_r);
 
+	// Compute uniform surface radiance from watts
 	PH_ASSERT_GT(m_color.abs().sum(), 0.0_r);
 	const auto totalWattColor = math::Spectrum(m_color).putEnergy(m_numWatts);
 	const auto lightRadiance  = totalWattColor / (lightArea * math::constant::pi<real>);
 
 	auto emittedRadiance = std::make_shared<TConstantTexture<math::Spectrum>>(lightRadiance);
+	if(!lightRadiance.isFinite())
+	{
+		PH_DEFAULT_LOG(Warning,
+			"Area light has non-finite radiance {}. Setting it to unit D65 instead.",
+			lightRadiance.toString());
+
+		const auto defaultRadiance = math::Spectrum().setSpectral(
+			math::resample_illuminant_D65<math::ColorValue>(), math::EColorUsage::EMR);
+		emittedRadiance = std::make_shared<TConstantTexture<math::Spectrum>>(defaultRadiance);
+	}
 
 	const Emitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)
 	{
-		auto* emitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(lightPrimitives[0]);
-		emitter->setEmittedRadiance(emittedRadiance);
-		lightEmitter = emitter;
+		lightEmitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(
+			lightPrimitives[0], emittedRadiance, getEmitterFeatureSet());
 	}
 	else
 	{
-		PH_ASSERT_GT(lightPrimitives.size(), 1);
+		PH_ASSERT_GE(lightPrimitives.size(), 2);
 
 		std::vector<DiffuseSurfaceEmitter> areaEmitters;
-		for(auto* primitive : lightPrimitives)
+		for(const Primitive* primitive : lightPrimitives)
 		{
-			areaEmitters.push_back(DiffuseSurfaceEmitter(primitive));
+			areaEmitters.push_back(
+				DiffuseSurfaceEmitter(primitive, emittedRadiance));
 		}
 
-		auto* multiEmitter = ctx.getResources()->makeEmitter<MultiDiffuseSurfaceEmitter>(
-			std::move(areaEmitters));
-		multiEmitter->setEmittedRadiance(emittedRadiance);
-		lightEmitter = multiEmitter;
+		lightEmitter = ctx.getResources()->makeEmitter<MultiDiffuseSurfaceEmitter>(
+			areaEmitters, getEmitterFeatureSet());
 	}
 
 	return lightEmitter;

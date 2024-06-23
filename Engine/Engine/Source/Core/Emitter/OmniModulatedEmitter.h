@@ -11,12 +11,14 @@ namespace ph
 
 // TODO: importance sampling based on filter values
 
-class OmniModulatedEmitter final : public Emitter
+class OmniModulatedEmitter : public Emitter
 {
 public:
-	OmniModulatedEmitter(const Emitter* source);
+	explicit OmniModulatedEmitter(
+		const Emitter*    source,
+		EmitterFeatureSet featureSet = defaultFeatureSet);
 
-	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override;
+	void evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* out_energy) const override;
 
 	void genDirectSample(
 		DirectEnergySampleQuery& query,

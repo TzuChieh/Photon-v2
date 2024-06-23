@@ -68,7 +68,7 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 	const auto& emittedRadiance = std::make_shared<TConstantTexture<math::Spectrum>>(lightRadiance);
 
 	std::unique_ptr<Emitter> emitter;
-	{
+	/*{
 		if(areas.size() > 1)
 		{
 			std::vector<DiffuseSurfaceEmitter> areaEmitters;
@@ -78,16 +78,16 @@ std::unique_ptr<Emitter> AreaSource::genEmitter(
 			}
 
 			auto emitterData = std::make_unique<MultiDiffuseSurfaceEmitter>(areaEmitters);
-			emitterData->setEmittedRadiance(emittedRadiance);
+			emitterData->setEmittedEnergy(emittedRadiance);
 			emitter = std::move(emitterData);
 		}
 		else
 		{
 			auto emitterData = std::make_unique<DiffuseSurfaceEmitter>(areas[0]);
-			emitterData->setEmittedRadiance(emittedRadiance);
+			emitterData->setEmittedEnergy(emittedRadiance);
 			emitter = std::move(emitterData);
 		}
-	}
+	}*/
 	PH_ASSERT(emitter != nullptr);
 
 	return emitter;

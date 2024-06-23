@@ -44,7 +44,7 @@ public:
 	/*!
 	@return The surface that emits energy.
 	*/
-	const Primitive* getSrcPrimitive() const;
+	const Primitive& getSrcPrimitive() const;
 
 	/*!
 	@return Face ID of the surface that emits energy.
@@ -128,10 +128,11 @@ inline math::Vector3R DirectEnergyPdfInput::getEmitPosNormal() const
 	return m_Xe.getShadingNormal();
 }
 
-inline const Primitive* DirectEnergyPdfInput::getSrcPrimitive() const
+inline const Primitive& DirectEnergyPdfInput::getSrcPrimitive() const
 {
 	PH_ASSERT(m_hasSet);
-	return m_Xe.getDetail().getPrimitive();
+	PH_ASSERT(m_Xe.getDetail().getPrimitive());
+	return *m_Xe.getDetail().getPrimitive();
 }
 
 inline uint64 DirectEnergyPdfInput::getSrcFaceID() const

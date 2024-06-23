@@ -53,17 +53,17 @@ void BNEEPTEstimator::estimate(
 	const BsdfQueryContext bsdfContext{sidednessPolicy};
 
 	// Common variables
-	math::Spectrum accuRadiance(0);
-	math::Spectrum accuLiWeight(1);
-	SurfaceHit     surfaceHit;
+	math::Spectrum pathEnergy(0);
+	math::Spectrum pathThroughput(1);
+	SurfaceHit     X;
 
 	// Reversing the ray for backward tracing
 	Ray tracingRay = Ray(ray).reverse();
 	tracingRay.setRange(0, std::numeric_limits<real>::max());
 
-	if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &surfaceHit))
+	if(!surfaceTracer.traceNextSurface(tracingRay, sidedness, &X))
 	{
-		out_estimation[m_estimationIndex] = accuRadiance;
+		out_estimation[m_estimationIndex] = pathEnergy;
 		return;
 	}
 
@@ -72,58 +72,69 @@ void BNEEPTEstimator::estimate(
 		PH_SCOPED_TIMER(ZeroBounceDirect);
 		
 		math::Spectrum radianceLi;
-		if(surfaceTracer.sampleZeroBounceEmission(surfaceHit, sidedness, &radianceLi))
+		if(surfaceTracer.sampleZeroBounceEmission(X, sidedness, &radianceLi))
 		{
-			accuRadiance.addLocal(radianceLi);
+			pathEnergy.addLocal(radianceLi);
 		}
 	}
 
 	// Ray bouncing around the scene (1 ~ N bounces)
 	for(uint32 numBounces = 0; numBounces < MAX_RAY_BOUNCES; numBounces++)
 	{
+		// Optics must present
+		const SurfaceOptics* surfaceOptics = X.getSurfaceOptics();
+		if(!surfaceOptics)
+		{
+			break;
+		}
+
 		const math::Vector3R V = tracingRay.getDir().mul(-1.0_r);
 		PH_ASSERT_MSG(V.isFinite(), V.toString());
 
-		const bool canDoNEE = directLight.isNeeSamplable(surfaceHit);
+		const bool canDoNeeOnX = directLight.isNeeSamplable(X);
 
 		// Direct light sample
 		{
 			PH_SCOPED_TIMER(DirectLightSampling);
 
 			DirectEnergySampleQuery directSample;
-			directSample.inputs.set(surfaceHit);
-			if(canDoNEE && 
-			   directLight.neeSampleEmission(directSample, sampleFlow) &&
+			directSample.inputs.set(X);
+			SurfaceHit Xe;
+			if(canDoNeeOnX &&
+			   directLight.neeSampleEmission(directSample, sampleFlow, &Xe) &&
 			   directSample.outputs)
 			{
-				// With a contributing NEE sample, optics must present
-				const SurfaceOptics* surfaceOptics = surfaceHit.getSurfaceOptics();
-				PH_ASSERT(surfaceOptics);
-
 				const auto L = directSample.getTargetToEmit().normalize();
+				const Emitter* directEmitter = Xe.getSurfaceEmitter();
 
 				BsdfEvalQuery bsdfEval(bsdfContext);
-				bsdfEval.inputs.set(surfaceHit, L, V);
+				bsdfEval.inputs.set(X, L, V);
 				surfaceOptics->calcBsdf(bsdfEval);
 				if(bsdfEval.outputs.isMeasurable())
 				{
-					BsdfPdfQuery bsdfPdfQuery(bsdfContext);
-					bsdfPdfQuery.inputs.set(bsdfEval.inputs);
-					surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
-					if(bsdfPdfQuery.outputs)
+					real bsdfSamplePdfW = 0.0_r;
+					if(directEmitter &&
+					   directEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
 					{
-						const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
-						const real misWeighting = mis.weight(directSample.outputs.getPdfW(), bsdfSamplePdfW);
-						const math::Vector3R N = surfaceHit.getShadingNormal();
+						BsdfPdfQuery bsdfPdfQuery(bsdfContext);
+						bsdfPdfQuery.inputs.set(bsdfEval.inputs);
+						surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
 
-						math::Spectrum weight = bsdfEval.outputs.getBsdf().mul(N.absDot(L));
-						weight.mulLocal(accuLiWeight).mulLocal(misWeighting / directSample.outputs.getPdfW());
-
-						// Avoid excessive, negative weight and possible NaNs
-						rationalClamp(weight);
-
-						accuRadiance.addLocal(directSample.outputs.getEmittedEnergy() * weight);
+						bsdfSamplePdfW = bsdfPdfQuery.outputs
+							? bsdfPdfQuery.outputs.getSampleDirPdfW() : 0.0_r;
 					}
+
+					const real misWeighting = mis.weight(directSample.outputs.getPdfW(), bsdfSamplePdfW);
+					const math::Vector3R N = X.getShadingNormal();
+
+					math::Spectrum weight = bsdfEval.outputs.getBsdf().mul(N.absDot(L));
+					weight *= pathThroughput;
+					weight *= misWeighting / directSample.outputs.getPdfW();
+
+					// Avoid excessive, negative weight and possible NaNs
+					rationalClamp(weight);
+
+					pathEnergy += directSample.outputs.getEmittedEnergy() * weight;
 				}
 			}
 		}// end direct light sample
@@ -132,65 +143,48 @@ void BNEEPTEstimator::estimate(
 		{
 			PH_SCOPED_TIMER(BSDFAndIndirectLightSampling);
 
-			const SurfaceOptics* surfaceOptics = surfaceHit.getSurfaceOptics();
-			PH_ASSERT(surfaceOptics);
-
 			BsdfSampleQuery bsdfSample(bsdfContext);
-			bsdfSample.inputs.set(surfaceHit, V);
+			bsdfSample.inputs.set(X, V);
 			surfaceOptics->genBsdfSample(bsdfSample, sampleFlow);
 			if(!bsdfSample.outputs.isMeasurable())
 			{
 				break;
 			}
 
-			const math::Vector3R N = surfaceHit.getShadingNormal();
+			const math::Vector3R N = X.getShadingNormal();
 			const math::Vector3R L = bsdfSample.outputs.getL();
 
 			PH_ASSERT_MSG(L.isFinite(),
 				"L = " + L.toString() + ", from " + surfaceOptics->toString());
 
-			//BsdfPdfQuery bsdfPdfQuery;
-			//bsdfPdfQuery.inputs.set(bsdfSample);
-			//surfaceBehavior->getOptics()->calcBsdfSamplePdfW(bsdfPdfQuery);
-
-			//const real bsdfSamplePdfW = bsdfPdfQuery.outputs.sampleDirPdfW;
-
-			//// TODO: We should break right after bsdf sampling if the sample 
-			//// is invalid, but current implementation applied pdf on bsdf
-			//// beforehand, which might hide cases where pdf = 0.
-			//if(bsdfSamplePdfW == 0.0_r)
-			//{
-			//	break;
-			//}
-
 			// Trace a ray using BSDF's suggestion
-			tracingRay.setOrigin(surfaceHit.getPos());
+			tracingRay.setOrigin(X.getPos());
 			tracingRay.setDir(L);
-			SurfaceHit nextSurfaceHit;
-			if(!surfaceTracer.traceNextSurfaceFrom(surfaceHit, tracingRay, sidedness, &nextSurfaceHit))
+			SurfaceHit nextX;
+			if(!surfaceTracer.traceNextSurfaceFrom(X, tracingRay, sidedness, &nextX))
 			{
 				break;
 			}
 
-			const Emitter* nextEmitter = nextSurfaceHit.getSurfaceEmitter();
-			if(nextEmitter)
+			const Emitter* nextEmitter = nextX.getSurfaceEmitter();
+			if(nextEmitter &&
+			   nextEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
 			{
 				math::Spectrum radianceLe;
-				nextEmitter->evalEmittedRadiance(nextSurfaceHit, &radianceLe);
+				nextEmitter->evalEmittedEnergy(nextX, &radianceLe);
 
 				// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
 				// deltas and MIS for non-deltas
 
 				// Do MIS (BSDF sample + NEE)
-				if(canDoNEE && !radianceLe.isZero())
+				if(canDoNeeOnX && !radianceLe.isZero())
 				{
 					// TODO: <directLightPdfW> might be 0, should we stop using MIS if one of two 
 					// sampling techniques has failed?
 					// <bsdfSamplePdfW> can also be 0 for delta distributions
 					// `directLightPdfW` can be 0 (e.g., delta BSDF) and this is fine--MIS weighting
 					// still works. No need to test occlusion again as we already done that.
-					const real directLightPdfW = directLight.neeSamplePdfWUnoccluded(
-						surfaceHit, nextSurfaceHit);
+					const real directLightPdfW = directLight.neeSamplePdfWUnoccluded(X, nextX);
 
 					BsdfPdfQuery bsdfPdfQuery;
 					bsdfPdfQuery.inputs.set(bsdfSample);
@@ -204,33 +198,33 @@ void BNEEPTEstimator::estimate(
 						const real misWeighting = mis.weight(bsdfSamplePdfW, directLightPdfW);
 
 						math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdfCos();
-						weight.mulLocal(accuLiWeight).mulLocal(misWeighting);
+						weight *= pathThroughput;
+						weight *= misWeighting;
 
 						// Avoid excessive, negative weight and possible NaNs
 						rationalClamp(weight);
 
-						accuRadiance.addLocal(radianceLe.mulLocal(weight));
+						pathEnergy += radianceLe * weight;
 					}
 				}
 				// Not do MIS (BSDF sample only)
 				else
 				{
 					math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdfCos();
-					weight.mulLocal(accuLiWeight);
+					weight *= pathThroughput;
 
-					accuRadiance.addLocal(radianceLe.mulLocal(weight));
+					pathEnergy += radianceLe * weight;
 				}
 			}
 
-			accuLiWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
+			pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
 
 			if(numBounces >= 3)
 			{
-				math::Spectrum weightedAccuLiWeight;
-				if(rr.surviveOnLuminance(
-					accuLiWeight, sampleFlow, &weightedAccuLiWeight))
+				math::Spectrum weightedPathThroughput;
+				if(rr.surviveOnLuminance(pathThroughput, sampleFlow, &weightedPathThroughput))
 				{
-					accuLiWeight = weightedAccuLiWeight;
+					pathThroughput = weightedPathThroughput;
 				}
 				else
 				{
@@ -239,21 +233,21 @@ void BNEEPTEstimator::estimate(
 			}
 
 			// Avoid excessive, negative weight and possible NaNs
-			rationalClamp(accuLiWeight);
+			rationalClamp(pathThroughput);
 
-			if(accuLiWeight.isZero())
+			if(pathThroughput.isZero())
 			{
 				break;
 			}
 
-			surfaceHit = nextSurfaceHit;
+			X = nextX;
 		}
 	}// end for each bounces
 
-	PH_ASSERT_MSG(accuLiWeight.isFinite() && accuRadiance.isFinite(),
-		"accuLiWeight = " + accuLiWeight.toString() + ", accuRadiance = " + accuRadiance.toString());
+	PH_ASSERT_MSG(pathThroughput.isFinite() && pathEnergy.isFinite(),
+		"pathThroughput = " + pathThroughput.toString() + ", pathEnergy = " + pathEnergy.toString());
 
-	out_estimation[m_estimationIndex] = accuRadiance;
+	out_estimation[m_estimationIndex] = pathEnergy;
 }
 
 void BNEEPTEstimator::rationalClamp(math::Spectrum& value)

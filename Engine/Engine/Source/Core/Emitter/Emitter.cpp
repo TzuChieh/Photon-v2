@@ -4,7 +4,8 @@
 namespace ph
 {
 
-Emitter::Emitter()
+Emitter::Emitter(const EmitterFeatureSet featureSet)
+	: m_featureSet(featureSet)
 {}
 
 Emitter::~Emitter() = default;

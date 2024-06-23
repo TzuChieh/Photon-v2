@@ -248,12 +248,13 @@ inline bool SurfaceTracer::sampleZeroBounceEmission(
 	// Sidedness agreement between real geometry and shading normal
 	// (do not check for hemisphere--emitter may be back-emitting and this is judged by the emitter)
 	if(!emitter ||
+	   emitter->getFeatureSet().hasNo(EEmitterFeatureSet::ZeroBounceSample) ||
 	   !sidedness.isSidednessAgreed(Xe, Xe.getIncidentRay().getDir()))
 	{
 		return false;
 	}
 
-	emitter->evalEmittedRadiance(Xe, out_Le);
+	emitter->evalEmittedEnergy(Xe, out_Le);
 	return true;
 }
 

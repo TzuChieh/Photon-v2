@@ -2,7 +2,7 @@ from ..node_base import (
         PhMaterialInputNode,
         PhFloatVectorSocket)
 from psdl import sdl
-from ... import naming
+from bmodule import naming
 
 import bpy
 

@@ -76,8 +76,8 @@ void ESPowerFavoring::genDirectSample(
 
 void ESPowerFavoring::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
-	const Primitive* hitPrim = query.inputs.getSrcPrimitive();
-	const Emitter* hitEmitter = hitPrim ? hitPrim->getMetadata()->getSurface().getEmitter() : nullptr;
+	const Primitive& hitPrim = query.inputs.getSrcPrimitive();
+	const Emitter* hitEmitter = hitPrim.getMetadata()->getSurface().getEmitter();
 	if(!hitEmitter)
 	{
 		query.outputs.setPdf({});

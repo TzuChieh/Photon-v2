@@ -48,7 +48,7 @@ void BVPTDLEstimator::estimate(
 		if(surfaceBehavior.getEmitter())
 		{
 			math::Spectrum emittedRadiance;
-			surfaceBehavior.getEmitter()->evalEmittedRadiance(firstHit, &emittedRadiance);
+			surfaceBehavior.getEmitter()->evalEmittedEnergy(firstHit, &emittedRadiance);
 
 			// Avoid excessive, negative weight and possible NaNs
 			emittedRadiance.safeClampLocal(0.0_r, 1e9_r);
@@ -85,7 +85,7 @@ void BVPTDLEstimator::estimate(
 		if(surfaceBehavior.getEmitter())
 		{
 			math::Spectrum emittedRadiance;
-			surfaceBehavior.getEmitter()->evalEmittedRadiance(secondHit, &emittedRadiance);
+			surfaceBehavior.getEmitter()->evalEmittedEnergy(secondHit, &emittedRadiance);
 
 			// avoid excessive, negative weight and possible NaNs
 			emittedRadiance.safeClampLocal(0.0_r, 1e9_r);

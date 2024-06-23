@@ -104,7 +104,7 @@ inline math::Spectrum estimate_certainly_lost_energy(
 		PH_ASSERT_IN_RANGE_INCLUSIVE(viewPathLength, minFullPathLength, maxFullPathLength);
 
 		math::Spectrum viewRadiance;
-		X.getSurfaceEmitter()->evalEmittedRadiance(X, &viewRadiance);
+		X.getSurfaceEmitter()->evalEmittedEnergy(X, &viewRadiance);
 		lostEnergy += viewPathThroughput * viewRadiance;
 	}
 

@@ -226,13 +226,13 @@ inline const Ray& PrimitivePosSampleOutput::getObservationRay() const
 inline const math::Vector3R& PrimitivePosSampleOutput::getPos() const
 {
 	PH_ASSERT(*this);
-	PH_ASSERT(m_pdfPos);
+	PH_ASSERT(!m_pdfPos.isEmpty());
 	return m_pos;
 }
 
 inline const math::Vector3R& PrimitivePosSampleOutput::getDir() const
 {
-	PH_ASSERT(m_pdfDir);
+	PH_ASSERT(!m_pdfDir.isEmpty());
 	return getObservationRay().getDir();
 }
 

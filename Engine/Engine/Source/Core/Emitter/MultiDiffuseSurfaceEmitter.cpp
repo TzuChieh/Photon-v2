@@ -1,43 +1,52 @@
 #include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 #include "Core/Intersection/Primitive.h"
 #include "Core/Texture/TSampler.h"
-#include "Math/Color/Spectrum.h"
-#include "Core/Texture/TTexture.h"
 #include "Math/Random/Random.h"
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Core/Emitter/Query/DirectEnergyPdfQuery.h"
 #include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
-#include <Common/assertion.h>
 #include <Common/utility.h>
+#include <Common/logging.h>
 
 namespace ph
 {
 
-MultiDiffuseSurfaceEmitter::MultiDiffuseSurfaceEmitter(const std::vector<DiffuseSurfaceEmitter>& emitters) :
-	SurfaceEmitter(),
-	m_emitters()
+MultiDiffuseSurfaceEmitter::MultiDiffuseSurfaceEmitter(
+	TSpanView<DiffuseSurfaceEmitter> emitters,
+	const EmitterFeatureSet featureSet)
+	
+	: SurfaceEmitter(featureSet)
+	
+	, m_emitters()
+	, m_primitiveToEmitterIdx()
 {
-	PH_ASSERT(!emitters.empty());
-
-	m_extendedArea = 0.0_r;
-	for(const auto& emitter : emitters)
+#if PH_DEBUG
+	if(emitters.size() <= 1)
 	{
-		const Primitive* primitive = emitter.getSurface();
+		PH_DEFAULT_LOG(Warning,
+			"`MultiDiffuseSurfaceEmitter` expects at least 2 primitives surfaces bundled together "
+			"to gain better efficiency, {} surface is given.", emitters.size());
+	}
+#endif
 
-		PH_ASSERT(primitive != nullptr);
-		m_extendedArea += primitive->calcExtendedArea();
-
+	for(const DiffuseSurfaceEmitter& emitter : emitters)
+	{
 		addEmitter(emitter);
 	}
-	m_reciExtendedArea = 1.0_r / m_extendedArea;
 }
 
-void MultiDiffuseSurfaceEmitter::evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* const out_radiance) const
+void MultiDiffuseSurfaceEmitter::evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* const out_energy) const
 {
-	PH_ASSERT(!m_emitters.empty());
+	const Primitive* surface = X.getDetail().getPrimitive();
+	const auto findResult = m_primitiveToEmitterIdx.find(surface);
+	PH_ASSERT(findResult != m_primitiveToEmitterIdx.end());
 
-	m_emitters.front().evalEmittedRadiance(X, out_radiance);
+	const auto emitterIdx = findResult->second;
+	const DiffuseSurfaceEmitter& emitter = m_emitters[emitterIdx];
+
+	// We cannot just use the first emitter since each emitter may use a different energy map
+	emitter.evalEmittedEnergy(X, out_energy);
 }
 
 void MultiDiffuseSurfaceEmitter::genDirectSample(
@@ -45,9 +54,13 @@ void MultiDiffuseSurfaceEmitter::genDirectSample(
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
 {
-	PH_ASSERT(!m_emitters.empty());
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
+	{
+		return;
+	}
 
 	// FIXME: use sampleFlow
+	PH_ASSERT(!m_emitters.empty());
 	const DiffuseSurfaceEmitter& emitter = m_emitters[math::Random::index(0, m_emitters.size())];
 
 	emitter.genDirectSample(query, sampleFlow, probe);
@@ -63,7 +76,6 @@ void MultiDiffuseSurfaceEmitter::genDirectSample(
 void MultiDiffuseSurfaceEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
 	PH_ASSERT(!m_emitters.empty());
-
 	const real pickPdf = (1.0_r / static_cast<real>(m_emitters.size()));
 	calcDirectPdfWForSrcPrimitive(query, lta::PDF::D(pickPdf));
 }
@@ -73,33 +85,39 @@ void MultiDiffuseSurfaceEmitter::emitRay(
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
 {
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
+	{
+		return;
+	}
+
 	// Randomly and uniformly pick a primitive
 
 	// FIXME: use sampleFlow
-	const auto& emitter = m_emitters[math::Random::index(0, m_emitters.size())];
-	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
-
+	const DiffuseSurfaceEmitter& emitter = m_emitters[math::Random::index(0, m_emitters.size())];
 	emitter.emitRay(query, sampleFlow, probe);
 	if(!query.outputs)
 	{
 		return;
 	}
 
+	const real pickPdf = 1.0_r / static_cast<real>(m_emitters.size());
 	query.outputs.setPdf(query.outputs.getPdfPos() * pickPdf, query.outputs.getPdfDir());
 }
 
-void MultiDiffuseSurfaceEmitter::setEmittedRadiance(
-	const std::shared_ptr<TTexture<math::Spectrum>>& emittedRadiance)
-{
-	for(auto& emitter : m_emitters)
-	{
-		emitter.setEmittedRadiance(emittedRadiance);
-	}
-}
-
-void MultiDiffuseSurfaceEmitter::addEmitter(const DiffuseSurfaceEmitter& emitter)
+DiffuseSurfaceEmitter& MultiDiffuseSurfaceEmitter::addEmitter(
+	const DiffuseSurfaceEmitter& emitter)
 {
 	m_emitters.push_back(emitter);
+
+	const Primitive& surface = m_emitters.back().getSurface();
+#if PH_DEBUG
+	if(m_primitiveToEmitterIdx.contains(&surface))
+	{
+		PH_DEFAULT_LOG(Warning,
+			"Adding duplicated surface primitive to `MultiDiffuseSurfaceEmitter`.");
+	}
+#endif
+	m_primitiveToEmitterIdx[&surface] = m_emitters.size() - 1;
 
 	if(m_isBackFaceEmission)
 	{
@@ -109,6 +127,8 @@ void MultiDiffuseSurfaceEmitter::addEmitter(const DiffuseSurfaceEmitter& emitter
 	{
 		m_emitters.back().setFrontFaceEmit();
 	}
+
+	return m_emitters.back();
 }
 
 void MultiDiffuseSurfaceEmitter::setFrontFaceEmit()
@@ -125,23 +145,16 @@ void MultiDiffuseSurfaceEmitter::setBackFaceEmit()
 {
 	SurfaceEmitter::setBackFaceEmit();
 
-	for(auto& emitter : m_emitters)
+	for(DiffuseSurfaceEmitter& emitter : m_emitters)
 	{
 		emitter.setBackFaceEmit();
 	}
 }
 
-const TTexture<math::Spectrum>& MultiDiffuseSurfaceEmitter::getEmittedRadiance() const
-{
-	PH_ASSERT(!m_emitters.empty());
-
-	return m_emitters.front().getEmittedRadiance();
-}
-
 real MultiDiffuseSurfaceEmitter::calcRadiantFluxApprox() const
 {
 	real totalRadiantFlux = 0.0_r;
-	for(const auto& emitter : m_emitters)
+	for(const DiffuseSurfaceEmitter& emitter : m_emitters)
 	{
 		totalRadiantFlux += emitter.calcRadiantFluxApprox();
 	}

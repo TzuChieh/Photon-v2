@@ -11,6 +11,9 @@ class APointLight : public AAreaLight
 public:
 	std::shared_ptr<Geometry> getArea(const CookingContext& ctx) const override;
 
+protected:
+	EmitterFeatureSet getEmitterFeatureSet() const override;
+
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<APointLight>)
 	{

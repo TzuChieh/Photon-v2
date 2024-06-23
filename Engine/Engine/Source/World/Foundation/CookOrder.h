@@ -13,16 +13,16 @@ using CookLevel    = uint8;
 
 enum class ECookPriority : CookPriority
 {
-	HIGH = 1,
-	NORMAL = std::numeric_limits<CookPriority>::max() / 2,
-	LOW
+	High = 1,
+	Normal = std::numeric_limits<CookPriority>::max() / 2,
+	Low
 };
 
 enum class ECookLevel : CookLevel
 {
-	FIRST = 0,
-	NORMAL = std::numeric_limits<CookLevel>::max() / 2,
-	LAST
+	First = 0,
+	Normal = std::numeric_limits<CookLevel>::max() / 2,
+	Last
 };
 
 /*! @brief Controls the order actors are cooked.
@@ -47,11 +47,11 @@ public:
 // In-header Implementations:
 
 inline CookOrder::CookOrder() : 
-	CookOrder(ECookPriority::NORMAL, ECookLevel::NORMAL)
+	CookOrder(ECookPriority::Normal, ECookLevel::Normal)
 {}
 
 inline CookOrder::CookOrder(const ECookPriority priority) : 
-	CookOrder(priority, ECookLevel::NORMAL)
+	CookOrder(priority, ECookLevel::Normal)
 {}
 
 inline CookOrder::CookOrder(const ECookPriority priority, const ECookLevel level) : 

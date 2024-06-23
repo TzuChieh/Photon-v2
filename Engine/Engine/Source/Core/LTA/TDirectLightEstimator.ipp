@@ -50,9 +50,13 @@ inline bool TDirectLightEstimator<POLICY>::bsdfSampleEmission(
 	}
 
 	math::Spectrum Le(0);
-	if(foundNextX && nextX.getSurfaceEmitter())
+	if(foundNextX)
 	{
-		nextX.getSurfaceEmitter()->evalEmittedRadiance(nextX, &Le);
+		const Emitter* nextEmitter = nextX.getSurfaceEmitter();
+		if(nextEmitter && nextEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
+		{
+			nextX.getSurfaceEmitter()->evalEmittedEnergy(nextX, &Le);
+		}
 	}
 
 	PH_ASSERT_IN_RANGE(bsdfSample.outputs.getL().lengthSquared(), 0.9_r, 1.1_r);

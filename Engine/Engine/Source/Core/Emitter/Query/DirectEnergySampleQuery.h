@@ -60,7 +60,7 @@ public:
 
 	real getPdfW() const;
 	const lta::PDF& getPdf() const;
-	const Primitive* getSrcPrimitive() const;
+	const Primitive& getSrcPrimitive() const;
 
 	/*! @brief Get the ray from target position to sampled emitting position.
 	If target position or emitting position is required, it is recommended to use
@@ -169,11 +169,11 @@ inline const lta::PDF& DirectEnergySampleOutput::getPdf() const
 	return m_pdf;
 }
 
-inline const Primitive* DirectEnergySampleOutput::getSrcPrimitive() const
+inline const Primitive& DirectEnergySampleOutput::getSrcPrimitive() const
 {
 	PH_ASSERT(*this);
 	PH_ASSERT(m_srcPrimitive);
-	return m_srcPrimitive;
+	return *m_srcPrimitive;
 }
 
 inline const Ray& DirectEnergySampleOutput::getObservationRay() const

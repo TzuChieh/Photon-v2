@@ -31,12 +31,15 @@ PH_DEFINE_INTERNAL_LOG_GROUP(LatLongEnvEmitter, Emitter);
 LatLongEnvEmitter::LatLongEnvEmitter(
 	const Primitive* const         envSurface,
 	const RadianceTexture&         radiance,
-	const math::Vector2S&          resolution) :
+	const math::Vector2S&          resolution,
+	const EmitterFeatureSet        featureSet)
 
-	m_envSurface        (envSurface),
-	m_radiance          (radiance),
-	m_sampleDistribution(),
-	m_radiantFluxApprox (0)
+	: SurfaceEmitter(featureSet)
+
+	, m_envSurface        (envSurface)
+	, m_radiance          (radiance)
+	, m_sampleDistribution()
+	, m_radiantFluxApprox (0)
 {
 	PH_PROFILE_SCOPE();
 	PH_ASSERT(envSurface);
@@ -80,15 +83,15 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 	m_radiantFluxApprox  = m_radiantFluxApprox * m_envSurface->calcExtendedArea();
 }
 
-void LatLongEnvEmitter::evalEmittedRadiance(
+void LatLongEnvEmitter::evalEmittedEnergy(
 	const SurfaceHit& X, 
-	math::Spectrum* const out_radiance) const
+	math::Spectrum* const out_energy) const
 {
-	PH_ASSERT(out_radiance);
+	PH_ASSERT(out_energy);
 	PH_ASSERT(m_radiance);
 
 	TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
-	*out_radiance = sampler.sample(*m_radiance, X);
+	*out_energy = sampler.sample(*m_radiance, X);
 }
 
 void LatLongEnvEmitter::genDirectSample(
@@ -96,6 +99,11 @@ void LatLongEnvEmitter::genDirectSample(
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
 {
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
+	{
+		return;
+	}
+
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
 		sampleFlow.flow2D(), &uvSamplePdf);
@@ -128,6 +136,11 @@ void LatLongEnvEmitter::genDirectSample(
 
 void LatLongEnvEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 {
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::DirectSample))
+	{
+		return;
+	}
+
 	const math::Vector3R uvw(query.inputs.getXe().getDetail().getUVW());
 	const real latLong01Pdf = m_sampleDistribution.pdfContinuous({uvw.x(), uvw.y()});
 
@@ -150,6 +163,11 @@ void LatLongEnvEmitter::emitRay(
 	SampleFlow& sampleFlow,
 	HitProbe& probe) const
 {
+	if(getFeatureSet().hasNo(EEmitterFeatureSet::EmissionSample))
+	{
+		return;
+	}
+
 	real uvSamplePdf;
 	const math::Vector2R uvSample = m_sampleDistribution.sampleContinuous(
 		sampleFlow.flow2D(), &uvSamplePdf);
@@ -168,8 +186,8 @@ void LatLongEnvEmitter::emitRay(
 	}
 
 	// This emitter needs the suggested sample direction
-	PH_ASSERT(posSample.outputs.getPdfDir());
-	PH_ASSERT_IN_RANGE(posSample.outputs.getDir().lengthSquared(), 0.0_r, 1.1_r);
+	PH_ASSERT(!posSample.outputs.getPdfDir().isEmpty());
+	PH_ASSERT_IN_RANGE(posSample.outputs.getDir().lengthSquared(), 0.9_r, 1.1_r);
 
 	const auto emittedEnergy = TSampler<math::Spectrum>{math::EColorUsage::EMR}.sample(
 		*m_radiance, uvSample);
@@ -189,6 +207,20 @@ real LatLongEnvEmitter::calcRadiantFluxApprox() const
 	PH_ASSERT(m_envSurface && m_radiance);
 
 	return m_radiantFluxApprox;
+}
+
+void LatLongEnvEmitter::setFrontFaceEmit()
+{
+	PH_LOG(LatLongEnvEmitter, Debug,
+		"Setting front/back face emit has no effect on this emitter (as it is assumed to encompass "
+		"the whole scene).");
+}
+
+void LatLongEnvEmitter::setBackFaceEmit()
+{
+	PH_LOG(LatLongEnvEmitter, Debug,
+		"Setting front/back face emit has no effect on this emitter (as it is assumed to encompass "
+		"the whole scene).");
 }
 
 }// end namespace ph

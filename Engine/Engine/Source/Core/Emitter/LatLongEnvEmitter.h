@@ -30,9 +30,10 @@ public:
 	LatLongEnvEmitter(
 		const Primitive*         envSurface,
 		const RadianceTexture&   radiance,
-		const math::Vector2S&    resolution);
+		const math::Vector2S&    resolution,
+		EmitterFeatureSet        featureSet = defaultFeatureSet);
 
-	void evalEmittedRadiance(const SurfaceHit& X, math::Spectrum* out_radiance) const override;
+	void evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* out_energy) const override;
 
 	void genDirectSample(
 		DirectEnergySampleQuery& query,
@@ -47,6 +48,9 @@ public:
 		HitProbe& probe) const override;
 
 	real calcRadiantFluxApprox() const override;
+
+	void setFrontFaceEmit() override;
+	void setBackFaceEmit() override;
 
 private:
 	const Primitive*               m_envSurface;

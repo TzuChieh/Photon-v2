@@ -46,4 +46,11 @@ bool is_same_hemisphere(const Vector3R& vector, const Vector3R& N)
 	return N.dot(vector) > 0.0_r;
 }
 
+bool is_opposite_hemisphere(const Vector3R& vector, const Vector3R& N)
+{
+	PH_ASSERT_GT(N.lengthSquared(), 0.0_r);
+
+	return N.dot(vector) < 0.0_r;
+}
+
 }// end namespace ph::math
