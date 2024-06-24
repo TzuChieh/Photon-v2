@@ -23,7 +23,7 @@ def _export_light_actor(
     """
     creator = sdl.ModelLightActorCreator()
     creator.set_data_name(light_actor_name)
-    creator.set_emitted_radiance(sdl.Image(emission_image_name))
+    creator.set_emitted_energy(sdl.Image(emission_image_name))
     creator.set_geometry(sdl.Geometry(geometry_name))
     creator.set_material(sdl.Material(material_name))
     console.queue_command(creator)   

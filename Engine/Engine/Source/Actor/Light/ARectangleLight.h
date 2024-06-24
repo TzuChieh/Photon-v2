@@ -32,11 +32,13 @@ public:
 		TSdlReal<OwnerType> width("width", &OwnerType::m_width);
 		width.description("The width of the rectangle.");
 		width.defaultTo(1);
+		width.required();
 		clazz.addField(width);
 
 		TSdlReal<OwnerType> height("height", &OwnerType::m_height);
 		height.description("The height of the rectangle.");
 		height.defaultTo(1);
+		height.required();
 		clazz.addField(height);
 
 		return clazz;

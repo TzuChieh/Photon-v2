@@ -24,18 +24,17 @@ class PH_LIGHT_PT_properties(PhLightPanel):
 
     def draw(self, b_context):
         b_light = b_context.light
-        layout = self.layout
+        b_layout = self.layout
 
         # HACK: relying on blender light type to change light data, ideally we want our own chooser
-        layout.prop(b_light, 'type', expand=True)
+        b_layout.row().prop(b_light, 'type', expand=True)
 
-        layout.prop(b_light.photon, 'color_linear_srgb')
-        layout.prop(b_light.photon, 'watts')
+        col = b_layout.column()
+        col.prop(b_light.photon, 'color_linear_srgb')
+        col.prop(b_light.photon, 'watts')
+        col.separator()
 
         if b_light.type == 'AREA':
-            split = layout.split()
-
-            col = split.column()
             col.prop(b_light, 'shape', text="Shape")
 
             if b_light.shape == 'SQUARE':
@@ -49,8 +48,7 @@ class PH_LIGHT_PT_properties(PhLightPanel):
                 print("warning: unsupported area light shape %s" % b_light.shape)
 
         elif b_light.type == 'POINT':
-            # Nothing to display
-            pass
+            col.prop(b_light, 'shadow_soft_size', text="Radius")
 
         else:
             print("warning: unsupported light type %s" % b_light.type)

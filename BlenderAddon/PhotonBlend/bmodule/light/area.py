@@ -7,7 +7,7 @@ import bpy
 def light_to_sdl_area_light(b_light: bpy.types.AreaLight, console: SdlConsole):
     light_actor_name = naming.get_mangled_light_name(b_light)
 
-    if b_light.shape == 'SQUARE' or b_light.shape == 'RECTANGLE':
+    if b_light.shape in {'SQUARE', 'RECTANGLE'}:
         # In Blender's Light, under Area category, only Square and Rectangle shape are available.
         # (which are both a rectangle in Photon)
         rec_width = b_light.size

@@ -30,6 +30,7 @@ public:
 		TSdlReal<OwnerType> radius("radius", &OwnerType::m_radius);
 		radius.description("The radius of the sphere.");
 		radius.defaultTo(1);
+		radius.required();
 		clazz.addField(radius);
 
 		return clazz;
