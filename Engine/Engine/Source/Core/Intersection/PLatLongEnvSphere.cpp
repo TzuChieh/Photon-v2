@@ -81,12 +81,8 @@ void PLatLongEnvSphere::calcHitDetail(
 		"localHitPosition = " + localHitPosition.toString() + "\n"
 		"localHitNormal   = " + localHitNormal.toString() + "\n");
 
-	const auto unitRayDir = ray.getDir().normalize();
 	const auto unitSphere = math::TSphere<real>::makeUnit();
-
-	math::Vector3R localUnitRayDir;
-	m_worldToLocal->transformV(localRay.getDir(), &localUnitRayDir);
-	localUnitRayDir = localUnitRayDir.safeNormalize({0, 1, 0});
+	const auto localUnitRayDir = localRay.getDir().safeNormalize({0, 1, 0});
 
 	// UV is mapped from incident direction for the purpose of environment lighting
 	const math::Vector2R hitUV = unitSphere.surfaceToLatLong01(localUnitRayDir);

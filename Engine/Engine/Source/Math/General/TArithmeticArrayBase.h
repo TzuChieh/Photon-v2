@@ -116,8 +116,19 @@ protected:
 	T avg() const;
 	T product() const;
 
+	/*!
+	@return Minimum of the elements.
+	*/
 	T min() const;
+
+	/*!
+	@return Element-wise minimum. Effectively performing `std::min((*this)[i], other[i])` for each element.
+	*/
 	Derived min(const Derived& other) const;
+
+	/*!
+	@return Index of the minimum.
+	*/
 	std::size_t minIndex() const;
 
 	T max() const;

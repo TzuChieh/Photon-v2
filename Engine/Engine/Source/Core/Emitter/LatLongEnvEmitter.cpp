@@ -50,19 +50,19 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 		"constructing sample distribution with resolution {}", resolution.toString());
 
 	constexpr auto USAGE = math::EColorUsage::EMR;
-	const real rcpResolutionY = 1.0_r / static_cast<real>(resolution.y());
+	const auto rcpResolution = math::Vector2R(resolution).rcp();
 	const TSampler<math::Spectrum> sampler(USAGE);
 
 	std::vector<real> sampleWeights(resolution.x() * resolution.y());
 	for(std::size_t y = 0; y < resolution.y(); ++y)
 	{
 		const std::size_t baseIndex = y * resolution.x();
-		const real        v         = (static_cast<real>(y) + 0.5_r) * rcpResolutionY;
+		const real        v         = (y + 0.5_r) * rcpResolution.y();
 		const real        sinTheta  = std::sin((1.0_r - v) * math::constant::pi<real>);
 
 		for(std::size_t x = 0; x < resolution.x(); ++x)
 		{
-			const real           u        = (static_cast<real>(x) + 0.5_r) / static_cast<real>(resolution.x());
+			const real           u        = (x + 0.5_r) * rcpResolution.x();
 			const math::Spectrum sampledL = sampler.sample(*radiance, {u, v});
 
 			// For non-nearest filtered textures, sample weights can be 0 while
@@ -121,6 +121,15 @@ void LatLongEnvEmitter::genDirectSample(
 
 	HitDetail detail;
 	HitProbe(probe).calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+
+	// The intension of this method is to importance sample based on UV, so the sampled UV should
+	// not differ much to the one from hit event (up to some numerical error).
+#if PH_DEBUG
+	auto absUvDiff = (math::Vector2R(detail.getUVW().x(), detail.getUVW().y()) - uvSample).abs();
+	absUvDiff = absUvDiff.min((absUvDiff - 1).abs());// tolerate single wrap-around
+	PH_ASSERT_LT(absUvDiff.x(), 1.0_r / 8192);
+	PH_ASSERT_LT(absUvDiff.y(), 1.0_r / 4096);
+#endif
 
 	// TODO: use sampler with surface hit
 	query.outputs.setEmittedEnergy(TSampler<math::Spectrum>{math::EColorUsage::EMR}.sample(
