@@ -20,7 +20,7 @@ class SurfaceEmitter : public Emitter
 public:
 	explicit SurfaceEmitter(EmitterFeatureSet featureSet = defaultFeatureSet);
 
-	void evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* out_energy) const override = 0;
+	void evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* out_energy) const override = 0;
 
 	void genDirectSample(
 		DirectEnergySampleQuery& query, 
@@ -45,8 +45,8 @@ protected:
 	bool canEmit(const math::Vector3R& emitDir, const math::Vector3R& N) const;
 
 	/*!
-	Performs `calcDirectPdf()` on the source primitive specified by `query`. This computes solid
-	angle domain PDF of sampling the surface emitter (as represented by the source primitive).
+	Performs `calcDirectPdf()` on the source primitive specified by `query.inputs`. This computes
+	solid angle domain PDF of sampling the surface emitter (as represented by the source primitive).
 	@note
 	- Handles `EEmitterFeatureSet::DirectSample`
 	*/

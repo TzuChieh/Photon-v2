@@ -6,7 +6,7 @@
 #include "Core/Intersection/TransformedPrimitive.h"
 #include "Core/Intersection/PrimitiveMetadata.h"
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
-#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
+#include "Core/Emitter/GroupedDiffuseSurfaceEmitter.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Math/constant.h"

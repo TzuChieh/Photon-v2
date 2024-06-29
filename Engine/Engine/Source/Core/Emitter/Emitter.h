@@ -77,8 +77,9 @@ public:
 	virtual ~Emitter();
 
 	/*! @brief Evaluate emitted energy from a point on the surface.
+	@param Xe The point that emits energy.
 	*/
-	virtual void evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* out_energy) const = 0;
+	virtual void evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* out_energy) const = 0;
 
 	/*! @brief Sample direct lighting for a target position.
 	@note

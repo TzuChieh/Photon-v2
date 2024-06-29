@@ -1,11 +1,17 @@
 from psdl import sdl, SdlConsole
-from bmodule import naming
 
 import bpy
 
 
-def light_to_sdl_area_light(b_light: bpy.types.AreaLight, console: SdlConsole):
-    light_actor_name = naming.get_mangled_light_name(b_light)
+def light_to_sdl_area_light_actor(
+    b_light: bpy.types.AreaLight,
+    console: SdlConsole,
+    actor_name,
+    phantomize=False):
+    """
+    Convert a light data block to SDL area light actor.
+    """
+    assert b_light.type == 'AREA'
 
     if b_light.shape in {'SQUARE', 'RECTANGLE'}:
         # In Blender's Light, under Area category, only Square and Rectangle shape are available.
@@ -14,7 +20,7 @@ def light_to_sdl_area_light(b_light: bpy.types.AreaLight, console: SdlConsole):
         rec_height = b_light.size_y if b_light.shape == 'RECTANGLE' else b_light.size
 
         creator = sdl.RectangleLightActorCreator()
-        creator.set_data_name(light_actor_name)
+        creator.set_data_name(actor_name)
         creator.set_width(sdl.Real(rec_width))
         creator.set_height(sdl.Real(rec_height))
         creator.set_color(sdl.Spectrum(b_light.photon.color_linear_srgb))
@@ -35,8 +41,10 @@ def light_to_sdl_area_light(b_light: bpy.types.AreaLight, console: SdlConsole):
             creator.set_emission_sample(sdl.Bool(False))
 
     else:
-        print("warning: light <%s> has shape %s which is not supported" % b_light.name)
-        creator = None
+        print(f"warning: light {b_light.name} has shape {b_light.shape} which is not supported")
+        return
 
-    if creator is not None:
-        console.queue_command(creator)
+    if phantomize:
+        creator.phantomize()
+
+    console.queue_command(creator)

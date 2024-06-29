@@ -1,6 +1,6 @@
 #include "Actor/Light/AAreaLight.h"
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
-#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
+#include "Core/Emitter/GroupedDiffuseSurfaceEmitter.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Math/constant.h"
 #include "World/Foundation/CookingContext.h"
@@ -79,15 +79,8 @@ const Emitter* AAreaLight::buildEmitter(
 	{
 		PH_ASSERT_GE(lightPrimitives.size(), 2);
 
-		std::vector<DiffuseSurfaceEmitter> areaEmitters;
-		for(const Primitive* primitive : lightPrimitives)
-		{
-			areaEmitters.push_back(
-				DiffuseSurfaceEmitter(primitive, emittedRadiance));
-		}
-
-		lightEmitter = ctx.getResources()->makeEmitter<MultiDiffuseSurfaceEmitter>(
-			areaEmitters, getEmitterFeatureSet());
+		lightEmitter = ctx.getResources()->makeEmitter<GroupedDiffuseSurfaceEmitter>(
+			lightPrimitives, emittedRadiance, getEmitterFeatureSet());
 	}
 
 	return lightEmitter;

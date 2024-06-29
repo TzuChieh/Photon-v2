@@ -5,7 +5,7 @@ import datetime
 
 # We are using absolute imports with `PhotonBlend` folder as the root
 root_folder_path = os.path.abspath(os.path.dirname(__file__))
-print("PhotonBlend: using %s as root" % root_folder_path)
+print("PhotonBlend: using {root_folder_path} as root")
 sys.path.append(root_folder_path)
 
 from utility import blender
@@ -22,7 +22,7 @@ bl_info = {
 	"category": "Render"
 }
 
-print("PhotonBlend activated. %s" % datetime.datetime.now())
+print(f"PhotonBlend activated. {datetime.datetime.now()}")
 
 main_package_full_name = "{}.{}".format(__name__, "bmodule")
 

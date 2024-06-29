@@ -91,17 +91,18 @@ void PythonGenerator::generate(
 	m_file.writeString("\n\n");
 
 	// Generate reference classes (helper for constructing SDL references)
-
-	const std::vector<std::string_view> sdlCategories = sdl::acquire_categories();
-	for(const auto sdlCategory : sdlCategories)
 	{
-		PythonClass pyClass = gen_sdl_reference_class(sdlCategory);
-		m_file.writeString(pyClass.genCode());
+		const std::vector<std::string_view> sdlCategories = sdl::acquire_categories();
+		for(const auto sdlCategory : sdlCategories)
+		{
+			PythonClass pyClass = gen_sdl_reference_class(sdlCategory);
+			m_file.writeString(pyClass.genCode());
+		}
+
+		m_file.writeString("\n\n");
+
+		PH_LOG(PythonGenerator, Note, "generated {} helper reference classes", sdlCategories.size());
 	}
-
-	m_file.writeString("\n\n");
-
-	PH_LOG(PythonGenerator, Note, "generated {} helper reference classes", sdlCategories.size());
 
 	// Generate directive classes
 	{
@@ -119,26 +120,26 @@ void PythonGenerator::generate(
 	}
 
 	// Generate creator classes (for SDL creation command)
-
-	std::vector<PythonClass> creatorClasses;
-	for(auto const sdlClass : sdlClasses)
 	{
-		PH_ASSERT(sdlClass);
-		creatorClasses.push_back(gen_sdl_creator_class(*sdlClass));
+		std::vector<PythonClass> creatorClasses;
+		for(auto const sdlClass : sdlClasses)
+		{
+			PH_ASSERT(sdlClass);
+			creatorClasses.push_back(gen_sdl_creator_class(*sdlClass));
+		}
+
+		creatorClasses = resolve_class_inheritances(creatorClasses);
+		for(const PythonClass& creatorClass : creatorClasses)
+		{
+			m_file.writeString(creatorClass.genCode());
+		}
+
+		m_file.writeString("\n\n");
+
+		PH_LOG(PythonGenerator, Note, "generated {} creator classes", creatorClasses.size());
 	}
-
-	creatorClasses = resolve_class_inheritances(creatorClasses);
-	for(const PythonClass& creatorClass : creatorClasses)
-	{
-		m_file.writeString(creatorClass.genCode());
-	}
-
-	m_file.writeString("\n\n");
-
-	PH_LOG(PythonGenerator, Note, "generated {} creator classes", creatorClasses.size());
 
 	// Generate function execution classes (for SDL execution command in explicit class type form)
-
 	std::vector<PythonClass> executorClasses;
 	for(auto const sdlClass : sdlClasses)
 	{

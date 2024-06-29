@@ -11,7 +11,7 @@ namespace ph
 {
 
 /*!
-This class provides a temporal, higher order of abstraction over data
+This class provides a temporal, higher order abstraction over data
 regarding ray-hit information. This abstraction layer is tailored
 towards texture sampling and shall not be used in other circumstances.
 The philosophy of this abstraction layer is that texture sampling 
@@ -22,6 +22,7 @@ class SampleLocation final
 {
 	// FIXME: uvw should be in float64 for better highres pixel texture sample precision 
 	// (test if required)
+	// FIXME: include LoD/footprint info
 
 public:
 	/*! @brief Constructs a sample location at @f$ (u, v, (w)) @f$.

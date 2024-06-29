@@ -5,10 +5,18 @@
 #include "Core/Emitter/Query/DirectEnergySampleQuery.h"
 #include "Core/Emitter/Query/EnergyEmissionSampleQuery.h"
 
-#include <Common/assertion.h>
+// TODO: importance sampling based on filter values
 
 namespace ph
 {
+
+OmniModulatedEmitter::OmniModulatedEmitter(
+	const Emitter* const source)
+
+	: OmniModulatedEmitter(
+		source,
+		source ? source->getFeatureSet() : defaultFeatureSet)
+{}
 
 OmniModulatedEmitter::OmniModulatedEmitter(
 	const Emitter* const    source,
@@ -19,18 +27,18 @@ OmniModulatedEmitter::OmniModulatedEmitter(
 	, m_source(source)
 	, m_filter(nullptr)
 {
-	PH_ASSERT(m_source);
+	PH_ASSERT(source);
 }
 
-void OmniModulatedEmitter::evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* const out_energy) const
+void OmniModulatedEmitter::evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* const out_energy) const
 {
-	m_source->evalEmittedEnergy(X, out_energy);
+	getSource().evalEmittedEnergy(Xe, out_energy);
 	if(out_energy->isZero())
 	{
 		return;
 	}
 
-	const math::Vector3R emitDir = X.getIncidentRay().getDir().mul(-1);
+	const math::Vector3R emitDir = Xe.getIncidentRay().getDir().mul(-1);
 
 	math::Vector3R uv;
 	m_dirToUv.dirToUvw(emitDir, &uv);
@@ -53,7 +61,7 @@ void OmniModulatedEmitter::genDirectSample(
 		return;
 	}
 
-	m_source->genDirectSample(query, sampleFlow, probe);
+	getSource().genDirectSample(query, sampleFlow, probe);
 	if(!query.outputs)
 	{
 		return;
@@ -78,7 +86,7 @@ void OmniModulatedEmitter::calcDirectPdf(DirectEnergyPdfQuery& query) const
 		return;
 	}
 
-	m_source->calcDirectPdf(query);
+	getSource().calcDirectPdf(query);
 
 	// TODO: if importance sampling is used, pdfW should be changed here
 }
@@ -93,7 +101,7 @@ void OmniModulatedEmitter::emitRay(
 		return;
 	}
 
-	m_source->emitRay(query, sampleFlow, probe);
+	getSource().emitRay(query, sampleFlow, probe);
 	if(!query.outputs)
 	{
 		return;
@@ -112,15 +120,12 @@ void OmniModulatedEmitter::emitRay(
 void OmniModulatedEmitter::setFilter(const std::shared_ptr<TTexture<math::Spectrum>>& filter)
 {
 	PH_ASSERT(filter);
-
 	m_filter = filter;
 }
 
 real OmniModulatedEmitter::calcRadiantFluxApprox() const
 {
-	PH_ASSERT(m_source);
-
-	return m_source->calcRadiantFluxApprox();
+	return getSource().calcRadiantFluxApprox();
 }
 
 }// end namespace ph

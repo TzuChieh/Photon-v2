@@ -9,6 +9,12 @@ import mathutils
 from collections import namedtuple
 
 
+def save_blender_image(b_image, image_sdlri, sdlconsole):
+	sdlconsole.create_resource_folder(image_sdlri)
+	image_path = sdlconsole.get_working_dir() / image_sdlri.get_path()
+	b_image.save_render(image_path)
+	
+
 class TranslateResult:
 
 	def __init__(self,

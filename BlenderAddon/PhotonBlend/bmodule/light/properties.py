@@ -28,6 +28,22 @@ class PhotonLightData(bpy.types.PropertyGroup):
         max=sys.float_info.max
     )
 
+    attenuation_type: bpy.props.EnumProperty(
+		items=[
+			('NONE', "None", "", 0),
+			('IES', "IES", "", 1)
+		],
+		name="Attenuation",
+		description="Type of the lighting attenuation.",
+		default='NONE'
+	)
+
+    ies_file_path : bpy.props.StringProperty(
+		name="File",
+		default="",
+		subtype='FILE_PATH'
+	)
+
     directly_visible: bpy.props.BoolProperty(
         name="Directly Visible",
         description=sdl.GeometricLightActorCreator.set_directly_visible.__doc__,

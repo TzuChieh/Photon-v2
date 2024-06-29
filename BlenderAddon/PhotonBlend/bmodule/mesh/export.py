@@ -218,4 +218,4 @@ def mesh_object_to_sdl_actor(b_mesh_object: bpy.types.Object, console: SdlConsol
         case 'MENGER_SPONGE':
             _export_menger_sponge_mesh_object(b_mesh_object, console)
         case _:
-            raise ValueError("unsupported mesh data export type")
+            assert False, f"unsupported export type {b_mesh.photon.export_type}"

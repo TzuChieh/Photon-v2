@@ -3,10 +3,12 @@
 #include "Core/Emitter/DiffuseSurfaceEmitterBase.h"
 #include "Math/Color/Spectrum.h"
 #include "Core/Texture/TTexture.h"
+#include "Utility/TSpan.h"
 
 #include <Common/assertion.h>
-#include <Common/primitive_type.h>
 
+#include <cstddef>
+#include <vector>
 #include <memory>
 
 namespace ph
@@ -14,13 +16,14 @@ namespace ph
 
 class Primitive;
 
-/*! @brief Diffusive surface emitter.
+/*! @brief Diffusive surface emitter comprised of multiple surface fragments.
+All surface fragments use the same energy texture.
 */
-class DiffuseSurfaceEmitter : public DiffuseSurfaceEmitterBase
+class GroupedDiffuseSurfaceEmitter : public DiffuseSurfaceEmitterBase
 {
 public:
-	DiffuseSurfaceEmitter(
-		const Primitive* surface,
+	explicit GroupedDiffuseSurfaceEmitter(
+		TSpanView<const Primitive*> surfaces,
 		const std::shared_ptr<TTexture<math::Spectrum>>& emittedEnergy,
 		EmitterFeatureSet featureSet = defaultFeatureSet);
 
@@ -40,21 +43,35 @@ public:
 
 	real calcRadiantFluxApprox() const override;
 
-	const Primitive& getSurface() const;
+	/*!
+	@return Number of surface fragments.
+	*/
+	std::size_t numSurfaces() const;
+
+	/*! @brief Get a surface fragment by index.
+	*/
+	const Primitive& getSurface(std::size_t surfaceIdx) const;
+
 	const TTexture<math::Spectrum>& getEmittedEnergy() const;
 
 private:
-	const Primitive* m_surface;
+	std::vector<const Primitive*> m_surfaces;
 	std::shared_ptr<TTexture<math::Spectrum>> m_emittedEnergy;
 };
 
-inline const Primitive& DiffuseSurfaceEmitter::getSurface() const
+inline std::size_t GroupedDiffuseSurfaceEmitter::numSurfaces() const
 {
-	PH_ASSERT(m_surface);
-	return *m_surface;
+	return m_surfaces.size();
 }
 
-inline const TTexture<math::Spectrum>& DiffuseSurfaceEmitter::getEmittedEnergy() const
+inline const Primitive& GroupedDiffuseSurfaceEmitter::getSurface(
+	const std::size_t surfaceIdx) const
+{
+	PH_ASSERT_LT(surfaceIdx, m_surfaces.size());
+	return *m_surfaces[surfaceIdx];
+}
+
+inline const TTexture<math::Spectrum>& GroupedDiffuseSurfaceEmitter::getEmittedEnergy() const
 {
 	PH_ASSERT(m_emittedEnergy);
 	return *m_emittedEnergy;

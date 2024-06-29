@@ -84,14 +84,14 @@ LatLongEnvEmitter::LatLongEnvEmitter(
 }
 
 void LatLongEnvEmitter::evalEmittedEnergy(
-	const SurfaceHit& X, 
+	const SurfaceHit& Xe, 
 	math::Spectrum* const out_energy) const
 {
 	PH_ASSERT(out_energy);
 	PH_ASSERT(m_radiance);
 
 	TSampler<math::Spectrum> sampler(math::EColorUsage::EMR);
-	*out_energy = sampler.sample(*m_radiance, X);
+	*out_energy = sampler.sample(*m_radiance, Xe);
 }
 
 void LatLongEnvEmitter::genDirectSample(

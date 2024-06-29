@@ -6,7 +6,8 @@ from bmodule import (
     materials,
     meshes,
     renderer,
-    world)
+    worlds,
+    )
 
 import bpy
 

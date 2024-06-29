@@ -11,6 +11,8 @@
 namespace ph
 {
 
+/*! @brief Common settings and operations for sampling a texture.
+*/
 template<typename OutputType>
 class TSampler final
 {

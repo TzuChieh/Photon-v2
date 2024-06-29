@@ -31,12 +31,11 @@ template<typename StaticT = void>
 class TSdl final
 {};
 
+/*! @brief `TSdl` specialization that accepts dynamic type (`SdlClass`).
+*/
 template<>
 class TSdl<void> final
 {
-	/*static_assert(std::is_same_v<StaticT, void>,
-		"Dynamic-typed TSdl accepts only StaticT = void.");*/
-
 public:
 	/*! @brief Creates a sharable resource filled with default values.
 	Default values are determined by SDL class definition.
@@ -44,6 +43,8 @@ public:
 	static std::shared_ptr<ISdlResource> makeResource(const SdlClass* clazz);
 };
 
+/*! @brief `TSdl` specialization that accepts static type (`T`).
+*/
 template<CSdlResource T>
 class TSdl<T> final
 {

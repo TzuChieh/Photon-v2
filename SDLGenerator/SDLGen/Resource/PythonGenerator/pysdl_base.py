@@ -372,14 +372,19 @@ class CreatorCommand(AbstractInputCommand):
     def __init__(self):
         super().__init__()
         self.__data_name = ""
+        self.__is_phantom = False
 
     @abstractmethod
     def get_full_type(self):
         pass
 
     def generate(self):
-        # TODO: some part can be pre-generated
-        fragments = [f"{self.get_full_type()} @\"{self.__data_name}\" = "]
+        fragments = []
+        
+        if self.__is_phantom:
+            fragments.append("phantom ")
+        
+        fragments.append(f"{self.get_full_type()} @\"{self.__data_name}\" = ")
         self._generate_input_fragments(fragments)
         fragments.append(";\n")
 
@@ -387,6 +392,12 @@ class CreatorCommand(AbstractInputCommand):
 
     def set_data_name(self, data_name):
         self.__data_name = data_name
+
+    def phantomize(self):
+        """
+        Make this command a phantom. The result of a phantom command does not participate in the world directly.
+        """
+        self.__is_phantom = True
 
 
 class ExplicitExecutorCommand(AbstractInputCommand):
@@ -406,7 +417,6 @@ class ExplicitExecutorCommand(AbstractInputCommand):
         pass
 
     def generate(self):
-        # TODO: some part can be pre-generated
         fragments = [f"{self.get_full_type()}.{self.get_name()}(@\"{self.__target_name}\") = "]
         self._generate_input_fragments(fragments)
         fragments.append(";\n")
@@ -433,7 +443,6 @@ class ImplicitExecutorCommand(AbstractInputCommand):
         pass
 
     def generate(self):
-        # TODO: some part can be pre-generated
         fragments = [f"{self.get_name()}(@\"{self.__target_name}\") = "]
         self._generate_input_fragments(fragments)
         fragments.append(";\n")
@@ -471,7 +480,6 @@ class CachedPacketCommand(AbstractInputCommand):
         return ""
 
     def generate(self):
-        # TODO: some part can be pre-generated
         fragments = [f"packet $\"{self.__data_name}\" = "]
         self._generate_input_fragments(fragments)
         fragments.append(";\n")

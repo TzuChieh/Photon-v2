@@ -1,11 +1,17 @@
 from psdl import sdl, SdlConsole
-from bmodule import naming
 
 import bpy
 
 
-def light_to_sdl_point_light(b_light: bpy.types.PointLight, console: SdlConsole):
-    light_actor_name = naming.get_mangled_light_name(b_light)
+def light_to_sdl_point_light_actor(
+    b_light: bpy.types.PointLight,
+    console: SdlConsole,
+    actor_name,
+    phantomize=False):
+    """
+    Convert a light data block to SDL point light actor.
+    """
+    assert b_light.type == 'POINT'
 
     light_radius = b_light.shadow_soft_size
     if light_radius == 0:
@@ -14,9 +20,12 @@ def light_to_sdl_point_light(b_light: bpy.types.PointLight, console: SdlConsole)
         creator = sdl.SphereLightActorCreator()
         creator.set_radius(sdl.Real(light_radius))
 
-    creator.set_data_name(light_actor_name)
+    creator.set_data_name(actor_name)
     creator.set_color(sdl.Spectrum(b_light.photon.color_linear_srgb))
     creator.set_watts(sdl.Real(b_light.photon.watts))
+
+    if phantomize:
+        creator.phantomize()
 
     # Advanced feature flags: set if different from Photon's default to reduce file size
 

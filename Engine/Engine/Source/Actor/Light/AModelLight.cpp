@@ -1,6 +1,6 @@
 #include "Actor/Light/AModelLight.h"
 #include "Core/Emitter/DiffuseSurfaceEmitter.h"
-#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
+#include "Core/Emitter/GroupedDiffuseSurfaceEmitter.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
 #include "Core/Texture/constant_textures.h"
@@ -51,45 +51,27 @@ const Emitter* AModelLight::buildEmitter(
 		emittedEnergy = std::make_shared<TConstantTexture<math::Spectrum>>(defaultEnergy);
 	}
 
-	const Emitter* lightEmitter = nullptr;
+	SurfaceEmitter* lightEmitter = nullptr;
 	if(lightPrimitives.size() == 1)
 	{
-		auto* emitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(
+		lightEmitter = ctx.getResources()->makeEmitter<DiffuseSurfaceEmitter>(
 			lightPrimitives[0], emittedEnergy, getEmitterFeatureSet());
-		if(m_isBackFaceEmit)
-		{
-			emitter->setBackFaceEmit();
-		}
-		else
-		{
-			emitter->setFrontFaceEmit();
-		}
-
-		lightEmitter = emitter;
 	}
 	else
 	{
 		PH_ASSERT_GE(lightPrimitives.size(), 2);
 
-		std::vector<DiffuseSurfaceEmitter> emitters;
-		for(const Primitive* primitive : lightPrimitives)
-		{
-			emitters.push_back(
-				DiffuseSurfaceEmitter(primitive, emittedEnergy));
-		}
+		lightEmitter = ctx.getResources()->makeEmitter<GroupedDiffuseSurfaceEmitter>(
+			lightPrimitives, emittedEnergy, getEmitterFeatureSet());
+	}
 
-		auto* multiEmitter = ctx.getResources()->makeEmitter<MultiDiffuseSurfaceEmitter>(
-			emitters, getEmitterFeatureSet());
-		if(m_isBackFaceEmit)
-		{
-			multiEmitter->setBackFaceEmit();
-		}
-		else
-		{
-			multiEmitter->setFrontFaceEmit();
-		}
-
-		lightEmitter = multiEmitter;
+	if(m_isBackFaceEmit)
+	{
+		lightEmitter->setBackFaceEmit();
+	}
+	else
+	{
+		lightEmitter->setFrontFaceEmit();
 	}
 
 	return lightEmitter;

@@ -4,21 +4,26 @@
 #include "Core/Texture/TTexture.h"
 #include "Core/Intersection/UvwMapper/SphericalMapper.h"
 
+#include <Common/assertion.h>
 #include <Common/primitive_type.h>
 
 namespace ph
 {
 
-// TODO: importance sampling based on filter values
-
 class OmniModulatedEmitter : public Emitter
 {
 public:
-	explicit OmniModulatedEmitter(
-		const Emitter*    source,
-		EmitterFeatureSet featureSet = defaultFeatureSet);
+	/*! @brief Given a source, construct its modulated version.
+	Feature set is inherited from `source`. If you want to specify a specific feature set, use
+	`OmniModulatedEmitter(const Emitter*, EmitterFeatureSet)`.
+	*/
+	explicit OmniModulatedEmitter(const Emitter* source);
 
-	void evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* out_energy) const override;
+	OmniModulatedEmitter(
+		const Emitter*    source,
+		EmitterFeatureSet featureSet);
+
+	void evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* out_energy) const override;
 
 	void genDirectSample(
 		DirectEnergySampleQuery& query,
@@ -36,10 +41,21 @@ public:
 
 	void setFilter(const std::shared_ptr<TTexture<math::Spectrum>>& filter);
 
+	/*!
+	@return The emitter that is being modulated.
+	*/
+	const Emitter& getSource() const;
+
 private:
 	const Emitter*                            m_source;
 	std::shared_ptr<TTexture<math::Spectrum>> m_filter;
 	SphericalMapper                           m_dirToUv;
 };
+
+inline const Emitter& OmniModulatedEmitter::getSource() const
+{
+	PH_ASSERT(m_source);
+	return *m_source;
+}
 
 }// end namespace ph

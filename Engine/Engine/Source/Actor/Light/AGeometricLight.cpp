@@ -2,8 +2,6 @@
 #include "Math/math.h"
 #include "Actor/Material/MatteOpaque.h"
 #include "World/Foundation/TransientVisualElement.h"
-#include "Actor/Geometry/PrimitiveBuildingMaterial.h"
-#include "Actor/LightSource/EmitterBuildingMaterial.h"
 #include "Core/Intersection/PrimitiveMetadata.h"
 #include "Core/Intersection/TransformedIntersectable.h"
 #include "Core/Intersection/TransformedPrimitive.h"
@@ -13,8 +11,6 @@
 #include "World/Foundation/PreCookReport.h"
 #include "World/Foundation/CookingContext.h"
 #include "World/Foundation/CookedResourceCollection.h"
-#include "Core/Emitter/DiffuseSurfaceEmitter.h"
-#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
 
 #include <Common/logging.h>
 

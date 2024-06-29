@@ -14,7 +14,7 @@
 namespace ph
 {
 
-/*! @brief A field class that binds a bool member variable.
+/*! @brief A field class that binds a `bool` member variable.
 */
 template<typename Owner, typename SdlValueType = TSdlValue<bool, Owner>>
 class TSdlBool : public SdlValueType

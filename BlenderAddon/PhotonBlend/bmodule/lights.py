@@ -32,9 +32,11 @@ class PH_LIGHT_PT_properties(PhLightPanel):
         col = b_layout.column()
         col.prop(b_light.photon, 'color_linear_srgb')
         col.prop(b_light.photon, 'watts')
+
         col.separator()
 
-        if b_light.type == 'AREA':
+        light_type = b_light.type
+        if light_type == 'AREA':
             col.prop(b_light, 'shape', text="Shape")
 
             if b_light.shape == 'SQUARE':
@@ -44,14 +46,17 @@ class PH_LIGHT_PT_properties(PhLightPanel):
                 col.prop(b_light, 'size', text="Width")
                 col.prop(b_light, 'size_y', text="Height")
 
-            else:
-                print("warning: unsupported area light shape %s" % b_light.shape)
-
-        elif b_light.type == 'POINT':
+        elif light_type == 'POINT':
             col.prop(b_light, 'shadow_soft_size', text="Radius")
 
-        else:
-            print("warning: unsupported light type %s" % b_light.type)
+        col.separator()
+
+        col.prop(b_light.photon, 'attenuation_type')
+
+        attenuation_type = b_light.photon.attenuation_type
+        if attenuation_type == 'IES':
+            col.prop(b_light.photon, 'ies_file_path', text="IES File")
+
 
 @blender.register_class
 class PH_LIGHT_PT_advanced(PhLightPanel):

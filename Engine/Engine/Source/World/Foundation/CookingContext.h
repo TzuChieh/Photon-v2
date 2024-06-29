@@ -44,7 +44,14 @@ public:
 	*/
 	math::AABB3D getLeafActorsBound() const;
 
+	/*!
+	@return Pointer to the cooked geometry. `nullptr` if not found.
+	*/
 	const CookedGeometry* getCooked(const std::shared_ptr<Geometry>& geometry) const;
+
+	/*!
+	@return Pointer to the cooked actor. `nullptr` if not found.
+	*/
 	const TransientVisualElement* getCached(const std::shared_ptr<Actor>& actor) const;
 
 private:

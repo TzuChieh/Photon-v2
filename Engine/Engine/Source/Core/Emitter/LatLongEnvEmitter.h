@@ -33,7 +33,7 @@ public:
 		const math::Vector2S&    resolution,
 		EmitterFeatureSet        featureSet = defaultFeatureSet);
 
-	void evalEmittedEnergy(const SurfaceHit& X, math::Spectrum* out_energy) const override;
+	void evalEmittedEnergy(const SurfaceHit& Xe, math::Spectrum* out_energy) const override;
 
 	void genDirectSample(
 		DirectEnergySampleQuery& query,

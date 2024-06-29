@@ -1,30 +1,33 @@
+"""
+@brief Main export functionalities.
+"""
 import utility
 
 from utility import blender
 
 from bmodule import (
-    naming,
-    material,
     mesh,
     scene,
-    light)
+    light,
+    world,
+    )
 
 from bmodule.material import nodes
 from bmodule.mesh import triangle_mesh
 from psdl import sdl, sdlmapping, SdlConsole
 from utility import blender
-from bmodule.export import cycles_material
 
 import bpy
 import mathutils
 
 import math
 import time
+from pathlib import Path
 
 
 class Exporter:
     def __init__(self, file_path):
-        self.__file_path = file_path
+        self.__file_path = Path(file_path)
         self.__sdlconsole = None
 
     # TODO: should not expose console
@@ -32,10 +35,9 @@ class Exporter:
         return self.__sdlconsole
 
     def begin(self, scene_name):
-        file_path = self.__file_path
-        folder_path = utility.get_folder_path(file_path)
-        filename_without_ext = utility.get_filename_without_ext(file_path)
-        scene_folder_path = folder_path + filename_without_ext + utility.path_separator()
+        folder_path = self.__file_path.parent
+        filename_without_ext = self.__file_path.stem
+        scene_folder_path = folder_path / filename_without_ext
 
         print("-------------------------------------------------------------")
         print("exporting Photon scene to <%s>" % scene_folder_path)
@@ -116,46 +118,6 @@ class Exporter:
         else:
             print("warning: camera (%s) type (%s) is unsupported, not exporting" % (b_camera.name, b_camera.type))
 
-    def export_world(self, b_world):
-        actor_name = "ph_" + b_world.name
-
-        creator = None
-        if b_world.ph_background_type == 'IMAGE' and b_world.ph_image_file_path != "":
-            
-            # TODO: not bundle/copy the same file if already present
-
-            # Copy the envmap file to scene folder and obtain an identifier for it
-            image_path = bpy.path.abspath(b_world.ph_image_file_path)
-            bundled_image_path = self.get_sdlconsole().bundle_file(image_path, b_world.name + "_data")
-            image_identifier = sdl.ResourceIdentifier()
-            image_identifier.set_bundled_path(bundled_image_path)
-
-            creator = sdl.ImageDomeActorCreator()
-            creator.set_data_name(actor_name)
-            creator.set_image_file(image_identifier)
-
-        elif b_world.ph_background_type == 'PREETHAM':
-            creator = sdl.PreethamDomeActorCreator()
-            creator.set_data_name(actor_name)
-
-            creator.set_turbidity(sdl.Real(b_world.ph_preetham_turbidity))
-            creator.set_standard_time_24h(sdl.Real(b_world.ph_standard_time))
-            creator.set_standard_meridian_degrees(sdl.Real(b_world.ph_standard_meridian))
-            creator.set_site_latitude_degrees(sdl.Real(b_world.ph_latitude))
-            creator.set_site_longitude_degrees(sdl.Real(b_world.ph_longitude))
-            creator.set_julian_date(sdl.Integer(b_world.ph_julian_date))
-
-        if creator is not None:
-            creator.set_energy_scale(sdl.Real(b_world.ph_energy_scale))
-
-            self.get_sdlconsole().queue_command(creator)
-
-            rotation = sdl.DomeActorRotate()
-            rotation.set_target_name(actor_name)
-            rotation.set_axis(sdl.Vector3((0, 1, 0)))
-            rotation.set_degrees(sdl.Real(b_world.ph_up_rotation))
-            self.get_sdlconsole().queue_command(rotation)
-
     def export_core_commands(self, b_scene):
         version_directive = sdl.VersionDirectiveCommand()
         self.get_sdlconsole().queue_command(version_directive)
@@ -185,22 +147,13 @@ class Exporter:
             sample_source.set_data_name("sample-source")
             self.get_sdlconsole().queue_command(sample_source)
 
-        if (
-            integrator_type == 'BVPT' or 
-            integrator_type == 'BNEEPT' or 
-            integrator_type == 'BVPTDL'):
-
+        if integrator_type in {'BVPT', 'BNEEPT', 'BVPTDL'}:
             visualizer = sdl.PathTracingVisualizerCreator()
             visualizer.set_sample_filter(sdlmapping.to_filter_enum(filter_type))
             visualizer.set_estimator(sdlmapping.to_integrator_enum(integrator_type))
             visualizer.set_scheduler(sdlmapping.to_scheduler_enum(scheduler_type))
 
-        elif (
-            integrator_type == 'VPM' or 
-            integrator_type == 'PPM' or 
-            integrator_type == 'SPPM' or 
-            integrator_type == 'PPPM'):
-            
+        elif integrator_type in {'VPM', 'PPM', 'SPPM', 'PPPM'}:
             visualizer = sdl.PhotonMappingVisualizerCreator()
             visualizer.set_sample_filter(sdlmapping.to_filter_enum(filter_type))
             visualizer.set_mode(sdlmapping.to_integrator_enum(integrator_type))
@@ -290,4 +243,4 @@ class Exporter:
             light.export.light_object_to_sdl_actor(b_light_object, self.get_sdlconsole())
 
         b_world = b_depsgraph.scene_eval.world
-        self.export_world(b_world)
+        world.export.world_to_sdl_actor(b_world, self.get_sdlconsole())

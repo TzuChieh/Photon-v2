@@ -12,6 +12,8 @@
 namespace ph
 {
 
+/*! @brief A field class that binds a `Path` member variable.
+*/
 template<typename Owner, typename SdlValueType = TSdlValue<Path, Owner>>
 class TSdlPath : public SdlValueType
 {

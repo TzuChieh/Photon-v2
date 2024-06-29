@@ -9,7 +9,7 @@
 #include "Actor/Image/Image.h"
 #include "Actor/Image/ConstantImage.h"
 #include "Actor/Image/RasterFileImage.h"
-#include "Core/Emitter/MultiDiffuseSurfaceEmitter.h"
+#include "Core/Emitter/GroupedDiffuseSurfaceEmitter.h"
 #include "Core/Intersection/PrimitiveMetadata.h"
 #include "Core/Intersection/Primitive.h"
 #include "Actor/Material/MatteOpaque.h"
@@ -73,15 +73,15 @@ std::unique_ptr<Emitter> ModelSource::genEmitter(
 	std::unique_ptr<SurfaceEmitter> emitter;
 	if(primitiveEmitters.size() == 1)
 	{
-		emitter = std::make_unique<DiffuseSurfaceEmitter>(primitiveEmitters[0]);
+		//emitter = std::make_unique<DiffuseSurfaceEmitter>(primitiveEmitters[0]);
 	}
 	else
 	{
 		PH_ASSERT(!primitiveEmitters.empty());
 
-		auto multiEmitter = std::make_unique<MultiDiffuseSurfaceEmitter>(std::move(primitiveEmitters));
+		//auto multiEmitter = std::make_unique<GroupedDiffuseSurfaceEmitter>(std::move(primitiveEmitters));
 		//multiEmitter->setEmittedRadiance(emittedRadiance);
-		emitter = std::move(multiEmitter);
+		//emitter = std::move(multiEmitter);
 	}
 
 	PH_ASSERT(emitter);
