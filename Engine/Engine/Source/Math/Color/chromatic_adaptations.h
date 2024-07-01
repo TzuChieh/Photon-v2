@@ -21,7 +21,7 @@ concept CChromaticAdaptationDefinition = requires (
 
 /*! @brief Sinkhole for undefined chromatic adaptation routines.
 Specialize the class to provide definitions for the specified adaptation configuration. 
-Must satisfy CChromaticAdaptationDefinition.
+Must satisfy `CChromaticAdaptationDefinition`.
 */
 template<EChromaticAdaptation ALGORITHM, typename T>
 class TChromaticAdaptationDefinition final

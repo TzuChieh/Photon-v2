@@ -46,12 +46,12 @@ inline TMatrix3<T> create_von_kries_linear_CAT_matrix(
 
 /*!
 References:
-[1] http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+[1] http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
 [2] https://cran.r-project.org/web/packages/spacesXYZ/vignettes/adaptation.html
 [3] https://en.wikipedia.org/wiki/LMS_color_space
 */
 template<typename T>
-TMatrix3<T> create_von_kries_linear_CAT_matrix(
+inline TMatrix3<T> create_von_kries_linear_CAT_matrix(
 	const TMatrix3<T>&           CIEXYZToConeResponse,
 	const TMatrix3<T>&           ConeResponseToCIEXYZ,
 	const TTristimulusValues<T>& srcRefWhite,

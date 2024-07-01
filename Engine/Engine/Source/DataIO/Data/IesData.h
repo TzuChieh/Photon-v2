@@ -10,9 +10,9 @@
 namespace ph
 {
 
-/*
-	This class processes the data from a given IES file and present it with
-	a generalized interface.
+/*!
+This class processes the data from a given IES file and present it with
+a generalized interface.
 */
 class IesData
 {
@@ -26,10 +26,11 @@ public:
 private:
 	IesFile                        m_file;
 
-	// Candela values stored as data[phi-index][theta-index].
-	// Range of theta: [0, pi]
-	// Range of phi:   [0, 2 * pi]
-	//
+	/*!
+	Candela values stored as `data[phi_index][theta_index]`.
+	Range of theta: [0, pi]
+	Range of phi:   [0, 2 * pi]
+	*/
 	std::vector<std::vector<real>> m_sphericalCandelas;
 
 	std::vector<std::vector<real>> m_sphericalAttenuationFactors;

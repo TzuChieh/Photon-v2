@@ -172,7 +172,7 @@ We also support some interesting shapes such as wave and fractals. These special
 
 The wave shape is basically a cuboid with its top surface tessellated according to a superposition of 2-D sine and cosine functions. It can be created by [wave geometry](@ref ph::GWave).
 
-![Wave Geometry](Gallery/045_water_dragon_color_light.jpg "A triangle mesh submerged inside a wave geometry.")
+![Wave Geometry](Gallery/045_water_dragon_color_light.jpg "A triangle mesh submerged inside a wave geometry."){html: width=80%}
 
 These advanced shapes add versatility to scene modeling in Photon.
 
@@ -188,9 +188,35 @@ Lighting is a crucial component in rendering a virtual world. Photon provides va
 * Users can expect consistent renderings between different versions of the software with identical inputs.
 * It is easier to validate the results against real world measurements.
 
-In Photon, lights are represented by a base actor type `ph::ALight`. These light actors will be converted to a series of cooked data, including `ph::Primitive` (the geometric shape of the light), `ph::SurfaceOptics` (the surface material of the light), `ph::Emitter` (the energy source of the light), etc. The following sections give a brief overview on the types of light sources implemented in Photon.
+In Photon, lights are represented by a base actor type [ALight](@ref ph::ALight). These light actors will be converted to a series of cooked data, including [Primitive](@ref ph::Primitive) (the geometric shape of the light), [SurfaceOptics](@ref ph::SurfaceOptics) (the surface material of the light), [Emitter](@ref ph::Emitter) (the energy source of the light), etc. The following sections give a brief overview on the types of light sources implemented in Photon.
 
-### Emitter
+### Area Light
+
+Photon currently supports [rectangular](@ref ph::ARectangleLight) and [spherical](@ref ph::ASphereLight) area lights. An [area light](@ref ph::AAreaLight) emits energy uniformly across its surface, producing a visually pleasing transition between umbra and penumbra. The amount of energy emitted is specified in [Watt](https://en.wikipedia.org/wiki/Watt).
+
+![Rectangle Light](Example/rectangle_light_175W.jpg "A 175 W rectangle light.")
+
+![Sphere Light](Example/sphere_light_300W.jpg "A 300 W sphere light (1 m radius).")
+
+### Point Light
+
+In Photon, [point light](@ref ph::APointLight) is implemented as a special spherical area light. This may suprise some, as we treat point lights as a subtype of area lights. The rationale is that traditional point light introduces an additional singularity in the rendering equation, and we already have quite a lot of singularities in the system, e.g., pinhole camera and mirror reflection/transmission. Moreover, traditional point lights are not physically possible anyway. Each singularity often requires special routines or conditions to handle properly, and managing them all as the renderer's complexity grows can be cumbersome. The idea is to give point lights a finite surface area, typically a sphere with a 1- to 3-cm diameter resembling the size of common light bulbs. [Maxwell Renderer](http://www.nextlimit.com/maxwell/) has adopted a similar design decision, although the reason behind it may differ. Below is a 300 W point light, emitting roughly the same brightness as the 300 W sphere light shown earlier:
+
+![Point Light](Example/point_light_300W.jpg "A 300 W point light (0.5 cm radius).")
+
+### Model Light
+
+[Model light](@ref ph::AModelLight) can be considered a superset of [area light](@ref ph::AreaLight). A key difference between them is that while area light need to have a constant emission profile, model light lifted this limitation and allow using variable emission profiles (such as [images](@ref ph::Image)) on arbitrary [geometry](@ref ph::Geometry).
+
+![Model Light](Example/model_light.jpg "A model light in action: the textured teapot is emitting energy from its surface.")
+
+### IES Light Profiles
+
+An IES light profile stores the distribution of emitted energy of a light fixture. The majority of the datasets are provided by lighting manufacturers and are particularly useful for interior design and architecture visualization. Most commercial renderers can parse and render IES-based lights, and even some game engines support them. Photon does not treat IES light profiles as energy distribution functions, rather, they are interpreted as energy attenuating filters (effectively normalizing energy values to [0, 1]). This approach allows users to adjust total energy emitted by a light source freely, without being constrained by the absolute energy values stroed in the IES light profile. Still, it is always possible to extract the maximum energy density from an IES data file then applying the attenuation to faithfully reproduce the light fixture in the renderer.
+
+![IES Light](Example/ies_point_light_300W.jpg "An interesting IES light profile applied on a 300 W point light.")
+
+### Sky Dome
 
 [//TODO]: <> (wip)
 

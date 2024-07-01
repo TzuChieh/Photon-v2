@@ -10,11 +10,11 @@
 namespace ph
 {
 
-/*
-	A low-level class that parses an IES photometric data file and provides 
-	convenient methods for file content accessing.
+/*!
+A low-level class that parses an IES photometric data file and provides 
+convenient methods for file content accessing.
 
-	Reference: http://lumen.iee.put.poznan.pl/kw/iesna.txt
+Reference: http://lumen.iee.put.poznan.pl/kw/iesna.txt
 */
 class IesFile final
 {
@@ -29,27 +29,27 @@ public:
 
 	enum class EPhotometricWebType
 	{
-		/*
-			Type A photometry is normally used for automotive headlights and signal
-			lights. The polar axis of the luminaire coincides with the major axis
-			(length) of the luminaire, and the 0-180 degree photometric plane
-			coinicides with the luminaire's vertical axis.
+		/*! 
+		Type A photometry is normally used for automotive headlights and signal
+		lights. The polar axis of the luminaire coincides with the major axis
+		(length) of the luminaire, and the 0-180 degree photometric plane
+		coinicides with the luminaire's vertical axis.
 		*/
 		A, 
 
-		/*
-			Type B photometry is normally used for adjustable outdoor area and sports
-			lighting luminaires. The polar axis of the luminaire coincides with the
-			minor axis (width) of the luminaire, and the 0-180 degree photometric
-			plane coinicides with the luminaire's vertical axis.
+		/*!
+		Type B photometry is normally used for adjustable outdoor area and sports
+		lighting luminaires. The polar axis of the luminaire coincides with the
+		minor axis (width) of the luminaire, and the 0-180 degree photometric
+		plane coinicides with the luminaire's vertical axis.
 		*/
 		B, 
 
-		/*
-			Type C photometry is normally used for architectural and roadway
-			luminaires. The polar axis of the photometric web coincides with the
-			vertical axis of the luminaire, and the 0-180 degree photometric plane
-			coincides with the luminaire's major axis (length).
+		/*!
+		Type C photometry is normally used for architectural and roadway
+		luminaires. The polar axis of the photometric web coincides with the
+		vertical axis of the luminaire, and the 0-180 degree photometric plane
+		coincides with the luminaire's major axis (length).
 		*/
 		C
 	};
@@ -63,13 +63,13 @@ public:
 
 	// Retrieving file contents.
 
-	// Gets the type of this IES file.
-	//
-	EIesFileType getIesFileType()            const;
+	/*! @brief Gets the type of this IES file.
+	*/
+	EIesFileType getIesFileType() const;
 
-	// Gets the test report number and laboratory for the IES file.
-	//
-	std::string  getTestInfo()               const;
+	/*! @brief Gets the test report number and laboratory for the IES file.
+	*/
+	std::string getTestInfo() const;
 
 	std::string  getLuminaireManufacturer()  const;
 	std::string  getLuminaireCatalogNumber() const;
@@ -77,9 +77,9 @@ public:
 	std::string  getLampCatalogNumber()      const;
 	std::string  getLampDescription()        const;
 
-	// Gets descriptions that are not categorized by the parser.
-	//
-	std::string  getUncategorizedInfo()      const;
+	/*! @brief Gets descriptions that are not categorized by the parser.
+	*/
+	std::string getUncategorizedInfo() const;
 
 	uint32              getNumLamps()            const;
 	real                getLumensPerLamp()       const;
@@ -91,17 +91,19 @@ public:
 	std::vector<real>              getVerticalAngles()   const;
 	std::vector<real>              getHorizontalAngles() const;
 
-	// Candela values stored as data[horizontal-index][vertical-index].
-	//
-	std::vector<std::vector<real>> getCandelaValues()    const;
+	/*!
+	@return Candela values stored as `data[horizontal_index][vertical_index]`.
+	*/
+	std::vector<std::vector<real>> getCandelaValues() const;
 
 private:
 	Path m_path;
 
 	EIesFileType m_iesFileType;
 
-	// file descriptions (labels/keywords in the file)
-	//
+	/*! File descriptions (labels/keywords in the file)
+	*/
+	///@{
 	std::string m_testInfo;
 	std::string m_luminaireManufacturer;
 	std::string m_luminaireCatalogNumber;
@@ -109,13 +111,15 @@ private:
 	std::string m_lampCatalogNumber;
 	std::string m_lampDescription;
 	std::string m_uncategorizedInfo;
+	///@}
 
-	// type of tilt information
-	//
+	/*! Type of tilt information
+	*/
 	std::string m_tilt;
 
-	// first line of metadata for the IES file (metadata 1)
-	//
+	/*! First line of metadata for the IES file (metadata 1)
+	*/
+	///@{
 	uint32              m_numLamps;
 	real                m_lumensPerLamp;
 	real                m_candelaMultiplier;
@@ -123,18 +127,23 @@ private:
 	uint32              m_numHorizontalAngles;
 	EPhotometricWebType m_webType;
 	real                m_luminaireOpeningArea;
+	///@}
 
-	// second line of metadata for the IES file (metadata 2)
-	//
+	/*! Second line of metadata for the IES file (metadata 2)
+	*/
+	///@{
 	real                m_ballastFactor;
 	real                m_ballastLampPhotometricFactor;
 	real                m_inputWatts;
+	///@}
 
-	// lighting data
-	//
+	/*! Lighting data
+	*/
+	///@{
 	std::vector<real>              m_verticalAngles;
 	std::vector<real>              m_horizontalAngles;
 	std::vector<std::vector<real>> m_candelaValues;
+	///@}
 
 	bool parse(const std::vector<char>& data);
 	std::size_t parseFileType(const std::vector<std::string>& lines, std::size_t currentLine);

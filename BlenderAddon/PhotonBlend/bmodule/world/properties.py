@@ -15,7 +15,7 @@ class PhotonWorldData(bpy.types.PropertyGroup):
         ],
         name="Background Type",
         description="Type of the background.",
-        default='IMAGE'
+        default='NONE'
 	)
 
     up_rotation: bpy.props.FloatProperty(
