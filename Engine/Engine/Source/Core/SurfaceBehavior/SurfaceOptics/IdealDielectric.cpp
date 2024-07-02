@@ -129,15 +129,20 @@ void IdealDielectric::genBsdfSample(
 
 		m_fresnel->calcTransmittance(N.dot(L), &F);
 
-		if(ctx.transport == ETransport::Radiance)
+		real etaI = m_fresnel->getIorOuter();
+		real etaT = m_fresnel->getIorInner();
+		if(N.dot(L) < 0.0_r)
 		{
-			real etaI = m_fresnel->getIorOuter();
-			real etaT = m_fresnel->getIorInner();
-			if(N.dot(L) < 0.0_r)
-			{
-				std::swap(etaI, etaT);
-			}
-			F.mulLocal(etaT * etaT / (etaI * etaI));
+			std::swap(etaI, etaT);
+		}
+
+		const real relativeIor = etaT / etaI;
+		out.setRelativeIor(relativeIor);
+
+		// Account for non-symmetric scattering due to solid angle compression/expansion
+		if(ctx.transport == lta::ETransport::Radiance)
+		{
+			F.mulLocal(relativeIor * relativeIor);
 		}
 
 		// A scale factor for artistic control

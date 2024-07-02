@@ -39,17 +39,18 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	const BsdfQueryContext bsdfCtx{POLICY};
 
 	SurfaceHit currentHit = X;
-	math::Spectrum accuLiWeight = initialPathWeight;
+	math::Spectrum pathThroughput = initialPathWeight;
+	real rrScale = 1.0_r;
 
 	std::size_t currentPathLength = 0;
 	while(currentPathLength < pathLength)// can extend by 1?
 	{
 		if(currentPathLength >= rrBeginPathLength)
 		{
-			math::Spectrum weightedAccuLiWeight;
-			if(rr.surviveOnLuminance(accuLiWeight, sampleFlow, &weightedAccuLiWeight))
+			real rrSurvivalProb;
+			if(rr.surviveOnLuminance(pathThroughput * rrScale, sampleFlow, &rrSurvivalProb))
 			{
-				accuLiWeight = weightedAccuLiWeight;
+				pathThroughput *= 1.0_r / rrSurvivalProb;
 			}
 			else
 			{
@@ -68,7 +69,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			math::Spectrum Lo;
 			if(directLight.bsdfSamplePathWithNee(bsdfSample, sampleFlow, &Lo))
 			{
-				if(out_Lo) { *out_Lo = accuLiWeight * Lo; }
+				if(out_Lo) { *out_Lo = pathThroughput * Lo; }
 				return true;
 			}
 		}
@@ -83,7 +84,10 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			}
 
 			currentHit = nextHit;
-			accuLiWeight *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+			pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+
+			// Prevent premature termination of the path due to solid angle compression/expansion
+			rrScale /= bsdfSample.outputs.getRelativeIor2();
 		}
 
 		++currentPathLength;
@@ -111,18 +115,19 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 	const BsdfQueryContext bsdfCtx{POLICY};
 
 	SurfaceHit currentHit = X;
-	math::Spectrum accuPathWeight = initialPathWeight;
+	math::Spectrum pathThroughput = initialPathWeight;
 	math::Spectrum accuLo(0);
+	real rrScale = 1.0_r;
 
 	std::size_t currentPathLength = 0;
 	while(currentPathLength < maxPathLength)// can extend by 1?
 	{
 		if(currentPathLength >= rrBeginPathLength)
 		{
-			math::Spectrum weightedAccuPathWeight;
-			if(rr.surviveOnLuminance(accuPathWeight, sampleFlow, &weightedAccuPathWeight))
+			real rrSurvivalProb;
+			if(rr.surviveOnLuminance(pathThroughput * rrScale, sampleFlow, &rrSurvivalProb))
 			{
-				accuPathWeight = weightedAccuPathWeight;
+				pathThroughput *= 1.0_r / rrSurvivalProb;
 			}
 			else
 			{
@@ -148,7 +153,7 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 				break;
 			}
 
-			accuLo += accuPathWeight * Lo;
+			accuLo += pathThroughput * Lo;
 			currentHit = *nextHit;
 		}
 		// Extend the path
@@ -164,7 +169,11 @@ inline bool TIndirectLightEstimator<POLICY>::bsdfSamplePathWithNee(
 			currentHit = nextHit;
 		}
 
-		accuPathWeight *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+		pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+
+		// Prevent premature termination of the path due to solid angle compression/expansion
+		rrScale /= bsdfSample.outputs.getRelativeIor2();
+
 		++currentPathLength;
 	}
 

@@ -8,6 +8,8 @@
 
 #include <Common/assertion.h>
 
+#include <cmath>
+#include <string>
 #include <utility>
 
 namespace ph
@@ -22,6 +24,10 @@ public:
 	void set(const SurfaceHit& X, const math::Vector3R& V);
 
 	const SurfaceHit& getX() const;
+
+	/*!
+	@return Direction (normalized) of the exiting ray.
+	*/
 	const math::Vector3R& getV() const;
 
 private:
@@ -54,7 +60,7 @@ public:
 		bool inferMeasurability = true);
 
 	/*!
-	@return Sampled direction (normalized).
+	@return Sampled direction (normalized) of the incident ray.
 	*/
 	const math::Vector3R& getL() const;
 
@@ -84,6 +90,18 @@ public:
 	*/
 	const math::Spectrum& getPdfAppliedBsdfCos() const;
 
+	/*!
+	@return Relative index of refraction of the sampled interface. The value is calculated as
+	@f$ \eta_V / \eta_L @f$, with @f$ V @f$ on the exiting side and @f$ L @f$ on the incident side.
+	If the ray does not cross an interface, 1 is returned.
+	*/
+	real getRelativeIor() const;
+
+	/*!
+	@return Squared value of `getRelativeIor()`.
+	*/
+	real getRelativeIor2() const;
+
 	/*! @brief Tells whether this sample has potential to contribute.
 	All sampled data should be usable if true is returned; otherwise, zero contribution is implied,
 	and sampled data is undefined. This method is also an efficient way to decide whether the BSDF
@@ -100,10 +118,20 @@ public:
 	*/
 	void setMeasurability(const math::Spectrum& reference);
 
+	/*!
+	@param relativeIor See `getRelativeIor()` for more information.
+	*/
+	void setRelativeIor(real relativeIor);
+
+	/*! @brief Convenient method for `isMeasurable()`.
+	*/
+	operator bool () const;
+
 private:
 	math::Vector3R m_L{0};
 	math::Spectrum m_pdfAppliedBsdfCos{0};
 	real           m_cos{0};
+	real           m_relativeIor{1};
 	bool           m_isMeasurable{false};
 };
 
@@ -186,7 +214,7 @@ inline void BsdfSampleOutput::setPdfAppliedBsdfCos(
 
 inline const math::Vector3R& BsdfSampleOutput::getL() const
 {
-	PH_ASSERT(m_isMeasurable);
+	PH_ASSERT(isMeasurable());
 	PH_ASSERT_IN_RANGE(m_L.lengthSquared(), 0.9_r, 1.1_r);
 
 	return m_L;
@@ -194,7 +222,7 @@ inline const math::Vector3R& BsdfSampleOutput::getL() const
 
 inline real BsdfSampleOutput::getCos() const
 {
-	PH_ASSERT(m_isMeasurable);
+	PH_ASSERT(isMeasurable());
 	PH_ASSERT_IN_RANGE_EXCLUSIVE(m_cos, 0.0_r, 1.1_r);
 
 	return m_cos;
@@ -209,10 +237,24 @@ inline math::Spectrum BsdfSampleOutput::getPdfAppliedBsdf() const
 inline const math::Spectrum& BsdfSampleOutput::getPdfAppliedBsdfCos() const
 {
 	// When a sample report being measurable, it must not be some crazy values
-	PH_ASSERT(m_isMeasurable);
+	PH_ASSERT(isMeasurable());
 	PH_ASSERT_MSG(m_pdfAppliedBsdfCos.isFinite(), m_pdfAppliedBsdfCos.toString());
 
 	return m_pdfAppliedBsdfCos;
+}
+
+inline real BsdfSampleOutput::getRelativeIor() const
+{
+	PH_ASSERT(isMeasurable());
+	PH_ASSERT_MSG(std::isfinite(m_relativeIor) && m_relativeIor > 0, std::to_string(m_relativeIor));
+
+	return m_relativeIor;
+}
+
+inline real BsdfSampleOutput::getRelativeIor2() const
+{
+	const real relativeIor = getRelativeIor();
+	return relativeIor * relativeIor;
 }
 
 inline bool BsdfSampleOutput::isMeasurable() const
@@ -228,6 +270,16 @@ inline void BsdfSampleOutput::setMeasurability(const bool measurability)
 inline void BsdfSampleOutput::setMeasurability(const math::Spectrum& reference)
 {
 	setMeasurability(reference.isFinite());
+}
+
+inline void BsdfSampleOutput::setRelativeIor(const real relativeIor)
+{
+	m_relativeIor = relativeIor;
+}
+
+inline BsdfSampleOutput::operator bool () const
+{
+	return isMeasurable();
 }
 
 }// end namespace ph

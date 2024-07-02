@@ -75,6 +75,10 @@ public:
 	*/
 	void setMeasurability(const math::Spectrum& reference);
 
+	/*! @brief Convenient method for `isMeasurable()`.
+	*/
+	operator bool () const;
+
 private:
 	math::Spectrum m_bsdf{0};
 	bool m_isMeasurable{false};
@@ -181,6 +185,11 @@ inline void BsdfEvalOutput::setMeasurability(const bool measurability)
 inline void BsdfEvalOutput::setMeasurability(const math::Spectrum& reference)
 {
 	setMeasurability(reference.isFinite());
+}
+
+inline BsdfEvalOutput::operator bool () const
+{
+	return isMeasurable();
 }
 
 }// end namespace ph

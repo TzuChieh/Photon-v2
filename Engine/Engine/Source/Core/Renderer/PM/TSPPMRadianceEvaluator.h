@@ -165,8 +165,13 @@ inline auto TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onPathHitSurface(
 		addViewRadiance(*m_viewpoint, unaccountedEnergy);
 	}
 
+	constexpr auto smoothEnoughPhenomena = {
+		DIFFUSE_SURFACE_PHENOMENA,
+		ESurfacePhenomenon::NearDiffuseReflection,
+		ESurfacePhenomenon::NearDiffuseTransmission};
+
 	if(optics->getAllPhenomena().hasNone(DELTA_SURFACE_PHENOMENA) && 
-	   optics->getAllPhenomena().hasAny(ESurfacePhenomenon::DiffuseReflection))
+	   optics->getAllPhenomena().hasAny(smoothEnoughPhenomena))
 	{
 		// For path length = N, we can construct light transport path lengths with photon map,
 		// all at once, for the range [N_min, N_max] = 
@@ -227,6 +232,9 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 		return;
 	}
 
+	constexpr auto transport = lta::ETransport::Importance;
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	const SurfaceHit&    surfaceHit = m_viewpoint->template get<EViewpointData::SurfaceHit>();
@@ -246,7 +254,7 @@ inline void TSPPMRadianceEvaluator<Viewpoint, Photon>::impl_onReceiverSampleEnd(
 	const real newN = N + alpha * M;
 	const real newR = (N + M) != 0.0_r ? R * std::sqrt(newN / (N + M)) : R;
 
-	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
+	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
 
 	math::Spectrum tauM(0);
 	BsdfEvalQuery  bsdfEval(bsdfContext);

@@ -25,4 +25,12 @@ enum class EDomain : uint8
 	Discrete
 };
 
+/*! @brief Type of the transported quantity.
+*/
+enum class ETransport
+{
+	Radiance,
+	Importance
+};
+
 }// end namespace ph::lta

@@ -167,17 +167,22 @@ inline auto TVPMRadianceEvaluator<Photon, PhotonMap>
 		m_maxFullPathLength);
 	m_sampledRadiance += unaccountedEnergy;
 
+	constexpr auto smoothEnoughPhenomena = {
+		DIFFUSE_SURFACE_PHENOMENA,
+		ESurfacePhenomenon::NearDiffuseReflection,
+		ESurfacePhenomenon::NearDiffuseTransmission};
+
 	const auto phenomena = optics->getAllPhenomena();
 	const bool isSufficientlyDiffuse = pathLength >= m_glossyMergeBeginLength
-		? phenomena.hasAny(ESurfacePhenomenon::DiffuseReflection)
-		: phenomena.hasExactly(ESurfacePhenomenon::DiffuseReflection);
+		? phenomena.hasAny(smoothEnoughPhenomena)
+		: phenomena.hasExactly(DIFFUSE_SURFACE_PHENOMENA);
 
 	if(m_photonMap->canContribute(pathLength, m_minFullPathLength, m_maxFullPathLength) &&
 	   phenomena.hasNone(DELTA_SURFACE_PHENOMENA) &&
 	   isSufficientlyDiffuse)
 	{
 		const BsdfQueryContext bsdfContext(
-			ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
+			ALL_SURFACE_ELEMENTALS, lta::ETransport::Importance, lta::ESidednessPolicy::Strict);
 
 		// For path length = N, we can construct light transport path lengths with photon map,
 		// all at once, for the range [N_min, N_max] = 

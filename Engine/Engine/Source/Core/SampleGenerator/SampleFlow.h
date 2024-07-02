@@ -26,17 +26,52 @@ public:
 	*/
 	SampleFlow(const real* savedDims, std::size_t numSavedDims);
 
+	/*! @brief Makes a 1-D sample by consuming the next dimension.
+	@return A 1-D sample.
+	*/
 	real flow1D();
+
+	/*! @brief Makes a 2-D sample by consuming the next two dimensions.
+	@return A 2-D sample.
+	*/
 	std::array<real, 2> flow2D();
+
+	/*! @brief Makes a 3-D sample by consuming the next three dimensions.
+	@return A 3-D sample.
+	*/
 	std::array<real, 3> flow3D();
 
+	/*! @brief Makes a `N`-D sample by consuming the next `N` dimension.
+	@tparam N Number of dimensions of the sample.
+	@return A `N`-D sample.
+	*/
 	template<std::size_t N>
 	std::array<real, N> flowND();
 
+	/*! @brief Consumes the next dimension and use it to perform a random pick.
+	Effectively using `flow1D()` to perform a random pick.
+	@param pickProbability The probability for the pick to succeed.
+	@return `true` if the pick is successful, otherwise `false`. The probability for the pick to be
+	successful is equal to `pickProbability`, assuming the source of the sample flow is uniformly random.
+	*/
 	bool pick(real pickProbability);
+
+	/*! @brief Uses the next dimension to perform a random pick without consuming it.
+	This method does not cause the sample stream to flow.
+	@param pickProbability The probability for the pick to succeed.
+	@return `true` if the pick is successful, otherwise `false`. The probability for the pick to be
+	successful is equal to `pickProbability`, assuming the source of the sample flow is uniformly random.
+	@remark Though the sample stream does not flow, the randomness in the bits of the next dimension
+	will decrease after each call. Rare event loses more randomness.
+	*/
 	bool unflowedPick(real pickProbability);
 
-	// TODO: non-const is intentional for future sample recording
+	/*! @brief Performs a random pick independent to this flow.
+	No dimension is being consumed. This method is intentionally non-`const` to support sample recording.
+	@param pickProbability The probability for the pick to succeed.
+	@return `true` if the pick is successful, otherwise `false`. The probability for the pick to be
+	successful is equal to `pickProbability`, assuming the source of the sample flow is uniformly random.
+	*/
 	bool unflowedRandomPick(real pickProbability);
 
 private:
@@ -128,8 +163,9 @@ inline real SampleFlow::load1D()
 		return dimValue;
 	}
 
-	return m_savedDims && hasMoreToRead() ?
-		m_savedDims[m_numReadDims++] : math::Random::sample();
+	return m_savedDims && hasMoreToRead()
+		? m_savedDims[m_numReadDims++]
+		: math::Random::sample();
 }
 
 }// end namespace ph

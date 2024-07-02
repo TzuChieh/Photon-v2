@@ -59,8 +59,12 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 	Timer timer;
 	timer.start();
 
-	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
+	constexpr auto transport = lta::ETransport::Importance;
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
+	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
 	const lta::SurfaceTracer surfaceTracer{m_scene};
+	const lta::RussianRoulette rr{};
 
 	const auto raySampleHandle = m_sampleGenerator->declareStageND(2, m_photonBuffer.size());
 	m_sampleGenerator->prepareSampleBatch();// HACK: check if succeeded
@@ -79,6 +83,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 		EnergyEmissionSampleQuery energyEmission;
 		energyEmission.inputs.set(Time{});
 
+		// Generate initial hit on the emitter and ray originated from the hit
 		SurfaceHit surfaceHit;
 		Ray tracingRay;
 		{
@@ -104,6 +109,7 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 
 		// Start tracing single photon path with at least 1 bounce
 		uint32 photonPathLength = 0;
+		real rrScale = 1.0_r;
 		while(!throughputRadiance.isZero())
 		{
 			PH_ASSERT_LT(photonPathLength, m_maxPhotonPathLength);
@@ -122,10 +128,10 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			const PrimitiveMetadata* metadata = surfaceHit.getDetail().getPrimitive()->getMetadata();
 			const SurfaceOptics* optics = metadata->getSurface().getOptics();
 
-			math::Spectrum weightedThroughputRadiance;
-			if(lta::RussianRoulette{}.surviveOnLuminance(throughputRadiance, sampleFlow, &weightedThroughputRadiance))
+			real rrSurvivalProb;
+			if(rr.surviveOnLuminance(throughputRadiance * rrScale, sampleFlow, &rrSurvivalProb))
 			{
-				throughputRadiance = weightedThroughputRadiance;
+				throughputRadiance *= 1.0_r / rrSurvivalProb;
 
 				if(photonPathLength >= m_minPhotonPathLength)
 				{
@@ -157,8 +163,11 @@ inline void TPhotonPathTracingWork<Photon>::doWork()
 			math::Vector3R L = bsdfSample.outputs.getL();
 			math::Vector3R Ng = surfaceHit.getGeometryNormal();
 			math::Vector3R Ns = surfaceHit.getShadingNormal();
-			throughputRadiance.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
-			throughputRadiance.mulLocal(lta::tamed_importance_scatter_Ns_corrector(Ns, Ng, L, V));
+			throughputRadiance *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+			throughputRadiance *= lta::tamed_importance_scatter_Ns_corrector(Ns, Ng, L, V);
+
+			// Prevent premature termination of the path due to solid angle compression/expansion
+			rrScale /= bsdfSample.outputs.getRelativeIor2();
 
 			tracingRay = sampledRay;
 		}// end single photon path

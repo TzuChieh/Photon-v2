@@ -54,7 +54,11 @@ public:
 	{
 		ClassType clazz("geometric-light");
 		clazz.docName("Geometric Light Actor");
-		clazz.description("Energy emitters that come with a physical geometry.");
+		clazz.description(
+			"Energy emitters that come with a physical geometry. Please be aware that changing "
+			"sampling techniques to non-default values may cause the rendered image to lose energy. "
+			"For example, disabling BSDF sampling on specular surfaces may cause some/all caustics "
+			"to disappear.");
 		clazz.baseOn<ALight>();
 
 		TSdlBool<OwnerType> directlyVisible("directly-visible", &OwnerType::m_isDirectlyVisible);

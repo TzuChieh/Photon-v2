@@ -39,14 +39,14 @@ OrenNayar::OrenNayar(
 	PH_ASSERT(sigmaDegrees);
 
 	PH_ASSERT_EQ(m_numElementals, 1);
-	m_phenomena.set(ESurfacePhenomenon::DiffuseReflection);
+	m_phenomena.set(ESurfacePhenomenon::NearDiffuseReflection);
 }
 
 ESurfacePhenomenon OrenNayar::getPhenomenonOf(const SurfaceElemental elemental) const
 {
 	PH_ASSERT_MSG(elemental == ALL_SURFACE_ELEMENTALS || elemental == 0, std::to_string(elemental));
 
-	return ESurfacePhenomenon::DiffuseReflection;
+	return ESurfacePhenomenon::NearDiffuseReflection;
 }
 
 /*

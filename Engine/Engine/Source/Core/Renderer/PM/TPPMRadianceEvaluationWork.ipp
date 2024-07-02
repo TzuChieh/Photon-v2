@@ -58,7 +58,10 @@ inline void TPPMRadianceEvaluationWork<Photon, Viewpoint>
 
 	sanitizeVariables();
 
-	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, ETransport::Importance, lta::ESidednessPolicy::Strict);
+	constexpr auto transport = lta::ETransport::Importance;
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
+	const BsdfQueryContext bsdfContext(ALL_SURFACE_ELEMENTALS, transport, sidednessPolicy);
 	const lta::SurfaceTracer surfaceTracer{m_scene};
 
 	// For each viewpoint, evaluate radiance using collected data. If the viewpoint is for

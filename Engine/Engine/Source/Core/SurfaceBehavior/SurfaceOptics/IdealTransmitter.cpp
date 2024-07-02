@@ -69,20 +69,21 @@ void IdealTransmitter::genBsdfSample(
 	math::Spectrum F;
 	m_fresnel->calcTransmittance(cosI, &F);
 
-	real transportFactor = 1.0_r;
-	if(ctx.transport == ETransport::Radiance)
+	real etaI = m_fresnel->getIorOuter();
+	real etaT = m_fresnel->getIorInner();
+	if(N.dot(L) < 0.0_r)
 	{
-		real etaI = m_fresnel->getIorOuter();
-		real etaT = m_fresnel->getIorInner();
-		if(cosI < 0.0_r)
-		{
-			std::swap(etaI, etaT);
-		}
-
-		transportFactor = (etaT * etaT) / (etaI * etaI);
+		std::swap(etaI, etaT);
 	}
-	
-	F *= transportFactor;
+
+	const real relativeIor = etaT / etaI;
+	out.setRelativeIor(relativeIor);
+
+	// Account for non-symmetric scattering due to solid angle compression/expansion
+	if(ctx.transport == lta::ETransport::Radiance)
+	{
+		F.mulLocal(relativeIor * relativeIor);
+	}
 
 	// A scale factor for artistic control
 	const math::Spectrum transmissionScale =

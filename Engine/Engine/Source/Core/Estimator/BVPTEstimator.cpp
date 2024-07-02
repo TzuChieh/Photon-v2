@@ -28,11 +28,15 @@ void BVPTEstimator::estimate(
 	SampleFlow&       sampleFlow,
 	EnergyEstimation& out_estimation) const
 {
+	// Transport tools
+	const lta::RussianRoulette rr{};
 	const lta::SurfaceTracer surfaceTracer{&(integrand.getScene())};
 
+	// Common variables
 	uint32 numBounces = 0;
-	math::Spectrum accuRadiance(0);
-	math::Spectrum accuLiWeight(1);
+	math::Spectrum pathEnergy(0);
+	math::Spectrum pathThroughput(1);
+	real rrScale = 1.0_r;
 
 	// Backward tracing to light
 	Ray tracingRay = Ray(ray).reverse();
@@ -62,13 +66,13 @@ void BVPTEstimator::estimate(
 
 		if(hitSurfaceBehavior.getEmitter())
 		{
-			math::Spectrum radianceLi;
-			hitSurfaceBehavior.getEmitter()->evalEmittedEnergy(surfaceHit, &radianceLi);
+			math::Spectrum radianceLe;
+			hitSurfaceBehavior.getEmitter()->evalEmittedEnergy(surfaceHit, &radianceLe);
 
-			// avoid excessive, negative weight and possible NaNs
-			accuLiWeight.safeClampLocal(0.0_r, 1e9_r);
+			// Avoid excessive, negative weight and possible NaNs
+			pathThroughput.safeClampLocal(0.0_r, 1e9_r);
 
-			accuRadiance.addLocal(radianceLi.mul(accuLiWeight));
+			pathEnergy += radianceLe * pathThroughput;
 		}
 
 		const math::Vector3R V = tracingRay.getDir().mul(-1);
@@ -82,15 +86,17 @@ void BVPTEstimator::estimate(
 			break;
 		}
 
-		accuLiWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
+		pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+
+		// Prevent premature termination of the path due to solid angle compression/expansion
+		rrScale /= bsdfSample.outputs.getRelativeIor2();
 
 		if(numBounces >= 3)
 		{
-			math::Spectrum weightedAccuLiWeight;
-			if(lta::RussianRoulette{}.surviveOnLuminance(
-				accuLiWeight, sampleFlow, &weightedAccuLiWeight))
+			real rrSurvivalProb;
+			if(rr.surviveOnLuminance(pathThroughput * rrScale, sampleFlow, &rrSurvivalProb))
 			{
-				accuLiWeight = weightedAccuLiWeight;
+				pathThroughput *= 1.0_r / rrSurvivalProb;
 			}
 			else
 			{
@@ -98,7 +104,7 @@ void BVPTEstimator::estimate(
 			}
 		}
 
-		if(accuLiWeight.isZero())
+		if(pathThroughput.isZero())
 		{
 			break;
 		}
@@ -116,8 +122,8 @@ void BVPTEstimator::estimate(
 				math::Spectrum radiance;
 				lta::PtVolumetricEstimator::sample(integrand.getScene(), surfaceHit, L, &Xe, &endV, &weight, &radiance);
 
-				accuLiWeight.mulLocal(weight);
-				if(accuLiWeight.isZero())
+				pathThroughput.mulLocal(weight);
+				if(pathThroughput.isZero())
 				{
 					break;
 				}
@@ -131,8 +137,8 @@ void BVPTEstimator::estimate(
 				}
 
 				// XXX: cosine term?
-				accuLiWeight.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
-				if(accuLiWeight.isZero())
+				pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdf());
+				if(pathThroughput.isZero())
 				{
 					break;
 				}
@@ -150,7 +156,7 @@ void BVPTEstimator::estimate(
 		numBounces++;
 	}// end while
 
-	out_estimation[m_estimationIndex] = accuRadiance;
+	out_estimation[m_estimationIndex] = pathEnergy;
 }
 
 }// end namespace ph

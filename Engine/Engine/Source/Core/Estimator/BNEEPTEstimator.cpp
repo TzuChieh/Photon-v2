@@ -44,18 +44,20 @@ void BNEEPTEstimator::estimate(
 	PH_SCOPED_TIMER(FullEstimation);
 
 	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+	const BsdfQueryContext bsdfContext{sidednessPolicy};
 
+	// Transport tools
 	const lta::TDirectLightEstimator<sidednessPolicy> directLight{&integrand.getScene()};
 	const lta::TMIS<lta::EMISStyle::Power> mis{};
 	const lta::RussianRoulette rr{};
 	const lta::SurfaceTracer surfaceTracer{&integrand.getScene()};
 	const lta::SidednessAgreement sidedness{sidednessPolicy};
-	const BsdfQueryContext bsdfContext{sidednessPolicy};
 
 	// Common variables
 	math::Spectrum pathEnergy(0);
 	math::Spectrum pathThroughput(1);
-	SurfaceHit     X;
+	SurfaceHit X;
+	real rrScale = 1.0_r;
 
 	// Reversing the ray for backward tracing
 	Ray tracingRay = Ray(ray).reverse();
@@ -71,10 +73,10 @@ void BNEEPTEstimator::estimate(
 	{
 		PH_SCOPED_TIMER(ZeroBounceDirect);
 		
-		math::Spectrum radianceLi;
-		if(surfaceTracer.sampleZeroBounceEmission(X, sidedness, &radianceLi))
+		math::Spectrum radianceLe;
+		if(surfaceTracer.sampleZeroBounceEmission(X, sidedness, &radianceLe))
 		{
-			pathEnergy.addLocal(radianceLi);
+			pathEnergy.addLocal(radianceLe);
 		}
 	}
 
@@ -166,6 +168,14 @@ void BNEEPTEstimator::estimate(
 				break;
 			}
 
+			//constexpr auto nonDiffusePhenomena =
+			//	SurfacePhenomena{ALL_SURFACE_PHENOMENA}.turnOff({DIFFUSE_SURFACE_PHENOMENA}).getEnum();
+
+			//// It may not worthwhile to estimate lighting for diffuse surfaces, as it is basically
+			//// uniform random sampling
+			//const bool hasNonDiffusePhenomena =
+			//	surfaceOptics->getAllPhenomena().hasAny(nonDiffusePhenomena);
+
 			const Emitter* nextEmitter = nextX.getSurfaceEmitter();
 			if(nextEmitter &&
 			   nextEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
@@ -219,12 +229,15 @@ void BNEEPTEstimator::estimate(
 
 			pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
 
+			// Prevent premature termination of the path due to solid angle compression/expansion
+			rrScale /= bsdfSample.outputs.getRelativeIor();
+
 			if(numBounces >= 3)
 			{
-				math::Spectrum weightedPathThroughput;
-				if(rr.surviveOnLuminance(pathThroughput, sampleFlow, &weightedPathThroughput))
+				real rrSurvivalProb;
+				if(rr.surviveOnLuminance(pathThroughput * rrScale, sampleFlow, &rrSurvivalProb))
 				{
-					pathThroughput = weightedPathThroughput;
+					pathThroughput *= 1.0_r / rrSurvivalProb;
 				}
 				else
 				{

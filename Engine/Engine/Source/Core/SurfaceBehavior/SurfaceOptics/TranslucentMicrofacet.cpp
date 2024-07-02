@@ -117,7 +117,8 @@ void TranslucentMicrofacet::calcBsdf(
 		const real D = m_microfacet->distribution(in.getX(), N, H);
 		const real G = m_microfacet->shadowing(in.getX(), N, H, in.getL(), in.getV());
 
-		const real transportFactor = ctx.transport == ETransport::Radiance ?
+		// Account for non-symmetric scattering due to solid angle compression/expansion
+		const real transportFactor = ctx.transport == lta::ETransport::Radiance ?
 			etaT / etaI : 1.0_r;
 
 		const real iorTerm = transportFactor * etaI / (etaI * HoL + etaT * HoV);
@@ -219,15 +220,20 @@ void TranslucentMicrofacet::genBsdfSample(
 
 		m_fresnel->calcTransmittance(H.dot(L), &F);
 
-		if(ctx.transport == ETransport::Radiance)
+		real etaI = m_fresnel->getIorOuter();
+		real etaT = m_fresnel->getIorInner();
+		if(N.dot(L) < 0.0_r)
 		{
-			real etaI = m_fresnel->getIorOuter();
-			real etaT = m_fresnel->getIorInner();
-			if(N.dot(L) < 0.0_r)
-			{
-				std::swap(etaI, etaT);
-			}
-			F.mulLocal(etaT * etaT / (etaI * etaI));
+			std::swap(etaI, etaT);
+		}
+
+		const real relativeIor = etaT / etaI;
+		out.setRelativeIor(relativeIor);
+
+		// Account for non-symmetric scattering due to solid angle compression/expansion
+		if(ctx.transport == lta::ETransport::Radiance)
+		{
+			F.mulLocal(relativeIor * relativeIor);
 		}
 
 		// Account for pick probability

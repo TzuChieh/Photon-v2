@@ -132,6 +132,9 @@ void ThinDielectricFilm::genBsdfSample(
 			F.mulLocal(etaT * etaT / (etaI * etaI));
 		}*/
 
+		/*const real relativeIor = etaT / etaI;
+		out.setRelativeIor(relativeIor);*/
+
 		// Account for probability
 		if(ctx.elemental == ALL_SURFACE_ELEMENTALS)
 		{

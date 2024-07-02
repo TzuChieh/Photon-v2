@@ -96,13 +96,15 @@ inline void TViewPathTracingWork<Handler>::doWork()
 			}
 
 			SampleFlow sampleFlow = raySamples.readSampleAsFlow();
+			real rrScale = 1.0_r;
 
 			traceViewPath(
 				SurfaceHit{},
 				tracingRay, 
 				pathThroughput, 
 				0,
-				sampleFlow);
+				sampleFlow,
+				rrScale);
 			
 			m_handler->onReceiverSampleEnd();
 		}// end for single sample
@@ -113,13 +115,18 @@ inline void TViewPathTracingWork<Handler>::doWork()
 
 template<CViewPathHandler Handler>
 inline void TViewPathTracingWork<Handler>::traceViewPath(
-	SurfaceHit            prevHit,
-	Ray                   tracingRay,
-	math::Spectrum        pathThroughput,
-	std::size_t           pathLength,
-	SampleFlow&           sampleFlow)
+	SurfaceHit                   prevHit,
+	Ray                          tracingRay,
+	math::Spectrum               pathThroughput,
+	std::size_t                  pathLength,
+	SampleFlow&                  sampleFlow,
+	real                         rrScale)
 {	
+	constexpr auto transport = lta::ETransport::Radiance;
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
 	const lta::SurfaceTracer surfaceTracer{m_scene};
+	const lta::RussianRoulette rr{};
 
 	while(true)
 	{
@@ -153,7 +160,7 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 
 		if(policy.getSampleMode() == EViewPathSampleMode::SinglePath)
 		{
-			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), ETransport::Radiance, lta::ESidednessPolicy::Strict));
+			BsdfSampleQuery bsdfSample(BsdfQueryContext(policy.getTargetElemental(), transport, sidednessPolicy));
 			bsdfSample.inputs.set(X, V);
 
 			Ray sampledRay;
@@ -162,14 +169,17 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 				break;
 			}
 
-			pathThroughput.mulLocal(bsdfSample.outputs.getPdfAppliedBsdfCos());
+			pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
+
+			// Prevent premature termination of the path due to solid angle compression/expansion
+			rrScale /= bsdfSample.outputs.getRelativeIor2();
 
 			if(policy.useRussianRoulette())
 			{
-				math::Spectrum weightedThroughput;
-				if(lta::RussianRoulette{}.surviveOnLuminance(pathThroughput, sampleFlow, &weightedThroughput))
+				real rrSurvivalProb;
+				if(rr.surviveOnLuminance(pathThroughput * rrScale, sampleFlow, &rrSurvivalProb))
 				{
-					pathThroughput = weightedThroughput;
+					pathThroughput *= 1.0_r / rrSurvivalProb;
 				}
 				else
 				{
@@ -181,7 +191,14 @@ inline void TViewPathTracingWork<Handler>::traceViewPath(
 		}
 		else
 		{
-			traceElementallyBranchedPath(policy, X, V, pathThroughput, pathLength, sampleFlow);
+			traceElementallyBranchedPath(
+				policy, 
+				X, 
+				V, 
+				pathThroughput, 
+				pathLength, 
+				sampleFlow, 
+				rrScale);
 			break;
 		}
 
@@ -196,11 +213,16 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 	const math::Vector3R&        V,
 	const math::Spectrum&        pathThroughput,
 	const std::size_t            pathLength,
-	SampleFlow&                  sampleFlow)
+	SampleFlow&                  sampleFlow,
+	real                         rrScale)
 {
 	PH_ASSERT(policy.getSampleMode() == EViewPathSampleMode::ElementalBranch);
 
+	constexpr auto transport = lta::ETransport::Radiance;
+	constexpr auto sidednessPolicy = lta::ESidednessPolicy::Strict;
+
 	const lta::SurfaceTracer surfaceTracer{m_scene};
+	const lta::RussianRoulette rr{};
 
 	const PrimitiveMetadata* metadata      = X.getDetail().getPrimitive()->getMetadata();
 	const SurfaceOptics*     surfaceOptics = metadata->getSurface().getOptics();
@@ -213,24 +235,27 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 			continue;
 		}
 
-		BsdfSampleQuery sample(BsdfQueryContext(i, ETransport::Radiance, lta::ESidednessPolicy::Strict));
-		sample.inputs.set(X, V);
+		BsdfSampleQuery elementalSample(BsdfQueryContext(i, transport, sidednessPolicy));
+		elementalSample.inputs.set(X, V);
 
 		Ray sampledRay;
-		if(!surfaceTracer.doBsdfSample(sample, sampleFlow, &sampledRay))
+		if(!surfaceTracer.doBsdfSample(elementalSample, sampleFlow, &sampledRay))
 		{
 			continue;
 		}
 
 		math::Spectrum elementalPathThroughput(pathThroughput);
-		elementalPathThroughput.mulLocal(sample.outputs.getPdfAppliedBsdfCos());
+		elementalPathThroughput *= elementalSample.outputs.getPdfAppliedBsdfCos();
+
+		// Prevent premature termination of the path due to solid angle compression/expansion
+		rrScale /= elementalSample.outputs.getRelativeIor2();
 
 		if(policy.useRussianRoulette())
 		{
-			math::Spectrum weightedThroughput;
-			if(lta::RussianRoulette{}.surviveOnLuminance(elementalPathThroughput, sampleFlow, &weightedThroughput))
+			real rrSurvivalProb;
+			if(rr.surviveOnLuminance(elementalPathThroughput * rrScale, sampleFlow, &rrSurvivalProb))
 			{
-				elementalPathThroughput = weightedThroughput;
+				elementalPathThroughput *= 1.0_r / rrSurvivalProb;
 			}
 			else
 			{
@@ -243,7 +268,8 @@ inline void TViewPathTracingWork<Handler>::traceElementallyBranchedPath(
 			sampledRay,
 			elementalPathThroughput,
 			pathLength,
-			sampleFlow);
+			sampleFlow,
+			rrScale);
 	}// end for each phenomenon
 }
 

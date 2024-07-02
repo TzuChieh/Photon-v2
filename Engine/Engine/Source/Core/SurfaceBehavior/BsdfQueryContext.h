@@ -2,6 +2,7 @@
 
 #include "Core/SurfaceBehavior/surface_optics_fwd.h"
 #include "Core/LTA/SidednessAgreement.h"
+#include "Core/LTA/enums.h"
 
 namespace ph
 {
@@ -14,7 +15,7 @@ class BsdfQueryContext final
 	// based on surface phenomenon (which can produce a phenomenon/bsdfQuery iterator for surface optics to consume)
 public:
 	SurfaceElemental        elemental = ALL_SURFACE_ELEMENTALS;
-	ETransport              transport = ETransport::Radiance;
+	lta::ETransport         transport = lta::ETransport::Radiance;
 	lta::SidednessAgreement sidedness = lta::SidednessAgreement{lta::ESidednessPolicy::Strict};
 
 	BsdfQueryContext() = default;
@@ -23,7 +24,7 @@ public:
 
 	BsdfQueryContext(
 		SurfaceElemental      elemental, 
-		ETransport            transport, 
+		lta::ETransport       transport, 
 		lta::ESidednessPolicy sidednessPolicy = lta::ESidednessPolicy::Strict);
 };
 
@@ -43,7 +44,7 @@ inline BsdfQueryContext::BsdfQueryContext(lta::ESidednessPolicy sidednessPolicy)
 
 inline BsdfQueryContext::BsdfQueryContext(
 	const SurfaceElemental      elemental,
-	const ETransport            transport,
+	const lta::ETransport       transport,
 	const lta::ESidednessPolicy sidednessPolicy)
 
 	: elemental(elemental)
