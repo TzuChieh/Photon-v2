@@ -112,7 +112,41 @@ For thin lens camera, as its name suggests, the lens system in this camera is as
 
 [//TODO]: <> (wip)
 
-## Material
+## Material {#material}
+
+We present material implementations with a professional test scene standardized by André Mazzone and Chris Rydalch @cite Mazzone:2023:Standard. This scene is specifically designed to facilitate the observation and comparison of material appearances. There is an inset object within the main model that has a 18% albedo (this value is the current VFX industry standard), which serves as a neutral color comparator. For scene dimensions and other parameters, the [Universal Scene Description Working Group](https://github.com/usd-wg) has a [nice entry](https://github.com/usd-wg/assets/tree/main/full_assets/StandardShaderBall) for it, which is more up-to-date than the [original paper](https://dl.acm.org/doi/10.1145/3610543.3626181).
+
+Materials are represented by [material data containers](@ref ph::Material). These containers generate [SurfaceOptics](@ref ph::SurfaceOptics) to describe [SurfaceBehavior](@ref ph::SurfaceBehavior) and [VolumeOptics](@ref ph::VolumeOptics) to describe [VolumeBehavior](@ref ph::VolumeBehavior). Surface and volume behavior objects are typically defined with respect to a [Primitive](@ref ph::Primitive). See the [Geometry](@ref geometry) section for more details.
+
+### Matte Opaque
+
+A classic material that is present in almost every renderer, whether offline or real-time, is the Lambertian-based diffuse BRDF, first described over 200 years ago by Lambert @cite Lambert:1760:Photometria. A generalization of Lambert's model is also implemented, which is often referred to as the Oren-Nayar reflectance model @cite Oren:1994:Generalization. This model describes the surface as a collection of small Lambertian facets, each having a different orientation. These models are shown below:
+
+| ![Lambertian Material](Example/lambertian_diffuse_0p5.jpg) | ![Oren Nayar Material](Example/oren_nayar_0p5_120deg.jpg) |
+| :------------------: | :------------------: |
+| **Left: Lambertian diffuse BRDF with 50% albedo. Right: Oren-Nayar diffuse BRDF with 50% albedo and 120° facet standard deviation.** ||
+
+### Ideal Substance
+
+[//TODO]: <> (wip)
+
+### Ideal Substance
+
+[//TODO]: <> (wip)
+
+### Abraded Opaque
+
+[//TODO]: <> (wip)
+
+### Abraded Translucent
+
+[//TODO]: <> (wip)
+
+### Binary Mixed Surface
+
+[//TODO]: <> (wip)
+
+### Layered Material
 
 [//TODO]: <> (wip)
 
@@ -124,7 +158,7 @@ For thin lens camera, as its name suggests, the lens system in this camera is as
 
 [//TODO]: <> (wip)
 
-## Geometry
+## Geometry {#geometry}
 
 To represent a ball in the scene, you can use a [sphere geometry](@ref ph::GSphere); for a piece of paper on a table, a [rectangle geometry](@ref ph::GRectangle) can model it pretty well. Geometries are the core components of a scene, providing the structural framework for all other elements like materials, lights and physical motions. In the following sections, we will explore some common types of geometries available in Photon, giving you a rough idea of how these foundational elements are constructed and used in rendering.
 
@@ -196,6 +230,8 @@ Photon currently supports [rectangular](@ref ph::ARectangleLight) and [spherical
 
 ![Rectangle Light](Example/rectangle_light_175W.jpg "A 175 W rectangle light.")
 
+A spherical area light illuminating the same teapots:
+
 ![Sphere Light](Example/sphere_light_300W.jpg "A 300 W sphere light (1 m radius).")
 
 ### Point Light
@@ -206,19 +242,25 @@ In Photon, [point light](@ref ph::APointLight) is implemented as a special spher
 
 ### Model Light
 
-[Model light](@ref ph::AModelLight) can be considered a superset of [area light](@ref ph::AreaLight). A key difference between them is that while area light need to have a constant emission profile, model light lifted this limitation and allow using variable emission profiles (such as [images](@ref ph::Image)) on arbitrary [geometry](@ref ph::Geometry).
+[Model light](@ref ph::AModelLight) can be considered a superset of [area light](@ref ph::AAreaLight). A key difference between them is that while area light need to have a constant emission profile, model light lifted this limitation and allow using variable emission profiles (such as [images](@ref ph::Image)) on arbitrary [geometry](@ref ph::Geometry).
 
 ![Model Light](Example/model_light.jpg "A model light in action: the textured teapot is emitting energy from its surface.")
 
 ### IES Light Profiles
 
-An IES light profile stores the distribution of emitted energy of a light fixture. The majority of the datasets are provided by lighting manufacturers and are particularly useful for interior design and architecture visualization. Most commercial renderers can parse and render IES-based lights, and even some game engines support them. Photon does not treat IES light profiles as energy distribution functions, rather, they are interpreted as energy attenuating filters (effectively normalizing energy values to [0, 1]). This approach allows users to adjust total energy emitted by a light source freely, without being constrained by the absolute energy values stroed in the IES light profile. Still, it is always possible to extract the maximum energy density from an IES data file then applying the attenuation to faithfully reproduce the light fixture in the renderer.
+An IES light profile stores the distribution of emitted energy of a light fixture. The majority of the datasets are provided by lighting manufacturers and are particularly useful for interior design and architecture visualization. Most commercial renderers can parse and render IES-based lights, and even some game engines support them. Photon does not treat IES light profiles as energy distribution functions, rather, they are interpreted as energy attenuating filters (effectively normalizing energy values to [0, 1], see [IES attenuated light](@ref ph::AIesAttenuatedLight)). This approach allows users to adjust total energy emitted by a light source freely, without being constrained by the absolute energy values stroed in the IES light profile. Still, it is always possible to extract the maximum energy density from an IES data file then applying the attenuation to faithfully reproduce the light fixture in the renderer.
 
 ![IES Light](Example/ies_point_light_300W.jpg "An interesting IES light profile applied on a 300 W point light.")
 
 ### Sky Dome
 
-[//TODO]: <> (wip)
+A powerful method of lighting is image based techniques, also known as environment map or HDRI lighting. The main idea is to assume energy from far regions can be tabulated with direction vectors as entries. Lighting up a scene with HDRIs is usually the fastest and the most effective way to achieve natural-looking results. In photon, we call this type of light source a [dome light](@ref ph::ADome). For a nice collection of HDR environment maps, visit https://hdrihaven.com/. Shown below is the same demo scene lit with an [image dome](@ref ph::AImageDome) source:
+
+![HDRI Light](Example/env_light.jpg "")
+
+Another approach to lighting a scene is to physically model the energy coming from the sky. When it comes to sun-sky models, a classic example is the model by Preetham et al. @cite Preetham:1999:Practical This model approximates the absolute value of radiant energy coming from the sky using a set of formulae. Given the latitude, longitude, date and time of the target location, we can analytically generate the sun and sky using [Preetham dome](@ref ph::APreethamDome).
+
+![Preetham Light](Example/preetham_light.jpg "New York City illuminated by the morning sunlight at Helsinki (60.2° N, 24.9° E) on Dec. 20.")
 
 ## Sample Source
 

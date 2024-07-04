@@ -34,6 +34,11 @@ class TPPMRadianceEvaluationWork : public RenderWork
 {
 public:
 	/*!
+	@param viewpoints Cached view vertices with information for PPM radiance evaluation. The information
+	will be refined in each iteration.
+	@param photonMap The photon map to use.
+	@param scene The scene to use.
+	@param film Stores PPM radiance evaluation result.
 	@param totalPhotonPaths Number of photon paths of all time (accumulated). This term is the
 	@f$ N_e @f$ term in the original paper, not the same as `photonMap->numPaths`.
 	*/

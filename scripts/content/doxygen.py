@@ -24,7 +24,8 @@ def create_base_config(dir, doxygen_cwd, project_name, project_code_name):
     css2_rel_path = (common_config_rel_dir / "custom").with_suffix('.css')
     toc_js_rel_path = (common_config_rel_dir / "doxygen-awesome-css" / "doxygen-awesome-interactive-toc").with_suffix('.js')
     layout_rel_path = (common_config_rel_dir / "doxygen_layout").with_suffix('.xml')
-    bibtex_rel_path = (common_config_rel_dir / "bibtex.bib").with_suffix('.bib')
+    bibtex1_rel_path = (common_config_rel_dir / "strings-full").with_suffix('.bib')
+    bibtex2_rel_path = (common_config_rel_dir / "bibtex").with_suffix('.bib')
     tag_rel_path = (common_config_rel_dir / "docs" / project_code_name).with_suffix('.tag')
 
     with open(file_path, 'w') as f:
@@ -37,5 +38,6 @@ def create_base_config(dir, doxygen_cwd, project_name, project_code_name):
         f.write(f"                        {css2_rel_path.as_posix()}\n")
         f.write(f"HTML_EXTRA_FILES      = {toc_js_rel_path.as_posix()}\n")
         f.write(f"LAYOUT_FILE           = {layout_rel_path.as_posix()}\n")
-        f.write(f"CITE_BIB_FILES        = {bibtex_rel_path.as_posix()}\n")
+        f.write(f"CITE_BIB_FILES        = {bibtex1_rel_path.as_posix()} \\\n")
+        f.write(f"                        {bibtex2_rel_path.as_posix()}\n")
         f.write(f"GENERATE_TAGFILE      = {tag_rel_path.as_posix()}\n")
