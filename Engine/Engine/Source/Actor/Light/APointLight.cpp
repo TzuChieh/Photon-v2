@@ -27,10 +27,11 @@ EmitterFeatureSet APointLight::getEmitterFeatureSet() const
 	const EmitterFeatureSet featureSet = AAreaLight::getEmitterFeatureSet();
 	if(featureSet.has(EEmitterFeatureSet::BsdfSample))
 	{
-		PH_DEFAULT_LOG(NoteOnce,
+		PH_DEFAULT_DEBUG_LOG_ONCE(
 			"BSDF sampling technique is enabled on a point light; please note that as point lights "
 			"can easily produce extreme amount of energy density (e.g., radiance), this technique "
-			"may produce high variance or fireflies.");
+			"may produce high variance. However, depending on the rendering algorithm, disabling this "
+			"technique can cause bias.");
 	}
 
 	return featureSet;

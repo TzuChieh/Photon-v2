@@ -91,6 +91,7 @@ public:
 
 	/*!
 	@return Checks whether next-event estimation is a valid technique to use on the surface `X`.
+	@note Depends on the surface optical properties only. Does not check the emitter feature set.
 	*/
 	[[nodiscard]]
 	bool isNeeSamplable(const SurfaceHit& X) const;

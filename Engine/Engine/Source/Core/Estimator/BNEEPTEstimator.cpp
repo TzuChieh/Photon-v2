@@ -93,17 +93,21 @@ void BNEEPTEstimator::estimate(
 		const math::Vector3R V = tracingRay.getDir().mul(-1.0_r);
 		PH_ASSERT_MSG(V.isFinite(), V.toString());
 
-		const bool canDoNeeOnX = directLight.isNeeSamplable(X);
+		const bool useNeeLightSampling = directLight.isNeeSamplable(X);
+		const bool useBsdfLightSampling = true;
 
-		// Direct light sample
+		// Must use at least one of the techniques to avoid bias
+		PH_ASSERT(useNeeLightSampling || useBsdfLightSampling);
+
+		// Sample light with NEE
+		if(useNeeLightSampling)
 		{
 			PH_SCOPED_TIMER(DirectLightSampling);
 
 			DirectEnergySampleQuery directSample;
 			directSample.inputs.set(X);
 			SurfaceHit Xe;
-			if(canDoNeeOnX &&
-			   directLight.neeSampleEmission(directSample, sampleFlow, &Xe) &&
+			if(directLight.neeSampleEmission(directSample, sampleFlow, &Xe) &&
 			   directSample.outputs)
 			{
 				const auto L = directSample.getTargetToEmit().normalize();
@@ -114,8 +118,11 @@ void BNEEPTEstimator::estimate(
 				surfaceOptics->calcBsdf(bsdfEval);
 				if(bsdfEval.outputs.isMeasurable())
 				{
+					// MIS: NEE + BSDF sample
+
 					real bsdfSamplePdfW = 0.0_r;
-					if(directEmitter &&
+					if(useBsdfLightSampling &&
+					   directEmitter &&
 					   directEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
 					{
 						BsdfPdfQuery bsdfPdfQuery(bsdfContext);
@@ -141,7 +148,7 @@ void BNEEPTEstimator::estimate(
 			}
 		}// end direct light sample
 
-		// BSDF sample + indirect light sample
+		// Extend the path with BSDF sampling + sample light simultaneously
 		{
 			PH_SCOPED_TIMER(BSDFAndIndirectLightSampling);
 
@@ -168,16 +175,9 @@ void BNEEPTEstimator::estimate(
 				break;
 			}
 
-			//constexpr auto nonDiffusePhenomena =
-			//	SurfacePhenomena{ALL_SURFACE_PHENOMENA}.turnOff({DIFFUSE_SURFACE_PHENOMENA}).getEnum();
-
-			//// It may not worthwhile to estimate lighting for diffuse surfaces, as it is basically
-			//// uniform random sampling
-			//const bool hasNonDiffusePhenomena =
-			//	surfaceOptics->getAllPhenomena().hasAny(nonDiffusePhenomena);
-
 			const Emitter* nextEmitter = nextX.getSurfaceEmitter();
-			if(nextEmitter &&
+			if(useBsdfLightSampling &&
+			   nextEmitter &&
 			   nextEmitter->getFeatureSet().has(EEmitterFeatureSet::BsdfSample))
 			{
 				math::Spectrum radianceLe;
@@ -186,12 +186,10 @@ void BNEEPTEstimator::estimate(
 				// TODO: not doing MIS if delta elemental exists is too harsh--we can do regular sample for
 				// deltas and MIS for non-deltas
 
-				// Do MIS (BSDF sample + NEE)
-				if(canDoNeeOnX && !radianceLe.isZero())
+				// MIS: BSDF sample + NEE
+				if(useNeeLightSampling &&
+				   !radianceLe.isZero())
 				{
-					// TODO: <directLightPdfW> might be 0, should we stop using MIS if one of two 
-					// sampling techniques has failed?
-					// <bsdfSamplePdfW> can also be 0 for delta distributions
 					// `directLightPdfW` can be 0 (e.g., delta BSDF) and this is fine--MIS weighting
 					// still works. No need to test occlusion again as we already done that.
 					const real directLightPdfW = directLight.neeSamplePdfWUnoccluded(X, nextX);
@@ -200,8 +198,8 @@ void BNEEPTEstimator::estimate(
 					bsdfPdfQuery.inputs.set(bsdfSample);
 					surfaceOptics->calcBsdfPdf(bsdfPdfQuery);
 
-					// `canDoNEE` is already checked, but BSDF PDF can still be empty or 0
-					// (e.g., sidedness policy or by the distribution itself).
+					// `isNeeSamplable()` is already `true`, but BSDF PDF can still be empty or 0
+					// (e.g., sidedness policy or by the distribution itself)
 					if(bsdfPdfQuery.outputs)
 					{
 						const real bsdfSamplePdfW = bsdfPdfQuery.outputs.getSampleDirPdfW();
@@ -217,11 +215,14 @@ void BNEEPTEstimator::estimate(
 						pathEnergy += radianceLe * weight;
 					}
 				}
-				// Not do MIS (BSDF sample only)
+				// No MIS: BSDF sample only
 				else
 				{
 					math::Spectrum weight = bsdfSample.outputs.getPdfAppliedBsdfCos();
 					weight *= pathThroughput;
+
+					// Avoid excessive, negative weight and possible NaNs
+					rationalClamp(weight);
 
 					pathEnergy += radianceLe * weight;
 				}
@@ -230,7 +231,7 @@ void BNEEPTEstimator::estimate(
 			pathThroughput *= bsdfSample.outputs.getPdfAppliedBsdfCos();
 
 			// Prevent premature termination of the path due to solid angle compression/expansion
-			rrScale /= bsdfSample.outputs.getRelativeIor();
+			rrScale /= bsdfSample.outputs.getRelativeIor2();
 
 			if(numBounces >= 3)
 			{
@@ -244,9 +245,6 @@ void BNEEPTEstimator::estimate(
 					break;
 				}
 			}
-
-			// Avoid excessive, negative weight and possible NaNs
-			rationalClamp(pathThroughput);
 
 			if(pathThroughput.isZero())
 			{

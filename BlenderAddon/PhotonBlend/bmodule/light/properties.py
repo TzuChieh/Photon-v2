@@ -59,7 +59,7 @@ class PhotonLightData(bpy.types.PropertyGroup):
     point_light_bsdf_sample: bpy.props.BoolProperty(
         name="BSDF Sample Technique (Point Light)",
         description=sdl.GeometricLightActorCreator.set_bsdf_sample.__doc__,
-        default=False
+        default=True
     )
 
     direct_sample: bpy.props.BoolProperty(

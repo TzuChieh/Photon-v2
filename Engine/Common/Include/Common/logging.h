@@ -158,10 +158,14 @@ The logger will be usable anywhere that includes the header file containing this
 
 #if PH_ENABLE_DEBUG_LOG
 	#define PH_DEBUG_LOG_STRING(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, Debug, rawString)
+	#define PH_DEBUG_LOG_STRING_ONCE(groupName, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, DebugOnce, rawString)
 	#define PH_DEBUG_LOG(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, Debug, formatString, __VA_ARGS__)
+	#define PH_DEBUG_LOG_ONCE(groupName, formatString, ...) PH_LOG_FORMAT_STRING_TO_CORE_LOGGER(groupName, DebugOnce, formatString, __VA_ARGS__)
 #else
 	#define PH_DEBUG_LOG_STRING(groupName, rawString) PH_NO_OP()
+	#define PH_DEBUG_LOG_STRING_ONCE(groupName, rawString) PH_NO_OP()
 	#define PH_DEBUG_LOG(groupName, formatString, ...) PH_NO_OP()
+	#define PH_DEBUG_LOG_ONCE(groupName, formatString, ...) PH_NO_OP()
 #endif
 
 #define PH_LOG_STRING(groupName, level, rawString) PH_LOG_RAW_STRING_TO_CORE_LOGGER(groupName, level, rawString)
@@ -180,10 +184,14 @@ custom log group macros.
 ///@{
 #if PH_ENABLE_DEBUG_LOG
 	#define PH_DEFAULT_DEBUG_LOG_STRING(rawString) PH_DEBUG_LOG_STRING(PhotonRenderer, rawString)
+	#define PH_DEFAULT_DEBUG_LOG_STRING_ONCE(rawString) PH_DEBUG_LOG_STRING_ONCE(PhotonRenderer, rawString)
 	#define PH_DEFAULT_DEBUG_LOG(formatString, ...) PH_DEBUG_LOG(PhotonRenderer, formatString, __VA_ARGS__)
+	#define PH_DEFAULT_DEBUG_LOG_ONCE(formatString, ...) PH_DEBUG_LOG_ONCE(PhotonRenderer, formatString, __VA_ARGS__)
 #else
 	#define PH_DEFAULT_DEBUG_LOG_STRING(rawString, ...) PH_NO_OP()
+	#define PH_DEFAULT_DEBUG_LOG_STRING_ONCE(rawString, ...) PH_NO_OP()
 	#define PH_DEFAULT_DEBUG_LOG(formatString, ...) PH_NO_OP()
+	#define PH_DEFAULT_DEBUG_LOG_ONCE(formatString, ...) PH_NO_OP()
 #endif
 
 #define PH_DEFAULT_LOG_STRING(level, rawString) PH_LOG_STRING(PhotonRenderer, level, rawString)

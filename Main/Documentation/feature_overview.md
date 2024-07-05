@@ -120,13 +120,25 @@ Materials are represented by [material data containers](@ref ph::Material). Thes
 
 ### Matte Opaque
 
-A classic material that is present in almost every renderer, whether offline or real-time, is the Lambertian-based diffuse BRDF, first described over 200 years ago by Lambert @cite Lambert:1760:Photometria. A generalization of Lambert's model is also implemented, which is often referred to as the Oren-Nayar reflectance model @cite Oren:1994:Generalization. This model describes the surface as a collection of small Lambertian facets, each having a different orientation. These models are shown below:
+A classic material that is present in almost every renderer, whether offline or real-time, is the Lambertian-based diffuse BRDF, first described over 200 years ago by Lambert @cite Lambert:1760:Photometria. A generalization of Lambert's model is also implemented, which is often referred to as the Oren-Nayar reflectance model @cite Oren:1994:Generalization. This model describes the surface as a collection of small Lambertian facets, each having a different orientation. We implement these material models as [MatteOpqaue](@ref ph::MatteOpaque). Some examples are shown below:
 
 | ![Lambertian Material](Example/lambertian_diffuse_0p5.jpg) | ![Oren Nayar Material](Example/oren_nayar_0p5_120deg.jpg) |
 | :------------------: | :------------------: |
 | **Left: Lambertian diffuse BRDF with 50% albedo. Right: Oren-Nayar diffuse BRDF with 50% albedo and 120° facet standard deviation.** ||
 
 ### Ideal Substance
+
+We can simulate some materials that do not exist in the real world. One common example is the idealization of surface roughness, where a perfectly smooth interface is modeled. [IdealSubstance](@ref ph::IdealSubstance) makes the visualization of these kinds of materials possible, which is of great interest for both theoretical and practical applications.
+
+![Ideal Dielectric](Example/ideal_dielectric.jpg "Ideal glass (index of refraction = 1.51714)."){html: width=50%}
+
+Photon also supports tinting reflectance and transmittance with user-specified values. Note that this is not physically correct since the color of dielectrics comes from internal volume absorption, not from interfaces. This feature is implemented for performance and artistic reasons only.
+
+| ![Ideal Dielectric Blue Reflection Tint](Example/ideal_dielectric_blue_refl_tint.jpg) | ![Ideal Substance Green Refraction Tint](Example/ideal_dielectric_green_refr_tint.jpg) |
+| :------------------: | :------------------: |
+| **Left: Ideal glass with blue reflection tint. Right: Ideal glass with green transmission tint.** ||
+
+![Ideal Dielectric Blue Reflection Green Transmission Tint](Example/ideal_dielectric_blue_refl_green_refr_tint.jpg "Ideal glass with blue reflection and green transmission tint."){html: width=50%}
 
 [//TODO]: <> (wip)
 
