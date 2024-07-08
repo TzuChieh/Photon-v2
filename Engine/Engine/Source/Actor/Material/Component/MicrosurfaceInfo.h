@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Actor/Material/Component/EInterfaceMicrosurface.h"
-#include "Actor/Material/Component/ERoughnessToAlpha.h"
+#include "Actor/Material/Component/sdl_component_enums.h"
 #include "SDL/sdl_interface.h"
 
 #include <Common/assertion.h>
@@ -19,9 +18,12 @@ class Microfacet;
 class MicrosurfaceInfo final
 {
 public:
-	inline MicrosurfaceInfo() = default;
-
-	std::unique_ptr<Microfacet> genMicrofacet() const;
+	/*!
+	@param defaultType The default microsurface type to use if unspecified.
+	@return The generated microfacet describing the microsurface.
+	*/
+	std::unique_ptr<Microfacet> genMicrofacet(
+		EInterfaceMicrosurface defaultType = EInterfaceMicrosurface::TrowbridgeReitz) const;
 
 	bool isIsotropic() const;
 	real getIsotropicRoughness() const;
@@ -29,9 +31,10 @@ public:
 
 private:
 	EInterfaceMicrosurface m_microsurface;
-	ERoughnessToAlpha      m_roughnessToAlpha;
 	real                   m_roughness;
 	std::optional<real>    m_roughnessV;
+	ERoughnessToAlpha      m_roughnessToAlpha;
+	EMaskingShadowing      m_maskingShadowing;
 
 public:
 	PH_DEFINE_SDL_STRUCT(TSdlOwnerStruct<MicrosurfaceInfo>)
@@ -42,14 +45,8 @@ public:
 		TSdlEnumField<OwnerType, EInterfaceMicrosurface> microsurface("microsurface", &OwnerType::m_microsurface);
 		microsurface.description("Type of the microsurface of the material.");
 		microsurface.optional();
-		microsurface.defaultTo(EInterfaceMicrosurface::TrowbridgeReitz);
+		microsurface.defaultTo(EInterfaceMicrosurface::Unspecified);
 		ztruct.addField(microsurface);
-
-		TSdlEnumField<OwnerType, ERoughnessToAlpha> roughnessToAlpha("roughness-to-alpha", &OwnerType::m_roughnessToAlpha);
-		roughnessToAlpha.description("Type of the mapping to transform roughness into alpha value.");
-		roughnessToAlpha.optional();
-		roughnessToAlpha.defaultTo(ERoughnessToAlpha::Squared);
-		ztruct.addField(roughnessToAlpha);
 
 		TSdlReal<OwnerType> roughness("roughness", &OwnerType::m_roughness);
 		roughness.description(
@@ -66,6 +63,18 @@ public:
 			"surface roughness. If this value is provided, the `roughness` "
 			"parameter is interpreted as the U component of surface roughness.");
 		ztruct.addField(roughnessV);
+
+		TSdlEnumField<OwnerType, ERoughnessToAlpha> roughnessToAlpha("roughness-to-alpha", &OwnerType::m_roughnessToAlpha);
+		roughnessToAlpha.description("Type of the mapping to transform roughness into alpha value.");
+		roughnessToAlpha.optional();
+		roughnessToAlpha.defaultTo(ERoughnessToAlpha::Squared);
+		ztruct.addField(roughnessToAlpha);
+
+		TSdlEnumField<OwnerType, EMaskingShadowing> maskingShadowing("masking-shadowing", &OwnerType::m_maskingShadowing);
+		maskingShadowing.description("Type of the masking and shadowing for a microsurface.");
+		maskingShadowing.optional();
+		maskingShadowing.defaultTo(EMaskingShadowing::HightCorrelated);
+		ztruct.addField(maskingShadowing);
 
 		return ztruct;
 	}

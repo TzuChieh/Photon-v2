@@ -19,10 +19,11 @@ enum class EDomain : uint8
 {
 	Empty = 0,
 	SolidAngle,
+	HalfSolidAngle,
 	Area,
 	UV01,
 	UVW01,
-	Discrete
+	Discrete,
 };
 
 /*! @brief Type of the transported quantity.

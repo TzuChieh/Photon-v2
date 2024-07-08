@@ -20,6 +20,20 @@ namespace ph
 thread_local std::vector<real> LbLayeredSurface::sampleWeights;
 thread_local std::vector<real> LbLayeredSurface::alphas;
 
+namespace
+{
+
+/*!
+The reference implementation of Belcour's paper uses Mitsuba renderer, which is using
+the separable Smith G1 masking-shadowing. Use the same microfacet as their analysis is done there.
+*/
+inline IsoTrowbridgeReitzConstant make_ggx(const real alpha)
+{
+	return IsoTrowbridgeReitzConstant(alpha, EMaskingShadowing::Separable);
+}
+
+}// end anonymous namespace
+
 LbLayeredSurface::LbLayeredSurface(
 	const std::vector<math::Spectrum>& iorNs,
 	const std::vector<math::Spectrum>& iorKs,
@@ -97,9 +111,9 @@ void LbLayeredSurface::calcBsdf(
 			PH_ASSERT(i == numLayers() - 1);
 		}
 
-		const IsoTrowbridgeReitzConstant ggx(statistics.getEquivalentAlpha());
+		const auto ggx = make_ggx(statistics.getEquivalentAlpha());
 		const real D = ggx.distribution(in.getX(), N, H);
-		const real G = ggx.shadowing(in.getX(), N, H, in.getL(), in.getV());
+		const real G = ggx.geometry(in.getX(), N, H, in.getL(), in.getV());
 
 		bsdf += statistics.getEnergyScale().mul(D * G / brdfDeno);
 	}
@@ -153,10 +167,10 @@ void LbLayeredSurface::genBsdfSample(
 		"selectIndex  = " + std::to_string(selectIndex)  + "\n"
 		"selectWeight = " + std::to_string(selectWeight) + "\n");
 
-	const IsoTrowbridgeReitzConstant selectedGgx(alphas[selectIndex]);
+	const auto selectedGgx = make_ggx(alphas[selectIndex]);
 
 	math::Vector3R H;
-	selectedGgx.genDistributedH(in.getX(), N, sampleFlow.flow2D(), &H);
+	selectedGgx.sampleH(in.getX(), N, sampleFlow.flow2D(), &H);
 
 	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), L, in.getV()))
@@ -172,7 +186,7 @@ void LbLayeredSurface::genBsdfSample(
 	real pdf = 0.0_r;
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
-		const IsoTrowbridgeReitzConstant ggx(alphas[i]);
+		const auto ggx = make_ggx(alphas[i]);
 		const real D = ggx.distribution(in.getX(), N, H);
 		const real weight = sampleWeights[i] / summedSampleWeights;
 		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
@@ -233,7 +247,7 @@ void LbLayeredSurface::calcBsdfPdf(
 		const real sampleWeight = statistics.getEnergyScale().avg();
 		summedSampleWeights += sampleWeight;
 
-		IsoTrowbridgeReitzConstant ggx(statistics.getEquivalentAlpha());
+		const auto ggx = make_ggx(statistics.getEquivalentAlpha());
 		const real D = ggx.distribution(in.getX(), N, H);
 		pdf += sampleWeight * std::abs(D * NoH / (4.0_r * HoL));
 	}

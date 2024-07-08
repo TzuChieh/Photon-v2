@@ -3,7 +3,6 @@
 #include "Math/math.h"
 #include "Math/constant.h"
 
-#include <iostream>
 #include <cmath>
 
 namespace ph

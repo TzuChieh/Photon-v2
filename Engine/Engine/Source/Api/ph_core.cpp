@@ -95,9 +95,7 @@
 #include "EngineEnv/Visualizer/sdl_photon_mapping_mode.h"
 #include "Actor/Image/sdl_image_enums.h"
 #include "Actor/SDLExtension/sdl_color_enums.h"
-#include "Actor/Material/Component/EInterfaceFresnel.h"
-#include "Actor/Material/Component/EInterfaceMicrosurface.h"
-#include "Actor/Material/Component/ERoughnessToAlpha.h"
+#include "Actor/Material/Component/sdl_component_enums.h"
 #include "DataIO/sdl_picture_file_type.h"
 
 #include <Common/config.h>
@@ -230,6 +228,7 @@ inline std::vector<const SdlEnum*> register_engine_enums()
 		get_sdl_enum<EMathImageOp>(),
 		get_sdl_enum<EInterfaceFresnel>(),
 		get_sdl_enum<ERoughnessToAlpha>(),
+		get_sdl_enum<EMaskingShadowing>(),
 		get_sdl_enum<EIdealSubstance>(),
 		get_sdl_enum<ESurfaceMaterialMixMode>(),
 		get_sdl_enum<EPictureFile>(),

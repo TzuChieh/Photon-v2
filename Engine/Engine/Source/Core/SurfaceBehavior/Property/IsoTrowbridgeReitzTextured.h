@@ -7,7 +7,6 @@
 #include <Common/assertion.h>
 
 #include <memory>
-#include <utility>
 
 namespace ph
 {
@@ -15,9 +14,11 @@ namespace ph
 class IsoTrowbridgeReitzTextured : public IsoTrowbridgeReitz
 {
 public:
-	explicit IsoTrowbridgeReitzTextured(std::shared_ptr<TTexture<real>> alpha);
+	IsoTrowbridgeReitzTextured(
+		const std::shared_ptr<TTexture<real>>& alpha,
+		EMaskingShadowing maskingShadowingType);
 
-	real getAlpha(const SurfaceHit& X) const override;
+	std::array<real, 2> getAlphas(const SurfaceHit& X) const override;
 
 private:
 	std::shared_ptr<TTexture<real>> m_alpha;
@@ -25,15 +26,21 @@ private:
 
 // In-header Implementations:
 
-inline IsoTrowbridgeReitzTextured::IsoTrowbridgeReitzTextured(std::shared_ptr<TTexture<real>> alpha) :
-	m_alpha(std::move(alpha))
+inline IsoTrowbridgeReitzTextured::IsoTrowbridgeReitzTextured(
+	const std::shared_ptr<TTexture<real>>& alpha,
+	const EMaskingShadowing maskingShadowingType)
+
+	: IsoTrowbridgeReitz(maskingShadowingType)
+
+	, m_alpha(alpha)
 {}
 
-inline real IsoTrowbridgeReitzTextured::getAlpha(const SurfaceHit& X) const
+inline std::array<real, 2> IsoTrowbridgeReitzTextured::getAlphas(const SurfaceHit& X) const
 {
 	PH_ASSERT(m_alpha);
 
-	return TSampler<real>().sample(*m_alpha, X);
+	const real alpha = TSampler<real>().sample(*m_alpha, X);
+	return {alpha, alpha};
 }
 
 }// end namespace ph

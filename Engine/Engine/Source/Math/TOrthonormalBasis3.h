@@ -29,15 +29,30 @@ public:
 	TVector3<T> worldToLocal(const TVector3<T>& worldVec) const;
 	TVector3<T> localToWorld(const TVector3<T>& localVec) const;
 
+	/*! @brief Calculates trigonometries for the @f$ \phi @f$ angle in spherical coordinates.
+	@remark The default coordinate system in Photon is right-handed, y-up. As a result, @f$ \phi = 0 @f$
+	starts on z-axis, and @f$ \phi = \pi / 2 @f$ is on x-axis.
+	*/
+	///@{
 	T cosPhi(const TVector3<T>& unitVec) const;
 	T sinPhi(const TVector3<T>& unitVec) const;
 	T tanPhi(const TVector3<T>& unitVec) const;
+	///@}
+
 	T cos2Phi(const TVector3<T>& unitVec) const;
 	T sin2Phi(const TVector3<T>& unitVec) const;
 	T tan2Phi(const TVector3<T>& unitVec) const;
+
+	/*! @brief Calculates trigonometries for the @f$ \theta @f$ angle in spherical coordinates.
+	@remark The default coordinate system in Photon is right-handed, y-up. As a result,
+	@f$ \theta = 0 @f$ is on y-axis.
+	*/
+	///@{
 	T cosTheta(const TVector3<T>& unitVec) const;
 	T sinTheta(const TVector3<T>& unitVec) const;
 	T tanTheta(const TVector3<T>& unitVec) const;
+	///@}
+
 	T cos2Theta(const TVector3<T>& unitVec) const;
 	T sin2Theta(const TVector3<T>& unitVec) const;
 	T tan2Theta(const TVector3<T>& unitVec) const;

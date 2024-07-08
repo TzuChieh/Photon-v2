@@ -21,6 +21,8 @@ void AbradedOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behav
 		std::make_unique<OpaqueMicrofacet>(
 			m_interfaceInfo.genFresnelEffect(),
 			m_microsurfaceInfo.genMicrofacet()));
+
+	// TODO: generate ideal reflector if roughness == 0
 }
 
 }// end namespace ph

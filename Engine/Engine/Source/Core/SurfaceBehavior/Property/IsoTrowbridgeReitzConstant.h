@@ -8,9 +8,11 @@ namespace ph
 class IsoTrowbridgeReitzConstant : public IsoTrowbridgeReitz
 {
 public:
-	explicit IsoTrowbridgeReitzConstant(real alpha);
+	IsoTrowbridgeReitzConstant(
+		real alpha,
+		EMaskingShadowing maskingShadowingType);
 
-	real getAlpha(const SurfaceHit& X) const override;
+	std::array<real, 2> getAlphas(const SurfaceHit& X) const override;
 
 private:
 	real m_alpha;
@@ -18,13 +20,18 @@ private:
 
 // In-header Implementations:
 
-inline IsoTrowbridgeReitzConstant::IsoTrowbridgeReitzConstant(const real alpha) :
-	m_alpha(alpha > 0.001_r ? alpha : 0.001_r)
+inline IsoTrowbridgeReitzConstant::IsoTrowbridgeReitzConstant(
+	const real alpha,
+	const EMaskingShadowing maskingShadowingType)
+
+	: IsoTrowbridgeReitz(maskingShadowingType)
+
+	, m_alpha(alpha > 0.001_r ? alpha : 0.001_r)
 {}
 
-inline real IsoTrowbridgeReitzConstant::getAlpha(const SurfaceHit& /* X */) const
+inline std::array<real, 2> IsoTrowbridgeReitzConstant::getAlphas(const SurfaceHit& /* X */) const
 {
-	return m_alpha;
+	return {m_alpha, m_alpha};
 }
 
 }// end namespace ph

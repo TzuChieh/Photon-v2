@@ -19,6 +19,22 @@
 namespace ph
 {
 
+/*
+Cook-Torrance microfacet specular BRDF for translucent surface is
+
+	|HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H))/(iorI*HoL+iorO*HoV)^2.
+
+A naive importance sampling strategy would be generating a microfacet normal H which
+follows D(H)'s distribution, and generate L by reflecting/refracting -V using H.
+The PDF for this sampling scheme is
+
+	(D(H)*|NoH|)*(iorO^2*|HoL|/((iorI*HoL+iorO*HoV)^2)).
+
+The reason that the latter multiplier in the PDF exists is because there's a
+jacobian involved (from H's probability space to L's). More sophisticated sampling
+strategy typically follow this pattern, with a better distributed H.
+*/
+
 TranslucentMicrofacet::TranslucentMicrofacet(
 	const std::shared_ptr<DielectricFresnel>& fresnel,
 	const std::shared_ptr<Microfacet>&        microfacet) :
@@ -78,7 +94,7 @@ void TranslucentMicrofacet::calcBsdf(
 		m_fresnel->calcReflectance(HoL, &F);
 
 		const real D = m_microfacet->distribution(in.getX(), N, H);
-		const real G = m_microfacet->shadowing(in.getX(), N, H, in.getL(), in.getV());
+		const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
 		const math::Spectrum bsdf = F.mul(D * G / (4.0_r * std::abs(NoLmulNoV)));
 		out.setBsdf(bsdf);
@@ -115,7 +131,7 @@ void TranslucentMicrofacet::calcBsdf(
 		m_fresnel->calcTransmittance(HoL, &F);
 
 		const real D = m_microfacet->distribution(in.getX(), N, H);
-		const real G = m_microfacet->shadowing(in.getX(), N, H, in.getL(), in.getV());
+		const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
 		// Account for non-symmetric scattering due to solid angle compression/expansion
 		const real transportFactor = ctx.transport == lta::ETransport::Radiance ?
@@ -145,14 +161,6 @@ void TranslucentMicrofacet::genBsdfSample(
 	SampleFlow&             sampleFlow,
 	BsdfSampleOutput&       out) const
 {
-	// Cook-Torrance microfacet specular BRDF for translucent surface is
-	// |HoL||HoV|/(|NoL||NoV|)*(iorO^2)*(D(H)*F(V, H)*G(L, V, H))/(iorI*HoL+iorO*HoV)^2.
-	// The importance sampling strategy is to generate a microfacet normal (H) which
-	// follows D(H)'s distribution, and generate L by reflecting/refracting -V using H.
-	// The PDF for this sampling scheme is (D(H)*|NoH|)*(iorO^2*|HoV|/((iorI*HoL+iorO*HoV)^2)).
-	// The reason that the latter multiplier in the PDF exists is because there's a
-	// jacobian involved (from H's probability space to L's).
-
 	const bool canReflect  = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == REFLECTION;
 	const bool canTransmit = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
@@ -165,7 +173,7 @@ void TranslucentMicrofacet::genBsdfSample(
 	const math::Vector3R N = in.getX().getShadingNormal();
 
 	math::Vector3R H;
-	m_microfacet->genDistributedH(
+	m_microfacet->sampleH(
 		in.getX(),
 		N,
 		sampleFlow.flow2D(),
@@ -249,13 +257,16 @@ void TranslucentMicrofacet::genBsdfSample(
 		return;
 	}
 
-	const real HoV = H.dot(in.getV());
-	const real NoV = N.dot(in.getV());
-	const real NoH = N.dot(H);
-	const real dotTerms = std::abs(HoV / (NoV * NoH));
-	const real G = m_microfacet->shadowing(in.getX(), N, H, L, in.getV());
+	const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+	PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
-	out.setPdfAppliedBsdfCos(F.mul(G * dotTerms), N.absDot(L));
+	const real NoV = N.dot(in.getV());
+	const real HoV = H.dot(in.getV());
+	const real dotTerms = std::abs(HoV / NoV);
+	const real G = m_microfacet->geometry(in.getX(), N, H, L, in.getV());
+	const real D = m_microfacet->distribution(in.getX(), N, H);
+
+	out.setPdfAppliedBsdfCos(F.mul(G * D * dotTerms / pdf.value), N.absDot(L));
 	out.setL(L);
 }
 
@@ -281,18 +292,17 @@ void TranslucentMicrofacet::calcBsdfPdf(
 			return;
 		}
 
-		const real HoL = H.dot(in.getL());
-		const real NoH = N.dot(H);
-		const real HoV = H.dot(in.getV());
-		const real D   = m_microfacet->distribution(in.getX(), N, H);
-
 		math::Spectrum F;
-		m_fresnel->calcReflectance(HoL, &F);
+		m_fresnel->calcReflectance(H.dot(in.getL()), &F);
 		const real reflectProb = ctx.elemental == ALL_SURFACE_ELEMENTALS
 			? getReflectionProbability(F)
 			: 1.0_r;
 
-		sampleDirPdfW = std::abs(D * NoH / (4.0_r * HoL)) * reflectProb;
+		const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+		PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
+
+		// Apply the Jacobian for `HalfSolidAngle` -> `SolidAngle` and path selection probability
+		sampleDirPdfW = pdf.value / (4.0_r * H.absDot(in.getL())) * reflectProb;
 	}
 	// Transmission
 	else if(canTransmit && ctx.sidedness.isOppositeHemisphere(in.getX(), in.getL(), in.getV()))
@@ -307,7 +317,7 @@ void TranslucentMicrofacet::calcBsdfPdf(
 			std::swap(etaI, etaT);
 		}
 
-		// here H will point into the medium with lower IoR
+		// Here H will point into the medium with lower IoR
 		// (see: B. Walter et al., Microfacet Models for Refraction, near the end of P.5)
 		math::Vector3R H = in.getL().mul(-etaI).add(in.getV().mul(-etaT));
 		if(H.isZero())
@@ -317,16 +327,16 @@ void TranslucentMicrofacet::calcBsdfPdf(
 		}
 		H.normalizeLocal();
 
-		// make H in N's hemisphere
+		// Make H in N's hemisphere
 		if(N.dot(H) < 0.0_r)
 		{
 			H.mulLocal(-1.0_r);
 		}
 
 		const real HoV = H.dot(in.getV());
-		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.getL());
-		const real D   = m_microfacet->distribution(in.getX(), N, H);
+		const real iorTerm = etaI * HoL + etaT * HoV;
+		const real multiplier = std::abs(etaI * etaI * HoL) / (iorTerm * iorTerm);
 
 		math::Spectrum F;
 		m_fresnel->calcReflectance(HoL, &F);
@@ -334,10 +344,11 @@ void TranslucentMicrofacet::calcBsdfPdf(
 			? 1.0_r - getReflectionProbability(F)
 			: 1.0_r;
 
-		const real iorTerm    = etaI * HoL + etaT * HoV;
-		const real multiplier = (etaI * etaI * HoL) / (iorTerm * iorTerm);
+		const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+		PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
-		sampleDirPdfW = std::abs(D * NoH * multiplier) * refractProb;
+		// Apply the Jacobian for `HalfSolidAngle` -> `SolidAngle` and path selection probability
+		sampleDirPdfW = pdf.value * multiplier * refractProb;
 	}
 	else
 	{

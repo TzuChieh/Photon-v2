@@ -20,6 +20,8 @@ void AbradedTranslucent::genSurface(const CookingContext& ctx, SurfaceBehavior& 
 		std::make_unique<TranslucentMicrofacet>(
 			m_interfaceInfo.genFresnelEffect(),
 			m_microsurfaceInfo.genMicrofacet()));
+
+	// TODO: generate ideal dielectric if roughness == 0
 }
 
 }// end namespace ph

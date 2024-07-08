@@ -11,31 +11,38 @@ namespace ph
 
 PH_DEFINE_INTERNAL_LOG_GROUP(MicrosurfaceInfo, BSDF);
 
-std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
+std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet(
+	const EInterfaceMicrosurface defaultType) const
 {
+	EInterfaceMicrosurface microsurfaceType = m_microsurface;
+	if(microsurfaceType == EInterfaceMicrosurface::Unspecified)
+	{
+		microsurfaceType = defaultType;
+	}
+
 	if(isIsotropic())
 	{
 		const real alpha = RoughnessToAlphaMapping::map(getIsotropicRoughness(), m_roughnessToAlpha);
 
-		switch(m_microsurface)
+		switch(microsurfaceType)
 		{
 		case EInterfaceMicrosurface::TrowbridgeReitz:
-			return std::make_unique<IsoTrowbridgeReitzConstant>(alpha);
+			return std::make_unique<IsoTrowbridgeReitzConstant>(alpha, m_maskingShadowing);
 
 		case EInterfaceMicrosurface::Beckmann:
-			return std::make_unique<IsoBeckmann>(alpha);
+			return std::make_unique<IsoBeckmann>(alpha, m_maskingShadowing);
 
 		default:
 			PH_LOG(MicrosurfaceInfo, Warning,
-				"no input provided for the type of microsurface; resort to Trowbridge-Reitz (GGX)");
-			return std::make_unique<IsoTrowbridgeReitzConstant>(alpha);
+				"type of microsurface not specified; resort to Trowbridge-Reitz (GGX)");
+			return std::make_unique<IsoTrowbridgeReitzConstant>(alpha, m_maskingShadowing);
 		}
 	}
 	else
 	{
 		PH_ASSERT(!isIsotropic());
 
-		if(m_microsurface == EInterfaceMicrosurface::Beckmann)
+		if(microsurfaceType == EInterfaceMicrosurface::Beckmann)
 		{
 			PH_LOG(MicrosurfaceInfo, Warning,
 				"anisotropic Beckmann is not supported; resort to Trowbridge-Reitz (GGX)");
@@ -45,7 +52,8 @@ std::unique_ptr<Microfacet> MicrosurfaceInfo::genMicrofacet() const
 
 		return std::make_unique<AnisoTrowbridgeReitz>(
 			RoughnessToAlphaMapping::map(roughnessU, m_roughnessToAlpha), 
-			RoughnessToAlphaMapping::map(roughnessV, m_roughnessToAlpha));
+			RoughnessToAlphaMapping::map(roughnessV, m_roughnessToAlpha),
+			m_maskingShadowing);
 	}
 }
 

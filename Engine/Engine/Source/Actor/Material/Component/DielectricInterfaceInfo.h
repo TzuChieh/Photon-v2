@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Material/Component/EInterfaceFresnel.h"
+#include "Actor/Material/Component/sdl_component_enums.h"
 #include "SDL/sdl_interface.h"
 
 #include <Common/primitive_type.h>

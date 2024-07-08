@@ -95,16 +95,7 @@ inline T TOrthonormalBasis3<T>::cosPhi(const TVector3<T>& unitVec) const
 {
 	const T zProjection = unitVec.dot(m_zAxis);
 	const T rProjection = sinTheta(unitVec);
-
-	if(rProjection != T(0))
-	{
-		return math::clamp(zProjection / rProjection, T(-1), T(1));
-	}
-	else
-	{
-		// corresponds to phi = 0
-		return T(1);
-	}
+	return math::safe_clamp(zProjection / rProjection, static_cast<T>(-1), static_cast<T>(1));
 }
 
 template<typename T>
@@ -112,16 +103,7 @@ inline T TOrthonormalBasis3<T>::sinPhi(const TVector3<T>& unitVec) const
 {
 	const T xProjection = unitVec.dot(m_xAxis);
 	const T rProjection = sinTheta(unitVec);
-
-	if(rProjection != T(0))
-	{
-		return math::clamp(xProjection / rProjection, T(-1), T(1));
-	}
-	else
-	{
-		// corresponds to phi = 0
-		return T(0);
-	}
+	return math::safe_clamp(xProjection / rProjection, static_cast<T>(-1), static_cast<T>(1));
 }
 
 template<typename T>
@@ -129,26 +111,8 @@ inline T TOrthonormalBasis3<T>::tanPhi(const TVector3<T>& unitVec) const
 {
 	const T zProjection = unitVec.dot(m_zAxis);
 	const T xProjection = unitVec.dot(m_xAxis);
-
-	if(zProjection != T(0))
-	{
-		return math::clamp(
-			xProjection / zProjection,
-			std::numeric_limits<T>::lowest(),
-			std::numeric_limits<T>::max());
-	}
-	else
-	{
-		switch(math::sign(xProjection))
-		{
-		case -1: return std::numeric_limits<T>::lowest();
-		case  0: return T(0);
-		case  1: return std::numeric_limits<T>::max();
-		}
-
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return T(0);
-	}
+	const T tanP = xProjection / zProjection;
+	return std::isfinite(tanP) ? tanP : static_cast<T>(0);
 }
 
 template<typename T>
@@ -168,24 +132,15 @@ inline T TOrthonormalBasis3<T>::tan2Phi(const TVector3<T>& unitVec) const
 {
 	const T cos2P = cos2Phi(unitVec);
 	const T sin2P = 1 - cos2P;
-
-	if(cos2P != T(0))
-	{
-		return math::clamp(
-			sin2P / cos2P,
-			std::numeric_limits<T>::lowest(),
-			std::numeric_limits<T>::max());
-	}
-	else
-	{
-		return std::numeric_limits<T>::max();
-	}
+	const T tan2P = sin2P / cos2P;
+	PH_ASSERT(tan2P >= static_cast<T>(0) || !std::isfinite(tan2P));
+	return std::isfinite(tan2P) ? tan2P : static_cast<T>(0);
 }
 
 template<typename T>
 inline T TOrthonormalBasis3<T>::cosTheta(const TVector3<T>& unitVec) const
 {
-	return math::clamp(m_yAxis.dot(unitVec), T(-1), T(1));
+	return math::clamp(m_yAxis.dot(unitVec), static_cast<T>(-1), static_cast<T>(1));
 }
 
 template<typename T>
@@ -198,26 +153,8 @@ template<typename T>
 inline T TOrthonormalBasis3<T>::tanTheta(const TVector3<T>& unitVec) const
 {
 	const T cosT = cosTheta(unitVec);
-
-	if(cosT != T(0))
-	{
-		return math::clamp(
-			sinTheta(unitVec) / cosT,
-			std::numeric_limits<T>::lowest(),
-			std::numeric_limits<T>::max());
-	}
-	else
-	{
-		switch(math::sign(sinTheta(unitVec)))
-		{
-		case -1: return std::numeric_limits<T>::lowest();
-		case  0: return T(0);
-		case  1: return std::numeric_limits<T>::max();
-		}
-
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return T(0);
-	}
+	const T tanT = sinTheta(unitVec) / cosT;
+	return std::isfinite(tanT) ? tanT : static_cast<T>(0);
 }
 
 template<typename T>
@@ -249,18 +186,9 @@ inline T TOrthonormalBasis3<T>::tan2Theta(const TVector3<T>& unitVec) const
 {
 	const T cos2T = cos2Theta(unitVec);
 	const T sin2T = 1 - cos2T;
-
-	if(cos2T != T(0))
-	{
-		return math::clamp(
-			sin2T / cos2T,
-			std::numeric_limits<T>::lowest(),
-			std::numeric_limits<T>::max());
-	}
-	else
-	{
-		return std::numeric_limits<T>::max();
-	}
+	const T tan2T = sin2T / cos2T;
+	PH_ASSERT(tan2T >= static_cast<T>(0) || !std::isfinite(tan2T));
+	return std::isfinite(tan2T) ? tan2T : static_cast<T>(0);
 }
 
 template<typename T>

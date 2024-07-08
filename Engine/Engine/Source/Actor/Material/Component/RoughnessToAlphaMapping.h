@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Material/Component/ERoughnessToAlpha.h"
+#include "Actor/Material/Component/sdl_component_enums.h"
 
 #include <Common/primitive_type.h>
 
