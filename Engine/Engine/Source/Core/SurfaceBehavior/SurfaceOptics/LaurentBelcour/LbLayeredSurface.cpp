@@ -170,7 +170,7 @@ void LbLayeredSurface::genBsdfSample(
 	const auto selectedGgx = make_ggx(alphas[selectIndex]);
 
 	math::Vector3R H;
-	selectedGgx.sampleH(in.getX(), N, sampleFlow.flow2D(), &H);
+	selectedGgx.sampleVisibleH(in.getX(), N, in.getV(), sampleFlow.flow2D(), &H);
 
 	const math::Vector3R L = in.getV().mul(-1.0_r).reflect(H).normalizeLocal();
 	if(!ctx.sidedness.isSameHemisphere(in.getX(), L, in.getV()))
@@ -179,17 +179,20 @@ void LbLayeredSurface::genBsdfSample(
 		return;
 	}
 
-	const real NoH = N.dot(H);
-	const real HoL = H.dot(L);
+	const real absHoL = H.absDot(L);
 
 	// MIS with balance heuristic
-	real pdf = 0.0_r;
+	real pdfW = 0.0_r;
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
 		const auto ggx = make_ggx(alphas[i]);
-		const real D = ggx.distribution(in.getX(), N, H);
+
+		const lta::PDF pdf = ggx.pdfSampleVisibleH(in.getX(), N, H, in.getV());
+		PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
+
+		// Apply weight and the Jacobian for `HalfSolidAngle` -> `SolidAngle`
 		const real weight = sampleWeights[i] / summedSampleWeights;
-		pdf += weight * std::abs(D * NoH / (4.0_r * HoL));
+		pdfW += weight * pdf.value / (4.0_r * absHoL);
 	}
 
 	BsdfEvalInput evalInput;
@@ -202,7 +205,7 @@ void LbLayeredSurface::genBsdfSample(
 	const math::Spectrum bsdf = 
 		evalOutput.isMeasurable() ? evalOutput.getBsdf() : math::Spectrum(0);
 
-	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdf, absNoL);
+	out.setPdfAppliedBsdfCos(bsdf * absNoL / pdfW, absNoL);
 	out.setL(L);
 }
 
@@ -227,15 +230,14 @@ void LbLayeredSurface::calcBsdfPdf(
 	}
 
 	const real absNoV = std::min(N.absDot(in.getV()), 1.0_r);
-	const real NoH = N.dot(H);
-	const real HoL = H.dot(in.getL());
+	const real absHoL = H.absDot(in.getL());
 
-	// Similar to genBsdfSample(), here we perform adding-doubling then compute
+	// Similar to `genBsdfSample()`, here we perform adding-doubling then compute
 	// MIS'ed (balance heuristic) PDF value.
 	//
-	real summedSampleWeights = 0.0_r;
-	real pdf = 0.0_r;
 	InterfaceStatistics statistics(absNoV, LbLayer());
+	real summedSampleWeights = 0.0_r;
+	real pdfW = 0.0_r;
 	for(std::size_t i = 0; i < numLayers(); ++i)
 	{
 		const LbLayer addedLayer = getLayer(i, statistics.getLastLayer());
@@ -248,14 +250,16 @@ void LbLayeredSurface::calcBsdfPdf(
 		summedSampleWeights += sampleWeight;
 
 		const auto ggx = make_ggx(statistics.getEquivalentAlpha());
-		const real D = ggx.distribution(in.getX(), N, H);
-		pdf += sampleWeight * std::abs(D * NoH / (4.0_r * HoL));
-	}
 
-	if(summedSampleWeights > 0.0_r && std::isfinite(pdf))
-	{
-		out.setSampleDirPdf(lta::PDF::W(pdf / summedSampleWeights));
+		const lta::PDF pdf = ggx.pdfSampleVisibleH(in.getX(), N, H, in.getV());
+		PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
+
+		// Apply weight and the Jacobian for `HalfSolidAngle` -> `SolidAngle`
+		pdfW += sampleWeight * pdf.value / (4.0_r * absHoL);
 	}
+	pdfW /= summedSampleWeights;
+
+	out.setSampleDirPdf(lta::PDF::W(pdfW));
 }
 
 LbLayer LbLayeredSurface::getLayer(const std::size_t layerIndex, const LbLayer& previousLayer) const

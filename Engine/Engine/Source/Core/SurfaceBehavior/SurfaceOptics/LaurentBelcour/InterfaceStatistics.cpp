@@ -158,6 +158,17 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 		m_equivalentAlpha = 0.0_r;
 	}
 
+#if PH_DEBUG
+	for(const auto scaleVal : m_energyScale)
+	{
+		if(scaleVal < 0 || 1 < scaleVal)
+		{
+			PH_ASSERT_MSG(false, m_energyScale.toString());
+			break;
+		}
+	}
+#endif
+
 	// update energy
 	m_R0i = R0i;
 	m_T0i = T0i;

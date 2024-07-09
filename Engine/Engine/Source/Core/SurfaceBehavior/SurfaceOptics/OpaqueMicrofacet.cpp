@@ -101,9 +101,10 @@ void OpaqueMicrofacet::genBsdfSample(
 	const math::Vector3R N = in.getX().getShadingNormal();
 
 	math::Vector3R H;
-	m_microfacet->sampleH(
+	m_microfacet->sampleVisibleH(
 		in.getX(),
 		N,
+		in.getV(),
 		sampleFlow.flow2D(),
 		&H);
 
@@ -115,7 +116,7 @@ void OpaqueMicrofacet::genBsdfSample(
 	const real G = m_microfacet->geometry(in.getX(), N, H, L, in.getV());
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 
-	const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+	const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());
 	PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
 	math::Spectrum F;
@@ -149,7 +150,7 @@ void OpaqueMicrofacet::calcBsdfPdf(
 		return;
 	}
 
-	const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+	const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());
 	PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
 	// Apply the Jacobian for `HalfSolidAngle` -> `SolidAngle`

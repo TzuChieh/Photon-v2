@@ -102,7 +102,7 @@ void IsoBeckmann::sampleH(
 	PH_ASSERT(out_H);
 	*out_H = H;
 
-	PH_ASSERT_MSG(!H.isFinite() || H.lengthSquared() < 0.95_r || H.lengthSquared() > 1.05_r,
+	PH_ASSERT_MSG(0.95_r < H.lengthSquared() && H.lengthSquared() < 1.05_r,
 		"sample[0] = " + std::to_string(sample[0]) + ", "
 		"sample[1] = " + std::to_string(sample[1]) + ", "
 		"alpha = "     + std::to_string(m_alpha));

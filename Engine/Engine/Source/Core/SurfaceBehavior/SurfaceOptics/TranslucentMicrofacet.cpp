@@ -173,9 +173,11 @@ void TranslucentMicrofacet::genBsdfSample(
 	const math::Vector3R N = in.getX().getShadingNormal();
 
 	math::Vector3R H;
-	m_microfacet->sampleH(
+	//m_microfacet->sampleH(
+	m_microfacet->sampleVisibleH(
 		in.getX(),
 		N,
+		in.getV(),
 		sampleFlow.flow2D(),
 		&H);
 
@@ -257,7 +259,11 @@ void TranslucentMicrofacet::genBsdfSample(
 		return;
 	}
 
-	const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+	// Note: Reflection case shares the same final formula as refraction case. The `dotTerms`
+	// for reflection case is `std::abs(HoL / NoV) == std::abs(HoV / NoV)` since `HoL == HoV`.
+
+	//const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+	const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());
 	PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
 	const real NoV = N.dot(in.getV());
@@ -298,7 +304,8 @@ void TranslucentMicrofacet::calcBsdfPdf(
 			? getReflectionProbability(F)
 			: 1.0_r;
 
-		const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+		//const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+		const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());
 		PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
 		// Apply the Jacobian for `HalfSolidAngle` -> `SolidAngle` and path selection probability
@@ -344,7 +351,8 @@ void TranslucentMicrofacet::calcBsdfPdf(
 			? 1.0_r - getReflectionProbability(F)
 			: 1.0_r;
 
-		const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+		//const lta::PDF pdf = m_microfacet->pdfSampleH(in.getX(), N, H);
+		const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());
 		PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
 
 		// Apply the Jacobian for `HalfSolidAngle` -> `SolidAngle` and path selection probability

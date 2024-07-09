@@ -88,8 +88,10 @@ real ShapeInvariantMicrofacet::empiricalPhiCorrelation(
 	const math::Vector3R& L,
 	const math::Vector3R& V) const
 {
-	const auto projectedL  = X.getDetail().getShadingBasis().sinTheta(L) * L;
-	const auto projectedV  = X.getDetail().getShadingBasis().sinTheta(V) * V;
+	const math::Basis3R& worldBasis = X.getDetail().getShadingBasis();
+
+	const auto projectedL  = L - worldBasis.cosTheta(L) * worldBasis.getYAxis();
+	const auto projectedV  = V - worldBasis.cosTheta(V) * worldBasis.getYAxis();
 	const real cosDeltaPhi = math::clamp(projectedL.dot(projectedV), -1.0_r, 1.0_r);
 
 	const real deltaPhi = std::acos(cosDeltaPhi);
