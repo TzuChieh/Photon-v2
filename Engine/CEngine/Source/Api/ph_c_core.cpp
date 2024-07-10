@@ -43,7 +43,7 @@ void phConfigRendererResourceDirectory(const PhChar* const directory)
 
 PhBool phInit()
 {
-	if(!init_render_engine(EngineInitSettings::loadStandardConfig()))
+	if(!init_render_engine())
 	{
 		std::cerr << "engine initializing failed\n";
 		return PH_FALSE;

@@ -9,6 +9,7 @@
 #elif PH_OPERATING_SYSTEM_IS_LINUX
 
 #include <stdio.h>
+#include <limits.h>
 
 #elif PH_OPERATING_SYSTEM_IS_OSX
 
@@ -17,6 +18,7 @@
 #endif
 
 #include <new>
+#include <array>
 
 namespace ph::os
 {
@@ -190,6 +192,21 @@ std::size_t get_L1_cache_line_size_in_bytes()
 {
 	static const std::size_t numBytes = get_L1_cache_line_size_in_bytes_internal();
 	return numBytes;
+}
+
+std::filesystem::path get_executable_path()
+{
+#if PH_OPERATING_SYSTEM_IS_WINDOWS
+	std::array<wchar_t, MAX_PATH> buffer{};
+	const DWORD length = GetModuleFileNameW(NULL, buffer.data(), static_cast<DWORD>(buffer.size()));
+	return length > 0 ? buffer.data() : L"";
+#elif PH_OPERATING_SYSTEM_IS_LINUX
+	std::array<char, PATH_MAX> buffer{};
+	const ssize_t numBytes = readlink( = readlink("/proc/self/exe", buffer/data(), buffer.size());
+	return numBytes > 0 ? buffer.data() : "";
+#else
+	return "";
+#endif
 }
 
 }// end namespace ph::os

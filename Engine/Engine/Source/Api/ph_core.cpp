@@ -237,14 +237,19 @@ inline std::vector<const SdlEnum*> register_engine_enums()
 
 }// end anonymous namespace
 
-bool init_render_engine(EngineInitSettings settings)
+bool init_render_engine(std::optional<EngineInitSettings> settings)
 {
 	detail::core_logging::init();
 
-	if(!settings.additionalLogHandlers.empty())
+	if(!settings)
 	{
-		PH_LOG(CppAPI, Note, "adding {} additional log handler(s)", settings.additionalLogHandlers.size());
-		for(LogHandler& handler : settings.additionalLogHandlers)
+		settings = EngineInitSettings::loadStandardConfig();
+	}
+
+	if(settings->additionalLogHandlers.empty())
+	{
+		PH_LOG(CppAPI, Note, "adding {} additional log handler(s)", settings->additionalLogHandlers.size());
+		for(LogHandler& handler : settings->additionalLogHandlers)
 		{
 			if(!handler)
 			{
@@ -256,16 +261,16 @@ bool init_render_engine(EngineInitSettings settings)
 			detail::core_logging::get_logger().addLogHandler(std::move(handler));
 		}
 
-		settings.additionalLogHandlers.clear();
+		settings->additionalLogHandlers.clear();
 	}
 
-	if(!init_engine_core(settings))
+	if(!init_engine_core(*settings))
 	{
 		PH_LOG(CppAPI, Error, "core initialization failed");
 		return false;
 	}
 
-	if(!init_engine_IO_infrastructure(settings))
+	if(!init_engine_IO_infrastructure(*settings))
 	{
 		PH_LOG(CppAPI, Error, "IO infrastructure initialization failed");
 		return false;
@@ -286,7 +291,7 @@ bool init_render_engine(EngineInitSettings settings)
 	const auto sdlClasses = get_registered_engine_classes();
 	PH_DEBUG_LOG(CppAPI, "initialized {} SDL class definitions", sdlClasses.size());
 
-	after_engine_init(settings);
+	after_engine_init(*settings);
 
 	return true;
 }

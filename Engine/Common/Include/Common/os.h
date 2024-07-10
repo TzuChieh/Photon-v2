@@ -13,6 +13,7 @@ The following macros will be defined as 1 for each operating system:
 */
 
 #include <cstddef>
+#include <filesystem>
 
 // Defined on Windows x64 & x86
 #if defined(_WIN32)
@@ -80,5 +81,11 @@ EWindowsVersion get_windows_version();
 @return Size in bytes.
 */
 std::size_t get_L1_cache_line_size_in_bytes();
+
+/*! @brief Get the path to the currently running executable.
+Answering the question, "Where am I?"
+@return Path to the executable. Empty if cannot obtain the path.
+*/
+std::filesystem::path get_executable_path();
 
 }// end namespace ph::os

@@ -135,7 +135,12 @@ TEST(TOrthonormalBasis3Test, TrigonometryCornerCase)
 	basis.setYAxis(TVector3<float>(0, 1, 0));
 	basis.setZAxis(TVector3<float>(0, 0, 1));
 
-	TVector3<float> unitVec1(0, 1, 0);
-	EXPECT_TRUE(basis.cosTheta(unitVec1) == 1);
-	EXPECT_TRUE(basis.cosPhi(unitVec1) == 1);
+	const TVector3<float> unitY(0, 1, 0);
+
+	EXPECT_FLOAT_EQ(basis.sinTheta(unitY), 0);
+	EXPECT_FLOAT_EQ(basis.cosTheta(unitY), 1);
+	EXPECT_FLOAT_EQ(basis.tanTheta(unitY), 0);
+
+	// Unable to determine, but still need to be in a reasonable range
+	EXPECT_TRUE(-1 <= basis.cosPhi(unitY) && basis.cosPhi(unitY) <= 1);
 }

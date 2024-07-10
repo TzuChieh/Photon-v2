@@ -4,6 +4,7 @@
 #include "EEngineProject.h"
 
 #include <span>
+#include <optional>
 
 namespace ph { class SdlClass; }
 namespace ph { class SdlEnum; }
@@ -13,13 +14,17 @@ namespace ph
 {
 
 /*! @brief Initialize the render engine.
+
 Must be called before any other use of the engine. This functions also
 initializes all dependencies. Note that initialization is generally not
 required when using APIs from a base library (e.g., the `Common` library)--in
 case of an exception (such as logging), consult the API's documentation to see
 if anything should be done before using it.
+
+@param settings Settings for the engine. If not provided, the engine will try to load from a
+standard location (automatically create a default one if not exist).
 */
-bool init_render_engine(EngineInitSettings settings);
+bool init_render_engine(std::optional<EngineInitSettings> settings = std::nullopt);
 
 /*! @brief Exit the render engine.
 Must be called before leaving the engine. Using the engine after this call 

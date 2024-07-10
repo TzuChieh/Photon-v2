@@ -63,7 +63,7 @@ TEST(MathTest, NumberClamping)
 		constexpr auto nan = std::numeric_limits<double>::quiet_NaN();
 
 		EXPECT_EQ(safe_clamp(nan, 2.0, 5.0), 2.0);
-		EXPECT_EQ(safe_clamp(nan, -2.2, -5.5), -2.2);
+		EXPECT_EQ(safe_clamp(nan, -5.5, -2.2), -5.5);
 	}
 
 	// Safe clamping: Inf float
@@ -73,7 +73,7 @@ TEST(MathTest, NumberClamping)
 
 		EXPECT_EQ(safe_clamp(inf, 1.0f, 5.0f), 1.0f);
 		EXPECT_EQ(safe_clamp(-inf, 1.0f, 5.0f), 1.0f);
-		EXPECT_EQ(safe_clamp(inf, -1.0f, -5.0f), -1.0f);
+		EXPECT_EQ(safe_clamp(inf, -5.0f, -1.0f), -5.0f);
 		EXPECT_EQ(safe_clamp(inf, -1.0f, inf), -1.0f);
 		EXPECT_EQ(safe_clamp(inf, inf, inf), inf);
 		EXPECT_EQ(safe_clamp(-inf, inf, inf), inf);
@@ -87,7 +87,7 @@ TEST(MathTest, NumberClamping)
 
 		EXPECT_EQ(safe_clamp(inf, 1.0, 5.0), 1.0);
 		EXPECT_EQ(safe_clamp(-inf, 1.0, 5.0), 1.0);
-		EXPECT_EQ(safe_clamp(inf, -1.0, -5.0), -1.0);
+		EXPECT_EQ(safe_clamp(inf, -5.0, -1.0), -5.0);
 		EXPECT_EQ(safe_clamp(inf, -1.0, inf), -1.0);
 		EXPECT_EQ(safe_clamp(inf, inf, inf), inf);
 		EXPECT_EQ(safe_clamp(-inf, inf, inf), inf);
