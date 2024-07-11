@@ -7,7 +7,9 @@ namespace ph
 
 /*! @brief Dielectric-dielectric interface Fresnel effect.
 
-The formulae used are approximations made by Schlick.
+The formulae used are dielectric-specific approximations made by Brent Burley
+@cite Burley:2015:Extending, which provide some improvement over the approximation originally done
+by Schlick @cite Schlick:1994:BRDF. See the implementation of `calcReflectance()` for more details.
 */
 class SchlickApproxDielectricFresnel : public DielectricFresnel
 {

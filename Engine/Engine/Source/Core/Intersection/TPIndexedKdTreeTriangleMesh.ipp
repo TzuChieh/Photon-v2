@@ -162,15 +162,13 @@ inline void TPIndexedKdTreeTriangleMesh<Index>::calcHitDetail(
 			math::Vector2R(texCoords[2].x(), texCoords[2].y())};
 
 		if(!Triangle::calcSurfaceParamDerivatives(
-			positions, uvs,
-			&dPdU, &dPdV))
+			positions, uvs, &dPdU, &dPdV))
 		{
 			dPdU.set(0); dPdV.set(0);
 		}
 
 		if(hasShadingNormal && !Triangle::calcSurfaceParamDerivatives(
-			normals, uvs,
-			&dNdU, &dNdV))
+			normals, uvs, &dNdU, &dNdV))
 		{
 			dNdU.set(0); dNdV.set(0);
 		}

@@ -9,6 +9,11 @@
 namespace ph
 {
 
+/*! @brief Microfacet based translucent surface model.
+Microfacet optical behavior modeled using the dielectric variant @cite Walter:2007:Microfacet
+of the Cook-Torrance BRDF @cite Cook:1981:Reflectance.
+This model is double-sided.
+*/
 class TranslucentMicrofacet : public SurfaceOptics
 {
 public:

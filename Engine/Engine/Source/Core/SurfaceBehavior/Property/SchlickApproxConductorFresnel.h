@@ -7,7 +7,7 @@ namespace ph
 
 /*! @brief Conductor-dielectric interface Fresnel effect.
 
-The formulae used are approximations made by Schlick.
+The formulae used are approximations made by Schlick @cite Schlick:1994:BRDF.
 */
 class SchlickApproxConductorFresnel : public ConductorFresnel
 {

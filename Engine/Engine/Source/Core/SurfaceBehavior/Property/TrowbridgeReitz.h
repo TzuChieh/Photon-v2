@@ -6,8 +6,9 @@ namespace ph
 {
 
 /*! @brief Trowbridge-Reitz distribution (GGX).
-See the paper "Microfacet Models for Refraction through Rough Surfaces" by Walter et al.
-@cite Walter:2007:Microfacet
+See the original paper by Trowbridge et al. @cite Trowbridge:1975:Average. The paper
+"Microfacet Models for Refraction through Rough Surfaces" by Walter et al. @cite Walter:2007:Microfacet
+provides a nice explanation, too.
 */
 class TrowbridgeReitz : public ShapeInvariantMicrofacet
 {

@@ -12,6 +12,7 @@ namespace ph
 {
 
 /*! @brief Microfacet based opaque surface model.
+Microfacet optical behavior modeled using Cook-Torrance BRDF @cite Cook:1981:Reflectance.
 This model is double-sided.
 */
 class OpaqueMicrofacet : public SurfaceOptics

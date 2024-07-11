@@ -6,8 +6,6 @@ namespace ph
 {
 
 /*! @brief Isotropic Trowbridge-Reitz distribution (GGX).
-See the paper "Microfacet Models for Refraction through Rough Surfaces" by Walter et al.
-@cite Walter:2007:Microfacet
 */
 class IsoTrowbridgeReitz : public TrowbridgeReitz
 {

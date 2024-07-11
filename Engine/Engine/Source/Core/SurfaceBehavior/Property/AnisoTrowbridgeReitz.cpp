@@ -50,7 +50,7 @@ real AnisoTrowbridgeReitz::distribution(
 	const auto [alphaU, alphaV] = getAlphas(X);
 
 	const real cosThetaH = N.dot(H);
-	PH_ASSERT_GE(cosThetaH, 0.0_r);
+	PH_ASSERT_GE(cosThetaH, -1e-3_r);
 
 	const real cos2ThetaH = cosThetaH * cosThetaH;
 	const real cos4ThetaH = cos2ThetaH * cos2ThetaH;

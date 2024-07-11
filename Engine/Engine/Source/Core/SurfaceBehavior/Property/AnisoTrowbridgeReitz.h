@@ -5,6 +5,9 @@
 namespace ph
 {
 
+/*!
+See the original paper by Trowbridge et al. @cite Trowbridge:1975:Average.
+*/
 class AnisoTrowbridgeReitz : public TrowbridgeReitz
 {
 public:

@@ -48,17 +48,25 @@ public:
 
 protected:
 	/*! @brief Called when the generator starts producing a command.
-	@return Whether to generate command for this class.
+	@param[out] out_ctx Stores the context for the command. This context will be used for subsequent
+	handlers (`saveResource()`, `commandGenerated()`, `commandGenerated()`) for the same command.
+	@return Whether to generate command for this class. If `false`, this command will be skipped and
+	`endCommand()` will not be called.
 	*/
 	virtual bool beginCommand(
 		const SdlClass* targetClass,
 		SdlOutputContext* out_ctx) = 0;
 
 	/*! @brief Called when the generator finishes producing a command.
+	This is called last in the sequence of handler calls for a command. Will not be called on error
+	or if the command is canceled (see `beginCommand()`).
 	*/
 	virtual void endCommand() = 0;
 
 	/*! @brief Save target resource into output clauses.
+	@param resource The resource to save.
+	@param ctx Context for the command.
+	@param[out] clauses Buffer to append the generated clauses.
 	*/
 	virtual void saveResource(
 		const ISdlResource* resource,
@@ -67,6 +75,7 @@ protected:
 
 	/*! @brief Called when one or more commands are generated.
 	@param commandStr The newly generated command(s).
+	@param ctx Context for the command.
 	*/
 	virtual void commandGenerated(
 		std::string_view commandStr,
