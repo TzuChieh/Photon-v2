@@ -23,7 +23,7 @@ def create_base_config(dir, doxygen_cwd, project_name, project_code_name):
     css1_rel_path = (common_config_rel_dir / "doxygen-awesome-css" / "doxygen-awesome").with_suffix('.css')
     css2_rel_path = (common_config_rel_dir / "custom").with_suffix('.css')
     toc_js_rel_path = (common_config_rel_dir / "doxygen-awesome-css" / "doxygen-awesome-interactive-toc").with_suffix('.js')
-    layout_rel_path = (common_config_rel_dir / "doxygen_layout").with_suffix('.xml')
+    layout_rel_path = (common_config_rel_dir / "Common_doxygen_layout").with_suffix('.xml')
     bibtex1_rel_path = (common_config_rel_dir / "strings-full").with_suffix('.bib')
     bibtex2_rel_path = (common_config_rel_dir / "bibtex").with_suffix('.bib')
     tag_rel_path = (common_config_rel_dir / "docs" / project_code_name).with_suffix('.tag')

@@ -151,7 +151,7 @@ Photon also supports tinting reflectance and transmittance with user-specified v
 
 Real-world surfaces are seldom perfectly smooth. Therefore, [AbradedOpaque](@ref ph::AbradedOpaque) offers a wide range of tweakable microsurface parameters for opaque materials. A popular BRDF model that allows this is the Cook-Torrance microfacet BRDF @cite Cook:1981:Reflectance. For the normal distribution function (NDF), we use the [Trowbridge-Reitz model](@ref ph::TrowbridgeReitz) (also known as the GGX model) @cite Trowbridge:1975:Average by default, as it has been shown to match experimental data well. The model can use both [exact](@ref ph::ExactConductorFresnel) and [approximated](@ref ph::SchlickApproxConductorFresnel) versions of the Fresnel equation @cite Greve:2006:Reflections. In the case of the exact Fresnel equation, measured spectral index of refraction (IoR) can be used (complex IoR is also supported). [This site](https://refractiveindex.info/) has a good collection of measured IoR data.
 
-| ![Microfacet Gold](Example/microfacet_gold_0p1.jpg) | ![Microfacet Gold](Example/microfacet_gold_0p5.jpg) |
+| ![Microfacet Gold](Example/microfacet_gold_0p1.jpg) | ![Microfacet Gold Rougher](Example/microfacet_gold_0p5.jpg) |
 | :------------------: | :------------------: |
 | **Left: Gold with roughness = 0.1. Right: Gold with roughness = 0.5.** ||
 
@@ -160,21 +160,39 @@ Real-world surfaces are seldom perfectly smooth. Therefore, [AbradedOpaque](@ref
 NDFs other than Trowbridge-Reitz are also supported, see [here](@ref ph::EInterfaceMicrosurface). Roughness values are 
 often remapped to the @f$ \alpha @f$ parameter in the NDF, we have implementations for some [common mappings](@ref ph::ERoughnessToAlpha). The masking and shadowing terms in a microfacet BRDF often have some kind of correlation @cite Heitz:2014:Microfacet, and we provide some [common forms](@ref ph::EMaskingShadowing) to choose from.
 
-[//TODO]: <> (wip)
+The generalized form of Trowbridge-Reitz is anisotropic, which is described thoroughly in Disney's course note at SIGGRAPH 2012 @cite Burley:2012:Physicallybased. For anisotropic NDFs, we have an implementation of the @f$ D_{GTR} @f$ variant with @f$ \gamma = 2 @f$. A sharp edge of anisotropic materials is that they require properly mapped UV coordinates across the mesh in order to form a local basis around the shading point, which is necessary for determining the value of the NDF. Below is some renderings of anisotropic microfacet materials:
+
+| ![Microfacet Titanium](Example/microfacet_titanium_0p05_0p25.jpg) | ![Microfacet Titanium](Example/microfacet_titanium_0p25_0p05.jpg) |
+| :------------------: | :------------------: |
+| **Brushed titanium. Left: Roughness = (0.05, 0.25). Right: Roughness = (0.25, 0.05).** ||
+
+![Anisotropic Microfacet Comparison](Example/anisotropic_0_0p2.jpg "A comparison between anisotropic microfacet BRDFs. Left: Roughness = (0.2, 0). Middle: Roughness = (0.2, 0.2). Right: Roughness = (0, 0.2).")
 
 ### Abraded Translucent
 
-A good reference of microfacet models is the paper (“Microfacet Models for Refraction through Rough Surfaces”, EGSR07) written by Walter et al.
+Since the aforementioned microfacet theory is just a description of microgeometry, it can be applied to the case of light transmission with some modifications @cite Walter:2007:Microfacet. The most prominent change is that for each shading point, we now need to trace two paths instead of one, for reflection and transmission, respectively. Much of the code for handling reflection can be reused, but not for transmission (it requires an additional BTDF). This is one of the reasons why the abraded [opaque](@ref ph::AbradedOpaque) and [translucent](@ref ph::AbradedTranslucent) materials do not share a common base class. This microfacet-based translucent material is effective for modeling frosted glass. Currently, only single-bounce lighting inside the microgeometry is simulated. Multi-bounce lighting within the microgeometry will be incorporated in the near future.
 
-[//TODO]: <> (wip)
+| ![Microfacet Glass](Example/microfacet_glass_0p2.jpg) | ![Microfacet Glass Rougher](Example/microfacet_glass_0p6.jpg) |
+| :------------------: | :------------------: |
+| **Frosted glass. Left: Roughness = 0.2. Right: Roughness = 0.6.** ||
 
 ### Binary Mixed Surface
 
-[//TODO]: <> (wip)
+Being able to [mix two different materials](@ref ph::BinaryMixedSurfaceMaterial) greatly increases the diversity of possible materials. The mixing process can be nested, e.g., a mixed material can participate in another mixing process just like an ordinary, single material. Some material appearances, such as plastic and ceramic, can be achieved easily by this model (though it may not be accurate). As many other material attributes in Photon, the weighting factor for the mix can be mapped by an image.
+
+| ![Ceramic Float Mix](Example/ceramic_0p8_0p2_float.jpg) | ![Ceramic Texture Mix](Example/ceramic_0p8_0p2_textured.jpg) |
+| :------------------: | :------------------: |
+| **Left: Mixing matte opaque with abraded opaque materials with a (0.8, 0.2) weighting, producing a ceramic-like appearance. Right: Using an image to weight the same two materials.** ||
 
 ### Layered Material
 
-[//TODO]: <> (wip)
+Layered material models have become prevalent in the graphics community for quite some time. The solution by Jakob et al. @cite Jakob:2014:Comprehensive requires larger memory space to store some BSDFs, while the model developed by Weidlich et al. @cite Weidlich:2007:Arbitrarily requires little space but does not obey the law of energy conservation. Laurent Belcour developed a series of atomic statistical operators for simulating light transport within layers @cite Belcour:2018:Efficient. His solution is still not exact but is energy conserving, space efficient, and plays well with texture mapping. Photon has an implementation of Belcour's layered material model, which follows his original implementation closely, with some refactoring and improvements on numerical robustness.
+
+| ![Belcour Mug](Example/belcour_teaser.jpg) | ![Belcour Grease Iron](Example/belcour_grease_iron.jpg) |
+| :------------------: | :------------------: |
+| **Left: Simulating a mug material. Right: Polished iron with 2 layers of coating. One of the coating layer simulates grease with volumetric light transport.** ||
+
+![Belcour Mug Parameters](Example/beclour_mug_param.jpg "Note that the mug material (the left image above) uses the same parameters taken from the teaser image of Belcour's paper."){html: width=30%}
 
 ### Surface Behavior
 

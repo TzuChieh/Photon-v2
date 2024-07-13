@@ -40,7 +40,7 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 		}
 
 		// reflection variance terms
-		sR12 = conversions::alphaToVariance(layer2.getAlpha());
+		sR12 = lbconv::alpha_to_variance(layer2.getAlpha());
 		sR21 = sR12;
 
 		// transmission variance terms
@@ -54,16 +54,16 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 			const real cosWt_ = 1.0_r;
 			const real cosWi_ = 1.0_r;
 
-			sT12 = conversions::alphaToVariance(
+			sT12 = lbconv::alpha_to_variance(
 				layer2.getAlpha() * 0.5_r * std::abs((cosWt_ * n12 - cosWi_)) / (cosWt_ * n12));
-			sT21 = conversions::alphaToVariance(
+			sT21 = lbconv::alpha_to_variance(
 				layer2.getAlpha() * 0.5_r * std::abs((cosWi_ / n12 - cosWt_)) / (cosWi_ / n12));
 			j12 = (cosWt   / m_cosWi) * n12;
 			j21 = (m_cosWi / cosWt  ) / n12;
 		}
 
 		// evaluate tables using a modified roughness accounting for top layers
-		const real alpha_ = conversions::varianceToAlpha(m_sT0i + sR12);
+		const real alpha_ = lbconv::variance_to_alpha(m_sT0i + sR12);
 
 		R12 = FGD().sample(m_cosWi, alpha_, iorN12, iorK12);
 		T12 = iorK12.isZero() ? math::Spectrum(1) - R12 : math::Spectrum(0);
@@ -89,7 +89,7 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	{
 		// FIXME: I could not faithfully reproduce Laurent's result with the parameters specified
 		// in his paper (the gold dragon, the sphere in section 4 of the supplemental material).
-		// `conversions::gToVariance(layer2.getG())` seems to cause high variance in `sT12` & `sT21`,
+		// `lbconv::g_to_variance(layer2.getG())` seems to cause high variance in `sT12` & `sT21`,
 		// causing the layer under it to have higher alpha than expected. Not sure if this is an
 		// error on our side. `g` needs to be pretty small, e.g., 0.7 -> 0.96, 0.9 -> 0.99, to match
 		// the appearance in the paper.
@@ -112,7 +112,7 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 		T21 = T12;
 		R12.setColorValues(0);
 		R21.setColorValues(0);
-		sT12 = conversions::gToVariance(layer2.getG());
+		sT12 = lbconv::g_to_variance(layer2.getG());
 		sT21 = sT12;
 	}
 
@@ -150,7 +150,7 @@ bool InterfaceStatistics::addLayer(const LbLayer& layer2)
 	if(R0iTermAvg > 0.0_r)
 	{
 		m_energyScale     = R0iTerm;
-		m_equivalentAlpha = conversions::varianceToAlpha(m_sTi0 + m_J0i * (m_sT0i + sR12 + RrTermAvg * (sR12 + m_sRi0)));
+		m_equivalentAlpha = lbconv::variance_to_alpha(m_sTi0 + m_J0i * (m_sT0i + sR12 + RrTermAvg * (sR12 + m_sRi0)));
 	}
 	else
 	{

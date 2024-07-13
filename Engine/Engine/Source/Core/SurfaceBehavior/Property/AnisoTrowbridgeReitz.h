@@ -6,7 +6,8 @@ namespace ph
 {
 
 /*!
-See the original paper by Trowbridge et al. @cite Trowbridge:1975:Average.
+See the original paper by Trowbridge et al. @cite Trowbridge:1975:Average. The course note
+@cite Burley:2012:Physicallybased provides an in-depth description for practical applications.
 */
 class AnisoTrowbridgeReitz : public TrowbridgeReitz
 {

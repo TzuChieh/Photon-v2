@@ -10,22 +10,22 @@
 namespace ph
 {
 
-namespace conversions
+namespace lbconv
 {
 
-inline real alphaToVariance(const real alpha)
+inline real alpha_to_variance(const real alpha)
 {
 	const real clampedAlpha = math::clamp(alpha, 0.0_r, 0.9999_r);
 	const real alpha1p1 = std::pow(clampedAlpha, 1.1_r);
 	return alpha1p1 / (1.0_r - alpha1p1);
 }
 
-inline real varianceToAlpha(const real variance)
+inline real variance_to_alpha(const real variance)
 {
 	return std::pow(variance / (1.0_r + variance), 1.0_r / 1.1_r);
 }
 
-inline real gToVariance(const real g)
+inline real g_to_variance(const real g)
 {
 	PH_ASSERT(0.0_r < g && g <= 1.0_r);
 

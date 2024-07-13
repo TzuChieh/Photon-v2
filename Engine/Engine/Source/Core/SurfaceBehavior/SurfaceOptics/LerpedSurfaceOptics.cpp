@@ -177,7 +177,7 @@ void LerpedSurfaceOptics::genBsdfSample(
 
 		// TODO: this is quite a harsh condition--it may be possible to just 
 		// sample another elemental if one of them has 0 pdfW
-		if(!query[0].outputs.getSampleDirPdf() || !query[1].outputs.getSampleDirPdf())
+		if(!query[0].outputs || !query[1].outputs)
 		{
 			out.setMeasurability(false);
 			return;

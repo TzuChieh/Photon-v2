@@ -1,4 +1,4 @@
-# Build From Source {#main_build_from_source}
+# Build from Source {#main_build_from_source}
 
 [TOC]
 

@@ -1,4 +1,4 @@
-# Photon Render Test
+# Photon Render Test {#main_photon_render_test}
 
 [TOC]
 
