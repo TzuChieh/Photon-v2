@@ -1,4 +1,4 @@
-# Full PSDL Interface {#main_sdl_full_interface}
+# Scene Description Reference {#main_scene_description_reference}
 
 [TOC]
 
