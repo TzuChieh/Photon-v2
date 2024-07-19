@@ -75,7 +75,7 @@ public:
 
 	/*! @brief Set the parametric range where the ray extends.
 
-	The range is [minT, maxT). This is equivalent to calling \ref setMinT(real) 
+	The range is [minT, maxT). This is equivalent to calling @ref setMinT(real) 
 	and @ref setMaxT(real) together.
 	*/
 	void setRange(real minT, real maxT);

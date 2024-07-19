@@ -53,7 +53,8 @@ public:
 	Ray escapeEmpirically(const math::Vector3R& dir) const;
 
 	/*! @brief Escape this surface in a specific direction by iteratively re-intersect with the surface.
-	This variant is in general the most accurate one but is 5% ~ 15% more expensive than `escapeManually()`.
+	This variant is in general the most accurate one but is 5 % ~ 15 % more expensive than
+	`escapeManually()`.
 	@param dir The direction to escape. No need to be normalized.
 	@param numIterations The desired number of improvements to have on the offset.
 	@return The longest ray in `dir` that avoids this surface.
@@ -293,10 +294,10 @@ inline std::optional<Ray> SurfaceHitRefinery::tryEscapeManually(const SurfaceHit
 	if(distance2 > math::squared(delta * 3))
 	{
 		const auto distance = std::sqrt(distance2);
-		const auto unitDir = xToX2 / distance;
+		const auto rcpDistance = 1.0_r / distance;
 		return Ray(
 			m_X.getPos(),
-			unitDir,
+			xToX2 * rcpDistance,
 			delta,
 			distance - delta,
 			m_X.getTime());// following X's time
@@ -455,7 +456,7 @@ inline bool SurfaceHitRefinery::verifyOffset(
 	PH_ASSERT(canVerifyOffset(X, dir));
 
 	HitProbe probe;
-	Ray ray(rayOrigin + rayOffset, dir.normalize(), 0, rayLength, X.getTime());
+	const Ray ray(rayOrigin + rayOffset, dir.normalize(), 0, rayLength, X.getTime());
 	return !X.reintersect(ray, probe);
 }
 

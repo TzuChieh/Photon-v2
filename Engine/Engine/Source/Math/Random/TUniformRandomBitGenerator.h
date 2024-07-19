@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utility/utility.h"
+#include "Math/Random/sample.h"
 
 #include <Common/primitive_type.h>
 
@@ -124,23 +125,7 @@ inline TargetSample TUniformRandomBitGenerator<Derived, Bits>::generateSample()
 	// (custom types are explicitly allowed).
 	static_assert(std::is_floating_point_v<TargetSample> || std::is_class_v<TargetSample>);
 
-	if constexpr(std::is_same_v<SourceBits, uint32>)
-	{
-		const TargetSample sample = generate<SourceBits>() * TargetSample(0x1p-32);
-		PH_ASSERT_IN_RANGE_INCLUSIVE(sample, TargetSample(0.0), TargetSample(1.0));
-		return sample;
-	}
-	else if constexpr(std::is_same_v<SourceBits, uint64>)
-	{
-		const TargetSample sample = generate<SourceBits>() * TargetSample(0x1p-64);
-		PH_ASSERT_IN_RANGE_INCLUSIVE(sample, TargetSample(0.0), TargetSample(1.0));
-		return sample;
-	}
-	else
-	{
-		PH_STATIC_ASSERT_DEPENDENT_FALSE(Derived,
-			"No existing implementation can do `SourceBits` -> `TargetSample`.");
-	}
+	return bits_to_sample<TargetSample>(generate<SourceBits>());
 }
 
 template<typename Derived, typename Bits>

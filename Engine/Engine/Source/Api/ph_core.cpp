@@ -72,6 +72,7 @@
 #include "Actor/Actor.h"
 #include "Actor/PhysicalActor.h"
 #include "Actor/AModel.h"
+#include "Actor/AMaskedModel.h"
 #include "Actor/ADome.h"
 #include "Actor/APhantomModel.h"
 #include "Actor/ATransformedInstance.h"
@@ -196,6 +197,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<Actor>(),
 		get_sdl_class<PhysicalActor>(),
 		get_sdl_class<AModel>(),
+		get_sdl_class<AMaskedModel>(),
 		get_sdl_class<ADome>(),
 		get_sdl_class<AImageDome>(),
 		get_sdl_class<APreethamDome>(),

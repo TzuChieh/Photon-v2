@@ -43,12 +43,13 @@ class PhMaterialNodeSocket(bpy.types.NodeSocket):
     def get_from_res_name(self, b_material, link_index=0):
         """
         Get the previously created SDL resource name from an input link.
+        @return The resource name. `None` if not linked.
         """
         if not self.links:
             return None
 
         from_socket = self.links[link_index].from_socket
-        return naming.get_mangled_output_node_socket_name(from_socket, b_material)
+        return naming.get_mangled_output_node_socket_name(from_socket, b_material) if from_socket is not None else None
 
 
 @blender.register_class

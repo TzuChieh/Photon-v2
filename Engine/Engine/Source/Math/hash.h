@@ -12,8 +12,8 @@ namespace ph::math
 
 /*!
 Implements the hash function described in the paper "Optimized Spatial 
-Hashing for Collision Detection of Deformable Objects". Note that although
-they stated in the paper that 73856093, 19349663 and 83492791 are all prime
+Hashing for Collision Detection of Deformable Objects" by Teschner et al. @cite Teschner:2003:Optimized
+Note that although they stated in the paper that 73856093, 19349663 and 83492791 are all prime
 numbers, 19349663 is in fact a composite number (41 * 471943).
 
 Reference: 
@@ -68,21 +68,36 @@ uint64 murmur3_v13_bit_mix_64(uint64 v);
 */
 uint64 moremur_bit_mix_64(uint64 v);
 
+struct Murmur3BitMixer32
+{
+	uint32 operator () (const uint32 v) const
+	{
+		return murmur3_bit_mix_32(v);
+	}
+};
+
 /*! @brief Generate 32-bit hash values using MurmurHash3.
 Note that there are no collisions when `T` has <= 32 bits (two distinct inputs will not result in the
 same output). In general, if there is a way to reverse a function (reversing `murmur3_32()` is possible), 
 it is guaranteed there cannot be any collisions. Otherwise, it would not be possible to revert.
 */
-template<typename T>
+template<typename T, typename BitMixerType = Murmur3BitMixer32>
 uint32 murmur3_32(const T& data, uint32 seed);
 
 /*! @brief Generate 32-bit hash values using MurmurHash3.
+This is a lower level variant of MurmurHash3 and can be useful for customizing its behavior, e.g.,
+it can accept arbitrary `BitMixerType` without requiring it to be default constructible.
 @param data Pointer to a data array of type `T`.
 @param dataSize Number of elements in the data array.
+@param bitMixer The finalizer for the hashing algorithm.
 @param seed A value for generating the hash. Can be from a RNG or anything you prefer.
 */
-template<typename T>
-uint32 murmur3_32(const T* data, std::size_t dataSize, uint32 seed);
+template<typename T, typename BitMixerType>
+uint32 murmur3_32(
+	const T* data,
+	std::size_t dataSize,
+	BitMixerType&& bitMixer,
+	uint32 seed);
 
 /*! @brief Get the permuted index or value in O(1) space and O(1) time.
 @param i The index or value to be permuted.

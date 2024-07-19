@@ -100,6 +100,18 @@ public:
 	/*! @brief Get the coordinates referred to by the parametric distance @p t.
 	*/
 	TVector3<T> getPoint(T t) const;
+
+	/*! @brief Get the parametric distance of a point when it is projected on the line.
+	*/
+	T getProjectedT(const TVector3<T>& point) const;
+
+	/*! @brief Get the parametric distance of a point when it is rotated to the line.
+	*/
+	T getFoldedT(const TVector3<T>& point) const;
+
+	/*! @brief Get the length of line in terms of parametric distance.
+	*/
+	T getDeltaT() const;
 	///@}
 
 private:

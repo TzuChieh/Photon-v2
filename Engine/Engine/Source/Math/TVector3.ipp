@@ -21,9 +21,7 @@ inline TVector3<T> TVector3<T>::weightedSum(
 	const TVector3& vB, const T wB,
 	const TVector3& vC, const T wC)
 {
-	return TVector3(vA.x() * wA + vB.x() * wB + vC.x() * wC,
-	                vA.y() * wA + vB.y() * wB + vC.y() * wC,
-	                vA.z() * wA + vB.z() * wB + vC.z() * wC);
+	return vA * wA + vB * wB + vC * wC;
 }
 
 template<typename T>

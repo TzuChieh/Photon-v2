@@ -69,7 +69,7 @@ void DiffuseSurfaceEmitterBase::genDirectSampleFromSurface(
 	}
 
 	HitDetail detail;
-	HitProbe(probe).calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+	probe.calcHitDetail(posSample.outputs.getObservationRay(), &detail);
 
 	const auto emitterToTargetPos = query.inputs.getTargetPos() - posSample.outputs.getPos();
 	if(!canEmit(emitterToTargetPos, detail.getShadingNormal()))
@@ -117,7 +117,7 @@ void DiffuseSurfaceEmitterBase::emitRayFromSurface(
 	}
 
 	HitDetail detail;
-	HitProbe(probe).calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+	probe.calcHitDetail(posSample.outputs.getObservationRay(), &detail);
 
 	const auto sampleBasis = math::Basis3R::makeFromUnitY(detail.getShadingNormal());
 	const auto rayDir = sampleBasis.localToWorld(localRayDir);
@@ -134,7 +134,7 @@ void DiffuseSurfaceEmitterBase::emitRayFromSurface(
 		query.inputs.getTime());
 
 	// The emitted ray will be representing the hit event
-	probe.replaceBaseHitRayTWith(emittedRay.getMinT());
+	probe.replaceBaseHitRayT(emittedRay.getMinT());
 
 	math::Spectrum emittedEnergy;
 	energy.sample(SampleLocation(detail, math::EColorUsage::EMR), &emittedEnergy);

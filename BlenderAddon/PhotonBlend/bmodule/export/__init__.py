@@ -58,6 +58,7 @@ class Exporter:
         print("-------------------------------------------------------------")
 
     def export_material(self, b_material):
+        # TODO: adhere to the material.export convention
         # FIXME: hack
         if b_material.photon.use_nodes:
             return nodes.to_sdl(b_material, self.get_sdlconsole())
@@ -212,20 +213,20 @@ class Exporter:
     def export(self, b_depsgraph: bpy.types.Depsgraph):
         print("Input dependency graph mode (Exporter): %s" % str(b_depsgraph.mode))
         
-        b_camera_object = scene.find_active_camera_object(b_depsgraph)
-        b_mesh_objects = scene.find_mesh_objects(b_depsgraph)
-        b_materials = scene.find_materials_from_mesh_objects(b_mesh_objects, b_depsgraph)
-        b_light_objects = scene.find_light_objects(b_depsgraph)
+        b_camera_obj = scene.find_active_camera_object(b_depsgraph)
+        b_mesh_objs = scene.find_mesh_objects(b_depsgraph)
+        b_materials = scene.find_materials_from_mesh_objects(b_mesh_objs, b_depsgraph)
+        b_light_objs = scene.find_light_objects(b_depsgraph)
 
         print("Exporter found %d mesh objects, %d materials, and %d light objects" % (
-            len(b_mesh_objects),
+            len(b_mesh_objs),
             len(b_materials),
-            len(b_light_objects)))
+            len(b_light_objs)))
 
         # Exporting Blender data as SDL
 
         # TODO: export all cameras, not just the active one
-        self.export_camera(b_camera_object)
+        self.export_camera(b_camera_obj)
 
         for b_material in b_materials:
             print("exporting material: " + b_material.name)
@@ -234,13 +235,15 @@ class Exporter:
         # TODO: Instancing; also see the comment in `mesh_object_to_sdl_actor()`, mesh data in mesh object may
         # have name collision even if they are actually different. How do we properly export mesh data should
         # be revisited
-        for b_mesh_object in b_mesh_objects:
-            print("exporting mesh object: " + b_mesh_object.name)
-            mesh.export.mesh_object_to_sdl_actor(b_mesh_object, self.get_sdlconsole())
+        for b_mesh_obj in b_mesh_objs:
+            print(f"exporting mesh object: {b_mesh_obj.name}")
+            mesh.export.mesh_object_to_sdl_actor(b_mesh_obj, self.get_sdlconsole())
 
-        for b_light_object in b_light_objects:
-            print("exporting light object: " + b_light_object.name)
-            light.export.light_object_to_sdl_actor(b_light_object, self.get_sdlconsole())
+        for b_light_obj in b_light_objs:
+            print(f"exporting light object: {b_light_obj.name}")
+            light.export.light_object_to_sdl_actor(b_light_obj, self.get_sdlconsole())
 
-        b_world = b_depsgraph.scene_eval.world
-        world.export.world_to_sdl_actor(b_world, self.get_sdlconsole())
+        b_world_obj = b_depsgraph.scene_eval.world
+        if b_world_obj is not None:
+            print(f"exporting world object {b_world_obj.name}")
+            world.export.world_to_sdl_actor(b_world_obj, self.get_sdlconsole())

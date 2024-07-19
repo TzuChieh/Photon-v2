@@ -123,10 +123,10 @@ public:
 		const Ray& srcRay,
 		HitProbe& srcProbe) const override
 	{
-		PH_ASSERT(srcProbe.getCurrentHit() == this);
+		PH_ASSERT(srcProbe.getTopHit() == this);
 		srcProbe.popHit();
 
-		if(srcProbe.getCurrentHit()->reintersect(ray, probe, srcRay, srcProbe))
+		if(srcProbe.getTopHit()->reintersect(ray, probe, srcRay, srcProbe))
 		{
 			probe.pushIntermediateHit(this);
 			return true;
@@ -144,12 +144,12 @@ public:
 	{
 		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
 		// the hit stack; 2. the hit event is invalid
-		PH_ASSERT(probe.getCurrentHit() == this);
+		PH_ASSERT(probe.getTopHit() == this);
 		probe.popHit();
 
 		// Current hit is not necessary the injectee (as obtained via `getInjectee()`). For example,
 		// if the injectee contains multiple instances then it could simply skip over to one of them.
-		probe.getCurrentHit()->calcHitDetail(ray, probe, out_detail);
+		probe.getTopHit()->calcHitDetail(ray, probe, out_detail);
 
 		// This is a representative of the original primitive
 		out_detail->setHitIntrinsics(

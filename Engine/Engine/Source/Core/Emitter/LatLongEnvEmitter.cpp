@@ -120,7 +120,7 @@ void LatLongEnvEmitter::genDirectSample(
 	}
 
 	HitDetail detail;
-	HitProbe(probe).calcHitDetail(posSample.outputs.getObservationRay(), &detail);
+	probe.calcHitDetail(posSample.outputs.getObservationRay(), &detail);
 
 	// The intension of this method is to importance sample based on UV, so the sampled UV should
 	// not differ much to the one from hit event (up to some numerical error).
@@ -208,7 +208,7 @@ void LatLongEnvEmitter::emitRay(
 	query.outputs.setEmittedRay(emittedRay);
 	query.outputs.setPdf(posSample.outputs.getPdfPos(), posSample.outputs.getPdfDir());
 
-	probe.replaceBaseHitRayTWith(emittedRay.getMinT());
+	probe.replaceBaseHitRayT(emittedRay.getMinT());
 }
 
 real LatLongEnvEmitter::calcRadiantFluxApprox() const

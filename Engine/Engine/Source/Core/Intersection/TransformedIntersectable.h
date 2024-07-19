@@ -45,13 +45,13 @@ public:
 		const Ray& srcRay,
 		HitProbe& srcProbe) const override
 	{
-		PH_ASSERT(srcProbe.getCurrentHit() == this);
+		PH_ASSERT(srcProbe.getTopHit() == this);
 		srcProbe.popHit();
 
 		Ray localRay, localSrcRay;
 		m_worldToLocal->transform(ray, &localRay);
 		m_worldToLocal->transform(srcRay, &localSrcRay);
-		if(srcProbe.getCurrentHit()->reintersect(localRay, probe, localSrcRay, srcProbe))
+		if(srcProbe.getTopHit()->reintersect(localRay, probe, localSrcRay, srcProbe))
 		{
 			probe.pushIntermediateHit(this);
 			return true;
@@ -69,7 +69,7 @@ public:
 	{
 		// If failed, it is likely to be caused by: 1. mismatched/missing probe push or pop in
 		// the hit stack; 2. the hit event is invalid
-		PH_ASSERT(probe.getCurrentHit() == this);
+		PH_ASSERT(probe.getTopHit() == this);
 		probe.popHit();
 
 		Ray localRay;
@@ -77,9 +77,9 @@ public:
 
 		// Current hit is not necessary `m_intersectable`. For example, if `m_intersectable` contains
 		// multiple instances then it could simply skip over to one of them.
-		PH_ASSERT(probe.getCurrentHit());
+		PH_ASSERT(probe.getTopHit());
 		HitDetail localDetail;
-		probe.getCurrentHit()->calcHitDetail(localRay, probe, &localDetail);
+		probe.getTopHit()->calcHitDetail(localRay, probe, &localDetail);
 
 		*out_detail = localDetail;
 		m_localToWorld->transform(

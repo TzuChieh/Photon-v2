@@ -10,6 +10,7 @@
 #include <bit>
 #include <algorithm>
 #include <climits>
+#include <utility>
 
 namespace ph::math
 {
@@ -114,14 +115,18 @@ inline uint64 moremur_bit_mix_64(uint64 v)
 	return v;
 }
 
-template<typename T>
+template<typename T, typename BitMixerType>
 inline uint32 murmur3_32(const T& data, const uint32 seed)
 {
-	return murmur3_32(&data, 1, seed);
+	return murmur3_32(&data, 1, BitMixerType{}, seed);
 }
 
-template<typename T>
-inline uint32 murmur3_32(const T* const data, const std::size_t dataSize, const uint32 seed)
+template<typename T, typename BitMixerType>
+inline uint32 murmur3_32(
+	const T* const data,
+	const std::size_t dataSize,
+	BitMixerType&& bitMixer,
+	const uint32 seed)
 {
 	/*
 	References:
@@ -194,7 +199,7 @@ inline uint32 murmur3_32(const T* const data, const std::size_t dataSize, const 
 	// Finalization
 
 	h1 ^= static_cast<uint32>(dataSize);
-	h1 = murmur3_bit_mix_32(h1);
+	h1 = std::forward<BitMixerType>(bitMixer)(h1);
 	return h1;
 }
 

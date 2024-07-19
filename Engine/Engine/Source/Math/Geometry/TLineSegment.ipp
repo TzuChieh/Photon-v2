@@ -5,6 +5,7 @@
 #include <Common/assertion.h>
 
 #include <limits>
+#include <cmath>
 
 namespace ph::math
 {
@@ -123,6 +124,26 @@ template<typename T>
 inline TVector3<T> TLineSegment<T>::getPoint(const T t) const
 {
 	return m_origin.add(m_dir.mul(t));
+}
+
+template<typename T>
+inline T TLineSegment<T>::getProjectedT(const TVector3<T>& point) const
+{
+	const TVector3<T> pointVec = point - m_origin;
+	return pointVec.dot(m_dir) / m_dir.lengthSquared();
+}
+
+template<typename T>
+inline T TLineSegment<T>::getFoldedT(const TVector3<T>& point) const
+{
+	const TVector3<T> pointVec = point - m_origin;
+	return std::sqrt(pointVec.lengthSquared() / m_dir.lengthSquared());
+}
+
+template<typename T>
+inline T TLineSegment<T>::getDeltaT() const
+{
+	return m_maxT - m_minT;
 }
 
 }// end namespace ph::math

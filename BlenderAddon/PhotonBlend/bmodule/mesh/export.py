@@ -51,30 +51,49 @@ def _export_model_actor(
     material_name,
     position,
     rotation,
-    scale):
+    scale,
+    mask_name=None):
     """
     Export a SDL model actor to `console`.
     """
+    use_mask = mask_name is not None
+    base_model_actor_name = model_actor_name + "_base" if use_mask else model_actor_name
+
     creator = sdl.ModelActorCreator()
-    creator.set_data_name(model_actor_name)
+    creator.set_data_name(base_model_actor_name)
     creator.set_geometry(sdl.Geometry(geometry_name))
     creator.set_material(sdl.Material(material_name))
+
+    if use_mask:
+        creator.phantomize()
+
     console.queue_command(creator)
 
     translator = sdl.CallTranslate()
-    translator.set_target_name(model_actor_name)
+    translator.set_target_name(base_model_actor_name)
     translator.set_amount(sdl.Vector3(position))
     console.queue_command(translator)
 
     rotator = sdl.CallRotate()
-    rotator.set_target_name(model_actor_name)
+    rotator.set_target_name(base_model_actor_name)
     rotator.set_rotation(sdl.Quaternion((rotation.x, rotation.y, rotation.z, rotation.w)))
     console.queue_command(rotator)
 
     scaler = sdl.CallScale()
-    scaler.set_target_name(model_actor_name)
+    scaler.set_target_name(base_model_actor_name)
     scaler.set_amount(sdl.Vector3(scale))
     console.queue_command(scaler)
+
+    if not use_mask:
+        return
+
+    assert model_actor_name != base_model_actor_name
+
+    masked_creator = sdl.MaskedModelActorCreator()
+    masked_creator.set_data_name(model_actor_name)
+    masked_creator.set_base(sdl.Actor(base_model_actor_name))
+    masked_creator.set_mask(sdl.Image(mask_name))
+    console.queue_command(masked_creator)
 
 
 def _export_original_mesh_object(b_mesh_object: bpy.types.Object, console: SdlConsole):
@@ -157,9 +176,13 @@ def _export_original_mesh_object(b_mesh_object: bpy.types.Object, console: SdlCo
             light_actor_name = naming.get_mangled_object_name(b_mesh_object, prefix="Emissive", suffix=str(material_idx))
             emission_image_name = material.get_emission_image_res_name(b_material)
             _export_light_actor(console, light_actor_name, emission_image_name, geometry_name, material_name, pos, rot, scale)
+
+            if material.is_masked(b_material):
+                print(f"warning: mesh object {b_mesh_object.name} tries to mask emission, this is not supported")
         else:
             model_actor_name = naming.get_mangled_object_name(b_mesh_object, suffix=str(material_idx))
-            _export_model_actor(console, model_actor_name, geometry_name, material_name, pos, rot, scale)
+            mask_image_name = material.get_mask_image_res_name(b_material)
+            _export_model_actor(console, model_actor_name, geometry_name, material_name, pos, rot, scale, mask_name=mask_image_name)
 
 
 def _export_menger_sponge_mesh_object(b_mesh_object: bpy.types.Object, console: SdlConsole):

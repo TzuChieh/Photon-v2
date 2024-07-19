@@ -38,6 +38,8 @@ def light_object_to_sdl_actor(b_light_object: bpy.types.Object, console: SdlCons
         if b_light.shape in {'SQUARE', 'RECTANGLE'}:
             rot = rot @ mathutils.Quaternion((1.0, 0.0, 0.0), math.radians(180.0))
 
+    # TODO: not exporting if no such transform
+
     translator = sdl.CallTranslate()
     translator.set_target_name(src_light_actor_name)
     translator.set_amount(sdl.Vector3(pos))

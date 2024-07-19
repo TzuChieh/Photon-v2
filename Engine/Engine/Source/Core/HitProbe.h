@@ -20,6 +20,9 @@ class Intersectable;
 class HitDetail;
 class Ray;
 
+/*! @brief Lightweight ray intersection testing and reporting object.
+If an intersection is found, a detailed report can be obtained from the stored information.
+*/
 class HitProbe final
 {
 public:
@@ -30,46 +33,51 @@ public:
 	HitProbe();
 
 	/*! @brief Calculates basic hit information using this probe.
-	@warning This method will destroy `this` probe.
+	The information is calculated using a copy of the current state of this probe.
 	*/
-	void calcHitDetail(const Ray& ray, HitDetail* out_detail);
+	void calcHitDetail(const Ray& ray, HitDetail* out_detail) const;
 
 	/*! @brief Calculates full hit information using this probe.
-	@warning This method will destroy `this` probe.
+	The information is calculated using a copy of the current state of this probe.
 	*/
-	void calcFullHitDetail(const Ray& ray, HitDetail* out_detail);
+	void calcFullHitDetail(const Ray& ray, HitDetail* out_detail) const;
 
 	/*! @brief Intersect the intersected object again with a different ray.
+	The operation is done using a copy of the current state of this probe.
 	@param ray The different ray to use for intersection test.
 	@param probe The probe to record the intersection.
 	@param srcRay The ray from a previous hit event (associated with `this` probe).
 	@note Generates hit event (with `ray` and `probe`).
-	@warning This method will destroy `this` probe.
 	*/
-	bool reintersect(const Ray& ray, HitProbe& probe, const Ray& srcRay);
+	bool reintersect(const Ray& ray, HitProbe& probe, const Ray& srcRay) const;
 
 	bool isOnDefaultChannel() const;
 
-	/*!
-	Pushes a hit target that will participate in hit detail's calculation onto the stack.
+	/*! @brief Adds a hit target that will participate in hit detail's calculation to the stack.
 	*/
 	void pushIntermediateHit(const Intersectable* hitTarget);
 
-	/*!
+	/*! @brief Adds the first hit target to the stack.
 	Similar to `pushIntermediateHit()`, except the parametric hit distance `hitRayT` must also 
 	be reported.
 	*/
 	void pushBaseHit(const Intersectable* hitTarget, real hitRayT);
 
+	/*! @brief Removes the most recent hit target from the stack.
+	*/
 	void popHit();
 
-	void replaceCurrentHitWith(const Intersectable* newCurrentHit);
-	void replaceBaseHitRayTWith(real hitRayT);
+	void replaceTopHit(const Intersectable* newTopHit);
+	void replaceBaseHitRayT(real newHitRayT);
 
 	void setChannel(uint8 channel);
 	uint8 getChannel() const;
 
-	const Intersectable* getCurrentHit() const;
+	/*!
+	@return Most recent hit target on the stack. May be `nullptr` if the probe is empty.
+	*/
+	const Intersectable* getTopHit() const;
+
 	real getHitRayT() const;
 
 	template<typename T>
@@ -121,16 +129,16 @@ inline void HitProbe::popHit()
 	m_hitStack.pop();
 }
 
-inline void HitProbe::replaceCurrentHitWith(const Intersectable* const newCurrentHit)
+inline void HitProbe::replaceTopHit(const Intersectable* const newTopHit)
 {
 	m_hitStack.pop();
-	m_hitStack.push(newCurrentHit);
+	m_hitStack.push(newTopHit);
 }
 
-inline void HitProbe::replaceBaseHitRayTWith(const real hitRayT)
+inline void HitProbe::replaceBaseHitRayT(const real newHitRayT)
 {
 	PH_ASSERT(m_hasBaseHitSet);
-	m_hitRayT = hitRayT;
+	m_hitRayT = newHitRayT;
 }
 
 inline void HitProbe::setChannel(const uint8 channel)
@@ -143,7 +151,7 @@ inline uint8 HitProbe::getChannel() const
 	return m_hitDetailChannel;
 }
 
-inline const Intersectable* HitProbe::getCurrentHit() const
+inline const Intersectable* HitProbe::getTopHit() const
 {
 	return m_hitStack.top();
 }

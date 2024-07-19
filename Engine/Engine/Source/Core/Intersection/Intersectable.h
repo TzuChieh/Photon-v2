@@ -90,7 +90,7 @@ public:
 	*/
 	virtual void calcHitDetail(
 		const Ray& ray, 
-		HitProbe&  probe,
+		HitProbe& probe,
 		HitDetail* out_detail) const = 0;
 
 	/*! @brief Calculates Axis-Aligned Bounding Box (AABB) of itself.

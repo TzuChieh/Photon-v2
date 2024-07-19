@@ -4,6 +4,8 @@
 #include "World/Foundation/TransientVisualElement.h"
 #include "SDL/sdl_interface.h"
 
+#include <Common/logging.h>
+
 #include <string>
 
 namespace ph { class PreCookReport; }
@@ -12,6 +14,9 @@ namespace ph { class CookOrder; }
 
 namespace ph
 {
+
+// General group for actor cooking process
+PH_DECLARE_LOG_GROUP(ActorCooking);
 
 class Actor : public TSdlResourceBase<ESdlTypeCategory::Ref_Actor>
 {

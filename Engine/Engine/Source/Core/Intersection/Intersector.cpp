@@ -10,7 +10,7 @@ bool Intersector::reintersect(
 	const Ray& srcRay,
 	HitProbe& srcProbe) const
 {
-	return srcProbe.getCurrentHit()->reintersect(ray, probe, srcRay, srcProbe);
+	return srcProbe.getTopHit()->reintersect(ray, probe, srcRay, srcProbe);
 }
 
 void Intersector::calcHitDetail(
@@ -18,7 +18,7 @@ void Intersector::calcHitDetail(
 	HitProbe&        probe,
 	HitDetail* const out_detail) const
 {
-	probe.getCurrentHit()->calcHitDetail(ray, probe, out_detail);
+	probe.getTopHit()->calcHitDetail(ray, probe, out_detail);
 }
 
 }// end namespace ph

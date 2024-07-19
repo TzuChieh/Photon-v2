@@ -53,6 +53,8 @@ PH_DEFINE_INLINE_ENUM_FLAG_OPERATORS(ESurfaceHitReason);
 
 using SurfaceHitReason = TEnumFlags<ESurfaceHitReason>;
 
+/*! @brief General information about a ray-surface intersection event.
+*/
 class SurfaceHit final
 {
 public:
@@ -134,7 +136,7 @@ inline SurfaceHit::SurfaceHit(
 	, m_detail       {}
 	, m_reason       {reason}
 {
-	HitProbe(probe).calcFullHitDetail(ray, &m_detail);
+	probe.calcFullHitDetail(ray, &m_detail);
 }
 
 inline SurfaceHit::SurfaceHit(
@@ -151,7 +153,7 @@ inline SurfaceHit::SurfaceHit(
 
 inline bool SurfaceHit::reintersect(const Ray& ray, HitProbe& probe) const
 {
-	return HitProbe(m_recordedProbe).reintersect(ray, probe, getRay());
+	return m_recordedProbe.reintersect(ray, probe, getRay());
 }
 
 inline const HitDetail& SurfaceHit::getDetail() const

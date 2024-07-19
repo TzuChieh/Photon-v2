@@ -20,8 +20,6 @@
 namespace ph
 {
 
-PH_DEFINE_INTERNAL_LOG_GROUP(AIesAttenuatedLight, Actor);
-
 PreCookReport AIesAttenuatedLight::preCook(const CookingContext& ctx) const
 {
 	PreCookReport report = ALight::preCook(ctx);
@@ -32,15 +30,15 @@ PreCookReport AIesAttenuatedLight::preCook(const CookingContext& ctx) const
 
 	if(!m_source)
 	{
-		PH_LOG(AIesAttenuatedLight, Warning,
-			"ignoring this light: light source is not specified");
+		PH_LOG(ActorCooking, Warning,
+			"ignoring this IES light: light source is not specified");
 		report.markAsUncookable();
 	}
 
 	if(!m_iesFile.isResolved())
 	{
-		PH_LOG(AIesAttenuatedLight, Warning,
-			"ignoring this light: IES file is missing");
+		PH_LOG(ActorCooking, Warning,
+			"ignoring this IES light: IES file is missing");
 		report.markAsUncookable();
 	}
 
@@ -53,8 +51,8 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	TransientVisualElement sourceElement = getSourceVisualElement(ctx);
 	if(sourceElement.emitters.empty())
 	{
-		PH_LOG(AIesAttenuatedLight, Warning,
-			"ignoring this light: no emitters were found");
+		PH_LOG(ActorCooking, Warning,
+			"ignoring this IES light: no emitters were found");
 		return {};
 	}
 
@@ -62,8 +60,8 @@ TransientVisualElement AIesAttenuatedLight::cook(
 	   sourceElement.emitters.size() != 1 && 
 	   sourceElement.emitters.size() != sourceElement.primitivesView.size())
 	{
-		PH_LOG(AIesAttenuatedLight, Warning,
-			"ignoring this light: no match between emitters and primitives "
+		PH_LOG(ActorCooking, Warning,
+			"ignoring this IES light: no match between emitters and primitives "
 			"(# emitters: {}, # primitives: {})",
 			sourceElement.emitters.size(), sourceElement.primitivesView.size());
 		return {};

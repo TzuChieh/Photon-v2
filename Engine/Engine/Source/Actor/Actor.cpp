@@ -7,6 +7,8 @@
 namespace ph
 {
 
+PH_DEFINE_LOG_GROUP(ActorCooking, Actor);
+
 PreCookReport Actor::preCook(const CookingContext& ctx) const
 {
 	return PreCookReport(getId());

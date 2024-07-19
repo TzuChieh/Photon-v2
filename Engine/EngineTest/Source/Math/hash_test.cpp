@@ -16,14 +16,14 @@ TEST(HashTest, MurmurHash3_32_Test)
 	auto test_string = 
 		[](const std::string& s, uint32 seed, uint32 expected)
 		{
-			uint32 hash = murmur3_32(s.c_str(), s.length(), seed);
+			uint32 hash = murmur3_32(s.c_str(), s.length(), Murmur3BitMixer32{}, seed);
 			EXPECT_EQ(hash, expected);
 		};
 
 	auto test_array = 
 		[](const std::vector<uint8>& s, uint32 seed, uint32 expected)
 		{
-			uint32 hash = murmur3_32(s.data(), s.size(), seed);
+			uint32 hash = murmur3_32(s.data(), s.size(), Murmur3BitMixer32{}, seed);
 			EXPECT_EQ(hash, expected);
 		};
 
