@@ -5,17 +5,18 @@
 #include <Common/assertion.h>
 #include <Common/exceptions.h>
 
-#include <utility>
-#include <type_traits>
+#include <bit>
+#include <climits>
+#include <concepts>
+#include <cstddef>
 #include <cstring>
+#include <limits>
 #include <string>
 #include <string_view>
-#include <climits>
-#include <limits>
-#include <concepts>
-#include <bit>
-#include <version>
+#include <type_traits>
+#include <utility>
 #include <variant>
+#include <version>
 
 /*! @brief Helper to declare rule of 5 special class members.
 Destructor is not included.
@@ -68,38 +69,60 @@ Destructor is not included.
 namespace ph
 {
 
-// TODO: make rvalue input possible? (beware of dangling reference after return!)
-// TODO: consider using overloads: https://stackoverflow.com/questions/14466620/c-template-specialization-calling-methods-on-types-that-could-be-pointers-or
-
+/*! @brief Access a target's member consistently using `.` or `->` operators.
+Note that these functions treat smart pointers as regular objects (`ptr_access()` and `ref_access()`
+will refer to the object itself, not its managed data).
+A nice discussion for the topic: https://stackoverflow.com/questions/14466620/c-template-specialization-calling-methods-on-types-that-could-be-pointers-or.
+*/
+///@{
 template<typename T>
-inline decltype(auto) pointer_access(T& t)
+inline T* ptr_access(T* const ptr)
 {
-	if constexpr(std::is_pointer_v<T>)
-	{
-		return t;
-	}
-	else
-	{
-		return &(t);
-	}
+	return ptr;
 }
 
 template<typename T>
-inline decltype(auto) regular_access(T& t)
+inline T* ptr_access(T& ref)
 {
-	if constexpr(!std::is_pointer_v<T>)
-	{
-		// TODO: surround by parentheses to make it an expression for returning lvalue reference?
-		return t;
-	}
-	else
-	{
-		// Dereferencing is a lvalue expression, the return type should deduce
-		// to lvalue reference (possibly cv-qualified).
-		return *t;
-	}
+	return &ref;
 }
 
+/*!
+All remaining types are forbidden. This forwarding reference overload also prevent the use
+of rvalue to guard against potential dangling pointer.
+*/
+template<typename T>
+inline T* ptr_access(T&& ref) = delete;
+
+template<typename T>
+inline T& ref_access(T& ref)
+{
+	return ref;
+}
+
+template<typename T>
+inline T& ref_access(T* const ptr)
+{
+	PH_ASSERT(ptr);
+	return *ptr;
+}
+
+/*!
+Cannot dereference a `nullptr`.
+*/
+inline void ref_access(std::nullptr_t /* ptr */) = delete;
+
+/*!
+All remaining types are forbidden. This forwarding reference overload also prevent the use
+of rvalue to guard against potential dangling reference.
+*/
+template<typename T>
+inline T& ref_access(T&& ref) = delete;
+///@}
+
+/*!
+Effectively the same as `std::bit_cast()`. This function also works without C++20.
+*/
 template<typename Target, typename Source>
 inline Target bitwise_cast(const Source& source)
 {
@@ -125,6 +148,9 @@ inline Target bitwise_cast(const Source& source)
 	}
 }
 
+/*!
+Effectively testing `std::endian::native == std::endian::big`. This function also works without C++20.
+*/
 inline consteval bool is_big_endian()
 {
 #if __cpp_lib_endian

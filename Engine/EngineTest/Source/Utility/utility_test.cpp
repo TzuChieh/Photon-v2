@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <limits>
 #include <array>
+#include <memory>
 
 TEST(UtilityTest, PointerAccess)
 {
@@ -16,21 +17,39 @@ TEST(UtilityTest, PointerAccess)
 
 	SomeClass  value;
 	SomeClass* pointer = &value;
-	EXPECT_EQ(ph::pointer_access(value)->x,   7);
-	EXPECT_EQ(ph::pointer_access(pointer)->x, 7);
+	EXPECT_EQ(ph::ptr_access(value)->x,   7);
+	EXPECT_EQ(ph::ptr_access(pointer)->x, 7);
 
 	const SomeClass  cValue;
 	const SomeClass* cPointer = &cValue;
-	EXPECT_EQ(ph::pointer_access(cValue)->x,   7);
-	EXPECT_EQ(ph::pointer_access(cPointer)->x, 7);
+	EXPECT_EQ(ph::ptr_access(cValue)->x,   7);
+	EXPECT_EQ(ph::ptr_access(cPointer)->x, 7);
 
 	const volatile SomeClass  cvValue;
 	const volatile SomeClass* cvPointer = &cvValue;
-	EXPECT_EQ(ph::pointer_access(cvValue)->x,   7);
-	EXPECT_EQ(ph::pointer_access(cvPointer)->x, 7);
+	EXPECT_EQ(ph::ptr_access(cvValue)->x,   7);
+	EXPECT_EQ(ph::ptr_access(cvPointer)->x, 7);
+
+	// Do not access managed data for smart pointers
+	{
+		auto sharedInt = std::make_shared<int>(123);
+
+		EXPECT_EQ(*ph::ptr_access(sharedInt), sharedInt);
+		EXPECT_EQ(**ph::ptr_access(sharedInt), 123);
+		EXPECT_TRUE(std::is_pointer_v<decltype(ph::ptr_access(sharedInt))>);
+	}
+
+	// Do not access managed data for smart pointers
+	{
+		auto uniqueFloat = std::make_unique<float>(1.0f);
+
+		EXPECT_EQ(*ph::ptr_access(uniqueFloat), uniqueFloat);
+		EXPECT_EQ(**ph::ptr_access(uniqueFloat), 1.0f);
+		EXPECT_TRUE(std::is_pointer_v<decltype(ph::ptr_access(uniqueFloat))>);
+	}
 }
 
-TEST(UtilityTest, RegularAccess)
+TEST(UtilityTest, ReferenceAccess)
 {
 	class SomeClass
 	{
@@ -39,21 +58,39 @@ TEST(UtilityTest, RegularAccess)
 
 	SomeClass  value;
 	SomeClass* pointer = &value;
-	EXPECT_EQ(ph::regular_access(value).t,   3);
-	EXPECT_EQ(ph::regular_access(pointer).t, 3);
-	EXPECT_TRUE(std::is_reference_v<decltype(ph::regular_access(pointer))>);
+	EXPECT_EQ(ph::ref_access(value).t,   3);
+	EXPECT_EQ(ph::ref_access(pointer).t, 3);
+	EXPECT_TRUE(std::is_reference_v<decltype(ph::ref_access(pointer))>);
 
 	const SomeClass  cValue;
 	const SomeClass* cPointer = &cValue;
-	EXPECT_EQ(ph::regular_access(cValue).t,   3);
-	EXPECT_EQ(ph::regular_access(cPointer).t, 3);
-	EXPECT_TRUE(std::is_reference_v<decltype(ph::regular_access(cPointer))>);
+	EXPECT_EQ(ph::ref_access(cValue).t,   3);
+	EXPECT_EQ(ph::ref_access(cPointer).t, 3);
+	EXPECT_TRUE(std::is_reference_v<decltype(ph::ref_access(cPointer))>);
 
 	const volatile SomeClass  cvValue;
 	const volatile SomeClass* cvPointer = &cvValue;
-	EXPECT_EQ(ph::regular_access(cvValue).t,   3);
-	EXPECT_EQ(ph::regular_access(cvPointer).t, 3);
-	EXPECT_TRUE(std::is_reference_v<decltype(ph::regular_access(cvPointer))>);
+	EXPECT_EQ(ph::ref_access(cvValue).t,   3);
+	EXPECT_EQ(ph::ref_access(cvPointer).t, 3);
+	EXPECT_TRUE(std::is_reference_v<decltype(ph::ref_access(cvPointer))>);
+
+	// Do not access managed data for smart pointers
+	{
+		auto sharedInt = std::make_shared<int>(123);
+
+		EXPECT_EQ(ph::ref_access(sharedInt), sharedInt);
+		EXPECT_EQ(*ph::ref_access(sharedInt), 123);
+		EXPECT_TRUE(std::is_reference_v<decltype(ph::ref_access(sharedInt))>);
+	}
+
+	// Do not access managed data for smart pointers
+	{
+		auto uniqueFloat = std::make_unique<float>(1.0f);
+
+		EXPECT_EQ(ph::ref_access(uniqueFloat), uniqueFloat);
+		EXPECT_EQ(*ph::ref_access(uniqueFloat), 1.0f);
+		EXPECT_TRUE(std::is_reference_v<decltype(ph::ref_access(uniqueFloat))>);
+	}
 }
 
 TEST(UtilityTest, BitwiseCast)

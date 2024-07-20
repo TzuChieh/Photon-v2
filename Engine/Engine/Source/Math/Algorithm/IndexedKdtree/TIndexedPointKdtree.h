@@ -95,7 +95,7 @@ public:
 		{
 			const auto& item = m_items[i];
 
-			const math::Vector3R& center = m_pointCalculator(regular_access(item));
+			const math::Vector3R& center = m_pointCalculator(ref_access(item));
 			itemPoints[i] = center;
 		}
 

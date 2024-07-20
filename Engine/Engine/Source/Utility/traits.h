@@ -103,8 +103,11 @@ concept CEnumWithSizeInfo = CEnum<EnumType> && requires
 	{ EnumType::SIZE } -> std::convertible_to<EnumType>;
 };
 
-template<typename NumberType>
-concept CNumber = std::is_arithmetic_v<NumberType>;
+/*! @brief Checks whether @p T supports arithmetic operations.
+Effectively checking `std::is_arithmetic<>`.
+*/
+template<typename T>
+concept CNumber = std::is_arithmetic_v<T>;
 
 template<typename TypeA, typename TypeB>
 concept CSame = std::same_as<TypeA, TypeB>;
