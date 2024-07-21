@@ -88,6 +88,10 @@ For thin lens camera, as its name suggests, the lens system in this camera is as
 
 [//TODO]: <> (wip)
 
+### Black-body Radiation
+
+[//TODO]: <> (wip)
+
 ### Texture
 
 [//TODO]: <> (wip)
@@ -314,5 +318,11 @@ Another approach to lighting a scene is to physically model the energy coming fr
 
 [//TODO]: <> (wip)
 
+## Toolset
 
+Photon comes with a series of tools to facilitate scene rendering and management.
 
+### Film Merger
+
+This is a tool for combining render output from multiple render sessions. A typical use case is the same scene being
+rendered by multiple machines, each producing a different render output. We call these render outputs "films". Multiple films can be merged into a single film in various ways. For example, statistically independent films can be merged into a more converged film with reduced noise and bias. Visit the [tool's documentation page](@ref photon_film_merger_readme) for more information.

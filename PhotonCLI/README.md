@@ -19,16 +19,18 @@ Photon-v2 comes with an application called `PhotonCLI`, which is a command-line 
 
 ## Examples
 
+All following commands are expected to be executed from the build/install directory.
+
 Rendering a scene file named `./ocean.p2` using 4 threads and save the rendered image as `./my_image.jpg`:
 
 ```shell
-PhotonCLI -s "./ocean.p2" -o "./my_image.jpg" -t 4
+./bin/PhotonCLI -s "./ocean.p2" -o "./my_image.jpg" -t 4
 ```
 
 For animations, assuming there is a folder `gif_animation` containing scene files for a 3-frame animation: `pose1.p2`, `pose2.p2`, `pose3.p2`, to render and save the images (.png) to a folder `gif_images`, you can specify:
 
 ```shell
-PhotonCLI -s "./gif_animation/pose*.p2" --series --start "1" --finish "3" -o "./gif_images/" -t 4
+./bin/PhotonCLI -s "./gif_animation/pose*.p2" --series --start "1" --finish "3" -o "./gif_images/" -t 4
 ```
 
 Note that in the above example, the rendered image will be named by the wildcarded string, namely they are stored as `./gif_images/1.png`, `./gif_images/2.png`, and `./gif_images/3.png`.

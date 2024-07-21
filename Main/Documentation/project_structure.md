@@ -14,6 +14,7 @@ This page contains an overview of the project's structure for you to quickly fin
 * SDLGenCLI: Command-line interface for generating Photon Scene Description Language (PSDL) bindings
   - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/SDLGenerator/SDLGenCLI)
 * FilmMerger: Combine the output from multiple rendering sessions
+  - [Documentation](../../FilmMerger/html/index.html)
   - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/Tool/FilmMerger)
 * IntersectError: A small internal tool for estimating the accuracy of different ray-primitive intersection strategies
   - [Source Code](https://github.com/TzuChieh/Photon-v2/tree/master/Tool/IntersectError)
