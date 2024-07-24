@@ -248,7 +248,7 @@ bool init_render_engine(std::optional<EngineInitSettings> settings)
 		settings = EngineInitSettings::loadStandardConfig();
 	}
 
-	if(settings->additionalLogHandlers.empty())
+	if(!settings->additionalLogHandlers.empty())
 	{
 		PH_LOG(CppAPI, Note, "adding {} additional log handler(s)", settings->additionalLogHandlers.size());
 		for(LogHandler& handler : settings->additionalLogHandlers)

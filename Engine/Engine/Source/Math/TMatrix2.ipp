@@ -149,20 +149,13 @@ inline bool TMatrix2<T>::solve(
 {
 	static_assert(!std::numeric_limits<T>::is_integer);
 
+	const T rcpDet = static_cast<T>(1) / determinant();
+
 	PH_ASSERT(out_xs);
-
-	const T det = determinant();
-	if(std::abs(det) <= std::numeric_limits<T>::epsilon())
-	{
-		return false;
-	}
-
-	const T rcpDeterminant = static_cast<T>(1) / det;
-
 	for(std::size_t i = 0; i < N; ++i)
 	{
-		(*out_xs)[i][0] = (m[1][1] * bs[i][0] - m[0][1] * bs[i][1]) * rcpDeterminant;
-		(*out_xs)[i][1] = (m[0][0] * bs[i][1] - m[1][0] * bs[i][0]) * rcpDeterminant;
+		(*out_xs)[i][0] = (m[1][1] * bs[i][0] - m[0][1] * bs[i][1]) * rcpDet;
+		(*out_xs)[i][1] = (m[0][0] * bs[i][1] - m[1][0] * bs[i][0]) * rcpDet;
 
 		if(!std::isfinite((*out_xs)[i][0]) || !std::isfinite((*out_xs)[i][1]))
 		{
