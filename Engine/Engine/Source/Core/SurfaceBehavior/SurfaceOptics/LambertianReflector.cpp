@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
@@ -20,7 +20,7 @@ namespace ph
 
 // The implementation is double-sided.
 
-LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<math::Spectrum>>& albedo) :
+LambertianReflector::LambertianReflector(const std::shared_ptr<TTexture<math::Spectrum>>& albedo) :
 	SurfaceOptics(),
 	m_albedo(albedo)
 {
@@ -29,14 +29,14 @@ LambertianDiffuse::LambertianDiffuse(const std::shared_ptr<TTexture<math::Spectr
 	m_phenomena.set(ESurfacePhenomenon::DiffuseReflection);
 }
 
-ESurfacePhenomenon LambertianDiffuse::getPhenomenonOf(const SurfaceElemental elemental) const
+ESurfacePhenomenon LambertianReflector::getPhenomenonOf(const SurfaceElemental elemental) const
 {
 	PH_ASSERT_EQ(elemental, 0);
 
 	return ESurfacePhenomenon::DiffuseReflection;
 }
 
-void LambertianDiffuse::calcBsdf(
+void LambertianReflector::calcBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -51,7 +51,7 @@ void LambertianDiffuse::calcBsdf(
 	out.setBsdf(albedo * math::constant::rcp_pi<real>);
 }
 
-void LambertianDiffuse::genBsdfSample(
+void LambertianReflector::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             sampleFlow,
@@ -83,7 +83,7 @@ void LambertianDiffuse::genBsdfSample(
 	out.setL(L);
 }
 
-void LambertianDiffuse::calcBsdfPdf(
+void LambertianReflector::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

@@ -2,7 +2,7 @@
 #include "Actor/Image/ConstantImage.h"
 #include "Math/TVector3.h"
 #include "Core/SurfaceBehavior/SurfaceBehavior.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/LambertianDiffuse.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/LambertianReflector.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/OrenNayar.h"
 #include "Actor/Image/SwizzledImage.h"
 
@@ -37,7 +37,7 @@ void MatteOpaque::genSurface(const CookingContext& ctx, SurfaceBehavior& behavio
 	}
 	else
 	{
-		optics = std::make_shared<LambertianDiffuse>(
+		optics = std::make_shared<LambertianReflector>(
 			albedo->genColorTexture(ctx));
 	}
 

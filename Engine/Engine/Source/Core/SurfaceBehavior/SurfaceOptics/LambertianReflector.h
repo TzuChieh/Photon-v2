@@ -9,13 +9,13 @@
 namespace ph
 {
 
-/*! @brief Lambertian diffuse model.
+/*! @brief Lambertian diffuse model for an opaque surface.
 This model is double-sided.
 */
-class LambertianDiffuse : public SurfaceOptics
+class LambertianReflector : public SurfaceOptics
 {
 public:
-	explicit LambertianDiffuse(const std::shared_ptr<TTexture<math::Spectrum>>& albedo);
+	explicit LambertianReflector(const std::shared_ptr<TTexture<math::Spectrum>>& albedo);
 
 	ESurfacePhenomenon getPhenomenonOf(SurfaceElemental elemental) const override;
 
@@ -44,7 +44,7 @@ private:
 
 // In-header Implementations:
 
-inline std::string LambertianDiffuse::toString() const
+inline std::string LambertianReflector::toString() const
 {
 	return "Lambertian Diffuse, " + SurfaceOptics::toString();
 }
