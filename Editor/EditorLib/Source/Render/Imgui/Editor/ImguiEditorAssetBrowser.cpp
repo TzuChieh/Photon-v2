@@ -44,7 +44,6 @@ ImguiEditorAssetBrowser::ImguiEditorAssetBrowser(ImguiEditorUIProxy editorUI)
 	, m_geometryVisibility(true)
 	, m_materialVisibility(true)
 	, m_motionVisibility(true)
-	, m_lightSourceVisibility(true)
 	, m_imageVisibility(true)
 
 	, m_sampleSourceVisibility(true)
@@ -108,7 +107,6 @@ void ImguiEditorAssetBrowser::buildControlPanelContent()
 		build_visibility_toggle_widget("Geometry", m_geometryVisibility);
 		build_visibility_toggle_widget("Material", m_materialVisibility);
 		build_visibility_toggle_widget("Motion", m_motionVisibility);
-		build_visibility_toggle_widget("Light Source", m_lightSourceVisibility);
 		build_visibility_toggle_widget("Image", m_imageVisibility);
 	}
 	else if(m_filterState == CORE_ASSET_ONLY)

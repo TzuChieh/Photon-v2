@@ -17,12 +17,23 @@ class Primitive;
 class AGeometricLight : public ALight
 {
 public:
+	/*!
+	A geometric source would need to place a corresponding geometry in the scene. Override this
+	method and return a geometry for that.
+	*/
 	virtual std::shared_ptr<Geometry> getGeometry(const CookingContext& ctx) const = 0;
 
+	/*!
+	Generates the core emission part of the light source.
+	*/
 	virtual const Emitter* buildEmitter(
 		const CookingContext& ctx,
 		TSpanView<const Primitive*> lightPrimitives) const = 0;
 
+	/*!
+	Generate a suitable material for the light source if physical entity will be present in the scene.
+	The default implementation generates a pure diffuse material with moderate albedo.
+	*/
 	virtual std::shared_ptr<Material> getMaterial(const CookingContext& ctx) const;
 
 	PreCookReport preCook(const CookingContext& ctx) const override;

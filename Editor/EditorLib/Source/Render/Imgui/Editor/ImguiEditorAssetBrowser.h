@@ -27,7 +27,6 @@ private:
 	bool m_geometryVisibility;
 	bool m_materialVisibility;
 	bool m_motionVisibility;
-	bool m_lightSourceVisibility;
 	bool m_imageVisibility;
 
 	// Core asset visibilities

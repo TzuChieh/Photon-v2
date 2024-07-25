@@ -505,10 +505,6 @@ inline constexpr ESdlDataType resource_type_of()
 	{
 		return ESdlDataType::Motion;
 	}
-	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_LightSource)
-	{
-		return ESdlDataType::LightSource;
-	}
 	else if constexpr(CATEGORY == ESdlTypeCategory::Ref_Actor)
 	{
 		return ESdlDataType::Actor;

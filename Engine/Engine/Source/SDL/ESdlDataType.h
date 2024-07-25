@@ -73,9 +73,6 @@ enum class ESdlDataType : uint8
 	/*! `The ph::MotionSource` type. */
 	Motion,
 
-	/*! `The ph::LightSource` type. */
-	LightSource,
-
 	/*! `The ph::Actor` type. */
 	Actor,
 
