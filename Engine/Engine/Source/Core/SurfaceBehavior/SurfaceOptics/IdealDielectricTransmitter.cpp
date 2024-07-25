@@ -1,4 +1,4 @@
-#include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectricTransmitter.h"
 #include "Core/SurfaceBehavior/BsdfEvalQuery.h"
 #include "Core/SurfaceBehavior/BsdfSampleQuery.h"
 #include "Core/SurfaceBehavior/BsdfPdfQuery.h"
@@ -13,13 +13,13 @@
 namespace ph
 {
 
-IdealTransmitter::IdealTransmitter(std::shared_ptr<DielectricFresnel> fresnel) :
-	IdealTransmitter(
+IdealDielectricTransmitter::IdealDielectricTransmitter(std::shared_ptr<DielectricFresnel> fresnel) :
+	IdealDielectricTransmitter(
 		std::move(fresnel), 
 		std::make_shared<TConstantTexture<math::Spectrum>>(math::Spectrum(1)))
 {}
 
-IdealTransmitter::IdealTransmitter(
+IdealDielectricTransmitter::IdealDielectricTransmitter(
 	std::shared_ptr<DielectricFresnel>        fresnel,
 	std::shared_ptr<TTexture<math::Spectrum>> transmissionScale) :
 
@@ -34,14 +34,14 @@ IdealTransmitter::IdealTransmitter(
 	m_phenomena.set(ESurfacePhenomenon::DeltaTransmission);
 }
 
-ESurfacePhenomenon IdealTransmitter::getPhenomenonOf(const SurfaceElemental elemental) const
+ESurfacePhenomenon IdealDielectricTransmitter::getPhenomenonOf(const SurfaceElemental elemental) const
 {
 	PH_ASSERT_EQ(elemental, 0);
 
 	return ESurfacePhenomenon::DeltaTransmission;
 }
 
-void IdealTransmitter::calcBsdf(
+void IdealDielectricTransmitter::calcBsdf(
 	const BsdfQueryContext& ctx,
 	const BsdfEvalInput&    in,
 	BsdfEvalOutput&         out) const
@@ -49,7 +49,7 @@ void IdealTransmitter::calcBsdf(
 	out.setMeasurability(false);
 }
 
-void IdealTransmitter::genBsdfSample(
+void IdealDielectricTransmitter::genBsdfSample(
 	const BsdfQueryContext& ctx,
 	const BsdfSampleInput&  in,
 	SampleFlow&             /* sampleFlow */,
@@ -94,7 +94,7 @@ void IdealTransmitter::genBsdfSample(
 	out.setL(L);
 }
 
-void IdealTransmitter::calcBsdfPdf(
+void IdealDielectricTransmitter::calcBsdfPdf(
 	const BsdfQueryContext& ctx,
 	const BsdfPdfInput&     in,
 	BsdfPdfOutput&          out) const

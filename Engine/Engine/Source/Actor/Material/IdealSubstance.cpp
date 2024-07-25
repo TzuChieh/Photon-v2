@@ -1,6 +1,6 @@
 #include "Actor/Material/IdealSubstance.h"
 #include "Core/SurfaceBehavior/SurfaceOptics/IdealReflector.h"
-#include "Core/SurfaceBehavior/SurfaceOptics/IdealTransmitter.h"
+#include "Core/SurfaceBehavior/SurfaceOptics/IdealDielectricTransmitter.h"
 #include "Core/SurfaceBehavior/Property/ExactDielectricFresnel.h"
 #include "Core/SurfaceBehavior/Property/SchlickApproxConductorFresnel.h"
 #include "Math/TVector3.h"
@@ -112,18 +112,18 @@ void IdealSubstance::genSurface(const CookingContext& ctx, SurfaceBehavior& beha
 	}
 	break;
 
-	case EIdealSubstance::Transmitter:
+	case EIdealSubstance::DielectricTransmitter:
 	{
 		auto interfaceInfo = DielectricInterfaceInfo(m_fresnel, m_iorOuter, m_iorInner);
 		auto fresnel       = interfaceInfo.genFresnelEffect();
 
 		if(m_transmissionScale == math::Spectrum(1))
 		{
-			behavior.setOptics(std::make_shared<IdealTransmitter>(std::move(fresnel)));
+			behavior.setOptics(std::make_shared<IdealDielectricTransmitter>(std::move(fresnel)));
 		}
 		else
 		{
-			behavior.setOptics(std::make_shared<IdealTransmitter>(
+			behavior.setOptics(std::make_shared<IdealDielectricTransmitter>(
 				std::move(fresnel),
 				std::make_shared<TConstantTexture<math::Spectrum>>(m_transmissionScale)));
 		}

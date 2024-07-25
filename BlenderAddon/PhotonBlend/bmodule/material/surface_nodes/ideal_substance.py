@@ -16,8 +16,8 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
     substance_type: bpy.props.EnumProperty(
         items=[
             ('dielectric-reflector', "Dielectric Reflector", "", 0),
+            ('dielectric-transmitter', "Dielectric Transmitter", "", 2),
             ('metallic-reflector', "Metallic Reflector", "", 1),
-            ('transmitter', "Dielectric Transmitter", "", 2),
             ('dielectric', "Dielectric", "", 3),
             ('absorber', "Absorber", "Absorbs all energy.", 4)
         ],
@@ -113,7 +113,7 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
 
         if (
             self.substance_type == 'dielectric-reflector' or
-            self.substance_type == 'transmitter' or
+            self.substance_type == 'dielectric-transmitter' or
             self.substance_type == 'dielectric'
         ):
             creator.set_ior_inner(sdl.Real(self.ior_inner))
@@ -139,7 +139,7 @@ class PhIdealSubstanceNode(PhSurfaceMaterialNode):
 
         if (
             self.substance_type == 'dielectric-reflector' or
-            self.substance_type == 'transmitter' or
+            self.substance_type == 'dielectric-transmitter' or
             self.substance_type == 'dielectric'
         ):
             b_layout.prop(self, 'ior_inner')

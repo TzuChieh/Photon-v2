@@ -18,8 +18,8 @@ enum class EIdealSubstance
 {
 	Absorber = 0,
 	DielectricReflector,
+	DielectricTransmitter,
 	MetallicReflector,
-	Transmitter,
 	Dielectric
 };
 
@@ -28,11 +28,11 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<EIdealSubstance>)
 	SdlEnumType sdlEnum("ideal-substance");
 	sdlEnum.description("Type of the physical behavior of a perfectly smooth surface.");
 
-	sdlEnum.addEntry(EnumType::Absorber,            "absorber");
-	sdlEnum.addEntry(EnumType::DielectricReflector, "dielectric-reflector");
-	sdlEnum.addEntry(EnumType::MetallicReflector,   "metallic-reflector");
-	sdlEnum.addEntry(EnumType::Transmitter,         "transmitter");
-	sdlEnum.addEntry(EnumType::Dielectric,          "dielectric");
+	sdlEnum.addEntry(EnumType::Absorber,             "absorber");
+	sdlEnum.addEntry(EnumType::DielectricReflector,  "dielectric-reflector");
+	sdlEnum.addEntry(EnumType::DielectricTransmitter,"dielectric-transmitter");
+	sdlEnum.addEntry(EnumType::MetallicReflector,    "metallic-reflector");
+	sdlEnum.addEntry(EnumType::Dielectric,           "dielectric");
 
 	return sdlEnum;
 }
