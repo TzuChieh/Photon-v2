@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math/Color/Spectrum.h"
-#include "Math/TVector3.h"
 
 #include <Common/primitive_type.h>
 
@@ -20,25 +19,22 @@ public:
 
 	/*!
 	@param cosThetaIncident Cosine of the incident angle.
-	@param[out] out_reflectance The reflectance of the interface on the specified angle.
+	@return The reflectance of the interface on the specified angle.
 	@note `cosThetaIncident` is signed, so inner and outer sides can be determined.
 	*/
-	virtual void calcReflectance(real cosThetaIncident, math::Spectrum* out_reflectance) const = 0;
+	virtual math::Spectrum calcReflectance(real cosThetaIncident) const = 0;
 
 	/*!
 	@param cosThetaIncident Cosine of the incident angle.
-	@param[out] out_transmittance The transmittance of the interface on the specified angle.
+	@return The transmittance of the interface on the specified angle.
 	@note `cosThetaIncident` is signed, so inner and outer sides can be determined.
 	*/
-	void calcTransmittance(real cosThetaIncident, math::Spectrum* out_transmittance) const;
+	math::Spectrum calcTransmittance(real cosThetaIncident) const;
 };
 
-inline void FresnelEffect::calcTransmittance(
-	const real cosThetaIncident,
-	math::Spectrum* const out_transmittance) const
+inline math::Spectrum FresnelEffect::calcTransmittance(const real cosThetaIncident) const
 {
-	calcReflectance(cosThetaIncident, out_transmittance);
-	out_transmittance->complementLocal();
+	return calcReflectance(cosThetaIncident).complement();
 }
 
 }// end namespace ph

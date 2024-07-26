@@ -65,14 +65,13 @@ void ThinDielectricFilm::genBsdfSample(
 
 	const math::Vector3R N = in.getX().getShadingNormal();
 
-	math::Spectrum F;
-	m_fresnel->calcReflectance(N.dot(in.getV()), &F);
+	math::Spectrum F = m_fresnel->calcReflectance(N.dot(in.getV()));
 	const real reflectProb = F.avg();
 
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
 
-	// We cannot sample both path, choose one randomly
+	// We cannot sample both paths, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
 		if(sampleFlow.unflowedPick(reflectProb))
@@ -111,14 +110,17 @@ void ThinDielectricFilm::genBsdfSample(
 			scale.divLocal(reflectProb);
 		}
 	}
-	else if(sampleTransmit && m_fresnel->calcRefractDir(in.getV(), N, &L))
+	else if(sampleTransmit)
 	{
-		if(!ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), L))
+		// TIR is already handled by the path probability, this only checks for bad configurations
+		const auto optRefractDir = m_fresnel->calcRefractDir(in.getV(), N);
+		if(!optRefractDir || !ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), *optRefractDir))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
+		L = *optRefractDir;
 		scale = m_transmittanceTable[index];
 
 		/*if(in.transported == ETransport::RADIANCE)
@@ -149,7 +151,7 @@ void ThinDielectricFilm::genBsdfSample(
 	}
 
 	math::Spectrum pdfAppliedBsdfCos;
-	pdfAppliedBsdfCos.setSpectral(scale.getColorValues(), math::EColorUsage::RAW);
+	pdfAppliedBsdfCos.setSpectral(scale.getColorValues(), math::EColorUsage::Raw);
 
 	out.setPdfAppliedBsdfCos(pdfAppliedBsdfCos, N.absDot(L));
 	out.setL(L);

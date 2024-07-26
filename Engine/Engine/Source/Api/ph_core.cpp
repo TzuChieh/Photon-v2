@@ -25,6 +25,7 @@
 #include "Actor/Material/Volume/VAbsorptionOnly.h"
 #include "Actor/Material/LayeredSurface.h"
 #include "Actor/Material/ThinFilm.h"
+#include "Actor/Material/ThinDielectricSurface.h"
 
 // Motions
 #include "Actor/MotionSource/MotionSource.h"
@@ -157,6 +158,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<IdealSubstance>(),
 		get_sdl_class<LayeredSurface>(),
 		get_sdl_class<BinaryMixedSurfaceMaterial>(),
+		get_sdl_class<ThinDielectricSurface>(),
 
 		// Images
 		get_sdl_class<Image>(),

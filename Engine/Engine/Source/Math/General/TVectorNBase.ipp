@@ -71,22 +71,6 @@ inline auto TVectorNBase<Derived, T, N>::safeNormalize(const Derived& fallback) 
 }
 
 template<typename Derived, typename T, std::size_t N>
-template<typename>
-inline auto TVectorNBase<Derived, T, N>::negate() const
--> Derived
-{
-	return Derived(static_cast<const Derived&>(*this)).negateLocal();
-}
-
-template<typename Derived, typename T, std::size_t N>
-template<typename>
-inline auto TVectorNBase<Derived, T, N>::negateLocal()
--> Derived&
-{
-	return mulLocal(static_cast<T>(-1));
-}
-
-template<typename Derived, typename T, std::size_t N>
 inline std::size_t TVectorNBase<Derived, T, N>::minDimension() const
 {
 	// minIndex() is not exposed; use "this" to access it in current scope
@@ -98,14 +82,6 @@ inline std::size_t TVectorNBase<Derived, T, N>::maxDimension() const
 {
 	// maxIndex() is not exposed; use "this" to access it in current scope
 	return this->maxIndex();
-}
-
-template<typename Derived, typename T, std::size_t N>
-template<typename>
-inline auto TVectorNBase<Derived, T, N>::operator - () const
--> Derived
-{
-	return negate();
 }
 
 }// end namespace ph::math

@@ -11,7 +11,7 @@ VAbsorptionOnly::VAbsorptionOnly() :
 {}
 
 VAbsorptionOnly::VAbsorptionOnly(const math::Vector3R& absorptionCoeffSrgb) :
-	VAbsorptionOnly(math::Spectrum().setLinearSRGB(absorptionCoeffSrgb.toArray(), math::EColorUsage::RAW))
+	VAbsorptionOnly(math::Spectrum().setLinearSRGB(absorptionCoeffSrgb.toArray(), math::EColorUsage::Raw))
 {}
 
 VAbsorptionOnly::VAbsorptionOnly(const math::Spectrum& absorptionCoeff) : 

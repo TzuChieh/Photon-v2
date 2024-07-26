@@ -20,9 +20,7 @@ class ConductorFresnel : public FresnelEffect
 public:
 	ConductorFresnel() = default;
 
-	void calcReflectance(
-		real            cosThetaIncident, 
-		math::Spectrum* out_reflectance) const override = 0;
+	math::Spectrum calcReflectance(real cosThetaIncident) const override = 0;
 };
 
 }// end namespace ph

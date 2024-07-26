@@ -26,9 +26,7 @@ public:
 		const std::vector<real>& iorInnerNs, 
 		const std::vector<real>& iorInnerKs);
 
-	void calcReflectance(
-		real            cosThetaIncident, 
-		math::Spectrum* out_reflectance) const override;
+	math::Spectrum calcReflectance(real cosThetaIncident) const override;
 
 private:
 	real           m_iorOuter;

@@ -32,7 +32,7 @@ PH_DEFINE_SDL_ENUM(TSdlGeneralEnum<math::EColorUsage>)
 	sdlEnum.description("Marks color usage information of input values.");
 
 	sdlEnum.addEntry(EnumType::Unspecified, "");
-	sdlEnum.addEntry(EnumType::RAW,         "RAW");
+	sdlEnum.addEntry(EnumType::Raw,         "RAW");
 	sdlEnum.addEntry(EnumType::EMR,         "EMR");
 	sdlEnum.addEntry(EnumType::ECF,         "ECF");
 

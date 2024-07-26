@@ -24,12 +24,8 @@ SchlickApproxDielectricFresnel::SchlickApproxDielectricFresnel(
 	m_tirIorRatio2 = tirIorRatio * tirIorRatio;
 }
 
-void SchlickApproxDielectricFresnel::calcReflectance(
-	const real            cosThetaIncident,
-	math::Spectrum* const out_reflectance) const
+math::Spectrum SchlickApproxDielectricFresnel::calcReflectance(const real cosThetaIncident) const
 {
-	PH_ASSERT(out_reflectance);
-
 	real cosTheta = std::abs(cosThetaIncident);
 
 	// Schlick's approximation erroneously ignores the critical angle during calculation.
@@ -43,15 +39,14 @@ void SchlickApproxDielectricFresnel::calcReflectance(
 		// Handles TIR
 		if(sinT2 >= 1.0_r)
 		{
-			out_reflectance->setColorValues(1.0_r);
-			return;
+			return math::Spectrum(1);
 		}
 
 		cosTheta = std::sqrt(1.0_r - sinT2);
 	}
 
-	out_reflectance->setColorValues(
-		m_f0 + (1.0_r - m_f0) * static_cast<real>(std::pow(1.0_r - cosTheta, 5)));
+
+	return math::Spectrum(m_f0 + (1.0_r - m_f0) * static_cast<real>(std::pow(1.0_r - cosTheta, 5)));
 }
 
 }// end namespace ph

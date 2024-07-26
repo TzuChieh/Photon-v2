@@ -517,6 +517,22 @@ inline auto TArithmeticArrayBase<Derived, T, N>::complementLocal()
 }
 
 template<typename Derived, typename T, std::size_t N>
+template<typename>
+inline auto TArithmeticArrayBase<Derived, T, N>::negate() const
+-> Derived
+{
+	return Derived(static_cast<const Derived&>(*this)).negateLocal();
+}
+
+template<typename Derived, typename T, std::size_t N>
+template<typename>
+inline auto TArithmeticArrayBase<Derived, T, N>::negateLocal()
+-> Derived&
+{
+	return mulLocal(static_cast<T>(-1));
+}
+
+template<typename Derived, typename T, std::size_t N>
 template<typename U>
 inline auto TArithmeticArrayBase<Derived, T, N>::lerp(const Derived& rhs, const U factor) const
 -> Derived
@@ -767,6 +783,14 @@ inline auto TArithmeticArrayBase<Derived, T, N>::operator /= (const T rhs)
 -> Derived&
 {
 	return divLocal(rhs);
+}
+
+template<typename Derived, typename T, std::size_t N>
+template<typename>
+inline auto TArithmeticArrayBase<Derived, T, N>::operator - () const
+-> Derived
+{
+	return negate();
 }
 
 template<typename Derived, typename T, std::size_t N>

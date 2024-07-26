@@ -68,21 +68,29 @@ protected:
 	Derived pow(const Derived& exponent) const;
 	Derived& powLocal(const Derived& exponent);
 
+	/*! @brief Sets the array to @f$ e^exponent @f$.
+	*/
+	///@{
 	template<typename U>
 	Derived exp(U exponent) const;
 
 	template<typename U>
 	Derived& expLocal(U exponent);
+	///@}
 
+	/*! @brief Sets the array to @f$ e^{exponent_i} @f$.
+	*/
+	///@{
 	Derived exp(const Derived& exponent) const;
 	Derived& expLocal(const Derived& exponent);
+	///@}
 
 	Derived sqrt() const;
 	Derived& sqrtLocal();
 
 	// TODO: supply clamp methods for NaN-safe and NaN-propagative versions
 
-	/*! @brief Clamp current array's components to specific range.
+	/*! @brief Clamps current array's elements to specific range.
 	None of `value`, `lowerBound` and `upperBound` can be NaN, or the method's behavior is undefined.
 	*/
 	///@{
@@ -92,7 +100,7 @@ protected:
 	Derived& clampLocal(const Derived& lowerBound, const Derived& upperBound);
 	///@}
 
-	/*! @brief Clamp current array's components to specific range.
+	/*! @brief Clamps current array's elements to specific range.
 	If a floating-point value is non-finite (e.g., being Inf, NaN), its value is clamped to `lowerBound`.
 	Neither `lowerBound` nor `upperBound` can be NaN, or the method's behavior is undefined.
 	*/
@@ -109,8 +117,24 @@ protected:
 	Derived rcp() const;
 	Derived& rcpLocal();
 
+	/*! @brief Complements the array's elements.
+	Effectively performing `1 - (*this)[i]` for each element.
+	*/
+	///@{
 	Derived complement() const;
 	Derived& complementLocal();
+	///@}
+
+	/*! @brief Applies a negative sign to the array's elements.
+	These methods is only defined for signed element types.
+	*/
+	///@{
+	template<typename = std::enable_if_t<std::is_signed_v<T>>>
+	Derived negate() const;
+
+	template<typename = std::enable_if_t<std::is_signed_v<T>>>
+	Derived& negateLocal();
+	///@}
 
 	T sum() const;
 	T avg() const;
@@ -174,6 +198,9 @@ protected:
 	Derived& operator *= (T rhs);
 	Derived& operator /= (const Derived& rhs);
 	Derived& operator /= (T rhs);
+
+	template<typename = std::enable_if_t<std::is_signed_v<T>>>
+	Derived operator - () const;
 
 	auto begin() noexcept -> typename std::array<T, N>::iterator;
 	auto begin() const noexcept -> typename std::array<T, N>::const_iterator;

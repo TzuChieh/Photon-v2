@@ -90,9 +90,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.getL());
 
-		math::Spectrum F;
-		m_fresnel->calcReflectance(HoL, &F);
-
+		const math::Spectrum F = m_fresnel->calcReflectance(HoL);
 		const real D = m_microfacet->distribution(in.getX(), N, H);
 		const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
@@ -127,9 +125,7 @@ void TranslucentMicrofacet::calcBsdf(
 		const real NoH = N.dot(H);
 		const real HoL = H.dot(in.getL());
 
-		math::Spectrum F;
-		m_fresnel->calcTransmittance(HoL, &F);
-
+		const math::Spectrum F = m_fresnel->calcTransmittance(HoL);
 		const real D = m_microfacet->distribution(in.getX(), N, H);
 		const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
@@ -180,14 +176,13 @@ void TranslucentMicrofacet::genBsdfSample(
 		sampleFlow.flow2D(),
 		&H);
 
-	math::Spectrum F;
-	m_fresnel->calcReflectance(H.dot(in.getV()), &F);
+	math::Spectrum F = m_fresnel->calcReflectance(H.dot(in.getV()));
 	const real reflectProb = getReflectionProbability(F);
 
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
 
-	// We cannot sample both path, choose one randomly
+	// We cannot sample both paths, choose one randomly
 	if(sampleReflect && sampleTransmit)
 	{
 		if(sampleFlow.unflowedPick(reflectProb))
@@ -219,15 +214,18 @@ void TranslucentMicrofacet::genBsdfSample(
 			F.divLocal(reflectProb);
 		}
 	}
-	else if(sampleTransmit && m_fresnel->calcRefractDir(in.getV(), H, &L))
+	else if(sampleTransmit)
 	{
-		if(!ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), L))
+		// TIR is already handled by the path probability, this only checks for bad configurations
+		const auto optRefractDir = m_fresnel->calcRefractDir(in.getV(), H);
+		if(!optRefractDir || !ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), *optRefractDir))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		m_fresnel->calcTransmittance(H.dot(L), &F);
+		L = *optRefractDir;
+		F = m_fresnel->calcTransmittance(H.dot(L));
 
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -296,8 +294,7 @@ void TranslucentMicrofacet::calcBsdfPdf(
 			return;
 		}
 
-		math::Spectrum F;
-		m_fresnel->calcReflectance(H.dot(in.getL()), &F);
+		const math::Spectrum F = m_fresnel->calcReflectance(H.dot(in.getL()));
 		const real reflectProb = ctx.elemental == ALL_SURFACE_ELEMENTALS
 			? getReflectionProbability(F)
 			: 1.0_r;
@@ -342,8 +339,7 @@ void TranslucentMicrofacet::calcBsdfPdf(
 		const real iorTerm = etaI * HoL + etaT * HoV;
 		const real multiplier = std::abs(etaI * etaI * HoL) / (iorTerm * iorTerm);
 
-		math::Spectrum F;
-		m_fresnel->calcReflectance(HoL, &F);
+		const math::Spectrum F = m_fresnel->calcReflectance(HoL);
 		const real refractProb = ctx.elemental == ALL_SURFACE_ELEMENTALS
 			? 1.0_r - getReflectionProbability(F)
 			: 1.0_r;

@@ -18,7 +18,7 @@ class TSampler final
 {
 public:
 	TSampler() :
-		TSampler(math::EColorUsage::RAW)
+		TSampler(math::EColorUsage::Raw)
 	{}
 
 	TSampler(const math::EColorUsage sampleUsage) :
@@ -54,6 +54,21 @@ public:
 		OutputType value;
 		texture.sample(SampleLocation(uv, m_sampleUsage), &value);
 		return value;
+	}
+
+	OutputType sampleOrDefault(
+		const TTexture<OutputType>* texture,
+		const SurfaceHit& X,
+		const OutputType& defaultValue) const
+	{
+		if(texture)
+		{
+			return sample(*texture, X);
+		}
+		else
+		{
+			return defaultValue;
+		}
 	}
 
 private:

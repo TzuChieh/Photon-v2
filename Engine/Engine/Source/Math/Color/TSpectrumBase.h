@@ -41,6 +41,8 @@ public:
 	using Base::Base;
 
 	/*! @brief Set color values directly. Calling `setColorValues()` has the same effect.
+	This is the most general form that allows type conversion. Basically, all other overloads with
+	value inputs is equivalent to calling `setColorValues()`, too (unless otherwise noted).
 	*/
 	template<typename U>
 	explicit TSpectrumBase(const TRawColorValues<U, N>& values);
@@ -138,6 +140,9 @@ public:
 	using Base::complement;
 	using Base::complementLocal;
 
+	using Base::negate;
+	using Base::negateLocal;
+
 	using Base::sum;
 	using Base::avg;
 	using Base::min;
@@ -168,6 +173,31 @@ public:
 	using Base::operator *=;
 	using Base::operator /;
 	using Base::operator /=;
+
+public:
+	/*! @brief Non-member operators for expressions beginning with a single element value.
+	*/
+	///@{
+	friend Derived operator + (const T rhs, const Derived& lhs)
+	{
+		return lhs.add(rhs);
+	}
+
+	friend Derived operator - (const T rhs, const Derived& lhs)
+	{
+		return lhs.negate().add(rhs);
+	}
+
+	friend Derived operator * (const T rhs, const Derived& lhs)
+	{
+		return lhs.mul(rhs);
+	}
+
+	friend Derived operator / (const T rhs, const Derived& lhs)
+	{
+		return lhs.rcp().mul(rhs);
+	}
+	///@}
 	
 private:
 	/*!

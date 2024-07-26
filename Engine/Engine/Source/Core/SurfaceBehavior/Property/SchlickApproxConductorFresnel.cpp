@@ -32,18 +32,14 @@ SchlickApproxConductorFresnel::SchlickApproxConductorFresnel(
 	, m_f0Complement(f0.complement())
 {}
 
-void SchlickApproxConductorFresnel::calcReflectance(
-	const real            cosThetaIncident,
-	math::Spectrum* const out_reflectance) const
+math::Spectrum SchlickApproxConductorFresnel::calcReflectance(const real cosThetaIncident) const
 {
-	PH_ASSERT(out_reflectance);
-
 	// We treat the incident light be always in the dielectric side (which is
 	// reasonable since light should not penetrate conductors easily), so the 
 	// sign of cosI does not matter here.
 	const real cosI = std::abs(cosThetaIncident);
 
-	*out_reflectance = m_f0Complement.mul(static_cast<real>(std::pow(1.0_r - cosI, 5))).addLocal(m_f0);
+	return m_f0Complement.mul(static_cast<real>(std::pow(1.0_r - cosI, 5))).add(m_f0);
 }
 
 }// end namespace ph

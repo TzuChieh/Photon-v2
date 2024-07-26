@@ -314,7 +314,7 @@ inline TTristimulusValues<T> spectral_samples_to_CIE_XYZ(const TSpectralSampleVa
 		CIEXYZColor.clampLocal(0, 1);
 		break;
 
-	case EColorUsage::RAW:
+	case EColorUsage::Raw:
 		// Do nothing
 		break;
 

@@ -19,9 +19,7 @@ public:
 
 	explicit SchlickApproxConductorFresnel(const math::Spectrum& f0);
 
-	void calcReflectance(
-		real            cosThetaIncident, 
-		math::Spectrum* out_reflectance) const override;
+	math::Spectrum calcReflectance(real cosThetaIncident) const override;
 
 private:
 	math::Spectrum m_f0;

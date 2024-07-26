@@ -5,7 +5,7 @@
 #include "Utility/utility.h"
 
 #include <cstddef>
-#include <type_traits>
+
 
 namespace ph::math
 {
@@ -46,17 +46,8 @@ public:
 
 	Derived safeNormalize(const Derived& fallback = Derived{}) const;
 
-	template<typename = std::enable_if_t<std::is_signed_v<T>>>
-	Derived negate() const;
-
-	template<typename = std::enable_if_t<std::is_signed_v<T>>>
-	Derived& negateLocal();
-
 	std::size_t minDimension() const;
 	std::size_t maxDimension() const;
-
-	template<typename = std::enable_if_t<std::is_signed_v<T>>>
-	Derived operator - () const;
 
 	using Base::NUM_ELEMENTS;
 	using Base::size;
@@ -96,6 +87,9 @@ public:
 	using Base::complement;
 	using Base::complementLocal;
 
+	using Base::negate;
+	using Base::negateLocal;
+
 	using Base::sum;
 	using Base::avg;
 	using Base::product;
@@ -132,6 +126,31 @@ public:
 	using Base::operator *=;
 	using Base::operator /;
 	using Base::operator /=;
+
+public:
+	/*! @brief Non-member operators for expressions beginning with a single element value.
+	*/
+	///@{
+	friend Derived operator + (const T rhs, const Derived& lhs)
+	{
+		return lhs.add(rhs);
+	}
+
+	friend Derived operator - (const T rhs, const Derived& lhs)
+	{
+		return lhs.negate().add(rhs);
+	}
+
+	friend Derived operator * (const T rhs, const Derived& lhs)
+	{
+		return lhs.mul(rhs);
+	}
+
+	friend Derived operator / (const T rhs, const Derived& lhs)
+	{
+		return lhs.rcp().mul(rhs);
+	}
+	///@}
 };
 
 }// end namespace ph::math

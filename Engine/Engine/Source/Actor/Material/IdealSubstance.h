@@ -89,7 +89,7 @@ public:
 		iorInner.optional();
 		clazz.addField(iorInner);
 
-		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::RAW, &OwnerType::m_f0);
+		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::Raw, &OwnerType::m_f0);
 		f0.description(
 			"Surface reflectance on normal incidence. This value is expected "
 			"to be given in linear-sRGB space. When this parameter is used, "
@@ -99,7 +99,7 @@ public:
 		f0.defaultTo(math::Spectrum(1));
 		clazz.addField(f0);
 
-		TSdlSpectrum<OwnerType> reflectionScale("reflection-scale", math::EColorUsage::RAW, &OwnerType::m_reflectionScale);
+		TSdlSpectrum<OwnerType> reflectionScale("reflection-scale", math::EColorUsage::Raw, &OwnerType::m_reflectionScale);
 		reflectionScale.description(
 			"A scaling factor for reflected energy. Note that this property is only for "
 			"artistic control and is not physically correct.");
@@ -107,7 +107,7 @@ public:
 		reflectionScale.optional();
 		clazz.addField(reflectionScale);
 
-		TSdlSpectrum<OwnerType> transmissionScale("transmission-scale", math::EColorUsage::RAW, &OwnerType::m_transmissionScale);
+		TSdlSpectrum<OwnerType> transmissionScale("transmission-scale", math::EColorUsage::Raw, &OwnerType::m_transmissionScale);
 		transmissionScale.description(
 			"A scaling factor for transmitted energy. Note that this property is only for "
 			"artistic control and is not physically correct.");
@@ -115,11 +115,11 @@ public:
 		transmissionScale.optional();
 		clazz.addField(transmissionScale);
 
-		TSdlOptionalSpectrum<OwnerType> iorInnerN("ior-inner-n", math::EColorUsage::RAW, &OwnerType::m_iorInnerN);
+		TSdlOptionalSpectrum<OwnerType> iorInnerN("ior-inner-n", math::EColorUsage::Raw, &OwnerType::m_iorInnerN);
 		iorInnerN.description("The complex index of refraction (real part) inside the metallic interface.");
 		clazz.addField(iorInnerN);
 
-		TSdlOptionalSpectrum<OwnerType> iorInnerK("ior-inner-k", math::EColorUsage::RAW, &OwnerType::m_iorInnerK);
+		TSdlOptionalSpectrum<OwnerType> iorInnerK("ior-inner-k", math::EColorUsage::Raw, &OwnerType::m_iorInnerK);
 		iorInnerK.description("The complex index of refraction (imaginary part) inside the metallic interface.");
 		clazz.addField(iorInnerK);
 

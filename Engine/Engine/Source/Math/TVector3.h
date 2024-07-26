@@ -73,9 +73,6 @@ public:
 	const T& b() const;
 };
 
-template<typename T>
-inline TVector3<T> operator * (T rhs, const TVector3<T>& lhs);
-
 }// end namespace ph::math
 
 template<typename T>

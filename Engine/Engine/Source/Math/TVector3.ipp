@@ -180,12 +180,6 @@ inline void TVector3<T>::sort(TVector3* const out_result) const
 }
 
 template<typename T>
-inline TVector3<T> operator * (const T rhs, const TVector3<T>& lhs)
-{
-	return lhs.mul(rhs);
-}
-
-template<typename T>
 inline T& TVector3<T>::x()
 {
 	return m[0];

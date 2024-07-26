@@ -492,7 +492,7 @@ public:
 			spd.clampLocal(0, 1);
 			break;
 
-		case EColorUsage::RAW:
+		case EColorUsage::Raw:
 			// Do nothing
 			break;
 

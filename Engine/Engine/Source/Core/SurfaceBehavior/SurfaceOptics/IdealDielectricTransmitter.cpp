@@ -57,17 +57,17 @@ void IdealDielectricTransmitter::genBsdfSample(
 {
 	const math::Vector3R N = in.getX().getShadingNormal();
 
-	math::Vector3R L;
-	if(!m_fresnel->calcRefractDir(in.getV(), N, &L))
+	const auto optRefractDir = m_fresnel->calcRefractDir(in.getV(), N);
+	if(!optRefractDir)
 	{
 		out.setMeasurability(false);
 		return;
 	}
 
+	const math::Vector3R L = *optRefractDir;
 	const real cosI = N.dot(L);
 
-	math::Spectrum F;
-	m_fresnel->calcTransmittance(cosI, &F);
+	math::Spectrum F = m_fresnel->calcTransmittance(cosI);
 
 	real etaI = m_fresnel->getIorOuter();
 	real etaT = m_fresnel->getIorInner();
@@ -87,7 +87,7 @@ void IdealDielectricTransmitter::genBsdfSample(
 
 	// A scale factor for artistic control
 	const math::Spectrum transmissionScale =
-		TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.getX());
+		TSampler<math::Spectrum>().sample(*m_transmissionScale, in.getX());
 	F *= transmissionScale;
 
 	out.setPdfAppliedBsdfCos(F, std::abs(cosI));

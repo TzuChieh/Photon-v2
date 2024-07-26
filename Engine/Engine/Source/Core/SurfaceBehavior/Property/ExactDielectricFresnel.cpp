@@ -9,12 +9,8 @@ ExactDielectricFresnel::ExactDielectricFresnel(const real iorOuter, const real i
 	: DielectricFresnel(iorOuter, iorInner)
 {}
 
-void ExactDielectricFresnel::calcReflectance(
-	const real            cosThetaIncident,
-	math::Spectrum* const out_reflectance) const
+math::Spectrum ExactDielectricFresnel::calcReflectance(const real cosThetaIncident) const
 {
-	PH_ASSERT(out_reflectance);
-
 	real etaI = m_iorOuter;
 	real etaT = m_iorInner;
 
@@ -32,8 +28,7 @@ void ExactDielectricFresnel::calcReflectance(
 	// Handles TIR
 	if(sinT2 >= 1.0_r)
 	{
-		out_reflectance->setColorValues(1.0_r);
-		return;
+		return math::Spectrum(1);
 	}
 
 	const real cosT = std::sqrt(1.0_r - sinT2);
@@ -42,7 +37,7 @@ void ExactDielectricFresnel::calcReflectance(
 	const real rPerpendicular = (etaI * cosI - etaT * cosT) / (etaI * cosI + etaT * cosT);
 	const real rSum           = 0.5_r * (rParallel * rParallel + rPerpendicular * rPerpendicular);
 
-	out_reflectance->setColorValues(rSum);
+	return math::Spectrum(rSum);
 }
 
 }// end namespace ph

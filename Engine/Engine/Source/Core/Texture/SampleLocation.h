@@ -76,7 +76,7 @@ inline SampleLocation::SampleLocation(const math::Vector2R& uv, const math::ECol
 {}
 
 inline SampleLocation::SampleLocation(const HitDetail& hit) :
-	SampleLocation(hit, math::EColorUsage::RAW)
+	SampleLocation(hit, math::EColorUsage::Raw)
 {}
 
 inline SampleLocation::SampleLocation(const HitDetail& hit, const math::EColorUsage usage) :

@@ -82,9 +82,7 @@ void OpaqueMicrofacet::calcBsdf(
 
 	const real HoL = H.dot(in.getL());
 
-	math::Spectrum F;
-	m_fresnel->calcReflectance(HoL, &F);
-
+	const math::Spectrum F = m_fresnel->calcReflectance(HoL);
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 	const real G = m_microfacet->geometry(in.getX(), N, H, in.getL(), in.getV());
 
@@ -113,14 +111,12 @@ void OpaqueMicrofacet::genBsdfSample(
 	const real NoV = N.dot(in.getV());
 	const real HoL = H.dot(L);
 	const real dotTerms = std::abs(HoL / NoV);
+	const math::Spectrum F = m_fresnel->calcReflectance(HoL);
 	const real G = m_microfacet->geometry(in.getX(), N, H, L, in.getV());
 	const real D = m_microfacet->distribution(in.getX(), N, H);
 
 	const lta::PDF pdf = m_microfacet->pdfSampleVisibleH(in.getX(), N, H, in.getV());
 	PH_ASSERT(pdf.domain == lta::EDomain::HalfSolidAngle);
-
-	math::Spectrum F;
-	m_fresnel->calcReflectance(HoL, &F);
 
 	out.setPdfAppliedBsdfCos(F.mul(G * D * dotTerms / pdf.value), N.absDot(L));
 	out.setL(L);

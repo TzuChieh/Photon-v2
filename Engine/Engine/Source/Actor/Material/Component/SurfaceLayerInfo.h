@@ -44,13 +44,13 @@ public:
 		roughness.optional();
 		ztruct.addField(roughness);
 
-		TSdlSpectrum<OwnerType> iorN("ior-n", math::EColorUsage::RAW, &OwnerType::m_iorN);
+		TSdlSpectrum<OwnerType> iorN("ior-n", math::EColorUsage::Raw, &OwnerType::m_iorN);
 		iorN.description("The real part of the layer's index of refraction.");
 		iorN.defaultTo(math::Spectrum(1));
 		iorN.optional();
 		ztruct.addField(iorN);
 
-		TSdlSpectrum<OwnerType> iorK("ior-k", math::EColorUsage::RAW, &OwnerType::m_iorK);
+		TSdlSpectrum<OwnerType> iorK("ior-k", math::EColorUsage::Raw, &OwnerType::m_iorK);
 		iorK.description("The imaginary part of the layer's index of refraction.");
 		iorK.defaultTo(math::Spectrum(0));
 		iorK.optional();
@@ -68,13 +68,13 @@ public:
 		g.optional();
 		ztruct.addField(g);
 
-		TSdlSpectrum<OwnerType> sigmaA("sigma-a", math::EColorUsage::RAW, &OwnerType::m_sigmaA);
+		TSdlSpectrum<OwnerType> sigmaA("sigma-a", math::EColorUsage::Raw, &OwnerType::m_sigmaA);
 		sigmaA.description("The volume absorption coefficient.");
 		sigmaA.defaultTo(math::Spectrum(0));
 		sigmaA.optional();
 		ztruct.addField(sigmaA);
 
-		TSdlSpectrum<OwnerType> sigmaS("sigma-s", math::EColorUsage::RAW, &OwnerType::m_sigmaS);
+		TSdlSpectrum<OwnerType> sigmaS("sigma-s", math::EColorUsage::Raw, &OwnerType::m_sigmaS);
 		sigmaS.description("The volume scattering coefficient.");
 		sigmaS.defaultTo(math::Spectrum(0));
 		sigmaS.optional();

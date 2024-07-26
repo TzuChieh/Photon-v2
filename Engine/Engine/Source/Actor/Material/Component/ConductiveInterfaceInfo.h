@@ -57,7 +57,7 @@ public:
 		fresnel.defaultTo(EInterfaceFresnel::Schlick);
 		ztruct.addField(fresnel);
 
-		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::RAW, &OwnerType::m_f0);
+		TSdlSpectrum<OwnerType> f0("f0", math::EColorUsage::Raw, &OwnerType::m_f0);
 		f0.description(
 			"Surface reflectance on normal incidence. This value is expected to be given in linear-sRGB "
 			"space. When this parameter is used, the underlying Fresnel model will be an approximated "
@@ -73,11 +73,11 @@ public:
 		iorOuter.optional();
 		ztruct.addField(iorOuter);
 
-		TSdlOptionalSpectrum<OwnerType> iorInnerN("ior-inner-n", math::EColorUsage::RAW, &OwnerType::m_iorInnerN);
+		TSdlOptionalSpectrum<OwnerType> iorInnerN("ior-inner-n", math::EColorUsage::Raw, &OwnerType::m_iorInnerN);
 		iorInnerN.description("The complex index of refraction (real part) inside of this interface.");
 		ztruct.addField(iorInnerN);
 
-		TSdlOptionalSpectrum<OwnerType> iorInnerK("ior-inner-k", math::EColorUsage::RAW, &OwnerType::m_iorInnerK);
+		TSdlOptionalSpectrum<OwnerType> iorInnerK("ior-inner-k", math::EColorUsage::Raw, &OwnerType::m_iorInnerK);
 		iorInnerK.description("The complex index of refraction (imaginary part) inside of this interface.");
 		ztruct.addField(iorInnerK);
 

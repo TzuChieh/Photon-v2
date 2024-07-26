@@ -47,7 +47,7 @@ void OmniModulatedEmitter::evalEmittedEnergy(const SurfaceHit& Xe, math::Spectru
 	uv.y() = 1.0_r - uv.y();
 
 	PH_ASSERT(m_filter);
-	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
+	const auto filterValue = TSampler<math::Spectrum>().sample(*m_filter, uv);
 	out_energy->mulLocal(filterValue);
 }
 
@@ -75,7 +75,7 @@ void OmniModulatedEmitter::genDirectSample(
 	// HACK: should impose some standard uv on input
 	uv.y() = 1.0_r - uv.y();
 
-	const auto& filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
+	const auto filterValue = TSampler<math::Spectrum>().sample(*m_filter, uv);
 	query.outputs.setEmittedEnergy(query.outputs.getEmittedEnergy() * filterValue);
 }
 
@@ -113,7 +113,7 @@ void OmniModulatedEmitter::emitRay(
 	// HACK: should impose some standard uv on input
 	uv.y() = 1.0_r - uv.y();
 
-	const auto filterValue = TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_filter, uv);
+	const auto filterValue = TSampler<math::Spectrum>().sample(*m_filter, uv);
 	query.outputs.setEmittedEnergy(query.outputs.getEmittedEnergy() * filterValue);
 }
 

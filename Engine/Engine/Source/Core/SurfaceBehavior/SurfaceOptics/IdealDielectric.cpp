@@ -75,14 +75,13 @@ void IdealDielectric::genBsdfSample(
 
 	const math::Vector3R N = in.getX().getShadingNormal();
 
-	math::Spectrum F;
-	m_fresnel->calcReflectance(N.dot(in.getV()), &F);
+	math::Spectrum F = m_fresnel->calcReflectance(N.dot(in.getV()));
 	const real reflectProb = F.avg();
 
 	bool sampleReflect  = canReflect;
 	bool sampleTransmit = canTransmit;
 
-	// We cannot sample both path, choose one stochastically
+	// We cannot sample both paths, choose one stochastically
 	if(sampleReflect && sampleTransmit)
 	{
 		if(sampleFlow.unflowedPick(reflectProb))
@@ -110,7 +109,7 @@ void IdealDielectric::genBsdfSample(
 
 		// A scale factor for artistic control
 		const math::Spectrum reflectionScale =
-			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_reflectionScale, in.getX());
+			TSampler<math::Spectrum>().sample(*m_reflectionScale, in.getX());
 		F.mulLocal(reflectionScale);
 
 		// Account for pick probability
@@ -119,15 +118,18 @@ void IdealDielectric::genBsdfSample(
 			F.divLocal(reflectProb);
 		}
 	}
-	else if(sampleTransmit && m_fresnel->calcRefractDir(in.getV(), N, &L))
+	else if(sampleTransmit)
 	{
-		if(!ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), L))
+		// TIR is already handled by the path probability, this only checks for bad configurations
+		const auto optRefractDir = m_fresnel->calcRefractDir(in.getV(), N);
+		if(!optRefractDir || !ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), *optRefractDir))
 		{
 			out.setMeasurability(false);
 			return;
 		}
 
-		m_fresnel->calcTransmittance(N.dot(L), &F);
+		L = *optRefractDir;
+		F = m_fresnel->calcTransmittance(N.dot(L));
 
 		real etaI = m_fresnel->getIorOuter();
 		real etaT = m_fresnel->getIorInner();
@@ -147,7 +149,7 @@ void IdealDielectric::genBsdfSample(
 
 		// A scale factor for artistic control
 		const math::Spectrum transmissionScale =
-			TSampler<math::Spectrum>(math::EColorUsage::RAW).sample(*m_transmissionScale, in.getX());
+			TSampler<math::Spectrum>().sample(*m_transmissionScale, in.getX());
 		F.mulLocal(transmissionScale);
 
 		// Account for pick probability

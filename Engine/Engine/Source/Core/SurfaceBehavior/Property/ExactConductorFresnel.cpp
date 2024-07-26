@@ -56,19 +56,15 @@ ExactConductorFresnel::ExactConductorFresnel(
 		iorWavelengthsNm.data(), iorInnerKs.data(), iorWavelengthsNm.size());
 
 	math::Spectrum iorInnerN, iorInnerK;
-	iorInnerN.setSpectral(sampledInnerNs, math::EColorUsage::RAW);
-	iorInnerK.setSpectral(sampledInnerKs, math::EColorUsage::RAW);
+	iorInnerN.setSpectral(sampledInnerNs, math::EColorUsage::Raw);
+	iorInnerK.setSpectral(sampledInnerKs, math::EColorUsage::Raw);
 	setIors(iorOuter, iorInnerN, iorInnerK);
 }
 
 // Implementation follows the excellent blog post written by Sebastien Lagarde.
 // Reference: https://seblagarde.wordpress.com/2013/04/29/memo-on-fresnel-equations/
-void ExactConductorFresnel::calcReflectance(
-	const real            cosThetaIncident,
-	math::Spectrum* const out_reflectance) const
+math::Spectrum ExactConductorFresnel::calcReflectance(const real cosThetaIncident) const
 {
-	PH_ASSERT(out_reflectance);
-
 	// We treat the incident light be always in the dielectric side (which is
 	// reasonable since light should not penetrate conductors easily), so the 
 	// sign of cosI does not matter here.
@@ -86,7 +82,7 @@ void ExactConductorFresnel::calcReflectance(
 
 	const math::Spectrum Rs = t1.sub(t2).divLocal(t1.add(t2));
 	const math::Spectrum Rp = Rs.mul(t3.sub(t4).divLocal(t3.add(t4)));
-	*out_reflectance = Rs.add(Rp).mulLocal(0.5_r);
+	return Rs.add(Rp).mul(0.5_r);
 }
 
 void ExactConductorFresnel::setIors(

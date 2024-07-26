@@ -143,7 +143,7 @@ enum class EColorUsage
 	/*!
 	Raw numeric data such as position, normal, density information.
 	*/
-	RAW,
+	Raw,
 
 	/*!
 	EMR stands for ElectroMagnetic Radiation, used by energy emitters such as light sources.
