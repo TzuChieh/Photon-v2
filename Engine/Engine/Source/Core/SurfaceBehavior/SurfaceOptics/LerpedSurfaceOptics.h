@@ -13,7 +13,8 @@
 namespace ph
 {
 
-// FIXME: lerping between delta distribution(s) seems broken
+/*! @brief Linearly interpolate between two surface optics.
+*/
 class LerpedSurfaceOptics : public SurfaceOptics
 {
 public:
@@ -78,7 +79,11 @@ inline std::string LerpedSurfaceOptics::toString() const
 
 inline real LerpedSurfaceOptics::probabilityOfPickingOptics0(const math::Spectrum& ratio)
 {
-	return math::clamp(ratio.relativeLuminance(math::EColorUsage::ECF), 0.0_r, 1.0_r);
+	// Depending on the purpose of rendering, favoring human visual system may be preferable,
+	// e.g., using luminance. Currently we use the absolute sum just to be fair.
+	const real weight0 = ratio.abs().sum();
+	const real weight1 = ratio.complement().abs().sum();
+	return math::clamp(weight0 / (weight0 + weight1), 0.0_r, 1.0_r);
 }
 
 }// end namespace ph

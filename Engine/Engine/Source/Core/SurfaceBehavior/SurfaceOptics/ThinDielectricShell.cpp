@@ -97,12 +97,6 @@ void ThinDielectricShell::genBsdfSample(
 	const bool canReflect  = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == REFLECTION;
 	const bool canTransmit = ctx.elemental == ALL_SURFACE_ELEMENTALS || ctx.elemental == TRANSMISSION;
 
-	if(!canReflect && !canTransmit)
-	{
-		out.setMeasurability(false);
-		return;
-	}
-
 	const math::Vector3R N = in.getX().getShadingNormal();
 
 	// Single bounce reflectance and transmittance
@@ -138,6 +132,15 @@ void ThinDielectricShell::genBsdfSample(
 		infR = R;
 	}
 
+	// Infinite bounce transmittance: TAT + TARARAT + TARARARARAT + ...
+	math::Spectrum infT = TAT / (1.0_r - RA2);
+
+	// Any TIR would result in a 0 term
+	if(!infT.isFinite())
+	{
+		infT = math::Spectrum(0);
+	}
+
 	bool sampleReflect = canReflect;
 	bool sampleTransmit = canTransmit;
 
@@ -145,7 +148,11 @@ void ThinDielectricShell::genBsdfSample(
 	real pathProb = 1.0_r;
 	if(sampleReflect && sampleTransmit)
 	{
-		const real reflectProb = infR.avg();
+		// Depending on the purpose of rendering, favoring human visual system may be preferable,
+		// e.g., using luminance. Currently we use the absolute sum just to be fair.
+		const real weightR = infR.abs().sum();
+		const real weightT = infT.abs().sum();
+		const real reflectProb = weightR / (weightR + weightT);
 		if(sampleFlow.unflowedPick(reflectProb))
 		{
 			pathProb = reflectProb;
@@ -172,10 +179,8 @@ void ThinDielectricShell::genBsdfSample(
 
 		pdfAppliedBsdfCos = infR / pathProb;
 	}
-	else
+	else if(sampleTransmit)
 	{
-		PH_ASSERT(sampleTransmit);
-
 		// Calculate transmitted L
 		L = -in.getV();
 		if(!ctx.sidedness.isOppositeHemisphere(in.getX(), in.getV(), L))
@@ -184,16 +189,12 @@ void ThinDielectricShell::genBsdfSample(
 			return;
 		}
 
-		// Infinite bounce transmittance: TAT + TARARAT + TARARARARAT + ...
-		math::Spectrum infT = TAT / (1.0_r - RA2);
-
-		// Any TIR would result in a 0 term
-		if(!infT.isFinite())
-		{
-			infT = math::Spectrum(0);
-		}
-
 		pdfAppliedBsdfCos = infT / pathProb;
+	}
+	else
+	{
+		out.setMeasurability(false);
+		return;
 	}
 
 	out.setPdfAppliedBsdfCos(pdfAppliedBsdfCos, N.absDot(L));
