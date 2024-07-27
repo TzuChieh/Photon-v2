@@ -11,7 +11,7 @@ namespace ph
 
 A texture that is able to represent two inner textures alternately, 
 producing pattern similar to a chessboard. We name the cells in the
-checkerboard in following manners:
+checkerboard in the following manner:
 
 v
 +-----+-----+-----+
@@ -49,12 +49,14 @@ public:
 	*/
 	void setEvenTexture(const std::shared_ptr<TTexture<OutputType>>& evenTexture);
 
-	// Sets the scale factors of cell texture. Larger u-, v- and w-scale 
-	// makes texture appears to be larger in the corresponding direction, 
-	// and vice versa.
-	//
+	/*! @brief Sets the scale factors of cell texture.
+	Larger u-, v- and w-scale makes texture appears to be larger in the corresponding direction,
+	and vice versa.
+	*/
+	///@{
 	void setOddTextureScale(const math::Vector3R& sale);
 	void setEvenTextureScale(const math::Vector3R& scale);
+	///@}
 
 private:
 	std::shared_ptr<TTexture<OutputType>> m_oddTexture;

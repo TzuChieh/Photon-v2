@@ -64,9 +64,9 @@ public:
 	/*! @brief Creates a resource or struct instance filled with default values.
 	Default values are determined by SDL class definition.
 	*/
-	// FIXME: struct needs to have its own specialization of TSdl
 	template<typename... DeducedArgs>
 	static T make(DeducedArgs&&... args);
+	// FIXME: struct needs to have its own specialization of TSdl
 
 	/*! @brief Loads a single resource from file.
 	The file is assumed to contain only 1 resource.

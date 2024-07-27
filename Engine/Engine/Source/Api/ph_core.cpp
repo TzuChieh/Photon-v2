@@ -167,6 +167,7 @@ inline std::vector<const SdlClass*> register_engine_classes()
 		get_sdl_class<RasterFileImage>(),
 		get_sdl_class<MathImage>(),
 		get_sdl_class<SwizzledImage>(),
+		get_sdl_class<CheckerboardImage>(),
 		get_sdl_class<BlackBodyRadiationImage>(),
 
 		// Observers
