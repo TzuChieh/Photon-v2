@@ -134,9 +134,9 @@ void HdrRgbFilm::setRgbPixel(
 	const auto iy    = filmY - getEffectiveWindowPx().getMinVertex().y();
 	const auto index = iy * static_cast<std::size_t>(getEffectiveResPx().x()) + ix;
 
-	m_pixelRadianceSensors[index].accuR      = rgb.r();
-	m_pixelRadianceSensors[index].accuG      = rgb.g();
-	m_pixelRadianceSensors[index].accuB      = rgb.b();
+	m_pixelRadianceSensors[index].accuR      = rgb.r() * weight;
+	m_pixelRadianceSensors[index].accuG      = rgb.g() * weight;
+	m_pixelRadianceSensors[index].accuB      = rgb.b() * weight;
 	m_pixelRadianceSensors[index].accuWeight = weight;
 }
 

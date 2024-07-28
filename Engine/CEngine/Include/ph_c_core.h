@@ -6,18 +6,18 @@
 
 To correctly use Photon-v2 API, please read the following notes:
 
-- phInit() and phExit() must be called before and after the use of the API, and
+- `phInit()` and `phExit()` must be called before and after the use of the API, and
   should be called on the same thread.
 
-- phCreate/Delete<X>() and phAsync<X>() functions can be used in a multithreaded
+- `phCreate/Delete<X>()` and `phAsync<X>()` functions can be used in a multithreaded
   environment. They are thread-safe provided the following conditions are met:
-  * phDelete<X>() should be called from the same thread its corresponding
-    phCreate<X>() was called from.
-  * phAsync<X>() cannot be called during phUpdate() (memory effects must be made
+  * `phDelete<X>()` should be called from the same thread its corresponding
+    `phCreate<X>()` was called from.
+  * `phAsync<X>()` cannot be called during `phUpdate()` (memory effects must be made
     visible to the calling thread).
 
-- Resources created by phCreate<X>() cannot be manipulated concurrently. Any
-  function requiring some resource ID inputs (except phAsync<X>() functions) is
+- Resources created by `phCreate<X>()` cannot be manipulated concurrently. Any
+  function requiring some resource ID inputs (except `phAsync<X>()` functions) is
   considered a resource manipulating operation on those resources.
 
 */

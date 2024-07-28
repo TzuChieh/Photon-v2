@@ -38,13 +38,9 @@ void merge_films(const film_merger::ProcessedArguments& args)
 	{
 		const RegularPicture picture = io_utils::load_picture(info.file);
 		const TFrame<float64, 3> frame = picture.getPixels().toFrame<float64, 3>();
-
 		const float64 weight = info.weight ? *info.weight : 1.0;
-		if(!info.weight)
-		{
-			PH_DEFAULT_LOG(Note,
-				"Loading film <{}> with weight = {}.", info.file, weight);
-		}
+		PH_DEFAULT_LOG(Note,
+			"Loading film <{}> with weight = {}.", info.file, weight);
 
 		inputFilms.push_back(make_film(frame, weight));
 	}
@@ -66,7 +62,7 @@ void merge_films(const film_merger::ProcessedArguments& args)
 		mergedFilm.mergeWith(inputFilms[fi]);
 
 		PH_DEFAULT_LOG(Note,
-			"merged film {}", fi);
+			"Merged film {}.", fi);
 	}
 
 	HdrRgbFrame mergedFrame(static_cast<uint32>(mergedResPx.x()), static_cast<uint32>(mergedResPx.y()));

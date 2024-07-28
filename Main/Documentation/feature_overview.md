@@ -86,17 +86,33 @@ For thin lens camera, as its name suggests, the lens system in this camera is as
 
 ## Image
 
+[Image](@ref ph::Image) is a data storing medium that can bring finer details onto almost every aspects of the scene. [Textures](@ref ph::TTexture) generated from an image can be categorized into *numeric* and *color*. Data sampled from a color texture will automatically adapt to the current spectral representation used by the renderer, while numeric textures will generally pass the data through without any changes.
+
+### Constant Image
+
+One of the most frequently used image is [constant](@ref ph::ConstantImage). As suggested by its name, its value does not vary across the full image domain. A constant image takes an array of values as input and will not perform any transformation if color space information is not specified. The number of values in the input array also matters. For example, a single element will be interpreted as a constant spectrum when generating color textures, while three elements will be treated as a tristimulus color when spectral upsampling is performed. When conditions are met, the input array can also represent wavelength-value data points. Due to its versatility, its behavior is slightly complex, and the image implementation will try to detect and report potential issues to logs.
+
+### Raster Image
+
+Photographs are probably the most common images that we encounter in real life. Most photographs nowadays are converted to a grid of pixel values before being displayed on a monitor. The [raster image](@ref ph::RasterFileImage) works similarly by reading pictures stored on disk into memory, converting them to pixel-based textures, and then mapping them to the scene to add details. We support many [LDR and HDR formats](@ref ph::EPictureFile) through this image interface.
+
+![Raster Image Mountains](Example/raster_mountains.jpg "Using raster image as a map for radiance values on a light source."){html: width=80%}
+
+[//TODO]: <> (filter & wrap mode)
+[//TODO]: <> (wip)
+
+### Procedural Image
+
+[//TODO]: <> (checkerboard)
+[//TODO]: <> (gradient)
+[//TODO]: <> (math)
 [//TODO]: <> (wip)
 
 ### Black-body Radiation
 
 [//TODO]: <> (wip)
 
-### Texture
-
-[//TODO]: <> (wip)
-
-### Film
+## Film
 
 [//TODO]: <> (wip)
 
@@ -109,10 +125,6 @@ For thin lens camera, as its name suggests, the lens system in this camera is as
 [//TODO]: <> (wip)
 
 ### Reading and Writing
-
-[//TODO]: <> (wip)
-
-### Merging
 
 [//TODO]: <> (wip)
 
@@ -141,7 +153,7 @@ We can simulate some materials that do not exist in the real world. One common e
 > [!note]
 > A material that reflects all energy would require an index of refraction @f$ \eta = \infty @f$, which may cause some numerical issues. A nice workaround is to use [Schlick's approximation](@ref ph::SchlickApproxConductorFresnel) @cite Schlick:1994:BRDF with @f$ f_0 = 1 @f$.
 
-Photon also supports tinting reflectance and transmittance with user-specified values. Note that this is not physically correct since the color of dielectrics comes from internal volume absorption, not from interfaces. This feature is implemented for performance and artistic reasons only.
+Photon also supports tinting reflectance and transmittance with user-specified values. Note that this is not physically correct, and most of the color of dielectrics comes from internal volume absorption, not from interfaces. This feature is implemented for performance and artistic reasons only.
 
 | ![Ideal Dielectric](Example/ideal_dielectric.jpg) | ![Ideal Dielectric Blue Reflection Tint](Example/ideal_dielectric_blue_refl_tint.jpg) |
 | :------------------: | :------------------: |
@@ -151,7 +163,7 @@ Photon also supports tinting reflectance and transmittance with user-specified v
 | :------------------: | :------------------: |
 | **Left: Ideal glass with green transmission tint. Right: Ideal glass with blue reflection and green transmission tint.** ||
 
-### Abraded Opaque
+### Abraded Opaque {#abraded_opaque}
 
 Real-world surfaces are seldom perfectly smooth. Therefore, [AbradedOpaque](@ref ph::AbradedOpaque) offers a wide range of tweakable microsurface parameters for opaque materials. A popular BRDF model that allows this is the Cook-Torrance microfacet BRDF @cite Cook:1981:Reflectance. For the normal distribution function (NDF), we use the [Trowbridge-Reitz model](@ref ph::TrowbridgeReitz) (also known as the GGX model) @cite Trowbridge:1975:Average by default, as it has been shown to match experimental data well. The model can use both [exact](@ref ph::ExactConductorFresnel) and [approximated](@ref ph::SchlickApproxConductorFresnel) versions of the Fresnel equation @cite Greve:2006:Reflections. In the case of the exact Fresnel equation, measured spectral index of refraction (IoR) can be used (complex IoR is also supported). [This site](https://refractiveindex.info/) has a good collection of measured IoR data.
 
@@ -172,9 +184,9 @@ The generalized form of Trowbridge-Reitz is anisotropic, which is described thor
 
 ![Anisotropic Microfacet Comparison](Example/anisotropic_0_0p2.jpg "A comparison between anisotropic microfacet BRDFs. Left: Roughness = (0.2, 0). Middle: Roughness = (0.2, 0.2). Right: Roughness = (0, 0.2).")
 
-### Abraded Translucent
+### Abraded Translucent {#abraded_translucent}
 
-Since the aforementioned microfacet theory is just a description of microgeometry, it can be applied to the case of light transmission with some modifications @cite Walter:2007:Microfacet. The most prominent change is that for each shading point, we now need to trace two paths instead of one, for reflection and transmission, respectively. Much of the code for handling reflection can be reused, but not for transmission (it requires an additional BTDF). This is one of the reasons why the abraded [opaque](@ref ph::AbradedOpaque) and [translucent](@ref ph::AbradedTranslucent) materials do not share a common base class. This microfacet-based translucent material is effective for modeling frosted glass. Currently, only single-bounce lighting inside the microgeometry is simulated. Multi-bounce lighting within the microgeometry will be incorporated in the near future.
+Since the aforementioned microfacet theory is just a description of microgeometry, it can be applied to the case of light transmission with some modifications @cite Walter:2007:Microfacet. The most prominent change is that for each shading point, we now need to trace two paths instead of one, for reflection and transmission, respectively. Much of the code for handling reflection can be reused, but not for transmission (it requires an additional BTDF). This is one of the reasons why the abraded [opaque](@ref ph::AbradedOpaque) and [translucent](@ref ph::AbradedTranslucent) materials do not share a common base class. As with its [opaque variant](@ref abraded_opaque), this material also supports VNDF-based sampling @cite Dupuy:2023:Sampling in addition to ordinary NDF-based sampling. This microfacet-based translucent material is effective for modeling frosted glass. Currently, only single-bounce lighting inside the microgeometry is simulated. Multi-bounce lighting within the microgeometry will be incorporated in the near future.
 
 | ![Microfacet Glass](Example/microfacet_glass_0p2.jpg) | ![Microfacet Glass Rougher](Example/microfacet_glass_0p6.jpg) |
 | :------------------: | :------------------: |
@@ -197,14 +209,6 @@ Layered material models have become prevalent in the graphics community for quit
 | **Left: Simulating a mug material. Right: Polished iron with 2 layers of coating. One of the coating layer simulates grease with volumetric light transport.** ||
 
 ![Belcour Mug Parameters](Example/beclour_mug_param.jpg "Note that the mug material (the left image above) uses the same parameters taken from the teaser image of Belcour's paper."){html: width=30%}
-
-### Surface Behavior
-
-[//TODO]: <> (wip)
-
-### Volume Behavior
-
-[//TODO]: <> (wip)
 
 ## Geometry {#geometry}
 
@@ -245,6 +249,10 @@ A bonus to have cuboids is that voxel games like [Minecraft](https://en.wikipedi
 Almost all shapes are built from triangle meshes for a typical scene. Games, modeling programs and other applications typically use triangle mesh to represent arbitrary 3-D shapes. It is basically a collection of triangles grouped in a way that approximates a target shape. It can be created by [triangle mesh geometry](@ref ph::GTriangleMesh) or [polygon mesh](@ref ph::GPlyPolygonMesh). The polygon mesh variant is a more memory efficient representation of a triangle mesh and supports customizable vertex layout and arbitrary index bit precision. Binary storage format is also supported ([PLY format](https://en.wikipedia.org/wiki/PLY_(file_format))).
 
 ![Triangle Mesh Geometry](Example/triangle_mesh.jpg "Stanford bunny built from a triangle mesh.")
+
+### Masking
+
+[//TODO]: <> (wip)
 
 ### Advanced Shapes
 
