@@ -129,9 +129,7 @@ Clause is a structure that stores parameters for a command. It has the following
 
 [`type-category` `parameter-name`:`tag` `values`]
 
-It is worth pointing out that the `parameter-name` does not need to start with `@`. The `values` section can have many forms such as numerical values (as seen earlier), arrays, and even stand-alone data files (we call them **PSDL Resource Identifier**). Details of this section will be introduced in [later part](@ref psdl_resource_identifier) of the guide.
-
-[//TODO]: <> (reference & struct types)
+It is worth pointing out that the `parameter-name` does not need to start with `@`. The `values` section can have many forms such as numerical values (as seen earlier), arrays, and even stand-alone data files (we call them **PSDL Resource Identifier**). Details for resource identifiers will be introduced in [later part](@ref psdl_resource_identifier) of the guide.
 
 ```csharp
 // By writing these, we now added a plane, a ball and a material to the scene!
@@ -142,6 +140,41 @@ geometry(sphere)       @ball    = [real radius 2.5];
 image(constant)        @white   = [real-array values 0.9];
 material(matte-opaque) @diffuse = [image albedo @white];
 ```
+
+When defining a clause, `type-category` can be classified into *value* and *reference*. [Value types](@ref sdl_value_types) do not share data and create a new block of data each time a clause is instantiated. On the other hand, [reference types](@ref sdl_reference_types) can share their data by instance names, with automatic reference counting.
+
+### Value Types {#sdl_value_types}
+
+These are common value types used in a SDL clause:
+
+| Type | Value Syntax | Notes |
+| --------------| ------------ | ----- |
+| `integer` | An optionally double-quoted single integer literal. `42`, `"6789"` are all valid inputs. Base 16 input like `0xFF` is also supported. | Internally, the clause may bind to a lower precision field such as `uin16`. Incompatible value literals will be detected and reported.* |
+| `real` | An optionally double-quoted single floating-point literal. `-123`, `"3.1415926"` are all valid literals. | Internally, the clause may bind to a field with a type different from `float`. Incompatible value literals will be detected and reported.* |
+| `bool` | `true`, `True`, or `TRUE` for true; `false`, `False`, or `FALSE` for false. |  |
+| `string` | A string without whitespaces can be specified directly like `nospace`. Whitespaces like spaces, tabs, etc. can be included using double quotes like `"  lots of  spaces  "`. |  |
+| `vector2` | Two floating-point literals enclosed by a pair of double quotes. The literals should be separated by whitespace(s) like `"-1.2 3.4"`. If only a single literal is provided, it will be applied to all components. For example, `0.5` is equivalent to `"0.5 0.5"`. |  |
+| `vector3` | Similar to `vector2`, except that three literals are allowed. |  |
+| `vector4` | Similar to `vector3`, except that four literals are allowed. |  |
+| `quaternion` | Exactly the same as `vector4`. | This type represents a quaternion. For vectors or tuples, use `vector4`. |
+| `real-array` | Array variant of `real` that can accept N (N >= 0) floating-point literals. All literals are separated by whitespace(s) and should be enclosed by curly braces. For example, an increasing series of 5 elements can be written as `{1.1 2.2 3.3 4.4 5.5}`. | Accepts [resource identifier](@ref psdl_resource_identifier) as input. In this case, it is expected to be a file that contains the value part of the clause. |
+| `vector3-array` | Array variant of `vector3` that can accept N (N >= 0) `vector3` values. For example, `{"7 7 7" "7"}` defines two `vector3` values, where all components == 7. |  |
+| `path` | Basically a `string`, except that its value is interpreted as a filesystem path. | It is recommended to use [resource identifier](@ref psdl_resource_identifier) where possible so the scene file can be easily distributed without broken links. |
+| `enum` | A `string` that identifies an enumeration entry. | See the [scene description reference](@ref main_scene_description_reference) for valid enumeration identifiers. |
+
+[//TODO]: <> (more types)
+
+All values can be double-quoted unless otherwise noted.
+
+*: Depending on the settings of the bound field and the parser, such warnings/errors may be disabled.
+
+### Reference Types {#sdl_reference_types}
+
+[//TODO]: <> (wip)
+
+### Struct Types
+
+[//TODO]: <> (wip)
 
 With PSDL, you can create almost all kinds of objects the rendering system has to offer. In later sections, we will see that it is also possible to perform [operations](@ref operations) on these objects via PSDL.
 
@@ -155,6 +188,10 @@ With PSDL, you can create almost all kinds of objects the rendering system has t
 ## PSDL Resource Identifier {#psdl_resource_identifier}
 
 [//TODO]: <> (include, PRI, scene working directory)
+
+## Serialization
+
+[//TODO]: <> (wip)
 
 ## Appendix
 

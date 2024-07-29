@@ -22,16 +22,16 @@ class TSdlPath : public SdlValueType
 
 public:
 	template<typename ValueType>
-	inline TSdlPath(std::string valueName, ValueType Owner::* const valuePtr) :
+	TSdlPath(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("path", std::move(valueName), valuePtr)
 	{}
 
-	inline std::string valueAsString(const Path& path) const override
+	std::string valueAsString(const Path& path) const override
 	{
 		return path.toString();
 	}
 
-	inline SdlNativeData ownedNativeData(Owner& owner) const override
+	SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		Path* const path = this->getValue(owner);
 		return SdlNativeData::fromSingleElement(
@@ -39,7 +39,7 @@ public:
 	}
 
 protected:
-	inline void loadFromSdl(
+	void loadFromSdl(
 		Owner&                 owner,
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
@@ -47,7 +47,7 @@ protected:
 		this->setValue(owner, Path(clause.value));
 	}
 
-	inline void saveToSdl(
+	void saveToSdl(
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override

@@ -37,6 +37,8 @@ class ISdlResource;
 class ISdlReferenceGroup;
 class ISdlDataPacketGroup;
 
+/*! @brief Meta information for the value in a clause.
+*/
 enum ESdlClauseValue
 {
 	/*! Value of unspecified format. */
