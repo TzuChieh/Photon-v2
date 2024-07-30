@@ -6,3 +6,4 @@ from bmodule.material.surface_nodes.ideal_substance import PhIdealSubstanceNode
 from bmodule.material.surface_nodes.surface_layer import PhSurfaceLayerNode
 from bmodule.material.surface_nodes.layered_surface import PhLayeredSurfaceNode
 from bmodule.material.surface_nodes.pure_absorber import PhPureAbsorberNode
+from bmodule.material.surface_nodes.thin_dielectric_surface import PhThinDielectricSurfaceNode

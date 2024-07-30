@@ -1,6 +1,7 @@
 from ..node_base import (
         PhSurfaceMaterialNode,
-        PhSurfaceMaterialSocket)
+        PhSurfaceMaterialSocket,
+        )
 from psdl import sdl
 from bmodule import naming
 

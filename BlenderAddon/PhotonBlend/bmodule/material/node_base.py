@@ -16,8 +16,8 @@ class PhMaterialNodeSocket(bpy.types.NodeSocket):
     link_only: bpy.props.BoolProperty(
         name="Link Only",
         description="Makes this node for linking only, its contained value(s) is ignored.",
-        default=False
-    )
+        default=False,
+        )
 
     def draw_color(self, b_context, node):
         """
@@ -64,8 +64,8 @@ class PhSurfaceMaterialSocket(PhMaterialNodeSocket):
         min=0.0,
         max=1.0,
         subtype='COLOR',
-        size=3
-    )
+        size=3,
+        )
 
     def draw_color(self, b_context, node):
         return [0.8, 0.1, 0.1, 1.0]  # red
@@ -84,8 +84,8 @@ class PhFloatValueSocket(PhMaterialNodeSocket):
         default=0.5,
         min=-1e32,
         max=1e32,
-        subtype='NONE'
-    )
+        subtype='NONE',
+        )
 
     def draw_color(self, b_context, node):
         return [0.5, 0.5, 0.5, 1.0]  # gray
@@ -104,8 +104,8 @@ class PhFloatFactorSocket(PhMaterialNodeSocket):
         default=0.5,
         min=0.0,
         max=1.0,
-        subtype='FACTOR'
-    )
+        subtype='FACTOR',
+        )
 
     def draw_color(self, b_context, node):
         return [0.5, 0.5, 0.5, 1.0]  # gray
@@ -125,8 +125,8 @@ class PhFloatVectorSocket(PhMaterialNodeSocket):
         min=-1e32,
         max=1e32,
         subtype='NONE',
-        size=3
-    )
+        size=3,
+        )
 
     def draw_color(self, b_context, node):
         return [0.476, 0.727, 0.829, 1.0]  # blue
@@ -147,8 +147,8 @@ class PhColorSocket(PhMaterialNodeSocket):
         min=0.0,
         max=1.0,
         subtype='COLOR',
-        size=3
-    )
+        size=3,
+        )
 
     def draw_color(self, b_context, node):
         return [0.7, 0.7, 0.1, 1.0]  # yellow
@@ -167,8 +167,8 @@ class PhColorSocketWithFloatDefault(PhMaterialNodeSocket):
         default=0.5,
         min=-1e32,
         max=1e32,
-        subtype='NONE'
-    )
+        subtype='NONE',
+        )
 
     def draw_color(self, b_context, node):
         return [0.7, 0.7, 0.1, 1.0]  # yellow

@@ -64,14 +64,14 @@ class PhSurfaceLayerNode(PhSurfaceMaterialNode):
     )
 
     depth: bpy.props.FloatProperty(
-        name="depth",
+        name="Depth",
         default=0.0,
         min=0.0,
         max=sys.float_info.max
     )
 
     g: bpy.props.FloatProperty(
-        name="g",
+        name="G",
         default=0.9,
         min=0.5,
         max=1.0

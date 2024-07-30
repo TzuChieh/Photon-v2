@@ -20,15 +20,15 @@ class PhDiffuseSurfaceNode(PhSurfaceMaterialNode):
         ],
         name="Type",
         description="surface diffusion types",
-        default='LAMBERTIAN'
-    )
+        default='LAMBERTIAN',
+        )
 
     roughness: bpy.props.FloatProperty(
         name="Roughness",
         default=0.5,
         min=0.0,
-        max=1.0
-    )
+        max=1.0,
+        )
 
     def to_sdl(self, b_material, sdlconsole):
         albedo_socket = self.inputs[0]

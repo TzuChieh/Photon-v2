@@ -25,7 +25,7 @@ private:
 public:
 	PH_DEFINE_SDL_CLASS(TSdlOwnerClass<ThinDielectricSurface>)
 	{
-		ClassType clazz("thin-surface");
+		ClassType clazz("thin-dielectric-surface");
 		clazz.description(
 			"Treating a single interface as a solid material with a near-negligible thickness.");
 		clazz.docName("Thin Surface Material");

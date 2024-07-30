@@ -19,8 +19,8 @@ class PhConstantColorInputNode(PhMaterialInputNode):
         min=0.0,
         max=1.0,
         subtype='COLOR',
-        size=3
-    )
+        size=3,
+        )
 
     color_space: bpy.props.EnumProperty(
         items=[
@@ -33,14 +33,14 @@ class PhConstantColorInputNode(PhMaterialInputNode):
         ],
         name="Color Space",
         description="Color space of the constant.",
-        default='auto'
-    )
+        default='auto',
+        )
 
     is_raw_data: bpy.props.BoolProperty(
         name="Raw Data",
         description="Use the color as raw data. No color space transformation will be done during rendering.",
-        default=False
-    )
+        default=False,
+        )
 
     def to_sdl(self, b_material, sdlconsole):
         output_socket = self.outputs[0]
