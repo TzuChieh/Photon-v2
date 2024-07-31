@@ -17,16 +17,16 @@ class TSdlString : public SdlValueType
 
 public:
 	template<typename ValueType>
-	inline TSdlString(std::string valueName, ValueType Owner::* const valuePtr) :
+	TSdlString(std::string valueName, ValueType Owner::* const valuePtr) :
 		SdlValueType("string", std::move(valueName), valuePtr)
 	{}
 
-	inline std::string valueAsString(const std::string& str) const override
+	std::string valueAsString(const std::string& str) const override
 	{
 		return str;
 	}
 
-	inline SdlNativeData ownedNativeData(Owner& owner) const override
+	SdlNativeData ownedNativeData(Owner& owner) const override
 	{
 		std::string* const str = this->getValue(owner);
 		return SdlNativeData::fromSingleElement(
@@ -34,7 +34,7 @@ public:
 	}
 
 protected:
-	inline void loadFromSdl(
+	void loadFromSdl(
 		Owner&                 owner,
 		const SdlInputClause&  clause,
 		const SdlInputContext& ctx) const override
@@ -43,7 +43,7 @@ protected:
 		this->setValue(owner, clause.value);
 	}
 
-	inline void saveToSdl(
+	void saveToSdl(
 		const Owner&            owner,
 		SdlOutputClause&        out_clause,
 		const SdlOutputContext& ctx) const override

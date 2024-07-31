@@ -6,6 +6,7 @@
 #include <Common/assertion.h>
 
 #include <algorithm>
+#include <cmath>
 
 namespace ph::math
 {
@@ -40,38 +41,37 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 	m_delta = (max - min) / static_cast<T>(numWeights);
 
 	// Construct CDF by first integrating the weights
-	m_cdf[0] = 0;
-	for(std::size_t i = 1; i < m_cdf.size(); ++i)
+	m_cdf.front() = 0;
+	for(std::size_t i = 1; i <= numWeights; ++i)
 	{
 		const T wi = weights[i - 1];
-		PH_ASSERT(wi >= 0);
+		PH_ASSERT_GE(wi, 0);
 
 		m_cdf[i] = m_cdf[i - 1] + wi * m_delta;
 	}
 
-	const T sum = m_cdf.back();
-	if(sum > 0)
+	const T rcpSum = static_cast<T>(1) / m_cdf.back();
+
+	// Ensure first and last CDF entry is 0 and 1, respectively
+	m_cdf.front() = 0;
+	m_cdf.back()  = 1;
+
+	if(std::isfinite(rcpSum))
 	{
 		// Normalize the CDF
-		for(std::size_t i = 1; i < m_cdf.size(); ++i)
+		for(std::size_t i = 1; i < numWeights; ++i)
 		{
-			// We do not multiply with reciprocal of sum here since we want to
-			// ensure that trailing entries with zero weight are normalized
-			// to one.
-			m_cdf[i] /= sum;
+			m_cdf[i] *= rcpSum;
 		}
 	}
 	else
 	{
-		PH_ASSERT_EQ(sum, T(0));
-
-		// If the sum is zero, make a simple linear CDF.
-		for(std::size_t i = 1; i < m_cdf.size(); ++i)
+		// If the sum is zero or non-finite, make a simple linear CDF.
+		for(std::size_t i = 1; i < numWeights; ++i)
 		{
 			m_cdf[i] = static_cast<T>(i) / static_cast<T>(numWeights);
 		}
 	}
-	PH_ASSERT_EQ(m_cdf.back(), T(1));
 
 	// Find first column with non-zero PDF
 	for(std::size_t i = 0; i < numColumns(); ++i)
@@ -82,6 +82,9 @@ inline TPwcDistribution1D<T>::TPwcDistribution1D(
 			break;
 		}
 	}
+
+	PH_ASSERT_EQ(m_cdf.front(), 0);
+	PH_ASSERT_EQ(m_cdf.back(),  1);
 }
 
 template<typename T>

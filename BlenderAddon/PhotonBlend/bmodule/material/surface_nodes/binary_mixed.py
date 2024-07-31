@@ -89,4 +89,4 @@ class PhBinaryMixedSurfaceNode(PhSurfaceMaterialNode):
         # owning_node_tree.links.new(default_node.outputs[0], self.inputs[1])
 
     def draw_buttons(self, b_context, b_layout):
-        b_layout.prop(self, "factor_type", text="")
+        b_layout.prop(self, 'factor_type', text="")

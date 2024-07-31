@@ -4,7 +4,7 @@
 
 Here, you will learn about the scene description language used in Photon, sometimes referred to as PSDL (Photon Scene Description Language). It is a special format created for storing scene data as well as controlling the behavior of the render engine. We also have [API generators](https://github.com/TzuChieh/Photon-v2/tree/master/SDLGenerator/SDLGen) for different programming languages, allowing users to programmatically build scene descriptions and output customized formats for various applications. The reference for all engine features exposed as PSDL can be found [here](@ref main_scene_description_reference).
 
-## Introduction
+## Introduction {#sdl_introduction}
 
 Let us first see how a simple scene would be represented in PSDL. The hello-world scene that will be rendered by Photon looks like this
 
@@ -96,19 +96,19 @@ As you may have noticed, all commands end with a trailing semi-colon. To disable
 
 In the next sections, we will formally introduce the syntactic structures of PSDL commands.
 
-## Type Category
+### Type Category
 
 `type-category`(type-name) \@name = clauses;
 
 Describes the category to which the current command belongs. For example, the command that creates a geometry states that its category is `geometry` in its type category section. There are many categories in PSDL. In addition to the ones seen in the above hello-world scene description, we also have `image`, `object` and much more.
 
-## Type Name
+### Type Name
 
 type-category(`type-name`) \@name = clauses;
 
 Type names generally *add details* to the type category. Again, in the command that creates a geometry, we know that we are now creating a `rectangle` geometry from the command fragment `geometry(rectangle)`. Type category and type name are often combined and are called **full type name** together. Full type name is only needed if the underlying engine operation requires it (such as creating a resource). For executor calls (see the later section), type name can be omitted (will be automatically deduced from the referenced resource) sometimes.
 
-## Data Name
+### Data Name
 
 type-category(type-name) \@`name` = clauses;
 
@@ -121,7 +121,7 @@ geometry(sphere) @"ball name with spaces" = [real radius 2.5];
 actor(model) @balloon = [geometry geometry @"ball name with spaces"];
 ```
 
-## Clauses
+## Clauses {#sdl_clauses}
 
 type-category(type-name) \@name = `clauses`;
 
@@ -145,12 +145,12 @@ When defining a clause, `type-category` can be classified into *value* and *refe
 
 ### Value Types {#sdl_value_types}
 
-These are common value types used in a SDL clause:
+These are common value types* used in a SDL clause:
 
 | Type | Value Syntax | Notes |
 | --------------| ------------ | ----- |
-| `integer` | An optionally double-quoted single integer literal. `42`, `"6789"` are all valid inputs. Base 16 input like `0xFF` is also supported. | Internally, the clause may bind to a lower precision field such as `uin16`. Incompatible value literals will be detected and reported.* |
-| `real` | An optionally double-quoted single floating-point literal. `-123`, `"3.1415926"` are all valid literals. | Internally, the clause may bind to a field with a type different from `float`. Incompatible value literals will be detected and reported.* |
+| `integer` | An optionally double-quoted single integer literal. `42`, `"6789"` are all valid inputs. Hexadecimal input like `0xFF` is also supported. | Internally, the clause may bind to a lower precision field such as `uin16`. Incompatible value literals will be detected and reported.** |
+| `real` | An optionally double-quoted single floating-point literal. `-123`, `"3.1415926"` are all valid literals. | Internally, the clause may bind to a field with a type different from `float`. Incompatible value literals will be detected and reported.** |
 | `bool` | `true`, `True`, or `TRUE` for true; `false`, `False`, or `FALSE` for false. |  |
 | `string` | A string without whitespaces can be specified directly like `nospace`. Whitespaces like spaces, tabs, etc. can be included using double quotes like `"  lots of  spaces  "`. |  |
 | `vector2` | Two floating-point literals enclosed by a pair of double quotes. The literals should be separated by whitespace(s) like `"-1.2 3.4"`. If only a single literal is provided, it will be applied to all components. For example, `0.5` is equivalent to `"0.5 0.5"`. |  |
@@ -162,15 +162,32 @@ These are common value types used in a SDL clause:
 | `path` | Basically a `string`, except that its value is interpreted as a filesystem path. | It is recommended to use [resource identifier](@ref psdl_resource_identifier) where possible so the scene file can be easily distributed without broken links. |
 | `enum` | A `string` that identifies an enumeration entry. | See the [scene description reference](@ref main_scene_description_reference) for valid enumeration identifiers. |
 
-[//TODO]: <> (more types)
-
 All values can be double-quoted unless otherwise noted.
 
-*: Depending on the settings of the bound field and the parser, such warnings/errors may be disabled.
+*: Value types do not have `type-name`. The types shown here are both being full type names and type categories.
+**: Depending on the settings of the bound field and the parser, such warnings/errors may be disabled.
 
 ### Reference Types {#sdl_reference_types}
 
+Each command from the example in the [introduction section](@ref sdl_introduction) creates a named reference (if there is a `@` specifier* before the name). Consider the following command that creates a rectangle:
+
+```csharp
+geometry(rectangle) @plane = [real width 15] [real height 15];
+```
+
+The reference `@plane` will uniquely identify the geometry resource, which is a rectangle, that has been created by the command. Many types in PSDL accept references as input. In this case, we use the `type-category` and a corresponding reference in the [clause definition](@ref sdl_clauses). For example:
+
+```csharp
+image(constant) @white = [real-array values 0.9];
+material(matte-opaque) @diffuse = [image albedo @white];
+```
+
+A material resource named `diffuse` is being created by referencing an image named `white` as its albedo with the clause `[image albedo @white]`. Note that references can be used for resource sharing. For example, another diffuse material `diffuse2` can be created with the same clause (referencing `white`) and both `diffuse` and `diffuse2` will be using the same piece of data for their albedo.
+
+[//TODO]: <> (cached specifier)
 [//TODO]: <> (wip)
+
+*: We call this a *persistent specifier*. The named target will be persistent throughout the lifetime of the containing scene.
 
 ### Struct Types
 
@@ -188,6 +205,33 @@ With PSDL, you can create almost all kinds of objects the rendering system has t
 ## PSDL Resource Identifier {#psdl_resource_identifier}
 
 [//TODO]: <> (include, PRI, scene working directory)
+
+## C++ Binding
+
+[//TODO]: <> (wip)
+
+### Owner Types
+
+[//TODO]: <> (wip)
+
+### Struct Types
+
+[//TODO]: <> (wip)
+
+### Enum Types
+
+[//TODO]: <> (wip)
+
+### Field Types
+
+[//TODO]: <> (reference field)
+[//TODO]: <> (optional field)
+[//TODO]: <> (struct field)
+[//TODO]: <> (wip)
+
+### Function Types
+
+[//TODO]: <> (wip)
 
 ## Serialization
 
