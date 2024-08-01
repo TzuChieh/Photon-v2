@@ -43,15 +43,27 @@ public:
 
 	real calcExtendedArea() const override;
 
-	// TODO: update internal data like area when setters are called
-
+	/*! @brief Set vertex normals.
+	Vertex normals are set to face normal by default.
+	*/
+	///@{
 	void setNa(const math::Vector3R& nA);
 	void setNb(const math::Vector3R& nB);
 	void setNc(const math::Vector3R& nC);
+	///@}
 
+	/*! @brief Set vertex parametric coordinates.
+	Surface parametric coordinates are set to 0 by default.
+	*/
+	///@{
 	void setUVWa(const math::Vector3R& uvwA);
 	void setUVWb(const math::Vector3R& uvwB);
 	void setUVWc(const math::Vector3R& uvwC);
+	///@}
+
+	const math::Vector3R& getNa() const;
+	const math::Vector3R& getNb() const;
+	const math::Vector3R& getNc() const;
 
 	const math::Vector3R& getUVWa() const;
 	const math::Vector3R& getUVWb() const;
@@ -110,6 +122,21 @@ inline void PTriangle::setUVWb(const math::Vector3R& uvwB)
 inline void PTriangle::setUVWc(const math::Vector3R& uvwC)
 {
 	m_uvwC = uvwC;
+}
+
+inline const math::Vector3R& PTriangle::getNa() const
+{
+	return m_nC;
+}
+
+inline const math::Vector3R& PTriangle::getNb() const
+{
+	return m_nB;
+}
+
+inline const math::Vector3R& PTriangle::getNc() const
+{
+	return m_nA;
 }
 
 inline const math::Vector3R& PTriangle::getUVWa() const

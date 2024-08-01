@@ -68,7 +68,7 @@ public:
 
 	/*! @brief Calculate face normal with a fail-safe value.
 	The vertices may form a degenerate triangle (zero cross product and thus
-	producing NaNs after being normalized, or vertices with Inf/NaN), in such 
+	producing NaNs after being normalized, or vertices with Inf/NaN), in such
 	case the fail-safe vector will be returned.
 	@param failSafe The value to use when the face normal cannot be obtained.
 	@return The face normal. Potentially being `failSafe`.
@@ -95,6 +95,9 @@ public:
 
 	T uniformSurfaceSamplePdfA() const;
 
+	/*!
+	@return Whether the triangle is a point, line, or contains non-finite vertices.
+	*/
 	bool isDegenerate() const;
 
 	TVector3<T> getVa() const;
