@@ -18,12 +18,6 @@ void BruteForceIntersector::update(TSpanView<const Intersectable*> intersectable
 
 	for(const auto& intersectable : intersectables)
 	{
-		// HACK
-		if(!intersectable->calcAABB().isFiniteVolume())
-		{
-			continue;
-		}
-
 		m_intersectables.push_back(intersectable);
 	}
 }

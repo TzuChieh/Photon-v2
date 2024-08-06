@@ -122,6 +122,8 @@ public:
 	*/
 	bool isIntersectingVolume(const TAABB3D& other) const;
 
+	/*! @brief Checks whether this bound encloses nothing, not even a point.
+	*/
 	bool isEmpty() const;
 
 	/*! @brief Checks whether this bound is a point.
@@ -129,6 +131,12 @@ public:
 	bool isPoint() const;
 
 	/*! @brief Checks whether this bound encloses some amount of volume.
+	*/
+	bool isVolume() const;
+
+	/*! @brief Checks whether this bound encloses some finite amount of volume.
+	This is a stricter test than `isVolume()`. This bound must have a finite volume for this test to
+	return `true`.
 	*/
 	bool isFiniteVolume() const;
 
@@ -174,7 +182,7 @@ public:
 	@param splitPoint The 1-D coordinate on the target axis.
 	@return Two bounds which is the result of splitting this bound.
 	*/
-	std::pair<TAABB3D, TAABB3D> getSplitted(constant::AxisIndexType axis, T splitPoint) const;
+	std::pair<TAABB3D, TAABB3D> getSplitted(std::size_t axis, T splitPoint) const;
 
 	/*! @brief Get the string representation of this bound.
 	*/

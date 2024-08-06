@@ -109,6 +109,22 @@ inline T safe_clamp(const T value, const T lowerBound, const T upperBound)
 	return std::isfinite(value) ? std::clamp(value, lowerBound, upperBound) : lowerBound;
 }
 
+/*! @brief Calculates the reciprocal of a value, fallback to 0.
+If the resulting reciprocal is non-finite (e.g., being Inf, NaN), 0 will be returned instead.
+*/
+template<typename T>
+inline T safe_rcp(const T value)
+{
+	if constexpr(std::is_floating_point_v<T>)
+	{
+		return value != 0 ? static_cast<T>(1) / value : static_cast<T>(0);
+	}
+	else
+	{
+		return std::abs(value) == 1 ? value : static_cast<T>(0);
+	}
+}
+
 /*! @brief Convert radians to degrees.
 */
 template<typename T>

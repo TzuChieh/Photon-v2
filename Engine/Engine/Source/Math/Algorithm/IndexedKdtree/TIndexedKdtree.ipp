@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Math/Algorithm/IndexedKdtree/TIndexedKdtree.h"
+#include "Math/Algorithm/traversal_concepts.h"
 
 #include <limits>
 #include <array>
 #include <cmath>
 #include <algorithm>
+#include <optional>
 
 namespace ph::math
 {

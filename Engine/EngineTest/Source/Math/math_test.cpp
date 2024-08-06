@@ -4,6 +4,7 @@
 
 #include <limits>
 #include <cstdint>
+#include <cmath>
 
 using namespace ph;
 using namespace ph::math;
@@ -92,6 +93,49 @@ TEST(MathTest, NumberClamping)
 		EXPECT_EQ(safe_clamp(inf, inf, inf), inf);
 		EXPECT_EQ(safe_clamp(-inf, inf, inf), inf);
 		EXPECT_EQ(safe_clamp(-inf, -inf, inf), -inf);
+	}
+}
+
+TEST(MathTest, NumberReciprocal)
+{
+	// `int` always result in 0 except for +-1
+	{
+		for(int n = -1000; n <= 1000; ++n)
+		{
+			if(std::abs(n) != 1)
+			{
+				EXPECT_EQ(safe_rcp(n), 0);
+			}
+			else
+			{
+				EXPECT_EQ(safe_rcp(n), n);
+			}
+		}
+	}
+	
+	// `float`
+	{
+		EXPECT_EQ(safe_rcp(0.0f), 0.0f);
+		EXPECT_EQ(safe_rcp(1.0f), 1.0f);
+		EXPECT_EQ(safe_rcp(-1.0f), -1.0f);
+		EXPECT_GT(safe_rcp(std::numeric_limits<float>::max()), 0.0f);
+		EXPECT_LT(safe_rcp(std::numeric_limits<float>::lowest()), 0.0f);
+		EXPECT_GT(safe_rcp(std::numeric_limits<float>::min()), 0.0f);
+
+		if constexpr(std::numeric_limits<float>::has_infinity)
+		{
+			EXPECT_EQ(safe_rcp(std::numeric_limits<float>::infinity()), 0.0f);
+		}
+
+		if constexpr(std::numeric_limits<float>::has_quiet_NaN)
+		{
+			EXPECT_EQ(safe_rcp(std::numeric_limits<float>::quiet_NaN()), 0.0f);
+		}
+
+		if constexpr(std::numeric_limits<float>::has_signaling_NaN)
+		{
+			EXPECT_EQ(safe_rcp(std::numeric_limits<float>::signaling_NaN()), 0.0f);
+		}
 	}
 }
 

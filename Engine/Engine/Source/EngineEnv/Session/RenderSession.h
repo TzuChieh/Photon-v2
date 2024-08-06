@@ -19,8 +19,6 @@ namespace ph
 class RenderSession : public Option
 {
 public:
-	inline RenderSession() = default;
-
 	/*! @brief Apply settings to the context.
 
 	Derived classes should call the base applyToContext(CoreCookingContext&) 

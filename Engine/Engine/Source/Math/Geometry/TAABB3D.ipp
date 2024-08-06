@@ -216,10 +216,17 @@ inline bool TAABB3D<T>::isPoint() const
 }
 
 template<typename T>
+inline bool TAABB3D<T>::isVolume() const
+{
+	return m_minVertex.x() < m_maxVertex.x() &&
+	       m_minVertex.y() < m_maxVertex.y() &&
+	       m_minVertex.z() < m_maxVertex.z();
+}
+
+template<typename T>
 inline bool TAABB3D<T>::isFiniteVolume() const
 {
-	const T volume = getVolume();
-	return volume > T(0) && !std::isinf(volume);
+	return isVolume() && std::isfinite(getVolume());
 }
 
 template<typename T>
@@ -229,7 +236,7 @@ inline TAABB3D<T> TAABB3D<T>::getTranslated(const TVector3<T>& amount) const
 }
 
 template<typename T>
-inline std::pair<TAABB3D<T>, TAABB3D<T>> TAABB3D<T>::getSplitted(const constant::AxisIndexType axis, const T splitPoint) const
+inline std::pair<TAABB3D<T>, TAABB3D<T>> TAABB3D<T>::getSplitted(const std::size_t axis, const T splitPoint) const
 {
 	PH_ASSERT_IN_RANGE_INCLUSIVE(splitPoint, m_minVertex[axis], m_maxVertex[axis]);
 

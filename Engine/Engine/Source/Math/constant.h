@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 
 namespace ph::math
 {
@@ -81,19 +82,14 @@ inline constexpr std::size_t GiB = MiB * 1024;
 inline constexpr std::size_t TiB = GiB * 1024;
 inline constexpr std::size_t PiB = TiB * 1024;
 
-/*! @brief Index type that stores/represents axes.
-*/
-using AxisIndexType = std::size_t;
-
 /*! @name Axis Indices
-
 Standard axis indices used in the renderer.
 */
 ///@{
-inline constexpr AxisIndexType UNKNOWN_AXIS = static_cast<AxisIndexType>(-1);
-inline constexpr AxisIndexType X_AXIS       = 0;
-inline constexpr AxisIndexType Y_AXIS       = 1;
-inline constexpr AxisIndexType Z_AXIS       = 2;
+inline constexpr std::size_t UNKNOWN_AXIS = static_cast<std::size_t>(-1);
+inline constexpr std::size_t X_AXIS       = 0;
+inline constexpr std::size_t Y_AXIS       = 1;
+inline constexpr std::size_t Z_AXIS       = 2;
 ///@}
 
 }// end namespace constant

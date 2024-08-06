@@ -1,16 +1,15 @@
 #pragma once
 
 #include "Core/Intersection/Intersector.h"
-#include "Core/Intersection/Bvh/BvhLinearNode.h"
+#include "Math/Algorithm/BVH/TLinearDepthFirstBinaryBvh.h"
 
 #include <Common/primitive_type.h>
-
-#include <vector>
 
 namespace ph
 {
 
-class ClassicBvhIntersector : public Intersector
+template<typename IndexType>
+class TClassicBvhIntersector : public Intersector
 {
 public:
 	void update(TSpanView<const Intersectable*> intersectables) override;
@@ -20,10 +19,9 @@ public:
 	void rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables);
 
 private:
-	std::vector<const Intersectable*> m_intersectables;
-	std::vector<BvhLinearNode>        m_nodes;
-
-	static const int32 NODE_STACK_SIZE = 64;
+	math::TLinearDepthFirstBinaryBvh<const Intersectable*, IndexType> m_bvh;
 };
 
 }// end namespace ph
+
+#include "Core/Intersection/BVH/TClassicBvhIntersector.ipp"

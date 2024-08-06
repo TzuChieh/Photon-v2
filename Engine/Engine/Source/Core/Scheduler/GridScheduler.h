@@ -21,10 +21,10 @@ class GridScheduler : public WorkScheduler
 public:
 	enum class EOrigin
 	{
-		LOWER_LEFT,
-		LOWER_RIGHT,
-		UPPER_LEFT,
-		UPPER_RIGHT
+		LowerLeft,
+		LowerRight,
+		UpperLeft,
+		UpperRight
 	};
 
 	GridScheduler();
@@ -39,17 +39,17 @@ public:
 		const math::Vector2S&   numCells);
 
 	GridScheduler(
-		std::size_t                   numWorkers, 
-		const WorkUnit&               totalWorkUnit,
-		const math::Vector2S&         numCells,
-		EOrigin                       origin,
-		math::constant::AxisIndexType prioriAxis);
+		std::size_t             numWorkers, 
+		const WorkUnit&         totalWorkUnit,
+		const math::Vector2S&   numCells,
+		EOrigin                 origin,
+		std::size_t             prioriAxis);
 
 private:
-	math::Vector2S                m_numCells;
-	EOrigin                       m_origin;
-	math::constant::AxisIndexType m_prioriAxis;
-	math::Vector2S                m_currentCell;
+	math::Vector2S m_numCells;
+	math::Vector2S m_currentCell;
+	EOrigin        m_origin;
+	std::size_t    m_prioriAxis;
 
 	void scheduleOne(WorkUnit* out_workUnit) override;
 };
@@ -61,9 +61,9 @@ inline GridScheduler::GridScheduler()
 	: WorkScheduler()
 
 	, m_numCells   (0)
-	, m_origin     (EOrigin::LOWER_LEFT)
-	, m_prioriAxis (0)
 	, m_currentCell(0, 0)
+	, m_origin     (EOrigin::LowerLeft)
+	, m_prioriAxis (math::constant::X_AXIS)
 {}
 
 inline GridScheduler::GridScheduler(
@@ -89,23 +89,23 @@ inline GridScheduler::GridScheduler(
 		numWorkers, 
 		totalWorkUnit, 
 		numCells,
-		EOrigin::LOWER_LEFT,
+		EOrigin::LowerLeft,
 		math::constant::X_AXIS)// default to X-first as it is likely more cache friendly
 {}
 
 inline GridScheduler::GridScheduler(
-	const std::size_t                   numWorkers,
-	const WorkUnit&                     totalWorkUnit,
-	const math::Vector2S&               numCells,
-	const EOrigin                       origin,
-	const math::constant::AxisIndexType prioriAxis) :
+	const std::size_t     numWorkers,
+	const WorkUnit&       totalWorkUnit,
+	const math::Vector2S& numCells,
+	const EOrigin         origin,
+	const std::size_t     prioriAxis)
 
-	WorkScheduler(numWorkers, totalWorkUnit),
+	: WorkScheduler(numWorkers, totalWorkUnit)
 
-	m_numCells   (numCells),
-	m_origin     (origin),
-	m_prioriAxis (prioriAxis),
-	m_currentCell(0, 0)
+	, m_numCells   (numCells)
+	, m_currentCell(0, 0)
+	, m_origin     (origin)
+	, m_prioriAxis (prioriAxis)
 {}
 
 inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
@@ -122,7 +122,7 @@ inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 
 		auto sideRangeX = math::ith_evenly_divided_range(
 			m_currentCell.x(), totalWidth, m_numCells.x());
-		if(m_origin == EOrigin::LOWER_RIGHT || m_origin == EOrigin::UPPER_RIGHT)
+		if(m_origin == EOrigin::LowerRight || m_origin == EOrigin::UpperRight)
 		{
 			const auto size = sideRangeX.second - sideRangeX.first;
 			sideRangeX.first  = totalWidth - sideRangeX.second;
@@ -131,7 +131,7 @@ inline void GridScheduler::scheduleOne(WorkUnit* const out_workUnit)
 
 		auto sideRangeY = math::ith_evenly_divided_range(
 			m_currentCell.y(), totalHeight, m_numCells.y());
-		if(m_origin == EOrigin::UPPER_LEFT || m_origin == EOrigin::UPPER_RIGHT)
+		if(m_origin == EOrigin::UpperLeft || m_origin == EOrigin::UpperRight)
 		{
 			const auto size = sideRangeY.second - sideRangeY.first;
 			sideRangeY.first  = totalHeight - sideRangeY.second;

@@ -19,10 +19,15 @@ public:
 	*/
 	TArrayStack();
 
+	/*! @brief Adds an item to the stack.
+	*/
 	template<typename U>
 	void push(U&& item);
 
+	/*! @brief Removes an item from the stack.
+	*/
 	void pop();
+
 	T& top();
 	const T& top() const;
 	std::size_t height() const;

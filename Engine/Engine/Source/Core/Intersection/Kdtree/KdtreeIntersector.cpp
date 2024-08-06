@@ -18,12 +18,6 @@ void KdtreeIntersector::update(TSpanView<const Intersectable*> intersectables)
 	std::vector<const Intersectable*> treeIntersectables;
 	for(const auto& intersectable : intersectables)
 	{
-		// HACK
-		if(!intersectable->calcAABB().isFiniteVolume())
-		{
-			continue;
-		}
-
 		treeIntersectables.push_back(intersectable);
 	}
 

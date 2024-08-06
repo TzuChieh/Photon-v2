@@ -6,7 +6,7 @@
 #include "EngineEnv/CoreCookedUnit.h"
 #include "Actor/Actor.h"
 #include "Core/Intersection/BruteForceIntersector.h"
-#include "Core/Intersection/Bvh/ClassicBvhIntersector.h"
+#include "Core/Intersection/BVH/TClassicBvhIntersector.h"
 #include "Core/Intersection/Intersector/TIndexedKdtreeIntersector.h"
 #include "Core/Intersection/Kdtree/KdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESUniformRandom.h"
@@ -244,7 +244,7 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 		break;
 
 	case EAccelerator::BVH:
-		m_intersector = std::make_unique<ClassicBvhIntersector>();
+		m_intersector = std::make_unique<TClassicBvhIntersector<std::size_t>>();
 		name = "BVH";
 		break;
 
@@ -260,7 +260,7 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 		break;
 
 	default:
-		m_intersector = std::make_unique<ClassicBvhIntersector>();
+		m_intersector = std::make_unique<TClassicBvhIntersector<std::size_t>>();
 		name = "BVH";
 		break;
 	}

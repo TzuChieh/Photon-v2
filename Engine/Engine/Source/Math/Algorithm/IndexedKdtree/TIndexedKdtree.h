@@ -16,31 +16,9 @@
 #include <utility>
 #include <memory>
 #include <type_traits>
-#include <optional>
 
 namespace ph::math
 {
-
-template<typename TesterFunc, typename Item>
-concept CItemSegmentIntersectionTesterVanilla = requires (TesterFunc func, Item item)
-{
-	{ func(item, TLineSegment<real>{}) } -> std::same_as<std::optional<real>>;
-};
-
-template<typename TesterFunc, typename Item>
-concept CItemSegmentIntersectionTesterWithIndex = requires (
-	TesterFunc func, 
-	Item item, 
-	TLineSegment<real> segment,
-	std::size_t itemIndex)
-{
-	{ func(item, segment, itemIndex) } -> std::same_as<std::optional<real>>;
-};
-
-template<typename TesterFunc, typename Item>
-concept CItemSegmentIntersectionTester = 
-	CItemSegmentIntersectionTesterVanilla<TesterFunc, Item> ||
-	CItemSegmentIntersectionTesterWithIndex<TesterFunc, Item>;
 
 template<
 	typename IndexToItem,

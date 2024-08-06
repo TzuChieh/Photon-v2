@@ -43,11 +43,14 @@ public:
 const int32 TestPoint::INTERSECTABLE_MIN;
 const int32 TestPoint::INTERSECTABLE_MAX;
 
-KdtreeNode::KdtreeNode(std::vector<const Intersectable*>* intersectableBuffer) :
-	m_positiveChild(nullptr), m_negativeChild(nullptr), 
-	m_splitAxis(KDTREE_UNKNOWN_AXIS), m_splitPos(0.0_r),
-	m_intersectableBuffer(intersectableBuffer), 
-	m_nodeBufferStartIndex(-1), m_nodeBufferEndIndex(-1)
+KdtreeNode::KdtreeNode(std::vector<const Intersectable*>* intersectableBuffer)
+	: m_positiveChild(nullptr)
+	, m_negativeChild(nullptr)
+	, m_splitAxis(KDTREE_UNKNOWN_AXIS)
+	, m_splitPos(0.0_r)
+	, m_intersectableBuffer(intersectableBuffer)
+	, m_nodeBufferStartIndex(-1)
+	, m_nodeBufferEndIndex(-1)
 {
 	if(!intersectableBuffer)
 	{
@@ -263,30 +266,8 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
 {
 	if(!isLeaf())
 	{
-		real splitAxisRayOrigin = 0.0_r;
-		real splitAxisRayDir    = 0.0_r;
-
-		switch(m_splitAxis)
-		{
-		case KDTREE_X_AXIS:
-			splitAxisRayOrigin = ray.getOrigin().x();
-			splitAxisRayDir = ray.getDir().x();
-			break;
-
-		case KDTREE_Y_AXIS:
-			splitAxisRayOrigin = ray.getOrigin().y();
-			splitAxisRayDir = ray.getDir().y();
-			break;
-
-		case KDTREE_Z_AXIS:
-			splitAxisRayOrigin = ray.getOrigin().z();
-			splitAxisRayDir = ray.getDir().z();
-			break;
-
-		default:
-			std::cerr << "KdtreeNode: unidentified split axis detected" << std::endl;
-			break;
-		}
+		const real splitAxisRayOrigin = ray.getOrigin()[m_splitAxis];
+		const real splitAxisRayDir    = ray.getDir()[m_splitAxis];
 
 		KdtreeNode* nearHitNode;
 		KdtreeNode* farHitNode;
@@ -304,7 +285,7 @@ bool KdtreeNode::traverseAndFindClosestIntersection(const Ray& ray,
 
 		// The result can be NaN (the ray is lying on the splitting plane). In such case, traverse both
 		// positive and negative node (handled in Case III).
-		real raySplitPlaneDist = (m_splitPos - splitAxisRayOrigin) / splitAxisRayDir;
+		const real raySplitPlaneDist = (m_splitPos - splitAxisRayOrigin) / splitAxisRayDir;
 
 		// Case I: Split plane is beyond ray's range or behind ray origin, only near node is hit.
 		if(raySplitPlaneDist >= rayDistMax || raySplitPlaneDist < 0.0_r)

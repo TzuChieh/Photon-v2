@@ -20,10 +20,10 @@ class TileScheduler : public WorkScheduler
 public:
 	enum class EOrigin
 	{
-		LOWER_LEFT,
-		LOWER_RIGHT,
-		UPPER_LEFT,
-		UPPER_RIGHT
+		LowerLeft,
+		LowerRight,
+		UpperLeft,
+		UpperRight
 	};
 
 	TileScheduler();
@@ -34,11 +34,11 @@ public:
 		const math::Vector2S& tileSize);
 
 	TileScheduler(
-		std::size_t                   numWorkers, 
-		const WorkUnit&               totalWorkUnit,
-		const math::Vector2S&         tileSize,
-		EOrigin                       origin,
-		math::constant::AxisIndexType prioriAxis);
+		std::size_t           numWorkers, 
+		const WorkUnit&       totalWorkUnit,
+		const math::Vector2S& tileSize,
+		EOrigin               origin,
+		std::size_t           prioriAxis);
 
 private:
 	GridScheduler m_grid;
@@ -64,20 +64,20 @@ inline TileScheduler::TileScheduler(
 		numWorkers, 
 		totalWorkUnit, 
 		tileSize,
-		EOrigin::LOWER_LEFT,
+		EOrigin::LowerLeft,
 		math::constant::X_AXIS)// default to X-first as it is likely more cache friendly
 {}
 
 inline TileScheduler::TileScheduler(
-	const std::size_t                   numWorkers,
-	const WorkUnit&                     totalWorkUnit,
-	const math::Vector2S&               tileSize,
-	const EOrigin                       origin,
-	const math::constant::AxisIndexType prioriAxis) :
+	const std::size_t     numWorkers,
+	const WorkUnit&       totalWorkUnit,
+	const math::Vector2S& tileSize,
+	const EOrigin         origin,
+	const std::size_t     prioriAxis)
 
-	WorkScheduler(numWorkers, totalWorkUnit),
+	: WorkScheduler(numWorkers, totalWorkUnit)
 
-	m_grid()
+	, m_grid()
 {
 	PH_ASSERT_MSG(tileSize.product() > 0, tileSize.toString());
 
@@ -127,12 +127,12 @@ inline constexpr GridScheduler::EOrigin TileScheduler::toGridOrigin(const EOrigi
 {
 	switch(origin)
 	{
-	case EOrigin::LOWER_LEFT:  return GridScheduler::EOrigin::LOWER_LEFT;
-	case EOrigin::LOWER_RIGHT: return GridScheduler::EOrigin::LOWER_RIGHT;
-	case EOrigin::UPPER_LEFT:  return GridScheduler::EOrigin::UPPER_LEFT;
-	case EOrigin::UPPER_RIGHT: return GridScheduler::EOrigin::UPPER_RIGHT;
+	case EOrigin::LowerLeft:  return GridScheduler::EOrigin::LowerLeft;
+	case EOrigin::LowerRight: return GridScheduler::EOrigin::LowerRight;
+	case EOrigin::UpperLeft:  return GridScheduler::EOrigin::UpperLeft;
+	case EOrigin::UpperRight: return GridScheduler::EOrigin::UpperRight;
 
-	default: return GridScheduler::EOrigin::LOWER_LEFT;
+	default: return GridScheduler::EOrigin::LowerLeft;
 	}
 }
 

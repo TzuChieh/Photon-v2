@@ -163,6 +163,8 @@ inline consteval bool is_big_endian()
 #endif
 }
 
+/*! @brief Calculates number of bits an instance of type `T` occupies.
+*/
 template<typename T>
 inline consteval std::size_t sizeof_in_bits()
 {

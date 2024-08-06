@@ -70,7 +70,7 @@ std::vector<std::shared_ptr<CoreSdlResource>> SingleFrameRenderSession::gatherRe
 			"visualizer <{}> not found", getVisualizerName());
 	}
 
-	return std::move(resources);
+	return resources;
 }
 
 }// end namespace ph

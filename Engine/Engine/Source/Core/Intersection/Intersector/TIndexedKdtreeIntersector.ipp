@@ -30,12 +30,6 @@ update(TSpanView<const Intersectable*> intersectables)
 	IndexedIntersectables indexedIntersectables;
 	for(const Intersectable* intersectable : intersectables)
 	{
-		// HACK
-		if(!intersectable->calcAABB().isFiniteVolume())
-		{
-			continue;
-		}
-
 		indexedIntersectables.vec.push_back(intersectable);
 	}
 
@@ -75,7 +69,7 @@ isIntersecting(const Ray& ray, HitProbe& probe) const
 			}
 			else
 			{
-				return {};
+				return std::nullopt;
 			}
 		});
 }

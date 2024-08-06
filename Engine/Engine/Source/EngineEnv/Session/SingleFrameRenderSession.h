@@ -15,8 +15,6 @@ namespace ph
 class SingleFrameRenderSession : public RenderSession
 {
 public:
-	inline SingleFrameRenderSession() = default;
-
 	void applyToContext(CoreCookingContext& ctx) const override;
 	std::vector<std::shared_ptr<CoreSdlResource>> gatherResources(const SceneDescription& scene) const override;
 

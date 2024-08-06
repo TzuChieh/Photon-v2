@@ -21,18 +21,18 @@ public:
 	StripeScheduler();
 
 	StripeScheduler(
-		std::size_t                   numWorkers, 
-		const WorkUnit&               totalWorkUnit);
+		std::size_t     numWorkers, 
+		const WorkUnit& totalWorkUnit);
 
 	StripeScheduler(
-		std::size_t                   numWorkers, 
-		const WorkUnit&               totalWorkUnit,
-		math::constant::AxisIndexType slicedAxis);
+		std::size_t     numWorkers, 
+		const WorkUnit& totalWorkUnit,
+		std::size_t     slicedAxis);
 
 private:
-	math::constant::AxisIndexType m_slicedAxis;
-	std::size_t                   m_numScheduled;
-	std::size_t                   m_sideLength;
+	std::size_t m_slicedAxis;
+	std::size_t m_numScheduled;
+	std::size_t m_sideLength;
 
 	void scheduleOne(WorkUnit* out_workUnit) override;
 };
@@ -43,7 +43,7 @@ inline StripeScheduler::StripeScheduler()
 
 	: WorkScheduler()
 
-	, m_slicedAxis  (0)
+	, m_slicedAxis  (math::constant::X_AXIS)
 	, m_numScheduled(0)
 	, m_sideLength  (0)
 {}
@@ -59,15 +59,15 @@ inline StripeScheduler::StripeScheduler(
 {}
 
 inline StripeScheduler::StripeScheduler(
-	const std::size_t                   numWorkers,
-	const WorkUnit&                     totalWorkUnit,
-	const math::constant::AxisIndexType slicedAxis) :
+	const std::size_t numWorkers,
+	const WorkUnit&   totalWorkUnit,
+	const std::size_t slicedAxis)
 
-	WorkScheduler(numWorkers, totalWorkUnit),
+	: WorkScheduler(numWorkers, totalWorkUnit)
 
-	m_slicedAxis  (slicedAxis),
-	m_numScheduled(0),
-	m_sideLength  (static_cast<std::size_t>(m_totalWorkUnit.getRegion().getExtents()[slicedAxis]))
+	, m_slicedAxis  (slicedAxis)
+	, m_numScheduled(0)
+	, m_sideLength  (static_cast<std::size_t>(m_totalWorkUnit.getRegion().getExtents()[slicedAxis]))
 {}
 
 inline void StripeScheduler::scheduleOne(WorkUnit* const out_workUnit)

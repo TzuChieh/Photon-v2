@@ -57,14 +57,17 @@ TEST(TAABB3DTest, IsAABB3DRepresentFiniteVolume)
 	AABB3D point({33, 33, 33}, {33, 33, 33});
 	EXPECT_FALSE(point.isFiniteVolume());
 
-	const real positiveInfinity = std::numeric_limits<real>::infinity();
-	const real negativeInfinity = -positiveInfinity;
+	if constexpr(std::numeric_limits<real>::has_infinity)
+	{
+		constexpr real positiveInfinity = std::numeric_limits<real>::infinity();
+		constexpr real negativeInfinity = -positiveInfinity;
 
-	AABB3D infiniteBounds1{Vector3R(negativeInfinity), Vector3R(positiveInfinity)};
-	EXPECT_FALSE(infiniteBounds1.isFiniteVolume());
+		AABB3D infiniteBounds1{Vector3R(negativeInfinity), Vector3R(positiveInfinity)};
+		EXPECT_FALSE(infiniteBounds1.isFiniteVolume());
 
-	AABB3D infiniteBounds2(Vector3R(negativeInfinity, 0, 0), Vector3R(positiveInfinity, 1, 1));
-	EXPECT_FALSE(infiniteBounds2.isFiniteVolume());
+		AABB3D infiniteBounds2(Vector3R(negativeInfinity, 0, 0), Vector3R(positiveInfinity, 1, 1));
+		EXPECT_FALSE(infiniteBounds2.isFiniteVolume());
+	}
 }
 
 // TODO: more tests

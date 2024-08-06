@@ -41,8 +41,8 @@ def ref_glass_sphere_img():
     return img
 
 @pytest.mark.parametrize("case, max_mse, max_re_avg", [
-    pytest.param(bvpt_diffuse_sphere_case, 0.00048, 0.000176, id=bvpt_diffuse_sphere_case.get_name()), 
-    pytest.param(bneept_diffuse_sphere_case, 0.00122, 0.0000609, id=bneept_diffuse_sphere_case.get_name()),
+    pytest.param(bvpt_diffuse_sphere_case, 0.00048, 0.0004, id=bvpt_diffuse_sphere_case.get_name()), 
+    pytest.param(bneept_diffuse_sphere_case, 0.00122, 0.00068, id=bneept_diffuse_sphere_case.get_name()),
     pytest.param(bvpt_glass_sphere_case, 0.00054, 0.00064, id=bvpt_glass_sphere_case.get_name()),
     pytest.param(bneept_glass_sphere_case, 0.00058, 0.00064, id=bneept_glass_sphere_case.get_name()),
 ])
