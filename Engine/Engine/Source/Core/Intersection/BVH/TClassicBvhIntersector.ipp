@@ -37,11 +37,7 @@ inline bool TClassicBvhIntersector<IndexType>
 			HitProbe trialProbe = originalProbe;
 			if(intersectable->isIntersecting(raySegment, trialProbe))
 			{
-				if(trialProbe.getHitRayT() < probe.getHitRayT())
-				{
-					probe = trialProbe;
-				}
-
+				probe = trialProbe;
 				return trialProbe.getHitRayT();
 			}
 			else
@@ -87,11 +83,11 @@ inline void TClassicBvhIntersector<IndexType>
 		"intersector: Classic BVH ({}-byte index), total intersectables: {}, total nodes: {}, "
 		"max tree depth: {}", sizeof(IndexType), m_bvh.numItems, m_bvh.numNodes, treeDepth);
 
-	if(treeDepth > NODE_STACK_SIZE)
+	if(treeDepth > m_bvh.TRAVERSAL_STACK_SIZE)
 	{
-		PH_DEFAULT_LOG(Warning,
-			"at `TClassicBvhIntersector::update()`, BVH depth ({}) exceeds traversal stack size ({})",
-			treeDepth, builder.TRAVERSAL_STACK_SIZE);
+		PH_DEFAULT_LOG(Error,
+			"BVH depth ({}) exceeds traversal stack size ({})",
+			treeDepth, m_bvh.TRAVERSAL_STACK_SIZE);
 	}
 #endif
 }

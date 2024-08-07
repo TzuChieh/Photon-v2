@@ -172,16 +172,14 @@ inline math::Vector3R HitDetail::getUVW() const
 
 inline const HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys) const
 {
-	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, enum_size<ECoordSys>());
-
-	return m_hitInfos[static_cast<int>(coordSys)];
+	PH_ASSERT_IN_RANGE(enum_to_value(coordSys), 0, enum_size<ECoordSys>());
+	return m_hitInfos[enum_to_value(coordSys)];
 }
 
 inline HitInfo& HitDetail::getHitInfo(const ECoordSys coordSys)
 {
-	PH_ASSERT_IN_RANGE(static_cast<int>(coordSys), 0, enum_size<ECoordSys>());
-
-	return m_hitInfos[static_cast<int>(coordSys)];
+	PH_ASSERT_IN_RANGE(enum_to_value(coordSys), 0, enum_size<ECoordSys>());
+	return m_hitInfos[enum_to_value(coordSys)];
 }
 
 inline std::pair<real, real> HitDetail::getDistanceErrorFactors() const

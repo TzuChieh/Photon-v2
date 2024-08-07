@@ -222,11 +222,11 @@ TEST(MathTest, IntegerWrapping)
 	EXPECT_EQ(math::wrap( 2, -1, 2),  2);
 	EXPECT_EQ(math::wrap( 3, -1, 2), -1);
 
-	const int maxInt = std::numeric_limits<int>::max();
+	constexpr int maxInt = std::numeric_limits<int>::max();
 	EXPECT_EQ(math::wrap(maxInt - 11, maxInt - 10, maxInt - 8), maxInt - 8);
 	EXPECT_EQ(math::wrap(maxInt - 7,  maxInt - 10, maxInt - 8), maxInt - 10);
 
-	const int minInt = std::numeric_limits<int>::min();
+	constexpr int minInt = std::numeric_limits<int>::min();
 	EXPECT_EQ(math::wrap(minInt + 2, minInt + 3, minInt + 7), minInt + 7);
 	EXPECT_EQ(math::wrap(minInt + 8, minInt + 3, minInt + 7), minInt + 3);
 
@@ -237,7 +237,7 @@ TEST(MathTest, IntegerWrapping)
 	EXPECT_EQ(math::wrap(4U, 1U, 2U), 2U);
 	EXPECT_EQ(math::wrap(5U, 1U, 2U), 1U);
 
-	const unsigned int maxUint = std::numeric_limits<unsigned int>::max();
+	constexpr unsigned int maxUint = std::numeric_limits<unsigned int>::max();
 	EXPECT_EQ(math::wrap(maxUint - 11, maxUint - 10, maxUint - 8), maxUint - 8);
 	EXPECT_EQ(math::wrap(maxUint - 7,  maxUint - 10, maxUint - 8), maxUint - 10);
 

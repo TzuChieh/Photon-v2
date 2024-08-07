@@ -46,8 +46,8 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 	// To have stable node pointers, pre-allocate enough nodes beforehand. We can calculate maximum
 	// nodes required for a BVH from the number of items.
 	const std::size_t numLeaves = ceil_div(items.size(), m_params.getMaxNodeItems());
-	const std::size_t numNodes  = 2 * numLeaves - 1;
-	m_infoNodes.reserve(numNodes);
+	const std::size_t maxNodes  = 2 * numLeaves - 1;
+	m_infoNodes.reserve(maxNodes);
 
 	const InfoNode* rootNode = nullptr;
 	switch(m_splitMethod)
@@ -69,11 +69,11 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 	}
 
 	PH_ASSERT_EQ(m_infoBuffer.size(), items.size());
-	PH_ASSERT_EQ(m_infoNodes.size(), numNodes);
+	PH_ASSERT_LE(m_infoNodes.size(), maxNodes);
 
 	// Verify the nodes by doing a full traversal
-	PH_ASSERT_EQ(numNodes, calcTotalNodes(rootNode));
-	PH_ASSERT_EQ(items.size(), calcTotalItems(rootNode));
+	PH_ASSERT_EQ(m_infoNodes.size(), calcTotalNodes(rootNode));
+	PH_ASSERT_EQ(m_infoBuffer.size(), calcTotalItems(rootNode));
 
 	return rootNode;
 }

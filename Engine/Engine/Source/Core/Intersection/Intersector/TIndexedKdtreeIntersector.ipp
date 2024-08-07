@@ -60,11 +60,7 @@ isIntersecting(const Ray& ray, HitProbe& probe) const
 			HitProbe trialProbe = originalProbe;
 			if(intersectable->isIntersecting(raySegment, trialProbe))
 			{
-				if(trialProbe.getHitRayT() < probe.getHitRayT())
-				{
-					probe = trialProbe;
-				}
-
+				probe = trialProbe;
 				return trialProbe.getHitRayT();
 			}
 			else

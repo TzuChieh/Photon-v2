@@ -22,7 +22,7 @@ TEST(TIndexedPointKdtreeTest, RangeSearchPointsOnAxis)
 		6, 1, 3, 9, 5, 2, 7, 6, 6, 6
 	};
 	
-	auto tree = TIndexedPointKdtree<float, int, decltype(pointTo3D)>(1, pointTo3D);
+	auto tree = TIndexedPointKdtree<float, unsigned int, decltype(pointTo3D)>(1, pointTo3D);
 	tree.build(std::move(points));
 
 	std::vector<float> results;
@@ -70,7 +70,7 @@ TEST(TIndexedPointKdtreeTest, RangeSearchCubeVertices)
 		{1, 1, 1},
 	};
 	
-	auto tree = TIndexedPointKdtree<Vector3R, int, decltype(trivialPointCalculator)>(2, trivialPointCalculator);
+	auto tree = TIndexedPointKdtree<Vector3R, unsigned int, decltype(trivialPointCalculator)>(2, trivialPointCalculator);
 	tree.build(std::move(points));
 
 	std::vector<Vector3R> results;
@@ -139,7 +139,7 @@ TEST(TIndexedPointKdtreeTest, FindNearestCubeVertices)
 		{1, 1, 1},
 	};
 	
-	auto tree = TIndexedPointKdtree<Vector3R, int, decltype(trivialPointCalculator)>(2, trivialPointCalculator);
+	auto tree = TIndexedPointKdtree<Vector3R, unsigned int, decltype(trivialPointCalculator)>(2, trivialPointCalculator);
 	tree.build(std::move(points));
 
 	std::vector<Vector3R> results;
@@ -189,7 +189,7 @@ TEST(TIndexedPointKdtreeTest, FindInAllOverlappingPoints)
 		{0, 1, 0}
 	};
 	
-	auto tree = TIndexedPointKdtree<Vector3R, int, decltype(trivialPointCalculator)>(1, trivialPointCalculator);
+	auto tree = TIndexedPointKdtree<Vector3R, unsigned int, decltype(trivialPointCalculator)>(1, trivialPointCalculator);
 	tree.build(std::move(points));
 
 	std::vector<Vector3R> results;

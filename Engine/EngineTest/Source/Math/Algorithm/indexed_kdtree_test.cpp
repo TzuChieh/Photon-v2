@@ -11,7 +11,7 @@ using namespace ph::math;
 template<typename Index>
 void indexed_node_test()
 {
-	std::vector<Index> itemIndices = {0, 1, 777};
+	std::vector<Index> itemIndices = {0U, 1U, 234U};
 	std::vector<Index> indexBuffer;
 
 	const auto leafNode1 = TIndexedKdtreeNode<Index>::makeLeaf(
@@ -25,17 +25,19 @@ void indexed_node_test()
 	const auto leafNode2 = TIndexedKdtreeNode<Index>::makeLeaf(
 		{itemIndices.data() + 2, 1}, indexBuffer);
 	EXPECT_TRUE(leafNode2.isLeaf());
-	EXPECT_EQ(leafNode2.singleItemDirectIndex(), 777);
+	EXPECT_EQ(leafNode2.singleItemDirectIndex(), 234);
 	EXPECT_EQ(leafNode2.numItems(), 1);
 
+	// With single item optimization, index buffer do not increase in size
 	EXPECT_EQ(indexBuffer.size(), 3);
 
-	const auto innerNode = TIndexedKdtreeNode<Index>::makeInner(-1, constant::Y_AXIS, 999);
+	const auto innerNode = TIndexedKdtreeNode<Index>::makeInner(-1, constant::Y_AXIS, 42);
 	EXPECT_FALSE(innerNode.isLeaf());
-	EXPECT_EQ(innerNode.positiveChildIndex(), 999);
+	EXPECT_EQ(innerNode.positiveChildIndex(), 42);
 	EXPECT_EQ(innerNode.splitAxisIndex(), constant::Y_AXIS);
 	EXPECT_EQ(innerNode.splitPos(), -1);
 
+	// Creating an internal node do not change the size of index buffer
 	EXPECT_EQ(indexBuffer.size(), 3);
 
 	const auto leafNodeNoSingleItemOpt = TIndexedKdtreeNode<Index, false>::makeLeaf(
@@ -47,18 +49,11 @@ void indexed_node_test()
 	EXPECT_EQ(indexBuffer.size(), 4);
 }
 
-TEST(IndexedKdtreeNodeTest, SignedIndexNode)
-{
-	indexed_node_test<int>();
-	indexed_node_test<long int>();
-	indexed_node_test<long long int>();
-	indexed_node_test<short int>();
-}
-
 TEST(IndexedKdtreeNodeTest, UnsignedIndexNode)
 {
+	indexed_node_test<unsigned char>();
+	indexed_node_test<unsigned short int>();
 	indexed_node_test<unsigned int>();
 	indexed_node_test<unsigned long int>();
 	indexed_node_test<unsigned long long int>();
-	indexed_node_test<unsigned short int>();
 }

@@ -41,13 +41,7 @@ inline TAABB3D<T>::TAABB3D(const TVector3<T>& point) :
 template<typename T>
 inline TAABB3D<T>::TAABB3D(const TVector3<T>& minVertex, const TVector3<T>& maxVertex) :
 	m_minVertex(minVertex), m_maxVertex(maxVertex)
-{
-	PH_ASSERT_MSG(maxVertex.x() >= minVertex.x() &&
-	              maxVertex.y() >= minVertex.y() &&
-	              maxVertex.z() >= minVertex.z(),
-		"minVertex = " + minVertex.toString() +
-		"maxVertex = " + maxVertex.toString());
-}
+{}
 
 template<typename T>
 inline bool TAABB3D<T>::isIntersectingVolume(const TLineSegment<T>& segment) const

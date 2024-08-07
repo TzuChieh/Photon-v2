@@ -56,15 +56,12 @@ inline bool TPIndexedKdTreeTriangleMesh<Index>::isIntersecting(const Ray& ray, H
 			math::Vector3R hitBary;
 			if(!triangle.isIntersecting(segment, &hitT, &hitBary))
 			{
-				return {};
+				return std::nullopt;
 			}
 
-			if(hitT < closestHitT)
-			{
-				closestHitT = hitT;
-				closestHit.bary = hitBary;
-				closestHit.faceIdx = lossless_cast<Index>(triangleIdx);
-			}
+			closestHitT = hitT;
+			closestHit.bary = hitBary;
+			closestHit.faceIdx = lossless_cast<Index>(triangleIdx);
 
 			return hitT;
 		});

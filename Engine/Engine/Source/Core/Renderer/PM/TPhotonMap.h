@@ -50,7 +50,7 @@ public:
 		}
 	};
 
-	using MapType = math::TIndexedPointKdtree<Photon, int, PhotonCenterCalculator, PhotonStorage>;
+	using MapType = math::TIndexedPointKdtree<Photon, uint32, PhotonCenterCalculator, PhotonStorage>;
 	using BuildCacheType = MapType::BuildCache;
 
 	MapType map = MapType(2, PhotonCenterCalculator{});

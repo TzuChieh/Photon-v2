@@ -255,7 +255,7 @@ void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
 
 	// FIXME: need to ensure sufficient max value
 	case EAccelerator::IndexedKdtree:
-		m_intersector = std::make_unique<TIndexedKdtreeIntersector<int>>();
+		m_intersector = std::make_unique<TIndexedKdtreeIntersector<std::size_t>>();
 		name = "Indexed kD-Tree";
 		break;
 

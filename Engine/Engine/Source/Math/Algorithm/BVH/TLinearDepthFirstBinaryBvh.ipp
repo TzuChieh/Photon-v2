@@ -112,7 +112,7 @@ inline auto TLinearDepthFirstBinaryBvh<Item, IndexType>
 -> const NodeType&
 {
 	PH_ASSERT(nodes);
-	PH_ASSERT_GT(numNode, 0);
+	PH_ASSERT_GT(numNodes, 0);
 	return nodes[0];
 }
 

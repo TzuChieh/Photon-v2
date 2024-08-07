@@ -117,7 +117,7 @@ inline T safe_rcp(const T value)
 {
 	if constexpr(std::is_floating_point_v<T>)
 	{
-		return value != 0 ? static_cast<T>(1) / value : static_cast<T>(0);
+		return std::isfinite(value) && value != 0 ? static_cast<T>(1) / value : static_cast<T>(0);
 	}
 	else
 	{
@@ -430,7 +430,7 @@ inline float fast_rcp_sqrt(float x)
 	return x;
 }
 
-/*! @brief Computes sqrt(x) in a fast but approximative way.
+/*! @brief Computes `sqrt(x)` in a fast but approximative way.
 */
 inline float fast_sqrt(const float x)
 {
@@ -593,13 +593,14 @@ The implementation of half floats does not contain "safety checks", i.e., accord
 not be represented correctly and will cause problems in OpenGL or other APIs.
 If the input (fp32) is too samll, 0 will be returned.
 */
-// TODO: handle denormalized value and others (std::frexp seems interesting)
-// https://stackoverflow.com/questions/6162651/half-precision-floating-point-in-java
 ///@{
 /*! @brief Convert a 32-bit float to 16-bit representation.
 */
 inline uint16 fp32_to_fp16_bits(const float32 value)
 {
+	// TODO: handle denormalized value and others (std::frexp seems interesting)
+	// https://stackoverflow.com/questions/6162651/half-precision-floating-point-in-java
+
 	static_assert(std::numeric_limits<float32>::is_iec559);
 
 	if(std::abs(value) < 0.0000610352f)
@@ -623,6 +624,9 @@ inline uint16 fp32_to_fp16_bits(const float32 value)
 */
 inline float32 fp16_bits_to_fp32(const uint16 fp16Bits)
 {
+	// TODO: handle denormalized value and others (std::frexp seems interesting)
+	// https://stackoverflow.com/questions/6162651/half-precision-floating-point-in-java
+
 	static_assert(std::numeric_limits<float32>::is_iec559);
 
 	// 0 if all bits other than the sign bit are 0
