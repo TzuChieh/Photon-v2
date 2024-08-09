@@ -23,6 +23,7 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 	, m_isPostProcessRequested        (true)
 	, m_wildcardStart                 ("")
 	, m_wildcardFinish                ("")
+	, m_isIntermediateOutputRequested (false)
 	, m_intermediateOutputInterval    (std::numeric_limits<float32>::max())
 	, m_intermediateOutputIntervalUnit(EIntervalUnit::Percentage)
 	, m_isOverwriteRequested          (false)
@@ -66,6 +67,7 @@ ProcessedArguments::ProcessedArguments(CommandLineArguments arguments)
 		{
 			const auto values = arguments.retrieveStrings(2);
 
+			m_isIntermediateOutputRequested = true;
 			m_isOverwriteRequested = (values[1] == "true" || values[1] == "TRUE");
 
 			if(values[0].length() >= 2)

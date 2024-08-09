@@ -61,6 +61,8 @@ void CliStaticImageRenderer::render()
 		PhFloat32 lastOutputProgress = 0;
 		while(!isRenderingCompleted)
 		{
+			auto queryInterval = 3000ms;
+
 			PhFloat32 currentProgress;
 			PhFloat32 samplesPerSecond;
 			phAsyncGetRenderStatistics(getEngine(), &currentProgress, &samplesPerSecond);
@@ -69,59 +71,62 @@ void CliStaticImageRenderer::render()
 			{
 				lastProgress = currentProgress;
 				std::cout << "progress: " << currentProgress << " % | " 
-				          << "samples/sec: " << samplesPerSecond << std::endl;
+				          << "samples/sec: " << samplesPerSecond << '\n';
 			}
 
-			bool shouldSaveImage = false;
-			std::string imageFilePath = getArgs().getImageOutputPath() + "_intermediate_";
-			if(getArgs().getIntermediateOutputIntervalUnit() == EIntervalUnit::Percentage)
+			if(getArgs().isIntermediateOutputRequested())
 			{
-				if(currentProgress - lastOutputProgress > getArgs().getIntermediateOutputInterval())
+				bool shouldSaveImage = false;
+				std::string imageFilePath = getArgs().getImageOutputPath() + "_intermediate_";
+				if(getArgs().getIntermediateOutputIntervalUnit() == EIntervalUnit::Percentage)
 				{
+					if(currentProgress - lastOutputProgress > getArgs().getIntermediateOutputInterval())
+					{
+						shouldSaveImage = true;
+						lastOutputProgress = currentProgress;
+
+						if(!getArgs().isOverwriteRequested())
+						{
+							imageFilePath += std::to_string(currentProgress) + "%";
+						}
+					}
+				}
+				else if(getArgs().getIntermediateOutputIntervalUnit() == EIntervalUnit::Second)
+				{
+					const auto currentTime = Clock::now();
+					const auto duration = currentTime - startTime;
+					const auto deltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
 					shouldSaveImage = true;
-					lastOutputProgress = currentProgress;
 
 					if(!getArgs().isOverwriteRequested())
 					{
-						imageFilePath += std::to_string(currentProgress) + "%";
+						imageFilePath += std::to_string(deltaMs / 1000.0f) + "s";
 					}
 
-					std::this_thread::sleep_for(2s);
+					const float fms = getArgs().getIntermediateOutputInterval() * 1000;
+					const int ims = fms < std::numeric_limits<int>::max() ? static_cast<int>(fms) : std::numeric_limits<int>::max();
+					queryInterval = std::chrono::milliseconds(ims);
+				}
+
+				if(shouldSaveImage)
+				{
+					imageFilePath += "." + getArgs().getImageFileFormat();
+
+					if(getArgs().isPostProcessRequested())
+					{
+						phAsyncPeekFrame(getEngine(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
+					}
+					else
+					{
+						phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
+					}
+
+					phSaveFrame(queryFrameId, imageFilePath.c_str(), nullptr);
 				}
 			}
-			else if(getArgs().getIntermediateOutputIntervalUnit() == EIntervalUnit::Second)
-			{
-				const auto currentTime = Clock::now();
-				const auto duration = currentTime - startTime;
-				const auto deltaMs = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
-				shouldSaveImage = true;
-
-				if(!getArgs().isOverwriteRequested())
-				{
-					imageFilePath += std::to_string(deltaMs / 1000.0f) + "s";
-				}
-
-				const float fms = getArgs().getIntermediateOutputInterval() * 1000;
-				const int ims = fms < std::numeric_limits<int>::max() ? static_cast<int>(fms) : std::numeric_limits<int>::max();
-				std::this_thread::sleep_for(std::chrono::milliseconds(ims));
-			}
-
-			if(shouldSaveImage)
-			{
-				imageFilePath += "." + getArgs().getImageFileFormat();
-
-				if(getArgs().isPostProcessRequested())
-				{
-					phAsyncPeekFrame(getEngine(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
-				}
-				else
-				{
-					phAsyncPeekFrameRaw(getEngine(), 0, 0, 0, imageWidthPx, imageHeightPx, queryFrameId);
-				}
-
-				phSaveFrame(queryFrameId, imageFilePath.c_str(), nullptr);
-			}
+			std::this_thread::sleep_for(queryInterval);
 		}// end while
 	});
 

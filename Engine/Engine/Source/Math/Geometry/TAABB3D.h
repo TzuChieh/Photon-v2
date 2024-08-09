@@ -151,7 +151,7 @@ public:
 	/*! @brief Checks whether another bound intersects this volume.
 
 	@param other The bound that is going to check against this volume.
-	@return True if intersection is found, otherwise false.
+	@return `true` if intersection is found, `false` otherwise.
 	*/
 	bool isIntersectingVolume(const TAABB3D& other) const;
 

@@ -12,7 +12,7 @@ namespace ph::math
 {
 
 template<typename Item, typename Index>
-template<typename TesterFunc>
+template<typename TesterFunc, bool IS_ROBUST>
 inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
@@ -26,25 +26,28 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 	PH_ASSERT(nodes);
 	PH_ASSERT(items);
 
+	// Traversal states
+	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
+	Index currentNodeIndex = 0;
+	TLineSegment<real> longestSegment(segment);
+	bool hasHit = false;
+
+	// Precompute common values
 	const bool isNegDir[3] = {
 		segment.getDir().x() < 0,
 		segment.getDir().y() < 0,
 		segment.getDir().z() < 0};
+	const auto rcpSegmentDir = segment.getDir().rcp();
 
-	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
-	Index currentNodeIndex = 0;
-
-	TLineSegment<real> bvhSegment(segment);
-	bool hasHit = false;
-
-	// TODO: possibly make use of minT & maxT found by AABB intersection?
-
+	// Traverse nodes
 	while(true)
 	{
 		PH_ASSERT_LT(currentNodeIndex, numNodes);
 		const NodeType& node = nodes[currentNodeIndex];
 
-		if(node.getAABB().isIntersectingVolume(bvhSegment))
+		const auto [aabbMinT, aabbMaxT] = node.getAABB().isIntersectingVolume<IS_ROBUST>(
+			longestSegment, rcpSegmentDir);
+		if(aabbMinT <= aabbMaxT)
 		{
 			if(node.isLeaf())
 			{
@@ -52,10 +55,10 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 				{
 					const Item& item = items[node.getItemOffset() + i];
 
-					const auto optHitT = intersectionTester(item, bvhSegment);
+					const auto optHitT = intersectionTester(item, longestSegment);
 					if(optHitT)
 					{
-						bvhSegment.setMaxT(*optHitT);
+						longestSegment.setMaxT(*optHitT);
 						hasHit = true;
 					}
 				}

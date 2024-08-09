@@ -404,7 +404,7 @@ inline std::pair<T, T> TAABB3D<T>::intersectVolumeRobust(
 			m_minVertex[i] - segment.getOrigin()[i],
 			m_maxVertex[i] - segment.getOrigin()[i]};
 
-		const bool isNegDir = rcpSegmentDir[i] < 0;
+		const bool isNegDir = segment.getDir()[i] < 0;
 		const T    minDist  = minMaxSlabDist[    isNegDir] * rcpSegmentDir[i];
 		const T    maxDist  = minMaxSlabDist[1 - isNegDir] * rcpSegmentDir[i];
 

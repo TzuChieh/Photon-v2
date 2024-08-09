@@ -45,6 +45,7 @@ public:
 	bool           isPostProcessRequested() const;
 	std::string    wildcardStart() const;
 	std::string    wildcardFinish() const;
+	bool           isIntermediateOutputRequested() const;
 	float32        getIntermediateOutputInterval() const;
 	EIntervalUnit  getIntermediateOutputIntervalUnit() const;
 	bool           isOverwriteRequested() const;
@@ -80,6 +81,7 @@ private:
 	bool           m_isPostProcessRequested;
 	std::string    m_wildcardStart;
 	std::string    m_wildcardFinish;
+	bool           m_isIntermediateOutputRequested;
 	float32        m_intermediateOutputInterval;
 	EIntervalUnit  m_intermediateOutputIntervalUnit;
 	bool           m_isOverwriteRequested;
@@ -138,6 +140,11 @@ inline std::string ProcessedArguments::wildcardStart() const
 inline std::string ProcessedArguments::wildcardFinish() const
 {
 	return m_wildcardFinish;
+}
+
+inline bool ProcessedArguments::isIntermediateOutputRequested() const
+{
+	return m_isIntermediateOutputRequested;
 }
 
 inline float32 ProcessedArguments::getIntermediateOutputInterval() const
