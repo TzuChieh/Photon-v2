@@ -6,6 +6,7 @@
 #include "Math/Geometry/TLineSegment.h"
 
 #include <Common/primitive_type.h>
+#include <Common/compiler.h>
 
 #include <array>
 #include <string>
@@ -92,6 +93,8 @@ public:
 	@param segment The line section to intersect with.
 	@return `true` if intersection is found, `false` otherwise.
 	*/
+	template<bool IS_ROBUST = true>
+	[[PH_ALWAYS_INLINE]]
 	bool isIntersectingVolume(const TLineSegment<T>& segment) const;
 
 	/*! @brief Checks whether a line segment intersects this volume.
@@ -103,17 +106,47 @@ public:
 	the ray's t_min since volume intersection starts immediately on the ray's
 	starting point (the ending point of the ray follows the same logic).
 
+	@tparam IS_ROBUST Whether to perform a robust intersection test. A robust test is slightly slower,
+	but handles more edge cases and is more conservative (return `true` on degenerate configurations).
+	@param segment The segment to test against this volume.
 	@param[out] out_nearHitT Parametric distance where the line segment starts
 	to intersect this volume. 
 	@param[out] out_farHitT Parametric distance where the line segment no 
 	longer intersects this volume. 
-	@return True if intersection is found, otherwise false. When false is
-	returned, the value of out_nearHitT and out_farHitT is unspecified.
+	@return `true` if intersection is found, otherwise `false`. When `false` is
+	returned, the value of `out_nearHitT` and `out_farHitT` is unspecified.
 	*/
+	template<bool IS_ROBUST = true>
+	[[PH_ALWAYS_INLINE]]
 	bool isIntersectingVolume(
 		const TLineSegment<T>& segment,
 		T* out_nearHitT, 
 		T* out_farHitT) const;
+
+	/*!
+	Variant of `isIntersectingVolume()` that can benefit from a precalculated reciprocal of
+	segment direction `rcpSegmentDir`.
+	*/
+	template<bool IS_ROBUST = true>
+	[[PH_ALWAYS_INLINE]]
+	bool isIntersectingVolume(
+		const TLineSegment<T>& segment,
+		const TVector3<T>& rcpSegmentDir,
+		T* out_nearHitT, 
+		T* out_farHitT) const;
+
+	/*!
+	Variant of `isIntersectingVolume()` that returns the near and far hit distances rather
+	than returning a boolean. This can potentially remove a branch if the returned distances
+	are all the caller needs.
+	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
+	@$f t_{near} <= t_{far} @$f.
+	*/
+	template<bool IS_ROBUST = true>
+	[[PH_ALWAYS_INLINE]]
+	std::pair<T, T> isIntersectingVolume(
+		const TLineSegment<T>& segment,
+		const TVector3<T>& rcpSegmentDir) const;
 
 	/*! @brief Checks whether another bound intersects this volume.
 
@@ -191,27 +224,43 @@ public:
 	/*! @brief Checks whether this bound is equal to another bound.
 	@return True if and only if two bounds are equal.
 	*/
-	// TODO: a variant with margins for floating types
 	bool isEqual(const TAABB3D& other) const;
+	// TODO: a variant with margins for floating types
 
 private:
 	/*!
 	Reference: Kay and Kayjia's "slab method" from a project of the ACM
 	SIGGRAPH Education Committee named HyperGraph.
+	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
+	@$f t_{near} <= t_{far} @$f.
 	*/
-	bool isIntersectingVolumeKajiyaKay(
+	[[PH_ALWAYS_INLINE]]
+	std::pair<T, T> intersectVolumeKajiyaKay(
 		const TLineSegment<T>& segment,
-		T* out_nearHitT,
-		T* out_farHitT) const;
+		const TVector3<T>& rcpSegmentDir) const;
 
 	/*!
 	A fast and branchless method developed by Tavian Barnes. The algorithm is
 	based on slab method.
+	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
+	@$f t_{near} <= t_{far} @$f.
 	*/
-	bool isIntersectingVolumeTavian(
+	[[PH_ALWAYS_INLINE]]
+	std::pair<T, T> intersectVolumeTavian(
 		const TLineSegment<T>& segment,
-		T* out_nearHitT,
-		T* out_farHitT) const;
+		const TVector3<T>& rcpSegmentDir) const;
+
+	/*!
+	Robust AABB intersection routine from the paper by Thiago Ize @cite Ize:2013:Robust from Solid
+	Angle (develops the Arnold renderer). This method implements the "MaxMult" algorithm described
+	in the paper, with slight modifications to adapt to our rendering system.
+	@return Near and far parametric hit distances. The `segment` is intersecting this volume if
+	@$f t_{near} <= t_{far} @$f.
+	*/
+	[[PH_ALWAYS_INLINE]]
+	std::pair<T, T> intersectVolumeRobust(
+		const TLineSegment<T>& segment,
+		const TVector3<T>& rcpSegmentDir) const;
 
 	TVector3<T> m_minVertex;
 	TVector3<T> m_maxVertex;

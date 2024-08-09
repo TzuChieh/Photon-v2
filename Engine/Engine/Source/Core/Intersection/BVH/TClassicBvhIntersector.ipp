@@ -12,15 +12,15 @@
 namespace ph
 {
 
-template<typename IndexType>
-inline void TClassicBvhIntersector<IndexType>
+template<typename Index>
+inline void TClassicBvhIntersector<Index>
 ::update(TSpanView<const Intersectable*> intersectables)
 {
 	rebuildWithIntersectables(intersectables);
 }
 
-template<typename IndexType>
-inline bool TClassicBvhIntersector<IndexType>
+template<typename Index>
+inline bool TClassicBvhIntersector<Index>
 ::isIntersecting(const Ray& ray, HitProbe& probe) const
 {
 	return m_bvh.nearestTraversal(
@@ -47,8 +47,8 @@ inline bool TClassicBvhIntersector<IndexType>
 		});
 }
 
-template<typename IndexType>
-inline auto TClassicBvhIntersector<IndexType>
+template<typename Index>
+inline auto TClassicBvhIntersector<Index>
 ::calcAABB() const
 -> math::AABB3D
 {
@@ -57,11 +57,11 @@ inline auto TClassicBvhIntersector<IndexType>
 		return math::AABB3D::makeEmpty();
 	}
 
-	return m_bvh.getRoot().aabb;
+	return m_bvh.getRoot().getAABB();
 }
 
-template<typename IndexType>
-inline void TClassicBvhIntersector<IndexType>
+template<typename Index>
+inline void TClassicBvhIntersector<Index>
 ::rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables)
 {
 	constexpr auto itemToAABB =
@@ -81,7 +81,7 @@ inline void TClassicBvhIntersector<IndexType>
 	
 	PH_DEFAULT_LOG(Note,
 		"intersector: Classic BVH ({}-byte index), total intersectables: {}, total nodes: {}, "
-		"max tree depth: {}", sizeof(IndexType), m_bvh.numItems, m_bvh.numNodes, treeDepth);
+		"max tree depth: {}", sizeof(Index), m_bvh.numItems, m_bvh.numNodes, treeDepth);
 
 	if(treeDepth > m_bvh.TRAVERSAL_STACK_SIZE)
 	{

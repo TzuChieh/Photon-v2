@@ -6,12 +6,14 @@
 
 #include <Common/assertion.h>
 
+#include <cstddef>
+
 namespace ph::math
 {
 
-template<typename Item, typename IndexType>
+template<typename Item, typename Index>
 template<typename TesterFunc>
-inline bool TLinearDepthFirstBinaryBvh<Item, IndexType>
+inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
@@ -29,8 +31,8 @@ inline bool TLinearDepthFirstBinaryBvh<Item, IndexType>
 		segment.getDir().y() < 0,
 		segment.getDir().z() < 0};
 
-	TArrayStack<IndexType, TRAVERSAL_STACK_SIZE> todoNodes;
-	IndexType currentNodeIndex = 0;
+	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
+	Index currentNodeIndex = 0;
 
 	TLineSegment<real> bvhSegment(segment);
 	bool hasHit = false;
@@ -42,13 +44,13 @@ inline bool TLinearDepthFirstBinaryBvh<Item, IndexType>
 		PH_ASSERT_LT(currentNodeIndex, numNodes);
 		const NodeType& node = nodes[currentNodeIndex];
 
-		if(node.aabb.isIntersectingVolume(bvhSegment))
+		if(node.getAABB().isIntersectingVolume(bvhSegment))
 		{
 			if(node.isLeaf())
 			{
-				for(IndexType i = 0; i < node.numItems; ++i)
+				for(std::size_t i = 0; i < node.numItems(); ++i)
 				{
-					const Item& item = items[node.itemOffset + i];
+					const Item& item = items[node.getItemOffset() + i];
 
 					const auto optHitT = intersectionTester(item, bvhSegment);
 					if(optHitT)
@@ -70,14 +72,14 @@ inline bool TLinearDepthFirstBinaryBvh<Item, IndexType>
 			}
 			else
 			{
-				if(isNegDir[node.splitAxis])
+				if(isNegDir[node.getSplitAxis()])
 				{
 					todoNodes.push(currentNodeIndex + 1);
-					currentNodeIndex = node.secondChildOffset;
+					currentNodeIndex = node.getSecondChildOffset();
 				}
 				else
 				{
-					todoNodes.push(node.secondChildOffset);
+					todoNodes.push(node.getSecondChildOffset());
 					currentNodeIndex = currentNodeIndex + 1;
 				}
 			}

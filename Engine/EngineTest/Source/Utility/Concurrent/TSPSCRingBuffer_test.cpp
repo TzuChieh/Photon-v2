@@ -6,7 +6,7 @@
 #include <thread>
 
 #if !GTEST_IS_THREADSAFE 
-	#error "TSPSCRingBufferTest requires googletest to be thread safe."
+	#error "`TSPSCRingBufferTest` requires googletest to be thread safe."
 #endif
 
 using namespace ph;

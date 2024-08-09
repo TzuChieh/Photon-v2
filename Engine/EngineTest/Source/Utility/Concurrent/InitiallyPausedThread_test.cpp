@@ -7,7 +7,7 @@
 #include <thread>
 
 #if !GTEST_IS_THREADSAFE 
-	#error "InitiallyPausedThreadTest requires googletest to be thread safe."
+	#error "`InitiallyPausedThreadTest` requires googletest to be thread safe."
 #endif
 
 using namespace ph;

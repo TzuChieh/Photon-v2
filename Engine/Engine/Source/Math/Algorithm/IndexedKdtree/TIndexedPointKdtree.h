@@ -250,8 +250,8 @@ public:
 			PH_ASSERT(currentNode);
 			if(!currentNode->isLeaf())
 			{
-				const int  splitAxis      = currentNode->splitAxisIndex();
-				const real splitPos       = currentNode->splitPos();
+				const auto splitAxis      = currentNode->getSplitAxis();
+				const real splitPos       = currentNode->getSplitPos();
 				const real splitPlaneDiff = location[splitAxis] - splitPos;
 
 				const Node* nearNode;
@@ -259,11 +259,11 @@ public:
 				if(splitPlaneDiff < 0)
 				{
 					nearNode = currentNode + 1;
-					farNode  = &(m_nodeBuffer[currentNode->positiveChildIndex()]);
+					farNode  = &(m_nodeBuffer[currentNode->getPositiveChildIndex()]);
 				}
 				else
 				{
-					nearNode = &(m_nodeBuffer[currentNode->positiveChildIndex()]);
+					nearNode = &(m_nodeBuffer[currentNode->getPositiveChildIndex()]);
 					farNode  = currentNode + 1;
 				}
 
@@ -278,7 +278,7 @@ public:
 			else
 			{
 				const std::size_t numItems          = currentNode->numItems();
-				const std::size_t indexBufferOffset = currentNode->indexBufferOffset();
+				const std::size_t indexBufferOffset = currentNode->getIndexBufferOffset();
 				for(std::size_t i = 0; i < numItems; ++i)
 				{
 					const Index itemIndex = m_indexBuffer[indexBufferOffset + i];
@@ -334,8 +334,8 @@ public:
 			PH_ASSERT(currentNode.node);
 			if(!currentNode.node->isLeaf())
 			{
-				const int  splitAxis      = currentNode.node->splitAxisIndex();
-				const real splitPos       = currentNode.node->splitPos();
+				const auto splitAxis      = currentNode.node->getSplitAxis();
+				const real splitPos       = currentNode.node->getSplitPos();
 				const real splitPlaneDiff = location[splitAxis] - splitPos;
 
 				const Node* nearNode;
@@ -343,11 +343,11 @@ public:
 				if(splitPlaneDiff < 0)
 				{
 					nearNode = currentNode.node + 1;
-					farNode  = &(m_nodeBuffer[currentNode.node->positiveChildIndex()]);
+					farNode  = &(m_nodeBuffer[currentNode.node->getPositiveChildIndex()]);
 				}
 				else
 				{
-					nearNode = &(m_nodeBuffer[currentNode.node->positiveChildIndex()]);
+					nearNode = &(m_nodeBuffer[currentNode.node->getPositiveChildIndex()]);
 					farNode  = currentNode.node + 1;
 				}
 
@@ -368,7 +368,7 @@ public:
 				if(currentRadius2 >= currentNode.parentSplitPlaneDiff2)
 				{
 					const std::size_t numItems          = currentNode.node->numItems();
-					const std::size_t indexBufferOffset = currentNode.node->indexBufferOffset();
+					const std::size_t indexBufferOffset = currentNode.node->getIndexBufferOffset();
 					for(std::size_t i = 0; i < numItems; ++i)
 					{
 						const Index itemIndex = m_indexBuffer[indexBufferOffset + i];

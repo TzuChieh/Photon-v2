@@ -17,7 +17,7 @@ void indexed_node_test()
 	const auto leafNode1 = TIndexedKdtreeNode<Index>::makeLeaf(
 		{itemIndices.data(), itemIndices.size()}, indexBuffer);
 	EXPECT_TRUE(leafNode1.isLeaf());
-	EXPECT_EQ(leafNode1.indexBufferOffset(), 0);
+	EXPECT_EQ(leafNode1.getIndexBufferOffset(), 0);
 	EXPECT_EQ(leafNode1.numItems(), 3);
 
 	EXPECT_EQ(indexBuffer.size(), 3);
@@ -25,7 +25,7 @@ void indexed_node_test()
 	const auto leafNode2 = TIndexedKdtreeNode<Index>::makeLeaf(
 		{itemIndices.data() + 2, 1}, indexBuffer);
 	EXPECT_TRUE(leafNode2.isLeaf());
-	EXPECT_EQ(leafNode2.singleItemDirectIndex(), 234);
+	EXPECT_EQ(leafNode2.getSingleItemDirectIndex(), 234);
 	EXPECT_EQ(leafNode2.numItems(), 1);
 
 	// With single item optimization, index buffer do not increase in size
@@ -33,9 +33,9 @@ void indexed_node_test()
 
 	const auto innerNode = TIndexedKdtreeNode<Index>::makeInner(-1, constant::Y_AXIS, 42);
 	EXPECT_FALSE(innerNode.isLeaf());
-	EXPECT_EQ(innerNode.positiveChildIndex(), 42);
-	EXPECT_EQ(innerNode.splitAxisIndex(), constant::Y_AXIS);
-	EXPECT_EQ(innerNode.splitPos(), -1);
+	EXPECT_EQ(innerNode.getPositiveChildIndex(), 42);
+	EXPECT_EQ(innerNode.getSplitAxis(), constant::Y_AXIS);
+	EXPECT_EQ(innerNode.getSplitPos(), -1);
 
 	// Creating an internal node do not change the size of index buffer
 	EXPECT_EQ(indexBuffer.size(), 3);
@@ -43,7 +43,7 @@ void indexed_node_test()
 	const auto leafNodeNoSingleItemOpt = TIndexedKdtreeNode<Index, false>::makeLeaf(
 		{itemIndices.data() + 1, 1}, indexBuffer);
 	EXPECT_TRUE(leafNodeNoSingleItemOpt.isLeaf());
-	EXPECT_EQ(leafNodeNoSingleItemOpt.indexBufferOffset(), 3);
+	EXPECT_EQ(leafNodeNoSingleItemOpt.getIndexBufferOffset(), 3);
 	EXPECT_EQ(leafNodeNoSingleItemOpt.numItems(), 1);
 
 	EXPECT_EQ(indexBuffer.size(), 4);

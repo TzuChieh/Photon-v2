@@ -59,10 +59,10 @@ public:
 	auto buildInformativeBinaryBvh(TSpanView<Item> items)
 	-> const InfoNode*;
 
-	template<typename IndexType = std::size_t>
+	template<typename Index = std::size_t>
 	void buildLinearDepthFirstBinaryBvh(
 		const InfoNode* rootNode,
-		TLinearDepthFirstBinaryBvh<Item, IndexType>* out_bvh);
+		TLinearDepthFirstBinaryBvh<Item, Index>* out_bvh);
 
 	void clearBuildData();
 
@@ -87,10 +87,10 @@ private:
 		TSpan<ItemInfo> itemInfos)
 	-> const InfoNode*;
 
-	template<typename IndexType>
+	template<typename Index>
 	void buildBinaryBvhLinearDepthFirstNodeRecursive(
 		const InfoNode* node,
-		TLinearDepthFirstBinaryBvh<Item, IndexType>* out_bvh);
+		TLinearDepthFirstBinaryBvh<Item, Index>* out_bvh);
 
 	bool splitWithEqualIntersectables(
 		TSpan<ItemInfo> itemInfos,

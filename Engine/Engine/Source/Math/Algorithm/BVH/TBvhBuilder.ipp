@@ -79,11 +79,11 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 }
 
 template<typename Item, typename ItemToAABB>
-template<typename IndexType>
+template<typename Index>
 inline void TBvhBuilder<Item, ItemToAABB>
 ::buildLinearDepthFirstBinaryBvh(
 	const InfoNode* const rootNode,
-	TLinearDepthFirstBinaryBvh<Item, IndexType>* const out_bvh)
+	TLinearDepthFirstBinaryBvh<Item, Index>* const out_bvh)
 {
 	PH_ASSERT(rootNode);
 	PH_ASSERT(out_bvh);
@@ -91,7 +91,7 @@ inline void TBvhBuilder<Item, ItemToAABB>
 	// Item infos and nodes are already in the desired order
 
 	// Allocate memory for nodes and items
-	out_bvh->nodes = std::make_unique<TLinearBvhNode<Item>[]>(m_infoNodes.size());
+	out_bvh->nodes = std::make_unique<TLinearBvhNode<Item, Index>[]>(m_infoNodes.size());
 	out_bvh->items = std::make_unique<Item[]>(m_infoBuffer.size());
 
 	// Flatten the info tree into a more compact representation
@@ -223,13 +223,13 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 }
 
 template<typename Item, typename ItemToAABB>
-template<typename IndexType>
+template<typename Index>
 inline void TBvhBuilder<Item, ItemToAABB>
 ::buildBinaryBvhLinearDepthFirstNodeRecursive(
 	const InfoNode* const node,
-	TLinearDepthFirstBinaryBvh<Item, IndexType>* const out_bvh)
+	TLinearDepthFirstBinaryBvh<Item, Index>* const out_bvh)
 {
-	using LinearNode = TLinearBvhNode<Item>;
+	using LinearNode = TLinearBvhNode<Item, Index>;
 
 	const auto nodeIndex = out_bvh->numNodes;
 	const auto itemOffset = out_bvh->numItems;

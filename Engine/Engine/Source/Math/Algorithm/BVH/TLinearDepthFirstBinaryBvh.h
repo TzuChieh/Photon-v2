@@ -6,23 +6,27 @@
 
 #include <Common/primitive_type.h>
 
+#include <algorithm>
 #include <memory>
 
 namespace ph::math
 {
 
-template<typename Item, typename IndexType>
+template<typename Item, typename Index>
 class TLinearDepthFirstBinaryBvh final
 {
 public:
-	using NodeType = TLinearBvhNode<Item>;
+	using NodeType = TLinearBvhNode<Item, Index>;
 
-	inline constexpr static auto TRAVERSAL_STACK_SIZE = sizeof_in_bits<IndexType>();
+	/*! Stack size for BVH traversal. The default should be enough for most cases, unless the tree
+	is highly unbalanced (and we should avoid this). */
+	inline constexpr static auto TRAVERSAL_STACK_SIZE = std::min(
+		sizeof_in_bits<Index>() * 2, sizeof_in_bits<std::size_t>());
 
 	std::unique_ptr<NodeType[]> nodes;
 	std::unique_ptr<Item[]> items;
-	IndexType numNodes = 0;
-	IndexType numItems = 0;
+	Index numNodes = 0;
+	Index numItems = 0;
 
 	template<typename TesterFunc>
 	bool nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const;

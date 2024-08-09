@@ -77,22 +77,22 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 	{
 		if(!currentNode->isLeaf())
 		{
-			const int  splitAxis   = currentNode->splitAxisIndex();
-			const real splitPlaneT = (currentNode->splitPos() - segment.getOrigin()[splitAxis]) * rcpRayDir[splitAxis];
+			const auto splitAxis   = currentNode->getSplitAxis();
+			const real splitPlaneT = (currentNode->getSplitPos() - segment.getOrigin()[splitAxis]) * rcpRayDir[splitAxis];
 
 			const Node* nearHitNode;
 			const Node* farHitNode;
 			if(
-				(segment.getOrigin()[splitAxis] < currentNode->splitPos()) ||
-				(segment.getOrigin()[splitAxis] == currentNode->splitPos() && 
+				(segment.getOrigin()[splitAxis] < currentNode->getSplitPos()) ||
+				(segment.getOrigin()[splitAxis] == currentNode->getSplitPos() &&
 				 segment.getDir()[splitAxis] <= 0))
 			{
 				nearHitNode = currentNode + 1;
-				farHitNode  = &(m_nodeBuffer[currentNode->positiveChildIndex()]);
+				farHitNode  = &(m_nodeBuffer[currentNode->getPositiveChildIndex()]);
 			}
 			else
 			{
-				nearHitNode = &(m_nodeBuffer[currentNode->positiveChildIndex()]);
+				nearHitNode = &(m_nodeBuffer[currentNode->getPositiveChildIndex()]);
 				farHitNode  = currentNode + 1;
 			}
 
@@ -130,7 +130,7 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 
 			if(numItems == 1)
 			{
-				const auto itemIndex = currentNode->singleItemDirectIndex();
+				const auto itemIndex = currentNode->getSingleItemDirectIndex();
 				const Item& item = getItem(itemIndex);
 
 				std::optional<real> hitT;
@@ -153,7 +153,7 @@ inline auto TIndexedKdtree<IndexToItem, ItemToAABB, Index>
 			{
 				for(std::size_t i = 0; i < numItems; ++i)
 				{
-					const Index itemIndex = m_itemIndices[currentNode->indexBufferOffset() + i];
+					const Index itemIndex = m_itemIndices[currentNode->getIndexBufferOffset() + i];
 					const Item& item = getItem(itemIndex);
 
 					std::optional<real> hitT;

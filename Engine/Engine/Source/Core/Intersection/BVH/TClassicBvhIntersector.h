@@ -8,7 +8,7 @@
 namespace ph
 {
 
-template<typename IndexType>
+template<typename Index>
 class TClassicBvhIntersector : public Intersector
 {
 public:
@@ -19,7 +19,7 @@ public:
 	void rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables);
 
 private:
-	math::TLinearDepthFirstBinaryBvh<const Intersectable*, IndexType> m_bvh;
+	math::TLinearDepthFirstBinaryBvh<const Intersectable*, Index> m_bvh;
 };
 
 }// end namespace ph
