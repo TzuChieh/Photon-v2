@@ -61,7 +61,7 @@ void CliStaticImageRenderer::render()
 		PhFloat32 lastOutputProgress = 0;
 		while(!isRenderingCompleted)
 		{
-			auto queryInterval = 3000ms;
+			auto queryInterval = 2000ms;
 
 			PhFloat32 currentProgress;
 			PhFloat32 samplesPerSecond;
@@ -71,7 +71,7 @@ void CliStaticImageRenderer::render()
 			{
 				lastProgress = currentProgress;
 				std::cout << "progress: " << currentProgress << " % | " 
-				          << "samples/sec: " << samplesPerSecond << '\n';
+				          << "samples/sec: " << samplesPerSecond << std::endl;
 			}
 
 			if(getArgs().isIntermediateOutputRequested())

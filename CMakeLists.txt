@@ -158,6 +158,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     # Use multithreaded compilation
     add_compile_options(/MP)
 
+    # Use intrinsic functions
+    add_compile_options(/Oi)
+
     # set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
     # set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
 
