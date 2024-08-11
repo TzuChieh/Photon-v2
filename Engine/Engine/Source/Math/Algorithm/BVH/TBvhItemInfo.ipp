@@ -2,14 +2,16 @@
 
 #include "Math/Algorithm/BVH/TBvhItemInfo.h"
 
+#include <utility>
+
 namespace ph::math
 {
 
-template<typename Item, typename ItemToAABB>
-inline TBvhItemInfo<Item, ItemToAABB>::TBvhItemInfo(
-	Item item)
+template<typename Item>
+inline TBvhItemInfo<Item>::TBvhItemInfo(
+	const AABB3D& aabb, Item item)
 
-	: aabb        (ItemToAABB{}(item))
+	: aabb        (aabb)
 	, aabbCentroid(aabb.getCentroid())
 	, item        (std::move(item))
 {}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Common/assertion.h>
-#include <Utility/utility.h>
+#include <Common/utility.h>
 #include <Utility/TSpan.h>
 
 #include <cstddef>

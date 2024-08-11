@@ -2,9 +2,9 @@
 
 #include "Math/TVector2.h"
 #include "Math/math.h"
-#include "Utility/utility.h"
 
 #include <Common/assertion.h>
+#include <Common/utility.h>
 
 #include <cmath>
 #include <algorithm>

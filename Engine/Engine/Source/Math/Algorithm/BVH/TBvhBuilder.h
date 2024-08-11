@@ -24,11 +24,8 @@ enum class EBvhNodeSplitMethod
 	SAH_EdgeSort
 };
 
-template<typename Item, typename ItemToAABB>
+template<typename Item>
 class TBvhInfoNode;
-
-template<typename Item, typename IndexType>
-class TLinearDepthFirstBinaryBvh;
 
 template<typename Item, typename ItemToAABB>
 class TBvhBuilder final
@@ -36,8 +33,8 @@ class TBvhBuilder final
 	static_assert(std::is_invocable_r_v<AABB3D, ItemToAABB, Item>);
 
 public:
-	using ItemInfo = TBvhItemInfo<Item, ItemToAABB>;
-	using InfoNode = TBvhInfoNode<Item, ItemToAABB>;
+	using ItemInfo = TBvhItemInfo<Item>;
+	using InfoNode = TBvhInfoNode<Item>;
 
 	static std::size_t calcTotalNodes(const InfoNode* node);
 	static std::size_t calcTotalItems(const InfoNode* node);
@@ -56,15 +53,26 @@ public:
 		ItemToAABB itemToAABB,
 		BvhParams params = BvhParams{});
 
+	/*! @brief Build a BVH that contains additional information useful for many purposes.
+	This method will clear any previous build data.
+	@return The root node of the built BVH. Memory of the BVH is managed by this builder.
+	*/
 	auto buildInformativeBinaryBvh(TSpanView<Item> items)
 	-> const InfoNode*;
 
-	template<typename Index = std::size_t>
-	void buildLinearDepthFirstBinaryBvh(
-		const InfoNode* rootNode,
-		TLinearDepthFirstBinaryBvh<Item, Index>* out_bvh);
-
 	void clearBuildData();
+
+	/*!
+	@return Number of nodes of the most recent BVH built by this builder.
+	*/
+	auto totalInfoNodes() const
+	-> std::size_t;
+
+	/*!
+	@return Number of contained items of the most recent BVH built by this builder.
+	*/
+	auto totalItems() const
+	-> std::size_t;
 
 private:
 	struct SahBucket
@@ -86,11 +94,6 @@ private:
 	auto buildBinaryBvhInfoNodeRecursive(
 		TSpan<ItemInfo> itemInfos)
 	-> const InfoNode*;
-
-	template<typename Index>
-	void buildBinaryBvhLinearDepthFirstNodeRecursive(
-		const InfoNode* node,
-		TLinearDepthFirstBinaryBvh<Item, Index>* out_bvh);
 
 	bool splitWithEqualIntersectables(
 		TSpan<ItemInfo> itemInfos,

@@ -3,8 +3,8 @@
 #include "Core/Renderer/PM/TPhoton.h"
 #include "Math/Color/Spectrum.h"
 #include "Math/TVector3.h"
-#include "Utility/utility.h"
 
+#include <Common/utility.h>
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
 

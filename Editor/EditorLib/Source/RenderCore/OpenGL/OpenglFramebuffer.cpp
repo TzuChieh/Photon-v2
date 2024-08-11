@@ -3,11 +3,9 @@
 #include "RenderCore/OpenGL/OpenglTexture.h"
 #include "RenderCore/OpenGL/opengl_config.h"
 
-#include <Utility/utility.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
-
-
+#include <Common/utility.h>
 
 namespace ph::editor::ghi
 {

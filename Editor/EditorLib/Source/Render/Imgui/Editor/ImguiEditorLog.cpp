@@ -5,9 +5,9 @@
 #include "ThirdParty/DearImGui.h"
 
 #include <Common/assertion.h>
-#include <Utility/Concurrent/TAtomicQuasiQueue.h>
-#include <Utility/utility.h>
+#include <Common/utility.h>
 #include <Common/Log/ELogLevel.h>
+#include <Utility/Concurrent/TAtomicQuasiQueue.h>
 
 #include <cstddef>
 #include <utility>

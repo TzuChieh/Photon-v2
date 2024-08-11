@@ -1,4 +1,4 @@
-# Photon common library.
+# Photon Common library.
 
 get_filename_component(COMMON_LIB_DIR "./" ABSOLUTE)
 

@@ -3,25 +3,19 @@
 #include "Math/Geometry/TAABB3D.h"
 #include "Math/TVector3.h"
 
-#include <cstddef>
-#include <type_traits>
-#include <utility>
-
 namespace ph::math
 {
 
-template<typename Item, typename ItemToAABB>
+template<typename Item>
 class TBvhItemInfo final
 {
-	static_assert(std::is_invocable_r_v<AABB3D, ItemToAABB, Item>);
-
 public:
 	AABB3D      aabb;
 	Vector3R    aabbCentroid;
 	Item        item;
 
 	TBvhItemInfo() = default;
-	explicit TBvhItemInfo(Item item);
+	TBvhItemInfo(const AABB3D& aabb, Item item);
 };
 
 }// end namespace ph::math

@@ -2,7 +2,7 @@
 
 #include "Math/Algorithm/BVH/TBvhBuilder.h"
 #include "Math/Algorithm/BVH/TBvhInfoNode.h"
-#include "Math/Algorithm/BVH/TLinearBvhNode.h"
+#include "Math/Algorithm/BVH/TBinaryBvhNode.h"
 #include "Math/Algorithm/BVH/TLinearDepthFirstBinaryBvh.h"
 #include "Math/math.h"
 #include "Core/Intersection/Intersectable.h"
@@ -40,7 +40,7 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 	m_infoBuffer.resize(items.size());
 	for(std::size_t i = 0; i < items.size(); i++)
 	{
-		m_infoBuffer[i] = ItemInfo(items[i]);
+		m_infoBuffer[i] = ItemInfo(m_itemToAABB(items[i]), items[i]);
 	}
 
 	// To have stable node pointers, pre-allocate enough nodes beforehand. We can calculate maximum
@@ -79,34 +79,27 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 }
 
 template<typename Item, typename ItemToAABB>
-template<typename Index>
-inline void TBvhBuilder<Item, ItemToAABB>
-::buildLinearDepthFirstBinaryBvh(
-	const InfoNode* const rootNode,
-	TLinearDepthFirstBinaryBvh<Item, Index>* const out_bvh)
-{
-	PH_ASSERT(rootNode);
-	PH_ASSERT(out_bvh);
-
-	// Item infos and nodes are already in the desired order
-
-	// Allocate memory for nodes and items
-	out_bvh->nodes = std::make_unique<TLinearBvhNode<Item, Index>[]>(m_infoNodes.size());
-	out_bvh->items = std::make_unique<Item[]>(m_infoBuffer.size());
-
-	// Flatten the info tree into a more compact representation
-	buildBinaryBvhLinearDepthFirstNodeRecursive(rootNode, out_bvh);
-
-	PH_ASSERT_EQ(out_bvh->numNodes, m_infoNodes.size());
-	PH_ASSERT_EQ(out_bvh->numItems, m_infoBuffer.size());
-}
-
-template<typename Item, typename ItemToAABB>
 inline void TBvhBuilder<Item, ItemToAABB>
 ::clearBuildData()
 {
 	m_infoBuffer.clear();
 	m_infoNodes.clear();
+}
+
+template<typename Item, typename ItemToAABB>
+inline auto TBvhBuilder<Item, ItemToAABB>
+::totalInfoNodes() const
+-> std::size_t
+{
+	return m_infoNodes.size();
+}
+
+template<typename Item, typename ItemToAABB>
+inline auto TBvhBuilder<Item, ItemToAABB>
+::totalItems() const
+-> std::size_t
+{
+	return m_infoBuffer.size();
 }
 
 template<typename Item, typename ItemToAABB>
@@ -220,53 +213,6 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 	}
 
 	return node;
-}
-
-template<typename Item, typename ItemToAABB>
-template<typename Index>
-inline void TBvhBuilder<Item, ItemToAABB>
-::buildBinaryBvhLinearDepthFirstNodeRecursive(
-	const InfoNode* const node,
-	TLinearDepthFirstBinaryBvh<Item, Index>* const out_bvh)
-{
-	using LinearNode = TLinearBvhNode<Item, Index>;
-
-	const auto nodeIndex = out_bvh->numNodes;
-	const auto itemOffset = out_bvh->numItems;
-
-	if(node->isBinaryLeaf())
-	{
-		for(std::size_t i = 0; i < node->items.size(); ++i)
-		{
-			out_bvh->items[itemOffset + i] = node->items[i].item;
-		}
-		out_bvh->numItems += node->items.size();
-
-		out_bvh->nodes[nodeIndex] = LinearNode::makeLeaf(
-			node->aabb,
-			itemOffset,
-			node->items.size());
-		out_bvh->numNodes += 1;
-	}
-	else if(node->isBinaryInternal())
-	{
-		LinearNode* linearNode = &(out_bvh->nodes[nodeIndex]);
-		out_bvh->numNodes += 1;
-
-		buildBinaryBvhLinearDepthFirstNodeRecursive(node->children[0], out_bvh);
-
-		const auto secondChildOffset = out_bvh->numNodes;
-		buildBinaryBvhLinearDepthFirstNodeRecursive(node->children[1], out_bvh);
-
-		*linearNode = LinearNode::makeInternal(
-			node->aabb,
-			secondChildOffset,
-			node->splitAxis);
-	}
-	else
-	{
-		PH_ASSERT_UNREACHABLE_SECTION();
-	}
 }
 
 template<typename Item, typename ItemToAABB>

@@ -6,7 +6,6 @@
 #include <Common/exceptions.h>
 
 #include <bit>
-#include <climits>
 #include <concepts>
 #include <cstddef>
 #include <cstring>
@@ -163,14 +162,6 @@ inline consteval bool is_big_endian()
 #endif
 }
 
-/*! @brief Calculates number of bits an instance of type `T` occupies.
-*/
-template<typename T>
-inline consteval std::size_t sizeof_in_bits()
-{
-	return CHAR_BIT * sizeof(T);
-}
-
 template<CEnum EnumType>
 inline constexpr auto enum_to_value(const EnumType enumValue)
 {
@@ -268,119 +259,6 @@ inline constexpr std::size_t variant_index_of(const InVariantType& /* variant */
 	using VariantType = std::remove_cvref_t<InVariantType>;
 
 	return variant_index_of<TypeInVariant, VariantType>();
-}
-
-template<std::integral DstType, std::integral SrcType>
-inline DstType lossless_integer_cast(const SrcType src)
-{
-	using SrcLimits = std::numeric_limits<SrcType>;
-	using DstLimits = std::numeric_limits<DstType>;
-
-	// Note that the use of `std::cmp_<X>` functions are important as the comparisons 
-	// may be signed <-> unsigned comparisons, which may cause signed limits to overflow
-
-	// TODO: we may need to cast src to some integer first to support char and bool types (they are not supported by cmp functions)
-
-	constexpr bool mayHavePositiveOverflow = std::cmp_greater(SrcLimits::max(), DstLimits::max());
-	constexpr bool mayHaveNegativeOverflow = std::cmp_less(SrcLimits::lowest(), DstLimits::lowest());
-
-	if constexpr(mayHavePositiveOverflow)
-	{
-		if(std::cmp_greater(src, DstLimits::max()))
-		{
-			throw_formatted<OverflowException>("cast results in positive overflow: {} exceeds the limit {}",
-				src, DstLimits::max());
-		}
-	}
-
-	if constexpr(mayHaveNegativeOverflow)
-	{
-		if(std::cmp_less(src, DstLimits::lowest()))
-		{
-			throw_formatted<OverflowException>("cast results in negative overflow: {} exceeds the limit {}",
-				src, DstLimits::lowest());
-		}
-	}
-
-	// All possible integer overflow scenarios are checked so it is safe to cast now
-	return static_cast<DstType>(src);
-}
-
-template<std::floating_point DstType, std::floating_point SrcType>
-inline DstType lossless_float_cast(const SrcType src)
-{
-	// Nothing to do if both types are the same
-	if constexpr(std::is_same_v<SrcType, DstType>)
-	{
-		return src;
-	}
-	// If we are converting to a wider floating-point type, generally it will be lossless
-	else if constexpr(sizeof(DstType) > sizeof(SrcType))
-	{
-		// We need both types to be IEEE-754
-		static_assert(std::numeric_limits<SrcType>::is_iec559);
-		static_assert(std::numeric_limits<DstType>::is_iec559);
-
-		return static_cast<DstType>(src);
-	}
-	// Otherwise, cast to `DstType` then back to `SrcType` and see if there is any difference
-	else
-	{
-		const auto dst = static_cast<DstType>(src);
-		const auto dstBackToSrc = static_cast<SrcType>(dst);
-		if(src != dstBackToSrc)
-		{
-			throw_formatted<NumericException>("cast results in numeric precision loss: {} -> {}",
-				src, dstBackToSrc);
-		}
-
-		return dst;
-	}
-}
-
-/*! @brief Cast numeric value to another type without any loss of information.
-If there is any possible overflow or numeric precision loss, exception is thrown.
-@exception OverflowException If overflow happens.
-@exception Numericxception If any numeric precision loss happens.
-*/
-template<CNumber DstType, CNumber SrcType>
-inline DstType lossless_cast(const SrcType src)
-{
-	// Integer -> Integer
-	if constexpr(std::is_integral_v<SrcType> && std::is_integral_v<DstType>)
-	{
-		return lossless_integer_cast<DstType>(src);
-	}
-	// Integer -> Floating-point
-	else if constexpr(std::is_integral_v<SrcType> && std::is_floating_point_v<DstType>)
-	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return 0;
-	}
-	// Floating-point -> Integer
-	else if constexpr(std::is_floating_point_v<SrcType> && std::is_integral_v<DstType>)
-	{
-		// TODO
-		PH_ASSERT_UNREACHABLE_SECTION();
-		return 0;
-	}
-	// Floating-point -> Floating-point
-	else
-	{
-		static_assert(std::is_floating_point_v<SrcType> && std::is_floating_point_v<DstType>);
-
-		return lossless_float_cast<DstType>(src);
-	}
-}
-
-template<CNumber DstType, CNumber SrcType>
-inline DstType lossless_cast(const SrcType src, DstType* const out_dst)
-{
-	PH_ASSERT(out_dst);
-
-	*out_dst = lossless_cast<DstType>(src);
-	return *out_dst;
 }
 
 }// end namespace ph

@@ -5,6 +5,7 @@
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/utility.h>
 
 #include <cstddef>
 #include <climits>

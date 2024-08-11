@@ -5,7 +5,7 @@
 */
 
 #include "Common/config.h"
-#include "Common/utility.h"
+#include "Common/macro.h"
 
 #include "Common/ThirdParty/lib_tracy.h"
 

@@ -11,7 +11,7 @@
 
 #include <Common/logging.h>
 #include <Common/assertion.h>
-#include <Utility/utility.h>
+#include <Common/utility.h>
 
 namespace ph::editor
 {

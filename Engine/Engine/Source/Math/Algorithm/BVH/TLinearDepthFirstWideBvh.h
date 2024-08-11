@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Math/Algorithm/BVH/TBinaryBvhNode.h"
+#include "Math/Algorithm/BVH/TWideBvhNode.h"
 #include "Math/Geometry/TLineSegment.h"
+#include "Utility/utility.h"
 
 #include <Common/primitive_type.h>
-#include <Common/utility.h>
 
 #include <cstddef>
 #include <algorithm>
@@ -16,11 +16,11 @@ namespace ph::math
 template<typename Item>
 class TBvhInfoNode;
 
-template<typename Item, typename Index>
-class TLinearDepthFirstBinaryBvh final
+template<std::size_t N, typename Item, typename Index>
+class TLinearDepthFirstWideBvh final
 {
 public:
-	using NodeType = TBinaryBvhNode<Item, Index>;
+	using NodeType = TWideBvhNode<N, Item, Index>;
 
 	/*! Stack size for BVH traversal. The default should be enough for most cases, unless the tree
 	is highly unbalanced (and we should avoid this). */
@@ -37,8 +37,6 @@ public:
 
 	bool isEmpty() const;
 	const NodeType& getRoot() const;
-	std::size_t numNodes() const;
-	std::size_t numItems() const;
 
 private:
 	void buildNodeRecursive(

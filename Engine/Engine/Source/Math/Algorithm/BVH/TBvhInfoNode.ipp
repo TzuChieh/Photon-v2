@@ -2,15 +2,15 @@
 
 #include "Math/Algorithm/BVH/TBvhInfoNode.h"
 #include "Math/math.h"
-#include "Utility/utility.h"
 
 #include <Common/assertion.h>
+#include <Common/utility.h>
 
 namespace ph::math
 {
 
-template<typename Item, typename ItemToAABB>
-inline auto TBvhInfoNode<Item, ItemToAABB>::makeBinaryInternal(
+template<typename Item>
+inline auto TBvhInfoNode<Item>::makeBinaryInternal(
 	const TBvhInfoNode* child1,
 	const TBvhInfoNode* child2, 
 	const std::size_t splitAxis)
@@ -28,8 +28,8 @@ inline auto TBvhInfoNode<Item, ItemToAABB>::makeBinaryInternal(
 	return internalNode;
 }
 
-template<typename Item, typename ItemToAABB>
-inline auto TBvhInfoNode<Item, ItemToAABB>::makeBinaryLeaf(
+template<typename Item>
+inline auto TBvhInfoNode<Item>::makeBinaryLeaf(
 	TSpanView<ItemInfo> leafItems,
 	const AABB3D& leafAabb)
 -> TBvhInfoNode
@@ -41,22 +41,22 @@ inline auto TBvhInfoNode<Item, ItemToAABB>::makeBinaryLeaf(
 	return leafNode;
 }
 
-template<typename Item, typename ItemToAABB>
-inline TBvhInfoNode<Item, ItemToAABB>::TBvhInfoNode()
+template<typename Item>
+inline TBvhInfoNode<Item>::TBvhInfoNode()
 	: children{}
 	, items()
-	, aabb()
+	, aabb(AABB3D::makeEmpty())
 	, splitAxis(-1)
 {}
 
-template<typename Item, typename ItemToAABB>
-inline bool TBvhInfoNode<Item, ItemToAABB>::isBinaryLeaf() const
+template<typename Item>
+inline bool TBvhInfoNode<Item>::isBinaryLeaf() const
 {
 	return !children[0] && !children[1] && !items.empty();
 }
 
-template<typename Item, typename ItemToAABB>
-inline bool TBvhInfoNode<Item, ItemToAABB>::isBinaryInternal() const
+template<typename Item>
+inline bool TBvhInfoNode<Item>::isBinaryInternal() const
 {
 	return children[0] && children[1] && items.empty();
 }

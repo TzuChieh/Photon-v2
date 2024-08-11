@@ -7,7 +7,7 @@
 #include "Common/Log/logger_fwd.h"
 #include "Common/Log/ELogLevel.h"
 #include "Common/config.h"
-#include "Common/utility.h"
+#include "Common/macro.h"
 
 #include <string>
 #include <vector>

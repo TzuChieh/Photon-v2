@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Math/Geometry/TAABB3D.h"
-#include "Utility/utility.h"
 
 #include <Common/primitive_type.h>
+#include <Common/utility.h>
 
 #include <cstddef>
 #include <type_traits>
@@ -12,7 +12,7 @@ namespace ph::math
 {
 
 template<typename Item, typename Index>
-class TLinearBvhNode final
+class TBinaryBvhNode final
 {
 	static_assert(std::is_unsigned_v<Index>);
 
@@ -31,22 +31,22 @@ public:
 
 	static auto makeInternal(
 		const AABB3D& nodeAABB,
-		std::size_t secondChildOffset,
+		std::size_t childOffset,
 		std::size_t splitAxis)
-	-> TLinearBvhNode;
+	-> TBinaryBvhNode;
 
 	static auto makeLeaf(
 		const AABB3D& nodeAABB,
 		std::size_t itemOffset,
 		std::size_t numItems)
-	-> TLinearBvhNode;
+	-> TBinaryBvhNode;
 
-	TLinearBvhNode();
+	TBinaryBvhNode();
 
 	const AABB3D& getAABB() const;
 	bool isLeaf() const;
 	bool isInternal() const;
-	std::size_t getSecondChildOffset() const;
+	std::size_t getChildOffset() const;
 	std::size_t getSplitAxis() const;
 	std::size_t getItemOffset() const;
 	std::size_t numItems() const;
@@ -56,25 +56,25 @@ private:
 
 	union
 	{
-		Index u0_secondChildOffset;// for internal
-		Index u0_itemOffset;       // for leaf
+		Index u0_childOffset;// for internal
+		Index u0_itemOffset; // for leaf
 	};
 
 	/*!
-	Assuming `Index` has N bits, we divide it into two parts: 
-	[N - 2 bits][2 bits]. The [2 bits] part has the following meaning
+	We divide `uint8` into two parts: 
+	[6 bits][2 bits]. The [2 bits] part has the following meaning
 
 	`X_AXIS_FLAG`: splitting axis is X // indicates this node is internal
 	`Y_AXIS_FLAG`: splitting axis is Y //
 	`Z_AXIS_FLAG`: splitting axis is Z //
 	`LEAF_FLAG`  : this node is leaf
 
-	For internal nodes, the upper [N - 2 bits] is unused.
-	For leaf nodes, `numItems` is stored in the upper [N - 2 bits]. 
+	For internal nodes, the upper [6 bits] is unused.
+	For leaf nodes, `numItems` is stored in the upper [6 bits]. 
 	*/
 	uint8 m_numItemsAndFlags;
 };
 
 }// end namespace ph::math
 
-#include "Math/Algorithm/BVH/TLinearBvhNode.ipp"
+#include "Math/Algorithm/BVH/TBinaryBvhNode.ipp"

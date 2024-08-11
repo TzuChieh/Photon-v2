@@ -4,7 +4,7 @@
 #include "RenderCore/OpenGL/opengl_enums.h"
 
 #include <Common/assertion.h>
-#include <Utility/utility.h>
+#include <Common/utility.h>
 #include <Common/logging.h>
 
 namespace ph::editor::ghi

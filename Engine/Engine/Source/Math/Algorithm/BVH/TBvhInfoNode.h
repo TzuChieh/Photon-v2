@@ -7,14 +7,17 @@
 namespace ph::math
 {
 
-template<typename Item, typename ItemToAABB>
+template<typename Item>
 class TBvhItemInfo;
 
-template<typename Item, typename ItemToAABB>
+/*! @brief Binary BVH node packed with additional information.
+This node type is typically used for building other types of BVH or for algorithmic analysis.
+*/
+template<typename Item>
 class TBvhInfoNode final
 {
 public:
-	using ItemInfo = TBvhItemInfo<Item, ItemToAABB>;
+	using ItemInfo = TBvhItemInfo<Item>;
 
 	static auto makeBinaryInternal(
 		const TBvhInfoNode* child1,

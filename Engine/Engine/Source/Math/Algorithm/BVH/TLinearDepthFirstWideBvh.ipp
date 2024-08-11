@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math/Algorithm/BVH/TLinearDepthFirstBinaryBvh.h"
+#include "Math/Algorithm/BVH/TLinearDepthFirstWideBvh.h"
 #include "Math/Algorithm/BVH/TBvhInfoNode.h"
 #include "Math/Algorithm/BVH/TBvhItemInfo.h"
 #include "Math/Algorithm/traversal_concepts.h"
@@ -11,8 +11,8 @@
 namespace ph::math
 {
 
-template<typename Item, typename Index>
-inline void TLinearDepthFirstBinaryBvh<Item, Index>
+template<std::size_t N, typename Item, typename Index>
+inline void TLinearDepthFirstWideBvh<N, Item, Index>
 ::build(
 	const TBvhInfoNode<Item>* const rootNode,
 	const std::size_t totalInfoNodes,
@@ -20,23 +20,20 @@ inline void TLinearDepthFirstBinaryBvh<Item, Index>
 {
 	PH_ASSERT(rootNode);
 
-	m_numNodes = 0;
-	m_numItems = 0;
-
 	// Allocate memory for nodes and items
 	m_nodes = std::make_unique<TBinaryBvhNode<Item, Index>[]>(totalInfoNodes);
 	m_items = std::make_unique<Item[]>(totalItems);
 
 	// Flatten the info tree into a more compact representation
-	buildNodeRecursive(rootNode);
+	buildLinearDepthFirstBinaryBvhRecursive(rootNode, out_bvh);
 
 	PH_ASSERT_EQ(m_numNodes, totalInfoNodes);
 	PH_ASSERT_EQ(m_numItems, totalItems);
 }
 
-template<typename Item, typename Index>
+template<std::size_t N, typename Item, typename Index>
 template<typename TesterFunc, bool IS_ROBUST>
-inline bool TLinearDepthFirstBinaryBvh<Item, Index>
+inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 ::nearestTraversal(const TLineSegment<real>& segment, TesterFunc&& intersectionTester) const
 {
 	static_assert(CItemSegmentIntersectionTester<TesterFunc, Item>);
@@ -46,8 +43,8 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 		return false;
 	}
 
-	PH_ASSERT(m_nodes);
-	PH_ASSERT(m_items);
+	PH_ASSERT(nodes);
+	PH_ASSERT(items);
 
 	// Traversal states
 	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
@@ -65,8 +62,8 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 	// Traverse nodes
 	while(true)
 	{
-		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
-		const NodeType& node = m_nodes[currentNodeIndex];
+		PH_ASSERT_LT(currentNodeIndex, numNodes);
+		const NodeType& node = nodes[currentNodeIndex];
 
 		const auto [aabbMinT, aabbMaxT] = node.getAABB().isIntersectingVolume<IS_ROBUST>(
 			longestSegment, rcpSegmentDir);
@@ -76,7 +73,7 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 			{
 				for(std::size_t i = 0; i < node.numItems(); ++i)
 				{
-					const Item& item = m_items[node.getItemOffset() + i];
+					const Item& item = items[node.getItemOffset() + i];
 
 					const auto optHitT = intersectionTester(item, longestSegment);
 					if(optHitT)
@@ -127,41 +124,25 @@ inline bool TLinearDepthFirstBinaryBvh<Item, Index>
 	return hasHit;
 }
 
-template<typename Item, typename IndexType>
-inline bool TLinearDepthFirstBinaryBvh<Item, IndexType>
+template<std::size_t N, typename Item, typename IndexType>
+inline bool TLinearDepthFirstWideBvh<N, Item, IndexType>
 ::isEmpty() const
 {
-	return m_numNodes == 0;
+	return numNodes == 0;
 }
 
-template<typename Item, typename IndexType>
-inline auto TLinearDepthFirstBinaryBvh<Item, IndexType>
+template<std::size_t N, typename Item, typename IndexType>
+inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
 ::getRoot() const
 -> const NodeType&
 {
-	PH_ASSERT(m_nodes);
-	PH_ASSERT_GT(m_numNodes, 0);
-	return m_nodes[0];
+	PH_ASSERT(nodes);
+	PH_ASSERT_GT(numNodes, 0);
+	return nodes[0];
 }
 
-template<typename Item, typename IndexType>
-inline auto TLinearDepthFirstBinaryBvh<Item, IndexType>
-::numNodes() const
--> std::size_t
-{
-	return m_numNodes;
-}
-
-template<typename Item, typename IndexType>
-inline auto TLinearDepthFirstBinaryBvh<Item, IndexType>
-::numItems() const
--> std::size_t
-{
-	return m_numItems;
-}
-
-template<typename Item, typename IndexType>
-inline void TLinearDepthFirstBinaryBvh<Item, IndexType>
+template<std::size_t N, typename Item, typename IndexType>
+inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 ::buildNodeRecursive(
 	const TBvhInfoNode<Item>* infoNode)
 {
@@ -187,10 +168,10 @@ inline void TLinearDepthFirstBinaryBvh<Item, IndexType>
 		NodeType* node = &(m_nodes[nodeIndex]);
 		m_numNodes += 1;
 
-		buildNodeRecursive(infoNode->children[0]);
+		buildLinearDepthFirstBinaryBvhRecursive(infoNode->children[0]);
 
 		const auto secondChildOffset = m_numNodes;
-		buildNodeRecursive(infoNode->children[1]);
+		buildLinearDepthFirstBinaryBvhRecursive(infoNode->children[1]);
 
 		*node = NodeType::makeInternal(
 			infoNode->aabb,

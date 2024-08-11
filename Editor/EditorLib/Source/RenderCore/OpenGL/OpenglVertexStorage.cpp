@@ -1,6 +1,6 @@
 #include "RenderCore/OpenGL/OpenglVertexStorage.h"
 
-#include <Utility/utility.h>
+#include <Common/utility.h>
 #include <Common/logging.h>
 #include <Common/assertion.h>
 

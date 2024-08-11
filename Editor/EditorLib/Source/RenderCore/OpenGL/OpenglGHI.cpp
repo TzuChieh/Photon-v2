@@ -16,7 +16,7 @@
 
 #include <Common/assertion.h>
 #include <Common/logging.h>
-#include <Utility/utility.h>
+#include <Common/utility.h>
 #include <Utility/TBitFlags.h>
 
 #include <string_view>

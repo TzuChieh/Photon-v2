@@ -73,7 +73,8 @@ inline void TClassicBvhIntersector<Index>
 	math::TBvhBuilder<const Intersectable*, decltype(itemToAABB)> builder(
 		math::EBvhNodeSplitMethod::SAH_Buckets);
 	auto const rootInfoNode = builder.buildInformativeBinaryBvh(intersectables);
-	builder.buildLinearDepthFirstBinaryBvh(rootInfoNode, &m_bvh);
+
+	m_bvh.build(rootInfoNode, builder.totalInfoNodes(), builder.totalItems());
 
 	// Check the constructed linear BVH and print some information
 #if PH_DEBUG
@@ -81,7 +82,7 @@ inline void TClassicBvhIntersector<Index>
 	
 	PH_DEFAULT_LOG(Note,
 		"intersector: Classic BVH ({}-byte index), total intersectables: {}, total nodes: {}, "
-		"max tree depth: {}", sizeof(Index), m_bvh.numItems, m_bvh.numNodes, treeDepth);
+		"max tree depth: {}", sizeof(Index), m_bvh.numItems(), m_bvh.numNodes(), treeDepth);
 
 	if(treeDepth > m_bvh.TRAVERSAL_STACK_SIZE)
 	{

@@ -5,9 +5,9 @@
 #include "Core/HitProbe.h"
 #include "Core/HitDetail.h"
 #include "Math/TVector3.h"
-#include "Utility/utility.h"
 
 #include <Common/logging.h>
+#include <Common/utility.h>
 
 #include <utility>
 #include <limits>

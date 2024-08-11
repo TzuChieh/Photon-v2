@@ -2,10 +2,10 @@
 
 #include "Math/math.h"
 #include "Utility/INoCopyAndMove.h"
-#include "Utility/utility.h"
 
 #include <Common/assertion.h>
 #include <Common/config.h>
+#include <Common/utility.h>
 
 #include <cstddef>
 #include <type_traits>

@@ -2,7 +2,7 @@
 #include "RenderCore/OpenGL/opengl_enums.h"
 #include "RenderCore/ghi_infos.h"
 
-#include <Utility/utility.h>
+#include <Common/utility.h>
 #include <Common/assertion.h>
 #include <Common/logging.h>
 #include <Math/TVector2.h>

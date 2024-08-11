@@ -20,6 +20,7 @@ to rendering in mind.
 #include <Common/primitive_type.h>
 #include <Common/compiler.h>
 #include <Common/math_basics.h>
+#include <Common/utility.h>
 
 #include <cmath>
 #include <algorithm>

@@ -2,10 +2,10 @@
 
 #include "Math/constant.h"
 #include "Utility/TSpan.h"
-#include "Utility/utility.h"
 
 #include <Common/assertion.h>
 #include <Common/primitive_type.h>
+#include <Common/utility.h>
 
 #include <cstddef>
 #include <vector>

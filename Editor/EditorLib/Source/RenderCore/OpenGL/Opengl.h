@@ -2,8 +2,8 @@
 
 #include "ThirdParty/glad2.h"
 
+#include <Common/utility.h>
 #include <Utility/IUninstantiable.h>
-#include <Utility/utility.h>
 
 #include <concepts>
 

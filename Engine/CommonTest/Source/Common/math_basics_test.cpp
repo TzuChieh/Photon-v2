@@ -8,7 +8,7 @@
 using namespace ph;
 using namespace ph::math;
 
-TEST(MathTest, CheckIsPowerOf2)
+TEST(MathBasicsTest, CheckIsPowerOf2)
 {
 	EXPECT_FALSE(is_power_of_2(0));
 	EXPECT_TRUE (is_power_of_2(1));
@@ -26,7 +26,7 @@ TEST(MathTest, CheckIsPowerOf2)
 	EXPECT_FALSE(is_power_of_2(std::numeric_limits<unsigned long long>::max()));
 }
 
-TEST(MathTest, CeiledPositiveIntegerDivision)
+TEST(MathBasicsTest, CeiledPositiveIntegerDivision)
 {
 	EXPECT_EQ(ceil_div(3, 3),   1);
 	EXPECT_EQ(ceil_div(5, 3),   2);
@@ -43,7 +43,7 @@ TEST(MathTest, CeiledPositiveIntegerDivision)
 	EXPECT_EQ(ceil_div(x1, x2 - 1), 2);
 }
 
-TEST(MathTest, FindNextIntegerMultiple)
+TEST(MathBasicsTest, FindNextIntegerMultiple)
 {
 	EXPECT_EQ(next_multiple(4, 5), 5);
 	EXPECT_EQ(next_multiple(4, 4), 4);
@@ -65,7 +65,7 @@ TEST(MathTest, FindNextIntegerMultiple)
 	EXPECT_EQ(next_multiple(x1, x2 - 1), (x2 - 1) * 2);
 }
 
-TEST(MathTest, FindNextIntegerPowerOf2Multiple)
+TEST(MathBasicsTest, FindNextIntegerPowerOf2Multiple)
 {
 	EXPECT_EQ(next_power_of_2_multiple(1, 1), 1);
 	EXPECT_EQ(next_power_of_2_multiple(2, 1), 2);
