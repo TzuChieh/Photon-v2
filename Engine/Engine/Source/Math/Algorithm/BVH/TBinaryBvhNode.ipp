@@ -51,7 +51,7 @@ inline TBinaryBvhNode<Item, Index>
 ::TBinaryBvhNode()
 	: m_aabb(AABB3D::makeEmpty())
 	, u0_itemOffset(static_cast<decltype(u0_itemOffset)>(-1))
-	, m_numItemsAndFlags(static_cast<decltype(m_numItemsAndFlags)>(-1))
+	, m_numItemsAndFlags(LEAF_FLAG)// leaf with 0 item
 {}
 
 template<typename Item, typename Index>

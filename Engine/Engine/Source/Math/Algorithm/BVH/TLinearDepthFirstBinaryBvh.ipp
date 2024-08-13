@@ -14,11 +14,15 @@ namespace ph::math
 template<typename Item, typename Index>
 inline void TLinearDepthFirstBinaryBvh<Item, Index>
 ::build(
-	const TBvhInfoNode<Item>* const rootNode,
+	const TBvhInfoNode<2, Item>* const rootNode,
 	const std::size_t totalInfoNodes,
 	const std::size_t totalItems)
 {
-	PH_ASSERT(rootNode);
+	*this = TLinearDepthFirstBinaryBvh{};
+	if(!rootNode)
+	{
+		return;
+	}
 
 	m_numNodes = 0;
 	m_numItems = 0;
@@ -28,7 +32,7 @@ inline void TLinearDepthFirstBinaryBvh<Item, Index>
 	m_items = std::make_unique<Item[]>(totalItems);
 
 	// Flatten the info tree into a more compact representation
-	buildNodeRecursive(rootNode);
+	buildNodesRecursive(rootNode);
 
 	PH_ASSERT_EQ(m_numNodes, totalInfoNodes);
 	PH_ASSERT_EQ(m_numItems, totalItems);
@@ -162,24 +166,26 @@ inline auto TLinearDepthFirstBinaryBvh<Item, IndexType>
 
 template<typename Item, typename IndexType>
 inline void TLinearDepthFirstBinaryBvh<Item, IndexType>
-::buildNodeRecursive(
-	const TBvhInfoNode<Item>* infoNode)
+::buildNodesRecursive(
+	const TBvhInfoNode<2, Item>* infoNode)
 {
+	PH_ASSERT(infoNode);
+
 	const auto nodeIndex = m_numNodes;
 	const auto itemOffset = m_numItems;
 
 	if(infoNode->isBinaryLeaf())
 	{
-		for(std::size_t i = 0; i < infoNode->items.size(); ++i)
+		for(std::size_t i = 0; i < infoNode->getItems().size(); ++i)
 		{
-			m_items[itemOffset + i] = infoNode->items[i].item;
+			m_items[itemOffset + i] = infoNode->getItems()[i].item;
 		}
-		m_numItems += infoNode->items.size();
+		m_numItems += infoNode->getItems().size();
 
 		m_nodes[nodeIndex] = NodeType::makeLeaf(
-			infoNode->aabb,
+			infoNode->getAABB(),
 			itemOffset,
-			infoNode->items.size());
+			infoNode->getItems().size());
 		m_numNodes += 1;
 	}
 	else if(infoNode->isBinaryInternal())
@@ -187,15 +193,15 @@ inline void TLinearDepthFirstBinaryBvh<Item, IndexType>
 		NodeType* node = &(m_nodes[nodeIndex]);
 		m_numNodes += 1;
 
-		buildNodeRecursive(infoNode->children[0]);
+		buildNodesRecursive(infoNode->getChild(0));
 
 		const auto secondChildOffset = m_numNodes;
-		buildNodeRecursive(infoNode->children[1]);
+		buildNodesRecursive(infoNode->getChild(1));
 
 		*node = NodeType::makeInternal(
-			infoNode->aabb,
+			infoNode->getAABB(),
 			secondChildOffset,
-			infoNode->splitAxis);
+			infoNode->getSplitAxis());
 	}
 	else
 	{

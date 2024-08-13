@@ -24,21 +24,23 @@ enum class EBvhNodeSplitMethod
 	SAH_EdgeSort
 };
 
-template<typename Item>
+template<std::size_t N, typename Item>
 class TBvhInfoNode;
 
-template<typename Item, typename ItemToAABB>
+template<std::size_t N, typename Item, typename ItemToAABB>
 class TBvhBuilder final
 {
 	static_assert(std::is_invocable_r_v<AABB3D, ItemToAABB, Item>);
 
 public:
-	using ItemInfo = TBvhItemInfo<Item>;
-	using InfoNode = TBvhInfoNode<Item>;
+	using InfoNodeType = TBvhInfoNode<N, Item>;
+	using ItemInfoType = TBvhItemInfo<Item>;
 
-	static std::size_t calcTotalNodes(const InfoNode* node);
-	static std::size_t calcTotalItems(const InfoNode* node);
-	static std::size_t calcMaxDepth(const InfoNode* node);
+	static std::size_t calcTotalNodes(const InfoNodeType* node);
+
+	static std::size_t calcTotalItems(const InfoNodeType* node);
+
+	static std::size_t calcMaxDepth(const InfoNodeType* node);
 
 public:
 	explicit TBvhBuilder(
@@ -57,8 +59,8 @@ public:
 	This method will clear any previous build data.
 	@return The root node of the built BVH. Memory of the BVH is managed by this builder.
 	*/
-	auto buildInformativeBinaryBvh(TSpanView<Item> items)
-	-> const InfoNode*;
+	auto buildInformativeBvh(TSpanView<Item> items)
+	-> const InfoNodeType*;
 
 	void clearBuildData();
 
@@ -92,25 +94,25 @@ private:
 	*/
 	template<EBvhNodeSplitMethod SPLIT_METHOD>
 	auto buildBinaryBvhInfoNodeRecursive(
-		TSpan<ItemInfo> itemInfos)
-	-> const InfoNode*;
+		TSpan<ItemInfoType> itemInfos)
+	-> const InfoNodeType*;
 
-	bool splitWithEqualIntersectables(
-		TSpan<ItemInfo> itemInfos,
+	bool binarySplitWithEqualIntersectables(
+		TSpan<ItemInfoType> itemInfos,
 		std::size_t splitDimension,
-		TSpan<ItemInfo>* out_negativePart,
-		TSpan<ItemInfo>* out_positivePart);
+		TSpan<ItemInfoType>* out_negativePart,
+		TSpan<ItemInfoType>* out_positivePart);
 
-	bool splitWithSahBuckets(
-		TSpan<ItemInfo> itemInfos,
+	bool binarySplitWithSahBuckets(
+		TSpan<ItemInfoType> itemInfos,
 		std::size_t splitDimension,
 		const AABB3D& itemsAABB,
 		const AABB3D& itemsCentroidAABB,
-		TSpan<ItemInfo>* out_negativePart,
-		TSpan<ItemInfo>* out_positivePart);
+		TSpan<ItemInfoType>* out_negativePart,
+		TSpan<ItemInfoType>* out_positivePart);
 
-	std::vector<ItemInfo> m_infoBuffer;
-	std::vector<InfoNode> m_infoNodes;
+	std::vector<ItemInfoType> m_infoBuffer;
+	std::vector<InfoNodeType> m_infoNodes;
 	BvhParams m_params;
 	ItemToAABB m_itemToAABB;
 	EBvhNodeSplitMethod m_splitMethod;

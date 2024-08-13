@@ -8,27 +8,60 @@
 
 #include <Common/assertion.h>
 
+#include <type_traits>
+
 namespace ph::math
 {
 
 template<std::size_t N, typename Item, typename Index>
+template<std::size_t SrcN>
 inline void TLinearDepthFirstWideBvh<N, Item, Index>
 ::build(
-	const TBvhInfoNode<Item>* const rootNode,
+	const TBvhInfoNode<SrcN, Item>* const rootNode,
 	const std::size_t totalInfoNodes,
 	const std::size_t totalItems)
 {
-	PH_ASSERT(rootNode);
+	*this = TLinearDepthFirstWideBvh{};
+	if(!rootNode)
+	{
+		return;
+	}
 
 	// Allocate memory for nodes and items
-	m_nodes = std::make_unique<TBinaryBvhNode<Item, Index>[]>(totalInfoNodes);
+	m_nodes = std::make_unique<TWideBvhNode<N, Item, Index>[]>(totalInfoNodes);
 	m_items = std::make_unique<Item[]>(totalItems);
 
-	// Flatten the info tree into a more compact representation
-	buildLinearDepthFirstBinaryBvhRecursive(rootNode, out_bvh);
+	// Can directly convert if the branch factor matches
+	if constexpr(SrcN == N)
+	{
+		if(rootNode->isLeaf())
+		{
+			const auto itemOffset = m_numItems;
+			for(std::size_t i = 0; i < rootNode->getItems().size(); ++i)
+			{
+				m_items[itemOffset + i] = rootNode->getItems()[i].item;
+			}
+			m_numItems += rootNode->getItems().size();
 
-	PH_ASSERT_EQ(m_numNodes, totalInfoNodes);
-	PH_ASSERT_EQ(m_numItems, totalItems);
+			m_numNodes = 1;
+			m_nodes[0].setLeaf(
+				0,
+				rootNode->getAABB(),
+				itemOffset,
+				rootNode->getItems().size());
+		}
+		else
+		{
+			convertChildNodesRecursive(rootNode);
+		}
+	}
+	// Try to collapse into target branch factor
+	else
+	{
+		// TODO
+	}
+
+	refitBuffer(totalInfoNodes, totalItems);
 }
 
 template<std::size_t N, typename Item, typename Index>
@@ -143,44 +176,83 @@ inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
 
 template<std::size_t N, typename Item, typename IndexType>
 inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
-::buildNodeRecursive(
-	const TBvhInfoNode<Item>* infoNode)
+::convertChildNodesRecursive(
+	const TBvhInfoNode<N, Item>* const infoNode)
 {
+	PH_ASSERT(infoNode);
+
+	// Leaf node should be converted already
+	PH_ASSERT_MSG(!infoNode->isLeaf(), "this method expects internal node as input");
+
 	const auto nodeIndex = m_numNodes;
-	const auto itemOffset = m_numItems;
+	NodeType* const node = &(m_nodes[nodeIndex]);
+	m_numNodes += 1;
 
-	if(infoNode->isBinaryLeaf())
+	for(std::size_t ci = 0; ci < infoNode->numChildren(); ++ci)
 	{
-		for(std::size_t i = 0; i < infoNode->items.size(); ++i)
+		const TBvhInfoNode<N, Item>* const childInfoNode = infoNode->getChild(ci);
+		if(!childInfoNode)
 		{
-			m_items[itemOffset + i] = infoNode->items[i].item;
+			continue;
 		}
-		m_numItems += infoNode->items.size();
 
-		m_nodes[nodeIndex] = NodeType::makeLeaf(
-			infoNode->aabb,
-			itemOffset,
-			infoNode->items.size());
-		m_numNodes += 1;
+		if(childInfoNode->isLeaf())
+		{
+			const auto itemOffset = m_numItems;
+			for(std::size_t i = 0; i < childInfoNode->getItems().size(); ++i)
+			{
+				m_items[itemOffset + i] = childInfoNode->getItems()[i].item;
+			}
+			m_numItems += childInfoNode->getItems().size();
+
+			node->setLeaf(
+				ci,
+				childInfoNode->getAABB(),
+				itemOffset,
+				childInfoNode->getItems().size());
+		}
+		else if(childInfoNode->isInternal())
+		{
+			const auto childNodeIndex = m_numNodes;
+			convertNodesRecursive(childInfoNode);
+
+			node->setInternal(
+				ci,
+				childInfoNode->getAABB(),
+				childNodeIndex,
+				childInfoNode->getSplitAxis());
+		}
+		else
+		{
+			PH_ASSERT_UNREACHABLE_SECTION();
+		}
 	}
-	else if(infoNode->isBinaryInternal())
+}
+
+template<std::size_t N, typename Item, typename IndexType>
+inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
+::refitBuffer(const std::size_t nodeBufferSize, const std::size_t itemBufferSize)
+{
+	// For potentially better performance on buffer content copying
+	static_assert(std::is_trivially_copy_assignable_v<NodeType>);
+
+	PH_ASSERT_LE(m_numNodes, nodeBufferSize);
+	PH_ASSERT_LE(m_numItems, itemBufferSize);
+
+	if(m_numNodes != nodeBufferSize)
 	{
-		NodeType* node = &(m_nodes[nodeIndex]);
-		m_numNodes += 1;
+		auto nodes = std::make_unique<NodeType[]>(m_numNodes);
+		std::copy_n(m_nodes.get(), m_numNodes, nodes.get());
 
-		buildLinearDepthFirstBinaryBvhRecursive(infoNode->children[0]);
-
-		const auto secondChildOffset = m_numNodes;
-		buildLinearDepthFirstBinaryBvhRecursive(infoNode->children[1]);
-
-		*node = NodeType::makeInternal(
-			infoNode->aabb,
-			secondChildOffset,
-			infoNode->splitAxis);
+		m_nodes = std::move(nodes);
 	}
-	else
+
+	if(m_numItems != itemBufferSize)
 	{
-		PH_ASSERT_UNREACHABLE_SECTION();
+		auto items = std::make_unique<Item[]>(m_numItems);
+		std::copy_n(m_items.get(), m_numItems, items.get());
+
+		m_items = std::move(items);
 	}
 }
 

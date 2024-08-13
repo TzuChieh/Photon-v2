@@ -70,9 +70,9 @@ inline void TClassicBvhIntersector<Index>
 			return item->calcAABB();
 		};
 
-	math::TBvhBuilder<const Intersectable*, decltype(itemToAABB)> builder(
+	math::TBvhBuilder<2, const Intersectable*, decltype(itemToAABB)> builder(
 		math::EBvhNodeSplitMethod::SAH_Buckets);
-	auto const rootInfoNode = builder.buildInformativeBinaryBvh(intersectables);
+	auto const rootInfoNode = builder.buildInformativeBvh(intersectables);
 
 	m_bvh.build(rootInfoNode, builder.totalInfoNodes(), builder.totalItems());
 

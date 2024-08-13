@@ -13,7 +13,7 @@
 namespace ph::math
 {
 
-template<typename Item>
+template<std::size_t N, typename Item>
 class TBvhInfoNode;
 
 template<typename Item, typename Index>
@@ -28,7 +28,7 @@ public:
 		sizeof_in_bits<Index>() * 3 / 2, 48);
 
 	void build(
-		const TBvhInfoNode<Item>* const rootNode,
+		const TBvhInfoNode<2, Item>* const rootNode,
 		std::size_t totalInfoNodes,
 		std::size_t totalItems);
 
@@ -41,8 +41,8 @@ public:
 	std::size_t numItems() const;
 
 private:
-	void buildNodeRecursive(
-		const TBvhInfoNode<Item>* infoNode);
+	void buildNodesRecursive(
+		const TBvhInfoNode<2, Item>* infoNode);
 
 	std::unique_ptr<NodeType[]> m_nodes;
 	std::unique_ptr<Item[]> m_items;

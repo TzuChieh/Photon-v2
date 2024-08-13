@@ -12,9 +12,14 @@
 namespace ph::math
 {
 
+/*!
+@note The layout of this node is different to ordinary node layout--children are directly stored in
+their parent, resulting in a "fat" node.
+*/
 template<std::size_t N, typename Item, typename Index>
 class TWideBvhNode final
 {
+	static_assert(N >= 2);
 	static_assert(std::is_unsigned_v<Index>);
 
 	inline static constexpr std::size_t NUM_FLAG_BITS  = 2;
@@ -30,18 +35,8 @@ public:
 	/*! Maximum number of items in a single node. */
 	inline static constexpr std::size_t MAX_NODE_ITEMS = (std::size_t(1) << NUM_ITEMS_BITS) - 1;
 
-	static auto makeInternal(
-		const std::array<AABB3D, N>& childrenAABBs,
-		const std::array<std::size_t, N - 1>& childOffsets,
-		const std::array<std::size_t, N>& splitAxes)
-	-> TWideBvhNode;
-
-	static auto makeLeaf(
-		const std::array<AABB3D, N>& childrenAABBs,
-		const std::array<std::size_t, N> itemOffsets,
-		const std::array<std::size_t, N> numItems)
-	-> TWideBvhNode;
-
+	/*! @brief Creates a node that contains `N` empty leaves.
+	*/
 	TWideBvhNode();
 
 	const AABB3D& getAABB(std::size_t childIdx) const;
@@ -52,14 +47,28 @@ public:
 	std::size_t getItemOffset(std::size_t childIdx) const;
 	std::size_t numItems(std::size_t childIdx) const;
 
+	TWideBvhNode& setInternal(
+		std::size_t childIdx,
+		const AABB3D& childAABB,
+		std::size_t childOffset,
+		std::size_t splitAxis);
+
+	TWideBvhNode& setLeaf(
+		std::size_t childIdx,
+		const AABB3D& childAABB,
+		std::size_t itemOffset,
+		std::size_t numItems);
+
 private:
 	std::array<AABB3D, N> m_aabbs;
 
-	union
-	{
-		std::array<Index, N - 1> u0_childOffsets;// for internal
-		std::array<Index, N>     u0_itemOffsets; // for leaf
-	};
+	/*!
+	For internal nodes, this is the child offset. The first child offset does not need to be stored
+	for linear depth first trees. Since this node may contain both internal and leaf nodes, this
+	helps to simplify the logics.
+	For leaf nodes, this is the item offset. 
+	*/
+	std::array<Index, N> m_offsets;
 
 	/*!
 	We divide `uint8` into two parts: 

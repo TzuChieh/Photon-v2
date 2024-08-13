@@ -17,8 +17,8 @@
 namespace ph::math
 {
 
-template<typename Item, typename ItemToAABB>
-inline TBvhBuilder<Item, ItemToAABB>::TBvhBuilder(
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline TBvhBuilder<N, Item, ItemToAABB>::TBvhBuilder(
 	const EBvhNodeSplitMethod splitMethod,
 	ItemToAABB itemToAABB,
 	BvhParams params)
@@ -30,17 +30,17 @@ inline TBvhBuilder<Item, ItemToAABB>::TBvhBuilder(
 	, m_splitMethod(splitMethod)
 {}
 
-template<typename Item, typename ItemToAABB>
-inline auto TBvhBuilder<Item, ItemToAABB>
-::buildInformativeBinaryBvh(TSpanView<Item> items)
--> const InfoNode*
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline auto TBvhBuilder<N, Item, ItemToAABB>
+::buildInformativeBvh(TSpanView<Item> items)
+-> const InfoNodeType*
 {
 	clearBuildData();
 
 	m_infoBuffer.resize(items.size());
 	for(std::size_t i = 0; i < items.size(); i++)
 	{
-		m_infoBuffer[i] = ItemInfo(m_itemToAABB(items[i]), items[i]);
+		m_infoBuffer[i] = ItemInfoType(m_itemToAABB(items[i]), items[i]);
 	}
 
 	// To have stable node pointers, pre-allocate enough nodes beforehand. We can calculate maximum
@@ -49,7 +49,7 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 	const std::size_t maxNodes  = 2 * numLeaves - 1;
 	m_infoNodes.reserve(maxNodes);
 
-	const InfoNode* rootNode = nullptr;
+	const InfoNodeType* rootNode = nullptr;
 	switch(m_splitMethod)
 	{
 	case EBvhNodeSplitMethod::EqualItems:
@@ -78,52 +78,54 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 	return rootNode;
 }
 
-template<typename Item, typename ItemToAABB>
-inline void TBvhBuilder<Item, ItemToAABB>
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline void TBvhBuilder<N, Item, ItemToAABB>
 ::clearBuildData()
 {
 	m_infoBuffer.clear();
 	m_infoNodes.clear();
 }
 
-template<typename Item, typename ItemToAABB>
-inline auto TBvhBuilder<Item, ItemToAABB>
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline auto TBvhBuilder<N, Item, ItemToAABB>
 ::totalInfoNodes() const
 -> std::size_t
 {
 	return m_infoNodes.size();
 }
 
-template<typename Item, typename ItemToAABB>
-inline auto TBvhBuilder<Item, ItemToAABB>
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline auto TBvhBuilder<N, Item, ItemToAABB>
 ::totalItems() const
 -> std::size_t
 {
 	return m_infoBuffer.size();
 }
 
-template<typename Item, typename ItemToAABB>
+template<std::size_t N, typename Item, typename ItemToAABB>
 template<EBvhNodeSplitMethod SPLIT_METHOD>
-inline auto TBvhBuilder<Item, ItemToAABB>
+inline auto TBvhBuilder<N, Item, ItemToAABB>
 ::buildBinaryBvhInfoNodeRecursive(
-	const TSpan<ItemInfo> itemInfos)
--> const InfoNode*
+	const TSpan<ItemInfoType> itemInfos)
+-> const InfoNodeType*
 {
+	static_assert(N == 2, "Requires a binary BVH builder.");
+
 	// Creating a new node must not cause reallocation
 	PH_ASSERT_LT(m_infoNodes.size(), m_infoNodes.capacity());
 
-	m_infoNodes.push_back(InfoNode{});
-	InfoNode* const node = &m_infoNodes.back();
+	m_infoNodes.push_back(InfoNodeType{});
+	InfoNodeType* const node = &m_infoNodes.back();
 
 	AABB3D nodeAABB(itemInfos.empty() ? AABB3D(Vector3R(0)) : itemInfos.front().aabb);
-	for(const ItemInfo& itemInfo : itemInfos)
+	for(const ItemInfoType& itemInfo : itemInfos)
 	{
 		nodeAABB = AABB3D::makeUnioned(nodeAABB, itemInfo.aabb);
 	}
 
 	if(itemInfos.size() <= 1)
 	{
-		*node = InfoNode::makeBinaryLeaf(itemInfos, nodeAABB);
+		*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
 
 #if PH_DEBUG
 		if(itemInfos.empty())
@@ -136,7 +138,7 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 	else
 	{
 		AABB3D centroidsAABB(itemInfos.front().aabbCentroid);
-		for(const ItemInfo& itemInfo : itemInfos)
+		for(const ItemInfoType& itemInfo : itemInfos)
 		{
 			centroidsAABB = AABB3D::makeUnioned(centroidsAABB, AABB3D(itemInfo.aabbCentroid));
 		}
@@ -154,18 +156,18 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 		const auto maxDimension = extents.maxDimension();
 		if(centroidsAABB.getMinVertex()[maxDimension] == centroidsAABB.getMaxVertex()[maxDimension])
 		{
-			*node = InfoNode::makeBinaryLeaf(itemInfos, nodeAABB);
+			*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
 		}
 		else
 		{
 			bool isSplitSuccess = false;
-			TSpan<ItemInfo> negativeChildItems;
-			TSpan<ItemInfo> positiveChildItems;
+			TSpan<ItemInfoType> negativeChildItems;
+			TSpan<ItemInfoType> positiveChildItems;
 			switch(m_splitMethod)
 			{
 
 			case EBvhNodeSplitMethod::EqualItems:
-				isSplitSuccess = splitWithEqualIntersectables(
+				isSplitSuccess = binarySplitWithEqualIntersectables(
 					itemInfos,
 					maxDimension,
 					&negativeChildItems,
@@ -173,7 +175,7 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 				break;
 
 			case EBvhNodeSplitMethod::SAH_Buckets:
-				isSplitSuccess = splitWithSahBuckets(
+				isSplitSuccess = binarySplitWithSahBuckets(
 					itemInfos,
 					maxDimension,
 					nodeAABB,
@@ -200,14 +202,16 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 
 			if(isSplitSuccess)
 			{
-				*node = InfoNode::makeBinaryInternal(
-					buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(negativeChildItems),
-					buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(positiveChildItems),
+				*node = InfoNodeType::makeInternal(
+					{
+						buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(negativeChildItems),
+						buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(positiveChildItems)
+					},
 					maxDimension);
 			}
 			else
 			{
-				*node = InfoNode::makeBinaryLeaf(itemInfos, nodeAABB);
+				*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
 			}
 		}
 	}
@@ -215,52 +219,71 @@ inline auto TBvhBuilder<Item, ItemToAABB>
 	return node;
 }
 
-template<typename Item, typename ItemToAABB>
-inline std::size_t TBvhBuilder<Item, ItemToAABB>
-::calcTotalNodes(const InfoNode* const node)
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline std::size_t TBvhBuilder<N, Item, ItemToAABB>
+::calcTotalNodes(const InfoNodeType* const node)
 {
-	PH_ASSERT(node);
+	if(!node)
+	{
+		return 0;
+	}
 
 	std::size_t result = 1;
-	result += node->children[0] ? calcTotalNodes(node->children[0]) : 0;
-	result += node->children[1] ? calcTotalNodes(node->children[1]) : 0;
+	for(std::size_t ci = 0; ci < node->numChildren(); ++ci)
+	{
+		result += node->getChild(ci) ? calcTotalNodes(node->getChild(ci)) : 0;
+	}
 	return result;
 }
 
-template<typename Item, typename ItemToAABB>
-inline std::size_t TBvhBuilder<Item, ItemToAABB>
-::calcTotalItems(const InfoNode* const node)
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline std::size_t TBvhBuilder<N, Item, ItemToAABB>
+::calcTotalItems(const InfoNodeType* const node)
 {
-	PH_ASSERT(node);
+	if(!node)
+	{
+		return 0;
+	}
 
-	std::size_t result = node->items.size();
-	result += node->children[0] ? calcTotalItems(node->children[0]) : 0;
-	result += node->children[1] ? calcTotalItems(node->children[1]) : 0;
+	std::size_t result = node->getItems().size();
+	for(std::size_t ci = 0; ci < node->numChildren(); ++ci)
+	{
+		result += node->getChild(ci) ? calcTotalItems(node->getChild(ci)) : 0;
+	}
 	return result;
 }
 
-template<typename Item, typename ItemToAABB>
-inline std::size_t TBvhBuilder<Item, ItemToAABB>
-::calcMaxDepth(const InfoNode* const node)
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline std::size_t TBvhBuilder<N, Item, ItemToAABB>
+::calcMaxDepth(const InfoNodeType* const node)
 {
-	PH_ASSERT(node);
+	if(!node)
+	{
+		return 0;
+	}
 
-	const std::size_t child1Depth = node->children[0] ? calcMaxDepth(node->children[0]) : 0;
-	const std::size_t child2Depth = node->children[1] ? calcMaxDepth(node->children[1]) : 0;
-
-	std::size_t depth = node->children[0] || node->children[1] ? 1 : 0;
-	depth += std::max(child1Depth, child2Depth);
-	return depth;
+	std::size_t maxDepth = 0;
+	for(std::size_t ci = 0; ci < node->numChildren(); ++ci)
+	{
+		// Only non-empty child can add one more depth
+		if(node->getChild(ci))
+		{
+			maxDepth = std::max(calcMaxDepth(node->getChild(ci)) + 1, maxDepth);
+		}
+	}
+	return maxDepth;
 }
 
-template<typename Item, typename ItemToAABB>
-inline bool TBvhBuilder<Item, ItemToAABB>
-::splitWithEqualIntersectables(
-	const TSpan<ItemInfo> itemInfos,
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline bool TBvhBuilder<N, Item, ItemToAABB>
+::binarySplitWithEqualIntersectables(
+	const TSpan<ItemInfoType> itemInfos,
 	const std::size_t splitDimension,
-	TSpan<ItemInfo>* const out_negativePart,
-	TSpan<ItemInfo>* const out_positivePart)
+	TSpan<ItemInfoType>* const out_negativePart,
+	TSpan<ItemInfoType>* const out_positivePart)
 {
+	static_assert(N == 2, "Requires a binary BVH builder.");
+
 	if(itemInfos.size() < 2)
 	{
 		PH_DEFAULT_LOG(Warning,
@@ -275,7 +298,7 @@ inline bool TBvhBuilder<Item, ItemToAABB>
 		sortedItemInfos.begin(),
 		sortedItemInfos.begin() + midIndex,
 		sortedItemInfos.end(),
-		[splitDimension](const ItemInfo& a, const ItemInfo& b)
+		[splitDimension](const ItemInfoType& a, const ItemInfoType& b)
 		{
 			return a.aabbCentroid[splitDimension] < b.aabbCentroid[splitDimension];
 		});
@@ -287,20 +310,22 @@ inline bool TBvhBuilder<Item, ItemToAABB>
 	return true;
 }
 
-template<typename Item, typename ItemToAABB>
-inline bool TBvhBuilder<Item, ItemToAABB>
-::splitWithSahBuckets(
-	const TSpan<ItemInfo> itemInfos,
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline bool TBvhBuilder<N, Item, ItemToAABB>
+::binarySplitWithSahBuckets(
+	const TSpan<ItemInfoType> itemInfos,
 	const std::size_t splitDimension,
 	const AABB3D& itemsAABB,
 	const AABB3D& itemsCentroidAABB,
-	TSpan<ItemInfo>* const out_negativePart,
-	TSpan<ItemInfo>* const out_positivePart)
+	TSpan<ItemInfoType>* const out_negativePart,
+	TSpan<ItemInfoType>* const out_positivePart)
 {
+	static_assert(N == 2, "Requires a binary BVH builder.");
+
 	if(itemInfos.size() < 2)
 	{
 		PH_DEFAULT_LOG(Warning,
-			"at `BvhBuilder::splitWithSahBuckets()`, number of items < 2, cannot split");
+			"at `BvhBuilder::binarySplitWithSahBuckets()`, number of items < 2, cannot split");
 		return false;
 	}
 
@@ -312,7 +337,7 @@ inline bool TBvhBuilder<Item, ItemToAABB>
 	PH_ASSERT_GE(rcpSplitExtent, 0.0_r);
 
 	SahBucket buckets[numBuckets];
-	for(const ItemInfo& itemInfo : itemInfos)
+	for(const ItemInfoType& itemInfo : itemInfos)
 	{
 		const real factor = (itemInfo.aabbCentroid[dim] - itemsCentroidAABB.getMinVertex()[dim]) * rcpSplitExtent;
 		auto bucketIndex = static_cast<std::size_t>(factor * numBuckets);
@@ -370,7 +395,7 @@ inline bool TBvhBuilder<Item, ItemToAABB>
 		auto posPartBegin = std::partition(
 			sortedItemInfos.begin(),
 			sortedItemInfos.end(),
-			[itemsCentroidAABB, dim, rcpSplitExtent, minCostIndex](const ItemInfo& itemInfo)
+			[itemsCentroidAABB, dim, rcpSplitExtent, minCostIndex](const ItemInfoType& itemInfo)
 			{
 				const real factor = (itemInfo.aabbCentroid[dim] - itemsCentroidAABB.getMinVertex()[dim]) * rcpSplitExtent;
 				auto bucketIndex = static_cast<std::size_t>(factor * numBuckets);

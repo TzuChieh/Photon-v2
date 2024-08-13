@@ -13,7 +13,7 @@
 namespace ph::math
 {
 
-template<typename Item>
+template<std::size_t N, typename Item>
 class TBvhInfoNode;
 
 template<std::size_t N, typename Item, typename Index>
@@ -27,8 +27,9 @@ public:
 	inline constexpr static auto TRAVERSAL_STACK_SIZE = std::min<std::size_t>(
 		sizeof_in_bits<Index>() * 3 / 2, 48);
 
+	template<std::size_t SrcN>
 	void build(
-		const TBvhInfoNode<Item>* const rootNode,
+		const TBvhInfoNode<SrcN, Item>* const rootNode,
 		std::size_t totalInfoNodes,
 		std::size_t totalItems);
 
@@ -39,8 +40,16 @@ public:
 	const NodeType& getRoot() const;
 
 private:
-	void buildNodeRecursive(
-		const TBvhInfoNode<Item>* infoNode);
+	/*! Directly map informative nodes to wide nodes if the branch factor is the same.
+	*/
+	void convertChildNodesRecursive(
+		const TBvhInfoNode<N, Item>* infoNode);
+
+	template<std::size_t SrcN>
+	void collapseNodesRecursive(
+		const TBvhInfoNode<SrcN, Item>* infoNode);
+
+	void refitBuffer(std::size_t nodeBufferSize, std::size_t itemBufferSize);
 
 	std::unique_ptr<NodeType[]> m_nodes;
 	std::unique_ptr<Item[]> m_items;
