@@ -161,6 +161,7 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 		{
 			*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
 		}
+		// Specialized binary node splitting
 		else if constexpr(N == 2)
 		{
 			bool isSplitted = false;
@@ -213,6 +214,7 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 				*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
 			}
 		}
+		// Generalized N-wide node splitting
 		else
 		{
 			bool isSplitted = false;
@@ -231,28 +233,16 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 				isSplitted = false;
 			}// end split method
 
-			// TODO
-			/*if(isSplitted && (negativeChildItems.empty() || positiveChildItems.empty()))
-			{
-				PH_DEFAULT_DEBUG_LOG(
-					"BVH{} builder: bad split detected: #neg-child={}, #pos-child={}",
-					N, negativeChildItems.size(), positiveChildItems.size());
-				isSplitted = false;
-			}
-
 			if(isSplitted)
 			{
 				*node = InfoNodeType::makeInternal(
-					{
-						buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(negativeChildItems),
-						buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(positiveChildItems)
-					},
+					itemParts,
 					maxDimension);
 			}
 			else
 			{
 				*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
-			}*/
+			}
 		}
 	}
 
@@ -467,6 +457,9 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 
 	PH_ASSERT(out_parts);
 
+	// Partition `itemInfos` into N parts. This is done by a O(n*N/2) method where n is the number of items.
+	// Divide and conquer can achieve O(n*logN), but the gain should only be significant for N > 4. We keep
+	// this simpler approach for now.
 	auto sortedItemInfos = itemInfos;
 	for(std::size_t i = 0; i < N; ++i)
 	{
