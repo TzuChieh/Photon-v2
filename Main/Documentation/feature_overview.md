@@ -110,7 +110,9 @@ Photographs are probably the most common images that we encounter in real life. 
 
 ### Black-body Radiation
 
-[//TODO]: <> (wip)
+It is often convenient to be able to use temperature values for the spectral power distribution of lights. The [black-body radiation image](@ref ph::BlackBodyRadiationImage) converts a temperature value in Kelvin to the corresponding black-body radiatin. The resulting spectrum can also be adjusted to a user-specified energy level. The following image renders a series of lights with the spectral power distribution obtained from [Planck's law of black-body radiation](@ref ph::math::black_body_spectral_radiance_at), ranging from 1,000 K to 12,000 K:
+
+![Black-Body Radiation](Example/black_body_spd_lights.jpg "Using black-body radiation as the emission spectrum of lights.")
 
 ## Film
 

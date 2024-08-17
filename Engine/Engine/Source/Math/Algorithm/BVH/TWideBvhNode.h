@@ -43,7 +43,16 @@ public:
 	bool isLeaf(std::size_t childIdx) const;
 	bool isInternal(std::size_t childIdx) const;
 	std::size_t getChildOffset(std::size_t childIdx) const;
+
+	/*!
+	The most straightforward interpretation of the split axis is the axis that this child (`childIdx`)
+	and next child (`childIdx + 1`) is divided upon. However, some tree types may store the split axis
+	in a way such that the axis associated with `childIdx` is for `childIdx + n` and `childIdx + n + 1`,
+	where `n >= 0` (and `n` may be different for each child) for efficiency reasons.
+	@return The split axis associated with the specified child.
+	*/
 	std::size_t getSplitAxis(std::size_t childIdx) const;
+	
 	std::size_t getItemOffset(std::size_t childIdx) const;
 	std::size_t numItems(std::size_t childIdx) const;
 
@@ -71,16 +80,19 @@ private:
 	std::array<Index, N> m_offsets;
 
 	/*!
-	We divide `uint8` into two parts: 
-	[6 bits][2 bits]. The [2 bits] part has the following meaning
+	We divide `uint8` into two parts: [6 bits][2 bits].
+	
+	The [6 bits] part:
+	- For internal nodes, the upper [6 bits] is unused.
+	- For leaf nodes, `numItems` is stored in the upper [6 bits]. 
+	
+	The [2 bits] part:
+	- `X_AXIS_FLAG`: splitting axis is X
+	- `Y_AXIS_FLAG`: splitting axis is Y
+	- `Z_AXIS_FLAG`: splitting axis is Z
+	- `LEAF_FLAG`  : this node is leaf
 
-	`X_AXIS_FLAG`: splitting axis is X // indicates this node is internal
-	`Y_AXIS_FLAG`: splitting axis is Y //
-	`Z_AXIS_FLAG`: splitting axis is Z //
-	`LEAF_FLAG`  : this node is leaf
-
-	For internal nodes, the upper [6 bits] is unused.
-	For leaf nodes, `numItems` is stored in the upper [6 bits]. 
+	The axes stored can have multiple interpretations. See `getSplitAxis()` for more details.
 	*/
 	std::array<uint8, N> m_numItemsAndFlags;
 };

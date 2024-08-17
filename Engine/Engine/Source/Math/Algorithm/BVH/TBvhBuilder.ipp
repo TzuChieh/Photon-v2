@@ -12,14 +12,12 @@
 
 #include <algorithm>
 #include <cmath>
-#include <array>
 
 namespace ph::math
 {
 
 template<std::size_t N, typename Item, typename ItemToAABB>
 inline TBvhBuilder<N, Item, ItemToAABB>::TBvhBuilder(
-	const EBvhNodeSplitMethod splitMethod,
 	ItemToAABB itemToAABB,
 	BvhParams params)
 
@@ -27,7 +25,6 @@ inline TBvhBuilder<N, Item, ItemToAABB>::TBvhBuilder(
 	, m_infoNodes()
 	, m_params(params)
 	, m_itemToAABB(std::move(itemToAABB))
-	, m_splitMethod(splitMethod)
 {}
 
 template<std::size_t N, typename Item, typename ItemToAABB>
@@ -43,28 +40,29 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 		m_infoBuffer[i] = ItemInfoType(m_itemToAABB(items[i]), items[i]);
 	}
 
-	// To have stable node pointers, pre-allocate enough nodes beforehand. We can calculate maximum
-	// nodes required for a BVH from the number of items.
-	const std::size_t numLeaves = ceil_div(items.size(), m_params.getMaxNodeItems());
-	const std::size_t maxNodes  = 2 * numLeaves - 1;
+	// To have stable node pointers, pre-allocate enough nodes beforehand. We calculate the maximum
+	// nodes required for a BVH with maximum items in node = 1 and branch factor = 2. This is quite
+	// pessimistic for wide BVHs, and a tighter bound is left for future work.
+	const std::size_t maxLeaves = items.size();
+	const std::size_t maxNodes  = 2 * maxLeaves - 1;
 	m_infoNodes.reserve(maxNodes);
 
 	const InfoNodeType* rootNode = nullptr;
-	switch(m_splitMethod)
+	switch(m_params.getSplitMethod())
 	{
 	case EBvhNodeSplitMethod::EqualItems:
-		rootNode = buildBinaryBvhInfoNodeRecursive<EBvhNodeSplitMethod::EqualItems>(
+		rootNode = buildBvhInfoNodeRecursive<EBvhNodeSplitMethod::EqualItems>(
 			m_infoBuffer);
 		break;
 
-	case EBvhNodeSplitMethod::SAH_Buckets:
-		rootNode = buildBinaryBvhInfoNodeRecursive<EBvhNodeSplitMethod::SAH_Buckets>(
+	case EBvhNodeSplitMethod::SAH_Buckets_OneAxis:
+		rootNode = buildBvhInfoNodeRecursive<EBvhNodeSplitMethod::SAH_Buckets_OneAxis>(
 			m_infoBuffer);
 		break;
 
 	default:
 		PH_DEFAULT_LOG(Warning,
-			"at `BvhBuilder::buildInformativeBinaryBvh()`, unsupported BVH split method");
+			"BVH{} builder: unsupported BVH split method", N);
 		break;
 	}
 
@@ -74,6 +72,11 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 	// Verify the nodes by doing a full traversal
 	PH_ASSERT_EQ(m_infoNodes.size(), calcTotalNodes(rootNode));
 	PH_ASSERT_EQ(m_infoBuffer.size(), calcTotalItems(rootNode));
+
+	// As noted earlier, we appreciate a tighter bound
+	PH_DEFAULT_DEBUG_LOG(
+		"BVH{} builder: node buffer utilization = {}",
+		N, static_cast<float>(m_infoNodes.size()) / maxNodes);
 
 	return rootNode;
 }
@@ -105,12 +108,10 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 template<std::size_t N, typename Item, typename ItemToAABB>
 template<EBvhNodeSplitMethod SPLIT_METHOD>
 inline auto TBvhBuilder<N, Item, ItemToAABB>
-::buildBinaryBvhInfoNodeRecursive(
+::buildBvhInfoNodeRecursive(
 	const TSpan<ItemInfoType> itemInfos)
 -> const InfoNodeType*
 {
-	static_assert(N == 2, "Requires a binary BVH builder.");
-
 	// Creating a new node must not cause reallocation
 	PH_ASSERT_LT(m_infoNodes.size(), m_infoNodes.capacity());
 
@@ -123,6 +124,7 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 		nodeAABB = AABB3D::makeUnioned(nodeAABB, itemInfo.aabb);
 	}
 
+	// Makes no sense to split
 	if(itemInfos.size() <= 1)
 	{
 		*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
@@ -131,10 +133,11 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 		if(itemInfos.empty())
 		{
 			PH_DEFAULT_LOG(Warning,
-				"at `BvhBuilder::buildBinaryBvhNodeRecursive()`, leaf node without primitive detected");
+				"BVH{} builder: leaf node without primitive detected", N);
 		}
 #endif
 	}
+	// Try to split with `SPLIT_METHOD`
 	else
 	{
 		AABB3D centroidsAABB(itemInfos.front().aabbCentroid);
@@ -148,7 +151,7 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 		if(!extents.isNonNegative())
 		{
 			PH_DEFAULT_LOG(Warning,
-				"at `BvhBuilder::buildBinaryBvhNodeRecursive()`, negative AABB extent detected");
+				"BVH{} builder: negative AABB extent detected", N);
 			extents.absLocal();
 		}
 #endif
@@ -158,49 +161,45 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 		{
 			*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
 		}
-		else
+		else if constexpr(N == 2)
 		{
-			bool isSplitSuccess = false;
+			bool isSplitted = false;
 			TSpan<ItemInfoType> negativeChildItems;
 			TSpan<ItemInfoType> positiveChildItems;
-			switch(m_splitMethod)
+			if constexpr(SPLIT_METHOD == EBvhNodeSplitMethod::EqualItems)
 			{
-
-			case EBvhNodeSplitMethod::EqualItems:
-				isSplitSuccess = binarySplitWithEqualIntersectables(
+				isSplitted = binarySplitWithEqualItems(
 					itemInfos,
 					maxDimension,
 					&negativeChildItems,
 					&positiveChildItems);
-				break;
-
-			case EBvhNodeSplitMethod::SAH_Buckets:
-				isSplitSuccess = binarySplitWithSahBuckets(
+			}
+			else if constexpr(SPLIT_METHOD == EBvhNodeSplitMethod::SAH_Buckets_OneAxis)
+			{
+				isSplitted = binarySplitWithSahBuckets(
 					itemInfos,
 					maxDimension,
 					nodeAABB,
 					centroidsAABB,
 					&negativeChildItems,
 					&positiveChildItems);
-				break;
-
-			default:
-				PH_DEFAULT_DEBUG_LOG(
-					"at `BvhBuilder::buildBinaryBvhNodeRecursive()`, unsupported BVH split method detected");
-				isSplitSuccess = false;
-				break;
-
-			}// end switch split method
-
-			if(isSplitSuccess && (negativeChildItems.empty() || positiveChildItems.empty()))
+			}
+			else
 			{
 				PH_DEFAULT_DEBUG_LOG(
-					"at `BvhBuilder::buildBinaryBvhNodeRecursive()`, bad split detected: "
-					"#neg-child={}, #pos-child={}", negativeChildItems.size(), positiveChildItems.size());
-				isSplitSuccess = false;
+					"BVH{} builder: unsupported BVH split method detected", N);
+				isSplitted = false;
+			}// end split method
+
+			if(isSplitted && (negativeChildItems.empty() || positiveChildItems.empty()))
+			{
+				PH_DEFAULT_DEBUG_LOG(
+					"BVH{} builder: bad split detected: #neg-child={}, #pos-child={}",
+					N, negativeChildItems.size(), positiveChildItems.size());
+				isSplitted = false;
 			}
 
-			if(isSplitSuccess)
+			if(isSplitted)
 			{
 				*node = InfoNodeType::makeInternal(
 					{
@@ -213,6 +212,47 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 			{
 				*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
 			}
+		}
+		else
+		{
+			bool isSplitted = false;
+			std::array<TSpan<ItemInfoType>, N> itemParts;
+			if constexpr(SPLIT_METHOD == EBvhNodeSplitMethod::EqualItems)
+			{
+				isSplitted = splitWithEqualItems(
+					itemInfos,
+					maxDimension,
+					&itemParts);
+			}
+			else
+			{
+				PH_DEFAULT_DEBUG_LOG(
+					"BVH{} builder: unsupported BVH split method detected", N);
+				isSplitted = false;
+			}// end split method
+
+			// TODO
+			/*if(isSplitted && (negativeChildItems.empty() || positiveChildItems.empty()))
+			{
+				PH_DEFAULT_DEBUG_LOG(
+					"BVH{} builder: bad split detected: #neg-child={}, #pos-child={}",
+					N, negativeChildItems.size(), positiveChildItems.size());
+				isSplitted = false;
+			}
+
+			if(isSplitted)
+			{
+				*node = InfoNodeType::makeInternal(
+					{
+						buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(negativeChildItems),
+						buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(positiveChildItems)
+					},
+					maxDimension);
+			}
+			else
+			{
+				*node = InfoNodeType::makeLeaf(itemInfos, nodeAABB);
+			}*/
 		}
 	}
 
@@ -276,7 +316,7 @@ inline std::size_t TBvhBuilder<N, Item, ItemToAABB>
 
 template<std::size_t N, typename Item, typename ItemToAABB>
 inline bool TBvhBuilder<N, Item, ItemToAABB>
-::binarySplitWithEqualIntersectables(
+::binarySplitWithEqualItems(
 	const TSpan<ItemInfoType> itemInfos,
 	const std::size_t splitDimension,
 	TSpan<ItemInfoType>* const out_negativePart,
@@ -385,11 +425,9 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	const real minSplitCost = splitCosts[minCostIndex];
 	const real noSplitCost  = m_params.getInteractCost() * static_cast<real>(itemInfos.size());
 
-	const std::size_t maxIntersectables = 256;
-
 	PH_ASSERT(out_negativePart);
 	PH_ASSERT(out_positivePart);
-	if(minSplitCost < noSplitCost || itemInfos.size() > maxIntersectables)
+	if(minSplitCost < noSplitCost || itemInfos.size() > m_params.getMaxNodeItems())
 	{
 		auto sortedItemInfos = itemInfos;
 		auto posPartBegin = std::partition(
@@ -411,6 +449,46 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	{
 		return false;
 	}
+}
+
+template<std::size_t N, typename Item, typename ItemToAABB>
+inline bool TBvhBuilder<N, Item, ItemToAABB>
+::splitWithEqualItems(
+	TSpan<ItemInfoType> itemInfos,
+	const std::size_t splitDimension,
+	std::array<TSpan<ItemInfoType>, N>* const out_parts)
+{
+	if(itemInfos.size() < N)
+	{
+		PH_DEFAULT_LOG(Warning,
+			"at `BvhBuilder::splitWithEqualItems()`, number of items < {}, cannot split", N);
+		return false;
+	}
+
+	PH_ASSERT(out_parts);
+
+	auto sortedItemInfos = itemInfos;
+	for(std::size_t i = 0; i < N; ++i)
+	{
+		const auto [beginIdx, endIdx] = ith_evenly_divided_range(i, itemInfos.size(), N);
+		PH_ASSERT_LT(beginIdx, endIdx);
+
+		// No need to rearrange for the last part
+		if(i < N - 1)
+		{
+			std::nth_element(
+				sortedItemInfos.begin() + beginIdx,
+				sortedItemInfos.begin() + endIdx - 1,// nth, the last element in this interval
+				sortedItemInfos.end(),
+				[splitDimension](const ItemInfoType& a, const ItemInfoType& b)
+				{
+					return a.aabbCentroid[splitDimension] < b.aabbCentroid[splitDimension];
+				});
+		}
+
+		(*out_parts)[i] = sortedItemInfos.subspan(beginIdx, endIdx - beginIdx);
+	}
+	return true;
 }
 
 }// end namespace ph::math

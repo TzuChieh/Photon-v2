@@ -70,10 +70,9 @@ inline void TClassicBvhIntersector<Index>
 			return item->calcAABB();
 		};
 
-	math::TBvhBuilder<2, const Intersectable*, decltype(itemToAABB)> builder(
-		math::EBvhNodeSplitMethod::SAH_Buckets);
-	auto const rootInfoNode = builder.buildInformativeBvh(intersectables);
+	math::TBvhBuilder<2, const Intersectable*, decltype(itemToAABB)> builder{};
 
+	auto const rootInfoNode = builder.buildInformativeBvh(intersectables);
 	m_bvh.build(rootInfoNode, builder.totalInfoNodes(), builder.totalItems());
 
 	// Check the constructed linear BVH and print some information

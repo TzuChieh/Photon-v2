@@ -12,17 +12,10 @@
 #include <type_traits>
 #include <concepts>
 #include <utility>
+#include <array>
 
 namespace ph::math
 {
-
-enum class EBvhNodeSplitMethod
-{
-	EqualItems,
-	Midpoint,
-	SAH_Buckets,
-	SAH_EdgeSort
-};
 
 template<std::size_t N, typename Item>
 class TBvhInfoNode;
@@ -30,6 +23,7 @@ class TBvhInfoNode;
 template<std::size_t N, typename Item, typename ItemToAABB>
 class TBvhBuilder final
 {
+	static_assert(N > 1);
 	static_assert(std::is_invocable_r_v<AABB3D, ItemToAABB, Item>);
 
 public:
@@ -37,21 +31,17 @@ public:
 	using ItemInfoType = TBvhItemInfo<Item>;
 
 	static std::size_t calcTotalNodes(const InfoNodeType* node);
-
 	static std::size_t calcTotalItems(const InfoNodeType* node);
-
 	static std::size_t calcMaxDepth(const InfoNodeType* node);
 
 public:
 	explicit TBvhBuilder(
-		EBvhNodeSplitMethod splitMethod,
-		BvhParams params = BvhParams())
+		BvhParams params = BvhParams{})
 		requires std::default_initializable<ItemToAABB>
-		: TBvhBuilder(splitMethod, ItemToAABB{}, params)
+		: TBvhBuilder(ItemToAABB{}, params)
 	{}
 
-	TBvhBuilder(
-		EBvhNodeSplitMethod splitMethod,
+	explicit TBvhBuilder(
 		ItemToAABB itemToAABB,
 		BvhParams params = BvhParams{});
 
@@ -93,11 +83,11 @@ private:
 	Build and store BVH nodes in depth-first order.
 	*/
 	template<EBvhNodeSplitMethod SPLIT_METHOD>
-	auto buildBinaryBvhInfoNodeRecursive(
+	auto buildBvhInfoNodeRecursive(
 		TSpan<ItemInfoType> itemInfos)
 	-> const InfoNodeType*;
 
-	bool binarySplitWithEqualIntersectables(
+	bool binarySplitWithEqualItems(
 		TSpan<ItemInfoType> itemInfos,
 		std::size_t splitDimension,
 		TSpan<ItemInfoType>* out_negativePart,
@@ -111,11 +101,15 @@ private:
 		TSpan<ItemInfoType>* out_negativePart,
 		TSpan<ItemInfoType>* out_positivePart);
 
+	bool splitWithEqualItems(
+		TSpan<ItemInfoType> itemInfos,
+		std::size_t splitDimension,
+		std::array<TSpan<ItemInfoType>, N>* out_parts);
+
 	std::vector<ItemInfoType> m_infoBuffer;
 	std::vector<InfoNodeType> m_infoNodes;
 	BvhParams m_params;
 	ItemToAABB m_itemToAABB;
-	EBvhNodeSplitMethod m_splitMethod;
 };
 
 }// end namespace ph::math
