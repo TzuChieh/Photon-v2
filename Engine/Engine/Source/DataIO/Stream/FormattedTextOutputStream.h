@@ -42,7 +42,7 @@ public:
 	using StdOutputStream::writeString;
 
 	/*! @brief Write formatted string to the stream.
-	@param formatStr The format string. Accepts the same syntax as the standard formatting library.
+	@param strFormat The format string. Accepts the same syntax as the standard formatting library.
 	@param args The arguments to be formatted.
 	*/
 	template<typename... Args>

@@ -17,7 +17,8 @@ namespace ph::math
 {
 
 template<std::size_t N, typename Item, typename ItemToAABB>
-inline TBvhBuilder<N, Item, ItemToAABB>::TBvhBuilder(
+inline TBvhBuilder<N, Item, ItemToAABB>
+::TBvhBuilder(
 	ItemToAABB itemToAABB,
 	BvhParams params)
 
@@ -48,7 +49,7 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 	m_infoNodes.reserve(maxNodes);
 
 	const InfoNodeType* rootNode = nullptr;
-	switch(m_params.getSplitMethod())
+	switch(m_params.splitMethod)
 	{
 	case EBvhNodeSplitMethod::EqualItems:
 		rootNode = buildBvhInfoNodeRecursive<EBvhNodeSplitMethod::EqualItems>(
@@ -133,7 +134,7 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 		if(itemInfos.empty())
 		{
 			PH_DEFAULT_LOG(Warning,
-				"BVH{} builder: leaf node without primitive detected", N);
+				"BVH{} builder: leaf node without item detected", N);
 		}
 #endif
 	}
@@ -204,8 +205,8 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 			{
 				*node = InfoNodeType::makeInternal(
 					{
-						buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(negativeChildItems),
-						buildBinaryBvhInfoNodeRecursive<SPLIT_METHOD>(positiveChildItems)
+						buildBvhInfoNodeRecursive<SPLIT_METHOD>(negativeChildItems),
+						buildBvhInfoNodeRecursive<SPLIT_METHOD>(positiveChildItems)
 					},
 					maxDimension);
 			}
@@ -235,8 +236,17 @@ inline auto TBvhBuilder<N, Item, ItemToAABB>
 
 			if(isSplitted)
 			{
+				std::array<const InfoNodeType*, N> children{};
+				for(std::size_t ci = 0; ci < N; ++ci)
+				{
+					if(!itemParts[ci].empty())
+					{
+						children[ci] = buildBvhInfoNodeRecursive<SPLIT_METHOD>(itemParts[ci]);
+					}
+				}
+
 				*node = InfoNodeType::makeInternal(
-					itemParts,
+					children,
 					maxDimension);
 			}
 			else
@@ -405,19 +415,19 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 			posPartAABB.getSurfaceArea() / itemsAABB.getSurfaceArea(), 0.0_r, 1.0_r);
 
 		splitCosts[i] =
-			m_params.getTraversalCost() + 
-			static_cast<real>(numNegPartItems) * m_params.getInteractCost() * probTestingNegPart +
-			static_cast<real>(numPosPartItems) * m_params.getInteractCost() * probTestingPosPart;
+			m_params.traversalCost + 
+			static_cast<real>(numNegPartItems) * m_params.interactCost * probTestingNegPart +
+			static_cast<real>(numPosPartItems) * m_params.interactCost * probTestingPosPart;
 	}
 
 	const auto minCostIndex = static_cast<std::size_t>(
 		std::min_element(splitCosts.begin(), splitCosts.end()) - splitCosts.begin());
 	const real minSplitCost = splitCosts[minCostIndex];
-	const real noSplitCost  = m_params.getInteractCost() * static_cast<real>(itemInfos.size());
+	const real noSplitCost  = m_params.interactCost * static_cast<real>(itemInfos.size());
 
 	PH_ASSERT(out_negativePart);
 	PH_ASSERT(out_positivePart);
-	if(minSplitCost < noSplitCost || itemInfos.size() > m_params.getMaxNodeItems())
+	if(minSplitCost < noSplitCost || itemInfos.size() > m_params.maxNodeItems)
 	{
 		auto sortedItemInfos = itemInfos;
 		auto posPartBegin = std::partition(
@@ -448,13 +458,6 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	const std::size_t splitDimension,
 	std::array<TSpan<ItemInfoType>, N>* const out_parts)
 {
-	if(itemInfos.size() < N)
-	{
-		PH_DEFAULT_LOG(Warning,
-			"at `BvhBuilder::splitWithEqualItems()`, number of items < {}, cannot split", N);
-		return false;
-	}
-
 	PH_ASSERT(out_parts);
 
 	// Partition `itemInfos` into N parts. This is done by a O(n*N/2) method where n is the number of items.
@@ -464,10 +467,9 @@ inline bool TBvhBuilder<N, Item, ItemToAABB>
 	for(std::size_t i = 0; i < N; ++i)
 	{
 		const auto [beginIdx, endIdx] = ith_evenly_divided_range(i, itemInfos.size(), N);
-		PH_ASSERT_LT(beginIdx, endIdx);
 
-		// No need to rearrange for the last part
-		if(i < N - 1)
+		// No need to rearrange for empty range and the last part
+		if(beginIdx < endIdx && i < N - 1)
 		{
 			std::nth_element(
 				sortedItemInfos.begin() + beginIdx,

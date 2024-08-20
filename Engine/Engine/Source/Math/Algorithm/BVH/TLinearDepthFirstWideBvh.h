@@ -38,6 +38,8 @@ public:
 
 	bool isEmpty() const;
 	const NodeType& getRoot() const;
+	std::size_t numNodes() const;
+	std::size_t numItems() const;
 
 private:
 	/*! Directly map informative nodes to wide nodes if the branch factor is the same.
@@ -59,4 +61,4 @@ private:
 
 }// end namespace ph::math
 
-#include "Math/Algorithm/BVH/TLinearDepthFirstBinaryBvh.ipp"
+#include "Math/Algorithm/BVH/TLinearDepthFirstWideBvh.ipp"

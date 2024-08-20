@@ -4,9 +4,11 @@
 #include "World/Foundation/CookingContext.h"
 #include "EngineEnv/CoreCookingContext.h"
 #include "EngineEnv/CoreCookedUnit.h"
+#include "EngineEnv/sdl_accelerator_type.h"
 #include "Actor/Actor.h"
 #include "Core/Intersection/BruteForceIntersector.h"
 #include "Core/Intersection/BVH/TClassicBvhIntersector.h"
+#include "Core/Intersection/BVH/TGeneralBvhIntersector.h"
 #include "Core/Intersection/Intersector/TIndexedKdtreeIntersector.h"
 #include "Core/Intersection/Kdtree/KdtreeIntersector.h"
 #include "Core/Emitter/Sampler/ESUniformRandom.h"
@@ -14,6 +16,7 @@
 #include "Actor/APhantomModel.h"
 #include "World/Foundation/CookOrder.h"
 #include "World/Foundation/PreCookReport.h"
+#include "SDL/sdl_helpers.h"
 
 #include <Common/primitive_type.h>
 #include <Common/stats.h>
@@ -36,7 +39,7 @@ PH_DEFINE_INTERNAL_TIMER_STAT(UpdateLightSamplers, VisualWorld);
 VisualWorld::VisualWorld()
 	: m_cookedResources(nullptr)
 	, m_cache(nullptr)
-	, m_intersector()
+	, m_tlas(nullptr)
 	//m_emitterSampler(std::make_shared<ESUniformRandom>()),
 	, m_emitterSampler(std::make_unique<ESPowerFavoring>())
 	, m_scene()
@@ -168,7 +171,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 		PH_SCOPED_TIMER(UpdateAccelerators);
 
 		createTopLevelAccelerator(coreCtx.getTopLevelAcceleratorType());
-		m_intersector->update(visibleIntersectables);
+		m_tlas->update(visibleIntersectables);
 	}
 
 	PH_LOG(VisualWorld, Note, "updating light sampler...");
@@ -188,7 +191,7 @@ void VisualWorld::cook(const SceneDescription& rawScene, const CoreCookingContex
 	// Clean up cache as it is not needed afterwards
 	m_cache = nullptr;
 
-	m_scene = std::make_unique<Scene>(m_intersector.get(), m_emitterSampler.get());
+	m_scene = std::make_unique<Scene>(m_tlas.get(), m_emitterSampler.get());
 	m_scene->setBackgroundPrimitive(m_backgroundPrimitive);
 }
 
@@ -233,39 +236,48 @@ void VisualWorld::cookActors(
 	}
 }
 
-void VisualWorld::createTopLevelAccelerator(const EAccelerator acceleratorType)
+void VisualWorld::createTopLevelAccelerator(EAccelerator acceleratorType)
 {
-	std::string name;
+	if(acceleratorType == EAccelerator::Unspecified)
+	{
+		PH_DEBUG_LOG(VisualWorld,
+			"TLAS unspecified, using BVH as default");
+
+		acceleratorType = EAccelerator::BVH;
+	}
+
 	switch(acceleratorType)
 	{
 	case EAccelerator::BruteForce:
-		m_intersector = std::make_unique<BruteForceIntersector>();
-		name = "Brute-Force";
+		m_tlas = std::make_unique<BruteForceIntersector>();
 		break;
 
 	case EAccelerator::BVH:
-		m_intersector = std::make_unique<TClassicBvhIntersector<std::size_t>>();
-		name = "BVH";
+		m_tlas = std::make_unique<TClassicBvhIntersector<std::size_t>>();
+		break;
+
+	case EAccelerator::BVH4:
+		m_tlas = std::make_unique<TGeneralBvhIntersector<4, std::size_t>>();
 		break;
 
 	case EAccelerator::Kdtree:
-		m_intersector = std::make_unique<KdtreeIntersector>();
-		name = "kD-Tree";
+		m_tlas = std::make_unique<KdtreeIntersector>();
 		break;
 
 	// FIXME: need to ensure sufficient max value
 	case EAccelerator::IndexedKdtree:
-		m_intersector = std::make_unique<TIndexedKdtreeIntersector<std::size_t>>();
-		name = "Indexed kD-Tree";
+		m_tlas = std::make_unique<TIndexedKdtreeIntersector<std::size_t>>();
 		break;
 
 	default:
-		m_intersector = std::make_unique<TClassicBvhIntersector<std::size_t>>();
-		name = "BVH";
+		PH_ASSERT_UNREACHABLE_SECTION();
+		m_tlas = nullptr;
 		break;
 	}
 
-	PH_LOG(VisualWorld, Note, "top level accelerator type: {}", name);
+	PH_LOG(VisualWorld, Note,
+		"top-level acceleration structure (TLAS): {}",
+		sdl::name_to_title_case(TSdlEnum<EAccelerator>{}[acceleratorType]));
 }
 
 math::AABB3D VisualWorld::calcElementBound(TSpanView<TransientVisualElement> elements)

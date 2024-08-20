@@ -84,7 +84,7 @@ For thin lens camera, as its name suggests, the lens system in this camera is as
 
 [//TODO]: <> (wip)
 
-## Image
+## Image {#image}
 
 [Image](@ref ph::Image) is a data storing medium that can bring finer details onto almost every aspects of the scene. [Textures](@ref ph::TTexture) generated from an image can be categorized into *numeric* and *color*. Data sampled from a color texture will automatically adapt to the current spectral representation used by the renderer, while numeric textures will generally pass the data through without any changes.
 
@@ -92,7 +92,7 @@ For thin lens camera, as its name suggests, the lens system in this camera is as
 
 One of the most frequently used image is [constant](@ref ph::ConstantImage). As suggested by its name, its value does not vary across the full image domain. A constant image takes an array of values as input and will not perform any transformation if color space information is not specified. The number of values in the input array also matters. For example, a single element will be interpreted as a constant spectrum when generating color textures, while three elements will be treated as a tristimulus color when spectral upsampling is performed. When conditions are met, the input array can also represent wavelength-value data points. Due to its versatility, its behavior is slightly complex, and the image implementation will try to detect and report potential issues to logs.
 
-### Raster Image
+### Raster Image {#raster_image}
 
 Photographs are probably the most common images that we encounter in real life. Most photographs nowadays are converted to a grid of pixel values before being displayed on a monitor. The [raster image](@ref ph::RasterFileImage) works similarly by reading pictures stored on disk into memory, converting them to pixel-based textures, and then mapping them to the scene to add details. We support many [LDR and HDR formats](@ref ph::EPictureFile) through this image interface.
 
@@ -103,9 +103,18 @@ Photographs are probably the most common images that we encounter in real life. 
 
 ### Procedural Image
 
-[//TODO]: <> (checkerboard)
-[//TODO]: <> (gradient)
-[//TODO]: <> (math)
+Our image implementations also support generating some interesting patterns or performing some mathematical operations on the fly. Procedural images are useful for producing a wide variety of effects with unlimited resolution and are generally more memory-efficient than [raster images](@ref raster_images).
+
+#### Checkerboard Pattern
+
+[//TODO]: <> (wip)
+
+#### Smooth Gradient
+
+[//TODO]: <> (wip)
+
+#### Mathematical Operations
+
 [//TODO]: <> (wip)
 
 ### Black-body Radiation
@@ -212,6 +221,10 @@ Layered material models have become prevalent in the graphics community for quit
 
 ![Belcour Mug Parameters](Example/beclour_mug_param.jpg "Note that the mug material (the left image above) uses the same parameters taken from the teaser image of Belcour's paper."){html: width=30%}
 
+### Thin Dielectric
+
+[//TODO]: <> (wip)
+
 ## Geometry {#geometry}
 
 To represent a ball in the scene, you can use a [sphere geometry](@ref ph::GSphere); for a piece of paper on a table, a [rectangle geometry](@ref ph::GRectangle) can model it pretty well. Geometries are the core components of a scene, providing the structural framework for all other elements like materials, lights and physical motions. In the following sections, we will explore some common types of geometries available in Photon, giving you a rough idea of how these foundational elements are constructed and used in rendering.
@@ -254,7 +267,9 @@ Almost all shapes are built from triangle meshes for a typical scene. Games, mod
 
 ### Masking
 
-[//TODO]: <> (wip)
+While we offer flexible geometry representations such as [triangle mesh](@ref ph::GTriangleMesh) for modeling arbitrarily shaped objects, sometimes it is not worthwhile to explicitly store complex shapes using 3-D coordinates. Alpha masking is a common way to carve out intricate shapes from a simpler base geometry, and is a technique widely used on foliage and hair. We support masked geometries through [AMaskedModel](@ref ph::AMaskedModel), which can be applied to any [AModel](@ref ph::AModel) with proper surface parameterization. This is one of many techniques that enable [image](@ref image)-driven geometry.
+
+![Masked Geometry](Example/masked_fern_leaves.jpg "Fern leaves modeled with alpha masking and thin dielectric material.")
 
 ### Advanced Shapes
 

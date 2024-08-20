@@ -46,8 +46,15 @@ public:
 		BvhParams params = BvhParams{});
 
 	/*! @brief Build a BVH that contains additional information useful for many purposes.
-	This method will clear any previous build data.
+	The built BVH has the following properties:
+	- Maximum items: The maximum number of items a leaf node can contain. This value can be
+	set by `BvhParams`.
+	- Branch factor: The maximum number of children each node can have is `N`.
+	- Split axis: The axis of the offset between children. The split axis associated with child `i`
+	is for the axis of offset between child `i` and child `i + 1`. 
+	- Split method: How the split axis and its offset value is chosen. This can be set by `BvhParams`.
 	@return The root node of the built BVH. Memory of the BVH is managed by this builder.
+	@note This method will clear any previous build data.
 	*/
 	auto buildInformativeBvh(TSpanView<Item> items)
 	-> const InfoNodeType*;

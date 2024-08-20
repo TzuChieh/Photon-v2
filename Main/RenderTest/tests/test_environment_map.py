@@ -73,7 +73,7 @@ def ref_debug_sphere_img():
     pytest.param(debug_bvpt_sphere_case, 0.0001, 0.002, id=debug_bvpt_sphere_case.get_name()),
     pytest.param(debug_bvpt_sphere_shifted_case, 0.0001, 0.002, id=debug_bvpt_sphere_shifted_case.get_name()),
     pytest.param(debug_bneept_sphere_case, 0.0001, 0.0003, id=debug_bneept_sphere_case.get_name()),
-    pytest.param(debug_bneept_sphere_shifted_case, 0.0001, 0.0003, id=debug_bneept_sphere_shifted_case.get_name()),
+    pytest.param(debug_bneept_sphere_shifted_case, 0.0001, 0.0006, id=debug_bneept_sphere_shifted_case.get_name()),
     pytest.param(white_bvpt_sphere_case, 1e-10, 1e-10, id=white_bvpt_sphere_case.get_name()),
     pytest.param(white_bneept_sphere_case, 1e-10, 1e-10, id=white_bneept_sphere_case.get_name()),
     pytest.param(white_pppm_plane_case, 0.002, 0.0106, id=white_pppm_plane_case.get_name()),

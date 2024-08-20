@@ -10,8 +10,8 @@ template<std::size_t N, typename Item, typename Index>
 inline TWideBvhNode<N, Item, Index>
 ::TWideBvhNode()
 	: m_aabbs(make_array<AABB3D, 4>(AABB3D::makeEmpty()))
-	, m_offsets(make_array<Index, 4>(static_cast<decltype(m_offsets[0])>(-1)))
-	, m_numItemsAndFlags(LEAF_FLAG)// leaf with 0 item
+	, m_offsets(make_array<Index, 4>(static_cast<Index>(-1)))
+	, m_numItemsAndFlags(make_array<uint8, 4>(LEAF_FLAG))// leaf with 0 item
 {}
 
 template<std::size_t N, typename Item, typename Index>
@@ -97,7 +97,7 @@ inline auto TWideBvhNode<N, Item, Index>
 	PH_ASSERT_LT(childIdx, m_aabbs.size());
 
 	m_aabbs[childIdx] = childAABB;
-	m_offsets[childIdx] = lossless_cast<decltype(m_offsets[childIdx])>(childOffset);
+	m_offsets[childIdx] = lossless_cast<Index>(childOffset);
 	m_numItemsAndFlags[childIdx] = static_cast<uint8>(splitAxis);
 
 	return *this;
@@ -115,7 +115,7 @@ inline auto TWideBvhNode<N, Item, Index>
 	PH_ASSERT_LE(numItems, MAX_NODE_ITEMS);
 
 	m_aabbs[childIdx] = childAABB;
-	m_offsets[childIdx] = lossless_cast<decltype(m_offsets[childIdx])>(itemOffset);
+	m_offsets[childIdx] = lossless_cast<Index>(itemOffset);
 	m_numItemsAndFlags[childIdx] = static_cast<uint8>((numItems << NUM_FLAG_BITS) | LEAF_FLAG);
 
 	return *this;

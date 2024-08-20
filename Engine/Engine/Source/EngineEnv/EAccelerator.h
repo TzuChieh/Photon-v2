@@ -9,6 +9,7 @@ enum class EAccelerator
 
 	BruteForce,
 	BVH,
+	BVH4,
 	Kdtree,
 	IndexedKdtree
 };

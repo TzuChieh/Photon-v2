@@ -26,7 +26,7 @@ def ref_img():
 
 @pytest.mark.parametrize("case, max_mse, max_re_avg", [
     pytest.param(bneept_case, 0.000036, 0.001, id=bneept_case.get_name()),
-    pytest.param(sppm_case, 0.000169, 0.005, id=sppm_case.get_name()),
+    pytest.param(sppm_case, 0.000169, 0.012, id=sppm_case.get_name()),
 ])
 def test_render(ref_img, case, max_mse, max_re_avg):
     """

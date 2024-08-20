@@ -40,7 +40,11 @@ public:
 	// HACK
 	void setReceiverPosition(const math::Vector3R& receiverPos);
 
-	const Intersector* getIntersector() const;
+	/*!
+	@return The top-level acceleration structure of this world.
+	*/
+	const Intersector* getTLAS() const;
+
 	const EmitterSampler* getEmitterSampler() const;
 	const Scene* getScene() const;
 	CookedResourceCollection* getCookedResources() const;
@@ -71,7 +75,7 @@ private:
 	math::AABB3D m_rootActorsBound;
 	math::AABB3D m_leafActorsBound;
 
-	std::unique_ptr<Intersector>    m_intersector;
+	std::unique_ptr<Intersector>    m_tlas;
 	std::unique_ptr<EmitterSampler> m_emitterSampler;
 	std::unique_ptr<Scene>          m_scene;
 	const Primitive* m_backgroundPrimitive;
@@ -93,9 +97,9 @@ inline void VisualWorld::setReceiverPosition(const math::Vector3R& receiverPos)
 	m_receiverPos = receiverPos;
 }
 
-inline const Intersector* VisualWorld::getIntersector() const
+inline const Intersector* VisualWorld::getTLAS() const
 {
-	return m_intersector.get();
+	return m_tlas.get();
 }
 
 inline const EmitterSampler* VisualWorld::getEmitterSampler() const

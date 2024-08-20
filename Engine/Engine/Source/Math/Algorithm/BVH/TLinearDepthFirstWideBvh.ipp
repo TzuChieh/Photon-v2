@@ -76,8 +76,8 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 		return false;
 	}
 
-	PH_ASSERT(nodes);
-	PH_ASSERT(items);
+	PH_ASSERT(m_nodes);
+	PH_ASSERT(m_items);
 
 	// Traversal states
 	TArrayStack<Index, TRAVERSAL_STACK_SIZE> todoNodes;
@@ -95,62 +95,45 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	// Traverse nodes
 	while(true)
 	{
-		PH_ASSERT_LT(currentNodeIndex, numNodes);
-		const NodeType& node = nodes[currentNodeIndex];
+		PH_ASSERT_LT(currentNodeIndex, m_numNodes);
+		const NodeType& node = m_nodes[currentNodeIndex];
 
-		const auto [aabbMinT, aabbMaxT] = node.getAABB().isIntersectingVolume<IS_ROBUST>(
-			longestSegment, rcpSegmentDir);
-		if(aabbMinT <= aabbMaxT)
+		for(std::size_t ci = 0; ci < N; ++ci)
 		{
-			if(node.isLeaf())
+			const auto [aabbMinT, aabbMaxT] = node.getAABB(ci).isIntersectingVolume<IS_ROBUST>(
+				longestSegment, rcpSegmentDir);
+			if(aabbMinT <= aabbMaxT)
 			{
-				for(std::size_t i = 0; i < node.numItems(); ++i)
+				if(node.isLeaf(ci))
 				{
-					const Item& item = items[node.getItemOffset() + i];
-
-					const auto optHitT = intersectionTester(item, longestSegment);
-					if(optHitT)
+					const auto numItems = node.numItems(ci);
+					for(std::size_t i = 0; i < numItems; ++i)
 					{
-						longestSegment.setMaxT(*optHitT);
-						hasHit = true;
+						const Item& item = m_items[node.getItemOffset(ci) + i];
+
+						const auto optHitT = intersectionTester(item, longestSegment);
+						if(optHitT)
+						{
+							longestSegment.setMaxT(*optHitT);
+							hasHit = true;
+						}
 					}
 				}
-
-				if(todoNodes.isEmpty())
-				{
-					break;
-				}
 				else
 				{
-					currentNodeIndex = todoNodes.top();
-					todoNodes.pop();
-				}
-			}
-			else
-			{
-				if(isNegDir[node.getSplitAxis()])
-				{
-					todoNodes.push(currentNodeIndex + 1);
-					currentNodeIndex = node.getChildOffset();
-				}
-				else
-				{
-					todoNodes.push(node.getChildOffset());
-					currentNodeIndex = currentNodeIndex + 1;
+					todoNodes.push(node.getChildOffset(ci));
 				}
 			}
 		}
+
+		if(todoNodes.isEmpty())
+		{
+			break;
+		}
 		else
 		{
-			if(todoNodes.isEmpty())
-			{
-				break;
-			}
-			else
-			{
-				currentNodeIndex = todoNodes.top();
-				todoNodes.pop();
-			}
+			currentNodeIndex = todoNodes.top();
+			todoNodes.pop();
 		}
 	}
 	
@@ -161,7 +144,7 @@ template<std::size_t N, typename Item, typename IndexType>
 inline bool TLinearDepthFirstWideBvh<N, Item, IndexType>
 ::isEmpty() const
 {
-	return numNodes == 0;
+	return m_numNodes == 0;
 }
 
 template<std::size_t N, typename Item, typename IndexType>
@@ -169,9 +152,25 @@ inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
 ::getRoot() const
 -> const NodeType&
 {
-	PH_ASSERT(nodes);
-	PH_ASSERT_GT(numNodes, 0);
-	return nodes[0];
+	PH_ASSERT(m_nodes);
+	PH_ASSERT_GT(m_numNodes, 0);
+	return m_nodes[0];
+}
+
+template<std::size_t N, typename Item, typename IndexType>
+inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
+::numNodes() const
+-> std::size_t
+{
+	return m_numNodes;
+}
+
+template<std::size_t N, typename Item, typename IndexType>
+inline auto TLinearDepthFirstWideBvh<N, Item, IndexType>
+::numItems() const
+-> std::size_t
+{
+	return m_numItems;
 }
 
 template<std::size_t N, typename Item, typename IndexType>
@@ -214,13 +213,13 @@ inline void TLinearDepthFirstWideBvh<N, Item, IndexType>
 		else if(childInfoNode->isInternal())
 		{
 			const auto childNodeIndex = m_numNodes;
-			convertNodesRecursive(childInfoNode);
+			convertChildNodesRecursive(childInfoNode);
 
 			node->setInternal(
 				ci,
 				childInfoNode->getAABB(),
 				childNodeIndex,
-				childInfoNode->getSplitAxis());
+				childInfoNode->getSplitAxis(ci));
 		}
 		else
 		{

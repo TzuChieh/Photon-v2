@@ -201,7 +201,7 @@ inline void TLinearDepthFirstBinaryBvh<Item, IndexType>
 		*node = NodeType::makeInternal(
 			infoNode->getAABB(),
 			secondChildOffset,
-			infoNode->getSplitAxis());
+			infoNode->getSingleSplitAxis());
 	}
 	else
 	{

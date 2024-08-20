@@ -1,18 +1,22 @@
 #pragma once
 
 #include "Core/Intersection/Intersector.h"
-#include "Math/Algorithm/BVH/TLinearDepthFirstBinaryBvh.h"
+#include "Math/Algorithm/BVH/TLinearDepthFirstWideBvh.h"
+#include "Math/Geometry/TAABB3D.h"
 
 #include <Common/primitive_type.h>
+
+#include <cstddef>
 
 namespace ph
 {
 
-/*! @brief Classic binary BVH acceleration structure.
+/*! @brief General BVH acceleration structure supporting arbitrary branch factor.
+@tparam N Branch factor of the BVH.
 @tparam Index Type for buffer offsets. Types that can store a larger integer supports more intersectables.
 */
-template<typename Index>
-class TClassicBvhIntersector : public Intersector
+template<std::size_t N, typename Index>
+class TGeneralBvhIntersector : public Intersector
 {
 public:
 	void update(TSpanView<const Intersectable*> intersectables) override;
@@ -22,9 +26,10 @@ public:
 	void rebuildWithIntersectables(TSpanView<const Intersectable*> intersectables);
 
 private:
-	math::TLinearDepthFirstBinaryBvh<const Intersectable*, Index> m_bvh;
+	math::TLinearDepthFirstWideBvh<N, const Intersectable*, Index> m_bvh;
+	math::AABB3D m_rootAABB = math::AABB3D::makeEmpty();
 };
 
 }// end namespace ph
 
-#include "Core/Intersection/BVH/TClassicBvhIntersector.ipp"
+#include "Core/Intersection/BVH/TGeneralBvhIntersector.ipp"
