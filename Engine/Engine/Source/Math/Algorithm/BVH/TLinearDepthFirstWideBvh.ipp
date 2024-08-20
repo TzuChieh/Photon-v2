@@ -9,6 +9,7 @@
 #include <Common/assertion.h>
 
 #include <type_traits>
+#include <array>
 
 namespace ph::math
 {
@@ -86,10 +87,6 @@ inline bool TLinearDepthFirstWideBvh<N, Item, Index>
 	bool hasHit = false;
 
 	// Precompute common values
-	const bool isNegDir[3] = {
-		segment.getDir().x() < 0,
-		segment.getDir().y() < 0,
-		segment.getDir().z() < 0};
 	const auto rcpSegmentDir = segment.getDir().rcp();
 
 	// Traverse nodes

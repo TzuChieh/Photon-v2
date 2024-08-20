@@ -480,20 +480,21 @@ class PH_RENDERING_PT_data_structures(PhRenderPanel):
 
     bpy.types.Scene.ph_top_level_accelerator = bpy.props.EnumProperty(
         items=[
-            ('BF', "Brute Force", "Iteratively test every object. Super-duper SLOW.", 0),
-            ('BVH', "BVH", "Bounding volume hierarchy.", 1),
-            ('IKD', "Indexed Kd-tree", "Indexed Kd-tree.", 2)
+            ('brute-force', "Brute Force", "Iteratively test every object. Super-duper SLOW.", 0),
+            ('bvh', "BVH", "Bounding volume hierarchy.", 1),
+            ('bvh4', "BVH4", "Bounding volume hierarchy (branch factor = 4).", 3),
+            ('indexed-kd-tree', "Indexed Kd-tree", "Indexed Kd-tree.", 2)
         ],
         name="Top Level Accelerator",
         description="Type of the first level of acceleration structures.",
-        default='BVH'
+        default='bvh'
     )
 
     def draw(self, b_context):
         b_scene = b_context.scene
         b_layout = self.layout
 
-        b_layout.prop(b_scene, "ph_top_level_accelerator")
+        b_layout.prop(b_scene, 'ph_top_level_accelerator')
 
 
 @blender.register_class

@@ -103,11 +103,15 @@ Photographs are probably the most common images that we encounter in real life. 
 
 ### Procedural Image
 
-Our image implementations also support generating some interesting patterns or performing some mathematical operations on the fly. Procedural images are useful for producing a wide variety of effects with unlimited resolution and are generally more memory-efficient than [raster images](@ref raster_images).
+Our image implementations also support generating some interesting patterns or performing some mathematical operations on the fly. Procedural images are useful for producing a wide variety of effects with unlimited resolution and are generally more memory-efficient than [raster images](@ref raster_image).
 
 #### Checkerboard Pattern
 
-[//TODO]: <> (wip)
+[Checkerboard image](@ref ph::CheckerboardImage) is a procedural image that divides its parametric domain into rectangular tiles. The frequency of the tiles can be adjusted individually in the U and V dimensions, and the content of the tiles can be specified by referencing other images.
+
+| ![Color Tiles](Example/checkerboard_u10_v3.jpg) | ![Image Tiles](Example/checkerboard_u2_v2_photo.jpg) |
+| :------------------: | :------------------: |
+| **Left: U frequency = 10, V frequency = 3. Right: Using images to fill the tiles.** ||
 
 #### Smooth Gradient
 

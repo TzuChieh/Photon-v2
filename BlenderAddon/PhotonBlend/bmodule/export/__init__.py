@@ -189,20 +189,12 @@ class Exporter:
             self.get_sdlconsole().queue_command(visualizer)
 
     def export_options(self, b_scene):
-        top_level_accelerator = None
-        if b_scene.ph_top_level_accelerator == 'BF':
-            top_level_accelerator = sdl.Enum("brute-force")
-        elif b_scene.ph_top_level_accelerator == 'BVH':
-            top_level_accelerator = sdl.Enum("bvh")
-        elif b_scene.ph_top_level_accelerator == 'IKD':
-            top_level_accelerator = sdl.Enum("indexed-kd-tree")
-
         render_session = sdl.SingleFrameRenderSessionOptionCreator()
         render_session.set_data_name("session")
         render_session.set_visualizer(sdl.String("@visualizer"))# HACK
         render_session.set_observer(sdl.String("@observer"))# HACK
         render_session.set_sample_source(sdl.String("@sample-source"))# HACK
-        render_session.set_top_level_accelerator(top_level_accelerator)# HACK
+        render_session.set_top_level_accelerator(sdl.Enum(b_scene.ph_top_level_accelerator))
 
         render_size_px = blender.get_render_size_px(b_scene)
         render_session.set_frame_size(sdl.Vector2(render_size_px))
